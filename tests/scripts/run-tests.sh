@@ -61,6 +61,21 @@ R="$T/s08"; mk_feature "$R" feat-f T2 implemented PASS ""
 printf 'schema_version: 1\nsignoff:\n  required_for: [T3]\n' > "$R/_acceptance/config.yaml"
 bash "$CHECK" "$R"; check S08 0 $?
 
+echo "S09 template placeholder comment in human_signoff does NOT count as signed -> fail"
+R="$T/s09"; mk_feature "$R" feat-g T2 implemented PASS '# Gate 2 — human writes "<name> <ISO date>" AFTER review'
+bash "$CHECK" "$R"; check S09 1 $?
+
+echo "S10 quoted/commented risk_tier still gated (matches hook tolerance) -> fail when unsigned"
+R="$T/s10"; d="$R/_acceptance/feat-h"; mkdir -p "$d"
+printf -- '---\nschema_version: 1\nfeature: feat-h\nslug: feat-h\nrisk_tier: "T2"   # standard\nsurfaces: [api]\nstatus: implemented  # done coding\n---\n' > "$d/contract.md"
+printf -- '---\nschema_version: 1\nfeature_slug: feat-h\nverdict: PASS\nhuman_signoff:\n---\n' > "$d/evidence-report.md"
+bash "$CHECK" "$R"; check S10 1 $?
+
+echo "S11 required_for trailing comment does not false-scope other tiers -> pass"
+R="$T/s11"; mk_feature "$R" feat-i T2 implemented PASS ""
+printf 'schema_version: 1\nsignoff:\n  required_for: [T3]  # not T2 anymore\n' > "$R/_acceptance/config.yaml"
+bash "$CHECK" "$R"; check S11 0 $?
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
