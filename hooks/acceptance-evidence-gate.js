@@ -21,6 +21,9 @@
  *
  * PENDING-JUDGMENT / REJECT / BLOCKED verdicts always pass through — failing
  * honestly, or parking the report for Gate 2 judgment, is legal.
+ * Enforcement level from consumer config: strict (default) | warn | off.
+ * Bypass: ACCEPTANCE_GATE_BYPASS=1.
+ * Fail-open on internal error (never block unrelated work).
  */
 
 const fs = require('fs');
