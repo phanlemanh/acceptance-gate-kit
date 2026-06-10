@@ -1,0 +1,23 @@
+# NOTE: 2-space indentation required — the hook's config parser is line/indent
+# based (no YAML lib) and only understands 2-space nesting.
+schema_version: 1
+enforcement: strict
+executors:
+  test:
+    api: "pnpm --filter backend test"
+    sdk: "pnpm --filter sdk test"
+  script:
+    cli: "./scripts/smoke-cli.sh"
+risk_tiers:
+  t1_skip_globs:
+    - "docs/**"
+    - "*.md"
+  t3_paths:
+    - "src/auth/**"
+    - "src/billing/**"
+signoff:
+  required_for: [T2, T3]
+  approvers: ["Manh Phan"]
+dev_server:
+  start: "pnpm dev"
+  url: "http://localhost:3000"
