@@ -70,7 +70,7 @@ acceptance-gate-kit/
 | 2 | **Eval-gen**: contract → `evals.yaml`; mỗi eval: id, criterion ref, executor type, steps, expected, evidence requirement | Máy | 0 |
 | 3 | 🚪 **Cổng #1 — duyệt contract + evals**. Approve = thêm `approved_by` + date vào frontmatter contract | **Người** | 5-10 phút |
 | 4 | **Implement**: Claude Code code, biết trước evals phải pass | Máy | 0 |
-| 5 | **Verify**: subagent tươi chạy từng eval → `evidence-report.md` (mỗi eval 1 verdict + link evidence; verdict tổng PASS / REJECT + failed_evals[] / BLOCKED + reason). FAIL → quay bước 4, tối đa 3 vòng rồi escalate | Máy | 0 |
+| 5 | **Verify**: subagent tươi chạy từng eval → `evidence-report.md` (mỗi eval 1 verdict + link evidence; verdict tổng PASS / PENDING-JUDGMENT khi machine evals pass nhưng judgment items chờ người / REJECT + failed_evals[] / BLOCKED + reason). FAIL → quay bước 4, tối đa 3 vòng rồi escalate | Máy | 0 |
 | 6 | 🚪 **Cổng #2 — sign-off**: đọc report, spot-check 1-2 evidence, click tay CHỈ judgment items máy đánh UNCERTAIN. Ký `human_signoff` | **Người** | 5-10 phút |
 
 Tổng thời gian người: ~15-20 phút có cấu trúc, so với 1-2h click tay hiện tại.
@@ -86,7 +86,7 @@ Tổng thời gian người: ~15-20 phút có cấu trúc, so với 1-2h click t
 
 ## 8. Enforcement — 2 lớp
 
-1. **Hook write-time** (`acceptance-evidence-gate.js`): chặn ghi `evidence-report.md` có verdict PASS/ACCEPTED thiếu evidence block. Verdict hợp lệ thay thế: REJECT + failed_evals[], BLOCKED + reason. Hook đọc ngưỡng enforcement từ `config.yaml` của consumer repo (chính sách per-repo), không hardcode trong plugin.
+1. **Hook write-time** (`acceptance-evidence-gate.js`): đọc verdict TỔNG từ frontmatter của report (tránh false-block khi REJECT/PENDING chứa per-eval PASS); chặn ghi verdict PASS/ACCEPTED thiếu evidence block, có UNCERTAIN chưa được người resolve qua `human_override`, hoặc — với T3 — judgment item thiếu human verdict trực tiếp (hook đọc `risk_tier` từ contract cạnh report). Verdict hợp lệ thay thế: PENDING-JUDGMENT (chờ Gate 2), REJECT + failed_evals[], BLOCKED + reason. Hook đọc ngưỡng enforcement từ `config.yaml` của consumer repo (chính sách per-repo), không hardcode trong plugin.
 2. **Pre-merge check** (`pre-merge-check.sh` trong CI consumer): branch không merge nếu `_acceptance/{slug}/evidence-report.md` thiếu `human_signoff` (feature T2/T3).
 
 ## 9. Risk tiers
