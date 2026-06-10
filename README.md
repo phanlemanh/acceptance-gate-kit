@@ -30,8 +30,23 @@ As a Claude Code plugin (marketplace or local):
 claude plugin install acceptance-gate   # or add this repo as a local plugin
 ```
 
-Pilot mode (iterate on the kit while using it): symlink into a consumer repo's
-`.claude/` or add this directory to your plugin dev paths.
+Pilot mode (iterate on the kit while using it) — symlink ALL THREE pieces
+into the consumer repo; the skill alone is not enough (commands and the hook
+live outside `skills/`):
+
+```bash
+cd <consumer-repo>
+ln -s <kit>/skills/acceptance .claude/skills/acceptance
+mkdir -p .claude/commands
+ln -s <kit>/commands/acceptance-init.md   .claude/commands/acceptance-init.md
+ln -s <kit>/commands/acceptance-status.md .claude/commands/acceptance-status.md
+# hook: register in .claude/settings.local.json (machine-local, not committed)
+#   PreToolUse Write|Edit -> node "<kit>/hooks/acceptance-evidence-gate.js"
+```
+
+Restart the Claude Code session afterwards — skills/commands/hooks are
+discovered at session start. Keep the symlinks and settings.local.json
+uncommitted (absolute machine paths).
 
 ## Per-repo setup (once)
 
