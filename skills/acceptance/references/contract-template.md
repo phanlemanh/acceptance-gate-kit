@@ -13,6 +13,8 @@ Frontmatter rules:
   Transition ownership: the acceptance skill sets draft/approved/verified/signed-off;
   the IMPLEMENTING agent sets `implemented` as its final act after coding
 - `time_human_minutes`: fill gate1 when approving, gate2 when signing off (pilot metric)
+- `gate1_skipped: true` may be added by the skill when the user insists on
+  skipping Gate 1 (audit trail; discouraged)
 
 ---8<---
 ---

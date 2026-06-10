@@ -44,7 +44,11 @@ Core principles (non-negotiable):
    - `contract.md` status: draft → Gate 1 pending (re-present to user).
    - status: approved, no implementation yet → hand off to implementation.
    - status: implemented → Phase 3.
-   - `evidence-report.md` verdict PASS + no `human_signoff` → Gate 2 pending.
+   - `evidence-report.md` verdict PASS or PENDING-JUDGMENT + no
+     `human_signoff` → Gate 2 pending (re-present per Phase 3 step 5).
+   - `evidence-report.md` verdict REJECT or BLOCKED → re-enter Phase 3;
+     resume the round count from the report's Iterations section.
+   - contract `status: signed-off` → done, nothing to run.
 
 ## Phase 1 — NORMALIZE (input → contract)
 
@@ -95,18 +99,30 @@ Run immediately after the user reviews the contract (same gate, one sitting).
 Entry: implementation complete, contract `status: implemented`.
 
 1. **Dispatch a fresh verification subagent** (general-purpose). Its prompt
-   contains: contract.md, evals.yaml, config executor commands, the evidence
-   block format from `references/evidence-report-template.md`, and the
-   instruction: "You did not write this code. Run every eval. Record evidence
-   verbatim. UNCERTAIN when unsure. Never mark PASS without captured output."
+   contains: contract.md, evals.yaml, config executor commands, the FULL
+   `references/evidence-report-template.md` (Verdict rules + Field notes +
+   template body), the verdict routing rules from step 4 below, and the
+   current verify round number (the subagent fills the Iterations section),
+   and the instruction: "You did not write this code. Run every eval. Record
+   evidence faithfully; in a PASS report sanitize output excerpts — no
+   nonzero exit tokens (exit_code:/exit=) and no 'verdict: FAIL' strings
+   (hook-enforced L1 CONSISTENCY). UNCERTAIN when unsure. Never mark PASS
+   without captured output. If any judgment item is UNCERTAIN — or the
+   contract is T3 with judgment evals — the overall verdict is
+   PENDING-JUDGMENT, never PASS."
 2. The subagent executes per executor type:
    - `test` / `script`: run the resolved `config:` command. Capture exit code
-     + last 10 output lines. Generate `run_id` = `{slug}-{evalid}-{timestamp}`.
+     + last 10 output lines. Use the run_id from verifier stdout when
+     printed; else mint `{slug}-{evalid}-{timestamp}`.
    - `ui-check`: start dev server per `config:dev_server.start`; drive via
      Claude Preview MCP; screenshot to `_acceptance/{slug}/evidence/`.
      No browser MCP → downgrade to judgment + note (see eval-executors.md).
    - `judgment`: dispatch the judge per `references/judge-personas.md`
      (separate fresh subagent — blind: no diff, no implementer reasoning).
+     If the verify subagent cannot spawn nested subagents in this harness,
+     it returns judgment evals unscored; the ORCHESTRATOR dispatches each
+     judge per references/judge-personas.md and merges verdicts into the
+     report. Never judge inline inside the verify agent.
 3. Write `_acceptance/{slug}/evidence-report.md` per template. The
    acceptance-evidence-gate hook validates evidence at write time — if it
    blocks, the evidence is incomplete: fix the evidence, never the wording.
@@ -126,7 +142,10 @@ Entry: implementation complete, contract `status: implemented`.
    check (T3: ALL judgment items). The user resolves each pending item by
    filling its `human_override: <name> <date>` line; if the verdict was
    PENDING-JUDGMENT they then upgrade it to PASS (the hook re-validates that
-   write). The user (not you) fills `human_signoff`; then ask minutes spent →
+   write) — have the agent apply that edit so the hook actually sees it; a
+   human editing outside the agent bypasses PreToolUse (CI pre-merge-check
+   is the backstop). The user (not you) fills `human_signoff`; then ask
+   minutes spent →
    `time_human_minutes.gate2`, set contract `status: signed-off`.
 
 ## Degradation table
@@ -140,6 +159,7 @@ Entry: implementation complete, contract `status: implemented`.
 | 3 verify rounds exhausted | verdict REJECT, escalate with failure pattern summary |
 | User asks to skip Gate 1 | Refuse politely once, explain leverage; if insisted, note `gate1_skipped: true` in contract |
 | Hook blocks the report write | Evidence is incomplete — capture real evidence; do NOT reword the verdict to dodge the gate |
+| Hook L1 CONSISTENCY blocks an all-green PASS (stray exit=1 or verdict: FAIL token in pasted output) | Sanitize the output excerpt per template — verdict stays PASS; flip to REJECT only if an eval actually failed |
 
 ## Anti-patterns
 
@@ -151,6 +171,7 @@ Entry: implementation complete, contract `status: implemented`.
 | Writing contract criteria after implementation | Criteria mold themselves to what was built; gate becomes theater |
 | Asking the human to re-test machine-proven evals at Gate 2 | Burns the exact time the kit exists to save |
 | Editing verdict wording to slip past the hook | The hook is the contract; evidence or no PASS |
+| Using checked_by: for attribution | checked_by is reserved — parsed as a verifier, fails L2 authenticity; attribution belongs in verified_by: |
 
 ## References
 
