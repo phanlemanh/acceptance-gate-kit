@@ -11,7 +11,8 @@
  *
  * Blocks (exit 2) when enforcement fires and:
  *   L1 SHAPE      — evidence block incomplete (run_id / exit_code: 0 / verifier / verified_at)
- *   L1 CONSISTENCY — a PASS-family report contains exit_code != 0 (must be REJECT)
+ *   L1 CONSISTENCY — a PASS-family report contains exit_code != 0 or a
+ *                    judgment verdict: FAIL (either means: must be REJECT)
  *   L2 SUBSTANCE  — any `verifier:` is manual/heuristic, or is neither an existing
  *                   script path nor a resolvable config:<dotted.key> in
  *                   _acceptance/config.yaml of the consumer repo
@@ -261,12 +262,16 @@ process.stdin.on('end', () => {
       process.exit(0);
     }
 
-    // L1 CONSISTENCY — a genuine PASS report never contains a failed eval.
-    // If an eval failed, the verdict must be REJECT.
+    // L1 CONSISTENCY — a genuine PASS report never contains a failed eval,
+    // machine OR judgment. If anything failed, the verdict must be REJECT.
     const NONZERO_EXIT_RE = /(exit_code|verifier_exit_code|exit)\s*[:=]\s*[1-9]\d*\b/i;
-    const consistencyFailure = NONZERO_EXIT_RE.test(payload)
-      ? 'PASS report contains a failed eval (exit_code != 0) — the verdict must be REJECT'
-      : null;
+    const FAILED_JUDGMENT_RE = /verdict\s*[:=]\s*FAIL\b/i;
+    let consistencyFailure = null;
+    if (NONZERO_EXIT_RE.test(payload)) {
+      consistencyFailure = 'PASS report contains a failed eval (exit_code != 0) — the verdict must be REJECT';
+    } else if (FAILED_JUDGMENT_RE.test(payload)) {
+      consistencyFailure = 'PASS report contains a failed judgment (verdict: FAIL) — the verdict must be REJECT';
+    }
 
     // L1 SHAPE
     const HAS_RUN_ID = /run_id\s*[:=]\s*\S{4,}/i.test(payload);
@@ -303,7 +308,7 @@ process.stdin.on('end', () => {
       let tier = null;
       try {
         const contract = fs.readFileSync(path.join(fileDir, 'contract.md'), 'utf8');
-        const tm = contract.match(/^risk_tier\s*[:=]\s*(T[123])\s*$/mi);
+        const tm = contract.match(/^risk_tier\s*[:=]\s*["']?(T[123])["']?\s*(#.*)?$/mi);
         if (tm) tier = tm[1].toUpperCase();
       } catch (_) {}
       if (tier === 'T3') {

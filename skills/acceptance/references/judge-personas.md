@@ -40,7 +40,7 @@ Rules:
 ## Calibration rules
 
 - T3 features: judge verdicts are advisory only — the human verifies every
-  judgment item personally (kit rule, enforced by Gate 2 checklist).
+  judgment item personally (hook-enforced at L3; surfaced in the Gate 2 checklist).
 - A judge that returns >50% UNCERTAIN across a feature signals criteria that
   are not independently checkable → fix the contract at Gate 1 next time.
 - A judge PASS later contradicted by a human (defect slipped) → log it in the

@@ -5,6 +5,8 @@ replace `{{placeholders}}`. Keep criterion IDs stable (AC-1, AC-2, …) — eval
 reference them.
 
 Frontmatter rules:
+- `risk_tier:` keeps its own line as shown; the enforcement hook reads it
+  (quotes or a trailing # comment are tolerated, nothing else on the line)
 - `risk_tier`: T1 (skip kit entirely — do not create this file), T2 (standard),
   T3 (critical: auth/data/breaking-API; judgment items REQUIRE direct human verdict)
 - `status` lifecycle: draft → approved (Gate 1) → implemented → verified → signed-off (Gate 2).

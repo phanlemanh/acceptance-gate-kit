@@ -7,7 +7,10 @@ evidence is blocked.
 
 Verdict rules:
 - `PASS` — every eval passed AND no judgment item is pending a human.
-  Requires evidence blocks below.
+  Requires evidence blocks below. Hook-enforced consistency: a PASS report
+  must contain ZERO `verdict: FAIL` lines and ZERO non-zero exit tokens
+  (`exit_code:`, `exit=`) anywhere — including inside `output:` excerpts;
+  sanitize pasted logs. If anything failed, the verdict is REJECT.
 - `PENDING-JUDGMENT` — all machine evals passed but ≥1 judgment item is
   UNCERTAIN (or, for T3, awaits its mandatory direct human verdict). This is
   the verdict the verify subagent writes so the report can reach Gate 2; the
@@ -20,6 +23,10 @@ Verdict rules:
   comment-only placeholder does not count).
 - T3 contracts: overall PASS additionally requires `human_override` on EVERY
   judgment item, regardless of the judge's verdict (hook-enforced).
+
+Field notes: use `verified_by:` for attribution only — `checked_by:` is
+reserved (parsed as a verifier and will fail authenticity). `run_id` must be
+at least 4 chars; if the verifier prints none, mint `<slug>-<eval>-<date>`.
 
 ---8<---
 ---
@@ -42,7 +49,7 @@ human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER revi
 ## Evidence
 
 - eval: E1
-  run_id: {{from verifier stdout}}
+  run_id: {{from verifier stdout, or mint <slug>-<eval>-<date>; min 4 chars}}
   exit_code: 0
   verifier: config:executors.test.api
   verified_at: {{ISO8601}}
@@ -56,6 +63,8 @@ human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER revi
   verified_at: {{ISO8601}}
   screenshot: evidence/E3-login-redirect.png
 
+# Example shows the PENDING-JUDGMENT state; under an overall PASS verdict
+# this UNCERTAIN-without-override combination is hook-blocked.
 - eval: E4
   judged_by: judge-subagent (fresh context)
   verdict: UNCERTAIN

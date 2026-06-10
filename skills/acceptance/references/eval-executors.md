@@ -10,6 +10,13 @@ determines who grades and what counts as evidence.
 | `ui-check` | web ui | Machine assertion + human glance | run_id, exit_code, verifier, verified_at, screenshot path |
 | `judgment` | any ("does this match business intent?") | Judge subagent → human | judged_by, verdict, rationale (+ human_override if UNCERTAIN) |
 
+Hook-enforced vs agent-obligation: the hook checks the four machine evidence
+fields report-wide (presence + verifier authenticity), the L1 CONSISTENCY
+rules (no exit_code != 0, no verdict: FAIL in a PASS report), and the
+UNCERTAIN/T3 human_override counts. Per-eval completeness — `output`,
+`screenshot`, `rationale` on every block — is the verify-agent's obligation,
+audited by the human at Gate 2.
+
 ## evals.yaml shape
 
 ```yaml
@@ -48,6 +55,9 @@ evals:
     inputs: [contract.md, evidence/E3-login-redirect.png]
     evidence_required: [judged_by, verdict, rationale]
 ```
+
+Note: `config:` references resolve against `_acceptance/config.yaml`, whose
+parser requires 2-space indentation.
 
 ## Executor selection rules (used by Phase 2 EVAL-GEN)
 
