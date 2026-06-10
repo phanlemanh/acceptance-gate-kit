@@ -22,13 +22,19 @@ Enforcement is deterministic, not aspirational:
 - **CI** (`scripts/pre-merge-check.sh`): blocks merge of implemented T2/T3
   features without a signed PASS evidence report.
 
+> **Thành viên mới: đọc [QUICKSTART.md](QUICKSTART.md) (tiếng Việt, 5 phút) — cài 2 lệnh là dùng được.**
+
 ## Install
 
-As a Claude Code plugin (marketplace or local):
+Team install — this repo doubles as its own marketplace:
 
 ```bash
-claude plugin install acceptance-gate   # or add this repo as a local plugin
+claude plugin marketplace add phanlemanh/acceptance-gate-kit
+claude plugin install acceptance-gate@acceptance-gate-kit
 ```
+
+Installing the plugin registers the skill, both commands, and the
+PreToolUse hook automatically — no settings edits needed.
 
 Pilot mode (iterate on the kit while using it) — symlink ALL THREE pieces
 into the consumer repo; the skill alone is not enough (commands and the hook

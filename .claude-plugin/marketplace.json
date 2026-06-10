@@ -1,0 +1,15 @@
+{
+  "name": "acceptance-gate-kit",
+  "owner": {
+    "name": "Manh Phan",
+    "email": "phanlemanh@gmail.com"
+  },
+  "description": "OneNexus engineering quality tools — acceptance gate for AI-generated features.",
+  "plugins": [
+    {
+      "name": "acceptance-gate",
+      "source": "./",
+      "description": "Acceptance gate for AI-generated features: contract, self-generated evals, evidence-backed verification with deterministic hook enforcement."
+    }
+  ]
+}
