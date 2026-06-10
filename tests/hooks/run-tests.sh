@@ -292,6 +292,16 @@ verdict: PASS
   verdict: PASS
   rationale: totals match ledger sample' | node "$HOOK" >/dev/null 2>/dev/null; check T23 2 $?
 
+echo "T24 enforcement: warn with inline comment is honored -> allow"
+WARN2_REPO="$HERE/fixtures/repo-warn2"
+mkdir -p "$WARN2_REPO/_acceptance/feat-y"
+cat > "$WARN2_REPO/_acceptance/config.yaml" <<'EOF'
+schema_version: 1
+enforcement: warn   # strict | warn | off
+EOF
+payload Write "$WARN2_REPO/_acceptance/feat-y/evidence-report.md" 'verdict: PASS
+nothing else' | node "$HOOK" >/dev/null 2>/dev/null; check T24 0 $?
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
