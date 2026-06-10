@@ -16,6 +16,7 @@ table. For each feature directory (skip `config.yaml` and `README.md`):
 4. Below the table, flag actionable items:
    - status `draft` → "Gate 1 pending: review contract + evals"
    - status `approved`, no evidence report → "Awaiting implementation"
+   - status `implemented`, no evidence report → "Verification pending: run the acceptance skill (Phase 3)"
    - verdict PASS + empty signoff → "Gate 2 pending: review evidence report"
    - verdict PENDING-JUDGMENT → "Gate 2 pending: resolve judgment items (fill human_override, upgrade to PASS)"
    - verdict REJECT → "Implementation fixes needed: see failed_evals"

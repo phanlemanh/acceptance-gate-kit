@@ -77,7 +77,7 @@ function resolveConfigKey(configText, dottedKey) {
     if (!m) continue;
     if (m[1] === parts[depth]) {
       if (depth === parts.length - 1) {
-        const val = m[2].trim().replace(/^["']|["']$/g, '');
+        const val = m[2].replace(/\s+#.*$/, '').trim().replace(/^["']|["']$/g, '');
         return val || null; // leaf must have a non-empty scalar
       }
       depth++;
@@ -253,7 +253,7 @@ process.stdin.on('end', () => {
     if (configPath) {
       try {
         configText = fs.readFileSync(configPath, 'utf8');
-        const em = configText.match(/^enforcement\s*:\s*(strict|warn|off)\s*$/m);
+        const em = configText.match(/^enforcement\s*:\s*(strict|warn|off)\s*(?:#.*)?$/m);
         if (em) enforcement = em[1];
       } catch (_) {}
     }
