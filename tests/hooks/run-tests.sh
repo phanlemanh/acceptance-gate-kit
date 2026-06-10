@@ -270,6 +270,28 @@ verdict: PENDING-JUDGMENT
   verified_at: 2026-06-10T10:00:00Z' | node "$HOOK" >/dev/null 2>/dev/null; check T21 2 $?
 rm -rf "$DOLLAR_DIR"
 
+echo "T22 PASS report containing a judgment verdict FAIL -> block"
+payload Write "$REPORT_PATH" "$GOOD_EVIDENCE
+- eval: E5
+  judged_by: judge-subagent
+  verdict: FAIL
+  rationale: empty-state copy contradicts AC-2" | node "$HOOK" >/dev/null 2>/dev/null; check T22 2 $?
+
+echo "T23 T3 tier detected despite trailing comment on risk_tier line -> block judgment w/o override"
+COMMENT_REPORT="$REPO/_acceptance/comment-flow/evidence-report.md"
+payload Write "$COMMENT_REPORT" '---
+verdict: PASS
+---
+- eval: E1
+  run_id: cf-1
+  exit_code: 0
+  verifier: config:executors.test.api
+  verified_at: 2026-06-10T10:00:00Z
+- eval: E2
+  judged_by: judge-subagent
+  verdict: PASS
+  rationale: totals match ledger sample' | node "$HOOK" >/dev/null 2>/dev/null; check T23 2 $?
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
