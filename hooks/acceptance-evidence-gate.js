@@ -24,6 +24,11 @@
  * Enforcement level from consumer config: strict (default) | warn | off.
  * Bypass: ACCEPTANCE_GATE_BYPASS=1.
  * Fail-open on internal error (never block unrelated work).
+ *
+ * v1.0 hardening: Edit payloads are judged on POST-EDIT file content;
+ * a PASS report containing exit_code != 0 is blocked (must be REJECT);
+ * verifier resolution runs before the manual-blocklist so existing scripts
+ * with words like "human" in the filename are not false-blocked.
  */
 
 const fs = require('fs');
@@ -108,11 +113,6 @@ function findGitRoot(startDir) {
 }
 
 function isAuthenticVerifier(value, fileDir, configPath, configText) {
-  const MANUAL_RE = /\b(manual|human|heuristic|cross-reference|eyeball|interpret(ation)?|persona\s+rubric|llm\s+rubric|llm[-\s]as[-\s]judge)\b/i;
-  if (MANUAL_RE.test(value)) {
-    return { ok: false, reason: `manual/heuristic verifier disallowed: "${value}"` };
-  }
-
   const configRef = value.match(/^config:([\w.-]+)$/);
   if (configRef) {
     if (!configText) {
@@ -124,31 +124,43 @@ function isAuthenticVerifier(value, fileDir, configPath, configText) {
   }
 
   const scriptMatch = value.match(/(\S+\.(py|js|sh))\b/);
-  if (!scriptMatch) {
-    return { ok: false, reason: `verifier is neither config:<key> nor a script path (.py/.sh/.js): "${value}"` };
-  }
-  const rawPath = scriptMatch[1].replace(/^["']+|["']+$/g, '');
-  const candidates = [];
-  if (path.isAbsolute(rawPath)) {
-    candidates.push(rawPath);
-  } else {
-    if (fileDir) {
-      candidates.push(path.resolve(fileDir, rawPath));
-      const gitRoot = findGitRoot(fileDir);
-      if (gitRoot) candidates.push(path.resolve(gitRoot, rawPath));
+  if (scriptMatch) {
+    const rawPath = scriptMatch[1].replace(/^["']+|["']+$/g, '');
+    const candidates = [];
+    if (path.isAbsolute(rawPath)) {
+      candidates.push(rawPath);
+    } else {
+      if (fileDir) {
+        candidates.push(path.resolve(fileDir, rawPath));
+        const gitRoot = findGitRoot(fileDir);
+        if (gitRoot) candidates.push(path.resolve(gitRoot, rawPath));
+      }
+      candidates.push(path.resolve(process.cwd(), rawPath));
     }
-    candidates.push(path.resolve(process.cwd(), rawPath));
+    for (const c of candidates) {
+      try {
+        if (fs.existsSync(c) && fs.statSync(c).isFile()) return { ok: true, resolved: c };
+      } catch (_) {}
+    }
+    // Unresolvable script path: fall through to the blocklist check so a
+    // free-text value like "manual review.sh notes" still gets the clearer
+    // manual-verifier message when applicable.
+    const MANUAL_RE = /\b(manual|human|heuristic|cross-reference|eyeball|interpret(ation)?|persona\s+rubric|llm\s+rubric|llm[-\s]as[-\s]judge)\b/i;
+    if (MANUAL_RE.test(value)) {
+      return { ok: false, reason: `manual/heuristic verifier disallowed: "${value}"` };
+    }
+    return {
+      ok: false,
+      reason: `verifier script not found. raw: ${rawPath}; tried:\n` +
+        candidates.map(c => `      ${c}`).join('\n'),
+    };
   }
-  for (const c of candidates) {
-    try {
-      if (fs.existsSync(c) && fs.statSync(c).isFile()) return { ok: true, resolved: c };
-    } catch (_) {}
+
+  const MANUAL_RE = /\b(manual|human|heuristic|cross-reference|eyeball|interpret(ation)?|persona\s+rubric|llm\s+rubric|llm[-\s]as[-\s]judge)\b/i;
+  if (MANUAL_RE.test(value)) {
+    return { ok: false, reason: `manual/heuristic verifier disallowed: "${value}"` };
   }
-  return {
-    ok: false,
-    reason: `verifier script not found. raw: ${rawPath}; tried:\n` +
-      candidates.map(c => `      ${c}`).join('\n'),
-  };
+  return { ok: false, reason: `verifier is neither config:<key> nor a script path (.py/.sh/.js): "${value}"` };
 }
 
 // ─── Main ──────────────────────────────────────────────────────────────────
@@ -178,7 +190,26 @@ process.stdin.on('end', () => {
       process.exit(0);
     }
 
-    const payload = (ti.content || ti.new_string || '').toString();
+    let payload = (ti.content || ti.new_string || '').toString();
+    if (toolName === 'Edit') {
+      // Judge the POST-EDIT file, not the fragment — surgical edits like the
+      // Gate-2 verdict upgrade (PENDING-JUDGMENT -> PASS) would otherwise be
+      // evaluated out of context and false-blocked.
+      try {
+        const existing = fs.readFileSync(filePath, 'utf8');
+        const oldStr = (ti.old_string || '').toString();
+        if (oldStr && existing.includes(oldStr)) {
+          const newStr = (ti.new_string || '').toString();
+          payload = ti.replace_all
+            ? existing.split(oldStr).join(newStr)
+            : existing.replace(oldStr, newStr);
+        }
+        // file exists but old_string absent -> the Edit will fail anyway;
+        // keep evaluating the fragment.
+      } catch (_) {
+        // file missing/unreadable -> evaluate the fragment (anti-evasion).
+      }
+    }
     if (!payload) {
       process.stdout.write(data);
       process.exit(0);
@@ -188,7 +219,7 @@ process.stdin.on('end', () => {
     // Per-eval lines also say `verdict: PASS`, so scanning the whole payload
     // would wrongly block honest REJECT / PENDING-JUDGMENT reports that
     // contain passing machine evals or passing judgment items.
-    const PASS_FAMILY = /^(PASS|ACCEPTED|APPROVED|GO)$/i;
+    const PASS_FAMILY = /^(PASS|PASSED|ACCEPTED|APPROVED|GO|SUCCESS)$/i;
     let overall = null;
     const fmMatch = payload.match(/^---\r?\n([\s\S]*?)\r?\n---/);
     if (fmMatch) {
@@ -201,8 +232,8 @@ process.stdin.on('end', () => {
     } else {
       // Anti-evasion fallback: no frontmatter verdict — any PASS-family
       // claim anywhere in the payload triggers enforcement.
-      const CLAIM_RE = /(?:^|\n)\s*(?:-\s+)?verdict\s*[:=]\s*(PASS|ACCEPTED|APPROVED|GO)\b/i;
-      const CHECKMARK_RE = /✅\s*(PASS|ACCEPTED|APPROVED|GO)/i;
+      const CLAIM_RE = /(?:^|\n)\s*(?:-\s+)?verdict\s*[:=]\s*(PASS|PASSED|ACCEPTED|APPROVED|GO|SUCCESS)\b/i;
+      const CHECKMARK_RE = /✅\s*(PASS|PASSED|ACCEPTED|APPROVED|GO|SUCCESS)/i;
       enforce = CLAIM_RE.test(payload) || CHECKMARK_RE.test(payload);
     }
     if (!enforce) {
@@ -225,6 +256,13 @@ process.stdin.on('end', () => {
       process.stdout.write(data);
       process.exit(0);
     }
+
+    // L1 CONSISTENCY — a genuine PASS report never contains a failed eval.
+    // If an eval failed, the verdict must be REJECT.
+    const NONZERO_EXIT_RE = /(exit_code|verifier_exit_code|exit)\s*[:=]\s*[1-9]\d*\b/i;
+    const consistencyFailure = NONZERO_EXIT_RE.test(payload)
+      ? 'PASS report contains a failed eval (exit_code != 0) — the verdict must be REJECT'
+      : null;
 
     // L1 SHAPE
     const HAS_RUN_ID = /run_id\s*[:=]\s*\S{4,}/i.test(payload);
@@ -272,7 +310,7 @@ process.stdin.on('end', () => {
       }
     }
 
-    if (missing.length === 0 && authFailures.length === 0 && !judgmentFailure) {
+    if (missing.length === 0 && authFailures.length === 0 && !judgmentFailure && !consistencyFailure) {
       process.stdout.write(data);
       process.exit(0);
     }
@@ -287,6 +325,11 @@ process.stdin.on('end', () => {
     if (missing.length) {
       lines.push('L1 SHAPE — missing required evidence fields:');
       lines.push(...missing.map(m => `  x ${m}`));
+      lines.push('');
+    }
+    if (consistencyFailure) {
+      lines.push('L1 CONSISTENCY:');
+      lines.push(`  x ${consistencyFailure}`);
       lines.push('');
     }
     if (authFailures.length) {
