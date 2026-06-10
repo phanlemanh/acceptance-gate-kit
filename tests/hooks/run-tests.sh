@@ -244,6 +244,32 @@ exit_code: 0
 verifier: scripts/verify-human-readable.sh
 verified_at: 2026-06-10T10:00:00Z' | node "$HOOK" >/dev/null; check T20 0 $?
 
+echo "T21 Edit with \$& new_string is judged literally, not regex-expanded -> block"
+DOLLAR_DIR="$REPO/_acceptance/dollar-flow"
+mkdir -p "$DOLLAR_DIR"
+cat > "$DOLLAR_DIR/evidence-report.md" <<'EOF'
+---
+verdict: PENDING-JUDGMENT
+---
+- eval: E1
+  run_id: df-1
+  exit_code: 0
+  verifier: config:executors.test.api
+  verified_at: 2026-06-10T10:00:00Z
+EOF
+payload Edit "$DOLLAR_DIR/evidence-report.md" '---
+verdict: PASS
+---
+$&' '---
+verdict: PENDING-JUDGMENT
+---
+- eval: E1
+  run_id: df-1
+  exit_code: 0
+  verifier: config:executors.test.api
+  verified_at: 2026-06-10T10:00:00Z' | node "$HOOK" >/dev/null 2>/dev/null; check T21 2 $?
+rm -rf "$DOLLAR_DIR"
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1

@@ -5,12 +5,13 @@
  * Trigger: PreToolUse on Write | Edit targeting _acceptance/<slug>/evidence-report.md
  *
  * The OVERALL verdict is read from the report's leading frontmatter block.
- * Enforcement fires only when it is PASS-family (PASS/ACCEPTED/APPROVED/GO).
+ * Enforcement fires only when it is PASS-family (PASS/PASSED/ACCEPTED/APPROVED/GO/SUCCESS).
  * When no frontmatter verdict exists, any PASS-family claim anywhere in the
  * payload triggers enforcement (anti-evasion fallback).
  *
  * Blocks (exit 2) when enforcement fires and:
  *   L1 SHAPE      — evidence block incomplete (run_id / exit_code: 0 / verifier / verified_at)
+ *   L1 CONSISTENCY — a PASS-family report contains exit_code != 0 (must be REJECT)
  *   L2 SUBSTANCE  — any `verifier:` is manual/heuristic, or is neither an existing
  *                   script path nor a resolvable config:<dotted.key> in
  *                   _acceptance/config.yaml of the consumer repo
@@ -200,9 +201,12 @@ process.stdin.on('end', () => {
         const oldStr = (ti.old_string || '').toString();
         if (oldStr && existing.includes(oldStr)) {
           const newStr = (ti.new_string || '').toString();
+          // Function replacement keeps newStr LITERAL — String.replace would
+          // otherwise expand $-patterns ($&, $`, $') and make the hook judge
+          // different bytes than the Edit tool actually writes.
           payload = ti.replace_all
             ? existing.split(oldStr).join(newStr)
-            : existing.replace(oldStr, newStr);
+            : existing.replace(oldStr, () => newStr);
         }
         // file exists but old_string absent -> the Edit will fail anyway;
         // keep evaluating the fragment.
