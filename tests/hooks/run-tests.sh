@@ -13,17 +13,17 @@ PASS_COUNT=0; FAIL_COUNT=0
 # A plain file is enough — the hook only checks fs.existsSync('.git').
 touch "$REPO/.git"
 
-# payload <tool_name> <file_path> <content> -> JSON on stdout
+# payload <tool_name> <file_path> <content> [old_string] -> JSON on stdout
 payload() {
   node -e '
-    const [tool, fp, content] = process.argv.slice(1);
+    const [tool, fp, content, oldStr] = process.argv.slice(1);
     process.stdout.write(JSON.stringify({
       tool_name: tool,
       tool_input: tool === "Edit"
-        ? { file_path: fp, old_string: "x", new_string: content }
+        ? { file_path: fp, old_string: oldStr || "x", new_string: content }
         : { file_path: fp, content }
     }));
-  ' "$1" "$2" "$3"
+  ' "$1" "$2" "$3" "${4:-}"
 }
 
 check() { # <name> <expected_exit> <actual_exit>
@@ -204,6 +204,45 @@ verdict: PASS
   judged_by: judge-subagent
   verdict: PASS
   rationale: receipt format looks correct' | node "$HOOK" >/dev/null 2>/dev/null; check T17 2 $?
+
+echo "T18 PASS report containing a failed eval exit_code 1 -> block"
+payload Write "$REPORT_PATH" "$GOOD_EVIDENCE
+- eval: E2
+  run_id: vl-20260610-002
+  exit_code: 1
+  verifier: scripts/verify-login.sh
+  verified_at: 2026-06-10T10:05:00Z" | node "$HOOK" >/dev/null 2>/dev/null; check T18 2 $?
+
+echo "T19 surgical Edit upgrading PENDING-JUDGMENT -> PASS on evidenced file -> allow"
+UPGRADE_DIR="$REPO/_acceptance/upgrade-flow"
+mkdir -p "$UPGRADE_DIR"
+cat > "$UPGRADE_DIR/evidence-report.md" <<'EOF'
+---
+schema_version: 1
+feature_slug: upgrade-flow
+verdict: PENDING-JUDGMENT
+human_signoff:
+---
+- eval: E1
+  run_id: uf-1
+  exit_code: 0
+  verifier: config:executors.test.api
+  verified_at: 2026-06-10T10:00:00Z
+- eval: E4
+  judged_by: judge-subagent
+  verdict: UNCERTAIN
+  rationale: was unsure
+  human_override: Manh Phan 2026-06-10
+EOF
+payload Edit "$UPGRADE_DIR/evidence-report.md" 'verdict: PASS' 'verdict: PENDING-JUDGMENT' | node "$HOOK" >/dev/null; check T19 0 $?
+rm -rf "$UPGRADE_DIR"
+
+echo "T20 legit existing script with blocklist-looking name -> allow"
+payload Write "$REPORT_PATH" 'verdict: PASS
+run_id: x-300
+exit_code: 0
+verifier: scripts/verify-human-readable.sh
+verified_at: 2026-06-10T10:00:00Z' | node "$HOOK" >/dev/null; check T20 0 $?
 
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"

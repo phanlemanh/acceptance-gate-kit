@@ -5,3 +5,4 @@ __pycache__/
 # runtime marker created by tests/hooks/run-tests.sh (see Task 2)
 tests/hooks/fixtures/repo/.git
 tests/hooks/fixtures/repo-warn/
+tests/hooks/fixtures/repo/_acceptance/upgrade-flow/
