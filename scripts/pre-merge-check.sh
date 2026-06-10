@@ -30,12 +30,15 @@ ACC="$ROOT/_acceptance"
 # present (signoff.required_for), defaulting to T2+T3.
 REQUIRED_FOR="T2 T3"
 if [ -f "$ACC/config.yaml" ]; then
-  cfg_req="$(sed -n 's/^[[:space:]]*required_for:[[:space:]]*//p' "$ACC/config.yaml" | head -1)"
+  cfg_req="$(sed -n 's/^[[:space:]]*required_for:[[:space:]]*//p' "$ACC/config.yaml" | head -1 | sed 's/[[:space:]]*#.*$//')"
   [ -n "$cfg_req" ] && REQUIRED_FOR="$cfg_req"
 fi
 
-fm_field() { # <file> <key> — first frontmatter-style "key: value" line
-  sed -n "s/^${2}:[[:space:]]*//p" "$1" | head -1
+fm_field() { # <file> <key> — first frontmatter-style "key: value" line, normalized:
+  # trailing #-comments, surrounding quotes, and trailing whitespace stripped
+  # (mirrors the hook's tolerance for quotes/comments on these lines).
+  sed -n "s/^${2}:[[:space:]]*//p" "$1" | head -1 \
+    | sed -e 's/[[:space:]]*#.*$//' -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//'
 }
 
 violations=0
