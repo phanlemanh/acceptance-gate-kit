@@ -105,4 +105,54 @@ token `exit=1`/`exit_code: 1` (sanitize trước khi dán).
 - **Đo hiệu quả?** `time_human_minutes` trong contract.md — điền số phút thật ở
   mỗi cổng; baseline nằm ở `_acceptance/config.yaml::baseline_minutes`.
 
-Chi tiết kỹ thuật: [README.md](README.md) · Thiết kế: [docs/specs/](docs/specs/2026-06-10-acceptance-gate-kit-design.md)
+---
+
+# ⚡ feature-loop — vòng lặp trọn gói (plugin thứ 2, tùy chọn)
+
+Nếu acceptance-gate là **cái cổng**, feature-loop là **cả con đường**: một lệnh
+duy nhất dẫn tính năng từ ý tưởng → design → contract+evals → plan → code →
+verify đa-agent → evidence → PR. Bạn vẫn chỉ dừng tay đúng 2 lần (T3: 3 lần).
+
+```
+/feature-loop <mô tả tính năng>
+  S1 máy brainstorm với bạn → design + contract + evals  ── 🚪 CỔNG 1 (duyệt 1 gói)
+  S2 máy lên plan            (T3: 🚪 duyệt plan)
+  S3 máy code                (task độc lập → chạy song song, mỗi task 1 worktree)
+  S4 máy verify MỘT lần chạy: evals máy (dedupe) + 3 AI-judge
+     độc lập/judgment + code review adversarial → evidence-report.md
+     fail → tự quay lại sửa, tối đa 3 vòng
+  ── 🚪 CỔNG 2: bạn kiểm UNCERTAIN + ký signoff
+  S5 máy tạo PR
+```
+
+**Cài thêm (sau khi đã cài acceptance-gate):**
+
+```bash
+claude plugin install feature-loop@acceptance-gate-kit
+claude plugin install superpowers@claude-plugins-official   # dependency (brainstorm/plan)
+```
+
+**Setup mỗi repo:** đã chạy `/acceptance-init` rồi thì chỉ cần thêm vào
+`_acceptance/config.yaml` các lệnh verify chạy mỗi vòng (chọn từ `executors.*`
+của repo bạn — quên cũng không sao, lần đầu chạy skill sẽ hỏi rồi tự ghi):
+
+```yaml
+feature_loop:
+  suite_keys:
+    - executors.test.build       # ví dụ — dùng key THẬT của repo bạn
+    - executors.test.typecheck
+```
+
+**Dùng:** `/feature-loop <mô tả>` cho tính năng mới · `/feature-loop <slug>` để
+resume (loop nhớ đang ở đâu qua `status` trong contract.md — đổi máy/đổi session
+vẫn tiếp tục đúng chỗ). Sửa nhỏ T1 (docs/typo) → loop tự thoát, làm kiểu thường.
+
+**Khác gì chạy acceptance-gate tay?** Cùng contract/evals/hook/CI — feature-loop
+chỉ tự động hóa phần giữa các cổng: gộp duyệt design+contract+evals làm 1 lần,
+verify chạy song song (1 lệnh test cover nhiều eval, không chạy lặp), judgment
+có 3 AI-judge bỏ phiếu trước khi đến tay bạn, và code review adversarial đính kèm
+luôn vào gói Cổng 2.
+
+---
+
+Chi tiết kỹ thuật: [README.md](README.md) · feature-loop: [feature-loop/README.md](feature-loop/README.md) · Thiết kế: [docs/specs/](docs/specs/2026-06-10-acceptance-gate-kit-design.md)

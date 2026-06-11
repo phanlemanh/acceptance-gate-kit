@@ -12,17 +12,17 @@ export const meta = {
 
 // ===== args contract — do SKILL.md feature-loop chuẩn bị =====
 // {
-//   slug: 'deal-entity-g1',
+//   slug: 'my-feature',
 //   round: 1,                          // số round verify hiện tại (1-3)
 //   riskTier: 'T2' | 'T3',
 //   evals: [{ id, criterion, executor,  // 'test'|'script'|'ui-check'|'judgment'
 //             cmd,                      // máy: lệnh ĐÃ resolve từ config: ref
-//             ref,                      // config: ref GỐC (vd 'config:executors.test.itest_deal') — synthesize ghi verifier (hook L2)
+//             ref,                      // config: ref GỐC (vd 'config:executors.test.api') — synthesize ghi verifier (hook L2)
 //             expected, evidence_required,
 //             question, inputs }],      // judgment only; inputs = abs paths
 //   suiteCommands: ['npm run build', 'npm run typecheck', ...],
 //   diffBase: 'main',
-//   repoRoot: '/Users/manhphan/dev/artifact-platform',
+//   repoRoot: '<abs repo root>',
 //   personasPath: '<abs>/judge-personas.md',
 //   templatePath: '<abs>/evidence-report-template.md',
 //   reviewSkillPath: '<abs>/SKILL.md',  // OPTIONAL — skill review invariant riêng của repo; thiếu → review theo conventions (CLAUDE.md)
@@ -102,7 +102,7 @@ const machineEvals = args.evals.filter(e => e.executor === 'test' || e.executor 
 const judgmentEvals = args.evals.filter(e => e.executor === 'judgment')
 const uiEvals = args.evals.filter(e => e.executor === 'ui-check')
 
-// Mỗi lệnh distinct chạy đúng 1 lần, cover mọi eval trỏ tới nó (vd itest:deal 1 lần cover E1-E11)
+// Mỗi lệnh distinct chạy đúng 1 lần, cover mọi eval trỏ tới nó (vd 1 lệnh itest cover E1-E11)
 const byCmd = new Map()
 for (const e of machineEvals) {
   if (!byCmd.has(e.cmd)) byCmd.set(e.cmd, [])
@@ -153,7 +153,7 @@ const REVIEWERS = [
 const [machineRaw, judgeRaw, reviewRaw] = await parallel([
   () => parallel(distinctCmds.map(cmd => () =>
     agent(
-      `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Trong repo ${args.repoRoot}, chay dung lenh:\n\n  ${cmd}\n\nCapture TRUNG THUC: exit code that, ~10 dong output cuoi lien quan, run_id neu stdout co in (khong co thi de chuoi rong).\nKHONG sua code. KHONG chay lai nhieu lan de "cho pass". Neu lenh khong the chay (thieu env, Supabase local chua start, script khong ton tai...) → cannotRun=true + reason cu the.`,
+      `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Trong repo ${args.repoRoot}, chay dung lenh:\n\n  ${cmd}\n\nCapture TRUNG THUC: exit code that, ~10 dong output cuoi lien quan, run_id neu stdout co in (khong co thi de chuoi rong).\nKHONG sua code. KHONG chay lai nhieu lan de "cho pass". Neu lenh khong the chay (thieu env, service/DB local chua chay, script khong ton tai...) → cannotRun=true + reason cu the.`,
       { label: `machine:${cmd.slice(0, 44)}`, phase: 'Machine', schema: MACHINE_SCHEMA }
     ).then(r => r && { ...r, cmd, evals: byCmd.get(cmd) })
   )),

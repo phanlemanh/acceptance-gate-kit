@@ -31,7 +31,15 @@ Team install — this repo doubles as its own marketplace:
 ```bash
 claude plugin marketplace add phanlemanh/acceptance-gate-kit
 claude plugin install acceptance-gate@acceptance-gate-kit
+claude plugin install feature-loop@acceptance-gate-kit    # optional — full feature loop on top of the gate
 ```
+
+> **feature-loop** (second plugin in this kit): end-to-end feature development
+> loop orchestrating this gate + the superpowers plugin + multi-agent verify
+> workflows — brainstorm → contract+evals (Gate 1) → plan → execute →
+> parallel verify (machine evals, 3-judge blind panels, adversarial review)
+> → evidence + signoff (Gate 2). See [feature-loop/README.md](feature-loop/README.md).
+> Requires the superpowers plugin (`claude-plugins-official` marketplace).
 
 Installing the plugin registers the skill, both commands, and the
 PreToolUse hook automatically — no settings edits needed.

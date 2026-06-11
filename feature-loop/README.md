@@ -31,7 +31,7 @@ claude plugin install feature-loop@acceptance-gate-kit
 ## Setup mỗi repo đích
 
 1. Chạy `/acceptance-init` → sinh `_acceptance/config.yaml` (executors, risk tiers).
-2. Thêm vào `_acceptance/config.yaml` danh sách lệnh verify suite chạy mỗi round S4:
+2. Thêm vào `_acceptance/config.yaml` danh sách lệnh verify suite chạy mỗi round S4 (key trỏ vào `executors.*` của chính repo đó — Node thì build/typecheck, Python thì lint/mypy...):
 
 ```yaml
 feature_loop:
@@ -40,7 +40,7 @@ feature_loop:
     - executors.test.typecheck
 ```
 
-   (Thiếu section này → fallback `executors.test.build` + `executors.test.typecheck`. KHÔNG khai toàn bộ itest của mọi feature — itest feature khác flaky sẽ đốt round verify.)
+   (Thiếu section này → lần chạy S4 đầu tiên skill sẽ DỪNG hỏi bạn chọn từ `executors.*` rồi tự ghi vào config.yaml — hỏi đúng 1 lần. KHÔNG khai toàn bộ itest của mọi feature — itest feature khác flaky sẽ đốt round verify.)
 3. (Tùy chọn) Repo có skill review invariant riêng → skill sẽ truyền path của nó vào `reviewSkillPath` của workflow verify; không có thì review theo CLAUDE.md/CONTRIBUTING.md.
 
 ## Ghi chú runtime (quan trọng)

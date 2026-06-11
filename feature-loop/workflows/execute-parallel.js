@@ -7,8 +7,8 @@ export const meta = {
 
 // args = {
 //   planPath: '/abs/docs/superpowers/plans/<plan>.md',
-//   repoRoot: '/Users/manhphan/dev/artifact-platform',  // repo goc (agent chay trong worktree copy)
-//   tasks: [{ id: 'Task 3', title, summary, files: ['path1', ...], verifyCmd: 'npm run typecheck' }],
+//   repoRoot: '<abs repo root>',  // repo goc (agent chay trong worktree copy)
+//   tasks: [{ id: 'Task 3', title, summary, files: ['path1', ...], verifyCmd: '<lệnh verify per-task của repo>' }],
 // }
 
 const TASK_SCHEMA = {

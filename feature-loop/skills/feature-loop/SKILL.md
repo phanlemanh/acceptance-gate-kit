@@ -7,7 +7,7 @@ description: Vòng lặp chuẩn phát triển 1 tính năng từ ý tưởng đ
 
 Nhạc trưởng điều phối — KHÔNG tự code thay các skill con, chỉ gọi đúng thứ tự và giữ 2 gate.
 
-> 2 workflow script đi kèm nằm trong plugin: `<plugin>/workflows/acceptance-verify.js` và `<plugin>/workflows/execute-parallel.js`. Thư mục plugin suy ra từ dòng "Base directory for this skill" khi skill này được nạp: `<base-dir>/../../workflows/`. LUÔN invoke Workflow bằng `scriptPath` (abs path), KHÔNG bằng `name` — registry theo tên có thể cache bản script cũ. Script tự parse args nếu harness truyền JSON string.
+> 2 workflow script đi kèm nằm trong plugin. Đường dẫn: lấy "Base directory for this skill" khi skill này được nạp → `WORKFLOWS_DIR = <base-dir>/../../workflows/` (layout cache: `.../<plugin>/<version>/skills/feature-loop/` → `../../` = thư mục version chứa `workflows/`). TRƯỚC KHI invoke lần đầu: `ls "$WORKFLOWS_DIR"` phải thấy `acceptance-verify.js` + `execute-parallel.js` — không thấy → tìm bằng `ls -d $HOME/.claude/plugins/cache/*/feature-loop/*/workflows/` rồi dùng path đó. LUÔN invoke Workflow bằng `scriptPath` (abs path), KHÔNG bằng `name` — registry theo tên có thể cache bản script cũ. Script tự parse args nếu harness truyền JSON string.
 
 ## State machine & resume
 
@@ -26,6 +26,7 @@ Resume: `/feature-loop <slug>` → đọc status, vào đúng hàng trong bảng
 
 ## S0 — INTAKE
 
+0. **Preflight dependency** (chỉ lần đầu mỗi repo/máy): skill `superpowers:brainstorming` + `superpowers:writing-plans` có trong danh sách skill khả dụng? References của acceptance-gate có tồn tại (`ls -d $HOME/.claude/plugins/cache/*/acceptance-gate/*/skills/acceptance/references/`)? Thiếu cái nào → DỪNG, đưa user lệnh cài cụ thể (`claude plugin install acceptance-gate@acceptance-gate-kit` / `claude plugin install superpowers@claude-plugins-official`), KHÔNG đi tiếp với lỗi mờ.
 1. Xác định files dự kiến đụng (từ mô tả feature; chưa cần chính xác tuyệt đối).
 2. Đọc `_acceptance/config.yaml` (chưa có → bảo user chạy `/acceptance-init` trước):
    - Match toàn bộ vào `risk_tiers.t1_skip_globs` → **T1: thoát loop**, báo user làm kiểu thường (verify suite thường của repo là đủ, không contract).
@@ -59,7 +60,7 @@ Khi duyệt: set contract `status: approved`, `approved_by`, `approved_at` (ISO)
 
 1. Mặc định: thực thi plan TUẦN TỰ trong main loop (theo `superpowers:executing-plans` hoặc subagent-driven nếu đang theo skill đó). Quy ước verify của repo (CLAUDE.md) THẮNG default của skill con nếu xung đột (vd repo cấm test framework → verify per-task = build/typecheck/smoke của repo).
 2. Plan có ≥2 task `independent: true` → gom các task đó, invoke Workflow:
-   `Workflow({ scriptPath: '<plugin>/workflows/execute-parallel.js', args: { planPath: '<abs plan path>', repoRoot: '<abs repo root>', tasks: [{ id, title, summary, files, verifyCmd }] } })`
+   `Workflow({ scriptPath: '<WORKFLOWS_DIR>/execute-parallel.js', args: { planPath: '<abs plan path>', repoRoot: '<abs repo root>', tasks: [{ id, title, summary, files, verifyCmd }] } })` (WORKFLOWS_DIR xem ghi chú đầu file)
    Xong: merge các branch worktree về feature branch (task failed → tự fix tuần tự trong main loop).
 3. Kết thúc S3 (mọi task xong + verify per-task pass): set contract `status: implemented`. KHÔNG tự chạy evals — doer ≠ grader, đó là việc của S4.
 
@@ -68,13 +69,13 @@ Khi duyệt: set contract `status: approved`, `approved_by`, `approved_at` (ISO)
 1. Chuẩn bị args (main loop đọc file, script không có filesystem):
    - Parse `_acceptance/<slug>/evals.yaml`.
    - Resolve mỗi `cmd: config:a.b.c` → đọc `_acceptance/config.yaml`, đi theo dotted path (vd `executors.test.api` → lệnh thật). GIỮ ref gốc vào field `ref` của mỗi eval (synthesize ghi `verifier:` bằng ref này — hook L2 không nhận lệnh resolved). Ref không resolve được → DỪNG, báo user (không đoán lệnh).
-   - `suiteCommands` = resolve list `feature_loop.suite_keys` trong `_acceptance/config.yaml` (mỗi phần tử là dotted key, vd `executors.test.build`). Thiếu key list → fallback resolve `executors.test.build` + `executors.test.typecheck` (key không tồn tại thì bỏ qua, cảnh báo user thêm `feature_loop.suite_keys`). KHÔNG tự lấy toàn bộ `executors.*` — itest của feature KHÁC có thể flaky đốt round; itest của chính feature đã nằm trong evals.
+   - `suiteCommands` = resolve list `feature_loop.suite_keys` trong `_acceptance/config.yaml` (mỗi phần tử là dotted key, vd `executors.test.build`). **Thiếu section này → DỪNG hỏi user MỘT lần**: liệt kê các key đang có trong `executors.*`, user chọn những lệnh chạy mỗi round verify (build/typecheck/lint... của repo đó) → GHI vào config.yaml rồi đi tiếp (lần sau không hỏi lại). KHÔNG đoán theo Node convention, KHÔNG tự lấy toàn bộ `executors.*` — itest của feature KHÁC có thể flaky đốt round; itest của chính feature đã nằm trong evals. (suiteCommands rỗng vẫn hợp lệ nếu evals có executor máy — script tự BLOCKED khi không còn gì để verify.)
    - Resolve `inputs` của judgment evals thành abs path (gốc: `_acceptance/<slug>/`).
-   - Tìm references của plugin acceptance-gate (KHÔNG hardcode version): `ls -d ~/.claude/plugins/cache/*/acceptance-gate/*/skills/acceptance/references/` → lấy bản mới nhất → `personasPath` = `<dir>/judge-personas.md`, `templatePath` = `<dir>/evidence-report-template.md`. Không thấy → DỪNG, báo user cài plugin acceptance-gate.
+   - Tìm references của plugin acceptance-gate (KHÔNG hardcode version): `ls -d $HOME/.claude/plugins/cache/*/acceptance-gate/*/skills/acceptance/references/` → lấy bản mới nhất → `personasPath` = `<dir>/judge-personas.md`, `templatePath` = `<dir>/evidence-report-template.md`. Không thấy → DỪNG, báo user cài plugin acceptance-gate (preflight S0 lẽ ra đã bắt).
    - Repo có skill review invariant riêng (vd `.claude/skills/<review-skill>/SKILL.md`) → truyền abs path vào `reviewSkillPath`; không có → bỏ qua, script tự review theo conventions (CLAUDE.md/CONTRIBUTING.md).
-   - `riskTier` từ contract frontmatter; `diffBase` = merge-base với nhánh chính (`git merge-base main HEAD`, hoặc master).
+   - `riskTier` từ contract frontmatter; `diffBase` = merge-base với nhánh chính. Detect nhánh chính: `git remote show origin | grep 'HEAD branch'`, không có remote thì thử lần lượt main/master/develop/trunk (`git rev-parse --verify <branch>`); không detect được → hỏi user, KHÔNG để `git merge-base` fail mờ.
    - `round`: chưa có `evidence-report.md` → 1; có rồi → đếm số round trong section `## Iterations` + 1. (REJECT không đổi contract status — session mới resume PHẢI đọc round từ đây, nếu không cap 3 round bị reset và run_id mint trùng.)
-2. Invoke: `Workflow({ scriptPath: '<plugin>/workflows/acceptance-verify.js', args: { slug, round, riskTier, evals, suiteCommands, diffBase, repoRoot, personasPath, templatePath, reviewSkillPath? } })` (debug fan-out không tốn agent: thêm `dryRun: true` → trả về distinctCommands/judgePanels, không chạy gì).
+2. Invoke: `Workflow({ scriptPath: '<WORKFLOWS_DIR>/acceptance-verify.js', args: { slug, round, riskTier, evals, suiteCommands, diffBase, repoRoot, personasPath, templatePath, reviewSkillPath? } })` (debug fan-out không tốn agent: thêm `dryRun: true` → trả về distinctCommands/judgePanels, không chạy gì).
 3. Routing theo verdict trả về:
    - `REJECT` → quay S3 fix `failedEvals` + `failedCommands` + `confirmedFindings`, rồi S4 round mới (round + 1). **Tối đa 3 round** — quá → DỪNG, escalate user kèm phân tích từng round. `reportPath` thiếu ở round REJECT → cảnh báo user lịch sử Iterations của round này không được ghi.
    - `BLOCKED` → đọc `blocked[].cmd` + `blocked[].reason` từ kết quả, trình NGUYÊN VĂN cho user rồi khắc phục nguyên nhân, chạy lại CÙNG round. Không bao giờ downgrade BLOCKED thành pass.
@@ -89,7 +90,7 @@ User: điền `human_override: <tên> <ngày>` cho từng UNCERTAIN (T3: MỌI j
 
 ## S5 — SHIP
 
-Invoke `superpowers:finishing-a-development-branch` → PR theo quy trình repo (không push thẳng nhánh chính nếu repo cấm). Update doc trạng thái của repo nếu có. CI pre-merge check của acceptance-gate kit (nếu repo đã wire `scripts/pre-merge-check.sh`) là chốt chặn độc lập — không bypass.
+Invoke `superpowers:finishing-a-development-branch` → PR theo quy trình repo (không push thẳng nhánh chính nếu repo cấm). Update doc trạng thái của repo nếu có. CI pre-merge check của acceptance-gate kit (`scripts/pre-merge-check.sh`) là chốt chặn độc lập — không bypass; repo CHƯA wire nó vào CI → cảnh báo user rõ ràng (gate không enforce trước merge, xem README của kit cách wire).
 
 ## Quy tắc gộp xung đột
 
