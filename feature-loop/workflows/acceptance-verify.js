@@ -49,6 +49,20 @@ const MACHINE_SCHEMA = {
   required: ['exitCode', 'outputTail', 'cannotRun'],
 }
 
+// ui-check (v1.1): MACHINE_SCHEMA + screenshotPath — assertion máy-kiểm + evidence file
+const UI_SCHEMA = {
+  type: 'object',
+  properties: {
+    exitCode: { type: 'number', description: '0 = moi assertion pass' },
+    outputTail: { type: 'string', description: 'cac assertion da kiem + ket qua' },
+    runId: { type: 'string', description: 'chuoi rong neu khong co' },
+    screenshotPath: { type: 'string', description: 'path file evidence da luu (anh; fallback .html neu khong co tool chup — ghi ro trong outputTail)' },
+    cannotRun: { type: 'boolean' },
+    reason: { type: 'string', description: 'ly do neu cannotRun=true' },
+  },
+  required: ['exitCode', 'outputTail', 'cannotRun'],
+}
+
 const VERDICT_SCHEMA = {
   type: 'object',
   properties: {
@@ -121,25 +135,16 @@ if (args.dryRun) {
     distinctCommands: distinctCmds,
     evalsPerCommand: Object.fromEntries([...byCmd.entries()]),
     judgePanels: judgmentEvals.map(e => ({ eval: e.id, judges: LENSES.length })),
-    unsupportedUiEvals: uiEvals.map(e => e.id),
-  }
-}
-
-// ui-check chưa hỗ trợ (repo chưa có eval nào loại này) — BLOCKED rõ ràng, không lặng lẽ bỏ qua
-if (uiEvals.length) {
-  return {
-    verdict: 'BLOCKED',
-    blocked: [{ cmd: 'ui-check', reason: `ui-check executor chua ho tro trong acceptance-verify.js v1 (evals: ${uiEvals.map(e => e.id).join(', ')}) — mo rong script khi co eval ui-check dau tien` }],
-    failedEvals: [], failedCommands: [], panels: [], confirmedFindings: [], reviewIncomplete: [],
+    uiCheckEvals: uiEvals.map(e => e.id),
   }
 }
 
 // khong co gi de verify → khong duoc PASS rong
-if (!distinctCmds.length && !judgmentEvals.length) {
+if (!distinctCmds.length && !judgmentEvals.length && !uiEvals.length) {
   return { verdict: 'BLOCKED', blocked: [{ cmd: '(none)', reason: 'evals.yaml khong co eval may va khong co judgment — khong co gi de verify, kiem tra lai evals.yaml' }], failedEvals: [], failedCommands: [], panels: [], confirmedFindings: [], reviewIncomplete: [] }
 }
 
-log(`Round ${args.round}: ${distinctCmds.length} lenh may (dedupe tu ${machineEvals.length} eval + ${args.suiteCommands.length} suite), ${judgmentEvals.length} judgment x ${LENSES.length} judges`)
+log(`Round ${args.round}: ${distinctCmds.length} lenh may (dedupe tu ${machineEvals.length} eval + ${args.suiteCommands.length} suite), ${uiEvals.length} ui-check, ${judgmentEvals.length} judgment x ${LENSES.length} judges`)
 
 // Review finders: repo có skill review riêng → dùng; không → review theo conventions chung
 const REVIEWERS = [
@@ -149,13 +154,29 @@ const REVIEWERS = [
   { key: 'bugs', prompt: `Review diff ${args.diffBase}...HEAD trong repo ${args.repoRoot}, tim correctness bugs va silent failures (catch nuot loi, fallback an, error bi nuot). CHI bao finding high-confidence — khong style nit, khong suy dien.` },
 ]
 
-// ---- Machine + Judge + Review chạy đồng thời (không phụ thuộc nhau; Judge là blind) ----
-const [machineRaw, judgeRaw, reviewRaw] = await parallel([
+// ---- Machine + UI-check + Judge + Review chạy đồng thời (không phụ thuộc nhau; Judge là blind) ----
+const [machineRaw, uiRaw, judgeRaw, reviewRaw] = await parallel([
   () => parallel(distinctCmds.map(cmd => () =>
     agent(
       `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Trong repo ${args.repoRoot}, chay dung lenh:\n\n  ${cmd}\n\nCapture TRUNG THUC: exit code that, ~10 dong output cuoi lien quan, run_id neu stdout co in (khong co thi de chuoi rong).\nKHONG sua code. KHONG chay lai nhieu lan de "cho pass". Neu lenh khong the chay (thieu env, service/DB local chua chay, script khong ton tai...) → cannotRun=true + reason cu the.`,
       { label: `machine:${cmd.slice(0, 44)}`, phase: 'Machine', schema: MACHINE_SCHEMA }
     ).then(r => r && { ...r, cmd, evals: byCmd.get(cmd) })
+  )),
+
+  // ui-check (v1.1): 1 agent/eval — chạy steps trên dev server, assertion máy-kiểm + evidence file
+  () => parallel(uiEvals.map(e => () =>
+    agent(
+      `Ban la verifier UI doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Repo: ${args.repoRoot} (cwd cua ban).\n` +
+      `Eval ${e.id} (criterion ${e.criterion}) — lam DUNG cac steps sau, theo thu tu:\n` +
+      `${(e.steps || []).map((s, i) => `${i + 1}. ${s}`).join('\n')}\n` +
+      `Expected: ${e.expected}\n\n` +
+      `Quy tac:\n` +
+      `- Tu quan dev server: start NEN (background) neu steps yeu cau, doi ready (poll HTTP toi 90s); TAT server truoc khi tra ket qua (chi tat server minh start — port dang co server san thi dung chung va KHONG tat).\n` +
+      `- Assertion phai MAY-KIEM-DUOC: HTTP status + marker trong HTML/DOM (trang SSR thi curl + grep du). Ghi tung assertion + ket qua vao outputTail.\n` +
+      `- Evidence file: mkdir -p thu muc truoc. Uu tien chup anh that neu co tool browser/preview (tim qua ToolSearch "preview" hoac "browser"); KHONG co tool chup thi luu HTML da assert vao path screenshot trong steps voi duoi .html va GHI RO fallback trong outputTail. Tra path vao screenshotPath.\n` +
+      `- exitCode=0 CHI khi MOI assertion pass. KHONG sua code. Khong the chay (port ban khong xu ly duoc, thieu env...) → cannotRun=true + reason cu the.`,
+      { label: `ui:${e.id}`, phase: 'Machine', schema: UI_SCHEMA }
+    ).then(r => r && { ...r, cmd: `ui-check:${e.id}`, evals: [e.id] })
   )),
 
   () => parallel(judgmentEvals.flatMap(e =>
@@ -184,6 +205,8 @@ const [machineRaw, judgeRaw, reviewRaw] = await parallel([
 ])
 
 const machine = (machineRaw || []).filter(Boolean)
+// ui-check kết quả hợp nhất vào machine-style (cmd ui-check:<evalId>) — routing blocked/failed dùng chung
+machine.push(...(uiRaw || []).filter(Boolean))
 const judges = (judgeRaw || []).filter(Boolean)
 const reviewResults = (reviewRaw || []).filter(Boolean)
 const confirmedFindings = reviewResults.flatMap(r => r.findings)
@@ -203,10 +226,13 @@ const panels = judgmentEvals.map(e => {
 // ---- verdict routing (kit rules) ----
 const blocked = machine.filter(m => m.cannotRun)
   .map(m => ({ cmd: m.cmd, reason: m.reason || 'cannotRun khong co reason' }))
-if (machine.length < distinctCmds.length) {
+{
   const ran = new Set(machine.map(m => m.cmd))
   for (const cmd of distinctCmds.filter(c => !ran.has(c))) {
     blocked.push({ cmd, reason: 'agent bi skip/chet — khong co ket qua, khong duoc tinh la pass' })
+  }
+  for (const e of uiEvals.filter(e => !ran.has(`ui-check:${e.id}`))) {
+    blocked.push({ cmd: `ui-check:${e.id}`, reason: 'ui-check agent bi skip/chet — khong co ket qua, khong duoc tinh la pass' })
   }
 }
 const failed = machine.filter(m => !m.cannotRun && m.exitCode !== 0)
@@ -225,7 +251,7 @@ log(`Verdict: ${verdict}${failedEvalIds.length ? ' — failed: ' + failedEvalIds
 // ---- Synthesize: 1 agent viết evidence-report.md đúng template (hook enforce) ----
 phase('Synthesize')
 const report = await agent(
-  `Viet evidence report cho feature "${args.slug}" round ${args.round} vao ${args.repoRoot}/_acceptance/${args.slug}/evidence-report.md (ghi de neu co — round moi thay round cu, ghi lich su round vao section Iterations).\nDoc template tai ${args.templatePath} va tuan thu TUYET DOI shape — hook acceptance-evidence-gate.js se chan neu sai (L1 SHAPE: PASS can run_id ≥4 ky tu + exit_code 0 + verifier + verified_at ISO8601; L1 CONSISTENCY: report PASS khong duoc chua token exit khac 0 hay chuoi "verdict: FAIL"; L2: verifier la config: ref hoac script path; L3: moi UNCERTAIN can human_override).\n\nVerdict DA TINH SAN (khong tu thay doi): ${verdict}\nfailed_evals: ${JSON.stringify(failedEvalIds)}\nblocked (neu BLOCKED, ghi reason vao frontmatter): ${JSON.stringify(blocked)}\nLenh fail khong gan eval (ghi ro trong report neu co): ${JSON.stringify(failedCommands)}\nReview incomplete (finder chet — ghi canh bao trong review-findings.md): ${JSON.stringify(reviewIncomplete)}\n\nKet qua may (moi block cmd cover cac eval cua no; mint run_id dang "minted-${args.slug}-<evalId>-r${args.round}" cho eval nao runId rong): ${JSON.stringify(machine)}\nDinh nghia eval (ghi "verifier:" = field "ref" — config: ref GOC, hook L2 chi chap nhan config: ref hoac script path, KHONG ghi lenh resolved): ${JSON.stringify(args.evals.map(e => ({ id: e.id, criterion: e.criterion, executor: e.executor, ref: e.ref, expected: e.expected, evidence_required: e.evidence_required })))}\nJudge panels (DE XUAT — ghi de xuat panel + rationale tung judge, de human_override TRONG cho moi item; T3 thi MOI judgment item deu cho human). QUAN TRONG format: trong section judge, ghi vote dang "- <lens>: FAIL — <rationale>" / "- <lens>: PASS — ...", TUYET DOI KHONG dung chuoi "verdict: FAIL" (hook L1 CONSISTENCY scan token nay trong report PASS) — moi dissent phai hien thi day du, khong duoc om/viet lai: ${JSON.stringify(panels)}\n\nSau do viet file thu hai ${args.repoRoot}/_acceptance/${args.slug}/review-findings.md (informational, ngoai hook) liet ke findings da adversarial-verify: ${JSON.stringify(confirmedFindings)} — moi finding: title, file:line, severity, detail, source. Finding co unverified=true liet ke RIENG thanh section "Chua adversarial-verify (refuter chet)".\nTra ve reportPath va findingsPath tuyet doi.`,
+  `Viet evidence report cho feature "${args.slug}" round ${args.round} vao ${args.repoRoot}/_acceptance/${args.slug}/evidence-report.md (ghi de neu co — round moi thay round cu, ghi lich su round vao section Iterations).\nDoc template tai ${args.templatePath} va tuan thu TUYET DOI shape — hook acceptance-evidence-gate.js se chan neu sai (L1 SHAPE: PASS can run_id ≥4 ky tu + exit_code 0 + verifier + verified_at ISO8601; L1 CONSISTENCY: report PASS khong duoc chua token exit khac 0 hay chuoi "verdict: FAIL"; L2: verifier la config: ref hoac script path; L3: moi UNCERTAIN can human_override).\n\nVerdict DA TINH SAN (khong tu thay doi): ${verdict}\nfailed_evals: ${JSON.stringify(failedEvalIds)}\nblocked (neu BLOCKED, ghi reason vao frontmatter): ${JSON.stringify(blocked)}\nLenh fail khong gan eval (ghi ro trong report neu co): ${JSON.stringify(failedCommands)}\nReview incomplete (finder chet — ghi canh bao trong review-findings.md): ${JSON.stringify(reviewIncomplete)}\n\nKet qua may (moi block cmd cover cac eval cua no; mint run_id dang "minted-${args.slug}-<evalId>-r${args.round}" cho eval nao runId rong; block cua eval ui-check ghi them field "screenshot:" = screenshotPath tu ket qua): ${JSON.stringify(machine)}\nDinh nghia eval (ghi "verifier:" = field "ref" — config: ref GOC, hook L2 chi chap nhan config: ref hoac script path, KHONG ghi lenh resolved): ${JSON.stringify(args.evals.map(e => ({ id: e.id, criterion: e.criterion, executor: e.executor, ref: e.ref, expected: e.expected, evidence_required: e.evidence_required })))}\nJudge panels (DE XUAT — ghi de xuat panel + rationale tung judge, de human_override TRONG cho moi item; T3 thi MOI judgment item deu cho human). QUAN TRONG format: trong section judge, ghi vote dang "- <lens>: FAIL — <rationale>" / "- <lens>: PASS — ...", TUYET DOI KHONG dung chuoi "verdict: FAIL" (hook L1 CONSISTENCY scan token nay trong report PASS) — moi dissent phai hien thi day du, khong duoc om/viet lai: ${JSON.stringify(panels)}\n\nSau do viet file thu hai ${args.repoRoot}/_acceptance/${args.slug}/review-findings.md (informational, ngoai hook) liet ke findings da adversarial-verify: ${JSON.stringify(confirmedFindings)} — moi finding: title, file:line, severity, detail, source. Finding co unverified=true liet ke RIENG thanh section "Chua adversarial-verify (refuter chet)".\nTra ve reportPath va findingsPath tuyet doi.`,
   { label: 'synthesize:report', phase: 'Synthesize', schema: REPORT_SCHEMA }
 )
 
