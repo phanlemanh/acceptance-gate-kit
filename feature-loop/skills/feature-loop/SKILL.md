@@ -84,7 +84,9 @@ Khi duyệt: set contract `status: approved`, `approved_by`, `approved_at` (ISO)
 
 ## GATE 2 (human — điểm dừng 2)
 
-Trình MỘT gói: verdict + bảng per-eval (đọc từ `reportPath` = evidence-report.md) + judge panel proposals + review findings (đọc từ `findingsPath` = review-findings.md, gồm cả section "chưa adversarial-verify" nếu có) + cảnh báo reviewIncomplete nếu có + diff summary (`git diff --stat <diffBase>...HEAD`). Liệt kê rõ từng UNCERTAIN user phải đích thân kiểm.
+Trình MỘT gói: verdict + bảng per-eval (đọc từ `reportPath` = evidence-report.md) + judge panel proposals + review findings (đọc từ `findingsPath` = review-findings.md, gồm cả section "chưa adversarial-verify" nếu có) + cảnh báo reviewIncomplete nếu có + diff summary (`git diff --stat <diffBase>...HEAD`).
+
+**Judgment item trình cho user PHẢI ở dạng câu hỏi nghiệp vụ phi kỹ thuật** — user là người quyết kinh doanh, không phải engineer. Mỗi item: dịch thành 1 câu hỏi có/không hoặc lựa chọn a/b bằng ngôn ngữ SẢN PHẨM (không jargon schema/tool/migration), kèm (1) đề xuất của Claude + lý do 1 dòng, (2) hệ quả mỗi lựa chọn, (3) lựa chọn có đảo ngược được không. **Tính năng MỚI chưa có số liệu:** đừng bắt user phán bằng data — câu hỏi đúng là "đúng intent đã duyệt ở Gate 1 chưa · ship được chưa · đổi sau có rẻ không"; phương án đảo-ngược-được + ghi chú revisit là mặc định hợp lệ, data thật sau khi ship sẽ vào contract của vòng sau.
 
 User: điền `human_override: <tên> <ngày>` cho từng UNCERTAIN (T3: MỌI judgment item), nâng PENDING-JUDGMENT → PASS nếu đồng ý, điền `human_signoff` + `time_human_minutes.gate2`. Xong: set contract `status: signed-off`, commit evidence.
 
