@@ -158,7 +158,7 @@ const REVIEWERS = [
 const [machineRaw, uiRaw, judgeRaw, reviewRaw] = await parallel([
   () => parallel(distinctCmds.map(cmd => () =>
     agent(
-      `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Trong repo ${args.repoRoot}, chay dung lenh:\n\n  ${cmd}\n\nCapture TRUNG THUC: exit code that, ~10 dong output cuoi lien quan, run_id neu stdout co in (khong co thi de chuoi rong).\nKHONG sua code. KHONG chay lai nhieu lan de "cho pass". Neu lenh khong the chay (thieu env, service/DB local chua chay, script khong ton tai...) → cannotRun=true + reason cu the.`,
+      `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Trong repo ${args.repoRoot}, chay dung lenh:\n\n  ${cmd}\n\nCapture TRUNG THUC: exit code that, ~10 dong output cuoi lien quan, run_id neu stdout co in (khong co thi de chuoi rong).\nKHONG sua code. KHONG dung git checkout/switch/stash/reset — repo dang o dung branch can verify, doi branch la pha hong cac verifier khac dang chay song song. KHONG chay lai nhieu lan de "cho pass". Neu lenh khong the chay (thieu env, service/DB local chua chay, script khong ton tai...) → cannotRun=true + reason cu the.`,
       { label: `machine:${cmd.slice(0, 44)}`, phase: 'Machine', schema: MACHINE_SCHEMA }
     ).then(r => r && { ...r, cmd, evals: byCmd.get(cmd) })
   )),
@@ -194,7 +194,7 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw] = await parallel([
     (res, d) => res
       ? parallel(res.findings.map(f => () =>
           agent(
-            `Adversarially verify finding sau trong repo ${args.repoRoot} (diff ${args.diffBase}...HEAD):\n"${f.title}" tai ${f.file}${f.line ? ':' + f.line : ''} — ${f.detail}\nCo BAC BO no: doc code that, tim bang chung no KHONG phai van de. refuted=true neu khong chac chan day la van de that.`,
+            `Adversarially verify finding sau trong repo ${args.repoRoot} (diff ${args.diffBase}...HEAD):\n"${f.title}" tai ${f.file}${f.line ? ':' + f.line : ''} — ${f.detail}\nCo BAC BO no: doc code that (Read/Grep; KHONG git checkout/switch — repo phai o nguyen branch), tim bang chung no KHONG phai van de. refuted=true neu khong chac chan day la van de that.`,
             { label: `refute:${(f.file || '').split('/').pop()}`, phase: 'Review', schema: REFUTE_SCHEMA }
           ).then(v => v
             ? (!v.refuted ? { ...f, source: d.key } : null)
