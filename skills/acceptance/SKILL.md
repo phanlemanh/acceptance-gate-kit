@@ -98,7 +98,10 @@ Run immediately after the user reviews the contract (same gate, one sitting).
 
 Entry: implementation complete, contract `status: implemented`.
 
-1. **Dispatch a fresh verification subagent** (general-purpose). Its prompt
+1. **Dispatch a fresh verification subagent** (general-purpose, pass
+   `model: sonnet` — it executes resolved commands and fills a hook-enforced
+   template; no large-model reasoning needed, the evidence-gate hook is the
+   correctness backstop). Its prompt
    contains: contract.md, evals.yaml, config executor commands, the FULL
    `references/evidence-report-template.md` (Verdict rules + Field notes +
    template body), the verdict routing rules from step 4 below, and the
@@ -118,7 +121,8 @@ Entry: implementation complete, contract `status: implemented`.
      Claude Preview MCP; screenshot to `_acceptance/{slug}/evidence/`.
      No browser MCP → downgrade to judgment + note (see eval-executors.md).
    - `judgment`: dispatch the judge per `references/judge-personas.md`
-     (separate fresh subagent — blind: no diff, no implementer reasoning).
+     (separate fresh subagent, `model: sonnet` — scoped verdict on resolved
+     inputs; blind: no diff, no implementer reasoning).
      If the verify subagent cannot spawn nested subagents in this harness,
      it returns judgment evals unscored; the ORCHESTRATOR dispatches each
      judge per references/judge-personas.md and merges verdicts into the

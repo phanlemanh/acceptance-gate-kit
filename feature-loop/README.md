@@ -50,6 +50,22 @@ feature_loop:
 - Debug fan-out không tốn agent: thêm `dryRun: true` vào args của acceptance-verify → trả về `distinctCommands`/`judgePanels`.
 - Syntax-check script khi sửa: dùng AsyncFunction constructor (strip `export `), KHÔNG dùng `node --check` (top-level return hợp lệ trong Workflow runtime).
 
+## Model routing (chi phí token)
+
+Agent trong Workflow mặc định kế thừa model của phiên chính — phiên chạy model lớn thì mọi verifier/judge cũng chạy model lớn. Từ v1.1.0, `acceptance-verify.js` route từng nhóm agent theo bản chất công việc:
+
+| Agent | Model | Lý do |
+|---|---|---|
+| machine verifier | `haiku` | Chạy 1 lệnh, capture exit code + output — thuần cơ học |
+| ui-check verifier | `sonnet` | Nhiều bước (server lifecycle, assertion, evidence) nhưng không cần suy luận sâu |
+| judge (×3/panel) | `sonnet` | Verdict scoped trên input đã resolve; majority 2/3 của panel bù sai số từng judge |
+| refuter | `sonnet` | Kiểm 1 finding cụ thể đã có file:line |
+| synthesize | `sonnet` | Điền template từ verdict đã tính sẵn bằng JS thuần; hook evidence-gate chặn nếu sai shape |
+| review finder | (kế thừa phiên) | Tìm bug trong diff — chỗ trí tuệ tạo giá trị, KHÔNG hạ |
+| execute-parallel task | (kế thừa phiên) | Agent code thật — lỗi code đắt hơn token tiết kiệm được |
+
+Nguyên tắc chung: **model lớn cho việc tạo phán đoán** (tìm bug, viết code), **model nhỏ cho việc thực thi có schema + chốt chặn máy kiểm** (chạy lệnh, điền template, vote trên căn cứ hẹp).
+
 ## Nguồn gốc
 
 Thiết kế + build trong repo artifact-platform (2026-06-11), qua subagent-driven development với 2-stage review per task + final holistic review + dry-run e2e. Bản plugin này là bản generalized (suite keys theo config, review skill tùy chọn).
