@@ -37,7 +37,7 @@ Resume: `/feature-loop <slug>` → đọc status, vào đúng hàng trong bảng
 ## S1 — DESIGN (sinh 3 artifact CÙNG LÚC)
 
 1. Invoke `superpowers:brainstorming` — hỏi đáp làm rõ như thường lệ.
-2. Nếu feature chạm ≥3 subsystem (DB / API / core layer / UI / integration) hoặc user yêu cầu → chạy Workflow fan-out Explore readers (ad-hoc script, pattern 'Understand') trước khi đề xuất approach.
+2. Nếu feature chạm ≥3 subsystem (DB / API / core layer / UI / integration) hoặc user yêu cầu → chạy Workflow fan-out Explore readers (ad-hoc script, pattern 'Understand') trước khi đề xuất approach. Mỗi reader truyền `model: 'haiku'` — đọc-và-tóm-tắt không cần model lớn (synthesize approach vẫn ở main loop).
 3. Kết thúc brainstorm, sinh CÙNG LÚC từ một ngữ cảnh:
    - Design doc → `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md` (hoặc convention spec của repo)
    - `_acceptance/<slug>/contract.md` — theo template plugin acceptance-gate (frontmatter schema_version/feature/slug/risk_tier/surfaces/status: draft; 5-15 AC Given/When/Then, tag `(judgment)` cho business-judgment; Out of scope ≥2 bullet)
