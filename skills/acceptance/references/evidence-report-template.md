@@ -28,6 +28,13 @@ Field notes: use `verified_by:` for attribution only — `checked_by:` is
 reserved (parsed as a verifier and will fail authenticity). `run_id` must be
 at least 4 chars; if the verifier prints none, mint `<slug>-<eval>-<date>`.
 
+Baseline (A/B): each machine eval may carry a `baseline:` field — its status on
+the diffBase (pre-feature) tree. `red` = it failed on the old code (good: the
+eval discriminates), `green` = it passed on the old code too (non-discriminating
+— the `## Analyst` section flags these), `n-a` = baseline could not run. Use the
+WORDS red/green/n-a, never an exit number, so the consistency scan does not
+misread a baseline as a failed eval.
+
 ---8<---
 ---
 schema_version: 1
@@ -51,6 +58,7 @@ human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER revi
 - eval: E1
   run_id: {{from verifier stdout, or mint <slug>-<eval>-<date>; min 4 chars}}
   exit_code: 0
+  baseline: red          # status on diffBase: red=eval discriminates (good), green=non-discriminating, n-a=couldn't run
   verifier: config:executors.test.api
   verified_at: {{ISO8601}}
   output: |
@@ -70,6 +78,15 @@ human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER revi
   verdict: UNCERTAIN
   rationale: {{1-3 sentences — what the judge could not determine and why}}
   human_override:        # human fills "<name> <date>" + optional note to resolve
+
+## Analyst
+
+# Non-discriminating evals: machine evals green on BOTH the branch and the diffBase
+# baseline — they pass regardless of this feature, so they prove the harness, not the
+# feature. Rewrite each to assert the new behaviour, or confirm it is an intended
+# regression guard. Suite commands green-on-both are expected guards (not listed).
+# Use words, never exit numbers.
+{{eval ids green-on-both, or "none — every feature eval is red on baseline (discriminates)"}}
 
 ## Iterations
 
