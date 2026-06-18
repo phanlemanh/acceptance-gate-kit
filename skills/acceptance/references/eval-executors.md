@@ -69,6 +69,17 @@ times is wasted round-time, and a deterministic eval that varies is a flaky test
 not a score. `runs` is ignored on `ui-check`/`judgment` (judgment already runs a
 3-lens panel).
 
+Boundary + should-NOT-fire: for a threshold/numeric/window criterion (a count,
+≥/≤/<>, "trong N ngày", a budget), don't stop at the happy path — add an eval
+whose `expected` asserts the SUPPRESSION half (a just-below case that must NOT
+fire). For a system boundary add a negative/absence eval (malformed input
+rejected, cross-tenant read denied, jsonb default-or-throw, PII absent,
+`source_field` present). A should-NOT-fire eval is an ordinary `test`/`script`
+whose `expected` describes the absence/refusal — e.g. "2 opens in 48h → NO touch
+created", "anon INSERT denied by RLS" — no new executor. The `eval-coverage-lint`
+script flags threshold criteria whose evals never assert this (W1) and
+out-of-scope items with zero negative evals (W3); advisory, surfaced at Gate 1.
+
 ## Executor selection rules (used by Phase 2 EVAL-GEN)
 
 1. Criterion checkable by running existing/new automated tests → `test`.

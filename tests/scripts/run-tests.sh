@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Tests for scripts/pre-merge-check.sh using throwaway fixture repos.
+# Tests for scripts/pre-merge-check.sh + scripts/eval-coverage-lint.js using throwaway fixture repos.
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
 CHECK="$HERE/../../scripts/pre-merge-check.sh"
@@ -75,6 +75,106 @@ echo "S11 required_for trailing comment does not false-scope other tiers -> pass
 R="$T/s11"; mk_feature "$R" feat-i T2 implemented PASS ""
 printf 'schema_version: 1\nsignoff:\n  required_for: [T3]  # not T2 anymore\n' > "$R/_acceptance/config.yaml"
 bash "$CHECK" "$R"; check S11 0 $?
+
+echo ""
+echo "--- eval-coverage-lint.js ---"
+LINT="$HERE/../../scripts/eval-coverage-lint.js"
+
+# Fixture A: threshold AC + single happy-path eval (no should-NOT-fire)
+A="$T/lintA/_acceptance/feat-t1"; mkdir -p "$A"
+cat > "$A/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+---
+## Criteria
+- AC-1: Given user, When ≥3 opens trong 48h, Then fire hot.
+## Out of scope
+EOF
+cat > "$A/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    expected: "exit 0; fires hot"
+EOF
+
+# Fixture B: threshold AC + a should-NOT-fire eval (well covered)
+B="$T/lintB/_acceptance/feat-t2"; mkdir -p "$B"
+cat > "$B/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+---
+## Criteria
+- AC-1: Given user, When ≥3 opens trong 48h, Then fire hot.
+## Out of scope
+EOF
+cat > "$B/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    expected: "fires hot tai nguong >=3"
+  - id: E2
+    criterion: AC-1
+    expected: "KHONG fire khi 2 opens (duoi nguong)"
+EOF
+
+# Fixture C: non-threshold AC + out-of-scope bullets but zero negative evals
+C="$T/lintC/_acceptance/feat-t3"; mkdir -p "$C"
+cat > "$C/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+---
+## Criteria
+- AC-1: Given user logs in, When submit valid token, Then redirect to dashboard.
+## Out of scope
+- Anonymous de-anonymisation.
+- SMS channel.
+EOF
+cat > "$C/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    expected: "redirect ok"
+EOF
+
+# Fixture D: judgment threshold AC (exempt)
+D="$T/lintD/_acceptance/feat-t4"; mkdir -p "$D"
+cat > "$D/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+---
+## Criteria
+- AC-1: Given tone, When >=3 retries, Then message appropriate. (judgment)
+## Out of scope
+EOF
+cat > "$D/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: judgment
+    expected: "tone ok"
+EOF
+
+echo "L01 threshold AC, single happy-path eval -> warn"
+node "$LINT" "$T/lintA" >/dev/null; check L01 1 $?
+echo "L02 threshold AC WITH should-NOT-fire eval -> clean"
+node "$LINT" "$T/lintB" >/dev/null; check L02 0 $?
+echo "L03 out-of-scope bullets, zero negative evals -> warn (W3)"
+node "$LINT" "$T/lintC" >/dev/null; check L03 1 $?
+echo "L04 judgment threshold AC is exempt -> clean"
+node "$LINT" "$T/lintD" >/dev/null; check L04 0 $?
+echo "L05 --files mode flags the single-eval threshold -> warn"
+node "$LINT" --files "$A/contract.md" "$A/evals.yaml" >/dev/null; check L05 1 $?
+echo "L06 --slug targets the clean feature -> clean"
+node "$LINT" "$T/lintB" --slug feat-t2 >/dev/null; check L06 0 $?
+echo "L06b --slug targets the warning feature -> warn"
+node "$LINT" "$T/lintA" --slug feat-t1 >/dev/null; check L06b 1 $?
+echo "L07 no _acceptance dir -> clean"
+mkdir -p "$T/lintE"; node "$LINT" "$T/lintE" >/dev/null; check L07 0 $?
 
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"

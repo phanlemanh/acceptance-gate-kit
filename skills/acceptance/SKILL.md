@@ -82,8 +82,23 @@ Run immediately after the user reviews the contract (same gate, one sitting).
    that can actually check the criterion).
 3. Repo-specific commands MUST be `config:` references
    (e.g. `cmd: config:executors.test.api`) — never hardcoded.
-4. Coverage check: every AC-n appears in ≥1 eval's `criterion` field. Print
-   the mapping table (criterion → eval ids → executor).
+4. Coverage check — two rules:
+   (a) every AC-n appears in ≥1 eval's `criterion` field. Print the mapping
+       table (criterion → eval ids → executor).
+   (b) **Boundary + should-NOT-fire.** Given/When/Then is structurally positive,
+       so a naive eval suite is all-should-fire and silent on the half a feature
+       is most likely to break (cry-wolf, tenant leak, off-by-one). For every
+       threshold/numeric/window criterion (a count, ≥/≤/<>, "trong N ngày", a
+       budget), at least one eval must assert the SUPPRESSION half — a just-below
+       case that must NOT fire. For every system boundary, add an explicit
+       negative/absence eval: Zod input → malformed rejected; RLS → cross-tenant
+       denied; jsonb-from-DB → malformed throws/defaults; no-embed → PII absent;
+       no-fabricate → source_field present. Mine the contract's **Out of scope**
+       + risk list — each is a should-NOT-fire assertion in disguise.
+   Run the advisory lint and present its warnings at Gate 1 (it never auto-blocks;
+   the human decides): `node <acceptance-gate-plugin>/scripts/eval-coverage-lint.js
+   <repo_root> --slug <slug>` — flags threshold criteria whose evals never assert a
+   should-NOT-fire case (W1) and out-of-scope items with zero negative evals (W3).
 5. **STOP — Gate 1 part B.** Present evals.yaml + mapping table. On approval:
    set contract `status: approved`, `approved_by`, `approved_at`, and ask the
    user how many minutes Gate 1 took → write `time_human_minutes.gate1`.
