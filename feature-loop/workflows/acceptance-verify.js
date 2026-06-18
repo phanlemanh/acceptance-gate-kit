@@ -19,7 +19,8 @@ export const meta = {
 //             cmd,                      // máy: lệnh ĐÃ resolve từ config: ref
 //             ref,                      // config: ref GỐC (vd 'config:executors.test.api') — synthesize ghi verifier (hook L2)
 //             expected, evidence_required,
-//             question, inputs }],      // judgment only; inputs = abs paths
+//             question, inputs,           // judgment only; inputs = abs paths
+//             runs }],                     // OPTIONAL int>1: eval ngẫu nhiên (LLM) chạy N lần → pass_rate + variance
 //   suiteCommands: ['npm run build', 'npm run typecheck', ...],
 //   diffBase: 'main',
 //   repoRoot: '<abs repo root>',
@@ -148,6 +149,14 @@ for (const cmd of args.suiteCommands) {
 }
 const distinctCmds = [...byCmd.keys()]
 
+// variance-N: số lần chạy mỗi lệnh = max(runs) trên các eval trỏ tới nó (default 1, cap 10).
+// runs>1 = eval NGẪU NHIÊN (vd qua ctx.providers.invoke / generator-LLM) → cần phân phối pass-rate, không phải 1 phát.
+const evalRuns = e => Math.max(1, Number.isInteger(e.runs) ? e.runs : 1)
+const cmdRuns = new Map(distinctCmds.map(cmd => {
+  const ns = machineEvals.filter(e => e.cmd === cmd).map(evalRuns)
+  return [cmd, ns.length ? Math.min(10, Math.max(...ns)) : 1]
+}))
+
 // A/B baseline: chỉ chạy lại trên diffBase các lệnh CÓ eval (eval của feature) — để biết lệnh nào
 // xanh-cả-hai-phía (không phân biệt). Suite-only cmd bỏ qua (đắt + green-on-both là regression-guard bình thường).
 const baselineCmds = distinctCmds.filter(c => (byCmd.get(c) || []).length > 0)
@@ -161,6 +170,7 @@ if (args.dryRun) {
     evalsPerCommand: Object.fromEntries([...byCmd.entries()]),
     judgePanels: judgmentEvals.map(e => ({ eval: e.id, judges: LENSES.length })),
     uiCheckEvals: uiEvals.map(e => e.id),
+    runsPerCommand: Object.fromEntries([...cmdRuns.entries()]),
   }
 }
 
@@ -181,13 +191,13 @@ const REVIEWERS = [
 
 // ---- Machine + UI-check + Judge + Review chạy đồng thời (không phụ thuộc nhau; Judge là blind) ----
 const [machineRaw, uiRaw, judgeRaw, reviewRaw, baselineRaw] = await parallel([
-  () => parallel(distinctCmds.map(cmd => () =>
+  () => parallel(distinctCmds.flatMap(cmd => Array.from({ length: cmdRuns.get(cmd) || 1 }, (_, __i) => () =>
     agent(
       `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Trong repo ${args.repoRoot}, chay dung lenh:\n\n  ${cmd}\n\nCapture TRUNG THUC: exit code that, ~10 dong output cuoi lien quan, run_id neu stdout co in (khong co thi de chuoi rong).\nKHONG sua code. KHONG dung git checkout/switch/stash/reset — repo dang o dung branch can verify, doi branch la pha hong cac verifier khac dang chay song song. KHONG chay lai nhieu lan de "cho pass". Neu lenh khong the chay (thieu env, service/DB local chua chay, script khong ton tai...) → cannotRun=true + reason cu the.`,
       // haiku: tác vụ thuần cơ học (chạy 1 lệnh, capture output) — không cần model lớn
-      { label: `machine:${cmd.slice(0, 44)}`, phase: 'Machine', schema: MACHINE_SCHEMA, model: 'haiku' }
-    ).then(r => r && { ...r, cmd, evals: byCmd.get(cmd) })
-  )),
+      { label: `machine:${cmd.slice(0, 40)}${(cmdRuns.get(cmd) || 1) > 1 ? '#' + (__i + 1) : ''}`, phase: 'Machine', schema: MACHINE_SCHEMA, model: 'haiku' }
+    ).then(r => r && { ...r, cmd, runIndex: __i + 1 })
+  ))),
 
   // ui-check (v1.1): 1 agent/eval — chạy steps trên dev server, assertion máy-kiểm + evidence file
   () => parallel(uiEvals.map(e => () =>
@@ -248,9 +258,36 @@ Tra results[] = {cmd, baselineExit, cannotRun, reason}. PHAN BIET 2 loai "khong 
       ),
 ])
 
-const machine = (machineRaw || []).filter(Boolean)
-// ui-check kết quả hợp nhất vào machine-style (cmd ui-check:<evalId>) — routing blocked/failed dùng chung
-machine.push(...(uiRaw || []).filter(Boolean))
+// ---- variance-N: gộp các lần chạy của 1 lệnh → 1 entry/lệnh với pass-rate ----
+const runsByCmd = new Map()
+for (const r of (machineRaw || []).filter(Boolean)) {
+  if (!runsByCmd.has(r.cmd)) runsByCmd.set(r.cmd, [])
+  runsByCmd.get(r.cmd).push(r)
+}
+const machine = []
+for (const cmd of distinctCmds) {
+  const N = cmdRuns.get(cmd) || 1
+  const rs = runsByCmd.get(cmd) || []
+  if (!rs.length) continue // không kết quả nào (mọi agent chết) → blocked-detection bên dưới bắt (cmd vắng trong ran set)
+  const ran = rs.filter(r => !r.cannotRun)
+  const cannotRunCount = rs.length - ran.length
+  const missing = Math.max(0, N - rs.length) // agent chết/null (bị filter(Boolean) loại trước khi gộp)
+  // Mẫu KHÔNG đủ N lần chạy sạch (có cannotRun hoặc agent chết) → không đủ căn cứ → BLOCKED.
+  // KHÔNG được tính pass-rate/variance trên mẫu thiếu: 1/5 lần chạy được mà PASS = giả mạo (đúng triết lý kit: verify được hay BLOCKED, không fake).
+  if (cannotRunCount > 0 || missing > 0) {
+    const firstCannot = rs.find(r => r.cannotRun)
+    machine.push({ cmd, evals: byCmd.get(cmd), runs: N, passes: ran.filter(r => r.exitCode === 0).length, variance: false, cannotRun: true, reason: (firstCannot && firstCannot.reason) || `chi ${ran.length}/${N} lan chay duoc (${cannotRunCount} cannotRun, ${missing} agent chet) — khong du can cu de PASS`, exitCode: 1, runId: (ran[0] || rs[0]).runId || '', outputTail: (rs[0] || {}).outputTail || '' })
+    continue
+  }
+  // đủ N lần chạy sạch → tính pass-rate / variance
+  const passes = ran.filter(r => r.exitCode === 0).length
+  const variance = ran.length > 1 && passes > 0 && passes < ran.length
+  const rep = ran.find(r => r.exitCode !== 0) || ran[0] // ưu tiên lần fail làm đại diện chẩn đoán
+  const exitCode = (passes === ran.length || variance) ? 0 : (rep.exitCode || 1)
+  machine.push({ cmd, evals: byCmd.get(cmd), runs: ran.length, passes, variance, cannotRun: false, reason: rep.reason, exitCode, runId: rep.runId, outputTail: rep.outputTail })
+}
+// ui-check hợp nhất vào machine-style (luôn 1 lần): cmd ui-check:<evalId> — routing blocked/failed dùng chung
+machine.push(...(uiRaw || []).filter(Boolean).map(r => ({ ...r, runs: 1, passes: !r.cannotRun && r.exitCode === 0 ? 1 : 0, variance: false })))
 
 // ---- A/B baseline: map kết quả đối chứng theo cmd; status = green | red | n-a ----
 const baselineByCmd = new Map(((baselineRaw && baselineRaw.results) || []).map(b => [b.cmd, b]))
@@ -261,7 +298,7 @@ const baselineStatus = (cmd) => {
 }
 // Eval không-phân-biệt: lệnh-CÓ-eval pass trên CẢ HEAD lẫn baseline (green-on-both) → chứng minh harness, không phải feature
 const nonDiscriminating = machine
-  .filter(m => (byCmd.get(m.cmd) || []).length > 0 && !m.cannotRun && m.exitCode === 0 && baselineStatus(m.cmd) === 'green')
+  .filter(m => (byCmd.get(m.cmd) || []).length > 0 && !m.cannotRun && !m.variance && m.exitCode === 0 && baselineStatus(m.cmd) === 'green')
   .map(m => ({ cmd: m.cmd, evals: byCmd.get(m.cmd) }))
 const judges = (judgeRaw || []).filter(Boolean)
 const reviewResults = (reviewRaw || []).filter(Boolean)
@@ -296,25 +333,29 @@ const failedEvalIds = [...new Set(failed.flatMap(m => m.evals))]
 
 const failedCommands = failed.map(m => ({ cmd: m.cmd, evals: m.evals, exitCode: m.exitCode }))
 
+// variance-N: lệnh đa-lần pass-rate hỗn hợp (không 0%, không 100%) = phương sai → NGƯỜI quyết ngưỡng ở Gate 2
+const varianceCmds = machine.filter(m => m.variance)
+
 let verdict
 if (blocked.length) verdict = 'BLOCKED'
 else if (failed.length) verdict = 'REJECT'
-else if (judgmentEvals.length && (args.riskTier === 'T3' || panels.some(p => p.proposal !== 'PASS'))) verdict = 'PENDING-JUDGMENT'
+else if (varianceCmds.length || (judgmentEvals.length && (args.riskTier === 'T3' || panels.some(p => p.proposal !== 'PASS')))) verdict = 'PENDING-JUDGMENT'
 else verdict = 'PASS'
 
-log(`Verdict: ${verdict}${failedEvalIds.length ? ' — failed: ' + failedEvalIds.join(', ') : ''}${blocked.length ? ' — blocked: ' + blocked.length + ' lenh' : ''} — findings xac nhan: ${confirmedFindings.length}`)
+log(`Verdict: ${verdict}${failedEvalIds.length ? ' — failed: ' + failedEvalIds.join(', ') : ''}${blocked.length ? ' — blocked: ' + blocked.length + ' lenh' : ''}${varianceCmds.length ? ' — variance: ' + varianceCmds.length : ''} — findings xac nhan: ${confirmedFindings.length}`)
 
 // ---- Synthesize: 1 agent viết evidence-report.md đúng template (hook enforce) ----
 phase('Synthesize')
 // Trim payload: lệnh PASS chỉ cần ~3 dòng output cuối làm evidence; lệnh fail/blocked giữ nguyên tail (cần cho chẩn đoán)
-const machineForReport = machine.map(m => (!m.cannotRun && m.exitCode === 0)
+const machineForReport = machine.map(m => (!m.cannotRun && m.exitCode === 0 && !m.variance)
   ? { ...m, outputTail: String(m.outputTail || '').split('\n').slice(-3).join('\n') }
   : m)
 const machineForReportB = machineForReport.map(m => ({ ...m, baseline: baselineStatus(m.cmd) }))
 const report = await agent(
   `Viet evidence report cho feature "${args.slug}" round ${args.round} vao ${args.repoRoot}/_acceptance/${args.slug}/evidence-report.md (ghi de neu co — round moi thay round cu, ghi lich su round vao section Iterations).\nDoc template tai ${args.templatePath} va tuan thu TUYET DOI shape — hook acceptance-evidence-gate.js se chan neu sai (L1 SHAPE: PASS can run_id ≥4 ky tu + exit_code 0 + verifier + verified_at ISO8601; L1 CONSISTENCY: report PASS khong duoc chua token exit khac 0 hay chuoi "verdict: FAIL"; L2: verifier la config: ref hoac script path; L3: moi UNCERTAIN can human_override).\n\nVerdict DA TINH SAN (khong tu thay doi): ${verdict}\nfailed_evals: ${JSON.stringify(failedEvalIds)}\nblocked (neu BLOCKED, ghi reason vao frontmatter): ${JSON.stringify(blocked)}\nLenh fail khong gan eval (ghi ro trong report neu co): ${JSON.stringify(failedCommands)}\nReview incomplete (finder chet — ghi canh bao trong review-findings.md): ${JSON.stringify(reviewIncomplete)}\n\nKet qua may (moi block cmd cover cac eval cua no; mint run_id dang "minted-${args.slug}-<evalId>-r${args.round}" cho eval nao runId rong; block cua eval ui-check ghi them field "screenshot:" = screenshotPath tu ket qua): ${JSON.stringify(machineForReportB)}
 A/B BASELINE: moi block eval may ghi them field "baseline: <green|red|n-a>" lay tu field "baseline" trong ket qua may o tren (green=pass tren code cu diffBase, red=fail tren code cu nghia la eval CO phan biet, n-a=khong chay duoc tren baseline). Field baseline DUNG TU green/red/n-a, TUYET DOI KHONG ghi exit-code so o day hay trong section Analyst — hook L1 CONSISTENCY se chan oan report PASS neu thay token exit khac 0.
-Them section "## Analyst" ngay sau bang ket qua: liet ke eval KHONG-PHAN-BIET (pass tren CA HEAD lan baseline, chung minh harness chu khong phai feature; nen viet lai de assert hanh vi moi hoac xac nhan la regression-guard co chu y): ${JSON.stringify(nonDiscriminating)}. Rong thi ghi "none — moi eval feature deu red tren baseline (co phan biet)". Lenh suite xanh-ca-hai-phia la regression-guard binh thuong, KHONG liet ke.\nDinh nghia eval (ghi "verifier:" = field "ref" — config: ref GOC, hook L2 chi chap nhan config: ref hoac script path, KHONG ghi lenh resolved): ${JSON.stringify(args.evals.map(e => ({ id: e.id, criterion: e.criterion, executor: e.executor, ref: e.ref, expected: e.expected, evidence_required: e.evidence_required })))}\nJudge panels (DE XUAT — ghi de xuat panel + rationale tung judge, de human_override TRONG cho moi item; T3 thi MOI judgment item deu cho human). QUAN TRONG format: trong section judge, ghi vote dang "- <lens>: FAIL — <rationale>" / "- <lens>: PASS — ...", TUYET DOI KHONG dung chuoi "verdict: FAIL" (hook L1 CONSISTENCY scan token nay trong report PASS) — moi dissent phai hien thi day du, khong duoc om/viet lai: ${JSON.stringify(panels)}\n\nSau do viet file thu hai ${args.repoRoot}/_acceptance/${args.slug}/review-findings.md (informational, ngoai hook) liet ke findings da adversarial-verify: ${JSON.stringify(confirmedFindings)} — moi finding: title, file:line, severity, detail, source. Finding co unverified=true liet ke RIENG thanh section "Chua adversarial-verify (refuter chet)".\nTra ve reportPath va findingsPath tuyet doi.`,
+Them section "## Analyst" ngay sau bang ket qua: liet ke eval KHONG-PHAN-BIET (pass tren CA HEAD lan baseline, chung minh harness chu khong phai feature; nen viet lai de assert hanh vi moi hoac xac nhan la regression-guard co chu y): ${JSON.stringify(nonDiscriminating)}. Rong thi ghi "none — moi eval feature deu red tren baseline (co phan biet)". Lenh suite xanh-ca-hai-phia la regression-guard binh thuong, KHONG liet ke.
+VARIANCE-N: eval co field "runs" > 1 = eval NGAU NHIEN (da chay nhieu lan, gop lai). Voi eval do ghi them "runs: <N>" va "pass_rate: <passes>/<runs>" (dang phan so vd "4/5" — DUNG so exit). Eval khong co runs hoac runs=1 (deterministic) KHONG ghi pass_rate. Eval co field "variance": true (pass_rate khac 0 va khac full) → tin hieu PHUONG SAI: feature ngau nhien chua on dinh; verdict tong DA la PENDING-JUDGMENT; ghi eval do vao section moi "## Variance" kem pass_rate de NGUOI quyet nguong o Gate 2 (giong judgment item). Eval deterministic ma variance=true = test flaky/racy → cung vao "## Variance", ghi ro "flaky".\nDinh nghia eval (ghi "verifier:" = field "ref" — config: ref GOC, hook L2 chi chap nhan config: ref hoac script path, KHONG ghi lenh resolved): ${JSON.stringify(args.evals.map(e => ({ id: e.id, criterion: e.criterion, executor: e.executor, ref: e.ref, expected: e.expected, evidence_required: e.evidence_required })))}\nJudge panels (DE XUAT — ghi de xuat panel + rationale tung judge, de human_override TRONG cho moi item; T3 thi MOI judgment item deu cho human). QUAN TRONG format: trong section judge, ghi vote dang "- <lens>: FAIL — <rationale>" / "- <lens>: PASS — ...", TUYET DOI KHONG dung chuoi "verdict: FAIL" (hook L1 CONSISTENCY scan token nay trong report PASS) — moi dissent phai hien thi day du, khong duoc om/viet lai: ${JSON.stringify(panels)}\n\nSau do viet file thu hai ${args.repoRoot}/_acceptance/${args.slug}/review-findings.md (informational, ngoai hook) liet ke findings da adversarial-verify: ${JSON.stringify(confirmedFindings)} — moi finding: title, file:line, severity, detail, source. Finding co unverified=true liet ke RIENG thanh section "Chua adversarial-verify (refuter chet)".\nTra ve reportPath va findingsPath tuyet doi.`,
   // sonnet: điền template từ verdict + JSON đã tính sẵn bằng JS thuần; hook evidence-gate chặn nếu sai shape
   { label: 'synthesize:report', phase: 'Synthesize', schema: REPORT_SCHEMA, model: 'sonnet' }
 )
@@ -328,6 +369,7 @@ return {
   confirmedFindings,
   reviewIncomplete,
   nonDiscriminating,
+  variance: varianceCmds.map(m => ({ cmd: m.cmd, evals: m.evals, runs: m.runs, passRate: m.passes + '/' + m.runs })),
   reportPath: report && report.reportPath,
   findingsPath: report && report.findingsPath,
 }
