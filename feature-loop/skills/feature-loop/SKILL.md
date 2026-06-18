@@ -67,7 +67,7 @@ Khi duyệt: set contract `status: approved`, `approved_by`, `approved_at` (ISO)
 ## S4 — VERIFY (một Workflow run)
 
 1. Chuẩn bị args (main loop đọc file, script không có filesystem):
-   - Parse `_acceptance/<slug>/evals.yaml`.
+   - Parse `_acceptance/<slug>/evals.yaml` (giữ field `runs` nếu có — int>1 = eval ngẫu nhiên/LLM, script chạy N lần → pass_rate + variance; default 1).
    - Resolve mỗi `cmd: config:a.b.c` → đọc `_acceptance/config.yaml`, đi theo dotted path (vd `executors.test.api` → lệnh thật). GIỮ ref gốc vào field `ref` của mỗi eval (synthesize ghi `verifier:` bằng ref này — hook L2 không nhận lệnh resolved). Ref không resolve được → DỪNG, báo user (không đoán lệnh).
    - `suiteCommands` = resolve list `feature_loop.suite_keys` trong `_acceptance/config.yaml` (mỗi phần tử là dotted key, vd `executors.test.build`). **Thiếu section này → DỪNG hỏi user MỘT lần**: liệt kê các key đang có trong `executors.*`, user chọn những lệnh chạy mỗi round verify (build/typecheck/lint... của repo đó) → GHI vào config.yaml rồi đi tiếp (lần sau không hỏi lại). KHÔNG đoán theo Node convention, KHÔNG tự lấy toàn bộ `executors.*` — itest của feature KHÁC có thể flaky đốt round; itest của chính feature đã nằm trong evals. (suiteCommands rỗng vẫn hợp lệ nếu evals có executor máy — script tự BLOCKED khi không còn gì để verify.)
    - Resolve `inputs` của judgment evals thành abs path (gốc: `_acceptance/<slug>/`).

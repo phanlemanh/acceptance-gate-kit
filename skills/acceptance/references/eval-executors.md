@@ -59,6 +59,16 @@ evals:
 Note: `config:` references resolve against `_acceptance/config.yaml`, whose
 parser requires 2-space indentation.
 
+Optional `runs: N` (int > 1) on a `test`/`script` eval marks it **stochastic** —
+its command crosses `ctx.providers.invoke` (an LLM generator) so the output is a
+random variable. VERIFY runs it N times and reports `pass_rate: <passes>/N`; a
+mixed pass_rate (not 0/N or N/N) routes the overall verdict to PENDING-JUDGMENT
+for a human threshold call (see `## Variance` in the evidence template). Leave it
+off (default 1) for deterministic evals — re-running a deterministic command N
+times is wasted round-time, and a deterministic eval that varies is a flaky test,
+not a score. `runs` is ignored on `ui-check`/`judgment` (judgment already runs a
+3-lens panel).
+
 ## Executor selection rules (used by Phase 2 EVAL-GEN)
 
 1. Criterion checkable by running existing/new automated tests → `test`.

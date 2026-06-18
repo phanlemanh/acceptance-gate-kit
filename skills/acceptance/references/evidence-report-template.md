@@ -35,6 +35,14 @@ eval discriminates), `green` = it passed on the old code too (non-discriminating
 WORDS red/green/n-a, never an exit number, so the consistency scan does not
 misread a baseline as a failed eval.
 
+Variance (run-N): an eval may carry `runs: N` (N > 1) when it is stochastic
+(crosses `ctx.providers.invoke` / an LLM generator). It runs N times and reports
+`pass_rate: <passes>/<N>` (a fraction word, never an exit number). A mixed
+pass_rate (not 0/N, not N/N) puts the overall verdict in PENDING-JUDGMENT and is
+listed under `## Variance` for a human to judge — like a judgment item. A
+deterministic eval omits `runs`/`pass_rate` and must be 0/N or N/N (a mixed
+deterministic result is a flaky test, not a score).
+
 ---8<---
 ---
 schema_version: 1
@@ -87,6 +95,16 @@ human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER revi
 # regression guard. Suite commands green-on-both are expected guards (not listed).
 # Use words, never exit numbers.
 {{eval ids green-on-both, or "none — every feature eval is red on baseline (discriminates)"}}
+
+## Variance
+
+# Stochastic evals (runs > 1 — e.g. crossing ctx.providers.invoke / an LLM generator)
+# run N times; list any whose pass_rate is mixed (not 0/N and not N/N). A mixed
+# pass_rate is NOT auto-pass and NOT auto-fail — the overall verdict is
+# PENDING-JUDGMENT and a human decides at Gate 2 whether the rate clears the bar.
+# A deterministic eval (runs: 1) that varies across re-runs is flaky/racy — list it
+# here marked "flaky" and root-cause it. Use fraction words (4/5), never exit numbers.
+{{eval ids with mixed pass_rate + their pass_rate, or "none — every multi-run eval is uniform"}}
 
 ## Iterations
 
