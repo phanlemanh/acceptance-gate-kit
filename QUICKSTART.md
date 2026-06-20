@@ -101,7 +101,9 @@ token `exit=1`/`exit_code: 1` (sanitize trước khi dán).
 - **Tôi muốn skip Cổng 1 cho lẹ?** Gate sẽ từ chối một lần và giải thích; nếu vẫn
   muốn, nó ghi `gate1_skipped: true` làm audit trail. Đừng biến thành thói quen.
 - **Bypass khẩn cấp?** `ACCEPTANCE_GATE_BYPASS=1` — chỉ dùng khi migrate
-  legacy, và CI vẫn chặn merge report chưa ký.
+  legacy. Lần bypass được GHI vào report (`bypass_used: true`) và CI
+  `pre-merge-check.sh` CHẶN merge — trừ khi 1 người ghi `bypass_ack: <tên>
+  <ngày>` để chủ động chịu trách nhiệm (để lại dấu vết audit).
 - **Đo hiệu quả?** `time_human_minutes` trong contract.md — điền số phút thật ở
   mỗi cổng; baseline nằm ở `_acceptance/config.yaml::baseline_minutes`.
 

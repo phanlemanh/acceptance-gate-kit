@@ -77,6 +77,45 @@ printf 'schema_version: 1\nsignoff:\n  required_for: [T3]  # not T2 anymore\n' >
 bash "$CHECK" "$R"; check S11 0 $?
 
 echo ""
+echo "--- pre-merge provenance (bypass_used / enforcement_mode) ---"
+mk_prov() { # <root> <slug> <extra frontmatter line(s)> — a PASS+signed report with provenance
+  local d="$1/_acceptance/$2"; mkdir -p "$d"
+  printf -- '---\nschema_version: 1\nfeature: %s\nslug: %s\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\n---\n' "$2" "$2" > "$d/contract.md"
+  printf -- '---\nschema_version: 1\nfeature_slug: %s\nverdict: PASS\n%s\nhuman_signoff: Manh 2026-06-20\n---\n' "$2" "$3" > "$d/evidence-report.md"
+}
+P="$T/prov"
+echo "P01 bypass_used: true (no ack) -> fail"
+mk_prov "$P/p01" feat-p1 "bypass_used: true"; bash "$CHECK" "$P/p01" >/dev/null; check P01 1 $?
+echo "P02 enforcement_mode: warn -> clean + WARNING (warn only warns)"
+mk_prov "$P/p02" feat-p2 "enforcement_mode: warn"; out="$(bash "$CHECK" "$P/p02" 2>&1)"; check P02 0 $?
+case "$out" in *WARNING*feat-p2*) echo "  PASS: P02-warn"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: P02-warn (expected WARNING line)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+echo "P03 enforcement_mode: off -> fail"
+mk_prov "$P/p03" feat-p3 "enforcement_mode: off"; bash "$CHECK" "$P/p03" >/dev/null; check P03 1 $?
+echo "P04 enforcement_mode: strict + bypass_used: false -> clean"
+mk_prov "$P/p04" feat-p4 "$(printf 'enforcement_mode: strict\nbypass_used: false')"; bash "$CHECK" "$P/p04" >/dev/null; check P04 0 $?
+echo "P05 bypass_used: TRUE (case-insensitive) -> fail"
+mk_prov "$P/p05" feat-p5 "bypass_used: TRUE"; bash "$CHECK" "$P/p05" >/dev/null; check P05 1 $?
+echo "P06 no provenance fields (legacy report) -> clean (backward compat)"
+mk_feature "$P/p06" feat-p6 T2 implemented PASS "Manh 2026-06-20"; bash "$CHECK" "$P/p06" >/dev/null; check P06 0 $?
+echo "P07 bypass_used: true + bypass_ack -> clean (human-acknowledged release)"
+mk_prov "$P/p07" feat-p7 "$(printf 'bypass_used: true\nbypass_ack: Manh 2026-06-20')"; bash "$CHECK" "$P/p07" >/dev/null; check P07 0 $?
+echo "P08 frontmatter-bounded: body lines 'enforcement_mode: off' / 'bypass_used: true' do NOT false-block a clean PASS"
+d8="$P/p08/_acceptance/feat-p8"; mkdir -p "$d8"
+printf -- '---\nschema_version: 1\nfeature: feat-p8\nslug: feat-p8\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\n---\n' > "$d8/contract.md"
+printf -- '---\nschema_version: 1\nfeature_slug: feat-p8\nverdict: PASS\nhuman_signoff: Manh 2026-06-20\n---\n\n## Notes\nblocked-stamp example:\nenforcement_mode: off\nbypass_used: true\n' > "$d8/evidence-report.md"
+bash "$CHECK" "$P/p08" >/dev/null; check P08 0 $?
+echo "P09 report with NO leading frontmatter -> fail (verdict reads empty; provenance unverifiable)"
+d9="$P/p09/_acceptance/feat-p9"; mkdir -p "$d9"
+printf -- '---\nschema_version: 1\nfeature: feat-p9\nslug: feat-p9\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\n---\n' > "$d9/contract.md"
+printf -- 'feature_slug: feat-p9\nverdict: PASS\nhuman_signoff: Manh 2026-06-20\nenforcement_mode: off\nbypass_used: true\n' > "$d9/evidence-report.md"
+bash "$CHECK" "$P/p09" >/dev/null; check P09 1 $?
+echo "P10 leading-blank-then-fence frontmatter is still read -> bypass_used:true blocks"
+d10="$P/p10/_acceptance/feat-p10"; mkdir -p "$d10"
+printf -- '---\nschema_version: 1\nfeature: feat-p10\nslug: feat-p10\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\n---\n' > "$d10/contract.md"
+printf -- '\n---\nschema_version: 1\nfeature_slug: feat-p10\nverdict: PASS\nbypass_used: true\nhuman_signoff: Manh 2026-06-20\n---\n' > "$d10/evidence-report.md"
+bash "$CHECK" "$P/p10" >/dev/null; check P10 1 $?
+
+echo ""
 echo "--- eval-coverage-lint.js ---"
 LINT="$HERE/../../scripts/eval-coverage-lint.js"
 

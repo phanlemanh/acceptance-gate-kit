@@ -28,6 +28,15 @@ Field notes: use `verified_by:` for attribution only — `checked_by:` is
 reserved (parsed as a verifier and will fail authenticity). `run_id` must be
 at least 4 chars; if the verifier prints none, mint `<slug>-<eval>-<date>`.
 
+Provenance (CI-enforced, not hook-enforced): REPLACE the `enforcement_mode` /
+`bypass_used` placeholders with the real values — `enforcement` from
+`_acceptance/config.yaml` (default `strict`), and `true` iff
+`ACCEPTANCE_GATE_BYPASS` was set (`printf '%s' "$ACCEPTANCE_GATE_BYPASS"` = `1`).
+`pre-merge-check.sh` then blocks a merge whose PASS was produced unenforced
+(`enforcement_mode: off`) or bypassed (`bypass_used: true`, unless a human adds
+`bypass_ack: <name> <date>`); `warn` only warns — so the green you merge is a
+green that was actually gated.
+
 Baseline (A/B): each machine eval may carry a `baseline:` field — its status on
 the diffBase (pre-feature) tree. `red` = it failed on the old code (good: the
 eval discriminates), `green` = it passed on the old code too (non-discriminating
@@ -51,6 +60,9 @@ verdict: {{PASS|PENDING-JUDGMENT|REJECT|BLOCKED}}
 failed_evals: []        # REJECT only, e.g. [E2, E5]
 reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
+enforcement_mode: {{strict|warn|off}}   # the `enforcement` value from _acceptance/config.yaml (default strict). CI pre-merge BLOCKS off; warn only warns.
+bypass_used: {{true|false}}              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
+# bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
 human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER review
 ---
 

@@ -148,6 +148,12 @@ Entry: implementation complete, contract `status: implemented`.
 3. Write `_acceptance/{slug}/evidence-report.md` per template. The
    acceptance-evidence-gate hook validates evidence at write time — if it
    blocks, the evidence is incomplete: fix the evidence, never the wording.
+   Replace the template's `enforcement_mode` / `bypass_used` placeholders with
+   REAL values — `enforcement` from config.yaml (default strict), and `true`
+   iff `printf '%s' "$ACCEPTANCE_GATE_BYPASS"` prints `1`. CI-enforced
+   provenance: `pre-merge-check.sh` blocks `enforcement_mode: off` or an
+   un-acknowledged `bypass_used: true` (a human may release it with
+   `bypass_ack: <name> <date>`); `warn` only warns.
 4. Verdict routing:
    - All pass (incl. judgment, with no UNCERTAIN) → verdict PASS, contract
      `status: verified`. → step 5.
