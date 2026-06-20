@@ -99,7 +99,10 @@ Run immediately after the user reviews the contract (same gate, one sitting).
    the human decides): `node <acceptance-gate-plugin>/scripts/eval-coverage-lint.js
    <repo_root> --slug <slug>` — flags threshold criteria whose evals never assert a
    should-NOT-fire case (W1) and out-of-scope items with zero negative evals (W3).
-5. **STOP — Gate 1 part B.** Present evals.yaml + mapping table. On approval:
+5. **STOP — Gate 1 part B.** Present evals.yaml + mapping table — or, to cut
+   review time, render the plain-language decision card (`/acceptance-card
+   <slug>`): the human reviews "sẽ làm / sẽ KHÔNG làm" + coverage flags instead of
+   raw YAML (presentation only; the contract/evals stay the source of truth). On approval:
    set contract `status: approved`, `approved_by`, `approved_at`, and ask the
    user how many minutes Gate 1 took → write `time_human_minutes.gate1`.
 6. Hand off to implementation (normal Claude Code flow — the implementing
@@ -158,7 +161,10 @@ Entry: implementation complete, contract `status: implemented`.
    - Executor cannot run → verdict BLOCKED + reason. STOP, escalate.
 5. **STOP — Gate 2.** Present to the user: verdict, the per-eval table, links
    to evidence, and the list of UNCERTAIN judgment items they must personally
-   check (T3: ALL judgment items). The user resolves each pending item by
+   check (T3: ALL judgment items). To cut review time, render the decision card
+   (`/acceptance-card <slug>`) — judgment items + deferred scope (việc-của-người)
+   surface FIRST in plain language, machine evidence collapsed; the verdict + hook
+   are unchanged. The user resolves each pending item by
    filling its `human_override: <name> <date>` line; if the verdict was
    PENDING-JUDGMENT they then upgrade it to PASS (the hook re-validates that
    write) — have the agent apply that edit so the hook actually sees it; a
