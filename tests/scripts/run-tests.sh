@@ -18,8 +18,9 @@ mk_feature() { # <root> <slug> <tier> <status> [verdict] [signoff]
   printf -- '---\nschema_version: 1\nfeature: %s\nslug: %s\nrisk_tier: %s\nsurfaces: [api]\nstatus: %s\n---\n' \
     "$2" "$2" "$3" "$4" > "$d/contract.md"
   if [ -n "${5:-}" ]; then
-    printf -- '---\nschema_version: 1\nfeature_slug: %s\nverdict: %s\nhuman_signoff: %s\n---\n' \
-      "$2" "$5" "${6:-}" > "$d/evidence-report.md"
+    local v="$1/verify.sh"; printf '#!/bin/sh\nexit 0\n' > "$v"
+    printf -- '---\nschema_version: 1\nfeature_slug: %s\nverdict: %s\nhuman_signoff: %s\n---\n\n## Evidence\n- eval: E1\n  run_id: %s-E1-001\n  exit_code: 0\n  verifier: %s\n  verified_at: 2026-06-20\n' \
+      "$2" "$5" "${6:-}" "$2" "$v" > "$d/evidence-report.md"
   fi
 }
 
@@ -78,10 +79,11 @@ bash "$CHECK" "$R"; check S11 0 $?
 
 echo ""
 echo "--- pre-merge provenance (bypass_used / enforcement_mode) ---"
-mk_prov() { # <root> <slug> <extra frontmatter line(s)> — a PASS+signed report with provenance
+mk_prov() { # <root> <slug> <extra frontmatter line(s)> — a PASS+signed report with provenance + valid evidence
   local d="$1/_acceptance/$2"; mkdir -p "$d"
   printf -- '---\nschema_version: 1\nfeature: %s\nslug: %s\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\n---\n' "$2" "$2" > "$d/contract.md"
-  printf -- '---\nschema_version: 1\nfeature_slug: %s\nverdict: PASS\n%s\nhuman_signoff: Manh 2026-06-20\n---\n' "$2" "$3" > "$d/evidence-report.md"
+  local v="$1/verify.sh"; printf '#!/bin/sh\nexit 0\n' > "$v"
+  printf -- '---\nschema_version: 1\nfeature_slug: %s\nverdict: PASS\n%s\nhuman_signoff: Manh 2026-06-20\n---\n\n## Evidence\n- eval: E1\n  run_id: %s-E1-001\n  exit_code: 0\n  verifier: %s\n  verified_at: 2026-06-20\n' "$2" "$3" "$2" "$v" > "$d/evidence-report.md"
 }
 P="$T/prov"
 echo "P01 bypass_used: true (no ack) -> fail"
@@ -102,7 +104,8 @@ mk_prov "$P/p07" feat-p7 "$(printf 'bypass_used: true\nbypass_ack: Manh 2026-06-
 echo "P08 frontmatter-bounded: body lines 'enforcement_mode: off' / 'bypass_used: true' do NOT false-block a clean PASS"
 d8="$P/p08/_acceptance/feat-p8"; mkdir -p "$d8"
 printf -- '---\nschema_version: 1\nfeature: feat-p8\nslug: feat-p8\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\n---\n' > "$d8/contract.md"
-printf -- '---\nschema_version: 1\nfeature_slug: feat-p8\nverdict: PASS\nhuman_signoff: Manh 2026-06-20\n---\n\n## Notes\nblocked-stamp example:\nenforcement_mode: off\nbypass_used: true\n' > "$d8/evidence-report.md"
+v8="$P/p08/verify.sh"; printf '#!/bin/sh\nexit 0\n' > "$v8"
+printf -- '---\nschema_version: 1\nfeature_slug: feat-p8\nverdict: PASS\nhuman_signoff: Manh 2026-06-20\n---\n\n## Evidence\n- eval: E1\n  run_id: feat-p8-E1-001\n  exit_code: 0\n  verifier: %s\n  verified_at: 2026-06-20\n\n## Notes\nblocked-stamp example:\nenforcement_mode: off\nbypass_used: true\n' "$v8" > "$d8/evidence-report.md"
 bash "$CHECK" "$P/p08" >/dev/null; check P08 0 $?
 echo "P09 report with NO leading frontmatter -> fail (verdict reads empty; provenance unverifiable)"
 d9="$P/p09/_acceptance/feat-p9"; mkdir -p "$d9"
@@ -114,6 +117,36 @@ d10="$P/p10/_acceptance/feat-p10"; mkdir -p "$d10"
 printf -- '---\nschema_version: 1\nfeature: feat-p10\nslug: feat-p10\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\n---\n' > "$d10/contract.md"
 printf -- '\n---\nschema_version: 1\nfeature_slug: feat-p10\nverdict: PASS\nbypass_used: true\nhuman_signoff: Manh 2026-06-20\n---\n' > "$d10/evidence-report.md"
 bash "$CHECK" "$P/p10" >/dev/null; check P10 1 $?
+
+echo "--- evidence re-check (recheck-evidence.js, wired into pre-merge) ---"
+RC="$HERE/../../scripts/recheck-evidence.js"
+mk_badevidence() { # <root> <slug> <evidence body> — a signed PASS whose committed evidence is the arg
+  local d="$1/_acceptance/$2"; mkdir -p "$d"
+  printf -- '---\nschema_version: 1\nfeature: %s\nslug: %s\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\n---\n' "$2" "$2" > "$d/contract.md"
+  printf -- '---\nschema_version: 1\nfeature_slug: %s\nverdict: PASS\nhuman_signoff: Manh 2026-06-20\n---\n\n## Evidence\n%s\n' "$2" "$3" > "$d/evidence-report.md"
+}
+mk_recheck_cfg() { mkdir -p "$1/_acceptance"; printf 'schema_version: 1\nrecheck: %s\n' "$2" > "$1/_acceptance/config.yaml"; }
+vr="$P/r.sh"; printf '#!/bin/sh\nexit 0\n' > "$vr"
+echo "R01 recheck: strict + nonzero exit in committed evidence -> block"
+mk_badevidence "$P/r01" feat-r1 "$(printf -- '- eval: E1\n  run_id: feat-r1-E1-001\n  exit_code: 1\n  verifier: %s\n  verified_at: 2026-06-20' "$vr")"
+mk_recheck_cfg "$P/r01" strict; bash "$CHECK" "$P/r01" >/dev/null; check R01 1 $?
+echo "R02 recheck: strict + manual/heuristic verifier -> block"
+mk_badevidence "$P/r02" feat-r2 "$(printf -- '- eval: E1\n  run_id: feat-r2-E1-001\n  exit_code: 0\n  verifier: manual eyeball review\n  verified_at: 2026-06-20')"
+mk_recheck_cfg "$P/r02" strict; bash "$CHECK" "$P/r02" >/dev/null; check R02 1 $?
+echo "R03 recheck: strict + no evidence blocks -> block"
+mk_badevidence "$P/r03" feat-r3 "(no evidence blocks)"
+mk_recheck_cfg "$P/r03" strict; bash "$CHECK" "$P/r03" >/dev/null; check R03 1 $?
+echo "R04 recheck CLI directly: good=0, bad=1, REJECT(not enforced)=0"
+node "$RC" "$P/p04/_acceptance/feat-p4/evidence-report.md" >/dev/null 2>&1; check R04a 0 $?
+node "$RC" "$P/r01/_acceptance/feat-r1/evidence-report.md" >/dev/null 2>&1; check R04b 1 $?
+printf -- '---\nschema_version: 1\nverdict: REJECT\n---\n' > "$P/rej.md"; node "$RC" "$P/rej.md" >/dev/null 2>&1; check R04c 0 $?
+echo "R05 default (recheck: warn) + bad evidence -> NOTEd, NOT blocked (exit 0)"
+mk_badevidence "$P/r05" feat-r5 "(no evidence blocks)"
+out5="$(bash "$CHECK" "$P/r05" 2>&1)"; check R05 0 $?
+case "$out5" in *NOTE*feat-r5*) echo "  PASS: R05-note"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: R05-note (expected NOTE line)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+echo "R06 recheck: off + bad evidence -> re-check skipped (exit 0)"
+mk_badevidence "$P/r06" feat-r6 "(no evidence blocks)"
+mk_recheck_cfg "$P/r06" off; bash "$CHECK" "$P/r06" >/dev/null; check R06 0 $?
 
 echo ""
 echo "--- eval-coverage-lint.js ---"

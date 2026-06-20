@@ -69,12 +69,21 @@ uncommitted (absolute machine paths).
 /acceptance-init      # interactive: writes _acceptance/config.yaml
 ```
 
-Copy `scripts/pre-merge-check.sh` into the repo's CI:
+Copy `scripts/pre-merge-check.sh`, `scripts/recheck-evidence.js`, and
+`lib/evidence-core.js` into the repo (keep the `scripts/` + `lib/` layout so the
+re-check can `require ../lib`), and run the gate in CI:
 
 ```yaml
 # e.g. GitHub Actions step
 - run: bash scripts/pre-merge-check.sh .
 ```
+
+`pre-merge-check.sh` finds `recheck-evidence.js` next to itself; if it (or
+`node`) is absent the merge gate still runs, minus the committed-evidence
+re-check. That re-check is advisory by default (`recheck: warn` — prints NOTEs,
+never blocks); set `recheck: strict` in `_acceptance/config.yaml` to make it
+block, once your committed reports meet the current evidence shape (older
+templates produce advisory NOTEs, not failures).
 
 ## Daily use
 
@@ -87,18 +96,20 @@ Copy `scripts/pre-merge-check.sh` into the repo's CI:
   evidence, verdict, and hook stay the source of truth; the card decides nothing.
 - Risk tiers: T1 skips the kit; T3 requires direct human verdicts on all
   judgment items. Tiers/globs are per-repo in `_acceptance/config.yaml`.
-- Current test surface: 24 hook cases (`tests/hooks/run-tests.sh`) + 52 script
-  cases (`tests/scripts/run-tests.sh`: pre-merge gate + provenance, eval-coverage
-  lint, gate-card).
+- Current test surface: 24 hook cases (`tests/hooks/run-tests.sh`) + 61 script
+  cases (`tests/scripts/run-tests.sh`: pre-merge gate + provenance + evidence
+  re-check, eval-coverage lint, gate-card).
 
 ## Layout
 
 | Path | What |
 |---|---|
 | `skills/acceptance/` | The 3-phase skill + templates |
-| `hooks/` | PreToolUse evidence gate |
+| `hooks/` | PreToolUse evidence gate (write time) |
+| `lib/evidence-core.js` | Shared L1/L2/L3 evidence validation (hook + CI re-check) |
 | `commands/` | `/acceptance-init`, `/acceptance-status`, `/acceptance-card` |
 | `scripts/pre-merge-check.sh` | CI gate (copy into consumer repos) |
+| `scripts/recheck-evidence.js` | CI re-verify a committed report's evidence |
 | `scripts/gate-card.js` | Render the Gate 1 / Gate 2 human decision card |
 | `tests/` | Fixture tests: `bash tests/hooks/run-tests.sh && bash tests/scripts/run-tests.sh` |
 
@@ -126,15 +137,20 @@ downstream, and revisited after the pilot:
   be visible in any diff/review.
 - **The hook only sees agent edits** (PreToolUse). A human editing
   evidence-report.md in their editor bypasses it; `scripts/pre-merge-check.sh`
-  in CI is the backstop for exactly that path. A deterministic capture step
-  stamps `enforcement_mode` + `bypass_used` into the report; pre-merge BLOCKS
-  an un-acknowledged `bypass_used: true` (a human may release it with
-  `bypass_ack`) and `enforcement_mode: off`, and WARNS on `warn` — so a
-  weakened gate cannot reach merge silently. This is a best-effort honest
-  tripwire: a verify env that does not propagate the bypass var to the stamping
-  step, an omitted stamp, or a hand-edited one can still slip — the
-  hook-authoritative capture + evidence-authenticity re-check (PR-C) is the
-  deeper backstop.
+  in CI is the backstop for exactly that path — it re-runs the gate's own
+  L1/L2/L3 evidence bar on the COMMITTED report via `scripts/recheck-evidence.js`
+  (the same `lib/evidence-core.js` the hook uses), so a report hand-edited to
+  PASS with a nonzero exit, a manual verifier, or an unresolved UNCERTAIN is
+  caught at merge regardless of whether the write-time hook ran. The re-check
+  defaults to `recheck: warn` (advise only — so adopting it never blocks merges
+  over reports written by an older evidence template); set `recheck: strict` in
+  `_acceptance/config.yaml` to hard-block, or `off` to skip. Provenance: a
+  deterministic capture step stamps `enforcement_mode` + `bypass_used`; pre-merge
+  BLOCKS an un-acknowledged `bypass_used: true` (a human may release it with
+  `bypass_ack`) and `enforcement_mode: off`, and WARNS on `warn`. Residual: a
+  report bypassed but written with fully authentic evidence passes the re-check
+  (it is, in fact, authentic) while its `bypass_used` stamp depends on the verify
+  env — hook-authoritative bypass capture is the remaining follow-up.
 - **`enforcement: warn` / `off` hook outputs are not assertion-tested** (exit
   codes are — T12/T24); a `warn` report now warns at the merge gate, an `off`
   report is blocked.
