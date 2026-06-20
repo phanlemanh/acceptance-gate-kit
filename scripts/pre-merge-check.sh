@@ -10,9 +10,19 @@
 #   - the PASS was actually gated: bypass_used not true (unless a human
 #     recorded bypass_ack) and enforcement_mode not off (warn only warns)
 #   - human_signoff must be non-empty
+#   - (recheck: strict) the committed evidence still passes the gate's own
+#     L1/L2/L3 bar, re-checked via scripts/recheck-evidence.js + lib/evidence-core.js
+#     (the same core the hook runs) — catches a report hand-edited after the
+#     write-time hook, or written under ACCEPTANCE_GATE_BYPASS. Default `warn`
+#     only advises (so legacy reports from older templates don't block adopters);
+#     `off` skips it. Set `recheck: strict` in _acceptance/config.yaml to enforce.
 # Exits 1 listing violations; 0 when clean. T1 and draft/approved
 # (pre-implementation) features are out of scope.
 set -u
+
+# CI evidence re-checker shipped alongside this script (needs ../lib/evidence-core.js).
+HERE="$(cd "$(dirname "$0")" && pwd)"
+RECHECK="$HERE/recheck-evidence.js"
 
 ROOT="."
 SLUGS=()
@@ -31,9 +41,15 @@ ACC="$ROOT/_acceptance"
 # Which tiers need a signed report before merge — from consumer config when
 # present (signoff.required_for), defaulting to T2+T3.
 REQUIRED_FOR="T2 T3"
+# Committed-evidence re-check mode: strict (block) | warn (advise, default) | off.
+# Default warn so adopting the re-check never blocks merges over reports written by
+# an OLDER evidence template — a repo opts into strict once its reports meet the bar.
+RECHECK_MODE="warn"
 if [ -f "$ACC/config.yaml" ]; then
   cfg_req="$(sed -n 's/^[[:space:]]*required_for:[[:space:]]*//p' "$ACC/config.yaml" | head -1 | sed 's/[[:space:]]*#.*$//')"
   [ -n "$cfg_req" ] && REQUIRED_FOR="$cfg_req"
+  cfg_rc="$(sed -n 's/^[[:space:]]*recheck:[[:space:]]*//p' "$ACC/config.yaml" | head -1 | sed 's/[[:space:]]*#.*$//')"
+  case "$cfg_rc" in strict|warn|off) RECHECK_MODE="$cfg_rc" ;; esac
 fi
 
 fm_field() { # <file> <key> — first frontmatter-style "key: value" line, normalized:
@@ -104,6 +120,23 @@ for dir in "$ACC"/*/; do
   if [ -z "$signoff" ]; then
     echo "VIOLATION [$slug]: verdict PASS but human_signoff is empty (Gate 2 pending)"
     violations=$((violations+1)); continue
+  fi
+  # Re-verify the COMMITTED evidence with the same core the hook runs — catches a
+  # report hand-edited after the write-time hook, or written under bypass.
+  if [ "$RECHECK_MODE" != off ]; then
+    if [ -f "$RECHECK" ] && command -v node >/dev/null 2>&1; then
+      recheck_out="$(node "$RECHECK" "$report" 2>&1)"; rc=$?
+      if [ "$rc" -eq 1 ]; then
+        if [ "$RECHECK_MODE" = strict ]; then label="VIOLATION"; else label="NOTE"; fi
+        echo "$label [$slug]: committed evidence fails re-check (recheck: $RECHECK_MODE):"
+        printf '%s\n' "$recheck_out" | sed 's/^/    /'
+        if [ "$RECHECK_MODE" = strict ]; then violations=$((violations+1)); continue; fi
+      elif [ "$rc" -ne 0 ]; then
+        echo "NOTE [$slug]: evidence re-check unavailable (exit $rc) — ${recheck_out:-skipped}"
+      fi
+    else
+      echo "NOTE [$slug]: evidence re-check not vendored (recheck-evidence.js/node missing) — committed-evidence bar NOT enforced"
+    fi
   fi
   echo "OK [$slug]: $verdict, signed off by $signoff"
 done
