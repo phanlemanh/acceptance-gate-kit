@@ -87,8 +87,9 @@ Copy `scripts/pre-merge-check.sh` into the repo's CI:
   evidence, verdict, and hook stay the source of truth; the card decides nothing.
 - Risk tiers: T1 skips the kit; T3 requires direct human verdicts on all
   judgment items. Tiers/globs are per-repo in `_acceptance/config.yaml`.
-- Current test surface: 24 hook cases (`tests/hooks/run-tests.sh`) + 41 script
-  cases (`tests/scripts/run-tests.sh`: pre-merge gate, eval-coverage lint, gate-card).
+- Current test surface: 24 hook cases (`tests/hooks/run-tests.sh`) + 52 script
+  cases (`tests/scripts/run-tests.sh`: pre-merge gate + provenance, eval-coverage
+  lint, gate-card).
 
 ## Layout
 
@@ -125,8 +126,17 @@ downstream, and revisited after the pilot:
   be visible in any diff/review.
 - **The hook only sees agent edits** (PreToolUse). A human editing
   evidence-report.md in their editor bypasses it; `scripts/pre-merge-check.sh`
-  in CI is the backstop for exactly that path.
-- **`enforcement: warn` / `off` outputs are not assertion-tested** (exit codes
-  are — T12/T24).
+  in CI is the backstop for exactly that path. A deterministic capture step
+  stamps `enforcement_mode` + `bypass_used` into the report; pre-merge BLOCKS
+  an un-acknowledged `bypass_used: true` (a human may release it with
+  `bypass_ack`) and `enforcement_mode: off`, and WARNS on `warn` — so a
+  weakened gate cannot reach merge silently. This is a best-effort honest
+  tripwire: a verify env that does not propagate the bypass var to the stamping
+  step, an omitted stamp, or a hand-edited one can still slip — the
+  hook-authoritative capture + evidence-authenticity re-check (PR-C) is the
+  deeper backstop.
+- **`enforcement: warn` / `off` hook outputs are not assertion-tested** (exit
+  codes are — T12/T24); a `warn` report now warns at the merge gate, an `off`
+  report is blocked.
 
 Design spec: `docs/specs/2026-06-10-acceptance-gate-kit-design.md`
