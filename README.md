@@ -54,6 +54,7 @@ ln -s <kit>/skills/acceptance .claude/skills/acceptance
 mkdir -p .claude/commands
 ln -s <kit>/commands/acceptance-init.md   .claude/commands/acceptance-init.md
 ln -s <kit>/commands/acceptance-status.md .claude/commands/acceptance-status.md
+ln -s <kit>/commands/acceptance-card.md   .claude/commands/acceptance-card.md
 # hook: register in .claude/settings.local.json (machine-local, not committed)
 #   PreToolUse Write|Edit -> node "<kit>/hooks/acceptance-evidence-gate.js"
 ```
@@ -80,10 +81,14 @@ Copy `scripts/pre-merge-check.sh` into the repo's CI:
 - New feature → invoke the `acceptance` skill → contract + evals → approve
   (Gate 1) → implement → verify → sign off (Gate 2).
 - `/acceptance-status` → table of every feature's gate state.
+- `/acceptance-card <slug>` → render a plain-language DECISION CARD for the gate:
+  Gate 1 as "sẽ làm / sẽ KHÔNG làm" + coverage flags, or Gate 2 as "your
+  decision / machine handled" + reversibility. Presentation only — the contract,
+  evidence, verdict, and hook stay the source of truth; the card decides nothing.
 - Risk tiers: T1 skips the kit; T3 requires direct human verdicts on all
   judgment items. Tiers/globs are per-repo in `_acceptance/config.yaml`.
-- Current test surface: 24 hook cases (`tests/hooks/run-tests.sh`) + 12 CI-gate
-  cases (`tests/scripts/run-tests.sh`).
+- Current test surface: 24 hook cases (`tests/hooks/run-tests.sh`) + 41 script
+  cases (`tests/scripts/run-tests.sh`: pre-merge gate, eval-coverage lint, gate-card).
 
 ## Layout
 
@@ -91,8 +96,9 @@ Copy `scripts/pre-merge-check.sh` into the repo's CI:
 |---|---|
 | `skills/acceptance/` | The 3-phase skill + templates |
 | `hooks/` | PreToolUse evidence gate |
-| `commands/` | `/acceptance-init`, `/acceptance-status` |
+| `commands/` | `/acceptance-init`, `/acceptance-status`, `/acceptance-card` |
 | `scripts/pre-merge-check.sh` | CI gate (copy into consumer repos) |
+| `scripts/gate-card.js` | Render the Gate 1 / Gate 2 human decision card |
 | `tests/` | Fixture tests: `bash tests/hooks/run-tests.sh && bash tests/scripts/run-tests.sh` |
 
 ## Pilot metrics

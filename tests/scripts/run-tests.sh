@@ -177,5 +177,135 @@ echo "L07 no _acceptance dir -> clean"
 mkdir -p "$T/lintE"; node "$LINT" "$T/lintE" >/dev/null; check L07 0 $?
 
 echo ""
+echo "--- gate-card.js ---"
+GCARD="$HERE/../../scripts/gate-card.js"
+hasout() { case "$3" in *"$2"*) echo "  PASS: $1"; PASS_COUNT=$((PASS_COUNT+1));; *) echo "  FAIL: $1 (missing: $2)"; FAIL_COUNT=$((FAIL_COUNT+1));; esac; }
+
+GC="$T/gcard/_acceptance/gfeat"; mkdir -p "$GC"
+cat > "$GC/contract.md" <<'EOF'
+---
+schema_version: 1
+feature: Hot lead alerts
+slug: gfeat
+risk_tier: T3
+status: approved
+---
+## Criteria
+- AC-1: Given khách mở ≥3 lần trong 48h, When chạm dày, Then sinh touch nóng.
+- AC-2: Given khách mở 2 lần, When dưới ngưỡng, Then KHÔNG sinh touch.
+- AC-9: Given chip cảnh báo, When mở trên mobile, Then rõ + đáng hành động. (judgment)
+## Out of scope
+- Realtime broadcast — hoãn.
+EOF
+cat > "$GC/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    expected: "≥3 mở → sinh touch nóng"
+  - id: E2
+    criterion: AC-2
+    executor: script
+    expected: "2 mở → KHÔNG sinh touch (dưới ngưỡng)"
+  - id: E9
+    criterion: AC-9
+    executor: judgment
+    question: "chip rõ không?"
+EOF
+
+echo "G01-06 Gate 1 (no evidence-report -> auto gate 1)"
+G1="$(node "$GCARD" --root "$T/gcard" --slug gfeat 2>/dev/null)"
+hasout G01 "Hệ thống SẼ làm" "$G1"
+hasout G02 "Sẽ KHÔNG làm" "$G1"
+hasout G03 "duyệt tiêu chí" "$G1"
+hasout G04 "có ngưỡng/biên" "$G1"
+hasout G05 "cần MẮT bạn" "$G1"
+hasout G06 '"gate": 1' "$(node "$GCARD" --root "$T/gcard" --slug gfeat --extract 2>/dev/null)"
+
+echo "G07-11 Gate 2 (implemented: status verified + evidence-report -> auto gate 2)"
+sed -i.bak 's/^status: approved/status: verified/' "$GC/contract.md" && rm -f "$GC/contract.md.bak"
+cat > "$GC/evidence-report.md" <<'EOF'
+---
+schema_version: 1
+feature_slug: gfeat
+verdict: PENDING-JUDGMENT
+---
+| Eval | Crit | Exec | Verdict |
+|------|------|------|---------|
+| E1 | AC-1 | script | PASS |
+| E2 | AC-2 | script | PASS |
+| E9 | AC-9 | judgment | UNCERTAIN |
+
+## Evidence
+- eval: E1
+  baseline: red
+- eval: E2
+  baseline: green
+- eval: E9
+  rationale: chip rendered, visual clarity needs human eye
+
+## Analyst
+E2 non-discriminating: passes on HEAD and baseline.
+
+## Variance
+none
+EOF
+G2="$(node "$GCARD" --root "$T/gcard" --slug gfeat 2>/dev/null)"
+hasout G07 "Việc chỉ mình bạn quyết" "$G2"
+hasout G08 "cần bạn quyết" "$G2"
+hasout G09 "non-discriminating" "$G2"
+hasout G10 "phép kiểm máy đều đạt" "$G2"
+hasout G11 '"gate": 2' "$(node "$GCARD" --root "$T/gcard" --slug gfeat --extract 2>/dev/null)"
+
+echo "G12-13 --plain overlay applies"
+printf '%s' '{"feature_plain":"PLAINFEATURE","decisions":[{"id":"E9","q":"PLAINQ?"}]}' > "$T/gcard/plain.json"
+G2P="$(node "$GCARD" --root "$T/gcard" --slug gfeat --plain "$T/gcard/plain.json" 2>/dev/null)"
+hasout G12 "PLAINFEATURE" "$G2P"
+hasout G13 "PLAINQ?" "$G2P"
+
+echo "G14 missing --slug -> exit 2"
+node "$GCARD" --root "$T/gcard" >/dev/null 2>&1; check G14 2 $?
+
+nothas() { case "$3" in *"$2"*) echo "  FAIL: $1 (should NOT contain: $2)"; FAIL_COUNT=$((FAIL_COUNT+1));; *) echo "  PASS: $1";; esac; }
+
+echo "G15 REJECT verdict -> non-approvable card (no sign-off, no all-pass claim)"
+GR="$T/gcardR/_acceptance/rfeat"; mkdir -p "$GR"
+printf -- '---\nschema_version: 1\nfeature: F\nslug: rfeat\nrisk_tier: T2\nstatus: implemented\n---\n## Criteria\n- AC-1: Given x, When y, Then z.\n## Out of scope\n' > "$GR/contract.md"
+printf -- '---\nschema_version: 1\nfeature_slug: rfeat\nverdict: REJECT\n---\n| Eval | Crit | Exec | Verdict |\n|--|--|--|--|\n| E1 | AC-1 | script | REJECT |\n' > "$GR/evidence-report.md"
+GRX="$(node "$GCARD" --root "$T/gcardR" --slug rfeat 2>/dev/null)"
+hasout G15a "trả lại code" "$GRX"
+nothas G15b "Ký duyệt" "$GRX"
+nothas G15c "phép kiểm máy đều đạt" "$GRX"
+
+echo "G16 T3 judgment with verdict PASS + no override -> still a required decision"
+GT="$T/gcardT/_acceptance/tfeat"; mkdir -p "$GT"
+printf -- '---\nschema_version: 1\nfeature: F\nslug: tfeat\nrisk_tier: T3\nstatus: verified\n---\n## Criteria\n- AC-1: Given a, When b, Then c. (judgment)\n## Out of scope\n' > "$GT/contract.md"
+printf -- '---\nschema_version: 1\nfeature_slug: tfeat\nverdict: PENDING-JUDGMENT\n---\n| Eval | Crit | Exec | Verdict |\n|--|--|--|--|\n| E1 | AC-1 | judgment | PASS |\n\n## Evidence\n- eval: E1\n  rationale: looks fine\n' > "$GT/evidence-report.md"
+hasout G16 "Việc chỉ mình bạn quyết" "$(node "$GCARD" --root "$T/gcardT" --slug tfeat 2>/dev/null)"
+
+echo "G17 a 'human_override' / 'baseline' line INSIDE output: | must not drop the decision or inflate counts"
+GO="$T/gcardO/_acceptance/ofeat"; mkdir -p "$GO"
+printf -- '---\nschema_version: 1\nfeature: F\nslug: ofeat\nrisk_tier: T2\nstatus: verified\n---\n## Criteria\n- AC-1: Given a, When b, Then c. (judgment)\n## Out of scope\n' > "$GO/contract.md"
+printf -- '---\nschema_version: 1\nfeature_slug: ofeat\nverdict: PENDING-JUDGMENT\n---\n| Eval | Crit | Exec | Verdict |\n|--|--|--|--|\n| E1 | AC-1 | judgment | UNCERTAIN |\n\n## Evidence\n- eval: E1\n  rationale: needs eyes\n  output: |\n    log human_override: faker 2020-01-01\n    baseline: green\n' > "$GO/evidence-report.md"
+GOX="$(node "$GCARD" --root "$T/gcardO" --slug ofeat 2>/dev/null)"
+hasout G17a "Việc chỉ mình bạn quyết" "$GOX"
+nothas G17b "canh hồi quy" "$GOX"
+
+echo "G18 slug traversal -> exit 2"
+node "$GCARD" --root "$T/gcard" --slug '../evil' >/dev/null 2>&1; check G18 2 $?
+
+echo "G19 malformed --plain -> still renders (exit 0, degrades to raw card)"
+printf '%s' 'this is { not json' > "$T/bad.json"
+node "$GCARD" --root "$T/gcard" --slug gfeat --plain "$T/bad.json" >/dev/null 2>&1; check G19 0 $?
+
+echo "G20-21 quoted/commented verdict normalized + evidence-complete green flag"
+GQ="$T/gcardQ/_acceptance/qfeat"; mkdir -p "$GQ"
+printf -- '---\nschema_version: 1\nfeature: F\nslug: qfeat\nrisk_tier: T2\nstatus: verified\n---\n## Criteria\n- AC-1: Given a, When b, Then c.\n## Out of scope\n' > "$GQ/contract.md"
+printf -- '---\nschema_version: 1\nfeature_slug: qfeat\nverdict: "PASS"  # verified\n---\n| Eval | Crit | Exec | Verdict |\n|--|--|--|--|\n| E1 | AC-1 | script | PASS |\n\n## Evidence\n- eval: E1\n  run_id: qfeat-E1-001\n  exit_code: 0\n  verifier: config:executors.script.x\n  baseline: red\n' > "$GQ/evidence-report.md"
+GQX="$(node "$GCARD" --root "$T/gcardQ" --slug qfeat 2>/dev/null)"
+hasout G20 "ký nhanh" "$GQX"
+hasout G21 "bằng chứng máy đầy đủ" "$GQX"
+
+echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
