@@ -94,11 +94,16 @@ templates produce advisory NOTEs, not failures).
   Gate 1 as "sẽ làm / sẽ KHÔNG làm" + coverage flags, or Gate 2 as "your
   decision / machine handled" + reversibility. Presentation only — the contract,
   evidence, verdict, and hook stay the source of truth; the card decides nothing.
+- At Gate 2, `/acceptance-card` also generates a full **evidence page**
+  (`evidence-page.html`) and auto-opens it — real screenshots (a ui-check eval
+  with multiple frames plays as a CSS slideshow), real output, judge rationale,
+  override status, review findings, Gate-2 checklist. The card stays link-only;
+  you SEE the artifacts on the page. Self-contained, `file://`-openable, zero-dep.
 - Risk tiers: T1 skips the kit; T3 requires direct human verdicts on all
   judgment items. Tiers/globs are per-repo in `_acceptance/config.yaml`.
-- Current test surface: 24 hook cases (`tests/hooks/run-tests.sh`) + 61 script
+- Current test surface: 24 hook cases (`tests/hooks/run-tests.sh`) + 70 script
   cases (`tests/scripts/run-tests.sh`: pre-merge gate + provenance + evidence
-  re-check, eval-coverage lint, gate-card).
+  re-check, eval-coverage lint, gate-card, evidence-page).
 
 ## Layout
 
@@ -111,6 +116,7 @@ templates produce advisory NOTEs, not failures).
 | `scripts/pre-merge-check.sh` | CI gate (copy into consumer repos) |
 | `scripts/recheck-evidence.js` | CI re-verify a committed report's evidence |
 | `scripts/gate-card.js` | Render the Gate 1 / Gate 2 human decision card |
+| `scripts/evidence-page.js` | Render the full Gate-2 evidence page (screenshots/output/slideshow) |
 | `tests/` | Fixture tests: `bash tests/hooks/run-tests.sh && bash tests/scripts/run-tests.sh` |
 
 ## Pilot metrics
