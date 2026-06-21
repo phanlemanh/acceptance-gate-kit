@@ -136,7 +136,9 @@ Entry: implementation complete, contract `status: implemented`.
      + last 10 output lines. Use the run_id from verifier stdout when
      printed; else mint `{slug}-{evalid}-{timestamp}`.
    - `ui-check`: start dev server per `config:dev_server.start`; drive via
-     Claude Preview MCP; screenshot to `_acceptance/{slug}/evidence/`.
+     Claude Preview MCP; screenshot a frame at EACH step to
+     `_acceptance/{slug}/evidence/E{id}-step{n}.png` (the Gate-2 evidence page
+     plays `E{id}-*.png` as a slideshow); `screenshot:` = the first frame.
      No browser MCP → downgrade to judgment + note (see eval-executors.md).
    - `judgment`: dispatch the judge per `references/judge-personas.md`
      (separate fresh subagent, `model: sonnet` — scoped verdict on resolved

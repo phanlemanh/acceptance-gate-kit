@@ -219,7 +219,7 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw, baselineRaw] = await parallel([
       `Quy tac:\n` +
       `- Tu quan dev server: start NEN (background) neu steps yeu cau, doi ready (poll HTTP toi 90s); TAT server truoc khi tra ket qua (chi tat server minh start — port dang co server san thi dung chung va KHONG tat).\n` +
       `- Assertion phai MAY-KIEM-DUOC: HTTP status + marker trong HTML/DOM (trang SSR thi curl + grep du). Ghi tung assertion + ket qua vao outputTail.\n` +
-      `- Evidence file: mkdir -p thu muc truoc. Uu tien chup anh that neu co tool browser/preview (tim qua ToolSearch "preview" hoac "browser"); KHONG co tool chup thi luu HTML da assert vao path screenshot trong steps voi duoi .html va GHI RO fallback trong outputTail. Tra path vao screenshotPath.\n` +
+      `- Evidence file: mkdir -p thu muc truoc. Uu tien chup anh that neu co tool browser/preview (tim qua ToolSearch "preview" hoac "browser"). NHIEU FRAME: chup 1 anh o MOI buoc co screenshot trong steps, luu evidence/${e.id}-step1.png, evidence/${e.id}-step2.png... (de trang bang chung phat slideshow nhu flow). Tra frame DAU vao screenshotPath; liet ke moi frame da luu vao outputTail. KHONG co tool chup → luu HTML da assert (duoi .html) vao screenshotPath va GHI RO fallback trong outputTail.\n` +
       `- exitCode=0 CHI khi MOI assertion pass. KHONG sua code. Khong the chay (port ban khong xu ly duoc, thieu env...) → cannotRun=true + reason cu the.`,
       // sonnet: nhiều bước (server lifecycle, assertion, evidence) nhưng không cần suy luận sâu
       { label: `ui:${e.id}`, phase: 'Machine', schema: UI_SCHEMA, model: 'sonnet' }

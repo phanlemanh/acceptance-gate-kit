@@ -89,7 +89,7 @@ human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER revi
   exit_code: 0
   verifier: scripts/verify-ui-login.sh
   verified_at: {{ISO8601}}
-  screenshot: evidence/E3-login-redirect.png
+  screenshot: evidence/E3-step1.png   # first frame; capture E3-step{n}.png per step → Gate-2 page plays them as a slideshow
 
 # Example shows the PENDING-JUDGMENT state; under an overall PASS verdict
 # this UNCERTAIN-without-override combination is hook-blocked.
