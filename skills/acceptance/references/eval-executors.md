@@ -42,17 +42,17 @@ evals:
     executor: ui-check
     steps:
       - "Start dev server per config dev_server.start"
-      - "Navigate {url}/login, submit valid SSO token"
-      - "Assert redirect to /dashboard AND cookie 'session' present"
-      - "Screenshot to evidence/E3-login-redirect.png"
-    expected: "redirect + cookie + screenshot shows dashboard"
+      - "Navigate {url}/login → screenshot evidence/E3-step1.png"
+      - "Submit valid SSO token → screenshot evidence/E3-step2.png"
+      - "Assert redirect to /dashboard AND cookie 'session' present → screenshot evidence/E3-step3.png"
+    expected: "redirect + cookie; frames show login → submit → dashboard"
     evidence_required: [run_id, exit_code, verifier, verified_at, screenshot]
 
   - id: E4
     criterion: AC-2
     executor: judgment
     question: "Does the error message on invalid token match the product's tone guideline?"
-    inputs: [contract.md, evidence/E3-login-redirect.png]
+    inputs: [contract.md, evidence/E3-step3.png]
     evidence_required: [judged_by, verdict, rationale]
 ```
 
@@ -93,6 +93,12 @@ out-of-scope items with zero negative evals (W3); advisory, surfaced at Gate 1.
 
 ## ui-check mechanics
 
+- **Capture a frame per state transition** — screenshot to
+  `evidence/E{id}-step{n}.png` (n = 1, 2, 3…) at each meaningful step, not just
+  the final state. The Gate-2 evidence page plays an eval's `evidence/E{id}-*.png`
+  frames as a slideshow, so the human SEES the flow run, not one still. The
+  report's `screenshot:` field = the first frame (back-compat); the rest are found
+  by glob. A single screenshot still works (renders a static image).
 - Local dev: drive via Claude Preview MCP (`preview_start` → `preview_eval` /
   `preview_screenshot`). Verifier value: the assertion script if one is
   written, else `config:dev_server.start`.
