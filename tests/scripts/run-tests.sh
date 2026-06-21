@@ -379,5 +379,79 @@ hasout G20 "ký nhanh" "$GQX"
 hasout G21 "bằng chứng máy đầy đủ" "$GQX"
 
 echo ""
+echo "--- evidence-page.js ---"
+EP="$HERE/../../scripts/evidence-page.js"
+EPR="$T/evp"; de="$EPR/_acceptance/epf"; mkdir -p "$de/evidence"
+: > "$de/evidence/E3-step1.png"; : > "$de/evidence/E3-step2.png"
+printf -- '---\nfeature: EP demo\nslug: epf\nrisk_tier: T3\n---\n## Criteria\n- AC-1: Given x, Then z.\n' > "$de/contract.md"
+cat > "$de/evidence-report.md" <<'EOF'
+---
+schema_version: 1
+feature_slug: epf
+verdict: PENDING-JUDGMENT
+verified_by: subagent
+enforcement_mode: strict
+bypass_used: false
+human_signoff:
+---
+| Eval | Criterion | Executor | Verdict |
+|---|---|---|---|
+| E1 | AC-1 | script | PASS |
+| E3 | AC-1 | ui-check | PASS |
+| E9 | AC-1 | judgment | UNCERTAIN |
+
+## Evidence
+- eval: E1
+  run_id: epf-E1-001
+  exit_code: 0
+  verifier: config:executors.script.smoke
+  verified_at: 2026-06-20
+  output: |
+    ok 1 - fires hot at >=3
+    PASS (3 assertions)
+- eval: E3
+  run_id: epf-E3-001
+  exit_code: 0
+  verifier: scripts/v.sh
+  verified_at: 2026-06-20
+  screenshot: evidence/E3-step1.png
+- eval: E9
+  judged_by: panel
+  verdict: UNCERTAIN
+  rationale: cần mắt người.
+  human_override:
+
+## Analyst
+E8 non-discriminating: green cả hai phía.
+
+## Variance
+none
+
+## Iterations
+Round 1: pass.
+
+## Gate 2 checklist (human)
+- [ ] Soi block
+EOF
+echo "EP01 render -> exit 0 + prints path"
+EPOUT="$(node "$EP" --root "$EPR" --slug epf 2>/dev/null)"; check EP01 0 $?
+H="$(cat "$EPOUT" 2>/dev/null)"
+hasout EP02 "PENDING-JUDGMENT" "$H"
+hasout EP03 "epf-E1-001" "$H"
+hasout EP04 "ok 1 - fires hot at" "$H"
+hasout EP04b "PASS (3 assertions)" "$H"
+hasout EP05 'data-n="2"' "$H"
+hasout EP06 "CHƯA điền" "$H"
+hasout EP07 "không phân biệt" "$H"
+echo "EP08 invalid slug -> exit 2"
+node "$EP" --root "$EPR" --slug '../evil' >/dev/null 2>&1; check EP08 2 $?
+echo "EP09 malicious screenshot src (http/traversal) is rejected — absent from page"
+ds="$EPR/_acceptance/epsec"; mkdir -p "$ds/evidence"
+printf -- '---\nfeature: sec\nslug: epsec\n---\n' > "$ds/contract.md"
+printf -- '---\nschema_version: 1\nfeature_slug: epsec\nverdict: PENDING-JUDGMENT\nhuman_signoff:\n---\n| Eval | Criterion | Executor | Verdict |\n|--|--|--|--|\n| E1 | AC-1 | ui-check | PASS |\n\n## Evidence\n- eval: E1\n  run_id: epsec-E1-001\n  exit_code: 0\n  verifier: scripts/v.sh\n  verified_at: 2026-06-20\n  screenshot: http://evil.test/x.png?leak=1\n' > "$ds/evidence-report.md"
+SEC="$(node "$EP" --root "$EPR" --slug epsec 2>/dev/null)"
+nothas EP09 "evil.test" "$(cat "$SEC" 2>/dev/null)"
+
+echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1

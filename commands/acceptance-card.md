@@ -16,7 +16,7 @@ Steps:
 1. **Find the script** in the installed acceptance-gate plugin (do NOT hardcode
    version): `ls "$HOME"/.claude/plugins/cache/*/acceptance-gate/*/scripts/gate-card.js
    "$HOME"/.codex/plugins/cache/*/acceptance-gate/*/scripts/gate-card.js 2>/dev/null`
-   → take the newest. Not found → tell the user to install/update the plugin.
+   → take the newest. `evidence-page.js` sits in the SAME `scripts/` dir. Not found → tell the user to install/update the plugin.
 
 2. **Extract** the bits to translate (gate auto-detected: `evidence-report.md`
    present → Gate 2, else Gate 1):
@@ -39,6 +39,17 @@ Steps:
    and save to `_acceptance/<slug>/card.html`; tell the user to open it (or show the
    fragment inline if a visual tool is available).
 
-5. The card NEVER decides. The human's click flows into the REAL gate: Gate 1 →
+5. **(Gate 2 only — `evidence-report.md` present) Full evidence page + AUTO-OPEN.**
+   The card is intentionally link-only; the human SEES the real artifacts here. Run
+   the sibling script (same `scripts/` dir as gate-card.js):
+   `node "$(dirname <gate-card.js>)/evidence-page.js" --root . --slug <slug>`
+   → writes `_acceptance/<slug>/evidence-page.html` (self-contained: screenshots,
+   real output, judge rationale, override status, review findings, Gate-2 checklist;
+   a ui-check eval with multiple `evidence/<id>-*.png` frames plays as a CSS
+   slideshow). Then **auto-open it for the user** — do NOT make them open it
+   manually: macOS `open <path>`, Linux `xdg-open <path>`, Windows/WSL `start <path>`
+   (the script prints the absolute path on stdout). Gate 1 has no evidence page → skip.
+
+6. The card NEVER decides. The human's click flows into the REAL gate: Gate 1 →
    contract `approved_by`; Gate 2 → `human_signoff` / per-item `human_override`.
    The verdict, hook enforcement, and machine evidence are unchanged.
