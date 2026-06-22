@@ -9,6 +9,10 @@ Initialize the Acceptance-Gate Kit in the current repository.
    a. Test commands per surface they have (api/backend/sdk) — e.g. `pnpm --filter backend test`
    b. CLI smoke command if a CLI surface exists
    c. Dev server start command + URL (for ui-check evals)
+   c2. (optional, for UI slideshow evidence) A command that saves a screenshot of
+       a URL to a FILE — `<cmd> <url> <out.png>` (e.g. `npm run ui:capture`).
+       preview_screenshot is inline-only, so this is what writes the slideshow
+       frames. None yet → offer to scaffold a reference (step 3b).
    d. Paths that are critical (auth/data/payments) → `t3_paths`
    e. Globs safe to skip entirely (docs, pure-config) → `t1_skip_globs`
    f. Who can sign off (names) → `signoff.approvers`
@@ -37,9 +41,21 @@ signoff:
 dev_server:
   start: "<from 2c>"
   url: "<from 2c>"
+capture:
+  ui: "<from 2c2>"           # optional: <cmd> <url> <out.png> to save ui-check frames to files (Gate-2 slideshow). Omit if no UI evidence.
 ```
 
 Omit executor keys for surfaces the repo does not have — do not write empty strings.
+Omit the `capture` block if the repo has no UI evidence need.
+
+3b. **(optional) Scaffold the UI capture reference.** If the user wants slideshow
+    evidence but has no capture command, copy
+    `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/ui-capture.reference.mjs`
+    into the repo as `scripts/ui-capture.mjs`; tell them to `npm i -D
+    puppeteer-core` (drives an EXISTING Chrome — no heavy download) and add
+    `"ui:capture": "node scripts/ui-capture.mjs"` to package.json, then set
+    `capture.ui: "npm run ui:capture"`. The script + dependency live in the REPO,
+    NOT in the plugin — the kit stays zero-dependency.
 
 4. Write `_acceptance/README.md` (3 lines): what this folder is, link to the
    acceptance skill, "artifacts are per-feature in subfolders".

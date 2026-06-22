@@ -99,9 +99,18 @@ out-of-scope items with zero negative evals (W3); advisory, surfaced at Gate 1.
   frames as a slideshow, so the human SEES the flow run, not one still. The
   report's `screenshot:` field = the first frame (back-compat); the rest are found
   by glob. A single screenshot still works (renders a static image).
+- **Saving a frame to a FILE** (the slideshow needs files, not inline images):
+  `preview_screenshot` and most browser tools return an INLINE image, not a saved
+  file. So the repo provides `config:capture.ui` — a command `<cmd> <url>
+  <out.png>` (e.g. `npm run ui:capture`, a puppeteer/playwright wrapper) that the
+  ui-check agent calls to write each `evidence/E{id}-step{n}.png`. The kit ships
+  NO browser dependency — capture is the repo's runtime (like the test runner /
+  dev server), wired via config; `acceptance-init` can scaffold a reference. No
+  capture command → save the asserted HTML as `evidence/E{id}-step{n}.html` and
+  note the fallback, or downgrade to judgment.
 - Local dev: drive via Claude Preview MCP (`preview_start` → `preview_eval` /
-  `preview_screenshot`). Verifier value: the assertion script if one is
-  written, else `config:dev_server.start`.
+  `preview_screenshot`); save frames via `config:capture.ui`. Verifier value: the
+  assertion script if one is written, else `config:dev_server.start`.
 - Staging / deployed target: drive via Chrome MCP (navigate → assert →
   screenshot) against `config:dev_server.url`; same evidence requirements.
 - No browser MCP available → DOWNGRADE the eval to `judgment` with the
