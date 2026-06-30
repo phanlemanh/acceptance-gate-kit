@@ -30,6 +30,9 @@ executors:
     api: "<from 2a>"
   script:
     cli: "<from 2b>"
+  design:                                              # keep if the repo has any web UI
+    gate: "node ${CLAUDE_PLUGIN_ROOT}/scripts/design-gate.mjs"   # script tier (a11y/slop)
+    ui_check: "${CLAUDE_PLUGIN_ROOT}/scripts/design-scan.js"     # browser tier (authoritative P0)
 risk_tiers:
   t1_skip_globs:
     - "<from 2e>"

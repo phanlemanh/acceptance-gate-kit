@@ -74,3 +74,6 @@ between modes and each mode's exclusive catches instead of recall-vs-ground-trut
 - `run-tests.sh` — CI entry
 - `judge-panel.md` — manual LLM calibration protocol
 - `report/` — `ab-dashboard.html`, `arms-mechanism.svg`, `REPORT.md`
+
+The Tier B (real-browser) ui-check recipe the verify agent follows lives in
+`skills/acceptance/references/design-ui-check.md` (wired into Phase 2 step 2b).

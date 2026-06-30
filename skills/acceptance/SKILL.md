@@ -80,6 +80,14 @@ Run immediately after the user reviews the contract (same gate, one sitting).
 2. Map every criterion to ≥1 eval using the executor selection rules
    (test > script > ui-check > judgment — prefer the most mechanical executor
    that can actually check the criterion).
+2b. **Design quality (web-UI surfaces, default-on).** If any `surface` in the
+   contract renders a web UI, add ≥1 design-quality eval **even when no criterion
+   explicitly mentions design**: a `script` eval `cmd: config:executors.design.gate`
+   (deterministic floor, fails on P0 a11y/contrast), plus — when a browser
+   session + dev server are available — a `ui-check` eval per
+   `references/design-ui-check.md` (authoritative P0). Skip only when no surface
+   renders UI, or when `executors.design` is absent from config.yaml (then note
+   the skip). Strategic "on-brand / not generic" goes to a `judgment` eval.
 3. Repo-specific commands MUST be `config:` references
    (e.g. `cmd: config:executors.test.api`) — never hardcoded.
 4. Coverage check — two rules:
