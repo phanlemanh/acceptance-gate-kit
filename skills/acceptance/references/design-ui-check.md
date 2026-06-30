@@ -121,6 +121,7 @@ executors:
   question: "Beyond the detector floor, is this on-brand and not generic?"
 ```
 
-> To activate for the live gate, promote this file to
-> `skills/acceptance/references/design-ui-check.md` and link it from the acceptance
-> SKILL.md eval-executor table. Kept here while the integration is on its branch.
+> Active on the live gate: Phase 2 EVAL-GEN adds a design eval for web-UI
+> surfaces (SKILL.md step 2b) and `eval-executors.md` rule 4b routes
+> design-quality criteria here. The detector + regression harness live in
+> `vendor/impeccable/`, `scripts/design-*`, and `tests/design-eval/`.

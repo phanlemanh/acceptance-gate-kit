@@ -87,6 +87,13 @@ out-of-scope items with zero negative evals (W3); advisory, surfaced at Gate 1.
 3. Criterion observable only through the browser → `ui-check`.
 4. Criterion containing words like "appropriate", "matches intent", "tone",
    "makes sense", or tagged `(judgment)` in the contract → `judgment`.
+4b. Criterion about **design / visual quality** on a web UI — accessibility
+   (contrast), AI-slop tells, "looks shippable" → the **design tiers**: a
+   `script` eval `cmd: config:executors.design.gate` (deterministic floor, fails
+   on P0 a11y/contrast) and, when a browser session + dev server exist, a
+   `ui-check` eval per [design-ui-check.md](design-ui-check.md) (authoritative
+   P0). Strategic "on-brand / not generic" stays `judgment`. Phase 2 adds this
+   for any web-UI surface even with no explicit design criterion (SKILL.md 2b).
 5. Every criterion gets ≥1 eval. A criterion with zero evals fails Gate 1.
 6. `cmd` MUST be a `config:` reference when the command is repo-specific —
    never hardcode repo commands into evals.yaml.
