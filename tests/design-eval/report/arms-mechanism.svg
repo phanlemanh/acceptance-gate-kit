@@ -1,0 +1,49 @@
+<svg width="100%" viewBox="0 0 680 300" role="img" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+<title>Three evaluation arms — mechanism</title>
+<desc>B-static and B-DOM both run the vendored Impeccable detector (static source scan vs rendered DOM); A-judge is an LLM panel with no detector. Each lane: what it reads, how it decides, what it outputs.</desc>
+<rect x="40" y="38" width="12" height="12" rx="3" fill="#1D9E75"/><text x="58" y="49" font-size="12" fill="#5F5E5A">Impeccable detector (same rules)</text>
+<rect x="332" y="38" width="12" height="12" rx="3" fill="#7F77DD"/><text x="350" y="49" font-size="12" fill="#5F5E5A">no Impeccable</text>
+<text x="258" y="74" font-size="12" fill="#888780" text-anchor="middle">reads</text>
+<text x="428" y="74" font-size="12" fill="#888780" text-anchor="middle">decides</text>
+<text x="580" y="74" font-size="12" fill="#888780" text-anchor="middle">output</text>
+
+<g>
+<rect x="40" y="82" width="180" height="58" rx="10" fill="#E1F5EE" stroke="#1D9E75" stroke-width="0.5"/>
+<text x="130" y="106" font-size="14" font-weight="500" fill="#0F6E56" text-anchor="middle">B-static · 23%</text>
+<text x="130" y="124" font-size="12" fill="#0F6E56" text-anchor="middle">source as text</text>
+</g>
+<g>
+<rect x="250" y="82" width="180" height="58" rx="10" fill="#E1F5EE" stroke="#1D9E75" stroke-width="0.5"/>
+<text x="340" y="106" font-size="14" font-weight="500" fill="#0F6E56" text-anchor="middle">regex / parse</text>
+<text x="340" y="124" font-size="12" fill="#0F6E56" text-anchor="middle">blind to colour</text>
+</g>
+<g>
+<rect x="460" y="82" width="180" height="58" rx="10" fill="#E1F5EE" stroke="#1D9E75" stroke-width="0.5"/>
+<text x="550" y="106" font-size="14" font-weight="500" fill="#0F6E56" text-anchor="middle">exit code</text>
+<text x="550" y="124" font-size="12" fill="#0F6E56" text-anchor="middle">hook-legal</text>
+</g>
+<path d="M220 111 H248" stroke="#888780" stroke-width="0.5" fill="none" marker-end="url(#a)"/>
+<path d="M430 111 H458" stroke="#888780" stroke-width="0.5" fill="none" marker-end="url(#a)"/>
+<path d="M550 140 V186" stroke="#888780" stroke-width="0.5" fill="none" marker-end="url(#a)"/>
+
+<g>
+<rect x="40" y="188" width="180" height="58" rx="10" fill="#E1F5EE" stroke="#1D9E75" stroke-width="0.5"/>
+<text x="130" y="212" font-size="14" font-weight="500" fill="#0F6E56" text-anchor="middle">B-DOM · 36%</text>
+<text x="130" y="230" font-size="12" fill="#0F6E56" text-anchor="middle">rendered DOM</text>
+</g>
+<g>
+<rect x="250" y="188" width="180" height="58" rx="10" fill="#E1F5EE" stroke="#1D9E75" stroke-width="0.5"/>
+<text x="340" y="212" font-size="14" font-weight="500" fill="#0F6E56" text-anchor="middle">rules + real colour</text>
+<text x="340" y="230" font-size="12" fill="#0F6E56" text-anchor="middle">computes contrast</text>
+</g>
+<g>
+<rect x="460" y="188" width="180" height="58" rx="10" fill="#EEEDFE" stroke="#7F77DD" stroke-width="0.5"/>
+<text x="550" y="206" font-size="14" font-weight="500" fill="#3C3489" text-anchor="middle">A-judge · 95%</text>
+<text x="550" y="222" font-size="12" fill="#3C3489" text-anchor="middle">4 LLM, no rule</text>
+<text x="550" y="238" font-size="12" fill="#3C3489" text-anchor="middle">verdict + reason · needs human</text>
+</g>
+<path d="M220 217 H248" stroke="#888780" stroke-width="0.5" fill="none" marker-end="url(#a)"/>
+<path d="M430 217 H458" stroke="#888780" stroke-width="0.5" fill="none" marker-end="url(#a)"/>
+
+<defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#888780" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+</svg>

@@ -1,0 +1,10 @@
+{
+  "_note": "Regression anchors from the validated A/B run. Floors sit below observed so minor drift passes but real regressions fail. P0-gating (fail_on:[P0]) means craft-tier artifacts never block a clean fixture.",
+  "observed": { "static_recall": 0.23, "dom_recall": 0.36 },
+  "static": { "min_defect_recall": 0.18 },
+  "dom": {
+    "min_defect_recall": 0.30,
+    "must_reject": ["f03"],
+    "must_pass_clean": ["f09"]
+  }
+}
