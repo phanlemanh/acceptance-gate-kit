@@ -1,0 +1,195 @@
+{
+  "schema": "ab-design-eval/ground-truth@1",
+  "defect_vocabulary": [
+    "gradient-text",
+    "cream-palette",
+    "oversized-h1",
+    "extreme-negative-tracking",
+    "nested-cards",
+    "icon-tile-stack",
+    "identical-card-grid",
+    "low-contrast",
+    "gray-on-color",
+    "tiny-text",
+    "side-tab",
+    "hero-eyebrow-chip",
+    "numbered-section-markers",
+    "bounce-easing",
+    "image-hover-transform",
+    "overused-font",
+    "single-font",
+    "flat-type-hierarchy",
+    "cramped-padding",
+    "tight-leading",
+    "long-line-length",
+    "justified-text"
+  ],
+  "fixtures": [
+    {
+      "id": "f01",
+      "file": "fixtures/f01-gradient-cream.html",
+      "planted": [
+        [
+          "gradient-text",
+          "P1"
+        ],
+        [
+          "cream-palette",
+          "P1"
+        ],
+        [
+          "oversized-h1",
+          "P2"
+        ],
+        [
+          "extreme-negative-tracking",
+          "P2"
+        ]
+      ],
+      "strategic_weak": true,
+      "expected_verdict": "FAIL"
+    },
+    {
+      "id": "f02",
+      "file": "fixtures/f02-nested-cards.html",
+      "planted": [
+        [
+          "nested-cards",
+          "P1"
+        ],
+        [
+          "icon-tile-stack",
+          "P2"
+        ],
+        [
+          "identical-card-grid",
+          "P2"
+        ]
+      ],
+      "strategic_weak": true,
+      "expected_verdict": "FAIL"
+    },
+    {
+      "id": "f03",
+      "file": "fixtures/f03-low-contrast.html",
+      "planted": [
+        [
+          "low-contrast",
+          "P0"
+        ],
+        [
+          "gray-on-color",
+          "P1"
+        ],
+        [
+          "tiny-text",
+          "P2"
+        ]
+      ],
+      "strategic_weak": false,
+      "expected_verdict": "FAIL"
+    },
+    {
+      "id": "f04",
+      "file": "fixtures/f04-side-tab.html",
+      "planted": [
+        [
+          "side-tab",
+          "P1"
+        ]
+      ],
+      "strategic_weak": false,
+      "expected_verdict": "FAIL"
+    },
+    {
+      "id": "f05",
+      "file": "fixtures/f05-eyebrow-numbered.html",
+      "planted": [
+        [
+          "hero-eyebrow-chip",
+          "P2"
+        ],
+        [
+          "numbered-section-markers",
+          "P2"
+        ]
+      ],
+      "strategic_weak": true,
+      "expected_verdict": "FAIL"
+    },
+    {
+      "id": "f06",
+      "file": "fixtures/f06-bounce-imghover.html",
+      "planted": [
+        [
+          "bounce-easing",
+          "P1"
+        ],
+        [
+          "image-hover-transform",
+          "P1"
+        ]
+      ],
+      "strategic_weak": false,
+      "expected_verdict": "FAIL"
+    },
+    {
+      "id": "f07",
+      "file": "fixtures/f07-inter-flat.html",
+      "planted": [
+        [
+          "overused-font",
+          "P2"
+        ],
+        [
+          "single-font",
+          "P2"
+        ],
+        [
+          "flat-type-hierarchy",
+          "P2"
+        ]
+      ],
+      "strategic_weak": true,
+      "expected_verdict": "FAIL"
+    },
+    {
+      "id": "f08",
+      "file": "fixtures/f08-cramped-justified.html",
+      "planted": [
+        [
+          "cramped-padding",
+          "P2"
+        ],
+        [
+          "tight-leading",
+          "P2"
+        ],
+        [
+          "long-line-length",
+          "P2"
+        ],
+        [
+          "justified-text",
+          "P2"
+        ]
+      ],
+      "strategic_weak": false,
+      "expected_verdict": "FAIL"
+    },
+    {
+      "id": "f09",
+      "file": "fixtures/f09-clean-good.html",
+      "planted": [],
+      "strategic_weak": false,
+      "expected_verdict": "PASS"
+    },
+    {
+      "id": "f10",
+      "file": "fixtures/f10-clean-generic.html",
+      "planted": [],
+      "strategic_weak": true,
+      "expected_verdict": "PASS_CRAFT_WEAK_STRATEGY"
+    }
+  ]
+}

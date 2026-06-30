@@ -1,0 +1,13 @@
+{
+  "name": "design-eval",
+  "private": true,
+  "type": "module",
+  "description": "Regression + calibration harness for the acceptance-gate design executor (scoped jsdom for DOM-mode).",
+  "scripts": {
+    "test": "bash run-tests.sh",
+    "report": "node score.mjs"
+  },
+  "optionalDependencies": {
+    "jsdom": "^24.0.0"
+  }
+}
