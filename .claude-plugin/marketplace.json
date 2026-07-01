@@ -15,6 +15,11 @@
       "name": "feature-loop",
       "source": "./feature-loop",
       "description": "Feature development loop on top of acceptance-gate: brainstorm → contract+evals (Gate 1) → plan → execute → multi-agent verify workflow → evidence + human signoff (Gate 2). Requires acceptance-gate + superpowers."
+    },
+    {
+      "name": "design-loop",
+      "source": "./design-loop",
+      "description": "Design-aware sub-track for feature-loop: standardizes the 2-repo design-of-record → port → fidelity pipeline as a conditional S1-D mockup + Gate-2 evidence bookend. Composes with feature-loop (0 edits) + acceptance-gate (reuses its P0 design gate) via config wiring, an auto-triggering skill, and user-run commands. Orchestrates the first-party Claude Design bridge (/design-login, /design-sync) — never automates it."
     }
   ]
 }
