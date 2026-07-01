@@ -1,6 +1,6 @@
 ---
 name: design-subtrack
-description: Design sub-track for a web-UI-surface feature inside feature-loop — use when designing/redesigning a screen, plugin view, mockup, or any user-facing surface (khi thiết kế một surface web-UI / màn hình / mockup trong feature-loop). Standardizes the 2-repo design-of-record → port → 3-layer fidelity pipeline as a CONDITIONAL S1-D mockup + Gate-2 evidence bookend, composing with feature-loop (0 edits) and reusing acceptance-gate's P0 design gate. NOT for headless/backend features. Requires: acceptance-gate + feature-loop + superpowers; one-time /design-init per repo.
+description: Design sub-track for a web-UI-surface feature inside feature-loop — use when designing/redesigning a screen, plugin view, mockup, or any user-facing surface (khi thiết kế một surface web-UI / màn hình / mockup trong feature-loop). Standardizes the 2-repo design-of-record → port → 3-layer fidelity pipeline as a CONDITIONAL S1-D mockup + Gate-2 evidence bookend, composing with feature-loop via its v1.7 no-op-unless-wired seam guards, and reusing acceptance-gate's P0 design gate. NOT for headless/backend features. Requires: acceptance-gate + feature-loop + superpowers; one-time /design-init per repo.
 ---
 
 # design-subtrack

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // design-config-patch.mjs — idempotent wirer behind /design-init.
 //
-// Adds executors.design.{gate,ui_check,static,fidelity} and appends
-// executors.design.static to feature_loop.suite_keys in _acceptance/config.yaml.
+// Adds the executors.design.{gate,ui_check,static,fidelity} block to
+// _acceptance/config.yaml. (Design checks run as per-surface evals, not suite_keys.)
 //
 // TEXT-based on purpose: the acceptance-gate hook parses config.yaml line-by-line
 // with 2-space indentation, so we splice lines rather than round-trip a YAML lib
