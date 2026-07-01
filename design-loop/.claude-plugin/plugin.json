@@ -1,0 +1,19 @@
+{
+  "name": "design-loop",
+  "version": "0.1.0",
+  "description": "Design-aware sub-track for feature-loop. Standardizes the 2-repo design pipeline — design-of-record (design repo .html/.css) → PORT (HTML→JSX + token translation) → app repo plugin views — as a CONDITIONAL S1-D mockup + Gate-2 fidelity-evidence bookend. Composes with feature-loop (0 edits) and reuses acceptance-gate's P0 design gate via config wiring + an auto-triggering skill + user-run commands. Orchestrates the first-party Claude Design bridge (/design-login, /design-sync) but never automates it (an agent-tool, not CI-callable). Requires acceptance-gate + feature-loop + superpowers.",
+  "author": {
+    "name": "Manh Phan",
+    "email": "phanlemanh@gmail.com"
+  },
+  "keywords": [
+    "design",
+    "claude-design",
+    "design-system",
+    "fidelity",
+    "feature-loop",
+    "acceptance",
+    "quality-gate"
+  ],
+  "license": "Proprietary"
+}
