@@ -41,7 +41,12 @@ const DESIGN_BLOCK = [
   '    static: "node ${CLAUDE_PLUGIN_ROOT}/design-loop/scripts/design-static-check.mjs"',
   '    fidelity: "node ${CLAUDE_PLUGIN_ROOT}/design-loop/scripts/design-fidelity-diff.mjs"',
 ];
-const SUITE_KEY = '    - executors.design.static';
+// static/gate/fidelity are config REFERENCES used by PER-SURFACE evals (the eval
+// supplies the target — like config:capture.ui appends <url> <out.png>). They are
+// NOT feature_loop.suite_keys entries: suite_keys run bare (no args) and the design
+// checks need a target, so a bare run would BLOCK. The design-subtrack skill adds
+// the per-surface design evals (target dir + --html capture) to the slug's evals.yaml
+// at S1; S4 runs every eval each round, so they still block per round.
 
 function nextTopLevel(lines, startIdx) {
   for (let i = startIdx + 1; i < lines.length; i++) {
@@ -63,7 +68,6 @@ function main() {
   const out = orig.split('\n');
   const changes = [];
   let addedDesign = false;
-  let addedSuite = false;
 
   // 1) executors.design block
   const execIdx = out.findIndex((l) => /^executors:\s*$/.test(l));
@@ -83,31 +87,8 @@ function main() {
     addedDesign = true;
   }
 
-  // 2) feature_loop.suite_keys += executors.design.static
-  const flIdx = out.findIndex((l) => /^feature_loop:\s*$/.test(l));
-  if (flIdx < 0) {
-    changes.push('WARN: no `feature_loop:` block — static-check will not run per-round until it exists.');
-  } else {
-    const skIdx = out.findIndex((l, i) => i > flIdx && /^  suite_keys:\s*$/.test(l));
-    if (skIdx < 0) {
-      changes.push('WARN: feature_loop present but no suite_keys — skipped.');
-    } else {
-      let last = skIdx;
-      const items = [];
-      for (let i = skIdx + 1; i < out.length; i++) {
-        if (/^    -\s/.test(out[i])) { last = i; items.push(out[i].trim()); }
-        else if (out[i].trim() === '') continue;
-        else break;
-      }
-      if (items.includes('- executors.design.static')) {
-        changes.push('suite_keys already has executors.design.static — skipped.');
-      } else {
-        out.splice(last + 1, 0, SUITE_KEY);
-        changes.push('APPEND executors.design.static to feature_loop.suite_keys');
-        addedSuite = true;
-      }
-    }
-  }
+  // NOTE: design checks are per-surface evals (target supplied by the eval), NOT
+  // feature_loop.suite_keys — a bare suite run has no target and would BLOCK.
 
   // SAFETY: protected key untouched
   const smokeBefore = orig.split('\n').filter((l) => l.includes('smoke_sv_design')).join('\n');
@@ -127,7 +108,6 @@ function main() {
   }
   console.log('\nLines to ADD:');
   if (addedDesign) DESIGN_BLOCK.forEach((l) => console.log('  +', l));
-  if (addedSuite) console.log('  +', SUITE_KEY, '   (under feature_loop.suite_keys)');
 
   if (args.write) {
     fs.copyFileSync(cfgPath, cfgPath + '.bak');

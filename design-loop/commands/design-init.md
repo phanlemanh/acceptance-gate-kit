@@ -1,12 +1,12 @@
 ---
-description: One-time per app repo — wire design-loop into _acceptance/config.yaml (executors.design.* + suite_keys), never overwriting existing keys
+description: One-time per app repo — wire design-loop into _acceptance/config.yaml (executors.design.*), never overwriting existing keys
 ---
 
 Wire the design sub-track into this repo. Idempotent, append-only, safe.
 
 1. **Preflight the composition seams** (warn, do not block):
    - acceptance-gate step 2b auto-add exists (`skills/acceptance/SKILL.md`, the design-eval that self-disables when `executors.design` is absent).
-   - `feature_loop.suite_keys` resolution exists (feature-loop `SKILL.md`).
+   - `capture.ui` exists (design evals capture the surface; if missing, only the source token-only check runs).
    - `_acceptance/config.yaml` exists (else tell the user to run `/acceptance-init` first).
    If a seam looks refactored away, warn the user — the 0-edit composition depends on it.
 
@@ -16,7 +16,7 @@ Wire the design sub-track into this repo. Idempotent, append-only, safe.
    ```
    This prints exactly the lines it would ADD:
    - `executors.design.{gate,ui_check,static,fidelity}` (gate/ui_check reuse acceptance-gate's own scripts; static/fidelity point at design-loop).
-   - `- executors.design.static` appended to `feature_loop.suite_keys` (so the blocking token-only check runs every S4 round).
+   The design checks (static/gate/fidelity) run as **per-surface evals** — the design-subtrack skill adds them to the slug's `evals.yaml` at S1 with the target + `--html` capture. They are NOT suite_keys (a bare suite run has no target and would BLOCK); S4 runs every eval each round, so they still block per round.
    It **never** touches `executors.script.smoke_sv_design` (a live key referenced by `_acceptance/v3-m3/evals.yaml`) — it aborts if any edit would.
 
 3. **Show the diff, ask ONE question** (apply / adjust). On approval:
