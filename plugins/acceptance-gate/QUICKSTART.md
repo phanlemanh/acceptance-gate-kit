@@ -1,5 +1,8 @@
 # QUICKSTART — Acceptance Gate (5 phút đọc)
 
+> Cần bản đầy đủ (sơ đồ kiến trúc, tra cứu enforcement, tinh chỉnh, xử lý sự cố)?
+> Đọc [GUIDE.md](GUIDE.md).
+
 Gate nghiệm thu cho code do AI viết. Thay vì bạn click tay 1-2 giờ kiểm tra
 một tính năng, máy tự chạy bộ evals và nộp **evidence report**; bạn chỉ làm
 2 việc, mỗi việc 5-10 phút:

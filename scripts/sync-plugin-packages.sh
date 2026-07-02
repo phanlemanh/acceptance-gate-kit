@@ -35,5 +35,6 @@ rsync -a --exclude '.DS_Store' "$ROOT/lib/" "$PKG/lib/"
 rsync -a --exclude '.DS_Store' "$ROOT/vendor/" "$PKG/vendor/"
 rsync -a --exclude '.DS_Store' "$ROOT/README.md" "$PKG/README.md"
 rsync -a --exclude '.DS_Store' "$ROOT/QUICKSTART.md" "$PKG/QUICKSTART.md"
+rsync -a --exclude '.DS_Store' "$ROOT/GUIDE.md" "$PKG/GUIDE.md"
 
 echo "Synced $PKG (version $VER)"

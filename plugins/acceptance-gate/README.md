@@ -33,6 +33,7 @@ Enforcement is deterministic, not aspirational:
   auto-filling `human_signoff` alongside the report body is blocked).
 
 > **Thành viên mới: đọc [QUICKSTART.md](QUICKSTART.md) (tiếng Việt, 5 phút) — cài 2 lệnh là dùng được.**
+> **Bản đầy đủ — kiến trúc, cài đặt, vận hành, tra cứu enforcement: [GUIDE.md](GUIDE.md).**
 
 ## Install
 
