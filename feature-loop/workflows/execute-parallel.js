@@ -9,6 +9,7 @@ export const meta = {
 //   planPath: '/abs/docs/superpowers/plans/<plan>.md',
 //   repoRoot: '<abs repo root>',  // repo goc (agent chay trong worktree copy)
 //   tasks: [{ id: 'Task 3', title, summary, files: ['path1', ...], verifyCmd: '<lệnh verify per-task của repo>' }],
+//   models: { executor: 'sonnet' },  // OPTIONAL — từ config feature_loop.models.executor; 'session' = kế thừa (default)
 // }
 
 const TASK_SCHEMA = {
@@ -27,6 +28,27 @@ const TASK_SCHEMA = {
 if (typeof args === 'string') {
   try { args = JSON.parse(args) } catch (e) { args = null }
 }
+
+// ===== MODEL ROUTING (logic thuần — unit-tested tại tests/workflows, case E05/E06) =====
+// null = kế thừa model session của main loop: task coding cần model lớn nhất đang chạy.
+// Override: config.yaml `feature_loop.models.executor` → args.models (SKILL truyền);
+// 'session' = kế thừa. Đổi default = đổi Ở ĐÂY (kèm sửa test E05).
+const MODEL_ROUTES = {
+  executor: null,
+}
+const sanitizeModels = m => {
+  const out = {}
+  if (m && typeof m === 'object' && !Array.isArray(m)) {
+    for (const k of Object.keys(MODEL_ROUTES)) {
+      const v = m[k]
+      if (typeof v !== 'string' || !v.trim()) continue
+      out[k] = v.trim().toLowerCase() === 'session' ? null : v.trim()
+    }
+  }
+  return out
+}
+const ROUTES = { ...MODEL_ROUTES, ...sanitizeModels(args && args.models) }
+const modelOpt = role => (ROUTES[role] ? { model: ROUTES[role] } : {})
 if (!args || !Array.isArray(args.tasks) || args.tasks.length < 2 || typeof args.planPath !== 'string') {
   return { error: 'execute-parallel can planPath + ≥2 task doc lap — it hon thi code tuan tu main loop.', results: [], failed: [] }
 }
@@ -43,7 +65,7 @@ log(`Fan-out ${args.tasks.length} task doc lap, moi task 1 worktree rieng`)
 const results = await parallel(args.tasks.map(t => () =>
   agent(
     `Ban thuc thi MOT task trong implementation plan, trong git worktree rieng (da isolate san — cu lam viec tai cwd; repo goc: ${args.repoRoot}).\nDoc plan: ${args.planPath} — tim section "${t.id}: ${t.title}" va lam DUNG cac step cua section do, KHONG lam task khac.\nTom tat task: ${t.summary}\nFiles du kien: ${t.files.join(', ')}\n\nSau khi code xong: chay verify "${t.verifyCmd}". PASS → commit dung message trong plan. FAIL → sua toi khi pass. Khong the pass → status=failed + notes nguyen nhan, KHONG commit code hong.\nTra ve: status, commitSha (git rev-parse HEAD), branch (git rev-parse --abbrev-ref HEAD), verifyOutput (10 dong cuoi), notes. status=done BAT BUOC kem commitSha + branch + verifyOutput.`,
-    { label: `exec:${t.id}`, phase: 'Execute', isolation: 'worktree', schema: TASK_SCHEMA }
+    { label: `exec:${t.id}`, phase: 'Execute', isolation: 'worktree', schema: TASK_SCHEMA, ...modelOpt('executor') }
   ).then(
     r => {
       if (!r) return { taskId: t.id, status: 'failed', notes: 'agent bi skip/chet — chay lai task nay' }

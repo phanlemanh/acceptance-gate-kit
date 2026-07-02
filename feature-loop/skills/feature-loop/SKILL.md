@@ -74,7 +74,7 @@ Khi duyệt: set contract `status: approved`, `approved_by`, `approved_at` (ISO)
 
 1. Mặc định: thực thi plan TUẦN TỰ trong main loop (theo `superpowers:executing-plans` hoặc subagent-driven nếu đang theo skill đó). Quy ước verify của repo (CLAUDE.md) THẮNG default của skill con nếu xung đột (vd repo cấm test framework → verify per-task = build/typecheck/smoke của repo).
 2. Plan có ≥2 task `independent: true` → gom các task đó, invoke Workflow:
-   `Workflow({ scriptPath: '<WORKFLOWS_DIR>/execute-parallel.js', args: { planPath: '<abs plan path>', repoRoot: '<abs repo root>', tasks: [{ id, title, summary, files, verifyCmd }] } })` (WORKFLOWS_DIR xem ghi chú đầu file)
+   `Workflow({ scriptPath: '<WORKFLOWS_DIR>/execute-parallel.js', args: { planPath: '<abs plan path>', repoRoot: '<abs repo root>', tasks: [{ id, title, summary, files, verifyCmd }], models: <feature_loop.models nếu có, như S4> } })` (WORKFLOWS_DIR xem ghi chú đầu file; script chỉ dùng `models.executor` — default kế thừa model phiên)
    Xong: merge các branch worktree về feature branch (task failed → tự fix tuần tự trong main loop).
 3. Kết thúc S3 (mọi task xong + verify per-task pass): set contract `status: implemented`. KHÔNG tự chạy evals — doer ≠ grader, đó là việc của S4.
 
@@ -89,6 +89,7 @@ Khi duyệt: set contract `status: approved`, `approved_by`, `approved_at` (ISO)
    - Repo có skill review invariant riêng (vd `.claude/skills/<review-skill>/SKILL.md`) → truyền abs path vào `reviewSkillPath`; không có → bỏ qua, script tự review theo conventions (CLAUDE.md/CONTRIBUTING.md).
    - `riskTier` từ contract frontmatter; `diffBase` = merge-base với nhánh chính. Detect nhánh chính: `git remote show origin | grep 'HEAD branch'`, không có remote thì thử lần lượt main/master/develop/trunk (`git rev-parse --verify <branch>`); không detect được → hỏi user, KHÔNG để `git merge-base` fail mờ.
    - `invokedAt` = `date -u +%Y-%m-%dT%H:%M:%SZ` (script bị cấm `Date` — timestamp cho các dòng run-log.jsonl phải truyền từ ngoài vào).
+   - `models` (optional) = đọc block `feature_loop.models` trong config.yaml nếu có (mỗi dòng con `<role>: <model>`; role: machine/ui/judge/finder/refute/baseline/provenance/scribe/synthesize; giá trị `session` = kế thừa model phiên chính) → truyền nguyên map. Không có block → bỏ qua field, script dùng default. KHÔNG tự bịa model theo cảm tính — bảng default trong script là quyết định đã cân nhắc.
    - `round`: chưa có `evidence-report.md` → 1; có rồi → đếm số round trong section `## Iterations` + 1. (REJECT không đổi contract status — session mới resume PHẢI đọc round từ đây, nếu không cap 3 round bị reset và run_id mint trùng.)
 2. Invoke: `Workflow({ scriptPath: '<WORKFLOWS_DIR>/acceptance-verify.js', args: { slug, round, riskTier, evals, suiteCommands, diffBase, repoRoot, personasPath, templatePath, reviewSkillPath? } })` (debug fan-out không tốn agent: thêm `dryRun: true` → trả về distinctCommands/judgePanels, không chạy gì).
 3. Routing theo verdict trả về:

@@ -55,6 +55,10 @@ dev_server:
   url: "<from 2c>"
 capture:
   ui: "<from 2c2>"           # optional: <cmd> <url> <out.png> to save ui-check frames to files (Gate-2 slideshow). Omit if no UI evidence.
+# feature_loop:              # (feature-loop plugin) S4 adds suite_keys here via scripts/config-patch.mjs
+#   models:                  # optional: override the verify-agent model per role
+#     judge: opus            # roles: machine/ui/judge/finder/refute/baseline/provenance/scribe/synthesize (+ executor for S3 fan-out)
+#     finder: session        # 'session' = inherit the main session's model
 ```
 
 Omit executor keys for surfaces the repo does not have — do not write empty strings.

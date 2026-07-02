@@ -25,6 +25,7 @@ export const meta = {
 //   diffBase: 'main',
 //   repoRoot: '<abs repo root>',
 //   invokedAt: '2026-07-02T10:00:00Z',   // ISO, do skill lấy bằng `date -u` (script bị cấm Date) — ts cho run-log.jsonl
+//   models: { judge: 'opus', ... },      // OPTIONAL — từ config feature_loop.models.<role>; 'session' = kế thừa. Role lạ/giá trị rác bị sanitize bỏ.
 
 //   personasPath: '<abs>/judge-personas.md',
 //   templatePath: '<abs>/evidence-report-template.md',
@@ -156,6 +157,37 @@ const BASELINE_SCHEMA = {
   required: ['results'],
 }
 
+// ===== MODEL ROUTING (logic thuần — unit-tested tại tests/workflows, case W10) =====
+// Bảng route DUY NHẤT vai-trò → model. null = kế thừa model session của main loop.
+// Đổi routing = đổi Ở ĐÂY (kèm sửa test W10) — không sửa rải rác trong agent().
+const MODEL_ROUTES = {
+  machine: 'haiku',      // chạy 1 lệnh + capture output — thuần cơ học
+  ui: 'sonnet',          // nhiều bước (server lifecycle, assertion, evidence) nhưng không cần suy luận sâu
+  judge: 'sonnet',       // phán xét scoped trên input đã resolve; majority 2/3 của panel bù sai số từng judge
+  finder: null,          // recall bug là chỗ trí tuệ tạo giá trị — GIỮ model lớn (kế thừa session)
+  refute: 'sonnet',      // kiểm 1 finding cụ thể có sẵn file:line — phạm vi hẹp
+  baseline: 'sonnet',    // worktree + chạy lại lệnh trên commit gốc — cơ học có điều kiện
+  provenance: 'sonnet',  // 3 lệnh cơ học, kết quả thành literal cho prompt
+  scribe: 'haiku',       // chép nguyên văn dòng JSONL vào file
+  synthesize: 'sonnet',  // điền template từ verdict + JSON đã tính sẵn; hook evidence-gate chặn nếu sai shape
+}
+// Override per-role từ repo: config.yaml `feature_loop.models.<role>` — SKILL đọc và truyền
+// args.models. sanitize THUẦN (unit-tested W15/W16): chỉ nhận role có trong bảng, value string
+// không rỗng; 'session' = kế thừa model main loop. Repo không khai gì → default y nguyên.
+const sanitizeModels = m => {
+  const out = {}
+  if (m && typeof m === 'object' && !Array.isArray(m)) {
+    for (const k of Object.keys(MODEL_ROUTES)) {
+      const v = m[k]
+      if (typeof v !== 'string' || !v.trim()) continue
+      out[k] = v.trim().toLowerCase() === 'session' ? null : v.trim()
+    }
+  }
+  return out
+}
+const ROUTES = { ...MODEL_ROUTES, ...sanitizeModels(args && args.models) }
+const modelOpt = role => (ROUTES[role] ? { model: ROUTES[role] } : {})
+
 // ---- phân loại + dedupe (thuần JS, deterministic) ----
 const machineEvals = args.evals.filter(e => e.executor === 'test' || e.executor === 'script')
 const judgmentEvals = args.evals.filter(e => e.executor === 'judgment')
@@ -217,8 +249,7 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw, baselineRaw] = await parallel([
   () => parallel(distinctCmds.flatMap(cmd => Array.from({ length: cmdRuns.get(cmd) || 1 }, (_, __i) => () =>
     agent(
       `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Trong repo ${args.repoRoot}, chay dung lenh:\n\n  ${cmd}\n\nCapture TRUNG THUC: exit code that, ~10 dong output cuoi lien quan, run_id neu stdout co in (khong co thi de chuoi rong).\nKHONG sua code. KHONG dung git checkout/switch/stash/reset — repo dang o dung branch can verify, doi branch la pha hong cac verifier khac dang chay song song. KHONG chay lai nhieu lan de "cho pass". Neu lenh khong the chay (thieu env, service/DB local chua chay, script khong ton tai...) → cannotRun=true + reason cu the.`,
-      // haiku: tác vụ thuần cơ học (chạy 1 lệnh, capture output) — không cần model lớn
-      { label: `machine:${cmd.slice(0, 40)}${(cmdRuns.get(cmd) || 1) > 1 ? '#' + (__i + 1) : ''}`, phase: 'Machine', schema: MACHINE_SCHEMA, model: 'haiku' }
+      { label: `machine:${cmd.slice(0, 40)}${(cmdRuns.get(cmd) || 1) > 1 ? '#' + (__i + 1) : ''}`, phase: 'Machine', schema: MACHINE_SCHEMA, ...modelOpt('machine') }
     ).then(r => r && { ...r, cmd, runIndex: __i + 1 })
   ))),
 
@@ -234,8 +265,7 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw, baselineRaw] = await parallel([
       `- Assertion phai MAY-KIEM-DUOC: HTTP status + marker trong HTML/DOM (trang SSR thi curl + grep du). Ghi tung assertion + ket qua vao outputTail.\n` +
       `- Evidence file: mkdir -p thu muc truoc. LUU FRAME RA FILE: neu config.yaml co "capture.ui" (lenh <cmd> <url> <out.png>, vd npm run ui:capture) thi DUNG no de luu moi frame — preview_screenshot tra anh INLINE, khong luu file duoc. NHIEU FRAME: luu 1 anh o MOI buoc co screenshot trong steps → evidence/${e.id}-step1.png, evidence/${e.id}-step2.png... (de trang bang chung phat slideshow nhu flow). Tra frame DAU vao screenshotPath; liet ke moi frame da luu vao outputTail. KHONG co capture.ui/tool chup → luu HTML da assert (duoi .html) vao screenshotPath va GHI RO fallback trong outputTail.\n` +
       `- exitCode=0 CHI khi MOI assertion pass. KHONG sua code. Khong the chay (port ban khong xu ly duoc, thieu env...) → cannotRun=true + reason cu the.`,
-      // sonnet: nhiều bước (server lifecycle, assertion, evidence) nhưng không cần suy luận sâu
-      { label: `ui:${e.id}`, phase: 'Machine', schema: UI_SCHEMA, model: 'sonnet' }
+      { label: `ui:${e.id}`, phase: 'Machine', schema: UI_SCHEMA, ...modelOpt('ui') }
     ).then(r => r && { ...r, cmd: `ui-check:${e.id}`, evals: [e.id] })
   )),
 
@@ -243,21 +273,19 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw, baselineRaw] = await parallel([
     LENSES.map(lens => () =>
       agent(
         `Ban la judge DOC LAP, context sach, lens duy nhat: ${lens}. BLIND: KHONG doc diff, KHONG doc reasoning cua nguoi code.\nDoc persona tai ${args.personasPath}, ap persona hop lens.\nDoc cac input (abs path, da resolve san): ${(e.inputs || []).join(' , ')}\n\nCau hoi phan xet (${e.id} / ${e.criterion}): ${e.question}\n\nTra verdict PASS | FAIL | UNCERTAIN + rationale 1-3 cau. UNCERTAIN khi khong du can cu — dung doan.`,
-        // sonnet: phán xét scoped trên input đã resolve; majority 2/3 của panel bù sai số từng judge
-        { label: `judge:${e.id}:${lens}`, phase: 'Judge', schema: VERDICT_SCHEMA, model: 'sonnet' }
+        { label: `judge:${e.id}:${lens}`, phase: 'Judge', schema: VERDICT_SCHEMA, ...modelOpt('judge') }
       ).then(v => v && { evalId: e.id, lens, ...v })
     )
   )),
 
   () => pipeline(
     REVIEWERS,
-    d => agent(d.prompt, { label: `review:${d.key}`, phase: 'Review', schema: FINDINGS_SCHEMA }),
+    d => agent(d.prompt, { label: `review:${d.key}`, phase: 'Review', schema: FINDINGS_SCHEMA, ...modelOpt('finder') }),
     (res, d) => res
       ? parallel(res.findings.map(f => () =>
           agent(
             `Adversarially verify finding sau trong repo ${args.repoRoot} (diff ${args.diffBase}...HEAD):\n"${f.title}" tai ${f.file}${f.line ? ':' + f.line : ''} — ${f.detail}\nCo BAC BO no: doc code that (Read/Grep; KHONG git checkout/switch — repo phai o nguyen branch), tim bang chung no KHONG phai van de. refuted=true neu khong chac chan day la van de that.`,
-            // sonnet: kiểm 1 finding cụ thể có sẵn file:line — phạm vi hẹp. Finder GIỮ model lớn (kế thừa session) vì recall bug là chỗ trí tuệ tạo giá trị
-            { label: `refute:${(f.file || '').split('/').pop()}`, phase: 'Review', schema: REFUTE_SCHEMA, model: 'sonnet' }
+            { label: `refute:${(f.file || '').split('/').pop()}`, phase: 'Review', schema: REFUTE_SCHEMA, ...modelOpt('refute') }
           ).then(v => v
             ? (!v.refuted ? { ...f, source: d.key } : null)
             : { ...f, source: d.key, unverified: true }) // refuter chet → giu finding, danh dau chua verify
@@ -277,7 +305,7 @@ Lam trong repo ${args.repoRoot} NHUNG TUYET DOI KHONG git checkout/switch/stash 
 3) Voi cwd = "$WT", chay TUNG lenh sau, capture exit code that: ${baselineCmds.join(' , ')}
 4) Don dep BAT BUOC: git -C ${args.repoRoot} worktree remove --force "$WT".
 Tra results[] = {cmd, baselineExit, cannotRun, reason}. PHAN BIET 2 loai "khong chay tot tren baseline": (a) lenh/script CUA FEATURE chua ton tai o commit goc (npm "missing script", file-not-found cho chinh script eval) = eval MOI, dung ra phai FAIL tren code cu → ghi baselineExit = exit that (khac 0) va cannotRun=FALSE (day la tin hieu "phan biet", KHONG phai cannotRun); (b) moi truong/ha tang that bai khong lien quan feature (service/DB local chua chay, thieu env ma lenh can, worktree add fail) = cannotRun=TRUE. Baseline la tin hieu PHU, TUYET DOI KHONG bia exit.`,
-        { label: 'baseline:diffBase', phase: 'Machine', schema: BASELINE_SCHEMA, model: 'sonnet' }
+        { label: 'baseline:diffBase', phase: 'Machine', schema: BASELINE_SCHEMA, ...modelOpt('baseline') }
       ),
 ])
 
@@ -399,14 +427,13 @@ const machineForReportB = machineForReport.map(m => ({ ...m, baseline: baselineS
 const [prov, scribe] = await parallel([
   () => agent(
     `Chay DUNG 3 lenh, bao cao KET QUA THUC (KHONG suy dien, KHONG doan):\n1) printf '%s' "$ACCEPTANCE_GATE_BYPASS" — in ra dung "1" → bypass_used=true; rong/khac → false.\n2) Doc ${args.repoRoot}/_acceptance/config.yaml, lay field "enforcement" o cap 0 (^enforcement: strict|warn|off); thieu file/field → "strict".\n3) git -C ${args.repoRoot} rev-parse HEAD — tra ve verified_commit = chuoi 40-hex NGUYEN VAN tu stdout; lenh loi (khong phai git repo) → chuoi rong. TUYET DOI KHONG bia SHA.\nTra ve {bypass_used, enforcement_mode, verified_commit} dung ket qua 3 lenh tren.`,
-    { label: 'capture:provenance', phase: 'Synthesize', schema: PROV_SCHEMA, model: 'sonnet' }
+    { label: 'capture:provenance', phase: 'Synthesize', schema: PROV_SCHEMA, ...modelOpt('provenance') }
   ),
   () => runLogLines.length === 0
     ? Promise.resolve({ written: true, lineCount: 0 })
     : agent(
         `Ban la scribe co hoc. APPEND chinh xac ${runLogLines.length} dong sau vao CUOI file ${args.repoRoot}/_acceptance/${args.slug}/run-log.jsonl — giu nguyen noi dung cu cua file, KHONG sua/dinh dang lai/sap xep/gop/bo dong nao:\n${runLogLines.join('\n')}\n\nCach lam: mkdir -p ${args.repoRoot}/_acceptance/${args.slug} roi dung Bash "cat >> <file> <<'RUNLOG_EOF'" voi noi dung NGUYEN VAN o tren. Xong doc lai file, xac nhan ${runLogLines.length} dong vua them co mat. Tra ve {written, lineCount} THAT — append fail thi written=false, khong bia.`,
-        // haiku: chep nguyen van vao file — tac vu thuan co hoc
-        { label: 'scribe:run-log', phase: 'Synthesize', schema: RUNLOG_SCHEMA, model: 'haiku' }
+        { label: 'scribe:run-log', phase: 'Synthesize', schema: RUNLOG_SCHEMA, ...modelOpt('scribe') }
       ),
 ])
 const runLogWriteFailed = runLogLines.length > 0 && !(scribe && scribe.written)
@@ -422,8 +449,7 @@ run_id cua TUNG eval: chep NGUYEN VAN tu map nay — JS da tinh san va DA GHI va
 A/B BASELINE: moi block eval may ghi them field "baseline: <green|red|n-a>" lay tu field "baseline" trong ket qua may o tren (green=pass tren code cu diffBase, red=fail tren code cu nghia la eval CO phan biet, n-a=khong chay duoc tren baseline). Field baseline DUNG TU green/red/n-a, TUYET DOI KHONG ghi exit-code so o day hay trong section Analyst — hook L1 CONSISTENCY se chan oan report PASS neu thay token exit khac 0.
 Them section "## Analyst" ngay sau bang ket qua: liet ke eval KHONG-PHAN-BIET (pass tren CA HEAD lan baseline, chung minh harness chu khong phai feature; nen viet lai de assert hanh vi moi hoac xac nhan la regression-guard co chu y): ${JSON.stringify(nonDiscriminating)}. Rong thi ghi "none — moi eval feature deu red tren baseline (co phan biet)". Lenh suite xanh-ca-hai-phia la regression-guard binh thuong, KHONG liet ke.
 VARIANCE-N: eval co field "runs" > 1 = eval NGAU NHIEN (da chay nhieu lan, gop lai). Voi eval do ghi them "runs: <N>" va "pass_rate: <passes>/<runs>" (dang phan so vd "4/5" — DUNG so exit). Eval khong co runs hoac runs=1 (deterministic) KHONG ghi pass_rate. Eval co field "variance": true (pass_rate khac 0 va khac full) → tin hieu PHUONG SAI: feature ngau nhien chua on dinh; verdict tong DA la PENDING-JUDGMENT; ghi eval do vao section moi "## Variance" kem pass_rate de NGUOI quyet nguong o Gate 2 (giong judgment item). Eval deterministic ma variance=true = test flaky/racy → cung vao "## Variance", ghi ro "flaky".\nDinh nghia eval (ghi "verifier:" = field "ref" — config: ref GOC, hook L2 chi chap nhan config: ref hoac script path, KHONG ghi lenh resolved): ${JSON.stringify(args.evals.map(e => ({ id: e.id, criterion: e.criterion, executor: e.executor, ref: e.ref, expected: e.expected, evidence_required: e.evidence_required })))}\nJudge panels (DE XUAT — ghi de xuat panel + rationale tung judge, de human_override TRONG cho moi item; T3 thi MOI judgment item deu cho human). QUAN TRONG format: trong section judge, ghi vote dang "- <lens>: FAIL — <rationale>" / "- <lens>: PASS — ...", TUYET DOI KHONG dung chuoi "verdict: FAIL" (hook L1 CONSISTENCY scan token nay trong report PASS) — moi dissent phai hien thi day du, khong duoc om/viet lai: ${JSON.stringify(panels)}\n\nSau do viet file thu hai ${args.repoRoot}/_acceptance/${args.slug}/review-findings.md (informational, ngoai hook) liet ke findings da adversarial-verify: ${JSON.stringify(confirmedFindings)} — moi finding: title, file:line, severity, detail, source. Finding co unverified=true liet ke RIENG thanh section "Chua adversarial-verify (refuter chet)".\nTra ve reportPath va findingsPath tuyet doi.`,
-  // sonnet: điền template từ verdict + JSON đã tính sẵn bằng JS thuần; hook evidence-gate chặn nếu sai shape
-  { label: 'synthesize:report', phase: 'Synthesize', schema: REPORT_SCHEMA, model: 'sonnet' }
+  { label: 'synthesize:report', phase: 'Synthesize', schema: REPORT_SCHEMA, ...modelOpt('synthesize') }
 )
 
 return {
