@@ -6,5 +6,8 @@ __pycache__/
 tests/hooks/fixtures/repo/.git
 tests/hooks/fixtures/repo-warn/
 tests/hooks/fixtures/repo-warn2/
+tests/hooks/fixtures/repo-warn-c/
 tests/hooks/fixtures/repo/_acceptance/upgrade-flow/
 tests/hooks/fixtures/repo/_acceptance/dollar-flow/
+tests/hooks/fixtures/repo/_acceptance/guard-flow/
+tests/hooks/fixtures/repo/_acceptance/fresh-flow/

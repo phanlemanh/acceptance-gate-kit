@@ -17,10 +17,20 @@ input (prompt/ticket/PRD)
 
 Enforcement is deterministic, not aspirational:
 - **Hook** (`acceptance-evidence-gate.js`): blocks any PASS verdict written
-  without machine evidence (run_id, exit_code 0, authentic verifier,
-  verified_at) or with unresolved UNCERTAIN judgments.
+  without machine evidence (run_id — reconciled against the machine-written
+  `run-log.jsonl` when it exists, exit_code 0, authentic verifier,
+  verified_at, a real-SHA `verified_commit` when present) or with unresolved
+  UNCERTAIN judgments — and blocks contract `status` transitions that skip
+  Gate 1 (approved/signed-off, or draft → implemented/verified, with an empty
+  `approved_by` and no `gate1_skipped: true`).
 - **CI** (`scripts/pre-merge-check.sh`): blocks merge of implemented T2/T3
-  features without a signed PASS evidence report.
+  features without a signed PASS evidence report, without a recorded Gate-1
+  approval, with STALE evidence (non-gate files changed after the report's
+  `verified_commit`), or — via the committed-evidence re-check — with run_ids
+  that were never machine-logged in `run-log.jsonl`. With
+  `signoff.require_human_commit: true`, the Gate-2 signature must also land in
+  its own human-fields-only commit (git history is the attribution — an AI
+  auto-filling `human_signoff` alongside the report body is blocked).
 
 > **Thành viên mới: đọc [QUICKSTART.md](QUICKSTART.md) (tiếng Việt, 5 phút) — cài 2 lệnh là dùng được.**
 
@@ -147,6 +157,7 @@ templates produce advisory NOTEs, not failures).
 | `scripts/pre-merge-check.sh` | CI gate (copy into consumer repos) |
 | `scripts/recheck-evidence.js` | CI re-verify a committed report's evidence |
 | `scripts/gate-card.js` | Render the Gate 1 / Gate 2 human decision card |
+| `scripts/config-patch.mjs` | THE splice path for programmatic config.yaml writes (dry-run, .bak, abort-on-existing) |
 | `scripts/evidence-page.js` | Render the full Gate-2 evidence page (screenshots/output/slideshow) |
 | `tests/` | Fixture tests: `for t in hooks scripts plugins design-loop; do bash tests/$t/run-tests.sh; done` |
 
