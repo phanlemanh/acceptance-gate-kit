@@ -33,7 +33,10 @@ import { createRequire } from 'node:module';
 function parseColor(c) {
   if (!c) return null;
   c = String(c).trim();
-  if (c === 'transparent' || /rgba?\([^)]*,\s*0\s*\)$/.test(c)) return null;
+  // Transparent = the keyword, or a 4-channel rgb[a]() whose ALPHA is 0 — the
+  // alpha must be the 4th value (3 commas before it), otherwise rgb(r, g, 0)
+  // (black, pure red/orange/yellow…) would be skipped from contrast checks.
+  if (c === 'transparent' || /^rgba?\((?:[^,)]+,){3}\s*0(?:\.0+)?\s*\)$/.test(c)) return null;
   let m = c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
   if (m) return { r: +m[1], g: +m[2], b: +m[3], a: m[4] !== undefined ? +m[4] : 1 };
   m = c.match(/^#([0-9a-fA-F]{3,8})$/);

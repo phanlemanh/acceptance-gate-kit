@@ -1,0 +1,7 @@
+:root {
+  --accent: #ff5533; /* token definitions are the ONE place raw hex is allowed */
+}
+.btn {
+  color: var(--accent);
+  border-radius: var(--radius-sm);
+}
