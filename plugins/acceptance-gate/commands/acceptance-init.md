@@ -45,6 +45,11 @@ risk_tiers:
 signoff:
   required_for: [T2, T3]     # tiers that pre-merge-check requires signoff for
   approvers: ["<from 2f>"]   # informational in v1 (not yet machine-enforced)
+  require_human_commit: true # Gate-2 signature must land in its own human-fields-only
+                             # commit (pre-merge checks git history; the reviewer commits
+                             # the signoff line themselves). Safe default for a fresh repo.
+  # agent_authors:           # OPTIONAL email-glob blocklist for the signoff commit's author
+  #   - "*[bot]*"            # (useful when CI/agents commit under a dedicated identity)
 dev_server:
   start: "<from 2c>"
   url: "<from 2c>"
@@ -74,4 +79,10 @@ Omit the `capture` block if the repo has no UI evidence need.
    - `${CLAUDE_PLUGIN_ROOT}/lib/evidence-core.js` → `lib/`
    Copying only pre-merge-check.sh silently drops the committed-evidence
    re-check layer (it degrades to a NOTE).
+   In the CI step, pass the PR base so the T1-escape backstop is armed
+   (without it the backstop only NOTEs): on GitHub Actions
+   `bash scripts/pre-merge-check.sh . --base "origin/$GITHUB_BASE_REF"`
+   (or export `PRE_MERGE_BASE`). The backstop blocks PRs that change
+   `t3_paths` — or any non-T1 file — while carrying no `_acceptance/<slug>/`
+   artifacts.
 6. Print: "Acceptance gate ready. Run the acceptance skill on your next feature."

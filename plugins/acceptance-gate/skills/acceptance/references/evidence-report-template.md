@@ -27,6 +27,12 @@ Verdict rules:
 Field notes: use `verified_by:` for attribution only — `checked_by:` is
 reserved (parsed as a verifier and will fail authenticity). `run_id` must be
 at least 4 chars; if the verifier prints none, mint `<slug>-<eval>-<date>`.
+Run-log reconciliation: when `_acceptance/{slug}/run-log.jsonl` exists (the
+verify machinery appends one machine-computed JSON line per machine/ui eval,
+at run time), every `run_id` in a PASS report must appear in that log — the
+hook and the CI re-check both block ids that were never logged. Copy run_ids
+from the actual runs; never invent them. A report without a sibling log
+(older flow) is tolerated; pre-merge NOTEs it.
 
 Provenance (CI-enforced, not hook-enforced): REPLACE the `enforcement_mode` /
 `bypass_used` placeholders with the real values — `enforcement` from
@@ -36,6 +42,16 @@ Provenance (CI-enforced, not hook-enforced): REPLACE the `enforcement_mode` /
 (`enforcement_mode: off`) or bypassed (`bypass_used: true`, unless a human adds
 `bypass_ack: <name> <date>`); `warn` only warns — so the green you merge is a
 green that was actually gated.
+
+Pinned tree (`verified_commit`): set it to `git rev-parse HEAD` at verify time —
+the exact tree the verifiers ran on. The hook rejects a value that is not a
+7-40 char hex SHA (when the field is present); omit the field ONLY when the
+repo is not a git repo. `pre-merge-check.sh` blocks the merge when any non-gate
+file (outside `_acceptance/`, not matching `risk_tiers.t1_skip_globs`) changed
+after this commit — code modified after verify cannot ride the old evidence;
+re-verify instead. On resume, the skills downgrade contract `status: verified`
+back to `implemented` when they detect such drift. A report without the field
+(older template) is tolerated with a NOTE: staleness is then unverifiable.
 
 Baseline (A/B): each machine eval may carry a `baseline:` field — its status on
 the diffBase (pre-feature) tree. `red` = it failed on the old code (good: the
@@ -62,6 +78,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: {{strict|warn|off}}   # the `enforcement` value from _acceptance/config.yaml (default strict). CI pre-merge BLOCKS off; warn only warns.
 bypass_used: {{true|false}}              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
+verified_commit: {{git rev-parse HEAD at verify time}}   # pins the evidence to the exact tree verified. CI pre-merge BLOCKS when non-gate files changed after it (stale evidence — re-verify). Omit ONLY if not a git repo; hook rejects non-SHA values.
 # bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
 human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER review
 ---

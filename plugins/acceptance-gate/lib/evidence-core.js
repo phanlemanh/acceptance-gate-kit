@@ -70,6 +70,68 @@ function resolveConfigKey(configText, dottedKey) {
   return null;
 }
 
+// ─── Frontmatter field read (leading block only) ───────────────────────────
+
+// Mirrors pre-merge-check.sh front_field: tolerate leading blank lines, read
+// ONLY the leading --- fence block — a body excerpt (pasted log) cannot poison
+// the read. Returns the normalized scalar (comments/quotes stripped) or null
+// when the file has no leading frontmatter / the key is absent.
+function frontmatterField(payload, key) {
+  const text = String(payload).replace(/^(?:[ \t]*\r?\n)+/, '');
+  const fm = text.match(/^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/);
+  if (!fm) return null;
+  const line = fm[1].match(new RegExp('^' + key + '\\s*[:=]\\s*(.*)$', 'mi'));
+  if (!line) return null;
+  return line[1]
+    .replace(/^#.*$/, '')      // comment-only value ("# placeholder") = empty
+    .replace(/\s+#.*$/, '')
+    .trim()
+    .replace(/^["']|["']$/g, '')
+    .trim();
+}
+
+// ─── Run-log reconciliation (run_id provenance) ────────────────────────────
+
+// run-log.jsonl sits next to the report, appended by the verify MACHINERY
+// (workflow JS computes the exact lines; a mechanical scribe writes them) the
+// moment machine results exist — before the report. A PASS report's run_ids
+// must all appear there, so a report minted by hand (or by a synthesizer that
+// never ran anything) fails the same core the hook and CI re-check share.
+// Defense-in-depth against lazy fabrication, not against an adversary editing
+// the log too — that path is caught by review/diff like any artifact tamper.
+
+function extractRunIds(payload) {
+  const ids = [];
+  const RE = /^\s*(?:-\s+)?run_id\s*[:=]\s*(.+?)\s*$/i;
+  for (const line of String(payload).split('\n')) {
+    const m = line.match(RE);
+    if (!m) continue;
+    const val = m[1].replace(/\s+#.*$/, '').trim().replace(/^["']+|["']+$/g, '').trim();
+    if (val) ids.push(val);
+  }
+  return ids;
+}
+
+// Set of run_ids the machinery logged, or null when no log exists (older
+// flow — tolerated; pre-merge NOTEs it). Malformed lines are skipped.
+function loadRunLogIds(fileDir) {
+  let raw;
+  try {
+    raw = fs.readFileSync(path.join(fileDir, 'run-log.jsonl'), 'utf8');
+  } catch (_) {
+    return null;
+  }
+  const ids = new Set();
+  for (const line of raw.split('\n')) {
+    if (!line.trim()) continue;
+    try {
+      const entry = JSON.parse(line);
+      if (entry && typeof entry.run_id === 'string' && entry.run_id) ids.add(entry.run_id);
+    } catch (_) { /* skip malformed line */ }
+  }
+  return ids;
+}
+
 // ─── Verifier extraction & authenticity ────────────────────────────────────
 
 function extractVerifierValues(payload) {
@@ -201,6 +263,15 @@ function evaluateEvidence(payload, opts) {
   if (!HAS_VERIFIER) missing.push('verifier: <script path or config:executors.<type>.<surface>>');
   if (!HAS_VERIFIED_AT) missing.push('verified_at: <ISO8601>');
 
+  // verified_commit — PRESENCE-BASED (backward-tolerant): a report without the
+  // field (older template) is not penalized here (pre-merge NOTEs it instead);
+  // when present it must be a real git SHA so the evidence is pinned to the
+  // exact tree that was verified.
+  const verifiedCommit = frontmatterField(payload, 'verified_commit');
+  if (verifiedCommit !== null && verifiedCommit !== '' && !/^[0-9a-f]{7,40}$/i.test(verifiedCommit)) {
+    missing.push(`verified_commit: <git SHA from \`git rev-parse HEAD\`> — found "${verifiedCommit}" (not a 7-40 char hex SHA)`);
+  }
+
   // L2 SUBSTANCE
   const authFailures = [];
   for (const v of verifierValues) {
@@ -232,17 +303,61 @@ function evaluateEvidence(payload, opts) {
     }
   }
 
-  const anyFailure = missing.length > 0 || authFailures.length > 0 || !!judgmentFailure || !!consistencyFailure;
-  return { missing, consistencyFailure, authFailures, judgmentFailure, anyFailure };
+  // L2 PROVENANCE — presence-based on the LOG file: when the verify machinery
+  // wrote run-log.jsonl next to this report, every run_id the report claims
+  // must appear in it. No log (older flow) → tolerated; pre-merge NOTEs it.
+  let runLogFailure = null;
+  if (fileDir) {
+    const logIds = loadRunLogIds(fileDir);
+    if (logIds) {
+      const unlogged = extractRunIds(payload).filter(id => !logIds.has(id));
+      if (unlogged.length) {
+        runLogFailure = `run_id(s) not found in run-log.jsonl (machine-written at verify time): ${[...new Set(unlogged)].join(', ')} — this evidence was not produced by a logged verify run; re-verify, do not hand-mint run_ids`;
+      }
+    }
+  }
+
+  const anyFailure = missing.length > 0 || authFailures.length > 0 || !!judgmentFailure || !!consistencyFailure || !!runLogFailure;
+  return { missing, consistencyFailure, authFailures, judgmentFailure, runLogFailure, anyFailure };
+}
+
+// ─── Contract transition guard (Gate-1 integrity) ──────────────────────────
+
+// A contract may only be SET to approved/signed-off — or jump from draft (or a
+// brand-new file) straight to implemented/verified — when Gate 1 is recorded
+// (approved_by non-empty) or explicitly skipped (gate1_skipped: true, the
+// audited escape hatch the skill already documents). Judges the POST-WRITE
+// content; oldPayload (the pre-write file, null when creating) supplies the
+// transition source. Statuses outside the lifecycle names are ignored.
+function evaluateContractWrite(newPayload, oldPayload) {
+  const failures = [];
+  const status = (frontmatterField(newPayload, 'status') || '').toLowerCase();
+  const approvedBy = frontmatterField(newPayload, 'approved_by') || '';
+  const gate1Skipped = /^(true|yes|1)$/i.test(frontmatterField(newPayload, 'gate1_skipped') || '');
+  const oldStatus = oldPayload == null ? null : (frontmatterField(oldPayload, 'status') || '').toLowerCase();
+
+  if (!approvedBy && !gate1Skipped) {
+    if (status === 'approved' || status === 'signed-off') {
+      failures.push(`status: ${status} with empty approved_by — Gate 1 approval not recorded. Fill approved_by (+ approved_at); only when the user explicitly skips Gate 1, record gate1_skipped: true (audited, pre-merge NOTEs it).`);
+    }
+    if ((oldStatus === null || oldStatus === 'draft') && (status === 'implemented' || status === 'verified')) {
+      failures.push(`status: ${oldStatus === null ? '(new file)' : 'draft'} -> ${status} skips Gate 1 — approved_by is empty and gate1_skipped is not true. Lifecycle: draft -> approved (Gate 1) -> implemented -> verified -> signed-off (Gate 2).`);
+    }
+  }
+  return { failures, anyFailure: failures.length > 0 };
 }
 
 module.exports = {
   PASS_FAMILY,
   findAcceptanceConfig,
   resolveConfigKey,
+  frontmatterField,
+  extractRunIds,
+  loadRunLogIds,
   extractVerifierValues,
   findGitRoot,
   isAuthenticVerifier,
   determineEnforce,
   evaluateEvidence,
+  evaluateContractWrite,
 };

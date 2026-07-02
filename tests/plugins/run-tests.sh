@@ -52,6 +52,7 @@ for rel in [
     "plugins/acceptance-gate/scripts/evidence-page.js",
     "plugins/acceptance-gate/scripts/recheck-evidence.js",
     "plugins/acceptance-gate/scripts/eval-coverage-lint.js",
+    "plugins/acceptance-gate/scripts/config-patch.mjs",
     "plugins/acceptance-gate/lib/evidence-core.js",
     # design-quality gate (1.8.0) — a package missing these ships pre-design-gate rules
     "plugins/acceptance-gate/scripts/design-gate.mjs",

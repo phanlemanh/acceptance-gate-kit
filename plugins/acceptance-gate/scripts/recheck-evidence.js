@@ -58,5 +58,6 @@ for (const m of r.missing) out.push(`  L1 SHAPE       x ${m}`);
 if (r.consistencyFailure) out.push(`  L1 CONSISTENCY x ${r.consistencyFailure}`);
 for (const a of r.authFailures) out.push(`  L2 SUBSTANCE   x ${a}`);
 if (r.judgmentFailure) out.push(`  L3 JUDGMENT    x ${r.judgmentFailure}`);
+if (r.runLogFailure) out.push(`  L2 PROVENANCE  x ${r.runLogFailure}`);
 process.stderr.write(out.join('\n') + '\n');
 process.exit(1);
