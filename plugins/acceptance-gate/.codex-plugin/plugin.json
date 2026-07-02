@@ -1,0 +1,38 @@
+{
+  "name": "acceptance-gate",
+  "version": "1.8.0",
+  "description": "Acceptance gate for AI-generated features. Normalizes requirements into acceptance contracts, generates eval cases, renders decision cards and evidence pages, verifies evidence, and enforces evidence-backed verdicts with deterministic hooks and CI re-checks.",
+  "author": {
+    "name": "Manh Phan",
+    "email": "phanlemanh@gmail.com"
+  },
+  "keywords": [
+    "acceptance",
+    "qa",
+    "evals",
+    "evidence",
+    "quality-gate",
+    "ai-code-review"
+  ],
+  "license": "Proprietary",
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "hooks": "./hooks/hooks.json",
+  "interface": {
+    "displayName": "Acceptance Gate",
+    "shortDescription": "Evidence-backed acceptance gate for AI-generated features",
+    "longDescription": "Use Acceptance Gate to turn feature requests into acceptance contracts, generate evals, render decision cards and evidence pages, verify machine evidence, and block unsupported PASS verdicts with deterministic hooks and CI re-checks.",
+    "developerName": "Manh Phan",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Create an acceptance contract and evals for this feature.",
+      "Verify this feature with evidence-backed acceptance gates."
+    ],
+    "brandColor": "#2563EB"
+  }
+}

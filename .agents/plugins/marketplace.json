@@ -1,0 +1,32 @@
+{
+  "name": "acceptance-gate-kit",
+  "interface": {
+    "displayName": "Acceptance Gate Kit"
+  },
+  "plugins": [
+    {
+      "name": "acceptance-gate",
+      "source": {
+        "source": "local",
+        "path": "./plugins/acceptance-gate"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "feature-loop-codex",
+      "source": {
+        "source": "local",
+        "path": "./plugins/feature-loop-codex"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}
