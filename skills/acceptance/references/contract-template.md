@@ -7,6 +7,9 @@ reference them.
 Frontmatter rules:
 - `risk_tier:` keeps its own line as shown; the enforcement hook reads it
   (quotes or a trailing # comment are tolerated, nothing else on the line)
+- `owner:` = `git config user.email` of whoever created the workspace — the
+  slug-collision guard compares `feature:`/`owner:` on resume so one slug is
+  never silently reused for a different feature
 - `risk_tier`: T1 (skip kit entirely — do not create this file), T2 (standard),
   T3 (critical: auth/data/breaking-API; judgment items REQUIRE direct human verdict)
 - `status` lifecycle: draft → approved (Gate 1) → implemented → verified → signed-off (Gate 2).
@@ -21,6 +24,7 @@ Frontmatter rules:
 schema_version: 1
 feature: {{one-line feature name}}
 slug: {{kebab-case-slug}}
+owner: {{git config user.email}}
 risk_tier: {{T2|T3}}
 surfaces: [{{api|cli|sdk|ui, comma-separated}}]
 status: draft

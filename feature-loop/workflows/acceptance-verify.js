@@ -24,6 +24,8 @@ export const meta = {
 //   suiteCommands: ['npm run build', 'npm run typecheck', ...],
 //   diffBase: 'main',
 //   repoRoot: '<abs repo root>',
+//   invokedAt: '2026-07-02T10:00:00Z',   // ISO, do skill lấy bằng `date -u` (script bị cấm Date) — ts cho run-log.jsonl
+
 //   personasPath: '<abs>/judge-personas.md',
 //   templatePath: '<abs>/evidence-report-template.md',
 //   reviewSkillPath: '<abs>/SKILL.md',  // OPTIONAL — skill review invariant riêng của repo; thiếu → review theo conventions (CLAUDE.md)
@@ -112,14 +114,25 @@ const REPORT_SCHEMA = {
   required: ['reportPath', 'findingsPath'],
 }
 
-// Provenance đo BẰNG MÁY (2 lệnh cơ học), KHÔNG để synthesizer LLM tự quyết — giá trị thành literal cho prompt.
+// Scribe run-log: agent chỉ là CÂY BÚT — nội dung từng dòng do JS thuần tính sẵn
+const RUNLOG_SCHEMA = {
+  type: 'object',
+  properties: {
+    written: { type: 'boolean', description: 'true CHI khi append thanh cong du so dong' },
+    lineCount: { type: 'number', description: 'so dong vua append (dem lai tu file)' },
+  },
+  required: ['written', 'lineCount'],
+}
+
+// Provenance đo BẰNG MÁY (3 lệnh cơ học), KHÔNG để synthesizer LLM tự quyết — giá trị thành literal cho prompt.
 const PROV_SCHEMA = {
   type: 'object',
   properties: {
     bypass_used: { type: 'boolean' },
     enforcement_mode: { type: 'string', enum: ['strict', 'warn', 'off'] },
+    verified_commit: { type: 'string', description: 'git rev-parse HEAD (40 hex nguyen van); khong phai git repo / loi → chuoi rong' },
   },
-  required: ['bypass_used', 'enforcement_mode'],
+  required: ['bypass_used', 'enforcement_mode', 'verified_commit'],
 }
 
 // A/B baseline (đối chứng): kết quả chạy lại lệnh-CÓ-eval trên diffBase (commit gốc)
@@ -299,6 +312,26 @@ for (const cmd of distinctCmds) {
 // ui-check hợp nhất vào machine-style (luôn 1 lần): cmd ui-check:<evalId> — routing blocked/failed dùng chung
 machine.push(...(uiRaw || []).filter(Boolean).map(r => ({ ...r, runs: 1, passes: !r.cannotRun && r.exitCode === 0 ? 1 : 0, variance: false })))
 
+// ---- run-log: run_id per eval do JS THUẦN quyết (verifier có runId thật → dùng; rỗng → mint
+// deterministic) + build NGUYÊN VĂN từng dòng JSONL. Synthesize CHỈ chép map này — hết quyền
+// tự mint. recheck-evidence/hook đối chiếu run_id trong report với log: PASS bịa tay
+// (không qua verify) bị chặn. ts từ args.invokedAt (skill đo bằng `date -u` — script bị cấm Date).
+const invokedAt = typeof args.invokedAt === 'string' ? args.invokedAt : ''
+const evalRunIds = {}
+const runLogLines = []
+for (const m of machine) {
+  for (const evalId of (m.evals || [])) {
+    const rid = (m.runId && String(m.runId).trim()) || `minted-${args.slug}-${evalId}-r${args.round}`
+    evalRunIds[evalId] = rid
+    runLogLines.push(JSON.stringify({
+      ts: invokedAt, round: args.round, evalId, run_id: rid,
+      exit_code: m.cannotRun ? null : m.exitCode, cmd: m.cmd,
+      ...(m.runs > 1 ? { runs: m.runs, passes: m.passes } : {}),
+      ...(m.cannotRun ? { cannot_run: true } : {}),
+    }))
+  }
+}
+
 // ---- A/B baseline: map kết quả đối chứng theo cmd; status = green | red | n-a ----
 const baselineByCmd = new Map(((baselineRaw && baselineRaw.results) || []).map(b => [b.cmd, b]))
 const baselineStatus = (cmd) => {
@@ -361,13 +394,31 @@ const machineForReport = machine.map(m => (!m.cannotRun && m.exitCode === 0 && !
   ? { ...m, outputTail: String(m.outputTail || '').split('\n').slice(-3).join('\n') }
   : m)
 const machineForReportB = machineForReport.map(m => ({ ...m, baseline: baselineStatus(m.cmd) }))
-// Provenance xác định bằng máy → literal (synthesizer chỉ chép, không tự suy diễn/bỏ field trust-critical)
-const prov = await agent(
-  `Chay DUNG 2 lenh, bao cao KET QUA THUC (KHONG suy dien, KHONG doan):\n1) printf '%s' "$ACCEPTANCE_GATE_BYPASS" — in ra dung "1" → bypass_used=true; rong/khac → false.\n2) Doc ${args.repoRoot}/_acceptance/config.yaml, lay field "enforcement" o cap 0 (^enforcement: strict|warn|off); thieu file/field → "strict".\nTra ve {bypass_used, enforcement_mode} dung ket qua 2 lenh tren.`,
-  { label: 'capture:provenance', phase: 'Synthesize', schema: PROV_SCHEMA, model: 'sonnet' }
-)
+// Provenance xác định bằng máy → literal (synthesizer chỉ chép, không tự suy diễn/bỏ field trust-critical).
+// Scribe chạy song song: append các dòng run-log DO JS TÍNH SẴN — agent là cây bút, không soạn nội dung.
+const [prov, scribe] = await parallel([
+  () => agent(
+    `Chay DUNG 3 lenh, bao cao KET QUA THUC (KHONG suy dien, KHONG doan):\n1) printf '%s' "$ACCEPTANCE_GATE_BYPASS" — in ra dung "1" → bypass_used=true; rong/khac → false.\n2) Doc ${args.repoRoot}/_acceptance/config.yaml, lay field "enforcement" o cap 0 (^enforcement: strict|warn|off); thieu file/field → "strict".\n3) git -C ${args.repoRoot} rev-parse HEAD — tra ve verified_commit = chuoi 40-hex NGUYEN VAN tu stdout; lenh loi (khong phai git repo) → chuoi rong. TUYET DOI KHONG bia SHA.\nTra ve {bypass_used, enforcement_mode, verified_commit} dung ket qua 3 lenh tren.`,
+    { label: 'capture:provenance', phase: 'Synthesize', schema: PROV_SCHEMA, model: 'sonnet' }
+  ),
+  () => runLogLines.length === 0
+    ? Promise.resolve({ written: true, lineCount: 0 })
+    : agent(
+        `Ban la scribe co hoc. APPEND chinh xac ${runLogLines.length} dong sau vao CUOI file ${args.repoRoot}/_acceptance/${args.slug}/run-log.jsonl — giu nguyen noi dung cu cua file, KHONG sua/dinh dang lai/sap xep/gop/bo dong nao:\n${runLogLines.join('\n')}\n\nCach lam: mkdir -p ${args.repoRoot}/_acceptance/${args.slug} roi dung Bash "cat >> <file> <<'RUNLOG_EOF'" voi noi dung NGUYEN VAN o tren. Xong doc lai file, xac nhan ${runLogLines.length} dong vua them co mat. Tra ve {written, lineCount} THAT — append fail thi written=false, khong bia.`,
+        // haiku: chep nguyen van vao file — tac vu thuan co hoc
+        { label: 'scribe:run-log', phase: 'Synthesize', schema: RUNLOG_SCHEMA, model: 'haiku' }
+      ),
+])
+const runLogWriteFailed = runLogLines.length > 0 && !(scribe && scribe.written)
+if (runLogWriteFailed) log('CANH BAO: append run-log.jsonl THAT BAI — main loop phai tu append result.runLog truoc Gate 2 (hook/recheck doi chieu run_id voi log nay)')
+// verified_commit sanitize bang JS thuan — khong tin agent: sai shape (khong phai hex SHA) coi nhu
+// khong co (report BO field; pre-merge se NOTE "not pinned" thay vi hook chan oan ca round).
+const verifiedCommit = /^[0-9a-f]{7,40}$/i.test(String((prov && prov.verified_commit) || '').trim())
+  ? String(prov.verified_commit).trim().toLowerCase()
+  : ''
 const report = await agent(
-  `Viet evidence report cho feature "${args.slug}" round ${args.round} vao ${args.repoRoot}/_acceptance/${args.slug}/evidence-report.md (ghi de neu co — round moi thay round cu, ghi lich su round vao section Iterations).\nDoc template tai ${args.templatePath} va tuan thu TUYET DOI shape — hook acceptance-evidence-gate.js se chan neu sai (L1 SHAPE: PASS can run_id ≥4 ky tu + exit_code 0 + verifier + verified_at ISO8601; L1 CONSISTENCY: report PASS khong duoc chua token exit khac 0 hay chuoi "verdict: FAIL"; L2: verifier la config: ref hoac script path; L3: moi UNCERTAIN can human_override).\n\nVerdict DA TINH SAN (khong tu thay doi): ${verdict}\nPROVENANCE — ghi NGUYEN VAN 2 dong frontmatter nay (DA do bang buoc capture, TUYET DOI KHONG tu doi/suy dien/bo): "enforcement_mode: ${prov.enforcement_mode}" va "bypass_used: ${prov.bypass_used}". CI pre-merge dung 2 field nay de chan gate yeu.\nfailed_evals: ${JSON.stringify(failedEvalIds)}\nblocked (neu BLOCKED, ghi reason vao frontmatter): ${JSON.stringify(blocked)}\nLenh fail khong gan eval (ghi ro trong report neu co): ${JSON.stringify(failedCommands)}\nReview incomplete (finder chet — ghi canh bao trong review-findings.md): ${JSON.stringify(reviewIncomplete)}\n\nKet qua may (moi block cmd cover cac eval cua no; mint run_id dang "minted-${args.slug}-<evalId>-r${args.round}" cho eval nao runId rong; block cua eval ui-check ghi them field "screenshot:" = screenshotPath tu ket qua): ${JSON.stringify(machineForReportB)}
+  `Viet evidence report cho feature "${args.slug}" round ${args.round} vao ${args.repoRoot}/_acceptance/${args.slug}/evidence-report.md (ghi de neu co — round moi thay round cu, ghi lich su round vao section Iterations).\nDoc template tai ${args.templatePath} va tuan thu TUYET DOI shape — hook acceptance-evidence-gate.js se chan neu sai (L1 SHAPE: PASS can run_id ≥4 ky tu + exit_code 0 + verifier + verified_at ISO8601; L1 CONSISTENCY: report PASS khong duoc chua token exit khac 0 hay chuoi "verdict: FAIL"; L2: verifier la config: ref hoac script path; L3: moi UNCERTAIN can human_override).\n\nVerdict DA TINH SAN (khong tu thay doi): ${verdict}\nPROVENANCE — ghi NGUYEN VAN cac dong frontmatter nay (DA do bang buoc capture, TUYET DOI KHONG tu doi/suy dien/bo): "enforcement_mode: ${prov.enforcement_mode}" va "bypass_used: ${prov.bypass_used}"${verifiedCommit ? ` va "verified_commit: ${verifiedCommit}"` : ''}. CI pre-merge dung cac field nay de chan gate yeu va phat hien code doi SAU verify (stale evidence).${verifiedCommit ? ' Hook L1 chan verified_commit khong phai hex SHA — chep dung nguyen van, khong rut gon.' : ' Repo khong phai git: BO HAN field verified_commit (khong bia, khong ghi rong).'}\nfailed_evals: ${JSON.stringify(failedEvalIds)}\nblocked (neu BLOCKED, ghi reason vao frontmatter): ${JSON.stringify(blocked)}\nLenh fail khong gan eval (ghi ro trong report neu co): ${JSON.stringify(failedCommands)}\nReview incomplete (finder chet — ghi canh bao trong review-findings.md): ${JSON.stringify(reviewIncomplete)}\n\nKet qua may (moi block cmd cover cac eval cua no; block cua eval ui-check ghi them field "screenshot:" = screenshotPath tu ket qua): ${JSON.stringify(machineForReportB)}
+run_id cua TUNG eval: chep NGUYEN VAN tu map nay — JS da tinh san va DA GHI vao ${args.repoRoot}/_acceptance/${args.slug}/run-log.jsonl truoc khi ban viet report; hook + CI recheck doi chieu TUNG run_id trong report voi log do (id la/khong khop = BLOCK). TUYET DOI KHONG tu mint/doi/rut gon run_id: ${JSON.stringify(evalRunIds)}
 A/B BASELINE: moi block eval may ghi them field "baseline: <green|red|n-a>" lay tu field "baseline" trong ket qua may o tren (green=pass tren code cu diffBase, red=fail tren code cu nghia la eval CO phan biet, n-a=khong chay duoc tren baseline). Field baseline DUNG TU green/red/n-a, TUYET DOI KHONG ghi exit-code so o day hay trong section Analyst — hook L1 CONSISTENCY se chan oan report PASS neu thay token exit khac 0.
 Them section "## Analyst" ngay sau bang ket qua: liet ke eval KHONG-PHAN-BIET (pass tren CA HEAD lan baseline, chung minh harness chu khong phai feature; nen viet lai de assert hanh vi moi hoac xac nhan la regression-guard co chu y): ${JSON.stringify(nonDiscriminating)}. Rong thi ghi "none — moi eval feature deu red tren baseline (co phan biet)". Lenh suite xanh-ca-hai-phia la regression-guard binh thuong, KHONG liet ke.
 VARIANCE-N: eval co field "runs" > 1 = eval NGAU NHIEN (da chay nhieu lan, gop lai). Voi eval do ghi them "runs: <N>" va "pass_rate: <passes>/<runs>" (dang phan so vd "4/5" — DUNG so exit). Eval khong co runs hoac runs=1 (deterministic) KHONG ghi pass_rate. Eval co field "variance": true (pass_rate khac 0 va khac full) → tin hieu PHUONG SAI: feature ngau nhien chua on dinh; verdict tong DA la PENDING-JUDGMENT; ghi eval do vao section moi "## Variance" kem pass_rate de NGUOI quyet nguong o Gate 2 (giong judgment item). Eval deterministic ma variance=true = test flaky/racy → cung vao "## Variance", ghi ro "flaky".\nDinh nghia eval (ghi "verifier:" = field "ref" — config: ref GOC, hook L2 chi chap nhan config: ref hoac script path, KHONG ghi lenh resolved): ${JSON.stringify(args.evals.map(e => ({ id: e.id, criterion: e.criterion, executor: e.executor, ref: e.ref, expected: e.expected, evidence_required: e.evidence_required })))}\nJudge panels (DE XUAT — ghi de xuat panel + rationale tung judge, de human_override TRONG cho moi item; T3 thi MOI judgment item deu cho human). QUAN TRONG format: trong section judge, ghi vote dang "- <lens>: FAIL — <rationale>" / "- <lens>: PASS — ...", TUYET DOI KHONG dung chuoi "verdict: FAIL" (hook L1 CONSISTENCY scan token nay trong report PASS) — moi dissent phai hien thi day du, khong duoc om/viet lai: ${JSON.stringify(panels)}\n\nSau do viet file thu hai ${args.repoRoot}/_acceptance/${args.slug}/review-findings.md (informational, ngoai hook) liet ke findings da adversarial-verify: ${JSON.stringify(confirmedFindings)} — moi finding: title, file:line, severity, detail, source. Finding co unverified=true liet ke RIENG thanh section "Chua adversarial-verify (refuter chet)".\nTra ve reportPath va findingsPath tuyet doi.`,
@@ -385,6 +436,10 @@ return {
   reviewIncomplete,
   nonDiscriminating,
   variance: varianceCmds.map(m => ({ cmd: m.cmd, evals: m.evals, runs: m.runs, passRate: m.passes + '/' + m.runs })),
+  // run-log provenance: các dòng JSONL đã ghi (máy tính, scribe chép). runLogWriteFailed=true
+  // → main loop PHẢI tự append runLog vào _acceptance/<slug>/run-log.jsonl trước Gate 2.
+  runLog: runLogLines,
+  runLogWriteFailed,
   reportPath: report && report.reportPath,
   findingsPath: report && report.findingsPath,
 }

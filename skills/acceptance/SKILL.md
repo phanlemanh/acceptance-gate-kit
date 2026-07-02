@@ -32,23 +32,47 @@ Core principles (non-negotiable):
 3. Determine risk tier. Pre-implementation there is no diff yet — classify
    from the paths the feature is EXPECTED to touch (inferred from the
    request/ticket; confirm the guess with the user at Gate 1):
-   - Expected paths all match `risk_tiers.t1_skip_globs` → announce
-     "T1 — acceptance gate skipped" and STOP. Do not create artifacts.
+   - Expected paths all match `risk_tiers.t1_skip_globs` → do NOT skip
+     silently: print the per-path match table (`<expected path> → <glob>`),
+     say "T1 — acceptance gate skipped", and ask the user to CONFIRM the T1
+     call before stopping. Warn that the CI backstop
+     (`pre-merge-check.sh --base <ref>`) blocks the merge if the actual PR
+     ends up touching gated paths with no `_acceptance/` artifacts. Do not
+     create artifacts.
    - Any expected path matches `risk_tiers.t3_paths` → T3.
    - Else → T2.
    At Phase 3 entry, re-check the ACTUAL `git diff` file list against
    `t3_paths`: if the implementation touched a T3 path, escalate the
    contract's `risk_tier` to T3 and tell the user.
 4. Determine entry state from `_acceptance/{slug}/`:
+   **Slug-ownership guard first:** if `_acceptance/{slug}/` already exists,
+   compare its contract's `feature:` (and `owner:`) with the CURRENT request.
+   Different feature → this is a slug COLLISION, not a resume: REQUIRE a new
+   slug (suggest `{slug}-2` or a date suffix) and never silently continue on
+   top of someone else's workspace. Same feature → resume per the table below.
    - No `contract.md` → Phase 1.
    - `contract.md` status: draft → Gate 1 pending (re-present to user).
    - status: approved, no implementation yet → hand off to implementation.
    - status: implemented → Phase 3.
    - `evidence-report.md` verdict PASS or PENDING-JUDGMENT + no
-     `human_signoff` → Gate 2 pending (re-present per Phase 3 step 5).
+     `human_signoff` → Gate 2 pending (re-present per Phase 3 step 5) —
+     AFTER the staleness guard below.
    - `evidence-report.md` verdict REJECT or BLOCKED → re-enter Phase 3;
      resume the round count from the report's Iterations section.
    - contract `status: signed-off` → done, nothing to run.
+
+   **Staleness guard** (run before ANY Gate-2 re-present — contract
+   `status: verified`, or a PASS/PENDING-JUDGMENT report awaiting signoff):
+   read `verified_commit` from the report frontmatter.
+   - Present → run `git diff --name-only <verified_commit>`. If any changed
+     file is outside `_acceptance/` and not matched by
+     `risk_tiers.t1_skip_globs`, the evidence is STALE (code changed after
+     verify): announce it to the user, set contract `status: implemented`,
+     and re-enter Phase 3 (next round). Never present Gate 2 on stale
+     evidence.
+   - Absent (report from an older template) → tell the user the evidence is
+     not pinned to a commit and recommend re-verifying; do not downgrade
+     automatically.
 
 ## Phase 1 — NORMALIZE (input → contract)
 
@@ -67,7 +91,9 @@ Steps:
 3. Fill **Out of scope** — minimum 2 bullets. An empty out-of-scope section
    means you have not thought about boundaries; dig for them.
 4. Set frontmatter: `risk_tier` (from Phase 0), `status: draft`,
-   `surfaces` (only surfaces this feature actually touches).
+   `surfaces` (only surfaces this feature actually touches), and
+   `owner:` = the output of `git config user.email` (slug-ownership audit;
+   empty when git has no identity — leave the field present).
 5. **STOP — Gate 1 part A.** Present the contract to the user verbatim.
    Do NOT proceed to implementation. Do NOT start Phase 2 until the user
    reacts; fold their edits in directly.
@@ -143,6 +169,13 @@ Entry: implementation complete, contract `status: implemented`.
    - `test` / `script`: run the resolved `config:` command. Capture exit code
      + last 10 output lines. Use the run_id from verifier stdout when
      printed; else mint `{slug}-{evalid}-{timestamp}`.
+   - **Run-log (before writing the report):** for every machine/ui-check eval
+     executed, append one JSON line to `_acceptance/{slug}/run-log.jsonl` AT
+     RUN TIME (mechanical Bash append, exact values from the run):
+     `{"ts":"<ISO8601>","round":N,"evalId":"E1","run_id":"<id>","exit_code":0,"cmd":"<resolved cmd>"}`.
+     The report MUST reuse exactly these run_ids — the hook and CI re-check
+     reconcile every report run_id against this log; an id absent from the
+     log blocks the PASS. Never write the log from memory after the fact.
    - `ui-check`: start dev server per `config:dev_server.start`; drive via
      Claude Preview MCP; save a frame at EACH step to
      `_acceptance/{slug}/evidence/E{id}-step{n}.png` via `config:capture.ui`
@@ -161,10 +194,13 @@ Entry: implementation complete, contract `status: implemented`.
    blocks, the evidence is incomplete: fix the evidence, never the wording.
    Replace the template's `enforcement_mode` / `bypass_used` placeholders with
    REAL values — `enforcement` from config.yaml (default strict), and `true`
-   iff `printf '%s' "$ACCEPTANCE_GATE_BYPASS"` prints `1`. CI-enforced
-   provenance: `pre-merge-check.sh` blocks `enforcement_mode: off` or an
-   un-acknowledged `bypass_used: true` (a human may release it with
-   `bypass_ack: <name> <date>`); `warn` only warns.
+   iff `printf '%s' "$ACCEPTANCE_GATE_BYPASS"` prints `1`. Set
+   `verified_commit` to the REAL `git rev-parse HEAD` output (omit the field
+   only when the repo is not a git repo — the hook rejects any non-SHA
+   value). CI-enforced provenance: `pre-merge-check.sh` blocks
+   `enforcement_mode: off`, an un-acknowledged `bypass_used: true` (a human
+   may release it with `bypass_ack: <name> <date>`; `warn` only warns), and
+   STALE evidence — non-gate files changed after `verified_commit`.
 4. Verdict routing:
    - All pass (incl. judgment, with no UNCERTAIN) → verdict PASS, contract
      `status: verified`. → step 5.
@@ -176,7 +212,15 @@ Entry: implementation complete, contract `status: implemented`.
      the implementing context. Max 3 verify rounds; log each in the report's
      Iterations section. After round 3 → STOP, escalate to user.
    - Executor cannot run → verdict BLOCKED + reason. STOP, escalate.
-5. **STOP — Gate 2.** Present to the user: verdict, the per-eval table, links
+5. **STOP — Gate 2.** FIRST commit the machine-written verify output
+   (evidence-report.md + run-log.jsonl + contract + evidence/) as its own
+   commit containing NO human signature — the Gate-2 edits below must land
+   in a SEPARATE commit touching only human-owned report lines
+   (`human_signoff` / `human_override` / `verdict` upgrade / `bypass_ack`);
+   with `signoff.require_human_commit: true` pre-merge enforces this split,
+   and the reviewer commits the signature themselves (or explicitly orders
+   the agent to commit exactly those lines).
+   Then present to the user: verdict, the per-eval table, links
    to evidence, and the list of UNCERTAIN judgment items they must personally
    check (T3: ALL judgment items). To cut review time, render the decision card
    (`/acceptance-card <slug>`) — judgment items + deferred scope (việc-của-người)
