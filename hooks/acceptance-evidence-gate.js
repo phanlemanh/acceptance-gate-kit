@@ -2,26 +2,33 @@
 /**
  * acceptance-evidence-gate.js — Acceptance-Gate Kit enforcement layer (WRITE time).
  *
- * Trigger: PreToolUse on Write | Edit targeting _acceptance/<slug>/evidence-report.md
+ * Trigger: PreToolUse on Write | Edit targeting
+ *   _acceptance/<slug>/evidence-report.md  (evidence bar)
+ *   _acceptance/<slug>/contract.md         (Gate-1 transition guard)
  *
- * The evidence validation itself lives in lib/evidence-core.js — the SINGLE
+ * The validation itself lives in lib/evidence-core.js — the SINGLE
  * source of truth shared with scripts/recheck-evidence.js (the CI re-check), so
  * the two can never drift. This file is the thin PreToolUse wrapper: stdin/stdout
  * passthrough, bypass + enforcement-mode policy, and the block/warn output.
  *
- * Enforcement fires only when the verdict is PASS-family (core.determineEnforce).
- * Blocks (exit 2) when enforcement fires and the evidence fails:
- *   L1 SHAPE      — run_id / exit_code: 0 / verifier / verified_at missing
+ * Evidence report — enforcement fires only when the verdict is PASS-family
+ * (core.determineEnforce). Blocks (exit 2) when the evidence fails:
+ *   L1 SHAPE      — run_id / exit_code: 0 / verifier / verified_at missing;
+ *                   verified_commit present but not a git SHA
  *   L1 CONSISTENCY — a PASS-family report contains exit_code != 0 or verdict: FAIL
  *   L2 SUBSTANCE  — a verifier is manual/heuristic, or not a resolvable
  *                   config:<dotted.key> / existing script path
  *   L3 JUDGMENT   — UNCERTAIN without human_override; T3 needs an override on
  *                   every judgment item
- *
  * PENDING-JUDGMENT / REJECT / BLOCKED verdicts always pass through.
+ *
+ * Contract — core.evaluateContractWrite blocks status transitions that skip
+ * Gate 1 (approved/signed-off, or draft -> implemented/verified, with an empty
+ * approved_by and no gate1_skipped: true).
+ *
  * Enforcement level from consumer config: strict (default) | warn | off.
  * Bypass: ACCEPTANCE_GATE_BYPASS=1. Fail-open on internal error — loudly
- * (stderr) when evidence-core cannot load and the write targets a report.
+ * (stderr) when evidence-core cannot load and the write targets a gate file.
  */
 
 const fs = require('fs');
@@ -34,6 +41,23 @@ let core = null;
 try { core = require(CORE_PATH); } catch (_) {}
 
 const TARGET_RE = /(^|[\\/])_acceptance[\\/][^\\/]+[\\/]evidence-report\.md$/i;
+const CONTRACT_RE = /(^|[\\/])_acceptance[\\/][^\\/]+[\\/]contract\.md$/i;
+
+// Consumer enforcement policy for a gate file: strict (default) | warn | off,
+// read from the nearest _acceptance/config.yaml. Shared by both targets.
+function readEnforcement(fileDir) {
+  const configPath = core.findAcceptanceConfig(fileDir);
+  let configText = null;
+  let enforcement = 'strict';
+  if (configPath) {
+    try {
+      configText = fs.readFileSync(configPath, 'utf8');
+      const em = configText.match(/^enforcement\s*:\s*(strict|warn|off)\s*(?:#.*)?$/m);
+      if (em) enforcement = em[1];
+    } catch (_) {}
+  }
+  return { configPath, configText, enforcement };
+}
 
 let data = '';
 process.stdin.on('data', chunk => (data += chunk));
@@ -50,10 +74,10 @@ process.stdin.on('end', () => {
       // downstream signal (enforcement_mode stamp, pre-merge) still reads green.
       try {
         const fp = String(((JSON.parse(data || '{}') || {}).tool_input || {}).file_path || '');
-        if (TARGET_RE.test(fp)) {
+        if (TARGET_RE.test(fp) || CONTRACT_RE.test(fp)) {
           process.stderr.write(
             'acceptance-evidence-gate: INACTIVE — evidence-core not loadable at ' +
-            CORE_PATH + '; evidence write passed through UNCHECKED\n'
+            CORE_PATH + '; gate-file write passed through UNCHECKED\n'
           );
         }
       } catch (_) { /* unparseable stdin — still fail open, nothing to report */ }
@@ -71,37 +95,78 @@ process.stdin.on('end', () => {
       process.exit(0);
     }
 
-    if (!TARGET_RE.test(filePath)) {
+    const isReport = TARGET_RE.test(filePath);
+    const isContract = CONTRACT_RE.test(filePath);
+    if (!isReport && !isContract) {
       process.stdout.write(data);
       process.exit(0);
     }
 
+    // PRE-WRITE file (null when creating): the contract transition guard needs
+    // the old status; Edit reconstruction below needs the current bytes.
+    let existing = null;
+    try { existing = fs.readFileSync(filePath, 'utf8'); } catch (_) {}
+
     let payload = (ti.content || ti.new_string || '').toString();
-    if (toolName === 'Edit') {
+    if (toolName === 'Edit' && existing !== null) {
       // Judge the POST-EDIT file, not the fragment — surgical edits like the
       // Gate-2 verdict upgrade (PENDING-JUDGMENT -> PASS) would otherwise be
       // evaluated out of context and false-blocked.
-      try {
-        const existing = fs.readFileSync(filePath, 'utf8');
-        const oldStr = (ti.old_string || '').toString();
-        if (oldStr && existing.includes(oldStr)) {
-          const newStr = (ti.new_string || '').toString();
-          // Function replacement keeps newStr LITERAL — String.replace would
-          // otherwise expand $-patterns ($&, $`, $') and make the hook judge
-          // different bytes than the Edit tool actually writes.
-          payload = ti.replace_all
-            ? existing.split(oldStr).join(newStr)
-            : existing.replace(oldStr, () => newStr);
-        }
-        // file exists but old_string absent -> the Edit will fail anyway;
-        // keep evaluating the fragment.
-      } catch (_) {
-        // file missing/unreadable -> evaluate the fragment (anti-evasion).
+      const oldStr = (ti.old_string || '').toString();
+      if (oldStr && existing.includes(oldStr)) {
+        const newStr = (ti.new_string || '').toString();
+        // Function replacement keeps newStr LITERAL — String.replace would
+        // otherwise expand $-patterns ($&, $`, $') and make the hook judge
+        // different bytes than the Edit tool actually writes.
+        payload = ti.replace_all
+          ? existing.split(oldStr).join(newStr)
+          : existing.replace(oldStr, () => newStr);
       }
+      // file exists but old_string absent -> the Edit will fail anyway;
+      // keep evaluating the fragment. File missing/unreadable (existing null)
+      // -> evaluate the fragment (anti-evasion).
     }
     if (!payload) {
       process.stdout.write(data);
       process.exit(0);
+    }
+
+    const fileDir = path.dirname(filePath);
+
+    if (isContract) {
+      const cr = core.evaluateContractWrite(payload, existing);
+      if (!cr.anyFailure) {
+        process.stdout.write(data);
+        process.exit(0);
+      }
+      const cfg = readEnforcement(fileDir);
+      if (cfg.enforcement === 'off') {
+        process.stdout.write(data);
+        process.exit(0);
+      }
+      const clines = [
+        '',
+        'BLOCKED by acceptance-evidence-gate (Gate-1 contract guard)',
+        `File: ${filePath}`,
+        `Enforcement: ${cfg.enforcement}${cfg.configPath ? ` (from ${cfg.configPath})` : ' (default — no config.yaml found)'}`,
+        '',
+        'CONTRACT TRANSITION without Gate-1 approval:',
+        ...cr.failures.map(x => `  x ${x}`),
+        '',
+        'Gate 1 (human) must be recorded before a contract advances:',
+        '  status: approved / signed-off        -> requires approved_by: <name> (+ approved_at)',
+        '  draft -> implemented / verified      -> requires the approved step (Gate 1) first',
+        '  User explicitly skipped Gate 1       -> record gate1_skipped: true (audited; pre-merge NOTEs it)',
+        'Legacy bypass: ACCEPTANCE_GATE_BYPASS=1',
+        '',
+      ];
+      if (cfg.enforcement === 'warn') {
+        process.stderr.write(clines.join('\n').replace('BLOCKED by', 'WARNING from') + '\n');
+        process.stdout.write(data);
+        process.exit(0);
+      }
+      process.stderr.write(clines.join('\n') + '\n');
+      process.exit(2);
     }
 
     if (!core.determineEnforce(payload)) {
@@ -109,17 +174,7 @@ process.stdin.on('end', () => {
       process.exit(0);
     }
 
-    const fileDir = path.dirname(filePath);
-    const configPath = core.findAcceptanceConfig(fileDir);
-    let configText = null;
-    let enforcement = 'strict';
-    if (configPath) {
-      try {
-        configText = fs.readFileSync(configPath, 'utf8');
-        const em = configText.match(/^enforcement\s*:\s*(strict|warn|off)\s*(?:#.*)?$/m);
-        if (em) enforcement = em[1];
-      } catch (_) {}
-    }
+    const { configPath, configText, enforcement } = readEnforcement(fileDir);
     if (enforcement === 'off') {
       process.stdout.write(data);
       process.exit(0);
@@ -156,6 +211,11 @@ process.stdin.on('end', () => {
     if (r.judgmentFailure) {
       lines.push('L3 JUDGMENT:');
       lines.push(`  x ${r.judgmentFailure}`);
+      lines.push('');
+    }
+    if (r.runLogFailure) {
+      lines.push('L2 PROVENANCE — run_id not machine-logged:');
+      lines.push(`  x ${r.runLogFailure}`);
       lines.push('');
     }
     lines.push(

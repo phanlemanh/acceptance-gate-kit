@@ -302,6 +302,157 @@ EOF
 payload Write "$WARN2_REPO/_acceptance/feat-y/evidence-report.md" 'verdict: PASS
 nothing else' | node "$HOOK" >/dev/null 2>/dev/null; check T24 0 $?
 
+echo "T25 PASS with valid verified_commit SHA -> allow"
+payload Write "$REPORT_PATH" '---
+verdict: PASS
+verified_commit: 0123456789abcdef0123456789abcdef01234567
+---
+- eval: E1
+  run_id: vc-0001
+  exit_code: 0
+  verifier: config:executors.test.api
+  verified_at: 2026-07-02T10:00:00Z' | node "$HOOK" >/dev/null; check T25 0 $?
+
+echo "T26 PASS with malformed verified_commit (not a hex SHA) -> block"
+payload Write "$REPORT_PATH" '---
+verdict: PASS
+verified_commit: HEAD-cua-nhanh
+---
+- eval: E1
+  run_id: vc-0002
+  exit_code: 0
+  verifier: config:executors.test.api
+  verified_at: 2026-07-02T10:00:00Z' | node "$HOOK" >/dev/null 2>/dev/null; check T26 2 $?
+
+echo "T27 verified_commit-looking line in BODY only (log excerpt) -> allow"
+payload Write "$REPORT_PATH" '---
+verdict: PASS
+---
+- eval: E1
+  run_id: vc-0003
+  exit_code: 0
+  verifier: config:executors.test.api
+  verified_at: 2026-07-02T10:00:00Z
+  output: |
+    log: verified_commit: not-a-sha-here' | node "$HOOK" >/dev/null; check T27 0 $?
+
+echo ""
+echo "--- contract guard (Gate 1 integrity) ---"
+CON_DIR="$REPO/_acceptance/guard-flow"
+CONTRACT="$CON_DIR/contract.md"
+
+echo "C01 new contract at status draft -> allow"
+payload Write "$CONTRACT" '---
+schema_version: 1
+feature: Guard flow
+slug: guard-flow
+risk_tier: T2
+status: draft
+approved_by:
+---
+# Acceptance Contract' | node "$HOOK" >/dev/null; check C01 0 $?
+
+echo "C02 set status approved WITH approved_by -> allow"
+payload Write "$CONTRACT" '---
+status: approved
+approved_by: Manh Phan
+---' | node "$HOOK" >/dev/null; check C02 0 $?
+
+echo "C03 set status approved with EMPTY approved_by -> block"
+payload Write "$CONTRACT" '---
+status: approved
+approved_by:
+---' | node "$HOOK" >/dev/null 2>/dev/null; check C03 2 $?
+
+echo "C04 approved w/ empty approved_by but gate1_skipped: true -> allow (audited escape hatch)"
+payload Write "$CONTRACT" '---
+status: approved
+approved_by:
+gate1_skipped: true
+---' | node "$HOOK" >/dev/null; check C04 0 $?
+
+echo "C05 Edit draft -> implemented with empty approved_by -> block (Gate-1 jump)"
+mkdir -p "$CON_DIR"
+cat > "$CONTRACT" <<'EOF'
+---
+schema_version: 1
+slug: guard-flow
+risk_tier: T2
+status: draft
+approved_by:
+---
+EOF
+payload Edit "$CONTRACT" 'status: implemented' 'status: draft' | node "$HOOK" >/dev/null 2>/dev/null; check C05 2 $?
+
+echo "C06 Edit draft -> implemented with approved_by filled -> allow"
+cat > "$CONTRACT" <<'EOF'
+---
+schema_version: 1
+slug: guard-flow
+risk_tier: T2
+status: draft
+approved_by: Manh Phan
+---
+EOF
+payload Edit "$CONTRACT" 'status: implemented' 'status: draft' | node "$HOOK" >/dev/null; check C06 0 $?
+rm -rf "$CON_DIR"
+
+echo "C07 NEW contract born at implemented, empty approved_by -> block"
+payload Write "$REPO/_acceptance/fresh-flow/contract.md" '---
+status: implemented
+approved_by:
+---' | node "$HOOK" >/dev/null 2>/dev/null; check C07 2 $?
+
+echo "C08 implemented -> verified (approved earlier) -> allow"
+mkdir -p "$CON_DIR"
+cat > "$CONTRACT" <<'EOF'
+---
+status: implemented
+approved_by: Manh Phan
+---
+EOF
+payload Edit "$CONTRACT" 'status: verified' 'status: implemented' | node "$HOOK" >/dev/null; check C08 0 $?
+rm -rf "$CON_DIR"
+
+echo "C09 contract violation under enforcement: warn -> allow with warning"
+WARNC_REPO="$HERE/fixtures/repo-warn-c"
+mkdir -p "$WARNC_REPO/_acceptance/feat-z"
+cat > "$WARNC_REPO/_acceptance/config.yaml" <<'EOF'
+schema_version: 1
+enforcement: warn
+EOF
+payload Write "$WARNC_REPO/_acceptance/feat-z/contract.md" '---
+status: approved
+approved_by:
+---' | node "$HOOK" >/dev/null 2>/dev/null; check C09 0 $?
+
+echo ""
+echo "--- run-log reconciliation (run_id must exist in machine-written log) ---"
+RL_DIR="$REPO/_acceptance/rl-flow"
+mkdir -p "$RL_DIR"
+printf '%s\n' '{"ts":"2026-07-02T00:00:00Z","round":1,"evalId":"E1","run_id":"rl-real-001","exit_code":0,"cmd":"pnpm test"}' > "$RL_DIR/run-log.jsonl"
+
+echo "T28 run-log exists but report run_id NOT in it -> block"
+payload Write "$RL_DIR/evidence-report.md" '---
+verdict: PASS
+---
+- eval: E1
+  run_id: rl-FAKE-001
+  exit_code: 0
+  verifier: config:executors.test.api
+  verified_at: 2026-07-02T10:00:00Z' | node "$HOOK" >/dev/null 2>/dev/null; check T28 2 $?
+
+echo "T29 run-log exists and report run_id matches -> allow"
+payload Write "$RL_DIR/evidence-report.md" '---
+verdict: PASS
+---
+- eval: E1
+  run_id: rl-real-001
+  exit_code: 0
+  verifier: config:executors.test.api
+  verified_at: 2026-07-02T10:00:00Z' | node "$HOOK" >/dev/null; check T29 0 $?
+rm -rf "$RL_DIR"
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
