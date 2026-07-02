@@ -14,8 +14,9 @@ check() { # <name> <expected_exit> <actual_exit>
 }
 
 mk_feature() { # <root> <slug> <tier> <status> [verdict] [signoff]
+  # approved_by present: the normal lifecycle records Gate 1 before implemented.
   local d="$1/_acceptance/$2"; mkdir -p "$d"
-  printf -- '---\nschema_version: 1\nfeature: %s\nslug: %s\nrisk_tier: %s\nsurfaces: [api]\nstatus: %s\n---\n' \
+  printf -- '---\nschema_version: 1\nfeature: %s\nslug: %s\nrisk_tier: %s\nsurfaces: [api]\nstatus: %s\napproved_by: Manh Phan\napproved_at: 2026-06-10\n---\n' \
     "$2" "$2" "$3" "$4" > "$d/contract.md"
   if [ -n "${5:-}" ]; then
     local v="$1/verify.sh"; printf '#!/bin/sh\nexit 0\n' > "$v"
@@ -68,7 +69,7 @@ bash "$CHECK" "$R"; check S09 1 $?
 
 echo "S10 quoted/commented risk_tier still gated (matches hook tolerance) -> fail when unsigned"
 R="$T/s10"; d="$R/_acceptance/feat-h"; mkdir -p "$d"
-printf -- '---\nschema_version: 1\nfeature: feat-h\nslug: feat-h\nrisk_tier: "T2"   # standard\nsurfaces: [api]\nstatus: implemented  # done coding\n---\n' > "$d/contract.md"
+printf -- '---\nschema_version: 1\nfeature: feat-h\nslug: feat-h\nrisk_tier: "T2"   # standard\nsurfaces: [api]\nstatus: implemented  # done coding\napproved_by: Manh Phan\n---\n' > "$d/contract.md"
 printf -- '---\nschema_version: 1\nfeature_slug: feat-h\nverdict: PASS\nhuman_signoff:\n---\n' > "$d/evidence-report.md"
 bash "$CHECK" "$R"; check S10 1 $?
 
@@ -81,7 +82,7 @@ echo ""
 echo "--- pre-merge provenance (bypass_used / enforcement_mode) ---"
 mk_prov() { # <root> <slug> <extra frontmatter line(s)> — a PASS+signed report with provenance + valid evidence
   local d="$1/_acceptance/$2"; mkdir -p "$d"
-  printf -- '---\nschema_version: 1\nfeature: %s\nslug: %s\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\n---\n' "$2" "$2" > "$d/contract.md"
+  printf -- '---\nschema_version: 1\nfeature: %s\nslug: %s\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\napproved_by: Manh Phan\n---\n' "$2" "$2" > "$d/contract.md"
   local v="$1/verify.sh"; printf '#!/bin/sh\nexit 0\n' > "$v"
   printf -- '---\nschema_version: 1\nfeature_slug: %s\nverdict: PASS\n%s\nhuman_signoff: Manh 2026-06-20\n---\n\n## Evidence\n- eval: E1\n  run_id: %s-E1-001\n  exit_code: 0\n  verifier: %s\n  verified_at: 2026-06-20\n' "$2" "$3" "$2" "$v" > "$d/evidence-report.md"
 }
@@ -103,18 +104,18 @@ echo "P07 bypass_used: true + bypass_ack -> clean (human-acknowledged release)"
 mk_prov "$P/p07" feat-p7 "$(printf 'bypass_used: true\nbypass_ack: Manh 2026-06-20')"; bash "$CHECK" "$P/p07" >/dev/null; check P07 0 $?
 echo "P08 frontmatter-bounded: body lines 'enforcement_mode: off' / 'bypass_used: true' do NOT false-block a clean PASS"
 d8="$P/p08/_acceptance/feat-p8"; mkdir -p "$d8"
-printf -- '---\nschema_version: 1\nfeature: feat-p8\nslug: feat-p8\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\n---\n' > "$d8/contract.md"
+printf -- '---\nschema_version: 1\nfeature: feat-p8\nslug: feat-p8\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\napproved_by: Manh Phan\n---\n' > "$d8/contract.md"
 v8="$P/p08/verify.sh"; printf '#!/bin/sh\nexit 0\n' > "$v8"
 printf -- '---\nschema_version: 1\nfeature_slug: feat-p8\nverdict: PASS\nhuman_signoff: Manh 2026-06-20\n---\n\n## Evidence\n- eval: E1\n  run_id: feat-p8-E1-001\n  exit_code: 0\n  verifier: %s\n  verified_at: 2026-06-20\n\n## Notes\nblocked-stamp example:\nenforcement_mode: off\nbypass_used: true\n' "$v8" > "$d8/evidence-report.md"
 bash "$CHECK" "$P/p08" >/dev/null; check P08 0 $?
 echo "P09 report with NO leading frontmatter -> fail (verdict reads empty; provenance unverifiable)"
 d9="$P/p09/_acceptance/feat-p9"; mkdir -p "$d9"
-printf -- '---\nschema_version: 1\nfeature: feat-p9\nslug: feat-p9\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\n---\n' > "$d9/contract.md"
+printf -- '---\nschema_version: 1\nfeature: feat-p9\nslug: feat-p9\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\napproved_by: Manh Phan\n---\n' > "$d9/contract.md"
 printf -- 'feature_slug: feat-p9\nverdict: PASS\nhuman_signoff: Manh 2026-06-20\nenforcement_mode: off\nbypass_used: true\n' > "$d9/evidence-report.md"
 bash "$CHECK" "$P/p09" >/dev/null; check P09 1 $?
 echo "P10 leading-blank-then-fence frontmatter is still read -> bypass_used:true blocks"
 d10="$P/p10/_acceptance/feat-p10"; mkdir -p "$d10"
-printf -- '---\nschema_version: 1\nfeature: feat-p10\nslug: feat-p10\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\n---\n' > "$d10/contract.md"
+printf -- '---\nschema_version: 1\nfeature: feat-p10\nslug: feat-p10\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\napproved_by: Manh Phan\n---\n' > "$d10/contract.md"
 printf -- '\n---\nschema_version: 1\nfeature_slug: feat-p10\nverdict: PASS\nbypass_used: true\nhuman_signoff: Manh 2026-06-20\n---\n' > "$d10/evidence-report.md"
 bash "$CHECK" "$P/p10" >/dev/null; check P10 1 $?
 
@@ -122,7 +123,7 @@ echo "--- evidence re-check (recheck-evidence.js, wired into pre-merge) ---"
 RC="$HERE/../../scripts/recheck-evidence.js"
 mk_badevidence() { # <root> <slug> <evidence body> — a signed PASS whose committed evidence is the arg
   local d="$1/_acceptance/$2"; mkdir -p "$d"
-  printf -- '---\nschema_version: 1\nfeature: %s\nslug: %s\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\n---\n' "$2" "$2" > "$d/contract.md"
+  printf -- '---\nschema_version: 1\nfeature: %s\nslug: %s\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\napproved_by: Manh Phan\n---\n' "$2" "$2" > "$d/contract.md"
   printf -- '---\nschema_version: 1\nfeature_slug: %s\nverdict: PASS\nhuman_signoff: Manh 2026-06-20\n---\n\n## Evidence\n%s\n' "$2" "$3" > "$d/evidence-report.md"
 }
 mk_recheck_cfg() { mkdir -p "$1/_acceptance"; printf 'schema_version: 1\nrecheck: %s\n' "$2" > "$1/_acceptance/config.yaml"; }
@@ -451,6 +452,280 @@ printf -- '---\nfeature: sec\nslug: epsec\n---\n' > "$ds/contract.md"
 printf -- '---\nschema_version: 1\nfeature_slug: epsec\nverdict: PENDING-JUDGMENT\nhuman_signoff:\n---\n| Eval | Criterion | Executor | Verdict |\n|--|--|--|--|\n| E1 | AC-1 | ui-check | PASS |\n\n## Evidence\n- eval: E1\n  run_id: epsec-E1-001\n  exit_code: 0\n  verifier: scripts/v.sh\n  verified_at: 2026-06-20\n  screenshot: http://evil.test/x.png?leak=1\n' > "$ds/evidence-report.md"
 SEC="$(node "$EP" --root "$EPR" --slug epsec 2>/dev/null)"
 nothas EP09 "evil.test" "$(cat "$SEC" 2>/dev/null)"
+
+echo ""
+echo "--- Gate-1 approval recorded (approved_by / gate1_skipped) ---"
+echo "A01 implemented + empty approved_by + no gate1_skipped -> fail"
+RA="$T/a01"; da="$RA/_acceptance/feat-a1"; mkdir -p "$da"
+printf -- '---\nschema_version: 1\nfeature: feat-a1\nslug: feat-a1\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\napproved_by:\n---\n' > "$da/contract.md"
+va="$RA/verify.sh"; printf '#!/bin/sh\nexit 0\n' > "$va"
+printf -- '---\nschema_version: 1\nfeature_slug: feat-a1\nverdict: PASS\nhuman_signoff: Manh 2026-07-02\n---\n\n## Evidence\n- eval: E1\n  run_id: feat-a1-E1-001\n  exit_code: 0\n  verifier: %s\n  verified_at: 2026-07-02\n' "$va" > "$da/evidence-report.md"
+outA="$(bash "$CHECK" "$RA" 2>&1)"; check A01 1 $?
+case "$outA" in *approved_by*) echo "  PASS: A01-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: A01-msg (expected approved_by violation)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo "A02 gate1_skipped: true + empty approved_by -> clean + NOTE"
+RB="$T/a02"; db="$RB/_acceptance/feat-a2"; mkdir -p "$db"
+printf -- '---\nschema_version: 1\nfeature: feat-a2\nslug: feat-a2\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\napproved_by:\ngate1_skipped: true\n---\n' > "$db/contract.md"
+vb="$RB/verify.sh"; printf '#!/bin/sh\nexit 0\n' > "$vb"
+printf -- '---\nschema_version: 1\nfeature_slug: feat-a2\nverdict: PASS\nhuman_signoff: Manh 2026-07-02\n---\n\n## Evidence\n- eval: E1\n  run_id: feat-a2-E1-001\n  exit_code: 0\n  verifier: %s\n  verified_at: 2026-07-02\n' "$vb" > "$db/evidence-report.md"
+outB="$(bash "$CHECK" "$RB" 2>&1)"; check A02 0 $?
+case "$outB" in *NOTE*gate1_skipped*) echo "  PASS: A02-note"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: A02-note (expected gate1_skipped NOTE)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo ""
+echo "--- verified_commit staleness (V1) ---"
+GIT_ID="-c user.email=t@test.local -c user.name=tester -c commit.gpgsign=false"
+mk_git_repo() { # <root> — git repo: src/app.js + t1 globs config + implemented feat-vc (approved), committed
+  local R="$1"; mkdir -p "$R/src" "$R/_acceptance/feat-vc"
+  git -C "$R" init -q
+  printf 'schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "docs/**"\n    - "*.md"\n' > "$R/_acceptance/config.yaml"
+  printf 'code v1\n' > "$R/src/app.js"
+  printf -- '---\nschema_version: 1\nfeature: feat-vc\nslug: feat-vc\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\napproved_by: Manh Phan\n---\n' > "$R/_acceptance/feat-vc/contract.md"
+  printf '#!/bin/sh\nexit 0\n' > "$R/verify.sh"
+  git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm impl
+}
+wr_report() { # <root> <verified_commit> — PASS report pinned to <verified_commit>, committed
+  printf -- '---\nschema_version: 1\nfeature_slug: feat-vc\nverdict: PASS\nverified_commit: %s\nhuman_signoff: Manh 2026-07-02\n---\n\n## Evidence\n- eval: E1\n  run_id: feat-vc-E1-001\n  exit_code: 0\n  verifier: verify.sh\n  verified_at: 2026-07-02\n' "$2" > "$1/_acceptance/feat-vc/evidence-report.md"
+  git -C "$1" add -A >/dev/null && git $GIT_ID -C "$1" commit -qm evidence
+}
+
+echo "VC01 nothing changed after verify (only _acceptance/ commits) -> clean"
+R="$T/vc01"; mk_git_repo "$R"; VC="$(git -C "$R" rev-parse HEAD)"; wr_report "$R" "$VC"
+bash "$CHECK" "$R" >/dev/null; check VC01 0 $?
+
+echo "VC02 code file committed AFTER verified_commit -> fail (stale evidence)"
+R="$T/vc02"; mk_git_repo "$R"; VC="$(git -C "$R" rev-parse HEAD)"; wr_report "$R" "$VC"
+printf 'code v2\n' > "$R/src/app.js"; git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm drift
+outV="$(bash "$CHECK" "$R" 2>&1)"; check VC02 1 $?
+case "$outV" in *stale*src/app.js*|*src/app.js*stale*) echo "  PASS: VC02-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: VC02-msg (expected stale + changed file)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo "VC03 only t1_skip_globs files changed after verify (docs/**) -> clean"
+R="$T/vc03"; mk_git_repo "$R"; VC="$(git -C "$R" rev-parse HEAD)"; wr_report "$R" "$VC"
+mkdir -p "$R/docs"; printf 'notes\n' > "$R/docs/notes.txt"
+git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm docs
+bash "$CHECK" "$R" >/dev/null; check VC03 0 $?
+
+echo "VC04 verified_commit unknown to this clone -> NOTE, not a violation"
+R="$T/vc04"; mk_git_repo "$R"; wr_report "$R" deadbeefdeadbeefdeadbeefdeadbeefdeadbeef
+outV="$(bash "$CHECK" "$R" 2>&1)"; check VC04 0 $?
+case "$outV" in *NOTE*feat-vc*) echo "  PASS: VC04-note"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: VC04-note (expected NOTE)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo "VC05 legacy report without verified_commit in a git repo -> NOTE, clean"
+R="$T/vc05"; mk_git_repo "$R"
+printf -- '---\nschema_version: 1\nfeature_slug: feat-vc\nverdict: PASS\nhuman_signoff: Manh 2026-07-02\n---\n\n## Evidence\n- eval: E1\n  run_id: feat-vc-E1-001\n  exit_code: 0\n  verifier: verify.sh\n  verified_at: 2026-07-02\n' > "$R/_acceptance/feat-vc/evidence-report.md"
+git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm evidence
+outV="$(bash "$CHECK" "$R" 2>&1)"; check VC05 0 $?
+case "$outV" in *NOTE*verified_commit*) echo "  PASS: VC05-note"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: VC05-note (expected no-verified_commit NOTE)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo "VC06 UNCOMMITTED code drift after verify -> fail (working tree counts)"
+R="$T/vc06"; mk_git_repo "$R"; VC="$(git -C "$R" rev-parse HEAD)"; wr_report "$R" "$VC"
+printf 'code v2 uncommitted\n' > "$R/src/app.js"
+bash "$CHECK" "$R" >/dev/null 2>&1; check VC06 1 $?
+
+echo ""
+echo "--- run-log reconciliation (run_id must exist in machine-written log) ---"
+mk_rl() { # <root> <slug> <report run_id> — implemented+approved feature, signed PASS report with <run_id>
+  local d="$1/_acceptance/$2"; mkdir -p "$d"
+  printf -- '---\nschema_version: 1\nfeature: %s\nslug: %s\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\napproved_by: Manh Phan\n---\n' "$2" "$2" > "$d/contract.md"
+  local v="$1/verify.sh"; printf '#!/bin/sh\nexit 0\n' > "$v"
+  printf -- '---\nschema_version: 1\nfeature_slug: %s\nverdict: PASS\nhuman_signoff: Manh 2026-07-02\n---\n\n## Evidence\n- eval: E1\n  run_id: %s\n  exit_code: 0\n  verifier: %s\n  verified_at: 2026-07-02\n' "$2" "$3" "$v" > "$d/evidence-report.md"
+}
+rl_log() { # <root> <slug> <run_id> — one machine-written log line
+  printf '%s\n' "{\"ts\":\"2026-07-02T00:00:00Z\",\"round\":1,\"evalId\":\"E1\",\"run_id\":\"$3\",\"exit_code\":0,\"cmd\":\"pnpm test\"}" >> "$1/_acceptance/$2/run-log.jsonl"
+}
+
+echo "RL01 recheck strict + run_id present in log -> clean"
+R="$T/rl01"; mk_rl "$R" feat-rl1 feat-rl1-E1-001; rl_log "$R" feat-rl1 feat-rl1-E1-001
+mk_recheck_cfg "$R" strict; bash "$CHECK" "$R" >/dev/null; check RL01 0 $?
+
+echo "RL02 recheck strict + run_id NOT in log -> block"
+R="$T/rl02"; mk_rl "$R" feat-rl2 feat-rl2-FAKE-999; rl_log "$R" feat-rl2 feat-rl2-E1-001
+mk_recheck_cfg "$R" strict
+outR="$(bash "$CHECK" "$R" 2>&1)"; check RL02 1 $?
+case "$outR" in *run-log*|*run_id*) echo "  PASS: RL02-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: RL02-msg (expected run-log mismatch message)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo "RL03 no run-log.jsonl (older flow) -> NOTE + clean (tolerant)"
+R="$T/rl03"; mk_rl "$R" feat-rl3 feat-rl3-E1-001
+mk_recheck_cfg "$R" strict
+outR="$(bash "$CHECK" "$R" 2>&1)"; check RL03 0 $?
+case "$outR" in *NOTE*run-log*) echo "  PASS: RL03-note"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: RL03-note (expected no-run-log NOTE)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo "RL04 default (recheck: warn) + run_id NOT in log -> NOTEd, NOT blocked"
+R="$T/rl04"; mk_rl "$R" feat-rl4 feat-rl4-FAKE-999; rl_log "$R" feat-rl4 feat-rl4-E1-001
+outR="$(bash "$CHECK" "$R" 2>&1)"; check RL04 0 $?
+case "$outR" in *"NOTE [feat-rl4]: committed evidence fails re-check"*) echo "  PASS: RL04-note"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: RL04-note (expected re-check NOTE)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo "RL05 malformed log line is skipped; valid line still reconciles -> clean"
+R="$T/rl05"; mk_rl "$R" feat-rl5 feat-rl5-E1-001
+printf '%s\n' 'this is { not json' >> "$R/_acceptance/feat-rl5/run-log.jsonl"
+rl_log "$R" feat-rl5 feat-rl5-E1-001
+mk_recheck_cfg "$R" strict; bash "$CHECK" "$R" >/dev/null; check RL05 0 $?
+
+echo "RL06 recheck CLI directly: matched=0, mismatched=1"
+node "$RC" "$T/rl01/_acceptance/feat-rl1/evidence-report.md" >/dev/null 2>&1; check RL06a 0 $?
+node "$RC" "$T/rl02/_acceptance/feat-rl2/evidence-report.md" >/dev/null 2>&1; check RL06b 1 $?
+
+echo ""
+echo "--- human-signoff provenance (signoff.require_human_commit / agent_authors) ---"
+mk_hs() { # <root> <config signoff block (may be empty)> [signoff value in FIRST commit]
+  # git repo: implemented+approved feature, PASS report committed at "verify time";
+  # 3rd arg non-empty = report is born ALREADY signed (the self-sign smell).
+  local R="$1"; local d="$R/_acceptance/feat-hs"; mkdir -p "$d"
+  { printf 'schema_version: 1\n'; [ -n "$2" ] && printf '%s\n' "$2"; } > "$R/_acceptance/config.yaml"
+  git -C "$R" init -q
+  printf -- '---\nschema_version: 1\nfeature: feat-hs\nslug: feat-hs\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\napproved_by: Manh Phan\n---\n' > "$d/contract.md"
+  printf '#!/bin/sh\nexit 0\n' > "$R/verify.sh"
+  printf -- '---\nschema_version: 1\nfeature_slug: feat-hs\nverdict: PASS\nhuman_signoff:%s\n---\n\n## Evidence\n- eval: E1\n  run_id: feat-hs-E1-001\n  exit_code: 0\n  verifier: verify.sh\n  verified_at: 2026-07-02\n' "${3:+ $3}" > "$d/evidence-report.md"
+  git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm verify
+}
+hs_sign() { # <root> [author email] — signoff-only edit, committed separately
+  local R="$1"; local rep="$R/_acceptance/feat-hs/evidence-report.md"
+  sed -i.bak 's/^human_signoff:$/human_signoff: Manh 2026-07-02/' "$rep" && rm -f "$rep.bak"
+  git -C "$R" add -A >/dev/null && git -c user.email="${2:-manh@test.local}" -c user.name=t -c commit.gpgsign=false -C "$R" commit -qm signoff
+}
+
+echo "H01 flag OFF + signoff born with the report (same commit) -> clean (no new enforcement)"
+R="$T/h01"; mk_hs "$R" "" "Manh 2026-07-02"
+bash "$CHECK" "$R" >/dev/null; check H01 0 $?
+
+echo "H02 flag ON + signoff in its own human-fields-only commit -> clean"
+R="$T/h02"; mk_hs "$R" "$(printf 'signoff:\n  require_human_commit: true')"
+hs_sign "$R"
+bash "$CHECK" "$R" >/dev/null; check H02 0 $?
+
+echo "H03 flag ON + signoff in the SAME commit as the report body -> fail"
+R="$T/h03"; mk_hs "$R" "$(printf 'signoff:\n  require_human_commit: true')" "Manh 2026-07-02"
+outH="$(bash "$CHECK" "$R" 2>&1)"; check H03 1 $?
+case "$outH" in *signoff*) echo "  PASS: H03-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: H03-msg (expected signoff violation)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo "H04 flag ON + signoff only in the working tree (uncommitted) -> fail"
+R="$T/h04"; mk_hs "$R" "$(printf 'signoff:\n  require_human_commit: true')"
+sed -i.bak 's/^human_signoff:$/human_signoff: Manh 2026-07-02/' "$R/_acceptance/feat-hs/evidence-report.md" && rm -f "$R/_acceptance/feat-hs/evidence-report.md.bak"
+bash "$CHECK" "$R" >/dev/null 2>&1; check H04 1 $?
+
+echo "H05 flag ON + Gate-2 commit also fills human_override and upgrades verdict -> clean (human fields allowlisted)"
+R="$T/h05"; d5="$R/_acceptance/feat-hs"; mkdir -p "$d5"
+printf 'schema_version: 1\nsignoff:\n  require_human_commit: true\n' > "$R/_acceptance/config.yaml"
+git -C "$R" init -q
+printf -- '---\nschema_version: 1\nfeature: feat-hs\nslug: feat-hs\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\napproved_by: Manh Phan\n---\n' > "$d5/contract.md"
+printf '#!/bin/sh\nexit 0\n' > "$R/verify.sh"
+printf -- '---\nschema_version: 1\nfeature_slug: feat-hs\nverdict: PENDING-JUDGMENT\nhuman_signoff:\n---\n\n## Evidence\n- eval: E1\n  run_id: feat-hs-E1-001\n  exit_code: 0\n  verifier: verify.sh\n  verified_at: 2026-07-02\n- eval: E2\n  judged_by: judge-subagent\n  verdict: UNCERTAIN\n  rationale: needs human eyes\n  human_override:\n' > "$d5/evidence-report.md"
+git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm verify
+sed -i.bak -e 's/^verdict: PENDING-JUDGMENT$/verdict: PASS/' -e 's/^human_signoff:$/human_signoff: Manh 2026-07-02/' -e 's/^  human_override:$/  human_override: Manh 2026-07-02/' "$d5/evidence-report.md" && rm -f "$d5/evidence-report.md.bak"
+git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm gate2
+bash "$CHECK" "$R" >/dev/null; check H05 0 $?
+
+echo "H06 agent_authors blocklist matches the signoff-commit author -> fail (independent knob)"
+R="$T/h06"; mk_hs "$R" "$(printf 'signoff:\n  agent_authors:\n    - "*bot*"')"
+hs_sign "$R" "claude-bot@agents.local"
+outH="$(bash "$CHECK" "$R" 2>&1)"; check H06 1 $?
+case "$outH" in *agent_authors*|*author*) echo "  PASS: H06-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: H06-msg (expected author violation)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo ""
+echo "--- T1-escape backstop (PR base: --base / PRE_MERGE_BASE) ---"
+mk_pr() { # <root> — git repo at "main" state: config with t1/t3 globs, one base src file, committed
+  local R="$1"; mkdir -p "$R/_acceptance" "$R/src/billing" "$R/docs"
+  printf 'schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "docs/**"\n    - "*.md"\n  t3_paths:\n    - "src/billing/**"\n' > "$R/_acceptance/config.yaml"
+  printf 'base\n' > "$R/src/app.js"
+  git -C "$R" init -q
+  git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm base
+}
+
+echo "B01 PR touches t3 path, no _acceptance artifacts in PR -> fail"
+R="$T/b01"; mk_pr "$R"; BASE="$(git -C "$R" rev-parse HEAD)"
+printf 'charge()\n' > "$R/src/billing/charge.js"; git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm pr
+outB="$(bash "$CHECK" "$R" --base "$BASE" 2>&1)"; check B01 1 $?
+case "$outB" in *T3*src/billing/charge.js*|*src/billing/charge.js*) echo "  PASS: B01-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: B01-msg (expected t3 offender listed)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo "B02 PR touches t3 path AND carries _acceptance/<slug>/ artifacts -> backstop satisfied"
+R="$T/b02"; mk_pr "$R"; BASE="$(git -C "$R" rev-parse HEAD)"
+printf 'charge()\n' > "$R/src/billing/charge.js"
+mkdir -p "$R/_acceptance/billing-fix"
+printf -- '---\nschema_version: 1\nfeature: billing fix\nslug: billing-fix\nrisk_tier: T3\nsurfaces: [api]\nstatus: draft\napproved_by:\n---\n' > "$R/_acceptance/billing-fix/contract.md"
+git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm pr
+bash "$CHECK" "$R" --base "$BASE" >/dev/null; check B02 0 $?
+
+echo "B03 PR touches only t1_skip_globs files -> clean"
+R="$T/b03"; mk_pr "$R"; BASE="$(git -C "$R" rev-parse HEAD)"
+printf 'notes\n' > "$R/docs/notes.txt"; git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm docs
+bash "$CHECK" "$R" --base "$BASE" >/dev/null; check B03 0 $?
+
+echo "B04 no base provided -> backstop skipped with NOTE, clean"
+R="$T/b04"; mk_pr "$R"
+printf 'charge()\n' > "$R/src/billing/charge.js"; git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm pr
+outB="$(bash "$CHECK" "$R" 2>&1)"; check B04 0 $?
+case "$outB" in *NOTE*backstop*) echo "  PASS: B04-note"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: B04-note (expected backstop-skipped NOTE)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo "B05 non-T1 file (outside t1_skip_globs, not t3), no _acceptance in PR -> fail"
+R="$T/b05"; mk_pr "$R"; BASE="$(git -C "$R" rev-parse HEAD)"
+printf 'v2\n' > "$R/src/app.js"; git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm pr
+bash "$CHECK" "$R" --base "$BASE" >/dev/null 2>&1; check B05 1 $?
+
+echo "B06 PRE_MERGE_BASE env works like --base"
+R="$T/b06"; mk_pr "$R"; BASE="$(git -C "$R" rev-parse HEAD)"
+printf 'charge()\n' > "$R/src/billing/charge.js"; git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm pr
+PRE_MERGE_BASE="$BASE" bash "$CHECK" "$R" >/dev/null 2>&1; check B06 1 $?
+
+echo "H07 flag ON but not a git repo -> NOTE, clean (unverifiable)"
+R="$T/h07"; d7="$R/_acceptance/feat-hs"; mkdir -p "$d7"
+printf 'schema_version: 1\nsignoff:\n  require_human_commit: true\n' > "$R/_acceptance/config.yaml"
+printf -- '---\nschema_version: 1\nfeature: feat-hs\nslug: feat-hs\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\napproved_by: Manh Phan\n---\n' > "$d7/contract.md"
+v7="$R/verify.sh"; printf '#!/bin/sh\nexit 0\n' > "$v7"
+printf -- '---\nschema_version: 1\nfeature_slug: feat-hs\nverdict: PASS\nhuman_signoff: Manh 2026-07-02\n---\n\n## Evidence\n- eval: E1\n  run_id: feat-hs-E1-001\n  exit_code: 0\n  verifier: %s\n  verified_at: 2026-07-02\n' "$v7" > "$d7/evidence-report.md"
+outH="$(bash "$CHECK" "$R" 2>&1)"; check H07 0 $?
+case "$outH" in *"signoff provenance"*) echo "  PASS: H07-note"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: H07-note (expected unverifiable NOTE)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo ""
+echo "--- config.yaml 2-space lint + config-patch.mjs (single splice path) ---"
+CP="$HERE/../../scripts/config-patch.mjs"
+
+echo "CF01 config with a TAB -> fail (kit parsers are indent-based)"
+R="$T/cf01"; mkdir -p "$R/_acceptance"
+printf 'schema_version: 1\nexecutors:\n\ttest: "x"\n' > "$R/_acceptance/config.yaml"
+bash "$CHECK" "$R" >/dev/null 2>&1; check CF01 1 $?
+
+echo "CF02 config with odd (3-space) indent -> fail"
+R="$T/cf02"; mkdir -p "$R/_acceptance"
+printf 'schema_version: 1\nexecutors:\n   api: "x"\n' > "$R/_acceptance/config.yaml"
+bash "$CHECK" "$R" >/dev/null 2>&1; check CF02 1 $?
+
+echo "CP01 add feature_loop.suite_keys (--write) -> appended + .bak + resolvable"
+R="$T/cp01"; mkdir -p "$R/_acceptance"
+printf 'schema_version: 1\nexecutors:\n  test:\n    api: "pnpm test"\n' > "$R/_acceptance/config.yaml"
+node "$CP" --config "$R/_acceptance/config.yaml" --key feature_loop.suite_keys --value "[executors.test.api]" --write >/dev/null 2>&1; check CP01 0 $?
+[ -f "$R/_acceptance/config.yaml.bak" ]; check CP01-bak 0 $?
+node -e '
+const core = require(process.argv[1]);
+const v = core.resolveConfigKey(require("fs").readFileSync(process.argv[2], "utf8"), "feature_loop.suite_keys");
+process.exit(v && v.indexOf("executors.test.api") >= 0 ? 0 : 1);
+' "$HERE/../../lib/evidence-core.js" "$R/_acceptance/config.yaml"; check CP01-resolve 0 $?
+
+echo "CP02 key already exists -> abort exit 2, file unchanged"
+before="$(cat "$R/_acceptance/config.yaml")"
+node "$CP" --config "$R/_acceptance/config.yaml" --key feature_loop.suite_keys --value "[x]" --write >/dev/null 2>&1; check CP02 2 $?
+[ "$before" = "$(cat "$R/_acceptance/config.yaml")" ]; check CP02-unchanged 0 $?
+
+echo "CP03 dry-run by default -> exit 0, file unchanged"
+R="$T/cp03"; mkdir -p "$R/_acceptance"
+printf 'schema_version: 1\n' > "$R/_acceptance/config.yaml"
+before="$(cat "$R/_acceptance/config.yaml")"
+node "$CP" --config "$R/_acceptance/config.yaml" --key feature_loop.suite_keys --value "[a]" >/dev/null 2>&1; check CP03 0 $?
+[ "$before" = "$(cat "$R/_acceptance/config.yaml")" ]; check CP03-unchanged 0 $?
+
+echo "CP04 nested key lands INSIDE the existing parent; siblings intact"
+R="$T/cp04"; mkdir -p "$R/_acceptance"
+printf 'schema_version: 1\nexecutors:\n  script:\n    cli: "./s.sh"\nsignoff:\n  required_for: [T2, T3]\n' > "$R/_acceptance/config.yaml"
+node "$CP" --config "$R/_acceptance/config.yaml" --key executors.script.smoke --value '"./smoke.sh"' --write >/dev/null 2>&1; check CP04 0 $?
+node -e '
+const core = require(process.argv[1]);
+const t = require("fs").readFileSync(process.argv[2], "utf8");
+const ok = core.resolveConfigKey(t, "executors.script.smoke") === "./smoke.sh"
+  && core.resolveConfigKey(t, "executors.script.cli") === "./s.sh"
+  && String(core.resolveConfigKey(t, "signoff.required_for")).indexOf("T2") >= 0;
+process.exit(ok ? 0 : 1);
+' "$HERE/../../lib/evidence-core.js" "$R/_acceptance/config.yaml"; check CP04-resolve 0 $?
+
+echo "CP05 missing --key -> usage error exit 4"
+node "$CP" --config "$R/_acceptance/config.yaml" >/dev/null 2>&1; check CP05 4 $?
 
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
