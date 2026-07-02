@@ -20,21 +20,43 @@
  *
  * PENDING-JUDGMENT / REJECT / BLOCKED verdicts always pass through.
  * Enforcement level from consumer config: strict (default) | warn | off.
- * Bypass: ACCEPTANCE_GATE_BYPASS=1. Fail-open on internal error.
+ * Bypass: ACCEPTANCE_GATE_BYPASS=1. Fail-open on internal error — loudly
+ * (stderr) when evidence-core cannot load and the write targets a report.
  */
 
 const fs = require('fs');
 const path = require('path');
 // Load the shared validation core; if it is somehow unavailable, fail OPEN
-// (never block unrelated work) rather than crash the PreToolUse hook.
+// (never block unrelated work) rather than crash the PreToolUse hook — but
+// NEVER silently when the write targets an evidence report (see below).
+const CORE_PATH = path.join(__dirname, '..', 'lib', 'evidence-core.js');
 let core = null;
-try { core = require(path.join(__dirname, '..', 'lib', 'evidence-core.js')); } catch (_) {}
+try { core = require(CORE_PATH); } catch (_) {}
+
+const TARGET_RE = /(^|[\\/])_acceptance[\\/][^\\/]+[\\/]evidence-report\.md$/i;
 
 let data = '';
 process.stdin.on('data', chunk => (data += chunk));
 process.stdin.on('end', () => {
   try {
-    if (process.env.ACCEPTANCE_GATE_BYPASS === '1' || !core) {
+    if (process.env.ACCEPTANCE_GATE_BYPASS === '1') {
+      process.stdout.write(data);
+      process.exit(0);
+    }
+    if (!core) {
+      // Fail open, but a gate that is DOWN must be visible: if this write
+      // targets an evidence report, say so on stderr before passing through —
+      // otherwise a broken install silently disables enforcement while every
+      // downstream signal (enforcement_mode stamp, pre-merge) still reads green.
+      try {
+        const fp = String(((JSON.parse(data || '{}') || {}).tool_input || {}).file_path || '');
+        if (TARGET_RE.test(fp)) {
+          process.stderr.write(
+            'acceptance-evidence-gate: INACTIVE — evidence-core not loadable at ' +
+            CORE_PATH + '; evidence write passed through UNCHECKED\n'
+          );
+        }
+      } catch (_) { /* unparseable stdin — still fail open, nothing to report */ }
       process.stdout.write(data);
       process.exit(0);
     }
@@ -49,7 +71,6 @@ process.stdin.on('end', () => {
       process.exit(0);
     }
 
-    const TARGET_RE = /(^|[\\/])_acceptance[\\/][^\\/]+[\\/]evidence-report\.md$/i;
     if (!TARGET_RE.test(filePath)) {
       process.stdout.write(data);
       process.exit(0);
