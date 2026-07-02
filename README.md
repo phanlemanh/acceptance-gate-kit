@@ -159,7 +159,7 @@ templates produce advisory NOTEs, not failures).
 | `scripts/gate-card.js` | Render the Gate 1 / Gate 2 human decision card |
 | `scripts/config-patch.mjs` | THE splice path for programmatic config.yaml writes (dry-run, .bak, abort-on-existing) |
 | `scripts/evidence-page.js` | Render the full Gate-2 evidence page (screenshots/output/slideshow) |
-| `tests/` | Fixture tests: `for t in hooks scripts plugins design-loop; do bash tests/$t/run-tests.sh; done` |
+| `tests/` | Fixture tests: `for t in hooks scripts plugins design-loop workflows; do bash tests/$t/run-tests.sh; done` |
 
 ## Pilot metrics
 
