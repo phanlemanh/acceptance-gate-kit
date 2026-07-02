@@ -24,6 +24,10 @@ Initialize the Acceptance-Gate Kit in the current repository.
 # 2-space indentation REQUIRED — the kit's hook parses this file line-by-line.
 schema_version: 1
 enforcement: strict          # strict | warn | off
+recheck: strict              # CI re-check of COMMITTED evidence: strict | warn | off.
+                             # strict is safe for a fresh repo (no legacy reports);
+                             # `warn` only exists so repos ADOPTING the kit with older
+                             # reports aren't blocked — do not start there.
 baseline_minutes: []         # pre-kit acceptance estimates from 2g, e.g. [90, 120, 60]
 executors:
   test:
@@ -62,6 +66,12 @@ Omit the `capture` block if the repo has no UI evidence need.
 
 4. Write `_acceptance/README.md` (3 lines): what this folder is, link to the
    acceptance skill, "artifacts are per-feature in subfolders".
-5. Suggest copying `scripts/pre-merge-check.sh` from the plugin into the repo's
-   CI (path: `${CLAUDE_PLUGIN_ROOT}/scripts/pre-merge-check.sh`).
+5. Suggest copying the CI gate from the plugin into the repo — ALL THREE files,
+   keeping the `scripts/` + `lib/` layout (pre-merge finds the re-check next to
+   itself, and the re-check `require`s `../lib`):
+   - `${CLAUDE_PLUGIN_ROOT}/scripts/pre-merge-check.sh` → `scripts/`
+   - `${CLAUDE_PLUGIN_ROOT}/scripts/recheck-evidence.js` → `scripts/`
+   - `${CLAUDE_PLUGIN_ROOT}/lib/evidence-core.js` → `lib/`
+   Copying only pre-merge-check.sh silently drops the committed-evidence
+   re-check layer (it degrades to a NOTE).
 6. Print: "Acceptance gate ready. Run the acceptance skill on your next feature."

@@ -51,6 +51,12 @@ if [ -f "$ACC/config.yaml" ]; then
   cfg_rc="$(sed -n 's/^[[:space:]]*recheck:[[:space:]]*//p' "$ACC/config.yaml" | head -1 | sed 's/[[:space:]]*#.*$//')"
   case "$cfg_rc" in strict|warn|off) RECHECK_MODE="$cfg_rc" ;; esac
 fi
+if [ "$RECHECK_MODE" = "warn" ]; then
+  # A disabled backstop must be impossible to miss: in warn mode a report
+  # hand-edited AFTER the write-time hook only produces a NOTE — it does not
+  # block the merge.
+  echo "WARNING: committed-evidence re-check is ADVISORY ONLY (recheck: warn) — a hand-edited PASS report will NOT block merge. Set 'recheck: strict' in _acceptance/config.yaml to enforce the backstop."
+fi
 
 fm_field() { # <file> <key> — first frontmatter-style "key: value" line, normalized:
   # trailing #-comments, surrounding quotes, and trailing whitespace stripped
