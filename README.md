@@ -26,20 +26,43 @@ Enforcement is deterministic, not aspirational:
 
 ## Install
 
-Team install — this repo doubles as its own marketplace:
+Claude Code:
 
 ```bash
 claude plugin marketplace add phanlemanh/acceptance-gate-kit
 claude plugin install acceptance-gate@acceptance-gate-kit
-claude plugin install feature-loop@acceptance-gate-kit    # optional — full feature loop on top of the gate
+claude plugin install feature-loop@acceptance-gate-kit    # Claude Code edition
+claude plugin install superpowers@claude-plugins-official # required by feature-loop
 ```
 
-> **feature-loop** (second plugin in this kit): end-to-end feature development
-> loop orchestrating this gate + the superpowers plugin + multi-agent verify
-> workflows — brainstorm → contract+evals (Gate 1) → plan → execute →
-> parallel verify (machine evals, 3-judge blind panels, adversarial review)
-> → evidence + signoff (Gate 2). See [feature-loop/README.md](feature-loop/README.md).
-> Requires the superpowers plugin (`claude-plugins-official` marketplace).
+Stay current — two devs on different kit versions in one repo run two different
+gate rule-sets:
+
+```bash
+claude plugin update acceptance-gate@acceptance-gate-kit
+claude plugin update feature-loop@acceptance-gate-kit
+```
+
+> **Codex: not yet published.** The Codex packaging in this repo (`.agents/plugins/`,
+> `.codex-plugin/`, `plugins/`) is work in progress. It will ship with its own
+> enforcement notes — Codex has no PreToolUse write-time hook, so the gate story
+> differs. Until then, install on Claude Code only.
+
+For local development, replace `phanlemanh/acceptance-gate-kit` with the
+absolute path to this checkout. After changing acceptance-gate source files,
+run:
+
+```bash
+scripts/sync-plugin-packages.sh
+```
+
+> **feature-loop** has two runtime-specific editions:
+> - `feature-loop` is the Claude Code edition and uses Claude workflow scripts.
+> - `feature-loop-codex` is the Codex edition (unpublished WIP) using
+>   Codex-native agent orchestration.
+>
+> Both preserve the same gate discipline: brainstorm → contract+evals
+> (Gate 1) → plan → execute → verify → evidence + signoff (Gate 2).
 
 Installing the plugin registers the skill, both commands, and the
 PreToolUse hook automatically — no settings edits needed.
@@ -103,12 +126,20 @@ templates produce advisory NOTEs, not failures).
   judgment items. Tiers/globs are per-repo in `_acceptance/config.yaml`.
 - Current test surface: 24 hook cases (`tests/hooks/run-tests.sh`) + 70 script
   cases (`tests/scripts/run-tests.sh`: pre-merge gate + provenance + evidence
-  re-check, eval-coverage lint, gate-card, evidence-page).
+  re-check, eval-coverage lint, gate-card, evidence-page) + packaging checks
+  (`tests/plugins/run-tests.sh`: version alignment, vendored engine import
+  graph, `${CLAUDE_PLUGIN_ROOT}` path resolution) + design-loop fixtures
+  (`tests/design-loop/run-tests.sh`: token-only + contrast-AA regressions).
 
 ## Layout
 
 | Path | What |
 |---|---|
+| `.claude-plugin/marketplace.json` | Claude Code marketplace entry |
+| `.agents/plugins/marketplace.json` | Codex marketplace entry (unpublished WIP) |
+| `.codex-plugin/plugin.json` | Codex manifest for the acceptance-gate plugin (unpublished WIP) |
+| `plugins/acceptance-gate/` | Packaged acceptance-gate plugin for the Codex marketplace (regenerate with `scripts/sync-plugin-packages.sh`) |
+| `plugins/feature-loop-codex/` | Codex-native feature-loop edition (unpublished WIP) |
 | `skills/acceptance/` | The 3-phase skill + templates |
 | `hooks/` | PreToolUse evidence gate (write time) |
 | `lib/evidence-core.js` | Shared L1/L2/L3 evidence validation (hook + CI re-check) |
@@ -117,7 +148,7 @@ templates produce advisory NOTEs, not failures).
 | `scripts/recheck-evidence.js` | CI re-verify a committed report's evidence |
 | `scripts/gate-card.js` | Render the Gate 1 / Gate 2 human decision card |
 | `scripts/evidence-page.js` | Render the full Gate-2 evidence page (screenshots/output/slideshow) |
-| `tests/` | Fixture tests: `bash tests/hooks/run-tests.sh && bash tests/scripts/run-tests.sh` |
+| `tests/` | Fixture tests: `for t in hooks scripts plugins design-loop; do bash tests/$t/run-tests.sh; done` |
 
 ## Pilot metrics
 

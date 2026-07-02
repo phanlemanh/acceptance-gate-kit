@@ -17,28 +17,57 @@ report chưa ký.
 
 ---
 
-## Cài 1 lần mỗi máy (2 lệnh)
+## Cài 1 lần mỗi máy
+
+Claude Code:
 
 ```bash
 claude plugin marketplace add phanlemanh/acceptance-gate-kit
 claude plugin install acceptance-gate@acceptance-gate-kit
 ```
 
+> **Codex:** bản port đang hoàn thiện, **chưa phát hành** — hiện kit chỉ chạy trên
+> Claude Code. (Bản Codex sẽ được công bố kèm ghi chú riêng về mức enforcement,
+> vì Codex không có hook chặn lúc ghi file như Claude Code.)
+
 > Cần quyền đọc repo GitHub `phanlemanh/acceptance-gate-kit` (hỏi Mạnh nếu chưa có).
-> Sau khi cài, restart phiên Claude Code đang mở.
+> Sau khi cài, mở phiên Claude Code mới để runtime nạp plugin.
+
+## Cập nhật plugin (quan trọng với cả đội)
+
+```bash
+claude plugin update acceptance-gate@acceptance-gate-kit
+claude plugin update feature-loop@acceptance-gate-kit    # nếu đã cài
+```
+
+Chạy khi có thông báo release, hoặc đầu mỗi sprint. Hai dev chạy 2 version
+khác nhau trên cùng repo = 2 chuẩn gate khác nhau (verifier bị chặn "oan",
+feature lọt eval...) — cập nhật là một phần của kỷ luật gate, không phải tuỳ chọn.
 
 ## Setup 1 lần mỗi repo (thường đã có sẵn)
 
 Nếu repo đã có thư mục `_acceptance/` → bỏ qua mục này.
 Repo mới: chạy `/acceptance-init` trong Claude Code, trả lời các câu hỏi
-(lệnh test, đường dẫn nhạy cảm...). CI: copy `scripts/pre-merge-check.sh`
-từ plugin vào repo và thêm 1 step `bash scripts/pre-merge-check.sh .`.
+(lệnh test, đường dẫn nhạy cảm...).
+
+**CI:** copy **đủ 3 file** từ plugin vào repo, giữ đúng layout `scripts/` + `lib/`
+(re-check cần `require ../lib`), rồi thêm 1 step `bash scripts/pre-merge-check.sh .`:
+
+- `scripts/pre-merge-check.sh`
+- `scripts/recheck-evidence.js`
+- `lib/evidence-core.js`
+
+Chỉ copy mỗi `pre-merge-check.sh` là repo âm thầm **mất lớp re-check** evidence
+đã commit (chống report bị sửa tay sau hook).
+
+**Repo có web UI:** chạy thêm `npm i -D jsdom` — design gate chạy chế độ DOM
+cần jsdom; thiếu nó mọi eval design sẽ ra `BLOCKED`.
 
 ---
 
 ## Dùng hằng ngày
 
-**Bắt đầu tính năng mới** — nói với Claude Code:
+**Bắt đầu tính năng mới** — nói với agent:
 
 ```
 /acceptance <tên tính năng>     (hoặc: "acceptance feature X")
@@ -134,6 +163,9 @@ claude plugin install feature-loop@acceptance-gate-kit
 claude plugin install superpowers@claude-plugins-official   # dependency (brainstorm/plan)
 ```
 
+`feature-loop` dùng Claude workflow scripts. (Bản `feature-loop-codex` cho Codex
+đang hoàn thiện, **chưa phát hành**.)
+
 **Setup mỗi repo:** đã chạy `/acceptance-init` rồi thì chỉ cần thêm vào
 `_acceptance/config.yaml` các lệnh verify chạy mỗi vòng (chọn từ `executors.*`
 của repo bạn — quên cũng không sao, lần đầu chạy skill sẽ hỏi rồi tự ghi):
@@ -145,7 +177,7 @@ feature_loop:
     - executors.test.typecheck
 ```
 
-**Dùng:** `/feature-loop <mô tả>` cho tính năng mới · `/feature-loop <slug>` để
+**Dùng:** `/feature-loop <mô tả>` cho tính năng mới · truyền `<slug>` để
 resume (loop nhớ đang ở đâu qua `status` trong contract.md — đổi máy/đổi session
 vẫn tiếp tục đúng chỗ). Sửa nhỏ T1 (docs/typo) → loop tự thoát, làm kiểu thường.
 
