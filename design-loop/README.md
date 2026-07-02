@@ -41,4 +41,6 @@ Cannot ship `/design-sync` or `/design-login` (first-party built-ins). Cannot ma
 
 ## Status
 
-v0.1.0 scaffold. Runnable now: `/design-init` (config wiring), `provenance` guard, `design-static-check` (token-only + WCAG contrast-AA + tap-target heuristic). Skeleton/TODO: `design-fidelity-diff` shell-out to design-repo `diff:all`, `/design-push`. See the spec: `artifact-platform/docs/superpowers/specs/2026-07-01-design-code-workflow.md`.
+v0.1.1 scaffold. Runnable now: `/design-init` (config wiring), `provenance` guard, `design-static-check` (token-only + WCAG contrast-AA + tap-target heuristic). Skeleton/TODO: `design-fidelity-diff` shell-out to design-repo `diff:all`, `/design-push`. See the spec: `artifact-platform/docs/superpowers/specs/2026-07-01-design-code-workflow.md`.
+
+v0.1.1 fixes: `design-static-check` no longer treats every `rgb(r,g,0)` as transparent (contrast-AA was skipping black text); `/design-init` and `/design-mockup` resolve `${CLAUDE_PLUGIN_ROOT}` against design-loop's own root (both died with MODULE_NOT_FOUND at the first wiring step).
