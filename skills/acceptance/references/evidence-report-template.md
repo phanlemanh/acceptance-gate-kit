@@ -10,7 +10,7 @@ Verdict rules:
   Requires evidence blocks below. Hook-enforced consistency: a PASS report
   must contain ZERO `verdict: FAIL` lines and ZERO non-zero exit tokens
   (`exit_code:`, `exit=`) anywhere — including inside `output:` excerpts;
-  sanitize pasted logs. If anything failed, the verdict is REJECT.
+  sanitize pasted logs. Screenshot-bearing blocks additionally need a substantive observed: (see Field notes). If anything failed, the verdict is REJECT.
 - `PENDING-JUDGMENT` — all machine evals passed but ≥1 judgment item is
   UNCERTAIN (or, for T3, awaits its mandatory direct human verdict). This is
   the verdict the verify subagent writes so the report can reach Gate 2; the
@@ -33,6 +33,18 @@ at run time), every `run_id` in a PASS report must appear in that log — the
 hook and the CI re-check both block ids that were never logged. Copy run_ids
 from the actual runs; never invent them. A report without a sibling log
 (older flow) is tolerated; pre-merge NOTEs it.
+
+Observed (hook-enforced from schema_version 2): every evidence block carrying a
+`screenshot:` (PNG frames or the .html fallback) must also carry `observed:` —
+1-3 lines describing what is actually VISIBLE in the saved frames, written only
+AFTER opening each frame with a multimodal Read, cross-checked against the
+eval's `expected`. Describe the content, not the command. If what you see
+contradicts `expected`, that eval FAILS even when the command exited 0. If the
+verify machinery supplied no observed text (older workflow), the report writer
+must Read the frames and write it before claiming PASS. The hook blocks a v2
+PASS report whose screenshot blocks lack a substantive observed (>= 20 chars
+after stripping placeholders); schema_version < 2 reports are tolerated and
+pre-merge NOTEs them.
 
 Provenance (CI-enforced, not hook-enforced): REPLACE the `enforcement_mode` /
 `bypass_used` placeholders with the real values — `enforcement` from
@@ -70,7 +82,7 @@ deterministic result is a flaky test, not a score).
 
 ---8<---
 ---
-schema_version: 1
+schema_version: 2
 feature_slug: {{slug}}
 verdict: {{PASS|PENDING-JUDGMENT|REJECT|BLOCKED}}
 failed_evals: []        # REJECT only, e.g. [E2, E5]
@@ -107,6 +119,10 @@ human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER revi
   verifier: scripts/verify-ui-login.sh
   verified_at: {{ISO8601}}
   screenshot: evidence/E3-step1.png   # first frame; capture E3-step{n}.png per step → Gate-2 page plays them as a slideshow
+  observed: |
+    {{1-3 lines describing what is actually VISIBLE in the frames, cross-checked
+    against the eval's expected — written AFTER opening each frame with a
+    multimodal Read. >= 20 substantive chars; placeholders do not count.}}
 
 # Example shows the PENDING-JUDGMENT state; under an overall PASS verdict
 # this UNCERTAIN-without-override combination is hook-blocked.

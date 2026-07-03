@@ -18,6 +18,7 @@
  *   L1 CONSISTENCY — a PASS-family report contains exit_code != 0 or verdict: FAIL
  *   L2 SUBSTANCE  — a verifier is manual/heuristic, or not a resolvable
  *                   config:<dotted.key> / existing script path
+ *   L2 OBSERVED   — schema v2: screenshot-bearing block lacks a substantive observed:
  *   L3 JUDGMENT   — UNCERTAIN without human_override; T3 needs an override on
  *                   every judgment item
  * PENDING-JUDGMENT / REJECT / BLOCKED verdicts always pass through.
@@ -216,6 +217,11 @@ process.stdin.on('end', () => {
     if (r.runLogFailure) {
       lines.push('L2 PROVENANCE — run_id not machine-logged:');
       lines.push(`  x ${r.runLogFailure}`);
+      lines.push('');
+    }
+    if (r.observedFailures && r.observedFailures.length) {
+      lines.push('L2 OBSERVED — screenshot evidence not inspected:');
+      lines.push(...r.observedFailures.map(x => `  x ${x}`));
       lines.push('');
     }
     lines.push(

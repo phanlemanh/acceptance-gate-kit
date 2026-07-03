@@ -454,5 +454,106 @@ verdict: PASS
 rm -rf "$RL_DIR"
 
 echo ""
+echo "--- L2 OBSERVED (schema v2: screenshot blocks must be inspected) ---"
+
+OBS_V2='---
+schema_version: 2
+verdict: PASS
+---
+## Evidence
+- eval: E1
+  run_id: ob-001
+  exit_code: 0
+  verifier: scripts/verify-login.sh
+  verified_at: 2026-07-03T10:00:00Z
+  screenshot: evidence/E1-step1.png'
+
+echo "T30 v2 PASS screenshot block WITHOUT observed -> block"
+payload Write "$REPORT_PATH" "$OBS_V2" | node "$HOOK" >/dev/null 2>/dev/null; check T30 2 $?
+
+echo "T31 v2 PASS screenshot block WITH substantive observed -> allow"
+payload Write "$REPORT_PATH" "$OBS_V2
+  observed: form login hien thi day du, sau submit chuyen sang /dashboard voi user menu" | node "$HOOK" >/dev/null; check T31 0 $?
+
+echo "T32 v2 observed is template placeholder -> block"
+payload Write "$REPORT_PATH" "$OBS_V2
+  observed: {{mo ta noi dung frame o day, du 20 ky tu}}" | node "$HOOK" >/dev/null 2>/dev/null; check T32 2 $?
+
+echo "T33 v2 observed too short -> block"
+payload Write "$REPORT_PATH" "$OBS_V2
+  observed: ok" | node "$HOOK" >/dev/null 2>/dev/null; check T33 2 $?
+
+echo "T34 v1 screenshot without observed -> tolerated (backward)"
+payload Write "$REPORT_PATH" '---
+schema_version: 1
+verdict: PASS
+---
+- eval: E1
+  run_id: ob-002
+  exit_code: 0
+  verifier: scripts/verify-login.sh
+  verified_at: 2026-07-03T10:00:00Z
+  screenshot: evidence/E1-step1.png' | node "$HOOK" >/dev/null; check T34 0 $?
+
+echo "T35 v2 block WITHOUT screenshot needs no observed -> allow"
+payload Write "$REPORT_PATH" '---
+schema_version: 2
+verdict: PASS
+---
+- eval: E1
+  run_id: ob-003
+  exit_code: 0
+  verifier: scripts/verify-login.sh
+  verified_at: 2026-07-03T10:00:00Z' | node "$HOOK" >/dev/null; check T35 0 $?
+
+echo "T36 v2 multi-line observed (pipe block) -> allow"
+payload Write "$REPORT_PATH" "$OBS_V2
+  observed: |
+    frame 1 hien thi form login voi 2 truong nhap
+    frame 2 hien thi dashboard sau khi dang nhap thanh cong" | node "$HOOK" >/dev/null; check T36 0 $?
+
+echo "T37 v2 .html fallback screenshot without observed -> block"
+payload Write "$REPORT_PATH" '---
+schema_version: 2
+verdict: PASS
+---
+- eval: E2
+  run_id: ob-004
+  exit_code: 0
+  verifier: scripts/verify-login.sh
+  verified_at: 2026-07-03T10:00:00Z
+  screenshot: evidence/E2-step1.html' | node "$HOOK" >/dev/null 2>/dev/null; check T37 2 $?
+
+echo "T38 v2 PENDING-JUDGMENT screenshot without observed -> allow (enforced at PASS upgrade)"
+payload Write "$REPORT_PATH" '---
+schema_version: 2
+verdict: PENDING-JUDGMENT
+---
+- eval: E1
+  run_id: ob-005
+  exit_code: 0
+  verifier: scripts/verify-login.sh
+  verified_at: 2026-07-03T10:00:00Z
+  screenshot: evidence/E1-step1.png' | node "$HOOK" >/dev/null; check T38 0 $?
+
+echo "T39 Edit upgrading v2 PENDING-JUDGMENT -> PASS without observed -> block"
+UP2="$REPO/_acceptance/obs-up"
+mkdir -p "$UP2"
+cat > "$UP2/evidence-report.md" <<'EOF'
+---
+schema_version: 2
+verdict: PENDING-JUDGMENT
+---
+- eval: E1
+  run_id: ob-006
+  exit_code: 0
+  verifier: config:executors.test.api
+  verified_at: 2026-07-03T10:00:00Z
+  screenshot: evidence/E1-step1.png
+EOF
+payload Edit "$UP2/evidence-report.md" 'verdict: PASS' 'verdict: PENDING-JUDGMENT' | node "$HOOK" >/dev/null 2>/dev/null; check T39 2 $?
+rm -rf "$UP2"
+
+echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
