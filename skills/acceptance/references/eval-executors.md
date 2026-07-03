@@ -137,7 +137,8 @@ closed YES/NO question — an assertion, not a judge. Same-family graders share
 evidence class where hallucinated completion lives (screenshots).
 
 - Scaffold: `/acceptance-init` step 3c copies `vlm-assert.reference.mjs` →
-  `scripts/vlm-assert.mjs` (repo-owned; `GEMINI_API_KEY` env; exit 0=YES,
+  `scripts/vlm-assert.mjs` (repo-owned; `GEMINI_API_KEY` env; default model
+  `gemini-3.5-flash`, override with `VLM_MODEL`; exit 0=YES,
   1=NO, 2=cannot-run → the verify lane maps 2 to BLOCKED, never false-green).
 - Per-eval wiring: image + question are eval-specific and a `script` eval only
   has `cmd` — so each assertion is a thin repo wrapper the eval points at

@@ -766,6 +766,18 @@ globalThis.fetch = async () => ({ ok: false, status: 500, text: async () => { th
 EOF
 GEMINI_API_KEY=dummy node --import "file://$MOCK_TEXT" "$VLM" "$IMG" "is a video player visible?" 2>/dev/null; check V05 2 $?
 
+echo "V06 default model pinned to gemini-3.5-flash (URL asserted; YES -> exit 0)"
+MOCK_URL="$T/vlm-mock-url.mjs"
+cat > "$MOCK_URL" <<'EOF'
+globalThis.fetch = async (url) => {
+  if (!String(url).includes('/models/gemini-3.5-flash:generateContent')) {
+    return { ok: false, status: 404, text: async () => 'wrong model url: ' + url };
+  }
+  return { ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: 'YES' }] } }] }) };
+};
+EOF
+env -u VLM_MODEL GEMINI_API_KEY=dummy node --import "file://$MOCK_URL" "$VLM" "$IMG" "is a video player visible?" >/dev/null 2>/dev/null; check V06 0 $?
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1

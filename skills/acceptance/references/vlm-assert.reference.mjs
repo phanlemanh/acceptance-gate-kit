@@ -23,7 +23,7 @@
  * Usage: node scripts/vlm-assert.mjs <image> "<closed YES/NO question>"
  * Exit:  0 = YES · 1 = NO · 2 = cannot run (usage/image/key/API/non-YES-NO)
  *        — 2 maps to cannotRun/BLOCKED in the verify lane, never false-green.
- * Env:   GEMINI_API_KEY (required), VLM_MODEL (default gemini-2.5-flash —
+ * Env:   GEMINI_API_KEY (required), VLM_MODEL (default gemini-3.5-flash —
  *        check Google's current model list; swap provider = 1 URL + 1 payload).
  * Node >= 18 (built-in fetch). Zero npm dependency.
  */
@@ -51,7 +51,7 @@ if (!key) {
 }
 
 const MIME = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif' }[extname(image).toLowerCase()] || 'image/png';
-const MODEL = process.env.VLM_MODEL || 'gemini-2.5-flash';
+const MODEL = process.env.VLM_MODEL || 'gemini-3.5-flash';
 
 let res;
 try {

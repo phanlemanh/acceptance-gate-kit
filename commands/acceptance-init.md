@@ -81,7 +81,8 @@ Omit the `capture` block if the repo has no UI evidence need.
     `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/vlm-assert.reference.mjs`
     into the repo as `scripts/vlm-assert.mjs`; tell them to set `GEMINI_API_KEY`
     (the script calls Gemini REST via Node's built-in fetch — zero npm
-    dependency; override the model with `VLM_MODEL`), and add the
+    dependency; default model `gemini-3.5-flash`, override with `VLM_MODEL`),
+    and add the
     `executors.ui.vlm_assert` key above. Evals use it through a thin
     per-assertion wrapper — closed questions only, opt-in per eval (see the
     acceptance skill's eval-executors reference). The script + key live in the
