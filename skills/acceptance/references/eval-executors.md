@@ -106,6 +106,11 @@ out-of-scope items with zero negative evals (W3); advisory, surfaced at Gate 1.
   frames as a slideshow, so the human SEES the flow run, not one still. The
   report's `screenshot:` field = the first frame (back-compat); the rest are found
   by glob. A single screenshot still works (renders a static image).
+- **Look at what you saved** — after writing the frames, open each one with a
+  multimodal Read and record `observed:` in the report block (template schema
+  v2, hook-enforced): what is actually visible, cross-checked against
+  `expected`. A frame that contradicts `expected` fails the eval even when the
+  assertion command exited 0. This is the anti-"saved but never looked" rail.
 - **Saving a frame to a FILE** (the slideshow needs files, not inline images):
   `preview_screenshot` and most browser tools return an INLINE image, not a saved
   file. So the repo provides `config:capture.ui` — a command `<cmd> <url>
@@ -123,3 +128,40 @@ out-of-scope items with zero negative evals (W3); advisory, surfaced at Gate 1.
 - No browser MCP available → DOWNGRADE the eval to `judgment` with the
   screenshot replaced by a manual checklist item, and note the downgrade in
   the evidence report. Never silently skip.
+
+## External VLM second-opinion (optional, opt-in per eval)
+
+A cross-family model (default: Gemini) re-reads a saved frame and answers ONE
+closed YES/NO question — an assertion, not a judge. Same-family graders share
+"looks done" bias; a second family reduces correlated error on exactly the
+evidence class where hallucinated completion lives (screenshots).
+
+- Scaffold: `/acceptance-init` step 3c copies `vlm-assert.reference.mjs` →
+  `scripts/vlm-assert.mjs` (repo-owned; `GEMINI_API_KEY` env; exit 0=YES,
+  1=NO, 2=cannot-run → the verify lane maps 2 to BLOCKED, never false-green).
+- Per-eval wiring: image + question are eval-specific and a `script` eval only
+  has `cmd` — so each assertion is a thin repo wrapper the eval points at
+  (a script path is an authentic verifier, same as `scripts/verify-ui-login.sh`
+  in the report template):
+
+  ```yaml
+  - id: E6
+    criterion: AC-5
+    executor: script
+    cmd: scripts/vlm/video-player-visible.sh
+    expected: "exit 0 — frame shows a rendered video player >= 300px wide"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  ```
+
+  ```sh
+  #!/bin/sh
+  # scripts/vlm/video-player-visible.sh
+  exec node scripts/vlm-assert.mjs \
+    _acceptance/video-plugin/evidence/E3-step2.png \
+    "Does this frame show a rendered video player at least 300 pixels wide?"
+  ```
+
+- CLOSED questions only ("is X visible?", "does the page show Y?"). OPEN
+  quality questions ("does it look good / on-brand?") stay `judgment` /
+  design-loop — No blind VLM judge.
+- Opt-in per eval: Phase 2 EVAL-GEN never adds these automatically.

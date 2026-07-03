@@ -728,5 +728,28 @@ echo "CP05 missing --key -> usage error exit 4"
 node "$CP" --config "$R/_acceptance/config.yaml" >/dev/null 2>&1; check CP05 4 $?
 
 echo ""
+echo "--- observed NOTE (schema v1 report with screenshot evidence) ---"
+echo "OBS01 v1 report with screenshot lacking observed -> pass + NOTE"
+R="$T/obsnote"; mk_feature "$R" feat-obs T2 implemented PASS "Manh Phan 2026-06-10"
+printf '  screenshot: evidence/E1-step1.png\n' >> "$R/_acceptance/feat-obs/evidence-report.md"
+out="$(bash "$CHECK" "$R" 2>&1)"; rc=$?
+check OBS01-exit 0 $rc
+printf '%s' "$out" | grep -q 'observed' ; check OBS01-note 0 $?
+
+echo ""
+echo "--- vlm-assert.reference.mjs (V2 seam — no network in tests) ---"
+VLM="$HERE/../../skills/acceptance/references/vlm-assert.reference.mjs"
+
+echo "V01 missing args -> exit 2 + usage"
+node "$VLM" 2>/dev/null; check V01 2 $?
+
+echo "V02 unreadable image -> exit 2 (before key/network)"
+GEMINI_API_KEY=dummy node "$VLM" "$T/nonexistent.png" "is a video player visible?" 2>/dev/null; check V02 2 $?
+
+echo "V03 missing GEMINI_API_KEY -> exit 2 (before network)"
+IMG="$T/vlm-img.png"; printf 'fake-png-bytes' > "$IMG"
+env -u GEMINI_API_KEY node "$VLM" "$IMG" "is a video player visible?" 2>/dev/null; check V03 2 $?
+
+echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
