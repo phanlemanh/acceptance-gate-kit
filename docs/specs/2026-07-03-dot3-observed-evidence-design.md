@@ -49,10 +49,17 @@ hook chặn lúc ghi, CI recheck chặn lúc merge — chung một core, không 
   chạy từ dòng đó tới trước dòng `- eval:` kế / hết section.
 - **Trigger:** block có dòng khớp `/^\s*screenshot\s*[:=]/`.
 - **Nội dung observed:** dòng khớp `/^\s*observed\s*[:=]\s*(.*)$/i`; giá trị = phần
-  inline + các dòng tiếp theo cho tới dòng field kế (`/^\s*(?:-\s+)?[\w-]+\s*[:=]/`)
-  hoặc hết block (hỗ trợ `observed: |` đa dòng).
-- **Thực chất:** sau khi strip comment (`#...`) và placeholder (`{{...}}`), phần còn
-  lại ≥ 20 ký tự (trim). Dưới ngưỡng = coi như thiếu.
+  inline + các dòng tiếp theo cho tới dòng **không-blank đầu tiên KHÔNG thụt sâu hơn
+  key `observed:`** (đúng ngữ nghĩa block scalar YAML) hoặc hết block (hỗ trợ
+  `observed: |` đa dòng). *(Sửa 1.10.1 — thiết kế gốc dừng ở bất kỳ dòng dạng
+  `word:` nào, cắt oan nội dung kiểu `step1: form hiển thị...` theo naming frame
+  `E{id}-step{n}.png`; dòng nội dung dạng `word:` KHÔNG còn là terminator.)*
+- **Thực chất:** strip comment per-line — comment YAML inline trên dòng key
+  (khoảng-trắng + `#`) và dòng continuation nguyên-dòng-`#` không tính; `#` giữa
+  dòng continuation là nội dung literal của block scalar (vd `#main-nav`) — GIỮ.
+  Sau đó strip placeholder (`{{...}}`) trên chuỗi đã join; phần còn lại ≥ 20 ký tự
+  (trim). Dưới ngưỡng = coi như thiếu. *(Sửa 1.10.1 — strip `#` trên chuỗi đã join
+  nuốt nhầm từ `#selector` đến hết nội dung.)*
 - **Kết quả:** field mới `observedFailures[]` trong kết quả `evaluateEvidence`; tính
   vào `anyFailure`. Hook + `recheck-evidence.js` surface message mới này.
 

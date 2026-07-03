@@ -554,6 +554,23 @@ EOF
 payload Edit "$UP2/evidence-report.md" 'verdict: PASS' 'verdict: PENDING-JUDGMENT' | node "$HOOK" >/dev/null 2>/dev/null; check T39 2 $?
 rm -rf "$UP2"
 
+echo "T40 v2 observed block scalar with step1:-style lines -> allow (indentation terminator)"
+payload Write "$REPORT_PATH" "$OBS_V2
+  observed: |
+    step1: form login hien thi day du 2 truong nhap
+    step2: dashboard hien thi user menu sau dang nhap" | node "$HOOK" >/dev/null; check T40 0 $?
+
+echo "T41 v2 observed containing mid-line #selector -> allow (comment strip must not swallow it)"
+payload Write "$REPORT_PATH" "$OBS_V2
+  observed: |
+    khung chinh co #main-nav voi 5 muc menu
+    logo hien ben trai cua header" | node "$HOOK" >/dev/null; check T41 0 $?
+
+echo "T42 v2 short observed then same-indent sibling field -> still block (sibling text must not count)"
+payload Write "$REPORT_PATH" "$OBS_V2
+  observed: ok
+  notes: sibling field text long enough that counting it would fake a pass" | node "$HOOK" >/dev/null 2>/dev/null; check T42 2 $?
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1

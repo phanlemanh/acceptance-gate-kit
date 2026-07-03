@@ -160,17 +160,25 @@ function evaluateObserved(payload) {
     for (let i = 0; i < block.length; i++) {
       const m = block[i].match(/^\s*observed\s*[:=]\s*(.*)$/i);
       if (!m) continue;
-      const parts = [m[1]];
+      // Inline value: whitespace+# starts a real YAML comment — not content.
+      const parts = [m[1].replace(/(^|\s)#.*$/, '')];
+      // Continuation lines end at the first non-blank line NOT indented deeper
+      // than the observed: key (YAML block-scalar semantics). A word:-shaped
+      // content line ("step1: form hien thi...") is NOT a terminator.
+      const keyIndent = block[i].match(/^\s*/)[0].length;
       for (let j = i + 1; j < block.length; j++) {
-        if (/^\s*(?:-\s+)?[\w-]+\s*[:=]/.test(block[j])) break; // next field line
-        parts.push(block[j]);
+        const ln = block[j];
+        if (!ln.trim()) continue;                         // blank line inside block scalar
+        if (ln.match(/^\s*/)[0].length <= keyIndent) break; // dedent = next field/block
+        // Whole-line # doesn't count; mid-line # is literal block-scalar
+        // content (e.g. a CSS selector "#main-nav") — keep it.
+        if (!/^\s*#/.test(ln)) parts.push(ln);
       }
       content = parts.join(' ');
       break;
     }
     const substantive = (content || '')
-      .replace(/\{\{[^}]*\}\}/g, '')   // template placeholders don't count
-      .replace(/(^|\s)#[^\n]*/g, '')   // comments don't count
+      .replace(/\{\{[^}]*\}\}/g, '')   // template placeholders don't count (may span joined lines)
       .replace(/[|>]/g, ' ')           // YAML block markers
       .trim();
     if (substantive.length < OBSERVED_MIN_CHARS) {
