@@ -275,4 +275,19 @@ console.log('W16 sanitize: unknown roles + garbage values ignored, defaults hold
   check('W16 "session" (padded) on machine -> inherit', model('machine:').every(m => m === undefined));
 }
 
+console.log('W17 observed evidence: UI_SCHEMA + prompts (Đợt 3 — AI đổi phải chủ động sửa test)');
+{
+  const uEval = { id: 'E5', criterion: 'AC-5', executor: 'ui-check', steps: ['open /'], expected: '200' };
+  const { calls } = await runWorkflow(WF, baseArgs({ evals: [uEval], suiteCommands: [] }), responder({
+    'ui:E5': { exitCode: 0, outputTail: 'asserted', runId: '', cannotRun: false, screenshotPath: 'evidence/E5-step1.png', observed: 'trang dashboard hien thi user menu va bang so lieu' },
+  }));
+  const ui = byLabel(calls, 'ui:')[0];
+  check('W17 UI_SCHEMA has observed property', !!(ui.opts.schema && ui.opts.schema.properties && ui.opts.schema.properties.observed));
+  check('W17 ui prompt instructs opening frames with Read', /MO TUNG file frame/.test(ui.prompt));
+  check('W17 ui prompt: frame contradicting Expected => FAIL', /MAU THUAN Expected/.test(ui.prompt));
+  const synth = byLabel(calls, 'synthesize:report')[0];
+  check('W17 synthesize carries observed value into report payload', synth.prompt.includes('trang dashboard hien thi user menu'));
+  check('W17 synthesize instructs the observed field + schema v2', /observed/.test(synth.prompt) && /schema v2/.test(synth.prompt));
+}
+
 summary('acceptance-verify');
