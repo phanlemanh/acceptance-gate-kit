@@ -420,7 +420,9 @@ seam cho một model khác nhà (mặc định Gemini) đọc lại frame đã l
 MỘT câu hỏi đóng YES/NO — là assertion, không phải judge:
 
 - `/acceptance-init` bước 3c scaffold `scripts/vlm-assert.mjs` (script sống ở
-  repo, key `GEMINI_API_KEY` của repo — kit không ôm dependency).
+  repo, key `GEMINI_API_KEY` của repo — kit không ôm dependency). Model mặc
+  định `gemini-3.5-flash`; đổi qua env `VLM_MODEL` (đổi provider = sửa 1 URL +
+  1 payload trong script).
 - Mỗi assertion = một wrapper mỏng (`scripts/vlm/<ten>.sh`) mà eval `script`
   trỏ tới; exit 0=YES, 1=NO, 2=không-chạy-được → BLOCKED, không bao giờ
   xanh-giả.

@@ -22,12 +22,17 @@ report chưa ký.
 
 ## Cài 1 lần mỗi máy
 
-Claude Code:
+Claude Code — trọn bộ (khuyến nghị, copy-paste một lần):
 
 ```bash
 claude plugin marketplace add phanlemanh/acceptance-gate-kit
 claude plugin install acceptance-gate@acceptance-gate-kit
+claude plugin install feature-loop@acceptance-gate-kit      # vòng lặp trọn gói
+claude plugin install superpowers@claude-plugins-official   # dependency của feature-loop
+claude plugin install design-loop@acceptance-gate-kit       # tùy chọn — repo có web UI
 ```
+
+Tối thiểu (chỉ gate, không vòng lặp): 2 dòng đầu là đủ.
 
 > **Codex:** bản port đang hoàn thiện, **chưa phát hành** — hiện kit chỉ chạy trên
 > Claude Code. (Bản Codex sẽ được công bố kèm ghi chú riêng về mức enforcement,
