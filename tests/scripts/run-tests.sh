@@ -750,6 +750,22 @@ echo "V03 missing GEMINI_API_KEY -> exit 2 (before network)"
 IMG="$T/vlm-img.png"; printf 'fake-png-bytes' > "$IMG"
 env -u GEMINI_API_KEY node "$VLM" "$IMG" "is a video player visible?" 2>/dev/null; check V03 2 $?
 
+# V04/V05: exit contract on garbage API responses — no network; --import preloads
+# a module that replaces globalThis.fetch before the script's top-level runs.
+echo "V04 API 200 with unparseable JSON body -> exit 2 (cannot-run, not NO)"
+MOCK_JSON="$T/vlm-mock-badjson.mjs"
+cat > "$MOCK_JSON" <<'EOF'
+globalThis.fetch = async () => ({ ok: true, status: 200, json: async () => { throw new Error('unexpected token'); }, text: async () => 'garbage' });
+EOF
+GEMINI_API_KEY=dummy node --import "file://$MOCK_JSON" "$VLM" "$IMG" "is a video player visible?" 2>/dev/null; check V04 2 $?
+
+echo "V05 API non-OK whose body read throws -> exit 2"
+MOCK_TEXT="$T/vlm-mock-badtext.mjs"
+cat > "$MOCK_TEXT" <<'EOF'
+globalThis.fetch = async () => ({ ok: false, status: 500, text: async () => { throw new Error('boom'); } });
+EOF
+GEMINI_API_KEY=dummy node --import "file://$MOCK_TEXT" "$VLM" "$IMG" "is a video player visible?" 2>/dev/null; check V05 2 $?
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1

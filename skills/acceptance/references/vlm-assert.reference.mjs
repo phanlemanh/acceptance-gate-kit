@@ -70,11 +70,21 @@ try {
   console.error(`vlm-assert: network error: ${e.message}`);
   process.exit(2);
 }
+// Body reads can also throw (truncated/garbage response) — that is still
+// "cannot run" (exit 2), never a NO: an unhandled rejection would exit 1.
 if (!res.ok) {
-  console.error(`vlm-assert: API ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  let body = '';
+  try { body = (await res.text()).slice(0, 300); } catch (_) { /* status alone */ }
+  console.error(`vlm-assert: API ${res.status}: ${body}`);
   process.exit(2);
 }
-const data = await res.json();
+let data;
+try {
+  data = await res.json();
+} catch (e) {
+  console.error(`vlm-assert: unreadable API response: ${e.message}`);
+  process.exit(2);
+}
 const text = String(
   data && data.candidates && data.candidates[0] && data.candidates[0].content
     && data.candidates[0].content.parts
