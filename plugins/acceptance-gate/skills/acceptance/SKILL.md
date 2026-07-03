@@ -162,7 +162,10 @@ Entry: implementation complete, contract `status: implemented`.
    evidence faithfully; in a PASS report sanitize output excerpts — no
    nonzero exit tokens (exit_code:/exit=) and no 'verdict: FAIL' strings
    (hook-enforced L1 CONSISTENCY). UNCERTAIN when unsure. Never mark PASS
-   without captured output. If any judgment item is UNCERTAIN — or the
+   without captured output. For every ui-check: after saving frames, OPEN each frame with a multimodal
+   Read and record observed: — 1-3 lines of what is visible vs expected; a
+   frame contradicting expected means that eval FAILS even with exit 0; never
+   write observed from memory. If any judgment item is UNCERTAIN — or the
    contract is T3 with judgment evals — the overall verdict is
    PENDING-JUDGMENT, never PASS."
 2. The subagent executes per executor type:
@@ -180,7 +183,7 @@ Entry: implementation complete, contract `status: implemented`.
      Claude Preview MCP; save a frame at EACH step to
      `_acceptance/{slug}/evidence/E{id}-step{n}.png` via `config:capture.ui`
      (preview_screenshot is inline-only; the Gate-2 page plays `E{id}-*.png` as a
-     slideshow); `screenshot:` = the first frame.
+     slideshow); `screenshot:` = the first frame. Read each saved frame and record observed: in its report block (schema-v2 reports without it are hook-blocked).
      No capture/browser → save HTML / downgrade to judgment + note (see eval-executors.md).
    - `judgment`: dispatch the judge per `references/judge-personas.md`
      (separate fresh subagent, `model: sonnet` — scoped verdict on resolved

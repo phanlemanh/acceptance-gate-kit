@@ -2,7 +2,7 @@
 
 > Đọc nhanh 5 phút → [QUICKSTART.md](QUICKSTART.md). Tài liệu này là **bản đầy đủ**:
 > kiến trúc, cài đặt, vận hành hằng ngày, tra cứu enforcement, xử lý sự cố và tinh chỉnh.
-> Khớp phiên bản: acceptance-gate ≥ 1.9.1 · feature-loop ≥ 1.9.0.
+> Khớp phiên bản: acceptance-gate ≥ 1.10.0 · feature-loop ≥ 1.10.0.
 
 ## Mục lục
 
@@ -173,6 +173,11 @@ Những chốt toàn vẹn đáng chú ý:
   → evidence STALE, phải verify lại (resume tự hạ status, CI chặn merge).
 - **Provenance**: `enforcement_mode` / `bypass_used` đo bằng máy và đóng dấu vào report
   — merge một PASS "xanh nhưng gate đang tắt" là việc CI không cho phép.
+- **Observed (v1.10):** agent ui-check phải MỞ từng frame đã lưu (Read đa
+  phương thức) và ghi `observed:` — thấy gì cụ thể, đối chiếu expected — vào
+  block evidence. Frame mâu thuẫn expected = eval FAIL dù lệnh exit 0. Hook
+  chặn report PASS (schema v2) có `screenshot:` mà thiếu `observed:` thực chất
+  — đóng lỗ "chụp mà không xem".
 
 ## 5. Cài đặt
 
@@ -355,6 +360,7 @@ flowchart LR
 | L2 SUBSTANCE | Verifier là "manual review"/heuristic, script không tồn tại, `config:` key không resolve | Verifier = script thật hoặc `config:executors.<type>.<surface>` |
 | L2 PROVENANCE | `run-log.jsonl` tồn tại mà report chứa `run_id` không có trong log | Verify lại — không mint run_id tay |
 | L3 JUDGMENT | `UNCERTAIN` chưa có `human_override` giá trị thật; T3 thiếu override trên mọi judgment | Người kiểm rồi điền qua agent |
+| L2 OBSERVED | Report PASS schema v2: block có `screenshot:` thiếu `observed:` thực chất (≥20 ký tự, không placeholder) — chặn cả lúc hook ghi lẫn CI recheck | Mở từng frame bằng Read, viết observed thật; report cũ (v1) chỉ bị NOTE |
 | Contract guard | Đặt `status: approved/signed-off` khi `approved_by` rỗng; `draft` → `implemented/verified` nhảy cóc (tha khi `gate1_skipped: true`) | Duyệt Cổng 1 tử tế |
 
 **CI pre-merge** — với mọi feature T2/T3 có status `implemented`+:
@@ -406,6 +412,21 @@ của hook). Sửa tay thì được — nhưng CI lint sẽ chặn tab/indent l
 **Siết dần theo mức trưởng thành của repo:** repo mới scaffold sẵn mức chặt
 (`recheck: strict`, `require_human_commit: true`); repo cũ nâng cấp kit thì các luật mới
 chỉ NOTE cho artifact cũ (presence-based) — bật chặt khi đội sẵn sàng.
+
+### 8.1 Second-opinion khác nhà cho frame UI (tùy chọn)
+
+Grader cùng một nhà model chia sẻ cùng thiên kiến "trông-có-vẻ-xong". Kit mở
+seam cho một model khác nhà (mặc định Gemini) đọc lại frame đã lưu và trả lời
+MỘT câu hỏi đóng YES/NO — là assertion, không phải judge:
+
+- `/acceptance-init` bước 3c scaffold `scripts/vlm-assert.mjs` (script sống ở
+  repo, key `GEMINI_API_KEY` của repo — kit không ôm dependency).
+- Mỗi assertion = một wrapper mỏng (`scripts/vlm/<ten>.sh`) mà eval `script`
+  trỏ tới; exit 0=YES, 1=NO, 2=không-chạy-được → BLOCKED, không bao giờ
+  xanh-giả.
+- CHỈ câu hỏi đóng ("có thấy video player không?"); câu hỏi mở về thẩm mỹ
+  thuộc judgment/design-loop — No blind VLM judge. Opt-in từng eval, EVAL-GEN
+  không tự thêm.
 
 ## 9. Xử lý sự cố
 

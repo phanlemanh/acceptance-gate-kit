@@ -1,6 +1,6 @@
 {
   "name": "feature-loop",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "description": "Feature development loop on top of acceptance-gate: brainstorm → contract+evals (Gate 1) → plan → execute → multi-agent verify (machine evals dedupe, 3-judge blind panels, adversarial code review via Workflow orchestration) → evidence + human signoff (Gate 2). Two human stops per feature; T3 adds a plan-review stop. v1.7 adds design-loop-aware guards (no-op unless the feature is a web-UI surface AND design-loop is wired) that make the design sub-track deterministic instead of memory-dependent. Requires: acceptance-gate plugin (same marketplace) + superpowers plugin.",
   "author": {
     "name": "Manh Phan",

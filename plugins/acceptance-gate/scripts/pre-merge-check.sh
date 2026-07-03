@@ -291,6 +291,15 @@ GLOBS2
   if [ ! -f "$dir/run-log.jsonl" ]; then
     echo "NOTE [$slug]: no run-log.jsonl (older verify flow) — run_id provenance is not machine-logged; report run_ids are unreconciled. Re-verify to generate the log."
   fi
+  # observed (schema v2): older reports with screenshot evidence never faced the
+  # inspected-frames bar — tolerated, but must be visible.
+  sv="$(front_field "$report" schema_version)"
+  case "$sv" in (*[!0-9]*|'') sv=1 ;; esac
+  if [ "$sv" -lt 2 ] \
+     && grep -qiE '^[[:space:]]*screenshot[[:space:]]*[:=]' "$report" \
+     && ! grep -qiE '^[[:space:]]*observed[[:space:]]*[:=]' "$report"; then
+    echo "NOTE [$slug]: schema v$sv report has screenshot evidence without observed: — frame inspection was not machine-enforced for this report. Re-verify with template v2 to enforce."
+  fi
   # Re-verify the COMMITTED evidence with the same core the hook runs — catches a
   # report hand-edited after the write-time hook, or written under bypass.
   if [ "$RECHECK_MODE" != off ]; then

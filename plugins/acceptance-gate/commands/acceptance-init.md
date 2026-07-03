@@ -37,6 +37,8 @@ executors:
   design:                                              # keep if the repo has any web UI
     gate: "node ${CLAUDE_PLUGIN_ROOT}/scripts/design-gate.mjs"   # script tier (a11y/slop)
     ui_check: "${CLAUDE_PLUGIN_ROOT}/scripts/design-scan.js"     # browser tier (authoritative P0)
+  # ui:                                                # optional (step 3c): cross-family VLM
+  #   vlm_assert: "node scripts/vlm-assert.mjs"        # second opinion on saved UI frames
 risk_tiers:
   t1_skip_globs:
     - "<from 2e>"
@@ -72,6 +74,18 @@ Omit the `capture` block if the repo has no UI evidence need.
     `"ui:capture": "node scripts/ui-capture.mjs"` to package.json, then set
     `capture.ui: "npm run ui:capture"`. The script + dependency live in the REPO,
     NOT in the plugin — the kit stays zero-dependency.
+
+3c. **(optional) Scaffold the external-VLM second opinion.** If the user wants a
+    cross-model check on saved UI frames (a different model family re-reads the
+    screenshots and answers closed YES/NO questions), copy
+    `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/vlm-assert.reference.mjs`
+    into the repo as `scripts/vlm-assert.mjs`; tell them to set `GEMINI_API_KEY`
+    (the script calls Gemini REST via Node's built-in fetch — zero npm
+    dependency; override the model with `VLM_MODEL`), and add the
+    `executors.ui.vlm_assert` key above. Evals use it through a thin
+    per-assertion wrapper — closed questions only, opt-in per eval (see the
+    acceptance skill's eval-executors reference). The script + key live in the
+    REPO, NOT in the plugin.
 
 4. Write `_acceptance/README.md` (3 lines): what this folder is, link to the
    acceptance skill, "artifacts are per-feature in subfolders".
