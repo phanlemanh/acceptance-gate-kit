@@ -44,7 +44,9 @@ Cổng design hiện tại **nhị phân và trói thứ-rẻ vào thứ-đắt*
   như hiện tại (không nâng cấp proposal engine — đã bác).
 - **Hành vi khi bật:** S1 thêm static evals per-surface vào `evals.yaml`
   (`config:executors.design.static` — token-only + contrast-AA + tap-target) + evidence
-  screenshot/`observed` như mọi ui-check. Design-doc ghi vài dòng "surface & state chạm".
+  screenshot/`observed` như mọi ui-check + eval `config:executors.design.gate`
+  (P0 legibility floor — script trên cùng capture, gần miễn phí, floor không phụ thuộc
+  ceremony). Design-doc ghi vài dòng "surface & state chạm".
 - **Lưới FM-c (đủ-hứa-đủ-chạy):** ở lane nhẹ, eval static PHẢI kèm capture `--html`
   (contrast/tap là lý do tồn tại của lane). Thiếu capture → **BLOCKED**, không PASS-kèm-note
   "needs --html" (script hiện PASS token-only khi thiếu — thêm flag `--require-html`
@@ -88,6 +90,7 @@ tham chiếu bảng. design-subtrack SKILL.md per-stage đổi theo cùng 2 pred
 |---|---|
 | S0 cảnh báo chưa-wire design-loop | CT1 |
 | S1 thêm static evals + dòng "surface & state chạm" | CT1 |
+| S4 gate P0 legibility floor | CT1 (chạy khi có capture) |
 | S1 câu hỏi lane (cuối S1, 1 câu) | CT1 |
 | S1 #5 hard-check mockup + state-matrix | CT2 |
 | Gate-1 hard-gate (mockup provenance + matrix) | CT2 |
