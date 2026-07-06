@@ -41,7 +41,7 @@ Mọi điểm 🎨 dưới đây tra bảng này — mỗi điểm là MỘT câ
 | Công tắc | Điều kiện (máy-đọc, derive từ artifact) | Khi bật |
 |---|---|---|
 | **CT1 — chạm UI** (rẻ, tự động) | `node <design-loop>/scripts/design-detect-surface.mjs --slug <slug>` trả `surface:true` **∧** config có `executors.design.*` (đã `/design-init`) | S1: static evals per-surface (cmd `config:executors.design.static` + target + capture `--html` + `--require-html`) + vài dòng "surface & state chạm" trong design-doc + câu hỏi lane cuối S1 · S4: fidelity ADVISORY nếu surface có reference cũ · Gate 2: ghi lane vào gói |
-| **CT2 — ceremony design-of-record** (đắt, human bật) | `_acceptance/<slug>/evidence/design/provenance.json` tồn tại **∨** `evals.yaml` có executor `design.fidelity` | S1-D `/design-mockup <slug>` TRƯỚC Gate 1 · hard-gate mockup + state-matrix (S1 kiểm cuối, Gate 1, resume-guard) · S4 WARN to khi fidelity skip · Gate 2 panel `/design-evidence <slug>` cho AC perceptual |
+| **CT2 — ceremony design-of-record** (đắt, human bật) | `_acceptance/<slug>/evidence/design/provenance.json` tồn tại **∨** `evals.yaml` có executor `design.fidelity` | S1-D `/design-mockup <slug>` TRƯỚC Gate 1 · hard-gate mockup + state-matrix (S1 kiểm cuối, Gate 1, resume-guard) · S4 WARN rõ khi fidelity skip · Gate 2 panel `/design-evidence <slug>` cho AC perceptual |
 
 Từ vựng hiển thị: **D0** = ¬CT1 · **D1** = CT1∧¬CT2 · **D2** = CT1∧CT2 — chỉ để nói chuyện với user/card, không lưu đâu cả. CT1 có tín hiệu nhưng repo CHƯA wire design-loop → CẢNH BÁO (không chặn) như trước, và việc static-không-chạy phải hiện trong gói Gate 2. AC perceptual-so-chuẩn xuất hiện trong contract mà CT2 đang OFF → nhắc user nâng lane (cần chuẩn để so = phải có chuẩn), không tự chặn.
 
@@ -60,7 +60,7 @@ Từ vựng hiển thị: **D0** = ¬CT1 · **D1** = CT1∧¬CT2 · **D2** = CT1
    - Match bất kỳ `risk_tiers.t3_paths` → **T3**. Còn lại **T2**.
 3. Slug = kebab-case tên feature. Workspace: `_acceptance/<slug>/`. **Guard trùng slug:** workspace đã tồn tại → so `feature:` (và `owner:`) trong frontmatter contract với mô tả hiện tại — KHÁC feature → đây là ĐỤNG slug chứ không phải resume: BẮT đổi slug mới (đề xuất `<slug>-2` hoặc suffix ngày), tuyệt đối không im lặng ghi đè workspace của feature khác; CÙNG feature → resume theo bảng state. Contract mới sinh ở S1 phải ghi `owner:` = `git config user.email`.
 4. Nếu giữa chừng phát hiện tier sai (vd T1 hóa ra đụng t3_paths) → nâng tier, quay lại stage thiếu (thường là S1 sinh contract).
-5. 🎨 **(CT1 signals)** Feature có vẻ chạm UI mà config CHƯA có `executors.design.*` → CẢNH BÁO (không chặn): đề nghị cài design-loop + `/design-init`, hoặc user xác nhận đi tiếp functional-only (sẽ hiện ở gói Gate 2). Đã wire → làn design theo bảng tra.
+5. 🎨 **(CT1 signals)** Feature có vẻ chạm UI mà config CHƯA có `executors.design.*` → CẢNH BÁO (không chặn): đề nghị cài design-loop + `/design-init`, hoặc user xác nhận đi tiếp functional-only (sẽ hiện ở gói Gate 2). Đã wire → làn design theo bảng tra. Nếu `provenance.design_repo` set mà repo KHÔNG reachable → cảnh báo ngay từ S0, trước khi tốn công S1-D (fidelity sẽ skip).
 
 ## S1 — DESIGN (sinh 3 artifact CÙNG LÚC)
 
@@ -125,7 +125,7 @@ Khi duyệt: set contract `status: approved`, `approved_by`, `approved_at` (ISO)
 
 **Judgment item trình cho user PHẢI ở dạng câu hỏi nghiệp vụ phi kỹ thuật** — user là người quyết kinh doanh, không phải engineer. Mỗi item: dịch thành 1 câu hỏi có/không hoặc lựa chọn a/b bằng ngôn ngữ SẢN PHẨM (không jargon schema/tool/migration), kèm (1) đề xuất của Claude + lý do 1 dòng, (2) hệ quả mỗi lựa chọn, (3) lựa chọn có đảo ngược được không. **Tính năng MỚI chưa có số liệu:** đừng bắt user phán bằng data — câu hỏi đúng là "đúng intent đã duyệt ở Gate 1 chưa · ship được chưa · đổi sau có rẻ không"; phương án đảo-ngược-được + ghi chú revisit là mặc định hợp lệ, data thật sau khi ship sẽ vào contract của vòng sau.
 
-🎨 **(CT2)** trước signoff in "chạy `/design-evidence <slug>`" + đính panel; KHÔNG đánh dấu AC perceptual `resolved` khi chưa có panel. **(CT1)** ghi lane hiện tại (D0/D1/D2) + các entry descope lane vào gói Gate 2.
+🎨 **(CT2)** trước signoff in "chạy `/design-evidence <slug>`" + đính panel; KHÔNG đánh dấu AC perceptual `resolved` khi chưa có panel. S4 có WARN fidelity-skip → nêu lên ĐẦU gói Gate 2, không nén vào phần "máy đã lo". **(CT1)** ghi lane hiện tại (D0/D1/D2) + các entry descope lane vào gói Gate 2.
 
 User: điền `human_override: <tên> <ngày>` cho từng UNCERTAIN (T3: MỌI judgment item), nâng PENDING-JUDGMENT → PASS nếu đồng ý, điền `human_signoff` + `time_human_minutes.gate2`. Xong: set contract `status: signed-off`, rồi commit **RIÊNG** các edit Gate-2 này — trong evidence-report.md commit đó chỉ được chạm các dòng human-owned (`human_signoff` / `human_override` / `verdict` nâng cấp / `bypass_ack`); evidence máy-viết đã commit từ cuối S4. Người duyệt tự commit, hoặc ra lệnh cho agent commit đúng mỗi phần đó (repo bật `signoff.require_human_commit` → pre-merge chặn chữ ký sinh cùng commit với body report). Human để lại ghi chú revisit/đảo-ngược → append 1 entry `stage:"gate2"`; signoff đồng thời là phê chuẩn khối provisional mà card đã trình riêng.
 

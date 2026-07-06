@@ -50,7 +50,8 @@ Cổng design hiện tại **nhị phân và trói thứ-rẻ vào thứ-đắt*
   "needs --html" (script hiện PASS token-only khi thiếu — thêm flag `--require-html`
   exit 3, eval-gen của lane nhẹ luôn truyền flag này).
 - Repo **chưa wire** design-loop → warn 1 lần như nay, đi tiếp functional-only, việc
-  static-không-chạy phải hiện trong gói Gate 2 (no-silent-green).
+  static-không-chạy phải hiện trong gói Gate 2 (no-silent-green). CT2 mà
+  `provenance.design_repo` không reachable → cảnh báo từ S0, trước khi tốn công S1-D.
 
 ### 3.2 Công tắc 2 — Design-of-record ceremony (đắt, human bật tường minh)
 
@@ -92,8 +93,8 @@ tham chiếu bảng. design-subtrack SKILL.md per-stage đổi theo cùng 2 pred
 | Gate-1 hard-gate (mockup provenance + matrix) | CT2 |
 | Resume-guard provenance | CT2 |
 | S4 fidelity advisory (so reference nếu có) | CT1 (chạy khi reference tồn tại; skip-note thường khi không) |
-| S4 WARN to "fidelity KHÔNG chạy — thị giác chưa được so" | CT2 (chỉ ceremony mới hứa so-chuẩn) |
-| Gate-2 panel onion-skin + AC perceptual guard | CT2 |
+| S4 WARN rõ "fidelity KHÔNG chạy — thị giác chưa được so" | CT2 (chỉ ceremony mới hứa so-chuẩn) |
+| Gate-2 panel onion-skin + AC perceptual guard + WARN fidelity-skip nêu lên đầu gói | CT2 |
 | Gate-2 ghi lane (D0/D1/D2) + descope entry vào gói | CT1 |
 
 Kèm: test bảng tra trong `tests/plugins/run-tests.sh` + ship 3 mirror **atomic**
