@@ -10,7 +10,7 @@ high-leverage gates.
 input (prompt/ticket/PRD)
   → Phase 1 NORMALIZE  → contract.md          ┐
   → Phase 2 EVAL-GEN   → evals.yaml           ├─ Gate 1: human approves (5-10 min)
-  → implementation (normal Claude Code flow)  │
+  → implementation (normal agent coding flow) │
   → Phase 3 VERIFY     → evidence-report.md   ├─ Gate 2: human signs off (5-10 min)
        fresh-context subagent runs every eval ┘
 ```
@@ -44,7 +44,20 @@ claude plugin marketplace add phanlemanh/acceptance-gate-kit
 claude plugin install acceptance-gate@acceptance-gate-kit
 claude plugin install feature-loop@acceptance-gate-kit    # Claude Code edition
 claude plugin install superpowers@claude-plugins-official # required by feature-loop
+claude plugin install design-loop@acceptance-gate-kit     # optional for web UI
 ```
+
+Codex:
+
+```bash
+codex plugin marketplace add phanlemanh/acceptance-gate-kit
+codex plugin add acceptance-gate@acceptance-gate-kit
+codex plugin add feature-loop-codex@acceptance-gate-kit   # Codex-native edition
+codex plugin add design-loop@acceptance-gate-kit          # optional for web UI
+codex plugin add superpowers@openai-curated               # optional brainstorm/plan helpers
+```
+
+Open a new agent session after installing so skills/commands are discovered.
 
 Stay current — two devs on different kit versions in one repo run two different
 gate rule-sets:
@@ -52,12 +65,15 @@ gate rule-sets:
 ```bash
 claude plugin update acceptance-gate@acceptance-gate-kit
 claude plugin update feature-loop@acceptance-gate-kit
+codex plugin marketplace upgrade
 ```
 
-> **Codex: not yet published.** The Codex packaging in this repo (`.agents/plugins/`,
-> `.codex-plugin/`, `plugins/`) is work in progress. It will ship with its own
-> enforcement notes — Codex has no PreToolUse write-time hook, so the gate story
-> differs. Until then, install on Claude Code only.
+> **Codex enforcement note.** The same artifacts, scripts, and CI gate are used.
+> Write-time hook behavior depends on the active agent runtime and hook trust,
+> so do not rely on it as the only guard. The authoritative cross-runtime
+> backstop is still the vendored CI set:
+> `scripts/pre-merge-check.sh`, `scripts/recheck-evidence.js`, and
+> `lib/evidence-core.js`.
 
 For local development, replace `phanlemanh/acceptance-gate-kit` with the
 absolute path to this checkout. After changing acceptance-gate source files,
@@ -69,14 +85,15 @@ scripts/sync-plugin-packages.sh
 
 > **feature-loop** has two runtime-specific editions:
 > - `feature-loop` is the Claude Code edition and uses Claude workflow scripts.
-> - `feature-loop-codex` is the Codex edition (unpublished WIP) using
->   Codex-native agent orchestration.
+> - `feature-loop-codex` is the Codex edition using Codex-native agent
+>   orchestration and shell/browser evidence.
 >
 > Both preserve the same gate discipline: brainstorm → contract+evals
 > (Gate 1) → plan → execute → verify → evidence + signoff (Gate 2).
 
-Installing the plugin registers the skill, both commands, and the
-PreToolUse hook automatically — no settings edits needed.
+Installing the Claude plugin registers the skill, commands, and PreToolUse hook.
+Installing the Codex plugins registers Codex skills/commands; CI remains the
+runtime-independent enforcement layer.
 
 Pilot mode (iterate on the kit while using it) — symlink ALL THREE pieces
 into the consumer repo; the skill alone is not enough (commands and the hook
@@ -95,7 +112,15 @@ ln -s <kit>/commands/acceptance-card.md   .claude/commands/acceptance-card.md
 
 Restart the Claude Code session afterwards — skills/commands/hooks are
 discovered at session start. Keep the symlinks and settings.local.json
-uncommitted (absolute machine paths).
+uncommitted (absolute machine paths). For Codex pilot mode, prefer adding this
+checkout as a local marketplace:
+
+```bash
+codex plugin marketplace add /absolute/path/to/acceptance-gate-kit
+codex plugin add acceptance-gate@acceptance-gate-kit
+codex plugin add feature-loop-codex@acceptance-gate-kit
+codex plugin add design-loop@acceptance-gate-kit
+```
 
 ## Per-repo setup (once)
 
@@ -147,10 +172,11 @@ templates produce advisory NOTEs, not failures).
 | Path | What |
 |---|---|
 | `.claude-plugin/marketplace.json` | Claude Code marketplace entry |
-| `.agents/plugins/marketplace.json` | Codex marketplace entry (unpublished WIP) |
-| `.codex-plugin/plugin.json` | Codex manifest for the acceptance-gate plugin (unpublished WIP) |
+| `.agents/plugins/marketplace.json` | Codex marketplace entry |
+| `.codex-plugin/plugin.json` | Codex manifest for the acceptance-gate plugin |
 | `plugins/acceptance-gate/` | Packaged acceptance-gate plugin for the Codex marketplace (regenerate with `scripts/sync-plugin-packages.sh`) |
-| `plugins/feature-loop-codex/` | Codex-native feature-loop edition (unpublished WIP) |
+| `plugins/feature-loop-codex/` | Codex-native feature-loop edition |
+| `design-loop/` | Design sub-track for Claude feature-loop and Codex feature-loop-codex |
 | `skills/acceptance/` | The 3-phase skill + templates |
 | `hooks/` | PreToolUse evidence gate (write time) |
 | `lib/evidence-core.js` | Shared L1/L2/L3 evidence validation (hook + CI re-check) |

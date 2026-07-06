@@ -6,14 +6,15 @@ and other computed-style P0s are precise — unlike the jsdom `script` tier, who
 contrast detail is noisy (it flags the right screen for noisy reasons).
 
 This is a **`ui-check` executor**, not a new one — it reuses the browser path the
-kit already uses for ui-check (Claude Preview MCP locally, Chrome MCP for staging)
-and the consumer's `dev_server` config. No new dependency.
+kit already uses for ui-check (Claude Preview MCP, Chrome MCP, Playwright, or a
+repo-provided browser harness) and the consumer's `dev_server` config. No plugin
+dependency is required.
 
 ## When to use
 
 - The criterion is about rendered design quality (a11y/contrast, AI-slop tells) AND
 - the surface is a web UI reachable at `config:dev_server.url` AND
-- a browser MCP is available this session.
+- a browser tool or repo browser harness is available this session.
 
 Otherwise fall back to the `script` tier (`design-gate.mjs --mode static`, or
 `--mode dom` with jsdom) and **note the downgrade in the evidence report** — same
@@ -37,9 +38,11 @@ contrast as advisory.
    surface URL.
    - **Claude Preview path:** `preview_start` (per `.claude/launch.json`) → keep the
      returned `serverId` for every later `preview_eval` / `preview_screenshot`.
-   - **Chrome path:** ensure the dev server is up, then use `navigate`.
-2. **Navigate** the browser to the surface (Claude Preview: `preview_eval` with a
-   `location.assign(...)` / Chrome: `navigate`). Screenshot → `evidence/E-design-B-step1.png`.
+   - **Codex/browser path:** ensure the dev server is up, then use Chrome MCP,
+     Playwright/Puppeteer, or the repo's browser harness to navigate and
+     evaluate JavaScript.
+2. **Navigate** the browser to the surface. Screenshot →
+   `evidence/E-design-B-step1.png`.
 3. **Inject + scan in one eval.** Read `${CLAUDE_PLUGIN_ROOT}/scripts/design-scan.js`
    and evaluate it in the page, then call the scan. The file sets
    `autoScan:false`, so no overlay is drawn.
@@ -47,7 +50,7 @@ contrast as advisory.
    Substitute `<failOn>` with the eval's declared `fail_on` list (default `['P0']`),
    not a literal — so the call matches the eval.
 
-   Chrome MCP:
+   Chrome MCP / Playwright-equivalent:
    ```
    javascript_tool({ tabId, action:'javascript_exec',
      text: <contents of design-scan.js> + "\nwindow.__impeccableDesignScan({failOn: <failOn>})" })

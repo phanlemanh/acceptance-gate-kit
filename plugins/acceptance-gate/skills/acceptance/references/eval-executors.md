@@ -120,14 +120,15 @@ out-of-scope items with zero negative evals (W3); advisory, surfaced at Gate 1.
   dev server), wired via config; `acceptance-init` can scaffold a reference. No
   capture command → save the asserted HTML as `evidence/E{id}-step{n}.html` and
   note the fallback, or downgrade to judgment.
-- Local dev: drive via Claude Preview MCP (`preview_start` → `preview_eval` /
-  `preview_screenshot`); save frames via `config:capture.ui`. Verifier value: the
-  assertion script if one is written, else `config:dev_server.start`.
-- Staging / deployed target: drive via Chrome MCP (navigate → assert →
-  screenshot) against `config:dev_server.url`; same evidence requirements.
-- No browser MCP available → DOWNGRADE the eval to `judgment` with the
-  screenshot replaced by a manual checklist item, and note the downgrade in
-  the evidence report. Never silently skip.
+- Local dev: drive via the browser tool available in the runtime: Claude
+  Preview MCP, Chrome MCP, Playwright/Puppeteer, or an equivalent repo-provided
+  harness. Save frames via `config:capture.ui`. Verifier value: the assertion
+  script if one is written, else `config:dev_server.start`.
+- Staging / deployed target: drive a browser against `config:dev_server.url`;
+  same evidence requirements.
+- No browser tool/harness available → DOWNGRADE the eval to `judgment` with the
+  screenshot replaced by a manual checklist item, and note the downgrade in the
+  evidence report. Never silently skip.
 
 ## External VLM second-opinion (optional, opt-in per eval)
 

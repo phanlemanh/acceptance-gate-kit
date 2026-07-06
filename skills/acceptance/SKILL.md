@@ -14,11 +14,14 @@ with machine evidence — so the human reviews a 1-page evidence report instead
 of hand-testing for an hour.
 
 Core principles (non-negotiable):
-1. **Doer ≠ grader** — the verify phase runs in a FRESH subagent, never the
-   implementing agent.
+1. **Doer ≠ grader** — the verify phase runs in a fresh agent/context when the
+   runtime supports it, or a clearly separated grader pass in Codex; never let
+   the same implementation reasoning self-grade the feature.
 2. **Evidence over assertion** — PASS requires `run_id + exit_code: 0 +
    verifier + verified_at`. The acceptance-evidence-gate hook blocks
-   violations at write time. REJECT and BLOCKED are always legal verdicts.
+   violations at write time when the runtime supports hooks; the CI re-check is
+   the merge-time backstop in every runtime. REJECT and BLOCKED are always legal
+   verdicts.
 3. **Two human gates only** — Gate 1 approves contract+evals BEFORE
    implementation; Gate 2 signs off on the evidence report AFTER. Never ask
    the human to hand-test what an executor already proved.
@@ -139,7 +142,7 @@ Run immediately after the user reviews the contract (same gate, one sitting).
    raw YAML (presentation only; the contract/evals stay the source of truth). On approval:
    set contract `status: approved`, `approved_by`, `approved_at`, and ask the
    user how many minutes Gate 1 took → write `time_human_minutes.gate1`.
-6. Hand off to implementation (normal Claude Code flow — the implementing
+6. Hand off to implementation (normal agent coding flow — the implementing
    agent reads contract + evals and codes until it believes evals will pass).
    The implementing agent's FINAL act is setting the contract's
    `status: implemented` — that transition is what arms Phase 3 entry
@@ -150,10 +153,12 @@ Run immediately after the user reviews the contract (same gate, one sitting).
 
 Entry: implementation complete, contract `status: implemented`.
 
-1. **Dispatch a fresh verification subagent** (general-purpose, pass
-   `model: sonnet` — it executes resolved commands and fills a hook-enforced
-   template; no large-model reasoning needed, the evidence-gate hook is the
-   correctness backstop). Its prompt
+1. **Dispatch a fresh verification context**. Prefer a fresh subagent when the
+   runtime exposes one; in Codex without multi-agent tools, run a separated
+   grader pass after implementation and record that fallback in the report. It
+   executes resolved commands and fills an evidence template; no large-model
+   self-assertion is accepted because the hook/CI evidence gate is the
+   correctness backstop. Its prompt
    contains: contract.md, evals.yaml, config executor commands, the FULL
    `references/evidence-report-template.md` (Verdict rules + Field notes +
    template body), the verdict routing rules from step 4 below, and the
@@ -179,19 +184,21 @@ Entry: implementation complete, contract `status: implemented`.
      The report MUST reuse exactly these run_ids — the hook and CI re-check
      reconcile every report run_id against this log; an id absent from the
      log blocks the PASS. Never write the log from memory after the fact.
-   - `ui-check`: start dev server per `config:dev_server.start`; drive via
-     Claude Preview MCP; save a frame at EACH step to
+   - `ui-check`: start dev server per `config:dev_server.start`; drive via the
+     available browser tool (Claude Preview, Chrome MCP, Playwright/Puppeteer,
+     or equivalent); save a frame at EACH step to
      `_acceptance/{slug}/evidence/E{id}-step{n}.png` via `config:capture.ui`
      (preview_screenshot is inline-only; the Gate-2 page plays `E{id}-*.png` as a
      slideshow); `screenshot:` = the first frame. Read each saved frame and record observed: in its report block (schema-v2 reports without it are hook-blocked).
      No capture/browser → save HTML / downgrade to judgment + note (see eval-executors.md).
    - `judgment`: dispatch the judge per `references/judge-personas.md`
-     (separate fresh subagent, `model: sonnet` — scoped verdict on resolved
-     inputs; blind: no diff, no implementer reasoning).
-     If the verify subagent cannot spawn nested subagents in this harness,
-     it returns judgment evals unscored; the ORCHESTRATOR dispatches each
-     judge per references/judge-personas.md and merges verdicts into the
-     report. Never judge inline inside the verify agent.
+     (separate fresh subagent when available, or three separated Codex passes
+     with hidden implementer reasoning). The verdict is scoped on resolved
+     inputs; blind: no diff, no implementer reasoning. If the verify context
+     cannot spawn nested agents, it returns judgment evals unscored; the
+     ORCHESTRATOR dispatches each judge per references/judge-personas.md and
+     merges verdicts into the report. Never let the implementation pass judge
+     itself inline.
 3. Write `_acceptance/{slug}/evidence-report.md` per template. The
    acceptance-evidence-gate hook validates evidence at write time — if it
    blocks, the evidence is incomplete: fix the evidence, never the wording.
@@ -235,7 +242,10 @@ Entry: implementation complete, contract `status: implemented`.
    human editing outside the agent bypasses PreToolUse (CI pre-merge-check
    is the backstop). The user (not you) fills `human_signoff`; then ask
    minutes spent →
-   `time_human_minutes.gate2`, set contract `status: signed-off`.
+   `time_human_minutes.gate2`, set contract `status: signed-off`. In Codex
+   sessions where write-time hooks are not active, run
+   `scripts/recheck-evidence.js` or `scripts/pre-merge-check.sh` before calling
+   the gate complete; CI remains the authoritative merge backstop.
 
 ## Degradation table
 

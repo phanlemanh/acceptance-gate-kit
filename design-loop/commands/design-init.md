@@ -2,7 +2,10 @@
 description: One-time per app repo — wire design-loop into _acceptance/config.yaml (executors.design.*), never overwriting existing keys
 ---
 
-Wire the design sub-track into this repo. Idempotent, append-only, safe.
+Wire the design sub-track into this repo. Idempotent, append-only, safe. Works
+from Claude Code and Codex; when running from a local checkout instead of an
+installed command, call `node <kit>/design-loop/scripts/design-config-patch.mjs`
+directly.
 
 1. **Preflight the composition seams** (warn, do not block):
    - acceptance-gate step 2b auto-add exists (`skills/acceptance/SKILL.md`, the design-eval that self-disables when `executors.design` is absent).
@@ -25,11 +28,13 @@ Wire the design sub-track into this repo. Idempotent, append-only, safe.
    ```
    A `.bak` is written next to `config.yaml`.
 
-4. **Note on paths.** `${CLAUDE_PLUGIN_ROOT}` resolves differently in the two places it appears:
+4. **Note on paths.** `${CLAUDE_PLUGIN_ROOT}` is the legacy plugin-root
+   placeholder used by these package commands; it is not a Claude-only runtime
+   requirement. It resolves differently in the two places it appears:
    - In THIS command (and every design-loop command) it is **design-loop's own root** — scripts are at `${CLAUDE_PLUGIN_ROOT}/scripts/...`, no `design-loop/` prefix.
    - In the VALUES the patch writes into `config.yaml` it is **acceptance-gate's root** (the kit root, resolved at verify time), under which design-loop lives at `./design-loop` — so those values DO carry the `design-loop/scripts/...` prefix.
    If a value does not resolve at verify time on a given machine, re-run `/design-init` there.
 
 5. **Pending v3-m3 note (do NOT fix here):** `executors.script.smoke_sv_design` points at `npm run smoke:sv-design`, which is missing from package.json. That is a v3-m3-specific latent issue — fix the npm script separately; do NOT delete the config key.
 
-6. Print: "design-loop wired. Design sub-track will arm for web-UI-surface features. Run /feature-loop as usual; use /design-mockup before Gate 1 and /design-evidence before Gate 2."
+6. Print: "design-loop wired. Design sub-track will arm for web-UI-surface features. Run /feature-loop or feature-loop-codex as usual; use /design-mockup before Gate 1 and /design-evidence before Gate 2."

@@ -21,13 +21,14 @@ run() {
 run "P01 feature-loop-codex package exists" \
   test -f "$ROOT/plugins/feature-loop-codex/.codex-plugin/plugin.json"
 
-run "P02 Codex marketplace lists only the Codex-native feature-loop" \
+run "P02 Codex marketplace lists Codex-native feature-loop plus design-loop" \
   python3 - "$ROOT/.agents/plugins/marketplace.json" <<'PY'
 import json, sys
 data = json.load(open(sys.argv[1]))
 plugins = {p["name"]: p for p in data["plugins"]}
 assert plugins["acceptance-gate"]["source"]["path"] == "./plugins/acceptance-gate"
 assert plugins["feature-loop-codex"]["source"]["path"] == "./plugins/feature-loop-codex"
+assert plugins["design-loop"]["source"]["path"] == "./design-loop"
 assert "feature-loop" not in plugins
 PY
 
@@ -72,21 +73,24 @@ import json, sys
 data = json.load(open(sys.argv[1]))
 assert data["name"] == "feature-loop-codex"
 assert data["skills"] == "./skills/"
-assert data["version"] == "1.5.0"
+assert data["version"] == "1.10.0"
 assert data["description"]
 PY
 
-run "P05 feature-loop-codex skill is Codex-native and Claude-1.5.0 aligned" \
+run "P05 feature-loop-codex skill is Codex-native and Claude-1.10.0 aligned" \
   python3 - "$ROOT/plugins/feature-loop-codex/skills/feature-loop-codex/SKILL.md" <<'PY'
 from pathlib import Path
 import sys
 text = Path(sys.argv[1]).read_text()
 assert "name: feature-loop-codex" in text
-assert "version: 1.5.0" in text
+assert "version: 1.10.0" in text
 assert "Codex" in text
 assert "acceptance-gate" in text
 assert "spawn_agent" in text
 assert "feature_loop.suite_keys" in text
+assert "design-loop" in text
+assert "provenance.json" in text
+assert "fidelity pixel-diff" in text
 assert "review-findings.md" in text
 assert "PENDING-JUDGMENT" in text
 assert "time_human_minutes.gate1" in text
@@ -100,13 +104,29 @@ assert "Workflow(" not in text
 assert ".claude/plugins/cache" not in text
 PY
 
-run "P06 packaged vendor engine import graph resolves (vendor/ shipped)" \
+run "P06 design-loop has a Codex manifest and portable-reference contract" \
+  python3 - "$ROOT/design-loop" <<'PY'
+import json, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+manifest = json.loads((root / ".codex-plugin/plugin.json").read_text())
+skill = (root / "skills/design-subtrack/SKILL.md").read_text()
+readme = (root / "README.md").read_text()
+assert manifest["name"] == "design-loop"
+assert manifest["skills"] == "./skills/"
+assert manifest["commands"] == "./commands/"
+assert manifest["version"] == "0.1.1"
+for needle in ["Codex", "feature-loop-codex", "portable reference", "provenance.json"]:
+    assert needle in skill or needle in readme, needle
+PY
+
+run "P07 packaged vendor engine import graph resolves (vendor/ shipped)" \
   node --input-type=module -e "
 const m = await import(process.argv[1]);
 if (typeof m.detectHtml !== 'function') throw new Error('detectHtml missing');
 " "file://$ROOT/plugins/acceptance-gate/vendor/impeccable/engine/engines/static-html/detect-html.mjs"
 
-run "P07 every \${CLAUDE_PLUGIN_ROOT} path in commands/skills exists in ITS plugin root" \
+run "P08 every \${CLAUDE_PLUGIN_ROOT} path in commands/skills exists in ITS plugin root" \
   python3 - "$ROOT" <<'PY'
 # ${CLAUDE_PLUGIN_ROOT} resolves to the root of the plugin whose command/skill
 # is running — a path that only resolves against the KIT root double-nests at

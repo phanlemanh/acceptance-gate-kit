@@ -23,7 +23,8 @@ Steps:
    `node <gate-card.js> --root . --slug <slug> --extract`
 
 3. **Translate** the extract into PLAIN PRODUCT LANGUAGE for this repo's persona
-   (read CLAUDE.md for who the user is). Keep meaning, do not invent:
+   (read `AGENTS.md`, `CLAUDE.md`, or repo docs for who the user is). Keep
+   meaning, do not invent:
    - `feature_plain`: one plain sentence — what it does for the user.
    - Gate 1: `will_do[] → {id,p}` each starting "Sẽ …" (what the system DOES);
      `wont_do[] → {id,p}` starting "Sẽ KHÔNG …" or "Chặn …".

@@ -19,4 +19,6 @@ captures iterate against. It is authored into the design-doc at S1 and is a
 1. Enumerate every applicable cell — the mockup must produce one surface per cell.
 2. Each machine-checkable cell criterion → a `script` eval at S1 (contrast/token-only/hit≥44). Perceptual cells → `(judgment)` human-glance at Gate 2.
 3. The seam pairs each state to the **data-shape** (which contract fields it binds) and to **APP-space tokens** (`--_* / --color-*`), never `--oh-*` hex.
-4. Keep the matrix TIGHT — DesignSync pulls are one-file-per-turn; a bloated matrix makes the design sub-track the critical path.
+4. Keep the matrix TIGHT — every cell becomes reference capture and/or
+   fidelity evidence; a bloated matrix makes the design sub-track the critical
+   path in both Claude Design and Codex portable-reference modes.

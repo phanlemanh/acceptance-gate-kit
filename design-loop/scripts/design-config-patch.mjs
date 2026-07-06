@@ -31,9 +31,11 @@ function parseArgs(argv) {
   return a;
 }
 
-// Executor commands reach BOTH plugins through ${CLAUDE_PLUGIN_ROOT}: acceptance-gate's
-// plugin root is the kit root (marketplace source "./"), and design-loop lives at
-// ./design-loop under it — so one variable resolves both without machine-absolute paths.
+// Executor commands reach BOTH plugins through ${CLAUDE_PLUGIN_ROOT}. The name is
+// historical from the Claude plugin format, but in this kit it is the plugin-root
+// placeholder used by installed commands. acceptance-gate's plugin root is the
+// kit root (marketplace source "./"), and design-loop lives at ./design-loop
+// under it — so one variable resolves both without machine-absolute paths.
 const DESIGN_BLOCK = [
   '  design:',
   '    gate: "node ${CLAUDE_PLUGIN_ROOT}/scripts/design-gate.mjs"',
@@ -113,7 +115,7 @@ function main() {
     fs.copyFileSync(cfgPath, cfgPath + '.bak');
     fs.writeFileSync(cfgPath, newText, 'utf8');
     console.log(`\n✔ written · backup: ${path.basename(cfgPath)}.bak`);
-    console.log('  Paths use ${CLAUDE_PLUGIN_ROOT} (kit root). If it does not resolve at verify time, re-run /design-init on this machine.');
+    console.log('  Paths use ${CLAUDE_PLUGIN_ROOT} as the installed plugin root. If it does not resolve at verify time, re-run /design-init on this machine or replace with absolute repo-local paths.');
   } else {
     console.log('\n(dry-run) re-run with --write to apply. smoke_sv_design left untouched.');
   }
