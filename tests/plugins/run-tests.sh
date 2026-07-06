@@ -160,6 +160,29 @@ for proot in plugin_roots:
 assert not bad, "unresolvable ${CLAUDE_PLUGIN_ROOT} paths:\n" + "\n".join(bad)
 PY
 
+run "P20 lane lookup table consistent across skills" \
+  python3 - "$ROOT" <<'PY'
+import sys, pathlib
+root = pathlib.Path(sys.argv[1])
+fl = (root / "feature-loop/skills/feature-loop/SKILL.md").read_text()
+ds = (root / "design-loop/skills/design-subtrack/SKILL.md").read_text()
+assert fl.count("| **CT1") == 1 and fl.count("| **CT2") == 1, "bảng tra CT1/CT2 phải có đúng 1 lần"
+assert "design_tier" not in fl and "design_tier" not in ds, "không được lưu field tier"
+assert "provenance.json" in fl and "design.fidelity" in fl, "điều kiện CT2 phải máy-đọc"
+assert "CT2" in ds and "CT1" in ds, "design-subtrack phải tham chiếu công tắc"
+assert "--require-html" in fl and "--require-html" in ds, "lane nhẹ phải khai flag require-html"
+PY
+
+run "P21 decisions.jsonl plumbing shipped in package" \
+  python3 - "$ROOT" <<'PY'
+import sys, pathlib
+root = pathlib.Path(sys.argv[1])
+assert "decisions.jsonl" in (root / "scripts/gate-card.js").read_text()
+assert "decisions.jsonl" in (root / "plugins/acceptance-gate/scripts/gate-card.js").read_text(), "chạy scripts/sync-plugin-packages.sh"
+assert "decisions_plain" in (root / "plugins/acceptance-gate/commands/acceptance-card.md").read_text()
+assert "decisions.jsonl" in (root / "feature-loop/skills/feature-loop/SKILL.md").read_text()
+PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
