@@ -10,6 +10,7 @@
 2. [Kiến trúc tổng thể](#2-kiến-trúc-tổng-thể)
 3. [Vòng đời một tính năng](#3-vòng-đời-một-tính-năng)
 4. [Bên trong S4 VERIFY — evidence từ đâu ra](#4-bên-trong-s4-verify--evidence-từ-đâu-ra)
+4.5. [Sổ quyết định & 2 công tắc design (1.11.0)](#sổ-quyết-định--2-công-tắc-design-1110)
 5. [Cài đặt](#5-cài-đặt)
 6. [Vận hành hằng ngày](#6-vận-hành-hằng-ngày)
 7. [Tra cứu enforcement — hook và CI chặn gì](#7-tra-cứu-enforcement--hook-và-ci-chặn-gì)
