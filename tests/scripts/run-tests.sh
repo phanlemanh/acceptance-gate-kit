@@ -438,6 +438,15 @@ hasout D10c "KHÔNG làm multi-tenant" "$G2N"
 case "$G2N" in *"Đã duyệt từ Gate 1"*) echo "  FAIL: D10d (approved block should be absent without seal)"; FAIL_COUNT=$((FAIL_COUNT+1));; *) echo "  PASS: D10d"; PASS_COUNT=$((PASS_COUNT+1));; esac
 
 echo ""
+echo "R01-03 design-static-check --require-html"
+DSC="$HERE/../../design-loop/scripts/design-static-check.mjs"
+mkdir -p "$T/dsc/src"; printf '.x{color:var(--color-text)}\n' > "$T/dsc/src/a.css"
+node "$DSC" "$T/dsc/src" --require-html >/dev/null 2>&1; check R01 3 $?
+ROUT="$(node "$DSC" "$T/dsc/src" --require-html 2>&1)"
+hasout R02 "require-html" "$ROUT"
+node "$DSC" "$T/dsc/src" >/dev/null 2>&1; check R03 0 $?   # không flag → hành vi cũ giữ nguyên
+
+echo ""
 echo "--- evidence-page.js ---"
 EP="$HERE/../../scripts/evidence-page.js"
 EPR="$T/evp"; de="$EPR/_acceptance/epf"; mkdir -p "$de/evidence"

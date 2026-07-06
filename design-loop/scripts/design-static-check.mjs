@@ -22,7 +22,7 @@
 // Hook-legal evidence: run_id, verifier, verified_at, verdict, exit_code.
 // Exit: 0 PASS · 2 REJECT · 3 BLOCKED · 4 bad usage.
 //
-// Usage: node design-static-check.mjs [<dir|file>] [--html <capture>] [--strict-hit] [--jsdom <dir>] [--slug <slug>]
+// Usage: node design-static-check.mjs [<dir|file>] [--html <capture>] [--require-html] [--strict-hit] [--jsdom <dir>] [--slug <slug>]
 
 import crypto from 'node:crypto';
 import fs from 'node:fs';
@@ -58,12 +58,13 @@ function over(src, dst) { if (!src) return dst; const a = src.a == null ? 1 : sr
 function hex(c) { return c ? '#' + [c.r, c.g, c.b].map((v) => Math.round(v).toString(16).padStart(2, '0')).join('') : '?'; }
 
 function parseArgs(argv) {
-  const a = { target: null, html: null, jsdom: null, strictHit: false, slug: null };
+  const a = { target: null, html: null, jsdom: null, strictHit: false, slug: null, requireHtml: false };
   for (let i = 0; i < argv.length; i++) {
     const t = argv[i];
     if (t === '--html') a.html = argv[++i];
     else if (t === '--jsdom') a.jsdom = argv[++i];
     else if (t === '--strict-hit') a.strictHit = true;
+    else if (t === '--require-html') a.requireHtml = true;
     else if (t === '--slug') a.slug = argv[++i];
     else if (!t.startsWith('--')) a.target = t;
   }
@@ -163,6 +164,13 @@ if (!args.target && !args.html) emit({ ...base, verdict: 'BLOCKED', reason: 'not
 
 const result = { ...base, rules: {}, pending_checks: [] };
 const blocking = [];
+
+// Lane nhẹ (static-only) HỨA contrast/tap-target once --html is supplied; if the
+// eval forgot to pass the rendered capture, that promise is unmet — BLOCK, don't
+// PASS-token-only-with-a-note (lane-spec FM-c: "hứa 3 chạy 1"). Mirrors the shape
+// of the other exit(3) BLOCKED branches below (run_id, verifier, verified_at,
+// verdict, exit_code via the same `emit` helper).
+if (args.requireHtml && !args.html) emit({ ...base, verdict: 'BLOCKED', reason: 'rendered capture required (--require-html) but --html missing — pass the ui-capture file', exit_code: 3 }, 3);
 
 if (args.target) {
   if (!fs.existsSync(args.target)) emit({ ...base, verdict: 'BLOCKED', reason: `target not found: ${args.target}`, exit_code: 3 }, 3);
