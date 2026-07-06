@@ -90,12 +90,12 @@ tham chiếu bảng. design-subtrack SKILL.md per-stage đổi theo cùng 2 pred
 |---|---|
 | S0 cảnh báo chưa-wire design-loop | CT1 |
 | S1 thêm static evals + dòng "surface & state chạm" | CT1 |
-| S4 gate P0 legibility floor | CT1 (chạy khi có capture) |
 | S1 câu hỏi lane (cuối S1, 1 câu) | CT1 |
 | S1 #5 hard-check mockup + state-matrix | CT2 |
 | Gate-1 hard-gate (mockup provenance + matrix) | CT2 |
 | Resume-guard provenance | CT2 |
 | S4 fidelity advisory (so reference nếu có) | CT1 (chạy khi reference tồn tại; skip-note thường khi không) |
+| S4 gate P0 legibility floor | CT1 (chạy khi có capture) |
 | S4 WARN rõ "fidelity KHÔNG chạy — thị giác chưa được so" | CT2 (chỉ ceremony mới hứa so-chuẩn) |
 | Gate-2 panel onion-skin + AC perceptual guard + WARN fidelity-skip nêu lên đầu gói | CT2 |
 | Gate-2 ghi lane (D0/D1/D2) + descope entry vào gói | CT1 |
