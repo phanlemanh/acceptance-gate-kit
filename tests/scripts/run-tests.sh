@@ -379,6 +379,48 @@ GQX="$(node "$GCARD" --root "$T/gcardQ" --slug qfeat 2>/dev/null)"
 hasout G20 "ký nhanh" "$GQX"
 hasout G21 "bằng chứng máy đầy đủ" "$GQX"
 
+echo "D01-08 decisions.jsonl on gate-card"
+# Gate 1 khi CHƯA có ledger → 1 dòng info trung tính
+sed -i.bak 's/^status: verified/status: approved/' "$GC/contract.md" && rm -f "$GC/contract.md.bak"
+rm -f "$GC/evidence-report.md"
+G1D="$(node "$GCARD" --root "$T/gcard" --slug gfeat 2>/dev/null)"
+hasout D01 "chưa ghi quyết định nào" "$G1D"
+# Ledger: 2 entry thật (descope sau approach — card phải đảo descope lên đầu) + seal + 1 dòng hỏng + 1 provisional
+cat > "$GC/decisions.jsonl" <<'EOF'
+{"id":"d-20260706T010000Z-1","type":"approach","stage":"S1","at":"2026-07-06T01:00:00Z","decision":"Dùng polling thay webhook","impact":"đơn giản hơn · trễ tối đa 60s"}
+{"id":"d-20260706T010100Z-2","type":"descope","stage":"S1","at":"2026-07-06T01:01:00Z","decision":"KHÔNG làm realtime broadcast","impact":"tiết kiệm 1 sprint · user chờ refresh"}
+not-json-line
+{"id":"d-20260706T020000Z-3","type":"seal","gate":1,"at":"2026-07-06T02:00:00Z"}
+{"id":"d-20260706T030000Z-4","type":"fix","stage":"S4-r1","at":"2026-07-06T03:00:00Z","decision":"Fix bằng debounce 300ms","impact":"tránh double-fire · thêm 300ms trễ"}
+EOF
+G1L="$(node "$GCARD" --root "$T/gcard" --slug gfeat 2>/dev/null)"
+hasout D02 "Quyết định &amp; trade-off" "$G1L"
+hasout D03 "KHÔNG làm realtime broadcast" "$G1L"
+hasout D04 "1 dòng ledger hỏng" "$G1L"
+# descope đứng TRƯỚC approach trong HTML
+case "$G1L" in *"KHÔNG làm realtime broadcast"*"Dùng polling thay webhook"*) echo "  PASS: D05";  PASS_COUNT=$((PASS_COUNT+1));; *) echo "  FAIL: D05 (descope not first)"; FAIL_COUNT=$((FAIL_COUNT+1));; esac
+hasout D06 '"decisions"' "$(node "$GCARD" --root "$T/gcard" --slug gfeat --extract 2>/dev/null)"
+# Gate 2: provisional (sau seal) tách khối "CHƯA duyệt"
+sed -i.bak 's/^status: approved/status: verified/' "$GC/contract.md" && rm -f "$GC/contract.md.bak"
+cat > "$GC/evidence-report.md" <<'EOF'
+---
+schema_version: 1
+feature_slug: gfeat
+verdict: PASS
+---
+| Eval | Crit | Exec | Verdict |
+|------|------|------|---------|
+| E1 | AC-1 | script | PASS |
+## Evidence
+- eval: E1
+  run_id: abcd1234
+  exit_code: 0
+  verifier: config:executors.test.api
+EOF
+G2L="$(node "$GCARD" --root "$T/gcard" --slug gfeat 2>/dev/null)"
+hasout D07 "CHƯA duyệt" "$G2L"
+hasout D08 "Fix bằng debounce 300ms" "$G2L"
+
 echo ""
 echo "--- evidence-page.js ---"
 EP="$HERE/../../scripts/evidence-page.js"
