@@ -55,6 +55,8 @@ Tag criteria that require business judgment with (judgment).}}
 {{Bullet list of things a reviewer might expect but this feature deliberately
 does NOT do. Empty section = red flag at Gate 1.}}
 
+> Out of scope = scope-truth (Gate 1 duyệt mục này). Rationale/trade-off từng mục → 1 entry `descope` trong `decisions.jsonl` (xem skill feature-loop — repo chưa dùng feature-loop thì bỏ qua).
+
 ## Notes
 
 {{Optional: constraints, links to ADRs, data dependencies.}}
