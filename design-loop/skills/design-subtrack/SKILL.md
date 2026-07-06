@@ -24,19 +24,19 @@ path when Claude Design is not available.
 
 ## Per-stage add/modify (only these; everything else = vanilla feature-loop)
 
-- **S0 — detect.** `node ${plugin}/scripts/design-detect-surface.mjs --slug <slug>` → arm the sub-track only if a web-UI surface; else stop here.
-- **S1 — spec pack (+).** Author into the design-doc: (a) the **state matrix** (theme×viewport×domain-state, see [references/state-matrix.md](references/state-matrix.md)); (b) the **seam** = data-shape + token vocab **in APP space** `--_* / --color-*` (never `--oh-*` hex); (c) **G2 AC split** — every machine-checkable visual criterion becomes a `script` eval (contrast/token-only/hit≥44); remaining perceptual criteria tagged `(judgment) — human-glance @ Gate 2`. Hard-gate: no Gate-1 without the state matrix. *(H2 advisory: `design:design-critique`, `design:design-system`.)*
-- **S1-D — mockup/reference.** Run `/design-mockup <slug>` or perform the
+- **S0 — detect.** `node ${plugin}/scripts/design-detect-surface.mjs --slug <slug>` → trả `surface:true` = CT1 bật; CT2 KHÔNG bật ở đây — nó bật ở câu hỏi lane cuối S1 của feature-loop hoặc khi user chạy `/design-mockup`.
+- **S1 — spec pack (+).** **(CT1)** thêm static evals per-surface (cmd `config:executors.design.static` + target + `--html <capture>` + `--require-html`) + vài dòng surface&state trong design-doc. **(CT2)** thêm state-matrix đầy đủ (theme×viewport×domain-state, see [references/state-matrix.md](references/state-matrix.md)) + seam = data-shape + token vocab **in APP space** `--_* / --color-*` (never `--oh-*` hex) + G2 AC split — mỗi tiêu chí machine-checkable thành `script` eval (contrast/token-only/hit≥44), phần perceptual còn lại tag `(judgment) — human-glance @ Gate 2`, như cũ. Hard-gate state-matrix CHỈ khi CT2. *(H2 advisory: `design:design-critique`, `design:design-system`.)*
+- **S1-D — mockup/reference.** **(CT2 only — skip hoàn toàn khi lane static-only)** Run `/design-mockup <slug>` or perform the
   equivalent Codex portable reference steps. Author/pull the design-of-record
   from claude.ai/design in Claude, or use a design repo/static HTML/generated
   reference/screenshots in Codex. **Drift-check** the surface set vs the state
   matrix, **capture the reference** + `provenance.json`. *(H2 advisory:
   `design:accessibility-review`.)*
-- **Gate 1.** Mockup + state matrix + seam ride the existing `/acceptance-card` decision. One question. *(H2: `design:design-handoff` to draft the port spec.)*
+- **Gate 1.** Mockup + state matrix + seam ride the existing `/acceptance-card` decision. One question. **(CT1∧¬CT2, lane static-only)** card hiện entry `descope` lane thay mockup. *(H2: `design:design-handoff` to draft the port spec.)*
 - **S2 — plan (+).** Add a **port task** per surface: HTML→JSX into `apps/web/plugins/<name>/view/*.tsx` (see [references/port-translation.md](references/port-translation.md)); DoD names the `--oh-*`→`--_*/--color-*` translation.
 - **S3 — execute.** The doer ports per the playbook (register-client=Preview, register-server=Body; never host shell / `components/ui/`). This skill supplies the playbook only — never grades.
-- **S4 — verify (3 layers, per-surface evals).** 🔴 `config:executors.design.static` = token-only (source) + WCAG **contrast-AA** (rendered `--html` capture, BLOCK) + **tap-target≥44** (heuristic; advisory by default, `--strict-hit` to block) · 🔴 `config:executors.design.gate` (acceptance-gate P0 floor) · 🟡 `config:executors.design.fidelity` (advisory pixel-diff, never blocks). These are **per-surface evals** (target supplied by the eval, not suite_keys); S4 runs every eval each round. `provenance.mjs` refuses (BLOCKED, not false-green) on missing provenance. **No blind VLM judge.**
-- **Gate 2.** Run `/design-evidence <slug>` for the onion-skin panel (reference↔impl); human resolves the perceptual AC. Machine verdict + `status → signed-off` unchanged.
+- **S4 — verify (3 layers theo công tắc, per-surface evals).** 🔴 static (mọi lane CT1, `--require-html` bắt buộc ở lane nhẹ): `config:executors.design.static` = token-only (source) + WCAG **contrast-AA** (rendered `--html` capture, BLOCK) + **tap-target≥44** (heuristic; advisory by default, `--strict-hit` to block) · 🔴 gate P0 + 🟡 fidelity blocking-advisory theo CT2: `config:executors.design.gate` (acceptance-gate P0 floor) + `config:executors.design.fidelity`; fidelity ADVISORY chạy thêm ở lane nhẹ khi surface có reference cũ (so drift, không block). These are **per-surface evals** (target supplied by the eval, not suite_keys); S4 runs every eval each round. `provenance.mjs` refuses (BLOCKED, not false-green) on missing provenance. **No blind VLM judge.**
+- **Gate 2.** **(CT2)** panel onion-skin như cũ — run `/design-evidence <slug>` for the onion-skin panel (reference↔impl); human resolves the perceptual AC. **(CT1∧¬CT2)** không panel — evidence screenshot/`observed` thường. Machine verdict + `status → signed-off` unchanged.
 - **S5 — ship.** PR as usual. Optionally `/design-push <slug>` to sync finalized
   design-system deltas back to cloud (H1, human-run, Claude-only). In Codex,
   record that the cloud push is skipped or handled outside the loop.
