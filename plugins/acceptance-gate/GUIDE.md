@@ -180,6 +180,23 @@ Những chốt toàn vẹn đáng chú ý:
   chặn report PASS (schema v2) có `screenshot:` mà thiếu `observed:` thực chất
   — đóng lỗ "chụp mà không xem".
 
+## Sổ quyết định & 2 công tắc design (1.11.0)
+
+**decisions.jsonl** — mỗi workspace có sổ rationale append-only: quyết định
+descope/approach/fix kèm trade-off, seal tại Gate 1 (dòng sau seal = provisional,
+card Gate 2 trình riêng "CHƯA duyệt" cho bạn phê). Ledger KHÔNG override contract —
+descope một AC vẫn phải sửa contract + re-approve. Card 2 gate tự render mục
+"Quyết định & trade-off" (descope lên đầu); chưa ghi gì → in "(chưa ghi quyết định
+nào)" để bạn đòi khi cần.
+
+**Làn design 2 công tắc** — CT1 (chạm UI, tự động): static checks (token/contrast/
+tap, thiếu capture là BLOCKED) + screenshot như thường. CT2 (ceremony đắt, bạn bật
+bằng 1 câu cuối S1 hoặc chạy `/design-mockup`): mockup + state-matrix + fidelity +
+panel Gate 2. Không có field tier nào — trạng thái nhận từ artifact (provenance /
+eval fidelity); D0/D1/D2 chỉ là cách gọi. Bỏ ceremony = 1 entry `descope` hiện trên
+card. `/design-init` hỏi thêm `design.surface_globs` để S4 bắt "diff chạm surface
+mà lane không có design eval".
+
 ## 5. Cài đặt
 
 ### 5.1 Mỗi máy dev (một lần)

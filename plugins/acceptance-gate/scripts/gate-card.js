@@ -75,6 +75,34 @@ const tier = clean(cfm.risk_tier);
 const status = clean(cfm.status);
 const oos = section(contract, 'Out of scope').filter(l => /^\s*-\s+\S/.test(l)).map(l => l.replace(/^\s*-\s+/, '').trim());
 
+// ---- decisions.jsonl (ledger — rationale only, tolerant per-line parse) ----
+// Returns entries in FILE ORDER; sealIdx = index of the first gate-1 seal entry
+// (everything after it is provisional until a human ratifies at Gate 2).
+function readLedger(d) {
+  const t = read(path.join(d, 'decisions.jsonl'));
+  const entries = []; let broken = 0; let sealIdx = null;
+  if (!t.trim()) return { entries, broken, sealIdx };
+  for (const line of t.split('\n')) {
+    if (!line.trim()) continue;
+    try {
+      const e = JSON.parse(line);
+      if (e && typeof e === 'object' && !Array.isArray(e)) {
+        if (sealIdx === null && e.type === 'seal' && String(e.gate) === '1') sealIdx = entries.length;
+        entries.push(e);
+      } else broken++;
+    } catch (_) { broken++; }
+  }
+  return { entries, broken, sealIdx };
+}
+const ledger = readLedger(dir);
+const decsAll = ledger.entries.filter(e => e.type !== 'seal');
+// display order: descope first (Pareto — "không làm" là quyết định đắt nhất khi bị lật)
+const decSort = arr => [...arr.filter(e => e.type === 'descope'), ...arr.filter(e => e.type !== 'descope')];
+// no seal yet => NOTHING is approved; everything surfaces as provisional at Gate 2 (fail-visible, not fail-quiet)
+const decsApproved = ledger.sealIdx === null ? [] : ledger.entries.slice(0, ledger.sealIdx).filter(e => e.type !== 'seal');
+const decsProvisional = ledger.sealIdx === null ? decsAll : ledger.entries.slice(ledger.sealIdx + 1).filter(e => e.type !== 'seal');
+const decLine = e => esc(e.decision || '') + (e.impact ? ' — ' + esc(e.impact) : '');
+
 // auto-detect gate: prefer contract.status (the SKILL's source of truth), else report presence
 if (!gate) {
   if (/^(implemented|verified|signed-off)$/i.test(status)) gate = '2';
@@ -118,7 +146,7 @@ if (gate === '1') {
   const judgmentACs = acs.filter(x => x.judgment);
   const covGaps = acs.filter(x => !x.judgment && THRESHOLD_RE.test(x.gwt) && !evalsFor(x.id).some(e => NEG_RE.test(e.expected))).map(x => x.id);
 
-  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos }, null, 2)); process.exit(0); }
+  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, decisions: decsAll.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken }, null, 2)); process.exit(0); }
   const featurePlain = pl.feature_plain || feature;
   const pmap = (arr, id) => (((arr || []).find(x => x.id === id)) || {}).p;
   const willText = x => pmap(pl.will_do, x.id) || x.gwt;
@@ -130,6 +158,11 @@ if (gate === '1') {
   if (willDo.length) P.push(`<div class="lab">Hệ thống SẼ làm</div><div class="grp gdo">${willDo.map(x => `<p class="li">${esc(willText(x))}</p>`).join('')}</div>`);
   const notItems = wontDo.map(x => esc(wontText(x))).concat(oos.length ? ['Hoãn/cắt: ' + esc(scopePlain)] : []);
   if (notItems.length) P.push(`<div class="lab">Sẽ KHÔNG làm / sẽ chặn</div><div class="grp gnot">${notItems.map(t => `<p class="li">${t}</p>`).join('')}</div>`);
+  const plDec = id => (((pl.decisions_plain || []).find(x => x.id === id)) || {}).p;
+  P.push(`<div class="lab">Quyết định &amp; trade-off</div>`);
+  if (!decsAll.length) P.push(`<div class="flag finfo">Sổ quyết định: (chưa ghi quyết định nào)</div>`);
+  else P.push(`<div class="grp gnot">${decSort(decsAll).map(e => `<p class="li">${e.type === 'descope' ? '<b>KHÔNG làm:</b> ' : ''}${esc(plDec(e.id)) || decLine(e)}</p>`).join('')}</div>`);
+  if (ledger.broken) P.push(`<div class="flag fwarn">⚠ ${ledger.broken} dòng ledger hỏng, đã bỏ qua.</div>`);
   const flags = [];
   for (const id of covGaps) flags.push(['fwarn', `${id} có ngưỡng/biên nhưng chưa có ca "dưới ngưỡng → KHÔNG xảy ra" — thêm 1 ca chặn ngay sẽ rẻ hơn nhiều so với phát hiện sau.`]);
   if (dupIds.length) flags.push(['fwarn', `Trùng mã tiêu chí: ${esc([...new Set(dupIds)].join(', '))} — mapping eval mơ hồ, đổi mã trước khi duyệt.`]);
@@ -187,7 +220,7 @@ const red = Object.values(evid).filter(e => e.baseline === 'red').length;
 const green = Object.values(evid).filter(e => e.baseline === 'green').length;
 const evComplete = machineRows.length > 0 && machineRows.every(r => { const e = evid[r.id] || {}; return e.run_id && e.run_id.length >= 4 && e.exit_code === '0' && e.verifier; });
 
-if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '' }, null, 2)); process.exit(0); }
+if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', decisions_approved: decsApproved.map(e => ({ id: e.id, type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken }, null, 2)); process.exit(0); }
 
 const featurePlain = pl.feature_plain || feature;
 const plainDec = id => ((pl.decisions && pl.decisions.find(x => x.id === id)) || {}).q;
@@ -222,6 +255,13 @@ if (yourCount) {
   for (const d of decisions) P.push(`<div class="item"><p class="q">${esc(plainDec(d.id) || d.q)}</p><p class="ai">Máy: chưa chắc${d.why ? ' — ' + esc(d.why) : ' (cần mắt người).'}</p><div class="btns"><button class="b bn">Đạt</button><button class="b no">Chưa đạt</button></div></div>`);
   if (oos.length) P.push(`<div class="item"><p class="q">Xác nhận các phần đã cắt/hoãn ngoài phạm vi:</p><p class="ai">${esc(scopePlain)}</p><div class="btns"><button class="b bn">Đồng ý cắt</button><button class="b no">Không, kéo vào</button></div></div>`);
 }
+const plDec2 = id => (((pl.decisions_plain || []).find(x => x.id === id)) || {}).p;
+if (decsProvisional.length) {
+  P.push(`<div class="lab">Quyết định CHƯA duyệt — cần phê (ghi sau Gate 1)</div>`);
+  for (const e of decSort(decsProvisional)) P.push(`<div class="item"><p class="q">${esc(plDec2(e.id)) || decLine(e)}</p><p class="ai">${esc(e.stage || '')} · ${e.type === 'descope' ? 'đề nghị KHÔNG làm' : esc(e.type)}${e.revisit ? ' · xem lại khi: ' + esc(e.revisit) : ''}</p><div class="btns"><button class="b bn">Phê</button><button class="b no">Không phê</button></div></div>`);
+}
+if (decsApproved.length) P.push(`<div class="lab">Đã duyệt từ Gate 1</div><div class="grp gnot">${decSort(decsApproved).map(e => `<p class="li">${decLine(e)}</p>`).join('')}</div>`);
+if (ledger.broken) P.push(`<div class="flag fwarn">⚠ ${ledger.broken} dòng ledger hỏng, đã bỏ qua.</div>`);
 const flags = [];
 { const analyst = cleanLines(section(report, 'Analyst')).join(' ').trim(); if (analyst && !/^none/i.test(analyst) && !/^\{\{/.test(analyst)) flags.push(['fred', esc(pl.analyst_plain || analyst)]); }
 { const varr = cleanLines(section(report, 'Variance')).join(' ').trim(); if (varr && !/^none/i.test(varr) && !/^\{\{/.test(varr)) flags.push(['fred', 'Có eval ngẫu nhiên (pass-rate hỗn hợp) — ' + esc(varr)]); }

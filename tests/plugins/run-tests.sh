@@ -110,12 +110,18 @@ import json, sys
 from pathlib import Path
 root = Path(sys.argv[1])
 manifest = json.loads((root / ".codex-plugin/plugin.json").read_text())
+claude_manifest = json.loads((root / ".claude-plugin/plugin.json").read_text())
 skill = (root / "skills/design-subtrack/SKILL.md").read_text()
 readme = (root / "README.md").read_text()
 assert manifest["name"] == "design-loop"
 assert manifest["skills"] == "./skills/"
 assert manifest["commands"] == "./commands/"
-assert manifest["version"] == "0.1.1"
+# No literal version pin here — design-loop's .codex-plugin has no sync script
+# (unlike acceptance-gate's, see P03), so hand-bumps must keep it aligned with
+# .claude-plugin/plugin.json; a literal pin would turn this suite red on every
+# design-loop release.
+assert manifest["version"] == claude_manifest["version"], \
+    f'codex {manifest["version"]} != claude {claude_manifest["version"]}'
 for needle in ["Codex", "feature-loop-codex", "portable reference", "provenance.json"]:
     assert needle in skill or needle in readme, needle
 PY
