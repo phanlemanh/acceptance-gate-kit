@@ -22,11 +22,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 function parseArgs(argv) {
-  const a = { config: '_acceptance/config.yaml', write: false };
+  const a = { config: '_acceptance/config.yaml', write: false, surfaceGlobs: null };
   for (let i = 0; i < argv.length; i++) {
     const t = argv[i];
     if (t === '--config') a.config = argv[++i];
     else if (t === '--write') a.write = true;
+    else if (t === '--surface-globs') a.surfaceGlobs = argv[++i];
   }
   return a;
 }
@@ -91,6 +92,21 @@ function main() {
 
   // NOTE: design checks are per-surface evals (target supplied by the eval), NOT
   // feature_loop.suite_keys — a bare suite run has no target and would BLOCK.
+
+  // 2) design.surface_globs (top-level) — dữ liệu cho lưới S4 tier-mismatch của
+  // feature-loop (lane-spec FM-a). Chỉ ghi khi được yêu cầu; vắng key = lưới tự skip.
+  if (args.surfaceGlobs) {
+    const hasTop = out.some((l) => /^design:\s*$/.test(l));
+    if (hasTop) {
+      changes.push('design.surface_globs: block `design:` đã tồn tại — skipped (idempotent).');
+    } else {
+      const globs = args.surfaceGlobs.split(',').map((s) => s.trim()).filter(Boolean);
+      out.push('design:', `  surface_globs: [${globs.join(', ')}]`);
+      changes.push(`ADD design.surface_globs [${globs.join(', ')}]`);
+    }
+  } else {
+    changes.push('design.surface_globs: không truyền --surface-globs — lưới S4 tier-mismatch sẽ tự skip (truyền để bật).');
+  }
 
   // SAFETY: protected key untouched
   const smokeBefore = orig.split('\n').filter((l) => l.includes('smoke_sv_design')).join('\n');

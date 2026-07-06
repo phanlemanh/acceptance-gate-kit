@@ -447,6 +447,17 @@ hasout DSC02 "require-html" "$ROUT"
 node "$DSC" "$T/dsc/src" >/dev/null 2>&1; check DSC03 0 $?   # không flag → hành vi cũ giữ nguyên
 
 echo ""
+echo "SG1-4 design-config-patch --surface-globs"
+DCP="$HERE/../../design-loop/scripts/design-config-patch.mjs"
+mkdir -p "$T/sg"; printf 'executors:\n  test:\n    api: "npm test"\n' > "$T/sg/config.yaml"
+node "$DCP" --config "$T/sg/config.yaml" --surface-globs "apps/web/**,packages/ui/**" --write >/dev/null 2>&1
+grep -q '^design:$' "$T/sg/config.yaml"; check SG1 0 $?
+grep -q 'surface_globs: \[apps/web/\*\*, packages/ui/\*\*\]' "$T/sg/config.yaml"; check SG2 0 $?
+node "$DCP" --config "$T/sg/config.yaml" --surface-globs "khac/**" --write >/dev/null 2>&1
+grep -c '^design:$' "$T/sg/config.yaml" | grep -qx '1'; check SG3 0 $?   # idempotent — không nhân đôi
+grep -q 'smoke_sv_design' "$T/sg/config.yaml"; check SG4 1 $?            # không đẻ key lạ
+
+echo ""
 echo "--- evidence-page.js ---"
 EP="$HERE/../../scripts/evidence-page.js"
 EPR="$T/evp"; de="$EPR/_acceptance/epf"; mkdir -p "$de/evidence"

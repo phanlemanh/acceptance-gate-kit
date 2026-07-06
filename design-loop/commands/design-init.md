@@ -28,13 +28,19 @@ directly.
    ```
    A `.bak` is written next to `config.yaml`.
 
-4. **Note on paths.** `${CLAUDE_PLUGIN_ROOT}` is the legacy plugin-root
+4. **Surface globs (bật lưới S4 tier-mismatch).** Nhìn cấu trúc repo, đề xuất 1-3
+   glob nơi source surface UI sống (vd `apps/web/plugins/**`, `src/components/**`)
+   — hỏi user xác nhận/chỉnh, rồi chạy lại script với
+   `--surface-globs "<g1>,<g2>" --write`. User từ chối → bỏ qua (lưới tự skip,
+   nói rõ điều đó). KHÔNG đoán glob khi cây repo không rõ — hỏi.
+
+5. **Note on paths.** `${CLAUDE_PLUGIN_ROOT}` is the legacy plugin-root
    placeholder used by these package commands; it is not a Claude-only runtime
    requirement. It resolves differently in the two places it appears:
    - In THIS command (and every design-loop command) it is **design-loop's own root** — scripts are at `${CLAUDE_PLUGIN_ROOT}/scripts/...`, no `design-loop/` prefix.
    - In the VALUES the patch writes into `config.yaml` it is **acceptance-gate's root** (the kit root, resolved at verify time), under which design-loop lives at `./design-loop` — so those values DO carry the `design-loop/scripts/...` prefix.
    If a value does not resolve at verify time on a given machine, re-run `/design-init` there.
 
-5. **Pending v3-m3 note (do NOT fix here):** `executors.script.smoke_sv_design` points at `npm run smoke:sv-design`, which is missing from package.json. That is a v3-m3-specific latent issue — fix the npm script separately; do NOT delete the config key.
+6. **Pending v3-m3 note (do NOT fix here):** `executors.script.smoke_sv_design` points at `npm run smoke:sv-design`, which is missing from package.json. That is a v3-m3-specific latent issue — fix the npm script separately; do NOT delete the config key.
 
-6. Print: "design-loop wired. Design sub-track will arm for web-UI-surface features. Run /feature-loop or feature-loop-codex as usual; use /design-mockup before Gate 1 and /design-evidence before Gate 2."
+7. Print: "design-loop wired. Design sub-track will arm for web-UI-surface features. Run /feature-loop or feature-loop-codex as usual; use /design-mockup before Gate 1 and /design-evidence before Gate 2."
