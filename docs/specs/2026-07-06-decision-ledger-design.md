@@ -170,9 +170,10 @@ prompt bằng thực tế thay vì phỏng đoán).
 | `feature-loop/workflows/acceptance-verify.js` | `decisionsPath` + gói §7 | B |
 | Mirror | `plugins/acceptance-gate/*` (bắt buộc, cùng release) · `plugins/feature-loop-codex` (theo trạng thái WIP tại thời điểm plan — quyết ở plan, không quyết ở spec) | A |
 
-**Tương thích ngược:** mọi thứ additive; `decisions.jsonl` vắng → resume/card/grader
-hành xử y hệt hiện tại (no-op). Không đổi `contract.md` schema, không đổi state machine,
-không thêm human gate. Workspace cũ không cần migrate.
+**Tương thích ngược:** mọi thứ additive; `decisions.jsonl` vắng → resume/grader no-op;
+card in 1 dòng info trung tính "(chưa ghi quyết định nào)" — chính là enforcement §6b.
+Không đổi `contract.md` schema, không đổi state machine, không thêm human gate. Workspace
+cũ không cần migrate.
 
 ## 11. Council log (truy vết, 2026-07-06)
 
