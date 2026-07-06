@@ -15,7 +15,7 @@
 //
 // Default: DRY-RUN (print the plan + a diff, write nothing). Pass --write to apply.
 //
-// Usage: node design-config-patch.mjs [--config <path>] [--write]
+// Usage: node design-config-patch.mjs [--config <path>] [--surface-globs "<g1>,<g2>"] [--write]
 // Exit:  0 ok/dry-run · 2 refused (would touch protected key) · 4 bad usage/shape.
 
 import fs from 'node:fs';
