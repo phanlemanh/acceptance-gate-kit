@@ -82,7 +82,7 @@ Khi duyệt: set contract `status: approved`, `approved_by`, `approved_at` (ISO)
 
 ## S3 — EXECUTE
 
-1. Mặc định: thực thi plan TUẦN TỰ trong main loop (theo `superpowers:executing-plans` hoặc subagent-driven nếu đang theo skill đó). Quy ước verify của repo (CLAUDE.md) THẮNG default của skill con nếu xung đột (vd repo cấm test framework → verify per-task = build/typecheck/smoke của repo).
+1. Mặc định: thực thi plan TUẦN TỰ trong main loop (theo `superpowers:executing-plans` hoặc subagent-driven nếu đang theo skill đó). Quy ước verify của repo (CLAUDE.md) THẮNG default của skill con nếu xung đột (vd repo cấm test framework → verify per-task = build/typecheck/smoke của repo). Buộc đổi hướng so với plan giữa chừng (plan không khớp thực tế) → append ngay 1 entry `fix`/`descope` vào decisions.jsonl (xem "Sổ quyết định") — đây là entry provisional, card Gate 2 sẽ trình để phê.
 2. Plan có ≥2 task `independent: true` → gom các task đó, invoke Workflow:
    `Workflow({ scriptPath: '<WORKFLOWS_DIR>/execute-parallel.js', args: { planPath: '<abs plan path>', repoRoot: '<abs repo root>', tasks: [{ id, title, summary, files, verifyCmd }], models: <feature_loop.models nếu có, như S4> } })` (WORKFLOWS_DIR xem ghi chú đầu file; script chỉ dùng `models.executor` — default kế thừa model phiên)
    Xong: merge các branch worktree về feature branch (task failed → tự fix tuần tự trong main loop).
