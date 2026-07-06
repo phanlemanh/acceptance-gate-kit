@@ -86,7 +86,7 @@ function readLedger(d) {
     if (!line.trim()) continue;
     try {
       const e = JSON.parse(line);
-      if (e && typeof e === 'object') {
+      if (e && typeof e === 'object' && !Array.isArray(e)) {
         if (sealIdx === null && e.type === 'seal' && String(e.gate) === '1') sealIdx = entries.length;
         entries.push(e);
       } else broken++;
@@ -98,8 +98,9 @@ const ledger = readLedger(dir);
 const decsAll = ledger.entries.filter(e => e.type !== 'seal');
 // display order: descope first (Pareto — "không làm" là quyết định đắt nhất khi bị lật)
 const decSort = arr => [...arr.filter(e => e.type === 'descope'), ...arr.filter(e => e.type !== 'descope')];
-const decsApproved = ledger.sealIdx === null ? decsAll : ledger.entries.slice(0, ledger.sealIdx).filter(e => e.type !== 'seal');
-const decsProvisional = ledger.sealIdx === null ? [] : ledger.entries.slice(ledger.sealIdx + 1).filter(e => e.type !== 'seal');
+// no seal yet => NOTHING is approved; everything surfaces as provisional at Gate 2 (fail-visible, not fail-quiet)
+const decsApproved = ledger.sealIdx === null ? [] : ledger.entries.slice(0, ledger.sealIdx).filter(e => e.type !== 'seal');
+const decsProvisional = ledger.sealIdx === null ? decsAll : ledger.entries.slice(ledger.sealIdx + 1).filter(e => e.type !== 'seal');
 const decLine = e => esc(e.decision || '') + (e.impact ? ' — ' + esc(e.impact) : '');
 
 // auto-detect gate: prefer contract.status (the SKILL's source of truth), else report presence
@@ -160,7 +161,7 @@ if (gate === '1') {
   const plDec = id => (((pl.decisions_plain || []).find(x => x.id === id)) || {}).p;
   P.push(`<div class="lab">Quyết định &amp; trade-off</div>`);
   if (!decsAll.length) P.push(`<div class="flag finfo">Sổ quyết định: (chưa ghi quyết định nào)</div>`);
-  else P.push(`<div class="grp gnot">${decSort(decsAll).map(e => `<p class="li">${e.type === 'descope' ? '<b>KHÔNG làm:</b> ' : ''}${plDec(e.id) || decLine(e)}</p>`).join('')}</div>`);
+  else P.push(`<div class="grp gnot">${decSort(decsAll).map(e => `<p class="li">${e.type === 'descope' ? '<b>KHÔNG làm:</b> ' : ''}${esc(plDec(e.id)) || decLine(e)}</p>`).join('')}</div>`);
   if (ledger.broken) P.push(`<div class="flag fwarn">⚠ ${ledger.broken} dòng ledger hỏng, đã bỏ qua.</div>`);
   const flags = [];
   for (const id of covGaps) flags.push(['fwarn', `${id} có ngưỡng/biên nhưng chưa có ca "dưới ngưỡng → KHÔNG xảy ra" — thêm 1 ca chặn ngay sẽ rẻ hơn nhiều so với phát hiện sau.`]);
@@ -257,7 +258,7 @@ if (yourCount) {
 const plDec2 = id => (((pl.decisions_plain || []).find(x => x.id === id)) || {}).p;
 if (decsProvisional.length) {
   P.push(`<div class="lab">Quyết định CHƯA duyệt — cần phê (ghi sau Gate 1)</div>`);
-  for (const e of decSort(decsProvisional)) P.push(`<div class="item"><p class="q">${plDec2(e.id) || decLine(e)}</p><p class="ai">${esc(e.stage || '')} · ${e.type === 'descope' ? 'đề nghị KHÔNG làm' : esc(e.type)}${e.revisit ? ' · xem lại khi: ' + esc(e.revisit) : ''}</p><div class="btns"><button class="b bn">Phê</button><button class="b no">Không phê</button></div></div>`);
+  for (const e of decSort(decsProvisional)) P.push(`<div class="item"><p class="q">${esc(plDec2(e.id)) || decLine(e)}</p><p class="ai">${esc(e.stage || '')} · ${e.type === 'descope' ? 'đề nghị KHÔNG làm' : esc(e.type)}${e.revisit ? ' · xem lại khi: ' + esc(e.revisit) : ''}</p><div class="btns"><button class="b bn">Phê</button><button class="b no">Không phê</button></div></div>`);
 }
 if (decsApproved.length) P.push(`<div class="lab">Đã duyệt từ Gate 1</div><div class="grp gnot">${decSort(decsApproved).map(e => `<p class="li">${decLine(e)}</p>`).join('')}</div>`);
 if (ledger.broken) P.push(`<div class="flag fwarn">⚠ ${ledger.broken} dòng ledger hỏng, đã bỏ qua.</div>`);

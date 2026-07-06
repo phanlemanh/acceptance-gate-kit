@@ -421,6 +421,22 @@ G2L="$(node "$GCARD" --root "$T/gcard" --slug gfeat 2>/dev/null)"
 hasout D07 "CHƯA duyệt" "$G2L"
 hasout D08 "Fix bằng debounce 300ms" "$G2L"
 
+echo "D09 decisions_plain overlay is HTML-escaped (no raw injection)"
+printf '%s' '{"decisions_plain":[{"id":"d-20260706T030000Z-4","p":"<img src=x> đổi sang debounce"}]}' > "$T/gcard/dplain.json"
+G2E="$(node "$GCARD" --root "$T/gcard" --slug gfeat --plain "$T/gcard/dplain.json" 2>/dev/null)"
+case "$G2E" in *"<img src=x>"*) echo "  FAIL: D09 (raw <img src=x> in output)"; FAIL_COUNT=$((FAIL_COUNT+1));; *"&lt;img"*) echo "  PASS: D09"; PASS_COUNT=$((PASS_COUNT+1));; *) echo "  FAIL: D09 (overlay not applied/escaped)"; FAIL_COUNT=$((FAIL_COUNT+1));; esac
+
+echo "D10 ledger without seal -> ALL entries provisional at Gate 2 (none silently approved)"
+cat > "$GC/decisions.jsonl" <<'EOF'
+{"id":"d-20260706T040000Z-5","type":"approach","stage":"S1","at":"2026-07-06T04:00:00Z","decision":"Chọn SQLite thay Postgres","impact":"zero-ops · giới hạn 1 writer"}
+{"id":"d-20260706T040100Z-6","type":"descope","stage":"S1","at":"2026-07-06T04:01:00Z","decision":"KHÔNG làm multi-tenant","impact":"gọn scope · sau này phải tách db"}
+EOF
+G2N="$(node "$GCARD" --root "$T/gcard" --slug gfeat 2>/dev/null)"
+hasout D10a "CHƯA duyệt" "$G2N"
+hasout D10b "Chọn SQLite thay Postgres" "$G2N"
+hasout D10c "KHÔNG làm multi-tenant" "$G2N"
+case "$G2N" in *"Đã duyệt từ Gate 1"*) echo "  FAIL: D10d (approved block should be absent without seal)"; FAIL_COUNT=$((FAIL_COUNT+1));; *) echo "  PASS: D10d"; PASS_COUNT=$((PASS_COUNT+1));; esac
+
 echo ""
 echo "--- evidence-page.js ---"
 EP="$HERE/../../scripts/evidence-page.js"
