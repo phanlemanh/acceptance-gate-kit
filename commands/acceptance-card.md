@@ -32,6 +32,10 @@ Steps:
      NO Given/When/Then, NO jargon like DOM/exit code); optional `{id,why}` plain;
      `analyst_plain` = plain restatement of the non-discriminating note.
    - `scope_plain`: one plain phrase for the deferred/cut scope.
+   - `decisions_plain[] → {id,p}` cho MỌI entry trong `decisions` (Gate 1) /
+     `decisions_approved` + `decisions_provisional` (Gate 2): mỗi `p` = 1 câu sản
+     phẩm "đã chọn gì — đổi lại gì" (descope: bắt đầu "KHÔNG làm ..."). Ledger là
+     rationale, KHÔNG phải scope-truth — không dịch thành cam kết mới.
    Write it to `_acceptance/<slug>/card-plain.json`.
 
 4. **Render** + present:
