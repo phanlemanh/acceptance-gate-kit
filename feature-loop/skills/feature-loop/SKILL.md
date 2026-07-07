@@ -80,7 +80,7 @@ Từ vựng hiển thị: **D0** = ¬CT1 · **D1** = CT1∧¬CT2 · **D2** = CT1
 
 🎨 **(CT2)** KHÔNG render card / vào Gate 1 khi thiếu mockup provenance + state-matrix. User chủ động bỏ ceremony ở câu hỏi lane → entry `descope` trong decisions.jsonl là dấu vết hiện (thay marker `design_subtrack: skipped-by-user` cũ — workspace cũ còn marker thì vẫn đọc được, không lỗi).
 
-Khi duyệt: set contract `status: approved`, `approved_by`, `approved_at` (ISO); append seal entry vào decisions.jsonl (xem "Sổ quyết định"); hỏi user số phút đã tốn ở gate → ghi `time_human_minutes.gate1`. Commit design doc + contract + evals. User muốn rời máy cho đoạn S2→S4 tự chạy (Claude Code có `/goal`)? → IN gợi ý lệnh theo template mục /goal trong GUIDE, điền sẵn slug — CHỈ in gợi ý (slash command là của user, không tự đặt); TUYỆT ĐỐI không gợi ý goal tới `signed-off` (hook chặn chữ ký máy → spin vô hạn).
+Khi duyệt: set contract `status: approved`, `approved_by`, `approved_at` (ISO); append seal entry vào decisions.jsonl (xem "Sổ quyết định"); hỏi user số phút đã tốn ở gate → ghi `time_human_minutes.gate1`. Commit design doc + contract + evals. User muốn rời máy cho đoạn S2→S4 tự chạy (Claude Code có `/goal`)? → IN gợi ý lệnh theo template mục /goal trong GUIDE, điền sẵn slug — CHỈ in gợi ý (slash command là của user, không tự đặt); TUYỆT ĐỐI không gợi ý goal tới `signed-off` (hook chặn chữ ký máy → spin vô hạn). Kèm theo: nếu phiên đang chạy model đắt hơn mức đoạn máy cần (vd tier thiết kế), in thêm gợi ý `/model claude-opus-4-8` TRƯỚC dòng /goal — S3 tuần tự + điều phối S4 chạy model phiên nên đổi ca ở Gate 1 là điểm rẻ nhất (GUIDE mục "Model theo giai đoạn"); KHÔNG tự đổi model (là lệnh của user).
 
 ## S2 — PLAN
 
