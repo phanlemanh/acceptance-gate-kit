@@ -1,6 +1,6 @@
 {
   "name": "acceptance-gate",
-  "version": "1.11.1",
+  "version": "1.11.2",
   "description": "Acceptance gate for AI-generated features. Normalizes requirements into acceptance contracts, generates eval cases, renders decision cards and evidence pages, verifies evidence, and enforces evidence-backed verdicts with runtime hooks when available plus CI re-checks.",
   "author": {
     "name": "Manh Phan",
