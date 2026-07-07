@@ -11,6 +11,7 @@
 3. [Vòng đời một tính năng](#3-vòng-đời-một-tính-năng)
 4. [Bên trong S4 VERIFY — evidence từ đâu ra](#4-bên-trong-s4-verify--evidence-từ-đâu-ra)
 4.5. [Sổ quyết định & 2 công tắc design (1.11.0)](#sổ-quyết-định--2-công-tắc-design-1110)
+4.6. [Chạy không-người-trông đoạn máy với /goal (1.11.1)](#chạy-không-người-trông-đoạn-máy-với-goal-1111--claude-code--21139)
 5. [Cài đặt](#5-cài-đặt)
 6. [Vận hành hằng ngày](#6-vận-hành-hằng-ngày)
 7. [Tra cứu enforcement — hook và CI chặn gì](#7-tra-cứu-enforcement--hook-và-ci-chặn-gì)
@@ -197,6 +198,42 @@ panel Gate 2. Không có field tier nào — trạng thái nhận từ artifact 
 eval fidelity); D0/D1/D2 chỉ là cách gọi. Bỏ ceremony = 1 entry `descope` hiện trên
 card. `/design-init` hỏi thêm `design.surface_globs` để S4 bắt "diff chạm surface
 mà lane không có design eval".
+
+## Chạy không-người-trông đoạn máy với /goal (1.11.1 · Claude Code ≥ 2.1.139)
+
+Đoạn S2→S4 của feature-loop toàn việc máy — nhưng chỉ tự chạy khi phiên còn sống.
+`/goal` của Claude Code (≥ 2.1.139, workspace trusted, hooks bật) là backstop tầng
+harness: sau mỗi turn một checker nhỏ đọc transcript, điều kiện chưa thỏa thì tự nổ
+turn mới. Dùng đúng cách với feature-loop:
+
+**Khi nào:** ngay sau khi bạn duyệt Gate 1, trước khi rời máy.
+
+**Template (điền slug của bạn, dán thành 1 dòng — xuống dòng dưới đây chỉ để dễ đọc):**
+
+```
+/goal Feature <slug>: coi là HOÀN THÀNH chỉ khi transcript tường thuật rõ
+S4 verdict PASS hoặc PENDING-JUDGMENT và xác nhận đã set contract
+_acceptance/<slug>/contract.md sang status: verified. Loop đã escalate cho
+user (REJECT quá 3 round / BLOCKED / chờ input người) cũng coi là HOÀN THÀNH
+— để dừng. Thông tin mơ hồ hoặc không chắc = CHƯA hoàn thành. Hoặc dừng
+sau 15 turns.
+```
+
+**Vì sao template dài vậy:** checker của `/goal` đọc *transcript*, không đọc file —
+điều kiện phải neo vào tường thuật của loop (verdict + set status), không neo vào
+trạng thái file. Vế "mơ hồ = CHƯA hoàn thành" giữ checker khỏi dừng-sớm-sai khi log
+lấp lửng; vế escalate và "15 turns" là hai lối thoát để không đốt token vô ích.
+
+**Giới hạn cứng:**
+- **KHÔNG BAO GIỜ đặt goal tới `signed-off`.** Hook của kit chặn agent tự điền chữ
+  ký (đúng thiết kế) → điều kiện không bao giờ thỏa bằng máy → spin đốt token tới
+  bound. Gate 2 là việc của người.
+- `/goal` **không thay grader**: checker chỉ trả lời "chạy tiếp không"; S4 verify
+  (fresh agents + evals máy + hook) mới là chấm thật — doer≠grader giữ nguyên.
+- Đạt `verified` → goal tự thỏa và tắt; quay lại duyệt Gate 2 bằng mắt người như thường.
+
+**Phạm vi:** tính năng Claude Code — Codex không có `/goal` (feature-loop-codex không
+áp dụng). Kit không phụ thuộc: không dùng `/goal` thì mọi thứ chạy y nguyên.
 
 ## 5. Cài đặt
 
