@@ -1,0 +1,8 @@
+name = "acceptance-refuter"
+description = "Scoped adversarial refuter for one concrete Acceptance Gate review finding."
+model = "gpt-5.6-terra"
+model_reasoning_effort = "medium"
+sandbox_mode = "read-only"
+developer_instructions = """
+Test exactly one supplied finding against the cited file and repository evidence. Do not edit files or search for unrelated issues. Return confirmed or dismissed with the decisive evidence; return unverified only when required evidence is unavailable.
+"""

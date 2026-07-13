@@ -309,6 +309,12 @@ enforce chung và có thẩm quyền. `design-loop` dùng skill + executor porta
 **Claude Design is unavailable in Codex**, nên bản Codex không giả lập lời gọi
 Claude Design và không nhận VLM assertion chưa kiểm chứng làm evidence.
 
+Sau `acceptance-init`, invoke skill `feature-loop-model-init` để cài policy
+Codex-native vào `.codex/agents/`, rồi mở fresh task. Policy cân bằng dùng
+`gpt-5.6-terra` medium cho explorer/refuter và `gpt-5.6-sol` medium/high cho
+executor, UI verifier, judge và reviewer. Nếu runtime không có named-agent
+selector, evidence ghi `session-inherited`; không tuyên bố model đã được pin.
+
 **Kỷ luật cập nhật** — hai dev chạy 2 version kit trên cùng repo = 2 chuẩn gate khác
 nhau (verifier bị chặn "oan", feature lọt eval). Chạy khi có release hoặc đầu sprint:
 
@@ -511,6 +517,10 @@ flowchart LR
 
 **Model routing** (`feature_loop.models.<role>`) — chỉnh chi phí/chất lượng đội verify
 mà không sửa plugin. Không khai gì = default (đã cân nhắc):
+
+Block này thuộc Claude Workflow edition. Codex không dịch alias
+`opus|sonnet|haiku`; Codex dùng `feature-loop-model-init` và project custom
+agents riêng, nên hai runtime không ghi đè cấu hình của nhau.
 
 ```yaml
 feature_loop:

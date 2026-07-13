@@ -1,7 +1,7 @@
 {
   "name": "feature-loop-codex",
-  "version": "1.11.3",
-  "description": "Codex-native feature development loop on top of acceptance-gate: brainstorm, design, contract, evals, plan, execute, deduped and variance-aware verification, baseline checks, judgment panels, review, design-loop guards, decision cards, evidence pages, signoff, and handoff without Claude Code workflow scripts.",
+  "version": "1.11.4",
+  "description": "Codex-native feature development loop on top of acceptance-gate with installable role-based custom agents, model-aware budget routing, evidence-backed verification, human gates, and no Claude Code workflow scripts.",
   "author": {
     "name": "Manh Phan",
     "email": "phanlemanh@gmail.com"
@@ -19,7 +19,7 @@
   "interface": {
     "displayName": "Feature Loop Codex",
     "shortDescription": "Codex-native feature loop with acceptance gates",
-    "longDescription": "Use Feature Loop Codex to guide a feature from idea through design, acceptance contract, evals, implementation, deduped and variance-aware machine verification, baseline checks, judgment panels, adversarial review, decision cards, evidence pages, evidence-backed human signoff, and handoff using Codex-native orchestration instead of Claude Code workflow scripts.",
+    "longDescription": "Use Feature Loop Codex to guide a feature from idea through design, acceptance contract, evals, implementation, role-routed custom agents, deduped machine verification, judgment panels, adversarial review, evidence-backed human signoff, and handoff using Codex-native orchestration instead of Claude Code workflow scripts.",
     "developerName": "Manh Phan",
     "category": "Developer Tools",
     "capabilities": [
