@@ -19,8 +19,8 @@ Use Codex-native orchestration only:
 - Run deterministic commands with shell tools and record exact evidence.
 - Use `spawn_agent` / `wait_agent` only for independent implementation tasks,
   read-only exploration, fresh judgment panels, or adversarial review.
-- Fall back to sequential main-agent execution when multi-agent tools are not
-  available, and record the fallback in the evidence summary.
+- Fall back to a separated sequential grader pass when multi-agent tools are
+  unavailable, record the degradation, and never describe it as a fresh agent.
 - Never execute the Claude edition's bundled workflow JavaScript files.
 - Never rely on Claude Code built-ins such as Workflow orchestration, Claude Preview,
   or Claude Design. Use browser/tooling available in the Codex session and the
@@ -35,8 +35,8 @@ Before starting:
 1. Confirm `acceptance-gate:acceptance` is available.
 2. Confirm `superpowers:brainstorming` and `superpowers:writing-plans` are
    available when the loop will use Superpowers planning.
-3. Confirm `_acceptance/config.yaml` exists. If missing, stop and run
-   `/acceptance-init` or the acceptance-gate init flow first.
+3. Confirm `_acceptance/config.yaml` exists. If missing, stop and invoke the
+   `acceptance-init` skill first.
 4. Locate acceptance templates, personas, and scripts in Codex cache without
    hardcoding a version:
    `~/.codex/plugins/cache/*/acceptance-gate/*/`.
@@ -67,6 +67,53 @@ run `git diff --name-only <verified_commit>`. If any changed file is outside
 STALE. Set the contract back to `implemented` and re-enter S4. If the report has
 no `verified_commit`, warn and recommend re-verification rather than presenting
 the report as current.
+
+## Decision Ledger
+
+Use `_acceptance/<slug>/decisions.jsonl` as an append-only rationale ledger. It
+never overrides the contract or evals. Parse one JSON object per line; report
+malformed lines and ignore only those lines.
+
+Each decision uses:
+
+```json
+{"id":"d-<UTC>-<suffix>","type":"descope|approach|fix|revisit","stage":"S1|S2|S3|S4-r<N>|gate1|gate2","at":"<ISO>","decision":"one sentence","impact":"saved cost and accepted risk"}
+```
+
+Optional fields are `serves`, `revisit`, and `supersedes`. Append with
+`apply_patch`; never rewrite or delete prior lines. Log only when a real option
+was rejected, a downside was intentionally accepted, or a revisit condition
+exists. A descope that changes an AC still requires contract/eval edits and
+Gate-1 reapproval.
+
+When Gate 1 is approved, append a seal entry in this shape:
+`{"id":"d-...","type":"seal","gate":1,"at":"<ISO>"}`. Every entry after
+the latest seal is provisional and must be shown separately at Gate 2. Reverse
+a prior decision only with a new entry containing `supersedes` and human
+approval at the next gate.
+
+## Design Lanes
+
+Derive two switches from artifacts; never store a separate design tier:
+
+| Switch | Machine-readable condition | Effect |
+|---|---|---|
+| **CT1** UI touched | `design-detect-surface` returns `surface:true` and config has `executors.design` | add per-surface static and P0 gate evals; ask the lane question |
+| **CT2** design ceremony | `evidence/design/provenance.json` exists or evals contain `design.fidelity` | require state matrix, portable reference, provenance, fidelity warning, and Gate-2 panel |
+
+User-facing lane names are **D0** = no CT1, **D1** = CT1 without CT2, and
+**D2** = CT1 plus CT2. They are presentation terms only.
+
+At the end of S1, when CT1 is on and CT2 is off, ask one question: new surface
+or redesign → run the `design-mockup` skill and use D2; existing-surface tweak →
+use D1 static-only. Always record this lane decision in `decisions.jsonl`:
+`approach` for D2, or `descope` for D1 with the explicit loss of
+mockup/fidelity/panel evidence.
+
+On resume, CT2 plus status `approved` or later requires provenance before work
+continues. In S4, when `design.surface_globs` exists, compare changed files with
+those globs. A matching UI file with no static or fidelity eval is a tier
+mismatch: stop for lane elevation or an explicit descope decision.
 
 ## S0 - Intake
 
@@ -112,37 +159,40 @@ artifacts exist:
    when available:
    `node <acceptance-gate>/scripts/eval-coverage-lint.js <repo> --slug <slug>`.
 
-For web-UI surfaces with design-loop wired, also produce the design package
-before Gate 1:
+For CT1 web-UI surfaces, add per-surface `config:executors.design.static` and
+`config:executors.design.gate` evals with rendered captures and
+`--require-html`. Add the touched surface and states to the design doc.
 
-1. Add a state matrix to the design doc: domain-state x theme x viewport.
-2. Add the app-space seam: data shape plus token vocabulary in the app's token
-   names, not raw hex or source-design tokens.
-3. Split visual ACs into machine-checkable design evals
-   (`config:executors.design.static`, `config:executors.design.gate`, optional
-   `config:executors.design.fidelity`) and perceptual judgment items for the
-   human glance at Gate 2.
-4. Create a design-of-record reference. In Codex this is the portable reference
-   path: use an existing design repo, checked-in static HTML/CSS, generated
-   reference files, or captured screenshots. Do not require Claude Design.
-5. Capture reference frames under
-   `_acceptance/<slug>/evidence/design/reference/` and write
-   `provenance.json` with
-   `node <design-loop>/scripts/provenance.mjs write --slug <slug> --design-repo <path> --commit <sha>`.
-   If the design source is not a git repo, record a content hash or explicit
-   version string in the commit field and state that in the Gate-1 package.
+For CT2 only, also:
 
-For web-UI surfaces with design-loop wired, do not enter Gate 1 without a state
-matrix and `provenance.json`. If the human explicitly skips the design subtrack,
-write `design_subtrack: skipped-by-user` in the contract so the skip is visible.
+1. Add a domain-state × theme × viewport state matrix.
+2. Add the app-space seam: data shape plus token vocabulary in app token names.
+3. Split machine-checkable design requirements from perceptual judgment items.
+4. Invoke the `design-mockup` skill to create a portable reference from a design
+   repo, checked-in HTML/CSS, generated files, or saved screenshots.
+5. Capture frames under `_acceptance/<slug>/evidence/design/reference/` and
+   write `provenance.json` through the consumer plugin runner.
 
-Gate 1 default presentation: render the decision card first with
-`/acceptance-card <slug>` or
-`node <acceptance-gate>/scripts/gate-card.js --root . --slug <slug>`.
+Do not enter Gate 1 in D2 without the state matrix and provenance. D1 proceeds
+without mockup ceremony only after its visible descope ledger entry.
+
+At the end of S1, append every qualifying approach/descope decision to the
+ledger. Gate 1 default presentation invokes the `acceptance-card` skill.
 The card is presentation only; contract and evals remain the source of truth.
 Also provide the full design summary, design-reference provenance when present,
 contract, and AC-to-eval mapping. On approval, update `approved_by`,
-`approved_at`, and `time_human_minutes.gate1`.
+`approved_at`, and `time_human_minutes.gate1`, then append the Gate-1 seal.
+
+If the user wants the machine-owned segment S2→S4 to continue unattended,
+suggest the native Codex `/goal` command with an objective that ends at
+`contract.status: verified`. Never create or suggest a goal that reaches
+`signed-off`; Gate 2 remains human-owned. If the current model is more expensive
+than the machine segment needs, suggest that the user open the native `/model`
+picker before setting the goal. Do not change the model or create the goal
+without the user's explicit action. When `_acceptance/config.yaml` contains
+`feature_loop.models`, warn that the current Codex spawn interface does not
+expose role-specific model routing; inherit the session model and record that
+degradation instead of claiming the roles were pinned.
 
 ## S2 - Plan
 
@@ -150,7 +200,8 @@ Create an implementation plan with `superpowers:writing-plans` when available,
 commonly `docs/superpowers/plans/YYYY-MM-DD-<slug>.md`. Each task must list
 files, verification command, related eval ids, and `independent: true|false`.
 For T3, stop for plan review before execution. For T2, continue unless the user
-requests review.
+requests review. Append any load-bearing approach or descope decision to the
+ledger.
 
 ## S3 - Execute
 
@@ -165,12 +216,19 @@ tasks with disjoint file ownership:
 3. Wait for every worker, review returned diffs, and integrate deliberately.
 4. Repair failed tasks sequentially in the main agent.
 
+When execution must depart from the approved plan, append a provisional `fix`
+or `descope` entry immediately with `stage: S3`.
+
 At the end, run task-level verification and set contract status to
 `implemented`. Do not run acceptance evals in S3; S4 owns grading.
 
 ## S4 - Verify
 
 Verify as grader, not doer.
+
+Before running evals, apply the `design.surface_globs` tier-mismatch guard from
+Design Lanes. Do not continue with uncovered UI changes until the lane is raised
+or the human confirms a descope entry.
 
 1. Parse `_acceptance/<slug>/evals.yaml`. Preserve optional `runs`; an integer
    greater than 1 means stochastic/LLM eval and must report `pass_rate`.
@@ -180,8 +238,8 @@ Verify as grader, not doer.
 3. Resolve `feature_loop.suite_keys`. If missing, stop once, list available
    `executors.*` keys, ask the human which build/typecheck/lint/smoke commands
    should run every round, then write those keys with the acceptance-gate
-   append-only config patcher:
-   `node <acceptance-gate>/scripts/config-patch.mjs --config _acceptance/config.yaml --key feature_loop.suite_keys --value "[<keys>]" --write`.
+   append-only config patcher through the consumer runner:
+   `node scripts/codex-plugin-runner.mjs acceptance-gate config-patch --config _acceptance/config.yaml --key feature_loop.suite_keys --value "[<keys>]" --write`.
    Do not guess and do not run every executor automatically.
 4. Resolve judgment inputs to absolute paths rooted at `_acceptance/<slug>/`.
 5. Locate `judge-personas.md`, `evidence-report-template.md`,
@@ -246,14 +304,13 @@ Verdict routing:
 For `REJECT`, return to S3 and run a new verify round. Cap at three rounds, then
 stop and escalate with a round-by-round summary. For `BLOCKED`, present exact
 blocked command and reason, fix environment/config, and rerun the same round.
+Before each REJECT→fix transition, append a `fix` decision with
+`stage: S4-r<N>` and the chosen repair rationale.
 
 ## Gate 2
 
-Render the decision card first with `/acceptance-card <slug>` or
-`node <acceptance-gate>/scripts/gate-card.js --root . --slug <slug>`. Also
-generate the full evidence page:
-`node <acceptance-gate>/scripts/evidence-page.js --root . --slug <slug>`,
-which writes `_acceptance/<slug>/evidence-page.html`.
+Invoke the `acceptance-card` skill first. It also generates the full evidence
+page at `_acceptance/<slug>/evidence-page.html`.
 
 Present one package: verdict, per-eval table, judgment proposals, variance,
 baseline analyst notes, `review-findings.md`, any incomplete review warning,
@@ -264,14 +321,15 @@ or implementation details.
 
 For web-UI surfaces with perceptual ACs, run or present the design evidence
 panel before asking for signoff:
-`/design-evidence <slug>` or the equivalent Codex steps from design-loop. The
+invoke the `design-evidence` skill. The
 human resolves perceptual ACs from reference vs implementation evidence, not
 from text alone. Any fidelity-skip warning from S4 must appear at the top of the
 Gate-2 package.
 
 Ask the human to resolve UNCERTAIN/variance items, fill `human_signoff`, and
 provide `time_human_minutes.gate2`. Do not self-sign. After signoff, update
-contract status to `signed-off`.
+contract status to `signed-off`. Present every provisional ledger entry and
+append a Gate-2 `revisit` entry when the human leaves a follow-up condition.
 
 ## S5 - Handoff
 

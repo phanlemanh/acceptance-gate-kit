@@ -85,7 +85,7 @@ PY
 run "P05b feature-loop-codex skill is Codex-native" \
   python3 - "$ROOT/plugins/feature-loop-codex/skills/feature-loop-codex/SKILL.md" <<'PY'
 from pathlib import Path
-import sys
+import re, sys
 text = Path(sys.argv[1]).read_text()
 assert "name: feature-loop-codex" in text
 assert "version: 1.11.3" in text
@@ -105,7 +105,25 @@ assert "baseline" in text
 assert "should-NOT-fire" in text
 assert "enforcement_mode" in text and "bypass_used" in text
 assert "acceptance-card" in text and "evidence-page.html" in text
+for needle in [
+    "decisions.jsonl",
+    '"type":"seal"',
+    "supersedes",
+    "CT1",
+    "CT2",
+    "D0",
+    "D1",
+    "D2",
+    "design.surface_globs",
+    "/goal",
+    "/model",
+    "feature_loop.models",
+    "role-specific model routing",
+]:
+    assert needle in text, needle
+assert re.search(r"Never create or suggest a goal that reaches\s+`signed-off`", text)
 assert "Workflow(" not in text
+assert "feature-loop/workflows" not in text
 assert ".claude/plugins/cache" not in text
 PY
 

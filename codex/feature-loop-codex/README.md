@@ -2,9 +2,11 @@
 
 Codex-native edition of the feature loop on top of `acceptance-gate`.
 
-Version `1.10.0` tracks the Claude Code `feature-loop` state machine and gate
-discipline, but replaces Claude workflow-script execution with Codex-native
-agent orchestration.
+Version `1.11.3` tracks the Claude Code `feature-loop` 1.11.2 state machine and
+gate discipline, but replaces Claude workflow-script execution with
+Codex-native agent orchestration. It includes the append-only decision ledger,
+D0/D1/D2 design lanes, native Codex goal guidance, and honest model-routing
+degradation.
 
 ## Install
 
@@ -26,7 +28,7 @@ Ask Codex:
 Run feature-loop-codex for <feature description>
 ```
 
-For repo setup, run `/acceptance-init` first and add `feature_loop.suite_keys`
+For repo setup, invoke the `acceptance-init` skill first and add `feature_loop.suite_keys`
 to `_acceptance/config.yaml` when round-level verification should run a stable
 build/typecheck/lint suite. For web UI features, run `design-loop` setup once so
 `executors.design.*` exists; feature-loop-codex then requires a state matrix,
@@ -43,6 +45,11 @@ Codex orchestration is done by the main agent:
   evidence report.
 - Keep doer and grader roles separate: S4 verification must not edit product
   code.
+- A native `/goal` may cover S2→S4 only and must stop at `verified`; Gate 2 and
+  `signed-off` remain human-owned.
+- Use the `/model` picker for a session-level change. The current Codex spawn
+  interface does not apply Claude-style `feature_loop.models` role routing, so
+  the skill warns and records session-model inheritance instead.
 - Do not execute Claude Code Workflow scripts or require Claude Design. The
   design-loop path for Codex uses portable references: checked-in design files,
   a design repo, generated reference HTML/CSS, or saved screenshots with
