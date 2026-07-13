@@ -225,6 +225,19 @@ for needle in ["codex-plugin-runner.mjs", "recheck: strict", "require_human_comm
 assert "CLAUDE_PLUGIN_ROOT" not in text
 PY
 
+run "P25 Codex hook manifest uses native plugin root without changing Claude hook" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+codex_hooks = (root / "plugins/acceptance-gate/hooks/hooks.json").read_text()
+claude_hooks = (root / "hooks/hooks.json").read_text()
+assert "${PLUGIN_ROOT}" in codex_hooks
+assert "acceptance-evidence-gate-codex.js" in codex_hooks
+assert "${CLAUDE_PLUGIN_ROOT}" in claude_hooks
+assert "acceptance-evidence-gate.js" in claude_hooks
+PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
