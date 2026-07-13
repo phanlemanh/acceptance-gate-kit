@@ -575,6 +575,12 @@ git commit -m "release(codex): model-routed acceptance agents 1.11.4"
 
 ### Task 5: Local Codex plugin installation and cache verification
 
+**Execution-order correction from live state:** the configured local marketplace
+resolves `/Users/manhphan/dev/acceptance-gate-kit/plugins`, not this linked
+worktree. Therefore run Task 7 Steps 1, 3, and 4 before Task 5 Step 2. Reinstall
+only after verified 1.11.4 packages have merged and pushed to kit `main`; this
+prevents a remove/add cycle from reinstalling stale 1.11.3 content.
+
 **Files:**
 - External install state: `~/.codex/plugins/cache/acceptance-gate-kit/acceptance-gate/1.11.4/`
 - External install state: `~/.codex/plugins/cache/acceptance-gate-kit/feature-loop-codex/1.11.4/`
