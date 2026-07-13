@@ -1,7 +1,7 @@
 ---
 name: feature-loop-codex
 description: This skill should be used when the user asks to "run feature-loop-codex", "start a Codex feature loop", "resume a Codex feature loop", "build this feature with acceptance-gate in Codex", or wants a Codex-native version of feature-loop without Claude Code Workflow scripts.
-version: 1.11.3
+version: 1.11.4
 ---
 
 # feature-loop-codex
@@ -44,6 +44,39 @@ Before starting:
    `~/.codex/plugins/cache/*/design-loop/*/`, or fall back to the repo-local
    `design-loop/` directory when developing this kit from source.
 6. Read repo guidance (`AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`) when present.
+7. Check `.codex/agents` for the balanced role policy. When it is missing and
+   the user wants role-level budget routing, invoke the `feature-loop-model-init`
+   skill. A missing policy does not silently block the loop; record session
+   inheritance as described below.
+
+## Codex Role Policy
+
+Use project custom agents when both the file and a named-agent selector are
+available:
+
+| Agent | Purpose | Requested model | Requested effort |
+|---|---|---|---|
+| `feature-loop-explorer` | bounded read-heavy discovery | `gpt-5.6-terra` | `medium` |
+| `feature-loop-executor` | independent implementation | `gpt-5.6-sol` | `high` |
+| `acceptance-ui-verifier` | UI execution and observed evidence | `gpt-5.6-sol` | `medium` |
+| `acceptance-judge` | blind scoped judgment | `gpt-5.6-sol` | `medium` |
+| `acceptance-reviewer` | high-recall invariants and bug review | `gpt-5.6-sol` | `high` |
+| `acceptance-refuter` | one-finding adversarial check | `gpt-5.6-terra` | `medium` |
+
+For every model-backed role, choose one routing mode in this exact order:
+
+```text
+named agent selectable and installed -> custom-agent
+spawn available but no named-agent selector -> session-inherited
+no usable spawn surface -> sequential-fallback
+```
+
+Do not pass Claude aliases from `feature_loop.models` to Codex, and do not
+pretend the task name selects a model when the tool schema exposes no named
+agent field. The configured values are requested policy, not proof of the
+effective runtime model. Deterministic test/script commands, provenance,
+run-log writes, and report field copying stay in shell/tool execution and do
+not get a model worker.
 
 ## State Machine
 
@@ -143,8 +176,9 @@ artifacts exist:
 
 1. Run `superpowers:brainstorming` when available and useful.
 2. For features touching three or more subsystems, inspect those areas before
-   proposing the approach. Use read-only `spawn_agent` workers when available;
-   otherwise inspect sequentially.
+   proposing the approach. Use `feature-loop-explorer` through `custom-agent`
+   routing when selectable; otherwise use a read-only spawned worker with
+   `session-inherited`, or inspect sequentially with `sequential-fallback`.
 3. Write a design doc using repo convention, commonly
    `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md`.
 4. Write `_acceptance/<slug>/contract.md` using the acceptance-gate contract
@@ -190,9 +224,10 @@ suggest the native Codex `/goal` command with an objective that ends at
 than the machine segment needs, suggest that the user open the native `/model`
 picker before setting the goal. Do not change the model or create the goal
 without the user's explicit action. When `_acceptance/config.yaml` contains
-`feature_loop.models`, warn that the current Codex spawn interface does not
-expose role-specific model routing; inherit the session model and record that
-degradation instead of claiming the roles were pinned.
+`feature_loop.models`, treat it as Claude Code configuration only. Apply the
+Codex Role Policy when named agents are selectable; otherwise inherit the
+session model and record `session-inherited` instead of claiming the Claude
+roles were pinned.
 
 ## S2 - Plan
 
@@ -209,8 +244,9 @@ Implement the plan in the main Codex agent by default. When the plan has at
 least two independent tasks and Codex exposes multi-agent tools, split only
 tasks with disjoint file ownership:
 
-1. Spawn one worker per independent task with explicit owned files and verify
-   command.
+1. Spawn one `feature-loop-executor` per independent task when named selection
+   is available. Otherwise spawn a normal worker with `session-inherited`.
+   Always provide explicit owned files and a verify command.
 2. Tell workers not to revert, stash, reset, switch branches, or overwrite
    others' changes.
 3. Wait for every worker, review returned diffs, and integrate deliberately.
@@ -256,21 +292,25 @@ or the human confirms a descope entry.
 9. Run A/B baseline checks for commands attached to feature evals on `diffBase`
    in an isolated worktree. Record `baseline: red|green|n-a`. Green on both HEAD
    and baseline is non-discriminating; list it under `## Analyst`.
-10. For `ui-check`, run configured steps, manage any dev server safely, assert
-    machine-checkable outcomes, and save a frame per state transition such as
+10. For `ui-check`, use `acceptance-ui-verifier` when selectable, or the current
+    grader under the recorded fallback mode. Run configured steps, manage any
+    dev server safely, assert machine-checkable outcomes, and save a frame per state transition such as
     `evidence/E3-step1.png`, `evidence/E3-step2.png`. The first frame goes in
     `screenshot:`; additional frames are found by `evidence-page.html` and play
     as a slideshow. If screenshots are unavailable, save asserted HTML and
     record the fallback.
 11. For `judgment`, use lenses `domain-correctness`,
-    `operational-feasibility`, and `spec-alignment`. Use fresh `spawn_agent`
-    judges when available; otherwise run separated sequential passes. Judges
+    `operational-feasibility`, and `spec-alignment`. Dispatch three fresh
+    `acceptance-judge` instances when named selection is available; otherwise
+    use fresh session-inherited judges or separated sequential passes. Judges
     must not read the doer's reasoning. A 2-of-3 PASS proposes PASS, 2-of-3 FAIL
     proposes FAIL, anything else proposes UNCERTAIN. T3 keeps every judgment
     item pending for human override.
-12. Review the diff with repo guidance. Run a conventions/invariants reviewer
-    and a bug/silent-failure reviewer. Adversarially refute each finding before
-    treating it as confirmed. Write confirmed and unverified findings to
+12. Review the diff with repo guidance. Run two `acceptance-reviewer` passes:
+    conventions/invariants and bug/silent-failure. Dispatch one
+    `acceptance-refuter` per proposed finding before treating it as confirmed.
+    Use the recorded fallback modes when named agents are unavailable. Write
+    confirmed and unverified findings to
     `_acceptance/<slug>/review-findings.md`.
 13. Capture provenance mechanically. Write `enforcement_mode: strict|warn|off`
     from `_acceptance/config.yaml` and `bypass_used: true|false` from the actual
@@ -288,6 +328,19 @@ or the human confirms a descope entry.
     template. Every machine PASS block must include `run_id`, `exit_code: 0`,
     `verifier`, and `verified_at`. Mint stable ids like
     `minted-<slug>-<evalId>-r<round>` when the command has no run id.
+    Add this auditable routing block without inventing effective model data:
+
+    ```text
+    ## Codex routing
+    policy: .codex/agents
+    - role: <agent role>
+      mode: custom-agent|session-inherited|sequential-fallback
+      requested_model: <configured model or unavailable>
+      requested_reasoning_effort: <configured effort or unavailable>
+      invocations: <integer>
+      effective_model: <runtime value only when exposed; otherwise unavailable>
+    deterministic_executor_workers: 0
+    ```
 16. On PASS or PENDING-JUDGMENT, commit the machine-written evidence package
     separately before Gate 2 when repo policy allows commits. The human-owned
     Gate-2 edits must remain a separate commit in repos with
