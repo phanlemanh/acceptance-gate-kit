@@ -1,6 +1,6 @@
 {
   "name": "feature-loop-codex",
-  "version": "1.11.4",
+  "version": "1.11.5",
   "description": "Codex-native feature development loop on top of acceptance-gate with installable role-based custom agents, model-aware budget routing, evidence-backed verification, human gates, and no Claude Code workflow scripts.",
   "author": {
     "name": "Manh Phan",

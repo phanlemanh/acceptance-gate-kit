@@ -1,7 +1,7 @@
 ---
 name: feature-loop-model-init
 description: Use when a consumer repository should install, check, or upgrade the Codex-native role model policy for Feature Loop and Acceptance Gate without changing Claude Code routing.
-version: 1.11.4
+version: 1.11.5
 ---
 
 # Feature Loop Model Init
@@ -25,7 +25,7 @@ Run check mode first:
 node scripts/codex-plugin-runner.mjs feature-loop-codex install-model-policy --root .
 ```
 
-Show every `current`, `missing`, `upgrade`, or `conflict` result. Check mode
+Show every `current`, `missing`, `upgrade`, `remove`, or `conflict` result. Check mode
 writes nothing and exits 1 when work remains.
 
 When the user requested installation or upgrade, run:
@@ -34,10 +34,11 @@ When the user requested installation or upgrade, run:
 node scripts/codex-plugin-runner.mjs feature-loop-codex install-model-policy --root . --write
 ```
 
-The installer writes missing agents and upgrades only unchanged managed files.
-Never overwrite a `conflict`; preserve the user's `.codex/agents` file and
-report its path. A conflict keeps the command nonzero even when other safe
-files were installed.
+The installer writes missing agents, upgrades only unchanged managed files,
+and removes the invalid dash-named `1.11.4` files only when their managed hash
+is still clean. Never overwrite or delete a `conflict`; preserve the user's
+`.codex/agents` file and report its path. A conflict keeps the command nonzero
+even when other safe files were installed.
 
 ## Verification
 

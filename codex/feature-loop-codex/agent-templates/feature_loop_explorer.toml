@@ -1,4 +1,4 @@
-name = "feature-loop-explorer"
+name = "feature_loop_explorer"
 description = "Read-heavy Feature Loop discovery and bounded codebase scans."
 model = "gpt-5.6-terra"
 model_reasoning_effort = "medium"

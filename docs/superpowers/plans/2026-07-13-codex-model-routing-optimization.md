@@ -8,12 +8,19 @@
 
 **Tech Stack:** Node.js ESM, TOML agent files, Bash fixture suites, Codex plugin overlays, Codex CLI 0.144.1.
 
+**Runtime correction:** Live selector verification showed that Codex rejects
+dash-named agents. The final `1.11.5` package uses lowercase underscore names
+and safely migrates unchanged managed `1.11.4` files; modified legacy files
+remain conflicts.
+
 ## Global Constraints
 
 - Claude Acceptance Gate and Feature Loop stay at version `1.11.2`; do not edit their manifests, Workflow scripts, or `feature_loop.models` behavior.
-- Codex Acceptance Gate and Feature Loop Codex advance from `1.11.3` to `1.11.4`; Design Loop stays at `0.2.1`.
+- Codex Acceptance Gate and Feature Loop Codex advance from `1.11.3` to `1.11.5`; Design Loop stays at `0.2.1`.
 - Use only model ids present in the target catalog: `gpt-5.6-sol` and `gpt-5.6-terra`.
-- Do not edit global `~/.codex/config.toml` and do not invoke nested `codex exec` sessions for role routing.
+- Do not edit global `~/.codex/config.toml` and do not invoke nested `codex exec`
+  sessions for role routing. A read-only one-agent runtime probe is allowed as
+  release verification only.
 - Machine test/script, provenance, run-log, and report-copy operations stay tool-run without separate model workers.
 - Never overwrite a user-owned or locally modified `.codex/agents/*.toml` file.
 - Report configured/requested model data separately from runtime-effective model data.
@@ -26,12 +33,12 @@
 **Files:**
 - Create: `tests/codex/model-policy.test.mjs`
 - Create: `codex/feature-loop-codex/scripts/install-model-policy.mjs`
-- Create: `codex/feature-loop-codex/agent-templates/feature-loop-explorer.toml`
-- Create: `codex/feature-loop-codex/agent-templates/feature-loop-executor.toml`
-- Create: `codex/feature-loop-codex/agent-templates/acceptance-ui-verifier.toml`
-- Create: `codex/feature-loop-codex/agent-templates/acceptance-judge.toml`
-- Create: `codex/feature-loop-codex/agent-templates/acceptance-reviewer.toml`
-- Create: `codex/feature-loop-codex/agent-templates/acceptance-refuter.toml`
+- Create: `codex/feature-loop-codex/agent-templates/feature_loop_explorer.toml`
+- Create: `codex/feature-loop-codex/agent-templates/feature_loop_executor.toml`
+- Create: `codex/feature-loop-codex/agent-templates/acceptance_ui_verifier.toml`
+- Create: `codex/feature-loop-codex/agent-templates/acceptance_judge.toml`
+- Create: `codex/feature-loop-codex/agent-templates/acceptance_reviewer.toml`
+- Create: `codex/feature-loop-codex/agent-templates/acceptance_refuter.toml`
 
 **Interfaces:**
 - Produces: `installModelPolicy({ root, templateDir, write }) -> { exitCode, files }`.
@@ -57,12 +64,12 @@ const ROOT = path.resolve(HERE, '../..');
 const MODULE = path.join(ROOT, 'codex/feature-loop-codex/scripts/install-model-policy.mjs');
 const TEMPLATES = path.join(ROOT, 'codex/feature-loop-codex/agent-templates');
 const EXPECTED = new Map([
-  ['feature-loop-explorer.toml', ['gpt-5.6-terra', 'medium', 'read-only']],
-  ['feature-loop-executor.toml', ['gpt-5.6-sol', 'high', 'workspace-write']],
-  ['acceptance-ui-verifier.toml', ['gpt-5.6-sol', 'medium', 'workspace-write']],
-  ['acceptance-judge.toml', ['gpt-5.6-sol', 'medium', 'read-only']],
-  ['acceptance-reviewer.toml', ['gpt-5.6-sol', 'high', 'read-only']],
-  ['acceptance-refuter.toml', ['gpt-5.6-terra', 'medium', 'read-only']],
+  ['feature_loop_explorer.toml', ['gpt-5.6-terra', 'medium', 'read-only']],
+  ['feature_loop_executor.toml', ['gpt-5.6-sol', 'high', 'workspace-write']],
+  ['acceptance_ui_verifier.toml', ['gpt-5.6-sol', 'medium', 'workspace-write']],
+  ['acceptance_judge.toml', ['gpt-5.6-sol', 'medium', 'read-only']],
+  ['acceptance_reviewer.toml', ['gpt-5.6-sol', 'high', 'read-only']],
+  ['acceptance_refuter.toml', ['gpt-5.6-terra', 'medium', 'read-only']],
 ]);
 
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'agk-model-policy-'));
@@ -90,18 +97,18 @@ try {
     assert.match(text, new RegExp(`sandbox_mode = "${sandbox}"`));
   }
 
-  const explorer = path.join(temp, '.codex/agents/feature-loop-explorer.toml');
+  const explorer = path.join(temp, '.codex/agents/feature_loop_explorer.toml');
   fs.writeFileSync(explorer, mod.renderManaged('name = "old-explorer"\n'));
   const upgraded = mod.installModelPolicy({ root: temp, templateDir: TEMPLATES, write: true });
   assert.equal(upgraded.exitCode, 0);
-  assert.equal(upgraded.files.find((item) => item.file === 'feature-loop-explorer.toml').state, 'upgraded');
+  assert.equal(upgraded.files.find((item) => item.file === 'feature_loop_explorer.toml').state, 'upgraded');
 
-  const judge = path.join(temp, '.codex/agents/acceptance-judge.toml');
+  const judge = path.join(temp, '.codex/agents/acceptance_judge.toml');
   fs.appendFileSync(judge, '# local-edit\n');
   const before = fs.readFileSync(judge, 'utf8');
   const conflict = mod.installModelPolicy({ root: temp, templateDir: TEMPLATES, write: true });
   assert.equal(conflict.exitCode, 1);
-  assert.equal(conflict.files.find((item) => item.file === 'acceptance-judge.toml').state, 'conflict');
+  assert.equal(conflict.files.find((item) => item.file === 'acceptance_judge.toml').state, 'conflict');
   assert.equal(fs.readFileSync(judge, 'utf8'), before);
 
   const symlinkRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'agk-model-policy-link-'));
@@ -136,8 +143,8 @@ Expected: FAIL with `ERR_MODULE_NOT_FOUND` for
 Use these exact TOML bodies; the installer adds the managed header and hash:
 
 ```toml
-# feature-loop-explorer.toml
-name = "feature-loop-explorer"
+# feature_loop_explorer.toml
+name = "feature_loop_explorer"
 description = "Read-heavy Feature Loop discovery and bounded codebase scans."
 model = "gpt-5.6-terra"
 model_reasoning_effort = "medium"
@@ -148,8 +155,8 @@ Inspect only the files and subsystems named by the parent. Do not edit files, ru
 ```
 
 ```toml
-# feature-loop-executor.toml
-name = "feature-loop-executor"
+# feature_loop_executor.toml
+name = "feature_loop_executor"
 description = "Independent Feature Loop implementation worker with explicit file ownership."
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
@@ -160,8 +167,8 @@ Implement only the assigned plan task and owned files. Preserve other worktree c
 ```
 
 ```toml
-# acceptance-ui-verifier.toml
-name = "acceptance-ui-verifier"
+# acceptance_ui_verifier.toml
+name = "acceptance_ui_verifier"
 description = "Acceptance Gate UI verifier that captures observed visual evidence without editing product code."
 model = "gpt-5.6-sol"
 model_reasoning_effort = "medium"
@@ -172,8 +179,8 @@ Act only as an S4 UI grader. Do not edit product code. Run the approved UI steps
 ```
 
 ```toml
-# acceptance-judge.toml
-name = "acceptance-judge"
+# acceptance_judge.toml
+name = "acceptance_judge"
 description = "Blind scoped Acceptance Gate judgment lens."
 model = "gpt-5.6-sol"
 model_reasoning_effort = "medium"
@@ -184,8 +191,8 @@ Judge only the resolved question and approved input files. Do not inspect the im
 ```
 
 ```toml
-# acceptance-reviewer.toml
-name = "acceptance-reviewer"
+# acceptance_reviewer.toml
+name = "acceptance_reviewer"
 description = "High-recall Acceptance Gate reviewer for invariants, bugs, and silent failures."
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
@@ -196,8 +203,8 @@ Review the assigned diff and repository guidance without editing files. Find con
 ```
 
 ```toml
-# acceptance-refuter.toml
-name = "acceptance-refuter"
+# acceptance_refuter.toml
+name = "acceptance_refuter"
 description = "Scoped adversarial refuter for one concrete Acceptance Gate review finding."
 model = "gpt-5.6-terra"
 model_reasoning_effort = "medium"
@@ -219,14 +226,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const POLICY_VERSION = '1.11.4';
+export const POLICY_VERSION = '1.11.5';
 export const TEMPLATE_FILES = Object.freeze([
-  'feature-loop-explorer.toml',
-  'feature-loop-executor.toml',
-  'acceptance-ui-verifier.toml',
-  'acceptance-judge.toml',
-  'acceptance-reviewer.toml',
-  'acceptance-refuter.toml',
+  'feature_loop_explorer.toml',
+  'feature_loop_executor.toml',
+  'acceptance_ui_verifier.toml',
+  'acceptance_judge.toml',
+  'acceptance_reviewer.toml',
+  'acceptance_refuter.toml',
 ]);
 
 const MANAGED_RE = /^# managed-by: feature-loop-codex\n# template-version: ([^\n]+)\n# source-hash: sha256:([a-f0-9]{64})\n/;
@@ -300,16 +307,16 @@ Add a fake Feature Loop installer and assertions before the final PASS line:
   addFake(
     'acceptance-gate-kit',
     'feature-loop-codex',
-    '1.11.4',
+    '1.11.5',
     'scripts/install-model-policy.mjs',
-    'feature-loop-codex-1.11.4',
+    'feature-loop-codex-1.11.5',
   );
   const modelPolicy = run(['feature-loop-codex', 'install-model-policy']);
   assert.equal(modelPolicy.status, 0, modelPolicy.stderr);
   assert.match(modelPolicy.stdout, /feature-loop-codex-1\.11\.4/);
 ```
 
-Also change the newest Acceptance Gate fake from `1.11.3` to `1.11.4` and its
+Also change the newest Acceptance Gate fake from `1.11.3` to `1.11.5` and its
 assertion to `/acceptance-1\.11\.4/`.
 
 - [ ] **Step 2: Run the test to verify RED**
@@ -382,15 +389,15 @@ const acceptance = fs.readFileSync(
 );
 
 for (const needle of [
-  'version: 1.11.4',
+  'version: 1.11.5',
   'feature-loop-model-init',
   '.codex/agents',
-  'feature-loop-explorer',
-  'feature-loop-executor',
-  'acceptance-ui-verifier',
-  'acceptance-judge',
-  'acceptance-reviewer',
-  'acceptance-refuter',
+  'feature_loop_explorer',
+  'feature_loop_executor',
+  'acceptance_ui_verifier',
+  'acceptance_judge',
+  'acceptance_reviewer',
+  'acceptance_refuter',
   'custom-agent',
   'session-inherited',
   'sequential-fallback',
@@ -409,10 +416,10 @@ for (const needle of [
 ]) assert.ok(init.includes(needle), needle);
 
 for (const needle of [
-  'acceptance-ui-verifier',
-  'acceptance-judge',
-  'acceptance-reviewer',
-  'acceptance-refuter',
+  'acceptance_ui_verifier',
+  'acceptance_judge',
+  'acceptance_reviewer',
+  'acceptance_refuter',
   '## Codex routing',
 ]) assert.ok(acceptance.includes(needle), needle);
 
@@ -433,7 +440,7 @@ Create `feature-loop-model-init/SKILL.md` with this contract:
 ---
 name: feature-loop-model-init
 description: Use when a consumer repository should install, check, or upgrade the Codex-native role model policy for Feature Loop and Acceptance Gate without changing Claude Code routing.
-version: 1.11.4
+version: 1.11.5
 ---
 
 # Feature Loop Model Init
@@ -453,12 +460,12 @@ Codex task because project custom agents are loaded at task start. Do not edit
 
 - [ ] **Step 4: Update Feature Loop Codex role dispatch**
 
-Set the skill version to `1.11.4`. Add one `Codex Role Policy` section containing
+Set the skill version to `1.11.5`. Add one `Codex Role Policy` section containing
 the exact six-role table from the design. Require preflight detection of the
-agent files and the spawn selector. At S1 use `feature-loop-explorer`; at S3 use
-`feature-loop-executor`; at S4 use `acceptance-ui-verifier`, three
-`acceptance-judge` lenses, two `acceptance-reviewer` passes, and one
-`acceptance-refuter` per proposed finding.
+agent files and the spawn selector. At S1 use `feature_loop_explorer`; at S3 use
+`feature_loop_executor`; at S4 use `acceptance_ui_verifier`, three
+`acceptance_judge` lenses, two `acceptance_reviewer` passes, and one
+`acceptance_refuter` per proposed finding.
 
 The dispatch recipe must have this exact decision order:
 
@@ -508,12 +515,12 @@ git commit -m "feat(codex): route acceptance roles through native agents"
 
 **Interfaces:**
 - Consumes: all Codex source changes from Tasks 1-3.
-- Produces: installable `acceptance-gate@1.11.4` and `feature-loop-codex@1.11.4` packages.
+- Produces: installable `acceptance-gate@1.11.5` and `feature-loop-codex@1.11.5` packages.
 - Preserves: Claude manifests at `1.11.2` and Claude Workflow routing tests.
 
 - [ ] **Step 1: Tighten version, package, and generated-skill assertions first**
 
-Change P03/P04/P05b/P22 expected Codex versions to `1.11.4`. Add package checks
+Change P03/P04/P05b/P22 expected Codex versions to `1.11.5`. Add package checks
 for all six `agent-templates/*.toml`, `scripts/install-model-policy.mjs`, and
 `skills/feature-loop-model-init/SKILL.md`, plus byte equality between each Codex
 source file and generated package file. Extend P05b/P26 with the same routing
@@ -538,20 +545,20 @@ Expected: failures naming `1.11.3` and missing generated model-policy files.
 
 - [ ] **Step 3: Bump only the two changed Codex manifests and docs**
 
-Set Acceptance Gate Codex and Feature Loop Codex manifests to `1.11.4`; leave
+Set Acceptance Gate Codex and Feature Loop Codex manifests to `1.11.5`; leave
 Design Loop `0.2.1`. Update Feature Loop Codex README, root README, and GUIDE to
 document `feature-loop-model-init`, the six-role balanced policy, fresh-task
 activation, and honest fallback. Change the sync script's final version line to:
 
 ```bash
-echo "Synced Codex packages: acceptance-gate@1.11.4 feature-loop-codex@1.11.4 design-loop@0.2.1"
+echo "Synced Codex packages: acceptance-gate@1.11.5 feature-loop-codex@1.11.5 design-loop@0.2.1"
 ```
 
 - [ ] **Step 4: Regenerate packages mechanically**
 
 Run: `bash scripts/sync-plugin-packages.sh`
 
-Expected: sync message lists Acceptance Gate and Feature Loop Codex `1.11.4`.
+Expected: sync message lists Acceptance Gate and Feature Loop Codex `1.11.5`.
 
 - [ ] **Step 5: Verify package tests and Claude isolation**
 
@@ -570,7 +577,7 @@ Claude runtime changes.
 
 ```bash
 git add codex plugins README.md GUIDE.md scripts/sync-plugin-packages.sh tests/plugins/run-tests.sh
-git commit -m "release(codex): model-routed acceptance agents 1.11.4"
+git commit -m "release(codex): model-routed acceptance agents 1.11.5"
 ```
 
 ### Task 5: Local Codex plugin installation and cache verification
@@ -578,12 +585,12 @@ git commit -m "release(codex): model-routed acceptance agents 1.11.4"
 **Execution-order correction from live state:** the configured local marketplace
 resolves `/Users/manhphan/dev/acceptance-gate-kit/plugins`, not this linked
 worktree. Therefore run Task 7 Steps 1, 3, and 4 before Task 5 Step 2. Reinstall
-only after verified 1.11.4 packages have merged and pushed to kit `main`; this
+only after verified 1.11.5 packages have merged and pushed to kit `main`; this
 prevents a remove/add cycle from reinstalling stale 1.11.3 content.
 
 **Files:**
-- External install state: `~/.codex/plugins/cache/acceptance-gate-kit/acceptance-gate/1.11.4/`
-- External install state: `~/.codex/plugins/cache/acceptance-gate-kit/feature-loop-codex/1.11.4/`
+- External install state: `~/.codex/plugins/cache/acceptance-gate-kit/acceptance-gate/1.11.5/`
+- External install state: `~/.codex/plugins/cache/acceptance-gate-kit/feature-loop-codex/1.11.5/`
 
 **Interfaces:**
 - Consumes: generated packages from Task 4.
@@ -610,7 +617,7 @@ codex plugin add acceptance-gate@acceptance-gate-kit --json
 codex plugin add feature-loop-codex@acceptance-gate-kit --json
 ```
 
-Expected: both add commands report installed version `1.11.4`.
+Expected: both add commands report installed version `1.11.5`.
 
 - [ ] **Step 3: Verify registry, cache, and model-policy check behavior**
 
@@ -618,24 +625,24 @@ Run:
 
 ```bash
 codex plugin list | rg 'acceptance-gate|feature-loop-codex'
-test -f ~/.codex/plugins/cache/acceptance-gate-kit/feature-loop-codex/1.11.4/skills/feature-loop-model-init/SKILL.md
-test -f ~/.codex/plugins/cache/acceptance-gate-kit/feature-loop-codex/1.11.4/scripts/install-model-policy.mjs
-node ~/.codex/plugins/cache/acceptance-gate-kit/feature-loop-codex/1.11.4/scripts/install-model-policy.mjs --root .
+test -f ~/.codex/plugins/cache/acceptance-gate-kit/feature-loop-codex/1.11.5/skills/feature-loop-model-init/SKILL.md
+test -f ~/.codex/plugins/cache/acceptance-gate-kit/feature-loop-codex/1.11.5/scripts/install-model-policy.mjs
+node ~/.codex/plugins/cache/acceptance-gate-kit/feature-loop-codex/1.11.5/scripts/install-model-policy.mjs --root .
 ```
 
-Expected: both plugins are enabled at `1.11.4`; the cache files exist; check
+Expected: both plugins are enabled at `1.11.5`; the cache files exist; check
 mode exits `1` with six missing agents in the kit worktree and writes nothing.
 
 ### Task 6: Install the Codex policy into the active OneHub Desktop branch
 
 **Files:**
 - Modify: `/Users/manhphan/dev/worktrees/zalo-desktop-crm-memory/scripts/codex-plugin-runner.mjs`
-- Create: `/Users/manhphan/dev/worktrees/zalo-desktop-crm-memory/.codex/agents/feature-loop-explorer.toml`
-- Create: `/Users/manhphan/dev/worktrees/zalo-desktop-crm-memory/.codex/agents/feature-loop-executor.toml`
-- Create: `/Users/manhphan/dev/worktrees/zalo-desktop-crm-memory/.codex/agents/acceptance-ui-verifier.toml`
-- Create: `/Users/manhphan/dev/worktrees/zalo-desktop-crm-memory/.codex/agents/acceptance-judge.toml`
-- Create: `/Users/manhphan/dev/worktrees/zalo-desktop-crm-memory/.codex/agents/acceptance-reviewer.toml`
-- Create: `/Users/manhphan/dev/worktrees/zalo-desktop-crm-memory/.codex/agents/acceptance-refuter.toml`
+- Create: `/Users/manhphan/dev/worktrees/zalo-desktop-crm-memory/.codex/agents/feature_loop_explorer.toml`
+- Create: `/Users/manhphan/dev/worktrees/zalo-desktop-crm-memory/.codex/agents/feature_loop_executor.toml`
+- Create: `/Users/manhphan/dev/worktrees/zalo-desktop-crm-memory/.codex/agents/acceptance_ui_verifier.toml`
+- Create: `/Users/manhphan/dev/worktrees/zalo-desktop-crm-memory/.codex/agents/acceptance_judge.toml`
+- Create: `/Users/manhphan/dev/worktrees/zalo-desktop-crm-memory/.codex/agents/acceptance_reviewer.toml`
+- Create: `/Users/manhphan/dev/worktrees/zalo-desktop-crm-memory/.codex/agents/acceptance_refuter.toml`
 
 **Interfaces:**
 - Consumes: installed plugin caches and runner reference from Task 5.
@@ -683,7 +690,7 @@ six `current` states with exit `0`.
 Run:
 
 ```bash
-codex exec --strict-config --ephemeral -C /Users/manhphan/dev/worktrees/zalo-desktop-crm-memory -m gpt-5.6-terra -c 'model_reasoning_effort="low"' "Without reading repository files and without spawning, list the project custom-agent names available in the native agent catalog." | rg 'feature-loop-explorer|acceptance-judge|acceptance-reviewer'
+codex exec --strict-config --ephemeral -C /Users/manhphan/dev/worktrees/zalo-desktop-crm-memory -m gpt-5.6-terra -c 'model_reasoning_effort="low"' "Without reading repository files and without spawning, list the project custom-agent names available in the native agent catalog." | rg 'feature_loop_explorer|acceptance_judge|acceptance_reviewer'
 rg -n 'model =|model_reasoning_effort =|sandbox_mode =' /Users/manhphan/dev/worktrees/zalo-desktop-crm-memory/.codex/agents
 sed -n '323,332p' /Users/manhphan/dev/worktrees/zalo-desktop-crm-memory/_acceptance/config.yaml
 git -C /Users/manhphan/dev/worktrees/zalo-desktop-crm-memory diff --check

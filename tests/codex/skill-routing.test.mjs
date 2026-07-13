@@ -21,15 +21,15 @@ const acceptance = fs.readFileSync(
 );
 
 for (const needle of [
-  'version: 1.11.4',
+  'version: 1.11.5',
   'feature-loop-model-init',
   '.codex/agents',
-  'feature-loop-explorer',
-  'feature-loop-executor',
-  'acceptance-ui-verifier',
-  'acceptance-judge',
-  'acceptance-reviewer',
-  'acceptance-refuter',
+  'feature_loop_explorer',
+  'feature_loop_executor',
+  'acceptance_ui_verifier',
+  'acceptance_judge',
+  'acceptance_reviewer',
+  'acceptance_refuter',
   'custom-agent',
   'session-inherited',
   'sequential-fallback',
@@ -48,10 +48,10 @@ for (const needle of [
 ]) assert.ok(init.includes(needle), needle);
 
 for (const needle of [
-  'acceptance-ui-verifier',
-  'acceptance-judge',
-  'acceptance-reviewer',
-  'acceptance-refuter',
+  'acceptance_ui_verifier',
+  'acceptance_judge',
+  'acceptance_reviewer',
+  'acceptance_refuter',
   '## Codex routing',
 ]) assert.ok(acceptance.includes(needle), needle);
 

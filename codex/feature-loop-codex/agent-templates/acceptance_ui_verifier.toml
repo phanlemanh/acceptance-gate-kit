@@ -1,4 +1,4 @@
-name = "acceptance-ui-verifier"
+name = "acceptance_ui_verifier"
 description = "Acceptance Gate UI verifier that captures observed visual evidence without editing product code."
 model = "gpt-5.6-sol"
 model_reasoning_effort = "medium"

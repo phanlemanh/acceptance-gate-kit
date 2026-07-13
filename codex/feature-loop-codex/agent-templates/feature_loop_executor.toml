@@ -1,4 +1,4 @@
-name = "feature-loop-executor"
+name = "feature_loop_executor"
 description = "Independent Feature Loop implementation worker with explicit file ownership."
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"

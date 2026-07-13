@@ -27,8 +27,8 @@ Core principles (non-negotiable):
    the human to hand-test what an executor already proved.
 
 Codex role routing is optional and project-scoped. When Feature Loop's managed
-`.codex/agents` policy is installed, select `acceptance-ui-verifier`,
-`acceptance-judge`, `acceptance-reviewer`, and `acceptance-refuter` by name only
+`.codex/agents` policy is installed, select `acceptance_ui_verifier`,
+`acceptance_judge`, `acceptance_reviewer`, and `acceptance_refuter` by name only
 when the spawn surface exposes a named-agent selector. Otherwise inherit the
 session configuration or run a separated sequential pass and record that
 fallback. Claude `feature_loop.models` aliases are not Codex model ids.
@@ -192,14 +192,14 @@ Entry: implementation complete, contract `status: implemented`.
      The report MUST reuse exactly these run_ids — the hook and CI re-check
      reconcile every report run_id against this log; an id absent from the
      log blocks the PASS. Never write the log from memory after the fact.
-   - `ui-check`: select `acceptance-ui-verifier` when available, then start dev server per `config:dev_server.start`; drive via the
+   - `ui-check`: select `acceptance_ui_verifier` when available, then start dev server per `config:dev_server.start`; drive via the
      available browser tool (Claude Preview, Chrome MCP, Playwright/Puppeteer,
      or equivalent); save a frame at EACH step to
      `_acceptance/{slug}/evidence/E{id}-step{n}.png` via `config:capture.ui`
      (preview_screenshot is inline-only; the Gate-2 page plays `E{id}-*.png` as a
      slideshow); `screenshot:` = the first frame. Read each saved frame and record observed: in its report block (schema-v2 reports without it are hook-blocked).
      No capture/browser → save HTML / downgrade to judgment + note (see eval-executors.md).
-   - `judgment`: dispatch `acceptance-judge` per `references/judge-personas.md`
+   - `judgment`: dispatch `acceptance_judge` per `references/judge-personas.md`
      (separate fresh subagent when available, or three separated Codex passes
      with hidden implementer reasoning). The verdict is scoped on resolved
      inputs; blind: no diff, no implementer reasoning. If the verify context
@@ -207,8 +207,8 @@ Entry: implementation complete, contract `status: implemented`.
      ORCHESTRATOR dispatches each judge per references/judge-personas.md and
      merges verdicts into the report. Never let the implementation pass judge
      itself inline.
-   - **Review:** run two `acceptance-reviewer` passes for conventions/invariants
-     and bugs/silent failures. Dispatch one `acceptance-refuter` for each
+   - **Review:** run two `acceptance_reviewer` passes for conventions/invariants
+     and bugs/silent failures. Dispatch one `acceptance_refuter` for each
      proposed finding before treating it as confirmed.
 3. Write `_acceptance/{slug}/evidence-report.md` per template. Add an
    `## Codex routing` section containing each role's routing mode, requested

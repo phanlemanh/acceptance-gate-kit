@@ -30,10 +30,11 @@ try {
   addFake('acceptance-gate-kit', 'acceptance-gate', '1.9.0', 'scripts/gate-card.js', 'acceptance-1.9.0');
   addFake('acceptance-gate-kit', 'acceptance-gate', '1.11.2', 'scripts/gate-card.js', 'acceptance-1.11.2');
   addFake('acceptance-gate-kit', 'acceptance-gate', '1.11.4', 'scripts/gate-card.js', 'acceptance-1.11.4');
+  addFake('acceptance-gate-kit', 'acceptance-gate', '1.11.5', 'scripts/gate-card.js', 'acceptance-1.11.5');
 
   const newest = run(['acceptance-gate', 'gate-card']);
   assert.equal(newest.status, 0, newest.stderr);
-  assert.match(newest.stdout, /acceptance-1\.11\.4/);
+  assert.match(newest.stdout, /acceptance-1\.11\.5/);
 
   const unknownPlugin = run(['unknown', 'gate-card']);
   assert.equal(unknownPlugin.status, 2);
@@ -59,13 +60,13 @@ try {
   addFake(
     'acceptance-gate-kit',
     'feature-loop-codex',
-    '1.11.4',
+    '1.11.5',
     'scripts/install-model-policy.mjs',
-    'feature-loop-codex-1.11.4',
+    'feature-loop-codex-1.11.5',
   );
   const modelPolicy = run(['feature-loop-codex', 'install-model-policy']);
   assert.equal(modelPolicy.status, 0, modelPolicy.stderr);
-  assert.match(modelPolicy.stdout, /feature-loop-codex-1\.11\.4/);
+  assert.match(modelPolicy.stdout, /feature-loop-codex-1\.11\.5/);
 
   console.log('PASS: runner selects latest allowlisted cache entries and blocks unsafe input');
 } finally {
