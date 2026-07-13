@@ -1,7 +1,7 @@
 ---
 name: feature-loop-codex
 description: This skill should be used when the user asks to "run feature-loop-codex", "start a Codex feature loop", "resume a Codex feature loop", "build this feature with acceptance-gate in Codex", or wants a Codex-native version of feature-loop without Claude Code Workflow scripts.
-version: 1.11.4
+version: 1.11.5
 ---
 
 # feature-loop-codex
@@ -56,12 +56,12 @@ available:
 
 | Agent | Purpose | Requested model | Requested effort |
 |---|---|---|---|
-| `feature-loop-explorer` | bounded read-heavy discovery | `gpt-5.6-terra` | `medium` |
-| `feature-loop-executor` | independent implementation | `gpt-5.6-sol` | `high` |
-| `acceptance-ui-verifier` | UI execution and observed evidence | `gpt-5.6-sol` | `medium` |
-| `acceptance-judge` | blind scoped judgment | `gpt-5.6-sol` | `medium` |
-| `acceptance-reviewer` | high-recall invariants and bug review | `gpt-5.6-sol` | `high` |
-| `acceptance-refuter` | one-finding adversarial check | `gpt-5.6-terra` | `medium` |
+| `feature_loop_explorer` | bounded read-heavy discovery | `gpt-5.6-terra` | `medium` |
+| `feature_loop_executor` | independent implementation | `gpt-5.6-sol` | `high` |
+| `acceptance_ui_verifier` | UI execution and observed evidence | `gpt-5.6-sol` | `medium` |
+| `acceptance_judge` | blind scoped judgment | `gpt-5.6-sol` | `medium` |
+| `acceptance_reviewer` | high-recall invariants and bug review | `gpt-5.6-sol` | `high` |
+| `acceptance_refuter` | one-finding adversarial check | `gpt-5.6-terra` | `medium` |
 
 For every model-backed role, choose one routing mode in this exact order:
 
@@ -176,7 +176,7 @@ artifacts exist:
 
 1. Run `superpowers:brainstorming` when available and useful.
 2. For features touching three or more subsystems, inspect those areas before
-   proposing the approach. Use `feature-loop-explorer` through `custom-agent`
+   proposing the approach. Use `feature_loop_explorer` through `custom-agent`
    routing when selectable; otherwise use a read-only spawned worker with
    `session-inherited`, or inspect sequentially with `sequential-fallback`.
 3. Write a design doc using repo convention, commonly
@@ -244,7 +244,7 @@ Implement the plan in the main Codex agent by default. When the plan has at
 least two independent tasks and Codex exposes multi-agent tools, split only
 tasks with disjoint file ownership:
 
-1. Spawn one `feature-loop-executor` per independent task when named selection
+1. Spawn one `feature_loop_executor` per independent task when named selection
    is available. Otherwise spawn a normal worker with `session-inherited`.
    Always provide explicit owned files and a verify command.
 2. Tell workers not to revert, stash, reset, switch branches, or overwrite
@@ -292,7 +292,7 @@ or the human confirms a descope entry.
 9. Run A/B baseline checks for commands attached to feature evals on `diffBase`
    in an isolated worktree. Record `baseline: red|green|n-a`. Green on both HEAD
    and baseline is non-discriminating; list it under `## Analyst`.
-10. For `ui-check`, use `acceptance-ui-verifier` when selectable, or the current
+10. For `ui-check`, use `acceptance_ui_verifier` when selectable, or the current
     grader under the recorded fallback mode. Run configured steps, manage any
     dev server safely, assert machine-checkable outcomes, and save a frame per state transition such as
     `evidence/E3-step1.png`, `evidence/E3-step2.png`. The first frame goes in
@@ -301,14 +301,14 @@ or the human confirms a descope entry.
     record the fallback.
 11. For `judgment`, use lenses `domain-correctness`,
     `operational-feasibility`, and `spec-alignment`. Dispatch three fresh
-    `acceptance-judge` instances when named selection is available; otherwise
+    `acceptance_judge` instances when named selection is available; otherwise
     use fresh session-inherited judges or separated sequential passes. Judges
     must not read the doer's reasoning. A 2-of-3 PASS proposes PASS, 2-of-3 FAIL
     proposes FAIL, anything else proposes UNCERTAIN. T3 keeps every judgment
     item pending for human override.
-12. Review the diff with repo guidance. Run two `acceptance-reviewer` passes:
+12. Review the diff with repo guidance. Run two `acceptance_reviewer` passes:
     conventions/invariants and bug/silent-failure. Dispatch one
-    `acceptance-refuter` per proposed finding before treating it as confirmed.
+    `acceptance_refuter` per proposed finding before treating it as confirmed.
     Use the recorded fallback modes when named agents are unavailable. Write
     confirmed and unverified findings to
     `_acceptance/<slug>/review-findings.md`.

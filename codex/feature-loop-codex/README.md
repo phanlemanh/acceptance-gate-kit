@@ -2,11 +2,14 @@
 
 Codex-native edition of the feature loop on top of `acceptance-gate`.
 
-Version `1.11.4` tracks the Claude Code `feature-loop` 1.11.2 state machine and
+Version `1.11.5` tracks the Claude Code `feature-loop` 1.11.2 state machine and
 gate discipline, but replaces Claude workflow-script execution with
 Codex-native agent orchestration. It includes the append-only decision ledger,
 D0/D1/D2 design lanes, native Codex goal guidance, and a managed role model
 policy with honest runtime degradation.
+
+Agent names use Codex-native lowercase underscore identifiers so the runtime
+can select them directly through its named-agent field.
 
 ## Install
 

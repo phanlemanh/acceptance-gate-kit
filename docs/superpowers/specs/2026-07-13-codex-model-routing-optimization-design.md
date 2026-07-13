@@ -93,12 +93,12 @@ Codex-only source remains under the existing overlay:
 ```text
 codex/feature-loop-codex/
   agent-templates/
-    feature-loop-explorer.toml
-    feature-loop-executor.toml
-    acceptance-ui-verifier.toml
-    acceptance-judge.toml
-    acceptance-reviewer.toml
-    acceptance-refuter.toml
+    feature_loop_explorer.toml
+    feature_loop_executor.toml
+    acceptance_ui_verifier.toml
+    acceptance_judge.toml
+    acceptance_reviewer.toml
+    acceptance_refuter.toml
   scripts/
     install-model-policy.mjs
   skills/
@@ -130,7 +130,8 @@ node scripts/codex-plugin-runner.mjs \
 
 The installer has two modes:
 
-- default check mode: print missing, current, and conflicting agent files;
+- default check mode: print missing, current, removable legacy, and conflicting
+  agent files;
 - `--write`: create missing files and update only files whose current content is
   an unchanged older managed template.
 
@@ -140,6 +141,12 @@ the marker, or a managed file whose body no longer matches its recorded hash,
 is a conflict. The installer reports it and does not overwrite it. This permits
 safe upgrades without bundling every prior template. Re-running an
 already-current installation is a no-op.
+
+Codex validates selectable custom-agent names against
+`^[a-z0-9_]+$`. Version `1.11.5` therefore uses lowercase underscore names.
+The installer migrates the dash-named `1.11.4` files by deleting them only
+when the managed marker, version, source hash, and legacy `name` field all
+match. A modified or user-owned legacy file is preserved as a conflict.
 
 The OneHub installation also refreshes its checked-in
 `scripts/codex-plugin-runner.mjs` from the new Acceptance Gate reference before
@@ -151,12 +158,12 @@ The balanced default is:
 
 | Agent | Work | Model | Reasoning |
 |---|---|---|---|
-| `feature-loop-explorer` | read-heavy discovery and bounded codebase scans | `gpt-5.6-terra` | `medium` |
-| `feature-loop-executor` | independent implementation tasks | `gpt-5.6-sol` | `high` |
-| `acceptance-ui-verifier` | browser/UI verification and observed evidence | `gpt-5.6-sol` | `medium` |
-| `acceptance-judge` | blind scoped judgment lens | `gpt-5.6-sol` | `medium` |
-| `acceptance-reviewer` | conventions, silent-failure, and high-recall review | `gpt-5.6-sol` | `high` |
-| `acceptance-refuter` | test one concrete finding against file evidence | `gpt-5.6-terra` | `medium` |
+| `feature_loop_explorer` | read-heavy discovery and bounded codebase scans | `gpt-5.6-terra` | `medium` |
+| `feature_loop_executor` | independent implementation tasks | `gpt-5.6-sol` | `high` |
+| `acceptance_ui_verifier` | browser/UI verification and observed evidence | `gpt-5.6-sol` | `medium` |
+| `acceptance_judge` | blind scoped judgment lens | `gpt-5.6-sol` | `medium` |
+| `acceptance_reviewer` | conventions, silent-failure, and high-recall review | `gpt-5.6-sol` | `high` |
+| `acceptance_refuter` | test one concrete finding against file evidence | `gpt-5.6-terra` | `medium` |
 
 No custom agent exists for machine test/script execution, run-log writing,
 provenance capture, or report field copying. The main Codex orchestrator runs

@@ -4,14 +4,22 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const POLICY_VERSION = '1.11.4';
+export const POLICY_VERSION = '1.11.5';
 export const TEMPLATE_FILES = Object.freeze([
-  'feature-loop-explorer.toml',
-  'feature-loop-executor.toml',
-  'acceptance-ui-verifier.toml',
-  'acceptance-judge.toml',
-  'acceptance-reviewer.toml',
-  'acceptance-refuter.toml',
+  'feature_loop_explorer.toml',
+  'feature_loop_executor.toml',
+  'acceptance_ui_verifier.toml',
+  'acceptance_judge.toml',
+  'acceptance_reviewer.toml',
+  'acceptance_refuter.toml',
+]);
+export const LEGACY_TEMPLATE_FILES = Object.freeze([
+  ['feature-loop-explorer.toml', 'feature-loop-explorer'],
+  ['feature-loop-executor.toml', 'feature-loop-executor'],
+  ['acceptance-ui-verifier.toml', 'acceptance-ui-verifier'],
+  ['acceptance-judge.toml', 'acceptance-judge'],
+  ['acceptance-reviewer.toml', 'acceptance-reviewer'],
+  ['acceptance-refuter.toml', 'acceptance-refuter'],
 ]);
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -102,7 +110,26 @@ export function installModelPolicy({ root, templateDir = DEFAULT_TEMPLATE_DIR, w
     };
   });
 
-  if (write && files.some((item) => item.state === 'missing' || item.state === 'upgrade')) {
+  for (const [file, legacyName] of LEGACY_TEMPLATE_FILES) {
+    const target = path.join(agentsDir, file);
+    rejectSymlink(target);
+    if (!fs.existsSync(target)) continue;
+    const current = fs.readFileSync(target, 'utf8');
+    const inspected = inspectManaged(current);
+    const expectedLegacyName = `name = "${legacyName}"`;
+    const removable = inspected.managed
+      && inspected.clean
+      && inspected.version === '1.11.4'
+      && inspected.body.split('\n').includes(expectedLegacyName);
+    files.push({
+      file,
+      state: removable ? 'remove' : 'conflict',
+      target,
+      legacy: true,
+    });
+  }
+
+  if (write && files.some((item) => ['missing', 'upgrade', 'remove'].includes(item.state))) {
     fs.mkdirSync(agentsDir, { recursive: true });
     for (const item of files) {
       if (item.state === 'missing') {
@@ -113,9 +140,14 @@ export function installModelPolicy({ root, templateDir = DEFAULT_TEMPLATE_DIR, w
         item.state = 'upgraded';
       }
     }
+    for (const item of files) {
+      if (item.state !== 'remove') continue;
+      fs.unlinkSync(item.target);
+      item.state = 'removed';
+    }
   }
 
-  const driftStates = new Set(['missing', 'upgrade', 'conflict']);
+  const driftStates = new Set(['missing', 'upgrade', 'remove', 'conflict']);
   return {
     exitCode: files.some((item) => driftStates.has(item.state)) ? 1 : 0,
     files: files.map(({ desired, target, ...item }) => item),

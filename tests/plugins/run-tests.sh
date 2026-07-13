@@ -41,7 +41,7 @@ root_claude = json.loads((root / ".claude-plugin/plugin.json").read_text())
 overlay_codex = json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())
 pkg_codex = json.loads((root / "plugins/acceptance-gate/.codex-plugin/plugin.json").read_text())
 assert root_claude["version"] == "1.11.2"
-assert overlay_codex["version"] == "1.11.4"
+assert overlay_codex["version"] == "1.11.5"
 assert pkg_codex == overlay_codex, "run scripts/sync-plugin-packages.sh"
 for rel in [
     "plugins/acceptance-gate/scripts/gate-card.js",
@@ -68,7 +68,7 @@ import json, sys
 data = json.load(open(sys.argv[1]))
 assert data["name"] == "feature-loop-codex"
 assert data["skills"] == "./skills/"
-assert data["version"] == "1.11.4"
+assert data["version"] == "1.11.5"
 assert data["description"]
 PY
 
@@ -88,7 +88,7 @@ from pathlib import Path
 import re, sys
 text = Path(sys.argv[1]).read_text()
 assert "name: feature-loop-codex" in text
-assert "version: 1.11.4" in text
+assert "version: 1.11.5" in text
 assert "Codex" in text
 assert "acceptance-gate" in text
 assert "spawn_agent" in text
@@ -120,12 +120,12 @@ for needle in [
     "feature_loop.models",
     "feature-loop-model-init",
     ".codex/agents",
-    "feature-loop-explorer",
-    "feature-loop-executor",
-    "acceptance-ui-verifier",
-    "acceptance-judge",
-    "acceptance-reviewer",
-    "acceptance-refuter",
+    "feature_loop_explorer",
+    "feature_loop_executor",
+    "acceptance_ui_verifier",
+    "acceptance_judge",
+    "acceptance_reviewer",
+    "acceptance_refuter",
     "custom-agent",
     "session-inherited",
     "sequential-fallback",
@@ -150,12 +150,12 @@ package = root / "plugins/feature-loop-codex"
 files = [
     "scripts/install-model-policy.mjs",
     "skills/feature-loop-model-init/SKILL.md",
-    "agent-templates/feature-loop-explorer.toml",
-    "agent-templates/feature-loop-executor.toml",
-    "agent-templates/acceptance-ui-verifier.toml",
-    "agent-templates/acceptance-judge.toml",
-    "agent-templates/acceptance-reviewer.toml",
-    "agent-templates/acceptance-refuter.toml",
+    "agent-templates/feature_loop_explorer.toml",
+    "agent-templates/feature_loop_executor.toml",
+    "agent-templates/acceptance_ui_verifier.toml",
+    "agent-templates/acceptance_judge.toml",
+    "agent-templates/acceptance_reviewer.toml",
+    "agent-templates/acceptance_refuter.toml",
 ]
 for rel in files:
     assert (source / rel).is_file(), rel
@@ -259,8 +259,8 @@ run "P22 Codex overlay manifests and generated outputs exist" \
 import json, sys
 from pathlib import Path
 root = Path(sys.argv[1])
-assert json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())["version"] == "1.11.4"
-assert json.loads((root / "codex/feature-loop-codex/.codex-plugin/plugin.json").read_text())["version"] == "1.11.4"
+assert json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())["version"] == "1.11.5"
+assert json.loads((root / "codex/feature-loop-codex/.codex-plugin/plugin.json").read_text())["version"] == "1.11.5"
 assert json.loads((root / "codex/design-loop/.codex-plugin/plugin.json").read_text())["version"] == "0.2.1"
 assert json.loads((root / ".claude-plugin/plugin.json").read_text())["version"] == "1.11.2"
 assert json.loads((root / "feature-loop/.claude-plugin/plugin.json").read_text())["version"] == "1.11.2"
@@ -316,10 +316,10 @@ assert "acceptance-init" in main
 assert "acceptance-card" in main
 assert "apply_patch adapter" in main
 for needle in [
-    "acceptance-ui-verifier",
-    "acceptance-judge",
-    "acceptance-reviewer",
-    "acceptance-refuter",
+    "acceptance_ui_verifier",
+    "acceptance_judge",
+    "acceptance_reviewer",
+    "acceptance_refuter",
     "## Codex routing",
 ]:
     assert needle in main, needle

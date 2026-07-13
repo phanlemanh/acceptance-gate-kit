@@ -1,4 +1,4 @@
-name = "acceptance-refuter"
+name = "acceptance_refuter"
 description = "Scoped adversarial refuter for one concrete Acceptance Gate review finding."
 model = "gpt-5.6-terra"
 model_reasoning_effort = "medium"
