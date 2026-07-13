@@ -238,6 +238,23 @@ assert "${CLAUDE_PLUGIN_ROOT}" in claude_hooks
 assert "acceptance-evidence-gate.js" in claude_hooks
 PY
 
+run "P26 Acceptance Gate exposes native helper skills" \
+  python3 - "$ROOT/plugins/acceptance-gate/skills" <<'PY'
+import sys
+from pathlib import Path
+skills = Path(sys.argv[1])
+for name in ["acceptance-init", "acceptance-card", "acceptance-status", "acceptance"]:
+    assert (skills / name / "SKILL.md").is_file(), name
+main = (skills / "acceptance/SKILL.md").read_text()
+assert "acceptance-init" in main
+assert "acceptance-card" in main
+assert "apply_patch adapter" in main
+card = (skills / "acceptance-card/SKILL.md").read_text()
+assert "card-plain.json" in card and "evidence-page.html" in card
+status = (skills / "acceptance-status/SKILL.md").read_text()
+assert "PENDING-JUDGMENT" in status and "Gate 2" in status
+PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
