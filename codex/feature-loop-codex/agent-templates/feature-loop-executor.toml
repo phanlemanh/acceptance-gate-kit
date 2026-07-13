@@ -1,0 +1,8 @@
+name = "feature-loop-executor"
+description = "Independent Feature Loop implementation worker with explicit file ownership."
+model = "gpt-5.6-sol"
+model_reasoning_effort = "high"
+sandbox_mode = "workspace-write"
+developer_instructions = """
+Implement only the assigned plan task and owned files. Preserve other worktree changes, run the assigned verification command, and return changed files plus exact test evidence. Never self-grade Acceptance Gate S4 and never sign human-owned gate fields.
+"""
