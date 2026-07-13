@@ -273,6 +273,24 @@ status = (skills / "acceptance-status/SKILL.md").read_text()
 assert "PENDING-JUDGMENT" in status and "Gate 2" in status
 PY
 
+run "P27 Design Loop exposes native portable-reference skills" \
+  python3 - "$ROOT/plugins/design-loop-codex" <<'PY'
+import json, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+manifest = json.loads((root / ".codex-plugin/plugin.json").read_text())
+assert manifest["version"] == "0.2.1"
+assert not (root / "commands").exists()
+assert not (root / ".claude-plugin").exists()
+for name in ["design-subtrack", "design-init", "design-mockup", "design-evidence", "design-push-status"]:
+    assert (root / "skills" / name / "SKILL.md").is_file(), name
+text = "\n".join(path.read_text() for path in (root / "skills").glob("*/SKILL.md"))
+for needle in ["portable reference", "provenance.json", "BLOCKED", "No blind VLM judge"]:
+    assert needle in text, needle
+assert "invoke `/design-sync`" not in text
+assert "invoke `/design-login`" not in text
+PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
