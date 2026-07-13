@@ -41,7 +41,7 @@ root_claude = json.loads((root / ".claude-plugin/plugin.json").read_text())
 overlay_codex = json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())
 pkg_codex = json.loads((root / "plugins/acceptance-gate/.codex-plugin/plugin.json").read_text())
 assert root_claude["version"] == "1.11.2"
-assert overlay_codex["version"] == "1.11.3"
+assert overlay_codex["version"] == "1.11.4"
 assert pkg_codex == overlay_codex, "run scripts/sync-plugin-packages.sh"
 for rel in [
     "plugins/acceptance-gate/scripts/gate-card.js",
@@ -68,7 +68,7 @@ import json, sys
 data = json.load(open(sys.argv[1]))
 assert data["name"] == "feature-loop-codex"
 assert data["skills"] == "./skills/"
-assert data["version"] == "1.11.3"
+assert data["version"] == "1.11.4"
 assert data["description"]
 PY
 
@@ -88,7 +88,7 @@ from pathlib import Path
 import re, sys
 text = Path(sys.argv[1]).read_text()
 assert "name: feature-loop-codex" in text
-assert "version: 1.11.3" in text
+assert "version: 1.11.4" in text
 assert "Codex" in text
 assert "acceptance-gate" in text
 assert "spawn_agent" in text
@@ -118,13 +118,56 @@ for needle in [
     "/goal",
     "/model",
     "feature_loop.models",
-    "role-specific model routing",
+    "feature-loop-model-init",
+    ".codex/agents",
+    "feature-loop-explorer",
+    "feature-loop-executor",
+    "acceptance-ui-verifier",
+    "acceptance-judge",
+    "acceptance-reviewer",
+    "acceptance-refuter",
+    "custom-agent",
+    "session-inherited",
+    "sequential-fallback",
+    "## Codex routing",
+    "requested_model",
+    "requested_reasoning_effort",
 ]:
     assert needle in text, needle
 assert re.search(r"Never create or suggest a goal that reaches\s+`signed-off`", text)
 assert "Workflow(" not in text
 assert "feature-loop/workflows" not in text
 assert ".claude/plugins/cache" not in text
+PY
+
+run "P05c feature-loop-codex model policy package matches source" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+source = root / "codex/feature-loop-codex"
+package = root / "plugins/feature-loop-codex"
+files = [
+    "scripts/install-model-policy.mjs",
+    "skills/feature-loop-model-init/SKILL.md",
+    "agent-templates/feature-loop-explorer.toml",
+    "agent-templates/feature-loop-executor.toml",
+    "agent-templates/acceptance-ui-verifier.toml",
+    "agent-templates/acceptance-judge.toml",
+    "agent-templates/acceptance-reviewer.toml",
+    "agent-templates/acceptance-refuter.toml",
+]
+for rel in files:
+    assert (source / rel).is_file(), rel
+    assert (package / rel).is_file(), f"run scripts/sync-plugin-packages.sh: {rel}"
+    assert (source / rel).read_bytes() == (package / rel).read_bytes(), rel
+for rel in [
+    "skills/acceptance/SKILL.md",
+    "skills/acceptance-init/references/codex-plugin-runner.mjs",
+]:
+    src = root / "codex/acceptance-gate" / rel
+    pkg = root / "plugins/acceptance-gate" / rel
+    assert src.read_bytes() == pkg.read_bytes(), f"run scripts/sync-plugin-packages.sh: {rel}"
 PY
 
 run "P06 generated design-loop has independent Codex manifest" \
@@ -216,9 +259,14 @@ run "P22 Codex overlay manifests and generated outputs exist" \
 import json, sys
 from pathlib import Path
 root = Path(sys.argv[1])
-assert json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())["version"] == "1.11.3"
-assert json.loads((root / "codex/feature-loop-codex/.codex-plugin/plugin.json").read_text())["version"] == "1.11.3"
+assert json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())["version"] == "1.11.4"
+assert json.loads((root / "codex/feature-loop-codex/.codex-plugin/plugin.json").read_text())["version"] == "1.11.4"
 assert json.loads((root / "codex/design-loop/.codex-plugin/plugin.json").read_text())["version"] == "0.2.1"
+assert json.loads((root / ".claude-plugin/plugin.json").read_text())["version"] == "1.11.2"
+assert json.loads((root / "feature-loop/.claude-plugin/plugin.json").read_text())["version"] == "1.11.2"
+assert "machine: 'haiku'" in (root / "feature-loop/workflows/acceptance-verify.js").read_text()
+assert "judge: 'sonnet'" in (root / "feature-loop/workflows/acceptance-verify.js").read_text()
+assert "executor: null" in (root / "feature-loop/workflows/execute-parallel.js").read_text()
 assert (root / "plugins/design-loop-codex/.codex-plugin/plugin.json").is_file()
 PY
 
@@ -267,6 +315,14 @@ main = (skills / "acceptance/SKILL.md").read_text()
 assert "acceptance-init" in main
 assert "acceptance-card" in main
 assert "apply_patch adapter" in main
+for needle in [
+    "acceptance-ui-verifier",
+    "acceptance-judge",
+    "acceptance-reviewer",
+    "acceptance-refuter",
+    "## Codex routing",
+]:
+    assert needle in main, needle
 card = (skills / "acceptance-card/SKILL.md").read_text()
 assert "card-plain.json" in card and "evidence-page.html" in card
 status = (skills / "acceptance-status/SKILL.md").read_text()
@@ -306,6 +362,7 @@ for needle in [
     "hook trust",
     "0.139.0",
     "Claude Design is unavailable in Codex",
+    "feature-loop-model-init",
 ]:
     assert needle in text, needle
 PY

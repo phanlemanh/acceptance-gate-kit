@@ -105,6 +105,12 @@ PreToolUse hook. Installing the Codex plugins registers native skills and
 hooks, including helper skills for acceptance init/status/card and portable
 design operations; CI remains the runtime-independent enforcement layer.
 
+For Codex role-level budget routing, invoke `feature-loop-model-init` inside the
+consumer repository after `acceptance-init`. It installs project-scoped agents
+under `.codex/agents/`; a fresh task loads the policy. Claude
+`feature_loop.models` remains unchanged and continues to control only the
+Claude Workflow edition.
+
 Pilot mode (iterate on the kit while using it) — symlink ALL THREE pieces
 into the consumer repo; the skill alone is not enough (commands and the hook
 live outside `skills/`):
