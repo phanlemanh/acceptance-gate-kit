@@ -2,39 +2,48 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PKG="$ROOT/plugins/acceptance-gate"
 
-# Single source of truth for the version: root .claude-plugin/plugin.json.
-# Align .codex-plugin BEFORE copying so the packaged manifests inherit it —
-# four manifests, one version, no hand-bumping.
-VER="$(node -p "require('$ROOT/.claude-plugin/plugin.json').version")"
-node -e "
-const fs = require('fs');
-const p = process.argv[1], v = process.argv[2];
-const j = JSON.parse(fs.readFileSync(p, 'utf8'));
-j.version = v;
-fs.writeFileSync(p, JSON.stringify(j, null, 2) + '\n');
-" "$ROOT/.codex-plugin/plugin.json" "$VER"
+sync_overlay() {
+  local src="$1" dst="$2"
+  if [ -d "$src" ]; then
+    rsync -a --exclude '.DS_Store' "$src/" "$dst/"
+  fi
+}
 
-rm -rf "$PKG"
-mkdir -p "$PKG"
+build_acceptance() {
+  local out="$ROOT/plugins/acceptance-gate"
+  rm -rf "$out"
+  mkdir -p "$out"
+  rsync -a --exclude '.DS_Store' "$ROOT/skills/" "$out/skills/"
+  rsync -a --exclude '.DS_Store' --exclude 'sync-plugin-packages.sh' "$ROOT/scripts/" "$out/scripts/"
+  rsync -a --exclude '.DS_Store' "$ROOT/lib/" "$out/lib/"
+  rsync -a --exclude '.DS_Store' "$ROOT/vendor/" "$out/vendor/"
+  rsync -a --exclude '.DS_Store' "$ROOT/hooks/" "$out/hooks/"
+  for file in README.md QUICKSTART.md GUIDE.md; do
+    rsync -a "$ROOT/$file" "$out/$file"
+  done
+  sync_overlay "$ROOT/codex/acceptance-gate" "$out"
+}
 
-mkdir -p "$PKG/.claude-plugin" "$PKG/.codex-plugin"
-rsync -a --exclude '.DS_Store' "$ROOT/.claude-plugin/plugin.json" "$PKG/.claude-plugin/plugin.json"
-rsync -a --exclude '.DS_Store' "$ROOT/.codex-plugin/plugin.json" "$PKG/.codex-plugin/plugin.json"
-rsync -a --exclude '.DS_Store' "$ROOT/skills/" "$PKG/skills/"
-rsync -a --exclude '.DS_Store' "$ROOT/commands/" "$PKG/commands/"
-rsync -a --exclude '.DS_Store' "$ROOT/hooks/" "$PKG/hooks/"
+build_feature_loop() {
+  local out="$ROOT/plugins/feature-loop-codex"
+  rm -rf "$out"
+  mkdir -p "$out"
+  sync_overlay "$ROOT/codex/feature-loop-codex" "$out"
+}
 
-mkdir -p "$PKG/scripts" "$PKG/lib" "$PKG/vendor"
-rsync -a --exclude '.DS_Store' --exclude 'sync-plugin-packages.sh' "$ROOT/scripts/" "$PKG/scripts/"
-rsync -a --exclude '.DS_Store' "$ROOT/lib/" "$PKG/lib/"
-# vendor/ is REQUIRED at runtime: lib/design-detect.mjs lazy-imports
-# ../vendor/impeccable/engine — a package without it ships a design gate
-# that dies with ERR_MODULE_NOT_FOUND on first use.
-rsync -a --exclude '.DS_Store' "$ROOT/vendor/" "$PKG/vendor/"
-rsync -a --exclude '.DS_Store' "$ROOT/README.md" "$PKG/README.md"
-rsync -a --exclude '.DS_Store' "$ROOT/QUICKSTART.md" "$PKG/QUICKSTART.md"
-rsync -a --exclude '.DS_Store' "$ROOT/GUIDE.md" "$PKG/GUIDE.md"
+build_design_loop() {
+  local out="$ROOT/plugins/design-loop-codex"
+  rm -rf "$out"
+  mkdir -p "$out"
+  rsync -a --exclude '.DS_Store' "$ROOT/design-loop/scripts/" "$out/scripts/"
+  rsync -a --exclude '.DS_Store' "$ROOT/design-loop/skills/" "$out/skills/"
+  rsync -a --exclude '.DS_Store' "$ROOT/design-loop/README.md" "$out/README.md"
+  sync_overlay "$ROOT/codex/design-loop" "$out"
+}
 
-echo "Synced $PKG (version $VER)"
+build_acceptance
+build_feature_loop
+build_design_loop
+
+echo "Synced Codex packages: acceptance-gate@1.11.3 feature-loop-codex@1.11.3 design-loop@0.2.1"

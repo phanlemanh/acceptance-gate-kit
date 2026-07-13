@@ -1,0 +1,36 @@
+{
+  "name": "design-loop",
+  "version": "0.2.1",
+  "description": "Codex-native design-aware sub-track with portable references, provenance, deterministic design checks, fidelity evidence, and human Gate-2 review.",
+  "author": {
+    "name": "Manh Phan",
+    "email": "phanlemanh@gmail.com"
+  },
+  "keywords": [
+    "design",
+    "codex",
+    "design-system",
+    "fidelity",
+    "feature-loop",
+    "acceptance"
+  ],
+  "license": "Proprietary",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Design Loop",
+    "shortDescription": "Portable design evidence for Codex",
+    "longDescription": "Use portable design references, state matrices, provenance, token and contrast checks, advisory fidelity diffs, and Gate-2 visual evidence without relying on Claude Design or Workflow scripts.",
+    "developerName": "Manh Phan",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Wire Design Loop for this repository.",
+      "Run the design sub-track for this web UI feature."
+    ],
+    "brandColor": "#7C3AED"
+  }
+}

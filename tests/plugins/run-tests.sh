@@ -21,34 +21,29 @@ run() {
 run "P01 feature-loop-codex package exists" \
   test -f "$ROOT/plugins/feature-loop-codex/.codex-plugin/plugin.json"
 
-run "P02 Codex marketplace lists Codex-native feature-loop plus design-loop" \
+run "P02 Codex marketplace lists only generated Codex packages" \
   python3 - "$ROOT/.agents/plugins/marketplace.json" <<'PY'
 import json, sys
 data = json.load(open(sys.argv[1]))
 plugins = {p["name"]: p for p in data["plugins"]}
 assert plugins["acceptance-gate"]["source"]["path"] == "./plugins/acceptance-gate"
 assert plugins["feature-loop-codex"]["source"]["path"] == "./plugins/feature-loop-codex"
-assert plugins["design-loop"]["source"]["path"] == "./design-loop"
+assert plugins["design-loop"]["source"]["path"] == "./plugins/design-loop-codex"
 assert "feature-loop" not in plugins
 PY
 
-run "P03 packaged acceptance-gate is Codex-ready and version-aligned" \
+run "P03 packaged acceptance-gate uses independent Codex version" \
   python3 - "$ROOT" <<'PY'
 import json, sys
 from pathlib import Path
 root = Path(sys.argv[1])
 root_claude = json.loads((root / ".claude-plugin/plugin.json").read_text())
-root_codex = json.loads((root / ".codex-plugin/plugin.json").read_text())
-pkg_claude = json.loads((root / "plugins/acceptance-gate/.claude-plugin/plugin.json").read_text())
+overlay_codex = json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())
 pkg_codex = json.loads((root / "plugins/acceptance-gate/.codex-plugin/plugin.json").read_text())
-# Root .claude-plugin is the single source of truth — no literal pin here, or
-# every release turns this suite red and teaches people to "fix the test".
-expected = root_claude["version"]
-assert root_codex["version"] == expected, f'root codex {root_codex["version"]} != {expected} (run scripts/sync-plugin-packages.sh)'
-assert pkg_claude["version"] == expected, f'pkg claude {pkg_claude["version"]} != {expected} (run scripts/sync-plugin-packages.sh)'
-assert pkg_codex["version"] == expected, f'pkg codex {pkg_codex["version"]} != {expected} (run scripts/sync-plugin-packages.sh)'
+assert root_claude["version"] == "1.11.2"
+assert overlay_codex["version"] == "1.11.3"
+assert pkg_codex == overlay_codex, "run scripts/sync-plugin-packages.sh"
 for rel in [
-    "plugins/acceptance-gate/commands/acceptance-card.md",
     "plugins/acceptance-gate/scripts/gate-card.js",
     "plugins/acceptance-gate/scripts/evidence-page.js",
     "plugins/acceptance-gate/scripts/recheck-evidence.js",
@@ -73,17 +68,27 @@ import json, sys
 data = json.load(open(sys.argv[1]))
 assert data["name"] == "feature-loop-codex"
 assert data["skills"] == "./skills/"
-assert data["version"] == "1.10.0"
+assert data["version"] == "1.11.3"
 assert data["description"]
 PY
 
-run "P05 feature-loop-codex skill is Codex-native and Claude-1.10.0 aligned" \
+run "P05 feature-loop-codex source and generated skill match" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+src = root / "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md"
+pkg = root / "plugins/feature-loop-codex/skills/feature-loop-codex/SKILL.md"
+assert src.read_bytes() == pkg.read_bytes(), "run scripts/sync-plugin-packages.sh"
+PY
+
+run "P05b feature-loop-codex skill is Codex-native" \
   python3 - "$ROOT/plugins/feature-loop-codex/skills/feature-loop-codex/SKILL.md" <<'PY'
 from pathlib import Path
 import sys
 text = Path(sys.argv[1]).read_text()
 assert "name: feature-loop-codex" in text
-assert "version: 1.10.0" in text
+assert "version: 1.11.3" in text
 assert "Codex" in text
 assert "acceptance-gate" in text
 assert "spawn_agent" in text
@@ -104,24 +109,22 @@ assert "Workflow(" not in text
 assert ".claude/plugins/cache" not in text
 PY
 
-run "P06 design-loop has a Codex manifest and portable-reference contract" \
-  python3 - "$ROOT/design-loop" <<'PY'
+run "P06 generated design-loop has independent Codex manifest" \
+  python3 - "$ROOT" <<'PY'
 import json, sys
 from pathlib import Path
 root = Path(sys.argv[1])
-manifest = json.loads((root / ".codex-plugin/plugin.json").read_text())
-claude_manifest = json.loads((root / ".claude-plugin/plugin.json").read_text())
-skill = (root / "skills/design-subtrack/SKILL.md").read_text()
-readme = (root / "README.md").read_text()
+overlay = root / "codex/design-loop"
+package = root / "plugins/design-loop-codex"
+manifest = json.loads((package / ".codex-plugin/plugin.json").read_text())
+overlay_manifest = json.loads((overlay / ".codex-plugin/plugin.json").read_text())
+skill = (package / "skills/design-subtrack/SKILL.md").read_text()
+readme = (package / "README.md").read_text()
 assert manifest["name"] == "design-loop"
 assert manifest["skills"] == "./skills/"
-assert manifest["commands"] == "./commands/"
-# No literal version pin here — design-loop's .codex-plugin has no sync script
-# (unlike acceptance-gate's, see P03), so hand-bumps must keep it aligned with
-# .claude-plugin/plugin.json; a literal pin would turn this suite red on every
-# design-loop release.
-assert manifest["version"] == claude_manifest["version"], \
-    f'codex {manifest["version"]} != claude {claude_manifest["version"]}'
+assert "commands" not in manifest
+assert manifest["version"] == "0.2.1"
+assert manifest == overlay_manifest
 for needle in ["Codex", "feature-loop-codex", "portable reference", "provenance.json"]:
     assert needle in skill or needle in readme, needle
 PY
@@ -144,8 +147,9 @@ plugin_roots = [
     root,                                   # acceptance-gate (source ./)
     root / "feature-loop",
     root / "design-loop",
-    root / "plugins/acceptance-gate",       # packaged copy must be self-contained
-    root / "plugins/feature-loop-codex",
+    root / "codex/acceptance-gate",
+    root / "codex/feature-loop-codex",
+    root / "codex/design-loop",
 ]
 pat = re.compile(r"\$\{CLAUDE_PLUGIN_ROOT\}/([A-Za-z0-9._/-]+)")
 bad = []
@@ -185,8 +189,30 @@ import sys, pathlib
 root = pathlib.Path(sys.argv[1])
 assert "decisions.jsonl" in (root / "scripts/gate-card.js").read_text()
 assert "decisions.jsonl" in (root / "plugins/acceptance-gate/scripts/gate-card.js").read_text(), "chạy scripts/sync-plugin-packages.sh"
-assert "decisions_plain" in (root / "plugins/acceptance-gate/commands/acceptance-card.md").read_text()
+assert "decisions_plain" in (root / "commands/acceptance-card.md").read_text()
 assert "decisions.jsonl" in (root / "feature-loop/skills/feature-loop/SKILL.md").read_text()
+PY
+
+run "P22 Codex overlay manifests and generated outputs exist" \
+  python3 - "$ROOT" <<'PY'
+import json, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+assert json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())["version"] == "1.11.3"
+assert json.loads((root / "codex/feature-loop-codex/.codex-plugin/plugin.json").read_text())["version"] == "1.11.3"
+assert json.loads((root / "codex/design-loop/.codex-plugin/plugin.json").read_text())["version"] == "0.2.1"
+assert (root / "plugins/design-loop-codex/.codex-plugin/plugin.json").is_file()
+PY
+
+run "P23 generated Codex packages contain no Claude package surfaces" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+for rel in ["plugins/acceptance-gate", "plugins/feature-loop-codex", "plugins/design-loop-codex"]:
+    package = root / rel
+    assert not (package / ".claude-plugin").exists(), rel
+    assert not (package / "commands").exists(), rel
 PY
 
 if [ "$failures" -gt 0 ]; then

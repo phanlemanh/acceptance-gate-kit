@@ -32,7 +32,7 @@
       "name": "design-loop",
       "source": {
         "source": "local",
-        "path": "./design-loop"
+        "path": "./plugins/design-loop-codex"
       },
       "policy": {
         "installation": "AVAILABLE",
