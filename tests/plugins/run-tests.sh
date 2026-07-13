@@ -215,6 +215,16 @@ for rel in ["plugins/acceptance-gate", "plugins/feature-loop-codex", "plugins/de
     assert not (package / "commands").exists(), rel
 PY
 
+run "P24 acceptance-init ships runner-backed strict defaults" \
+  python3 - "$ROOT/plugins/acceptance-gate/skills/acceptance-init/SKILL.md" <<'PY'
+import sys
+from pathlib import Path
+text = Path(sys.argv[1]).read_text()
+for needle in ["codex-plugin-runner.mjs", "recheck: strict", "require_human_commit: true"]:
+    assert needle in text, needle
+assert "CLAUDE_PLUGIN_ROOT" not in text
+PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
