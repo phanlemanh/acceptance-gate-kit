@@ -152,10 +152,10 @@ The balanced default is:
 | Agent | Work | Model | Reasoning |
 |---|---|---|---|
 | `feature-loop-explorer` | read-heavy discovery and bounded codebase scans | `gpt-5.6-terra` | `medium` |
-| `feature-loop-executor` | independent implementation tasks | `gpt-5.6` | `high` |
-| `acceptance-ui-verifier` | browser/UI verification and observed evidence | `gpt-5.6` | `medium` |
-| `acceptance-judge` | blind scoped judgment lens | `gpt-5.6` | `medium` |
-| `acceptance-reviewer` | conventions, silent-failure, and high-recall review | `gpt-5.6` | `high` |
+| `feature-loop-executor` | independent implementation tasks | `gpt-5.6-sol` | `high` |
+| `acceptance-ui-verifier` | browser/UI verification and observed evidence | `gpt-5.6-sol` | `medium` |
+| `acceptance-judge` | blind scoped judgment lens | `gpt-5.6-sol` | `medium` |
+| `acceptance-reviewer` | conventions, silent-failure, and high-recall review | `gpt-5.6-sol` | `high` |
 | `acceptance-refuter` | test one concrete finding against file evidence | `gpt-5.6-terra` | `medium` |
 
 No custom agent exists for machine test/script execution, run-log writing,
@@ -166,6 +166,11 @@ T3 does not automatically raise every worker to `xhigh`. The root session may
 use `xhigh` for architecture or irreducibly ambiguous decisions; bounded
 subtasks retain the table above unless the human intentionally changes the
 project policy.
+
+These ids are taken from the live Codex 0.144.1 model catalog on the target
+machine. The catalog exposes `gpt-5.6-sol` and `gpt-5.6-terra`; it does not
+expose a bare `gpt-5.6` id. Packaging tests assert these configured ids, while
+runtime activation rechecks the live catalog because availability can drift.
 
 ### 5.4 Dispatch and fallback
 
