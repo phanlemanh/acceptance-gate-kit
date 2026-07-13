@@ -21,6 +21,9 @@ const ACTIONS = Object.freeze({
     'provenance': 'scripts/provenance.mjs',
     'design-detect-surface': 'scripts/design-detect-surface.mjs',
   }),
+  'feature-loop-codex': Object.freeze({
+    'install-model-policy': 'scripts/install-model-policy.mjs',
+  }),
 });
 
 function blocked(message) {
