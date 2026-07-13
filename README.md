@@ -57,7 +57,16 @@ codex plugin add design-loop@acceptance-gate-kit          # optional for web UI
 codex plugin add superpowers@openai-curated               # optional brainstorm/plan helpers
 ```
 
-Open a new agent session after installing so skills/commands are discovered.
+Codex requires CLI **0.139.0 or newer** for the native plugin, hook, goal, and
+multi-agent surfaces used by these editions. Open a **fresh task** after
+installing or upgrading so the task discovers the new skills and hooks. Review
+the plugin in `/hooks` and grant **hook trust** before relying on its write-time
+gate; CI remains authoritative if a local hook is untrusted or disabled.
+
+`design-loop` on Codex uses portable mockup/evidence skills and repository
+executors. **Claude Design is unavailable in Codex**; the Codex edition never
+pretends to invoke that Claude-only surface and never treats an unverified VLM
+assertion as design evidence.
 
 Stay current — two devs on different kit versions in one repo run two different
 gate rule-sets:
@@ -91,9 +100,10 @@ scripts/sync-plugin-packages.sh
 > Both preserve the same gate discipline: brainstorm → contract+evals
 > (Gate 1) → plan → execute → verify → evidence + signoff (Gate 2).
 
-Installing the Claude plugin registers the skill, commands, and PreToolUse hook.
-Installing the Codex plugins registers Codex skills/commands; CI remains the
-runtime-independent enforcement layer.
+Installing the Claude plugin registers the skill, slash commands, and
+PreToolUse hook. Installing the Codex plugins registers native skills and
+hooks, including helper skills for acceptance init/status/card and portable
+design operations; CI remains the runtime-independent enforcement layer.
 
 Pilot mode (iterate on the kit while using it) — symlink ALL THREE pieces
 into the consumer repo; the skill alone is not enough (commands and the hook
@@ -124,9 +134,9 @@ codex plugin add design-loop@acceptance-gate-kit
 
 ## Per-repo setup (once)
 
-```
-/acceptance-init      # interactive: writes _acceptance/config.yaml
-```
+In Claude Code, run `/acceptance-init`. In Codex, invoke the
+`acceptance-init` skill (or ask "run acceptance init"). Both write the same
+`_acceptance/config.yaml` artifact.
 
 Copy `scripts/pre-merge-check.sh`, `scripts/recheck-evidence.js`, and
 `lib/evidence-core.js` into the repo (keep the `scripts/` + `lib/` layout so the
@@ -174,9 +184,11 @@ templates produce advisory NOTEs, not failures).
 | `.claude-plugin/marketplace.json` | Claude Code marketplace entry |
 | `.agents/plugins/marketplace.json` | Codex marketplace entry |
 | `.codex-plugin/plugin.json` | Codex manifest for the acceptance-gate plugin |
+| `codex/` | Codex-only source overlays; never loaded by Claude Code |
 | `plugins/acceptance-gate/` | Packaged acceptance-gate plugin for the Codex marketplace (regenerate with `scripts/sync-plugin-packages.sh`) |
 | `plugins/feature-loop-codex/` | Codex-native feature-loop edition |
-| `design-loop/` | Design sub-track for Claude feature-loop and Codex feature-loop-codex |
+| `plugins/design-loop-codex/` | Portable Codex design-loop package |
+| `design-loop/` | Shared design engine plus the Claude Code design-loop source |
 | `skills/acceptance/` | The 3-phase skill + templates |
 | `hooks/` | PreToolUse evidence gate (write time) |
 | `lib/evidence-core.js` | Shared L1/L2/L3 evidence validation (hook + CI re-check) |
@@ -186,7 +198,7 @@ templates produce advisory NOTEs, not failures).
 | `scripts/gate-card.js` | Render the Gate 1 / Gate 2 human decision card |
 | `scripts/config-patch.mjs` | THE splice path for programmatic config.yaml writes (dry-run, .bak, abort-on-existing) |
 | `scripts/evidence-page.js` | Render the full Gate-2 evidence page (screenshots/output/slideshow) |
-| `tests/` | Fixture tests: `for t in hooks scripts plugins design-loop workflows; do bash tests/$t/run-tests.sh; done` |
+| `tests/` | Fixture tests: `for t in hooks scripts plugins design-loop workflows codex; do bash tests/$t/run-tests.sh; done` |
 
 ## Pilot metrics
 

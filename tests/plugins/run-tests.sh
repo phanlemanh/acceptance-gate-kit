@@ -291,6 +291,25 @@ assert "invoke `/design-sync`" not in text
 assert "invoke `/design-login`" not in text
 PY
 
+run "P28 README and GUIDE document the verified Codex install path" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+text = (root / "README.md").read_text() + "\n" + (root / "GUIDE.md").read_text()
+for needle in [
+    "codex plugin marketplace add",
+    "acceptance-gate@acceptance-gate-kit",
+    "feature-loop-codex@acceptance-gate-kit",
+    "design-loop@acceptance-gate-kit",
+    "fresh task",
+    "hook trust",
+    "0.139.0",
+    "Claude Design is unavailable in Codex",
+]:
+    assert needle in text, needle
+PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
