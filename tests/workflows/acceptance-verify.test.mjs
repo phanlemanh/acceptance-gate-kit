@@ -290,4 +290,81 @@ console.log('W17 observed evidence: UI_SCHEMA + prompts (Đợt 3 — AI đổi 
   check('W17 synthesize instructs the observed field + schema v2', /observed/.test(synth.prompt) && /schema v2/.test(synth.prompt));
 }
 
+console.log('W18 P1 carried evals: no spawn, run-log line with original run_id, report payload (Đợt 5)');
+{
+  const e3 = { id: 'E3', criterion: 'AC-3', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.cli', expected: 'ok' };
+  const carried = { id: 'E3', runId: 'run-orig-3', fromRound: 2, verifiedAt: '2026-07-01T00:00:00Z', cmd: './x.sh' };
+  const { result, calls } = await runWorkflow(WF, baseArgs({
+    evals: [...baseArgs().evals, e3],
+    carriedEvals: [carried, { id: 'E9-khong-ton-tai', runId: 'x', fromRound: 1 }],
+  }), responder());
+  check('W18 no machine agent for carried cmd', !calls.some(c => c.label.startsWith('machine:./x.sh')));
+  check('W18 fresh cmds still run (eval-cmd + suite)', byLabel(calls, 'machine:').length === 2, String(byLabel(calls, 'machine:').length));
+  check('W18 unknown carried id sanitized out', JSON.stringify(result.carried.evals) === JSON.stringify(['E3']));
+  const line = result.runLog.map(l => JSON.parse(l)).find(l => l.evalId === 'E3');
+  check('W18 run-log line: original run_id + exit 0 + carried_from_round', !!line && line.run_id === 'run-orig-3' && line.exit_code === 0 && line.carried_from_round === 2 && line.round === 1);
+  const synth = byLabel(calls, 'synthesize:report')[0];
+  check('W18 synthesize gets carry-forward payload + original verified_at', synth.prompt.includes('EVAL CARRY-FORWARD') && synth.prompt.includes('run-orig-3') && synth.prompt.includes('2026-07-01T00:00:00Z'));
+  check('W18 carried block: no screenshot/observed instruction', /KHONG ghi screenshot/.test(synth.prompt));
+  check('W18 verdict PASS (carried không phá routing)', result.verdict === 'PASS');
+}
+
+console.log('W19 P2 baseline-once: skip agent, Analyst carried, run-log kind:baseline');
+{
+  const carriedAnalyst = { fromRound: 1, nonDiscriminating: [{ cmd: 'pnpm test', evals: ['E1', 'E2'] }] };
+  const { result, calls } = await runWorkflow(WF, baseArgs({
+    runBaseline: false, carriedAnalyst, evalsHash: 'abc123',
+  }), responder());
+  check('W19 no baseline agent spawned', byLabel(calls, 'baseline:').length === 0);
+  check('W19 nonDiscriminating carried through', JSON.stringify(result.nonDiscriminating) === JSON.stringify(carriedAnalyst.nonDiscriminating));
+  const bl = result.runLog.map(l => JSON.parse(l)).find(l => l.kind === 'baseline');
+  check('W19 run-log baseline line: hash + carried_from_round', !!bl && bl.evals_hash === 'abc123' && bl.carried_from_round === 1);
+  const synth = byLabel(calls, 'synthesize:report')[0];
+  check('W19 synthesize: Analyst carried note (KHONG DO LAI)', /KHONG DO LAI/.test(synth.prompt) && synth.prompt.includes('carried tu round 1'));
+  check('W19 result.carried.baseline true', result.carried.baseline === true);
+  check('W19 verdict PASS unchanged', result.verdict === 'PASS');
+  // default path: runBaseline absent -> agent runs, baseline line has hash, NO carried marker
+  const { result: r2, calls: c2 } = await runWorkflow(WF, baseArgs({ evalsHash: 'abc123' }), responder());
+  check('W19 default still spawns baseline', byLabel(c2, 'baseline:').length === 1);
+  const bl2 = r2.runLog.map(l => JSON.parse(l)).find(l => l.kind === 'baseline');
+  check('W19 fresh baseline line: hash, no carried marker', !!bl2 && bl2.evals_hash === 'abc123' && !('carried_from_round' in bl2));
+}
+
+console.log('W20 P3 carried panels: no judges for memoized item, routing + run-log intact');
+{
+  const e9 = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'q9', inputs: [], inputsHash: 'h9' };
+  const e10 = { id: 'E10', criterion: 'AC-10', executor: 'judgment', question: 'q10', inputs: [] };
+  const carriedPanel = { evalId: 'E10', proposal: 'UNCERTAIN', votes: [{ lens: 'domain-correctness', verdict: 'UNCERTAIN', rationale: 'bo di' }], fromRound: 3, inputsHash: 'h10' };
+  const { result, calls } = await runWorkflow(WF, baseArgs({
+    evals: [...baseArgs().evals, e9, e10],
+    carriedPanels: [carriedPanel, { evalId: 'E1', proposal: 'PASS' }, { evalId: 'E10', proposal: 'XYZ' }],
+  }), responder());
+  check('W20 judges only for fresh item', byLabel(calls, 'judge:E9').length === 3 && byLabel(calls, 'judge:E10').length === 0);
+  check('W20 carried refs to non-judgment/garbage proposal sanitized', JSON.stringify(result.carried.panels) === JSON.stringify(['E10']));
+  const p10 = result.panels.find(p => p.evalId === 'E10');
+  check('W20 carried panel surfaced with fromRound', !!p10 && p10.carried === true && p10.fromRound === 3 && p10.proposal === 'UNCERTAIN');
+  check('W20 UNCERTAIN carried -> PENDING-JUDGMENT (routing giữ nguyên)', result.verdict === 'PENDING-JUDGMENT');
+  const lines = result.runLog.map(l => JSON.parse(l)).filter(l => l.kind === 'panel');
+  const fresh = lines.find(l => l.evalId === 'E9');
+  const carr = lines.find(l => l.evalId === 'E10');
+  check('W20 fresh panel line: inputs_hash, no carried marker', !!fresh && fresh.inputs_hash === 'h9' && !('carried_from_round' in fresh));
+  check('W20 carried panel line: hash + carried_from_round, votes lens/verdict only', !!carr && carr.inputs_hash === 'h10' && carr.carried_from_round === 3 && !JSON.stringify(carr.votes).includes('rationale'));
+  const synth = byLabel(calls, 'synthesize:report')[0];
+  check('W20 synthesize: carried-panel instruction present', /panel giu nguyen tu round/.test(synth.prompt));
+}
+
+console.log('W21 guard + dryRun: all-carried round without fresh signal is BLOCKED, never empty PASS');
+{
+  const e3 = { id: 'E3', criterion: 'AC-3', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.cli', expected: 'ok' };
+  const carried = { id: 'E3', runId: 'run-orig-3', fromRound: 2 };
+  const { result } = await runWorkflow(WF, baseArgs({
+    evals: [e3], suiteCommands: [], carriedEvals: [carried],
+  }), responder());
+  check('W21 all-carried + empty suite -> BLOCKED with FRESH reason', result.verdict === 'BLOCKED' && /FRESH/.test(result.blocked[0].reason));
+  const { result: r2, calls: c2 } = await runWorkflow(WF, baseArgs({
+    dryRun: true, evals: [e3], carriedEvals: [carried], runBaseline: false,
+  }), responder());
+  check('W21 dryRun surfaces carried plan + runBaseline', JSON.stringify(r2.carriedEvals) === JSON.stringify(['E3']) && r2.runBaseline === false && c2.length === 0);
+}
+
 summary('acceptance-verify');

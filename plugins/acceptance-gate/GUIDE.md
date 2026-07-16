@@ -13,6 +13,7 @@
 4.5. [Sổ quyết định & 2 công tắc design (1.11.0)](#sổ-quyết-định--2-công-tắc-design-1110)
 4.6. [Chạy không-người-trông đoạn máy với /goal (1.11.1)](#chạy-không-người-trông-đoạn-máy-với-goal-1111--claude-code--21139)
 4.7. [Model theo giai đoạn (feature_loop.models) (1.11.2)](#model-theo-giai-đoạn-feature_loopmodels-1112)
+4.8. [Round tiết kiệm — carry-forward P1/P2/P3 (1.12.0)](#round-tiết-kiệm--carry-forward-p1p2p3-1120)
 5. [Cài đặt](#5-cài-đặt)
 6. [Vận hành hằng ngày](#6-vận-hành-hằng-ngày)
 7. [Tra cứu enforcement — hook và CI chặn gì](#7-tra-cứu-enforcement--hook-và-ci-chặn-gì)
@@ -275,6 +276,24 @@ bị harness **từ chối** khi spawn agent. Luôn dùng alias trần.
 **Giới hạn phạm vi:** pin `executor` chỉ cắn nhánh S3 **song song** (khi plan có ≥2 task
 `independent`). S3 **tuần tự** (đường mặc định) code ngay trong main loop = **model phiên** —
 config không với tới; muốn đổi phải đổi ca model tại Gate 1 (xem mục /goal ở trên).
+
+## Round tiết kiệm — carry-forward P1/P2/P3 (1.12.0)
+
+Kiểm chứng trên 147 round S4 thật (07/2026): **50% số round là "xanh-nối-xanh"** — staleness
+guard fire vì merge trực giao của feature anh em, toàn bộ dàn máy chạy lại và không phát hiện
+gì mới, median 22 phút/round. Đợt 5 thu hẹp **phạm vi tính lại** mà không hạ chuẩn niềm tin:
+mọi carry-forward ghi rõ nguồn round trong report + run-log; hook/CI giữ nguyên luật.
+
+| Cơ chế | Khi nào | Làm gì |
+|---|---|---|
+| **P1 — delta staleness** | Round staleness (report trước PASS-family + có `verified_commit`) | Eval máy/ui khai `paths: [glob]` trong evals.yaml mà delta không chạm + round trước xanh → **không chạy lại**; block report ghi `carried_from_round: <N>` + run_id gốc. Suite LUÔN chạy lại. Thiếu `paths` → eval luôn chạy (an toàn). Round fix sau REJECT → full re-run. |
+| **P2 — baseline một lần** | Mọi round | `sha256(evals.yaml)` trùng dòng `kind:"baseline"` cuối trong run-log → **không đo lại A/B baseline** (tín hiệu "eval có phân biệt" là thuộc tính của eval+code, không đổi theo re-pin); Analyst carry từ round gốc. |
+| **P3 — memo judge panel** | Mọi round ≥2 | `sha256(question + inputs)` trùng dòng `kind:"panel"` cuối → **không chấm lại 3 judge**; panel giữ nguyên đề xuất + ghi "carried từ round N". Item UNCERTAIN chờ chữ ký người cũng carried — câu trả lời ở Gate 2, không ở máy. |
+
+Sổ memo duy nhất là `run-log.jsonl` (dòng `kind:"panel"` / `kind:"baseline"` — không có
+`run_id` nên hook/recheck bỏ qua an toàn; dòng eval carried mang run_id GỐC đã có trong log
+→ đối chiếu pass tự nhiên). **Lưới chống rỗng:** round mà mọi thứ đều carried + suite rỗng →
+BLOCKED, không bao giờ PASS chay. Card Gate 2 phải trình rõ round này carry gì.
 
 ## 5. Cài đặt
 

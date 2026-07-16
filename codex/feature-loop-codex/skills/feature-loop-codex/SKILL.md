@@ -101,6 +101,11 @@ STALE. Set the contract back to `implemented` and re-enter S4. If the report has
 no `verified_commit`, warn and recommend re-verification rather than presenting
 the report as current.
 
+A staleness round entered this way is a DELTA round (P1) when the prior report
+verdict was PASS-family: keep the changed-file list (excluding `_acceptance/**`)
+and the old `verified_commit` as the carry-forward anchor for S4. Fix rounds
+after REJECT have no anchor and always rerun everything.
+
 ## Decision Ledger
 
 Use `_acceptance/<slug>/decisions.jsonl` as an append-only rationale ledger. It
@@ -187,7 +192,10 @@ artifacts exist:
    `time_human_minutes.gate1` / `time_human_minutes.gate2` placeholders.
 5. Write `_acceptance/<slug>/evals.yaml`. Map every AC to at least one eval.
    Prefer `test`, `script`, or `ui-check` before `judgment`. Use `config:`
-   command references, not hardcoded project commands.
+   command references, not hardcoded project commands. Machine/ui evals SHOULD
+   declare `paths: [<repo-relative globs>]` — the files the eval actually
+   checks — enabling P1 carry-forward on delta staleness rounds; an eval
+   without `paths` always reruns (safe default).
 6. Add boundary and should-NOT-fire coverage where criteria have thresholds,
    permissions, limits, or out-of-scope behavior. Run the advisory coverage lint
    when available:
@@ -289,9 +297,23 @@ or the human confirms a descope entry.
    the covered evals specify `runs`. Missing results are `BLOCKED`, never PASS.
    For N runs, report `runs`, `pass_rate`, and route mixed pass/fail as
    `PENDING-JUDGMENT` under the `## Variance` section.
+   On a DELTA round (P1): a machine/ui eval whose `paths` globs intersect no
+   changed file AND whose previous-round run-log line has `exit_code: 0`
+   carries forward — do not rerun it. Append a run-log line for THIS round with
+   the ORIGINAL `run_id` plus `carried_from_round: <N>`, and render its report
+   block with the original `run_id`/`verified_at`, `exit_code: 0`, a
+   `carried_from_round: <N>` line, and no `screenshot:`/`observed:` fields.
+   Suite commands always rerun. If nothing fresh remains (no commands, no fresh
+   judgment), the round is `BLOCKED` — never an empty PASS.
 9. Run A/B baseline checks for commands attached to feature evals on `diffBase`
    in an isolated worktree. Record `baseline: red|green|n-a`. Green on both HEAD
    and baseline is non-discriminating; list it under `## Analyst`.
+   P2 (baseline-once): compute `sha256` of `evals.yaml`; if it equals
+   `evals_hash` on the last `"kind":"baseline"` run-log line, skip the baseline
+   entirely, carry the Analyst list from that line (open `## Analyst` with
+   "carried from round <N> — baseline not re-measured this round", per-block
+   `baseline: n-a`), and log a baseline line with `carried_from_round`.
+   Otherwise run it and log a fresh baseline line with the hash.
 10. For `ui-check`, use `acceptance_ui_verifier` when selectable, or the current
     grader under the recorded fallback mode. Run configured steps, manage any
     dev server safely, assert machine-checkable outcomes, and save a frame per state transition such as
@@ -306,6 +328,15 @@ or the human confirms a descope entry.
     must not read the doer's reasoning. A 2-of-3 PASS proposes PASS, 2-of-3 FAIL
     proposes FAIL, anything else proposes UNCERTAIN. T3 keeps every judgment
     item pending for human override.
+    P3 (panel memo, any round ≥ 2): before dispatching, compute
+    `inputs_hash = sha256(question + input file contents in declared order)`.
+    If it equals `inputs_hash` on the eval's last `"kind":"panel"` run-log
+    line, carry the panel forward — do not re-judge; an UNCERTAIN item awaiting
+    a human override with unchanged inputs stays carried (the answer lives at
+    Gate 2, not in the machine). Log a panel line with `carried_from_round` and
+    render the report panel as "carried from round <N> — inputs unchanged"
+    with lens+verdict votes only. Otherwise judge fresh and log a panel line
+    with the new hash.
 12. Review the diff with repo guidance. Run two `acceptance_reviewer` passes:
     conventions/invariants and bug/silent-failure. Dispatch one
     `acceptance_refuter` per proposed finding before treating it as confirmed.
@@ -366,7 +397,9 @@ Invoke the `acceptance-card` skill first. It also generates the full evidence
 page at `_acceptance/<slug>/evidence-page.html`.
 
 Present one package: verdict, per-eval table, judgment proposals, variance,
-baseline analyst notes, `review-findings.md`, any incomplete review warning,
+baseline analyst notes, what this round carried forward (P1 evals, P3 panels,
+P2 baseline — carry-forward must be visible, never folded into "machine
+handled it"), `review-findings.md`, any incomplete review warning,
 and `git diff --stat <diffBase>...HEAD`. Translate every judgment or variance
 item into a non-technical product/business question with proposal, rationale,
 tradeoffs, and reversibility. Do not ask the human to judge schemas, commands,

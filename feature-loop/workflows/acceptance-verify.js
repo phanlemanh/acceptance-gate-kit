@@ -31,6 +31,18 @@ export const meta = {
 //   templatePath: '<abs>/evidence-report-template.md',
 //   reviewSkillPath: '<abs>/SKILL.md',  // OPTIONAL — skill review invariant riêng của repo; thiếu → review theo conventions (CLAUDE.md)
 //   dryRun: false,                     // true → trả fan-out plan, KHÔNG spawn agent
+//
+//   ── Đợt 5 (P1/P2/P3 — carry-forward): TẤT CẢ optional, thiếu → hành vi 1.11 y nguyên ──
+//   carriedEvals: [{ id, runId, fromRound, verifiedAt, cmd }],
+//                                      // P1: eval máy/ui KHÔNG chạy lại (delta staleness không chạm paths của eval).
+//                                      // id PHẢI có trong evals (định nghĩa 1 nguồn); runId = run_id GỐC đã nằm trong
+//                                      // run-log từ round fromRound → hook L2/recheck đối chiếu pass tự nhiên.
+//   carriedPanels: [{ evalId, proposal, votes: [{lens, verdict}], fromRound, inputsHash }],
+//                                      // P3: panel giữ nguyên từ round trước (inputs_hash khớp) — KHÔNG spawn judge.
+//   runBaseline: true,                 // P2: false → không spawn baseline agent (evals.yaml không đổi từ lần baseline cuối)
+//   carriedAnalyst: { fromRound, nonDiscriminating: [{cmd, evals}] },  // P2: Analyst carry khi runBaseline=false
+//   evalsHash: '<sha256 evals.yaml>',  // P2: ghi vào dòng run-log kind:"baseline" cho round sau so hash
+//   (judgment eval thêm optional inputsHash: '<sha256 question+inputs>' — ghi vào dòng run-log kind:"panel")
 // }
 
 // args co the den dang JSON string tuy harness (xac nhan bang dry-run e2e 2026-06-11) — parse truoc khi validate
@@ -189,10 +201,25 @@ const sanitizeModels = m => {
 const ROUTES = { ...MODEL_ROUTES, ...sanitizeModels(args && args.models) }
 const modelOpt = role => (ROUTES[role] ? { model: ROUTES[role] } : {})
 
+// ---- Đợt 5 carry-forward (P1/P2/P3) — sanitize thuần; args thiếu → hành vi cũ y nguyên ----
+// P1: chỉ nhận carried cho eval máy/ui CÓ TRONG args.evals (định nghĩa eval giữ 1 nguồn duy nhất).
+const evalById = new Map(args.evals.map(e => [e.id, e]))
+const carriedEvals = (Array.isArray(args.carriedEvals) ? args.carriedEvals : []).filter(c =>
+  c && typeof c.id === 'string' && typeof c.runId === 'string' && c.runId
+  && evalById.has(c.id) && evalById.get(c.id).executor !== 'judgment')
+const carriedEvalIds = new Set(carriedEvals.map(c => c.id))
+const runBaseline = args.runBaseline !== false // P2 — default true (tương thích ngược)
+
 // ---- phân loại + dedupe (thuần JS, deterministic) ----
-const machineEvals = args.evals.filter(e => e.executor === 'test' || e.executor === 'script')
+const machineEvals = args.evals.filter(e => (e.executor === 'test' || e.executor === 'script') && !carriedEvalIds.has(e.id))
 const judgmentEvals = args.evals.filter(e => e.executor === 'judgment')
-const uiEvals = args.evals.filter(e => e.executor === 'ui-check')
+const uiEvals = args.evals.filter(e => e.executor === 'ui-check' && !carriedEvalIds.has(e.id))
+// P3: panel carried chỉ hợp lệ khi trỏ đúng judgment eval hiện có + proposal hợp lệ
+const carriedPanels = (Array.isArray(args.carriedPanels) ? args.carriedPanels : []).filter(p =>
+  p && typeof p.evalId === 'string' && judgmentEvals.some(e => e.id === p.evalId)
+  && (p.proposal === 'PASS' || p.proposal === 'FAIL' || p.proposal === 'UNCERTAIN'))
+const carriedPanelIds = new Set(carriedPanels.map(p => p.evalId))
+const freshJudgmentEvals = judgmentEvals.filter(e => !carriedPanelIds.has(e.id))
 
 // Mỗi lệnh distinct chạy đúng 1 lần, cover mọi eval trỏ tới nó (vd 1 lệnh itest cover E1-E11)
 const byCmd = new Map()
@@ -215,7 +242,9 @@ const cmdRuns = new Map(distinctCmds.map(cmd => {
 
 // A/B baseline: chỉ chạy lại trên diffBase các lệnh CÓ eval (eval của feature) — để biết lệnh nào
 // xanh-cả-hai-phía (không phân biệt). Suite-only cmd bỏ qua (đắt + green-on-both là regression-guard bình thường).
-const baselineCmds = distinctCmds.filter(c => (byCmd.get(c) || []).length > 0)
+// P2: runBaseline=false (evals.yaml không đổi từ lần baseline cuối) → không đo lại — tín hiệu
+// "phân biệt/không" là thuộc tính của (eval, code); Analyst carry từ carriedAnalyst.
+const baselineCmds = runBaseline ? distinctCmds.filter(c => (byCmd.get(c) || []).length > 0) : []
 
 const LENSES = ['domain-correctness', 'operational-feasibility', 'spec-alignment']
 
@@ -224,18 +253,28 @@ if (args.dryRun) {
     dryRun: true,
     distinctCommands: distinctCmds,
     evalsPerCommand: Object.fromEntries([...byCmd.entries()]),
-    judgePanels: judgmentEvals.map(e => ({ eval: e.id, judges: LENSES.length })),
+    judgePanels: freshJudgmentEvals.map(e => ({ eval: e.id, judges: LENSES.length })),
     uiCheckEvals: uiEvals.map(e => e.id),
     runsPerCommand: Object.fromEntries([...cmdRuns.entries()]),
+    carriedEvals: carriedEvals.map(c => c.id),
+    carriedPanels: carriedPanels.map(p => p.evalId),
+    runBaseline,
   }
 }
 
-// khong co gi de verify → khong duoc PASS rong
-if (!distinctCmds.length && !judgmentEvals.length && !uiEvals.length) {
-  return { verdict: 'BLOCKED', blocked: [{ cmd: '(none)', reason: 'evals.yaml khong co eval may va khong co judgment — khong co gi de verify, kiem tra lai evals.yaml' }], failedEvals: [], failedCommands: [], panels: [], confirmedFindings: [], reviewIncomplete: [] }
+// khong co gi de verify → khong duoc PASS rong. Carried KHÔNG tính là fresh: round toàn
+// carry-forward mà suite rỗng = không có gì xác nhận CÂY CODE MỚI → BLOCKED, không PASS chay.
+if (!distinctCmds.length && !freshJudgmentEvals.length && !uiEvals.length) {
+  const reason = (carriedEvals.length || carriedPanels.length)
+    ? 'toan bo eval/panel deu carry-forward va suite rong — khong co gi FRESH verify cay code moi cua round nay; them feature_loop.suite_keys hoac thu hep paths cua eval'
+    : 'evals.yaml khong co eval may va khong co judgment — khong co gi de verify, kiem tra lai evals.yaml'
+  return { verdict: 'BLOCKED', blocked: [{ cmd: '(none)', reason }], failedEvals: [], failedCommands: [], panels: [], confirmedFindings: [], reviewIncomplete: [] }
 }
 
-log(`Round ${args.round}: ${distinctCmds.length} lenh may (dedupe tu ${machineEvals.length} eval + ${args.suiteCommands.length} suite), ${uiEvals.length} ui-check, ${judgmentEvals.length} judgment x ${LENSES.length} judges`)
+log(`Round ${args.round}: ${distinctCmds.length} lenh may (dedupe tu ${machineEvals.length} eval + ${args.suiteCommands.length} suite), ${uiEvals.length} ui-check, ${freshJudgmentEvals.length} judgment x ${LENSES.length} judges`
+  + (carriedEvals.length ? ` — carried ${carriedEvals.length} eval (P1)` : '')
+  + (carriedPanels.length ? ` — carried ${carriedPanels.length} panel (P3)` : '')
+  + (runBaseline ? '' : ' — baseline carried (P2)'))
 
 // Review finders: repo có skill review riêng → dùng; không → review theo conventions chung
 const REVIEWERS = [
@@ -271,7 +310,7 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw, baselineRaw] = await parallel([
     ).then(r => r && { ...r, cmd: `ui-check:${e.id}`, evals: [e.id] })
   )),
 
-  () => parallel(judgmentEvals.flatMap(e =>
+  () => parallel(freshJudgmentEvals.flatMap(e =>
     LENSES.map(lens => () =>
       agent(
         `Ban la judge DOC LAP, context sach, lens duy nhat: ${lens}. BLIND: KHONG doc diff, KHONG doc reasoning cua nguoi code.\nDoc persona tai ${args.personasPath}, ap persona hop lens.\nDoc cac input (abs path, da resolve san): ${(e.inputs || []).join(' , ')}\n\nCau hoi phan xet (${e.id} / ${e.criterion}): ${e.question}\n\nTra verdict PASS | FAIL | UNCERTAIN + rationale 1-3 cau. UNCERTAIN khi khong du can cu — dung doan.`,
@@ -361,6 +400,16 @@ for (const m of machine) {
     }))
   }
 }
+// P1: eval carried — ghi dòng cho ROUND NÀY với run_id GỐC (id đã nằm trong log từ round gốc →
+// hook/recheck đối chiếu pass tự nhiên); carried_from_round là dấu vết kiểm toán, consumer cũ bỏ qua field lạ.
+for (const c of carriedEvals) {
+  evalRunIds[c.id] = c.runId
+  runLogLines.push(JSON.stringify({
+    ts: invokedAt, round: args.round, evalId: c.id, run_id: c.runId,
+    exit_code: 0, cmd: evalById.get(c.id).cmd || c.cmd || '',
+    carried_from_round: typeof c.fromRound === 'number' ? c.fromRound : null,
+  }))
+}
 
 // ---- A/B baseline: map kết quả đối chứng theo cmd; status = green | red | n-a ----
 const baselineByCmd = new Map(((baselineRaw && baselineRaw.results) || []).map(b => [b.cmd, b]))
@@ -370,9 +419,14 @@ const baselineStatus = (cmd) => {
   return b.baselineExit === 0 ? 'green' : 'red'
 }
 // Eval không-phân-biệt: lệnh-CÓ-eval pass trên CẢ HEAD lẫn baseline (green-on-both) → chứng minh harness, không phải feature
-const nonDiscriminating = machine
-  .filter(m => (byCmd.get(m.cmd) || []).length > 0 && !m.cannotRun && !m.variance && m.exitCode === 0 && baselineStatus(m.cmd) === 'green')
-  .map(m => ({ cmd: m.cmd, evals: byCmd.get(m.cmd) }))
+// P2: round không đo baseline → Analyst carry nguyên từ round có baseline gần nhất (carriedAnalyst).
+const carriedAnalyst = (!runBaseline && args.carriedAnalyst && Array.isArray(args.carriedAnalyst.nonDiscriminating))
+  ? args.carriedAnalyst : null
+const nonDiscriminating = runBaseline
+  ? machine
+      .filter(m => (byCmd.get(m.cmd) || []).length > 0 && !m.cannotRun && !m.variance && m.exitCode === 0 && baselineStatus(m.cmd) === 'green')
+      .map(m => ({ cmd: m.cmd, evals: byCmd.get(m.cmd) }))
+  : (carriedAnalyst ? carriedAnalyst.nonDiscriminating : [])
 const judges = (judgeRaw || []).filter(Boolean)
 const reviewResults = (reviewRaw || []).filter(Boolean)
 const confirmedFindings = reviewResults.flatMap(r => r.findings)
@@ -382,12 +436,46 @@ for (const k of REVIEWERS.map(r => r.key)) {
 }
 
 // ---- panel verdict per judgment eval: majority 2/3, else UNCERTAIN. CHỈ LÀ ĐỀ XUẤT cho Gate 2 ----
-const panels = judgmentEvals.map(e => {
+const freshPanels = freshJudgmentEvals.map(e => {
   const votes = judges.filter(j => j.evalId === e.id)
   const count = v => votes.filter(x => x.verdict === v).length
   const proposal = count('PASS') >= 2 ? 'PASS' : count('FAIL') >= 2 ? 'FAIL' : 'UNCERTAIN'
   return { evalId: e.id, proposal, votes }
 })
+// P3: panel carried ghép vào cùng danh sách — verdict routing phía dưới GIỮ NGUYÊN luật
+// (T3 / proposal khác PASS → PENDING-JUDGMENT), chỉ khác nguồn: không chấm lại khi inputs không đổi.
+const panels = [
+  ...freshPanels,
+  ...carriedPanels.map(p => ({
+    evalId: p.evalId, proposal: p.proposal,
+    votes: (Array.isArray(p.votes) ? p.votes : []).map(v => ({ lens: v.lens, verdict: v.verdict })),
+    carried: true, fromRound: typeof p.fromRound === 'number' ? p.fromRound : null,
+  })),
+]
+
+// P3/P2: dòng memo run-log cho round SAU so hash — CHỈ ghi khi SKILL truyền hash (flow cũ không
+// hash → không ghi, log gọn). Dòng không có run_id → evidence-core/loadRunLogIds bỏ qua, vô hại.
+for (const pn of freshPanels) {
+  const ih = (evalById.get(pn.evalId) || {}).inputsHash
+  if (typeof ih === 'string' && ih) runLogLines.push(JSON.stringify({
+    ts: invokedAt, round: args.round, evalId: pn.evalId, kind: 'panel', proposal: pn.proposal,
+    votes: pn.votes.map(v => ({ lens: v.lens, verdict: v.verdict })), inputs_hash: ih,
+  }))
+}
+for (const p of carriedPanels) {
+  if (typeof p.inputsHash === 'string' && p.inputsHash) runLogLines.push(JSON.stringify({
+    ts: invokedAt, round: args.round, evalId: p.evalId, kind: 'panel', proposal: p.proposal,
+    votes: (Array.isArray(p.votes) ? p.votes : []).map(v => ({ lens: v.lens, verdict: v.verdict })),
+    inputs_hash: p.inputsHash, carried_from_round: typeof p.fromRound === 'number' ? p.fromRound : null,
+  }))
+}
+if (typeof args.evalsHash === 'string' && args.evalsHash) {
+  runLogLines.push(JSON.stringify({
+    ts: invokedAt, round: args.round, kind: 'baseline', evals_hash: args.evalsHash,
+    non_discriminating: nonDiscriminating,
+    ...(runBaseline ? {} : { carried_from_round: carriedAnalyst && typeof carriedAnalyst.fromRound === 'number' ? carriedAnalyst.fromRound : null }),
+  }))
+}
 
 // ---- verdict routing (kit rules) ----
 const blocked = machine.filter(m => m.cannotRun)
@@ -445,12 +533,23 @@ if (runLogWriteFailed) log('CANH BAO: append run-log.jsonl THAT BAI — main loo
 const verifiedCommit = /^[0-9a-f]{7,40}$/i.test(String((prov && prov.verified_commit) || '').trim())
   ? String(prov.verified_commit).trim().toLowerCase()
   : ''
+// P1: payload block carried cho report — run_id + verified_at NGUYÊN GỐC round trước (không giả
+// timestamp mới), kèm carried_from_round để Gate 2 thấy rõ eval nào round này KHÔNG chạy lại.
+const carriedForReport = carriedEvals.map(c => {
+  const d = evalById.get(c.id)
+  return {
+    id: c.id, criterion: d.criterion, executor: d.executor, ref: d.ref, expected: d.expected,
+    run_id: c.runId, verified_at: c.verifiedAt || invokedAt,
+    carried_from_round: typeof c.fromRound === 'number' ? c.fromRound : null,
+  }
+})
 const report = await agent(
   `Viet evidence report cho feature "${args.slug}" round ${args.round} vao ${args.repoRoot}/_acceptance/${args.slug}/evidence-report.md (ghi de neu co — round moi thay round cu, ghi lich su round vao section Iterations).\nDoc template tai ${args.templatePath} va tuan thu TUYET DOI shape — hook acceptance-evidence-gate.js se chan neu sai (L1 SHAPE: PASS can run_id ≥4 ky tu + exit_code 0 + verifier + verified_at ISO8601; L1 CONSISTENCY: report PASS khong duoc chua token exit khac 0 hay chuoi "verdict: FAIL"; L2: verifier la config: ref hoac script path; L3: moi UNCERTAIN can human_override).\n\nVerdict DA TINH SAN (khong tu thay doi): ${verdict}\nPROVENANCE — ghi NGUYEN VAN cac dong frontmatter nay (DA do bang buoc capture, TUYET DOI KHONG tu doi/suy dien/bo): "enforcement_mode: ${prov.enforcement_mode}" va "bypass_used: ${prov.bypass_used}"${verifiedCommit ? ` va "verified_commit: ${verifiedCommit}"` : ''}. CI pre-merge dung cac field nay de chan gate yeu va phat hien code doi SAU verify (stale evidence).${verifiedCommit ? ' Hook L1 chan verified_commit khong phai hex SHA — chep dung nguyen van, khong rut gon.' : ' Repo khong phai git: BO HAN field verified_commit (khong bia, khong ghi rong).'}\nfailed_evals: ${JSON.stringify(failedEvalIds)}\nblocked (neu BLOCKED, ghi reason vao frontmatter): ${JSON.stringify(blocked)}\nLenh fail khong gan eval (ghi ro trong report neu co): ${JSON.stringify(failedCommands)}\nReview incomplete (finder chet — ghi canh bao trong review-findings.md): ${JSON.stringify(reviewIncomplete)}\n\nKet qua may (moi block cmd cover cac eval cua no; block cua eval ui-check ghi them field "screenshot:" = screenshotPath tu ket qua VA field "observed:" = observed tu ket qua (template schema v2 — hook CHAN report PASS co screenshot: ma thieu observed: thuc chat >=20 ky tu; neu ket qua ui THIEU observed → TU MO tung frame evidence da luu bang Read va viet observed truoc khi ghi report, KHONG bia)): ${JSON.stringify(machineForReportB)}
-run_id cua TUNG eval: chep NGUYEN VAN tu map nay — JS da tinh san va DA GHI vao ${args.repoRoot}/_acceptance/${args.slug}/run-log.jsonl truoc khi ban viet report; hook + CI recheck doi chieu TUNG run_id trong report voi log do (id la/khong khop = BLOCK). TUYET DOI KHONG tu mint/doi/rut gon run_id: ${JSON.stringify(evalRunIds)}
+run_id cua TUNG eval: chep NGUYEN VAN tu map nay — JS da tinh san va DA GHI vao ${args.repoRoot}/_acceptance/${args.slug}/run-log.jsonl truoc khi ban viet report; hook + CI recheck doi chieu TUNG run_id trong report voi log do (id la/khong khop = BLOCK). TUYET DOI KHONG tu mint/doi/rut gon run_id: ${JSON.stringify(evalRunIds)}${carriedForReport.length ? `
+EVAL CARRY-FORWARD (P1 — delta staleness khong cham paths cua cac eval nay, round nay KHONG chay lai): moi item van la MOT block eval PASS trong bang + Evidence, ghi run_id va verified_at NGUYEN VAN tu payload (id da nam trong run-log tu round goc), exit_code: 0, verifier = field ref, THEM dong "carried_from_round: <N>" va ghi chu 1 dong "carry-forward tu round <N> — delta khong cham paths cua eval". TUYET DOI KHONG ghi screenshot:/observed: cho block carried (frame goc xem round <N> trong Iterations): ${JSON.stringify(carriedForReport)}` : ''}
 A/B BASELINE: moi block eval may ghi them field "baseline: <green|red|n-a>" lay tu field "baseline" trong ket qua may o tren (green=pass tren code cu diffBase, red=fail tren code cu nghia la eval CO phan biet, n-a=khong chay duoc tren baseline). Field baseline DUNG TU green/red/n-a, TUYET DOI KHONG ghi exit-code so o day hay trong section Analyst — hook L1 CONSISTENCY se chan oan report PASS neu thay token exit khac 0.
-Them section "## Analyst" ngay sau bang ket qua: liet ke eval KHONG-PHAN-BIET (pass tren CA HEAD lan baseline, chung minh harness chu khong phai feature; nen viet lai de assert hanh vi moi hoac xac nhan la regression-guard co chu y): ${JSON.stringify(nonDiscriminating)}. Rong thi ghi "none — moi eval feature deu red tren baseline (co phan biet)". Lenh suite xanh-ca-hai-phia la regression-guard binh thuong, KHONG liet ke.
-VARIANCE-N: eval co field "runs" > 1 = eval NGAU NHIEN (da chay nhieu lan, gop lai). Voi eval do ghi them "runs: <N>" va "pass_rate: <passes>/<runs>" (dang phan so vd "4/5" — DUNG so exit). Eval khong co runs hoac runs=1 (deterministic) KHONG ghi pass_rate. Eval co field "variance": true (pass_rate khac 0 va khac full) → tin hieu PHUONG SAI: feature ngau nhien chua on dinh; verdict tong DA la PENDING-JUDGMENT; ghi eval do vao section moi "## Variance" kem pass_rate de NGUOI quyet nguong o Gate 2 (giong judgment item). Eval deterministic ma variance=true = test flaky/racy → cung vao "## Variance", ghi ro "flaky".\nDinh nghia eval (ghi "verifier:" = field "ref" — config: ref GOC, hook L2 chi chap nhan config: ref hoac script path, KHONG ghi lenh resolved): ${JSON.stringify(args.evals.map(e => ({ id: e.id, criterion: e.criterion, executor: e.executor, ref: e.ref, expected: e.expected, evidence_required: e.evidence_required })))}\nJudge panels (DE XUAT — ghi de xuat panel + rationale tung judge, de human_override TRONG cho moi item; T3 thi MOI judgment item deu cho human). QUAN TRONG format: trong section judge, ghi vote dang "- <lens>: FAIL — <rationale>" / "- <lens>: PASS — ...", TUYET DOI KHONG dung chuoi "verdict: FAIL" (hook L1 CONSISTENCY scan token nay trong report PASS) — moi dissent phai hien thi day du, khong duoc om/viet lai: ${JSON.stringify(panels)}\n\nSau do viet file thu hai ${args.repoRoot}/_acceptance/${args.slug}/review-findings.md (informational, ngoai hook) liet ke findings da adversarial-verify: ${JSON.stringify(confirmedFindings)} — moi finding: title, file:line, severity, detail, source. Finding co unverified=true liet ke RIENG thanh section "Chua adversarial-verify (refuter chet)".\nTra ve reportPath va findingsPath tuyet doi.`,
+Them section "## Analyst" ngay sau bang ket qua: liet ke eval KHONG-PHAN-BIET (pass tren CA HEAD lan baseline, chung minh harness chu khong phai feature; nen viet lai de assert hanh vi moi hoac xac nhan la regression-guard co chu y): ${JSON.stringify(nonDiscriminating)}. ${runBaseline ? 'Rong thi ghi "none — moi eval feature deu red tren baseline (co phan biet)".' : `BASELINE ROUND NAY KHONG DO LAI (P2 — evals.yaml khong doi tu lan baseline cuoi${carriedAnalyst && typeof carriedAnalyst.fromRound === 'number' ? `, round ${carriedAnalyst.fromRound}` : ''}): mo dau section Analyst bang dong "carried tu round ${carriedAnalyst && typeof carriedAnalyst.fromRound === 'number' ? carriedAnalyst.fromRound : 'truoc'} — baseline khong do lai round nay"; field "baseline:" cua tung block eval ghi "n-a" (round nay khong do).`} Lenh suite xanh-ca-hai-phia la regression-guard binh thuong, KHONG liet ke.
+VARIANCE-N: eval co field "runs" > 1 = eval NGAU NHIEN (da chay nhieu lan, gop lai). Voi eval do ghi them "runs: <N>" va "pass_rate: <passes>/<runs>" (dang phan so vd "4/5" — DUNG so exit). Eval khong co runs hoac runs=1 (deterministic) KHONG ghi pass_rate. Eval co field "variance": true (pass_rate khac 0 va khac full) → tin hieu PHUONG SAI: feature ngau nhien chua on dinh; verdict tong DA la PENDING-JUDGMENT; ghi eval do vao section moi "## Variance" kem pass_rate de NGUOI quyet nguong o Gate 2 (giong judgment item). Eval deterministic ma variance=true = test flaky/racy → cung vao "## Variance", ghi ro "flaky".\nDinh nghia eval (ghi "verifier:" = field "ref" — config: ref GOC, hook L2 chi chap nhan config: ref hoac script path, KHONG ghi lenh resolved): ${JSON.stringify(args.evals.map(e => ({ id: e.id, criterion: e.criterion, executor: e.executor, ref: e.ref, expected: e.expected, evidence_required: e.evidence_required })))}\nJudge panels (DE XUAT — ghi de xuat panel + rationale tung judge, de human_override TRONG cho moi item; T3 thi MOI judgment item deu cho human). QUAN TRONG format: trong section judge, ghi vote dang "- <lens>: FAIL — <rationale>" / "- <lens>: PASS — ...", TUYET DOI KHONG dung chuoi "verdict: FAIL" (hook L1 CONSISTENCY scan token nay trong report PASS) — moi dissent phai hien thi day du, khong duoc om/viet lai. Panel co "carried": true (P3) = inputs khong doi tu round "fromRound" (hash khop) nen KHONG cham lai: ghi ro "panel giu nguyen tu round <fromRound> — inputs khong doi, khong cham lai; rationale xem round do", votes carried chi co lens+verdict (ghi "- <lens>: <verdict> (r<fromRound>)"): ${JSON.stringify(panels)}\n\nSau do viet file thu hai ${args.repoRoot}/_acceptance/${args.slug}/review-findings.md (informational, ngoai hook) liet ke findings da adversarial-verify: ${JSON.stringify(confirmedFindings)} — moi finding: title, file:line, severity, detail, source. Finding co unverified=true liet ke RIENG thanh section "Chua adversarial-verify (refuter chet)".\nTra ve reportPath va findingsPath tuyet doi.`,
   { label: 'synthesize:report', phase: 'Synthesize', schema: REPORT_SCHEMA, ...modelOpt('synthesize') }
 )
 
@@ -459,7 +558,9 @@ return {
   failedEvals: failedEvalIds,
   failedCommands,
   blocked,
-  panels: panels.map(p => ({ evalId: p.evalId, proposal: p.proposal })),
+  panels: panels.map(p => ({ evalId: p.evalId, proposal: p.proposal, ...(p.carried ? { carried: true, fromRound: p.fromRound } : {}) })),
+  // Đợt 5: main loop in cho user round này carry gì (minh bạch ở Gate 2)
+  carried: { evals: carriedEvals.map(c => c.id), panels: carriedPanels.map(p => p.evalId), baseline: !runBaseline },
   confirmedFindings,
   reviewIncomplete,
   nonDiscriminating,
