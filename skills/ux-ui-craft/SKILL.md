@@ -15,7 +15,7 @@ description: >
   interface. Do NOT use it for backend or REST/API design, database schemas,
   data charts or spreadsheets, logo or brand-mark design, slide decks, or
   debugging a component's logic.
-version: '1.2.1'
+version: '1.3.0'
 ---
 
 # UX/UI Craft
@@ -107,6 +107,10 @@ tokens; it never invents new values. This is where consistency comes from
 - **Type**: ≤ 2 typefaces (characterful display used with restraint +
   workhorse body; optional mono for data), one scale, explicit weights.
 - **Spacing**: a 4/8px grid only. Arbitrary values are drift.
+- **Layout**: declare the grid with the tokens — ≤3-4 named container
+  widths, ONE gutter system, explicit columns, one indent step (see
+  `references/layout-craft.md`). Screens spend these lines; a mid-screen
+  one-off wrapper is the same drift as a mid-screen hex.
 - **Radius and elevation**: one small scale each.
 
 Hard budgets: ≤ 2 fonts, 1 accent color, ≤ 5 text sizes per screen.
@@ -191,6 +195,7 @@ feature or it does not belong in the build.
 | Motion | 150–300 ms, ease-out, purposeful; `prefers-reduced-motion` respected |
 | Copy | buttons are verb + object ("Save listing", not "OK"); an action keeps the same name across the whole flow (Publish → Published) |
 | Type budget | ≤5-6 computed text sizes and ≤2 small-label voices per rendered screen — COUNT them on the artifact (getComputedStyle) across the WHOLE declared matrix (every state × width), and report the worst cell, not a flattering one; don't trust the token sheet or a single scene. Drift arrives via inline chips, utility styles, and states you didn't re-measure |
+| Alignment budget | left edges of visible blocks reuse ≈≤8-10 declared alignment lines per desktop screenful; container widths ≤3-4; a singleton edge matching no declared role is a misalignment — COUNT on the rendered artifact (getBoundingClientRect, cluster ±3px), worst cell (method: `references/layout-craft.md`) |
 | Build | console clean, no dead controls, no placeholder content |
 
 These are the quality floor. Build it without announcing it — nobody
@@ -390,6 +395,9 @@ These carry the *technique* the budgets assume. Load lazily, per decision:
   `references/guidance-craft.md` — helper-text trails for external
   referents, error anatomy (what · why · next move as a control),
   recovery paths, disabled-with-reason
+- Declaring the grid / choosing the page skeleton (Steps 3–4) →
+  `references/layout-craft.md` — archetype by job, desktop utilization,
+  three-level spacing rhythm, the alignment budget's counting method
 - Setting type (Step 3) → `references/typography-craft.md` — pairing
   axes, scale technique, micro-typography
 - Building the palette (Step 3) → `references/color-craft.md` — OKLCH
