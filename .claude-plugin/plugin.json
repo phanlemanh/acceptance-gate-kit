@@ -1,6 +1,6 @@
 {
   "name": "acceptance-gate",
-  "version": "1.11.2",
+  "version": "1.12.0",
   "description": "Acceptance gate for AI-generated features. Normalizes requirements into acceptance contracts, self-generates eval cases across 4 executor types, verifies with fresh-context subagents, and enforces evidence-backed verdicts via deterministic hooks. Includes a design-quality gate (a11y/contrast, AI-slop) for web-UI surfaces. Cuts human acceptance time from hours to minutes.",
   "author": {
     "name": "Manh Phan",
