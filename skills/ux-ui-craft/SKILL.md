@@ -383,7 +383,12 @@ These carry the *technique* the budgets assume. Load lazily, per decision:
 - Multi-area surface or nav design (Step 4) → `references/ia-craft.md` —
   organization schemes, labeling ledger, nav model by count, wayfinding
 - Brief names a familiar object (Step 4) → `references/component-contracts.md`
-  — the MECE control set each noun implies, and how to descope deliberately
+  — the MECE control set each noun implies (Access/ARIA included), and how
+  to descope deliberately
+- Fields the user must fill, wizards, errors (Steps 4–5) →
+  `references/guidance-craft.md` — helper-text trails for external
+  referents, error anatomy (what · why · next move as a control),
+  recovery paths, disabled-with-reason
 - Setting type (Step 3) → `references/typography-craft.md` — pairing
   axes, scale technique, micro-typography
 - Building the palette (Step 3) → `references/color-craft.md` — OKLCH
