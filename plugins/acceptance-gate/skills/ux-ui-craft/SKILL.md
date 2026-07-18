@@ -301,6 +301,52 @@ yours to enforce mechanically. Taste calls — the direction, what to cut,
 which setting to refuse — get surfaced to the human at the end of each
 loop as explicit named decisions, never buried in a diff.
 
+## Audit mode — reviewing an interface you didn't just build
+
+Trigger: the ask is to review, critique, or explain why an existing
+surface feels off — or a redesign is starting and needs a baseline. You
+produce findings, not fixes; building starts only if the user asks
+afterwards (the audit then becomes that redesign's Step 1 input).
+
+The stance: **measure first, opine second.** An audit's authority comes
+from findings the owner can reproduce, not from adjectives. Anything you
+can gate, gate; anything that is taste, label it as taste.
+
+1. **Lock the actor before judging.** Run Step 1 on the existing surface.
+   Most wrong critiques come from auditing against the wrong actor or job
+   — a daily operator's screen judged by first-visit aesthetics.
+2. **Measure the floor on the rendered artifact.** Run the Step-6 gate
+   table against real renders at 375 / 768 / 1440: getComputedStyle
+   counts for the type ladder and label voices (whole state matrix, worst
+   cell), contrast per shipped pair (`scripts/check_contrast.py`),
+   targets, overflow, a keyboard walk. Source code lies about rendered
+   outcomes; if you cannot render, say so and mark every unmeasured claim
+   as unverified instead of stating it with measured confidence.
+3. **Walk the contracts and the map.** Name the objects the surface
+   claims to be (player, table, wizard…) and mark every expected control
+   present / missing / broken (`references/component-contracts.md`). Then
+   the IA checks (`references/ia-craft.md`): wayfinding (where am I,
+   what's here, how do I get back), one name per concept across nav /
+   buttons / headings, grouping vs the actor's mental model, and
+   close-every-loop (inputs with no visible commit affordance).
+4. **File findings in three ledgers, ranked by user harm:**
+
+   | Ledger | Contents | Authority |
+   |---|---|---|
+   | Defects | gate fails: contrast, targets, overflow, missing or dead states, broken contract rows | measured — non-negotiable |
+   | Discipline drift | budget breaches (type ladder, label voices), off-grid spacing, label inconsistency, ban-list hits | counted — cite the number |
+   | Judgment calls | direction, density, hierarchy choices | opinion — name the test it fails, never "feels dated" |
+
+5. **Report what must survive.** Name what the surface does well that a
+   redesign must not lose. An audit that only lists faults invites a
+   rewrite that destroys the good parts along with the bad.
+
+Honesty gates: a surface may pass — say so rather than manufacturing
+findings to look thorough. Lead with the ~10 highest-harm items and give
+the rest as an appendix count; a sixty-item dump is how the real defects
+get ignored. Every finding ships with its evidence (ratio, count,
+element, screenshot) so the owner can reproduce it without trusting you.
+
 ## Ban list — named, because negative examples beat positive advice
 
 These read as "an AI made this". Each is legitimate *if the brief
