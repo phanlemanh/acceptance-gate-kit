@@ -15,6 +15,7 @@ description: >
   interface. Do NOT use it for backend or REST/API design, database schemas,
   data charts or spreadsheets, logo or brand-mark design, slide decks, or
   debugging a component's logic.
+version: '1.2.1'
 ---
 
 # UX/UI Craft

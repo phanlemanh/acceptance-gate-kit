@@ -1,6 +1,6 @@
 {
   "name": "acceptance-gate",
-  "version": "1.14.0",
+  "version": "1.14.1",
   "description": "Codex-native acceptance gate for AI-generated features with contracts, evals, evidence, decision cards, runtime hooks, and CI re-checks.",
   "author": {
     "name": "Manh Phan",
