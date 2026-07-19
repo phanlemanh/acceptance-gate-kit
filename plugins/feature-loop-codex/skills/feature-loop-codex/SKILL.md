@@ -1,13 +1,13 @@
 ---
 name: feature-loop-codex
 description: This skill should be used when the user asks to "run feature-loop-codex", "start a Codex feature loop", "resume a Codex feature loop", "build this feature with acceptance-gate in Codex", or wants a Codex-native version of feature-loop without Claude Code Workflow scripts.
-version: 1.11.5
+version: 1.13.0
 ---
 
 # feature-loop-codex
 
 Run a Codex-native feature development loop on top of `acceptance-gate`.
-Preserve the Claude `feature-loop` 1.11.2 discipline while replacing workflow
+Preserve the Claude `feature-loop` 1.13.0 discipline while replacing workflow
 scripts with Codex-native main-agent work, shell commands, and optional
 `spawn_agent` / `wait_agent` calls.
 
@@ -32,7 +32,9 @@ Use Codex-native orchestration only:
 
 Before starting:
 
-1. Confirm `acceptance-gate:acceptance` is available.
+1. Confirm `acceptance-gate:acceptance` and `acceptance-gate:morphological-scan`
+   are available (the latter needs acceptance-gate ≥ 1.13; if missing, stop and
+   have the user update the plugin).
 2. Confirm `superpowers:brainstorming` and `superpowers:writing-plans` are
    available when the loop will use Superpowers planning.
 3. Confirm `_acceptance/config.yaml` exists. If missing, stop and invoke the
@@ -153,6 +155,28 @@ continues. In S4, when `design.surface_globs` exists, compare changed files with
 those globs. A matching UI file with no static or fidelity eval is a tier
 mismatch: stop for lane elevation or an explicit descope decision.
 
+## Coverage Switch (CT-S)
+
+CT-S is ON exactly when `risk_tier` is T2 or T3 — the tier is machine-derived
+in S0, so activation never depends on semantic judgment (T1 exits at S0 and
+never reaches it). The default is inverted to prevent silent skips: the
+question is not "should we scan?" (a forgotten scan is invisible) but "do we
+want to skip the scan?" (a skip costs one visible `descope` entry). Three
+layers:
+
+1. **S1 default step:** enumerate the AC space with the
+   `acceptance-gate:morphological-scan` skill during brainstorming (see S1).
+2. **Structural slot:** the contract MUST contain a `## Coverage` section —
+   axes + CE measure per axis, or a single skip line pointing at the descope
+   entry. A missing section blocks entry to Gate 1.
+3. **Card surface:** the Gate-1 card renders the coverage block and warns when
+   the section is missing or an axis is tagged `[CE chưa kiểm chứng]`. The
+   machine enforces PRESENCE and traceability only; whether coverage is truly
+   sufficient stays a human call at the gate.
+
+Old workspaces (contracts created before this switch) get a card warning only —
+never block resume, never force migration.
+
 ## S0 - Intake
 
 1. Identify expected touched files from the feature description.
@@ -177,26 +201,39 @@ mismatch: stop for lane elevation or an explicit descope decision.
 ## S1 - Design, Contract, Evals
 
 Produce one coherent Gate 1 package. Do not enter Gate 1 until all three
-artifacts exist:
+artifacts exist — and, with CT-S on, until the contract has its `## Coverage`
+section (even if it is a single skip line):
 
 1. Run `superpowers:brainstorming` when available and useful.
 2. For features touching three or more subsystems, inspect those areas before
    proposing the approach. Use `feature_loop_explorer` through `custom-agent`
    routing when selectable; otherwise use a read-only spawned worker with
    `session-inherited`, or inspect sequentially with `sequential-fallback`.
-3. Write a design doc using repo convention, commonly
+3. **(CT-S, default for T2/T3)** During or right after brainstorming, run the
+   `acceptance-gate:morphological-scan` skill over the AC space, choosing the
+   preset from that skill's routing table (entity-feature / test-matrix /
+   risk-premortem / ...). Feed the output into the artifacts below: Core cells
+   become AC candidates (merge cells into one AC when Core exceeds 15 to keep
+   the 5-15 cap); Later/Never become out-of-scope items plus a `descope` ledger
+   entry; axes + CE measures become the contract's `## Coverage` section (keep
+   any `[CE chưa kiểm chứng]` tag — the card will flag it). If the problem is
+   not an enumeration problem (single-axis, obvious ACs, scope fixed by an
+   external spec), skip the scan with an explicit auto-drafted `descope` entry
+   plus a one-line Coverage skip note. Never skip silently.
+4. Write a design doc using repo convention, commonly
    `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md`.
-4. Write `_acceptance/<slug>/contract.md` using the acceptance-gate contract
+5. Write `_acceptance/<slug>/contract.md` using the acceptance-gate contract
    shape: status `draft`, risk tier, surfaces, 5-15 Given/When/Then criteria,
-   judgment tags where needed, at least two out-of-scope items, and
+   judgment tags where needed, a `## Coverage` section carrying the CT-S output
+   (axes + CE measure, or one skip line), at least two out-of-scope items, and
    `time_human_minutes.gate1` / `time_human_minutes.gate2` placeholders.
-5. Write `_acceptance/<slug>/evals.yaml`. Map every AC to at least one eval.
+6. Write `_acceptance/<slug>/evals.yaml`. Map every AC to at least one eval.
    Prefer `test`, `script`, or `ui-check` before `judgment`. Use `config:`
    command references, not hardcoded project commands. Machine/ui evals SHOULD
    declare `paths: [<repo-relative globs>]` — the files the eval actually
    checks — enabling P1 carry-forward on delta staleness rounds; an eval
    without `paths` always reruns (safe default).
-6. Add boundary and should-NOT-fire coverage where criteria have thresholds,
+7. Add boundary and should-NOT-fire coverage where criteria have thresholds,
    permissions, limits, or out-of-scope behavior. Run the advisory coverage lint
    when available:
    `node <acceptance-gate>/scripts/eval-coverage-lint.js <repo> --slug <slug>`.

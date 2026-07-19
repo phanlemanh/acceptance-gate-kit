@@ -40,8 +40,8 @@ root = Path(sys.argv[1])
 root_claude = json.loads((root / ".claude-plugin/plugin.json").read_text())
 overlay_codex = json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())
 pkg_codex = json.loads((root / "plugins/acceptance-gate/.codex-plugin/plugin.json").read_text())
-assert root_claude["version"] == "1.12.0"
-assert overlay_codex["version"] == "1.12.0"
+assert root_claude["version"] == "1.13.0"
+assert overlay_codex["version"] == "1.13.0"
 assert pkg_codex == overlay_codex, "run scripts/sync-plugin-packages.sh"
 for rel in [
     "plugins/acceptance-gate/scripts/gate-card.js",
@@ -58,6 +58,9 @@ for rel in [
     "plugins/acceptance-gate/lib/p-tiers.json",
     "plugins/acceptance-gate/skills/acceptance/references/design-ui-check.md",
     "plugins/acceptance-gate/vendor/impeccable/engine/engines/static-html/detect-html.mjs",
+    # coverage scan CT-S (1.13.0) — a package missing these ships pre-coverage rules
+    "plugins/acceptance-gate/skills/morphological-scan/SKILL.md",
+    "plugins/acceptance-gate/skills/morphological-scan/references/product-context-template.md",
 ]:
     assert (root / rel).is_file(), rel
 PY
@@ -68,7 +71,7 @@ import json, sys
 data = json.load(open(sys.argv[1]))
 assert data["name"] == "feature-loop-codex"
 assert data["skills"] == "./skills/"
-assert data["version"] == "1.12.0"
+assert data["version"] == "1.13.0"
 assert data["description"]
 PY
 
@@ -88,7 +91,7 @@ from pathlib import Path
 import re, sys
 text = Path(sys.argv[1]).read_text()
 assert "name: feature-loop-codex" in text
-assert "version: 1.11.5" in text
+assert "version: 1.13.0" in text
 assert "Codex" in text
 assert "acceptance-gate" in text
 assert "spawn_agent" in text
@@ -259,11 +262,11 @@ run "P22 Codex overlay manifests and generated outputs exist" \
 import json, sys
 from pathlib import Path
 root = Path(sys.argv[1])
-assert json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())["version"] == "1.12.0"
-assert json.loads((root / "codex/feature-loop-codex/.codex-plugin/plugin.json").read_text())["version"] == "1.12.0"
+assert json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())["version"] == "1.13.0"
+assert json.loads((root / "codex/feature-loop-codex/.codex-plugin/plugin.json").read_text())["version"] == "1.13.0"
 assert json.loads((root / "codex/design-loop/.codex-plugin/plugin.json").read_text())["version"] == "0.2.1"
-assert json.loads((root / ".claude-plugin/plugin.json").read_text())["version"] == "1.12.0"
-assert json.loads((root / "feature-loop/.claude-plugin/plugin.json").read_text())["version"] == "1.12.0"
+assert json.loads((root / ".claude-plugin/plugin.json").read_text())["version"] == "1.13.0"
+assert json.loads((root / "feature-loop/.claude-plugin/plugin.json").read_text())["version"] == "1.13.0"
 assert "machine: 'haiku'" in (root / "feature-loop/workflows/acceptance-verify.js").read_text()
 assert "judge: 'sonnet'" in (root / "feature-loop/workflows/acceptance-verify.js").read_text()
 assert "executor: null" in (root / "feature-loop/workflows/execute-parallel.js").read_text()

@@ -295,6 +295,31 @@ Sổ memo duy nhất là `run-log.jsonl` (dòng `kind:"panel"` / `kind:"baseline
 → đối chiếu pass tự nhiên). **Lưới chống rỗng:** round mà mọi thứ đều carried + suite rỗng →
 BLOCKED, không bao giờ PASS chay. Card Gate 2 phải trình rõ round này carry gì.
 
+## Công tắc coverage CT-S — chống sót AC (1.13.0)
+
+Kit vốn **dày ở verify, mỏng ở discovery**: S4 có fan-out evals + judge panel + adversarial
+review, nhưng bộ AC đầu vào sinh từ brainstorm tự do — AC bị sót thì S4 dày mấy cũng không
+cứu (máy chỉ chấm được thứ đã viết ra). CT-S cân lại đầu vào bằng skill
+`morphological-scan` (plugin acceptance-gate ≥ 1.13): quét không gian AC theo Zwicky box
+— chọn trục (First Principles) → quét MECE từng trục, bắt buộc nêu *thước CE* = nguồn đối
+chiếu ("đủ" phải kiểm được: bug history, user journey, spec…) → cắt Pareto Core/Later/Never.
+
+Chống bỏ-qua-thầm-lặng bằng đảo mặc định + 3 lớp:
+
+| Lớp | Cơ chế |
+|---|---|
+| Kích hoạt | CT-S bật ⟺ tier T2/T3 (máy-derive ở S0, zero phán đoán ngữ nghĩa). Bỏ quét phải append entry `descope` — bỏ im lặng là vi phạm |
+| Structural slot | Contract PHẢI có section `## Coverage` (trục + thước CE, hoặc 1 dòng skip trỏ entry) — thiếu thì chưa vào được Gate 1 |
+| Card render | Card Cổng 1 hiện khối "Độ phủ AC" + cờ vàng khi thiếu section hoặc trục còn `[CE chưa kiểm chứng]` |
+
+Máy chỉ enforce **có mặt + truy vết được**; "đủ thật hay chưa" là việc human soi ở Gate 1 —
+cùng phân công máy/người như judgment eval. Workspace cũ (contract trước 1.13) → cờ vàng
+trên card, không chặn resume, không bắt migrate. Output scan map thẳng vào artifact:
+Core → AC (Core >15 thì hợp nhất ô, giữ cap 5-15) · Later/Never → Out of scope + entry
+`descope` · trục + thước CE → `## Coverage`. Preset sẵn trong skill: entity-feature,
+test-matrix, content-matrix, benchmark, risk-premortem, metrics-tree — giá trị trục lấy
+từ Product Context per-repo (mục `## Product Context` trong CLAUDE.md), thiếu thì hỏi user.
+
 ## 5. Cài đặt
 
 ### 5.1 Mỗi máy dev (một lần)
