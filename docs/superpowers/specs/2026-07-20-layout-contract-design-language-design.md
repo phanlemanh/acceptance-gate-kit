@@ -7,7 +7,9 @@
 **Target:** skill `ux-ui-craft` (acceptance-gate plugin) + `design-loop` static check
 
 **Compatibility:** ux-ui-craft 1.3.0 → 1.4.0 · acceptance-gate 1.16.0 → 1.17.0 ·
-design-loop 0.1.1 → 0.2.0. No feature-loop / feature-loop-codex changes; the
+design-loop 0.2.0 → 0.3.0 (manifests already read 0.2.0; the README "v0.1.1
+scaffold" status line and the sync-script echo "0.2.1" are stale and get fixed
+in rollout). No feature-loop / feature-loop-codex changes; the
 "Full wire" (meter as an automated per-surface eval) is explicitly out of scope.
 
 ## 1. Problem
@@ -163,7 +165,7 @@ second arm is the point: it forces the model to revisit the architecture
 instead of nudging padding. Not scripted in v1 (the sitemap is semantic, not
 in CSS); scripting it is a candidate for the next wave.
 
-## 6. design-loop 0.2.0 — `layout-token-only` blocking rule
+## 6. design-loop 0.3.0 — `layout-token-only` blocking rule
 
 `design-static-check.mjs` v0.3, SOURCE mode, alongside the existing hex rule:
 
@@ -188,15 +190,17 @@ in CSS); scripting it is a candidate for the next wave.
   `var()` fallback passes (0) · Tailwind arbitrary REJECTs (2).
 - `port-translation.md` is not edited — its "(enforced by
   design-static-check.mjs)" claim simply becomes true.
-- Bump the design-loop plugin manifest to 0.2.0; note the new rule in
-  `design-loop/README.md` (fidelity layer list + status).
+- Bump both design-loop manifests (`.claude-plugin` + `.codex-plugin`) to
+  0.3.0; note the new rule in `design-loop/README.md` (fidelity layer list +
+  status, replacing the stale "v0.1.1 scaffold" line); update the hardcoded
+  version echo in `scripts/sync-plugin-packages.sh`.
 
 ## 7. Documentation changes (ux-ui-craft 1.4.0)
 
 | File | Change | Size |
 |---|---|---|
 | `SKILL.md` | Step 3: Layout Contract bullet (points to layout-craft). Step 6 table: Alignment budget row gains "— verify with `scripts/measure_layout.js`"; **new row** "Structure–space coherence" (sibling-pair spacing level matches sitemap distance; mismatch budget 0; method: layout-craft). Version → 1.4.0. | ~10 lines |
-| `references/layout-craft.md` | Two new sections: **"The contract is written in CSS"** (format §3, binding rules, optical exception) and **"Running the meter"** (three ways to run, matrix worst-cell loop, coherence procedure §5, repo role split). Contains the contract CSS block — the skill's first and only code fence, a deliberate exception to its prose-only style. | ~55 lines (87 → ~140) |
+| `references/layout-craft.md` | Two new sections: **"The contract is written in CSS"** (format §3, binding rules, optical exception) and **"Running the meter"** (three ways to run, matrix worst-cell loop, coherence procedure §5, repo role split). Contains the contract CSS block as an *indented* code block — preserving the skill's zero-fence prose style (verified by a fence count in the plan). | ~55 lines (87 → ~140) |
 | `references/ia-craft.md` | Sitemap exit test: advice → required artifact, pointing to the contract. | 2 sentences |
 | `references/css-technique.md` | One line: named grid lines example beside the subgrid bullet. | 1 line |
 
@@ -228,7 +232,7 @@ New directory following the existing bash-runner convention:
 
 1. Implement docs + meter + design-loop rule; all suites green.
 2. Bump: ux-ui-craft SKILL.md 1.4.0 · acceptance-gate plugin.json 1.17.0 ·
-   design-loop manifest 0.2.0.
+   design-loop manifests 0.3.0.
 3. `scripts/sync-plugin-packages.sh` to mirror into `plugins/`.
 4. GUIDE.md: short update to the ux-ui-craft section (contract + meter, a few
    lines).
