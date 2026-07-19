@@ -51,9 +51,19 @@ Từ vựng hiển thị: **D0** = ¬CT1 · **D1** = CT1∧¬CT2 · **D2** = CT1
 
 🎨 Resume guard **(CT2)**: khi resume, nếu CT2 bật (tra bảng) và `status` ≥ `approved` mà THIẾU mockup provenance → báo user + route `/design-mockup <slug>`, KHÔNG tiến qua Gate 1.
 
+## Công tắc coverage (CT-S — chống sót AC, 1.13.0)
+
+**CT-S bật ⟺ `risk_tier ∈ {T2, T3}`** — tier đã máy-derive ở S0, zero phán đoán ngữ nghĩa (T1 thoát từ S0 nên không bao giờ đụng). Đảo mặc định để chống bỏ-qua-thầm-lặng: câu hỏi KHÔNG phải "có nên quét không?" (quên = vô hình) mà là "có muốn BỎ quét không?" (bỏ = 1 entry `descope` hiện trên card). 3 lớp:
+
+1. **S1 mặc định:** quét không gian AC bằng skill `morphological-scan` (plugin acceptance-gate) trong lúc brainstorm — xem S1#3.
+2. **Structural slot:** contract PHẢI có section `## Coverage` (trục + thước CE, hoặc 1 dòng lý do bỏ trỏ entry descope) — thiếu → CHƯA đủ điều kiện vào Gate 1 (S1#5).
+3. **Card render:** `/acceptance-card` Cổng 1 hiện khối "Độ phủ AC" + cờ vàng khi thiếu section / có `[CE chưa kiểm chứng]` — máy chỉ enforce CÓ MẶT + ghi vết; ĐÚNG/đủ thật là việc human soi tại gate.
+
+Workspace cũ (contract sinh trước 1.13.0, không có Coverage) → cờ vàng trên card, KHÔNG chặn resume, không bắt migrate.
+
 ## S0 — INTAKE
 
-0. **Preflight dependency** (chỉ lần đầu mỗi repo/máy): skill `superpowers:brainstorming` + `superpowers:writing-plans` có trong danh sách skill khả dụng? References của acceptance-gate có tồn tại (`ls -d $HOME/.claude/plugins/cache/*/acceptance-gate/*/skills/acceptance/references/`)? Thiếu cái nào → DỪNG, đưa user lệnh cài cụ thể (`claude plugin install acceptance-gate@acceptance-gate-kit` / `claude plugin install superpowers@claude-plugins-official`), KHÔNG đi tiếp với lỗi mờ.
+0. **Preflight dependency** (chỉ lần đầu mỗi repo/máy): skill `superpowers:brainstorming` + `superpowers:writing-plans` có trong danh sách skill khả dụng? References của acceptance-gate có tồn tại (`ls -d $HOME/.claude/plugins/cache/*/acceptance-gate/*/skills/acceptance/references/`)? Skill coverage-scan có trong plugin (`ls -d $HOME/.claude/plugins/cache/*/acceptance-gate/*/skills/morphological-scan/` — vắng = acceptance-gate < 1.13, cần update)? Thiếu cái nào → DỪNG, đưa user lệnh cài cụ thể (`claude plugin install acceptance-gate@acceptance-gate-kit` / `claude plugin install superpowers@claude-plugins-official`), KHÔNG đi tiếp với lỗi mờ.
 1. Xác định files dự kiến đụng (từ mô tả feature; chưa cần chính xác tuyệt đối).
 2. Đọc `_acceptance/config.yaml` (chưa có → bảo user chạy `/acceptance-init` trước):
    - Match toàn bộ vào `risk_tiers.t1_skip_globs` → **T1: thoát loop**, nhưng KHÔNG thoát im lặng: in bảng match (`<path dự kiến> → <glob>`), hỏi user XÁC NHẬN kết luận T1 rồi mới thoát, kèm cảnh báo backstop CI (`pre-merge-check.sh --base <ref>`) sẽ chặn merge nếu PR thực tế đụng path gated mà không có `_acceptance/` artifacts.
@@ -66,13 +76,14 @@ Từ vựng hiển thị: **D0** = ¬CT1 · **D1** = CT1∧¬CT2 · **D2** = CT1
 
 1. Invoke `superpowers:brainstorming` — hỏi đáp làm rõ như thường lệ.
 2. Nếu feature chạm ≥3 subsystem (DB / API / core layer / UI / integration) hoặc user yêu cầu → chạy Workflow fan-out Explore readers (ad-hoc script, pattern 'Understand') trước khi đề xuất approach. Mỗi reader truyền `model: 'haiku'` — đọc-và-tóm-tắt không cần model lớn (synthesize approach vẫn ở main loop).
-3. Kết thúc brainstorm, sinh CÙNG LÚC từ một ngữ cảnh:
+3. **(CT-S — bước mặc định khi T2/T3)** Trong/ngay sau brainstorm: invoke skill `morphological-scan` (plugin acceptance-gate; preset theo bảng routing của skill — entity-feature / test-matrix / risk-premortem…) cho KHÔNG GIAN AC. Gắn output vào các artifact bước dưới: **Core** → ứng viên AC (Core >15 → hợp nhất nhiều ô thành 1 AC, giữ cap 5-15); **Later/Never** → `Out of scope` + entry `descope` (rule đáng-log áp bình thường); **Trục + thước CE** → section `## Coverage` của contract (GIỮ nhãn `[CE chưa kiểm chứng]` nếu có — card sẽ hiện cờ). Bài toán KHÔNG dạng liệt-kê-đủ (1 chiều, AC hiển nhiên, spec ngoài đã chốt scope) → BỎ quét bằng entry `descope` AUTO-DRAFT ("bỏ coverage-scan — <lý do 1 dòng>; đổi lại không có bằng chứng độ phủ") + Coverage = 1 dòng trỏ entry đó. CẤM bỏ không dấu vết.
+4. Kết thúc brainstorm, sinh CÙNG LÚC từ một ngữ cảnh:
    - Design doc → `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md` (hoặc convention spec của repo)
-   - `_acceptance/<slug>/contract.md` — theo template plugin acceptance-gate (frontmatter schema_version/feature/slug/risk_tier/surfaces/status: draft; 5-15 AC Given/When/Then, tag `(judgment)` cho business-judgment; Out of scope ≥2 bullet)
+   - `_acceptance/<slug>/contract.md` — theo template plugin acceptance-gate (frontmatter schema_version/feature/slug/risk_tier/surfaces/status: draft; 5-15 AC Given/When/Then, tag `(judgment)` cho business-judgment; section `## Coverage` từ bước CT-S; Out of scope ≥2 bullet)
    - `_acceptance/<slug>/evals.yaml` — map mỗi AC ≥1 eval; executor ưu tiên test > script > ui-check > judgment; cmd PHẢI là `config:` ref (vd `config:executors.test.api`), KHÔNG hardcode lệnh. Mỗi eval máy/ui NÊN khai `paths: [<glob tương đối repo>]` = các file eval này THẬT SỰ kiểm — dùng cho carry-forward round delta (P1, Đợt 5); thiếu `paths` → eval LUÔN chạy lại (mặc định an toàn)
    - Cuối S1: append entry ledger cho approach/descope thỏa rule đáng-log (xem "Sổ quyết định").
-4. **KHÔNG vào Gate 1 khi chưa đủ 3 artifact.** (HARD-GATE của brainstorming và Gate 1A/1B của kit gộp thành MỘT Gate 1.)
-5. 🎨 **(CT1)** static evals + dòng surface&state + câu hỏi lane (xem bảng). **(CT2)** kiểm trực tiếp cuối S1: design-doc có state-matrix chưa, `evidence/design/reference/` + `provenance.json` có chưa — THIẾU → DỪNG, in nguyên văn: "surface web-UI ceremony — chạy `/design-mockup <slug>` trước Gate 1".
+5. **KHÔNG vào Gate 1 khi chưa đủ 3 artifact — và (CT-S) contract THIẾU section `## Coverage` (dù chỉ 1 dòng skip) cũng tính là chưa đủ.** (HARD-GATE của brainstorming và Gate 1A/1B của kit gộp thành MỘT Gate 1.)
+6. 🎨 **(CT1)** static evals + dòng surface&state + câu hỏi lane (xem bảng). **(CT2)** kiểm trực tiếp cuối S1: design-doc có state-matrix chưa, `evidence/design/reference/` + `provenance.json` có chưa — THIẾU → DỪNG, in nguyên văn: "surface web-UI ceremony — chạy `/design-mockup <slug>` trước Gate 1".
 
 ## GATE 1 (human — điểm dừng 1)
 

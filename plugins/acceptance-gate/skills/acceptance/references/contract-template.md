@@ -50,6 +50,17 @@ Tag criteria that require business judgment with (judgment).}}
 - AC-1: Given {{precondition}}, When {{action}}, Then {{observable outcome}}.
 - AC-2: Given {{precondition}}, When {{action}}, Then {{observable outcome}}. (judgment)
 
+## Coverage
+
+{{Bằng chứng độ phủ của bộ AC — trả lời "vì sao đủ", không phải khẳng định suông.
+Quét bằng skill morphological-scan (feature-loop T2/T3: bước mặc định CT-S): liệt kê
+trục + thước CE mỗi trục (giữ nhãn [CE chưa kiểm chứng] nếu chưa có nguồn đối chiếu).
+Bỏ quét: 1 dòng lý do — repo dùng feature-loop thì trỏ entry `descope` trong
+decisions.jsonl. Thiếu/trống section này = cờ vàng trên card Gate 1.}}
+
+- Trục: {{Trục A: v1 | v2 | v3 [thước CE: nguồn đối chiếu]}}
+- {{... | "Bỏ coverage-scan — <lý do 1 dòng> (entry d-...)"}}
+
 ## Out of scope
 
 {{Bullet list of things a reviewer might expect but this feature deliberately

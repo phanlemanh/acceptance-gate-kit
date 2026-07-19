@@ -339,6 +339,17 @@ hasout G13 "PLAINQ?" "$G2P"
 echo "G14 missing --slug -> exit 2"
 node "$GCARD" --root "$T/gcard" >/dev/null 2>&1; check G14 2 $?
 
+echo "GC1-GC4 Gate 1 Coverage section (CT-S 1.13)"
+GCOV="$T/gcov/_acceptance/cfeat"; mkdir -p "$GCOV"
+printf -- '---\nschema_version: 1\nfeature: Cov demo\nslug: cfeat\nrisk_tier: T2\nstatus: draft\n---\n## Criteria\n- AC-1: Given a, When b, Then c.\n## Out of scope\n- x — hoãn.\n' > "$GCOV/contract.md"
+GCV="$(node "$GCARD" --root "$T/gcov" --slug cfeat 2>/dev/null)"
+hasout GC1 "chưa có section Coverage" "$GCV"
+printf -- '\n## Coverage\n- Trục Lifecycle: tạo | sửa | xóa [thước CE: bug history 6 tháng]\n- Trục Actor: chủ SME | kế toán [CE chưa kiểm chứng]\n' >> "$GCOV/contract.md"
+GCV2="$(node "$GCARD" --root "$T/gcov" --slug cfeat 2>/dev/null)"
+hasout GC2 "Độ phủ AC" "$GCV2"
+hasout GC3 "chưa nêu được thước đo" "$GCV2"
+hasout GC4 '"coverage_missing": false' "$(node "$GCARD" --root "$T/gcov" --slug cfeat --extract 2>/dev/null)"
+
 nothas() { case "$3" in *"$2"*) echo "  FAIL: $1 (should NOT contain: $2)"; FAIL_COUNT=$((FAIL_COUNT+1));; *) echo "  PASS: $1";; esac; }
 
 echo "G15 REJECT verdict -> non-approvable card (no sign-off, no all-pass claim)"
