@@ -14,7 +14,7 @@
 4.6. [Chạy không-người-trông đoạn máy với /goal (1.11.1)](#chạy-không-người-trông-đoạn-máy-với-goal-1111--claude-code--21139)
 4.7. [Model theo giai đoạn (feature_loop.models) (1.11.2)](#model-theo-giai-đoạn-feature_loopmodels-1112)
 4.8. [Round tiết kiệm — carry-forward P1/P2/P3 (1.12.0)](#round-tiết-kiệm--carry-forward-p1p2p3-1120)
-4.9. [Skill ux-ui-craft — design engineer trong kit (1.12.0+)](#skill-ux-ui-craft--design-engineer-trong-kit-1120)
+4.9. [Skill ux-ui-craft — design engineer trong kit (1.12.0 → 1.15.0)](#skill-ux-ui-craft--design-engineer-trong-kit-1120--1150)
 5. [Cài đặt](#5-cài-đặt)
 6. [Vận hành hằng ngày](#6-vận-hành-hằng-ngày)
 7. [Tra cứu enforcement — hook và CI chặn gì](#7-tra-cứu-enforcement--hook-và-ci-chặn-gì)
@@ -296,20 +296,22 @@ Sổ memo duy nhất là `run-log.jsonl` (dòng `kind:"panel"` / `kind:"baseline
 → đối chiếu pass tự nhiên). **Lưới chống rỗng:** round mà mọi thứ đều carried + suite rỗng →
 BLOCKED, không bao giờ PASS chay. Card Gate 2 phải trình rõ round này carry gì.
 
-## Skill ux-ui-craft — design engineer trong kit (1.12.0+)
+## Skill ux-ui-craft — design engineer trong kit (1.12.0 → 1.15.0)
 
 Từ 1.12.0, plugin acceptance-gate ship kèm skill `ux-ui-craft` (`skills/ux-ui-craft/`):
 kỷ luật design-engineer cho MỌI task chạm UI. **Không cần gọi** — skill tự kích hoạt khi
 task tạo/sửa thứ người dùng nhìn thấy, kể cả ask mơ hồ ("làm đẹp hơn") và tiếng Việt.
 Đã kiểm chứng blind A/B trên bề mặt sản phẩm thật: thắng 3/4 test case; giá trị lặp lại
 được rõ nhất là **gate Type budget** — không skill, model trôi 11-15 cỡ chữ (5/5 lần đo);
-có skill → 6-7 cỡ, đếm bằng getComputedStyle trên artifact render.
+có skill → 6-7 cỡ, đếm bằng getComputedStyle trên artifact render. Từ 1.15.0 có thêm
+gate **Alignment budget** cho bố cục, cùng nguyên tắc: đếm trên bản render, báo ô tệ nhất.
 
 | Trong kit | Skill làm gì |
 |---|---|
 | S1-D mockup / design-loop | **System mode**: bám token của design system repo (không hex/webfont mới); **Prototype mode**: quyết định nằm trong control bấm được, done = ma trận state × theme × viewport được capture — khớp chuẩn design-of-record |
 | Review UI có sẵn | **Audit mode** (1.13.0): đo trước phán sau — chạy gate table trên bản render, findings chia 3 sổ (defect đo được / drift đếm được / taste dán nhãn), kèm "cái gì phải giữ lại" |
 | Form / wizard / connector | **guidance-craft** (1.14.0): helper-text chỉ đường cho giá trị ngoài hệ thống (API key lấy ở đâu, shape mẫu), error = what + why + nút bấm kế tiếp; **Access-per-contract**: mỗi noun quen (player, table, wizard…) kèm ARIA pattern chuẩn, walk present/descoped như control thường |
+| Màn nhiều vùng / "bố cục loạn" | **layout-craft** (1.15.0): khai grid cùng token (≤3-4 container width, MỘT hệ gutter, indent 1 bước) + chọn archetype theo job (focus flow · two-seat split · master–detail · dashboard grid · full-bleed · prose spine) + phép thử tận-dụng-desktop; kèm **gate Alignment budget** đếm được — mép trái các block dùng lại ≈≤8-10 đường đã khai/màn desktop, mép lẻ không khai báo = lệch hàng. Đo trên bản render (getBoundingClientRect, cụm ±3px). Hiệu chuẩn trên bề mặt thật: trang bị chê "loạn" đo 37 đường/23 mép lẻ, shell kỷ luật 6/1 |
 
 Chi phí thực đo: +10-35% token/lần chạy — đáng trên surface mới, wizard, settings,
 trang khách; với micro-edit (đổi 1 label) cứ nói "bỏ qua ux-ui-craft". Version skill nằm
