@@ -196,7 +196,7 @@ templates produce advisory NOTEs, not failures).
 | `plugins/design-loop-codex/` | Portable Codex design-loop package |
 | `design-loop/` | Shared design engine plus the Claude Code design-loop source |
 | `skills/acceptance/` | The 3-phase skill + templates |
-| `skills/ux-ui-craft/` | Design-engineer skill: 7-step UI process, hard gates (contrast/type budget/states), System+Prototype modes, 8 craft references |
+| `skills/ux-ui-craft/` | Design-engineer skill: 7-step UI process, hard gates (contrast/type budget/alignment budget/states), System+Prototype+Audit modes, 10 craft references |
 | `hooks/` | PreToolUse evidence gate (write time) |
 | `lib/evidence-core.js` | Shared L1/L2/L3 evidence validation (hook + CI re-check) |
 | `commands/` | `/acceptance-init`, `/acceptance-status`, `/acceptance-card` |
