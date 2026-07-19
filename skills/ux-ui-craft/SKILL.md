@@ -15,6 +15,7 @@ description: >
   interface. Do NOT use it for backend or REST/API design, database schemas,
   data charts or spreadsheets, logo or brand-mark design, slide decks, or
   debugging a component's logic.
+version: '1.3.0'
 ---
 
 # UX/UI Craft
@@ -106,6 +107,10 @@ tokens; it never invents new values. This is where consistency comes from
 - **Type**: ≤ 2 typefaces (characterful display used with restraint +
   workhorse body; optional mono for data), one scale, explicit weights.
 - **Spacing**: a 4/8px grid only. Arbitrary values are drift.
+- **Layout**: declare the grid with the tokens — ≤3-4 named container
+  widths, ONE gutter system, explicit columns, one indent step (see
+  `references/layout-craft.md`). Screens spend these lines; a mid-screen
+  one-off wrapper is the same drift as a mid-screen hex.
 - **Radius and elevation**: one small scale each.
 
 Hard budgets: ≤ 2 fonts, 1 accent color, ≤ 5 text sizes per screen.
@@ -190,6 +195,7 @@ feature or it does not belong in the build.
 | Motion | 150–300 ms, ease-out, purposeful; `prefers-reduced-motion` respected |
 | Copy | buttons are verb + object ("Save listing", not "OK"); an action keeps the same name across the whole flow (Publish → Published) |
 | Type budget | ≤5-6 computed text sizes and ≤2 small-label voices per rendered screen — COUNT them on the artifact (getComputedStyle) across the WHOLE declared matrix (every state × width), and report the worst cell, not a flattering one; don't trust the token sheet or a single scene. Drift arrives via inline chips, utility styles, and states you didn't re-measure |
+| Alignment budget | left edges of visible blocks reuse ≈≤8-10 declared alignment lines per desktop screenful; container widths ≤3-4; a singleton edge matching no declared role is a misalignment — COUNT on the rendered artifact (getBoundingClientRect, cluster ±3px), worst cell (method: `references/layout-craft.md`) |
 | Build | console clean, no dead controls, no placeholder content |
 
 These are the quality floor. Build it without announcing it — nobody
@@ -301,6 +307,52 @@ yours to enforce mechanically. Taste calls — the direction, what to cut,
 which setting to refuse — get surfaced to the human at the end of each
 loop as explicit named decisions, never buried in a diff.
 
+## Audit mode — reviewing an interface you didn't just build
+
+Trigger: the ask is to review, critique, or explain why an existing
+surface feels off — or a redesign is starting and needs a baseline. You
+produce findings, not fixes; building starts only if the user asks
+afterwards (the audit then becomes that redesign's Step 1 input).
+
+The stance: **measure first, opine second.** An audit's authority comes
+from findings the owner can reproduce, not from adjectives. Anything you
+can gate, gate; anything that is taste, label it as taste.
+
+1. **Lock the actor before judging.** Run Step 1 on the existing surface.
+   Most wrong critiques come from auditing against the wrong actor or job
+   — a daily operator's screen judged by first-visit aesthetics.
+2. **Measure the floor on the rendered artifact.** Run the Step-6 gate
+   table against real renders at 375 / 768 / 1440: getComputedStyle
+   counts for the type ladder and label voices (whole state matrix, worst
+   cell), contrast per shipped pair (`scripts/check_contrast.py`),
+   targets, overflow, a keyboard walk. Source code lies about rendered
+   outcomes; if you cannot render, say so and mark every unmeasured claim
+   as unverified instead of stating it with measured confidence.
+3. **Walk the contracts and the map.** Name the objects the surface
+   claims to be (player, table, wizard…) and mark every expected control
+   present / missing / broken (`references/component-contracts.md`). Then
+   the IA checks (`references/ia-craft.md`): wayfinding (where am I,
+   what's here, how do I get back), one name per concept across nav /
+   buttons / headings, grouping vs the actor's mental model, and
+   close-every-loop (inputs with no visible commit affordance).
+4. **File findings in three ledgers, ranked by user harm:**
+
+   | Ledger | Contents | Authority |
+   |---|---|---|
+   | Defects | gate fails: contrast, targets, overflow, missing or dead states, broken contract rows | measured — non-negotiable |
+   | Discipline drift | budget breaches (type ladder, label voices), off-grid spacing, label inconsistency, ban-list hits | counted — cite the number |
+   | Judgment calls | direction, density, hierarchy choices | opinion — name the test it fails, never "feels dated" |
+
+5. **Report what must survive.** Name what the surface does well that a
+   redesign must not lose. An audit that only lists faults invites a
+   rewrite that destroys the good parts along with the bad.
+
+Honesty gates: a surface may pass — say so rather than manufacturing
+findings to look thorough. Lead with the ~10 highest-harm items and give
+the rest as an appendix count; a sixty-item dump is how the real defects
+get ignored. Every finding ships with its evidence (ratio, count,
+element, screenshot) so the owner can reproduce it without trusting you.
+
 ## Ban list — named, because negative examples beat positive advice
 
 These read as "an AI made this". Each is legitimate *if the brief
@@ -337,7 +389,15 @@ These carry the *technique* the budgets assume. Load lazily, per decision:
 - Multi-area surface or nav design (Step 4) → `references/ia-craft.md` —
   organization schemes, labeling ledger, nav model by count, wayfinding
 - Brief names a familiar object (Step 4) → `references/component-contracts.md`
-  — the MECE control set each noun implies, and how to descope deliberately
+  — the MECE control set each noun implies (Access/ARIA included), and how
+  to descope deliberately
+- Fields the user must fill, wizards, errors (Steps 4–5) →
+  `references/guidance-craft.md` — helper-text trails for external
+  referents, error anatomy (what · why · next move as a control),
+  recovery paths, disabled-with-reason
+- Declaring the grid / choosing the page skeleton (Steps 3–4) →
+  `references/layout-craft.md` — archetype by job, desktop utilization,
+  three-level spacing rhythm, the alignment budget's counting method
 - Setting type (Step 3) → `references/typography-craft.md` — pairing
   axes, scale technique, micro-typography
 - Building the palette (Step 3) → `references/color-craft.md` — OKLCH

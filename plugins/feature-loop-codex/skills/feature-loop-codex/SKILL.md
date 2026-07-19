@@ -33,7 +33,7 @@ Use Codex-native orchestration only:
 Before starting:
 
 1. Confirm `acceptance-gate:acceptance` and `acceptance-gate:morphological-scan`
-   are available (the latter needs acceptance-gate ≥ 1.13; if missing, stop and
+   are available (the latter needs acceptance-gate ≥ 1.16; if missing, stop and
    have the user update the plugin).
 2. Confirm `superpowers:brainstorming` and `superpowers:writing-plans` are
    available when the loop will use Superpowers planning.

@@ -145,7 +145,7 @@ if (gate === '1') {
   const wontDo = acs.filter(x => !x.judgment && NEG_RE.test(thenOf(x.gwt)));
   const judgmentACs = acs.filter(x => x.judgment);
   const covGaps = acs.filter(x => !x.judgment && THRESHOLD_RE.test(x.gwt) && !evalsFor(x.id).some(e => NEG_RE.test(e.expected))).map(x => x.id);
-  // CT-S coverage section (1.13) — presentation only: render what the contract claims, flag absence/unverified
+  // CT-S coverage section — presentation only: render what the contract claims, flag absence/unverified
   const covPresent = /^#{2,6}\s+Coverage\b/im.test(contract);
   const covAll = section(contract, 'Coverage');
   const covLines = cleanLines(covAll).map(l => l.trim()).filter(l => /^-\s+\S/.test(l) && !/\{\{/.test(l)).map(l => l.replace(/^-\s+/, ''));
