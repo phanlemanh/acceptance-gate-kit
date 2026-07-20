@@ -80,7 +80,10 @@ Chỉ copy mỗi `pre-merge-check.sh` là repo âm thầm **mất lớp re-check
 đã commit (chống report bị sửa tay sau hook).
 
 **Repo có web UI:** chạy thêm `npm i -D jsdom` — design gate chạy chế độ DOM
-cần jsdom; thiếu nó mọi eval design sẽ ra `BLOCKED`.
+cần jsdom; thiếu nó mọi eval design sẽ ra `BLOCKED`. Ngoài ra skill
+**ux-ui-craft** tự kích hoạt khi task chạm UI (không cần gọi, không cần setup):
+kỷ luật design-engineer với token, "bản vẽ" Layout Contract ~15 dòng, và gate
+đo được (contrast, type/alignment budget) — bạn chỉ thấy kết quả gọn hơn.
 
 ---
 
@@ -98,6 +101,10 @@ Máy sẽ tạo 2 file trong `_acceptance/<slug>/` rồi DỪNG chờ bạn:
 |---|---|
 | `contract.md` | Tiêu chí Given/When/Then có đúng ý nghiệp vụ? Mục Out-of-scope có đủ? |
 | `evals.yaml` | Mỗi tiêu chí có ít nhất 1 eval? Executor hợp lý? |
+
+Từ 1.16, contract T2/T3 kèm mục **Coverage** hiện ngay trên card Cổng 1: máy đã
+quét không gian tiêu chí theo trục và tự khai "sẽ làm / để sau / KHÔNG làm" —
+bạn duyệt độ phủ cùng lúc với tiêu chí, không phải tự nhớ "còn thiếu case gì".
 
 Sửa trực tiếp nếu cần → approve (máy ghi `approved_by`). **Đây là 10 phút
 đáng giá nhất**: sửa 1 dòng tiêu chí ở đây rẻ hơn 10 lần phát hiện sai sau khi code xong.

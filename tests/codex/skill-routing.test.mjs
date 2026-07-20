@@ -21,7 +21,7 @@ const acceptance = fs.readFileSync(
 );
 
 for (const needle of [
-  'version: 1.11.5',
+  'version: 1.13.0',
   'feature-loop-model-init',
   '.codex/agents',
   'feature_loop_explorer',

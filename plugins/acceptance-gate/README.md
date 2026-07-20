@@ -176,12 +176,16 @@ templates produce advisory NOTEs, not failures).
   you SEE the artifacts on the page. Self-contained, `file://`-openable, zero-dep.
 - Risk tiers: T1 skips the kit; T3 requires direct human verdicts on all
   judgment items. Tiers/globs are per-repo in `_acceptance/config.yaml`.
-- Current test surface: 24 hook cases (`tests/hooks/run-tests.sh`) + 70 script
-  cases (`tests/scripts/run-tests.sh`: pre-merge gate + provenance + evidence
+- Current test surface (8 suites, all fixture-driven): 51 hook cases
+  (`tests/hooks/run-tests.sh`) + 155 script cases
+  (`tests/scripts/run-tests.sh`: pre-merge gate + provenance + evidence
   re-check, eval-coverage lint, gate-card, evidence-page) + packaging checks
   (`tests/plugins/run-tests.sh`: version alignment, vendored engine import
   graph, `${CLAUDE_PLUGIN_ROOT}` path resolution) + design-loop fixtures
-  (`tests/design-loop/run-tests.sh`: token-only + contrast-AA regressions).
+  (`tests/design-loop/run-tests.sh`: token-only + layout-token-only +
+  contrast-AA regressions) + layout-meter suite (`tests/skills/run-tests.sh`:
+  analyze() geometry + browser-verified fixtures) + design-eval, workflow,
+  and Codex suites.
 
 ## Layout
 
@@ -196,7 +200,8 @@ templates produce advisory NOTEs, not failures).
 | `plugins/design-loop-codex/` | Portable Codex design-loop package |
 | `design-loop/` | Shared design engine plus the Claude Code design-loop source |
 | `skills/acceptance/` | The 3-phase skill + templates |
-| `skills/ux-ui-craft/` | Design-engineer skill: 7-step UI process, hard gates (contrast/type budget/states), System+Prototype modes, 8 craft references |
+| `skills/ux-ui-craft/` | Design-engineer skill: 7-step UI process, hard gates (contrast, type/alignment budgets, structure–space coherence, states), Layout Contract + layout meter (`measure_layout.js`), System+Prototype+Audit modes, 10 craft references |
+| `skills/morphological-scan/` | CT-S coverage skill: Zwicky-box AC-space scan (MECE axes + CE evidence + Pareto Core/Later/Never) feeding the contract's Coverage section on the Gate-1 card |
 | `hooks/` | PreToolUse evidence gate (write time) |
 | `lib/evidence-core.js` | Shared L1/L2/L3 evidence validation (hook + CI re-check) |
 | `commands/` | `/acceptance-init`, `/acceptance-status`, `/acceptance-card` |
@@ -205,7 +210,7 @@ templates produce advisory NOTEs, not failures).
 | `scripts/gate-card.js` | Render the Gate 1 / Gate 2 human decision card |
 | `scripts/config-patch.mjs` | THE splice path for programmatic config.yaml writes (dry-run, .bak, abort-on-existing) |
 | `scripts/evidence-page.js` | Render the full Gate-2 evidence page (screenshots/output/slideshow) |
-| `tests/` | Fixture tests: `for t in hooks scripts plugins design-loop workflows codex; do bash tests/$t/run-tests.sh; done` |
+| `tests/` | Fixture tests: `for t in hooks scripts plugins design-loop design-eval workflows codex skills; do bash tests/$t/run-tests.sh; done` |
 
 ## Pilot metrics
 

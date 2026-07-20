@@ -15,6 +15,7 @@
 4.7. [Model theo giai đoạn (feature_loop.models) (1.11.2)](#model-theo-giai-đoạn-feature_loopmodels-1112)
 4.8. [Round tiết kiệm — carry-forward P1/P2/P3 (1.12.0)](#round-tiết-kiệm--carry-forward-p1p2p3-1120)
 4.9. [Skill ux-ui-craft — design engineer trong kit (1.12.0+)](#skill-ux-ui-craft--design-engineer-trong-kit-1120)
+4.10. [Công tắc coverage CT-S — chống sót AC (1.16.0)](#công-tắc-coverage-ct-s--chống-sót-ac-feature-loop-1130--acceptance-gate-1160)
 5. [Cài đặt](#5-cài-đặt)
 6. [Vận hành hằng ngày](#6-vận-hành-hằng-ngày)
 7. [Tra cứu enforcement — hook và CI chặn gì](#7-tra-cứu-enforcement--hook-và-ci-chặn-gì)
@@ -657,8 +658,8 @@ MỘT câu hỏi đóng YES/NO — là assertion, không phải judge:
 ## 10. Dành cho người bảo trì kit
 
 ```bash
-# chạy toàn bộ 5 suite test của kit (fixture-driven, không cần framework)
-for t in hooks scripts plugins design-loop workflows; do bash tests/$t/run-tests.sh; done
+# chạy toàn bộ 8 suite test của kit (fixture-driven, không cần framework)
+for t in hooks scripts plugins design-loop design-eval workflows codex skills; do bash tests/$t/run-tests.sh; done
 
 # sau khi sửa source ở root: đồng bộ bản đóng gói (4 manifest cùng version)
 bash scripts/sync-plugin-packages.sh
@@ -670,8 +671,10 @@ bash scripts/sync-plugin-packages.sh
 - 2 file workflow **không** parse được bằng `node --check` (top-level return) — suite
   `tests/workflows` nạp chúng qua `vm` với harness giả lập; bảng routing bị pin bởi test
   W10/E05.
-- Bump version khi ship (minor cho luật gate mới) → sync → 5 suite xanh → commit theo
-  nhóm logic. Backward-tolerant là mặc định: luật mới trên artifact cũ ra NOTE,
+- Bump version khi ship (minor cho luật gate mới) → sync → 8 suite xanh → commit theo
+  nhóm logic. Lưu ý: suite codex/plugins PIN version release (P03/P06/P22/P27,
+  skill-routing) — bump release là phải chạy CẢ 8 suite, không chỉ suite của phần vừa sửa
+  (đợt 1.16 từng để codex đỏ 1 ngày vì chỉ chạy 3 suite). Backward-tolerant là mặc định: luật mới trên artifact cũ ra NOTE,
   chỉ enforce cứng khi artifact có field mới.
 
 ---
