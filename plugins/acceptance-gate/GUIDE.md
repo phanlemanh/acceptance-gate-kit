@@ -2,10 +2,11 @@
 
 > Đọc nhanh 5 phút → [QUICKSTART.md](QUICKSTART.md). Tài liệu này là **bản đầy đủ**:
 > kiến trúc, cài đặt, vận hành hằng ngày, tra cứu enforcement, xử lý sự cố và tinh chỉnh.
-> Khớp phiên bản: acceptance-gate ≥ 1.10.0 · feature-loop / feature-loop-codex ≥ 1.10.0 · design-loop ≥ 0.1.1. Bản Codex-native cần Codex CLI ≥ 0.139.0.
+> Khớp phiên bản: acceptance-gate 1.17.0 · feature-loop / feature-loop-codex 1.13.0 · design-loop 0.3.0. Bản Codex-native cần Codex CLI ≥ 0.139.0.
 
 ## Mục lục
 
+0. [Giới thiệu — mục đích, mục tiêu, kim chỉ nam](#0-giới-thiệu--mục-đích-mục-tiêu-kim-chỉ-nam)
 1. [Kit giải quyết vấn đề gì](#1-kit-giải-quyết-vấn-đề-gì)
 2. [Kiến trúc tổng thể](#2-kiến-trúc-tổng-thể)
 3. [Vòng đời một tính năng](#3-vòng-đời-một-tính-năng)
@@ -24,6 +25,78 @@
 10. [Dành cho người bảo trì kit](#10-dành-cho-người-bảo-trì-kit)
 
 ---
+
+## 0. Giới thiệu — mục đích, mục tiêu, kim chỉ nam
+
+> Đọc mục này trước mọi đợt nâng cấp kit. Nó tồn tại để trả lời một câu hỏi
+> duy nhất: *việc sắp làm có phục vụ đúng thứ kit sinh ra để làm không?*
+
+### Mục đích
+
+AI viết code nhanh hơn tốc độ con người kiểm chứng nó. Hệ quả là hai thái cực
+đều tệ: người click tay 1–2 giờ mỗi tính năng, hoặc tin lời AI tự khai "done".
+Kit tồn tại để thay cả hai bằng một mô hình duy nhất — **người quyết định, máy
+chứng minh**: con người chỉ đưa những quyết định giá trị cao nhất (tiêu chí
+nào, chấp nhận hay không), máy làm toàn bộ phần giữa và *không thể khai gian*
+nhờ enforcement tất định (hook lúc ghi file + CI lúc merge). Niềm tin vào code
+AI không đến từ "AI ngoan" — nó đến từ bằng chứng đối chiếu được.
+
+### Mục tiêu (đo được — không đo được thì không phải mục tiêu)
+
+| # | Mục tiêu | Thước đo |
+|---|---|---|
+| 1 | Giảm **≥ 50%** thời gian người/tính năng so với baseline | `time_human_minutes` (mỗi contract) vs `baseline_minutes` (config) |
+| 2 | **0** defect nghiệp vụ lọt qua gate | Đếm defect phát hiện sau signoff |
+| 3 | Đúng **2 điểm dừng người**, 5–10 phút/cổng (T3: +1 duyệt plan) | Vòng đời chuẩn — mọi tính năng T2/T3 |
+| 4 | **100%** verdict PASS có bằng chứng máy đối chiếu được | `run_id` khớp `run-log.jsonl`, `exit_code 0`, verifier thật, SHA thật |
+| 5 | **1** chuẩn gate cho mọi runtime (Claude/Codex) và mọi thành viên | `lib/evidence-core.js` dùng chung + kỷ luật update plugin |
+
+### Lợi ích khi sử dụng
+
+| Ai | Được gì |
+|---|---|
+| **Người duyệt** | 1–2 giờ click tay → 15–20 phút đọc 2 card quyết định; máy đẩy lên đúng những item nó *không dám chắc* (UNCERTAIN) thay vì giấu chúng |
+| **Cả đội** | Một chuẩn nghiệm thu đếm được thay vì khẩu vị từng người; audit trail đầy đủ (`approved_by`, `human_signoff`, `bypass_used`) — ai duyệt gì, khi nào, có né gate không |
+| **AI agent** | Tiêu chí chốt *trước* khi code (sửa 1 dòng ở Cổng 1 rẻ hơn 10 lần sửa sau); mỗi vòng verify nhận phản hồi tất định (file:line, exit code) thay vì nhận xét mơ hồ |
+| **Sản phẩm** | Defect bị chặn ở điểm rẻ nhất; sàn chất lượng UI được ép bằng máy (contrast, layout, coverage AC) chứ không bằng lời dặn |
+
+### Tính năng chính
+
+| Tính năng | Một dòng | Chi tiết |
+|---|---|---|
+| **Gate 3-phase** (acceptance-gate) | Yêu cầu → contract + evals → evidence report; hook chặn PASS giả lúc ghi, CI chặn lúc merge | §3, §7 |
+| **Decision card + evidence page** | Cổng 1/Cổng 2 trình bày để quyết trong 5–10 phút; screenshot + output thật, mở bằng `file://` | §6.3 |
+| **feature-loop** | Một lệnh từ ý tưởng → PR: brainstorm, contract, plan, code song song, verify đa-agent (3 AI-judge + adversarial review), tự sửa ≤ 3 vòng | §3, §4 |
+| **design-loop** (tùy chọn) | Làn design web-UI: design-of-record → port → fidelity 3 lớp (static BLOCK · P0 floor · pixel-diff advisory) | §4.5 |
+| **Skill ux-ui-craft** | Kỷ luật design-engineer tự kích hoạt: token, Layout Contract "bản vẽ", gate đo được (contrast/type/alignment) | §4.9 |
+| **Skill morphological-scan (CT-S)** | Quét không gian tiêu chí theo trục chống sót AC; mục Coverage hiện trên card Cổng 1 | §4.10 |
+| **Risk tiers T1/T2/T3** | Đơn giản bỏ qua gate, mặc định flow đủ, nhạy cảm ép người kiểm mọi judgment | §6 |
+
+### Sơ đồ hoạt động
+
+```mermaid
+flowchart TB
+  IN["Ý tưởng / ticket / PRD"] --> S1["Máy: contract + evals + coverage"]
+  S1 --> G1{"🚪 CỔNG 1 — người DUYỆT TIÊU CHÍ<br/>(5–10 phút)"}
+  G1 --> CODE["Máy: plan + code<br/>(agent thường hoặc feature-loop)"]
+  CODE --> V["Máy: verify mỗi vòng<br/>evals + design gates + AI-judge + review"]
+  V -- "REJECT → tự sửa (≤ 3 vòng)" --> CODE
+  V -- "PASS + evidence" --> G2{"🚪 CỔNG 2 — người kiểm UNCERTAIN + KÝ<br/>(5–10 phút)"}
+  G2 --> CI2["CI pre-merge<br/>chặn report chưa ký / evidence giả / cũ"]
+  CI2 --> MERGE["Merge"]
+  HK["Hook write-time<br/>chặn PASS không bằng chứng"] -. giám sát .-> V
+  HK -. giám sát .-> G2
+```
+
+### Bài kiểm tra chống lạc hướng — 3 câu hỏi trước mỗi đợt nâng cấp
+
+1. **Nó phục vụ mục tiêu số mấy ở trên?** Không chỉ ra được số → không làm.
+2. **Nó có thêm điểm dừng người thứ 3 không?** Có → sai hướng (trừ Gate 1.5
+   của T3 đã định nghĩa). Kit tăng giá trị bằng cách làm 2 điểm dừng *tốt
+   hơn*, không phải *nhiều hơn*.
+3. **Enforcement mới có tất định không** — đếm được, chặn được bằng máy? Chỉ
+   là lời khuyên trong văn bản → chưa xong việc (*"a rule you cannot verify
+   is decoration"*).
 
 ## 1. Kit giải quyết vấn đề gì
 
