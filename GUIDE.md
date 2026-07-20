@@ -747,7 +747,21 @@ bash scripts/sync-plugin-packages.sh
 - Bump version khi ship (minor cho luật gate mới) → sync → 8 suite xanh → commit theo
   nhóm logic. Lưu ý: suite codex/plugins PIN version release (P03/P06/P22/P27,
   skill-routing) — bump release là phải chạy CẢ 8 suite, không chỉ suite của phần vừa sửa
-  (đợt 1.16 từng để codex đỏ 1 ngày vì chỉ chạy 3 suite). Backward-tolerant là mặc định: luật mới trên artifact cũ ra NOTE,
+  (đợt 1.16 từng để codex đỏ 1 ngày vì chỉ chạy 3 suite).
+
+### Chuẩn tự phản biện trước push (áp dụng từ 1.17)
+
+Chạy TRƯỚC khi push mọi đợt. Mỗi nhóm phải có bằng chứng dán được — một ô
+không có bằng chứng là một ô FAIL, không phải "chắc ổn":
+
+| Nhóm | Câu hỏi phải trả lời | Bằng chứng bắt buộc |
+|---|---|---|
+| **A. Đúng hướng** | Đợt phục vụ mục tiêu số mấy (§0)? Có thêm điểm dừng người? Enforcement mới có tất định? | Trả lời 3 câu §0 thành văn |
+| **B. Đúng lời** | Mọi con số/khẳng định trong docs và commit message đối chiếu được với artifact thật? | Lệnh đếm + output thật |
+| **C. Code** | Review bởi context sạch (doer ≠ grader)? File <800 dòng, function tập trung, không secret/debug sót? | Báo cáo reviewer độc lập + grep |
+| **D. Kiểm chứng** | Mỗi behavior mới có test? TDD có RED thật trước GREEN? 8 suite xanh? | Output 8 suite, log RED |
+| **E. Nhất quán** | Version topology khớp 4 tầng (manifest × overlay Codex × pin test × docs)? Mirror sync sạch? | `sync` + `git status` rỗng |
+| **F. Giới hạn** | Giới hạn v1 và rủi ro đã ghi thành văn (spec/report), không im lặng? | Trỏ tới mục known-limits | Backward-tolerant là mặc định: luật mới trên artifact cũ ra NOTE,
   chỉ enforce cứng khi artifact có field mới.
 
 ---

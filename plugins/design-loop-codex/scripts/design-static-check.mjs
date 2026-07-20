@@ -96,16 +96,19 @@ function tokenOnly(target) {
     fs.readFileSync(f, 'utf8').split('\n').forEach((ln, i) => {
       const t = ln.trim();
       if (t.startsWith('//') || t.startsWith('*') || t.startsWith('/*')) return;
-      if (/--[\w-]+\s*:/.test(ln)) return; // token definitions: hex AND px are legal here
-      const m = ln.match(HEX);
+      // Strip inline /* … */ BEFORE any check — a trailing comment mentioning
+      // "--token: 16px" must not disguise a real violation as a token line.
+      const code = ln.replace(/\/\*[\s\S]*?\*\//g, '');
+      if (/^\s*--[\w-]+\s*:/.test(code)) return; // token DEFINITIONS (line-anchored): hex AND px are legal here
+      const m = code.match(HEX);
       if (m) viol.push({ file: path.relative(process.cwd(), f), line: i + 1, snippet: t.slice(0, 120), matched: m });
-      if (isCss && LAYOUT_PROP.test(ln)) {
-        const value = ln.slice(ln.indexOf(':') + 1)
+      if (isCss && LAYOUT_PROP.test(code)) {
+        const value = code.slice(code.indexOf(':') + 1)
           .replace(/var\([^)]*\)/g, '')                  // var() fallbacks are token-first
           .replace(/\b(?:0px|1px|100%|auto|0)\b/g, '');  // allow-list: 0 / hairline / 100% / auto
         if (RAW_LEN.test(value)) layoutViol.push({ file: path.relative(process.cwd(), f), line: i + 1, snippet: t.slice(0, 120), rule: 'css-raw-length' });
       }
-      if (!isCss && TW_ARBITRARY.test(ln)) layoutViol.push({ file: path.relative(process.cwd(), f), line: i + 1, snippet: t.slice(0, 120), rule: 'tailwind-arbitrary' });
+      if (!isCss && TW_ARBITRARY.test(code)) layoutViol.push({ file: path.relative(process.cwd(), f), line: i + 1, snippet: t.slice(0, 120), rule: 'tailwind-arbitrary' });
     });
   }
   return { files: files.length, violations: viol, layoutViolations: layoutViol };

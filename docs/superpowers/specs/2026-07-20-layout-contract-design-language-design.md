@@ -182,7 +182,14 @@ in CSS); scripting it is a candidate for the next wave.
   strings.
 - **Deliberately out of v1:** `width`/`height` scanning (icons and media have
   legitimate fixed sizes; a `--size-*` discipline is a v2 question). This is
-  scoped to the spacing/position drift class.
+  scoped to the spacing/position drift class. Also out (line-based scan, same
+  bound as the hex rule): single-line multi-declaration CSS
+  (`.x { margin-top: 13px; }` on one line) and minified CSS — the property
+  regex anchors at line start; port targets are Prettier-formatted.
+  Post-review hardening: inline `/* … */` comments are stripped before all
+  checks and the token-definition escape is line-anchored, so a trailing
+  comment mentioning `--token: 16px` can no longer mask a real violation
+  (regression D10).
 - Violations are BLOCKING (exit 2), same reporting shape as the hex rule.
 - Fixtures `tests/design-loop/fixtures/src-raw-px/` (+ keep `src-clean` green)
   and new cases in `tests/design-loop/run-tests.sh`:
