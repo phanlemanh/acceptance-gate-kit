@@ -1,5 +1,9 @@
 #!/usr/bin/env node
-// design-static-check.mjs (v0.2) — BLOCKING design fidelity layer (config:executors.design.static).
+// design-static-check.mjs (v0.3) — BLOCKING design fidelity layer (config:executors.design.static).
+//
+// v0.3 adds layout-token-only (SOURCE): raw px/rem in spacing/position
+// properties outside the token layer BLOCK — closing port-translation's
+// "raw px forbidden (enforced here)" promise. width/height deliberately v2.
 //
 // Enforces the hard design rules the acceptance-gate P0 legibility floor does NOT
 // cover (p-tiers.json drops design-system color/font/radius). Two targets:
@@ -72,7 +76,10 @@ function parseArgs(argv) {
 }
 function emit(o, code) { process.stdout.write(JSON.stringify(o, null, 2) + '\n'); process.exit(code); }
 
-// ── SOURCE: token-only ──
+// ── SOURCE: token-only (raw hex) + layout-token-only (raw px/rem in spacing) ──
+const LAYOUT_PROP = /^\s*(?:margin|padding|gap|row-gap|column-gap|inset|top|right|bottom|left)(?:-[a-z]+)?\s*:/;
+const RAW_LEN = /\b\d+(?:\.\d+)?(?:px|rem)\b/;
+const TW_ARBITRARY = /\b(?:-?(?:m|p)(?:t|r|b|l|x|y|s|e)?|gap(?:-x|-y)?|top|right|bottom|left|inset(?:-x|-y)?)-\[\d+(?:\.\d+)?(?:px|rem)\]/;
 function tokenOnly(target) {
   const exts = new Set(['.tsx', '.ts', '.jsx', '.js', '.css']);
   const files = [];
@@ -83,16 +90,25 @@ function tokenOnly(target) {
   })(target);
   const HEX = /#[0-9a-fA-F]{3,8}\b/g;
   const viol = [];
+  const layoutViol = [];
   for (const f of files) {
+    const isCss = path.extname(f) === '.css';
     fs.readFileSync(f, 'utf8').split('\n').forEach((ln, i) => {
       const t = ln.trim();
       if (t.startsWith('//') || t.startsWith('*') || t.startsWith('/*')) return;
-      if (/--[\w-]+\s*:/.test(ln)) return;
+      if (/--[\w-]+\s*:/.test(ln)) return; // token definitions: hex AND px are legal here
       const m = ln.match(HEX);
       if (m) viol.push({ file: path.relative(process.cwd(), f), line: i + 1, snippet: t.slice(0, 120), matched: m });
+      if (isCss && LAYOUT_PROP.test(ln)) {
+        const value = ln.slice(ln.indexOf(':') + 1)
+          .replace(/var\([^)]*\)/g, '')                  // var() fallbacks are token-first
+          .replace(/\b(?:0px|1px|100%|auto|0)\b/g, '');  // allow-list: 0 / hairline / 100% / auto
+        if (RAW_LEN.test(value)) layoutViol.push({ file: path.relative(process.cwd(), f), line: i + 1, snippet: t.slice(0, 120), rule: 'css-raw-length' });
+      }
+      if (!isCss && TW_ARBITRARY.test(ln)) layoutViol.push({ file: path.relative(process.cwd(), f), line: i + 1, snippet: t.slice(0, 120), rule: 'tailwind-arbitrary' });
     });
   }
-  return { files: files.length, violations: viol };
+  return { files: files.length, violations: viol, layoutViolations: layoutViol };
 }
 
 // ── jsdom loader (like design-gate.mjs: try import, then createRequire from candidate dirs) ──
@@ -177,6 +193,8 @@ if (args.target) {
   const t = tokenOnly(args.target);
   result.rules['token-only'] = { files_scanned: t.files, violations: t.violations.length, sample: t.violations.slice(0, 15) };
   if (t.violations.length) blocking.push(`token-only: ${t.violations.length} raw hex outside the token layer`);
+  result.rules['layout-token-only'] = { files_scanned: t.files, violations: t.layoutViolations.length, sample: t.layoutViolations.slice(0, 15) };
+  if (t.layoutViolations.length) blocking.push(`layout-token-only: ${t.layoutViolations.length} raw px/rem in spacing properties outside the token layer`);
 } else {
   result.pending_checks.push('token-only (pass a source <dir|file>)');
 }

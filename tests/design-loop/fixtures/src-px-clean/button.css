@@ -1,0 +1,14 @@
+:root {
+  --space-2: 8px; /* token definitions legally carry px */
+  --border: #d0d0d0;
+}
+.btn {
+  margin-top: var(--space-2);
+  padding: var(--space-2, 8px) 0; /* var() fallback literal is token-first */
+  gap: 0;
+  top: auto;
+  border-top: 1px solid var(--border); /* border-* is not a spacing property */
+}
+.card {
+  margin-left: 1px; /* hairline allow-list — multi-line so LAYOUT_PROP actually matches */
+}

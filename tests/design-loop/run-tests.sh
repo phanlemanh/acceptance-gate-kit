@@ -37,6 +37,9 @@ expect_exit() { # <name> <want-exit> <cmd...>
 echo "token-only (source mode)"
 expect_exit "D01 raw hex outside the token layer REJECTs" 2 node "$SC" "$FIX/src-raw-hex"
 expect_exit "D02 var()-only source PASSes (hex allowed in --token: lines)" 0 node "$SC" "$FIX/src-clean"
+expect_exit "D07 raw px in spacing property REJECTs (layout-token-only)" 2 node "$SC" "$FIX/src-raw-px"
+expect_exit "D08 token-def px + var() fallback + allow-list PASSes" 0 node "$SC" "$FIX/src-px-clean"
+expect_exit "D09 Tailwind arbitrary spacing value REJECTs" 2 node "$SC" "$FIX/src-raw-px-tsx"
 
 echo "contrast-AA (rendered mode)"
 if node -e "require.resolve('jsdom', { paths: ['$ROOT/tests/design-eval'] })" >/dev/null 2>&1; then
