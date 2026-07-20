@@ -52,7 +52,7 @@ confirm, never overwrites, and **never touches `smoke_sv_design`**.
 
 ## Fidelity = 3 layers
 
-🔴 static-checks BLOCK: token-only (source) + WCAG **contrast-AA** (rendered `--html` capture) + **tap-target≥44** (heuristic; advisory by default, `--strict-hit` to block) + 🔴 acceptance P0 floor + 🟡 pixel-diff ADVISORY + human onion-skin glance GOLD at Gate 2. **No blind VLM judge.**
+🔴 static-checks BLOCK: token-only + **layout-token-only** (source: raw hex / raw px-rem in spacing properties) + WCAG **contrast-AA** (rendered `--html` capture) + **tap-target≥44** (heuristic; advisory by default, `--strict-hit` to block) + 🔴 acceptance P0 floor + 🟡 pixel-diff ADVISORY + human onion-skin glance GOLD at Gate 2. **No blind VLM judge.**
 
 ## Honest CANNOT
 
@@ -63,6 +63,6 @@ provenance. The port/verify layers still run.
 
 ## Status
 
-v0.1.1 scaffold. Runnable now: `/design-init` (config wiring), `provenance` guard, `design-static-check` (token-only + WCAG contrast-AA + tap-target heuristic). Skeleton/TODO: `design-fidelity-diff` shell-out to design-repo `diff:all`, `/design-push`. See the spec: `artifact-platform/docs/superpowers/specs/2026-07-01-design-code-workflow.md`.
+v0.3.0. Runnable now: `/design-init` (config wiring), `provenance` guard, `design-static-check` (token-only + layout-token-only + WCAG contrast-AA + tap-target heuristic). Skeleton/TODO: `design-fidelity-diff` shell-out to design-repo `diff:all`, `/design-push`. See the spec: `artifact-platform/docs/superpowers/specs/2026-07-01-design-code-workflow.md`.
 
 v0.1.1 fixes: `design-static-check` no longer treats every `rgb(r,g,0)` as transparent (contrast-AA was skipping black text); `/design-init` and `/design-mockup` resolve `${CLAUDE_PLUGIN_ROOT}` against design-loop's own root (both died with MODULE_NOT_FOUND at the first wiring step).

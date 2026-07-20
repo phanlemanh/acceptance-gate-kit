@@ -85,3 +85,65 @@ left edges of visible content blocks, clustered ±3px):
 edges share a line, their widths share a value, and their gap match the
 level their relationship implies? Three yeses across the page is what
 "gọn gàng" is made of.*
+
+## The contract is written in CSS (Step 3 — before any screen)
+
+Declaring the grid in prose is speaking; a contract is written. Before the
+first screen of any new surface (more than one content area), write the
+Layout Contract — the one place every later screen spends from. This is
+the skill's single deliberate code block, because the format IS the rule:
+
+    :root {
+      /* Layout Contract v1 — all values on the 4/8 grid */
+      --container-shell: 1200px;   /* page frame        */
+      --container-form:  640px;    /* forms             */
+      --container-prose: 68ch;     /* reading           */
+      --gutter: 24px;              /* ONE gutter system */
+      --gutter-compact: 12px;      /* the only allowed variant */
+      --space-within:  8px;        /* level 1: inside a group  */
+      --space-between: 24px;       /* level 2: between groups  */
+      --space-section: 56px;       /* level 3: between sections — strictly increasing */
+    }
+    .shell { display: grid;
+      grid-template-columns: [shell-start] 280px [sidebar-end main-start]
+                             minmax(0,1fr) [main-end rail-start] 320px [shell-end]; }
+
+The functional half is the sitemap (≤10 indented lines, ia-craft's exit
+test made a deliverable): an HTML comment atop a single-file artifact, or a
+block in the design doc for multi-file apps. It exists BEFORE screens, and
+every major visible block maps to exactly one of its lines.
+
+Spending rules: margins, paddings, gaps, and positional offsets spend only
+`var(--space-*)` / `var(--gutter*)`; container widths spend only
+`var(--container-*)`. A raw number in a layout property is the same defect
+as a raw hex — with one exception, the optical adjustment that carries a
+comment naming its reason. A lone component inherits the contract of the
+page that hosts it; only new surfaces write contracts. Where design-loop is
+wired, the spending rule is machine-enforced (`design-static-check`'s
+layout-token-only BLOCK); on a bare repo it is discipline plus the meter.
+
+## Running the meter (Steps 6–7)
+
+`scripts/measure_layout.js` measures the rendered page against the
+contract — alignment-line count, singletons, container widths, and
+spacing-scale membership. Browser context only (Playwright `evaluate`,
+browser-MCP JS, or console paste; jsdom has no layout engine). It returns
+an evidence JSON (`run_id`, `verifier`, `verified_at`, `verdict`,
+`exit_code`: 0 PASS · 2 REJECT · 3 BLOCKED) and BLOCKS when no
+`--space-*` contract exists on `:root` — an unmeasurable page is an
+undeclared page. One run measures one cell; loop the declared matrix
+(state × 375/768/1440) and report the WORST cell, the same anti-flattery
+rule as the type budget.
+
+The machine supplies counts; you supply role judgment: every cluster in
+the output answers to a declared role (container edge, named column, card
+inset, the one indent step) or gets fixed — or named, in writing, as an
+optical adjustment.
+
+**Structure–space coherence (counted, budget 0).** For each visible
+sibling-block pair, read their distance in the sitemap: same group →
+`--space-within`; same section → `--space-between`; different sections →
+`--space-section`. Compare with the measured gap from the meter JSON. The
+mismatch budget is zero; every mismatch is resolved by fixing the space
+*or fixing the sitemap* — the second arm is the point: it forces the
+architecture question instead of another padding nudge.

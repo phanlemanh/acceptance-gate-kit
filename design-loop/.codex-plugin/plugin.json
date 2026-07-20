@@ -1,6 +1,6 @@
 {
   "name": "design-loop",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Codex-ready design-aware sub-track for feature-loop-codex and feature-loop. Wires web-UI design evals, records design-of-record provenance, supports portable reference mockups when Claude Design is unavailable, and produces Gate-2 visual evidence without relying on Claude Code Workflow scripts.",
   "author": {
     "name": "Manh Phan",

@@ -15,7 +15,7 @@ description: >
   interface. Do NOT use it for backend or REST/API design, database schemas,
   data charts or spreadsheets, logo or brand-mark design, slide decks, or
   debugging a component's logic.
-version: '1.3.0'
+version: '1.4.0'
 ---
 
 # UX/UI Craft
@@ -108,9 +108,12 @@ tokens; it never invents new values. This is where consistency comes from
   workhorse body; optional mono for data), one scale, explicit weights.
 - **Spacing**: a 4/8px grid only. Arbitrary values are drift.
 - **Layout**: declare the grid with the tokens — ≤3-4 named container
-  widths, ONE gutter system, explicit columns, one indent step (see
-  `references/layout-craft.md`). Screens spend these lines; a mid-screen
-  one-off wrapper is the same drift as a mid-screen hex.
+  widths, ONE gutter system, explicit columns, one indent step — written
+  down as the **Layout Contract**: a `:root` custom-property block plus
+  named grid lines plus a ≤10-line sitemap (see
+  `references/layout-craft.md` § "The contract is written in CSS").
+  Screens spend these lines; a mid-screen one-off wrapper is the same
+  drift as a mid-screen hex.
 - **Radius and elevation**: one small scale each.
 
 Hard budgets: ≤ 2 fonts, 1 accent color, ≤ 5 text sizes per screen.
@@ -195,7 +198,8 @@ feature or it does not belong in the build.
 | Motion | 150–300 ms, ease-out, purposeful; `prefers-reduced-motion` respected |
 | Copy | buttons are verb + object ("Save listing", not "OK"); an action keeps the same name across the whole flow (Publish → Published) |
 | Type budget | ≤5-6 computed text sizes and ≤2 small-label voices per rendered screen — COUNT them on the artifact (getComputedStyle) across the WHOLE declared matrix (every state × width), and report the worst cell, not a flattering one; don't trust the token sheet or a single scene. Drift arrives via inline chips, utility styles, and states you didn't re-measure |
-| Alignment budget | left edges of visible blocks reuse ≈≤8-10 declared alignment lines per desktop screenful; container widths ≤3-4; a singleton edge matching no declared role is a misalignment — COUNT on the rendered artifact (getBoundingClientRect, cluster ±3px), worst cell (method: `references/layout-craft.md`) |
+| Alignment budget | left edges of visible blocks reuse ≈≤8-10 declared alignment lines per desktop screenful; container widths ≤3-4; a singleton edge matching no declared role is a misalignment — measure with `scripts/measure_layout.js` in a real browser, worst cell (method: `references/layout-craft.md`) |
+| Structure–space coherence | every visible sibling-block pair's gap sits at the level its sitemap distance implies (same group → within, same section → between, else section); mismatch budget = 0 — gaps from `measure_layout.js`, sitemap from the Layout Contract (method: `references/layout-craft.md`) |
 | Build | console clean, no dead controls, no placeholder content |
 
 These are the quality floor. Build it without announcing it — nobody
@@ -410,3 +414,8 @@ These carry the *technique* the budgets assume. Load lazily, per decision:
 - `scripts/check_contrast.py '#FG' '#BG' [...]` — WCAG contrast ratios
   with AA pass/fail for every foreground/background pair you ship. Run it
   on your final token palette, not on your intentions.
+- `scripts/measure_layout.js` — the layout meter: alignment-line count,
+  singletons, container widths, and spacing-scale membership, measured on
+  the rendered page against the Layout Contract. Browser context only
+  (Playwright `evaluate`, browser-MCP JS, or console paste — jsdom has no
+  layout engine); returns evidence JSON (`run_id`/`verdict`/`exit_code`).

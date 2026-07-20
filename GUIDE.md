@@ -316,6 +316,18 @@ trang khách; với micro-edit (đổi 1 label) cứ nói "bỏ qua ux-ui-craft"
 trong frontmatter `SKILL.md` (`version:`); nguồn phát triển + eval harness bảo trì ngoài
 kit, đổ về qua release có test đầy đủ.
 
+**1.17 — Layout Contract + máy đo layout (skill 1.4.0 · design-loop 0.3.0).** Skill buộc
+viết "bản vẽ" trước màn hình đầu tiên: khối `:root` (`--container-*` / `--gutter` /
+`--space-*` 3 cấp tăng dần) + named grid lines + sitemap ≤10 dòng; code chỉ được tiêu
+`var()`. Máy đo `skills/ux-ui-craft/scripts/measure_layout.js` chạy trong browser thật
+(Playwright / console — jsdom không có layout) đếm đường canh lề, singleton, container
+widths, gap lệch scale — trả evidence JSON (`run_id`/`verdict`/`exit_code`, chuẩn
+design-loop). Gate mới **Structure–space coherence**: khoảng cách giữa 2 block phải đúng
+cấp với khoảng cách trong sitemap, ngân sách lệch = 0. design-loop 0.3.0 thêm rule
+**layout-token-only** (BLOCK raw px/rem trong margin/padding/gap/inset/top/right/bottom/
+left + Tailwind `mt-[13px]` ngoài tầng token) — trả đúng lời hứa "(enforced by
+design-static-check)" trong port-translation.md.
+
 ## Công tắc coverage CT-S — chống sót AC (feature-loop 1.13.0 · acceptance-gate 1.16.0)
 
 Kit vốn **dày ở verify, mỏng ở discovery**: S4 có fan-out evals + judge panel + adversarial

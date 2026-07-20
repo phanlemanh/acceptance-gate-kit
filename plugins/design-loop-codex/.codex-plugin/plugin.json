@@ -1,6 +1,6 @@
 {
   "name": "design-loop",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Codex-native design-aware sub-track with portable references, provenance, deterministic design checks, fidelity evidence, and human Gate-2 review.",
   "author": {
     "name": "Manh Phan",

@@ -40,8 +40,8 @@ root = Path(sys.argv[1])
 root_claude = json.loads((root / ".claude-plugin/plugin.json").read_text())
 overlay_codex = json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())
 pkg_codex = json.loads((root / "plugins/acceptance-gate/.codex-plugin/plugin.json").read_text())
-assert root_claude["version"] == "1.16.0"
-assert overlay_codex["version"] == "1.16.0"
+assert root_claude["version"] == "1.17.0"
+assert overlay_codex["version"] == "1.17.0"
 assert pkg_codex == overlay_codex, "run scripts/sync-plugin-packages.sh"
 for rel in [
     "plugins/acceptance-gate/scripts/gate-card.js",
@@ -187,7 +187,7 @@ readme = (package / "README.md").read_text()
 assert manifest["name"] == "design-loop"
 assert manifest["skills"] == "./skills/"
 assert "commands" not in manifest
-assert manifest["version"] == "0.2.1"
+assert manifest["version"] == "0.3.0"
 assert manifest == overlay_manifest
 for needle in ["Codex", "feature-loop-codex", "portable reference", "provenance.json"]:
     assert needle in skill or needle in readme, needle
@@ -262,10 +262,10 @@ run "P22 Codex overlay manifests and generated outputs exist" \
 import json, sys
 from pathlib import Path
 root = Path(sys.argv[1])
-assert json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())["version"] == "1.16.0"
+assert json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())["version"] == "1.17.0"
 assert json.loads((root / "codex/feature-loop-codex/.codex-plugin/plugin.json").read_text())["version"] == "1.13.0"
-assert json.loads((root / "codex/design-loop/.codex-plugin/plugin.json").read_text())["version"] == "0.2.1"
-assert json.loads((root / ".claude-plugin/plugin.json").read_text())["version"] == "1.16.0"
+assert json.loads((root / "codex/design-loop/.codex-plugin/plugin.json").read_text())["version"] == "0.3.0"
+assert json.loads((root / ".claude-plugin/plugin.json").read_text())["version"] == "1.17.0"
 assert json.loads((root / "feature-loop/.claude-plugin/plugin.json").read_text())["version"] == "1.13.0"
 assert "machine: 'haiku'" in (root / "feature-loop/workflows/acceptance-verify.js").read_text()
 assert "judge: 'sonnet'" in (root / "feature-loop/workflows/acceptance-verify.js").read_text()
@@ -338,7 +338,7 @@ import json, sys
 from pathlib import Path
 root = Path(sys.argv[1])
 manifest = json.loads((root / ".codex-plugin/plugin.json").read_text())
-assert manifest["version"] == "0.2.1"
+assert manifest["version"] == "0.3.0"
 assert not (root / "commands").exists()
 assert not (root / ".claude-plugin").exists()
 for name in ["design-subtrack", "design-init", "design-mockup", "design-evidence", "design-push-status"]:

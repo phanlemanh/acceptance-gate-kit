@@ -14,6 +14,9 @@ a design render *crisp* instead of approximately.
   rhythm, `auto-fit` collapses them — choose deliberately.
 - `subgrid` aligns card internals (title/meta/action rows) across
   siblings — the difference between a card grid and a card *system*.
+- Name grid lines (`[main-start] minmax(0,1fr) [main-end]`) — every
+  alignment line the Layout Contract declares gets a real identifier in
+  code, and the layout meter can answer clusters to it.
 
 ## State styling without JavaScript
 
