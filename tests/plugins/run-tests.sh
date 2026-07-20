@@ -41,6 +41,8 @@ root_claude = json.loads((root / ".claude-plugin/plugin.json").read_text())
 overlay_codex = json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())
 pkg_codex = json.loads((root / "plugins/acceptance-gate/.codex-plugin/plugin.json").read_text())
 assert root_claude["version"] == "1.17.0"
+root_codex = json.loads((root / ".codex-plugin/plugin.json").read_text())
+assert root_codex["version"] == root_claude["version"], f'root .codex-plugin {root_codex["version"]} != .claude-plugin {root_claude["version"]}'
 assert overlay_codex["version"] == "1.17.0"
 assert pkg_codex == overlay_codex, "run scripts/sync-plugin-packages.sh"
 for rel in [

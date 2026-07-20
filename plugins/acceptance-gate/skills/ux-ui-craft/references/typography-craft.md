@@ -78,8 +78,9 @@ outnumber content:
 - **Count the voices**: display + body + one mono/data voice = three.
   Each additional voice (a colored tag, an italic note, a second chip
   style) must displace one — it can't just join.
-- *Measured test: on the rendered screen, count computed font sizes (≤5)
-  and distinct small-label colors (≤2). 33 tiny mono labels in 7 colors
+- *Measured test: on the rendered screen, count computed font sizes
+  (≤5-6 — the Step-6 Type budget, which is the single authority) and
+  distinct small-label colors (≤2). 33 tiny mono labels in 7 colors
   across a 12-size ladder is what "lộn xộn" looks like in numbers — and
   none of it came from the token sheet; it leaked in through inline
   styles.*

@@ -116,7 +116,8 @@ tokens; it never invents new values. This is where consistency comes from
   drift as a mid-screen hex.
 - **Radius and elevation**: one small scale each.
 
-Hard budgets: ≤ 2 fonts, 1 accent color, ≤ 5 text sizes per screen.
+Hard budgets: ≤ 2 fonts, 1 accent color, ≤ 5-6 text sizes per screen
+(the Step-6 Type budget is the authority — it is counted on the render).
 Budgets feel restrictive; they are what coherence is made of.
 
 ### Step 4 — Flows, then screens
@@ -197,7 +198,7 @@ feature or it does not belong in the build.
 | Responsive | actually rendered and checked at 375 / 768 / 1440 — no overflow, no orphaned layouts |
 | Motion | 150–300 ms, ease-out, purposeful; `prefers-reduced-motion` respected |
 | Copy | buttons are verb + object ("Save listing", not "OK"); an action keeps the same name across the whole flow (Publish → Published) |
-| Type budget | ≤5-6 computed text sizes and ≤2 small-label voices per rendered screen — COUNT them on the artifact (getComputedStyle) across the WHOLE declared matrix (every state × width), and report the worst cell, not a flattering one; don't trust the token sheet or a single scene. Drift arrives via inline chips, utility styles, and states you didn't re-measure |
+| Type budget | ≤5-6 computed text sizes per rendered screen, and small labels stay one voice — counted as ≤2 distinct colors among sub-13px labels (the measurable proxy for "one eyebrow voice"; full definition in `references/typography-craft.md` § voice budget). COUNT on the artifact (getComputedStyle) across the WHOLE declared matrix (every state × width), and report the worst cell, not a flattering one; don't trust the token sheet or a single scene. Drift arrives via inline chips, utility styles, and states you didn't re-measure |
 | Alignment budget | left edges of visible blocks reuse ≈≤8-10 declared alignment lines per desktop screenful; container widths ≤3-4; a singleton edge matching no declared role is a misalignment — measure with `scripts/measure_layout.js` in a real browser, worst cell (method: `references/layout-craft.md`) |
 | Structure–space coherence | every visible sibling-block pair's gap sits at the level its sitemap distance implies (same group → within, same section → between, else section); mismatch budget = 0 — gaps from `measure_layout.js`, sitemap from the Layout Contract (method: `references/layout-craft.md`) |
 | Build | console clean, no dead controls, no placeholder content |
@@ -327,9 +328,10 @@ can gate, gate; anything that is taste, label it as taste.
    — a daily operator's screen judged by first-visit aesthetics.
 2. **Measure the floor on the rendered artifact.** Run the Step-6 gate
    table against real renders at 375 / 768 / 1440: getComputedStyle
-   counts for the type ladder and label voices (whole state matrix, worst
-   cell), contrast per shipped pair (`scripts/check_contrast.py`),
-   targets, overflow, a keyboard walk. Source code lies about rendered
+   counts for the type ladder and label voices, alignment lines and
+   container widths (whole state matrix, worst cell), contrast per
+   shipped pair (`scripts/check_contrast.py`), targets, overflow, a
+   keyboard walk. Source code lies about rendered
    outcomes; if you cannot render, say so and mark every unmeasured claim
    as unverified instead of stating it with measured confidence.
 3. **Walk the contracts and the map.** Name the objects the surface
