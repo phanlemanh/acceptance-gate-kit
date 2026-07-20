@@ -1,0 +1,11 @@
+{
+  "_note": "Captured 2026-07-20 in a real browser (desktop pane). Compare against __measureLayout() output minus run_id/verifier/verified_at/viewport.",
+  "lineCount": 2,
+  "singletons": [],
+  "containerWidths": [960],
+  "nearEqualWidths": [],
+  "offScaleGaps": [],
+  "violations": [],
+  "verdict": "PASS",
+  "exit_code": 0
+}

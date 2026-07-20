@@ -1,0 +1,14 @@
+{
+  "_note": "Captured 2026-07-20 in a real browser (desktop pane). Compare against __measureLayout() output minus run_id/verifier/verified_at/viewport.",
+  "lineCount": 13,
+  "singletons": ["div.o1", "div.o2", "div.o3", "div.o4", "div.o5", "div.o6", "div.o7", "div.o8", "div.o9", "div.o10", "div.o11", "div.o12"],
+  "containerWidths": [960],
+  "nearEqualWidths": [],
+  "offScaleGaps": [],
+  "violations": [
+    "alignment: 13 lines > budget 10",
+    "alignment: 12 singleton line(s) — fix or name each"
+  ],
+  "verdict": "REJECT",
+  "exit_code": 2
+}

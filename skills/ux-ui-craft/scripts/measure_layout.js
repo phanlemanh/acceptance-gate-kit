@@ -75,10 +75,94 @@
     };
   }
 
+  // A "block" (spec §4.1): structural element, rendered box ≥40px wide, not
+  // inline, visible in the CURRENT viewport screenful. Inline flow never counts.
+  var BLOCK_SEL = 'section,article,nav,header,footer,aside,form,table,figure,fieldset,ul,ol,div';
+
+  function selOf(el) {
+    var id = el.id ? '#' + el.id : '';
+    var cls = !id && el.className && typeof el.className === 'string'
+      ? '.' + el.className.trim().split(/\s+/).slice(0, 2).join('.') : '';
+    return el.tagName.toLowerCase() + id + cls;
+  }
+
+  function collect(win) {
+    var doc = win.document;
+    var blocks = [];
+    var nodes = doc.querySelectorAll(BLOCK_SEL);
+    // Embedded panes can report innerHeight 0 while layout is real — fall back
+    // to measuring the whole page rather than silently filtering everything.
+    var vh = win.innerHeight || doc.documentElement.clientHeight || Infinity;
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      var cs = win.getComputedStyle(el);
+      if (cs.display === 'inline' || cs.display === 'none' || cs.visibility === 'hidden') continue;
+      var r = el.getBoundingClientRect();
+      if (r.width < 40 || r.height <= 0) continue;
+      if (r.top >= vh || r.bottom <= 0) continue;
+      blocks.push({ el: el, selector: selOf(el), left: r.left, top: r.top, width: r.width, height: r.height });
+    }
+    blocks.forEach(function (b) {
+      var n = 0;
+      blocks.forEach(function (c) { if (c.el.parentElement === b.el) n++; });
+      b.isContainer = n >= 2;
+    });
+    var byParent = [];
+    blocks.forEach(function (b) {
+      var hit = null;
+      for (var k = 0; k < byParent.length; k++) if (byParent[k].parent === b.el.parentElement) hit = byParent[k];
+      if (!hit) { hit = { parent: b.el.parentElement, sibs: [] }; byParent.push(hit); }
+      hit.sibs.push(b);
+    });
+    var gaps = [];
+    byParent.forEach(function (grp) {
+      grp.sibs.sort(function (a, b) { return a.top - b.top; });
+      for (var k = 1; k < grp.sibs.length; k++) {
+        var gap = Math.round(grp.sibs[k].top - (grp.sibs[k - 1].top + grp.sibs[k - 1].height));
+        if (gap > 0) gaps.push({ gap: gap, between: [grp.sibs[k - 1].selector, grp.sibs[k].selector] });
+      }
+    });
+    var rootCs = win.getComputedStyle(doc.documentElement);
+    function px(name) { var v = parseFloat(rootCs.getPropertyValue(name)); return isFinite(v) ? v : null; }
+    var notNull = function (v) { return v !== null; };
+    return {
+      rects: blocks.map(function (b) {
+        return { selector: b.selector, left: b.left, width: b.width, isContainer: b.isContainer };
+      }),
+      gaps: gaps,
+      declared: {
+        spaces: ['--space-within', '--space-between', '--space-section'].map(px).filter(notNull),
+        gutters: ['--gutter', '--gutter-compact'].map(px).filter(notNull)
+      }
+    };
+  }
+
+  function measureLayout(opts) {
+    var base = {
+      run_id: 'measure-layout-' + Math.random().toString(16).slice(2, 12),
+      verifier: 'skills/ux-ui-craft/scripts/measure_layout.js',
+      verified_at: new Date().toISOString(),
+      viewport: { w: root.innerWidth, h: root.innerHeight }
+    };
+    var input = collect(root);
+    if (!input.declared.spaces.length) {
+      return Object.assign(base, {
+        verdict: 'BLOCKED', exit_code: 3,
+        reason: 'no Layout Contract: declare --space-within/--space-between/--space-section (and --gutter) on :root before measuring'
+      });
+    }
+    if (!input.rects.length) {
+      return Object.assign(base, {
+        verdict: 'BLOCKED', exit_code: 3,
+        reason: 'nothing to measure: no visible content blocks in the viewport'
+      });
+    }
+    return Object.assign(base, analyze(input, opts));
+  }
+
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = { analyze: analyze };
   } else {
-    // Browser entry __measureLayout() ships in the collect() step (Task 2).
-    root.__measureLayoutAnalyze = analyze;
+    root.__measureLayout = measureLayout;
   }
 })(typeof window !== 'undefined' ? window : globalThis);

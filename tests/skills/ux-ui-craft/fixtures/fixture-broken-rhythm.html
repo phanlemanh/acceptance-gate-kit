@@ -1,0 +1,27 @@
+<!doctype html>
+<!-- sitemap: same as fixture-clean; #results' gap is broken on purpose -->
+<html><head><meta charset="utf-8"><title>fixture-broken-rhythm</title><style>
+  :root { --container-shell: 960px;
+          --gutter: 24px; --gutter-compact: 12px;
+          --space-within: 8px; --space-between: 24px; --space-section: 56px; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  .shell  { width: var(--container-shell); }
+  .shell > * + * { margin-top: var(--space-section); }
+  .stack  > * + * { margin-top: var(--space-between); }
+  .tight  > * + * { margin-top: var(--space-within); }
+  .card   { padding: var(--gutter); }
+  div, section, header, footer { min-height: 24px; }
+  #results { margin-top: 20px; } /* the defect: 20 ∉ {8,24,56,24,12} */
+</style></head><body>
+  <div class="shell">
+    <header class="tight"><div>Title</div><div>Meta</div></header>
+    <section class="stack" id="main">
+      <div id="filters">Filters</div>
+      <div id="results" class="stack">
+        <div class="card tight"><div>Card A</div><div>Body A</div></div>
+        <div class="card tight"><div>Card B</div><div>Body B</div></div>
+      </div>
+    </section>
+    <footer class="tight"><div>Note</div><div>Legal</div></footer>
+  </div>
+</body></html>

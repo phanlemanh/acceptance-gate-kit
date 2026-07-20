@@ -1,0 +1,11 @@
+{
+  "_note": "Captured 2026-07-20 in a real browser (desktop pane). Compare against __measureLayout() output minus run_id/verifier/verified_at/viewport.",
+  "lineCount": 2,
+  "singletons": [],
+  "containerWidths": [960],
+  "nearEqualWidths": [],
+  "offScaleGaps": [{ "gap": 20, "between": ["div#filters", "div#results"] }],
+  "violations": ["rhythm: 1 gap(s) off the declared scale"],
+  "verdict": "REJECT",
+  "exit_code": 2
+}
