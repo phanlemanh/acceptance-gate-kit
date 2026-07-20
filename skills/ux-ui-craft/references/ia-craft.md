@@ -97,4 +97,7 @@ physically separate:
 
 *Exit test for the whole file: sketch the sitemap in ≤10 lines of
 indented text before drawing any screen. If the sketch embarrasses you,
-the screens would have hidden it — that's the point of doing it first.*
+the screens would have hidden it — that's the point of doing it first.
+The sketch is not advice but a deliverable: it is the functional half of
+the Layout Contract (layout-craft § "The contract is written in CSS"),
+and the structure–space coherence gate reads it.*
