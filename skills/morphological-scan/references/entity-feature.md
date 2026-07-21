@@ -23,3 +23,4 @@ User journey đầy đủ của từng actor + đối chiếu 2 sản phẩm cù
 
 - Sót merge duplicate và bulk ops — spec ngây thơ gần như luôn sót.
 - Sót "chuyển giao khi nghỉ việc" — chỉ trục actor mới đẻ ra, CRUD thuần không bao giờ.
+- Đánh giá thấp "tổ chức": ở sản phẩm CRM-like, segment/smart-list hay phình thành cụm hạng nhất ngang trục — đừng nhét chung tag rồi đẩy search/lọc xuống cross-cutting.

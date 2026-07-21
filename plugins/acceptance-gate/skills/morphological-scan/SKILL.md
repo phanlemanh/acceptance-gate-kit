@@ -9,7 +9,12 @@ description: "Dùng khi bài toán thuộc dạng 'liệt kê cho đủ' một k
 
 **Vị trí trong pipeline:** chạy ở phase Brainstorm/Discovery, TRƯỚC design doc. Output của scan là input cho design doc và là thước CE cho writing-plans phía sau.
 
-**Ngữ cảnh sản phẩm (bắt buộc trước khi quét):** trục thuộc skill — giá trị thuộc sản phẩm. Mọi giá trị cụ thể (kênh, surface, role, thị trường, domain map…) lấy từ **Product Context** của repo: mục `## Product Context` trong CLAUDE.md, hoặc `docs/product-context.md`. Không tìm thấy → hỏi user 5 ý (sản phẩm gì; loại hình — marketplace mấy phía / SaaS / tool nội bộ; actor & phía; surface + kênh; thị trường & khung pháp lý) rồi mới quét; hỏi xong đề nghị lưu câu trả lời vào CLAUDE.md theo mẫu `references/product-context-template.md` để lần sau khỏi hỏi. Ví dụ gắn nhãn "vd" trong preset chỉ minh họa hình dạng — cấm dùng làm giá trị mặc định cho sản phẩm khác.
+**Nguồn giá trị (bắt buộc trước khi quét):** trục thuộc skill — giá trị đứng trên HAI chân, thiếu chân nào ghi rõ chân đó:
+
+1. **Chân sản phẩm** — giá trị cụ thể của sản phẩm này (kênh, surface, role, thị trường, domain map…). Thang nguồn, lấy nấc cao nhất có: (a) mục `## Product Context` trong CLAUDE.md hoặc `docs/product-context.md` → (b) chưa có mục đó nhưng repo có đồ: đào glossary/spec/schema/code rồi tóm tắt cho user xác nhận 1 lần → (c) repo mới tinh: hỏi user 5 ý (sản phẩm gì; loại hình — marketplace mấy phía / SaaS / tool nội bộ; actor & phía; surface + kênh; thị trường & khung pháp lý). Sau (b)/(c) đề nghị lưu vào CLAUDE.md theo mẫu `references/product-context-template.md` để lần sau khỏi hỏi.
+2. **Chân ngành (outside view)** — chuẩn của LOẠI sản phẩm, độc lập với trí nhớ user: preset trong `references/` + đối chiếu ≥1 chuẩn/sản phẩm thật CÓ TÊN cùng loại (cần đối chiếu sâu → chạy preset benchmark riêng). Bắt buộc, vì user không tự kể được must-have của ngành (Kano: must-be chỉ lộ khi thiếu — hỏi elicitation kiểu gì cũng không ra); repo mới tinh → chân ngành là nguồn SINH chính, câu trả lời user lúc đó chủ yếu để CẮT.
+
+Nhãn nguồn cho giá trị không hiển nhiên: `[SP]` = truy được chân sản phẩm · `[NGÀNH: <tên>]` = từ chân ngành, vào scan làm ỨNG VIÊN chờ user gật/cắt chứ không phải fact · `[GIẢ ĐỊNH]` = không truy được đâu — phải hỏi trước khi tuyên "đủ". "Chuẩn ngành" mà không nêu được tên = `[GIẢ ĐỊNH]`. Ví dụ gắn nhãn "vd" trong preset chỉ minh họa hình dạng — cấm dùng làm giá trị mặc định cho sản phẩm khác.
 
 ## Quy trình 4 bước — đúng thứ tự generate → check → cut, cấm nhảy cóc
 
@@ -23,7 +28,7 @@ description: "Dùng khi bài toán thuộc dạng 'liệt kê cho đủ' một k
 ### B2. Quét giá trị dọc từng trục — MECE per axis
 1. Quét hết một trục rồi mới sang trục kế. Cấm nhảy trục giữa chừng.
 2. Test ME: hai giá trị bất kỳ có chồng lấn không?
-3. Test CE: phải nêu được *thước đo* — spec, user journey, dữ liệu thật, domain checklist. Không có thước đo → ghi `[CE chưa kiểm chứng]` ngay cạnh trục, cấm tuyên bố "đủ".
+3. Test CE: phải nêu được *thước đo* — spec, user journey, dữ liệu thật, domain checklist, chuẩn/sản phẩm ngành có tên. Không có thước đo → ghi `[CE chưa kiểm chứng]` ngay cạnh trục, cấm tuyên bố "đủ".
 4. Một trục > 7 giá trị → nghi trục đó là 2 trục bị gộp, tách ra.
 
 ### B3. Dựng không gian — tích Descartes
@@ -34,6 +39,7 @@ description: "Dùng khi bài toán thuộc dạng 'liệt kê cho đủ' một k
 1. Gắn nhãn 3 mức: **Core** (làm ngay) / **Later** (park, 1 dòng) / **Never** (1 dòng lý do — để khỏi bàn lại).
 2. Core ≤ ~20% số ô có nghĩa. Vượt → chưa cắt thật, cắt lại.
 3. Cấm cắt trước khi quét xong B2.
+4. Ô `[NGÀNH]` bị cắt vẫn phải nằm ở Later/Never kèm lý do — outside view để lại vết, không biến mất câm.
 
 ## Preset routing
 
@@ -51,7 +57,7 @@ description: "Dùng khi bài toán thuộc dạng 'liệt kê cho đủ' một k
 
 ```
 ## Ngữ cảnh
-- Sản phẩm: <tên> — nguồn giá trị: <Product Context | user trả lời>
+- Sản phẩm: <tên> — chân sản phẩm: <Product Context | đào repo | user trả lời> · chân ngành: <tên chuẩn/sản phẩm đối chiếu>
 
 ## Trục
 - Trục A: v1 | v2 | v3   [thước CE: …]
@@ -75,4 +81,5 @@ description: "Dùng khi bài toán thuộc dạng 'liệt kê cho đủ' một k
 - Không nêu được thước CE mà vẫn tuyên bố "đủ" → CE giả.
 - Dùng preset không chất vấn trục → chọn sai chiều thì quét kỹ mấy cũng sót.
 - Bắt đầu cắt (B4) khi chưa quét xong (B2) → sót đúng thứ đáng ra phải thấy.
-- Giá trị trục (kênh, surface, role…) không truy được về Product Context hay câu trả lời user → đang bịa theo ngữ cảnh của sản phẩm khác.
+- Giá trị không gắn được nhãn nguồn nào (`[SP]` / `[NGÀNH: tên]` / `[GIẢ ĐỊNH]`) → đang bịa theo ngữ cảnh của sản phẩm khác.
+- Mọi giá trị đều `[SP]` → scan chỉ chép lại điều user đã biết, không chặn được sót — người trả lời chính là người đang sót. Repo mới tinh mà thiếu chân ngành là dạng nặng nhất của lỗi này.

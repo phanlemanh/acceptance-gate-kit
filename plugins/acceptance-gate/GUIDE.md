@@ -426,8 +426,10 @@ cùng phân công máy/người như judgment eval. Workspace cũ (contract trư
 trên card, không chặn resume, không bắt migrate. Output scan map thẳng vào artifact:
 Core → AC (Core >15 thì hợp nhất ô, giữ cap 5-15) · Later/Never → Out of scope + entry
 `descope` · trục + thước CE → `## Coverage`. Preset sẵn trong skill: entity-feature,
-test-matrix, content-matrix, benchmark, risk-premortem, metrics-tree — giá trị trục lấy
-từ Product Context per-repo (mục `## Product Context` trong CLAUDE.md), thiếu thì hỏi user.
+test-matrix, content-matrix, benchmark, risk-premortem, metrics-tree — giá trị trục đứng
+hai chân: chân sản phẩm từ Product Context per-repo (CLAUDE.md `## Product Context` → đào
+repo → hỏi user; repo mới tinh đi thẳng nấc hỏi) + chân ngành bắt buộc (preset + đối chiếu
+chuẩn/sản phẩm thật có tên — nguồn sinh chính khi repo mới, ứng viên chờ người gật/cắt).
 
 ## 5. Cài đặt
 
