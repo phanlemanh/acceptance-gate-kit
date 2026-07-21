@@ -14,7 +14,11 @@ description: "Dùng khi bài toán thuộc dạng 'liệt kê cho đủ' một k
 1. **Chân sản phẩm** — giá trị cụ thể của sản phẩm này (kênh, surface, role, thị trường, domain map…). Thang nguồn, lấy nấc cao nhất có: (a) mục `## Product Context` trong CLAUDE.md hoặc `docs/product-context.md` → (b) chưa có mục đó nhưng repo có đồ: đào glossary/spec/schema/code rồi tóm tắt cho user xác nhận 1 lần → (c) repo mới tinh: hỏi user 5 ý (sản phẩm gì; loại hình — marketplace mấy phía / SaaS / tool nội bộ; actor & phía; surface + kênh; thị trường & khung pháp lý). Sau (b)/(c) đề nghị lưu vào CLAUDE.md theo mẫu `references/product-context-template.md` để lần sau khỏi hỏi.
 2. **Chân ngành (outside view)** — chuẩn của LOẠI sản phẩm, độc lập với trí nhớ user: preset trong `references/` + đối chiếu ≥1 chuẩn/sản phẩm thật CÓ TÊN cùng loại (cần đối chiếu sâu → chạy preset benchmark riêng). Bắt buộc, vì user không tự kể được must-have của ngành (Kano: must-be chỉ lộ khi thiếu — hỏi elicitation kiểu gì cũng không ra); repo mới tinh → chân ngành là nguồn SINH chính, câu trả lời user lúc đó chủ yếu để CẮT.
 
+   **Thang nguồn chân ngành — thủ tục, không chỉ mệnh lệnh** (làm theo bậc, đừng dừng ở "tôi không biết ngành này"): (a) gọi được tên ≥1 sản phẩm/chuẩn CÙNG LOẠI từ hiểu biết chắc → dùng, gắn `[NGÀNH: <tên>]`. (b) không chắc / chỉ nhớ mang máng → **dùng tool duyệt web (WebSearch → WebFetch trang sản phẩm) để TÌM và XÁC MINH tên thật** — query kiểu `"<loại sản phẩm> software"`, `"<domain> management system"`, kèm tên thị trường; recall-and-hope và bịa tên đều CẤM. (c) tìm vẫn không ra sản phẩm ĐÚNG loại (hoặc không có tool web) → neo tạm vào chuẩn/thực hành ngành CÓ TÊN (FAO, WOAH, luật, chứng nhận…) hoặc sản phẩm *cận kề* (ghi rõ chữ "cận kề"), phần còn lại hạ `[GIẢ ĐỊNH: chưa có chuẩn ngành đúng loại]` như ĐIỂM MÙ chờ user/benchmark bù — KHÔNG bỏ trống câm, KHÔNG tự nâng lên `[NGÀNH]`. `benchmark.md` là bước teardown SÂU *sau khi đã có tên*; nó KHÔNG thay bước (b) đi-tìm-tên. Ranh giới: thang này chỉ dừng ở (c) khi (b) đã thực sự chạy — bỏ qua (b) rồi khai (c) là vi phạm.
+
 Nhãn nguồn cho giá trị không hiển nhiên: `[SP]` = truy được chân sản phẩm · `[NGÀNH: <tên>]` = từ chân ngành, vào scan làm ỨNG VIÊN chờ user gật/cắt chứ không phải fact · `[GIẢ ĐỊNH]` = không truy được đâu — phải hỏi trước khi tuyên "đủ". "Chuẩn ngành" mà không nêu được tên = `[GIẢ ĐỊNH]`. Ví dụ gắn nhãn "vd" trong preset chỉ minh họa hình dạng — cấm dùng làm giá trị mặc định cho sản phẩm khác.
+
+**Fact ngành có MỐC THỜI GIAN** (luật/nghị định/chuẩn/chứng nhận — vd khung dữ liệu cá nhân, ASC/BAP/VietGAP/WOAH) mà preset ghi sẵn = ảnh chụp đông lạnh, KHÔNG phải fact vĩnh cửu: **verify-current @ scan** (web bậc b của thang nguồn chân ngành) trước khi tin, nhất là khi mốc trong preset đã qua — luật đổi thì preset trễ hơn thực tế (đã xảy ra: NĐ13 → Luật 2025). Preset ghi `⏱ verify-current` ở đâu là chỗ đó cần tra lại, không bê thẳng.
 
 ## Quy trình 4 bước — đúng thứ tự generate → check → cut, cấm nhảy cóc
 
@@ -29,6 +33,7 @@ Nhãn nguồn cho giá trị không hiển nhiên: `[SP]` = truy được chân 
 1. Quét hết một trục rồi mới sang trục kế. Cấm nhảy trục giữa chừng.
 2. Test ME: hai giá trị bất kỳ có chồng lấn không?
 3. Test CE: phải nêu được *thước đo* — spec, user journey, dữ liệu thật, domain checklist, chuẩn/sản phẩm ngành có tên. Không có thước đo → ghi `[CE chưa kiểm chứng]` ngay cạnh trục, cấm tuyên bố "đủ".
+   - **Repo mới / chưa có lịch sử nội bộ** (không spec, không bug history, không analytics — thước nội bộ mà preset đòi CHƯA tồn tại): KHÔNG vì thế mà treo `[CE chưa kiểm chứng]` rồi bỏ. Thước CE lúc này LÀ chân ngành đã nêu tên (`[CE: ngành <tên>]`) + domain checklist; coverage khi đó là **"đủ-để-bắt-đầu"** (đủ để code/kiểm lát đầu), KHÔNG phải "đủ" tuyệt đối — dữ liệu/bug thật đầu tiên phải đưa NGƯỢC vào trục làm thước CE thật (đóng vòng). Chỉ khi CẢ chân ngành có tên LẪN lịch sử nội bộ đều trống (đã chạy thang nguồn chân ngành bậc b–c mà vẫn không có tên) mới ghi `[CE chưa kiểm chứng]`.
 4. Một trục > 7 giá trị → nghi trục đó là 2 trục bị gộp, tách ra.
 
 ### B3. Dựng không gian — tích Descartes
@@ -83,3 +88,5 @@ Nhãn nguồn cho giá trị không hiển nhiên: `[SP]` = truy được chân 
 - Bắt đầu cắt (B4) khi chưa quét xong (B2) → sót đúng thứ đáng ra phải thấy.
 - Giá trị không gắn được nhãn nguồn nào (`[SP]` / `[NGÀNH: tên]` / `[GIẢ ĐỊNH]`) → đang bịa theo ngữ cảnh của sản phẩm khác.
 - Mọi giá trị đều `[SP]` → scan chỉ chép lại điều user đã biết, không chặn được sót — người trả lời chính là người đang sót. Repo mới tinh mà thiếu chân ngành là dạng nặng nhất của lỗi này.
+- Chân ngành để trống / toàn `[GIẢ ĐỊNH]` vì "không sẵn biết ngành này" mà CHƯA hề web-search tìm tên → đã bỏ chân ngành trên thực tế. Phải chạy bậc (b) của thang nguồn chân ngành trước khi được phép hạ điểm mù.
+- Bịa tên sản phẩm/chuẩn để lấp `[NGÀNH: …]` → tệ hơn để trống: dựng cảm giác "đã đối chiếu ngành" trong khi chưa. Không tra ra tên thật → `[GIẢ ĐỊNH]`, không phải một cái tên nghe hợp lý.

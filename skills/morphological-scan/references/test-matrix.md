@@ -15,7 +15,7 @@ Timezone & định dạng ngày giờ theo thị trường trong Product Context
 
 ## Thước CE
 
-Spec + lịch sử bug 6 tháng gần nhất của module — mỗi bug cũ là một giá trị trục đã bị sót lần trước, đưa ngược vào trục.
+Spec + lịch sử bug 6 tháng gần nhất của module — mỗi bug cũ là một giá trị trục đã bị sót lần trước, đưa ngược vào trục. Repo mới chưa có spec/bug history → theo mục "Repo mới" ở B2.3 của SKILL.md: thước CE tạm = đối chiếu ma trận test của sản phẩm cùng loại CÓ TÊN (web-search tìm nếu chưa biết tên) + domain checklist; bug thật đầu tiên đưa ngược vào trục làm thước thật.
 
 ## Pareto
 

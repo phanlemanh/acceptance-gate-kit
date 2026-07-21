@@ -11,6 +11,6 @@ Copy khối dưới vào `CLAUDE.md` của repo sản phẩm (giữ nguyên head
 - **Kênh content:** <kênh đang vận hành thật>
 - **Thị trường & pháp lý:** <nước/khu vực; khung dữ liệu cá nhân; compliance ngành>
 - **Domain map nội bộ:** <các domain/capability chính>
-- **Đối chiếu ngành:** <1-2 chuẩn/sản phẩm cùng loại CÓ TÊN — chân outside view cho mọi lần quét>
+- **Đối chiếu ngành:** <1-2 chuẩn/sản phẩm cùng loại CÓ TÊN — chân outside view cho mọi lần quét; chưa biết tên → web-search "<loại sản phẩm> software" + tên thị trường để tìm & xác minh, đừng để trống>
 - **Nguồn CE sẵn có:** <bug tracker, analytics, spec, user journey map…>
 ```

@@ -14,7 +14,7 @@ Dùng khi dựng bộ chỉ số cho một feature/domain — chống sót và c
 
 ## Thước CE
 
-Đối chiếu ngược: liệt kê mọi quyết định của quý trước — mỗi quyết định cần số nào, số đó có trong cây chưa? Quyết định không có số chống lưng = lỗ CE.
+Đối chiếu ngược: liệt kê mọi quyết định của quý trước — mỗi quyết định cần số nào, số đó có trong cây chưa? Quyết định không có số chống lưng = lỗ CE. Công ty/sản phẩm mới chưa có "quý trước" → theo mục "Repo mới" ở B2.3 của SKILL.md: dùng bộ metric chuẩn của sản phẩm cùng loại CÓ TÊN (web-search nếu chưa biết tên) làm khung tạm; quyết định thật đầu tiên đưa ngược vào cây (đóng vòng).
 
 ## Pareto
 

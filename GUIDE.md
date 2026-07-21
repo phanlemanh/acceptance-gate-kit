@@ -430,6 +430,11 @@ test-matrix, content-matrix, benchmark, risk-premortem, metrics-tree — giá tr
 hai chân: chân sản phẩm từ Product Context per-repo (CLAUDE.md `## Product Context` → đào
 repo → hỏi user; repo mới tinh đi thẳng nấc hỏi) + chân ngành bắt buộc (preset + đối chiếu
 chuẩn/sản phẩm thật có tên — nguồn sinh chính khi repo mới, ứng viên chờ người gật/cắt).
+Chân ngành có **thang nguồn riêng** (biết chắc tên → web-search tìm+xác minh tên → neo
+chuẩn/cận-kề CÓ TÊN + hạ `[GIẢ ĐỊNH: chưa có chuẩn ngành]`): không được dừng ở "không biết
+ngành" mà bỏ, cũng không bịa tên. Repo mới chưa có thước CE nội bộ (spec/bug/analytics) thì
+chính đối chiếu ngành làm thước, coverage là "đủ-để-bắt-đầu" — dữ liệu thật đầu tiên đưa
+ngược vào trục (đóng vòng).
 
 ## 5. Cài đặt
 

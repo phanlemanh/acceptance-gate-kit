@@ -15,7 +15,7 @@ Compliance quảng cáo của ngành trong Product Context (vd BĐS: thông tin 
 
 ## Thước CE
 
-Performance data từng kênh 90 ngày + search demand. Có pipeline dữ liệu nguồn (vd knowledge graph) → lấy taxonomy từ đó thay vì nghĩ tay — nguồn tự sinh trục cho mình.
+Performance data từng kênh 90 ngày + search demand. Có pipeline dữ liệu nguồn (vd knowledge graph) → lấy taxonomy từ đó thay vì nghĩ tay — nguồn tự sinh trục cho mình. Sản phẩm mới chưa đủ 90 ngày data → theo mục "Repo mới" ở B2.3 của SKILL.md: thước CE tạm = benchmark nội dung của sản phẩm/đối thủ cùng loại CÓ TÊN (web-search nếu chưa biết tên); số liệu thật đủ một chu kỳ thì thay vào (đóng vòng).
 
 ## Pareto
 

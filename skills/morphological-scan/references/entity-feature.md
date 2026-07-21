@@ -12,7 +12,7 @@ Dùng khi scope feature xoay quanh một danh từ trung tâm: contact, listing,
 
 ## Cross-cutting (áp mọi ô Core)
 
-- Dữ liệu cá nhân: entity chứa PII → áp khung pháp lý dữ liệu của thị trường trong Product Context (vd VN: Luật Bảo vệ dữ liệu cá nhân 2025 — thay NĐ13, hiệu lực 01/2026; EU: GDPR) — consent, quyền yêu cầu sửa/xóa. Bắt buộc, không phải nice-to-have.
+- Dữ liệu cá nhân: entity chứa PII → áp khung pháp lý dữ liệu của thị trường trong Product Context (⏱ verify-current @ scan — luật đổi; vd VN: Luật Bảo vệ dữ liệu cá nhân 2025 — thay NĐ13, hiệu lực 01/2026; EU: GDPR) — consent, quyền yêu cầu sửa/xóa. Bắt buộc, không phải nice-to-have.
 - Audit log; empty/loading/error state; giới hạn số lượng + phân trang; tìm kiếm & lọc.
 
 ## Thước CE
