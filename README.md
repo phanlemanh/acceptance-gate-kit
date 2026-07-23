@@ -15,6 +15,14 @@ input (prompt/ticket/PRD)
        fresh-context subagent runs every eval ┘
 ```
 
+In the full feature-loop, S1 additionally ends with a **clean-context
+gap-probe** (T2/T3): a fresh subagent that had no hand in the artifacts
+interrogates the draft design/contract/evals for what is *missing* — max 5
+findings, each requiring a concrete failure scenario, each dispositioned
+(fixed on paper / deferred / rejected / escalated to the human) — before the
+Gate-1 card renders. The card shows the findings block, or a yellow flag when
+the probe never ran (non-blocking, backward-tolerant).
+
 Enforcement is deterministic, not aspirational:
 - **Hook** (`acceptance-evidence-gate.js`): blocks any PASS verdict written
   without machine evidence (run_id — reconciled against the machine-written
@@ -237,6 +245,13 @@ zero business-logic defects slipping past the gate.
 Deliberate scope cuts — each is backed by the CI gate + human sign-off
 downstream, and revisited after the pilot:
 
+- **Gap-probe presence is flagged, not enforced**: a missing `gap-probe.md`
+  only yellow-flags the Gate-1 card (backward-tolerant by design). A hook-level
+  presence check is the queued v2 candidate — `_acceptance/gap-probe-presence-hook/`
+  holds its Gate-1 package.
+- **Gap-probe findings parse splits on `|`**: a finding cell containing a
+  literal pipe drops that row from the card — counted and flagged as
+  unreadable, never silent.
 - **L3 judgment pairing is count-based**, not position-aware: any
   `human_override:` with a value balances any UNCERTAIN. A determined agent
   can game it; an honest one cannot trip it accidentally.

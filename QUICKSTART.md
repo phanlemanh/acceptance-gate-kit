@@ -101,10 +101,20 @@ Máy sẽ tạo 2 file trong `_acceptance/<slug>/` rồi DỪNG chờ bạn:
 |---|---|
 | `contract.md` | Tiêu chí Given/When/Then có đúng ý nghiệp vụ? Mục Out-of-scope có đủ? |
 | `evals.yaml` | Mỗi tiêu chí có ít nhất 1 eval? Executor hợp lý? |
+| `gap-probe.md` *(feature-loop T2/T3)* | Critic context sạch đã truy lỗ hổng: finding P0 nào ghi `human-gate1` là câu BẠN phải trả lời ngay tại thẻ; các finding khác đã có cột Xử lý tương xứng chưa? |
 
 Từ 1.16, contract T2/T3 kèm mục **Coverage** hiện ngay trên card Cổng 1: máy đã
 quét không gian tiêu chí theo trục và tự khai "sẽ làm / để sau / KHÔNG làm" —
 bạn duyệt độ phủ cùng lúc với tiêu chí, không phải tự nhớ "còn thiếu case gì".
+
+Từ 1.18, thẻ Cổng 1 có thêm khối **Phản biện context sạch**: cuối bước design
+(feature-loop T2/T3), một agent CHƯA nhúng tay vào artifact truy "điều gì thiếu
+sót" — tối đa 5 finding, mỗi cái kèm kịch bản fail cụ thể + cách đã xử lý — bạn
+duyệt phần phản biện cùng lúc với thẻ. Thấy **cờ vàng "Chưa có phản biện"** nghĩa
+là bước này chưa chạy (workspace cũ, hoặc dùng `/acceptance` thuần thay vì
+feature-loop): không chặn gì cả — muốn có thì chạy qua feature-loop; muốn bỏ chủ
+động thì ghi entry descope bắt đầu `"bỏ gap-probe"`, cờ chuyển thành dấu vết
+trung tính.
 
 Sửa trực tiếp nếu cần → approve (máy ghi `approved_by`). **Đây là 10 phút
 đáng giá nhất**: sửa 1 dòng tiêu chí ở đây rẻ hơn 10 lần phát hiện sai sau khi code xong.
