@@ -314,7 +314,7 @@ run "P26 Acceptance Gate exposes native helper skills" \
 import sys
 from pathlib import Path
 skills = Path(sys.argv[1])
-for name in ["acceptance-init", "acceptance-card", "acceptance-status", "acceptance"]:
+for name in ["acceptance-init", "acceptance-card", "acceptance-status", "acceptance", "approve", "signoff", "acceptance-report"]:
     assert (skills / name / "SKILL.md").is_file(), name
 main = (skills / "acceptance/SKILL.md").read_text()
 assert "acceptance-init" in main
@@ -332,6 +332,30 @@ card = (skills / "acceptance-card/SKILL.md").read_text()
 assert "card-plain.json" in card and "evidence-page.html" in card
 status = (skills / "acceptance-status/SKILL.md").read_text()
 assert "PENDING-JUDGMENT" in status and "Gate 2" in status
+appr = (skills / "approve/SKILL.md").read_text()
+assert "approved_by" in appr and "decisions.jsonl" in appr and "gate1_skipped" in appr
+sign = (skills / "signoff/SKILL.md").read_text()
+assert "require_human_commit" in sign and "human_override" in sign and "pre-merge-check.sh" in sign
+rep = (skills / "acceptance-report/SKILL.md").read_text()
+assert "baseline_minutes" in rep and "time_human_minutes" in rep and "Read-only" in rep
+PY
+
+run "P30 Claude decision commands ship and keep their invariants" \
+  python3 - "$ROOT/commands" <<'PY'
+import sys
+from pathlib import Path
+cmds = Path(sys.argv[1])
+for name in ["acceptance-init", "acceptance-status", "acceptance-card", "approve", "signoff", "acceptance-report"]:
+    assert (cmds / f"{name}.md").is_file(), name
+appr = (cmds / "approve.md").read_text()
+for needle in ["approved_by", "time_human_minutes.gate1", "decisions.jsonl", "gate1_skipped", "/acceptance-card"]:
+    assert needle in appr, needle
+sign = (cmds / "signoff.md").read_text()
+for needle in ["require_human_commit", "human_override", "time_human_minutes.gate2", "pre-merge-check.sh", "own commit"]:
+    assert needle in sign, needle
+rep = (cmds / "acceptance-report.md").read_text()
+for needle in ["baseline_minutes", "time_human_minutes", "gate1_skipped", "Read-only"]:
+    assert needle in rep, needle
 PY
 
 run "P27 Design Loop exposes native portable-reference skills" \

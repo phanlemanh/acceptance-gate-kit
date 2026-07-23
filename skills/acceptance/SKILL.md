@@ -139,7 +139,9 @@ Run immediately after the user reviews the contract (same gate, one sitting).
 5. **STOP — Gate 1 part B.** Present evals.yaml + mapping table — or, to cut
    review time, render the plain-language decision card (`/acceptance-card
    <slug>`): the human reviews "sẽ làm / sẽ KHÔNG làm" + coverage flags instead of
-   raw YAML (presentation only; the contract/evals stay the source of truth). On approval:
+   raw YAML (presentation only; the contract/evals stay the source of truth).
+   The `/approve <slug>` command walks this stop end-to-end (card → one
+   question → recorded decision). On approval:
    set contract `status: approved`, `approved_by`, `approved_at`, and ask the
    user how many minutes Gate 1 took → write `time_human_minutes.gate1`.
 6. Hand off to implementation (normal agent coding flow — the implementing
@@ -235,7 +237,9 @@ Entry: implementation complete, contract `status: implemented`.
    check (T3: ALL judgment items). To cut review time, render the decision card
    (`/acceptance-card <slug>`) — judgment items + deferred scope (việc-của-người)
    surface FIRST in plain language, machine evidence collapsed; the verdict + hook
-   are unchanged. The user resolves each pending item by
+   are unchanged. The `/signoff <slug>` command walks this stop end-to-end
+   (preconditions → overrides → human-fields-only signature commit → pre-merge
+   re-check). The user resolves each pending item by
    filling its `human_override: <name> <date>` line; if the verdict was
    PENDING-JUDGMENT they then upgrade it to PASS (the hook re-validates that
    write) — have the agent apply that edit so the hook actually sees it; a

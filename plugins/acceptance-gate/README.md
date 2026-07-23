@@ -122,6 +122,9 @@ mkdir -p .claude/commands
 ln -s <kit>/commands/acceptance-init.md   .claude/commands/acceptance-init.md
 ln -s <kit>/commands/acceptance-status.md .claude/commands/acceptance-status.md
 ln -s <kit>/commands/acceptance-card.md   .claude/commands/acceptance-card.md
+ln -s <kit>/commands/approve.md           .claude/commands/approve.md
+ln -s <kit>/commands/signoff.md           .claude/commands/signoff.md
+ln -s <kit>/commands/acceptance-report.md .claude/commands/acceptance-report.md
 # hook: register in .claude/settings.local.json (machine-local, not committed)
 #   PreToolUse Write|Edit -> node "<kit>/hooks/acceptance-evidence-gate.js"
 ```
@@ -174,6 +177,14 @@ templates produce advisory NOTEs, not failures).
   with multiple frames plays as a CSS slideshow), real output, judge rationale,
   override status, review findings, Gate-2 checklist. The card stays link-only;
   you SEE the artifacts on the page. Self-contained, `file://`-openable, zero-dep.
+- `/approve <slug>` → record the Gate 1 decision: card → one question → machine
+  writes `approved_by`/`approved_at` on your explicit YES. `/signoff <slug>` →
+  walk Gate 2: preconditions → `human_override`/`human_signoff` → signature in
+  its own human-fields-only commit → pre-merge re-check. The decision verbs
+  never decide on their own.
+- `/acceptance-report` → is the gate paying off? Human minutes vs
+  `baseline_minutes` (KPI ≥50% reduction), verdict mix, gate hygiene
+  (skips/bypasses/stale evidence). Read-only.
 - Risk tiers: T1 skips the kit; T3 requires direct human verdicts on all
   judgment items. Tiers/globs are per-repo in `_acceptance/config.yaml`.
 - Current test surface (8 suites, all fixture-driven): 51 hook cases
@@ -204,7 +215,7 @@ templates produce advisory NOTEs, not failures).
 | `skills/morphological-scan/` | CT-S coverage skill: Zwicky-box AC-space scan (MECE axes + CE evidence + Pareto Core/Later/Never) feeding the contract's Coverage section on the Gate-1 card |
 | `hooks/` | PreToolUse evidence gate (write time) |
 | `lib/evidence-core.js` | Shared L1/L2/L3 evidence validation (hook + CI re-check) |
-| `commands/` | `/acceptance-init`, `/acceptance-status`, `/acceptance-card` |
+| `commands/` | `/acceptance-init`, `/acceptance-status`, `/acceptance-card`, `/approve`, `/signoff`, `/acceptance-report` |
 | `scripts/pre-merge-check.sh` | CI gate (copy into consumer repos) |
 | `scripts/recheck-evidence.js` | CI re-verify a committed report's evidence |
 | `scripts/gate-card.js` | Render the Gate 1 / Gate 2 human decision card |
