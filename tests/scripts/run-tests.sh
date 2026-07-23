@@ -407,6 +407,41 @@ EOF
 GPX8="$(node "$GCARD" --root "$T/gprobe" --slug pfeat 2>/dev/null)"
 hasout GP8 "1 dòng finding không đọc được" "$GPX8"
 hasout GP8b "Dòng tốt" "$GPX8"
+# coherence: findings mà không đọc được dòng nào (heading sai/prose) → cờ, không im lặng
+printf -- '---\nslug: pfeat\nat: 2026-07-23T02:00:00Z\nverdict: findings\np0: 2\np1: 0\np2: 0\n---\n\nCritic viết prose thay vì bảng.\n' > "$GPD/gap-probe.md"
+hasout GP9 "không đọc được dòng finding nào" "$(node "$GCARD" --root "$T/gprobe" --slug pfeat 2>/dev/null)"
+# coherence: clean mà bảng lại có finding → mâu thuẫn phải hiện
+printf -- '---\nslug: pfeat\nat: 2026-07-23T02:00:00Z\nverdict: clean\np0: 0\np1: 0\np2: 0\n---\n\n## Findings\n\n| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |\n|---|---|---|---|---|---|\n| P0 | contract | Lỗ thật | x | y | human-gate1 |\n' > "$GPD/gap-probe.md"
+hasout GP10 "mâu thuẫn" "$(node "$GCARD" --root "$T/gprobe" --slug pfeat 2>/dev/null)"
+# verdict lạ / file rác → cờ không-đọc-được, presence không được im lặng nuốt cảnh báo
+printf -- 'garbage one-liner\n' > "$GPD/gap-probe.md"
+hasout GP11 "verdict lạ/thiếu" "$(node "$GCARD" --root "$T/gprobe" --slug pfeat 2>/dev/null)"
+# extract structure: đếm + rows + descoped phải đúng, không chỉ có mặt key
+cat > "$GPD/gap-probe.md" <<'EOF'
+---
+slug: pfeat
+at: 2026-07-23T02:00:00Z
+verdict: findings
+p0: 1
+p1: 1
+p2: 0
+---
+
+## Findings
+
+| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |
+|---|---|---|---|---|---|
+| P0 | contract | Thiếu AC cho nhánh lỗi import | File hỏng giữa chừng → nửa dữ liệu | 1 AC + eval err-path | fixed: thêm AC-6 |
+| P1 | evals | AC-3 chưa có eval đo | AC-3 pass mà không ai kiểm | eval E7 script | human-gate1 |
+EOF
+node "$GCARD" --root "$T/gprobe" --slug pfeat --extract 2>/dev/null | python3 -c '
+import json, sys
+d = json.load(sys.stdin)["gap_probe"]
+assert d["present"] is True and d["verdict"] == "findings"
+assert d["p0"] == 1 and d["p1"] == 1 and d["p2"] == 0
+assert len(d["rows"]) == 2 and d["rows"][0]["disposition"].startswith("fixed") and d["rows"][1]["disposition"] == "human-gate1"
+assert d["parse_dropped"] == 0 and d["descoped"] is False
+'; check GP12 0 $?
 
 echo "G15 REJECT verdict -> non-approvable card (no sign-off, no all-pass claim)"
 GR="$T/gcardR/_acceptance/rfeat"; mkdir -p "$GR"
