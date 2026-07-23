@@ -87,7 +87,7 @@ Use `_acceptance/<slug>/contract.md` frontmatter as the durable state.
 | status | Stage |
 |---|---|
 | missing workspace | S0 intake, then S1 design |
-| `draft` | Gate 1 package review |
+| `draft` | Gate 1 package review (CT-S: missing `gap-probe.md` and no `descope` entry starting `"bỏ gap-probe"` → yellow flag + one question to run step 8 — never auto-run, never block; pre-1.14.0 workspaces take this path) |
 | `approved` | S2 plan, then S3 execute |
 | `implemented` | S4 verify |
 | `verified` | Gate 2 evidence review |
@@ -237,6 +237,32 @@ section (even if it is a single skip line):
    permissions, limits, or out-of-scope behavior. Run the advisory coverage lint
    when available:
    `node <acceptance-gate>/scripts/eval-coverage-lint.js <repo> --slug <slug>`.
+8. **(CT-S, default for T2/T3) Clean-context gap-probe before rendering the
+   Gate 1 card.** Run ONE fresh read-only spawned worker (`session-inherited`,
+   or `custom-agent` routing when selectable). Inputs are ONLY the design doc,
+   `contract.md`, `evals.yaml`, and `decisions.jsonl` (skip the ledger if
+   absent) — never the brainstorm conversation, never repo code (the critic
+   judges artifacts, not code). The prompt keeps six elements: (1) presuppose
+   gaps exist — "list what is missing in this artifact set, ranked by
+   severity"; (2) scope guard — only gaps that make THIS feature fail its own
+   acceptance or make Gate 1 approve wrongly, no wishlist; (3) every finding
+   carries artifact (design|contract|evals) · concrete failure scenario ·
+   severity P0/P1/P2 · proposed measure — no scenario means DROP; (4) mandatory
+   cross-checks: ACs with no eval, GWTs that cannot be measured, Coverage axes
+   with no AC; (5) at most 5 findings; verdict `clean` is a VALID outcome;
+   (6) never relitigate sealed/descoped ledger decisions without a NEW reason.
+   Write `_acceptance/<slug>/gap-probe.md` — frontmatter `slug / at (ISO UTC) /
+   verdict: clean|findings|probe-failed / p0 / p1 / p2` plus a `## Findings`
+   table `| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |`
+   (cells must not contain `|`; `clean` → one line "Không còn lỗ đáng kể") —
+   then disposition every finding in the Xử lý column: **P0 = fix the artifact
+   now OR `human-gate1`, never silent**; P1/P2 = `fixed: <what>` |
+   `deferred: <note>` (a `revisit` entry when it qualifies) |
+   `rejected: <one-line reason>`. One pass only — never re-probe after fixing;
+   code gets its own S4 rounds. No selectable worker routing, or the worker
+   fails twice → write `verdict: probe-failed` (yellow flag on the card,
+   non-blocking). If the user opts out, append an auto-drafted `descope` entry
+   whose decision starts with `"bỏ gap-probe"` and skip the file.
 
 For CT1 web-UI surfaces, add per-surface `config:executors.design.static` and
 `config:executors.design.gate` evals with rendered captures and
@@ -256,7 +282,9 @@ Do not enter Gate 1 in D2 without the state matrix and provenance. D1 proceeds
 without mockup ceremony only after its visible descope ledger entry.
 
 At the end of S1, append every qualifying approach/descope decision to the
-ledger. Gate 1 default presentation invokes the `acceptance-card` skill.
+ledger. Gate 1 default presentation invokes the `acceptance-card` skill. The Gate 1
+card now includes the "Phản biện context sạch" block (findings + dispositions
+from gap-probe.md; absent file / probe-failed → yellow flag, non-blocking).
 The card is presentation only; contract and evals remain the source of truth.
 Also provide the full design summary, design-reference provenance when present,
 contract, and AC-to-eval mapping. On approval, update `approved_by`,
