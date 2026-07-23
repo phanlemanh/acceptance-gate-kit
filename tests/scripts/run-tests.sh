@@ -958,6 +958,11 @@ globalThis.fetch = async (url) => {
 EOF
 env -u VLM_MODEL GEMINI_API_KEY=dummy node --import "file://$MOCK_URL" "$VLM" "$IMG" "is a video player visible?" >/dev/null 2>/dev/null; check V06 0 $?
 
+echo "U01 wf-usage.mjs unit suite (feature-loop/scripts — dedupe/label/totals/--latest)"
+UOUT="$(node "$HERE/wf-usage.test.mjs" 2>&1)"; UST=$?
+[ "$UST" -eq 0 ] || printf '%s\n' "$UOUT"
+check U01 0 "$UST"
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1

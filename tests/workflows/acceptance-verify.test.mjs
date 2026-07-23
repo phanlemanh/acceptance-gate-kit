@@ -367,4 +367,14 @@ console.log('W21 guard + dryRun: all-carried round without fresh signal is BLOCK
   check('W21 dryRun surfaces carried plan + runBaseline', JSON.stringify(r2.carriedEvals) === JSON.stringify(['E3']) && r2.runBaseline === false && c2.length === 0);
 }
 
+console.log('W22 [wf-label:] tag: mọi prompt mở đầu bằng tag = opts.label (wf-usage.mjs map transcript → role)');
+{
+  const { calls } = await runWorkflow(WF, baseArgs({ evals: [
+    ...baseArgs().evals,
+    { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'ux tot?', inputs: ['/repo/a.png'] },
+  ] }), responder());
+  check('W22 every call tagged with its own label', calls.length > 0 && calls.every(c => c.prompt.startsWith(`[wf-label: ${c.label}]\n`)));
+  check('W22 judge calls present and tagged', byLabel(calls, 'judge:E9').length === 3);
+}
+
 summary('acceptance-verify');

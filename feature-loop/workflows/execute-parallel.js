@@ -49,6 +49,9 @@ const sanitizeModels = m => {
 }
 const ROUTES = { ...MODEL_ROUTES, ...sanitizeModels(args && args.models) }
 const modelOpt = role => (ROUTES[role] ? { model: ROUTES[role] } : {})
+// [wf-label:] dòng đầu prompt — harness KHÔNG ghi opts.label xuống transcript agent-*.jsonl;
+// scripts/wf-usage.mjs (đo model/token per task, 0-token) map transcript → task bằng tag này.
+const agentT = (prompt, opts) => agent(`[wf-label: ${opts.label}]\n${prompt}`, opts)
 if (!args || !Array.isArray(args.tasks) || args.tasks.length < 2 || typeof args.planPath !== 'string') {
   return { error: 'execute-parallel can planPath + ≥2 task doc lap — it hon thi code tuan tu main loop.', results: [], failed: [] }
 }
@@ -63,7 +66,7 @@ phase('Execute')
 log(`Fan-out ${args.tasks.length} task doc lap, moi task 1 worktree rieng`)
 
 const results = await parallel(args.tasks.map(t => () =>
-  agent(
+  agentT(
     `Ban thuc thi MOT task trong implementation plan, trong git worktree rieng (da isolate san — cu lam viec tai cwd; repo goc: ${args.repoRoot}).\nDoc plan: ${args.planPath} — tim section "${t.id}: ${t.title}" va lam DUNG cac step cua section do, KHONG lam task khac.\nTom tat task: ${t.summary}\nFiles du kien: ${t.files.join(', ')}\n\nSau khi code xong: chay verify "${t.verifyCmd}". PASS → commit dung message trong plan. FAIL → sua toi khi pass. Khong the pass → status=failed + notes nguyen nhan, KHONG commit code hong.\nTra ve: status, commitSha (git rev-parse HEAD), branch (git rev-parse --abbrev-ref HEAD), verifyOutput (10 dong cuoi), notes. status=done BAT BUOC kem commitSha + branch + verifyOutput.`,
     { label: `exec:${t.id}`, phase: 'Execute', isolation: 'worktree', schema: TASK_SCHEMA, ...modelOpt('executor') }
   ).then(

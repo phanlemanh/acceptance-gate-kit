@@ -68,6 +68,17 @@ Agent trong Workflow mặc định kế thừa model của phiên chính — phi
 
 Nguyên tắc chung: **model lớn cho việc tạo phán đoán** (tìm bug, viết code), **model nhỏ cho việc thực thi có schema + chốt chặn máy kiểm** (chạy lệnh, điền template, vote trên căn cứ hẹp).
 
+### Đo cái ĐÃ chạy thật: `scripts/wf-usage.mjs` (v1.15)
+
+`/workflows` cho xem token per agent lúc đang chạy nhưng không cho biết model; bảng route ở trên là cái *config hứa*. Nguồn sự thật là transcript per-agent mà harness ghi lại (`~/.claude/projects/<proj>/<session>/subagents/workflows/wf_*/agent-*.jsonl` — mỗi API call mang `message.model` + `message.usage`):
+
+```bash
+node <plugin>/scripts/wf-usage.mjs --latest            # run mới nhất của repo hiện tại
+node <plugin>/scripts/wf-usage.mjs <wf-dir> --md       # bảng markdown để append vào report
+```
+
+Ra bảng per-agent `label · model · calls · out/in/cache token · giây` + tổng theo model. Hai chỗ dễ sai script đã xử lý: (1) một API call ghi nhiều dòng transcript cùng `message.id` — phải dedupe lấy max, cộng ngây thơ phồng 2-3×; (2) `opts.label` không được ghi xuống file — 2 workflow của kit nhúng tag `[wf-label: <label>]` vào dòng đầu prompt từ v1.15 để map lại. Skill feature-loop tự chạy script này sau mỗi Workflow run (S1/S3/S4) và append vào `_acceptance/<slug>/usage-report.md` — 0 token, chỉ parse file; đây là chỗ kiểm chứng `feature_loop.models` có hiệu lực thật.
+
 ## Nguồn gốc
 
 Thiết kế + build trong repo artifact-platform (2026-06-11), qua subagent-driven development với 2-stage review per task + final holistic review + dry-run e2e. Bản plugin này là bản generalized (suite keys theo config, review skill tùy chọn).

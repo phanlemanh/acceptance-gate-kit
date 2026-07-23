@@ -77,4 +77,10 @@ console.log('E06 args.models.executor override + sanitize');
   check('E06 models survives JSON-string args', c3.every(c => c.opts.model === 'haiku'));
 }
 
+console.log('E07 [wf-label:] tag: prompt mở đầu bằng tag = opts.label (wf-usage.mjs map transcript → task)');
+{
+  const { calls } = await runWorkflow(WF, baseArgs(), () => done(1));
+  check('E07 every executor prompt tagged', calls.length === 2 && calls.every(c => c.prompt.startsWith(`[wf-label: ${c.label}]\n`)));
+}
+
 summary('execute-parallel');

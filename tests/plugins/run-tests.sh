@@ -268,7 +268,7 @@ assert json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").rea
 assert json.loads((root / "codex/feature-loop-codex/.codex-plugin/plugin.json").read_text())["version"] == "1.14.0"
 assert json.loads((root / "codex/design-loop/.codex-plugin/plugin.json").read_text())["version"] == "0.3.0"
 assert json.loads((root / ".claude-plugin/plugin.json").read_text())["version"] == "1.18.0"
-assert json.loads((root / "feature-loop/.claude-plugin/plugin.json").read_text())["version"] == "1.14.0"
+assert json.loads((root / "feature-loop/.claude-plugin/plugin.json").read_text())["version"] == "1.15.0"
 assert "machine: 'haiku'" in (root / "feature-loop/workflows/acceptance-verify.js").read_text()
 assert "judge: 'sonnet'" in (root / "feature-loop/workflows/acceptance-verify.js").read_text()
 assert "executor: null" in (root / "feature-loop/workflows/execute-parallel.js").read_text()
