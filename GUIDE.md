@@ -17,6 +17,7 @@
 4.8. [Round tiết kiệm — carry-forward P1/P2/P3 (1.12.0)](#round-tiết-kiệm--carry-forward-p1p2p3-1120)
 4.9. [Skill ux-ui-craft — design engineer trong kit (1.12.0 → 1.17.0)](#skill-ux-ui-craft--design-engineer-trong-kit-1120--1170)
 4.10. [Công tắc coverage CT-S — chống sót AC (1.16.0)](#công-tắc-coverage-ct-s--chống-sót-ac-feature-loop-1130--acceptance-gate-1160)
+4.11. [Gap-probe S1 — phản biện context sạch (1.19.0)](#gap-probe-s1--phản-biện-context-sạch-feature-loop-1140--acceptance-gate-1190)
 5. [Cài đặt](#5-cài-đặt)
 6. [Vận hành hằng ngày](#6-vận-hành-hằng-ngày)
 7. [Tra cứu enforcement — hook và CI chặn gì](#7-tra-cứu-enforcement--hook-và-ci-chặn-gì)
@@ -435,6 +436,24 @@ chuẩn/cận-kề CÓ TÊN + hạ `[GIẢ ĐỊNH: chưa có chuẩn ngành]`):
 ngành" mà bỏ, cũng không bịa tên. Repo mới chưa có thước CE nội bộ (spec/bug/analytics) thì
 chính đối chiếu ngành làm thước, coverage là "đủ-để-bắt-đầu" — dữ liệu thật đầu tiên đưa
 ngược vào trục (đóng vòng).
+
+## Gap-probe S1 — phản biện context sạch (feature-loop 1.14.0 · acceptance-gate 1.19.0)
+
+CT-S quét *không gian* AC (liệt kê có hệ thống); gap-probe bổ khuyết chiều còn
+lại: **đối kháng trên bản nháp cuối** ngay trước điểm cam kết Gate 1 — chỗ
+sửa-trên-giấy rẻ nhất. Cuối S1 (T2/T3), một subagent context sạch (doer ≠
+grader) nhận đúng 4 file — design doc, contract, evals, ledger; không hội
+thoại, không code — và câu hỏi giả-định-sẵn-thiếu-sót, trả tối đa 5 finding
+(mỗi cái bắt buộc kịch bản fail + thước đo, thiếu = loại; cross-check AC↔eval,
+GWT đo được, trục Coverage có AC), hoặc verdict `clean` — escape hatch tường
+minh chống chế-lỗ-để-thỏa-giả-định. Main loop định đoạt one-pass (P0 = sửa
+artifact ngay hoặc `human-gate1`, không im lặng; không re-probe — code đã có 3
+round S4), ghi `_acceptance/<slug>/gap-probe.md`; card Cổng 1 render khối
+"Phản biện context sạch" + cờ vàng khi vắng/probe-failed — backward-tolerant:
+workspace cũ không bắt migrate, bỏ chủ động = entry `descope` bắt đầu
+`"bỏ gap-probe"` (dấu vết hiện trên thẻ). Không thêm pre-mortem lens riêng cho
+T3 — preset `risk-premortem` của morphological-scan đã phủ. Spec:
+`docs/superpowers/specs/2026-07-23-s1-gap-probe-design.md`.
 
 ## 5. Cài đặt
 

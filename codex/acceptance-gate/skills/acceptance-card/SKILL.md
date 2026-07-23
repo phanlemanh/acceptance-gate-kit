@@ -36,6 +36,9 @@ Translate the extracted JSON without changing meaning:
 - Gate 1 `wont_do`: each item starts with `Sẽ KHÔNG` or `Chặn`;
 - Gate 2 `decisions`: short non-technical questions;
 - `scope_plain`: one deferred-scope phrase;
+- Gate 1 `gap_probe`: leave critic rows as written (already product language);
+  never invent findings; absence/probe-failed flags render from the script —
+  the overlay has no key for this block;
 - `decisions_plain`: every approved or provisional ledger choice as
   `đã chọn gì — đổi lại gì`.
 

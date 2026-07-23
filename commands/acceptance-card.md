@@ -28,6 +28,9 @@ Steps:
    - `feature_plain`: one plain sentence — what it does for the user.
    - Gate 1: `will_do[] → {id,p}` each starting "Sẽ …" (what the system DOES);
      `wont_do[] → {id,p}` starting "Sẽ KHÔNG …" or "Chặn …".
+   - Gate 1 `gap_probe`: KHÔNG dịch, KHÔNG bịa — rows render nguyên văn (critic
+     đã viết ngôn ngữ sản phẩm); cờ vắng/probe-failed/parse_dropped do script tự
+     render. Overlay không có key cho khối này.
    - Gate 2: `decisions[] → {id,q}` a SHORT product question (≤14 words, ends "?",
      NO Given/When/Then, NO jargon like DOM/exit code); optional `{id,why}` plain;
      `analyst_plain` = plain restatement of the non-discriminating note.
