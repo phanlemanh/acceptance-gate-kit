@@ -123,8 +123,9 @@ p2: <int>
 ## 5. Card Gate 1 (`gate-card.js`)
 
 - **Extract JSON** thêm field:
-  `gap_probe: { present, verdict, p0, p1, p2, rows: [{sev, artifact, summary, disposition}], parse_dropped }`
-  (`present:false` khi file vắng; các field khác chỉ có khi present).
+  `gap_probe: { present, verdict, p0, p1, p2, rows: [{sev, artifact, summary, disposition}], parse_dropped, descoped }`
+  (`present:false` khi file vắng; `descoped` = ledger có entry descope prefix
+  `"bỏ gap-probe"` — bước translate/overlay cần biết để không phạt oan).
 - **Render** khối `Phản biện context sạch` đặt NGAY SAU khối "Độ phủ AC", cùng
   pattern lab/grp hiện có:
   - `findings` → mỗi row 1 dòng `Sev · summary — xử lý`;
@@ -162,6 +163,7 @@ phê, human quyết.
 | File | Sửa gì |
 |---|---|
 | `feature-loop/skills/feature-loop/SKILL.md` | S1#7 + 1 câu Gate 1 + 1 câu resume + role `critic` |
+| `codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md` | bước tương đương Codex-native (spawned worker; không worker routing → `probe-failed`) |
 | `scripts/gate-card.js` (root nguồn) | parser gap-probe.md + extract field + render khối + cờ |
 | `commands/acceptance-card.md`, card SKILL.md ×2 | 1 gạch khối mới |
 | `GUIDE.md` | 1 đoạn ngắn mô tả bước + trỏ spec này |
