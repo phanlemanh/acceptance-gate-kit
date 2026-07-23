@@ -47,6 +47,7 @@ const dir = path.join(root, '_acceptance', slug);
 const contract = read(path.join(dir, 'contract.md'));
 const evalsT = read(path.join(dir, 'evals.yaml'));
 const report = read(path.join(dir, 'evidence-report.md'));
+const probeT = read(path.join(dir, 'gap-probe.md'));
 
 let plain = null;
 if (plainPath && fs.existsSync(plainPath)) {
@@ -150,8 +151,23 @@ if (gate === '1') {
   const covAll = section(contract, 'Coverage');
   const covLines = cleanLines(covAll).map(l => l.trim()).filter(l => /^-\s+\S/.test(l) && !/\{\{/.test(l)).map(l => l.replace(/^-\s+/, ''));
   const covUnverified = covAll.some(l => /CE chưa kiểm chứng/i.test(l));
+  // gap-probe (S1#7 phản biện context sạch) — presentation only: render findings + disposition, flag absence/failed/dropped
+  const gpFm = frontmatter(probeT);
+  const gpPresent = !!probeT.trim();
+  const gpVerdict = clean(gpFm.verdict).toLowerCase();
+  const gpRows = []; let gpDropped = 0;
+  if (gpPresent) for (const l of section(probeT, 'Findings')) {
+    if (!/^\s*\|/.test(l)) continue;
+    const cells = l.split('|').slice(1, -1).map(c => c.trim());
+    if (!cells.length) continue;
+    if (cells.every(c => /^:?-+:?$/.test(c))) continue; // separator row
+    if (/^sev$/i.test(cells[0])) continue;              // header row
+    if (cells.length === 6) gpRows.push({ sev: cells[0], artifact: cells[1], summary: cells[2], scenario: cells[3], measure: cells[4], disposition: cells[5] });
+    else gpDropped++; // cell chứa "|" → sai số cột (giới hạn v1, spec §4)
+  }
+  const gpDescope = decsAll.find(e => e.type === 'descope' && /^bỏ gap-probe/i.test(String(e.decision || '')));
 
-  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, decisions: decsAll.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken }, null, 2)); process.exit(0); }
+  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: parseInt(clean(gpFm.p0), 10) || 0, p1: parseInt(clean(gpFm.p1), 10) || 0, p2: parseInt(clean(gpFm.p2), 10) || 0, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken }, null, 2)); process.exit(0); }
   const featurePlain = pl.feature_plain || feature;
   const pmap = (arr, id) => (((arr || []).find(x => x.id === id)) || {}).p;
   const willText = x => pmap(pl.will_do, x.id) || x.gwt;
@@ -169,10 +185,16 @@ if (gate === '1') {
   else P.push(`<div class="grp gnot">${decSort(decsAll).map(e => `<p class="li">${e.type === 'descope' ? '<b>KHÔNG làm:</b> ' : ''}${esc(plDec(e.id)) || decLine(e)}</p>`).join('')}</div>`);
   if (ledger.broken) P.push(`<div class="flag fwarn">⚠ ${ledger.broken} dòng ledger hỏng, đã bỏ qua.</div>`);
   if (covLines.length) P.push(`<div class="lab">Độ phủ AC (bằng chứng "đủ")</div><div class="grp gnot">${covLines.map(t => `<p class="li">${esc(t)}</p>`).join('')}</div>`);
+  if (gpPresent && gpVerdict === 'clean') P.push(`<div class="lab">Phản biện context sạch</div><div class="flag fok">Phản biện: không còn lỗ đáng kể.</div>`);
+  else if (gpRows.length) P.push(`<div class="lab">Phản biện context sạch</div><div class="grp gnot">${gpRows.map(r => `<p class="li"><b>${esc(r.sev)}</b> · ${esc(r.artifact)} · ${esc(r.summary)} — ${esc(r.disposition)}</p>`).join('')}</div>`);
   const flags = [];
   for (const id of covGaps) flags.push(['fwarn', `${id} có ngưỡng/biên nhưng chưa có ca "dưới ngưỡng → KHÔNG xảy ra" — thêm 1 ca chặn ngay sẽ rẻ hơn nhiều so với phát hiện sau.`]);
   if (!covPresent || !covLines.length) flags.push(['fwarn', 'Contract chưa có section Coverage — độ phủ bộ AC chưa có bằng chứng (workspace cũ / chưa quét). Quét bằng morphological-scan hoặc ghi 1 dòng lý do bỏ, rồi hãy duyệt.']);
   if (covUnverified) flags.push(['fwarn', 'Coverage có trục chưa nêu được thước đo "đủ" (CE chưa kiểm chứng) — hỏi nguồn đối chiếu trước khi tin "đã quét đủ".']);
+  if (!gpPresent && gpDescope) flags.push(['finfo', `Đã bỏ phản biện context sạch theo ${esc(gpDescope.id || 'entry descope')} — quyết định chủ động, có dấu vết.`]);
+  else if (!gpPresent) flags.push(['fwarn', 'Chưa có phản biện context sạch (gap-probe) — bộ artifact chưa qua truy lỗ hổng bởi context sạch (workspace cũ / bước bị bỏ không dấu vết). Chạy bước S1#7 hoặc ghi entry descope "bỏ gap-probe", rồi hãy duyệt.']);
+  if (gpPresent && gpVerdict === 'probe-failed') flags.push(['fwarn', 'Phản biện không chạy được (probe-failed sau retry) — duyệt nghĩa là duyệt KHÔNG có phản biện context sạch.']);
+  if (gpDropped) flags.push(['fwarn', `${gpDropped} dòng finding không đọc được (cell chứa ký tự "|") — sửa bảng gap-probe.md nếu cần soi đủ.`]);
   if (dupIds.length) flags.push(['fwarn', `Trùng mã tiêu chí: ${esc([...new Set(dupIds)].join(', '))} — mapping eval mơ hồ, đổi mã trước khi duyệt.`]);
   for (const j of judgmentACs) flags.push(['finfo', `${j.id} cần MẮT bạn chấm sau khi code (việc người, máy không chấm được).`]);
   if (tier === 'T3') flags.push(['finfo', 'Đụng phần nhạy cảm → tier T3, duyệt kỹ phần "sẽ KHÔNG làm".']);

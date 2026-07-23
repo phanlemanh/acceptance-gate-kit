@@ -352,6 +352,62 @@ hasout GC4 '"coverage_missing": false' "$(node "$GCARD" --root "$T/gcov" --slug 
 
 nothas() { case "$3" in *"$2"*) echo "  FAIL: $1 (should NOT contain: $2)"; FAIL_COUNT=$((FAIL_COUNT+1));; *) echo "  PASS: $1";; esac; }
 
+echo "GP1-8 Gate 1 gap-probe (S1#7 — phản biện context sạch)"
+GPD="$T/gprobe/_acceptance/pfeat"; mkdir -p "$GPD"
+printf -- '---\nschema_version: 1\nfeature: Probe demo\nslug: pfeat\nrisk_tier: T2\nstatus: draft\n---\n## Criteria\n- AC-1: Given a, When b, Then c.\n## Out of scope\n- x — hoãn.\n## Coverage\n- Trục X: a1 [thước CE: spec]\n' > "$GPD/contract.md"
+GPX="$(node "$GCARD" --root "$T/gprobe" --slug pfeat 2>/dev/null)"
+hasout GP1 "Chưa có phản biện context sạch" "$GPX"
+printf '%s\n' '{"id":"d-20260723T010000Z-9","type":"descope","stage":"S1","at":"2026-07-23T01:00:00Z","decision":"bỏ gap-probe — đã phản biện tay trong brainstorm","impact":"tiết kiệm 1 agent · không có phản biện context sạch"}' > "$GPD/decisions.jsonl"
+GPX2="$(node "$GCARD" --root "$T/gprobe" --slug pfeat 2>/dev/null)"
+hasout GP2 "Đã bỏ phản biện context sạch" "$GPX2"
+nothas GP2b "Chưa có phản biện context sạch" "$GPX2"
+rm -f "$GPD/decisions.jsonl"
+cat > "$GPD/gap-probe.md" <<'EOF'
+---
+slug: pfeat
+at: 2026-07-23T02:00:00Z
+verdict: findings
+p0: 1
+p1: 1
+p2: 0
+---
+
+## Findings
+
+| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |
+|---|---|---|---|---|---|
+| P0 | contract | Thiếu AC cho nhánh lỗi import | File hỏng giữa chừng → nửa dữ liệu | 1 AC + eval err-path | fixed: thêm AC-6 |
+| P1 | evals | AC-3 chưa có eval đo | AC-3 pass mà không ai kiểm | eval E7 script | human-gate1 |
+EOF
+GPX3="$(node "$GCARD" --root "$T/gprobe" --slug pfeat 2>/dev/null)"
+hasout GP3 "Phản biện context sạch" "$GPX3"
+hasout GP4 "fixed: thêm AC-6" "$GPX3"
+hasout GP5 '"gap_probe"' "$(node "$GCARD" --root "$T/gprobe" --slug pfeat --extract 2>/dev/null)"
+printf -- '---\nslug: pfeat\nat: 2026-07-23T02:00:00Z\nverdict: clean\np0: 0\np1: 0\np2: 0\n---\n\n## Findings\n\nKhông còn lỗ đáng kể.\n' > "$GPD/gap-probe.md"
+hasout GP6 "không còn lỗ đáng kể" "$(node "$GCARD" --root "$T/gprobe" --slug pfeat 2>/dev/null)"
+printf -- '---\nslug: pfeat\nat: 2026-07-23T02:00:00Z\nverdict: probe-failed\np0: 0\np1: 0\np2: 0\n---\n' > "$GPD/gap-probe.md"
+hasout GP7 "không chạy được" "$(node "$GCARD" --root "$T/gprobe" --slug pfeat 2>/dev/null)"
+cat > "$GPD/gap-probe.md" <<'EOF'
+---
+slug: pfeat
+at: 2026-07-23T02:00:00Z
+verdict: findings
+p0: 1
+p1: 1
+p2: 0
+---
+
+## Findings
+
+| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |
+|---|---|---|---|---|---|
+| P0 | contract | Cell có pipe a|b hỏng | x | y | fixed: z |
+| P1 | design | Dòng tốt | x | y | deferred: ghi chú |
+EOF
+GPX8="$(node "$GCARD" --root "$T/gprobe" --slug pfeat 2>/dev/null)"
+hasout GP8 "1 dòng finding không đọc được" "$GPX8"
+hasout GP8b "Dòng tốt" "$GPX8"
+
 echo "G15 REJECT verdict -> non-approvable card (no sign-off, no all-pass claim)"
 GR="$T/gcardR/_acceptance/rfeat"; mkdir -p "$GR"
 printf -- '---\nschema_version: 1\nfeature: F\nslug: rfeat\nrisk_tier: T2\nstatus: implemented\n---\n## Criteria\n- AC-1: Given x, When y, Then z.\n## Out of scope\n' > "$GR/contract.md"
