@@ -1,6 +1,6 @@
 {
   "name": "feature-loop-codex",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "Codex-native feature development loop on top of acceptance-gate with installable role-based custom agents, model-aware budget routing, evidence-backed verification, human gates, and no Claude Code workflow scripts. v1.12 adds Pareto carry-forward (P1 delta-scoped staleness reverify, P2 baseline-once, P3 judge-panel memo) — same trust bar, run-log is the only memo. v1.13 adds the CT-S coverage switch: T2/T3 default-on morphological-scan of the AC space at S1, a required contract Coverage section gating Gate 1, and card-rendered coverage evidence — skipping requires a visible descope entry.",
   "author": {
     "name": "Manh Phan",

@@ -40,10 +40,10 @@ root = Path(sys.argv[1])
 root_claude = json.loads((root / ".claude-plugin/plugin.json").read_text())
 overlay_codex = json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())
 pkg_codex = json.loads((root / "plugins/acceptance-gate/.codex-plugin/plugin.json").read_text())
-assert root_claude["version"] == "1.17.0"
+assert root_claude["version"] == "1.18.0"
 root_codex = json.loads((root / ".codex-plugin/plugin.json").read_text())
 assert root_codex["version"] == root_claude["version"], f'root .codex-plugin {root_codex["version"]} != .claude-plugin {root_claude["version"]}'
-assert overlay_codex["version"] == "1.17.0"
+assert overlay_codex["version"] == "1.18.0"
 assert pkg_codex == overlay_codex, "run scripts/sync-plugin-packages.sh"
 for rel in [
     "plugins/acceptance-gate/scripts/gate-card.js",
@@ -73,7 +73,7 @@ import json, sys
 data = json.load(open(sys.argv[1]))
 assert data["name"] == "feature-loop-codex"
 assert data["skills"] == "./skills/"
-assert data["version"] == "1.13.0"
+assert data["version"] == "1.14.0"
 assert data["description"]
 PY
 
@@ -93,7 +93,7 @@ from pathlib import Path
 import re, sys
 text = Path(sys.argv[1]).read_text()
 assert "name: feature-loop-codex" in text
-assert "version: 1.13.0" in text
+assert "version: 1.14.0" in text
 assert "Codex" in text
 assert "acceptance-gate" in text
 assert "spawn_agent" in text
@@ -264,11 +264,11 @@ run "P22 Codex overlay manifests and generated outputs exist" \
 import json, sys
 from pathlib import Path
 root = Path(sys.argv[1])
-assert json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())["version"] == "1.17.0"
-assert json.loads((root / "codex/feature-loop-codex/.codex-plugin/plugin.json").read_text())["version"] == "1.13.0"
+assert json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())["version"] == "1.18.0"
+assert json.loads((root / "codex/feature-loop-codex/.codex-plugin/plugin.json").read_text())["version"] == "1.14.0"
 assert json.loads((root / "codex/design-loop/.codex-plugin/plugin.json").read_text())["version"] == "0.3.0"
-assert json.loads((root / ".claude-plugin/plugin.json").read_text())["version"] == "1.17.0"
-assert json.loads((root / "feature-loop/.claude-plugin/plugin.json").read_text())["version"] == "1.13.0"
+assert json.loads((root / ".claude-plugin/plugin.json").read_text())["version"] == "1.18.0"
+assert json.loads((root / "feature-loop/.claude-plugin/plugin.json").read_text())["version"] == "1.14.0"
 assert "machine: 'haiku'" in (root / "feature-loop/workflows/acceptance-verify.js").read_text()
 assert "judge: 'sonnet'" in (root / "feature-loop/workflows/acceptance-verify.js").read_text()
 assert "executor: null" in (root / "feature-loop/workflows/execute-parallel.js").read_text()
@@ -370,6 +370,23 @@ for needle in [
     "feature-loop-model-init",
 ]:
     assert needle in text, needle
+PY
+
+run "P29 gap-probe S1 wired across mirrors (1.18)" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+gc = (root / "scripts/gate-card.js").read_text()
+assert "gap-probe" in gc and "Phản biện context sạch" in gc and "gap_probe" in gc
+assert (root / "plugins/acceptance-gate/scripts/gate-card.js").read_text() == gc, "chạy scripts/sync-plugin-packages.sh"
+fl = (root / "feature-loop/skills/feature-loop/SKILL.md").read_text()
+assert "gap-probe" in fl and "bỏ gap-probe" in fl and "models.critic" in fl.replace("`", "")
+flc = (root / "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md").read_text()
+assert "gap-probe" in flc and "bỏ gap-probe" in flc
+assert "gap_probe" in (root / "commands/acceptance-card.md").read_text()
+assert "gap_probe" in (root / "codex/acceptance-gate/skills/acceptance-card/SKILL.md").read_text()
+assert "Gap-probe S1" in (root / "GUIDE.md").read_text()
 PY
 
 if [ "$failures" -gt 0 ]; then

@@ -1,13 +1,13 @@
 ---
 name: feature-loop-codex
 description: This skill should be used when the user asks to "run feature-loop-codex", "start a Codex feature loop", "resume a Codex feature loop", "build this feature with acceptance-gate in Codex", or wants a Codex-native version of feature-loop without Claude Code Workflow scripts.
-version: 1.13.0
+version: 1.14.0
 ---
 
 # feature-loop-codex
 
 Run a Codex-native feature development loop on top of `acceptance-gate`.
-Preserve the Claude `feature-loop` 1.13.0 discipline while replacing workflow
+Preserve the Claude `feature-loop` 1.14.0 discipline while replacing workflow
 scripts with Codex-native main-agent work, shell commands, and optional
 `spawn_agent` / `wait_agent` calls.
 

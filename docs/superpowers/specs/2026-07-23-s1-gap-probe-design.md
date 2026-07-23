@@ -7,7 +7,7 @@
 **Target:** skill `feature-loop` (bước S1 mới + Gate 1 + resume) + `gate-card.js`
 (khối card mới, acceptance-gate) + docs card/GUIDE
 
-**Compatibility:** feature-loop 1.13.0 → 1.14.0 · acceptance-gate 1.18.0 → 1.19.0
+**Compatibility:** feature-loop 1.13.0 → 1.14.0 · acceptance-gate 1.17.0 → 1.18.0
 (bump minor tại thời điểm ship, TƯƠNG ĐỐI so với manifest lúc đó — wave đang bay
 có thể đổi số tuyệt đối; luật lockstep + pin suite áp như GUIDE). Không đụng
 design-loop, không đụng Gate 2 evidence-page.
