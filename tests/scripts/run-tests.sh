@@ -249,6 +249,79 @@ node "$LINT" "$T/lintA" --slug feat-t1 >/dev/null; check L06b 1 $?
 echo "L07 no _acceptance dir -> clean"
 mkdir -p "$T/lintE"; node "$LINT" "$T/lintE" >/dev/null; check L07 0 $?
 
+# Fixture E2: (cross-layer) AC + only ui-check eval (no backend-effect pair)
+E2="$T/lintE2/_acceptance/feat-x1"; mkdir -p "$E2"
+cat > "$E2/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+---
+## Criteria
+- AC-1: Given user, When submit order, Then order saved via API. (cross-layer)
+## Out of scope
+EOF
+cat > "$E2/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: ui-check
+    expected: "order confirmation visible; marker KHONG optimistic"
+EOF
+
+# Fixture F: (cross-layer) AC + paired layer: backend-effect eval -> clean
+F="$T/lintF/_acceptance/feat-x2"; mkdir -p "$F"
+cat > "$F/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+---
+## Criteria
+- AC-1: Given user, When submit order, Then order saved via API. (cross-layer)
+## Out of scope
+EOF
+cat > "$F/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: ui-check
+    expected: "order confirmation visible; marker KHONG optimistic"
+  - id: E2
+    criterion: AC-1
+    executor: script
+    layer: backend-effect
+    expected: "exit 0; order row exists via API (KHONG mock)"
+EOF
+
+# Fixture G: (cross-layer) AC + script eval WITHOUT layer field (design-gate style) -> still warn
+G="$T/lintG/_acceptance/feat-x3"; mkdir -p "$G"
+cat > "$G/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+---
+## Criteria
+- AC-1: Given user, When submit order, Then order saved via API. (cross-layer)
+## Out of scope
+EOF
+cat > "$G/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: ui-check
+    expected: "order confirmation visible; marker KHONG optimistic"
+  - id: E7
+    criterion: AC-1
+    executor: script
+    expected: "design gate exit 0; KHONG P0 a11y"
+EOF
+
+echo "L08 cross-layer AC, ui-check only -> warn (W4)"
+node "$LINT" "$T/lintE2" >/dev/null; check L08 1 $?
+echo "L09 cross-layer AC with layer: backend-effect pair -> clean"
+node "$LINT" "$T/lintF" >/dev/null; check L09 0 $?
+echo "L10 cross-layer AC, script eval without layer field -> still warn (W4 vacuous-pair guard)"
+node "$LINT" "$T/lintG" >/dev/null; check L10 1 $?
+
 echo ""
 echo "--- gate-card.js ---"
 GCARD="$HERE/../../scripts/gate-card.js"
