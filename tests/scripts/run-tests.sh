@@ -149,6 +149,18 @@ echo "R06 recheck: off + bad evidence -> re-check skipped (exit 0)"
 mk_badevidence "$P/r06" feat-r6 "(no evidence blocks)"
 mk_recheck_cfg "$P/r06" off; bash "$CHECK" "$P/r06" >/dev/null; check R06 0 $?
 
+echo "N01 network_observed: clean WITHOUT dump file -> NOTE, exit 0"
+mk_prov "$P/n01" feat-n1 "enforcement_mode: strict"
+printf -- '- eval: E3\n  run_id: feat-n1-E3-001\n  exit_code: 0\n  verifier: scripts/v.sh\n  verified_at: 2026-06-20\n  network_observed: clean\n' >> "$P/n01/_acceptance/feat-n1/evidence-report.md"
+outN="$(bash "$CHECK" "$P/n01" 2>&1)"; check N01 0 $?
+case "$outN" in *NOTE*feat-n1*network_observed*) echo "  PASS: N01-note"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: N01-note (expected network NOTE)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+echo "N02 network_observed: clean WITH dump file -> no network NOTE"
+mk_prov "$P/n02" feat-n2 "enforcement_mode: strict"
+printf -- '- eval: E3\n  run_id: feat-n2-E3-001\n  exit_code: 0\n  verifier: scripts/v.sh\n  verified_at: 2026-06-20\n  network_observed: clean\n' >> "$P/n02/_acceptance/feat-n2/evidence-report.md"
+mkdir -p "$P/n02/_acceptance/feat-n2/evidence"; printf 'no failed requests\n' > "$P/n02/_acceptance/feat-n2/evidence/E3-network.txt"
+outN2="$(bash "$CHECK" "$P/n02" 2>&1)"
+case "$outN2" in *network_observed*) echo "  FAIL: N02 (unexpected network NOTE)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: N02"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
+
 echo ""
 echo "--- eval-coverage-lint.js ---"
 LINT="$HERE/../../scripts/eval-coverage-lint.js"
