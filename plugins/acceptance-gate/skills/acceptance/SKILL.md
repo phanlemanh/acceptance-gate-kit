@@ -222,7 +222,8 @@ Entry: implementation complete, contract `status: implemented`.
      or equivalent); save a frame at EACH step to
      `_acceptance/{slug}/evidence/E{id}-step{n}.png` via `config:capture.ui`
      (preview_screenshot is inline-only; the Gate-2 page plays `E{id}-*.png` as a
-     slideshow); `screenshot:` = the first frame. Read each saved frame and record observed: in its report block (schema-v2 reports without it are hook-blocked).
+     slideshow); `screenshot:` = the first frame. Read each saved frame and record observed: in its report block (schema-v2 reports without it are hook-blocked). Record network evidence per the instruction above when the driver allows;
+     copy `network_observed:` verbatim into the block (missing → `n-a (driver)`).
      No capture/browser → save HTML / downgrade to judgment + note (see eval-executors.md).
    - `judgment`: dispatch `acceptance_judge` per `references/judge-personas.md`
      (separate fresh subagent when available, or three separated Codex passes

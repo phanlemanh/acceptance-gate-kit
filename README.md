@@ -295,5 +295,10 @@ downstream, and revisited after the pilot:
   network-reading path, so cross-layer truth on mobile rests entirely on the
   paired `layer: backend-effect` eval. A first-class `mobile` surface is
   queued until a real mobile repo adopts the kit.
+- **In-scope background noise fails the eval by design**: a poller/cron firing
+  5xx into app scope during a ui-check's drive window FAILS that eval even when
+  it is unrelated to the feature — an in-scope failure during the drive is
+  never `clean`. It is a machine FAIL (REJECT), so `human_override` cannot
+  release it; re-run the round or descope/rewrite the eval, recording why.
 
 Design spec: `docs/specs/2026-06-10-acceptance-gate-kit-design.md`

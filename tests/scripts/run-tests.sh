@@ -161,6 +161,17 @@ mkdir -p "$P/n02/_acceptance/feat-n2/evidence"; printf 'no failed requests\n' > 
 outN2="$(bash "$CHECK" "$P/n02" 2>&1)"
 case "$outN2" in *network_observed*) echo "  FAIL: N02 (unexpected network NOTE)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: N02"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
 
+echo "N03 quoted network_observed: \"clean\" without dump file -> NOTE still fires"
+mk_prov "$P/n03" feat-n3 "enforcement_mode: strict"
+printf -- '- eval: E4\n  run_id: feat-n3-E4-001\n  exit_code: 0\n  verifier: scripts/v.sh\n  verified_at: 2026-06-20\n  network_observed: "clean"\n' >> "$P/n03/_acceptance/feat-n3/evidence-report.md"
+outN3="$(bash "$CHECK" "$P/n03" 2>&1)"; check N03 0 $?
+case "$outN3" in *NOTE*feat-n3*network_observed*) echo "  PASS: N03-note"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: N03-note (expected NOTE for quoted clean)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+echo "N04 app-fail without file -> counted; negative vocab + prefix word -> never counted"
+mk_prov "$P/n04" feat-n4 "enforcement_mode: strict"
+printf -- '- eval: E5\n  run_id: feat-n4-E5-001\n  exit_code: 0\n  verifier: scripts/v.sh\n  verified_at: 2026-06-20\n  network_observed: app-fail\n- eval: E6\n  run_id: feat-n4-E6-001\n  exit_code: 0\n  verifier: scripts/v.sh\n  verified_at: 2026-06-20\n  network_observed: no-app-traffic\n- eval: E7\n  run_id: feat-n4-E7-001\n  exit_code: 0\n  verifier: scripts/v.sh\n  verified_at: 2026-06-20\n  network_observed: cleanup-pending\n' >> "$P/n04/_acceptance/feat-n4/evidence-report.md"
+outN4="$(bash "$CHECK" "$P/n04" 2>&1)"; check N04 0 $?
+case "$outN4" in *"1 network_observed claim"*) echo "  PASS: N04-count (only app-fail counted)"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: N04-count (expected exactly 1 claim)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
 echo ""
 echo "--- eval-coverage-lint.js ---"
 LINT="$HERE/../../scripts/eval-coverage-lint.js"

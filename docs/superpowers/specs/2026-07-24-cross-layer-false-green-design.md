@@ -178,7 +178,10 @@ máy ở §3.8 và hook ở wave 2.
    `n-a (tool-error)`. Cả ba không bao giờ FAIL.
 5. Residual chấp nhận CÓ CHỦ ĐÍCH: job/poller nền bắn 5xx vào app-scope trong
    cửa sổ drive → vẫn FAIL (5xx trên API của chính app trong lúc drive không
-   bao giờ là "clean"); van xả = `human_override` ở Gate 2 với lý do ghi lại.
+   bao giờ là "clean"); đây là FAIL máy (route REJECT, không phải
+   PENDING-JUDGMENT) nên `human_override` KHÔNG giải phóng được — lối ra:
+   chạy lại round, hoặc descope/viết lại eval để loại đường nền, ghi lý do
+   vào report/ledger.
 
 ### 3.5 Chuỗi hành trình `network_observed` (chống fabrication-by-default)
 
@@ -296,7 +299,8 @@ README Known limitations thêm các bullet §7.
    (không hook); đã thu hẹp bằng ngữ nghĩa `clean`-phải-có-traffic +
    `no-app-traffic` + pre-merge NOTE file chứng.
 4. **Flaky app-origin trong cửa sổ drive → FAIL** là lập trường (không retry/
-   debounce wave này); van xả `human_override` có ghi lý do.
+   debounce wave này); FAIL máy route REJECT nên `human_override` không giải
+   phóng được — lối ra: chạy lại round hoặc descope/viết lại eval, ghi lý do.
 5. **Mobile:** bằng chứng lớp UI only đợt này; xuyên lớp trên mobile dựa hoàn
    toàn vào paired backend eval.
 

@@ -163,6 +163,13 @@ eval set MUST contain, besides the UI-half eval:
   (curl+grep SSR, capture-only, mobile simulators) record `n-a (driver)` —
   the cross-layer burden then rests entirely on the paired
   `layer: backend-effect` eval.
+  Accepted residual (deliberate stance): a background job/poller firing
+  connection-errors/5xx into app scope during the drive window still FAILS the
+  eval — an in-scope failure during the drive is never `clean`. That is a
+  machine FAIL (it routes to REJECT, not PENDING-JUDGMENT), so `human_override`
+  cannot release it: the recourse is to re-run the round, or descope/rewrite
+  the eval to exclude the background path — recording the reason in the
+  report/ledger.
 - **Saving a frame to a FILE** (the slideshow needs files, not inline images):
   `preview_screenshot` and most browser tools return an INLINE image, not a saved
   file. So the repo provides `config:capture.ui` — a command `<cmd> <url>

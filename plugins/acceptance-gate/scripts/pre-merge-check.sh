@@ -308,7 +308,7 @@ GLOBS2
     [ -n "$eid" ] || continue
     [ -f "$dir/evidence/${eid}-network.txt" ] || net_missing=$((net_missing+1))
   done <<NETIDS
-$(awk 'tolower($0) ~ /^[[:space:]]*-[[:space:]]*eval:/ {id=$NF} tolower($0) ~ /^[[:space:]]*network_observed[[:space:]]*[:=][[:space:]]*(clean|app-fail)/ {print id}' "$report")
+$(awk 'tolower($0) ~ /^[[:space:]]*-[[:space:]]*eval:/ {id=$NF} tolower($0) ~ /^[[:space:]]*network_observed[[:space:]]*[:=][[:space:]]*["'\''"]?(clean|app-fail)($|[^a-z-])/ {print id}' "$report")
 NETIDS
   if [ "$net_missing" -gt 0 ]; then
     echo "NOTE [$slug]: $net_missing network_observed claim(s) (clean/app-fail) with no evidence/E{id}-network.txt on disk — vocab without a dump file (advisory until schema v3)"
