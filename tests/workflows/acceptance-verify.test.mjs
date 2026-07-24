@@ -377,4 +377,25 @@ console.log('W22 [wf-label:] tag: mọi prompt mở đầu bằng tag = opts.lab
   check('W22 judge calls present and tagged', byLabel(calls, 'judge:E9').length === 3);
 }
 
+console.log('W23 network-truth: UI_SCHEMA optional networkObserved + prompt rail + synthesize passthrough');
+{
+  const uiEval = { id: 'E3', criterion: 'AC-3', executor: 'ui-check', steps: ['open /x'], expected: 'ok', evidence_required: [] };
+  const { calls } = await runWorkflow(WF, baseArgs({ evals: [uiEval], suiteCommands: [] }), responder({
+    'ui:E3': { exitCode: 0, outputTail: 'asserted', runId: '', cannotRun: false, screenshotPath: 'evidence/E3-step1.png', observed: 'thay man hinh ok', networkObserved: 'clean' },
+  }));
+  const ui = calls.find(c => c.label === 'ui:E3');
+  check('W23 UI_SCHEMA declares networkObserved as OPTIONAL', !!ui.opts.schema.properties.networkObserved && !ui.opts.schema.required.includes('networkObserved'));
+  check('W23 ui prompt carries the network rail + vocab', ui.prompt.includes('NETWORK TRUTH') && ui.prompt.includes('no-app-traffic') && ui.prompt.includes('n-a (driver)'));
+  const synth = calls.find(c => c.label === 'synthesize:report');
+  check('W23 synthesize payload carries networkObserved verbatim', synth.prompt.includes('"networkObserved":"clean"'));
+  check('W23 synthesize instructs copy-verbatim + n-a fallback, never invented clean', synth.prompt.includes('network_observed') && synth.prompt.includes('n-a (driver)') && synth.prompt.includes('KHONG tu suy'));
+}
+
+console.log('W24 network-truth additive: ui result WITHOUT networkObserved still PASS (backward)');
+{
+  const uiEval = { id: 'E3', criterion: 'AC-3', executor: 'ui-check', steps: ['open /x'], expected: 'ok', evidence_required: [] };
+  const { result } = await runWorkflow(WF, baseArgs({ evals: [uiEval], suiteCommands: [] }), responder());
+  check('W24 verdict PASS without networkObserved', result.verdict === 'PASS', result.verdict);
+}
+
 summary('acceptance-verify');
