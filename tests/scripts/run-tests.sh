@@ -345,6 +345,73 @@ node "$LINT" "$T/lintF" >/dev/null; check L09 0 $?
 echo "L10 cross-layer AC, script eval without layer field -> still warn (W4 vacuous-pair guard)"
 node "$LINT" "$T/lintG" >/dev/null; check L10 1 $?
 
+# Fixture H: (Cross-Layer) mixed-case tag + "layer: Backend-Effect  # nonce note" (case + trailing comment) -> clean
+H="$T/lintH/_acceptance/feat-x4"; mkdir -p "$H"
+cat > "$H/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+---
+## Criteria
+- AC-1: Given user, When submit order, Then order saved via API. (Cross-Layer)
+## Out of scope
+EOF
+cat > "$H/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: ui-check
+    expected: "order confirmation visible; marker KHONG optimistic"
+  - id: E2
+    criterion: AC-1
+    executor: script
+    layer: Backend-Effect  # nonce note
+    expected: "exit 0; order row exists via API (KHONG mock)"
+EOF
+
+# Fixture I: threshold AC whose only negative marker lives in a TRAILING COMMENT -> comment is not evidence, W1 must warn
+I="$T/lintI/_acceptance/feat-x5"; mkdir -p "$I"
+cat > "$I/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+---
+## Criteria
+- AC-1: Given user, When ≥3 opens trong 48h, Then fire hot.
+## Out of scope
+EOF
+cat > "$I/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    expected: "fires hot at threshold" # KHONG fire duoi nguong
+EOF
+
+# Fixture J: negative marker AFTER a # INSIDE quotes -> data, not comment; must stay clean
+J="$T/lintJ/_acceptance/feat-x6"; mkdir -p "$J"
+cat > "$J/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+---
+## Criteria
+- AC-1: Given user, When ≥3 opens trong 48h, Then fire hot.
+## Out of scope
+EOF
+cat > "$J/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    expected: "2 opens → van im lang #KHONG-fire boundary-tag"
+EOF
+
+echo "L11 mixed-case tag + layer value with trailing comment -> clean (case-insensitive + comment-strip)"
+node "$LINT" "$T/lintH" >/dev/null; check L11 0 $?
+echo "L12 negative marker only in trailing comment -> comment is not evidence, W1 warns"
+node "$LINT" "$T/lintI" >/dev/null; check L12 1 $?
+echo "L13 hash inside quoted value is data (marker after # kept) -> clean"
+node "$LINT" "$T/lintJ" >/dev/null; check L13 0 $?
+
 echo ""
 echo "--- gate-card.js ---"
 GCARD="$HERE/../../scripts/gate-card.js"

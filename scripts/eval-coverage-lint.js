@@ -51,6 +51,21 @@ function sectionLines(text, headingRe) {
   return out;
 }
 
+// Field-value normalizer (line-based, mirrors the hooks' tolerance): a quoted
+// value is taken verbatim up to its closing quote — a # inside quotes is DATA,
+// not a comment; an unquoted value drops a trailing " # comment". Comments are
+// never evidence: negative markers living only in a comment no longer satisfy
+// W1/W3, and a commented `layer:` still pairs for W4.
+function fieldVal(raw) {
+  const s = raw.trim();
+  const q = s[0];
+  if (q === '"' || q === "'") {
+    const end = s.indexOf(q, 1);
+    if (end > 0) return s.slice(1, end);
+  }
+  return s.replace(/[ \t]+#.*$/, '').trim();
+}
+
 function parseACs(contractText) {
   const acs = [];
   for (const line of sectionLines(contractText, /^#{1,6}\s+Criteria\b/i)) {
@@ -74,13 +89,16 @@ function parseEvals(evalsText) {
     if (idM) { if (cur) evals.push(cur); cur = { id: idM[1].trim(), criterion: '', expected: '', executor: '', layer: '' }; continue; }
     if (!cur) continue;
     const cM = line.match(/^\s*criterion:\s*(.+)$/);
-    if (cM) cur.criterion = cM[1].trim().replace(/^["']|["']$/g, '');
+    if (cM) cur.criterion = fieldVal(cM[1]);
     const eM = line.match(/^\s*expected:\s*(.+)$/);
-    if (eM) cur.expected = eM[1].trim().replace(/^["']|["']$/g, '');
+    if (eM) cur.expected = fieldVal(eM[1]);
     const xM = line.match(/^\s*executor:\s*(.+)$/);
-    if (xM) cur.executor = xM[1].trim().replace(/^["']|["']$/g, '');
+    // executor is parsed-but-unused by W4 ON PURPOSE: the wave-2 hook (schema v3
+    // evaluateNetwork) keys pairing enforcement off executor+layer — keep it as
+    // the machine-readable anchor, do not "clean it up".
+    if (xM) cur.executor = fieldVal(xM[1]);
     const lM = line.match(/^\s*layer:\s*(.+)$/);
-    if (lM) cur.layer = lM[1].trim().replace(/^["']|["']$/g, '');
+    if (lM) cur.layer = fieldVal(lM[1]);
   }
   if (cur) evals.push(cur);
   return evals;
@@ -116,7 +134,7 @@ function lintFeature(slug, contractText, evalsText) {
     if (!ac.crossLayer) continue;
     const es = evalsFor(ac.id);
     if (!es.length) continue;              // zero-eval is the existing ≥1-eval Gate-1 rule's job
-    if (!es.some(e => e.layer === 'backend-effect')) {
+    if (!es.some(e => e.layer.toLowerCase() === 'backend-effect')) {
       warns.push(`[${slug}] W4 ${ac.id} is tagged (cross-layer) but none of its ${es.length} eval(s) declares layer: backend-effect — UI-only evidence for a cross-layer criterion; add ≥1 test/script eval asserting the backend effect.`);
     }
   }

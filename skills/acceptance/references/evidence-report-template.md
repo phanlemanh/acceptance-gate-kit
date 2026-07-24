@@ -53,7 +53,12 @@ app traffic must be `no-app-traffic`, never `clean`), `third-party-only`,
 `app-fail` (an in-scope request failed → that eval FAILS), `n-a (driver)`
 (driver cannot read network: curl+grep, capture-only, mobile), `n-a
 (tool-error: <reason>)`, `unscoped` (no dev_server.url/api_base configured),
-`unscoped-partial` (XHR seen to an origin outside the declared scope). Raw
+`unscoped-partial` (XHR seen to an origin outside the declared scope).
+Precedence: `no-app-traffic` means ZERO app-scope requests were observed during
+the drive and always wins over `third-party-only` (which implies app traffic WAS
+observed and clean while only third-party requests failed) — on a
+`(cross-layer)` criterion, `no-app-traffic` is a dead-button signal worth a
+human look at Gate 2. Raw
 status numbers live in `evidence/E{id}-network.txt`, NEVER in the report — a
 PASS report must stay free of nonzero exit tokens. Copy the value verbatim
 from the verifier result; a missing value is `n-a (driver)`, never an
