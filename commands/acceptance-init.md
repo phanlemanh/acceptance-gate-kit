@@ -8,7 +8,10 @@ Initialize the Acceptance-Gate Kit in the current repository.
 2. Ask the user, one question at a time:
    a. Test commands per surface they have (api/backend/sdk) — e.g. `pnpm --filter backend test`
    b. CLI smoke command if a CLI surface exists
-   c. Dev server start command + URL (for ui-check evals)
+   c. Dev server start command + URL (for ui-check evals). If the app calls
+      APIs on OTHER origins (auth service, data API…), also collect their URL
+      prefixes → `dev_server.api_base` (a LIST — scopes the ui-check network
+      rail; missing → scope defaults to the url's origin)
    c2. (optional, for UI slideshow evidence) A command that saves a screenshot of
        a URL to a FILE — `<cmd> <url> <out.png>` (e.g. `npm run ui:capture`).
        preview_screenshot is inline-only, so this is what writes the slideshow
@@ -55,6 +58,7 @@ signoff:
 dev_server:
   start: "<from 2c>"
   url: "<from 2c>"
+  # api_base: ["<api prefix 1>", "<api prefix 2>"]   # optional LIST: real API URL prefixes when they differ from url's origin (multi-service apps). Scopes the network rail; omit → scope = url origin.
 capture:
   ui: "<from 2c2>"           # optional: <cmd> <url> <out.png> to save ui-check frames to files (Gate-2 slideshow). Omit if no UI evidence.
 # feature_loop:              # (feature-loop plugin) S4 adds suite_keys here via scripts/config-patch.mjs

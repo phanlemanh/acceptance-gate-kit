@@ -279,5 +279,21 @@ downstream, and revisited after the pilot:
 - **`enforcement: warn` / `off` hook outputs are not assertion-tested** (exit
   codes are — T12/T24); a `warn` report now warns at the merge gate, an `off`
   report is blocked.
+- **The cross-layer rail (wave 1) is advisory and tag-keyed**: forgetting to
+  tag a criterion `(cross-layer)` silences W4 + pairing rule (c) — the
+  remaining nets are the feature-loop gap-probe cross-check and the human at
+  Gate 1 (standalone acceptance-gate runs have no gap-probe: lint + human
+  only). `network_observed:` is not hook-enforced until evidence schema v3; a
+  fabricated `clean` is narrowed — not blocked — by the
+  clean-requires-traffic vocab rule (`no-app-traffic`) and the pre-merge
+  dump-file NOTE.
+- **The kit validates evidence of declared evals, not the environment a
+  `config:` binding points at**: a `layer: backend-effect` eval bound to a
+  mock passes mechanically (engine/binding split) — the nets are the Gate-1
+  human review of bindings and the A/B Analyst green-on-both flag.
+- **Mobile flows are UI-layer evidence only (this wave)**: simulators have no
+  network-reading path, so cross-layer truth on mobile rests entirely on the
+  paired `layer: backend-effect` eval. A first-class `mobile` surface is
+  queued until a real mobile repo adopts the kit.
 
 Design spec: `docs/specs/2026-06-10-acceptance-gate-kit-design.md`
