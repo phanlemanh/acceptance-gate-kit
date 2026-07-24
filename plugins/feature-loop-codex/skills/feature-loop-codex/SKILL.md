@@ -232,7 +232,9 @@ section (even if it is a single skip line):
    command references, not hardcoded project commands. Machine/ui evals SHOULD
    declare `paths: [<repo-relative globs>]` — the files the eval actually
    checks — enabling P1 carry-forward on delta staleness rounds; an eval
-   without `paths` always reruns (safe default).
+   without `paths` always reruns (safe default). A criterion tagged `(cross-layer)` additionally needs ≥1 `test`/`script` eval
+   declaring `layer: backend-effect` (pairing rule (c); lint W4 keys off both —
+   a ui-check alone is never sufficient cross-layer evidence).
 7. Add boundary and should-NOT-fire coverage where criteria have thresholds,
    permissions, limits, or out-of-scope behavior. Run the advisory coverage lint
    when available:
@@ -249,7 +251,8 @@ section (even if it is a single skip line):
    carries artifact (design|contract|evals) · concrete failure scenario ·
    severity P0/P1/P2 · proposed measure — no scenario means DROP; (4) mandatory
    cross-checks: ACs with no eval, GWTs that cannot be measured, Coverage axes
-   with no AC; (5) at most 5 findings; verdict `clean` is a VALID outcome;
+   with no AC, and criteria whose When/Then crosses the backend but lack the
+   `(cross-layer)` tag or carry UI-layer evals only (ui-check/judgment); (5) at most 5 findings; verdict `clean` is a VALID outcome;
    (6) never relitigate sealed/descoped ledger decisions without a NEW reason.
    Write `_acceptance/<slug>/gap-probe.md` — frontmatter `slug / at (ISO UTC) /
    verdict: clean|findings|probe-failed / p0 / p1 / p2` plus a `## Findings`
@@ -368,7 +371,10 @@ or the human confirms a descope entry.
    the ORIGINAL `run_id` plus `carried_from_round: <N>`, and render its report
    block with the original `run_id`/`verified_at`, `exit_code: 0`, a
    `carried_from_round: <N>` line, and no `screenshot:`/`observed:` fields.
-   Suite commands always rerun. If nothing fresh remains (no commands, no fresh
+   Suite commands always rerun. Atomic-pair: an eval belonging to a `(cross-layer)` criterion may carry
+   forward ONLY when every eval of that criterion is carry-eligible; if any
+   member must rerun, rerun the whole pair (backend evidence and UI-layer
+   evidence of one flow must come from the same round). If nothing fresh remains (no commands, no fresh
    judgment), the round is `BLOCKED` — never an empty PASS.
 9. Run A/B baseline checks for commands attached to feature evals on `diffBase`
    in an isolated worktree. Record `baseline: red|green|n-a`. Green on both HEAD
@@ -385,7 +391,9 @@ or the human confirms a descope entry.
     `evidence/E3-step1.png`, `evidence/E3-step2.png`. The first frame goes in
     `screenshot:`; additional frames are found by `evidence-page.html` and play
     as a slideshow. If screenshots are unavailable, save asserted HTML and
-    record the fallback.
+    record the fallback. This harness normally cannot read network traffic — record
+    `network_observed: n-a (driver)` for ui-check blocks unless a
+    network-capable browser tool is actually driving; never invent `clean`.
 11. For `judgment`, use lenses `domain-correctness`,
     `operational-feasibility`, and `spec-alignment`. Dispatch three fresh
     `acceptance_judge` instances when named selection is available; otherwise
@@ -423,7 +431,9 @@ or the human confirms a descope entry.
 15. Write `_acceptance/<slug>/evidence-report.md` from the acceptance-gate
     template. Every machine PASS block must include `run_id`, `exit_code: 0`,
     `verifier`, and `verified_at`. Mint stable ids like
-    `minted-<slug>-<evalId>-r<round>` when the command has no run id.
+    `minted-<slug>-<evalId>-r<round>` when the command has no run id. Copy `network_observed:` verbatim from the ui verifier result; a missing
+    value is `n-a (driver)` — never a synthesized `clean`. Words only; raw
+    statuses stay in `evidence/E{id}-network.txt`.
     Add this auditable routing block without inventing effective model data:
 
     ```text

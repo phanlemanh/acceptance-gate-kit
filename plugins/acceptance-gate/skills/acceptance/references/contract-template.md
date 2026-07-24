@@ -45,10 +45,14 @@ Source input: {{ticket-url | prd-path | prompt}}
 ## Criteria
 
 {{5-15 criteria. Each MUST be Given/When/Then and independently checkable.
-Tag criteria that require business judgment with (judgment).}}
+Tag criteria that require business judgment with (judgment).
+Tag criteria whose When/Then crosses the backend — a UI flow triggering an API
+call / data mutation — with (cross-layer): Phase 2 pairing rule (c), lint W4
+and the gap-probe cross-check all key off this tag.}}
 
 - AC-1: Given {{precondition}}, When {{action}}, Then {{observable outcome}}.
 - AC-2: Given {{precondition}}, When {{action}}, Then {{observable outcome}}. (judgment)
+- AC-3: Given {{precondition}}, When {{user submits the form}}, Then {{the record exists via API}}. (cross-layer)
 
 ## Coverage
 

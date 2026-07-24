@@ -857,6 +857,8 @@ git commit -m "feat(codex-parity): rule (c) + network stance thật cho lane Cod
 - Modify: `codex/acceptance-gate/.codex-plugin/plugin.json`, `codex/feature-loop-codex/.codex-plugin/plugin.json` (đọc file, bump version field lên 1.19.0 / 1.16.0 tương ứng)
 - Modify: `scripts/sync-plugin-packages.sh` (:49 dòng echo)
 - Regenerate: `plugins/**` (bằng script, không sửa tay)
+- Modify: `.codex-plugin/plugin.json` (root — version 1.19.0, P03 assert đẳng thức với `.claude-plugin`)
+- Modify: `tests/plugins/run-tests.sh` (pin suite P03/P04/P22 — literal version mới)
 
 - [ ] **Step 1: Bump versions**
 

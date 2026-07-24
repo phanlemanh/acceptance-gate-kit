@@ -300,6 +300,19 @@ GLOBS2
      && ! grep -qiE '^[[:space:]]*observed[[:space:]]*[:=]' "$report"; then
     echo "NOTE [$slug]: schema v$sv report has screenshot evidence without observed: — frame inspection was not machine-enforced for this report. Re-verify with template v2 to enforce."
   fi
+  # network truth (wave 1, advisory): a claim-bearing network_observed (clean /
+  # app-fail) must have its dump file on disk — vocab without evidence is NOTEd,
+  # never blocked (nothing network-related is hook-enforced until schema v3).
+  net_missing=0
+  while IFS= read -r eid; do
+    [ -n "$eid" ] || continue
+    [ -f "$dir/evidence/${eid}-network.txt" ] || net_missing=$((net_missing+1))
+  done <<NETIDS
+$(awk 'tolower($0) ~ /^[[:space:]]*-[[:space:]]*eval:/ {id=$NF} tolower($0) ~ /^[[:space:]]*network_observed[[:space:]]*[:=][[:space:]]*(clean|app-fail)/ {print id}' "$report")
+NETIDS
+  if [ "$net_missing" -gt 0 ]; then
+    echo "NOTE [$slug]: $net_missing network_observed claim(s) (clean/app-fail) with no evidence/E{id}-network.txt on disk — vocab without a dump file (advisory until schema v3)"
+  fi
   # Re-verify the COMMITTED evidence with the same core the hook runs — catches a
   # report hand-edited after the write-time hook, or written under bypass.
   if [ "$RECHECK_MODE" != off ]; then

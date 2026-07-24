@@ -46,6 +46,20 @@ PASS report whose screenshot blocks lack a substantive observed (>= 20 chars
 after stripping placeholders); schema_version < 2 reports are tolerated and
 pre-merge NOTEs them.
 
+Network truth (wave 1 — ADVISORY, not hook-enforced; the hook stays schema v2):
+a ui-check block may carry `network_observed:` — WORDS ONLY, following the
+`baseline: red/green/n-a` precedent: `clean` (app traffic seen, all OK — zero
+app traffic must be `no-app-traffic`, never `clean`), `third-party-only`,
+`app-fail` (an in-scope request failed → that eval FAILS), `n-a (driver)`
+(driver cannot read network: curl+grep, capture-only, mobile), `n-a
+(tool-error: <reason>)`, `unscoped` (no dev_server.url/api_base configured),
+`unscoped-partial` (XHR seen to an origin outside the declared scope). Raw
+status numbers live in `evidence/E{id}-network.txt`, NEVER in the report — a
+PASS report must stay free of nonzero exit tokens. Copy the value verbatim
+from the verifier result; a missing value is `n-a (driver)`, never an
+invented `clean`. pre-merge NOTEs a `clean`/`app-fail` claim whose txt file is
+missing.
+
 Provenance (CI-enforced, not hook-enforced): REPLACE the `enforcement_mode` /
 `bypass_used` placeholders with the real values — `enforcement` from
 `_acceptance/config.yaml` (default `strict`), and `true` iff
@@ -123,6 +137,7 @@ human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER revi
     {{1-3 lines describing what is actually VISIBLE in the frames, cross-checked
     against the eval's expected — written AFTER opening each frame with a
     multimodal Read. >= 20 substantive chars; placeholders do not count.}}
+  network_observed: {{clean|no-app-traffic|third-party-only|app-fail|n-a (driver)|n-a (tool-error)|unscoped|unscoped-partial}}   # words only — raw statuses live in evidence/E3-network.txt
 
 # Example shows the PENDING-JUDGMENT state; under an overall PASS verdict
 # this UNCERTAIN-without-override combination is hook-blocked.

@@ -15,6 +15,9 @@
  *       (content, not count — one eval that brackets the boundary is fine)
  *   W3  an "Out of scope" section with bullets but ZERO negative evals anywhere
  *       (the deliberately-excluded behaviour is documentation nobody evaluates)
+ *   W4  a criterion tagged (cross-layer) whose evals include NO member with
+ *       `layer: backend-effect` (UI-only evidence for a UI→API→backend path;
+ *       executor-type alone is spoofable by design-gate/VLM `script` evals)
  *
  * ADVISORY by design: NL detection is fuzzy, so this never hard-blocks — it
  * exits 1 when it has warnings so a human reads them at Gate 1 (a repo MAY wire
@@ -52,7 +55,7 @@ function parseACs(contractText) {
   const acs = [];
   for (const line of sectionLines(contractText, /^#{1,6}\s+Criteria\b/i)) {
     const m = line.match(/^\s*[-*]\s*(AC-\d+)\s*[:.]\s*(.+)$/);
-    if (m) acs.push({ id: m[1], text: m[2], judgment: /\(judgment\)/i.test(m[2]) });
+    if (m) acs.push({ id: m[1], text: m[2], judgment: /\(judgment\)/i.test(m[2]), crossLayer: /\(cross-layer\)/i.test(m[2]) });
   }
   return acs;
 }
@@ -68,12 +71,16 @@ function parseEvals(evalsText) {
   for (const raw of evalsText.split('\n')) {
     const line = raw.replace(/\t/g, '  ');
     const idM = line.match(/^\s*-\s+id:\s*(.+)$/);
-    if (idM) { if (cur) evals.push(cur); cur = { id: idM[1].trim(), criterion: '', expected: '' }; continue; }
+    if (idM) { if (cur) evals.push(cur); cur = { id: idM[1].trim(), criterion: '', expected: '', executor: '', layer: '' }; continue; }
     if (!cur) continue;
     const cM = line.match(/^\s*criterion:\s*(.+)$/);
     if (cM) cur.criterion = cM[1].trim().replace(/^["']|["']$/g, '');
     const eM = line.match(/^\s*expected:\s*(.+)$/);
     if (eM) cur.expected = eM[1].trim().replace(/^["']|["']$/g, '');
+    const xM = line.match(/^\s*executor:\s*(.+)$/);
+    if (xM) cur.executor = xM[1].trim().replace(/^["']|["']$/g, '');
+    const lM = line.match(/^\s*layer:\s*(.+)$/);
+    if (lM) cur.layer = lM[1].trim().replace(/^["']|["']$/g, '');
   }
   if (cur) evals.push(cur);
   return evals;
@@ -97,6 +104,20 @@ function lintFeature(slug, contractText, evalsText) {
     // N evals that only ever assert the happy path is the demo-driven trap.
     if (!hasNeg(es)) {
       warns.push(`[${slug}] W1 ${ac.id} is a threshold/boundary criterion but none of its ${es.length} eval(s) assert a should-NOT-fire / boundary case (no negative marker in 'expected') — add a just-below (suppress) case.`);
+    }
+  }
+
+  // W4 — cross-layer pairing (tag-keyed, deterministic): a criterion tagged
+  // (cross-layer) whose evals carry NO `layer: backend-effect` member has
+  // UI-only evidence for a cross-layer path. Executor-type alone is NOT enough
+  // (rule-2b design-gate scripts / VLM wrappers are `script` too) — the layer
+  // field is the machine-readable pairing anchor.
+  for (const ac of acs) {
+    if (!ac.crossLayer) continue;
+    const es = evalsFor(ac.id);
+    if (!es.length) continue;              // zero-eval is the existing ≥1-eval Gate-1 rule's job
+    if (!es.some(e => e.layer === 'backend-effect')) {
+      warns.push(`[${slug}] W4 ${ac.id} is tagged (cross-layer) but none of its ${es.length} eval(s) declares layer: backend-effect — UI-only evidence for a cross-layer criterion; add ≥1 test/script eval asserting the backend effect.`);
     }
   }
 
@@ -144,7 +165,7 @@ function run(argv) {
   if (!warns.length) { console.log('eval-coverage-lint: no coverage gaps detected.'); return 0; }
   console.log(`eval-coverage-lint: ${warns.length} coverage warning(s) — ADVISORY, review at Gate 1 (not auto-blocking):\n`);
   for (const w of warns) console.log('  ' + w);
-  console.log('\nW1 = a bounded/threshold criterion needs a just-below should-NOT-fire (boundary) eval; W3 = give the out-of-scope half real negative evals.');
+  console.log('\nW1 = a bounded/threshold criterion needs a just-below should-NOT-fire (boundary) eval; W3 = give the out-of-scope half real negative evals; W4 = a (cross-layer) criterion needs a paired layer: backend-effect eval.');
   return 1;
 }
 
