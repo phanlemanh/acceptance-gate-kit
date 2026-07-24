@@ -77,14 +77,18 @@ rejected, cross-tenant read denied, jsonb default-or-throw, PII absent,
 `source_field` present). A should-NOT-fire eval is an ordinary `test`/`script`
 whose `expected` describes the absence/refusal — e.g. "2 opens in 48h → NO touch
 created", "anon INSERT denied by RLS" — no new executor. The `eval-coverage-lint`
-script flags threshold criteria whose evals never assert this (W1) and
-out-of-scope items with zero negative evals (W3); advisory, surfaced at Gate 1.
+script flags threshold criteria whose evals never assert this (W1),
+out-of-scope items with zero negative evals (W3), and `(cross-layer)` criteria
+with no `layer: backend-effect` eval (W4); advisory, surfaced at Gate 1.
 
 ## Executor selection rules (used by Phase 2 EVAL-GEN)
 
 1. Criterion checkable by running existing/new automated tests → `test`.
 2. Criterion about CLI behavior → `script`.
-3. Criterion observable only through the browser → `ui-check`.
+3. Criterion observable only through the browser → `ui-check`. CAVEAT: for a
+   criterion tagged `(cross-layer)` this rule picks the UI half only — pairing
+   rule (c) (SKILL.md Phase 2) additionally REQUIRES a `layer: backend-effect`
+   eval; a ui-check alone is never sufficient cross-layer evidence.
 4. Criterion containing words like "appropriate", "matches intent", "tone",
    "makes sense", or tagged `(judgment)` in the contract → `judgment`.
 4b. Criterion about **design / visual quality** on a web UI — accessibility
@@ -97,6 +101,34 @@ out-of-scope items with zero negative evals (W3); advisory, surfaced at Gate 1.
 5. Every criterion gets ≥1 eval. A criterion with zero evals fails Gate 1.
 6. `cmd` MUST be a `config:` reference when the command is repo-specific —
    never hardcode repo commands into evals.yaml.
+
+## Pairing mechanics — `(cross-layer)` criteria
+
+A criterion whose When/Then crosses the backend (a UI flow triggering an API
+call / data mutation) is tagged `(cross-layer)` in the contract (Phase 1). Its
+eval set MUST contain, besides the UI-half eval:
+
+- **≥1 backend-effect eval** — executor `test`/`script`, `cmd` a `config:`
+  ref, declaring the machine-readable field `layer: backend-effect` (additive,
+  like `runs:`; lint W4 keys off this field — executor type alone is spoofable
+  by rule-2b design-gate scripts). It proves "this backend path really works".
+- **Self-driving with its own nonce**: the command creates the effect under an
+  identifier of its own and asserts it (POST X → GET/query X). It does NOT
+  claim to prove UI→API wiring.
+- **NEVER author "GET-asserts-the-effect-the-UI-flow-created"**: the machine
+  lane and the ui lane run in the SAME parallel() — such an eval races the ui
+  agent (fails when scheduled first) and burns a round. Sequencing (`after:
+  ui`) is a wave-2 candidate, not available now.
+- **Wiring is proven in the ui-check itself**: its asserted marker must be
+  server-derived data (an id/value only the server can produce for this flow,
+  never a static toast/optimistic DOM); for mutations, assert AFTER a reload;
+  recommended nonce-correlation — the flow types a distinguishable identifier
+  (e.g. a fixed per-eval string when the env resets between rounds) and both
+  the marker and the backend-effect eval assert the record carrying it.
+- **Bind to an existing suite command when possible** (the feature's own
+  itest): machine-lane dedupe makes the marginal cost ~0; MODEL_ROUTES, A/B
+  baseline, run-log and carry-forward apply automatically since this is an
+  ordinary machine eval.
 
 ## ui-check mechanics
 
@@ -111,6 +143,26 @@ out-of-scope items with zero negative evals (W3); advisory, surfaced at Gate 1.
   v2, hook-enforced): what is actually visible, cross-checked against
   `expected`. A frame that contradicts `expected` fails the eval even when the
   assertion command exited 0. This is the anti-"saved but never looked" rail.
+- **Network truth** (extends the `observed:` rail from pixels to the wire) —
+  when the driver is a browser tool with a network log
+  (`read_network_requests` / `read_console_messages` or equivalent): after
+  driving the flow, dump failed requests + console errors to
+  `evidence/E{id}-network.txt` and record `network_observed:` with WORDS ONLY:
+  `clean | no-app-traffic | third-party-only | app-fail | n-a (driver) |
+  n-a (tool-error: <reason>) | unscoped | unscoped-partial`. Scoping law:
+  FAIL-eligible = fetch/XHR to the `dev_server.url` origin or any prefix in
+  `dev_server.api_base` (a LIST); third-party (analytics/CDN/trackers) never
+  fails; static assets (.map/favicon/images/fonts) never fail even on the app
+  origin; within FAIL-eligible, connection-error/timeout/5xx FAILS the eval
+  even when frames look right, and 4xx fails unless the eval's `expected`
+  declares that exact status. `clean` REQUIRES seen app traffic — zero app
+  requests must be recorded `no-app-traffic`, never `clean`. Raw status
+  numbers stay in the txt file — NEVER in the report (L1 CONSISTENCY blocks
+  nonzero-exit tokens in a PASS report; word-vocab follows the
+  `baseline: red/green/n-a` precedent). Drivers with no network path
+  (curl+grep SSR, capture-only, mobile simulators) record `n-a (driver)` —
+  the cross-layer burden then rests entirely on the paired
+  `layer: backend-effect` eval.
 - **Saving a frame to a FILE** (the slideshow needs files, not inline images):
   `preview_screenshot` and most browser tools return an INLINE image, not a saved
   file. So the repo provides `config:capture.ui` — a command `<cmd> <url>
