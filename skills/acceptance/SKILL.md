@@ -90,7 +90,10 @@ Steps:
 1. Read `references/contract-template.md`. Create
    `_acceptance/{slug}/contract.md` from it (slug = kebab-case feature name).
 2. Write 5-15 criteria, each Given/When/Then, each independently checkable.
-   Tag business-judgment criteria with `(judgment)`.
+   Tag business-judgment criteria with `(judgment)`. Tag criteria whose
+   When/Then crosses the backend (a UI flow triggering an API call / data
+   mutation) with `(cross-layer)` — pairing rule (c), lint W4 and the
+   gap-probe cross-check key off this tag.
 3. Fill **Out of scope** — minimum 2 bullets. An empty out-of-scope section
    means you have not thought about boundaries; dig for them.
 4. Set frontmatter: `risk_tier` (from Phase 0), `status: draft`,
@@ -119,7 +122,7 @@ Run immediately after the user reviews the contract (same gate, one sitting).
    the skip). Strategic "on-brand / not generic" goes to a `judgment` eval.
 3. Repo-specific commands MUST be `config:` references
    (e.g. `cmd: config:executors.test.api`) — never hardcoded.
-4. Coverage check — two rules:
+4. Coverage check — three rules:
    (a) every AC-n appears in ≥1 eval's `criterion` field. Print the mapping
        table (criterion → eval ids → executor).
    (b) **Boundary + should-NOT-fire.** Given/When/Then is structurally positive,
@@ -132,10 +135,20 @@ Run immediately after the user reviews the contract (same gate, one sitting).
        denied; jsonb-from-DB → malformed throws/defaults; no-embed → PII absent;
        no-fabricate → source_field present. Mine the contract's **Out of scope**
        + risk list — each is a should-NOT-fire assertion in disguise.
+   (c) **Cross-layer pairing.** Every criterion tagged `(cross-layer)` MUST
+       have ≥1 eval declaring `layer: backend-effect` (executor `test`/`script`,
+       `cmd` a `config:` ref) proving the backend effect of THAT action —
+       a ui-check alone is NEVER sufficient evidence for a cross-layer
+       criterion. Author it self-driving with its own nonce (POST X → assert X);
+       never author "GET-asserts-what-the-UI-flow-created" (races the parallel
+       ui lane). The ui-check half must assert a server-derived marker (and
+       re-assert after reload for mutations). See eval-executors.md §Pairing
+       mechanics.
    Run the advisory lint and present its warnings at Gate 1 (it never auto-blocks;
    the human decides): `node <acceptance-gate-plugin>/scripts/eval-coverage-lint.js
    <repo_root> --slug <slug>` — flags threshold criteria whose evals never assert a
-   should-NOT-fire case (W1) and out-of-scope items with zero negative evals (W3).
+   should-NOT-fire case (W1), out-of-scope items with zero negative evals (W3),
+   and `(cross-layer)` criteria with no `layer: backend-effect` eval (W4).
 5. **STOP — Gate 1 part B.** Present evals.yaml + mapping table — or, to cut
    review time, render the plain-language decision card (`/acceptance-card
    <slug>`): the human reviews "sẽ làm / sẽ KHÔNG làm" + coverage flags instead of
@@ -174,7 +187,18 @@ Entry: implementation complete, contract `status: implemented`.
    frame contradicting expected means that eval FAILS even with exit 0; never
    write observed from memory. If any judgment item is UNCERTAIN — or the
    contract is T3 with judgment evals — the overall verdict is
-   PENDING-JUDGMENT, never PASS."
+   PENDING-JUDGMENT, never PASS. For every ui-check where the driver can read network traffic (a browser tool
+   with read_network_requests or equivalent): after driving the flow, dump
+   failed requests + console errors to evidence/E{id}-network.txt and record
+   network_observed: with WORDS ONLY — clean | no-app-traffic |
+   third-party-only | app-fail | n-a (driver) | n-a (tool-error: <reason>) |
+   unscoped | unscoped-partial. FAIL-eligible = fetch/XHR to the
+   dev_server.url origin or an api_base prefix; third-party and static assets
+   never fail; in-scope connection-error/timeout/5xx FAILS that eval even when
+   frames look right; 4xx fails unless the eval's expected declares that exact
+   status. clean REQUIRES seen app traffic (none seen = no-app-traffic). No
+   network path = n-a (driver) — never an invented clean. Raw statuses stay in
+   the txt file, never in the report."
 2. The subagent executes per executor type:
    - `test` / `script`: run the resolved `config:` command. Capture exit code
      + last 10 output lines. Use the run_id from verifier stdout when
@@ -191,7 +215,8 @@ Entry: implementation complete, contract `status: implemented`.
      or equivalent); save a frame at EACH step to
      `_acceptance/{slug}/evidence/E{id}-step{n}.png` via `config:capture.ui`
      (preview_screenshot is inline-only; the Gate-2 page plays `E{id}-*.png` as a
-     slideshow); `screenshot:` = the first frame. Read each saved frame and record observed: in its report block (schema-v2 reports without it are hook-blocked).
+     slideshow); `screenshot:` = the first frame. Read each saved frame and record observed: in its report block (schema-v2 reports without it are hook-blocked). Record network evidence per the instruction above when the driver allows;
+     copy `network_observed:` verbatim into the block (missing → `n-a (driver)`).
      No capture/browser → save HTML / downgrade to judgment + note (see eval-executors.md).
    - `judgment`: dispatch the judge per `references/judge-personas.md`
      (separate fresh subagent when available, or three separated Codex passes
@@ -263,6 +288,8 @@ Entry: implementation complete, contract `status: implemented`.
 | User asks to skip Gate 1 | Refuse politely once, explain leverage; if insisted, note `gate1_skipped: true` in contract |
 | Hook blocks the report write | Evidence is incomplete — capture real evidence; do NOT reword the verdict to dodge the gate |
 | Hook L1 CONSISTENCY blocks an all-green PASS (stray exit=1 or verdict: FAIL token in pasted output) | Sanitize the output excerpt per template — verdict stays PASS; flip to REJECT only if an eval actually failed |
+| Driver cannot read network (curl+grep SSR runs no JS; mobile simulator; capture-only) | ui-check counts as UI-LAYER evidence only — `network_observed: n-a (driver)`; a `(cross-layer)` criterion REQUIRES its paired `layer: backend-effect` eval; missing pair → W4 + gap-probe + Gate-1 flag |
+| `dev_server.url` / `api_base` not (fully) configured — multi-origin app | network rail is note-only (`unscoped` / `unscoped-partial`), never FAILs |
 
 ## Anti-patterns
 
