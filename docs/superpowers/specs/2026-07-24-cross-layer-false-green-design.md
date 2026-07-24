@@ -323,8 +323,9 @@ README Known limitations thêm các bullet §7.
   máy thường trong lane sẵn có (dedupe + model rẻ + carry-forward, trừ luật
   atomic-pair). Không phá thành quả token MODEL_ROUTES 1.9.1.
 - **Ồn:** mọi tín hiệu mới hoặc advisory hoặc FAIL-chỉ-khi-app-scope-fail; ba
-  trạng thái n-a/unscoped không bao giờ FAIL; residual poller nền là lập trường
-  có van xả.
+  trạng thái n-a/unscoped không bao giờ FAIL; residual poller nền là lập
+  trường — FAIL máy route REJECT, lối ra là chạy lại round hoặc
+  descope/viết lại eval có ghi lý do.
 - **Human-gate:** Gate 1 chỉ thêm cờ khi thiếu pairing; Gate 2 thêm 1 dòng vocab
   tự-giải-thích mỗi ui-eval; txt chỉ mở khi FAIL/nghi ngờ.
 - **Rủi ro chính:** kỷ luật authoring (tag, marker server-derived) là hàng rào
