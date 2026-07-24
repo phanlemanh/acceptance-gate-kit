@@ -433,7 +433,7 @@ missing.
 3b. Trong body template, block `- eval: E3` (dòng ~116-125) — chèn sau dòng `observed: |` + placeholder của nó:
 
 ```
-  network_observed: {{clean|no-app-traffic|third-party-only|app-fail|n-a (driver)|unscoped|unscoped-partial}}   # words only — raw statuses live in evidence/E3-network.txt
+  network_observed: {{clean|no-app-traffic|third-party-only|app-fail|n-a (driver)|n-a (tool-error)|unscoped|unscoped-partial}}   # words only — raw statuses live in evidence/E3-network.txt
 ```
 
 - [ ] **Step 4: Verify bằng grep**

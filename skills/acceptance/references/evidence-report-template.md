@@ -137,7 +137,7 @@ human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER revi
     {{1-3 lines describing what is actually VISIBLE in the frames, cross-checked
     against the eval's expected — written AFTER opening each frame with a
     multimodal Read. >= 20 substantive chars; placeholders do not count.}}
-  network_observed: {{clean|no-app-traffic|third-party-only|app-fail|n-a (driver)|unscoped|unscoped-partial}}   # words only — raw statuses live in evidence/E3-network.txt
+  network_observed: {{clean|no-app-traffic|third-party-only|app-fail|n-a (driver)|n-a (tool-error)|unscoped|unscoped-partial}}   # words only — raw statuses live in evidence/E3-network.txt
 
 # Example shows the PENDING-JUDGMENT state; under an overall PASS verdict
 # this UNCERTAIN-without-override combination is hook-blocked.
