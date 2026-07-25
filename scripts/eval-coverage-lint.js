@@ -21,6 +21,10 @@
  *   W5  a contract whose `surfaces:` include mobile but carries no
  *       "Mobile backend target: local|staging|mock" line — the Gate-1 human
  *       cannot eyeball the V4 (mock-vs-real) risk of the paired backend eval
+ *   W6  a contract whose prose uses an alias the repo's own CONTEXT.md lists
+ *       under `_Avoid_` — the requirement is being written in vocabulary the
+ *       team already ruled out, so the eval will faithfully test the wrong
+ *       reading. Silent in repos with no CONTEXT.md (opt-in by construction).
  *
  * ADVISORY by design: NL detection is fuzzy, so this never hard-blocks — it
  * exits 1 when it has warnings so a human reads them at Gate 1 (a repo MAY wire
@@ -30,6 +34,12 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+
+// Shared CONTEXT.md parser — vendored beside this script in the plugin package
+// (same arrangement as recheck-evidence.js + lib/evidence-core.js). Missing lib
+// => W6 simply never fires; the other warnings are unaffected.
+let glossaryLib = null;
+try { glossaryLib = require(path.join(__dirname, '..', 'lib', 'context-glossary.js')); } catch (_) {}
 
 // ─── Detectors (intentionally generous; advisory) ───────────────────────────
 
@@ -118,7 +128,7 @@ function parseEvals(evalsText) {
 
 // ─── Lint one feature ────────────────────────────────────────────────────────
 
-function lintFeature(slug, contractText, evalsText) {
+function lintFeature(slug, contractText, evalsText, glossary) {
   const warns = [];
   const acs = parseACs(contractText);
   const evals = parseEvals(evalsText);
@@ -160,6 +170,21 @@ function lintFeature(slug, contractText, evalsText) {
     warns.push(`[${slug}] W5 surfaces include mobile but the contract has no "Mobile backend target:" line (## Notes) — declare local|staging|mock so the Gate-1 human can eyeball the V4 risk.`);
   }
 
+  // W6 — vocabulary drift (advisory): the contract states the requirement using
+  // a word this repo's CONTEXT.md has ruled out. Machine-checkable only because
+  // `_Avoid_` makes the glossary a rule rather than a reference; `_Allow_`
+  // carves out phrases that legitimately contain an alias WITHOUT silencing the
+  // bare alias elsewhere. Prose only — code spans, fenced blocks, frontmatter
+  // and link targets are not the author speaking.
+  if (glossary && glossaryLib) {
+    const seenAlias = new Set();
+    for (const v of glossaryLib.findViolations(contractText, glossary)) {
+      if (seenAlias.has(v.alias.toLowerCase())) continue; // one warning per alias
+      seenAlias.add(v.alias.toLowerCase());
+      warns.push(`[${slug}] W6 contract line ${v.lineNo} uses "${v.alias}", which CONTEXT.md lists under _Avoid_ for "${v.term}" — restate the criterion in the canonical term so the eval tests the agreed reading.`);
+    }
+  }
+
   const oos = outOfScopeBullets(contractText);
   const negCount = evals.filter(e => NEG_RE.test(e.expected)).length;
   if (oos > 0 && negCount === 0) {
@@ -186,25 +211,28 @@ function run(argv) {
   if (filesMode) {
     const [c, e] = filesMode.map(readSafe);
     if (c == null || e == null) { console.log('eval-coverage-lint: contract/evals file unreadable — skipping (advisory)'); return 0; }
-    warns.push(...lintFeature('files', c, e));
+    // --files mode has no repo root to resolve CONTEXT.md against → W6 is out
+    // of scope there (the other warnings are file-local and still apply).
+    warns.push(...lintFeature('files', c, e, null));
   } else {
     const acc = path.join(root, '_acceptance');
     let dirs;
     try { dirs = fs.readdirSync(acc, { withFileTypes: true }).filter(d => d.isDirectory()).map(d => d.name); }
     catch (_) { console.log('eval-coverage-lint: no _acceptance/ — nothing to lint'); return 0; }
+    const glossary = glossaryLib ? glossaryLib.readGlossary(root) : null;
     const targets = slugs.length ? slugs : dirs;
     for (const slug of targets) {
       const c = readSafe(path.join(acc, slug, 'contract.md'));
       const e = readSafe(path.join(acc, slug, 'evals.yaml'));
       if (c == null || e == null) continue; // pre-eval-gen feature → nothing to lint
-      warns.push(...lintFeature(slug, c, e));
+      warns.push(...lintFeature(slug, c, e, glossary));
     }
   }
 
   if (!warns.length) { console.log('eval-coverage-lint: no coverage gaps detected.'); return 0; }
   console.log(`eval-coverage-lint: ${warns.length} coverage warning(s) — ADVISORY, review at Gate 1 (not auto-blocking):\n`);
   for (const w of warns) console.log('  ' + w);
-  console.log('\nW1 = a bounded/threshold criterion needs a just-below should-NOT-fire (boundary) eval; W3 = give the out-of-scope half real negative evals; W4 = a (cross-layer) criterion needs a paired layer: backend-effect eval; W5 = a mobile-surface contract needs a "Mobile backend target:" line.');
+  console.log('\nW1 = a bounded/threshold criterion needs a just-below should-NOT-fire (boundary) eval; W3 = give the out-of-scope half real negative evals; W4 = a (cross-layer) criterion needs a paired layer: backend-effect eval; W5 = a mobile-surface contract needs a "Mobile backend target:" line; W6 = the contract uses a word this repo\'s CONTEXT.md ruled out under _Avoid_.');
   return 1;
 }
 

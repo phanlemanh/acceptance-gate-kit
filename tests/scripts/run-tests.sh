@@ -637,6 +637,130 @@ node "$LINT" "$T/lintN" >/dev/null; check L17 0 $?
 echo "L18 mobile surface + backend target khoảng trắng đôi -> W5 im lặng"
 node "$LINT" "$T/lintO" >/dev/null; check L18 0 $?
 
+# ─── W6 vocab lint (Đợt 2) — contract dùng alias nằm trong _Avoid_ của CONTEXT.md
+# repo TIÊU THỤ. Backward-tolerant: repo không có CONTEXT.md -> W6 im lặng hoàn toàn.
+
+mk_w6() { # <rootdir> <slug> <context.md content|-> <contract prose>
+  local R="$1" S="$2" CTX="$3" PROSE="$4"
+  mkdir -p "$R/_acceptance/$S"
+  [ "$CTX" != "-" ] && printf '%s\n' "$CTX" > "$R/CONTEXT.md"
+  { printf -- '---\nrisk_tier: T2\nstatus: approved\n---\n## Criteria\n'
+    printf -- '- AC-1: %s\n' "$PROSE"
+    printf -- '## Out of scope\n'; } > "$R/_acceptance/$S/contract.md"
+  printf 'evals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    expected: "exit 0"\n' \
+    > "$R/_acceptance/$S/evals.yaml"
+}
+
+CTX_STD='# Shop
+
+## Language
+
+**Order**:
+A customer request to buy items.
+_Avoid_: Purchase, transaction
+
+**Invoice**:
+A request for payment.
+_Avoid_: Bill'
+
+# Q: alias trần trong prose -> W6 nổ (RED cơ bản)
+mk_w6 "$T/w6Q" feat-v1 "$CTX_STD" 'Given cart, When user confirms the Purchase, Then receipt shows.'
+# R: KHÔNG có CONTEXT.md, cùng prose vi phạm -> im lặng (backward-tolerant)
+mk_w6 "$T/w6R" feat-v2 "-" 'Given cart, When user confirms the Purchase, Then receipt shows.'
+# S: alias trong inline code span -> không nổ
+mk_w6 "$T/w6S" feat-v3 "$CTX_STD" 'Given cart, When handler `Purchase.commit()` runs, Then receipt shows.'
+# U: alias là substring của từ dài hơn (Bill -> billing) -> không nổ (word boundary)
+mk_w6 "$T/w6U" feat-v5 "$CTX_STD" 'Given cart, When the billing job runs, Then receipt shows.'
+
+# V: allowlist — `_Allow_` che cụm hợp lệ NHƯNG alias trần vẫn phải nổ (RED NGOÀI allowlist).
+CTX_ALLOW='# Shop
+
+## Language
+
+**Gate**:
+A human stop.
+_Avoid_: checkpoint
+_Allow_: design checkpoint'
+# V1: chỉ dùng cụm được allow -> im lặng
+mk_w6 "$T/w6V1" feat-v6 "$CTX_ALLOW" 'Given surface, When the design checkpoint runs, Then P0 floor holds.'
+# V2: cụm allow XUẤT HIỆN nhưng CÒN một alias trần chỗ khác -> vẫn phải nổ
+mk_w6 "$T/w6V2" feat-v7 "$CTX_ALLOW" 'Given the design checkpoint passes, When a second checkpoint is added, Then it blocks.'
+
+# W: alias tiếng Việt có dấu -> nổ (word boundary phải unicode-aware)
+CTX_VN='# Kho
+
+## Language
+
+**Đơn hàng**:
+Yêu cầu mua của khách.
+_Avoid_: đơn mua'
+# prose tránh mọi từ khoá THRESHOLD_RE ("biên", số + đơn vị…) để L26 chỉ có thể
+# đỏ vì W6 — pass-vì-W1 là false green đã bắt được một lần ở vòng RED.
+mk_w6 "$T/w6W" feat-v8 "$CTX_VN" 'Given giỏ hàng, When khách xác nhận đơn mua, Then hệ thống ghi nhận.'
+
+# X: fenced code block -> không nổ
+mkdir -p "$T/w6X/_acceptance/feat-v9"
+printf '%s\n' "$CTX_STD" > "$T/w6X/CONTEXT.md"
+cat > "$T/w6X/_acceptance/feat-v9/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+---
+## Criteria
+- AC-1: Given cart, When confirmed, Then receipt shows.
+## Notes
+```sql
+SELECT * FROM Purchase WHERE id = 1;
+```
+## Out of scope
+EOF
+printf 'evals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    expected: "exit 0"\n' > "$T/w6X/_acceptance/feat-v9/evals.yaml"
+
+echo "L19 alias trần trong prose + có CONTEXT.md -> warn (W6)"
+node "$LINT" "$T/w6Q" >/dev/null; check L19 1 $?
+echo "L20 repo KHÔNG có CONTEXT.md -> W6 im lặng (backward-tolerant)"
+node "$LINT" "$T/w6R" >/dev/null; check L20 0 $?
+echo "L21 alias trong inline code span -> W6 im lặng"
+node "$LINT" "$T/w6S" >/dev/null; check L21 0 $?
+echo "L22 alias trong fenced code block -> W6 im lặng"
+node "$LINT" "$T/w6X" >/dev/null; check L22 0 $?
+echo "L23 alias là substring của từ dài hơn -> W6 im lặng (word boundary)"
+node "$LINT" "$T/w6U" >/dev/null; check L23 0 $?
+echo "L24 chỉ dùng cụm _Allow_ -> W6 im lặng"
+node "$LINT" "$T/w6V1" >/dev/null; check L24 0 $?
+echo "L25 có cụm _Allow_ NHƯNG còn alias trần -> vẫn warn (RED ngoài allowlist)"
+node "$LINT" "$T/w6V2" >/dev/null; check L25 1 $?
+echo "L26 alias tiếng Việt có dấu -> warn (unicode boundary)"
+node "$LINT" "$T/w6W" >/dev/null; check L26 1 $?
+# Y: alias của term này là MỘT TỪ TRONG term chuẩn khác ("tier" bị cấm cho
+# Layer, nhưng "Risk tier" lại là term chuẩn) -> dùng đúng term chuẩn KHÔNG nổ,
+# mà alias trần vẫn nổ. Bắt được nhờ dogfood W6 trên chính CONTEXT.md của kit.
+CTX_NEST='# Kit
+
+## Language
+
+**Risk tier**:
+Mức nghi thức của feature.
+_Avoid_: level
+
+**Layer**:
+Tầng hệ thống mà evidence chạm tới.
+_Avoid_: tier'
+mk_w6 "$T/w6Y1" feat-v10 "$CTX_NEST" 'Given contract, When Risk tier is T3, Then the gate runs.'
+mk_w6 "$T/w6Y2" feat-v11 "$CTX_NEST" 'Given contract, When the eval declares a tier, Then it pairs.'
+
+echo "L28 alias nằm trong term chuẩn khác -> W6 im lặng khi dùng đúng term"
+node "$LINT" "$T/w6Y1" >/dev/null; check L28 0 $?
+echo "L29 cùng glossary, alias trần -> vẫn warn (guard không nuốt vi phạm thật)"
+node "$LINT" "$T/w6Y2" >/dev/null; check L29 1 $?
+
+echo "L27 W6 nêu đúng alias + term chuẩn trong thông điệp"
+# hasout() chưa được định nghĩa ở điểm này của file — dùng grep trực tiếp.
+W6OUT="$(node "$LINT" "$T/w6Q" 2>&1)"
+case "$W6OUT" in *"W6"*) check L27a 0 0;; *) check L27a 0 1;; esac
+case "$W6OUT" in *"Purchase"*) check L27b 0 0;; *) check L27b 0 1;; esac
+case "$W6OUT" in *"Order"*) check L27c 0 0;; *) check L27c 0 1;; esac
+
 # Fixture P: '### nhóm phụ' trong ## Criteria, AC ngưỡng nằm SAU sub-heading, thiếu should-NOT-fire -> W1 phải nổ
 P5="$T/lintP/_acceptance/feat-s1"; mkdir -p "$P5"
 cat > "$P5/contract.md" <<'EOF'
@@ -1003,6 +1127,76 @@ echo "GS1 AC-2 (ngay sau '### nhóm phụ') vào nhóm 'SẼ làm' của card"
 hasout GS1 "tạo đơn qua API" "$GSUBOUT"
 echo "GS2 AC-3 (cuối section, sau sub-heading) vào nhóm 'sẽ KHÔNG làm' của card"
 hasout GS2 "KHÔNG tạo đơn" "$GSUBOUT"
+
+# ─── TM: khối "Từ vựng chốt ở feature này" trên thẻ Cổng 1 (Đợt 2) ──────────
+# Delta glossary = git diff CONTEXT.md so với base. gate-card CHỈ đụng git khi
+# được truyền --glossary-base (giữ tính thuần-đọc-file cho mọi lối gọi khác).
+TMID="-c user.email=t@test.local -c user.name=tester -c commit.gpgsign=false"
+mk_tm() { # <root> <CONTEXT v1 | -> ; trả BASE sha qua biến TM_BASE
+  local R="$1" V1="$2"; mkdir -p "$R/_acceptance/feat-tm"
+  git -C "$R" init -q
+  printf -- '---\nrisk_tier: T2\nstatus: draft\n---\n## Criteria\n- AC-1: Given a, When b, Then c.\n## Out of scope\n' \
+    > "$R/_acceptance/feat-tm/contract.md"
+  printf 'evals:\n  - id: E1\n    criterion: AC-1\n    expected: "exit 0"\n' > "$R/_acceptance/feat-tm/evals.yaml"
+  [ "$V1" != "-" ] && printf '%s\n' "$V1" > "$R/CONTEXT.md"
+  git -C "$R" add -A >/dev/null && git $TMID -C "$R" commit -qm base
+  TM_BASE="$(git -C "$R" rev-parse HEAD)"
+}
+
+# TM-A: thêm term MỚI sau base
+RA="$T/tmA"; mk_tm "$RA" '# Shop
+
+## Language
+
+**Order**:
+A customer request.
+_Avoid_: Purchase'
+BASE_A="$TM_BASE"
+printf '\n**Refund**:\nMoney returned after a cancelled Order.\n_Avoid_: chargeback\n' >> "$RA/CONTEXT.md"
+TMA="$(node "$GCARD" --root "$RA" --slug feat-tm --glossary-base "$BASE_A" 2>/dev/null)"
+
+# TM-B: repo KHÔNG có CONTEXT.md
+RB2="$T/tmB"; mk_tm "$RB2" "-"; BASE_B="$TM_BASE"
+TMB="$(node "$GCARD" --root "$RB2" --slug feat-tm --glossary-base "$BASE_B" 2>/dev/null)"
+
+# TM-C: có CONTEXT.md nhưng KHÔNG truyền --glossary-base
+TMC="$(node "$GCARD" --root "$RA" --slug feat-tm 2>/dev/null)"
+
+# TM-D: có base nhưng CONTEXT.md không đổi
+RD="$T/tmD"; mk_tm "$RD" '# Shop
+
+## Language
+
+**Order**:
+A customer request.
+_Avoid_: Purchase'
+TMD="$(node "$GCARD" --root "$RD" --slug feat-tm --glossary-base "$TM_BASE" 2>/dev/null)"
+
+# TM-E: SỬA _Avoid_ của term đã có (không thêm heading mới) -> vẫn phải nêu term
+RE2="$T/tmE"; mk_tm "$RE2" '# Shop
+
+## Language
+
+**Order**:
+A customer request.
+_Avoid_: Purchase'
+BASE_E="$TM_BASE"
+printf '# Shop\n\n## Language\n\n**Order**:\nA customer request.\n_Avoid_: Purchase, transaction\n' > "$RE2/CONTEXT.md"
+TME="$(node "$GCARD" --root "$RE2" --slug feat-tm --glossary-base "$BASE_E" 2>/dev/null)"
+
+echo "TM1 term MỚI sau base -> khối Từ vựng nêu tên term"
+hasout TM1 "Refund" "$TMA"
+echo "TM2 repo không có CONTEXT.md -> KHÔNG có khối Từ vựng, không cờ"
+nothas TM2 "Từ vựng" "$TMB"
+echo "TM3 có CONTEXT.md nhưng thiếu --glossary-base -> cờ info, không khối"
+hasout TM3 "glossary-base" "$TMC"
+echo "TM4 có base, CONTEXT.md không đổi -> nói rõ không thêm/sửa term"
+hasout TM4 "không thêm" "$TMD"
+echo "TM5 sửa _Avoid_ của term cũ -> vẫn nêu term (không chỉ bắt heading mới)"
+hasout TM5 "Order" "$TME"
+echo "TM6 --extract có glossary_delta"
+TMX="$(node "$GCARD" --root "$RA" --slug feat-tm --glossary-base "$BASE_A" --extract 2>/dev/null)"
+hasout TM6 "glossary_delta" "$TMX"
 
 echo ""
 echo "--- evidence-page.js ---"

@@ -36,6 +36,7 @@ const root = opt('--root') || '.';
 const slug = opt('--slug');
 const plainPath = opt('--plain');
 const EXTRACT = a.includes('--extract');
+const glossaryBase = opt('--glossary-base'); // opt-in: the ONLY path that shells out to git
 let gate = opt('--gate');
 if (!slug) { process.stderr.write('gate-card: --slug required\n'); process.exit(2); }
 // slug must be a single safe path segment — no traversal / separators
@@ -48,6 +49,32 @@ const contract = read(path.join(dir, 'contract.md'));
 const evalsT = read(path.join(dir, 'evals.yaml'));
 const report = read(path.join(dir, 'evidence-report.md'));
 const probeT = read(path.join(dir, 'gap-probe.md'));
+
+// ---- glossary delta (Đợt 2) ----------------------------------------------
+// The Gate-1 human approves SCOPE and, alongside it, the LANGUAGE the scope is
+// written in: which domain terms this feature adds or sharpens in the repo's
+// CONTEXT.md. Parsing is delegated to lib/context-glossary.js — the kit has
+// four hand-rolled contract parsers already and 1.20.1 had to patch the same
+// bug in all of them; this is not the place to grow a fifth.
+// Purity note: gate-card is otherwise a pure file reader. git is touched ONLY
+// when --glossary-base is passed, so every existing call site is unchanged.
+let glossaryLib = null;
+try { glossaryLib = require(path.join(__dirname, '..', 'lib', 'context-glossary.js')); } catch (_) {}
+const glossaryText = read(path.join(root, 'CONTEXT.md'));
+const glossaryPresent = !!glossaryText.trim();
+let glossaryDelta = null;      // [{term, added}] | null = not computed
+let glossaryDeltaErr = null;   // 'no-base' | 'git-failed'
+if (glossaryPresent && glossaryLib) {
+  if (!glossaryBase) glossaryDeltaErr = 'no-base';
+  else {
+    try {
+      const out = require('child_process').execFileSync(
+        'git', ['-C', root, 'diff', '-U0', glossaryBase, '--', 'CONTEXT.md'],
+        { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+      glossaryDelta = glossaryLib.termsAtLines(glossaryText, glossaryLib.addedLinesFromDiff(out));
+    } catch (_) { glossaryDeltaErr = 'git-failed'; }
+  }
+}
 
 let plain = null;
 if (plainPath && fs.existsSync(plainPath)) {
@@ -173,7 +200,7 @@ if (gate === '1') {
   const gpP0 = parseInt(clean(gpFm.p0), 10) || 0, gpP1 = parseInt(clean(gpFm.p1), 10) || 0, gpP2 = parseInt(clean(gpFm.p2), 10) || 0;
   const gpVerdictKnown = gpVerdict === 'clean' || gpVerdict === 'findings' || gpVerdict === 'probe-failed';
 
-  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken }, null, 2)); process.exit(0); }
+  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken }, null, 2)); process.exit(0); }
   const featurePlain = pl.feature_plain || feature;
   const pmap = (arr, id) => (((arr || []).find(x => x.id === id)) || {}).p;
   const willText = x => pmap(pl.will_do, x.id) || x.gwt;
@@ -191,9 +218,13 @@ if (gate === '1') {
   else P.push(`<div class="grp gnot">${decSort(decsAll).map(e => `<p class="li">${e.type === 'descope' ? '<b>KHÔNG làm:</b> ' : ''}${esc(plDec(e.id)) || decLine(e)}</p>`).join('')}</div>`);
   if (ledger.broken) P.push(`<div class="flag fwarn">⚠ ${ledger.broken} dòng ledger hỏng, đã bỏ qua.</div>`);
   if (covLines.length) P.push(`<div class="lab">Độ phủ AC (bằng chứng "đủ")</div><div class="grp gnot">${covLines.map(t => `<p class="li">${esc(t)}</p>`).join('')}</div>`);
+  if (glossaryDelta && glossaryDelta.length) P.push(`<div class="lab">Từ vựng chốt ở feature này</div><div class="grp gnot">${glossaryDelta.map(x => `<p class="li">${esc(x.term)} — ${x.added ? 'term MỚI' : 'định nghĩa/_Avoid_ được sửa'}</p>`).join('')}</div>`);
   if (gpPresent && gpVerdict === 'clean' && !gpRows.length && !gpDropped) P.push(`<div class="lab">Phản biện context sạch</div><div class="flag fok">Phản biện: không còn lỗ đáng kể.</div>`);
   else if (gpRows.length) P.push(`<div class="lab">Phản biện context sạch</div><div class="grp gnot">${gpRows.map(r => `<p class="li"><b>${esc(r.sev)}</b> · ${esc(r.artifact)} · ${esc(r.summary)} — ${esc(r.disposition)}</p>`).join('')}</div>`);
   const flags = [];
+  if (glossaryPresent && glossaryDelta && !glossaryDelta.length) flags.push(['finfo', 'Từ vựng: feature này không thêm/sửa term nào trong CONTEXT.md.']);
+  if (glossaryDeltaErr === 'no-base') flags.push(['finfo', 'Từ vựng: repo có CONTEXT.md nhưng thẻ chưa được truyền --glossary-base, nên không trình được term mới/sửa. Truyền base (merge-base với nhánh chính) nếu muốn duyệt cả ngôn ngữ.']);
+  if (glossaryDeltaErr === 'git-failed') flags.push(['fwarn', 'Từ vựng: không đọc được diff CONTEXT.md (base sai hoặc không phải git repo) — term mới/sửa CHƯA được trình, đừng coi là "không có thay đổi".']);
   for (const id of covGaps) flags.push(['fwarn', `${id} có ngưỡng/biên nhưng chưa có ca "dưới ngưỡng → KHÔNG xảy ra" — thêm 1 ca chặn ngay sẽ rẻ hơn nhiều so với phát hiện sau.`]);
   if (!covPresent || !covLines.length) flags.push(['fwarn', 'Contract chưa có section Coverage — độ phủ bộ AC chưa có bằng chứng (workspace cũ / chưa quét). Quét bằng morphological-scan hoặc ghi 1 dòng lý do bỏ, rồi hãy duyệt.']);
   if (covUnverified) flags.push(['fwarn', 'Coverage có trục chưa nêu được thước đo "đủ" (CE chưa kiểm chứng) — hỏi nguồn đối chiếu trước khi tin "đã quét đủ".']);

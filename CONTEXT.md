@@ -50,8 +50,9 @@ _Avoid_: test report, báo cáo QA.
 
 **Verdict**:
 Kết luận CẤP REPORT: `PASS` / `REJECT` / `BLOCKED` (± `PENDING-JUDGMENT`).
-Eval riêng lẻ không có verdict — nó có `expected`/actual.
-_Avoid_: outcome, result (cho report); verdict (cho từng eval).
+Eval riêng lẻ KHÔNG có verdict — nó có `expected`/actual; đừng dùng từ này cho
+một eval đơn lẻ.
+_Avoid_: outcome, result
 
 ### Gates & verbs
 
@@ -83,19 +84,21 @@ _Avoid_: sign-off, approval (đó là Gate 1).
 ### Classification
 
 **Risk tier**:
-`T1`/`T2`/`T3` — mức nghi thức của feature; T1 thoát gate có xác nhận.
-_Avoid_: level, priority; không dùng "tier" cho layer.
+`T1`/`T2`/`T3` — mức nghi thức của feature; T1 thoát gate có xác nhận. Từ
+"tier" chỉ dành cho trục này, không dùng cho **Layer**.
+_Avoid_: level, priority
 
 **Surface**:
 Nơi feature lộ ra với người dùng — enum frontmatter `surfaces:` (`web`,
-`mobile`, `api`…). Quyết định làn evidence.
-_Avoid_: platform; không dùng cho bề mặt interface của code.
+`mobile`, `api`…). Quyết định làn evidence. Không dùng từ này cho bề mặt
+interface của code.
+_Avoid_: platform
 
 **Layer**:
 Trường cấp eval (`layer: backend-effect`) — tầng hệ thống mà evidence chạm
 tới. Luật cặp cross-layer: criterion `(cross-layer)` phải có ≥1 eval
-backend-effect.
-_Avoid_: tier, "tầng" chung chung khi không phải trường này.
+backend-effect. Đừng gọi "tầng" chung chung khi không nói về trường này.
+_Avoid_: tier
 
 **Lane (làn)**:
 Tuyến xử lý một surface: làn design (mockup/fidelity — CT1/CT2) vs làn test
