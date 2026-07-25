@@ -231,6 +231,28 @@ templates produce advisory NOTEs, not failures).
 | `scripts/evidence-page.js` | Render the full Gate-2 evidence page (screenshots/output/slideshow) |
 | `tests/` | Fixture tests: `for t in hooks scripts plugins design-loop design-eval workflows codex skills; do bash tests/$t/run-tests.sh; done` |
 
+## Kit chạy cổng của chính nó (self-hosting)
+
+`_acceptance/config.yaml` ở repo này cấu hình kit làm **consumer của chính nó**.
+Ba điểm khác một repo tiêu thụ bình thường, mỗi điểm là một bài học dogfood:
+
+- **Executor trỏ vào `scripts/` trong repo, không qua `${CLAUDE_PLUGIN_ROOT}`.**
+  Kit LÀ nguồn của plugin, nên cổng phải chấm bằng mã đang sửa chứ không bằng
+  bản trong plugin cache — cache thường tụt version (đo được: cache 1.18.0 khi
+  repo đã 1.20.1). feature-loop S4 resolve bằng
+  `node feature-loop/scripts/resolve-plugin.mjs --plugin acceptance-gate --root .`
+- **`*.md` KHÔNG nằm trong `t1_skip_globs`.** Mặc định sinh sẵn coi mọi markdown
+  là tài liệu; ở đây 23 file `SKILL.md`/command LÀ hành vi thật. Chỉ docs được
+  liệt đích danh mới bỏ qua cổng — nếu không, sửa hành vi của cổng lại lọt cổng.
+- **`t3_paths` là lõi cưỡng chế** (`hooks/`, `lib/`, `pre-merge-check.sh`,
+  `recheck-evidence.js`): bug ở đây thành false-green im lặng trên MỌI repo dùng kit.
+
+CI ở [`.github/workflows/gate.yml`](.github/workflows/gate.yml): 3 test suite +
+`pre-merge-check.sh`. **Răng T1-escape đang TẮT** (một dòng bị comment) — bật lên
+là mọi PR chạm `t3_paths` bắt buộc kèm `_acceptance/<slug>/`. Nó có răng thật:
+chạy thử ngược 8 commit thì nó chặn đúng `lib/context-glossary.js` và
+`scripts/pre-merge-check.sh` vì hai file đó đổi mà không có contract.
+
 ## Pilot metrics
 
 `time_human_minutes` (gate1/gate2) lives in each contract's frontmatter.

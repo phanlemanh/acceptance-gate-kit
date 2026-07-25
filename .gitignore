@@ -12,3 +12,8 @@ tests/hooks/fixtures/repo/_acceptance/upgrade-flow/
 tests/hooks/fixtures/repo/_acceptance/dollar-flow/
 tests/hooks/fixtures/repo/_acceptance/guard-flow/
 tests/hooks/fixtures/repo/_acceptance/fresh-flow/
+
+# Thẻ/trang evidence render ra là artifact TRÌNH BÀY, sinh lại được bất cứ lúc nào
+# từ gate-card.js / evidence-page.js. Nguồn sự thật là contract/evals/report.
+_acceptance/*/card.html
+_acceptance/*/evidence-page.html

@@ -1,0 +1,51 @@
+schema_version: 1
+# Acceptance-Gate Kit chạy cổng của chính nó (dogfood). Ba điểm khác một repo
+# tiêu thụ bình thường — đọc trước khi sửa:
+#
+# 1. TỰ HOST. Kit LÀ nguồn của plugin, nên executor trỏ vào `scripts/` ngay
+#    trong repo, KHÔNG qua ${CLAUDE_PLUGIN_ROOT}. Nhờ vậy cổng luôn chấm bằng
+#    mã đang sửa, không bằng bản trong plugin cache (cache thường tụt version).
+#    feature-loop S4: resolve bằng
+#    `node feature-loop/scripts/resolve-plugin.mjs --plugin acceptance-gate --root .`
+# 2. `*.md` KHÔNG phải T1 ở repo này. Sản phẩm của kit phần lớn LÀ markdown
+#    (23 file SKILL.md/command là hành vi thật, không phải tài liệu). Chỉ
+#    những file docs được liệt tên đích danh mới bỏ qua cổng.
+# 3. KHÔNG có làn design/dev_server/capture: kit không có web UI.
+enforcement: strict
+recheck: strict              # kit tự bắt mình theo mức chặt nhất; consumer mới có thể để `warn`
+baseline_minutes: []         # TODO(human): ước lượng phút nghiệm thu TRƯỚC khi có kit, để /acceptance-report tính KPI
+executors:
+  test:
+    scripts: "bash tests/scripts/run-tests.sh"
+    hooks: "bash tests/hooks/run-tests.sh"
+    plugins: "bash tests/plugins/run-tests.sh"
+  script:
+    coverage_lint: "node scripts/eval-coverage-lint.js ."
+    mirror_sync: "bash scripts/sync-plugin-packages.sh --check"
+risk_tiers:
+  t1_skip_globs:
+    # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
+    - "docs/**"
+    - "README.md"
+    - "GUIDE.md"
+    - "QUICKSTART.md"
+    - "CHANGELOG.md"
+    - "CONTEXT.md"
+    - "CLAUDE.md"
+  t3_paths:
+    # Lõi cưỡng chế: bug ở đây biến thành false-green im lặng trên MỌI repo tiêu thụ.
+    - "hooks/**"
+    - "lib/**"
+    - "scripts/pre-merge-check.sh"
+    - "scripts/recheck-evidence.js"
+signoff:
+  required_for: [T2, T3]
+  approvers: ["Manh Phan"]
+  require_human_commit: true
+feature_loop:
+  suite_keys:
+    # Chạy mỗi vòng verify. Ba suite + hai cổng chống trôi (mirror, từ vựng).
+    - executors.test.scripts
+    - executors.test.hooks
+    - executors.test.plugins
+    - executors.script.mirror_sync

@@ -1,0 +1,45 @@
+name: gate
+
+# Kit chạy cổng của chính nó. Trước file này, Gate 2 trên repo kit là nghi thức
+# không có răng: evidence có thể sai mà vẫn merge được.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: scripts suite
+        run: bash tests/scripts/run-tests.sh
+      - name: hooks suite
+        run: bash tests/hooks/run-tests.sh
+      - name: plugins suite (gồm P30 sync-drift, P33 chống glob-vào-cache)
+        run: bash tests/plugins/run-tests.sh
+
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      # fetch-depth: 0 — pre-merge-check đọc lịch sử git (stale-guard theo
+      # verified_commit, và provenance của commit chữ ký Gate 2).
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: pre-merge check (evidence + signoff + stale + run-log)
+        run: bash scripts/pre-merge-check.sh .
+      # ── Răng T1-escape: BẬT KHI ĐỘI ĐÃ QUEN LUỒNG ────────────────────────
+      # Dòng dưới bắt buộc MỌI PR chạm path T3 (hooks/ lib/ pre-merge-check.sh
+      # recheck-evidence.js) phải kèm artifact `_acceptance/<slug>/`. Nó có
+      # răng thật: các commit ngày 2026-07-25 tạo `lib/context-glossary.js` mà
+      # không có contract SẼ bị chặn — đúng hành vi mong muốn, nhưng là một
+      # quyết định về tốc độ của đội, không phải mặc định tôi tự bật.
+      # - name: T1-escape backstop
+      #   run: bash scripts/pre-merge-check.sh . --base "origin/${{ github.base_ref }}"
