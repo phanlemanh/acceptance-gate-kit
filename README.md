@@ -291,10 +291,14 @@ downstream, and revisited after the pilot:
   `config:` binding points at**: a `layer: backend-effect` eval bound to a
   mock passes mechanically (engine/binding split) — the nets are the Gate-1
   human review of bindings and the A/B Analyst green-on-both flag.
-- **Mobile flows are UI-layer evidence only (this wave)**: simulators have no
-  network-reading path, so cross-layer truth on mobile rests entirely on the
-  paired `layer: backend-effect` eval. A first-class `mobile` surface is
-  queued until a real mobile repo adopts the kit.
+- **Mobile is a first-class surface (1.20) with CI teeth — but UI-layer
+  evidence only**: mobile flows run through the repo's native E2E runner
+  (`executors.test.e2e_mobile`); simulators have no network-reading path, so
+  the runner's exit code never proves network truth. `pre-merge-check.sh` now
+  BLOCKS the merge when a `(cross-layer)` criterion has no paired
+  `layer: backend-effect` eval. The backend target (local|staging|mock) is a
+  human-eyeballed contract line — lint W5 checks presence only; the kit never
+  machine-verifies "real".
 - **In-scope background noise fails the eval by design**: a poller/cron firing
   5xx into app scope during a ui-check's drive window FAILS that eval even when
   it is unrelated to the feature — an in-scope failure during the drive is

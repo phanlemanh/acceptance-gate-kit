@@ -16,6 +16,13 @@ Initialize the Acceptance-Gate Kit in the current repository.
        a URL to a FILE — `<cmd> <url> <out.png>` (e.g. `npm run ui:capture`).
        preview_screenshot is inline-only, so this is what writes the slideshow
        frames. None yet → offer to scaffold a reference (step 3b).
+   c3. Mobile surface? The native E2E runner command →
+       `executors.test.e2e_mobile` (XCUITest: `xcodebuild test -project
+       App.xcodeproj -scheme AppUITests -destination 'platform=iOS
+       Simulator,name=iPhone 16'`; Espresso: `./gradlew connectedAndroidTest`).
+       Remind: each mobile feature's contract carries a `Mobile backend
+       target: local|staging|mock` line in ## Notes (lint W5 checks presence;
+       the Gate-1 human eyeballs the value).
    d. Paths that are critical (auth/data/payments) → `t3_paths`
    e. Globs safe to skip entirely (docs, pure-config) → `t1_skip_globs`
    f. Who can sign off (names) → `signoff.approvers`
@@ -35,6 +42,7 @@ baseline_minutes: []         # pre-kit acceptance estimates from 2g, e.g. [90, 1
 executors:
   test:
     api: "<from 2a>"
+    # e2e_mobile: "<from 2c3>"   # native E2E runner (xcodebuild test … / ./gradlew connectedAndroidTest) — exit code = UI-layer evidence only
   script:
     cli: "<from 2b>"
   design:                                              # keep if the repo has any web UI
