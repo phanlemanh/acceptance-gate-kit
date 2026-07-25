@@ -177,8 +177,11 @@ Entry: implementation complete, contract `status: implemented`.
    correctness backstop. Its prompt
    contains: contract.md, evals.yaml, config executor commands, the FULL
    `references/evidence-report-template.md` (Verdict rules + Field notes +
-   template body), the verdict routing rules from step 4 below, and the
-   current verify round number (the subagent fills the Iterations section),
+   template body), the **Network truth** bullet of `references/eval-executors.md`
+   §ui-check mechanics VERBATIM (single source of truth for the
+   `network_observed` vocabulary and its scoping law — restating it here is what
+   let the two copies diverge once already), the verdict routing rules from step
+   4 below, and the current verify round number (the subagent fills Iterations),
    and the instruction: "You did not write this code. Run every eval. Record
    evidence faithfully; in a PASS report sanitize output excerpts — no
    nonzero exit tokens (exit_code:/exit=) and no 'verdict: FAIL' strings
@@ -188,18 +191,9 @@ Entry: implementation complete, contract `status: implemented`.
    frame contradicting expected means that eval FAILS even with exit 0; never
    write observed from memory. If any judgment item is UNCERTAIN — or the
    contract is T3 with judgment evals — the overall verdict is
-   PENDING-JUDGMENT, never PASS. For every ui-check where the driver can read network traffic (a browser tool
-   with read_network_requests or equivalent): after driving the flow, dump
-   failed requests + console errors to evidence/E{id}-network.txt and record
-   network_observed: with WORDS ONLY — clean | no-app-traffic |
-   third-party-only | app-fail | n-a (driver) | n-a (tool-error: <reason>) |
-   unscoped | unscoped-partial. FAIL-eligible = fetch/XHR to the
-   dev_server.url origin or an api_base prefix; third-party and static assets
-   never fail; in-scope connection-error/timeout/5xx FAILS that eval even when
-   frames look right; 4xx fails unless the eval's expected declares that exact
-   status. clean REQUIRES seen app traffic (none seen = no-app-traffic). No
-   network path = n-a (driver) — never an invented clean. Raw statuses stay in
-   the txt file, never in the report."
+   PENDING-JUDGMENT, never PASS. Apply the Network truth rail exactly as
+   given in the eval-executors excerpt above — words only, never raw statuses
+   in the report."
 2. The subagent executes per executor type:
    - `test` / `script`: run the resolved `config:` command. Capture exit code
      + last 10 output lines. Use the run_id from verifier stdout when
