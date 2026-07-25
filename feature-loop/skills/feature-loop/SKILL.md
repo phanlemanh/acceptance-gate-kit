@@ -70,7 +70,7 @@ Workspace cũ (contract sinh trước 1.13.0, không có Coverage) → cờ vàn
    - Match bất kỳ `risk_tiers.t3_paths` → **T3**. Còn lại **T2**.
 3. Slug = kebab-case tên feature. Workspace: `_acceptance/<slug>/`. **Guard trùng slug:** workspace đã tồn tại → so `feature:` (và `owner:`) trong frontmatter contract với mô tả hiện tại — KHÁC feature → đây là ĐỤNG slug chứ không phải resume: BẮT đổi slug mới (đề xuất `<slug>-2` hoặc suffix ngày), tuyệt đối không im lặng ghi đè workspace của feature khác; CÙNG feature → resume theo bảng state. Contract mới sinh ở S1 phải ghi `owner:` = `git config user.email`.
 4. Nếu giữa chừng phát hiện tier sai (vd T1 hóa ra đụng t3_paths) → nâng tier, quay lại stage thiếu (thường là S1 sinh contract).
-5. 🎨 **(CT1 signals)** Feature có vẻ chạm UI mà config CHƯA có `executors.design.*` → CẢNH BÁO (không chặn): đề nghị cài design-loop + `/design-init`, hoặc user xác nhận đi tiếp functional-only (sẽ hiện ở gói Gate 2). Đã wire → làn design theo bảng tra. Nếu `provenance.design_repo` set mà repo KHÔNG reachable → cảnh báo ngay từ S0, trước khi tốn công S1-D (fidelity sẽ skip).
+5. 🎨 **(CT1 signals)** Feature có vẻ chạm UI mà config CHƯA có `executors.design.*` → CẢNH BÁO (không chặn): đề nghị cài design-loop + `/design-init`, hoặc user xác nhận đi tiếp functional-only (sẽ hiện ở gói Gate 2). Đã wire → làn design theo bảng tra. Nếu `provenance.design_repo` set mà repo KHÔNG reachable → cảnh báo ngay từ S0, trước khi tốn công S1-D (fidelity sẽ skip). Surface `mobile` KHÔNG phải web-UI surface: không kích hoạt CT1/CT2/làn design (design-loop là web-only) — flow mobile đi làn eval `test` qua `config:executors.test.e2e_mobile` (xem eval-executors.md §Mobile mechanics).
 
 ## S1 — DESIGN (sinh 3 artifact CÙNG LÚC)
 
