@@ -3,6 +3,16 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# --check: build into a temp dir and diff against the committed plugins/ mirror.
+# Exit 1 on drift (CI guard — see docs/adr/0001). Default (no flag): sync in place.
+MODE="${1:-}"
+if [ "$MODE" = "--check" ]; then
+  DEST="$(mktemp -d)"
+  trap 'rm -rf "$DEST"' EXIT
+else
+  DEST="$ROOT/plugins"
+fi
+
 sync_overlay() {
   local src="$1" dst="$2"
   if [ -d "$src" ]; then
@@ -11,7 +21,7 @@ sync_overlay() {
 }
 
 build_acceptance() {
-  local out="$ROOT/plugins/acceptance-gate"
+  local out="$DEST/acceptance-gate"
   rm -rf "$out"
   mkdir -p "$out"
   rsync -a --exclude '.DS_Store' "$ROOT/skills/" "$out/skills/"
@@ -26,14 +36,14 @@ build_acceptance() {
 }
 
 build_feature_loop() {
-  local out="$ROOT/plugins/feature-loop-codex"
+  local out="$DEST/feature-loop-codex"
   rm -rf "$out"
   mkdir -p "$out"
   sync_overlay "$ROOT/codex/feature-loop-codex" "$out"
 }
 
 build_design_loop() {
-  local out="$ROOT/plugins/design-loop-codex"
+  local out="$DEST/design-loop-codex"
   rm -rf "$out"
   mkdir -p "$out"
   rsync -a --exclude '.DS_Store' "$ROOT/design-loop/scripts/" "$out/scripts/"
@@ -45,5 +55,18 @@ build_design_loop() {
 build_acceptance
 build_feature_loop
 build_design_loop
+
+if [ "$MODE" = "--check" ]; then
+  drift=0
+  for pkg in acceptance-gate feature-loop-codex design-loop-codex; do
+    if ! diff -r -x .DS_Store "$DEST/$pkg" "$ROOT/plugins/$pkg" >/dev/null 2>&1; then
+      echo "DRIFT: plugins/$pkg lệch nguồn — chạy scripts/sync-plugin-packages.sh rồi commit mirror" >&2
+      diff -r -q -x .DS_Store "$DEST/$pkg" "$ROOT/plugins/$pkg" >&2 || true
+      drift=1
+    fi
+  done
+  if [ "$drift" -eq 0 ]; then echo "plugins/ mirror in sync."; fi
+  exit "$drift"
+fi
 
 echo "Synced Codex packages: acceptance-gate@1.20.1 feature-loop-codex@1.16.1 design-loop@0.3.0"
