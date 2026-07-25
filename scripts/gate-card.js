@@ -12,7 +12,7 @@
  *
  * Trust invariants (the card must NEVER make a bad/incomplete state look
  * approvable): a non-PASS/PENDING-JUDGMENT verdict renders a non-approvable state
- * with no sign-off affordance; "all machine checks passed" / "evidence complete"
+ * with no signoff affordance; "all machine checks passed" / "evidence complete"
  * are claimed only when actually true; every judgment item a human still owes
  * (incl. all T3 judgment items) is surfaced.
  *
@@ -266,7 +266,7 @@ const plainDec = id => ((pl.decisions && pl.decisions.find(x => x.id === id)) ||
 const scopePlain = pl.scope_plain || oos.join(' · ');
 const P = [STYLE];
 
-// --- non-approvable: REJECT / BLOCKED / unknown — no sign-off affordance, no green reassurance ---
+// --- non-approvable: REJECT / BLOCKED / unknown — no signoff affordance, no green reassurance ---
 if (!approvable) {
   const ch = verdict === 'REJECT' ? { t: 'có eval fail — trả lại code', c: 'coral' } : verdict === 'BLOCKED' ? { t: 'không chạy được — chưa thể ký', c: 'coral' } : { t: 'verdict không xác định — không ký', c: 'gray' };
   const failed = machineRows.filter(r => r.verdict !== 'PASS').map(r => r.id + (critText[r.crit] ? ' (' + r.crit + ')' : ''));

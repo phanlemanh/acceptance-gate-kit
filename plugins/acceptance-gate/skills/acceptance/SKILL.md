@@ -180,7 +180,7 @@ Entry: implementation complete, contract `status: implemented`.
    runtime exposes one; in Codex without multi-agent tools, run a separated
    grader pass after implementation and record that fallback in the report. It
    executes resolved commands and fills an evidence template; no large-model
-   self-assertion is accepted because the hook/CI evidence gate is the
+   self-assertion is accepted because the hook and the pre-merge check are the
    correctness backstop. Its prompt
    contains: contract.md, evals.yaml, config executor commands, the FULL
    `references/evidence-report-template.md` (Verdict rules + Field notes +

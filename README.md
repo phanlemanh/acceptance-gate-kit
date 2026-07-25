@@ -165,7 +165,7 @@ re-check can `require ../lib`), and run the gate in CI:
 ```
 
 `pre-merge-check.sh` finds `recheck-evidence.js` next to itself; if it (or
-`node`) is absent the merge gate still runs, minus the committed-evidence
+`node`) is absent the pre-merge check still runs, minus the committed-evidence
 re-check. That re-check is advisory by default (`recheck: warn` — prints NOTEs,
 never blocks); set `recheck: strict` in `_acceptance/config.yaml` to make it
 block, once your committed reports meet the current evidence shape (older
@@ -197,7 +197,7 @@ templates produce advisory NOTEs, not failures).
   judgment items. Tiers/globs are per-repo in `_acceptance/config.yaml`.
 - Current test surface (8 suites, all fixture-driven): 51 hook cases
   (`tests/hooks/run-tests.sh`) + 155 script cases
-  (`tests/scripts/run-tests.sh`: pre-merge gate + provenance + evidence
+  (`tests/scripts/run-tests.sh`: pre-merge check + provenance + evidence
   re-check, eval-coverage lint, gate-card, evidence-page) + packaging checks
   (`tests/plugins/run-tests.sh`: version alignment, vendored engine import
   graph, `${CLAUDE_PLUGIN_ROOT}` path resolution) + design-loop fixtures
@@ -221,7 +221,7 @@ templates produce advisory NOTEs, not failures).
 | `skills/acceptance/` | The 3-phase skill + templates |
 | `skills/ux-ui-craft/` | Design-engineer skill: 7-step UI process, hard gates (contrast, type/alignment budgets, structure–space coherence, states), Layout Contract + layout meter (`measure_layout.js`), System+Prototype+Audit modes, 10 craft references |
 | `skills/morphological-scan/` | CT-S coverage skill: Zwicky-box AC-space scan (MECE axes + CE evidence + Pareto Core/Later/Never) feeding the contract's Coverage section on the Gate-1 card |
-| `hooks/` | PreToolUse evidence gate (write time) |
+| `hooks/` | PreToolUse evidence hook (write time) |
 | `lib/evidence-core.js` | Shared L1/L2/L3 evidence validation (hook + CI re-check) |
 | `commands/` | `/acceptance-init`, `/acceptance-status`, `/acceptance-card`, `/approve`, `/signoff`, `/acceptance-report` |
 | `scripts/pre-merge-check.sh` | CI gate (copy into consumer repos) |
@@ -242,7 +242,7 @@ zero business-logic defects slipping past the gate.
 
 ## Known limitations (v1)
 
-Deliberate scope cuts — each is backed by the CI gate + human sign-off
+Deliberate scope cuts — each is backed by the pre-merge check + human signoff
 downstream, and revisited after the pilot:
 
 - **Gap-probe presence is flagged, not enforced**: a missing `gap-probe.md`
@@ -277,7 +277,7 @@ downstream, and revisited after the pilot:
   (it is, in fact, authentic) while its `bypass_used` stamp depends on the verify
   env — hook-authoritative bypass capture is the remaining follow-up.
 - **`enforcement: warn` / `off` hook outputs are not assertion-tested** (exit
-  codes are — T12/T24); a `warn` report now warns at the merge gate, an `off`
+  codes are — T12/T24); a `warn` report now warns at the pre-merge check, an `off`
   report is blocked.
 - **The cross-layer rail (wave 1) is advisory and tag-keyed**: forgetting to
   tag a criterion `(cross-layer)` silences W4 + pairing rule (c) — the

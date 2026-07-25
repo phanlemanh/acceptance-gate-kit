@@ -1,9 +1,9 @@
 ---
-description: Gate 2 sign-off assistant (nghiệm thu Cổng 2) — verify preconditions, walk the human through human_override + human_signoff, land the signature in its own human-fields-only commit, then re-check merge readiness. Never signs by itself.
+description: Gate 2 signoff assistant (nghiệm thu Cổng 2) — verify preconditions, walk the human through human_override + human_signoff, land the signature in its own human-fields-only commit, then re-check merge readiness. Never signs by itself.
 disable-model-invocation: true
 ---
 
-Walk the Gate 2 sign-off for a feature whose evidence report is in. This
+Walk the Gate 2 signoff for a feature whose evidence report is in. This
 command prepares and verifies; the HUMAN supplies every decision value. The
 kit's attribution model (`signoff.require_human_commit: true`) requires the
 signature to land in a SEPARATE commit touching only human-owned report lines

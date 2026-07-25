@@ -217,7 +217,7 @@ for dir in "$ACC"/*/; do
       while IFS= read -r xac; do
         [ -n "$xac" ] || continue
         if ! printf '%s\n' "$xl_paired" | grep -qx "$xac"; then
-          echo "VIOLATION [$slug]: $xac is tagged (cross-layer) but no eval of it declares layer: backend-effect — a cross-layer criterion would merge on UI-only evidence; add the paired test/script eval, or untag it with the human's sign-off at Gate 1"
+          echo "VIOLATION [$slug]: $xac is tagged (cross-layer) but no eval of it declares layer: backend-effect — a cross-layer criterion would merge on UI-only evidence; add the paired test/script eval, or untag it with the human's signoff at Gate 1"
           violations=$((violations+1))
         fi
       done <<XLACS

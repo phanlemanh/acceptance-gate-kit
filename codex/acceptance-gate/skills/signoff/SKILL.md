@@ -1,11 +1,11 @@
 ---
 name: signoff
-description: Gate 2 sign-off assistant (nghiệm thu Cổng 2) for Acceptance Gate on Codex — verify preconditions, walk the human through human_override + human_signoff, land the signature in its own human-fields-only commit, re-check merge readiness. Use when the user wants to sign off evidence, ký Cổng 2, or asks what blocks the merge.
+description: Gate 2 signoff assistant (nghiệm thu Cổng 2) for Acceptance Gate on Codex — verify preconditions, walk the human through human_override + human_signoff, land the signature in its own human-fields-only commit, re-check merge readiness. Use when the user wants to sign off evidence, ký Cổng 2, or asks what blocks the merge.
 ---
 
 # Signoff (Gate 2) for Codex
 
-Walk the Gate 2 sign-off for one `_acceptance/<slug>/` workspace. This skill
+Walk the Gate 2 signoff for one `_acceptance/<slug>/` workspace. This skill
 prepares and verifies; the HUMAN supplies every decision value. With
 `signoff.require_human_commit: true` the signature must land in a SEPARATE
 commit touching only human-owned report lines — pre-merge blocks a signature
