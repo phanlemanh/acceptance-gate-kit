@@ -22,6 +22,11 @@ Steps:
    present → Gate 2, else Gate 1):
    `node <gate-card.js> --root . --slug <slug> --extract`
 
+   Gate 1 + repo có `CONTEXT.md` → thêm `--glossary-base <merge-base với nhánh
+   chính>` (vd `$(git merge-base HEAD origin/main)`) để thẻ trình khối "Từ vựng
+   chốt ở feature này" (term mới/sửa). Đây là lối gọi DUY NHẤT khiến gate-card
+   đụng git; thiếu cờ thì thẻ chỉ ghi chú info, không im lặng bỏ qua.
+
 3. **Translate** the extract into PLAIN PRODUCT LANGUAGE for this repo's persona
    (read `AGENTS.md`, `CLAUDE.md`, or repo docs for who the user is). Keep
    meaning, do not invent:

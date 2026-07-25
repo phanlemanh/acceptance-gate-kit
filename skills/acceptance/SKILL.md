@@ -79,29 +79,29 @@ Core principles (non-negotiable):
 
 ## Phase 1 — NORMALIZE (input → contract)
 
-Input forms and how to mine them:
-| Input | Mining steps |
-|---|---|
-| Conversational prompt | Extract feature name, actors, observable behaviors from the conversation; ask the user ONLY for what cannot be inferred |
-| Ticket (Jira/Linear/GitHub) | Read title + description + AC section; preserve ticket URL as source |
-| Spec/PRD file | Read it; lift explicit AC; compress context to 2-4 sentences |
+Mine the input for feature name, actors and observable behaviour — a ticket or
+spec also gives explicit AC (keep its URL as source) and 2-4 sentences of
+context. Ask the user ONLY for what cannot be inferred.
 
 Steps:
 1. Read `references/contract-template.md`. Create
    `_acceptance/{slug}/contract.md` from it (slug = kebab-case feature name).
-2. Write 5-15 criteria, each Given/When/Then, each independently checkable.
+2. **Ngôn ngữ trước tiêu chí.** Có `CONTEXT.md` thì viết criterion bằng term
+   chuẩn của nó: một từ trong `_Avoid_` khiến eval kiểm đúng-hết-mực MỘT CÁCH
+   ĐỌC SAI (lint W6 bắt ở Gate 1). Danh từ mờ/quá tải ("account" = Customer hay
+   User?) → HỎI người. Term chốt được → ghi ngay vào `CONTEXT.md`: `**Term**:`
+   + định nghĩa 1-2 câu + `_Avoid_:` (tạo file lười; là glossary, không phải spec).
+3. Write 5-15 criteria, each Given/When/Then, each independently checkable.
    Tag business-judgment criteria with `(judgment)`. Tag criteria whose
    When/Then crosses the backend (a UI flow triggering an API call / data
    mutation) with `(cross-layer)` — pairing rule (c), lint W4 and the
    gap-probe cross-check key off this tag.
-3. Fill **Out of scope** — minimum 2 bullets. An empty out-of-scope section
+4. Fill **Out of scope** — minimum 2 bullets. An empty out-of-scope section
    means you have not thought about boundaries; dig for them.
-4. Set frontmatter: `risk_tier` (from Phase 0), `status: draft`,
-   `surfaces` (only surfaces this feature actually touches; `mobile` = native
-   E2E app flows — see eval-executors.md §Mobile mechanics), and
-   `owner:` = the output of `git config user.email` (slug-ownership audit;
-   empty when git has no identity — leave the field present).
-5. **STOP — Gate 1 part A.** Present the contract to the user verbatim.
+5. Set frontmatter: `risk_tier` (Phase 0), `status: draft`, `surfaces` (only
+   what this feature touches; `mobile` = native E2E — eval-executors.md §Mobile
+   mechanics), `owner:` = `git config user.email` (keep the field even if empty).
+6. **STOP — Gate 1 part A.** Present the contract to the user verbatim.
    Do NOT proceed to implementation. Do NOT start Phase 2 until the user
    reacts; fold their edits in directly.
 
