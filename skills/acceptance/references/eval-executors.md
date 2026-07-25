@@ -190,8 +190,11 @@ baseline, run-log and carry-forward all apply automatically.
   nonzero-exit tokens in a PASS report; word-vocab follows the
   `baseline: red/green/n-a` precedent). Drivers with no network path
   (curl+grep SSR, capture-only, a browser driven on a mobile simulator) record
-  the cross-layer burden then rests entirely on the paired
-  `layer: backend-effect` eval.
+  `n-a (driver)` — the cross-layer burden then rests entirely on the paired
+  `layer: backend-effect` eval. NOTE: this covers a BROWSER driven in a mobile
+  environment (a web UI on a device/simulator). NATIVE app flows are not
+  `ui-check` at all — they take the `test` lane via
+  `config:executors.test.e2e_mobile` (see §Mobile mechanics).
   Accepted residual (deliberate stance): a background job/poller firing
   connection-errors/5xx into app scope during the drive window still FAILS the
   eval — an in-scope failure during the drive is never `clean`. That is a
@@ -199,9 +202,6 @@ baseline, run-log and carry-forward all apply automatically.
   cannot release it: the recourse is to re-run the round, or descope/rewrite
   the eval to exclude the background path — recording the reason in the
   report/ledger.
-  NOTE: this covers a BROWSER driven in a mobile environment (a web UI on a
-  device/simulator). NATIVE app flows are not `ui-check` at all — they take the
-  `test` lane via `config:executors.test.e2e_mobile` (see §Mobile mechanics).
 - **Saving a frame to a FILE** (the slideshow needs files, not inline images):
   `preview_screenshot` and most browser tools return an INLINE image, not a saved
   file. So the repo provides `config:capture.ui` — a command `<cmd> <url>
