@@ -185,6 +185,38 @@ for dir in "$ACC"/*/; do
     esac
   fi
 
+  # Cross-layer pairing teeth (wave 2): a gated feature whose contract tags a
+  # criterion (cross-layer) MUST pair it with >=1 eval declaring
+  # layer: backend-effect in evals.yaml — otherwise this merge would ride on
+  # UI-only evidence for a UI→API→backend path. Write-time stays advisory
+  # (lint W4); this is the merge-boundary backstop for every runtime.
+  # Fail-open: evals.yaml missing → NOTE, never a block.
+  xl_acs="$(awk '/^#/{insec=0} /^##[[:space:]]+Criteria/{insec=1; next} insec && tolower($0) ~ /^[[:space:]]*[-*].*\(cross-layer\)/ { if (match($0, /AC-[0-9]+/)) print substr($0, RSTART, RLENGTH) }' "$contract")"
+  if [ -n "$xl_acs" ]; then
+    if [ ! -f "$dir/evals.yaml" ]; then
+      echo "NOTE [$slug]: cross-layer criteria declared but no evals.yaml — pairing unverifiable (fail-open)"
+    else
+      # Buffer per eval block then flush: `layer:` may appear BEFORE `criterion:`
+      # in a hand-written evals.yaml — printing at layer-time would miss those.
+      xl_paired="$(awk '
+        function flush() { if (lay=="backend-effect" && crit!="") print crit }
+        tolower($0) ~ /^[[:space:]]*-[[:space:]]*id:/ { flush(); crit=""; lay="" }
+        tolower($0) ~ /^[[:space:]]*criterion:[[:space:]]*/ {v=$0; sub(/^[^:]*:[[:space:]]*/,"",v); gsub(/["'\'']/,"",v); sub(/[[:space:]]+#.*$/,"",v); sub(/[[:space:]]+$/,"",v); crit=v}
+        tolower($0) ~ /^[[:space:]]*layer:[[:space:]]*/ {v=tolower($0); sub(/^[^:]*:[[:space:]]*/,"",v); gsub(/["'\'']/,"",v); sub(/[[:space:]]+#.*$/,"",v); sub(/[[:space:]]+$/,"",v); lay=v}
+        END { flush() }
+      ' "$dir/evals.yaml" | sort -u)"
+      while IFS= read -r xac; do
+        [ -n "$xac" ] || continue
+        if ! printf '%s\n' "$xl_paired" | grep -qx "$xac"; then
+          echo "VIOLATION [$slug]: $xac is tagged (cross-layer) but no eval of it declares layer: backend-effect — a cross-layer criterion would merge on UI-only evidence; add the paired test/script eval, or untag it with the human's sign-off at Gate 1"
+          violations=$((violations+1))
+        fi
+      done <<XLACS
+$xl_acs
+XLACS
+    fi
+  fi
+
   report="$dir/evidence-report.md"
   if [ ! -f "$report" ]; then
     echo "VIOLATION [$slug]: status=$status but no evidence-report.md"

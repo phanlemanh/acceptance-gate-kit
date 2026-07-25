@@ -173,6 +173,58 @@ outN4="$(bash "$CHECK" "$P/n04" 2>&1)"; check N04 0 $?
 case "$outN4" in *"1 network_observed claim"*) echo "  PASS: N04-count (only app-fail counted)"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: N04-count (expected exactly 1 claim)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
 echo ""
+echo "--- pre-merge cross-layer pairing teeth (wave 2) ---"
+mk_xl() { # <root> <slug> <criteria-lines> <evals-body> [status] — gated feature + valid signed PASS report
+  local d="$1/_acceptance/$2"; mkdir -p "$d"
+  local st="${5:-implemented}"
+  printf -- '---\nschema_version: 1\nfeature: %s\nslug: %s\nrisk_tier: T2\nsurfaces: [api, mobile]\nstatus: %s\napproved_by: Manh Phan\napproved_at: 2026-07-25\n---\n## Criteria\n%s\n## Out of scope\n## Notes\nMobile backend target: staging — QA backend.\n' "$2" "$2" "$st" "$3" > "$d/contract.md"
+  if [ -n "$4" ]; then printf -- 'evals:\n%s\n' "$4" > "$d/evals.yaml"; fi
+  local v="$1/verify.sh"; printf '#!/bin/sh\nexit 0\n' > "$v"
+  printf -- '---\nschema_version: 1\nfeature_slug: %s\nverdict: PASS\nhuman_signoff: Manh 2026-07-25\n---\n\n## Evidence\n- eval: E1\n  run_id: %s-E1-001\n  exit_code: 0\n  verifier: %s\n  verified_at: 2026-07-25\n' "$2" "$2" "$v" > "$d/evidence-report.md"
+}
+echo "PM01 tagged (cross-layer) + evals thiếu layer: backend-effect -> VIOLATION (block)"
+mk_xl "$P/pm01" feat-xl1 '- AC-1: Given app, When submit order, Then order saved via API. (cross-layer)' '  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "e2e mobile green"'
+bash "$CHECK" "$P/pm01" >/dev/null; check PM01 1 $?
+echo "PM02 tagged + paired layer: backend-effect -> clean"
+mk_xl "$P/pm02" feat-xl2 '- AC-1: Given app, When submit order, Then order saved via API. (cross-layer)' '  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "e2e mobile green"
+  - id: E2
+    criterion: AC-1
+    executor: test
+    layer: backend-effect
+    expected: "order row exists via API"'
+bash "$CHECK" "$P/pm02" >/dev/null; check PM02 0 $?
+echo "PM03 tagged nhưng KHÔNG có evals.yaml -> NOTE (fail-open), exit 0"
+mk_xl "$P/pm03" feat-xl3 '- AC-1: Given app, When submit order, Then order saved via API. (cross-layer)' ''
+outPM3="$(bash "$CHECK" "$P/pm03" 2>&1)"; check PM03 0 $?
+case "$outPM3" in *NOTE*feat-xl3*pairing*) echo "  PASS: PM03-note"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: PM03-note (expected pairing NOTE)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+echo "PM04 không tag cross-layer -> block pairing im lặng"
+mk_xl "$P/pm04" feat-xl4 '- AC-1: Given app, When submit order, Then order saved via API.' '  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "e2e mobile green"'
+outPM4="$(bash "$CHECK" "$P/pm04" 2>&1)"; check PM04 0 $?
+case "$outPM4" in *cross-layer*) echo "  FAIL: PM04-silent (unexpected pairing output)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: PM04-silent"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
+echo "PM05 layer quoted/mixed-case/trailing-comment + layer TRƯỚC criterion -> vẫn tính là paired, clean"
+mk_xl "$P/pm05" feat-xl5 '- AC-1: Given app, When submit order, Then order saved via API. (Cross-Layer)' '  - id: E2
+    executor: script
+    layer: "Backend-Effect"  # nonce note
+    criterion: "AC-1"
+    expected: "order row exists via API"'
+bash "$CHECK" "$P/pm05" >/dev/null; check PM05 0 $?
+echo "PM06 feature draft (chưa gated) -> ngoài scope, exit 0"
+mk_xl "$P/pm06" feat-xl6 '- AC-1: Given app, When submit order, Then order saved via API. (cross-layer)' '  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "e2e mobile green"' draft
+bash "$CHECK" "$P/pm06" >/dev/null; check PM06 0 $?
+
+echo ""
 echo "--- eval-coverage-lint.js ---"
 LINT="$HERE/../../scripts/eval-coverage-lint.js"
 
