@@ -41,7 +41,11 @@ const clean = s => String(s == null ? '' : s).replace(/["']/g, '').replace(/\s*#
 
 function frontmatter(t) { const m = t.match(/^---\r?\n([\s\S]*?)\r?\n---/); const o = {}; if (m) for (const l of m[1].split('\n')) { const mm = l.match(/^(\w+)\s*:\s*(.*)$/); if (mm) o[mm[1]] = mm[2].trim(); } return o; }
 // lines under `## <h>` until the next level-2+ heading
-function section(t, h) { const out = []; let inS = false; const re = new RegExp('^#{2,6}\\s+' + h + '\\b', 'i'); for (const l of t.split('\n')) { if (/^#{2,6}\s/.test(l)) inS = re.test(l); else if (inS) out.push(l); } return out; }
+// A section runs until the next heading at the SAME level or higher — a deeper
+// sub-heading (`### nhóm phụ` inside `## Criteria`) is content, not a boundary.
+// Exiting on any heading truncated the scan, dropping every AC after the first
+// sub-heading from the page a human reads at Gate 2.
+function section(t, h) { const out = []; let inS = false, lvl = 0; const re = new RegExp('^#{2,6}\\s+' + h + '\\b', 'i'); for (const l of t.split('\n')) { const m = l.match(/^(#{2,6})\s/); if (m) { if (re.test(l)) { inS = true; lvl = m[1].length; continue; } if (inS && m[1].length <= lvl) { inS = false; continue; } } if (inS) out.push(l); } return out; }
 const cleanLines = arr => arr.filter(l => l.trim() && !/^\s*#/.test(l));
 
 const rfm = frontmatter(report), cfm = frontmatter(contract);

@@ -61,7 +61,11 @@ const clean = s => String(s == null ? '' : s).replace(/["']/g, '').replace(/\s*#
 const unquote = s => String(s == null ? '' : s).replace(/^["']|["']$/g, '').trim();
 // section: lines under an ATX heading `## <h>`; reset only on another level-2+ heading
 // (so a leading "# guidance" comment inside a section is content, never a boundary).
-function section(t, h) { const out = []; let inS = false; const re = new RegExp('^#{2,6}\\s+' + h + '\\b', 'i'); for (const l of t.split('\n')) { if (/^#{2,6}\s/.test(l)) inS = re.test(l); else if (inS) out.push(l); } return out; }
+// A section runs until the next heading at the SAME level or higher — a deeper
+// sub-heading (`### nhóm phụ` inside `## Criteria`) is content, not a boundary.
+// Exiting on any heading dropped every AC after the first sub-heading from the
+// decision card: a human approving Gate 1 on a truncated card is false-green.
+function section(t, h) { const out = []; let inS = false, lvl = 0; const re = new RegExp('^#{2,6}\\s+' + h + '\\b', 'i'); for (const l of t.split('\n')) { const m = l.match(/^(#{2,6})\s/); if (m) { if (re.test(l)) { inS = true; lvl = m[1].length; continue; } if (inS && m[1].length <= lvl) { inS = false; continue; } } if (inS) out.push(l); } return out; }
 const cleanLines = arr => arr.filter(l => l.trim() && !/^\s*#/.test(l)); // drop blanks + markdown-comment lines
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 

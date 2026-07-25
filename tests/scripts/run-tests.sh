@@ -266,6 +266,20 @@ mk_xl "$P/pm11" feat-xl11 '- AC-1: Given app, When submit order, Then order save
     expected: "order row exists via API"'
 outPM11="$(bash "$CHECK" "$P/pm11" 2>&1)"; check PM11 0 $?
 case "$outPM11" in *cross-layer*) echo "  FAIL: PM11-clean (glob trong paths: bị hiểu nhầm là mở eval block)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: PM11-clean"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
+echo "PM12 eval block mở bằng key NGOÀI danh sách quen (surface:) -> KHÔNG được rò layer sang block sau (chống false-green)"
+mk_xl "$P/pm12" feat-xl12 '- AC-1: Given app, When submit, Then saved via API.
+- AC-2: Given app, When pay, Then charged via API. (cross-layer)' '  - id: E1
+    criterion: AC-1
+    executor: test
+    layer: backend-effect
+    expected: "ok"
+  - surface: mobile
+    id: E2
+    criterion: AC-2
+    executor: ui-check
+    expected: "chip hien thi"'
+outPM12="$(bash "$CHECK" "$P/pm12" 2>&1)"; check PM12 1 $?
+case "$outPM12" in *"AC-2 is tagged (cross-layer)"*) echo "  PASS: PM12-noleak"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: PM12-noleak (layer của block trước rò sang block sau = FALSE-GREEN)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
 echo ""
 echo "--- eval-coverage-lint.js ---"
@@ -963,6 +977,33 @@ node "$DCP" --config "$T/sg/config.yaml" --surface-globs "khac/**" --write >/dev
 grep -c '^design:$' "$T/sg/config.yaml" | grep -qx '1'; check SG3 0 $?   # idempotent — không nhân đôi
 grep -qx '    smoke_sv_design: "npm run smoke:sv-design"' "$T/sg/config.yaml"; check SG4 0 $?   # key bảo vệ sống sót byte-y-nguyên sau 2 lần --write
 
+# '### nhóm phụ' trong ## Criteria KHÔNG được cắt cụt decision card — human duyệt Gate 1
+# trên card thiếu AC là false-green ở tầng con người, nặng hơn răng CI im lặng.
+GSUB="$T/gsub/_acceptance/sfeat"; mkdir -p "$GSUB"
+cat > "$GSUB/contract.md" <<'EOF'
+---
+schema_version: 1
+feature: Sub-heading card
+slug: sfeat
+risk_tier: T3
+status: approved
+---
+## Criteria
+- AC-1: Given user, When mở app, Then thấy dashboard.
+### Nhóm phụ — luồng thanh toán
+- AC-2: Given giỏ hàng, When bấm trả tiền, Then tạo đơn qua API.
+- AC-3: Given thẻ hỏng, When trả tiền, Then KHÔNG tạo đơn.
+## Out of scope
+- Realtime broadcast — hoãn.
+EOF
+printf -- 'evals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    expected: "green"\n' > "$GSUB/evals.yaml"
+# Card cố ý in GWT đời thường, KHÔNG in mã AC-n — nên assert trên nội dung tiêu chí.
+GSUBOUT="$(node "$GCARD" --root "$T/gsub" --slug sfeat 2>/dev/null)"
+echo "GS1 AC-2 (ngay sau '### nhóm phụ') vào nhóm 'SẼ làm' của card"
+hasout GS1 "tạo đơn qua API" "$GSUBOUT"
+echo "GS2 AC-3 (cuối section, sau sub-heading) vào nhóm 'sẽ KHÔNG làm' của card"
+hasout GS2 "KHÔNG tạo đơn" "$GSUBOUT"
+
 echo ""
 echo "--- evidence-page.js ---"
 EP="$HERE/../../scripts/evidence-page.js"
@@ -1036,6 +1077,13 @@ printf -- '---\nfeature: sec\nslug: epsec\n---\n' > "$ds/contract.md"
 printf -- '---\nschema_version: 1\nfeature_slug: epsec\nverdict: PENDING-JUDGMENT\nhuman_signoff:\n---\n| Eval | Criterion | Executor | Verdict |\n|--|--|--|--|\n| E1 | AC-1 | ui-check | PASS |\n\n## Evidence\n- eval: E1\n  run_id: epsec-E1-001\n  exit_code: 0\n  verifier: scripts/v.sh\n  verified_at: 2026-06-20\n  screenshot: http://evil.test/x.png?leak=1\n' > "$ds/evidence-report.md"
 SEC="$(node "$EP" --root "$EPR" --slug epsec 2>/dev/null)"
 nothas EP09 "evil.test" "$(cat "$SEC" 2>/dev/null)"
+
+echo "EP10 '### nhóm phụ' trong ## Criteria -> text của AC phía sau vẫn lên evidence page"
+dsub="$EPR/_acceptance/epsub"; mkdir -p "$dsub"
+printf -- '---\nfeature: EP sub\nslug: epsub\nrisk_tier: T3\n---\n## Criteria\n- AC-1: Given x, Then z.\n### Nhóm phụ — thanh toán\n- AC-2: Given gio hang, Then charged via API.\n' > "$dsub/contract.md"
+printf -- '---\nschema_version: 1\nfeature_slug: epsub\nverdict: PENDING-JUDGMENT\nhuman_signoff:\n---\n| Eval | Criterion | Executor | Verdict |\n|--|--|--|--|\n| E1 | AC-2 | script | PASS |\n\n## Evidence\n- eval: E1\n  run_id: epsub-E1-001\n  exit_code: 0\n  verifier: scripts/v.sh\n  verified_at: 2026-06-20\n' > "$dsub/evidence-report.md"
+SUBP="$(node "$EP" --root "$EPR" --slug epsub 2>/dev/null)"
+hasout EP10 "charged via API" "$(cat "$SUBP" 2>/dev/null)"
 
 echo ""
 echo "--- Gate-1 approval recorded (approved_by / gate1_skipped) ---"

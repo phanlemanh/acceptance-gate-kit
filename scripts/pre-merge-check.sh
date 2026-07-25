@@ -201,12 +201,15 @@ for dir in "$ACC"/*/; do
     else
       # Buffer per eval block then flush: `layer:` may appear BEFORE `criterion:`
       # in a hand-written evals.yaml — printing at layer-time would miss those.
-      # Only a REAL eval key opens a block: a `paths:` glob like `- api:v2/**` is
-      # a list item, not a new eval, and `[a-z_]+:` used to swallow it — resetting
-      # the buffer mid-block and costing the pair a VIOLATION it didn't earn.
+      # A YAML mapping key REQUIRES whitespace (or EOL) after its colon — that
+      # alone separates `- id: E1` (opens a block) from a `paths:` glob like
+      # `- api:v2/**` (a list item, colon glued to the value). Do NOT whitelist
+      # key names here: a block opening on an unlisted key would fail to flush,
+      # leaking the previous block's `layer:` onto it — false-green, the exact
+      # failure these teeth exist to stop. Open wide, discriminate on syntax.
       xl_paired="$(awk '
         function flush() { if (lay=="backend-effect" && crit!="") print crit }
-        tolower($0) ~ /^[[:space:]]*-[[:space:]]*(id|criterion|executor|layer|cmd|expected|runs|paths|question|inputs|ref|steps|evidence_required):/ { flush(); crit=""; lay="" }
+        tolower($0) ~ /^[[:space:]]*-[[:space:]]*[a-z_]+:([[:space:]]|$)/ { flush(); crit=""; lay="" }
         tolower($0) ~ /^[[:space:]]*(-[[:space:]]*)?criterion:[[:space:]]*/ {v=$0; sub(/^[^:]*:[[:space:]]*/,"",v); gsub(/["'\'']/,"",v); sub(/[[:space:]]+#.*$/,"",v); sub(/[[:space:]]+$/,"",v); crit=v}
         tolower($0) ~ /^[[:space:]]*(-[[:space:]]*)?layer:[[:space:]]*/ {v=tolower($0); sub(/^[^:]*:[[:space:]]*/,"",v); gsub(/["'\'']/,"",v); sub(/[[:space:]]+#.*$/,"",v); sub(/[[:space:]]+$/,"",v); lay=v}
         END { flush() }
