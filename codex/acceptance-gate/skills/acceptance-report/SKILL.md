@@ -24,6 +24,9 @@ Scan `_acceptance/*/` (skip `config.yaml`, `README.md`). Parse:
   `bypass_ack`, `failed_evals`;
 - `run-log.jsonl` when present: line count, plus the report's Iterations
   section for verify rounds when cheap;
+- `evidence-report.md` body when present: every `network_observed:` value —
+  first token after the colon, quotes stripped; values starting `n-a` all
+  count into the `n-a` bucket (covers `n-a (driver)` and `n-a (tool-error: …)`);
 - `_acceptance/config.yaml`: `baseline_minutes`.
 
 ## 2. Compute per feature
@@ -49,6 +52,11 @@ flags:
   which inputs are missing).
 - Hygiene counts: gate1_skipped · un-acked bypasses · non-strict reports ·
   stale-evidence features · features with minutes chưa ghi.
+- Network truth (advisory rail): `clean N · app-fail N · no-app-traffic N ·
+  third-party-only N · n-a N · unscoped N · unscoped-partial N — K features
+  with data`. One action line per feature carrying `app-fail` or
+  `no-app-traffic` on a `(cross-layer)` criterion. When K ≥ 5, add: "đủ mẫu
+  vận hành — cân nhắc máy-kiểm hóa network (schema v3, spec wave 2 §5)".
 - Action items: one actionable line per hygiene hit.
 
 `_acceptance/` missing → suggest the `acceptance-init` skill. No features →
