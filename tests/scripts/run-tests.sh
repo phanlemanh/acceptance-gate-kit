@@ -246,6 +246,26 @@ printf -- 'evals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    expe
 v9="$P/pm09/verify.sh"; printf '#!/bin/sh\nexit 0\n' > "$v9"
 printf -- '---\nschema_version: 1\nfeature_slug: feat-xl9\nverdict: PASS\nhuman_signoff: Manh 2026-07-25\n---\n\n## Evidence\n- eval: E1\n  run_id: feat-xl9-E1-001\n  exit_code: 0\n  verifier: %s\n  verified_at: 2026-07-25\n' "$v9" > "$d9/evidence-report.md"
 bash "$CHECK" "$P/pm09" >/dev/null; check PM09 1 $?
+echo "PM10 '### nhóm phụ' giữa ## Criteria, AC tag nằm SAU sub-heading -> teeth vẫn quét, thiếu cặp = VIOLATION"
+mk_xl "$P/pm10" feat-xl10 '- AC-1: Given app, When view list, Then rows shown.
+### Nhóm phụ — luồng đặt hàng
+- AC-2: Given app, When submit order, Then order saved via API. (cross-layer)' '  - id: E1
+    criterion: AC-2
+    executor: test
+    expected: "e2e mobile green"'
+outPM10="$(bash "$CHECK" "$P/pm10" 2>&1)"; check PM10 1 $?
+case "$outPM10" in *"AC-2 is tagged (cross-layer)"*) echo "  PASS: PM10-ac2"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: PM10-ac2 (sub-heading cắt cụt vùng quét Criteria)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+echo "PM11 paths: chứa glob dạng key-like (kể cả TRƯỚC layer:) trong eval đã paired -> clean, không VIOLATION oan"
+mk_xl "$P/pm11" feat-xl11 '- AC-1: Given app, When submit order, Then order saved via API. (cross-layer)' '  - id: E1
+    criterion: AC-1
+    executor: test
+    paths:
+      - src/api:v2/**
+      - api:v2/**
+    layer: backend-effect
+    expected: "order row exists via API"'
+outPM11="$(bash "$CHECK" "$P/pm11" 2>&1)"; check PM11 0 $?
+case "$outPM11" in *cross-layer*) echo "  FAIL: PM11-clean (glob trong paths: bị hiểu nhầm là mở eval block)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: PM11-clean"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
 
 echo ""
 echo "--- eval-coverage-lint.js ---"
@@ -602,6 +622,36 @@ echo "L17 'mobile' chỉ trong prose + comment trên dòng surfaces -> W5 im l�
 node "$LINT" "$T/lintN" >/dev/null; check L17 0 $?
 echo "L18 mobile surface + backend target khoảng trắng đôi -> W5 im lặng"
 node "$LINT" "$T/lintO" >/dev/null; check L18 0 $?
+
+# Fixture P: '### nhóm phụ' trong ## Criteria, AC ngưỡng nằm SAU sub-heading, thiếu should-NOT-fire -> W1 phải nổ
+P5="$T/lintP/_acceptance/feat-s1"; mkdir -p "$P5"
+cat > "$P5/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+surfaces: [api]
+---
+## Criteria
+- AC-1: Given user, When mở app, Then thấy dashboard.
+### Nhóm phụ — ngưỡng cảnh báo
+- AC-2: Given user, When ≥3 opens trong 48h, Then fire hot.
+## Out of scope
+EOF
+cat > "$P5/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "exit 0"
+  - id: E2
+    criterion: AC-2
+    executor: script
+    expected: "exit 0; fires hot"
+EOF
+
+echo "L19 '### nhóm phụ' trong ## Criteria -> AC ngưỡng phía sau vẫn được quét, W1 nổ"
+outL19="$(node "$LINT" "$T/lintP" 2>&1)"; check L19 1 $?
+case "$outL19" in *AC-2*) echo "  PASS: L19-ac2"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: L19-ac2 (sub-heading cắt cụt vùng quét Criteria)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
 echo ""
 echo "--- gate-card.js ---"

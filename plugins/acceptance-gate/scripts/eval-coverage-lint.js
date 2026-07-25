@@ -44,12 +44,21 @@ const NEG_RE =
 
 // ─── Parsers (line-based on purpose — no YAML/MD lib, mirror the hooks) ───────
 
+// A section runs until the next heading at the SAME level or higher — a deeper
+// sub-heading (`### nhóm phụ` inside `## Criteria`) is content, not a boundary.
+// Exiting on any heading silently truncated the scan: every AC after the first
+// sub-heading fell out of W1/W3/W4/W5's view.
 function sectionLines(text, headingRe) {
   const out = [];
   let inSec = false;
+  let secLevel = 0;
   for (const line of text.split('\n')) {
-    if (/^#{1,6}\s/.test(line)) inSec = headingRe.test(line);
-    else if (inSec) out.push(line);
+    const h = line.match(/^(#{1,6})\s/);
+    if (h) {
+      if (headingRe.test(line)) { inSec = true; secLevel = h[1].length; continue; }
+      if (inSec && h[1].length <= secLevel) { inSec = false; continue; }
+    }
+    if (inSec) out.push(line);
   }
   return out;
 }

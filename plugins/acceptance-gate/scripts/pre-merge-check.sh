@@ -191,20 +191,26 @@ for dir in "$ACC"/*/; do
   # UI-only evidence for a UI→API→backend path. Write-time stays advisory
   # (lint W4); this is the merge-boundary backstop for every runtime.
   # Fail-open: evals.yaml missing → NOTE, never a block.
-  xl_acs="$(awk '/^#/{insec=0} tolower($0) ~ /^##[[:space:]]+criteria/{insec=1; next} insec && tolower($0) ~ /^[[:space:]]*[-*].*\(cross-layer\)/ { if (match($0, /AC-[0-9]+/)) print substr($0, RSTART, RLENGTH) }' "$contract" | sort -u)"
+  # `## Criteria` runs until the next H1/H2 — a `### nhóm phụ` inside it is
+  # content, not a boundary. Exiting on any heading truncated the scan and every
+  # AC after the first sub-heading went untagged (teeth silently off).
+  xl_acs="$(awk '/^#/ && !/^###/ {insec=0} tolower($0) ~ /^##[[:space:]]+criteria/{insec=1; next} insec && tolower($0) ~ /^[[:space:]]*[-*].*\(cross-layer\)/ { if (match($0, /AC-[0-9]+/)) print substr($0, RSTART, RLENGTH) }' "$contract" | sort -u)"
   if [ -n "$xl_acs" ]; then
-    if [ ! -f "$dir/evals.yaml" ]; then
+    if [ ! -f "${dir}evals.yaml" ]; then
       echo "NOTE [$slug]: cross-layer criteria declared but no evals.yaml — pairing unverifiable (fail-open)"
     else
       # Buffer per eval block then flush: `layer:` may appear BEFORE `criterion:`
       # in a hand-written evals.yaml — printing at layer-time would miss those.
+      # Only a REAL eval key opens a block: a `paths:` glob like `- api:v2/**` is
+      # a list item, not a new eval, and `[a-z_]+:` used to swallow it — resetting
+      # the buffer mid-block and costing the pair a VIOLATION it didn't earn.
       xl_paired="$(awk '
         function flush() { if (lay=="backend-effect" && crit!="") print crit }
-        tolower($0) ~ /^[[:space:]]*-[[:space:]]*[a-z_]+:/ { flush(); crit=""; lay="" }
+        tolower($0) ~ /^[[:space:]]*-[[:space:]]*(id|criterion|executor|layer|cmd|expected|runs|paths|question|inputs|ref|steps|evidence_required):/ { flush(); crit=""; lay="" }
         tolower($0) ~ /^[[:space:]]*(-[[:space:]]*)?criterion:[[:space:]]*/ {v=$0; sub(/^[^:]*:[[:space:]]*/,"",v); gsub(/["'\'']/,"",v); sub(/[[:space:]]+#.*$/,"",v); sub(/[[:space:]]+$/,"",v); crit=v}
         tolower($0) ~ /^[[:space:]]*(-[[:space:]]*)?layer:[[:space:]]*/ {v=tolower($0); sub(/^[^:]*:[[:space:]]*/,"",v); gsub(/["'\'']/,"",v); sub(/[[:space:]]+#.*$/,"",v); sub(/[[:space:]]+$/,"",v); lay=v}
         END { flush() }
-      ' "$dir/evals.yaml" | sort -u)"
+      ' "${dir}evals.yaml" | sort -u)"
       while IFS= read -r xac; do
         [ -n "$xac" ] || continue
         if ! printf '%s\n' "$xl_paired" | grep -qx "$xac"; then
