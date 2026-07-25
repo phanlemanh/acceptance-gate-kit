@@ -191,7 +191,7 @@ for dir in "$ACC"/*/; do
   # UI-only evidence for a UI→API→backend path. Write-time stays advisory
   # (lint W4); this is the merge-boundary backstop for every runtime.
   # Fail-open: evals.yaml missing → NOTE, never a block.
-  xl_acs="$(awk '/^#/{insec=0} /^##[[:space:]]+Criteria/{insec=1; next} insec && tolower($0) ~ /^[[:space:]]*[-*].*\(cross-layer\)/ { if (match($0, /AC-[0-9]+/)) print substr($0, RSTART, RLENGTH) }' "$contract")"
+  xl_acs="$(awk '/^#/{insec=0} tolower($0) ~ /^##[[:space:]]+criteria/{insec=1; next} insec && tolower($0) ~ /^[[:space:]]*[-*].*\(cross-layer\)/ { if (match($0, /AC-[0-9]+/)) print substr($0, RSTART, RLENGTH) }' "$contract" | sort -u)"
   if [ -n "$xl_acs" ]; then
     if [ ! -f "$dir/evals.yaml" ]; then
       echo "NOTE [$slug]: cross-layer criteria declared but no evals.yaml — pairing unverifiable (fail-open)"
@@ -200,9 +200,9 @@ for dir in "$ACC"/*/; do
       # in a hand-written evals.yaml — printing at layer-time would miss those.
       xl_paired="$(awk '
         function flush() { if (lay=="backend-effect" && crit!="") print crit }
-        tolower($0) ~ /^[[:space:]]*-[[:space:]]*id:/ { flush(); crit=""; lay="" }
-        tolower($0) ~ /^[[:space:]]*criterion:[[:space:]]*/ {v=$0; sub(/^[^:]*:[[:space:]]*/,"",v); gsub(/["'\'']/,"",v); sub(/[[:space:]]+#.*$/,"",v); sub(/[[:space:]]+$/,"",v); crit=v}
-        tolower($0) ~ /^[[:space:]]*layer:[[:space:]]*/ {v=tolower($0); sub(/^[^:]*:[[:space:]]*/,"",v); gsub(/["'\'']/,"",v); sub(/[[:space:]]+#.*$/,"",v); sub(/[[:space:]]+$/,"",v); lay=v}
+        tolower($0) ~ /^[[:space:]]*-[[:space:]]*[a-z_]+:/ { flush(); crit=""; lay="" }
+        tolower($0) ~ /^[[:space:]]*(-[[:space:]]*)?criterion:[[:space:]]*/ {v=$0; sub(/^[^:]*:[[:space:]]*/,"",v); gsub(/["'\'']/,"",v); sub(/[[:space:]]+#.*$/,"",v); sub(/[[:space:]]+$/,"",v); crit=v}
+        tolower($0) ~ /^[[:space:]]*(-[[:space:]]*)?layer:[[:space:]]*/ {v=tolower($0); sub(/^[^:]*:[[:space:]]*/,"",v); gsub(/["'\'']/,"",v); sub(/[[:space:]]+#.*$/,"",v); sub(/[[:space:]]+$/,"",v); lay=v}
         END { flush() }
       ' "$dir/evals.yaml" | sort -u)"
       while IFS= read -r xac; do

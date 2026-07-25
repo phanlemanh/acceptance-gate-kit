@@ -21,7 +21,7 @@ Frontmatter rules:
 - `surfaces` may include `mobile`: app flows driven by the repo's native E2E
   runner (XCUITest / Espresso / Maestro / Detox…). The runner's exit code is
   UI-LAYER evidence only — a `(cross-layer)` criterion on mobile REQUIRES its
-  paired `layer: backend-effect` eval (pre-merge BLOCKS the merge otherwise),
+  paired `layer: backend-effect` eval (pre-merge BLOCKS the merge otherwise, once the feature is gated),
   and the contract's ## Notes carries a `Mobile backend target:
   local|staging|mock` line (lint W5 checks presence; the human eyeballs the value)
 

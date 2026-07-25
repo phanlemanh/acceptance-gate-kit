@@ -145,8 +145,9 @@ function lintFeature(slug, contractText, evalsText) {
   // W5 — mobile backend-target presence (advisory): the kit never verifies the
   // VALUE (engine/binding split; a machine cannot check the word "real") — it
   // only checks the line EXISTS so the Gate-1 human has something to eyeball.
-  if (/^surfaces:.*\bmobile\b/im.test(contractText)
-      && !/mobile backend target\s*:/i.test(contractText)) {
+  const surfacesLine = (contractText.match(/^surfaces:.*$/im) || [''])[0].replace(/[ \t]+#.*$/, '');
+  if (/\bmobile\b/i.test(surfacesLine)
+      && !/mobile\s+backend\s+target\s*:/i.test(contractText)) {
     warns.push(`[${slug}] W5 surfaces include mobile but the contract has no "Mobile backend target:" line (## Notes) — declare local|staging|mock so the Gate-1 human can eyeball the V4 risk.`);
   }
 

@@ -223,6 +223,29 @@ mk_xl "$P/pm06" feat-xl6 '- AC-1: Given app, When submit order, Then order saved
     executor: test
     expected: "e2e mobile green"' draft
 bash "$CHECK" "$P/pm06" >/dev/null; check PM06 0 $?
+echo "PM07 eval block mở bằng criterion (không phải id) + comment trên criterion -> vẫn paired, clean"
+mk_xl "$P/pm07" feat-xl7 '- AC-1: Given app, When submit order, Then order saved via API. (cross-layer)' '  - criterion: AC-1  # main flow
+    id: E2
+    executor: test
+    layer: backend-effect
+    expected: "order row exists via API"'
+bash "$CHECK" "$P/pm07" >/dev/null; check PM07 0 $?
+echo "PM08 cùng 1 AC tag ở 2 bullet, thiếu cặp -> đúng 1 VIOLATION (không nhân đôi)"
+mk_xl "$P/pm08" feat-xl8 '- AC-1: Given app, When submit order, Then order saved via API. (cross-layer)
+- AC-1: Given app, When retry, Then order not duplicated. (cross-layer)' '  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "e2e mobile green"'
+outPM8="$(bash "$CHECK" "$P/pm08" 2>&1)"; check PM08 1 $?
+n8="$(printf '%s\n' "$outPM8" | grep -c 'is tagged (cross-layer) but no eval')"
+case "$n8" in 1) echo "  PASS: PM08-once"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: PM08-once (expected 1 violation line, got $n8)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+echo "PM09 heading '## criteria' viết thường -> teeth vẫn quét, thiếu cặp = VIOLATION"
+d9="$P/pm09/_acceptance/feat-xl9"; mkdir -p "$d9"
+printf -- '---\nschema_version: 1\nfeature: feat-xl9\nslug: feat-xl9\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\napproved_by: Manh Phan\napproved_at: 2026-07-25\n---\n## criteria\n- AC-1: Given app, When submit, Then saved. (cross-layer)\n## Out of scope\n' > "$d9/contract.md"
+printf -- 'evals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    expected: "green"\n' > "$d9/evals.yaml"
+v9="$P/pm09/verify.sh"; printf '#!/bin/sh\nexit 0\n' > "$v9"
+printf -- '---\nschema_version: 1\nfeature_slug: feat-xl9\nverdict: PASS\nhuman_signoff: Manh 2026-07-25\n---\n\n## Evidence\n- eval: E1\n  run_id: feat-xl9-E1-001\n  exit_code: 0\n  verifier: %s\n  verified_at: 2026-07-25\n' "$v9" > "$d9/evidence-report.md"
+bash "$CHECK" "$P/pm09" >/dev/null; check PM09 1 $?
 
 echo ""
 echo "--- eval-coverage-lint.js ---"
@@ -532,6 +555,53 @@ echo "L15 mobile + Mobile backend target line -> clean"
 node "$LINT" "$T/lintL" >/dev/null; check L15 0 $?
 echo "L16 no mobile surface -> W5 silent"
 node "$LINT" "$T/lintM" >/dev/null; check L16 0 $?
+
+# Fixture N: "mobile" chỉ xuất hiện trong criterion prose, surfaces KHÔNG có mobile -> W5 im lặng
+N5="$T/lintN/_acceptance/feat-m4"; mkdir -p "$N5"
+cat > "$N5/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+surfaces: [api, ui]   # mobile maybe later
+---
+## Criteria
+- AC-1: Given a mobile-width viewport, When user taps pay, Then confirmation shows.
+## Out of scope
+EOF
+cat > "$N5/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "exit 0"
+EOF
+
+# Fixture O: mobile surface + dòng backend target có khoảng trắng đôi -> W5 im lặng
+O5="$T/lintO/_acceptance/feat-m5"; mkdir -p "$O5"
+cat > "$O5/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+surfaces: [api, mobile]
+---
+## Criteria
+- AC-1: Given app, When submit, Then saved.
+## Out of scope
+## Notes
+Mobile  backend  target: local — simulator + local API.
+EOF
+cat > "$O5/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "exit 0"
+EOF
+
+echo "L17 'mobile' chỉ trong prose + comment trên dòng surfaces -> W5 im lặng"
+node "$LINT" "$T/lintN" >/dev/null; check L17 0 $?
+echo "L18 mobile surface + backend target khoảng trắng đôi -> W5 im lặng"
+node "$LINT" "$T/lintO" >/dev/null; check L18 0 $?
 
 echo ""
 echo "--- gate-card.js ---"

@@ -295,7 +295,8 @@ downstream, and revisited after the pilot:
   evidence only**: mobile flows run through the repo's native E2E runner
   (`executors.test.e2e_mobile`); simulators have no network-reading path, so
   the runner's exit code never proves network truth. `pre-merge-check.sh` now
-  BLOCKS the merge when a `(cross-layer)` criterion has no paired
+  BLOCKS the merge — once the feature is gated (status implemented/verified/signed-off) —
+  when a `(cross-layer)` criterion has no paired
   `layer: backend-effect` eval. The backend target (local|staging|mock) is a
   human-eyeballed contract line — lint W5 checks presence only; the kit never
   machine-verifies "real".

@@ -304,7 +304,7 @@ Entry: implementation complete, contract `status: implemented`.
 | User asks to skip Gate 1 | Refuse politely once, explain leverage; if insisted, note `gate1_skipped: true` in contract |
 | Hook blocks the report write | Evidence is incomplete — capture real evidence; do NOT reword the verdict to dodge the gate |
 | Hook L1 CONSISTENCY blocks an all-green PASS (stray exit=1 or verdict: FAIL token in pasted output) | Sanitize the output excerpt per template — verdict stays PASS; flip to REJECT only if an eval actually failed |
-| Driver cannot read network (curl+grep SSR runs no JS; mobile simulator; capture-only) | ui-check counts as UI-LAYER evidence only — `network_observed: n-a (driver)`; a `(cross-layer)` criterion REQUIRES its paired `layer: backend-effect` eval; missing pair → W4 + gap-probe + Gate-1 flag |
+| Driver cannot read network (curl+grep SSR runs no JS; a browser driven on a mobile simulator; capture-only) | ui-check counts as UI-LAYER evidence only — `network_observed: n-a (driver)`; a `(cross-layer)` criterion REQUIRES its paired `layer: backend-effect` eval — W4 + gap-probe flag it at Gate 1 and pre-merge BLOCKS the merge once the feature is gated |
 | `dev_server.url` / `api_base` not (fully) configured — multi-origin app | network rail is note-only (`unscoped` / `unscoped-partial`), never FAILs |
 | Mobile e2e runner needs a simulator/emulator absent on the verify machine | cannotRun → BLOCKED + reason — never a silent skip or a downgrade |
 
