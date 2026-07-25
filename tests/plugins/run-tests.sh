@@ -413,6 +413,40 @@ assert "gap_probe" in (root / "codex/acceptance-gate/skills/acceptance-card/SKIL
 assert "Gap-probe S1" in (root / "GUIDE.md").read_text()
 PY
 
+run "P30 plugins/ mirror in sync with sources (sync --check)" \
+  bash "$ROOT/scripts/sync-plugin-packages.sh" --check
+
+run "P31 Codex human-gate skills locked from implicit invocation; card stays open" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+LOCKED = ["approve", "signoff", "acceptance-init", "acceptance-status", "acceptance-report"]
+for base in ["codex/acceptance-gate/skills", "plugins/acceptance-gate/skills"]:
+    for name in LOCKED:
+        y = root / base / name / "agents/openai.yaml"
+        assert y.exists(), f"{y} missing"
+        t = y.read_text()
+        assert "allow_implicit_invocation: false" in t, f"{y} lacks policy lock"
+    card = root / base / "acceptance-card/agents/openai.yaml"
+    assert not card.exists() or "allow_implicit_invocation: false" not in card.read_text(), \
+        "acceptance-card must stay model-invocable (approve/signoff invoke it)"
+PY
+
+run "P32 Claude gate commands locked from model invocation; card stays open" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+LOCKED = ["approve", "signoff", "acceptance-init", "acceptance-status", "acceptance-report"]
+for name in LOCKED:
+    t = (root / "commands" / f"{name}.md").read_text()
+    assert "disable-model-invocation: true" in t, f"commands/{name}.md lacks lock"
+card = (root / "commands/acceptance-card.md").read_text()
+assert "disable-model-invocation" not in card, \
+    "acceptance-card must stay model-invocable (feature-loop invokes it at both Gates)"
+PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Acceptance Init"
+  short_description: "Scaffold _acceptance/ config in a consumer repo (run once)"
+policy:
+  allow_implicit_invocation: false

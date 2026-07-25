@@ -1,5 +1,6 @@
 ---
 description: Record the Gate 1 decision (phê duyệt Cổng 1) — render the decision card, ask exactly one question, write approved_by/approved_at only on an explicit human YES. Never approves on its own.
+disable-model-invocation: true
 ---
 
 Record the human's Gate 1 decision for a feature. `/acceptance-card` is the

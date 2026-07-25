@@ -1,5 +1,6 @@
 ---
 description: Aggregate acceptance metrics across all features — human minutes vs baseline (KPI ≥50% reduction), verdict mix, gate hygiene (skips, bypasses, stale evidence). Read-only.
+disable-model-invocation: true
 ---
 
 Answer "is the gate paying for itself?" from what the gates already recorded.

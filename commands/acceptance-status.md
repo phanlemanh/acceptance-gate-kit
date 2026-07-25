@@ -1,5 +1,6 @@
 ---
 description: Show acceptance gate status for all features in this repo
+disable-model-invocation: true
 ---
 
 Scan `_acceptance/*/contract.md` in the current repository and print a status

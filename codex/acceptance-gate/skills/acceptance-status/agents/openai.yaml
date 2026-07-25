@@ -1,0 +1,5 @@
+interface:
+  display_name: "Acceptance Status"
+  short_description: "Show acceptance gate status for all features"
+policy:
+  allow_implicit_invocation: false

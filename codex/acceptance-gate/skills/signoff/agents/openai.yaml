@@ -1,0 +1,5 @@
+interface:
+  display_name: "Signoff (Gate 2)"
+  short_description: "Walk the human through Gate 2 signoff"
+policy:
+  allow_implicit_invocation: false

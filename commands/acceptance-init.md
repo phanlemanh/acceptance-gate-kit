@@ -1,5 +1,6 @@
 ---
 description: Scaffold _acceptance/ workspace + config.yaml for this repo (one-time setup)
+disable-model-invocation: true
 ---
 
 Initialize the Acceptance-Gate Kit in the current repository.
