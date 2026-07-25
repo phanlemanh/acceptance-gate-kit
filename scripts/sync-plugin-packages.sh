@@ -46,4 +46,4 @@ build_acceptance
 build_feature_loop
 build_design_loop
 
-echo "Synced Codex packages: acceptance-gate@1.20.0 feature-loop-codex@1.16.1 design-loop@0.3.0"
+echo "Synced Codex packages: acceptance-gate@1.20.1 feature-loop-codex@1.16.1 design-loop@0.3.0"
