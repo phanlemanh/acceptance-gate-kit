@@ -27,8 +27,8 @@ Steps:
 2. **Present.** Render the decision card — `/acceptance-card <slug>` — unless
    it was just rendered this session. Attach the deep-review package: the full
    `contract.md` verbatim + the AC → eval → executor mapping table. Run the
-   advisory coverage lint (`eval-coverage-lint.js`, found in the same
-   installed-plugin `scripts/` dir that step 1 of `/acceptance-card` locates)
+   advisory coverage lint (`${CLAUDE_PLUGIN_ROOT}/scripts/eval-coverage-lint.js`
+   — same plugin as this command, no cache glob)
    and surface its W1/W3 warnings — advisory only, the human decides.
 3. **Ask EXACTLY ONE question:** approve, or what should change?
 4. **Edits requested** → apply them to `contract.md`/`evals.yaml` (pre-approval

@@ -447,6 +447,46 @@ assert "disable-model-invocation" not in card, \
     "acceptance-card must stay model-invocable (feature-loop invokes it at both Gates)"
 PY
 
+run "P33 no source file globs the plugin cache (resolve-plugin.mjs is the only path)" \
+  python3 - "$ROOT" <<'PY'
+import sys, re
+from pathlib import Path
+root = Path(sys.argv[1])
+# The mirror under plugins/ is generated; check the SOURCES only.
+areas = ["skills", "feature-loop", "design-loop", "codex", "commands", "hooks", "lib", "scripts"]
+files = [p for a in areas for p in (root / a).rglob("*")
+         if p.is_file() and p.suffix in {".md", ".js", ".mjs", ".sh", ".json"}]
+files += [root / f for f in ("README.md", "GUIDE.md", "QUICKSTART.md")]
+ALLOW = {"feature-loop/scripts/resolve-plugin.mjs"}  # documents the pattern it replaces
+offenders = []
+for p in files:
+    if not p.exists():
+        continue
+    rel = str(p.relative_to(root))
+    if rel in ALLOW:
+        continue
+    text = p.read_text(encoding="utf-8", errors="replace")
+    if re.search(r"plugins/cache", text):
+        offenders.append(rel)
+assert files, "sanity: globbed zero source files — the scan itself is broken"
+assert not offenders, (
+    "cache-glob resurfaced in: " + ", ".join(offenders) +
+    " — use ${CLAUDE_PLUGIN_ROOT}/${PLUGIN_ROOT} for your own plugin, or "
+    "feature-loop/scripts/resolve-plugin.mjs for a sibling (ls order is lexical: "
+    "it ranks 1.9.2 above 1.20.1). See docs/adr/0003.")
+PY
+
+run "P34 resolve-plugin.mjs ships in BOTH editions from one source" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+src = (root / "feature-loop/scripts/resolve-plugin.mjs").read_text()
+pkg = root / "plugins/feature-loop-codex/scripts/resolve-plugin.mjs"
+assert pkg.exists(), "Codex package missing resolve-plugin.mjs — run scripts/sync-plugin-packages.sh"
+assert pkg.read_text() == src, "Codex copy drifted from feature-loop/scripts/resolve-plugin.mjs"
+PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

@@ -23,9 +23,11 @@ Prefer the consumer runner when present:
 node scripts/codex-plugin-runner.mjs acceptance-gate gate-card --root . --slug <slug> --extract
 ```
 
-If the runner is absent, locate the newest installed Acceptance Gate cache
-without hardcoding a version and run its `scripts/gate-card.js` with Node. A
-missing cache is `BLOCKED` with the exact install instruction.
+If the runner is absent, run `${PLUGIN_ROOT}/scripts/gate-card.js` with Node —
+this skill ships inside Acceptance Gate, so the harness supplies its own root;
+do not glob the plugin cache (lexical `ls` order picks 1.9.2 over 1.20.1). With
+no `PLUGIN_ROOT`, resolve via feature-loop's `scripts/resolve-plugin.mjs`. Still
+nothing is `BLOCKED` with the exact install instruction.
 
 ## 3. Create the plain-language overlay
 

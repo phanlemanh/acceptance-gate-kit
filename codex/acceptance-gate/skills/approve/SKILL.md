@@ -35,9 +35,9 @@ coverage lint through the consumer runner when present:
 node scripts/codex-plugin-runner.mjs acceptance-gate eval-coverage-lint . --slug <slug>
 ```
 
-If the runner is absent, locate the newest installed Acceptance Gate cache and
-run its `scripts/eval-coverage-lint.js` with Node. Surface W1/W3 warnings —
-advisory only; a lint failure never blocks the question.
+If the runner is absent, run `${PLUGIN_ROOT}/scripts/eval-coverage-lint.js` with
+Node (own plugin — no cache glob). Surface W1/W3 warnings — advisory only; a lint
+failure never blocks the question.
 
 ## 4. Ask exactly one question
 

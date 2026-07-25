@@ -1604,6 +1604,47 @@ globalThis.fetch = async (url) => {
 EOF
 env -u VLM_MODEL GEMINI_API_KEY=dummy node --import "file://$MOCK_URL" "$VLM" "$IMG" "is a video player visible?" >/dev/null 2>/dev/null; check V06 0 $?
 
+echo ""
+echo "--- resolve-plugin.mjs (bỏ glob-vào-cache: chọn theo semver, không theo ls) ---"
+RESOLVE="$HERE/../../feature-loop/scripts/resolve-plugin.mjs"
+RPC="$T/rpcache"   # <cache-root>/<marketplace>/<plugin>/<version>/
+mk_ver() { # <version> [--no-require]
+  local d="$RPC/mkt/acceptance-gate/$1"; mkdir -p "$d/skills/acceptance/references"
+  [ "${2:-}" = "--no-require" ] || printf 'personas\n' > "$d/skills/acceptance/references/judge-personas.md"
+}
+# Đúng cái bẫy đã chứng minh: ls sắp xếp theo chữ -> "1.9.2" đứng CUỐI.
+mk_ver 1.9.2; mk_ver 1.11.2; mk_ver 1.18.0; mk_ver 1.20.1
+RP_OUT="$(node "$RESOLVE" --plugin acceptance-gate --cache-root "$RPC" \
+  --require skills/acceptance/references/judge-personas.md 2>&1)"; RP_ST=$?
+echo "RP01 chọn semver cao nhất (1.20.1), KHÔNG phải bản cuối theo thứ tự chữ (1.9.2)"
+check RP01 0 "$RP_ST"
+case "$RP_OUT" in *"/1.20.1"*) check RP01b 0 0;; *) echo "     got: $RP_OUT"; check RP01b 0 1;; esac
+case "$RP_OUT" in *"/1.9.2"*) echo "     REGRESSION: chọn nhầm 1.9.2"; check RP01c 0 1;; *) check RP01c 0 0;; esac
+
+# Bản mới nhất CÀI HỎNG (thiếu file --require) -> phải bỏ qua, lùi về 1.18.0,
+# tuyệt đối không trả về một thư mục rỗng rồi để agent chết ở bước sau.
+RPC2="$T/rpcache2"; RPC_SAVE="$RPC"; RPC="$RPC2"
+mk_ver 1.18.0; mk_ver 1.20.1 --no-require; RPC="$RPC_SAVE"
+RP2="$(node "$RESOLVE" --plugin acceptance-gate --cache-root "$RPC2" \
+  --require skills/acceptance/references/judge-personas.md 2>&1)"
+echo "RP02 bản cao nhất thiếu file bắt buộc -> bỏ qua, lùi bản hợp lệ"
+case "$RP2" in *"/1.18.0"*) check RP02 0 0;; *) echo "     got: $RP2"; check RP02 0 1;; esac
+
+echo "RP03 không tìm thấy gì -> exit 1 + thông điệp nêu chỗ đã tìm và cách cài"
+RP3="$(node "$RESOLVE" --plugin khong-ton-tai --cache-root "$RPC" --require x.md 2>&1)"; RP3_ST=$?
+check RP03 1 "$RP3_ST"
+case "$RP3" in *"claude plugin install"*) check RP03b 0 0;; *) check RP03b 0 1;; esac
+
+echo "RP04 --root <path> bỏ qua tìm kiếm (dùng cho test/bản vendor)"
+RP4="$(node "$RESOLVE" --plugin acceptance-gate --root "$RPC/mkt/acceptance-gate/1.11.2" \
+  --require skills/acceptance/references/judge-personas.md 2>&1)"; RP4_ST=$?
+check RP04 0 "$RP4_ST"
+case "$RP4" in *"/1.11.2"*) check RP04b 0 0;; *) check RP04b 0 1;; esac
+
+echo "RP05 --root trỏ chỗ thiếu file bắt buộc -> exit 1 (không tin lời khai)"
+node "$RESOLVE" --plugin acceptance-gate --root "$RPC/mkt" --require skills/acceptance/references/judge-personas.md >/dev/null 2>&1
+check RP05 1 $?
+
 echo "U01 wf-usage.mjs unit suite (feature-loop/scripts — dedupe/label/totals/--latest)"
 UOUT="$(node "$HERE/wf-usage.test.mjs" 2>&1)"; UST=$?
 [ "$UST" -eq 0 ] || printf '%s\n' "$UOUT"

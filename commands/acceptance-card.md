@@ -13,10 +13,14 @@ Arg: a feature `<slug>` (the `_acceptance/<slug>/` directory). Repo root = cwd.
 
 Steps:
 
-1. **Find the script** in the installed acceptance-gate plugin (do NOT hardcode
-   version): `ls "$HOME"/.claude/plugins/cache/*/acceptance-gate/*/scripts/gate-card.js
-   "$HOME"/.codex/plugins/cache/*/acceptance-gate/*/scripts/gate-card.js 2>/dev/null`
-   → take the newest. `evidence-page.js` sits in the SAME `scripts/` dir. Not found → tell the user to install/update the plugin.
+1. **Find the script.** This command ships INSIDE acceptance-gate, so the
+   harness already hands you the root — use `${CLAUDE_PLUGIN_ROOT}/scripts/gate-card.js`
+   (`evidence-page.js` and `eval-coverage-lint.js` are its siblings). Never glob
+   the plugin cache for your own plugin: `ls` sorts lexically, so "newest" picks
+   1.9.2 over 1.20.1 and the card renders from an ancient release in silence.
+   The variable is unset (bare `node`, odd harness) → resolve once with
+   feature-loop's `scripts/resolve-plugin.mjs --plugin acceptance-gate --require
+   scripts/gate-card.js`; still nothing → tell the user to install/update the plugin.
 
 2. **Extract** the bits to translate (gate auto-detected: `evidence-report.md`
    present → Gate 2, else Gate 1):

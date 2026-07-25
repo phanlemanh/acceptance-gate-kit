@@ -38,7 +38,10 @@ build_acceptance() {
 build_feature_loop() {
   local out="$DEST/feature-loop-codex"
   rm -rf "$out"
-  mkdir -p "$out"
+  mkdir -p "$out/scripts"
+  # resolve-plugin.mjs has ONE source of truth (feature-loop/scripts) and ships in
+  # both editions — the Codex skill invokes it via ${PLUGIN_ROOT}.
+  rsync -a "$ROOT/feature-loop/scripts/resolve-plugin.mjs" "$out/scripts/"
   sync_overlay "$ROOT/codex/feature-loop-codex" "$out"
 }
 

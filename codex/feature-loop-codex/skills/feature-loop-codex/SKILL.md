@@ -39,12 +39,15 @@ Before starting:
    available when the loop will use Superpowers planning.
 3. Confirm `_acceptance/config.yaml` exists. If missing, stop and invoke the
    `acceptance-init` skill first.
-4. Locate acceptance templates, personas, and scripts in Codex cache without
-   hardcoding a version:
-   `~/.codex/plugins/cache/*/acceptance-gate/*/`.
-5. For web-UI work, locate design-loop when installed:
-   `~/.codex/plugins/cache/*/design-loop/*/`, or fall back to the repo-local
-   `design-loop/` directory when developing this kit from source.
+4. Locate acceptance templates, personas, and scripts with the resolver, never
+   a cache glob (`ls` is lexical: it ranks 1.9.2 above 1.20.1 and grades with an
+   ancient persona set in silence):
+   `node ${PLUGIN_ROOT}/scripts/resolve-plugin.mjs --plugin acceptance-gate
+   --require skills/acceptance/references/judge-personas.md`
+   → prints the version root. Non-zero exit carries the install command; STOP there.
+5. For web-UI work, resolve design-loop the same way
+   (`--plugin design-loop --require scripts/design-gate.mjs`), or fall back to the
+   repo-local `design-loop/` directory when developing this kit from source.
 6. Read repo guidance (`AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`) when present.
 7. Check `.codex/agents` for the balanced role policy. When it is missing and
    the user wants role-level budget routing, invoke the `feature-loop-model-init`
