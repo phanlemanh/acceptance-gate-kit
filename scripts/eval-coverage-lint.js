@@ -18,6 +18,9 @@
  *   W4  a criterion tagged (cross-layer) whose evals include NO member with
  *       `layer: backend-effect` (UI-only evidence for a UI→API→backend path;
  *       executor-type alone is spoofable by design-gate/VLM `script` evals)
+ *   W5  a contract whose `surfaces:` include mobile but carries no
+ *       "Mobile backend target: local|staging|mock" line — the Gate-1 human
+ *       cannot eyeball the V4 (mock-vs-real) risk of the paired backend eval
  *
  * ADVISORY by design: NL detection is fuzzy, so this never hard-blocks — it
  * exits 1 when it has warnings so a human reads them at Gate 1 (a repo MAY wire
@@ -139,6 +142,14 @@ function lintFeature(slug, contractText, evalsText) {
     }
   }
 
+  // W5 — mobile backend-target presence (advisory): the kit never verifies the
+  // VALUE (engine/binding split; a machine cannot check the word "real") — it
+  // only checks the line EXISTS so the Gate-1 human has something to eyeball.
+  if (/^surfaces:.*\bmobile\b/im.test(contractText)
+      && !/mobile backend target\s*:/i.test(contractText)) {
+    warns.push(`[${slug}] W5 surfaces include mobile but the contract has no "Mobile backend target:" line (## Notes) — declare local|staging|mock so the Gate-1 human can eyeball the V4 risk.`);
+  }
+
   const oos = outOfScopeBullets(contractText);
   const negCount = evals.filter(e => NEG_RE.test(e.expected)).length;
   if (oos > 0 && negCount === 0) {
@@ -183,7 +194,7 @@ function run(argv) {
   if (!warns.length) { console.log('eval-coverage-lint: no coverage gaps detected.'); return 0; }
   console.log(`eval-coverage-lint: ${warns.length} coverage warning(s) — ADVISORY, review at Gate 1 (not auto-blocking):\n`);
   for (const w of warns) console.log('  ' + w);
-  console.log('\nW1 = a bounded/threshold criterion needs a just-below should-NOT-fire (boundary) eval; W3 = give the out-of-scope half real negative evals; W4 = a (cross-layer) criterion needs a paired layer: backend-effect eval.');
+  console.log('\nW1 = a bounded/threshold criterion needs a just-below should-NOT-fire (boundary) eval; W3 = give the out-of-scope half real negative evals; W4 = a (cross-layer) criterion needs a paired layer: backend-effect eval; W5 = a mobile-surface contract needs a "Mobile backend target:" line.');
   return 1;
 }
 

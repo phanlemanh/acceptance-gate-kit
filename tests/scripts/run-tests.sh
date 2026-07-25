@@ -412,6 +412,75 @@ node "$LINT" "$T/lintI" >/dev/null; check L12 1 $?
 echo "L13 hash inside quoted value is data (marker after # kept) -> clean"
 node "$LINT" "$T/lintJ" >/dev/null; check L13 0 $?
 
+# Fixture K: surfaces include mobile, contract has NO "Mobile backend target:" line -> W5
+K="$T/lintK/_acceptance/feat-m1"; mkdir -p "$K"
+cat > "$K/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+surfaces: [api, mobile]
+---
+## Criteria
+- AC-1: Given user taps pay, When order submits, Then confirmation screen shows.
+## Out of scope
+EOF
+cat > "$K/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "exit 0; e2e mobile flow green"
+EOF
+
+# Fixture L: mobile + backend-target line in ## Notes -> clean
+L="$T/lintL/_acceptance/feat-m2"; mkdir -p "$L"
+cat > "$L/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+surfaces: [api, mobile]
+---
+## Criteria
+- AC-1: Given user taps pay, When order submits, Then confirmation screen shows.
+## Out of scope
+## Notes
+Mobile backend target: staging — shared QA backend, seeded nightly.
+EOF
+cat > "$L/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "exit 0; e2e mobile flow green"
+EOF
+
+# Fixture M: no mobile surface -> W5 never fires
+M="$T/lintM/_acceptance/feat-m3"; mkdir -p "$M"
+cat > "$M/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+surfaces: [api, ui]
+---
+## Criteria
+- AC-1: Given user taps pay, When order submits, Then confirmation screen shows.
+## Out of scope
+EOF
+cat > "$M/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "exit 0; flow green"
+EOF
+
+echo "L14 surfaces include mobile, no backend-target line -> warn (W5)"
+node "$LINT" "$T/lintK" >/dev/null; check L14 1 $?
+echo "L15 mobile + Mobile backend target line -> clean"
+node "$LINT" "$T/lintL" >/dev/null; check L15 0 $?
+echo "L16 no mobile surface -> W5 silent"
+node "$LINT" "$T/lintM" >/dev/null; check L16 0 $?
+
 echo ""
 echo "--- gate-card.js ---"
 GCARD="$HERE/../../scripts/gate-card.js"
