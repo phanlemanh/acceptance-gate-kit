@@ -5,7 +5,7 @@ determines who grades and what counts as evidence.
 
 | Executor | Surface | Grades | Evidence required |
 |---|---|---|---|
-| `test` | api / backend / sdk | Machine (exit code) | run_id, exit_code, verifier, verified_at |
+| `test` | api / backend / sdk / mobile flow (native E2E runner) | Machine (exit code) | run_id, exit_code, verifier, verified_at |
 | `script` | cli | Machine (exit code + output match) | run_id, exit_code, verifier, verified_at, output excerpt |
 | `ui-check` | web ui | Machine assertion + human glance | run_id, exit_code, verifier, verified_at, screenshot path |
 | `judgment` | any ("does this match business intent?") | Judge subagent → human | judged_by, verdict, rationale (+ human_override if UNCERTAIN) |
@@ -89,6 +89,10 @@ with no `layer: backend-effect` eval (W4); advisory, surfaced at Gate 1.
    criterion tagged `(cross-layer)` this rule picks the UI half only — pairing
    rule (c) (SKILL.md Phase 2) additionally REQUIRES a `layer: backend-effect`
    eval; a ui-check alone is never sufficient cross-layer evidence.
+3b. Criterion observable only through the MOBILE app → still `test`, bound to
+   `config:executors.test.e2e_mobile` — the runner's exit code is UI-LAYER
+   evidence only (see §Mobile mechanics below). Never `ui-check`: there is no
+   browser, no network log, no `network_observed` on this lane.
 4. Criterion containing words like "appropriate", "matches intent", "tone",
    "makes sense", or tagged `(judgment)` in the contract → `judgment`.
 4b. Criterion about **design / visual quality** on a web UI — accessibility
@@ -130,6 +134,31 @@ eval set MUST contain, besides the UI-half eval:
   baseline, run-log and carry-forward apply automatically since this is an
   ordinary machine eval.
 
+## Mobile mechanics — surface `mobile`
+
+Mobile flows are ordinary `test` evals — no new executor. The binding is
+`config:executors.test.e2e_mobile` (XCUITest: `xcodebuild test -project
+App.xcodeproj -scheme AppUITests -destination 'platform=iOS Simulator,name=…'`;
+Espresso: `./gradlew connectedAndroidTest`), so the machine lane's dedupe, A/B
+baseline, run-log and carry-forward all apply automatically.
+
+- **Evidence class:** the runner's exit code is UI-LAYER evidence only —
+  simulators have no network-reading path, so `network_observed` does not
+  exist on this lane. ALL cross-layer truth lives in the paired
+  `layer: backend-effect` eval; a `(cross-layer)` criterion with no pair is
+  BLOCKED at merge by `pre-merge-check.sh` (CI teeth of pairing rule (c)).
+- **Simulator absent on the verify machine** → the runner cannot start →
+  `cannotRun` → verdict BLOCKED, never a silent skip or a downgrade.
+- **Operational stance:** declare `paths:` on mobile evals (P1 carry-forward
+  skips the slow suite on delta rounds that do not touch the app); do NOT put
+  the mobile e2e command into `feature_loop.suite_keys` — a slow, flaky suite
+  re-run every round burns the 3-round cap.
+- **Backend target (V4 risk):** each mobile feature's contract carries one
+  line in `## Notes` — `Mobile backend target: local|staging|mock — <note>`.
+  Lint W5 checks the line EXISTS; the Gate-1 human eyeballs the VALUE (a mock
+  target means the paired eval proves the backend path, not the deployment).
+  The kit never machine-verifies "real" (engine/binding split).
+
 ## ui-check mechanics
 
 - **Capture a frame per state transition** — screenshot to
@@ -160,9 +189,12 @@ eval set MUST contain, besides the UI-half eval:
   numbers stay in the txt file — NEVER in the report (L1 CONSISTENCY blocks
   nonzero-exit tokens in a PASS report; word-vocab follows the
   `baseline: red/green/n-a` precedent). Drivers with no network path
-  (curl+grep SSR, capture-only, mobile simulators) record `n-a (driver)` —
-  the cross-layer burden then rests entirely on the paired
-  `layer: backend-effect` eval.
+  (curl+grep SSR, capture-only, a browser driven on a mobile simulator) record
+  `n-a (driver)` — the cross-layer burden then rests entirely on the paired
+  `layer: backend-effect` eval. NOTE: this covers a BROWSER driven in a mobile
+  environment (a web UI on a device/simulator). NATIVE app flows are not
+  `ui-check` at all — they take the `test` lane via
+  `config:executors.test.e2e_mobile` (see §Mobile mechanics).
   Accepted residual (deliberate stance): a background job/poller firing
   connection-errors/5xx into app scope during the drive window still FAILS the
   eval — an in-scope failure during the drive is never `clean`. That is a

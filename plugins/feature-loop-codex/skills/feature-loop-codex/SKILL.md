@@ -144,6 +144,12 @@ Derive two switches from artifacts; never store a separate design tier:
 User-facing lane names are **D0** = no CT1, **D1** = CT1 without CT2, and
 **D2** = CT1 plus CT2. They are presentation terms only.
 
+A `mobile` surface is NOT a web-UI surface: it never turns CT1/CT2 on
+(design-loop is web-only). Mobile flows take the ordinary `test` lane via
+`config:executors.test.e2e_mobile` (eval-executors §Mobile mechanics) — exit
+code is UI-layer evidence; the paired `layer: backend-effect` eval carries the
+cross-layer truth, and pre-merge blocks the merge when the pair is missing.
+
 At the end of S1, when CT1 is on and CT2 is off, ask one question: new surface
 or redesign → run the `design-mockup` skill and use D2; existing-surface tweak →
 use D1 static-only. Always record this lane decision in `decisions.jsonl`:

@@ -105,7 +105,8 @@ Steps:
 3. Fill **Out of scope** — minimum 2 bullets. An empty out-of-scope section
    means you have not thought about boundaries; dig for them.
 4. Set frontmatter: `risk_tier` (from Phase 0), `status: draft`,
-   `surfaces` (only surfaces this feature actually touches), and
+   `surfaces` (only surfaces this feature actually touches; `mobile` = native
+   E2E app flows — see eval-executors.md §Mobile mechanics), and
    `owner:` = the output of `git config user.email` (slug-ownership audit;
    empty when git has no identity — leave the field present).
 5. **STOP — Gate 1 part A.** Present the contract to the user verbatim.
@@ -305,6 +306,7 @@ Entry: implementation complete, contract `status: implemented`.
 | Hook L1 CONSISTENCY blocks an all-green PASS (stray exit=1 or verdict: FAIL token in pasted output) | Sanitize the output excerpt per template — verdict stays PASS; flip to REJECT only if an eval actually failed |
 | Driver cannot read network (curl+grep SSR runs no JS; mobile simulator; capture-only) | ui-check counts as UI-LAYER evidence only — `network_observed: n-a (driver)`; a `(cross-layer)` criterion REQUIRES its paired `layer: backend-effect` eval; missing pair → W4 + gap-probe + Gate-1 flag |
 | `dev_server.url` / `api_base` not (fully) configured — multi-origin app | network rail is note-only (`unscoped` / `unscoped-partial`), never FAILs |
+| Mobile e2e runner needs a simulator/emulator absent on the verify machine | cannotRun → BLOCKED + reason — never a silent skip or a downgrade |
 
 ## Anti-patterns
 

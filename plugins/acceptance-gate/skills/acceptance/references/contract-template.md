@@ -18,6 +18,12 @@ Frontmatter rules:
 - `time_human_minutes`: fill gate1 when approving, gate2 when signing off (pilot metric)
 - `gate1_skipped: true` may be added by the skill when the user insists on
   skipping Gate 1 (audit trail; discouraged)
+- `surfaces` may include `mobile`: app flows driven by the repo's native E2E
+  runner (XCUITest / Espresso / Maestro / Detox…). The runner's exit code is
+  UI-LAYER evidence only — a `(cross-layer)` criterion on mobile REQUIRES its
+  paired `layer: backend-effect` eval (pre-merge BLOCKS the merge otherwise),
+  and the contract's ## Notes carries a `Mobile backend target:
+  local|staging|mock` line (lint W5 checks presence; the human eyeballs the value)
 
 ---8<---
 ---
@@ -26,7 +32,7 @@ feature: {{one-line feature name}}
 slug: {{kebab-case-slug}}
 owner: {{git config user.email}}
 risk_tier: {{T2|T3}}
-surfaces: [{{api|cli|sdk|ui, comma-separated}}]
+surfaces: [{{api|cli|sdk|ui|mobile, comma-separated}}]
 status: draft
 approved_by:
 approved_at:
