@@ -104,6 +104,11 @@ Footer thêm định nghĩa W5. Fixtures fire/no-fire/no-mobile.
 `# e2e_mobile: "xcodebuild test -project App.xcodeproj -scheme AppUITests -destination 'platform=iOS Simulator,name=iPhone 16'"   # or: "./gradlew connectedAndroidTest" — exit code = UI-layer evidence only`
 kèm 1 câu nhắc quy ước backend-target per-feature.
 
+- **Gỡ nhập nhằng với rail network wave 1:** bullet Network truth trong
+  §ui-check mechanics nói `mobile simulators` — làm rõ thành "browser chạy trên
+  mobile simulator" (web UI); flow app NATIVE không phải ui-check mà đi làn
+  `test` qua `config:executors.test.e2e_mobile`.
+
 ### 3.2 Răng CI — VIOLATION cặp-eval trong `pre-merge-check.sh`
 
 Vị trí: vòng per-slug hiện có, SAU block Gate-1 (`approved_by`/`gate1_skipped`),
