@@ -20,6 +20,10 @@ Steps:
      `bypass_used`, `bypass_ack`, `failed_evals`;
    - `run-log.jsonl` when present: line count (machine-run volume) and, when
      cheap, the report's Iterations section for verify rounds;
+   - `evidence-report.md` body when present: every `network_observed:` value —
+     first token after the colon, quotes stripped; values starting `n-a` all
+     count into the `n-a` bucket (covers `n-a (driver)` and `n-a (tool-error:
+     …)`);
    - `_acceptance/config.yaml`: `baseline_minutes`.
 2. **Per feature compute:** total human minutes (gate1+gate2; absent/0 →
    "chưa ghi"), verify rounds, and flags:
@@ -39,6 +43,12 @@ Steps:
      which inputs are missing).
    - Hygiene counts: gate1_skipped · un-acked bypasses · non-strict reports ·
      stale-evidence features · features with minutes chưa ghi.
+   - Network truth (advisory rail): `clean N · app-fail N · no-app-traffic N ·
+     third-party-only N · n-a N · unscoped N · unscoped-partial N — K features
+     with data`. One action line per feature carrying `app-fail` (an in-scope
+     failure was recorded) or `no-app-traffic` on a `(cross-layer)` criterion
+     (dead-button signal). When K ≥ 5, add: "đủ mẫu vận hành — cân nhắc
+     máy-kiểm hóa network (schema v3, spec wave 2 §5)".
    - Action items: one actionable line per hygiene hit (e.g. "2 contracts
      thiếu `time_human_minutes` — điền lúc duyệt/ký; số liệu KPI đang mù").
 4. `_acceptance/` missing → suggest `/acceptance-init`. No features → say so.
