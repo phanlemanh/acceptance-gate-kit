@@ -571,6 +571,36 @@ payload Write "$REPORT_PATH" "$OBS_V2
   observed: ok
   notes: sibling field text long enough that counting it would fake a pass" | node "$HOOK" >/dev/null 2>/dev/null; check T42 2 $?
 
+# ─── Gap-probe presence guard (T60+) ────────────────────────────────────────
+GPD="$HERE/fixtures/gapprobe"
+# mk_gp <case> <tier|-> <expected:yes|no> <verdict|-|touch> <descope:yes|no|upper>
+# Dựng thư mục workspace rồi ECHO ra nội dung contract.md để nhét vào payload.
+mk_gp() {
+  local d="$GPD/$1"; rm -rf "$d"; mkdir -p "$d"
+  case "$4" in
+    -)     : ;;
+    touch) : > "$d/gap-probe.md" ;;
+    *)     printf -- '---\nslug: x\nverdict: %s\n---\n' "$4" > "$d/gap-probe.md" ;;
+  esac
+  case "$5" in
+    yes)   printf '%s\n' '{"id":"d-1","type":"descope","decision":"bỏ gap-probe — quá nhỏ"}' > "$d/decisions.jsonl" ;;
+    upper) printf '%s\n' '{"id":"d-2","type":"descope","decision":"  Bỏ gap-probe — viết hoa"}' > "$d/decisions.jsonl" ;;
+  esac
+  printf -- '---\nschema_version: 1\nslug: x\n'
+  [ "$2" != "-" ] && printf 'risk_tier: %s\n' "$2"
+  [ "$3" = "yes" ] && printf 'gap_probe_expected: true\n'
+  printf 'status: approved\napproved_by: Tester\napproved_at: 2026-07-26\n---\n'
+}
+gp_run() { payload Write "$GPD/$1/contract.md" "$2" | node "$HOOK" >/dev/null 2>"$GPD/$1.err"; }
+
+echo "T60 T1 tier -> bỏ qua hoàn toàn (exit 0, stderr không nhắc gap-probe)"
+C="$(mk_gp t60 T1 yes - no)"; gp_run t60 "$C"; check T60 0 $?
+grep -qi "gap-probe" "$GPD/t60.err" && check T60-silent 0 1 || check T60-silent 0 0
+
+echo "T61 contract KHÔNG có risk_tier -> bỏ qua hoàn toàn"
+C="$(mk_gp t61 - yes - no)"; gp_run t61 "$C"; check T61 0 $?
+grep -qi "gap-probe" "$GPD/t61.err" && check T61-silent 0 1 || check T61-silent 0 0
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1

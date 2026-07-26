@@ -135,7 +135,15 @@ process.stdin.on('end', () => {
     const fileDir = path.dirname(filePath);
 
     if (isContract) {
-      const cr = core.evaluateContractWrite(payload, existing);
+      const cr = core.evaluateContractWrite(payload, existing, { fileDir });
+      // NOTE là kênh RIÊNG với block: nó luôn in ra stderr rồi cho ghi tiếp.
+      // Một cảnh báo không được đổi exit code — nếu không, "nhắc" và "chặn"
+      // nhập làm một và AC-3/AC-5/AC-7 không tồn tại được.
+      if (cr.notes && cr.notes.length) {
+        process.stderr.write(
+          '\nNOTE from acceptance-evidence-gate (Gate-1 contract guard)\n'
+          + cr.notes.map(n => `  - ${n}`).join('\n') + '\n\n');
+      }
       if (!cr.anyFailure) {
         process.stdout.write(data);
         process.exit(0);
