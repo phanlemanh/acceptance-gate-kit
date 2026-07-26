@@ -2334,6 +2334,34 @@ hasout RL1f "pre-merge-check: rules ran=3 declared-off=0 expected=3" "$RL1"
 # RL3c (âm, AC-3): luật KHÔNG tắt thì KHÔNG được có dòng declared-off nào
 same RL3c 0 "$(printf '%s\n' "$RL1" | grep -c '^declared-off ')"
 
+echo "RL3a co --no-t1-escape -> dong so NGUYEN VAN 'declared-off t1-escape'"
+rl_repo rl3a
+RL3A="$(bash "$CHECK" "$TE_R" --base "$TE_B" --no-t1-escape 2>&1)"; check RL3a1 0 $?
+same RL3a2 1 "$(printf '%s\n' "$RL3A" | grep -cx 'declared-off t1-escape')"
+same RL3a3 0 "$(printf '%s\n' "$RL3A" | grep -cx 'ran t1-escape')"
+hasout RL3a4 "pre-merge-check: rules ran=2 declared-off=1 expected=3" "$RL3A"
+hasout RL3a5 "pre-merge-check: clean" "$RL3A"
+
+echo "RL3b gap_probe: off trong config -> 'declared-off gap-probe'"
+rl_repo rl3b
+printf 'gap_probe: off\n' >> "$TE_R/_acceptance/config.yaml"
+git -C "$TE_R" add -A >/dev/null
+git -c user.email=t@t -c user.name=t -C "$TE_R" commit -qm cfg
+RL3B="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"; check RL3b1 0 $?
+same RL3b2 1 "$(printf '%s\n' "$RL3B" | grep -cx 'declared-off gap-probe')"
+same RL3b3 0 "$(printf '%s\n' "$RL3B" | grep -cx 'ran gap-probe')"
+hasout RL3b4 "pre-merge-check: rules ran=2 declared-off=1 expected=3" "$RL3B"
+hasout RL3b5 "pre-merge-check: clean" "$RL3B"
+
+echo "RL4 khong --base + advisory -> exit Y HET TE18k, so khop qua marker"
+rl_repo rl4
+RL4="$(bash "$CHECK" "$TE_R" 2>&1)"; check RL4a 0 $?
+same RL4b 1 "$(printf '%s\n' "$RL4" | grep -cx 'declared-off gap-probe')"
+same RL4c 1 "$(printf '%s\n' "$RL4" | grep -cx 'declared-off t1-escape')"
+same RL4d 1 "$(printf '%s\n' "$RL4" | grep -cx 'ran per-slug')"
+hasout RL4e "pre-merge-check: rules ran=1 declared-off=2 expected=3" "$RL4"
+hasout RL4f "pre-merge-check: clean" "$RL4"
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
