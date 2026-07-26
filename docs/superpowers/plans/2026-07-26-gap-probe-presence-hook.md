@@ -1,3 +1,11 @@
+> **⛔ SUPERSEDED — KHÔNG THỰC THI PLAN NÀY.**
+> Plan này dựng luật gap-probe trong hook write-time. Kiến trúc đó đã bị GỠ khỏi
+> `main` sau 3 vòng S4 (19 finding, 2 lỗ HIGH không đóng được: đầu vào của guard
+> nằm trong artifact đang bị ghi; kênh NOTE `stderr + exit 0` không giao được).
+> Bản thay thế: [2026-07-26-gap-probe-premerge.md](2026-07-26-gap-probe-premerge.md).
+> Xem `_acceptance/gap-probe-presence-hook/decisions.jsonl` d-20260726T180000Z-114.
+> Giữ lại làm hồ sơ vì sao — đừng xoá.
+
 # Gap-Probe Presence Hook — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
