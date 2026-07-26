@@ -1,11 +1,11 @@
 # Thông điệp hook gap-probe guard — trích từ stderr THẬT, không chép tay.
-# Sinh lại: Task 5, docs/superpowers/plans/2026-07-26-gap-probe-presence-hook.md
+# Sinh lại: GAPPROBE_FIXTURE_DIR=/tmp/gpgen bash tests/hooks/run-tests.sh
 
 ── case t65 ──
 
 BLOCKED by acceptance-evidence-gate (Gate-1 contract guard)
-File: /Users/manhphan/dev/acceptance-gate-kit/tests/hooks/fixtures/gapprobe/_acceptance/t65/contract.md
-Enforcement: strict (from /Users/manhphan/dev/acceptance-gate-kit/_acceptance/config.yaml)
+File: /tmp/gpgen/_acceptance/t65/contract.md
+Enforcement: strict (default — no config.yaml found)
 
 GATE-1 CONTRACT GUARD — violations:
   x gap-probe.md thiếu (hoặc verdict không đọc được) và ledger không có entry descope "bỏ gap-probe" — contract T3 không được duyệt khi chưa qua phản biện context sạch. Chạy bước S1#7 (phản biện context sạch) để sinh gap-probe.md, HOẶC ghi vào decisions.jsonl một entry {"type":"descope","decision":"bỏ gap-probe — <lý do>"}.
@@ -39,4 +39,20 @@ NOTE from acceptance-evidence-gate (Gate-1 contract guard)
 
 NOTE from acceptance-evidence-gate (Gate-1 contract guard)
   - gap-probe.md có verdict: probe-failed — phản biện KHÔNG chạy được. Duyệt lúc này nghĩa là duyệt mà chưa có phản biện context sạch. Chạy lại bước S1#7 nếu muốn có phản biện, hoặc duyệt tiếp và chấp nhận rủi ro đó (quyết định đã hiện ở đây, không âm thầm).
+
+
+── case t74 ──
+
+BLOCKED by acceptance-evidence-gate (Gate-1 contract guard)
+File: /tmp/gpgen/_acceptance/t74/contract.md
+Enforcement: strict (default — no config.yaml found)
+
+GATE-1 CONTRACT GUARD — violations:
+  x gap-probe.md thiếu (hoặc verdict không đọc được) và ledger không có entry descope "bỏ gap-probe" — contract T3 không được duyệt khi chưa qua phản biện context sạch. Chạy bước S1#7 (phản biện context sạch) để sinh gap-probe.md, HOẶC ghi vào decisions.jsonl một entry {"type":"descope","decision":"bỏ gap-probe — <lý do>"}.
+
+Gate-1 lifecycle reference:
+  status: approved / signed-off        -> requires approved_by: <name> (+ approved_at)
+  draft -> implemented / verified      -> requires the approved step (Gate 1) first
+  User explicitly skipped Gate 1       -> record gate1_skipped: true (audited; pre-merge NOTEs it)
+Legacy bypass: ACCEPTANCE_GATE_BYPASS=1
 
