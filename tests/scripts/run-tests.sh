@@ -2453,6 +2453,53 @@ hasout RL5a3 'LEDGER_K=$#' "$RL5K"
 nothas RL5a4 'LEDGER_RAN_N' "$RL5K"
 nothas RL5a5 'LEDGER_OFF_N' "$RL5K"
 
+echo "RL11a enforcement off -> so tat theo, KHONG dong ledger nao (AC-11)"
+rl_repo rl11a
+printf 'enforcement: off\n' >> "$TE_R/_acceptance/config.yaml"
+git -C "$TE_R" add -A >/dev/null
+git -c user.email=t@t -c user.name=t -C "$TE_R" commit -qm enf
+RL11A="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"; check RL11a1 0 $?
+same   RL11a2 0 "$(printf '%s\n' "$RL11A" | grep -cE '^(ran|declared-off) ')"
+nothas RL11a3 "pre-merge-check: rules ran=" "$RL11A"
+hasout RL11a4 "pre-merge-check: clean" "$RL11A"
+
+echo "RL11b enforcement warn KHONG ha diem nghen — so lech van exit 2 (AC-11)"
+mk_gp_repo rl11b; R="$GPR/rl11b"; RL11_B="$GP_BASE"
+gp_feature "$R" feat-w T3 implemented
+printf 'enforcement: warn\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+RL11CP="$RLCP/scripts/rl11-check.sh"; cp "$CHECK" "$RL11CP"
+RL11OK="$(bash "$RL11CP" "$R" --base "$RL11_B" 2>&1)"; check RL11ctrl 0 $?
+hasout RL11ctrl2 "pre-merge-check: rules ran=" "$RL11OK"   # warn KHONG tat so
+sed 's|^for dir in "\$ACC"/\*/; do$|for dir in "$ACC"/khong-ton-tai-*/; do|' "$CHECK" > "$RL11CP"
+RL11B="$(bash "$RL11CP" "$R" --base "$RL11_B" 2>&1)"; check RL11b1 2 $?
+hasout RL11b2 "VIOLATION [ledger]: luật per-slug không chạy và không khai tắt" "$RL11B"
+
+echo "RL12 node vang o advisory -> declared-off gap-probe qua *_not_enforced (AC-12)"
+mk_gp_repo rl12; R="$GPR/rl12"; RL12_B="$GP_BASE"
+gp_feature "$R" feat-n T3 implemented; gp_commit "$R"
+RL12OK="$(bash "$CHECK" "$R" --base "$RL12_B" 2>&1)"; check RL12ctrl 0 $?
+same RL12ctrl2 1 "$(printf '%s\n' "$RL12OK" | grep -cx 'ran gap-probe')"   # doi chung: CO node -> ran
+NOB="$T/rl12-bin"; rm -rf "$NOB"; mkdir -p "$NOB"
+for b in bash sh sed awk grep head tail sort tr cut basename dirname wc cat git env uname date diff mktemp rm; do
+  p="$(command -v "$b" 2>/dev/null)"; [ -n "$p" ] && ln -sf "$p" "$NOB/$b"
+done
+# Chot fixture: PATH cat DUNG la khong co node (neu con node thi ca case do
+# nghia — no se do `ran gap-probe` va RL12b/c bat ngay, nhung noi ro o day).
+# Do trong TIEN TRINH MOI, dung nhu lan chay that ben duoi: bash cache duong
+# dan lenh trong hash table cua CHINH tien trinh no, nen `command -v node` o
+# shell suite (da chay node hang chuc lan) van tra ve duong dan cu bat ke PATH.
+if env PATH="$NOB" bash -c 'command -v node' >/dev/null 2>&1; then
+  echo "     PATH cat VAN con node — fixture hong"; check RL12fix 0 1
+else
+  check RL12fix 0 0
+fi
+RL12OUT="$(env PATH="$NOB" bash "$CHECK" "$R" --base "$RL12_B" 2>&1)"; RL12ST=$?
+check  RL12a 0 "$RL12ST"
+same   RL12b 1 "$(printf '%s\n' "$RL12OUT" | grep -cx 'declared-off gap-probe')"
+same   RL12c 0 "$(printf '%s\n' "$RL12OUT" | grep -cx 'ran gap-probe')"
+hasout RL12d "GAP-PROBE: NOT ENFORCED" "$RL12OUT"
+hasout RL12e "pre-merge-check: clean" "$RL12OUT"
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
