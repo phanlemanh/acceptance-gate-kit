@@ -633,6 +633,19 @@ C="$(mk_gp t68 T3 yes touch no)"; gp_run t68 "$C"; check T68 2 $?
 echo "T69 T2 + marker + gap-probe.md RỖNG -> NOTE (không chặn ở T2)"
 C="$(mk_gp t69 T2 yes touch no)"; gp_run t69 "$C"; check T69 0 $?
 
+echo "T70 T3 thiếu file NHƯNG ledger có descope 'bỏ gap-probe' -> cho qua + NOTE trỏ id"
+C="$(mk_gp t70 T3 yes - yes)"; gp_run t70 "$C"; check T70 0 $?
+grep -q "d-1" "$GPD/t70.err" && check T70-id 0 0 || check T70-id 0 1
+
+echo "T71 descope viết HOA + thụt đầu dòng -> vẫn khớp (cùng luật /i với card)"
+C="$(mk_gp t71 T3 yes - upper)"; gp_run t71 "$C"; check T71 0 $?
+grep -q "d-2" "$GPD/t71.err" && check T71-id 0 0 || check T71-id 0 1
+
+echo "T72 ledger có dòng JSON hỏng + entry descope hợp lệ -> vẫn khớp (parse khoan dung)"
+C="$(mk_gp t72 T3 yes - no)"
+printf '%s\n' 'khong-phai-json' '{"id":"d-9","type":"descope","decision":"bỏ gap-probe — ok"}' > "$GPD/t72/decisions.jsonl"
+gp_run t72 "$C"; check T72 0 $?
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
