@@ -83,5 +83,7 @@ fi
 
 # Đọc thẳng từ manifest thay vì ghim literal — đúng lớp rot vừa gỡ khỏi P03/P22,
 # để lại đây thì script báo một số hiệu không tồn tại.
-_v() { node -e 'process.stdout.write(require(process.argv[1]).version)' "$ROOT/$1" 2>/dev/null || echo '?'; }
+# Khong nuot loi thanh '?': manifest doi ten / node vang / JSON hong phai NO,
+# vi dong nay la thu duy nhat nguoi van hanh doc de biet vua dung goi ban nao.
+_v() { node -e 'process.stdout.write(require(process.argv[1]).version)' "$ROOT/$1"; }
 echo "Synced Codex packages: acceptance-gate@$(_v .codex-plugin/plugin.json) feature-loop-codex@$(_v feature-loop/.claude-plugin/plugin.json) design-loop@$(_v design-loop/.codex-plugin/plugin.json)"

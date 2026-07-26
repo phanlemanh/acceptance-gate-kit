@@ -704,12 +704,17 @@ if [ ! -f "$P46T/scripts/sync-plugin-packages.sh" ]; then
   fail "P46 fixture hong"
 else
   printf '\n// tiêm P46\n' >> "$P46T/plugins/acceptance-gate/lib/gap-probe.js"
-  bash "$P46T/scripts/sync-plugin-packages.sh" --chek >/dev/null 2>&1; P46ST=$?
-  P46LEFT="$(grep -c 'tiêm P46' "$P46T/plugins/acceptance-gate/lib/gap-probe.js" 2>/dev/null || echo 0)"
-  if [ "$P46ST" -eq 2 ] && [ "$P46LEFT" = "1" ]; then
-    pass "P46 mode la bi tu choi va KHONG ghi de"
+  # DOI CHUNG DUONG: --check that su con song trong ban sao (phai DO vi vua tiem)
+  if bash "$P46T/scripts/sync-plugin-packages.sh" --check >/dev/null 2>&1; then
+    fail "P46 doi chung duong that bai — --check khong bat duoc drift vua tiem"
   else
-    fail "P46 mode la bi tu choi va KHONG ghi de (exit=$P46ST con_lai=$P46LEFT)"
+    P46OUT="$(bash "$P46T/scripts/sync-plugin-packages.sh" --chek 2>&1)"; P46ST=$?
+    P46LEFT="$(grep -c 'tiêm P46' "$P46T/plugins/acceptance-gate/lib/gap-probe.js" 2>/dev/null || echo 0)"
+    if [ "$P46ST" -eq 2 ] && [ "$P46LEFT" = "1" ] && printf '%s' "$P46OUT" | grep -q 'unknown option'; then
+      pass "P46 mode la: exit 2, ghim thong diep, KHONG ghi de"
+    else
+      fail "P46 mode la: exit 2, ghim thong diep, KHONG ghi de (exit=$P46ST con_lai=$P46LEFT out=$P46OUT)"
+    fi
   fi
 fi
 rm -rf "$P46T"

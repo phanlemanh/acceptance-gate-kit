@@ -2271,11 +2271,15 @@ hasout TE18b "unknown option" "$TE18"
 nothas TE18c "nothing to check" "$TE18"
 # MOT gach cung la loi go — ban chi bat `--*` de lot `-no-t1-escape` y nguyen
 TE18D="$(bash "$CHECK" "$R" -no-t1-escape --base "$GP_BASE" 2>&1)"; check TE18d 2 $?
+hasout TE18d2 "unknown option -no-t1-escape" "$TE18D"
 nothas TE18e "nothing to check" "$TE18D"
-# positional thu hai am tham doi ROOT
-TE18F="$(bash "$CHECK" "$R" extra --base "$GP_BASE" 2>&1)"; check TE18f 2 $?
-# ROOT khong ton tai phai no, khong duoc roi vao "nothing to check"
+# Positional thu hai: dung mot thu muc CO THAT, neu khong exit 2 roi ra tu chot
+# `-d` khac va case nay xanh ngay ca khi chot ROOT_SET bi go (da kiem bang dot
+# bien — dung lop loi ma CLAUDE.md bat biren #4 cam).
+TE18F="$(bash "$CHECK" "$R" "$R" --base "$GP_BASE" 2>&1)"; check TE18f 2 $?
+hasout TE18f2 "unexpected argument" "$TE18F"
 TE18G="$(bash "$CHECK" "$GPR/khong-ton-tai" --base "$GP_BASE" 2>&1)"; check TE18g 2 $?
+hasout TE18g2 "root not a directory" "$TE18G"
 
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"

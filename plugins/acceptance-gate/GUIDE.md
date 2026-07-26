@@ -563,12 +563,21 @@ acceptance-gate:
       with: { fetch-depth: 0 }   # cần lịch sử để kiểm verified_commit + chữ ký
     - run: bash scripts/pre-merge-check.sh . --base "origin/$GITHUB_BASE_REF"
 
-# Job chạy trên `push` (không phải PR): thêm --no-t1-escape. Răng T1-escape đòi
-# thay đổi phải kèm _acceptance/<slug>/ — tiền đề đó sai với commit đóng gói bản
-# phát hành / đồng bộ bản sao trên nhánh chính, để nguyên là job đỏ vĩnh viễn.
-# VẪN giữ --base: luật gap-probe cần phạm vi diff. Xem docs/adr/0005.
+```
+
+Job chạy trên `push` (không phải PR) cần một bước RIÊNG — và phải chép lại
+`scripts/pre-merge-check.sh` từ plugin trước, vì bản cũ nuốt cờ lạ thành đường
+dẫn rồi thoát 0 với TOÀN BỘ cổng không chạy (cần acceptance-gate 1.21.0+):
+
+```bash
 bash scripts/pre-merge-check.sh . --base "$(git rev-parse HEAD~1)" --no-t1-escape
 ```
+
+Răng T1-escape đòi thay đổi phải kèm `_acceptance/<slug>/` — tiền đề đó sai với
+commit đóng gói bản phát hành / đồng bộ bản sao trên nhánh chính, để nguyên là
+job đỏ vĩnh viễn. VẪN giữ `--base`: luật gap-probe cần phạm vi diff. Xem
+[ADR 0005](docs/adr/0005-t1-escape-opt-out-flag.md).
+
 
 `--base` bật **backstop chống né T1**: PR đổi code gated mà không mang artifact
 `_acceptance/` nào → VIOLATION. Không truyền base → backstop chỉ in NOTE (chủ đích,
