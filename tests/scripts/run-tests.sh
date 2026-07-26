@@ -1899,6 +1899,12 @@ gp_feature "$R/pkg" feat-x T3 implemented
 git -C "$R" add -A >/dev/null; git -c user.email=t@t -c user.name=t -C "$R" commit -qm feat
 GPM14="$(bash "$CHECK" "$R/pkg" --base "$GPM14_B" 2>&1)"; check GPM14 1 $?
 hasout GPM14a "phản biện" "$GPM14"
+# AC-18 (khai lại đích danh, contract v3-r2): hình dạng path KHÔNG được làm luật
+# tắt im lặng. Bản v2 neo `^` nên monorepo thấy luật tắt hoàn toàn — và bộ eval
+# v3 đã đánh rơi chính răng này (gap-probe P0-1). Assert VIOLATION chứ không chỉ
+# "có chữ phản biện": một marker NOT ENFORCED cũng chứa chữ đó.
+hasout GPM14b "VIOLATION [feat-x]" "$GPM14"
+nothas GPM14c "GAP-PROBE: NOT ENFORCED" "$GPM14"
 
 echo "GPM15 git diff FAIL (lich su roi nhau) -> phai BAO BO QUA, khong tin pham vi rong"
 R="$GPR/gpm15"; rm -rf "$R"; mkdir -p "$R/_acceptance/feat-b" "$R/src"
@@ -1917,8 +1923,14 @@ GPM15_ORPH="$(git -C "$R" rev-parse HEAD)"
 git -C "$R" checkout -q "$GPM15_MAIN"
 gp_feature "$R" feat-b T3 implemented
 git -C "$R" add -A >/dev/null; git -c user.email=t@t -c user.name=t -C "$R" commit -qm feat
-GPM15="$(bash "$CHECK" "$R" --base "$GPM15_ORPH" 2>&1)"
-hasout GPM15 "skipped" "$GPM15"
+# AC-17 (khai lại đích danh, contract v3-r2): `git diff` thoát != 0 thì phạm vi
+# là KHÔNG BIẾT, không phải "rỗng". Bản v2 chỉ đòi in "skipped" rồi exit 0 —
+# fail-open có tiếng động. Ở mode required nay là VIOLATION.
+GPM15="$(bash "$CHECK" "$R" --base "$GPM15_ORPH" 2>&1)"; GPM15ST=$?
+hasout GPM15  "GAP-PROBE: NOT ENFORCED reason=" "$GPM15"
+hasout GPM15b "git diff" "$GPM15"
+check  GPM15c 1 "$GPM15ST"
+nothas GPM15d "pre-merge-check: clean" "$GPM15"
 
 # Parity thẻ↔pre-merge phải kiểm TRỌN không gian hoa/thường + khoảng trắng, không
 # chỉ một ca. Bản trước chỉ có "  Bỏ gap-probe" nên lệch 3/5 ca mà test vẫn xanh:
