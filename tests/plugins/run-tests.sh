@@ -553,12 +553,24 @@ done
 # ở luật khác — case này chứng minh luật khác đó thật sự sống.
 echo "P41 sua tay mirror -> sync --check VAN do"
 P41T="$(mktemp -d)"
-cp -R "$ROOT/." "$P41T/" 2>/dev/null || true
-printf '\n// tiêm\n' >> "$P41T/plugins/acceptance-gate/lib/gap-probe.js"
-if bash "$P41T/scripts/sync-plugin-packages.sh" --check >/dev/null 2>&1; then
-  fail "P41 mirror drift phai bi bat"
+# KHONG nuot loi cua cp: fixture hong ma van "pass" vi sync tra exit 127 la
+# xanh-rong. Phai co doi chung duong (fixture dung) truoc khi tin doi chung am.
+cp -R "$ROOT/." "$P41T/"
+if [ ! -f "$P41T/scripts/sync-plugin-packages.sh" ] || [ ! -f "$P41T/plugins/acceptance-gate/lib/gap-probe.js" ]; then
+  fail "P41 fixture hong (thieu file sau khi cp)"
 else
-  pass "P41 mirror drift phai bi bat"
+  # doi chung DUONG: ban sao nguyen ven phai XANH
+  if bash "$P41T/scripts/sync-plugin-packages.sh" --check >/dev/null 2>&1; then
+    printf '\n// tiêm\n' >> "$P41T/plugins/acceptance-gate/lib/gap-probe.js"
+    P41OUT="$(bash "$P41T/scripts/sync-plugin-packages.sh" --check 2>&1)"; P41ST=$?
+    if [ "$P41ST" -ne 0 ] && printf '%s' "$P41OUT" | grep -q 'gap-probe.js'; then
+      pass "P41 mirror drift bi bat va NEU TEN file lech"
+    else
+      fail "P41 mirror drift bi bat va NEU TEN file lech (exit=$P41ST out=$P41OUT)"
+    fi
+  else
+    fail "P41 doi chung duong that bai — ban sao nguyen ven da lech san"
+  fi
 fi
 rm -rf "$P41T"
 
@@ -613,9 +625,19 @@ from pathlib import Path
 wf = (Path(sys.argv[1]) / ".github/workflows/gate.yml").read_text()
 assert "--no-t1-escape" in wf, "nhanh push phai tat rang T1-escape"
 # Nhanh PR KHONG duoc mang co: tien de "PR phai kem artifact" dung o do.
-pr_lines = [l for l in wf.splitlines() if "base_ref" in l]
-assert pr_lines, "khong thay nhanh pull_request"
-assert not any("--no-t1-escape" in l for l in pr_lines), "nhanh PR khong duoc tat rang"
+# Loc theo DONG GAN T1_ESCAPE_FLAG, khong theo base_ref: nhanh PR dat co tren
+# mot dong KHONG chua base_ref, nen assert cu khong the do (da kiem bang dot
+# bien: doi nhanh PR thanh --no-t1-escape van xanh). Cung lop loi voi P43.
+flag_lines = [l.strip() for l in wf.splitlines() if "T1_ESCAPE_FLAG=" in l]
+assert len(flag_lines) == 2, f"phai co dung 2 nhanh gan co, thay: {flag_lines}"
+on  = [l for l in flag_lines if "--no-t1-escape" in l]
+off = [l for l in flag_lines if "--no-t1-escape" not in l]
+assert len(on) == 1 and len(off) == 1, f"dung MOT nhanh tat, MOT nhanh giu bat: {flag_lines}"
+# nhanh tat phai nam trong ve `else` (push); nhanh giu bat trong ve pull_request
+i_if = wf.index('github.event_name }}" = "pull_request"')
+i_else = wf.index("else", i_if)
+i_on = wf.index(on[0])
+assert i_on > i_else, "nhanh TAT rang phai o ve else (push), khong phai ve pull_request"
 # Khong loi goi pre-merge-check nao duoc thieu base: thieu base la VIOLATION
 # gap-probe theo docs/adr/0004.
 assert "PRE_MERGE_BASE" in wf, "phai resolve base cho moi su kien"

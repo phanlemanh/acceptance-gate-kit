@@ -6,4 +6,6 @@ VIOLATION [PR]: T3 paths (t3_paths) changed but the PR carries NO _acceptance/<s
 
 == fixture tat (rang yes) ==
 T1-ESCAPE: NOT ENFORCED reason=push-event-no-pr-premise
+NOTE: lớp đang tắt là răng T1-escape — luật đòi mọi thay đổi chạm code quan trọng phải kèm thư mục _acceptance/<slug>/ (hồ sơ nghiệm thu). Nó chỉ có nghĩa khi so một PR với nhánh đích; lần chạy này là commit đẩy thẳng nhánh chính, nơi commit hạ tầng (đóng gói bản phát hành, đồng bộ bản sao) theo thiết kế không kèm hồ sơ nào.
+NOTE: rủi ro khi tắt — nếu một thay đổi chạm code quan trọng lọt vào lần chạy này, nó sẽ KHÔNG bị chặn vì thiếu hồ sơ nghiệm thu. Các luật khác vẫn chạy đủ (phản biện context sạch, chữ ký người, bằng chứng hết hạn). Muốn bật lại: bỏ cờ --no-t1-escape.
 pre-merge-check: T1-escape: KHÔNG cưỡng chế trong lần chạy này (xem dòng marker NOT ENFORCED ở trên)

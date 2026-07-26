@@ -2204,9 +2204,9 @@ te_msg_run() { # <nhãn> <có cờ: yes|no>
   te_repo "msg$1" src/app.js
   printf '\n== fixture %s (rang %s) ==\n' "$1" "$2"
   if [ "$2" = "yes" ]; then
-    bash "$CHECK" "$TE_R" --base "$TE_B" --no-t1-escape 2>&1 | grep -E 'T1-ESCAPE|T1-escape|VIOLATION \[PR\]'
+    bash "$CHECK" "$TE_R" --base "$TE_B" --no-t1-escape 2>&1 | grep -E 'T1-ESCAPE|T1-escape|VIOLATION \[PR\]|^NOTE: (lớp đang tắt|rủi ro khi tắt)'
   else
-    bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1 | grep -E 'T1-ESCAPE|T1-escape|VIOLATION \[PR\]'
+    bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1 | grep -E 'T1-ESCAPE|T1-escape|VIOLATION \[PR\]|^NOTE: (lớp đang tắt|rủi ro khi tắt)'
   fi
 }
 TE17NEW="$(mktemp)"
@@ -2262,6 +2262,13 @@ nothas TE16b "VIOLATION [PR]" "$TE16_ON"
 # AC-17: violation con lai phai duoc NEU TEN, va fixture PHAI con verified_commit
 hasout TE16c "evidence is stale" "$TE16_ON"
 hasout TE16d "verified_commit" "$(cat "$TE16R/_acceptance/feat-done/evidence-report.md")"
+
+echo "TE18 co la = loi cung, KHONG duoc nuot thanh ROOT"
+mk_gp_repo te18; R="$GPR/te18"; gp_feature "$R" feat-w T3 implemented; gp_commit "$R"
+TE18="$(bash "$CHECK" "$R" --no-t1escape --base "$GP_BASE" 2>&1)"; TE18ST=$?
+check  TE18a 2 "$TE18ST"
+hasout TE18b "unknown option" "$TE18"
+nothas TE18c "nothing to check" "$TE18"
 
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"

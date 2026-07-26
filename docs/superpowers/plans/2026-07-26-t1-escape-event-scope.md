@@ -451,7 +451,7 @@ PY
 ### Task 7: End-to-end — đo TRIỆU CHỨNG GỐC
 
 **Files:** Test: `tests/scripts/run-tests.sh` (`TE16`)
-**Evals phục vụ:** E17 (AC-16)
+**Evals phục vụ:** E17 (AC-16), E18 (AC-17)
 **independent:** `false`
 
 Đây là AC duy nhất đo **mục tiêu** chứ không đo hành vi của cờ. Không có nó, feature có thể 16 eval xanh mà cổng vẫn đỏ trên main.
@@ -571,7 +571,7 @@ bash scripts/pre-merge-check.sh . --base 9b545a8
 
 ## Self-Review
 
-**Spec coverage — 16 AC:**
+**Độ phủ contract — 17 AC** (AC-16 viết lại + AC-17 thêm ở S3 sau khi gap-probe/probe biết-đỏ lộ mâu thuẫn; xem ledger `d-209`):
 
 | AC | Task | AC | Task |
 |---|---|---|---|
@@ -582,7 +582,7 @@ bash scripts/pre-merge-check.sh . --base 9b545a8
 | AC-5 | 2 | AC-13 | 8 (+judge S4) |
 | AC-6 | 6 | AC-14 | 3 |
 | AC-7 | 3 | AC-15 | 3 |
-| AC-8 | 4 | AC-16 | 7 |
+| AC-8 | 4 | AC-16 · AC-17 | 7 |
 
 Không AC nào không có task.
 

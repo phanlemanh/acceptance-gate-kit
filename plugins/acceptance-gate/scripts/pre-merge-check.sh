@@ -62,6 +62,11 @@ while [ $# -gt 0 ]; do
     --no-t1-escape)
       # Không nhận tham số — `reason` là hằng, giữ ranh giới "không thêm cờ nào khác".
       T1_ESCAPE=0; shift ;;
+    --*)
+      # Nuốt cờ lạ vào ROOT là fail-open chí tử: ROOT sai → không thấy
+      # _acceptance/ → cổng thoát 0 mà KHÔNG chạy luật nào. Từ khi kit dạy
+      # consumer chép tay `--no-t1-escape` vào CI, một lỗi gõ là đủ.
+      echo "pre-merge-check: unknown option $1" >&2; exit 2 ;;
     *) ROOT="$1"; shift ;;
   esac
 done
@@ -179,6 +184,10 @@ t1_escape_not_enforced() {
   [ "$T1_ESCAPE_OFF" -eq 1 ] && return 0
   T1_ESCAPE_OFF=1
   echo "T1-ESCAPE: NOT ENFORCED reason=push-event-no-pr-premise"
+  # Marker trên là cho MÁY (CI grep). Dòng dưới là cho NGƯỜI: một người chưa
+  # đọc kit phải biết LỚP NÀO tắt, VÌ SAO, và rủi ro cụ thể là gì.
+  echo "NOTE: lớp đang tắt là răng T1-escape — luật đòi mọi thay đổi chạm code quan trọng phải kèm thư mục _acceptance/<slug>/ (hồ sơ nghiệm thu). Nó chỉ có nghĩa khi so một PR với nhánh đích; lần chạy này là commit đẩy thẳng nhánh chính, nơi commit hạ tầng (đóng gói bản phát hành, đồng bộ bản sao) theo thiết kế không kèm hồ sơ nào."
+  echo "NOTE: rủi ro khi tắt — nếu một thay đổi chạm code quan trọng lọt vào lần chạy này, nó sẽ KHÔNG bị chặn vì thiếu hồ sơ nghiệm thu. Các luật khác vẫn chạy đủ (phản biện context sạch, chữ ký người, bằng chứng hết hạn). Muốn bật lại: bỏ cờ --no-t1-escape."
 }
 
 match_globs() { # <path> <newline-separated globs> — 0 iff any glob matches
