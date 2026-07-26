@@ -13,6 +13,15 @@ check() { # <name> <expected_exit> <actual_exit>
   fi
 }
 
+# So chuỗi (check chỉ so exit code — dùng `-eq` nên chuỗi làm nó nổ dưới set -u).
+same() { # <name> <expected> <actual>
+  if [ "$2" = "$3" ]; then
+    echo "  PASS: $1"; PASS_COUNT=$((PASS_COUNT+1))
+  else
+    echo "  FAIL: $1 (expected [$2], got [$3])"; FAIL_COUNT=$((FAIL_COUNT+1))
+  fi
+}
+
 mk_feature() { # <root> <slug> <tier> <status> [verdict] [signoff]
   # approved_by present: the normal lifecycle records Gate 1 before implemented.
   local d="$1/_acceptance/$2"; mkdir -p "$d"
@@ -1919,6 +1928,47 @@ for cs in "bỏ gap-probe|Y" "  Bỏ gap-probe|Y" "BỎ GAP-PROBE|Y" "bỏ Gap-P
   [ "$card" = "$pm" ] && [ "$card" = "$want" ] || { echo "     lệch: \"$s\" card=$card pre-merge=$pm (cần $want)"; GPM16_FAIL=1; }
 done
 check GPM16 0 "$GPM16_FAIL"
+
+# ── GPM20: bảng đầu vào chạy thẳng vào lib/gap-probe.js ─────────────────────
+# Đo CHÍNH mã sản phẩm, không chép luật sang test. GPM16 của v2 xanh giả vì
+# chép regex; đây là cùng bài học, áp ở tầng lib.
+GPLIB="$ROOT_REAL/lib/gap-probe.js"
+gp_classify() { # <probeText> <ledgerText> -> "outcome|id"
+  node -e '
+    const L = require(process.argv[1]);
+    const r = L.classify({ probeText: process.argv[2], ledgerText: process.argv[3] });
+    process.stdout.write(r.outcome + "|" + (r.id || ""));
+  ' "$GPLIB" "$1" "$2" 2>&1
+}
+echo "GPM20 bang 8 dau vao -> lib phan loai dung tung ca"
+same GPM20a "ok|" "$(gp_classify '---
+verdict: clean
+---
+' '')"
+same GPM20b "ok|" "$(gp_classify '---
+verdict: FINDINGS
+---
+' '')"
+same GPM20c "probe-failed|" "$(gp_classify '---
+verdict: probe-failed
+---
+' '')"
+# verdict trong THÂN BÀI không được tính (AC-6)
+same GPM20d "missing|" "$(gp_classify '# tieu de
+
+verdict: clean
+' '')"
+# frontmatter có nhưng verdict lạ (AC-6)
+same GPM20e "missing|" "$(gp_classify '---
+verdict: xanh
+---
+' '')"
+# van thoát descope: viết hoa + khoảng trắng đầu (AC-7)
+same GPM20f "descoped|d-1" "$(gp_classify '' '{"id":"d-1","type":"descope","decision":"  BỎ gap-probe — khong can"}')"
+# dòng JSON HỎNG KHÔNG được mở van thoát (AC-13, fail-CLOSED)
+same GPM20g "missing|" "$(gp_classify '' '{"id":"d-2","type":"descope","decision":"bỏ gap-probe — hong,,,')"
+# entry descope nhưng decision khác -> không mở van
+same GPM20h "missing|" "$(gp_classify '' '{"id":"d-3","type":"descope","decision":"bỏ mockup"}')"
 
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
