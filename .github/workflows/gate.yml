@@ -35,11 +35,23 @@ jobs:
           node-version: '22'
       - name: pre-merge check (evidence + signoff + stale + run-log)
         run: bash scripts/pre-merge-check.sh .
-      # ── Răng T1-escape: BẬT KHI ĐỘI ĐÃ QUEN LUỒNG ────────────────────────
-      # Dòng dưới bắt buộc MỌI PR chạm path T3 (hooks/ lib/ pre-merge-check.sh
-      # recheck-evidence.js) phải kèm artifact `_acceptance/<slug>/`. Nó có
-      # răng thật: các commit ngày 2026-07-25 tạo `lib/context-glossary.js` mà
-      # không có contract SẼ bị chặn — đúng hành vi mong muốn, nhưng là một
-      # quyết định về tốc độ của đội, không phải mặc định tôi tự bật.
-      # - name: T1-escape backstop
-      #   run: bash scripts/pre-merge-check.sh . --base "origin/${{ github.base_ref }}"
+      # ── Răng T1-escape (BẬT) ─────────────────────────────────────────────
+      # Mọi PR chạm path T3 (hooks/ lib/ pre-merge-check.sh recheck-evidence.js)
+      # phải kèm artifact `_acceptance/<slug>/`. Chỉ chạy trên pull_request:
+      # một `push` không có nhánh base để so, nên ở đó bước này không có nghĩa.
+      - name: T1-escape backstop
+        if: github.event_name == 'pull_request'
+        run: |
+          set -o pipefail
+          out="$(bash scripts/pre-merge-check.sh . --base "origin/${{ github.base_ref }}" 2>&1)" || st=$?
+          printf '%s\n' "$out"
+          # pre-merge-check coi base không resolve được là "skip + clean" — đúng
+          # cho repo tiêu thụ (đừng chặn merge vì clone nông). Ở repo KIT thì
+          # ngược lại: một backstop bị bỏ qua âm thầm CHÍNH LÀ lỗ nó sinh ra để
+          # bịt, nên ta nâng skip thành lỗi to.
+          case "$out" in
+            *"backstop skipped"*)
+              echo "::error::T1-escape backstop KHÔNG chạy (base không resolve được) — fail-open không chấp nhận ở repo kit. Kiểm fetch-depth/base_ref."
+              exit 1 ;;
+          esac
+          exit "${st:-0}"

@@ -248,10 +248,19 @@ Ba điểm khác một repo tiêu thụ bình thường, mỗi điểm là một
   `recheck-evidence.js`): bug ở đây thành false-green im lặng trên MỌI repo dùng kit.
 
 CI ở [`.github/workflows/gate.yml`](.github/workflows/gate.yml): 3 test suite +
-`pre-merge-check.sh`. **Răng T1-escape đang TẮT** (một dòng bị comment) — bật lên
-là mọi PR chạm `t3_paths` bắt buộc kèm `_acceptance/<slug>/`. Nó có răng thật:
-chạy thử ngược 8 commit thì nó chặn đúng `lib/context-glossary.js` và
-`scripts/pre-merge-check.sh` vì hai file đó đổi mà không có contract.
+`pre-merge-check.sh` + **răng T1-escape (ĐANG BẬT)** — mọi PR chạm `t3_paths`
+bắt buộc kèm thay đổi dưới `_acceptance/`. Hai điều chỉnh riêng cho repo kit:
+
+- Chỉ chạy trên `pull_request` (một `push` không có nhánh base để so).
+- `pre-merge-check.sh` coi base không resolve được là *skip + clean* — đúng cho
+  repo tiêu thụ, nhưng ở repo kit một backstop bị bỏ qua âm thầm CHÍNH LÀ lỗ nó
+  sinh ra để bịt, nên CI nâng skip thành **lỗi**. Test P35 giữ cả ba tính chất
+  (bật · guard PR · fail-loud) khỏi bị gỡ về sau.
+
+Giới hạn cần biết: backstop **không có ánh xạ path→slug** (comment trong
+`pre-merge-check.sh` nói rõ) — "có kèm artifact" nghĩa là *bất kỳ* thay đổi nào
+dưới `_acceptance/`. Nó chặn việc quên cổng hoàn toàn, không chặn được một
+contract cẩu thả; chất lượng contract là việc của Gate 1 và các check per-slug.
 
 ## Pilot metrics
 

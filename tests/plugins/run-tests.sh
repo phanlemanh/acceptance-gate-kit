@@ -487,6 +487,28 @@ assert pkg.exists(), "Codex package missing resolve-plugin.mjs — run scripts/s
 assert pkg.read_text() == src, "Codex copy drifted from feature-loop/scripts/resolve-plugin.mjs"
 PY
 
+run "P35 CI T1-escape backstop is ON, PR-guarded, and fails loud when skipped" \
+  python3 - "$ROOT" <<'PY'
+import sys, re
+from pathlib import Path
+wf = (Path(sys.argv[1]) / ".github/workflows/gate.yml").read_text()
+step = re.search(r"- name: T1-escape backstop\n(.*?)(?=\n      - name:|\Z)", wf, re.S)
+assert step, "T1-escape backstop step missing or renamed"
+body = step.group(1)
+# Enabled, not commented back out.
+assert not re.search(r"^\s*#\s*- name: T1-escape", wf, re.M), "backstop step is commented out"
+# Only meaningful on a PR — a push has no base branch to diff against.
+assert "github.event_name == 'pull_request'" in body, "backstop must be guarded to pull_request"
+assert 'github.base_ref' in body, "backstop must derive its base from base_ref"
+# pre-merge-check treats an unresolvable base as skip+clean (right for consumer
+# repos). On the kit that silent fail-open is the very hole the backstop exists
+# to close, so CI must promote the skip to an error.
+assert "backstop skipped" in body and "exit 1" in body, \
+    "a skipped backstop must fail the job, not pass quietly"
+# Full history: the stale-guard and signoff-provenance checks read git log.
+assert "fetch-depth: 0" in wf, "gate job needs fetch-depth: 0"
+PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
