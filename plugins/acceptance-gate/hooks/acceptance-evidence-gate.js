@@ -135,7 +135,15 @@ process.stdin.on('end', () => {
     const fileDir = path.dirname(filePath);
 
     if (isContract) {
-      const cr = core.evaluateContractWrite(payload, existing);
+      const cr = core.evaluateContractWrite(payload, existing, { fileDir });
+      // NOTE là kênh RIÊNG với block: nó luôn in ra stderr rồi cho ghi tiếp.
+      // Một cảnh báo không được đổi exit code — nếu không, "nhắc" và "chặn"
+      // nhập làm một và AC-3/AC-5/AC-7 không tồn tại được.
+      if (cr.notes && cr.notes.length) {
+        process.stderr.write(
+          '\nNOTE from acceptance-evidence-gate (Gate-1 contract guard)\n'
+          + cr.notes.map(n => `  - ${n}`).join('\n') + '\n\n');
+      }
       if (!cr.anyFailure) {
         process.stdout.write(data);
         process.exit(0);
@@ -151,10 +159,14 @@ process.stdin.on('end', () => {
         `File: ${filePath}`,
         `Enforcement: ${cfg.enforcement}${cfg.configPath ? ` (from ${cfg.configPath})` : ' (default — no config.yaml found)'}`,
         '',
-        'CONTRACT TRANSITION without Gate-1 approval:',
+        // Header phải đúng cho MỌI loại vi phạm ở đây. Nó từng viết "without
+        // Gate-1 approval" — sai với vi phạm gap-probe, nơi approved_by ĐÃ điền
+        // và cái thiếu là phản biện. Một thông điệp chặn nói sai nguyên nhân thì
+        // người đọc đi sửa nhầm chỗ.
+        'GATE-1 CONTRACT GUARD — violations:',
         ...cr.failures.map(x => `  x ${x}`),
         '',
-        'Gate 1 (human) must be recorded before a contract advances:',
+        'Gate-1 lifecycle reference:',
         '  status: approved / signed-off        -> requires approved_by: <name> (+ approved_at)',
         '  draft -> implemented / verified      -> requires the approved step (Gate 1) first',
         '  User explicitly skipped Gate 1       -> record gate1_skipped: true (audited; pre-merge NOTEs it)',

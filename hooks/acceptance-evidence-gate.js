@@ -159,10 +159,14 @@ process.stdin.on('end', () => {
         `File: ${filePath}`,
         `Enforcement: ${cfg.enforcement}${cfg.configPath ? ` (from ${cfg.configPath})` : ' (default — no config.yaml found)'}`,
         '',
-        'CONTRACT TRANSITION without Gate-1 approval:',
+        // Header phải đúng cho MỌI loại vi phạm ở đây. Nó từng viết "without
+        // Gate-1 approval" — sai với vi phạm gap-probe, nơi approved_by ĐÃ điền
+        // và cái thiếu là phản biện. Một thông điệp chặn nói sai nguyên nhân thì
+        // người đọc đi sửa nhầm chỗ.
+        'GATE-1 CONTRACT GUARD — violations:',
         ...cr.failures.map(x => `  x ${x}`),
         '',
-        'Gate 1 (human) must be recorded before a contract advances:',
+        'Gate-1 lifecycle reference:',
         '  status: approved / signed-off        -> requires approved_by: <name> (+ approved_at)',
         '  draft -> implemented / verified      -> requires the approved step (Gate 1) first',
         '  User explicitly skipped Gate 1       -> record gate1_skipped: true (audited; pre-merge NOTEs it)',

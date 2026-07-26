@@ -1,0 +1,4 @@
+
+NOTE from acceptance-evidence-gate (Gate-1 contract guard)
+  - gap-probe.md có verdict: probe-failed — phản biện KHÔNG chạy được. Duyệt lúc này nghĩa là duyệt mà chưa có phản biện context sạch. Chạy lại bước S1#7 nếu muốn có phản biện, hoặc duyệt tiếp và chấp nhận rủi ro đó (quyết định đã hiện ở đây, không âm thầm).
+

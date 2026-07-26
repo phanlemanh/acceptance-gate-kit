@@ -1,0 +1,4 @@
+---
+slug: x
+verdict: findings
+---

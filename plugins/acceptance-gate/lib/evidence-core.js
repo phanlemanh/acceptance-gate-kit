@@ -392,8 +392,47 @@ function evaluateEvidence(payload, opts) {
 // audited escape hatch the skill already documents). Judges the POST-WRITE
 // content; oldPayload (the pre-write file, null when creating) supplies the
 // transition source. Statuses outside the lifecycle names are ignored.
-function evaluateContractWrite(newPayload, oldPayload) {
+// ─── Gap-probe presence (phản biện context sạch ở Gate 1) ──────────────────
+
+// 'ok' | 'probe-failed' | 'missing'.
+// Một file TỒN TẠI nhưng không mang verdict nhận diện được thì tính là MISSING:
+// nếu không, `touch gap-probe.md` đi thẳng qua chốt fail-stop (AC-9).
+function readGapProbeState(fileDir) {
+  if (!fileDir) return 'missing';
+  let text;
+  try { text = fs.readFileSync(path.join(fileDir, 'gap-probe.md'), 'utf8'); }
+  catch (_) { return 'missing'; }
+  const verdict = (frontmatterField(text, 'verdict') || '').toLowerCase();
+  if (verdict === 'clean' || verdict === 'findings') return 'ok';
+  if (verdict === 'probe-failed') return 'probe-failed';
+  return 'missing';
+}
+
+// Van thoát của ledger: một entry `descope` tường minh có `decision` mở đầu
+// bằng "bỏ gap-probe". Khớp không phân biệt hoa/thường và bỏ qua khoảng trắng
+// đầu — ĐÚNG luật gate-card.js dùng, để thẻ và hook không bao giờ bất đồng.
+// Dòng JSON hỏng bị bỏ qua chứ không làm hỏng cả file: ledger là sổ ghi lý do,
+// một dòng lỗi không được biến thành chặn cổng.
+function findGapProbeDescope(fileDir) {
+  if (!fileDir) return null;
+  let text;
+  try { text = fs.readFileSync(path.join(fileDir, 'decisions.jsonl'), 'utf8'); }
+  catch (_) { return null; }
+  for (const line of text.split('\n')) {
+    const s = line.trim();
+    if (!s) continue;
+    let e;
+    try { e = JSON.parse(s); } catch (_) { continue; }
+    if (e && e.type === 'descope' && /^\s*bỏ gap-probe/i.test(String(e.decision || ''))) {
+      return String(e.id || '(entry không có id)');
+    }
+  }
+  return null;
+}
+
+function evaluateContractWrite(newPayload, oldPayload, opts) {
   const failures = [];
+  const notes = [];
   const status = (frontmatterField(newPayload, 'status') || '').toLowerCase();
   const approvedBy = frontmatterField(newPayload, 'approved_by') || '';
   const gate1Skipped = /^(true|yes|1)$/i.test(frontmatterField(newPayload, 'gate1_skipped') || '');
@@ -407,7 +446,37 @@ function evaluateContractWrite(newPayload, oldPayload) {
       failures.push(`status: ${oldStatus === null ? '(new file)' : 'draft'} -> ${status} skips Gate 1 — approved_by is empty and gate1_skipped is not true. Lifecycle: draft -> approved (Gate 1) -> implemented -> verified -> signed-off (Gate 2).`);
     }
   }
-  return { failures, anyFailure: failures.length > 0 };
+
+  // Gap-probe guard — chỉ xét đúng khoảnh khắc chuyển sang `approved`, và chỉ
+  // với T2/T3. T1 (hoặc contract không khai risk_tier) không có nghi thức
+  // gap-probe nào để thiếu, nên im lặng tuyệt đối.
+  const tier = (frontmatterField(newPayload, 'risk_tier') || '').toUpperCase();
+  if (status === 'approved' && (tier === 'T2' || tier === 'T3')) {
+    const state = readGapProbeState(opts && opts.fileDir);
+    if (state === 'probe-failed') {
+      // Mọi thông điệp ở đây phải trả lời được "rồi tôi làm gì tiếp?" — đó
+      // chính là câu AC-6 hỏi. Nêu tình trạng mà không nêu lối ra là nửa vời.
+      notes.push('gap-probe.md có verdict: probe-failed — phản biện KHÔNG chạy được. Duyệt lúc này nghĩa là duyệt mà chưa có phản biện context sạch. Chạy lại bước S1#7 nếu muốn có phản biện, hoặc duyệt tiếp và chấp nhận rủi ro đó (quyết định đã hiện ở đây, không âm thầm).');
+    } else if (state === 'missing') {
+      const descope = findGapProbeDescope(opts && opts.fileDir);
+      if (descope) {
+        notes.push(`Phản biện context sạch đã được BỎ có chủ đích theo ledger ${descope} — duyệt mà không có phản biện là quyết định đã ghi vết, không phải sơ suất.`);
+      } else {
+        // Marker `gap_probe_expected` do feature-loop S1 (≥1.19) ghi. Vắng marker
+        // = workspace sinh trước nghi thức này → nhắc thì được, chặn thì không:
+        // một luật mới không được hồi tố lên artifact cũ (chuẩn F).
+        const expected = /^(true|yes|1)$/i.test(frontmatterField(newPayload, 'gap_probe_expected') || '');
+        const how = 'Chạy bước S1#7 (phản biện context sạch) để sinh gap-probe.md, HOẶC ghi vào decisions.jsonl một entry {"type":"descope","decision":"bỏ gap-probe — <lý do>"}.';
+        if (tier === 'T3' && expected) {
+          failures.push(`gap-probe.md thiếu (hoặc verdict không đọc được) và ledger không có entry descope "bỏ gap-probe" — contract T3 không được duyệt khi chưa qua phản biện context sạch. ${how}`);
+        } else {
+          notes.push(`Chưa có phản biện context sạch: gap-probe.md thiếu (hoặc verdict không đọc được) và ledger không có entry descope.${expected ? '' : ' (workspace không khai gap_probe_expected — chỉ nhắc, không chặn.)'} ${how}`);
+        }
+      }
+    }
+  }
+
+  return { failures, notes, anyFailure: failures.length > 0 };
 }
 
 module.exports = {
