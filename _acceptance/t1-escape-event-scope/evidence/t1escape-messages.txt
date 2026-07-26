@@ -1,0 +1,9 @@
+# Thông điệp răng T1-escape — SINH bởi tests/scripts/run-tests.sh (TE17).
+# KHÔNG sửa tay: suite sinh lại file này mỗi lần chạy và diff byte-đối-byte.
+
+== fixture bat (rang no) ==
+VIOLATION [PR]: T3 paths (t3_paths) changed but the PR carries NO _acceptance/<slug>/ artifacts — critical code changed without the gate. Changed:
+
+== fixture tat (rang yes) ==
+T1-ESCAPE: NOT ENFORCED reason=push-event-no-pr-premise
+pre-merge-check: T1-escape: KHÔNG cưỡng chế trong lần chạy này (xem dòng marker NOT ENFORCED ở trên)

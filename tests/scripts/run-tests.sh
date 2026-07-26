@@ -2195,6 +2195,40 @@ te_repo te15 docs/note.md
 TE15="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"; check TE15 0 $?
 nothas TE15b "VIOLATION [PR]" "$TE15"
 
+# ── TE17: bằng chứng cho judge phải SINH LẠI rồi diff byte-đối-byte ─────────
+# Cùng khuôn GPM12: đếm nhãn chỉ đo sự ĐẦY ĐỦ, không đo tính XÁC THỰC. Thông
+# điệp đổi mà file evidence không đổi thì judge chấm một bản chụp lỗi thời.
+echo "TE17 sinh lai evidence/t1escape-messages.txt roi diff byte-doi-byte"
+TEMSG="$ROOT_REAL/_acceptance/t1-escape-event-scope/evidence/t1escape-messages.txt"
+te_msg_run() { # <nhãn> <có cờ: yes|no>
+  te_repo "msg$1" src/app.js
+  printf '\n== fixture %s (rang %s) ==\n' "$1" "$2"
+  if [ "$2" = "yes" ]; then
+    bash "$CHECK" "$TE_R" --base "$TE_B" --no-t1-escape 2>&1 | grep -E 'T1-ESCAPE|T1-escape|VIOLATION \[PR\]'
+  else
+    bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1 | grep -E 'T1-ESCAPE|T1-escape|VIOLATION \[PR\]'
+  fi
+}
+TE17NEW="$(mktemp)"
+{
+  printf '%s\n' '# Thông điệp răng T1-escape — SINH bởi tests/scripts/run-tests.sh (TE17).'
+  printf '%s\n' '# KHÔNG sửa tay: suite sinh lại file này mỗi lần chạy và diff byte-đối-byte.'
+  te_msg_run bat no
+  te_msg_run tat yes
+} > "$TE17NEW" 2>&1
+if [ "${TE17_WRITE:-0}" = "1" ]; then cp "$TE17NEW" "$TEMSG"; echo "  (TE17_WRITE=1 — đã ghi lại)"; fi
+if diff -u "$TEMSG" "$TE17NEW" > "$T/te17.diff" 2>&1; then
+  check TE17 0 0
+else
+  echo "     evidence LỆCH với thông điệp hiện tại:"; head -20 "$T/te17.diff" | sed 's/^/     /'
+  check TE17 0 1
+fi
+# Bat troi PHAM VI: mat han mot nhanh thi diff van khop neu evidence cung sinh thieu
+TE17M="$(cat "$TE17NEW")"
+hasout TE17a "VIOLATION [PR]" "$TE17M"
+hasout TE17b "T1-ESCAPE: NOT ENFORCED reason=push-event-no-pr-premise" "$TE17M"
+hasout TE17c "pre-merge-check: T1-escape: KHÔNG cưỡng chế" "$TE17M"
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
