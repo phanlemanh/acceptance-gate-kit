@@ -909,7 +909,12 @@ hasout GC2 "Độ phủ AC" "$GCV2"
 hasout GC3 "chưa nêu được thước đo" "$GCV2"
 hasout GC4 '"coverage_missing": false' "$(node "$GCARD" --root "$T/gcov" --slug cfeat --extract 2>/dev/null)"
 
-nothas() { case "$3" in *"$2"*) echo "  FAIL: $1 (should NOT contain: $2)"; FAIL_COUNT=$((FAIL_COUNT+1));; *) echo "  PASS: $1";; esac; }
+# Nhánh PASS PHẢI tăng PASS_COUNT như check/same/hasout: bản cũ in PASS mà
+# không đếm, nên dòng "Results: N passed" thiếu 41 case và không đối chiếu
+# được với số dòng PASS thật. Không phải false-green (FAIL vẫn đếm và suite
+# vẫn exit 1), nhưng một con số không đáng tin thì không dùng để kiểm chứng
+# được việc gì cả.
+nothas() { case "$3" in *"$2"*) echo "  FAIL: $1 (should NOT contain: $2)"; FAIL_COUNT=$((FAIL_COUNT+1));; *) echo "  PASS: $1"; PASS_COUNT=$((PASS_COUNT+1));; esac; }
 
 echo "GP1-8 Gate 1 gap-probe (S1#7 — phản biện context sạch)"
 GPD="$T/gprobe/_acceptance/pfeat"; mkdir -p "$GPD"
@@ -2169,11 +2174,23 @@ same TE3a 1 "$(printf '%s\n' "$TE2A" | grep -cF 'T1-ESCAPE: NOT ENFORCED reason=
 same TE3b 1 "$(printf '%s\n' "$TE2A" | grep -cF 'pre-merge-check: T1-escape: KHÔNG cưỡng chế trong lần chạy này (xem dòng marker NOT ENFORCED ở trên)')"
 
 echo "TE4 co co van KHONG tat luat gap-probe"
-mk_gp_repo te4; R="$GPR/te4"; gp_feature "$R" feat-z T3 implemented
-printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
-TE4="$(bash "$CHECK" "$R" --base "$GP_BASE" --no-t1-escape 2>&1)"; TE4ST=$?
+mk_gp_repo te4; R="$GPR/te4"; TE4_B="$GP_BASE"
+printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"
+gp_feature "$R" feat-z T3 implemented; gp_commit "$R"
+TE4="$(bash "$CHECK" "$R" --base "$TE4_B" --no-t1-escape 2>&1)"; TE4ST=$?
 hasout TE4  "chưa qua phản biện context sạch" "$TE4"
 check  TE4b 1 "$TE4ST"
+# DOI CHUNG DUONG (no #2 handoff 2026-07-26): cung fixture nhung DA co
+# gap-probe.md hop le -> voi CUNG co --no-t1-escape van exit 0. Thieu no, TE4
+# chi chung minh "co violation nao do" chu khong phai luat gap-probe — dung
+# lop bat bien #4 CLAUDE.md.
+mk_gp_repo te4ok; ROK4="$GPR/te4ok"; TE4OK_B="$GP_BASE"
+printf 'gap_probe: required\n' >> "$ROK4/_acceptance/config.yaml"
+gp_feature "$ROK4" feat-z T3 implemented
+printf -- '---\nslug: feat-z\nat: 2026-07-26T00:00:00Z\nverdict: clean\np0: 0\np1: 0\np2: 0\n---\n\n## Findings\n\nKhông còn lỗ đáng kể.\n' > "$ROK4/_acceptance/feat-z/gap-probe.md"
+gp_commit "$ROK4"
+TE4OK="$(bash "$CHECK" "$ROK4" --base "$TE4OK_B" --no-t1-escape 2>&1)"; check TE4ctrl 0 $?
+nothas TE4ctrl2 "chưa qua phản biện context sạch" "$TE4OK"
 
 echo "TE5 co co van KHONG tat luat per-slug (chu ky)"
 mk_gp_repo te5; R="$GPR/te5"; TE5_B="$GP_BASE"
