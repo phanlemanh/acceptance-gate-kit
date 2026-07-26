@@ -509,36 +509,6 @@ assert "backstop skipped" in body and "exit 1" in body, \
 assert "fetch-depth: 0" in wf, "gate job needs fetch-depth: 0"
 PY
 
-run "P36 gap_probe_expected is emitted ONLY by the flow that runs gap-probe" \
-  python3 - "$ROOT" <<'PY'
-import sys
-from pathlib import Path
-root = Path(sys.argv[1])
-MARK = "gap_probe_expected"
-# The shared contract template also feeds the standalone /acceptance flow, which
-# has NO gap-probe step. Emitting the marker there hard-blocks every T3 Gate-1
-# approve with an instruction to run a step that flow does not have.
-for rel in ["skills/acceptance/references/contract-template.md",
-            "plugins/acceptance-gate/skills/acceptance/references/contract-template.md"]:
-    text = (root / rel).read_text()
-    # rsplit: `---8<---` cũng xuất hiện trong VĂN XUÔI hướng dẫn phía trên, nên
-    # split() thường trích ra chuỗi rác và assertion thành vô nghĩa (đã dẫm).
-    assert "---8<---" in text, f"{rel}: missing the ---8<--- cut marker"
-    fm = text.rsplit("---8<---", 1)[1].split("---", 2)[1]
-    assert "schema_version" in fm, f"{rel}: extracted block is not the frontmatter ({fm[:40]!r})"
-    assert MARK not in fm, f"{rel}: template frontmatter must NOT carry {MARK} (standalone flow has no gap-probe)"
-# feature-loop IS the flow with S1#7, so both editions must tell S1 to emit it.
-for rel in ["feature-loop/skills/feature-loop/SKILL.md",
-            "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md"]:
-    assert MARK in (root / rel).read_text(), f"{rel}: S1 must emit {MARK}"
-# The kit's own dogfooded contract came from feature-loop — it must carry the
-# marker, otherwise the blocking branch is exercised only by hand-written
-# fixtures (the exact shape of the round-1 dead-code finding).
-own = (root / "_acceptance/gap-probe-presence-hook/contract.md").read_text()
-head = own.split("---", 2)[1]
-assert MARK in head, "kit's own T3 contract must carry the marker it ships"
-PY
-
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

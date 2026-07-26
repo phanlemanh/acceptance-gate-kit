@@ -23,15 +23,9 @@
  *                   every judgment item
  * PENDING-JUDGMENT / REJECT / BLOCKED verdicts always pass through.
  *
- * Contract — core.evaluateContractWrite carries TWO rules and a NOTE channel:
- *   (a) blocks status transitions that skip Gate 1 (approved/signed-off, or
- *       draft -> implemented/verified, with an empty approved_by and no
- *       gate1_skipped: true);
- *   (b) gap-probe presence: when a T2/T3 contract ADVANCES past Gate 1 and has
- *       no gap-probe.md (or an unreadable verdict) and no `descope` ledger
- *       entry, it blocks at T3+`gap_probe_expected`, and NOTEs otherwise.
- * NOTEs print to stderr and never change the exit code — "nhắc" and "chặn" are
- * deliberately separate channels.
+ * Contract — core.evaluateContractWrite blocks status transitions that skip
+ * Gate 1 (approved/signed-off, or draft -> implemented/verified, with an empty
+ * approved_by and no gate1_skipped: true).
  *
  * Enforcement level from consumer config: strict (default) | warn | off.
  * Bypass: ACCEPTANCE_GATE_BYPASS=1. Fail-open on internal error — loudly
@@ -141,24 +135,13 @@ process.stdin.on('end', () => {
     const fileDir = path.dirname(filePath);
 
     if (isContract) {
-      const cr = core.evaluateContractWrite(payload, existing, { fileDir });
-      // Đọc enforcement TRƯỚC khi in bất cứ thứ gì: `off` phải tắt được MỌI
-      // output của hook này, kể cả NOTE. Bản trước xả NOTE ra trước khi đọc
-      // config nên đó là dòng duy nhất repo tiêu thụ không tắt được.
-      const cfg = readEnforcement(fileDir);
-      if (cfg.enforcement === 'off') {
+      const cr = core.evaluateContractWrite(payload, existing);
+      if (!cr.anyFailure) {
         process.stdout.write(data);
         process.exit(0);
       }
-      // NOTE là kênh RIÊNG với block: in ra stderr rồi cho ghi tiếp. Một cảnh
-      // báo không được đổi exit code — nếu không, "nhắc" và "chặn" nhập làm
-      // một và AC-3/AC-5/AC-7 không tồn tại được.
-      if (cr.notes && cr.notes.length) {
-        process.stderr.write(
-          '\nNOTE from acceptance-evidence-gate (Gate-1 contract guard)\n'
-          + cr.notes.map(n => `  - ${n}`).join('\n') + '\n\n');
-      }
-      if (!cr.anyFailure) {
+      const cfg = readEnforcement(fileDir);
+      if (cfg.enforcement === 'off') {
         process.stdout.write(data);
         process.exit(0);
       }
@@ -168,10 +151,6 @@ process.stdin.on('end', () => {
         `File: ${filePath}`,
         `Enforcement: ${cfg.enforcement}${cfg.configPath ? ` (from ${cfg.configPath})` : ' (default — no config.yaml found)'}`,
         '',
-        // Header phải đúng cho MỌI loại vi phạm ở đây. Nó từng viết "without
-        // Gate-1 approval" — sai với vi phạm gap-probe, nơi approved_by ĐÃ điền
-        // và cái thiếu là phản biện. Một thông điệp chặn nói sai nguyên nhân thì
-        // người đọc đi sửa nhầm chỗ.
         'GATE-1 CONTRACT GUARD — violations:',
         ...cr.failures.map(x => `  x ${x}`),
         '',

@@ -232,10 +232,7 @@ section (even if it is a single skip line):
 4. Write a design doc using repo convention, commonly
    `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md`.
 5. Write `_acceptance/<slug>/contract.md` using the acceptance-gate contract
-   shape: status `draft`, risk tier, surfaces, `gap_probe_expected: true`
-   (REQUIRED — this marker is what lets the hook hard-block a T3 contract that
-   advances past Gate 1 without a gap-probe; omit it and the hook only NOTEs),
-   5-15 Given/When/Then criteria,
+   shape: status `draft`, risk tier, surfaces, 5-15 Given/When/Then criteria,
    judgment tags where needed, a `## Coverage` section carrying the CT-S output
    (axes + CE measure, or one skip line), at least two out-of-scope items, and
    `time_human_minutes.gate1` / `time_human_minutes.gate2` placeholders.

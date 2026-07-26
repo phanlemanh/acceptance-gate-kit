@@ -1193,12 +1193,12 @@ printf '%s\n' '{"id":"d-7","type":"descope","decision":"  Bỏ gap-probe — th�
 GPPOUT="$(node "$GCARD" --root "$GPP" --slug pf 2>/dev/null)"
 echo "GPP1 descope thụt-đầu+viết-hoa -> thẻ nhận là ĐÃ BỎ có chủ đích, không phất cờ 'Chưa có phản biện'"
 nothas GPP1 "Chưa có phản biện context sạch (gap-probe)" "$GPPOUT"
-echo "GPP2 thẻ và hook cùng luật /^\\s*bỏ gap-probe/i"
-node -e '
-const fs=require("fs");
-const card=fs.readFileSync(process.argv[1],"utf8").includes("/^\\s*bỏ gap-probe/i");
-const hook=fs.readFileSync(process.argv[2],"utf8").includes("/^\\s*bỏ gap-probe/i");
-process.exit(card && hook ? 0 : 1);' "$HERE/../../scripts/gate-card.js" "$HERE/../../lib/evidence-core.js"
+# Luật khớp descope phải KHOAN DUNG khoảng trắng đầu: decisions.jsonl do người
+# hoặc agent viết tay, "  Bỏ gap-probe — ..." là hợp lệ. Bất cứ chỗ nào SAU NÀY
+# đọc entry này (vd backstop merge-boundary của phương án C) phải dùng ĐÚNG luật
+# này, nếu không hai tín hiệu Cổng 1 sẽ mâu thuẫn trên cùng một artifact.
+echo "GPP2 the dung luat khoan dung leading-space (grep -F, khong regex)"
+grep -qF '/^\s*bỏ gap-probe/i' "$HERE/../../scripts/gate-card.js"
 check GPP2 0 $?
 
 echo "TM1 term MỚI sau base -> khối Từ vựng nêu tên term"

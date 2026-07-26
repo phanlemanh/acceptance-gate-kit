@@ -4,7 +4,6 @@ feature: Hook recheck enforce gap-probe presence at Gate-1 approve
 slug: gap-probe-presence-hook
 risk_tier: T3
 surfaces: hooks
-gap_probe_expected: true
 status: implemented
 approved_by: Manh Phan
 approved_at: 2026-07-26

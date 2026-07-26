@@ -670,7 +670,6 @@ flowchart LR
 | L3 JUDGMENT | `UNCERTAIN` chưa có `human_override` giá trị thật; T3 thiếu override trên mọi judgment | Người kiểm rồi điền qua agent |
 | L2 OBSERVED | Report PASS schema v2: block có `screenshot:` thiếu `observed:` thực chất (≥20 ký tự, không placeholder) — chặn cả lúc hook ghi lẫn CI recheck | Mở từng frame bằng Read, viết observed thật; report cũ (v1) chỉ bị NOTE |
 | Contract guard | Đặt `status: approved/signed-off` khi `approved_by` rỗng; `draft` → `implemented/verified` nhảy cóc (tha khi `gate1_skipped: true`) | Duyệt Cổng 1 tử tế |
-| Gap-probe guard | Contract T3 có `gap_probe_expected: true` TIẾN QUA Cổng 1 (draft → approved/implemented/verified/signed-off) mà thiếu `gap-probe.md` (hoặc verdict không đọc được) và thiếu entry ledger `descope` mở đầu `"bỏ gap-probe"` | Chạy S1#7, hoặc ghi entry descope. T2 và workspace không có marker chỉ bị NOTE, không chặn |
 
 **CI pre-merge** — với mọi feature T2/T3 có status `implemented`+:
 
