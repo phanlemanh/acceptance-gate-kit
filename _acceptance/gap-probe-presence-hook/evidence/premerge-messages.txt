@@ -1,0 +1,14 @@
+# Thông điệp luật gap-probe ở merge boundary — trích từ stdout THẬT, không chép tay.
+# Sinh lại: PREMERGE_FIXTURE_DIR=/tmp/gpk bash tests/scripts/run-tests.sh, rồi chạy lại 4 fixture.
+
+── fixture gpm1 ──
+VIOLATION [feat-b]: chưa qua phản biện context sạch (gap-probe) — không có gap-probe.md hợp lệ và ledger không có entry descope. Chạy bước S1#7 (phản biện context sạch) để sinh gap-probe.md, HOẶC ghi vào decisions.jsonl một entry {"id":"d-<UTC>-<rand>","type":"descope","stage":"S1","at":"<ISO>","decision":"bỏ gap-probe — <lý do>","impact":"đổi lại không có phản biện context sạch trước duyệt"}
+
+── fixture gpm2 ──
+NOTE [feat-b]: chưa qua phản biện context sạch (gap-probe) — advisory, không chặn merge. Chạy bước S1#7 (phản biện context sạch) để sinh gap-probe.md, HOẶC ghi vào decisions.jsonl một entry {"id":"d-<UTC>-<rand>","type":"descope","stage":"S1","at":"<ISO>","decision":"bỏ gap-probe — <lý do>","impact":"đổi lại không có phản biện context sạch trước duyệt"}
+
+── fixture gpm7 ──
+NOTE [feat-f]: phản biện context sạch đã được BỎ có chủ đích theo ledger d-77 — quyết định có dấu vết, không phải sơ suất.
+
+── fixture gpm8 ──
+NOTE [feat-g]: gap-probe verdict là probe-failed — phản biện KHÔNG chạy được. Merge lúc này nghĩa là merge mà chưa có phản biện context sạch; chạy lại S1#7 nếu muốn có, hoặc chấp nhận rủi ro đó.

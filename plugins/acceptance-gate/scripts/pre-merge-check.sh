@@ -58,6 +58,10 @@ ACC="$ROOT/_acceptance"
 # Which tiers need a signed report before merge — from consumer config when
 # present (signoff.required_for), defaulting to T2+T3.
 REQUIRED_FOR="T2 T3"
+# Mode luật gap-probe. Mặc định `advisory`: bỏ qua phản biện phải THẤY ĐƯỢC,
+# nhưng bật kit lên không được chặn merge của repo chưa kịp làm quen. `off` là
+# im hoàn toàn; `required` là chặn.
+GAP_PROBE_MODE="advisory"
 # Committed-evidence re-check mode: strict (block) | warn (advise, default) | off.
 # Default warn so adopting the re-check never blocks merges over reports written by
 # an OLDER evidence template — a repo opts into strict once its reports meet the bar.
@@ -75,6 +79,19 @@ AGENT_AUTHORS=""
 if [ -f "$ACC/config.yaml" ]; then
   cfg_req="$(sed -n 's/^[[:space:]]*required_for:[[:space:]]*//p' "$ACC/config.yaml" | head -1 | sed 's/[[:space:]]*#.*$//')"
   [ -n "$cfg_req" ] && REQUIRED_FOR="$cfg_req"
+  cfg_gp="$(sed -n 's/^[[:space:]]*gap_probe:[[:space:]]*//p' "$ACC/config.yaml" | head -1 \
+    | sed -e 's/[[:space:]]*#.*$//' -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//' \
+    | tr '[:upper:]' '[:lower:]')"
+  if [ -n "$cfg_gp" ]; then
+    case "$cfg_gp" in
+      required|advisory|off) GAP_PROBE_MODE="$cfg_gp" ;;
+      *)
+        # KHÔNG âm thầm rơi về mặc định: một cổng tự tắt vì sai chính tả đúng là
+        # false-green mà luật này sinh ra để chặn.
+        echo "VIOLATION [config]: gap_probe: \"$cfg_gp\" không phải mode hợp lệ — dùng required | advisory | off (khoá vắng = advisory)"
+        violations=$((violations+1)) ;;
+    esac
+  fi
   cfg_rc="$(sed -n 's/^[[:space:]]*recheck:[[:space:]]*//p' "$ACC/config.yaml" | head -1 | sed 's/[[:space:]]*#.*$//')"
   case "$cfg_rc" in strict|warn|off) RECHECK_MODE="$cfg_rc" ;; esac
   T1_GLOBS="$(sed -n '/^  t1_skip_globs:/,/^  [a-zA-Z0-9_-]*:/p' "$ACC/config.yaml" \
@@ -109,6 +126,25 @@ front_field() { # <file> <key> — read <key> from the LEADING --- frontmatter b
   awk '!f && NF==0 {next} !f && /^---[[:space:]]*$/ {f=1; next} !f {exit} /^---[[:space:]]*$/ {exit} {print}' "$1" \
     | sed -n "s/^${2}:[[:space:]]*//p" | head -1 \
     | sed -e 's/[[:space:]]*#.*$//' -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//'
+}
+
+# In id của entry descope ĐẦU TIÊN có decision mở đầu "bỏ gap-probe" (khoan dung
+# khoảng trắng đầu, chấp cả "Bỏ" viết hoa) — CÙNG luật /^\s*bỏ gap-probe/i mà
+# scripts/gate-card.js dùng. Lệch nhau = thẻ Cổng 1 và pre-merge mâu thuẫn trên
+# cùng một artifact. Dòng JSON hỏng bị bỏ qua chứ không làm hỏng cả file: ledger
+# là sổ ghi lý do, một dòng lỗi không được biến thành chặn cổng.
+gap_probe_descope_id() { # <decisions.jsonl>
+  [ -f "$1" ] || return 0
+  awk '
+    /"type"[[:space:]]*:[[:space:]]*"descope"/ {
+      if ($0 ~ /"decision"[[:space:]]*:[[:space:]]*"[[:space:]]*[Bb]ỏ[[:space:]]+gap-probe/) {
+        id = "(entry không có id)"
+        if (match($0, /"id"[[:space:]]*:[[:space:]]*"[^"]*"/)) {
+          s = substr($0, RSTART, RLENGTH); sub(/^.*"id"[[:space:]]*:[[:space:]]*"/, "", s); sub(/"$/, "", s); id = s
+        }
+        print id; exit
+      }
+    }' "$1"
 }
 
 match_globs() { # <path> <newline-separated globs> — 0 iff any glob matches
@@ -150,6 +186,44 @@ if [ -f "$ACC/config.yaml" ]; then
     printf '%s\n' "$cfg_lint" | head -5 | sed 's/^/    /'
     violations=$((violations+1))
   fi
+fi
+
+# ─── PR diff scope (hoisted) ───────────────────────────────────────────────
+# Phần này trước đây chỉ được tính ở CUỐI file, trong khối T1-escape — nên mọi
+# luật nằm trong vòng lặp per-slug đều không nhìn thấy diff. Luật gap-probe cần
+# nó (chỉ xét slug có file trong PR), nên hoist lên đây; T1-escape bên dưới DÙNG
+# LẠI ba biến này thay vì tính lại. Thông điệp giữ NGUYÊN VĂN để nội dung và thứ
+# tự output không đổi.
+DIFF_READY=0
+DIFF_FILES=""
+DIFF_SKIP_NOTE=""
+if [ -z "$BASE" ]; then
+  DIFF_SKIP_NOTE="no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base \"origin/\$GITHUB_BASE_REF\")"
+elif ! command -v git >/dev/null 2>&1 || ! git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
+  DIFF_SKIP_NOTE="$ROOT is not a git repo here"
+else
+  BASE_SHA="$(git -C "$ROOT" rev-parse --quiet --verify "$BASE^{commit}" 2>/dev/null || true)"
+  [ -z "$BASE_SHA" ] && BASE_SHA="$(git -C "$ROOT" rev-parse --quiet --verify "origin/$BASE^{commit}" 2>/dev/null || true)"
+  if [ -z "$BASE_SHA" ]; then
+    DIFF_SKIP_NOTE="base \"$BASE\" not resolvable in this clone"
+  else
+    DIFF_FILES="$(git -C "$ROOT" diff --name-only "$BASE_SHA...HEAD" -- 2>/dev/null)"
+    DIFF_READY=1
+  fi
+fi
+
+# 0 iff PR đổi ít nhất một file dưới _acceptance/<slug>/. NEO `^` là bắt buộc:
+# fixture ở tests/.../_acceptance/<slug>/ KHÔNG phải artifact của slug đó — glob
+# chưa neo chính là lỗ README đang ghi cho khối T1-escape bên dưới.
+slug_in_diff() { # <slug>
+  [ "$DIFF_READY" -eq 1 ] || return 1
+  printf '%s\n' "$DIFF_FILES" | grep -q "^_acceptance/$1/"
+}
+
+# AC-12 nửa sau: không có base thì luật không xác định được phạm vi, nên bỏ qua
+# — nhưng bỏ qua phải THẤY ĐƯỢC (cùng lối với răng T1-escape bên dưới).
+if [ "$GAP_PROBE_MODE" != "off" ] && [ "$DIFF_READY" -eq 0 ]; then
+  echo "NOTE: gap-probe check skipped — $DIFF_SKIP_NOTE (luật chỉ xét slug có file trong diff PR)"
 fi
 
 for dir in "$ACC"/*/; do
@@ -224,6 +298,37 @@ for dir in "$ACC"/*/; do
 $xl_acs
 XLACS
     fi
+  fi
+
+  # ─── Gap-probe presence (phản biện context sạch) ─────────────────────────
+  # Vị trí có chủ đích: SAU hai bước lọc `REQUIRED_FOR` và `status implemented+`
+  # phía trên, nên AC-4 (T1) và AC-10 (draft/approved) đúng theo CẤU TRÚC chứ
+  # không nhờ một nhánh if riêng. Chỉ xét slug có file trong diff PR: quét cả
+  # `_acceptance/` khiến repo có lịch sử nhận hàng chục VIOLATION không liên
+  # quan diff ở PR đầu tiên rồi tắt luật (Cổng 1 2026-07-26, ledger d-116).
+  if [ "$GAP_PROBE_MODE" != "off" ] && slug_in_diff "$slug"; then
+    gp_fix='Chạy bước S1#7 (phản biện context sạch) để sinh gap-probe.md, HOẶC ghi vào decisions.jsonl một entry {"id":"d-<UTC>-<rand>","type":"descope","stage":"S1","at":"<ISO>","decision":"bỏ gap-probe — <lý do>","impact":"đổi lại không có phản biện context sạch trước duyệt"}'
+    # front_field CHỈ đọc khối --- ĐẦU file: một dòng `verdict:` nằm trong thân
+    # bài (vd trích trong bảng finding) không được tính, và `touch` file rỗng cho
+    # chuỗi rỗng nên rơi vào nhánh "thiếu". Đó là chốt chống bypass.
+    gp_verdict=""
+    [ -f "${dir}gap-probe.md" ] && gp_verdict="$(front_field "${dir}gap-probe.md" verdict | tr '[:upper:]' '[:lower:]')"
+    case "$gp_verdict" in
+      clean|findings)
+        : ;;
+      probe-failed)
+        echo "NOTE [$slug]: gap-probe verdict là probe-failed — phản biện KHÔNG chạy được. Merge lúc này nghĩa là merge mà chưa có phản biện context sạch; chạy lại S1#7 nếu muốn có, hoặc chấp nhận rủi ro đó." ;;
+      *)
+        gp_desc="$(gap_probe_descope_id "${dir}decisions.jsonl")"
+        if [ -n "$gp_desc" ]; then
+          echo "NOTE [$slug]: phản biện context sạch đã được BỎ có chủ đích theo ledger $gp_desc — quyết định có dấu vết, không phải sơ suất."
+        elif [ "$GAP_PROBE_MODE" = "required" ]; then
+          echo "VIOLATION [$slug]: chưa qua phản biện context sạch (gap-probe) — không có gap-probe.md hợp lệ và ledger không có entry descope. $gp_fix"
+          violations=$((violations+1))
+        else
+          echo "NOTE [$slug]: chưa qua phản biện context sạch (gap-probe) — advisory, không chặn merge. $gp_fix"
+        fi ;;
+    esac
   fi
 
   report="$dir/evidence-report.md"
@@ -382,39 +487,31 @@ done
 # gated PR re-verifies, so its diff always includes gate artifacts.) There is
 # no path→slug mapping, so "carries artifacts" means any _acceptance/ change;
 # the per-slug checks above judge their quality.
-if [ -z "$BASE" ]; then
-  echo "NOTE: T1-escape backstop skipped — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base \"origin/\$GITHUB_BASE_REF\")"
-elif ! command -v git >/dev/null 2>&1 || ! git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
-  echo "NOTE: T1-escape backstop skipped — $ROOT is not a git repo here"
+if [ "$DIFF_READY" -eq 0 ]; then
+  echo "NOTE: T1-escape backstop skipped — $DIFF_SKIP_NOTE"
 else
-  BASE_SHA="$(git -C "$ROOT" rev-parse --quiet --verify "$BASE^{commit}" 2>/dev/null || true)"
-  [ -z "$BASE_SHA" ] && BASE_SHA="$(git -C "$ROOT" rev-parse --quiet --verify "origin/$BASE^{commit}" 2>/dev/null || true)"
-  if [ -z "$BASE_SHA" ]; then
-    echo "NOTE: T1-escape backstop skipped — base \"$BASE\" not resolvable in this clone"
-  else
-    changed="$(git -C "$ROOT" diff --name-only "$BASE_SHA...HEAD" -- 2>/dev/null)"
-    gate_touched=0; t3_hits=""; nont1_hits=""
-    while IFS= read -r f; do
-      [ -n "$f" ] || continue
-      case "$f" in _acceptance/*|*/_acceptance/*) gate_touched=1; continue ;; esac
-      if [ -n "$T3_PATHS" ] && match_globs "$f" "$T3_PATHS"; then
-        t3_hits="${t3_hits}${f}"$'\n'
-      elif ! match_globs "$f" "$T1_GLOBS"; then
-        nont1_hits="${nont1_hits}${f}"$'\n'
-      fi
-    done <<CHANGED
+  changed="$DIFF_FILES"
+  gate_touched=0; t3_hits=""; nont1_hits=""
+  while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    case "$f" in _acceptance/*|*/_acceptance/*) gate_touched=1; continue ;; esac
+    if [ -n "$T3_PATHS" ] && match_globs "$f" "$T3_PATHS"; then
+      t3_hits="${t3_hits}${f}"$'\n'
+    elif ! match_globs "$f" "$T1_GLOBS"; then
+      nont1_hits="${nont1_hits}${f}"$'\n'
+    fi
+  done <<CHANGED
 $changed
 CHANGED
-    if [ "$gate_touched" -eq 0 ]; then
-      if [ -n "$t3_hits" ]; then
-        echo "VIOLATION [PR]: T3 paths (t3_paths) changed but the PR carries NO _acceptance/<slug>/ artifacts — critical code changed without the gate. Changed:"
-        printf '%s' "$t3_hits" | head -10 | sed 's/^/    /'
-        violations=$((violations+1))
-      elif [ -n "$nont1_hits" ]; then
-        echo "VIOLATION [PR]: non-T1 files changed (outside t1_skip_globs) but the PR carries NO _acceptance/<slug>/ artifacts — declare T1 honestly (t1_skip_globs) or run the gate. Changed:"
-        printf '%s' "$nont1_hits" | head -10 | sed 's/^/    /'
-        violations=$((violations+1))
-      fi
+  if [ "$gate_touched" -eq 0 ]; then
+    if [ -n "$t3_hits" ]; then
+      echo "VIOLATION [PR]: T3 paths (t3_paths) changed but the PR carries NO _acceptance/<slug>/ artifacts — critical code changed without the gate. Changed:"
+      printf '%s' "$t3_hits" | head -10 | sed 's/^/    /'
+      violations=$((violations+1))
+    elif [ -n "$nont1_hits" ]; then
+      echo "VIOLATION [PR]: non-T1 files changed (outside t1_skip_globs) but the PR carries NO _acceptance/<slug>/ artifacts — declare T1 honestly (t1_skip_globs) or run the gate. Changed:"
+      printf '%s' "$nont1_hits" | head -10 | sed 's/^/    /'
+      violations=$((violations+1))
     fi
   fi
 fi

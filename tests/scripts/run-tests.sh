@@ -25,7 +25,11 @@ mk_feature() { # <root> <slug> <tier> <status> [verdict] [signoff]
   fi
 }
 
-T="$(mktemp -d)"; trap 'rm -rf "$T"' EXIT
+# PREMERGE_FIXTURE_DIR=<path> giữ fixture lại sau khi suite chạy xong — cần khi
+# sinh evidence/premerge-messages.txt từ stdout THẬT (Task 6 của plan).
+T="${PREMERGE_FIXTURE_DIR:-$(mktemp -d)}"
+[ -n "${PREMERGE_FIXTURE_DIR:-}" ] || trap 'rm -rf "$T"' EXIT
+mkdir -p "$T"
 
 echo "S01 T2 signed-off feature -> pass"
 R="$T/s01"; mk_feature "$R" feat-a T2 implemented PASS "Manh Phan 2026-06-10"
@@ -1826,6 +1830,21 @@ printf -- '---\nslug: feat-g\nverdict: probe-failed\n---\n' > "$R/_acceptance/fe
 printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
 GPM8="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM8 0 $?
 hasout GPM8note "probe-failed" "$GPM8"
+
+# E12 GÁC CỔNG cho judge E9: judge chỉ chấm được nếu gói bằng chứng có ĐỦ 4 dạng
+# thông điệp. Thiếu gác này thì file chỉ có VIOLATION là judge vẫn PASS trong khi
+# 3 NOTE kia trống nghĩa — đúng lỗi d-109, lần đó có mắt người bắt, lần này không.
+echo "GPM12 goi bang chung cho judge phai co DU 4 nhan"
+GPMSG="$ROOT_REAL/_acceptance/gap-probe-presence-hook/evidence/premerge-messages.txt"
+if [ -f "$GPMSG" ]; then
+  MSGS="$(cat "$GPMSG")"
+  hasout GPM12a "VIOLATION" "$MSGS"
+  hasout GPM12b "advisory" "$MSGS"
+  hasout GPM12c "theo ledger" "$MSGS"
+  hasout GPM12d "probe-failed" "$MSGS"
+else
+  check GPM12-missing 0 1
+fi
 
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
