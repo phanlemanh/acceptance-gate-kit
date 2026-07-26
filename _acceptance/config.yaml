@@ -48,6 +48,12 @@ risk_tiers:
     # để ngoài danh sách này thì mỗi lần ghi một quyết định-không-làm lại làm
     # evidence stale và tốn một vòng S4.
     - ".out-of-scope/**"
+    # Build mirror sinh máy (ADR 0001). An toàn để miễn trừ: P30
+    # (sync-plugin-packages.sh --check) canh `mirror == nguồn` độc lập, nên sửa
+    # tay ở đây bị chặn bởi luật khác — case P41 là RED bắt buộc chứng minh
+    # điều đó. Miễn trừ này KHÔNG mở rộng sang .github/** (đổi CI có thể tắt
+    # cổng) hay .claude-plugin/plugin.json (manifest khai được hooks).
+    - "plugins/**"
   t3_paths:
     # Lõi cưỡng chế: bug ở đây biến thành false-green im lặng trên MỌI repo tiêu thụ.
     - "hooks/**"

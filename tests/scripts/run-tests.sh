@@ -2120,8 +2120,16 @@ same GPM20h "missing|" "$(gp_classify '' '{"id":"d-3","type":"descope","decision
 # ── TE: cờ --no-t1-escape ────────────────────────────────────────────────────
 # Fixture: repo có src/app.js (t3_paths) + docs/, KHÔNG có _acceptance/<slug>/
 # trong diff → răng T1-escape có cớ để nổ.
-te_repo() { # <case> <file cần đổi> -> đặt TE_R, TE_B
+te_repo() { # <case> <file cần đổi> [--with-plugins-glob] -> đặt TE_R, TE_B
   mk_gp_repo "$1"; TE_R="$GPR/$1"; TE_B="$GP_BASE"
+  if [ "${3:-}" = "--with-plugins-glob" ]; then
+    # config fixture của mk_gp_repo chỉ có docs/**; thêm plugins/** cho ca AC-7/14
+    sed -i.bak 's|    - "docs/\*\*"|    - "docs/**"\n    - "plugins/**"|' "$TE_R/_acceptance/config.yaml"
+    rm -f "$TE_R/_acceptance/config.yaml.bak"
+    git -C "$TE_R" add -A >/dev/null
+    git -c user.email=t@t -c user.name=t -C "$TE_R" commit -qm globs
+    TE_B="$(git -C "$TE_R" rev-parse HEAD)"
+  fi
   mkdir -p "$(dirname "$TE_R/$2")"; printf 'v2\n' >> "$TE_R/$2"
   git -C "$TE_R" add -A >/dev/null
   git -c user.email=t@t -c user.name=t -C "$TE_R" commit -qm change
@@ -2165,6 +2173,27 @@ gp_commit "$R"
 TE5="$(bash "$CHECK" "$R" --base "$GP_BASE" --no-t1-escape 2>&1)"; TE5ST=$?
 check  TE5a 1 "$TE5ST"
 nothas TE5b "pre-merge-check: clean" "$TE5"
+
+echo "TE7 diff CHI plugins/ -> rang khong no"
+te_repo te7 plugins/acceptance-gate/scripts/x.js --with-plugins-glob
+TE7="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"
+nothas TE7a "VIOLATION [PR]" "$TE7"
+hasout TE7b "pre-merge-check:" "$TE7"
+
+echo "TE14 diff HON HOP (plugins/ + non-T1) -> VAN no, liet DUNG file non-T1"
+te_repo te14 plugins/acceptance-gate/scripts/x.js --with-plugins-glob
+printf 'v3\n' >> "$TE_R/src/app.js"
+git -C "$TE_R" add -A >/dev/null
+git -c user.email=t@t -c user.name=t -C "$TE_R" commit -qm mixed
+TE14="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"
+hasout TE14a "VIOLATION [PR]" "$TE14"
+hasout TE14b "src/app.js" "$TE14"
+nothas TE14c "plugins/acceptance-gate" "$TE14"
+
+echo "TE15 diff CHI file T1 thuan -> khong no (true-negative)"
+te_repo te15 docs/note.md
+TE15="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"; check TE15 0 $?
+nothas TE15b "VIOLATION [PR]" "$TE15"
 
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
