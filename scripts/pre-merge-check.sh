@@ -289,12 +289,22 @@ XLACS
   # quan diff ở PR đầu tiên rồi tắt luật (Cổng 1 2026-07-26, ledger d-116).
   if [ "$GAP_PROBE_MODE" != "off" ] && slug_in_diff "$slug"; then
     gp_fix='Chạy bước S1#7 (phản biện context sạch) để sinh gap-probe.md, HOẶC ghi vào decisions.jsonl một entry {"id":"d-<UTC>-<rand>","type":"descope","stage":"S1","at":"<ISO>","decision":"bỏ gap-probe — <lý do>","impact":"đổi lại không có phản biện context sạch trước duyệt"}'
-    if [ "$GAP_PROBE_MODE" = "required" ]; then
-      echo "VIOLATION [$slug]: chưa qua phản biện context sạch (gap-probe) — không có gap-probe.md hợp lệ và ledger không có entry descope. $gp_fix"
-      violations=$((violations+1))
-    else
-      echo "NOTE [$slug]: chưa qua phản biện context sạch (gap-probe) — advisory, không chặn merge. $gp_fix"
-    fi
+    # front_field CHỈ đọc khối --- ĐẦU file: một dòng `verdict:` nằm trong thân
+    # bài (vd trích trong bảng finding) không được tính, và `touch` file rỗng cho
+    # chuỗi rỗng nên rơi vào nhánh "thiếu". Đó là chốt chống bypass.
+    gp_verdict=""
+    [ -f "${dir}gap-probe.md" ] && gp_verdict="$(front_field "${dir}gap-probe.md" verdict | tr '[:upper:]' '[:lower:]')"
+    case "$gp_verdict" in
+      clean|findings)
+        : ;;
+      *)
+        if [ "$GAP_PROBE_MODE" = "required" ]; then
+          echo "VIOLATION [$slug]: chưa qua phản biện context sạch (gap-probe) — không có gap-probe.md hợp lệ và ledger không có entry descope. $gp_fix"
+          violations=$((violations+1))
+        else
+          echo "NOTE [$slug]: chưa qua phản biện context sạch (gap-probe) — advisory, không chặn merge. $gp_fix"
+        fi ;;
+    esac
   fi
 
   report="$dir/evidence-report.md"

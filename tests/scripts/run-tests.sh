@@ -1762,6 +1762,38 @@ nothas GPM13a "phản biện" "$GPM13"
 GPM13B="$(bash "$CHECK" "$R" 2>&1)"; check GPM13b 0 $?
 hasout GPM13c "gap-probe" "$GPM13B"
 
+echo "GPM5 verdict clean va findings -> im lang o mode required"
+for v in clean findings; do
+  mk_gp_repo "gpm5$v"; R="$GPR/gpm5$v"; gp_feature "$R" feat-c T3 implemented
+  printf -- '---\nslug: feat-c\nat: 2026-07-26T00:00:00Z\nverdict: %s\n---\n' "$v" > "$R/_acceptance/feat-c/gap-probe.md"
+  printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+  OUT="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check "GPM5-$v" 0 $?
+  nothas "GPM5-$v-silent" "phản biện" "$OUT"
+done
+
+echo "GPM5c fixture SAO CHEP nguyen van dau ra that cua S1#7 -> im lang"
+mk_gp_repo gpm5c; R="$GPR/gpm5c"; gp_feature "$R" feat-c T3 implemented
+head -8 "$ROOT_REAL/_acceptance/gap-probe-presence-hook/gap-probe.md" > "$R/_acceptance/feat-c/gap-probe.md"
+printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+GPM5C="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM5c 0 $?
+nothas GPM5c-silent "phản biện" "$GPM5C"
+
+echo "GPM6 file rong / verdict rac / verdict CHI o than bai -> coi nhu THIEU"
+mk_gp_repo gpm6a; R="$GPR/gpm6a"; gp_feature "$R" feat-c T3 implemented
+: > "$R/_acceptance/feat-c/gap-probe.md"
+printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GPM6a 1 $?
+
+mk_gp_repo gpm6b; R="$GPR/gpm6b"; gp_feature "$R" feat-c T3 implemented
+printf -- '---\nslug: feat-c\nverdict: rac\n---\n' > "$R/_acceptance/feat-c/gap-probe.md"
+printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GPM6b 1 $?
+
+mk_gp_repo gpm6c; R="$GPR/gpm6c"; gp_feature "$R" feat-c T3 implemented
+printf '# Bao cao\n\nBang finding trich: verdict: clean\n' > "$R/_acceptance/feat-c/gap-probe.md"
+printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GPM6c 1 $?
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
