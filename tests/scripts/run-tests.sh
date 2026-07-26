@@ -1745,6 +1745,10 @@ check GPM11c3 1 "$GPM11C_ST"
 # để mà tìm.
 hasout GPM11c4 "pre-merge-check:" "$GP11C"
 nothas GPM11c5 "unbound variable" "$GP11C"
+# AC-11 (v3-r2): "không âm thầm" CHƯA đủ — cấm cả rơi về advisory có tiếng động.
+# Fixture này có feat-q T3 implemented thiếu gap-probe: nếu script hạ về advisory
+# thì sẽ in đúng câu NOTE advisory. Không được có câu đó.
+nothas GPM11c6 "advisory, không chặn merge" "$GP11C"
 
 echo "GPM1 required + thieu ca file lan descope + slug TRONG diff -> VIOLATION"
 mk_gp_repo gpm1; R="$GPR/gpm1"; gp_feature "$R" feat-b T3 implemented

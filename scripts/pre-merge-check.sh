@@ -102,7 +102,11 @@ if [ -f "$ACC/config.yaml" ]; then
         # KHÔNG âm thầm rơi về mặc định: một cổng tự tắt vì sai chính tả đúng là
         # false-green mà luật này sinh ra để chặn.
         echo "VIOLATION [config]: gap_probe: \"$cfg_gp\" không phải mode hợp lệ — dùng required | advisory | off (khoá vắng = advisory)"
-        violations=$((violations+1)) ;;
+        violations=$((violations+1))
+        # KHÔNG rơi về advisory: cổng đã chặn bằng VIOLATION trên, nên chạy luật
+        # gap-probe theo một mode ĐOÁN chỉ tạo tín hiệu sai. "Cảnh báo rồi vẫn
+        # advisory" là fail-open có tiếng động — vẫn là fail-open (AC-11 v3-r2).
+        GAP_PROBE_MODE="off" ;;
     esac
   fi
   cfg_rc="$(sed -n 's/^[[:space:]]*recheck:[[:space:]]*//p' "$ACC/config.yaml" | head -1 | sed 's/[[:space:]]*#.*$//')"
