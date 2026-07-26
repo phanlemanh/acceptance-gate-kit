@@ -1796,7 +1796,12 @@ GPM_B2="$(git -C "$R" rev-parse HEAD)"
 printf 'v2\n' >> "$R/src/app.js"; gp_feature "$R" feat-new T1 implemented; gp_commit "$R"
 GPM13="$(bash "$CHECK" "$R" --base "$GPM_B2" 2>&1)"; check GPM13 0 $?
 nothas GPM13a "phản biện" "$GPM13"
-GPM13B="$(bash "$CHECK" "$R" 2>&1)"; check GPM13b 0 $?
+# Bản cũ assert exit 0 ở đây — tức GHIM chính vế fail-open mà gap-probe v3 (P0-2)
+# lật: "không có --base" là một trong bốn lý do luật không cưỡng chế được, và ở
+# mode required thì không cưỡng chế được = không cho merge. NOTE rồi exit 0 là
+# kênh chết đã giết contract v1 (ledger d-114).
+GPM13B="$(bash "$CHECK" "$R" 2>&1)"; check GPM13b 1 $?
+hasout GPM13b2 "GAP-PROBE: NOT ENFORCED reason=" "$GPM13B"
 hasout GPM13c "gap-probe" "$GPM13B"
 
 echo "GPM5 verdict clean va findings -> im lang o mode required"
@@ -1937,6 +1942,46 @@ for s in "bỏ gap-probe — x" "Bỏ gap-probe — x" "BỎ gap-probe — x" " 
   fi
 done
 check GPM16 0 "$GPM16_FAIL"
+
+# ── GPM17/18/19: SÀN fail-CLOSED + marker máy-đọc ───────────────────────────
+# Kênh "NOTE rồi exit 0" đã giết contract v1 (ledger d-114) và suýt giết v3
+# (gap-probe P0-2). Ở `required`, KHÔNG cưỡng chế được = KHÔNG cho merge.
+# Giả lập "thiếu lib" bằng một bản sao script KHÔNG có lib/ bên cạnh.
+GPFAKE="$T/nolib"; mkdir -p "$GPFAKE/scripts"
+cp "$ROOT_REAL/scripts/pre-merge-check.sh" "$GPFAKE/scripts/"
+
+echo "GPM18 thieu lib/gap-probe.js -> required CHAN, advisory chi NOTE"
+mk_gp_repo gpm18r; R="$GPR/gpm18r"; gp_feature "$R" feat-n T3 implemented
+printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+GP18="$(bash "$GPFAKE/scripts/pre-merge-check.sh" "$R" --base "$GP_BASE" 2>&1)"; GP18ST=$?
+check  GPM18a 1 "$GP18ST"
+hasout GPM18a2 "GAP-PROBE: NOT ENFORCED reason=" "$GP18"
+hasout GPM18a3 "VIOLATION [gap-probe]" "$GP18"
+mk_gp_repo gpm18a; R="$GPR/gpm18a"; gp_feature "$R" feat-n T3 implemented
+printf 'gap_probe: advisory\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+GP18A="$(bash "$GPFAKE/scripts/pre-merge-check.sh" "$R" --base "$GP_BASE" 2>&1)"; check GPM18b 0 $?
+hasout GPM18b2 "GAP-PROBE: NOT ENFORCED reason=" "$GP18A"
+nothas GPM18b3 "VIOLATION" "$GP18A"
+# `off` phai IM hoan toan, ke ca khi luat khong chay duoc (AC-3 khong co ngoai le)
+mk_gp_repo gpm18o; R="$GPR/gpm18o"; gp_feature "$R" feat-n T3 implemented
+printf 'gap_probe: off\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+GP18O="$(bash "$GPFAKE/scripts/pre-merge-check.sh" "$R" --base "$GP_BASE" 2>&1)"
+nothas GPM18c "GAP-PROBE" "$GP18O"
+
+echo "GPM19 marker dung MOT dong + dong tong ket phai KHAI da tat"
+same   GPM19a 1 "$(printf '%s\n' "$GP18" | grep -c 'GAP-PROBE: NOT ENFORCED')"
+hasout GPM19b "gap-probe: KHÔNG cưỡng chế" "$GP18"
+# khong co --base -> CUNG mot loi ra (marker), khong phai mot kenh NOTE rieng
+mk_gp_repo gpm19c; R="$GPR/gpm19c"; gp_feature "$R" feat-n T3 implemented
+printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+GP19C="$(bash "$CHECK" "$R" 2>&1)"; GP19CST=$?
+hasout GPM19c "GAP-PROBE: NOT ENFORCED reason=" "$GP19C"
+check  GPM19d 1 "$GP19CST"
+# advisory + khong --base: marker co, VIOLATION khong
+mk_gp_repo gpm19e; R="$GPR/gpm19e"; gp_feature "$R" feat-n T3 implemented
+printf 'gap_probe: advisory\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+GP19E="$(bash "$CHECK" "$R" 2>&1)"; check GPM19e 0 $?
+hasout GPM19f "GAP-PROBE: NOT ENFORCED reason=" "$GP19E"
 
 # ── GPM20: bảng đầu vào chạy thẳng vào lib/gap-probe.js ─────────────────────
 # Đo CHÍNH mã sản phẩm, không chép luật sang test. GPM16 của v2 xanh giả vì

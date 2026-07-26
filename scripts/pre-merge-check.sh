@@ -142,6 +142,24 @@ front_field() { # <file> <key> — read <key> from the LEADING --- frontmatter b
 }
 
 
+# Mọi đường mà luật gap-probe KHÔNG chạy được đều đi qua ĐÂY. Một hàm, một
+# marker, một chỗ quyết định mode — vì kênh "NOTE rồi exit 0" đã giết contract
+# v1 (ledger d-114) và suýt giết v3 (gap-probe P0-2). Ở `required`, không cưỡng
+# chế được nghĩa là KHÔNG cho merge: cổng không tự hạ chuẩn khi nó đang mù.
+GP_NOT_ENFORCED=0
+gap_probe_not_enforced() { # <lý do>
+  [ "$GAP_PROBE_MODE" = "off" ] && return 0
+  [ "$GP_NOT_ENFORCED" -eq 1 ] && return 0   # AC-16: ĐÚNG một dòng marker
+  GP_NOT_ENFORCED=1
+  echo "GAP-PROBE: NOT ENFORCED reason=$1"
+  if [ "$GAP_PROBE_MODE" = "required" ]; then
+    echo "VIOLATION [gap-probe]: mode required nhưng luật không cưỡng chế được — $1. Sửa nguyên nhân, hoặc hạ gap_probe xuống advisory nếu chấp nhận merge mà không có phản biện."
+    violations=$((violations+1))
+  else
+    echo "NOTE: gap-probe không cưỡng chế được — $1 (advisory, không chặn merge)."
+  fi
+}
+
 match_globs() { # <path> <newline-separated globs> — 0 iff any glob matches
   while IFS= read -r g; do
     [ -n "$g" ] || continue
@@ -241,7 +259,7 @@ SLUGDIFF
 # AC-12 nửa sau: không có base thì luật không xác định được phạm vi, nên bỏ qua
 # — nhưng bỏ qua phải THẤY ĐƯỢC (cùng lối với răng T1-escape bên dưới).
 if [ "$GAP_PROBE_MODE" != "off" ] && [ "$DIFF_READY" -eq 0 ]; then
-  echo "NOTE: gap-probe check skipped — $DIFF_SKIP_NOTE (luật chỉ xét slug có file trong diff PR)"
+  gap_probe_not_enforced "$DIFF_SKIP_NOTE (luật chỉ xét slug có file trong diff PR)"
 fi
 
 for dir in "$ACC"/*/; do
@@ -334,7 +352,13 @@ XLACS
       gp_line="$(node "$GP_LIB" classify "$dir" 2>/dev/null || true)"
     fi
     if [ -z "$gp_line" ]; then
-      : # Task 4 nối hàm marker vào đây (sàn fail-closed).
+      if ! command -v node >/dev/null 2>&1; then
+        gap_probe_not_enforced "không có \`node\` trên máy chạy pre-merge"
+      elif [ ! -f "$GP_LIB" ]; then
+        gap_probe_not_enforced "thiếu $GP_LIB (mang cổng vào repo phải copy CẢ lib/)"
+      else
+        gap_probe_not_enforced "node lib/gap-probe.js classify thất bại trên $slug"
+      fi
     else
       gp_outcome="${gp_line%%	*}"
       gp_id="${gp_line#*	}"
@@ -539,6 +563,10 @@ CHANGED
     fi
   fi
 fi
+
+# AC-16 vế sau: dòng tổng kết PHẢI khai là luật đã tắt. Một marker lẻ giữa hàng
+# chục dòng output là thứ người đọc lướt qua; khai ở dòng cuối thì không.
+[ "$GP_NOT_ENFORCED" -eq 1 ] && echo "pre-merge-check: gap-probe: KHÔNG cưỡng chế trong lần chạy này (xem dòng marker NOT ENFORCED ở trên)"
 
 if [ "$violations" -gt 0 ]; then
   echo "pre-merge-check: $violations violation(s) — merge blocked"
