@@ -1876,17 +1876,54 @@ hasout GPM8note "probe-failed" "$GPM8"
 # E12 GÁC CỔNG cho judge E9: judge chỉ chấm được nếu gói bằng chứng có ĐỦ 4 dạng
 # thông điệp. Thiếu gác này thì file chỉ có VIOLATION là judge vẫn PASS trong khi
 # 3 NOTE kia trống nghĩa — đúng lỗi d-109, lần đó có mắt người bắt, lần này không.
-echo "GPM12 goi bang chung cho judge phai co DU 4 nhan"
+# ── GPM12: evidence cho judge E9 phải được SINH LẠI rồi diff byte-đối-byte ──
+# Bản cũ chỉ đếm 4 nhãn — đo sự ĐẦY ĐỦ, không đo tính XÁC THỰC (gap-probe v3
+# P1-5). Thông điệp trong script đổi mà file evidence không đổi thì nó vẫn xanh,
+# và judge E9 chấm một bản chụp lỗi thời rồi cho PASS.
+echo "GPM12 sinh lai premerge-messages.txt tu 4 fixture roi diff byte-doi-byte"
 GPMSG="$ROOT_REAL/_acceptance/gap-probe-presence-hook/evidence/premerge-messages.txt"
-if [ -f "$GPMSG" ]; then
-  MSGS="$(cat "$GPMSG")"
-  hasout GPM12a "VIOLATION" "$MSGS"
-  hasout GPM12b "advisory" "$MSGS"
-  hasout GPM12c "theo ledger" "$MSGS"
-  hasout GPM12d "probe-failed" "$MSGS"
-else
-  check GPM12-missing 0 1
+gp_msg_run() { # <nhãn fixture> <mode> <trạng thái: missing|descoped|probe-failed>
+  mk_gp_repo "msg$1"; local R="$GPR/msg$1"
+  gp_feature "$R" "$1" T3 implemented
+  printf 'gap_probe: %s\n' "$2" >> "$R/_acceptance/config.yaml"
+  case "$3" in
+    descoped)     printf '%s\n' '{"id":"d-77","type":"descope","decision":"bỏ gap-probe — nhỏ"}' > "$R/_acceptance/$1/decisions.jsonl" ;;
+    probe-failed) printf -- '---\nslug: %s\nverdict: probe-failed\n---\n' "$1" > "$R/_acceptance/$1/gap-probe.md" ;;
+  esac
+  gp_commit "$R"
+  printf '\n── fixture %s ──\n' "$1"
+  # Lọc theo NHÃN dòng, không theo nội dung: giữ trọn câu để diff thấy được mọi
+  # thay đổi chữ nghĩa. Loại dòng tổng kết vì nó chứa số violation của fixture.
+  # Lọc theo CHỦ ĐỀ (dòng nói về gap-probe), không theo nhãn: giữ TRỌN CÂU nên
+  # mọi đổi chữ vẫn hiện ra ở diff. Loại các NOTE của luật khác (verified_commit,
+  # run-log) vì chúng là nhiễu với judge E9 và trôi theo feature không liên quan.
+  bash "$CHECK" "$R" --base "$GP_BASE" 2>&1 | grep -E '^(VIOLATION|NOTE|GAP-PROBE)' | grep -iE 'gap-probe|phản biện'
+}
+GP12NEW="$(mktemp)"
+{
+  printf '%s\n' '# Thông điệp luật gap-probe ở merge boundary — SINH bởi tests/scripts/run-tests.sh (GPM12).'
+  printf '%s\n' '# KHÔNG sửa tay: suite sinh lại file này mỗi lần chạy và diff byte-đối-byte.'
+  gp_msg_run feat-b required missing
+  gp_msg_run feat-c advisory missing
+  gp_msg_run feat-f required descoped
+  gp_msg_run feat-g required probe-failed
+} > "$GP12NEW" 2>&1
+if [ "${GPM12_WRITE:-0}" = "1" ]; then
+  cp "$GP12NEW" "$GPMSG"; echo "  (GPM12_WRITE=1 — đã ghi lại $GPMSG)"
 fi
+if diff -u "$GPMSG" "$GP12NEW" > "$T/gpm12.diff" 2>&1; then
+  check GPM12 0 0
+else
+  echo "     evidence LỆCH với thông điệp hiện tại:"; head -20 "$T/gpm12.diff" | sed 's/^/     /'
+  check GPM12 0 1
+fi
+# 4 nhãn vẫn phải đủ — diff bắt trôi chữ, cái này bắt trôi PHẠM VI (mất hẳn một
+# nhánh thì diff vẫn "khớp" nếu evidence cũng được sinh lại thiếu nhánh đó).
+GP12M="$(cat "$GP12NEW")"
+hasout GPM12a "VIOLATION" "$GP12M"
+hasout GPM12b "advisory, không chặn merge" "$GP12M"
+hasout GPM12c "theo ledger" "$GP12M"
+hasout GPM12d "probe-failed" "$GP12M"
 
 # Ba case cho HẠ TẦNG diff-scope. Cả 3 lỗi HIGH của v2 đều nằm ở đây chứ không
 # ở luật gap-probe: hạ tầng fail-open trong một script cưỡng chế nguy hiểm hơn
