@@ -239,7 +239,7 @@ Ba điểm khác một repo tiêu thụ bình thường, mỗi điểm là một
 - **Executor trỏ vào `scripts/` trong repo, không qua `${CLAUDE_PLUGIN_ROOT}`.**
   Kit LÀ nguồn của plugin, nên cổng phải chấm bằng mã đang sửa chứ không bằng
   bản trong plugin cache — cache thường tụt version (đo được: cache 1.18.0 khi
-  repo đã 1.20.1). feature-loop S4 resolve bằng
+  repo đã 1.21.0). feature-loop S4 resolve bằng
   `node feature-loop/scripts/resolve-plugin.mjs --plugin acceptance-gate --root .`
 - **`*.md` KHÔNG nằm trong `t1_skip_globs`.** Mặc định sinh sẵn coi mọi markdown
   là tài liệu; ở đây 23 file `SKILL.md`/command LÀ hành vi thật. Chỉ docs được
