@@ -582,9 +582,27 @@ job đỏ vĩnh viễn. VẪN giữ `--base`: luật gap-probe cần phạm vi d
 
 `pre-merge-check.sh` chỉ in `clean` khi CHỨNG MINH được rằng các luật đã chạy:
 mỗi khối luật kết thúc bằng đúng một dòng `ran <tên>` hoặc `declared-off <tên>`.
-Ba nguồn của `declared-off` là cờ `--no-t1-escape`, khoá `gap_probe: off` trong
-config, và chạy không có `--base` (phạm vi diff không xác định được). Cuối mỗi
-lần chạy có một dòng máy-đọc:
+
+`declared-off` nghĩa là luật đó KHÔNG cưỡng chế trong lần chạy này, và có hai
+nhóm nguyên nhân — nhóm thứ hai là nhóm hay bị đọc nhầm:
+
+- **Tắt có chủ đích:** cờ `--no-t1-escape`; khoá `gap_probe: off` trong config
+  (kể cả khi giá trị sai chính tả rơi về `off` sau `VIOLATION [config]`); chạy
+  không có `--base` — trường hợp này sinh `declared-off` cho CẢ HAI luật
+  `t1-escape` và `gap-probe`, vì không luật nào xác định được phạm vi diff.
+- **Môi trường không cho cưỡng chế** (danh sách MỞ — mọi đường đi qua
+  `gap_probe_not_enforced`): runner không có `node`; repo tiêu thụ chép
+  `scripts/` mà quên `lib/gap-probe.js`; `node lib/gap-probe.js classify` lỗi
+  trên một slug; `git diff <base>...HEAD` thất bại dù ĐÃ truyền `--base` (clone
+  shallow/grafted, lịch sử rời nhau, base bị force-push).
+
+Nên khi trực CI thấy `declared-off gap-probe` mà không ai truyền cờ và config
+không `off`, đừng dừng ở ba nguyên nhân đầu — đọc dòng `GAP-PROBE: NOT ENFORCED
+reason=` ngay phía trên, nó nói đúng nguyên nhân. Một lần chạy chỉ cưỡng chế
+được MỘT PHẦN (classifier chạy ở slug này, hỏng ở slug kia) cũng khai là
+`declared-off`: cưỡng chế một phần không phải là đã chạy.
+
+Cuối mỗi lần chạy có một dòng máy-đọc:
 
 ```
 pre-merge-check: rules ran=<n> declared-off=<m> expected=<k>
@@ -592,6 +610,19 @@ pre-merge-check: rules ran=<n> declared-off=<m> expected=<k>
 
 `k` tính từ danh sách EXPECTED cố định trong script, KHÔNG phải `n+m` — nhờ vậy
 dòng này hiển thị được sự lệch thay vì luôn tự khớp.
+
+Dòng này KHÔNG in ở lối thoát sớm `no _acceptance/ — nothing to check` (chưa có
+đối tượng nào để luật chạy). Nếu CI của bạn muốn chặn cả trường hợp chạy sai
+thư mục — `working-directory` đặt nhầm, chạy từ subdir — thì hãy fail-closed
+bằng cách đòi dòng `pre-merge-check: rules ran=` phải có mặt:
+
+```bash
+out="$(bash scripts/pre-merge-check.sh . --base "origin/$GITHUB_BASE_REF")"; st=$?
+printf '%s\n' "$out"
+grep -q '^pre-merge-check: rules ran=' <<<"$out" \
+  || { echo "cổng không chạy luật nào — kiểm lại đường dẫn repo"; exit 1; }
+exit $st
+```
 
 Nếu sổ lệch, script in `VIOLATION [ledger]: ...` và thoát **2**. Đây là lỗi NỘI
 TẠI của cổng — một khối luật bị trượt qua — **không phải** lỗi trong thay đổi

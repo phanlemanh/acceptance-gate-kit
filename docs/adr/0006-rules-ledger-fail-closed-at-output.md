@@ -10,11 +10,29 @@ một hàm `ledger_mark <ran|declared-off> <tên>`, và một điểm nghẽn tr
 luận so hai chiều (tên thiếu → `VIOLATION [ledger]: luật <tên> không chạy và
 không khai tắt`; tên thừa → `VIOLATION [ledger]: tên lạ <tên>`), cả hai exit 2.
 Chốt này bắt được cả lỗ CHƯA nghĩ ra vì nó không cần biết đầu vào hỏng kiểu gì
-— ROOT sai, base nuốt cờ, `continue` lạc, biến rỗng, khối bị comment nhầm đều
-làm một tên thiếu trong sổ. Mỗi mark cố ý nằm trên hai đường dẫn độc lập về
-lexical (vòng đếm slug riêng dùng biến `_sd`; counter scope gap-probe đặt
-NGOÀI khối có thể bị tiêm) để một lần tiêm không vô hiệu được cả luật lẫn kế
-toán của nó.
+— base nuốt cờ, `continue` lạc, biến rỗng, khối bị comment nhầm đều làm một tên
+thiếu trong sổ. Mỗi mark cố ý nằm trên hai đường dẫn độc lập về lexical (vòng
+đếm slug riêng dùng biến `_sd`; counter scope gap-probe đặt NGOÀI khối có thể
+bị tiêm) để một lần tiêm không vô hiệu được cả luật lẫn kế toán của nó. **Giới
+hạn phải nói thẳng:** lối thoát sớm `no _acceptance/ — nothing to check` nằm
+TRƯỚC mọi `ledger_mark`, nên một ROOT trỏ vào thư mục hợp lệ mà không có
+`_acceptance/` (CI đặt sai `working-directory`, chạy từ subdir) vẫn exit 0 mà
+không một dòng sổ nào — đúng hình dạng "xanh mà không chạy luật nào" mà sổ sinh
+ra để chặn. Sổ KHÔNG phủ được trường hợp đó; chốt nằm ở phía consumer, nên GUIDE
+chỉ cách fail-closed bằng việc đòi dòng `pre-merge-check: rules ran=` phải có
+mặt. Đổi hành vi của lối thoát đó là việc của một contract khác — repo chưa cài
+kit là trạng thái hợp lệ, và `RL6a` đang ghim đúng hai lối `exit 0`.
+
+Mark của mỗi luật phải được quyết ở **đúng một** chỗ, sau khi đã biết trọn lịch
+sử lần chạy. Bản đầu đặt hai one-shot độc lập cho `gap-probe` — `declared-off`
+trong `gap_probe_not_enforced()`, `ran` trong vòng lặp per-slug — nên một lần
+chạy mà classifier thành công ở slug này và thất bại ở slug kia ghi CẢ HAI tên;
+chokepoint đếm 2 rồi exit 2, biến một suy giảm advisory (theo thiết kế chỉ NOTE)
+thành chặn cứng VÀ nuốt luôn dòng kết luận violation thật, đồng thời phát đúng
+lời khuyên sai cho người đọc ("không phải lỗi của bạn, báo maintainer"). Bài học
+tổng quát: kế toán rải rác theo nhánh thì mỗi nhánh mới là một cơ hội ghi lệch —
+gom về một điểm quyết định, và khi lần chạy chỉ cưỡng chế được MỘT PHẦN thì câu
+trả lời trung thực là `declared-off`, không phải `ran` (case `RL13`).
 
 **Trade-off đã nhận:** (a) exit 2 là một lớp thoát MỚI trên CI của consumer —
 nó nghĩa "lỗi nội tại của cổng", không phải "PR của bạn vi phạm", nên script in

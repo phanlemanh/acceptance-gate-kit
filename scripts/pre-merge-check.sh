@@ -145,10 +145,15 @@ if [ -f "$ACC/config.yaml" ]; then
   cfg_req="$(sed -n 's/^[[:space:]]*required_for:[[:space:]]*//p' "$ACC/config.yaml" | head -1 | sed 's/[[:space:]]*#.*$//')"
   [ -n "$cfg_req" ] && REQUIRED_FOR="$cfg_req"
   cfg_enf="$(sed -n 's/^enforcement:[[:space:]]*//p' "$ACC/config.yaml" | head -1 \
-    | sed -e 's/[[:space:]]*#.*$//' -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//' \
-    | tr '[:upper:]' '[:lower:]')"
+    | sed -e 's/[[:space:]]*#.*$//' -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//')"
   # off là off toàn cục (tiền lệ hook) — sổ luật tắt theo, không dòng nào
-  # (AC-11); warn/strict/giá trị lạ đều GIỮ sổ bật, cùng ngữ nghĩa hook.
+  # (AC-11); warn/strict/giá trị lạ đều GIỮ sổ bật.
+  # KHÔNG hạ chữ thường ở đây: hook (hooks/acceptance-evidence-gate.js) khớp
+  # `/^enforcement\s*:\s*(strict|warn|off)\s*$/m` KHÔNG có cờ `i`, nên với
+  # `enforcement: OFF` hook giữ nguyên strict. Nếu bên này nhận cả `OFF` thì
+  # đúng một lỗi gõ làm hai lớp bất đồng: hook enforce đầy đủ (không ai nghi
+  # ngờ) trong khi sổ ở pre-merge tắt IM LẶNG — fail-open kích hoạt bằng typo,
+  # đúng thứ luật này sinh ra để chặn. Hai parser phải cùng ngữ nghĩa.
   case "$cfg_enf" in off) LEDGER_ENABLED=0 ;; esac
   cfg_gp="$(sed -n 's/^[[:space:]]*gap_probe:[[:space:]]*//p' "$ACC/config.yaml" | head -1 \
     | sed -e 's/[[:space:]]*#.*$//' -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//' \
@@ -180,9 +185,6 @@ if [ -f "$ACC/config.yaml" ]; then
     | sed -n 's/^[[:space:]]*-[[:space:]]*//p' \
     | sed -e 's/[[:space:]]*#.*$//' -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'\$//" -e 's/[[:space:]]*$//')"
 fi
-# AC-3: gap_probe: off trong config (kể cả mode sai chính tả đã rơi về off ở
-# trên, sau khi VIOLATION [config] nổ) là tắt CÓ khai báo.
-[ "$GAP_PROBE_MODE" = "off" ] && ledger_mark declared-off gap-probe
 if [ "$RECHECK_MODE" = "warn" ]; then
   # A disabled backstop must be impossible to miss: in warn mode a report
   # hand-edited AFTER the write-time hook only produces a NOTE — it does not
@@ -216,7 +218,6 @@ gap_probe_not_enforced() { # <lý do>
   [ "$GAP_PROBE_MODE" = "off" ] && return 0
   [ "$GP_NOT_ENFORCED" -eq 1 ] && return 0   # AC-16: ĐÚNG một dòng marker
   GP_NOT_ENFORCED=1
-  ledger_mark declared-off gap-probe
   echo "GAP-PROBE: NOT ENFORCED reason=$1"
   if [ "$GAP_PROBE_MODE" = "required" ]; then
     echo "VIOLATION [gap-probe]: mode required nhưng luật không cưỡng chế được — $1. Sửa nguyên nhân, hoặc hạ gap_probe xuống advisory nếu chấp nhận merge mà không có phản biện."
@@ -457,7 +458,7 @@ XLACS
         gap_probe_not_enforced "node lib/gap-probe.js classify thất bại trên $slug"
       fi
     else
-      if [ "$GP_RAN" -eq 0 ]; then GP_RAN=1; ledger_mark ran gap-probe; fi
+      GP_RAN=1
       gp_outcome="${gp_line%%	*}"
       gp_id="${gp_line#*	}"
       case "$gp_outcome" in
@@ -628,11 +629,26 @@ done
 # per-slug chỉ được ghi `ran` khi vòng lặp nhìn thấy ĐÚNG số thư mục mà phép
 # đếm độc lập nhìn thấy.
 [ "$SLUG_SEEN" -eq "$SLUG_EXPECTED_N" ] && ledger_mark ran per-slug
-# gap-probe vũ trang nhưng scope rỗng (không slug nào trong diff) = đã chạy
-# trọn phần việc của nó. GP_SCOPE_N > 0 mà GP_RAN=0 -> KHÔNG mark -> sổ lệch.
-if [ "$GAP_PROBE_MODE" != "off" ] && [ "$GP_NOT_ENFORCED" -eq 0 ] && [ "$GP_RAN" -eq 0 ] && [ "$GP_SCOPE_N" -eq 0 ]; then
+
+# gap-probe ghi sổ ở ĐÚNG MỘT chỗ, sau khi đã biết trọn lịch sử lần chạy. Bản
+# trước mark từ HAI nơi độc lập — `declared-off` trong gap_probe_not_enforced()
+# và `ran` trong vòng lặp — nên một lần chạy mà classifier thành công ở slug này
+# và thất bại ở slug kia ghi CẢ HAI tên: chokepoint đếm 2 rồi exit 2, biến một
+# suy giảm advisory (theo thiết kế chỉ NOTE, không chặn) thành chặn cứng, VÀ
+# nuốt luôn dòng tổng kết violation thật của lần chạy đó — người đọc nhận đúng
+# lời khuyên SAI ("không phải lỗi của bạn, báo maintainer").
+# Thứ tự dưới đây là thứ tự trung thực: một lần chạy chỉ cưỡng chế được MỘT
+# PHẦN thì khai là `declared-off`, không phải `ran`.
+if [ "$GAP_PROBE_MODE" = "off" ]; then
+  ledger_mark declared-off gap-probe          # tắt CÓ khai báo qua config (AC-3)
+elif [ "$GP_NOT_ENFORCED" -eq 1 ]; then
+  ledger_mark declared-off gap-probe          # mọi đường *_not_enforced (AC-12)
+elif [ "$GP_RAN" -eq 1 ] || [ "$GP_SCOPE_N" -eq 0 ]; then
+  # chạy thật ít nhất một slug, HOẶC vũ trang mà scope rỗng = đã làm trọn việc
   ledger_mark ran gap-probe
 fi
+# Còn lại (scope KHÔNG rỗng, không chạy, không khai tắt) = khối bị trượt qua:
+# cố ý KHÔNG mark để chokepoint bắt (AC-2/AC-9).
 
 # ── T1-escape backstop (PR-level) ────────────────────────────────────────────
 # T1 is self-declared at Phase 0 from EXPECTED paths — nothing stops a "docs

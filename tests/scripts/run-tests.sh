@@ -2491,6 +2491,60 @@ sed 's|^for dir in "\$ACC"/\*/; do$|for dir in "$ACC"/khong-ton-tai-*/; do|' "$C
 RL11B="$(bash "$RL11CP" "$R" --base "$RL11_B" 2>&1)"; check RL11b1 2 $?
 hasout RL11b2 "VIOLATION [ledger]: luật per-slug không chạy và không khai tắt" "$RL11B"
 
+echo "RL11c enforcement: OFF (HOA) KHONG duoc tat so — hook khong nhan hoa"
+rl_repo rl11c
+printf 'enforcement: OFF\n' >> "$TE_R/_acceptance/config.yaml"
+git -C "$TE_R" add -A >/dev/null
+git -c user.email=t@t -c user.name=t -C "$TE_R" commit -qm enfhoa
+RL11C="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"; check RL11c1 0 $?
+# Hook (hooks/acceptance-evidence-gate.js) khop regex KHONG co co `i`, nen
+# `OFF` giu nguyen strict ben do. Neu ben nay tat so thi mot loi go lam hai lop
+# bat dong va so tat IM LANG — fail-open bang typo.
+hasout RL11c2 "pre-merge-check: rules ran=" "$RL11C"
+same   RL11c3 3 "$(printf '%s\n' "$RL11C" | grep -cE '^(ran|declared-off) ')"
+# DOI CHUNG voi hook that: cung chuoi `OFF` phai KHONG khop regex cua hook
+RL11C_HOOK="$(grep -n 'enforcement.*strict|warn|off' "$ROOT_REAL/hooks/acceptance-evidence-gate.js" | head -1)"
+nothas RL11c4 "/im" "$RL11C_HOOK"
+nothas RL11c5 "/gi" "$RL11C_HOOK"
+
+echo "RL13 classifier hong o MOT slug, chay o slug kia -> DUNG MOT dong so"
+# Lo that tim duoc o S4 round 1: hai one-shot doc lap (declared-off trong
+# gap_probe_not_enforced, ran trong vong lap) cung ghi trong lan chay HON HOP
+# -> chokepoint dem 2 -> exit 2. Bien mot suy giam advisory (thiet ke chi NOTE)
+# thanh chan cung, VA nuot dong tong ket violation that.
+mk_gp_repo rl13; R="$GPR/rl13"; RL13_B="$GP_BASE"
+gp_feature "$R" feat-a T3 implemented
+gp_feature "$R" feat-b T3 implemented
+# feat-a mang MOT violation THAT (go chu ky) — ve thu hai cua finding: exit 2
+# cua chokepoint tung nuot ca ket luan chan-merge that su cua lan chay.
+sed -i.bak 's/^human_signoff:.*/human_signoff:/' "$R/_acceptance/feat-a/evidence-report.md"
+rm -f "$R/_acceptance/feat-a/evidence-report.md.bak"
+gp_commit "$R"
+# node gia: exit 0 cho feat-a, exit 1 khi doi so co chua "feat-b"
+RL13BIN="$T/rl13-bin"; rm -rf "$RL13BIN"; mkdir -p "$RL13BIN"
+for b in bash sh sed awk grep head tail sort tr cut basename dirname wc cat git env uname date diff mktemp rm; do
+  p="$(command -v "$b" 2>/dev/null)"; [ -n "$p" ] && ln -sf "$p" "$RL13BIN/$b"
+done
+REALNODE="$(command -v node)"
+printf '#!/bin/sh\nfor a in "$@"; do case "$a" in *feat-b*) exit 1 ;; esac; done\nexec %s "$@"\n' "$REALNODE" > "$RL13BIN/node"
+chmod +x "$RL13BIN/node"
+# DOI CHUNG DUONG: node that (khong gia) -> ca hai slug chay -> dung 1 dong `ran`
+RL13OK="$(bash "$CHECK" "$R" --base "$RL13_B" 2>&1)"
+same RL13ctrl 1 "$(printf '%s\n' "$RL13OK" | grep -cx 'ran gap-probe')"
+same RL13ctrl2 0 "$(printf '%s\n' "$RL13OK" | grep -cx 'declared-off gap-probe')"
+RL13="$(env PATH="$RL13BIN" bash "$CHECK" "$R" --base "$RL13_B" 2>&1)"; RL13ST=$?
+# Chot fixture: node gia PHAI that su hong o feat-b, neu khong ca case vo nghia
+hasout RL13fix "GAP-PROBE: NOT ENFORCED reason=node lib/gap-probe.js classify thất bại trên feat-b" "$RL13"
+# DUNG MOT dong so cho gap-probe, va la declared-off (chay MOT PHAN = khai tat)
+same   RL13a 1 "$(printf '%s\n' "$RL13" | grep -cE '^(ran|declared-off) gap-probe$')"
+same   RL13b 1 "$(printf '%s\n' "$RL13" | grep -cx 'declared-off gap-probe')"
+nothas RL13c "VIOLATION [ledger]" "$RL13"
+# Violation THAT cua feature phai duoc ket luan binh thuong (exit 1), khong bi
+# exit 2 cua chokepoint nuot mat
+check  RL13d 1 "$RL13ST"
+hasout RL13e "violation(s) — merge blocked" "$RL13"
+nothas RL13f "lỗi NỘI TẠI của cổng" "$RL13"
+
 echo "RL12 node vang o advisory -> declared-off gap-probe qua *_not_enforced (AC-12)"
 mk_gp_repo rl12; R="$GPR/rl12"; RL12_B="$GP_BASE"
 gp_feature "$R" feat-n T3 implemented; gp_commit "$R"

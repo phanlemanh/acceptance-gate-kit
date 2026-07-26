@@ -780,6 +780,37 @@ else
   fail "P48 chu ky ledger_mark khop EXPECTED (nguon + mirror + dot bien)"
 fi
 
+# ── P49: description cua goi Codex khong duoc la ban sao cua goi Claude ─────
+# Release 1.22.0 da dan: bump chep NGUYEN VAN description Claude de len manifest
+# Codex, nen goi Codex quang cao /approve, /signoff, /acceptance-report (ben
+# Codex la SKILL, khong phai command — CLAUDE.md bat bien 3) va ca lan design
+# ux-ui-craft. Khong test nao phu noi dung description nen no troi im lang.
+run "P49 description goi Codex giu ban sac Codex, khong phai ban sao Claude" \
+  python3 - "$ROOT" <<'PY'
+import json, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+claude = json.loads((root / ".claude-plugin/plugin.json").read_text())["description"]
+# Overlay + mirror cua no la goi Codex-native: PHAI tu nhan la Codex. Root
+# .codex-plugin doc mot ban mo ta trung tinh (giu nguyen qua 4 release truoc),
+# nen chi doi hai dieu kien con lai — dung noi long ca cum vi mot file.
+NATIVE = {"codex/acceptance-gate/.codex-plugin/plugin.json",
+          "plugins/acceptance-gate/.codex-plugin/plugin.json"}
+for rel in sorted(NATIVE | {".codex-plugin/plugin.json"}):
+    d = json.loads((root / rel).read_text())["description"]
+    assert d != claude, f"{rel}: description la ban sao NGUYEN VAN cua goi Claude"
+    if rel in NATIVE:
+        assert "Codex" in d, f"{rel}: description khong nhac Codex — mat ban sac goi"
+    # Cac be mat CHI co ben Claude khong duoc quang cao trong goi Codex. Ghim
+    # CUM DAC TRUNG, khong ghim manh vun: ban Codex hop le co quyen noi "gate
+    # decision skills (approve/signoff)" — do la SKILL, dung theo bat bien 3
+    # CLAUDE.md; chinh chuoi "/signoff" trong do tung lam bo loc nay bao dong
+    # gia o vong sua dau.
+    for claude_only in ["gate decision commands", "ux-ui-craft",
+                        "Layout Contract", "design-quality gate", "measure_layout"]:
+        assert claude_only not in d, f"{rel}: quang cao be mat chi-co-Claude {claude_only!r}"
+PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
