@@ -4,7 +4,9 @@ feature: Sổ luật-đã-chạy — `clean` phải được chứng minh, khôn
 slug: premerge-rules-ledger
 risk_tier: T3
 surfaces: [cli]
-status: draft
+status: approved
+approved_by: Manh Phan
+approved_at: 2026-07-26T20:45:00Z
 owner: manh@mstar.vn
 ---
 
