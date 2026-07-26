@@ -27,6 +27,9 @@ mk_feature() { # <root> <slug> <tier> <status> [verdict] [signoff]
 
 # PREMERGE_FIXTURE_DIR=<path> giữ fixture lại sau khi suite chạy xong — cần khi
 # sinh evidence/premerge-messages.txt từ stdout THẬT (Task 6 của plan).
+# BẮT BUỘC trỏ RA NGOÀI repo (vd /tmp/...): fixture dựng `_acceptance/<slug>/`,
+# mà răng T1-escape của pre-merge coi mọi path khớp `*/_acceptance/*` là "PR có
+# kèm gate artifact" — để trong repo là tự mở đường vòng qua chính cái răng đó.
 T="${PREMERGE_FIXTURE_DIR:-$(mktemp -d)}"
 [ -n "${PREMERGE_FIXTURE_DIR:-}" ] || trap 'rm -rf "$T"' EXIT
 mkdir -p "$T"
@@ -1709,9 +1712,21 @@ printf 'gap_probe: Required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
 bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GPM11b 1 $?
 mk_gp_repo gp11c; R="$GPR/gp11c"; gp_feature "$R" feat-q T3 implemented
 printf 'gap_probe: requird\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
-GP11C="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"
+# Fixture này có feature T3 implemented KHÔNG evidence-report -> BẮT BUỘC phải
+# còn một VIOLATION nữa sau khi cảnh báo config in ra. Assert exit code + sự
+# hiện diện của violation phía sau là cách duy nhất phân biệt "cảnh báo rồi chạy
+# tiếp" với "cảnh báo rồi chết giữa chừng, exit 0". Bản đầu chỉ hasout stdout
+# nên xanh trong khi cổng đã chết hoàn toàn.
+GP11C="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; GPM11C_ST=$?
 hasout GPM11c "gap_probe" "$GP11C"
 hasout GPM11c2 "requird" "$GP11C"
+check GPM11c3 1 "$GPM11C_ST"
+# Bằng chứng script CHẠY ĐẾN HẾT chứ không chết giữa chừng: dòng tổng kết cuối
+# cùng phải có mặt. Đây mới là thứ phân biệt "cảnh báo rồi đi tiếp" với "cảnh
+# báo rồi abort" — fixture này sạch mọi mặt khác nên không có violation nào khác
+# để mà tìm.
+hasout GPM11c4 "pre-merge-check:" "$GP11C"
+nothas GPM11c5 "unbound variable" "$GP11C"
 
 echo "GPM1 required + thieu ca file lan descope + slug TRONG diff -> VIOLATION"
 mk_gp_repo gpm1; R="$GPR/gpm1"; gp_feature "$R" feat-b T3 implemented

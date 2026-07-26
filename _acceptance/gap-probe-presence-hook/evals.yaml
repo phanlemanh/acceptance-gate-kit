@@ -12,7 +12,7 @@ evals:
     criterion: AC-2
     executor: script
     cmd: config:executors.test.scripts
-    expected: "case GPM2 + GP2b: advisory VÀ khoá vắng → stdout có NOTE, KHÔNG có VIOLATION, exit 0"
+    expected: "case GPM2 + GPM2b: advisory VÀ khoá vắng → stdout có NOTE, KHÔNG có VIOLATION, exit 0"
     paths: [scripts/pre-merge-check.sh, tests/scripts/**]
   - id: E3
     criterion: AC-3
@@ -42,7 +42,7 @@ evals:
     criterion: AC-7
     executor: script
     cmd: config:executors.test.scripts
-    expected: "case GPM7 + GP7b: entry descope thường VÀ bản thụt-đầu-viết-hoa → KHÔNG violation, NOTE nêu id entry, exit 0"
+    expected: "case GPM7 + GPM7b: entry descope thường VÀ bản thụt-đầu-viết-hoa → KHÔNG violation, NOTE nêu id entry, exit 0"
     paths: [scripts/pre-merge-check.sh, tests/scripts/**]
   - id: E8
     criterion: AC-8

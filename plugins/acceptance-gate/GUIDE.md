@@ -519,6 +519,7 @@ Tham chiếu đầy đủ `config.yaml` — mục 8 có phần tinh chỉnh:
 |---|---|---|
 | `enforcement` | Hook: `strict` chặn · `warn` chỉ cảnh báo · `off` tắt | `strict` |
 | `recheck` | CI re-check evidence đã commit: `strict`/`warn`/`off` | `warn` (repo mới nên để `strict`) |
+| `gap_probe` | Cổng phản biện context sạch ở pre-merge: `required` (chặn) / `advisory` (NOTE) / `off` (im) | `advisory` — bỏ qua vẫn thấy được, nhưng không chặn merge của repo chưa quen |
 | `executors.test.*` `executors.script.*` | Lệnh thật của repo; evals chỉ tham chiếu `config:executors...` | — |
 | `executors.design.*` | Design gate (do `/design-init` ghi) | design eval bị skip |
 | `risk_tiers.t1_skip_globs` | Glob an toàn bỏ qua gate (docs, *.md) | không gì được miễn |
@@ -680,6 +681,8 @@ flowchart LR
 | `bypass_used: true` không có `bypass_ack` | Report cũ không có `verified_commit` / `run-log.jsonl` |
 | `enforcement_mode: off` lúc verify | `verified_commit` không tìm thấy trong clone (rebase/shallow) |
 | `human_signoff` rỗng | Không truyền `--base` — backstop T1 tắt |
+| `gap_probe: required` + slug trong diff PR thiếu `gap-probe.md` hợp lệ và thiếu entry descope | `gap_probe: advisory` (mặc định) cùng tình huống · `verdict: probe-failed` · đã bỏ có chủ đích theo entry ledger · không có `--base` nên luật bỏ qua |
+| `gap_probe` khai giá trị không hợp lệ (sai chính tả) | |
 | Chữ ký chưa commit / commit chữ ký chạm body report / author khớp `agent_authors` | Không phải git repo — staleness/chữ ký không kiểm được |
 | Evidence STALE — file ngoài `_acceptance/` + ngoài `t1_skip_globs` đổi sau `verified_commit` | |
 | `recheck: strict` + evidence đã commit rớt luật L1/L2/L3 | |
@@ -694,6 +697,8 @@ flowchart LR
 | `ACCEPTANCE_GATE_BYPASS=1` | `bypass_used: true` đóng dấu trong report; CI chặn tới khi có `bypass_ack: <tên> <ngày>` |
 | `enforcement: warn/off` | Đóng dấu `enforcement_mode` — CI cảnh báo/chặn |
 | `recheck: warn/off` | Banner WARNING mỗi lần chạy CI |
+| Entry `decisions.jsonl` mở đầu `"bỏ gap-probe"` | NOTE nêu `id` entry ở mỗi lần pre-merge; thẻ Cổng 1 cũng nhận cùng luật |
+| `gap_probe: advisory/off` | `advisory` in NOTE mỗi lần chạy; `off` thì im — dùng khi repo cố ý không theo nghi thức này |
 
 ## 8. Tinh chỉnh cho repo của đội
 

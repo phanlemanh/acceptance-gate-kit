@@ -33,6 +33,13 @@
 # (pre-implementation) features are out of scope.
 set -u
 
+# Đếm vi phạm — khởi tạo NGAY ĐẦU, trước mọi khối có thể tăng nó. Bản trước khởi
+# tạo mãi ở giữa file trong khi khối kiểm config phía trên đã `violations+1`:
+# dưới `set -u` đó là lỗi shell CHÍ MẠNG, script chết giữa chừng và thoát 0 —
+# một typo trong config.yaml giết TOÀN BỘ cổng (signoff, verdict, staleness,
+# bypass, T1-escape) mà CI vẫn xanh. Đúng thứ false-green kit sinh ra để chặn.
+violations=0
+
 # CI evidence re-checker shipped alongside this script (needs ../lib/evidence-core.js).
 HERE="$(cd "$(dirname "$0")" && pwd)"
 RECHECK="$HERE/recheck-evidence.js"
@@ -168,7 +175,6 @@ stale_files() { # <root> <commit> — files changed since <commit> (incl. workin
   done
 }
 
-violations=0
 
 # config.yaml 2-space lint: every kit parser (hook resolveConfigKey, the sed/awk
 # here) is line/indent based — a TAB or odd indent silently breaks config:
