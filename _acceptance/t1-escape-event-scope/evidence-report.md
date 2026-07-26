@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: e7ceb911effa6a599e4b144bdf5cb0d6c132b2f6
+verified_commit: 360a25704212de027e6bcb4f317d6252b81a0326
 human_signoff:
 ---
 
@@ -27,7 +27,7 @@ human_signoff:
 | E10 | AC-10 | script | PASS |
 | E11 | AC-11 | script | PASS |
 | E12 | AC-12 | script | PASS |
-| E13 | AC-13 | judgment | FAIL (panel proposal, pending human_override) |
+| E13 | AC-13 | judgment | PASS (panel proposal, pending human_override) |
 | E14 | AC-13 | script | PASS |
 | E15 | AC-14 | script | PASS |
 | E16 | AC-15 | script | PASS |
@@ -37,251 +37,243 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-t1-escape-event-scope-E1-r1
+  run_id: minted-t1-escape-event-scope-E1-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T12:10:00Z
+  verified_at: 2026-07-26T13:20:00Z
   output: |
-    PASS: TE16d
+    PASS: TE18c
 
-    Results: 324 passed, 0 failed
+    Results: 326 passed, 0 failed
 
 - eval: E2
-  run_id: minted-t1-escape-event-scope-E2-r1
+  run_id: minted-t1-escape-event-scope-E2-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T12:10:00Z
+  verified_at: 2026-07-26T13:20:00Z
   output: |
-    PASS: TE16d
+    PASS: TE18c
 
-    Results: 324 passed, 0 failed
+    Results: 326 passed, 0 failed
 
 - eval: E3
-  run_id: minted-t1-escape-event-scope-E3-r1
+  run_id: minted-t1-escape-event-scope-E3-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T12:10:00Z
+  verified_at: 2026-07-26T13:20:00Z
   output: |
-    PASS: TE16d
+    PASS: TE18c
 
-    Results: 324 passed, 0 failed
+    Results: 326 passed, 0 failed
 
 - eval: E4
-  run_id: minted-t1-escape-event-scope-E4-r1
+  run_id: minted-t1-escape-event-scope-E4-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T12:10:00Z
+  verified_at: 2026-07-26T13:20:00Z
   output: |
-    PASS: TE16d
+    PASS: TE18c
 
-    Results: 324 passed, 0 failed
+    Results: 326 passed, 0 failed
 
 - eval: E5
-  run_id: minted-t1-escape-event-scope-E5-r1
+  run_id: minted-t1-escape-event-scope-E5-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T12:10:00Z
+  verified_at: 2026-07-26T13:20:00Z
   output: |
-    PASS: TE16d
+    PASS: TE18c
 
-    Results: 324 passed, 0 failed
+    Results: 326 passed, 0 failed
 
 - eval: E6
-  run_id: minted-t1-escape-event-scope-E6-r1
+  run_id: minted-t1-escape-event-scope-E6-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-26T12:10:00Z
+  verified_at: 2026-07-26T13:20:00Z
   output: |
     PASS: P44 acceptance-init CA HAI harness nhac co cho job push
 
     Results: all plugin tests passed
 
 - eval: E7
-  run_id: minted-t1-escape-event-scope-E7-r1
+  run_id: minted-t1-escape-event-scope-E7-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T12:10:00Z
+  verified_at: 2026-07-26T13:20:00Z
   output: |
-    PASS: TE16d
+    PASS: TE18c
 
-    Results: 324 passed, 0 failed
+    Results: 326 passed, 0 failed
 
 - eval: E8
-  run_id: minted-t1-escape-event-scope-E8-r1
+  run_id: minted-t1-escape-event-scope-E8-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-26T12:10:00Z
+  verified_at: 2026-07-26T13:20:00Z
   output: |
     PASS: P44 acceptance-init CA HAI harness nhac co cho job push
 
     Results: all plugin tests passed
 
 - eval: E9
-  run_id: minted-t1-escape-event-scope-E9-r1
+  run_id: minted-t1-escape-event-scope-E9-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-26T12:10:00Z
+  verified_at: 2026-07-26T13:20:00Z
   output: |
     PASS: P44 acceptance-init CA HAI harness nhac co cho job push
 
     Results: all plugin tests passed
 
 - eval: E10
-  run_id: minted-t1-escape-event-scope-E10-r1
+  run_id: minted-t1-escape-event-scope-E10-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-26T12:10:00Z
+  verified_at: 2026-07-26T13:20:00Z
   output: |
     PASS: P44 acceptance-init CA HAI harness nhac co cho job push
 
     Results: all plugin tests passed
 
 - eval: E11
-  run_id: minted-t1-escape-event-scope-E11-r1
+  run_id: minted-t1-escape-event-scope-E11-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-26T12:10:00Z
+  verified_at: 2026-07-26T13:20:00Z
   output: |
     PASS: P44 acceptance-init CA HAI harness nhac co cho job push
 
     Results: all plugin tests passed
 
 - eval: E12
-  run_id: minted-t1-escape-event-scope-E12-r1
+  run_id: minted-t1-escape-event-scope-E12-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-26T12:10:00Z
+  verified_at: 2026-07-26T13:20:00Z
   output: |
     PASS: P44 acceptance-init CA HAI harness nhac co cho job push
 
     Results: all plugin tests passed
 
 - eval: E14
-  run_id: minted-t1-escape-event-scope-E14-r1
+  run_id: minted-t1-escape-event-scope-E14-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T12:10:00Z
+  verified_at: 2026-07-26T13:20:00Z
   output: |
-    PASS: TE16d
+    PASS: TE18c
 
-    Results: 324 passed, 0 failed
+    Results: 326 passed, 0 failed
 
 - eval: E15
-  run_id: minted-t1-escape-event-scope-E15-r1
+  run_id: minted-t1-escape-event-scope-E15-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T12:10:00Z
+  verified_at: 2026-07-26T13:20:00Z
   output: |
-    PASS: TE16d
+    PASS: TE18c
 
-    Results: 324 passed, 0 failed
+    Results: 326 passed, 0 failed
 
 - eval: E16
-  run_id: minted-t1-escape-event-scope-E16-r1
+  run_id: minted-t1-escape-event-scope-E16-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T12:10:00Z
+  verified_at: 2026-07-26T13:20:00Z
   output: |
-    PASS: TE16d
+    PASS: TE18c
 
-    Results: 324 passed, 0 failed
+    Results: 326 passed, 0 failed
 
 - eval: E17
-  run_id: minted-t1-escape-event-scope-E17-r1
+  run_id: minted-t1-escape-event-scope-E17-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T12:10:00Z
+  verified_at: 2026-07-26T13:20:00Z
   output: |
-    PASS: TE16d
+    PASS: TE18c
 
-    Results: 324 passed, 0 failed
+    Results: 326 passed, 0 failed
 
 - eval: E18
-  run_id: minted-t1-escape-event-scope-E18-r1
+  run_id: minted-t1-escape-event-scope-E18-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T12:10:00Z
+  verified_at: 2026-07-26T13:20:00Z
   output: |
-    PASS: TE16d
+    PASS: TE18c
 
-    Results: 324 passed, 0 failed
+    Results: 326 passed, 0 failed
 
 - eval: E13
   judged_by: judge panel — domain-correctness, operational-feasibility, spec-alignment (fresh context)
-  judge_proposal: FAIL
+  judge_proposal: PASS
   rationale: |
-    Panel unanimous, 3/3 lenses, no dissent to reconcile. Full votes below —
-    each lens converges independently on the same gap: the marker line
-    "T1-ESCAPE: NOT ENFORCED reason=push-event-no-pr-premise" and the summary
-    line only restate that enforcement is off; neither explains what layer
-    T1-escape is, what "push-event-no-pr-premise" means in plain language, or
-    what concretely becomes possible (risk) while it is off.
+    Panel unanimous, 3/3 lenses, no dissent to reconcile. All three lenses
+    converge on the same read: the evidence now carries two NOTE lines in
+    natural language (not just the terse marker/summary from round 1) that
+    together answer all three questions a person who has never read the kit
+    needs — which layer is off, why it is off for this run, and what concrete
+    risk follows while it stays off.
 
-    - domain-correctness: FAIL — Dòng marker chỉ nêu mã trạng thái
-      "T1-ESCAPE: NOT ENFORCED reason=push-event-no-pr-premise" và dòng tổng
-      kết lặp lại "KHÔNG cưỡng chế" — không có chỗ nào giải thích T1-escape là
-      lớp/răng gì (khác gì với pre-merge-check nói chung), và hoàn toàn không
-      nêu rủi ro cụ thể nếu lớp này tắt (vd: code T3/critical có thể merge
-      qua push event mà không có artifact _acceptance/). Một người chưa từng
-      đọc kit chỉ suy ra được "có gì đó tên T1-escape đang tắt vì đây là push
-      event, không phải PR" nhưng không suy ra được hậu quả rủi ro là gì.
-    - operational-feasibility: FAIL — Dòng marker chỉ có
-      "T1-ESCAPE: NOT ENFORCED reason=push-event-no-pr-premise" và dòng tổng
-      kết chỉ lặp lại "KHÔNG cưỡng chế... xem dòng marker ở trên" — không có
-      từ nào giải thích T1-ESCAPE là LỚP kiểm tra gì (không dùng từ
-      "layer/lớp", không đối chiếu với các lớp/tier khác), reason chỉ là một
-      khoá kỹ thuật nén ("push-event-no-pr-premise") đòi hỏi người đọc tự
-      suy ra nghĩa "sự kiện push không có PR để so sánh". Quan trọng nhất,
-      cả hai dòng không nêu RỦI RO nào (vd: thay đổi có thể merge mà không
-      bị chặn thiếu artifact _acceptance/) — người chưa từng đọc kit sẽ biết
-      "có gì đó đang tắt" nhưng không hiểu lớp nào, vì sao đủ rõ, hay hậu quả
-      là gì.
-    - spec-alignment: FAIL — Dòng marker chỉ nêu nhãn cô đọng
-      "T1-ESCAPE: NOT ENFORCED reason=push-event-no-pr-premise" và dòng tổng
-      kết chỉ lặp lại "KHÔNG cưỡng chế trong lần chạy này" mà không định
-      nghĩa T1 là lớp gì, không giải thích "push-event-no-pr-premise" nghĩa
-      là gì bằng ngôn ngữ tự nhiên, và hoàn toàn không nêu rủi ro nào nếu
-      răng này tắt. Một người chưa từng đọc kit sẽ đọc được có thứ gì đó tên
-      "T1-escape" đang tắt vì một lý do dạng mã, nhưng không thể tự suy ra
-      lớp nào, vì sao, hay rủi ro cụ thể là gì.
+    - domain-correctness: PASS — Hai dòng NOTE trả lời đủ ba câu hỏi cho
+      người chưa biết kit: lớp tắt là "răng T1-escape" (luật đòi
+      _acceptance/<slug>/ khi đổi code quan trọng), lý do tắt là vì đây là
+      push thẳng nhánh chính không có PR để so sánh nên luật vô nghĩa trong
+      ngữ cảnh đó, và rủi ro cụ thể là thay đổi chạm code quan trọng có thể
+      lọt qua mà không bị chặn thiếu hồ sơ nghiệm thu (kèm trấn an các luật
+      khác vẫn chạy, và cách bật lại). Không cần biết nghĩa của marker kỹ
+      thuật để hiểu nội dung.
+    - operational-feasibility: PASS — Bằng chứng có 2 dòng NOTE viết bằng
+      ngôn ngữ tự nhiên, không cần biết thuật ngữ nội bộ: NOTE 1 nêu rõ lớp
+      đang tắt (răng T1-escape — luật đòi thay đổi code quan trọng phải kèm
+      _acceptance/<slug>/) và lý do tắt (lần chạy này là push thẳng nhánh
+      chính, không có PR để so, và commit hạ tầng theo thiết kế không có hồ
+      sơ). NOTE 2 nêu rủi ro cụ thể (thay đổi chạm code quan trọng có thể lọt
+      qua mà không bị chặn thiếu hồ sơ) và xác nhận các luật khác vẫn chạy,
+      cộng cách bật lại (bỏ cờ --no-t1-escape). Một người chưa đọc kit vẫn
+      nắm được layer/vì sao/rủi ro chỉ từ 3 dòng này, không cần suy luận từ
+      marker đơn lẻ như round 1.
+    - spec-alignment: PASS — Hai dòng NOTE trả lời đủ ba câu hỏi bằng ngôn
+      ngữ không đòi hiểu code: lớp tắt là "răng T1-escape" (luật buộc thay
+      đổi code quan trọng phải kèm thư mục _acceptance/<slug>/), lý do tắt
+      là vì đây là commit đẩy thẳng nhánh chính (không có PR để so nhánh
+      đích) và các commit hạ tầng loại này vốn không có hồ sơ, còn rủi ro cụ
+      thể được nêu rõ: một thay đổi quan trọng lọt vào lần chạy dạng này sẽ
+      không bị chặn thiếu hồ sơ nghiệm thu, dù các luật khác vẫn chạy. Một
+      người chưa đọc kit vẫn nắm được layer/vì sao/rủi ro chỉ từ evidence
+      này, không cần suy diễn thêm từ marker.
   human_override:
 
 ## Analyst
 
-Suite-level baseline for both machine commands read `green` (passed on the
-pre-feature diffBase too), so every eval each command covers is
-non-discriminating by the raw A/B signal:
+carried tu round truoc — baseline khong do lai round nay
 
-- `bash tests/scripts/run-tests.sh` → E1, E2, E3, E4, E5, E7, E14, E15, E16,
-  E17, E18
-- `bash tests/plugins/run-tests.sh` → E6, E8, E9, E10, E11, E12
-
-These are the two full nested suites (`tests/scripts/run-tests.sh`,
-`tests/plugins/run-tests.sh`), each carrying hundreds of pre-existing cases
-alongside the handful of new T1-escape cases (TE2a/a2/a3/a4, TE2b2, TE3a/b,
-TE4/4b, TE5a/b, TE7a/b, TE14a/b/c, TE15/15b, TE16a/b/c/d, TE17/17a/b/c, P40,
-P41, P42, P43, P44, P45); the individual new cases are the actual
-discriminating unit within each suite, not the suite exit code as a whole —
-per template guidance a full-suite command green on both sides is the
-expected regression-guard shape. Flagging here per the literal instruction
-so a human can confirm this reading rather than silently assuming it.
+Non-discriminating evals (pass on both HEAD and baseline) this round: none —
+baseline was not re-measured (every eval block above carries `baseline:
+n-a`), so the A/B discriminating signal from round 1 carries forward
+unchanged; see round 1's Analyst note for that reading. The two full-suite
+commands (`bash tests/scripts/run-tests.sh`, `bash
+tests/plugins/run-tests.sh`) are the expected green-on-both regression
+guards and are not listed per template guidance.
 
 ## Variance
 
@@ -297,6 +289,18 @@ scripts/sync-plugin-packages.sh --check`, both green, not tied to a specific
 eval id). E13 (AC-13, judgment) — panel proposes FAIL 3/3, no dissent;
 routed to Gate 2 for `human_override`.
 
+Round 2: same 17 machine evals still PASS (`bash tests/scripts/run-tests.sh`
+now 326 passed vs 324 in round 1 — TE18 cases added; `bash
+tests/plugins/run-tests.sh` unchanged, plus the same two supporting
+regression checks green). E13 evidence copy was revised (two NOTE lines
+added answering layer/why/risk) — panel proposal flips to PASS 3/3
+unanimous, no dissent. Contract is T3: every judgment item, including a PASS
+proposal, still requires an explicit `human_override` before the overall
+verdict can become PASS (hook-enforced) — verdict stays PENDING-JUDGMENT
+pending Gate 2. Baseline not re-measured this round (P2 — `evals.yaml`
+unchanged since the last baseline run); every machine eval block above
+carries `baseline: n-a` accordingly.
+
 ## Gate 2 checklist (human)
 
 - [ ] Read the table + spot-check 1-2 evidence blocks
@@ -308,11 +312,11 @@ routed to Gate 2 for `human_override`.
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter + `time_human_minutes.gate2` in contract
 
-E13 note for the human: the panel's proposal is FAIL, not UNCERTAIN — all
-three lenses independently converge on the same gap (marker text states
-*that* enforcement is off but never *what T1-escape is* or *what risk*
-follows). Resolving this at Gate 2 likely means either (a) accepting FAIL
-and sending the marker/summary copy back to implementation for a rewrite, or
-(b) overriding with a documented reason the panel's bar was too strict for
-a CI console-log marker. Either way this needs an explicit `human_override:
-<name> <date>` plus a note, not a rubber-stamp.
+E13 note for the human: this is a T3 contract, so `human_override` is
+required on E13 regardless of the judge verdict. The panel's proposal this
+round is PASS 3/3 (unanimous, no dissent) — a reversal from round 1's FAIL
+3/3 — on the grounds that the revised NOTE copy now answers layer/why/risk
+in plain language. Personally re-read the two NOTE lines in the evidence
+(not just the panel's summary) before filling `human_override: <name>
+<date>`; a PASS proposal is advisory input, not a substitute for your own
+read.

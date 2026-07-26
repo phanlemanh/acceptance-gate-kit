@@ -251,7 +251,11 @@ CI ở [`.github/workflows/gate.yml`](.github/workflows/gate.yml): 3 test suite 
 `pre-merge-check.sh` + **răng T1-escape (ĐANG BẬT)** — mọi PR chạm `t3_paths`
 bắt buộc kèm thay đổi dưới `_acceptance/`. Hai điều chỉnh riêng cho repo kit:
 
-- Chỉ chạy trên `pull_request` (một `push` không có nhánh base để so).
+- Răng T1-escape chỉ cưỡng chế trên `pull_request`. Ở `push`, job truyền
+  `--no-t1-escape` và in marker `T1-ESCAPE: NOT ENFORCED` — KHÔNG phải vì push
+  thiếu base (push CÓ base, để luật gap-probe chạy được), mà vì tiền đề "phải
+  kèm hồ sơ nghiệm thu" sai với commit đóng gói bản phát hành / đồng bộ bản sao.
+  Xem [ADR 0005](docs/adr/0005-t1-escape-opt-out-flag.md).
 - `pre-merge-check.sh` coi base không resolve được là *skip + clean* — đúng cho
   repo tiêu thụ, nhưng ở repo kit một backstop bị bỏ qua âm thầm CHÍNH LÀ lỗ nó
   sinh ra để bịt, nên CI nâng skip thành **lỗi**. Test P35 giữ cả ba tính chất

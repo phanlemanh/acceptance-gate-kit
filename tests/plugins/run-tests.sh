@@ -582,38 +582,57 @@ if [ "${PLUGINS_SUITE_NESTED:-0}" = "1" ]; then
   echo "P42/P45 bo qua (dang chay long ben trong ban sao)"
 else
 echo "P42 mot manifest lech so -> suite phai DO"
-P42T="$(mktemp -d)"; cp -R "$ROOT/." "$P42T/" 2>/dev/null || true
-python3 - "$P42T" <<'PYX'
+# Assert AM tinh mot minh la xanh-rong: cp hong / python loi / suite khong ton
+# tai deu cho exit khac 0 y het "da bat duoc drift". Phai co DOI CHUNG DUONG,
+# giong P41. (Round 1 sua P41 dung cach roi khong ap cho P42 ngay ben duoi.)
+P42T="$(mktemp -d)"; cp -R "$ROOT/." "$P42T/"
+if [ ! -f "$P42T/tests/plugins/run-tests.sh" ] || [ ! -f "$P42T/.codex-plugin/plugin.json" ]; then
+  fail "P42 fixture hong (thieu file sau khi cp)"
+elif ! PLUGINS_SUITE_NESTED=1 bash "$P42T/tests/plugins/run-tests.sh" >/dev/null 2>&1; then
+  fail "P42 doi chung duong that bai — ban sao nguyen ven da do san"
+else
+  if python3 - "$P42T" <<'PYX'
 import json,sys,pathlib
 p=pathlib.Path(sys.argv[1])/".codex-plugin/plugin.json"
 d=json.loads(p.read_text()); d["version"]="9.9.9"; p.write_text(json.dumps(d,indent=2)+"\n")
 PYX
-if PLUGINS_SUITE_NESTED=1 bash "$P42T/tests/plugins/run-tests.sh" >/dev/null 2>&1; then
-  fail "P42 manifest lech phai bi bat"
-else
-  pass "P42 manifest lech phai bi bat"
+  then
+    if PLUGINS_SUITE_NESTED=1 bash "$P42T/tests/plugins/run-tests.sh" >/dev/null 2>&1; then
+      fail "P42 manifest lech phai bi bat"
+    else
+      pass "P42 manifest lech phai bi bat"
+    fi
+  else
+    fail "P42 buoc tiem drift that bai"
+  fi
 fi
 rm -rf "$P42T"
 
 echo "P45 bump CA BA manifest + sync -> khong file nao duoi tests/ phai sua"
-P45T="$(mktemp -d)"; cp -R "$ROOT/." "$P45T/" 2>/dev/null || true
-python3 - "$P45T" <<'PYX'
+P45T="$(mktemp -d)"; cp -R "$ROOT/." "$P45T/"
+# Buoc tiem KHONG duoc nuot loi: hong o file dau tien thi khong bump gi ca,
+# sync thanh no-op, shasum truoc == sau, suite xanh — PASS ma khong kiem gi.
+P45_MUT_OK=1
+python3 - "$P45T" <<'PYX' || P45_MUT_OK=0
 import json,sys,pathlib
 root=pathlib.Path(sys.argv[1])
 for rel in [".claude-plugin/plugin.json",".codex-plugin/plugin.json","codex/acceptance-gate/.codex-plugin/plugin.json"]:
     p=root/rel; d=json.loads(p.read_text()); d["version"]="9.9.9"; p.write_text(json.dumps(d,indent=2)+"\n")
 PYX
+# doi chung: ca ba manifest PHAI thuc su mang so moi
+P45_BUMPED="$(grep -l '9\.9\.9' "$P45T/.claude-plugin/plugin.json" "$P45T/.codex-plugin/plugin.json" "$P45T/codex/acceptance-gate/.codex-plugin/plugin.json" 2>/dev/null | wc -l | tr -d ' ')"
 # Đo bằng CHỤP TRƯỚC/SAU chứ không bằng `git diff` với HEAD: bản sao mang theo
 # mọi thay đổi chưa commit của cây làm việc, nên git diff sẽ báo bẩn vì lý do
 # không liên quan tới bump (đã dẫm).
 P45_BEFORE="$(find "$P45T/tests" -type f -exec shasum {} \; | sort | shasum)"
 bash "$P45T/scripts/sync-plugin-packages.sh" --write >/dev/null 2>&1
 P45_AFTER="$(find "$P45T/tests" -type f -exec shasum {} \; | sort | shasum)"
-if [ "$P45_BEFORE" = "$P45_AFTER" ] \
+if [ "$P45_MUT_OK" -eq 1 ] && [ "$P45_BUMPED" = "3" ] \
+   && [ "$P45_BEFORE" = "$P45_AFTER" ] \
    && PLUGINS_SUITE_NESTED=1 bash "$P45T/tests/plugins/run-tests.sh" >/dev/null 2>&1; then
   pass "P45 bump ba manifest khong cham suite"
 else
-  fail "P45 bump ba manifest khong cham suite"
+  fail "P45 bump ba manifest khong cham suite (mut_ok=$P45_MUT_OK bumped=$P45_BUMPED)"
 fi
 rm -rf "$P45T"
 fi
@@ -666,6 +685,10 @@ for rel in ["commands/acceptance-init.md",
             "codex/acceptance-gate/skills/acceptance-init/SKILL.md"]:
     t = (root / rel).read_text()
     assert "--no-t1-escape" in t, f"{rel} chua nhac co cho job push"
+# Parity GUIDE <-> acceptance-init: consumer chep snippet tu GUIDE §Wire CI, nen
+# thieu co o day la ho dinh dung trieu chung feature nay sinh ra de chua.
+g = (root / "GUIDE.md").read_text()
+assert "--no-t1-escape" in g, "GUIDE (muc wire CI) chua nhac co cho job push"
 P44PY
 
 if [ "$failures" -gt 0 ]; then

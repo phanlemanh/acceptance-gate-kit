@@ -562,6 +562,12 @@ acceptance-gate:
     - uses: actions/checkout@v4
       with: { fetch-depth: 0 }   # cần lịch sử để kiểm verified_commit + chữ ký
     - run: bash scripts/pre-merge-check.sh . --base "origin/$GITHUB_BASE_REF"
+
+# Job chạy trên `push` (không phải PR): thêm --no-t1-escape. Răng T1-escape đòi
+# thay đổi phải kèm _acceptance/<slug>/ — tiền đề đó sai với commit đóng gói bản
+# phát hành / đồng bộ bản sao trên nhánh chính, để nguyên là job đỏ vĩnh viễn.
+# VẪN giữ --base: luật gap-probe cần phạm vi diff. Xem docs/adr/0005.
+bash scripts/pre-merge-check.sh . --base "$(git rev-parse HEAD~1)" --no-t1-escape
 ```
 
 `--base` bật **backstop chống né T1**: PR đổi code gated mà không mang artifact

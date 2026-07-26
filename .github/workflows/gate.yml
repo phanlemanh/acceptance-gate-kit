@@ -54,10 +54,14 @@ jobs:
           fi
       - name: pre-merge check (evidence + signoff + stale + run-log)
         run: bash scripts/pre-merge-check.sh . $T1_ESCAPE_FLAG
-      # ── Răng T1-escape (BẬT) ─────────────────────────────────────────────
+      # ── Răng T1-escape — chỉ trên pull_request ───────────────────────────
       # Mọi PR chạm path T3 (hooks/ lib/ pre-merge-check.sh recheck-evidence.js)
-      # phải kèm artifact `_acceptance/<slug>/`. Chỉ chạy trên pull_request:
-      # một `push` không có nhánh base để so, nên ở đó bước này không có nghĩa.
+      # phải kèm artifact `_acceptance/<slug>/`. Lý do chỉ chạy trên
+      # pull_request KHÔNG phải "push không có base" — push CÓ base (xem bước
+      # Resolve PR base ở trên). Lý do thật: tiền đề "thay đổi này là một PR nên
+      # phải kèm hồ sơ nghiệm thu" SAI với commit đóng gói bản phát hành hay
+      # đồng bộ bản sao landing thẳng nhánh chính. Xem docs/adr/0005.
+      # Ở nhánh push, bước pre-merge phía trên đã chạy với --no-t1-escape.
       - name: T1-escape backstop
         if: github.event_name == 'pull_request'
         run: |
