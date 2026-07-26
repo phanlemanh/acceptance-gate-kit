@@ -1,7 +1,7 @@
 ---
 schema_version: 2
 feature_slug: gap-probe-presence-hook
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
@@ -9,7 +9,7 @@ enforcement_mode: strict
 bypass_used: false
 verified_commit: 834eae810990af0450fe8b70a572eb9551c060c8
 # bypass_ack:
-human_signoff:
+human_signoff: Manh Phan 2026-07-26
 ---
 
 # Evidence Report: gap-probe-presence-hook
@@ -113,7 +113,7 @@ human_signoff:
     - domain-correctness: PASS (r3)
     - operational-feasibility: PASS (r3)
     - spec-alignment: PASS (r3)
-  human_override:        # T3: bắt buộc verdict trực tiếp từ human trên MỌI judgment item, bất kể panel đề xuất gì — điền "<name> <ISO date>" tại Gate 2
+  human_override: Manh Phan 2026-07-26        # T3: bắt buộc verdict trực tiếp từ human trên MỌI judgment item, bất kể panel đề xuất gì — điền "<name> <ISO date>" tại Gate 2
 
 - eval: E10
   run_id: minted-gap-probe-presence-hook-E10-r3
