@@ -526,6 +526,17 @@ else
   pass "P38b gate-card khong con literal regex descope"
 fi
 
+# ── P39: acceptance-init parity 2 harness ──────────────────────────────────
+# CLAUDE.md coi parity Claude↔Codex là bất biến. Repo khởi tạo bằng Codex mà
+# config không có khoá `gap_probe` thì luật im lặng ở đúng những repo đó.
+echo "P39 acceptance-init parity 2 harness: khoa gap_probe + 3 mode"
+for f in "$ROOT/commands/acceptance-init.md" \
+         "$ROOT/codex/acceptance-gate/skills/acceptance-init/SKILL.md"; do
+  n="$(basename "$(dirname "$f")")/$(basename "$f")"
+  if grep -q 'gap_probe:' "$f"; then pass "P39[$n:key]"; else fail "P39[$n:key]"; fi
+  if grep -q 'required | advisory | off' "$f"; then pass "P39[$n:modes]"; else fail "P39[$n:modes]"; fi
+done
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

@@ -48,6 +48,10 @@ Create `_acceptance/config.yaml` with two-space indentation:
 ```yaml
 schema_version: 1
 enforcement: strict
+gap_probe: advisory          # Luật phản biện context sạch ở pre-merge check: required | advisory | off.
+                             # `advisory` (mặc định khi khoá vắng) in NOTE khi một slug T2/T3 trong
+                             # diff PR thiếu gap-probe.md và thiếu entry descope; `required` chặn merge
+                             # VÀ chặn cả khi luật không cưỡng chế được (thiếu node/lib/--base).
 recheck: strict
 baseline_minutes: []
 executors:
