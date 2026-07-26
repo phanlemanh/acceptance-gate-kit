@@ -543,6 +543,21 @@ for f in "$ROOT/commands/acceptance-init.md" \
   if grep -q 'required | advisory | off' "$f"; then pass "P39[$n:modes]"; else fail "P39[$n:modes]"; fi
 done
 
+# ── P41: miễn trừ plugins/** trong t1_skip_globs KHÔNG được là lỗ ───────────
+# Allowlist mà không có ca NGOÀI danh sách là allowlist biến fail-loud thành
+# fail-silent. Răng T1-escape bỏ qua plugins/ được CHỈ VÌ P30 canh mirror==nguồn
+# ở luật khác — case này chứng minh luật khác đó thật sự sống.
+echo "P41 sua tay mirror -> sync --check VAN do"
+P41T="$(mktemp -d)"
+cp -R "$ROOT/." "$P41T/" 2>/dev/null || true
+printf '\n// tiêm\n' >> "$P41T/plugins/acceptance-gate/lib/gap-probe.js"
+if bash "$P41T/scripts/sync-plugin-packages.sh" --check >/dev/null 2>&1; then
+  fail "P41 mirror drift phai bi bat"
+else
+  pass "P41 mirror drift phai bi bat"
+fi
+rm -rf "$P41T"
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
