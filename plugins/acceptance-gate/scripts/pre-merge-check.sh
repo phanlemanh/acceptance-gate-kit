@@ -59,6 +59,12 @@ while [ $# -gt 0 ]; do
   esac
 done
 
+# lib dùng chung — CÙNG file mà scripts/gate-card.js require. pre-merge chỉ còn
+# đọc config, xác định phạm vi diff, in ấn và đếm; LUẬT nằm trong lib. Bản awk
+# cũ đã lệch thật: một dòng JSON hỏng mở được van thoát ở bash trong khi thẻ
+# Cổng 1 loại nó (AC-13). Parity giữ bằng comment là parity không có răng.
+GP_LIB="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)/lib/gap-probe.js"
+
 ACC="$ROOT/_acceptance"
 [ -d "$ACC" ] || { echo "pre-merge-check: no _acceptance/ — nothing to check"; exit 0; }
 
@@ -135,29 +141,6 @@ front_field() { # <file> <key> — read <key> from the LEADING --- frontmatter b
     | sed -e 's/[[:space:]]*#.*$//' -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//'
 }
 
-# In id của entry descope ĐẦU TIÊN có decision mở đầu "bỏ gap-probe" (khoan dung
-# khoảng trắng đầu, chấp cả "Bỏ" viết hoa) — CÙNG luật /^\s*bỏ gap-probe/i mà
-# scripts/gate-card.js dùng. Lệch nhau = thẻ Cổng 1 và pre-merge mâu thuẫn trên
-# cùng một artifact. Dòng JSON hỏng bị bỏ qua chứ không làm hỏng cả file: ledger
-# là sổ ghi lý do, một dòng lỗi không được biến thành chặn cổng.
-gap_probe_descope_id() { # <decisions.jsonl>
-  [ -f "$1" ] || return 0
-  awk '
-    /"type"[[:space:]]*:[[:space:]]*"descope"/ {
-      # Khớp CHÍNH XÁC luật /^\s*bỏ gap-probe/i của gate-card.js. awk không có cờ
-      # /i, tolower() không hạ được "Ỏ", và bracket-expression [ỏỎ] VỠ vì awk
-      # trên macOS xử theo BYTE chứ không theo ký tự — nên dùng alternation cho
-      # phần đa byte, lớp ký tự cho phần ASCII. MỘT space giữa "bỏ" và
-      # "gap-probe": [[:space:]]+ nới hơn thẻ và đó cũng là một chiều lệch.
-      if ($0 ~ /"decision"[[:space:]]*:[[:space:]]*"[[:space:]]*(bỏ|Bỏ|BỎ) [Gg][Aa][Pp]-[Pp][Rr][Oo][Bb][Ee]/) {
-        id = "(entry không có id)"
-        if (match($0, /"id"[[:space:]]*:[[:space:]]*"[^"]*"/)) {
-          s = substr($0, RSTART, RLENGTH); sub(/^.*"id"[[:space:]]*:[[:space:]]*"/, "", s); sub(/"$/, "", s); id = s
-        }
-        print id; exit
-      }
-    }' "$1"
-}
 
 match_globs() { # <path> <newline-separated globs> — 0 iff any glob matches
   while IFS= read -r g; do
@@ -346,24 +329,30 @@ XLACS
     # front_field CHỈ đọc khối --- ĐẦU file: một dòng `verdict:` nằm trong thân
     # bài (vd trích trong bảng finding) không được tính, và `touch` file rỗng cho
     # chuỗi rỗng nên rơi vào nhánh "thiếu". Đó là chốt chống bypass.
-    gp_verdict=""
-    [ -f "${dir}gap-probe.md" ] && gp_verdict="$(front_field "${dir}gap-probe.md" verdict | tr '[:upper:]' '[:lower:]')"
-    case "$gp_verdict" in
-      clean|findings)
-        : ;;
-      probe-failed)
-        echo "NOTE [$slug]: gap-probe verdict là probe-failed — phản biện KHÔNG chạy được. Merge lúc này nghĩa là merge mà chưa có phản biện context sạch; chạy lại S1#7 nếu muốn có, hoặc chấp nhận rủi ro đó." ;;
-      *)
-        gp_desc="$(gap_probe_descope_id "${dir}decisions.jsonl")"
-        if [ -n "$gp_desc" ]; then
-          echo "NOTE [$slug]: phản biện context sạch đã được BỎ có chủ đích theo ledger $gp_desc — quyết định có dấu vết, không phải sơ suất."
-        elif [ "$GAP_PROBE_MODE" = "required" ]; then
-          echo "VIOLATION [$slug]: chưa qua phản biện context sạch (gap-probe) — không có gap-probe.md hợp lệ và ledger không có entry descope. $gp_fix"
-          violations=$((violations+1))
-        else
-          echo "NOTE [$slug]: chưa qua phản biện context sạch (gap-probe) — advisory, không chặn merge. $gp_fix"
-        fi ;;
-    esac
+    gp_line=""
+    if [ -f "$GP_LIB" ] && command -v node >/dev/null 2>&1; then
+      gp_line="$(node "$GP_LIB" classify "$dir" 2>/dev/null || true)"
+    fi
+    if [ -z "$gp_line" ]; then
+      : # Task 4 nối hàm marker vào đây (sàn fail-closed).
+    else
+      gp_outcome="${gp_line%%	*}"
+      gp_id="${gp_line#*	}"
+      case "$gp_outcome" in
+        ok) : ;;
+        probe-failed)
+          echo "NOTE [$slug]: gap-probe verdict là probe-failed — phản biện KHÔNG chạy được. Merge lúc này nghĩa là merge mà chưa có phản biện context sạch; chạy lại S1#7 nếu muốn có, hoặc chấp nhận rủi ro đó." ;;
+        descoped)
+          echo "NOTE [$slug]: phản biện context sạch đã được BỎ có chủ đích theo ledger $gp_id — quyết định có dấu vết, không phải sơ suất." ;;
+        *)
+          if [ "$GAP_PROBE_MODE" = "required" ]; then
+            echo "VIOLATION [$slug]: chưa qua phản biện context sạch (gap-probe) — không có gap-probe.md hợp lệ và ledger không có entry descope. $gp_fix"
+            violations=$((violations+1))
+          else
+            echo "NOTE [$slug]: chưa qua phản biện context sạch (gap-probe) — advisory, không chặn merge. $gp_fix"
+          fi ;;
+      esac
+    fi
   fi
 
   report="$dir/evidence-report.md"

@@ -1694,9 +1694,6 @@ check U01 0 "$UST"
 ROOT_REAL="$(cd "$HERE/../.." && pwd)"
 # Gọi CHÍNH hàm trong pre-merge-check.sh, không chép regex sang test — chép là
 # test và code lệch nhau lúc nào không biết.
-gap_probe_descope_id_probe() {
-  bash -c 'eval "$(sed -n "/^gap_probe_descope_id()/,/^}/p" "$1")"; gap_probe_descope_id "$2"' _ "$ROOT_REAL/scripts/pre-merge-check.sh" "$1"
-}
 GPR="$T/gp"
 mk_gp_repo() { # <case> — repo git tối thiểu; trả BASE sha qua GP_BASE
   local R="$GPR/$1"; rm -rf "$R"; mkdir -p "$R/_acceptance" "$R/src"
@@ -1922,17 +1919,22 @@ hasout GPM15 "skipped" "$GPM15"
 # chỉ một ca. Bản trước chỉ có "  Bỏ gap-probe" nên lệch 3/5 ca mà test vẫn xanh:
 # thẻ nhận "BỎ GAP-PROBE"/"bỏ Gap-Probe" còn awk không; awk nhận "bỏ  gap-probe"
 # (hai space) còn thẻ không. Comment thì vẫn khẳng định "cùng luật".
-echo "GPM16 parity the<->pre-merge tren TRON khong gian hoa/thuong + khoang trang"
+echo "GPM16 van thoat descope: the va pre-merge phai khop tren CUNG bo ca"
+# Bản cũ source hàm awk trong pre-merge-check.sh — hàm đó đã bị gỡ (Task 3), và
+# việc nó tồn tại chính là thứ AC-19 cấm. Nay đo hai lối vào THẬT: lib (đường
+# gate-card đi) và pre-merge chạy end-to-end.
 GPM16_FAIL=0
-for cs in "bỏ gap-probe|Y" "  Bỏ gap-probe|Y" "BỎ GAP-PROBE|Y" "bỏ Gap-Probe|Y" "bỏ  gap-probe|N"; do
-  s="${cs%|*}"; want="${cs#*|}"
-  R="$GPR/gpm16"; rm -rf "$R"; mkdir -p "$R/_acceptance/pf"
-  printf -- '---\nschema_version: 1\nfeature: F\nslug: pf\nrisk_tier: T3\nstatus: draft\n---\n## Criteria\n- AC-1: Given a, When b, Then c.\n## Out of scope\n' > "$R/_acceptance/pf/contract.md"
-  printf 'evals:\n  - id: E1\n    criterion: AC-1\n    expected: "exit 0"\n' > "$R/_acceptance/pf/evals.yaml"
-  printf '{"id":"d-9","type":"descope","decision":"%s — x"}\n' "$s" > "$R/_acceptance/pf/decisions.jsonl"
-  card=N; node "$GCARD" --root "$R" --slug pf 2>/dev/null | grep -qi "Chưa có phản biện context sạch (gap-probe)" || card=Y
-  pm=N; [ -n "$(gap_probe_descope_id_probe "$R/_acceptance/pf/decisions.jsonl")" ] && pm=Y
-  [ "$card" = "$pm" ] && [ "$card" = "$want" ] || { echo "     lệch: \"$s\" card=$card pre-merge=$pm (cần $want)"; GPM16_FAIL=1; }
+for s in "bỏ gap-probe — x" "Bỏ gap-probe — x" "BỎ gap-probe — x" "  bỏ gap-probe — x" "bỏ GAP-PROBE — x"; do
+  mk_gp_repo gpm16; R="$GPR/gpm16"; gp_feature "$R" feat-p T3 implemented
+  printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"
+  printf '%s\n' "{\"id\":\"d-9\",\"type\":\"descope\",\"decision\":\"$s\"}" > "$R/_acceptance/feat-p/decisions.jsonl"
+  gp_commit "$R"
+  lib="$(node "$ROOT_REAL/lib/gap-probe.js" classify "$R/_acceptance/feat-p" | cut -f1)"
+  pm=N; bash "$CHECK" "$R" --base "$GP_BASE" 2>&1 | grep -q "BỎ có chủ đích" && pm=Y
+  want=Y; [ "$lib" = "descoped" ] || want=N
+  if [ "$lib" != "descoped" ] || [ "$pm" != "Y" ]; then
+    echo "     lệch: \"$s\" lib=$lib pre-merge=$pm (cần descoped/Y)"; GPM16_FAIL=1
+  fi
 done
 check GPM16 0 "$GPM16_FAIL"
 
