@@ -2500,6 +2500,47 @@ same   RL12c 0 "$(printf '%s\n' "$RL12OUT" | grep -cx 'ran gap-probe')"
 hasout RL12d "GAP-PROBE: NOT ENFORCED" "$RL12OUT"
 hasout RL12e "pre-merge-check: clean" "$RL12OUT"
 
+# ── RL10: bang chung cho judge phai SINH LAI roi diff byte-doi-byte ─────────
+# Cung khuon TE17/GPM12: dem nhan chi do su DAY DU, khong do tinh XAC THUC.
+# Thong diep doi ma file evidence khong doi thi judge cham mot ban chup cu.
+echo "RL10 sinh lai evidence/ledger-messages.txt roi diff byte-doi-byte"
+RLMSG="$ROOT_REAL/_acceptance/premerge-rules-ledger/evidence/ledger-messages.txt"
+RL10NEW="$(mktemp)"
+{
+  printf '%s\n' '# Thông điệp sổ luật-đã-chạy — SINH bởi tests/scripts/run-tests.sh (RL10).'
+  printf '%s\n' '# KHÔNG sửa tay: suite sinh lại file này mỗi lần chạy và diff byte-đối-byte.'
+  printf '\n== lần chạy sạch (mọi luật chạy) ==\n'
+  rl_repo rl10a
+  bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1 | grep -E '^(ran|declared-off) |^pre-merge-check: rules |^pre-merge-check: clean'
+  printf '\n== tắt có khai báo (--no-t1-escape) ==\n'
+  rl_repo rl10b
+  bash "$CHECK" "$TE_R" --base "$TE_B" --no-t1-escape 2>&1 | grep -E '^(ran|declared-off) |^pre-merge-check: rules '
+  printf '\n== sổ lệch (khối gap-probe bị vô hiệu trong bản sao) ==\n'
+  mk_gp_repo rl10c; R="$GPR/rl10c"; RL10_B="$GP_BASE"
+  gp_feature "$R" feat-m T3 implemented; gp_commit "$R"
+  RL10CP="$RLCP/scripts/rl10-check.sh"
+  awk '
+    /Gap-probe presence/ { hdr=1 }
+    hdr && /if \[ "\$GAP_PROBE_MODE" != "off" \] && slug_in_diff/ && !done { sub(/if .*then/, "if false; then"); done=1 }
+    { print }
+  ' "$CHECK" > "$RL10CP"
+  bash "$RL10CP" "$R" --base "$RL10_B" 2>&1 | grep -E '^VIOLATION \[ledger\]|^NOTE: VIOLATION \[ledger\]|^pre-merge-check: rules '
+} > "$RL10NEW" 2>&1
+if [ "${RL10_WRITE:-0}" = "1" ]; then cp "$RL10NEW" "$RLMSG"; echo "  (RL10_WRITE=1 — đã ghi lại)"; fi
+if diff -u "$RLMSG" "$RL10NEW" > "$T/rl10.diff" 2>&1; then
+  check RL10 0 0
+else
+  echo "     evidence LECH voi thong diep hien tai:"; head -20 "$T/rl10.diff" | sed 's/^/     /'
+  check RL10 0 1
+fi
+# Chong troi PHAM VI: mat han mot nhanh thi diff van khop neu evidence cung
+# sinh thieu — nen ghim tung nhanh co mat trong ban vua sinh.
+RL10M="$(cat "$RL10NEW")"
+hasout RL10a "VIOLATION [ledger]: luật gap-probe không chạy và không khai tắt" "$RL10M"
+hasout RL10b "lỗi NỘI TẠI của cổng pre-merge" "$RL10M"
+hasout RL10c "declared-off t1-escape" "$RL10M"
+hasout RL10d "pre-merge-check: rules ran=3 declared-off=0 expected=3" "$RL10M"
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
