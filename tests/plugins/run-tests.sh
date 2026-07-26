@@ -626,11 +626,13 @@ run "P43 GUIDE noi bump version thuoc S3" \
 import sys
 from pathlib import Path
 g = (Path(sys.argv[1]) / "GUIDE.md").read_text()
-assert "bump version" in g.lower(), "GUIDE phai noi ve bump version"
-i = g.lower().index("bump version")
-win = g[max(0, i - 600): i + 600]
-assert "S3" in win, "phai gan bump version vao S3"
-assert "stale" in win.lower(), "phai neu ly do: bump sau Cong 2 lam evidence stale"
+# Ghim CAU chu the, khong dung cua so ky tu quanh tu khoa: cua so ±600 bat phai
+# chu "S3"/"stale" cua doan KHAC nen no khong phan biet duoc (da do: go han
+# "thuoc S3" van xanh). Assertion khong phan biet duoc la assertion khong song.
+assert "Bump version + sync mirror thuộc S3" in g, \
+    "GUIDE phai gan bump version vao S3 bang mot cau ro rang"
+assert "huỷ chính chữ ký" in g, \
+    "GUIDE phai neu HE QUA: bump sau Cong 2 huy chinh chu ky vua lay"
 P43PY
 
 run "P44 acceptance-init CA HAI harness nhac co cho job push" \
