@@ -1999,6 +1999,46 @@ printf 'gap_probe: advisory\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
 GP19E="$(bash "$CHECK" "$R" 2>&1)"; check GPM19e 0 $?
 hasout GPM19f "GAP-PROBE: NOT ENFORCED reason=" "$GP19E"
 
+# ── GPM21: CÙNG bảng đầu vào qua CẢ HAI lối vào, khớp TỪNG ca ───────────────
+# GPM20 đo lib. P38 đo cấu trúc. Cái còn thiếu là: hai lối vào có cho cùng kết
+# luận không. Một ca đại diện không đủ — v2 lệch 3/5 ca mà test vẫn xanh.
+echo "GPM21 parity theo bang: decision card vs pre-merge, tung ca mot"
+GPM21_FAIL=0
+gp_pair() { # <nhãn> <ledger-json|rỗng> <kỳ vọng: descoped|missing>
+  # Hai lối vào hỏi CÙNG một câu trên CÙNG một ledger, nhưng ở hai chặng vòng
+  # đời khác nhau: thẻ Cổng 1 đọc contract `approved`, pre-merge chỉ xét từ
+  # `implemented`. Nên fixture phải có hai bản contract — ledger thì y hệt.
+  mk_gp_repo gpm21; local R="$GPR/gpm21"
+  gp_feature "$R" feat-t T3 implemented
+  printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"
+  [ -n "$2" ] && printf '%s\n' "$2" > "$R/_acceptance/feat-t/decisions.jsonl"
+  gp_commit "$R"
+  # lối vào A: pre-merge chạy END-TO-END (không phải lib trực tiếp)
+  local A=missing
+  bash "$CHECK" "$R" --base "$GP_BASE" 2>&1 | grep -q "BỎ có chủ đích" && A=descoped
+  # lối vào B: decision card Cổng 1 — cùng ledger, contract ở `approved`
+  local C="$GPR/gpm21card"; rm -rf "$C"; mkdir -p "$C/_acceptance/feat-t"
+  gp_feature "$C" feat-t T3 approved
+  [ -n "$2" ] && printf '%s\n' "$2" > "$C/_acceptance/feat-t/decisions.jsonl"
+  local B; B="$(node "$GCARD" --root "$C" --slug feat-t --extract 2>/dev/null | node -e '
+    let s=""; process.stdin.on("data",d=>s+=d).on("end",()=>{
+      try { process.stdout.write(JSON.parse(s).gap_probe.descoped ? "descoped" : "missing"); }
+      catch (e) { process.stdout.write("ERR"); }
+    })')"
+  if [ "$A" != "$3" ] || [ "$B" != "$3" ]; then
+    echo "     LỆCH [$1]: pre-merge=$A card=$B cần=$3"; GPM21_FAIL=$((GPM21_FAIL+1))
+  fi
+}
+gp_pair "thuong"        '{"id":"d-1","type":"descope","decision":"bỏ gap-probe — x"}'  descoped
+gp_pair "hoa"           '{"id":"d-2","type":"descope","decision":"BỎ gap-probe — x"}'  descoped
+gp_pair "space-dau"     '{"id":"d-3","type":"descope","decision":"   bỏ gap-probe"}'   descoped
+gp_pair "gap-probe-hoa" '{"id":"d-4","type":"descope","decision":"bỏ GAP-PROBE"}'      descoped
+gp_pair "json-hong"     '{"id":"d-5","type":"descope","decision":"bỏ gap-probe,,,'     missing
+gp_pair "type-khac"     '{"id":"d-6","type":"approach","decision":"bỏ gap-probe"}'     missing
+gp_pair "decision-khac" '{"id":"d-7","type":"descope","decision":"bỏ mockup"}'         missing
+gp_pair "ledger-vang"   ''                                                             missing
+check GPM21 0 "$GPM21_FAIL"
+
 # ── GPM20: bảng đầu vào chạy thẳng vào lib/gap-probe.js ─────────────────────
 # Đo CHÍNH mã sản phẩm, không chép luật sang test. GPM16 của v2 xanh giả vì
 # chép regex; đây là cùng bài học, áp ở tầng lib.
