@@ -33,6 +33,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      # Không --base ở job này: nó chạy cả trên push (không có nhánh base). Luật
+      # gap-probe chỉ xét slug trong diff PR nên ở đây nó tự bỏ qua kèm NOTE —
+      # bước T1-escape backstop bên dưới mới là chỗ nó có hiệu lực.
       - name: pre-merge check (evidence + signoff + stale + run-log)
         run: bash scripts/pre-merge-check.sh .
       # ── Răng T1-escape (BẬT) ─────────────────────────────────────────────

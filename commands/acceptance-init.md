@@ -35,7 +35,7 @@ Initialize the Acceptance-Gate Kit in the current repository.
 # 2-space indentation REQUIRED — the kit's hook parses this file line-by-line.
 schema_version: 1
 enforcement: strict          # strict | warn | off
-gap_probe: advisory          # Cổng phản biện context sạch ở pre-merge: required | advisory | off.
+gap_probe: advisory          # Luật phản biện context sạch ở pre-merge check: required | advisory | off.
                              # `advisory` (mặc định khi khoá vắng) in NOTE khi một slug T2/T3 trong
                              # diff PR thiếu gap-probe.md và thiếu entry descope; `required` chặn merge.
 recheck: strict              # CI re-check of COMMITTED evidence: strict | warn | off.

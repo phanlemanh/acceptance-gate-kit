@@ -144,7 +144,12 @@ gap_probe_descope_id() { # <decisions.jsonl>
   [ -f "$1" ] || return 0
   awk '
     /"type"[[:space:]]*:[[:space:]]*"descope"/ {
-      if ($0 ~ /"decision"[[:space:]]*:[[:space:]]*"[[:space:]]*[Bb]ỏ[[:space:]]+gap-probe/) {
+      # Khớp CHÍNH XÁC luật /^\s*bỏ gap-probe/i của gate-card.js. awk không có cờ
+      # /i, tolower() không hạ được "Ỏ", và bracket-expression [ỏỎ] VỠ vì awk
+      # trên macOS xử theo BYTE chứ không theo ký tự — nên dùng alternation cho
+      # phần đa byte, lớp ký tự cho phần ASCII. MỘT space giữa "bỏ" và
+      # "gap-probe": [[:space:]]+ nới hơn thẻ và đó cũng là một chiều lệch.
+      if ($0 ~ /"decision"[[:space:]]*:[[:space:]]*"[[:space:]]*(bỏ|Bỏ|BỎ) [Gg][Aa][Pp]-[Pp][Rr][Oo][Bb][Ee]/) {
         id = "(entry không có id)"
         if (match($0, /"id"[[:space:]]*:[[:space:]]*"[^"]*"/)) {
           s = substr($0, RSTART, RLENGTH); sub(/^.*"id"[[:space:]]*:[[:space:]]*"/, "", s); sub(/"$/, "", s); id = s
@@ -213,17 +218,41 @@ else
   if [ -z "$BASE_SHA" ]; then
     DIFF_SKIP_NOTE="base \"$BASE\" not resolvable in this clone"
   else
-    DIFF_FILES="$(git -C "$ROOT" diff --name-only "$BASE_SHA...HEAD" -- 2>/dev/null)"
-    DIFF_READY=1
+    # `rev-parse --verify` mới chỉ chứng minh OBJECT tồn tại. `git diff A...HEAD`
+    # vẫn rc=128 + stdout rỗng khi KHÔNG có merge-base (clone shallow/grafted,
+    # lịch sử rời nhau, base bị force-push). Nuốt rc ở đây là tai hoạ: script
+    # tin phạm vi "đã biết và RỖNG" → gap-probe không bao giờ nổ, T1-escape
+    # không thấy gì, NOTE bỏ-qua không in, và guard fail-closed của CI (grep
+    # "skipped") bị vượt luôn. Mù thì phải KHAI là mù.
+    if DIFF_FILES="$(git -C "$ROOT" diff --name-only "$BASE_SHA...HEAD" -- 2>/dev/null)"; then
+      DIFF_READY=1
+    else
+      DIFF_FILES=""
+      DIFF_SKIP_NOTE="git diff \"$BASE\"...HEAD failed (no merge base? shallow/grafted clone, unrelated history, force-pushed base)"
+    fi
   fi
 fi
 
 # 0 iff PR đổi ít nhất một file dưới _acceptance/<slug>/. NEO `^` là bắt buộc:
 # fixture ở tests/.../_acceptance/<slug>/ KHÔNG phải artifact của slug đó — glob
 # chưa neo chính là lỗ README đang ghi cho khối T1-escape bên dưới.
+# 0 iff PR đổi ít nhất một file dưới _acceptance/<slug>/.
+# Path của `git diff` LUÔN tương đối với git top-level, KHÔNG phải với $ROOT —
+# nên chỉ neo `^` là giả định ROOT == git root, và repo có `_acceptance/` nằm
+# sâu (monorepo: pkg/_acceptance/) sẽ thấy luật TẮT im lặng. Dùng đúng idiom mà
+# stale_files() và khối T1-escape trong file này vẫn dùng: chấp cả hai hình
+# dạng. Vẫn chặn được fixture rác vì đòi khớp trọn `_acceptance/<slug>/`.
 slug_in_diff() { # <slug>
   [ "$DIFF_READY" -eq 1 ] || return 1
-  printf '%s\n' "$DIFF_FILES" | grep -q "^_acceptance/$1/"
+  while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    case "$f" in
+      _acceptance/"$1"/*|*/_acceptance/"$1"/*) return 0 ;;
+    esac
+  done <<SLUGDIFF
+$DIFF_FILES
+SLUGDIFF
+  return 1
 }
 
 # AC-12 nửa sau: không có base thì luật không xác định được phạm vi, nên bỏ qua

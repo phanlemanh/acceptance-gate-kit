@@ -276,6 +276,10 @@ zero business-logic defects slipping past the gate.
 Deliberate scope cuts — each is backed by the pre-merge check + human signoff
 downstream, and revisited after the pilot:
 
+- **`gap_probe` defaults to `advisory`**: out of the box (key absent) a PR whose
+  slug lacks `gap-probe.md` merges with a NOTE, not a block. The merge-boundary
+  backstop now EXISTS (`pre-merge-check.sh`), but a repo has to opt into
+  `required` for it to have teeth. The kit's own config sets `required`.
 - **The T1-escape backstop has no path→slug mapping**: `pre-merge-check.sh`
   counts *any* change under a path matching `_acceptance/*` or `*/_acceptance/*`
   as "this PR carries gate artifacts". The glob is not anchored to the repo

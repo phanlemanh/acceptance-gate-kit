@@ -13,6 +13,8 @@ schema_version: 1
 # 3. KHÔNG có làn design/dev_server/capture: kit không có web UI.
 enforcement: strict
 recheck: strict              # kit tự bắt mình theo mức chặt nhất; consumer mới có thể để `warn`
+gap_probe: required          # cùng posture: kit KHÔNG tự cho mình mode advisory mà bảo consumer
+                             # dùng nó. Chỉ xét slug có file trong diff PR nên nợ lịch sử không nổ.
 baseline_minutes: []         # TODO(human): ước lượng phút nghiệm thu TRƯỚC khi có kit, để /acceptance-report tính KPI
 executors:
   test:

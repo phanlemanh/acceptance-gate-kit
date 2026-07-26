@@ -1676,6 +1676,11 @@ check U01 0 "$UST"
 
 # ─── Gap-probe presence at the merge boundary (GPM*) ─────────────────────────
 ROOT_REAL="$(cd "$HERE/../.." && pwd)"
+# Gọi CHÍNH hàm trong pre-merge-check.sh, không chép regex sang test — chép là
+# test và code lệch nhau lúc nào không biết.
+gap_probe_descope_id_probe() {
+  bash -c 'eval "$(sed -n "/^gap_probe_descope_id()/,/^}/p" "$1")"; gap_probe_descope_id "$2"' _ "$ROOT_REAL/scripts/pre-merge-check.sh" "$1"
+}
 GPR="$T/gp"
 mk_gp_repo() { # <case> — repo git tối thiểu; trả BASE sha qua GP_BASE
   local R="$GPR/$1"; rm -rf "$R"; mkdir -p "$R/_acceptance" "$R/src"
@@ -1860,6 +1865,60 @@ if [ -f "$GPMSG" ]; then
 else
   check GPM12-missing 0 1
 fi
+
+# Ba case cho HẠ TẦNG diff-scope. Cả 3 lỗi HIGH của v2 đều nằm ở đây chứ không
+# ở luật gap-probe: hạ tầng fail-open trong một script cưỡng chế nguy hiểm hơn
+# chính luật nó chở. Luật bất di bất dịch: KHÔNG BAO GIỜ được im lặng coi phạm
+# vi là "đã biết và rỗng".
+echo "GPM14 _acceptance/ KHONG o git root -> luat VAN chay (khong tat im lang)"
+R="$GPR/gpm14"; rm -rf "$R"; mkdir -p "$R/pkg/_acceptance/feat-x" "$R/pkg/src"
+git init -q "$R"
+printf 'schema_version: 1\ngap_probe: required\nrisk_tiers:\n  t3_paths:\n    - "src/**"\n' > "$R/pkg/_acceptance/config.yaml"
+printf 'v1\n' > "$R/pkg/src/a.js"
+git -C "$R" add -A >/dev/null; git -c user.email=t@t -c user.name=t -C "$R" commit -qm base
+GPM14_B="$(git -C "$R" rev-parse HEAD)"
+gp_feature "$R/pkg" feat-x T3 implemented
+git -C "$R" add -A >/dev/null; git -c user.email=t@t -c user.name=t -C "$R" commit -qm feat
+GPM14="$(bash "$CHECK" "$R/pkg" --base "$GPM14_B" 2>&1)"; check GPM14 1 $?
+hasout GPM14a "phản biện" "$GPM14"
+
+echo "GPM15 git diff FAIL (lich su roi nhau) -> phai BAO BO QUA, khong tin pham vi rong"
+R="$GPR/gpm15"; rm -rf "$R"; mkdir -p "$R/_acceptance/feat-b" "$R/src"
+git init -q "$R"
+printf 'schema_version: 1\ngap_probe: required\nrisk_tiers:\n  t3_paths:\n    - "src/**"\n' > "$R/_acceptance/config.yaml"
+printf 'x\n' > "$R/src/a.js"
+git -C "$R" add -A >/dev/null; git -c user.email=t@t -c user.name=t -C "$R" commit -qm main
+GPM15_MAIN="$(git -C "$R" rev-parse --abbrev-ref HEAD)"   # tên nhánh gốc (main hay master tuỳ máy)
+git -C "$R" checkout -q --orphan other; git -C "$R" rm -rqf . 2>/dev/null || true
+printf 'y\n' > "$R/z.txt"; git -C "$R" add -A >/dev/null
+git -c user.email=t@t -c user.name=t -C "$R" commit -qm orphan
+GPM15_ORPH="$(git -C "$R" rev-parse HEAD)"
+# Quay lại nhánh gốc bằng TÊN — `checkout -` không đáng tin ở repo vừa init, và
+# nếu HEAD kẹt trên orphan thì base lại là tổ tiên của HEAD, diff rc=0 và case
+# này xanh RỖNG (đã dẫm).
+git -C "$R" checkout -q "$GPM15_MAIN"
+gp_feature "$R" feat-b T3 implemented
+git -C "$R" add -A >/dev/null; git -c user.email=t@t -c user.name=t -C "$R" commit -qm feat
+GPM15="$(bash "$CHECK" "$R" --base "$GPM15_ORPH" 2>&1)"
+hasout GPM15 "skipped" "$GPM15"
+
+# Parity thẻ↔pre-merge phải kiểm TRỌN không gian hoa/thường + khoảng trắng, không
+# chỉ một ca. Bản trước chỉ có "  Bỏ gap-probe" nên lệch 3/5 ca mà test vẫn xanh:
+# thẻ nhận "BỎ GAP-PROBE"/"bỏ Gap-Probe" còn awk không; awk nhận "bỏ  gap-probe"
+# (hai space) còn thẻ không. Comment thì vẫn khẳng định "cùng luật".
+echo "GPM16 parity the<->pre-merge tren TRON khong gian hoa/thuong + khoang trang"
+GPM16_FAIL=0
+for cs in "bỏ gap-probe|Y" "  Bỏ gap-probe|Y" "BỎ GAP-PROBE|Y" "bỏ Gap-Probe|Y" "bỏ  gap-probe|N"; do
+  s="${cs%|*}"; want="${cs#*|}"
+  R="$GPR/gpm16"; rm -rf "$R"; mkdir -p "$R/_acceptance/pf"
+  printf -- '---\nschema_version: 1\nfeature: F\nslug: pf\nrisk_tier: T3\nstatus: draft\n---\n## Criteria\n- AC-1: Given a, When b, Then c.\n## Out of scope\n' > "$R/_acceptance/pf/contract.md"
+  printf 'evals:\n  - id: E1\n    criterion: AC-1\n    expected: "exit 0"\n' > "$R/_acceptance/pf/evals.yaml"
+  printf '{"id":"d-9","type":"descope","decision":"%s — x"}\n' "$s" > "$R/_acceptance/pf/decisions.jsonl"
+  card=N; node "$GCARD" --root "$R" --slug pf 2>/dev/null | grep -qi "Chưa có phản biện context sạch (gap-probe)" || card=Y
+  pm=N; [ -n "$(gap_probe_descope_id_probe "$R/_acceptance/pf/decisions.jsonl")" ] && pm=Y
+  [ "$card" = "$pm" ] && [ "$card" = "$want" ] || { echo "     lệch: \"$s\" card=$card pre-merge=$pm (cần $want)"; GPM16_FAIL=1; }
+done
+check GPM16 0 "$GPM16_FAIL"
 
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
