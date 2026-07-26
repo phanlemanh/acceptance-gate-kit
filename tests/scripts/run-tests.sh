@@ -1667,6 +1667,101 @@ UOUT="$(node "$HERE/wf-usage.test.mjs" 2>&1)"; UST=$?
 [ "$UST" -eq 0 ] || printf '%s\n' "$UOUT"
 check U01 0 "$UST"
 
+# ─── Gap-probe presence at the merge boundary (GPM*) ─────────────────────────
+ROOT_REAL="$(cd "$HERE/../.." && pwd)"
+GPR="$T/gp"
+mk_gp_repo() { # <case> — repo git tối thiểu; trả BASE sha qua GP_BASE
+  local R="$GPR/$1"; rm -rf "$R"; mkdir -p "$R/_acceptance" "$R/src"
+  git init -q "$R"
+  printf 'schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "docs/**"\n  t3_paths:\n    - "src/**"\n' > "$R/_acceptance/config.yaml"
+  printf 'v1\n' > "$R/src/app.js"
+  git -C "$R" add -A >/dev/null
+  git -c user.email=t@t -c user.name=t -C "$R" commit -qm base
+  GP_BASE="$(git -C "$R" rev-parse HEAD)"
+}
+# gp_feature <root> <slug> <tier> <status>
+# Feature SẠCH MỌI MẶT KHÁC: có evidence-report PASS + chữ ký, để violation duy
+# nhất có thể nổ là luật gap-probe. Fixture thiếu evidence sẽ đỏ vì lý do khác
+# và mọi assert exit-code thành xanh-rỗng (đã dẫm ở vòng RED đầu).
+gp_feature() {
+  local d="$1/_acceptance/$2"; mkdir -p "$d"
+  printf -- '---\nschema_version: 1\nfeature: %s\nslug: %s\nrisk_tier: %s\nsurfaces: [api]\nstatus: %s\napproved_by: Manh Phan\napproved_at: 2026-06-10\n---\n' \
+    "$2" "$2" "$3" "$4" > "$d/contract.md"
+  case "$4" in
+    implemented|verified|signed-off)
+      local v="$1/verify-$2.sh"; printf '#!/bin/sh\nexit 0\n' > "$v"
+      printf -- '---\nschema_version: 1\nfeature_slug: %s\nverdict: PASS\nhuman_signoff: Manh Phan 2026-06-20\n---\n\n## Evidence\n- eval: E1\n  run_id: %s-E1-001\n  exit_code: 0\n  verifier: %s\n  verified_at: 2026-06-20\n' \
+        "$2" "$2" "$v" > "$d/evidence-report.md" ;;
+  esac
+}
+gp_commit() { git -C "$1" add -A >/dev/null; git -c user.email=t@t -c user.name=t -C "$1" commit -qm change; }
+
+echo "GPM11 gap_probe: bien the hop le nhan dung, sai chinh ta -> canh bao cau hinh"
+mk_gp_repo gp11a; R="$GPR/gp11a"; gp_feature "$R" feat-q T3 implemented
+printf 'gap_probe: "required"\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GPM11a 1 $?
+mk_gp_repo gp11b; R="$GPR/gp11b"; gp_feature "$R" feat-q T3 implemented
+printf 'gap_probe: Required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GPM11b 1 $?
+mk_gp_repo gp11c; R="$GPR/gp11c"; gp_feature "$R" feat-q T3 implemented
+printf 'gap_probe: requird\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+GP11C="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"
+hasout GPM11c "gap_probe" "$GP11C"
+hasout GPM11c2 "requird" "$GP11C"
+
+echo "GPM1 required + thieu ca file lan descope + slug TRONG diff -> VIOLATION"
+mk_gp_repo gpm1; R="$GPR/gpm1"; gp_feature "$R" feat-b T3 implemented
+printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+GPM1="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; GPM1ST=$?
+check GPM1 1 "$GPM1ST"
+hasout GPM1msg "gap-probe" "$GPM1"
+hasout GPM1slug "feat-b" "$GPM1"
+
+echo "GPM2 advisory -> NOTE, khong chan"
+mk_gp_repo gpm2; R="$GPR/gpm2"; gp_feature "$R" feat-b T3 implemented
+printf 'gap_probe: advisory\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+GPM2="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM2 0 $?
+hasout GPM2note "gap-probe" "$GPM2"
+nothas GPM2noviol "VIOLATION [feat-b]" "$GPM2"
+
+echo "GPM2b khoa gap_probe VANG -> y het advisory"
+mk_gp_repo gpm2b; R="$GPR/gpm2b"; gp_feature "$R" feat-b T3 implemented; gp_commit "$R"
+GPM2B="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM2b 0 $?
+hasout GPM2bnote "gap-probe" "$GPM2B"
+
+echo "GPM3 off -> khong in gi ve gap-probe"
+mk_gp_repo gpm3; R="$GPR/gpm3"; gp_feature "$R" feat-b T3 implemented
+printf 'gap_probe: off\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+GPM3="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM3 0 $?
+nothas GPM3silent "gap-probe" "$GPM3"
+
+echo "GPM4 contract T1 + required -> khong xet (thua huong loc REQUIRED_FOR)"
+mk_gp_repo gpm4; R="$GPR/gpm4"; gp_feature "$R" feat-t1 T1 implemented
+printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+GPM4="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM4 0 $?
+nothas GPM4silent "phản biện" "$GPM4"
+
+echo "GPM10 status draft va approved + required -> khong in gi"
+mk_gp_repo gpm10; R="$GPR/gpm10"
+gp_feature "$R" feat-d T3 draft; gp_feature "$R" feat-e T3 approved
+printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+GPM10="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM10 0 $?
+nothas GPM10a "phản biện" "$GPM10"
+nothas GPM10b "gap-probe" "$GPM10"
+
+echo "GPM13 slug NGOAI diff -> khong xet; khong --base -> bo qua kem NOTE"
+mk_gp_repo gpm13; R="$GPR/gpm13"; gp_feature "$R" feat-old T3 implemented
+printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+GPM_B2="$(git -C "$R" rev-parse HEAD)"
+# PR phải mang MỘT thay đổi dưới _acceptance/ để thoả răng T1-escape (nếu không
+# nó nổ VIOLATION riêng và case này đỏ sai lý do). Slug mới để T1 nên chính nó
+# được vòng lọc tier bỏ qua — thứ duy nhất còn có thể nói là luật gap-probe.
+printf 'v2\n' >> "$R/src/app.js"; gp_feature "$R" feat-new T1 implemented; gp_commit "$R"
+GPM13="$(bash "$CHECK" "$R" --base "$GPM_B2" 2>&1)"; check GPM13 0 $?
+nothas GPM13a "phản biện" "$GPM13"
+GPM13B="$(bash "$CHECK" "$R" 2>&1)"; check GPM13b 0 $?
+hasout GPM13c "gap-probe" "$GPM13B"
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1

@@ -24,7 +24,7 @@
 | File | Trách nhiệm | Thay đổi |
 |---|---|---|
 | `scripts/pre-merge-check.sh` | Toàn bộ luật (bash, một chỗ duy nhất) | Hoist diff-scope + 2 helper + 1 khối luật trong vòng lặp |
-| `tests/scripts/run-tests.sh` | Bằng chứng cho 12 AC | Thêm case `GP1`–`GP13` |
+| `tests/scripts/run-tests.sh` | Bằng chứng cho 12 AC | Thêm case `GPM1`–`GPM13` |
 | `_acceptance/gap-probe-presence-hook/evidence/premerge-messages.txt` | Input cho judge E9 | Sinh từ stdout thật |
 
 Cả 6 task đụng cùng `pre-merge-check.sh` → **không task nào `independent: true`**; chạy tuần tự.
@@ -47,7 +47,7 @@ Cả 6 task đụng cùng `pre-merge-check.sh` → **không task nào `independe
 Chèn vào `tests/scripts/run-tests.sh`, NGAY TRƯỚC dòng `echo ""` cuối cùng (khối in `Results:`):
 
 ```bash
-# ─── Gap-probe presence at the merge boundary (GP*) ─────────────────────────
+# ─── Gap-probe presence at the merge boundary (GPM*) ─────────────────────────
 GPR="$T/gp"
 mk_gp_repo() { # <case> — repo git tối thiểu, trả BASE sha qua GP_BASE
   local R="$GPR/$1"; rm -rf "$R"; mkdir -p "$R/_acceptance" "$R/src"
@@ -67,19 +67,19 @@ gp_feature() {
 }
 gp_commit() { git -C "$1" add -A >/dev/null; git -c user.email=t@t -c user.name=t -C "$1" commit -qm change; }
 
-echo "GP0 slug_in_diff neo repo-root: fixture ngoài _acceptance/<slug>/ KHÔNG được tính"
+echo "GPM0 slug_in_diff neo repo-root: fixture ngoài _acceptance/<slug>/ KHÔNG được tính"
 mk_gp_repo gp0; R="$GPR/gp0"
 gp_feature "$R" feat-a T3 implemented
 mkdir -p "$R/tests/fixtures/_acceptance/feat-a"; printf 'x\n' > "$R/tests/fixtures/_acceptance/feat-a/contract.md"
 printf 'v2\n' >> "$R/src/app.js"; gp_commit "$R"
 GP0OUT="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"
-case "$GP0OUT" in *"DIFF_READY"*) check GP0 0 1 ;; *) check GP0 0 0 ;; esac
+case "$GP0OUT" in *"DIFF_READY"*) check GPM0 0 1 ;; *) check GPM0 0 0 ;; esac
 ```
 
 - [ ] **Step 2: Chạy để thấy hành vi hiện tại**
 
-Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "GP0|Results:"`
-Expected: `GP0` PASS (chưa có gì in `DIFF_READY`) — đây là case-khung, giá trị thật của nó đến ở Task 3+. **Nếu FAIL thì dừng**, đọc lỗi.
+Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "GPM0|Results:"`
+Expected: `GPM0` PASS (chưa có gì in `DIFF_READY`) — đây là case-khung, giá trị thật của nó đến ở Task 3+. **Nếu FAIL thì dừng**, đọc lỗi.
 
 - [ ] **Step 3: Hoist khối resolve diff lên trước vòng lặp**
 
@@ -160,35 +160,35 @@ git commit -m "refactor(pre-merge): hoist diff-scope lên trước vòng lặp p
 
 - [ ] **Step 1: Viết case RED**
 
-Chèn sau case `GP0`:
+Chèn sau case `GPM0`:
 
 ```bash
-echo "GP11 gia tri gap_probe: nhay + viet hoa nhan dung, sai chinh ta -> canh bao cau hinh"
+echo "GPM11 gia tri gap_probe: nhay + viet hoa nhan dung, sai chinh ta -> canh bao cau hinh"
 mk_gp_repo gp11a; R="$GPR/gp11a"
 gp_feature "$R" feat-q T3 implemented
 printf 'gap_probe: "required"\n' >> "$R/_acceptance/config.yaml"
 printf 'v2\n' >> "$R/src/app.js"; gp_commit "$R"
-bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GP11a 1 $?
+bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GPM11a 1 $?
 
 mk_gp_repo gp11b; R="$GPR/gp11b"
 gp_feature "$R" feat-q T3 implemented
 printf 'gap_probe: Required\n' >> "$R/_acceptance/config.yaml"
 printf 'v2\n' >> "$R/src/app.js"; gp_commit "$R"
-bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GP11b 1 $?
+bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GPM11b 1 $?
 
 mk_gp_repo gp11c; R="$GPR/gp11c"
 gp_feature "$R" feat-q T3 implemented
 printf 'gap_probe: requird\n' >> "$R/_acceptance/config.yaml"
 printf 'v2\n' >> "$R/src/app.js"; gp_commit "$R"
 GP11C="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"
-hasout GP11c "gap_probe" "$GP11C"
+hasout GPM11c "gap_probe" "$GP11C"
 hasout GP11c2 "requird" "$GP11C"
 ```
 
 - [ ] **Step 2: Chạy để thấy ĐỎ**
 
-Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "GP11|Results:"`
-Expected: `GP11a`/`GP11b` FAIL (expected exit 1, got 0 — chưa có luật nào chặn), `GP11c`/`GP11c2` FAIL (chưa in cảnh báo nào).
+Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "GPM11|Results:"`
+Expected: `GPM11a`/`GPM11b` FAIL (expected exit 1, got 0 — chưa có luật nào chặn), `GPM11c`/`GP11c2` FAIL (chưa in cảnh báo nào).
 
 - [ ] **Step 3: Thêm mặc định**
 
@@ -222,9 +222,9 @@ Trong khối đọc config (cạnh dòng `[ -n "$cfg_req" ] && REQUIRED_FOR="$cf
 
 - [ ] **Step 5: Chạy để thấy XANH**
 
-Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "GP11|Results:"`
-Expected: `GP11a`, `GP11b`, `GP11c`, `GP11c2` đều PASS.
-*(GP11a/GP11b đỏ→xanh nhờ Task 3? KHÔNG — chúng xanh ngay ở task này vì `requird` chưa nói gì; nếu chúng vẫn FAIL sau step này thì đó là do luật chặn chưa tồn tại, hãy để chúng cho Task 3 và ghi chú lại, đừng sửa test cho vừa code.)*
+Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "GPM11|Results:"`
+Expected: `GPM11a`, `GPM11b`, `GPM11c`, `GP11c2` đều PASS.
+*(GPM11a/GPM11b đỏ→xanh nhờ Task 3? KHÔNG — chúng xanh ngay ở task này vì `requird` chưa nói gì; nếu chúng vẫn FAIL sau step này thì đó là do luật chặn chưa tồn tại, hãy để chúng cho Task 3 và ghi chú lại, đừng sửa test cho vừa code.)*
 
 - [ ] **Step 6: Commit**
 
@@ -249,75 +249,75 @@ git commit -m "feat(pre-merge): đọc mode gap_probe từ config, fail-loud khi
 - [ ] **Step 1: Viết case RED**
 
 ```bash
-echo "GP1 required + thieu ca file lan descope + slug TRONG diff -> VIOLATION"
+echo "GPM1 required + thieu ca file lan descope + slug TRONG diff -> VIOLATION"
 mk_gp_repo gp1; R="$GPR/gp1"
 gp_feature "$R" feat-b T3 implemented
 printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"
 gp_commit "$R"
-GP1="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; GP1ST=$?
-check GP1 1 "$GP1ST"
-hasout GP1msg "gap-probe" "$GP1"
-hasout GP1slug "feat-b" "$GP1"
+GPM1="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; GP1ST=$?
+check GPM1 1 "$GP1ST"
+hasout GPM1msg "gap-probe" "$GPM1"
+hasout GPM1slug "feat-b" "$GPM1"
 
-echo "GP2 advisory -> NOTE, khong chan"
+echo "GPM2 advisory -> NOTE, khong chan"
 mk_gp_repo gp2; R="$GPR/gp2"
 gp_feature "$R" feat-b T3 implemented
 printf 'gap_probe: advisory\n' >> "$R/_acceptance/config.yaml"
 gp_commit "$R"
-GP2="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GP2 0 $?
-hasout GP2note "NOTE" "$GP2"
-nothas GP2noviol "VIOLATION [feat-b]" "$GP2"
+GPM2="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM2 0 $?
+hasout GPM2note "NOTE" "$GPM2"
+nothas GPM2noviol "VIOLATION [feat-b]" "$GPM2"
 
-echo "GP2b khoa gap_probe VANG -> hanh vi y het advisory"
+echo "GPM2b khoa gap_probe VANG -> hanh vi y het advisory"
 mk_gp_repo gp2b; R="$GPR/gp2b"
 gp_feature "$R" feat-b T3 implemented
 gp_commit "$R"
-GP2B="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GP2b 0 $?
-hasout GP2bnote "gap-probe" "$GP2B"
+GP2B="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM2b 0 $?
+hasout GPM2bnote "gap-probe" "$GP2B"
 
-echo "GP3 off -> khong in gi ve gap-probe"
+echo "GPM3 off -> khong in gi ve gap-probe"
 mk_gp_repo gp3; R="$GPR/gp3"
 gp_feature "$R" feat-b T3 implemented
 printf 'gap_probe: off\n' >> "$R/_acceptance/config.yaml"
 gp_commit "$R"
-GP3="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GP3 0 $?
-nothas GP3silent "gap-probe" "$GP3"
+GPM3="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM3 0 $?
+nothas GPM3silent "gap-probe" "$GPM3"
 
-echo "GP4 contract T1 + required -> khong xet (thua huong loc REQUIRED_FOR)"
+echo "GPM4 contract T1 + required -> khong xet (thua huong loc REQUIRED_FOR)"
 mk_gp_repo gp4; R="$GPR/gp4"
 gp_feature "$R" feat-t1 T1 implemented
 printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"
 gp_commit "$R"
-GP4="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GP4 0 $?
-nothas GP4silent "feat-t1" "$GP4"
+GPM4="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM4 0 $?
+nothas GPM4silent "feat-t1" "$GPM4"
 
-echo "GP10 status draft va approved + required -> khong in gi"
+echo "GPM10 status draft va approved + required -> khong in gi"
 mk_gp_repo gp10; R="$GPR/gp10"
 gp_feature "$R" feat-d T3 draft
 gp_feature "$R" feat-e T3 approved
 printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"
 gp_commit "$R"
-GP10="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GP10 0 $?
-nothas GP10a "feat-d" "$GP10"
-nothas GP10b "feat-e" "$GP10"
+GPM10="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM10 0 $?
+nothas GPM10a "feat-d" "$GPM10"
+nothas GPM10b "feat-e" "$GPM10"
 
-echo "GP13 slug NGOAI diff -> khong xet; khong --base -> bo qua kem NOTE"
+echo "GPM13 slug NGOAI diff -> khong xet; khong --base -> bo qua kem NOTE"
 mk_gp_repo gp13; R="$GPR/gp13"
 gp_feature "$R" feat-old T3 implemented
 printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"
 gp_commit "$R"                      # commit feat-old vao BASE
 GP_BASE="$(git -C "$R" rev-parse HEAD)"
 printf 'v2\n' >> "$R/src/app.js"; gp_commit "$R"   # PR chi cham src/
-GP13="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GP13 0 $?
-nothas GP13a "feat-old" "$GP13"
-GP13B="$(bash "$CHECK" "$R" 2>&1)"; check GP13b 0 $?
-hasout GP13c "gap-probe" "$GP13B"
+GPM13="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM13 0 $?
+nothas GPM13a "feat-old" "$GPM13"
+GP13B="$(bash "$CHECK" "$R" 2>&1)"; check GPM13b 0 $?
+hasout GPM13c "gap-probe" "$GP13B"
 ```
 
 - [ ] **Step 2: Chạy để thấy ĐỎ**
 
-Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "GP1 |GP1msg|GP2|GP3|GP4|GP10|GP13|Results:"`
-Expected: `GP1` FAIL (expected 1, got 0), `GP1msg`/`GP1slug` FAIL, `GP2note`/`GP2bnote`/`GP13c` FAIL. `GP3silent`, `GP4silent`, `GP10a/b`, `GP13a` PASS **rỗng** (chưa có luật nên im lặng là hiển nhiên) — ghi nhận, chúng chỉ có giá trị thật sau Step 3.
+Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "GPM1 |GPM1msg|GPM2|GPM3|GPM4|GPM10|GPM13|Results:"`
+Expected: `GPM1` FAIL (expected 1, got 0), `GPM1msg`/`GPM1slug` FAIL, `GPM2note`/`GPM2bnote`/`GPM13c` FAIL. `GPM3silent`, `GPM4silent`, `GPM10a/b`, `GPM13a` PASS **rỗng** (chưa có luật nên im lặng là hiển nhiên) — ghi nhận, chúng chỉ có giá trị thật sau Step 3.
 
 - [ ] **Step 3: NOTE một lần khi không có diff**
 
@@ -358,10 +358,10 @@ Trong vòng lặp per-slug, NGAY SAU khối cross-layer (`fi` đóng của `if [
 Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -cE "FAIL"`
 Expected: `0`. Rồi `bash tests/scripts/run-tests.sh 2>&1 | tail -1` → `Results: 252 passed, 0 failed`.
 
-- [ ] **Step 6: Chứng minh GP3/GP4/GP10/GP13a biết đỏ**
+- [ ] **Step 6: Chứng minh GPM3/GPM4/GPM10/GPM13a biết đỏ**
 
 Tạm đổi điều kiện `slug_in_diff "$slug"` thành `true` rồi chạy:
-Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "FAIL: GP13a|FAIL: GP4silent"`
+Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "FAIL: GPM13a|FAIL: GPM4silent"`
 Expected: cả hai FAIL. Hoàn tác điều kiện, chạy lại → xanh. **Bước này bắt buộc** — không có nó thì 4 case im-lặng là xanh rỗng.
 
 - [ ] **Step 7: Commit**
@@ -387,44 +387,44 @@ git commit -m "feat(pre-merge): luật gap-probe lõi — required chặn, advis
 - [ ] **Step 1: Viết case RED**
 
 ```bash
-echo "GP5 verdict clean va findings -> im lang o ca required lan advisory"
+echo "GPM5 verdict clean va findings -> im lang o ca required lan advisory"
 for v in clean findings; do
   mk_gp_repo "gp5$v"; R="$GPR/gp5$v"
   gp_feature "$R" feat-c T3 implemented
   printf -- '---\nslug: feat-c\nat: 2026-07-26T00:00:00Z\nverdict: %s\n---\n' "$v" > "$R/_acceptance/feat-c/gap-probe.md"
   printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"
   gp_commit "$R"
-  OUT="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check "GP5-$v" 0 $?
-  nothas "GP5-$v-silent" "feat-c" "$OUT"
+  OUT="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check "GPM5-$v" 0 $?
+  nothas "GPM5-$v-silent" "feat-c" "$OUT"
 done
 
-echo "GP5c fixture SAO CHEP nguyen van dau ra that cua S1#7 -> im lang"
+echo "GPM5c fixture SAO CHEP nguyen van dau ra that cua S1#7 -> im lang"
 mk_gp_repo gp5c; R="$GPR/gp5c"
 gp_feature "$R" feat-c T3 implemented
 printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"
 head -8 "$ROOT_REAL/_acceptance/gap-probe-presence-hook/gap-probe.md" > "$R/_acceptance/feat-c/gap-probe.md"
 gp_commit "$R"
-GP5C="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GP5c 0 $?
-nothas GP5c-silent "feat-c" "$GP5C"
+GP5C="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM5c 0 $?
+nothas GPM5c-silent "feat-c" "$GP5C"
 
-echo "GP6 file rong (touch) / verdict rac / verdict CHI o than bai -> coi nhu THIEU"
+echo "GPM6 file rong (touch) / verdict rac / verdict CHI o than bai -> coi nhu THIEU"
 mk_gp_repo gp6a; R="$GPR/gp6a"
 gp_feature "$R" feat-c T3 implemented
 : > "$R/_acceptance/feat-c/gap-probe.md"
 printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
-bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GP6a 1 $?
+bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GPM6a 1 $?
 
 mk_gp_repo gp6b; R="$GPR/gp6b"
 gp_feature "$R" feat-c T3 implemented
 printf -- '---\nslug: feat-c\nverdict: rac\n---\n' > "$R/_acceptance/feat-c/gap-probe.md"
 printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
-bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GP6b 1 $?
+bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GPM6b 1 $?
 
 mk_gp_repo gp6c; R="$GPR/gp6c"
 gp_feature "$R" feat-c T3 implemented
 printf '# Bao cao\n\nBang finding trich: verdict: clean\n' > "$R/_acceptance/feat-c/gap-probe.md"
 printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
-bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GP6c 1 $?
+bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GPM6c 1 $?
 ```
 
 Thêm biến `ROOT_REAL` ngay sau dòng `HERE=` ở đầu file test:
@@ -434,8 +434,8 @@ ROOT_REAL="$(cd "$HERE/../.." && pwd)"
 
 - [ ] **Step 2: Chạy để thấy ĐỎ**
 
-Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "GP5|GP6"`
-Expected: `GP5-clean`/`GP5-findings`/`GP5c` FAIL (expected exit 0, got 1 — luật Task 3 chặn mọi thứ vì chưa đọc verdict). `GP6a/b/c` PASS (đang chặn hết) — chúng chỉ có giá trị sau Step 3.
+Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "GPM5|GPM6"`
+Expected: `GPM5-clean`/`GPM5-findings`/`GPM5c` FAIL (expected exit 0, got 1 — luật Task 3 chặn mọi thứ vì chưa đọc verdict). `GPM6a/b/c` PASS (đang chặn hết) — chúng chỉ có giá trị sau Step 3.
 
 - [ ] **Step 3: Đọc verdict, phân nhánh**
 
@@ -467,10 +467,10 @@ Thay khối gap-probe của Task 3 bằng:
 
 Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -cE "FAIL"` → `0`.
 
-- [ ] **Step 5: Chứng minh GP6 biết đỏ**
+- [ ] **Step 5: Chứng minh GPM6 biết đỏ**
 
 Tạm đổi `clean|findings)` thành `clean|findings|"")` rồi chạy:
-Run: `bash tests/scripts/run-tests.sh 2>&1 | grep "FAIL: GP6a"`
+Run: `bash tests/scripts/run-tests.sh 2>&1 | grep "FAIL: GPM6a"`
 Expected: FAIL. Hoàn tác, chạy lại → xanh.
 
 - [ ] **Step 6: Commit**
@@ -496,51 +496,51 @@ git commit -m "feat(pre-merge): verdict đọc từ frontmatter; file rỗng/ver
 - [ ] **Step 1: Viết case RED**
 
 ```bash
-echo "GP7 entry descope -> khong violation, NOTE neu id"
+echo "GPM7 entry descope -> khong violation, NOTE neu id"
 mk_gp_repo gp7; R="$GPR/gp7"
 gp_feature "$R" feat-f T3 implemented
 printf '%s\n' '{"id":"d-77","type":"descope","decision":"bỏ gap-probe — quá nhỏ"}' > "$R/_acceptance/feat-f/decisions.jsonl"
 printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
-GP7="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GP7 0 $?
-hasout GP7id "d-77" "$GP7"
+GPM7="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM7 0 $?
+hasout GPM7id "d-77" "$GPM7"
 
-echo "GP7b descope thut dau + viet hoa -> van khop (cung luat gate-card.js)"
+echo "GPM7b descope thut dau + viet hoa -> van khop (cung luat gate-card.js)"
 mk_gp_repo gp7b; R="$GPR/gp7b"
 gp_feature "$R" feat-f T3 implemented
 printf '%s\n' '{"id":"d-78","type":"descope","decision":"  Bỏ gap-probe — viết hoa"}' > "$R/_acceptance/feat-f/decisions.jsonl"
 printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
-GP7B="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GP7b 0 $?
-hasout GP7bid "d-78" "$GP7B"
+GP7B="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM7b 0 $?
+hasout GPM7bid "d-78" "$GP7B"
 
-echo "GP7c dong JSON hong + entry hop le -> van khop (parse khoan dung)"
+echo "GPM7c dong JSON hong + entry hop le -> van khop (parse khoan dung)"
 mk_gp_repo gp7c; R="$GPR/gp7c"
 gp_feature "$R" feat-f T3 implemented
 printf '%s\n' 'khong-phai-json' '{"id":"d-79","type":"descope","decision":"bỏ gap-probe — ok"}' \
   > "$R/_acceptance/feat-f/decisions.jsonl"
 printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
-bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GP7c 0 $?
+bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GPM7c 0 $?
 
-echo "GP7d entry descope KHONG phai gap-probe -> KHONG duoc coi la van thoat"
+echo "GPM7d entry descope KHONG phai gap-probe -> KHONG duoc coi la van thoat"
 mk_gp_repo gp7d; R="$GPR/gp7d"
 gp_feature "$R" feat-f T3 implemented
 printf '%s\n' '{"id":"d-80","type":"descope","decision":"bỏ mockup — không có UI"}' \
   > "$R/_acceptance/feat-f/decisions.jsonl"
 printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
-bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GP7d 1 $?
+bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GPM7d 1 $?
 
-echo "GP8 verdict probe-failed -> NOTE, khong violation"
+echo "GPM8 verdict probe-failed -> NOTE, khong violation"
 mk_gp_repo gp8; R="$GPR/gp8"
 gp_feature "$R" feat-g T3 implemented
 printf -- '---\nslug: feat-g\nverdict: probe-failed\n---\n' > "$R/_acceptance/feat-g/gap-probe.md"
 printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
-GP8="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GP8 0 $?
-hasout GP8note "probe-failed" "$GP8"
+GPM8="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM8 0 $?
+hasout GPM8note "probe-failed" "$GPM8"
 ```
 
 - [ ] **Step 2: Chạy để thấy ĐỎ**
 
-Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "GP7|GP8"`
-Expected: `GP7`, `GP7b`, `GP7c`, `GP8` FAIL (expected 0, got 1). `GP7d` PASS. `GP7id`/`GP7bid`/`GP8note` FAIL.
+Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "GPM7|GPM8"`
+Expected: `GPM7`, `GPM7b`, `GPM7c`, `GPM8` FAIL (expected 0, got 1). `GPM7d` PASS. `GPM7id`/`GPM7bid`/`GPM8note` FAIL.
 
 - [ ] **Step 3: Thêm helper**
 
@@ -594,10 +594,10 @@ Thay `case "$gp_verdict" in` của Task 4 bằng:
 
 Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -cE "FAIL"` → `0`.
 
-- [ ] **Step 6: Chứng minh GP7d biết đỏ**
+- [ ] **Step 6: Chứng minh GPM7d biết đỏ**
 
 Tạm nới regex trong helper từ `[Bb]ỏ[[:space:]]+gap-probe` thành `[Bb]ỏ` rồi chạy:
-Run: `bash tests/scripts/run-tests.sh 2>&1 | grep "FAIL: GP7d"`
+Run: `bash tests/scripts/run-tests.sh 2>&1 | grep "FAIL: GPM7d"`
 Expected: FAIL (entry "bỏ mockup" bị nhận nhầm là van thoát). Hoàn tác, chạy lại → xanh.
 
 - [ ] **Step 7: Commit**
@@ -618,28 +618,28 @@ git commit -m "feat(pre-merge): van thoát descope (parity gate-card) + nhánh p
 **Evals phục vụ:** E12 (gác cổng AC-9), E9 (AC-9, judgment). **independent: false.**
 
 **Interfaces:**
-- Consumes: stdout của các fixture `GP1`, `GP2`, `GP7`, `GP8` từ Task 3–5.
+- Consumes: stdout của các fixture `GPM1`, `GPM2`, `GPM7`, `GPM8` từ Task 3–5.
 
 - [ ] **Step 1: Viết case RED cho E12**
 
 ```bash
-echo "GP12 goi bang chung cho judge phai co DU 4 nhan"
+echo "GPM12 goi bang chung cho judge phai co DU 4 nhan"
 GPMSG="$ROOT_REAL/_acceptance/gap-probe-presence-hook/evidence/premerge-messages.txt"
 if [ -f "$GPMSG" ]; then
   MSGS="$(cat "$GPMSG")"
-  hasout GP12a "VIOLATION" "$MSGS"
-  hasout GP12b "advisory" "$MSGS"
-  hasout GP12c "theo ledger" "$MSGS"
-  hasout GP12d "probe-failed" "$MSGS"
+  hasout GPM12a "VIOLATION" "$MSGS"
+  hasout GPM12b "advisory" "$MSGS"
+  hasout GPM12c "theo ledger" "$MSGS"
+  hasout GPM12d "probe-failed" "$MSGS"
 else
-  check GP12-missing 0 1
+  check GPM12-missing 0 1
 fi
 ```
 
 - [ ] **Step 2: Chạy để thấy ĐỎ**
 
-Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "GP12"`
-Expected: `GP12-missing` FAIL (file chưa tồn tại).
+Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "GPM12"`
+Expected: `GPM12-missing` FAIL (file chưa tồn tại).
 
 - [ ] **Step 3: Sinh gói bằng chứng từ stdout THẬT**
 
@@ -725,4 +725,4 @@ Sửa frontmatter `_acceptance/gap-probe-presence-hook/contract.md`: `status: ap
 **Rủi ro đã biết:**
 - Task 3→4→5 mỗi task THAY khối gap-probe của task trước, không chèn thêm. Chủ ý: mỗi task phải xanh độc lập để có cổng riêng cho reviewer. Người thực thi phải thay nguyên khối.
 - Task 1 chạm luật T1-escape đang chạy. Step 5 bắt buộc chứng minh B01–B06 vẫn xanh; nếu lệch một case thì DỪNG, đừng đi tiếp.
-- Bước "chứng minh biết đỏ" ở Task 3/4/5 là bắt buộc, không phải tuỳ chọn. Bốn case im-lặng (`GP3silent`, `GP4silent`, `GP10a/b`, `GP13a`) xanh rỗng nếu luật không chạy — đúng lớp lỗi đã dẫm 4 lần ở feature v1.
+- Bước "chứng minh biết đỏ" ở Task 3/4/5 là bắt buộc, không phải tuỳ chọn. Bốn case im-lặng (`GPM3silent`, `GPM4silent`, `GPM10a/b`, `GPM13a`) xanh rỗng nếu luật không chạy — đúng lớp lỗi đã dẫm 4 lần ở feature v1.

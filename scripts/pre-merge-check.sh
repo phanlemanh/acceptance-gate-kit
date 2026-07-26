@@ -58,6 +58,10 @@ ACC="$ROOT/_acceptance"
 # Which tiers need a signed report before merge — from consumer config when
 # present (signoff.required_for), defaulting to T2+T3.
 REQUIRED_FOR="T2 T3"
+# Mode luật gap-probe. Mặc định `advisory`: bỏ qua phản biện phải THẤY ĐƯỢC,
+# nhưng bật kit lên không được chặn merge của repo chưa kịp làm quen. `off` là
+# im hoàn toàn; `required` là chặn.
+GAP_PROBE_MODE="advisory"
 # Committed-evidence re-check mode: strict (block) | warn (advise, default) | off.
 # Default warn so adopting the re-check never blocks merges over reports written by
 # an OLDER evidence template — a repo opts into strict once its reports meet the bar.
@@ -75,6 +79,19 @@ AGENT_AUTHORS=""
 if [ -f "$ACC/config.yaml" ]; then
   cfg_req="$(sed -n 's/^[[:space:]]*required_for:[[:space:]]*//p' "$ACC/config.yaml" | head -1 | sed 's/[[:space:]]*#.*$//')"
   [ -n "$cfg_req" ] && REQUIRED_FOR="$cfg_req"
+  cfg_gp="$(sed -n 's/^[[:space:]]*gap_probe:[[:space:]]*//p' "$ACC/config.yaml" | head -1 \
+    | sed -e 's/[[:space:]]*#.*$//' -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//' \
+    | tr '[:upper:]' '[:lower:]')"
+  if [ -n "$cfg_gp" ]; then
+    case "$cfg_gp" in
+      required|advisory|off) GAP_PROBE_MODE="$cfg_gp" ;;
+      *)
+        # KHÔNG âm thầm rơi về mặc định: một cổng tự tắt vì sai chính tả đúng là
+        # false-green mà luật này sinh ra để chặn.
+        echo "VIOLATION [config]: gap_probe: \"$cfg_gp\" không phải mode hợp lệ — dùng required | advisory | off (khoá vắng = advisory)"
+        violations=$((violations+1)) ;;
+    esac
+  fi
   cfg_rc="$(sed -n 's/^[[:space:]]*recheck:[[:space:]]*//p' "$ACC/config.yaml" | head -1 | sed 's/[[:space:]]*#.*$//')"
   case "$cfg_rc" in strict|warn|off) RECHECK_MODE="$cfg_rc" ;; esac
   T1_GLOBS="$(sed -n '/^  t1_skip_globs:/,/^  [a-zA-Z0-9_-]*:/p' "$ACC/config.yaml" \
@@ -184,6 +201,12 @@ slug_in_diff() { # <slug>
   printf '%s\n' "$DIFF_FILES" | grep -q "^_acceptance/$1/"
 }
 
+# AC-12 nửa sau: không có base thì luật không xác định được phạm vi, nên bỏ qua
+# — nhưng bỏ qua phải THẤY ĐƯỢC (cùng lối với răng T1-escape bên dưới).
+if [ "$GAP_PROBE_MODE" != "off" ] && [ "$DIFF_READY" -eq 0 ]; then
+  echo "NOTE: gap-probe check skipped — $DIFF_SKIP_NOTE (luật chỉ xét slug có file trong diff PR)"
+fi
+
 for dir in "$ACC"/*/; do
   [ -d "$dir" ] || continue
   slug="$(basename "$dir")"
@@ -255,6 +278,22 @@ for dir in "$ACC"/*/; do
       done <<XLACS
 $xl_acs
 XLACS
+    fi
+  fi
+
+  # ─── Gap-probe presence (phản biện context sạch) ─────────────────────────
+  # Vị trí có chủ đích: SAU hai bước lọc `REQUIRED_FOR` và `status implemented+`
+  # phía trên, nên AC-4 (T1) và AC-10 (draft/approved) đúng theo CẤU TRÚC chứ
+  # không nhờ một nhánh if riêng. Chỉ xét slug có file trong diff PR: quét cả
+  # `_acceptance/` khiến repo có lịch sử nhận hàng chục VIOLATION không liên
+  # quan diff ở PR đầu tiên rồi tắt luật (Cổng 1 2026-07-26, ledger d-116).
+  if [ "$GAP_PROBE_MODE" != "off" ] && slug_in_diff "$slug"; then
+    gp_fix='Chạy bước S1#7 (phản biện context sạch) để sinh gap-probe.md, HOẶC ghi vào decisions.jsonl một entry {"id":"d-<UTC>-<rand>","type":"descope","stage":"S1","at":"<ISO>","decision":"bỏ gap-probe — <lý do>","impact":"đổi lại không có phản biện context sạch trước duyệt"}'
+    if [ "$GAP_PROBE_MODE" = "required" ]; then
+      echo "VIOLATION [$slug]: chưa qua phản biện context sạch (gap-probe) — không có gap-probe.md hợp lệ và ledger không có entry descope. $gp_fix"
+      violations=$((violations+1))
+    else
+      echo "NOTE [$slug]: chưa qua phản biện context sạch (gap-probe) — advisory, không chặn merge. $gp_fix"
     fi
   fi
 
