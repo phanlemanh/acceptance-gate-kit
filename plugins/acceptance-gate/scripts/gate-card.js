@@ -196,7 +196,11 @@ if (gate === '1') {
     if (cells.length === 6) gpRows.push({ sev: cells[0], artifact: cells[1], summary: cells[2], scenario: cells[3], measure: cells[4], disposition: cells[5] });
     else gpDropped++; // cell chứa "|" → sai số cột (giới hạn v1, spec §4)
   }
-  const gpDescope = decsAll.find(e => e.type === 'descope' && /^bỏ gap-probe/i.test(String(e.decision || '')));
+  // `/^\s*bỏ/` chứ không phải `/^bỏ/`: hook (lib/evidence-core.js) khoan dung với
+  // khoảng trắng đầu, và AC-4 của contract gap-probe-presence-hook đòi hai bên
+  // khớp CÙNG một luật. Lệch nhau thì cùng một entry ledger cho hook cho qua
+  // còn thẻ vẫn phất cờ vàng — hai tín hiệu Cổng 1 mâu thuẫn nhau.
+  const gpDescope = decsAll.find(e => e.type === 'descope' && /^\s*bỏ gap-probe/i.test(String(e.decision || '')));
   const gpP0 = parseInt(clean(gpFm.p0), 10) || 0, gpP1 = parseInt(clean(gpFm.p1), 10) || 0, gpP2 = parseInt(clean(gpFm.p2), 10) || 0;
   const gpVerdictKnown = gpVerdict === 'clean' || gpVerdict === 'findings' || gpVerdict === 'probe-failed';
 

@@ -23,9 +23,15 @@
  *                   every judgment item
  * PENDING-JUDGMENT / REJECT / BLOCKED verdicts always pass through.
  *
- * Contract — core.evaluateContractWrite blocks status transitions that skip
- * Gate 1 (approved/signed-off, or draft -> implemented/verified, with an empty
- * approved_by and no gate1_skipped: true).
+ * Contract — core.evaluateContractWrite carries TWO rules and a NOTE channel:
+ *   (a) blocks status transitions that skip Gate 1 (approved/signed-off, or
+ *       draft -> implemented/verified, with an empty approved_by and no
+ *       gate1_skipped: true);
+ *   (b) gap-probe presence: when a T2/T3 contract ADVANCES past Gate 1 and has
+ *       no gap-probe.md (or an unreadable verdict) and no `descope` ledger
+ *       entry, it blocks at T3+`gap_probe_expected`, and NOTEs otherwise.
+ * NOTEs print to stderr and never change the exit code — "nhắc" and "chặn" are
+ * deliberately separate channels.
  *
  * Enforcement level from consumer config: strict (default) | warn | off.
  * Bypass: ACCEPTANCE_GATE_BYPASS=1. Fail-open on internal error — loudly

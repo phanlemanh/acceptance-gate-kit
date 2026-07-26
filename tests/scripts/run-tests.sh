@@ -1184,6 +1184,23 @@ BASE_E="$TM_BASE"
 printf '# Shop\n\n## Language\n\n**Order**:\nA customer request.\n_Avoid_: Purchase, transaction\n' > "$RE2/CONTEXT.md"
 TME="$(node "$GCARD" --root "$RE2" --slug feat-tm --glossary-base "$BASE_E" 2>/dev/null)"
 
+# GPP: hook và gate-card phải khớp CÙNG luật descope (contract gap-probe AC-4).
+# Lệch nhau thì cùng một entry cho hook cho qua còn thẻ vẫn phất cờ vàng.
+GPP="$T/gpparity"; mkdir -p "$GPP/_acceptance/pf"
+printf -- '---\nschema_version: 1\nfeature: F\nslug: pf\nrisk_tier: T3\nstatus: draft\n---\n## Criteria\n- AC-1: Given a, When b, Then c.\n## Out of scope\n' > "$GPP/_acceptance/pf/contract.md"
+printf 'evals:\n  - id: E1\n    criterion: AC-1\n    expected: "exit 0"\n' > "$GPP/_acceptance/pf/evals.yaml"
+printf '%s\n' '{"id":"d-7","type":"descope","decision":"  Bỏ gap-probe — thụt đầu + viết hoa"}' > "$GPP/_acceptance/pf/decisions.jsonl"
+GPPOUT="$(node "$GCARD" --root "$GPP" --slug pf 2>/dev/null)"
+echo "GPP1 descope thụt-đầu+viết-hoa -> thẻ nhận là ĐÃ BỎ có chủ đích, không phất cờ 'Chưa có phản biện'"
+nothas GPP1 "Chưa có phản biện context sạch (gap-probe)" "$GPPOUT"
+echo "GPP2 thẻ và hook cùng luật /^\\s*bỏ gap-probe/i"
+node -e '
+const fs=require("fs");
+const card=fs.readFileSync(process.argv[1],"utf8").includes("/^\\s*bỏ gap-probe/i");
+const hook=fs.readFileSync(process.argv[2],"utf8").includes("/^\\s*bỏ gap-probe/i");
+process.exit(card && hook ? 0 : 1);' "$HERE/../../scripts/gate-card.js" "$HERE/../../lib/evidence-core.js"
+check GPP2 0 $?
+
 echo "TM1 term MỚI sau base -> khối Từ vựng nêu tên term"
 hasout TM1 "Refund" "$TMA"
 echo "TM2 repo không có CONTEXT.md -> KHÔNG có khối Từ vựng, không cờ"

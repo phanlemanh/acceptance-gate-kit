@@ -276,10 +276,14 @@ zero business-logic defects slipping past the gate.
 Deliberate scope cuts — each is backed by the pre-merge check + human signoff
 downstream, and revisited after the pilot:
 
-- **Gap-probe presence is flagged, not enforced**: a missing `gap-probe.md`
-  only yellow-flags the Gate-1 card (backward-tolerant by design). A hook-level
-  presence check is the queued v2 candidate — `_acceptance/gap-probe-presence-hook/`
-  holds its Gate-1 package.
+- **The T1-escape backstop has no path→slug mapping**: `pre-merge-check.sh`
+  counts *any* change under a path matching `_acceptance/*` or `*/_acceptance/*`
+  as "this PR carries gate artifacts". The glob is not anchored to the repo
+  root, so a test fixture living under `<anywhere>/_acceptance/` also satisfies
+  it — a PR touching `t3_paths` can pass the backstop without a real contract.
+  The kit's own suites keep their generated gap-probe fixtures in `mktemp`,
+  outside the repo, to avoid exactly this; anchoring the glob is a queued fix
+  (it changes shared behaviour, so it needs its own contract).
 - **Gap-probe findings parse splits on `|`**: a finding cell containing a
   literal pipe drops that row from the card — counted and flagged as
   unreadable, never silent.

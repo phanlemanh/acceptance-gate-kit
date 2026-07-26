@@ -572,9 +572,18 @@ payload Write "$REPORT_PATH" "$OBS_V2
   notes: sibling field text long enough that counting it would fake a pass" | node "$HOOK" >/dev/null 2>/dev/null; check T42 2 $?
 
 # ─── Gap-probe presence guard (T60+) ────────────────────────────────────────
-# CONTRACT_RE của hook đòi đúng dạng `_acceptance/<slug>/contract.md` — fixture
-# đặt ngoài dạng đó thì hook bỏ qua file và mọi case xanh RỖNG.
-GPD="$HERE/fixtures/gapprobe/_acceptance"
+# Hai ràng buộc ngược nhau, giải bằng thư mục tạm NGOÀI repo:
+#  - CONTRACT_RE của hook đòi đúng dạng `_acceptance/<slug>/contract.md`, nếu
+#    không hook bỏ qua file và mọi case xanh RỖNG;
+#  - pre-merge-check.sh coi MỌI path khớp `*/_acceptance/*` là "PR có kèm gate
+#    artifact", nên fixture nằm trong repo sẽ VÔ HIỆU HOÁ răng T1-escape: một PR
+#    chạm lib/ chỉ cần thêm một file fixture là qua được.
+# Fixture sinh ra không thuộc về git: đặt ở mktemp, dọn khi thoát.
+# GAPPROBE_FIXTURE_DIR=<path> để giữ lại (dùng khi sinh evidence/hook-messages.txt).
+GPD_ROOT="${GAPPROBE_FIXTURE_DIR:-$(mktemp -d)}"
+[ -n "${GAPPROBE_FIXTURE_DIR:-}" ] || trap 'rm -rf "$GPD_ROOT"' EXIT
+GPD="$GPD_ROOT/_acceptance"
+mkdir -p "$GPD"
 # mk_gp <case> <tier|-> <expected:yes|no> <verdict|-|touch> <descope:yes|no|upper>
 # Dựng thư mục workspace rồi ECHO ra nội dung contract.md để nhét vào payload.
 mk_gp() {
@@ -645,6 +654,32 @@ echo "T72 ledger có dòng JSON hỏng + entry descope hợp lệ -> vẫn khớ
 C="$(mk_gp t72 T3 yes - no)"
 printf '%s\n' 'khong-phai-json' '{"id":"d-9","type":"descope","decision":"bỏ gap-probe — ok"}' > "$GPD/t72/decisions.jsonl"
 gp_run t72 "$C"; check T72 0 $?
+
+# gp_edit <case> <old_status> <new_content> — mô phỏng Edit trên contract ĐÃ tồn tại
+gp_edit() {
+  node -e '''const [fp,oldc,newc]=process.argv.slice(1);
+    process.stdout.write(JSON.stringify({tool_name:"Edit",tool_input:{file_path:fp,old_string:oldc,new_string:newc}}));''' \
+    "$GPD/$1/contract.md" "$2" "$3" | node "$HOOK" >/dev/null 2>"$GPD/$1.err"
+}
+
+# old_string phải là chuỗi NGẮN chắc chắn có trong file: `$(...)` nuốt newline
+# cuối nên truyền cả nội dung file sẽ không khớp -> hook trả passthrough và case
+# xanh RỖNG (đã dẫm phải một lần ở c95402d).
+echo "T73 Edit contract ĐÃ approved (không duyệt gì) -> KHÔNG chặn (bám bước tiến, không bám trạng thái)"
+# `printf '%s\n'` chứ KHÔNG phải '%s': $(...) đã nuốt newline cuối của mk_gp, nên
+# nối thẳng sẽ tạo `---## Notes` — frontmatter hỏng, status rỗng, guard không
+# chạy, case xanh RỖNG. Bẫy này đã dẫm 3 lần trong feature này.
+C="$(mk_gp t73 T3 yes - no)"; { printf '%s\n' "$C"; printf '## Notes\ncũ\n'; } > "$GPD/t73/contract.md"
+gp_edit t73 "cũ" "MỚI"; check T73 0 $?
+
+echo "T74 T3 + marker viết THẲNG status: implemented (nhảy cóc) -> vẫn CHẶN"
+d="$GPD/t74"; rm -rf "$d"; mkdir -p "$d"
+C74="$(printf -- '---\nschema_version: 1\nslug: x\nrisk_tier: T3\ngap_probe_expected: true\nstatus: implemented\napproved_by: Tester\n---\n')"
+gp_run t74 "$C74"; check T74 2 $?
+
+echo "T75 T3 + marker, approved -> implemented (đã qua cổng rồi) -> KHÔNG chặn lại"
+C="$(mk_gp t75 T3 yes - no)"; printf '%s' "$C" > "$GPD/t75/contract.md"
+gp_edit t75 "status: approved" "status: implemented"; check T75 0 $?
 
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"

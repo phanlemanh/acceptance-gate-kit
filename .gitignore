@@ -17,3 +17,6 @@ tests/hooks/fixtures/repo/_acceptance/fresh-flow/
 # từ gate-card.js / evidence-page.js. Nguồn sự thật là contract/evals/report.
 _acceptance/*/card.html
 _acceptance/*/evidence-page.html
+
+# Fixture gap-probe sinh ra lúc chạy test — không thuộc git (xem run-tests.sh).
+tests/hooks/fixtures/gapprobe/

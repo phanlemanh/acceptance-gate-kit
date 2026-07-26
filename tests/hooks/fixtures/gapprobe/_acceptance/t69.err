@@ -1,4 +1,0 @@
-
-NOTE from acceptance-evidence-gate (Gate-1 contract guard)
-  - Chưa có phản biện context sạch: gap-probe.md thiếu (hoặc verdict không đọc được) và ledger không có entry descope. Chạy bước S1#7 (phản biện context sạch) để sinh gap-probe.md, HOẶC ghi vào decisions.jsonl một entry {"type":"descope","decision":"bỏ gap-probe — <lý do>"}.
-
