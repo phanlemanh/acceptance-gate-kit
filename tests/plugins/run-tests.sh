@@ -40,10 +40,13 @@ root = Path(sys.argv[1])
 root_claude = json.loads((root / ".claude-plugin/plugin.json").read_text())
 overlay_codex = json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())
 pkg_codex = json.loads((root / "plugins/acceptance-gate/.codex-plugin/plugin.json").read_text())
-assert root_claude["version"] == "1.21.0"
 root_codex = json.loads((root / ".codex-plugin/plugin.json").read_text())
-assert root_codex["version"] == root_claude["version"], f'root .codex-plugin {root_codex["version"]} != .claude-plugin {root_claude["version"]}'
-assert overlay_codex["version"] == "1.21.0"
+# Ba manifest phải KHỚP NHAU. KHÔNG ghim literal: ghim literal khiến mỗi lần
+# bump đều sửa suite, mà suite đổi là code đổi thật nên evidence stale — vòng
+# lặp "ký -> bump -> stale -> verify lại -> ký lại" (đã dẫm 2026-07-26).
+versions = {root_claude["version"], root_codex["version"], overlay_codex["version"]}
+assert len(versions) == 1, f"ba manifest lệch nhau: {versions}"
+assert root_claude["version"], "version rỗng"
 assert pkg_codex == overlay_codex, "run scripts/sync-plugin-packages.sh"
 for rel in [
     "plugins/acceptance-gate/scripts/gate-card.js",
@@ -264,10 +267,11 @@ run "P22 Codex overlay manifests and generated outputs exist" \
 import json, sys
 from pathlib import Path
 root = Path(sys.argv[1])
-assert json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())["version"] == "1.21.0"
+
 assert json.loads((root / "codex/feature-loop-codex/.codex-plugin/plugin.json").read_text())["version"] == "1.16.1"
 assert json.loads((root / "codex/design-loop/.codex-plugin/plugin.json").read_text())["version"] == "0.3.0"
-assert json.loads((root / ".claude-plugin/plugin.json").read_text())["version"] == "1.21.0"
+# version của acceptance-gate không ghim literal ở đây (xem P03); chỉ kiểm hai
+# plugin có version ĐỘC LẬP là còn đúng số của chúng.
 assert json.loads((root / "feature-loop/.claude-plugin/plugin.json").read_text())["version"] == "1.16.1"
 assert "machine: 'haiku'" in (root / "feature-loop/workflows/acceptance-verify.js").read_text()
 assert "judge: 'sonnet'" in (root / "feature-loop/workflows/acceptance-verify.js").read_text()
@@ -557,6 +561,50 @@ else
   pass "P41 mirror drift phai bi bat"
 fi
 rm -rf "$P41T"
+
+# ── P42/P45: ghim version bằng literal khiến mỗi lần bump đều sửa suite ─────
+# Hai case dưới chạy CẢ suite này trong một bản sao — mà bản sao cũng chứa
+# chúng, nên không có chốt thì đệ quy vô hạn (đã dẫm). Cờ dưới đây do lần gọi
+# LỒNG đặt; ở lần lồng, hai case tự bỏ qua.
+if [ "${PLUGINS_SUITE_NESTED:-0}" = "1" ]; then
+  echo "P42/P45 bo qua (dang chay long ben trong ban sao)"
+else
+echo "P42 mot manifest lech so -> suite phai DO"
+P42T="$(mktemp -d)"; cp -R "$ROOT/." "$P42T/" 2>/dev/null || true
+python3 - "$P42T" <<'PYX'
+import json,sys,pathlib
+p=pathlib.Path(sys.argv[1])/".codex-plugin/plugin.json"
+d=json.loads(p.read_text()); d["version"]="9.9.9"; p.write_text(json.dumps(d,indent=2)+"\n")
+PYX
+if PLUGINS_SUITE_NESTED=1 bash "$P42T/tests/plugins/run-tests.sh" >/dev/null 2>&1; then
+  fail "P42 manifest lech phai bi bat"
+else
+  pass "P42 manifest lech phai bi bat"
+fi
+rm -rf "$P42T"
+
+echo "P45 bump CA BA manifest + sync -> khong file nao duoi tests/ phai sua"
+P45T="$(mktemp -d)"; cp -R "$ROOT/." "$P45T/" 2>/dev/null || true
+python3 - "$P45T" <<'PYX'
+import json,sys,pathlib
+root=pathlib.Path(sys.argv[1])
+for rel in [".claude-plugin/plugin.json",".codex-plugin/plugin.json","codex/acceptance-gate/.codex-plugin/plugin.json"]:
+    p=root/rel; d=json.loads(p.read_text()); d["version"]="9.9.9"; p.write_text(json.dumps(d,indent=2)+"\n")
+PYX
+# Đo bằng CHỤP TRƯỚC/SAU chứ không bằng `git diff` với HEAD: bản sao mang theo
+# mọi thay đổi chưa commit của cây làm việc, nên git diff sẽ báo bẩn vì lý do
+# không liên quan tới bump (đã dẫm).
+P45_BEFORE="$(find "$P45T/tests" -type f -exec shasum {} \; | sort | shasum)"
+bash "$P45T/scripts/sync-plugin-packages.sh" --write >/dev/null 2>&1
+P45_AFTER="$(find "$P45T/tests" -type f -exec shasum {} \; | sort | shasum)"
+if [ "$P45_BEFORE" = "$P45_AFTER" ] \
+   && PLUGINS_SUITE_NESTED=1 bash "$P45T/tests/plugins/run-tests.sh" >/dev/null 2>&1; then
+  pass "P45 bump ba manifest khong cham suite"
+else
+  fail "P45 bump ba manifest khong cham suite"
+fi
+rm -rf "$P45T"
+fi
 
 if [ "$failures" -gt 0 ]; then
   echo
