@@ -1,0 +1,29 @@
+{"ts":"2026-07-26T01:03:37Z","round":1,"evalId":"E1","run_id":"minted-gap-probe-presence-hook-E1-r1","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T01:03:37Z","round":1,"evalId":"E2","run_id":"minted-gap-probe-presence-hook-E2-r1","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T01:03:37Z","round":1,"evalId":"E3","run_id":"minted-gap-probe-presence-hook-E3-r1","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T01:03:37Z","round":1,"evalId":"E4","run_id":"minted-gap-probe-presence-hook-E4-r1","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T01:03:37Z","round":1,"evalId":"E5","run_id":"minted-gap-probe-presence-hook-E5-r1","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T01:03:37Z","round":1,"evalId":"E7","run_id":"minted-gap-probe-presence-hook-E7-r1","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T01:03:37Z","round":1,"evalId":"E8","run_id":"minted-gap-probe-presence-hook-E8-r1","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T01:03:37Z","round":1,"evalId":"E9","run_id":"minted-gap-probe-presence-hook-E9-r1","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T01:03:37Z","round":1,"kind":"baseline","evals_hash":"c0058373783bc1e7db1ed3758700235c243d10b1a24db28fbfae81d529d66c3a","non_discriminating":[{"cmd":"bash tests/hooks/run-tests.sh","evals":["E1","E2","E3","E4","E5","E7","E8","E9"]}]}
+{"ts":"2026-07-26T03:24:39Z","round":2,"evalId":"E1","run_id":"minted-gap-probe-presence-hook-E1-r2","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T03:24:39Z","round":2,"evalId":"E2","run_id":"minted-gap-probe-presence-hook-E2-r2","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T03:24:39Z","round":2,"evalId":"E3","run_id":"minted-gap-probe-presence-hook-E3-r2","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T03:24:39Z","round":2,"evalId":"E4","run_id":"minted-gap-probe-presence-hook-E4-r2","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T03:24:39Z","round":2,"evalId":"E5","run_id":"minted-gap-probe-presence-hook-E5-r2","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T03:24:39Z","round":2,"evalId":"E7","run_id":"minted-gap-probe-presence-hook-E7-r2","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T03:24:39Z","round":2,"evalId":"E8","run_id":"minted-gap-probe-presence-hook-E8-r2","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T03:24:39Z","round":2,"evalId":"E9","run_id":"minted-gap-probe-presence-hook-E9-r2","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T03:24:39Z","round":2,"evalId":"E6","kind":"panel","proposal":"PASS","votes":[{"lens":"domain-correctness","verdict":"PASS"},{"lens":"operational-feasibility","verdict":"PASS"},{"lens":"spec-alignment","verdict":"PASS"}],"inputs_hash":"99f96ceb49f42618ad702374b92f8a90eed6bd392445dbd4494d32e5928950f5"}
+{"ts":"2026-07-26T03:24:39Z","round":2,"kind":"baseline","evals_hash":"c0058373783bc1e7db1ed3758700235c243d10b1a24db28fbfae81d529d66c3a","non_discriminating":[{"cmd":"bash tests/hooks/run-tests.sh","evals":["E1","E2","E3","E4","E5","E7","E8","E9"]}],"carried_from_round":1}
+{"ts":"2026-07-26T04:01:44Z","round":3,"evalId":"E1","run_id":"minted-gap-probe-presence-hook-E1-r3","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T04:01:44Z","round":3,"evalId":"E2","run_id":"minted-gap-probe-presence-hook-E2-r3","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T04:01:44Z","round":3,"evalId":"E3","run_id":"minted-gap-probe-presence-hook-E3-r3","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T04:01:44Z","round":3,"evalId":"E4","run_id":"minted-gap-probe-presence-hook-E4-r3","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T04:01:44Z","round":3,"evalId":"E5","run_id":"minted-gap-probe-presence-hook-E5-r3","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T04:01:44Z","round":3,"evalId":"E7","run_id":"minted-gap-probe-presence-hook-E7-r3","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T04:01:44Z","round":3,"evalId":"E8","run_id":"minted-gap-probe-presence-hook-E8-r3","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T04:01:44Z","round":3,"evalId":"E9","run_id":"minted-gap-probe-presence-hook-E9-r3","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-07-26T04:01:44Z","round":3,"evalId":"E6","kind":"panel","proposal":"PASS","votes":[{"lens":"domain-correctness","verdict":"PASS"},{"lens":"operational-feasibility","verdict":"PASS"},{"lens":"spec-alignment","verdict":"PASS"}],"inputs_hash":"45550468b60bd6ebf6adcc706ca6e5a004cba539053d4408021cb472e67d2d27"}
+{"ts":"2026-07-26T04:01:44Z","round":3,"kind":"baseline","evals_hash":"c0058373783bc1e7db1ed3758700235c243d10b1a24db28fbfae81d529d66c3a","non_discriminating":[{"cmd":"bash tests/hooks/run-tests.sh","evals":["E1","E2","E3","E4","E5","E7","E8","E9"]}],"carried_from_round":1}

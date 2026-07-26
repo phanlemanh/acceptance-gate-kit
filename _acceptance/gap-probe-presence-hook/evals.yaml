@@ -1,54 +1,86 @@
 evals:
+  # 8 eval máy dùng chung suite scripts (nơi pre-merge-check.sh được test).
+  # Độ phân giải per-AC nằm ở tên case GP* bên trong suite — giới hạn đã ghi rõ
+  # ở mục Out of scope của contract, không giấu.
   - id: E1
     criterion: AC-1
     executor: script
-    cmd: config:executors.test.hooks
-    expected: "T2/T3 + gap-probe.md verdict clean/findings → exit 0, không cảnh báo"
-    paths: [hooks/**, tests/hooks/**]
+    cmd: config:executors.test.scripts
+    expected: "case GP1: mode required + thiếu cả file lẫn descope → stdout có VIOLATION nêu slug, exit != 0"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
   - id: E2
     criterion: AC-2
     executor: script
-    cmd: config:executors.test.hooks
-    expected: "T3 thiếu file + thiếu descope → exit 2, thông điệp hướng dẫn"
-    paths: [hooks/**, tests/hooks/**]
+    cmd: config:executors.test.scripts
+    expected: "case GP2 + GP2b: advisory VÀ khoá vắng → stdout có NOTE, KHÔNG có VIOLATION, exit 0"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
   - id: E3
     criterion: AC-3
     executor: script
-    cmd: config:executors.test.hooks
-    expected: "T2 thiếu cả hai → NOTE, exit 0"
-    paths: [hooks/**, tests/hooks/**]
+    cmd: config:executors.test.scripts
+    expected: "case GP3: mode off → stdout KHÔNG chứa chuỗi gap-probe nào, exit 0"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
   - id: E4
     criterion: AC-4
     executor: script
-    cmd: config:executors.test.hooks
-    expected: "descope 'bỏ gap-probe' (kể cả fixture viết hoa 'Bỏ gap-probe') → exit 0 + NOTE trỏ id entry"
-    paths: [hooks/**, tests/hooks/**]
+    cmd: config:executors.test.scripts
+    expected: "case GP4: contract T1 + mode required → KHÔNG in gì về gap-probe (thừa hưởng vòng lọc REQUIRED_FOR), exit 0"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
   - id: E5
     criterion: AC-5
     executor: script
-    cmd: config:executors.test.hooks
-    expected: "probe-failed → NOTE 'duyệt không có phản biện', exit 0"
-    paths: [hooks/**, tests/hooks/**]
+    cmd: config:executors.test.scripts
+    expected: "case GP5: verdict clean và verdict findings → im lặng ở cả required lẫn advisory, exit 0"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
   - id: E6
     criterion: AC-6
-    executor: judgment
-    question: "Đọc thông điệp chặn/nhắc: người mới có biết bước tiếp theo không?"
-    inputs: [evidence/hook-messages.txt]
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case GP6: gap-probe.md rỗng (touch) và verdict rác → VIOLATION ở required, exit != 0"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
   - id: E7
     criterion: AC-7
     executor: script
-    cmd: config:executors.test.hooks
-    expected: "fixture legacy KHÔNG có gap_probe_expected, T3 thiếu cả file lẫn descope → exit 0 + NOTE (không chặn)"
-    paths: [hooks/**, tests/hooks/**]
+    cmd: config:executors.test.scripts
+    expected: "case GP7 + GP7b: entry descope thường VÀ bản thụt-đầu-viết-hoa → KHÔNG violation, NOTE nêu id entry, exit 0"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
   - id: E8
     criterion: AC-8
     executor: script
-    cmd: config:executors.test.hooks
-    expected: "fixture T1 và fixture không có risk_tier → exit 0, stdout không chứa NOTE gap-probe"
-    paths: [hooks/**, tests/hooks/**]
-  - id: E9
+    cmd: config:executors.test.scripts
+    expected: "case GP8: verdict probe-failed ở mode required → NOTE, KHÔNG violation, exit 0"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case GP10: contract T3 status draft và status approved, mode required → KHÔNG in gì về gap-probe, exit 0"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E11
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case GP11: gap_probe với giá trị \"required\" (nháy), Required (hoa) → nhận đúng là required; requird (sai chính tả) → in cảnh báo cấu hình sai, KHÔNG âm thầm về advisory"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  # E12 gác cổng cho E9: judge chỉ chấm được nếu gói bằng chứng ĐỦ cả 4 dạng
+  # thông điệp. Thiếu gác này thì file chỉ có VIOLATION là judge vẫn PASS —
+  # đúng lỗi d-109, lần đó có mắt người bắt, lần này thì không.
+  - id: E12
     criterion: AC-9
     executor: script
-    cmd: config:executors.test.hooks
-    expected: "fixture T3 + gap-probe.md verdict thiếu/rác → exit 2 (coi như THIẾU); fixture T2 cùng dạng → NOTE, exit 0"
-    paths: [hooks/**, tests/hooks/**]
+    cmd: config:executors.test.scripts
+    expected: "case GP12: evidence/premerge-messages.txt tồn tại và chứa đủ 4 nhãn — VIOLATION(required) · NOTE(advisory) · NOTE(descope nêu id) · NOTE(probe-failed)"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E13
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case GP13: slug thiếu gap-probe nhưng NGOÀI diff PR → không in gì; chạy không --base → bỏ qua kèm NOTE nói rõ, exit 0"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E9
+    criterion: AC-9
+    executor: judgment
+    question: "Đọc thông điệp VIOLATION và NOTE của luật gap-probe: một người chưa từng đọc kit có biết đang thiếu gì và phải làm gì tiếp không?"
+    # Sinh bằng: chạy 4 fixture GP1/GP2/GP7/GP8 rồi gom stdout — KHÔNG chép tay.
+    # E12 kiểm sự đầy đủ TRƯỚC khi judge chấm.
+    inputs: [evidence/premerge-messages.txt]
