@@ -44,11 +44,16 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             echo "PRE_MERGE_BASE=origin/${{ github.base_ref }}" >> "$GITHUB_ENV"
+            echo "T1_ESCAPE_FLAG=" >> "$GITHUB_ENV"
           else
+            # push: CÓ base (luật gap-probe cần phạm vi diff) nhưng răng
+            # T1-escape TẮT — tiền đề "PR phải kèm _acceptance/<slug>/" sai với
+            # commit release / mirror-sync landing thẳng nhánh chính.
             echo "PRE_MERGE_BASE=$(git rev-parse HEAD~1)" >> "$GITHUB_ENV"
+            echo "T1_ESCAPE_FLAG=--no-t1-escape" >> "$GITHUB_ENV"
           fi
       - name: pre-merge check (evidence + signoff + stale + run-log)
-        run: bash scripts/pre-merge-check.sh .
+        run: bash scripts/pre-merge-check.sh . $T1_ESCAPE_FLAG
       # ── Răng T1-escape (BẬT) ─────────────────────────────────────────────
       # Mọi PR chạm path T3 (hooks/ lib/ pre-merge-check.sh recheck-evidence.js)
       # phải kèm artifact `_acceptance/<slug>/`. Chỉ chạy trên pull_request:

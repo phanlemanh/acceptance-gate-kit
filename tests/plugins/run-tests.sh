@@ -606,6 +606,21 @@ fi
 rm -rf "$P45T"
 fi
 
+run "P40 gate.yml: push tat rang T1-escape, PR khong, khong nhanh nao thieu base" \
+  python3 - "$ROOT" <<'P40PY'
+import sys
+from pathlib import Path
+wf = (Path(sys.argv[1]) / ".github/workflows/gate.yml").read_text()
+assert "--no-t1-escape" in wf, "nhanh push phai tat rang T1-escape"
+# Nhanh PR KHONG duoc mang co: tien de "PR phai kem artifact" dung o do.
+pr_lines = [l for l in wf.splitlines() if "base_ref" in l]
+assert pr_lines, "khong thay nhanh pull_request"
+assert not any("--no-t1-escape" in l for l in pr_lines), "nhanh PR khong duoc tat rang"
+# Khong loi goi pre-merge-check nao duoc thieu base: thieu base la VIOLATION
+# gap-probe theo docs/adr/0004.
+assert "PRE_MERGE_BASE" in wf, "phai resolve base cho moi su kien"
+P40PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
