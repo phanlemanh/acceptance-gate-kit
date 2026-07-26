@@ -123,7 +123,7 @@ VIOLATION in `required` mode. See docs/adr/0005.
 IMPORTANT — re-copy `scripts/pre-merge-check.sh` from the plugin BEFORE you
 add this flag. Older vendored copies have no unknown-flag guard: they treat
 `--no-t1-escape` as the ROOT path, find no `_acceptance/` there, and exit 0
-with the ENTIRE gate unrun (signoff, verdict, staleness, gap-probe, re-check
+with the ENTIRE pre-merge check unrun (signoff, verdict, staleness, gap-probe, re-check
 — all skipped, CI green). Support landed in acceptance-gate 1.21.0+.
 ## 6. Optional references
 

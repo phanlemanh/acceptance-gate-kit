@@ -77,13 +77,38 @@ if [ "$MODE" = "--check" ]; then
       drift=1
     fi
   done
+  # Entry LẠ dưới plugins/ phải nổ: `_acceptance/config.yaml` miễn trừ trọn
+  # `plugins/**` khỏi cổng, và biện minh duy nhất là chốt này — nên chốt phải
+  # rộng ĐÚNG BẰNG miễn trừ. Một package thứ tư, hay một file rơi vào đây, hiện
+  # được miễn mà không ai so.
+  for entry in "$ROOT"/plugins/*; do
+    [ -e "$entry" ] || continue
+    name="$(basename "$entry")"
+    case "$name" in
+      acceptance-gate|feature-loop-codex|design-loop-codex|.DS_Store) : ;;
+      *)
+        echo "DRIFT: plugins/$name không nằm trong danh sách package được sync — hoặc thêm nó vào vòng lặp, hoặc thu hẹp t1_skip_globs (miễn trừ plugins/** đang rộng hơn chốt này)" >&2
+        drift=1 ;;
+    esac
+  done
   if [ "$drift" -eq 0 ]; then echo "plugins/ mirror in sync."; fi
   exit "$drift"
 fi
 
 # Đọc thẳng từ manifest thay vì ghim literal — đúng lớp rot vừa gỡ khỏi P03/P22,
 # để lại đây thì script báo một số hiệu không tồn tại.
-# Khong nuot loi thanh '?': manifest doi ten / node vang / JSON hong phai NO,
-# vi dong nay la thu duy nhat nguoi van hanh doc de biet vua dung goi ban nao.
+# Đọc từ manifest, KHÔNG ghim literal. Hai cái bẫy đã dẫm:
+#  1. `set -e` KHÔNG kích hoạt khi command substitution hỏng trong danh sách đối
+#     số của `echo` — bản trước bỏ `|| echo '?'` mà vẫn in version RỖNG và thoát
+#     0. Gán vào biến thì `-e` mới nổ, nên gán trước rồi mới in.
+#  2. Phải đọc đúng manifest ĐƯỢC ĐỒNG BỘ vào mirror (overlay dưới codex/), không
+#     phải manifest gốc repo — hôm nay trùng số nên vô hại, mai một overlay bump
+#     độc lập là script báo số hiệu nó không hề đồng bộ.
 _v() { node -e 'process.stdout.write(require(process.argv[1]).version)' "$ROOT/$1"; }
-echo "Synced Codex packages: acceptance-gate@$(_v .codex-plugin/plugin.json) feature-loop-codex@$(_v feature-loop/.claude-plugin/plugin.json) design-loop@$(_v design-loop/.codex-plugin/plugin.json)"
+AG_V="$(_v codex/acceptance-gate/.codex-plugin/plugin.json)"
+FL_V="$(_v codex/feature-loop-codex/.codex-plugin/plugin.json)"
+DL_V="$(_v codex/design-loop/.codex-plugin/plugin.json)"
+for _pair in "acceptance-gate:$AG_V" "feature-loop-codex:$FL_V" "design-loop:$DL_V"; do
+  [ -n "${_pair#*:}" ] || { echo "sync-plugin-packages: không đọc được version của ${_pair%%:*}" >&2; exit 1; }
+done
+echo "Synced Codex packages: acceptance-gate@$AG_V feature-loop-codex@$FL_V design-loop@$DL_V"

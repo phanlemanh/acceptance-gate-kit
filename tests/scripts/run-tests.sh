@@ -2170,9 +2170,14 @@ echo "TE5 co co van KHONG tat luat per-slug (chu ky)"
 mk_gp_repo te5; R="$GPR/te5"; gp_feature "$R" feat-y T3 implemented
 sed -i.bak 's/^human_signoff:.*/human_signoff:/' "$R/_acceptance/feat-y/evidence-report.md" && rm -f "$R/_acceptance/feat-y/evidence-report.md.bak"
 gp_commit "$R"
+# DOI CHUNG DUONG truoc: fixture chua go chu ky phai XANH, neu khong TE5 chi
+# chung minh "co violation nao do" chu khong phai luat chu ky. Bat bien #4.
+mk_gp_repo te5ok; ROK="$GPR/te5ok"; gp_feature "$ROK" feat-y T3 implemented; gp_commit "$ROK"
+TE5OK="$(bash "$CHECK" "$ROK" --base "$GP_BASE" --no-t1-escape 2>&1)"; check TE5ctrl 0 $?
 TE5="$(bash "$CHECK" "$R" --base "$GP_BASE" --no-t1-escape 2>&1)"; TE5ST=$?
 check  TE5a 1 "$TE5ST"
 nothas TE5b "pre-merge-check: clean" "$TE5"
+hasout TE5c "human_signoff is empty" "$TE5"
 
 echo "TE7 diff CHI plugins/ -> rang khong no"
 te_repo te7 plugins/acceptance-gate/scripts/x.js --with-plugins-glob

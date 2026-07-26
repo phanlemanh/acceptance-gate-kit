@@ -627,11 +627,14 @@ P45_BUMPED="$(grep -l '9\.9\.9' "$P45T/.claude-plugin/plugin.json" "$P45T/.codex
 # Đo bằng CHỤP TRƯỚC/SAU chứ không bằng `git diff` với HEAD: bản sao mang theo
 # mọi thay đổi chưa commit của cây làm việc, nên git diff sẽ báo bẩn vì lý do
 # không liên quan tới bump (đã dẫm).
-P45_BEFORE="$(find "$P45T/tests" -type f -exec shasum {} \; | sort | shasum)"
-bash "$P45T/scripts/sync-plugin-packages.sh" --write >/dev/null 2>&1
-P45_AFTER="$(find "$P45T/tests" -type f -exec shasum {} \; | sort | shasum)"
+# KHONG so shasum tests/ truoc-sau sync: `--write` chi ghi vao $ROOT/plugins nen
+# phep so do HANG DUNG — mot assertion khong bao gio do duoc, gay hieu nham ve
+# muc bao ve. Rang THAT cua P45 la lan chay suite long ben duoi (da kiem bang
+# dot bien: khoi phuc literal "1.21.0" o P03 -> P45 do).
+if ! bash "$P45T/scripts/sync-plugin-packages.sh" --write >/dev/null 2>&1; then
+  P45_MUT_OK=0
+fi
 if [ "$P45_MUT_OK" -eq 1 ] && [ "$P45_BUMPED" = "3" ] \
-   && [ "$P45_BEFORE" = "$P45_AFTER" ] \
    && PLUGINS_SUITE_NESTED=1 bash "$P45T/tests/plugins/run-tests.sh" >/dev/null 2>&1; then
   pass "P45 bump ba manifest khong cham suite"
 else

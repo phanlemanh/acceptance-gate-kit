@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ccacf24c989edd41b6a67ca8fdfb6209a5c3e780
+verified_commit: 4008e4f0cf454d4aa92a828376daee7c4de15b0d
 human_signoff:
 ---
 
@@ -37,191 +37,191 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-t1-escape-event-scope-E1-r4
+  run_id: minted-t1-escape-event-scope-E1-r5
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T16:30:00Z
+  verified_at: 2026-07-26T17:30:00Z
   output: |
-    PASS: TE18g
+    PASS: TE18g2
 
-    Results: 329 passed, 0 failed
+    Results: 332 passed, 0 failed
 
 - eval: E2
-  run_id: minted-t1-escape-event-scope-E2-r4
+  run_id: minted-t1-escape-event-scope-E2-r5
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T16:30:00Z
+  verified_at: 2026-07-26T17:30:00Z
   output: |
-    PASS: TE18g
+    PASS: TE18g2
 
-    Results: 329 passed, 0 failed
+    Results: 332 passed, 0 failed
 
 - eval: E3
-  run_id: minted-t1-escape-event-scope-E3-r4
+  run_id: minted-t1-escape-event-scope-E3-r5
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T16:30:00Z
+  verified_at: 2026-07-26T17:30:00Z
   output: |
-    PASS: TE18g
+    PASS: TE18g2
 
-    Results: 329 passed, 0 failed
+    Results: 332 passed, 0 failed
 
 - eval: E4
-  run_id: minted-t1-escape-event-scope-E4-r4
+  run_id: minted-t1-escape-event-scope-E4-r5
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T16:30:00Z
+  verified_at: 2026-07-26T17:30:00Z
   output: |
-    PASS: TE18g
+    PASS: TE18g2
 
-    Results: 329 passed, 0 failed
+    Results: 332 passed, 0 failed
 
 - eval: E5
-  run_id: minted-t1-escape-event-scope-E5-r4
+  run_id: minted-t1-escape-event-scope-E5-r5
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T16:30:00Z
+  verified_at: 2026-07-26T17:30:00Z
   output: |
-    PASS: TE18g
+    PASS: TE18g2
 
-    Results: 329 passed, 0 failed
+    Results: 332 passed, 0 failed
 
 - eval: E6
-  run_id: minted-t1-escape-event-scope-E6-r4
+  run_id: minted-t1-escape-event-scope-E6-r5
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-26T16:30:00Z
+  verified_at: 2026-07-26T17:30:00Z
   output: |
-    PASS: P46 mode la bi tu choi va KHONG ghi de
+    PASS: P46 mode la: exit 2, ghim thong diep, KHONG ghi de
 
     Results: all plugin tests passed
 
 - eval: E7
-  run_id: minted-t1-escape-event-scope-E7-r4
+  run_id: minted-t1-escape-event-scope-E7-r5
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T16:30:00Z
+  verified_at: 2026-07-26T17:30:00Z
   output: |
-    PASS: TE18g
+    PASS: TE18g2
 
-    Results: 329 passed, 0 failed
+    Results: 332 passed, 0 failed
 
 - eval: E8
-  run_id: minted-t1-escape-event-scope-E8-r4
+  run_id: minted-t1-escape-event-scope-E8-r5
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-26T16:30:00Z
+  verified_at: 2026-07-26T17:30:00Z
   output: |
-    PASS: P46 mode la bi tu choi va KHONG ghi de
+    PASS: P46 mode la: exit 2, ghim thong diep, KHONG ghi de
 
     Results: all plugin tests passed
 
 - eval: E9
-  run_id: minted-t1-escape-event-scope-E9-r4
+  run_id: minted-t1-escape-event-scope-E9-r5
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-26T16:30:00Z
+  verified_at: 2026-07-26T17:30:00Z
   output: |
-    PASS: P46 mode la bi tu choi va KHONG ghi de
+    PASS: P46 mode la: exit 2, ghim thong diep, KHONG ghi de
 
     Results: all plugin tests passed
 
 - eval: E10
-  run_id: minted-t1-escape-event-scope-E10-r4
+  run_id: minted-t1-escape-event-scope-E10-r5
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-26T16:30:00Z
+  verified_at: 2026-07-26T17:30:00Z
   output: |
-    PASS: P46 mode la bi tu choi va KHONG ghi de
+    PASS: P46 mode la: exit 2, ghim thong diep, KHONG ghi de
 
     Results: all plugin tests passed
 
 - eval: E11
-  run_id: minted-t1-escape-event-scope-E11-r4
+  run_id: minted-t1-escape-event-scope-E11-r5
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-26T16:30:00Z
+  verified_at: 2026-07-26T17:30:00Z
   output: |
-    PASS: P46 mode la bi tu choi va KHONG ghi de
+    PASS: P46 mode la: exit 2, ghim thong diep, KHONG ghi de
 
     Results: all plugin tests passed
 
 - eval: E12
-  run_id: minted-t1-escape-event-scope-E12-r4
+  run_id: minted-t1-escape-event-scope-E12-r5
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-26T16:30:00Z
+  verified_at: 2026-07-26T17:30:00Z
   output: |
-    PASS: P46 mode la bi tu choi va KHONG ghi de
+    PASS: P46 mode la: exit 2, ghim thong diep, KHONG ghi de
 
     Results: all plugin tests passed
 
 - eval: E14
-  run_id: minted-t1-escape-event-scope-E14-r4
+  run_id: minted-t1-escape-event-scope-E14-r5
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T16:30:00Z
+  verified_at: 2026-07-26T17:30:00Z
   output: |
-    PASS: TE18g
+    PASS: TE18g2
 
-    Results: 329 passed, 0 failed
+    Results: 332 passed, 0 failed
 
 - eval: E15
-  run_id: minted-t1-escape-event-scope-E15-r4
+  run_id: minted-t1-escape-event-scope-E15-r5
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T16:30:00Z
+  verified_at: 2026-07-26T17:30:00Z
   output: |
-    PASS: TE18g
+    PASS: TE18g2
 
-    Results: 329 passed, 0 failed
+    Results: 332 passed, 0 failed
 
 - eval: E16
-  run_id: minted-t1-escape-event-scope-E16-r4
+  run_id: minted-t1-escape-event-scope-E16-r5
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T16:30:00Z
+  verified_at: 2026-07-26T17:30:00Z
   output: |
-    PASS: TE18g
+    PASS: TE18g2
 
-    Results: 329 passed, 0 failed
+    Results: 332 passed, 0 failed
 
 - eval: E17
-  run_id: minted-t1-escape-event-scope-E17-r4
+  run_id: minted-t1-escape-event-scope-E17-r5
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T16:30:00Z
+  verified_at: 2026-07-26T17:30:00Z
   output: |
-    PASS: TE18g
+    PASS: TE18g2
 
-    Results: 329 passed, 0 failed
+    Results: 332 passed, 0 failed
 
 - eval: E18
-  run_id: minted-t1-escape-event-scope-E18-r4
+  run_id: minted-t1-escape-event-scope-E18-r5
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T16:30:00Z
+  verified_at: 2026-07-26T17:30:00Z
   output: |
-    PASS: TE18g
+    PASS: TE18g2
 
-    Results: 329 passed, 0 failed
+    Results: 332 passed, 0 failed
 
 - eval: E13
   judged_by: judge panel — domain-correctness, operational-feasibility, spec-alignment (fresh context)
@@ -229,32 +229,34 @@ human_signoff:
   rationale: |
     Panel unanimous, 3/3 lenses, no dissent to reconcile.
 
-    - domain-correctness: PASS — Ba dòng NOTE/marker nêu đủ ba yếu tố bằng
-      ngôn ngữ phổ thông: lớp tắt được gọi tên rõ ("răng T1-escape" = luật
-      đòi thay đổi chạm code quan trọng phải kèm _acceptance/<slug>/), lý do
-      tắt được giải thích cụ thể (đây là push thẳng nhánh chính chứ không
-      phải PR-vs-nhánh-đích, nơi commit hạ tầng theo thiết kế không kèm hồ
-      sơ), và rủi ro được nêu tường minh (thay đổi chạm code quan trọng có
-      thể lọt qua mà không bị chặn thiếu hồ sơ, dù các luật khác vẫn chạy
-      đủ). Một người chưa biết kit vẫn nắm được bức tranh mà không cần đọc
-      thêm tài liệu nào khác.
-    - operational-feasibility: PASS — Bằng chứng nêu rõ CẢ BA: lớp tắt (răng
-      T1-escape — luật đòi PR chạm code quan trọng phải kèm
-      _acceptance/<slug>/), lý do tắt (đây là push thẳng nhánh chính, không
-      phải PR so với nhánh đích, nên infra commit theo thiết kế không có hồ
-      sơ), và rủi ro cụ thể (nếu một thay đổi chạm code quan trọng lọt vào
-      lần chạy này sẽ không bị chặn vì thiếu hồ sơ nghiệm thu, dù các luật
-      khác vẫn chạy). Có cả hướng dẫn bật lại (bỏ cờ --no-t1-escape), đủ để
-      người chưa từng đọc kit hiểu không cần suy đoán thêm.
-    - spec-alignment: PASS — Bằng chứng nêu rõ cả ba yếu tố: lớp tắt là răng
-      "T1-escape" (luật đòi thay đổi chạm code quan trọng phải kèm hồ sơ
-      _acceptance/<slug>/), lý do tắt là vì đây là push thẳng nhánh chính
-      (không có tiền đề so PR-với-nhánh-đích) chứ không phải một quyết định
-      tuỳ tiện, và rủi ro cụ thể được nêu tường minh (thay đổi chạm code
-      quan trọng có thể lọt qua mà không bị chặn thiếu hồ sơ, dù các luật
-      khác vẫn chạy đủ) kèm cách bật lại (bỏ cờ --no-t1-escape). Một người
-      chưa từng đọc kit có thể nắm được layer/lý do/rủi ro chỉ từ đoạn văn
-      bản này mà không cần suy đoán thêm.
+    - domain-correctness: PASS — Bằng chứng tự giải thích đủ ba phần mà không
+      cần biết trước về kit: lớp tắt được nêu tên và định nghĩa tại chỗ
+      ("răng T1-escape — luật đòi mọi thay đổi chạm code quan trọng phải kèm
+      thư mục _acceptance/<slug>/"), lý do tắt được nêu cụ thể (push thẳng
+      nhánh chính, không có PR để so sánh, commit hạ tầng theo thiết kế không
+      kèm hồ sơ), và rủi ro được nêu rõ ràng, cụ thể (thay đổi quan trọng có
+      thể lọt qua vì thiếu hồ sơ nghiệm thu, trong khi các luật khác — context
+      sạch, chữ ký người, bằng chứng hết hạn — vẫn chạy). Không đòi hỏi kiến
+      thức nền về kit để hiểu ba yếu tố này.
+    - operational-feasibility: PASS — Bằng chứng nêu rõ lớp tắt là "răng
+      T1-escape" và giải thích ngay nghĩa của nó bằng ngôn ngữ thường (luật
+      đòi thay đổi chạm code quan trọng phải kèm _acceptance/<slug>/ = hồ sơ
+      nghiệm thu), không đòi người đọc phải biết thuật ngữ trước. Lý do tắt
+      được nêu cụ thể: rule chỉ có nghĩa khi so PR với nhánh đích, còn lần
+      chạy này là push thẳng lên nhánh chính cho commit hạ tầng theo thiết kế
+      không có hồ sơ. Rủi ro cũng cụ thể và đo được: thay đổi chạm code quan
+      trọng lọt vào lần push này sẽ không bị chặn vì thiếu hồ sơ, kèm cả điều
+      kiện đối trọng (các luật khác vẫn chạy) và cách bật lại (bỏ cờ
+      --no-t1-escape).
+    - spec-alignment: PASS — Bằng chứng nêu rõ LỚP tắt (răng T1-escape — đòi
+      mọi PR đổi code quan trọng phải kèm _acceptance/<slug>/), VÌ SAO (đây là
+      lần chạy push thẳng nhánh chính, không có PR để so, và các commit hạ
+      tầng như đóng gói/đồng bộ theo thiết kế không kèm hồ sơ), và RỦI RO cụ
+      thể (nếu một thay đổi chạm code quan trọng lọt vào lần chạy này thì sẽ
+      không bị chặn vì thiếu hồ sơ nghiệm thu, dù các luật khác — chữ ký
+      người, bằng chứng hết hạn, phản biện context sạch — vẫn chạy đủ), kèm
+      cách bật lại (bỏ cờ --no-t1-escape). Một người chưa đọc kit vẫn nắm được
+      cả ba yếu tố dù có vài thuật ngữ (T3 paths, slug) không giải thích sâu.
   human_override:
 
 ## Analyst
@@ -333,6 +335,34 @@ hook-enforced blockers, so they do not change the machine-eval table above,
 but they bear directly on the E13 judgment item and are flagged for the
 human at Gate 2.
 
+Round 5: same 17 machine evals still PASS, count moved from round 4 (`bash
+tests/scripts/run-tests.sh` now 332 passed vs 329 in round 4 — TE18g2 case
+added per this round's review findings on the TE5/invariant #4 gap; `bash
+tests/plugins/run-tests.sh` output tail now pins exit code + message text
+for P46, still all-plugin-green) plus the same two supporting regression
+checks green (`bash tests/hooks/run-tests.sh` now pins the T42 case, 51
+passed, 0 failed; `bash scripts/sync-plugin-packages.sh --check` reports
+mirror in sync). E13 was re-judged fresh by the panel (not carried — round
+input has no `carried` flag) and again proposes PASS 3/3, unanimous, no
+dissent, rationale text re-derived against the current evidence copy.
+Contract remains T3: `human_override` on E13 is still required regardless of
+the panel's proposal, so the overall verdict stays PENDING-JUDGMENT pending
+Gate 2. Baseline not re-measured this round (P2 — `evals.yaml` unchanged
+since the last baseline run); every machine eval block above carries
+`baseline: n-a` accordingly. This round's adversarial review surfaced 8
+findings — see `review-findings.md` — including a medium-severity gap on
+TE5 (invariant #4: conclusion drawn from exit code alone, no pinned
+message, no positive control — same class already fixed for TE18d/f/g and
+P46 in earlier rounds but not yet applied to TE5), a medium-severity finding
+that the kit's own self-hosted pre-merge gate is currently RED at HEAD (2
+violations, one caused by this very diff), and two medium-severity bugs in
+`scripts/sync-plugin-packages.sh` (a `set -e`-does-not-fire-on-command-
+substitution gap, and a version line that reads sibling manifests rather
+than the ones actually shipped into `plugins/` for 2 of 3 packages); none of
+these are hook-enforced blockers, so they do not change the machine-eval
+table above, but they bear directly on the E13 judgment item and are
+flagged for the human at Gate 2.
+
 ## Gate 2 checklist (human)
 
 - [ ] Read the table + spot-check 1-2 evidence blocks
@@ -350,7 +380,8 @@ round is PASS 3/3 (unanimous, no dissent), re-judged fresh (not carried)
 against the current evidence copy. Personally re-read the NOTE lines in the
 evidence (not just the panel's summary) before filling `human_override:
 <name> <date>`; a PASS proposal is advisory input, not a substitute for your
-own read. Before signing, also read `review-findings.md` round 4 — findings
-#1 and #5 (both high severity) speak directly to whether the T1-escape
-opt-out this feature ships is safe as documented for downstream consumers
-who vendor an older copy of `pre-merge-check.sh`.
+own read. Before signing, also read `review-findings.md` round 5 —
+in particular the self-hosted-gate-is-RED finding and the TE5 invariant-#4
+gap, both of which speak to whether this round's evidence is as solid as
+the green suite counts suggest.
+</content>

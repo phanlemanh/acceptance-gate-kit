@@ -1,4 +1,4 @@
-# Review Findings: t1-escape-event-scope (round 4)
+# Review Findings: t1-escape-event-scope (round 5)
 
 Informational — outside the evidence-report.md hook contract. Findings below
 have been adversarial-verified (refuter pass survived) unless listed under
@@ -8,205 +8,213 @@ Review incomplete (finder chết — cảnh báo): none this round.
 
 ---
 
-## 1. [high] CONTEXT.md (glossary nguồn) bị chèn đoạn mới CẮT ĐÔI câu — đúng lớp lỗi mà chính commit đó tuyên bố đã sửa
+## 1. [medium] Invariant #4 — TE5 kết luận từ exit≠0, không ghim thông điệp, không đối chứng dương
 
-- **file:** `CONTEXT.md:66`
+- **file:** `tests/scripts/run-tests.sh:2169`
 - **source:** invariants
 
-CLAUDE.md bất biến #2 đặt CONTEXT.md làm glossary phát triển của kit. Commit
-e1f2264 chèn khối `**Ngoại lệ tiếng Việt — "cổng" (thường):**` (dòng 68-75)
-vào GIỮA câu của mục ngoại lệ P0 design gate: dòng 66 kết thúc bằng `...là
-máy móc nhưng GIỮ chữ "gate",` và phần tiếp `vì đây là **tên riêng của một
-tính năng**...` bị đẩy xuống dòng 76, nên đọc từ trên xuống thì mục P0 design
-gate mất mệnh đề lý do và khối mới bị dính đuôi một câu lạ. Đây đúng là lỗi
-mà cùng commit đó tuyên bố đã chữa ở chỗ khác — ledger
-d-20260726T160200Z-218 và message commit ghi "Đoạn tiếng Việt tôi chèn ở
-Task 9 CẮT ĐÔI một câu tiếng Anh trong acceptance-init của cả hai harness.
-Viết lại bằng tiếng Anh, đặt sau câu trọn." — tức lại sửa theo FINDING chứ
-không theo LỚP, trên chính file glossary.
+TE5 (dòng 2169-2175) dựng fixture (xoá giá trị `human_signoff` của feat-y)
+rồi kết luận CHỈ từ `check TE5a 1 "$TE5ST"` + `nothas TE5b "pre-merge-check:
+clean"`. Thiếu cả hai vế bất biến #4: (a) không chạy bản nguyên vẹn để xác
+nhận nó XANH trước, (b) không ghim thông điệp `VIOLATION [feat-y]: verdict
+PASS but human_signoff is empty (Gate 2 pending)`. Đã kiểm chứng bằng đột
+biến trên bản sao repo: đổi chuỗi đó ở scripts/pre-merge-check.sh:450 thành
+'TOTALLY BOGUS MESSAGE' → toàn bộ suite vẫn 332 passed / 0 failed, tức không
+case nào trong dải diff phân biệt được luật chữ ký bắn đúng lý do hay một
+luật khác bắn. (Đột biến thứ hai — vô hiệu hoá hẳn nhánh `if [ -z "$signoff"
+]` — làm TE5a/TE5b đỏ, nên case còn răng ở mức 'có violation nào đó', nhưng
+đúng lớp lỗi mà bất biến #4, thêm ở ccacf24 trong CHÍNH dải này, cấm.) Cùng
+lớp với các finding round 4 đã sửa cho TE18d/f/g và P46 — sửa theo FINDING
+chứ chưa theo LỚP: TE5 nằm ngay giữa TE4 (đã ghim thông điệp) và TE7.
 
 ---
 
-## 2. [high] Docs tell consumers to add `--no-t1-escape`, but older vendored pre-merge-check.sh swallows it as ROOT and exits 0 with the WHOLE gate unrun
-
-- **file:** `commands/acceptance-init.md:123`
-- **source:** bugs
-
-The diff adds the same consumer-facing instruction in three shipped places
-(commands/acceptance-init.md:123, codex/acceptance-gate/skills/acceptance-init/SKILL.md:113,
-GUIDE.md:566-570) telling repos to append `--no-t1-escape` to their push
-job. The `-*` rejection that makes an unknown flag fail loudly is NEW in
-this same diff (scripts/pre-merge-check.sh). Consumers vendor a COPY of
-pre-merge-check.sh into their own repo (acceptance-init step 5), so any repo
-that updates the plugin/GUIDE but not the vendored script gets the pre-diff
-parser, where `*) ROOT="$1"` silently makes ROOT="--no-t1-escape".
-
-Verified empirically against the pre-diff script on this very repo (which
-does have _acceptance/):
-
-    $ git show cd4b85f:scripts/pre-merge-check.sh > old-pmc.sh
-    $ bash old-pmc.sh /Users/manhphan/dev/acceptance-gate-kit --base HEAD~1 --no-t1-escape
-    pre-merge-check: no _acceptance/ — nothing to check
-    OLD EXIT=0
-
-That is not a degraded T1-escape teeth — it is the entire gate (signoff,
-verdict, staleness, bypass, gap-probe, recheck) skipped with a green exit.
-This is exactly the fail-open the diff's own comment warns about ("Nuốt cờ
-lạ vào ROOT là fail-open chí tử"), and none of the three doc additions
-states a minimum kit version or tells the reader to re-copy the script
-first. Fix: make the instruction say "re-copy scripts/pre-merge-check.sh
-from the plugin BEFORE adding this flag (older copies treat it as a path and
-exit 0 having checked nothing)", or have the doc snippet grep the vendored
-script for `--no-t1-escape` support.
-
----
-
-## 3. [medium] Bất biến "assertion âm-tính-một-mình" (CLAUDE.md, ccacf24) bị vi phạm ngay trong cùng dải diff — TE18d/f/g chỉ ghim exit code
-
-- **file:** `tests/scripts/run-tests.sh:2276`
-- **source:** invariants
-
-CLAUDE.md bất biến #4 (thêm ở ccacf24, cuối chính dải này) đòi mọi case kết
-luận từ exit khác 0 phải có (a) đối chứng dương và (b) ghim ĐÚNG thông điệp.
-TE18d (dòng 2273), TE18f (2276), TE18g (2278) chỉ `check ... 2 $?` — không
-assert chuỗi nào. Kiểm chứng bằng đột biến trên bản sao repo: (1) đổi thông
-điệp `pre-merge-check: unexpected argument $1` thành `BOGUS MESSAGE` → suite
-vẫn 329 passed / 0 failed; (2) XOÁ HẲN chốt `[ -n "${ROOT_SET:-}" ] && { ...
-exit 2; }` ở scripts/pre-merge-check.sh:76 → TE18f/TE18g VẪN PASS, vì `extra`
-không phải thư mục nên exit 2 rơi ra từ chốt `[ -d "$1" ]` khác. Nghĩa là
-luật "positional thứ hai âm thầm đổi ROOT" mà TE18f nói mình canh hiện KHÔNG
-có răng nào giữ.
-
----
-
-## 4. [medium] Cùng lớp lỗi: P46 không có đối chứng dương và không ghim thông điệp
-
-- **file:** `tests/plugins/run-tests.sh:701`
-- **source:** invariants
-
-P46 (dòng 701-715) dựng bản sao rồi kết luận chỉ từ `[ "$P46ST" -eq 2 ]` +
-số dòng tiêm còn lại. Thiếu cả hai vế của bất biến: không chạy bản nguyên
-vẹn để xác nhận `--check` còn sống trong bản sao (khác P41/P42 ngay phía
-trên vốn đã có đối chứng dương), và không grep chuỗi `unknown option`. Kiểm
-chứng bằng đột biến: đổi thông điệp trong scripts/sync-plugin-packages.sh:16
-thành `TOTALLY DIFFERENT ERROR` → P46 vẫn PASS, toàn bộ suite plugin vẫn
-xanh. Vì P46 là chốt DUY NHẤT biện minh cho miễn trừ `plugins/**` trong
-`_acceptance/config.yaml` (theo comment của chính nó và của config),
-assertion không phân biệt được ở đây làm mất căn cứ của miễn trừ.
-
----
-
-## 5. [medium] HEAD không qua chính cổng của kit: 2 violation, trong đó diff này làm evidence của slug ĐÃ KÝ trở thành stale
+## 2. [medium] Cổng của chính kit đỏ tại HEAD — 2 violation, một cái do chính dải diff này sinh ra
 
 - **file:** `_acceptance/gap-probe-presence-hook/evidence-report.md:10`
 - **source:** invariants
 
-`bash scripts/pre-merge-check.sh . --base cd4b85f` tại HEAD → exit 1, 2
-violation: (a) `VIOLATION [gap-probe-presence-hook]: evidence is stale —
-code changed after verify (verified_commit 834eae8...)` liệt 7 file nguồn
-đổi sau khi slug đó đã `PASS, signed off by Manh Phan 2026-07-26`
-(.github/workflows/gate.yml, codex/acceptance-gate/skills/acceptance-init/SKILL.md,
+`bash scripts/pre-merge-check.sh . --base cd4b85f` tại HEAD → 2 violation,
+merge blocked: (a) `VIOLATION [gap-probe-presence-hook]: evidence is stale —
+code changed after verify (verified_commit 834eae8…)` liệt 7 file nguồn đổi
+sau khi slug đó đã ký (.github/workflows/gate.yml,
+codex/acceptance-gate/skills/acceptance-init/SKILL.md,
 commands/acceptance-init.md, scripts/pre-merge-check.sh,
 scripts/sync-plugin-packages.sh, tests/plugins/run-tests.sh,
 tests/scripts/run-tests.sh); (b) `VIOLATION [t1-escape-event-scope]:
-verdict=PENDING-JUDGMENT (must be PASS to merge)`. Đã đối chứng: chạy cùng
-lệnh trên worktree tại cd4b85f cho `pre-merge-check: clean` — tức chính dải
-diff này sinh ra violation (a). Trớ trêu là ghi chú GUIDE.md thêm trong
-chính diff này (dòng ~196) cảnh báo đúng vòng lặp "ký → đổi code → stale →
-verify lại → ký lại".
+verdict=PENDING-JUDGMENT (must be PASS to merge)`. Trớ trêu: chính diff này
+thêm ghi chú GUIDE.md (~dòng 196) cảnh báo đúng vòng lặp 'ký → đổi code →
+stale → verify lại → ký lại'. Lưu ý đây không phải một trong 5 gạch đầu dòng
+của CLAUDE.md, nhưng là trạng thái cổng repo tự chạy, và review-findings.md
+round 4 (#5) đã nêu mà HEAD vẫn chưa xử lý.
 
 ---
 
-## 6. [medium] GUIDE.md wire-CI snippet appends a bare shell line inside the ```yaml GitHub Actions block — copy-paste yields invalid workflow YAML
+## 3. [medium] `set -e` does not abort on a failing command substitution — the "khong nuot loi" fix for `_v` is inert, sync still exits 0 with a blank version
 
-- **file:** `GUIDE.md:570`
+- **file:** `scripts/sync-plugin-packages.sh:89`
 - **source:** bugs
 
-GUIDE.md §5.3 "Wire CI" presents a fenced ```yaml block labelled "GitHub
-Actions mẫu" containing the `acceptance-gate:` job mapping. The diff appends,
-inside that same fence, four `#` comment lines plus a bare shell command:
+Commit 4008e4f removed `2>/dev/null || echo '?'` from `_v` on the stated
+premise that, under `set -euo pipefail`, a node/manifest failure would then
+be fatal (comment lines 86-87: "manifest doi ten / node vang / JSON hong
+phai NO"). That premise is wrong: bash's `-e` is not triggered when a
+command substitution fails inside the argument list of a simple command —
+only the status of `echo` counts.
 
-    ```yaml
-    acceptance-gate:
-      runs-on: ubuntu-latest
-      steps:
-        ...
-        - run: bash scripts/pre-merge-check.sh . --base "origin/$GITHUB_BASE_REF"
+Verified on a full copy of the repo with `design-loop/.codex-plugin/plugin.json`
+renamed away:
 
-    # Job chạy trên `push` ...
-    bash scripts/pre-merge-check.sh . --base "$(git rev-parse HEAD~1)" --no-t1-escape
-    ```
+    $ bash scripts/sync-plugin-packages.sh
+    <node MODULE_NOT_FOUND stack trace>
+    Synced Codex packages: acceptance-gate@1.21.0 feature-loop-codex@1.16.1 design-loop@
+    EXIT=0
 
-A consumer copy-pasting this block (which is precisely what §5.3 and
-acceptance-init tell them to do) gets a document with a top-level mapping
-key `acceptance-gate:` followed by a bare scalar line — a YAML parse error,
-so the workflow never runs at all. It should be a proper `- run:` step under
-a separate push-triggered job, or moved out of the yaml fence into its own
-```bash fence.
+So a missing node, a renamed manifest, or malformed JSON produces a success
+line with an empty version and exit status 0 — exactly the swallowed error
+the comment claims is impossible. The write side already ran, so the
+operator's only signal that the wrong package version shipped is a blank
+field.
 
-The new P44 test (tests/plugins/run-tests.sh) cannot catch this: it only
-asserts `"--no-t1-escape" in g`, i.e. substring presence, not that the
-snippet is valid YAML.
+Fix: capture into variables before printing so `set -e` actually fires, e.g.
+`AGV="$(_v ...)"` (assignment form DOES trip `-e`), or add an explicit
+`[ -n "$AGV" ] || { echo ... >&2; exit 1; }`.
 
 ---
 
-## 7. [low] sync-plugin-packages.sh `_v` swallows node/manifest errors into '?' and reads manifests that are not the ones actually shipped into plugins/
+## 4. [medium] Version line reads manifests that are NOT the ones shipped into `plugins/` for 2 of 3 packages
 
-- **file:** `scripts/sync-plugin-packages.sh:86`
+- **file:** `scripts/sync-plugin-packages.sh:89`
 - **source:** bugs
 
-Line 86: `_v() { node -e 'process.stdout.write(require(process.argv[1]).version)' "$ROOT/$1" 2>/dev/null || echo '?'; }`
+`build_feature_loop` overlays from `codex/feature-loop-codex/` and
+`build_design_loop` from `codex/design-loop/` (lines 54, 64), so the
+manifests that actually land in `plugins/feature-loop-codex/` and
+`plugins/design-loop-codex/` are
+`codex/feature-loop-codex/.codex-plugin/plugin.json` and
+`codex/design-loop/.codex-plugin/plugin.json`.
 
-Two problems, both defeating the stated intent ("để lại đây thì script báo
-một số hiệu không tồn tại"):
+The new line 89 instead reads `feature-loop/.claude-plugin/plugin.json` and
+`design-loop/.codex-plugin/plugin.json` — sibling manifests that are not
+part of the build.
 
-1. Silent fallback: a missing node, a malformed plugin.json, or a renamed
-   manifest path all degrade to the literal `?` in the success line instead
-   of failing. The script runs under `set -euo pipefail`, so without the
-   `|| echo '?'` this would have failed loudly; the `2>/dev/null` also hides
-   the reason.
+For design-loop nothing keeps them equal. They already differ in content
+today:
 
-2. Wrong source file for 2 of 3 packages. `build_feature_loop` copies from
-   `codex/feature-loop-codex/` and `build_design_loop` from
-   `codex/design-loop/`, but the message reads
-   `feature-loop/.claude-plugin/plugin.json` and
-   `design-loop/.codex-plugin/plugin.json` — sibling manifests that are NOT
-   what lands in `plugins/feature-loop-codex/` and
-   `plugins/design-loop-codex/`. They happen to agree today (all 1.16.1 /
-   0.3.0, verified), but the moment a Codex overlay manifest is bumped
-   independently the script reports a version it did not sync — the same
-   class of stale-number report the change set out to remove. Read
-   `codex/feature-loop-codex/.codex-plugin/plugin.json` and
-   `codex/design-loop/.codex-plugin/plugin.json` instead, and drop the
-   `|| echo '?'`.
+    $ diff design-loop/.codex-plugin/plugin.json plugins/design-loop-codex/.codex-plugin/plugin.json
+    (differs in description, keywords, commands, shortDescription, longDescription)
+    $ diff codex/design-loop/.codex-plugin/plugin.json plugins/design-loop-codex/.codex-plugin/plugin.json
+    (identical)
+
+And no test pins `design-loop/.codex-plugin/plugin.json` — P22 only asserts
+`codex/design-loop/.codex-plugin/plugin.json == "0.3.0"`. The versions
+coincide at 0.3.0 right now, so the first independent bump of the Codex
+overlay makes the script report a version it did not sync — the same
+stale-number rot the change set out to remove. (acceptance-gate is safe: P03
+asserts root `.claude-plugin`/`.codex-plugin`/overlay all match.)
 
 ---
 
-## 8. [low] `plugins/**` exemption is broader than the P30 drift check that justifies it
+## 5. [low] Invariant #4 (tinh thần) — P45 chứa một assertion không bao giờ đỏ được + nuốt exit của bước sync
+
+- **file:** `tests/plugins/run-tests.sh:630`
+- **source:** invariants
+
+P45 so `P45_BEFORE`/`P45_AFTER` = shasum của cây `tests/` trước và sau
+`sync-plugin-packages.sh --write` (dòng 630-634). `--write` chỉ ghi vào
+`$ROOT/plugins` (DEST=$ROOT/plugins; mọi rsync trong build_acceptance/
+build_feature_loop/build_design_loop đều trỏ vào $DEST) — không đường nào
+chạm `tests/`, nên `[ "$P45_BEFORE" = "$P45_AFTER" ]` là hằng đúng, một
+assertion không sống. Cùng dòng 631 nuốt cả exit lẫn stderr của bước sync
+(`>/dev/null 2>&1`, không kiểm status), đúng lớp 'bước tiêm thất bại vẫn cho
+màu xanh' mà bất biến #4 liệt kê. Răng THẬT của P45 nằm ở lần chạy suite
+lồng — đã kiểm chứng bằng đột biến (khôi phục `assert
+root_claude["version"] == "1.21.0"` ở P03 → P45 đỏ), nên đây là dư thừa gây
+hiểu nhầm về mức bảo vệ chứ không phải case rỗng hoàn toàn.
+
+---
+
+## 6. [low] Invariant #2 — văn tiếng Anh gọi pre-merge check là 'the gate' trong 2 file agent-facing đã ship
+
+- **file:** `commands/acceptance-init.md:134`
+- **source:** invariants
+
+Đoạn mới thêm viết 'exit 0 with the ENTIRE gate unrun (signoff, verdict,
+staleness, gap-probe, re-check — all skipped, CI green)' ở
+commands/acceptance-init.md:134 và
+codex/acceptance-gate/skills/acceptance-init/SKILL.md:126. CONTEXT.md quy
+định 'Gate' chỉ dành cho điểm dừng con người, lớp máy trong văn tiếng Anh gọi
+là **the hook** / **pre-merge check**; và ngoại lệ 'cổng' thêm ở CHÍNH dải
+này (CONTEXT.md:74-81) nói rõ nó CHỈ áp cho chữ thường trong văn tiếng Việt,
+'văn tiếng Anh vẫn theo luật cũ'. Bản tiếng Việt tương ứng trong GUIDE.md
+('TOÀN BỘ cổng không chạy') thì hợp lệ theo ngoại lệ mới. Sửa: 'with the
+ENTIRE pre-merge check unrun'.
+
+---
+
+## 7. [low] Invariant #1 — dòng 'Synced …' đọc manifest KHÔNG phải manifest được đồng bộ vào mirror
+
+- **file:** `scripts/sync-plugin-packages.sh:89`
+- **source:** invariants
+
+`_v` (dòng 88-89) đọc `.codex-plugin/plugin.json` (gốc repo),
+`feature-loop/.claude-plugin/plugin.json` và
+`design-loop/.codex-plugin/plugin.json`. Nhưng bản thực sự landing vào
+mirror là các manifest overlay: build_acceptance →
+`codex/acceptance-gate/.codex-plugin/plugin.json`, build_feature_loop →
+`codex/feature-loop-codex/.codex-plugin/plugin.json`, build_design_loop →
+`codex/design-loop/.codex-plugin/plugin.json` (sync_overlay, dòng
+44/54/64). Hôm nay ba cặp trùng số (1.21.0 / 1.16.1 / 0.3.0 — đã verify) nên
+vô hại, nhưng khi một overlay Codex bump độc lập, script báo một số hiệu nó
+KHÔNG đồng bộ — đúng lớp 'báo số hiệu không tồn tại' mà comment ngay trên
+dòng đó tuyên bố vừa gỡ khỏi P03/P22. Không case nào canh dòng này. (Cùng
+gốc với finding #4 ở trên — hai lens độc lập, invariants và bugs, quy về
+cùng một dòng code.)
+
+---
+
+## 8. [low] Miễn trừ `plugins/**` rộng hơn chốt P30 dùng để biện minh cho nó
+
+- **file:** `_acceptance/config.yaml:56`
+- **source:** invariants
+
+config.yaml:56 thêm `- "plugins/**"` vào `risk_tiers.t1_skip_globs`, miễn
+cho các path đó khỏi CẢ răng T1-escape lẫn luật stale_files; comment dòng
+51-55 biện minh bằng 'P30 (sync-plugin-packages.sh --check) canh mirror ==
+nguồn độc lập'. Nhưng `--check` chỉ `diff -r` ba thư mục hardcode (`for pkg
+in acceptance-gate feature-loop-codex design-loop-codex`,
+sync-plugin-packages.sh:73). Bất cứ thứ gì khác dưới `plugins/` — một
+package thứ tư trong tương lai, hay `plugins/.claude-plugin/marketplace.json`
+— vẫn được glob miễn trừ nhưng KHÔNG có chốt nào so. Hiện chỉ
+`plugins/.DS_Store` nằm ngoài ba thư mục đó (đã verify bằng `ls -a
+plugins/`), nên đây là lỗ tiềm ẩn chứ chưa bị khai thác. Hoặc thu hẹp glob về
+ba thư mục package, hoặc để `--check` liệt kê `plugins/*` và nổ khi gặp entry
+lạ, để miễn trừ và chốt bằng độ rộng.
+
+---
+
+## 9. [low] `plugins/**` gate exemption is wider than the P30 drift check cited to justify it
 
 - **file:** `_acceptance/config.yaml:56`
 - **source:** bugs
 
-config.yaml:56 adds `- "plugins/**"` to `risk_tiers.t1_skip_globs`, which
-exempts those paths from BOTH the T1-escape backstop
-(scripts/pre-merge-check.sh:587) and the stale-evidence rule
-(`stale_files`, line 217). The comment justifies it with "P30
-(sync-plugin-packages.sh --check) canh `mirror == nguồn` độc lập".
+Line 56 adds `- "plugins/**"` to `risk_tiers.t1_skip_globs`, which exempts
+those paths from BOTH the T1-escape backstop (`scripts/pre-merge-check.sh`,
+non-T1 branch) and the stale-evidence rule (`stale_files`). The inline
+comment justifies this with "P30 (sync-plugin-packages.sh --check) canh
+`mirror == nguon` doc lap".
 
-That justification only holds for paths inside the three hardcoded package
-dirs: sync-plugin-packages.sh:73 iterates `for pkg in acceptance-gate
-feature-loop-codex design-loop-codex` and `diff -r`s only those. Anything
-else under `plugins/` — a future 4th package dir, or a
-`plugins/.claude-plugin/marketplace.json` — is compared by nothing, while
-the glob `plugins/**` still exempts it from the gate and from staling
-evidence. Today only `plugins/.DS_Store` lives outside the three dirs
-(verified), so this is latent rather than exploited, but the exemption and
-its guard should be kept the same width: either narrow the glob to the
-three package dirs, or make `--check` enumerate `plugins/*` and fail on an
-unknown entry.
+But that guard is narrower than the glob: `scripts/sync-plugin-packages.sh:73`
+iterates a hardcoded list — `for pkg in acceptance-gate feature-loop-codex
+design-loop-codex` — and `diff -r`s only those three directories. Anything
+else under `plugins/` (a future 4th package dir, a
+`plugins/.claude-plugin/marketplace.json`) is compared by nothing while
+still being exempted from the gate and from staling evidence.
 
----
-
-## Chưa adversarial-verify (refuter chết)
-
-none this round.
+Today only `plugins/.DS_Store` lives outside the three dirs (`ls -a
+plugins/` → `.DS_Store  acceptance-gate  design-loop-codex
+feature-loop-codex`), so this is latent, not exploited. Keep the two the
+same width: narrow the glob to the three package dirs, or make `--check`
+enumerate `plugins/*` and fail on an unrecognised entry. (Same underlying
+gap as finding #8 above, independently surfaced by the bugs lens.)
+</content>
