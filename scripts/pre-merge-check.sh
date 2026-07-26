@@ -47,6 +47,10 @@ RECHECK="$HERE/recheck-evidence.js"
 ROOT="."
 SLUGS=()
 BASE="${PRE_MERGE_BASE:-}"
+# Răng T1-escape bật mặc định. Opt-OUT chứ không phải opt-in `--pr`: acceptance-init
+# đang dạy consumer truyền đúng `--base`, nên opt-in sẽ làm răng tắt IM LẶNG trên
+# mọi repo tiêu thụ đang chạy — biến một sửa lỗi thành lỗ fail-open hàng loạt.
+T1_ESCAPE=1
 while [ $# -gt 0 ]; do
   case "$1" in
     --slug)
@@ -55,6 +59,9 @@ while [ $# -gt 0 ]; do
     --base)
       [ $# -ge 2 ] || { echo "pre-merge-check: --base requires a value" >&2; exit 2; }
       BASE="$2"; shift 2 ;;
+    --no-t1-escape)
+      # Không nhận tham số — `reason` là hằng, giữ ranh giới "không thêm cờ nào khác".
+      T1_ESCAPE=0; shift ;;
     *) ROOT="$1"; shift ;;
   esac
 done
@@ -162,6 +169,16 @@ gap_probe_not_enforced() { # <lý do>
   else
     echo "NOTE: gap-probe không cưỡng chế được — $1 (advisory, không chặn merge)."
   fi
+}
+
+# Cùng khuôn gap_probe_not_enforced: một hàm, một marker, một chỗ quyết định.
+# Hai chuỗi là HẰNG — CI grep được, và suite so bằng `grep -F` nên không ai tự
+# viết cả đề lẫn đáp án. Tắt im lặng là thứ luật này sinh ra để chặn.
+T1_ESCAPE_OFF=0
+t1_escape_not_enforced() {
+  [ "$T1_ESCAPE_OFF" -eq 1 ] && return 0
+  T1_ESCAPE_OFF=1
+  echo "T1-ESCAPE: NOT ENFORCED reason=push-event-no-pr-premise"
 }
 
 match_globs() { # <path> <newline-separated globs> — 0 iff any glob matches
@@ -539,7 +556,9 @@ done
 # gated PR re-verifies, so its diff always includes gate artifacts.) There is
 # no path→slug mapping, so "carries artifacts" means any _acceptance/ change;
 # the per-slug checks above judge their quality.
-if [ "$DIFF_READY" -eq 0 ]; then
+if [ "$T1_ESCAPE" -eq 0 ]; then
+  t1_escape_not_enforced
+elif [ "$DIFF_READY" -eq 0 ]; then
   echo "NOTE: T1-escape backstop skipped — $DIFF_SKIP_NOTE"
 else
   changed="$DIFF_FILES"
@@ -571,6 +590,7 @@ fi
 # AC-16 vế sau: dòng tổng kết PHẢI khai là luật đã tắt. Một marker lẻ giữa hàng
 # chục dòng output là thứ người đọc lướt qua; khai ở dòng cuối thì không.
 [ "$GP_NOT_ENFORCED" -eq 1 ] && echo "pre-merge-check: gap-probe: KHÔNG cưỡng chế trong lần chạy này (xem dòng marker NOT ENFORCED ở trên)"
+[ "$T1_ESCAPE_OFF" -eq 1 ] && echo "pre-merge-check: T1-escape: KHÔNG cưỡng chế trong lần chạy này (xem dòng marker NOT ENFORCED ở trên)"
 
 if [ "$violations" -gt 0 ]; then
   echo "pre-merge-check: $violations violation(s) — merge blocked"

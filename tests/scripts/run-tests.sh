@@ -2117,6 +2117,40 @@ same GPM20g "missing|" "$(gp_classify '' '{"id":"d-2","type":"descope","decision
 # entry descope nhưng decision khác -> không mở van
 same GPM20h "missing|" "$(gp_classify '' '{"id":"d-3","type":"descope","decision":"bỏ mockup"}')"
 
+# ── TE: cờ --no-t1-escape ────────────────────────────────────────────────────
+# Fixture: repo có src/app.js (t3_paths) + docs/, KHÔNG có _acceptance/<slug>/
+# trong diff → răng T1-escape có cớ để nổ.
+te_repo() { # <case> <file cần đổi> -> đặt TE_R, TE_B
+  mk_gp_repo "$1"; TE_R="$GPR/$1"; TE_B="$GP_BASE"
+  mkdir -p "$(dirname "$TE_R/$2")"; printf 'v2\n' >> "$TE_R/$2"
+  git -C "$TE_R" add -A >/dev/null
+  git -c user.email=t@t -c user.name=t -C "$TE_R" commit -qm change
+}
+
+echo "TE1 KHONG co co -> hanh vi Y HET hom nay (backward compat)"
+te_repo te1 src/app.js
+TE1="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"; TE1ST=$?
+hasout TE1  "VIOLATION [PR]" "$TE1"
+check  TE1b 1 "$TE1ST"
+nothas TE1c "T1-ESCAPE: NOT ENFORCED" "$TE1"
+
+echo "TE2 co co -> rang tat, khong VIOLATION [PR]"
+te_repo te2a src/app.js
+TE2A="$(bash "$CHECK" "$TE_R" --base "$TE_B" --no-t1-escape 2>&1)"; check TE2a 0 $?
+nothas TE2a2 "VIOLATION [PR]" "$TE2A"
+# Chống XANH-RỖNG: trước khi script biết cờ, nó coi "--no-t1-escape" là ROOT,
+# không thấy _acceptance/ và thoát 0 ngay — TE2a/TE2a2 xanh mà luật chưa chạy
+# lần nào. Hai assert dưới đây phân biệt "đúng" với "không chạy".
+nothas TE2a3 "no _acceptance/" "$TE2A"
+hasout TE2a4 "pre-merge-check:" "$TE2A"
+te_repo te2b src/app.js
+TE2B="$(bash "$CHECK" "$TE_R" --base "$TE_B" --no-t1-escape 2>&1)"
+nothas TE2b2 "T3 paths (t3_paths) changed" "$TE2B"
+
+echo "TE3 khi tat phai keu to: hai chuoi NGUYEN VAN, moi cai dung MOT dong"
+same TE3a 1 "$(printf '%s\n' "$TE2A" | grep -cF 'T1-ESCAPE: NOT ENFORCED reason=push-event-no-pr-premise')"
+same TE3b 1 "$(printf '%s\n' "$TE2A" | grep -cF 'pre-merge-check: T1-escape: KHÔNG cưỡng chế trong lần chạy này (xem dòng marker NOT ENFORCED ở trên)')"
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
