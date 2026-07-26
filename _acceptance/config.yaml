@@ -18,7 +18,14 @@ gap_probe: required          # cùng posture: kit KHÔNG tự cho mình mode adv
                              # NHƯNG `required` có sàn fail-CLOSED: chạy không --base (hoặc git diff
                              # lỗi, thiếu node/lib) là VIOLATION, không phải bỏ qua. CI phải luôn
                              # truyền base (xem .github/workflows/gate.yml).
-baseline_minutes: []         # TODO(human): ước lượng phút nghiệm thu TRƯỚC khi có kit, để /acceptance-report tính KPI
+baseline_minutes: []         # CỐ Ý ĐỂ TRỐNG, không phải quên. Owner (2026-07-26): trước khi có kit
+                             # thì "gần như không phê duyệt được, hoặc mất rất lâu" — tức baseline
+                             # KHÔNG phải một khoảng thời gian, mà là một việc thường không xảy ra.
+                             # Điền một con số ước lượng vào đây sẽ bịa ra mẫu số và biến KPI thành
+                             # "giảm X%" trong khi sự thật là "từ KHÔNG-THỂ sang đo được".
+                             # /acceptance-report sẽ in "baseline chưa ghi" — đọc kèm dòng này.
+                             # Đo thật: mốc so sánh đúng là số feature phê duyệt được / tháng,
+                             # không phải số phút mỗi lần.
 executors:
   test:
     scripts: "bash tests/scripts/run-tests.sh"

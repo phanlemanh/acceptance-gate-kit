@@ -1,7 +1,7 @@
 ---
 schema_version: 2
 feature_slug: gap-probe-presence-hook
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
@@ -9,7 +9,7 @@ enforcement_mode: strict
 bypass_used: false
 verified_commit: 14f7b0b4ec7ac979905f1612acc6507b64d94679
 # bypass_ack:
-human_signoff:
+human_signoff: Manh Phan 2026-07-26
 ---
 
 # Evidence Report: gap-probe-presence-hook
@@ -143,7 +143,7 @@ human_signoff:
     - domain-correctness: PASS — Mỗi thông điệp nêu rõ hai phần: đang thiếu gì (thiếu gap-probe.md hợp lệ / ledger không có entry descope / verdict probe-failed / đã bỏ có chủ đích theo d-77) và phải làm gì tiếp (chạy S1#7 để sinh gap-probe.md, hoặc ghi entry decisions.jsonl kèm template JSON đầy đủ trường id/type/stage/at/decision/impact) — một người chưa đọc kit vẫn có đường dẫn hành động cụ thể dù chưa hiểu sâu ý nghĩa "S1#7"/"ledger". feat-f và feat-g là NOTE thuần thông tin, không cần hành động, và cũng diễn giải rõ ràng lý do (đã bỏ có dấu vết / probe không chạy được) nên không gây hiểu lầm là phải làm gì thêm.
     - operational-feasibility: PASS — Mỗi thông điệp (feat-b/c/f/g) đều nêu rõ trạng thái thiếu gì (không có gap-probe.md hợp lệ, không có entry descope trong ledger, hoặc probe-failed) và cho ít nhất một lối hành động không đòi hỏi biết trước về kit: ghi thẳng một entry JSON đầy đủ schema vào decisions.jsonl, hoặc chấp nhận rủi ro (feat-g), hoặc không cần làm gì vì đã có dấu vết quyết định (feat-f) — người đọc lần đầu vẫn nắm được việc cần làm tiếp theo. Điểm trừ nhỏ: nhánh khuyến nghị "Chạy bước S1#7" không giải thích S1#7 là gì/chạy ở đâu, nhưng vì nó luôn đi kèm một nhánh OR đầy đủ và tự chứa (JSON schema cụ thể), tiêu chí "biết phải làm gì tiếp" vẫn được đáp ứng.
     - spec-alignment: PASS — Mỗi thông điệp tự giải thích cái thiếu bằng ngôn ngữ thường ("chưa qua phản biện context sạch (gap-probe)") thay vì chỉ nêu mã lỗi, và cho đúng hai lối ra cụ thể: chạy bước S1#7 để sinh gap-probe.md, hoặc dán một entry decisions.jsonl với schema JSON đầy đủ (id/type/stage/at/decision/impact) — không cần biết trước kit vẫn copy-paste được. feat-f và feat-g còn nói rõ trạng thái khác nhau (đã bỏ có chủ đích vs. probe chạy lỗi) nên người đọc phân biệt được đây là NOTE thông tin hay việc cần làm.
-  human_override:        # risk_tier T3: bắt buộc verdict trực tiếp từ human trên MỌI judgment item, bất kể panel đề xuất gì — điền "<name> <ISO date>" tại Gate 2
+  human_override: Manh Phan 2026-07-26        # risk_tier T3: bắt buộc verdict trực tiếp từ human trên MỌI judgment item, bất kể panel đề xuất gì — điền "<name> <ISO date>" tại Gate 2
 
 - eval: E10
   run_id: minted-gap-probe-presence-hook-E10-r3
