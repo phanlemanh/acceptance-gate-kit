@@ -2269,6 +2269,13 @@ TE18="$(bash "$CHECK" "$R" --no-t1escape --base "$GP_BASE" 2>&1)"; TE18ST=$?
 check  TE18a 2 "$TE18ST"
 hasout TE18b "unknown option" "$TE18"
 nothas TE18c "nothing to check" "$TE18"
+# MOT gach cung la loi go — ban chi bat `--*` de lot `-no-t1-escape` y nguyen
+TE18D="$(bash "$CHECK" "$R" -no-t1-escape --base "$GP_BASE" 2>&1)"; check TE18d 2 $?
+nothas TE18e "nothing to check" "$TE18D"
+# positional thu hai am tham doi ROOT
+TE18F="$(bash "$CHECK" "$R" extra --base "$GP_BASE" 2>&1)"; check TE18f 2 $?
+# ROOT khong ton tai phai no, khong duoc roi vao "nothing to check"
+TE18G="$(bash "$CHECK" "$GPR/khong-ton-tai" --base "$GP_BASE" 2>&1)"; check TE18g 2 $?
 
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"

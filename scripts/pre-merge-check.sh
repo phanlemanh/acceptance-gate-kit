@@ -62,12 +62,19 @@ while [ $# -gt 0 ]; do
     --no-t1-escape)
       # Không nhận tham số — `reason` là hằng, giữ ranh giới "không thêm cờ nào khác".
       T1_ESCAPE=0; shift ;;
-    --*)
-      # Nuốt cờ lạ vào ROOT là fail-open chí tử: ROOT sai → không thấy
-      # _acceptance/ → cổng thoát 0 mà KHÔNG chạy luật nào. Từ khi kit dạy
-      # consumer chép tay `--no-t1-escape` vào CI, một lỗi gõ là đủ.
+    -*)
+      # `-*` chứ không phải `--*`: một gạch cũng là lỗi gõ, và bản chỉ bắt hai
+      # gạch để lọt `-no-t1-escape` y nguyên. Nuốt cờ lạ vào ROOT là fail-open
+      # chí tử — ROOT sai → không thấy _acceptance/ → thoát 0 mà KHÔNG chạy
+      # luật nào. Từ khi kit dạy consumer chép tay cờ vào CI, một lỗi gõ là đủ.
       echo "pre-merge-check: unknown option $1" >&2; exit 2 ;;
-    *) ROOT="$1"; shift ;;
+    *)
+      # Positional thứ hai cũng là lỗi gõ (vd `pre-merge-check.sh . extra` âm
+      # thầm đổi ROOT sang `extra`), và ROOT không tồn tại thì phải nổ chứ
+      # không được đi tiếp để rơi vào nhánh "nothing to check".
+      [ -n "${ROOT_SET:-}" ] && { echo "pre-merge-check: unexpected argument $1" >&2; exit 2; }
+      [ -d "$1" ] || { echo "pre-merge-check: root not a directory: $1" >&2; exit 2; }
+      ROOT="$1"; ROOT_SET=1; shift ;;
   esac
 done
 

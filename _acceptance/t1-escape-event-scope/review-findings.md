@@ -1,4 +1,4 @@
-# Review Findings: t1-escape-event-scope (round 2)
+# Review Findings: t1-escape-event-scope (round 3)
 
 Informational — outside the evidence-report.md hook contract. Findings below
 have been adversarial-verified (refuter pass survived) unless listed under
@@ -8,170 +8,143 @@ Review incomplete (finder chết — cảnh báo): none this round.
 
 ---
 
-## 1. [high] P42 passes whenever its fixture copy is broken — negative-only assertion with no positive control (false green)
+## 1. [medium] CONTEXT.md authoring language: chèn đoạn tiếng Việt vào file agent-facing toàn tiếng Anh, cắt đôi một câu tiếng Anh
 
-- **file:** `tests/plugins/run-tests.sh:585`
+- **file:** `commands/acceptance-init.md:121`
+- **source:** invariants
+
+`commands/acceptance-init.md:121-125` chèn một đoạn tiếng Việt vào GIỮA một
+câu tiếng Anh đang dở: dòng 119-120 kết thúc bằng "`bash
+scripts/pre-merge-check.sh . --base \"origin/$GITHUB_BASE_REF\"`" và phần
+tiếp "(or export `PRE_MERGE_BASE`). The backstop blocks PRs that change..."
+nằm ở dòng 126 — tức đoạn tiếng Việt tách vế trước khỏi vế sau của cùng một
+câu, làm hướng dẫn đọc thành hai mảnh rời.
+`codex/acceptance-gate/skills/acceptance-init/SKILL.md:113-117` chèn y hệt
+đoạn đó vào một SKILL.md toàn tiếng Anh, kèm 3 space thụt lề còn sót từ ngữ
+cảnh danh sách đánh số của bản Claude (SKILL.md ở đó không có danh sách nào
+bao quanh). Hai file này ship cho consumer ở CẢ HAI harness. P44 chỉ assert
+chuỗi con `--no-t1-escape` có mặt, nên không luật nào bắt được việc trộn
+ngôn ngữ hay câu bị cắt đôi. CLAUDE.md invariant 2 yêu cầu SKILL.md/docs viết
+theo term chuẩn của CONTEXT.md, mà CONTEXT.md quy định term chuẩn giữ tiếng
+Anh khớp code — đoạn chèn dùng cách diễn đạt tiếng Việt tự do ("răng
+T1-escape", "đỏ vĩnh viễn vì lý do cấu trúc") ngay trong instruction
+agent-facing.
+
+---
+
+## 2. [medium] Unknown-flag guard only matches double-dash — single-dash typo silently becomes ROOT and the gate exits 0 without running any rule
+
+- **file:** `scripts/pre-merge-check.sh:69`
 - **source:** bugs
 
-P42 asserts a negative outcome only: `cp -R "$ROOT/." "$P42T/" 2>/dev/null ||
-true` swallows every copy error, the `python3` heredoc that injects the
-version drift (lines 586-590) is unchecked, and line 591 then treats ANY
-non-zero exit of the nested suite as proof that the drift was caught. Any
-failure upstream of the assertion — failed/partial copy, missing
-`$P42T/tests/plugins/run-tests.sh` (bash exits 127), python traceback —
-produces exactly the same non-zero exit and the case reports PASS.
-
-**Detail:** Verified empirically: replayed the block verbatim with
-`ROOT=/nonexistent-repo-path` so the copy produced an empty directory.
-Output was `PASS: P42 manifest lech phai bi bat`, failures=0 — the case
-greens with no fixture at all and no manifest ever compared. This is the
-exact bug class round-1 review finding #5 raised against P41, and P41 was
-fixed correctly in this same diff: it guards the copy (`if [ ! -f ... ];
-then fail`) and adds a positive control (`if bash
-"$P41T/scripts/sync-plugin-packages.sh" --check`, i.e. the pristine copy
-must be GREEN before the injected drift is trusted to be RED). P42, added a
-few lines below, never got that treatment. The consequence is that P42 —
-the case whose whole job is to prove P03's new `len(versions) == 1` check is
-not `assert x == x` after literal version pins were removed — cannot
-actually distinguish "drift was caught" from "the suite never ran". P03's
-pin removal is therefore unguarded in practice. Fix: mirror P41 — assert
-`$P42T/tests/plugins/run-tests.sh` and `$P42T/.codex-plugin/plugin.json`
-exist after the copy, check the python exit status, and require the
-UNMUTATED copy to pass the nested suite before mutating it.
+The new arg-parser guard uses `--*)` so it only rejects double-dash typos. A
+single-dash typo (or any stray positional) falls through to `*)
+ROOT="$1"` and produces exactly the fail-open the guard's own comment
+describes. Verified: `bash scripts/pre-merge-check.sh -no-t1-escape --base
+HEAD~1` prints `pre-merge-check: no _acceptance/ — nothing to check` and
+exits 0 — zero rules executed, CI green. Same for `-base`, `-slug`, and for
+`pre-merge-check.sh . extra` (ROOT silently retargeted to `extra`). TE18
+only exercises `--no-t1escape`, so the suite cannot see this. Amplifier:
+`scripts/pre-merge-check.sh:81` treats a missing `_acceptance/` as clean
+exit 0. Fix: match `-*`, and/or reject a second positional / non-existent
+ROOT. Identical defect in the build mirror
+`plugins/acceptance-gate/scripts/pre-merge-check.sh:69`.
 
 ---
 
-## 2. [medium] gate.yml: comment của bước backstop mâu thuẫn với code vừa thêm ngay phía trên
+## 3. [medium] plugins/** exemption in t1_skip_globs is wider than the P30 sync check that justifies it, and that check fails open on a typo'd flag
 
-- **file:** `.github/workflows/gate.yml:59`
-- **source:** invariants
-
-Cùng commit 06de401 thêm nhánh push đặt `PRE_MERGE_BASE=$(git rev-parse
-HEAD~1)` kèm comment "push: CÓ base (luật gap-probe cần phạm vi diff)" (dòng
-49-53), nhưng để nguyên comment của bước "T1-escape backstop" 6 dòng bên
-dưới: "Chỉ chạy trên `pull_request`: một `push` không có nhánh base để so,
-nên ở đó bước này không có nghĩa" (dòng 59-61).
-
-**Detail:** Lý do nêu trong comment giờ SAI theo chính file đó — push có
-base; lý do thật (đã viết đúng trong ADR 0005 và trong dòng 49-51) là tiền
-đề "thay đổi này là một PR nên phải kèm `_acceptance/<slug>/`" sai với
-commit release/mirror-sync. Banner "# ── Răng T1-escape (BẬT) ──" ở dòng 57
-cũng không còn đúng cho toàn job: bước pre-merge check ngay trên nó nay chạy
-với `--no-t1-escape` ở nhánh push. Người sửa CI sau này đọc comment sẽ suy
-ra kết luận ngược với hành vi.
-
----
-
-## 3. [medium] README §CI khai sai posture của kit sau khi cờ --no-t1-escape landing
-
-- **file:** `README.md:251`
-- **source:** invariants
-
-README dòng 251 vẫn ghi "pre-merge-check.sh + **răng T1-escape (ĐANG BẬT)**"
-và dòng 254 vẫn nêu lý do "Chỉ chạy trên `pull_request` (một `push` không có
-nhánh base để so)". Cả hai câu đã bị chính range này phủ định: gate.yml nay
-truyền `--no-t1-escape` ở nhánh push (răng TẮT trên push, không phải chỉ
-"không chạy bước riêng"), và push CÓ base.
-
-**Detail:** README không nằm trong diff `cd4b85f..HEAD` dù đây là chỗ duy
-nhất mô tả posture T1-escape của repo kit cho người đọc ngoài. README là
-file được rsync vào `plugins/acceptance-gate/README.md` nên câu sai này còn
-đi theo bản phát hành.
-
----
-
-## 4. [medium] GUIDE §5.3 Wire CI không được cập nhật cờ --no-t1-escape trong khi cả hai harness acceptance-init đều đã có
-
-- **file:** `GUIDE.md:543`
-- **source:** invariants
-
-Commit 98589d8 thêm hướng dẫn "Job chạy trên `push` (không phải PR) phải
-thêm `--no-t1-escape`" vào CẢ HAI nguồn acceptance-init
-(`commands/acceptance-init.md:120-125` và
-`codex/acceptance-gate/skills/acceptance-init/SKILL.md:113-117`, test P44
-ghim điều đó), nhưng GUIDE.md §5.3 "Wire CI" — tài liệu wiring người-đọc,
-cũng do chính commit đó sửa ở chỗ khác (blockquote bump-version, dòng
-~196) — vẫn chỉ có snippet `bash scripts/pre-merge-check.sh . --base
-"origin/$GITHUB_BASE_REF"` (dòng 564) và không nhắc cờ.
-
-**Detail:** Consumer chép snippet này vào workflow trigger `push` sẽ dính
-đúng triệu chứng mà feature sinh ra để chữa: job đỏ vĩnh viễn vì lý do cấu
-trúc. GUIDE.md được rsync vào `plugins/acceptance-gate/GUIDE.md` nên gap này
-ship ra ngoài; không có test nào ghim parity GUIDE ↔ acceptance-init (P44
-chỉ phủ hai harness acceptance-init).
-
----
-
-## 5. [medium] P45's unchecked fixture mutation lets the case pass vacuously when no manifest was ever bumped
-
-- **file:** `tests/plugins/run-tests.sh:599`
+- **file:** `_acceptance/config.yaml:56`
 - **source:** bugs
 
-P45 (`bump CA BA manifest + sync -> khong file nao duoi tests/ phai sua`) has
-the same swallowed copy (`cp -R "$ROOT/." "$P45T/" 2>/dev/null || true`) and,
-more importantly, an unchecked mutation step: the `python3` heredoc at lines
-600-606 that rewrites all three plugin.json versions to 9.9.9 has no
-exit-status check. If it fails on the FIRST file (bad copy,
-unreadable/absent `.claude-plugin/plugin.json`), no bump happens at all —
-`sync-plugin-packages.sh --write` (line 611, exit code also discarded)
-becomes a no-op, `$P45_BEFORE` equals `$P45_AFTER` because nothing under
-tests/ was touched, and the nested suite passes because the tree is
-pristine. Both conjuncts on lines 612-613 are satisfied and P45 reports PASS
-having verified nothing.
-
-**Detail:** Unlike P42 this one degrades noisily (the traceback reaches
-stderr) and a partial bump does fail loudly via P03's `len(versions) == 1`,
-so severity is lower — but the case still cannot tell "bump was clean" from
-"bump never happened", which is precisely the property it exists to certify
-(that removing the literal version pins from P03/P22 means a release bump no
-longer edits the suite). Fix: check the python exit status and the
-`sync-plugin-packages.sh --write` exit status, and assert the three
-manifests actually read 9.9.9 in the fixture before measuring the tests/
-checksum delta.
+The new `- "plugins/**"` entry exempts the whole tree from BOTH the
+T1-escape teeth and the `stale_files()` staleness rule, justified in-comment
+by `sync-plugin-packages.sh --check`. Two gaps: (1) that script only diffs
+three hard-coded package dirs (acceptance-gate, feature-loop-codex,
+design-loop-codex), so any other path under plugins/ — a future fourth
+package, or a loose file — is exempt from every rule with nothing watching
+it; P41 proves the guard works inside one package, not outside the
+allowlist. (2) The guard itself is fail-open: `MODE="${1:-}"; if [ "$MODE" =
+"--check" ]` means any other argument silently switches to write-in-place.
+Verified on a copy with injected drift: `bash
+.../sync-plugin-packages.sh --chek` printed `Synced Codex packages: ...`,
+exited 0, and overwrote the injected drift (grep count went to 0) — the
+'check' reported success while mutating the mirror. Before this diff that
+was one guard among several for plugins/; after it, it is the only one.
 
 ---
 
-## 6. [low] review-findings.md: finding #6 mô tả một tình trạng đã được sửa trong cùng commit
+## 4. [low] CONTEXT.md §Gates & verbs: "cổng" dùng cho lớp máy móc (pre-merge check / job CI) trong prose mới
 
-- **file:** `_acceptance/t1-escape-event-scope/review-findings.md:139`
+- **file:** `docs/adr/0005-t1-escape-opt-out-flag.md:12`
 - **source:** invariants
 
-Finding #6 (round 1) khẳng định plan vẫn ghi bảng "Spec coverage — 16 AC"
-với AC-1..AC-16, rằng Task 7 vẫn ghi "**Evals phục vụ:** E17 (AC-16)", và
-`grep -n "AC-17" plan` = 0 hit. Nhưng
-`docs/superpowers/plans/2026-07-26-t1-escape-event-scope.md` — sửa trong
-CÙNG commit 360a257 — nay ghi "**Độ phủ contract — 17 AC**" (dòng 574), bảng
-có ô "AC-16 · AC-17 | 7" (dòng 585), và Task 7 dòng 454 ghi "**Evals phục
-vụ:** E17 (AC-16), E18 (AC-17)"; `grep -n "Spec coverage"` trên plan = 0
-hit.
-
-**Detail:** Nit từ vựng kèm theo (heading "Spec" vi phạm `_Avoid_` của
-**Contract**) cũng đã tự tiêu. Artifact S4 vì thế mô tả sai trạng thái repo
-tại HEAD — đúng lớp "artifact nói dối" mà chính finding đó phê phán. Round 3
-(nếu có) nên xoá hoặc đánh dấu "đã tự sửa" finding #6 thay vì lặp lại
-nguyên văn.
+CONTEXT.md §Gates & verbs quy định Gate/cổng CHỈ dành cho điểm dừng con
+người; lớp máy gọi là **the hook** hoặc **pre-merge check**, và ngoại lệ duy
+nhất được ghi nhận là "P0 design gate". Prose mới trong range này thêm
+nhiều lượt "cổng" trỏ thẳng vào pre-merge check hoặc job CI:
+`docs/adr/0005:12` ("bịt mắt cổng"), `:16-17` ("làm cổng đỏ vì lý do cấu
+trúc", "cổng đỏ thường xuyên"), `:25` ("làm cổng thoát 0 mà không chạy luật
+nào"); `.out-of-scope/t1-skip-globs-github-and-manifests.md:8`, `:17` ("đổi
+CI có thể TẮT cổng"), `:41`, `:46`; `_acceptance/config.yaml` (comment "đổi
+CI có thể tắt cổng" trong khối plugins/**); `scripts/pre-merge-check.sh:67`
+("cổng thoát 0"). Đây là DRIFT tiếp nối chứ không phải break mới —
+`docs/adr/0004:12` và `README.md:246` đã dùng lối này trước range — nhưng
+CONTEXT.md vẫn chưa có ngoại lệ tiếng Việt nào được ghi, nên mỗi lần viết
+ADR mới lại nới thêm. Cần quyết một lần: hoặc bổ sung ngoại lệ vào
+CONTEXT.md như đã làm cho "P0 design gate", hoặc sweep cả 0004/0005 về
+"pre-merge check".
 
 ---
 
-## 7. [low] Glossary drift: "cổng" dùng cho máy móc (pre-merge check / CI) trong prose mới
+## 5. [low] Invariant 4 (ADR + .out-of-scope): ledger ID mà ADR 0005 và file .out-of-scope trích dẫn bị ghi ngày tương lai, mâu thuẫn thứ tự với run-log
 
-- **file:** `docs/adr/0005-t1-escape-opt-out-flag.md:16`
+- **file:** `_acceptance/t1-escape-event-scope/decisions.jsonl:1`
 - **source:** invariants
 
-CONTEXT.md §Gates & verbs quy định: Gate viết hoa CHỈ dành cho điểm dừng con
-người; máy móc gọi là **the hook** / **pre-merge check**, `_Avoid_` mọi biến
-thể "<x> gate" khi chỉ hook/CI. Range này thêm 15 lượt "cổng" trỏ vào
-pre-merge check hoặc job CI: ADR 0005 ("bịt mắt cổng", "làm cổng đỏ vì lý do
-cấu trúc", "cổng thoát 0 mà không chạy luật nào"),
-`.out-of-scope/t1-skip-globs-github-and-manifests.md` ("làm cổng đỏ", "đổi
-CI có thể TẮT cổng", "không qua cổng"), `_acceptance/config.yaml` (comment
-"đổi CI có thể tắt cổng"), `scripts/pre-merge-check.sh:67` (comment "cổng
-thoát 0").
+CLAUDE.md invariant 4 bắt ADR và file .out-of-scope phải có vết truy
+nguyên; ADR 0005 (dòng cuối) neo vào `d-20260727T040000Z-201` và
+`.out-of-scope/t1-skip-globs-github-and-manifests.md:4` neo vào
+`d-20260727T040100Z-202`. Hai ID đó tồn tại trong decisions.jsonl (đối
+chiếu OK), nhưng field `at` của chúng là 2026-07-27T04:00:00Z / 04:01:00Z —
+trong khi commit của cả range là 2026-07-26 (703675d 17:22 +0700 …
+9f348e7 20:44 +0700) và run-log.jsonl dòng 1-2 ghi `ts:
+2026-07-26T12:10:00Z`. Tức quyết định stage S1 mang dấu thời gian SAU các
+lần chạy S4 mà nó lẽ ra đi trước, và sau cả commit cuối cùng của feature.
+Toàn bộ 15 entry trong decisions.jsonl đều mang tiền tố 20260727. Vết audit
+mà ADR/OOS trích dẫn vì thế không dựng lại được trình tự thật.
 
-**Detail:** Cần nói rõ: đây là DRIFT tiếp nối chứ không phải break mới — ADR
-0004 ("một cổng tự hạ chuẩn") và README:246 đã dùng lối này trước range. Ghi
-lại để quyết một lần: hoặc bổ sung ngoại lệ tiếng Việt vào CONTEXT.md như đã
-làm cho "P0 design gate", hoặc sweep cả hai ADR về "pre-merge check".
+---
+
+## 6. [low] sync-plugin-packages.sh prints a stale hard-coded version (1.20.1) while manifests are at 1.21.0
+
+- **file:** `scripts/sync-plugin-packages.sh:75`
+- **source:** bugs
+
+`echo "Synced Codex packages: acceptance-gate@1.20.1 feature-loop-codex@
+1.16.1 design-loop@0.3.0"` reports 1.20.1, but `.claude-plugin/plugin.json`,
+`.codex-plugin/plugin.json` and
+`codex/acceptance-gate/.codex-plugin/plugin.json` are all 1.21.0. This is
+the same literal-pin rot the P03/P22 change in this diff removed from the
+test suite; it was fixed in tests but left in the script's own
+operator-facing output, so the script now reports a version that does not
+exist.
+
+---
+
+## 7. [low] P42 accepts any nested-suite failure as proof the version-drift check fired
+
+- **file:** `tests/plugins/run-tests.sh:577`
+- **source:** bugs
+
+P42 mutates `.codex-plugin/plugin.json` to 9.9.9 and asserts only that
+`PLUGINS_SUITE_NESTED=1 bash .../run-tests.sh` exits non-zero. It never pins
+which assertion fired. If the version-consistency assertion in P03 is later
+removed or broken, any unrelated regression in the nested suite still makes
+P42 pass — a green test guarding nothing. The positive control added in
+round 2 rules out "always fails", not "fails for the right reason". Grep the
+nested output for the "ba manifest lệch nhau" message instead of relying on
+exit status alone.
 
 ---
 

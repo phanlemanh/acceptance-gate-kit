@@ -64,6 +64,15 @@ ghi-thời-điểm gọi là **the hook**, CI gọi là **pre-merge check** (tê
 _Avoid_: evidence gate, merge gate, quality gate (khi chỉ hook/CI).
 
 *Ngoại lệ có chủ đích — **P0 design gate***: là máy móc nhưng GIỮ chữ "gate",
+
+**Ngoại lệ tiếng Việt — "cổng" (thường):** văn tiếng Việt của kit dùng "cổng"
+làm danh từ chung cho CẢ cơ chế nghiệm thu (tên sản phẩm là Acceptance-Gate
+Kit), kể cả khi câu đang nói về lớp máy. `_Allow_: cổng` — nhưng CHỈ ở dạng
+thường và chỉ trong văn tiếng Việt; "Cổng 1"/"Cổng 2" viết hoa vẫn dành riêng
+cho điểm dừng con người, và văn tiếng Anh vẫn theo luật cũ (**the hook** /
+**pre-merge check**, không "evidence gate"). Quyết ngày 2026-07-26 sau khi
+review S4 đếm được 15 lượt drift qua ADR 0004/0005 và README — hoặc ghi ngoại
+lệ, hoặc sweep mãi mà lần sau lại tái diễn.
 vì đây là **tên riêng của một tính năng** đã lộ ra ngoài (mô tả plugin
 design-loop trên marketplace), không phải văn xuôi mô tả máy móc — cùng lý do
 tên file được miễn. Viết thường, luôn kèm định tố (`P0 design gate`,

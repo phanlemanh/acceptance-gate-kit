@@ -597,10 +597,13 @@ p=pathlib.Path(sys.argv[1])/".codex-plugin/plugin.json"
 d=json.loads(p.read_text()); d["version"]="9.9.9"; p.write_text(json.dumps(d,indent=2)+"\n")
 PYX
   then
-    if PLUGINS_SUITE_NESTED=1 bash "$P42T/tests/plugins/run-tests.sh" >/dev/null 2>&1; then
-      fail "P42 manifest lech phai bi bat"
+    P42OUT="$(PLUGINS_SUITE_NESTED=1 bash "$P42T/tests/plugins/run-tests.sh" 2>&1)"; P42ST=$?
+    # Ghim ĐÚNG assertion nao ban: "exit khac 0" mot minh van xanh neu P03 hong
+    # va mot regression khac lam do suite — test canh khong gi ca.
+    if [ "$P42ST" -ne 0 ] && printf '%s' "$P42OUT" | grep -q 'ba manifest lệch nhau'; then
+      pass "P42 manifest lech bi bat DUNG boi assertion cua P03"
     else
-      pass "P42 manifest lech phai bi bat"
+      fail "P42 manifest lech bi bat DUNG boi assertion cua P03 (exit=$P42ST)"
     fi
   else
     fail "P42 buoc tiem drift that bai"
@@ -690,6 +693,26 @@ for rel in ["commands/acceptance-init.md",
 g = (root / "GUIDE.md").read_text()
 assert "--no-t1-escape" in g, "GUIDE (muc wire CI) chua nhac co cho job push"
 P44PY
+
+# ── P46: sync mode la = loi cung, KHONG duoc am tham chuyen sang GHI ────────
+# `--chek` tung in "Synced …", thoat 0, VA xoa luon drift — mot loi go bien
+# lenh KIEM thanh lenh GHI. Day la chot duy nhat bien minh cho mien tru
+# plugins/** khoi cong, nen no fail-open la ca mien tru do mat can cu.
+echo "P46 sync-plugin-packages: mode la = exit 2, KHONG ghi de"
+P46T="$(mktemp -d)"; cp -R "$ROOT/." "$P46T/"
+if [ ! -f "$P46T/scripts/sync-plugin-packages.sh" ]; then
+  fail "P46 fixture hong"
+else
+  printf '\n// tiêm P46\n' >> "$P46T/plugins/acceptance-gate/lib/gap-probe.js"
+  bash "$P46T/scripts/sync-plugin-packages.sh" --chek >/dev/null 2>&1; P46ST=$?
+  P46LEFT="$(grep -c 'tiêm P46' "$P46T/plugins/acceptance-gate/lib/gap-probe.js" 2>/dev/null || echo 0)"
+  if [ "$P46ST" -eq 2 ] && [ "$P46LEFT" = "1" ]; then
+    pass "P46 mode la bi tu choi va KHONG ghi de"
+  else
+    fail "P46 mode la bi tu choi va KHONG ghi de (exit=$P46ST con_lai=$P46LEFT)"
+  fi
+fi
+rm -rf "$P46T"
 
 if [ "$failures" -gt 0 ]; then
   echo

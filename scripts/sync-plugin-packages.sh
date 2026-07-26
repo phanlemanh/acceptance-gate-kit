@@ -6,6 +6,15 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # --check: build into a temp dir and diff against the committed plugins/ mirror.
 # Exit 1 on drift (CI guard — see docs/adr/0001). Default (no flag): sync in place.
 MODE="${1:-}"
+# Mode lạ KHÔNG được âm thầm rơi về "ghi đè": `--chek` từng in "Synced …",
+# thoát 0, VÀ xoá luôn drift vừa tiêm — tức một lỗi gõ biến lệnh KIỂM thành
+# lệnh GHI, rồi báo thành công. Đây là chốt duy nhất biện minh cho việc miễn
+# trừ `plugins/**` khỏi cổng (xem _acceptance/config.yaml), nên nó fail-open là
+# cả miễn trừ đó mất căn cứ.
+case "$MODE" in
+  ""|--check|--write) : ;;
+  *) echo "sync-plugin-packages: unknown option $MODE (dùng --check | --write | không tham số)" >&2; exit 2 ;;
+esac
 if [ "$MODE" = "--check" ]; then
   DEST="$(mktemp -d)"
   trap 'rm -rf "$DEST"' EXIT
@@ -72,4 +81,7 @@ if [ "$MODE" = "--check" ]; then
   exit "$drift"
 fi
 
-echo "Synced Codex packages: acceptance-gate@1.20.1 feature-loop-codex@1.16.1 design-loop@0.3.0"
+# Đọc thẳng từ manifest thay vì ghim literal — đúng lớp rot vừa gỡ khỏi P03/P22,
+# để lại đây thì script báo một số hiệu không tồn tại.
+_v() { node -e 'process.stdout.write(require(process.argv[1]).version)' "$ROOT/$1" 2>/dev/null || echo '?'; }
+echo "Synced Codex packages: acceptance-gate@$(_v .codex-plugin/plugin.json) feature-loop-codex@$(_v feature-loop/.claude-plugin/plugin.json) design-loop@$(_v design-loop/.codex-plugin/plugin.json)"
