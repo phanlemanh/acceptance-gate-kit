@@ -29,6 +29,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const gapProbe = require('../lib/gap-probe.js');
 
 const a = process.argv.slice(2);
 const opt = n => { const i = a.indexOf(n); return i >= 0 ? a[i + 1] : null; };
@@ -196,11 +197,11 @@ if (gate === '1') {
     if (cells.length === 6) gpRows.push({ sev: cells[0], artifact: cells[1], summary: cells[2], scenario: cells[3], measure: cells[4], disposition: cells[5] });
     else gpDropped++; // cell chứa "|" → sai số cột (giới hạn v1, spec §4)
   }
-  // `/^\s*bỏ/` chứ không phải `/^bỏ/`: hook (lib/evidence-core.js) khoan dung với
-  // khoảng trắng đầu, và AC-4 của contract gap-probe-presence-hook đòi hai bên
-  // khớp CÙNG một luật. Lệch nhau thì cùng một entry ledger cho hook cho qua
-  // còn thẻ vẫn phất cờ vàng — hai tín hiệu Cổng 1 mâu thuẫn nhau.
-  const gpDescope = decsAll.find(e => e.type === 'descope' && /^\s*bỏ gap-probe/i.test(String(e.decision || '')));
+  // Luật van thoát nằm ở lib/gap-probe.js — CÙNG hàm mà pre-merge gọi. Không
+  // viết lại ở đây: contract v2 chết đúng vì chỗ này bị tách làm hai bản, parity
+  // giữ bằng comment (ledger d-125/d-126). P38 canh bằng máy.
+  const gpDescopeId = gapProbe.descopeId(read(path.join(dir, 'decisions.jsonl')));
+  const gpDescope = gpDescopeId ? (decsAll.find(e => e.id === gpDescopeId) || { id: gpDescopeId }) : null;
   const gpP0 = parseInt(clean(gpFm.p0), 10) || 0, gpP1 = parseInt(clean(gpFm.p1), 10) || 0, gpP2 = parseInt(clean(gpFm.p2), 10) || 0;
   const gpVerdictKnown = gpVerdict === 'clean' || gpVerdict === 'findings' || gpVerdict === 'probe-failed';
 

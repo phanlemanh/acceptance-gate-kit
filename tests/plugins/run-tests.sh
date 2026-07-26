@@ -509,6 +509,23 @@ assert "backstop skipped" in body and "exit 1" in body, \
 assert "fetch-depth: 0" in wf, "gate job needs fetch-depth: 0"
 PY
 
+# ── P38: parity CẤU TRÚC — gate-card phải dùng lib, không giữ luật riêng ────
+# Contract v2 chết vì luật bị tách làm hai bản, parity giữ bằng comment. Đây là
+# răng máy cho lời hứa "một cài đặt" — comment không kiểm được, grep thì được.
+echo "P38 gate-card.js dung lib/gap-probe.js, khong con regex descope rieng"
+GC_SRC="$(cat "$ROOT/scripts/gate-card.js")"
+case "$GC_SRC" in
+  *"require('../lib/gap-probe.js')"*|*'require("../lib/gap-probe.js")'*)
+    pass "P38a gate-card require lib/gap-probe.js" ;;
+  *)
+    fail "P38a gate-card require lib/gap-probe.js" ;;
+esac
+if printf '%s' "$GC_SRC" | grep -qF 'bỏ gap-probe/i'; then
+  fail "P38b gate-card khong con literal regex descope"
+else
+  pass "P38b gate-card khong con literal regex descope"
+fi
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

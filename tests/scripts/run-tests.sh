@@ -810,6 +810,7 @@ case "$outL19" in *AC-2*) echo "  PASS: L19-ac2"; PASS_COUNT=$((PASS_COUNT+1)) ;
 echo ""
 echo "--- gate-card.js ---"
 GCARD="$HERE/../../scripts/gate-card.js"
+ROOT_REAL_GC="$(cd "$HERE/../.." && pwd)"
 hasout() { case "$3" in *"$2"*) echo "  PASS: $1"; PASS_COUNT=$((PASS_COUNT+1));; *) echo "  FAIL: $1 (missing: $2)"; FAIL_COUNT=$((FAIL_COUNT+1));; esac; }
 
 GC="$T/gcard/_acceptance/gfeat"; mkdir -p "$GC"
@@ -1210,12 +1211,18 @@ GPPOUT="$(node "$GCARD" --root "$GPP" --slug pf 2>/dev/null)"
 echo "GPP1 descope thụt-đầu+viết-hoa -> thẻ nhận là ĐÃ BỎ có chủ đích, không phất cờ 'Chưa có phản biện'"
 nothas GPP1 "Chưa có phản biện context sạch (gap-probe)" "$GPPOUT"
 # Luật khớp descope phải KHOAN DUNG khoảng trắng đầu: decisions.jsonl do người
-# hoặc agent viết tay, "  Bỏ gap-probe — ..." là hợp lệ. Bất cứ chỗ nào SAU NÀY
-# đọc entry này (vd backstop merge-boundary của phương án C) phải dùng ĐÚNG luật
-# này, nếu không hai tín hiệu Cổng 1 sẽ mâu thuẫn trên cùng một artifact.
-echo "GPP2 the dung luat khoan dung leading-space (grep -F, khong regex)"
-grep -qF '/^\s*bỏ gap-probe/i' "$HERE/../../scripts/gate-card.js"
-check GPP2 0 $?
+# hoặc agent viết tay, "  Bỏ gap-probe — ..." là hợp lệ.
+# Bản cũ ghim regex VÀO gate-card.js bằng grep -F. Đó chính là hình dạng mà
+# AC-19 (contract v3-r2) cấm: nó biến "luật sống ở đâu" thành một bất biến của
+# test, nên mọi nỗ lực gộp hai bản cài đặt đều bị chính test này chặn. Nay răng
+# đúng chỗ hơn: luật sống ở lib (GPM20f đo hành vi), gate-card PHẢI đi qua lib
+# (P38 đo cấu trúc), và ở đây chỉ giữ ca đầu-cuối trên chính thẻ.
+echo "GPP2 the khoan dung leading-space qua CHINH lib (khong ghim regex vao gate-card)"
+same GPP2 "descoped|d-9" "$(node -e '
+  const L = require(process.argv[1]);
+  const r = L.classify({ probeText: "", ledgerText: process.argv[2] });
+  process.stdout.write(r.outcome + "|" + (r.id || ""));
+' "$ROOT_REAL_GC/lib/gap-probe.js" '{"id":"d-9","type":"descope","decision":"  Bỏ gap-probe — x"}')"
 
 echo "TM1 term MỚI sau base -> khối Từ vựng nêu tên term"
 hasout TM1 "Refund" "$TMA"
