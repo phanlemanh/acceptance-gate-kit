@@ -117,6 +117,12 @@ Omit the `capture` block if the repo has no UI evidence need.
    In the CI step, pass the PR base so the T1-escape backstop is armed
    (without it the backstop only NOTEs): on GitHub Actions
    `bash scripts/pre-merge-check.sh . --base "origin/$GITHUB_BASE_REF"`
+
+   Job chạy trên `push` (không phải PR) phải thêm `--no-t1-escape`: răng
+   T1-escape có tiền đề "PR phải kèm `_acceptance/<slug>/`", tiền đề đó SAI với
+   commit release / mirror-sync landing thẳng nhánh chính — để nguyên thì job
+   đỏ vĩnh viễn vì lý do cấu trúc. Vẫn giữ `--base`: luật gap-probe cần phạm vi
+   diff, và chạy thiếu base là VIOLATION ở mode `required`.
    (or export `PRE_MERGE_BASE`). The backstop blocks PRs that change
    `t3_paths` — or any non-T1 file — while carrying no `_acceptance/<slug>/`
    artifacts.

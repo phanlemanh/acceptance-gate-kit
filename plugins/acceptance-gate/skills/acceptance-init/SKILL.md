@@ -110,6 +110,12 @@ do not hardcode a version. Explain that CI must pass the PR base, for example:
 bash scripts/pre-merge-check.sh . --base "origin/$GITHUB_BASE_REF"
 ```
 
+   Job chạy trên `push` (không phải PR) phải thêm `--no-t1-escape`: răng
+   T1-escape có tiền đề "PR phải kèm `_acceptance/<slug>/`", tiền đề đó SAI với
+   commit release / mirror-sync landing thẳng nhánh chính — để nguyên thì job
+   đỏ vĩnh viễn vì lý do cấu trúc. Vẫn giữ `--base`: luật gap-probe cần phạm vi
+   diff, và chạy thiếu base là VIOLATION ở mode `required`.
+
 ## 6. Optional references
 
 If the user wants file-backed UI captures, copy

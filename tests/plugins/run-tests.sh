@@ -621,6 +621,29 @@ assert not any("--no-t1-escape" in l for l in pr_lines), "nhanh PR khong duoc ta
 assert "PRE_MERGE_BASE" in wf, "phai resolve base cho moi su kien"
 P40PY
 
+run "P43 GUIDE noi bump version thuoc S3" \
+  python3 - "$ROOT" <<'P43PY'
+import sys
+from pathlib import Path
+g = (Path(sys.argv[1]) / "GUIDE.md").read_text()
+assert "bump version" in g.lower(), "GUIDE phai noi ve bump version"
+i = g.lower().index("bump version")
+win = g[max(0, i - 600): i + 600]
+assert "S3" in win, "phai gan bump version vao S3"
+assert "stale" in win.lower(), "phai neu ly do: bump sau Cong 2 lam evidence stale"
+P43PY
+
+run "P44 acceptance-init CA HAI harness nhac co cho job push" \
+  python3 - "$ROOT" <<'P44PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+for rel in ["commands/acceptance-init.md",
+            "codex/acceptance-gate/skills/acceptance-init/SKILL.md"]:
+    t = (root / rel).read_text()
+    assert "--no-t1-escape" in t, f"{rel} chua nhac co cho job push"
+P44PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
