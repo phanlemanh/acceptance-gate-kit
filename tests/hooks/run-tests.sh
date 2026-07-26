@@ -615,6 +615,24 @@ echo "T64 T3 + verdict probe-failed -> NOTE, KHÔNG chặn"
 C="$(mk_gp t64 T3 yes probe-failed no)"; gp_run t64 "$C"; check T64 0 $?
 grep -qi "probe-failed" "$GPD/t64.err" && check T64-note 0 0 || check T64-note 0 1
 
+echo "T65 T3 + marker + thiếu cả file lẫn descope -> CHẶN (exit 2)"
+C="$(mk_gp t65 T3 yes - no)"; gp_run t65 "$C"; check T65 2 $?
+grep -qi "gap-probe" "$GPD/t65.err" && check T65-msg 0 0 || check T65-msg 0 1
+
+echo "T66 T2 + marker + thiếu cả hai -> NOTE, KHÔNG chặn"
+C="$(mk_gp t66 T2 yes - no)"; gp_run t66 "$C"; check T66 0 $?
+grep -qi "gap-probe" "$GPD/t66.err" && check T66-note 0 0 || check T66-note 0 1
+
+echo "T67 T3 KHÔNG có gap_probe_expected (legacy) -> NOTE, KHÔNG BAO GIỜ chặn"
+C="$(mk_gp t67 T3 no - no)"; gp_run t67 "$C"; check T67 0 $?
+grep -qi "gap-probe" "$GPD/t67.err" && check T67-note 0 0 || check T67-note 0 1
+
+echo "T68 T3 + marker + gap-probe.md RỖNG (touch) -> vẫn CHẶN (chống bypass)"
+C="$(mk_gp t68 T3 yes touch no)"; gp_run t68 "$C"; check T68 2 $?
+
+echo "T69 T2 + marker + gap-probe.md RỖNG -> NOTE (không chặn ở T2)"
+C="$(mk_gp t69 T2 yes touch no)"; gp_run t69 "$C"; check T69 0 $?
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
