@@ -1,0 +1,80 @@
+schema_version: 1
+feature_slug: premerge-rules-ledger
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case RL1: repo hợp lệ, mọi luật chạy → vẫn 'pre-merge-check: clean', exit 0 (true-negative, sổ không làm cổng khó thêm)"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case RL2: bản sao script bị tiêm return sớm vào khối gap-probe-scope (bản NGUYÊN VẸN phải xanh trước — đối chứng dương) → KHÔNG in 'clean', có 'VIOLATION [ledger]:' nêu đích danh khối thiếu, exit 2"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case RL3a (--no-t1-escape → dòng NGUYÊN VĂN 'declared-off t1-escape') + RL3b (gap_probe: off → 'declared-off gap-probe'): ghim từng dòng sổ theo bảng AC-3, clean hợp lệ, exit 0; RL3c (âm): luật KHÔNG tắt thì KHÔNG được có dòng declared-off nào của khối đó — declared-off giả cũng là lệch sổ"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case RL4: không --base + gap_probe advisory → exit code Y HỆT trước feature (so với hành vi ghim trong case cũ TE18k), sổ khớp qua marker"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case RL5a: dòng tổng kết đúng MỘT lần, k TÍNH TỪ EXPECTED (không phải n+m — grep nguồn cấm chuỗi cộng n+m ở chỗ in); lần sạch n+m==k parse từ số thật; RL5b (âm): exit 2 ở parse → KHÔNG in dòng ledger; RL5c: lần VIOLATION [ledger] VẪN in dòng với n+m != k — chính nó là bằng chứng lệch"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case RL6: đếm lối thoát exit 0 bằng máy — ĐÚNG HAI lối (nothing-to-check · qua điểm nghẽn); bản NGUYÊN VẸN phải xanh trước (đối chứng dương), thêm 'exit 0' lạ vào bản sao → đỏ"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case RL7a: đếm tên duy nhất trong call-site ledger_mark == độ dài EXPECTED (tiêm khối giả không khai → đỏ); RL7b: ghi sổ một tên KHÔNG có trong EXPECTED → 'VIOLATION [ledger]: tên lạ', exit 2 — hai chiều"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "hồi quy TE18a-k giữ nguyên xanh (cờ lạ positional · cờ làm giá trị --base · ROOT không tồn tại → exit 2 đúng thông điệp cũ) — sổ không nới chốt parse"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case RL9: tiêm biến thể CHƯA TỪNG vá — phá điều kiện vòng per-slug trong bản sao (đối chứng dương: bản nguyên vẹn xanh) → VIOLATION [ledger] nêu khối per-slug, exit 2. Đây là eval biện minh cho cả feature"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E10
+    criterion: AC-10
+    executor: judgment
+    question: "Đọc thông điệp VIOLATION [ledger]: một người chưa từng đọc kit có hiểu đây là lỗi NỘI TẠI của cổng (không phải lỗi code của họ), biết khối nào thiếu, và biết bước kế là báo maintainer không?"
+    inputs: [_acceptance/premerge-rules-ledger/evidence/ledger-messages.txt]
+  - id: E11
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case RL10 (gác cổng cho judge E10): suite TỰ SINH LẠI evidence/ledger-messages.txt từ fixture trong cùng lần chạy rồi diff byte-đối-byte — cùng khuôn TE17/GPM12"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E13
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case RL12: mô phỏng node vắng (PATH bị cắt trong bản sao) ở gap_probe advisory → sổ ghi 'declared-off gap-probe' qua đường *_not_enforced, clean hợp lệ, exit 0; đối chứng dương: có node → 'ran gap-probe'"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E12
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case RL11a (enforcement off → sổ tắt theo, không dòng ledger nào) + RL11b (enforcement warn → điểm nghẽn VẪN exit 2 khi sổ lệch, KHÔNG hạ xuống NOTE)"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
