@@ -33,9 +33,20 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      # Không --base ở job này: nó chạy cả trên push (không có nhánh base). Luật
-      # gap-probe chỉ xét slug trong diff PR nên ở đây nó tự bỏ qua kèm NOTE —
-      # bước T1-escape backstop bên dưới mới là chỗ nó có hiệu lực.
+      # LUÔN truyền base. Trước đây job này chạy không --base vì "push không có
+      # nhánh base", và luật gap-probe khi đó chỉ bỏ qua kèm NOTE. Từ khi mode
+      # `required` có sàn fail-CLOSED (d-128), "không xác định được phạm vi" là
+      # VIOLATION — nên không truyền base nghĩa là job đỏ vĩnh viễn. Đó là đúng
+      # hành vi của cổng: chỗ phải sửa là CI, không phải hạ chuẩn cổng.
+      #   PR   → nhánh đích
+      #   push → commit liền trước (fetch-depth: 0 nên HEAD~1 luôn resolve được)
+      - name: Resolve PR base
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "PRE_MERGE_BASE=origin/${{ github.base_ref }}" >> "$GITHUB_ENV"
+          else
+            echo "PRE_MERGE_BASE=$(git rev-parse HEAD~1)" >> "$GITHUB_ENV"
+          fi
       - name: pre-merge check (evidence + signoff + stale + run-log)
         run: bash scripts/pre-merge-check.sh .
       # ── Răng T1-escape (BẬT) ─────────────────────────────────────────────

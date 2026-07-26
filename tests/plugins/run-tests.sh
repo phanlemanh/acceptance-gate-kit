@@ -507,6 +507,12 @@ assert "backstop skipped" in body and "exit 1" in body, \
     "a skipped backstop must fail the job, not pass quietly"
 # Full history: the stale-guard and signoff-provenance checks read git log.
 assert "fetch-depth: 0" in wf, "gate job needs fetch-depth: 0"
+# Từ khi mode `required` có sàn fail-CLOSED (d-128), chạy pre-merge KHÔNG có base
+# là VIOLATION — nên một job không truyền base thì đỏ vĩnh viễn. Răng này giữ CI
+# khỏi rơi lại vào đó, và giữ luôn cả hai nhánh sự kiện.
+assert "PRE_MERGE_BASE" in wf, "gate job must always resolve a PR base (fail-closed floor)"
+assert "github.base_ref" in wf and "HEAD~1" in wf, \
+    "base must be resolved for BOTH events: PR -> base_ref, push -> HEAD~1"
 PY
 
 # ── P38: parity CẤU TRÚC — gate-card phải dùng lib, không giữ luật riêng ────

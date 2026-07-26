@@ -14,7 +14,10 @@ schema_version: 1
 enforcement: strict
 recheck: strict              # kit tự bắt mình theo mức chặt nhất; consumer mới có thể để `warn`
 gap_probe: required          # cùng posture: kit KHÔNG tự cho mình mode advisory mà bảo consumer
-                             # dùng nó. Chỉ xét slug có file trong diff PR nên nợ lịch sử không nổ.
+                             # dùng nó. Chỉ xét slug có file trong diff PR nên nợ lịch sử không nổ —
+                             # NHƯNG `required` có sàn fail-CLOSED: chạy không --base (hoặc git diff
+                             # lỗi, thiếu node/lib) là VIOLATION, không phải bỏ qua. CI phải luôn
+                             # truyền base (xem .github/workflows/gate.yml).
 baseline_minutes: []         # TODO(human): ước lượng phút nghiệm thu TRƯỚC khi có kit, để /acceptance-report tính KPI
 executors:
   test:

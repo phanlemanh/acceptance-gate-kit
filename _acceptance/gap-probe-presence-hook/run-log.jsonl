@@ -39,3 +39,24 @@
 {"ts":"2026-07-26T07:05:00Z","round":3,"evalId":"E13","run_id":"minted-gap-probe-presence-hook-E13-r3","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
 {"ts":"2026-07-26T07:05:00Z","round":3,"evalId":"E9","kind":"panel","proposal":"PASS","votes":[],"inputs_hash":"c511cc6b5fe93862c3651022fcd48caa7cdae844fd94d80027305b57f1839f58","carried_from_round":2}
 {"ts":"2026-07-26T07:05:00Z","round":3,"kind":"baseline","evals_hash":"5a13629b3b0cfb08ac92d8ee50f46e90f425633a599aafef982128e4ee203570","non_discriminating":[{"cmd":"bash tests/scripts/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E7","E8","E10","E11","E12","E13"]}],"carried_from_round":2}
+{"ts":"2026-07-26T08:15:00Z","round":1,"evalId":"E1","run_id":"minted-gap-probe-presence-hook-E1-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-26T08:15:00Z","round":1,"evalId":"E2","run_id":"minted-gap-probe-presence-hook-E2-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-26T08:15:00Z","round":1,"evalId":"E3","run_id":"minted-gap-probe-presence-hook-E3-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-26T08:15:00Z","round":1,"evalId":"E4","run_id":"minted-gap-probe-presence-hook-E4-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-26T08:15:00Z","round":1,"evalId":"E5","run_id":"minted-gap-probe-presence-hook-E5-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-26T08:15:00Z","round":1,"evalId":"E6","run_id":"minted-gap-probe-presence-hook-E6-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-26T08:15:00Z","round":1,"evalId":"E7","run_id":"minted-gap-probe-presence-hook-E7-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-26T08:15:00Z","round":1,"evalId":"E8","run_id":"minted-gap-probe-presence-hook-E8-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-26T08:15:00Z","round":1,"evalId":"E10","run_id":"minted-gap-probe-presence-hook-E10-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-26T08:15:00Z","round":1,"evalId":"E11","run_id":"minted-gap-probe-presence-hook-E11-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-26T08:15:00Z","round":1,"evalId":"E12","run_id":"minted-gap-probe-presence-hook-E12-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-26T08:15:00Z","round":1,"evalId":"E13","run_id":"minted-gap-probe-presence-hook-E13-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-26T08:15:00Z","round":1,"evalId":"E14","run_id":"minted-gap-probe-presence-hook-E14-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-26T08:15:00Z","round":1,"evalId":"E15","run_id":"minted-gap-probe-presence-hook-E15-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-26T08:15:00Z","round":1,"evalId":"E17","run_id":"minted-gap-probe-presence-hook-E17-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-26T08:15:00Z","round":1,"evalId":"E18","run_id":"minted-gap-probe-presence-hook-E18-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-26T08:15:00Z","round":1,"evalId":"E19","run_id":"minted-gap-probe-presence-hook-E19-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-26T08:15:00Z","round":1,"evalId":"E21","run_id":"minted-gap-probe-presence-hook-E21-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-26T08:15:00Z","round":1,"evalId":"E16","run_id":"minted-gap-probe-presence-hook-E16-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-26T08:15:00Z","round":1,"evalId":"E20","run_id":"minted-gap-probe-presence-hook-E20-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-26T08:15:00Z","round":1,"kind":"baseline","evals_hash":"pending","non_discriminating":[{"cmd":"bash tests/scripts/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E7","E8","E10","E11","E12","E13","E14","E15","E17","E18","E19","E21"]},{"cmd":"bash tests/plugins/run-tests.sh","evals":["E16","E20"]}]}
