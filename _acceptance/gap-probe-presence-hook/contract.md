@@ -4,7 +4,7 @@ feature: Pre-merge enforce gap-probe presence (merge-boundary, thay cho hook wri
 slug: gap-probe-presence-hook
 risk_tier: T3
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-07-26
 owner: manh@mstar.vn
