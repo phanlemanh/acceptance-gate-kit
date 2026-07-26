@@ -1,7 +1,10 @@
 # Kit maintainer invariants
 
-- **Nguồn sự thật skill** là `skills/`, `feature-loop/`, `design-loop/`, `codex/`,
-  `commands/`. `plugins/` là **build mirror** sinh bởi
+- **Nguồn sự thật** là `skills/`, `feature-loop/`, `design-loop/`, `codex/`,
+  `commands/`, **và cả `scripts/`, `lib/`, `hooks/`, `vendor/`** — bốn cái sau
+  cũng bị `rsync` vào mirror (xem `scripts/sync-plugin-packages.sh:27-31`), nên
+  sửa ở `plugins/.../lib/` hay `plugins/.../scripts/` là mất việc ở lần sync kế.
+  `plugins/` là **build mirror** sinh bởi
   `scripts/sync-plugin-packages.sh` — sửa nguồn xong PHẢI chạy sync và commit
   mirror cùng lượt; test P30 (`sync-plugin-packages.sh --check`) chặn drift.
   Vì sao commit mirror: [docs/adr/0001](docs/adr/0001-commit-plugins-mirror.md).

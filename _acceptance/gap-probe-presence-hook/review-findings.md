@@ -1,237 +1,276 @@
-# Review Findings: gap-probe-presence-hook (round 2)
+# Review Findings: gap-probe-presence-hook (round 3)
 
 Informational — nằm NGOÀI phạm vi acceptance-evidence-gate hook (hook chỉ đọc
 `evidence-report.md`/`contract.md`). File này liệt kê các finding đã qua
 **adversarial-verify** (refuter đã chạy và xác nhận, không chỉ heuristic một
 lượt) trên diff của feature `gap-probe-presence-hook` tính tới
-`verified_commit: ead1c847635a93772475168b9266e0b0e23bf2e9`, dùng để nạp cho
+`verified_commit: 14f7b0b4ec7ac979905f1612acc6507b64d94679`, dùng để nạp cho
 `evidence-page.js` (bảng "Review findings") và cho human đọc tại Gate 2. File
 này GHI ĐÈ nội dung findings của round trước; lịch sử round nằm ở
 `evidence-report.md` § Iterations.
 
-8/8 finding dưới đây đều đã adversarial-verify thành công (không có finding
+12/12 finding dưới đây đều đã adversarial-verify thành công (không có finding
 nào gắn `unverified: true`). Sắp xếp severity giảm dần.
 
-## High severity (2)
+## High severity (1)
 
-### 1. Invariant 4 (`.out-of-scope`) — thư mục không tồn tại; đề xuất guard write-time bị từ chối không có file "Prior requests"
+### 1. Invariant 1 — mirror phải commit CÙNG LƯỢT với nguồn
 
-- title: Invariant 4 (.out-of-scope) — thư mục không tồn tại; đề xuất guard write-time bị từ chối không có file "Prior requests"
-  file: .out-of-scope/
-  line: —
+- title: Invariant 1 — mirror phải commit CÙNG LƯỢT với nguồn
+  file: plugins/
+  line: 1
   severity: high
   source: invariants
   detail: |
-    `ls -a` ở repo root: không có `.out-of-scope/`. Grep toàn repo cho
-    `.out-of-scope` chỉ ra 2 nơi: CLAUDE.md:21 (chính invariant) và
-    docs/research/2026-07-25-mattpocock-skills-teardown.md:252/410/577 (bài
-    học #4 đề xuất cơ chế) — cơ chế được codify nhưng chưa từng được dùng.
+    CLAUDE.md:3-7 nói rõ: "sửa nguồn xong PHẢI chạy sync và commit mirror
+    cùng lượt". Trong 9b545a8..HEAD có 11 commit nằm SAU khi CLAUDE.md ra
+    đời (0a1110a) để lại plugins/ lệch nguồn. Tôi kiểm chứng bằng cách bung
+    từng commit ra thư mục tạm rồi chạy chính scripts/sync-plugin-packages.sh
+    --check: DRIFT (tức P30 đỏ) tại 3dd6f5c, 852edc5, 6164be0, c95402d,
+    34ee656, f7b8f72, 8c593df, cd1ae63, 2e07374, 70ceb28, 6726213. Ví dụ
+    6726213 thêm lib/gap-probe.js mà không có
+    plugins/acceptance-gate/lib/gap-probe.js; cả chuỗi cd1ae63→70ceb28 sửa
+    scripts/pre-merge-check.sh mà không sync. HEAD hiện đã xanh (sync dồn về
+    sau), nên hậu quả là: mọi commit trung gian không build/test được,
+    bisect gãy, và job CI 'gate' của chính kit sẽ đỏ nếu push từng commit —
+    đúng thứ P30 sinh ra để chặn.
 
-    Ứng viên rõ ràng nhất nằm ngay trong diff này: guard gap-probe
-    write-time (contract v1, 3 vòng S4, ~69 agent / ~5.4M token) đã bị TỪ
-    CHỐI ở 8ac4ce6 vì lý do kiến trúc. Đây là đề xuất có nguy cơ quay lại
-    cao nhất — nó từng LÀ thiết kế gốc của cả feature, và người đọc code sau
-    này thấy pre-merge làm việc mà hook không làm sẽ tự nhiên đề nghị "đưa
-    lại vào hook". Không có file `.out-of-scope/` nào ghi hai lý do bác (hạ
-    risk_tier trong chính lần ghi → exit 0 stderr rỗng; nửa "nhắc" chạy trên
-    kênh stderr mà hợp đồng PreToolUse loại bỏ) kèm mục "Prior requests".
+## Medium severity (6)
 
-### 2. Section scan vẫn cắt tại dòng `#`/H1 — răng cross-layer và lint W1/W3/W4/W5 lặng lẽ thấy 0 AC
+### 2. Invariant 1 — danh sách 'nguồn sự thật' trong CLAUDE.md thiếu lib/, scripts/, hooks/, vendor/
 
-- title: Section scan still truncates on `#`/H1 lines — cross-layer teeth and lint W1/W3/W4/W5 silently see zero ACs
-  file: scripts/pre-merge-check.sh
-  line: 311
-  severity: high
-  source: bugs
-  detail: |
-    Bản vá wave-2 trong diff này chỉ dạy cho section scanner biết một
-    heading SÂU HƠN (`###`) là nội dung. Một heading CÙNG-hoặc-nông-hơn vẫn
-    kết thúc section — và cả hai scanner coi một dòng `# ...` trơn là
-    heading như vậy.
-
-    - pre-merge awk: `/^#/ && !/^###/ {insec=0}` (scripts/pre-merge-check.sh:311)
-    - lint: `const h = line.match(/^(#{1,6})\s/)` … `if (inSec && h[1].length <= secLevel) inSec = false` (scripts/eval-coverage-lint.js:66-69)
-
-    Trong khi đó scripts/gate-card.js:92 và scripts/evidence-page.js:44 dùng
-    `^(#{2,6})\s`, nên một dòng `#` là NỘI DUNG ở đó — comment của chính
-    gate-card còn nói rõ ý định đó ("a leading '# guidance' comment inside a
-    section is content, never a boundary"). Ba parser giờ bất đồng về nơi
-    `## Criteria` kết thúc.
-
-    Repro đã xác minh (contract với `# guidance: ...` là dòng đầu dưới
-    `## Criteria`, theo sau bởi `- AC-1: ... (cross-layer)` chỉ ghép với
-    `layer: ui-observable`):
-      * awk không phát ra gì -> không có
-        `VIOLATION [slug]: AC-1 is tagged (cross-layer)...`, merge được cho qua
-      * `node scripts/eval-coverage-lint.js` -> không có cảnh báo W4
-      * `node scripts/gate-card.js --extract` -> `will_do: ['AC-1']`, tức
-        human duyệt một card liệt kê AC-1 trong khi răng merge-boundary
-        đang tắt
-
-    Repro thứ hai đã xác minh: `# lưu ý chung` ở giữa Criteria làm rơi AC-2
-    (và mọi thứ sau nó) khỏi cả awk lẫn lint trong khi card vẫn hiển thị nó.
-    `#!/usr/bin/env bash` trong một fenced block ở Criteria trúng awk nhưng
-    không trúng lint — một điểm bất đồng khác.
-
-    Đây chính xác là false-green mà comment của khối này tuyên bố tồn tại
-    để chặn ("teeth silently off"). Cùng code này lặp lại trong mirror sinh
-    ra: plugins/acceptance-gate/scripts/pre-merge-check.sh và
-    plugins/acceptance-gate/scripts/eval-coverage-lint.js.
-
-## Medium severity (4)
-
-### 3. Invariant 1 — 9 commit sau khi CLAUDE.md ra đời sửa nguồn mà không commit mirror `plugins/` cùng lượt
-
-- title: Invariant 1 (mirror cùng lượt) — 9 commit sau CLAUDE.md sửa nguồn mà không commit plugins/ mirror trong cùng lượt
-  file: plugins/acceptance-gate/
-  line: —
+- title: Invariant 1 — danh sách 'nguồn sự thật' trong CLAUDE.md thiếu lib/, scripts/, hooks/, vendor/
+  file: CLAUDE.md
+  line: 3
   severity: medium
   source: invariants
   detail: |
-    Invariant nói "sửa nguồn xong PHẢI chạy sync và commit mirror cùng
-    lượt". HEAD hiện in sync (P30 xanh) nên end-state ổn, nhưng kiểm từng
-    commit (checkout vào worktree rời, chạy sync, đếm `git status --
-    plugins`) cho thấy mirror ĐANG drift tại 9 commit nằm SAU 0a1110a —
-    commit tạo ra chính CLAUDE.md: 852edc5 (hooks/acceptance-evidence-gate.js
-    + lib/evidence-core.js, 2 file drift), 6164be0 (2), 34ee656 (2), f7b8f72
-    (2), 8c593df (scripts/pre-merge-check.sh, 1), cd1ae63 (1), 2e07374 (1),
-    70ceb28 (1), 6726213 (lib/gap-probe.js chưa có trong mirror, ??
-    untracked).
+    CLAUDE.md liệt nguồn là `skills/`, `feature-loop/`, `design-loop/`,
+    `codex/`, `commands/`. Nhưng scripts/sync-plugin-packages.sh:27-31 rsync
+    thêm `scripts/`, `lib/`, `vendor/`, `hooks/` vào mirror. Chính diff này
+    thêm lib/gap-probe.js, lib/context-glossary.js và sửa nặng
+    scripts/pre-merge-check.sh, scripts/gate-card.js,
+    scripts/eval-coverage-lint.js, hooks/acceptance-evidence-gate.js — toàn
+    bộ đều là nguồn được mirror mà bất biến không nhắc tên. Người đọc
+    CLAUDE.md có thể kết luận plugins/acceptance-gate/lib/*.js là nơi sửa
+    hợp lệ (vì lib/ không nằm trong danh sách nguồn), rồi bị P30 xoá mất
+    thay đổi ở lần sync kế tiếp. Bất biến được viết trong chính diff này nên
+    đây là lỗi của diff, không phải nợ cũ.
 
-    Hệ quả cụ thể: .github/workflows/gate.yml (thêm ở 89f7f95, chạy
-    `on: push: branches: [main]`) gọi tests/plugins/run-tests.sh → P30
-    `sync-plugin-packages.sh --check` sẽ ĐỎ tại từng commit trong số đó; và
-    bất kỳ ai bisect/checkout một trong 9 commit này sẽ chạy plugin bằng mã
-    cũ. 7 commit khác trước 0a1110a (1d47ba8, 98aa57e, 63da4e4, 7f4e28c,
-    46adeee, 2a57caa, 26fbbf2) cũng drift nhưng có trước khi invariant tồn
-    tại.
+### 3. Invariant 2 — dùng từ trong _Avoid_ của CONTEXT.md: "thẻ" (canonical là "card")
 
-### 4. Invariant 4 (ADR) — sàn fail-CLOSED của `gap_probe: required` không có ADR
-
-- title: Invariant 4 (ADR) — sàn fail-CLOSED của gap_probe: required không có ADR
-  file: scripts/pre-merge-check.sh
-  line: —
+- title: Invariant 2 — dùng từ trong _Avoid_ của CONTEXT.md: "thẻ" (canonical là "card")
+  file: commands/acceptance-card.md
+  line: 30
   severity: medium
   source: invariants
   detail: |
-    Commit 3784266 (ledger d-128: "mode required có SÀN fail-CLOSED: không
-    cưỡng chế được (thiếu node/lib/--base, git diff lỗi) = VIOLATION, kèm
-    marker máy-đọc GAP-PROBE: NOT ENFORCED") đổi ngữ nghĩa của "không xác
-    định được phạm vi" từ bỏ-qua-kèm-NOTE thành chặn-merge. Ba điều kiện:
-    (a) khó đảo — đã ghim bằng test GPM18a/b/c + GPM19a-f và bằng posture
-    `gap_probe: required` trong _acceptance/config.yaml của chính kit; (b)
-    gây bất ngờ — nó lập tức làm job `gate` trên push đỏ vĩnh viễn, phải vá
-    bằng commit riêng ead1c84 ("gate job luôn truyền base — sàn fail-closed
-    làm job push đỏ vĩnh viễn"); (c) trade-off thật — fail-closed chống
-    fail-open im lặng, đổi lấy việc mọi lối gọi thiếu --base thành lỗi
-    cứng. Không có ADR nào trong docs/adr/. Lý do hiện chỉ sống trong
-    comment của _acceptance/config.yaml và .github/workflows/gate.yml — cả
-    hai là artifact của repo kit, không phải hồ sơ quyết định của kit.
+    CONTEXT.md:14-18 định nghĩa **Contract** kèm câu "card chỉ là lớp trình
+    bày" và `_Avoid_: spec, PRD …, thẻ` — tức từ chuẩn là "card". Sau khi
+    CONTEXT.md landing (038be4d) và sau cả commit sweep _Avoid_ (a7530a3),
+    các commit mới vẫn viết "thẻ": commands/acceptance-card.md:30 ("để thẻ
+    trình khối 'Từ vựng chốt ở feature này'") và :32 ("thiếu cờ thì thẻ chỉ
+    ghi chú info") — do 7ffe6b2, chính là commit thêm khối từ vựng lên card;
+    GUIDE.md:700 ("thẻ Cổng 1 cũng nhận cùng luật") do 8431a94. Còn 4 chỗ
+    nữa trong
+    _acceptance/gap-probe-presence-hook/{design-draft.md:4,9,35,
+    gap-probe.md:29}.
 
-### 5. Gate-1 card báo "không có thay đổi glossary" khi CONTEXT.md untracked — git thoát 0 với diff rỗng
+### 4. Invariant 2 — "runner"/"engine" (từ _Avoid_ của Executor) còn sót sau commit sweep, và thêm mới sau CONTEXT.md
 
-- title: Gate-1 card claims "no glossary changes" when CONTEXT.md is untracked — git exits 0 with empty diff
+- title: Invariant 2 — "runner"/"engine" (từ _Avoid_ của Executor) còn sót sau commit sweep, và thêm mới sau CONTEXT.md
+  file: skills/acceptance/references/eval-executors.md
+  line: 8
+  severity: medium
+  source: invariants
+  detail: |
+    CONTEXT.md:31-33 khai `**Executor**: … _Avoid_: runner, engine`, và
+    CONTEXT.md của kit KHÔNG có dòng `_Allow_:` nào (tôi parse bằng chính
+    lib/context-glossary.js: allow = []). Chạy findViolations trên các dòng
+    ĐƯỢC THÊM của diff cho 12 hit "runner" + 1 "engine" trong văn xuôi
+    authoring: skills/acceptance/references/eval-executors.md:8,93,145,150,160;
+    skills/acceptance/SKILL.md:288; skills/acceptance/references/contract-template.md:22;
+    README.md:334,336; commands/acceptance-init.md:20 (+ bản codex song
+    song). Hai chỗ tệ nhất là do 9e0fd88 — SAU khi CONTEXT.md tồn tại:
+    codex/acceptance-gate/skills/acceptance-card/SKILL.md:26 và
+    codex/acceptance-gate/skills/approve/SKILL.md:38 viết "If the runner is
+    absent, run … with Node", ở đây "runner" lại mang nghĩa thứ ba (harness
+    chạy slash-command), không phải executor cũng không phải E2E tool. Commit
+    a7530a3 tự khai là sweep _Avoid_ theo CONTEXT.md nhưng bỏ trọn nhóm này.
+
+### 5. Invariant 2 — CONTEXT.md khai một allowlist W6 mà chính nó không cài
+
+- title: Invariant 2 — CONTEXT.md khai một allowlist W6 mà chính nó không cài
+  file: CONTEXT.md
+  line: 70
+  severity: medium
+  source: invariants
+  detail: |
+    CONTEXT.md:66-72 dựng ngoại lệ có chủ đích cho `P0 design gate` /
+    `design-quality gate` và viết "Lint W6 (Đợt 2) phải allowlist cụm này".
+    Nhưng CONTEXT.md không có dòng `_Allow_: design-quality gate`, mà W6
+    (scripts/eval-coverage-lint.js:173-184) lấy allowlist duy nhất từ
+    `_Allow_:` của CONTEXT.md repo. Tôi kiểm chứng: findViolations trên câu
+    "the design-quality gate must block on contrast failures" trả về hit
+    alias "quality gate" → term "Gate" (regex dùng lookbehind
+    \p{L}\p{N}_ nên dấu `-` trong "design-" không chặn được match). Vì kit
+    đã self-host (_acceptance/config.yaml landing trong chính diff này),
+    một contract của kit nhắc tên tính năng đó sẽ ăn W6 warning cho đúng
+    cụm mà CONTEXT.md vừa miễn trừ.
+
+### 6. gate-card glossary block silently omitted when lib/context-glossary.js fails to load
+
+- title: gate-card glossary block silently omitted when lib/context-glossary.js fails to load
   file: scripts/gate-card.js
-  line: 72
+  line: 68
   severity: medium
   source: bugs
   detail: |
-    `git diff <base> -- CONTEXT.md` không báo gì cho một file UNTRACKED và
-    thoát 0. Catch ở dòng 76 không bao giờ kích hoạt, nên `glossaryDelta`
-    thành `[]` và dòng 230 đẩy ra flag trấn an: "Từ vựng: feature này không
-    thêm/sửa term nào trong CONTEXT.md."
+    `glossaryLib` is loaded via a bare `try { require(...) } catch (_) {}`
+    at line 62. When it is null the guard
+    `if (glossaryPresent && glossaryLib)` at line 68 skips the whole block,
+    leaving BOTH `glossaryDelta = null` AND `glossaryDeltaErr = null`.
+    Consequently none of the three flags at lines 230-232 fire, and
+    `--extract` emits `glossary_delta: {present: true, computed: false,
+    error: null}`. Every other failure mode of this feature is surfaced to
+    the Gate-1 human (`no-base` -> finfo, `git-failed` -> fwarn, whose text
+    explicitly says "đừng coi là 'không có thay đổi'"), so this is the
+    single path where the card renders exactly like a repo with no
+    CONTEXT.md at all. Note `require('../lib/gap-probe.js')` at line 32 is
+    unguarded, so a wholly-missing `lib/` crashes loudly — only a
+    selectively-missing/broken `context-glossary.js` produces the silent
+    state. Fix: set `glossaryDeltaErr = 'lib-missing'` in the catch and add
+    a corresponding fwarn flag. Same code in the mirror at
+    plugins/acceptance-gate/scripts/gate-card.js.
 
-    Đã xác minh: git repo mới, một commit, rồi ghi CONTEXT.md (untracked)
-    với một term `**Order**:` hoàn toàn mới kèm `_Avoid_`, và một contract
-    dùng từ bị tránh:
-      node scripts/gate-card.js --root . --slug f1 --gate 1 --glossary-base <sha>
-      -> "Từ vựng: feature này không thêm/sửa term nào trong CONTEXT.md."
-      --extract -> {'present': True, 'computed': True, 'error': None, 'terms': []}
+### 7. Kit self-hosting runs W6 vocab lint against its own authoring-time CONTEXT.md, contradicting the lib's stated scope
 
-    Đây là case feature-đầu-tiên: chính lần chạy giới thiệu glossary lại là
-    lần báo cáo nó rỗng. Flag git-failed của chính card (dòng 232) nói rõ
-    "đừng coi là 'không có thay đổi'" — nhưng cảnh báo đó không thể kích
-    hoạt ở đây, vì git đã thành công. Một diff rỗng phải được phân biệt với
-    CONTEXT.md chưa versioned/không có trong base (vd kiểm
-    `git ls-files --error-unmatch CONTEXT.md`, hoặc
-    `git cat-file -e <base>:CONTEXT.md` và coi "not in base" là toàn bộ
-    dòng đều added).
-
-### 6. gate-card lặng lẽ không render block vocabulary nào khi thiếu `lib/context-glossary.js`
-
-- title: gate-card silently renders no vocabulary block at all when lib/context-glossary.js is missing
-  file: scripts/gate-card.js
-  line: 63
+- title: Kit self-hosting runs W6 vocab lint against its own authoring-time CONTEXT.md, contradicting the lib's stated scope
+  file: _acceptance/config.yaml
+  line: 28
   severity: medium
   source: bugs
   detail: |
-    `try { glossaryLib = require(.../lib/context-glossary.js) } catch (_) {}`
-    nuốt lỗi. Khi lib vắng mặt, `glossaryPresent` vẫn true nhưng toàn bộ
-    khối `if (glossaryPresent && glossaryLib)` ở dòng 68 bị bỏ qua, nên
-    `glossaryDelta` giữ null VÀ `glossaryDeltaErr` cũng giữ null — không
-    flag nào trong 3 flag ở dòng 230/231/232 kích hoạt. Card không in gì về
-    vocabulary, mà human đọc thành "không có thay đổi term".
+    lib/context-glossary.js's SCOPE header states: "The KIT's own
+    CONTEXT.md is authoring-time — it governs how kit source is written and
+    is never loaded at runtime." But the new dogfood config wires
+    `executors.script.coverage_lint: "node scripts/eval-coverage-lint.js
+    ."`, and `run()` in scripts/eval-coverage-lint.js:224 calls
+    `glossaryLib.readGlossary(root)` with root = the kit repo — loading
+    exactly that authoring-time file as if it were a consumer product
+    glossary. Verified by execution: the kit CONTEXT.md parses to 33
+    aliases including the bare English words `test`, `check`, `runner`,
+    `tool`, `log`, `result`, `outcome`, `flow`, `warning`, `level`,
+    `platform`, `tier`. Running `findViolations` over an ordinary English
+    Given/When/Then criterion ("When the runner executes the check, Then
+    the result is logged") produced 7 W6 hits across 2 lines. Any
+    English-worded contract in this repo will bury W6 in false positives,
+    which trains reviewers to ignore the warning class. Advisory-only today
+    because `coverage_lint` is not in `feature_loop.suite_keys`, but wiring
+    it as a suite key or an eval `cmd` would turn exit 1 into a FAIL. Either
+    exclude the kit repo from W6 or split the authoring glossary from the
+    runtime one.
 
-    Đã xác minh: copy scripts/gate-card.js + lib/gap-probe.js vào một cây
-    KHÔNG có lib/context-glossary.js, chạy trên repo có CONTEXT.md và
-    --glossary-base:
-      HTML output -> 0 dòng "Từ vựng"
-      --extract   -> glossary_delta: {'present': True, 'computed': False, 'error': None, 'terms': []}
+## Low severity (5)
 
-    Kênh lỗi đã tồn tại sẵn ('no-base', 'git-failed') và
-    pre-merge-check.sh xử lý case anh em của nó rất to ("thiếu $GP_LIB
-    (mang cổng vào repo phải copy CẢ lib/)"). Nên thêm lỗi 'no-lib' để card
-    nói vocabulary chưa được tính thay vì im lặng. Ghi chú: gate-card
-    require lib/gap-probe.js vô điều kiện (dòng 32) nhưng context-glossary
-    thì optional — xử lý không nhất quán cùng một hazard "copy cả lib/".
+### 8. Invariant 4 — ADR không giữ dạng "1-đoạn-văn"
 
-## Low severity (2)
-
-### 7. Invariant 2 (glossary) — sweep `_Avoid_` chưa quét hết: "CI gate" còn ở 4 bề mặt authoring
-
-- title: Invariant 2 (glossary) — sweep _Avoid_ chưa quét hết: 'CI gate' còn ở 4 bề mặt authoring
-  file: scripts/pre-merge-check.sh
-  line: —
+- title: Invariant 4 — ADR không giữ dạng "1-đoạn-văn"
+  file: docs/adr/0001-commit-plugins-mirror.md
+  line: 11
   severity: low
   source: invariants
   detail: |
-    CONTEXT.md:59-64 quy định máy móc không phải Gate — CI gọi là
-    "pre-merge check", và liệt "evidence gate, merge gate, quality gate"
-    vào _Avoid_. Commit a7530a3 trong diff này tuyên bố đã sweep ("hook/CI
-    không gọi là 'gate'") nhưng bỏ sót 4 chỗ vẫn còn nguyên ở HEAD:
-    scripts/pre-merge-check.sh:2 (`# pre-merge-check.sh — CI gate for the
-    Acceptance-Gate Kit.` — comment header của script, thuộc đúng phạm vi
-    "message của script"), README.md:88 và README.md:227
-    (`| scripts/pre-merge-check.sh | CI gate (copy into consumer repos) |`),
-    commands/acceptance-init.md:109 ("Suggest copying the CI gate from the
-    plugin"), codex/feature-loop-codex/README.md:69. Bốn dòng này do commit
-    cũ tạo ra, nhưng a7530a3 là commit nhận trách nhiệm sweep nên đây là
-    sweep dở dang chứ không phải nợ ngoài phạm vi. Kèm theo, ledger
-    _acceptance/gap-probe-presence-hook/decisions.jsonl có entry "CI gate
-    job LUÔN truyền base" — cùng lối drift, viết mới trong diff này.
+    CLAUDE.md:19-20 quy định ADR là "1-đoạn-văn". docs/adr/0001 có 2 đoạn
+    (đoạn 2 "Tham chiếu ngoài: mattpocock/skills ADR-0002…"), docs/adr/0003
+    có 2 đoạn (đoạn 2 "Phương án đã loại…"). 0002 và 0004 đúng dạng (0004
+    chỉ thêm một dòng "Ledger:/Răng:" ở cuối, chấp nhận được). Lệch nhỏ
+    nhưng là bất biến do chính diff này viết ra, nên đáng chuẩn hoá ngay
+    khi mới có 4 ADR.
 
-### 8. E9 judgment eval `inputs` dùng path gốc-repo trong khi kit resolve gốc-slug
+### 9. Invariant 4 — self-host cổng + bật răng T1-escape ở CI không có ADR
 
-- title: E9 judgment eval `inputs` uses a repo-relative path where the kit resolves slug-relative
-  file: _acceptance/gap-probe-presence-hook/evals.yaml
-  line: 134
+- title: Invariant 4 — self-host cổng + bật răng T1-escape ở CI không có ADR
+  file: docs/adr
+  line: 1
+  severity: low
+  source: invariants
+  detail: |
+    Hai commit sau khi CLAUDE.md landing đổi chính sách merge của repo mà
+    không để lại ADR nào: 89f7f95 ("kit chạy cổng của chính nó" — thêm
+    _acceptance/config.yaml + .github/workflows/gate.yml) và d10fb45 ("bật
+    răng T1-escape — chỉ chạy trên PR, và skip bị nâng thành lỗi").
+    Trade-off là thật và đã lộ ngay trong diff: mọi PR chạm path ngoài
+    t1_skip_globs từ nay phải kèm _acceptance/<slug>/ artifacts, và
+    d-20260726T140100Z-111 trong ledger cho thấy fixture test phải dời ra
+    ngoài repo chỉ để né răng này. Ghi nhận là judgment call: nếu
+    maintainer coi đây là cờ bật/tắt dễ đảo thì thiếu điều kiện "khó đảo"
+    và đúng luật là BỎ, không ghi ADR — nêu ra để quyết dứt điểm chứ không
+    khẳng định là vi phạm chắc chắn.
+
+### 10. Accidental comment deletion truncates the evaluateContractWrite doc-comment mid-sentence and drops documented behavior
+
+- title: Accidental comment deletion truncates the evaluateContractWrite doc-comment mid-sentence and drops documented behavior
+  file: lib/evidence-core.js
+  line: 393
   severity: low
   source: bugs
   detail: |
-    `inputs: [_acceptance/gap-probe-presence-hook/evidence/premerge-messages.txt]`.
+    The only change to this file in the range removes the line
+    `// transition source. Statuses outside the lifecycle names are
+    ignored.` and adds a blank line before `return`. The doc-comment now
+    ends mid-sentence — "oldPayload (the pre-write file, null when
+    creating) supplies the" — and the documented contract that statuses
+    outside the lifecycle names are ignored is gone, while the code at
+    line ~400 still relies on it. This reads as an editing slip rather than
+    an intentional change, and it lands in a file listed under
+    `risk_tiers.t3_paths` (the enforcement core). Restore the deleted line.
 
-    Gốc resolve được tài liệu hoá là thư mục slug: feature-loop/skills/feature-loop/SKILL.md
-    S4 nói "Resolve `inputs` của judgment evals thành abs path (gốc:
-    `_acceptance/<slug>/`)", và skills/acceptance/references/eval-executors.md
-    minh hoạ `inputs: [contract.md, evidence/E3-step3.png]`. Resolve theo
-    cách đó, path này trở thành
-    `_acceptance/gap-probe-presence-hook/_acceptance/gap-probe-presence-hook/evidence/premerge-messages.txt`,
-    không tồn tại — judge sẽ nhận một input không đọc được.
+### 11. sync-plugin-packages.sh --check drift guard misses extra packages and file-mode drift
 
-    Mọi entry `inputs` khác trong file đều resolve đúng; chỉ entry này neo
-    theo gốc-repo. Commit 0d7f1ef từng tuyên bố đã sửa path này. Đúng ra
-    phải là `evidence/premerge-messages.txt`.
+- title: sync-plugin-packages.sh --check drift guard misses extra packages and file-mode drift
+  file: scripts/sync-plugin-packages.sh
+  line: 64
+  severity: low
+  source: bugs
+  detail: |
+    The `--check` guard iterates a hardcoded list: `for pkg in
+    acceptance-gate feature-loop-codex design-loop-codex`. Two gaps. (1) A
+    stale or renamed package directory left under `plugins/` is never
+    compared, so the guard reports `plugins/ mirror in sync.` forever — and
+    normal-mode `build_*` only `rm -rf`s its own `$out`, so nothing ever
+    removes it either. (2) `diff -r -x .DS_Store` compares content only,
+    not permission bits; `rsync -a` preserves modes, so an executable-bit
+    change on a source script propagates on a real sync but is invisible to
+    `--check`, leaving the committed mirror with a wrong mode that CI calls
+    clean. CLAUDE.md asserts "test P30 (`sync-plugin-packages.sh --check`)
+    chặn drift" — it blocks content drift in three named packages, not
+    drift generally. Fix: build the package list from `ls "$DEST"` unioned
+    with `ls "$ROOT/plugins"`, and compare modes (e.g. `find -printf '%m
+    %p'` or `diff <(cd a && find . -printf ...) ...`).
+
+### 12. feature-loop workflows fallback resolves via the same base-dir path that just failed
+
+- title: feature-loop workflows fallback resolves via the same base-dir path that just failed
+  file: feature-loop/skills/feature-loop/SKILL.md
+  line: 9
+  severity: low
+  source: bugs
+  detail: |
+    The intro now says: if `ls "$WORKFLOWS_DIR"` does not show
+    `acceptance-verify.js` + `execute-parallel.js`, run `node <base-dir>/../../scripts/resolve-plugin.mjs
+    --plugin feature-loop --require workflows/acceptance-verify.js`. But
+    `WORKFLOWS_DIR` is defined as `<base-dir>/../../workflows/` in the same
+    sentence, so both the failing path and its recovery path are derived
+    identically from `<base-dir>/../../`. In the common failure mode (the
+    harness base-dir does not have the assumed
+    `<plugin>/<version>/skills/feature-loop/` layout) the resolver itself
+    is unreachable and the agent has no next step; the replaced cache glob
+    was version-broken but at least searched the filesystem. The fallback
+    only recovers the narrow case of a partially-synced install where
+    `scripts/` exists but `workflows/` does not. Same wording in S4
+    (`"$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs"`) and S0 preflight.
 
 ## Chưa adversarial-verify (refuter chết)
 
-none — cả 8 finding trên đều đã refuter xác nhận trong round này.
+none — cả 12 finding trên đều đã refuter xác nhận trong round này.
