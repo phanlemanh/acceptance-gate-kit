@@ -25,9 +25,12 @@
   thông điệp** mong đợi, không chỉ mã thoát. Không có hai thứ đó thì case không
   phân biệt được "bắt đúng lỗi" với "chưa bao giờ chạy": fixture hỏng, `cp`
   lỗi, script không tồn tại (exit 127), bước tiêm thất bại — tất cả đều cho
-  cùng một màu xanh. Lớp lỗi này đã xuất hiện **5 lần** trong hai feature
-  (`TE2a`, `P43`, `P40`, `P42`, `P45`), mỗi lần sửa một chỗ rồi viết lại đúng
-  nó vài dòng bên dưới — nên sửa phải theo LỚP, không theo từng finding.
+  cùng một màu xanh. Trong hai feature 2026-07-26 nó xuất hiện **ít nhất 9 lượt**
+  (`TE2a`, `P43`, `P40`, `P42`, `P45`, `TE18d/f/g`, `P46`, `TE5`), lần nào cũng
+  là sửa một chỗ rồi viết lại đúng nó vài dòng bên dưới — nên sửa phải theo
+  LỚP: quét cả file tìm mọi case cùng hình dạng, đừng chỉ vá case bị nêu tên.
+  (Đừng ghim con số này thành danh sách đóng — nó sẽ lại lỗi thời; ý là *lớp*,
+  không phải *danh sách*.)
 
 - **Quyết định khó đảo / gây bất ngờ / có trade-off thật** → ghi ADR 1-đoạn-văn
   vào `docs/adr/` (đủ cả 3 điều kiện mới ghi, thiếu 1 thì bỏ). Đề xuất đã

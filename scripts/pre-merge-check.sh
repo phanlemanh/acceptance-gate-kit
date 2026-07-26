@@ -55,9 +55,14 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --slug)
       [ $# -ge 2 ] || { echo "pre-merge-check: --slug requires a value" >&2; exit 2; }
+      case "$2" in -*) echo "pre-merge-check: --slug requires a value (got option $2)" >&2; exit 2 ;; esac
       SLUGS+=("$2"); shift 2 ;;
     --base)
       [ $# -ge 2 ] || { echo "pre-merge-check: --base requires a value" >&2; exit 2; }
+      # Quên giá trị thì `--base --no-t1-escape` nuốt cờ kế làm ref: base không
+      # bao giờ resolve, răng T1-escape lẫn gap-probe cùng bỏ qua, script in
+      # `clean` và thoát 0. Chốt `-*` ở trên chỉ phủ positional, không phủ GIÁ TRỊ.
+      case "$2" in -*) echo "pre-merge-check: --base requires a value (got option $2)" >&2; exit 2 ;; esac
       BASE="$2"; shift 2 ;;
     --no-t1-escape)
       # Không nhận tham số — `reason` là hằng, giữ ranh giới "không thêm cờ nào khác".
@@ -254,7 +259,11 @@ else
   BASE_SHA="$(git -C "$ROOT" rev-parse --quiet --verify "$BASE^{commit}" 2>/dev/null || true)"
   [ -z "$BASE_SHA" ] && BASE_SHA="$(git -C "$ROOT" rev-parse --quiet --verify "origin/$BASE^{commit}" 2>/dev/null || true)"
   if [ -z "$BASE_SHA" ]; then
-    DIFF_SKIP_NOTE="base \"$BASE\" not resolvable in this clone"
+    # KHÁC với "không truyền base": ở đây người vận hành ĐÃ yêu cầu một phạm vi
+    # mà máy không tính được (ref gõ sai, nhánh đã xoá, clone shallow). Hạ về
+    # bỏ-qua-rồi-clean là fail-open — cùng doctrine ADR 0004.
+    echo "VIOLATION [scope]: base \"$BASE\" không resolve được trong clone này — phạm vi diff KHÔNG xác định được, mà bạn đã yêu cầu nó. Sửa ref (CI: fetch-depth: 0 + đúng base_ref), hoặc bỏ hẳn --base nếu thật sự muốn chạy không phạm vi." >&2
+    exit 2
   else
     # `rev-parse --verify` mới chỉ chứng minh OBJECT tồn tại. `git diff A...HEAD`
     # vẫn rc=128 + stdout rỗng khi KHÔNG có merge-base (clone shallow/grafted,

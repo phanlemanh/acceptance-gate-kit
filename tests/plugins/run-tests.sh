@@ -722,6 +722,27 @@ else
 fi
 rm -rf "$P46T"
 
+# ── P47: chốt --check phải thấy cả entry ẨN dưới plugins/ ───────────────────
+# Glob bỏ qua dotfile, còn `match_globs` của pre-merge-check dùng `case` nên
+# `plugins/**` VẪN khớp `plugins/.x/y.js` — chốt hẹp hơn miễn trừ đúng ở chỗ
+# khó thấy nhất.
+echo "P47 entry AN duoi plugins/ phai lam --check no"
+P47T="$(mktemp -d)"; cp -R "$ROOT/." "$P47T/"
+if [ ! -f "$P47T/scripts/sync-plugin-packages.sh" ]; then
+  fail "P47 fixture hong"
+elif ! bash "$P47T/scripts/sync-plugin-packages.sh" --check >/dev/null 2>&1; then
+  fail "P47 doi chung duong that bai — ban sao nguyen ven da lech san"
+else
+  mkdir -p "$P47T/plugins/.rogue"; printf 'x\n' > "$P47T/plugins/.rogue/evil.js"
+  P47OUT="$(bash "$P47T/scripts/sync-plugin-packages.sh" --check 2>&1)"; P47ST=$?
+  if [ "$P47ST" -ne 0 ] && printf '%s' "$P47OUT" | grep -q 'rogue'; then
+    pass "P47 entry an bi bat va NEU TEN"
+  else
+    fail "P47 entry an bi bat va NEU TEN (exit=$P47ST out=$P47OUT)"
+  fi
+fi
+rm -rf "$P47T"
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

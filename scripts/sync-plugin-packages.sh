@@ -81,8 +81,12 @@ if [ "$MODE" = "--check" ]; then
   # `plugins/**` khỏi cổng, và biện minh duy nhất là chốt này — nên chốt phải
   # rộng ĐÚNG BẰNG miễn trừ. Một package thứ tư, hay một file rơi vào đây, hiện
   # được miễn mà không ai so.
-  for entry in "$ROOT"/plugins/*; do
-    [ -e "$entry" ] || continue
+  # `find` chứ không phải glob: pathname expansion BỎ QUA dotfile, trong khi
+  # `match_globs` của pre-merge-check dùng `case` nên `plugins/**` VẪN khớp
+  # `plugins/.x/y.js`. Dùng glob ở đây làm chốt hẹp hơn miễn trừ đúng ở chỗ
+  # khó thấy nhất.
+  while IFS= read -r entry; do
+    [ -n "$entry" ] || continue
     name="$(basename "$entry")"
     case "$name" in
       acceptance-gate|feature-loop-codex|design-loop-codex|.DS_Store) : ;;
@@ -90,7 +94,9 @@ if [ "$MODE" = "--check" ]; then
         echo "DRIFT: plugins/$name không nằm trong danh sách package được sync — hoặc thêm nó vào vòng lặp, hoặc thu hẹp t1_skip_globs (miễn trừ plugins/** đang rộng hơn chốt này)" >&2
         drift=1 ;;
     esac
-  done
+  done <<ENTRIES
+$(find "$ROOT/plugins" -mindepth 1 -maxdepth 1 2>/dev/null)
+ENTRIES
   if [ "$drift" -eq 0 ]; then echo "plugins/ mirror in sync."; fi
   exit "$drift"
 fi

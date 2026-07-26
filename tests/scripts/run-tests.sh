@@ -2285,6 +2285,18 @@ TE18F="$(bash "$CHECK" "$R" "$R" --base "$GP_BASE" 2>&1)"; check TE18f 2 $?
 hasout TE18f2 "unexpected argument" "$TE18F"
 TE18G="$(bash "$CHECK" "$GPR/khong-ton-tai" --base "$GP_BASE" 2>&1)"; check TE18g 2 $?
 hasout TE18g2 "root not a directory" "$TE18G"
+# Co KHONG duoc lam GIA TRI cua --base/--slug: `--base --no-t1-escape` tung nuot
+# co ke lam ref, base khong bao gio resolve, ca rang T1-escape lan gap-probe bo
+# qua, script in `clean` va thoat 0.
+TE18H="$(bash "$CHECK" "$R" --base --no-t1-escape 2>&1)"; check TE18h 2 $?
+hasout TE18h2 "--base requires a value (got option --no-t1-escape)" "$TE18H"
+TE18I="$(bash "$CHECK" "$R" --slug --base 2>&1)"; check TE18i 2 $?
+# Base DUOC KHAI ma khong resolve != khong khai base. Cai sau la bo-qua-co-tin-
+# hieu; cai truoc la nguoi van hanh da YEU CAU pham vi ma may khong tinh duoc.
+TE18J="$(bash "$CHECK" "$R" --base khong-co-ref-nay 2>&1)"; check TE18j 2 $?
+hasout TE18j2 "VIOLATION [scope]" "$TE18J"
+# Doi chung: KHONG truyen base van la bo-qua-co-tin-hieu, khong phai loi cung
+TE18K="$(bash "$CHECK" "$R" 2>&1)"; check TE18k 0 $?
 
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
