@@ -4,7 +4,9 @@ feature: Tách phạm vi răng T1-escape khỏi phạm vi diff (cờ opt-out + t
 slug: t1-escape-event-scope
 risk_tier: T3
 surfaces: [cli]
-status: draft
+status: approved
+approved_by: Manh Phan
+approved_at: 2026-07-26T11:40:00Z
 owner: manh@mstar.vn
 ---
 
