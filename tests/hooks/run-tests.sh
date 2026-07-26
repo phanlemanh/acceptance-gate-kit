@@ -601,6 +601,18 @@ echo "T61 contract KHÔNG có risk_tier -> bỏ qua hoàn toàn"
 C="$(mk_gp t61 - yes - no)"; gp_run t61 "$C"; check T61 0 $?
 grep -qi "gap-probe" "$GPD/t61.err" && check T61-silent 0 1 || check T61-silent 0 0
 
+echo "T62 T3 + verdict clean -> cho qua, im lặng"
+C="$(mk_gp t62 T3 yes clean no)"; gp_run t62 "$C"; check T62 0 $?
+grep -qi "gap-probe" "$GPD/t62.err" && check T62-silent 0 1 || check T62-silent 0 0
+
+echo "T63 T3 + verdict findings -> cho qua, im lặng"
+C="$(mk_gp t63 T3 yes findings no)"; gp_run t63 "$C"; check T63 0 $?
+grep -qi "gap-probe" "$GPD/t63.err" && check T63-silent 0 1 || check T63-silent 0 0
+
+echo "T64 T3 + verdict probe-failed -> NOTE, KHÔNG chặn"
+C="$(mk_gp t64 T3 yes probe-failed no)"; gp_run t64 "$C"; check T64 0 $?
+grep -qi "probe-failed" "$GPD/t64.err" && check T64-note 0 0 || check T64-note 0 1
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
