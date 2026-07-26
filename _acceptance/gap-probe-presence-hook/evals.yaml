@@ -60,7 +60,7 @@ evals:
     criterion: AC-11
     executor: script
     cmd: config:executors.test.scripts
-    expected: "case GPM11: gap_probe với giá trị \"required\" (nháy), Required (hoa) → nhận đúng là required; requird (sai chính tả) → in cảnh báo cấu hình sai, KHÔNG âm thầm về advisory"
+    expected: "case GPM11a/b + GPM11c..c6: nháy/viết hoa nhận đúng là required; sai chính tả → VIOLATION cấu hình, exit != 0, script CHẠY TIẾP (dòng tổng kết có mặt, không lỗi shell) và KHÔNG rơi về advisory"
     paths: [scripts/pre-merge-check.sh, tests/scripts/**]
   # E12 gác cổng cho E9: judge chỉ chấm được nếu gói bằng chứng ĐỦ cả 4 dạng
   # thông điệp. Thiếu gác này thì file chỉ có VIOLATION là judge vẫn PASS —
@@ -69,7 +69,7 @@ evals:
     criterion: AC-9
     executor: script
     cmd: config:executors.test.scripts
-    expected: "case GPM12: evidence/premerge-messages.txt tồn tại và chứa đủ 4 nhãn — VIOLATION(required) · NOTE(advisory) · NOTE(descope nêu id) · NOTE(probe-failed)"
+    expected: "case GPM12: suite TỰ SINH LẠI premerge-messages.txt từ 4 fixture trong cùng lần chạy rồi diff byte-đối-byte với file trong evidence/ — lệch là FAIL. GPM12a-d giữ 4 nhãn để bắt trôi phạm vi"
     paths: [scripts/pre-merge-check.sh, tests/scripts/**]
   - id: E13
     criterion: AC-12
@@ -81,7 +81,7 @@ evals:
     criterion: AC-13
     executor: script
     cmd: config:executors.test.scripts
-    expected: "case GPM17: decisions.jsonl CHỈ có một dòng JSON hỏng trông giống descope gap-probe → VẪN VIOLATION ở required (fail-CLOSED), và decision card trên cùng artifact cũng phất cờ — hai bên cùng kết luận"
+    expected: "case GPM20g + GPM21[json-hong]: ledger chỉ có một dòng JSON HỎNG trông giống descope gap-probe → lib cho 'missing', pre-merge VẪN VIOLATION ở required (fail-CLOSED), decision card trên cùng ledger cũng cho 'missing'"
     paths: [lib/gap-probe.js, scripts/pre-merge-check.sh, scripts/gate-card.js, tests/scripts/**]
   - id: E15
     criterion: AC-14
@@ -93,7 +93,7 @@ evals:
     criterion: AC-15
     executor: script
     cmd: config:executors.test.plugins
-    expected: "case P37: template config trong acceptance-init của CẢ HAI harness (commands/acceptance-init.md và codex/acceptance-gate/skills/acceptance-init/SKILL.md) đều có khoá gap_probe"
+    expected: "case P39: template config trong acceptance-init của CẢ HAI harness (commands/acceptance-init.md và codex/acceptance-gate/skills/acceptance-init/SKILL.md) đều có khoá gap_probe VÀ chuỗi ba mode 'required | advisory | off'"
     paths: [commands/acceptance-init.md, codex/acceptance-gate/skills/acceptance-init/SKILL.md, tests/plugins/**]
   - id: E17
     criterion: AC-16
@@ -123,7 +123,7 @@ evals:
     criterion: AC-20
     executor: script
     cmd: config:executors.test.scripts
-    expected: "case GPM20: bảng >=8 đầu vào (hoa/thường, khoảng trắng, JSON hỏng, verdict lạ) chạy qua CẢ HAI lối vào → kết luận khớp TỪNG ca, in ca lệch nếu có"
+    expected: "case GPM21: bảng 8 đầu vào (hoa/thường, khoảng trắng đầu, JSON hỏng, type khác, decision khác, ledger vắng) chạy qua CẢ HAI lối vào THẬT (pre-merge end-to-end và decision card Cổng 1) → khớp TỪNG ca, in dòng LỆCH nêu đích danh ca lệch"
     paths: [lib/gap-probe.js, scripts/gate-card.js, scripts/pre-merge-check.sh, tests/scripts/**]
   - id: E9
     criterion: AC-9
@@ -131,4 +131,4 @@ evals:
     question: "Đọc thông điệp VIOLATION và NOTE của luật gap-probe: một người chưa từng đọc kit có biết đang thiếu gì và phải làm gì tiếp không?"
     # Sinh bằng: chạy 4 fixture GP1/GP2/GP7/GP8 rồi gom stdout — KHÔNG chép tay.
     # E12 kiểm sự đầy đủ TRƯỚC khi judge chấm.
-    inputs: [evidence/premerge-messages.txt]
+    inputs: [_acceptance/gap-probe-presence-hook/evidence/premerge-messages.txt]
