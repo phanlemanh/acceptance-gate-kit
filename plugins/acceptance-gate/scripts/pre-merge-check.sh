@@ -83,6 +83,34 @@ while [ $# -gt 0 ]; do
   esac
 done
 
+# ─── Sổ luật-đã-chạy (rules ledger) ─────────────────────────────────────────
+# `clean` phải được CHỨNG MINH, không phải mặc định: mọi khối luật ghi sổ qua
+# ledger_mark; điểm nghẽn trước kết luận so EXPECTED với sổ HAI CHIỀU. Lệch =
+# lỗi NỘI TẠI của cổng -> exit 2, không phải violation của feature. EXPECTED
+# là danh sách ĐÓNG, CỐ ĐỊNH, không phụ thuộc config — thêm khối luật mới
+# PHẢI thêm tên vào đây (suite P48 + RL7a canh hai chiều bằng máy).
+LEDGER_EXPECTED="per-slug gap-probe t1-escape"
+# set -- xoá positional params — hợp lệ vì đứng SAU vòng parse args ở trên.
+set -- $LEDGER_EXPECTED
+LEDGER_K=$#
+LEDGER_ENABLED=1
+LEDGER_RAN=""; LEDGER_OFF=""; LEDGER_RAN_N=0; LEDGER_OFF_N=0
+ledger_mark() { # <ran|declared-off> <tên>
+  [ "$LEDGER_ENABLED" -eq 1 ] || return 0
+  case "$1" in
+    ran)          LEDGER_RAN="${LEDGER_RAN}${2} "; LEDGER_RAN_N=$((LEDGER_RAN_N+1)) ;;
+    declared-off) LEDGER_OFF="${LEDGER_OFF}${2} "; LEDGER_OFF_N=$((LEDGER_OFF_N+1)) ;;
+  esac
+  echo "$1 $2"
+}
+ledger_count() { # <tên> — số lần tên xuất hiện trong sổ. Thuần bash có chủ
+  # đích: chokepoint không được phụ thuộc binary ngoài, vì trạng thái
+  # node-vắng (AC-12) phải đi qua nó mà không tự phá sổ.
+  local c=0 w
+  for w in $LEDGER_RAN $LEDGER_OFF; do [ "$w" = "$1" ] && c=$((c+1)); done
+  echo "$c"
+}
+
 # lib dùng chung — CÙNG file mà scripts/gate-card.js require. pre-merge chỉ còn
 # đọc config, xác định phạm vi diff, in ấn và đếm; LUẬT nằm trong lib. Bản awk
 # cũ đã lệch thật: một dòng JSON hỏng mở được van thoát ở bash trong khi thẻ
@@ -116,6 +144,12 @@ AGENT_AUTHORS=""
 if [ -f "$ACC/config.yaml" ]; then
   cfg_req="$(sed -n 's/^[[:space:]]*required_for:[[:space:]]*//p' "$ACC/config.yaml" | head -1 | sed 's/[[:space:]]*#.*$//')"
   [ -n "$cfg_req" ] && REQUIRED_FOR="$cfg_req"
+  cfg_enf="$(sed -n 's/^enforcement:[[:space:]]*//p' "$ACC/config.yaml" | head -1 \
+    | sed -e 's/[[:space:]]*#.*$//' -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//' \
+    | tr '[:upper:]' '[:lower:]')"
+  # off là off toàn cục (tiền lệ hook) — sổ luật tắt theo, không dòng nào
+  # (AC-11); warn/strict/giá trị lạ đều GIỮ sổ bật, cùng ngữ nghĩa hook.
+  case "$cfg_enf" in off) LEDGER_ENABLED=0 ;; esac
   cfg_gp="$(sed -n 's/^[[:space:]]*gap_probe:[[:space:]]*//p' "$ACC/config.yaml" | head -1 \
     | sed -e 's/[[:space:]]*#.*$//' -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//' \
     | tr '[:upper:]' '[:lower:]')"
@@ -146,6 +180,9 @@ if [ -f "$ACC/config.yaml" ]; then
     | sed -n 's/^[[:space:]]*-[[:space:]]*//p' \
     | sed -e 's/[[:space:]]*#.*$//' -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'\$//" -e 's/[[:space:]]*$//')"
 fi
+# AC-3: gap_probe: off trong config (kể cả mode sai chính tả đã rơi về off ở
+# trên, sau khi VIOLATION [config] nổ) là tắt CÓ khai báo.
+[ "$GAP_PROBE_MODE" = "off" ] && ledger_mark declared-off gap-probe
 if [ "$RECHECK_MODE" = "warn" ]; then
   # A disabled backstop must be impossible to miss: in warn mode a report
   # hand-edited AFTER the write-time hook only produces a NOTE — it does not
@@ -179,6 +216,7 @@ gap_probe_not_enforced() { # <lý do>
   [ "$GAP_PROBE_MODE" = "off" ] && return 0
   [ "$GP_NOT_ENFORCED" -eq 1 ] && return 0   # AC-16: ĐÚNG một dòng marker
   GP_NOT_ENFORCED=1
+  ledger_mark declared-off gap-probe
   echo "GAP-PROBE: NOT ENFORCED reason=$1"
   if [ "$GAP_PROBE_MODE" = "required" ]; then
     echo "VIOLATION [gap-probe]: mode required nhưng luật không cưỡng chế được — $1. Sửa nguyên nhân, hoặc hạ gap_probe xuống advisory nếu chấp nhận merge mà không có phản biện."
@@ -195,6 +233,7 @@ T1_ESCAPE_OFF=0
 t1_escape_not_enforced() {
   [ "$T1_ESCAPE_OFF" -eq 1 ] && return 0
   T1_ESCAPE_OFF=1
+  ledger_mark declared-off t1-escape
   echo "T1-ESCAPE: NOT ENFORCED reason=push-event-no-pr-premise"
   # Marker trên là cho MÁY (CI grep). Dòng dưới là cho NGƯỜI: một người chưa
   # đọc kit phải biết LỚP NÀO tắt, VÌ SAO, và rủi ro cụ thể là gì.
@@ -308,8 +347,16 @@ if [ "$GAP_PROBE_MODE" != "off" ] && [ "$DIFF_READY" -eq 0 ]; then
   gap_probe_not_enforced "$DIFF_SKIP_NOTE (luật chỉ xét slug có file trong diff PR)"
 fi
 
+# per-slug: hai đường dẫn độc lập về lexical — vòng đếm dưới đây dùng biến
+# _sd, vòng luật thật dùng dir. Tiêm hỏng một vòng thì con số lệch và điểm
+# nghẽn từ chối kết luận (AC-9: bắt cả biến thể CHƯA nghĩ ra).
+SLUG_SEEN=0; SLUG_EXPECTED_N=0
+for _sd in "$ACC"/*/; do [ -d "$_sd" ] && SLUG_EXPECTED_N=$((SLUG_EXPECTED_N+1)); done
+GP_SCOPE_N=0; GP_RAN=0
+
 for dir in "$ACC"/*/; do
   [ -d "$dir" ] || continue
+  SLUG_SEEN=$((SLUG_SEEN+1))
   slug="$(basename "$dir")"
   if [ ${#SLUGS[@]} -gt 0 ]; then
     found=0
@@ -382,6 +429,10 @@ XLACS
     fi
   fi
 
+  # Counter scope NẰM NGOÀI khối luật bên dưới và cố ý khác lexical (off không
+  # nháy kép): tiêm vô hiệu khối thì counter vẫn đếm, sổ lệch, chokepoint bắt.
+  [ "$GAP_PROBE_MODE" != off ] && slug_in_diff "$slug" && GP_SCOPE_N=$((GP_SCOPE_N+1))
+
   # ─── Gap-probe presence (phản biện context sạch) ─────────────────────────
   # Vị trí có chủ đích: SAU hai bước lọc `REQUIRED_FOR` và `status implemented+`
   # phía trên, nên AC-4 (T1) và AC-10 (draft/approved) đúng theo CẤU TRÚC chứ
@@ -406,6 +457,7 @@ XLACS
         gap_probe_not_enforced "node lib/gap-probe.js classify thất bại trên $slug"
       fi
     else
+      if [ "$GP_RAN" -eq 0 ]; then GP_RAN=1; ledger_mark ran gap-probe; fi
       gp_outcome="${gp_line%%	*}"
       gp_id="${gp_line#*	}"
       case "$gp_outcome" in
@@ -573,6 +625,15 @@ NETIDS
   echo "OK [$slug]: $verdict, signed off by $signoff"
 done
 
+# per-slug chỉ được ghi `ran` khi vòng lặp nhìn thấy ĐÚNG số thư mục mà phép
+# đếm độc lập nhìn thấy.
+[ "$SLUG_SEEN" -eq "$SLUG_EXPECTED_N" ] && ledger_mark ran per-slug
+# gap-probe vũ trang nhưng scope rỗng (không slug nào trong diff) = đã chạy
+# trọn phần việc của nó. GP_SCOPE_N > 0 mà GP_RAN=0 -> KHÔNG mark -> sổ lệch.
+if [ "$GAP_PROBE_MODE" != "off" ] && [ "$GP_NOT_ENFORCED" -eq 0 ] && [ "$GP_RAN" -eq 0 ] && [ "$GP_SCOPE_N" -eq 0 ]; then
+  ledger_mark ran gap-probe
+fi
+
 # ── T1-escape backstop (PR-level) ────────────────────────────────────────────
 # T1 is self-declared at Phase 0 from EXPECTED paths — nothing stops a "docs
 # typo" PR from also touching src/billing/. With a PR base: changed files
@@ -585,6 +646,8 @@ if [ "$T1_ESCAPE" -eq 0 ]; then
   t1_escape_not_enforced
 elif [ "$DIFF_READY" -eq 0 ]; then
   echo "NOTE: T1-escape backstop skipped — $DIFF_SKIP_NOTE"
+  # AC-3: thiếu --base là tắt CÓ khai báo (bỏ-qua-có-tín-hiệu, hành vi cũ).
+  ledger_mark declared-off t1-escape
 else
   changed="$DIFF_FILES"
   gate_touched=0; t3_hits=""; nont1_hits=""
@@ -610,12 +673,41 @@ CHANGED
       violations=$((violations+1))
     fi
   fi
+  ledger_mark ran t1-escape
 fi
 
 # AC-16 vế sau: dòng tổng kết PHẢI khai là luật đã tắt. Một marker lẻ giữa hàng
 # chục dòng output là thứ người đọc lướt qua; khai ở dòng cuối thì không.
 [ "$GP_NOT_ENFORCED" -eq 1 ] && echo "pre-merge-check: gap-probe: KHÔNG cưỡng chế trong lần chạy này (xem dòng marker NOT ENFORCED ở trên)"
 [ "$T1_ESCAPE_OFF" -eq 1 ] && echo "pre-merge-check: T1-escape: KHÔNG cưỡng chế trong lần chạy này (xem dòng marker NOT ENFORCED ở trên)"
+
+# ─── Điểm nghẽn sổ luật: `clean` phải được chứng minh (AC-2/AC-5/AC-7) ──────
+if [ "$LEDGER_ENABLED" -eq 1 ]; then
+  ledger_bad=0
+  for _n in $LEDGER_EXPECTED; do
+    _c="$(ledger_count "$_n")"
+    if [ "$_c" -eq 0 ]; then
+      echo "VIOLATION [ledger]: luật $_n không chạy và không khai tắt"
+      ledger_bad=1
+    elif [ "$_c" -gt 1 ]; then
+      echo "VIOLATION [ledger]: luật $_n ghi sổ $_c lần — trạng thái sổ không nhất quán"
+      ledger_bad=1
+    fi
+  done
+  for _w in $LEDGER_RAN $LEDGER_OFF; do
+    case " $LEDGER_EXPECTED " in
+      *" $_w "*) ;;
+      *) echo "VIOLATION [ledger]: tên lạ $_w — cập nhật EXPECTED"; ledger_bad=1 ;;
+    esac
+  done
+  # k lấy từ LEDGER_K (đếm EXPECTED lúc khai báo) — TUYỆT ĐỐI không n+m: in
+  # tổng tự cộng là tautology không bao giờ hiển thị lệch được (AC-5).
+  echo "pre-merge-check: rules ran=$LEDGER_RAN_N declared-off=$LEDGER_OFF_N expected=$LEDGER_K"
+  if [ "$ledger_bad" -eq 1 ]; then
+    echo "NOTE: VIOLATION [ledger] là lỗi NỘI TẠI của cổng pre-merge (một khối luật bị trượt qua hoặc sổ lệch) — KHÔNG phải lỗi trong thay đổi của bạn. Bước kế tiếp: báo maintainer của kit kèm TOÀN BỘ output lần chạy này; đừng sửa feature của bạn để né nó."
+    exit 2
+  fi
+fi
 
 if [ "$violations" -gt 0 ]; then
   echo "pre-merge-check: $violations violation(s) — merge blocked"

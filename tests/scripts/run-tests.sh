@@ -1774,7 +1774,13 @@ echo "GPM3 off -> khong in gi ve gap-probe"
 mk_gp_repo gpm3; R="$GPR/gpm3"; gp_feature "$R" feat-b T3 implemented
 printf 'gap_probe: off\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
 GPM3="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM3 0 $?
-nothas GPM3silent "gap-probe" "$GPM3"
+# AC-3 cũ đọc theo Ý: LUẬT im lặng (không NOTE/VIOLATION/marker). Dòng sổ
+# luật-đã-chạy (`declared-off gap-probe` + dòng tổng kết) là kế toán của
+# premerge-rules-ledger AC-3 — bảng đã duyệt Cổng 1 bắt buộc nó HIỆN cả khi
+# off, nên lọc riêng ra khỏi assertion im-lặng (ledger d-…-fix ghi vết).
+GPM3F="$(printf '%s\n' "$GPM3" | grep -vE '^(ran|declared-off) |^pre-merge-check: rules ')"
+nothas GPM3silent "gap-probe" "$GPM3F"
+same GPM3ledger 1 "$(printf '%s\n' "$GPM3" | grep -cx 'declared-off gap-probe')"
 
 echo "GPM4 contract T1 + required -> khong xet (thua huong loc REQUIRED_FOR)"
 mk_gp_repo gpm4; R="$GPR/gpm4"; gp_feature "$R" feat-t1 T1 implemented
@@ -1788,7 +1794,10 @@ gp_feature "$R" feat-d T3 draft; gp_feature "$R" feat-e T3 approved
 printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
 GPM10="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM10 0 $?
 nothas GPM10a "phản biện" "$GPM10"
-nothas GPM10b "gap-probe" "$GPM10"
+# Cùng lớp với GPM3silent: lọc dòng sổ kế toán (ledger ghi `ran gap-probe` —
+# luật vũ trang, scope rỗng vì draft/approved bị lọc) khỏi assertion im-lặng.
+GPM10F="$(printf '%s\n' "$GPM10" | grep -vE '^(ran|declared-off) |^pre-merge-check: rules ')"
+nothas GPM10b "gap-probe" "$GPM10F"
 
 echo "GPM13 slug NGOAI diff -> khong xet; khong --base -> bo qua kem NOTE"
 mk_gp_repo gpm13; R="$GPR/gpm13"; gp_feature "$R" feat-old T3 implemented
@@ -2297,6 +2306,33 @@ TE18J="$(bash "$CHECK" "$R" --base khong-co-ref-nay 2>&1)"; check TE18j 2 $?
 hasout TE18j2 "VIOLATION [scope]" "$TE18J"
 # Doi chung: KHONG truyen base van la bo-qua-co-tin-hieu, khong phai loi cung
 TE18K="$(bash "$CHECK" "$R" 2>&1)"; check TE18k 0 $?
+
+# ── RL: sổ luật-đã-chạy — `clean` phải được chứng minh ──────────────────────
+# Fixture chuẩn: repo git có MỘT slug ngoài diff (vòng per-slug có việc thật),
+# diff chỉ chạm docs -> mọi luật chạy trọn, không violation. Đây là đối chứng
+# dương dùng chung của cả nhóm RL.
+rl_repo() { # <case> — đặt TE_R (root) + TE_B (base sha)
+  mk_gp_repo "$1"; TE_R="$GPR/$1"
+  gp_feature "$TE_R" feat-rl T3 implemented
+  git -C "$TE_R" add -A >/dev/null
+  git -c user.email=t@t -c user.name=t -C "$TE_R" commit -qm feat
+  TE_B="$(git -C "$TE_R" rev-parse HEAD)"
+  mkdir -p "$TE_R/docs"; printf 'v2\n' >> "$TE_R/docs/note.md"
+  git -C "$TE_R" add -A >/dev/null
+  git -c user.email=t@t -c user.name=t -C "$TE_R" commit -qm docs
+}
+
+echo "RL1 repo sach: ca ba luat chay, tong ket dung MOT lan, khong declared-off"
+rl_repo rl1
+RL1="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"; check RL1 0 $?
+hasout RL1a "pre-merge-check: clean" "$RL1"
+same RL1b 1 "$(printf '%s\n' "$RL1" | grep -cx 'ran per-slug')"
+same RL1c 1 "$(printf '%s\n' "$RL1" | grep -cx 'ran gap-probe')"
+same RL1d 1 "$(printf '%s\n' "$RL1" | grep -cx 'ran t1-escape')"
+same RL1e 1 "$(printf '%s\n' "$RL1" | grep -c '^pre-merge-check: rules ran=')"
+hasout RL1f "pre-merge-check: rules ran=3 declared-off=0 expected=3" "$RL1"
+# RL3c (âm, AC-3): luật KHÔNG tắt thì KHÔNG được có dòng declared-off nào
+same RL3c 0 "$(printf '%s\n' "$RL1" | grep -c '^declared-off ')"
 
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
