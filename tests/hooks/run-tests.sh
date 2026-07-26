@@ -572,7 +572,9 @@ payload Write "$REPORT_PATH" "$OBS_V2
   notes: sibling field text long enough that counting it would fake a pass" | node "$HOOK" >/dev/null 2>/dev/null; check T42 2 $?
 
 # ─── Gap-probe presence guard (T60+) ────────────────────────────────────────
-GPD="$HERE/fixtures/gapprobe"
+# CONTRACT_RE của hook đòi đúng dạng `_acceptance/<slug>/contract.md` — fixture
+# đặt ngoài dạng đó thì hook bỏ qua file và mọi case xanh RỖNG.
+GPD="$HERE/fixtures/gapprobe/_acceptance"
 # mk_gp <case> <tier|-> <expected:yes|no> <verdict|-|touch> <descope:yes|no|upper>
 # Dựng thư mục workspace rồi ECHO ra nội dung contract.md để nhét vào payload.
 mk_gp() {
