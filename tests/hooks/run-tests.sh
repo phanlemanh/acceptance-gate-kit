@@ -681,6 +681,26 @@ echo "T75 T3 + marker, approved -> implemented (đã qua cổng rồi) -> KHÔNG
 C="$(mk_gp t75 T3 yes - no)"; printf '%s' "$C" > "$GPD/t75/contract.md"
 gp_edit t75 "status: approved" "status: implemented"; check T75 0 $?
 
+# N2: răng không được TỰ THÁO. Marker đọc từ payload sau-ghi thôi thì chính lần
+# ghi tiến cổng có thể xoá nó đi và thoát — không dấu vết. Kit có luật bất
+# thành văn: mọi lối thoát đều để lại vết (gate1_skipped bị pre-merge NOTE,
+# descope phải có entry ledger).
+echo "T76 disk CÓ marker, lần ghi tiến cổng XOÁ marker -> vẫn CHẶN + NOTE ghi vết"
+d="$GPD/t76"; rm -rf "$d"; mkdir -p "$d"
+printf -- '---\nschema_version: 1\nslug: x\nrisk_tier: T3\ngap_probe_expected: true\nstatus: draft\n---\n' > "$d/contract.md"
+C76="$(printf -- '---\nschema_version: 1\nslug: x\nrisk_tier: T3\nstatus: approved\napproved_by: Tester\n---\n')"
+gp_run t76 "$C76"; check T76 2 $?
+grep -qi "gỡ marker\|marker.*bị xoá\|từng khai" "$GPD/t76.err" && check T76-trace 0 0 || check T76-trace 0 1
+
+# N4: NOTE phải tôn trọng enforcement của repo tiêu thụ như mọi output khác.
+echo "T77 enforcement: off -> KHÔNG in NOTE nào"
+d="$GPD/t77"; rm -rf "$d"; mkdir -p "$d"
+printf 'enforcement: off\n' > "$GPD/config.yaml"
+C77="$(printf -- '---\nschema_version: 1\nslug: x\nrisk_tier: T2\ngap_probe_expected: true\nstatus: approved\napproved_by: Tester\n---\n')"
+gp_run t77 "$C77"; check T77 0 $?
+grep -qi "NOTE from" "$GPD/t77.err" && check T77-silent 0 1 || check T77-silent 0 0
+rm -f "$GPD/config.yaml"
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1

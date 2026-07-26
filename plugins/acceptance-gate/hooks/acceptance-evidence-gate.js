@@ -142,20 +142,23 @@ process.stdin.on('end', () => {
 
     if (isContract) {
       const cr = core.evaluateContractWrite(payload, existing, { fileDir });
-      // NOTE là kênh RIÊNG với block: nó luôn in ra stderr rồi cho ghi tiếp.
-      // Một cảnh báo không được đổi exit code — nếu không, "nhắc" và "chặn"
-      // nhập làm một và AC-3/AC-5/AC-7 không tồn tại được.
+      // Đọc enforcement TRƯỚC khi in bất cứ thứ gì: `off` phải tắt được MỌI
+      // output của hook này, kể cả NOTE. Bản trước xả NOTE ra trước khi đọc
+      // config nên đó là dòng duy nhất repo tiêu thụ không tắt được.
+      const cfg = readEnforcement(fileDir);
+      if (cfg.enforcement === 'off') {
+        process.stdout.write(data);
+        process.exit(0);
+      }
+      // NOTE là kênh RIÊNG với block: in ra stderr rồi cho ghi tiếp. Một cảnh
+      // báo không được đổi exit code — nếu không, "nhắc" và "chặn" nhập làm
+      // một và AC-3/AC-5/AC-7 không tồn tại được.
       if (cr.notes && cr.notes.length) {
         process.stderr.write(
           '\nNOTE from acceptance-evidence-gate (Gate-1 contract guard)\n'
           + cr.notes.map(n => `  - ${n}`).join('\n') + '\n\n');
       }
       if (!cr.anyFailure) {
-        process.stdout.write(data);
-        process.exit(0);
-      }
-      const cfg = readEnforcement(fileDir);
-      if (cfg.enforcement === 'off') {
         process.stdout.write(data);
         process.exit(0);
       }

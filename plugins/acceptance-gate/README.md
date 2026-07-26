@@ -276,6 +276,13 @@ zero business-logic defects slipping past the gate.
 Deliberate scope cuts — each is backed by the pre-merge check + human signoff
 downstream, and revisited after the pilot:
 
+- **The gap-probe rule has no merge-boundary backstop**: unlike every other
+  rule in the kit (write-time hook + `pre-merge-check.sh` re-check), the
+  gap-probe presence guard lives ONLY in the PreToolUse hook. A contract
+  advanced under `ACCEPTANCE_GATE_BYPASS=1`, by a runtime with no hook
+  installed, or by a plain editor/`git` write merges with no signal. Adding the
+  second layer means a bash re-implementation of the rule in a `t3_paths` file,
+  so it is queued as its own contract rather than bolted on.
 - **The T1-escape backstop has no path→slug mapping**: `pre-merge-check.sh`
   counts *any* change under a path matching `_acceptance/*` or `*/_acceptance/*`
   as "this PR carries gate artifacts". The glob is not anchored to the repo

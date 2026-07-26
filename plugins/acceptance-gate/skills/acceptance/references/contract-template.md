@@ -18,12 +18,13 @@ Frontmatter rules:
 - `time_human_minutes`: fill gate1 when approving, gate2 when signing off (pilot metric)
 - `gate1_skipped: true` may be added by the skill when the user insists on
   skipping Gate 1 (audit trail; discouraged)
-- `gap_probe_expected: true` marks a workspace whose toolchain KNOWS about the
-  clean-context critique (gap-probe). The hook hard-blocks a T3 contract that
-  advances past Gate 1 without `gap-probe.md` or a `descope` entry ONLY when
-  this marker is present — a contract written before the marker existed gets a
-  NOTE and is never blocked. Emit it on every new contract; drop it only when
-  the repo deliberately opts out of gap-probe entirely.
+- `gap_probe_expected: true` is **NOT part of this template** — do not add it
+  here. It marks a contract produced by a flow that actually RUNS the
+  clean-context critique, and only feature-loop's S1 does (step S1#7). This
+  template also feeds the standalone `/acceptance` flow, which has no gap-probe
+  step; emitting the marker there would hard-block every T3 Gate-1 approve with
+  an instruction to run a step that flow does not have. Standalone contracts
+  stay in the NOTE-only lane, exactly as README and QUICKSTART promise.
 - `surfaces` may include `mobile`: app flows driven by the repo's native E2E
   runner (XCUITest / Espresso / Maestro / Detox…). The runner's exit code is
   UI-LAYER evidence only — a `(cross-layer)` criterion on mobile REQUIRES its
@@ -39,7 +40,6 @@ slug: {{kebab-case-slug}}
 owner: {{git config user.email}}
 risk_tier: {{T2|T3}}
 surfaces: [{{api|cli|sdk|ui|mobile, comma-separated}}]
-gap_probe_expected: true
 status: draft
 approved_by:
 approved_at:
