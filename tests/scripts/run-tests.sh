@@ -2229,6 +2229,40 @@ hasout TE17a "VIOLATION [PR]" "$TE17M"
 hasout TE17b "T1-ESCAPE: NOT ENFORCED reason=push-event-no-pr-premise" "$TE17M"
 hasout TE17c "pre-merge-check: T1-escape: KHÔNG cưỡng chế" "$TE17M"
 
+# ── TE16: DELTA của cờ trên chính triệu chứng gốc ───────────────────────────
+# Fixture GIỮ verified_commit — cấm bỏ field đó để có màu xanh (AC-17). Vì thế
+# lần chạy CÓ cờ vẫn còn violation staleness: đó là luật KHÁC, tiền đề khác,
+# ngoài phạm vi feature này. Đo DELTA chứ không đo "clean".
+echo "TE16 cung commit, chay hai lan: co co thi mat VIOLATION [PR]"
+mk_gp_repo te16; TE16R="$GPR/te16"
+gp_feature "$TE16R" feat-done T3 signed-off
+git -C "$TE16R" add -A >/dev/null
+git -c user.email=t@t -c user.name=t -C "$TE16R" commit -qm feat
+TE16_PIN="$(git -C "$TE16R" rev-parse HEAD)"
+printf 'verified_commit: %s\n' "$TE16_PIN" > "$T/te16.pin"
+python3 - "$TE16R/_acceptance/feat-done/evidence-report.md" "$TE16_PIN" <<'TE16PY'
+import io,sys
+p,sha=sys.argv[1],sys.argv[2]
+t=io.open(p,encoding='utf-8').read()
+t=t.replace('verdict: PASS','verdict: PASS\nverified_commit: '+sha,1)
+io.open(p,'w',encoding='utf-8').write(t)
+TE16PY
+git -C "$TE16R" add -A >/dev/null
+git -c user.email=t@t -c user.name=t -C "$TE16R" commit -qm pin
+TE16_BASE="$(git -C "$TE16R" rev-parse HEAD)"
+# commit "ha tang": cham t3_paths, KHONG file nao duoi _acceptance/
+printf 'v9\n' >> "$TE16R/src/app.js"
+git -C "$TE16R" add -A >/dev/null
+git -c user.email=t@t -c user.name=t -C "$TE16R" commit -qm infra
+
+TE16_OFF="$(bash "$CHECK" "$TE16R" --base "$TE16_BASE" 2>&1)"
+TE16_ON="$(bash "$CHECK" "$TE16R" --base "$TE16_BASE" --no-t1-escape 2>&1)"
+hasout TE16a "VIOLATION [PR]" "$TE16_OFF"
+nothas TE16b "VIOLATION [PR]" "$TE16_ON"
+# AC-17: violation con lai phai duoc NEU TEN, va fixture PHAI con verified_commit
+hasout TE16c "evidence is stale" "$TE16_ON"
+hasout TE16d "verified_commit" "$(cat "$TE16R/_acceptance/feat-done/evidence-report.md")"
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1

@@ -93,8 +93,14 @@ evals:
     criterion: AC-16
     executor: script
     cmd: config:executors.test.scripts
-    expected: "case TE16 (end-to-end, đo TRIỆU CHỨNG GỐC): fixture mô phỏng commit hạ tầng — bump 3 manifest + sync mirror, không file nào dưới _acceptance/, mọi slug đã signed-off pin đúng commit → `--base <cha> --no-t1-escape` cho exit 0 và dòng cuối NGUYÊN VĂN 'pre-merge-check: clean'"
+    expected: "case TE16: CÙNG fixture (commit chạm t3_paths, không _acceptance/, evidence pin commit trước) chạy HAI LẦN — không cờ có 'VIOLATION [PR]', có --no-t1-escape thì KHÔNG còn 'VIOLATION [PR]' nào. Đo DELTA của cờ, không đo 'clean'"
     paths: [scripts/pre-merge-check.sh, _acceptance/config.yaml, tests/scripts/**]
+  - id: E18
+    criterion: AC-17
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case TE16b: lần chạy CÓ cờ vẫn phải in violation còn lại kèm tên luật (\"evidence is stale\"), và fixture PHẢI giữ verified_commit — cấm bỏ field đó để có màu xanh"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
   - id: E13
     criterion: AC-13
     executor: judgment

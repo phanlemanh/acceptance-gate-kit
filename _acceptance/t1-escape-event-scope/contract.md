@@ -26,7 +26,8 @@ owner: manh@mstar.vn
 - AC-10: Given một trong ba manifest bị để lệch số so với hai cái kia, When chạy `tests/plugins/run-tests.sh`, Then ĐỎ — miễn trừ literal ở AC-9 không được biến case thành `assert x == x`.
 - AC-11: Given GUIDE mô tả vòng đời feature, When đọc mục S3/S5, Then nói rõ bump version + sync mirror thuộc S3 (TRƯỚC verify), kèm lý do: bump sau Cổng 2 làm evidence stale và huỷ chính chữ ký vừa lấy.
 - AC-12: Given tài liệu `acceptance-init` của CẢ HAI harness (Claude + Codex), When đọc bước hướng dẫn wire CI, Then có nhắc cờ `--no-t1-escape` cho job chạy trên push, để consumer không dẫm lại đúng cái bẫy này.
-- AC-16: Given một repo fixture mô phỏng ĐÚNG commit hạ tầng đã repro (bump ba manifest + sync mirror, không có file nào dưới `_acceptance/`), và mọi slug trong repo đó đã `signed-off` với evidence pin đúng commit, When chạy `pre-merge-check.sh . --base <commit cha> --no-t1-escape`, Then exit 0 và dòng tổng kết là `pre-merge-check: clean` — KHÔNG còn violation nào. Đây là thước đo TRIỆU CHỨNG GỐC: 13 AC còn lại đo hành vi của cờ, riêng AC này đo "cổng hết đỏ vì lý do cấu trúc" — thứ feature sinh ra để đạt.
+- AC-16: Given một repo fixture mô phỏng ĐÚNG commit hạ tầng đã repro (chạm file non-T1 nằm trong `t3_paths`, KHÔNG có file nào dưới `_acceptance/`), và slug trong repo đó đã `signed-off` với evidence pin commit TRƯỚC đó, When chạy `pre-merge-check.sh` HAI LẦN trên CÙNG commit — một lần không cờ, một lần `--no-t1-escape` — Then lần không cờ CÓ `VIOLATION [PR]`, lần có cờ KHÔNG còn `VIOLATION [PR]` nào. Đây là thước đo DELTA của cờ trên chính triệu chứng gốc: 15 AC còn lại đo hành vi, AC này đo hiệu quả.
+- AC-17: Given cùng fixture ở AC-16 chạy VỚI cờ, When còn violation nào khác `VIOLATION [PR]`, Then chúng phải được NÊU TÊN trong bằng chứng — hiện là staleness (`evidence is stale`), một luật KHÁC có tiền đề PR riêng và nằm NGOÀI phạm vi feature này. Cấm để bằng chứng ngụ ý "cổng đã sạch" khi nó chưa sạch; cấm làm fixture yếu đi (bỏ `verified_commit`) để có màu xanh.
 - AC-13: (judgment) Given một người đọc bằng chứng CI thấy dòng marker `T1-ESCAPE: NOT ENFORCED`, When họ chưa từng đọc kit, Then họ hiểu được LỚP NÀO đang tắt, VÌ SAO nó tắt, và điều đó có nghĩa rủi ro gì — chứ không chỉ thấy một chuỗi viết hoa.
 
 ## Coverage
@@ -36,7 +37,8 @@ owner: manh@mstar.vn
 - Trục cô lập của cờ: cờ chỉ tắt răng T1-escape | không đụng gap-probe | không đụng evidence/signoff/stale [thước CE: AC-2/AC-4/AC-5]
 - Trục tín hiệu khi tắt: có marker máy-đọc + dòng tổng kết khai | im lặng [thước CE: AC-3, cùng khuôn ADR 0004]
 - Trục phân loại file trong diff: có `_acceptance/` | chỉ `t3_paths` | chỉ non-T1 | chỉ T1 thuần | chỉ `plugins/` | **HỖN HỢP `plugins/` + non-T1** [thước CE: AC-1/AC-2/AC-7/AC-14/AC-15 — ca hỗn hợp là ca THƯỜNG GẶP NHẤT của repo này, không phải ca biên]
-- Trục triệu chứng gốc: cổng đỏ vì lý do cấu trúc trên commit hạ tầng → hết đỏ [thước CE: AC-16 end-to-end; các AC khác chỉ đo hành vi của cờ, không đo mục tiêu]
+- Trục triệu chứng gốc: cổng đỏ vì lý do cấu trúc → cờ gỡ được PHẦN của răng T1-escape [thước CE: AC-16 đo delta hai lần chạy]
+- Trục trung thực của bằng chứng: violation còn lại được nêu tên | bị che [thước CE: AC-17 — `--no-t1-escape` chỉ chữa MỘT trong hai luật chặn commit hạ tầng; staleness còn nguyên]
 - Trục miễn trừ mirror KHÔNG được thành lỗ: sửa tay mirror vẫn bị P30 bắt [thước CE: AC-8 — đây là RED bắt buộc của AC-7]
 - Trục ghim version trong suite: bump ba manifest cùng lúc (không sửa suite) | để lệch một cái (phải đỏ) [thước CE: AC-9/AC-10 — cặp dương/âm, tránh `assert x == x`]
 - Trục tài liệu vòng đời: GUIDE nói bump ở S3 | acceptance-init nhắc cờ cho job push [thước CE: AC-11/AC-12]
