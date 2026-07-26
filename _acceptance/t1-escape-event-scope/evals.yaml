@@ -1,0 +1,111 @@
+schema_version: 1
+feature_slug: t1-escape-event-scope
+evals:
+  # AC-1 là trục quan trọng nhất: phương án opt-in bị loại CHÍNH VÌ nó. Eval này
+  # là răng giữ cho bản sửa không biến thành lỗ fail-open trên repo tiêu thụ.
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case TE1: chỉ --base, KHÔNG cờ mới, diff có file non-T1 và không có _acceptance/ → VIOLATION [PR] + exit != 0, y hệt hành vi trước khi có cờ"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case TE2a (non-T1) + TE2b (khớp t3_paths): --base + --no-t1-escape → KHÔNG có dòng 'VIOLATION [PR]' nào, và răng không làm exit khác 0"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case TE3: --no-t1-escape → grep -cF 'T1-ESCAPE: NOT ENFORCED reason=push-event-no-pr-premise' == 1 VÀ grep -cF 'pre-merge-check: T1-escape: KHÔNG cưỡng chế trong lần chạy này' == 1. So khớp chuỗi CỐ ĐỊNH (grep -F), không regex — regex do tác giả tự chọn là tự viết cả đề lẫn đáp án"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case TE4: --no-t1-escape + gap_probe required + slug T3 implemented thiếu gap-probe.md và thiếu descope → VẪN 'VIOLATION [<slug>]: chưa qua phản biện context sạch' + exit != 0"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case TE5a (thiếu chữ ký) + TE5b (evidence stale): --no-t1-escape → hai luật per-slug đó VẪN VIOLATION + exit != 0"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P40: gate.yml — nhánh push có --no-t1-escape, nhánh pull_request KHÔNG có, và không nhánh nào gọi pre-merge-check.sh thiếu base"
+    paths: [.github/workflows/gate.yml, tests/plugins/**]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case TE7: diff CHỈ đổi file dưới plugins/ và không có _acceptance/ → răng T1-escape KHÔNG nổ (không có 'VIOLATION [PR]')"
+    paths: [scripts/pre-merge-check.sh, _acceptance/config.yaml, tests/scripts/**]
+  # RED bắt buộc của AC-7: allowlist phải có ca NGOÀI danh sách chứng minh nó
+  # chưa biến fail-loud thành fail-silent.
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P41: sửa tay một file dưới plugins/ cho lệch nguồn (trong bản sao tạm) → sync-plugin-packages.sh --check ĐỎ; phục hồi → xanh lại"
+    paths: [scripts/sync-plugin-packages.sh, tests/plugins/**]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P45: trong bản sao tạm — bump CẢ BA manifest sang số mới RỒI chạy sync-plugin-packages.sh --write (bump và sync đi đôi, nếu không P30 đỏ vì drift chứ không vì ghim literal) → `git diff --exit-code -- tests/` SẠCH và suite xanh. Assert trên tests/ mới là mệnh đề 'không case nào phải sửa'; 'suite xanh' một mình không đo được điều đó"
+    paths: [tests/plugins/**]
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P42: để một trong ba manifest lệch số (trong bản sao tạm) → suite ĐỎ; chứng minh AC-9 không biến test thành assert x == x"
+    paths: [tests/plugins/**]
+  - id: E11
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P43: GUIDE.md mục vòng đời nói bump version + sync mirror thuộc S3 (trước verify) và nêu lý do bump-sau-Cổng-2 làm evidence stale"
+    paths: [GUIDE.md, tests/plugins/**]
+  - id: E12
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P44: CẢ HAI bản acceptance-init (commands/acceptance-init.md và codex/acceptance-gate/skills/acceptance-init/SKILL.md) nhắc cờ --no-t1-escape cho job chạy trên push"
+    paths: [commands/acceptance-init.md, codex/acceptance-gate/skills/acceptance-init/SKILL.md, tests/plugins/**]
+  - id: E15
+    criterion: AC-14
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case TE14: diff HỖN HỢP (plugins/x.js + scripts/pre-merge-check.sh), không _acceptance/, KHÔNG cờ → có 'VIOLATION [PR]', danh sách liệt kê scripts/pre-merge-check.sh và KHÔNG chứa chuỗi 'plugins/'. Ghim ngữ nghĩa lọc PER-FILE"
+    paths: [scripts/pre-merge-check.sh, _acceptance/config.yaml, tests/scripts/**]
+  - id: E16
+    criterion: AC-15
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case TE15: diff CHỈ docs/x.md, không _acceptance/, KHÔNG cờ → KHÔNG có 'VIOLATION [PR]', exit 0 (true-negative: glob mới không over-match)"
+    paths: [scripts/pre-merge-check.sh, _acceptance/config.yaml, tests/scripts/**]
+  - id: E17
+    criterion: AC-16
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case TE16 (end-to-end, đo TRIỆU CHỨNG GỐC): fixture mô phỏng commit hạ tầng — bump 3 manifest + sync mirror, không file nào dưới _acceptance/, mọi slug đã signed-off pin đúng commit → `--base <cha> --no-t1-escape` cho exit 0 và dòng cuối NGUYÊN VĂN 'pre-merge-check: clean'"
+    paths: [scripts/pre-merge-check.sh, _acceptance/config.yaml, tests/scripts/**]
+  - id: E13
+    criterion: AC-13
+    executor: judgment
+    question: "Đọc dòng marker T1-ESCAPE: NOT ENFORCED cùng dòng tổng kết: một người chưa từng đọc kit có hiểu LỚP NÀO đang tắt, VÌ SAO, và rủi ro là gì không?"
+    inputs: [_acceptance/t1-escape-event-scope/evidence/t1escape-messages.txt]
+  # Gác cổng cho judge E13 — cùng khuôn E12 của gap-probe-presence-hook: bằng
+  # chứng phải được SINH LẠI trong cùng lần chạy rồi diff byte-đối-byte, vì đếm
+  # nhãn chỉ đo sự đầy đủ chứ không đo tính xác thực.
+  - id: E14
+    criterion: AC-13
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case TE14: suite tự sinh lại evidence/t1escape-messages.txt từ 2 fixture (răng bật / răng tắt) trong cùng lần chạy rồi diff byte-đối-byte với file đã commit"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
