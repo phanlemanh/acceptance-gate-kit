@@ -135,6 +135,23 @@ ghi sự thật network trong app-origin scope.
 Dòng `## Notes` của contract mobile khai `local|staging|mock` để human liếc
 rủi ro tại Gate 1; W5 nhắc khi thiếu.
 
+**Sổ quyết định (decisions ledger)**:
+`_acceptance/<slug>/decisions.jsonl` — append-only, ghi *vì sao* của các quyết
+định (approach/descope/fix/revisit/seal). KHÔNG bao giờ override contract.
+Xuất hiện trong output pre-merge dưới dạng `theo ledger <id>` và trong
+`gate-card.js` dưới khoá `ledger.broken`.
+
+**Sổ luật-đã-chạy (rules ledger)**:
+Kế toán trong `pre-merge-check.sh`: mỗi khối luật ghi `ran <tên>` hoặc
+`declared-off <tên>` qua `ledger_mark`, so với EXPECTED ở điểm nghẽn trước khi
+kết luận. Lệch → `VIOLATION [ledger]` + exit 2 = lỗi NỘI TẠI của cổng.
+⚠️ Hai nghĩa của "ledger" cùng xuất hiện được trong output MỘT lần chạy. Khi
+viết message/doc mới, gọi tên đầy đủ ("sổ luật-đã-chạy" / "sổ quyết định");
+đừng dùng "ledger" trần. Nhãn `[ledger]` hiện tại là literal đã ghim trong
+contract `premerge-rules-ledger` (AC-2/AC-7d) nên đổi nó là một lần sửa
+contract, không phải một lần sửa chữ.
+_Avoid_: "ledger" trần trong văn bản mới.
+
 ## Rejected framings
 
 - **"Gate" cho máy móc** — hook/CI từng được gọi "evidence gate"/"merge gate";

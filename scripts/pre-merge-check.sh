@@ -144,16 +144,31 @@ AGENT_AUTHORS=""
 if [ -f "$ACC/config.yaml" ]; then
   cfg_req="$(sed -n 's/^[[:space:]]*required_for:[[:space:]]*//p' "$ACC/config.yaml" | head -1 | sed 's/[[:space:]]*#.*$//')"
   [ -n "$cfg_req" ] && REQUIRED_FOR="$cfg_req"
+  # `enforcement` là khoá DUY NHẤT mà hook (write-time) và pre-merge (merge
+  # boundary) CÙNG đọc, nên nó là chỗ duy nhất hai parser có thể bất đồng — và
+  # mọi bất đồng đều cùng một hình dạng fail-open: hook giữ `strict` (enforce
+  # đầy đủ, không ai nghi ngờ) trong khi sổ ở pre-merge tắt IM LẶNG.
+  #
+  # Vì thế KHÔNG chuẩn hoá gì thêm ở đây (không hạ chữ thường, không bóc nháy):
+  # dòng sed dưới nhận ĐÚNG tập mà regex của hook nhận —
+  # `/^enforcement\s*:\s*(strict|warn|off)\s*(?:#.*)?$/m` — nghĩa là không nháy,
+  # phân biệt hoa thường, cho phép chú thích đuôi. Mọi biến thể khác (`OFF`,
+  # `"off"`, `'off'`, giá trị lạ) KHÔNG khớp ở cả hai bên, nên cả hai cùng rơi
+  # về mặc định enforce. Vá theo LỚP: bản round 1 chỉ chặn chiều hoa/thường rồi
+  # để hở chiều nháy — mà nháy là kiểu viết hợp lệ ở chính khối parse này
+  # (GPM11a ghim `gap_probe: "required"` được nhận).
+  #
+  # Các khoá còn lại (`gap_probe`, `recheck`, `required_for`, ...) chỉ pre-merge
+  # đọc, nên độ rộng khác nhau ở đó KHÔNG tạo bất đồng hai lớp.
+  # KHÔNG dùng `\|` trong sed: BSD sed (macOS) không có alternation trong BRE,
+  # nên biểu thức đó im lặng không khớp gì và `off` thật cũng thành không-tắt.
+  # Lấy nguyên văn phần giá trị rồi bỏ ĐÚNG hai thứ regex hook cho phép sau
+  # token (`\s*(?:#.*)?$`): chú thích đuôi và khoảng trắng đuôi. Không bóc nháy,
+  # không hạ chữ thường — so BẰNG nên `"off"`, `OFF` đều không khớp, y như hook.
   cfg_enf="$(sed -n 's/^enforcement:[[:space:]]*//p' "$ACC/config.yaml" | head -1 \
-    | sed -e 's/[[:space:]]*#.*$//' -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//')"
+    | sed -e 's/[[:space:]]*#.*$//' -e 's/[[:space:]]*$//')"
   # off là off toàn cục (tiền lệ hook) — sổ luật tắt theo, không dòng nào
-  # (AC-11); warn/strict/giá trị lạ đều GIỮ sổ bật.
-  # KHÔNG hạ chữ thường ở đây: hook (hooks/acceptance-evidence-gate.js) khớp
-  # `/^enforcement\s*:\s*(strict|warn|off)\s*$/m` KHÔNG có cờ `i`, nên với
-  # `enforcement: OFF` hook giữ nguyên strict. Nếu bên này nhận cả `OFF` thì
-  # đúng một lỗi gõ làm hai lớp bất đồng: hook enforce đầy đủ (không ai nghi
-  # ngờ) trong khi sổ ở pre-merge tắt IM LẶNG — fail-open kích hoạt bằng typo,
-  # đúng thứ luật này sinh ra để chặn. Hai parser phải cùng ngữ nghĩa.
+  # (AC-11); warn/strict/không-khớp đều GIỮ sổ bật.
   case "$cfg_enf" in off) LEDGER_ENABLED=0 ;; esac
   cfg_gp="$(sed -n 's/^[[:space:]]*gap_probe:[[:space:]]*//p' "$ACC/config.yaml" | head -1 \
     | sed -e 's/[[:space:]]*#.*$//' -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//' \

@@ -11,3 +11,15 @@
 {"ts":"2026-07-27T05:45:00Z","round":1,"evalId":"E12","run_id":"minted-premerge-rules-ledger-E12-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
 {"ts":"2026-07-27T05:45:00Z","round":1,"evalId":"E13","run_id":"minted-premerge-rules-ledger-E13-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
 {"ts":"2026-07-27T05:45:00Z","round":1,"kind":"baseline","evals_hash":"pending","non_discriminating":[{"cmd":"bash tests/scripts/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E7","E8","E9","E11","E12","E13"]}]}
+{"ts":"2026-07-27T06:25:00Z","round":2,"evalId":"E1","run_id":"minted-premerge-rules-ledger-E1-r2","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T06:25:00Z","round":2,"evalId":"E2","run_id":"minted-premerge-rules-ledger-E2-r2","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T06:25:00Z","round":2,"evalId":"E3","run_id":"minted-premerge-rules-ledger-E3-r2","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T06:25:00Z","round":2,"evalId":"E4","run_id":"minted-premerge-rules-ledger-E4-r2","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T06:25:00Z","round":2,"evalId":"E5","run_id":"minted-premerge-rules-ledger-E5-r2","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T06:25:00Z","round":2,"evalId":"E6","run_id":"minted-premerge-rules-ledger-E6-r2","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T06:25:00Z","round":2,"evalId":"E7","run_id":"minted-premerge-rules-ledger-E7-r2","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T06:25:00Z","round":2,"evalId":"E8","run_id":"minted-premerge-rules-ledger-E8-r2","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T06:25:00Z","round":2,"evalId":"E9","run_id":"minted-premerge-rules-ledger-E9-r2","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T06:25:00Z","round":2,"evalId":"E11","run_id":"minted-premerge-rules-ledger-E11-r2","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T06:25:00Z","round":2,"evalId":"E12","run_id":"minted-premerge-rules-ledger-E12-r2","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T06:25:00Z","round":2,"evalId":"E13","run_id":"minted-premerge-rules-ledger-E13-r2","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}

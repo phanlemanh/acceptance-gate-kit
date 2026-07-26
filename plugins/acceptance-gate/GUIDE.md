@@ -612,15 +612,32 @@ pre-merge-check: rules ran=<n> declared-off=<m> expected=<k>
 dòng này hiển thị được sự lệch thay vì luôn tự khớp.
 
 Dòng này KHÔNG in ở lối thoát sớm `no _acceptance/ — nothing to check` (chưa có
-đối tượng nào để luật chạy). Nếu CI của bạn muốn chặn cả trường hợp chạy sai
-thư mục — `working-directory` đặt nhầm, chạy từ subdir — thì hãy fail-closed
-bằng cách đòi dòng `pre-merge-check: rules ran=` phải có mặt:
+đối tượng nào để luật chạy), và cũng không in khi `enforcement: off`. Nếu CI của
+bạn muốn chặn cả trường hợp chạy sai thư mục — `working-directory` đặt nhầm,
+chạy từ subdir — thì hãy fail-closed bằng cách đòi dòng `pre-merge-check: rules
+ran=` phải có mặt. Ba cái bẫy trong đoạn dưới đều là bẫy thật, đừng rút gọn:
 
 ```bash
-out="$(bash scripts/pre-merge-check.sh . --base "origin/$GITHUB_BASE_REF")"; st=$?
+# 1. `set +e`: GitHub Actions chạy step dưới `bash -e`, nên nếu không tắt thì
+#    phép gán ABORT ngay khi cổng thoát khác 0 — không dòng output nào được in,
+#    kể cả dòng NOTE giải thích VIOLATION [ledger].
+set +e
+out="$(bash scripts/pre-merge-check.sh . --base "origin/$GITHUB_BASE_REF" 2>&1)"; st=$?
+set -e
 printf '%s\n' "$out"
-grep -q '^pre-merge-check: rules ran=' <<<"$out" \
-  || { echo "cổng không chạy luật nào — kiểm lại đường dẫn repo"; exit 1; }
+
+# 2. Chỉ đòi dòng sổ khi lần chạy ĐÃ kết luận sạch (st = 0). Cổng thoát 1 hoặc 2
+#    thì đã có kết luận riêng, và exit 2 ở vòng parse vốn KHÔNG in dòng sổ.
+# 3. `enforcement: off` tắt cả sổ một cách hợp lệ — đòi dòng đó ở repo như vậy
+#    là job đỏ vĩnh viễn kèm chẩn đoán trỏ sai nguyên nhân.
+if [ "$st" -eq 0 ] \
+   && ! grep -qE '^enforcement:[[:space:]]*off[[:space:]]*(#.*)?$' _acceptance/config.yaml \
+   && ! printf '%s\n' "$out" | grep -q '^pre-merge-check: rules ran='; then
+  echo "cổng thoát 0 mà KHÔNG chạy luật nào — kiểm lại đường dẫn repo (working-directory)"
+  exit 1
+fi
+
+# giữ NGUYÊN mã thoát của cổng: 1 = feature vi phạm, 2 = lỗi nội tại của cổng.
 exit $st
 ```
 

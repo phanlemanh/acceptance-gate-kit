@@ -2491,21 +2491,49 @@ sed 's|^for dir in "\$ACC"/\*/; do$|for dir in "$ACC"/khong-ton-tai-*/; do|' "$C
 RL11B="$(bash "$RL11CP" "$R" --base "$RL11_B" 2>&1)"; check RL11b1 2 $?
 hasout RL11b2 "VIOLATION [ledger]: luật per-slug không chạy và không khai tắt" "$RL11B"
 
-echo "RL11c enforcement: OFF (HOA) KHONG duoc tat so — hook khong nhan hoa"
-rl_repo rl11c
-printf 'enforcement: OFF\n' >> "$TE_R/_acceptance/config.yaml"
-git -C "$TE_R" add -A >/dev/null
-git -c user.email=t@t -c user.name=t -C "$TE_R" commit -qm enfhoa
-RL11C="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"; check RL11c1 0 $?
-# Hook (hooks/acceptance-evidence-gate.js) khop regex KHONG co co `i`, nen
-# `OFF` giu nguyen strict ben do. Neu ben nay tat so thi mot loi go lam hai lop
-# bat dong va so tat IM LANG — fail-open bang typo.
-hasout RL11c2 "pre-merge-check: rules ran=" "$RL11C"
-same   RL11c3 3 "$(printf '%s\n' "$RL11C" | grep -cE '^(ran|declared-off) ')"
-# DOI CHUNG voi hook that: cung chuoi `OFF` phai KHONG khop regex cua hook
-RL11C_HOOK="$(grep -n 'enforcement.*strict|warn|off' "$ROOT_REAL/hooks/acceptance-evidence-gate.js" | head -1)"
-nothas RL11c4 "/im" "$RL11C_HOOK"
-nothas RL11c5 "/gi" "$RL11C_HOOK"
+# ── RL11c: PARITY hai parser cua khoa `enforcement`, theo BANG ─────────────
+# `enforcement` la khoa DUY NHAT ca hook (write-time) lan pre-merge (merge
+# boundary) cung doc. Moi bat dong deu cung hinh dang fail-open: hook giu
+# strict trong khi so o pre-merge tat IM LANG. Round 1 chi ghim MOT bien the
+# (`OFF` hoa) roi de ho chieu nhay — dung lop loi bat bien #4 CLAUDE.md cam.
+# Nen do bang BANG, va do CA HAI ben tren CUNG mot chuoi, khong chep luat sang
+# test: ben hook goi thang regex that trong hooks/acceptance-evidence-gate.js.
+echo "RL11c parity `enforcement`: pre-merge va hook phai dong y tung bien the"
+RL11C_FAIL=0
+rl_enf_pair() { # <nhãn> <giá trị nguyên văn> <kỳ vọng: on|off>
+  # on  = ca hai VAN enforce (so bat, hook != off)
+  # off = ca hai cung tat  (so tat, hook == off)
+  mk_gp_repo "rl11c$1"; local R="$GPR/rl11c$1"; local B="$GP_BASE"
+  gp_feature "$R" feat-e T3 implemented
+  printf 'enforcement: %s\n' "$2" >> "$R/_acceptance/config.yaml"
+  gp_commit "$R"
+  # ben A: pre-merge chay END-TO-END — so co bat khong?
+  local A=off
+  bash "$CHECK" "$R" --base "$B" 2>&1 | grep -q '^pre-merge-check: rules ran=' && A=on
+  # ben B: ap CHINH regex trong nguon hook — DOC RA tu file, khong chep tay
+  # sang test (chep tay la cach GPM16 cua v2 tung xanh gia). Khong trich duoc
+  # regex -> NOREGEX -> case DO, khong im lang bo qua.
+  local Bv; Bv="$(node -e '
+    const fs = require("fs");
+    const src = fs.readFileSync(process.argv[1], "utf8");
+    const m = src.match(/configText\.match\(\/(.+)\/([a-z]*)\)/);
+    if (!m) { process.stdout.write("NOREGEX"); process.exit(0); }
+    const hit = process.argv[2].match(new RegExp(m[1], m[2]));
+    process.stdout.write(hit && hit[1] === "off" ? "off" : "on");
+  ' "$ROOT_REAL/hooks/acceptance-evidence-gate.js" "enforcement: $2")"
+  if [ "$A" != "$3" ] || [ "$Bv" != "$3" ]; then
+    echo "     LECH [$1 = <$2>]: pre-merge=$A hook=$Bv can=$3"
+    RL11C_FAIL=$((RL11C_FAIL+1))
+  fi
+}
+rl_enf_pair strict   'strict'      on
+rl_enf_pair off      'off'         off
+rl_enf_pair hoa      'OFF'         on
+rl_enf_pair nhaykep  '"off"'       on
+rl_enf_pair nhaydon  "'off'"       on
+rl_enf_pair chuthich 'off   # tam' off
+rl_enf_pair la       'khong-hop-le' on
+check RL11c 0 "$RL11C_FAIL"
 
 echo "RL13 classifier hong o MOT slug, chay o slug kia -> DUNG MOT dong so"
 # Lo that tim duoc o S4 round 1: hai one-shot doc lap (declared-off trong

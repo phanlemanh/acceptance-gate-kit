@@ -1,4 +1,4 @@
-# Review Findings: premerge-rules-ledger (round 1)
+# Review Findings: premerge-rules-ledger (round 2)
 
 Informational — outside the hook-enforced evidence-report schema. Findings
 below have all been adversarial-verified (reproduced or traced to exact
@@ -6,243 +6,167 @@ code/doc lines) prior to listing here.
 
 ---
 
-## 1. [HIGH] Parse `enforcement` lệch case-sensitivity với hook: `enforcement: OFF` tắt sổ trong khi hook vẫn strict
+## 1. [HIGH] Enforcement parse still diverges from the hook on quoted values — the case-sensitivity fix patched the named case, not the class
 
-- **File**: `/Users/manh-macmini/dev/acceptance-gate-kit/scripts/pre-merge-check.sh:147`
+- **File**: `scripts/pre-merge-check.sh:147`
 - **Source**: conventions
 
-Comment tại dòng 151-152 tuyên bố "off là off toàn cục (tiền lệ hook) ...
-cùng ngữ nghĩa hook". Nhưng hai parser không cùng ngữ nghĩa:
+Round-1 finding #1 was "enforcement: OFF disables the ledger while the hook
+stays strict", fixed by no longer lowercasing. But the same `sed` chain
+(copied from `fm_field`) still strips surrounding quotes:
+`-e 's/^["\'']//' -e 's/["\'']$//'`. The hook regex at
+`hooks/acceptance-evidence-gate.js:56`
+(`/^enforcement\s*:\s*(strict|warn|off)\s*(?:#.*)?$/m`) accepts no quotes.
 
-- `hooks/acceptance-evidence-gate.js:56` dùng
-  `configText.match(/^enforcement\s*:\s*(strict|warn|off)\s*(?:#.*)?$/m)` —
-  KHÔNG có cờ `i`, nên `enforcement: OFF` không khớp và hook giữ mặc định
-  `strict` (enforce đầy đủ).
-- `pre-merge-check.sh:147-150` lại `| tr '[:upper:]' '[:lower:]'` trước khi
-  so, nên `OFF`/`Off` đều rơi vào nhánh `LEDGER_ENABLED=0`.
+Verified against both parsers on the same `config.yaml`:
 
-Hệ quả: một repo tiêu thụ gõ `enforcement: OFF` được hook enforce như strict
-(đúng, không ai nghi ngờ) NHƯNG lớp sổ ở pre-merge tắt hoàn toàn và im lặng.
-Đây là fail-open kích hoạt bằng đúng loại lỗi gõ mà `VIOLATION [config]` của
-`gap_probe` đã được dựng ra để chặn — khối `gap_probe` từ chối đoán khi giá
-trị lạ, khối `enforcement` thì đoán rộng hơn cả hook.
+| value | ledger summary lines | hook |
+|---|---|---|
+| `strict` | 1 | strict |
+| `off` | 0 | off |
+| `OFF` | 1 | strict (the fixed case) |
+| `"off"` | 0 | strict |
+| `'off'` | 0 | strict |
 
-Xác nhận thực nghiệm: fixture với `enforcement: OFF` cho ra output không có
-dòng ledger nào, y hệt `enforcement: off`.
+The last two are exactly the fail-open the inline comment at lines 150-156
+claims to close ("Hai parser phải cùng ngữ nghĩa", "fail-open kích hoạt
+bằng typo"): the rules ledger goes silently off (no `ran`/`declared-off`/
+`pre-merge-check: rules ran=` lines emitted at all) while every other
+enforcement layer keeps running, so nothing signals that the
+proof-of-execution layer is gone.
 
-Hai lối sửa nhất quán: hoặc bỏ `tr` và chỉ chấp `off` chữ thường (khớp đúng
-hook), hoặc đưa cả hai parser về cùng một quy tắc và có test ghim. Hiện chưa
-có case nào trong suite phủ biến thể hoa/thường của khoá này.
+This is the CLAUDE.md invariant "sửa phải theo LỚP: quét cả file tìm mọi
+case cùng hình dạng, đừng chỉ vá case bị nêu tên" — test RL11c pins only the
+case variant, there is no quote variant. Same line in the mirror
+`plugins/acceptance-gate/scripts/pre-merge-check.sh:147`.
 
 ---
 
-## 2. [HIGH] Ledger double-marks gap-probe when the classifier fails on some (not all) slugs → false "internal gate error" exit 2 that hides real violations
+## 2. [MEDIUM] GUIDE's new fail-closed CI snippet swallows the entire gate output under `set -e` (GitHub Actions default)
 
-- **File**: `scripts/pre-merge-check.sh:460`
+- **File**: `GUIDE.md:620`
+- **Source**: conventions
+
+The newly added snippet is:
+
+```
+out="$(bash scripts/pre-merge-check.sh . --base "origin/$GITHUB_BASE_REF")"; st=$?
+printf '%s\n' "$out"
+grep -q '^pre-merge-check: rules ran=' <<<"$out" || { ...; exit 1; }
+exit $st
+```
+
+GitHub Actions runs `run:` steps under `bash -e` (`-eo pipefail` for
+`shell: bash`), and `commands/acceptance-init.md:117-129` points consumers
+explicitly at GitHub Actions. Under `-e` the assignment aborts the step as
+soon as the gate exits non-zero, so `st=$?`, the `printf`, and the ledger
+`grep` never execute.
+
+Reproduced on a fixture repo with one violation: plain `bash ci.sh` prints
+the full gate output and exits 1; `bash -eo pipefail ci.sh` prints NOTHING
+and exits 1.
+
+Consequence on every violating PR and on every exit-2 ledger mismatch: the
+operator sees zero diagnostics — including the "NOTE: VIOLATION [ledger] là
+lỗi NỘI TẠI của cổng ... báo maintainer" line that exists precisely so they
+do not go debug their own feature — and the fail-closed grep the snippet was
+added for never runs.
+
+Fix: wrap in `set +e`, or use `if ! out="$(...)"; then st=$?; fi`.
+
+Same paragraph, secondary issue: the snippet is presented unconditionally,
+but `enforcement: off` also suppresses the `pre-merge-check: rules ran=`
+line (script line 157), so a consumer on `enforcement: off` who adopts it
+gets a permanently red job. Mirrored at
+`plugins/acceptance-gate/GUIDE.md:620`.
+
+---
+
+## 3. [MEDIUM] `[ledger]` tag collides with the pre-existing meaning of "ledger" (decisions.jsonl) in the same output stream
+
+- **File**: `scripts/pre-merge-check.sh:706`
+- **Source**: conventions
+
+Lines 706, 709, 716 and 723 emit `VIOLATION [ledger]: ...` / `NOTE:
+VIOLATION [ledger] là lỗi NỘI TẠI của cổng` for the new RULES ledger. The
+same script already prints, at lines 469 and 472, `NOTE: [$slug]: phản biện
+context sạch đã được BỎ có chủ đích theo ledger $gp_id` and `VIOLATION
+[$slug]: ... ledger không có entry descope` — where "ledger" means the
+decisions ledger (`decisions.jsonl`, also referenced as `ledger.broken` in
+`scripts/gate-card.js:208`).
+
+Both senses can appear in a single run's output with nothing to disambiguate
+them, and CONTEXT.md has no entry for "ledger"/"sổ" at all, so the kit
+glossary offers no resolution either. CLAUDE.md invariant #2 asks for
+correct, non-colliding terminology in script messages and docs. A CI
+operator reading "VIOLATION [ledger]" will reasonably go open
+`decisions.jsonl`.
+
+Either tag the new checks `[rules-ledger]` / `[sổ luật]`, or add both senses
+to CONTEXT.md.
+
+---
+
+## 4. [MEDIUM] `enforcement: "off"` (quoted) silently disables the rules ledger while the write-time hook stays strict
+
+- **File**: `scripts/pre-merge-check.sh:147`
 - **Source**: bugs
 
-`gap_probe_not_enforced()` (line 216-227) is a GLOBAL one-shot that writes
-`ledger_mark declared-off gap-probe`, but it is invoked from inside the
-PER-SLUG loop at line 457 (`node lib/gap-probe.js classify thất bại trên
-$slug`). The success path at line 460 writes `ledger_mark ran gap-probe` —
-also one-shot, also global. The two one-shots are independent, so a run
-where the classifier succeeds for one slug and fails for another records
-BOTH names. The chokepoint at line 692 then sees `ledger_count gap-probe ==
-2` and hard-exits 2.
+The config read strips surrounding quotes
+(`sed -e 's/^["\'']//' -e 's/["\'']$//'`) before
+`case "$cfg_enf" in off) LEDGER_ENABLED=0`. The hook at
+`hooks/acceptance-evidence-gate.js:56` matches
+`/^enforcement\s*:\s*(strict|warn|off)\s*(?:#.*)?$/m`, which does NOT match
+`enforcement: "off"` or `enforcement: 'off'` and therefore falls back to
+`strict`.
 
-All other gap-probe states are consistent (mode=off → 1, DIFF_READY=0 → 1,
-all-succeed → 1, all-fail → 1 because the second call short-circuits on
-GP_NOT_ENFORCED). The mixed case is the only hole, and it is exactly the
-case line 457 has a dedicated per-slug message for.
+Reproduced: a fixture with `enforcement: "off"` makes `pre-merge-check`
+print `pre-merge-check: clean` with zero ledger lines and no
+`pre-merge-check: rules ran=` summary (chokepoint fully disabled), while the
+hook keeps enforcing strict. This is exactly the two-layer divergence the
+comment directly above the code claims to prevent ("Hai parser phải cùng
+ngữ nghĩa" ... "sổ ở pre-merge tắt IM LẶNG — fail-open kích hoạt bằng
+typo"). Commit 0422f08 fixed only the case dimension (dropped `tr
+'[:upper:]' '[:lower:]'`, pinned by RL11c) and left the quoting dimension
+open.
 
-REPRO (verified): repo with two T3 slugs `feat-a`/`feat-b`, both touched by
-the PR diff, `gap_probe: advisory`, and a `node` on PATH that exits non-zero
-only for the `feat-b` argument. Output:
+Quoted scalars are an idiomatic, explicitly supported style in this same
+parser block — GPM11a (`tests/scripts/run-tests.sh:1730-1732`) asserts
+`gap_probe: "required"` is accepted — so this is realistic input, not a
+contrived typo. Same defect in the build mirror
+`plugins/acceptance-gate/scripts/pre-merge-check.sh` (byte-identical file).
 
-    ran gap-probe
-    VIOLATION [feat-a]: verdict= (must be PASS to merge)
-    declared-off gap-probe
-    GAP-PROBE: NOT ENFORCED reason=node lib/gap-probe.js classify thất bại trên feat-b
-    VIOLATION [feat-b]: verdict= (must be PASS to merge)
-    ...
-    VIOLATION [ledger]: luật gap-probe ghi sổ 2 lần — trạng thái sổ không nhất quán
-    pre-merge-check: rules ran=3 declared-off=1 expected=3
-    NOTE: VIOLATION [ledger] là lỗi NỘI TẠI của cổng pre-merge ... KHÔNG phải lỗi trong thay đổi của bạn ... đừng sửa feature của bạn để né nó.
-    exit=2
-
-Two consequences, both wrong:
-1. In `advisory` mode a per-slug classifier failure is designed to degrade
-   to a NOTE and NOT block merge (line 224-226). The ledger converts it into
-   a hard block.
-2. The run had 2 genuine feature VIOLATIONs, yet `exit 2` preempts the
-   `violations > 0` branch, the `pre-merge-check: N violation(s) — merge
-   blocked` summary is never printed, and the emitted guidance actively
-   tells the developer the failure is NOT in their change and to escalate to
-   the kit maintainer instead of fixing their evidence.
-
-Fix direction: make the two gap-probe marks mutually exclusive (decide once,
-after the slug loop, from GP_NOT_ENFORCED/GP_RAN/GP_SCOPE_N) rather than
-marking from inside the loop, so a partially-enforced run yields exactly one
-ledger entry.
-
-Note the same file/mirror `plugins/acceptance-gate/scripts/pre-merge-check.sh`
-is byte-identical and carries the same defect.
+(Related: finding #1 above surfaces the same root cause from an independent
+adversarial-verify pass with emphasis on the missing test coverage — kept as
+a separate entry per source, `conventions` vs `bugs`.)
 
 ---
 
-## 3. [MEDIUM] Description của gói Codex bị ghi đè bằng description của gói Claude trong commit release 1.22.0
+## 5. [LOW] GUIDE fail-closed CI snippet contradicts documented `enforcement: off` behavior and collapses exit 2 into exit 1
 
-- **File**: `codex/acceptance-gate/.codex-plugin/plugin.json:4`
-- **Source**: conventions
-
-Commit c412943 thay TOÀN BỘ trường `description` của manifest Codex bằng
-nguyên văn description của `.claude-plugin/plugin.json`, thay vì chỉ nối
-đoạn v1.22 như đã làm với hai manifest kia.
-
-Bản cũ (1.21.0): "Codex-native acceptance gate for AI-generated features
-with contracts, evals, evidence, decision cards, gate decision skills
-(approve/signoff), a gate metrics report, runtime hooks, CI re-checks, and a
-coverage-scan skill (morphological-scan) ..., and a Gate-1 gap-probe block
-...".
-Bản mới: chuỗi lịch sử v1.16→v1.22 của gói Claude, gồm "Includes a
-design-quality gate (a11y/contrast, AI-slop) for web-UI surfaces", "v1.17
-adds the Layout Contract discipline + layout meter (measure_layout.js) to
-ux-ui-craft".
-
-Bằng chứng đây là copy-paste ngoài ý muốn chứ không phải quyết định:
-1. Chính file đó vẫn giữ nguyên phần Codex-riêng ở dưới —
-   `"shortDescription": "Evidence-backed acceptance gate for Codex"`,
-   `"longDescription": "... with Codex lifecycle hooks plus CI re-checks"`,
-   keyword `codex`, không có khoá `commands`. Nay `description` và
-   short/longDescription mâu thuẫn nhau trong cùng một manifest.
-2. `/.codex-plugin/plugin.json` (cùng lượt commit) vẫn giữ description Codex
-   ngắn của nó và chỉ nối đoạn v1.22 — đúng nếp của 4 release trước
-   (834eae8, c1638e2, b076732, 0bf5f10).
-3. Bản cũ có nhắc gap-probe của 1.21; bản mới nhảy từ v1.20.1 sang v1.22,
-   mất luôn dòng đó.
-
-Mirror `plugins/acceptance-gate/.codex-plugin/plugin.json` đã thừa hưởng y
-nguyên (overlay từ `codex/acceptance-gate/` trong `build_acceptance`), nên
-chữ này đi thẳng ra marketplace.
-
-(Related: finding #5 below, `codex/acceptance-gate/.codex-plugin/plugin.json`
-line 4, restates the same root cause from an English/bugs-source pass — kept
-as a separate entry rather than merged since it was surfaced by a different
-adversarial-verify pass with an independent phrasing/emphasis.)
-
----
-
-## 4. [MEDIUM] GUIDE.md liệt kê "Ba nguồn của declared-off" nhưng thiếu hẳn lớp suy giảm môi trường
-
-- **File**: `GUIDE.md:585`
-- **Source**: conventions
-
-Mục mới viết: "Ba nguồn của `declared-off` là cờ `--no-t1-escape`, khoá
-`gap_probe: off` trong config, và chạy không có `--base`." Danh sách đóng
-này sai theo code:
-
-`gap_probe_not_enforced()` (scripts/pre-merge-check.sh:216) gọi
-`ledger_mark declared-off gap-probe` cho MỌI lý do không cưỡng chế được,
-trong đó có:
-- không có `node` trên máy chạy pre-merge
-- thiếu `$GP_LIB` (mang cổng vào repo phải copy CẢ `lib/`)
-- `node lib/gap-probe.js classify thất bại trên <slug>`
-- `git diff "$BASE"...HEAD failed (no merge base? shallow/grafted clone,
-  ...)` — khác hẳn "không có --base", vì ở đây base ĐÃ được truyền
-
-Cộng thêm dòng 183: `gap_probe:` giá trị sai chính tả rơi về `off` sau khi
-nổ `VIOLATION [config]` cũng ghi `declared-off gap-probe`.
-
-Chính suite chứng minh điều này: RL12 dựng PATH cắt sạch `node` rồi ghim
-(cùng RL12b) số dòng `declared-off gap-probe` — trạng thái mà GUIDE nói là
-không tồn tại.
-
-Hệ quả vận hành: một người trực CI thấy `declared-off gap-probe` sẽ đối
-chiếu ba nguồn trong GUIDE, không thấy nguồn nào khớp (không ai truyền cờ,
-config không off, có --base), rồi kết luận sai — trong khi nguyên nhân thật
-là runner thiếu `node` hoặc repo tiêu thụ copy `scripts/` mà quên `lib/`.
-Nên đổi thành danh sách mở kèm nhóm "môi trường không cho cưỡng chế", và nói
-rõ rằng thiếu `--base` sinh `declared-off` cho CẢ hai luật.
-
-(Related: finding #6 below is the same root cause surfaced by an independent
-English/bugs-source pass with a slightly different emphasis — kept separate
-per source.)
-
----
-
-## 5. [LOW] Codex plugin description overwritten with the Claude-plugin text (advertises Claude-only commands)
-
-- **File**: `codex/acceptance-gate/.codex-plugin/plugin.json:4`
+- **File**: `GUIDE.md:622`
 - **Source**: bugs
 
-The 1.22.0 bump replaced the Codex package's own description ("Codex-native
-acceptance gate ... coverage-scan skill (morphological-scan) ... Gate-1
-gap-probe block") with the full Claude-plugin description verbatim. The
-Codex manifest now advertises Claude-only surfaces — the `/approve`,
-`/signoff`, `/acceptance-report` slash commands and the design-loop
-`layout-token-only` pairing — which do not exist as commands in the Codex
-harness (per CLAUDE.md the gate commands are commands on the Claude side and
-skills on the Codex side).
+The recommended consumer guard
+`grep -q '^pre-merge-check: rules ran=' <<<"$out" || { echo "cổng không
+chạy luật nào — kiểm lại đường dẫn repo"; exit 1; }` hard-fails whenever the
+summary line is absent. Eight lines below, the same GUIDE section documents
+that `enforcement: off` turns the ledger off entirely (verified: no
+`ran`/`declared-off` lines and no `rules ran=` line are emitted — pinned by
+RL11a). A repo that legitimately sets `enforcement: off` (or the quoted form
+from finding 4) therefore gets a red CI job with a diagnosis pointing at the
+wrong cause (repo path / working-directory) instead of the config key.
 
-That this is unintentional is visible from the asymmetry in the same
-commit: the OTHER Codex manifest, `.codex-plugin/plugin.json`, kept its
-short Codex-specific text and only had the v1.22 sentence appended. Only
-`codex/acceptance-gate/.codex-plugin/plugin.json` (and its synced mirror
-`plugins/acceptance-gate/.codex-plugin/plugin.json`) was clobbered. No test
-covers manifest description content, so this drifts silently.
-
----
-
-## 6. [LOW] GUIDE enumerates three sources of `declared-off` but the script has five
-
-- **File**: `GUIDE.md:584`
-- **Source**: bugs
-
-GUIDE.md (and the mirrored `plugins/acceptance-gate/GUIDE.md`) states: "Ba
-nguồn của `declared-off` là cờ `--no-t1-escape`, khoá `gap_probe: off` trong
-config, và chạy không có `--base`". The script emits `declared-off
-gap-probe` from two further states that a consumer is likely to hit: missing
-`node` on the CI runner (line 453) and missing `lib/gap-probe.js` (line
-455) — the latter is the exact mistake README/QUICKSTART warn about when
-people copy `pre-merge-check.sh` without `lib/`.
-
-The new ledger summary line `pre-merge-check: rules ran=n declared-off=m
-expected=k` is documented as machine-readable, so an operator (or a CI
-guard) diagnosing `declared-off=1` from this doc will conclude a flag or
-config key was set, when the real cause is a broken install that silently
-disabled the gap-probe rule.
-
----
-
-## 7. [LOW] ADR 0006 tuyên bố chốt bắt được "ROOT sai", nhưng lối thoát `no _acceptance/` chạy trước sổ
-
-- **File**: `docs/adr/0006-rules-ledger-fail-closed-at-output.md:13`
-- **Source**: conventions
-
-ADR viết: "Chốt này bắt được cả lỗ CHƯA nghĩ ra vì nó không cần biết đầu vào
-hỏng kiểu gì — ROOT sai, base nuốt cờ, `continue` lạc, biến rỗng, khối bị
-comment nhầm đều làm một tên thiếu trong sổ."
-
-Với `ROOT sai` thì điều đó không đúng cho trường hợp thường gặp nhất.
-`scripts/pre-merge-check.sh:121` là `[ -d "$ACC" ] || { echo
-"pre-merge-check: no _acceptance/ — nothing to check"; exit 0; }` — nằm
-TRƯỚC mọi `ledger_mark` và trước chokepoint ở dòng 685. Một ROOT trỏ vào thư
-mục hợp lệ nhưng không có `_acceptance/` (ví dụ CI đặt sai
-`working-directory`, hoặc chạy từ subdir) vẫn exit 0, không một dòng
-`ran`/`declared-off`, không dòng `pre-merge-check: rules ...` — đúng hình
-dạng "xanh mà không chạy luật nào".
-
-Đây là hành vi được biết (RL6a ghim đúng hai lối thoát `exit 0`), nên vấn đề
-nằm ở chữ của ADR chứ không phải ở code: hoặc sửa ADR để loại `ROOT sai`
-khỏi danh sách và nói rõ lối `nothing-to-check` không có sổ, hoặc dạy
-consumer trong GUIDE rằng CI nên fail-closed khi thiếu dòng
-`pre-merge-check: rules ran=` (hiện GUIDE giới thiệu dòng này là máy-đọc
-nhưng không bảo ai dùng nó làm chốt).
+Secondary effect: the guard runs before `exit $st`, so an argument-parse
+`exit 2` — which also precedes the summary line, as pinned by RL5b — is
+rewritten to `exit 1`, erasing the "internal gate error vs. feature
+violation" distinction that ADR 0006 introduced exit 2 for. Same text in the
+mirror `plugins/acceptance-gate/GUIDE.md`.
 
 ---
 
 ## Chưa adversarial-verify (refuter chết)
 
-Không có — toàn bộ 6 finding ở trên đều đã adversarial-verify (repro thực
+Không có — toàn bộ 5 finding ở trên đều đã adversarial-verify (repro thực
 nghiệm hoặc trace tới đúng dòng code/doc) trước khi liệt vào file này. Không
 có finder nào chết trong round này.
