@@ -2176,14 +2176,20 @@ hasout TE4  "chưa qua phản biện context sạch" "$TE4"
 check  TE4b 1 "$TE4ST"
 
 echo "TE5 co co van KHONG tat luat per-slug (chu ky)"
-mk_gp_repo te5; R="$GPR/te5"; gp_feature "$R" feat-y T3 implemented
+mk_gp_repo te5; R="$GPR/te5"; TE5_B="$GP_BASE"
+gp_feature "$R" feat-y T3 implemented
 sed -i.bak 's/^human_signoff:.*/human_signoff:/' "$R/_acceptance/feat-y/evidence-report.md" && rm -f "$R/_acceptance/feat-y/evidence-report.md.bak"
 gp_commit "$R"
 # DOI CHUNG DUONG truoc: fixture chua go chu ky phai XANH, neu khong TE5 chi
 # chung minh "co violation nao do" chu khong phai luat chu ky. Bat bien #4.
-mk_gp_repo te5ok; ROK="$GPR/te5ok"; gp_feature "$ROK" feat-y T3 implemented; gp_commit "$ROK"
-TE5OK="$(bash "$CHECK" "$ROK" --base "$GP_BASE" --no-t1-escape 2>&1)"; check TE5ctrl 0 $?
-TE5="$(bash "$CHECK" "$R" --base "$GP_BASE" --no-t1-escape 2>&1)"; TE5ST=$?
+# GHIM BASE RIENG cho tung repo: mk_gp_repo GHI DE GP_BASE, nen dung GP_BASE
+# cua te5ok cho repo te5 la sai — no chi xanh khi hai repo tao trong CUNG mot
+# giay (tree y het + timestamp trung -> sha trung). Lech giay thi base khong
+# resolve, script exit 2 o VIOLATION [scope], va TE5a "expected 1 got 2".
+mk_gp_repo te5ok; ROK="$GPR/te5ok"; TE5OK_B="$GP_BASE"
+gp_feature "$ROK" feat-y T3 implemented; gp_commit "$ROK"
+TE5OK="$(bash "$CHECK" "$ROK" --base "$TE5OK_B" --no-t1-escape 2>&1)"; check TE5ctrl 0 $?
+TE5="$(bash "$CHECK" "$R" --base "$TE5_B" --no-t1-escape 2>&1)"; TE5ST=$?
 check  TE5a 1 "$TE5ST"
 nothas TE5b "pre-merge-check: clean" "$TE5"
 hasout TE5c "human_signoff is empty" "$TE5"
@@ -2361,6 +2367,60 @@ same RL4c 1 "$(printf '%s\n' "$RL4" | grep -cx 'declared-off t1-escape')"
 same RL4d 1 "$(printf '%s\n' "$RL4" | grep -cx 'ran per-slug')"
 hasout RL4e "pre-merge-check: rules ran=1 declared-off=2 expected=3" "$RL4"
 hasout RL4f "pre-merge-check: clean" "$RL4"
+
+# Ghi chú tiêm tự-tố-cáo: nếu pattern awk/sed không khớp (nguồn trôi), bản sao
+# y hệt bản gốc -> case expect exit 2 FAIL (got 0) — không có đường xanh giả.
+#
+# Bản sao PHẢI giữ nguyên layout `scripts/` cạnh `lib/`: script resolve
+# GP_LIB bằng `$(dirname $0)/../lib/gap-probe.js`, nên copy vào $T phẳng làm
+# luật gap-probe rơi vào nhánh not-enforced — bản sao "nguyên vẹn" đã lệch
+# sẵn và mọi kết luận từ nó là kết luận về một script KHÁC. Đối chứng dương
+# RL2ctrl2 chính là thứ bắt được điều đó.
+RLCP="$T/rlcp"; mkdir -p "$RLCP/scripts"
+cp -R "$ROOT_REAL/lib" "$RLCP/lib"
+
+echo "RL2 tiem vo hieu khoi gap-probe -> VIOLATION [ledger] dich danh, exit 2"
+mk_gp_repo rl2; R="$GPR/rl2"; gp_feature "$R" feat-rl2 T3 implemented; gp_commit "$R"
+RL2CP="$RLCP/scripts/rl2-check.sh"; cp "$CHECK" "$RL2CP"
+RL2OK="$(bash "$RL2CP" "$R" --base "$GP_BASE" 2>&1)"; check RL2ctrl 0 $?
+same RL2ctrl2 1 "$(printf '%s\n' "$RL2OK" | grep -cx 'ran gap-probe')"
+awk '
+  /Gap-probe presence/ { hdr=1 }
+  hdr && /if \[ "\$GAP_PROBE_MODE" != "off" \] && slug_in_diff/ && !done { sub(/if .*then/, "if false; then"); done=1 }
+  { print }
+' "$CHECK" > "$RL2CP"
+RL2OUT="$(bash "$RL2CP" "$R" --base "$GP_BASE" 2>&1)"; RL2ST=$?
+check  RL2a 2 "$RL2ST"
+nothas RL2b "pre-merge-check: clean" "$RL2OUT"
+hasout RL2c "VIOLATION [ledger]: luật gap-probe không chạy và không khai tắt" "$RL2OUT"
+hasout RL2d "lỗi NỘI TẠI của cổng pre-merge" "$RL2OUT"
+# RL5c: lan VIOLATION [ledger] VAN in dong tong ket, va n+m != k la bang chung
+hasout RL5c "pre-merge-check: rules ran=2 declared-off=0 expected=3" "$RL2OUT"
+
+echo "RL9 tiem pha vong per-slug (bien the CHUA TUNG va) -> diem nghen bat"
+mk_gp_repo rl9; R="$GPR/rl9"; gp_feature "$R" feat-rl9 T3 implemented; gp_commit "$R"
+RL9CP="$RLCP/scripts/rl9-check.sh"; cp "$CHECK" "$RL9CP"
+RL9OK="$(bash "$RL9CP" "$R" --base "$GP_BASE" 2>&1)"; check RL9ctrl 0 $?
+sed 's|^for dir in "\$ACC"/\*/; do$|for dir in "$ACC"/khong-ton-tai-*/; do|' "$CHECK" > "$RL9CP"
+RL9OUT="$(bash "$RL9CP" "$R" --base "$GP_BASE" 2>&1)"; RL9ST=$?
+check  RL9a 2 "$RL9ST"
+nothas RL9b "pre-merge-check: clean" "$RL9OUT"
+hasout RL9c "VIOLATION [ledger]: luật per-slug không chạy và không khai tắt" "$RL9OUT"
+
+echo "RL7b ghi so mot ten KHONG co trong EXPECTED -> ten la, exit 2"
+rl_repo rl7
+RL7CP="$RLCP/scripts/rl7-check.sh"; cp "$CHECK" "$RL7CP"
+RL7OK="$(bash "$RL7CP" "$TE_R" --base "$TE_B" 2>&1)"; check RL7ctrl 0 $?
+sed 's|^REQUIRED_FOR="T2 T3"$|REQUIRED_FOR="T2 T3"\nledger_mark ran khoi-la|' "$CHECK" > "$RL7CP"
+RL7OUT="$(bash "$RL7CP" "$TE_R" --base "$TE_B" 2>&1)"; RL7ST=$?
+check  RL7b1 2 "$RL7ST"
+hasout RL7b2 "VIOLATION [ledger]: tên lạ khoi-la — cập nhật EXPECTED" "$RL7OUT"
+hasout RL7b3 "pre-merge-check: rules ran=4 declared-off=0 expected=3" "$RL7OUT"
+nothas RL7b4 "pre-merge-check: clean" "$RL7OUT"
+
+echo "RL5b exit 2 o parse -> KHONG in dong tong ket so"
+RL5B="$(bash "$CHECK" "$TE_R" --tuy-chon-la 2>&1)"; check RL5b1 2 $?
+nothas RL5b2 "pre-merge-check: rules ran=" "$RL5B"
 
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
