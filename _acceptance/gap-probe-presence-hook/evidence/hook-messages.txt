@@ -56,3 +56,23 @@ Gate-1 lifecycle reference:
   User explicitly skipped Gate 1       -> record gate1_skipped: true (audited; pre-merge NOTEs it)
 Legacy bypass: ACCEPTANCE_GATE_BYPASS=1
 
+
+── case t76 ──
+
+NOTE from acceptance-evidence-gate (Gate-1 contract guard)
+  - Contract TỪNG KHAI `gap_probe_expected: true` nhưng lần ghi này đã gỡ marker đi — vẫn áp luật gap-probe. Muốn bỏ nghi thức thì ghi entry descope trong decisions.jsonl, đừng gỡ marker.
+
+
+BLOCKED by acceptance-evidence-gate (Gate-1 contract guard)
+File: /tmp/gpgen/_acceptance/t76/contract.md
+Enforcement: strict (default — no config.yaml found)
+
+GATE-1 CONTRACT GUARD — violations:
+  x gap-probe.md thiếu (hoặc verdict không đọc được) và ledger không có entry descope "bỏ gap-probe" — contract T3 không được duyệt khi chưa qua phản biện context sạch. Chạy bước S1#7 (phản biện context sạch) để sinh gap-probe.md, HOẶC ghi vào decisions.jsonl một entry {"type":"descope","decision":"bỏ gap-probe — <lý do>"}.
+
+Gate-1 lifecycle reference:
+  status: approved / signed-off        -> requires approved_by: <name> (+ approved_at)
+  draft -> implemented / verified      -> requires the approved step (Gate 1) first
+  User explicitly skipped Gate 1       -> record gate1_skipped: true (audited; pre-merge NOTEs it)
+Legacy bypass: ACCEPTANCE_GATE_BYPASS=1
+
