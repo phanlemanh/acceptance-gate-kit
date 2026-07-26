@@ -743,6 +743,43 @@ else
 fi
 rm -rf "$P47T"
 
+# ── P48: chu ky ledger_mark — them khoi luat moi ma quen khai so -> suite DO ─
+# AC-7c cua premerge-rules-ledger: dem ten duy nhat o call-site ledger_mark va
+# so BANG voi EXPECTED, tren ca nguon (scripts/) lan mirror (plugins/). P30 canh
+# mirror==nguon; day la chieu KHAC — "them khoi luat ma quen khai so" — ma P30
+# khong thay vi hai ban van y het nhau.
+echo "P48 ledger_mark call-site == EXPECTED, nguon lan mirror"
+p48_names() {
+  grep -E 'ledger_mark (ran|declared-off) ' "$1" | grep -v 'ledger_mark()' \
+    | sed -E 's/.*ledger_mark (ran|declared-off) ([a-z0-9-]+).*/\2/' | sort -u | tr '\n' ' '
+}
+p48_exp() { sed -n 's/^LEDGER_EXPECTED="\(.*\)"$/\1/p' "$1" | tr ' ' '\n' | sort -u | tr '\n' ' '; }
+P48OK=1
+for f in "$ROOT/scripts/pre-merge-check.sh" "$ROOT/plugins/acceptance-gate/scripts/pre-merge-check.sh"; do
+  if [ ! -f "$f" ]; then echo "     thieu $f"; P48OK=0; continue; fi
+  if [ -z "$(p48_exp "$f")" ]; then echo "     EXPECTED rong/khong parse duoc: $f"; P48OK=0; continue; fi
+  if [ "$(p48_names "$f")" != "$(p48_exp "$f")" ]; then
+    echo "     call-site lech EXPECTED: $f"
+    echo "       call-site: [$(p48_names "$f")]  EXPECTED: [$(p48_exp "$f")]"
+    P48OK=0
+  fi
+done
+# Doi chung dot bien: them mot call-site ten moi vao ban sao -> phep so phai
+# LECH. Thieu no thi P48 chi chung minh "hai chuoi hom nay bang nhau", khong
+# chung minh phep so con song (bat bien #4 CLAUDE.md).
+P48CP="$(mktemp)"
+{ cat "$ROOT/scripts/pre-merge-check.sh"; printf '\nledger_mark ran khoi-moi\n'; } > "$P48CP"
+if [ "$(p48_names "$P48CP")" = "$(p48_exp "$P48CP")" ]; then
+  echo "     dot bien KHONG bi phat hien — phep so da chet"
+  P48OK=0
+fi
+rm -f "$P48CP"
+if [ "$P48OK" -eq 1 ]; then
+  pass "P48 chu ky ledger_mark khop EXPECTED (nguon + mirror + dot bien)"
+else
+  fail "P48 chu ky ledger_mark khop EXPECTED (nguon + mirror + dot bien)"
+fi
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
