@@ -1,276 +1,250 @@
-# Review Findings: gap-probe-presence-hook (round 3)
+# Review Findings: gap-probe-presence-hook (round 4)
 
 Informational — nằm NGOÀI phạm vi acceptance-evidence-gate hook (hook chỉ đọc
 `evidence-report.md`/`contract.md`). File này liệt kê các finding đã qua
 **adversarial-verify** (refuter đã chạy và xác nhận, không chỉ heuristic một
 lượt) trên diff của feature `gap-probe-presence-hook` tính tới
-`verified_commit: 14f7b0b4ec7ac979905f1612acc6507b64d94679`, dùng để nạp cho
+`verified_commit: 834eae810990af0450fe8b70a572eb9551c060c8`, dùng để nạp cho
 `evidence-page.js` (bảng "Review findings") và cho human đọc tại Gate 2. File
 này GHI ĐÈ nội dung findings của round trước; lịch sử round nằm ở
 `evidence-report.md` § Iterations.
 
-12/12 finding dưới đây đều đã adversarial-verify thành công (không có finding
+8/8 finding dưới đây đều đã adversarial-verify thành công (không có finding
 nào gắn `unverified: true`). Sắp xếp severity giảm dần.
 
-## High severity (1)
+## High severity (2)
 
-### 1. Invariant 1 — mirror phải commit CÙNG LƯỢT với nguồn
+### 1. gate job applies the PR-scoped T1-escape backstop to every push commit on main — the release commit fails its own gate
 
-- title: Invariant 1 — mirror phải commit CÙNG LƯỢT với nguồn
-  file: plugins/
-  line: 1
+- title: gate job applies the PR-scoped T1-escape backstop to every push commit on main — the release commit fails its own gate
+  file: .github/workflows/gate.yml
+  line: 48
   severity: high
-  source: invariants
+  source: bugs
+  category: correctness
   detail: |
-    CLAUDE.md:3-7 nói rõ: "sửa nguồn xong PHẢI chạy sync và commit mirror
-    cùng lượt". Trong 9b545a8..HEAD có 11 commit nằm SAU khi CLAUDE.md ra
-    đời (0a1110a) để lại plugins/ lệch nguồn. Tôi kiểm chứng bằng cách bung
-    từng commit ra thư mục tạm rồi chạy chính scripts/sync-plugin-packages.sh
-    --check: DRIFT (tức P30 đỏ) tại 3dd6f5c, 852edc5, 6164be0, c95402d,
-    34ee656, f7b8f72, 8c593df, cd1ae63, 2e07374, 70ceb28, 6726213. Ví dụ
-    6726213 thêm lib/gap-probe.js mà không có
-    plugins/acceptance-gate/lib/gap-probe.js; cả chuỗi cd1ae63→70ceb28 sửa
-    scripts/pre-merge-check.sh mà không sync. HEAD hiện đã xanh (sync dồn về
-    sau), nên hậu quả là: mọi commit trung gian không build/test được,
-    bisect gãy, và job CI 'gate' của chính kit sẽ đỏ nếu push từng commit —
-    đúng thứ P30 sinh ra để chặn.
+    The `Resolve PR base` step sets `PRE_MERGE_BASE=$(git rev-parse HEAD~1)`
+    for non-PR events, and the next step (`pre-merge check`, line 50) runs
+    `pre-merge-check.sh .` with no event guard. Since 78929ae/ead1c84 hoisted
+    the diff scope, a non-empty base now enables the T1-escape backstop
+    inside that step — so it runs on `push: branches:[main]` too, comparing
+    a single commit against its parent. This directly contradicts the
+    workflow's own comment at line 57 ("Chỉ chạy trên pull_request: một
+    `push` không có nhánh base để so") and the separate guarded step at line
+    56 becomes redundant on PRs.
 
-## Medium severity (6)
+    Reproduced at HEAD, running exactly what CI runs on push:
 
-### 2. Invariant 1 — danh sách 'nguồn sự thật' trong CLAUDE.md thiếu lib/, scripts/, hooks/, vendor/
+      $ bash scripts/pre-merge-check.sh . --base "$(git rev-parse HEAD~1)"
+      VIOLATION [PR]: non-T1 files changed (outside t1_skip_globs) but the PR carries NO _acceptance/<slug>/ artifacts ...
+          .claude-plugin/plugin.json
+          .codex-plugin/plugin.json
+          codex/acceptance-gate/.codex-plugin/plugin.json
+          plugins/acceptance-gate/.codex-plugin/plugin.json
+          plugins/acceptance-gate/README.md
+          tests/plugins/run-tests.sh
+      pre-merge-check: 2 violation(s) — merge blocked   (EXIT=1)
 
-- title: Invariant 1 — danh sách 'nguồn sự thật' trong CLAUDE.md thiếu lib/, scripts/, hooks/, vendor/
+    Failure scenario: commit 834eae8 (`release(acceptance-gate): 1.21.0`, the
+    commit that ships this workflow) changes 7 files, 0 of them under
+    `_acceptance/`. Pushed to main, the `gate` job goes red. Same for any
+    release, mirror-sync, or CI-tweak commit landed directly on main — none
+    of which carry gate artifacts by design. A gate that is red on main for
+    structural reasons is the failure mode ADR 0004 is written against.
+
+### 2. Signed-off evidence is stale at HEAD: t1_skip_globs omits the generated plugins/ mirror and the version manifests
+
+- title: Signed-off evidence is stale at HEAD: t1_skip_globs omits the generated plugins/ mirror and the version manifests
+  file: _acceptance/config.yaml
+  line: 38
+  severity: high
+  source: bugs
+  category: correctness
+  detail: |
+    `risk_tiers.t1_skip_globs` lists only docs (`docs/**`, README/GUIDE/
+    QUICKSTART/CHANGELOG/CONTEXT/CLAUDE.md, `.out-of-scope/**`). It does not
+    exempt `plugins/**` (a generated build mirror per CLAUDE.md + ADR 0001),
+    `.claude-plugin/plugin.json`, `.codex-plugin/plugin.json`, or
+    `.github/**`. The stale-guard compares every non-`_acceptance/`,
+    non-t1 file against the report's `verified_commit`, so the version-bump
+    + `sync-plugin-packages.sh` commit that necessarily lands *after* Gate-2
+    signoff immediately invalidates the signature it just collected.
+
+    Reproduced at HEAD with no base at all (so this is independent of the
+    workflow finding above):
+
+      $ bash scripts/pre-merge-check.sh .
+      VIOLATION [gap-probe-presence-hook]: evidence is stale — code changed after verify (verified_commit 14f7b0b...); re-run verify before merge. Changed:
+          .claude-plugin/plugin.json
+          .codex-plugin/plugin.json
+          codex/acceptance-gate/.codex-plugin/plugin.json
+          plugins/acceptance-gate/.codex-plugin/plugin.json
+          plugins/acceptance-gate/README.md
+          tests/plugins/run-tests.sh
+      pre-merge-check: 2 violation(s) — merge blocked   (EXIT=1)
+
+    Failure scenario: signoff lands at 827f549 with verified_commit
+    14f7b0b; the release commit 834eae8 bumps four plugin.json files and
+    the mirror. Every subsequent CI run on main reports the feature as
+    stale forever, and the only way out is re-running S4 after each
+    release — which itself produces another post-verify commit. The `gate`
+    job is red at HEAD in both the `--base` and no-base configurations.
+
+## Medium severity (4)
+
+### 3. Invariant 1 — nguồn sự thật: danh sách 9 thư mục vẫn bỏ sót README.md / GUIDE.md / QUICKSTART.md
+
+- title: Invariant 1 — nguồn sự thật: danh sách 9 thư mục vẫn bỏ sót README.md / GUIDE.md / QUICKSTART.md
   file: CLAUDE.md
   line: 3
   severity: medium
   source: invariants
   detail: |
-    CLAUDE.md liệt nguồn là `skills/`, `feature-loop/`, `design-loop/`,
-    `codex/`, `commands/`. Nhưng scripts/sync-plugin-packages.sh:27-31 rsync
-    thêm `scripts/`, `lib/`, `vendor/`, `hooks/` vào mirror. Chính diff này
-    thêm lib/gap-probe.js, lib/context-glossary.js và sửa nặng
-    scripts/pre-merge-check.sh, scripts/gate-card.js,
-    scripts/eval-coverage-lint.js, hooks/acceptance-evidence-gate.js — toàn
-    bộ đều là nguồn được mirror mà bất biến không nhắc tên. Người đọc
-    CLAUDE.md có thể kết luận plugins/acceptance-gate/lib/*.js là nơi sửa
-    hợp lệ (vì lib/ không nằm trong danh sách nguồn), rồi bị P30 xoá mất
-    thay đổi ở lần sync kế tiếp. Bất biến được viết trong chính diff này nên
-    đây là lỗi của diff, không phải nợ cũ.
+    Commit 5c2f659 sửa CLAUDE.md với mục đích tường minh là "danh sách
+    nguồn kể đủ 9 thư mục, không phải 5", và trích dẫn
+    `scripts/sync-plugin-packages.sh:27-31` làm bằng chứng. Nhưng dòng
+    27-31 chỉ là 5 lệnh rsync THƯ MỤC (skills/scripts/lib/vendor/hooks);
+    ngay dòng 32-34 kế tiếp là vòng lặp `for file in README.md
+    QUICKSTART.md GUIDE.md; do rsync -a "$ROOT/$file" "$out/$file"; done`
+    — trích dẫn dừng đúng một dòng trước chỗ đó. Đã kiểm chứng: cả ba
+    file ở root đều byte-identical với `plugins/acceptance-gate/<file>`
+    (diff -q sạch). Hệ quả đúng bằng cái invariant sinh ra để chặn: sửa
+    `plugins/acceptance-gate/README.md` (hay GUIDE.md, QUICKSTART.md) là
+    mất việc ở lần sync kế, mà CLAUDE.md không hề cảnh báo — grep
+    'README|GUIDE|QUICKSTART' trong CLAUDE.md trả 0 hit.
+    `design-loop/README.md` (sync-plugin-packages.sh:55) cũng cùng cảnh.
+    Con số đúng phải là 9 thư mục + 4 file, không phải 9 thư mục.
 
-### 3. Invariant 2 — dùng từ trong _Avoid_ của CONTEXT.md: "thẻ" (canonical là "card")
+### 4. Invariant 2 — CONTEXT.md: từ vựng gap-probe của chính feature này không có mục nào trong glossary, và làm `verdict` / `clean` mang hai nghĩa
 
-- title: Invariant 2 — dùng từ trong _Avoid_ của CONTEXT.md: "thẻ" (canonical là "card")
-  file: commands/acceptance-card.md
-  line: 30
-  severity: medium
-  source: invariants
-  detail: |
-    CONTEXT.md:14-18 định nghĩa **Contract** kèm câu "card chỉ là lớp trình
-    bày" và `_Avoid_: spec, PRD …, thẻ` — tức từ chuẩn là "card". Sau khi
-    CONTEXT.md landing (038be4d) và sau cả commit sweep _Avoid_ (a7530a3),
-    các commit mới vẫn viết "thẻ": commands/acceptance-card.md:30 ("để thẻ
-    trình khối 'Từ vựng chốt ở feature này'") và :32 ("thiếu cờ thì thẻ chỉ
-    ghi chú info") — do 7ffe6b2, chính là commit thêm khối từ vựng lên card;
-    GUIDE.md:700 ("thẻ Cổng 1 cũng nhận cùng luật") do 8431a94. Còn 4 chỗ
-    nữa trong
-    _acceptance/gap-probe-presence-hook/{design-draft.md:4,9,35,
-    gap-probe.md:29}.
-
-### 4. Invariant 2 — "runner"/"engine" (từ _Avoid_ của Executor) còn sót sau commit sweep, và thêm mới sau CONTEXT.md
-
-- title: Invariant 2 — "runner"/"engine" (từ _Avoid_ của Executor) còn sót sau commit sweep, và thêm mới sau CONTEXT.md
-  file: skills/acceptance/references/eval-executors.md
-  line: 8
-  severity: medium
-  source: invariants
-  detail: |
-    CONTEXT.md:31-33 khai `**Executor**: … _Avoid_: runner, engine`, và
-    CONTEXT.md của kit KHÔNG có dòng `_Allow_:` nào (tôi parse bằng chính
-    lib/context-glossary.js: allow = []). Chạy findViolations trên các dòng
-    ĐƯỢC THÊM của diff cho 12 hit "runner" + 1 "engine" trong văn xuôi
-    authoring: skills/acceptance/references/eval-executors.md:8,93,145,150,160;
-    skills/acceptance/SKILL.md:288; skills/acceptance/references/contract-template.md:22;
-    README.md:334,336; commands/acceptance-init.md:20 (+ bản codex song
-    song). Hai chỗ tệ nhất là do 9e0fd88 — SAU khi CONTEXT.md tồn tại:
-    codex/acceptance-gate/skills/acceptance-card/SKILL.md:26 và
-    codex/acceptance-gate/skills/approve/SKILL.md:38 viết "If the runner is
-    absent, run … with Node", ở đây "runner" lại mang nghĩa thứ ba (harness
-    chạy slash-command), không phải executor cũng không phải E2E tool. Commit
-    a7530a3 tự khai là sweep _Avoid_ theo CONTEXT.md nhưng bỏ trọn nhóm này.
-
-### 5. Invariant 2 — CONTEXT.md khai một allowlist W6 mà chính nó không cài
-
-- title: Invariant 2 — CONTEXT.md khai một allowlist W6 mà chính nó không cài
+- title: Invariant 2 — CONTEXT.md — từ vựng gap-probe của chính feature này không có mục nào trong glossary, và làm `verdict` / `clean` mang hai nghĩa
   file: CONTEXT.md
-  line: 70
+  line: 51
   severity: medium
   source: invariants
   detail: |
-    CONTEXT.md:66-72 dựng ngoại lệ có chủ đích cho `P0 design gate` /
-    `design-quality gate` và viết "Lint W6 (Đợt 2) phải allowlist cụm này".
-    Nhưng CONTEXT.md không có dòng `_Allow_: design-quality gate`, mà W6
-    (scripts/eval-coverage-lint.js:173-184) lấy allowlist duy nhất từ
-    `_Allow_:` của CONTEXT.md repo. Tôi kiểm chứng: findViolations trên câu
-    "the design-quality gate must block on contrast failures" trả về hit
-    alias "quality gate" → term "Gate" (regex dùng lookbehind
-    \p{L}\p{N}_ nên dấu `-` trong "design-" không chặn được match). Vì kit
-    đã self-host (_acceptance/config.yaml landing trong chính diff này),
-    một contract của kit nhắc tên tính năng đó sẽ ăn W6 warning cho đúng
-    cụm mà CONTEXT.md vừa miễn trừ.
+    Feature chính của dải diff (release 1.21.0) đưa gap-probe lên hạng
+    luật chặn merge với cả một bộ từ vựng mới: khoá config
+    `gap_probe: required|advisory|off`, artifact `gap-probe.md`, 4 trạng
+    thái `outcome` (ok/probe-failed/descoped/missing), marker máy-đọc
+    `GAP-PROBE: NOT ENFORCED reason=`. Grep 'gap.probe' trong CONTEXT.md
+    trả 0 hit — không term nào được đăng ký, dù CLAUDE.md nói "Term mới
+    chỉ thêm khi kit thật sự cần nó" và một luật chặn merge có 4 trạng
+    thái + khoá config là đúng ngưỡng đó. Nặng hơn: bộ từ này ĐỤNG hai
+    term đã chốt. (a) `lib/gap-probe.js:59-64` đọc trường `verdict:` với
+    giá trị `clean`/`findings`/`probe-failed`, trong khi CONTEXT.md:51-55
+    định nghĩa **Verdict** là "Kết luận CẤP REPORT: PASS/REJECT/BLOCKED"
+    và cấm dùng từ này cho đơn vị nhỏ hơn report. (b) `clean` trong
+    CONTEXT.md:121 đã được cấp cho một bucket của `network_observed`, nay
+    gánh thêm nghĩa verdict của gap-probe. Đây đúng loại va chạm mà
+    `docs/research/2026-07-25-mattpocock-skills-teardown.md:315` nêu ra
+    để biện minh cho việc lập glossary ("`verdict` (…của eval) vs
+    `verdict` (kết luận report)") — feature kế tiếp lại tái lập nó.
+    Không có lint nào bắt: W6 (`scripts/eval-coverage-lint.js` +
+    `lib/context-glossary.js`) chỉ soi `contract.md` của repo tiêu thụ,
+    còn CONTEXT.md của kit là authoring-time, không có máy gác.
 
-### 6. gate-card glossary block silently omitted when lib/context-glossary.js fails to load
+### 5. Invariant 2 — CONTEXT.md: workflow và job CI đặt tên trơ là `gate`, đúng framing đã bị loại
 
-- title: gate-card glossary block silently omitted when lib/context-glossary.js fails to load
-  file: scripts/gate-card.js
-  line: 68
-  severity: medium
-  source: bugs
-  detail: |
-    `glossaryLib` is loaded via a bare `try { require(...) } catch (_) {}`
-    at line 62. When it is null the guard
-    `if (glossaryPresent && glossaryLib)` at line 68 skips the whole block,
-    leaving BOTH `glossaryDelta = null` AND `glossaryDeltaErr = null`.
-    Consequently none of the three flags at lines 230-232 fire, and
-    `--extract` emits `glossary_delta: {present: true, computed: false,
-    error: null}`. Every other failure mode of this feature is surfaced to
-    the Gate-1 human (`no-base` -> finfo, `git-failed` -> fwarn, whose text
-    explicitly says "đừng coi là 'không có thay đổi'"), so this is the
-    single path where the card renders exactly like a repo with no
-    CONTEXT.md at all. Note `require('../lib/gap-probe.js')` at line 32 is
-    unguarded, so a wholly-missing `lib/` crashes loudly — only a
-    selectively-missing/broken `context-glossary.js` produces the silent
-    state. Fix: set `glossaryDeltaErr = 'lib-missing'` in the catch and add
-    a corresponding fwarn flag. Same code in the mirror at
-    plugins/acceptance-gate/scripts/gate-card.js.
-
-### 7. Kit self-hosting runs W6 vocab lint against its own authoring-time CONTEXT.md, contradicting the lib's stated scope
-
-- title: Kit self-hosting runs W6 vocab lint against its own authoring-time CONTEXT.md, contradicting the lib's stated scope
-  file: _acceptance/config.yaml
-  line: 28
-  severity: medium
-  source: bugs
-  detail: |
-    lib/context-glossary.js's SCOPE header states: "The KIT's own
-    CONTEXT.md is authoring-time — it governs how kit source is written and
-    is never loaded at runtime." But the new dogfood config wires
-    `executors.script.coverage_lint: "node scripts/eval-coverage-lint.js
-    ."`, and `run()` in scripts/eval-coverage-lint.js:224 calls
-    `glossaryLib.readGlossary(root)` with root = the kit repo — loading
-    exactly that authoring-time file as if it were a consumer product
-    glossary. Verified by execution: the kit CONTEXT.md parses to 33
-    aliases including the bare English words `test`, `check`, `runner`,
-    `tool`, `log`, `result`, `outcome`, `flow`, `warning`, `level`,
-    `platform`, `tier`. Running `findViolations` over an ordinary English
-    Given/When/Then criterion ("When the runner executes the check, Then
-    the result is logged") produced 7 W6 hits across 2 lines. Any
-    English-worded contract in this repo will bury W6 in false positives,
-    which trains reviewers to ignore the warning class. Advisory-only today
-    because `coverage_lint` is not in `feature_loop.suite_keys`, but wiring
-    it as a suite key or an eval `cmd` would turn exit 1 into a FAIL. Either
-    exclude the kit repo from W6 or split the authoring glossary from the
-    runtime one.
-
-## Low severity (5)
-
-### 8. Invariant 4 — ADR không giữ dạng "1-đoạn-văn"
-
-- title: Invariant 4 — ADR không giữ dạng "1-đoạn-văn"
-  file: docs/adr/0001-commit-plugins-mirror.md
-  line: 11
-  severity: low
-  source: invariants
-  detail: |
-    CLAUDE.md:19-20 quy định ADR là "1-đoạn-văn". docs/adr/0001 có 2 đoạn
-    (đoạn 2 "Tham chiếu ngoài: mattpocock/skills ADR-0002…"), docs/adr/0003
-    có 2 đoạn (đoạn 2 "Phương án đã loại…"). 0002 và 0004 đúng dạng (0004
-    chỉ thêm một dòng "Ledger:/Răng:" ở cuối, chấp nhận được). Lệch nhỏ
-    nhưng là bất biến do chính diff này viết ra, nên đáng chuẩn hoá ngay
-    khi mới có 4 ADR.
-
-### 9. Invariant 4 — self-host cổng + bật răng T1-escape ở CI không có ADR
-
-- title: Invariant 4 — self-host cổng + bật răng T1-escape ở CI không có ADR
-  file: docs/adr
+- title: Invariant 2 — CONTEXT.md — workflow và job CI đặt tên trơ là `gate`, đúng framing đã bị loại
+  file: .github/workflows/gate.yml
   line: 1
+  severity: medium
+  source: invariants
+  detail: |
+    CONTEXT.md:59-64 chốt: "Máy móc không phải Gate… CI gọi là
+    **pre-merge check**", _Avoid_ "evidence gate, merge gate, quality
+    gate (khi chỉ hook/CI)", và ngoại lệ P0 design gate còn buộc "luôn
+    kèm định tố… không bao giờ viết trơ 'the Gate'". Mục "Rejected
+    framings" (CONTEXT.md:131-133) nêu rõ lý do loại: `gate` đang gánh
+    3-4 nghĩa và làm mờ điểm bán chính — Gate là chỗ DUY NHẤT cần con
+    người. File `.github/workflows/gate.yml` (thêm mới ở 89f7f95, tức
+    SAU khi CONTEXT.md landing ở 038be4d) đặt `name: gate` ở dòng 1 và
+    job `gate:` ở dòng 25 — trơ, không định tố, cho một thứ thuần máy.
+    `name:` dòng 1 là tên hiển thị trên GitHub Checks/UI nên là văn,
+    không thuộc miễn trừ "glossary trị văn, không trị tên file" (miễn
+    trừ đó CONTEXT.md nêu đích danh cho `acceptance-evidence-gate.js` —
+    một tên có sẵn, còn đây là lần đặt tên mới). Bằng chứng nội tại rằng
+    term đúng đã biết: chính step bên trong job, dòng 50, đặt tên chuẩn
+    "pre-merge check (evidence + signoff + stale + run-log)".
+
+### 6. gate-card silently renders no glossary block and no flag when lib/context-glossary.js fails to load
+
+- title: gate-card silently renders no glossary block and no flag when lib/context-glossary.js fails to load
+  file: scripts/gate-card.js
+  line: 62
+  severity: medium
+  source: bugs
+  category: silent-failure
+  detail: |
+    `let glossaryLib = null; try { glossaryLib = require(.../context-glossary.js); } catch (_) {}`
+    swallows the load error, and the guard at line 68 is
+    `if (glossaryPresent && glossaryLib)`. When the lib is missing or
+    throws (syntax/runtime error), `glossaryDelta` stays `null` AND
+    `glossaryDeltaErr` stays `null`, so none of the four render branches
+    fire: line 226 (`glossaryDelta && glossaryDelta.length`), line 230
+    (`glossaryDelta && !glossaryDelta.length`), line 231 (`'no-base'`),
+    line 232 (`'git-failed'`). The Gate-1 card shows nothing at all about
+    vocabulary.
+
+    This is the exact state line 232's warning exists to prevent ("term
+    mới/sửa CHƯA được trình, đừng coi là 'không có thay đổi'"), and it
+    contradicts commands/acceptance-card.md which promises "thiếu cờ thì
+    thẻ chỉ ghi chú info, không im lặng bỏ qua".
+
+    Reproduced by copying scripts/ + lib/ to a temp root and replacing
+    lib/context-glossary.js with invalid JS:
+      $ node gcx/scripts/gate-card.js --root gcx --slug gap-probe-presence-hook --gate 1 --extract --glossary-base HEAD
+      glossary_delta: {"present":true,"computed":false,"error":null,"terms":[]}
+    A human approves Gate 1 believing the feature introduced no new terms,
+    when in fact the check never ran. Setting glossaryDeltaErr to a third
+    value (e.g. 'lib-missing') in the catch, or on the `!glossaryLib`
+    branch, closes it.
+
+## Low severity (2)
+
+### 7. Invariant 1 — thông điệp script sync còn in version cũ 1.20.1 sau khi bump 1.21.0
+
+- title: Invariant 1 — thông điệp script sync còn in version cũ 1.20.1 sau khi bump 1.21.0
+  file: scripts/sync-plugin-packages.sh
+  line: 75
   severity: low
   source: invariants
   detail: |
-    Hai commit sau khi CLAUDE.md landing đổi chính sách merge của repo mà
-    không để lại ADR nào: 89f7f95 ("kit chạy cổng của chính nó" — thêm
-    _acceptance/config.yaml + .github/workflows/gate.yml) và d10fb45 ("bật
-    răng T1-escape — chỉ chạy trên PR, và skip bị nâng thành lỗi").
-    Trade-off là thật và đã lộ ngay trong diff: mọi PR chạm path ngoài
-    t1_skip_globs từ nay phải kèm _acceptance/<slug>/ artifacts, và
-    d-20260726T140100Z-111 trong ledger cho thấy fixture test phải dời ra
-    ngoài repo chỉ để né răng này. Ghi nhận là judgment call: nếu
-    maintainer coi đây là cờ bật/tắt dễ đảo thì thiếu điều kiện "khó đảo"
-    và đúng luật là BỎ, không ghi ADR — nêu ra để quyết dứt điểm chứ không
-    khẳng định là vi phạm chắc chắn.
+    Commit release 834eae8 bump `.claude-plugin/plugin.json`,
+    `.codex-plugin/plugin.json`, `codex/acceptance-gate/.codex-plugin/plugin.json`
+    và mirror lên 1.21.0 (đã xác nhận cả 3 nguồn + mirror đều là
+    "1.21.0"), nhưng bỏ sót dòng 75 của chính script sync: `echo "Synced
+    Codex packages: acceptance-gate@1.20.1 feature-loop-codex@1.16.1
+    design-loop@0.3.0"`. Đây là lệch có thật, không phải chuyện thẩm mỹ:
+    giữ dòng này khớp version là thông lệ đã có — commit b076732 trước
+    đó đã sửa đúng dòng này từ 1.19.0 lên 1.20.1. Không test nào bắt
+    được vì `build_acceptance` rsync `scripts/` với `--exclude
+    'sync-plugin-packages.sh'` (dòng 28), nên script tự loại mình khỏi
+    mirror và P30 không bao giờ nhìn thấy nó. Kết quả: người chạy sync
+    được báo sai số hiệu bản vừa dựng.
 
-### 10. Accidental comment deletion truncates the evaluateContractWrite doc-comment mid-sentence and drops documented behavior
+### 8. Glossary term names are corrupted by underscore stripping — snake_case terms render mangled on the Gate-1 card
 
-- title: Accidental comment deletion truncates the evaluateContractWrite doc-comment mid-sentence and drops documented behavior
-  file: lib/evidence-core.js
-  line: 393
+- title: Glossary term names are corrupted by underscore stripping — snake_case terms render mangled on the Gate-1 card
+  file: lib/context-glossary.js
+  line: 66
   severity: low
   source: bugs
+  category: correctness
   detail: |
-    The only change to this file in the range removes the line
-    `// transition source. Statuses outside the lifecycle names are
-    ignored.` and adds a blank line before `return`. The doc-comment now
-    ends mid-sentence — "oldPayload (the pre-write file, null when
-    creating) supplies the" — and the documented contract that statuses
-    outside the lifecycle names are ignored is gone, while the code at
-    line ~400 still relies on it. This reads as an editing slip rather than
-    an intentional change, and it lands in a file listed under
-    `risk_tiers.t3_paths` (the enforcement core). Restore the deleted line.
+    `cur.term = t[1].replace(/[`*_]/g, '').trim()` (also line 114 in
+    termsAtLines and line 55 in splitList) strips backticks, asterisks
+    AND underscores from the term name. Underscores are meaningful
+    inside identifier-shaped terms, which CONTEXT.md uses.
 
-### 11. sync-plugin-packages.sh --check drift guard misses extra packages and file-mode drift
-
-- title: sync-plugin-packages.sh --check drift guard misses extra packages and file-mode drift
-  file: scripts/sync-plugin-packages.sh
-  line: 64
-  severity: low
-  source: bugs
-  detail: |
-    The `--check` guard iterates a hardcoded list: `for pkg in
-    acceptance-gate feature-loop-codex design-loop-codex`. Two gaps. (1) A
-    stale or renamed package directory left under `plugins/` is never
-    compared, so the guard reports `plugins/ mirror in sync.` forever — and
-    normal-mode `build_*` only `rm -rf`s its own `$out`, so nothing ever
-    removes it either. (2) `diff -r -x .DS_Store` compares content only,
-    not permission bits; `rsync -a` preserves modes, so an executable-bit
-    change on a source script propagates on a real sync but is invisible to
-    `--check`, leaving the committed mirror with a wrong mode that CI calls
-    clean. CLAUDE.md asserts "test P30 (`sync-plugin-packages.sh --check`)
-    chặn drift" — it blocks content drift in three named packages, not
-    drift generally. Fix: build the package list from `ls "$DEST"` unioned
-    with `ls "$ROOT/plugins"`, and compare modes (e.g. `find -printf '%m
-    %p'` or `diff <(cd a && find . -printf ...) ...`).
-
-### 12. feature-loop workflows fallback resolves via the same base-dir path that just failed
-
-- title: feature-loop workflows fallback resolves via the same base-dir path that just failed
-  file: feature-loop/skills/feature-loop/SKILL.md
-  line: 9
-  severity: low
-  source: bugs
-  detail: |
-    The intro now says: if `ls "$WORKFLOWS_DIR"` does not show
-    `acceptance-verify.js` + `execute-parallel.js`, run `node <base-dir>/../../scripts/resolve-plugin.mjs
-    --plugin feature-loop --require workflows/acceptance-verify.js`. But
-    `WORKFLOWS_DIR` is defined as `<base-dir>/../../workflows/` in the same
-    sentence, so both the failing path and its recovery path are derived
-    identically from `<base-dir>/../../`. In the common failure mode (the
-    harness base-dir does not have the assumed
-    `<plugin>/<version>/skills/feature-loop/` layout) the resolver itself
-    is unreachable and the agent has no next step; the replaced cache glob
-    was version-broken but at least searched the filesystem. The fallback
-    only recovers the narrow case of a partially-synced install where
-    `scripts/` exists but `workflows/` does not. Same wording in S4
-    (`"$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs"`) and S0 preflight.
-
-## Chưa adversarial-verify (refuter chết)
-
-none — cả 12 finding trên đều đã refuter xác nhận trong round này.
+    Reproduced against the repo's own CONTEXT.md:
+      $ node scripts/gate-card.js --slug gap-probe-presence-hook --gate 1 --extract --glossary-base 9b545a8
+      ... { "term": "networkobserved", "added": true } ...
+    The glossary entry is `**`network_observed`**`; the human reviewing
+    the "Từ vựng chốt ở feature này" block sees `networkobserved`, a term
+    that exists nowhere in the repo. Secondary effect: findViolations()
+    adds every canonical term as an implicit allow-span via
+    spansOf(prose, t.term), so the allow-span for a snake_case term never
+    matches its real spelling in prose. Stripping only ``` ` ``` and `*`
+    (markdown emphasis/code markers) and leaving `_` intact fixes both.
