@@ -77,6 +77,54 @@ evals:
     cmd: config:executors.test.scripts
     expected: "case GPM13: slug thiếu gap-probe nhưng NGOÀI diff PR → không in gì; chạy không --base → bỏ qua kèm NOTE nói rõ, exit 0"
     paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E14
+    criterion: AC-13
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case GPM17: decisions.jsonl CHỈ có một dòng JSON hỏng trông giống descope gap-probe → VẪN VIOLATION ở required (fail-CLOSED), và decision card trên cùng artifact cũng phất cờ — hai bên cùng kết luận"
+    paths: [lib/gap-probe.js, scripts/pre-merge-check.sh, scripts/gate-card.js, tests/scripts/**]
+  - id: E15
+    criterion: AC-14
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case GPM18a/b: mode required + vắng node HOẶC xoá lib/gap-probe.js → VIOLATION (exit != 0) kèm marker GAP-PROBE: NOT ENFORCED; mode advisory cùng tình huống → marker + NOTE, exit 0"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E16
+    criterion: AC-15
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P37: template config trong acceptance-init của CẢ HAI harness (commands/acceptance-init.md và codex/acceptance-gate/skills/acceptance-init/SKILL.md) đều có khoá gap_probe"
+    paths: [commands/acceptance-init.md, codex/acceptance-gate/skills/acceptance-init/SKILL.md, tests/plugins/**]
+  - id: E17
+    criterion: AC-16
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case GPM19: mỗi lý do tắt (thiếu node · thiếu lib · thiếu --base · git diff lỗi) đều in ĐÚNG MỘT dòng 'GAP-PROBE: NOT ENFORCED reason=' và dòng tổng kết cuối khai đã tắt"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E18
+    criterion: AC-17
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case GPM15 (giữ từ v2): lịch sử rời nhau khiến git diff thoát != 0 → mode required cho VIOLATION + marker, TUYỆT ĐỐI không coi danh sách rỗng là 'không slug nào liên quan'"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E19
+    criterion: AC-18
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case GPM14 (giữ từ v2): _acceptance/ nằm ở pkg/ (không phải git root) + slug T3 trong diff thiếu gap-probe → VẪN VIOLATION, không tắt im lặng"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E20
+    criterion: AC-19
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P38: gate-card.js require lib/gap-probe.js VÀ không còn literal regex descope nào của riêng nó (grep -F trên chuỗi regex)"
+    paths: [lib/gap-probe.js, scripts/gate-card.js, tests/plugins/**]
+  - id: E21
+    criterion: AC-20
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case GPM20: bảng >=8 đầu vào (hoa/thường, khoảng trắng, JSON hỏng, verdict lạ) chạy qua CẢ HAI lối vào → kết luận khớp TỪNG ca, in ca lệch nếu có"
+    paths: [lib/gap-probe.js, scripts/gate-card.js, scripts/pre-merge-check.sh, tests/scripts/**]
   - id: E9
     criterion: AC-9
     executor: judgment
