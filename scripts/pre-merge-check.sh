@@ -128,6 +128,25 @@ front_field() { # <file> <key> — read <key> from the LEADING --- frontmatter b
     | sed -e 's/[[:space:]]*#.*$//' -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//'
 }
 
+# In id của entry descope ĐẦU TIÊN có decision mở đầu "bỏ gap-probe" (khoan dung
+# khoảng trắng đầu, chấp cả "Bỏ" viết hoa) — CÙNG luật /^\s*bỏ gap-probe/i mà
+# scripts/gate-card.js dùng. Lệch nhau = thẻ Cổng 1 và pre-merge mâu thuẫn trên
+# cùng một artifact. Dòng JSON hỏng bị bỏ qua chứ không làm hỏng cả file: ledger
+# là sổ ghi lý do, một dòng lỗi không được biến thành chặn cổng.
+gap_probe_descope_id() { # <decisions.jsonl>
+  [ -f "$1" ] || return 0
+  awk '
+    /"type"[[:space:]]*:[[:space:]]*"descope"/ {
+      if ($0 ~ /"decision"[[:space:]]*:[[:space:]]*"[[:space:]]*[Bb]ỏ[[:space:]]+gap-probe/) {
+        id = "(entry không có id)"
+        if (match($0, /"id"[[:space:]]*:[[:space:]]*"[^"]*"/)) {
+          s = substr($0, RSTART, RLENGTH); sub(/^.*"id"[[:space:]]*:[[:space:]]*"/, "", s); sub(/"$/, "", s); id = s
+        }
+        print id; exit
+      }
+    }' "$1"
+}
+
 match_globs() { # <path> <newline-separated globs> — 0 iff any glob matches
   while IFS= read -r g; do
     [ -n "$g" ] || continue
@@ -297,8 +316,13 @@ XLACS
     case "$gp_verdict" in
       clean|findings)
         : ;;
+      probe-failed)
+        echo "NOTE [$slug]: gap-probe verdict là probe-failed — phản biện KHÔNG chạy được. Merge lúc này nghĩa là merge mà chưa có phản biện context sạch; chạy lại S1#7 nếu muốn có, hoặc chấp nhận rủi ro đó." ;;
       *)
-        if [ "$GAP_PROBE_MODE" = "required" ]; then
+        gp_desc="$(gap_probe_descope_id "${dir}decisions.jsonl")"
+        if [ -n "$gp_desc" ]; then
+          echo "NOTE [$slug]: phản biện context sạch đã được BỎ có chủ đích theo ledger $gp_desc — quyết định có dấu vết, không phải sơ suất."
+        elif [ "$GAP_PROBE_MODE" = "required" ]; then
           echo "VIOLATION [$slug]: chưa qua phản biện context sạch (gap-probe) — không có gap-probe.md hợp lệ và ledger không có entry descope. $gp_fix"
           violations=$((violations+1))
         else

@@ -1794,6 +1794,39 @@ printf '# Bao cao\n\nBang finding trich: verdict: clean\n' > "$R/_acceptance/fea
 printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
 bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GPM6c 1 $?
 
+echo "GPM7 entry descope -> khong violation, NOTE neu id"
+mk_gp_repo gpm7; R="$GPR/gpm7"; gp_feature "$R" feat-f T3 implemented
+printf '%s\n' '{"id":"d-77","type":"descope","decision":"bỏ gap-probe — quá nhỏ"}' > "$R/_acceptance/feat-f/decisions.jsonl"
+printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+GPM7="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM7 0 $?
+hasout GPM7id "d-77" "$GPM7"
+
+echo "GPM7b descope thut dau + viet hoa -> van khop (cung luat gate-card.js)"
+mk_gp_repo gpm7b; R="$GPR/gpm7b"; gp_feature "$R" feat-f T3 implemented
+printf '%s\n' '{"id":"d-78","type":"descope","decision":"  Bỏ gap-probe — viết hoa"}' > "$R/_acceptance/feat-f/decisions.jsonl"
+printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+GPM7B="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM7b 0 $?
+hasout GPM7bid "d-78" "$GPM7B"
+
+echo "GPM7c dong JSON hong + entry hop le -> van khop (parse khoan dung)"
+mk_gp_repo gpm7c; R="$GPR/gpm7c"; gp_feature "$R" feat-f T3 implemented
+printf '%s\n' 'khong-phai-json' '{"id":"d-79","type":"descope","decision":"bỏ gap-probe — ok"}' > "$R/_acceptance/feat-f/decisions.jsonl"
+printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GPM7c 0 $?
+
+echo "GPM7d entry descope KHONG phai gap-probe -> KHONG duoc coi la van thoat"
+mk_gp_repo gpm7d; R="$GPR/gpm7d"; gp_feature "$R" feat-f T3 implemented
+printf '%s\n' '{"id":"d-80","type":"descope","decision":"bỏ mockup — không có UI"}' > "$R/_acceptance/feat-f/decisions.jsonl"
+printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+bash "$CHECK" "$R" --base "$GP_BASE" >/dev/null 2>&1; check GPM7d 1 $?
+
+echo "GPM8 verdict probe-failed -> NOTE, khong violation"
+mk_gp_repo gpm8; R="$GPR/gpm8"; gp_feature "$R" feat-g T3 implemented
+printf -- '---\nslug: feat-g\nverdict: probe-failed\n---\n' > "$R/_acceptance/feat-g/gap-probe.md"
+printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
+GPM8="$(bash "$CHECK" "$R" --base "$GP_BASE" 2>&1)"; check GPM8 0 $?
+hasout GPM8note "probe-failed" "$GPM8"
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
