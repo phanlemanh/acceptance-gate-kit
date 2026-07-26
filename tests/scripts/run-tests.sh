@@ -2422,6 +2422,37 @@ echo "RL5b exit 2 o parse -> KHONG in dong tong ket so"
 RL5B="$(bash "$CHECK" "$TE_R" --tuy-chon-la 2>&1)"; check RL5b1 2 $?
 nothas RL5b2 "pre-merge-check: rules ran=" "$RL5B"
 
+echo "RL6 dem loi thoat exit 0 bang may — DUNG HAI loi (AC-6)"
+RL6N="$(grep -vE '^[[:space:]]*#' "$CHECK" | grep -c 'exit 0')"
+same RL6a 2 "$RL6N"
+# DOI CHUNG DOT BIEN: phep dem phai THAY duoc mot loi thoat tiem them, neu
+# khong RL6a chi chung minh "con so hom nay bang 2" chu khong phai "phep dem
+# song". Bat bien #4.
+RL6CP="$RLCP/scripts/rl6-check.sh"; { cat "$CHECK"; printf '\nexit 0\n'; } > "$RL6CP"
+RL6M="$(grep -vE '^[[:space:]]*#' "$RL6CP" | grep -c 'exit 0')"
+same RL6b 3 "$RL6M"
+
+echo "RL7a ten duy nhat o call-site ledger_mark == EXPECTED, hai chieu (AC-7c)"
+rl_names() { # <file> — ten duy nhat o call-site (loai dong dinh nghia ham)
+  grep -E 'ledger_mark (ran|declared-off) ' "$1" | grep -v 'ledger_mark()' \
+    | sed -E 's/.*ledger_mark (ran|declared-off) ([a-z0-9-]+).*/\2/' | sort -u
+}
+rl_exp() { sed -n 's/^LEDGER_EXPECTED="\(.*\)"$/\1/p' "$1" | tr ' ' '\n' | sort -u; }
+RL7NAMES="$(rl_names "$CHECK")"; RL7EXP="$(rl_exp "$CHECK")"
+same RL7a1 "$RL7EXP" "$RL7NAMES"
+same RL7a2 3 "$(printf '%s\n' "$RL7EXP" | grep -c .)"
+RL7CP2="$RLCP/scripts/rl7a-check.sh"; { cat "$CHECK"; printf '\nledger_mark ran khoi-moi\n'; } > "$RL7CP2"
+[ "$(rl_names "$RL7CP2")" != "$(rl_exp "$RL7CP2")" ]; check RL7a3 0 $?
+
+echo "RL5a k tinh tu EXPECTED — cam tautology n+m o cho in (AC-5)"
+RL5LINE="$(grep 'pre-merge-check: rules ran=' "$CHECK" | grep -v '^[[:space:]]*#')"
+same   RL5a1 1 "$(printf '%s\n' "$RL5LINE" | grep -c .)"
+hasout RL5a2 'expected=$LEDGER_K' "$RL5LINE"
+RL5K="$(grep -E '^[[:space:]]*LEDGER_K=' "$CHECK")"
+hasout RL5a3 'LEDGER_K=$#' "$RL5K"
+nothas RL5a4 'LEDGER_RAN_N' "$RL5K"
+nothas RL5a5 'LEDGER_OFF_N' "$RL5K"
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
