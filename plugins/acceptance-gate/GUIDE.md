@@ -578,6 +578,27 @@ commit đóng gói bản phát hành / đồng bộ bản sao trên nhánh chín
 job đỏ vĩnh viễn. VẪN giữ `--base`: luật gap-probe cần phạm vi diff. Xem
 [ADR 0005](docs/adr/0005-t1-escape-opt-out-flag.md).
 
+### Sổ luật-đã-chạy (acceptance-gate 1.22.0+)
+
+`pre-merge-check.sh` chỉ in `clean` khi CHỨNG MINH được rằng các luật đã chạy:
+mỗi khối luật kết thúc bằng đúng một dòng `ran <tên>` hoặc `declared-off <tên>`.
+Ba nguồn của `declared-off` là cờ `--no-t1-escape`, khoá `gap_probe: off` trong
+config, và chạy không có `--base` (phạm vi diff không xác định được). Cuối mỗi
+lần chạy có một dòng máy-đọc:
+
+```
+pre-merge-check: rules ran=<n> declared-off=<m> expected=<k>
+```
+
+`k` tính từ danh sách EXPECTED cố định trong script, KHÔNG phải `n+m` — nhờ vậy
+dòng này hiển thị được sự lệch thay vì luôn tự khớp.
+
+Nếu sổ lệch, script in `VIOLATION [ledger]: ...` và thoát **2**. Đây là lỗi NỘI
+TẠI của cổng — một khối luật bị trượt qua — **không phải** lỗi trong thay đổi
+của bạn: gửi toàn bộ output cho maintainer của kit, đừng sửa feature để né nó.
+`enforcement: off` tắt cả sổ (off là off toàn cục); `warn` KHÔNG hạ điểm nghẽn.
+Lý do và trade-off: [ADR 0006](docs/adr/0006-rules-ledger-fail-closed-at-output.md).
+
 
 `--base` bật **backstop chống né T1**: PR đổi code gated mà không mang artifact
 `_acceptance/` nào → VIOLATION. Không truyền base → backstop chỉ in NOTE (chủ đích,
