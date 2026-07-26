@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: t1-escape-event-scope
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 7fdfad17bd6895b481617a353555e35fea834359
-human_signoff:
+human_signoff: Manh Phan 2026-07-26
 ---
 
 # Evidence Report: t1-escape-event-scope
@@ -255,7 +255,7 @@ human_signoff:
       có thể lọt qua mà không bị chặn vì thiếu hồ sơ nghiệm thu, dù các luật
       khác vẫn chạy). Một người chưa biết kit vẫn nắm được layer/lý do/rủi ro
       chỉ từ 3 dòng NOTE này mà không cần ngữ cảnh ngoài.
-  human_override:
+  human_override: Manh Phan 2026-07-26
 
 ## Analyst
 
