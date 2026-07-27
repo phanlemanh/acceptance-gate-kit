@@ -68,10 +68,11 @@ jobs:
           set -o pipefail
           out="$(bash scripts/pre-merge-check.sh . --base "origin/${{ github.base_ref }}" 2>&1)" || st=$?
           printf '%s\n' "$out"
-          # pre-merge-check coi base không resolve được là "skip + clean" — đúng
-          # cho repo tiêu thụ (đừng chặn merge vì clone nông). Ở repo KIT thì
-          # ngược lại: một backstop bị bỏ qua âm thầm CHÍNH LÀ lỗ nó sinh ra để
-          # bịt, nên ta nâng skip thành lỗi to.
+          # base ĐÃ KHAI mà không resolve nay là VIOLATION [scope] + exit 2
+          # (fail-closed, tự truyền qua exit st). Nhánh "backstop skipped"
+          # chỉ còn lại cho trường hợp KHÔNG có merge-base (clone nông/grafted,
+          # git diff lỗi) — với repo KIT, một backstop bị bỏ qua âm thầm CHÍNH
+          # LÀ lỗ nó sinh ra để bịt, nên ta nâng cả skip đó thành lỗi to.
           case "$out" in
             *"backstop skipped"*)
               echo "::error::T1-escape backstop KHÔNG chạy (base không resolve được) — fail-open không chấp nhận ở repo kit. Kiểm fetch-depth/base_ref."

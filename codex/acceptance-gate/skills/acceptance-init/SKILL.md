@@ -124,7 +124,7 @@ IMPORTANT — re-copy `scripts/pre-merge-check.sh` from the plugin BEFORE you
 add this flag. Older vendored copies have no unknown-flag guard: they treat
 `--no-t1-escape` as the ROOT path, find no `_acceptance/` there, and exit 0
 with the ENTIRE pre-merge check unrun (signoff, verdict, staleness, gap-probe, re-check
-— all skipped, CI green). Support landed in acceptance-gate 1.21.0+.
+— all skipped, CI green). Support landed in acceptance-gate 1.22.0+ (on 1.21.0 the parser swallows the flag as the repo-root path and the WHOLE gate silently no-ops — re-copy the script before adding the flag).
 ## 6. Optional references
 
 If the user wants file-backed UI captures, copy

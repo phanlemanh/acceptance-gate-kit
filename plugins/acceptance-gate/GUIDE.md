@@ -569,7 +569,7 @@ acceptance-gate:
 
 Job chạy trên `push` (không phải PR) cần một bước RIÊNG — và phải chép lại
 `scripts/pre-merge-check.sh` từ plugin trước, vì bản cũ nuốt cờ lạ thành đường
-dẫn rồi thoát 0 với TOÀN BỘ cổng không chạy (cần acceptance-gate 1.21.0+):
+dẫn rồi thoát 0 với TOÀN BỘ cổng không chạy (cần acceptance-gate 1.22.0+ — bản 1.21.0 phát hành KHÔNG có cờ này lẫn chốt cờ-lạ, thêm cờ trên bản đó là tự kích hoạt đúng lỗ vừa tả):
 
 ```bash
 bash scripts/pre-merge-check.sh . --base "$(git rev-parse HEAD~1)" --no-t1-escape
