@@ -2443,6 +2443,37 @@ nothas RL7b4 "pre-merge-check: clean" "$RL7OUT"
 echo "RL5b exit 2 o parse -> KHONG in dong tong ket so"
 RL5B="$(bash "$CHECK" "$TE_R" --tuy-chon-la 2>&1)"; check RL5b1 2 $?
 nothas RL5b2 "pre-merge-check: rules ran=" "$RL5B"
+# Pin thong diep (bat bien #4 — review round 8): khong pin thi case nay khong
+# phan biet duoc "chot co-la bat dung" voi bat ky duong exit-2 nao khac.
+hasout RL5bmsg "unknown option --tuy-chon-la" "$RL5B"
+
+# ── RL14: gia tri PHAM VI rong = loi to, khong phai skip im (nợ chip 33ca1add)
+# Lop loi: operator DA khai pham vi (co --base/--slug/PRE_MERGE_BASE) nhung gia
+# tri rong — kieu CI `--base "$VAR"` voi VAR unset, hoac $(rev-parse) chet trong
+# command substitution. Ban cu roi ve nhanh "no PR base given": gap-probe +
+# t1-escape cung declared-off, repo sach exit 0 — khai-roi-ma-nhu-khong-khai.
+# Doctrine ADR 0004/0006: da khai thi khong resolve duoc phai exit 2.
+echo "RL14 gia tri pham vi RONG -> exit 2 keo thong diep, khong roi ve skip"
+rl_repo rl14
+# doi chung duong: cung fixture, base THAT -> clean exit 0
+RL14OK="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"; check RL14ctrl 0 $?
+hasout RL14ctrl2 "pre-merge-check: clean" "$RL14OK"
+# a) --base ""
+RL14A="$(bash "$CHECK" "$TE_R" --base "" 2>&1)"; check RL14a 2 $?
+hasout RL14a2 '--base requires a value (got empty string' "$RL14A"
+nothas RL14a3 "no PR base given" "$RL14A"
+nothas RL14a4 "pre-merge-check: clean" "$RL14A"
+# b) PRE_MERGE_BASE set nhung RONG (phan biet voi khong-set: khong-set van la
+# bo-qua-co-tin-hieu hop le nhu TE18k)
+RL14B="$(PRE_MERGE_BASE="" bash "$CHECK" "$TE_R" 2>&1)"; check RL14b 2 $?
+hasout RL14b2 "PRE_MERGE_BASE is set but empty" "$RL14B"
+# doi chung: KHONG set env -> van duong skip-co-NOTE cu, exit 0
+RL14BOK="$(bash "$CHECK" "$TE_R" 2>&1)"; check RL14bctrl 0 $?
+hasout RL14bctrl2 "no PR base given" "$RL14BOK"
+# c) --slug "" — cung lop: loc theo slug rong thi khong dir nao khop, moi slug
+# bi bo qua ma van clean; khai-loc-rong phai no to
+RL14C="$(bash "$CHECK" "$TE_R" --base "$TE_B" --slug "" 2>&1)"; check RL14c 2 $?
+hasout RL14c2 '--slug requires a value (got empty string' "$RL14C"
 
 echo "RL6 dem loi thoat exit 0 bang may — DUNG HAI loi (AC-6)"
 RL6N="$(grep -vE '^[[:space:]]*#' "$CHECK" | grep -c 'exit 0')"

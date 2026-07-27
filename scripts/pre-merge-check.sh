@@ -51,6 +51,14 @@ RECHECK="$HERE/recheck-evidence.js"
 
 ROOT="."
 SLUGS=()
+# PRE_MERGE_BASE set-nhưng-RỖNG khác với không-set: không-set là bỏ-qua-có-tín-
+# hiệu hợp lệ (NOTE + declared-off), còn set-rỗng nghĩa là CI ĐÃ nối dây phạm
+# vi mà dây đứt (biến chưa có giá trị, command substitution chết im). Rơi về
+# nhánh skip là khai-rồi-mà-như-không-khai — cùng lớp với --base thiếu giá trị.
+if [ "${PRE_MERGE_BASE+x}" = "x" ] && [ -z "$PRE_MERGE_BASE" ]; then
+  echo "pre-merge-check: PRE_MERGE_BASE is set but empty — a CI variable expansion failed (unset it to run without a diff scope, or give it a real ref)" >&2
+  exit 2
+fi
 BASE="${PRE_MERGE_BASE:-}"
 # Răng T1-escape bật mặc định. Opt-OUT chứ không phải opt-in `--pr`: acceptance-init
 # đang dạy consumer truyền đúng `--base`, nên opt-in sẽ làm răng tắt IM LẶNG trên
@@ -61,6 +69,10 @@ while [ $# -gt 0 ]; do
     --slug)
       [ $# -ge 2 ] || { echo "pre-merge-check: --slug requires a value" >&2; exit 2; }
       case "$2" in -*) echo "pre-merge-check: --slug requires a value (got option $2)" >&2; exit 2 ;; esac
+      # Giá trị RỖNG cùng lớp với thiếu giá trị: lọc theo slug rỗng thì không
+      # thư mục nào khớp, mọi slug bị bỏ qua mà vẫn `clean` — khai-lọc-rỗng
+      # phải nổ to (nợ chip 33ca1add, cùng doctrine với --base rỗng bên dưới).
+      [ -n "$2" ] || { echo "pre-merge-check: --slug requires a value (got empty string — a CI variable is unset or a command substitution failed)" >&2; exit 2; }
       SLUGS+=("$2"); shift 2 ;;
     --base)
       [ $# -ge 2 ] || { echo "pre-merge-check: --base requires a value" >&2; exit 2; }
@@ -68,6 +80,13 @@ while [ $# -gt 0 ]; do
       # bao giờ resolve, răng T1-escape lẫn gap-probe cùng bỏ qua, script in
       # `clean` và thoát 0. Chốt `-*` ở trên chỉ phủ positional, không phủ GIÁ TRỊ.
       case "$2" in -*) echo "pre-merge-check: --base requires a value (got option $2)" >&2; exit 2 ;; esac
+      # Giá trị RỖNG — kiểu CI `--base "$VAR"` với VAR unset, hoặc
+      # `--base "$(git rev-parse ...)"` mà lệnh con chết im dưới bash -e của
+      # GithubActions. Bản cũ rơi về nhánh "no PR base given": gap-probe lẫn
+      # T1-escape cùng declared-off và repo sạch thoát 0 — operator ĐÃ khai
+      # phạm vi mà cổng chạy như không khai. Doctrine ADR 0004/0006: đã khai
+      # thì không xác định được phạm vi là exit 2, không phải skip.
+      [ -n "$2" ] || { echo "pre-merge-check: --base requires a value (got empty string — a CI variable is unset or a command substitution failed; drop --base entirely to run without a diff scope)" >&2; exit 2; }
       BASE="$2"; shift 2 ;;
     --no-t1-escape)
       # Không nhận tham số — `reason` là hằng, giữ ranh giới "không thêm cờ nào khác".

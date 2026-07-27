@@ -132,5 +132,5 @@ Omit the `capture` block if the repo has no UI evidence need.
    add this flag. Older vendored copies have no unknown-flag guard: they treat
    `--no-t1-escape` as the ROOT path, find no `_acceptance/` there, and exit 0
    with the ENTIRE pre-merge check unrun (signoff, verdict, staleness, gap-probe, re-check
-   — all skipped, CI green). Support landed in acceptance-gate 1.22.0+ (on 1.21.0 the parser swallows the flag as the repo-root path and the WHOLE gate silently no-ops — re-copy the script before adding the flag).
+   — all skipped, CI green). Support landed in acceptance-gate 1.22.0+ — the released 1.21.0 has neither the flag nor the guard.
 6. Print: "Acceptance gate ready. Run the acceptance skill on your next feature."
