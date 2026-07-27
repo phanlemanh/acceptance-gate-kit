@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 02d818764c316b64c3bcc35901ef6a943979df6f
+verified_commit: 3be6be8cb7316467a6a8d6dc6b59f80205afa00e
 human_signoff:
 ---
 
@@ -37,191 +37,179 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-t1-escape-event-scope-E1-r7
+  run_id: minted-t1-escape-event-scope-E1-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T08:45:00Z
+  verified_at: 2026-07-27T10:35:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E2
-  run_id: minted-t1-escape-event-scope-E2-r7
+  run_id: minted-t1-escape-event-scope-E2-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T08:45:00Z
+  verified_at: 2026-07-27T10:35:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E3
-  run_id: minted-t1-escape-event-scope-E3-r7
+  run_id: minted-t1-escape-event-scope-E3-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T08:45:00Z
+  verified_at: 2026-07-27T10:35:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E4
-  run_id: minted-t1-escape-event-scope-E4-r7
+  run_id: minted-t1-escape-event-scope-E4-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T08:45:00Z
+  verified_at: 2026-07-27T10:35:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E5
-  run_id: minted-t1-escape-event-scope-E5-r7
+  run_id: minted-t1-escape-event-scope-E5-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T08:45:00Z
+  verified_at: 2026-07-27T10:35:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E6
-  run_id: minted-t1-escape-event-scope-E6-r7
+  run_id: minted-t1-escape-event-scope-E6-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-27T08:45:00Z
+  verified_at: 2026-07-27T10:35:00Z
   output: |
     PASS: P49 description goi Codex giu ban sac Codex, khong phai ban sao Claude
 
     Results: all plugin tests passed
 
 - eval: E7
-  run_id: minted-t1-escape-event-scope-E7-r7
+  run_id: minted-t1-escape-event-scope-E7-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T08:45:00Z
+  verified_at: 2026-07-27T10:35:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E8
   run_id: minted-t1-escape-event-scope-E8-r7
+  carried_from_round: 7
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.plugins
   verified_at: 2026-07-27T08:45:00Z
-  output: |
-    PASS: P49 description goi Codex giu ban sac Codex, khong phai ban sao Claude
-
-    Results: all plugin tests passed
+  note: carry-forward tu round 7 — delta khong cham paths cua eval
 
 - eval: E9
   run_id: minted-t1-escape-event-scope-E9-r7
+  carried_from_round: 7
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.plugins
   verified_at: 2026-07-27T08:45:00Z
-  output: |
-    PASS: P49 description goi Codex giu ban sac Codex, khong phai ban sao Claude
-
-    Results: all plugin tests passed
+  note: carry-forward tu round 7 — delta khong cham paths cua eval
 
 - eval: E10
   run_id: minted-t1-escape-event-scope-E10-r7
+  carried_from_round: 7
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.plugins
   verified_at: 2026-07-27T08:45:00Z
-  output: |
-    PASS: P49 description goi Codex giu ban sac Codex, khong phai ban sao Claude
-
-    Results: all plugin tests passed
+  note: carry-forward tu round 7 — delta khong cham paths cua eval
 
 - eval: E11
   run_id: minted-t1-escape-event-scope-E11-r7
+  carried_from_round: 7
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.plugins
   verified_at: 2026-07-27T08:45:00Z
-  output: |
-    PASS: P49 description goi Codex giu ban sac Codex, khong phai ban sao Claude
-
-    Results: all plugin tests passed
+  note: carry-forward tu round 7 — delta khong cham paths cua eval
 
 - eval: E12
-  run_id: minted-t1-escape-event-scope-E12-r7
+  run_id: minted-t1-escape-event-scope-E12-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-27T08:45:00Z
+  verified_at: 2026-07-27T10:35:00Z
   output: |
     PASS: P49 description goi Codex giu ban sac Codex, khong phai ban sao Claude
 
     Results: all plugin tests passed
 
 - eval: E14
-  run_id: minted-t1-escape-event-scope-E14-r7
+  run_id: minted-t1-escape-event-scope-E14-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T08:45:00Z
+  verified_at: 2026-07-27T10:35:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E15
-  run_id: minted-t1-escape-event-scope-E15-r7
+  run_id: minted-t1-escape-event-scope-E15-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T08:45:00Z
+  verified_at: 2026-07-27T10:35:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E16
-  run_id: minted-t1-escape-event-scope-E16-r7
+  run_id: minted-t1-escape-event-scope-E16-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T08:45:00Z
+  verified_at: 2026-07-27T10:35:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E17
-  run_id: minted-t1-escape-event-scope-E17-r7
+  run_id: minted-t1-escape-event-scope-E17-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T08:45:00Z
+  verified_at: 2026-07-27T10:35:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E18
-  run_id: minted-t1-escape-event-scope-E18-r7
+  run_id: minted-t1-escape-event-scope-E18-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T08:45:00Z
+  verified_at: 2026-07-27T10:35:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E13
   judged_by: judge panel — domain-correctness, operational-feasibility, spec-alignment (fresh context)
@@ -229,35 +217,36 @@ human_signoff:
   rationale: |
     Panel unanimous, 3/3 lenses, no dissent to reconcile.
 
-    - domain-correctness: PASS — Dòng marker (8) kèm hai dòng NOTE (9-10) tự
-      giải thích đủ ba yếu tố mà không cần biết trước về kit: LỚP tắt được
-      gọi tên và định nghĩa tại chỗ ("luật đòi mọi thay đổi chạm code quan
-      trọng phải kèm thư mục _acceptance/<slug>/ (hồ sơ nghiệm thu)"); LÝ DO
-      nêu rõ ("chỉ có nghĩa khi so PR với nhánh đích; đây là commit đẩy thẳng
-      nhánh chính... không kèm hồ sơ nào" theo thiết kế); RỦI RO nêu cụ thể
-      ("nếu một thay đổi chạm code quan trọng lọt vào... sẽ KHÔNG bị chặn")
-      kèm phạm vi các luật khác vẫn chạy và cách bật lại. Dòng tổng kết (11)
-      trỏ ngược về đúng dòng marker nên người đọc không lạc mối.
-    - operational-feasibility: PASS — Đọc từ dòng marker (line 8) tới dòng
-      tổng kết (line 11), người chưa biết kit gặp hai dòng NOTE ở giữa giải
-      thích đủ ba phần: LỚP tắt là "T1-escape" — luật đòi PR chạm code quan
-      trọng phải kèm _acceptance/<slug>/; VÌ SAO — lần chạy này là push
-      thẳng nhánh chính (không phải PR) nên luật vô nghĩa, và commit hạ tầng
-      theo thiết kế không có hồ sơ; RỦI RO — nếu một thay đổi quan trọng lọt
-      vào lần chạy dạng này sẽ không bị chặn vì thiếu hồ sơ, trong khi các
-      luật khác vẫn chạy. Ngôn ngữ diễn giải bằng văn xuôi thường, không đòi
-      hỏi biết thuật ngữ kit trước, nên đạt yêu cầu khả thi vận hành của
-      AC-13.
-    - spec-alignment: PASS — Đọc từ dòng marker (line 8) tới dòng tổng kết
-      (line 11), người chưa biết kit vẫn nắm được cả ba điều: LỚP nào tắt
-      (T1-escape — luật đòi mọi thay đổi chạm code quan trọng phải kèm hồ sơ
-      nghiệm thu `_acceptance/<slug>/`, nêu rõ ở NOTE thứ nhất), VÌ SAO (lần
-      chạy này là push thẳng nhánh chính chứ không phải PR so với nhánh
-      đích, nên luật vốn chỉ có nghĩa khi so PR-vs-target không áp dụng
-      được), và RỦI RO (thay đổi quan trọng có thể lọt qua không bị chặn,
-      kèm cách bật lại bằng cờ `--no-t1-escape`). Dòng tổng kết (line 11)
-      khớp nhất quán với marker, không mâu thuẫn, và trỏ ngược đúng vị trí
-      nên không gây hiểu lầm.
+    - domain-correctness: PASS — Đoạn NOT ENFORCED (dòng 8-11) tự đủ nghĩa:
+      dòng 9 nêu rõ LỚP tắt bằng ngôn ngữ thường ("luật đòi mọi thay đổi
+      chạm code quan trọng phải kèm _acceptance/<slug>/") và VÌ SAO (đây là
+      push thẳng nhánh chính, không phải PR-so-nhánh-đích, nên tiền đề của
+      luật không áp dụng — commit hạ tầng theo thiết kế không kèm hồ sơ);
+      dòng 10 nêu RỦI RO cụ thể (thay đổi chạm code quan trọng có thể lọt
+      qua không bị chặn) kèm trấn an (luật khác vẫn chạy đủ) và cách bật lại
+      (--no-t1-escape). Dòng tổng kết (dòng 11) trỏ ngược đúng về khối này
+      nên người đọc lần đầu vẫn nối được mạch. Không cần biết trước thuật
+      ngữ kit để hiểu ba yếu tố lớp/lý do/rủi ro.
+    - operational-feasibility: PASS — Dòng marker (8) + hai dòng NOTE (9-10)
+      + dòng tổng kết (11) cùng nhau nêu rõ cả ba điều bằng ngôn ngữ không
+      cần biết trước kit: LỚP nào tắt (dòng 9 định nghĩa tại chỗ "răng
+      T1-escape — luật đòi mọi thay đổi chạm code quan trọng phải kèm
+      _acceptance/<slug>/"), VÌ SAO (dòng 9: đây là commit đẩy thẳng nhánh
+      chính, không có PR để so sánh, hạ tầng không kèm hồ sơ theo thiết kế),
+      và RỦI RO (dòng 10 nói thẳng: thay đổi chạm code quan trọng có thể lọt
+      qua vì thiếu hồ sơ, kèm cách bật lại). Dòng tổng kết (11) chỉ ngược về
+      marker nhưng không đứng một mình — nó nằm liền sau khối NOTE nên
+      người đọc lần đầu vẫn nắm được ngữ cảnh đầy đủ.
+    - spec-alignment: PASS — Dòng marker (L8) đứng riêng thì cô đọng, nhưng
+      đi kèm hai dòng NOTE (L9-10) ngay sau và dòng tổng kết (L11) tạo thành
+      một khối liền mạch, đủ để người chưa biết kit hiểu: (1) lớp tắt là
+      luật T1-escape đòi PR phải kèm _acceptance/<slug>/, có định nghĩa
+      ngoặc đơn "hồ sơ nghiệm thu"; (2) vì sao — đây là commit đẩy thẳng
+      nhánh chính (không có PR để so), và các commit hạ tầng loại này theo
+      thiết kế không có hồ sơ; (3) rủi ro nêu rõ ràng — thay đổi code quan
+      trọng có thể lọt qua mà không bị chặn, kèm trấn an luật khác vẫn chạy
+      và cách bật lại (--no-t1-escape). Không có thuật ngữ nào bị bỏ lửng
+      không giải thích khi đọc trong ngữ cảnh cả khối.
   human_override:
 
 ## Analyst
@@ -265,9 +254,9 @@ human_signoff:
 carried tu round truoc — baseline khong do lai round nay
 
 none — no eval this round is non-discriminating; baseline was not
-re-measured (every eval block above carries `baseline: n-a`), so the
-round-1 A/B discriminating signal carries forward unchanged (see round 1's
-Analyst note). The two full-suite commands (`bash
+re-measured (every machine eval block above carries `baseline: n-a`), so
+the round-1 A/B discriminating signal carries forward unchanged (see round
+1's Analyst note). The two full-suite commands (`bash
 tests/scripts/run-tests.sh`, `bash tests/plugins/run-tests.sh`) are the
 expected green-on-both regression guards and are not listed per template
 guidance.
@@ -439,6 +428,49 @@ flagged for the human at Gate 2 — in particular whether the parser
 divergence (now on its third documented recurrence) warrants stopping to
 fix the class rather than the named case again.
 
+Round 8: same 17 machine evals still PASS, count moved from round 7 (`bash
+tests/scripts/run-tests.sh` now 460 passed vs 459 in round 7 — last case
+name in the tail unchanged, `RL10d`; `bash tests/plugins/run-tests.sh`
+output tail unchanged — still pins `P49`, all-plugin-green) plus the same
+two supporting regression checks green (`bash tests/hooks/run-tests.sh` 51
+passed, 0 failed, last case `T42`; `bash scripts/sync-plugin-packages.sh
+--check` reports mirror in sync). Between round 7's pin (`02d81876...`) and
+this round's pin (`3be6be8c...`) three commits landed: `89fa742
+evidence(premerge-rules-ledger): round 4`, `e8dcada fix: 4 nợ leftover
+trước khi ký`, and `3be6be8 fix(docs): sàn version --no-t1-escape là
+1.22.0+, KHÔNG phải 1.21.0+ — finding HIGH round 6`; the last of these is
+the docs fix E12's `expected` text explicitly calls out this round ("sàn
+version trong hai file đó vừa đính chính 1.21.0+ → 1.22.0+"), and E12 was
+re-run fresh (not carried) to confirm both `acceptance-init` copies now
+state the corrected floor. E8-E11 (AC-8..AC-11, mirror-drift/sync-bump
+cases in `tests/plugins/run-tests.sh`) are carried forward from round 7
+per delta staleness (P1) — this round's diff does not touch the paths those
+cases cover — and are marked `carried_from_round: 7` in the Evidence
+section above rather than re-run. E13 was re-judged fresh by the panel (not
+carried — round input has no `carried` flag) and again proposes PASS 3/3,
+unanimous, no dissent, rationale text re-derived against the current
+evidence copy. Contract remains T3: `human_override` on E13 is still
+required regardless of the panel's proposal, so the overall verdict stays
+PENDING-JUDGMENT pending Gate 2. Baseline not re-measured this round (P2 —
+`evals.yaml` unchanged since the last baseline run); every machine eval
+block above carries `baseline: n-a` accordingly. This round's adversarial
+review surfaced 2 findings (0 high, 1 medium, 1 low) — see
+`review-findings.md` — a medium-severity gap where `--base` given an
+explicit empty value (`--base ""`, the classic CI shape of an unset
+variable) silently degrades to the "no PR base given" skip path rather than
+failing closed, even though the diff's own doctrine treats a declared-but-
+unresolved base as fail-closed (exit 2) for the non-empty case — same
+"vá case có tên, không vá LỚP" class CLAUDE.md invariant 4 warns about, and
+present in both `scripts/pre-merge-check.sh` and its `plugins/` mirror; and
+a low-severity finding that one remaining case in the new RL5b block
+(`tests/scripts/run-tests.sh:2444`) concludes from exit code 2 alone
+without pinning the expected "unknown option" message, the same
+assertion-class CLAUDE.md invariant 4 already names, though residual risk
+is small since RL5b exercises the real script rather than a fixture copy.
+Neither is a hook-enforced blocker, so neither changes the machine-eval
+table above, but both bear on the E13 judgment item and are flagged for the
+human at Gate 2.
+
 ## Gate 2 checklist (human)
 
 - [ ] Read the table + spot-check 1-2 evidence blocks
@@ -456,12 +488,11 @@ round is PASS 3/3 (unanimous, no dissent), re-judged fresh (not carried)
 against the current evidence copy. Personally re-read the NOTE lines in the
 evidence (not just the panel's summary) before filling `human_override:
 <name> <date>`; a PASS proposal is advisory input, not a substitute for your
-own read. Before signing, also read `review-findings.md` round 7 —
-in particular finding #1/#2 (the enforcement-parser space-before-colon
-divergence between the hook and `pre-merge-check.sh`, now a third
-recurrence of the same bug class per CLAUDE.md's own invariant about fixing
-by CLASS, not by named case) and finding #3 (`TE18i` reintroducing the
-"negative assertion alone" gap in the very diff that fixed other instances
-of it) — both speak to whether this round's green suite fully backs the
-T1-escape teeth the feature is meant to ship.
+own read. Before signing, also read `review-findings.md` round 8 —
+in particular the `--base ""` fail-open finding (medium): an explicitly
+passed empty base value skips both the T1-escape backstop and the gap-probe
+rule with exit 0 instead of failing closed, in both the kit script and its
+`plugins/` mirror, which is the same "fix the named case, not the class"
+pattern CLAUDE.md's invariant 4 has flagged repeatedly across earlier
+rounds of this feature.
 </content>
