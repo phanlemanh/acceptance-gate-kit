@@ -1,0 +1,86 @@
+schema_version: 1
+feature_slug: s4-scope-triage
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.test.workflows
+    expected: "case WT-T1: harness vm-realm, stand-in agent trả finding high + triage inContract:true/acRef:AC-x, mọi eval xanh → verdict 'REJECT', finding nằm trong rejectFindings; đối chứng dương WT-T1b: cùng cấu hình nhưng severity medium → verdict 'PASS'"
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/**]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.test.workflows
+    expected: "case WT-T2: finding high + inContract:false, evals xanh → verdict 'PASS', rejectFindings KHÔNG chứa nó, prompt synthesize chứa chỉ dẫn section 'Ngoài hợp đồng' kèm proposal của finding"
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/**]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.test.workflows
+    expected: "case WT-T3: finding medium + inContract:true → không REJECT, finding đi vào ngăn 'Trong hợp đồng' kèm acRef trong dữ liệu synthesize"
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/**]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.test.workflows
+    expected: "case WT-T4: stand-in agent triage ném lỗi cả 2 lượt (retry) → triageFailed:true, verdict KHÔNG REJECT dù finding high, mọi finding vào ngăn 'Chưa phân loại (triage-failed)'; WT-T4c: args.contractPath trỏ file không tồn tại → CÙNG hành vi triageFailed (không spawn agent trên scope rỗng, không REJECT); đối chứng dương WT-T4b: triage sống + contract đọc được → triageFailed:false, không có ngăn đó"
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/**]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.test.workflows
+    expected: "case WT-T5: 1 eval FAIL + finding high in-contract + finding high out-of-contract → verdict 'REJECT', rejectFindings chứa ĐÚNG finding in-contract, KHÔNG chứa finding out-of-contract (ghim cả hai chiều — chốt chặn spiral)"
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/**]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.test.workflows
+    expected: "case WT-T6: finding unverified:true (refuter chết) → KHÔNG xuất hiện trong input của stand-in triage agent, vẫn nằm ngăn 'Chưa adversarial-verify' — regression guard hành vi cũ"
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/**]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.test.workflows
+    expected: "case WT-T7a: 2 finding file ngoài union paths của evals → coverageCluster {count:2, total, files} + chỉ dẫn dòng 'dừng và quyết' trong prompt synthesize; WT-T7b: không eval nào có paths → coverageCluster null + note 'cluster: n-a'; WT-T7c (âm): finding trong vùng phủ → không flag; WT-T7d (biên): ĐÚNG 1 finding ngoài vùng phủ → coverageCluster null, không dòng cờ — ngưỡng cụm là ≥2"
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/**]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P49: cả commands/acceptance-card.md lẫn codex acceptance-card SKILL.md chứa nhánh backward tường minh (chuỗi chỉ dẫn 'không có section' → render như cũ) VÀ chứa chỉ dẫn render khối 'Ngoài hợp đồng' lên phần việc-của-người; đối chứng dương: xoá chuỗi trong bản sao → case đỏ"
+    paths: [commands/acceptance-card.md, codex/acceptance-gate/skills/acceptance-card/SKILL.md, tests/plugins/**]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P50: codex feature-loop-codex SKILL.md vùng S4 chứa đủ 3 ngăn triage + luật 'chỉ in-contract high mới REJECT' + fail-toward-human khi triage hỏng (ghim từng chuỗi khóa); bản sao bị xoá luật → đỏ"
+    paths: [codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md, tests/plugins/**]
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.test.workflows
+    expected: "case WT-T8: pin GOLDEN CLOSED-LIST tập section/field mà prompt synthesize chỉ dẫn cho evidence-report.md (danh sách đóng so BẰNG, không grep-vắng-chuỗi) — triage không có mặt trong list; đối chứng dương WT-T8b: tiêm chỉ dẫn 'thêm section Triage vào evidence-report' vào bản sao workflow → case ĐỎ với thông điệp lệch golden-list; hooks suite chạy qua suite_keys xanh nguyên trạng"
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/**]
+  - id: E11
+    criterion: AC-11
+    executor: judgment
+    question: "Đọc khối 'Ngoài hợp đồng' render theo chỉ dẫn card từ fixture mẫu: một người quyết kinh doanh không đọc code có hiểu finding là thật-nhưng-ngoài-phạm-vi-đã-duyệt, và phân biệt được 3 lựa chọn (Known limits / contract mới / nâng scope sửa ngay) không? Có jargon kỹ thuật nào lọt vào không?"
+    inputs: [_acceptance/s4-scope-triage/evidence/out-of-contract-card-sample.md]
+  - id: E12
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P51 (gác cổng cho judge E11): suite TỰ SINH LẠI evidence/out-of-contract-card-sample.md từ fixture review-findings mẫu + chỉ dẫn card trong cùng lần chạy rồi diff byte-đối-byte — cùng khuôn TE17/RL10"
+    paths: [commands/acceptance-card.md, tests/plugins/**]
+  - id: E13
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.test.workflows
+    expected: "case WT-T9: round BLOCKED (suite command cannotRun) + finding high inContract:true → verdict ghim 'BLOCKED', rejectFindings không kích hoạt fix; đối chứng dương WT-T9b: cùng fixture bỏ điều kiện BLOCKED → verdict 'REJECT'"
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/**]
+  - id: E14
+    criterion: AC-13
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P52: grep .github/workflows/gate.yml có step 'bash tests/workflows/run-tests.sh' VÀ _acceptance/config.yaml có executors.test.workflows + dòng đó trong feature_loop.suite_keys; đối chứng dương: xoá dòng step trong bản sao gate.yml → case đỏ đúng thông điệp"
+    paths: [.github/workflows/gate.yml, _acceptance/config.yaml, tests/plugins/**]

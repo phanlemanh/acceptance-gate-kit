@@ -1,0 +1,25 @@
+{
+  "feature_plain": "Khi máy verify xong, mỗi lỗi reviewer tìm ra được đối chiếu với hợp đồng đã duyệt: lỗi nặng TRONG phạm vi thì máy tự sửa, lỗi NGOÀI phạm vi thì đưa bạn quyết ở Cổng 2 — chấm dứt kiểu vòng xoáy 7 round như ở OneFlow.",
+  "will_do": [
+    { "id": "AC-1", "p": "Sẽ tự quay lại sửa ngay khi reviewer tìm thấy lỗi nặng nằm TRONG phạm vi đã duyệt — không tốn một lượt duyệt của bạn." },
+    { "id": "AC-2", "p": "Sẽ đưa lỗi nặng nằm NGOÀI phạm vi vào mục riêng chờ bạn quyết (ghi giới hạn đã biết / mở hợp đồng mới / nâng phạm vi) — máy không tự ý sửa." },
+    { "id": "AC-3", "p": "Sẽ ghi nhận lỗi nhẹ trong phạm vi kèm điều khoản liên quan — chỉ để tham khảo, không kéo máy đi sửa." },
+    { "id": "AC-7", "p": "Sẽ giơ cờ 'dừng và quyết' khi có từ 2 lỗi trở lên rơi vào vùng bộ đo không phủ — dấu hiệu hợp đồng đang hụt so với thực tế; 1 lỗi lẻ thì không làm phiền bạn." },
+    { "id": "AC-9", "p": "Sẽ áp cùng luật phân loại này trên cả hai môi trường chạy (Claude và Codex) — không lệch ngữ nghĩa." },
+    { "id": "AC-13", "p": "Sẽ nối bộ test workflow đang mồ côi vào CI và cấu hình — biến nó thành chốt chặn thật thay vì lời hứa." }
+  ],
+  "wont_do": [
+    { "id": "AC-4", "p": "Sẽ KHÔNG cho máy quyền sửa khi bước phân loại hỏng hoặc không đọc được hợp đồng — mọi lỗi chuyển sang chờ bạn, an toàn về phía người." },
+    { "id": "AC-5", "p": "Chặn lỗi ngoài phạm vi lọt vào danh sách sửa, kể cả khi vòng đó đã thất bại vì lý do khác — đây là chốt chặn vòng xoáy." },
+    { "id": "AC-6", "p": "Sẽ KHÔNG phân loại lỗi chưa qua kiểm chứng đối kháng — chúng giữ nguyên ngăn riêng như hiện tại." },
+    { "id": "AC-8", "p": "Sẽ KHÔNG làm hỏng thẻ của các feature cũ — hồ sơ thế hệ trước vẫn hiển thị như trước, không lỗi." },
+    { "id": "AC-10", "p": "Sẽ KHÔNG đổi cấu trúc hồ sơ bằng chứng — lớp khoá cứng hiện tại không cần biết feature này tồn tại." },
+    { "id": "AC-12", "p": "Sẽ KHÔNG sửa gì khi môi trường kiểm thử đang hỏng — trạng thái 'kẹt' vẫn thắng mọi lệnh sửa, không đốt vòng máy vô ích." }
+  ],
+  "scope_plain": "Máy không bao giờ tự sửa lỗi ngoài phạm vi (chính là bệnh đang chữa); không phân loại bằng so-khớp chuỗi máy móc; ngưỡng sửa-tự-động không tuỳ chỉnh đợt này; việc mở hợp đồng mới luôn là của người — các mục này chờ dữ liệu vận hành rồi tính tiếp.",
+  "decisions_plain": [
+    { "id": "d-20260727T114325Z-20802", "p": "Đã chọn cho máy tự sửa lỗi nặng trong phạm vi (tiết kiệm 1 lượt duyệt mỗi lần) — đổi lại: reviewer xác nhận nhầm thì mất 1 vòng máy, đã có kiểm chứng đối kháng và trần 3 vòng chặn." },
+    { "id": "d-20260727T114325Z-1303", "p": "Đã chọn 1 trợ lý phân loại cả danh sách lỗi — rẻ và nhất quán; nếu nó hỏng thì mọi lỗi chuyển sang chờ bạn, không ai được tự sửa." },
+    { "id": "d-20260727T114326Z-17947", "p": "KHÔNG làm ngưỡng tuỳ chỉnh theo repo — lỗi nhẹ trong phạm vi vẫn cần bạn đẩy ở Cổng 2; xem lại sau 2-3 feature dùng phân loại thật." }
+  ]
+}
