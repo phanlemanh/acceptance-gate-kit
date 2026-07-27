@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 2ef12850c9c83be5762959ad269e2aaadec2f52c
+verified_commit: 26af2297a6d5abe322d36bdc9415643099ded983
 # bypass_ack:
 human_signoff:
 ---
@@ -147,7 +147,7 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
   # T3 contract: human_override is MANDATORY on this judgment item regardless
   # of the panel's PASS proposal. Gate 2 human must personally verify and fill
   # "<name> <date>" before this report can be upgraded to PASS. This round's
-  # write is fresh (round 10) — a new round always requires its own Gate 2
+  # write is fresh (round 11) — a new round always requires its own Gate 2
   # signoff, so this line is blank pending human review.
 
 - eval: E11
@@ -437,6 +437,36 @@ is not a merge-blocking gap. Neither finding flips a machine eval's exit
 code, so neither changes this report's verdict, but Gate 2 should read both
 before signing off. Verified commit this round:
 `2ef12850c9c83be5762959ad269e2aaadec2f52c`.
+
+Round 11: No source paths touched by this round's diff intersect any of the
+13 evals' inputs (P1 delta-staleness), so E1-E9/E11-E13 are all carried
+forward from round 9 unchanged — `run_id`/`verified_at` copied verbatim from
+the round-9 run-log entries, no re-attribution — and the E10 judgment panel
+remains carried from round 4 (inputs_hash unchanged:
+`93581f38...66646b27879`), not re-chấm. As a sanity check (not eval-mapped —
+`evals: []` on every command this round) the full suite was re-run fresh
+anyway: `tests/scripts/run-tests.sh` 497 passed / 0 failed (incl. `PASS:
+RL10d` — same count as round 10, no drift), `tests/hooks/run-tests.sh` 51
+passed / 0 failed (incl. `PASS: T42`), `tests/plugins/run-tests.sh` all
+plugin tests passed (incl. `PASS: P50 argv thừa exit 2 + nêu tên tham số;
+mode đơn vẫn xanh`), `scripts/sync-plugin-packages.sh --check` reports
+`plugins/ mirror in sync.` — all four green, confirming no regression
+entered between round 10's verified commit and this round's
+(`2ef12850c9c` → `26af2297a6d`), an interval that includes two unrelated
+features' signoff commits (`853b74b`, `f93d686`) landing on the shared tree.
+Baseline was again NOT re-measured this round (P2 — evals.yaml still
+unchanged since the last baseline run); every carried machine eval's
+`baseline:` field carries `n-a` accordingly, and `## Analyst` continues to
+carry forward round 1's finding. The T3 mandatory human verdict for this
+round's write is still pending (`human_override:` blank), so the report is
+PENDING-JUDGMENT again for this fresh round — a new round always requires
+its own Gate 2 signoff, even though round 10 was previously signed off. No
+new adversarial-review findings this round (`review-findings.md` round 11
+is empty); round 10's two LOW findings were not reopened or re-verified
+this round (out of scope for a delta-carry-forward round — see round 10's
+entry above for their standing detail; neither was fixed in the interim
+commits, both remain informational-only, non-merge-blocking per round 10's
+repro). Verified commit this round: `26af2297a6d5abe322d36bdc9415643099ded983`.
 
 ## Gate 2 checklist (human)
 
