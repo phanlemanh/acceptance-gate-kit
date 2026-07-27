@@ -295,8 +295,10 @@ turn mới. Dùng đúng cách với feature-loop:
 **Khi nào:** ngay sau khi bạn duyệt Gate 1, trước khi rời máy.
 
 **Combo rời-máy trọn bộ (phiên đang chạy model đắt cho phần thiết kế):** duyệt Gate 1 →
-`/model claude-opus-4-8` (đoạn máy S2→S4 không cần tier thiết kế — S3 tuần tự + điều phối
-S4 chạy model phiên) → dán `/goal` theo template dưới → rời máy. Các vai agent-hóa được đã
+`/model opus` + `/effort high` (alias `opus` tự trỏ bản opus mới nhất — KHÔNG ghim model ID
+có số version kẻo lỗi thời; đoạn máy S2→S4 không cần tier thiết kế nhưng giữ effort cao —
+S3 tuần tự + điều phối S4 chạy model phiên; CLI chưa có `/effort` thì bỏ qua, effort mặc
+định auto) → dán `/goal` theo template dưới → rời máy. Các vai agent-hóa được đã
 ghim qua `feature_loop.models` (xem mục "Model theo giai đoạn" ngay dưới).
 
 **Template (điền slug của bạn, dán thành 1 dòng — xuống dòng dưới đây chỉ để dễ đọc):**
@@ -354,8 +356,8 @@ scribe · synthesize` (S4 verify) + `executor` (S3 execute). Giá trị `session
 model phiên (mặc định của `finder`/`executor`).
 
 **⚠ Alias model:** harness CHỈ nhận **tier alias** — `sonnet` · `opus` · `haiku` · `fable`
-— alias tự trỏ bản mới nhất của tier đó. Chuỗi có số version (kiểu `opus-4.8`, `sonnet-5`)
-bị harness **từ chối** khi spawn agent. Luôn dùng alias trần.
+— alias tự trỏ bản mới nhất của tier đó. Chuỗi có số version hoặc model ID đầy đủ (kiểu
+`claude-opus-5`, `sonnet-5`) bị harness **từ chối** khi spawn agent. Luôn dùng alias trần.
 
 **Giới hạn phạm vi:** pin `executor` chỉ cắn nhánh S3 **song song** (khi plan có ≥2 task
 `independent`). S3 **tuần tự** (đường mặc định) code ngay trong main loop = **model phiên** —
