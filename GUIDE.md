@@ -633,7 +633,7 @@ printf '%s\n' "$out"
 # 3. `enforcement: off` tắt cả sổ một cách hợp lệ — đòi dòng đó ở repo như vậy
 #    là job đỏ vĩnh viễn kèm chẩn đoán trỏ sai nguyên nhân.
 if [ "$st" -eq 0 ] \
-   && ! grep -qE '^enforcement:[[:space:]]*off[[:space:]]*(#.*)?$' _acceptance/config.yaml \
+   && ! grep -qE '^enforcement[[:space:]]*:[[:space:]]*off[[:space:]]*(#.*)?$' _acceptance/config.yaml \
    && ! printf '%s\n' "$out" | grep -q '^pre-merge-check: rules ran='; then
   echo "cổng thoát 0 mà KHÔNG chạy luật nào — kiểm lại đường dẫn repo (working-directory)"
   exit 1

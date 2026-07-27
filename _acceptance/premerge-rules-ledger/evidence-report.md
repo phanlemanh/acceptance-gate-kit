@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 71c42fa335e266924f5bc594a2d8aeb0e071fae1
+verified_commit: e8dcadac24c7673e7ca6edee5b9886604c6469c2
 # bypass_ack:
 human_signoff:
 ---
@@ -40,103 +40,103 @@ Codex, không phải bản sao Claude`), `bash scripts/sync-plugin-packages.sh
 ## Evidence
 
 - eval: E1
-  run_id: minted-premerge-rules-ledger-E1-r3
+  run_id: minted-premerge-rules-ledger-E1-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T06:52:00Z
+  verified_at: 2026-07-27T09:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E2
-  run_id: minted-premerge-rules-ledger-E2-r3
+  run_id: minted-premerge-rules-ledger-E2-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T06:52:00Z
+  verified_at: 2026-07-27T09:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E3
-  run_id: minted-premerge-rules-ledger-E3-r3
+  run_id: minted-premerge-rules-ledger-E3-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T06:52:00Z
+  verified_at: 2026-07-27T09:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E4
-  run_id: minted-premerge-rules-ledger-E4-r3
+  run_id: minted-premerge-rules-ledger-E4-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T06:52:00Z
+  verified_at: 2026-07-27T09:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E5
-  run_id: minted-premerge-rules-ledger-E5-r3
+  run_id: minted-premerge-rules-ledger-E5-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T06:52:00Z
+  verified_at: 2026-07-27T09:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E6
-  run_id: minted-premerge-rules-ledger-E6-r3
+  run_id: minted-premerge-rules-ledger-E6-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T06:52:00Z
+  verified_at: 2026-07-27T09:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E7
-  run_id: minted-premerge-rules-ledger-E7-r3
+  run_id: minted-premerge-rules-ledger-E7-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T06:52:00Z
+  verified_at: 2026-07-27T09:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E8
-  run_id: minted-premerge-rules-ledger-E8-r3
+  run_id: minted-premerge-rules-ledger-E8-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T06:52:00Z
+  verified_at: 2026-07-27T09:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E9
-  run_id: minted-premerge-rules-ledger-E9-r3
+  run_id: minted-premerge-rules-ledger-E9-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T06:52:00Z
+  verified_at: 2026-07-27T09:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E10
   criterion: AC-10
@@ -145,53 +145,53 @@ Codex, không phải bản sao Claude`), `bash scripts/sync-plugin-packages.sh
   rationale_summary: |
     All three lenses independently confirm the NOTE block immediately after
     the VIOLATION line names the missing block (gap-probe), states in plain
-    language that a `VIOLATION [ledger]` is an internal fault of the
-    pre-merge gate (not the user's change), and directs the next step
-    (report to the kit maintainer with the full run output; do not edit the
-    feature to route around it) — all three requirements of AC-10 answered
-    inline, no kit background knowledge required. Same conclusion as rounds
-    1 and 2's panels, re-run fresh this round.
+    language that this is an internal fault of the pre-merge gate (not the
+    user's change), and directs the next step (report to the kit maintainer
+    with the full run output; do not edit the feature to route around it) —
+    all three requirements of AC-10 answered inline, no kit background
+    knowledge required. Same conclusion as rounds 1-3's panels, re-run fresh
+    this round.
   votes:
-    - domain-correctness: PASS — Dòng NOTE ngay dưới VIOLATION nói rõ, bằng tiếng thường: đây là lỗi NỘI TẠI của cổng pre-merge... KHÔNG phải lỗi trong thay đổi của bạn. Khối thiếu được nêu tên cụ thể ngay trên đó ("luật gap-probe không chạy và không khai tắt"). Bước kế tiếp cũng được nói thẳng: báo maintainer của kit kèm TOÀN BỘ output lần chạy này; đừng sửa feature của bạn để né nó — cả ba tiêu chí của câu hỏi đều được trả lời tường minh, không cần suy luận thêm hay biết thuật ngữ nội bộ của kit.
-    - operational-feasibility: PASS — Thông điệp (dòng 18-20) đủ ba yếu tố: dòng NOTE nói rõ VIOLATION [ledger] là lỗi NỘI TẠI của cổng pre-merge ... KHÔNG phải lỗi trong thay đổi của bạn; dòng VIOLATION nêu đích danh khối thiếu là gap-probe; và NOTE chỉ rõ bước kế báo maintainer của kit kèm TOÀN BỘ output lần chạy này; đừng sửa feature của bạn để né nó. Một người chưa đọc kit thấy cả ba mảnh thông tin trong cùng một khối output liền kề, không cần suy luận thêm.
-    - spec-alignment: PASS — Dòng 18 nêu rõ khối thiếu ("luật gap-probe không chạy và không khai tắt"); dòng 20 (NOTE) nói thẳng bằng ngôn ngữ phổ thông rằng đây là lỗi NỘI TẠI của cổng pre-merge, KHÔNG phải lỗi trong thay đổi của người dùng, và chỉ rõ bước kế tiếp là báo maintainer của kit kèm toàn bộ output — không tự sửa feature để né. Cả ba yếu tố câu hỏi đòi hỏi (nội tại/không phải lỗi của họ, khối nào thiếu, bước kế) đều có mặt tường minh, không cần suy luận thêm hay biết trước về kit.
+    - domain-correctness: PASS — Dòng NOTE ngay sau VIOLATION nói rõ bằng ngôn ngữ phổ thông: đây là lỗi NỘI TẠI của cổng pre-merge (không phải lỗi thay đổi của người dùng), nêu đích danh khối thiếu ("luật gap-probe không chạy và không khai tắt"), và chỉ rõ bước kế tiếp ("báo maintainer của kit kèm TOÀN BỘ output lần chạy này; đừng sửa feature của bạn để né nó"). Cả ba yếu tố AC-10 hỏi đều có mặt tường minh, không cần suy diễn hay biết nội tình kit.
+    - operational-feasibility: PASS — Dòng VIOLATION nêu rõ khối bị thiếu ("luật gap-probe không chạy và không khai tắt"), và dòng NOTE ngay sau nói thẳng đây là "lỗi NỘI TẠI của cổng pre-merge... KHÔNG phải lỗi trong thay đổi của bạn", loại trừ khả năng người đọc tưởng mình gây lỗi. Bước kế tiếp cũng tường minh: "báo maintainer của kit kèm TOÀN BỘ output lần chạy này; đừng sửa feature của bạn để né nó" — cả ba yêu cầu của AC-10 (nội tại, khối nào thiếu, bước kế) đều có mặt và diễn đạt bằng ngôn ngữ thường, không cần biết trước về kit.
+    - spec-alignment: PASS — Dòng NOTE nói thẳng, không dùng thuật ngữ khó: "là lỗi NỘI TẠI của cổng pre-merge... KHÔNG phải lỗi trong thay đổi của bạn", nêu đúng khối bị lỗi ("gap-probe" ở dòng VIOLATION ngay phía trên) và chỉ rõ bước kế "báo maintainer của kit kèm TOÀN BỘ output lần chạy này; đừng sửa feature của bạn để né nó". Cả ba yêu cầu của AC-10 (lỗi nội tại, khối nào thiếu, bước kế báo maintainer) đều có mặt tường minh trong cùng một khối thông điệp, đọc được mà không cần biết trước ngữ cảnh của kit.
   human_override:
   # T3 contract: human_override is MANDATORY on this judgment item regardless
   # of the panel's PASS proposal. Gate 2 human must personally verify and fill
   # "<name> <date>" before this report can be upgraded to PASS.
 
 - eval: E11
-  run_id: minted-premerge-rules-ledger-E11-r3
+  run_id: minted-premerge-rules-ledger-E11-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T06:52:00Z
+  verified_at: 2026-07-27T09:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E12
-  run_id: minted-premerge-rules-ledger-E12-r3
+  run_id: minted-premerge-rules-ledger-E12-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T06:52:00Z
+  verified_at: 2026-07-27T09:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 - eval: E13
-  run_id: minted-premerge-rules-ledger-E13-r3
+  run_id: minted-premerge-rules-ledger-E13-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T06:52:00Z
+  verified_at: 2026-07-27T09:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 459 passed, 0 failed
+    Results: 460 passed, 0 failed
 
 ## Analyst
 
@@ -260,6 +260,31 @@ under the same "sửa theo LỚP" lens that flagged round 2's HIGH, plus one
 unrelated low-severity shell quoting slip in the test suite itself. None of
 these flip a machine eval's exit code, so they do not change this report's
 verdict, but Gate 2 should read them before signing off.
+
+Round 4: All 13 machine evals (E1-E9, E11-E13) passed again
+(`tests/scripts/run-tests.sh`: 460 passed, 0 failed — case count vs round 3's
+459 reflects a small intervening test addition, not a coverage loss; no eval
+failed), plus regression-guard suites `tests/hooks/run-tests.sh` (51 passed,
+0 failed, incl. `PASS: T42`), `tests/plugins/run-tests.sh` (all plugin tests
+passed, incl. `PASS: P49 description gọi Codex giữ bản sắc Codex, không phải
+bản sao Claude`), and `scripts/sync-plugin-packages.sh --check` (`plugins/
+mirror in sync.`). Baseline was again NOT re-measured this round (P2 —
+evals.yaml still unchanged since the last baseline run); every machine
+eval's `baseline:` field carries `n-a` accordingly, and `## Analyst`
+continues to carry forward round 1's finding. The E10 judgment panel was
+re-run fresh (not carried) and again unanimously proposed PASS with matching
+rationale to rounds 1-3; the T3 mandatory human verdict is still pending, so
+the report stays PENDING-JUDGMENT. This round's commit (71c42fa, docs-only
+model-routing note) landed since round 3; a fresh adversarial review pass
+this round (see `review-findings.md`, round 4) surfaced 1 new finding
+(MEDIUM) — the new GUIDE.md fail-closed CI snippet for the `enforcement`
+key parses `enforcement:\s*off` narrower than the two real parsers it must
+mirror (hook regex and `pre-merge-check.sh`'s own bash regex), missing the
+`enforcement : off` (space-before-colon) variant that round-3's new test
+RL11c pins as legitimately valid-off — same "sửa theo LỚP" class of gap as
+round 3's finding, this time surfacing in prose/docs rather than in a
+script. This does not flip a machine eval's exit code, so it does not
+change this report's verdict, but Gate 2 should read it before signing off.
 
 ## Gate 2 checklist (human)
 

@@ -81,3 +81,25 @@
 - **claude-opus-5**: 2 agent · 17 calls · out 11,991 · in 33 · cache_read 1,312,046 · cache_create 195,002
 - **claude-haiku-4-5-20251001**: 5 agent · 17 calls · out 4,720 · in 146 · cache_read 713,645 · cache_create 306,557
 
+### S4 round 4 (delta fix leftover) — wf_636382dd-17d (13 agent, 51,160 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| review:bugs | claude-fable-5 | 16 | 17,907 | 31 | 1,836,502 | 373 |
+| review:conventions | claude-fable-5 | 16 | 10,453 | 31 | 1,613,047 | 341 |
+| synthesize:report | claude-sonnet-5 | 7 | 10,333 | 5,871 | 591,090 | 118 |
+| refute:GUIDE.md | claude-sonnet-5 | 10 | 3,197 | 20 | 752,220 | 62 |
+| scribe:run-log | claude-haiku-4-5-20251001 | 5 | 1,769 | 42 | 237,320 | 31 |
+| judge:E10:spec-alignment | claude-sonnet-5 | 2 | 1,726 | 4 | 75,308 | 26 |
+| judge:E10:operational-feasibility | claude-sonnet-5 | 2 | 1,304 | 4 | 75,310 | 22 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 3 | 1,118 | 26 | 114,949 | 64 |
+| judge:E10:domain-correctness | claude-sonnet-5 | 2 | 1,008 | 4 | 75,308 | 17 |
+| capture:provenance | claude-sonnet-5 | 2 | 785 | 4 | 75,324 | 13 |
+| machine:bash tests/plugins/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 611 | 18 | 55,765 | 42 |
+| machine:bash scripts/sync-plugin-packages.sh --c | claude-haiku-4-5-20251001 | 2 | 542 | 18 | 55,769 | 12 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 407 | 18 | 73,127 | 17 |
+
+- **claude-fable-5**: 2 agent · 32 calls · out 28,360 · in 62 · cache_read 3,449,549 · cache_create 277,381
+- **claude-sonnet-5**: 6 agent · 25 calls · out 18,353 · in 5,907 · cache_read 1,644,560 · cache_create 523,521
+- **claude-haiku-4-5-20251001**: 5 agent · 14 calls · out 4,447 · in 122 · cache_read 536,930 · cache_create 296,708
+
