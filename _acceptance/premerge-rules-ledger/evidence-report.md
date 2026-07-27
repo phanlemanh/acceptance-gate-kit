@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: e1bfcf42d07000e88ea0ff88672dab080de9da6d
+verified_commit: c6bf3e663315cf5b2996996da7b94c8ef4244c38
 # bypass_ack:
 human_signoff:
 ---
@@ -41,111 +41,111 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
 
 - eval: E1
   criterion: AC-1
-  run_id: minted-premerge-rules-ledger-E1-r7
+  run_id: minted-premerge-rules-ledger-E1-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:55:00Z
+  verified_at: 2026-07-27T14:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 490 passed, 0 failed
+    Results: 495 passed, 0 failed
 
 - eval: E2
   criterion: AC-2
-  run_id: minted-premerge-rules-ledger-E2-r7
+  run_id: minted-premerge-rules-ledger-E2-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:55:00Z
+  verified_at: 2026-07-27T14:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 490 passed, 0 failed
+    Results: 495 passed, 0 failed
 
 - eval: E3
   criterion: AC-3
-  run_id: minted-premerge-rules-ledger-E3-r7
+  run_id: minted-premerge-rules-ledger-E3-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:55:00Z
+  verified_at: 2026-07-27T14:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 490 passed, 0 failed
+    Results: 495 passed, 0 failed
 
 - eval: E4
   criterion: AC-4
-  run_id: minted-premerge-rules-ledger-E4-r7
+  run_id: minted-premerge-rules-ledger-E4-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:55:00Z
+  verified_at: 2026-07-27T14:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 490 passed, 0 failed
+    Results: 495 passed, 0 failed
 
 - eval: E5
   criterion: AC-5
-  run_id: minted-premerge-rules-ledger-E5-r7
+  run_id: minted-premerge-rules-ledger-E5-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:55:00Z
+  verified_at: 2026-07-27T14:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 490 passed, 0 failed
+    Results: 495 passed, 0 failed
 
 - eval: E6
   criterion: AC-6
-  run_id: minted-premerge-rules-ledger-E6-r7
+  run_id: minted-premerge-rules-ledger-E6-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:55:00Z
+  verified_at: 2026-07-27T14:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 490 passed, 0 failed
+    Results: 495 passed, 0 failed
 
 - eval: E7
   criterion: AC-7
-  run_id: minted-premerge-rules-ledger-E7-r7
+  run_id: minted-premerge-rules-ledger-E7-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:55:00Z
+  verified_at: 2026-07-27T14:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 490 passed, 0 failed
+    Results: 495 passed, 0 failed
 
 - eval: E8
   criterion: AC-8
-  run_id: minted-premerge-rules-ledger-E8-r7
+  run_id: minted-premerge-rules-ledger-E8-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:55:00Z
+  verified_at: 2026-07-27T14:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 490 passed, 0 failed
+    Results: 495 passed, 0 failed
 
 - eval: E9
   criterion: AC-9
-  run_id: minted-premerge-rules-ledger-E9-r7
+  run_id: minted-premerge-rules-ledger-E9-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:55:00Z
+  verified_at: 2026-07-27T14:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 490 passed, 0 failed
+    Results: 495 passed, 0 failed
 
 - eval: E10
   criterion: AC-10
@@ -167,39 +167,39 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
 
 - eval: E11
   criterion: AC-10
-  run_id: minted-premerge-rules-ledger-E11-r7
+  run_id: minted-premerge-rules-ledger-E11-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:55:00Z
+  verified_at: 2026-07-27T14:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 490 passed, 0 failed
+    Results: 495 passed, 0 failed
 
 - eval: E12
   criterion: AC-11
-  run_id: minted-premerge-rules-ledger-E12-r7
+  run_id: minted-premerge-rules-ledger-E12-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:55:00Z
+  verified_at: 2026-07-27T14:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 490 passed, 0 failed
+    Results: 495 passed, 0 failed
 
 - eval: E13
   criterion: AC-12
-  run_id: minted-premerge-rules-ledger-E13-r7
+  run_id: minted-premerge-rules-ledger-E13-r8
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:55:00Z
+  verified_at: 2026-07-27T14:30:00Z
   output: |
     PASS: RL10d
 
-    Results: 490 passed, 0 failed
+    Results: 495 passed, 0 failed
 
 ## Analyst
 
@@ -365,6 +365,33 @@ fresh round — a new round always requires its own Gate 2 signoff. No new
 adversarial-review findings this round (`review-findings.md` round 7 lists
 none); no prior-round findings were reopened on this round's verified
 commit (`e1bfcf42d07000e88ea0ff88672dab080de9da6d`).
+
+Round 8: All 13 machine evals (E1-E9, E11-E13) re-ran fresh this round via
+`bash tests/scripts/run-tests.sh` — 495 passed, 0 failed (incl. `PASS:
+RL10d`; case count vs round 7's 490 reflects intervening test additions on
+the shared tree, not a coverage loss; no eval failed), plus regression-guard
+suites `tests/hooks/run-tests.sh` (51 passed, 0 failed, incl. `PASS: T42`),
+`tests/plugins/run-tests.sh` (all plugin tests passed, incl. `PASS: P50 argv
+thừa exit 2 + nêu tên tham số; mode đơn vẫn xanh`), and
+`scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
+Baseline was again NOT re-measured this round (P2 — evals.yaml still
+unchanged since the last baseline run); every machine eval's `baseline:`
+field carries `n-a` accordingly, and `## Analyst` continues to carry forward
+round 1's finding. The E10 judgment panel remains carried from round 4
+(inputs_hash unchanged: `93581f38...66646b27879`), not re-chấm; the T3
+mandatory human verdict for this round's write is still pending
+(`human_override:` blank), so the report is PENDING-JUDGMENT again for this
+fresh round — a new round always requires its own Gate 2 signoff. A fresh
+adversarial-review pass this round (see `review-findings.md`, round 8)
+surfaced 1 new finding (MEDIUM) — two sibling cases in the round-7 RL15d
+guard group (RL15D2 `--slug .`, RL15D3 `--slug ..`) assert only the bare
+exit code, not the guard's actual message, unlike their sibling RL15D1 and
+every other case in the same round-7 batch (RL14a/b/c/e, RL15a/b/c, RL5b,
+TE18i2) — the same negative-assertion-alone gap CLAUDE.md's invariant #4
+calls out, this time two cases sitting in the same file the invariant's own
+history log already names. This does not flip a machine eval's exit code,
+so it does not change this report's verdict, but Gate 2 should read it
+before signing off.
 
 ## Gate 2 checklist (human)
 

@@ -2516,7 +2516,9 @@ RL15COK="$(bash "$CHECK" "$RL15CD" 2>&1)"; check RL15cctrl 0 $?
 RL15D1="$(bash "$CHECK" "$TE_R" --base "$TE_B" --slug "feat-rl/" 2>&1)"; check RL15d1 2 $?
 hasout RL15d1m "is not a plain slug name" "$RL15D1"
 RL15D2="$(bash "$CHECK" "$TE_R" --base "$TE_B" --slug . 2>&1)"; check RL15d2 2 $?
+hasout RL15d2m "is not a plain slug name" "$RL15D2"
 RL15D3="$(bash "$CHECK" "$TE_R" --base "$TE_B" --slug .. 2>&1)"; check RL15d3 2 $?
+hasout RL15d3m "is not a plain slug name" "$RL15D3"
 nothas RL15d4 "pre-merge-check: clean" "$RL15D1$RL15D2$RL15D3"
 
 echo "RL6 dem loi thoat exit 0 bang may — DUNG HAI loi (AC-6)"
