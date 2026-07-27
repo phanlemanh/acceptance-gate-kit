@@ -1,15 +1,15 @@
 ---
 schema_version: 2
 feature_slug: premerge-rules-ledger
-verdict: PASS
+verdict: PENDING-JUDGMENT
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c90c06d01d675c59058d7da14c627af7a2699055
+verified_commit: 775d887536d5d7de4bb057ac74d4bf2f3f28304b
 # bypass_ack:
-human_signoff: Manh Phan 2026-07-27
+human_signoff:
 ---
 
 # Evidence Report: premerge-rules-ledger
@@ -25,144 +25,181 @@ human_signoff: Manh Phan 2026-07-27
 | E7 | AC-7 | test | PASS |
 | E8 | AC-8 | test | PASS |
 | E9 | AC-9 | test | PASS |
-| E10 | AC-10 | judgment | PASS (proposal — T3 mandatory human verdict pending) |
+| E10 | AC-10 | judgment | UNCERTAIN (panel proposal: PASS — carried from round 4, human_override pending) |
 | E11 | AC-10 | test | PASS |
 | E12 | AC-11 | test | PASS |
 | E13 | AC-12 | test | PASS |
 
-Regression-guard suites (all unmapped this round — evidence for E1-E9/E11-E13
-is carried forward per P1 below, not re-attributed to a fresh run; listed for
-completeness — not counted under `## Analyst`): `bash tests/scripts/run-tests.sh`
-(460 passed, 0 failed, incl. `PASS: RL10d`), `bash tests/hooks/run-tests.sh`
-(51 passed, 0 failed, incl. `PASS: T42`), `bash tests/plugins/run-tests.sh`
-(all plugin tests passed, incl. `PASS: P49 description gọi Codex giữ bản sắc
-Codex, không phải bản sao Claude`), `bash scripts/sync-plugin-packages.sh
---check` (`plugins/ mirror in sync.`).
+Regression-guard suites (unmapped this round — `evals: []`, run as a sanity
+check alongside the mapped run above, not re-attributed to any eval):
+`bash tests/hooks/run-tests.sh` (51 passed, 0 failed, incl. `PASS: T42`),
+`bash tests/plugins/run-tests.sh` (all plugin tests passed, incl. `PASS: P49
+description gọi Codex giữ bản sắc Codex, không phải bản sao Claude`), `bash
+scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
 
 ## Evidence
 
 - eval: E1
   criterion: AC-1
-  run_id: minted-premerge-rules-ledger-E1-r4
+  run_id: minted-premerge-rules-ledger-E1-r6
   exit_code: 0
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T09:30:00Z
-  carried_from_round: 4
-  note: carry-forward tu round 4 — delta khong cham paths cua eval
+  verified_at: 2026-07-27T12:20:00Z
+  output: |
+    PASS: RL10d
+
+    Results: 473 passed, 0 failed
 
 - eval: E2
   criterion: AC-2
-  run_id: minted-premerge-rules-ledger-E2-r4
+  run_id: minted-premerge-rules-ledger-E2-r6
   exit_code: 0
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T09:30:00Z
-  carried_from_round: 4
-  note: carry-forward tu round 4 — delta khong cham paths cua eval
+  verified_at: 2026-07-27T12:20:00Z
+  output: |
+    PASS: RL10d
+
+    Results: 473 passed, 0 failed
 
 - eval: E3
   criterion: AC-3
-  run_id: minted-premerge-rules-ledger-E3-r4
+  run_id: minted-premerge-rules-ledger-E3-r6
   exit_code: 0
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T09:30:00Z
-  carried_from_round: 4
-  note: carry-forward tu round 4 — delta khong cham paths cua eval
+  verified_at: 2026-07-27T12:20:00Z
+  output: |
+    PASS: RL10d
+
+    Results: 473 passed, 0 failed
 
 - eval: E4
   criterion: AC-4
-  run_id: minted-premerge-rules-ledger-E4-r4
+  run_id: minted-premerge-rules-ledger-E4-r6
   exit_code: 0
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T09:30:00Z
-  carried_from_round: 4
-  note: carry-forward tu round 4 — delta khong cham paths cua eval
+  verified_at: 2026-07-27T12:20:00Z
+  output: |
+    PASS: RL10d
+
+    Results: 473 passed, 0 failed
 
 - eval: E5
   criterion: AC-5
-  run_id: minted-premerge-rules-ledger-E5-r4
+  run_id: minted-premerge-rules-ledger-E5-r6
   exit_code: 0
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T09:30:00Z
-  carried_from_round: 4
-  note: carry-forward tu round 4 — delta khong cham paths cua eval
+  verified_at: 2026-07-27T12:20:00Z
+  output: |
+    PASS: RL10d
+
+    Results: 473 passed, 0 failed
 
 - eval: E6
   criterion: AC-6
-  run_id: minted-premerge-rules-ledger-E6-r4
+  run_id: minted-premerge-rules-ledger-E6-r6
   exit_code: 0
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T09:30:00Z
-  carried_from_round: 4
-  note: carry-forward tu round 4 — delta khong cham paths cua eval
+  verified_at: 2026-07-27T12:20:00Z
+  output: |
+    PASS: RL10d
+
+    Results: 473 passed, 0 failed
 
 - eval: E7
   criterion: AC-7
-  run_id: minted-premerge-rules-ledger-E7-r4
+  run_id: minted-premerge-rules-ledger-E7-r6
   exit_code: 0
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T09:30:00Z
-  carried_from_round: 4
-  note: carry-forward tu round 4 — delta khong cham paths cua eval
+  verified_at: 2026-07-27T12:20:00Z
+  output: |
+    PASS: RL10d
+
+    Results: 473 passed, 0 failed
 
 - eval: E8
   criterion: AC-8
-  run_id: minted-premerge-rules-ledger-E8-r4
+  run_id: minted-premerge-rules-ledger-E8-r6
   exit_code: 0
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T09:30:00Z
-  carried_from_round: 4
-  note: carry-forward tu round 4 — delta khong cham paths cua eval
+  verified_at: 2026-07-27T12:20:00Z
+  output: |
+    PASS: RL10d
+
+    Results: 473 passed, 0 failed
 
 - eval: E9
   criterion: AC-9
-  run_id: minted-premerge-rules-ledger-E9-r4
+  run_id: minted-premerge-rules-ledger-E9-r6
   exit_code: 0
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T09:30:00Z
-  carried_from_round: 4
-  note: carry-forward tu round 4 — delta khong cham paths cua eval
+  verified_at: 2026-07-27T12:20:00Z
+  output: |
+    PASS: RL10d
+
+    Results: 473 passed, 0 failed
 
 - eval: E10
   criterion: AC-10
   carried: true
   carried_from_round: 4
-  note: panel giu nguyen tu round 4 — inputs khong doi (inputs_hash khop), khong cham lai; rationale xem round 4
+  note: panel giữ nguyên từ round 4 — inputs không đổi (inputs_hash khớp:
+    93581f389e6c8357a68fbd06a316c3795fe2312997931082f02bb66646b27879), không
+    chấm lại; rationale xem round 4
+  judged_by: judge-subagent (fresh context, round 4)
   proposal: PASS
   votes:
     - domain-correctness: PASS (r4)
     - operational-feasibility: PASS (r4)
     - spec-alignment: PASS (r4)
-  human_override: Manh Phan 2026-07-27
+  human_override:
   # T3 contract: human_override is MANDATORY on this judgment item regardless
   # of the panel's PASS proposal. Gate 2 human must personally verify and fill
   # "<name> <date>" before this report can be upgraded to PASS.
 
 - eval: E11
   criterion: AC-10
-  run_id: minted-premerge-rules-ledger-E11-r4
+  run_id: minted-premerge-rules-ledger-E11-r6
   exit_code: 0
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T09:30:00Z
-  carried_from_round: 4
-  note: carry-forward tu round 4 — delta khong cham paths cua eval
+  verified_at: 2026-07-27T12:20:00Z
+  output: |
+    PASS: RL10d
+
+    Results: 473 passed, 0 failed
 
 - eval: E12
   criterion: AC-11
-  run_id: minted-premerge-rules-ledger-E12-r4
+  run_id: minted-premerge-rules-ledger-E12-r6
   exit_code: 0
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T09:30:00Z
-  carried_from_round: 4
-  note: carry-forward tu round 4 — delta khong cham paths cua eval
+  verified_at: 2026-07-27T12:20:00Z
+  output: |
+    PASS: RL10d
+
+    Results: 473 passed, 0 failed
 
 - eval: E13
   criterion: AC-12
-  run_id: minted-premerge-rules-ledger-E13-r4
+  run_id: minted-premerge-rules-ledger-E13-r6
   exit_code: 0
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T09:30:00Z
-  carried_from_round: 4
-  note: carry-forward tu round 4 — delta khong cham paths cua eval
+  verified_at: 2026-07-27T12:20:00Z
+  output: |
+    PASS: RL10d
+
+    Results: 473 passed, 0 failed
 
 ## Analyst
 
@@ -283,7 +320,30 @@ empty); round 4's sole finding (GUIDE.md enforcement-regex parity) was
 already fixed in the same commit that produced round 4's own evidence write
 (`89fa742`), confirmed present on this round's verified commit. The T3
 mandatory human verdict on E10 is still pending, so the report stays
-PENDING-JUDGMENT.
+PENDING-JUDGMENT. Gate 2 subsequently reviewed and signed off this round
+(`human_signoff: Manh Phan 2026-07-27`, verdict upgraded to PASS,
+`verified_commit: c90c06d01d675c59058d7da14c627af7a2699055`), recorded in
+git as `c95464a`.
+
+Round 6: All 13 machine evals (E1-E9, E11-E13) re-ran fresh this round via
+`bash tests/scripts/run-tests.sh` — 473 passed, 0 failed (incl. `PASS:
+RL10d`; case count vs round 5's 460 reflects intervening test additions from
+unrelated feature work landing on the shared tree, not a coverage loss; no
+eval failed), plus regression-guard suites `tests/hooks/run-tests.sh` (51
+passed, 0 failed, incl. `PASS: T42`), `tests/plugins/run-tests.sh` (all
+plugin tests passed, incl. `PASS: P49 description gọi Codex giữ bản sắc
+Codex, không phải bản sao Claude`), and `scripts/sync-plugin-packages.sh
+--check` (`plugins/ mirror in sync.`). Baseline was again NOT re-measured
+this round (P2 — evals.yaml still unchanged since the last baseline run);
+every machine eval's `baseline:` field carries `n-a` accordingly, and
+`## Analyst` continues to carry forward round 1's finding. The E10 judgment
+panel remains carried from round 4 (inputs_hash unchanged:
+`93581f38...66646b27879`), not re-chấm; the T3 mandatory human verdict for
+this round's write is still pending (`human_override:` blank), so the
+report reverts to PENDING-JUDGMENT for this fresh round despite round 5
+having been signed off — a new round always requires its own Gate 2
+signoff. No new adversarial-review findings this round (`review-findings.md`
+round 6 lists none); no prior-round findings were reopened.
 
 ## Gate 2 checklist (human)
 

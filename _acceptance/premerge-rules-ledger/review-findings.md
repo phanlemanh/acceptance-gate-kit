@@ -1,4 +1,4 @@
-# Review Findings: premerge-rules-ledger (round 5)
+# Review Findings: premerge-rules-ledger (round 6)
 
 Informational — outside the hook-enforced evidence-report schema. Findings
 below have all been adversarial-verified (reproduced or traced to exact
@@ -8,17 +8,17 @@ code/doc lines) prior to listing here.
 
 No new findings this round.
 
-This round's diff does not touch any of the 13 evals' input paths (P1
-delta-staleness — see `evidence-report.md` round 5 note), and the
-adversarial review pass found nothing new to add. Round 4's sole finding —
-GUIDE.md fail-closed CI snippet parsing `enforcement: off` narrower than the
-hook/`pre-merge-check.sh` parsers it must mirror — was already fixed in the
-same commit that produced round 4's own evidence write (`89fa742`:
-`GUIDE.md:636` widened to
-`^enforcement[[:space:]]*:[[:space:]]*off[[:space:]]*(#.*)?$`, mirrored into
-`plugins/acceptance-gate/GUIDE.md`), and remains fixed on this round's
-verified commit (`c90c06d01d675c59058d7da14c627af7a2699055`). No prior-round
-findings were reopened.
+All four command results this round are green: `bash tests/scripts/run-tests.sh`
+(473 passed, 0 failed, incl. `PASS: RL10d`), `bash tests/hooks/run-tests.sh`
+(51 passed, 0 failed, incl. `PASS: T42`), `bash tests/plugins/run-tests.sh`
+(all plugin tests passed, incl. `PASS: P49`), and
+`bash scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
+Round 5's adversarial pass found nothing outstanding (round 5's
+`review-findings.md` was already empty, with round 4's sole finding —
+GUIDE.md enforcement-regex parity — confirmed already fixed on round 5's
+verified commit). This round's adversarial review pass likewise found
+nothing new to add, and no prior-round findings were reopened on this
+round's verified commit (`775d887536d5d7de4bb057ac74d4bf2f3f28304b`).
 
 ---
 
