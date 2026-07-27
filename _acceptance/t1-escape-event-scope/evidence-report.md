@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: t1-escape-event-scope
-verdict: PASS
+verdict: PENDING-JUDGMENT
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 7fdfad17bd6895b481617a353555e35fea834359
-human_signoff: Manh Phan 2026-07-26
+verified_commit: 02d818764c316b64c3bcc35901ef6a943979df6f
+human_signoff:
 ---
 
 # Evidence Report: t1-escape-event-scope
@@ -37,191 +37,191 @@ human_signoff: Manh Phan 2026-07-26
 ## Evidence
 
 - eval: E1
-  run_id: minted-t1-escape-event-scope-E1-r6
+  run_id: minted-t1-escape-event-scope-E1-r7
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T18:30:00Z
+  verified_at: 2026-07-27T08:45:00Z
   output: |
-    PASS: TE18g2
+    PASS: RL10d
 
-    Results: 334 passed, 0 failed
+    Results: 459 passed, 0 failed
 
 - eval: E2
-  run_id: minted-t1-escape-event-scope-E2-r6
+  run_id: minted-t1-escape-event-scope-E2-r7
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T18:30:00Z
+  verified_at: 2026-07-27T08:45:00Z
   output: |
-    PASS: TE18g2
+    PASS: RL10d
 
-    Results: 334 passed, 0 failed
+    Results: 459 passed, 0 failed
 
 - eval: E3
-  run_id: minted-t1-escape-event-scope-E3-r6
+  run_id: minted-t1-escape-event-scope-E3-r7
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T18:30:00Z
+  verified_at: 2026-07-27T08:45:00Z
   output: |
-    PASS: TE18g2
+    PASS: RL10d
 
-    Results: 334 passed, 0 failed
+    Results: 459 passed, 0 failed
 
 - eval: E4
-  run_id: minted-t1-escape-event-scope-E4-r6
+  run_id: minted-t1-escape-event-scope-E4-r7
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T18:30:00Z
+  verified_at: 2026-07-27T08:45:00Z
   output: |
-    PASS: TE18g2
+    PASS: RL10d
 
-    Results: 334 passed, 0 failed
+    Results: 459 passed, 0 failed
 
 - eval: E5
-  run_id: minted-t1-escape-event-scope-E5-r6
+  run_id: minted-t1-escape-event-scope-E5-r7
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T18:30:00Z
+  verified_at: 2026-07-27T08:45:00Z
   output: |
-    PASS: TE18g2
+    PASS: RL10d
 
-    Results: 334 passed, 0 failed
+    Results: 459 passed, 0 failed
 
 - eval: E6
-  run_id: minted-t1-escape-event-scope-E6-r6
+  run_id: minted-t1-escape-event-scope-E6-r7
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-26T18:30:00Z
+  verified_at: 2026-07-27T08:45:00Z
   output: |
-    PASS: P46 mode la: exit 2, ghim thong diep, KHONG ghi de
+    PASS: P49 description goi Codex giu ban sac Codex, khong phai ban sao Claude
 
     Results: all plugin tests passed
 
 - eval: E7
-  run_id: minted-t1-escape-event-scope-E7-r6
+  run_id: minted-t1-escape-event-scope-E7-r7
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T18:30:00Z
+  verified_at: 2026-07-27T08:45:00Z
   output: |
-    PASS: TE18g2
+    PASS: RL10d
 
-    Results: 334 passed, 0 failed
+    Results: 459 passed, 0 failed
 
 - eval: E8
-  run_id: minted-t1-escape-event-scope-E8-r6
+  run_id: minted-t1-escape-event-scope-E8-r7
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-26T18:30:00Z
+  verified_at: 2026-07-27T08:45:00Z
   output: |
-    PASS: P46 mode la: exit 2, ghim thong diep, KHONG ghi de
+    PASS: P49 description goi Codex giu ban sac Codex, khong phai ban sao Claude
 
     Results: all plugin tests passed
 
 - eval: E9
-  run_id: minted-t1-escape-event-scope-E9-r6
+  run_id: minted-t1-escape-event-scope-E9-r7
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-26T18:30:00Z
+  verified_at: 2026-07-27T08:45:00Z
   output: |
-    PASS: P46 mode la: exit 2, ghim thong diep, KHONG ghi de
+    PASS: P49 description goi Codex giu ban sac Codex, khong phai ban sao Claude
 
     Results: all plugin tests passed
 
 - eval: E10
-  run_id: minted-t1-escape-event-scope-E10-r6
+  run_id: minted-t1-escape-event-scope-E10-r7
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-26T18:30:00Z
+  verified_at: 2026-07-27T08:45:00Z
   output: |
-    PASS: P46 mode la: exit 2, ghim thong diep, KHONG ghi de
+    PASS: P49 description goi Codex giu ban sac Codex, khong phai ban sao Claude
 
     Results: all plugin tests passed
 
 - eval: E11
-  run_id: minted-t1-escape-event-scope-E11-r6
+  run_id: minted-t1-escape-event-scope-E11-r7
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-26T18:30:00Z
+  verified_at: 2026-07-27T08:45:00Z
   output: |
-    PASS: P46 mode la: exit 2, ghim thong diep, KHONG ghi de
+    PASS: P49 description goi Codex giu ban sac Codex, khong phai ban sao Claude
 
     Results: all plugin tests passed
 
 - eval: E12
-  run_id: minted-t1-escape-event-scope-E12-r6
+  run_id: minted-t1-escape-event-scope-E12-r7
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-26T18:30:00Z
+  verified_at: 2026-07-27T08:45:00Z
   output: |
-    PASS: P46 mode la: exit 2, ghim thong diep, KHONG ghi de
+    PASS: P49 description goi Codex giu ban sac Codex, khong phai ban sao Claude
 
     Results: all plugin tests passed
 
 - eval: E14
-  run_id: minted-t1-escape-event-scope-E14-r6
+  run_id: minted-t1-escape-event-scope-E14-r7
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T18:30:00Z
+  verified_at: 2026-07-27T08:45:00Z
   output: |
-    PASS: TE18g2
+    PASS: RL10d
 
-    Results: 334 passed, 0 failed
+    Results: 459 passed, 0 failed
 
 - eval: E15
-  run_id: minted-t1-escape-event-scope-E15-r6
+  run_id: minted-t1-escape-event-scope-E15-r7
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T18:30:00Z
+  verified_at: 2026-07-27T08:45:00Z
   output: |
-    PASS: TE18g2
+    PASS: RL10d
 
-    Results: 334 passed, 0 failed
+    Results: 459 passed, 0 failed
 
 - eval: E16
-  run_id: minted-t1-escape-event-scope-E16-r6
+  run_id: minted-t1-escape-event-scope-E16-r7
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T18:30:00Z
+  verified_at: 2026-07-27T08:45:00Z
   output: |
-    PASS: TE18g2
+    PASS: RL10d
 
-    Results: 334 passed, 0 failed
+    Results: 459 passed, 0 failed
 
 - eval: E17
-  run_id: minted-t1-escape-event-scope-E17-r6
+  run_id: minted-t1-escape-event-scope-E17-r7
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T18:30:00Z
+  verified_at: 2026-07-27T08:45:00Z
   output: |
-    PASS: TE18g2
+    PASS: RL10d
 
-    Results: 334 passed, 0 failed
+    Results: 459 passed, 0 failed
 
 - eval: E18
-  run_id: minted-t1-escape-event-scope-E18-r6
+  run_id: minted-t1-escape-event-scope-E18-r7
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-26T18:30:00Z
+  verified_at: 2026-07-27T08:45:00Z
   output: |
-    PASS: TE18g2
+    PASS: RL10d
 
-    Results: 334 passed, 0 failed
+    Results: 459 passed, 0 failed
 
 - eval: E13
   judged_by: judge panel — domain-correctness, operational-feasibility, spec-alignment (fresh context)
@@ -229,33 +229,36 @@ human_signoff: Manh Phan 2026-07-26
   rationale: |
     Panel unanimous, 3/3 lenses, no dissent to reconcile.
 
-    - domain-correctness: PASS — Bằng chứng (dòng 9-10) nêu rõ tên lớp đang
-      tắt ("răng T1-escape"), định nghĩa ngắn gọn luật đó làm gì (mọi thay
-      đổi chạm code quan trọng phải kèm _acceptance/<slug>/), lý do tắt cụ
-      thể (lần chạy là push thẳng nhánh chính, không phải PR so nhánh, nên
-      tiền đề so sánh không áp dụng — ví dụ commit đóng gói/đồng bộ), và rủi
-      ro cụ thể nếu tắt (thay đổi chạm code quan trọng lọt qua sẽ không bị
-      chặn dù thiếu hồ sơ nghiệm thu, trong khi các luật khác vẫn chạy).
-      Người chưa từng đọc kit có đủ thông tin để hiểu cả ba yếu tố mà không
-      cần suy đoán.
-    - operational-feasibility: PASS — Dòng NOTE nêu rõ tên lớp tắt (răng
-      T1-escape — bắt buộc PR chạm code quan trọng phải kèm
-      _acceptance/<slug>/), lý do tắt (đây là push thẳng nhánh chính không
-      có PR để so, không phải luồng PR nên tiền đề của luật không áp dụng —
-      commit hạ tầng theo thiết kế không kèm hồ sơ), và rủi ro cụ thể (thay
-      đổi chạm code quan trọng lọt vào lần chạy này sẽ không bị chặn vì
-      thiếu hồ sơ nghiệm thu, dù các luật khác vẫn chạy), kèm cách bật lại.
-      Một người chưa biết kit vẫn nắm được layer/vì sao/rủi ro chỉ từ đúng 3
-      dòng NOTE mà không cần đọc thêm tài liệu.
-    - spec-alignment: PASS — File tự định nghĩa "răng T1-escape" ngay trong
-      NOTE (luật đòi mọi thay đổi chạm code quan trọng phải kèm
-      _acceptance/<slug>/), nêu rõ lý do tắt (đây là push thẳng nhánh chính,
-      không phải PR-vs-nhánh-đích, nên các commit hạ tầng theo thiết kế
-      không có hồ sơ), và nêu rủi ro cụ thể (thay đổi chạm code quan trọng
-      có thể lọt qua mà không bị chặn vì thiếu hồ sơ nghiệm thu, dù các luật
-      khác vẫn chạy). Một người chưa biết kit vẫn nắm được layer/lý do/rủi ro
-      chỉ từ 3 dòng NOTE này mà không cần ngữ cảnh ngoài.
-  human_override: Manh Phan 2026-07-26
+    - domain-correctness: PASS — Dòng marker (8) kèm hai dòng NOTE (9-10) tự
+      giải thích đủ ba yếu tố mà không cần biết trước về kit: LỚP tắt được
+      gọi tên và định nghĩa tại chỗ ("luật đòi mọi thay đổi chạm code quan
+      trọng phải kèm thư mục _acceptance/<slug>/ (hồ sơ nghiệm thu)"); LÝ DO
+      nêu rõ ("chỉ có nghĩa khi so PR với nhánh đích; đây là commit đẩy thẳng
+      nhánh chính... không kèm hồ sơ nào" theo thiết kế); RỦI RO nêu cụ thể
+      ("nếu một thay đổi chạm code quan trọng lọt vào... sẽ KHÔNG bị chặn")
+      kèm phạm vi các luật khác vẫn chạy và cách bật lại. Dòng tổng kết (11)
+      trỏ ngược về đúng dòng marker nên người đọc không lạc mối.
+    - operational-feasibility: PASS — Đọc từ dòng marker (line 8) tới dòng
+      tổng kết (line 11), người chưa biết kit gặp hai dòng NOTE ở giữa giải
+      thích đủ ba phần: LỚP tắt là "T1-escape" — luật đòi PR chạm code quan
+      trọng phải kèm _acceptance/<slug>/; VÌ SAO — lần chạy này là push
+      thẳng nhánh chính (không phải PR) nên luật vô nghĩa, và commit hạ tầng
+      theo thiết kế không có hồ sơ; RỦI RO — nếu một thay đổi quan trọng lọt
+      vào lần chạy dạng này sẽ không bị chặn vì thiếu hồ sơ, trong khi các
+      luật khác vẫn chạy. Ngôn ngữ diễn giải bằng văn xuôi thường, không đòi
+      hỏi biết thuật ngữ kit trước, nên đạt yêu cầu khả thi vận hành của
+      AC-13.
+    - spec-alignment: PASS — Đọc từ dòng marker (line 8) tới dòng tổng kết
+      (line 11), người chưa biết kit vẫn nắm được cả ba điều: LỚP nào tắt
+      (T1-escape — luật đòi mọi thay đổi chạm code quan trọng phải kèm hồ sơ
+      nghiệm thu `_acceptance/<slug>/`, nêu rõ ở NOTE thứ nhất), VÌ SAO (lần
+      chạy này là push thẳng nhánh chính chứ không phải PR so với nhánh
+      đích, nên luật vốn chỉ có nghĩa khi so PR-vs-target không áp dụng
+      được), và RỦI RO (thay đổi quan trọng có thể lọt qua không bị chặn,
+      kèm cách bật lại bằng cờ `--no-t1-escape`). Dòng tổng kết (line 11)
+      khớp nhất quán với marker, không mâu thuẫn, và trỏ ngược đúng vị trí
+      nên không gây hiểu lầm.
+  human_override:
 
 ## Analyst
 
@@ -392,6 +395,50 @@ recurred. None of these are hook-enforced blockers, so they do not change
 the machine-eval table above, but they bear directly on the E13 judgment
 item and are flagged for the human at Gate 2.
 
+Round 7: same 17 machine evals still PASS, count moved substantially from
+round 6 (`bash tests/scripts/run-tests.sh` now 459 passed vs 334 in round 6
+— last case name in the tail also changed, `RL10d` vs round 6's `TE18g2`,
+reflecting the S4-fixes commits landed between rounds — `0422f08 fix: 5
+finding S4 round 1` and `004bc34 fix: 5 finding S4 round 2`; `bash
+tests/plugins/run-tests.sh` output tail now pins `P49` vs round 6's `P46`,
+still all-plugin-green) plus the same two supporting regression checks
+green (`bash tests/hooks/run-tests.sh` 51 passed, 0 failed; `bash
+scripts/sync-plugin-packages.sh --check` reports mirror in sync).
+`verified_commit` for this round (`02d81876...`) is a new commit past round
+6's pin (`7fdfad17...`), consistent with those two S4-fix commits landing in
+between — this round's verify re-ran against that fresh tree rather than
+re-using round 6's stale pin. E13 was re-judged fresh by the panel (not
+carried — round input has no `carried` flag) and again proposes PASS 3/3,
+unanimous, no dissent, rationale text re-derived against the current
+evidence copy. Contract remains T3: `human_override` on E13 is still
+required regardless of the panel's proposal, so the overall verdict stays
+PENDING-JUDGMENT pending Gate 2. Baseline not re-measured this round (P2 —
+`evals.yaml` unchanged since the last baseline run); every machine eval
+block above carries `baseline: n-a` accordingly. This round's adversarial
+review surfaced 4 findings (1 high, 2 medium, 1 low) — see
+`review-findings.md` — the headline one is a THIRD recurrence of the same
+parser-divergence bug class that rounds 5 and 6 already touched: the hook's
+`enforcement` regex (`hooks/acceptance-evidence-gate.js:56`) accepts
+whitespace before the colon (`enforcement : off`) but the new
+`pre-merge-check.sh` sed at line 168 does not, so `enforcement: off` can
+disable the write-time gate while the pre-merge ledger-count check still
+expects rules to have run — reproduced empirically both as a Vietnamese
+"claim vs implementation" finding and as an independent English "hook vs
+pre-merge parser" finding with a concrete repro. A second, medium-severity
+finding flags `TE18i` in `tests/scripts/run-tests.sh` as a fresh instance of
+the exact CLAUDE.md-bullet-#4 "negative-assertion-alone" class (checks exit
+code 2 only, no pinned message, unlike its sibling cases in the same block)
+— introduced in the same diff that fixed other instances of that class. A
+low-severity finding flags `docs/adr/0006-...md` using bare "ledger" for
+the decisions-log sense in a document that is otherwise entirely about the
+rules-ledger sense, immediately after CONTEXT.md added the
+disambiguation rule this same diff is supposed to be following. None of
+these are hook-enforced blockers, so they do not change the machine-eval
+table above, but they bear directly on the E13 judgment item and are
+flagged for the human at Gate 2 — in particular whether the parser
+divergence (now on its third documented recurrence) warrants stopping to
+fix the class rather than the named case again.
+
 ## Gate 2 checklist (human)
 
 - [ ] Read the table + spot-check 1-2 evidence blocks
@@ -409,11 +456,12 @@ round is PASS 3/3 (unanimous, no dissent), re-judged fresh (not carried)
 against the current evidence copy. Personally re-read the NOTE lines in the
 evidence (not just the panel's summary) before filling `human_override:
 <name> <date>`; a PASS proposal is advisory input, not a substitute for your
-own read. Before signing, also read `review-findings.md` round 6 —
-in particular the `verified_commit` staleness trap (this report pins a
-commit older than round 5's source changes, so upgrading to PASS as-is will
-immediately trip the CI staleness rule on the next run) and the two new
-`--base`/`--slug` / `sync --check` bugs, both of which speak to whether the
-T1-escape teeth this feature ships are actually as tight end-to-end as the
-green suite counts suggest.
+own read. Before signing, also read `review-findings.md` round 7 —
+in particular finding #1/#2 (the enforcement-parser space-before-colon
+divergence between the hook and `pre-merge-check.sh`, now a third
+recurrence of the same bug class per CLAUDE.md's own invariant about fixing
+by CLASS, not by named case) and finding #3 (`TE18i` reintroducing the
+"negative assertion alone" gap in the very diff that fixed other instances
+of it) — both speak to whether this round's green suite fully backs the
+T1-escape teeth the feature is meant to ship.
 </content>
