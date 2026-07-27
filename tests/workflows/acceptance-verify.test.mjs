@@ -550,4 +550,53 @@ console.log('WT-T7d (bien) DUNG 1 finding ngoai vung phu -> khong cluster');
   check('WT-T7d 1 finding le KHONG bat co (nguong >=2)', result.coverageCluster === null, JSON.stringify(result.coverageCluster));
 }
 
+// ── WT-T8: evidence-report BẤT ĐỘNG + review-findings có 3 ngăn ────────────
+// Golden CLOSED-LIST: liệt kê tập section mà prompt synthesize được phép chỉ
+// dẫn cho evidence-report.md, rồi so BẰNG. "Grep vắng chuỗi" không chứng minh
+// được gì (bất biến #4 CLAUDE.md) — người cài chỉ cần đổi wording là qua.
+const REPORT_SECTIONS_ALLOWED = ['## Analyst', '## Variance', '## Iterations'];
+const reportSectionsIn = (prompt) => {
+  const head = prompt.split('Sau do viet file thu hai')[0]; // phần nói về evidence-report
+  return [...new Set((head.match(/## [A-ZĐ][^\s"',.\\]*/g) || []).map(s => s.trim()))];
+};
+
+console.log('WT-T8 prompt synthesize: evidence-report giu nguyen tap section');
+{
+  const { calls } = await runWorkflow(WF, triArgs(), triResp({
+    findings: [F_HIGH, F_OUT],
+    triage: [...tri1(F_HIGH), ...triOut(F_OUT)],
+  }));
+  const sp = byLabel(calls, 'synthesize')[0].prompt;
+  const extra = reportSectionsIn(sp).filter(s => !REPORT_SECTIONS_ALLOWED.includes(s));
+  check('WT-T8 khong section moi nao cho evidence-report', extra.length === 0, `section la: ${extra.join(' | ')}`);
+  check('WT-T8 review-findings CO ngan Trong hop dong', sp.includes('## Trong hợp đồng'));
+  check('WT-T8 review-findings CO ngan Ngoai hop dong', sp.includes('## Ngoài hợp đồng'));
+  check('WT-T8 ngan Ngoai hop dong mang proposal', sp.includes('known-limits'));
+  check('WT-T8 finding in-contract mang acRef', sp.includes('"acRef":"AC-1"'));
+}
+
+console.log('WT-T8b (doi chung duong) golden list bat duoc section tiem them');
+{
+  const faked = 'ghi ## Analyst roi ## Variance roi ## Iterations roi ## Triage\nSau do viet file thu hai ...';
+  const extra = reportSectionsIn(faked).filter(s => !REPORT_SECTIONS_ALLOWED.includes(s));
+  check('WT-T8b phep so con song — bat duoc ## Triage', extra.includes('## Triage'), `extra=${extra.join('|')}`);
+}
+
+console.log('WT-T8c triage hong -> prompt co ngan Chua phan loai');
+{
+  const { calls } = await runWorkflow(WF, triArgs(), triResp({ findings: [F_HIGH], triage: [], triageThrows: true }));
+  const sp = byLabel(calls, 'synthesize')[0].prompt;
+  check('WT-T8c co ngan Chua phan loai', sp.includes('## Chưa phân loại'));
+}
+
+console.log('WT-T8d cum -> dong co; khong cum -> dong n-a, khong bia co');
+{
+  const { calls: c1 } = await runWorkflow(WF, triArgs(), triResp({ findings: [F_OUT, F_OUT2], triage: triAllOut([F_OUT, F_OUT2]) }));
+  const p1 = byLabel(c1, 'synthesize')[0].prompt;
+  check('WT-T8d co cum -> chi dan dong co', p1.includes('dừng và quyết'), 'thieu dong co');
+  const { calls: c2 } = await runWorkflow(WF, triArgs(), triResp({ findings: [F_HIGH], triage: tri1(F_HIGH) }));
+  const p2 = byLabel(c2, 'synthesize')[0].prompt;
+  check('WT-T8d khong cum -> ghi n-a, KHONG co dong co', p2.includes('cluster: n-a') && !p2.includes('dừng và quyết'));
+}
+
 summary('acceptance-verify');
