@@ -100,3 +100,16 @@
 {"ts":"2026-07-27T14:30:00Z","round":8,"evalId":"E12","run_id":"minted-premerge-rules-ledger-E12-r8","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
 {"ts":"2026-07-27T14:30:00Z","round":8,"evalId":"E13","run_id":"minted-premerge-rules-ledger-E13-r8","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
 {"ts":"2026-07-27T14:30:00Z","round":8,"evalId":"E10","kind":"panel","proposal":"PASS","votes":[{"lens":"domain-correctness","verdict":"PASS"},{"lens":"operational-feasibility","verdict":"PASS"},{"lens":"spec-alignment","verdict":"PASS"}],"inputs_hash":"93581f389e6c8357a68fbd06a316c3795fe2312997931082f02bb66646b27879","carried_from_round":4}
+{"ts":"2026-07-27T15:00:00Z","round":9,"evalId":"E1","run_id":"minted-premerge-rules-ledger-E1-r9","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T15:00:00Z","round":9,"evalId":"E2","run_id":"minted-premerge-rules-ledger-E2-r9","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T15:00:00Z","round":9,"evalId":"E3","run_id":"minted-premerge-rules-ledger-E3-r9","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T15:00:00Z","round":9,"evalId":"E4","run_id":"minted-premerge-rules-ledger-E4-r9","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T15:00:00Z","round":9,"evalId":"E5","run_id":"minted-premerge-rules-ledger-E5-r9","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T15:00:00Z","round":9,"evalId":"E6","run_id":"minted-premerge-rules-ledger-E6-r9","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T15:00:00Z","round":9,"evalId":"E7","run_id":"minted-premerge-rules-ledger-E7-r9","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T15:00:00Z","round":9,"evalId":"E8","run_id":"minted-premerge-rules-ledger-E8-r9","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T15:00:00Z","round":9,"evalId":"E9","run_id":"minted-premerge-rules-ledger-E9-r9","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T15:00:00Z","round":9,"evalId":"E11","run_id":"minted-premerge-rules-ledger-E11-r9","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T15:00:00Z","round":9,"evalId":"E12","run_id":"minted-premerge-rules-ledger-E12-r9","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T15:00:00Z","round":9,"evalId":"E13","run_id":"minted-premerge-rules-ledger-E13-r9","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-27T15:00:00Z","round":9,"evalId":"E10","kind":"panel","proposal":"PASS","votes":[{"lens":"domain-correctness","verdict":"PASS"},{"lens":"operational-feasibility","verdict":"PASS"},{"lens":"spec-alignment","verdict":"PASS"}],"inputs_hash":"93581f389e6c8357a68fbd06a316c3795fe2312997931082f02bb66646b27879","carried_from_round":4}

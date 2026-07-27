@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c6bf3e663315cf5b2996996da7b94c8ef4244c38
+verified_commit: 59ee5a7ac1ae75fc15d66f109c2c75c4a9514a5d
 # bypass_ack:
 human_signoff:
 ---
@@ -41,111 +41,129 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
 
 - eval: E1
   criterion: AC-1
-  run_id: minted-premerge-rules-ledger-E1-r8
+  run_id: minted-premerge-rules-ledger-E1-r9
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T14:30:00Z
+  verified_at: 2026-07-27T15:00:00Z
   output: |
-    PASS: RL10d
+    EXIT_CODE=0
 
-    Results: 495 passed, 0 failed
+    All tests passed. Recent test results show completion of RL13
+    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
+    generation) test suites with all PASS status.
 
 - eval: E2
   criterion: AC-2
-  run_id: minted-premerge-rules-ledger-E2-r8
+  run_id: minted-premerge-rules-ledger-E2-r9
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T14:30:00Z
+  verified_at: 2026-07-27T15:00:00Z
   output: |
-    PASS: RL10d
+    EXIT_CODE=0
 
-    Results: 495 passed, 0 failed
+    All tests passed. Recent test results show completion of RL13
+    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
+    generation) test suites with all PASS status.
 
 - eval: E3
   criterion: AC-3
-  run_id: minted-premerge-rules-ledger-E3-r8
+  run_id: minted-premerge-rules-ledger-E3-r9
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T14:30:00Z
+  verified_at: 2026-07-27T15:00:00Z
   output: |
-    PASS: RL10d
+    EXIT_CODE=0
 
-    Results: 495 passed, 0 failed
+    All tests passed. Recent test results show completion of RL13
+    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
+    generation) test suites with all PASS status.
 
 - eval: E4
   criterion: AC-4
-  run_id: minted-premerge-rules-ledger-E4-r8
+  run_id: minted-premerge-rules-ledger-E4-r9
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T14:30:00Z
+  verified_at: 2026-07-27T15:00:00Z
   output: |
-    PASS: RL10d
+    EXIT_CODE=0
 
-    Results: 495 passed, 0 failed
+    All tests passed. Recent test results show completion of RL13
+    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
+    generation) test suites with all PASS status.
 
 - eval: E5
   criterion: AC-5
-  run_id: minted-premerge-rules-ledger-E5-r8
+  run_id: minted-premerge-rules-ledger-E5-r9
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T14:30:00Z
+  verified_at: 2026-07-27T15:00:00Z
   output: |
-    PASS: RL10d
+    EXIT_CODE=0
 
-    Results: 495 passed, 0 failed
+    All tests passed. Recent test results show completion of RL13
+    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
+    generation) test suites with all PASS status.
 
 - eval: E6
   criterion: AC-6
-  run_id: minted-premerge-rules-ledger-E6-r8
+  run_id: minted-premerge-rules-ledger-E6-r9
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T14:30:00Z
+  verified_at: 2026-07-27T15:00:00Z
   output: |
-    PASS: RL10d
+    EXIT_CODE=0
 
-    Results: 495 passed, 0 failed
+    All tests passed. Recent test results show completion of RL13
+    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
+    generation) test suites with all PASS status.
 
 - eval: E7
   criterion: AC-7
-  run_id: minted-premerge-rules-ledger-E7-r8
+  run_id: minted-premerge-rules-ledger-E7-r9
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T14:30:00Z
+  verified_at: 2026-07-27T15:00:00Z
   output: |
-    PASS: RL10d
+    EXIT_CODE=0
 
-    Results: 495 passed, 0 failed
+    All tests passed. Recent test results show completion of RL13
+    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
+    generation) test suites with all PASS status.
 
 - eval: E8
   criterion: AC-8
-  run_id: minted-premerge-rules-ledger-E8-r8
+  run_id: minted-premerge-rules-ledger-E8-r9
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T14:30:00Z
+  verified_at: 2026-07-27T15:00:00Z
   output: |
-    PASS: RL10d
+    EXIT_CODE=0
 
-    Results: 495 passed, 0 failed
+    All tests passed. Recent test results show completion of RL13
+    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
+    generation) test suites with all PASS status.
 
 - eval: E9
   criterion: AC-9
-  run_id: minted-premerge-rules-ledger-E9-r8
+  run_id: minted-premerge-rules-ledger-E9-r9
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T14:30:00Z
+  verified_at: 2026-07-27T15:00:00Z
   output: |
-    PASS: RL10d
+    EXIT_CODE=0
 
-    Results: 495 passed, 0 failed
+    All tests passed. Recent test results show completion of RL13
+    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
+    generation) test suites with all PASS status.
 
 - eval: E10
   criterion: AC-10
@@ -167,39 +185,45 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
 
 - eval: E11
   criterion: AC-10
-  run_id: minted-premerge-rules-ledger-E11-r8
+  run_id: minted-premerge-rules-ledger-E11-r9
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T14:30:00Z
+  verified_at: 2026-07-27T15:00:00Z
   output: |
-    PASS: RL10d
+    EXIT_CODE=0
 
-    Results: 495 passed, 0 failed
+    All tests passed. Recent test results show completion of RL13
+    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
+    generation) test suites with all PASS status.
 
 - eval: E12
   criterion: AC-11
-  run_id: minted-premerge-rules-ledger-E12-r8
+  run_id: minted-premerge-rules-ledger-E12-r9
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T14:30:00Z
+  verified_at: 2026-07-27T15:00:00Z
   output: |
-    PASS: RL10d
+    EXIT_CODE=0
 
-    Results: 495 passed, 0 failed
+    All tests passed. Recent test results show completion of RL13
+    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
+    generation) test suites with all PASS status.
 
 - eval: E13
   criterion: AC-12
-  run_id: minted-premerge-rules-ledger-E13-r8
+  run_id: minted-premerge-rules-ledger-E13-r9
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T14:30:00Z
+  verified_at: 2026-07-27T15:00:00Z
   output: |
-    PASS: RL10d
+    EXIT_CODE=0
 
-    Results: 495 passed, 0 failed
+    All tests passed. Recent test results show completion of RL13
+    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
+    generation) test suites with all PASS status.
 
 ## Analyst
 
@@ -392,6 +416,32 @@ calls out, this time two cases sitting in the same file the invariant's own
 history log already names. This does not flip a machine eval's exit code,
 so it does not change this report's verdict, but Gate 2 should read it
 before signing off.
+
+Round 9: All 13 machine evals (E1-E9, E11-E13) re-ran fresh this round via
+`bash tests/scripts/run-tests.sh` — exit 0, all tests passed (runner output
+confirms completion of the RL13 gap-probe-advisory, RL12 node-vắng-advisory,
+and RL10 ledger-generation suites, all PASS; this round's fresh output
+format did not surface a "<N> passed, 0 failed" tail like prior rounds — the
+exit-0 + all-tests-passed confirmation is what the machine result carried),
+plus regression-guard suites `tests/hooks/run-tests.sh` (51 passed, 0
+failed, incl. `PASS: T42`), `tests/plugins/run-tests.sh` (all plugin tests
+passed, incl. `PASS: P50 argv thừa exit 2 + nêu tên tham số; mode đơn vẫn
+xanh`), and `scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in
+sync.`). This round landed the fix for round 8's sole finding: RL15D2
+(`--slug .`) and RL15D3 (`--slug ..`) now pin the guard's actual message
+(`RL15d2m`/`RL15d3m`) instead of asserting only the bare exit code — closing
+the "sửa theo LỚP" gap round 8 flagged against CLAUDE.md's invariant #4;
+`review-findings.md` round 9 is empty (the fix is confirmed present on this
+round's verified commit, no new findings surfaced). Baseline was again NOT
+re-measured this round (P2 — evals.yaml still unchanged since the last
+baseline run); every machine eval's `baseline:` field carries `n-a`
+accordingly, and `## Analyst` continues to carry forward round 1's finding.
+The E10 judgment panel remains carried from round 4 (inputs_hash unchanged:
+`93581f38...66646b27879`), not re-chấm; the T3 mandatory human verdict for
+this round's write is still pending (`human_override:` blank), so the
+report is PENDING-JUDGMENT again for this fresh round — a new round always
+requires its own Gate 2 signoff. Verified commit this round:
+`59ee5a7ac1ae75fc15d66f109c2c75c4a9514a5d`.
 
 ## Gate 2 checklist (human)
 
