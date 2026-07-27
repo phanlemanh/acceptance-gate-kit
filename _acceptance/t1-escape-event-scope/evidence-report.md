@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: t1-escape-event-scope
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 3be6be8cb7316467a6a8d6dc6b59f80205afa00e
-human_signoff:
+human_signoff: Manh Phan 2026-07-27
 ---
 
 # Evidence Report: t1-escape-event-scope
@@ -247,7 +247,7 @@ human_signoff:
       trọng có thể lọt qua mà không bị chặn, kèm trấn an luật khác vẫn chạy
       và cách bật lại (--no-t1-escape). Không có thuật ngữ nào bị bỏ lửng
       không giải thích khi đọc trong ngữ cảnh cả khối.
-  human_override:
+  human_override: Manh Phan 2026-07-27
 
 ## Analyst
 
