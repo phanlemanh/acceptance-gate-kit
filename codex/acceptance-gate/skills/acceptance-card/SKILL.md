@@ -42,7 +42,20 @@ Translate the extracted JSON without changing meaning:
   never invent findings; absence/probe-failed flags render from the script —
   the overlay has no key for this block;
 - `decisions_plain`: every approved or provisional ledger choice as
-  `đã chọn gì — đổi lại gì`.
+  `đã chọn gì — đổi lại gì`;
+- Gate 2 `out_of_contract`: read `_acceptance/<slug>/review-findings.md`. When it
+  has a "## Ngoài hợp đồng" section, build a human-work block placed BEFORE the
+  judgment items: one product-language paragraph per finding (no function names,
+  no exit codes) plus exactly three choices — (a) **ghi Known limits**: accept
+  it, record it under known limitations, ship as is; (b) **mở hợp đồng mới**:
+  split it into its own piece of work with its own acceptance criteria;
+  (c) **nâng phạm vi sửa ngay**: add criteria to the current contract and
+  re-approve Gate 1. Copy the coverage-cluster flag line to the top of the block
+  when the file carries one. A file with no such section (older generation, or a
+  round with no findings) renders exactly as before — no flag, no error; this
+  backward branch is mandatory, not optional. When "## Chưa phân loại (triage-failed)" is present, replace the
+  block with a single amber flag: scope triage failed, the human reviews the
+  whole list, the machine fixed nothing on its own.
 
 Write `_acceptance/<slug>/card-plain.json` with `apply_patch`. The ledger is
 rationale, not a new source of acceptance scope.

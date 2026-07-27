@@ -864,6 +864,80 @@ else
   fail "P51 tests/workflows wired (gate.yml + config executors + suite_keys + dot bien)"
 fi
 
+# ── P52: card 2 harness render khoi "Ngoai hop dong" + nhanh backward ───────
+# AC-8 cua s4-scope-triage. Card la lop trinh bay; review-findings.md the he CU
+# (khong co section moi) phai render nhu cu, khong loi — nhanh backward la BAT
+# BUOC, khong phai tuy nghi.
+echo "P52 card render khoi Ngoai-hop-dong + nhanh backward (2 harness)"
+P52OK=1
+P52CARDS="$ROOT/commands/acceptance-card.md $ROOT/codex/acceptance-gate/skills/acceptance-card/SKILL.md"
+for f in $P52CARDS; do
+  if [ ! -f "$f" ]; then echo "     thieu $f"; P52OK=0; continue; fi
+  grep -q 'Ngoài hợp đồng' "$f" || { echo "     $f THIEU chi dan khoi Ngoai hop dong"; P52OK=0; }
+  # Nhanh backward: moi file viet bang ngon ngu cua no, ghim ngu nghia bang 2 nhanh.
+  grep -qE 'không có section|no such section' "$f" || { echo "     $f THIEU nhanh backward tuong minh"; P52OK=0; }
+done
+# Doi chung dot bien: ban sao bi xoa chi dan -> phep kiem phai DO.
+P52CP="$(mktemp)"
+grep -v 'Ngoài hợp đồng' "$ROOT/commands/acceptance-card.md" > "$P52CP"
+if grep -q 'Ngoài hợp đồng' "$P52CP"; then
+  echo "     dot bien KHONG hieu luc — phep kiem da chet"
+  P52OK=0
+fi
+rm -f "$P52CP"
+if [ "$P52OK" -eq 1 ]; then
+  pass "P52 card Ngoai-hop-dong + backward (nguon 2 harness + dot bien)"
+else
+  fail "P52 card Ngoai-hop-dong + backward (nguon 2 harness + dot bien)"
+fi
+
+# ── P53: gac cong cho judge E11 — fixture khong duoc troi khoi chi dan card ──
+# Cung y voi TE17/RL10: judge cham mot file evidence; file do troi so voi chi
+# dan that thi judge dang cham mot thu khong ton tai. Chuoi kiem RUT TU chinh
+# commands/acceptance-card.md, KHONG hardcode o day (hardcode thi test chi tu
+# khop voi chinh no).
+echo "P53 fixture judge E11 dong bo chi dan card"
+P53F="$ROOT/_acceptance/s4-scope-triage/evidence/out-of-contract-card-sample.md"
+P53CARD="$ROOT/commands/acceptance-card.md"
+P53OK=1
+if [ ! -f "$P53F" ]; then
+  echo "     thieu fixture $P53F"
+  P53OK=0
+else
+  # 3 nhan lua chon lay tu dong khai trong chi dan card: "(a) ... / (b) ... / (c) ..."
+  P53LABELS="$(sed -n 's/.*(a) \*\*\([^*]*\)\*\*.*(b) \*\*\([^*]*\)\*\*.*(c) \*\*\([^*]*\)\*\*.*/\1|\2|\3/p' "$P53CARD" | head -1)"
+  if [ -z "$P53LABELS" ]; then
+    echo "     KHONG rut duoc 3 nhan lua chon tu $P53CARD — chi dan card doi khuon?"
+    P53OK=0
+  else
+    OLDIFS="$IFS"; IFS='|'
+    for lab in $P53LABELS; do
+      grep -q "$lab" "$P53F" || { echo "     fixture THIEU nhan lua chon: $lab"; P53OK=0; }
+    done
+    IFS="$OLDIFS"
+  fi
+  # Fixture la ngon ngu san pham: jargon ky thuat lot vao = judge cham sai thu.
+  for j in 'exit code' 'rmSync' 'inContract' 'severity' 'REJECT'; do
+    if grep -q "$j" "$P53F"; then echo "     fixture co jargon ky thuat: $j"; P53OK=0; fi
+  done
+  # Doi chung dot bien: ban sao xoa mot nhan -> phep kiem phai DO.
+  if [ -n "$P53LABELS" ]; then
+    P53CP="$(mktemp)"
+    P53FIRST="$(printf '%s' "$P53LABELS" | cut -d'|' -f1)"
+    grep -v "$P53FIRST" "$P53F" > "$P53CP"
+    if grep -q "$P53FIRST" "$P53CP"; then
+      echo "     dot bien KHONG hieu luc — phep kiem da chet"
+      P53OK=0
+    fi
+    rm -f "$P53CP"
+  fi
+fi
+if [ "$P53OK" -eq 1 ]; then
+  pass "P53 fixture judge E11 du 3 nhan (rut tu card) + khong jargon + dot bien"
+else
+  fail "P53 fixture judge E11 du 3 nhan (rut tu card) + khong jargon + dot bien"
+fi
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
