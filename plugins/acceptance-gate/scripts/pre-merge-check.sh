@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 # pre-merge-check.sh — CI gate for the Acceptance-Gate Kit.
 #
-# Usage: pre-merge-check.sh [repo_root] [--slug <slug>]... [--base <ref>]
+# Usage: pre-merge-check.sh [repo_root] [--slug <slug>]... [--base <ref>] [--no-t1-escape]
+#
+# --no-t1-escape: turn off ONLY the T1-escape backstop for push-event runs
+# (commits landing directly on the main branch have no PR premise); every other
+# rule still runs, and the run prints a NOT ENFORCED marker plus a declared-off
+# ledger line so the off state is visible, never silent.
 #
 # --base <ref> (or env PRE_MERGE_BASE): the PR base for the T1-escape
 # backstop — changed files matching risk_tiers.t3_paths, or falling outside
@@ -149,24 +154,21 @@ if [ -f "$ACC/config.yaml" ]; then
   # mọi bất đồng đều cùng một hình dạng fail-open: hook giữ `strict` (enforce
   # đầy đủ, không ai nghi ngờ) trong khi sổ ở pre-merge tắt IM LẶNG.
   #
-  # Vì thế KHÔNG chuẩn hoá gì thêm ở đây (không hạ chữ thường, không bóc nháy):
-  # dòng sed dưới nhận ĐÚNG tập mà regex của hook nhận —
-  # `/^enforcement\s*:\s*(strict|warn|off)\s*(?:#.*)?$/m` — nghĩa là không nháy,
-  # phân biệt hoa thường, cho phép chú thích đuôi. Mọi biến thể khác (`OFF`,
-  # `"off"`, `'off'`, giá trị lạ) KHÔNG khớp ở cả hai bên, nên cả hai cùng rơi
-  # về mặc định enforce. Vá theo LỚP: bản round 1 chỉ chặn chiều hoa/thường rồi
-  # để hở chiều nháy — mà nháy là kiểu viết hợp lệ ở chính khối parse này
-  # (GPM11a ghim `gap_probe: "required"` được nhận).
-  #
-  # Các khoá còn lại (`gap_probe`, `recheck`, `required_for`, ...) chỉ pre-merge
-  # đọc, nên độ rộng khác nhau ở đó KHÔNG tạo bất đồng hai lớp.
-  # KHÔNG dùng `\|` trong sed: BSD sed (macOS) không có alternation trong BRE,
-  # nên biểu thức đó im lặng không khớp gì và `off` thật cũng thành không-tắt.
-  # Lấy nguyên văn phần giá trị rồi bỏ ĐÚNG hai thứ regex hook cho phép sau
-  # token (`\s*(?:#.*)?$`): chú thích đuôi và khoảng trắng đuôi. Không bóc nháy,
-  # không hạ chữ thường — so BẰNG nên `"off"`, `OFF` đều không khớp, y như hook.
-  cfg_enf="$(sed -n 's/^enforcement:[[:space:]]*//p' "$ACC/config.yaml" | head -1 \
-    | sed -e 's/[[:space:]]*#.*$//' -e 's/[[:space:]]*$//')"
+  # Vì thế grep dưới đây nhân bản TRỌN VẸN regex của hook
+  # (`/^enforcement\s*:\s*(strict|warn|off)\s*(?:#.*)?$/m`) theo TỪNG chiều,
+  # thay vì chuẩn hoá giá trị rồi so — hai round vá kiểu chuẩn-hoá đều để hở
+  # một chiều (round 1: hoa/thường; round 2: nháy; round 3 review vẫn bắt được
+  # chiều space-trước-dấu-hai-chấm và dòng-trùng-khoá). Các chiều:
+  #   - `[[:space:]]*` quanh dấu `:` = `\s*` của hook (cả tab);
+  #   - token đúng chữ thường, không nháy — `OFF`/`"off"` trượt Ở CẢ HAI BÊN;
+  #   - đuôi chỉ được khoảng trắng + chú thích `#` — khớp `\s*(?:#.*)?$`;
+  #   - NHIỀU dòng cùng khoá: hook match dòng ĐẦU TIÊN thoả trọn pattern (dòng
+  #     giá-trị-rác không thoả nên bị nhảy qua) — grep + head -1 cho đúng thế.
+  # Bảng parity RL11c đo cả hai bên trên CÙNG chuỗi; regex hook đọc từ nguồn.
+  # Các khoá còn lại (`gap_probe`, `recheck`, ...) chỉ pre-merge đọc, độ rộng
+  # khác nhau ở đó KHÔNG tạo bất đồng hai lớp.
+  cfg_enf="$(grep -E '^enforcement[[:space:]]*:[[:space:]]*(strict|warn|off)[[:space:]]*(#.*)?$' "$ACC/config.yaml" \
+    | head -1 | sed -e 's/^enforcement[[:space:]]*:[[:space:]]*//' -e 's/[[:space:]]*#.*$//' -e 's/[[:space:]]*$//')"
   # off là off toàn cục (tiền lệ hook) — sổ luật tắt theo, không dòng nào
   # (AC-11); warn/strict/không-khớp đều GIỮ sổ bật.
   case "$cfg_enf" in off) LEDGER_ENABLED=0 ;; esac

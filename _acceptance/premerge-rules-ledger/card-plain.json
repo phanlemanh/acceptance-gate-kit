@@ -1,0 +1,26 @@
+{
+  "feature_plain": "Cổng pre-merge chỉ được nói 'sạch' khi tự chứng minh mọi luật đã chạy hoặc được tắt có khai báo — sổ lệch là cổng tự nhận lỗi và chặn, không im lặng cho qua.",
+  "decisions": [
+    {
+      "id": "E10",
+      "q": "Người ngoài đọc lỗi sổ có hiểu là lỗi của cổng, không phải của họ?",
+      "why": "3 giám khảo độc lập cùng đề xuất ĐẠT: thông điệp nói rõ lỗi nội tại, nêu tên khối thiếu, chỉ bước kế là báo maintainer kèm output — không bảo người ta đi sửa feature của mình."
+    }
+  ],
+  "scope_plain": "Không đổi hành vi luật nào; không chuyển parse sang Node; không làm sổ cho hook/recheck (mở contract riêng nếu sổ chứng minh giá trị); không với tới bản đã vendor ở repo tiêu thụ.",
+  "decisions_plain": [
+    { "id": "d-20260726T200000Z-301", "p": "Chọn chặn ở ĐẦU RA (sổ + điểm nghẽn) thay vì vá đầu vào lần thứ năm — đổi lại mọi khối luật mới sau này phải khai vào sổ, quên là suite đỏ." },
+    { "id": "d-20260726T200100Z-302", "p": "KHÔNG chuyển vòng parse sang Node đợt này — đổi lại lớp lỗ parse chỉ giảm chứ không bị loại; xem lại khi sổ chạy ổn." },
+    { "id": "d-20260726T200200Z-303", "p": "KHÔNG làm sổ cho hook và recheck đợt này — hai bề mặt đó vẫn mang lớp lỗ cũ cho tới contract riêng." },
+    { "id": "d-20260726T200300Z-304", "p": "Đã định đoạt 5 lỗ gap-probe tìm ra ngay trên giấy trước khi duyệt — bảng biểu diễn duy nhất và chữ ký sổ hai chiều thành điều khoản hợp đồng." },
+    { "id": "d-20260726T204500Z-305", "p": "Cổng 1 đã duyệt hợp đồng 12 điều khoản / 13 phép đo." },
+    { "id": "d-20260726T222408Z-28487", "p": "Mỗi lần ghi sổ đi qua HAI đường độc lập — kẻ phá một đường thì đường kia tố cáo; đổi lại code dài thêm ~15 dòng." },
+    { "id": "d-20260726T222605Z-5788", "p": "Anh đã duyệt kế hoạch 9 việc + 2 cách hiểu hợp đồng (chưa-có-gì-để-kiểm thì không in dòng tổng kết; sổ lệch thắng lỗi thường)." },
+    { "id": "d-20260726T223052Z-8362", "p": "Hai hợp đồng nói ngược nhau về chế độ tắt: giữ Ý của hợp đồng cũ (luật im lặng) nhưng dòng sổ kế toán vẫn hiện theo hợp đồng mới — cần anh phê chính thức." },
+    { "id": "d-20260726T224027Z-9958", "p": "Tiện tay vá 2 lỗi tiềm ẩn của bộ test (case mượn nhầm mốc so sánh của case khác) — phát hiện nhờ lần đỏ chớp nhoáng tưởng là flake." },
+    { "id": "d-20260726T225240Z-7082", "p": "Vá bộ đếm của chính bộ test (một loại assert không cộng vào tổng PASS) — số check giờ đếm đúng." },
+    { "id": "d-20260726T232734Z-29504", "p": "Sửa 5 lỗi vòng kiểm 1 — nặng nhất: sổ từng ghi ĐÔI khi luật chạy được một nửa, biến cảnh báo nhẹ thành chặn cứng và nuốt mất lỗi thật; đã dồn về một điểm quyết định." },
+    { "id": "d-20260726T235145Z-24967", "p": "Sửa 5 lỗi vòng kiểm 2 — bài học: vòng 1 chỉ vá đúng case bị nêu tên, chưa vá cả lớp; giờ đo bằng bảng 7 biến thể so hai tầng đọc config trên cùng chuỗi." },
+    { "id": "d-20260726T235145Z-2003", "p": "Chữ 'ledger' đang mang hai nghĩa trong cùng luồng output — giữ nhãn hiện tại vì đã ghim trong hợp đồng, thêm cả hai nghĩa vào từ điển; câu hỏi đổi nhãn để anh quyết." }
+  ]
+}

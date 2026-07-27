@@ -51,4 +51,4 @@ im-lặng thay vì sửa contract đã ký.
 tồn tại của feature này); chuyển vòng parse sang Node (đúng hướng chất liệu vì
 `argv` là mảng đóng, nhưng script phải chạy được khi consumer vắng `node` ở mode
 advisory — AC-14 của `gap-probe-presence-hook` cho phép trạng thái đó; revisit
-khi sổ chạy ổn, ledger `d-20260726T200100Z-302`).
+khi sổ chạy ổn, sổ quyết định `d-20260726T200100Z-302`).

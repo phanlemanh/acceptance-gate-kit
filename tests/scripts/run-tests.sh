@@ -2323,6 +2323,11 @@ hasout TE18g2 "root not a directory" "$TE18G"
 TE18H="$(bash "$CHECK" "$R" --base --no-t1-escape 2>&1)"; check TE18h 2 $?
 hasout TE18h2 "--base requires a value (got option --no-t1-escape)" "$TE18H"
 TE18I="$(bash "$CHECK" "$R" --slug --base 2>&1)"; check TE18i 2 $?
+# Ghim thong diep (bat bien #4): exit 2 mot minh khong phan biet duoc "chot -*
+# cua --slug bat dung" voi cac duong exit 2 khac (unexpected argument, root
+# not a directory...). Case duy nhat cua khoi nay tung thieu pin — review
+# round 7 premerge-rules-ledger bat.
+hasout TE18i2 "--slug requires a value (got option --base)" "$TE18I"
 # Base DUOC KHAI ma khong resolve != khong khai base. Cai sau la bo-qua-co-tin-
 # hieu; cai truoc la nguoi van hanh da YEU CAU pham vi ma may khong tinh duoc.
 TE18J="$(bash "$CHECK" "$R" --base khong-co-ref-nay 2>&1)"; check TE18j 2 $?
@@ -2498,21 +2503,24 @@ hasout RL11b2 "VIOLATION [ledger]: luật per-slug không chạy và không khai
 # (`OFF` hoa) roi de ho chieu nhay — dung lop loi bat bien #4 CLAUDE.md cam.
 # Nen do bang BANG, va do CA HAI ben tren CUNG mot chuoi, khong chep luat sang
 # test: ben hook goi thang regex that trong hooks/acceptance-evidence-gate.js.
-echo "RL11c parity `enforcement`: pre-merge va hook phai dong y tung bien the"
+echo "RL11c parity \`enforcement\`: pre-merge va hook phai dong y tung bien the"
 RL11C_FAIL=0
-rl_enf_pair() { # <nhãn> <giá trị nguyên văn> <kỳ vọng: on|off>
+rl_enf_pair() { # <nhãn> <DÒNG (hoặc nhiều dòng) nguyên văn> <kỳ vọng: on|off>
+  # Nhan DONG nguyen van chu khong phai gia tri: cac chieu lech round 3 review
+  # bat duoc deu nam NGOAI phan gia tri (space truoc dau hai cham, dong trung
+  # khoa) — parametrize theo gia tri thi khong bao gio dien ta duoc chung.
   # on  = ca hai VAN enforce (so bat, hook != off)
   # off = ca hai cung tat  (so tat, hook == off)
   mk_gp_repo "rl11c$1"; local R="$GPR/rl11c$1"; local B="$GP_BASE"
   gp_feature "$R" feat-e T3 implemented
-  printf 'enforcement: %s\n' "$2" >> "$R/_acceptance/config.yaml"
+  printf '%s\n' "$2" >> "$R/_acceptance/config.yaml"
   gp_commit "$R"
   # ben A: pre-merge chay END-TO-END — so co bat khong?
   local A=off
   bash "$CHECK" "$R" --base "$B" 2>&1 | grep -q '^pre-merge-check: rules ran=' && A=on
-  # ben B: ap CHINH regex trong nguon hook — DOC RA tu file, khong chep tay
-  # sang test (chep tay la cach GPM16 cua v2 tung xanh gia). Khong trich duoc
-  # regex -> NOREGEX -> case DO, khong im lang bo qua.
+  # ben B: ap CHINH regex trong nguon hook len CUNG config text — DOC RA tu
+  # file, khong chep tay sang test (chep tay la cach GPM16 cua v2 tung xanh
+  # gia). Khong trich duoc regex -> NOREGEX -> case DO, khong im lang bo qua.
   local Bv; Bv="$(node -e '
     const fs = require("fs");
     const src = fs.readFileSync(process.argv[1], "utf8");
@@ -2520,19 +2528,25 @@ rl_enf_pair() { # <nhãn> <giá trị nguyên văn> <kỳ vọng: on|off>
     if (!m) { process.stdout.write("NOREGEX"); process.exit(0); }
     const hit = process.argv[2].match(new RegExp(m[1], m[2]));
     process.stdout.write(hit && hit[1] === "off" ? "off" : "on");
-  ' "$ROOT_REAL/hooks/acceptance-evidence-gate.js" "enforcement: $2")"
+  ' "$ROOT_REAL/hooks/acceptance-evidence-gate.js" "$2")"
   if [ "$A" != "$3" ] || [ "$Bv" != "$3" ]; then
     echo "     LECH [$1 = <$2>]: pre-merge=$A hook=$Bv can=$3"
     RL11C_FAIL=$((RL11C_FAIL+1))
   fi
 }
-rl_enf_pair strict   'strict'      on
-rl_enf_pair off      'off'         off
-rl_enf_pair hoa      'OFF'         on
-rl_enf_pair nhaykep  '"off"'       on
-rl_enf_pair nhaydon  "'off'"       on
-rl_enf_pair chuthich 'off   # tam' off
-rl_enf_pair la       'khong-hop-le' on
+rl_enf_pair strict    'enforcement: strict'       on
+rl_enf_pair off       'enforcement: off'          off
+rl_enf_pair hoa       'enforcement: OFF'          on
+rl_enf_pair nhaykep   'enforcement: "off"'        on
+rl_enf_pair nhaydon   "enforcement: 'off'"        on
+rl_enf_pair chuthich  'enforcement: off   # tam'  off
+rl_enf_pair la        'enforcement: khong-hop-le' on
+# round 3 review: hai chieu lech NGOAI phan gia tri — space truoc dau hai cham
+# (YAML hop le, hook nhan) va dong-trung-khoa (hook nhay qua dong rac, match
+# dong hop le dau tien)
+rl_enf_pair spacecolon 'enforcement : off'        off
+rl_enf_pair trungkhoa  'enforcement: rac
+enforcement: off'                                 off
 check RL11c 0 "$RL11C_FAIL"
 
 echo "RL13 classifier hong o MOT slug, chay o slug kia -> DUNG MOT dong so"
