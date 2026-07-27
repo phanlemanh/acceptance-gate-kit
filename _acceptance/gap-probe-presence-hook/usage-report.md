@@ -70,3 +70,22 @@
 - **claude-sonnet-5**: 6 agent · 54 calls · out 40,331 · in 2,836 · cache_read 4,573,693 · cache_create 566,642
 - **claude-haiku-4-5-20251001**: 5 agent · 17 calls · out 6,203 · in 146 · cache_read 712,611 · cache_create 304,929
 
+### S4 round 9 (re-pin cuối) — wf_91838889-e5c (10 agent, 45,844 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| review:bugs | claude-fable-5 | 21 | 22,015 | 40 | 2,621,660 | 444 |
+| review:conventions | claude-fable-5 | 20 | 10,397 | 38 | 2,343,324 | 207 |
+| scribe:run-log | claude-haiku-4-5-20251001 | 4 | 4,150 | 34 | 182,823 | 44 |
+| refute:pre-merge-check.sh | claude-sonnet-5 | 12 | 3,175 | 24 | 1,079,619 | 152 |
+| synthesize:report | claude-sonnet-5 | 8 | 2,367 | 12,747 | 839,828 | 199 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 5 | 1,046 | 42 | 235,296 | 101 |
+| capture:provenance | claude-sonnet-5 | 2 | 746 | 4 | 75,845 | 15 |
+| machine:bash tests/plugins/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 694 | 18 | 56,063 | 41 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 685 | 18 | 56,063 | 15 |
+| machine:bash scripts/sync-plugin-packages.sh --c | claude-haiku-4-5-20251001 | 2 | 569 | 18 | 73,560 | 11 |
+
+- **claude-fable-5**: 2 agent · 41 calls · out 32,412 · in 78 · cache_read 4,964,984 · cache_create 305,342
+- **claude-haiku-4-5-20251001**: 5 agent · 15 calls · out 7,144 · in 130 · cache_read 603,805 · cache_create 287,626
+- **claude-sonnet-5**: 3 agent · 22 calls · out 6,288 · in 12,775 · cache_read 1,995,292 · cache_create 340,980
+
