@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: t1-escape-event-scope
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 829314ede23b594857920373377c26ac78d88629
-human_signoff:
+human_signoff: Manh Phan 2026-07-27
 ---
 
 # Evidence Report: t1-escape-event-scope
@@ -216,7 +216,7 @@ human_signoff:
     - domain-correctness: PASS (r8)
     - operational-feasibility: PASS (r8)
     - spec-alignment: PASS (r8)
-  human_override:
+  human_override: Manh Phan 2026-07-27
 
 ## Analyst
 
