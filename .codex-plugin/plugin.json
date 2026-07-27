@@ -1,6 +1,6 @@
 {
   "name": "acceptance-gate",
-  "version": "1.22.1",
+  "version": "1.23.0",
   "description": "Acceptance gate for AI-generated features. Normalizes requirements into acceptance contracts, generates eval cases, renders decision cards and evidence pages, records gate decisions (approve/signoff), reports gate metrics, verifies evidence, and enforces evidence-backed verdicts with runtime hooks when available plus CI re-checks. v1.22 adds the rules ledger to pre-merge-check.sh: clean must be PROVEN — every rule block records ran/declared-off through one ledger_mark chokepoint against a fixed EXPECTED list, a machine-readable summary line (pre-merge-check: rules ran= declared-off= expected=) whose expected count is derived from EXPECTED rather than from the running totals, and any ledger mismatch is an internal-gate error (exit 2). This catches silently-skipped rule blocks that no input-validation blacklist could enumerate. v1.22.1 hardening wave: declared-but-unusable scope/filter values now exit 2 as a class (empty --base/--slug, typo'd or /-containing slug filters, PRE_MERGE_BASE set-but-empty with +x set-detection, declared base on a git-less root), an explicit --base still overrides an empty env var, VIOLATION [scope] prints on stdout like every other VIOLATION. (Repo-internal maintenance tooling also hardened — sync-plugin-packages.sh rejects extra argv — but that script ships only in the kit repo, not in this package.)",
   "author": {
     "name": "Manh Phan",
