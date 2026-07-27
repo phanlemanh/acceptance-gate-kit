@@ -448,10 +448,27 @@ or the human confirms a descope entry.
     gate. `medium` and `low` in-contract findings stay informational. BLOCKED
     still outranks all of this: a broken environment fixes nothing.
 
+    For every out-of-contract finding also write `plain` — one or two sentences
+    of **product language** describing what the user experiences ("Bấm Cập nhật
+    có thể làm mất tiện ích đang cài"). No function names, file paths, exit
+    codes, or regex/schema jargon: this is the only text the Gate-2 card shows
+    the person deciding, and the reviewer's technical title never reaches them.
+
     Write every bin to `_acceptance/<slug>/review-findings.md` under the
     headings "## Trong hợp đồng", "## Ngoài hợp đồng — người quyết ở Gate 2",
     and "## Chưa phân loại (triage-failed)", keeping the existing
-    "Chua adversarial-verify" section for unverified findings. When two or more
+    "Chua adversarial-verify" section for unverified findings. Items under
+    "## Ngoài hợp đồng" must follow this exact shape — `scripts/gate-card.js`
+    (shared by both harnesses) parses it back by machine, and a wrong shape makes
+    the whole block vanish from the card with no error:
+
+    ```
+    - **<title>**
+      Người dùng thấy gì: <plain>
+      file: `<path:line>`
+      severity: <high|medium|low>
+      Đề xuất: <known-limits|new-contract>
+    ``` When two or more
     distinct confirmed findings sit in files that no eval's `paths` cover, end
     the file with the cluster flag — stop and decide: widen the contract or
     narrow the scope.

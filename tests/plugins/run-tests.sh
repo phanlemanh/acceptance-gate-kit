@@ -1055,6 +1055,92 @@ else
   fail "P54 codex parity scope-triage (6 chuoi khoa + vai tro + dot bien)"
 fi
 
+# ── P55: ROUND-TRIP writer <-> reader cho review-findings.md ────────────────
+# Lop loi da tai dien BA round lien tiep ma khong eval nao do: ben VIET (prompt
+# synthesize trong acceptance-verify.js) va ben DOC (lib/out-of-contract.js) troi
+# khoi nhau, vi MOI test deu tu tay dung fixture DUNG KHUON READER. Case nay RUT
+# khuon tu chinh file writer roi cho reader that doc — hai dau khong the troi nua.
+echo "P55 round-trip: khuon prompt synthesize phai parse duoc bang lib/out-of-contract.js"
+run "P55 round-trip writer<->reader (khuon rut tu writer, doc bang reader that)" \
+  node - "$ROOT" <<'JS'
+const fs = require('fs');
+const path = require('path');
+const root = process.argv[2];
+const wf = fs.readFileSync(path.join(root, 'feature-loop/workflows/acceptance-verify.js'), 'utf8');
+const parser = require(path.join(root, 'lib/out-of-contract.js'));
+
+// 1. Rut khuon tu WRITER (khong hardcode o day).
+const m = wf.match(/<<<OOC-ITEM-TEMPLATE\\n([\s\S]*?)OOC-ITEM-TEMPLATE>>>/);
+if (!m) { console.error('KHONG rut duoc khuon OOC-ITEM-TEMPLATE tu writer'); process.exit(1); }
+// Hoa giai escape cua NGUON JS de duoc DUNG chuoi agent thuc su doc:
+// \\n -> xuong dong, \\` -> backtick that.
+const tpl = m[1].replace(/\\n/g, '\n').replace(/\\`/g, '`');
+
+const SAMPLE = {
+  title: 'rmSync before clone resolves',
+  plain: 'Bấm Cập nhật có thể làm mất tiện ích đang cài.',
+  file: 'src/install.ts:10',
+  severity: 'high',
+  proposal: 'known-limits',
+};
+const fill = t => t.replace(/\{(\w+)\}/g, (_, k) => SAMPLE[k]);
+const doc = '## Ngoài hợp đồng — người quyết ở Gate 2\n\n' + fill(tpl) + '\n';
+
+// 2. Cho READER that doc tai lieu do.
+const r = parser.parse(doc);
+const f = r.findings[0];
+if (!f) { console.error('reader parse ra 0 finding tu khuon cua writer — hai dau da lech'); process.exit(1); }
+for (const k of ['title', 'file', 'severity', 'proposal', 'plain']) {
+  if (f[k] !== SAMPLE[k]) {
+    console.error('reader parse truong ' + k + ' = [' + f[k] + '] nhung phai la [' + SAMPLE[k] + '] — hai dau da lech');
+    process.exit(1);
+  }
+}
+
+
+// 3. Doi chung dot bien: dao dong plain len TRUOC dong title -> phai parse HONG.
+const lines = fill(tpl).split('\n').filter(Boolean);
+const swapped = '## Ngoài hợp đồng — người quyết ở Gate 2\n\n'
+  + [lines[1].trim(), lines[0], ...lines.slice(2)].join('\n') + '\n';
+const bad = parser.parse(swapped);
+if (bad.findings.length > 0 && bad.findings[0].plain) {
+  console.error('dot bien KHONG hieu luc — dao thu tu dong van parse duoc, phep so da chet');
+  process.exit(1);
+}
+console.log('round-trip OK; dot bien dao dong bi bat');
+JS
+
+# ── P56: codex writer phai duoc bao ghi DUNG khuon (AC-15) ─────────────────
+# Hai harness render qua CUNG scripts/gate-card.js, von chi in truong plain.
+# Codex khong duoc bao viet dong do -> moi muc ra placeholder, va "parity" cua
+# AC-9 chi la chu. P54 ghim tu khoa nghiep vu; P56 ghim KHUON tai lieu.
+echo "P56 codex SKILL chi dan dung khuon review-findings (plain + cau truc)"
+P56F="$ROOT/codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md"
+P56OK=1
+if [ ! -f "$P56F" ]; then
+  echo "     thieu $P56F"; P56OK=0
+else
+  grep -q 'Người dùng thấy gì' "$P56F" || { echo "     THIEU chi dan dong 'Người dùng thấy gì' (truong plain)"; P56OK=0; }
+  grep -q -- '- \*\*<title>\*\*' "$P56F" || { echo "     THIEU cau truc '- **<title>**'"; P56OK=0; }
+  grep -q 'Đề xuất:' "$P56F" || { echo "     THIEU dong 'Đề xuất:'"; P56OK=0; }
+fi
+# Doi chung dot bien: ban sao bo dong plain phai KHAC ban goc VA lam phep kiem do.
+P56CP="$(mktemp)"
+grep -v 'Người dùng thấy gì' "$P56F" > "$P56CP" 2>/dev/null
+if cmp -s "$P56F" "$P56CP"; then
+  echo "     dot bien KHONG cham duoc file (ban sao y het ban goc) — phep kiem da chet"
+  P56OK=0
+elif grep -q 'Người dùng thấy gì' "$P56CP"; then
+  echo "     dot bien KHONG hieu luc — phep kiem da chet"
+  P56OK=0
+fi
+rm -f "$P56CP"
+if [ "$P56OK" -eq 1 ]; then
+  pass "P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)"
+else
+  fail "P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)"
+fi
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

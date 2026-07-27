@@ -84,3 +84,15 @@ evals:
     cmd: config:executors.test.plugins
     expected: "case P51: grep .github/workflows/gate.yml có step 'bash tests/workflows/run-tests.sh' VÀ _acceptance/config.yaml có executors.test.workflows + dòng đó trong feature_loop.suite_keys; đối chứng dương: xoá dòng step trong bản sao gate.yml → case đỏ đúng thông điệp"
     paths: [.github/workflows/gate.yml, _acceptance/config.yaml, tests/plugins/**]
+  - id: E15
+    criterion: AC-14
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P55 (ROUND-TRIP writer↔reader): RÚT khuôn tài liệu từ chính feature-loop/workflows/acceptance-verify.js (khối giữa hai marker OOC-ITEM-TEMPLATE), thay placeholder bằng dữ liệu mẫu, rồi cho lib/out-of-contract.js parse — phải ra đủ title/file/severity/proposal và plain KHÁC RỖNG. TUYỆT ĐỐI không tự viết fixture theo khuôn parser (đó là lỗi làm 3 round liên tiếp xanh giả). Đối chứng dương: đảo dòng plain lên trước dòng title trong tài liệu dựng ra → case ĐỎ đúng thông điệp parse-không-ra"
+    paths: [feature-loop/workflows/acceptance-verify.js, lib/out-of-contract.js, tests/plugins/**]
+  - id: E16
+    criterion: AC-15
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P56: codex feature-loop SKILL.md vùng ghi review-findings.md phải chỉ dẫn ĐÚNG khuôn AC-14 — ghim chuỗi 'Người dùng thấy gì' VÀ cấu trúc '- **<title>**' + dòng khoá thụt vào; đối chứng đột biến phải CHẠM được file (bản sao khác bản gốc) mới tính"
+    paths: [codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md, tests/plugins/**]

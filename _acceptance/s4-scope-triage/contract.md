@@ -24,6 +24,8 @@ owner: phanlemanh@gmail.com
 - AC-10: Given evidence-report.md của round có triage (mọi verdict), When soi shape, Then KHÔNG có field/section triage mới nào trong evidence-report.md — thông tin triage chỉ sống trong review-findings.md (ngoài hook); hook evidence-gate L1/L2/L3 giữ nguyên hành vi trên report cũ lẫn mới.
 - AC-11: (judgment) Given khối "Ngoài hợp đồng" trên card Cổng 2 render từ fixture mẫu, When một người quyết kinh doanh (không đọc code) đọc khối đó, Then họ hiểu finding là thật-nhưng-ngoài-phạm-vi-đã-duyệt và phân biệt được 3 lựa chọn: ghi Known limits / mở contract mới / nâng scope sửa ngay — bằng ngôn ngữ sản phẩm, không jargon.
 - AC-12: Given round BLOCKED (suite/eval không chạy được) VÀ có confirmed finding severity `high` triage `inContract: true`, When verdict routing chạy, Then verdict vẫn là `BLOCKED` — vế REJECT-từ-finding là vế mới nhưng đứng DƯỚI BLOCKED check như mọi nguồn REJECT khác; không fan-out fix nào từ findings trên môi trường hỏng. Đối chứng dương: cùng fixture không BLOCKED → `REJECT`.
+- AC-14: Given khuôn tài liệu mà prompt synthesize CHỈ DẪN cho `review-findings.md` (rút thẳng từ `acceptance-verify.js`, KHÔNG phải fixture viết sẵn theo khuôn parser), When `lib/out-of-contract.js` đọc một tài liệu dựng đúng khuôn đó, Then mỗi finding out-of-contract parse ra đủ `title` / `file` / `severity` / `proposal` / `plain` khác rỗng — bên VIẾT và bên ĐỌC phải khớp nhau bằng máy, không bằng mắt. Đối chứng dương: đảo thứ tự dòng `Người dùng thấy gì` với dòng title trong tài liệu → case ĐỎ. Đây là AC bổ sung ở round 4 vì cùng một lớp lỗi "writer↔reader trôi khỏi nhau" đã tái diễn 3 round liên tiếp mà không eval nào đỏ.
+- AC-15: Given SKILL feature-loop-codex vùng S4, When soi text, Then nó chỉ dẫn writer ghi ĐÚNG khuôn của AC-14 — có dòng `Người dùng thấy gì:` (trường `plain`) và cấu trúc `- **<title>**` + các dòng khoá thụt vào — vì hai harness render qua CÙNG `gate-card.js`; thiếu chỉ dẫn này thì mọi mục trên thẻ Codex ra placeholder và parity của AC-9 chỉ là chữ.
 - AC-13: Given repo kit, When soi CI và config, Then `.github/workflows/gate.yml` có step chạy `tests/workflows/run-tests.sh` VÀ `_acceptance/config.yaml` có `executors.test.workflows` + key đó trong `feature_loop.suite_keys` — wiring là deliverable của feature, không phải lời hứa.
 
 ## Coverage
@@ -35,6 +37,7 @@ owner: phanlemanh@gmail.com
 - Trục tương thích ngược: file findings cũ không section | hook shape nguyên vẹn [thước CE: AC-8/AC-10]
 - Trục harness parity: Claude workflow JS | codex text [thước CE: AC-9]
 - Trục người-đọc-gate: khối Ngoài-hợp-đồng đọc được bằng ngôn ngữ sản phẩm [thước CE: AC-11]
+- Trục seam writer↔reader: tài liệu máy VIẾT phải được máy ĐỌC lại đúng, đo bằng round-trip chứ không bằng fixture dựng sẵn theo khuôn reader [thước CE: AC-14/AC-15 — trục thêm ở round 4; thiếu nó thì 3 round liên tiếp lỗi cùng lớp mà mọi eval vẫn xanh]
 
 ## Out of scope
 
@@ -49,4 +52,5 @@ owner: phanlemanh@gmail.com
 - Verdict enum KHÔNG đổi (PASS / PENDING-JUDGMENT / REJECT / BLOCKED) — vế REJECT mới chỉ thêm nguồn, không thêm giá trị; hooks và pre-merge không cần biết feature này tồn tại (AC-10).
 - Case suite workflows dùng tiền tố `WT*`; case plugins dùng tiếp dải `P49`+.
 - MỌI assertion âm tính theo bất biến CLAUDE.md #4: đối chứng dương + ghim đúng thông điệp.
+- **Sửa hợp đồng ở round 4 (2026-07-27):** AC-14 + AC-15 + trục Coverage "seam writer↔reader" được THÊM sau khi round 3 dừng ở cap-3. Người duyệt cho phép mở round 4 kèm mở rộng hợp đồng bằng lệnh minh danh trong chat ("Đồng ý Mở round 4" — phương án 2 nêu rõ nội dung mở rộng). Lý do mở rộng chứ không vá tiếp: ba round liên tiếp hỏng CÙNG một lớp (round 1 thẻ không có renderer · round 2 thẻ in title kỹ thuật, fixture judge là văn viết tay · round 3 khuôn writer khác khuôn reader nên khối bốc hơi), và không eval nào đỏ ở cả ba — nghĩa là thiếu THƯỚC, không phải thiếu bản vá.
 - Feature kèm wiring `tests/workflows/run-tests.sh` vào `executors.test.workflows` + `feature_loop.suite_keys` + gate.yml (suite tồn tại từ Đợt 5 nhưng mồ côi — evals feature này cần nó làm executor).
