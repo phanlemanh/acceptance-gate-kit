@@ -29,6 +29,8 @@ export const meta = {
 
 //   personasPath: '<abs>/judge-personas.md',
 //   templatePath: '<abs>/evidence-report-template.md',
+//   contractPath: '<abs>/_acceptance/<slug>/contract.md',  // input của scope-triage (finding trong/ngoài hợp đồng).
+//                                      // Vắng/không đọc được → triageFailed: KHÔNG finding nào được kéo REJECT.
 //   reviewSkillPath: '<abs>/SKILL.md',  // OPTIONAL — skill review invariant riêng của repo; thiếu → review theo conventions (CLAUDE.md)
 //   dryRun: false,                     // true → trả fan-out plan, KHÔNG spawn agent
 //
@@ -120,6 +122,30 @@ const REFUTE_SCHEMA = {
   required: ['refuted', 'reason'],
 }
 
+// Scope-triage: finding da qua refuter DEU la loi THAT — cau hoi con lai la
+// "co trong hop dong khong". Ba ngan: in-contract (co acRef) · out-of-contract
+// (co proposal cho nguoi o Gate 2) · unclassified (buoc phan loai hong).
+const TRIAGE_SCHEMA = {
+  type: 'object',
+  properties: {
+    triaged: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          title: { type: 'string', description: 'chep NGUYEN VAN title cua finding duoc phan loai' },
+          inContract: { type: 'boolean', description: 'true CHI khi finding lam mot AC cua contract that bai' },
+          acRef: { type: 'string', description: 'id AC bi cham (vd AC-3) khi inContract=true; chuoi rong khi false' },
+          rationale: { type: 'string', description: '1 cau: vi sao trong/ngoai hop dong' },
+          proposal: { type: 'string', enum: ['known-limits', 'new-contract', ''], description: 'CHI khi inContract=false: de xuat cho nguoi o Gate 2; chuoi rong khi inContract=true' },
+        },
+        required: ['title', 'inContract', 'acRef', 'rationale', 'proposal'],
+      },
+    },
+  },
+  required: ['triaged'],
+}
+
 const REPORT_SCHEMA = {
   type: 'object',
   properties: {
@@ -178,6 +204,7 @@ const MODEL_ROUTES = {
   machine: 'haiku',      // chạy 1 lệnh + capture output — thuần cơ học
   ui: 'sonnet',          // nhiều bước (server lifecycle, assertion, evidence) nhưng không cần suy luận sâu
   judge: 'sonnet',       // phán xét scoped trên input đã resolve; majority 2/3 của panel bù sai số từng judge
+  triage: 'sonnet',      // đối chiếu finding với văn bản contract — không đọc code, không cần model lớn
   finder: null,          // recall bug là chỗ trí tuệ tạo giá trị — GIỮ model lớn (kế thừa session)
   refute: 'sonnet',      // kiểm 1 finding cụ thể có sẵn file:line — phạm vi hẹp
   baseline: 'sonnet',    // worktree + chạy lại lệnh trên commit gốc — cơ học có điều kiện
@@ -440,6 +467,77 @@ for (const k of REVIEWERS.map(r => r.key)) {
   if (!reviewResults.some(r => r.key === k) && !reviewIncomplete.includes(k)) reviewIncomplete.push(k)
 }
 
+// ---- Scope-triage: ngăn thứ ba cho finding THẬT nhưng NGOÀI hợp đồng ----
+// Reviewer là finder KHÔNG giới hạn phạm vi, gate là thước CÓ giới hạn phạm vi.
+// Thiếu ngăn này thì mỗi bản vá trong vùng-không-đặc-tả lại đẻ ra lựa chọn
+// không-đặc-tả mới, nên vòng lặp không thể hội tụ (ca OneFlow: 7 round, mọi
+// round eval xanh, 12/12 finding rơi ngoài vùng phủ).
+phase('Triage')
+const toTriage = confirmedFindings.filter(f => !f.unverified) // unverified chưa chắc là thật → không phân loại
+const hasContract = typeof args.contractPath === 'string' && !!args.contractPath.trim()
+let triageRaw = null
+let triageFailed = false
+if (toTriage.length === 0) {
+  triageFailed = false // không có gì để phân loại — không phải thất bại
+} else if (!hasContract) {
+  triageFailed = true // không có hợp đồng thì không đoán phạm vi
+  log('Triage: thieu args.contractPath — moi finding ve unclassified, khong ai REJECT tu findings')
+} else {
+  const triagePrompt =
+    `Ban la nguoi PHAN LOAI PHAM VI, khong phai nguoi tim loi. Cac finding duoi day DEU DA duoc xac nhan la loi THAT — dung tranh cai ve tinh dung sai cua chung.\n` +
+    `Cau hoi duy nhat cho MOI finding: no co lam mot AC (acceptance criterion) trong hop dong that bai khong?\n\n` +
+    `Doc hop dong tai ${args.contractPath} (Read). Doc CA section "Out of scope" — muc trong do la bang chung MANH cho inContract=false.\n\n` +
+    `Findings: ${JSON.stringify(toTriage.map(f => ({ title: f.title, file: f.file, line: f.line, severity: f.severity, detail: f.detail })))}\n\n` +
+    `Luat phan loai:\n` +
+    `- inContract=true CHI khi chi duoc DICH DANH mot AC ma finding nay lam that bai → acRef = id AC do (vd "AC-3"), proposal = "".\n` +
+    `- inContract=false khi finding that nhung khong AC nao phu → acRef = "", proposal = "known-limits" (ghi han che da biet, ship nhu hien tai) hoac "new-contract" (dang mot feature rieng).\n` +
+    `- KHONG suy dien AC "gan giong". Khong chac chan → inContract=false: sua ngoai hop dong la viec cua NGUOI o Gate 2, khong phai cua may.\n` +
+    `- KHONG doc code repo, KHONG de xuat cach sua. Chi phan loai pham vi.\n` +
+    `Tra ve triaged[] dung MOT muc cho MOI finding, title chep NGUYEN VAN.`
+  const triageOnce = () => agentT(triagePrompt, { label: 'triage', phase: 'Triage', schema: TRIAGE_SCHEMA, ...modelOpt('triage') })
+  triageRaw = await triageOnce().catch(() => null)
+  if (!triageRaw) triageRaw = await triageOnce().catch(() => null) // retry 1
+  if (!triageRaw || !Array.isArray(triageRaw.triaged)) {
+    triageFailed = true
+    log('Triage: agent chet ca retry — moi finding ve unclassified, khong ai REJECT tu findings')
+  }
+}
+const triageByTitle = new Map(((triageRaw && Array.isArray(triageRaw.triaged)) ? triageRaw.triaged : [])
+  .filter(t => t && typeof t.title === 'string').map(t => [t.title, t]))
+// Finding gửi đi mà agent KHÔNG trả về → unclassified (không mặc định in/out).
+const triaged = toTriage.map(f => {
+  const t = triageByTitle.get(f.title)
+  const ok = !triageFailed && !!t
+  return {
+    ...f,
+    inContract: ok ? t.inContract === true : false,
+    acRef: (ok && t.inContract === true && t.acRef) ? t.acRef : null,
+    rationale: ok ? (t.rationale || '') : '',
+    proposal: (ok && t.inContract !== true && t.proposal) ? t.proposal : null,
+    unclassified: !ok,
+  }
+})
+// Fix-list của round: CHỈ finding trong hợp đồng. Out-of-contract KHÔNG BAO GIỜ
+// vào đây, kể cả khi round REJECT vì lý do khác — chốt chặn chính của feature.
+const rejectFindings = triaged.filter(f => f.inContract)
+const triageHighInContract = triaged.filter(f => f.inContract && f.severity === 'high')
+
+// Tín hiệu cụm-ngoài-vùng-phủ: findings dồn vào file không eval nào đo = hợp đồng
+// đang hụt. Ngưỡng ≥2 — một finding lẻ không đẩy người vào quyết định mở-rộng-hay-rút.
+// Glob tối giản: ** = mọi thứ, * = trong một đoạn đường dẫn.
+const globToRe = g => new RegExp('^' + String(g)
+  .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+  .replace(/\*\*/g, ' ')
+  .replace(/\*/g, '[^/]*')
+  .replace(/ /g, '.*') + '$')
+const coverageRes = args.evals.flatMap(e => Array.isArray(e.paths) ? e.paths : []).map(globToRe)
+const outsideCoverage = coverageRes.length === 0 ? [] // không eval nào khai paths → không tính được (n-a)
+  : triaged.filter(f => typeof f.file === 'string' && f.file && !coverageRes.some(re => re.test(f.file)))
+const coverageCluster = outsideCoverage.length >= 2
+  ? { count: outsideCoverage.length, total: triaged.length, files: [...new Set(outsideCoverage.map(f => f.file))] }
+  : null
+if (coverageCluster) log(`Cum ngoai vung phu: ${coverageCluster.count}/${coverageCluster.total} finding roi vao file khong eval nao do`)
+
 // ---- panel verdict per judgment eval: majority 2/3, else UNCERTAIN. CHỈ LÀ ĐỀ XUẤT cho Gate 2 ----
 const freshPanels = freshJudgmentEvals.map(e => {
   const votes = judges.filter(j => j.evalId === e.id)
@@ -505,10 +603,14 @@ const varianceCmds = machine.filter(m => m.variance)
 let verdict
 if (blocked.length) verdict = 'BLOCKED'
 else if (failed.length) verdict = 'REJECT'
+// Vế MỚI: finding THẬT + trong hợp đồng + nặng → máy tự quay S3 sửa, không tốn
+// một lượt cổng người. Đặt DƯỚI BLOCKED (môi trường hỏng thì không sửa gì) và
+// sau failed (cùng kết cục, gộp chung fix-list).
+else if (triageHighInContract.length) verdict = 'REJECT'
 else if (varianceCmds.length || (judgmentEvals.length && (args.riskTier === 'T3' || panels.some(p => p.proposal !== 'PASS')))) verdict = 'PENDING-JUDGMENT'
 else verdict = 'PASS'
 
-log(`Verdict: ${verdict}${failedEvalIds.length ? ' — failed: ' + failedEvalIds.join(', ') : ''}${blocked.length ? ' — blocked: ' + blocked.length + ' lenh' : ''}${varianceCmds.length ? ' — variance: ' + varianceCmds.length : ''} — findings xac nhan: ${confirmedFindings.length}`)
+log(`Verdict: ${verdict}${failedEvalIds.length ? ' — failed: ' + failedEvalIds.join(', ') : ''}${blocked.length ? ' — blocked: ' + blocked.length + ' lenh' : ''}${varianceCmds.length ? ' — variance: ' + varianceCmds.length : ''} — findings xac nhan: ${confirmedFindings.length}${triaged.length ? ` (trong hop dong: ${rejectFindings.length}, ngoai: ${triaged.filter(f => !f.inContract && !f.unclassified).length}${triageFailed ? ', TRIAGE HONG' : ''})` : ''}`)
 
 // ---- Synthesize: 1 agent viết evidence-report.md đúng template (hook enforce) ----
 phase('Synthesize')
@@ -567,6 +669,10 @@ return {
   // Đợt 5: main loop in cho user round này carry gì (minh bạch ở Gate 2)
   carried: { evals: carriedEvals.map(c => c.id), panels: carriedPanels.map(p => p.evalId), baseline: !runBaseline },
   confirmedFindings,
+  triaged,
+  triageFailed,
+  rejectFindings,
+  coverageCluster,
   reviewIncomplete,
   nonDiscriminating,
   variance: varianceCmds.map(m => ({ cmd: m.cmd, evals: m.evals, runs: m.runs, passRate: m.passes + '/' + m.runs })),

@@ -398,4 +398,123 @@ console.log('W24 network-truth additive: ui result WITHOUT networkObserved still
   check('W24 verdict PASS without networkObserved', result.verdict === 'PASS', result.verdict);
 }
 
+// ── WT-T*: scope-triage — ngăn thứ ba "thật nhưng NGOÀI hợp đồng" ───────────
+// Reviewer là finder KHÔNG giới hạn phạm vi; gate là thước CÓ giới hạn phạm vi.
+// Thiếu ngăn này thì mỗi bản vá trong vùng-không-đặc-tả lại đẻ ra lựa chọn
+// không-đặc-tả mới → vòng lặp không hội tụ (ca OneFlow, 7 round).
+
+const F_HIGH = { title: 'xoa truoc khi clone', file: 'src/install.ts', severity: 'high', detail: 'rmSync truoc git.clone' };
+const F_MED = { title: 'so chuoi tho', file: 'src/install.ts', severity: 'medium', detail: 'storedUrl !== gitUrl' };
+const F_OUT = { title: 'docs lech huong dan', file: 'other/plugins.md', severity: 'high', detail: 'huong dan sai hau to' };
+
+// args cho nhánh triage: 1 eval máy có paths, không judgment, không suite.
+const triArgs = (over = {}) => baseArgs({
+  evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: 'pnpm test', ref: 'config:executors.test.api', expected: 'pass', paths: ['src/**'] }],
+  suiteCommands: [],
+  contractPath: '/repo/_acceptance/demo/contract.md',
+  ...over,
+});
+// findings: reviewer trả về · triage: agent phân loại trả về (title phải khớp)
+const triResp = ({ findings, triage, triageThrows = false, machine = null }) => responder({
+  'review:': { findings },
+  'refute:': { refuted: false, reason: 'that' },
+  'triage': () => { if (triageThrows) throw new Error('triage chet'); return { triaged: triage }; },
+  ...(machine ? { 'machine:': machine } : {}),
+});
+const tri1 = (f, over = {}) => [{ title: f.title, inContract: true, acRef: 'AC-1', rationale: 'cham AC-1', proposal: '', ...over }];
+const triOut = (f, proposal = 'known-limits') => [{ title: f.title, inContract: false, acRef: '', rationale: 'ngoai scope', proposal }];
+
+console.log('WT-T1 high + in-contract, evals xanh -> REJECT + vao rejectFindings');
+{
+  const { result } = await runWorkflow(WF, triArgs(), triResp({ findings: [F_HIGH], triage: tri1(F_HIGH) }));
+  check('WT-T1 verdict REJECT', result.verdict === 'REJECT', result.verdict);
+  check('WT-T1 finding nam trong rejectFindings', (result.rejectFindings || []).some(f => f.title === F_HIGH.title));
+}
+
+console.log('WT-T1b (doi chung duong) cung cau hinh, severity medium -> PASS');
+{
+  const { result } = await runWorkflow(WF, triArgs(), triResp({ findings: [F_MED], triage: tri1(F_MED) }));
+  check('WT-T1b medium in-contract KHONG keo REJECT', result.verdict === 'PASS', result.verdict);
+}
+
+console.log('WT-T2 high + out-of-contract -> PASS, khong vao fix-list');
+{
+  const { result } = await runWorkflow(WF, triArgs(), triResp({ findings: [F_OUT], triage: triOut(F_OUT) }));
+  check('WT-T2 verdict PASS', result.verdict === 'PASS', result.verdict);
+  check('WT-T2 KHONG vao rejectFindings', !(result.rejectFindings || []).some(f => f.title === F_OUT.title));
+  check('WT-T2 triaged giu proposal', (result.triaged || []).some(t => t.title === F_OUT.title && t.proposal === 'known-limits'));
+}
+
+console.log('WT-T3 medium in-contract -> khong REJECT, giu acRef');
+{
+  const { result } = await runWorkflow(WF, triArgs(), triResp({ findings: [F_MED], triage: tri1(F_MED, { acRef: 'AC-3' }) }));
+  check('WT-T3 khong REJECT', result.verdict !== 'REJECT', result.verdict);
+  check('WT-T3 giu acRef', (result.triaged || []).some(t => t.title === F_MED.title && t.acRef === 'AC-3'));
+}
+
+console.log('WT-T4 triage chet ca retry -> triageFailed, KHONG REJECT du finding high');
+{
+  const { result, calls } = await runWorkflow(WF, triArgs(), triResp({ findings: [F_HIGH], triage: [], triageThrows: true }));
+  check('WT-T4 triageFailed true', result.triageFailed === true);
+  check('WT-T4 KHONG REJECT tu finding', result.verdict === 'PASS', result.verdict);
+  check('WT-T4 rejectFindings rong', (result.rejectFindings || []).length === 0);
+  check('WT-T4 co retry dung 1 lan (2 luot goi)', byLabel(calls, 'triage').length === 2, String(byLabel(calls, 'triage').length));
+}
+
+console.log('WT-T4b (doi chung duong) triage song -> triageFailed false');
+{
+  const { result } = await runWorkflow(WF, triArgs(), triResp({ findings: [F_HIGH], triage: tri1(F_HIGH) }));
+  check('WT-T4b triageFailed false', result.triageFailed === false);
+}
+
+console.log('WT-T4c thieu contractPath -> fail-toward-human, khong spawn agent triage');
+{
+  const args = triArgs();
+  delete args.contractPath;
+  const { result, calls } = await runWorkflow(WF, args, triResp({ findings: [F_HIGH], triage: tri1(F_HIGH) }));
+  check('WT-T4c triageFailed true', result.triageFailed === true);
+  check('WT-T4c KHONG REJECT', result.verdict === 'PASS', result.verdict);
+  check('WT-T4c KHONG spawn agent triage', byLabel(calls, 'triage').length === 0);
+}
+
+console.log('WT-T5 eval FAIL + hon hop -> rejectFindings CHI co in-contract');
+{
+  const { result } = await runWorkflow(WF, triArgs(), triResp({
+    machine: { exitCode: 1, outputTail: 'do', runId: '', cannotRun: false },
+    findings: [F_HIGH, F_OUT],
+    triage: [...tri1(F_HIGH), ...triOut(F_OUT, 'new-contract')],
+  }));
+  check('WT-T5 verdict REJECT', result.verdict === 'REJECT', result.verdict);
+  check('WT-T5 CO in-contract trong fix-list', (result.rejectFindings || []).some(f => f.title === F_HIGH.title));
+  check('WT-T5 KHONG co out-of-contract trong fix-list', !(result.rejectFindings || []).some(f => f.title === F_OUT.title));
+}
+
+console.log('WT-T6 finding unverified khong vao triage, van giu ngan rieng');
+{
+  const { result, calls } = await runWorkflow(WF, triArgs(), responder({
+    'review:': { findings: [{ title: 'refuter chet o day', file: 'src/x.ts', severity: 'high', detail: 'x' }] },
+    'refute:': null, // refuter chết → finding thành unverified
+    'triage': { triaged: [] },
+  }));
+  const tp = byLabel(calls, 'triage').map(c => c.prompt).join('\n');
+  check('WT-T6 unverified KHONG vao prompt triage', !tp.includes('refuter chet o day'), tp.slice(0, 80));
+  check('WT-T6 unverified van trong confirmedFindings', (result.confirmedFindings || []).some(f => f.unverified));
+  check('WT-T6 unverified KHONG keo REJECT', result.verdict === 'PASS', result.verdict);
+}
+
+console.log('WT-T9 BLOCKED thang ve REJECT-tu-finding');
+{
+  const { result } = await runWorkflow(WF, triArgs(), triResp({
+    machine: { exitCode: 0, outputTail: '', runId: '', cannotRun: true, reason: 'thieu env' },
+    findings: [F_HIGH], triage: tri1(F_HIGH),
+  }));
+  check('WT-T9 verdict BLOCKED', result.verdict === 'BLOCKED', result.verdict);
+}
+
+console.log('WT-T9b (doi chung duong) cung fixture khong blocked -> REJECT');
+{
+  const { result } = await runWorkflow(WF, triArgs(), triResp({ findings: [F_HIGH], triage: tri1(F_HIGH) }));
+  check('WT-T9b khong blocked -> REJECT', result.verdict === 'REJECT', result.verdict);
+}
+
 summary('acceptance-verify');
