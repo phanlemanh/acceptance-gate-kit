@@ -938,6 +938,37 @@ else
   fail "P53 fixture judge E11 du 3 nhan (rut tu card) + khong jargon + dot bien"
 fi
 
+# ── P54: codex parity cho scope-triage ──────────────────────────────────────
+# AC-9. Hai harness phai cung ngu nghia: 3 ngan, quyen REJECT chi cho
+# in-contract high, va fail-toward-human khi buoc phan loai hong. Lech ngu
+# nghia giua hai harness la loi thau — nguoi dung Codex nhan mot cong khac.
+echo "P54 codex feature-loop S4 co buoc scope-triage tuong duong"
+P54F="$ROOT/codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md"
+P54OK=1
+if [ ! -f "$P54F" ]; then
+  echo "     thieu $P54F"; P54OK=0
+else
+  # Ba ngan + quyen REJECT + fail-toward-human, moi thu mot chuoi ghim.
+  for s in 'scope-triage' 'in-contract' 'out-of-contract' 'unclassified' 'Never fix out-of-contract' 'fail toward the human'; do
+    grep -qi "$s" "$P54F" || { echo "     THIEU chuoi khoa: $s"; P54OK=0; }
+  done
+  # Vai tro model phai duoc khai, khong thi bang routing noi doi ve fan-out that.
+  grep -q 'acceptance_triage' "$P54F" || { echo "     THIEU vai tro acceptance_triage trong bang routing"; P54OK=0; }
+fi
+# Doi chung dot bien: ban sao xoa luat -> phep kiem phai DO.
+P54CP="$(mktemp)"
+grep -vi 'Never fix out-of-contract' "$P54F" > "$P54CP" 2>/dev/null
+if grep -qi 'Never fix out-of-contract' "$P54CP"; then
+  echo "     dot bien KHONG hieu luc — phep kiem da chet"
+  P54OK=0
+fi
+rm -f "$P54CP"
+if [ "$P54OK" -eq 1 ]; then
+  pass "P54 codex parity scope-triage (6 chuoi khoa + vai tro + dot bien)"
+else
+  fail "P54 codex parity scope-triage (6 chuoi khoa + vai tro + dot bien)"
+fi
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

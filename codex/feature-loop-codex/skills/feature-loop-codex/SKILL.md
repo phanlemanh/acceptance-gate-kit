@@ -67,6 +67,7 @@ available:
 | `acceptance_judge` | blind scoped judgment | `gpt-5.6-sol` | `medium` |
 | `acceptance_reviewer` | high-recall invariants and bug review | `gpt-5.6-sol` | `high` |
 | `acceptance_refuter` | one-finding adversarial check | `gpt-5.6-terra` | `medium` |
+| `acceptance_triage` | scope-triage of the confirmed finding list against the contract | `gpt-5.6-terra` | `medium` |
 
 For every model-backed role, choose one routing mode in this exact order:
 
@@ -422,9 +423,38 @@ or the human confirms a descope entry.
 12. Review the diff with repo guidance. Run two `acceptance_reviewer` passes:
     conventions/invariants and bug/silent-failure. Dispatch one
     `acceptance_refuter` per proposed finding before treating it as confirmed.
-    Use the recorded fallback modes when named agents are unavailable. Write
-    confirmed and unverified findings to
-    `_acceptance/<slug>/review-findings.md`.
+    Use the recorded fallback modes when named agents are unavailable.
+
+    Then run **scope-triage** — one `acceptance_triage` pass over the whole
+    confirmed list. Never one agent per finding, and never folded into the
+    refuter: refuting ("is this real?") and scoping ("is this in the contract?")
+    are different lenses, and merging them weakens both. Input is
+    `_acceptance/<slug>/contract.md` verbatim plus the confirmed findings;
+    unverified findings are NOT triaged. Every finding lands in exactly one of
+    three bins:
+    - **in-contract** — it names the specific AC it breaks. These join the
+      round's fix list.
+    - **out-of-contract** — real, but no AC covers it; propose `known-limits`
+      or `new-contract`. **Never fix out-of-contract findings in this round**,
+      even when the round is already REJECT for another reason — patching
+      undefined behaviour under review pressure is the spiral this step exists
+      to stop. They go to Gate 2 for the human to decide.
+    - **unclassified** — triage failed (agent dead after one retry, or the
+      contract could not be read). Then NO finding may drive a REJECT whatever
+      its severity: fail toward the human, never guess the scope.
+
+    A confirmed finding that is `high` AND in-contract makes the round REJECT —
+    the machine fixes what the contract already bounds, without spending a human
+    gate. `medium` and `low` in-contract findings stay informational. BLOCKED
+    still outranks all of this: a broken environment fixes nothing.
+
+    Write every bin to `_acceptance/<slug>/review-findings.md` under the
+    headings "## Trong hợp đồng", "## Ngoài hợp đồng — người quyết ở Gate 2",
+    and "## Chưa phân loại (triage-failed)", keeping the existing
+    "Chua adversarial-verify" section for unverified findings. When two or more
+    distinct confirmed findings sit in files that no eval's `paths` cover, end
+    the file with the cluster flag — stop and decide: widen the contract or
+    narrow the scope.
 13. Capture provenance mechanically. Write `enforcement_mode: strict|warn|off`
     from `_acceptance/config.yaml` and `bypass_used: true|false` from the actual
     bypass environment. These fields are merge-boundary evidence and must not be
@@ -472,6 +502,10 @@ Verdict routing:
 For `REJECT`, return to S3 and run a new verify round. Cap at three rounds, then
 stop and escalate with a round-by-round summary. For `BLOCKED`, present exact
 blocked command and reason, fix environment/config, and rerun the same round.
+On REJECT, the fix list is failed evals, failed commands, and **in-contract
+findings only** — out-of-contract findings never enter it, whatever caused the
+REJECT.
+
 Before each REJECT→fix transition, append a `fix` decision with
 `stage: S4-r<N>` and the chosen repair rationale.
 
@@ -484,7 +518,21 @@ Present one package: verdict, per-eval table, judgment proposals, variance,
 baseline analyst notes, what this round carried forward (P1 evals, P3 panels,
 P2 baseline — carry-forward must be visible, never folded into "machine
 handled it"), `review-findings.md`, any incomplete review warning,
-and `git diff --stat <diffBase>...HEAD`. Translate every judgment or variance
+and `git diff --stat <diffBase>...HEAD`.
+
+Put the **out-of-contract block first**, ahead of the judgment items: every
+finding triaged out-of-contract is a real defect that sits outside the scope the
+human approved at Gate 1. Give each one a product-language paragraph plus
+exactly three choices — record it under known limitations and ship; open a new
+contract for it; or widen the current contract (add criteria, re-approve Gate 1,
+run another S4 round). Default to one of the first two; widening is the
+expensive path and only right when the defect blocks shipping. If triage failed,
+replace the block with an amber flag: scope triage did not run, nothing was
+auto-fixed, the human reviews the full list in `review-findings.md`. If the
+coverage-cluster flag is set, show it here — stop and decide: widen the contract
+or narrow the scope.
+
+Translate every judgment or variance
 item into a non-technical product/business question with proposal, rationale,
 tradeoffs, and reversibility. Do not ask the human to judge schemas, commands,
 or implementation details.
