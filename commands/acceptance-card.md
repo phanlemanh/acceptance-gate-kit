@@ -43,17 +43,16 @@ Steps:
    - Gate 2: `decisions[] → {id,q}` a SHORT product question (≤14 words, ends "?",
      NO Given/When/Then, NO jargon like DOM/exit code); optional `{id,why}` plain;
      `analyst_plain` = plain restatement of the non-discriminating note.
-   - Gate 2 `out_of_contract`: đọc `_acceptance/<slug>/review-findings.md`. Có
-     section "## Ngoài hợp đồng" → dựng khối việc-của-người ĐẶT TRƯỚC các
-     judgment item: mỗi lỗi 1 đoạn ngôn ngữ sản phẩm (không tên hàm, không mã
-     thoát) + đúng 3 lựa chọn cho người, giữ NGUYÊN VĂN ba nhãn này:
+   - Gate 2 khối "Ngoài hợp đồng": **KHÔNG dịch, KHÔNG có key overlay cho khối
+     này** — `gate-card.js` tự đọc `_acceptance/<slug>/review-findings.md` và tự
+     render (cùng luật với `gap_probe`: cái gì phải hiện trên thẻ thì script
+     render, để không thể quên hay điền sai). Ba nhãn lựa chọn giữ NGUYÊN VĂN:
      (a) **ghi Known limits** — chấp nhận, ghi vào phần hạn chế đã biết, ship bản này; (b) **mở hợp đồng mới** — tách thành một việc riêng có tiêu chí nghiệm thu của nó; (c) **nâng phạm vi sửa ngay** — bổ sung tiêu chí vào hợp đồng hiện tại rồi duyệt lại Cổng 1.
-     Có dòng cờ cụm-ngoài-vùng-phủ trong file → chép lên đầu khối.
-     File không có section đó (thế hệ cũ, hoặc round không có lỗi nào) → render
-     như cũ, không cờ, không lỗi — nhánh backward này là bắt buộc.
-     Có section "## Chưa phân loại (triage-failed)" → thay khối bằng một cờ
-     vàng: phân loại phạm vi hỏng, người xem lại toàn bộ danh sách, máy không
-     tự sửa gì.
+     File không có section "## Ngoài hợp đồng" (thế hệ cũ, hoặc round không có
+     lỗi nào) → thẻ render như cũ, không cờ, không lỗi. Có "## Chưa phân loại
+     (triage-failed)" → script thay khối bằng cờ vàng. Cờ cụm-ngoài-vùng-phủ
+     cũng do script render, và cố ý KHÔNG nêu đường dẫn file: thẻ là chỗ quyết
+     định, chi tiết nằm ở gói bằng chứng.
    - `scope_plain`: one plain phrase for the deferred/cut scope.
    - `decisions_plain[] → {id,p}` cho MỌI entry trong `decisions` (Gate 1) /
      `decisions_approved` + `decisions_provisional` (Gate 2): mỗi `p` = 1 câu sản

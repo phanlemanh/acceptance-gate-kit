@@ -134,16 +134,18 @@ const TRIAGE_SCHEMA = {
         type: 'object',
         properties: {
           title: { type: 'string', description: 'chep NGUYEN VAN title cua finding duoc phan loai' },
+          file: { type: 'string', description: 'chep NGUYEN VAN file cua finding — title KHONG duy nhat, (file,title) moi la khoa' },
           inContract: { type: 'boolean', description: 'true CHI khi finding lam mot AC cua contract that bai' },
           acRef: { type: 'string', description: 'id AC bi cham (vd AC-3) khi inContract=true; chuoi rong khi false' },
           rationale: { type: 'string', description: '1 cau: vi sao trong/ngoai hop dong' },
           proposal: { type: 'string', enum: ['known-limits', 'new-contract', ''], description: 'CHI khi inContract=false: de xuat cho nguoi o Gate 2; chuoi rong khi inContract=true' },
         },
-        required: ['title', 'inContract', 'acRef', 'rationale', 'proposal'],
+        required: ['title', 'file', 'inContract', 'acRef', 'rationale', 'proposal'],
       },
     },
+    contractUnreadable: { type: 'boolean', description: 'true khi KHONG doc duoc contract — bat buoc bao that, tuyet doi khong doan phan loai tu tri nho' },
   },
-  required: ['triaged'],
+  required: ['triaged', 'contractUnreadable'],
 }
 
 const REPORT_SCHEMA = {
@@ -493,7 +495,8 @@ if (toTriage.length === 0) {
     `- inContract=false khi finding that nhung khong AC nao phu → acRef = "", proposal = "known-limits" (ghi han che da biet, ship nhu hien tai) hoac "new-contract" (dang mot feature rieng).\n` +
     `- KHONG suy dien AC "gan giong". Khong chac chan → inContract=false: sua ngoai hop dong la viec cua NGUOI o Gate 2, khong phai cua may.\n` +
     `- KHONG doc code repo, KHONG de xuat cach sua. Chi phan loai pham vi.\n` +
-    `Tra ve triaged[] dung MOT muc cho MOI finding, title chep NGUYEN VAN.`
+    `- KHONG doc duoc contract (Read that bai, file khong ton tai, rong) → tra contractUnreadable=true va triaged=[] . TUYET DOI khong doan phan loai tu tri nho: mot ket qua bia doc y het mot ket qua that.\n` +
+    `Tra ve contractUnreadable=false va triaged[] dung MOT muc cho MOI finding; title VA file chep NGUYEN VAN (title khong duy nhat — hai file khac nhau co the trung title).`
   const triageOnce = () => agentT(triagePrompt, { label: 'triage', phase: 'Triage', schema: TRIAGE_SCHEMA, ...modelOpt('triage') })
   triageRaw = await triageOnce().catch(() => null)
   if (!triageRaw) triageRaw = await triageOnce().catch(() => null) // retry 1
@@ -502,11 +505,23 @@ if (toTriage.length === 0) {
     log('Triage: agent chet ca retry — moi finding ve unclassified, khong ai REJECT tu findings')
   }
 }
-const triageByTitle = new Map(((triageRaw && Array.isArray(triageRaw.triaged)) ? triageRaw.triaged : [])
-  .filter(t => t && typeof t.title === 'string').map(t => [t.title, t]))
+// Agent tự khai KHÔNG đọc được contract → fail-toward-human, y như agent chết.
+// Không có nhánh này thì luật "không chắc chắn → inContract=false" biến mọi
+// finding thành out-of-contract và card in "ngoài phạm vi đã duyệt" cho những
+// lỗi chưa từng được đối chiếu — đọc như kết quả triage nhưng là bịa.
+if (triageRaw && triageRaw.contractUnreadable === true) {
+  triageFailed = true
+  log('Triage: agent bao KHONG doc duoc contract — moi finding ve unclassified, khong ai REJECT tu findings')
+}
+// Khoá ghép là (file, title): title do hai lane reviewer sinh tự do trên cùng
+// một diff nên trùng title giữa hai FILE là chuyện thường; ghép bằng title trần
+// thì Map giữ mục cuối và finding out-of-contract lọt vào fix-list.
+const triageKey = t => `${t.file || ''} :: ${t.title}`
+const triageByKey = new Map(((triageRaw && Array.isArray(triageRaw.triaged)) ? triageRaw.triaged : [])
+  .filter(t => t && typeof t.title === 'string').map(t => [triageKey(t), t]))
 // Finding gửi đi mà agent KHÔNG trả về → unclassified (không mặc định in/out).
 const triaged = toTriage.map(f => {
-  const t = triageByTitle.get(f.title)
+  const t = triageByKey.get(triageKey(f))
   const ok = !triageFailed && !!t
   return {
     ...f,
@@ -525,11 +540,17 @@ const triageHighInContract = triaged.filter(f => f.inContract && f.severity === 
 // Tín hiệu cụm-ngoài-vùng-phủ: findings dồn vào file không eval nào đo = hợp đồng
 // đang hụt. Ngưỡng ≥2 — một finding lẻ không đẩy người vào quyết định mở-rộng-hay-rút.
 // Glob tối giản: ** = mọi thứ, * = trong một đoạn đường dẫn.
-const globToRe = g => new RegExp('^' + String(g)
-  .split('**').map(part => part
-    .replace(/[.+^${}()|[\]\\]/g, '\\$&')
-    .replace(/\*/g, '[^/]*'))
-  .join('.*') + '$')
+// Glob toi gian theo ngu nghia chuan: `**/` khop KHONG hoac NHIEU thu muc (nen
+// `src/**/*.ts` phai khop ca `src/a.ts`), `**` khop moi thu, `*` khop trong mot doan.
+// Tach `**` TRUOC khi doi `*`, neu khong `**` bi doi thanh hai lan `[^/]*` va het
+// khop qua dau `/`. Ky tu glob khac (`?`) duoc escape de khong thanh luong tu regex.
+const globToRe = g => {
+  const lit = t => t.replace(/[.+^${}()|[\]\\?]/g, '\\$&').replace(/\*/g, '[^/]*')
+  const body = String(g).split('**/')
+    .map(part => part.split('**').map(lit).join('.*'))
+    .join('(?:.*/)?')
+  return new RegExp('^' + body + '$')
+}
 const coverageRes = args.evals.flatMap(e => Array.isArray(e.paths) ? e.paths : []).map(globToRe)
 // Đếm theo finding PHÂN BIỆT (file+title), không theo số lượt báo: hai reviewer
 // cùng thấy một lỗi là chuyện thường, và nó KHÔNG được tự nhân đôi thành "cụm".

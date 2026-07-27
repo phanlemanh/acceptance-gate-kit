@@ -30,6 +30,7 @@
 const fs = require('fs');
 const path = require('path');
 const gapProbe = require('../lib/gap-probe.js');
+const outOfContract = require('../lib/out-of-contract.js');
 
 const a = process.argv.slice(2);
 const opt = n => { const i = a.indexOf(n); return i >= 0 ? a[i + 1] : null; };
@@ -295,7 +296,12 @@ const red = Object.values(evid).filter(e => e.baseline === 'red').length;
 const green = Object.values(evid).filter(e => e.baseline === 'green').length;
 const evComplete = machineRows.length > 0 && machineRows.every(r => { const e = evid[r.id] || {}; return e.run_id && e.run_id.length >= 4 && e.exit_code === '0' && e.verifier; });
 
-if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', decisions_approved: decsApproved.map(e => ({ id: e.id, type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken }, null, 2)); process.exit(0); }
+// Scope-triage: lỗi THẬT nhưng ngoài phạm vi đã duyệt. Đọc thẳng từ artifact —
+// KHÔNG qua key overlay, cùng luật với gap-probe: cái gì phải hiện trên thẻ thì
+// script render, để không thể quên hay điền sai.
+const ooc = outOfContract.parse(read(path.join(dir, 'review-findings.md')));
+
+if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster }, decisions_approved: decsApproved.map(e => ({ id: e.id, type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken }, null, 2)); process.exit(0); }
 
 const featurePlain = pl.feature_plain || feature;
 const plainDec = id => ((pl.decisions && pl.decisions.find(x => x.id === id)) || {}).q;
@@ -324,6 +330,20 @@ const chip = verdict === 'PASS' ? { t: 'máy đã xong — ký nhanh', c: 'teal'
 P.push(`<div class="gc"><div class="card">
 <div class="h"><div><div class="ft">${esc(featurePlain)}</div><div class="sub">Cổng 2 · ký duyệt · ~5 phút${tier === 'T3' ? ' · tier T3 (đụng critical)' : ''}</div></div><span class="chip ${chip.c}">${esc(chip.t)}</span></div>`);
 P.push(`<a href="evidence-page.html" style="display:flex;justify-content:space-between;align-items:center;gap:10px;background:#E6F1FB;border:1px solid #B5D4F4;border-radius:10px;padding:9px 13px;margin:11px 0 2px;text-decoration:none;color:#0C447C;font-size:13px"><b>Bằng chứng đầy đủ — ảnh chụp + chạy thật</b><span style="font-size:12px;color:#185FA5;white-space:nowrap">đã mở trong trình duyệt</span></a>`);
+// Khối "Ngoài hợp đồng" đứng TRƯỚC mọi việc-của-người khác: đây là thứ máy cố ý
+// KHÔNG tự sửa, nên nếu người duyệt bỏ qua thì không ai bắt lại.
+if (ooc.unclassified) {
+  P.push(`<div class="lab">Phân loại phạm vi hỏng</div><div class="flag fwarn">⚠ Bước phân loại phạm vi không chạy được — không lỗi nào bị máy tự sửa. Xem toàn bộ danh sách trong review-findings.md trước khi ký.</div>`);
+} else if (ooc.findings.length) {
+  P.push(`<div class="lab">Ngoài hợp đồng — bạn quyết (${ooc.findings.length})</div>`);
+  P.push(`<div class="flag fwarn">Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — máy cố ý không tự sửa.</div>`);
+  for (const f of ooc.findings) {
+    const rec = f.proposal === 'new-contract' ? 'Máy đề xuất: tách thành một việc riêng.'
+      : f.proposal === 'known-limits' ? 'Máy đề xuất: ghi vào hạn chế đã biết rồi ship.'
+      : 'Máy chưa đề xuất hướng nào.';
+    P.push(`<div class="item"><p class="q">${esc(f.title)}</p><p class="ai">${esc(rec)}</p><div class="btns"><button class="b bn">Ghi Known limits</button><button class="b bn">Mở hợp đồng mới</button><button class="b no">Nâng phạm vi, sửa ngay</button></div></div>`);
+  }
+}
 const yourCount = decisions.length + (oos.length ? 1 : 0);
 if (yourCount) {
   P.push(`<div class="lab">Việc chỉ mình bạn quyết được — ${yourCount} việc</div>`);
@@ -338,6 +358,9 @@ if (decsProvisional.length) {
 if (decsApproved.length) P.push(`<div class="lab">Đã duyệt từ Gate 1</div><div class="grp gnot">${decSort(decsApproved).map(e => `<p class="li">${decLine(e)}</p>`).join('')}</div>`);
 if (ledger.broken) P.push(`<div class="flag fwarn">⚠ ${ledger.broken} dòng ledger hỏng, đã bỏ qua.</div>`);
 const flags = [];
+// Cụm ngoài vùng phủ: bộ đo đang hụt so với chỗ lỗi thật xuất hiện. Không nêu
+// đường dẫn file ở thẻ — thẻ là chỗ quyết định, chi tiết nằm ở gói bằng chứng.
+if (ooc.cluster) flags.push(['fwarn', '⚠ Nhiều lỗi rơi ngoài vùng các bộ đo đang phủ — dừng và quyết: mở rộng hợp đồng hay rút phạm vi. Chi tiết trong review-findings.md.']);
 { const analyst = cleanLines(section(report, 'Analyst')).join(' ').trim(); if (analyst && !/^none/i.test(analyst) && !/^\{\{/.test(analyst)) flags.push(['fred', esc(pl.analyst_plain || analyst)]); }
 { const varr = cleanLines(section(report, 'Variance')).join(' ').trim(); if (varr && !/^none/i.test(varr) && !/^\{\{/.test(varr)) flags.push(['fred', 'Có eval ngẫu nhiên (pass-rate hỗn hợp) — ' + esc(varr)]); }
 if (tier === 'T3') flags.push(['fok', 'Đụng phần nhạy cảm → tier T3, đúng là cần bạn duyệt kỹ.']);

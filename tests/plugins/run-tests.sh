@@ -853,7 +853,10 @@ fi
 # Doi chung dot bien: ban sao gate.yml bi xoa step -> phep kiem phai DO.
 P51CP="$(mktemp)"
 grep -v 'bash tests/workflows/run-tests.sh' "$P51GATE" > "$P51CP"
-if grep -q 'bash tests/workflows/run-tests.sh' "$P51CP"; then
+if cmp -s "$P51GATE" "$P51CP"; then
+  echo "     dot bien KHONG cham duoc file (ban sao y het ban goc) — phep kiem da chet"
+  P51OK=0
+elif grep -q 'bash tests/workflows/run-tests.sh' "$P51CP"; then
   echo "     dot bien KHONG hieu luc — phep kiem da chet"
   P51OK=0
 fi
@@ -868,27 +871,96 @@ fi
 # AC-8 cua s4-scope-triage. Card la lop trinh bay; review-findings.md the he CU
 # (khong co section moi) phai render nhu cu, khong loi — nhanh backward la BAT
 # BUOC, khong phai tuy nghi.
-echo "P52 card render khoi Ngoai-hop-dong + nhanh backward (2 harness)"
+# Do DAU RA RENDER, khong grep chi dan. Round 1 cua chinh feature nay bi bat vi
+# case cu chi grep hai file chi dan: no van xanh trong khi gate-card.js khong he
+# biet khoi do, nen khoi khong bao gio hien ra cho nguoi duyet.
+echo "P52 card THAT SU render khoi Ngoai-hop-dong (do dau ra) + nhanh backward"
 P52OK=1
-P52CARDS="$ROOT/commands/acceptance-card.md $ROOT/codex/acceptance-gate/skills/acceptance-card/SKILL.md"
-for f in $P52CARDS; do
-  if [ ! -f "$f" ]; then echo "     thieu $f"; P52OK=0; continue; fi
-  grep -q 'Ngoài hợp đồng' "$f" || { echo "     $f THIEU chi dan khoi Ngoai hop dong"; P52OK=0; }
-  # Nhanh backward: moi file viet bang ngon ngu cua no, ghim ngu nghia bang 2 nhanh.
-  grep -qE 'không có section|no such section' "$f" || { echo "     $f THIEU nhanh backward tuong minh"; P52OK=0; }
+P52WS="$(mktemp -d)"
+mkdir -p "$P52WS/_acceptance/demo"
+cat > "$P52WS/_acceptance/demo/contract.md" <<'EOF'
+---
+schema_version: 1
+feature: demo
+slug: demo
+risk_tier: T2
+status: verified
+---
+
+## Criteria
+
+- AC-1: Given x, When y, Then z.
+
+## Out of scope
+
+- khong lam gi ca
+EOF
+cat > "$P52WS/_acceptance/demo/evidence-report.md" <<'EOF'
+---
+slug: demo
+round: 1
+verdict: PASS
+enforcement_mode: strict
+bypass_used: false
+---
+
+## Results
+
+- eval: E1
+  run_id: r1234
+  exit_code: 0
+  verifier: config:executors.test.unit
+  verified_at: 2026-07-27T00:00:00Z
+EOF
+cat > "$P52WS/_acceptance/demo/review-findings.md" <<'EOF'
+# Review Findings: demo (round 1)
+
+## Trong hợp đồng
+
+- **loi trong hop dong**
+  file: `src/a.ts:1`
+  severity: high
+  AC: AC-1
+
+## Ngoài hợp đồng — người quyết ở Gate 2
+
+- **tien ich co the bi xoa khi cap nhat**
+  file: `src/install.ts:10`
+  severity: high
+  Đề xuất: known-limits
+
+---
+
+⚠ Cụm ngoài vùng phủ: 2/3 lỗi rơi vào file không bộ đo nào phủ (src/install.ts, docs/plugins.md) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+EOF
+P52OUT="$(node "$ROOT/scripts/gate-card.js" --root "$P52WS" --slug demo 2>&1)"
+for s in 'Ngoài hợp đồng — bạn quyết' 'tien ich co the bi xoa khi cap nhat' 'Ghi Known limits' 'Mở hợp đồng mới' 'Nâng phạm vi, sửa ngay'; do
+  printf '%s' "$P52OUT" | grep -q "$s" || { echo "     dau ra render THIEU: $s"; P52OK=0; }
 done
-# Doi chung dot bien: ban sao bi xoa chi dan -> phep kiem phai DO.
-P52CP="$(mktemp)"
-grep -v 'Ngoài hợp đồng' "$ROOT/commands/acceptance-card.md" > "$P52CP"
-if grep -q 'Ngoài hợp đồng' "$P52CP"; then
-  echo "     dot bien KHONG hieu luc — phep kiem da chet"
+# Co cum -> phai co dong co; va thẻ KHONG duoc nem duong dan file tho vao mat
+# nguoi quyet (panel judge round 1 bat dung diem nay).
+printf '%s' "$P52OUT" | grep -q 'dừng và quyết' || { echo "     dau ra render THIEU dong co cum"; P52OK=0; }
+if printf '%s' "$P52OUT" | grep -q 'src/install.ts'; then
+  echo "     thẻ lo duong dan file tho vao khoi nguoi-quyet"
   P52OK=0
 fi
-rm -f "$P52CP"
+# Nhanh backward: file the he CU (khong co heading scope-triage) -> KHONG duoc
+# render khoi, KHONG duoc bao loi. Doi chung THAT: doi dau vao, do lai dau ra.
+printf '# Review Findings\n\n- **loi cu**\n  file: `a.ts`\n' > "$P52WS/_acceptance/demo/review-findings.md"
+P52OLD="$(node "$ROOT/scripts/gate-card.js" --root "$P52WS" --slug demo 2>&1)"
+P52OLDST=$?
+if [ "$P52OLDST" -ne 0 ]; then echo "     file the he cu lam gate-card loi (exit $P52OLDST)"; P52OK=0; fi
+if printf '%s' "$P52OLD" | grep -q 'Ngoài hợp đồng — bạn quyết'; then
+  echo "     file the he cu VAN render khoi — nhanh backward hong"
+  P52OK=0
+fi
+printf '%s' "$P52OLD" | grep -q 'Cổng 2' || { echo "     file the he cu lam hong ca the"; P52OK=0; }
+# Doi chung dot bien THAT: bo section khoi input -> khoi phai BIEN MAT o dau ra.
+rm -rf "$P52WS"
 if [ "$P52OK" -eq 1 ]; then
-  pass "P52 card Ngoai-hop-dong + backward (nguon 2 harness + dot bien)"
+  pass "P52 khoi Ngoai-hop-dong render that + co cum + khong lo path + backward"
 else
-  fail "P52 card Ngoai-hop-dong + backward (nguon 2 harness + dot bien)"
+  fail "P52 khoi Ngoai-hop-dong render that + co cum + khong lo path + backward"
 fi
 
 # ── P53: gac cong cho judge E11 — fixture khong duoc troi khoi chi dan card ──
@@ -925,7 +997,10 @@ else
     P53CP="$(mktemp)"
     P53FIRST="$(printf '%s' "$P53LABELS" | cut -d'|' -f1)"
     grep -v "$P53FIRST" "$P53F" > "$P53CP"
-    if grep -q "$P53FIRST" "$P53CP"; then
+    if cmp -s "$P53F" "$P53CP"; then
+      echo "     dot bien KHONG cham duoc file (ban sao y het ban goc) — phep kiem da chet"
+      P53OK=0
+    elif grep -q "$P53FIRST" "$P53CP"; then
       echo "     dot bien KHONG hieu luc — phep kiem da chet"
       P53OK=0
     fi
@@ -958,7 +1033,10 @@ fi
 # Doi chung dot bien: ban sao xoa luat -> phep kiem phai DO.
 P54CP="$(mktemp)"
 grep -vi 'Never fix out-of-contract' "$P54F" > "$P54CP" 2>/dev/null
-if grep -qi 'Never fix out-of-contract' "$P54CP"; then
+if cmp -s "$P54F" "$P54CP"; then
+  echo "     dot bien KHONG cham duoc file (ban sao y het ban goc) — phep kiem da chet"
+  P54OK=0
+elif grep -qi 'Never fix out-of-contract' "$P54CP"; then
   echo "     dot bien KHONG hieu luc — phep kiem da chet"
   P54OK=0
 fi

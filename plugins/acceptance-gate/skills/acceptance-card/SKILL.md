@@ -43,19 +43,20 @@ Translate the extracted JSON without changing meaning:
   the overlay has no key for this block;
 - `decisions_plain`: every approved or provisional ledger choice as
   `đã chọn gì — đổi lại gì`;
-- Gate 2 `out_of_contract`: read `_acceptance/<slug>/review-findings.md`. When it
-  has a "## Ngoài hợp đồng" section, build a human-work block placed BEFORE the
-  judgment items: one product-language paragraph per finding (no function names,
-  no exit codes) plus exactly three choices — (a) **ghi Known limits**: accept
+- Gate 2 "Ngoài hợp đồng" block: **do not translate it and do not add an overlay
+  key for it** — `gate-card.js` reads `_acceptance/<slug>/review-findings.md` and
+  renders the block itself, on the same rule as `gap_probe`: whatever must appear
+  on the card is rendered by the script, so it cannot be forgotten or filled in
+  wrong. The three choice labels stay verbatim — (a) **ghi Known limits**: accept
   it, record it under known limitations, ship as is; (b) **mở hợp đồng mới**:
   split it into its own piece of work with its own acceptance criteria;
   (c) **nâng phạm vi sửa ngay**: add criteria to the current contract and
-  re-approve Gate 1. Copy the coverage-cluster flag line to the top of the block
-  when the file carries one. A file with no such section (older generation, or a
-  round with no findings) renders exactly as before — no flag, no error; this
-  backward branch is mandatory, not optional. When "## Chưa phân loại (triage-failed)" is present, replace the
-  block with a single amber flag: scope triage failed, the human reviews the
-  whole list, the machine fixed nothing on its own.
+  re-approve Gate 1. A file with no such section (older generation, or a round
+  with no findings) renders exactly as before — no flag, no error; this backward
+  branch is mandatory, not optional. When "## Chưa phân loại (triage-failed)" is
+  present the script swaps the block for a single amber flag. The
+  coverage-cluster flag is script-rendered too, and deliberately carries no file
+  paths: the card is where the decision happens, details live in the evidence.
 
 Write `_acceptance/<slug>/card-plain.json` with `apply_patch`. The ledger is
 rationale, not a new source of acceptance scope.

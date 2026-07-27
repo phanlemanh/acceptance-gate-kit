@@ -421,8 +421,9 @@ const triResp = ({ findings, triage, triageThrows = false, machine = null }) => 
   'triage': () => { if (triageThrows) throw new Error('triage chet'); return { triaged: triage }; },
   ...(machine ? { 'machine:': machine } : {}),
 });
-const tri1 = (f, over = {}) => [{ title: f.title, inContract: true, acRef: 'AC-1', rationale: 'cham AC-1', proposal: '', ...over }];
-const triOut = (f, proposal = 'known-limits') => [{ title: f.title, inContract: false, acRef: '', rationale: 'ngoai scope', proposal }];
+// Khoá ghép là (file, title) — helper luôn khai file, đúng như TRIAGE_SCHEMA đòi.
+const tri1 = (f, over = {}) => [{ title: f.title, file: f.file, inContract: true, acRef: 'AC-1', rationale: 'cham AC-1', proposal: '', ...over }];
+const triOut = (f, proposal = 'known-limits') => [{ title: f.title, file: f.file, inContract: false, acRef: '', rationale: 'ngoai scope', proposal }];
 
 console.log('WT-T1 high + in-contract, evals xanh -> REJECT + vao rejectFindings');
 {
@@ -519,7 +520,7 @@ console.log('WT-T9b (doi chung duong) cung fixture khong blocked -> REJECT');
 
 // ── WT-T7: tín hiệu cụm-ngoài-vùng-phủ ─────────────────────────────────────
 const F_OUT2 = { title: 'them mot cho lech', file: 'other/install.ts', severity: 'medium', detail: 'x' };
-const triAllOut = fs => fs.map(f => ({ title: f.title, inContract: false, acRef: '', rationale: 'ngoai', proposal: 'known-limits' }));
+const triAllOut = fs => fs.map(f => ({ title: f.title, file: f.file, inContract: false, acRef: '', rationale: 'ngoai', proposal: 'known-limits' }));
 
 console.log('WT-T7a 2 finding ngoai union paths -> co cluster');
 {
@@ -598,5 +599,92 @@ console.log('WT-T8d cum -> dong co; khong cum -> dong n-a, khong bia co');
   const p2 = byLabel(c2, 'synthesize')[0].prompt;
   check('WT-T8d khong cum -> ghi n-a, KHONG co dong co', p2.includes('cluster: n-a') && !p2.includes('dừng và quyết'));
 }
+
+// ── WT-T10: triage ghép kết quả theo file+title, KHÔNG theo title trần ─────
+// Hai reviewer lane sinh title tự do trên cùng một diff; trùng title giữa hai
+// FILE khác nhau ("missing validation", "silent catch") là chuyện thường. Ghép
+// bằng title trần thì Map giữ mục CUỐI và mọi finding trùng title dính chung
+// một phân loại — cả hai chiều đều hỏng, chiều thứ hai phá đúng chốt chặn.
+const SAME_A = { title: 'missing validation', file: 'src/a.ts', severity: 'high', detail: 'in-contract that' };
+const SAME_B = { title: 'missing validation', file: 'docs/x.md', severity: 'high', detail: 'out-of-contract that' };
+const triByFile = (recs) => recs.map(r => ({ title: r.title, file: r.file, inContract: r.inContract, acRef: r.inContract ? 'AC-1' : '', rationale: 'x', proposal: r.inContract ? '' : 'known-limits' }));
+
+console.log('WT-T10 trung title khac file: finding in-contract KHONG bi mat khoi fix-list');
+{
+  const { result } = await runWorkflow(WF, triArgs(), triResp({
+    findings: [SAME_A, SAME_B],
+    triage: triByFile([{ ...SAME_A, inContract: true }, { ...SAME_B, inContract: false }]),
+  }));
+  check('WT-T10 giu duoc finding in-contract', (result.rejectFindings || []).some(f => f.file === 'src/a.ts'),
+    JSON.stringify((result.rejectFindings || []).map(f => f.file)));
+  check('WT-T10 verdict REJECT (high in-contract con song)', result.verdict === 'REJECT', result.verdict);
+}
+
+console.log('WT-T10b trung title khac file: out-of-contract KHONG lot vao fix-list');
+{
+  const { result } = await runWorkflow(WF, triArgs(), triResp({
+    findings: [SAME_B, SAME_A],
+    triage: triByFile([{ ...SAME_B, inContract: false }, { ...SAME_A, inContract: true }]),
+  }));
+  check('WT-T10b out-of-contract KHONG vao fix-list', !(result.rejectFindings || []).some(f => f.file === 'docs/x.md'),
+    JSON.stringify((result.rejectFindings || []).map(f => f.file)));
+}
+
+// ── WT-T11: hợp đồng không đọc được → fail-toward-human THẬT ───────────────
+// Trước đây chỉ kiểm contractPath CÓ MẶT. Agent đọc file hỏng thì theo luật
+// "không chắc chắn → inContract=false" nó trả về TOÀN BỘ out-of-contract, và
+// review-findings.md in "nằm ngoài phạm vi đã duyệt" cho những lỗi chưa từng
+// được đối chiếu — đọc như kết quả triage nhưng là bịa.
+console.log('WT-T11 agent bao khong doc duoc hop dong -> triageFailed, khong bia out-of-contract');
+{
+  const { result } = await runWorkflow(WF, triArgs(), responder({
+    'review:': { findings: [F_HIGH] },
+    'refute:': { refuted: false, reason: 'that' },
+    'triage': { contractUnreadable: true, triaged: [] },
+  }));
+  check('WT-T11 triageFailed true', result.triageFailed === true);
+  check('WT-T11 khong finding nao bi xep out-of-contract', !(result.triaged || []).some(f => !f.inContract && !f.unclassified),
+    JSON.stringify((result.triaged || []).map(f => ({ o: !f.inContract, u: f.unclassified }))));
+  check('WT-T11 KHONG REJECT tu finding', result.verdict === 'PASS', result.verdict);
+}
+
+console.log('WT-T11b (doi chung duong) doc duoc hop dong -> phan loai binh thuong');
+{
+  const { result } = await runWorkflow(WF, triArgs(), responder({
+    'review:': { findings: [F_HIGH] },
+    'refute:': { refuted: false, reason: 'that' },
+    'triage': { contractUnreadable: false, triaged: tri1(F_HIGH) },
+  }));
+  check('WT-T11b triageFailed false', result.triageFailed === false);
+  check('WT-T11b van REJECT dung', result.verdict === 'REJECT', result.verdict);
+}
+
+// ── WT-T12: globToRe theo ngữ nghĩa glob chuẩn (**/ khớp không thư mục) ────
+console.log('WT-T12 glob **/ khop file nam ngay goc -> KHONG bi tinh ngoai vung phu');
+{
+  // CA HAI file nam ngay duoi src/ (khong qua thu muc con): neu `**/` khong khop
+  // zero-segment thi CA HAI bi tinh ngoai vung phu -> cum gia. Dung mot file thi
+  // case xanh nho NGUONG chu khong nho dung regex — khong phan biet duoc.
+  const a = { title: 'a', file: 'src/a.ts', severity: 'low', detail: 'x' };
+  const b = { title: 'b', file: 'src/b.ts', severity: 'low', detail: 'x' };
+  const args = triArgs({ evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: 'pnpm test', ref: 'config:executors.test.api', expected: 'pass', paths: ['src/**/*.ts'] }] });
+  const { result } = await runWorkflow(WF, args, triResp({ findings: [a, b], triage: triAllOut([a, b]) }));
+  check('WT-T12 khong co cum gia', result.coverageCluster === null, JSON.stringify(result.coverageCluster));
+}
+
+console.log('WT-T12b (doi chung duong) file THAT SU ngoai glob van bi bat');
+{
+  const a = { title: 'a', file: 'other/a.ts', severity: 'low', detail: 'x' };
+  const b = { title: 'b', file: 'other/b.ts', severity: 'low', detail: 'x' };
+  const args = triArgs({ evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: 'pnpm test', ref: 'config:executors.test.api', expected: 'pass', paths: ['src/**/*.ts'] }] });
+  const { result } = await runWorkflow(WF, args, triResp({ findings: [a, b], triage: triAllOut([a, b]) }));
+  check('WT-T12b van bat duoc cum that', !!result.coverageCluster && result.coverageCluster.count === 2, JSON.stringify(result.coverageCluster));
+}
+
+// Glob chua ky tu `?` lam `new RegExp` nem SyntaxError va sap ca round: LOI
+// THAT, da tai hien duoc — nhung scope-triage xep no NGOAI hop dong (khong AC
+// nao noi ve do ben cua glob parser). Theo dung doctrine cua chinh feature nay,
+// no KHONG duoc sua trong round; no di Cong 2 cho nguoi quyet. Khong co case o
+// day la co y, khong phai bo sot.
 
 summary('acceptance-verify');

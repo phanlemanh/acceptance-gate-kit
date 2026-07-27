@@ -24,5 +24,5 @@ mọi bản cài theo đúng tài liệu đều bị coi là đã dời chỗ �
 - **mở hợp đồng mới** — tách thành một việc riêng có tiêu chí nghiệm thu của nó.
 - **nâng phạm vi sửa ngay** — bổ sung tiêu chí vào hợp đồng hiện tại rồi duyệt lại Cổng 1.
 
-⚠ Cụm ngoài vùng phủ: 2/3 lỗi rơi vào file không bộ đo nào phủ (src/install.ts,
-docs/plugins.md) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+⚠ Nhiều lỗi rơi ngoài vùng các phép kiểm tự động đang phủ — dừng và quyết: mở
+rộng hợp đồng hay rút phạm vi. Danh sách chi tiết nằm trong gói bằng chứng.
