@@ -526,14 +526,14 @@ const triageHighInContract = triaged.filter(f => f.inContract && f.severity === 
 // đang hụt. Ngưỡng ≥2 — một finding lẻ không đẩy người vào quyết định mở-rộng-hay-rút.
 // Glob tối giản: ** = mọi thứ, * = trong một đoạn đường dẫn.
 const globToRe = g => new RegExp('^' + String(g)
-  .replace(/[.+^${}()|[\]\\]/g, '\\$&')
-  .replace(/\*\*/g, ' ')
-  .replace(/\*/g, '[^/]*')
-  .replace(/ /g, '.*') + '$')
+  .split('**').map(part => part
+    .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+    .replace(/\*/g, '[^/]*'))
+  .join('.*') + '$')
 const coverageRes = args.evals.flatMap(e => Array.isArray(e.paths) ? e.paths : []).map(globToRe)
 // Đếm theo finding PHÂN BIỆT (file+title), không theo số lượt báo: hai reviewer
 // cùng thấy một lỗi là chuyện thường, và nó KHÔNG được tự nhân đôi thành "cụm".
-const distinctKey = f => `${f.file} ${f.title}`
+const distinctKey = f => `${f.file} :: ${f.title}`
 const dedupe = arr => [...new Map(arr.map(f => [distinctKey(f), f])).values()]
 const triagedDistinct = dedupe(triaged)
 const outsideCoverage = coverageRes.length === 0 ? [] // không eval nào khai paths → không tính được (n-a)
