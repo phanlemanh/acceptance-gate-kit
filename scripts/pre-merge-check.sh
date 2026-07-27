@@ -168,6 +168,16 @@ fi
 # cổng xanh vĩnh viễn. Lọc theo tên thư mục nên kiểm tra tương đương là -d.
 if [ ${#SLUGS[@]} -gt 0 ]; then
   for _s in "${SLUGS[@]}"; do
+    # Vòng lặp per-slug so BẰNG với `basename` của thư mục, nên giá trị chứa
+    # `/` hay là `.`/`..` KHÔNG BAO GIỜ khớp basename nào — nhưng lại qua được
+    # phép thử -d bên dưới (`feat-x/`, `.`, `..` đều là "thư mục có thật").
+    # Round 7 bắt đúng lỗ này trong guard vừa thêm: kiểm phải cùng ngữ nghĩa
+    # với bộ lọc thật, không phải một phép thử gần giống.
+    case "$_s" in
+      */*|.|..)
+        echo "pre-merge-check: --slug $_s is not a plain slug name (slashes, . and .. can never match a slug directory basename — a declared filter that matches nothing must not green the gate)" >&2
+        exit 2 ;;
+    esac
     [ -d "$ACC/$_s" ] || { echo "pre-merge-check: --slug $_s matches no directory under _acceptance/ (typo? a declared filter that matches nothing must not green the gate)" >&2; exit 2; }
   done
 fi

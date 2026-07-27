@@ -2511,6 +2511,13 @@ nothas RL15c3 "pre-merge-check: clean" "$RL15C"
 # doi chung: cung root khong-git, KHONG khai base -> van chay va exit 0 nhu cu
 # (cac fixture S-case khong-git song nho duong nay — khong duoc pha)
 RL15COK="$(bash "$CHECK" "$RL15CD" 2>&1)"; check RL15cctrl 0 $?
+# d) round 7 bat lo TRONG guard vua them: gia tri co `/` hay `.`/`..` qua duoc
+# -d nhung khong bao gio khop basename nao -> tung lai clean gia
+RL15D1="$(bash "$CHECK" "$TE_R" --base "$TE_B" --slug "feat-rl/" 2>&1)"; check RL15d1 2 $?
+hasout RL15d1m "is not a plain slug name" "$RL15D1"
+RL15D2="$(bash "$CHECK" "$TE_R" --base "$TE_B" --slug . 2>&1)"; check RL15d2 2 $?
+RL15D3="$(bash "$CHECK" "$TE_R" --base "$TE_B" --slug .. 2>&1)"; check RL15d3 2 $?
+nothas RL15d4 "pre-merge-check: clean" "$RL15D1$RL15D2$RL15D3"
 
 echo "RL6 dem loi thoat exit 0 bang may — DUNG HAI loi (AC-6)"
 RL6N="$(grep -vE '^[[:space:]]*#' "$CHECK" | grep -c 'exit 0')"
