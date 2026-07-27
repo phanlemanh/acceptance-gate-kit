@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: e8dcadac24c7673e7ca6edee5b9886604c6469c2
+verified_commit: c90c06d01d675c59058d7da14c627af7a2699055
 # bypass_ack:
 human_signoff:
 ---
@@ -30,8 +30,10 @@ human_signoff:
 | E12 | AC-11 | test | PASS |
 | E13 | AC-12 | test | PASS |
 
-Regression-guard suites (green on both sides, not eval-mapped, listed for
-completeness — not counted under `## Analyst`): `bash tests/hooks/run-tests.sh`
+Regression-guard suites (all unmapped this round — evidence for E1-E9/E11-E13
+is carried forward per P1 below, not re-attributed to a fresh run; listed for
+completeness — not counted under `## Analyst`): `bash tests/scripts/run-tests.sh`
+(460 passed, 0 failed, incl. `PASS: RL10d`), `bash tests/hooks/run-tests.sh`
 (51 passed, 0 failed, incl. `PASS: T42`), `bash tests/plugins/run-tests.sh`
 (all plugin tests passed, incl. `PASS: P49 description gọi Codex giữ bản sắc
 Codex, không phải bản sao Claude`), `bash scripts/sync-plugin-packages.sh
@@ -40,158 +42,127 @@ Codex, không phải bản sao Claude`), `bash scripts/sync-plugin-packages.sh
 ## Evidence
 
 - eval: E1
+  criterion: AC-1
   run_id: minted-premerge-rules-ledger-E1-r4
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T09:30:00Z
-  output: |
-    PASS: RL10d
-
-    Results: 460 passed, 0 failed
+  carried_from_round: 4
+  note: carry-forward tu round 4 — delta khong cham paths cua eval
 
 - eval: E2
+  criterion: AC-2
   run_id: minted-premerge-rules-ledger-E2-r4
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T09:30:00Z
-  output: |
-    PASS: RL10d
-
-    Results: 460 passed, 0 failed
+  carried_from_round: 4
+  note: carry-forward tu round 4 — delta khong cham paths cua eval
 
 - eval: E3
+  criterion: AC-3
   run_id: minted-premerge-rules-ledger-E3-r4
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T09:30:00Z
-  output: |
-    PASS: RL10d
-
-    Results: 460 passed, 0 failed
+  carried_from_round: 4
+  note: carry-forward tu round 4 — delta khong cham paths cua eval
 
 - eval: E4
+  criterion: AC-4
   run_id: minted-premerge-rules-ledger-E4-r4
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T09:30:00Z
-  output: |
-    PASS: RL10d
-
-    Results: 460 passed, 0 failed
+  carried_from_round: 4
+  note: carry-forward tu round 4 — delta khong cham paths cua eval
 
 - eval: E5
+  criterion: AC-5
   run_id: minted-premerge-rules-ledger-E5-r4
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T09:30:00Z
-  output: |
-    PASS: RL10d
-
-    Results: 460 passed, 0 failed
+  carried_from_round: 4
+  note: carry-forward tu round 4 — delta khong cham paths cua eval
 
 - eval: E6
+  criterion: AC-6
   run_id: minted-premerge-rules-ledger-E6-r4
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T09:30:00Z
-  output: |
-    PASS: RL10d
-
-    Results: 460 passed, 0 failed
+  carried_from_round: 4
+  note: carry-forward tu round 4 — delta khong cham paths cua eval
 
 - eval: E7
+  criterion: AC-7
   run_id: minted-premerge-rules-ledger-E7-r4
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T09:30:00Z
-  output: |
-    PASS: RL10d
-
-    Results: 460 passed, 0 failed
+  carried_from_round: 4
+  note: carry-forward tu round 4 — delta khong cham paths cua eval
 
 - eval: E8
+  criterion: AC-8
   run_id: minted-premerge-rules-ledger-E8-r4
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T09:30:00Z
-  output: |
-    PASS: RL10d
-
-    Results: 460 passed, 0 failed
+  carried_from_round: 4
+  note: carry-forward tu round 4 — delta khong cham paths cua eval
 
 - eval: E9
+  criterion: AC-9
   run_id: minted-premerge-rules-ledger-E9-r4
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T09:30:00Z
-  output: |
-    PASS: RL10d
-
-    Results: 460 passed, 0 failed
+  carried_from_round: 4
+  note: carry-forward tu round 4 — delta khong cham paths cua eval
 
 - eval: E10
   criterion: AC-10
-  judged_by: 3-lens panel (domain-correctness, operational-feasibility, spec-alignment) — fresh-context judge subagent
+  carried: true
+  carried_from_round: 4
+  note: panel giu nguyen tu round 4 — inputs khong doi (inputs_hash khop), khong cham lai; rationale xem round 4
   proposal: PASS
-  rationale_summary: |
-    All three lenses independently confirm the NOTE block immediately after
-    the VIOLATION line names the missing block (gap-probe), states in plain
-    language that this is an internal fault of the pre-merge gate (not the
-    user's change), and directs the next step (report to the kit maintainer
-    with the full run output; do not edit the feature to route around it) —
-    all three requirements of AC-10 answered inline, no kit background
-    knowledge required. Same conclusion as rounds 1-3's panels, re-run fresh
-    this round.
   votes:
-    - domain-correctness: PASS — Dòng NOTE ngay sau VIOLATION nói rõ bằng ngôn ngữ phổ thông: đây là lỗi NỘI TẠI của cổng pre-merge (không phải lỗi thay đổi của người dùng), nêu đích danh khối thiếu ("luật gap-probe không chạy và không khai tắt"), và chỉ rõ bước kế tiếp ("báo maintainer của kit kèm TOÀN BỘ output lần chạy này; đừng sửa feature của bạn để né nó"). Cả ba yếu tố AC-10 hỏi đều có mặt tường minh, không cần suy diễn hay biết nội tình kit.
-    - operational-feasibility: PASS — Dòng VIOLATION nêu rõ khối bị thiếu ("luật gap-probe không chạy và không khai tắt"), và dòng NOTE ngay sau nói thẳng đây là "lỗi NỘI TẠI của cổng pre-merge... KHÔNG phải lỗi trong thay đổi của bạn", loại trừ khả năng người đọc tưởng mình gây lỗi. Bước kế tiếp cũng tường minh: "báo maintainer của kit kèm TOÀN BỘ output lần chạy này; đừng sửa feature của bạn để né nó" — cả ba yêu cầu của AC-10 (nội tại, khối nào thiếu, bước kế) đều có mặt và diễn đạt bằng ngôn ngữ thường, không cần biết trước về kit.
-    - spec-alignment: PASS — Dòng NOTE nói thẳng, không dùng thuật ngữ khó: "là lỗi NỘI TẠI của cổng pre-merge... KHÔNG phải lỗi trong thay đổi của bạn", nêu đúng khối bị lỗi ("gap-probe" ở dòng VIOLATION ngay phía trên) và chỉ rõ bước kế "báo maintainer của kit kèm TOÀN BỘ output lần chạy này; đừng sửa feature của bạn để né nó". Cả ba yêu cầu của AC-10 (lỗi nội tại, khối nào thiếu, bước kế báo maintainer) đều có mặt tường minh trong cùng một khối thông điệp, đọc được mà không cần biết trước ngữ cảnh của kit.
+    - domain-correctness: PASS (r4)
+    - operational-feasibility: PASS (r4)
+    - spec-alignment: PASS (r4)
   human_override:
   # T3 contract: human_override is MANDATORY on this judgment item regardless
   # of the panel's PASS proposal. Gate 2 human must personally verify and fill
   # "<name> <date>" before this report can be upgraded to PASS.
 
 - eval: E11
+  criterion: AC-10
   run_id: minted-premerge-rules-ledger-E11-r4
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T09:30:00Z
-  output: |
-    PASS: RL10d
-
-    Results: 460 passed, 0 failed
+  carried_from_round: 4
+  note: carry-forward tu round 4 — delta khong cham paths cua eval
 
 - eval: E12
+  criterion: AC-11
   run_id: minted-premerge-rules-ledger-E12-r4
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T09:30:00Z
-  output: |
-    PASS: RL10d
-
-    Results: 460 passed, 0 failed
+  carried_from_round: 4
+  note: carry-forward tu round 4 — delta khong cham paths cua eval
 
 - eval: E13
+  criterion: AC-12
   run_id: minted-premerge-rules-ledger-E13-r4
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T09:30:00Z
-  output: |
-    PASS: RL10d
-
-    Results: 460 passed, 0 failed
+  carried_from_round: 4
+  note: carry-forward tu round 4 — delta khong cham paths cua eval
 
 ## Analyst
 
@@ -285,6 +256,34 @@ RL11c pins as legitimately valid-off — same "sửa theo LỚP" class of gap as
 round 3's finding, this time surfacing in prose/docs rather than in a
 script. This does not flip a machine eval's exit code, so it does not
 change this report's verdict, but Gate 2 should read it before signing off.
+That same round-4 write also landed the fix itself (`GUIDE.md:636` regex
+widened to `^enforcement[[:space:]]*:[[:space:]]*off...`, mirrored into
+`plugins/acceptance-gate/GUIDE.md`), so the finding is already resolved on
+the tree this round verifies.
+
+Round 5: No source paths touched by this round's diff intersect any of the
+13 evals' inputs (P1 delta-staleness), so E1-E9/E11-E13 and the E10 judgment
+panel are all carried forward from round 4 unchanged — `run_id`/`verified_at`
+copied verbatim from the round-4 run-log entries, panel `inputs_hash`
+unchanged (`93581f38...66646b27879`), no re-attribution. As a sanity check
+(not eval-mapped — `evals: []` on every command this round) the full suite
+was re-run fresh anyway: `tests/scripts/run-tests.sh` 460 passed / 0 failed
+(same count as round 4 — no drift), `tests/hooks/run-tests.sh` 51 passed / 0
+failed (incl. `PASS: T42`), `tests/plugins/run-tests.sh` all plugin tests
+passed (incl. `PASS: P49`), `scripts/sync-plugin-packages.sh --check`
+reports `plugins/ mirror in sync.` — all four green, confirming no
+regression entered between round 4's verified commit and this round's
+(`e8dcadac2` → `c90c06d01`), an interval that includes an unrelated feature's
+work (`t1-escape-event-scope` rounds 6/8) landing on the shared tree.
+Baseline was again NOT re-measured this round (P2 unchanged); `## Analyst`
+continues to carry forward round 1's finding, words-only, no eval marked
+green-on-both this round since none were freshly measured. No new
+adversarial-review findings this round (`review-findings.md` round 5 is
+empty); round 4's sole finding (GUIDE.md enforcement-regex parity) was
+already fixed in the same commit that produced round 4's own evidence write
+(`89fa742`), confirmed present on this round's verified commit. The T3
+mandatory human verdict on E10 is still pending, so the report stays
+PENDING-JUDGMENT.
 
 ## Gate 2 checklist (human)
 
