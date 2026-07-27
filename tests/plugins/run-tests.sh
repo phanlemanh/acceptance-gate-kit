@@ -830,6 +830,40 @@ else
   fail "P50 argv thua khong bi chan (a=$P50AST b=$P50BST)"
 fi
 
+# ── P51: suite tests/workflows phai duoc wire vao CI + config ───────────────
+# AC-13 cua s4-scope-triage: suite ton tai tu Dot 5 nhung mo coi — khong config
+# nao tro toi, khong CI nao chay. Eval cua feature nay dung no lam executor, nen
+# wiring LA deliverable, khong phai loi hua.
+echo "P51 tests/workflows wired vao gate.yml + config.yaml"
+P51OK=1
+P51GATE="$ROOT/.github/workflows/gate.yml"
+P51CFG="$ROOT/_acceptance/config.yaml"
+if ! grep -q 'bash tests/workflows/run-tests.sh' "$P51GATE"; then
+  echo "     gate.yml THIEU step chay tests/workflows/run-tests.sh"
+  P51OK=0
+fi
+if ! grep -q '^    workflows: "bash tests/workflows/run-tests.sh"$' "$P51CFG"; then
+  echo "     config.yaml THIEU executors.test.workflows"
+  P51OK=0
+fi
+if ! grep -q '^    - executors.test.workflows$' "$P51CFG"; then
+  echo "     config.yaml THIEU executors.test.workflows trong feature_loop.suite_keys"
+  P51OK=0
+fi
+# Doi chung dot bien: ban sao gate.yml bi xoa step -> phep kiem phai DO.
+P51CP="$(mktemp)"
+grep -v 'bash tests/workflows/run-tests.sh' "$P51GATE" > "$P51CP"
+if grep -q 'bash tests/workflows/run-tests.sh' "$P51CP"; then
+  echo "     dot bien KHONG hieu luc — phep kiem da chet"
+  P51OK=0
+fi
+rm -f "$P51CP"
+if [ "$P51OK" -eq 1 ]; then
+  pass "P51 tests/workflows wired (gate.yml + config executors + suite_keys + dot bien)"
+else
+  fail "P51 tests/workflows wired (gate.yml + config executors + suite_keys + dot bien)"
+fi
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

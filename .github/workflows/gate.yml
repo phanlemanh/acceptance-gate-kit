@@ -21,6 +21,8 @@ jobs:
         run: bash tests/hooks/run-tests.sh
       - name: plugins suite (gồm P30 sync-drift, P33 chống glob-vào-cache)
         run: bash tests/plugins/run-tests.sh
+      - name: workflows suite (lớp thuần của acceptance-verify + execute-parallel)
+        run: bash tests/workflows/run-tests.sh
 
   gate:
     runs-on: ubuntu-latest

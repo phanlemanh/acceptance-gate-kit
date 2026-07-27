@@ -31,6 +31,7 @@ executors:
     scripts: "bash tests/scripts/run-tests.sh"
     hooks: "bash tests/hooks/run-tests.sh"
     plugins: "bash tests/plugins/run-tests.sh"
+    workflows: "bash tests/workflows/run-tests.sh"
   script:
     coverage_lint: "node scripts/eval-coverage-lint.js ."
     mirror_sync: "bash scripts/sync-plugin-packages.sh --check"
@@ -71,3 +72,6 @@ feature_loop:
     - executors.test.hooks
     - executors.test.plugins
     - executors.script.mirror_sync
+    # Lớp thuần của 2 workflow script (verdict routing, dedupe, carry-forward,
+    # scope-triage) — harness vm-realm, không sinh agent nào.
+    - executors.test.workflows
