@@ -1,5 +1,9 @@
 set -eu
-ROOT="/Users/manh-macmini/dev/acceptance-gate-kit"
+# ROOT phai suy tu VI TRI CUA CHINH SCRIPT, khong hardcode: hardcode thi P53
+# render bang checkout cua tac gia chu khong phai cay dang kiem — pha gate-card.js
+# trong mot worktree van cho P53 XANH (da tai hien). Do dung lop loi ma case nay
+# sinh ra de chan: phep do khong do dung vat duoc giao.
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 WS="$(mktemp -d)"
 mkdir -p "$WS/_acceptance/demo"
 cat > "$WS/_acceptance/demo/contract.md" <<'EOF'
