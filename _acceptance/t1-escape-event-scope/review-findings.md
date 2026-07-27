@@ -1,4 +1,4 @@
-# Review Findings: t1-escape-event-scope (round 10)
+# Review Findings: t1-escape-event-scope (round 11)
 
 Informational — outside the evidence-report.md hook contract. Findings below
 have been adversarial-verified (refuter pass survived) unless listed under
@@ -6,33 +6,35 @@ have been adversarial-verified (refuter pass survived) unless listed under
 
 Review incomplete (finder chết — cảnh báo): none this round.
 
-No findings this round.
+## Findings (round 11)
 
-Both findings open at round 9 were verified fixed by commits landed between
-round 9's pin (`1335ed993e486689a58f8d32f60974e38eaf3422`) and this round's
-pin (`829314ede23b594857920373377c26ac78d88629`):
+1. **[LOW] Packaged GUIDE links to docs/adr/0006 which is not shipped in the
+   plugin package**
+   - File: `plugins/acceptance-gate/GUIDE.md:656`
+   - Detail: the diff adds `Lý do và trade-off: [ADR 0006](docs/adr/0006-rules-ledger-fail-closed-at-output.md)`
+     to `GUIDE.md`, which is rsynced into the shipped package
+     `plugins/acceptance-gate/`. The package contains no `docs/` directory
+     (verified: `plugins/acceptance-gate/docs` does not exist), so for a
+     consumer who only installed the plugin the relative link resolves
+     nowhere. This follows a pre-existing pattern (the ADR 0005 link at
+     line 587 predates this diff), so it is a continued rather than new
+     convention gap; fix would be either linking the GitHub URL or syncing
+     `docs/adr` into the package.
+   - Source: conventions.
+   - Everything else checked out this round: mirror sync
+     (`scripts/sync-plugin-packages.sh --check`) green, both test suites
+     pass (497/0 and all plugin tests), all four `plugin.json` manifests at
+     1.22.1, and every new negative assertion in `tests/scripts/run-tests.sh`
+     and `tests/plugins/run-tests.sh` (RL1-RL15, TE18h-k, P47-P50) has both
+     a positive control and a pinned expected message per the CLAUDE.md
+     invariant.
 
-- Round-9 finding #1 (`--slug` với slug không tồn tại lọc sạch mọi thư mục
-  và báo "clean") — fixed by `c6bf3e6 fix: guard --slug kiểm cùng NGỮ NGHĨA
-  với bộ lọc thật — chặn /, . và ..` and `e1bfcf4 fix: 2 finding round 9 —
-  bộ lọc khai-mà-không-khớp nổ to, base-khai-trên-root-không-git exit 2`.
-  Re-verified against the new RL14a-e cases in
-  `tests/scripts/run-tests.sh`: an unmatched `--slug` value (empty, typo'd,
-  or containing `/`, `.`, `..`) now exits 2 with `VIOLATION [scope]` on
-  stdout instead of silently reporting `pre-merge-check: clean`.
-- Round-9 finding #2 (`--base` khai trên root mà git không dùng được vẫn
-  skip âm thầm) — fixed by the same `e1bfcf4` commit. Re-verified against
-  the new RL15a-d cases: a declared `--base` on a root where git itself is
-  unusable now exits 2 with `VIOLATION [scope]` instead of falling through
-  to the old `DIFF_SKIP_NOTE` skip path, matching the README's "ở MỌI repo"
-  claim.
-
-Both fixes are covered by fresh machine evidence this round (E1/E15/E17/E18
-— see `evidence-report.md` round 10, `tests/scripts/run-tests.sh` 497
-passed vs 477 in round 9), and `59ee5a7 test: pin thông điệp RL15d2/d3`
-additionally pinned the expected "unknown option"-class message on two
-sibling cases inside the same new block that would otherwise have been
-exit-code-only assertions (CLAUDE.md invariant 4 class).
+Both findings open at round 9 remain fixed (verified fixed at round 10,
+re-confirmed present on this round's pin
+`c09533b66ebffd2d4d6a5c40b53136329e69e6a7`): declared-but-unmatched `--slug`
+and declared-but-unresolvable `--base` on a non-git root both still exit 2
+with `VIOLATION [scope]` on stdout (RL14a-e, RL15a-d cases in
+`tests/scripts/run-tests.sh`, all green this round).
 
 ---
 
