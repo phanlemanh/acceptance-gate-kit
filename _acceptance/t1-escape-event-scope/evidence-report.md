@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 1335ed993e486689a58f8d32f60974e38eaf3422
+verified_commit: 829314ede23b594857920373377c26ac78d88629
 human_signoff:
 ---
 
@@ -37,59 +37,59 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-t1-escape-event-scope-E1-r9
+  run_id: minted-t1-escape-event-scope-E1-r10
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:20:00Z
+  verified_at: 2026-07-27T16:00:00Z
   output: |
     PASS: RL10d
 
-    Results: 477 passed, 0 failed
+    Results: 497 passed, 0 failed
 
 - eval: E2
-  run_id: minted-t1-escape-event-scope-E2-r9
+  run_id: minted-t1-escape-event-scope-E2-r10
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:20:00Z
+  verified_at: 2026-07-27T16:00:00Z
   output: |
     PASS: RL10d
 
-    Results: 477 passed, 0 failed
+    Results: 497 passed, 0 failed
 
 - eval: E3
-  run_id: minted-t1-escape-event-scope-E3-r9
+  run_id: minted-t1-escape-event-scope-E3-r10
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:20:00Z
+  verified_at: 2026-07-27T16:00:00Z
   output: |
     PASS: RL10d
 
-    Results: 477 passed, 0 failed
+    Results: 497 passed, 0 failed
 
 - eval: E4
-  run_id: minted-t1-escape-event-scope-E4-r9
+  run_id: minted-t1-escape-event-scope-E4-r10
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:20:00Z
+  verified_at: 2026-07-27T16:00:00Z
   output: |
     PASS: RL10d
 
-    Results: 477 passed, 0 failed
+    Results: 497 passed, 0 failed
 
 - eval: E5
-  run_id: minted-t1-escape-event-scope-E5-r9
+  run_id: minted-t1-escape-event-scope-E5-r10
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:20:00Z
+  verified_at: 2026-07-27T16:00:00Z
   output: |
     PASS: RL10d
 
-    Results: 477 passed, 0 failed
+    Results: 497 passed, 0 failed
 
 - eval: E6
   run_id: minted-t1-escape-event-scope-E6-r8
@@ -100,26 +100,23 @@ human_signoff:
   note: carry-forward tu round 8 — delta khong cham paths cua eval
 
 - eval: E7
-  run_id: minted-t1-escape-event-scope-E7-r9
+  run_id: minted-t1-escape-event-scope-E7-r10
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:20:00Z
+  verified_at: 2026-07-27T16:00:00Z
   output: |
     PASS: RL10d
 
-    Results: 477 passed, 0 failed
+    Results: 497 passed, 0 failed
 
 - eval: E8
   run_id: minted-t1-escape-event-scope-E8-r9
+  carried_from_round: 9
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.plugins
   verified_at: 2026-07-27T13:20:00Z
-  output: |
-    PASS: P50 argv thua exit 2 + neu ten tham so; mode don van xanh
-
-    Results: all plugin tests passed
+  note: carry-forward tu round 9 — delta khong cham paths cua eval
 
 - eval: E9
   run_id: minted-t1-escape-event-scope-E9-r7
@@ -147,77 +144,74 @@ human_signoff:
 
 - eval: E12
   run_id: minted-t1-escape-event-scope-E12-r9
+  carried_from_round: 9
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.plugins
   verified_at: 2026-07-27T13:20:00Z
-  output: |
-    PASS: P50 argv thua exit 2 + neu ten tham so; mode don van xanh
-
-    Results: all plugin tests passed
+  note: carry-forward tu round 9 — delta khong cham paths cua eval
 
 - eval: E14
-  run_id: minted-t1-escape-event-scope-E14-r9
+  run_id: minted-t1-escape-event-scope-E14-r10
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:20:00Z
+  verified_at: 2026-07-27T16:00:00Z
   output: |
     PASS: RL10d
 
-    Results: 477 passed, 0 failed
+    Results: 497 passed, 0 failed
 
 - eval: E15
-  run_id: minted-t1-escape-event-scope-E15-r9
+  run_id: minted-t1-escape-event-scope-E15-r10
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:20:00Z
+  verified_at: 2026-07-27T16:00:00Z
   output: |
     PASS: RL10d
 
-    Results: 477 passed, 0 failed
+    Results: 497 passed, 0 failed
 
 - eval: E16
-  run_id: minted-t1-escape-event-scope-E16-r9
+  run_id: minted-t1-escape-event-scope-E16-r10
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:20:00Z
+  verified_at: 2026-07-27T16:00:00Z
   output: |
     PASS: RL10d
 
-    Results: 477 passed, 0 failed
+    Results: 497 passed, 0 failed
 
 - eval: E17
-  run_id: minted-t1-escape-event-scope-E17-r9
+  run_id: minted-t1-escape-event-scope-E17-r10
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:20:00Z
+  verified_at: 2026-07-27T16:00:00Z
   output: |
     PASS: RL10d
 
-    Results: 477 passed, 0 failed
+    Results: 497 passed, 0 failed
 
 - eval: E18
-  run_id: minted-t1-escape-event-scope-E18-r9
+  run_id: minted-t1-escape-event-scope-E18-r10
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T13:20:00Z
+  verified_at: 2026-07-27T16:00:00Z
   output: |
     PASS: RL10d
 
-    Results: 477 passed, 0 failed
+    Results: 497 passed, 0 failed
 
 - eval: E13
   judged_by: judge panel — domain-correctness, operational-feasibility, spec-alignment (fresh context)
   judge_proposal: PASS
   carried_from_round: 8
   rationale: |
-    panel giu nguyen tu round 8 — inputs khong doi, khong cham lai; rationale
-    xem round 8
+    panel giu nguyen tu round 8 — inputs khong doi (hash khop, carried:true,
+    fromRound:8, khong doi tu round 9), khong cham lai; rationale xem round 8
   votes:
     - domain-correctness: PASS (r8)
     - operational-feasibility: PASS (r8)
@@ -229,9 +223,10 @@ human_signoff:
 carried tu round truoc — baseline khong do lai round nay
 
 none — no eval this round is non-discriminating; baseline was not
-re-measured (every machine eval block above carries `baseline: n-a`), so
-the round-1 A/B discriminating signal carries forward unchanged (see round
-1's Analyst note). The two full-suite commands (`bash
+re-measured (every freshly-run machine eval block above carries `baseline:
+n-a`, and every carried block omits the field per the carry-forward
+convention), so the round-1 A/B discriminating signal carries forward
+unchanged (see round 1's Analyst note). The two full-suite commands (`bash
 tests/scripts/run-tests.sh`, `bash tests/plugins/run-tests.sh`) are the
 expected green-on-both regression guards and are not listed per template
 guidance.
@@ -492,6 +487,52 @@ item and are flagged for the human at Gate 2 — in particular whether the
 `--slug` gap is close enough to round 8's already-fixed `--base ""` class
 to warrant fixing before signoff rather than deferring to a follow-up.
 
+Round 10: same 17 machine evals still PASS, count moved substantially from
+round 9 (`bash tests/scripts/run-tests.sh` now 497 passed vs 477 in round 9
+— last case name in the tail unchanged, `RL10d`; the delta covers the new
+RL14a-e + RL15a-d block, chip `task_33ca1add` closed trọn: scope/filter
+declared-but-unmatched now exits 2 theo LỚP — giá trị `--slug` rỗng, slug
+gõ sai, slug chứa `/`/`.`/`..`, env set-rỗng, và `--base` khai trên root
+không-git — plus a check that an env-override does not false-positive, and
+that `VIOLATION [scope]` prints to stdout; `bash tests/plugins/run-tests.sh`
+output tail unchanged — still pins `P50`, all-plugin-green) plus the same
+two supporting regression checks green (`bash tests/hooks/run-tests.sh` 51
+passed, 0 failed, last case `T42` unchanged; `bash
+scripts/sync-plugin-packages.sh --check` reports mirror in sync). Between
+round 9's pin (`1335ed99...`) and this round's pin (`829314e...`) five
+commits landed: `e1bfcf4 fix: 2 finding round 9 — bộ lọc khai-mà-không-khớp
+nổ to, base-khai-trên-root-không-git exit 2`, `c6bf3e6 fix: guard --slug
+kiểm cùng NGỮ NGHĨA với bộ lọc thật — chặn /, . và ..`, `59ee5a7 test: pin
+thông điệp RL15d2/d3 — bất biến #4, hai case sót trong chính nhóm vừa thêm`,
+`3009c7e evidence(premerge-rules-ledger): round 9 re-pin cuối`, and
+`829314e evidence(gap-probe): round 9 re-pin cuối` — the first two are the
+direct fix for both of round 9's review findings (the `--slug` no-match
+fail-open gap and the `--base` on non-git-root fail-open gap), and the
+third pins the exact "unknown option"-class message on two sibling cases
+that were left unpinned inside that same new block, per CLAUDE.md
+invariant 4 (fix the class, not the named case). E1-E5, E7, E14-E18 were
+re-run fresh against this new pin (all still PASS, `baseline: n-a` since
+`evals.yaml` did not change — P2). E6 (AC-6, `P40` push/PR-base coverage)
+remains carried from round 8 per delta staleness (P1) — this round's diff
+still does not touch the paths that case covers. E8 (AC-8, mirror-drift
+guard) and E12 (AC-12, acceptance-init doc coverage) are now carried
+forward from round 9 — this round's diff does not touch the paths either
+case covers. E9-E11 (AC-9..AC-11, sync/bump cases) remain carried from
+round 7, unchanged since round 9. E13 was NOT re-judged this round: its
+inputs are unchanged since round 8 (hash match, `carried: true`,
+`fromRound: 8`, same `inputs_hash` as round 9's log entry), so the panel's
+round-8 proposal (PASS 3/3, unanimous, no dissent) carries forward verbatim
+per P3 for a second consecutive round — rationale text is not reproduced
+here, see round 8 above. Contract remains T3: `human_override` on E13 is
+still required regardless of the panel's proposal, so the overall verdict
+stays PENDING-JUDGMENT pending Gate 2. This round's adversarial review
+surfaced 0 new findings — see `review-findings.md` — both round-9 findings
+(the `--slug` typo fail-open gap, and the `--base` on non-git-root
+fail-open gap) were verified fixed by the commits above (declared-but-
+unmatched `--slug` and declared-but-unresolvable `--base` on a non-git root
+now both exit 2 with VIOLATION [scope], confirmed against the new RL14/RL15
+cases), and no new gap was found this round.
+
 ## Gate 2 checklist (human)
 
 - [ ] Read the table + spot-check 1-2 evidence blocks
@@ -505,12 +546,10 @@ to warrant fixing before signoff rather than deferring to a follow-up.
 
 E13 note for the human: this is a T3 contract, so `human_override` is
 required on E13 regardless of the judge verdict. This round's panel input
-is carried unchanged from round 8 (PASS 3/3, unanimous, no dissent) — see
-round 8's full rationale text above; nothing about E13's inputs moved this
-round. Before signing, also read `review-findings.md` round 9 — in
-particular the `--slug` no-match fail-open finding (medium): a typo'd
-`--slug` value silently filters every feature directory out of the
-per-slug loop and reports `pre-merge-check: clean` exit 0, the same "fix
-the named case, not the class" pattern CLAUDE.md's invariant 4 flagged for
-round 8's now-fixed `--base ""` gap — this is that exact class recurring a
-fourth time on a sibling input.
+is carried unchanged from round 8 for the second consecutive round (PASS
+3/3, unanimous, no dissent) — see round 8's full rationale text above;
+nothing about E13's inputs moved this round. `review-findings.md` reports 0
+new findings this round — both open findings carried from round 9 (the
+`--slug` typo fail-open gap and the `--base` on non-git-root fail-open gap)
+were confirmed fixed by this round's commits; there is no outstanding
+review finding to weigh before signing.

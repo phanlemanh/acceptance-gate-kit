@@ -1,4 +1,4 @@
-# Review Findings: t1-escape-event-scope (round 9)
+# Review Findings: t1-escape-event-scope (round 10)
 
 Informational — outside the evidence-report.md hook contract. Findings below
 have been adversarial-verified (refuter pass survived) unless listed under
@@ -6,52 +6,33 @@ have been adversarial-verified (refuter pass survived) unless listed under
 
 Review incomplete (finder chết — cảnh báo): none this round.
 
----
+No findings this round.
 
-## 1. [medium] `--slug` với slug KHÔNG TỒN TẠI lọc sạch mọi thư mục và báo "clean" — cùng LỚP với `--base ""` round 8
+Both findings open at round 9 were verified fixed by commits landed between
+round 9's pin (`1335ed993e486689a58f8d32f60974e38eaf3422`) and this round's
+pin (`829314ede23b594857920373377c26ac78d88629`):
 
-- **file:** `scripts/pre-merge-check.sh:410`
-- **source:** bugs
+- Round-9 finding #1 (`--slug` với slug không tồn tại lọc sạch mọi thư mục
+  và báo "clean") — fixed by `c6bf3e6 fix: guard --slug kiểm cùng NGỮ NGHĨA
+  với bộ lọc thật — chặn /, . và ..` and `e1bfcf4 fix: 2 finding round 9 —
+  bộ lọc khai-mà-không-khớp nổ to, base-khai-trên-root-không-git exit 2`.
+  Re-verified against the new RL14a-e cases in
+  `tests/scripts/run-tests.sh`: an unmatched `--slug` value (empty, typo'd,
+  or containing `/`, `.`, `..`) now exits 2 with `VIOLATION [scope]` on
+  stdout instead of silently reporting `pre-merge-check: clean`.
+- Round-9 finding #2 (`--base` khai trên root mà git không dùng được vẫn
+  skip âm thầm) — fixed by the same `e1bfcf4` commit. Re-verified against
+  the new RL15a-d cases: a declared `--base` on a root where git itself is
+  unusable now exits 2 with `VIOLATION [scope]` instead of falling through
+  to the old `DIFF_SKIP_NOTE` skip path, matching the README's "ở MỌI repo"
+  claim.
 
-Diff round 8 (chip 33ca1add) đã bịt lỗ `--slug` với giá trị RỖNG: giá trị
-rỗng nay exit 2 ("khai-loc-rong phai no to" — một filter đã khai mà không
-khớp gì thì không được coi là sạch). Nhưng một `--slug` KHÔNG RỖNG bị gõ sai
-(typo, hoặc feature đã đổi tên) mang đúng hình dạng lỗi này mà vẫn
-fail-open: filter theo slug ở vòng lặp per-slug (dòng 410-413) bỏ qua MỌI
-thư mục, không luật nào từng soi một feature nào, sổ ledger vẫn đánh dấu "đã
-chạy per-slug" (`SLUG_SEEN==SLUG_EXPECTED_N` đếm số thư mục TRƯỚC khi bị
-filter loại hết), và script in ra `pre-merge-check: clean` exit 0.
-
-Đã verify bằng repro trực tiếp: một repo mà slug duy nhất của nó CHƯA có
-Gate 1 ghi nhận thì exit 1 khi KHÔNG có filter; nhưng cùng repo đó exit 0
-"clean" khi thêm `--slug feat-KHONG-TON-TAI`. Một slug gõ sai trong công
-thức CI sẽ khiến gate xanh vĩnh viễn — đúng LỚP mà bản sửa giá trị-rỗng vừa
-được biện minh để chặn (và đúng bài học "vá case có tên, không vá LỚP" mà
-CLAUDE.md ghi lại). Hướng sửa rẻ: sau vòng lặp, báo lỗi (hoặc ít nhất
-VIOLATION) khi một giá trị `--slug` không khớp thư mục nào. Cùng đoạn code
-tồn tại y hệt ở bản mirror `plugins/acceptance-gate/scripts/pre-merge-check.sh`.
-
----
-
-## 2. [low] `--base` đã khai trên root mà git không dùng được vẫn skip âm thầm, mâu thuẫn với claim README của chính diff
-
-- **file:** `scripts/pre-merge-check.sh:342`
-- **source:** bugs
-
-Diff biến "base đã khai mà không resolve được" thành VIOLATION [scope] +
-exit 2, và README được cập nhật ghi: "Từ acceptance-gate 1.22.0, base ĐÃ
-KHAI mà không resolve được là VIOLATION [scope] + exit 2 ở MỌI repo", nhánh
-skip chỉ còn giữ lại cho "không truyền base hoặc không có merge-base". Nhưng
-khi `--base` ĐƯỢC khai và nhánh `elif` ở dòng 342 khớp (`$ROOT` không phải
-git repo tại đây — root không phải git, hoặc `git rev-parse` lỗi, ví dụ
-`safe.directory` từ chối quyền sở hữu trong container CI), lượt chạy vẫn
-suy biến về `DIFF_SKIP_NOTE`: gap-probe lẫn T1-escape đều declared-off, repo
-sạch exit 0 (đã verify: có dòng NOTE + declared-off, không có exit 2).
-Nhánh này không thuộc một trong hai case skip còn lại đã được tài liệu hóa,
-nên hoặc code nên coi declared-base + không-có-git là exit 2 giống nhánh
-anh em (ref không resolve được), hoặc claim README/GUIDE "ở MỌI repo" là
-sai. Hình dạng lỗi `safe.directory` khiến đây là một fail-open âm thầm có
-thật trong CI, không chỉ là một nit về tài liệu.
+Both fixes are covered by fresh machine evidence this round (E1/E15/E17/E18
+— see `evidence-report.md` round 10, `tests/scripts/run-tests.sh` 497
+passed vs 477 in round 9), and `59ee5a7 test: pin thông điệp RL15d2/d3`
+additionally pinned the expected "unknown option"-class message on two
+sibling cases inside the same new block that would otherwise have been
+exit-code-only assertions (CLAUDE.md invariant 4 class).
 
 ---
 
