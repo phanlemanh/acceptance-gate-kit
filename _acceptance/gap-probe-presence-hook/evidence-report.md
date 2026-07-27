@@ -1,7 +1,7 @@
 ---
 schema_version: 2
 feature_slug: gap-probe-presence-hook
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
@@ -9,7 +9,7 @@ enforcement_mode: strict
 bypass_used: false
 verified_commit: e537754326c90b45caa547c0bfc32a33babdf263
 # bypass_ack:
-human_signoff:
+human_signoff: Manh Phan 2026-07-27
 ---
 
 # Evidence Report: gap-probe-presence-hook
@@ -111,7 +111,7 @@ human_signoff:
     - domain-correctness: PASS (r6)
     - operational-feasibility: PASS (r6)
     - spec-alignment: PASS (r6)
-  human_override:
+  human_override: Manh Phan 2026-07-27
 
 - eval: E10
   run_id: minted-gap-probe-presence-hook-E10-r9
