@@ -1,33 +1,27 @@
-# Review Findings: gap-probe-presence-hook (round 6)
+# Review Findings: gap-probe-presence-hook (round 7)
 
 Informational — adversarial-verified findings from this VERIFY round. Not
 hook-enforced; feeds Gate 2 human review.
 
 ## Findings
 
-- **title:** Doc version floor '1.21.0+' for --no-t1-escape is wrong; true floor is 1.22.0 and following it reproduces the exact silent fail-open the doc warns about
-  **file:** commands/acceptance-init.md:135
-  **severity:** high
-  **source:** conventions
-  **detail:** Released acceptance-gate 1.21.0 is commit 834eae8 — the base of this diff — and its scripts/pre-merge-check.sh contains neither the --no-t1-escape flag nor the unknown-flag guard (verified: `git show 834eae8:scripts/pre-merge-check.sh` has no 'no-t1-escape' and no 'unknown option'; manifest at 834eae8 says 1.21.0). Both the flag and the `-*` guard land inside this range, and the only release commit in the range is 1.22.0 (c412943); the t1-escape feature shipped without a manifest bump, so the string '1.21.0' labels two different artifacts. Yet three source docs claim 'Support landed in acceptance-gate 1.21.0+' / 'cần acceptance-gate 1.21.0+': /Users/manh-macmini/dev/acceptance-gate-kit/commands/acceptance-init.md:135, /Users/manh-macmini/dev/acceptance-gate-kit/codex/acceptance-gate/skills/acceptance-init/SKILL.md:127, /Users/manh-macmini/dev/acceptance-gate-kit/GUIDE.md:572 (plus their plugins/ mirror copies via sync). A consumer on the actually-released 1.21.0 who trusts this floor re-copies a script whose parser is still `*) ROOT="$1"`, so `--no-t1-escape` is swallowed as the ROOT path, `_acceptance/` is not found, and CI exits 0 with the ENTIRE pre-merge check unrun — exactly the fail-open these paragraphs describe. Fix: change the floor to 1.22.0+ in all three source files and re-run scripts/sync-plugin-packages.sh.
-
-- **title:** Docs pin --no-t1-escape support to 1.21.0+, but it ships in 1.22.0 — invites the exact silent full-gate bypass the docs warn about
-  **file:** commands/acceptance-init.md:135
-  **severity:** high
+- **title:** README still claims unresolvable --base is "skip + clean" — behavior changed to exit 2 in this same diff
+  **file:** README.md:259
+  **severity:** medium
   **source:** bugs
-  **detail:** commands/acceptance-init.md:135, GUIDE.md:572, codex/acceptance-gate/skills/acceptance-init/SKILL.md:127 (plus their two plugins/ mirror copies) all state support for --no-t1-escape 'landed in acceptance-gate 1.21.0+'. Verified against git history: the flag AND the unknown-flag guard were added after base commit 834eae8, whose manifest reads 1.21.0; the only version bump in this range is 1.21.0 -> 1.22.0 (commit c412943). On actual released 1.21.0 the arg parser's catch-all `*) ROOT="$1"` swallows --no-t1-escape as the ROOT path, the script prints 'no _acceptance/ — nothing to check' and exits 0 with the ENTIRE pre-merge gate unrun (signoff, verdict, staleness, gap-probe, T1-escape). A consumer already on 1.21.0 reads '1.21.0+', skips the re-copy step, adds the flag to their push job, and gets permanently green CI with zero rules enforced — the precise false-green class this kit exists to block. Fix: change the floor to 1.22.0+ in the three source files and re-run scripts/sync-plugin-packages.sh to update the mirror.
+  **detail:** The bullet says: "pre-merge-check.sh coi base không resolve được là *skip + clean* — đúng cho repo tiêu thụ, nhưng ở repo kit ... CI nâng skip thành lỗi". This diff changed scripts/pre-merge-check.sh (PR diff scope block, ~line 319-323) so that a base that was GIVEN but does not resolve is now VIOLATION [scope] + exit 2 everywhere, consumers included — verified empirically: `pre-merge-check.sh . --base khong-ton-tai` prints VIOLATION [scope] and exits 2. The remaining skip+clean path only covers base-not-given / no-merge-base. gate.yml's comment was updated to the new behavior in the same diff, but this README bullet (the section right next to a bullet that WAS edited) still teaches operators of consuming repos the old fail-open behavior and misattributes the fail-loud to kit-CI-only wrapping. Consumers reading it will not expect their CI to hard-fail after upgrading to 1.22.0.
 
-- **title:** Stale comment in gate.yml backstop step: unresolvable base is no longer 'skip + clean' — this range made it VIOLATION [scope] + exit 2
-  **file:** .github/workflows/gate.yml:71
+- **title:** acceptance-init push-job paragraph duplicates its own warning verbatim (append-fix instead of merge), x3 files
+  **file:** commands/acceptance-init.md:135
   **severity:** low
   **source:** conventions
-  **detail:** The T1-escape backstop step's comment in /Users/manh-macmini/dev/acceptance-gate-kit/.github/workflows/gate.yml says 'pre-merge-check coi base không resolve được là "skip + clean"' to justify the `*"backstop skipped"*` case-guard. But this same diff range changed scripts/pre-merge-check.sh so that a declared-but-unresolvable base prints 'VIOLATION [scope]' and exits 2 (see the BASE_SHA block around scripts/pre-merge-check.sh:318-324). The 'backstop skipped' NOTE now only fires for the no-merge-base / git-diff-failed branch (and for no --base, which this step never hits). Behavior remains fail-closed either way (st=2 propagates through `exit "${st:-0}"`), so this is a doc-accuracy issue, not a hole — but the comment now misdescribes which failure mode the grep guard covers and should be updated to match the new exit-2 behavior.
+  **detail:** The round-6 HIGH fix (3be6be8, version floor 1.21.0 -> 1.22.0) was appended as a parenthetical — "Support landed in acceptance-gate 1.22.0+ (on 1.21.0 the parser swallows the flag as the repo-root path and the WHOLE gate silently no-ops — re-copy the script before adding the flag)." — onto a paragraph whose two preceding sentences already say exactly that ("re-copy scripts/pre-merge-check.sh from the plugin BEFORE you add this flag. Older vendored copies ... treat --no-t1-escape as the ROOT path ... exit 0 with the ENTIRE pre-merge check unrun"). The same duplicated text is mirrored in codex/acceptance-gate/skills/acceptance-init/SKILL.md:127 and plugins/acceptance-gate/skills/acceptance-init/SKILL.md:127; the codex copy additionally carries three stray blank lines before the IMPORTANT block and no blank line before "## 6. Optional references". This is agent-facing instruction text — redundancy costs prompt budget and reads as an unmerged patch; fold the parenthetical into the preceding sentences in the source files and re-run scripts/sync-plugin-packages.sh.
 
-- **title:** Stale comment in gate.yml T1-escape backstop: claims unresolvable base is 'skip + clean', but this diff made it hard exit 2
-  **file:** .github/workflows/gate.yml:71
+- **title:** GUIDE push-job snippet silently collapses to a scope-less run on shallow checkout: --base "$(git rev-parse HEAD~1)" becomes --base ""
+  **file:** GUIDE.md:575
   **severity:** low
   **source:** bugs
-  **detail:** Lines 71–74 say "pre-merge-check coi base không resolve được là 'skip + clean'" to justify the `*"backstop skipped"*` escalation. This same diff changed scripts/pre-merge-check.sh so an unresolvable --base now prints 'VIOLATION [scope]' and exits 2 (fail-closed); only the missing-merge-base path (`git diff` failure on shallow/grafted clones) still produces 'backstop skipped'. Behavior remains fail-closed on every path (exit 2 propagates via `exit "${st:-0}"`), so this is comment drift only — but it misdescribes the premise of a security-relevant guard and should be updated to name the merge-base case as the remaining skip path.
+  **detail:** The new push-job snippet is a bare `bash scripts/pre-merge-check.sh . --base "$(git rev-parse HEAD~1)" --no-t1-escape` with no checkout context, while the PR snippet just above (line 565) explicitly requires fetch-depth: 0. actions/checkout defaults to fetch-depth: 1, where `git rev-parse HEAD~1` fails; the command substitution failure does not trip GitHub's `bash -e` (same trap the diff itself documents in sync-plugin-packages.sh), so the flag degrades to `--base ""`. Verified empirically: `--base ""` is treated as "no PR base given" — gap-probe AND t1-escape both go declared-off and the run exits 0 in advisory mode. That directly contradicts the snippet's own stated purpose ("VẪN giữ --base: luật gap-probe cần phạm vi diff"): a consumer following the doc verbatim gets a green CI with both diff-scoped rules off, the exact silent-degradation class this feature wave was built to close (fail-closed VIOLATION [scope] only fires when the base string is non-empty). Fix is a one-line doc addition: state the push job also needs fetch-depth: 0 (or use the fail-closed `--base HEAD~1` form so an unresolvable ref exits 2 instead of vanishing).
 
 ## Chua adversarial-verify (refuter chet)
 

@@ -572,7 +572,13 @@ Job chạy trên `push` (không phải PR) cần một bước RIÊNG — và ph
 dẫn rồi thoát 0 với TOÀN BỘ cổng không chạy (cần acceptance-gate 1.22.0+ — bản 1.21.0 phát hành KHÔNG có cờ này lẫn chốt cờ-lạ, thêm cờ trên bản đó là tự kích hoạt đúng lỗ vừa tả):
 
 ```bash
-bash scripts/pre-merge-check.sh . --base "$(git rev-parse HEAD~1)" --no-t1-escape
+# CẦN fetch-depth: 0 ở bước checkout (y như job PR). Với fetch-depth: 1 mặc
+# định, `git rev-parse HEAD~1` chết trong command substitution mà bash -e của
+# GithubActions KHÔNG bắt được — cờ suy biến thành --base "" và cả gap-probe
+# lẫn T1-escape tắt kèm declared-off trong khi job vẫn xanh. Dùng dạng ref
+# trần (HEAD~1) thay vì $(rev-parse): ref không resolve được thì cổng exit 2
+# to tiếng, không suy biến im lặng.
+bash scripts/pre-merge-check.sh . --base HEAD~1 --no-t1-escape
 ```
 
 Răng T1-escape đòi thay đổi phải kèm `_acceptance/<slug>/` — tiền đề đó sai với

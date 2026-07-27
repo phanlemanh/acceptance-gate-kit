@@ -256,10 +256,12 @@ bắt buộc kèm thay đổi dưới `_acceptance/`. Hai điều chỉnh riêng
   thiếu base (push CÓ base, để luật gap-probe chạy được), mà vì tiền đề "phải
   kèm hồ sơ nghiệm thu" sai với commit đóng gói bản phát hành / đồng bộ bản sao.
   Xem [ADR 0005](docs/adr/0005-t1-escape-opt-out-flag.md).
-- `pre-merge-check.sh` coi base không resolve được là *skip + clean* — đúng cho
-  repo tiêu thụ, nhưng ở repo kit một backstop bị bỏ qua âm thầm CHÍNH LÀ lỗ nó
-  sinh ra để bịt, nên CI nâng skip thành **lỗi**. Test P35 giữ cả ba tính chất
-  (bật · guard PR · fail-loud) khỏi bị gỡ về sau.
+- Từ acceptance-gate 1.22.0, base ĐÃ KHAI mà không resolve được là
+  `VIOLATION [scope]` + exit 2 ở MỌI repo (fail-closed, không còn *skip +
+  clean*). Nhánh *skip* chỉ còn cho trường hợp không truyền base hoặc không có
+  merge-base (clone nông/grafted) — và ở repo kit, CI nâng cả skip đó thành
+  **lỗi** vì một backstop bị bỏ qua âm thầm CHÍNH LÀ lỗ nó sinh ra để bịt.
+  Test P35 giữ cả ba tính chất (bật · guard PR · fail-loud) khỏi bị gỡ về sau.
 
 Giới hạn cần biết: backstop **không có ánh xạ path→slug** (comment trong
 `pre-merge-check.sh` nói rõ) — "có kèm artifact" nghĩa là *bất kỳ* thay đổi nào
