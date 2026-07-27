@@ -531,10 +531,15 @@ const globToRe = g => new RegExp('^' + String(g)
   .replace(/\*/g, '[^/]*')
   .replace(/ /g, '.*') + '$')
 const coverageRes = args.evals.flatMap(e => Array.isArray(e.paths) ? e.paths : []).map(globToRe)
+// Đếm theo finding PHÂN BIỆT (file+title), không theo số lượt báo: hai reviewer
+// cùng thấy một lỗi là chuyện thường, và nó KHÔNG được tự nhân đôi thành "cụm".
+const distinctKey = f => `${f.file} ${f.title}`
+const dedupe = arr => [...new Map(arr.map(f => [distinctKey(f), f])).values()]
+const triagedDistinct = dedupe(triaged)
 const outsideCoverage = coverageRes.length === 0 ? [] // không eval nào khai paths → không tính được (n-a)
-  : triaged.filter(f => typeof f.file === 'string' && f.file && !coverageRes.some(re => re.test(f.file)))
+  : triagedDistinct.filter(f => typeof f.file === 'string' && f.file && !coverageRes.some(re => re.test(f.file)))
 const coverageCluster = outsideCoverage.length >= 2
-  ? { count: outsideCoverage.length, total: triaged.length, files: [...new Set(outsideCoverage.map(f => f.file))] }
+  ? { count: outsideCoverage.length, total: triagedDistinct.length, files: [...new Set(outsideCoverage.map(f => f.file))] }
   : null
 if (coverageCluster) log(`Cum ngoai vung phu: ${coverageCluster.count}/${coverageCluster.total} finding roi vao file khong eval nao do`)
 

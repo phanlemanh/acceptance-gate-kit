@@ -517,4 +517,37 @@ console.log('WT-T9b (doi chung duong) cung fixture khong blocked -> REJECT');
   check('WT-T9b khong blocked -> REJECT', result.verdict === 'REJECT', result.verdict);
 }
 
+// ── WT-T7: tín hiệu cụm-ngoài-vùng-phủ ─────────────────────────────────────
+const F_OUT2 = { title: 'them mot cho lech', file: 'other/install.ts', severity: 'medium', detail: 'x' };
+const triAllOut = fs => fs.map(f => ({ title: f.title, inContract: false, acRef: '', rationale: 'ngoai', proposal: 'known-limits' }));
+
+console.log('WT-T7a 2 finding ngoai union paths -> co cluster');
+{
+  const { result } = await runWorkflow(WF, triArgs(), triResp({ findings: [F_OUT, F_OUT2], triage: triAllOut([F_OUT, F_OUT2]) }));
+  check('WT-T7a cluster count 2', !!result.coverageCluster && result.coverageCluster.count === 2, JSON.stringify(result.coverageCluster));
+  check('WT-T7a cluster liet ke file', !!result.coverageCluster && result.coverageCluster.files.includes('other/plugins.md'));
+  check('WT-T7a cluster ghi total', !!result.coverageCluster && result.coverageCluster.total === 2);
+}
+
+console.log('WT-T7b khong eval nao khai paths -> cluster null (n-a)');
+{
+  const args = triArgs({ evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: 'pnpm test', ref: 'config:executors.test.api', expected: 'pass' }] });
+  const { result } = await runWorkflow(WF, args, triResp({ findings: [F_OUT, F_OUT2], triage: triAllOut([F_OUT, F_OUT2]) }));
+  check('WT-T7b cluster null khi khong do duoc', result.coverageCluster === null, JSON.stringify(result.coverageCluster));
+}
+
+console.log('WT-T7c (am) finding TRONG vung phu -> khong cluster');
+{
+  const a = { title: 'trong vung phu', file: 'src/install.ts', severity: 'medium', detail: 'x' };
+  const b = { title: 'trong vung phu 2', file: 'src/other.ts', severity: 'low', detail: 'x' };
+  const { result } = await runWorkflow(WF, triArgs(), triResp({ findings: [a, b], triage: triAllOut([a, b]) }));
+  check('WT-T7c khong cluster khi moi finding trong vung phu', result.coverageCluster === null, JSON.stringify(result.coverageCluster));
+}
+
+console.log('WT-T7d (bien) DUNG 1 finding ngoai vung phu -> khong cluster');
+{
+  const { result } = await runWorkflow(WF, triArgs(), triResp({ findings: [F_OUT], triage: triAllOut([F_OUT]) }));
+  check('WT-T7d 1 finding le KHONG bat co (nguong >=2)', result.coverageCluster === null, JSON.stringify(result.coverageCluster));
+}
+
 summary('acceptance-verify');
