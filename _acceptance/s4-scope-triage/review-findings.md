@@ -1,4 +1,4 @@
-# Review Findings: s4-scope-triage (round 1)
+# Review Findings: s4-scope-triage (round 2)
 
 Informational — outside the hook-enforced evidence-report schema. Chia theo
 kết quả SCOPE-TRIAGE (in-contract / out-of-contract), không phải theo
@@ -6,302 +6,272 @@ reviewer lane.
 
 ## Trong hợp đồng
 
-- **Card overlay key `out_of_contract` is written but no renderer ever reads it — AC-8 block cannot appear on the Gate-2 card**
-  file: `commands/acceptance-card.md:46`
+- **`f.file` do reviewer agent sinh không được chuẩn hoá/kiểm ở biên trước khi so glob — đường dẫn tuyệt đối làm cờ cụm-ngoài-vùng-phủ bịa ra ở MỌI round**
+  file: `/Users/manh-macmini/dev/acceptance-gate-kit/feature-loop/workflows/acceptance-verify.js:554`
   severity: high
   source: conventions
-  AC: AC-11
-  detail: Step 3 of the card command (and the mirrored Codex
-  `acceptance-card/SKILL.md:45-57`) instructs the model to build an
-  `out_of_contract` block and write it into
-  `_acceptance/<slug>/card-plain.json`. Step 4 then renders with
-  `node <gate-card.js> --root . --slug <slug> --plain card-plain.json`. But
-  `scripts/gate-card.js` consumes a closed set of overlay keys —
-  `grep -o 'pl\.[a-z_]*'` yields exactly `feature_plain`, `will_do`,
-  `wont_do`, `scope_plain`, `decisions`, `decisions_plain`, `analyst_plain`
-  (lines 209-341). `out_of_contract` appears nowhere in `scripts/`, `lib/`,
-  or `hooks/`, and gate-card.js never opens `review-findings.md`. Unknown
-  overlay keys are silently ignored, so the human opening `card.html` sees no
-  out-of-contract block, no three choices, and no coverage-cluster flag.
-
-  This also breaks the pattern the file itself documents two bullets above:
-  the `gap_probe` bullet says "cờ vắng/probe-failed/parse_dropped do script
-  tự render. Overlay không có key cho khối này" — i.e. anything that must
-  show on the card is rendered by gate-card.js, never by an overlay key. The
-  new bullet declares an overlay key instead.
-
-  AC-8's test P52 (`tests/plugins/run-tests.sh:867-895`) only greps the two
-  instruction files for the literal 'Ngoài hợp đồng' and for a
-  backward-branch phrase, so it stays green while the deliverable does not
-  render. Both plugin manifests now advertise "v1.23 renders the Gate-2
-  'Ngoài hợp đồng' block on the decision card"
-  (`.claude-plugin/plugin.json`,
-  `codex/acceptance-gate/.codex-plugin/plugin.json`), which is not true of
-  the rendered card.
-
-  The chat-side presentation in
-  `feature-loop/skills/feature-loop/SKILL.md:153` does cover the human, so
-  the fix is either to teach gate-card.js the block (matching the gap_probe
-  precedent) or to move the instruction out of the card-plain.json field
-  list and out of the manifest descriptions.
-  rationale: AC-11 đòi khối "Ngoài hợp đồng" phải render trên card để người
-  quyết đọc được, nhưng finding cho thấy khối này không bao giờ render
-  (gate-card.js không biết key `out_of_contract`) nên tiền đề của AC-11
-  không bao giờ thành hiện thực.
-
-- **Scope-triage joins agent output to findings by `title` alone, so same-titled findings in different files get each other's classification**
-  file: `feature-loop/workflows/acceptance-verify.js:505`
-  severity: high
-  source: conventions
-  AC: AC-5
-  detail: `triageByTitle = new Map(triaged.map(t => [t.title, t]))` then
-  `toTriage.map(f => triageByTitle.get(f.title))`. `confirmedFindings` is
-  `reviewResults.flatMap(r => r.findings)` (line 464) with no dedupe, and the
-  titles are free text produced by two independent reviewer lanes
-  (`conventions`, `bugs`) over the same diff — collisions such as "missing
-  validation" or "silent catch" across two files are ordinary. The Map keeps
-  the LAST entry, so every finding sharing a title collapses onto one
-  classification.
-
-  The file itself already knows title is not a distinct key: 31 lines below,
-  `distinctKey = f => `${f.file} :: ${f.title}`` (line 536) is used
-  precisely because "hai reviewer cùng thấy một lỗi" must not double-count.
-  The triage join should use the same key (and the TRIAGE_SCHEMA should echo
-  `file` alongside `title`).
-
-  I reproduced both failure directions against the real workflow via
-  `tests/workflows/harness.mjs`, two findings titled "missing validation"
-  (`src/a.ts` in-contract high, `docs/x.md` out-of-contract high):
-  - agent returns [in-contract, out-of-contract] → both become
-    out-of-contract, verdict PASS, `rejectFindings: []`. The genuinely
-    in-contract high finding is silently dropped from the fix list (AC-1
-    violated).
-  - agent returns [out-of-contract, in-contract] → both become in-contract,
-    verdict REJECT, `rejectFindings` contains `docs/x.md`. An out-of-contract
-    finding entered the round's fix list — exactly the invariant AC-5 and
-    the block comment at line 521 ("Out-of-contract KHÔNG BAO GIỜ vào đây —
-    chốt chặn chính của feature") exist to prevent.
-
-  Second direction is the serious one: it re-opens the OneFlow spiral the
-  feature was built to close, and no existing test catches it because every
-  WT-T* fixture uses unique titles.
-  rationale: Repro hướng thứ hai cho thấy một finding out-of-contract bị gán
-  nhầm thành in-contract và lọt vào `rejectFindings`, đúng thứ AC-5
-  ("out-of-contract KHÔNG BAO GIỜ vào rejectFindings") cấm.
-
-- **Scope-triage maps results by title alone — same-title findings in different files get silently cross-classified**
-  file: `feature-loop/workflows/acceptance-verify.js:505`
-  severity: high
-  source: bugs
-  AC: AC-1
-  detail: `triageByTitle` is built with `new Map(triaged.map(t => [t.title, t]))`
-  and looked up per finding by `f.title` only. `TRIAGE_SCHEMA` has no `file`
-  field, so the agent cannot disambiguate either. Two confirmed findings
-  sharing a title collapse: the Map keeps the LAST entry and BOTH findings
-  inherit its classification.
-
-  This is not hypothetical — the `invariants` reviewer prompt (line 313)
-  explicitly instructs `title=ten check/rule`, so the same rule violated in
-  two files produces two findings with identical titles by construction.
-
-  Repro through `tests/workflows/harness.mjs` (real workflow file, vm
-  realm), two findings titled `thieu validation o boundary` in
-  `src/in-scope.ts` (triaged inContract:true/AC-1) and
-  `other/out-of-scope.ts` (triaged inContract:false):
-  ```
-  verdict: PASS            <- expected REJECT (high + in-contract)
-  rejectFindings files: [] <- the in-contract high finding vanished from the fix list
-  ```
-  both entries came back `inContract:false, acRef:null,
-  proposal:"known-limits"`.
-
-  Both directions are damaging and both are silent: (a) an in-contract high
-  finding is dropped from `rejectFindings` and never REJECTs, and
-  review-findings.md tells the human it is "outside the approved scope" — a
-  false statement; (b) with the opposite ordering, an out-of-contract
-  finding is stamped in-contract and goes into the machine's fix list, which
-  is exactly the undefined-behaviour patching spiral this feature exists to
-  stop. Nothing logs, nothing flags — `triageFailed` stays false. WT-T1..T9
-  all use unique titles so the suite is blind to it. Fix: key on
-  `file :: title` (the `distinctKey` at line 531 already treats that as the
-  identity) and add `file` to TRIAGE_SCHEMA so the agent emits it.
-  rationale: Repro của chính finding này cho verdict PASS thay vì REJECT khi
-  có confirmed finding severity high triaged in-contract — đúng kịch bản và
-  kỳ vọng mà AC-1 mô tả (must REJECT + có mặt trong rejectFindings).
-
-- **"Contract could not be read → triageFailed" is documented in three places but not implemented**
-  file: `feature-loop/workflows/acceptance-verify.js:477`
-  severity: medium
-  source: bugs
-  AC: AC-4
-  detail: `const hasContract = typeof args.contractPath === 'string' &&
-  !!args.contractPath.trim()` checks only that a non-empty string was
-  passed. There is no path from "the agent could not read the contract" to
-  `triageFailed = true`: TRIAGE_SCHEMA has no unreadable/no-contract signal,
-  and the prompt never tells the agent to report one.
-
-  Three docs promise the opposite:
-  - `acceptance-verify.js:32` header — "Vắng/không đọc được → triageFailed"
-  - `feature-loop/skills/feature-loop/SKILL.md:120` — "file không đọc được
-    → script tự về fail-toward-human"
-  - `codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md` —
-    "unclassified — triage failed (agent dead after one retry, or the
-    contract could not be read)"
-
-  Actual behaviour with a stale/wrong `contractPath` (wrong slug, file not
-  yet committed): the triage agent is spawned, its Read fails, and under the
-  prompt rule "Không chắc chắn → inContract=false" it returns every finding
-  as out-of-contract with a proposal. Result: `triageFailed:false`,
-  `rejectFindings:[]`, verdict PASS, and review-findings.md prints "Các lỗi
-  dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1" for findings
-  whose scope was never actually checked. That reads as a triage result but
-  is a fabrication.
-
-  The eval that is supposed to cover this claims a case that does not exist:
-  `_acceptance/s4-scope-triage/evals.yaml` E4 states "WT-T4c:
-  args.contractPath trỏ file không tồn tại → CÙNG hành vi triageFailed", but
-  `tests/workflows/acceptance-verify.test.mjs` WT-T4c does
-  `delete args.contractPath` (missing key), never a path that points at a
-  missing file. Neither the code nor the test covers what E4 asserts.
-  rationale: AC-4 yêu cầu contract.md không đọc được phải cho
-  `triageFailed: true` và fail-toward-human, nhưng finding chứng minh hành vi
-  thực tế là agent tự trả kết quả out-of-contract fabricated, `triageFailed`
-  vẫn false.
-
-- **globToRe: `**` never matches zero path segments, producing false coverage-cluster flags**
-  file: `feature-loop/workflows/acceptance-verify.js:528`
-  severity: medium
-  source: bugs
   AC: AC-7
-  detail: `globToRe` splits on `**` and joins with `.*`, so the surrounding
-  slashes stay literal. Verified output:
-  ```
-  'src/**/*.ts'  -> ^src\/.*\/[^/]*\.ts$   does NOT match 'src/a.ts'
-  '**/*.ts'      -> ^.*\/[^/]*\.ts$        does NOT match 'a.ts'
-  ```
-  In standard glob semantics `**/` matches zero or more directories, so a
-  file directly in the declared root is covered. Here it is not.
+  detail: `coverageRes` (dòng 554) build regex neo `^...$` từ glob
+  repo-relative trong evals.yaml, rồi `outsideCoverage` (dòng 560) test thẳng
+  `f.file` — giá trị do agent reviewer trả về tự do.
 
-  Consequence: a finding in a file that an eval's `paths` genuinely covers is
-  counted in `outsideCoverage`; two such findings trip `coverageCluster` and
-  the human is handed a fabricated "⚠ Cụm ngoài vùng phủ … dừng và quyết: mở
-  rộng hợp đồng hay rút phạm vi" line at Gate 2. This repo's own evals only
-  use the `dir/**` form (which works), so no current test exercises it, but
-  `paths` is author-supplied in every consuming repo's evals.yaml.
+  FINDINGS_SCHEMA (dòng 96-114) khai `file: { type: 'string' }` KHÔNG
+  description, và cả hai prompt reviewer (dòng 315-317) đều mở đầu bằng
+  "trong repo ${args.repoRoot}" với repoRoot là đường dẫn TUYỆT ĐỐI, không
+  một chữ nào yêu cầu trả path repo-relative. Một reviewer trả
+  `/Users/.../acceptance-gate-kit/src/x.ts` là hoàn toàn hợp lệ theo schema,
+  và khi đó mọi finding đều rớt khỏi mọi glob →
+  `outsideCoverage.length === triagedDistinct.length` → `coverageCluster`
+  bật ở mọi round có ≥2 finding.
 
-  Related exposure on the same comparison: FINDINGS_SCHEMA (line 98)
-  declares `file` as a bare string with no description, and nothing tells
-  reviewers to emit repo-relative paths, while `coverageRes` anchors with
-  `^` against repo-relative globs. A reviewer that returns `/repo/src/x.ts`
-  puts every finding outside coverage and flags the cluster on every round.
-  rationale: AC-7 định nghĩa coverageCluster dựa trên việc finding có khớp
-  glob `paths` hay không; regex sai khiến file thực sự nằm trong `paths` bị
-  tính sai là ngoài vùng phủ, phá vỡ đúng phép tính mà AC-7 ràng buộc.
+  Hệ quả trực tiếp lên cổng người: gate-card.js:361 in cờ đỏ "⚠ Nhiều lỗi
+  rơi ngoài vùng các bộ đo đang phủ — dừng và quyết: mở rộng hợp đồng hay rút
+  phạm vi", và synthesize được lệnh ghi dòng cờ "⚠ Cụm ngoài vùng phủ: N/M
+  lỗi rơi vào file không bộ đo nào phủ" vào review-findings.md. Người duyệt
+  bị đẩy vào quyết định mở-rộng-hay-rút-phạm-vi trên một phép đo sai hoàn
+  toàn, không có gì trên thẻ để nghi ngờ.
+
+  Round 1 đã nêu đúng phơi nhiễm này (review-findings.md:191-197, "Related
+  exposure ... A reviewer that returns /repo/src/x.ts puts every finding
+  outside coverage and flags the cluster on every round") nhưng round 2 chỉ
+  vá nửa `**` zero-segment; nửa boundary-validation không được chạm. Sửa:
+  thêm description "repo-relative path" vào FINDINGS_SCHEMA.file + nhắc
+  trong prompt reviewer, VÀ chuẩn hoá phòng thủ trước khi so (strip prefix
+  `args.repoRoot`, bỏ `./` dẫn đầu) — chuẩn hoá một mình là đủ và không phụ
+  thuộc agent nghe lời.
+  rationale: AC-7 định nghĩa coverageCluster phải chỉ bật khi finding THẬT SỰ
+  ngoài vùng phủ glob; vì schema/prompt cho phép reviewer trả path tuyệt đối
+  nên phép so glob luôn trượt, khiến cờ bật sai ở mọi round ≥2 finding — cơ
+  chế AC-7 mô tả không còn đúng như đặc tả.
+
+- **Gate-2 card prints the reviewer's verbatim engineering title — E11's judged fixture is not what renders**
+  file: `scripts/gate-card.js:344`
+  severity: high
+  source: bugs
+  AC: AC-11
+  detail: Khối "Ngoài hợp đồng" render `esc(f.title)` — title tự do do agent
+  reviewer (`bugs`/`conventions`) sinh ra, chép nguyên văn vào
+  review-findings.md và được `lib/out-of-contract.js` parse lại. Render thử
+  card bằng đúng `_acceptance/s4-scope-triage/review-findings.md` của round
+  trước cho ra, làm text-quyết-định-của-người:
+
+    <p class="q">`globToRe` leaves `?` unescaped — an eval `paths` glob with
+    a leading `?` throws an uncaught SyntaxError and destroys the whole S4
+    round</p>
+    <p class="q">Mutation controls in P51–P54 are tautological — they pass
+    even when the source file does not exist</p>
+
+  Fixture mà E11/AC-11 chấm
+  (`_acceptance/s4-scope-triage/evidence/out-of-contract-card-sample.md`)
+  không chứa gì như thế — đó là ngôn ngữ sản phẩm dịch tay
+  ("Bấm 'Cập nhật' có thể làm mất tiện ích đang cài."). Nên artifact mà judge
+  panel chấm và artifact mà script thực sự xuất ra là hai tài liệu khác
+  nhau, và PASS của E11 là bằng chứng về một file không code path nào sinh
+  ra.
+
+  Không còn seam dịch nào: `commands/acceptance-card.md:46-56` và Codex
+  `acceptance-card/SKILL.md` đều chỉ dẫn model KHÔNG thêm overlay key cho
+  khối này, nên title thô là văn bản duy nhất có thể tới được card. P52
+  (`tests/plugins/run-tests.sh:947-950`) chỉ khoá field `file:` đã parse
+  (`grep -q 'src/install.ts'`) — thứ renderer không bao giờ in ra — trong khi
+  đường dẫn file, tên symbol và jargon regex/`?` thường xuyên nằm trong
+  title và lọt qua.
+
+  Cùng dòng ở mirror: `plugins/acceptance-gate/scripts/gate-card.js:344`.
+  rationale: AC-11 đòi khối "Ngoài hợp đồng" phải đọc được bằng ngôn ngữ sản
+  phẩm, không jargon, cho người quyết kinh doanh; finding chứng minh bằng ví
+  dụ thật là renderer in nguyên văn title kỹ thuật (regex, tên hàm) — trực
+  tiếp phá vỡ tiêu chí đó trên card thật.
+
+- **Partial triage failure silently suppresses the whole out-of-contract block on the card**
+  file: `scripts/gate-card.js:335`
+  severity: medium
+  source: bugs
+  AC: AC-11
+  detail: |
+    `if (ooc.unclassified) { …amber flag… } else if (ooc.findings.length)
+    { …block… }` coi "có bất kỳ finding unclassified nào" là "triage không
+    chạy". Nhưng unclassified một phần là trạng thái được hỗ trợ tường minh:
+    `feature-loop/workflows/acceptance-verify.js:520` ghi chú "Finding gửi đi
+    mà agent KHÔNG trả về → unclassified", và `triaged` gán
+    `unclassified: !ok` theo từng finding, nên agent trả về 3/5 mục sẽ cho ra
+    3 classified + 2 unclassified. Prompt synthesize sau đó viết CẢ HAI
+    `## Ngoài hợp đồng` (có item out-of-contract thật) lẫn
+    `## Chưa phân loại (triage-failed)`.
+
+    Tái hiện bằng fixture chứa cả ba section: `--extract` →
+    `out_of_contract.findings = [{title:'Out of contract A',
+    proposal:'known-limits'}]`, `unclassified:true` → render HTML chỉ còn
+    'Phân loại phạm vi hỏng'; heading 'Ngoài hợp đồng — bạn quyết', finding và
+    3 nút quyết định biến mất.
+
+    Hai hệ quả: lựa chọn 3 nhánh theo từng finding (deliverable chính của
+    feature) biến mất khỏi mặt mà người ký tên, và dòng cờ khẳng định "Bước
+    phân loại phạm vi không chạy được" trong khi triage thực ra đã chạy và
+    phân loại được các finding đó. Render cả hai section (cờ VÀ khối) mới đúng
+    hành vi fail-toward-human mà comment của module tự nhận.
+
+    Cùng dòng ở mirror: `plugins/acceptance-gate/scripts/gate-card.js:335`.
+  rationale: Khi có finding unclassified xen lẫn out-of-contract, card ẩn
+  toàn bộ khối quyết-định-của-người dù review-findings.md có đủ dữ liệu —
+  người đọc card không còn cơ hội hiểu/hành động như AC-11 đòi hỏi, dù dữ
+  liệu vẫn tồn tại trong file (AC-2 vẫn đúng ở tầng file).
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **`globToRe` leaves `?` unescaped — an eval `paths` glob with a leading `?` throws an uncaught SyntaxError and destroys the whole S4 round**
-  file: `feature-loop/workflows/acceptance-verify.js:528`
+- **E8 (AC-8) mô tả một phép kiểm P52 không còn thực hiện — nửa codex của AC-8 hoàn toàn không có ai đo, và gate-card.js/out-of-contract.js nằm ngoài mọi `paths`**
+  file: `/Users/manh-macmini/dev/acceptance-gate-kit/_acceptance/s4-scope-triage/evals.yaml:46`
+  severity: high
+  source: conventions
+  Đề xuất: known-limits
+  detail: |
+    evals.yaml chưa được đụng từ commit Gate 1 (3f168b7), trong khi
+    P52 đã bị viết lại hoàn toàn ở round 2.
+
+    E8.expected vẫn ghi: "case P52: cả commands/acceptance-card.md lẫn codex
+    acceptance-card SKILL.md chứa nhánh backward tường minh (chuỗi chỉ dẫn
+    'không có section' → render như cũ)". P52 hiện tại
+    (tests/plugins/run-tests.sh:~843-910) KHÔNG grep một chuỗi nào trong hai
+    file đó — nó dựng workspace tạm rồi chạy
+    `node scripts/gate-card.js --root ... --slug demo` và đo ĐẦU RA render.
+    Hệ quả cụ thể: xoá sạch đoạn nhánh-backward vừa thêm vào
+    codex/acceptance-gate/skills/acceptance-card/SKILL.md thì không case nào
+    đỏ, nhưng evidence-report.md sẽ chép nguyên văn `expected` của E8 và tuyên
+    bố đúng phép kiểm đó đã chạy. Đây là false-green đúng hình dạng mà chính
+    round 1 đã bắt được ở bản P52 cũ.
+
+    Song song, E8.paths = [commands/acceptance-card.md,
+    codex/acceptance-gate/skills/acceptance-card/SKILL.md, tests/plugins/**]
+    không chứa hai file mà P52 thực sự vận hành: scripts/gate-card.js và
+    lib/out-of-contract.js. Không eval nào trong evals.yaml khai hai file này.
+    Theo luật carry-forward P1 (feature-loop/skills/feature-loop/SKILL.md:128
+    — deltaFiles không khớp glob nào của `paths` + round trước exit_code 0 →
+    carry), một round sau chỉ sửa gate-card.js hoặc out-of-contract.js sẽ
+    carry E8 sang PASS mà không chạy lại, kể cả khi khối "Ngoài hợp đồng" đã
+    hỏng hẳn.
+
+    Cùng lớp, nhẹ hơn: E12 (dòng 69, paths dòng 74) chạy P53 vốn đọc
+    _acceptance/s4-scope-triage/evidence/out-of-contract-card-sample.md,
+    nhưng fixture đó không nằm trong `paths` — sửa fixture bỏ một nhãn cũng
+    carry qua.
+
+    Sửa theo LỚP: rà mọi eval trong file, đối chiếu `paths` với tập file mà
+    case tương ứng thật sự đọc/chạy, và cập nhật `expected` của E8 cho khớp
+    implementation round 2 (hoặc thêm lại phép kiểm chuỗi trên bản codex nếu
+    AC-8 vẫn muốn ràng buộc cả hai harness).
+  rationale: Đây là lỗ hổng chất lượng của eval (expected text lỗi thời,
+  paths thiếu file P52 thực chạy) chứ không phải bằng chứng AC-8 tự nó sai —
+  không AC nào ràng buộc 'paths phải khớp file eval thực chạy' hay 'expected
+  phải khớp implementation hiện tại'.
+
+- **Triage trả về THIẾU mục cho một finding → `triageFailed` vẫn false nhưng thẻ Cổng 2 nuốt trọn khối "Ngoài hợp đồng"**
+  file: `/Users/manh-macmini/dev/acceptance-gate-kit/feature-loop/workflows/acceptance-verify.js:523`
   severity: medium
   source: conventions
-  Đề xuất: new-contract
-  detail: `globToRe` escapes `[.+^${}()|[\]\\]` and translates `*`/`**`, but
-  leaves `?` — a standard glob metacharacter — untouched, where it becomes a
-  regex quantifier. `coverageRes` (line 533) maps it over
-  `args.evals.flatMap(e => e.paths)` unconditionally on every round, with no
-  try/catch and no validation of the `paths` values, which come from the
-  consuming repo's `_acceptance/<slug>/evals.yaml` (an external boundary the
-  script does not own).
+  Đề xuất: known-limits
+  detail: |
+    `triaged` (dòng 523-534) đặt `unclassified: !ok` với
+    `ok = !triageFailed && !!t`. Khoá ghép là `${file} :: ${title}` chép
+    nguyên văn bởi LLM, nên agent bỏ sót một finding — hoặc chép lệch một ký
+    tự trong file/title — cho ra `unclassified: true` trong khi `triageFailed`
+    vẫn là `false`. Nhánh này không được AC-4 phủ (AC-4 chỉ nói agent chết cả
+    retry / contract không đọc được).
 
-  Verified against the real file: `paths: ['?src/**']` produces
-  `/^?src\/.*$/` → `SyntaxError: Invalid regular expression: Nothing to
-  repeat`, thrown at `acceptance-verify.js:533` and propagating out of the
-  workflow. The whole round is lost after every machine eval, ui-check,
-  judge panel, review and refute agent has already run and paid for — no
-  verdict, no run-log, no evidence report.
+    Hai hệ quả hợp lại thành mất thông tin âm thầm ở đúng chỗ feature này sinh
+    ra để bảo vệ:
 
-  This is the one spot in an otherwise carefully fail-toward-human block
-  that fails by crashing: the two triage failure paths above it (missing
-  `contractPath`, dead agent) both degrade to `triageFailed: true`. A bad
-  glob should degrade to `coverageCluster: null` (`n-a`, the same as the
-  no-paths case at line 539) rather than take the round down. Escaping `?`
-  and wrapping the `new RegExp` in a try/catch that drops unparseable globs
-  covers it.
-  rationale: Không AC nào trong hợp đồng nói về việc parse glob lỗi/crash
-  toàn round — đây là lỗ hổng robustness với input `paths` từ evals.yaml của
-  repo tiêu thụ, ngoài phạm vi các AC đã liệt kê.
+    1. Workflow trả `triageFailed: false`, nên cả hai chỉ dẫn harness đều im:
+    feature-loop/skills/feature-loop/SKILL.md:135 chỉ báo user khi
+    `triageFailed: true`, codex SKILL.md tương tự.
 
-- **The four new "đối chứng đột biến" blocks in P51–P54 are tautologies that cannot fail**
-  file: `tests/plugins/run-tests.sh:853`
+    2. Prompt synthesize (dòng 685) bật section
+    "## Chưa phân loại (triage-failed)" chỉ cần
+    `triaged.some(f => f.unclassified)`. gate-card.js:337-339 thấy heading đó
+    là vào nhánh `if (ooc.unclassified)` và thay TOÀN BỘ khối bằng một cờ
+    vàng — các finding đã được phân loại out-of-contract (kèm proposal) biến
+    mất khỏi khối quyết-định-của-người, dù chúng vẫn nằm trong file.
+
+    Đồng thời `rejectFindings` vẫn chứa các finding in-contract mà agent có
+    trả về, nên máy vẫn tự quay S3 sửa dựa trên một kết quả phân loại KHÔNG
+    đầy đủ — lệch với doctrine fail-toward-human mà chính khối này khai. Đề
+    nghị: partial-return kéo `triageFailed = true` (nhất quán với "không chắc
+    chắn → không REJECT"), hoặc tách tín hiệu `triagePartial` và để gate-card
+    render cờ vàng CỘNG khối out-of-contract thay vì thay thế.
+  rationale: Finding tự nhận nhánh partial-return không được AC-4 phủ (AC-4
+  chỉ nói agent chết cả retry hoặc contract không đọc được) — đây là khoảng
+  trống ngoài đặc tả hiện có, không phải AC-4 thất bại.
+
+- **Ba nhãn lựa chọn được khai là "giữ NGUYÊN VĂN" nhưng renderer in khác chỉ dẫn, và không phép kiểm nào khoá renderer vào chỉ dẫn**
+  file: `/Users/manh-macmini/dev/acceptance-gate-kit/scripts/gate-card.js:344`
   severity: low
   source: conventions
   Đề xuất: known-limits
-  detail: Every one of the new mutation controls has the shape
-  `grep -v P "$FILE" > "$CP"; if grep -q P "$CP"; then fail` (P51 at
-  853-859, P52 at 880-886, P53 at 923-931, P54 at 958-964). Because the same
-  literal is used both to build the mutant and to probe it, and grep is
-  line-based, `grep -q P` on the output of `grep -v P` is false by
-  construction — the branch is unreachable for any input. I confirmed it,
-  including the degenerate case: the block also "passes" when the pattern is
-  absent from the source file entirely, so it cannot distinguish a live
-  check from a dead one (wrong path, emptied file).
+  detail: |
+    commands/acceptance-card.md:50 (và bản codex tương ứng) khai ba
+    nhãn phải giữ NGUYÊN VĂN: "ghi Known limits" / "mở hợp đồng mới" /
+    "nâng phạm vi sửa ngay". gate-card.js:344 in ra "Ghi Known limits" /
+    "Mở hợp đồng mới" / "Nâng phạm vi, sửa ngay" — nhãn thứ ba có thêm dấu
+    phẩy, tức khác chỉ dẫn ở mức ký tự chứ không chỉ hoa/thường.
 
-  Contrast P48 immediately above (`tests/plugins/run-tests.sh:770-776`),
-  which is the pattern already established in this file: it INJECTS a new
-  `ledger_mark` call-site into the copy and re-runs the real comparison
-  helpers (`p48_names` vs `p48_exp`) against the mutant, with a comment
-  explaining that without it "P48 chỉ chứng minh hai chuỗi hôm nay bằng
-  nhau, không chứng minh phép so còn sống (bất biến #4 CLAUDE.md)".
+    Quan trọng hơn cái sai chính tả là chỗ trống trong lưới bảo vệ: P53
+    (tests/plugins/run-tests.sh:~912-960) rút ba nhãn TỪ
+    commands/acceptance-card.md rồi bắt
+    _acceptance/s4-scope-triage/evidence/out-of-contract-card-sample.md phải
+    chứa đủ — nó khoá FIXTURE vào chỉ dẫn. Không case nào khoá RENDERER vào
+    chỉ dẫn, mà renderer mới là thứ người duyệt thật sự nhìn. P52 có grep
+    chuỗi 'Nâng phạm vi, sửa ngay' nhưng hardcode ngay trong test, nên chỉ tự
+    khớp với chính nó — đúng anti-pattern mà comment của P53 cảnh báo.
 
-  The real assertions in P51–P54 (greps for pinned literals against the
-  actual files) do discriminate and do pin exact messages, so the checks
-  themselves are sound — but ~30 lines advertise a live mutation control
-  that provides zero signal, and the contract's Notes explicitly commit to
-  "MỌI assertion âm tính theo bất biến CLAUDE.md #4". Either follow P48
-  (inject a near-miss and re-run the real predicate) or drop the blocks
-  rather than leave dead ceremony that future readers will trust.
-  rationale: Đây là lỗi chất lượng của khối mutation-control trong test,
-  không phải hành vi runtime mà bất kỳ AC nào trong Criteria mô tả hay ràng
-  buộc kết quả (verdict/rejectFindings/card/coverageCluster).
+    Hệ quả: chỉ dẫn card đổi nhãn → fixture đỏ (P53 bắt), judge E11 chấm
+    đúng, nhưng thẻ production vẫn in nhãn cũ và không ai biết. Sửa: cho P52
+    rút nhãn từ commands/acceptance-card.md giống cách P53 làm, rồi so với
+    đầu ra render.
+  rationale: Sai lệch chỉ là một dấu phẩy, không AC nào đòi nhãn khớp
+  nguyên văn ký tự; AC-11 chỉ yêu cầu người đọc phân biệt được 3 lựa chọn
+  bằng ngôn ngữ sản phẩm, và tiêu chí đó vẫn đạt dù có dấu phẩy lệch.
 
-- **Mutation controls in P51–P54 are tautological — they pass even when the source file does not exist**
-  file: `tests/plugins/run-tests.sh:853`
+- **E8/E12 `paths` omit the renderer they now test — P1 carry-forward can keep AC-8/AC-11 green after gate-card.js changes**
+  file: `_acceptance/s4-scope-triage/evals.yaml:51`
   severity: medium
   source: bugs
   Đề xuất: known-limits
-  detail: Four new cases use the shape `grep -v 'X' FILE > COPY; if
-  grep -q 'X' COPY; then "dot bien KHONG hieu luc"; fi` — P51 (line 853),
-  P52 (880), P53 (923), P54 (958). `grep -v X` removes exactly the lines
-  containing X, so `grep -q X` on the copy can never match. The branch is
-  unreachable regardless of the file's content.
+  detail: |
+    Round 2 rewrote P52 từ "grep hai file chỉ dẫn" thành "chạy
+    `node $ROOT/scripts/gate-card.js` và assert đầu ra render"
+    (`tests/plugins/run-tests.sh:875-960`). Hành vi của nó giờ phụ thuộc
+    `scripts/gate-card.js` và `lib/out-of-contract.js`. `paths` của E8 chưa
+    được cập nhật, vẫn đọc
+    `[commands/acceptance-card.md,
+    codex/acceptance-gate/skills/acceptance-card/SKILL.md, tests/plugins/**]`.
 
-  Verified: running the P51 mutation block against a nonexistent path still
-  prints the "mutation effective" outcome, i.e. the control passes with no
-  source file at all. It therefore cannot distinguish "the check is alive"
-  from "the check never ran / the file is missing / cp failed" — the exact
-  class CLAUDE.md invariant 4 was written against.
+    P1 carry-forward (`feature-loop/skills/feature-loop/SKILL.md:128`) carry
+    một eval sang PASS khi `deltaFiles` không khớp glob nào trong `paths` và
+    dòng run-log trước đó có `exit_code: 0`. Nên một round sau chỉ sửa
+    `scripts/gate-card.js` hoặc `lib/out-of-contract.js` — chính xác đoạn code
+    AC-8 ("card render khối") và AC-11 ("người có thể hành động trên nó") nói
+    tới — sẽ carry E8 sang mà không chạy lại P52, và Gate 2 vẫn thấy evidence
+    xanh cho một khối có thể không còn render nữa. Đây là đúng lớp
+    stale-evidence mà guard P1 sinh ra để chặn, nhưng bị đảo ngược.
 
-  Compare P48 (line 767), which does it correctly: the mutation ADDS a
-  call-site while the check is a set COMPARISON, so mutation and predicate
-  are independent and the control can genuinely fail.
+    E12 (dòng 74) cùng hình dạng: `paths: [commands/acceptance-card.md,
+    tests/plugins/**]`, trong khi P53 đọc
+    `_acceptance/s4-scope-triage/evidence/out-of-contract-card-sample.md` —
+    chỉ sửa fixture cũng để E12 carry được.
 
-  This matters beyond test hygiene because evals.yaml cites these blocks as
-  the positive controls for AC-8/AC-9/AC-11/AC-13 ("đối chứng dương: xoá
-  dòng step trong bản sao gate.yml → case đỏ đúng thông điệp"). The mutated
-  copy is never fed back through the case's own check and no expected
-  message is pinned, so the claimed evidence does not exist.
-  rationale: Cùng bản chất với finding P51-P54 phía trên — lỗi chất lượng
-  của bản thân bộ test/mutation-control, không phải hành vi mà một AC nào
-  trong Criteria của contract này đặc tả.
+    Trôi dạt phụ trên cùng entry: `expected:` của E8 vẫn mô tả phép kiểm
+    grep-chỉ-dẫn của round 1 ("chứa nhánh backward tường minh (chuỗi chỉ
+    dẫn …)"), không phải phép kiểm render-đầu-ra mà P52 hiện làm.
+  rationale: Đây là rủi ro về ĐỘ TIN CẬY của bằng chứng cho AC-8/AC-11 trong
+  các round sau (carry-forward có thể bỏ qua re-run), không phải bằng chứng
+  AC-8/AC-11 đang thất bại NGAY round này — không AC nào ràng buộc cấu hình
+  paths của eval.
 
 ## Chưa adversarial-verify (refuter chết)
 
-Không có — mọi finding round này đều đã adversarial-verify (repro qua
-`tests/workflows/harness.mjs`, hoặc grep/đọc trực tiếp đúng dòng file, ghi
-trong `detail:` của từng finding). Không có finder chết trong round này.
+(không có)
 
 ---
 
-Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
+⚠ Cụm ngoài vùng phủ: 5/7 lỗi rơi vào file không bộ đo nào phủ (/Users/manh-macmini/dev/acceptance-gate-kit/_acceptance/s4-scope-triage/evals.yaml, /Users/manh-macmini/dev/acceptance-gate-kit/feature-loop/workflows/acceptance-verify.js, /Users/manh-macmini/dev/acceptance-gate-kit/scripts/gate-card.js, _acceptance/s4-scope-triage/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.

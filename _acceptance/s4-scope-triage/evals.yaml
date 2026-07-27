@@ -47,8 +47,8 @@ evals:
     criterion: AC-8
     executor: script
     cmd: config:executors.test.plugins
-    expected: "case P52: cả commands/acceptance-card.md lẫn codex acceptance-card SKILL.md chứa nhánh backward tường minh (chuỗi chỉ dẫn 'không có section' → render như cũ) VÀ chứa chỉ dẫn render khối 'Ngoài hợp đồng' lên phần việc-của-người; đối chứng dương: xoá chuỗi trong bản sao → case đỏ"
-    paths: [commands/acceptance-card.md, codex/acceptance-gate/skills/acceptance-card/SKILL.md, tests/plugins/**]
+    expected: "case P52: dựng workspace fixture rồi chạy scripts/gate-card.js và ĐO ĐẦU RA render — khối 'Ngoài hợp đồng' xuất hiện, in câu ngôn ngữ sản phẩm (trường plain) chứ KHÔNG in title kỹ thuật của reviewer (ghim rmSync/globToRe/SyntaxError phải vắng), ba nhãn lựa chọn RÚT TỪ commands/acceptance-card.md phải khớp renderer, có dòng cờ cụm, không lộ đường dẫn file; file review-findings.md thế hệ CŨ → không render khối và không làm hỏng thẻ. Đối chứng dương: đổi nhãn trong renderer, hoặc cho renderer rơi về title → case đỏ đúng thông điệp"
+    paths: [scripts/gate-card.js, lib/out-of-contract.js, commands/acceptance-card.md, codex/acceptance-gate/skills/acceptance-card/SKILL.md, tests/plugins/**]
   - id: E9
     criterion: AC-9
     executor: script
@@ -70,8 +70,8 @@ evals:
     criterion: AC-11
     executor: script
     cmd: config:executors.test.plugins
-    expected: "case P53 (gác cổng cho judge E11 — chống trôi): các chuỗi kiểm được RÚT TỪ chính commands/acceptance-card.md (tên khối + 3 nhãn lựa chọn + khuôn dòng cờ cụm), rồi bắt fixture phải chứa đủ; chỉ dẫn card đổi mà fixture không đổi → ĐỎ. Không hardcode chuỗi trong test (thế thì test chỉ tự khớp với chính nó). Đối chứng dương: bản sao fixture xoá 1 nhãn → đỏ đúng thông điệp thiếu-nhãn; cộng kiểm không-jargon"
-    paths: [commands/acceptance-card.md, tests/plugins/**]
+    expected: "case P53 (gác cổng cho judge E11): SINH LẠI fixture bằng tests/plugins/fixtures/render-out-of-contract-block.sh (chạy chính gate-card.js) trong cùng lần chạy rồi so BYTE-ĐỐI-BYTE với evidence/out-of-contract-card-sample.md — khuôn TE17/RL10; cộng kiểm bản render không chứa jargon kỹ thuật. Đối chứng dương: sửa tay một chữ trong fixture → đỏ đúng thông điệp TRÔI"
+    paths: [scripts/gate-card.js, lib/out-of-contract.js, commands/acceptance-card.md, tests/plugins/**, _acceptance/s4-scope-triage/evidence/out-of-contract-card-sample.md]
   - id: E13
     criterion: AC-12
     executor: script

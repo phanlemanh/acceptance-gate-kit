@@ -924,7 +924,8 @@ cat > "$P52WS/_acceptance/demo/review-findings.md" <<'EOF'
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
-- **tien ich co the bi xoa khi cap nhat**
+- **rmSync called before git.clone resolves — uncaught SyntaxError in globToRe**
+  Người dùng thấy gì: Bấm "Cập nhật" có thể làm mất tiện ích đang cài khi mạng chập chờn.
   file: `src/install.ts:10`
   severity: high
   Đề xuất: known-limits
@@ -934,9 +935,31 @@ cat > "$P52WS/_acceptance/demo/review-findings.md" <<'EOF'
 ⚠ Cụm ngoài vùng phủ: 2/3 lỗi rơi vào file không bộ đo nào phủ (src/install.ts, docs/plugins.md) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
 EOF
 P52OUT="$(node "$ROOT/scripts/gate-card.js" --root "$P52WS" --slug demo 2>&1)"
-for s in 'Ngoài hợp đồng — bạn quyết' 'tien ich co the bi xoa khi cap nhat' 'Ghi Known limits' 'Mở hợp đồng mới' 'Nâng phạm vi, sửa ngay'; do
-  printf '%s' "$P52OUT" | grep -q "$s" || { echo "     dau ra render THIEU: $s"; P52OK=0; }
+printf '%s' "$P52OUT" | grep -q 'Ngoài hợp đồng — bạn quyết' || { echo "     dau ra render THIEU tieu de khoi"; P52OK=0; }
+# Cau NGON NGU SAN PHAM (truong plain) phai la chu nguoi quyet doc...
+printf '%s' "$P52OUT" | grep -q 'Bấm &quot;Cập nhật&quot; có thể làm mất tiện ích đang cài' \
+  || printf '%s' "$P52OUT" | grep -q 'có thể làm mất tiện ích đang cài' \
+  || { echo "     dau ra render THIEU cau ngon ngu san pham (truong plain)"; P52OK=0; }
+# ...va title KY THUAT cua reviewer TUYET DOI khong duoc len the.
+for j in 'rmSync' 'globToRe' 'SyntaxError'; do
+  if printf '%s' "$P52OUT" | grep -q "$j"; then
+    echo "     the in title ky thuat cua reviewer: $j"
+    P52OK=0
+  fi
 done
+# Ba nhan lua chon RUT TU chi dan card (khong hardcode o day: hardcode thi test
+# chi tu khop voi chinh no, renderer troi khoi chi dan van xanh).
+P52LABELS="$(sed -n 's/.*(a) \*\*\([^*]*\)\*\*.*(b) \*\*\([^*]*\)\*\*.*(c) \*\*\([^*]*\)\*\*.*/\1|\2|\3/p' "$ROOT/commands/acceptance-card.md" | head -1)"
+if [ -z "$P52LABELS" ]; then
+  echo "     KHONG rut duoc 3 nhan tu commands/acceptance-card.md"
+  P52OK=0
+else
+  P52OIFS="$IFS"; IFS='|'
+  for lab in $P52LABELS; do
+    printf '%s' "$P52OUT" | grep -q "$lab" || { echo "     renderer KHONG in dung nhan chi dan: $lab"; P52OK=0; }
+  done
+  IFS="$P52OIFS"
+fi
 # Co cum -> phai co dong co; va thẻ KHONG duoc nem duong dan file tho vao mat
 # nguoi quyet (panel judge round 1 bat dung diem nay).
 printf '%s' "$P52OUT" | grep -q 'dừng và quyết' || { echo "     dau ra render THIEU dong co cum"; P52OK=0; }
@@ -963,54 +986,39 @@ else
   fail "P52 khoi Ngoai-hop-dong render that + co cum + khong lo path + backward"
 fi
 
-# ── P53: gac cong cho judge E11 — fixture khong duoc troi khoi chi dan card ──
-# Cung y voi TE17/RL10: judge cham mot file evidence; file do troi so voi chi
-# dan that thi judge dang cham mot thu khong ton tai. Chuoi kiem RUT TU chinh
-# commands/acceptance-card.md, KHONG hardcode o day (hardcode thi test chi tu
-# khop voi chinh no).
-echo "P53 fixture judge E11 dong bo chi dan card"
+# ── P53: gac cong cho judge E11 — fixture PHAI la ban render THAT ────────────
+# Cung khuon TE17/RL10: sinh LAI fixture trong chinh lan chay nay roi so
+# byte-doi-byte. Round 2 bi bat vi fixture cu la van viet tay: judge cham mot
+# tai lieu khong code path nao sinh ra, con the that thi in title ky thuat.
+echo "P53 fixture judge E11 = ban render that (sinh lai + so byte)"
 P53F="$ROOT/_acceptance/s4-scope-triage/evidence/out-of-contract-card-sample.md"
-P53CARD="$ROOT/commands/acceptance-card.md"
+P53GEN="$ROOT/tests/plugins/fixtures/render-out-of-contract-block.sh"
 P53OK=1
-if [ ! -f "$P53F" ]; then
-  echo "     thieu fixture $P53F"
+if [ ! -f "$P53F" ] || [ ! -f "$P53GEN" ]; then
+  echo "     thieu fixture hoac script sinh"
   P53OK=0
 else
-  # 3 nhan lua chon lay tu dong khai trong chi dan card: "(a) ... / (b) ... / (c) ..."
-  P53LABELS="$(sed -n 's/.*(a) \*\*\([^*]*\)\*\*.*(b) \*\*\([^*]*\)\*\*.*(c) \*\*\([^*]*\)\*\*.*/\1|\2|\3/p' "$P53CARD" | head -1)"
-  if [ -z "$P53LABELS" ]; then
-    echo "     KHONG rut duoc 3 nhan lua chon tu $P53CARD — chi dan card doi khuon?"
+  P53TMP="$(mktemp)"
+  {
+    head -6 "$P53F"
+    bash "$P53GEN"
+  } > "$P53TMP" 2>/dev/null
+  if ! cmp -s "$P53F" "$P53TMP"; then
+    echo "     fixture da TROI so voi ban render hien tai — chay lai:"
+    echo "       { head -6 <fixture>; bash tests/plugins/fixtures/render-out-of-contract-block.sh; } > <fixture>"
     P53OK=0
-  else
-    OLDIFS="$IFS"; IFS='|'
-    for lab in $P53LABELS; do
-      grep -q "$lab" "$P53F" || { echo "     fixture THIEU nhan lua chon: $lab"; P53OK=0; }
-    done
-    IFS="$OLDIFS"
   fi
-  # Fixture la ngon ngu san pham: jargon ky thuat lot vao = judge cham sai thu.
-  for j in 'exit code' 'rmSync' 'inContract' 'severity' 'REJECT'; do
-    if grep -q "$j" "$P53F"; then echo "     fixture co jargon ky thuat: $j"; P53OK=0; fi
+  # Ban render phai la ngon ngu san pham: jargon ky thuat lot vao nghia la
+  # duong dich (truong plain) da hong o dau do.
+  for j in 'rmSync' 'globToRe' 'exit code' 'inContract' 'severity' 'src/'; do
+    if grep -q "$j" "$P53TMP"; then echo "     ban render co jargon ky thuat: $j"; P53OK=0; fi
   done
-  # Doi chung dot bien: ban sao xoa mot nhan -> phep kiem phai DO.
-  if [ -n "$P53LABELS" ]; then
-    P53CP="$(mktemp)"
-    P53FIRST="$(printf '%s' "$P53LABELS" | cut -d'|' -f1)"
-    grep -v "$P53FIRST" "$P53F" > "$P53CP"
-    if cmp -s "$P53F" "$P53CP"; then
-      echo "     dot bien KHONG cham duoc file (ban sao y het ban goc) — phep kiem da chet"
-      P53OK=0
-    elif grep -q "$P53FIRST" "$P53CP"; then
-      echo "     dot bien KHONG hieu luc — phep kiem da chet"
-      P53OK=0
-    fi
-    rm -f "$P53CP"
-  fi
+  rm -f "$P53TMP"
 fi
 if [ "$P53OK" -eq 1 ]; then
-  pass "P53 fixture judge E11 du 3 nhan (rut tu card) + khong jargon + dot bien"
+  pass "P53 fixture judge E11 == ban render that + khong jargon"
 else
-  fail "P53 fixture judge E11 du 3 nhan (rut tu card) + khong jargon + dot bien"
+  fail "P53 fixture judge E11 == ban render that + khong jargon"
 fi
 
 # ── P54: codex parity cho scope-triage ──────────────────────────────────────

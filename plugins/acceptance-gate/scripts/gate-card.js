@@ -332,16 +332,23 @@ P.push(`<div class="gc"><div class="card">
 P.push(`<a href="evidence-page.html" style="display:flex;justify-content:space-between;align-items:center;gap:10px;background:#E6F1FB;border:1px solid #B5D4F4;border-radius:10px;padding:9px 13px;margin:11px 0 2px;text-decoration:none;color:#0C447C;font-size:13px"><b>Bằng chứng đầy đủ — ảnh chụp + chạy thật</b><span style="font-size:12px;color:#185FA5;white-space:nowrap">đã mở trong trình duyệt</span></a>`);
 // Khối "Ngoài hợp đồng" đứng TRƯỚC mọi việc-của-người khác: đây là thứ máy cố ý
 // KHÔNG tự sửa, nên nếu người duyệt bỏ qua thì không ai bắt lại.
+// Cờ hỏng-phân-loại CỘNG THÊM, không thay thế: nuốt cả khối thì các lỗi đã phân
+// loại được biến mất khỏi chỗ người quyết dù chúng vẫn nằm trong file.
 if (ooc.unclassified) {
-  P.push(`<div class="lab">Phân loại phạm vi hỏng</div><div class="flag fwarn">⚠ Bước phân loại phạm vi không chạy được — không lỗi nào bị máy tự sửa. Xem toàn bộ danh sách trong review-findings.md trước khi ký.</div>`);
-} else if (ooc.findings.length) {
+  P.push(`<div class="lab">Phân loại phạm vi chưa đầy đủ</div><div class="flag fwarn">⚠ Bước phân loại phạm vi không chạy trọn — máy không tự sửa lỗi nào trong vòng này. Xem đủ danh sách trong review-findings.md trước khi ký.</div>`);
+}
+if (ooc.findings.length) {
   P.push(`<div class="lab">Ngoài hợp đồng — bạn quyết (${ooc.findings.length})</div>`);
   P.push(`<div class="flag fwarn">Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — máy cố ý không tự sửa.</div>`);
   for (const f of ooc.findings) {
     const rec = f.proposal === 'new-contract' ? 'Máy đề xuất: tách thành một việc riêng.'
       : f.proposal === 'known-limits' ? 'Máy đề xuất: ghi vào hạn chế đã biết rồi ship.'
       : 'Máy chưa đề xuất hướng nào.';
-    P.push(`<div class="item"><p class="q">${esc(f.title)}</p><p class="ai">${esc(rec)}</p><div class="btns"><button class="b bn">Ghi Known limits</button><button class="b bn">Mở hợp đồng mới</button><button class="b no">Nâng phạm vi, sửa ngay</button></div></div>`);
+    // In câu ngôn ngữ sản phẩm do bước triage viết. Thiếu nó thì nói thẳng là
+    // thiếu — TUYỆT ĐỐI không rơi về title kỹ thuật của reviewer, vì đó là thứ
+    // người quyết kinh doanh không đọc được (và judge sẽ chấm nhầm tài liệu).
+    const q = f.plain ? f.plain : '(chưa có mô tả cho người đọc — xem review-findings.md)';
+    P.push(`<div class="item"><p class="q">${esc(q)}</p><p class="ai">${esc(rec)}</p><div class="btns"><button class="b bn">ghi Known limits</button><button class="b bn">mở hợp đồng mới</button><button class="b no">nâng phạm vi sửa ngay</button></div></div>`);
   }
 }
 const yourCount = decisions.length + (oos.length ? 1 : 0);

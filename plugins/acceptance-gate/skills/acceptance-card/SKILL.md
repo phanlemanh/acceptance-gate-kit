@@ -47,7 +47,9 @@ Translate the extracted JSON without changing meaning:
   key for it** — `gate-card.js` reads `_acceptance/<slug>/review-findings.md` and
   renders the block itself, on the same rule as `gap_probe`: whatever must appear
   on the card is rendered by the script, so it cannot be forgotten or filled in
-  wrong. The three choice labels stay verbatim — (a) **ghi Known limits**: accept
+  wrong. The text shown is the `Người dùng thấy gì` line written by scope-triage —
+  the reviewer's technical title never reaches the person deciding. The three
+  choice labels stay verbatim — (a) **ghi Known limits**: accept
   it, record it under known limitations, ship as is; (b) **mở hợp đồng mới**:
   split it into its own piece of work with its own acceptance criteria;
   (c) **nâng phạm vi sửa ngay**: add criteria to the current contract and

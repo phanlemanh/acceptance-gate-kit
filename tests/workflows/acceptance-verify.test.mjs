@@ -687,4 +687,63 @@ console.log('WT-T12b (doi chung duong) file THAT SU ngoai glob van bi bat');
 // no KHONG duoc sua trong round; no di Cong 2 cho nguoi quyet. Khong co case o
 // day la co y, khong phai bo sot.
 
+// ── WT-T13: path tuyệt đối từ reviewer KHÔNG được bịa ra cờ cụm ───────────
+// Prompt reviewer mở đầu bằng "trong repo <abs path>" và FINDINGS_SCHEMA để file
+// là string trần, nên agent trả path tuyệt đối là hợp lệ. Không chuẩn hoá ở biên
+// thì MỌI finding rớt khỏi MỌI glob → cờ đỏ "dừng và quyết" ở mọi round.
+console.log('WT-T13 file duong dan TUYET DOI van tinh la trong vung phu');
+{
+  const a = { title: 'a', file: '/repo/src/a.ts', severity: 'low', detail: 'x' };
+  const b = { title: 'b', file: '/repo/src/b.ts', severity: 'low', detail: 'x' };
+  const { result } = await runWorkflow(WF, triArgs(), triResp({ findings: [a, b], triage: triAllOut([a, b]) }));
+  check('WT-T13 khong bia ra cum tu path tuyet doi', result.coverageCluster === null, JSON.stringify(result.coverageCluster));
+}
+
+console.log('WT-T13b (doi chung duong) path tuyet doi NGOAI vung phu van bi bat');
+{
+  const a = { title: 'a', file: '/repo/other/a.ts', severity: 'low', detail: 'x' };
+  const b = { title: 'b', file: '/repo/other/b.ts', severity: 'low', detail: 'x' };
+  const { result } = await runWorkflow(WF, triArgs(), triResp({ findings: [a, b], triage: triAllOut([a, b]) }));
+  check('WT-T13b van bat duoc cum that', !!result.coverageCluster && result.coverageCluster.count === 2, JSON.stringify(result.coverageCluster));
+  check('WT-T13b cum ghi path repo-relative', (result.coverageCluster.files || []).every(f => !f.startsWith('/')),
+    JSON.stringify(result.coverageCluster.files));
+}
+
+// ── WT-T14: triage trả THIẾU mục → fail-toward-human, không im lặng ───────
+console.log('WT-T14 triage bo sot mot finding -> triageFailed, khong ai REJECT');
+{
+  const other = { title: 'finding thu hai', file: 'src/b.ts', severity: 'high', detail: 'y' };
+  const { result } = await runWorkflow(WF, triArgs(), triResp({
+    findings: [F_HIGH, other],
+    triage: tri1(F_HIGH), // CHỈ phân loại 1 trong 2
+  }));
+  check('WT-T14 triageFailed true', result.triageFailed === true);
+  check('WT-T14 rejectFindings rong', (result.rejectFindings || []).length === 0,
+    JSON.stringify((result.rejectFindings || []).map(f => f.file)));
+  check('WT-T14 KHONG REJECT tu finding', result.verdict === 'PASS', result.verdict);
+}
+
+console.log('WT-T14b (doi chung duong) phan loai DU -> chay binh thuong');
+{
+  const other = { title: 'finding thu hai', file: 'src/b.ts', severity: 'low', detail: 'y' };
+  const { result } = await runWorkflow(WF, triArgs(), triResp({
+    findings: [F_HIGH, other],
+    triage: [...tri1(F_HIGH), ...triOut(other)],
+  }));
+  check('WT-T14b triageFailed false', result.triageFailed === false);
+  check('WT-T14b van REJECT dung', result.verdict === 'REJECT', result.verdict);
+}
+
+// ── WT-T15: câu ngôn ngữ sản phẩm (plain) là chữ đi tới thẻ ────────────────
+console.log('WT-T15 synthesize chi dan ghi truong plain cho ngan Ngoai hop dong');
+{
+  const { calls } = await runWorkflow(WF, triArgs(), triResp({
+    findings: [F_OUT],
+    triage: [{ title: F_OUT.title, file: F_OUT.file, inContract: false, acRef: '', rationale: 'ngoai', proposal: 'known-limits', plain: 'Người dùng có thể mất tiện ích khi bấm Cập nhật.' }],
+  }));
+  const sp = byLabel(calls, 'synthesize')[0].prompt;
+  check('WT-T15 chi dan doi dong "Người dùng thấy gì"', sp.includes('Người dùng thấy gì'));
+  check('WT-T15 payload mang truong plain', sp.includes('Người dùng có thể mất tiện ích khi bấm Cập nhật.'));
+}
+
 summary('acceptance-verify');

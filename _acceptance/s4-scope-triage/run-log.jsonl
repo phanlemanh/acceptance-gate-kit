@@ -12,3 +12,17 @@
 {"ts":"2026-07-27T12:49:06Z","round":1,"evalId":"E12","run_id":"minted-s4-scope-triage-E12-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-07-27T12:49:06Z","round":1,"evalId":"E14","run_id":"minted-s4-scope-triage-E14-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-07-27T12:49:06Z","round":1,"kind":"baseline","evals_hash":"c082aa59b47327fd83e4568103f6a11768bef8a707f255c0c8fa48a3bec3756e","non_discriminating":[{"cmd":"bash tests/workflows/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E7","E10","E13"]},{"cmd":"bash tests/plugins/run-tests.sh","evals":["E8","E9","E12","E14"]}]}
+{"ts":"2026-07-27T13:25:17Z","round":2,"evalId":"E1","run_id":"minted-s4-scope-triage-E1-r2","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-27T13:25:17Z","round":2,"evalId":"E2","run_id":"minted-s4-scope-triage-E2-r2","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-27T13:25:17Z","round":2,"evalId":"E3","run_id":"minted-s4-scope-triage-E3-r2","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-27T13:25:17Z","round":2,"evalId":"E4","run_id":"minted-s4-scope-triage-E4-r2","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-27T13:25:17Z","round":2,"evalId":"E5","run_id":"minted-s4-scope-triage-E5-r2","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-27T13:25:17Z","round":2,"evalId":"E6","run_id":"minted-s4-scope-triage-E6-r2","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-27T13:25:17Z","round":2,"evalId":"E7","run_id":"minted-s4-scope-triage-E7-r2","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-27T13:25:17Z","round":2,"evalId":"E10","run_id":"minted-s4-scope-triage-E10-r2","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-27T13:25:17Z","round":2,"evalId":"E13","run_id":"minted-s4-scope-triage-E13-r2","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-27T13:25:17Z","round":2,"evalId":"E8","run_id":"minted-s4-scope-triage-E8-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-27T13:25:17Z","round":2,"evalId":"E9","run_id":"minted-s4-scope-triage-E9-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-27T13:25:17Z","round":2,"evalId":"E12","run_id":"minted-s4-scope-triage-E12-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-27T13:25:17Z","round":2,"evalId":"E14","run_id":"minted-s4-scope-triage-E14-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-27T13:25:17Z","round":2,"kind":"baseline","evals_hash":"c082aa59b47327fd83e4568103f6a11768bef8a707f255c0c8fa48a3bec3756e","non_discriminating":[],"carried_from_round":1}
