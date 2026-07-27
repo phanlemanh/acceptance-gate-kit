@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: t1-escape-event-scope
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: c09533b66ebffd2d4d6a5c40b53136329e69e6a7
-human_signoff:
+human_signoff: Manh Phan 2026-07-27
 ---
 
 # Evidence Report: t1-escape-event-scope
@@ -191,7 +191,7 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
     - domain-correctness: PASS (r8)
     - operational-feasibility: PASS (r8)
     - spec-alignment: PASS (r8)
-  human_override:
+  human_override: Manh Phan 2026-07-27
   # T3 contract: human_override is MANDATORY on this judgment item regardless
   # of the panel's PASS proposal. Gate 2 human must personally verify and fill
   # "<name> <date>" before this report can be upgraded to PASS. This round's
