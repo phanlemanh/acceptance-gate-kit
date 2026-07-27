@@ -1,15 +1,15 @@
 ---
 schema_version: 2
 feature_slug: premerge-rules-ledger
-verdict: PASS
+verdict: PENDING-JUDGMENT
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 59ee5a7ac1ae75fc15d66f109c2c75c4a9514a5d
+verified_commit: 2ef12850c9c83be5762959ad269e2aaadec2f52c
 # bypass_ack:
-human_signoff: Manh Phan 2026-07-27
+human_signoff:
 ---
 
 # Evidence Report: premerge-rules-ledger
@@ -31,10 +31,11 @@ human_signoff: Manh Phan 2026-07-27
 | E13 | AC-12 | test | PASS |
 
 Regression-guard suites (unmapped this round — `evals: []`, run as a sanity
-check alongside the mapped run above, not re-attributed to any eval):
-`bash tests/hooks/run-tests.sh` (51 passed, 0 failed, incl. `PASS: T42`),
-`bash tests/plugins/run-tests.sh` (all plugin tests passed, incl. `PASS: P50
-argv thừa exit 2 + nêu tên tham số; mode đơn vẫn xanh`), `bash
+check alongside the carried-forward evidence below, not re-attributed to any
+eval): `bash tests/scripts/run-tests.sh` (497 passed, 0 failed, incl. `PASS:
+RL10d`), `bash tests/hooks/run-tests.sh` (51 passed, 0 failed, incl. `PASS:
+T42`), `bash tests/plugins/run-tests.sh` (all plugin tests passed, incl.
+`PASS: P50 argv thừa exit 2 + nêu tên tham số; mode đơn vẫn xanh`), `bash
 scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
 
 ## Evidence
@@ -46,12 +47,8 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
   baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
-  output: |
-    EXIT_CODE=0
-
-    All tests passed. Recent test results show completion of RL13
-    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
-    generation) test suites with all PASS status.
+  carried_from_round: 9
+  note: carry-forward tu round 9 — delta khong cham paths cua eval.
 
 - eval: E2
   criterion: AC-2
@@ -60,12 +57,8 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
   baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
-  output: |
-    EXIT_CODE=0
-
-    All tests passed. Recent test results show completion of RL13
-    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
-    generation) test suites with all PASS status.
+  carried_from_round: 9
+  note: carry-forward tu round 9 — delta khong cham paths cua eval.
 
 - eval: E3
   criterion: AC-3
@@ -74,12 +67,8 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
   baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
-  output: |
-    EXIT_CODE=0
-
-    All tests passed. Recent test results show completion of RL13
-    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
-    generation) test suites with all PASS status.
+  carried_from_round: 9
+  note: carry-forward tu round 9 — delta khong cham paths cua eval.
 
 - eval: E4
   criterion: AC-4
@@ -88,12 +77,8 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
   baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
-  output: |
-    EXIT_CODE=0
-
-    All tests passed. Recent test results show completion of RL13
-    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
-    generation) test suites with all PASS status.
+  carried_from_round: 9
+  note: carry-forward tu round 9 — delta khong cham paths cua eval.
 
 - eval: E5
   criterion: AC-5
@@ -102,12 +87,8 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
   baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
-  output: |
-    EXIT_CODE=0
-
-    All tests passed. Recent test results show completion of RL13
-    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
-    generation) test suites with all PASS status.
+  carried_from_round: 9
+  note: carry-forward tu round 9 — delta khong cham paths cua eval.
 
 - eval: E6
   criterion: AC-6
@@ -116,12 +97,8 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
   baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
-  output: |
-    EXIT_CODE=0
-
-    All tests passed. Recent test results show completion of RL13
-    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
-    generation) test suites with all PASS status.
+  carried_from_round: 9
+  note: carry-forward tu round 9 — delta khong cham paths cua eval.
 
 - eval: E7
   criterion: AC-7
@@ -130,12 +107,8 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
   baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
-  output: |
-    EXIT_CODE=0
-
-    All tests passed. Recent test results show completion of RL13
-    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
-    generation) test suites with all PASS status.
+  carried_from_round: 9
+  note: carry-forward tu round 9 — delta khong cham paths cua eval.
 
 - eval: E8
   criterion: AC-8
@@ -144,12 +117,8 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
   baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
-  output: |
-    EXIT_CODE=0
-
-    All tests passed. Recent test results show completion of RL13
-    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
-    generation) test suites with all PASS status.
+  carried_from_round: 9
+  note: carry-forward tu round 9 — delta khong cham paths cua eval.
 
 - eval: E9
   criterion: AC-9
@@ -158,12 +127,8 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
   baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
-  output: |
-    EXIT_CODE=0
-
-    All tests passed. Recent test results show completion of RL13
-    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
-    generation) test suites with all PASS status.
+  carried_from_round: 9
+  note: carry-forward tu round 9 — delta khong cham paths cua eval.
 
 - eval: E10
   criterion: AC-10
@@ -178,10 +143,12 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
     - domain-correctness: PASS (r4)
     - operational-feasibility: PASS (r4)
     - spec-alignment: PASS (r4)
-  human_override: Manh Phan 2026-07-27
+  human_override:
   # T3 contract: human_override is MANDATORY on this judgment item regardless
   # of the panel's PASS proposal. Gate 2 human must personally verify and fill
-  # "<name> <date>" before this report can be upgraded to PASS.
+  # "<name> <date>" before this report can be upgraded to PASS. This round's
+  # write is fresh (round 10) — a new round always requires its own Gate 2
+  # signoff, so this line is blank pending human review.
 
 - eval: E11
   criterion: AC-10
@@ -190,12 +157,8 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
   baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
-  output: |
-    EXIT_CODE=0
-
-    All tests passed. Recent test results show completion of RL13
-    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
-    generation) test suites with all PASS status.
+  carried_from_round: 9
+  note: carry-forward tu round 9 — delta khong cham paths cua eval.
 
 - eval: E12
   criterion: AC-11
@@ -204,12 +167,8 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
   baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
-  output: |
-    EXIT_CODE=0
-
-    All tests passed. Recent test results show completion of RL13
-    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
-    generation) test suites with all PASS status.
+  carried_from_round: 9
+  note: carry-forward tu round 9 — delta khong cham paths cua eval.
 
 - eval: E13
   criterion: AC-12
@@ -218,12 +177,8 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
   baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
-  output: |
-    EXIT_CODE=0
-
-    All tests passed. Recent test results show completion of RL13
-    (gap-probe advisory), RL12 (node vắng advisory), and RL10 (ledger
-    generation) test suites with all PASS status.
+  carried_from_round: 9
+  note: carry-forward tu round 9 — delta khong cham paths cua eval.
 
 ## Analyst
 
@@ -442,6 +397,46 @@ this round's write is still pending (`human_override:` blank), so the
 report is PENDING-JUDGMENT again for this fresh round — a new round always
 requires its own Gate 2 signoff. Verified commit this round:
 `59ee5a7ac1ae75fc15d66f109c2c75c4a9514a5d`.
+
+Round 10: No source paths touched by this round's diff intersect any of the
+13 evals' inputs (P1 delta-staleness), so E1-E9/E11-E13 are all carried
+forward from round 9 unchanged — `run_id`/`verified_at` copied verbatim from
+the round-9 run-log entries, no re-attribution — and the E10 judgment panel
+remains carried from round 4 (inputs_hash unchanged:
+`93581f38...66646b27879`), not re-chấm. As a sanity check (not eval-mapped —
+`evals: []` on every command this round) the full suite was re-run fresh
+anyway: `tests/scripts/run-tests.sh` 497 passed / 0 failed (incl. `PASS:
+RL10d` — case count vs round 9 reflects intervening test additions from
+unrelated feature work on the shared tree, not a coverage loss),
+`tests/hooks/run-tests.sh` 51 passed / 0 failed (incl. `PASS: T42`),
+`tests/plugins/run-tests.sh` all plugin tests passed (incl. `PASS: P50 argv
+thừa exit 2 + nêu tên tham số; mode đơn vẫn xanh`),
+`scripts/sync-plugin-packages.sh --check` reports `plugins/ mirror in
+sync.` — all four green, confirming no regression entered between round 9's
+verified commit and this round's (`59ee5a7ac1a` → `2ef12850c9c`). Baseline
+was again NOT re-measured this round (P2 — evals.yaml still unchanged since
+the last baseline run); every carried machine eval's `baseline:` field
+carries `n-a` accordingly, and `## Analyst` continues to carry forward round
+1's finding. The T3 mandatory human verdict for this round's write is still
+pending (`human_override:` blank), so the report is PENDING-JUDGMENT again
+for this fresh round — a new round always requires its own Gate 2 signoff,
+even though round 9 was previously signed off (see git `853b74b`/`f93d686`
+for unrelated features' signoffs landing on the shared tree between rounds).
+A fresh adversarial-review pass this round (see `review-findings.md`, round
+10) surfaced 2 new findings (both LOW) — (1) the 1.22.1 plugin descriptions
+across all three package manifests promise `sync-plugin-packages.sh`
+argv-hardening that is explicitly excluded from every shipped package
+(`scripts/sync-plugin-packages.sh:44`), the same
+description-vs-shipped-surface mismatch class P49 was added to police, but a
+variant P49 does not catch; (2) the hook's `enforcement` regex accepts a
+multiline YAML value (`enforcement:\n  off`) via JS `/m` semantics while
+`pre-merge-check.sh`'s line-based grep does not, an uncovered variant of the
+RL11c parity table — confirmed benign/fail-closed by repro (the ledger can
+only stay erroneously ON, never silently OFF, under this divergence), so it
+is not a merge-blocking gap. Neither finding flips a machine eval's exit
+code, so neither changes this report's verdict, but Gate 2 should read both
+before signing off. Verified commit this round:
+`2ef12850c9c83be5762959ad269e2aaadec2f52c`.
 
 ## Gate 2 checklist (human)
 
