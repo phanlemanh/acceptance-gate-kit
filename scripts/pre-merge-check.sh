@@ -152,7 +152,25 @@ ledger_count() { # <tên> — số lần tên xuất hiện trong sổ. Thuần 
 GP_LIB="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)/lib/gap-probe.js"
 
 ACC="$ROOT/_acceptance"
-[ -d "$ACC" ] || { echo "pre-merge-check: no _acceptance/ — nothing to check"; exit 0; }
+if [ ! -d "$ACC" ]; then
+  # Có --slug nghĩa là operator KHAI một bộ lọc — không có gì để lọc thì phải
+  # nổ, không phải "nothing to check" xanh (cùng lớp bộ-lọc-khai-mà-rỗng dưới).
+  if [ ${#SLUGS[@]} -gt 0 ]; then
+    echo "pre-merge-check: --slug given but no _acceptance/ under $ROOT — a declared filter with nothing to filter must not green the gate" >&2
+    exit 2
+  fi
+  echo "pre-merge-check: no _acceptance/ — nothing to check"; exit 0
+fi
+# Bộ lọc --slug khai một tên KHÔNG khớp thư mục nào = cùng hình dạng với giá
+# trị rỗng (chip 33ca1add) mà round 9 chỉ ra tôi quét sót: vòng per-slug bỏ qua
+# mọi thư mục, không luật nào soi feature nào, sổ vẫn ghi `ran per-slug` (đếm
+# thư mục TRƯỚC bộ lọc) và script in `clean` — một slug gõ sai trong CI làm
+# cổng xanh vĩnh viễn. Lọc theo tên thư mục nên kiểm tra tương đương là -d.
+if [ ${#SLUGS[@]} -gt 0 ]; then
+  for _s in "${SLUGS[@]}"; do
+    [ -d "$ACC/$_s" ] || { echo "pre-merge-check: --slug $_s matches no directory under _acceptance/ (typo? a declared filter that matches nothing must not green the gate)" >&2; exit 2; }
+  done
+fi
 
 # Which tiers need a signed report before merge — from consumer config when
 # present (signoff.required_for), defaulting to T2+T3.
@@ -340,7 +358,14 @@ DIFF_SKIP_NOTE=""
 if [ -z "$BASE" ]; then
   DIFF_SKIP_NOTE="no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base \"origin/\$GITHUB_BASE_REF\")"
 elif ! command -v git >/dev/null 2>&1 || ! git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
-  DIFF_SKIP_NOTE="$ROOT is not a git repo here"
+  # Tới nhánh này là base ĐÃ KHAI (nhánh -z ở trên bắt trường hợp không khai)
+  # mà git không dùng được — không phải git repo, hoặc rev-parse bị chặn (CI
+  # container hay gặp safe.directory). Bản cũ hạ về DIFF_SKIP_NOTE: gap-probe
+  # lẫn T1-escape cùng declared-off và repo sạch thoát 0, ngược cả câu README
+  # 'base đã khai mà không resolve được là exit 2 ở MỌI repo' (round 9 bắt).
+  # Cùng doctrine với nhánh ref-không-resolve ngay dưới: đã khai thì mù là nổ.
+  echo "VIOLATION [scope]: base \"$BASE\" đã khai nhưng git không dùng được trên $ROOT (không phải git repo, hoặc rev-parse bị chặn — CI container kiểm safe.directory). Phạm vi diff KHÔNG xác định được mà bạn đã yêu cầu nó; sửa môi trường git, hoặc bỏ hẳn --base nếu thật sự muốn chạy không phạm vi."
+  exit 2
 else
   BASE_SHA="$(git -C "$ROOT" rev-parse --quiet --verify "$BASE^{commit}" 2>/dev/null || true)"
   [ -z "$BASE_SHA" ] && BASE_SHA="$(git -C "$ROOT" rev-parse --quiet --verify "origin/$BASE^{commit}" 2>/dev/null || true)"

@@ -2484,6 +2484,34 @@ hasout RL14d2 "pre-merge-check: clean" "$RL14D"
 RL14E="$(bash "$CHECK" "$TE_R" --base khong-co-ref-nay 2>/dev/null)"; check RL14e 2 $?
 hasout RL14e2 "VIOLATION [scope]" "$RL14E"
 
+# ── RL15: bo loc/pham vi KHAI ma khong dung duoc -> no to (round 9, cung lop)
+echo "RL15 bo loc --slug go sai va base-khai-tren-root-khong-git -> exit 2"
+rl_repo rl15
+# doi chung duong: --slug DUNG (feat-rl co that trong fixture) van chay tron
+RL15OK="$(bash "$CHECK" "$TE_R" --base "$TE_B" --slug feat-rl 2>&1)"; check RL15ctrl 0 $?
+hasout RL15ctrl2 "pre-merge-check: clean" "$RL15OK"
+# a) --slug go sai (khong rong, khong khop thu muc nao) — tung loc sach moi
+# slug roi in clean
+RL15A="$(bash "$CHECK" "$TE_R" --base "$TE_B" --slug feat-khong-ton-tai 2>&1)"; check RL15a 2 $?
+hasout RL15a2 "matches no directory under _acceptance/" "$RL15A"
+nothas RL15a3 "pre-merge-check: clean" "$RL15A"
+# b) --slug + root khong co _acceptance/ — khai bo loc ma khong co gi de loc
+RL15BD="$T/rl15b-root"; rm -rf "$RL15BD"; mkdir -p "$RL15BD"
+RL15B="$(bash "$CHECK" "$RL15BD" --slug feat-x 2>&1)"; check RL15b 2 $?
+hasout RL15b2 "no _acceptance/ under" "$RL15B"
+# doi chung: KHONG --slug thi van la nothing-to-check exit 0 nhu cu (RL6 giu)
+RL15BOK="$(bash "$CHECK" "$RL15BD" 2>&1)"; check RL15bctrl 0 $?
+hasout RL15bctrl2 "nothing to check" "$RL15BOK"
+# c) base DA KHAI nhung root khong phai git repo — tung ha ve skip+declared-off
+RL15CD="$T/rl15c-root"; rm -rf "$RL15CD"; mkdir -p "$RL15CD/_acceptance"
+printf 'schema_version: 1\n' > "$RL15CD/_acceptance/config.yaml"
+RL15C="$(bash "$CHECK" "$RL15CD" --base main 2>&1)"; check RL15c 2 $?
+hasout RL15c2 "git không dùng được trên" "$RL15C"
+nothas RL15c3 "pre-merge-check: clean" "$RL15C"
+# doi chung: cung root khong-git, KHONG khai base -> van chay va exit 0 nhu cu
+# (cac fixture S-case khong-git song nho duong nay — khong duoc pha)
+RL15COK="$(bash "$CHECK" "$RL15CD" 2>&1)"; check RL15cctrl 0 $?
+
 echo "RL6 dem loi thoat exit 0 bang may — DUNG HAI loi (AC-6)"
 RL6N="$(grep -vE '^[[:space:]]*#' "$CHECK" | grep -c 'exit 0')"
 same RL6a 2 "$RL6N"

@@ -1,4 +1,4 @@
-# Review Findings: t1-escape-event-scope (round 8)
+# Review Findings: t1-escape-event-scope (round 9)
 
 Informational — outside the evidence-report.md hook contract. Findings below
 have been adversarial-verified (refuter pass survived) unless listed under
@@ -8,54 +8,50 @@ Review incomplete (finder chết — cảnh báo): none this round.
 
 ---
 
-## 1. [medium] `--base` với giá trị RỖNG suy biến thành "không có base" thay vì fail-closed VIOLATION [scope]
+## 1. [medium] `--slug` với slug KHÔNG TỒN TẠI lọc sạch mọi thư mục và báo "clean" — cùng LỚP với `--base ""` round 8
 
-- **file:** `scripts/pre-merge-check.sh:70`
-- **source:** conventions
+- **file:** `scripts/pre-merge-check.sh:410`
+- **source:** bugs
 
-Diff này bịt lỗ `--base` thiếu giá trị theo hai hướng: chốt giá trị bắt đầu
-bằng `-*` ở dòng 70 ("Chốt -* ở trên chỉ phủ positional, không phủ GIÁ
-TRỊ"), và fail-closed exit 2 khi base đã khai mà không resolve được (dòng
-318-323, "Base ĐƯỢC KHAI mà không resolve != không khai base"). Nhưng
-`--base` với giá trị RỖNG được truyền tường minh — `--base ""`, hình dạng CI
-kinh điển `--base "$SOME_VAR"` khi biến chưa set — đi qua lọt cả hai chốt
-này rồi rơi vào `[ -z "$BASE" ]` ở dòng 311, route thẳng vào nhánh "no PR
-base given" (skip): cả t1-escape lẫn gap-probe đều declared-off, repo sạch
-exit 0.
+Diff round 8 (chip 33ca1add) đã bịt lỗ `--slug` với giá trị RỖNG: giá trị
+rỗng nay exit 2 ("khai-loc-rong phai no to" — một filter đã khai mà không
+khớp gì thì không được coi là sạch). Nhưng một `--slug` KHÔNG RỖNG bị gõ sai
+(typo, hoặc feature đã đổi tên) mang đúng hình dạng lỗi này mà vẫn
+fail-open: filter theo slug ở vòng lặp per-slug (dòng 410-413) bỏ qua MỌI
+thư mục, không luật nào từng soi một feature nào, sổ ledger vẫn đánh dấu "đã
+chạy per-slug" (`SLUG_SEEN==SLUG_EXPECTED_N` đếm số thư mục TRƯỚC khi bị
+filter loại hết), và script in ra `pre-merge-check: clean` exit 0.
 
-Đã verify bằng repro trực tiếp: `pre-merge-check.sh . --base ""` in ra
-"NOTE: T1-escape backstop skipped — no PR base given" + "declared-off
-t1-escape" + "declared-off gap-probe", không có VIOLATION [scope]. Theo
-đúng doctrine của chính diff này, operator ĐÃ khai một base ở đây — nên đây
-cùng LỚP lỗi mà commit round-1/round-2 từng bị phê bình ("vá case có tên,
-không vá LỚP"). Bị giảm nhẹ (không âm thầm): các dòng ledger + NOTE có
-thông báo trạng thái off, và `gate.yml` của chính kit này grep "backstop
-skipped" nên sẽ bắt được trong repo kit — nhưng repo tiêu thụ chỉ theo đúng
-snippet trong GUIDE sẽ merge xanh. Lỗi giống hệt tồn tại ở bản mirror
-`plugins/acceptance-gate/scripts/pre-merge-check.sh`. Hướng sửa: coi giá
-trị `--base` rỗng (và `PRE_MERGE_BASE` rỗng khi được set tường minh) là
-exit 2 giống case `-*`.
+Đã verify bằng repro trực tiếp: một repo mà slug duy nhất của nó CHƯA có
+Gate 1 ghi nhận thì exit 1 khi KHÔNG có filter; nhưng cùng repo đó exit 0
+"clean" khi thêm `--slug feat-KHONG-TON-TAI`. Một slug gõ sai trong công
+thức CI sẽ khiến gate xanh vĩnh viễn — đúng LỚP mà bản sửa giá trị-rỗng vừa
+được biện minh để chặn (và đúng bài học "vá case có tên, không vá LỚP" mà
+CLAUDE.md ghi lại). Hướng sửa rẻ: sau vòng lặp, báo lỗi (hoặc ít nhất
+VIOLATION) khi một giá trị `--slug` không khớp thư mục nào. Cùng đoạn code
+tồn tại y hệt ở bản mirror `plugins/acceptance-gate/scripts/pre-merge-check.sh`.
 
 ---
 
-## 2. [low] RL5b kết luận từ exit 2 mà không ghim thông điệp mong đợi (cùng lớp CLAUDE.md invariant 4)
+## 2. [low] `--base` đã khai trên root mà git không dùng được vẫn skip âm thầm, mâu thuẫn với claim README của chính diff
 
-- **file:** `tests/scripts/run-tests.sh:2444`
-- **source:** conventions
+- **file:** `scripts/pre-merge-check.sh:342`
+- **source:** bugs
 
-RL5b chạy `bash "$CHECK" "$TE_R" --tuy-chon-la`, assert exit 2 (check
-RL5b1) cộng một assertion âm-tính-một-mình (nothas RL5b2
-`'pre-merge-check: rules ran='`). Case này không bao giờ ghim thông điệp
-mong đợi `unknown option --tuy-chon-la`, nên không phân biệt được "chốt
-unknown-flag bắn đúng chỗ parse" với bất kỳ đường exit-2 nào khác (ví dụ
-"root not a directory" nếu `$TE_R` — kế thừa từ case rl_repo rl7 trước đó
-— từng sai). Đây đúng lớp assertion mà CLAUDE.md invariant 4 yêu cầu sửa
-theo LỚP, và comment `TE18i2` trong cùng file ghi lại rằng một case anh em
-thiếu chốt này đã bị bắt ở review round 7 — RL5b là case còn sót lại cuối
-cùng của hình dạng này trong khối mới. Sửa chỉ một dòng: `hasout RL5bmsg
-'unknown option --tuy-chon-la' "$RL5B"`. Lưu ý RL5b dùng script thật (không
-phải bản fixture copy), nên rủi ro tồn dư nhỏ — vì vậy low, không phải
-medium.
+Diff biến "base đã khai mà không resolve được" thành VIOLATION [scope] +
+exit 2, và README được cập nhật ghi: "Từ acceptance-gate 1.22.0, base ĐÃ
+KHAI mà không resolve được là VIOLATION [scope] + exit 2 ở MỌI repo", nhánh
+skip chỉ còn giữ lại cho "không truyền base hoặc không có merge-base". Nhưng
+khi `--base` ĐƯỢC khai và nhánh `elif` ở dòng 342 khớp (`$ROOT` không phải
+git repo tại đây — root không phải git, hoặc `git rev-parse` lỗi, ví dụ
+`safe.directory` từ chối quyền sở hữu trong container CI), lượt chạy vẫn
+suy biến về `DIFF_SKIP_NOTE`: gap-probe lẫn T1-escape đều declared-off, repo
+sạch exit 0 (đã verify: có dòng NOTE + declared-off, không có exit 2).
+Nhánh này không thuộc một trong hai case skip còn lại đã được tài liệu hóa,
+nên hoặc code nên coi declared-base + không-có-git là exit 2 giống nhánh
+anh em (ref không resolve được), hoặc claim README/GUIDE "ở MỌI repo" là
+sai. Hình dạng lỗi `safe.directory` khiến đây là một fail-open âm thầm có
+thật trong CI, không chỉ là một nit về tài liệu.
 
 ---
 
