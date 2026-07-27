@@ -2474,6 +2474,15 @@ hasout RL14bctrl2 "no PR base given" "$RL14BOK"
 # bi bo qua ma van clean; khai-loc-rong phai no to
 RL14C="$(bash "$CHECK" "$TE_R" --base "$TE_B" --slug "" 2>&1)"; check RL14c 2 $?
 hasout RL14c2 '--slug requires a value (got empty string' "$RL14C"
+# d) env rong NHUNG co --base tuong minh -> co override env theo convention
+# chung, KHONG do oan (S4 round 8: ban dau no truoc vong parse, den ca lenh
+# co ref that cung exit 2 kem goi y sua tro sai cho)
+RL14D="$(PRE_MERGE_BASE="" bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"; check RL14d 0 $?
+hasout RL14d2 "pre-merge-check: clean" "$RL14D"
+# e) VIOLATION [scope] phai ra STDOUT nhu moi dong VIOLATION khac — CI chi grep
+# stdout khong duoc nhan exit 2 tran khong ly do
+RL14E="$(bash "$CHECK" "$TE_R" --base khong-co-ref-nay 2>/dev/null)"; check RL14e 2 $?
+hasout RL14e2 "VIOLATION [scope]" "$RL14E"
 
 echo "RL6 dem loi thoat exit 0 bang may — DUNG HAI loi (AC-6)"
 RL6N="$(grep -vE '^[[:space:]]*#' "$CHECK" | grep -c 'exit 0')"

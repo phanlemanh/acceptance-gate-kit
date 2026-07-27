@@ -15,6 +15,12 @@ case "$MODE" in
   ""|--check|--write) : ;;
   *) echo "sync-plugin-packages: unknown option $MODE (dùng --check | --write | không tham số)" >&2; exit 2 ;;
 esac
+# Cùng lớp fail-open, cửa thứ hai: chốt trên chỉ soi $1 nên `--write --check`
+# âm thầm bỏ tham số sau và chạy đường GHI — xoá luôn drift đang cần bắt rồi
+# báo thành công. Một lỗi THỨ TỰ tham số không được đổi nghĩa lệnh (S4 round 8
+# gap-probe bắt được kèm repro; cùng doctrine với chốt positional-thứ-hai của
+# pre-merge-check.sh).
+[ $# -le 1 ] || { echo "sync-plugin-packages: unexpected argument $2 — chỉ nhận MỘT mode (--check | --write | không tham số)" >&2; exit 2; }
 if [ "$MODE" = "--check" ]; then
   DEST="$(mktemp -d)"
   trap 'rm -rf "$DEST"' EXIT

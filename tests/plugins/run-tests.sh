@@ -811,6 +811,25 @@ for rel in sorted(NATIVE | {".codex-plugin/plugin.json"}):
         assert claude_only not in d, f"{rel}: quang cao be mat chi-co-Claude {claude_only!r}"
 PY
 
+# ── P50: sync khong nhan THUA argv — thu tu tham so go nham khong doi nghia ─
+# `--write --check` tung chay duong GHI (chi $1 duoc soi): xoa drift dang can
+# bat roi bao thanh cong — cung lop fail-open voi P46, cua thu hai. Chot argv
+# no TRUOC moi hanh dong nen chay truc tiep tren script that la an toan.
+echo "P50 sync tu choi argv thua, khong am tham chay mode dau"
+P50A="$(bash "$ROOT/scripts/sync-plugin-packages.sh" --write --check 2>&1)"; P50AST=$?
+P50B="$(bash "$ROOT/scripts/sync-plugin-packages.sh" --check --write 2>&1)"; P50BST=$?
+if [ "$P50AST" -eq 2 ] && printf '%s' "$P50A" | grep -q 'unexpected argument --check' \
+   && [ "$P50BST" -eq 2 ] && printf '%s' "$P50B" | grep -q 'unexpected argument --write'; then
+  # doi chung duong: mot mode don van chay binh thuong
+  if bash "$ROOT/scripts/sync-plugin-packages.sh" --check >/dev/null 2>&1; then
+    pass "P50 argv thua exit 2 + neu ten tham so; mode don van xanh"
+  else
+    fail "P50 doi chung duong that bai — --check don le do (mirror drift?)"
+  fi
+else
+  fail "P50 argv thua khong bi chan (a=$P50AST b=$P50BST)"
+fi
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

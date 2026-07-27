@@ -55,10 +55,13 @@ SLUGS=()
 # hiệu hợp lệ (NOTE + declared-off), còn set-rỗng nghĩa là CI ĐÃ nối dây phạm
 # vi mà dây đứt (biến chưa có giá trị, command substitution chết im). Rơi về
 # nhánh skip là khai-rồi-mà-như-không-khai — cùng lớp với --base thiếu giá trị.
-if [ "${PRE_MERGE_BASE+x}" = "x" ] && [ -z "$PRE_MERGE_BASE" ]; then
-  echo "pre-merge-check: PRE_MERGE_BASE is set but empty — a CI variable expansion failed (unset it to run without a diff scope, or give it a real ref)" >&2
-  exit 2
-fi
+# CHỈ ghi CỜ ở đây, phán SAU vòng parse: cờ --base tường minh override env theo
+# convention chung, nên env-rỗng chỉ đáng nổ khi giá trị rỗng đó THẬT SỰ được
+# dùng (không có --base) — bản đầu nổ trước vòng parse làm
+# `PRE_MERGE_BASE="" ... --base <ref thật>` đỏ oan kèm gợi ý sửa trỏ sai chỗ
+# (S4 round 8 của gap-probe bắt được, kèm repro).
+PMB_SET_EMPTY=0
+[ "${PRE_MERGE_BASE+x}" = "x" ] && [ -z "$PRE_MERGE_BASE" ] && PMB_SET_EMPTY=1
 BASE="${PRE_MERGE_BASE:-}"
 # Răng T1-escape bật mặc định. Opt-OUT chứ không phải opt-in `--pr`: acceptance-init
 # đang dạy consumer truyền đúng `--base`, nên opt-in sẽ làm răng tắt IM LẶNG trên
@@ -106,6 +109,13 @@ while [ $# -gt 0 ]; do
       ROOT="$1"; ROOT_SET=1; shift ;;
   esac
 done
+
+# Phán quyết env-rỗng (cờ ghi ở đầu file): tới đây BASE còn rỗng nghĩa là không
+# có --base nào override — giá trị đứt dây của CI sắp được DÙNG thật, nổ to.
+if [ "$PMB_SET_EMPTY" -eq 1 ] && [ -z "$BASE" ]; then
+  echo "pre-merge-check: PRE_MERGE_BASE is set but empty — a CI variable expansion failed (unset it to run without a diff scope, or give a real ref via PRE_MERGE_BASE or --base)" >&2
+  exit 2
+fi
 
 # ─── Sổ luật-đã-chạy (rules ledger) ─────────────────────────────────────────
 # `clean` phải được CHỨNG MINH, không phải mặc định: mọi khối luật ghi sổ qua
@@ -338,7 +348,9 @@ else
     # KHÁC với "không truyền base": ở đây người vận hành ĐÃ yêu cầu một phạm vi
     # mà máy không tính được (ref gõ sai, nhánh đã xoá, clone shallow). Hạ về
     # bỏ-qua-rồi-clean là fail-open — cùng doctrine ADR 0004.
-    echo "VIOLATION [scope]: base \"$BASE\" không resolve được trong clone này — phạm vi diff KHÔNG xác định được, mà bạn đã yêu cầu nó. Sửa ref (CI: fetch-depth: 0 + đúng base_ref), hoặc bỏ hẳn --base nếu thật sự muốn chạy không phạm vi." >&2
+    # stdout như MỌI dòng VIOLATION khác (config/gap-probe/PR/ledger/per-slug)
+    # — bản đầu >&2 làm CI nào chỉ grep stdout nhận exit 2 trần không lý do.
+    echo "VIOLATION [scope]: base \"$BASE\" không resolve được trong clone này — phạm vi diff KHÔNG xác định được, mà bạn đã yêu cầu nó. Sửa ref (CI: fetch-depth: 0 + đúng base_ref), hoặc bỏ hẳn --base nếu thật sự muốn chạy không phạm vi."
     exit 2
   else
     # `rev-parse --verify` mới chỉ chứng minh OBJECT tồn tại. `git diff A...HEAD`
