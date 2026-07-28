@@ -89,3 +89,44 @@
 - **claude-haiku-4-5-20251001**: 5 agent · 15 calls · out 7,144 · in 130 · cache_read 603,805 · cache_create 287,626
 - **claude-sonnet-5**: 3 agent · 22 calls · out 6,288 · in 12,775 · cache_read 1,995,292 · cache_create 340,980
 
+### S4 round 11 (staleness re-verify; 1 refuter chet vi API) — wf_75c7032d-47b (31 agent, 201,578 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| review:conventions | claude-opus-5 | 32 | 29,319 | 61 | 4,456,362 | 547 |
+| review:bugs | claude-opus-5 | 41 | 22,651 | 78 | 5,834,783 | 671 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 28 | 18,615 | 56 | 2,932,380 | 336 |
+| refute:SKILL.md | claude-sonnet-5 | 12 | 15,745 | 24 | 1,056,175 | 227 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 23 | 10,924 | 46 | 1,751,232 | 222 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 13 | 9,917 | 26 | 1,157,576 | 195 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 14 | 8,377 | 28 | 1,183,263 | 166 |
+| refute:gate-card.js | claude-sonnet-5 | 22 | 8,372 | 44 | 2,008,804 | 199 |
+| refute:SKILL.md | claude-sonnet-5 | 12 | 7,273 | 24 | 954,454 | 146 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 12 | 7,234 | 24 | 997,195 | 153 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 18 | 6,294 | 242 | 1,574,641 | 170 |
+| refute:SKILL.md | claude-sonnet-5 | 15 | 6,193 | 121 | 1,336,449 | 141 |
+| synthesize:report | claude-sonnet-5 | 8 | 5,883 | 3,160 | 764,596 | 376 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 9 | 5,260 | 18 | 777,529 | 99 |
+| refute:gate-card.js | claude-sonnet-5 | 11 | 5,252 | 22 | 849,231 | 113 |
+| refute:gate-card.js | claude-sonnet-5 | 11 | 4,685 | 22 | 845,376 | 134 |
+| refute:out-of-contract.js | claude-sonnet-5 | 11 | 4,582 | 22 | 887,343 | 92 |
+| refute:out-of-contract.js | claude-sonnet-5 | 15 | 4,474 | 30 | 1,185,600 | 111 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 10 | 3,977 | 20 | 738,539 | 144 |
+| refute:SKILL.md | claude-sonnet-5 | 8 | 3,897 | 16 | 580,080 | 82 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 12 | 2,769 | 24 | 1,047,977 | 157 |
+| refute:gate-card.js | claude-sonnet-5 | 11 | 2,506 | 22 | 823,024 | 92 |
+| refute:GUIDE.md | claude-sonnet-5 | 12 | 2,090 | 24 | 930,145 | 80 |
+| baseline:diffBase | claude-sonnet-5 | 7 | 1,152 | 14 | 435,848 | 98 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 7 | 1,026 | 58 | 321,932 | 120 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 803 | 18 | 47,428 | 17 |
+| capture:provenance | claude-sonnet-5 | 2 | 746 | 4 | 67,884 | 12 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 732 | 18 | 47,428 | 13 |
+| machine:bash scripts/sync-plugin-packages.sh --c | claude-haiku-4-5-20251001 | 2 | 497 | 18 | 64,811 | 12 |
+| machine:bash tests/plugins/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 333 | 18 | 47,428 | 48 |
+| refute:acceptance-verify.js | <synthetic> | 1 | 0 | 0 | 0 | 144 |
+
+- **claude-opus-5**: 2 agent · 73 calls · out 51,970 · in 139 · cache_read 10,291,145 · cache_create 403,636
+- **claude-sonnet-5**: 23 agent · 296 calls · out 146,217 · in 4,033 · cache_read 24,885,341 · cache_create 2,087,756
+- **claude-haiku-4-5-20251001**: 5 agent · 15 calls · out 3,391 · in 130 · cache_read 529,027 · cache_create 225,617
+- **<synthetic>**: 1 agent · 1 calls · out 0 · in 0 · cache_read 0 · cache_create 0
+

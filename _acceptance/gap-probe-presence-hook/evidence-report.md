@@ -1,15 +1,15 @@
 ---
 schema_version: 2
 feature_slug: gap-probe-presence-hook
-verdict: PASS
+verdict: PENDING-JUDGMENT
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: e537754326c90b45caa547c0bfc32a33babdf263
+verified_commit: 2b149990c84136a9d0121e2b59ee1f8681eb7c03
 # bypass_ack:
-human_signoff: Manh Phan 2026-07-27
+human_signoff:
 ---
 
 # Evidence Report: gap-probe-presence-hook
@@ -111,7 +111,7 @@ human_signoff: Manh Phan 2026-07-27
     - domain-correctness: PASS (r6)
     - operational-feasibility: PASS (r6)
     - spec-alignment: PASS (r6)
-  human_override: Manh Phan 2026-07-27
+  human_override:
 
 - eval: E10
   run_id: minted-gap-probe-presence-hook-E10-r9
@@ -146,12 +146,15 @@ human_signoff: Manh Phan 2026-07-27
   note: carry-forward tu round 9 — delta khong cham paths cua eval.
 
 - eval: E14
-  run_id: minted-gap-probe-presence-hook-E14-r9
+  run_id: minted-gap-probe-presence-hook-E14-r11
   exit_code: 0
+  baseline: green
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T15:30:00Z
-  carried_from_round: 9
-  note: carry-forward tu round 9 — delta khong cham paths cua eval.
+  verified_at: 2026-07-28T08:00:00Z
+  output: |
+      PASS: RL10d
+
+      Results: 497 passed, 0 failed
 
 - eval: E15
   run_id: minted-gap-probe-presence-hook-E15-r9
@@ -162,12 +165,15 @@ human_signoff: Manh Phan 2026-07-27
   note: carry-forward tu round 9 — delta khong cham paths cua eval.
 
 - eval: E16
-  run_id: minted-gap-probe-presence-hook-E16-r8
+  run_id: minted-gap-probe-presence-hook-E16-r11
   exit_code: 0
+  baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-27T12:45:00Z
-  carried_from_round: 8
-  note: carry-forward tu round 8 — delta khong cham paths cua eval.
+  verified_at: 2026-07-28T08:00:00Z
+  output: |
+      PASS: P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)
+
+      Results: all plugin tests passed
 
 - eval: E17
   run_id: minted-gap-probe-presence-hook-E17-r9
@@ -194,26 +200,30 @@ human_signoff: Manh Phan 2026-07-27
   note: carry-forward tu round 9 — delta khong cham paths cua eval.
 
 - eval: E20
-  run_id: minted-gap-probe-presence-hook-E20-r5
+  run_id: minted-gap-probe-presence-hook-E20-r11
   exit_code: 0
+  baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-27T08:20:00Z
-  carried_from_round: 5
-  note: carry-forward tu round 5 — delta khong cham paths cua eval.
+  verified_at: 2026-07-28T08:00:00Z
+  output: |
+      PASS: P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)
+
+      Results: all plugin tests passed
 
 - eval: E21
-  run_id: minted-gap-probe-presence-hook-E21-r9
+  run_id: minted-gap-probe-presence-hook-E21-r11
   exit_code: 0
+  baseline: green
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-27T15:30:00Z
-  carried_from_round: 9
-  note: carry-forward tu round 9 — delta khong cham paths cua eval.
+  verified_at: 2026-07-28T08:00:00Z
+  output: |
+      PASS: RL10d
+
+      Results: 497 passed, 0 failed
 
 ## Analyst
 
-carried tu round truoc — baseline khong do lai round nay (P2, evals.yaml khong doi tu lan baseline cuoi). Danh sach non-discriminating duoi day la danh sach carried tu round 1 (khi baseline duoc do lan cuoi); khong co phep do moi round nay:
-
-- `bash tests/scripts/run-tests.sh`: E1, E2, E3, E4, E5, E6, E7, E8, E10, E11, E12, E13, E14, E15, E17, E18, E19, E21
+- `bash tests/scripts/run-tests.sh`: E14, E21
 - `bash tests/plugins/run-tests.sh`: E16, E20
 
 ## Variance
@@ -241,6 +251,8 @@ Round 8: evidence round 7 (verified_commit `092e85775576be3e494dfb3b272f5642a301
 Round 9: evidence round 8 (verified_commit `28e61a83af887165a030e5da389adf33b5d33091`, ký round 8 tại commit `853b74b`) lại stale — feature khác "premerge-rules-ledger" đi tiếp một vòng round 9 riêng của nó (`1335ed9` → `e1bfcf4` → `c6bf3e6` → `59ee5a7` → `3009c7e`) và trong đó `1335ed9` ("fix: 3 finding round 8 — guard env-rỗng phán sau parse, sync chặn argv thừa, VIOLATION [scope] về stdout") ĐÓNG cả 3 finding mà round 8 của chính feature này nêu (2 đã adversarial-verify + 1 chưa) — chạm `scripts/pre-merge-check.sh`, `plugins/acceptance-gate/scripts/pre-merge-check.sh`, `scripts/sync-plugin-packages.sh`, `tests/scripts/run-tests.sh`, `tests/plugins/run-tests.sh` (file dùng chung ngoài `_acceptance/`, không nằm trong `risk_tiers.t1_skip_globs`) — re-verify toàn bộ round này trên HEAD mới `3009c7ee1256e384e0d3ecb14e688264c8aa84f8`. 18 eval máy của `bash tests/scripts/run-tests.sh` (E1-E8, E10-E15, E17-E19, E21) đo lại tươi (run_id mới `-r9`) và PASS nguyên vẹn, 497 passed/0 failed (tăng 24 so với round 8's 473 — các case mới đến từ chuỗi fix/finding round 9 của "premerge-rules-ledger" cùng nằm trong suite dùng chung; không có test nào riêng của gap-probe-presence-hook bị ảnh hưởng, hành vi 3 AC liên quan `pre-merge-check.sh` — AC-1/AC-11/AC-12/AC-16/AC-17 — giữ nguyên). `bash tests/hooks/run-tests.sh` (51/51) tiếp tục xanh. `bash tests/plugins/run-tests.sh` chạy làm regression-guard rộng hơn round này (thêm case P50 "argv thừa exit 2 + nêu tên tham số" cho `sync-plugin-packages.sh`, đúng finding medium round 8 vừa đóng) nhưng KHÔNG gán lại cho E16/E20 — E16 tiếp tục carry-forward từ round 8 (P1 — delta round này không chạm phạm vi template P39 hai harness), E20 tiếp tục carry-forward từ round 5 (P1 — vẫn không chạm phạm vi P38/gate-card require lib). `bash scripts/sync-plugin-packages.sh --check` xanh, mirror đồng bộ. Baseline KHÔNG đo lại round này (P2 — evals.yaml không đổi từ lần đo baseline cuối); mỗi block eval máy đo mới ghi `baseline: n-a`, danh sách non-discriminating ở `## Analyst` tiếp tục carried từ round 1. E9 (judgment, risk_tier T3): panel carried từ round 6 (P3 — inputs không đổi, hash khớp, không chấm lại), đề xuất PASS 3/3 lens vẫn giữ nguyên round này → verdict tổng giữ nguyên PENDING-JUDGMENT chờ Gate 2. Review adversarial-verify round này KHÔNG bắt finding mới (0) — cả 3 finding round 8 (2 verified + 1 unverified) đã đóng bởi `1335ed9` trước khi round này bắt đầu; xem `review-findings.md`. (Sau round này, con người ký `human_override` cho E9 tại commit `aaf845e` — "signoff(gap-probe-presence-hook): ký lại sau chip 33ca1add" — nâng verdict tổng lên PASS trên bản evidence pin ở `3009c7e`.)
 
 Round 10: evidence round 9 (verified_commit `3009c7ee1256e384e0d3ecb14e688264c8aa84f8`, ký PASS tại commit `aaf845e`) lại stale — SAU khi ký, feature khác "premerge-rules-ledger" đóng chip 33ca1add rồi release: `2ef1285` ("release(acceptance-gate): 1.22.1 — đợt gia cố phạm-vi/bộ-lọc (chip 33ca1add)") bump version ở 4 manifest `.claude-plugin/plugin.json`, `.codex-plugin/plugin.json`, `codex/acceptance-gate/.codex-plugin/plugin.json`, `plugins/acceptance-gate/.codex-plugin/plugin.json`, rồi `26af229` ("fix(release): description 1.22.1 thôi hứa hardening không ship — sync-plugin-packages.sh là tooling nội bộ repo, không nằm trong gói", finding LOW round 10 của feature premerge-rules-ledger) sửa tiếp cùng 4 manifest đó — cả hai commit đều chạm file dùng chung ngoài `_acceptance/`, không nằm trong `risk_tiers.t1_skip_globs` (phần còn lại của `26af229` chỉ chạm `_acceptance/premerge-rules-ledger/*`, nằm trong `_acceptance/` nên không tính) — re-verify round này trên HEAD mới `e537754326c90b45caa547c0bfc32a33babdf263`. Cả 20 eval máy (E1-E8, E10-E21) là carry-forward nguyên vẹn (P1 — delta round này chỉ đổi version string trong manifest, không chạm `lib/gap-probe.js`, `scripts/pre-merge-check.sh`, hay bất kỳ path nào 20 eval này phụ thuộc): 18 eval của `bash tests/scripts/run-tests.sh` (E1-E8, E10-E15, E17-E19, E21) giữ nguyên run_id/verified_at của round 9; `E16` tiếp tục carry-forward từ round 8; `E20` tiếp tục carry-forward từ round 5. Bốn lệnh suite chạy lại thuần làm regression-guard xác nhận không có lệch từ 2 commit version-bump: `bash tests/scripts/run-tests.sh` (497 passed/0 failed, không đổi so với round 9 — không có test case mới), `bash tests/hooks/run-tests.sh` (51/51), `bash tests/plugins/run-tests.sh` (toàn bộ plugin test xanh, đến P50 "argv thừa exit 2 + nêu tên tham số; mode đơn vẫn xanh"), `bash scripts/sync-plugin-packages.sh --check` (mirror đồng bộ). Baseline KHÔNG đo lại round này (P2 — evals.yaml không đổi từ lần đo baseline cuối); danh sách non-discriminating ở `## Analyst` tiếp tục carried từ round 1. E9 (judgment, risk_tier T3): panel carried từ round 6 (P3 — inputs không đổi, hash khớp, không chấm lại), đề xuất PASS 3/3 lens vẫn giữ nguyên; `human_override` mà con người ký ở round 9 (`aaf845e`) áp cho evidence pin tại `3009c7e` — evidence đó nay stale nên report round này pin lại trên HEAD mới và trường `human_override` của E9 reset về trống, chờ con người ký lại tại Gate 2 trên bản evidence mới → verdict tổng PENDING-JUDGMENT. Review adversarial-verify round này KHÔNG bắt finding mới (0) — delta giữa round 9 và round 10 chỉ là version bump + sửa description ở feature khác, không chạm logic nào trong phạm vi gap-probe-presence-hook; xem `review-findings.md`.
+
+Round 11: evidence round 10 (verified_commit `e537754326c90b45caa547c0bfc32a33babdf263`, đã từng được ký PASS `Manh Phan 2026-07-27`) lại stale — feature khác "s4-scope-triage" đi hết một vòng round riêng của nó rồi ký Cổng 2 (round 6 PASS, commit `b195a26`); chuỗi commit trong khoảng đó (`3f168b7`, `b76d28a`, `23e0a38`, `054ed91`, `3a31688`, `247f2b5`, `6e7c1bb`, `79adba6`, `9940741`, …) chạm `scripts/gate-card.js` (+32 dòng, thêm khối out-of-contract), `lib/out-of-contract.js` (file mới, +79 dòng), `tests/plugins/run-tests.sh` (+322 dòng, test mới đến P56), `tests/workflows/acceptance-verify.test.mjs` (+382 dòng) — tất cả là file dùng chung ngoài `_acceptance/`, không nằm trong `risk_tiers.t1_skip_globs` — re-verify round này trên HEAD mới `2b149990c84136a9d0121e2b59ee1f8681eb7c03`. 4 eval máy đo lại tươi (run_id mới `-r11`) và PASS nguyên vẹn: `E14`, `E21` qua `bash tests/scripts/run-tests.sh` (đến case "PASS: RL10d", 497 passed/0 failed — không đổi số so với round 9/10, không có case mới chạm phạm vi 2 eval này) và `E16`, `E20` qua `bash tests/plugins/run-tests.sh` (đến case "PASS: P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)", toàn bộ plugin test xanh — E20 (AC-19, gate-card require lib/gap-probe.js) và E21 (AC-20, parity 2 lối vào) đo lại tươi vì chính `scripts/gate-card.js` — file cả hai eval này khảo sát — vừa đổi). 16 eval máy còn lại (E1-E8, E10-E13, E15, E17-E19) là carry-forward từ round 9 (P1 — delta round này không chạm paths của các eval đó). `bash tests/hooks/run-tests.sh` (51/51) và `bash scripts/sync-plugin-packages.sh --check` (mirror đồng bộ) tiếp tục xanh; `bash tests/workflows/run-tests.sh` (16 passed/0 failed, execute-parallel) chạy thêm làm regression-guard cho suite mới của s4-scope-triage — không phát hiện lệch từ thay đổi ngoài phạm vi gap-probe-presence-hook. Baseline đo lại cho 4 eval fresh: cả `E14`/`E21`/`E16`/`E20` đều `green` trên diffBase (non-discriminating round này — xem `## Analyst`; 2 lệnh suite này xanh trên cả HEAD lẫn baseline vì mã gap-probe-presence-hook không đổi trong delta gây stale). E9 (judgment, risk_tier T3): panel tiếp tục carried từ round 6 (P3 — inputs không đổi, hash khớp, không chấm lại), đề xuất PASS 3/3 lens giữ nguyên; `human_override` reset về trống trên bản evidence pin mới (giống mọi lần re-verify trước) → verdict tổng giữ nguyên PENDING-JUDGMENT, chờ Gate 2 con người ký lại. Review adversarial-verify round này bắt phân loại phạm vi HỎNG (triage-failed) — 17 finding không phân loại được (4 high, 9 medium, 4 low, tất cả nằm ngoài 21 AC của contract T3 này — thuộc scope-triage/gate-card/out-of-contract mới thêm bởi feature "s4-scope-triage") + 1 finding chưa adversarial-verify (medium); xem `review-findings.md`. Không có finding nào bị máy tự sửa; người xem lại toàn bộ ở Gate 2.
 
 ## Gate 2 checklist (human)
 
