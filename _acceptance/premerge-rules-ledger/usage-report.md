@@ -157,3 +157,32 @@
 - **claude-haiku-4-5-20251001**: 5 agent · 15 calls · out 5,954 · in 130 · cache_read 619,936 · cache_create 267,537
 - **claude-sonnet-5**: 2 agent · 9 calls · out 2,723 · in 8,992 · cache_read 670,180 · cache_create 197,927
 
+### S4 round 12 (staleness re-verify) — wf_1667b756-386 (20 agent, 142,195 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| review:bugs | claude-opus-5 | 26 | 26,941 | 48 | 3,290,705 | 486 |
+| review:conventions | claude-opus-5 | 34 | 22,223 | 64 | 4,627,614 | 502 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 14 | 17,760 | 28 | 1,210,771 | 283 |
+| synthesize:report | claude-sonnet-5 | 2 | 17,111 | 4 | 82,814 | 170 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 18 | 8,893 | 36 | 1,673,521 | 206 |
+| refute:SKILL.md | claude-sonnet-5 | 10 | 7,794 | 20 | 895,959 | 205 |
+| refute:evals.yaml | claude-sonnet-5 | 15 | 7,401 | 30 | 1,212,081 | 163 |
+| refute:contract.md | claude-sonnet-5 | 17 | 7,382 | 1,757 | 1,428,213 | 181 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 22 | 6,542 | 44 | 1,818,371 | 175 |
+| refute:plugin.json | claude-sonnet-5 | 16 | 5,452 | 32 | 1,223,441 | 149 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 7 | 3,986 | 14 | 500,852 | 76 |
+| refute:gate-card.js | claude-sonnet-5 | 14 | 2,880 | 28 | 1,066,116 | 123 |
+| refute:SKILL.md | claude-sonnet-5 | 5 | 2,085 | 10 | 333,320 | 48 |
+| refute:SKILL.md | claude-sonnet-5 | 7 | 1,468 | 14 | 520,960 | 116 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 4 | 1,159 | 34 | 164,364 | 104 |
+| machine:bash tests/plugins/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 694 | 18 | 47,428 | 45 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 641 | 18 | 47,428 | 11 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 631 | 18 | 47,428 | 14 |
+| machine:bash scripts/sync-plugin-packages.sh --c | claude-haiku-4-5-20251001 | 3 | 608 | 26 | 97,476 | 14 |
+| capture:provenance | claude-sonnet-5 | 2 | 544 | 4 | 67,884 | 17 |
+
+- **claude-opus-5**: 2 agent · 60 calls · out 49,164 · in 112 · cache_read 7,918,319 · cache_create 376,922
+- **claude-sonnet-5**: 13 agent · 149 calls · out 89,298 · in 2,021 · cache_read 12,034,303 · cache_create 1,143,958
+- **claude-haiku-4-5-20251001**: 5 agent · 13 calls · out 3,733 · in 114 · cache_read 404,124 · cache_create 274,858
+

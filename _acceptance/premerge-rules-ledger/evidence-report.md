@@ -1,198 +1,150 @@
 ---
 schema_version: 2
 feature_slug: premerge-rules-ledger
-verdict: PASS
-failed_evals: []
-reason:
+verdict: PENDING-JUDGMENT
+failed_evals: []        # REJECT only, e.g. [E2, E5]
+reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 26af2297a6d5abe322d36bdc9415643099ded983
+verified_commit: a8899d2a29faa2586fcf16ac4a29f9f049cec2d8
 # bypass_ack:
-human_signoff: Manh Phan 2026-07-27
+human_signoff:
 ---
 
 # Evidence Report: premerge-rules-ledger
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
-| E1 | AC-1 | test | PASS |
-| E2 | AC-2 | test | PASS |
-| E3 | AC-3 | test | PASS |
-| E4 | AC-4 | test | PASS |
-| E5 | AC-5 | test | PASS |
-| E6 | AC-6 | test | PASS |
-| E7 | AC-7 | test | PASS |
-| E8 | AC-8 | test | PASS |
-| E9 | AC-9 | test | PASS |
-| E10 | AC-10 | judgment | UNCERTAIN (panel proposal: PASS — carried from round 4, human_override pending) |
-| E11 | AC-10 | test | PASS |
-| E12 | AC-11 | test | PASS |
-| E13 | AC-12 | test | PASS |
-
-Regression-guard suites (unmapped this round — `evals: []`, run as a sanity
-check alongside the carried-forward evidence below, not re-attributed to any
-eval): `bash tests/scripts/run-tests.sh` (497 passed, 0 failed, incl. `PASS:
-RL10d`), `bash tests/hooks/run-tests.sh` (51 passed, 0 failed, incl. `PASS:
-T42`), `bash tests/plugins/run-tests.sh` (all plugin tests passed, incl.
-`PASS: P50 argv thừa exit 2 + nêu tên tham số; mode đơn vẫn xanh`), `bash
-scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
+| E1 | AC-1 | script | PASS |
+| E2 | AC-2 | script | PASS |
+| E3 | AC-3 | script | PASS |
+| E4 | AC-4 | script | PASS |
+| E5 | AC-5 | script | PASS |
+| E6 | AC-6 | script | PASS |
+| E7 | AC-7 | script | PASS |
+| E8 | AC-8 | script | PASS |
+| E9 | AC-9 | script | PASS |
+| E10 | AC-10 | judgment | PASS |
+| E11 | AC-10 | script | PASS |
+| E12 | AC-11 | script | PASS |
+| E13 | AC-12 | script | PASS |
 
 ## Evidence
 
 - eval: E1
-  criterion: AC-1
   run_id: minted-premerge-rules-ledger-E1-r9
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
   carried_from_round: 9
-  note: carry-forward tu round 9 — delta khong cham paths cua eval.
+  note: carry-forward tu round 9 — delta khong cham paths cua eval
 
 - eval: E2
-  criterion: AC-2
   run_id: minted-premerge-rules-ledger-E2-r9
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
   carried_from_round: 9
-  note: carry-forward tu round 9 — delta khong cham paths cua eval.
+  note: carry-forward tu round 9 — delta khong cham paths cua eval
 
 - eval: E3
-  criterion: AC-3
   run_id: minted-premerge-rules-ledger-E3-r9
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
   carried_from_round: 9
-  note: carry-forward tu round 9 — delta khong cham paths cua eval.
+  note: carry-forward tu round 9 — delta khong cham paths cua eval
 
 - eval: E4
-  criterion: AC-4
   run_id: minted-premerge-rules-ledger-E4-r9
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
   carried_from_round: 9
-  note: carry-forward tu round 9 — delta khong cham paths cua eval.
+  note: carry-forward tu round 9 — delta khong cham paths cua eval
 
 - eval: E5
-  criterion: AC-5
   run_id: minted-premerge-rules-ledger-E5-r9
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
   carried_from_round: 9
-  note: carry-forward tu round 9 — delta khong cham paths cua eval.
+  note: carry-forward tu round 9 — delta khong cham paths cua eval
 
 - eval: E6
-  criterion: AC-6
   run_id: minted-premerge-rules-ledger-E6-r9
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
   carried_from_round: 9
-  note: carry-forward tu round 9 — delta khong cham paths cua eval.
+  note: carry-forward tu round 9 — delta khong cham paths cua eval
 
 - eval: E7
-  criterion: AC-7
   run_id: minted-premerge-rules-ledger-E7-r9
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
   carried_from_round: 9
-  note: carry-forward tu round 9 — delta khong cham paths cua eval.
+  note: carry-forward tu round 9 — delta khong cham paths cua eval
 
 - eval: E8
-  criterion: AC-8
   run_id: minted-premerge-rules-ledger-E8-r9
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
   carried_from_round: 9
-  note: carry-forward tu round 9 — delta khong cham paths cua eval.
+  note: carry-forward tu round 9 — delta khong cham paths cua eval
 
 - eval: E9
-  criterion: AC-9
   run_id: minted-premerge-rules-ledger-E9-r9
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
   carried_from_round: 9
-  note: carry-forward tu round 9 — delta khong cham paths cua eval.
+  note: carry-forward tu round 9 — delta khong cham paths cua eval
 
 - eval: E10
-  criterion: AC-10
-  carried: true
-  carried_from_round: 4
-  note: panel giữ nguyên từ round 4 — inputs không đổi (inputs_hash khớp:
-    93581f389e6c8357a68fbd06a316c3795fe2312997931082f02bb66646b27879), không
-    chấm lại; rationale xem round 4
-  judged_by: judge-subagent (fresh context, round 4)
-  proposal: PASS
+  judged_by: judge panel (3 lens) — carried, inputs unchanged since round 4
+  verdict: PASS
+  panel_note: panel giu nguyen tu round 4 — inputs khong doi, khong cham lai; rationale xem round 4
   votes:
     - domain-correctness: PASS (r4)
     - operational-feasibility: PASS (r4)
     - spec-alignment: PASS (r4)
-  human_override: Manh Phan 2026-07-27
-  # T3 contract: human_override is MANDATORY on this judgment item regardless
-  # of the panel's PASS proposal. Gate 2 human must personally verify and fill
-  # "<name> <date>" before this report can be upgraded to PASS. This round's
-  # write is fresh (round 11) — a new round always requires its own Gate 2
-  # signoff, so this line is blank pending human review.
+  human_override:
 
 - eval: E11
-  criterion: AC-10
   run_id: minted-premerge-rules-ledger-E11-r9
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
   carried_from_round: 9
-  note: carry-forward tu round 9 — delta khong cham paths cua eval.
+  note: carry-forward tu round 9 — delta khong cham paths cua eval
 
 - eval: E12
-  criterion: AC-11
   run_id: minted-premerge-rules-ledger-E12-r9
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
   carried_from_round: 9
-  note: carry-forward tu round 9 — delta khong cham paths cua eval.
+  note: carry-forward tu round 9 — delta khong cham paths cua eval
 
 - eval: E13
-  criterion: AC-12
   run_id: minted-premerge-rules-ledger-E13-r9
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-07-27T15:00:00Z
   carried_from_round: 9
-  note: carry-forward tu round 9 — delta khong cham paths cua eval.
+  note: carry-forward tu round 9 — delta khong cham paths cua eval
 
 ## Analyst
 
-carried tu round truoc — baseline khong do lai round nay (P2: evals.yaml
-khong doi tu lan baseline cuoi). Danh sach eval khong-phan-biet cho round
-nay: none — không đo lại baseline nên không có kết luận mới; xem round 1
-(E1-E9, E11-E13 non-discriminating trên baseline whole-suite) cho phân tích
-gốc, vẫn còn giá trị vì evals.yaml không đổi.
+none — mọi eval feature đều red trên baseline (có phân biệt)
 
 ## Variance
 
-none — no stochastic evals (`runs` > 1) in this round; all twelve machine
-evals are deterministic single-run cases.
-
+none — không có eval nào mang field runs>1 trong round này; mọi eval carry-forward là deterministic (0/N hoặc N/N không áp dụng vì không re-run)
 ## Iterations
 
 Round 1: All 13 machine evals (E1-E9, E11-E13) passed on the first run
@@ -467,6 +419,44 @@ this round (out of scope for a delta-carry-forward round — see round 10's
 entry above for their standing detail; neither was fixed in the interim
 commits, both remain informational-only, non-merge-blocking per round 10's
 repro). Verified commit this round: `26af2297a6d5abe322d36bdc9415643099ded983`.
+
+Round 12: staleness re-verify. Evidence from round 11 pinned
+`26af2297a6d5abe322d36bdc9415643099ded983`; the `s4-scope-triage` feature
+landed afterwards and touched shared gated files outside `_acceptance/`
+(plugin manifests, `.github/workflows/gate.yml`, both harnesses'
+acceptance-card instructions, `feature-loop/workflows/acceptance-verify.js`,
+`lib/out-of-contract.js`, `scripts/gate-card.js`, `tests/plugins/**`,
+`tests/workflows/**`), so the pin no longer matched HEAD. Re-verified at
+`a8899d2a29faa2586fcf16ac4a29f9f049cec2d8`. None of that delta intersects any
+of the 13 evals' `paths` (P1 delta-staleness), so E1-E9/E11-E13 stay carried
+from round 9 with `run_id`/`verified_at` copied verbatim, and the E10 panel
+stays carried from round 4 (`inputs_hash` unchanged,
+`93581f38...66646b27879`). Carry here is not blind: every one of those 12
+evals runs `bash tests/scripts/run-tests.sh`, and that exact command is in
+`feature_loop.suite_keys`, so the underlying measurement re-executed fresh
+this round regardless — only the per-eval attribution was carried. All five
+suites re-ran green: `tests/scripts/run-tests.sh` 497 passed / 0 failed (same
+count as rounds 10-11, no drift), `tests/hooks/run-tests.sh` 51 passed / 0
+failed, `tests/plugins/run-tests.sh` all passed, `sync-plugin-packages.sh
+--check` mirror in sync, `tests/workflows/run-tests.sh` all passed. Baseline
+WAS re-measured this round (P2 miss): the last `kind:"baseline"` memo carried
+the sentinel `evals_hash: "pending"` rather than a real digest, so it could
+not match the current `c3d28050...464f1059`; the fresh pass returned an empty
+non-discriminating list. Review found 10 findings, and scope-triage classified
+**all 10 as out of contract** for this feature — they concern
+`s4-scope-triage` (the diff under review) and its shared files, not the rules
+ledger; `triageFailed: true` with `rejectFindings: []` means the machine
+declined to force them into this contract and failed toward the human
+instead. Cluster flag raised: 10 of 10 findings out-of-contract across 5
+files. Two are `high` and are carried to the human at Gate 2 rather than
+silently absorbed: (a) `s4-scope-triage` self-classified `risk_tier: T2` while
+adding `lib/out-of-contract.js`, which matches `risk_tiers.t3_paths`, so its
+Gate 1.5 and the T3 mandatory `human_override`-per-judgment-item rule were
+both skipped; (b) `scripts/gate-card.js` drops the out-of-contract block with
+no error when the writer's item shape drifts — already declared in that
+feature's `## Known limits`. Verdict PENDING-JUDGMENT, awaiting `human_override`
+on E10 at Gate 2. Verified commit this round:
+`a8899d2a29faa2586fcf16ac4a29f9f049cec2d8`.
 
 ## Gate 2 checklist (human)
 
