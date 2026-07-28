@@ -2766,6 +2766,116 @@ hasout RL10b "lỗi NỘI TẠI của cổng pre-merge" "$RL10M"
 hasout RL10c "declared-off t1-escape" "$RL10M"
 hasout RL10d "pre-merge-check: rules ran=3 declared-off=0 expected=3" "$RL10M"
 
+# ── UJ: PASS chưa ai phán (premerge-unjudged-pass) ─────────────────────────
+UJR="$T/uj"; mkdir -p "$UJR"
+
+# uj_repo <case> [config-thêm] — repo fixture; trả BASE sha qua UJ_BASE.
+# Sha riêng từng fixture (cùng lý do như mk_gp_repo): cây + author + message
+# giống hệt thì sha chỉ phụ thuộc dấu-thời-gian-giây, và một case lỡ đưa base
+# của repo KHÁC vẫn xanh.
+uj_repo() {
+  R="$UJR/$1"; rm -rf "$R"; mkdir -p "$R/_acceptance"
+  { printf 'schema_version: 1\n'
+    printf 'signoff:\n  required_for: [T2, T3]\n'
+    [ -n "${2:-}" ] && printf '%s\n' "$2"
+    printf '  require_human_commit: false\n'
+  } > "$R/_acceptance/config.yaml"
+  git init -q "$R"
+  git -C "$R" add -A >/dev/null
+  git -c user.email=t@t -c user.name=t -C "$R" commit -qm "uj base $1"
+  UJ_BASE="$(git -C "$R" rev-parse --quiet --verify 'HEAD^{commit}' 2>/dev/null || true)"
+  [ -n "$UJ_BASE" ] || { echo "FATAL: uj_repo $1 — không tạo được base commit trong $R" >&2; exit 1; }
+}
+
+# uj_slug <root> <slug> <contract-frontmatter|-> <chữ ký|SKIP>
+#   "-"    ở tham số 3 = KHÔNG tạo contract.md
+#   "SKIP" ở tham số 4 = KHÔNG tạo evidence-report.md
+uj_slug() {
+  d="$1/_acceptance/$2"; mkdir -p "$d"
+  if [ "$3" != "-" ]; then printf -- '---\n%s\n---\n' "$3" > "$d/contract.md"; fi
+  if [ "$4" != "SKIP" ]; then
+    printf '#!/bin/sh\nexit 0\n' > "$1/verify-$2.sh"
+    printf -- '---\nschema_version: 1\nfeature_slug: %s\nverdict: PASS\nhuman_signoff: %s\n---\n\n## Evidence\n- eval: E1\n  run_id: %s-E1-001\n  exit_code: 0\n  verifier: verify-%s.sh\n  verified_at: 2026-06-20\n' \
+      "$2" "$4" "$2" "$2" > "$d/evidence-report.md"
+  fi
+}
+uj_full() { printf 'schema_version: 1\nfeature: f\nslug: %s\nrisk_tier: T3\nsurfaces: [api]\nstatus: signed-off\napproved_by: Manh Phan\napproved_at: 2026-06-10' "$1"; }
+
+echo "UJ1 doi chung duong: ho so du + chu ky khop approvers -> OK, clean"
+uj_repo uj1 '  approvers: ["Manh Phan", "memto"]'; R="$UJR/uj1"
+uj_slug "$R" feat-ok "$(uj_full feat-ok)" "Manh Phan 2026-06-20"
+UJ1="$(bash "$CHECK" "$R" 2>&1)"; check UJ1a 0 $?
+hasout UJ1b "OK [feat-ok]: PASS, signed off by Manh Phan 2026-06-20" "$UJ1"
+hasout UJ1c "pre-merge-check: clean" "$UJ1"
+nothas UJ1d "VIOLATION" "$UJ1"
+
+echo "UJ6 evidence khai PASS nhung KHONG co contract.md -> VIOLATION, khong tang hinh"
+uj_repo uj6 '  approvers: ["Manh Phan"]'; R="$UJR/uj6"
+uj_slug "$R" feat-ok "$(uj_full feat-ok)" "Manh Phan 2026-06-20"
+uj_slug "$R" feat-ghost - "Manh Phan 2026-06-20"
+UJ6="$(bash "$CHECK" "$R" 2>&1)"; UJ6ST=$?
+check  UJ6a 1 "$UJ6ST"
+hasout UJ6b "VIOLATION [feat-ghost]: no contract.md" "$UJ6"
+nothas UJ6c "pre-merge-check: clean" "$UJ6"
+hasout UJ6d "OK [feat-ok]" "$UJ6"
+
+echo "UJ7 tu khai da phat hanh nhung THIEU risk_tier -> VIOLATION neu dich danh field"
+uj_repo uj7 '  approvers: ["Manh Phan"]'; R="$UJR/uj7"
+uj_slug "$R" feat-notier 'schema_version: 1
+feature: f
+slug: feat-notier
+surfaces: [api]
+status: signed-off
+approved_by: Manh Phan' "Manh Phan 2026-06-20"
+UJ7="$(bash "$CHECK" "$R" 2>&1)"; check UJ7a 1 $?
+hasout UJ7b "contract has no risk_tier" "$UJ7"
+hasout UJ7c "VIOLATION [feat-notier]" "$UJ7"
+
+echo "UJ8 THIEU status -> VIOLATION; UJ8neg draft/approved -> im lang (ca duoi nguong)"
+uj_repo uj8 '  approvers: ["Manh Phan"]'; R="$UJR/uj8"
+uj_slug "$R" feat-nostatus 'schema_version: 1
+feature: f
+slug: feat-nostatus
+risk_tier: T3
+surfaces: [api]
+approved_by: Manh Phan' "Manh Phan 2026-06-20"
+UJ8="$(bash "$CHECK" "$R" 2>&1)"; check UJ8a 1 $?
+hasout UJ8b "contract has no status" "$UJ8"
+for st in draft approved; do
+  uj_repo "uj8n-$st" '  approvers: ["Manh Phan"]'; R="$UJR/uj8n-$st"
+  uj_slug "$R" feat-wip "schema_version: 1
+feature: f
+slug: feat-wip
+risk_tier: T3
+surfaces: [api]
+status: $st
+approved_by: Manh Phan" SKIP
+  UJ8N="$(bash "$CHECK" "$R" 2>&1)"; check "UJ8neg-$st" 0 $?
+  nothas "UJ8neg-$st-2" "VIOLATION" "$UJ8N"
+done
+
+echo "UJ9 contract khai signed-off, thieu risk_tier, KHONG co evidence -> VIOLATION"
+uj_repo uj9 '  approvers: ["Manh Phan"]'; R="$UJR/uj9"
+uj_slug "$R" feat-noev 'schema_version: 1
+feature: f
+slug: feat-noev
+surfaces: [api]
+status: signed-off
+approved_by: Manh Phan' SKIP
+# Chot fixture: KHONG duoc co evidence-report.md, neu khong case nay do nhanh
+# evidence chu khong do nhanh contract cua claims_released.
+[ ! -f "$R/_acceptance/feat-noev/evidence-report.md" ]; check UJ9fix 0 $?
+UJ9="$(bash "$CHECK" "$R" 2>&1)"; check UJ9a 1 $?
+hasout UJ9b "VIOLATION [feat-noev]" "$UJ9"
+
+echo "UJ10 scaffold bo hoang -> IM LANG (doi chung duong cua nhom tang hinh)"
+uj_repo uj10 '  approvers: ["Manh Phan"]'; R="$UJR/uj10"
+uj_slug "$R" feat-ok "$(uj_full feat-ok)" "Manh Phan 2026-06-20"
+mkdir -p "$R/_acceptance/feat-empty"
+UJ10="$(bash "$CHECK" "$R" 2>&1)"; check UJ10a 0 $?
+nothas UJ10b "feat-empty" "$UJ10"
+hasout UJ10c "pre-merge-check: clean" "$UJ10"
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1

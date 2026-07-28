@@ -282,6 +282,25 @@ front_field() { # <file> <key> — read <key> from the LEADING --- frontmatter b
     | sed -e 's/[[:space:]]*#.*$//' -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//'
 }
 
+claims_released() { # <dir> — 0 iff thư mục TỰ NHẬN đã qua cổng.
+  # Đọc bằng fm_field (BẤT KỲ dòng nào) chứ không front_field (chỉ frontmatter
+  # dẫn đầu) là CỐ Ý: đây là bộ DÒ, doctrine là rộng-khi-dò/chặt-khi-nhận. Một
+  # fence hỏng hoặc lệch không được phép mua lấy sự vô hình — đó đúng là thứ
+  # đang cần bắt. Mọi chốt CHẤP NHẬN bên dưới vẫn dùng front_field như cũ.
+  if [ -f "$1/evidence-report.md" ] \
+     && [ "$(fm_field "$1/evidence-report.md" verdict)" = "PASS" ]; then
+    return 0
+  fi
+  # Nhánh contract là thứ bản vá cục bộ của repo tiêu thụ KHÔNG có, nên nó bỏ
+  # sót ca "khai signed-off mà không có evidence nào".
+  if [ -f "$1/contract.md" ]; then
+    case "$(fm_field "$1/contract.md" status)" in
+      implemented|verified|signed-off) return 0 ;;
+    esac
+  fi
+  return 1
+}
+
 
 # Mọi đường mà luật gap-probe KHÔNG chạy được đều đi qua ĐÂY. Một hàm, một
 # marker, một chỗ quyết định mode — vì kênh "NOTE rồi exit 0" đã giết contract
@@ -447,13 +466,35 @@ for dir in "$ACC"/*/; do
     for s in "${SLUGS[@]}"; do [ "$s" = "$slug" ] && found=1; done
     [ $found -eq 1 ] || continue
   fi
+  # Mỗi `continue` dưới đây loại thư mục khỏi cổng HOÀN TOÀN. Im lặng đó đúng
+  # với scaffold bỏ hoang, nhưng một thư mục TỰ KHAI đã phát hành mà vô hình là
+  # một PASS chưa ai phán cưỡi CI xanh (incident 2026-07-20 #255 ở repo tiêu thụ).
   contract="$dir/contract.md"
-  [ -f "$contract" ] || continue
+  if [ ! -f "$contract" ]; then
+    if claims_released "$dir"; then
+      echo "VIOLATION [$slug]: no contract.md — slug invisible to the gate, yet it claims release (evidence-report.md declares verdict PASS). An unjudged PASS would ride CI green. Add contract.md with frontmatter status + risk_tier so the gate can judge it."
+      violations=$((violations+1))
+    fi
+    continue
+  fi
 
   tier="$(fm_field "$contract" risk_tier)"
   status="$(fm_field "$contract" status)"
 
-  [ -n "$tier" ] || continue
+  # Thiếu field ≠ khai báo → bị flag. Field CÓ mặt nhưng ngoài phạm vi (status
+  # draft/approved, tier ngoài required_for) LÀ khai báo → vẫn im lặng đúng
+  # thiết kế, xử ở hai `case` ngay dưới.
+  if [ -z "$tier" ] || [ -z "$status" ]; then
+    if claims_released "$dir"; then
+      if   [ -z "$tier" ] && [ -z "$status" ]; then uj_missing="status nor risk_tier"
+      elif [ -z "$tier" ];                     then uj_missing="risk_tier"
+      else                                          uj_missing="status"
+      fi
+      echo "VIOLATION [$slug]: contract has no $uj_missing — slug invisible to the gate, yet it claims release. Add the missing frontmatter to $slug/contract.md so the gate can judge it."
+      violations=$((violations+1))
+    fi
+    continue
+  fi
   case "$REQUIRED_FOR" in *"$tier"*) ;; *) continue ;; esac
   case "$status" in implemented|verified|signed-off) ;; *) continue ;; esac
 
