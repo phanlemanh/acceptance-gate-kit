@@ -2855,6 +2855,36 @@ uj_slug "$R" feat-ok "$(uj_full feat-ok)" "Manh Phan 2026-06-20"
 UJ1XOK="$(bash "$CHECK" "$R" 2>&1)"; check UJ1xctrl 0 $?
 hasout UJ1xctrl2 "pre-merge-check: clean" "$UJ1XOK"
 
+echo "UJ1y block-list: khoa ke tiep o INDENT 0 cung phai ket thuc vung"
+# Round 2 chan duoc khoa indent-2 nhung van nuot khi khoa ke tiep o indent 0 —
+# cung mot lop loi doi da. Luat dung cua YAML la THUT, khong phai mau khoa.
+uj_repo uj1y '  approvers:
+    - "Alice"
+agent_authors:
+  - "ci-bot@corp.com"'; R="$UJR/uj1y"
+uj_slug "$R" feat-a "$(uj_full feat-a)" "ci-bot@corp.com 2026-07-28"
+UJ1Y="$(bash "$CHECK" "$R" 2>&1)"; check UJ1y 1 $?
+hasout UJ1y2 "does not name any approver" "$UJ1Y"
+nothas UJ1y3 "pre-merge-check: clean" "$UJ1Y"
+# DOI CHUNG: Alice (nguoi duyet THAT) trong cung config do van qua
+uj_repo uj1yok '  approvers:
+    - "Alice"
+agent_authors:
+  - "ci-bot@corp.com"'; R="$UJR/uj1yok"
+uj_slug "$R" feat-a "$(uj_full feat-a)" "Alice 2026-07-28"
+UJ1YOK="$(bash "$CHECK" "$R" 2>&1)"; check UJ1yctrl 0 $?
+hasout UJ1yctrl2 "pre-merge-check: clean" "$UJ1YOK"
+
+echo "UJ1z approvers RONG + khoa indent-0 co list -> VIOLATION [config] VAN phai no"
+# AC-4 bi bop nghet theo duong vong: bo tach troi sang list cua khoa khac roi
+# tuong minh co ten, nen nhanh khai-ma-rong khong bao gio chay.
+uj_repo uj1z '  approvers:
+baseline_minutes:
+  - 90'; R="$UJR/uj1z"
+uj_slug "$R" feat-a "$(uj_full feat-a)" "Manh Phan 2026-07-28"
+UJ1Z="$(bash "$CHECK" "$R" 2>&1)"; check UJ1z 1 $?
+hasout UJ1z2 "signoff.approvers is declared but resolves to no approver name" "$UJ1Z"
+
 echo "UJ6 evidence khai PASS nhung KHONG co contract.md -> VIOLATION, khong tang hinh"
 uj_repo uj6 '  approvers: ["Manh Phan"]'; R="$UJR/uj6"
 uj_slug "$R" feat-ok "$(uj_full feat-ok)" "Manh Phan 2026-06-20"
@@ -3138,12 +3168,27 @@ for f in "$UJM_SIG" "$UJM_BLK" "$UJM_NOC" "$UJM_FLD" "$UJM_CTR" "$UJM_CFG"; do
   check "UJ14ctrl-$ujlbl" 1 "$ujrc"
 done
 
+# Ban sao phai VAN LA MOT SCRIPT CHAY DUOC. Day KHONG phai chi tiet thua:
+# uj_mut ky vong mutant thoat 0, ma `bash <file rong>` cung thoat 0 — nen mot bo
+# loc hong (awk/sed loi cu phap, ghi ra file rong hoac cut ngang) cho ra XANH
+# GIA o chinh phep do dung de chan xanh gia. `diff` mot minh khong bat duoc:
+# file rong DUNG LA khac ban goc.
+uj_mut_usable() { # <file> — 0 iff con la script dung nghia
+  [ -s "$1" ] || return 1
+  bash -n "$1" 2>/dev/null || return 1
+  [ "$(wc -l < "$1")" -ge "$(( $(wc -l < "$CHECK") - 3 ))" ] || return 1
+  return 0
+}
 uj_mut() { # <nhãn> <bộ lọc sinh bản sao> <fixture phải chuyển XANH>
-  eval "$2" > "$UJMUT"
-  # Ban sao phai KHAC ban goc — bo loc khong khop nghia la nguon da troi va
-  # moi ket luan duoi day vo nghia (tu-to-cao thay vi xanh gia).
+  eval "$2" > "$UJMUT" 2>/dev/null
+  # (a) ban sao phai KHAC ban goc — khong khop nghia la nguon da troi
   if diff -q "$CHECK" "$UJMUT" >/dev/null 2>&1; then
     echo "     TIEM THAT BAI [$1]: bo loc khong khop, nguon da troi"
+    check "UJ14-$1" 0 1; return
+  fi
+  # (b) ...va van phai chay duoc
+  if ! uj_mut_usable "$UJMUT"; then
+    echo "     TIEM THAT BAI [$1]: ban sao khong con la script chay duoc ($(wc -l < "$UJMUT")/$(wc -l < "$CHECK") dong)"
     check "UJ14-$1" 0 1; return
   fi
   bash "$UJMUT" "$3" >/dev/null 2>&1; check "UJ14-$1" 0 $?
@@ -3156,6 +3201,14 @@ uj_mut cfg 'sed "s|^if \[ \\\"\$APPROVERS_DECLARED\\\" = \\\"true\\\" \] \&\& \[
 uj_mut noc 'awk "/if claims_released/ { n++; if (n==1) { sub(/if claims_released .*; then/, \"if false; then\") } } { print }" "$CHECK"' "$UJM_NOC"
 uj_mut fld 'awk "/if claims_released/ { n++; if (n==2) { sub(/if claims_released .*; then/, \"if false; then\") } } { print }" "$CHECK"' "$UJM_FLD"
 uj_mut ctr 'sed "s|      implemented\|verified\|signed-off) return 0 ;;|      __khong_bao_gio__) return 0 ;;|" "$CHECK"' "$UJM_CTR"
+
+echo "UJ14g uj_mut_usable phai TU CHOI ban sao khong chay duoc (meta-test cua chinh guard)"
+# Guard nay la thu duy nhat chan xanh-gia cua UJ14. Neu no khong song thi moi
+# "UJ14-* PASS" o tren co the chi la mot file rong thoat 0.
+: > "$T/ujg-empty.sh";                       uj_mut_usable "$T/ujg-empty.sh"; check UJ14g-rong  1 $?
+cp "$CHECK" "$T/ujg-ok.sh";                  uj_mut_usable "$T/ujg-ok.sh";    check UJ14g-nguyen 0 $?
+head -20 "$CHECK" > "$T/ujg-cut.sh";         uj_mut_usable "$T/ujg-cut.sh";   check UJ14g-cut   1 $?
+{ cat "$CHECK"; printf '\nif [ 1\n'; } > "$T/ujg-bad.sh"; uj_mut_usable "$T/ujg-bad.sh"; check UJ14g-cuphap 1 $?
 
 echo "UJ14b tiem CHE DO GOI: boc luat chu ky sau chot --base -> UJ17-nobase phai do"
 # Chung minh UJ17 la assertion SONG chu khong phai xanh-vinh-vien: neu luat moi

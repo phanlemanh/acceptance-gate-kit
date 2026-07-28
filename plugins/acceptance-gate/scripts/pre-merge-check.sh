@@ -283,14 +283,30 @@ if [ -f "$ACC/config.yaml" ]; then
           | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' \
                 -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//' \
           | grep -v '^$')" ;;
-      '')   # block list — chốt kết thúc PHẢI giống hệt agent_authors ngay trên.
-            # Bản đầu đòi dòng khoá TRẦN (`:[[:space:]]*$`), nên một khoá có chú
-            # thích đuôi — đúng dòng `agent_authors:   # OPTIONAL …` mà template
-            # của kit đang ship — KHÔNG kết thúc được vùng: sed chạy tới EOF và
-            # gom mọi `- item` phía sau vào APPROVERS. Danh sách CHẶN agent khi
-            # đó trở thành danh sách CHO PHÉP ký. Chặt hơn sibling nhưng chặt
-            # SAI HƯỚNG; case UJ1x ghim lại.
-        APPROVERS="$(sed -n '/^[[:space:]]*approvers:/,/^  [a-zA-Z0-9_-]*:/p' "$ACC/config.yaml" \
+      '')   # block list — chặn vùng bằng ĐỘ THỤT TƯƠNG ĐỐI so với chính dòng
+            # `approvers:`, không bằng mẫu khoá cố định. Hai vòng trước đều sai
+            # vì cùng một lý do: chọn một mẫu-khoá-kết-thúc rồi tin nó phủ hết.
+            #   v1 đòi khoá TRẦN  -> khoá có chú thích đuôi không kết thúc được
+            #                        (đúng dòng `agent_authors:   # OPTIONAL …`
+            #                        mà template của kit đang ship)
+            #   v2 đòi indent 2   -> khoá ở indent 0 không kết thúc được
+            # Cả hai lần, sed chạy tới EOF và gom mọi `- item` phía sau vào
+            # APPROVERS: danh sách CHẶN agent thành danh sách CHO PHÉP ký, và
+            # một `approvers:` rỗng nuốt list của khoá khác nên VIOLATION
+            # [config] của AC-4 không bao giờ nổ. Luật đúng của YAML là thụt:
+            # chỉ dòng thụt SÂU HƠN khoá mới thuộc về nó. UJ1x/UJ1y ghim cả hai.
+        APPROVERS="$(awk '
+          !seen && /^[[:space:]]*approvers:[[:space:]]*$/ {
+            seen=1; match($0, /^[[:space:]]*/); keyind=RLENGTH; next
+          }
+          seen {
+            if ($0 ~ /^[[:space:]]*$/) next                 # dòng trắng: bỏ qua
+            if ($0 ~ /^[[:space:]]*#/)  next                # chú thích: bỏ qua
+            match($0, /^[[:space:]]*/); ind=RLENGTH
+            if (ind <= keyind) exit                         # hết vùng của khoá
+            if ($0 !~ /^[[:space:]]*-[[:space:]]/) exit     # không phải mục list
+            print
+          }' "$ACC/config.yaml" \
           | sed -n 's/^[[:space:]]*-[[:space:]]*//p' \
           | sed -e 's/[[:space:]]*#.*$//' -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//' \
           | grep -v '^$')" ;;
