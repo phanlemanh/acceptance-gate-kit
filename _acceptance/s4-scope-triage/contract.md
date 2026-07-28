@@ -4,7 +4,7 @@ feature: Scope-triage cho review findings ở S4 — ngăn thứ ba "thật như
 slug: s4-scope-triage
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-07-27T12:16:56Z
 owner: phanlemanh@gmail.com
@@ -46,6 +46,33 @@ owner: phanlemanh@gmail.com
 - **Ngưỡng severity configurable per-repo** (vd cho med/low cũng REJECT). Chờ dữ liệu vận hành; mở contract sau nếu cần.
 - **Triage cho suite-command failures.** Suite fail là REJECT vô điều kiện như cũ — đó là thước của repo, không phải finding của reviewer.
 - **Auto-draft contract mới từ out-of-contract findings.** Đề xuất `new-contract` chỉ là chữ trên card; việc mở contract là của human.
+
+## Known limits (người duyệt chốt ở Cổng 2 — 2026-07-28)
+
+Round 6 PASS. Người duyệt ký và chọn GOM toàn bộ mục dưới đây vào MỘT hợp đồng
+kế tiếp (`s4-doc-truth-guard`) thay vì vá lẻ — vá lẻ chạm file gated sẽ làm
+evidence stale và đốt thêm round mà vẫn còn nợ. Không mục nào bị bỏ im lặng.
+
+**Ngoài hợp đồng, từ review round 6 (7 mục):**
+
+- **high** — `scripts/gate-card.js`: renderer chỉ đọc `ooc.findings.length`, KHÔNG đọc `ooc.present`. Writer viết lệch khuôn (`*` thay `-`, sai thụt) → khối Ngoài-hợp-đồng biến mất im lặng, không cờ, exit 0. Sửa theo mẫu guard đã có sẵn cho `gap-probe.md` trong cùng file.
+- **medium** — `lib/out-of-contract.js`: ba marker máy-đọc (`## Ngoài hợp đồng`, `## Chưa phân loại`, dòng cờ cụm) chỉ có khuôn item được round-trip bởi P55; cờ cụm và heading chưa có case nối writer↔reader.
+- **medium/low** — doc-truth trôi theo chính đợt refactor này: `feature-loop/skills/feature-loop/SKILL.md` (bước Cổng 2 còn trỏ `reportPath`/`findingsPath` đã bỏ; thiếu role `triage` trong bảng `feature_loop.models`), `commands/acceptance-init.md` (còn quảng cáo role `scribe` đã xoá), `GUIDE.md` (còn mô tả agent `scribe` + giá trị trả `reportPath`).
+
+**Trong hợp đồng, medium, CHƯA sửa — người duyệt nhận có ý thức:**
+
+- **AC-4** — `feature-loop/workflows/acceptance-verify.js:539`: nhánh partial-triage bật `triageFailed` và ép `rejectFindings` rỗng đúng, nhưng không hạ `inContract: true` trên từng finding, nên `review-findings.md` vẫn in section "## Trong hợp đồng" cho round mà máy thực tế đã fail-toward-human. Theo AC-3 medium in-contract không kéo REJECT nên PASS hợp lệ; nợ này chuyển sang hợp đồng kế tiếp.
+
+**Ứng viên treo từ các round trước (đã triage, nay chốt cùng nhóm):**
+
+- escape `?` trong `globToRe` ship ở round 2 như tác dụng phụ — chưa có case ghim.
+- P53 bỏ 6 dòng header fixture khỏi phép so byte.
+- `CLUSTER_RE` không nhận biến thể emoji `⚠️` (U+FE0F).
+- Hint sửa lỗi của P53 in ra công thức `{ head -6 f; …; } > f` TỰ HUỶ fixture — đề xuất new-contract.
+
+**Cờ cụm round 6:** 5/8 finding rơi vào file không bộ đo nào phủ
+(`feature-loop/skills/feature-loop/SKILL.md`, `commands/acceptance-init.md`,
+`GUIDE.md`) — người duyệt chọn MỞ RỘNG bằng hợp đồng kế tiếp, không rút phạm vi.
 
 ## Notes
 

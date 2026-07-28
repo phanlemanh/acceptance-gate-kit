@@ -9,7 +9,7 @@ enforcement_mode: strict   # the `enforcement` value from _acceptance/config.yam
 bypass_used: false              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
 verified_commit: 1efcbe7cbc1eba4e2c28c3803f899db03b09f563   # pins the evidence to the exact tree verified. CI pre-merge BLOCKS when non-gate files changed after it (stale evidence — re-verify). Omit ONLY if not a git repo; hook rejects non-SHA values.
 # bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
-human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER review
+human_signoff: Manh Phan 2026-07-28
 ---
 
 # Evidence Report: s4-scope-triage
