@@ -2,7 +2,7 @@
 schema_version: 1
 feature: Scope-triage cho review findings ở S4 — ngăn thứ ba "thật nhưng ngoài hợp đồng"
 slug: s4-scope-triage
-risk_tier: T2
+risk_tier: T3
 surfaces: [cli]
 status: signed-off
 approved_by: Manh Phan
@@ -52,6 +52,30 @@ owner: phanlemanh@gmail.com
 Round 6 PASS. Người duyệt ký và chọn GOM toàn bộ mục dưới đây vào MỘT hợp đồng
 kế tiếp (`s4-doc-truth-guard`) thay vì vá lẻ — vá lẻ chạm file gated sẽ làm
 evidence stale và đốt thêm round mà vẫn còn nợ. Không mục nào bị bỏ im lặng.
+
+**Sửa tier sau khi ký (2026-07-28, phát hiện ở review round 12 của
+`premerge-rules-ledger`):** hợp đồng này khai `risk_tier: T2` cho tới lúc ký,
+trong khi chính nó thêm `lib/out-of-contract.js` ở round 2 (commit `3a31688`) —
+`lib/**` nằm trong `risk_tiers.t3_paths`, nên theo luật S0 của skill ("Match
+bất kỳ `t3_paths` → T3", bước 4 "phát hiện tier sai → nâng tier") nó phải là
+T3 từ thời điểm đó. Đã nâng `risk_tier: T3` và điền `human_override` cho E11
+(người duyệt xác nhận đề xuất PASS 3/3 của panel, không để máy tự nâng).
+
+Hai điều KHÔNG vá được ngược, khai nhận ở đây thay vì làm như chưa từng xảy ra:
+
+1. **Gate 1.5 (chốt duyệt plan, chỉ có ở T3) đã không diễn ra.** Plan của đợt
+   này đi thẳng vào S3 theo đường T2. Không có cách nào duyệt bù một chốt đã
+   trôi qua; bù lại toàn bộ code của đợt đã qua 6 round S4 + review adversarial.
+2. **Cổng 2 lần ký đầu (`b195a26`) chỉ điền `human_signoff`, bỏ trống
+   `human_override` của E11** — hợp lệ dưới T2 (panel PASS 3/3, không có item
+   UNCERTAIN), không hợp lệ dưới T3. Đã điền bổ sung.
+
+**Máy KHÔNG bắt được lớp lỗi này** — `pre-merge-check.sh:765` chỉ nổ khi PR
+chạm `t3_paths` mà **không có** thư mục `_acceptance/` nào; một contract khai
+T2 nhưng có đủ hồ sơ thì qua cổng sạch. Đây là điểm mù thật, và nó rơi đúng
+vào lớp `t3_paths` được lập ra để canh ("bug ở đây biến thành false-green im
+lặng trên MỌI repo tiêu thụ") — thêm vào `s4-doc-truth-guard` như một mục
+riêng: cổng phải chặn contract khai tier THẤP hơn path nó thật sự chạm.
 
 **Ngoài hợp đồng, từ review round 6 (7 mục):**
 
