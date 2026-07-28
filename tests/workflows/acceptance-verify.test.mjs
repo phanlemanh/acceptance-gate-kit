@@ -82,9 +82,11 @@ console.log('W03 happy path: PASS + machine-decided run-log + scribe gets exact 
   const lines = result.runLog.map(l => JSON.parse(l));
   check('W03 run_id minted deterministically per eval', lines[0].run_id === 'minted-demo-E1-r1' && lines[1].run_id === 'minted-demo-E2-r1');
   check('W03 ts from args.invokedAt', lines.every(l => l.ts === '2026-07-02T10:00:00Z'));
-  const scribe = byLabel(calls, 'scribe:run-log')[0];
-  check('W03 scribe receives the exact JSONL lines', !!scribe && result.runLog.every(l => scribe.prompt.includes(l)));
-  check('W03 runLogWriteFailed false', result.runLogWriteFailed === false);
+  // Từ đợt 8: KHÔNG còn agent scribe — agent "chép sẵn dòng audit" trông y hệt
+  // ngụy tạo hồ sơ và bị safety layer chặn lặp lại dù nội dung do JS tính từ kết
+  // quả thật. Main loop tự append result.runLog (SKILL bước "Mọi verdict").
+  check('W03 KHONG con agent scribe', byLabel(calls, 'scribe:').length === 0, String(byLabel(calls, 'scribe:').length));
+  check('W03 runLogWriteFailed LUON true khi co dong — main loop append', result.runLogWriteFailed === true);
   const synth = byLabel(calls, 'synthesize:report')[0];
   check('W03 synthesize gets verified_commit literal', synth.prompt.includes(`"verified_commit: ${VC}"`));
   check('W03 synthesize gets the evalRunIds map, not minting rights', synth.prompt.includes('minted-demo-E1-r1') && synth.prompt.includes('KHONG tu mint'));
@@ -217,13 +219,12 @@ console.log('W11 verified_commit sanitize is pure JS, not agent trust');
   check('W11 uppercase SHA normalized to lowercase', byLabel(c2, 'synthesize:report')[0].prompt.includes(`"verified_commit: ${VC}"`));
 }
 
-console.log('W12 scribe failure -> runLogWriteFailed + loud log');
+console.log('W12 run-log: main loop append la duong DUY NHAT (khong con scribe)');
 {
-  const { result, logs } = await runWorkflow(WF, baseArgs(), responder({
-    'scribe:run-log': { written: false, lineCount: 0 },
-  }));
-  check('W12 flag set', result.runLogWriteFailed === true);
-  check('W12 warning logged for main-loop fallback', logs.some(l => /THAT BAI/.test(l)));
+  const { result, logs } = await runWorkflow(WF, baseArgs(), responder());
+  check('W12 flag set khi co dong can ghi', result.runLogWriteFailed === true);
+  check('W12 log nhac main loop tu append', logs.some(l => /TU append/.test(l)));
+  check('W12 runLog mang du dong cho main loop', result.runLog.length === 2, String(result.runLog.length));
 }
 
 console.log('W13 ui-check merges into machine lane + run-log');

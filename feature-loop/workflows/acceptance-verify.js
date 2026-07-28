@@ -575,7 +575,7 @@ const relFile = f => {
 }
 // Đếm theo finding PHÂN BIỆT (file+title), không theo số lượt báo: hai reviewer
 // cùng thấy một lỗi là chuyện thường, và nó KHÔNG được tự nhân đôi thành "cụm".
-// Khoá phân biệt dùng path ĐÃ chuẩn hoá (relFile khai ngay dưới): hai lane
+// Khoá phân biệt dùng path ĐÃ chuẩn hoá (relFile khai ngay trên): hai lane
 // reviewer có thể báo cùng một lỗi bằng path tuyệt đối và path tương đối —
 // dedupe trên path thô sẽ nhân đôi nó thành "cụm" giả.
 const distinctKey = f => `${relFile(f)} :: ${f.title}`
@@ -670,21 +670,16 @@ const machineForReport = machine.map(m => (!m.cannotRun && m.exitCode === 0 && !
   : m)
 const machineForReportB = machineForReport.map(m => ({ ...m, baseline: baselineStatus(m.cmd) }))
 // Provenance xác định bằng máy → literal (synthesizer chỉ chép, không tự suy diễn/bỏ field trust-critical).
-// Scribe chạy song song: append các dòng run-log DO JS TÍNH SẴN — agent là cây bút, không soạn nội dung.
-const [prov, scribe] = await parallel([
-  () => agentT(
+// Run-log KHÔNG còn agent scribe: một agent "chép sẵn dòng audit" trông y hệt hành
+// vi ngụy tạo hồ sơ và bị safety layer chặn lặp lại (4 lần, phiên 2026-07-27→28),
+// dù nội dung do JS tính từ kết quả chạy thật. Main loop tự append result.runLog
+// (cơ chế được user ủy quyền minh danh 2026-07-28) — SKILL bước "Mọi verdict".
+const prov = await agentT(
     `Chay DUNG 3 lenh, bao cao KET QUA THUC (KHONG suy dien, KHONG doan):\n1) printf '%s' "$ACCEPTANCE_GATE_BYPASS" — in ra dung "1" → bypass_used=true; rong/khac → false.\n2) Doc ${args.repoRoot}/_acceptance/config.yaml, lay field "enforcement" o cap 0 (^enforcement: strict|warn|off); thieu file/field → "strict".\n3) git -C ${args.repoRoot} rev-parse HEAD — tra ve verified_commit = chuoi 40-hex NGUYEN VAN tu stdout; lenh loi (khong phai git repo) → chuoi rong. TUYET DOI KHONG bia SHA.\nTra ve {bypass_used, enforcement_mode, verified_commit} dung ket qua 3 lenh tren.`,
     { label: 'capture:provenance', phase: 'Synthesize', schema: PROV_SCHEMA, ...modelOpt('provenance') }
-  ),
-  () => runLogLines.length === 0
-    ? Promise.resolve({ written: true, lineCount: 0 })
-    : agentT(
-        `Ban la scribe co hoc. APPEND chinh xac ${runLogLines.length} dong sau vao CUOI file ${args.repoRoot}/_acceptance/${args.slug}/run-log.jsonl — giu nguyen noi dung cu cua file, KHONG sua/dinh dang lai/sap xep/gop/bo dong nao:\n${runLogLines.join('\n')}\n\nCach lam: mkdir -p ${args.repoRoot}/_acceptance/${args.slug} roi dung Bash "cat >> <file> <<'RUNLOG_EOF'" voi noi dung NGUYEN VAN o tren. Xong doc lai file, xac nhan ${runLogLines.length} dong vua them co mat. Tra ve {written, lineCount} THAT — append fail thi written=false, khong bia.`,
-        { label: 'scribe:run-log', phase: 'Synthesize', schema: RUNLOG_SCHEMA, ...modelOpt('scribe') }
-      ),
-])
-const runLogWriteFailed = runLogLines.length > 0 && !(scribe && scribe.written)
-if (runLogWriteFailed) log('CANH BAO: append run-log.jsonl THAT BAI — main loop phai tu append result.runLog truoc Gate 2 (hook/recheck doi chieu run_id voi log nay)')
+  )
+const runLogWriteFailed = runLogLines.length > 0 // luôn: main loop append, không còn scribe
+if (runLogWriteFailed) log('Run-log: ' + runLogLines.length + ' dong trong result.runLog — main loop TU append truoc Gate 2 (hook/recheck doi chieu run_id voi log nay)')
 // verified_commit sanitize bang JS thuan — khong tin agent: sai shape (khong phai hex SHA) coi nhu
 // khong co (report BO field; pre-merge se NOTE "not pinned" thay vi hook chan oan ca round).
 const verifiedCommit = /^[0-9a-f]{7,40}$/i.test(String((prov && prov.verified_commit) || '').trim())
