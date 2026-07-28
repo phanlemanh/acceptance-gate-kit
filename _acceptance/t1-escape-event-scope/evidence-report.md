@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: t1-escape-event-scope
-verdict: PASS
+verdict: PENDING-JUDGMENT
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c09533b66ebffd2d4d6a5c40b53136329e69e6a7
-human_signoff: Manh Phan 2026-07-27
+verified_commit: 2e2eaf7e894d5065478e6c24d4c748a8f4d1205f
+human_signoff:
 ---
 
 # Evidence Report: t1-escape-event-scope
@@ -35,12 +35,12 @@ human_signoff: Manh Phan 2026-07-27
 | E18 | AC-17 | script | PASS |
 
 Regression-guard suites (unmapped this round — `evals: []`, run as a sanity
-check alongside the carried-forward evidence below, not re-attributed to any
+check alongside the machine evidence below, not attributed to any single
 eval): `bash tests/scripts/run-tests.sh` (497 passed, 0 failed, incl. `PASS:
 RL10d`), `bash tests/hooks/run-tests.sh` (51 passed, 0 failed, incl. `PASS:
-T42`), `bash tests/plugins/run-tests.sh` (all plugin tests passed, incl.
-`PASS: P50 argv thừa exit 2 + nêu tên tham số; mode đơn vẫn xanh`), `bash
-scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
+T42`), `bash scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in
+sync.`), `bash tests/workflows/run-tests.sh` (16 passed, 0 failed on
+execute-parallel; all workflow tests passed).
 
 ## Evidence
 
@@ -85,12 +85,15 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
   note: carry-forward tu round 10 — delta khong cham paths cua eval
 
 - eval: E6
-  run_id: minted-t1-escape-event-scope-E6-r8
+  run_id: minted-t1-escape-event-scope-E6-r12
   exit_code: 0
+  baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-27T10:35:00Z
-  carried_from_round: 8
-  note: carry-forward tu round 8 — delta khong cham paths cua eval
+  verified_at: 2026-07-28T09:30:00Z
+  output: |
+    PASS: P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)
+
+    Results: all plugin tests passed
 
 - eval: E7
   run_id: minted-t1-escape-event-scope-E7-r10
@@ -101,44 +104,59 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
   note: carry-forward tu round 10 — delta khong cham paths cua eval
 
 - eval: E8
-  run_id: minted-t1-escape-event-scope-E8-r9
+  run_id: minted-t1-escape-event-scope-E8-r12
   exit_code: 0
+  baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-27T13:20:00Z
-  carried_from_round: 9
-  note: carry-forward tu round 9 — delta khong cham paths cua eval
+  verified_at: 2026-07-28T09:30:00Z
+  output: |
+    PASS: P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)
+
+    Results: all plugin tests passed
 
 - eval: E9
-  run_id: minted-t1-escape-event-scope-E9-r7
+  run_id: minted-t1-escape-event-scope-E9-r12
   exit_code: 0
+  baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-27T08:45:00Z
-  carried_from_round: 7
-  note: carry-forward tu round 7 — delta khong cham paths cua eval
+  verified_at: 2026-07-28T09:30:00Z
+  output: |
+    PASS: P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)
+
+    Results: all plugin tests passed
 
 - eval: E10
-  run_id: minted-t1-escape-event-scope-E10-r7
+  run_id: minted-t1-escape-event-scope-E10-r12
   exit_code: 0
+  baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-27T08:45:00Z
-  carried_from_round: 7
-  note: carry-forward tu round 7 — delta khong cham paths cua eval
+  verified_at: 2026-07-28T09:30:00Z
+  output: |
+    PASS: P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)
+
+    Results: all plugin tests passed
 
 - eval: E11
-  run_id: minted-t1-escape-event-scope-E11-r7
+  run_id: minted-t1-escape-event-scope-E11-r12
   exit_code: 0
+  baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-27T08:45:00Z
-  carried_from_round: 7
-  note: carry-forward tu round 7 — delta khong cham paths cua eval
+  verified_at: 2026-07-28T09:30:00Z
+  output: |
+    PASS: P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)
+
+    Results: all plugin tests passed
 
 - eval: E12
-  run_id: minted-t1-escape-event-scope-E12-r9
+  run_id: minted-t1-escape-event-scope-E12-r12
   exit_code: 0
+  baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-27T13:20:00Z
-  carried_from_round: 9
-  note: carry-forward tu round 9 — delta khong cham paths cua eval
+  verified_at: 2026-07-28T09:30:00Z
+  output: |
+    PASS: P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)
+
+    Results: all plugin tests passed
 
 - eval: E14
   run_id: minted-t1-escape-event-scope-E14-r10
@@ -184,38 +202,44 @@ scripts/sync-plugin-packages.sh --check` (`plugins/ mirror in sync.`).
   carried: true
   carried_from_round: 8
   note: panel giu nguyen tu round 8 — inputs khong doi (hash khop, carried:true,
-    fromRound:8, khong doi tu round 9/10), khong cham lai; rationale xem round 8
+    fromRound:8, cung inputs_hash voi round 9/10/11), khong cham lai; rationale
+    xem round 8
   judged_by: judge panel — domain-correctness, operational-feasibility, spec-alignment (fresh context, round 8)
   proposal: PASS
   votes:
     - domain-correctness: PASS (r8)
     - operational-feasibility: PASS (r8)
     - spec-alignment: PASS (r8)
-  human_override: Manh Phan 2026-07-27
+  human_override:
   # T3 contract: human_override is MANDATORY on this judgment item regardless
   # of the panel's PASS proposal. Gate 2 human must personally verify and fill
-  # "<name> <date>" before this report can be upgraded to PASS. This round's
-  # write is fresh (round 11) — a new round always requires its own Gate 2
-  # signoff, even though round 10 was already signed off — so this line is
-  # blank pending human review.
+  # "<name> <date>" before this report can be upgraded to PASS. Round 11 was
+  # previously signed off (Manh Phan 2026-07-27) but that signoff pinned an
+  # earlier commit; this round re-verifies at a new verified_commit because
+  # pre-merge flagged this slug's evidence as stale, so a fresh Gate 2
+  # signoff is required again — the prior signature does not carry forward.
 
 ## Analyst
 
-carried tu round truoc — baseline khong do lai round nay (P2 — evals.yaml
-khong doi tu lan baseline cuoi). Danh sach eval khong-phan-biet round nay:
-none — moi eval carried tu round truoc (khong chay lai), nen khong do lai
-baseline va khong co ket luan moi; xem round 1's Analyst note cho phan tich
-goc (van con gia tri vi evals.yaml khong doi). Hai suite lenh xanh-ca-hai-phia
-(`bash tests/scripts/run-tests.sh`, `bash tests/plugins/run-tests.sh`) la
-regression-guard binh thuong chay nhu sanity check khong gan eval id, khong
-liet ke.
+Non-discriminating this round: E6, E8, E9, E10, E11, E12 — all six passed on
+`bash tests/plugins/run-tests.sh` re-run fresh this round with
+`baseline: green`, meaning they also passed on the pre-feature diffBase tree.
+This is expected for this cluster (mirror-drift guard P30, manifest-bump
+suite P40/P44/P45, GUIDE-lifecycle doc check P43) — they are pre-existing
+regression guards in `tests/plugins/run-tests.sh` that this feature's diff
+does not rewrite to assert new T1-escape-specific behaviour, and rounds 7-9
+already established this same baseline classification for this cluster (see
+round 1's Analyst note for the original A/B analysis of the T1-escape script
+evals, still valid since `evals.yaml` is unchanged for those). Suite commands
+green-on-both (`bash tests/scripts/run-tests.sh`, `bash
+tests/hooks/run-tests.sh`, `bash scripts/sync-plugin-packages.sh --check`,
+`bash tests/workflows/run-tests.sh`) are ordinary regression guards run as a
+sanity check, not eval-mapped, and are not listed per template convention.
 
 ## Variance
 
 none — every eval this round is deterministic (no `runs` > 1 field on any
-block); round nay khong co eval nao chay lai (P1 carry-forward toan bo 17
-eval + panel E13).
-
+block); no eval was re-run multiple times this round.
 ## Iterations
 
 Round 1: all 17 machine evals (E1-E12, E14-E18) PASS on `bash
@@ -558,6 +582,61 @@ a new one. This is not a hook-enforced blocker, so it does not change the
 machine-eval table above, but it bears on the E13 judgment item and is
 flagged for the human at Gate 2.
 
+Round 12 (this round): re-verify triggered because pre-merge flagged this
+slug's evidence as stale — code changed after round 11's signed
+`verified_commit`, so that prior signoff no longer covers the current tree;
+`verified_commit` moves to `2e2eaf7e894d5065478e6c24d4c748a8f4d1205f`. E6,
+E8-E12 (the plugins/mirror-drift/manifest-bump/doc-coverage cluster) were
+re-run fresh via `bash tests/plugins/run-tests.sh` (all plugin tests passed,
+incl. `PASS: P56 codex chi dan khuon review-findings (plain + cau truc + dot
+bien)`) rather than carried; all six remain PASS but `baseline: green`
+(non-discriminating this round — see `## Analyst`). E1-E5, E7, E14-E18 are
+carried forward unchanged from round 10 (P1 — this round's diff does not
+touch `scripts/pre-merge-check.sh` or the TE* fixtures). As a sanity check
+the full suite set was re-run fresh anyway: `bash tests/scripts/run-tests.sh`
+497 passed/0 failed (`PASS: RL10d`, same count as round 10/11, no drift),
+`bash tests/hooks/run-tests.sh` 51 passed/0 failed (`PASS: T42`), `bash
+scripts/sync-plugin-packages.sh --check` reports mirror in sync, `bash
+tests/workflows/run-tests.sh` 16 passed/0 failed (execute-parallel) and all
+workflow tests passed — four suites green, no regression entering this
+round. E13 was NOT re-judged this round: inputs unchanged since round 8
+(hash match, `carried: true`, `fromRound: 8`, same `inputs_hash` as rounds
+9-11), so the panel's round-8 proposal (PASS 3/3, unanimous, no dissent)
+carries forward verbatim per P3 for a 4th consecutive round — rationale text
+not reproduced here, see round 8. Contract remains T3: `human_override` on
+E13 is required regardless of the panel's proposal, so the overall verdict
+is PENDING-JUDGMENT again this round — a new round always requires its own
+fresh Gate 2 signoff, even though round 11 was already signed off at an
+earlier commit. This round's adversarial review surfaced 11 findings (2
+high, 6 medium, 3 low) — see `review-findings.md` — but scope-triage could
+not classify any of them into the in-contract or out-of-contract lanes: all
+11 fall into files no eval/AC covers (`feature-loop/skills/feature-loop/SKILL.md`,
+`codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md`,
+`scripts/gate-card.js`, `.codex-plugin/plugin.json`,
+`feature-loop/workflows/acceptance-verify.js`, `lib/out-of-contract.js`), so
+they landed under `## Chưa phân loại (triage-failed)` and the report ends
+with the mandatory cluster-warning line. None of these are hook-enforced
+blockers, so they do not change the machine-eval table above, but given the
+volume (11/11 clustered) and severity mix (2 high) they bear directly on the
+Gate 2 decision — the human should decide whether to widen this feature's
+contract or narrow scope before signing.
+
+Round 12 first attempt was BLOCKED, not PASS, and is recorded here rather
+than overwritten: the `bash tests/scripts/run-tests.sh` suite agent completed
+without returning structured output, so the workflow reported
+`blocked: [{cmd, reason: "agent bi skip/chet — khong co ket qua, khong duoc
+tinh la pass"}]`. The suite itself was not red — the six re-run evals
+(E6, E8-E12) had already returned exit 0 in that same attempt — but the
+missing result was a REGRESSION-GUARD suite, which is precisely the guard the
+P1 carry-forward of E1-E5/E7/E14-E18 leans on, so counting it as green would
+have made the round carry eleven evals *because* a net existed while that net
+was in fact absent. The attempt was resumed at the same round via
+`resumeFromRunId` (15 cached agents replayed, only the dead agent re-run), and
+this report reflects that completed attempt. No run-log line or report body
+was written for the blocked attempt: `run_id` is minted deterministically as
+`minted-<slug>-<eval>-r<round>`, so appending both attempts would have put
+duplicate ids in the audit log for round 12.
+
 ## Gate 2 checklist (human)
 
 - [ ] Read the table + spot-check 1-2 evidence blocks
@@ -570,10 +649,15 @@ flagged for the human at Gate 2.
 - [ ] Fill `human_signoff` in frontmatter + `time_human_minutes.gate2` in contract
 
 E13 note for the human: this is a T3 contract, so `human_override` is
-required on E13 regardless of the judge verdict. This round's panel input
-is carried unchanged from round 8 for the third consecutive round (PASS
-3/3, unanimous, no dissent) — see round 8's full rationale text above;
-nothing about E13's inputs moved this round. `review-findings.md` reports 1
-new LOW finding this round (packaged GUIDE.md ADR-0006 link not shipped in
-the plugin package) — informational, non-merge-blocking, worth a glance
-before signing but not a reason to withhold signoff on its own.
+required on E13 regardless of the judge verdict. This round's panel input is
+carried unchanged from round 8 for the 4th consecutive round (PASS 3/3,
+unanimous, no dissent) — see round 8's full rationale text in an earlier
+copy of this report; nothing about E13's inputs moved this round.
+`review-findings.md` reports 11 new findings this round (2 high, 6 medium, 3
+low), ALL routed to `## Chưa phân loại (triage-failed)` with a 11/11
+coverage-cluster warning at the end of that file — informational and
+non-hook-blocking, but worth reading in full before signing given the
+volume and the two high-severity items (an unguarded write of
+`result.report`/`result.findings` that can blank a prior round's evidence on
+BLOCKED, and a card renderer that silently drops malformed out-of-contract
+items with no flag).
