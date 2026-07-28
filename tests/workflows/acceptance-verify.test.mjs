@@ -43,8 +43,7 @@ function responder(overrides = {}) {
     if (l.startsWith('refute:')) return { refuted: true, reason: 'not real' };
     if (l.startsWith('baseline:')) return { results: [] };
     if (l === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: VC };
-    if (l === 'scribe:run-log') return { written: true, lineCount: 99 };
-    if (l === 'synthesize:report') return { reportPath: '/repo/_acceptance/demo/evidence-report.md', findingsPath: '/repo/_acceptance/demo/review-findings.md' };
+    if (l === 'synthesize:report') return { report: '# Evidence demo (noi dung day du)', findings: '# Findings demo' };
     throw new Error('unexpected agent label: ' + l);
   };
 }
@@ -73,7 +72,7 @@ console.log('W02 args guards: bad args + JSON-string args');
   check('W02 nothing to verify -> BLOCKED', r3.verdict === 'BLOCKED');
 }
 
-console.log('W03 happy path: PASS + machine-decided run-log + scribe gets exact lines');
+console.log('W03 happy path: PASS + run-log may-tinh, main loop ghi file (khong scribe)');
 {
   const { result, calls } = await runWorkflow(WF, baseArgs(), responder());
   check('W03 verdict PASS', result.verdict === 'PASS', result.verdict);
@@ -90,7 +89,8 @@ console.log('W03 happy path: PASS + machine-decided run-log + scribe gets exact 
   const synth = byLabel(calls, 'synthesize:report')[0];
   check('W03 synthesize gets verified_commit literal', synth.prompt.includes(`"verified_commit: ${VC}"`));
   check('W03 synthesize gets the evalRunIds map, not minting rights', synth.prompt.includes('minted-demo-E1-r1') && synth.prompt.includes('KHONG tu mint'));
-  check('W03 reportPath surfaced', result.reportPath === '/repo/_acceptance/demo/evidence-report.md');
+  check('W03 result.report la NOI DUNG (main loop ghi file)', result.report === '# Evidence demo (noi dung day du)');
+  check('W03 result.findings la NOI DUNG', result.findings === '# Findings demo');
 }
 
 console.log('W04 failing eval -> REJECT with failed ids');
@@ -201,7 +201,7 @@ console.log('W10 model routing characterization (the table a routing change must
   check('W10 refuter -> sonnet', model('refute:').every(m => m === 'sonnet'));
   check('W10 baseline -> sonnet', model('baseline:').every(m => m === 'sonnet'));
   check('W10 provenance -> sonnet', model('capture:provenance').every(m => m === 'sonnet'));
-  check('W10 scribe -> haiku', model('scribe:').every(m => m === 'haiku'));
+  check('W10 khong con role scribe (route da xoa cung agent)', byLabel(calls, 'scribe:').length === 0);
   check('W10 synthesize -> sonnet', model('synthesize:').every(m => m === 'sonnet'));
   check('W10 executors isolation untouched (no worktree here)', calls.every(c => c.opts.isolation === undefined));
 }
@@ -260,7 +260,7 @@ console.log('W15 args.models overrides per role; unspecified roles keep defaults
   check('W15 judge overridden -> opus', model('judge:').every(m => m === 'opus'));
   check('W15 machine overridden -> sonnet', model('machine:').every(m => m === 'sonnet'));
   check('W15 finder "session" -> inherit (no model)', model('review:').every(m => m === undefined));
-  check('W15 unspecified: scribe stays haiku', model('scribe:').every(m => m === 'haiku'));
+  check('W15 unspecified: provenance stays sonnet', model('capture:').every(m => m === 'sonnet'));
   check('W15 unspecified: synthesize stays sonnet', model('synthesize:').every(m => m === 'sonnet'));
 }
 
@@ -272,7 +272,7 @@ console.log('W16 sanitize: unknown roles + garbage values ignored, defaults hold
   const model = (prefix) => byLabel(calls, prefix).map(c => c.opts.model);
   check('W16 unknown role ignored, no crash', calls.length > 0);
   check('W16 empty-string value -> default kept (synthesize path unaffected)', model('synthesize:').every(m => m === 'sonnet'));
-  check('W16 non-string value -> default kept', model('scribe:').every(m => m === 'haiku'));
+  check('W16 non-string value -> default kept (provenance sonnet)', model('capture:').every(m => m === 'sonnet'));
   check('W16 "session" (padded) on machine -> inherit', model('machine:').every(m => m === undefined));
 }
 
@@ -558,7 +558,7 @@ console.log('WT-T7d (bien) DUNG 1 finding ngoai vung phu -> khong cluster');
 // được gì (bất biến #4 CLAUDE.md) — người cài chỉ cần đổi wording là qua.
 const REPORT_SECTIONS_ALLOWED = ['## Analyst', '## Variance', '## Iterations'];
 const reportSectionsIn = (prompt) => {
-  const head = prompt.split('Sau do viet file thu hai')[0]; // phần nói về evidence-report
+  const head = prompt.split('Sau do soan NOI DUNG file thu hai')[0]; // phần nói về evidence-report
   return [...new Set((head.match(/## [A-ZĐ][^\s"',.\\]*/g) || []).map(s => s.trim()))];
 };
 
@@ -579,7 +579,7 @@ console.log('WT-T8 prompt synthesize: evidence-report giu nguyen tap section');
 
 console.log('WT-T8b (doi chung duong) golden list bat duoc section tiem them');
 {
-  const faked = 'ghi ## Analyst roi ## Variance roi ## Iterations roi ## Triage\nSau do viet file thu hai ...';
+  const faked = 'ghi ## Analyst roi ## Variance roi ## Iterations roi ## Triage\nSau do soan NOI DUNG file thu hai ...';
   const extra = reportSectionsIn(faked).filter(s => !REPORT_SECTIONS_ALLOWED.includes(s));
   check('WT-T8b phep so con song — bat duoc ## Triage', extra.includes('## Triage'), `extra=${extra.join('|')}`);
 }
