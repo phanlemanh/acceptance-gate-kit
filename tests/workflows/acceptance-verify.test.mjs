@@ -681,11 +681,12 @@ console.log('WT-T12b (doi chung duong) file THAT SU ngoai glob van bi bat');
   check('WT-T12b van bat duoc cum that', !!result.coverageCluster && result.coverageCluster.count === 2, JSON.stringify(result.coverageCluster));
 }
 
-// Glob chua ky tu `?` lam `new RegExp` nem SyntaxError va sap ca round: LOI
-// THAT, da tai hien duoc — nhung scope-triage xep no NGOAI hop dong (khong AC
-// nao noi ve do ben cua glob parser). Theo dung doctrine cua chinh feature nay,
-// no KHONG duoc sua trong round; no di Cong 2 cho nguoi quyet. Khong co case o
-// day la co y, khong phai bo sot.
+// Ky tu `?` trong glob: round 1 tung lam `new RegExp` nem SyntaxError sap ca
+// round. Khi viet lai globToRe cho AC-7 (round 2), `?` duoc escape LUON nhu
+// tac dung phu — co ghi ledger, khong phai mo rong pham vi co y. Hien KHONG co
+// case nao ghim hanh vi nay (xoa `?` khoi character class thi moi suite van
+// xanh) — do la mon no do ben da khai o Cong 2 duoi dang known-limits, khong
+// phai bo sot khong dau vet.
 
 // ── WT-T13: path tuyệt đối từ reviewer KHÔNG được bịa ra cờ cụm ───────────
 // Prompt reviewer mở đầu bằng "trong repo <abs path>" và FINDINGS_SCHEMA để file

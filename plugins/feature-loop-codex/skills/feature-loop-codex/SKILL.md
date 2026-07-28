@@ -439,9 +439,12 @@ or the human confirms a descope entry.
       even when the round is already REJECT for another reason — patching
       undefined behaviour under review pressure is the spiral this step exists
       to stop. They go to Gate 2 for the human to decide.
-    - **unclassified** — triage failed (agent dead after one retry, or the
-      contract could not be read). Then NO finding may drive a REJECT whatever
-      its severity: fail toward the human, never guess the scope.
+    - **unclassified** — triage failed: agent dead after one retry, the
+      contract could not be read, **or the triage response covers only part of
+      the confirmed list** (a silently dropped finding means the classification
+      is incomplete — same rule as the Claude side). Then NO finding may drive
+      a REJECT whatever its severity: fail toward the human, never guess the
+      scope, and never auto-fix from a partial classification.
 
     A confirmed finding that is `high` AND in-contract makes the round REJECT —
     the machine fixes what the contract already bounds, without spending a human
@@ -558,8 +561,9 @@ exactly three choices — record it under known limitations and ship; open a new
 contract for it; or widen the current contract (add criteria, re-approve Gate 1,
 run another S4 round). Default to one of the first two; widening is the
 expensive path and only right when the defect blocks shipping. If triage failed,
-replace the block with an amber flag: scope triage did not run, nothing was
-auto-fixed, the human reviews the full list in `review-findings.md`. If the
+ADD an amber flag above the block — never swap the block out, findings that did
+get classified must stay visible: scope triage did not run to completion,
+nothing was auto-fixed, the human reviews the full list in `review-findings.md`. If the
 coverage-cluster flag is set, show it here — stop and decide: widen the contract
 or narrow the scope.
 
