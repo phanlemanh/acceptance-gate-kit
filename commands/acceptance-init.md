@@ -61,7 +61,13 @@ risk_tiers:
     - "<from 2d>"
 signoff:
   required_for: [T2, T3]     # tiers that pre-merge-check requires signoff for
-  approvers: ["<from 2f>"]   # informational in v1 (not yet machine-enforced)
+  approvers: ["<from 2f>"]   # approvers: enforced — human_signoff must START with
+                             # one of these names, else pre-merge blocks the merge.
+                             # OMIT the key and signatures only face an English
+                             # placeholder net (PENDING/TBD/TODO/…), which misses a
+                             # holding note written in any other language. Declaring
+                             # it is the fix. Declaring it EMPTY is an error, not an
+                             # opt-out — remove the key to opt out deliberately.
   require_human_commit: true # Gate-2 signature must land in its own human-fields-only
                              # commit (pre-merge checks git history; the reviewer commits
                              # the signoff line themselves). Safe default for a fresh repo.
