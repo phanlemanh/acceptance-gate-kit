@@ -7,6 +7,8 @@ surfaces: [cli]
 status: implemented
 approved_by: Manh Phan
 approved_at: 2026-07-28T12:45:00Z
+time_human_minutes:
+  gate1: 8
 owner: omre.cnsp4@onemount.com
 ---
 

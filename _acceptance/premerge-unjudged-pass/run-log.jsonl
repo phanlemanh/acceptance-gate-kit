@@ -1,0 +1,19 @@
+{"ts":"2026-07-28T14:41:21Z","round":1,"evalId":"E1","run_id":"minted-premerge-unjudged-pass-E1-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-28T14:41:21Z","round":1,"evalId":"E2","run_id":"minted-premerge-unjudged-pass-E2-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-28T14:41:21Z","round":1,"evalId":"E2b","run_id":"minted-premerge-unjudged-pass-E2b-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-28T14:41:21Z","round":1,"evalId":"E3","run_id":"minted-premerge-unjudged-pass-E3-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-28T14:41:21Z","round":1,"evalId":"E4","run_id":"minted-premerge-unjudged-pass-E4-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-28T14:41:21Z","round":1,"evalId":"E5","run_id":"minted-premerge-unjudged-pass-E5-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-28T14:41:21Z","round":1,"evalId":"E6","run_id":"minted-premerge-unjudged-pass-E6-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-28T14:41:21Z","round":1,"evalId":"E7","run_id":"minted-premerge-unjudged-pass-E7-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-28T14:41:21Z","round":1,"evalId":"E8","run_id":"minted-premerge-unjudged-pass-E8-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-28T14:41:21Z","round":1,"evalId":"E9","run_id":"minted-premerge-unjudged-pass-E9-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-28T14:41:21Z","round":1,"evalId":"E10","run_id":"minted-premerge-unjudged-pass-E10-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-28T14:41:21Z","round":1,"evalId":"E11","run_id":"minted-premerge-unjudged-pass-E11-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-28T14:41:21Z","round":1,"evalId":"E12","run_id":"minted-premerge-unjudged-pass-E12-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-28T14:41:21Z","round":1,"evalId":"E14","run_id":"minted-premerge-unjudged-pass-E14-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-28T14:41:21Z","round":1,"evalId":"E17","run_id":"minted-premerge-unjudged-pass-E17-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-28T14:41:21Z","round":1,"evalId":"E18","run_id":"minted-premerge-unjudged-pass-E18-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-28T14:41:21Z","round":1,"evalId":"E16","run_id":"minted-premerge-unjudged-pass-E16-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-28T14:41:21Z","round":1,"evalId":"E13","run_id":"minted-premerge-unjudged-pass-E13-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-28T14:41:21Z","round":1,"kind":"baseline","evals_hash":"2df201b117b67fed34df6b78871a1413d16ae13777988140fcefc40d7f131ddb","non_discriminating":[{"cmd":"bash tests/scripts/run-tests.sh","evals":["E1","E2","E2b","E3","E4","E5","E6","E7","E8","E9","E10","E11","E12","E14","E17","E18","E16"]},{"cmd":"bash tests/plugins/run-tests.sh","evals":["E13"]}]}

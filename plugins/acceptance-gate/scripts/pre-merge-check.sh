@@ -283,8 +283,14 @@ if [ -f "$ACC/config.yaml" ]; then
           | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' \
                 -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//' \
           | grep -v '^$')" ;;
-      '')   # block list — cùng khuôn agent_authors ngay trên
-        APPROVERS="$(sed -n '/^[[:space:]]*approvers:/,/^[[:space:]]*[a-zA-Z0-9_-]*:[[:space:]]*$/p' "$ACC/config.yaml" \
+      '')   # block list — chốt kết thúc PHẢI giống hệt agent_authors ngay trên.
+            # Bản đầu đòi dòng khoá TRẦN (`:[[:space:]]*$`), nên một khoá có chú
+            # thích đuôi — đúng dòng `agent_authors:   # OPTIONAL …` mà template
+            # của kit đang ship — KHÔNG kết thúc được vùng: sed chạy tới EOF và
+            # gom mọi `- item` phía sau vào APPROVERS. Danh sách CHẶN agent khi
+            # đó trở thành danh sách CHO PHÉP ký. Chặt hơn sibling nhưng chặt
+            # SAI HƯỚNG; case UJ1x ghim lại.
+        APPROVERS="$(sed -n '/^[[:space:]]*approvers:/,/^  [a-zA-Z0-9_-]*:/p' "$ACC/config.yaml" \
           | sed -n 's/^[[:space:]]*-[[:space:]]*//p' \
           | sed -e 's/[[:space:]]*#.*$//' -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//' \
           | grep -v '^$')" ;;
@@ -737,7 +743,13 @@ XLACS
     fi
   elif placeholder_signoff "$signoff"; then
     echo "VIOLATION [$slug]: human_signoff \"$signoff\" is a placeholder, not a signature — it names no approver, so Gate 2 is still pending. Replace it with the approver's name + date once they actually sign."
-    violations=$((violations+1)); ADVISE_APPROVERS=1; continue
+    violations=$((violations+1))
+    # CHỈ khuyên khai khi repo thật sự CHƯA khai. Khai-mà-rỗng đã có
+    # VIOLATION [config] riêng ở trên; thêm NOTE "approvers is not declared" vào
+    # cùng lần chạy là tự phủ định dòng ngay trên, và bảo người vận hành làm
+    # việc họ vừa làm rồi. AC-4 cấm nhánh khai-mà-rỗng tụt xuống nhánh không-khai.
+    [ "$APPROVERS_DECLARED" = "true" ] || ADVISE_APPROVERS=1
+    continue
   fi
   # Human-signoff provenance: the signature is text in an AI-writable file —
   # the git history of the commit that INTRODUCED it is the only

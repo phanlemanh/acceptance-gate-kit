@@ -2801,13 +2801,59 @@ uj_slug() {
 }
 uj_full() { printf 'schema_version: 1\nfeature: f\nslug: %s\nrisk_tier: T3\nsurfaces: [api]\nstatus: signed-off\napproved_by: Manh Phan\napproved_at: 2026-06-10' "$1"; }
 
-echo "UJ1 doi chung duong: ho so du + chu ky khop approvers -> OK, clean"
-uj_repo uj1 '  approvers: ["Manh Phan", "memto"]'; R="$UJR/uj1"
+echo "UJ1 doi chung duong theo BANG hinh dang khai bao x nguoi ky (AC-1)"
+# BANG chu khong mot o. Mot bo tach chi-lay-phan-tu-dau, hoac chi-hieu-inline,
+# van xanh tren o "inline + ky boi ten dau" — roi BAO OAN tren config that cua
+# repo tieu thu (khai dung hai ten). Fail-closed SAI la che do hong khien
+# consumer go luat thay vi dung no, nen no phai do O DAY chu khong o CI cua ho.
+UJ1_INLINE='  approvers: ["Manh Phan", "memto"]'
+UJ1_BLOCK='  approvers:
+    - "Manh Phan"
+    - "memto"'
+uj1_cell() { # <nhãn> <config approvers> <chữ ký> <exit mong đợi>
+  uj_repo "uj1$1" "$2"; R="$UJR/uj1$1"
+  uj_slug "$R" feat-ok "$(uj_full feat-ok)" "$3"
+  UJ1="$(bash "$CHECK" "$R" 2>&1)"; ujrc=$?
+  check "UJ1-$1" "$4" "$ujrc"
+  if [ "$4" = "0" ]; then
+    hasout "UJ1-$1-ok" "OK [feat-ok]: PASS, signed off by $3" "$UJ1"
+    nothas "UJ1-$1-noviol" "VIOLATION" "$UJ1"
+  else
+    hasout "UJ1-$1-viol" "does not name any approver" "$UJ1"
+  fi
+}
+# 4 o duong: {inline, block} x {ky boi ten #1, ky boi ten #2}
+uj1_cell inline1 "$UJ1_INLINE" "Manh Phan 2026-06-20" 0
+uj1_cell inline2 "$UJ1_INLINE" "memto 2026-06-20"     0
+uj1_cell block1  "$UJ1_BLOCK"  "Manh Phan 2026-06-20" 0
+uj1_cell block2  "$UJ1_BLOCK"  "memto 2026-06-20"     0
+# 2 o am: ten thu BA khong co trong danh sach -> VIOLATION, moi hinh dang mot o
+uj1_cell inlineX "$UJ1_INLINE" "Nguoi La 2026-06-20"  1
+uj1_cell blockX  "$UJ1_BLOCK"  "Nguoi La 2026-06-20"  1
+
+echo "UJ1x block-list KHONG duoc nuot danh sach cua khoa ke tiep"
+# Hinh dang nay chinh la thu bang tren sinh ra de bat, va no den tu TEMPLATE kit
+# dang ship: commands/acceptance-init.md co dong `# agent_authors:   # OPTIONAL...`,
+# bo dau chu thich ra la duoc mot khoa CO chu thich duoi ngay sau khoi signoff.
+# Danh sach CHAN agent tuyet doi khong duoc bien thanh danh sach CHO PHEP ky.
+uj_repo uj1x '  approvers:
+    - "Manh Phan"
+  require_human_commit: false
+  agent_authors:           # OPTIONAL email-glob blocklist cho tac gia commit chu ky
+    - "release-bot@corp.com"'; R="$UJR/uj1x"
+uj_slug "$R" feat-ok "$(uj_full feat-ok)" "release-bot@corp.com 2026-06-20"
+UJ1X="$(bash "$CHECK" "$R" 2>&1)"; check UJ1x 1 $?
+hasout UJ1x2 "does not name any approver" "$UJ1X"
+nothas UJ1x3 "pre-merge-check: clean" "$UJ1X"
+# DOI CHUNG DUONG cua chinh o nay: nguoi duyet THAT trong cung config do van qua
+uj_repo uj1xok '  approvers:
+    - "Manh Phan"
+  require_human_commit: false
+  agent_authors:           # OPTIONAL email-glob blocklist cho tac gia commit chu ky
+    - "release-bot@corp.com"'; R="$UJR/uj1xok"
 uj_slug "$R" feat-ok "$(uj_full feat-ok)" "Manh Phan 2026-06-20"
-UJ1="$(bash "$CHECK" "$R" 2>&1)"; check UJ1a 0 $?
-hasout UJ1b "OK [feat-ok]: PASS, signed off by Manh Phan 2026-06-20" "$UJ1"
-hasout UJ1c "pre-merge-check: clean" "$UJ1"
-nothas UJ1d "VIOLATION" "$UJ1"
+UJ1XOK="$(bash "$CHECK" "$R" 2>&1)"; check UJ1xctrl 0 $?
+hasout UJ1xctrl2 "pre-merge-check: clean" "$UJ1XOK"
 
 echo "UJ6 evidence khai PASS nhung KHONG co contract.md -> VIOLATION, khong tang hinh"
 uj_repo uj6 '  approvers: ["Manh Phan"]'; R="$UJR/uj6"
@@ -2890,6 +2936,15 @@ uj4_case() { # <nhãn> <dòng config>
 uj4_case a '  approvers: []'
 uj4_case b '  approvers:'
 uj4_case c '  approvers: {khong-phai-list}'
+# AC-4 cam "am tham tut xuong nhanh khong khai". Cong khong duoc VUA bao
+# "khai ma rong" VUA khuyen "hay khai" trong CUNG mot lan chay — dong sau phu
+# dinh dong truoc, va bao nguoi van hanh lam viec ho vua lam roi.
+uj_repo uj4x '  approvers: []'; R="$UJR/uj4x"
+uj_slug "$R" feat-p "$(uj_full feat-p)" "PENDING"
+UJ4X="$(bash "$CHECK" "$R" 2>&1)"; check UJ4x 1 $?
+hasout UJ4x2 "signoff.approvers is declared but resolves to no approver name" "$UJ4X"
+nothas UJ4x3 "Consider declaring signoff.approvers" "$UJ4X"
+nothas UJ4x4 "because signoff.approvers is not declared" "$UJ4X"
 # DOI CHUNG DUONG: approvers khai VA co ten -> khong co VIOLATION [config] nao
 uj_repo uj4ok '  approvers: ["Manh Phan"]'; R="$UJR/uj4ok"
 uj_slug "$R" feat-a "$(uj_full feat-a)" "Manh Phan 2026-06-20"
