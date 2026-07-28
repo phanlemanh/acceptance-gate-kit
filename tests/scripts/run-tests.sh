@@ -1706,8 +1706,21 @@ mk_gp_repo() { # <case> — repo git tối thiểu; trả BASE sha qua GP_BASE
   printf 'schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "docs/**"\n  t3_paths:\n    - "src/**"\n' > "$R/_acceptance/config.yaml"
   printf 'v1\n' > "$R/src/app.js"
   git -C "$R" add -A >/dev/null
-  git -c user.email=t@t -c user.name=t -C "$R" commit -qm base
-  GP_BASE="$(git -C "$R" rev-parse HEAD)"
+  # Message MANG TÊN CASE là chống-chớp-tắt, không phải trang trí. Trước đây mọi
+  # fixture có CÙNG cây + CÙNG author + CÙNG message "base", nên sha base chỉ còn
+  # phụ thuộc dấu-thời-gian-giây: các repo dựng trong cùng MỘT giây ra sha Y HỆT
+  # (đo được: ba lần gọi liên tiếp cho cùng một sha). Hệ quả: một case lỡ đưa
+  # GP_BASE của repo KHÁC cho pre-merge-check vẫn XANH, và chỉ ĐỎ khi hai lần
+  # commit rơi qua ranh giới giây — TE5 từng sống đúng kiểu đó (~2/8 lần chạy,
+  # exit 2 "base không resolve" + mất hết message per-slug). Ghim base riêng cho
+  # từng repo ở call-site (TE4_B/TE5_B...) chỉ vá TỪNG chỗ; sha riêng từng
+  # fixture vá cả LỚP — xem GPB1 ngay dưới.
+  git -c user.email=t@t -c user.name=t -C "$R" commit -qm "base $1"
+  GP_BASE="$(git -C "$R" rev-parse --quiet --verify 'HEAD^{commit}' 2>/dev/null || true)"
+  # Fail-loud: git init/commit hỏng thì GP_BASE rỗng, và mọi case downstream đỏ
+  # bằng "base không resolve" — một triệu chứng ở RẤT XA nguyên nhân. Chết ngay
+  # tại chỗ, nêu đúng fixture nào, thay vì để cả suite đoán.
+  [ -n "$GP_BASE" ] || { echo "FATAL: mk_gp_repo $1 — không tạo được base commit trong $R" >&2; exit 1; }
 }
 # gp_feature <root> <slug> <tier> <status>
 # Feature SẠCH MỌI MẶT KHÁC: có evidence-report PASS + chữ ký, để violation duy
@@ -1725,6 +1738,28 @@ gp_feature() {
   esac
 }
 gp_commit() { git -C "$1" add -A >/dev/null; git -c user.email=t@t -c user.name=t -C "$1" commit -qm change; }
+
+# ── GPB: hợp đồng của chính mk_gp_repo ─────────────────────────────────────
+# Cả rừng case GPM*/TE*/RL* dưới đây đứng trên một giả định chưa từng ai ghim:
+# sha base của fixture này KHÔNG dùng được cho fixture kia. Ngày giả định đó sai
+# (mọi base commit y hệt nhau), lỗi lẫn-repo ở TE5 sống 100% số lần chạy mà chỉ
+# lộ ~1/4. Ghim luôn cái giả định — đây là thước gắn vào chính con dao dựng
+# fixture, không phải vào một case dùng nó.
+echo "GPB1 mk_gp_repo: moi fixture MOT sha base rieng, khong dung cheo duoc"
+mk_gp_repo gpb1a; GPB1A="$GP_BASE"
+mk_gp_repo gpb1b; GPB1B="$GP_BASE"
+[ -n "$GPB1A" ] && [ -n "$GPB1B" ]; check GPB1a 0 $?
+[ "$GPB1A" != "$GPB1B" ]; check GPB1b 0 $?
+# ĐỐI CHỨNG DƯƠNG: sha của chính nó PHẢI resolve trong repo của nó — nếu không,
+# GPB1d dưới xanh vì "chẳng sha nào resolve" chứ không vì tính riêng biệt.
+git -C "$GPR/gpb1a" rev-parse --quiet --verify "$GPB1A^{commit}" >/dev/null 2>&1; check GPB1c 0 $?
+# ...và sha của repo KIA thì KHÔNG. Đây mới là thứ khiến lỗi lẫn-repo đỏ 100%.
+git -C "$GPR/gpb1a" rev-parse --quiet --verify "$GPB1B^{commit}" >/dev/null 2>&1; check GPB1d 1 $?
+
+echo "GPB2 mk_gp_repo fail-loud: khong dung duoc repo -> FATAL + exit ngay tai cho"
+GPB2OUT="$(GPR="/dev/null/khong-the-tao"; mk_gp_repo gpb2 2>&1)"; GPB2ST=$?
+check  GPB2a 1 "$GPB2ST"
+hasout GPB2b "FATAL: mk_gp_repo gpb2" "$GPB2OUT"
 
 echo "GPM11 gap_probe: bien the hop le nhan dung, sai chinh ta -> canh bao cau hinh"
 mk_gp_repo gp11a; R="$GPR/gp11a"; gp_feature "$R" feat-q T3 implemented
