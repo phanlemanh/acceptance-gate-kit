@@ -32,6 +32,21 @@
   (Đừng ghim con số này thành danh sách đóng — nó sẽ lại lỗi thời; ý là *lớp*,
   không phải *danh sách*.)
 
+- **Thước phải gắn vào vật được giao** — dạng tổng quát của bất biến trên,
+  học bằng 4 round S4 liên tiếp của s4-scope-triage (2026-07-27→28): cùng một
+  lớp lỗi đổi da 4 lần mà mọi eval vẫn xanh. Bốn hình dạng đã dẫm: (1) đo *chỉ
+  dẫn* thay vì *đầu ra* (grep file hướng dẫn trong khi renderer không đọc key);
+  (2) fixture cho judge là văn *viết tay* không code path nào sinh ra; (3) bên
+  VIẾT và bên ĐỌC của một artifact trôi khỏi nhau vì mọi test tự dựng fixture
+  đúng khuôn bên đọc; (4) phép-đo-thêm-để-chữa-lớp-này hardcode ROOT nên so với
+  checkout của tác giả thay vì cây đang kiểm. Luật rút ra: fixture phải do
+  **code sinh** trong chính lần chạy; khuôn của seam LLM-viết→máy-đọc phải đặt
+  **một chỗ có marker** rồi test **round-trip** rút-từ-writer-đọc-bằng-reader
+  (mẫu: `OOC-ITEM-TEMPLATE` + case P55); mọi đường dẫn trong test/script sinh
+  fixture phải **suy từ vị trí script**, không hardcode. Nghi thức kiểm nhanh:
+  hỏi "nếu tôi phá vật thật trong một bản sao, phép đo này có đỏ không?" — rồi
+  phá thử một lần cho mỗi phép đo mới.
+
 - **Quyết định khó đảo / gây bất ngờ / có trade-off thật** → ghi ADR 1-đoạn-văn
   vào `docs/adr/` (đủ cả 3 điều kiện mới ghi, thiếu 1 thì bỏ). Đề xuất đã
   TỪ CHỐI mà có nguy cơ quay lại → 1 file trong `.out-of-scope/` kèm mục
