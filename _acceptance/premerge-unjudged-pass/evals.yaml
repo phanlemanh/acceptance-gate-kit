@@ -15,6 +15,21 @@ evals:
     cmd: config:executors.test.scripts
     expected: "case UJ2: approvers ['Manh Phan'] + human_signoff 'PENDING — chờ Manh gật' → exit != 0, stdout CÓ VIOLATION nêu chữ ký không nêu tên người duyệt đã khai, và KHÔNG chứa chuỗi 'signed off by PENDING' lẫn 'pre-merge-check: clean'"
     paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  # Rút phạm vi cú pháp sau vòng gia cố: cổng thà TỪ CHỐI RÕ RÀNG còn hơn ĐỌC
+  # NHẦM ÂM THẦM. Ba vòng phân tích block list bằng mẫu sed/awk chọn tay đều
+  # hỏng theo một hình dạng YAML hợp lệ mới, vòng ba còn chặn nhầm người thật.
+  - id: E1b
+    criterion: AC-1b
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case UJ1b × 5 biến thể ngoài inline-một-dòng (block thụt sâu · block ngang cột · block có chú thích đuôi · flow xuống dòng · scalar trần) → mỗi biến thể exit != 0, ĐÚNG MỘT dòng 'VIOLATION [config]:' chứa 'reads only the single-line inline form', và stdout KHÔNG chứa 'OK [feat-ok]' — cấm im lặng đọc ra một danh sách nào rồi tuyên bố slug ổn"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E1c
+    criterion: AC-1c
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case UJ1c: file có notifications.approvers ([ci-bot@corp.com]) đứng TRƯỚC khối signoff (approvers ['Manh Phan']) → bot ký thì exit != 0 + 'does not name any approver'; đối chứng UJ1cctrl trên CÙNG file config: 'Manh Phan 2026-06-20' ký thì exit 0 + clean. Ghim rằng cổng đọc approvers TRONG khối signoff chứ không phải lần xuất hiện đầu tiên trong file"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
   - id: E2b
     criterion: AC-2b
     executor: script

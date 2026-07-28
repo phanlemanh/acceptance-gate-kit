@@ -273,50 +273,40 @@ if [ -f "$ACC/config.yaml" ]; then
   #   khai, 0 tên  -> DECLARED=true, APPROVERS rỗng  -> VIOLATION ngay dưới
   # Ranh giới đó theo đúng tiền lệ RL14: không-khai là bỏ-qua-có-tín-hiệu,
   # khai-mà-vô-dụng là lỗi. Gộp hai cái làm một là mở lại lỗ cho config gõ sai.
-  if grep -qE '^[[:space:]]*approvers:' "$ACC/config.yaml"; then
+  # NEO VÀO KHỐI `signoff:` CẤP-0, không dò `approvers:` ở bất kỳ đâu. Bản trước
+  # bám lần xuất hiện ĐẦU TIÊN trong cả file, nên một `notifications.approvers`
+  # (hay một ví dụ trong block-scalar tài liệu) đứng trước `signoff:` biến list
+  # của khoá KHÁC thành allowlist ký — đo sống: bot trong list đó ký được, còn
+  # người duyệt thật thì bị từ chối. Khoá cấp-0 là ranh giới DUY NHẤT không mơ
+  # hồ ở file này (guard 2-space schema phía trên đã cưỡng chế indent).
+  ap_block="$(awk '
+    /^signoff:[[:space:]]*(#.*)?$/ { inb=1; next }
+    inb && /^[^[:space:]#]/ { exit }
+    inb { print }
+  ' "$ACC/config.yaml")"
+  if printf '%s\n' "$ap_block" | grep -qE '^[[:space:]]*approvers:'; then
     APPROVERS_DECLARED=true
-    ap_raw="$(sed -n 's/^[[:space:]]*approvers:[[:space:]]*//p' "$ACC/config.yaml" | head -1 \
+    ap_raw="$(printf '%s\n' "$ap_block" | sed -n 's/^[[:space:]]*approvers:[[:space:]]*//p' | head -1 \
       | sed -e 's/[[:space:]]*#.*$//' -e 's/[[:space:]]*$//')"
+    # CHỈ chấp nhận dạng inline MỘT DÒNG `["A", "B"]` — mở và đóng cùng dòng.
+    # Đây là quyết định RÚT PHẠM VI, không phải thiếu sót: ba vòng cố phân tích
+    # block list bằng mẫu sed/awk chọn tay đều hỏng theo một hình dạng YAML hợp
+    # lệ mới (khoá trần / indent 2 / ngang cột / chú thích đuôi / CRLF / flow
+    # xuống dòng), và vòng thứ ba còn CHẶN NHẦM người duyệt thật. Một dạng được
+    # hỗ trợ + một thông điệp nói thẳng dạng đó thì đúng cho mọi config: không
+    # còn im lặng đọc nhầm list, và người dùng dạng khác biết ngay phải sửa gì.
     case "$ap_raw" in
-      \[*)  # inline flow: ["Manh Phan", "memto"] — dạng acceptance-init sinh ra
+      \[*\])
         APPROVERS="$(printf '%s' "$ap_raw" | sed -e 's/^\[//' -e 's/\]$//' | tr ',' '\n' \
           | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' \
                 -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//' \
           | grep -v '^$')" ;;
-      '')   # block list — chặn vùng bằng ĐỘ THỤT TƯƠNG ĐỐI so với chính dòng
-            # `approvers:`, không bằng mẫu khoá cố định. Hai vòng trước đều sai
-            # vì cùng một lý do: chọn một mẫu-khoá-kết-thúc rồi tin nó phủ hết.
-            #   v1 đòi khoá TRẦN  -> khoá có chú thích đuôi không kết thúc được
-            #                        (đúng dòng `agent_authors:   # OPTIONAL …`
-            #                        mà template của kit đang ship)
-            #   v2 đòi indent 2   -> khoá ở indent 0 không kết thúc được
-            # Cả hai lần, sed chạy tới EOF và gom mọi `- item` phía sau vào
-            # APPROVERS: danh sách CHẶN agent thành danh sách CHO PHÉP ký, và
-            # một `approvers:` rỗng nuốt list của khoá khác nên VIOLATION
-            # [config] của AC-4 không bao giờ nổ. Luật đúng của YAML là thụt:
-            # chỉ dòng thụt SÂU HƠN khoá mới thuộc về nó. UJ1x/UJ1y ghim cả hai.
-        APPROVERS="$(awk '
-          !seen && /^[[:space:]]*approvers:[[:space:]]*$/ {
-            seen=1; match($0, /^[[:space:]]*/); keyind=RLENGTH; next
-          }
-          seen {
-            if ($0 ~ /^[[:space:]]*$/) next                 # dòng trắng: bỏ qua
-            if ($0 ~ /^[[:space:]]*#/)  next                # chú thích: bỏ qua
-            match($0, /^[[:space:]]*/); ind=RLENGTH
-            if (ind <= keyind) exit                         # hết vùng của khoá
-            if ($0 !~ /^[[:space:]]*-[[:space:]]/) exit     # không phải mục list
-            print
-          }' "$ACC/config.yaml" \
-          | sed -n 's/^[[:space:]]*-[[:space:]]*//p' \
-          | sed -e 's/[[:space:]]*#.*$//' -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//' \
-          | grep -v '^$')" ;;
-      *)    # scalar trần / cú pháp lạ: KHÔNG đoán — 0 tên, rơi vào VIOLATION dưới
-        APPROVERS="" ;;
+      *) APPROVERS="" ;;
     esac
   fi
 fi
 if [ "$APPROVERS_DECLARED" = "true" ] && [ -z "$APPROVERS" ]; then
-  echo "VIOLATION [config]: signoff.approvers is declared but resolves to no approver name — a declared-yet-unusable allowlist silently downgrades signature checking to the placeholder net. Write it as signoff.approvers: [\"<name>\"] or a YAML block list, or remove the key to opt out deliberately."
+  echo "VIOLATION [config]: signoff.approvers is declared but this gate reads only the single-line inline form — write it as signoff.approvers: [\"Name One\", \"Name Two\"] on ONE line (YAML block lists and multi-line flow lists are deliberately NOT parsed), or remove the key to opt out deliberately. A declared-yet-unreadable allowlist would silently downgrade signature checking to the English-only placeholder net."
   violations=$((violations+1))
 fi
 if [ "$RECHECK_MODE" = "warn" ]; then
@@ -757,6 +747,12 @@ XLACS
       echo "VIOLATION [$slug]: human_signoff \"$signoff\" does not name any approver declared in signoff.approvers — Gate 2 is still pending. Replace it with an approver's name (+ date) once they actually sign."
       violations=$((violations+1)); continue
     fi
+  elif [ "$APPROVERS_DECLARED" = "true" ]; then
+    # Khai mà không đọc được: đã có VIOLATION [config] chặn cả lần chạy. Ở đây
+    # TUYỆT ĐỐI không tụt xuống lưới đen (AC-4 cấm), và cũng không được in
+    # "OK … signed off by X" — chữ ký CHƯA HỀ được kiểm, nói nó ổn là overclaim.
+    echo "NOTE [$slug]: signature NOT checked — signoff.approvers is declared but unreadable (see VIOLATION [config] above); fix the config, then re-run."
+    continue
   elif placeholder_signoff "$signoff"; then
     echo "VIOLATION [$slug]: human_signoff \"$signoff\" is a placeholder, not a signature — it names no approver, so Gate 2 is still pending. Replace it with the approver's name + date once they actually sign."
     violations=$((violations+1))
