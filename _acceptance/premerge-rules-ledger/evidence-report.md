@@ -1,7 +1,7 @@
 ---
 schema_version: 2
 feature_slug: premerge-rules-ledger
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []        # REJECT only, e.g. [E2, E5]
 reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
@@ -9,7 +9,7 @@ enforcement_mode: strict
 bypass_used: false
 verified_commit: a8899d2a29faa2586fcf16ac4a29f9f049cec2d8
 # bypass_ack:
-human_signoff:
+human_signoff: Manh Phan 2026-07-28
 ---
 
 # Evidence Report: premerge-rules-ledger
@@ -112,7 +112,7 @@ human_signoff:
     - domain-correctness: PASS (r4)
     - operational-feasibility: PASS (r4)
     - spec-alignment: PASS (r4)
-  human_override:
+  human_override: Manh Phan 2026-07-28
 
 - eval: E11
   run_id: minted-premerge-rules-ledger-E11-r9
