@@ -4,7 +4,7 @@ feature: Chặn PASS chưa ai phán ở biên merge (chữ ký khớp approvers 
 slug: premerge-unjudged-pass
 risk_tier: T3
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-07-28T12:45:00Z
 owner: omre.cnsp4@onemount.com
