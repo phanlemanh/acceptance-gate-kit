@@ -2977,6 +2977,64 @@ for cfg in '  approvers: ["Manh Phan"]' ''; do
   nothas "UJ18-order2" "is a placeholder, not a signature" "$UJ18"
 done
 
+echo "UJ17 luat moi song o MOI che do goi (AC-16)"
+# Luat moi nam trong vong per-slug — vong do chay o MOI che do goi. Neu ai do
+# boc no vao nhanh chi song khi co --base (nhanh cua gap-probe va T1-escape,
+# hai luat loc theo diff PR) thi suite van xanh trong khi consumer goi khong
+# base — dung che do da gay incident #255 — khong duoc bao ve gi.
+uj_repo uj17 '  approvers: ["Manh Phan"]'; R="$UJR/uj17"; UJ17B="$UJ_BASE"
+uj_slug "$R" feat-pending "$(uj_full feat-pending)" "PENDING"
+uj_slug "$R" feat-ghost - "Manh Phan 2026-06-20"
+git -C "$R" add -A >/dev/null
+git -c user.email=t@t -c user.name=t -C "$R" commit -qm change
+uj17_run() { # <nhãn> <cờ...>
+  lbl="$1"; shift
+  UJ17="$(bash "$CHECK" "$R" "$@" 2>&1)"; UJ17ST=$?
+  check  "UJ17-$lbl-exit" 1 "$UJ17ST"
+  hasout "UJ17-$lbl-sig"  "does not name any approver" "$UJ17"
+}
+uj17_run base --base "$UJ17B"
+uj17_run nobase
+uj17_run slug --slug feat-pending
+# Nhom tang hinh cung phai song o che do khong-base
+UJ17G="$(bash "$CHECK" "$R" 2>&1)"; hasout UJ17-ghost "no contract.md" "$UJ17G"
+# O AM: --slug tro slug KHAC thi slug do KHONG bi xet (dung thiet ke co loc)
+uj_repo uj17n '  approvers: ["Manh Phan"]'; R="$UJR/uj17n"
+uj_slug "$R" feat-ok "$(uj_full feat-ok)" "Manh Phan 2026-06-20"
+uj_slug "$R" feat-pending "$(uj_full feat-pending)" "PENDING"
+UJ17N="$(bash "$CHECK" "$R" --slug feat-ok 2>&1)"; check UJ17neg 0 $?
+nothas UJ17neg2 "feat-pending" "$UJ17N"
+
+echo "UJ11 enforcement off/warn/strict KHONG ha luat moi (AC-11)"
+# BANG chu khong mot gia tri: mot mode lot la fail-open im lang.
+for mode in off warn strict; do
+  uj_repo "uj11-$mode" '  approvers: ["Manh Phan"]'; R="$UJR/uj11-$mode"
+  printf 'enforcement: %s\n' "$mode" >> "$R/_acceptance/config.yaml"
+  uj_slug "$R" feat-pending "$(uj_full feat-pending)" "PENDING"
+  uj_slug "$R" feat-ghost - "Manh Phan 2026-06-20"
+  UJ11="$(bash "$CHECK" "$R" 2>&1)"; check "UJ11-$mode" 1 $?
+  hasout "UJ11-$mode-sig"   "does not name any approver" "$UJ11"
+  hasout "UJ11-$mode-ghost" "no contract.md" "$UJ11"
+done
+
+echo "UJ12 stdout + so luat + idempotent (AC-12)"
+uj_repo uj12 '  approvers: ["Manh Phan"]'; R="$UJR/uj12"; UJ12B="$UJ_BASE"
+uj_slug "$R" feat-pending "$(uj_full feat-pending)" "PENDING"
+git -C "$R" add -A >/dev/null
+git -c user.email=t@t -c user.name=t -C "$R" commit -qm change
+# (a) VIOLATION ra STDOUT — chay 2>/dev/null van thay. CI chi grep stdout.
+UJ12A="$(bash "$CHECK" "$R" --base "$UJ12B" 2>/dev/null)"
+hasout UJ12a "does not name any approver" "$UJ12A"
+# (b) so luat KHONG doi o CA HAI che do — luat moi nam TRONG luat per-slug da
+# co so, khong phai luat thu tu.
+hasout UJ12b1 "pre-merge-check: rules ran=3 declared-off=0 expected=3" "$UJ12A"
+UJ12C="$(bash "$CHECK" "$R" 2>&1)"
+hasout UJ12b2 "pre-merge-check: rules ran=1 declared-off=2 expected=3" "$UJ12C"
+# (c) idempotent
+UJ12D="$(bash "$CHECK" "$R" --base "$UJ12B" 2>&1)"
+UJ12E="$(bash "$CHECK" "$R" --base "$UJ12B" 2>&1)"
+same UJ12c "$UJ12D" "$UJ12E"
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
