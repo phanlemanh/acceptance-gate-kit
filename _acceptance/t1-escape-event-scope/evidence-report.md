@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: t1-escape-event-scope
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 2e2eaf7e894d5065478e6c24d4c748a8f4d1205f
-human_signoff:
+human_signoff: Manh Phan 2026-07-28
 ---
 
 # Evidence Report: t1-escape-event-scope
@@ -210,7 +210,7 @@ execute-parallel; all workflow tests passed).
     - domain-correctness: PASS (r8)
     - operational-feasibility: PASS (r8)
     - spec-alignment: PASS (r8)
-  human_override:
+  human_override: Manh Phan 2026-07-28
   # T3 contract: human_override is MANDATORY on this judgment item regardless
   # of the panel's PASS proposal. Gate 2 human must personally verify and fill
   # "<name> <date>" before this report can be upgraded to PASS. Round 11 was
