@@ -2885,7 +2885,7 @@ uj4_case() { # <nhãn> <dòng config>
   UJ4="$(bash "$CHECK" "$R" 2>&1)"; check "UJ4$1-exit" 1 $?
   same   "UJ4$1-count" 1 "$(printf '%s\n' "$UJ4" | grep -c '^VIOLATION \[config\]:')"
   hasout "UJ4$1-msg" "signoff.approvers is declared but resolves to no approver name" "$UJ4"
-  nothas "UJ4$1-nonote" "consider declaring signoff.approvers" "$UJ4"
+  nothas "UJ4$1-nonote" "Consider declaring signoff.approvers" "$UJ4"
 }
 uj4_case a '  approvers: []'
 uj4_case b '  approvers:'
@@ -2901,6 +2901,81 @@ uj_repo uj4none ''; R="$UJR/uj4none"
 uj_slug "$R" feat-a "$(uj_full feat-a)" "Manh Phan 2026-06-20"
 UJ4NONE="$(bash "$CHECK" "$R" 2>&1)"; check UJ4ctrl3 0 $?
 nothas UJ4ctrl4 "VIOLATION [config]" "$UJ4NONE"
+
+echo "UJ2 chu ky KHONG neu ten nao trong approvers -> VIOLATION"
+uj_repo uj2 '  approvers: ["Manh Phan"]'; R="$UJR/uj2"
+uj_slug "$R" feat-pending "$(uj_full feat-pending)" "PENDING — chờ Manh gật"
+UJ2="$(bash "$CHECK" "$R" 2>&1)"; check UJ2a 1 $?
+hasout UJ2b 'human_signoff "PENDING — chờ Manh gật" does not name any approver' "$UJ2"
+nothas UJ2c "signed off by PENDING" "$UJ2"
+nothas UJ2d "pre-merge-check: clean" "$UJ2"
+
+echo "UJ3 chu ky giu-cho trong commit NGUOI dung nghi thuc -> VAN VIOLATION"
+# require_human_commit KHONG cuu duoc lop nay: no kiem AI commit va commit do
+# cham dong nao, khong kiem noi dung co phai mot cai ten. Fixture phai dung
+# DUNG nghi thuc hai commit, neu khong case do vi luat require_human_commit.
+uj3_repo() { # <case> <chữ ký>
+  uj_repo "$1" '  approvers: ["Manh Phan"]'
+  sed -i.bak 's/^  require_human_commit: false$/  require_human_commit: true/' "$R/_acceptance/config.yaml"
+  rm -f "$R/_acceptance/config.yaml.bak"
+  uj_slug "$R" feat-h "$(uj_full feat-h)" ""
+  git -C "$R" add -A >/dev/null
+  git -c user.email=m@m -c user.name=Manh -C "$R" commit -qm "evidence(feat-h): may viet"
+  sed -i.bak "s/^human_signoff:.*/human_signoff: $2/" "$R/_acceptance/feat-h/evidence-report.md"
+  rm -f "$R/_acceptance/feat-h/evidence-report.md.bak"
+  git -C "$R" add -A >/dev/null
+  git -c user.email=m@m -c user.name=Manh -C "$R" commit -qm "signoff(feat-h): ky"
+}
+# DOI CHUNG DUONG truoc: CUNG nghi thuc hai commit, chu ky THAT -> exit 0.
+# Thieu no, UJ3 chi chung minh "co violation nao do" chu khong phai luat moi.
+uj3_repo uj3ok "Manh Phan 2026-06-20"; UJ3OK="$(bash "$CHECK" "$R" 2>&1)"
+check  UJ3ctrl 0 $?
+hasout UJ3ctrl2 "pre-merge-check: clean" "$UJ3OK"
+uj3_repo uj3 "PENDING — chờ Manh gật"; UJ3="$(bash "$CHECK" "$R" 2>&1)"
+check  UJ3a 1 $?
+hasout UJ3b "does not name any approver" "$UJ3"
+
+echo "UJ2b bang bien khop ten (approvers: [Manh])"
+uj2b() { # <nhãn> <chữ ký> <exit mong đợi>
+  uj_repo "uj2b$1" '  approvers: ["Manh"]'; R="$UJR/uj2b$1"
+  uj_slug "$R" feat-b "$(uj_full feat-b)" "$2"
+  bash "$CHECK" "$R" >/dev/null 2>&1; check "UJ2b-$1" "$3" $?
+}
+uj2b o1 "Manh Phan 2026-06-20"             0
+uj2b o2 "Manh"                             0
+uj2b o3 "Manhattan 2026-06-20"             1
+uj2b o4 "manh phan 2026-06-20"             1
+uj2b o5 "  Manh Phan 2026-06-20"           0
+uj2b o6 "Manh Phan — chưa duyệt, chờ họp"  0   # chot Cong 1: NHAN (contract Notes)
+
+echo "UJ5 KHONG khai approvers -> luoi den bat, MOT dong NOTE cho ca lan chay"
+for ph in PENDING TBD TODO 'n/a' none unsigned waiting '>' '|' '-' '<name> <date>'; do
+  uj_repo uj5 ''; R="$UJR/uj5"
+  uj_slug "$R" feat-p "$(uj_full feat-p)" "$ph"
+  bash "$CHECK" "$R" >/dev/null 2>&1; check "UJ5-[$ph]" 1 $?
+done
+uj_repo uj5n ''; R="$UJR/uj5n"
+uj_slug "$R" feat-a "$(uj_full feat-a)" "PENDING"
+uj_slug "$R" feat-b "$(uj_full feat-b)" "TBD"
+UJ5N="$(bash "$CHECK" "$R" 2>&1)"
+same   UJ5n1 1 "$(printf '%s\n' "$UJ5N" | grep -c 'Consider declaring signoff.approvers')"
+same   UJ5n2 2 "$(printf '%s\n' "$UJ5N" | grep -c 'is a placeholder, not a signature')"
+# DOI CHUNG DUONG: cung config khong-khai, chu ky that phai VAN qua
+uj_repo uj5c ''; R="$UJR/uj5c"
+uj_slug "$R" feat-ok "$(uj_full feat-ok)" "Manh Phan 2026-06-20"
+UJ5C="$(bash "$CHECK" "$R" 2>&1)"; check UJ5ctrl 0 $?
+hasout UJ5ctrl2 "pre-merge-check: clean" "$UJ5C"
+nothas UJ5ctrl3 "Consider declaring signoff.approvers" "$UJ5C"
+
+echo "UJ18 chu ky RONG -> thong diep chot RONG song sot, dung thu tu"
+for cfg in '  approvers: ["Manh Phan"]' ''; do
+  uj_repo uj18 "$cfg"; R="$UJR/uj18"
+  uj_slug "$R" feat-e "$(uj_full feat-e)" ""
+  UJ18="$(bash "$CHECK" "$R" 2>&1)"; check "UJ18-exit" 1 $?
+  hasout "UJ18-msg" "verdict PASS but human_signoff is empty (Gate 2 pending)" "$UJ18"
+  nothas "UJ18-order" "does not name any approver" "$UJ18"
+  nothas "UJ18-order2" "is a placeholder, not a signature" "$UJ18"
+done
 
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"

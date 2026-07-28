@@ -339,6 +339,52 @@ claims_released() { # <dir> — 0 iff thư mục TỰ NHẬN đã qua cổng.
   return 1
 }
 
+placeholder_signoff() { # <chuỗi> — 0 iff chữ ký không nêu tên ai cả.
+  # LƯỚI DỰ PHÒNG, CHỈ dùng khi repo KHÔNG khai signoff.approvers. Danh sách từ
+  # khoá luôn phụ thuộc ngôn ngữ và luôn sót (repo này ký tiếng Việt: "chờ Manh
+  # gật" không có trong bảng nào dưới đây) — thuốc thật là khai approvers, và
+  # NOTE cuối lần chạy nói đúng câu đó. Khớp theo TIỀN TỐ vì chữ ký thật dẫn
+  # đầu bằng tên. LC_ALL=C để `tr` không chết trên UTF-8.
+  case "$(printf '%s' "$1" | LC_ALL=C tr '[:upper:]' '[:lower:]')" in
+    '>'|'|'|'-') return 0 ;;
+    '<'*) return 0 ;;                       # template chưa điền: "<name> <date>"
+    pending*|tbd*|todo*|n/a*|none|unsigned*|waiting*) return 0 ;;
+  esac
+  return 1
+}
+
+signoff_names_approver() { # <chuỗi> — 0 iff bắt đầu bằng một tên trong APPROVERS.
+  # Tên phải kết bằng HẾT CHUỖI hoặc một ký tự không thuộc [A-Za-z0-9_], nên
+  # approvers ["Manh"] KHÔNG nhận "Manhattan". Phân biệt hoa/thường: tên người
+  # là dữ liệu, không chuẩn hoá.
+  #
+  # Phần ĐUÔI sau tên KHÔNG bị soi — chốt Cổng 1 (2026-07-28) NHẬN
+  # "Manh Phan — chưa duyệt, chờ họp": gõ đúng tên mình là hành vi ký có ý thức,
+  # khác hẳn với để nguyên "PENDING" của template; còn siết phần đuôi thực chất
+  # là ràng buộc định dạng ngày, thứ contract khai là Out of scope. Giới hạn này
+  # được khai trong contract mục "Đã biết là không bắt được" — đừng lặng lẽ siết.
+  #
+  # Dùng vòng `for` trên IFS=newline chứ KHÔNG `printf | while read`: nhánh sau
+  # chạy trong subshell nên `return 0` không thoát ra được hàm.
+  local sig="$1" name rest oldifs="$IFS"
+  [ -n "$APPROVERS" ] || return 1
+  IFS='
+'
+  for name in $APPROVERS; do
+    [ -n "$name" ] || continue
+    case "$sig" in
+      "$name") IFS="$oldifs"; return 0 ;;
+      "$name"*)
+        rest="${sig#"$name"}"
+        case "$rest" in
+          [A-Za-z0-9_]*) ;;                 # tên chỉ là tiền tố của một từ dài hơn
+          *) IFS="$oldifs"; return 0 ;;
+        esac ;;
+    esac
+  done
+  IFS="$oldifs"; return 1
+}
+
 
 # Mọi đường mà luật gap-probe KHÔNG chạy được đều đi qua ĐÂY. Một hàm, một
 # marker, một chỗ quyết định mode — vì kênh "NOTE rồi exit 0" đã giết contract
@@ -674,6 +720,25 @@ XLACS
     echo "VIOLATION [$slug]: verdict PASS but human_signoff is empty (Gate 2 pending)"
     violations=$((violations+1)); continue
   fi
+  # THỨ TỰ CÓ RĂNG: chốt rỗng ngay trên chạy TRƯỚC. Gộp hai chốt cho gọn sẽ làm
+  # chuỗi rỗng ở repo KHÔNG khai approvers không khớp mẫu lưới-đen nào rồi rơi
+  # ra `clean` — hồi quy fail-open trên một luật đang bảo vệ.
+  #
+  # human_signoff trước 1.24.0 chỉ bị kiểm KHÁC-RỖNG, nên "PENDING — chờ Manh
+  # gật" thoả và cổng in "signed off by PENDING". Đó KHÔNG phải đường tấn công
+  # mà là đường đi bộ bình thường: người duyệt mở file định ký, gõ một dòng giữ
+  # chỗ, commit đúng nghi thức human-fields-only. Và require_human_commit không
+  # cứu được — nó kiểm AI commit và commit đó chạm dòng nào, không kiểm nội
+  # dung có phải một cái tên.
+  if [ -n "$APPROVERS" ]; then
+    if ! signoff_names_approver "$signoff"; then
+      echo "VIOLATION [$slug]: human_signoff \"$signoff\" does not name any approver declared in signoff.approvers — Gate 2 is still pending. Replace it with an approver's name (+ date) once they actually sign."
+      violations=$((violations+1)); continue
+    fi
+  elif placeholder_signoff "$signoff"; then
+    echo "VIOLATION [$slug]: human_signoff \"$signoff\" is a placeholder, not a signature — it names no approver, so Gate 2 is still pending. Replace it with the approver's name + date once they actually sign."
+    violations=$((violations+1)); ADVISE_APPROVERS=1; continue
+  fi
   # Human-signoff provenance: the signature is text in an AI-writable file —
   # the git history of the commit that INTRODUCED it is the only
   # machine-checkable attribution. Standard flow: verify commits the
@@ -885,6 +950,12 @@ if [ "$LEDGER_ENABLED" -eq 1 ]; then
     echo "NOTE: VIOLATION [ledger] là lỗi NỘI TẠI của cổng pre-merge (một khối luật bị trượt qua hoặc sổ lệch) — KHÔNG phải lỗi trong thay đổi của bạn. Bước kế tiếp: báo maintainer của kit kèm TOÀN BỘ output lần chạy này; đừng sửa feature của bạn để né nó."
     exit 2
   fi
+fi
+
+# MỘT dòng cho cả lần chạy, không lặp theo slug: đây là lời khuyên về CẤU HÌNH,
+# và lặp nó mười lần chỉ làm loãng danh sách violation thật.
+if [ -n "$ADVISE_APPROVERS" ]; then
+  echo "NOTE: signature checking fell back to the placeholder net because signoff.approvers is not declared — that net only knows English placeholders, so a holding note in any other language would have passed. Consider declaring signoff.approvers: [\"<name>\"] in _acceptance/config.yaml so signatures are checked against real approver names instead."
 fi
 
 if [ "$violations" -gt 0 ]; then
