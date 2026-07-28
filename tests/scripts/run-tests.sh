@@ -2876,6 +2876,32 @@ UJ10="$(bash "$CHECK" "$R" 2>&1)"; check UJ10a 0 $?
 nothas UJ10b "feat-empty" "$UJ10"
 hasout UJ10c "pre-merge-check: clean" "$UJ10"
 
+echo "UJ4 approvers KHAI ma tach ra 0 ten -> VIOLATION [config], MOT dong cho ca lan chay"
+uj4_case() { # <nhãn> <dòng config>
+  uj_repo "uj4$1" "$2"; R="$UJR/uj4$1"
+  # HAI slug: phan biet duoc "mot dong cho ca lan chay" voi "mot dong moi slug".
+  uj_slug "$R" feat-a "$(uj_full feat-a)" "Manh Phan 2026-06-20"
+  uj_slug "$R" feat-b "$(uj_full feat-b)" "Manh Phan 2026-06-20"
+  UJ4="$(bash "$CHECK" "$R" 2>&1)"; check "UJ4$1-exit" 1 $?
+  same   "UJ4$1-count" 1 "$(printf '%s\n' "$UJ4" | grep -c '^VIOLATION \[config\]:')"
+  hasout "UJ4$1-msg" "signoff.approvers is declared but resolves to no approver name" "$UJ4"
+  nothas "UJ4$1-nonote" "consider declaring signoff.approvers" "$UJ4"
+}
+uj4_case a '  approvers: []'
+uj4_case b '  approvers:'
+uj4_case c '  approvers: {khong-phai-list}'
+# DOI CHUNG DUONG: approvers khai VA co ten -> khong co VIOLATION [config] nao
+uj_repo uj4ok '  approvers: ["Manh Phan"]'; R="$UJR/uj4ok"
+uj_slug "$R" feat-a "$(uj_full feat-a)" "Manh Phan 2026-06-20"
+UJ4OK="$(bash "$CHECK" "$R" 2>&1)"; check UJ4ctrl 0 $?
+nothas UJ4ctrl2 "VIOLATION [config]" "$UJ4OK"
+# ...va KHONG khai thi cung khong no (khong-khai la bo-qua-co-tin-hieu, khac
+# han khai-ma-vo-dung — day la ranh gioi RL14, phai co ca hai chieu moi song)
+uj_repo uj4none ''; R="$UJR/uj4none"
+uj_slug "$R" feat-a "$(uj_full feat-a)" "Manh Phan 2026-06-20"
+UJ4NONE="$(bash "$CHECK" "$R" 2>&1)"; check UJ4ctrl3 0 $?
+nothas UJ4ctrl4 "VIOLATION [config]" "$UJ4NONE"
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1

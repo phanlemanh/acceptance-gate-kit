@@ -44,6 +44,13 @@ set -u
 # một typo trong config.yaml giết TOÀN BỘ cổng (signoff, verdict, staleness,
 # bypass, T1-escape) mà CI vẫn xanh. Đúng thứ false-green kit sinh ra để chặn.
 violations=0
+# Danh sách người được phép ký, MỘT TÊN MỖI DÒNG. Rỗng có hai nghĩa rất khác
+# nhau — không khai, hay khai mà không tách được tên nào — nên phải có cờ riêng.
+APPROVERS=""
+APPROVERS_DECLARED=""
+# Bật khi có ít nhất một slug rơi vào lưới đen placeholder; dùng để in NOTE
+# khuyên khai approvers ĐÚNG MỘT LẦN cho cả lần chạy, không lặp theo slug.
+ADVISE_APPROVERS=""
 
 # CI evidence re-checker shipped alongside this script (needs ../lib/evidence-core.js).
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -258,6 +265,37 @@ if [ -f "$ACC/config.yaml" ]; then
   AGENT_AUTHORS="$(sed -n '/^  agent_authors:/,/^  [a-zA-Z0-9_-]*:/p' "$ACC/config.yaml" \
     | sed -n 's/^[[:space:]]*-[[:space:]]*//p' \
     | sed -e 's/[[:space:]]*#.*$//' -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'\$//" -e 's/[[:space:]]*$//')"
+  # `signoff.approvers` tới 1.23.0 là key TRANG TRÍ — không chỗ nào đọc, và
+  # acceptance-init ghi thẳng "informational (not yet machine-enforced)". Từ đây
+  # nó là luật, nên phải phân biệt BA trạng thái chứ không phải hai:
+  #   không khai   -> APPROVERS_DECLARED rỗng        -> rơi về lưới đen + NOTE
+  #   khai, có tên -> APPROVERS có dòng              -> chữ ký phải khớp tên
+  #   khai, 0 tên  -> DECLARED=true, APPROVERS rỗng  -> VIOLATION ngay dưới
+  # Ranh giới đó theo đúng tiền lệ RL14: không-khai là bỏ-qua-có-tín-hiệu,
+  # khai-mà-vô-dụng là lỗi. Gộp hai cái làm một là mở lại lỗ cho config gõ sai.
+  if grep -qE '^[[:space:]]*approvers:' "$ACC/config.yaml"; then
+    APPROVERS_DECLARED=true
+    ap_raw="$(sed -n 's/^[[:space:]]*approvers:[[:space:]]*//p' "$ACC/config.yaml" | head -1 \
+      | sed -e 's/[[:space:]]*#.*$//' -e 's/[[:space:]]*$//')"
+    case "$ap_raw" in
+      \[*)  # inline flow: ["Manh Phan", "memto"] — dạng acceptance-init sinh ra
+        APPROVERS="$(printf '%s' "$ap_raw" | sed -e 's/^\[//' -e 's/\]$//' | tr ',' '\n' \
+          | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' \
+                -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//' \
+          | grep -v '^$')" ;;
+      '')   # block list — cùng khuôn agent_authors ngay trên
+        APPROVERS="$(sed -n '/^[[:space:]]*approvers:/,/^[[:space:]]*[a-zA-Z0-9_-]*:[[:space:]]*$/p' "$ACC/config.yaml" \
+          | sed -n 's/^[[:space:]]*-[[:space:]]*//p' \
+          | sed -e 's/[[:space:]]*#.*$//' -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//' \
+          | grep -v '^$')" ;;
+      *)    # scalar trần / cú pháp lạ: KHÔNG đoán — 0 tên, rơi vào VIOLATION dưới
+        APPROVERS="" ;;
+    esac
+  fi
+fi
+if [ "$APPROVERS_DECLARED" = "true" ] && [ -z "$APPROVERS" ]; then
+  echo "VIOLATION [config]: signoff.approvers is declared but resolves to no approver name — a declared-yet-unusable allowlist silently downgrades signature checking to the placeholder net. Write it as signoff.approvers: [\"<name>\"] or a YAML block list, or remove the key to opt out deliberately."
+  violations=$((violations+1))
 fi
 if [ "$RECHECK_MODE" = "warn" ]; then
   # A disabled backstop must be impossible to miss: in warn mode a report
