@@ -3035,6 +3035,88 @@ UJ12D="$(bash "$CHECK" "$R" --base "$UJ12B" 2>&1)"
 UJ12E="$(bash "$CHECK" "$R" --base "$UJ12B" 2>&1)"
 same UJ12c "$UJ12D" "$UJ12E"
 
+echo "UJ14 tiem dot bien: vo hieu tung nhanh -> DUNG case tuong ung doi mau"
+# Khong co phep do nay thi moi case UJ tren khong phan biet duoc "bat dung loi"
+# voi "chua bao gio chay" — bat bien assertion-am-tinh-mot-minh cua CLAUDE.md,
+# va chinh la thu da de hinh dang 4 song sot trong ban va cua repo tieu thu.
+#
+# Ban sao PHAI giu layout scripts/ canh lib/: script resolve lib qua ../lib, nen
+# copy vao thu muc phang lam ban "nguyen ven" da lech san va moi ket luan tu no
+# la ket luan ve mot script KHAC. Doi chung UJ14ctrl bat duoc dieu do.
+UJCP="$T/ujcp"; rm -rf "$UJCP"; mkdir -p "$UJCP/scripts"
+cp -R "$ROOT_REAL/lib" "$UJCP/lib"
+UJMUT="$UJCP/scripts/uj-check.sh"
+
+# Fixture do rieng cho tung nhanh
+uj_repo ujm_sig '  approvers: ["Manh Phan"]'; UJM_SIG="$UJR/ujm_sig"
+uj_slug "$UJM_SIG" feat-p "$(uj_full feat-p)" "PENDING"
+uj_repo ujm_blk ''; UJM_BLK="$UJR/ujm_blk"
+uj_slug "$UJM_BLK" feat-p "$(uj_full feat-p)" "PENDING"
+uj_repo ujm_noc '  approvers: ["Manh Phan"]'; UJM_NOC="$UJR/ujm_noc"
+uj_slug "$UJM_NOC" feat-ghost - "Manh Phan 2026-06-20"
+uj_repo ujm_fld '  approvers: ["Manh Phan"]'; UJM_FLD="$UJR/ujm_fld"
+uj_slug "$UJM_FLD" feat-notier 'schema_version: 1
+feature: f
+slug: feat-notier
+surfaces: [api]
+status: signed-off
+approved_by: Manh Phan' "Manh Phan 2026-06-20"
+uj_repo ujm_ctr '  approvers: ["Manh Phan"]'; UJM_CTR="$UJR/ujm_ctr"
+uj_slug "$UJM_CTR" feat-noev 'schema_version: 1
+feature: f
+slug: feat-noev
+surfaces: [api]
+status: signed-off
+approved_by: Manh Phan' SKIP
+uj_repo ujm_cfg '  approvers: []'; UJM_CFG="$UJR/ujm_cfg"
+uj_slug "$UJM_CFG" feat-a "$(uj_full feat-a)" "Manh Phan 2026-06-20"
+
+# DOI CHUNG: ban sao KHONG tiem phai DO dung nhu ban goc tren ca 6 fixture.
+# Thieu buoc nay, moi "UJ14-* xanh" duoi day co the chi la ban sao khong chay.
+cp "$CHECK" "$UJMUT"
+for f in "$UJM_SIG" "$UJM_BLK" "$UJM_NOC" "$UJM_FLD" "$UJM_CTR" "$UJM_CFG"; do
+  # CHOT MA THOAT TRUOC khi goi check: mot $(...) trong danh sach doi so chay
+  # NGAY LUC BUNG va ghi de $?, nen `check "x-$(basename "$f")" 1 $?` do mac
+  # thoat cua basename chu khong phai cua cong. Vong dau da dam dung bay nay.
+  bash "$UJMUT" "$f" >/dev/null 2>&1; ujrc=$?
+  ujlbl="$(basename "$f")"
+  check "UJ14ctrl-$ujlbl" 1 "$ujrc"
+done
+
+uj_mut() { # <nhãn> <bộ lọc sinh bản sao> <fixture phải chuyển XANH>
+  eval "$2" > "$UJMUT"
+  # Ban sao phai KHAC ban goc — bo loc khong khop nghia la nguon da troi va
+  # moi ket luan duoi day vo nghia (tu-to-cao thay vi xanh gia).
+  if diff -q "$CHECK" "$UJMUT" >/dev/null 2>&1; then
+    echo "     TIEM THAT BAI [$1]: bo loc khong khop, nguon da troi"
+    check "UJ14-$1" 0 1; return
+  fi
+  bash "$UJMUT" "$3" >/dev/null 2>&1; check "UJ14-$1" 0 $?
+}
+uj_mut sig 'sed "s|if ! signoff_names_approver \\\"\$signoff\\\"; then|if false; then|" "$CHECK"' "$UJM_SIG"
+uj_mut blk 'sed "s|elif placeholder_signoff \\\"\$signoff\\\"; then|elif false; then|" "$CHECK"' "$UJM_BLK"
+uj_mut cfg 'sed "s|^if \[ \\\"\$APPROVERS_DECLARED\\\" = \\\"true\\\" \] \&\& \[ -z \\\"\$APPROVERS\\\" \]; then|if false; then|" "$CHECK"' "$UJM_CFG"
+# Hai call-site cua claims_released co van ban Y HET nhau, nen tach bang THU TU
+# xuat hien (awk dem lan khop) chu khong bang noi dung.
+uj_mut noc 'awk "/if claims_released/ { n++; if (n==1) { sub(/if claims_released .*; then/, \"if false; then\") } } { print }" "$CHECK"' "$UJM_NOC"
+uj_mut fld 'awk "/if claims_released/ { n++; if (n==2) { sub(/if claims_released .*; then/, \"if false; then\") } } { print }" "$CHECK"' "$UJM_FLD"
+uj_mut ctr 'sed "s|      implemented\|verified\|signed-off) return 0 ;;|      __khong_bao_gio__) return 0 ;;|" "$CHECK"' "$UJM_CTR"
+
+echo "UJ14b tiem CHE DO GOI: boc luat chu ky sau chot --base -> UJ17-nobase phai do"
+# Chung minh UJ17 la assertion SONG chu khong phai xanh-vinh-vien: neu luat moi
+# bi boc vao nhanh chi song khi co --base thi lan chay KHONG base phai lot.
+awk '/if \[ -n "\$APPROVERS" \]; then/ { print "  if [ -n \"$BASE\" ]; then"; n=1 }
+     { print }
+     n==1 && /^  fi$/ { print "  fi"; n=0 }' "$CHECK" > "$UJMUT"
+if diff -q "$CHECK" "$UJMUT" >/dev/null 2>&1; then
+  echo "     TIEM THAT BAI [UJ14b]: bo loc khong khop"; check UJ14b 0 1
+else
+  bash "$UJMUT" "$UJM_SIG" >/dev/null 2>&1; UJ14BST=$?
+  bash "$UJMUT" "$UJM_SIG" --base "$(git -C "$UJM_SIG" rev-parse HEAD)" >/dev/null 2>&1; UJ14BST2=$?
+  check UJ14b-nobase 0 "$UJ14BST"    # khong base -> lot (dung dieu UJ17 chan)
+  check UJ14b-base   1 "$UJ14BST2"   # co base    -> van chan
+fi
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
