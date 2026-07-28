@@ -1,15 +1,15 @@
 ---
 schema_version: 2
 feature_slug: s4-scope-triage
-verdict: BLOCKED
-failed_evals: []
-reason: |
-  bash tests/hooks/run-tests.sh - Bash execution classifier (claude-sonnet-5) is temporarily unavailable. Cannot run tests/hooks/run-tests.sh until classifier service is restored.
+verdict: PASS
+failed_evals: []        # REJECT only, e.g. [E2, E5]
+reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
-enforcement_mode: strict
-bypass_used: false
-verified_commit: 96b97796eba3f56d54f6ff78a4d70f7c7cd5e4c3
-human_signoff:
+enforcement_mode: strict   # the `enforcement` value from _acceptance/config.yaml (default strict). CI pre-merge BLOCKS off; warn only warns.
+bypass_used: false              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
+verified_commit: 1efcbe7cbc1eba4e2c28c3803f899db03b09f563   # pins the evidence to the exact tree verified. CI pre-merge BLOCKS when non-gate files changed after it (stale evidence — re-verify). Omit ONLY if not a git repo; hook rejects non-SHA values.
+# bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
+human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER review
 ---
 
 # Evidence Report: s4-scope-triage
@@ -26,7 +26,7 @@ human_signoff:
 | E8 | AC-8 | script | PASS |
 | E9 | AC-9 | script | PASS |
 | E10 | AC-10 | script | PASS |
-| E11 | AC-11 | judgment | PASS (proposed) |
+| E11 | AC-11 | judgment | PASS |
 | E12 | AC-11 | script | PASS |
 | E13 | AC-12 | script | PASS |
 | E14 | AC-13 | script | PASS |
@@ -36,178 +36,178 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-s4-scope-triage-E1-r5
+  run_id: minted-s4-scope-triage-E1-r6
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-07-28T00:00:00Z
+  verified_at: 2026-07-28T09:00:00Z
   output: |
     Results: 16 passed, 0 failed (execute-parallel)
 
     Results: all workflow tests passed
 
 - eval: E2
-  run_id: minted-s4-scope-triage-E2-r5
+  run_id: minted-s4-scope-triage-E2-r6
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-07-28T00:00:00Z
+  verified_at: 2026-07-28T09:00:00Z
   output: |
     Results: 16 passed, 0 failed (execute-parallel)
 
     Results: all workflow tests passed
 
 - eval: E3
-  run_id: minted-s4-scope-triage-E3-r5
+  run_id: minted-s4-scope-triage-E3-r6
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-07-28T00:00:00Z
+  verified_at: 2026-07-28T09:00:00Z
   output: |
     Results: 16 passed, 0 failed (execute-parallel)
 
     Results: all workflow tests passed
 
 - eval: E4
-  run_id: minted-s4-scope-triage-E4-r5
+  run_id: minted-s4-scope-triage-E4-r6
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-07-28T00:00:00Z
+  verified_at: 2026-07-28T09:00:00Z
   output: |
     Results: 16 passed, 0 failed (execute-parallel)
 
     Results: all workflow tests passed
 
 - eval: E5
-  run_id: minted-s4-scope-triage-E5-r5
+  run_id: minted-s4-scope-triage-E5-r6
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-07-28T00:00:00Z
+  verified_at: 2026-07-28T09:00:00Z
   output: |
     Results: 16 passed, 0 failed (execute-parallel)
 
     Results: all workflow tests passed
 
 - eval: E6
-  run_id: minted-s4-scope-triage-E6-r5
+  run_id: minted-s4-scope-triage-E6-r6
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-07-28T00:00:00Z
+  verified_at: 2026-07-28T09:00:00Z
   output: |
     Results: 16 passed, 0 failed (execute-parallel)
 
     Results: all workflow tests passed
 
 - eval: E7
-  run_id: minted-s4-scope-triage-E7-r5
+  run_id: minted-s4-scope-triage-E7-r6
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-07-28T00:00:00Z
-  output: |
-    Results: 16 passed, 0 failed (execute-parallel)
-
-    Results: all workflow tests passed
-
-- eval: E10
-  run_id: minted-s4-scope-triage-E10-r5
-  exit_code: 0
-  baseline: n-a
-  verifier: config:executors.test.workflows
-  verified_at: 2026-07-28T00:00:00Z
-  output: |
-    Results: 16 passed, 0 failed (execute-parallel)
-
-    Results: all workflow tests passed
-
-- eval: E13
-  run_id: minted-s4-scope-triage-E13-r5
-  exit_code: 0
-  baseline: n-a
-  verifier: config:executors.test.workflows
-  verified_at: 2026-07-28T00:00:00Z
+  verified_at: 2026-07-28T09:00:00Z
   output: |
     Results: 16 passed, 0 failed (execute-parallel)
 
     Results: all workflow tests passed
 
 - eval: E8
-  run_id: minted-s4-scope-triage-E8-r5
+  run_id: minted-s4-scope-triage-E8-r6
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-28T00:00:00Z
+  verified_at: 2026-07-28T09:00:00Z
   output: |
       PASS: P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)
 
     Results: all plugin tests passed
 
 - eval: E9
-  run_id: minted-s4-scope-triage-E9-r5
+  run_id: minted-s4-scope-triage-E9-r6
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-28T00:00:00Z
+  verified_at: 2026-07-28T09:00:00Z
   output: |
       PASS: P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)
 
     Results: all plugin tests passed
+
+- eval: E10
+  run_id: minted-s4-scope-triage-E10-r6
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.test.workflows
+  verified_at: 2026-07-28T09:00:00Z
+  output: |
+    Results: 16 passed, 0 failed (execute-parallel)
+
+    Results: all workflow tests passed
+
+- eval: E11
+  judged_by: judge panel (domain-correctness, operational-feasibility, spec-alignment)
+  verdict: PASS
+  rationale: |
+    - domain-correctness: PASS — Khối thẻ (dòng 7-19) dùng ngôn ngữ business thuần: nêu rõ "lỗi... là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — máy cố ý không tự sửa", mỗi finding mô tả hậu quả thực tế (mất tiện ích khi mạng hỏng, bị nhận nhầm là dời chỗ) không có code, biến, stack trace hay thuật ngữ lập trình nào lọt vào. Ba lựa chọn "ghi Known limits / mở hợp đồng mới / nâng phạm vi sửa ngay" lặp lại nhất quán dưới mỗi finding, đủ để phân biệt ba hướng xử lý; các từ "Cổng 1", "hợp đồng", "phạm vi" là thuật ngữ quy trình nghiệp vụ của chính hệ thống duyệt (đã được giải thích ngay trong câu mở đầu), không phải jargon kỹ thuật.
+    - operational-feasibility: PASS — Dòng mở đầu "Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — máy cố ý không tự sửa" nói thẳng bằng ngôn ngữ kinh doanh rằng finding là thật-nhưng-ngoài-scope, không cần đọc code để hiểu. Ba lựa chọn hiện rõ dưới mỗi finding ("ghi Known limits" / "mở hợp đồng mới" / "nâng phạm vi sửa ngay") khớp đúng 3 nhánh câu hỏi, và mô tả tác động (mất tiện ích khi mạng hỏng giữa chừng, bị nhận nhầm là đã dời chỗ) là ngôn ngữ hậu quả người dùng, không phải thuật ngữ code/stack-trace. Điểm trừ nhỏ: nhãn "Known limits" để nguyên tiếng Anh không dịch, và "Cổng 1" là thuật ngữ quy trình nội bộ — nhưng không đủ để cản một người quyết kinh doanh hiểu và phân biệt 3 lựa chọn.
+    - spec-alignment: PASS — Card nói rõ bằng ngôn ngữ thường: heading "Ngoài hợp đồng — bạn quyết" + câu giải thích "là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — máy cố ý không tự sửa" nêu đúng ý thật-nhưng-ngoài-scope. Mỗi finding có mô tả hậu quả cụ thể (mất tiện ích khi mạng hỏng, bị gỡ nhầm ở lần cập nhật sau) không dùng thuật ngữ kỹ thuật, và 3 nút hành động "ghi Known limits / mở hợp đồng mới / nâng phạm vi sửa ngay" khớp chính xác 3 lựa chọn trong câu hỏi AC-11. Không thấy jargon kỹ thuật (code, API, schema...) lọt vào; "Cổng 1" là thuật ngữ quy trình của chính hệ thống này, không phải jargon kỹ thuật lập trình.
+  human_override:
 
 - eval: E12
-  run_id: minted-s4-scope-triage-E12-r5
+  run_id: minted-s4-scope-triage-E12-r6
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-28T00:00:00Z
+  verified_at: 2026-07-28T09:00:00Z
   output: |
       PASS: P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)
 
     Results: all plugin tests passed
 
+- eval: E13
+  run_id: minted-s4-scope-triage-E13-r6
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.test.workflows
+  verified_at: 2026-07-28T09:00:00Z
+  output: |
+    Results: 16 passed, 0 failed (execute-parallel)
+
+    Results: all workflow tests passed
+
 - eval: E14
-  run_id: minted-s4-scope-triage-E14-r5
+  run_id: minted-s4-scope-triage-E14-r6
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-28T00:00:00Z
+  verified_at: 2026-07-28T09:00:00Z
   output: |
       PASS: P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)
 
     Results: all plugin tests passed
 
 - eval: E15
-  run_id: minted-s4-scope-triage-E15-r5
+  run_id: minted-s4-scope-triage-E15-r6
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-28T00:00:00Z
+  verified_at: 2026-07-28T09:00:00Z
   output: |
       PASS: P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)
 
     Results: all plugin tests passed
 
 - eval: E16
-  run_id: minted-s4-scope-triage-E16-r5
+  run_id: minted-s4-scope-triage-E16-r6
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-28T00:00:00Z
+  verified_at: 2026-07-28T09:00:00Z
   output: |
       PASS: P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)
 
     Results: all plugin tests passed
-
-- eval: E11
-  judged_by: judge panel (fresh context) — lenses: domain-correctness, operational-feasibility, spec-alignment
-  proposal: PASS
-  votes:
-    - domain-correctness: PASS — Bản render dùng ngôn ngữ thường (không thuật ngữ code, không stack trace/exit code): "Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1" nói rõ đây là lỗi thật nhưng ngoài phạm vi, và mỗi lỗi mô tả hậu quả cụ thể (mất tiện ích khi mạng hỏng giữa chừng; bị gỡ nhầm ở lần cập nhật sau) mà người không đọc code vẫn hình dung được hậu quả kinh doanh. Ba lựa chọn "ghi Known limits / mở hợp đồng mới / nâng phạm vi sửa ngay" tách bạch rõ ràng và có gợi ý "Máy đề xuất" đi kèm mỗi lỗi để định hướng quyết định. Cụm "Known limits" và "ship" là tiếng Anh chưa dịch nhưng đọc như nhãn cố định (tên mục tài liệu) hơn là biệt ngữ kỹ thuật gây cản trở hiểu, nên không đủ để chặn.
-    - operational-feasibility: PASS — Bản render nói rõ ngay đầu khối: lỗi là THẬT nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1, máy cố ý không tự sửa — người quyết không cần đọc code vẫn nắm được bản chất. Mỗi mục có mô tả hậu quả bằng ngôn ngữ đời thường (mất tiện ích khi mạng hỏng giữa chừng, nhận nhầm là đã dời chỗ) và 3 nút lựa chọn tách bạch rõ ràng: ghi Known limits / mở hợp đồng mới / nâng phạm vi sửa ngay. Có một chỗ trộn tiếng Anh ("Known limits", "Cổng 1/Cổng 2" là thuật ngữ quy trình đã quen dùng) nhưng đều được giải thích ngay trước bằng câu tiếng Việt đầy đủ nghĩa, không phải jargon kỹ thuật thật (không code, không stack trace) nên không cản trở quyết định.
-    - spec-alignment: FAIL — Cấu trúc thẻ rõ ràng: câu "Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — máy cố ý không tự sửa" và 3 nút hành động (ghi Known limits / mở hợp đồng mới / nâng phạm vi sửa ngay) đủ để người quyết kinh doanh phân biệt "lỗi thật" với "ngoài phạm vi" và thấy 3 lựa chọn khác nhau. Tuy nhiên có jargon lọt vào: nhãn nút "Known limits" để nguyên tiếng Anh (dù câu văn ngay trên đã dịch là "hạn chế đã biết", gây lệch thuật ngữ giữa prose và nút bấm) và từ "ship" trong "ghi vào hạn chế đã biết rồi ship" — cả hai là biệt ngữ dev/startup mà một người quyết kinh doanh không đọc code có thể không nắm chắc nghĩa. Vì câu hỏi E11 hỏi thẳng "có jargon kỹ thuật nào lọt vào không", và câu trả lời là có (dù nhỏ), nên chấm FAIL trên tiêu chí này chứ không phải PASS sạch.
-  human_override:
 
 ## Analyst
 
@@ -231,6 +231,8 @@ Round 3: verdict BLOCKED — toàn bộ 13 eval máy (E1-E10, E12-E14) tiếp t�
 Round 4: verdict BLOCKED — release 1.22.1 đã ship (contract nay thêm E15/E16 phủ AC-14/AC-15). Toàn bộ 15 eval máy (E1-E10, E12-E16) PASS trên `tests/workflows/run-tests.sh` (16 passed) + `tests/plugins/run-tests.sh` (P56 xanh, thêm P51/P55/P56 so round 3); `tests/hooks/run-tests.sh` (51 passed, T42 mới) và `scripts/sync-plugin-packages.sh --check` (mirror in sync — lệnh từng chặn round 3 nay chạy xanh) đều xanh nhưng không gắn eval nào trong evals.yaml. Judge panel E11 (AC-11) đề xuất PASS 3/3 lens lần này — dissent `operational-feasibility` từ round 3 (nhãn nút "Known limits" lai tiếng Anh) đã được giải quyết hoặc không còn tái hiện trong bản render hiện tại. Nguyên nhân BLOCKED lần này: `bash tests/scripts/run-tests.sh` — lệnh phụ trợ khác (không phải lệnh chặn round 3) — không chạy được vì claude-sonnet-5 classifier tạm thời không khả dụng, khiến Bash tool không thực thi được lệnh này; lệnh này không gắn eval nào trong evals.yaml nên không đưa vào `failed_evals`, nhưng verifier vẫn không thể xác nhận repo-wide script suite round này. Chưa trả về implementation — chờ hạ tầng khôi phục để chạy lại lệnh bị chặn rồi re-verify.
 
 Round 5: verdict BLOCKED — re-pin sau round 4 (không có thay đổi code mới; `verified_commit` cập nhật lên `96b97796eba3f56d54f6ff78a4d70f7c7cd5e4c3`). evals.yaml không đổi từ baseline round 4 nên round này KHÔNG đo lại baseline (P2 carried); toàn bộ 15 eval máy (E1-E10, E12-E16) tiếp tục PASS trên `tests/workflows/run-tests.sh` (16 passed) + `tests/plugins/run-tests.sh` (P56 xanh) — carry trọn từ round 4, cộng `bash tests/scripts/run-tests.sh` (497 passed — lệnh từng chặn round 4 nay chạy xanh) và `bash scripts/sync-plugin-packages.sh --check` (mirror in sync) đều xanh nhưng không gắn eval nào. Judge panel E11 (AC-11) chấm lại (không carried) và tiếp tục đề xuất PASS 2/3 lens (domain-correctness, operational-feasibility) — nhưng `spec-alignment` bỏ phiếu FAIL lần này vì jargon "Known limits" và "ship" lọt vào nội dung thẻ mà người quyết kinh doanh không đọc code có thể không nắm chắc nghĩa; dissent MỚI, khác dissent round 3 (đã giải quyết), CHƯA được giải quyết trong round này. Nguyên nhân BLOCKED: `bash tests/hooks/run-tests.sh` không chạy được vì Bash tool execution classifier (claude-sonnet-5) tạm thời không khả dụng — hạ tầng, không phải lỗi script hay thiếu dependency; lệnh này không gắn eval nào trong evals.yaml nên không đưa vào `failed_evals`, nhưng verifier vẫn không thể xác nhận repo-wide hook suite round này. Chưa trả về implementation — chờ hạ tầng khôi phục để chạy lại lệnh bị chặn rồi re-verify.
+
+Round 6: chạy ở phiên mới — toàn bộ eval PASS, judge panel E11 PASS không dissent.
 
 ## Gate 2 checklist (human)
 

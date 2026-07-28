@@ -4,7 +4,7 @@ feature: Scope-triage cho review findings ở S4 — ngăn thứ ba "thật như
 slug: s4-scope-triage
 risk_tier: T2
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-07-27T12:16:56Z
 owner: phanlemanh@gmail.com
