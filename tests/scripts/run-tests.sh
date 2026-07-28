@@ -3117,6 +3117,55 @@ else
   check UJ14b-base   1 "$UJ14BST2"   # co base    -> van chan
 fi
 
+echo "UJ16 sinh lai evidence/unjudged-messages.txt roi diff byte-doi-byte"
+# Cung khuon RL10/TE14: dem nhan chi do su DAY DU, khong do tinh XAC THUC.
+# Bang chung cho judge phai duoc SINH LAI trong CHINH lan chay nay, neu khong
+# judge dang cham mot ban chup cu ma khong ai biet no con dung khong.
+UJMSG="$ROOT_REAL/_acceptance/premerge-unjudged-pass/evidence/unjudged-messages.txt"
+UJ16NEW="$(mktemp)"
+{
+  printf '%s\n' '# Thông điệp luật PASS-chưa-ai-phán — SINH bởi tests/scripts/run-tests.sh (UJ16).'
+  printf '%s\n' '# KHÔNG sửa tay: suite sinh lại file này mỗi lần chạy và diff byte-đối-byte.'
+  printf '\n== chữ ký không nêu tên người duyệt (approvers đã khai) ==\n'
+  uj_repo m1 '  approvers: ["Manh Phan"]'; uj_slug "$UJR/m1" feat-p "$(uj_full feat-p)" "PENDING — chờ Manh gật"
+  bash "$CHECK" "$UJR/m1" 2>&1 | grep -E '^VIOLATION'
+  printf '\n== chữ ký giữ-chỗ (approvers KHÔNG khai) ==\n'
+  uj_repo m2 ''; uj_slug "$UJR/m2" feat-p "$(uj_full feat-p)" "TBD"
+  bash "$CHECK" "$UJR/m2" 2>&1 | grep -E '^VIOLATION|^NOTE: signature checking'
+  printf '\n== approvers khai mà không dùng được ==\n'
+  uj_repo m3 '  approvers: []'; uj_slug "$UJR/m3" feat-a "$(uj_full feat-a)" "Manh Phan 2026-06-20"
+  bash "$CHECK" "$UJR/m3" 2>&1 | grep -E '^VIOLATION \[config\]'
+  printf '\n== slug tàng hình: không có contract.md ==\n'
+  uj_repo m4 '  approvers: ["Manh Phan"]'; uj_slug "$UJR/m4" feat-ghost - "Manh Phan 2026-06-20"
+  bash "$CHECK" "$UJR/m4" 2>&1 | grep -E '^VIOLATION'
+  printf '\n== slug tàng hình: thiếu risk_tier ==\n'
+  uj_repo m5 '  approvers: ["Manh Phan"]'
+  uj_slug "$UJR/m5" feat-notier 'schema_version: 1
+feature: f
+slug: feat-notier
+surfaces: [api]
+status: signed-off
+approved_by: Manh Phan' "Manh Phan 2026-06-20"
+  bash "$CHECK" "$UJR/m5" 2>&1 | grep -E '^VIOLATION'
+} > "$UJ16NEW" 2>&1
+if [ "${UJ16_WRITE:-0}" = "1" ]; then cp "$UJ16NEW" "$UJMSG"; echo "  (UJ16_WRITE=1 — đã ghi lại)"; fi
+if diff -u "$UJMSG" "$UJ16NEW" > "$T/uj16.diff" 2>&1; then
+  check UJ16 0 0
+else
+  echo "     evidence LECH voi thong diep hien tai:"; head -20 "$T/uj16.diff" | sed 's/^/     /'
+  check UJ16 0 1
+fi
+# Chong troi PHAM VI: mat han mot nhanh thi diff van khop neu evidence CUNG
+# sinh thieu — nen ghim tung nhanh co mat trong ban VUA SINH, khong phai trong
+# file da commit.
+UJ16M="$(cat "$UJ16NEW")"
+hasout UJ16a "does not name any approver" "$UJ16M"
+hasout UJ16b "is a placeholder, not a signature" "$UJ16M"
+hasout UJ16c "Consider declaring signoff.approvers" "$UJ16M"
+hasout UJ16d "no contract.md" "$UJ16M"
+hasout UJ16e "contract has no risk_tier" "$UJ16M"
+hasout UJ16f "signoff.approvers is declared but resolves to no approver name" "$UJ16M"
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1
