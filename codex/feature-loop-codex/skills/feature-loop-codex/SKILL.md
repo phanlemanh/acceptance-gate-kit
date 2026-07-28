@@ -468,10 +468,24 @@ or the human confirms a descope entry.
       file: `<path:line>`
       severity: <high|medium|low>
       Đề xuất: <known-limits|new-contract>
-    ``` When two or more
-    distinct confirmed findings sit in files that no eval's `paths` cover, end
-    the file with the cluster flag — stop and decide: widen the contract or
-    narrow the scope.
+    ```
+
+    Keep the unverified section's heading EXACTLY
+    `## Chưa adversarial-verify (refuter chết)` — any other heading level or a
+    bare line lets those items leak into the out-of-contract block on the card.
+
+    When two or more distinct confirmed findings sit in files that no eval's
+    `paths` cover, end the file with the cluster flag as ONE literal line —
+    `scripts/gate-card.js` matches it by machine and any paraphrase means the
+    flag silently never reaches Gate 2:
+
+    ```
+    ⚠ Cụm ngoài vùng phủ: <N>/<M> lỗi rơi vào file không bộ đo nào phủ (<files>) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+    ```
+
+    Otherwise end the file with the literal line
+    `Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).`
+    Never invent the warning.
 13. Capture provenance mechanically. Write `enforcement_mode: strict|warn|off`
     from `_acceptance/config.yaml` and `bypass_used: true|false` from the actual
     bypass environment. These fields are merge-boundary evidence and must not be

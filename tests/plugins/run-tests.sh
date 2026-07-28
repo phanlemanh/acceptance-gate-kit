@@ -1123,6 +1123,11 @@ else
   grep -q 'Người dùng thấy gì' "$P56F" || { echo "     THIEU chi dan dong 'Người dùng thấy gì' (truong plain)"; P56OK=0; }
   grep -q -- '- \*\*<title>\*\*' "$P56F" || { echo "     THIEU cau truc '- **<title>**'"; P56OK=0; }
   grep -q 'Đề xuất:' "$P56F" || { echo "     THIEU dong 'Đề xuất:'"; P56OK=0; }
+  # Dong co cum + dong n-a phai la CHUOI NGUYEN VAN (CLUSTER_RE cua reader ghim
+  # dung khuon) — prose tu do lam co lang im khong bao gio toi Gate 2.
+  grep -q '⚠ Cụm ngoài vùng phủ:' "$P56F" || { echo "     THIEU chuoi nguyen van co cum '⚠ Cụm ngoài vùng phủ:'"; P56OK=0; }
+  grep -q 'cluster: n-a' "$P56F" || { echo "     THIEU dong nguyen van 'cluster: n-a'"; P56OK=0; }
+  grep -q '## Chưa adversarial-verify (refuter chết)' "$P56F" || { echo "     THIEU heading nguyen van '## Chưa adversarial-verify (refuter chết)'"; P56OK=0; }
 fi
 # Doi chung dot bien: ban sao bo dong plain phai KHAC ban goc VA lam phep kiem do.
 P56CP="$(mktemp)"

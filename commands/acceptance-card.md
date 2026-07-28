@@ -49,8 +49,7 @@ Steps:
      render, để không thể quên hay điền sai). Ba nhãn lựa chọn giữ NGUYÊN VĂN:
      (a) **ghi Known limits** — chấp nhận, ghi vào phần hạn chế đã biết, ship bản này; (b) **mở hợp đồng mới** — tách thành một việc riêng có tiêu chí nghiệm thu của nó; (c) **nâng phạm vi sửa ngay** — bổ sung tiêu chí vào hợp đồng hiện tại rồi duyệt lại Cổng 1.
      File không có section "## Ngoài hợp đồng" (thế hệ cũ, hoặc round không có
-     lỗi nào) → thẻ render như cũ, không cờ, không lỗi. Có "## Chưa phân loại
-     (triage-failed)" → script thay khối bằng cờ vàng. Cờ cụm-ngoài-vùng-phủ
+     lỗi nào) → thẻ render như cũ, không cờ, không lỗi. Có "## Chưa phân loại (triage-failed)" → script THÊM một cờ vàng phía trên khối (không thay thế — các lỗi đã phân loại được vẫn hiện cho người quyết). Cờ cụm-ngoài-vùng-phủ
      cũng do script render, và cố ý KHÔNG nêu đường dẫn file: thẻ là chỗ quyết
      định, chi tiết nằm ở gói bằng chứng.
    - `scope_plain`: one plain phrase for the deferred/cut scope.

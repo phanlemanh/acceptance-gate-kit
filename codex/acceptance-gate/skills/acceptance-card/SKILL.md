@@ -56,7 +56,8 @@ Translate the extracted JSON without changing meaning:
   re-approve Gate 1. A file with no such section (older generation, or a round
   with no findings) renders exactly as before — no flag, no error; this backward
   branch is mandatory, not optional. When "## Chưa phân loại (triage-failed)" is
-  present the script swaps the block for a single amber flag. The
+  present the script ADDS a single amber flag above the block — it never swaps
+  the block out, so findings already classified stay visible to the decider. The
   coverage-cluster flag is script-rendered too, and deliberately carries no file
   paths: the card is where the decision happens, details live in the evidence.
 

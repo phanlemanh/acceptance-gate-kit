@@ -26,3 +26,19 @@
 {"ts":"2026-07-27T13:25:17Z","round":2,"evalId":"E12","run_id":"minted-s4-scope-triage-E12-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-07-27T13:25:17Z","round":2,"evalId":"E14","run_id":"minted-s4-scope-triage-E14-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-07-27T13:25:17Z","round":2,"kind":"baseline","evals_hash":"c082aa59b47327fd83e4568103f6a11768bef8a707f255c0c8fa48a3bec3756e","non_discriminating":[],"carried_from_round":1}
+{"ts":"2026-07-27T14:45:04Z","round":4,"evalId":"E1","run_id":"minted-s4-scope-triage-E1-r4","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-27T14:45:04Z","round":4,"evalId":"E2","run_id":"minted-s4-scope-triage-E2-r4","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-27T14:45:04Z","round":4,"evalId":"E3","run_id":"minted-s4-scope-triage-E3-r4","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-27T14:45:04Z","round":4,"evalId":"E4","run_id":"minted-s4-scope-triage-E4-r4","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-27T14:45:04Z","round":4,"evalId":"E5","run_id":"minted-s4-scope-triage-E5-r4","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-27T14:45:04Z","round":4,"evalId":"E6","run_id":"minted-s4-scope-triage-E6-r4","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-27T14:45:04Z","round":4,"evalId":"E7","run_id":"minted-s4-scope-triage-E7-r4","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-27T14:45:04Z","round":4,"evalId":"E10","run_id":"minted-s4-scope-triage-E10-r4","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-27T14:45:04Z","round":4,"evalId":"E13","run_id":"minted-s4-scope-triage-E13-r4","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-27T14:45:04Z","round":4,"evalId":"E8","run_id":"minted-s4-scope-triage-E8-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-27T14:45:04Z","round":4,"evalId":"E9","run_id":"minted-s4-scope-triage-E9-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-27T14:45:04Z","round":4,"evalId":"E12","run_id":"minted-s4-scope-triage-E12-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-27T14:45:04Z","round":4,"evalId":"E14","run_id":"minted-s4-scope-triage-E14-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-27T14:45:04Z","round":4,"evalId":"E15","run_id":"minted-s4-scope-triage-E15-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-27T14:45:04Z","round":4,"evalId":"E16","run_id":"minted-s4-scope-triage-E16-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-27T14:45:04Z","round":4,"kind":"baseline","evals_hash":"b807161ac36c15e7b65de35ada8328ae703f92e68f0b0e2f17469eaa4d680375","non_discriminating":[{"cmd":"bash tests/workflows/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E7","E10","E13"]},{"cmd":"bash tests/plugins/run-tests.sh","evals":["E8","E9","E12","E14","E15","E16"]}]}
