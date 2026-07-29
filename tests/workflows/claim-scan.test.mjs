@@ -355,8 +355,13 @@ const row = (sev, tag) => ({ sev, artifact: 'evals', gap: `gap-${tag}`, fail: `f
   check('PH8 description CẢ HAI manifest chứa "v1.18 adds"', () => {
     assert.match(fl.description, /v1\.18 adds/);
     assert.match(flc.description, /v1\.18 adds/); });
-  check('PH8 đối chứng đột biến: bản cắt chuỗi phải trượt regex', () =>
-    assert.doesNotMatch(fl.description.replace(/v1\.18 adds/g, ''), /v1\.18 adds/));
+  // Control THẬT (vá known-limit vòng trước): nửa ÂM trên văn bản tiền-1.18 do
+  // code sinh — không phải "xoá chuỗi rồi tìm chuỗi" (phép kiểm không-thể-đỏ).
+  const OLD_DESC = 'Feature loop for AI-coded features. v1.17 adds S4 scope-triage.';
+  check('PH8 control ÂM: regex TRƯỢT trên description tiền-1.18', () =>
+    assert.doesNotMatch(OLD_DESC, /v1\.18 adds/));
+  check('PH8 control DƯƠNG: cùng regex TRÚNG description hiện hành đọc từ file thật', () =>
+    assert.match(fl.description, /v1\.18 adds/));
 }
 
 // ---- PH1b: đuôi heading KHÔNG-h2 (### / #) cũng không được sinh claim ma ----
@@ -407,6 +412,55 @@ const row = (sev, tag) => ({ sev, artifact: 'evals', gap: `gap-${tag}`, fail: `f
     assert.match(r.err, /claim-scan: skipped .*empty-sect.*gap-probe\.md \(malformed table\)/);
     assert.ok(!r.err.includes('has-rows'));
     assert.ok(JSON.parse(r.out).claims.some(c => c.slug === 'has-rows')); });
+  rmSync(root, { recursive: true, force: true });
+}
+
+// ---- FSB7: round-trip ranh giới xuyên package (claim-scan ↔ lib/md-section) ----
+{
+  const ROOT2 = path.join(HERE, '..', '..');
+  const libText = readFileSync(path.join(ROOT2, 'lib', 'md-section.js'), 'utf8');
+  // Rút luật TỪ MARKER của writer, áp bằng reader độc lập — không chép tay.
+  const table = (() => {
+    const m = libText.match(/<<<SECTION-BOUNDARY-TABLE\n([\s\S]*?)SECTION-BOUNDARY-TABLE>>>/);
+    if (!m) throw new Error('KHONG rut duoc bang SECTION-BOUNDARY-TABLE');
+    const out = {};
+    for (const l of m[1].split('\n')) {
+      const mm = l.match(/^\s*\/\/\s*([A-Za-z ]+?)\s*->\s*(any-heading|same-or-higher)\s*$/);
+      if (mm) out[mm[1].trim()] = mm[2];
+    }
+    return out;
+  })();
+  const rowsByRule = (text, rule) => {
+    const out = []; let inS = false, lvl = 0;
+    for (const l of text.split('\n')) {
+      const m = l.match(/^(#{1,6})\s/);
+      if (m) {
+        if (/^#{2,6}\s+Findings\b/i.test(l)) { inS = true; lvl = m[1].length; continue; }
+        if (inS && (rule === 'any-heading' || m[1].length <= lvl)) { inS = false; continue; }
+      }
+      if (inS && l.trim().startsWith('|')) out.push(l);
+    }
+    return out.slice(2); // bỏ header + separator
+  };
+  const root = mkdtempSync(path.join(tmpdir(), 'fsb7-'));
+  const tail = ['', '### Notes', '', '| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |',
+    '|---|---|---|---|---|---|', '| P0 | evals | g | g | g | g |', ''].join('\n');
+  mkWorkspace(root, 'rt', { probe: gapProbe('2026-07-25T00:00:00Z', 'findings', [row('P1', 'a'), row('P2', 'b')]) + tail });
+  const scanIds = JSON.parse(run(['--root', root, '--slug', 'zz', '--json']).out).claims
+    .filter(c => c.source === 'gap-probe').map(c => c.id);
+  const libRows = rowsByRule(readFileSync(path.join(root, '_acceptance', 'rt', 'gap-probe.md'), 'utf8'), table['Findings']);
+  check('FSB7 round-trip: claim-scan và luật rút-từ-marker cho CÙNG số hàng Findings', () => {
+    if (scanIds.length !== libRows.length)
+      throw new Error(`round-trip lech: ${scanIds.length} vs ${libRows.length} hang`);
+    assert.deepEqual(scanIds, ['rt#F1', 'rt#F2']);
+  });
+  check('FSB7 đối chứng đột biến: đổi luật một bên (same-or-higher) → lệch, đúng thông điệp', () => {
+    const mutatedRows = rowsByRule(readFileSync(path.join(root, '_acceptance', 'rt', 'gap-probe.md'), 'utf8'), 'same-or-higher');
+    assert.throws(() => {
+      if (scanIds.length !== mutatedRows.length)
+        throw new Error(`round-trip lech: ${scanIds.length} vs ${mutatedRows.length} hang`);
+    }, /round-trip lech: 2 vs 5 hang/); // đuôi lọt: header + sep + 1 hàng ma
+  });
   rmSync(root, { recursive: true, force: true });
 }
 
