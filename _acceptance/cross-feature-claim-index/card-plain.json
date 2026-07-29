@@ -1,18 +1,32 @@
 {
-  "feature_plain": "Vòng phản biện thiết kế (gap-probe S1) giờ tự tra được bài học lỗi của các feature trước — chặn lớp lỗi cũ trước khi duyệt, thay vì để nó đốt vòng verify. Máy đã xanh toàn bộ; còn lại là các quyết định của người bên dưới.",
-  "decisions": [
-    {"id": "E10", "q": "Trường phụ 'serves' ngoài 10 trường đã cam kết — giữ (sửa mô tả) hay bỏ?"},
-    {"id": "E10", "why": "Cả 3 giám khảo đề xuất KHÔNG ĐẠT: bản thiết kế tả 11 trường trong khi hợp đồng chốt 10. Trường phụ có ích thật (nối bài học về đúng tiêu chí) nhưng chưa được cam kết ghi rõ — sửa mô tả là đủ, có thể đảo ngược."},
-    {"id": "E11", "q": "Chấp nhận bảng điểm sống/chết điền tay, hay đòi đo máy 100%?"},
-    {"id": "E11", "why": "Cả 3 giám khảo đề xuất KHÔNG ĐẠT: phần đếm-trích-dẫn đã có lệnh đo cụ thể, nhưng 2/3 tiêu chí còn lại (người xác nhận đáng, trần chi phí) chưa chỉ ra lệnh/vật đo — bổ sung lệnh đo vào tài liệu là đủ, đảo ngược được."}
-  ],
+  "feature_plain": "Vòng phản biện thiết kế (gap-probe S1) giờ tự tra được bài học lỗi của các feature trước — chặn lớp lỗi cũ trước khi duyệt. Round 3: máy xanh toàn bộ, cả hai câu hỏi thẩm định đã được panel chấm ĐẠT 3/3 sau khi sửa tài liệu — không còn mục nào chờ phán riêng, chỉ còn ký và chốt 6 ghi nhận ngoài phạm vi.",
+  "decisions": [],
   "analyst_plain": "Mọi phép kiểm máy của tính năng này chạy qua 2 lệnh chung của bộ test repo, nên từng phép kiểm không tách bạch riêng lẻ — đã ghi nhận từ vòng 1, không đổi ở vòng 2.",
   "scope_plain": "Để sau (V2, chờ ngưỡng GO): nguồn review-findings/run-log, khớp ngữ nghĩa theo surface, lưu file index, hiện bài học trên thẻ duyệt, bản Codex. Không bao giờ: máy tự gán nhãn lớp-lỗi, trí nhớ xuyên repo.",
   "decisions_plain": [
-    {"id": "d-20260729T060345Z-26121", "p": "Chọn kiến trúc tính-khi-cần thay vì lưu file sẵn — cả lớp lỗi lệch-bản biến mất; đổi lại không có file mở xem, bù bằng lệnh chạy tay"},
-    {"id": "d-20260729T060345Z-2978", "p": "KHÔNG lấy nguồn review-findings/run-log ở V1 — tránh parser dễ vỡ đúng chỗ vừa vỡ tuần này; đổi lại bỏ lỡ bài học chưa-thành-fix, dời V2"},
-    {"id": "d-20260729T060345Z-23277", "p": "KHÔNG làm bản Codex và không sửa thẻ duyệt ở V1 — bài học chỉ vào gói text Cổng 1; dời V2 chờ GO"},
-    {"id": "d-20260729T062019Z-29383", "p": "Thêm sàn tối thiểu 3 chỗ/nguồn khi cắt top-10 — dữ liệu thật cho thấy nếu không, bài học từ sổ quyết định bị đuổi sạch bởi các phát hiện có độ nặng; đổi lại top-10 không còn thuần túy theo độ nặng"},
-    {"id": "d-20260729T065429Z-282", "p": "Sửa 3 lỗi trong-hợp-đồng vòng 1: đường dẫn có khoảng trắng/symlink không còn làm công cụ câm lặng; mã trích dẫn bám đúng hàng người sẽ mở đọc; thông điệp bỏ-qua nói đúng phạm vi bỏ"}
+    {
+      "id": "d-20260729T060345Z-26121",
+      "p": "Chọn kiến trúc tính-khi-cần thay vì lưu file sẵn — cả lớp lỗi lệch-bản biến mất; đổi lại không có file mở xem, bù bằng lệnh chạy tay"
+    },
+    {
+      "id": "d-20260729T060345Z-2978",
+      "p": "KHÔNG lấy nguồn review-findings/run-log ở V1 — tránh parser dễ vỡ đúng chỗ vừa vỡ tuần này; đổi lại bỏ lỡ bài học chưa-thành-fix, dời V2"
+    },
+    {
+      "id": "d-20260729T060345Z-23277",
+      "p": "KHÔNG làm bản Codex và không sửa thẻ duyệt ở V1 — bài học chỉ vào gói text Cổng 1; dời V2 chờ GO"
+    },
+    {
+      "id": "d-20260729T062019Z-29383",
+      "p": "Thêm sàn tối thiểu 3 chỗ/nguồn khi cắt top-10 — dữ liệu thật cho thấy nếu không, bài học từ sổ quyết định bị đuổi sạch bởi các phát hiện có độ nặng; đổi lại top-10 không còn thuần túy theo độ nặng"
+    },
+    {
+      "id": "d-20260729T065429Z-282",
+      "p": "Sửa 3 lỗi trong-hợp-đồng vòng 1: đường dẫn có khoảng trắng/symlink không còn làm công cụ câm lặng; mã trích dẫn bám đúng hàng người sẽ mở đọc; thông điệp bỏ-qua nói đúng phạm vi bỏ"
+    },
+    {
+      "id": "d-round3",
+      "p": "Round 3 theo lệnh người duyệt: hết mâu thuẫn văn bản SKILL, bài học thiếu ngày xếp cuối, tài liệu khai rõ trường phụ + bảng lệnh đo — panel chấm lại ĐẠT cả hai"
+    }
   ]
 }

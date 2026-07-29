@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 57bff689e8a9fc9b50cd523c8c59c4760a8b8011
+verified_commit: 58b613d5befdde68ff0fdefeba10b641ad23e864
 # bypass_ack:
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -524,3 +524,19 @@ là một phần machine lane THẬT — suite đổi thì bằng chứng suite 
 - **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
   `human_override` sẵn có giữ nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là đã
   phán về hành vi mới của feature-loop 1.17.1.
+
+### Re-pin lần 4 — 2026-07-29, do feature cross-feature-claim-index
+
+`verified_commit` lên `58b613d`. Nguyên nhân stale: feature
+cross-feature-claim-index thêm `feature-loop/scripts/claim-scan.mjs`, sửa
+SKILL.md feature-loop (input thứ 5 cho gap-probe, 1.18.0), thêm 2 file test
+mới trong `tests/workflows/` và bump manifest. Staleness bắt ĐÚNG MỘT NỬA
+như lần 3: SKILL/scanner không chạm hành vi cổng, nhưng suite workflows +
+plugins đổi thật nên bằng chứng suite phải chạy lại.
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY — machine lane ở `58b613d` do 5 agent
+  tươi chạy (mỗi slug một agent), sha nhất quán cả 5, tất cả exit 0
+  (588 scripts · 51 hooks · plugins pass · workflows pass · mirror in sync).
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
+  `human_override` sẵn có giữ nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là
+  đã phán về claim-scan hay feature-loop 1.18.0.
