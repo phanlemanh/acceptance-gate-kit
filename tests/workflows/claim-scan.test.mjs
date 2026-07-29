@@ -272,5 +272,47 @@ const row = (sev, tag) => ({ sev, artifact: 'evals', gap: `gap-${tag}`, fail: `f
   rmSync(root, { recursive: true, force: true });
 }
 
+// ---- PH2: id vắng/sai khuôn nổ to, không biến mất câm ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'ph2-'));
+  mkWorkspace(root, 'badid', { ledger: [
+    JSON.stringify({ type: 'fix', stage: 'S1', at: '2026-07-20T10:00:00Z', decision: 'no-id-entry', impact: 'x' }),
+    ledgerLine('BAD ID', 'fix'),
+    ledgerLine('d-20260720T100000Z-90', 'fix')] });
+  const r = run(['--root', root, '--slug', 'zz', '--json']);
+  const ids = JSON.parse(r.out).claims.map(c => c.id);
+  check('PH2 entry chuẩn còn (đối chứng dương), id hỏng vắng, warn đếm 2, exit 0', () => {
+    assert.equal(r.code, 0);
+    assert.deepEqual(ids, ['d-20260720T100000Z-90']);
+    assert.match(r.err, /claim-scan: dropped 2 claims with invalid id in badid/); });
+  rmSync(root, { recursive: true, force: true });
+}
+
+// ---- PH3: id trùng — khác slug CẢNH, cùng slug IM, corpus sạch IM ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'ph3-'));
+  const DUP = 'd-20260720T110000Z-77';
+  mkWorkspace(root, 'slug-a', { ledger: [ledgerLine(DUP, 'fix')] });
+  mkWorkspace(root, 'slug-b', { ledger: [ledgerLine(DUP, 'descope')] });
+  const a = run(['--root', root, '--slug', 'zz', '--json']);
+  check('PH3a khác slug: giữ claim gặp trước + warn duplicate + exit 0', () => {
+    assert.equal(a.code, 0);
+    const dups = JSON.parse(a.out).claims.filter(c => c.id === DUP);
+    assert.equal(dups.length, 1); assert.equal(dups[0].slug, 'slug-a');
+    assert.match(a.err, new RegExp(`claim-scan: duplicate id ${DUP} across features \\(kept first\\)`)); });
+  const root2 = mkdtempSync(path.join(tmpdir(), 'ph3b-'));
+  mkWorkspace(root2, 'clean-a', { ledger: [ledgerLine('d-20260720T110001Z-78', 'fix')] });
+  const b = run(['--root', root2, '--slug', 'zz', '--json']);
+  check('PH3b corpus sạch: KHÔNG dòng duplicate (đối chứng âm)', () =>
+    assert.ok(!b.err.includes('duplicate id')));
+  const root3 = mkdtempSync(path.join(tmpdir(), 'ph3c-'));
+  mkWorkspace(root3, 'same', { ledger: [ledgerLine(DUP, 'fix'), ledgerLine(DUP, 'descope')] });
+  const c = run(['--root', root3, '--slug', 'zz', '--json']);
+  check('PH3c trùng trong CÙNG slug: dedupe im lặng chủ đích — không warn', () => {
+    assert.equal(JSON.parse(c.out).claims.filter(x => x.id === DUP).length, 1);
+    assert.ok(!c.err.includes('duplicate id')); });
+  for (const d of [root, root2, root3]) rmSync(d, { recursive: true, force: true });
+}
+
 console.log(`\nResults: ${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

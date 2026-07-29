@@ -81,8 +81,28 @@ export function scan(root, slug, warn = (m) => console.error(m)) {
     const gp = path.join(d, 'gap-probe.md');
     if (existsSync(gp)) claims.push(...probeClaims(gp, name, warn));
   }
-  const seen = new Set();
-  claims = claims.filter(c => ID_RE.test(c.id) && !seen.has(c.id) && seen.add(c.id));
+  // Lớp câm-lặng đã đóng (parser-hardening): mọi đường drop đều có tiếng,
+  // trừ hai bỏ-qua-chủ-đích có tên trong design — (a) verdict hợp lệ ≠
+  // findings, (b) dedupe id trùng trong CÙNG slug.
+  const invalidBySlug = new Map();
+  const firstSlugOf = new Map();
+  const kept = [];
+  for (const c of claims) {
+    if (!ID_RE.test(String(c.id ?? ''))) {
+      invalidBySlug.set(c.slug, (invalidBySlug.get(c.slug) ?? 0) + 1);
+      continue;
+    }
+    if (firstSlugOf.has(c.id)) {
+      if (firstSlugOf.get(c.id) !== c.slug)
+        warn(`claim-scan: duplicate id ${c.id} across features (kept first)`);
+      continue; // cùng slug: dedupe im lặng chủ đích
+    }
+    firstSlugOf.set(c.id, c.slug);
+    kept.push(c);
+  }
+  for (const [s, n] of invalidBySlug)
+    warn(`claim-scan: dropped ${n} claims with invalid id in ${s}`);
+  claims = kept;
   const rank = (s) => ({ P0: 0, P1: 1, P2: 2 })[s] ?? 3;
   // at thiếu/không phải chuỗi → xếp CUỐI nhóm cùng sev, không phải đầu:
   // String(null) = "null" thắng mọi ISO date theo lexicographic (finding S4-r2).
