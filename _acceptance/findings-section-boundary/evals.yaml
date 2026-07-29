@@ -1,0 +1,152 @@
+# evals — findings-section-boundary
+# Test mới sống ở tests/scripts/ (suite của gate-card/evidence-page) + case
+# round-trip xuyên package ở tests/workflows/.
+# Luật kit: fixture code-sinh; âm tính có đối chứng dương + ghim thông điệp.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "gap_probe.rows CHỈ có hàng của bảng Findings thật (0 hàng ma từ ### Notes / # Appendix); đối chứng dương: file bỏ đuôi cho dãy hàng GIỐNG HỆT"
+    cmd: config:executors.test.scripts
+    paths: ["lib/md-section.js", "scripts/gate-card.js", "tests/scripts/**"]
+    notes: >
+      Case FSB1: fixture gap-probe code-sinh (Findings 1 hàng + ### Notes có
+      bảng 6 cột + # Appendix có bảng) → gate-card --extract; so với fixture
+      cắt đuôi. Regression đinh của seam bất đồng.
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    expected: "verdict clean + bảng ma ở đuôi → KHÔNG bắn cờ 'verdict clean nhưng bảng có finding'; đối chứng dương: clean + hàng THẬT trong Findings vẫn bắn cờ"
+    cmd: config:executors.test.scripts
+    paths: ["lib/md-section.js", "scripts/gate-card.js", "tests/scripts/**"]
+    notes: >
+      Case FSB2: hai fixture đối xứng, chỉ khác chỗ đặt bảng → so sự CÓ/VẮNG
+      của cờ theo chuỗi nguyên văn trong output thẻ.
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    expected: "thẻ Cổng 1 hiện ĐỦ AC sau ### nhóm phụ — số AC đọc được == số AC trong file; đột biến: đổi luật Criteria sang any-heading → assert đỏ"
+    cmd: config:executors.test.scripts
+    paths: ["lib/md-section.js", "scripts/gate-card.js", "tests/scripts/**"]
+    notes: >
+      Case FSB3: contract fixture 5 AC với ### nhóm phụ trước AC-3 →
+      will_do + wont_do phải phủ đủ 5. Regression đinh của false-green cũ.
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    expected: "evidence-page hiện ĐỦ AC sau sub-heading — cùng fixture như FSB3, cùng kết luận (reader thứ hai không lệch)"
+    cmd: config:executors.test.scripts
+    paths: ["lib/md-section.js", "scripts/evidence-page.js", "tests/scripts/**"]
+    notes: >
+      Case FSB4: chạy evidence-page.js trên cùng fixture + report tối thiểu
+      code-sinh; đếm AC trong HTML.
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    expected: "bảng luật rút được bằng marker; khai Findings→any-heading và default→same-or-higher; ĐỘT BIẾN xoá marker trong bản sao → lỗi khớp NGUYÊN VĂN 'KHONG rut duoc bang SECTION-BOUNDARY-TABLE'; ĐỐI CHỨNG DƯƠNG cùng harness: bản nguyên vẹn parse ra đúng 2 khoá"
+    cmd: config:executors.test.scripts
+    paths: ["lib/md-section.js", "tests/scripts/**"]
+    notes: >
+      Case FSB5: đọc lib/md-section.js, rút khối marker, parse ra map, assert
+      2 khoá; đột biến: xoá marker → assert đỏ (khuôn P55).
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    expected: "KHÔNG file nào còn 'function section(' riêng; cả hai require ../lib/md-section.js; evidence-page KHÔNG có call-site section(…,'Findings') (ghim ô R×S); ĐỘT BIẾN tiêm lại định nghĩa riêng vào bản sao → lỗi khớp NGUYÊN VĂN 'van con dinh nghia section() rieng'; ĐỐI CHỨNG DƯƠNG cùng harness: bản sao nguyên vẹn XANH"
+    cmd: config:executors.test.scripts
+    paths: ["scripts/gate-card.js", "scripts/evidence-page.js", "tests/scripts/**"]
+    notes: >
+      Case FSB6: grep trên NỘI DUNG file thật + đối chứng đột biến trên bản
+      sao trong thư mục tạm.
+
+  - id: E7
+    criterion: AC-7
+    executor: test
+    expected: "claim-scan và luật rút-từ-marker cho CÙNG tập hàng trên fixture chung; ĐỘT BIẾN đổi luật một bên → lỗi khớp NGUYÊN VĂN 'round-trip lech: <n> vs <m> hang'; ĐỐI CHỨNG DƯƠNG cùng harness: bản nguyên vẹn khớp số hàng và thứ tự"
+    cmd: config:executors.test.workflows
+    paths: ["lib/md-section.js", "feature-loop/scripts/claim-scan.mjs", "tests/workflows/**"]
+    notes: >
+      Case FSB7: fixture gap-probe code-sinh (có đuôi sub-heading); chạy
+      claim-scan --json lấy id #F; áp luật rút-từ-marker lên cùng text; so
+      số hàng + thứ tự. Đây là ràng buộc duy nhất giữ 2 plugin đồng thuận.
+
+  - id: E8
+    criterion: AC-8
+    executor: test
+    expected: "suite plugins xanh sau thay đổi (P30 mirror, P04/P22 manifest, các case gate-card sẵn có) — không hồi quy"
+    cmd: config:executors.test.plugins
+    paths: ["lib/**", "scripts/**", "plugins/**", "tests/plugins/**"]
+    notes: >
+      Lưới hồi quy chéo: lib/ mới phải có mặt trong mirror, không phá case cũ.
+
+  - id: E9
+    criterion: AC-9
+    executor: test
+    expected: "PH8 control là phép kiểm THẬT — nửa ÂM: regex TRƯỢT trên chuỗi description tiền-1.18 (code-sinh); nửa DƯƠNG: cùng regex TRÚNG description hiện hành đọc từ file thật"
+    cmd: config:executors.test.workflows
+    paths: ["tests/workflows/**"]
+    notes: >
+      Vá known-limit vòng trước: thay control vacuous bằng control trên văn
+      bản thật (chuỗi description cũ, code-sinh trong test).
+
+  - id: E10
+    criterion: AC-10
+    executor: judgment
+    runs: 3
+    inputs:
+      - ../../lib/md-section.js
+      - ../../scripts/gate-card.js
+      - ../../docs/superpowers/specs/2026-07-29-findings-section-boundary-design.md
+    question: >
+      Luật ranh giới section đã single-source ĐÚNG NGHĨA chưa — mọi reader
+      trong package acceptance-gate lấy ranh giới từ bảng marker của
+      lib/md-section.js (hoặc được khai Out of scope có tên trong design), và
+      không call-site nào tự chế luật riêng bằng regex/tham số cứng?
+
+  - id: E11
+    criterion: AC-11
+    executor: script
+    expected: "sync --check exit 0 — mirror đồng bộ sau khi thêm lib/md-section.js + sửa 2 script"
+    cmd: config:executors.script.mirror_sync
+    paths: ["lib/**", "scripts/**", "plugins/**", "codex/**"]
+    notes: >
+      lib/ nằm trong danh sách rsync của sync-plugin-packages.sh — file mới
+      phải xuất hiện trong plugins/acceptance-gate/lib/.
+
+  - id: E12
+    criterion: AC-12
+    executor: test
+    expected: "bản sao lib bị đột biến Ô BẢNG (Findings→same-or-higher) → gate-card qua bản sao đó cho hàng ma XUẤT HIỆN, đếm hàng tăng đúng số hàng bảng đuôi; ĐỐI CHỨNG DƯƠNG cùng harness: bản nguyên vẹn cho 0 hàng ma"
+    cmd: config:executors.test.scripts
+    paths: ["lib/md-section.js", "scripts/gate-card.js", "tests/scripts/**"]
+    notes: >
+      Case FSB8 — nối marker↔hành vi (fix gap-probe P0-1): bảng phải LÀ thứ
+      section() đọc, không phải comment trang trí. Harness: copy cây tối
+      thiểu vào tmp, sed đúng ô bảng, chạy gate-card --extract từ bản sao.
+
+  - id: E13
+    criterion: AC-8
+    executor: test
+    expected: "suite hooks xanh sau thay đổi, số case chạy > 0 (0 case KHÔNG được đọc thành xanh)"
+    cmd: config:executors.test.hooks
+    paths: ["lib/**", "scripts/**", "hooks/**", "tests/hooks/**"]
+    notes: >
+      Fix gap-probe P1-3: AC-8 tuyên bố cả 4 suite nhưng E8 chỉ chạy plugins;
+      hooks là phần tư chưa có răng.
+
+  - id: E14
+    criterion: AC-11
+    executor: test
+    expected: "node plugins/acceptance-gate/scripts/gate-card.js --extract trên fixture code-sinh: exit 0 VÀ số AC trong output ĐÚNG bằng số AC fixture — vật được giao (bản mirror) chạy thật, không chỉ 'không drift'"
+    cmd: config:executors.test.plugins
+    paths: ["lib/**", "scripts/**", "plugins/**", "tests/plugins/**"]
+    notes: >
+      Fix gap-probe P1-2 (cite [gap-probe-presence-hook#F1]): sync --check chỉ
+      đo drift; require('../lib/md-section.js') hỏng trong mirror vẫn để mọi
+      eval cây-nguồn xanh. Khẳng định DƯƠNG trên bản mirror.
