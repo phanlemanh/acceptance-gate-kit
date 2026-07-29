@@ -348,5 +348,16 @@ const row = (sev, tag) => ({ sev, artifact: 'evals', gap: `gap-${tag}`, fail: `f
   rmSync(root, { recursive: true, force: true });
 }
 
+// ---- PH8: description 2 manifest phải khai "v1.18 adds" (trả known-limit) ----
+{
+  const fl = JSON.parse(readFileSync(path.join(HERE, '..', '..', 'feature-loop', '.claude-plugin', 'plugin.json'), 'utf8'));
+  const flc = JSON.parse(readFileSync(path.join(HERE, '..', '..', 'codex', 'feature-loop-codex', '.codex-plugin', 'plugin.json'), 'utf8'));
+  check('PH8 description CẢ HAI manifest chứa "v1.18 adds"', () => {
+    assert.match(fl.description, /v1\.18 adds/);
+    assert.match(flc.description, /v1\.18 adds/); });
+  check('PH8 đối chứng đột biến: bản cắt chuỗi phải trượt regex', () =>
+    assert.doesNotMatch(fl.description.replace(/v1\.18 adds/g, ''), /v1\.18 adds/));
+}
+
 console.log(`\nResults: ${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
