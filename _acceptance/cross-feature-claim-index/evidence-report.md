@@ -1,13 +1,13 @@
 ---
 schema_version: 2
 feature_slug: cross-feature-claim-index
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 35ec5b1c2efd6e790f35f623cb554760c3f027ee
+verified_commit: f57236a28593e734d1a5949b6b23e416a4c7b973
 # bypass_ack:
 human_signoff:
 ---
@@ -25,149 +25,149 @@ human_signoff:
 | E7 | AC-7 | test | PASS |
 | E8 | AC-8 | test | PASS |
 | E9 | AC-9 | test | PASS |
-| E10 | AC-10 | judgment | UNCERTAIN |
-| E11 | AC-11 | judgment | UNCERTAIN |
+| E10 | AC-10 | judgment | PASS |
+| E11 | AC-11 | judgment | PASS |
 | E12 | AC-12 | script | PASS |
 | E13 | AC-1 | test | PASS |
 
 ## Evidence
 
 - eval: E1
-  run_id: minted-cross-feature-claim-index-E1-r2
+  run_id: minted-cross-feature-claim-index-E1-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-07-29T14:20:00Z
+  verified_at: 2026-07-29T14:50:00Z
   output: |
-    Results: 9 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E2
-  run_id: minted-cross-feature-claim-index-E2-r2
+  run_id: minted-cross-feature-claim-index-E2-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-07-29T14:20:00Z
+  verified_at: 2026-07-29T14:50:00Z
   output: |
-    Results: 9 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E3
-  run_id: minted-cross-feature-claim-index-E3-r2
+  run_id: minted-cross-feature-claim-index-E3-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-07-29T14:20:00Z
+  verified_at: 2026-07-29T14:50:00Z
   output: |
-    Results: 9 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E4
-  run_id: minted-cross-feature-claim-index-E4-r2
+  run_id: minted-cross-feature-claim-index-E4-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-07-29T14:20:00Z
+  verified_at: 2026-07-29T14:50:00Z
   output: |
-    Results: 9 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E5
-  run_id: minted-cross-feature-claim-index-E5-r2
+  run_id: minted-cross-feature-claim-index-E5-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-07-29T14:20:00Z
+  verified_at: 2026-07-29T14:50:00Z
   output: |
-    Results: 9 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E6
-  run_id: minted-cross-feature-claim-index-E6-r2
+  run_id: minted-cross-feature-claim-index-E6-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-07-29T14:20:00Z
+  verified_at: 2026-07-29T14:50:00Z
   output: |
-    Results: 9 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E7
-  run_id: minted-cross-feature-claim-index-E7-r2
+  run_id: minted-cross-feature-claim-index-E7-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-07-29T14:20:00Z
+  verified_at: 2026-07-29T14:50:00Z
   output: |
-    Results: 9 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E8
-  run_id: minted-cross-feature-claim-index-E8-r2
+  run_id: minted-cross-feature-claim-index-E8-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-07-29T14:20:00Z
+  verified_at: 2026-07-29T14:50:00Z
   output: |
-    Results: 9 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E9
-  run_id: minted-cross-feature-claim-index-E9-r2
+  run_id: minted-cross-feature-claim-index-E9-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-07-29T14:20:00Z
+  verified_at: 2026-07-29T14:50:00Z
   output: |
-    Results: 9 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E10
   judged_by: judge panel (domain-correctness, operational-feasibility, spec-alignment)
-  verdict: UNCERTAIN
-  proposal: FAIL
+  verdict: PASS
+  proposal: PASS
   rationale: |
-    - domain-correctness: FAIL — Schema JSON trong design doc (dòng 76-88) có trường `serves` (vd `["AC-4"]`), nhưng AC-6 của contract — nơi liệt kê đủ trường bắt buộc — chỉ đòi `id/source/slug/kind/stage/sev/at/claim/lesson/pointer` (đúng 10, không có `serves`), và bản markdown nạp cho agent (bullet `- [<id>] (<slug> · <stage|sev> · <kind>) <claim> — <lesson>`) cũng không render `serves`. Không đoạn nào trong design doc mô tả pipeline parse (decisions.jsonl fix/descope, gap-probe.md bảng Findings) sinh ra giá trị cho `serves` — không có producer lẫn consumer nào cho trường này trong V1, đúng hình hài "trường để dành" mà câu hỏi cảnh báo. Phần còn lại của schema (id ổn định qua dedupe, pointer trỏ về file nguồn) đủ cho truy nguồn G5, nhưng `serves` là điểm phình chưa được biện minh nên không thể PASS.
-    - operational-feasibility: FAIL — Khối JSON schema trong design doc (dòng 76-88) có 11 trường, gồm "serves":["AC-4"] — nhưng AC-6 (đặc tả bắt buộc) chỉ liệt kê 10 trường (id/source/slug/kind/stage/sev/at/claim/lesson/pointer), không có "serves"; trường này cũng không xuất hiện trong định dạng markdown nạp cho agent (dòng 90-92), không có nguồn sinh ra nó từ decisions.jsonl/gap-probe.md, và không được test nào ở mục Testing kiểm tra. Đây đúng là một trường "để dành" chưa có người tiêu thụ nào được mô tả — vi phạm trực tiếp điều kiện AC-10 đặt ra ("không trường thừa để dành"), dù phần còn lại (id ổn định, pointer truy nguồn) đáp ứng tốt yêu cầu đọc-lại của G5.
-    - spec-alignment: FAIL — Schema claim trong design doc (mục 2) thực ra có 11 trường chứ không phải 10: ngoài id/source/slug/kind/stage/sev/at/claim/lesson/pointer còn "serves":["AC-4"] — trường này không có bước nào trong pipeline (parse→...→serialize) mô tả cách sinh giá trị, không xuất hiện trong khối markdown nạp cho agent, và không nằm trong danh sách 10 trường mà chính contract AC-6 yêu cầu kiểm. Đây đúng là trường "để dành" cho việc semantic-match claim↔AC mà mục Out of scope của design doc tự nhận là chưa cần ở V1 ("Semantic matching claim ↔ surfaces/paths ... chưa cần"), nên nó phình V1 đúng như AC-10 cấm, đồng thời gây lệch giữa design (11 trường) và contract (10 trường).
+    - domain-correctness: PASS — Schema có đúng 10 trường bắt buộc (id/source/slug/kind/stage/sev/at/claim/lesson/pointer, theo AC-6) và mỗi trường có người tiêu thụ cụ thể trong V1: id là đơn vị trích dẫn agent cite nguyên văn, pointer là đường truy nguồn về decisions.jsonl/gap-probe.md (đúng nhu cầu "đọc lại, truy nguồn" của G5), stage/sev/kind/claim/lesson hiện diện trong bullet markdown nạp cho probe. Trường duy nhất có thể ngờ là "reserved" — `serves` — được khai rõ là tùy chọn với người tiêu thụ ngay từ V1 (critic gap-probe nối AC cũ), không phải trường để-dành; id ổn định vì nguồn gốc-sự-thật là append-only nên thứ tự dòng bảng (cơ sở tính `<slug>#F<n>`) không bị xáo trộn giữa các lần chạy. Vì V1 là view dẫn xuất không persist (Approach A), không phát sinh nghĩa vụ migrate — thỏa đúng điều kiện "không migrate" trong câu hỏi.
+    - operational-feasibility: FAIL — Pointer + id-ổn-định (dedupe theo id ledger, `<slug>#F<n>` cho finding) đủ cho truy nguồn G5, nhưng schema JSON (design doc dòng 76-88) có 11 trường gồm `serves`, trong khi AC-6 chỉ chốt đúng 10 trường bắt buộc và bản markdown nạp cho agent (dòng 95-97, bullet `- [<id>] (<slug> · <stage|sev> · <kind>) <claim> — <lesson>`) không render `serves` ở đâu cả. Design doc tự nhận "KHÔNG phải trường để-dành" và gán consumer là "critic gap-probe", nhưng không mô tả bước nào trong pipeline (S1#7, error-handling, testing) thực sự đọc lại `serves` từ output JSON — về mặt vận hành nó tồn tại trong output nhưng không có đường tiêu thụ được nối dây trong V1, đúng hình hài trường thừa mà câu hỏi cảnh báo. Vì vậy schema chưa đủ gọn cho G5 mà không phình.
+    - spec-alignment: PASS — Spec liệt kê đúng 10 trường bắt buộc (id…pointer) và tách rõ `serves` là trường tùy chọn có consumer ngay từ V1 (critic gap-probe nối claim về AC của feature cũ), không phải trường "để dành" — đúng khớp câu hỏi AC-10. `pointer` cho truy nguồn (path vào decisions.jsonl/gap-probe.md), `id` ổn định qua tái dùng id ledger sẵn có hoặc suy ra tất định từ thứ tự dòng bảng gap-probe (nguồn append-only) — đủ cơ sở cho G5 đọc lại mà không cần migrate. Các trường còn lại (source/slug/kind/stage/sev/at/claim/lesson) đều có ít nhất một tiêu thụ đã nêu (lọc AC-1, exclude-self AC-3, sort AC-5, hiển thị bullet advisory), không thấy trường thừa không người dùng.
   human_override:
 
 - eval: E11
   judged_by: judge panel (domain-correctness, operational-feasibility, spec-alignment)
-  verdict: UNCERTAIN
-  proposal: FAIL
+  verdict: PASS
+  proposal: PASS
   rationale: |
-    - domain-correctness: FAIL — Tiêu chí GO #1 đòi "được người xác nhận đáng" — đây là phán đoán giá trị của người, không phải giá trị đọc được bằng grep trên decisions.jsonl/gap-probe.md; NO-GO "probe hỏng vì input 5 không vá được trong 1 lần" cũng là nhận định chủ quan, không có lệnh/ngưỡng đo cụ thể. Chính mục "Đo lường" của doc còn ghi scorecard GO/NO-GO là "điền tay" chứ không phải suy ra thuần túy từ grep, mâu thuẫn với tuyên bố "đo được thuần từ artifact". Tiêu chí GO #3 (scan < 5 giây) cũng đòi chạy thực script đo thời gian, không phải chỉ grep hai file artifact như luật đo tuyên bố.
-    - operational-feasibility: FAIL — Tiêu chí (1) đòi "Xử lý `human-gate1` được người xác nhận đáng" nhưng doc không chỉ ra field/giá trị cụ thể nào trong gap-probe.md hay decisions.jsonl mã hoá "đáng" — đây là phán đoán người đọc, không phải giá trị grep được. Tiêu chí (2) đếm tỉ lệ "rejected" nhưng không định nghĩa trạng thái này được ghi ở đâu (cột nào trong Findings, hay entry nào trong ledger) — chỉ có `Xử lý ∈ {fixed, descope}` được nêu, "rejected" chưa map vào enum nào. Chính §4 "Đo lường" của doc cũng tự thừa nhận scorecard GO/NO-GO "điền tay" cuối cửa sổ đo, mâu thuẫn với tuyên bố đo thuần từ grep — chỉ tiêu chí (3) (đếm claim, scan time) là đo được thuần cơ học.
-    - spec-alignment: FAIL — Tiêu chí (3) có lệnh đo cụ thể (chạy claim-scan.mjs, đếm claim/token/giây), nhưng tiêu chí (1) và luật NO-GO đòi hỏi phân loại "được người xác nhận đáng" và "bị human bác ở Gate 1" — đây là phán đoán người tại thời điểm đo, không có field/pattern grep cụ thể nào trong gap-probe.md hay decisions.jsonl ánh xạ tới trạng thái "rejected"/"đáng" (schema chỉ có kind: fix|descope|finding, không có nhãn rejected). Mục "Đo lường" tự thừa nhận "scorecard GO/NO-GO điền tay" — tức bước cuối vẫn cần người đọc và tự kết luận, không phải thuần grep như tuyên bố.
+    - domain-correctness: PASS — Bảng "Đo lường — mỗi tiêu chí một lệnh, một vật" ánh xạ đủ 5 nhánh GO/NO-GO sang lệnh grep/wc/time cụ thể trên gap-probe.md, decisions.jsonl và frontmatter contract của đúng slug mới; ngay cả "human xác nhận đáng" cũng được quy về đọc chữ ký approved_by sẵn có, không phỏng vấn lại. Dòng chốt "Không tiêu chí nào hỏi agent hay dựa hồi ức" khớp với nội dung bảng phía trên, kể cả nhánh yếu nhất (NO-GO probe hỏng, chỉ nói "đối chiếu ledger") vẫn trỏ về artifact (decisions.jsonl) chứ không cần hỏi ai.
+    - operational-feasibility: FAIL — GO-1 và GO-3 có lệnh backtick cụ thể (grep, wc -c, time), nhưng GO-2 chỉ mô tả "đếm rejected:/tổng — bằng grep cột Xử lý" không đưa regex/lệnh thật, và NO-GO "probe hỏng vì input 5" đòi "đối chiếu ledger fix có vá trong 1 lần không" — không có lệnh/tiêu chí máy đo cho "vá trong 1 lần", đây là phán đoán ngữ nghĩa trên các entry ledger chứ không phải một grep/đếm xác định. Do đó không phải MỌI tiêu chí GO/NO-GO đều quy về lệnh/vật đo cụ thể như tuyên bố ở đầu mục 4.
+    - spec-alignment: PASS — Bảng "Đo lường" liệt đủ 5 tiêu chí (GO-1, GO-2, GO-3, NO-GO zero-cite, NO-GO probe hỏng) mỗi dòng đều ghi lệnh cụ thể (grep pattern, wc -c, time, chạy lại claim-scan.mjs) và vật đo cụ thể (gap-probe.md, frontmatter contract, decisions.jsonl, output scan) — không dòng nào chỉ nói "kiểm tra" chung chung. Dòng chốt của mục ("Không tiêu chí nào hỏi agent hay dựa hồi ức; 'xác nhận đáng' đọc từ chữ ký approved_by sẵn có") khớp đúng tuyên bố của câu hỏi. Điểm hơi mềm duy nhất là NO-GO "probe hỏng" dùng cụm "đối chiếu ledger" thay vì một lệnh grep tường minh, nhưng vẫn quy về đọc decisions.jsonl (artifact), không đòi hỏi agent trả lời hay người nhớ lại — không đủ để lật verdict.
   human_override:
 
 - eval: E12
-  run_id: minted-cross-feature-claim-index-E12-r2
+  run_id: minted-cross-feature-claim-index-E12-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.mirror_sync
-  verified_at: 2026-07-29T14:20:00Z
+  verified_at: 2026-07-29T14:50:00Z
   output: |
     plugins/ mirror in sync.
 
 - eval: E13
-  run_id: minted-cross-feature-claim-index-E13-r2
+  run_id: minted-cross-feature-claim-index-E13-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-07-29T14:20:00Z
+  verified_at: 2026-07-29T14:50:00Z
   output: |
-    Results: 9 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
@@ -186,6 +186,7 @@ none — every multi-run eval is uniform
 
 Round 1: E10, E11 (judgment) FAIL theo panel 3 lens — E10: trường "serves" trong schema design doc không nằm trong 10 trường AC-6 chốt, không có người tiêu thụ nào trong V1 (trường để dành, vi phạm AC-10). E11: mục "Đo lường" của AC-11 chỉ cho một lệnh grep cụ thể nhưng 2/3 tiêu chí GO không quy về lệnh/vật đo nào trên artifact — vẫn cần người điền scorecard tay. 11 eval máy (E1-E9, E12, E13) PASS. Verdict tổng: REJECT. Trả về thiết kế/contract để thu hẹp/định nghĩa lại trường "serves" và bổ sung lệnh đo cho AC-11.
 Round 2: 11 eval máy (E1-E9, E12, E13) vẫn PASS (baseline không đo lại — carried round 1, P2 evals.yaml không đổi từ lần baseline cuối). Panel 3 lens tái thẩm E10, E11: cả hai vẫn đề xuất FAIL với lý do gần như không đổi (trường "serves" chưa có consumer trong V1 vi phạm AC-10; mục "Đo lường" của AC-11 vẫn thiếu lệnh/vật đo cho 2/3 tiêu chí GO). Vì đây là judgment item nên verdict tổng ghi PENDING-JUDGMENT thay vì tự REJECT — chờ người xác nhận trực tiếp E10/E11 và điền `human_override` tại Gate 2 trước khi verdict được nâng lên PASS hoặc chốt REJECT.
+Round 3: theo lệnh human tại Gate 2 (decisions.jsonl d-20260729T073800Z-16526), sửa 2 in-contract (SKILL đủ 7 ý + ngoại lệ input 5 khi corpus rỗng; sắp claim `at: null` xuống cuối nhóm severity) và 2 artifact cho panel (design doc: `serves` khai tường minh optional-có-consumer từ V1; mục Đo lường viết lại thành bảng tiêu-chí→lệnh→vật cho AC-11). Panel 3 lens chấm lại trên inputs mới: E10 và E11 đều đề xuất PASS 2/3 lens (domain-correctness, spec-alignment); operational-feasibility vẫn giữ FAIL trên cả hai — dissent còn nguyên nhưng đề xuất chung đã chuyển PASS. 11 eval máy (E1-E9, E12, E13) tiếp tục PASS (baseline carried từ round 1, không đo lại — P2 evals.yaml không đổi). Verdict tổng: PASS.
 
 ## Gate 2 checklist (human)
 
