@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 1da6cf6907c69f8dd57d966c7416a45d57c6cf92
+verified_commit: ee6b72b91279a0c1d3c483b17ae76ec0afd32d7e
 human_signoff:
 ---
 
@@ -253,6 +253,44 @@ none — every multi-run eval is uniform
 ## Iterations
 
 Round 1: baseline đo theo P2 — toàn bộ máy PASS trên fixture round 1; phát hiện bug signoff.approvers block-list parser (carried sang review-findings round 2). Round 2: tái xác nhận toàn bộ máy PASS (644 + plugin suite + hooks + workflows + sync-plugin-packages --check), baseline không đo lại theo P2; judge panel giữ đề xuất PASS cho E15 nhưng verdict tổng vẫn PENDING-JUDGMENT vì T3 bắt buộc human_override trên mọi judgment item.
+
+### Vòng gia cố + rút phạm vi (2026-07-28 → 29) — KHÔNG phải round S4 đầy đủ
+
+Round 2 ra `PENDING-JUDGMENT` với 0 eval trượt, nhưng review bắt hai finding
+trong hợp đồng. Thay vì phóng round 3 đầy đủ, người duyệt chọn **re-pin tối
+thiểu**: machine lane chạy lại ở HEAD + refute đối kháng CHỈ trên delta chưa ai
+đọc. Ba vòng gia cố đã chạy:
+
+| vòng | delta | kết quả |
+|---|---|---|
+| 1 | `1da6cf6..303508a` | 3/3 góc bác bỏ — bản vá NET-XẤU: thêm 2 hồi quy chặn nhầm người duyệt thật, fail-open chưa đóng |
+| 2 | `1da6cf6..21f6623` | 3/3 bác bỏ — lần thử thứ tư cũng hỏng, thêm 1 hồi quy nữa |
+| 3 | `1da6cf6..a08a5f3` | 3/3 bác bỏ, nhưng phần lớn là HỆ QUẢ CỐ Ý của việc rút phạm vi; 4 lỗi thật đều là "nói sai về chính cổng", đã sửa ở `ee6b72b` |
+
+**Quyết định rút phạm vi:** bốn bản vá liên tiếp cố khớp chữ ký với allowlist
+`signoff.approvers` đều hỏng theo một hình dạng YAML **hợp lệ** mới (khoá trần ·
+indent 2 · ngang cột · chú thích đuôi · dấu phẩy trong nháy · flow mapping ·
+space trước dấu hai chấm), ba lần kèm hồi quy. Cả lớp bị **gỡ hẳn** thay vì vá
+lần năm. Cổng không còn dòng nào phân tích YAML.
+
+**Mức phủ của bằng chứng này — đọc trước khi ký:**
+
+- Nửa **tàng hình** (AC-6…AC-10) — phần trả lời incident 2026-07-20 #255 — đã
+  qua verify đầy đủ ở round 1 và round 2, và chưa finding nào chạm tới.
+- Nửa **chữ ký** hiện chỉ còn lưới giữ-chỗ; nó đã qua round 1, round 2, và ba
+  vòng refute.
+- **Bốn sửa cuối (`ee6b72b`) là text-only** — comment, contract, config của kit,
+  và một dòng NOTE — và **chỉ qua tự kiểm + machine lane**, KHÔNG qua vòng
+  refute độc lập nào. Người duyệt đã biết và chấp nhận điều này khi chọn re-pin
+  thẳng trên `ee6b72b`.
+- Machine lane ở `ee6b72b`: 5/5 lệnh xanh, sha nhất quán trên cả 5 agent tươi
+  (588 case ở `tests/scripts`, 51 ở `tests/hooks`, mirror in sync).
+
+**Còn mở trong hợp đồng, KHÔNG giấu:** hai finding round 2 về `uj_mut` mới vá
+được một nửa — `uj_mut_usable` bắt bản sao rỗng/cụt/sai-cú-pháp, nhưng mutant
+chết giữa chừng dưới `set -u` vẫn thoát 0 (`bash -n` không thấy được), và vế
+thứ hai của AC-14 ("các case còn lại giữ nguyên màu") chưa cài. AC-14 mạnh hơn
+trước nhưng chưa trọn.
 
 ## Gate 2 checklist (human)
 
