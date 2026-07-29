@@ -65,20 +65,33 @@ evidence report = artifact contract; 2 cổng người = human escalation policy
 luật "đối chứng dương cho assertion âm tính" (CLAUDE.md) chính là chống lớp
 lỗi "activity without progress".
 
-**Khoảng trống (chưa quyết làm — mới là quan sát):**
+**Chấm theo thước của tài liệu (đối chiếu chi tiết 2026-07-29, artifact
+"Graph Engineering × Feature Loop"):** kit đặt *evaluation* gần chuẩn mực
+(mọi hàng KHỚP đều thuộc trục này) và đặt *memory* đúng một nửa — bền trong
+phạm vi 1 feature (artifact plane đầy đủ, append-only, carry-forward theo
+hash) nhưng dừng ở ranh giới slug. Theo 5 plane tham chiếu: kit là hệ
+**4/5** — thiếu đúng **graph plane**; vì ledger/run-log/evidence đều có
+schema + append-only, dựng tầng graph là việc *đọc* dữ liệu sẵn có, không
+phải đập đi ghi lại. Chiều ngược lại, kit đi TRƯỚC tài liệu ở 4 chỗ: human
+gate được vận hành hoá (card + chữ ký tách commit + KPI phút-người) · kỷ
+luật chống false-green (đối chứng dương) · enforcement 2 tầng độc lập
+(hook + CI) · carry-forward có provenance (dạng thực dụng của
+DERIVED_FROM).
 
-1. **Lineage vòng verify chưa được ghi thành artifact.** Kit ghi *kết quả*
-   (evidence, signoff) nhưng không ghi *phả hệ*: verify chạy mấy round,
-   round nào fail vì gì, fix nào bị revert. Liên quan trực tiếp
-   [feature-loop không tự loop] — trạng thái vòng lặp sống trong transcript
-   thay vì trong artifact đọc lại được.
-2. **Judge feedback chưa có cấu trúc "thiếu bằng chứng nào".** Mẫu
-   `{decision: revise, reason, required_evidence[]}` của graph-grounded
-   evaluator là nâng cấp tự nhiên cho judge panel của acceptance-verify —
-   chỉ ra bằng chứng nào đang thiếu thay vì PASS/FAIL kèm văn xuôi.
-3. **Judge panel chưa được audit theo tiêu chí đa dạng hoá** (nguyên tắc 7):
-   các judge của S4 có khác nhau thật về prompt/evidence/role không, hay chỉ
-   là một judge nhân bản?
+**Gap ranking (đã đối chiếu, chưa quyết làm):**
+
+| # | Gap | Bước nhỏ nhất khớp triết lý kit | Đáng làm? |
+|---|---|---|---|
+| G1 | **Trí nhớ xuyên feature** — bài học REJECT/fix không chảy giữa các slug (mặt phẳng graph thiếu) | Chưa cần graph DB: index `run-log` + `decisions` của mọi slug thành 1 lớp claim máy-đọc-được (lớp-lỗi → feature → round → cách sửa); gap-probe S1 đọc nó làm input thứ 5 | CÓ — cao nhất. Bằng chứng nhu cầu: lớp "assertion âm tính" tái xuất ≥9 lượt dù đã ghi CLAUDE.md — bài học có ghi nhưng không có đường máy-tra |
+| G2 | **Judge feedback thiếu `required_evidence[]`** — UNCERTAIN nói "không chắc", chưa nói "đưa bằng chứng X thì chắc" | Thêm field vào schema verdict của panel (template + personas); round fix nhắm thẳng vào đó | CÓ — rẻ, giảm round S4 đoán mò |
+| G3 | **Panel chưa audit tính đa dạng** — cấu trúc role có (finder/refute/personas/baseline), correlated errors chưa đo | Một lần đo từ transcript run cũ: tỉ lệ verdict trùng giữa các judge trên cùng item; trùng ≈100% = trả tiền N lần cho 1 ý kiến | CÓ — đo trước, sửa sau |
+| G4 | **Token/cost budget khai trước** — hiện chỉ có cap 3 round + usage-report sau sự kiện | `feature_loop.budget` trong config; script S4 đọc `budget.remaining()` (Workflow có sẵn cơ chế) | CÓ, ưu tiên thấp — cap round đang gánh khá tốt |
+| G5 | **Ratchet trên chính engine** — không có gold set đo chất lượng judge/eval-gen | Gom các case Gate 2 nơi human LẬT verdict máy thành gold set đầu tiên — mỗi lần human sửa máy là 1 data point miễn phí | CÓ, dài hạn — cần G1 trước (nơi chứa data point) |
+| G6 | **Commit DAG phân kỳ / swarm nghìn agent** | Không làm — kit là hệ hội tụ (1 feature → 1 PR); `descope` + `.out-of-scope/` đã giữ đủ vết "vì sao không" | KHÔNG — khác bài toán; chính tài liệu dặn đừng thêm graph/swarm chỉ vì hệ có agent |
+
+Thứ tự có chủ ý: G1 trước G5 (ratchet cần chỗ chứa lịch sử máy-đọc trước);
+G3 là phép *đo* chứ chưa phải phép *sửa*. Mọi gap khi làm đều phải giữ
+invariant hiện có: schema đổi có đường đọc-cũ, cờ vàng, không bắt migrate.
 
 ## Cảnh giác khi trích dẫn
 
