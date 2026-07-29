@@ -7,7 +7,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: ea0c4d2b7f22b8478ee6174db89afc8a15701bd3
-human_signoff:
+human_signoff: Manh Phan 2026-07-29
 ---
 
 # Evidence Report: claim-scan-parser-hardening

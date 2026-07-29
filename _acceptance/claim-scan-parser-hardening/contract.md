@@ -4,14 +4,14 @@ feature: "claim-scan-parser-hardening — đóng lớp câm-lặng của 6 cửa
 slug: claim-scan-parser-hardening
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-07-29T09:20:00Z
 owner: phanlemanh@gmail.com
 source: docs/superpowers/specs/2026-07-29-claim-scan-parser-hardening-design.md
 time_human_minutes:
   gate1: 5
-  gate2:
+  gate2: 5
 ---
 
 # Acceptance contract — claim-scan-parser-hardening
