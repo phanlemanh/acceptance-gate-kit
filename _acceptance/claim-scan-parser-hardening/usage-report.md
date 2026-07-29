@@ -25,3 +25,28 @@
 - **claude-fable-5**: 2 agent · 24 calls · out 23,996 · in 46 · cache_read 1,294,711 · cache_create 164,883
 - **claude-haiku-4-5-20251001**: 5 agent · 13 calls · out 3,855 · in 114 · cache_read 267,277 · cache_create 161,753
 
+### S4 round 2 — wf_7f41abdc-be3 (16 agent, 99,695 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| review:conventions | claude-fable-5 | 20 | 17,444 | 38 | 1,397,191 | 326 |
+| refute:claim-scan.mjs | claude-sonnet-5 | 13 | 14,953 | 26 | 844,312 | 241 |
+| review:bugs | claude-fable-5 | 10 | 12,937 | 19 | 511,664 | 239 |
+| synthesize:report | claude-sonnet-5 | 9 | 11,412 | 18 | 553,194 | 208 |
+| judge:E7:domain-correctness | claude-sonnet-5 | 2 | 10,466 | 4 | 43,273 | 121 |
+| refute:gate-card.js | claude-sonnet-5 | 19 | 9,533 | 38 | 1,216,998 | 152 |
+| judge:E7:operational-feasibility | claude-sonnet-5 | 2 | 7,709 | 4 | 43,275 | 96 |
+| judge:E7:spec-alignment | claude-sonnet-5 | 2 | 5,832 | 4 | 43,273 | 79 |
+| triage | claude-sonnet-5 | 2 | 2,443 | 4 | 45,261 | 33 |
+| refute:claim-scan.test.mjs | claude-sonnet-5 | 4 | 2,176 | 8 | 148,580 | 33 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 5 | 1,250 | 42 | 142,321 | 88 |
+| capture:provenance | claude-sonnet-5 | 2 | 1,021 | 4 | 43,168 | 15 |
+| machine:bash tests/plugins/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 1,008 | 18 | 28,106 | 55 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 3 | 866 | 26 | 64,673 | 28 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 329 | 18 | 45,544 | 11 |
+| machine:bash scripts/sync-plugin-packages.sh --c | claude-haiku-4-5-20251001 | 2 | 316 | 18 | 28,110 | 8 |
+
+- **claude-fable-5**: 2 agent · 30 calls · out 30,381 · in 57 · cache_read 1,908,855 · cache_create 181,310
+- **claude-sonnet-5**: 9 agent · 55 calls · out 65,545 · in 110 · cache_read 2,981,334 · cache_create 528,054
+- **claude-haiku-4-5-20251001**: 5 agent · 14 calls · out 3,769 · in 122 · cache_read 308,754 · cache_create 156,552
+

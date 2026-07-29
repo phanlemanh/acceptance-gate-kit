@@ -7,3 +7,13 @@
 {"ts":"2026-07-29T10:10:12Z","round":1,"evalId":"E9","run_id":"minted-claim-scan-parser-hardening-E9-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
 {"ts":"2026-07-29T10:10:12Z","round":1,"evalId":"E8","run_id":"minted-claim-scan-parser-hardening-E8-r1","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
 {"ts":"2026-07-29T10:10:12Z","round":1,"kind":"baseline","evals_hash":"cd82c9d5f8574b17e394c50e91c47f9e7e5facbf199a4a3aab25ed339a78ae06","non_discriminating":[{"cmd":"bash tests/workflows/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E9"]},{"cmd":"bash scripts/sync-plugin-packages.sh --check","evals":["E8"]}]}
+{"ts":"2026-07-29T10:23:37Z","round":2,"evalId":"E1","run_id":"minted-claim-scan-parser-hardening-E1-r2","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-29T10:23:37Z","round":2,"evalId":"E2","run_id":"minted-claim-scan-parser-hardening-E2-r2","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-29T10:23:37Z","round":2,"evalId":"E3","run_id":"minted-claim-scan-parser-hardening-E3-r2","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-29T10:23:37Z","round":2,"evalId":"E4","run_id":"minted-claim-scan-parser-hardening-E4-r2","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-29T10:23:37Z","round":2,"evalId":"E5","run_id":"minted-claim-scan-parser-hardening-E5-r2","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-29T10:23:37Z","round":2,"evalId":"E6","run_id":"minted-claim-scan-parser-hardening-E6-r2","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-29T10:23:37Z","round":2,"evalId":"E9","run_id":"minted-claim-scan-parser-hardening-E9-r2","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-07-29T10:23:37Z","round":2,"evalId":"E8","run_id":"minted-claim-scan-parser-hardening-E8-r2","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
+{"ts":"2026-07-29T10:23:37Z","round":2,"evalId":"E7","kind":"panel","proposal":"PASS","votes":[{"lens":"domain-correctness","verdict":"PASS"},{"lens":"operational-feasibility","verdict":"FAIL"},{"lens":"spec-alignment","verdict":"PASS"}],"inputs_hash":"ae0263e51487aee784ee70fa61b916053109747ae9027e20dc21191253c82aab"}
+{"ts":"2026-07-29T10:23:37Z","round":2,"kind":"baseline","evals_hash":"cd82c9d5f8574b17e394c50e91c47f9e7e5facbf199a4a3aab25ed339a78ae06","non_discriminating":[{"cmd":"bash tests/workflows/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E9"]},{"cmd":"bash scripts/sync-plugin-packages.sh --check","evals":["E8"]}],"carried_from_round":1}
