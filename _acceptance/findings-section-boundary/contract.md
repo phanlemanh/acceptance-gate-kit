@@ -22,7 +22,7 @@ cùng-cấp-hoặc-cao-hơn, nên thẻ Gate 1 có thể hiện finding ma mà c
 không thấy. Khảo sát cho thấy hai luật xung đột CÓ CHỦ ĐÍCH (mỗi bên có lỗi
 lịch sử ghi trong comment): luật đúng là per-section, khai một chỗ có marker.
 
-## Acceptance criteria
+## Criteria
 
 - **AC-1** Given `gap-probe.md` có `## Findings` với bảng 1 hàng, rồi
   `### Notes` (hoặc `# Appendix`) chứa bảng 6 cột, When render thẻ Cổng 1,
@@ -98,6 +98,10 @@ Từ morphological-scan (4 trục — thước CE trong ngoặc):
 - Codex parity của claim-scan — vẫn chờ GO DP-1.
 - Đổi cách `evidence-page.js` parse `review-findings.md` (key:value, không
   dùng section) — ngoài lớp này.
+- `lib/out-of-contract.js` giữ `HEAD_ANY = /^##\s+/` riêng (cắt ở mọi h2 khi
+  đọc `review-findings.md`) — luật của nó đang đúng cho artifact 3-ngăn đó và
+  đã có round-trip P55 ghim khuôn; gộp vào bảng marker là V2 (CE: grep
+  call-site + case P55). Panel E10 round 1 nêu đúng chỗ này.
 - Ô R×S `evidence-page` × section-BẢNG: evidence-page KHÔNG có call-site
   `section(..., 'Findings')` (CE: grep call-site — nó chỉ đọc Criteria/
   Analyst/Evidence/Iterations/Variance). Ghim bằng assert call-site trong

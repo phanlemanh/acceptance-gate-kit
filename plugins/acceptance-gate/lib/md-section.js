@@ -45,8 +45,17 @@ function section(t, h) {
   for (const l of String(t == null ? '' : t).split('\n')) {
     const m = l.match(/^(#{1,6})\s/);
     if (m) {
-      if (re.test(l)) { inS = true; lvl = m[1].length; continue; }
-      if (inS && (rule === 'any-heading' || m[1].length <= lvl)) { inS = false; continue; }
+      const lv = m[1].length;
+      if (re.test(l)) { inS = true; lvl = lv; continue; }
+      if (inS) {
+        // any-heading: MỌI heading (kể cả h1) đóng section — chặn bảng ma.
+        // same-or-higher: chỉ h2..h6 mới là ranh giới; dòng `# guidance` là
+        // CONTENT (template evidence-report đặt `# Non-discriminating evals:`
+        // ngay dưới ## Analyst / ## Variance — coi nó là boundary sẽ nuốt mất
+        // hai cờ đỏ Gate 2, đúng lớp false-green mà feature này đi đóng).
+        if (rule === 'any-heading') { inS = false; continue; }
+        if (lv >= 2 && lv <= lvl) { inS = false; continue; }
+      }
     }
     if (inS) out.push(l);
   }

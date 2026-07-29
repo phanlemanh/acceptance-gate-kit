@@ -7,9 +7,12 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+const require0 = (rel) => createRequire(import.meta.url)(path.join(ROOT_FOR_REQ, rel));
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
+const ROOT_FOR_REQ = ROOT;
 const LIB = path.join(ROOT, 'lib', 'md-section.js');
 const GATE_CARD = path.join(ROOT, 'scripts', 'gate-card.js');
 const EVIDENCE_PAGE = path.join(ROOT, 'scripts', 'evidence-page.js');
@@ -168,11 +171,51 @@ const runCard = (root, slug, script = GATE_CARD, extra = []) =>
   check('FSB8 đột biến Ô BẢNG → hàng ma XUẤT HIỆN (hành vi đi theo bảng, bảng không phải trang trí)', () => {
     // same-or-higher: `### Notes` (sâu hơn) lọt vào section, `# Appendix` (h1,
     // cao hơn) vẫn cắt → đúng 1 thật + 1 ma. Ghim theo NỘI DUNG, không chỉ số.
-    assert.equal(mutated.gap_probe.rows.length, 2, `được ${mutated.gap_probe.rows.length}, mong 2 (1 thật + ghost1)`);
+    // same-or-higher sau fix S4-r1: chỉ h2..h6 là ranh giới → cả `### Notes`
+    // lẫn `# Appendix` đều KHÔNG cắt → 1 thật + 2 ma.
+    assert.equal(mutated.gap_probe.rows.length, 3, `được ${mutated.gap_probe.rows.length}, mong 3 (1 thật + 2 ma)`);
     const dump = JSON.stringify(mutated);
-    assert.ok(dump.includes('ghost1'), 'đột biến phải để lọt hàng dưới ### Notes');
-    assert.ok(!dump.includes('ghost2'), '# Appendix cao hơn h2 nên vẫn phải bị cắt');
+    assert.ok(dump.includes('ghost1') && dump.includes('ghost2'), 'đột biến phải để lọt cả hai bảng đuôi');
     assert.ok(!JSON.stringify(intact).includes('ghost1'), 'bản nguyên vẹn không được có hàng ma');
+  });
+  rmSync(root, { recursive: true, force: true });
+}
+
+// ---- FSB9: dòng `# guidance` trong section VĂN XUÔI là CONTENT, không phải
+// ranh giới — nếu coi h1 là boundary, hai cờ đỏ Gate 2 (non-discriminating,
+// variance) biến mất khỏi thẻ. Regression do chính S4-r1 bắt (AC-8).
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'fsb9-'));
+  const report = ['---', 'feature_slug: fx', 'verdict: PASS', 'verified_by: fresh-context verification subagent',
+    'enforcement_mode: strict', 'bypass_used: false', 'human_signoff:', '---', '',
+    '# Evidence Report: fx', '',
+    '| Eval | Tiêu chí | Loại | Verdict |', '|---|---|---|---|', '| E1 | AC-1 | test | PASS |', '',
+    '## Evidence', '', '- eval: E1', '  criterion: AC-1', '  run_id: r1', '  exit_code: 0', '',
+    '## Analyst', '',
+    '# Non-discriminating evals: eval nào xanh cả trên bản gốc lẫn bản đột biến',
+    '- E1 green-on-both — proves the harness, not the feature', '',
+    '## Variance', '',
+    '# Stochastic evals (runs > 1): ghi pass_rate',
+    '- E1 pass_rate 3/5 (flaky)', ''].join('\n');
+  mkWs(root, 'fx', { contract: contractWithSubheading(2).replace('status: draft', 'status: verified'), probe: gapProbe(), report });
+  const out = runCard(root, 'fx').stdout;
+  check('FSB9 dòng # guidance KHÔNG cắt section: cờ non-discriminating còn trên thẻ', () =>
+    assert.ok(out.includes('green-on-both'), 'mất nội dung Analyst → mất cờ đỏ Gate 2'));
+  check('FSB9 cờ variance (pass_rate) cũng còn', () =>
+    assert.ok(out.includes('pass_rate 3/5'), 'mất nội dung Variance'));
+  check('FSB9 đối chứng đột biến: coi h1 là ranh giới → nội dung Analyst biến mất', () => {
+    const { section } = require0('lib/md-section.js');
+    const rep = readFileSync(path.join(root, '_acceptance', 'fx', 'evidence-report.md'), 'utf8');
+    assert.ok(section(rep, 'Analyst').join('\n').includes('green-on-both'));
+    // luật any-heading (dành cho Findings) áp nhầm sẽ cắt ngay tại dòng `#`
+    const cut = [];
+    let inS = false;
+    for (const l of rep.split('\n')) {
+      const m = l.match(/^(#{1,6})\s/);
+      if (m) { if (/^##\s+Analyst\b/.test(l)) { inS = true; continue; } if (inS) { inS = false; continue; } }
+      if (inS) cut.push(l);
+    }
+    assert.ok(!cut.join('\n').includes('green-on-both'), 'đối chứng phải cho thấy luật sai LÀM MẤT nội dung');
   });
   rmSync(root, { recursive: true, force: true });
 }
