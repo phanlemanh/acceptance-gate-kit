@@ -54,11 +54,18 @@ function probeClaims(file, slug, warn) {
     warn(`claim-scan: skipped ${file} (unreadable frontmatter)`);
     return [];
   }
+  // Verdict ngoài enum của SKILL (clean|findings|probe-failed) là data lỗi,
+  // không phải bỏ-qua-chủ-đích — typo "findigns" từng nuốt cả file câm (S4-r1).
+  if (!['clean', 'findings', 'probe-failed'].includes(meta.verdict)) {
+    warn(`claim-scan: skipped ${file} (unknown verdict)`);
+    return [];
+  }
   if (meta.verdict !== 'findings') return [];
   if (!meta.at) { warn(`claim-scan: skipped ${file} (missing at)`); return []; }
-  // Capture DỪNG ở heading kế tiếp — bắt tới EOF từng biến bảng ở section
-  // sau thành claim ma có id citable (finding HIGH round 3 V1).
-  const sect = /## Findings([\s\S]*?)(?=\n## |$)/.exec(text);
+  // Capture DỪNG ở heading kế tiếp BẤT KỂ cấp (#..######) — chỉ dừng ở h2
+  // vẫn để "### Notes"/"# Appendix" lọt vào capture và sinh claim ma
+  // (finding HIGH S4-r1 của parser-hardening; gốc: HIGH round 3 V1).
+  const sect = /## Findings([\s\S]*?)(?=\n#{1,6} |$)/.exec(text);
   if (!sect) { warn(`claim-scan: skipped ${file} (malformed table)`); return []; }
   const rows = sect[1].split('\n').filter(l => l.trim().startsWith('|'));
   const out = []; let badRows = 0;
@@ -75,6 +82,9 @@ function probeClaims(file, slug, warn) {
   // Thông điệp per-row: "(malformed table)" chỉ dành cho nhánh bỏ CẢ FILE ở
   // trên — hàng lành vẫn được giữ thì phải nói đúng là bỏ N hàng (S4-r1).
   if (badRows) warn(`claim-scan: skipped ${badRows} malformed rows in ${file}`);
+  // verdict: findings mà section không có hàng dữ liệu nào = nhánh câm thứ ba
+  // không có tên — file hứa findings phải có ≥1 hàng (S4-r1 parser-hardening).
+  if (!out.length && !badRows) warn(`claim-scan: skipped ${file} (malformed table)`);
   return out;
 }
 
