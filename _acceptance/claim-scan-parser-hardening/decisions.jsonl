@@ -1,0 +1,2 @@
+{"id":"d-20260729T095846Z-25117","type":"approach","stage":"S1","at":"2026-07-29T09:58:46Z","decision":"Gộp 2 thành viên cùng lớp do sweep tìm thấy (frontmatter không đọc được, decision/impact rỗng) vào scope 3 mục Gate 2 đã chốt — theo bất biến sửa-theo-LỚP; phương án giữ-đúng-3-mục bị loại","impact":"đóng trọn lớp câm-lặng một lần thay vì để 2 lỗ cùng hình dạng tái xuất ở vòng sau; đổi lại scope rộng hơn disposition nguyên văn — human soi tại Gate 1"}
+{"id":"d-20260729T100530Z-18160","type":"seal","gate":1,"at":"2026-07-29T10:05:30Z"}

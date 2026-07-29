@@ -1,0 +1,100 @@
+# evals — claim-scan-parser-hardening
+# Test mới nối vào tests/workflows/claim-scan.test.mjs (suite sẵn có).
+# Luật kit: fixture code-sinh; âm tính có đối chứng dương + ghim thông điệp.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "bảng 6 cột ở section SAU Findings sinh ZERO claim; số claim + dãy id #F giống hệt đối chứng dương không có section sau — hết claim ma"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/scripts/claim-scan.mjs", "tests/workflows/**"]
+    notes: >
+      Case PH1: fixture gap-probe có ## Notes chứa bảng 6 cột sau Findings
+      (đúng repro round 3) → so output với fixture cắt section: bằng nhau
+      từng id. Regression đinh của lỗ HIGH.
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    expected: "entry id vắng/sai khuôn KHÔNG ra claim; entry chuẩn còn nguyên (đối chứng dương); stderr khớp 'dropped N claims with invalid id in <slug>'; exit 0"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/scripts/claim-scan.mjs", "tests/workflows/**"]
+    notes: >
+      Case PH2: ledger 3 entry — 1 không id, 1 id 'BAD ID', 1 chuẩn (repro
+      round 2/3) → 1 claim + warn đếm 2.
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    expected: "id trùng giữa 2 slug: giữ claim gặp trước + stderr khớp 'duplicate id … across features (kept first)', exit 0; corpus sạch KHÔNG có dòng cảnh; id trùng trong CÙNG slug cũng KHÔNG cảnh (bỏ-qua-chủ-đích — chống warn nhiễu)"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/scripts/claim-scan.mjs", "tests/workflows/**"]
+    notes: >
+      Case PH3: (a) cùng id d-… ở slug-a và slug-b → 1 claim + 1 warn + exit 0;
+      (b) corpus không trùng → stderr không chứa 'duplicate id'; (c) cùng id
+      2 lần trong CÙNG slug → KHÔNG warn (đối chứng dương là ca (a)).
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    expected: "frontmatter thiếu --- hoặc thiếu key verdict → stderr khớp 'skipped … (unreadable frontmatter)' và exit 0; file verdict: clean hợp lệ bị bỏ qua KHÔNG một dòng cảnh — hai trường hợp phân biệt được"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/scripts/claim-scan.mjs", "tests/workflows/**"]
+    notes: >
+      Case PH4: (a) file mất --- mở; (b) frontmatter không có verdict;
+      (c) đối chứng: verdict clean → stderr sạch cho (c), warn cho (a)(b).
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    expected: "entry fix thiếu decision/impact KHÔNG emit claim rỗng, được đếm vào 'skipped N malformed lines in <file>', exit 0; entry đủ trường vẫn ra claim (đối chứng dương)"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/scripts/claim-scan.mjs", "tests/workflows/**"]
+    notes: >
+      Case PH5: ledger 3 entry — thiếu decision, thiếu impact, đủ → 1 claim,
+      warn đếm 2, không claim nào có text rỗng.
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    expected: "toàn bộ case V1 (CS1..CS10, 35 assert) vẫn xanh sau hardening — không đổi hành vi cap/sàn/sort/schema/thông điệp cũ"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/scripts/claim-scan.mjs", "tests/workflows/**"]
+    notes: >
+      Suite chạy trọn file claim-scan.test.mjs — case cũ là lưới hồi quy;
+      case mới PH1-PH5 thêm vào cùng file.
+
+  - id: E7
+    criterion: AC-7
+    executor: judgment
+    runs: 3
+    inputs:
+      - ../../feature-loop/scripts/claim-scan.mjs
+      - ../../docs/superpowers/specs/2026-07-29-claim-scan-parser-hardening-design.md
+    question: >
+      Soi code claim-scan.mjs sau sửa: lớp câm-lặng đã đóng TRỌN chưa — mọi
+      đường drop dữ liệu đều (a) có warn đếm được, hoặc (b) là bỏ-qua-chủ-đích
+      có tên trong design (verdict hợp lệ ≠ findings; dedupe trong cùng
+      slug)? Còn nhánh drop nào ngoài hai loại đó không?
+
+  - id: E8
+    criterion: AC-8
+    executor: script
+    expected: "sync --check exit 0 sau bump 1.18.1 + description v1.18; suite plugins xanh với literal đã re-pin"
+    cmd: config:executors.script.mirror_sync
+    paths: ["feature-loop/**", "plugins/**", "codex/**", "tests/plugins/**"]
+    notes: >
+      Đóng gói: bump patch cả 2 manifest, re-pin 3 literal, description trả
+      known-limit v1.18 của vòng trước.
+
+  - id: E9
+    criterion: AC-8
+    executor: test
+    expected: "description của CẢ HAI manifest chứa chuỗi 'v1.18'; đối chứng đột biến: bản xoá chuỗi phải bị assert bắt — known-limit vòng trước không được trượt vòng nữa"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/.claude-plugin/plugin.json", "codex/feature-loop-codex/.codex-plugin/plugin.json", "tests/workflows/**"]
+    notes: >
+      Case PH8: đọc 2 plugin.json, assert description khớp /v1\.18 adds/;
+      mutation: description bị cắt chuỗi → assert đỏ. (Fix gap-probe P1-2 —
+      finding cite [cross-feature-claim-index#F1]: hứa mà không eval tiêm.)
