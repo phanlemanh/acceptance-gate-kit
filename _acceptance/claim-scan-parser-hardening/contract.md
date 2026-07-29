@@ -72,3 +72,13 @@ Từ morphological-scan (3 trục — thước CE trong ngoặc):
 - Hardening nguồn V2 (`review-findings.md`, `run-log.jsonl`) — chờ GO DP-1.
 - Đổi schema claim / sort / cap / sàn đa dạng — không thuộc hardening.
 - Codex parity — như V1, chờ GO.
+
+## Notes (Gate 2, 2026-07-29 — disposition 2 finding ngoài phạm vi)
+
+- **Chuyển contract mới `findings-section-boundary`** (quyết tại Cổng 2):
+  ranh giới section Findings phải single-source cho MỌI bộ đọc — claim-scan
+  dừng ở heading mọi cấp nhưng `section()` của gate-card/evidence-page vẫn
+  nuốt bảng dưới heading lồng → thẻ có thể hiện finding ma. Gộp luôn vá
+  đối-chứng-đột-biến PH8 (hiện là phép kiểm không-thể-đỏ) vào contract đó.
+- **Known limits:** đối chứng đột biến PH8 vacuous cho tới khi contract trên
+  ship — phép kiểm chính của PH8 vẫn có hiệu lực.
