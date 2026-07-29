@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: findings-section-boundary
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: d45bffaed3b852150db0b46c65f4296b808b0e57
-human_signoff:
+human_signoff: Manh Phan 2026-07-29
 ---
 
 # Evidence Report: findings-section-boundary
@@ -139,8 +139,7 @@ human_signoff:
     - domain-correctness: PASS — gate-card.js va evidence-page.js deu xoa dinh nghia section() rieng va require('../lib/md-section.js') duy nhat (grep xac nhan khong con `function section(` nao khac ngoai lib/md-section.js); bang SECTION_BOUNDARY tu-parse tu marker trong chinh file, khong bi chep tay ra hang so roi. Ba ngoai le con lai (eval-coverage-lint.sectionLines, lib/out-of-contract.js HEAD_ANY, claim-scan.mjs cross-package) deu duoc khai ten trong contract muc Out of scope, dung khop danh sach cau hoi neu; rieng claim-scan duoc ghim bang round-trip test that (FSB7, tests/workflows/claim-scan.test.mjs) co ca doi chung duong va dot bien. Khong tim thay call-site nao khac tu che luat ranh gioi section ngoai cac ngoai le da khai.
     - operational-feasibility: PASS — lib/md-section.js dung bang marker that (tu parse chinh no) va gate-card.js da chuyen sang require no, khong con dinh nghia section() rieng. Bo input van khong kem evidence-page.js/claim-scan.mjs de tu grep, nhung phan R-axis cua Coverage trong contract da liet ke du 4 ban cai dat that va giao viec grep xac nhan cho AC-6/AC-11 (machine eval) — nhat quan voi vai tro AC-10 (judgment) la danh gia tinh mach lac cua thiet ke single-source, khong phai lap lai phep grep.
     - spec-alignment: PASS — gate-card.js và evidence-page.js đều require lib/md-section.js, không còn function section( riêng (grep xác nhận). Hai ngoại lệ còn giữ luật riêng — eval-coverage-lint.js sectionLines và lib/out-of-contract.js HEAD_ANY — đều được khai tên tường minh trong Out of scope của contract.md và design.md; claim-scan.mjs cross-package được ghim bằng round-trip AC-7. Không thấy call-site nào khác tự chế luật ranh giới ngoài các ngoại lệ đã khai.
-  human_override:
-
+  human_override: Manh Phan 2026-07-29
 - eval: E11
   run_id: minted-findings-section-boundary-E11-r3
   exit_code: 0

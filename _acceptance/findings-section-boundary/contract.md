@@ -4,14 +4,14 @@ feature: "findings-section-boundary — luật ranh giới section PER-SECTION �
 slug: findings-section-boundary
 risk_tier: T3
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-07-29T11:15:00Z
 owner: phanlemanh@gmail.com
 source: docs/superpowers/specs/2026-07-29-findings-section-boundary-design.md
 time_human_minutes:
   gate1: 10
-  gate2:
+  gate2: 10
 ---
 
 # Acceptance contract — findings-section-boundary
