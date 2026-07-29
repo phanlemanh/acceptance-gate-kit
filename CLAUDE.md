@@ -47,6 +47,19 @@
   hỏi "nếu tôi phá vật thật trong một bản sao, phép đo này có đỏ không?" — rồi
   phá thử một lần cho mỗi phép đo mới.
 
+- **Kit là engine — KHÔNG chứa**: product context của repo tiêu thụ, quy định
+  đội (sống ở team handbook riêng), nội dung workspace `_acceptance/` của sản
+  phẩm, thân skill bên thứ ba chưa vendor có tên + version gốc. Phép thử khi
+  phân vân: thứ gì phải *chép* sang repo sản phẩm thứ hai, hoặc vô nghĩa với
+  một công ty khác dùng kit, thì không thuộc kit. (Quyết 2026-07-27, plan
+  discovery-gate0-rollout G1.)
+
+- **Đổi schema artifact phải có đường đọc-cũ**: nhánh đọc bản cũ + cờ vàng
+  trên card, KHÔNG bắt consumer migrate hàng loạt (pattern đã dùng: contract
+  thiếu Coverage → cờ vàng 1.13.0; workspace thiếu gap-probe → cờ vàng
+  1.14.0). Consumer nhận engine mới theo release có chủ đích — không đổi
+  engine dưới chân một feature đang giữa vòng lặp.
+
 - **Quyết định khó đảo / gây bất ngờ / có trade-off thật** → ghi ADR 1-đoạn-văn
   vào `docs/adr/` (đủ cả 3 điều kiện mới ghi, thiếu 1 thì bỏ). Đề xuất đã
   TỪ CHỐI mà có nguy cơ quay lại → 1 file trong `.out-of-scope/` kèm mục

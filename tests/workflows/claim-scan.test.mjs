@@ -63,5 +63,53 @@ const row = (sev, tag) => ({ sev, artifact: 'evals', gap: `gap-${tag}`, fail: `f
   rmSync(root, { recursive: true, force: true });
 }
 
+// ---- CS2: hỏng từng phần — skip loud, nguồn lành nguyên vẹn ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'cs2-'));
+  const goodLedger = [ledgerLine('d-20260720T100000Z-10', 'fix'), ledgerLine('d-20260720T100001Z-11', 'fix')];
+  mkWorkspace(root, 'ok-a', { ledger: goodLedger, probe: gapProbe('2026-07-21T09:00:00Z', 'findings', [row('P1', 'ok1')]) });
+  const clean = run(['--root', root, '--slug', 'z', '--json']);
+  check('CS2 đối chứng dương: fixture nguyên vẹn ra đủ claim 2 nguồn', () => {
+    const ids = JSON.parse(clean.out).claims.map(c => c.id);
+    assert.equal(clean.code, 0);
+    assert.ok(ids.includes('d-20260720T100000Z-10') && ids.includes('ok-a#F1')); });
+  // tiêm hỏng: 2 dòng JSONL rác + 1 probe lệch cột + 1 probe thiếu at
+  mkWorkspace(root, 'bad-led', { ledger: ['{not-json', ...goodLedger.map(l => l.replace(/Z-1/g, 'Z-2')), '"trailing'] });
+  const badTable = gapProbe('2026-07-21T09:30:00Z', 'findings', [row('P2', 'bt')]).replace('| m-bt |', '|'); // lệch cột
+  mkWorkspace(root, 'bad-tbl', { probe: badTable });
+  mkWorkspace(root, 'bad-at', { probe: gapProbe('X', 'findings', [row('P2', 'ba')]).replace(/^at: X\n/m, '') });
+  const r = run(['--root', root, '--slug', 'z', '--json']);
+  const ids = JSON.parse(r.out).claims.map(c => c.id);
+  check('CS2 nguồn lành còn nguyên + exit 0', () => { assert.equal(r.code, 0);
+    assert.ok(ids.includes('d-20260720T100000Z-10') && ids.includes('ok-a#F1')); });
+  check('CS2 ghim thông điệp skip per-file', () => {
+    assert.match(r.err, /claim-scan: skipped 2 malformed lines in .*bad-led.*decisions\.jsonl/);
+    assert.match(r.err, /claim-scan: skipped .*bad-tbl.*gap-probe\.md \(malformed table\)/);
+    assert.match(r.err, /claim-scan: skipped .*bad-at.*gap-probe\.md \(missing at\)/); });
+  check('CS2 claim từ file hỏng không lọt', () =>
+    assert.ok(!ids.includes('bad-tbl#F1') && !ids.includes('bad-at#F1')));
+  rmSync(root, { recursive: true, force: true });
+}
+
+// ---- CS4: corpus rỗng OK · thiếu tham số nổ to ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'cs4-'));
+  const a = run(['--root', root, '--slug', 'z', '--json']);
+  check('CS4a corpus rỗng: exit 0 + claims []', () =>
+    { assert.equal(a.code, 0); assert.deepEqual(JSON.parse(a.out).claims, []); });
+  const oldWs = mkWorkspace(root, 'old-ws', {});
+  writeFileSync(path.join(oldWs, 'contract.md'), '---\nstatus: draft\n---\n');
+  const b = run(['--root', root, '--slug', 'z', '--json']);
+  check('CS4b workspace kiểu pre-1.14 (chỉ contract): exit 0, bỏ qua êm', () =>
+    { assert.equal(b.code, 0); assert.deepEqual(JSON.parse(b.out).claims, []); });
+  const c = run(['--root', path.join(root, 'khong-ton-tai'), '--slug', 'z']);
+  check('CS4c root sai: exit 2 + thông điệp', () =>
+    { assert.equal(c.code, 2); assert.match(c.err, /root not found/); });
+  const d = run(['--root', root]);
+  check('CS4d thiếu --slug: exit 2 + usage (KHÔNG giả dạng corpus rỗng)', () =>
+    { assert.equal(d.code, 2); assert.match(d.err, /^usage: claim-scan --root <dir> --slug <slug>/); });
+  rmSync(root, { recursive: true, force: true });
+}
+
 console.log(`\nResults: ${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
