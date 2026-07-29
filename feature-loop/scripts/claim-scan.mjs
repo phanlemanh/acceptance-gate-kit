@@ -30,6 +30,9 @@ function ledgerClaims(file, slug, warn) {
     if (!line.trim()) continue;
     let e; try { e = JSON.parse(line); } catch { bad++; continue; }
     if (e.type !== 'fix' && e.type !== 'descope') continue;
+    // Entry rỗng ruột (thiếu decision/impact) = malformed — emit claim text
+    // rỗng là câm-lặng kiểu khác (parser-hardening PH5).
+    if (!e.decision || !e.impact) { bad++; continue; }
     out.push({ id: e.id, source: 'ledger', slug, kind: e.type, stage: e.stage ?? null,
       sev: null, at: e.at ?? null, claim: cut(e.decision), lesson: cut(e.impact),
       pointer: `_acceptance/${slug}/decisions.jsonl`,
@@ -44,6 +47,12 @@ function probeClaims(file, slug, warn) {
   const fm = /^---\n([\s\S]*?)\n---/.exec(text);
   const meta = {}; if (fm) for (const l of fm[1].split('\n')) {
     const m = /^([a-z0-9_]+):\s*(.*)$/.exec(l.trim()); if (m) meta[m[1]] = m[2];
+  }
+  // Frontmatter không đọc được (mất ---, thiếu key verdict) phải PHÂN BIỆT
+  // với verdict hợp lệ ≠ findings — trước đây cả hai cùng im lặng (PH4).
+  if (!fm || !('verdict' in meta)) {
+    warn(`claim-scan: skipped ${file} (unreadable frontmatter)`);
+    return [];
   }
   if (meta.verdict !== 'findings') return [];
   if (!meta.at) { warn(`claim-scan: skipped ${file} (missing at)`); return []; }

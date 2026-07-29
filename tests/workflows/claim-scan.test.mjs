@@ -314,5 +314,39 @@ const row = (sev, tag) => ({ sev, artifact: 'evals', gap: `gap-${tag}`, fail: `f
   for (const d of [root, root2, root3]) rmSync(d, { recursive: true, force: true });
 }
 
+// ---- PH4: frontmatter không đọc được ≠ clean hợp lệ ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'ph4-'));
+  const good = gapProbe('2026-07-25T00:00:00Z', 'findings', [row('P1', 'g')]);
+  mkWorkspace(root, 'no-fm', { probe: good.replace(/^---\n/, '') });          // mất --- mở
+  mkWorkspace(root, 'no-verdict', { probe: good.replace(/^verdict: findings\n/m, '') }); // thiếu key verdict
+  mkWorkspace(root, 'is-clean', { probe: gapProbe('2026-07-25T00:00:00Z', 'clean', [row('P2', 'c')]) });
+  const r = run(['--root', root, '--slug', 'zz', '--json']);
+  check('PH4 unreadable frontmatter nổ to (cả 2 kiểu), exit 0', () => {
+    assert.equal(r.code, 0);
+    assert.match(r.err, /claim-scan: skipped .*no-fm.*gap-probe\.md \(unreadable frontmatter\)/);
+    assert.match(r.err, /claim-scan: skipped .*no-verdict.*gap-probe\.md \(unreadable frontmatter\)/); });
+  check('PH4 đối chứng: verdict clean hợp lệ bỏ qua IM LẶNG — phân biệt được', () =>
+    assert.ok(!r.err.includes('is-clean')));
+  rmSync(root, { recursive: true, force: true });
+}
+
+// ---- PH5: entry thiếu decision/impact — không emit rỗng, đếm vào malformed ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'ph5-'));
+  mkWorkspace(root, 'hollow', { ledger: [
+    JSON.stringify({ id: 'd-20260720T120000Z-95', type: 'fix', stage: 'S1', at: '2026-07-20T12:00:00Z', impact: 'only-impact' }),
+    JSON.stringify({ id: 'd-20260720T120001Z-96', type: 'fix', stage: 'S1', at: '2026-07-20T12:00:01Z', decision: 'only-decision' }),
+    ledgerLine('d-20260720T120002Z-97', 'fix')] });
+  const r = run(['--root', root, '--slug', 'zz', '--json']);
+  const claims = JSON.parse(r.out).claims;
+  check('PH5 entry rỗng ruột không emit, đếm vào malformed, entry đủ vẫn ra (đối chứng dương), exit 0', () => {
+    assert.equal(r.code, 0);
+    assert.deepEqual(claims.map(c => c.id), ['d-20260720T120002Z-97']);
+    assert.ok(claims.every(c => c.claim.length > 0 && c.lesson.length > 0));
+    assert.match(r.err, /claim-scan: skipped 2 malformed lines in .*hollow.*decisions\.jsonl/); });
+  rmSync(root, { recursive: true, force: true });
+}
+
 console.log(`\nResults: ${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
