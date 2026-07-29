@@ -4,14 +4,14 @@ feature: "cross-feature-claim-index — gap-probe S1 đọc bài học lớp-l�
 slug: cross-feature-claim-index
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-07-29T06:55:00Z
 owner: phanlemanh@gmail.com
 source: docs/superpowers/specs/2026-07-29-cross-feature-claim-index-design.md
 time_human_minutes:
   gate1: 5
-  gate2:
+  gate2: 5
 ---
 
 # Acceptance contract — cross-feature-claim-index

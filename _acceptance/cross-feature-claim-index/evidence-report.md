@@ -9,7 +9,7 @@ enforcement_mode: strict
 bypass_used: false
 verified_commit: f57236a28593e734d1a5949b6b23e416a4c7b973
 # bypass_ack:
-human_signoff:
+human_signoff: Manh Phan 2026-07-29
 ---
 
 # Evidence Report: cross-feature-claim-index
