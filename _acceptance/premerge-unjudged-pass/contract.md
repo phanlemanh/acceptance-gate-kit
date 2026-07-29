@@ -56,9 +56,11 @@ Sau khi gạch các ô vô nghĩa (A=chỉ-evidence ép B=thiếu-contract; A=ch
 ## Notes
 
 - **Đã biết là không bắt được, cố ý:**
-  - **Giữ-chỗ viết bằng ngôn ngữ ngoài bảng.** Lưới chỉ có mẫu tiếng Anh, nên `human_signoff: chờ Manh gật` (không mở đầu bằng một từ khoá trong bảng) vẫn qua. Đây là cái giá ĐÃ BIẾT của việc rút phạm vi ngày 2026-07-29: phương án allowlist theo `signoff.approvers` — thứ đóng được lớp này bất kể ngôn ngữ — đã bị gỡ sau bốn lần thử thất bại, mỗi lần hỏng theo một hình dạng YAML hợp lệ mới và ba lần kèm hồi quy chặn nhầm người duyệt thật. Bằng chứng phải khai đúng chừng này, không được ngụ ý rộng hơn.
-  - **Tên người kèm đuôi giữ-chỗ** (`Manh Phan — chưa duyệt`) cũng qua, vì lưới chỉ soi TIỀN TỐ của chữ ký.
-  - **`--slug` lọc trượt một slug hỏng** thì slug đó không bị xét — đúng thiết kế cờ lọc, ghim bằng ô âm của AC-16.
+  - **Lưới giữ-chỗ chỉ khớp một bảng TIỀN TỐ ngắn cố định**, không phải "giữ-chỗ tiếng Anh". Đo thật trên bản đã ship: bắt `pending`, `tbd`, `todo`, `n/a`, `none`, `unsigned`, `waiting`, một `>` `|` `-` trần, và template chưa điền `<…>`. **Mọi thứ khác đều QUA** — kể cả giữ-chỗ tiếng Anh ngoài bảng (`FIXME`, `placeholder`, `LGTM`), lời cộc lốc (`ok`, `yes`, `x`, `.`), và mọi cách viết bằng ngôn ngữ khác (`chờ Manh gật`). Bản nháp đầu của mục này viết "lưới chỉ có mẫu tiếng Anh" — SAI, và vòng gia cố cuối bắt được: `FIXME` là tiếng Anh mà vẫn lọt. Khai hẹp hơn sự thật cũng là khai sai.
+  - **Tên người kèm đuôi giữ-chỗ** (`Manh Phan — chưa duyệt`) qua, vì lưới chỉ soi TIỀN TỐ.
+  - **Người ký không có thẩm quyền** (một cái tên thật, nhưng không phải người được uỷ quyền) qua. Cổng không còn danh sách người duyệt nào để đối chiếu kể từ khi rút phạm vi 2026-07-29; `signoff.approvers` là khoá TRANG TRÍ. Ai kiểm thẩm quyền là việc của `require_human_commit` + `agent_authors` + quy trình review, không phải của luật này.
+  - **Bù lại ở tầng vận hành:** khi lưới nổ, cổng in một dòng NOTE nói thẳng bảng tiền tố là ngắn và cố định, để người vận hành không "sửa" bằng cách đổi cách viết rồi đi qua.
+
 - `claims_released()` PHẢI đọc bằng `fm_field` (bất kỳ dòng nào) chứ không `front_field` (chỉ frontmatter dẫn đầu). Đây là bộ DÒ, doctrine là rộng-khi-dò/chặt-khi-nhận: một fence hỏng không được mua lấy sự vô hình — đó đúng là thứ đang cần bắt.
 - Luật mới chỉ được có MỘT chỗ trả lời câu "thư mục này có tự nhận đã qua cổng không" (`claims_released`). Ba call-site gọi chung một hàm; viết lại điều kiện lần hai là hình dạng parity-giữ-bằng-comment mà `gap-probe-presence-hook` đã trả giá.
 - Case dùng tiền tố `UJ*` (đã kiểm: chưa ai dùng; `GP/GPM/GPB/TE/RL/…` đã hết).

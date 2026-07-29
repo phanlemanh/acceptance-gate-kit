@@ -44,6 +44,9 @@ set -u
 # một typo trong config.yaml giết TOÀN BỘ cổng (signoff, verdict, staleness,
 # bypass, T1-escape) mà CI vẫn xanh. Đúng thứ false-green kit sinh ra để chặn.
 violations=0
+# Bật khi lưới giữ-chỗ nổ ít nhất một lần; dùng để in ĐÚNG MỘT dòng cảnh báo
+# về phạm vi hẹp của chính lưới đó ở cuối lần chạy.
+NARROW_NET_SEEN=""
 
 # CI evidence re-checker shipped alongside this script (needs ../lib/evidence-core.js).
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -301,12 +304,18 @@ claims_released() { # <dir> — 0 iff thư mục TỰ NHẬN đã qua cổng.
   return 1
 }
 
-placeholder_signoff() { # <chuỗi> — 0 iff chữ ký không nêu tên ai cả.
-  # LƯỚI DỰ PHÒNG, CHỈ dùng khi repo KHÔNG khai signoff.approvers. Danh sách từ
-  # khoá luôn phụ thuộc ngôn ngữ và luôn sót (repo này ký tiếng Việt: "chờ Manh
-  # gật" không có trong bảng nào dưới đây) — thuốc thật là khai approvers, và
-  # NOTE cuối lần chạy nói đúng câu đó. Khớp theo TIỀN TỐ vì chữ ký thật dẫn
-  # đầu bằng tên. LC_ALL=C để `tr` không chết trên UTF-8.
+placeholder_signoff() { # <chuỗi> — 0 iff chữ ký khớp một mẫu giữ-chỗ đã biết.
+  # ĐÂY LÀ LUẬT CHỮ KÝ DUY NHẤT còn lại (ngoài chốt rỗng). Không có lớp dự
+  # phòng nào phía sau: `signoff.approvers` KHÔNG được cổng đọc kể từ 1.24.0 —
+  # bốn bản vá cố khớp chữ ký với allowlist đều hỏng theo một hình dạng YAML
+  # hợp lệ mới, nên cả lớp bị gỡ (xem contract của premerge-unjudged-pass).
+  #
+  # PHẠM VI THẬT, đo được, đừng mô tả rộng hơn: khớp TIỀN TỐ với đúng 8 từ khoá
+  # + 4 ký hiệu dưới đây. Mọi thứ khác ĐỀU QUA — kể cả giữ-chỗ tiếng Anh không
+  # nằm trong bảng (`FIXME`, `placeholder`, `LGTM`), lời cộc lốc (`ok`, `yes`,
+  # `x`, `.`), và mọi giữ-chỗ viết bằng ngôn ngữ khác (`chờ Manh gật`).
+  # Khớp theo TIỀN TỐ vì chữ ký thật dẫn đầu bằng tên. LC_ALL=C để `tr` không
+  # chết trên UTF-8.
   case "$(printf '%s' "$1" | LC_ALL=C tr '[:upper:]' '[:lower:]')" in
     '>'|'|'|'-') return 0 ;;
     '<'*) return 0 ;;                       # template chưa điền: "<name> <date>"
@@ -672,7 +681,13 @@ XLACS
   # vẫn lọt (xem "Đã biết là không bắt được" trong contract).
   if placeholder_signoff "$signoff"; then
     echo "VIOLATION [$slug]: human_signoff \"$signoff\" is a placeholder, not a signature — it names no approver, so Gate 2 is still pending. Replace it with the approver's name + date once they actually sign."
-    violations=$((violations+1)); continue
+    violations=$((violations+1))
+    # Nói THẲNG giới hạn của chính luật vừa nổ, đúng lúc người vận hành đang
+    # sửa dòng đó. Không có câu này, cách sửa rẻ nhất là đổi "PENDING" thành
+    # một cách nói khác — và cổng sẽ xanh, vì lưới chỉ khớp một bảng tiền tố
+    # ngắn cố định. Một dòng cho cả lần chạy, in ở cuối (xem NARROW_NET_SEEN).
+    NARROW_NET_SEEN=1
+    continue
   fi
   # Human-signoff provenance: the signature is text in an AI-writable file —
   # the git history of the commit that INTRODUCED it is the only
@@ -885,6 +900,10 @@ if [ "$LEDGER_ENABLED" -eq 1 ]; then
     echo "NOTE: VIOLATION [ledger] là lỗi NỘI TẠI của cổng pre-merge (một khối luật bị trượt qua hoặc sổ lệch) — KHÔNG phải lỗi trong thay đổi của bạn. Bước kế tiếp: báo maintainer của kit kèm TOÀN BỘ output lần chạy này; đừng sửa feature của bạn để né nó."
     exit 2
   fi
+fi
+
+if [ -n "$NARROW_NET_SEEN" ]; then
+  echo "NOTE: the placeholder net that just fired matches a SHORT FIXED prefix list — pending, tbd, todo, n/a, none, unsigned, waiting, a bare > | or -, and an unfilled <...> template. NOTHING else. A holding note phrased any other way (\"FIXME\", \"LGTM\", \"ok\", or one written in another language) passes this gate. Rewording the line is NOT a fix; put a real approver name + date there."
 fi
 
 if [ "$violations" -gt 0 ]; then

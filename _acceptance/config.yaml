@@ -63,7 +63,11 @@ risk_tiers:
     - "scripts/recheck-evidence.js"
 signoff:
   required_for: [T2, T3]
-  approvers: ["Manh Phan"]
+  approvers: ["Manh Phan"]   # approvers: informational — KHÔNG được cổng cưỡng chế.
+                             # Bốn bản vá 2026-07-28/29 cố đọc khoá này từ YAML bằng
+                             # công cụ text của shell đều hỏng theo một hình dạng hợp
+                             # lệ mới, nên cả lớp bị gỡ. Chữ ký VẪN bị kiểm: không
+                             # được rỗng và không được khớp bảng tiền tố giữ-chỗ.
   require_human_commit: true
 feature_loop:
   suite_keys:
