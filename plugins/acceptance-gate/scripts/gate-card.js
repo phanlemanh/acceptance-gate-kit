@@ -105,7 +105,9 @@ const cleanLines = arr => arr.filter(l => l.trim() && !/^\s*#/.test(l)); // drop
 // saying so is the exact false-green this tool exists to stop, so parse WIDE and
 // let parseAC() below be the single place that decides what an AC line is.
 // The id must still open the bullet — prose merely MENTIONING "AC-13" never matches.
-const AC_LINE = /^\s*[-*]\s*\*{0,2}\s*(AC-\d+)\b\s*(\([^)]*\))?\s*[:.]?\s*\*{0,2}\s*(.+)$/;
+// Emphasis may close on EITHER side of the label — `**AC-10** (judgment) …` and
+// `**AC-1 (nhãn):** …` both occur in real contracts, so allow `*` at both spots.
+const AC_LINE = /^\s*[-*]\s*\*{0,2}\s*(AC-\d+)\b\*{0,2}\s*(\([^)]*\))?\s*[:.]?\s*\*{0,2}\s*(.+)$/;
 // judgment is read from the LABEL loosely (`(chi phí có trần — judgment)`) but from
 // the BODY only via the exact `(judgment)` tag — a Then-clause discussing judgment
 // must not silently reclassify a machine-checkable criterion as human-only.
