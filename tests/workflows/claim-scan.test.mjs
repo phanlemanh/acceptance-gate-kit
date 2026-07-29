@@ -252,5 +252,25 @@ const row = (sev, tag) => ({ sev, artifact: 'evals', gap: `gap-${tag}`, fail: `f
     assert.ok(dt < 5000, `${dt}ms`); });
 }
 
+// ==== PH — parser hardening (claim-scan-parser-hardening) ====
+
+// ---- PH1: bảng SAU section Findings không được thành claim ma ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'ph1-'));
+  const tail = `\n## Notes\n\n| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |\n|---|---|---|---|---|---|\n| P0 | evals | ghost-gap | ghost-fail | ghost-m | ghost-disp |\n`;
+  const base = gapProbe('2026-07-25T00:00:00Z', 'findings', [row('P1', 'real')]);
+  mkWorkspace(root, 'with-tail', { probe: base + tail });
+  mkWorkspace(root, 'no-tail', { probe: base });
+  const a = run(['--root', root, '--slug', 'zz', '--json']);
+  const withTail = JSON.parse(a.out).claims.filter(c => c.slug === 'with-tail');
+  const noTail = JSON.parse(a.out).claims.filter(c => c.slug === 'no-tail');
+  check('PH1 section sau Findings sinh ZERO claim — dãy id giống hệt đối chứng dương không-đuôi', () => {
+    assert.equal(a.code, 0);
+    assert.deepEqual(withTail.map(c => c.id.split('#')[1]), noTail.map(c => c.id.split('#')[1]));
+    assert.equal(withTail.length, 1); assert.equal(withTail[0].id, 'with-tail#F1');
+    assert.ok(!a.out.includes('ghost-gap'), 'claim ma từ bảng đuôi lọt vào output'); });
+  rmSync(root, { recursive: true, force: true });
+}
+
 console.log(`\nResults: ${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

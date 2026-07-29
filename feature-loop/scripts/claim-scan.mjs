@@ -47,7 +47,9 @@ function probeClaims(file, slug, warn) {
   }
   if (meta.verdict !== 'findings') return [];
   if (!meta.at) { warn(`claim-scan: skipped ${file} (missing at)`); return []; }
-  const sect = /## Findings([\s\S]*)/.exec(text);
+  // Capture DỪNG ở heading kế tiếp — bắt tới EOF từng biến bảng ở section
+  // sau thành claim ma có id citable (finding HIGH round 3 V1).
+  const sect = /## Findings([\s\S]*?)(?=\n## |$)/.exec(text);
   if (!sect) { warn(`claim-scan: skipped ${file} (malformed table)`); return []; }
   const rows = sect[1].split('\n').filter(l => l.trim().startsWith('|'));
   const out = []; let badRows = 0;
