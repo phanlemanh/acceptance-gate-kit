@@ -78,8 +78,22 @@ export function scan(root, slug, warn = (m) => console.error(m)) {
   const seen = new Set();
   claims = claims.filter(c => ID_RE.test(c.id) && !seen.has(c.id) && seen.add(c.id));
   const rank = (s) => ({ P0: 0, P1: 1, P2: 2 })[s] ?? 3;
-  claims.sort((a, b) => rank(a.sev) - rank(b.sev) || String(b.at).localeCompare(String(a.at)));
-  return claims.slice(0, CAP);
+  const byKey = (a, b) => rank(a.sev) - rank(b.sev) || String(b.at).localeCompare(String(a.at));
+  claims.sort(byKey);
+  // Cap 10 với SÀN ĐA DẠNG NGUỒN: mọi finding gap-probe đều mang sev còn
+  // ledger thì không, nên top-10 thuần sev sẽ đuổi sạch bài học ledger
+  // (CS9 bắt trên corpus thật). Mỗi nguồn có ứng viên giữ tối thiểu
+  // min(3, số nó có) slot; phần còn lại theo thứ tự sort toàn cục.
+  const FLOOR = 3;
+  const picked = [];
+  for (const src of ['ledger', 'gap-probe']) {
+    for (const c of claims.filter(c => c.source === src).slice(0, FLOOR)) picked.push(c);
+  }
+  for (const c of claims) {
+    if (picked.length >= CAP) break;
+    if (!picked.includes(c)) picked.push(c);
+  }
+  return picked.slice(0, CAP).sort(byKey);
 }
 
 function toMarkdown(claims) {

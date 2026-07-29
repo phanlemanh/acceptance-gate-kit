@@ -62,7 +62,10 @@ sort → cap → serialize → exit**.
 - **Sort:** severity trước (P0 > P1 > P2 > không-sev), recency sau (`at`
   giảm dần; finding lấy `at` frontmatter gap-probe.md).
 - **Cap:** 10 claim; mỗi trường text cắt 250 ký tự (`…` khi cắt); tổng
-  serialize mục tiêu ≤ ~2k token.
+  serialize mục tiêu ≤ ~2k token. **Sàn đa dạng nguồn** (thêm giữa S3, ledger
+  `d-…-fix sàn đa dạng`): mỗi nguồn có ứng viên giữ tối thiểu min(3, số có)
+  slot — vì mọi finding gap-probe mang sev còn ledger thì không, top-10
+  thuần sev sẽ đuổi sạch bài học ledger (CS9 bắt trên corpus thật).
 - **Corpus rỗng / file vắng / workspace cũ thiếu gap-probe.md:** hợp lệ —
   output rỗng, exit 0 (kit là engine: repo tiêu thụ mới toanh phải chạy được).
 - **Exit:** 0 kể cả khi có dòng skip; ≠0 chỉ khi lỗi thật (root không tồn

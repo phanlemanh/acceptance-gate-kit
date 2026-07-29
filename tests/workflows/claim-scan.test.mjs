@@ -148,5 +148,75 @@ const row = (sev, tag) => ({ sev, artifact: 'evals', gap: `gap-${tag}`, fail: `f
   rmSync(root, { recursive: true, force: true });
 }
 
+// ---- CS5b: sàn đa dạng nguồn — sev không được đuổi sạch ledger khỏi cap ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'cs5b-'));
+  // 12 finding CÓ sev + 4 ledger KHÔNG sev → top-10 thuần sev sẽ 0 ledger
+  mkWorkspace(root, 'f1', { probe: gapProbe('2026-07-28T00:00:00Z', 'findings',
+    Array.from({ length: 6 }, (_, i) => row('P1', `f1-${i}`))) });
+  mkWorkspace(root, 'f2', { probe: gapProbe('2026-07-27T00:00:00Z', 'findings',
+    Array.from({ length: 6 }, (_, i) => row('P2', `f2-${i}`))) });
+  mkWorkspace(root, 'led', { ledger: Array.from({ length: 4 }, (_, i) =>
+    ledgerLine(`d-20260726T00000${i}Z-8${i}`, 'fix', { at: `2026-07-26T00:00:0${i}Z` })) });
+  const claims = JSON.parse(run(['--root', root, '--slug', 'z', '--json']).out).claims;
+  const bySrc = (s) => claims.filter(c => c.source === s).length;
+  check('CS5b cap 10 vẫn giữ ≥3 ledger + ≥3 gap-probe (đối chứng: ledger sev-null lẽ ra bị đuổi hết)', () => {
+    assert.equal(claims.length, 10);
+    assert.ok(bySrc('ledger') >= 3, `ledger được ${bySrc('ledger')}`);
+    assert.ok(bySrc('gap-probe') >= 3, `gap-probe được ${bySrc('gap-probe')}`); });
+  rmSync(root, { recursive: true, force: true });
+}
+
+// ---- CS6: schema 10 trường + id đúng khuôn regex đo lường ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'cs6-'));
+  mkWorkspace(root, 'sch', { ledger: [ledgerLine('d-20260720T120000Z-60', 'fix', { serves: ['AC-4'] })],
+    probe: gapProbe('2026-07-25T00:00:00Z', 'findings', [row('P1', 'sc')]) });
+  const claims = JSON.parse(run(['--root', root, '--slug', 'z', '--json']).out).claims;
+  const ID_RE = /^(d-[0-9TZ]+-[0-9]+|[a-z0-9-]+#F[0-9]+)$/;
+  check('CS6 đủ 10 trường mọi claim', () => claims.forEach(c =>
+    ['id','source','slug','kind','stage','sev','at','claim','lesson','pointer']
+      .forEach(k => assert.ok(k in c, `${c.id} thiếu ${k}`))));
+  check('CS6 id khớp regex đo lường + serves giữ nguyên', () => {
+    claims.forEach(c => assert.match(c.id, ID_RE));
+    assert.deepEqual(claims.find(c => c.id === 'd-20260720T120000Z-60').serves, ['AC-4']); });
+  check('CS6 meta: regex còn sống — id sai khuôn phải trượt regex', () =>
+    assert.doesNotMatch('D-XYZ#bogus', ID_RE));
+  rmSync(root, { recursive: true, force: true });
+}
+
+// ---- CS10: KHÔNG đọc nguồn V2 (poison marker) — đối chứng dương ở ledger ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'cs10-'));
+  const POISON = 'POISON-MARKER-9f3a';
+  const d = mkWorkspace(root, 'v2src', { ledger: [ledgerLine('d-20260720T130000Z-70', 'fix', { decision: `has ${POISON}` })] });
+  writeFileSync(path.join(d, 'review-findings.md'), `# RF\n- ${POISON}-rf\n`);
+  writeFileSync(path.join(d, 'run-log.jsonl'), JSON.stringify({ evalId: `${POISON}-rl` }) + '\n');
+  const r = run(['--root', root, '--slug', 'z', '--json']);
+  check('CS10 marker trong review-findings/run-log VẮNG; trong ledger CÓ (đối chứng dương)', () => {
+    assert.ok(!r.out.includes(`${POISON}-rf`) && !r.out.includes(`${POISON}-rl`));
+    assert.ok(r.out.includes(`has ${POISON}`)); });
+  check('CS10 markdown mode: bullet mang [id] để cite', () => {
+    const md = run(['--root', root, '--slug', 'z']);
+    assert.match(md.out, /^## Bài học từ feature trước \(advisory\)/m);
+    assert.match(md.out, /- \[d-20260720T130000Z-70\] \(v2src/); });
+  rmSync(root, { recursive: true, force: true });
+}
+
+// ---- CS9: smoke trên corpus thật của repo (assert khoảng, không ghim số) ----
+{
+  const repoRoot = path.join(HERE, '..', '..');
+  const t0 = Date.now();
+  const r = run(['--root', repoRoot, '--slug', 'cross-feature-claim-index', '--json']);
+  const dt = Date.now() - t0;
+  check('CS9 corpus thật: exit 0, 1..10 claim, có id d-… và id #F, <5s', () => {
+    assert.equal(r.code, 0);
+    const ids = JSON.parse(r.out).claims.map(c => c.id);
+    assert.ok(ids.length >= 1 && ids.length <= 10, `được ${ids.length}`);
+    assert.ok(ids.some(i => i.startsWith('d-')), 'thiếu id ledger');
+    assert.ok(ids.some(i => /#F\d+$/.test(i)), 'thiếu id gap-probe');
+    assert.ok(dt < 5000, `${dt}ms`); });
+}
+
 console.log(`\nResults: ${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
