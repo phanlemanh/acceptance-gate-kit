@@ -99,3 +99,16 @@ Từ morphological-scan (4 trục — thước CE trong ngoặc):
 - LLM gán nhãn lớp-lỗi trong scanner — Never (giao agent tiêu thụ).
 - Trí nhớ xuyên repo — Never (bất biến CLAUDE.md: kit không chứa gì phải
   chép sang repo sản phẩm thứ hai).
+
+## Notes (Gate 2, 2026-07-29 — disposition 6 finding ngoài hợp đồng)
+
+- **Chuyển contract mới `claim-scan-parser-hardening`** (quyết tại Cổng 2):
+  (1) regex `## Findings` nuốt tới EOF → claim ma có id cite được (HIGH);
+  (2) claim id thiếu/sai khuôn bị drop im lặng; (3) id trùng xuyên-feature
+  không warn. Cùng lớp parser — làm một vòng loop riêng ngay sau ship.
+- **Known limits:** 2 commit của vòng này (af68b58, 1d7b91f) cuốn nhầm wip
+  CLAUDE.md + 3 docs discovery-gate0 dưới message claim-scan — KHÔNG rewrite
+  history (đứt chuỗi verified_commit/chữ ký); bài học vận hành: cấm
+  `git add -A`/`-am` trong repo self-host, add đích danh từng path.
+- **Known limits:** description plugin.json 1.18.0 chưa có dòng "v1.18
+  adds…" — vá trong lượt release notes kế tiếp.
