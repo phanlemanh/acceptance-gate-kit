@@ -27,6 +27,13 @@ Use Codex-native orchestration only:
   portable design-reference path described below.
 - Keep doer and grader separate. S3 edits code; S4 verifies and must not edit
   product code.
+- Stop for the human ONLY at Gate 1 / Gate 1.5 (T3) / Gate 2 and at the error
+  stops this skill lists explicitly (missing preconditions, BLOCKED, three
+  rounds exhausted, escalation). At every other stage boundary, proceed
+  immediately in the same turn — never insert a "continue?" / "plan now?" /
+  "run S4?" question. Each self-inserted pause is an unplanned human
+  intervention, which defeats the loop's core KPI (measured 2026-07-26:
+  7 of 14 stops in one session were self-inserted).
 
 ## Preconditions
 
@@ -342,7 +349,10 @@ When execution must depart from the approved plan, append a provisional `fix`
 or `descope` entry immediately with `stage: S3`.
 
 At the end, run task-level verification and set contract status to
-`implemented`. Do not run acceptance evals in S3; S4 owns grading.
+`implemented`, then enter S4 immediately in the same turn. Do not run
+acceptance evals inside S3 — but do not pause for the human at this boundary
+either: doer ≠ grader is satisfied by the separated grader pass of S4, not by
+a human turn.
 
 ## S4 - Verify
 
@@ -533,8 +543,9 @@ Verdict routing:
 - `REJECT`: implementation or evals failed.
 - `BLOCKED`: verifier cannot run due to environment/config/tooling issues.
 
-For `REJECT`, return to S3 and run a new verify round. Cap at three rounds, then
-stop and escalate with a round-by-round summary. For `BLOCKED`, present exact
+For `REJECT`, return to S3, fix, and start the next verify round immediately —
+the REJECT → fix → next-round cycle is automatic, never ask between rounds. Cap
+at three rounds, then stop and escalate with a round-by-round summary. For `BLOCKED`, present exact
 blocked command and reason, fix environment/config, and rerun the same round.
 On REJECT, the fix list is failed evals, failed commands, and **in-contract
 findings only** — out-of-contract findings never enter it, whatever caused the

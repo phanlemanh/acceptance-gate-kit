@@ -1,6 +1,6 @@
 {
   "name": "feature-loop-codex",
-  "version": "1.17.0",
+  "version": "1.17.1",
   "description": "Codex-native feature development loop on top of acceptance-gate with installable role-based custom agents, model-aware budget routing, evidence-backed verification, human gates, and no Claude Code workflow scripts. v1.12 adds Pareto carry-forward (P1 delta-scoped staleness reverify, P2 baseline-once, P3 judge-panel memo) — same trust bar, run-log is the only memo. v1.13 adds the CT-S coverage switch: T2/T3 default-on morphological-scan of the AC space at S1, a required contract Coverage section gating Gate 1, and card-rendered coverage evidence — skipping requires a visible descope entry. v1.14 adds the S1 step-8 clean-context gap-probe (spawned worker, probe-failed non-blocking) rendered on the Gate-1 card. v1.17 adds S4 scope-triage: every confirmed review finding is classified against the contract (in-contract / out-of-contract / unclassified) by one fresh agent, a high in-contract finding drives REJECT so the machine fixes what the contract already bounds, out-of-contract findings never enter the fix list and go to Gate 2 for the human to decide, triage failure fails toward the human (no finding may drive a REJECT), and two or more findings in files no eval covers raise a widen-or-narrow cluster flag.",
   "author": {
     "name": "Manh Phan",

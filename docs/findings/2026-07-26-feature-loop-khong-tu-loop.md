@@ -1,6 +1,11 @@
-# feature-loop không tự chạy vòng — chẩn đoán, chưa sửa
+# feature-loop không tự chạy vòng — chẩn đoán, ĐÃ SỬA 2026-07-29
 
-**Trạng thái:** đã kiểm chứng, CHƯA sửa. Ghi lại để làm sau.
+**Trạng thái:** đã kiểm chứng 2026-07-26; **đã sửa 2026-07-29** (feature-loop
+1.17.1) theo đúng 5 đề xuất dưới, áp cho CẢ bản Codex (cùng lớp lỗi ở
+`codex/feature-loop-codex`): bất biến dừng ở đầu skill, câu cuối S1/S2/S3 nói
+rõ "đi tiếp NGAY", vòng REJECT tự động tới 3 round, in `/goal` thành bắt buộc
+không điều kiện. Chưa đo lại trên phiên thật — số 7/7 dưới đây là baseline để
+so sau.
 **Nguồn:** người dùng báo *"Feature Loop đang không loop, không set goal hoặc
 không chạy workflow loop — tôi phải duyệt và chạy bằng tay rất nhiều lần"*
 (2026-07-26). Đo trên chính phiên chạy feature `gap-probe-presence-hook`.
