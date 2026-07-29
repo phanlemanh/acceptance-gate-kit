@@ -87,6 +87,11 @@ sort → cap → serialize → exit**.
  "pointer":"_acceptance/<slug>/decisions.jsonl | _acceptance/<slug>/gap-probe.md"}
 ```
 
+**10 trường bắt buộc** (`id … pointer`) đúng như AC-6 chốt; **`serves` là trường
+TÙY CHỌN** — chỉ xuất hiện khi entry ledger gốc có sẵn (gap-probe không có),
+được chép nguyên, không suy diễn. Nó KHÔNG phải trường để-dành: consumer ngay
+từ V1 là critic gap-probe (nối bài học về đúng AC của feature cũ khi đọc).
+
 Bản markdown (nạp cho agent): khối `## Bài học từ feature trước (advisory)`,
 mỗi claim 1 bullet `- [<id>] (<slug> · <stage|sev> · <kind>) <claim> —
 <lesson>`. **`[<id>]` là đơn vị trích dẫn** — agent cite nguyên văn.
@@ -105,11 +110,21 @@ mỗi claim 1 bullet `- [<id>] (<slug> · <stage|sev> · <kind>) <claim> —
   Thiếu gì hoặc Kịch bản fail.* (Cite nguyên văn = đường đo GO/NO-GO.)
 - Codex parity: V2 (descope có vết — bản Codex chưa có claim input).
 
-### 4. Đo lường
+### 4. Đo lường — mỗi tiêu chí một lệnh, một vật
 
-Grep pattern id: `\[(d-[0-9TZ]+-[0-9]+|[a-z0-9-]+#F[0-9]+)\]` trên
-`gap-probe.md` các slug mới → scorecard GO/NO-GO điền tay cuối cửa sổ đo
-(khuôn V1-journal của discovery).
+Mọi tiêu chí GO/NO-GO quy về lệnh chạy trên artifact (scorecard chỉ là nơi
+CHÉP KẾT QUẢ lệnh, không phải nơi phán):
+
+| Tiêu chí | Lệnh đo | Vật |
+|---|---|---|
+| GO-1 trích dẫn | `grep -nE '\[(d-[0-9TZ]+-[0-9]+\|[a-z0-9-]+#F[0-9]+)\]' _acceptance/<slug-mới>/gap-probe.md` — rồi đọc cột Xử lý của đúng các dòng đó: `fixed:` là đạt; `human-gate1` đạt khi contract slug đó đã có `approved_by` (gate đã duyệt SAU khi thấy finding) | gap-probe.md + frontmatter contract của slug mới |
+| GO-2 nhiễu <50% | trên cùng tập dòng-có-cite: đếm `rejected:` / tổng — bằng grep cột Xử lý | gap-probe.md slug mới |
+| GO-3 chi phí | chạy lại tất định tại HEAD của slug đó: `node feature-loop/scripts/claim-scan.mjs --root . --slug <slug-mới> --json` → đếm `claims[]` ≤10; `wc -c` bản markdown ≤ 8.000 byte (proxy ~2k token, ngưỡng khai cứng); `time` <5s | output scan derive lại được từ repo |
+| NO-GO zero-cite | GO-1 grep trả 0 dòng trên MỌI slug trong cửa sổ | như GO-1 |
+| NO-GO probe hỏng vì input 5 | grep `claims_input: failed` frontmatter gap-probe.md các slug mới, đối chiếu ledger fix có vá trong 1 lần không | gap-probe.md + decisions.jsonl |
+
+Không tiêu chí nào hỏi agent hay dựa hồi ức; "xác nhận đáng" của human đọc
+từ chữ ký `approved_by` sẵn có trong artifact, không phỏng vấn lại.
 
 ## Error handling — bảng chốt
 

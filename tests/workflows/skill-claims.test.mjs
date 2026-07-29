@@ -22,6 +22,11 @@ const PROMPT_RULES = [
 ];
 for (const [re, name] of CLAUSES) check(`CS7 SKILL có mệnh đề: ${name}`, () => assert.match(SKILL, re));
 for (const [re, name] of PROMPT_RULES) check(`CS8 prompt có ràng buộc: ${name}`, () => assert.match(SKILL, re));
+check('CS7b chống mâu thuẫn nội tại (finding S4-r2): đếm ý phải là 7, và "CHỈ 4 file" phải kèm ngoại lệ input 5', () => {
+  assert.doesNotMatch(SKILL, /Prompt giữ đủ 6 ý/, 'còn câu đếm 6 ý cạnh danh sách 7 ý');
+  assert.match(SKILL, /Prompt giữ đủ 7 ý/);
+  assert.match(SKILL, /CHỈ 4 file[^\n]*CỘNG file claims làm input thứ 5/s, '"CHỈ 4 file" đứng trơ không ngoại lệ');
+});
 check('CS7/8 đối chứng đột biến: xoá đoạn claims khỏi bản sao → detector đỏ', () => {
   const mutated = SKILL.replace(/claims_input: failed/g, '').replace(/input thứ 5/g, '').replace(/ADVISORY/gi, '');
   assert.ok([...CLAUSES, ...PROMPT_RULES].some(([re]) => !re.test(mutated)), 'detector không phân biệt được bản bị xoá');

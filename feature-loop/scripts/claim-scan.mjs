@@ -82,7 +82,10 @@ export function scan(root, slug, warn = (m) => console.error(m)) {
   const seen = new Set();
   claims = claims.filter(c => ID_RE.test(c.id) && !seen.has(c.id) && seen.add(c.id));
   const rank = (s) => ({ P0: 0, P1: 1, P2: 2 })[s] ?? 3;
-  const byKey = (a, b) => rank(a.sev) - rank(b.sev) || String(b.at).localeCompare(String(a.at));
+  // at thiếu/không phải chuỗi → xếp CUỐI nhóm cùng sev, không phải đầu:
+  // String(null) = "null" thắng mọi ISO date theo lexicographic (finding S4-r2).
+  const atKey = (c) => (typeof c.at === 'string' ? c.at : '');
+  const byKey = (a, b) => rank(a.sev) - rank(b.sev) || atKey(b).localeCompare(atKey(a));
   claims.sort(byKey);
   // Cap 10 với SÀN ĐA DẠNG NGUỒN: mọi finding gap-probe đều mang sev còn
   // ledger thì không, nên top-10 thuần sev sẽ đuổi sạch bài học ledger

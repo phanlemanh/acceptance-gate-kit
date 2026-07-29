@@ -187,6 +187,20 @@ const row = (sev, tag) => ({ sev, artifact: 'evals', gap: `gap-${tag}`, fail: `f
   rmSync(root, { recursive: true, force: true });
 }
 
+// ---- CS5c (fix S4-r2): entry thiếu `at` xếp CUỐI nhóm cùng sev, không phải đầu ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'cs5c-'));
+  const noAt = JSON.parse(ledgerLine('d-20260720T140000Z-90', 'fix')); delete noAt.at;
+  mkWorkspace(root, 'atnull', { ledger: [
+    JSON.stringify(noAt),
+    ledgerLine('d-20260720T140001Z-91', 'fix', { at: '2026-07-28T00:00:00Z' }),
+    ledgerLine('d-20260720T140002Z-92', 'fix', { at: '2026-07-27T00:00:00Z' })] });
+  const ids = JSON.parse(run(['--root', root, '--slug', 'z', '--json']).out).claims.map(c => c.id);
+  check('CS5c at-null không chiếm chỗ đầu (String(null)="null" từng thắng mọi ISO date)', () => {
+    assert.deepEqual(ids, ['d-20260720T140001Z-91', 'd-20260720T140002Z-92', 'd-20260720T140000Z-90']); });
+  rmSync(root, { recursive: true, force: true });
+}
+
 // ---- CS6: schema 10 trường + id đúng khuôn regex đo lường ----
 {
   const root = mkdtempSync(path.join(tmpdir(), 'cs6-'));
