@@ -96,6 +96,26 @@ const unquote = s => String(s == null ? '' : s).replace(/^["']|["']$/g, '').trim
 // decision card: a human approving Gate 1 on a truncated card is false-green.
 function section(t, h) { const out = []; let inS = false, lvl = 0; const re = new RegExp('^#{2,6}\\s+' + h + '\\b', 'i'); for (const l of t.split('\n')) { const m = l.match(/^(#{2,6})\s/); if (m) { if (re.test(l)) { inS = true; lvl = m[1].length; continue; } if (inS && m[1].length <= lvl) { inS = false; continue; } } if (inS) out.push(l); } return out; }
 const cleanLines = arr => arr.filter(l => l.trim() && !/^\s*#/.test(l)); // drop blanks + markdown-comment lines
+// AC bullet. The template form is `- AC-1: Given …, When …, Then …`, but real
+// contracts accumulated three house variants the strict form silently dropped:
+// `**` emphasis around the id, a parenthetical label between id and colon, and
+// `.` used instead of `:`. Measured on a 170-contract repo, the strict form saw
+// 838 of 1156 real AC lines — 28% invisible, with 43 contracts rendering 0 AC
+// and (worse) 11 rendering a TRUNCATED list. A card that drops criteria without
+// saying so is the exact false-green this tool exists to stop, so parse WIDE and
+// let parseAC() below be the single place that decides what an AC line is.
+// The id must still open the bullet — prose merely MENTIONING "AC-13" never matches.
+const AC_LINE = /^\s*[-*]\s*\*{0,2}\s*(AC-\d+)\b\s*(\([^)]*\))?\s*[:.]?\s*\*{0,2}\s*(.+)$/;
+// judgment is read from the LABEL loosely (`(chi phí có trần — judgment)`) but from
+// the BODY only via the exact `(judgment)` tag — a Then-clause discussing judgment
+// must not silently reclassify a machine-checkable criterion as human-only.
+function parseAC(line) {
+  const m = line.match(AC_LINE); if (!m) return null;
+  const [, id, label = '', body] = m;
+  const judgment = /judgment/i.test(label) || /\(judgment\)/i.test(body);
+  const gwt = ((label ? label + ' ' : '') + body).replace(/\(judgment\)/i, '').trim();
+  return { id, gwt, judgment };
+}
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
 const NEG_RE = /\bKHÔNG\b|\bkhông\b|\bkhong\b|\bNOT\b|reject|denied|\bdeny\b|từ chối|tu choi|\b0\s*(row|touch)\b|rỗng|\bn-a\b|\bbiên\b|\bbien\b|dưới ngưỡng|duoi nguong|just[- ]?below|should[- ]?not|không tăng|không ghi|không fire|không kích hoạt|suppress|absent|vắng/i;
@@ -172,7 +192,7 @@ const pl = plain || {};
 // ================= GATE 1 =================
 if (gate === '1') {
   const acs = []; const seen = {}; const dupIds = [];
-  for (const l of section(contract, 'Criteria')) { const m = l.match(/^\s*-\s*(AC-\d+)\s*:\s*(.+)$/); if (m) { if (seen[m[1]]) dupIds.push(m[1]); seen[m[1]] = 1; acs.push({ id: m[1], gwt: m[2].replace(/\(judgment\)/i, '').trim(), judgment: /\(judgment\)/i.test(m[2]) }); } }
+  for (const l of section(contract, 'Criteria')) { const ac = parseAC(l); if (ac) { if (seen[ac.id]) dupIds.push(ac.id); seen[ac.id] = 1; acs.push(ac); } }
   const evalList = []; { let cur = null; for (const l of evalsT.split('\n')) { const id = l.match(/^\s*-\s+id:\s*(.+)$/); if (id) { if (cur) evalList.push(cur); cur = { id: id[1].trim(), criterion: '', expected: '' }; continue; } if (!cur) continue; const c = l.match(/^\s*criterion:\s*(.+)$/); if (c) cur.criterion = unquote(c[1]); const e = l.match(/^\s*expected:\s*(.+)$/); if (e) cur.expected = unquote(e[1]); } if (cur) evalList.push(cur); }
   const evalsFor = id => evalList.filter(e => e.criterion === id);
   const willDo = acs.filter(x => !x.judgment && !NEG_RE.test(thenOf(x.gwt)));
@@ -257,7 +277,7 @@ const verdict = clean(rfm.verdict).toUpperCase();
 const reason = unquote(rfm.reason);
 const approvable = verdict === 'PASS' || verdict === 'PENDING-JUDGMENT';
 
-const critText = {}; for (const l of section(contract, 'Criteria')) { const m = l.match(/^\s*-\s*(AC-\d+)\s*:\s*(.+)$/); if (m && !critText[m[1]]) critText[m[1]] = m[2].replace(/\(judgment\)/i, '').trim(); }
+const critText = {}; for (const l of section(contract, 'Criteria')) { const ac = parseAC(l); if (ac && !critText[ac.id]) critText[ac.id] = ac.gwt; }
 
 // per-eval rows — tolerate any non-pipe cell content (e.g. "N/A", "PASS*")
 const rows = [];
