@@ -535,6 +535,7 @@ Tham chiếu đầy đủ `config.yaml` — mục 8 có phần tinh chỉnh:
 | `risk_tiers.t1_skip_globs` | Glob an toàn bỏ qua gate (docs, *.md) | không gì được miễn |
 | `risk_tiers.t3_paths` | Path critical → T3 | không gì bị nâng T3 |
 | `signoff.required_for` | Tier nào bắt buộc ký trước merge | `[T2, T3]` |
+| `signoff.approvers` | Danh sách người được ký — **thông tin, KHÔNG được cổng cưỡng chế** (1.24.0: bốn bản vá cố đọc khoá này từ YAML bằng công cụ text của shell đều hỏng theo một hình dạng hợp lệ mới, nên cả lớp bị gỡ). Chữ ký vẫn bị kiểm bằng chốt rỗng + lưới giữ-chỗ | — |
 | `signoff.require_human_commit` | Chữ ký Cổng 2 phải nằm trong commit riêng (mục 7) | `false` (scaffold mới: `true`) |
 | `signoff.agent_authors` | Blocklist email-glob cho commit chữ ký (bot CI) | tắt |
 | `dev_server.start` / `url` | Cho eval `ui-check` | ui-check bị hạ cấp |
@@ -781,6 +782,9 @@ flowchart LR
 | `bypass_used: true` không có `bypass_ack` | Report cũ không có `verified_commit` / `run-log.jsonl` |
 | `enforcement_mode: off` lúc verify | `verified_commit` không tìm thấy trong clone (rebase/shallow) |
 | `human_signoff` rỗng | Không truyền `--base` — backstop T1 tắt |
+| `human_signoff` là **giữ-chỗ** — khớp tiền tố `pending`/`tbd`/`todo`/`n/a`/`none`/`unsigned`/`waiting`, một `>` `|` `-` trần, hay template `<…>` chưa điền (1.24.0) | Kèm dòng NOTE nói rõ bảng tiền tố này NGẮN và CỐ ĐỊNH — `FIXME`, `LGTM`, `ok`, hay một cách viết bằng ngôn ngữ khác đều QUA; đổi cách viết **không** phải là cách sửa |
+| Thư mục **tự khai đã phát hành** (evidence `verdict: PASS`, hoặc contract `status: implemented`+) nhưng **không có `contract.md`** — slug vô hình với cổng (1.24.0) | |
+| Thư mục tự khai đã phát hành nhưng contract **thiếu `risk_tier` hoặc `status`** — cùng lớp tàng hình (1.24.0) | Scaffold bỏ hoang (chưa khai gì) vẫn im lặng — đúng thiết kế, không phải lỗ |
 | `gap_probe: required` + slug trong diff PR thiếu `gap-probe.md` hợp lệ và thiếu entry descope | `gap_probe: advisory` (mặc định) cùng tình huống · `verdict: probe-failed` · đã bỏ có chủ đích theo entry ledger · không có `--base` nên luật bỏ qua |
 | `gap_probe` khai giá trị không hợp lệ (sai chính tả) | |
 | Chữ ký chưa commit / commit chữ ký chạm body report / author khớp `agent_authors` | Không phải git repo — staleness/chữ ký không kiểm được |
