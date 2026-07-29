@@ -1706,8 +1706,21 @@ mk_gp_repo() { # <case> — repo git tối thiểu; trả BASE sha qua GP_BASE
   printf 'schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "docs/**"\n  t3_paths:\n    - "src/**"\n' > "$R/_acceptance/config.yaml"
   printf 'v1\n' > "$R/src/app.js"
   git -C "$R" add -A >/dev/null
-  git -c user.email=t@t -c user.name=t -C "$R" commit -qm base
-  GP_BASE="$(git -C "$R" rev-parse HEAD)"
+  # Message MANG TÊN CASE là chống-chớp-tắt, không phải trang trí. Trước đây mọi
+  # fixture có CÙNG cây + CÙNG author + CÙNG message "base", nên sha base chỉ còn
+  # phụ thuộc dấu-thời-gian-giây: các repo dựng trong cùng MỘT giây ra sha Y HỆT
+  # (đo được: ba lần gọi liên tiếp cho cùng một sha). Hệ quả: một case lỡ đưa
+  # GP_BASE của repo KHÁC cho pre-merge-check vẫn XANH, và chỉ ĐỎ khi hai lần
+  # commit rơi qua ranh giới giây — TE5 từng sống đúng kiểu đó (~2/8 lần chạy,
+  # exit 2 "base không resolve" + mất hết message per-slug). Ghim base riêng cho
+  # từng repo ở call-site (TE4_B/TE5_B...) chỉ vá TỪNG chỗ; sha riêng từng
+  # fixture vá cả LỚP — xem GPB1 ngay dưới.
+  git -c user.email=t@t -c user.name=t -C "$R" commit -qm "base $1"
+  GP_BASE="$(git -C "$R" rev-parse --quiet --verify 'HEAD^{commit}' 2>/dev/null || true)"
+  # Fail-loud: git init/commit hỏng thì GP_BASE rỗng, và mọi case downstream đỏ
+  # bằng "base không resolve" — một triệu chứng ở RẤT XA nguyên nhân. Chết ngay
+  # tại chỗ, nêu đúng fixture nào, thay vì để cả suite đoán.
+  [ -n "$GP_BASE" ] || { echo "FATAL: mk_gp_repo $1 — không tạo được base commit trong $R" >&2; exit 1; }
 }
 # gp_feature <root> <slug> <tier> <status>
 # Feature SẠCH MỌI MẶT KHÁC: có evidence-report PASS + chữ ký, để violation duy
@@ -1725,6 +1738,28 @@ gp_feature() {
   esac
 }
 gp_commit() { git -C "$1" add -A >/dev/null; git -c user.email=t@t -c user.name=t -C "$1" commit -qm change; }
+
+# ── GPB: hợp đồng của chính mk_gp_repo ─────────────────────────────────────
+# Cả rừng case GPM*/TE*/RL* dưới đây đứng trên một giả định chưa từng ai ghim:
+# sha base của fixture này KHÔNG dùng được cho fixture kia. Ngày giả định đó sai
+# (mọi base commit y hệt nhau), lỗi lẫn-repo ở TE5 sống 100% số lần chạy mà chỉ
+# lộ ~1/4. Ghim luôn cái giả định — đây là thước gắn vào chính con dao dựng
+# fixture, không phải vào một case dùng nó.
+echo "GPB1 mk_gp_repo: moi fixture MOT sha base rieng, khong dung cheo duoc"
+mk_gp_repo gpb1a; GPB1A="$GP_BASE"
+mk_gp_repo gpb1b; GPB1B="$GP_BASE"
+[ -n "$GPB1A" ] && [ -n "$GPB1B" ]; check GPB1a 0 $?
+[ "$GPB1A" != "$GPB1B" ]; check GPB1b 0 $?
+# ĐỐI CHỨNG DƯƠNG: sha của chính nó PHẢI resolve trong repo của nó — nếu không,
+# GPB1d dưới xanh vì "chẳng sha nào resolve" chứ không vì tính riêng biệt.
+git -C "$GPR/gpb1a" rev-parse --quiet --verify "$GPB1A^{commit}" >/dev/null 2>&1; check GPB1c 0 $?
+# ...và sha của repo KIA thì KHÔNG. Đây mới là thứ khiến lỗi lẫn-repo đỏ 100%.
+git -C "$GPR/gpb1a" rev-parse --quiet --verify "$GPB1B^{commit}" >/dev/null 2>&1; check GPB1d 1 $?
+
+echo "GPB2 mk_gp_repo fail-loud: khong dung duoc repo -> FATAL + exit ngay tai cho"
+GPB2OUT="$(GPR="/dev/null/khong-the-tao"; mk_gp_repo gpb2 2>&1)"; GPB2ST=$?
+check  GPB2a 1 "$GPB2ST"
+hasout GPB2b "FATAL: mk_gp_repo gpb2" "$GPB2OUT"
 
 echo "GPM11 gap_probe: bien the hop le nhan dung, sai chinh ta -> canh bao cau hinh"
 mk_gp_repo gp11a; R="$GPR/gp11a"; gp_feature "$R" feat-q T3 implemented
@@ -2730,6 +2765,355 @@ hasout RL10a "VIOLATION [ledger]: luật gap-probe không chạy và không khai
 hasout RL10b "lỗi NỘI TẠI của cổng pre-merge" "$RL10M"
 hasout RL10c "declared-off t1-escape" "$RL10M"
 hasout RL10d "pre-merge-check: rules ran=3 declared-off=0 expected=3" "$RL10M"
+
+# ── UJ: PASS chưa ai phán (premerge-unjudged-pass) ─────────────────────────
+UJR="$T/uj"; mkdir -p "$UJR"
+
+# uj_repo <case> [config-thêm] — repo fixture; trả BASE sha qua UJ_BASE.
+# Sha riêng từng fixture (cùng lý do như mk_gp_repo): cây + author + message
+# giống hệt thì sha chỉ phụ thuộc dấu-thời-gian-giây, và một case lỡ đưa base
+# của repo KHÁC vẫn xanh.
+uj_repo() {
+  R="$UJR/$1"; rm -rf "$R"; mkdir -p "$R/_acceptance"
+  { printf 'schema_version: 1\n'
+    printf 'signoff:\n  required_for: [T2, T3]\n'
+    [ -n "${2:-}" ] && printf '%s\n' "$2"
+    printf '  require_human_commit: false\n'
+  } > "$R/_acceptance/config.yaml"
+  git init -q "$R"
+  git -C "$R" add -A >/dev/null
+  git -c user.email=t@t -c user.name=t -C "$R" commit -qm "uj base $1"
+  UJ_BASE="$(git -C "$R" rev-parse --quiet --verify 'HEAD^{commit}' 2>/dev/null || true)"
+  [ -n "$UJ_BASE" ] || { echo "FATAL: uj_repo $1 — không tạo được base commit trong $R" >&2; exit 1; }
+}
+
+# uj_slug <root> <slug> <contract-frontmatter|-> <chữ ký|SKIP>
+#   "-"    ở tham số 3 = KHÔNG tạo contract.md
+#   "SKIP" ở tham số 4 = KHÔNG tạo evidence-report.md
+uj_slug() {
+  d="$1/_acceptance/$2"; mkdir -p "$d"
+  if [ "$3" != "-" ]; then printf -- '---\n%s\n---\n' "$3" > "$d/contract.md"; fi
+  if [ "$4" != "SKIP" ]; then
+    printf '#!/bin/sh\nexit 0\n' > "$1/verify-$2.sh"
+    printf -- '---\nschema_version: 1\nfeature_slug: %s\nverdict: PASS\nhuman_signoff: %s\n---\n\n## Evidence\n- eval: E1\n  run_id: %s-E1-001\n  exit_code: 0\n  verifier: verify-%s.sh\n  verified_at: 2026-06-20\n' \
+      "$2" "$4" "$2" "$2" > "$d/evidence-report.md"
+  fi
+}
+uj_full() { printf 'schema_version: 1\nfeature: f\nslug: %s\nrisk_tier: T3\nsurfaces: [api]\nstatus: signed-off\napproved_by: Manh Phan\napproved_at: 2026-06-10' "$1"; }
+
+echo "UJ6 evidence khai PASS nhung KHONG co contract.md -> VIOLATION, khong tang hinh"
+uj_repo uj6 '  approvers: ["Manh Phan"]'; R="$UJR/uj6"
+uj_slug "$R" feat-ok "$(uj_full feat-ok)" "Manh Phan 2026-06-20"
+uj_slug "$R" feat-ghost - "Manh Phan 2026-06-20"
+UJ6="$(bash "$CHECK" "$R" 2>&1)"; UJ6ST=$?
+check  UJ6a 1 "$UJ6ST"
+hasout UJ6b "VIOLATION [feat-ghost]: no contract.md" "$UJ6"
+nothas UJ6c "pre-merge-check: clean" "$UJ6"
+hasout UJ6d "OK [feat-ok]" "$UJ6"
+
+echo "UJ7 tu khai da phat hanh nhung THIEU risk_tier -> VIOLATION neu dich danh field"
+uj_repo uj7 '  approvers: ["Manh Phan"]'; R="$UJR/uj7"
+uj_slug "$R" feat-notier 'schema_version: 1
+feature: f
+slug: feat-notier
+surfaces: [api]
+status: signed-off
+approved_by: Manh Phan' "Manh Phan 2026-06-20"
+UJ7="$(bash "$CHECK" "$R" 2>&1)"; check UJ7a 1 $?
+hasout UJ7b "contract has no risk_tier" "$UJ7"
+hasout UJ7c "VIOLATION [feat-notier]" "$UJ7"
+
+echo "UJ8 THIEU status -> VIOLATION; UJ8neg draft/approved -> im lang (ca duoi nguong)"
+uj_repo uj8 '  approvers: ["Manh Phan"]'; R="$UJR/uj8"
+uj_slug "$R" feat-nostatus 'schema_version: 1
+feature: f
+slug: feat-nostatus
+risk_tier: T3
+surfaces: [api]
+approved_by: Manh Phan' "Manh Phan 2026-06-20"
+UJ8="$(bash "$CHECK" "$R" 2>&1)"; check UJ8a 1 $?
+hasout UJ8b "contract has no status" "$UJ8"
+for st in draft approved; do
+  uj_repo "uj8n-$st" '  approvers: ["Manh Phan"]'; R="$UJR/uj8n-$st"
+  uj_slug "$R" feat-wip "schema_version: 1
+feature: f
+slug: feat-wip
+risk_tier: T3
+surfaces: [api]
+status: $st
+approved_by: Manh Phan" SKIP
+  UJ8N="$(bash "$CHECK" "$R" 2>&1)"; check "UJ8neg-$st" 0 $?
+  nothas "UJ8neg-$st-2" "VIOLATION" "$UJ8N"
+done
+
+echo "UJ9 contract khai signed-off, thieu risk_tier, KHONG co evidence -> VIOLATION"
+uj_repo uj9 '  approvers: ["Manh Phan"]'; R="$UJR/uj9"
+uj_slug "$R" feat-noev 'schema_version: 1
+feature: f
+slug: feat-noev
+surfaces: [api]
+status: signed-off
+approved_by: Manh Phan' SKIP
+# Chot fixture: KHONG duoc co evidence-report.md, neu khong case nay do nhanh
+# evidence chu khong do nhanh contract cua claims_released.
+[ ! -f "$R/_acceptance/feat-noev/evidence-report.md" ]; check UJ9fix 0 $?
+UJ9="$(bash "$CHECK" "$R" 2>&1)"; check UJ9a 1 $?
+hasout UJ9b "VIOLATION [feat-noev]" "$UJ9"
+
+echo "UJ10 scaffold bo hoang -> IM LANG (doi chung duong cua nhom tang hinh)"
+uj_repo uj10 '  approvers: ["Manh Phan"]'; R="$UJR/uj10"
+uj_slug "$R" feat-ok "$(uj_full feat-ok)" "Manh Phan 2026-06-20"
+mkdir -p "$R/_acceptance/feat-empty"
+UJ10="$(bash "$CHECK" "$R" 2>&1)"; check UJ10a 0 $?
+nothas UJ10b "feat-empty" "$UJ10"
+hasout UJ10c "pre-merge-check: clean" "$UJ10"
+
+echo "UJ3 chu ky giu-cho trong commit NGUOI dung nghi thuc -> VAN VIOLATION"
+# require_human_commit KHONG cuu duoc lop nay: no kiem AI commit va commit do
+# cham dong nao, khong kiem noi dung co phai mot cai ten. Fixture phai dung
+# DUNG nghi thuc hai commit, neu khong case do vi luat require_human_commit.
+uj3_repo() { # <case> <chữ ký>
+  uj_repo "$1" '  approvers: ["Manh Phan"]'
+  sed -i.bak 's/^  require_human_commit: false$/  require_human_commit: true/' "$R/_acceptance/config.yaml"
+  rm -f "$R/_acceptance/config.yaml.bak"
+  uj_slug "$R" feat-h "$(uj_full feat-h)" ""
+  git -C "$R" add -A >/dev/null
+  git -c user.email=m@m -c user.name=Manh -C "$R" commit -qm "evidence(feat-h): may viet"
+  sed -i.bak "s/^human_signoff:.*/human_signoff: $2/" "$R/_acceptance/feat-h/evidence-report.md"
+  rm -f "$R/_acceptance/feat-h/evidence-report.md.bak"
+  git -C "$R" add -A >/dev/null
+  git -c user.email=m@m -c user.name=Manh -C "$R" commit -qm "signoff(feat-h): ky"
+}
+# DOI CHUNG DUONG truoc: CUNG nghi thuc hai commit, chu ky THAT -> exit 0.
+# Thieu no, UJ3 chi chung minh "co violation nao do" chu khong phai luat moi.
+uj3_repo uj3ok "Manh Phan 2026-06-20"; UJ3OK="$(bash "$CHECK" "$R" 2>&1)"
+check  UJ3ctrl 0 $?
+hasout UJ3ctrl2 "pre-merge-check: clean" "$UJ3OK"
+uj3_repo uj3 "PENDING — chờ Manh gật"; UJ3="$(bash "$CHECK" "$R" 2>&1)"
+check  UJ3a 1 $?
+hasout UJ3b "is a placeholder, not a signature" "$UJ3"
+
+echo "UJ5 KHONG khai approvers -> luoi den bat, MOT dong NOTE cho ca lan chay"
+for ph in PENDING TBD TODO 'n/a' none unsigned waiting '>' '|' '-' '<name> <date>'; do
+  uj_repo uj5 ''; R="$UJR/uj5"
+  uj_slug "$R" feat-p "$(uj_full feat-p)" "$ph"
+  bash "$CHECK" "$R" >/dev/null 2>&1; check "UJ5-[$ph]" 1 $?
+done
+uj_repo uj5n ''; R="$UJR/uj5n"
+uj_slug "$R" feat-a "$(uj_full feat-a)" "PENDING"
+uj_slug "$R" feat-b "$(uj_full feat-b)" "TBD"
+UJ5N="$(bash "$CHECK" "$R" 2>&1)"
+same   UJ5n2 2 "$(printf '%s\n' "$UJ5N" | grep -c 'is a placeholder, not a signature')"
+# DOI CHUNG DUONG: cung config khong-khai, chu ky that phai VAN qua
+uj_repo uj5c ''; R="$UJR/uj5c"
+uj_slug "$R" feat-ok "$(uj_full feat-ok)" "Manh Phan 2026-06-20"
+UJ5C="$(bash "$CHECK" "$R" 2>&1)"; check UJ5ctrl 0 $?
+hasout UJ5ctrl2 "pre-merge-check: clean" "$UJ5C"
+
+echo "UJ18 chu ky RONG -> thong diep chot RONG song sot, dung thu tu"
+for cfg in '  approvers: ["Manh Phan"]' ''; do
+  uj_repo uj18 "$cfg"; R="$UJR/uj18"
+  uj_slug "$R" feat-e "$(uj_full feat-e)" ""
+  UJ18="$(bash "$CHECK" "$R" 2>&1)"; check "UJ18-exit" 1 $?
+  hasout "UJ18-msg" "verdict PASS but human_signoff is empty (Gate 2 pending)" "$UJ18"
+  nothas "UJ18-order" "is a placeholder, not a signature" "$UJ18"
+  nothas "UJ18-order2" "is a placeholder, not a signature" "$UJ18"
+done
+
+echo "UJ17 luat moi song o MOI che do goi (AC-16)"
+# Luat moi nam trong vong per-slug — vong do chay o MOI che do goi. Neu ai do
+# boc no vao nhanh chi song khi co --base (nhanh cua gap-probe va T1-escape,
+# hai luat loc theo diff PR) thi suite van xanh trong khi consumer goi khong
+# base — dung che do da gay incident #255 — khong duoc bao ve gi.
+uj_repo uj17 '  approvers: ["Manh Phan"]'; R="$UJR/uj17"; UJ17B="$UJ_BASE"
+uj_slug "$R" feat-pending "$(uj_full feat-pending)" "PENDING"
+uj_slug "$R" feat-ghost - "Manh Phan 2026-06-20"
+git -C "$R" add -A >/dev/null
+git -c user.email=t@t -c user.name=t -C "$R" commit -qm change
+uj17_run() { # <nhãn> <cờ...>
+  lbl="$1"; shift
+  UJ17="$(bash "$CHECK" "$R" "$@" 2>&1)"; UJ17ST=$?
+  check  "UJ17-$lbl-exit" 1 "$UJ17ST"
+  hasout "UJ17-$lbl-sig"  "is a placeholder, not a signature" "$UJ17"
+}
+uj17_run base --base "$UJ17B"
+uj17_run nobase
+uj17_run slug --slug feat-pending
+# Nhom tang hinh cung phai song o che do khong-base
+UJ17G="$(bash "$CHECK" "$R" 2>&1)"; hasout UJ17-ghost "no contract.md" "$UJ17G"
+# O AM: --slug tro slug KHAC thi slug do KHONG bi xet (dung thiet ke co loc)
+uj_repo uj17n '  approvers: ["Manh Phan"]'; R="$UJR/uj17n"
+uj_slug "$R" feat-ok "$(uj_full feat-ok)" "Manh Phan 2026-06-20"
+uj_slug "$R" feat-pending "$(uj_full feat-pending)" "PENDING"
+UJ17N="$(bash "$CHECK" "$R" --slug feat-ok 2>&1)"; check UJ17neg 0 $?
+nothas UJ17neg2 "feat-pending" "$UJ17N"
+
+echo "UJ11 enforcement off/warn/strict KHONG ha luat moi (AC-11)"
+# BANG chu khong mot gia tri: mot mode lot la fail-open im lang.
+for mode in off warn strict; do
+  uj_repo "uj11-$mode" '  approvers: ["Manh Phan"]'; R="$UJR/uj11-$mode"
+  printf 'enforcement: %s\n' "$mode" >> "$R/_acceptance/config.yaml"
+  uj_slug "$R" feat-pending "$(uj_full feat-pending)" "PENDING"
+  uj_slug "$R" feat-ghost - "Manh Phan 2026-06-20"
+  UJ11="$(bash "$CHECK" "$R" 2>&1)"; check "UJ11-$mode" 1 $?
+  hasout "UJ11-$mode-sig"   "is a placeholder, not a signature" "$UJ11"
+  hasout "UJ11-$mode-ghost" "no contract.md" "$UJ11"
+done
+
+echo "UJ12 stdout + so luat + idempotent (AC-12)"
+uj_repo uj12 '  approvers: ["Manh Phan"]'; R="$UJR/uj12"; UJ12B="$UJ_BASE"
+uj_slug "$R" feat-pending "$(uj_full feat-pending)" "PENDING"
+git -C "$R" add -A >/dev/null
+git -c user.email=t@t -c user.name=t -C "$R" commit -qm change
+# (a) VIOLATION ra STDOUT — chay 2>/dev/null van thay. CI chi grep stdout.
+UJ12A="$(bash "$CHECK" "$R" --base "$UJ12B" 2>/dev/null)"
+hasout UJ12a "is a placeholder, not a signature" "$UJ12A"
+# (b) so luat KHONG doi o CA HAI che do — luat moi nam TRONG luat per-slug da
+# co so, khong phai luat thu tu.
+hasout UJ12b1 "pre-merge-check: rules ran=3 declared-off=0 expected=3" "$UJ12A"
+UJ12C="$(bash "$CHECK" "$R" 2>&1)"
+hasout UJ12b2 "pre-merge-check: rules ran=1 declared-off=2 expected=3" "$UJ12C"
+# (c) idempotent
+UJ12D="$(bash "$CHECK" "$R" --base "$UJ12B" 2>&1)"
+UJ12E="$(bash "$CHECK" "$R" --base "$UJ12B" 2>&1)"
+same UJ12c "$UJ12D" "$UJ12E"
+
+echo "UJ14 tiem dot bien: vo hieu tung nhanh -> DUNG case tuong ung doi mau"
+# Khong co phep do nay thi moi case UJ tren khong phan biet duoc "bat dung loi"
+# voi "chua bao gio chay" — bat bien assertion-am-tinh-mot-minh cua CLAUDE.md,
+# va chinh la thu da de hinh dang 4 song sot trong ban va cua repo tieu thu.
+#
+# Ban sao PHAI giu layout scripts/ canh lib/: script resolve lib qua ../lib, nen
+# copy vao thu muc phang lam ban "nguyen ven" da lech san va moi ket luan tu no
+# la ket luan ve mot script KHAC. Doi chung UJ14ctrl bat duoc dieu do.
+UJCP="$T/ujcp"; rm -rf "$UJCP"; mkdir -p "$UJCP/scripts"
+cp -R "$ROOT_REAL/lib" "$UJCP/lib"
+UJMUT="$UJCP/scripts/uj-check.sh"
+
+# Fixture do rieng cho tung nhanh
+uj_repo ujm_blk ''; UJM_BLK="$UJR/ujm_blk"
+uj_slug "$UJM_BLK" feat-p "$(uj_full feat-p)" "PENDING"
+uj_repo ujm_noc '  approvers: ["Manh Phan"]'; UJM_NOC="$UJR/ujm_noc"
+uj_slug "$UJM_NOC" feat-ghost - "Manh Phan 2026-06-20"
+uj_repo ujm_fld '  approvers: ["Manh Phan"]'; UJM_FLD="$UJR/ujm_fld"
+uj_slug "$UJM_FLD" feat-notier 'schema_version: 1
+feature: f
+slug: feat-notier
+surfaces: [api]
+status: signed-off
+approved_by: Manh Phan' "Manh Phan 2026-06-20"
+uj_repo ujm_ctr '  approvers: ["Manh Phan"]'; UJM_CTR="$UJR/ujm_ctr"
+uj_slug "$UJM_CTR" feat-noev 'schema_version: 1
+feature: f
+slug: feat-noev
+surfaces: [api]
+status: signed-off
+approved_by: Manh Phan' SKIP
+
+# DOI CHUNG: ban sao KHONG tiem phai DO dung nhu ban goc tren ca 6 fixture.
+# Thieu buoc nay, moi "UJ14-* xanh" duoi day co the chi la ban sao khong chay.
+cp "$CHECK" "$UJMUT"
+for f in "$UJM_BLK" "$UJM_NOC" "$UJM_FLD" "$UJM_CTR"; do
+  # CHOT MA THOAT TRUOC khi goi check: mot $(...) trong danh sach doi so chay
+  # NGAY LUC BUNG va ghi de $?, nen `check "x-$(basename "$f")" 1 $?` do mac
+  # thoat cua basename chu khong phai cua cong. Vong dau da dam dung bay nay.
+  bash "$UJMUT" "$f" >/dev/null 2>&1; ujrc=$?
+  ujlbl="$(basename "$f")"
+  check "UJ14ctrl-$ujlbl" 1 "$ujrc"
+done
+
+# Ban sao phai VAN LA MOT SCRIPT CHAY DUOC. Day KHONG phai chi tiet thua:
+# uj_mut ky vong mutant thoat 0, ma `bash <file rong>` cung thoat 0 — nen mot bo
+# loc hong (awk/sed loi cu phap, ghi ra file rong hoac cut ngang) cho ra XANH
+# GIA o chinh phep do dung de chan xanh gia. `diff` mot minh khong bat duoc:
+# file rong DUNG LA khac ban goc.
+uj_mut_usable() { # <file> — 0 iff con la script dung nghia
+  [ -s "$1" ] || return 1
+  bash -n "$1" 2>/dev/null || return 1
+  [ "$(wc -l < "$1")" -ge "$(( $(wc -l < "$CHECK") - 3 ))" ] || return 1
+  return 0
+}
+uj_mut() { # <nhãn> <bộ lọc sinh bản sao> <fixture phải chuyển XANH>
+  eval "$2" > "$UJMUT" 2>/dev/null
+  # (a) ban sao phai KHAC ban goc — khong khop nghia la nguon da troi
+  if diff -q "$CHECK" "$UJMUT" >/dev/null 2>&1; then
+    echo "     TIEM THAT BAI [$1]: bo loc khong khop, nguon da troi"
+    check "UJ14-$1" 0 1; return
+  fi
+  # (b) ...va van phai chay duoc
+  if ! uj_mut_usable "$UJMUT"; then
+    echo "     TIEM THAT BAI [$1]: ban sao khong con la script chay duoc ($(wc -l < "$UJMUT")/$(wc -l < "$CHECK") dong)"
+    check "UJ14-$1" 0 1; return
+  fi
+  bash "$UJMUT" "$3" >/dev/null 2>&1; check "UJ14-$1" 0 $?
+}
+uj_mut blk 'sed "s|if placeholder_signoff \\\"\$signoff\\\"; then|if false; then|" "$CHECK"' "$UJM_BLK"
+# Hai call-site cua claims_released co van ban Y HET nhau, nen tach bang THU TU
+# xuat hien (awk dem lan khop) chu khong bang noi dung.
+uj_mut noc 'awk "/if claims_released/ { n++; if (n==1) { sub(/if claims_released .*; then/, \"if false; then\") } } { print }" "$CHECK"' "$UJM_NOC"
+uj_mut fld 'awk "/if claims_released/ { n++; if (n==2) { sub(/if claims_released .*; then/, \"if false; then\") } } { print }" "$CHECK"' "$UJM_FLD"
+uj_mut ctr 'sed "s|      implemented\|verified\|signed-off) return 0 ;;|      __khong_bao_gio__) return 0 ;;|" "$CHECK"' "$UJM_CTR"
+
+echo "UJ14g uj_mut_usable phai TU CHOI ban sao khong chay duoc (meta-test cua chinh guard)"
+# Guard nay la thu duy nhat chan xanh-gia cua UJ14. Neu no khong song thi moi
+# "UJ14-* PASS" o tren co the chi la mot file rong thoat 0.
+: > "$T/ujg-empty.sh";                       uj_mut_usable "$T/ujg-empty.sh"; check UJ14g-rong  1 $?
+cp "$CHECK" "$T/ujg-ok.sh";                  uj_mut_usable "$T/ujg-ok.sh";    check UJ14g-nguyen 0 $?
+head -20 "$CHECK" > "$T/ujg-cut.sh";         uj_mut_usable "$T/ujg-cut.sh";   check UJ14g-cut   1 $?
+{ cat "$CHECK"; printf '\nif [ 1\n'; } > "$T/ujg-bad.sh"; uj_mut_usable "$T/ujg-bad.sh"; check UJ14g-cuphap 1 $?
+
+echo "UJ14b tiem CHE DO GOI: boc chot chu ky sau --base -> UJ17-nobase phai do"
+# Chung minh UJ17 la assertion SONG chu khong phai xanh-vinh-vien: neu luat chu
+# ky bi boc vao nhanh chi song khi co --base thi lan chay KHONG base phai lot.
+awk '/^  if placeholder_signoff "\$signoff"; then$/ { print "  if [ -n \"$BASE\" ] && placeholder_signoff \"$signoff\"; then"; next } { print }' "$CHECK" > "$UJMUT"
+if diff -q "$CHECK" "$UJMUT" >/dev/null 2>&1 || ! uj_mut_usable "$UJMUT"; then
+  echo "     TIEM THAT BAI [UJ14b]: bo loc khong khop hoac ban sao hong"; check UJ14b 0 1
+else
+  bash "$UJMUT" "$UJM_BLK" >/dev/null 2>&1; UJ14BST=$?
+  bash "$UJMUT" "$UJM_BLK" --base "$(git -C "$UJM_BLK" rev-parse HEAD)" >/dev/null 2>&1; UJ14BST2=$?
+  check UJ14b-nobase 0 "$UJ14BST"    # khong base -> lot (dung dieu UJ17 chan)
+  check UJ14b-base   1 "$UJ14BST2"   # co base    -> van chan
+fi
+
+echo "UJ16 sinh lai evidence/unjudged-messages.txt roi diff byte-doi-byte"
+# Cung khuon RL10/TE14: dem nhan chi do su DAY DU, khong do tinh XAC THUC.
+# Bang chung cho judge phai duoc SINH LAI trong CHINH lan chay nay, neu khong
+# judge dang cham mot ban chup cu ma khong ai biet no con dung khong.
+UJMSG="$ROOT_REAL/_acceptance/premerge-unjudged-pass/evidence/unjudged-messages.txt"
+UJ16NEW="$(mktemp)"
+{
+  printf '%s\n' '# Thông điệp luật PASS-chưa-ai-phán — SINH bởi tests/scripts/run-tests.sh (UJ16).'
+  printf '%s\n' '# KHÔNG sửa tay: suite sinh lại file này mỗi lần chạy và diff byte-đối-byte.'
+  printf '\n== chữ ký giữ-chỗ ==\n'
+  uj_repo m2 ''; uj_slug "$UJR/m2" feat-p "$(uj_full feat-p)" "TBD"
+  bash "$CHECK" "$UJR/m2" 2>&1 | grep -E '^VIOLATION'
+  printf '\n== slug tàng hình: không có contract.md ==\n'
+  uj_repo m4 '  approvers: ["Manh Phan"]'; uj_slug "$UJR/m4" feat-ghost - "Manh Phan 2026-06-20"
+  bash "$CHECK" "$UJR/m4" 2>&1 | grep -E '^VIOLATION'
+  printf '\n== slug tàng hình: thiếu risk_tier ==\n'
+  uj_repo m5 '  approvers: ["Manh Phan"]'
+  uj_slug "$UJR/m5" feat-notier 'schema_version: 1
+feature: f
+slug: feat-notier
+surfaces: [api]
+status: signed-off
+approved_by: Manh Phan' "Manh Phan 2026-06-20"
+  bash "$CHECK" "$UJR/m5" 2>&1 | grep -E '^VIOLATION'
+} > "$UJ16NEW" 2>&1
+if [ "${UJ16_WRITE:-0}" = "1" ]; then cp "$UJ16NEW" "$UJMSG"; echo "  (UJ16_WRITE=1 — đã ghi lại)"; fi
+if diff -u "$UJMSG" "$UJ16NEW" > "$T/uj16.diff" 2>&1; then
+  check UJ16 0 0
+else
+  echo "     evidence LECH voi thong diep hien tai:"; head -20 "$T/uj16.diff" | sed 's/^/     /'
+  check UJ16 0 1
+fi
+# Chong troi PHAM VI: mat han mot nhanh thi diff van khop neu evidence CUNG
+# sinh thieu — nen ghim tung nhanh co mat trong ban VUA SINH, khong phai trong
+# file da commit.
+UJ16M="$(cat "$UJ16NEW")"
+hasout UJ16b "is a placeholder, not a signature" "$UJ16M"
+hasout UJ16d "no contract.md" "$UJ16M"
+hasout UJ16e "contract has no risk_tier" "$UJ16M"
 
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"

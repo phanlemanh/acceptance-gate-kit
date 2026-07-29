@@ -44,6 +44,9 @@ set -u
 # một typo trong config.yaml giết TOÀN BỘ cổng (signoff, verdict, staleness,
 # bypass, T1-escape) mà CI vẫn xanh. Đúng thứ false-green kit sinh ra để chặn.
 violations=0
+# Bật khi lưới giữ-chỗ nổ ít nhất một lần; dùng để in ĐÚNG MỘT dòng cảnh báo
+# về phạm vi hẹp của chính lưới đó ở cuối lần chạy.
+NARROW_NET_SEEN=""
 
 # CI evidence re-checker shipped alongside this script (needs ../lib/evidence-core.js).
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -282,6 +285,45 @@ front_field() { # <file> <key> — read <key> from the LEADING --- frontmatter b
     | sed -e 's/[[:space:]]*#.*$//' -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//'
 }
 
+claims_released() { # <dir> — 0 iff thư mục TỰ NHẬN đã qua cổng.
+  # Đọc bằng fm_field (BẤT KỲ dòng nào) chứ không front_field (chỉ frontmatter
+  # dẫn đầu) là CỐ Ý: đây là bộ DÒ, doctrine là rộng-khi-dò/chặt-khi-nhận. Một
+  # fence hỏng hoặc lệch không được phép mua lấy sự vô hình — đó đúng là thứ
+  # đang cần bắt. Mọi chốt CHẤP NHẬN bên dưới vẫn dùng front_field như cũ.
+  if [ -f "$1/evidence-report.md" ] \
+     && [ "$(fm_field "$1/evidence-report.md" verdict)" = "PASS" ]; then
+    return 0
+  fi
+  # Nhánh contract là thứ bản vá cục bộ của repo tiêu thụ KHÔNG có, nên nó bỏ
+  # sót ca "khai signed-off mà không có evidence nào".
+  if [ -f "$1/contract.md" ]; then
+    case "$(fm_field "$1/contract.md" status)" in
+      implemented|verified|signed-off) return 0 ;;
+    esac
+  fi
+  return 1
+}
+
+placeholder_signoff() { # <chuỗi> — 0 iff chữ ký khớp một mẫu giữ-chỗ đã biết.
+  # ĐÂY LÀ LUẬT CHỮ KÝ DUY NHẤT còn lại (ngoài chốt rỗng). Không có lớp dự
+  # phòng nào phía sau: `signoff.approvers` KHÔNG được cổng đọc kể từ 1.24.0 —
+  # bốn bản vá cố khớp chữ ký với allowlist đều hỏng theo một hình dạng YAML
+  # hợp lệ mới, nên cả lớp bị gỡ (xem contract của premerge-unjudged-pass).
+  #
+  # PHẠM VI THẬT, đo được, đừng mô tả rộng hơn: khớp TIỀN TỐ với đúng 8 từ khoá
+  # + 4 ký hiệu dưới đây. Mọi thứ khác ĐỀU QUA — kể cả giữ-chỗ tiếng Anh không
+  # nằm trong bảng (`FIXME`, `placeholder`, `LGTM`), lời cộc lốc (`ok`, `yes`,
+  # `x`, `.`), và mọi giữ-chỗ viết bằng ngôn ngữ khác (`chờ Manh gật`).
+  # Khớp theo TIỀN TỐ vì chữ ký thật dẫn đầu bằng tên. LC_ALL=C để `tr` không
+  # chết trên UTF-8.
+  case "$(printf '%s' "$1" | LC_ALL=C tr '[:upper:]' '[:lower:]')" in
+    '>'|'|'|'-') return 0 ;;
+    '<'*) return 0 ;;                       # template chưa điền: "<name> <date>"
+    pending*|tbd*|todo*|n/a*|none|unsigned*|waiting*) return 0 ;;
+  esac
+  return 1
+}
+
 
 # Mọi đường mà luật gap-probe KHÔNG chạy được đều đi qua ĐÂY. Một hàm, một
 # marker, một chỗ quyết định mode — vì kênh "NOTE rồi exit 0" đã giết contract
@@ -447,13 +489,35 @@ for dir in "$ACC"/*/; do
     for s in "${SLUGS[@]}"; do [ "$s" = "$slug" ] && found=1; done
     [ $found -eq 1 ] || continue
   fi
+  # Mỗi `continue` dưới đây loại thư mục khỏi cổng HOÀN TOÀN. Im lặng đó đúng
+  # với scaffold bỏ hoang, nhưng một thư mục TỰ KHAI đã phát hành mà vô hình là
+  # một PASS chưa ai phán cưỡi CI xanh (incident 2026-07-20 #255 ở repo tiêu thụ).
   contract="$dir/contract.md"
-  [ -f "$contract" ] || continue
+  if [ ! -f "$contract" ]; then
+    if claims_released "$dir"; then
+      echo "VIOLATION [$slug]: no contract.md — slug invisible to the gate, yet it claims release (evidence-report.md declares verdict PASS). An unjudged PASS would ride CI green. Add contract.md with frontmatter status + risk_tier so the gate can judge it."
+      violations=$((violations+1))
+    fi
+    continue
+  fi
 
   tier="$(fm_field "$contract" risk_tier)"
   status="$(fm_field "$contract" status)"
 
-  [ -n "$tier" ] || continue
+  # Thiếu field ≠ khai báo → bị flag. Field CÓ mặt nhưng ngoài phạm vi (status
+  # draft/approved, tier ngoài required_for) LÀ khai báo → vẫn im lặng đúng
+  # thiết kế, xử ở hai `case` ngay dưới.
+  if [ -z "$tier" ] || [ -z "$status" ]; then
+    if claims_released "$dir"; then
+      if   [ -z "$tier" ] && [ -z "$status" ]; then uj_missing="status nor risk_tier"
+      elif [ -z "$tier" ];                     then uj_missing="risk_tier"
+      else                                          uj_missing="status"
+      fi
+      echo "VIOLATION [$slug]: contract has no $uj_missing — slug invisible to the gate, yet it claims release. Add the missing frontmatter to $slug/contract.md so the gate can judge it."
+      violations=$((violations+1))
+    fi
+    continue
+  fi
   case "$REQUIRED_FOR" in *"$tier"*) ;; *) continue ;; esac
   case "$status" in implemented|verified|signed-off) ;; *) continue ;; esac
 
@@ -594,6 +658,36 @@ XLACS
   if [ -z "$signoff" ]; then
     echo "VIOLATION [$slug]: verdict PASS but human_signoff is empty (Gate 2 pending)"
     violations=$((violations+1)); continue
+  fi
+  # THỨ TỰ CÓ RĂNG: chốt rỗng ngay trên chạy TRƯỚC. Gộp hai chốt cho gọn sẽ làm
+  # chuỗi rỗng không khớp mẫu lưới-đen nào rồi rơi ra `clean` — hồi quy fail-open
+  # trên một luật đang bảo vệ.
+  #
+  # human_signoff trước 1.24.0 chỉ bị kiểm KHÁC-RỖNG, nên "PENDING — chờ Manh
+  # gật" thoả và cổng in "signed off by PENDING". Đó KHÔNG phải đường tấn công
+  # mà là đường đi bộ bình thường: người duyệt mở file định ký, gõ một dòng giữ
+  # chỗ, commit đúng nghi thức human-fields-only. Và require_human_commit không
+  # cứu được — nó kiểm AI commit và commit đó chạm dòng nào, không kiểm nội
+  # dung có phải một cái tên.
+  #
+  # PHẠM VI ĐÃ RÚT (2026-07-29, sau BỐN lần thử): chốt này CHỈ so chuỗi trên
+  # chính chữ ký — không đọc `signoff.approvers`, không phân tích YAML nào. Bốn
+  # bản vá liên tiếp cố khớp chữ ký với allowlist đều hỏng theo một hình dạng
+  # YAML hợp lệ MỚI (khoá trần / indent 2 / ngang cột / chú thích đuôi / dấu
+  # phẩy trong nháy / flow mapping / space trước dấu hai chấm), ba lần kèm hồi
+  # quy chặn nhầm người duyệt thật. Không gian hình dạng YAML hợp lệ là vô hạn
+  # còn mỗi bản vá chỉ đóng được tập mình nghĩ ra — nên lớp đó bị GỠ HẲN thay
+  # vì vá lần năm. Đánh đổi đã khai: giữ-chỗ viết bằng ngôn ngữ ngoài bảng dưới
+  # vẫn lọt (xem "Đã biết là không bắt được" trong contract).
+  if placeholder_signoff "$signoff"; then
+    echo "VIOLATION [$slug]: human_signoff \"$signoff\" is a placeholder, not a signature — it names no approver, so Gate 2 is still pending. Replace it with the approver's name + date once they actually sign."
+    violations=$((violations+1))
+    # Nói THẲNG giới hạn của chính luật vừa nổ, đúng lúc người vận hành đang
+    # sửa dòng đó. Không có câu này, cách sửa rẻ nhất là đổi "PENDING" thành
+    # một cách nói khác — và cổng sẽ xanh, vì lưới chỉ khớp một bảng tiền tố
+    # ngắn cố định. Một dòng cho cả lần chạy, in ở cuối (xem NARROW_NET_SEEN).
+    NARROW_NET_SEEN=1
+    continue
   fi
   # Human-signoff provenance: the signature is text in an AI-writable file —
   # the git history of the commit that INTRODUCED it is the only
@@ -806,6 +900,10 @@ if [ "$LEDGER_ENABLED" -eq 1 ]; then
     echo "NOTE: VIOLATION [ledger] là lỗi NỘI TẠI của cổng pre-merge (một khối luật bị trượt qua hoặc sổ lệch) — KHÔNG phải lỗi trong thay đổi của bạn. Bước kế tiếp: báo maintainer của kit kèm TOÀN BỘ output lần chạy này; đừng sửa feature của bạn để né nó."
     exit 2
   fi
+fi
+
+if [ -n "$NARROW_NET_SEEN" ]; then
+  echo "NOTE: the placeholder net that just fired matches a SHORT FIXED prefix list — pending, tbd, todo, n/a, none, unsigned, waiting, a bare > | or -, and an unfilled <...> template. NOTHING else. A holding note phrased any other way (\"FIXME\", \"LGTM\", \"ok\", or one written in another language) passes this gate. Rewording the line is NOT a fix; put a real approver name + date there."
 fi
 
 if [ "$violations" -gt 0 ]; then

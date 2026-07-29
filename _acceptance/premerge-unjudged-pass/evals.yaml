@@ -1,0 +1,92 @@
+schema_version: 1
+feature_slug: premerge-unjudged-pass
+evals:
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case UJ3: require_human_commit true + chữ ký giữ-chỗ nằm trong commit người CHỈ chạm dòng human_signoff → VẪN VIOLATION lưới giữ-chỗ + exit != 0. Kèm đối chứng UJ3ctrl: cùng nghi thức hai commit nhưng chữ ký THẬT → exit 0, chứng minh fixture đã thoả require_human_commit chứ không đỏ vì nó"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case UJ5: 11 biến thể giữ-chỗ tiếng Anh (PENDING/TBD/TODO/n-a/none/unsigned/waiting/'>'/'|'/'-'/'<name> <date>') → mỗi biến thể exit != 0 + dòng 'is a placeholder, not a signature'. UJ5n: hai slug cùng giữ-chỗ → đếm dòng placeholder == 2. Đối chứng UJ5ctrl: chữ ký thật → exit 0, clean"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case UJ6: thư mục có evidence-report.md verdict PASS, KHÔNG có contract.md → exit != 0 + VIOLATION nêu slug vô hình với cổng trong khi evidence khai PASS. Ghim rằng slug đó CÓ xuất hiện trong output (hôm nay nó không xuất hiện dòng nào)"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case UJ7: contract.md khai status signed-off + evidence PASS nhưng THIẾU risk_tier → exit != 0 + VIOLATION có chứa chuỗi 'risk_tier' (nêu đích danh field thiếu, không phải thông điệp chung chung)"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case UJ8: contract.md có risk_tier + evidence PASS nhưng THIẾU status → exit != 0 + VIOLATION có chứa chuỗi 'status'. Ô ÂM dưới-ngưỡng UJ8neg: CÙNG fixture nhưng status='draft' rồi status='approved' → KHÔNG VIOLATION, exit 0 — chặn cài đặt bắt oan mọi giá trị status lạ, thứ sẽ làm cổng đỏ trên mọi workspace đang làm dở"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case UJ9: contract.md khai status signed-off, THIẾU risk_tier, KHÔNG có evidence-report.md → exit != 0 + VIOLATION. Fixture assert phụ: thư mục thật sự không chứa evidence-report.md (nếu có, case đang đo nhánh evidence chứ không đo nhánh contract của claims_released)"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case UJ10a (không contract, không evidence), UJ10b (contract status draft), UJ10c (contract status approved) → cả ba exit 0 + 'pre-merge-check: clean' + stdout KHÔNG chứa tên slug đó. Đối chứng dương của nhóm tàng hình: im lặng với thứ chưa tự nhận đã qua cổng là ĐÚNG"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E11
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case UJ11: fixture đỏ (chữ ký giữ-chỗ + slug tàng hình) dưới enforcement off / warn / strict → cả 3 lượt exit != 0 + giữ nguyên CẢ HAI dòng VIOLATION. Bảng, không phải 1 giá trị: một mode lọt là fail-open im lặng"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E12
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case UJ12a: chạy fixture đỏ với 2>/dev/null → VẪN thấy dòng VIOLATION (stdout). UJ12b: chạy CÓ --base → output có đúng 'pre-merge-check: rules ran=3 declared-off=0 expected=3'; chạy KHÔNG --base → 'ran=1 declared-off=2 expected=3'. Cả hai đều là hành vi hôm nay, ghim cả hai để luật mới không lén thành luật thứ tư ở một trong hai chế độ. UJ12c: chạy hai lần trên cùng cây → hai output byte-đối-byte bằng nhau"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E13
+    criterion: AC-13
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P57 trên CẢ HAI harness: file chứa marker cố định '# approvers: informational —' kèm câu nói rõ khoá KHÔNG được cưỡng chế VÀ chữ ký vẫn bị kiểm bằng lưới giữ-chỗ. Ghim marker chứ không chỉ đo vắng-mặt: xoá dòng cũ mà không viết gì thay thế vẫn xanh"
+    paths: [commands/acceptance-init.md, codex/**, tests/plugins/**]
+  - id: E14
+    criterion: AC-14
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case UJ14: 4 nhánh (lưới giữ-chỗ / contract-missing / field-missing / nhánh contract của claims_released) bị vô hiệu từng cái trong bản sao → fixture tương ứng chuyển XANH; 4 đối chứng UJ14ctrl bản sao KHÔNG tiêm phải ĐỎ trước; UJ14g meta-test cho uj_mut_usable; UJ14b tiêm chế-độ-gọi chứng minh UJ17 là assertion sống"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E17
+    criterion: AC-16
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case UJ17: fixture đỏ (chữ ký giữ-chỗ) và UJ6 (tàng hình) × ba lời gọi {--base <ref>, KHÔNG --base, --slug <chính slug đỏ>} = 6 lượt, tất cả exit != 0 và in CÙNG dòng VIOLATION. Ô âm UJ17neg: --slug <slug khác> → slug đỏ không bị xét, exit 0. Đỏ nếu ai đó bọc luật mới vào nhánh chỉ sống khi có --base"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E18
+    criterion: AC-17
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case UJ18: human_signoff RỖNG → exit != 0 VÀ dòng nổ nguyên văn 'verdict PASS but human_signoff is empty (Gate 2 pending)' (chuỗi chụp từ 1.23.0 trước khi sửa), KHÔNG phải thông điệp lưới giữ-chỗ. Ghim cả nội dung lẫn THỨ TỰ: chốt rỗng chạy TRƯỚC"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E15
+    criterion: AC-15
+    executor: judgment
+    question: "Đọc các dòng VIOLATION và NOTE mà luật mới sinh ra. Một người vận hành repo tiêu thụ, chưa từng đọc kit, có biết được ba điều không: cổng phản đối CÁI GÌ, VÌ SAO đó không phải hồ sơ hợp lệ, và HÀNH ĐỘNG tiếp theo là gì (ký thật / thêm field vào contract)?"
+    inputs: [_acceptance/premerge-unjudged-pass/evidence/unjudged-messages.txt]
+  - id: E16
+    criterion: AC-15
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case UJ16: suite tự sinh lại evidence/unjudged-messages.txt từ 4 fixture trong CÙNG lần chạy rồi diff byte-đối-byte; UJ16b/d/e ghim từng nhánh có mặt trong bản VỪA SINH"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/**]

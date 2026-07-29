@@ -61,7 +61,14 @@ risk_tiers:
     - "<from 2d>"
 signoff:
   required_for: [T2, T3]     # tiers that pre-merge-check requires signoff for
-  approvers: ["<from 2f>"]   # informational in v1 (not yet machine-enforced)
+  approvers: ["<from 2f>"]   # approvers: informational — this key is NOT enforced
+                             # by the gate (four attempts to parse it from YAML in
+                             # shell all broke on a new valid-YAML shape; the class
+                             # was removed rather than patched a fifth time).
+                             # Signatures ARE still checked: human_signoff must not
+                             # be empty and must not be an English placeholder
+                             # (PENDING/TBD/TODO/n/a/none/unsigned/waiting/<name>).
+                             # A holding note in another language still passes.
   require_human_commit: true # Gate-2 signature must land in its own human-fields-only
                              # commit (pre-merge checks git history; the reviewer commits
                              # the signoff line themselves). Safe default for a fresh repo.

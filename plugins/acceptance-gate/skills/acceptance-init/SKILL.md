@@ -69,7 +69,11 @@ risk_tiers:
     - "src/auth/**"
 signoff:
   required_for: [T2, T3]
-  approvers: ["<approved human>"]
+  approvers: ["<approved human>"]  # approvers: informational — NOT enforced by the
+                                   # gate. Signatures are still checked: human_signoff
+                                   # must not be empty and must not be an English
+                                   # placeholder (PENDING/TBD/TODO/...). A holding
+                                   # note in another language still passes.
   require_human_commit: true
 dev_server:
   start: "<discovered-or-approved command>"

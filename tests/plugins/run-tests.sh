@@ -1146,6 +1146,26 @@ else
   fail "P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)"
 fi
 
+run "P57 acceptance-init noi DUNG muc cuong che cua approvers (CA HAI harness)" \
+  python3 - "$ROOT" <<'PY'
+import sys, pathlib
+root = pathlib.Path(sys.argv[1])
+targets = [
+    root / "commands" / "acceptance-init.md",
+    root / "codex" / "acceptance-gate" / "skills" / "acceptance-init" / "SKILL.md",
+]
+present = [p for p in targets if p.exists()]
+assert len(present) == 2, f"thieu ban acceptance-init: {[str(p) for p in targets if not p.exists()]}"
+for p in present:
+    t = p.read_text(encoding="utf-8")
+    # Ghim MARKER chu khong chi do vang-mat: xoa dong cu ma khong viet gi thay
+    # the van xanh, va tai lieu cam ve approvers de nguoi van hanh tu suy ra
+    # muc cuong che.
+    assert "# approvers: informational —" in t, f"{p.name}: thieu marker muc cuong che"
+    assert "NOT enforced" in t, f"{p.name}: khong noi ro khoa KHONG duoc cuong che"
+    assert "placeholder" in t, f"{p.name}: khong noi chu ky VAN bi kiem bang luoi giu-cho"
+PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

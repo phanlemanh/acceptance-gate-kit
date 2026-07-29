@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict   # the `enforcement` value from _acceptance/config.yaml (default strict). CI pre-merge BLOCKS off; warn only warns.
 bypass_used: false              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
-verified_commit: 1efcbe7cbc1eba4e2c28c3803f899db03b09f563   # pins the evidence to the exact tree verified. CI pre-merge BLOCKS when non-gate files changed after it (stale evidence — re-verify). Omit ONLY if not a git repo; hook rejects non-SHA values.
+verified_commit: ee6b72b91279a0c1d3c483b17ae76ec0afd32d7e
 # bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -244,3 +244,23 @@ Round 6: chạy ở phiên mới — toàn bộ eval PASS, judge panel E11 PASS 
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter + `time_human_minutes.gate2` in contract
+
+## Re-pin machine-only — 2026-07-29
+
+`verified_commit` được cập nhật lên `ee6b72b` **mà KHÔNG chạy lại vòng verify
+đầy đủ**. Lý do và mức phủ, để người đọc sau không hiểu rộng hơn:
+
+- Feature `premerge-unjudged-pass` chạm `scripts/pre-merge-check.sh` và
+  `tests/scripts/run-tests.sh`, làm evidence của slug này stale theo luật
+  staleness. Đây là **staleness coupling** ở nội bộ kit: mọi thay đổi lõi cổng
+  làm hết hạn evidence của mọi feature cũ, không liên quan tới chất lượng thay
+  đổi. Người duyệt chọn re-pin machine-only thay vì 4 vòng S4 (đúng nguyên tắc
+  đã duyệt trong kế hoạch loop-economics, mục `s4-stop-rule`).
+- **ĐÃ chạy lại:** toàn bộ eval MÁY của slug này. Machine lane ở `ee6b72b` do 5
+  agent tươi chạy, sha nhất quán cả 5, tất cả exit 0 —
+  `tests/scripts/run-tests.sh` (588 case), `tests/plugins/run-tests.sh`,
+  `tests/workflows/run-tests.sh`, `tests/hooks/run-tests.sh`,
+  `sync-plugin-packages.sh --check`.
+- **KHÔNG chạy lại:** eval `judgment` và vòng review/refute. `human_override` +
+  `human_signoff` sẵn có giữ nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là đã
+  phán về mã mới của cổng.
