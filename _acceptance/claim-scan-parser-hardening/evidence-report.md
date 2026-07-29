@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ea0c4d2b7f22b8478ee6174db89afc8a15701bd3
+verified_commit: 9d01b830e0db240097122b5849fdb07732399fac
 human_signoff: Manh Phan 2026-07-29
 ---
 
@@ -157,3 +157,17 @@ Round 2: baseline không đo lại (P2 — evals.yaml không đổi từ lần b
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter + `time_human_minutes.gate2` in contract
+
+### Re-pin — 2026-07-29, do feature findings-section-boundary
+
+`verified_commit` lên `9d01b83`. Nguyên nhân stale: feature
+findings-section-boundary thêm `lib/md-section.js` (luật ranh giới
+per-section), gỡ bản sao `section()` khỏi gate-card + evidence-page, wire
+runner `tests/scripts` chạy mọi `*.test.mjs`, bump acceptance-gate 1.25.0.
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY — machine lane ở `9d01b83` do 7 agent
+  tươi chạy (mỗi slug một agent), sha nhất quán cả 7, tất cả exit 0
+  (590 scripts · 51 hooks · plugins pass · workflows pass · mirror in sync).
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
+  `human_override` giữ nguyên; chữ ký cũ KHÔNG được hiểu là đã phán về
+  luật ranh giới mới.
