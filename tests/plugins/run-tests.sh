@@ -344,6 +344,30 @@ rep = (skills / "acceptance-report/SKILL.md").read_text()
 assert "baseline_minutes" in rep and "time_human_minutes" in rep and "Read-only" in rep
 PY
 
+
+echo "P58 smoke ban MIRROR: gate-card cua plugin chay that (khong chi khong-drift)"
+P58T="$(mktemp -d)"; mkdir -p "$P58T/_acceptance/fx"
+python3 - "$P58T" <<'P58PY'
+import sys, pathlib
+d = pathlib.Path(sys.argv[1]) / "_acceptance" / "fx"
+acs = []
+for i in range(1, 6):
+    if i == 3: acs.append("### nhom phu\n")
+    acs.append(f"- AC-{i}: Given dk {i}, When act {i}, Then kq {i}.")
+(d / "contract.md").write_text('---\nschema_version: 2\nfeature: "fx"\nslug: fx\nrisk_tier: T2\nsurfaces: [cli]\nstatus: draft\n---\n\n# c\n\n## Criteria\n\n' + "\n".join(acs) + '\n\n## Coverage\n\n- x\n\n## Out of scope\n\n- y\n- z\n')
+P58PY
+P58_OUT="$(node "$ROOT/plugins/acceptance-gate/scripts/gate-card.js" --root "$P58T" --slug fx --extract 2>&1)"; P58_RC=$?
+P58_N="$(printf '%s' "$P58_OUT" | python3 -c "import json,sys
+try:
+    d=json.load(sys.stdin); print(len(d.get('will_do',[]))+len(d.get('wont_do',[])))
+except Exception: print(-1)")"
+if [ "$P58_RC" -eq 0 ] && [ "$P58_N" = "5" ]; then
+  pass "P58 ban mirror chay that: exit 0 + doc du 5 AC"
+else
+  fail "P58 ban mirror: rc=$P58_RC ac=$P58_N (mong rc=0 ac=5)"
+fi
+rm -rf "$P58T"
+
 run "P30 Claude decision commands ship and keep their invariants" \
   python3 - "$ROOT/commands" <<'PY'
 import sys

@@ -31,6 +31,9 @@ const fs = require('fs');
 const path = require('path');
 const gapProbe = require('../lib/gap-probe.js');
 const outOfContract = require('../lib/out-of-contract.js');
+// Ranh giới section: luật PER-SECTION nằm ở bảng marker trong lib/md-section.js
+// (Findings=any-heading chặn hàng ma; văn xuôi=same-or-higher giữ AC sau sub-heading).
+const { section } = require('../lib/md-section.js');
 
 const a = process.argv.slice(2);
 const opt = n => { const i = a.indexOf(n); return i >= 0 ? a[i + 1] : null; };
@@ -88,13 +91,6 @@ if (plainPath && fs.existsSync(plainPath)) {
 function frontmatter(t) { const m = t.match(/^---\r?\n([\s\S]*?)\r?\n---/); const o = {}; if (m) for (const l of m[1].split('\n')) { const mm = l.match(/^(\w+)\s*:\s*(.*)$/); if (mm) o[mm[1]] = mm[2].trim(); } return o; }
 const clean = s => String(s == null ? '' : s).replace(/["']/g, '').replace(/\s*#.*$/, '').trim(); // strip quotes + trailing # comment (matches hook tolerance)
 const unquote = s => String(s == null ? '' : s).replace(/^["']|["']$/g, '').trim();
-// section: lines under an ATX heading `## <h>`; reset only on another level-2+ heading
-// (so a leading "# guidance" comment inside a section is content, never a boundary).
-// A section runs until the next heading at the SAME level or higher — a deeper
-// sub-heading (`### nhóm phụ` inside `## Criteria`) is content, not a boundary.
-// Exiting on any heading dropped every AC after the first sub-heading from the
-// decision card: a human approving Gate 1 on a truncated card is false-green.
-function section(t, h) { const out = []; let inS = false, lvl = 0; const re = new RegExp('^#{2,6}\\s+' + h + '\\b', 'i'); for (const l of t.split('\n')) { const m = l.match(/^(#{2,6})\s/); if (m) { if (re.test(l)) { inS = true; lvl = m[1].length; continue; } if (inS && m[1].length <= lvl) { inS = false; continue; } } if (inS) out.push(l); } return out; }
 const cleanLines = arr => arr.filter(l => l.trim() && !/^\s*#/.test(l)); // drop blanks + markdown-comment lines
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
