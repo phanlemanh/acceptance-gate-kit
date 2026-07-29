@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ee6b72b91279a0c1d3c483b17ae76ec0afd32d7e
+verified_commit: 29356bb87fd7442779a5b2d14e31b39abb50321a
 # bypass_ack:
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -488,3 +488,20 @@ on E10 at Gate 2. Verified commit this round:
 - **KHÔNG chạy lại:** eval `judgment` và vòng review/refute. `human_override` +
   `human_signoff` sẵn có giữ nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là đã
   phán về mã mới của cổng.
+
+### Re-pin lần 2 — 2026-07-29, do đổi `description` của manifest
+
+`verified_commit` lên `29356bb`. Nguyên nhân stale lần này **không đổi hành vi
+nào của cổng**: commit `29356bb` chỉ thêm một câu release-notes vào trường
+`description` của 3 manifest. Không code path nào đọc trường đó.
+
+Luật staleness lọc theo **đường dẫn**, và `plugin.json` cố ý KHÔNG nằm trong
+`t1_skip_globs` (manifest khai được `hooks`, nên miễn trừ trọn file là mở lỗ —
+đề xuất đó đã bị từ chối, hồ sơ ở `.out-of-scope/`). Nên nó không phân biệt được
+"đổi lõi cổng" với "sửa một dòng quảng cáo".
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY, machine lane ở `29356bb` do 5 agent tươi
+  chạy, sha nhất quán cả 5, tất cả exit 0 (588 case scripts · 51 hooks ·
+  plugins pass · workflows pass · mirror in sync).
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký + `human_override`
+  sẵn có giữ nguyên hiệu lực.
