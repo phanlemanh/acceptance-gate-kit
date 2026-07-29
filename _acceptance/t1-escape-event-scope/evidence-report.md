@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 2e2eaf7e894d5065478e6c24d4c748a8f4d1205f
+verified_commit: ee6b72b91279a0c1d3c483b17ae76ec0afd32d7e
 human_signoff: Manh Phan 2026-07-28
 ---
 
@@ -661,3 +661,23 @@ volume and the two high-severity items (an unguarded write of
 `result.report`/`result.findings` that can blank a prior round's evidence on
 BLOCKED, and a card renderer that silently drops malformed out-of-contract
 items with no flag).
+
+## Re-pin machine-only — 2026-07-29
+
+`verified_commit` được cập nhật lên `ee6b72b` **mà KHÔNG chạy lại vòng verify
+đầy đủ**. Lý do và mức phủ, để người đọc sau không hiểu rộng hơn:
+
+- Feature `premerge-unjudged-pass` chạm `scripts/pre-merge-check.sh` và
+  `tests/scripts/run-tests.sh`, làm evidence của slug này stale theo luật
+  staleness. Đây là **staleness coupling** ở nội bộ kit: mọi thay đổi lõi cổng
+  làm hết hạn evidence của mọi feature cũ, không liên quan tới chất lượng thay
+  đổi. Người duyệt chọn re-pin machine-only thay vì 4 vòng S4 (đúng nguyên tắc
+  đã duyệt trong kế hoạch loop-economics, mục `s4-stop-rule`).
+- **ĐÃ chạy lại:** toàn bộ eval MÁY của slug này. Machine lane ở `ee6b72b` do 5
+  agent tươi chạy, sha nhất quán cả 5, tất cả exit 0 —
+  `tests/scripts/run-tests.sh` (588 case), `tests/plugins/run-tests.sh`,
+  `tests/workflows/run-tests.sh`, `tests/hooks/run-tests.sh`,
+  `sync-plugin-packages.sh --check`.
+- **KHÔNG chạy lại:** eval `judgment` và vòng review/refute. `human_override` +
+  `human_signoff` sẵn có giữ nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là đã
+  phán về mã mới của cổng.
