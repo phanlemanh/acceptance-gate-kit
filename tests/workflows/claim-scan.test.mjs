@@ -111,5 +111,42 @@ const row = (sev, tag) => ({ sev, artifact: 'evals', gap: `gap-${tag}`, fail: `f
   rmSync(root, { recursive: true, force: true });
 }
 
+// ---- CS3: exclude-self có đối chứng dương ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'cs3-'));
+  mkWorkspace(root, 'self-x', { ledger: [ledgerLine('d-20260720T110000Z-30', 'fix')] });
+  mkWorkspace(root, 'other-y', { ledger: [ledgerLine('d-20260720T110001Z-31', 'fix')] });
+  const asX = JSON.parse(run(['--root', root, '--slug', 'self-x', '--json']).out).claims.map(c => c.id);
+  const asZ = JSON.parse(run(['--root', root, '--slug', 'nobody', '--json']).out).claims.map(c => c.id);
+  check('CS3 --slug self-x: claim của self-x VẮNG, của other-y có', () =>
+    { assert.ok(!asX.includes('d-20260720T110000Z-30')); assert.ok(asX.includes('d-20260720T110001Z-31')); });
+  check('CS3 đối chứng dương: --slug khác thì claim self-x CÓ mặt', () =>
+    assert.ok(asZ.includes('d-20260720T110000Z-30')));
+  rmSync(root, { recursive: true, force: true });
+}
+
+// ---- CS5: sort sev→recency, cap 10, truncate 250, không trùng id ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'cs5-'));
+  // 12 ledger claim at khác nhau + 2 finding P0/P1 → 14 ứng viên
+  const led = Array.from({ length: 12 }, (_, i) =>
+    ledgerLine(`d-20260701T0000${String(i).padStart(2, '0')}Z-5${i}`, 'fix',
+      { at: `2026-07-0${(i % 9) + 1}T00:00:0${i % 10}Z`, decision: 'x'.repeat(300) }));
+  mkWorkspace(root, 'many', { ledger: led });
+  mkWorkspace(root, 'sev', { probe: gapProbe('2026-07-28T00:00:00Z', 'findings',
+    [row('P0', 's0'), row('P1', 's1')]) });
+  const claims = JSON.parse(run(['--root', root, '--slug', 'z', '--json']).out).claims;
+  check('CS5 cap đúng 10 (ứng viên 14 — claim 11+ bị suppress)', () => assert.equal(claims.length, 10));
+  check('CS5 sort: P0 rồi P1 đứng đầu, phần còn lại recency giảm dần', () => {
+    assert.equal(claims[0].id, 'sev#F1'); assert.equal(claims[1].id, 'sev#F2');
+    const rest = claims.slice(2).map(c => c.at);
+    assert.deepEqual(rest, [...rest].sort().reverse()); });
+  check('CS5 truncate 250 + "…" và không id trùng', () => {
+    const long = claims.find(c => c.claim.startsWith('xxx'));
+    assert.equal(long.claim.length, 251); assert.ok(long.claim.endsWith('…'));
+    assert.equal(new Set(claims.map(c => c.id)).size, claims.length); });
+  rmSync(root, { recursive: true, force: true });
+}
+
 console.log(`\nResults: ${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
