@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: premerge-unjudged-pass
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: ee6b72b91279a0c1d3c483b17ae76ec0afd32d7e
-human_signoff:
+human_signoff: Manh Phan 2026-07-29
 ---
 
 # Evidence Report: premerge-unjudged-pass
@@ -228,7 +228,7 @@ human_signoff:
   judged_by: judge panel (fresh context) — domain-correctness, operational-feasibility, spec-alignment
   verdict: PASS
   rationale: All three lenses agree every VIOLATION/NOTE line names the rejected object with its real value (e.g. human_signoff "TBD"/"PENDING — chờ Manh gật", signoff.approvers resolving to no name, a slug missing contract.md/risk_tier), states the specific reason it is invalid, and gives an immediately actionable next step (replace with a real name+date, write signoff.approvers as a list or remove the key, add contract.md with status+risk_tier). A first-time operator could act on these lines without consulting further docs; the one NOTE about the placeholder-net fallback is contextual, not a substitute for the action already given on the preceding VIOLATION line.
-  human_override:
+  human_override: Manh Phan 2026-07-29
 
 - eval: E16
   run_id: minted-premerge-unjudged-pass-E16-r2

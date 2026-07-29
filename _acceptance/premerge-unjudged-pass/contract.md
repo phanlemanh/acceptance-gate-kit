@@ -4,7 +4,7 @@ feature: Chặn PASS chưa ai phán ở biên merge (chữ ký giữ-chỗ + slu
 slug: premerge-unjudged-pass
 risk_tier: T3
 surfaces: [cli]
-status: implemented
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-07-28T12:45:00Z
 time_human_minutes:
