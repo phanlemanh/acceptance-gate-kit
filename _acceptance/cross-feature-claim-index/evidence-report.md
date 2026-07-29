@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: f57236a28593e734d1a5949b6b23e416a4c7b973
+verified_commit: 69e797ab3e97da926c481a1c4c541a551ea44dd3
 # bypass_ack:
 human_signoff: Manh Phan 2026-07-29
 ---
@@ -198,3 +198,18 @@ Round 3: theo lệnh human tại Gate 2 (decisions.jsonl d-20260729T073800Z-1652
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter + `time_human_minutes.gate2` in contract
+
+### Re-pin lần 1 — 2026-07-29, do feature claim-scan-parser-hardening
+
+`verified_commit` lên `69e797a`. Nguyên nhân stale: feature
+claim-scan-parser-hardening sửa `feature-loop/scripts/claim-scan.mjs` (đóng
+lớp câm-lặng parser), thêm case test trong `tests/workflows/`, bump manifest
+1.18.1 + description. Suite workflows/plugins đổi thật nên bằng chứng suite
+chạy lại là đúng việc.
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY — machine lane ở `69e797a` do 6 agent
+  tươi chạy (mỗi slug một agent), sha nhất quán cả 6, tất cả exit 0
+  (588 scripts · 51 hooks · plugins pass · workflows pass · mirror in sync).
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
+  `human_override` giữ nguyên; chữ ký cũ KHÔNG được hiểu là đã phán về
+  claim-scan 1.18.1.

@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict   # the `enforcement` value from _acceptance/config.yaml (default strict). CI pre-merge BLOCKS off; warn only warns.
 bypass_used: false              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
-verified_commit: 58b613d5befdde68ff0fdefeba10b641ad23e864
+verified_commit: 69e797ab3e97da926c481a1c4c541a551ea44dd3
 # bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -316,3 +316,18 @@ plugins đổi thật nên bằng chứng suite phải chạy lại.
 - **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
   `human_override` sẵn có giữ nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là
   đã phán về claim-scan hay feature-loop 1.18.0.
+
+### Re-pin lần 5 — 2026-07-29, do feature claim-scan-parser-hardening
+
+`verified_commit` lên `69e797a`. Nguyên nhân stale: feature
+claim-scan-parser-hardening sửa `feature-loop/scripts/claim-scan.mjs` (đóng
+lớp câm-lặng parser), thêm case test trong `tests/workflows/`, bump manifest
+1.18.1 + description. Suite workflows/plugins đổi thật nên bằng chứng suite
+chạy lại là đúng việc.
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY — machine lane ở `69e797a` do 6 agent
+  tươi chạy (mỗi slug một agent), sha nhất quán cả 6, tất cả exit 0
+  (588 scripts · 51 hooks · plugins pass · workflows pass · mirror in sync).
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
+  `human_override` giữ nguyên; chữ ký cũ KHÔNG được hiểu là đã phán về
+  claim-scan 1.18.1.
