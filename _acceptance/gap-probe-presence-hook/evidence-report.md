@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 58b613d5befdde68ff0fdefeba10b641ad23e864
+verified_commit: 3a80983243cdd1d8403eacc741baec7aa7aebc63
 # bypass_ack:
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -336,3 +336,30 @@ plugins đổi thật nên bằng chứng suite phải chạy lại.
 - **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
   `human_override` sẵn có giữ nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là
   đã phán về claim-scan hay feature-loop 1.18.0.
+
+### Re-pin lần 5 — 2026-07-30, do vá AC-regex của gate-card
+
+`verified_commit` lên `3a80983`. Nguyên nhân stale: `scripts/gate-card.js` nới
+`AC_LINE` + tách `parseAC()` — dòng AC dạng `- **AC-N (nhãn):**`,
+`- **AC-N** (judgment)`, `- AC-N (nhãn):` trước đây bị bỏ CÂM, nên thẻ Cổng 1
+hiện thiếu tiêu chí hoặc rỗng hẳn.
+
+**KHÁC lần 2-4: lần này staleness bắt ĐÚNG HOÀN TOÀN.** Không được viện "không
+đổi hành vi cổng" như hai lần trước — thay đổi này đổi CHÍNH cái thẻ Cổng 1
+render ra. Đo tính chất trên 176 contract (2 repo): 916 → 1246 dòng AC đọc
+được; **0 dòng mất**, **0 lật cờ judgment** trên dòng cả hai parser cùng đọc
+được, **0 false-positive**.
+
+**Slug này có eval ĐỤNG THẲNG gate-card** (E20 paths `scripts/gate-card.js`,
+E21 chạy thẻ Cổng 1 end-to-end): case P38a/P38b và GPM21/GPM20g đã chạy lại ở
+`3a80983` và PASS. Thẻ Cổng 1 của chính slug này: 19 AC trước và sau — không đổi.
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY ở `3a80983` — 6 suite EXIT=0
+  (588 scripts · 51 hooks · plugins pass · workflows pass · skills pass · codex
+  pass) + `sync-plugin-packages.sh --check` EXIT=0 (mirror in sync).
+  **Provenance YẾU HƠN lần 2-4:** chạy MỘT lượt trong một phiên, KHÔNG phải 5
+  agent tươi độc lập mỗi slug. Sha nhất quán vì cùng một cây, không phải vì
+  năm lần đo độc lập đồng ý với nhau — đọc con số này với đúng trọng lượng đó.
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
+  `human_override` sẵn có giữ nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là
+  đã phán về AC-regex mới của gate-card.

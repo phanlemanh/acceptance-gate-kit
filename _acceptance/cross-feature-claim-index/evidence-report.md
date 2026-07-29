@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: f57236a28593e734d1a5949b6b23e416a4c7b973
+verified_commit: 3a80983243cdd1d8403eacc741baec7aa7aebc63
 # bypass_ack:
 human_signoff: Manh Phan 2026-07-29
 ---
@@ -198,3 +198,39 @@ Round 3: theo lệnh human tại Gate 2 (decisions.jsonl d-20260729T073800Z-1652
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter + `time_human_minutes.gate2` in contract
+
+## Re-pin machine-only — 2026-07-30
+
+### Re-pin lần 1 — 2026-07-30, do vá AC-regex của gate-card
+
+`verified_commit` lên `3a80983`. Nguyên nhân stale: `scripts/gate-card.js` nới
+`AC_LINE` + tách `parseAC()` — dòng AC dạng `- **AC-N (nhãn):**`,
+`- **AC-N** (judgment)`, `- AC-N (nhãn):` trước đây bị bỏ CÂM, nên thẻ Cổng 1
+hiện thiếu tiêu chí hoặc rỗng hẳn.
+
+**KHÁC lần 2-4: lần này staleness bắt ĐÚNG HOÀN TOÀN.** Không được viện "không
+đổi hành vi cổng" như hai lần trước — thay đổi này đổi CHÍNH cái thẻ Cổng 1
+render ra. Đo tính chất trên 176 contract (2 repo): 916 → 1246 dòng AC đọc
+được; **0 dòng mất**, **0 lật cờ judgment** trên dòng cả hai parser cùng đọc
+được, **0 false-positive**.
+
+Slug này KHÔNG có eval nào đụng `scripts/gate-card.js`, nhưng nó là ca DUY
+NHẤT trong repo mà bản vá ĐỔI thẻ của chính nó: `contract.md` dùng heading
+`## Acceptance criteria` ⇒ thẻ Cổng 1 từng hiện **0 AC**, và Cổng 2 đã được
+ký ngày 2026-07-29 trong tình trạng đó. Sau khi sửa heading + vá regex: đọc ra
+đủ 12 AC (10 will/wont + AC-10, AC-11 vào khối judgment).
+
+**Ghi để không tự lừa:** re-pin này KHÔNG hồi tố được việc chữ ký Cổng 1 của
+slug này đã đặt trên một thẻ rỗng. Nó chỉ ghi nhận từ `3a80983` trở đi thẻ
+đúng. Nếu muốn chữ ký dựa trên tiêu chí thật thì phải xem lại thẻ, không phải
+re-pin.
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY ở `3a80983` — 6 suite EXIT=0
+  (588 scripts · 51 hooks · plugins pass · workflows pass · skills pass · codex
+  pass) + `sync-plugin-packages.sh --check` EXIT=0 (mirror in sync).
+  **Provenance YẾU HƠN lần 2-4:** chạy MỘT lượt trong một phiên, KHÔNG phải 5
+  agent tươi độc lập mỗi slug. Sha nhất quán vì cùng một cây, không phải vì
+  năm lần đo độc lập đồng ý với nhau — đọc con số này với đúng trọng lượng đó.
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
+  `human_override` sẵn có giữ nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là
+  đã phán về AC-regex mới của gate-card.
