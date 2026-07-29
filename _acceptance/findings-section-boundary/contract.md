@@ -24,48 +24,48 @@ lịch sử ghi trong comment): luật đúng là per-section, khai một chỗ 
 
 ## Criteria
 
-- **AC-1** Given `gap-probe.md` có `## Findings` với bảng 1 hàng, rồi
+- AC-1: Given `gap-probe.md` có `## Findings` với bảng 1 hàng, rồi
   `### Notes` (hoặc `# Appendix`) chứa bảng 6 cột, When render thẻ Cổng 1,
   Then `gap_probe.rows` chỉ có hàng của bảng Findings thật — 0 hàng ma; và
   đối chứng dương: cùng file bỏ phần đuôi cho ra dãy hàng GIỐNG HỆT.
-- **AC-2** Given cùng file ở AC-1 với `verdict: clean`, When render thẻ,
+- AC-2: Given cùng file ở AC-1 với `verdict: clean`, When render thẻ,
   Then cờ "mâu thuẫn: verdict clean nhưng bảng có finding" KHÔNG bắn (trước
   đây bắn oan vì bảng ma); đối chứng dương: file `verdict: clean` có hàng
   THẬT trong Findings vẫn bắn cờ đó.
-- **AC-3** Given `contract.md` có `## Acceptance criteria` chứa `### nhóm phụ`
+- AC-3: Given `contract.md` có `## Acceptance criteria` chứa `### nhóm phụ`
   rồi các AC tiếp theo, When render thẻ Cổng 1, Then MỌI AC sau sub-heading
   vẫn xuất hiện (regression đinh của lỗi false-green cũ) — số AC đọc được
   bằng số AC trong file.
-- **AC-4** Given cùng `contract.md` ở AC-3, When render evidence-page,
+- AC-4: Given cùng `contract.md` ở AC-3, When render evidence-page,
   Then MỌI AC sau sub-heading vẫn xuất hiện — luật văn xuôi không đổi ở
   reader thứ hai.
-- **AC-5** Given `lib/md-section.js` mới, When đọc file, Then bảng luật
+- AC-5: Given `lib/md-section.js` mới, When đọc file, Then bảng luật
   per-section nằm giữa cặp marker `<<<SECTION-BOUNDARY-TABLE` …
   `SECTION-BOUNDARY-TABLE>>>`, khai rõ `Findings → any-heading` và mặc định
   `same-or-higher`; và eval rút được bảng đó bằng marker (không chép tay).
-- **AC-6** Given `scripts/gate-card.js` và `scripts/evidence-page.js` sau
+- AC-6: Given `scripts/gate-card.js` và `scripts/evidence-page.js` sau
   sửa, When grep, Then KHÔNG file nào còn định nghĩa `function section(`
   riêng — cả hai require `../lib/md-section.js`; đối chứng đột biến: bản
   sao có lại định nghĩa riêng phải bị assert bắt.
-- **AC-7** Given fixture `gap-probe.md` chung do code sinh, When chạy CẢ
+- AC-7: Given fixture `gap-probe.md` chung do code sinh, When chạy CẢ
   `claim-scan.mjs` (plugin feature-loop) LẪN luật `Findings` rút từ marker
   của `lib/md-section.js`, Then hai bên cho CÙNG tập hàng Findings —
   round-trip xuyên package; đối chứng đột biến: đổi luật một bên → test đỏ.
-- **AC-8** Given toàn bộ suite hiện hành (scripts/hooks/plugins/workflows),
+- AC-8: Given toàn bộ suite hiện hành (scripts/hooks/plugins/workflows),
   When chạy sau thay đổi, Then tất cả xanh — không đổi hành vi nào khác của
   thẻ, evidence-page, hay hook.
-- **AC-9** Given đối chứng đột biến PH8 (known-limit vòng trước), When chạy
+- AC-9: Given đối chứng đột biến PH8 (known-limit vòng trước), When chạy
   suite workflows, Then nó là phép kiểm THẬT: regex `v1.18 adds` phải TRƯỢT
   trên văn bản description tiền-1.18 (không còn kiểu xoá-chuỗi-rồi-tìm-chuỗi).
-- **AC-10** (judgment) Luật per-section đã single-source ĐÚNG NGHĨA: mọi
+- AC-10: (judgment) Luật per-section đã single-source ĐÚNG NGHĨA: mọi
   reader trong package acceptance-gate lấy ranh giới từ bảng marker (hoặc
   được khai Out of scope có tên), và không call-site nào tự chế luật riêng.
-- **AC-11** Given bump + `sync-plugin-packages.sh --check`, When chạy, Then
+- AC-11: Given bump + `sync-plugin-packages.sh --check`, When chạy, Then
   exit 0 — mirror đồng bộ (lib/ mới có mặt trong package acceptance-gate);
   VÀ smoke trên BẢN MIRROR: `node plugins/acceptance-gate/scripts/gate-card.js
   --extract` trên fixture code-sinh exit 0 và trả ĐÚNG số AC của fixture
   (khẳng định dương — không chỉ "không nổ").
-- **AC-12** Given một bản sao code-sinh của `lib/md-section.js` bị đột biến
+- AC-12: Given một bản sao code-sinh của `lib/md-section.js` bị đột biến
   đúng Ô BẢNG (`Findings` → `same-or-higher`), When chạy gate-card qua bản
   sao đó trên fixture có bảng ma, Then hàng ma XUẤT HIỆN (đếm hàng tăng đúng
   số hàng của bảng đuôi) — chứng minh hành vi ĐI THEO bảng, bảng không phải

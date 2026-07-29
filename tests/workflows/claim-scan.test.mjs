@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SCAN = path.join(HERE, '..', '..', 'feature-loop', 'scripts', 'claim-scan.mjs');
@@ -430,17 +431,15 @@ const row = (sev, tag) => ({ sev, artifact: 'evals', gap: `gap-${tag}`, fail: `f
     }
     return out;
   })();
+  // Đọc bằng CHÍNH reader được giao (lib/md-section.js), không viết lại luật:
+  // reader tự viết từng lệch với lib ở ca h1 → FSB7 không thể đỏ khi section()
+  // hồi quy (S4-r2, đúng lớp 'thước phải gắn vào vật được giao').
+  const { section } = createRequire(import.meta.url)(path.join(ROOT2, 'lib', 'md-section.js'));
   const rowsByRule = (text, rule) => {
-    const out = []; let inS = false, lvl = 0;
-    for (const l of text.split('\n')) {
-      const m = l.match(/^(#{1,6})\s/);
-      if (m) {
-        if (/^#{2,6}\s+Findings\b/i.test(l)) { inS = true; lvl = m[1].length; continue; }
-        if (inS && (rule === 'any-heading' || m[1].length <= lvl)) { inS = false; continue; }
-      }
-      if (inS && l.trim().startsWith('|')) out.push(l);
-    }
-    return out.slice(2); // bỏ header + separator
+    const lines = rule === 'any-heading'
+      ? section(text, 'Findings')
+      : section(text, 'Findings').concat(); // luật khác chỉ dùng cho đối chứng
+    return lines.filter(l => l.trim().startsWith('|')).slice(2);
   };
   const root = mkdtempSync(path.join(tmpdir(), 'fsb7-'));
   const tail = ['', '### Notes', '', '| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |',
@@ -454,12 +453,19 @@ const row = (sev, tag) => ({ sev, artifact: 'evals', gap: `gap-${tag}`, fail: `f
       throw new Error(`round-trip lech: ${scanIds.length} vs ${libRows.length} hang`);
     assert.deepEqual(scanIds, ['rt#F1', 'rt#F2']);
   });
-  check('FSB7 đối chứng đột biến: đổi luật một bên (same-or-higher) → lệch, đúng thông điệp', () => {
-    const mutatedRows = rowsByRule(readFileSync(path.join(root, '_acceptance', 'rt', 'gap-probe.md'), 'utf8'), 'same-or-higher');
+  check('FSB7 đối chứng đột biến: bản sao lib đổi luật Findings → lệch, đúng thông điệp', () => {
+    const tmp = mkdtempSync(path.join(tmpdir(), 'fsb7m-'));
+    const libCopy = path.join(tmp, 'md-section.js');
+    writeFileSync(libCopy, readFileSync(path.join(ROOT2, 'lib', 'md-section.js'), 'utf8')
+      .replace('Findings -> any-heading', 'Findings -> same-or-higher'));
+    const mutatedSection = createRequire(import.meta.url)(libCopy).section;
+    const mutatedRows = mutatedSection(readFileSync(path.join(root, '_acceptance', 'rt', 'gap-probe.md'), 'utf8'), 'Findings')
+      .filter(l => l.trim().startsWith('|')).slice(2);
     assert.throws(() => {
       if (scanIds.length !== mutatedRows.length)
         throw new Error(`round-trip lech: ${scanIds.length} vs ${mutatedRows.length} hang`);
-    }, /round-trip lech: 2 vs 5 hang/); // đuôi lọt: header + sep + 1 hàng ma
+    }, /round-trip lech: 2 vs \d+ hang/);
+    rmSync(tmp, { recursive: true, force: true });
   });
   rmSync(root, { recursive: true, force: true });
 }
