@@ -2801,75 +2801,72 @@ uj_slug() {
 }
 uj_full() { printf 'schema_version: 1\nfeature: f\nslug: %s\nrisk_tier: T3\nsurfaces: [api]\nstatus: signed-off\napproved_by: Manh Phan\napproved_at: 2026-06-10' "$1"; }
 
-echo "UJ1 doi chung duong: bang nguoi-ky tren dang inline mot dong (AC-1)"
-UJ1_INLINE='  approvers: ["Manh Phan", "memto"]'
-uj1_cell() { # <nhãn> <config approvers> <chữ ký> <exit mong đợi>
-  uj_repo "uj1$1" "$2"; R="$UJR/uj1$1"
-  uj_slug "$R" feat-ok "$(uj_full feat-ok)" "$3"
-  UJ1="$(bash "$CHECK" "$R" 2>&1)"; ujrc=$?
-  check "UJ1-$1" "$4" "$ujrc"
-  if [ "$4" = "0" ]; then
-    hasout "UJ1-$1-ok" "OK [feat-ok]: PASS, signed off by $3" "$UJ1"
-    nothas "UJ1-$1-noviol" "VIOLATION" "$UJ1"
-  else
-    hasout "UJ1-$1-viol" "does not name any approver" "$UJ1"
-  fi
-}
-# Bo tach chi-lay-phan-tu-dau van xanh tren mot-ten; hai o duoi bat duoc no.
-uj1_cell ten1 "$UJ1_INLINE" "Manh Phan 2026-06-20" 0
-uj1_cell ten2 "$UJ1_INLINE" "memto 2026-06-20"     0
-uj1_cell tenX "$UJ1_INLINE" "Nguoi La 2026-06-20"  1
-
-echo "UJ1b dang cu phap NGOAI inline-mot-dong -> tu choi RO RANG, khong doc nham (AC-1b)"
-# Cong tha TU CHOI RO RANG con hon DOC NHAM AM THAM. Moi bien the duoi day tung
-# lam mot vong va truoc do hong theo mot kieu khac nhau.
-uj1b() { # <nhãn> <khối approvers nguyên văn>
-  uj_repo "uj1b$1" "$2"; R="$UJR/uj1b$1"
-  uj_slug "$R" feat-ok "$(uj_full feat-ok)" "Manh Phan 2026-06-20"
-  UJ1B="$(bash "$CHECK" "$R" 2>&1)"; ujrc=$?
-  check  "UJ1b-$1" 1 "$ujrc"
-  same   "UJ1b-$1-count" 1 "$(printf '%s\n' "$UJ1B" | grep -c '^VIOLATION \[config\]:')"
-  hasout "UJ1b-$1-msg" "reads only the single-line inline form" "$UJ1B"
-  # ...va TUYET DOI khong duoc doc ra mot danh sach nao (im lang doc nham)
-  nothas "UJ1b-$1-silent" "OK [feat-ok]" "$UJ1B"
-}
-uj1b blockthut '  approvers:
-    - "Manh Phan"'
-uj1b blockngang '  approvers:
-  - "Manh Phan"'
-uj1b blockchuthich '  approvers:           # ai duoc ky
-    - "Manh Phan"'
-uj1b flowxuongdong '  approvers: [
-    "Manh Phan",
-    "memto"
-  ]'
-uj1b scalartran '  approvers: Manh Phan'
-
-echo "UJ1c approvers cua khoa CAP-0 KHAC khong duoc thanh allowlist ky (AC-1c)"
-# Do song 2026-07-28: ban cu cho bot trong notifications.approvers ky thanh cong
-# trong khi tu choi chinh nguoi duyet that.
-UJ1C_CFG='  approvers: ["Manh Phan"]'
-uj_repo uj1c "$UJ1C_CFG"; R="$UJR/uj1c"
-# chen mot khoa cap-0 KHAC co approvers, dat TRUOC khoi signoff:
-printf 'notifications:\n  approvers:\n    - ci-bot@corp.com\n%s\n' "$(cat "$R/_acceptance/config.yaml")" > "$R/_acceptance/config.yaml"
-uj_slug "$R" feat-ok "$(uj_full feat-ok)" "ci-bot@corp.com 2026-07-28"
-UJ1C="$(bash "$CHECK" "$R" 2>&1)"; check UJ1c 1 $?
-hasout UJ1c2 "does not name any approver" "$UJ1C"
-nothas UJ1c3 "pre-merge-check: clean" "$UJ1C"
-# DOI CHUNG DUONG tren CUNG file config: nguoi duyet THAT trong signoff van qua
-uj_repo uj1cok "$UJ1C_CFG"; R="$UJR/uj1cok"
-printf 'notifications:\n  approvers:\n    - ci-bot@corp.com\n%s\n' "$(cat "$R/_acceptance/config.yaml")" > "$R/_acceptance/config.yaml"
+echo "UJ6 evidence khai PASS nhung KHONG co contract.md -> VIOLATION, khong tang hinh"
+uj_repo uj6 '  approvers: ["Manh Phan"]'; R="$UJR/uj6"
 uj_slug "$R" feat-ok "$(uj_full feat-ok)" "Manh Phan 2026-06-20"
-UJ1COK="$(bash "$CHECK" "$R" 2>&1)"; check UJ1cctrl 0 $?
-hasout UJ1cctrl2 "pre-merge-check: clean" "$UJ1COK"
+uj_slug "$R" feat-ghost - "Manh Phan 2026-06-20"
+UJ6="$(bash "$CHECK" "$R" 2>&1)"; UJ6ST=$?
+check  UJ6a 1 "$UJ6ST"
+hasout UJ6b "VIOLATION [feat-ghost]: no contract.md" "$UJ6"
+nothas UJ6c "pre-merge-check: clean" "$UJ6"
+hasout UJ6d "OK [feat-ok]" "$UJ6"
 
-echo "UJ2 chu ky KHONG neu ten nao trong approvers -> VIOLATION"
-uj_repo uj2 '  approvers: ["Manh Phan"]'; R="$UJR/uj2"
-uj_slug "$R" feat-pending "$(uj_full feat-pending)" "PENDING — chờ Manh gật"
-UJ2="$(bash "$CHECK" "$R" 2>&1)"; check UJ2a 1 $?
-hasout UJ2b 'human_signoff "PENDING — chờ Manh gật" does not name any approver' "$UJ2"
-nothas UJ2c "signed off by PENDING" "$UJ2"
-nothas UJ2d "pre-merge-check: clean" "$UJ2"
+echo "UJ7 tu khai da phat hanh nhung THIEU risk_tier -> VIOLATION neu dich danh field"
+uj_repo uj7 '  approvers: ["Manh Phan"]'; R="$UJR/uj7"
+uj_slug "$R" feat-notier 'schema_version: 1
+feature: f
+slug: feat-notier
+surfaces: [api]
+status: signed-off
+approved_by: Manh Phan' "Manh Phan 2026-06-20"
+UJ7="$(bash "$CHECK" "$R" 2>&1)"; check UJ7a 1 $?
+hasout UJ7b "contract has no risk_tier" "$UJ7"
+hasout UJ7c "VIOLATION [feat-notier]" "$UJ7"
+
+echo "UJ8 THIEU status -> VIOLATION; UJ8neg draft/approved -> im lang (ca duoi nguong)"
+uj_repo uj8 '  approvers: ["Manh Phan"]'; R="$UJR/uj8"
+uj_slug "$R" feat-nostatus 'schema_version: 1
+feature: f
+slug: feat-nostatus
+risk_tier: T3
+surfaces: [api]
+approved_by: Manh Phan' "Manh Phan 2026-06-20"
+UJ8="$(bash "$CHECK" "$R" 2>&1)"; check UJ8a 1 $?
+hasout UJ8b "contract has no status" "$UJ8"
+for st in draft approved; do
+  uj_repo "uj8n-$st" '  approvers: ["Manh Phan"]'; R="$UJR/uj8n-$st"
+  uj_slug "$R" feat-wip "schema_version: 1
+feature: f
+slug: feat-wip
+risk_tier: T3
+surfaces: [api]
+status: $st
+approved_by: Manh Phan" SKIP
+  UJ8N="$(bash "$CHECK" "$R" 2>&1)"; check "UJ8neg-$st" 0 $?
+  nothas "UJ8neg-$st-2" "VIOLATION" "$UJ8N"
+done
+
+echo "UJ9 contract khai signed-off, thieu risk_tier, KHONG co evidence -> VIOLATION"
+uj_repo uj9 '  approvers: ["Manh Phan"]'; R="$UJR/uj9"
+uj_slug "$R" feat-noev 'schema_version: 1
+feature: f
+slug: feat-noev
+surfaces: [api]
+status: signed-off
+approved_by: Manh Phan' SKIP
+# Chot fixture: KHONG duoc co evidence-report.md, neu khong case nay do nhanh
+# evidence chu khong do nhanh contract cua claims_released.
+[ ! -f "$R/_acceptance/feat-noev/evidence-report.md" ]; check UJ9fix 0 $?
+UJ9="$(bash "$CHECK" "$R" 2>&1)"; check UJ9a 1 $?
+hasout UJ9b "VIOLATION [feat-noev]" "$UJ9"
+
+echo "UJ10 scaffold bo hoang -> IM LANG (doi chung duong cua nhom tang hinh)"
+uj_repo uj10 '  approvers: ["Manh Phan"]'; R="$UJR/uj10"
+uj_slug "$R" feat-ok "$(uj_full feat-ok)" "Manh Phan 2026-06-20"
+mkdir -p "$R/_acceptance/feat-empty"
+UJ10="$(bash "$CHECK" "$R" 2>&1)"; check UJ10a 0 $?
+nothas UJ10b "feat-empty" "$UJ10"
+hasout UJ10c "pre-merge-check: clean" "$UJ10"
 
 echo "UJ3 chu ky giu-cho trong commit NGUOI dung nghi thuc -> VAN VIOLATION"
 # require_human_commit KHONG cuu duoc lop nay: no kiem AI commit va commit do
@@ -2894,20 +2891,7 @@ check  UJ3ctrl 0 $?
 hasout UJ3ctrl2 "pre-merge-check: clean" "$UJ3OK"
 uj3_repo uj3 "PENDING — chờ Manh gật"; UJ3="$(bash "$CHECK" "$R" 2>&1)"
 check  UJ3a 1 $?
-hasout UJ3b "does not name any approver" "$UJ3"
-
-echo "UJ2b bang bien khop ten (approvers: [Manh])"
-uj2b() { # <nhãn> <chữ ký> <exit mong đợi>
-  uj_repo "uj2b$1" '  approvers: ["Manh"]'; R="$UJR/uj2b$1"
-  uj_slug "$R" feat-b "$(uj_full feat-b)" "$2"
-  bash "$CHECK" "$R" >/dev/null 2>&1; check "UJ2b-$1" "$3" $?
-}
-uj2b o1 "Manh Phan 2026-06-20"             0
-uj2b o2 "Manh"                             0
-uj2b o3 "Manhattan 2026-06-20"             1
-uj2b o4 "manh phan 2026-06-20"             1
-uj2b o5 "  Manh Phan 2026-06-20"           0
-uj2b o6 "Manh Phan — chưa duyệt, chờ họp"  0   # chot Cong 1: NHAN (contract Notes)
+hasout UJ3b "is a placeholder, not a signature" "$UJ3"
 
 echo "UJ5 KHONG khai approvers -> luoi den bat, MOT dong NOTE cho ca lan chay"
 for ph in PENDING TBD TODO 'n/a' none unsigned waiting '>' '|' '-' '<name> <date>'; do
@@ -2919,14 +2903,12 @@ uj_repo uj5n ''; R="$UJR/uj5n"
 uj_slug "$R" feat-a "$(uj_full feat-a)" "PENDING"
 uj_slug "$R" feat-b "$(uj_full feat-b)" "TBD"
 UJ5N="$(bash "$CHECK" "$R" 2>&1)"
-same   UJ5n1 1 "$(printf '%s\n' "$UJ5N" | grep -c 'Consider declaring signoff.approvers')"
 same   UJ5n2 2 "$(printf '%s\n' "$UJ5N" | grep -c 'is a placeholder, not a signature')"
 # DOI CHUNG DUONG: cung config khong-khai, chu ky that phai VAN qua
 uj_repo uj5c ''; R="$UJR/uj5c"
 uj_slug "$R" feat-ok "$(uj_full feat-ok)" "Manh Phan 2026-06-20"
 UJ5C="$(bash "$CHECK" "$R" 2>&1)"; check UJ5ctrl 0 $?
 hasout UJ5ctrl2 "pre-merge-check: clean" "$UJ5C"
-nothas UJ5ctrl3 "Consider declaring signoff.approvers" "$UJ5C"
 
 echo "UJ18 chu ky RONG -> thong diep chot RONG song sot, dung thu tu"
 for cfg in '  approvers: ["Manh Phan"]' ''; do
@@ -2934,7 +2916,7 @@ for cfg in '  approvers: ["Manh Phan"]' ''; do
   uj_slug "$R" feat-e "$(uj_full feat-e)" ""
   UJ18="$(bash "$CHECK" "$R" 2>&1)"; check "UJ18-exit" 1 $?
   hasout "UJ18-msg" "verdict PASS but human_signoff is empty (Gate 2 pending)" "$UJ18"
-  nothas "UJ18-order" "does not name any approver" "$UJ18"
+  nothas "UJ18-order" "is a placeholder, not a signature" "$UJ18"
   nothas "UJ18-order2" "is a placeholder, not a signature" "$UJ18"
 done
 
@@ -2952,7 +2934,7 @@ uj17_run() { # <nhãn> <cờ...>
   lbl="$1"; shift
   UJ17="$(bash "$CHECK" "$R" "$@" 2>&1)"; UJ17ST=$?
   check  "UJ17-$lbl-exit" 1 "$UJ17ST"
-  hasout "UJ17-$lbl-sig"  "does not name any approver" "$UJ17"
+  hasout "UJ17-$lbl-sig"  "is a placeholder, not a signature" "$UJ17"
 }
 uj17_run base --base "$UJ17B"
 uj17_run nobase
@@ -2974,7 +2956,7 @@ for mode in off warn strict; do
   uj_slug "$R" feat-pending "$(uj_full feat-pending)" "PENDING"
   uj_slug "$R" feat-ghost - "Manh Phan 2026-06-20"
   UJ11="$(bash "$CHECK" "$R" 2>&1)"; check "UJ11-$mode" 1 $?
-  hasout "UJ11-$mode-sig"   "does not name any approver" "$UJ11"
+  hasout "UJ11-$mode-sig"   "is a placeholder, not a signature" "$UJ11"
   hasout "UJ11-$mode-ghost" "no contract.md" "$UJ11"
 done
 
@@ -2985,7 +2967,7 @@ git -C "$R" add -A >/dev/null
 git -c user.email=t@t -c user.name=t -C "$R" commit -qm change
 # (a) VIOLATION ra STDOUT — chay 2>/dev/null van thay. CI chi grep stdout.
 UJ12A="$(bash "$CHECK" "$R" --base "$UJ12B" 2>/dev/null)"
-hasout UJ12a "does not name any approver" "$UJ12A"
+hasout UJ12a "is a placeholder, not a signature" "$UJ12A"
 # (b) so luat KHONG doi o CA HAI che do — luat moi nam TRONG luat per-slug da
 # co so, khong phai luat thu tu.
 hasout UJ12b1 "pre-merge-check: rules ran=3 declared-off=0 expected=3" "$UJ12A"
@@ -3009,8 +2991,6 @@ cp -R "$ROOT_REAL/lib" "$UJCP/lib"
 UJMUT="$UJCP/scripts/uj-check.sh"
 
 # Fixture do rieng cho tung nhanh
-uj_repo ujm_sig '  approvers: ["Manh Phan"]'; UJM_SIG="$UJR/ujm_sig"
-uj_slug "$UJM_SIG" feat-p "$(uj_full feat-p)" "PENDING"
 uj_repo ujm_blk ''; UJM_BLK="$UJR/ujm_blk"
 uj_slug "$UJM_BLK" feat-p "$(uj_full feat-p)" "PENDING"
 uj_repo ujm_noc '  approvers: ["Manh Phan"]'; UJM_NOC="$UJR/ujm_noc"
@@ -3029,13 +3009,11 @@ slug: feat-noev
 surfaces: [api]
 status: signed-off
 approved_by: Manh Phan' SKIP
-uj_repo ujm_cfg '  approvers: []'; UJM_CFG="$UJR/ujm_cfg"
-uj_slug "$UJM_CFG" feat-a "$(uj_full feat-a)" "Manh Phan 2026-06-20"
 
 # DOI CHUNG: ban sao KHONG tiem phai DO dung nhu ban goc tren ca 6 fixture.
 # Thieu buoc nay, moi "UJ14-* xanh" duoi day co the chi la ban sao khong chay.
 cp "$CHECK" "$UJMUT"
-for f in "$UJM_SIG" "$UJM_BLK" "$UJM_NOC" "$UJM_FLD" "$UJM_CTR" "$UJM_CFG"; do
+for f in "$UJM_BLK" "$UJM_NOC" "$UJM_FLD" "$UJM_CTR"; do
   # CHOT MA THOAT TRUOC khi goi check: mot $(...) trong danh sach doi so chay
   # NGAY LUC BUNG va ghi de $?, nen `check "x-$(basename "$f")" 1 $?` do mac
   # thoat cua basename chu khong phai cua cong. Vong dau da dam dung bay nay.
@@ -3069,9 +3047,7 @@ uj_mut() { # <nhãn> <bộ lọc sinh bản sao> <fixture phải chuyển XANH>
   fi
   bash "$UJMUT" "$3" >/dev/null 2>&1; check "UJ14-$1" 0 $?
 }
-uj_mut sig 'sed "s|if ! signoff_names_approver \\\"\$signoff\\\"; then|if false; then|" "$CHECK"' "$UJM_SIG"
-uj_mut blk 'sed "s|elif placeholder_signoff \\\"\$signoff\\\"; then|elif false; then|" "$CHECK"' "$UJM_BLK"
-uj_mut cfg 'sed "s|^if \[ \\\"\$APPROVERS_DECLARED\\\" = \\\"true\\\" \] \&\& \[ -z \\\"\$APPROVERS\\\" \]; then|if false; then|" "$CHECK"' "$UJM_CFG"
+uj_mut blk 'sed "s|if placeholder_signoff \\\"\$signoff\\\"; then|if false; then|" "$CHECK"' "$UJM_BLK"
 # Hai call-site cua claims_released co van ban Y HET nhau, nen tach bang THU TU
 # xuat hien (awk dem lan khop) chu khong bang noi dung.
 uj_mut noc 'awk "/if claims_released/ { n++; if (n==1) { sub(/if claims_released .*; then/, \"if false; then\") } } { print }" "$CHECK"' "$UJM_NOC"
@@ -3086,17 +3062,15 @@ cp "$CHECK" "$T/ujg-ok.sh";                  uj_mut_usable "$T/ujg-ok.sh";    ch
 head -20 "$CHECK" > "$T/ujg-cut.sh";         uj_mut_usable "$T/ujg-cut.sh";   check UJ14g-cut   1 $?
 { cat "$CHECK"; printf '\nif [ 1\n'; } > "$T/ujg-bad.sh"; uj_mut_usable "$T/ujg-bad.sh"; check UJ14g-cuphap 1 $?
 
-echo "UJ14b tiem CHE DO GOI: boc luat chu ky sau chot --base -> UJ17-nobase phai do"
-# Chung minh UJ17 la assertion SONG chu khong phai xanh-vinh-vien: neu luat moi
-# bi boc vao nhanh chi song khi co --base thi lan chay KHONG base phai lot.
-awk '/if \[ -n "\$APPROVERS" \]; then/ { print "  if [ -n \"$BASE\" ]; then"; n=1 }
-     { print }
-     n==1 && /^  fi$/ { print "  fi"; n=0 }' "$CHECK" > "$UJMUT"
-if diff -q "$CHECK" "$UJMUT" >/dev/null 2>&1; then
-  echo "     TIEM THAT BAI [UJ14b]: bo loc khong khop"; check UJ14b 0 1
+echo "UJ14b tiem CHE DO GOI: boc chot chu ky sau --base -> UJ17-nobase phai do"
+# Chung minh UJ17 la assertion SONG chu khong phai xanh-vinh-vien: neu luat chu
+# ky bi boc vao nhanh chi song khi co --base thi lan chay KHONG base phai lot.
+awk '/^  if placeholder_signoff "\$signoff"; then$/ { print "  if [ -n \"$BASE\" ] && placeholder_signoff \"$signoff\"; then"; next } { print }' "$CHECK" > "$UJMUT"
+if diff -q "$CHECK" "$UJMUT" >/dev/null 2>&1 || ! uj_mut_usable "$UJMUT"; then
+  echo "     TIEM THAT BAI [UJ14b]: bo loc khong khop hoac ban sao hong"; check UJ14b 0 1
 else
-  bash "$UJMUT" "$UJM_SIG" >/dev/null 2>&1; UJ14BST=$?
-  bash "$UJMUT" "$UJM_SIG" --base "$(git -C "$UJM_SIG" rev-parse HEAD)" >/dev/null 2>&1; UJ14BST2=$?
+  bash "$UJMUT" "$UJM_BLK" >/dev/null 2>&1; UJ14BST=$?
+  bash "$UJMUT" "$UJM_BLK" --base "$(git -C "$UJM_BLK" rev-parse HEAD)" >/dev/null 2>&1; UJ14BST2=$?
   check UJ14b-nobase 0 "$UJ14BST"    # khong base -> lot (dung dieu UJ17 chan)
   check UJ14b-base   1 "$UJ14BST2"   # co base    -> van chan
 fi
@@ -3110,15 +3084,9 @@ UJ16NEW="$(mktemp)"
 {
   printf '%s\n' '# Thông điệp luật PASS-chưa-ai-phán — SINH bởi tests/scripts/run-tests.sh (UJ16).'
   printf '%s\n' '# KHÔNG sửa tay: suite sinh lại file này mỗi lần chạy và diff byte-đối-byte.'
-  printf '\n== chữ ký không nêu tên người duyệt (approvers đã khai) ==\n'
-  uj_repo m1 '  approvers: ["Manh Phan"]'; uj_slug "$UJR/m1" feat-p "$(uj_full feat-p)" "PENDING — chờ Manh gật"
-  bash "$CHECK" "$UJR/m1" 2>&1 | grep -E '^VIOLATION'
-  printf '\n== chữ ký giữ-chỗ (approvers KHÔNG khai) ==\n'
+  printf '\n== chữ ký giữ-chỗ ==\n'
   uj_repo m2 ''; uj_slug "$UJR/m2" feat-p "$(uj_full feat-p)" "TBD"
-  bash "$CHECK" "$UJR/m2" 2>&1 | grep -E '^VIOLATION|^NOTE: signature checking'
-  printf '\n== approvers khai mà không dùng được ==\n'
-  uj_repo m3 '  approvers: []'; uj_slug "$UJR/m3" feat-a "$(uj_full feat-a)" "Manh Phan 2026-06-20"
-  bash "$CHECK" "$UJR/m3" 2>&1 | grep -E '^VIOLATION \[config\]'
+  bash "$CHECK" "$UJR/m2" 2>&1 | grep -E '^VIOLATION'
   printf '\n== slug tàng hình: không có contract.md ==\n'
   uj_repo m4 '  approvers: ["Manh Phan"]'; uj_slug "$UJR/m4" feat-ghost - "Manh Phan 2026-06-20"
   bash "$CHECK" "$UJR/m4" 2>&1 | grep -E '^VIOLATION'
@@ -3143,12 +3111,9 @@ fi
 # sinh thieu — nen ghim tung nhanh co mat trong ban VUA SINH, khong phai trong
 # file da commit.
 UJ16M="$(cat "$UJ16NEW")"
-hasout UJ16a "does not name any approver" "$UJ16M"
 hasout UJ16b "is a placeholder, not a signature" "$UJ16M"
-hasout UJ16c "Consider declaring signoff.approvers" "$UJ16M"
 hasout UJ16d "no contract.md" "$UJ16M"
 hasout UJ16e "contract has no risk_tier" "$UJ16M"
-hasout UJ16f "reads only the single-line inline form" "$UJ16M"
 
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"

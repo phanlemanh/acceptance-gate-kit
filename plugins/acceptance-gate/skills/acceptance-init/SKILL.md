@@ -69,12 +69,11 @@ risk_tiers:
     - "src/auth/**"
 signoff:
   required_for: [T2, T3]
-  approvers: ["<approved human>"]  # approvers: enforced — human_signoff must START
-                                   # with one of these names, else pre-merge blocks.
-                                   # OMIT the key and signatures only face an English
-                                   # placeholder net (PENDING/TBD/TODO/…), which misses
-                                   # a holding note in any other language. Declaring it
-                                   # EMPTY is an error, not an opt-out.
+  approvers: ["<approved human>"]  # approvers: informational — NOT enforced by the
+                                   # gate. Signatures are still checked: human_signoff
+                                   # must not be empty and must not be an English
+                                   # placeholder (PENDING/TBD/TODO/...). A holding
+                                   # note in another language still passes.
   require_human_commit: true
 dev_server:
   start: "<discovered-or-approved command>"

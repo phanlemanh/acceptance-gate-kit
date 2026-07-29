@@ -150,3 +150,133 @@ Doi chung duong: cung hai ten viet mot dong `approvers: ["Manh Phan", "memto"]` 
 **Kịch bản fail:** A repo puts `signoff.agent_authors` as the last key of the signoff block and follows it with any top-level key that owns a list (e.g. `baseline_minutes:` / `  - 90`). The sed terminator requires a 2-space-indented key, never matches the indent-0 key, runs to EOF, and pulls `90` into AGENT_AUTHORS — the agent-author blocklist now contains a number, and any later blocklist glob comparison is done against polluted data.
 
 **Chi tiết:** scripts/pre-merge-check.sh:264 still uses `sed -n '/^  agent_authors:/,/^  [a-zA-Z0-9_-]*:/p'`. Reproduced directly on that pipeline with config `  agent_authors:` / `    - "bot@corp.com"` / `baseline_minutes:` / `  - 90`: output is `bot@corp.com` and `90`. This is not a regression introduced by the delta (the line is untouched), but the commit subject asserts the block-list region class is now bounded by indentation, and UJ1y pins that rule for approvers only. Impact is mild here (spurious extra entries in a blocklist, fail-closed direction), which is why it is low, not a refutation on its own.
+
+
+---
+
+## Vòng gia cố LẦN 2 — 2026-07-28, delta `1da6cf6..21f6623` (đường A: rút phạm vi)
+**Machine lane ở HEAD: 5/5 xanh** (621 case). **Refute: 3/3 góc BÁC BỎ.** 15 finding · 7 trong hợp đồng · 4 HIGH · 6 hồi quy.
+
+### Kết luận: lần thử thứ TƯ cũng hỏng, và lại thêm một hồi quy
+Ba finding nặng nhất đã được tác giả tự tái hiện bằng tay:
+
+| hình dạng YAML hợp lệ | 1da6cf6 | 303508a | 21f6623 |
+|---|---|---|---|
+| `approvers: ["Nguyen, Van A"]` — dấu phẩy TRONG nháy, người lạ ký | lọt | lọt | **lọt** |
+| `signoff: {…}` flow mapping — khai rồi mà cổng coi như chưa khai | — | — | **lọt** |
+| `signoff :` (khoảng trắng trước dấu hai chấm), người ngoài ký | chặn | chặn | **lọt** ← hồi quy |
+
+Dừng ở đây theo cam kết: không vá lần thứ năm. Quyết định tiếp thuộc về người duyệt.
+
+#### [HIGH · trong hợp đồng] Dấu phẩy BÊN TRONG dấu nháy tách một tên thành nhiều tiền tố được chấp nhận (fail-open)
+**Kịch bản fail:** Config: `signoff: / required_for: [T2, T3] / approvers: ["Nguyen, Van A"] / require_human_commit: false`. Một người KHÁC ký `human_signoff: Nguyen Thi B 2026-06-20` (hoặc `Van A Tran 2026-06-20`). Chạy `bash scripts/pre-merge-check.sh <repo>` → in `OK [feat-ok]: PASS, signed off by Nguyen Thi B 2026-06-20` + `pre-merge-check: clean`, exit 0. Mong đợi: VIOLATION + exit != 0 (AC-2).
+
+**Chi tiết:** scripts/pre-merge-check.sh:300 dùng `tr ',' '\n'` trên toàn bộ giá trị inline rồi mới bóc nháy, nên nó không biết dấu phẩy nào nằm trong chuỗi trích dẫn. `approvers: ["Nguyen, Van A"]` — một danh sách inline MỘT DÒNG hoàn toàn hợp lệ — bị tách thành HAI mục `Nguyen` và `Van A`, mỗi mục sau đó được `signoff_names_approver` khớp theo tiền tố độc lập. Allowlist tự nở ra hai tên chưa ai khai. Đây chính là mệnh đề cần bác bỏ: bộ tách inline KHÔNG đọc đúng mọi danh sách inline hợp lệ. Đo sống trên fixture /tmp, có đối chứng dương (`Nguyen, Van A 2026-06-20` → clean/0) và đối chứng âm (`Random Person` → VIOLATION/1). Cùng hành vi ở 1da6cf6 và 303508a nên không phải hồi quy, nhưng 21f6623 tuyên bố đã rút phạm vi về "một dạng đọc đúng" — tuyên bố đó sai ngay trên dạng duy nhất còn được hỗ trợ.
+
+#### [HIGH · trong hợp đồng] Neo vào khối signoff: cấp-0 KHÔNG đóng lỗ khoá-khác — chỉ dời nó vào trong một cấp
+**Kịch bản fail:** Config: `signoff:` → `notify:` → `approvers: ["ci-bot@corp.com"]` → rồi `approvers: ["Manh Phan"]`. Bot ký `human_signoff: ci-bot@corp.com 2026-06-20` → `OK [feat-ok]: PASS, signed off by ci-bot@corp.com` + clean, exit 0. Cùng config, người duyệt thật ký `Manh Phan 2026-06-20` → VIOLATION "does not name any approver declared in signoff.approvers", exit 1. Y hệt với block scalar `policy: |` chứa `approvers: ["ghost@old"]`.
+
+**Chi tiết:** awk ở scripts/pre-merge-check.sh:282-286 cắt đúng khối `signoff:` cấp-0, nhưng bên trong khối thì grep/sed (287-289) vẫn là `^[[:space:]]*approvers:` + `head -1`, không hề kiểm ĐỘ SÂU. Mọi `approvers:` lồng sâu hơn — kể cả nội dung của một block scalar tài liệu — đều là ứng viên, và mục xuất hiện TRƯỚC thắng. Hai hình dạng đo sống, cả hai đều cho tên lạ ký được VÀ chặn nhầm người duyệt thật: (a) `signoff.notify.approvers: ["ci-bot@corp.com"]` đặt trước `signoff.approvers: ["Manh Phan"]`; (b) `signoff.policy: |` chứa dòng ví dụ `approvers: ["ghost@old"]`. Hình dạng (b) chính là ví dụ AC-1c gọi tên đích danh ("một ví dụ nằm trong block-scalar tài liệu") — bản vá chỉ đóng biến thể đặt ở cấp-0, biến thể đặt trong khối signoff vẫn nguyên. Commit message tự mô tả lỗ này là "đã đóng"; nó chưa.
+
+#### [HIGH · trong hợp đồng] `signoff:` viết dạng flow mapping làm khai báo approvers TÀNG HÌNH — âm thầm tụt xuống lưới giữ-chỗ tiếng Anh
+**Kịch bản fail:** Config 2 dòng: `schema_version: 1` / `signoff: {required_for: [T2, T3], approvers: ["Manh Phan"]}`. Chữ ký giữ-chỗ tiếng Việt `human_signoff: Chờ Manh gật đã` → `OK [feat-ok]: PASS, signed off by Chờ Manh gật đã` + `pre-merge-check: clean`, exit 0. Đúng lớp lỗi feature này sinh ra để chặn, trên một repo đã khai approvers. Với `human_signoff: Random Outsider 2026-06-20` cũng clean/0.
+
+**Chi tiết:** Regex neo khối là `/^signoff:[[:space:]]*(#.*)?$/` (scripts/pre-merge-check.sh:283), đòi dòng `signoff:` phải TRỐNG sau dấu hai chấm. Với `signoff: {required_for: [T2, T3], approvers: ["Manh Phan"]}` — YAML hợp lệ — awk không vào khối, `$ap_block` rỗng, `APPROVERS_DECLARED` không bao giờ được đặt. Không có VIOLATION [config], không có tín hiệu nào: cổng rơi thẳng xuống nhánh "không khai" và chỉ còn `placeholder_signoff` (chỉ biết mẫu tiếng Anh). AC-4 cấm đúng việc này ("KHÔNG được âm thầm tụt xuống nhánh không-khai"), và thông điệp VIOLATION [config] ở dòng 309 tự khai mục đích của nó là chặn "silently downgrade signature checking to the placeholder net" — đây là đường đi qua được mục đích đó. Kèm hệ quả tự mâu thuẫn: khi chữ ký là `PENDING`, cổng khuyên "signoff.approvers is not declared — Consider declaring signoff.approvers" trong khi người vận hành ĐÃ khai.
+
+#### [MEDIUM · trong hợp đồng · HỒI QUY] HỒI QUY: `signoff :` (khoảng trắng trước dấu hai chấm) làm mất hẳn việc kiểm approvers
+**Kịch bản fail:** Config: `schema_version: 1` / `signoff :` / `  required_for: [T2, T3]` / `  approvers: ["Manh Phan"]` / `  require_human_commit: false`. Người ngoài ký `human_signoff: Random Outsider 2026-06-20`. 1da6cf6 và 303508a: VIOLATION + exit 1. 21f6623 (HEAD): `OK [feat-ok]: PASS, signed off by Random Outsider 2026-06-20` + clean, exit 0.
+
+**Chi tiết:** `signoff :` là khoá mapping hợp lệ trong YAML (khoảng trắng trước `:` được phép). Ở 1da6cf6 và 303508a, việc dò `approvers:` chạy trên TOÀN file nên vẫn tìm thấy và cưỡng chế đúng. Ở 21f6623, neo cấp-0 `/^signoff:.../` trượt, `APPROVERS_DECLARED` = false, cổng im lặng tụt xuống lưới giữ-chỗ. Đo song song ba bản trên cùng fixture: v1 = VIOLATION/exit 1, v2 = VIOLATION/exit 1, HEAD = clean/exit 0. Đây là hình dạng thứ ba trong chuỗi "vá xong lại chặn nhầm/mở nhầm một hình dạng YAML hợp lệ mới" mà chính commit message tuyên bố đã chấm dứt bằng cách đổi công cụ.
+
+#### [MEDIUM · trong hợp đồng] Thông điệp VIOLATION [config] mới chỉ đường SAI trên chính các dạng inline-một-dòng
+**Kịch bản fail:** Config `signoff:` / `approvers: []` (hoặc `approvers: ["Manh #1"]`), chữ ký `Manh Phan 2026-06-20`. Output: `VIOLATION [config]: signoff.approvers is declared but this gate reads only the single-line inline form — write it as signoff.approvers: ["Name One", "Name Two"] on ONE line...`. Người vận hành đọc, thấy mình đã viết đúng một dòng inline, không biết phải sửa gì.
+
+**Chi tiết:** Thông điệp ở scripts/pre-merge-check.sh:309 giả định mọi lần từ chối đều do người dùng viết block list / flow xuống dòng, nên nó bảo "write it as signoff.approvers: [\"Name One\", \"Name Two\"] on ONE line". Nhưng hai dạng ĐÃ ở đúng dạng inline-một-dòng vẫn rơi vào đây: (a) `approvers: []` — allowlist rỗng cố ý; (b) `approvers: ["Manh #1"]` — `#` bên trong chuỗi nháy kép KHÔNG phải chú thích YAML, nhưng bước cắt chú thích ở dòng 289-290 xén thành `["Manh` nên `case \[*\])` trượt. Cả hai fail-CLOSED (không có rủi ro cổng thủng), nhưng người vận hành được bảo đi làm đúng việc họ vừa làm — đúng phản-mẫu mà comment ở dòng 759-762 của chính file này lên án, và AC-15 đòi thông điệp nói được HÀNH ĐỘNG tiếp theo. Bản trước (1da6cf6) nói chính xác hơn cho ca `[]`: "declared but resolves to no approver name".
+
+#### [LOW · ngoài hợp đồng] Hợp đồng cú pháp vừa bị rút KHÔNG được ghi vào tài liệu onboarding mà người vận hành đọc trước
+**Kịch bản fail:** Người vận hành repo mới chạy /acceptance-init, làm theo mẫu, viết approvers dạng block list (`approvers:` rồi `  - "Manh Phan"`) vì tài liệu không cấm. Lần chạy pre-merge đầu tiên trong CI đỏ với VIOLATION [config] mà không tài liệu nào của kit nhắc tới ràng buộc một-dòng.
+
+**Chi tiết:** 21f6623 đổi hợp đồng runtime (chỉ inline một dòng) nhưng không chạm tài liệu: /Users/manh-macmini/dev/acceptance-gate-kit/commands/acceptance-init.md:64-70 vẫn chỉ nói "approvers: enforced" + "Declaring it EMPTY is an error", không một chữ nào về việc block list bị từ chối; hai bản mirror plugins/acceptance-gate/skills/acceptance-init/SKILL.md:72 và codex/acceptance-gate/skills/acceptance-init/SKILL.md:72 cũng vậy. Ràng buộc mới chỉ tồn tại trong một dòng lỗi runtime. Một repo mới viết block list (dạng YAML phổ biến nhất cho danh sách) sẽ đỏ ở CI mà tài liệu wire cổng không hề báo trước.
+
+#### [MEDIUM · ngoài hợp đồng] approvers cua khoa LONG trong signoff: van tro thanh allowlist ky (neo cap-0 khong chan duoc)
+**Kịch bản fail:** config.yaml:
+```
+signoff:
+  required_for: [T2, T3]
+  by_tier:
+    T3:
+      approvers: ["ci-bot@corp.com"]
+  approvers: ["Manh Phan"]
+```
+evidence-report.md: `human_signoff: ci-bot@corp.com 2026-07-29`.
+Chay `scripts/pre-merge-check.sh <repo>` -> `pre-merge-check: clean`, exit 0, in `OK [demo]: PASS, signed off by ci-bot@corp.com 2026-07-29`. Nguoc lai, doi chu ky thanh `Manh Phan 2026-07-29` -> `VIOLATION [demo]: ... does not name any approver declared in signoff.approvers`, exit 1. Dung mot cap bot-qua / nguoi-that-bi-chan y het hinh dang ma commit message tuyen bo da dong.
+
+**Chi tiết:** awk chi neo BIEN cua khoi signoff: cap-0; ben trong khoi no van `sed ... | head -1` tren MOI dong khop `^[[:space:]]*approvers:`, khong phan biet do sau. Bat ky khoa long nao trong signoff (by_tier, notify, escalation, hay mot `note: |` block-scalar chua vi du `approvers: [...]`) ma dung TRUOC dong approvers that se nuot allowlist. Da do luon ban block-scalar-trong-signoff: cung ket qua (bot qua / nguoi that bi chan).
+
+AC-1c chi noi "khoa cap-0 KHAC" va ket luan "cong chi doc approvers ben trong khoi signoff:" — theo nguyen van thi hanh vi nay THOA AC, nen 21 eval khong the bat. Suite hien tai (tests/scripts/run-tests.sh:2848-2864, UJ1c) chi dung `notifications:` cap-0.
+
+Huong NGUOC da kiem sach: config that cua chinh repo (_acceptance/config.yaml) va tests/hooks/fixtures/repo/_acceptance/config.yaml deu rut dung `["Manh Phan"]`; doi chung duong (inline 2 ten, ky bang ten 1 va ten 2) xanh; 9 hinh dang duoc yeu cau kiem — chu thich duoi signoff, signoff co chu thich duoi, signoff la khoa CUOI, khoa cap-0 sau signoff bat dau bang so, dong trong + chu thich cap-0 xen giua, CRLF, thut 4 space, chuoi "signoff:" trong block-scalar cua khoa cap-0 KHAC — deu doc dung.
+
+#### [MEDIUM · ngoài hợp đồng · HỒI QUY] Khoa signoff viet bang mot dang YAML hop le khac -> cong AM THAM bo qua allowlist, khong con VIOLATION (hoi quy vs 1da6cf6)
+**Kịch bản fail:** config.yaml:
+```
+signoff :
+  approvers: ["Manh Phan"]
+```
+(hoac `"signoff":` khoa co nhay, hoac `signoff: {required_for: [T2, T3], approvers: ["Manh Phan"]}` — ca ba deu la YAML hop le).
+evidence-report.md: `human_signoff: ci-bot 2026-07-29`.
+21f6623 -> `pre-merge-check: clean`, exit 0, `OK [demo]: PASS, signed off by ci-bot 2026-07-29`.
+1da6cf6 tren CUNG file -> `VIOLATION [demo]: ... does not name any approver declared in signoff.approvers`, exit 1.
+Do la XANH o 1da6cf6, DO o 21f6623.
+
+**Chi tiết:** Regex neo `/^signoff:[[:space:]]*(#.*)?$/` doi dung nguyen van `signoff:` o cot 0. Moi bien the hop le khac lam `ap_block` rong -> `APPROVERS_DECLARED` rong -> cong khong he kiem chu ky, tut xuong luoi den tieng Anh, va vi "ci-bot" khong phai placeholder nen KHONG in ca NOTE lan VIOLATION. Day dung la lop "doc nham/bo qua AM THAM" ma commit tuyen bo da xoa: bay gio no khong doc nham nua, no im lang KHONG DOC — va khong co dong nao noi cho nguoi van hanh biet allowlist ho vua khai dang bi lo. Xac suat go tay thap, nhung huong that bai la fail-open va 1da6cf6 truoc do bat duoc.
+
+#### [LOW · ngoài hợp đồng] HAI khoi `signoff:` -> cong doc khoi DAU, moi parser YAML lay khoi CUOI
+**Kịch bản fail:** config.yaml:
+```
+signoff:
+  approvers: ["ci-bot"]
+other:
+  x: 1
+signoff:
+  approvers: ["Manh Phan"]
+```
+`human_signoff: ci-bot 2026-07-29` -> exit 0, `OK [demo]: PASS, signed off by ci-bot`. Doi thanh `Manh Phan 2026-07-29` -> VIOLATION, exit 1. awk `exit` ngay khi gap khoa cap-0 ke tiep nen chi thay khoi DAU, trong khi PyYAML/serializer thong thuong lay khoi CUOI (js-yaml v4 thi nem loi trung khoa). Gia tri cong DUNG khac gia tri config CO NGHIA.
+
+**Chi tiết:** Khoa trung o cap-0 la YAML khong hop le theo spec nen muc do thap; ghi lai vi user hoi dich danh, va vi khong co eval nao ghim huong nay.
+
+#### [LOW · trong hợp đồng · HỒI QUY] Block list approvers (dang YAML thuan tay) tu XANH thanh VIOLATION cung — pha config consumer da co
+**Kịch bản fail:** config.yaml:
+```
+signoff:
+  approvers:
+    - "Manh Phan"
+```
+`human_signoff: Manh Phan 2026-07-29`. 1da6cf6 -> exit 0, `OK [demo]: PASS, signed off by Manh Phan`. 21f6623 -> exit 1, `VIOLATION [config]: signoff.approvers is declared but this gate reads only the single-line inline form ...` + `NOTE [demo]: signature NOT checked ...`. Moi repo tieu thu dang khai approvers bang block list (dang idiomatic, va tu 1.23.0 tro ve truoc khoa nay chi la trang tri nen khong ai bi ep viet inline) se bi chan MOI PR cho toi khi sua config.
+
+**Chi tiết:** Day la RUT PHAM VI co chu dinh, khai ro o AC-1b va o thong diep VIOLATION (co vi du viet lai), nen khong phai lo hong — ghi lai vi no la thay doi hanh vi pha vo tuong thich nguoc doi voi consumer, khong chi la thay doi noi bo. Doi chung: chinh AC-1 ban 1da6cf6 tung doi bang {inline, block list} x {ten 1, ten 2} = 4 o xanh, tuc kit tung coi block list la hop le.
+
+#### [HIGH · ngoài hợp đồng · HỒI QUY] Fail-open MỚI: `approvers:` nằm ngoài khối `signoff:` cấp-0 → gate im lặng coi như KHÔNG khai, chữ ký giữ-chỗ đi qua `clean` exit 0
+**Kịch bản fail:** Fixture /private/tmp/claude-501/-Users-manh-macmini-dev-acceptance-gate-kit/41f8b0c3-758f-42a8-bec8-76a25c35fdd6/scratchpad/refute/fx2/p1_toplevel — config.yaml có `approvers: ["Manh Phan"]` ở cấp-0 (đặt sai chỗ) và khối `signoff:` không có approvers; evidence-report.md có `human_signoff: Cho duyet 2026-06-20`. 1da6cf6 và 303508a: `VIOLATION [feat-ok]: human_signoff "Cho duyet 2026-06-20" does not name any approver declared in signoff.approvers` + exit 1. 21f6623: `OK [feat-ok]: PASS, signed off by Cho duyet 2026-06-20` + `pre-merge-check: clean` + exit 0, và KHÔNG một dòng NOTE/VIOLATION nào nói rằng allowlist đã bị bỏ qua. Cùng kết quả với fixture fx2/p3_spacecolon (`signoff :` có khoảng trắng trước dấu hai chấm — YAML hợp lệ, awk `/^signoff:[[:space:]]*(#.*)?$/` không khớp). Chạy lại: bash /private/tmp/.../scratchpad/refute/probe2.sh
+
+**Chi tiết:** Việc neo vào khối `signoff:` cấp-0 (scripts/pre-merge-check.sh:282-287) làm mọi `approvers:` đặt sai chỗ trở nên VÔ HÌNH: APPROVERS_DECLARED rỗng → không VIOLATION [config], không NOTE, chữ ký chỉ còn đối mặt lưới đen tiếng Anh (và NOTE khuyên khai approvers cũng không in vì lưới đen không nổ). Đây đúng lớp lỗi feature sinh ra để chặn, và vi phạm doctrine AC-4 'khai-mà-vô-dụng là lỗi, không được âm thầm tụt xuống nhánh không-khai'. Không AC nào phủ: AC-1c giả định signoff.approvers CŨNG tồn tại, AC-4 chỉ phủ signoff.approvers khai-mà-rỗng, AC-5 giả định file không có key. Suite 621 case (0 fail) không có case hình dạng này. Sửa rẻ: nếu file có dòng `approvers:` bất kỳ mà khối signoff cấp-0 không có → một dòng VIOLATION [config] nói approvers nằm sai chỗ.
+
+#### [MEDIUM · ngoài hợp đồng · HỒI QUY] `continue` ở nhánh NOTE 'signature NOT checked' nuốt trọn các luật per-slug ĐỘC LẬP (agent_authors, require_human_commit, stale-evidence, recheck strict)
+**Kịch bản fail:** Fixture .../scratchpad/refute/fx2/p4_multi — config block-list + `require_human_commit: true` + `agent_authors: ["*[bot]*"]`, chữ ký `Manh Phan 2026-06-20` nằm trong commit tác giả `claude[bot]@x.io`, evidence khai `exit_code: 1` với recheck strict. 1da6cf6/303508a: `VIOLATION [feat-ok]: signoff commit <sha> authored by "claude[bot]@x.io" — matches signoff.agent_authors blocklist (*[bot]*)`. 21f6623: chỉ `VIOLATION [config]` + `NOTE [feat-ok]: signature NOT checked` — dòng bot-ký, staleness, và recheck KHÔNG bao giờ chạy.
+
+**Chi tiết:** scripts/pre-merge-check.sh:750-756 in NOTE rồi `continue`, bỏ phần còn lại của vòng slug. Các luật bị bỏ không phụ thuộc vào việc đọc được approvers. Lần chạy vẫn exit 1 (nhánh NOTE luôn đi kèm VIOLATION [config]) nên KHÔNG phải lỗ thủng, nhưng danh sách violation không đầy đủ: người vận hành sửa config, chạy lại mới đụng bức tường thứ hai, và báo cáo một lần chạy có vẻ 'chỉ lỗi config' trong khi evidence có thể đã stale hoặc chữ ký do bot commit. Sửa: bỏ `continue`, dùng một cờ để chỉ chặn đúng dòng `OK [...] signed off by ...` cuối vòng.
+
+#### [MEDIUM · trong hợp đồng · HỒI QUY] Block list YAML hợp lệ từng chạy ĐÚNG ở 1da6cf6 (và ở 303508a với dạng thụt sâu/cuối file) nay bị chặn merge
+**Kịch bản fail:** Fixture .../scratchpad/refute/fx/p5_two (2 slug, `approvers:` block list thụt sâu, cả hai chữ ký = 'Manh Phan 2026-06-20'): 1da6cf6 và 303508a → 2 dòng `OK [...]` + `pre-merge-check: clean` + exit 0. 21f6623 → `VIOLATION [config]` + 2 dòng NOTE 'signature NOT checked', 0 dòng OK, exit 1. Tương tự fx/c2_block và fx/c5_eof (cả hai bản cũ đều xanh). Repo tiêu thụ đang khai block list — dạng mà thông điệp lỗi của chính 1da6cf6 khuyên dùng ('or a YAML block list') — sẽ đỏ ngay sau khi nâng kit dù chữ ký hợp lệ.
+
+**Chi tiết:** Đây là cắt phạm vi có chủ đích (AC-1b) nên inContract=true, nhưng vẫn là mất hành vi đúng theo đúng câu hỏi đặt ra. Blast radius thật hẹp: `bash scripts/pre-merge-check.sh . --base e290aac` cho output GIỐNG HỆT ở cả ba bản (5 violation stale/PENDING-JUDGMENT, `pre-merge-check: rules ran=3 declared-off=0 expected=3`), và đối chứng dương/âm trên chính config của kit vẫn đúng (chữ ký 'Manh Phan' → OK exit 0; 'Nguoi La' → VIOLATION exit 1 ở cả ba bản). Nhưng KHÔNG tài liệu nào (GUIDE.md, README.md, QUICKSTART.md, commands/acceptance-init.md:64) nói ràng buộc 'một dòng' — người dùng chỉ biết sau khi bị chặn. Nên thêm câu đó vào marker `# approvers: enforced —` ở acceptance-init.
+
+#### [LOW · ngoài hợp đồng] Lỗ 'approvers của khoá KHÁC' chưa đóng hẳn: một map CON bên trong `signoff:` vẫn cướp allowlist
+**Kịch bản fail:** Fixture .../scratchpad/refute/fx2/p2_nested — khối `signoff:` chứa `notify:` rồi `    approvers: ["ci-bot"]` đứng TRƯỚC `  approvers: ["Manh Phan"]`. Với chữ ký `ci-bot 2026-06-20`: CẢ BA bản in `OK [feat-ok]: PASS, signed off by ci-bot 2026-06-20` + clean + exit 0. Với fixture p2b_nested_real (chữ ký người duyệt thật `Manh Phan 2026-06-20`): CẢ BA bản VIOLATION + exit 1 — đúng cặp triệu chứng mà commit message tuyên bố đã chữa, chỉ sâu hơn một tầng.
+
+**Chi tiết:** `sed -n 's/^[[:space:]]*approvers:...//p' | head -1` (scripts/pre-merge-check.sh:289) lấy dòng approvers ĐẦU TIÊN trong khối signoff bất kể độ sâu. Không phải hồi quy, nhưng bác bỏ mệnh đề 'khoá cấp-0 là ranh giới DUY NHẤT không mơ hồ' làm cơ sở cho quyết định neo. Sửa rẻ: chỉ nhận dòng approvers ở ĐÚNG mức thụt 2 khoảng trắng trong khối signoff.
+
+#### [LOW · ngoài hợp đồng] Comment biện minh cho quyết định neo là sai sự thật (guard 2-space nằm DƯỚI chỗ phân tích, và không ép 2-space)
+**Kịch bản fail:** scripts/pre-merge-check.sh:281 viết 'guard 2-space schema phía trên đã cưỡng chế indent'. Thực tế guard ở dòng 456 — DƯỚI khối phân tích (282-310) — và chỉ báo lỗi khi số khoảng trắng LẺ (`n % 2 == 1`), nên thụt 4 khoảng trắng vẫn qua guard. Không đổi hành vi (guard vẫn cộng violation trong cùng lần chạy), nhưng lý lẽ chống đỡ một quyết định thu hẹp phạm vi không đúng với mã. Đọc: sed -n '276,310p;450,470p' /Users/manh-macmini/dev/acceptance-gate-kit/scripts/pre-merge-check.sh
+
+**Chi tiết:** Sửa bằng cách viết lại comment cho đúng vị trí/phạm vi guard, hoặc dời guard 2-space lên TRƯỚC khối đọc config nếu thật sự muốn nó là tiền đề. Đây là lớp 'comment giữ parity thay cho phép đo' mà CLAUDE.md đã cảnh báo.

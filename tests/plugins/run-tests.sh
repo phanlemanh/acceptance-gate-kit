@@ -1146,7 +1146,7 @@ else
   fail "P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)"
 fi
 
-run "P57 acceptance-init khong con noi approvers la informational (CA HAI harness)" \
+run "P57 acceptance-init noi DUNG muc cuong che cua approvers (CA HAI harness)" \
   python3 - "$ROOT" <<'PY'
 import sys, pathlib
 root = pathlib.Path(sys.argv[1])
@@ -1158,14 +1158,12 @@ present = [p for p in targets if p.exists()]
 assert len(present) == 2, f"thieu ban acceptance-init: {[str(p) for p in targets if not p.exists()]}"
 for p in present:
     t = p.read_text(encoding="utf-8")
-    # (a) khong con noi sai muc cuong che
-    for bad in ("informational", "not yet machine-enforced"):
-        assert bad not in t, f"{p.name}: van con chuoi '{bad}'"
-    # (b) CO ve khang dinh. Chi do vang-mat thi xoa dong cu ma khong viet gi
-    # thay the van xanh, va tai lieu cam ve approvers se day repo moi roi dung
-    # lo da co y descope (giu-cho tieng Viet o nhanh khong-khai).
-    assert "signoff.approvers" in t or "approvers:" in t, f"{p.name}: khong nhac approvers"
-    assert "# approvers: enforced —" in t, f"{p.name}: thieu marker khang dinh"
+    # Ghim MARKER chu khong chi do vang-mat: xoa dong cu ma khong viet gi thay
+    # the van xanh, va tai lieu cam ve approvers de nguoi van hanh tu suy ra
+    # muc cuong che.
+    assert "# approvers: informational —" in t, f"{p.name}: thieu marker muc cuong che"
+    assert "NOT enforced" in t, f"{p.name}: khong noi ro khoa KHONG duoc cuong che"
+    assert "placeholder" in t, f"{p.name}: khong noi chu ky VAN bi kiem bang luoi giu-cho"
 PY
 
 if [ "$failures" -gt 0 ]; then

@@ -1,15 +1,8 @@
 # Thông điệp luật PASS-chưa-ai-phán — SINH bởi tests/scripts/run-tests.sh (UJ16).
 # KHÔNG sửa tay: suite sinh lại file này mỗi lần chạy và diff byte-đối-byte.
 
-== chữ ký không nêu tên người duyệt (approvers đã khai) ==
-VIOLATION [feat-p]: human_signoff "PENDING — chờ Manh gật" does not name any approver declared in signoff.approvers — Gate 2 is still pending. Replace it with an approver's name (+ date) once they actually sign.
-
-== chữ ký giữ-chỗ (approvers KHÔNG khai) ==
+== chữ ký giữ-chỗ ==
 VIOLATION [feat-p]: human_signoff "TBD" is a placeholder, not a signature — it names no approver, so Gate 2 is still pending. Replace it with the approver's name + date once they actually sign.
-NOTE: signature checking fell back to the placeholder net because signoff.approvers is not declared — that net only knows English placeholders, so a holding note in any other language would have passed. Consider declaring signoff.approvers: ["<name>"] in _acceptance/config.yaml so signatures are checked against real approver names instead.
-
-== approvers khai mà không dùng được ==
-VIOLATION [config]: signoff.approvers is declared but this gate reads only the single-line inline form — write it as signoff.approvers: ["Name One", "Name Two"] on ONE line (YAML block lists and multi-line flow lists are deliberately NOT parsed), or remove the key to opt out deliberately. A declared-yet-unreadable allowlist would silently downgrade signature checking to the English-only placeholder net.
 
 == slug tàng hình: không có contract.md ==
 VIOLATION [feat-ghost]: no contract.md — slug invisible to the gate, yet it claims release (evidence-report.md declares verdict PASS). An unjudged PASS would ride CI green. Add contract.md with frontmatter status + risk_tier so the gate can judge it.

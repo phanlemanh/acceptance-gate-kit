@@ -59,3 +59,19 @@
 - **claude-sonnet-5**: 14 agent · 129 calls · out 102,263 · in 3,737 · cache_read 9,775,923 · cache_create 1,182,737
 - **claude-haiku-4-5-20251001**: 5 agent · 13 calls · out 3,503 · in 114 · cache_read 392,990 · cache_create 263,091
 
+### re-pin lan 2 — wf_f7255631-8bd (8 agent, 100,327 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| Trong /Users/manh-macmini/dev/acceptance-gate-ki | claude-opus-5 | 26 | 42,753 | 1,588 | 3,001,427 | 773 |
+| Trong /Users/manh-macmini/dev/acceptance-gate-ki | claude-opus-5 | 27 | 29,372 | 54 | 2,739,386 | 507 |
+| Trong /Users/manh-macmini/dev/acceptance-gate-ki | claude-opus-5 | 28 | 25,131 | 56 | 2,823,858 | 488 |
+| Trong /Users/manh-macmini/dev/acceptance-gate-ki | claude-haiku-4-5-20251001 | 5 | 1,108 | 42 | 205,387 | 119 |
+| Trong /Users/manh-macmini/dev/acceptance-gate-ki | claude-haiku-4-5-20251001 | 2 | 603 | 18 | 47,758 | 39 |
+| Trong /Users/manh-macmini/dev/acceptance-gate-ki | claude-haiku-4-5-20251001 | 2 | 475 | 18 | 47,758 | 10 |
+| Trong /Users/manh-macmini/dev/acceptance-gate-ki | claude-haiku-4-5-20251001 | 2 | 462 | 18 | 47,760 | 9 |
+| Trong /Users/manh-macmini/dev/acceptance-gate-ki | claude-haiku-4-5-20251001 | 2 | 423 | 18 | 65,074 | 13 |
+
+- **claude-opus-5**: 3 agent · 81 calls · out 97,256 · in 1,698 · cache_read 8,564,671 · cache_create 442,279
+- **claude-haiku-4-5-20251001**: 5 agent · 13 calls · out 3,071 · in 114 · cache_read 413,737 · cache_create 245,697
+

@@ -44,13 +44,6 @@ set -u
 # một typo trong config.yaml giết TOÀN BỘ cổng (signoff, verdict, staleness,
 # bypass, T1-escape) mà CI vẫn xanh. Đúng thứ false-green kit sinh ra để chặn.
 violations=0
-# Danh sách người được phép ký, MỘT TÊN MỖI DÒNG. Rỗng có hai nghĩa rất khác
-# nhau — không khai, hay khai mà không tách được tên nào — nên phải có cờ riêng.
-APPROVERS=""
-APPROVERS_DECLARED=""
-# Bật khi có ít nhất một slug rơi vào lưới đen placeholder; dùng để in NOTE
-# khuyên khai approvers ĐÚNG MỘT LẦN cho cả lần chạy, không lặp theo slug.
-ADVISE_APPROVERS=""
 
 # CI evidence re-checker shipped alongside this script (needs ../lib/evidence-core.js).
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -265,49 +258,6 @@ if [ -f "$ACC/config.yaml" ]; then
   AGENT_AUTHORS="$(sed -n '/^  agent_authors:/,/^  [a-zA-Z0-9_-]*:/p' "$ACC/config.yaml" \
     | sed -n 's/^[[:space:]]*-[[:space:]]*//p' \
     | sed -e 's/[[:space:]]*#.*$//' -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'\$//" -e 's/[[:space:]]*$//')"
-  # `signoff.approvers` tới 1.23.0 là key TRANG TRÍ — không chỗ nào đọc, và
-  # acceptance-init ghi thẳng "informational (not yet machine-enforced)". Từ đây
-  # nó là luật, nên phải phân biệt BA trạng thái chứ không phải hai:
-  #   không khai   -> APPROVERS_DECLARED rỗng        -> rơi về lưới đen + NOTE
-  #   khai, có tên -> APPROVERS có dòng              -> chữ ký phải khớp tên
-  #   khai, 0 tên  -> DECLARED=true, APPROVERS rỗng  -> VIOLATION ngay dưới
-  # Ranh giới đó theo đúng tiền lệ RL14: không-khai là bỏ-qua-có-tín-hiệu,
-  # khai-mà-vô-dụng là lỗi. Gộp hai cái làm một là mở lại lỗ cho config gõ sai.
-  # NEO VÀO KHỐI `signoff:` CẤP-0, không dò `approvers:` ở bất kỳ đâu. Bản trước
-  # bám lần xuất hiện ĐẦU TIÊN trong cả file, nên một `notifications.approvers`
-  # (hay một ví dụ trong block-scalar tài liệu) đứng trước `signoff:` biến list
-  # của khoá KHÁC thành allowlist ký — đo sống: bot trong list đó ký được, còn
-  # người duyệt thật thì bị từ chối. Khoá cấp-0 là ranh giới DUY NHẤT không mơ
-  # hồ ở file này (guard 2-space schema phía trên đã cưỡng chế indent).
-  ap_block="$(awk '
-    /^signoff:[[:space:]]*(#.*)?$/ { inb=1; next }
-    inb && /^[^[:space:]#]/ { exit }
-    inb { print }
-  ' "$ACC/config.yaml")"
-  if printf '%s\n' "$ap_block" | grep -qE '^[[:space:]]*approvers:'; then
-    APPROVERS_DECLARED=true
-    ap_raw="$(printf '%s\n' "$ap_block" | sed -n 's/^[[:space:]]*approvers:[[:space:]]*//p' | head -1 \
-      | sed -e 's/[[:space:]]*#.*$//' -e 's/[[:space:]]*$//')"
-    # CHỈ chấp nhận dạng inline MỘT DÒNG `["A", "B"]` — mở và đóng cùng dòng.
-    # Đây là quyết định RÚT PHẠM VI, không phải thiếu sót: ba vòng cố phân tích
-    # block list bằng mẫu sed/awk chọn tay đều hỏng theo một hình dạng YAML hợp
-    # lệ mới (khoá trần / indent 2 / ngang cột / chú thích đuôi / CRLF / flow
-    # xuống dòng), và vòng thứ ba còn CHẶN NHẦM người duyệt thật. Một dạng được
-    # hỗ trợ + một thông điệp nói thẳng dạng đó thì đúng cho mọi config: không
-    # còn im lặng đọc nhầm list, và người dùng dạng khác biết ngay phải sửa gì.
-    case "$ap_raw" in
-      \[*\])
-        APPROVERS="$(printf '%s' "$ap_raw" | sed -e 's/^\[//' -e 's/\]$//' | tr ',' '\n' \
-          | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' \
-                -e 's/^["'"'"']//' -e 's/["'"'"']$//' -e 's/[[:space:]]*$//' \
-          | grep -v '^$')" ;;
-      *) APPROVERS="" ;;
-    esac
-  fi
-fi
-if [ "$APPROVERS_DECLARED" = "true" ] && [ -z "$APPROVERS" ]; then
-  echo "VIOLATION [config]: signoff.approvers is declared but this gate reads only the single-line inline form — write it as signoff.approvers: [\"Name One\", \"Name Two\"] on ONE line (YAML block lists and multi-line flow lists are deliberately NOT parsed), or remove the key to opt out deliberately. A declared-yet-unreadable allowlist would silently downgrade signature checking to the English-only placeholder net."
-  violations=$((violations+1))
 fi
 if [ "$RECHECK_MODE" = "warn" ]; then
   # A disabled backstop must be impossible to miss: in warn mode a report
@@ -363,38 +313,6 @@ placeholder_signoff() { # <chuỗi> — 0 iff chữ ký không nêu tên ai cả
     pending*|tbd*|todo*|n/a*|none|unsigned*|waiting*) return 0 ;;
   esac
   return 1
-}
-
-signoff_names_approver() { # <chuỗi> — 0 iff bắt đầu bằng một tên trong APPROVERS.
-  # Tên phải kết bằng HẾT CHUỖI hoặc một ký tự không thuộc [A-Za-z0-9_], nên
-  # approvers ["Manh"] KHÔNG nhận "Manhattan". Phân biệt hoa/thường: tên người
-  # là dữ liệu, không chuẩn hoá.
-  #
-  # Phần ĐUÔI sau tên KHÔNG bị soi — chốt Cổng 1 (2026-07-28) NHẬN
-  # "Manh Phan — chưa duyệt, chờ họp": gõ đúng tên mình là hành vi ký có ý thức,
-  # khác hẳn với để nguyên "PENDING" của template; còn siết phần đuôi thực chất
-  # là ràng buộc định dạng ngày, thứ contract khai là Out of scope. Giới hạn này
-  # được khai trong contract mục "Đã biết là không bắt được" — đừng lặng lẽ siết.
-  #
-  # Dùng vòng `for` trên IFS=newline chứ KHÔNG `printf | while read`: nhánh sau
-  # chạy trong subshell nên `return 0` không thoát ra được hàm.
-  local sig="$1" name rest oldifs="$IFS"
-  [ -n "$APPROVERS" ] || return 1
-  IFS='
-'
-  for name in $APPROVERS; do
-    [ -n "$name" ] || continue
-    case "$sig" in
-      "$name") IFS="$oldifs"; return 0 ;;
-      "$name"*)
-        rest="${sig#"$name"}"
-        case "$rest" in
-          [A-Za-z0-9_]*) ;;                 # tên chỉ là tiền tố của một từ dài hơn
-          *) IFS="$oldifs"; return 0 ;;
-        esac ;;
-    esac
-  done
-  IFS="$oldifs"; return 1
 }
 
 
@@ -733,8 +651,8 @@ XLACS
     violations=$((violations+1)); continue
   fi
   # THỨ TỰ CÓ RĂNG: chốt rỗng ngay trên chạy TRƯỚC. Gộp hai chốt cho gọn sẽ làm
-  # chuỗi rỗng ở repo KHÔNG khai approvers không khớp mẫu lưới-đen nào rồi rơi
-  # ra `clean` — hồi quy fail-open trên một luật đang bảo vệ.
+  # chuỗi rỗng không khớp mẫu lưới-đen nào rồi rơi ra `clean` — hồi quy fail-open
+  # trên một luật đang bảo vệ.
   #
   # human_signoff trước 1.24.0 chỉ bị kiểm KHÁC-RỖNG, nên "PENDING — chờ Manh
   # gật" thoả và cổng in "signed off by PENDING". Đó KHÔNG phải đường tấn công
@@ -742,26 +660,19 @@ XLACS
   # chỗ, commit đúng nghi thức human-fields-only. Và require_human_commit không
   # cứu được — nó kiểm AI commit và commit đó chạm dòng nào, không kiểm nội
   # dung có phải một cái tên.
-  if [ -n "$APPROVERS" ]; then
-    if ! signoff_names_approver "$signoff"; then
-      echo "VIOLATION [$slug]: human_signoff \"$signoff\" does not name any approver declared in signoff.approvers — Gate 2 is still pending. Replace it with an approver's name (+ date) once they actually sign."
-      violations=$((violations+1)); continue
-    fi
-  elif [ "$APPROVERS_DECLARED" = "true" ]; then
-    # Khai mà không đọc được: đã có VIOLATION [config] chặn cả lần chạy. Ở đây
-    # TUYỆT ĐỐI không tụt xuống lưới đen (AC-4 cấm), và cũng không được in
-    # "OK … signed off by X" — chữ ký CHƯA HỀ được kiểm, nói nó ổn là overclaim.
-    echo "NOTE [$slug]: signature NOT checked — signoff.approvers is declared but unreadable (see VIOLATION [config] above); fix the config, then re-run."
-    continue
-  elif placeholder_signoff "$signoff"; then
+  #
+  # PHẠM VI ĐÃ RÚT (2026-07-29, sau BỐN lần thử): chốt này CHỈ so chuỗi trên
+  # chính chữ ký — không đọc `signoff.approvers`, không phân tích YAML nào. Bốn
+  # bản vá liên tiếp cố khớp chữ ký với allowlist đều hỏng theo một hình dạng
+  # YAML hợp lệ MỚI (khoá trần / indent 2 / ngang cột / chú thích đuôi / dấu
+  # phẩy trong nháy / flow mapping / space trước dấu hai chấm), ba lần kèm hồi
+  # quy chặn nhầm người duyệt thật. Không gian hình dạng YAML hợp lệ là vô hạn
+  # còn mỗi bản vá chỉ đóng được tập mình nghĩ ra — nên lớp đó bị GỠ HẲN thay
+  # vì vá lần năm. Đánh đổi đã khai: giữ-chỗ viết bằng ngôn ngữ ngoài bảng dưới
+  # vẫn lọt (xem "Đã biết là không bắt được" trong contract).
+  if placeholder_signoff "$signoff"; then
     echo "VIOLATION [$slug]: human_signoff \"$signoff\" is a placeholder, not a signature — it names no approver, so Gate 2 is still pending. Replace it with the approver's name + date once they actually sign."
-    violations=$((violations+1))
-    # CHỈ khuyên khai khi repo thật sự CHƯA khai. Khai-mà-rỗng đã có
-    # VIOLATION [config] riêng ở trên; thêm NOTE "approvers is not declared" vào
-    # cùng lần chạy là tự phủ định dòng ngay trên, và bảo người vận hành làm
-    # việc họ vừa làm rồi. AC-4 cấm nhánh khai-mà-rỗng tụt xuống nhánh không-khai.
-    [ "$APPROVERS_DECLARED" = "true" ] || ADVISE_APPROVERS=1
-    continue
+    violations=$((violations+1)); continue
   fi
   # Human-signoff provenance: the signature is text in an AI-writable file —
   # the git history of the commit that INTRODUCED it is the only
@@ -974,12 +885,6 @@ if [ "$LEDGER_ENABLED" -eq 1 ]; then
     echo "NOTE: VIOLATION [ledger] là lỗi NỘI TẠI của cổng pre-merge (một khối luật bị trượt qua hoặc sổ lệch) — KHÔNG phải lỗi trong thay đổi của bạn. Bước kế tiếp: báo maintainer của kit kèm TOÀN BỘ output lần chạy này; đừng sửa feature của bạn để né nó."
     exit 2
   fi
-fi
-
-# MỘT dòng cho cả lần chạy, không lặp theo slug: đây là lời khuyên về CẤU HÌNH,
-# và lặp nó mười lần chỉ làm loãng danh sách violation thật.
-if [ -n "$ADVISE_APPROVERS" ]; then
-  echo "NOTE: signature checking fell back to the placeholder net because signoff.approvers is not declared — that net only knows English placeholders, so a holding note in any other language would have passed. Consider declaring signoff.approvers: [\"<name>\"] in _acceptance/config.yaml so signatures are checked against real approver names instead."
 fi
 
 if [ "$violations" -gt 0 ]; then
