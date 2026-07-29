@@ -1,0 +1,159 @@
+# evals — cross-feature-claim-index
+# Executor ưu tiên test > script > judgment. Mọi cmd là config: ref.
+# Test mới sống ở tests/workflows/ (suite package feature-loop) — fixture
+# _acceptance giả do code sinh, assertion âm tính có đối chứng dương.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "claim từ cả ledger lẫn gap-probe có mặt; entry approach/revisit/seal và file verdict clean/probe-failed KHÔNG xuất hiện trong output"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/scripts/claim-scan.mjs", "tests/workflows/**"]
+    notes: >
+      Case CS1: fixture 3 slug code-sinh (ledger fix+descope+approach+seal;
+      gap-probe findings + clean + PROBE-FAILED có bảng Findings kèm id đánh
+      dấu) → chạy scan --json: claim đúng nguồn đúng loại; đối chứng âm theo
+      ID cụ thể: approach/seal vắng, id trong file clean/probe-failed vắng;
+      đối chứng dương: cùng id đặt trong file verdict findings thì có mặt.
+      (Fix gap-probe P2-1: assertion vắng-mặt phải được DỰNG, không suy diễn.)
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    expected: "nguồn hợp lệ vẫn ra claim (đối chứng dương CẢ HAI phía); dòng JSONL hỏng và gap-probe.md lệch khuôn/thiếu at bị skip với stderr đếm đúng 'skipped … in <file>' cho từng file; exit 0 — không crash sort, không im lặng"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/scripts/claim-scan.mjs", "tests/workflows/**"]
+    notes: >
+      Case CS2: (a) đối chứng dương — fixture nguyên vẹn ra đủ claim cả 2
+      nguồn; (b) tiêm 2 dòng JSONL hỏng phía ledger; (c) tiêm gap-probe.md
+      bảng Findings lệch cột + 1 file frontmatter thiếu at → claim nguồn
+      lành còn nguyên, stderr khớp thông điệp per-file, exit 0, sort không
+      crash. (Fix gap-probe P1: seam parser markdown phải bị tiêm hỏng,
+      không chỉ phía JSONL.)
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    expected: "claim của slug đang xét KHÔNG xuất hiện; đổi --slug khác thì xuất hiện (đối chứng dương)"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/scripts/claim-scan.mjs", "tests/workflows/**"]
+    notes: >
+      Case CS3: --slug X → id của X vắng; đối chứng dương: --slug Y → id
+      của X có mặt. So theo ID cụ thể do fixture sinh.
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    expected: "corpus rỗng/workspace thiếu file → exit 0 + output rỗng, KHÔNG crash, không đòi migrate; root sai HOẶC thiếu --slug → exit khác 0 kèm thông điệp usage (thiếu tham số KHÔNG rơi vào nhánh im-lặng-hợp-lệ)"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/scripts/claim-scan.mjs", "tests/workflows/**"]
+    notes: >
+      Case CS4: (a) corpus rỗng → exit 0 + output rỗng; (b) workspace chỉ có
+      contract (kiểu pre-1.14) → exit 0, bỏ qua êm; (c) root không tồn tại →
+      exit ≠0 + thông điệp; (d) gọi KHÔNG --slug → exit ≠0 + ghim thông điệp
+      usage (âm tính có đối chứng: case a/b exit 0 trước). (Fix gap-probe
+      P2-2: thiếu tham số phải nổ to, không im lặng như corpus rỗng.)
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    expected: "đúng 10 claim không hơn (claim thứ 11+ bị suppress), không id trùng, text quá 250 bị cắt kèm …, thứ tự severity-rồi-recency đúng dãy kỳ vọng"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/scripts/claim-scan.mjs", "tests/workflows/**"]
+    notes: >
+      Case CS5: fixture 14 claim ứng viên đủ mix sev/at → đúng 10, thứ tự
+      severity-rồi-recency ghim bằng dãy ID kỳ vọng; text 300 ký tự bị cắt
+      còn 250 + "…"; không id trùng.
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    expected: "mọi claim đủ 10 trường; id khớp regex; id sai khuôn bị bắt (invalid id → test đỏ)"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/scripts/claim-scan.mjs", "tests/workflows/**"]
+    notes: >
+      Case CS6: --json từng claim đủ 10 trường schema; mọi id khớp regex đo
+      lường ^(d-[0-9TZ]+-[0-9]+|[a-z0-9-]+#F[0-9]+)$; đột biến đối chứng:
+      id sai khuôn phải bị test bắt (meta-assert regex sống).
+
+  - id: E7
+    criterion: AC-7
+    executor: test
+    expected: "SKILL có đủ 4 mệnh đề: chạy scan, input 5 khi có claim, KHÔNG truyền khi corpus rỗng, scan-fail → claims_input: failed mà probe vẫn chạy; xoá mệnh đề fallback trong bản sao → assert đỏ"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/skills/feature-loop/SKILL.md", "tests/workflows/**", "tests/plugins/**"]
+    notes: >
+      Case CS7 (vật được giao là SKILL text): assert đủ 4 mệnh đề tích hợp
+      S1#7 (chạy scan, input 5 khi có claim, không truyền khi rỗng,
+      claims_input: failed + probe vẫn chạy). Đối chứng đột biến: xoá mệnh
+      đề fallback trong bản sao → assert đỏ.
+
+  - id: E8
+    criterion: AC-8
+    executor: test
+    expected: "prompt đủ 3 ràng buộc: advisory, KHÔNG lật seal/descope, cite [<id>] nguyên văn; đột biến xoá ràng buộc → assert đỏ"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/skills/feature-loop/SKILL.md", "tests/workflows/**", "tests/plugins/**"]
+    notes: >
+      Case CS8: prompt ý (7) đủ 3 ràng buộc (advisory · không lật
+      seal/descope · cite [<id>] nguyên văn). Cùng khuôn đối chứng đột biến
+      như E7.
+
+  - id: E9
+    criterion: AC-9
+    executor: test
+    expected: "exit 0, 1..10 claim, có id d-… và id #F, xong dưới 5 giây trên corpus thật"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/scripts/claim-scan.mjs", "tests/workflows/**"]
+    notes: >
+      Case CS9 smoke corpus thật: chạy trên _acceptance/ của repo, exit 0,
+      1..10 claim, có ≥1 id d-… và ≥1 id #F, đo thời gian <5s. (Corpus thật
+      đổi theo repo — assert khoảng, không ghim số chính xác.)
+
+  - id: E10
+    criterion: AC-10
+    executor: judgment
+    runs: 1
+    inputs:
+      - ../../docs/superpowers/specs/2026-07-29-cross-feature-claim-index-design.md
+      - contract.md
+    question: >
+      Schema claim V1 (10 trường + pointer + id ổn định) có đủ làm nền cho
+      G5 đọc lại (truy nguồn, không migrate) mà KHÔNG phình — không trường
+      "để dành" nào chưa có người tiêu thụ?
+
+  - id: E11
+    criterion: AC-11
+    executor: judgment
+    runs: 1
+    inputs:
+      - ../../docs/superpowers/specs/2026-07-29-cross-feature-claim-index-design.md
+    question: >
+      Ngưỡng sống/chết DP-1 trong design doc có đo được thuần từ artifact
+      (grep gap-probe.md + decisions.jsonl slug mới) đúng như tuyên bố —
+      từng tiêu chí GO/NO-GO chỉ ra được lệnh/vật đo cụ thể, không tiêu chí
+      nào phải hỏi agent hay dựa hồi ức người?
+
+  - id: E13
+    criterion: AC-1
+    executor: test
+    expected: "poison marker trong review-findings.md/run-log.jsonl VẮNG MẶT trong output (nguồn out-of-scope không được đọc); cùng marker trong decisions.jsonl thì CÓ (đối chứng dương)"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/scripts/claim-scan.mjs", "tests/workflows/**"]
+    notes: >
+      Case CS10 — should-NOT-fire cho Out of scope: fixture có
+      review-findings.md + run-log.jsonl chứa chuỗi nhiễm đánh dấu
+      (poison marker do code sinh) → output scan KHÔNG chứa marker; đối
+      chứng dương: cùng marker đặt trong decisions.jsonl thì CÓ mặt.
+      Chứng minh scanner thật sự không đọc nguồn V2.
+
+  - id: E12
+    criterion: AC-12
+    executor: script
+    expected: "sync --check exit 0 — mirror không drift sau khi thêm script + sửa SKILL"
+    cmd: config:executors.script.mirror_sync
+    paths: ["feature-loop/**", "plugins/**", "codex/**"]
+    notes: >
+      Mirror in sync sau khi thêm script + sửa SKILL (P30 độc lập vẫn chạy
+      trong suite plugins; ref này để round verify hiện lỗi sync sớm).
