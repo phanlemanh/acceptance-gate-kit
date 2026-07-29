@@ -165,8 +165,15 @@ const runCard = (root, slug, script = GATE_CARD, extra = []) =>
   const mutated = JSON.parse(runCard(ws, 'ghost', copyCard, ['--extract']).stdout);
   check('FSB8 đối chứng dương: bản sao NGUYÊN VẸN cho 1 hàng (0 hàng ma)', () =>
     assert.equal(intact.gap_probe.rows.length, 1));
-  check('FSB8 đột biến Ô BẢNG → hàng ma XUẤT HIỆN (hành vi đi theo bảng, bảng không phải trang trí)', () =>
-    assert.equal(mutated.gap_probe.rows.length, 3, `được ${mutated.gap_probe.rows.length}, mong 3 (1 thật + 2 ma)`));
+  check('FSB8 đột biến Ô BẢNG → hàng ma XUẤT HIỆN (hành vi đi theo bảng, bảng không phải trang trí)', () => {
+    // same-or-higher: `### Notes` (sâu hơn) lọt vào section, `# Appendix` (h1,
+    // cao hơn) vẫn cắt → đúng 1 thật + 1 ma. Ghim theo NỘI DUNG, không chỉ số.
+    assert.equal(mutated.gap_probe.rows.length, 2, `được ${mutated.gap_probe.rows.length}, mong 2 (1 thật + ghost1)`);
+    const dump = JSON.stringify(mutated);
+    assert.ok(dump.includes('ghost1'), 'đột biến phải để lọt hàng dưới ### Notes');
+    assert.ok(!dump.includes('ghost2'), '# Appendix cao hơn h2 nên vẫn phải bị cắt');
+    assert.ok(!JSON.stringify(intact).includes('ghost1'), 'bản nguyên vẹn không được có hàng ma');
+  });
   rmSync(root, { recursive: true, force: true });
 }
 
