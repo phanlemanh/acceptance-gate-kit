@@ -106,3 +106,19 @@ Từ morphological-scan (4 trục — thước CE trong ngoặc):
   `section(..., 'Findings')` (CE: grep call-site — nó chỉ đọc Criteria/
   Analyst/Evidence/Iterations/Variance). Ghim bằng assert call-site trong
   AC-6 thay vì dựng AC hành vi cho một đường không tồn tại.
+
+## Notes (Gate 2, 2026-07-29 — disposition 8 finding ngoài phạm vi)
+
+- **Chuyển contract mới `boundary-remaining-readers`** (quyết tại Cổng 2, ưu
+  tiên cao — feature này để repo ở trạng thái 2/4 reader nhất quán):
+  (1) `scripts/eval-coverage-lint.js` `sectionLines()` — bản sao thứ 3, nay
+  LỆCH lib ở ca h1 nên lint thấy ít AC hơn thẻ (W1/W3/W4 im lặng trên AC bị
+  rơi); (2) `scripts/pre-merge-check.sh` awk — bản sao thứ 4, cùng lệch, làm
+  răng cross-layer pairing tắt im lặng; (3) `parseBoundaryTable` fail-silent:
+  một lỗi gõ trong bảng marker âm thầm trả `Findings` về `same-or-higher` =
+  bug hàng-ma quay lại. Cần round-trip cho bản awk (khác ngôn ngữ, không
+  require được — cùng khuôn FSB7 đã dùng cho claim-scan).
+- **Known limits:** FSB7 tham số `rule` chết (bảng chỉ trang trí ở nhánh
+  dương; nhánh đột biến libCopy vẫn có răng) · key bảng phân biệt hoa/thường
+  trong khi regex heading thì không (latent, chưa call-site nào chạm) ·
+  `lib/md-section.js` chưa có trong danh sách dependency của P03.
