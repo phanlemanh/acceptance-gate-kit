@@ -3,7 +3,8 @@
 // (fix|descope) + gap-probe.md (verdict: findings). Index là VIEW: nguồn sự
 // thật vẫn là file gốc append-only; không persist, không drift.
 // Pipeline cố định: parse → lọc loại → exclude-self → dedupe → sort → cap → serialize.
-import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs';
+import { readdirSync, readFileSync, existsSync, statSync, realpathSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 const USAGE = 'usage: claim-scan --root <dir> --slug <slug> [--json]';
@@ -49,17 +50,20 @@ function probeClaims(file, slug, warn) {
   const sect = /## Findings([\s\S]*)/.exec(text);
   if (!sect) { warn(`claim-scan: skipped ${file} (malformed table)`); return []; }
   const rows = sect[1].split('\n').filter(l => l.trim().startsWith('|'));
-  const out = []; let n = 0; let malformed = false;
-  for (const line of rows.slice(2)) { // bỏ header + separator
+  const out = []; let badRows = 0;
+  rows.slice(2).forEach((line, idx) => { // bỏ header + separator
+    const n = idx + 1; // vị trí hàng VẬT LÝ trong bảng — id phải trỏ đúng hàng
+    // người mở gap-probe.md sẽ đọc, kể cả khi hàng trước đó hỏng (S4-r1)
     const cells = line.split('|').map(c => c.trim()).filter((_, i, arr) => i > 0 && i < arr.length - 1);
-    if (cells.length !== 6) { malformed = true; continue; }
-    n++;
+    if (cells.length !== 6) { badRows++; return; }
     const [sev, , gap, fail, , disp] = cells;
     out.push({ id: `${slug}#F${n}`, source: 'gap-probe', slug, kind: 'finding', stage: 'S1',
       sev: /^P[0-2]$/.test(sev) ? sev : null, at: meta.at, claim: cut(`${gap} — ${fail}`),
       lesson: cut(disp), pointer: `_acceptance/${slug}/gap-probe.md` });
-  }
-  if (malformed) warn(`claim-scan: skipped ${file} (malformed table)`);
+  });
+  // Thông điệp per-row: "(malformed table)" chỉ dành cho nhánh bỏ CẢ FILE ở
+  // trên — hàng lành vẫn được giữ thì phải nói đúng là bỏ N hàng (S4-r1).
+  if (badRows) warn(`claim-scan: skipped ${badRows} malformed rows in ${file}`);
   return out;
 }
 
@@ -103,7 +107,16 @@ function toMarkdown(claims) {
     ''].join('\n');
 }
 
-const isMain = process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname);
+// fileURLToPath + realpathSync CẢ HAI vế (không phải URL.pathname): pathname
+// còn percent-encoding (khoảng trắng → %20), và ESM loader canonicalize
+// symlink (macOS /var → /private/var) còn argv[1] thì không — vế nào lệch
+// cũng làm isMain=false → CLI thành no-op exit 0, fail-open không phân biệt
+// được với corpus rỗng (finding S4-r1).
+const isMain = (() => {
+  if (!process.argv[1]) return false;
+  try { return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url)); }
+  catch { return false; }
+})();
 if (isMain) {
   const a = parseArgs(process.argv.slice(2));
   if (!a) { console.error(USAGE); process.exit(2); }

@@ -1,7 +1,7 @@
 // Tests for feature-loop/scripts/claim-scan.mjs — fixture SINH BẰNG CODE,
 // assertion âm tính luôn có đối chứng dương + ghim thông điệp (CLAUDE.md).
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -74,20 +74,27 @@ const row = (sev, tag) => ({ sev, artifact: 'evals', gap: `gap-${tag}`, fail: `f
     assert.equal(clean.code, 0);
     assert.ok(ids.includes('d-20260720T100000Z-10') && ids.includes('ok-a#F1')); });
   // tiêm hỏng: 2 dòng JSONL rác + 1 probe lệch cột + 1 probe thiếu at
+  // + 1 probe TRỘN hàng hỏng/lành (fix S4-r1: giữ hàng lành, id theo hàng VẬT LÝ)
   mkWorkspace(root, 'bad-led', { ledger: ['{not-json', ...goodLedger.map(l => l.replace(/Z-1/g, 'Z-2')), '"trailing'] });
   const badTable = gapProbe('2026-07-21T09:30:00Z', 'findings', [row('P2', 'bt')]).replace('| m-bt |', '|'); // lệch cột
   mkWorkspace(root, 'bad-tbl', { probe: badTable });
   mkWorkspace(root, 'bad-at', { probe: gapProbe('X', 'findings', [row('P2', 'ba')]).replace(/^at: X\n/m, '') });
+  const mixTable = gapProbe('2026-07-21T09:45:00Z', 'findings', [row('P1', 'mx1'), row('P2', 'mx2')])
+    .replace('| m-mx1 |', '|'); // hàng 1 lệch cột, hàng 2 lành
+  mkWorkspace(root, 'mix', { probe: mixTable });
   const r = run(['--root', root, '--slug', 'z', '--json']);
   const ids = JSON.parse(r.out).claims.map(c => c.id);
   check('CS2 nguồn lành còn nguyên + exit 0', () => { assert.equal(r.code, 0);
     assert.ok(ids.includes('d-20260720T100000Z-10') && ids.includes('ok-a#F1')); });
-  check('CS2 ghim thông điệp skip per-file', () => {
+  check('CS2 ghim thông điệp skip per-file/per-row', () => {
     assert.match(r.err, /claim-scan: skipped 2 malformed lines in .*bad-led.*decisions\.jsonl/);
-    assert.match(r.err, /claim-scan: skipped .*bad-tbl.*gap-probe\.md \(malformed table\)/);
-    assert.match(r.err, /claim-scan: skipped .*bad-at.*gap-probe\.md \(missing at\)/); });
-  check('CS2 claim từ file hỏng không lọt', () =>
-    assert.ok(!ids.includes('bad-tbl#F1') && !ids.includes('bad-at#F1')));
+    assert.match(r.err, /claim-scan: skipped 1 malformed rows in .*bad-tbl.*gap-probe\.md/);
+    assert.match(r.err, /claim-scan: skipped .*bad-at.*gap-probe\.md \(missing at\)/);
+    assert.match(r.err, /claim-scan: skipped 1 malformed rows in .*mix.*gap-probe\.md/); });
+  check('CS2 hàng hỏng không lọt, hàng lành trong bảng trộn GIỮ id theo hàng vật lý (#F2, không phải #F1)', () => {
+    assert.ok(!ids.includes('bad-tbl#F1') && !ids.includes('bad-at#F1'));
+    assert.ok(!ids.includes('mix#F1'), 'hàng hỏng vật lý số 1 không được emit');
+    assert.ok(ids.includes('mix#F2'), 'hàng lành phải giữ số hàng thật để cite đúng'); });
   rmSync(root, { recursive: true, force: true });
 }
 
@@ -108,6 +115,19 @@ const row = (sev, tag) => ({ sev, artifact: 'evals', gap: `gap-${tag}`, fail: `f
   const d = run(['--root', root]);
   check('CS4d thiếu --slug: exit 2 + usage (KHÔNG giả dạng corpus rỗng)', () =>
     { assert.equal(d.code, 2); assert.match(d.err, /^usage: claim-scan --root <dir> --slug <slug>/); });
+  // CS4e (fix S4-r1 isMain): script nằm ở path CÓ KHOẢNG TRẮNG vẫn là CLI thật
+  {
+    const spaceDir = path.join(root, 'dir with space');
+    mkdirSync(spaceDir, { recursive: true });
+    const scanCopy = path.join(spaceDir, 'claim-scan.mjs');
+    writeFileSync(scanCopy, readFileSync(SCAN));
+    const bad = spawnSync('node', [scanCopy, '--root', path.join(root, 'khong-ton-tai'), '--slug', 'z'], { encoding: 'utf8' });
+    check('CS4e path có khoảng trắng: root sai vẫn NỔ exit 2 (không no-op exit 0)', () =>
+      { assert.equal(bad.status, 2); assert.match(bad.stderr, /root not found/); });
+    const good = spawnSync('node', [scanCopy, '--root', root, '--slug', 'z', '--json'], { encoding: 'utf8' });
+    check('CS4e đối chứng dương: cùng path đó, corpus hợp lệ chạy bình thường', () =>
+      { assert.equal(good.status, 0); assert.ok(JSON.parse(good.stdout).claims !== undefined); });
+  }
   rmSync(root, { recursive: true, force: true });
 }
 
