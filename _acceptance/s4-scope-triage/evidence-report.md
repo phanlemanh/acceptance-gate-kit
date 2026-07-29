@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict   # the `enforcement` value from _acceptance/config.yaml (default strict). CI pre-merge BLOCKS off; warn only warns.
 bypass_used: false              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
-verified_commit: 29356bb87fd7442779a5b2d14e31b39abb50321a
+verified_commit: 57bff689e8a9fc9b50cd523c8c59c4760a8b8011
 # bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -281,3 +281,22 @@ Luật staleness lọc theo **đường dẫn**, và `plugin.json` cố ý KHÔN
   plugins pass · workflows pass · mirror in sync).
 - **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký + `human_override`
   sẵn có giữ nguyên hiệu lực.
+
+### Re-pin lần 3 — 2026-07-29, do fix loop-stall của feature-loop (1.17.1)
+
+`verified_commit` lên `57bff68`. Nguyên nhân stale: commit `57bff68` sửa
+SKILL.md của feature-loop (cả hai harness) để vòng lặp tự đi — bất biến dừng,
+S3 dispatch S4 ngay, REJECT tự động 3 round, in `/goal` bắt buộc — kèm bump
+manifest 1.17.0→1.17.1 và re-pin 3 literal version trong
+`tests/plugins/run-tests.sh` (P04/P22).
+
+Khác lần 2, lần này staleness **bắt đúng một nửa**: SKILL.md là văn xuôi điều
+phối (không code path nào của cổng đọc nó), nhưng `tests/plugins/run-tests.sh`
+là một phần machine lane THẬT — suite đổi thì bằng chứng suite phải chạy lại.
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY — machine lane ở `57bff68` do 5 agent tươi
+  chạy (mỗi slug một agent), sha nhất quán cả 5, tất cả exit 0 (588 case
+  scripts · 51 hooks · plugins pass · workflows 159+16 · mirror in sync).
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
+  `human_override` sẵn có giữ nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là đã
+  phán về hành vi mới của feature-loop 1.17.1.
