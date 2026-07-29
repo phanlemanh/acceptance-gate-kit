@@ -4,7 +4,7 @@ feature: "findings-section-boundary — luật ranh giới section PER-SECTION �
 slug: findings-section-boundary
 risk_tier: T3
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-07-29T11:15:00Z
 owner: phanlemanh@gmail.com
