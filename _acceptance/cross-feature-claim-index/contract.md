@@ -4,7 +4,7 @@ feature: "cross-feature-claim-index — gap-probe S1 đọc bài học lớp-l�
 slug: cross-feature-claim-index
 risk_tier: T2
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-07-29T06:55:00Z
 owner: phanlemanh@gmail.com

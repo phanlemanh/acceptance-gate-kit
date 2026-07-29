@@ -72,3 +72,33 @@
 - **claude-sonnet-5**: 26 agent · 177 calls · out 72,724 · in 354 · cache_read 8,385,419 · cache_create 1,385,708
 - **claude-haiku-4-5-20251001**: 5 agent · 13 calls · out 3,590 · in 114 · cache_read 247,618 · cache_create 142,404
 
+### S4 round 2 — wf_07692097-c1b (21 agent, 59,369 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| review:bugs | claude-fable-5 | 15 | 17,363 | 30 | 953,621 | 295 |
+| refute:claim-scan.mjs | claude-sonnet-5 | 11 | 6,588 | 22 | 600,600 | 135 |
+| refute:claim-scan.mjs | claude-sonnet-5 | 11 | 6,458 | 22 | 576,519 | 97 |
+| review:conventions | claude-fable-5 | 10 | 5,785 | 20 | 537,128 | 169 |
+| refute:plugin.json | claude-sonnet-5 | 8 | 5,491 | 978 | 374,502 | 91 |
+| refute:claim-scan.mjs | claude-sonnet-5 | 9 | 3,632 | 18 | 439,608 | 75 |
+| judge:E11:operational-feasibility | claude-sonnet-5 | 3 | 3,172 | 6 | 88,865 | 46 |
+| judge:E10:domain-correctness | claude-sonnet-5 | 3 | 3,020 | 6 | 96,102 | 42 |
+| machine:bash scripts/sync-plugin-packages.sh --c | claude-haiku-4-5-20251001 | 5 | 1,391 | 42 | 119,726 | 24 |
+| refute:SKILL.md | claude-sonnet-5 | 4 | 1,209 | 8 | 143,840 | 68 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 1,135 | 18 | 27,496 | 18 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 4 | 1,087 | 34 | 122,876 | 95 |
+| capture:provenance | claude-sonnet-5 | 3 | 897 | 6 | 90,249 | 19 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 654 | 18 | 44,927 | 13 |
+| machine:bash tests/plugins/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 358 | 18 | 44,927 | 51 |
+| judge:E10:operational-feasibility | claude-sonnet-5 | 2 | 329 | 4 | 42,511 | 34 |
+| judge:E10:spec-alignment | claude-sonnet-5 | 2 | 315 | 4 | 42,509 | 55 |
+| judge:E11:spec-alignment | claude-sonnet-5 | 2 | 227 | 4 | 42,510 | 57 |
+| synthesize:report | claude-sonnet-5 | 3 | 139 | 6 | 115,582 | 218 |
+| triage | claude-sonnet-5 | 2 | 110 | 4 | 46,166 | 99 |
+| judge:E11:domain-correctness | claude-sonnet-5 | 2 | 9 | 4 | 65,681 | 37 |
+
+- **claude-fable-5**: 2 agent · 25 calls · out 23,148 · in 50 · cache_read 1,490,749 · cache_create 144,874
+- **claude-sonnet-5**: 14 agent · 65 calls · out 31,596 · in 1,092 · cache_read 2,765,244 · cache_create 705,300
+- **claude-haiku-4-5-20251001**: 5 agent · 15 calls · out 4,625 · in 130 · cache_read 359,952 · cache_create 126,572
+
