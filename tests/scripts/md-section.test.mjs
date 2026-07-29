@@ -41,9 +41,9 @@ function contractWithSubheading(n = 5) {
   const acs = [];
   for (let i = 1; i <= n; i++) {
     if (i === 3) acs.push('### nhóm phụ\n');
-    acs.push(`- **AC-${i}** Given điều kiện ${i}, When hành động ${i}, Then kết quả ${i}.`);
+    acs.push(`- AC-${i}: Given điều kiện ${i}, When hành động ${i}, Then kết quả ${i}.`);
   }
-  return `---\nschema_version: 2\nfeature: "fixture"\nslug: fx\nrisk_tier: T2\nsurfaces: [cli]\nstatus: draft\n---\n\n# Acceptance contract — fx\n\n## Acceptance criteria\n\n${acs.join('\n')}\n\n## Coverage\n\n- trục A: AC-1\n\n## Out of scope\n\n- không làm X\n- không làm Y\n`;
+  return `---\nschema_version: 2\nfeature: "fixture"\nslug: fx\nrisk_tier: T2\nsurfaces: [cli]\nstatus: draft\n---\n\n# Acceptance contract — fx\n\n## Criteria\n\n${acs.join('\n')}\n\n## Coverage\n\n- trục A: AC-1\n\n## Out of scope\n\n- không làm X\n- không làm Y\n`;
 }
 
 function mkWs(root, slug, { contract, probe, report } = {}) {
@@ -115,13 +115,17 @@ const runCard = (root, slug, script = GATE_CARD, extra = []) =>
 // ---------- FSB4: evidence-page cũng không cắt cụt ----------
 {
   const root = mkdtempSync(path.join(tmpdir(), 'fsb4-'));
-  const report = `---\nfeature_slug: fx\nverdict: PASS\nverified_by: fresh-context verification subagent\nenforcement_mode: strict\nbypass_used: false\nhuman_signoff:\n---\n\n# Evidence Report: fx\n\n## Evidence\n\n- eval: E1\n  run_id: r1\n  exit_code: 0\n\n## Iterations\n\n- round 1: PASS\n`;
+  const evalBlocks = Array.from({ length: 5 }, (_, i) =>
+    `- eval: E${i + 1}\n  criterion: AC-${i + 1}\n  executor: test\n  verdict: PASS\n  run_id: r${i + 1}\n  exit_code: 0`).join('\n\n');
+  const evalTable = ['| Eval | Tiêu chí | Loại | Verdict |', '|---|---|---|---|',
+    ...Array.from({ length: 5 }, (_, i) => `| E${i + 1} | AC-${i + 1} | test | PASS |`)].join('\n');
+  const report = `---\nfeature_slug: fx\nverdict: PASS\nverified_by: fresh-context verification subagent\nenforcement_mode: strict\nbypass_used: false\nhuman_signoff:\n---\n\n# Evidence Report: fx\n\n${evalTable}\n\n## Evidence\n\n${evalBlocks}\n\n## Iterations\n\n- round 1: PASS\n`;
   mkWs(root, 'subh', { contract: contractWithSubheading(5), probe: gapProbe(), report });
   const r = spawnSync('node', [EVIDENCE_PAGE, '--root', root, '--slug', 'subh'], { encoding: 'utf8' });
   const html = readFileSync(path.join(root, '_acceptance', 'subh', 'evidence-page.html'), 'utf8');
   check('FSB4 evidence-page hiện đủ 5 AC sau sub-heading', () => {
     assert.equal(r.status, 0, r.stderr);
-    for (let i = 1; i <= 5; i++) assert.ok(html.includes(`AC-${i}`), `thiếu AC-${i}`);
+    for (let i = 1; i <= 5; i++) assert.ok(html.includes(`kết quả ${i}`), `thiếu TEXT của AC-${i} (section cắt cụt?)`);
   });
   rmSync(root, { recursive: true, force: true });
 }
