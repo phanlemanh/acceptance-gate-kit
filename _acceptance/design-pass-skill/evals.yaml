@@ -1,0 +1,155 @@
+# evals — design-pass-skill
+# Test mới sống ở tests/plugins/ (suite của SKILL.md/commands — cùng nhà P31/P32).
+# Luật kit: fixture code-sinh; âm tính có đối chứng dương + ghim thông điệp.
+# paths ghi CẢ 2 ứng viên vị trí (skills/ và design-loop/) — vị trí chốt tại
+# Gate 1; glob thừa vô hại (chỉ dùng cho carry-forward delta).
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "frontmatter name: design-pass + description có trigger LẪN NOT-for + KHÔNG disable-model-invocation; ĐỐI CHỨNG DƯƠNG: bản sao tiêm 'disable-model-invocation: true' → case đỏ khớp nguyên văn 'design-pass bi khoa model-invocation'"
+    cmd: config:executors.test.plugins
+    paths: ["skills/design-pass/**", "design-loop/skills/design-pass/**", "plugins/**", "tests/plugins/**"]
+    notes: >
+      Case DP1: đọc SKILL.md thật, assert 3 điều; đột biến trên BẢN SAO trong
+      tmp (không đụng nguồn).
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    expected: "SKILL.md chứa các dotted key design_pass.proto_route (bắt buộc, kèm chuỗi template {slug}) + design_pass.ds_skill + dev_cmd/capture_cmd optional + chuỗi config-patch + bước xác định slug (nhánh standalone) + nhánh thiếu-proto_route = DỪNG; ĐỘT BIẾN bản sao xoá 1 key → đỏ khớp nguyên văn 'SKILL.md thieu key design_pass.<key>'; ĐỘT BIẾN xoá chuỗi {slug} khỏi mô tả proto_route → đỏ khớp nguyên văn 'proto_route thieu template {slug}'; ĐỘT BIẾN đổi DỪNG thành chạy-tiếp (xoá đoạn DỪNG) → đỏ khớp nguyên văn 'thieu nhanh DUNG khi vang proto_route'; ĐỐI CHỨNG DƯƠNG cùng harness: bản nguyên vẹn XANH"
+    cmd: config:executors.test.plugins
+    paths: ["skills/design-pass/**", "design-loop/skills/design-pass/**", "tests/plugins/**"]
+    notes: >
+      Case DP2: grep có sanity counter (số hit > 0 cho từng chuỗi). Fix
+      gap-probe P2-3 (cite [findings-section-boundary#F2]): fail-open trên
+      config vắng là đúng lỗ "không lỗi mờ" của design §2.4.
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    expected: "phần nạp luật khai đủ 2 nguồn (ux-ui-craft + nguồn DS từ config) VÀ thang DS 2 nấc khi ds-vắng: (i) từ vựng token repo (ii) shadcn mặc định CÓ TÊN — cả hai nấc tự ghi finding nhóm 2 nêu nấc đã dùng; ĐỘT BIẾN xoá nhánh thang → đỏ khớp nguyên văn 'thieu nhanh degrade ds_skill'; ĐỘT BIẾN xoá riêng chuỗi shadcn → đỏ khớp nguyên văn 'thieu mac dinh shadcn cho repo 0 token'; ĐỐI CHỨNG DƯƠNG cùng harness: bản nguyên vẹn XANH"
+    cmd: config:executors.test.plugins
+    paths: ["skills/design-pass/**", "design-loop/skills/design-pass/**", "tests/plugins/**"]
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    expected: "đối tượng = bản bấm được mở trong Browser pane qua proto_route; THANG VẬT LIỆU đủ 3 bậc thành văn (real-components/scaffold/static) + câu bắt khai material: khi hạ bậc; nhánh route-không-mở-được = DỪNG + in dev_cmd nếu khai + hướng dựng; có câu cấm 'không tự dựng route/logic'; ĐỘT BIẾN xoá câu cấm → đỏ khớp nguyên văn 'thieu cau cam tu dung route/logic'; ĐỘT BIẾN xoá đoạn bắt khai material → đỏ khớp nguyên văn 'thieu khai material khi ha bac vat lieu'; ĐỐI CHỨNG DƯƠNG cùng harness: bản nguyên vẹn XANH"
+    cmd: config:executors.test.plugins
+    paths: ["skills/design-pass/**", "design-loop/skills/design-pass/**", "tests/plugins/**"]
+    notes: >
+      Siết theo gap-probe P1-2 [findings-section-boundary#F2]: exit≠0 trần
+      không phân biệt được bắt-đúng-lỗi với chưa-bao-giờ-chạy.
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    expected: "đủ 4 luật cứng thành văn (không-hex-mới · không-webfont · không-sửa-components/ui · không-logic/write-path); ĐỘT BIẾN xoá TỪNG luật trong bản sao → đỏ khớp nguyên văn 'thieu luat cung: <ten-luat>' (4 lớp, 4 assert); ĐỐI CHỨNG DƯƠNG cùng harness: bản nguyên vẹn XANH"
+    cmd: config:executors.test.plugins
+    paths: ["skills/design-pass/**", "design-loop/skills/design-pass/**", "tests/plugins/**"]
+    notes: >
+      Siết theo gap-probe P1-2 [findings-section-boundary#F2].
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    expected: "vòng lặp khai nhịp sửa→reload→chờ-owner-phản-ứng-bằng-lời + câu cấm tự chấm thẩm mỹ thay owner; ĐỘT BIẾN bản sao xoá câu cấm → đỏ khớp nguyên văn 'thieu cau cam tu cham tham my'; ĐỐI CHỨNG DƯƠNG cùng harness: bản nguyên vẹn XANH"
+    cmd: config:executors.test.plugins
+    paths: ["skills/design-pass/**", "design-loop/skills/design-pass/**", "tests/plugins/**"]
+    notes: >
+      Siết theo gap-probe P1-2 [findings-section-boundary#F2].
+
+  - id: E7
+    criterion: AC-7
+    executor: test
+    expected: "capture về evidence/design-pass/ theo ma trận state × breakpoint × theme-khi-repo-có-dark-mode + nhánh states-không-khai = hỏi owner đầu phiên (không bịa) + câu cấm ghi evidence/design/ + câu cấm tạo provenance.json; ĐỘT BIẾN LỚP 1: bản sao đổi đường capture về evidence/design/ → đỏ khớp nguyên văn 'design-pass dang tro vao lan CT2'; ĐỘT BIẾN LỚP 2: bản sao xoá riêng câu cấm provenance.json → đỏ khớp nguyên văn 'thieu cau cam provenance.json'; ĐỘT BIẾN LỚP 3: xoá nhánh hỏi-owner-states → đỏ khớp nguyên văn 'thieu nhanh hoi owner danh sach state'; ĐỐI CHỨNG DƯƠNG cùng harness: bản nguyên vẹn XANH"
+    cmd: config:executors.test.plugins
+    paths: ["skills/design-pass/**", "design-loop/skills/design-pass/**", "tests/plugins/**"]
+    notes: >
+      Hai lớp hai assert (mẫu E9) — fix gap-probe P2-1: provenance.json là
+      trigger THỨ HAI của công tắc CT2, không được núp sau lớp 1.
+
+  - id: E8
+    criterion: AC-8
+    executor: test
+    expected: "khối rút được giữa marker DESIGN-PASS-NOTE-TEMPLATE; fixture sinh TỪ khuôn parse lại đủ trường frontmatter + 2 nhóm Findings (round-trip khuôn P55); VÀ section kết-phiên của THÂN nghi thức chứa đường _acceptance/<slug>/design-pass.md + tham chiếu đích danh tên marker (khuôn không mồ côi); ĐỘT BIẾN 1: xoá marker → lỗi khớp nguyên văn 'KHONG rut duoc DESIGN-PASS-NOTE-TEMPLATE'; ĐỘT BIẾN 2: xoá tham chiếu marker khỏi thân kết-phiên → đỏ khớp nguyên văn 'khuon template mo coi — than nghi thuc khong tro toi marker'; đối chứng dương: bản nguyên vẹn parse đủ 10 trường (slug/at/route/material/ds_skill/states/breakpoints/themes/patched/deferred)"
+    cmd: config:executors.test.plugins
+    paths: ["skills/design-pass/**", "design-loop/skills/design-pass/**", "tests/plugins/**"]
+    notes: >
+      Fixture do CODE SINH từ chính khối rút được — không viết tay khuôn bên
+      đọc (bất biến thước-gắn-vào-vật CLAUDE.md). Đột biến 2 fix gap-probe
+      P2-2 (cite [findings-section-boundary#F1]): marker trang trí là lớp
+      lỗi đã có hồ sơ.
+
+  - id: E9
+    criterion: AC-9
+    executor: test
+    expected: "grep engine-clean (onehub/OneHub/deal-page/@onehub/mstar) = 0 hit VÀ một-mặt-phẳng (claude.ai/design, /design-sync, /design-login, /design-mockup) = 0 hit trên SKILL.md + test mới; ĐỐI CHỨNG DƯƠNG: fixture tiêm TỪNG LỚP chuỗi cấm → đỏ khớp nguyên văn 'vat lieu consumer/surface ngoai trong design-pass'"
+    cmd: config:executors.test.plugins
+    paths: ["skills/design-pass/**", "design-loop/skills/design-pass/**", "tests/plugins/**"]
+    notes: >
+      Grep có sanity counter (đếm file quét > 0). Hai lớp tiêm riêng: 1 chuỗi
+      consumer + 1 chuỗi surface-ngoài — mỗi lớp một assert.
+
+  - id: E10
+    criterion: AC-10
+    executor: script
+    expected: "sync --check exit 0 — mirror đồng bộ, skills/design-pass có mặt trong package"
+    cmd: config:executors.script.mirror_sync
+    paths: ["skills/**", "design-loop/**", "plugins/**", "codex/**"]
+
+  - id: E11
+    criterion: AC-10
+    executor: test
+    expected: "smoke DƯƠNG bản mirror: đọc frontmatter name: design-pass từ file TRONG plugins/ — exit 0 + đúng name (không chỉ 'không drift')"
+    cmd: config:executors.test.plugins
+    paths: ["skills/design-pass/**", "design-loop/skills/design-pass/**", "plugins/**", "tests/plugins/**"]
+
+  - id: E12
+    criterion: AC-11
+    executor: test
+    expected: "suite scripts xanh sau thay đổi — không hồi quy"
+    cmd: config:executors.test.scripts
+    paths: ["lib/**", "scripts/**", "tests/scripts/**"]
+
+  - id: E13
+    criterion: AC-11
+    executor: test
+    expected: "suite hooks xanh sau thay đổi, số case > 0"
+    cmd: config:executors.test.hooks
+    paths: ["hooks/**", "lib/**", "tests/hooks/**"]
+
+  - id: E14
+    criterion: AC-11
+    executor: test
+    expected: "suite workflows xanh sau thay đổi — không hồi quy carry-forward/scope-triage"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/**", "tests/workflows/**"]
+
+  - id: E15
+    criterion: AC-12
+    executor: judgment
+    runs: 3
+    inputs:
+      # Dòng 1 theo PHƯƠNG ÁN A — nếu Gate 1 chốt B, SỬA thành
+      # ../../design-loop/skills/design-pass/SKILL.md NGAY TẠI GATE 1 trước
+      # approve (sửa-evals-trước-approve thuộc gói duyệt; input vắng lúc S4
+      # = lỗi hạ tầng, không phải chất lượng skill — gap-probe P1-1).
+      - ../../skills/design-pass/SKILL.md
+      - ../../docs/superpowers/specs/2026-07-30-design-pass-skill-design.md
+      - ../../CONTEXT.md
+    question: >
+      SKILL.md design-pass có giữ TRỌN 6 yêu cầu cốt lõi của thiết kế
+      29-30/07 không (in-harness một mặt phẳng; 2 nguồn luật đọc từ config
+      không hardcode tên repo tiêu thụ; đối tượng là bản bấm được đang chạy
+      trong Browser pane + owner phản ứng bằng lời; ràng buộc cứng token/hex/
+      webfont/components-ui/logic; kết phiên capture ma trận + findings 2
+      nhóm + ghi vết workspace; degrade tử tế nêu đích danh thiếu gì) —
+      CỘNG 2 thang mở rộng chốt tại Gate 1 (thang vật liệu 3 bậc
+      real-components/scaffold/static bắt khai material khi hạ bậc; thang DS
+      2 nấc với shadcn làm mặc định có tên cho repo 0 token, ghi finding nêu
+      nấc đã dùng)? Văn có theo glossary CONTEXT.md không? Một kỹ sư ngoài
+      cuộc đọc SKILL.md có dựng lại được nghi thức mà không phải hỏi thêm
+      không?

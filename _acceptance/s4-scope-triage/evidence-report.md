@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict   # the `enforcement` value from _acceptance/config.yaml (default strict). CI pre-merge BLOCKS off; warn only warns.
 bypass_used: false              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
-verified_commit: 23b8dc67e9386bd137690cd8eabc4129fee42e72
+verified_commit: 8ee3f4c18335ca5846c6ddd278299135ee61d1c5
 # bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -415,3 +415,39 @@ riêng, `scripts/gate-card.js` + suite đổi theo.
   phiên, không phải agent độc lập mỗi slug.
 - **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký sẵn có giữ
   nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là đã phán về mã sau merge.
+
+### Re-pin — 2026-07-30, do feature design-pass-skill
+
+`verified_commit` lên `3ab4ee6`. Nguyên nhân stale: feature design-pass-skill
+thêm skill `skills/design-pass/` (nghi thức thiết kế in-harness S1-D) + 10
+case P58–P67 trong `tests/plugins/run-tests.sh` + bump acceptance-gate
+1.26.0 (3 manifest) + mirror sync.
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY — machine lane ở `3ab4ee6` do 3 agent
+  tươi chạy độc lập, sha nhất quán cả 3, tất cả exit 0 (590 scripts ·
+  51 hooks · plugins pass gồm P58–P67 · workflows pass · mirror in sync).
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
+  `human_override` giữ nguyên; chữ ký cũ KHÔNG được hiểu là đã phán về
+  design-pass 1.26.0.
+
+### Re-pin — 2026-07-30 (lần 2), do amendment worked-example của design-pass-skill
+
+`verified_commit` lên `a8f0d70`. Nguyên nhân stale: amendment sau signoff của
+design-pass-skill (lệnh owner trong chat — skill-creator audit mục 1): thêm
+worked example vào SKILL.md; description GIỮ NGUYÊN (trigger-eval 3 iteration
+không dịch chuyển điểm).
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY — machine lane ở `a8f0d70` do 3 agent
+  tươi chạy độc lập, sha nhất quán cả 3, tất cả exit 0 (590 scripts ·
+  51 hooks · plugins pass gồm P58–P67 · workflows pass · mirror in sync).
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
+  `human_override` giữ nguyên.
+
+### Re-pin — 2026-07-30 (sau merge hai nhánh), tại 8ee3f4c
+
+`verified_commit` lên `8ee3f4c` — merge commit tích hợp design-pass-skill
+(1.26.0, case đánh lại số P72–P81) với gate-card-ac-visibility (PR 18) trên
+origin/main. Machine lane ở `8ee3f4c` do 3 agent tươi chạy độc lập, sha nhất
+quán cả 3, tất cả exit 0 (596 scripts · 51 hooks · plugins pass gồm case của
+CẢ HAI feature · workflows pass · mirror in sync). Judgment + chữ ký giữ
+nguyên như các lần re-pin trước.

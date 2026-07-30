@@ -1476,6 +1476,269 @@ elif [ "$P63BAD" -ne 0 ]; then
 else pass "P70 moi contract cua kit dung '## Criteria'; doi chung duong bat duoc ban doi heading"; fi
 rm -rf "$P63TMP"
 
+# --- design-pass cases (P72-P81) begin ---
+# Luật chung: đọc vật THẬT từ $ROOT; check() trả vi phạm với thông điệp GHIM
+# (khớp evals.yaml của design-pass-skill); ĐỐI CHỨNG DƯƠNG bản nguyên vẹn
+# xanh TRƯỚC khi tin bản đột biến đỏ; đột biến trên chuỗi/bản sao, không đụng
+# nguồn. N() gộp whitespace để anchor sống sót qua line-wrap.
+
+run "P72 design-pass frontmatter + NOT-for + open invocation (E1)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+t = (root / "skills/design-pass/SKILL.md").read_text(encoding="utf-8")
+N = lambda s: re.sub(r"\s+", " ", s)
+def check(text):
+    tx = N(text); errs = []
+    if "name: design-pass" not in text: errs.append("SKILL.md thieu frontmatter name: design-pass")
+    if "Dùng khi" not in tx: errs.append("description thieu trigger Dung khi")
+    if "KHÔNG dùng cho" not in tx: errs.append("description thieu NOT-for")
+    if "disable-model-invocation" in text: errs.append("design-pass bi khoa model-invocation")
+    return errs
+assert check(t) == [], f"ban nguyen ven phai XANH: {check(t)}"
+mut = t.replace("---\nname: design-pass", "---\ndisable-model-invocation: true\nname: design-pass", 1)
+assert any("design-pass bi khoa model-invocation" in e for e in check(mut)), "dot bien tiem lock khong do"
+PY
+
+run "P73 design-pass preflight: keys + {slug} template + DUNG + standalone slug (E2)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+t = (root / "skills/design-pass/SKILL.md").read_text(encoding="utf-8")
+N = lambda s: re.sub(r"\s+", " ", s)
+def check(text):
+    tx = N(text); errs = []
+    for key in ["proto_route", "ds_skill", "dev_cmd", "capture_cmd"]:
+        if f"design_pass.{key}" not in tx: errs.append(f"SKILL.md thieu key design_pass.{key}")
+    if "{slug}" not in tx: errs.append("proto_route thieu template {slug}")
+    if "config-patch" not in tx: errs.append("SKILL.md thieu lenh config-patch mau")
+    if "thiếu `proto_route` → DỪNG" not in tx: errs.append("thieu nhanh DUNG khi vang proto_route")
+    if "standalone" not in tx or "hỏi user đúng 1 câu" not in tx: errs.append("thieu buoc xac dinh slug standalone")
+    return errs
+assert check(t) == [], f"ban nguyen ven phai XANH: {check(t)}"
+m1 = t.replace("design_pass.dev_cmd", "design_pass.devcmd")
+assert any("SKILL.md thieu key design_pass.dev_cmd" in e for e in check(m1)), "dot bien xoa key khong do"
+m2 = t.replace("{slug}", "SLUG")
+assert any("proto_route thieu template {slug}" in e for e in check(m2)), "dot bien xoa {slug} khong do"
+m3 = N(t).replace("thiếu `proto_route` → DỪNG", "thiếu `proto_route` → tiếp tục")
+assert any("thieu nhanh DUNG khi vang proto_route" in e for e in check(m3)), "dot bien doi DUNG khong do"
+PY
+
+run "P74 design-pass 2 nguon luat + thang DS + shadcn default (E3)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+t = (root / "skills/design-pass/SKILL.md").read_text(encoding="utf-8")
+N = lambda s: re.sub(r"\s+", " ", s)
+def check(text):
+    tx = N(text); errs = []
+    if "ux-ui-craft" not in tx: errs.append("thieu nguon luat ux-ui-craft")
+    if "không resolve" not in tx: errs.append("thieu nhanh degrade ds_skill")
+    if "shadcn" not in tx: errs.append("thieu mac dinh shadcn cho repo 0 token")
+    if "Nhóm 2" not in tx: errs.append("thieu finding Nhom 2 khi ha nac DS")
+    return errs
+assert check(t) == [], f"ban nguyen ven phai XANH: {check(t)}"
+m1 = t.replace("không resolve", "khong-doi")
+assert any("thieu nhanh degrade ds_skill" in e for e in check(m1)), "dot bien xoa nhanh thang khong do"
+m2 = t.replace("shadcn", "libX")
+assert any("thieu mac dinh shadcn cho repo 0 token" in e for e in check(m2)), "dot bien xoa shadcn khong do"
+PY
+
+run "P75 design-pass thang vat lieu + khai material + cam tu dung (E4)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+t = (root / "skills/design-pass/SKILL.md").read_text(encoding="utf-8")
+N = lambda s: re.sub(r"\s+", " ", s)
+def check(text):
+    tx = N(text); errs = []
+    for rung in ["real-components", "scaffold", "static"]:
+        if rung not in tx: errs.append(f"thieu bac vat lieu {rung}")
+    if "PHẢI khai `material:`" not in tx: errs.append("thieu khai material khi ha bac vat lieu")
+    if "KHÔNG tự dựng route/logic" not in tx: errs.append("thieu cau cam tu dung route/logic")
+    return errs
+assert check(t) == [], f"ban nguyen ven phai XANH: {check(t)}"
+m1 = N(t).replace("KHÔNG tự dựng route/logic", "cân nhắc dựng")
+assert any("thieu cau cam tu dung route/logic" in e for e in check(m1)), "dot bien xoa cau cam khong do"
+m2 = N(t).replace("PHẢI khai `material:`", "nên ghi bậc")
+assert any("thieu khai material khi ha bac vat lieu" in e for e in check(m2)), "dot bien xoa khai material khong do"
+PY
+
+run "P76 design-pass 4 luat cung thanh van (E5)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+t = (root / "skills/design-pass/SKILL.md").read_text(encoding="utf-8")
+N = lambda s: re.sub(r"\s+", " ", s)
+RULES = {
+    "khong-hex-moi": "không hex mới",
+    "khong-webfont": "không webfont",
+    "khong-sua-components-ui": "không sửa `components/ui`",
+    "khong-logic-write-path": "write-path",
+}
+def check(text):
+    tx = N(text)
+    return [f"thieu luat cung: {name}" for name, anchor in RULES.items() if anchor not in tx]
+assert check(t) == [], f"ban nguyen ven phai XANH: {check(t)}"
+for name, anchor in RULES.items():
+    mut = N(t).replace(anchor, "…")
+    assert any(f"thieu luat cung: {name}" in e for e in check(mut)), f"dot bien xoa luat {name} khong do"
+PY
+
+run "P77 design-pass vong lap owner-phan-ung + cam tu cham (E6)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+t = (root / "skills/design-pass/SKILL.md").read_text(encoding="utf-8")
+N = lambda s: re.sub(r"\s+", " ", s)
+def check(text):
+    tx = N(text); errs = []
+    if "Reload" not in tx: errs.append("thieu buoc reload trong nhip vong lap")
+    if "phản ứng bằng lời" not in tx: errs.append("thieu buoc cho owner phan ung bang loi")
+    if "tự chấm thẩm mỹ thay owner" not in tx: errs.append("thieu cau cam tu cham tham my")
+    return errs
+assert check(t) == [], f"ban nguyen ven phai XANH: {check(t)}"
+mut = N(t).replace("tự chấm thẩm mỹ thay owner", "đánh giá")
+assert any("thieu cau cam tu cham tham my" in e for e in check(mut)), "dot bien xoa cau cam khong do"
+PY
+
+run "P78 design-pass ket phien: duong capture rieng + cam CT2 + provenance + states (E7)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+t = (root / "skills/design-pass/SKILL.md").read_text(encoding="utf-8")
+N = lambda s: re.sub(r"\s+", " ", s)
+def check(text):
+    tx = N(text); errs = []
+    if "evidence/design-pass/" not in tx: errs.append("design-pass dang tro vao lan CT2")
+    if "KHÔNG ghi vào `evidence/design/`" not in tx: errs.append("design-pass dang tro vao lan CT2")
+    if "provenance.json" not in tx: errs.append("thieu cau cam provenance.json")
+    if "hỏi owner danh sách state" not in tx: errs.append("thieu nhanh hoi owner danh sach state")
+    return errs
+assert check(t) == [], f"ban nguyen ven phai XANH: {check(t)}"
+m1 = N(t).replace("evidence/design-pass/", "evidence/design/")
+assert any("design-pass dang tro vao lan CT2" in e for e in check(m1)), "dot bien doi duong capture khong do"
+m2 = t.replace("provenance.json", "prov-file")
+assert any("thieu cau cam provenance.json" in e for e in check(m2)), "dot bien xoa cam provenance khong do"
+m3 = N(t).replace("hỏi owner danh sách state", "chụp mặc định")
+assert any("thieu nhanh hoi owner danh sach state" in e for e in check(m3)), "dot bien xoa nhanh states khong do"
+PY
+
+run "P79 design-pass khuon marker: round-trip + than tro toi marker (E8)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+t = (root / "skills/design-pass/SKILL.md").read_text(encoding="utf-8")
+def extract(text):
+    m = re.search(r"<<<DESIGN-PASS-NOTE-TEMPLATE\n(.*?)\nDESIGN-PASS-NOTE-TEMPLATE>>>", text, re.S)
+    if not m:
+        return None, ["KHONG rut duoc DESIGN-PASS-NOTE-TEMPLATE"]
+    return m.group(1), []
+block, errs = extract(t)
+assert errs == [], errs
+# Fixture SINH TU khuon rut duoc — khong viet tay khuon ben doc.
+fx = (block
+      .replace("<slug>", "fx-slug")
+      .replace("<ISO UTC>", "2026-07-30T00:00:00Z")
+      .replace("<url đã mở>", "http://localhost:3000/proto/fx-slug")
+      .replace("<real-components|scaffold|static>", "real-components")
+      .replace("<tên-skill-đã-nạp|repo-tokens|shadcn-default>", "shadcn-default")
+      .replace("[<danh sách state đã duyệt>]", "[default, error]")
+      .replace("<n>", "2")
+      .replace("<state>", "default").replace("<breakpoint>", "mobile-375")
+      .replace("<theme>", "light").replace("<file>", "default--mobile-375")
+      .replace("<finding — đã đổi gì, 1 dòng/finding>", "chinh spacing card")
+      .replace("<finding — thiếu/xấu gì ở tầng DS/component, đề xuất 1 dòng>", "thieu variant nut nguy hiem"))
+lines = fx.splitlines()
+assert lines and lines[0] == "---", "khuon khong bat dau bang frontmatter"
+end = lines[1:].index("---") + 1
+fm = {}
+for ln in lines[1:end]:
+    if ":" in ln:
+        fm[ln.split(":", 1)[0].strip()] = ln.split(":", 1)[1].strip()
+want = ["slug", "at", "route", "material", "ds_skill", "states", "breakpoints", "themes", "patched", "deferred"]
+missing = [k for k in want if k not in fm]
+assert not missing, f"frontmatter khuon thieu truong: {missing}"
+body = "\n".join(lines[end + 1:])
+assert "### Nhóm 1" in body and "### Nhóm 2" in body, "khuon thieu 2 nhom Findings"
+# Than nghi thuc phai TRO TOI khuon — chong marker-trang-tri/mo-coi.
+full = re.search(r"<<<DESIGN-PASS-NOTE-TEMPLATE\n.*?\nDESIGN-PASS-NOTE-TEMPLATE>>>", t, re.S).group(0)
+outside = t.replace(full, "")
+def check_ref(text_outside):
+    if "DESIGN-PASS-NOTE-TEMPLATE" not in text_outside or "design-pass.md" not in text_outside:
+        return ["khuon template mo coi — than nghi thuc khong tro toi marker"]
+    return []
+assert check_ref(outside) == [], "doi chung duong: than nguyen ven phai tro toi marker"
+mut_out = re.sub(r"cặp marker\s+`DESIGN-PASS-NOTE-TEMPLATE`", "cặp marker", outside)
+assert check_ref(mut_out) == ["khuon template mo coi — than nghi thuc khong tro toi marker"], \
+    "dot bien xoa tham chieu marker khong do dung thong diep"
+mut = t.replace("<<<DESIGN-PASS-NOTE-TEMPLATE", "", 1)
+b2, errs2 = extract(mut)
+assert b2 is None and errs2 == ["KHONG rut duoc DESIGN-PASS-NOTE-TEMPLATE"], \
+    "dot bien xoa marker khong do dung thong diep"
+PY
+
+run "P80 design-pass engine-clean + mot mat phang (E9)" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+files = [root / "skills/design-pass/SKILL.md",
+         root / "plugins/acceptance-gate/skills/design-pass/SKILL.md"]
+texts = {str(p.relative_to(root)): p.read_text(encoding="utf-8") for p in files}
+rt = (root / "tests/plugins/run-tests.sh").read_text(encoding="utf-8")
+# Marker GHÉP MẢNH — nếu để nguyên chuỗi, find() khớp chính literal trong
+# source của case này trước khi tới comment thật, vùng quét cụt mất đuôi P80
+# + toàn bộ P81 mà mọi sanity vẫn xanh (finding S4 round 1).
+BEGIN = "# --- design-pass cases " + "(P72-P81) begin ---"
+END = "# --- design-pass cases " + "end ---"
+b = rt.find(BEGIN)
+e = rt.find(END, b + 1)
+assert b != -1 and e != -1 and e > b, "khong tim thay vung case design-pass trong run-tests.sh"
+region = rt[b:e]
+# Anchor cũng GHÉP MẢNH — round 2 để nguyên chuỗi nên anchor tự khớp source
+# của chính assert này, xoá cả P81 guard vẫn xanh (finding S4 round 2).
+TAIL = "P81 design-pass" + " smoke"
+assert TAIL in region, "vung quet cut duoi — thieu anchor P81 (thuoc phai gan vao vat)"
+texts["tests:design-pass-region"] = region
+# Pattern ghep manh de vung nay tu-quet khong tu-trung.
+CONSUMER = ["one" + "hub", "deal" + "-page", "@one" + "hub", "ms" + "tar"]
+SURFACE = ["claude.ai/" + "design", "/design" + "-sync", "/design" + "-login", "/design" + "-mockup"]
+def check(text):
+    low = text.lower()
+    hits = [pat for pat in CONSUMER + SURFACE if pat.lower() in low]
+    return [f"vat lieu consumer/surface ngoai trong design-pass: {h}" for h in hits]
+assert len(texts) == 3 and all(len(x) > 200 for x in texts.values()), "sanity: vung quet rong/thieu"
+for name, text in texts.items():
+    assert check(text) == [], f"{name}: {check(text)}"
+skill = texts["skills/design-pass/SKILL.md"]
+m1 = skill + "\nOne" + "Hub"
+assert any("vat lieu consumer/surface ngoai trong design-pass" in x for x in check(m1)), "tiem chuoi consumer khong do"
+m2 = skill + "\n/design" + "-sync"
+assert any("vat lieu consumer/surface ngoai trong design-pass" in x for x in check(m2)), "tiem chuoi surface ngoai khong do"
+PY
+
+run "P81 design-pass smoke DUONG ban mirror (E11)" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+p = root / "plugins/acceptance-gate/skills/design-pass/SKILL.md"
+assert p.exists(), "mirror thieu skills/design-pass — chay scripts/sync-plugin-packages.sh"
+t = p.read_text(encoding="utf-8")
+assert "name: design-pass" in t, "mirror SKILL.md khong doc duoc frontmatter name"
+assert "DESIGN-PASS-NOTE-TEMPLATE" in t, "mirror SKILL.md thieu khuon marker"
+PY
+# --- design-pass cases end ---
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
