@@ -101,6 +101,19 @@ KHÔNG tự chấm thẩm mỹ thay owner — không "tôi thấy đẹp rồi" 
 phiên, không thay phản ứng của owner bằng đánh giá của model. Phần chấm máy
 (evals, hook) sống ở S4; phiên này không sinh evidence.
 
+**Ví dụ một vòng (nhịp chuẩn):**
+
+> Owner: "Nút hành động chính chìm quá, với giá tiền đọc không nổi."
+>
+> 1. Sửa proto trong TỪ VỰNG TOKEN: nút chính đổi sang class/token nhấn của
+>    repo (vd `--color-primary`), giá tiền lên bậc typography có sẵn — KHÔNG
+>    chèn hex, KHÔNG sửa component nền.
+> 2. Reload Browser pane, nói 1 câu: "Đã nâng nút chính lên token nhấn +
+>    giá lên bậc chữ lớn — anh thấy sao?"
+> 3. Owner gật nút, chê tiếp khoảng cách card → vòng kế. Cuối phiên: 2 việc
+>    trên vào findings Nhóm 1 (đã vá); nếu owner đòi một variant nút mà DS
+>    chưa có → đó là finding Nhóm 2, ghi chờ Gate 1, KHÔNG chế tại chỗ.
+
 ## RÀNG BUỘC CỨNG (cả phiên — vi phạm là dừng tay, không phải style)
 
 - **không hex mới** — chỉ từ vựng token của repo (hoặc nấc DS đang khai);
