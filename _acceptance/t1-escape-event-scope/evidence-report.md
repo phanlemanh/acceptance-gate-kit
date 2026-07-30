@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: afe223f9f27de43c97c8ae6b97733c08e22a58de
+verified_commit: 246e7e1f7f2dfc640677ab5d33468d93ed4467f6
 human_signoff: Manh Phan 2026-07-28
 ---
 
@@ -773,3 +773,15 @@ theo ĐƯỜNG DẪN. Thẻ Cổng 1 của chính nó: 16 AC trước và sau �
   phiên, không phải 5 agent tươi độc lập.
 - **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký sẵn có giữ
   nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là đã phán về cảnh báo mù mới.
+
+### Re-pin lần 7 — 2026-07-30, do vòng verify 2 của gate-card-ac-visibility
+
+`verified_commit` lên `246e7e1`. Cùng chuỗi, cùng posture với lần 6: vòng 2 viết
+lại case P61 (thước cũ không đo AC-4) và mở lane corpus repo tiêu thụ.
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY ở `246e7e1` — 6 suite EXIT=0 (594 scripts · 51
+  hooks · plugins · workflows · skills · codex) + `sync-plugin-packages.sh --check`
+  EXIT=0. Case đụng gate-card: P38a/b · P52 · P53 (byte-đối-byte) · GPM21 · GPM20g
+  đều PASS. Provenance vẫn một lượt chạy một phiên, không phải 5 agent độc lập.
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký sẵn có giữ nguyên
+  hiệu lực; chữ ký cũ KHÔNG được hiểu là đã phán về cảnh báo mù hay thước mới.
