@@ -3115,6 +3115,33 @@ hasout UJ16b "is a placeholder, not a signature" "$UJ16M"
 hasout UJ16d "no contract.md" "$UJ16M"
 hasout UJ16e "contract has no risk_tier" "$UJ16M"
 
+
+# ─── GCV1 — canh bao mu criterion phai di RA DUONG NGUOI DUYET NHIN ──────────
+# Ghep cap voi P62/P64 (don vi) theo mau GPM21: mot luat, hai loi vao. Mot canh
+# bao chi ton tai trong ham thi khong ai thay — no phai nam trong HTML card that.
+echo "GCV1 canh bao mu criterion tren card THAT (2 ca keu + 1 ca im)"
+GCV="$T/gcv/_acceptance"
+mk_gcv() { # <slug> <heading> <than>
+  mkdir -p "$GCV/$1"
+  { echo '---'; echo 'schema_version: 1'; echo "feature: probe $1"; echo "slug: $1";
+    echo 'risk_tier: T2'; echo 'status: draft'; echo 'approved_by:'; echo '---'; echo '';
+    echo "$2"; echo ''; shift 2; for l in "$@"; do echo "$l"; done; } > "$GCV/$1/contract.md"
+}
+mk_gcv blankcase '## Criteria' '- **AC-1**' '- **AC-2**' '- **AC-3**'
+mk_gcv headcase  '## Acceptance criteria' '- AC-1: Given x, Then y.' '- AC-2: Given x, Then y.'
+mk_gcv okcase    '## Criteria' '- AC-1: Given x, Then y.' '- AC-2: Given x, Then y.'
+GCV_BLANK="$(node "$GCARD" --root "$T/gcv" --slug blankcase --gate 1 2>&1)"
+GCV_HEAD="$(node "$GCARD" --root "$T/gcv" --slug headcase --gate 1 2>&1)"
+GCV_OK="$(node "$GCARD" --root "$T/gcv" --slug okcase --gate 1 2>&1)"
+hasout "GCV1a khuon la -> card neu KHONG doc duoc criterion nao" "KHÔNG đọc được criterion nào" "$GCV_BLANK"
+hasout "GCV1b heading lech -> card neu ten heading sai" "## Acceptance criteria" "$GCV_HEAD"
+hasout "GCV1c card mu phai bao dung KHONG duyet" "đừng duyệt" "$GCV_BLANK"
+case "$GCV_OK" in
+  *"KHÔNG đọc được criterion nào"*|*"Đọc THIẾU"*)
+    echo "  FAIL: GCV1d contract lanh bi canh bao (cry-wolf)"; FAIL_COUNT=$((FAIL_COUNT+1));;
+  *) echo "  PASS: GCV1d contract lanh khong sinh canh bao nao"; PASS_COUNT=$((PASS_COUNT+1));;
+esac
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1

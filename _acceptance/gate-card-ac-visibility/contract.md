@@ -5,9 +5,9 @@ slug: gate-card-ac-visibility
 owner: phanlemanh@gmail.com
 risk_tier: T3
 surfaces: [cli]
-status: draft
-approved_by:
-approved_at:
+status: implemented
+approved_by: Manh Phan
+approved_at: 2026-07-30T01:09:13Z
 time_human_minutes: {gate1: 0, gate2: 0}
 ---
 
@@ -42,9 +42,9 @@ chữa triệu chứng. Duyệt AC-5 = mở rộng PR#18.
 
 - AC-1: Given **corpus fixture** giữ trong repo, mỗi dòng kèm giá trị `id` / `gwt` / `judgment` mong đợi ghim sẵn, phủ 5 khuôn hợp lệ (`- AC-1: GWT` · `- **AC-1 (nhãn):** GWT` · `- **AC-10** (judgment) GWT` · `- AC-1 (F1): GWT` · `- **AC-1.** GWT`) và ≥2 dòng-không-phải-criterion, When `gate-card.js` bóc, Then khớp ĐÚNG bảng ghim — cả ba trường, không chỉ "khác rỗng". Corpus phải nằm trong repo vì contract của chính kit chỉ dùng 2/5 khuôn (đo 2026-07-30: 88 dòng `- AC-n:` + 13 dòng `- **AC-n**`), nên chạy eval trên `_acceptance/` của kit là gần như rỗng nghĩa. Đối chứng dương: dòng văn xuôi chỉ NHẮC id ở giữa câu (`- **Đ — đường đo** (CE: …): AC-6, AC-11`) ra 0 criterion.
 - AC-2: Given tập contract thật của cả hai repo (kit + artifact-platform) mà parser CŨ đọc được ≥1 dòng, When parser mới chạy trên cùng tập đó, Then tập `id` mới **bao** tập cũ — **0 dòng mất**. Đây là bất biến phân biệt "nới thước" với "bắt bừa"; thiếu nó thì mọi con số "+N criterion" đều vô nghĩa.
-- AC-3: Given một dòng mà CẢ HAI parser cùng đọc được, When so cờ `judgment`, Then hai bên y hệt — **0 lật**. Given dòng chỉ parser MỚI đọc được (330 dòng không có mốc so cũ), Then cờ `judgment` khớp giá trị ghim trong corpus fixture của AC-1 — không có baseline thì phải có bảng ghim, nếu không 330 dòng mới vào card với cờ chưa ai kiểm. Given nhãn chứa chữ judgment (`- AC-5 (chi phí có trần — judgment): …`), Then `judgment` = true. Given thân criterion BÀN VỀ judgment nhưng không mang dấu `(judgment)`, Then `judgment` = **false** — một Then-clause nhắc chữ judgment không được âm thầm hạ một criterion máy-kiểm-được xuống human-only. Đối chứng dương cho vế cuối: thêm dấu judgment vào cuối chính dòng đó → true. Given dấu judgment xuất hiện **bên trong code span backtick** (criterion đang TRÍCH DẪN cái dấu, không mang nó — vd chính AC-1 và AC-3 của contract này), Then **không** tính là dấu; cùng luật `lib/context-glossary.js` đang dùng cho W6 ("code span không phải tiếng nói của tác giả"). Đo 2026-07-30 trên 178 contract của cả hai repo: 157 dòng criterion mang dấu, chỉ 4 dòng có dấu nằm hoàn toàn trong backtick — 2 là AC-1/AC-3 của chính contract này (đổi đúng chiều), 2 còn lại vẫn giữ judgment qua nhánh nhãn nên KHÔNG bị declassify.
+- AC-3: Given một dòng mà CẢ HAI parser cùng đọc được, When so cờ `judgment`, Then hai bên y hệt — **0 lật NGOÀI luật code-span nói ở cuối criterion này** (luật đó theo định nghĩa lật đúng những dòng trích dẫn dấu; "0 lật" trơ sẽ tự mâu thuẫn với nó). Given dòng chỉ parser MỚI đọc được (330 dòng không có mốc so cũ), Then cờ `judgment` khớp giá trị ghim trong corpus fixture của AC-1 — không có baseline thì phải có bảng ghim, nếu không 330 dòng mới vào card với cờ chưa ai kiểm. Given nhãn chứa chữ judgment (`- AC-5 (chi phí có trần — judgment): …`), Then `judgment` = true. Given thân criterion BÀN VỀ judgment nhưng không mang dấu `(judgment)`, Then `judgment` = **false** — một Then-clause nhắc chữ judgment không được âm thầm hạ một criterion máy-kiểm-được xuống human-only. Đối chứng dương cho vế cuối: thêm dấu judgment vào cuối chính dòng đó → true. Given dấu judgment xuất hiện **bên trong code span backtick** (criterion đang TRÍCH DẪN cái dấu, không mang nó — vd chính AC-1 và AC-3 của contract này), Then **không** tính là dấu; cùng luật `lib/context-glossary.js` đang dùng cho W6 ("code span không phải tiếng nói của tác giả"). Đo 2026-07-30 trên 178 contract của cả hai repo: 157 dòng criterion mang dấu, chỉ 4 dòng có dấu nằm hoàn toàn trong backtick — 2 là AC-1/AC-3 của chính contract này (đổi đúng chiều), 2 còn lại vẫn giữ judgment qua nhánh nhãn nên KHÔNG bị declassify.
 - AC-4: Given corpus fixture của AC-1, When cho CẢ HAI lối gọi trong `gate-card.js` (đường card Cổng 1 và đường `critText` của Cổng 2) bóc cùng corpus đó, Then hai bên trả **cùng một tập** `id` → `gwt`. Đo bằng HÀNH VI chứ không bằng grep đếm regex: assertion vắng-mặt-một-mình (grep "không còn chuỗi X") là đúng lớp mà CLAUDE.md #4 cấm — viết lại khuôn bằng cú pháp khác thì grep vẫn xanh trong khi hai lối gọi đã trôi khỏi nhau, chính là điều kiện sinh ra lớp lỗi này. Đối chứng dương: bản sao cho một lối gọi dùng khuôn hẹp hơn → case ĐỎ nêu đích danh dòng lệch.
-- AC-5: Given một `contract.md` chứa ≥1 dòng bắt đầu bằng `-` có chuỗi `AC-<số>` ở **BẤT KỲ đâu trong file** (không riêng trong section `## Criteria`), nhưng parser bóc ra **0** criterion, When render card Cổng 1, Then card **nêu rõ** rằng không đọc được criterion nào, kèm số dòng nghi vấn và heading của section criterion mà nó ĐÃ tìm. **Rỗng phải KÊU, không được câm.** Phạm vi quét là CẢ FILE có chủ đích: nếu chỉ quét trong section thì ca heading-lệch (`## Acceptance criteria` ⇒ `section()` trả rỗng ⇒ không có section để quét) sẽ **vẫn câm** — tức đúng ca đã sinh ra feature này. Đối chứng dương: contract khuôn chuẩn đọc ra ≥1 criterion → KHÔNG có cảnh báo nào (không cry-wolf).
+- AC-5: Given một `contract.md` chứa ≥1 dòng hình dạng khai-báo-criterion — quét **trong section `## Criteria` khi section đó tồn tại, quét CẢ FILE khi không** — nhưng parser bóc ra **0** criterion, When render card Cổng 1, Then card **nêu rõ** rằng không đọc được criterion nào, kèm số dòng nghi vấn và heading của section criterion mà nó ĐÃ tìm. **Rỗng phải KÊU, không được câm.** Phạm vi hai-nhánh là có chủ đích: nhánh CẢ FILE tồn tại vì ca heading-lệch (`## Acceptance criteria` ⇒ `section()` trả rỗng ⇒ không còn section để bám) — đúng ca đã sinh ra feature này; nhánh TRONG-SECTION tồn tại vì quét cả file ở contract lành sẽ đếm nhầm ghi chú dạng `- **AC-4** — …` trong Known limits thành khai báo (đo: `s4-scope-triage` báo giả 15/16). Đối chứng dương: contract khuôn chuẩn đọc ra ≥1 criterion → KHÔNG có cảnh báo nào (không cry-wolf).
 - AC-11: Given một contract mà parser bóc ra `n ≥ 1` criterion nhưng file có `m` dòng nghi vấn với `m > n`, When render card Cổng 1, Then card nêu rõ đang đọc **thiếu** `m − n` dòng và liệt số dòng bỏ sót. **Ca CỤT nguy hiểm hơn ca RỖNG** — card 0 criterion sai lộ liễu và bị bắt ngay, card `[AC-1, AC-8]` trên tổng 8 trông bình thường nên sống sót qua chữ ký (đã xảy ra thật: `radar-d3-crawl-cron`). AC-5 một mình KHÔNG phủ ca này vì `n ≥ 1`. Đối chứng dương: contract mà `m = n` → KHÔNG cảnh báo.
 - AC-6: Given mọi `_acceptance/*/contract.md` trong repo này, When soi heading của section criterion, Then đều là `## Criteria` — kit không được mang chính con bọ nó tồn tại để bắt. Đối chứng dương: đổi một heading thành `## Acceptance criteria` → case ĐỎ, và thông điệp nêu đích danh file.
 - AC-7: Given bản mirror `plugins/acceptance-gate/scripts/gate-card.js`, When `sync-plugin-packages.sh --check` chạy, Then mirror khớp nguồn — vá một bên mà quên bên kia là lỗi đã lặp ở repo này.
@@ -84,6 +84,18 @@ ra trên artifact-platform. Hai lối đi, Manh chọn:
 - giữ T3 cho slug này (mọi judgment item cần phán trực tiếp của người ở Cổng 2), **và** thêm `scripts/gate-card.js` vào `t3_paths` — sửa gốc phân hạng; hoặc
 - hạ về T2 nếu đánh giá card là lớp trình bày nên rủi ro thấp hơn lõi cưỡng chế.
 
-**Trạng thái mã hiện có.** AC-1..AC-4, AC-6..AC-8 đã có mã trên nhánh
-`fix/ac-bullet-regex-widen` (chưa có case nào cho AC-1/AC-2/AC-3/AC-4/AC-6).
-**AC-5, AC-9, AC-10 chưa có gì** — AC-5 cần code mới.
+**Sửa contract SAU Cổng 1 — hai chỗ, khai báo tường minh.** Cả hai do implement
+chứng minh bản duyệt viết chưa đúng, không phải nới scope:
+1. AC-5 ban đầu ràng "quét CẢ FILE". Đo thấy quét-cả-file luôn có một lớp báo
+   động giả: ghi chú dạng `- **AC-4** — …` trong Known limits là hình dạng khai
+   báo nhưng không phải khai báo (`s4-scope-triage` dòng 88 → báo giả 15/16).
+   Sửa thành: quét trong section khi có section, quét cả file khi không —
+   giữ nguyên ca heading-lệch mà AC-5 sinh ra để bắt.
+2. AC-3 ban đầu ghi "0 lật" trơ, tự mâu thuẫn với chính vế code-span của nó
+   (luật đó theo định nghĩa lật đúng những dòng trích dẫn dấu). Sửa thành
+   "0 lật NGOÀI luật code-span"; case P60 ghim đúng nghĩa đó.
+
+**Ba hành vi lộ ra khi implement, đều đã nằm trong corpus của AC-1** (không mở
+criterion mới): dòng tham-chiếu-chéo (`**AC-5, AC-9, AC-10 …**`) không được ra
+criterion; dòng id-trần không có thân (`- **AC-11**`) không được ra criterion
+`gwt = "*"`; và khuôn phải sống ở `lib/ac-line.js` để hai lối gọi không thể trôi.

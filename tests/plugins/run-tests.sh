@@ -1166,6 +1166,177 @@ for p in present:
     assert "placeholder" in t, f"{p.name}: khong noi chu ky VAN bi kiem bang luoi giu-cho"
 PY
 
+
+# ─── P58..P64 — gate-card doc dong criterion (slug gate-card-ac-visibility) ───
+# Corpus la BAT BUOC: contract cua chinh kit chi dung 2/5 khuon, nen chay eval
+# bao-tap tren _acceptance/ khong dung den 3 khuon da gay ra loi.
+AC_LIB="$ROOT/lib/ac-line.js"
+AC_CORPUS="$ROOT/tests/plugins/fixtures/ac-line-corpus.md"
+
+echo "P58 corpus khuon dong criterion: id/gwt/judgment khop bang GHIM SAN"
+if [ ! -f "$AC_LIB" ] || [ ! -f "$AC_CORPUS" ]; then
+  fail "P58 thieu lib/ac-line.js hoac corpus fixture"
+else
+  P58OUT="$(node -e '
+    const fs=require("fs"); const {parseAC}=require(process.argv[1]);
+    const lines=fs.readFileSync(process.argv[2],"utf8").split("\n");
+    let bad=0,n=0;
+    for(let i=0;i<lines.length;i++){
+      const c=lines[i].match(/^CASE\s+(\S+)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*)$/);
+      if(!c) continue;
+      const inp=(lines[i+1]||"").replace(/^INPUT /,"");
+      const [,name,wantId,wantJ,wantG]=c; n++;
+      const got=parseAC(inp);
+      if(wantId==="-"){ if(got){bad++;console.log("LECH "+name+": mong 0 criterion, nhan "+got.id);} continue; }
+      if(!got){bad++;console.log("LECH "+name+": mong "+wantId+", nhan 0 criterion");continue;}
+      if(got.id!==wantId){bad++;console.log("LECH "+name+" id: mong "+wantId+" nhan "+got.id);}
+      const gj=got.judgment?"y":"n";
+      if(gj!==wantJ){bad++;console.log("LECH "+name+" judgment: mong "+wantJ+" nhan "+gj);}
+      if(got.gwt!==wantG){bad++;console.log("LECH "+name+" gwt:\n   mong: "+wantG+"\n   nhan: "+got.gwt);}
+    }
+    console.log("CASES="+n+" BAD="+bad);
+  ' "$AC_LIB" "$AC_CORPUS" 2>&1)"
+  echo "$P58OUT" | grep -v '^CASES=' | sed 's/^/     /'
+  P58N="$(echo "$P58OUT" | sed -n 's/^CASES=\([0-9]*\) BAD=.*/\1/p')"
+  P58B="$(echo "$P58OUT" | sed -n 's/^CASES=[0-9]* BAD=\([0-9]*\)/\1/p')"
+  if [ "${P58N:-0}" -lt 10 ]; then fail "P58 corpus qua mong ($P58N ca) — khong du de goi la phu khuon"
+  elif [ "${P58B:-1}" -ne 0 ]; then fail "P58 $P58B lech so voi bang ghim"
+  else pass "P58 corpus $P58N ca khop bang ghim (id+gwt+judgment)"; fi
+fi
+
+echo "P59 bao-tap: khuon MOI phai BAO khuon CU, 0 dong mat, 0 dong rac them"
+P59OUT="$(node -e '
+  const fs=require("fs"),path=require("path"); const {parseAC}=require(process.argv[1]);
+  const OLD=/^\s*-\s*(AC-\d+)\s*:\s*(.+)$/;
+  const files=[process.argv[2]];
+  const accDir=path.join(process.argv[3],"_acceptance");
+  for(const d of fs.readdirSync(accDir)){const p=path.join(accDir,d,"contract.md");if(fs.existsSync(p))files.push(p);}
+  let lost=0,gained=0,junk=0;
+  for(const f of files) for(const l of fs.readFileSync(f,"utf8").split("\n")){
+    const o=OLD.test(l), n=!!parseAC(l);
+    if(o&&!n){lost++;console.log("MAT "+path.basename(path.dirname(f))+": "+l.trim().slice(0,70));}
+    if(!o&&n){ gained++;
+      // nua should-NOT-fire: dong khuon CU khong doc VI NO KHONG PHAI criterion
+      if(/^\s*[-*]\s+\*{0,2}\s*[^A]/.test(l)&&!/^\s*[-*]\s*\*{0,2}\s*AC-\d/.test(l)){junk++;console.log("RAC "+l.trim().slice(0,70));}
+    }
+  }
+  console.log("LOST="+lost+" GAINED="+gained+" JUNK="+junk);
+' "$AC_LIB" "$AC_CORPUS" "$ROOT" 2>&1)"
+echo "$P59OUT" | grep -v '^LOST=' | sed 's/^/     /'
+P59L="$(echo "$P59OUT" | sed -n 's/^LOST=\([0-9]*\).*/\1/p')"
+P59G="$(echo "$P59OUT" | sed -n 's/^LOST=[0-9]* GAINED=\([0-9]*\).*/\1/p')"
+P59J="$(echo "$P59OUT" | sed -n 's/^.*JUNK=\([0-9]*\)$/\1/p')"
+if [ "${P59L:-1}" -ne 0 ]; then fail "P59 khuon moi lam MAT ${P59L} dong khuon cu doc duoc — khong con la phep noi"
+elif [ "${P59G:-0}" -lt 5 ]; then fail "P59 chi them ${P59G} dong — corpus khong dung den cac khuon moi, phep do rong nghia"
+elif [ "${P59J:-1}" -ne 0 ]; then fail "P59 khuon moi keo them ${P59J} dong RAC (khong phai criterion)"
+else pass "P59 bao-tap: 0 mat, +${P59G} dong criterion that, 0 rac"; fi
+
+echo "P60 co judgment: 0 lat tren dong chung; nhan/code-span xu dung"
+P60OUT="$(node -e '
+  const fs=require("fs"),path=require("path"); const {parseAC}=require(process.argv[1]);
+  const OLD=/^\s*-\s*(AC-\d+)\s*:\s*(.+)$/;
+  const accDir=path.join(process.argv[2],"_acceptance"); let flip=0;
+  for(const d of fs.readdirSync(accDir)){const p=path.join(accDir,d,"contract.md");if(!fs.existsSync(p))continue;
+    for(const l of fs.readFileSync(p,"utf8").split("\n")){
+      const o=l.match(OLD); if(!o) continue; const n=parseAC(l); if(!n) continue;
+      const jo=/\(judgment\)/i.test(o[2]);
+      if(jo===n.judgment) continue;
+      // Lat DUOC PHEP dung mot truong hop: dau chi ton tai ben trong code span,
+      // tuc criterion dang TRICH DAN dau chu khong mang no. Moi lat khac la loi.
+      const onlyInCode = jo && !n.judgment && !/\(judgment\)/i.test(l.replace(/`[^`]*`/g,""));
+      if(!onlyInCode){flip++;console.log("LAT SAI "+d+" "+n.id+": cu="+jo+" moi="+n.judgment);}
+      else console.log("     lat DUNG luat code-span: "+d+" "+n.id);
+    }}
+  // doi chung duong: go backtick tren dong trich dan dau -> phai thanh judgment
+  const quoted="- AC-8: Given contract mang dau `(judgment)` trong ngoac kep, Then khong tinh.";
+  const bare  ="- AC-8: Given contract mang dau (judgment) trong ngoac kep, Then khong tinh.";
+  const a=parseAC(quoted), b=parseAC(bare);
+  console.log("FLIP="+flip+" QUOTED="+(a&&a.judgment)+" BARE="+(b&&b.judgment));
+' "$AC_LIB" "$ROOT" 2>&1)"
+echo "$P60OUT" | grep -v '^FLIP=' | sed 's/^/     /'
+if ! echo "$P60OUT" | grep -q '^FLIP=0 QUOTED=false BARE=true'; then
+  fail "P60 co judgment sai: $(echo "$P60OUT" | grep '^FLIP=')"
+else pass "P60 co judgment: 0 lat; dau trong code-span = trich dan (false), go backtick -> true"; fi
+
+echo "P61 mot nguon su that: hai loi goi cua gate-card bocA cung corpus -> cung ket qua"
+P61OUT="$(node -e '
+  const fs=require("fs"); const src=fs.readFileSync(process.argv[1],"utf8");
+  // Do HANH VI, khong grep dem regex: dem so LOI GOI parseAC trong gate-card.js.
+  // Mot loi goi tu dinh nghia khuon rieng se khong di qua parseAC -> so nay tut.
+  const calls=(src.match(/parseAC\(/g)||[]).length;
+  const ownRe=(src.match(/AC-\\\\d/g)||[]).length;   // khuon literal con sot lai trong script
+  console.log("CALLS="+calls+" OWNRE="+ownRe);
+' "$ROOT/scripts/gate-card.js" 2>&1)"
+P61C="$(echo "$P61OUT" | sed -n 's/^CALLS=\([0-9]*\).*/\1/p')"
+P61R="$(echo "$P61OUT" | sed -n 's/^.*OWNRE=\([0-9]*\)$/\1/p')"
+P61OUT2="$(node -e '
+  const fs=require("fs"); const {parseAC}=require(process.argv[1]);
+  const lines=fs.readFileSync(process.argv[2],"utf8").split("\n").filter(l=>l.startsWith("INPUT ")).map(l=>l.slice(6));
+  // gia lap hai loi goi: ca hai PHAI di qua cung parseAC -> cung tap id->gwt
+  const A={},B={};
+  for(const l of lines){const r=parseAC(l); if(r){A[r.id]=r.gwt;}}
+  for(const l of lines){const r=parseAC(l); if(r&&B[r.id]===undefined){B[r.id]=r.gwt;}}
+  const diff=Object.keys(A).filter(k=>A[k]!==B[k]);
+  console.log("DIFF="+diff.length+" N="+Object.keys(A).length);
+' "$AC_LIB" "$AC_CORPUS" 2>&1)"
+P61D="$(echo "$P61OUT2" | sed -n 's/^DIFF=\([0-9]*\).*/\1/p')"
+if [ "${P61C:-0}" -lt 2 ]; then fail "P61 chi co ${P61C} loi goi parseAC — mot loi goi dang tu dinh nghia khuon rieng"
+elif [ "${P61R:-1}" -ne 0 ]; then fail "P61 gate-card.js con ${P61R} khuon AC literal rieng — khuon phai o lib/ac-line.js"
+elif [ "${P61D:-1}" -ne 0 ]; then fail "P61 hai loi goi lech ${P61D} muc tren cung corpus"
+else pass "P61 ${P61C} loi goi deu qua parseAC, 0 khuon literal rieng, 0 lech tren corpus"; fi
+
+echo "P62 RONG phai KEU (2 ca kich hoat) + doi chung chong cry-wolf"
+P62OUT="$(node -e '
+  const {acBlindSpot}=require(process.argv[1]);
+  const lines=(arr)=>arr.join("\n");
+  // (a) heading dung, khuon LA -> section co nhung parse ra 0
+  const a=lines(["## Criteria","","- **AC-1**","- **AC-2**","- **AC-3**"]);
+  // (b) heading LECH -> section() rong, khong co section de quet
+  const b=lines(["## Acceptance criteria","","- AC-1: Given x, Then y.","- AC-2: Given x, Then y."]);
+  // (c) lanh
+  const c=lines(["## Criteria","","- AC-1: Given x, Then y.","- AC-2: Given x, Then y."]);
+  const ra=acBlindSpot(a,[]), rb=acBlindSpot(b,[]), rc=acBlindSpot(c,["AC-1","AC-2"]);
+  console.log("A="+(ra?ra.kind+":"+ra.suspect:"null")+" B="+(rb?rb.kind+":"+rb.suspect+":"+(rb.heading||"-"):"null")+" C="+(rc?rc.kind:"null"));
+' "$AC_LIB" 2>&1)"
+echo "     $P62OUT"
+if ! echo "$P62OUT" | grep -q 'A=blank:3 B=blank:2:## Acceptance criteria C=null'; then
+  fail "P62 canh bao RONG sai: $P62OUT"
+else pass "P62 ca (a) khuon la + ca (b) heading lech deu KEU va neu heading; contract lanh IM"; fi
+
+echo "P64 CUT phai KEU (ca ma P62 khong phu vi n>=1) + doi chung m==n"
+P64OUT="$(node -e '
+  const {acBlindSpot}=require(process.argv[1]);
+  const rows=["## Criteria",""];
+  for(let i=1;i<=2;i++) rows.push("- AC-"+i+": Given x, Then y.");
+  for(let i=3;i<=8;i++) rows.push("- AC-"+i+" ~ Given x, Then y.");   // khuon la, khong parse
+  const cut=acBlindSpot(rows.join("\n"),["AC-1","AC-2"]);
+  const okRows=["## Criteria","","- AC-1: Given x, Then y.","- AC-2: Given x, Then y."];
+  const same=acBlindSpot(okRows.join("\n"),["AC-1","AC-2"]);
+  console.log("CUT="+(cut?cut.kind+":"+cut.parsed+"/"+cut.suspect:"null")+" SAME="+(same?same.kind:"null"));
+' "$AC_LIB" 2>&1)"
+echo "     $P64OUT"
+if ! echo "$P64OUT" | grep -q 'CUT=short:2/8 SAME=null'; then
+  fail "P64 canh bao CUT sai: $P64OUT"
+else pass "P64 ca cut 2/8 KEU dung nhanh short; m==n IM (khong cry-wolf)"; fi
+
+echo "P63 dogfood: contract cua chinh kit deu dung heading '## Criteria'"
+P63BAD=0
+for f in "$ROOT"/_acceptance/*/contract.md; do
+  [ -f "$f" ] || continue
+  if ! grep -qE '^#{2,6}[[:space:]]+Criteria([[:space:]]|$)' "$f"; then
+    echo "     heading criterion khong chuan: $f"
+    P63BAD=$((P63BAD+1))
+  fi
+done
+# doi chung duong: ban sao doi heading -> phai bi bat
+P63TMP="$(mktemp -d)"; sed 's/^## Criteria$/## Acceptance criteria/' "$ROOT/_acceptance/gate-card-ac-visibility/contract.md" > "$P63TMP/c.md"
+if grep -qE '^#{2,6}[[:space:]]+Criteria([[:space:]]|$)' "$P63TMP/c.md"; then
+  fail "P63 doi chung duong HONG: ban sao doi heading van lot qua phep kiem"
+elif [ "$P63BAD" -ne 0 ]; then
+  fail "P63 $P63BAD contract cua kit mang chinh con bo kit bat"
+else pass "P63 moi contract cua kit dung '## Criteria'; doi chung duong bat duoc ban doi heading"; fi
+rm -rf "$P63TMP"
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

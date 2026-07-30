@@ -96,28 +96,7 @@ const unquote = s => String(s == null ? '' : s).replace(/^["']|["']$/g, '').trim
 // decision card: a human approving Gate 1 on a truncated card is false-green.
 function section(t, h) { const out = []; let inS = false, lvl = 0; const re = new RegExp('^#{2,6}\\s+' + h + '\\b', 'i'); for (const l of t.split('\n')) { const m = l.match(/^(#{2,6})\s/); if (m) { if (re.test(l)) { inS = true; lvl = m[1].length; continue; } if (inS && m[1].length <= lvl) { inS = false; continue; } } if (inS) out.push(l); } return out; }
 const cleanLines = arr => arr.filter(l => l.trim() && !/^\s*#/.test(l)); // drop blanks + markdown-comment lines
-// AC bullet. The template form is `- AC-1: Given …, When …, Then …`, but real
-// contracts accumulated three house variants the strict form silently dropped:
-// `**` emphasis around the id, a parenthetical label between id and colon, and
-// `.` used instead of `:`. Measured on a 170-contract repo, the strict form saw
-// 838 of 1156 real AC lines — 28% invisible, with 43 contracts rendering 0 AC
-// and (worse) 11 rendering a TRUNCATED list. A card that drops criteria without
-// saying so is the exact false-green this tool exists to stop, so parse WIDE and
-// let parseAC() below be the single place that decides what an AC line is.
-// The id must still open the bullet — prose merely MENTIONING "AC-13" never matches.
-// Emphasis may close on EITHER side of the label — `**AC-10** (judgment) …` and
-// `**AC-1 (nhãn):** …` both occur in real contracts, so allow `*` at both spots.
-const AC_LINE = /^\s*[-*]\s*\*{0,2}\s*(AC-\d+)\b\*{0,2}\s*(\([^)]*\))?\s*[:.]?\s*\*{0,2}\s*(.+)$/;
-// judgment is read from the LABEL loosely (`(chi phí có trần — judgment)`) but from
-// the BODY only via the exact `(judgment)` tag — a Then-clause discussing judgment
-// must not silently reclassify a machine-checkable criterion as human-only.
-function parseAC(line) {
-  const m = line.match(AC_LINE); if (!m) return null;
-  const [, id, label = '', body] = m;
-  const judgment = /judgment/i.test(label) || /\(judgment\)/i.test(body);
-  const gwt = ((label ? label + ' ' : '') + body).replace(/\(judgment\)/i, '').trim();
-  return { id, gwt, judgment };
-}
+const { parseAC, acBlindSpot, blindSpotText } = require('../lib/ac-line.js');
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
 const NEG_RE = /\bKHÔNG\b|\bkhông\b|\bkhong\b|\bNOT\b|reject|denied|\bdeny\b|từ chối|tu choi|\b0\s*(row|touch)\b|rỗng|\bn-a\b|\bbiên\b|\bbien\b|dưới ngưỡng|duoi nguong|just[- ]?below|should[- ]?not|không tăng|không ghi|không fire|không kích hoạt|suppress|absent|vắng/i;
@@ -195,6 +174,7 @@ const pl = plain || {};
 if (gate === '1') {
   const acs = []; const seen = {}; const dupIds = [];
   for (const l of section(contract, 'Criteria')) { const ac = parseAC(l); if (ac) { if (seen[ac.id]) dupIds.push(ac.id); seen[ac.id] = 1; acs.push(ac); } }
+  const blindSpot = acBlindSpot(contract, acs.map(x => x.id));
   const evalList = []; { let cur = null; for (const l of evalsT.split('\n')) { const id = l.match(/^\s*-\s+id:\s*(.+)$/); if (id) { if (cur) evalList.push(cur); cur = { id: id[1].trim(), criterion: '', expected: '' }; continue; } if (!cur) continue; const c = l.match(/^\s*criterion:\s*(.+)$/); if (c) cur.criterion = unquote(c[1]); const e = l.match(/^\s*expected:\s*(.+)$/); if (e) cur.expected = unquote(e[1]); } if (cur) evalList.push(cur); }
   const evalsFor = id => evalList.filter(e => e.criterion === id);
   const willDo = acs.filter(x => !x.judgment && !NEG_RE.test(thenOf(x.gwt)));
@@ -228,7 +208,7 @@ if (gate === '1') {
   const gpP0 = parseInt(clean(gpFm.p0), 10) || 0, gpP1 = parseInt(clean(gpFm.p1), 10) || 0, gpP2 = parseInt(clean(gpFm.p2), 10) || 0;
   const gpVerdictKnown = gpVerdict === 'clean' || gpVerdict === 'findings' || gpVerdict === 'probe-failed';
 
-  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken }, null, 2)); process.exit(0); }
+  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken }, null, 2)); process.exit(0); }
   const featurePlain = pl.feature_plain || feature;
   const pmap = (arr, id) => (((arr || []).find(x => x.id === id)) || {}).p;
   const willText = x => pmap(pl.will_do, x.id) || x.gwt;
@@ -237,6 +217,9 @@ if (gate === '1') {
 
   const P = [STYLE, `<div class="gc"><div class="card">
 <div class="h"><div><div class="ft">${esc(featurePlain)}</div><div class="sub">Cổng 1 · duyệt tiêu chí TRƯỚC khi code · ~5 phút${tier === 'T3' ? ' · tier T3 (đụng critical)' : ''}</div></div><span class="chip amber">duyệt tiêu chí</span></div>`];
+  // First thing on the card, before any criterion list: if the card cannot be trusted,
+  // the reviewer must learn that BEFORE reading a list that looks complete.
+  if (blindSpot) P.push(`<div class="flag fred">⚠ ${esc(blindSpotText(blindSpot))}</div>`);
   if (willDo.length) P.push(`<div class="lab">Hệ thống SẼ làm</div><div class="grp gdo">${willDo.map(x => `<p class="li">${esc(willText(x))}</p>`).join('')}</div>`);
   const notItems = wontDo.map(x => esc(wontText(x))).concat(oos.length ? ['Hoãn/cắt: ' + esc(scopePlain)] : []);
   if (notItems.length) P.push(`<div class="lab">Sẽ KHÔNG làm / sẽ chặn</div><div class="grp gnot">${notItems.map(t => `<p class="li">${t}</p>`).join('')}</div>`);
