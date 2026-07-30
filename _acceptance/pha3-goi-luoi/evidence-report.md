@@ -9,7 +9,7 @@ enforcement_mode: strict
 bypass_used: false
 verified_commit: f929ceb553b3ea4d0d4204907ed8c1c291241a9e
 # bypass_ack:
-human_signoff:
+human_signoff: Manh Phan 2026-07-30
 ---
 
 # Evidence Report: pha3-goi-luoi

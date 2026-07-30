@@ -4,7 +4,7 @@ feature: Pha 3 — gói lưới 5 món cho discovery + feature-loop (template op
 slug: pha3-goi-luoi
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 owner: phanlemanh@gmail.com
 approved_by: Manh Phan
 approved_at: 2026-07-30T08:35:20Z
