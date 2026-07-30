@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 81917a7e0fa1b33287631d582bcb7fa5bf0494b1
+verified_commit: 7af73e34b6475ddbc6753c0216d2699a17492710
 # bypass_ack:
 human_signoff:
 ---
@@ -32,130 +32,130 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-pha3-goi-luoi-E1-r1
+  run_id: minted-pha3-goi-luoi-E1-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-30T00:00:00Z
+  verified_at: 2026-07-30T09:15:00Z
   output: |
     PASS: P88 version floor 1.27/1.19 + description nhac hanh vi moi
 
     Results: all plugin tests passed
 
 - eval: E2
-  run_id: minted-pha3-goi-luoi-E2-r1
+  run_id: minted-pha3-goi-luoi-E2-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-30T00:00:00Z
+  verified_at: 2026-07-30T09:15:00Z
   output: |
     PASS: P88 version floor 1.27/1.19 + description nhac hanh vi moi
 
     Results: all plugin tests passed
 
 - eval: E3
-  run_id: minted-pha3-goi-luoi-E3-r1
+  run_id: minted-pha3-goi-luoi-E3-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-30T00:00:00Z
+  verified_at: 2026-07-30T09:15:00Z
   output: |
     PASS: P88 version floor 1.27/1.19 + description nhac hanh vi moi
 
     Results: all plugin tests passed
 
 - eval: E4
-  run_id: minted-pha3-goi-luoi-E4-r1
+  run_id: minted-pha3-goi-luoi-E4-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-30T00:00:00Z
+  verified_at: 2026-07-30T09:15:00Z
   output: |
     PASS: P88 version floor 1.27/1.19 + description nhac hanh vi moi
 
     Results: all plugin tests passed
 
 - eval: E5
-  run_id: minted-pha3-goi-luoi-E5-r1
+  run_id: minted-pha3-goi-luoi-E5-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-30T00:00:00Z
+  verified_at: 2026-07-30T09:15:00Z
   output: |
     PASS: P88 version floor 1.27/1.19 + description nhac hanh vi moi
 
     Results: all plugin tests passed
 
 - eval: E6
-  run_id: minted-pha3-goi-luoi-E6-r1
+  run_id: minted-pha3-goi-luoi-E6-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-30T00:00:00Z
+  verified_at: 2026-07-30T09:15:00Z
   output: |
     PASS: P88 version floor 1.27/1.19 + description nhac hanh vi moi
 
     Results: all plugin tests passed
 
 - eval: E7
-  run_id: minted-pha3-goi-luoi-E7-r1
+  run_id: minted-pha3-goi-luoi-E7-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-30T00:00:00Z
+  verified_at: 2026-07-30T09:15:00Z
   output: |
     PASS: P88 version floor 1.27/1.19 + description nhac hanh vi moi
 
     Results: all plugin tests passed
 
 - eval: E8
-  run_id: minted-pha3-goi-luoi-E8-r1
+  run_id: minted-pha3-goi-luoi-E8-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-30T00:00:00Z
+  verified_at: 2026-07-30T09:15:00Z
   output: |
     PASS: P88 version floor 1.27/1.19 + description nhac hanh vi moi
 
     Results: all plugin tests passed
 
 - eval: E9
-  run_id: minted-pha3-goi-luoi-E9-r1
+  run_id: minted-pha3-goi-luoi-E9-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-30T00:00:00Z
+  verified_at: 2026-07-30T09:15:00Z
   output: |
     PASS: P88 version floor 1.27/1.19 + description nhac hanh vi moi
 
     Results: all plugin tests passed
 
 - eval: E10
-  run_id: minted-pha3-goi-luoi-E10-r1
+  run_id: minted-pha3-goi-luoi-E10-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-30T00:00:00Z
+  verified_at: 2026-07-30T09:15:00Z
   output: |
     PASS: P88 version floor 1.27/1.19 + description nhac hanh vi moi
 
     Results: all plugin tests passed
 
 - eval: E11
-  run_id: minted-pha3-goi-luoi-E11-r1
+  run_id: minted-pha3-goi-luoi-E11-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.script.mirror_sync
-  verified_at: 2026-07-30T00:00:00Z
+  verified_at: 2026-07-30T09:15:00Z
   output: |
     plugins/ mirror in sync.
 
 - eval: E12
-  run_id: minted-pha3-goi-luoi-E12-r1
+  run_id: minted-pha3-goi-luoi-E12-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-30T00:00:00Z
+  verified_at: 2026-07-30T09:15:00Z
   output: |
     PASS: P88 version floor 1.27/1.19 + description nhac hanh vi moi
 
@@ -173,6 +173,7 @@ none — every multi-run eval is uniform (không eval nào khai `runs` > 1 trong
 ## Iterations
 
 Round 1: E1-E10, E12, E11 pass toàn bộ ngay từ lần chạy verify đầu tiên; không có vòng lặp trở lại implementation.
+Round 2: Cổng 2 round 1 (Manh, `d-20260730T080800Z-17779`) mở rộng phạm vi AC-10 — quét sạch tham chiếu mồ côi "câu hỏi lane" thay vì chỉ đổi câu hỏi lane thành design-pass; trả 1 round S4 để implementation khớp phạm vi mới rồi re-verify. E1-E10, E11, E12 pass toàn bộ ngay lần verify lại; không có vòng lặp thêm.
 
 ## Gate 2 checklist (human)
 
