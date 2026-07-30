@@ -81,7 +81,12 @@ thành **P65–P71**:
 
 | trước | P58 | P59 | P60 | P61 | P62 | P63 | P64 |
 |---|---|---|---|---|---|---|---|
-| **sau** | **P65** | **P66** | **P67** | **P68** | **P69** | **P71** | **P70** |
+| **sau** | **P65** | **P66** | **P67** | **P68** | **P69** | **P70** | **P71** |
+
+> Bản đầu của bảng này **đảo hai ô cuối** (ghi `P63→P71`, `P64→P70`). Verify vòng
+> 3 bắt được và chứng bằng vân tay biến nội bộ — thân case `P70` còn dùng
+> `P63BAD/P63TMP`, thân `P71` dùng `P64OUT`. Không eval nào khẳng định bảng này
+> nên cổng không thể đỏ vì nó; đây đúng là loại sai mà chỉ mắt người bắt được.
 
 `evidence-report.md` của vòng verify 1 và 2 **giữ nguyên id cũ** — nó ghi đúng
 cái đã chạy tại thời điểm đó, sửa lại là viết lại lịch sử. Dùng bảng trên để
@@ -113,6 +118,13 @@ một lần, nên nó được ghi to hơn ba mục kia.
 4. **Đối chứng script của P66 canh nhánh GAINED, không canh nhánh LOST** như
    `expected` mô tả. Grader kiểm tay: nhánh LOST CÓ nổ và CÓ nêu tên dòng — nên
    đây là nợ script-hoá, không phải phép đo rỗng.
+5. **Nợ NHÃN sau khi dời id (thêm ở vòng 3).** Dòng PASS của `P68` còn in chữ
+   "P61", và header `tests/plugins/fixtures/ac-line-corpus.md` còn ghi
+   "nguồn sự thật cho P58/P59/P60/P61". Không chạm tính chất nào, nhưng là mồi
+   cho đúng lớp lẫn lộn vừa gây ra lỗi bảng ánh xạ ở trên. **Cố ý KHÔNG sửa
+   trong PR này**: hai file đó là file gated, sửa chúng làm evidence stale và
+   đòi vòng verify thứ 4 — quá trần 3 vòng. Trả nợ ở lần chạm `tests/plugins/`
+   kế tiếp.
 
 ## Notes
 

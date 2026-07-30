@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict   # the `enforcement` value from _acceptance/config.yaml (default strict). CI pre-merge BLOCKS off; warn only warns.
 bypass_used: false              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
-verified_commit: 9d01b830e0db240097122b5849fdb07732399fac
+verified_commit: 23b8dc67e9386bd137690cd8eabc4129fee42e72
 # bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -399,3 +399,19 @@ lại case P61 (thước cũ không đo AC-4) và mở lane corpus repo tiêu th
   đều PASS. Provenance vẫn một lượt chạy một phiên, không phải 5 agent độc lập.
 - **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký sẵn có giữ nguyên
   hiệu lực; chữ ký cũ KHÔNG được hiểu là đã phán về cảnh báo mù hay thước mới.
+
+### Re-pin lần 9 — 2026-07-30, do merge origin/main vào nhánh gate-card-ac-visibility
+
+`verified_commit` lên `23b8dc6`. Nguyên nhân stale: đợt tích hợp gộp nhánh
+`fix/ac-bullet-regex-widen` với main — `lib/md-section.js` thêm `sectionLines()`
+và `section()` thành lớp mỏng trên nó, `lib/ac-line.js` bỏ bản duyệt ranh giới
+riêng, `scripts/gate-card.js` + suite đổi theo.
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY ở `23b8dc6` — 6 suite EXIT=0 (596 scripts ·
+  51 hooks · plugins · workflows · skills · codex) + `sync-plugin-packages.sh
+  --check` EXIT=0. Kèm phép kiểm hồi quy `section()` trước/sau refactor trên
+  686 file × 1.731 heading = 1.187.466 phép so → **0 lệch**, harness tự falsify
+  được (đổi `lv>=2`→`lv>=3` cho 1.626 lệch). Provenance: một lượt chạy một
+  phiên, không phải agent độc lập mỗi slug.
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký sẵn có giữ
+  nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là đã phán về mã sau merge.

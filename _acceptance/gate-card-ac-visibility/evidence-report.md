@@ -7,195 +7,184 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 246e7e1f7f2dfc640677ab5d33468d93ed4467f6
+verified_commit: 23b8dc67e9386bd137690cd8eabc4129fee42e72
 human_signoff: Manh Phan 2026-07-30
 ---
 
 # Evidence Report: gate-card-ac-visibility
 
-Vòng verify 2. Vòng 1 bác E4 (P61 xanh mà không đo được AC-4). Vòng này P61 được
-viết lại và tôi **tự dựng đột biến độc lập, theo cả hai chiều**, kể cả chiều mà
-đối chứng dương của chính P61 KHÔNG chạm tới — case bắt được cả hai.
+Vòng verify 3, chạy trên cây SAU khi merge `origin/main` (30 commit —
+`findings-section-boundary` + `claim-scan-parser-hardening`). Vòng 1 bác E4;
+vòng 2 PASS-family. Vòng này KHÔNG chép lại kết quả vòng 2: mọi executor được
+chạy lại trên commit mới, cộng ba phép kiểm tích hợp mà merge sinh ra —
+hồi quy `section()`, nguồn-runtime của bảng marker, và thí nghiệm làm lệch hai
+lối gọi do tôi tự dựng.
+
+**Case đổi id P58–P64 → P65–P71** (bảng ở contract §"Đổi id case"). Bảng đó có
+**hai ô đảo nhau** — xem Analyst mục 5. Các khối dưới đây dùng id THẬT đọc từ
+suite, không dùng bảng.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
-| E1 | AC-1 | script (test.plugins / P58) | PASS |
-| E2 | AC-2 | script (test.plugins / P59) | PASS (phạm vi CI hẹp hơn criterion — xem Analyst) |
-| E3 | AC-3 | script (test.plugins / P60) | PASS (một vế của `expected` KHÔNG được đo — xem Analyst) |
-| E4 | AC-4 | script (test.plugins / P61) | PASS (đột biến hai chiều do tôi tự dựng đều bắt được) |
-| E5 | AC-5 | script (test.plugins / P62) | PASS |
+| E1 | AC-1 | script (test.plugins / P65) | PASS |
+| E2 | AC-2 | script (test.plugins / P66) | PASS (phạm vi CI hẹp hơn criterion — xem Analyst) |
+| E3 | AC-3 | script (test.plugins / P67) | PASS (một vế của `expected` KHÔNG được đo — xem Analyst) |
+| E4 | AC-4 | script (test.plugins / P68) | PASS (tôi tự làm lệch hai lối gọi, cả hai chiều đều bị bắt) |
+| E5 | AC-5 | script (test.plugins / P69) | PASS |
 | E6 | AC-5 | script (test.scripts / GCV1a–f) | PASS |
-| E13 | AC-11 | script (test.plugins / P64) | PASS |
-| E7 | AC-6 | script (test.plugins / P63) | PASS (đối chứng dương đo grep, không đo nhánh in tên file — xem Analyst) |
+| E13 | AC-11 | script (test.plugins / P71) | PASS |
+| E7 | AC-6 | script (test.plugins / P70) | PASS (đối chứng dương đo grep, không đo nhánh in tên file — xem Analyst) |
 | E8 | AC-7 | script (script.mirror_sync) | PASS |
 | E9 | AC-8 | script (test.plugins / P53) | PASS |
 | E10 | AC-1 | script (test.scripts / GPM21+GPM20g) | PASS |
-| E11 | AC-9 | judgment | UNCERTAIN (T3 — chờ phán trực tiếp của người ở Cổng 2) |
-| E12 | AC-10 | judgment | UNCERTAIN (T3 — chờ phán trực tiếp của người ở Cổng 2) |
+| E11 | AC-9 | judgment | UNCERTAIN (T3 — người phán trực tiếp, đã có `human_override`) |
+| E12 | AC-10 | judgment | UNCERTAIN (T3 — người phán trực tiếp, đã có `human_override`) |
 
 ## Evidence
 
 - eval: E4
-  run_id: gate-card-ac-visibility-E4-20260730T024109Z
+  run_id: gate-card-ac-visibility-E4-20260730T032939Z
   exit_code: 0
   criterion: AC-4
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-30T02:41:38Z
+  verified_at: 2026-07-30T03:30:08Z
   baseline: n-a
   output: |
-    P61 mot nguon su that: HAI LOI GOI THAT cua gate-card tren cung contract
-      PASS: P61 hai loi goi khop tren cay that; dot bien lam lech -> bat duoc (B:yankeecrab B:xraymoose B:victorowl)
+    P68 mot nguon su that: HAI LOI GOI THAT cua gate-card tren cung contract
+      PASS: hai loi goi khop tren cay that; dot bien lam lech -> bat duoc (B:yankeecrab B:xraymoose B:victorowl)
   detail: |
-    P61 đã được viết lại hoàn toàn so với vòng 1. Nửa grep-đếm-regex (thứ vòng 1
-    bác) KHÔNG còn. Bản mới dựng một workspace fixture `_acceptance/twopath` với 5
-    criterion phủ đủ 5 khuôn, mỗi criterion mang một từ-mốc riêng (zulufox,
-    yankeecrab, xraymoose, whiskeyelk, victorowl), rồi chạy CHÍNH CLI
-    `node scripts/gate-card.js --gate 1` (đường card, gate-card.js:176) và
-    `--gate 2` (đường `critText`, gate-card.js:265) trên cùng contract đó, soi
-    stdout từng đường xem từ-mốc nào vắng. Đó là đo HÀNH VI qua hai lối gọi
-    THẬT, đúng điều AC-4 và `expected` đòi.
+    Case dựng workspace fixture `_acceptance/twopath` với 5 criterion phủ đủ 5
+    khuôn, mỗi criterion mang một từ-mốc riêng (zulufox, yankeecrab, xraymoose,
+    whiskeyelk, victorowl), rồi chạy CHÍNH CLI `node scripts/gate-card.js
+    --gate 1` (đường card, `gate-card.js:172`) và `--gate 2` (đường `critText`,
+    `gate-card.js:261`) trên cùng contract đó, soi stdout từng đường xem từ-mốc
+    nào vắng. Không còn dòng grep-đếm-regex nào — đó là thứ vòng 1 bác.
   discriminates: |
-    Tôi KHÔNG tin đối chứng dương có sẵn của case; tôi tự dựng đột biến trên cây
-    thật, CẢ HAI CHIỀU, đồng bộ sang mirror để không nổ vì lý do khác:
+    Yêu cầu riêng của vòng 3: TỰ TAY làm lệch hai lối gọi THẬT rồi xem case có
+    ĐỎ không. Tôi làm trên cây đã pin, đồng bộ cả mirror, CẢ HAI CHIỀU, và cố ý
+    viết đột biến bằng CÚ PHÁP KHÁC với mỏ-neo perl của chính case (nếu case chỉ
+    bắt được đúng cú pháp nó tự viết thì nó không đo hành vi):
 
-    (A) Thu hẹp đường CARD CỔNG 1 (gate-card.js:176) — bỏ mọi dòng khuôn `- **AC-n`
-        khỏi `acs`, giữ nguyên `critText`. Đây là chiều mà đối chứng dương của
-        chính P61 KHÔNG chạm tới (nó chỉ đột biến đường `critText`).
-        Kết quả: P61 ĐỎ, nêu đích danh mốc lệch — "hai loi goi LECH tren cay
-        that — thieu: A:yankeecrab A:victorowl A:id-AC-3".
+    (A) Thu hẹp đường CARD Cổng 1 (`gate-card.js:172`) — thêm `continue` bỏ mọi
+        dòng `- **`, giữ nguyên `critText`. Đây là chiều mà đối chứng dương của
+        chính case KHÔNG chạm tới.
+        Kết quả: suite ĐỎ ở P68, thông điệp nêu đích danh mốc lệch —
+        "hai loi goi LECH tren cay that — thieu: A:yankeecrab A:victorowl A:id-AC-3".
 
-    (B) Thu hẹp đường `critText` CỔNG 2 (gate-card.js:265) — lọc bỏ cùng lớp dòng
-        đó khỏi vòng lặp, giữ nguyên đường card. Đây đúng lớp đột biến mà vòng 1
-        dùng để bác P61 bản cũ (bản cũ khi đó vẫn xanh).
-        Kết quả: P61 ĐỎ — "hai loi goi LECH tren cay that — thieu: B:yankeecrab
-        B:xraymoose B:victorowl".
+    (B) Thu hẹp đường `critText` Cổng 2 (`gate-card.js:261`) — dùng
+        `.filter(function (x) { return !String(x).trimStart().startsWith('- **'); })`
+        trước vòng lặp, tức KHÔNG trùng khuôn `MUTDROP(l) ? null : parseAC(l)`
+        mà case tự tiêm. Giữ nguyên đường card.
+        Kết quả: suite ĐỎ ở P68 — "hai loi goi LECH tren cay that — thieu:
+        B:yankeecrab B:xraymoose B:victorowl".
 
-    (C) Phụ chứng ngoài dự tính: hai biến thể của (B) mà tôi viết theo cú pháp
-        khác làm hỏng mỏ-neo perl của chính P61. P61 KHÔNG xanh im lặng — nó đỏ
-        ở nhánh tự-canh "dot bien KHONG ap duoc — doi chung duong vo hieu, khong
-        the tin case nay". Tức case từ chối tuyên xanh khi đối chứng dương của nó
-        không áp được. Đây là tính chất vòng 1 đòi mà bản cũ không có.
+    Cả hai lần đột biến của tôi đều KHÔNG rơi vào nhánh tự-canh "dot bien KHONG
+    ap duoc", tức case báo lệch THẬT chứ không báo hỏng-đối-chứng.
 
-    Sau mỗi đột biến cây được khôi phục; `git diff` rỗng, HEAD vẫn
-    246e7e1f7f2dfc640677ab5d33468d93ed4467f6, ba lối verify chạy lại đều xanh.
-    Kết luận: E4 giờ ĐO ĐƯỢC AC-4. Finding P1 của gap-probe (P61 grep-đếm) đã
-    thật sự đóng, có case đỏ kèm theo.
+    Khôi phục sau mỗi lần: `git status --porcelain` rỗng, `git diff` rỗng, HEAD
+    vẫn 23b8dc67e9386bd137690cd8eabc4129fee42e72; chạy lại plugins suite + mirror
+    `--check` đều xanh.
 
 - eval: E1
-  run_id: gate-card-ac-visibility-E1-20260730T024109Z
+  run_id: gate-card-ac-visibility-E1-20260730T032939Z
   exit_code: 0
   criterion: AC-1
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-30T02:41:38Z
+  verified_at: 2026-07-30T03:30:08Z
   baseline: n-a
   output: |
-    P58 corpus khuon dong criterion: id/gwt/judgment khop bang GHIM SAN
-      PASS: P58 corpus 14 ca khop bang ghim (id+gwt+judgment)
+    P65 corpus khuon dong criterion: id/gwt/judgment khop bang GHIM SAN
+      PASS: P65 corpus 14 ca khop bang ghim (id+gwt+judgment)
   detail: |
-    Tôi đọc thẳng corpus `tests/plugins/fixtures/ac-line-corpus.md`: 14 ca —
-    10 ca criterion phủ đủ 5 khuôn AC-1 liệt (`- AC-1:` · `- **AC-2 (nhãn):**` ·
-    `- **AC-3** (judgment)` · `- AC-4 (F1):` · `- **AC-5.**`) cộng biến thể nhãn
-    mang chữ judgment, thân bàn-về-judgment, dấu-trong-code-span, dấu-cuối-dòng,
-    tiêu-đề-in-đậm; + 4 ca KHÔNG-phải-criterion (id trần `- **AC-11**`, dòng bảng
-    Coverage `- **Đ — đường đo** (CE: …): AC-6, AC-11`, văn xuôi nhắc id giữa câu,
-    in-đậm tham-chiếu-chéo). Harness so cả BA trường id/gwt/judgment với bảng
-    ghim, in đích danh tên ca + trường lệch, và chặn cứng nếu corpus < 10 ca.
-    Đối chứng dương của AC-1 (văn xuôi nhắc id → 0 criterion) là ca chạy thật.
-  discriminates: |
-    Tự kiểm bằng đột biến trên cây thật: ép `AC_LINE` phải có `**` → P58 đỏ
-    "6 lech so voi bang ghim". Case phân biệt thật, không phải hằng đúng.
+    Tôi đọc thẳng `tests/plugins/fixtures/ac-line-corpus.md`: 14 ca — 10 ca
+    criterion phủ đủ 5 khuôn AC-1 liệt (`- AC-1:` · `- **AC-2 (nhãn):**` ·
+    `- **AC-3** (judgment)` · `- AC-4 (F1):` · `- **AC-5.**`) cộng biến thể
+    nhãn-mang-chữ-judgment, thân-bàn-về-judgment, dấu-trong-code-span,
+    dấu-cuối-dòng, tiêu-đề-in-đậm; + **4 ca KHÔNG-phải-criterion** (id trần
+    `- **AC-11**`, dòng bảng Coverage, văn xuôi nhắc id giữa câu, in-đậm
+    tham-chiếu-chéo) mà bảng ghim đòi ra `-` tức 0 criterion. Harness
+    (`run-tests.sh:1204-1230`) so cả BA trường với bảng ghim, in đích danh tên
+    ca + trường lệch, và chặn cứng nếu corpus < 10 ca. Đối chứng dương của AC-1
+    (văn xuôi nhắc id → 0 criterion) là ca CHẠY THẬT, không phải lời khai.
 
 - eval: E2
-  run_id: gate-card-ac-visibility-E2-20260730T024109Z
+  run_id: gate-card-ac-visibility-E2-20260730T032939Z
   exit_code: 0
   criterion: AC-2
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-30T02:41:38Z
+  verified_at: 2026-07-30T03:30:08Z
   baseline: n-a
   output: |
-    P59 bao-tap: khuon MOI phai BAO khuon CU, 0 dong mat, 0 dong rac them
+    P66 bao-tap: khuon MOI phai BAO khuon CU, 0 dong mat, 0 dong rac them
          PHAM-VI: khong co AC_EXTRA_CORPUS_ROOT — chi phu corpus + _acceptance cua repo nay; AC-2 khai rong hon the
-      PASS: P59 bao-tap: 0 mat, +19 dong criterion that, 0 rac
+      PASS: P66 bao-tap: 0 mat, +27 dong criterion that, 0 rac
   output_envlane: |
-    run_id: gate-card-ac-visibility-E2-envlane-20260730T024147Z
-    P59 bao-tap: khuon MOI phai BAO khuon CU, 0 dong mat, 0 dong rac them
-      PASS: P59 bao-tap: 0 mat, +427 dong criterion that, 0 rac
+    run_id: gate-card-ac-visibility-E2-envlane-20260730T033015Z
+    P66 bao-tap: khuon MOI phai BAO khuon CU, 0 dong mat, 0 dong rac them
+      PASS: P66 bao-tap: 0 mat, +435 dong criterion that, 0 rac
   detail: |
     Ba chốt: LOST == 0 (bao-tập) · GAINED >= 5 (phép nới có chạm khuôn mới) ·
-    JUNK == 0 (nửa should-NOT-fire). Corpus giờ ĐƯỢC ĐỌC thật — tiền tố `INPUT `
-    được gọt (`strip`), lỗi vòng 1 phát hiện đã sửa: dòng corpus xuất hiện trong
-    danh sách MẤT khi tôi đột biến, tức chúng nằm trong phép đo.
-    Chạy CẢ HAI chế độ: không env (chế độ CI) phủ corpus + 6 contract của kit,
-    +19 dòng; có `AC_EXTRA_CORPUS_ROOT` phủ thêm 170 contract artifact-platform,
-    +427 dòng, LOST vẫn 0. Bất biến bao-tập của AC-2 đúng trên CẢ HAI repo.
-  discriminates: |
-    Case giờ có đối chứng dương ĐƯỢC SCRIPT HOÁ (`P59CTRL`, run-tests.sh:1242-1256):
-    thay parser bằng bản hẹp cố ý rồi đòi phép đo phải lộ ra dòng chỉ bản rộng
-    đọc được; CTRL xanh ⇒ case đỏ. Nhưng control đó canh nhánh GAINED, không phải
-    nhánh MẤT mà `expected` mô tả, nên tôi tự đo nhánh MẤT: ép `AC_LINE` phải có
-    `**` → P59 nổ đúng nhánh MẤT và IN ĐÍCH DANH từng dòng (gồm cả dòng corpus:
-    "MAT fixtures: - AC-1: Given kho rỗng…", "MAT gap-probe-presence-hook: …").
-    Cả hai nhánh chốt đều sống.
+    JUNK == 0 (nửa should-NOT-fire). Chạy CẢ HAI chế độ theo yêu cầu vòng 3:
+    không env (chế độ CI) phủ corpus + 9 contract của kit → +27 dòng; có
+    `AC_EXTRA_CORPUS_ROOT` phủ thêm 170 contract artifact-platform → +435 dòng.
+    LOST = 0 ở cả hai. Số GAINED cao hơn vòng 2 (+19/+427) vì merge mang thêm
+    hai contract của main vào phạm vi — đúng chiều, không phải trôi thước.
 
 - eval: E3
-  run_id: gate-card-ac-visibility-E3-20260730T024109Z
+  run_id: gate-card-ac-visibility-E3-20260730T032939Z
   exit_code: 0
   criterion: AC-3
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-30T02:41:38Z
+  verified_at: 2026-07-30T03:30:08Z
   baseline: n-a
   output: |
-    P60 co judgment: 0 lat tren dong chung; nhan/code-span xu dung
+    P67 co judgment: 0 lat tren dong chung; nhan/code-span xu dung
          PHAM-VI: khong co AC_EXTRA_CORPUS_ROOT — 2 dong repo tieu thu ma AC-3 neu dich danh KHONG nam trong pham vi quet
               lat DUNG luat code-span: gate-card-ac-visibility AC-1
               lat DUNG luat code-span: gate-card-ac-visibility AC-3
-      PASS: P60 co judgment: 0 lat; dau trong code-span = trich dan (false), go backtick -> true
+      PASS: P67 co judgment: 0 lat; dau trong code-span = trich dan (false), go backtick -> true
   output_envlane: |
-    run_id: gate-card-ac-visibility-E3-envlane-20260730T024147Z
-    P60 co judgment: 0 lat tren dong chung; nhan/code-span xu dung
+    run_id: gate-card-ac-visibility-E3-envlane-20260730T033015Z
+    P67 co judgment: 0 lat tren dong chung; nhan/code-span xu dung
               lat DUNG luat code-span: gate-card-ac-visibility AC-1
               lat DUNG luat code-span: gate-card-ac-visibility AC-3
-      PASS: P60 co judgment: 0 lat; dau trong code-span = trich dan (false), go backtick -> true
+      PASS: P67 co judgment: 0 lat; dau trong code-span = trich dan (false), go backtick -> true
   detail: |
     0 lật ngoài luật code-span trên mọi dòng cả hai khuôn cùng đọc được; hai lật
     DUY NHẤT đúng là AC-1/AC-3 của chính contract này (dogfood). Đối chứng dương
     code-span CÓ chạy và trên CÙNG một dòng (`quoted` vs `bare`) → QUOTED=false
-    BARE=true. Ca "thân bàn về judgment mà không mang dấu → false" (corpus AC-7)
-    và ca "dấu cuối dòng → true" (corpus AC-9) nằm trong bảng ghim P58, có chạy.
-    Chạy cả hai chế độ; bật lane opt-in không đổi kết quả.
-  discriminates: |
-    Vòng 1 đã chứng minh case phân biệt (gỡ luật code-span → P60 đỏ). Vòng này tôi
-    xác nhận lại gián tiếp: đột biến `AC_LINE` làm P58/P59 đỏ trong khi P60 giữ
-    nguyên ngữ nghĩa của nó, tức nhánh chốt của P60 độc lập.
+    BARE=true — chốt được in ra và grep cứng (`run-tests.sh:1313`), không phải
+    "khác rỗng". Chạy cả hai chế độ; bật lane opt-in không đổi kết quả.
   coverage_gap: |
-    Vế "phủ hồi quy 2 dòng repo tiêu thụ" của AC-3/E3 VẪN KHÔNG được đo, kể cả
-    khi bật lane opt-in — xem Analyst mục 2. Đây là lệch phủ tôi tự tìm ra ở vòng
-    này, không phải thứ đã đóng.
+    Vế "phủ hồi quy 2 dòng repo tiêu thụ" VẪN KHÔNG được đo, kể cả khi bật lane
+    opt-in — `run-tests.sh:1297` còn `if(!o) continue`. Đây là Known limit #2 của
+    contract, người duyệt đã chốt ghi nhận ở Cổng 2. Tôi xác nhận lại nó còn
+    nguyên trên cây mới, không phải thứ merge vô tình đóng.
 
 - eval: E5
-  run_id: gate-card-ac-visibility-E5-20260730T024109Z
+  run_id: gate-card-ac-visibility-E5-20260730T032939Z
   exit_code: 0
   criterion: AC-5
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-30T02:41:38Z
+  verified_at: 2026-07-30T03:30:08Z
   baseline: n-a
   output: |
-    P62 RONG phai KEU (2 ca kich hoat) + doi chung chong cry-wolf
+    P69 RONG phai KEU (2 ca kich hoat) + doi chung chong cry-wolf
          A=blank:3 B=blank:2:## Acceptance criteria C=null
-      PASS: P62 ca (a) khuon la + ca (b) heading lech deu KEU va neu heading; contract lanh IM
+      PASS: P69 ca (a) khuon la + ca (b) heading lech deu KEU va neu heading; contract lanh IM
   detail: |
     Ca (a) heading đúng + 3 dòng khuôn lạ → kind=blank, suspect=3. Ca (b) heading
-    lệch `## Acceptance criteria` → blank, suspect=2, CÓ nêu lại heading đã tìm —
-    đúng ca đã sinh ra feature này. Ca (c) contract lành → null. Chuỗi chốt được
-    ghim cứng (`A=blank:3 B=blank:2:## Acceptance criteria C=null`), không phải
-    "khác rỗng". Đối chứng dương chống cry-wolf có chạy thật.
+    lệch `## Acceptance criteria` → blank, suspect=2, CÓ nêu lại heading đã tìm.
+    Ca (c) contract lành → null. Chuỗi chốt ghim cứng
+    (`A=blank:3 B=blank:2:## Acceptance criteria C=null`), là giá trị ĐO ĐƯỢC in
+    ra chứ không phải cờ boolean, nên đối chứng chống cry-wolf có chạy thật.
 
 - eval: E6
-  run_id: gate-card-ac-visibility-E6-20260730T024227Z
+  run_id: gate-card-ac-visibility-E6-20260730T033049Z
   exit_code: 0
   criterion: AC-5
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-30T02:43:12Z
+  verified_at: 2026-07-30T03:31:37Z
   baseline: n-a
   output: |
     GCV1 canh bao mu criterion tren card THAT (2 ca keu + 1 ca im)
@@ -208,85 +197,86 @@ viết lại và tôi **tự dựng đột biến độc lập, theo cả hai ch
   detail: |
     Đường end-to-end THẬT: dựng 4 workspace fixture rồi chạy
     `node scripts/gate-card.js --root … --slug … --gate 1`, soi stdout HTML card.
-    So vòng 1: thêm GCV1e/GCV1f — nhánh CỤT (AC-11) giờ CÓ lối vào thứ hai ở tầng
-    card thật, đúng thứ lệch phủ #3 vòng 1 nêu. Cảnh báo đi ra đúng bề mặt người
-    duyệt nhìn, và cả hai loại card mù đều mang câu "đừng duyệt".
+    Cả 6 ca (a–f) hiện diện và xanh trên cây sau merge. Cảnh báo đi ra đúng bề
+    mặt người duyệt nhìn; cả hai loại card mù (RỖNG và CỤT) đều mang câu
+    "đừng duyệt".
 
 - eval: E13
-  run_id: gate-card-ac-visibility-E13-20260730T024109Z
+  run_id: gate-card-ac-visibility-E13-20260730T032939Z
   exit_code: 0
   criterion: AC-11
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-30T02:41:38Z
+  verified_at: 2026-07-30T03:30:08Z
   baseline: n-a
   output: |
-    P64 CUT phai KEU (ca ma P62 khong phu vi n>=1) + doi chung m==n
+    P71 CUT phai KEU (ca ma P69 khong phu vi n>=1) + doi chung m==n
          CUT=short:2/8 SAME=null
-      PASS: P64 ca cut 2/8 KEU dung nhanh short; m==n IM (khong cry-wolf)
+      PASS: P71 ca cut 2/8 KEU dung nhanh short; m==n IM (khong cry-wolf)
   detail: |
-    Dựng đúng hình dạng radar-d3-crawl-cron (2 dòng khuôn chuẩn + 6 dòng khuôn lạ)
-    → kind=short, parsed=2, suspect=8. Đối chứng dương m == n → null, có chạy.
-    Tầng card thật của nhánh này giờ do GCV1e/GCV1f gánh (E6), nên lệch phủ
-    "chỉ có tầng đơn vị" của vòng 1 đã đóng.
+    Dựng đúng hình dạng `radar-d3-crawl-cron` (2 dòng khuôn chuẩn + 6 dòng khuôn
+    lạ) → kind=short, parsed=2, suspect=8. Đối chứng dương m == n → null, giá trị
+    được in ra nên có chạy. Tầng card thật của nhánh này do GCV1e/GCV1f gánh (E6).
 
 - eval: E7
-  run_id: gate-card-ac-visibility-E7-20260730T024109Z
+  run_id: gate-card-ac-visibility-E7-20260730T032939Z
   exit_code: 0
   criterion: AC-6
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-30T02:41:38Z
+  verified_at: 2026-07-30T03:30:08Z
   baseline: n-a
   output: |
-    P63 dogfood: contract cua chinh kit deu dung heading '## Criteria'
-      PASS: P63 moi contract cua kit dung '## Criteria'; doi chung duong bat duoc ban doi heading
+    P70 dogfood: contract cua chinh kit deu dung heading '## Criteria'
+      PASS: P70 moi contract cua kit dung '## Criteria'; doi chung duong bat duoc ban doi heading
   detail: |
-    Quét mọi `_acceptance/*/contract.md` của kit. Đối chứng dương CÓ chạy: bản sao
-    `sed 's/^## Criteria$/## Acceptance criteria/'` của chính contract này phải
-    trượt phép kiểm.
+    Quét mọi `_acceptance/*/contract.md` của kit — giờ là **9 contract** (merge
+    mang thêm `claim-scan-parser-hardening` và `findings-section-boundary`). Tôi
+    kiểm độc lập ngoài case: liệt heading criterion của cả 9 file, tất cả là
+    `## Criteria`; và chạy `acBlindSpot` trên cả 9 → **0 contract nào bị mù**
+    (parsed lần lượt 8/12/12/20/11/12/14/15/17). Đối chứng dương CÓ chạy: bản sao
+    `sed 's/^## Criteria$/## Acceptance criteria/'` phải trượt phép kiểm.
   coverage_gap: |
-    Đối chứng dương chỉ chứng minh biểu thức grep bắt được bản đổi heading; nhánh
-    in đích danh đường dẫn file (`heading criterion khong chuan: $f`) không được
-    ca nào cho chạy. Vế "thông điệp nêu đích danh file" của AC-6 chưa có case đỏ.
+    Đối chứng dương vẫn chỉ chứng minh biểu thức grep bắt được bản đổi heading;
+    nhánh in đích danh đường dẫn (`run-tests.sh:1466`) không được ca nào cho
+    chạy. Known limit #3, còn nguyên.
 
 - eval: E8
-  run_id: gate-card-ac-visibility-E8-20260730T024312Z
+  run_id: gate-card-ac-visibility-E8-20260730T033143Z
   exit_code: 0
   criterion: AC-7
   verifier: config:executors.script.mirror_sync
-  verified_at: 2026-07-30T02:43:12Z
+  verified_at: 2026-07-30T03:31:43Z
   baseline: n-a
   output: |
     plugins/ mirror in sync.
   detail: |
-    Mirror `plugins/acceptance-gate/scripts/gate-card.js` khớp nguồn. Phụ chứng
-    độc lập của tôi: trong mọi đột biến E4 ở trên, nếu tôi sửa nguồn mà chưa đồng
-    bộ mirror thì P29/P30/P41/P42/P47/P50 nổ đỏ ngay — lớp canh này sống, và
-    `--check` đơn lẻ cũng đỏ đúng lúc đó.
+    Mirror khớp nguồn cho cả `scripts/gate-card.js`, `lib/ac-line.js` và
+    `lib/md-section.js` (merge đụng cả ba). Phụ chứng độc lập: trong hai đột
+    biến E4 tôi phải vá SONG SONG source + mirror; nếu bỏ mirror thì lớp canh
+    này đỏ ngay — nó sống.
 
 - eval: E9
-  run_id: gate-card-ac-visibility-E9-20260730T024109Z
+  run_id: gate-card-ac-visibility-E9-20260730T032939Z
   exit_code: 0
   criterion: AC-8
   verifier: config:executors.test.plugins
-  verified_at: 2026-07-30T02:41:38Z
+  verified_at: 2026-07-30T03:30:08Z
   baseline: n-a
   output: |
     P53 fixture judge E11 = ban render that (sinh lai + so byte)
       PASS: P53 fixture judge E11 == ban render that + khong jargon
   detail: |
-    Tôi đọc mã case: nó SINH LẠI thật trong cùng lần chạy (`head -6` fixture +
-    `bash tests/plugins/fixtures/render-out-of-contract-block.sh`, script này gọi
-    chính gate-card.js) rồi `cmp -s` byte-đối-byte với
-    `_acceptance/s4-scope-triage/evidence/out-of-contract-card-sample.md`, cộng
-    lưới chặn jargon. Khuôn render KHÔNG trôi sau khi nới parser và sau khi thêm
-    dòng cảnh báo mù.
+    Case SINH LẠI fixture thật trong cùng lần chạy (`head -6` + `bash
+    tests/plugins/fixtures/render-out-of-contract-block.sh`, script này gọi chính
+    `gate-card.js`) rồi `cmp -s` byte-đối-byte với
+    `_acceptance/s4-scope-triage/evidence/out-of-contract-card-sample.md`. Khuôn
+    render KHÔNG trôi qua merge — quan trọng vì merge sửa cả `gate-card.js`.
 
 - eval: E10
-  run_id: gate-card-ac-visibility-E10-20260730T024227Z
+  run_id: gate-card-ac-visibility-E10-20260730T033049Z
   exit_code: 0
   criterion: AC-1
   verifier: config:executors.test.scripts
-  verified_at: 2026-07-30T02:43:12Z
+  verified_at: 2026-07-30T03:31:37Z
   baseline: n-a
   output: |
     GPM21 parity theo bang: decision card vs pre-merge, tung ca mot
@@ -294,9 +284,9 @@ viết lại và tôi **tự dựng đột biến độc lập, theo cả hai ch
     GPM20 bang 8 dau vao -> lib phan loai dung tung ca
       PASS: GPM20g
   detail: |
-    Bảng parity decision-card vs pre-merge trên gap-probe vẫn khớp từng ca sau khi
-    đổi khuôn bóc criterion — bản vá không rò sang luật khác. Toàn suite scripts:
-    594 case xanh (vòng 1 là 592; +2 là GCV1e/GCV1f).
+    Bảng parity decision-card vs pre-merge trên gap-probe vẫn khớp từng ca sau
+    merge — bản vá không rò sang luật khác. Toàn suite scripts: 596 case xanh
+    (vòng 2 là 594; +2 là case của main).
 
 - eval: E11
   criterion: AC-9
@@ -325,67 +315,128 @@ viết lại và tôi **tự dựng đột biến độc lập, theo cả hai ch
 ## Analyst
 
 Non-discriminating evals: none xác nhận được bằng baseline diffBase (không chạy
-baseline A/B ở vòng này — `baseline: n-a` cho mọi eval máy). Thay vào đó tôi kiểm
-tính phân biệt bằng ĐỘT BIẾN có kiểm soát trên cây đã pin, rồi khôi phục:
+baseline A/B — `baseline: n-a` cho mọi eval máy). Thay vào đó tính phân biệt
+được kiểm bằng ĐỘT BIẾN có kiểm soát trên cây đã pin, rồi khôi phục:
 
-| Đột biến (tôi tự dựng, không tin đối chứng có sẵn) | Case nổ đỏ | Kết luận |
+| Đột biến (tôi tự dựng, cú pháp KHÁC đối chứng có sẵn) | Case nổ đỏ | Kết luận |
 |---|---|---|
-| Thu hẹp đường CARD Cổng 1 (`gate-card.js:176`), mirror đồng bộ | **P61** (nêu `A:yankeecrab A:victorowl A:id-AC-3`) | **E4 phân biệt — và ở chiều đối chứng của chính nó KHÔNG chạm** |
-| Thu hẹp đường `critText` Cổng 2 (`gate-card.js:265`), mirror đồng bộ | **P61** (nêu `B:yankeecrab B:xraymoose B:victorowl`) | **E4 bắt đúng lớp đột biến đã bác nó ở vòng 1** |
-| Biến thể (B) làm hỏng mỏ-neo perl của P61 | P61 (nhánh "dot bien KHONG ap duoc") | Case từ chối tuyên xanh khi đối chứng dương của nó vô hiệu |
-| `AC_LINE` ép phải có `**` | P58 (6 lệch), P59 (nhánh MẤT, in đích danh cả dòng corpus) | E1, E2 phân biệt cả nhánh bao-tập |
+| Thu hẹp đường CARD Cổng 1 (`gate-card.js:172`), mirror đồng bộ | **P68** (nêu `A:yankeecrab A:victorowl A:id-AC-3`) | **E4 phân biệt ở chiều đối chứng của chính nó KHÔNG chạm** |
+| Thu hẹp đường `critText` Cổng 2 (`gate-card.js:261`) bằng `.filter(...)` | **P68** (nêu `B:yankeecrab B:xraymoose B:victorowl`) | **E4 bắt lệch THẬT, không chỉ bắt đúng cú pháp nó tự viết** |
+| `lv >= 2` → `lv >= 3` trong bản `section()` đối chứng | harness hồi quy của tôi (1626 lệch) | phép so hồi quy có sức phân biệt |
+| Lật một dòng bảng marker `Findings -> same-or-higher` | 32 file đổi output | bảng marker LÀ nguồn runtime |
 
-**Điều vòng 1 bác đã ĐÓNG.** P61 không còn dòng grep-đếm-regex nào; phép đo đi
-qua CLI `gate-card.js` hai lần với hai `--gate` khác nhau trên cùng contract
-fixture. Tôi đột biến hai chiều, case đỏ cả hai. Cây khôi phục sạch sau mỗi lần
-(`git diff` rỗng, HEAD không đổi).
+### 1. Hồi quy `section()` sau refactor — 0 lệch trên 1.187.466 phép so
 
-Lệch phủ CÒN LẠI — cả bốn tôi tự đo được, không lấy lại từ vòng 1:
+`lib/ac-line.js` bỏ hàm tự duyệt riêng (`criteriaSectionLines`) và giờ `require`
+`sectionLines()` từ `lib/md-section.js`; `section()` cũ được viết lại thành lớp
+mỏng trên `sectionLines()`. Tôi so hành vi TRƯỚC/SAU trên dữ liệu thật:
 
-1. **Chế độ CI (không env) đo HẸP hơn AC-2 khai.** AC-2 ràng "cả hai repo".
-   P59/P60 chỉ nạp repo thứ hai khi có `AC_EXTRA_CORPUS_ROOT`; CI sẽ không có
-   biến đó. Khác vòng 1 ở chỗ việc thu hẹp giờ **được KHAI RA** (dòng `PHAM-VI:`
-   in ngay trong output) thay vì im lặng — đó là cải thiện thật, nhưng lời khai
-   không làm CI phủ thêm được gì. Số đo: chế độ CI +19 dòng / chế độ opt-in +427
-   dòng, LOST = 0 ở cả hai. Bất biến AC-2 ĐÚNG trên cả hai repo — chỉ là cổng CI
-   không chứng minh nó.
+- Bản TRƯỚC: `git show origin/main:lib/md-section.js`.
+- Corpus: **686 file `.md`** thật — toàn bộ `_acceptance/` của kit, `tests/` của
+  kit, và `_acceptance/` của artifact-platform.
+- Heading: **1.731 heading khác nhau** — mọi h2..h6 xuất hiện trong corpus, hợp
+  với danh sách bắt buộc `Criteria` / `Findings` / `Coverage` / `Out of scope` /
+  `Analyst` / `Variance` (+ Evidence / Iterations / Notes / Acceptance criteria).
+- **1.187.466 phép so → TOTAL_DIFFS = 0.**
+- Phủ thật của các section bắt buộc (số file có section KHÔNG rỗng):
+  `Criteria 157 · Findings 83 · Coverage 16 · Out of scope 143 · Analyst 80 ·
+  Variance 80 · Evidence 134 · Iterations 109 · Notes 74`.
+- Thêm hai bất biến nội bộ được kiểm cùng lúc, cũng 0 lệch:
+  `sectionLines(t,h).map(x=>x.l)` ≡ `section(t,h)`, và mọi `no` trả về TRỎ ĐÚNG
+  dòng thật của file (`lines[no-1] === l`).
+- 31.556 cặp trong đó CẢ HAI bản cùng ném lỗi giống hệt nhau (heading thật có ký
+  tự regex như `[MEDIUM]`) — hành vi CÓ TỪ TRƯỚC, giống nhau hai bên, không phải
+  hồi quy do merge. Ghi lại vì nó là một cạnh sắc có thật của `section()`.
 
-2. **Vế "phủ hồi quy 2 dòng repo tiêu thụ" của AC-3/E3 KHÔNG được đo, kể cả khi
-   bật lane opt-in.** Đây là phát hiện chính của vòng này ngoài E4. Lane opt-in
-   được thêm ở vòng 2 để đóng đúng lệch phủ này, nhưng nó không đóng được:
-   vòng lặp của P60 bỏ qua mọi dòng không khớp khuôn CŨ (`if(!o) continue`,
-   run-tests.sh:1273), mà hai dòng AC-3 nêu đích danh lại là khuôn `- **AC-2
-   (LÕI — …, judgment):**` — khuôn CŨ không đọc được. Tôi đo trực tiếp:
+Harness phải chứng minh nó bắt được lệch trước khi tin số 0: đổi `lv >= 2` thành
+`lv >= 3` ở bản đối chứng → 1.626 lệch; lật một dòng bảng marker → 32 lệch.
 
-       OLD_MATCH=false  parseAC.judgment=true  id=AC-2   (creator-choicecard)
-       OLD_MATCH=false  parseAC.judgment=true  id=AC-2   (ds-debt-artifact-table)
+**Hồi quy tầng trên cũng 0 lệch:** so `acBlindSpot` bản TRƯỚC (tự duyệt, commit
+`6d6dbf6`) với bản SAU (`sectionLines`) trên cùng 686 file → **0 lệch**. Tức
+phạm vi quét của bộ dò mù (AC-5/AC-11) không đổi nghĩa qua merge.
 
-   Quét độc lập 177 contract của cả hai repo: TAGGED=162, CODESPAN_ONLY=4 — đúng
-   4 dòng contract khai, 2 là AC-1/AC-3 của kit (đổi đúng chiều), 2 là hai dòng
-   trên và chúng GIỮ judgment=true qua nhánh nhãn. **Tính chất đúng, thước không
-   chạm.** Chốt `FLIP=0` của P60 sẽ xanh y hệt nếu hai dòng đó không tồn tại —
-   tức đây là chốt vắng-mặt, không phải chốt có-mặt.
+### 2. Bảng marker vẫn là nguồn runtime — chứng bằng HÀNH VI
 
-3. **AC-6 vế "thông điệp nêu đích danh file" chưa có case đỏ.** Đối chứng dương
-   của P63 chỉ chứng minh biểu thức grep bắt được bản sao đổi heading; nhánh
-   `echo "heading criterion khong chuan: $f"` không được ca nào cho chạy.
+`SECTION_BOUNDARY` parse từ chính văn bản file (`parseBoundaryTable(fs.readFileSync(__filename))`),
+không có hằng số chép tay nào chứa `any-heading`. Nhưng "đọc được file" chưa đủ —
+tôi đo hành vi: sửa MỘT dòng bảng (`Findings -> any-heading` thành
+`same-or-higher`) trên bản sao → `SECTION_BOUNDARY` đổi, và **32 file thật đổi
+output `section(…, 'Findings')`** (vd `core-dispatch-k9/review-findings.md`
+1 → 42 dòng). Sửa bảng CÓ đổi hành vi ⇒ bảng không phải comment trang trí.
 
-4. **Đối chứng dương script-hoá của P59 canh nhánh GAINED, không canh nhánh MẤT
-   mà `expected` của E2 mô tả** ("→ case ĐỎ nêu đúng dòng bị mất"). Tôi tự đo
-   nhánh MẤT và nó ĐỎ đúng như khai, in đích danh từng dòng — nên đây là nợ
-   script-hoá, không phải phép đo rỗng. Khác hẳn E4 vòng 1, nơi đột biến vẫn xanh.
+### 3. Ca thật từ main mà feature này bắt được (dogfood)
 
-Ghi thêm cho người duyệt: một thứ vòng 1 nêu đã được sửa THẬT và tôi kiểm lại
-được — dòng corpus mang tiền tố `INPUT ` giờ được gọt trong P59 (`strip`), nên
-corpus thật sự đóng góp vào phép đo (chúng xuất hiện trong danh sách MẤT khi tôi
-đột biến). Trước đó corpus đóng góp 0.
+Merge đổi heading của `_acceptance/claim-scan-parser-hardening/contract.md` từ
+`## Acceptance criteria` sang `## Criteria`. Tôi render lại card Cổng 1 của slug
+đó trên cây hiện tại: card ra **8 criterion** ở hai khối "Hệ thống SẼ làm" /
+"Sẽ KHÔNG làm", **0 cảnh báo mù**. Trước khi vá, contract này đã `signed-off` mà
+card hiện 0 criterion. Đây là feature tự chứng minh trên một ca nó không được
+xây để nhắm vào — và là lý do vá heading nằm trong phạm vi merge chứ không phải
+nới scope.
+
+### 4. Lệch phủ CÒN LẠI (4 mục — trùng Known limits contract, tôi xác nhận lại còn nguyên trên cây mới)
+
+1. **Chế độ CI đo ít hơn AC-2/AC-3 khai.** `AC_EXTRA_CORPUS_ROOT` là opt-in; CI
+   không có repo tiêu thụ. Đo vòng này: CI +27 dòng / opt-in +435 dòng, LOST = 0
+   cả hai chiều. Dòng `PHAM-VI:` in ra khi thiếu env nên phạm vi hẹp được KHAI —
+   nhưng khai không phải là phủ.
+2. **Vế "2 dòng repo tiêu thụ" của AC-3 không được đo, kể cả khi bật env.**
+   `run-tests.sh:1297` còn `if(!o) continue`, mà hai dòng đó thuộc khuôn CŨ không
+   đọc được. Chốt `FLIP=0` sẽ xanh y hệt nếu hai dòng biến mất — chốt vắng-mặt.
+3. **AC-6 vế "thông điệp nêu đích danh file" chưa có case đỏ** (`run-tests.sh:1466`).
+4. **Đối chứng dương script-hoá của P66 canh nhánh GAINED, không canh nhánh LOST**
+   như `expected` mô tả.
+
+Cả bốn đã được người duyệt chốt ghi nhận ở Cổng 2 (contract §Known limits). Vòng
+này KHÔNG phát sinh lệch phủ mới nào ở tầng criterion.
+
+### 5. PHÁT HIỆN MỚI vòng 3 — bảng "Đổi id case" của contract đảo hai ô
+
+Contract §"Đổi id case" ghi `P63 → P71` và `P64 → P70`. Suite THẬT thì ngược lại.
+Chứng bằng biến nội bộ (biến giữ nguyên tên cũ nên nó là dấu vân tay của ca):
+
+    P70 dogfood: contract cua chinh kit ...   <= dung bien P63BAD / P63TMP
+    P71 CUT phai KEU ...                      <= dung bien P64OUT
+
+Tức **P63 (dogfood/AC-6) → P70** và **P64 (CỤT/AC-11) → P71**. Bảng trong contract
+đảo đúng hai ô này. Hệ quả: ai đọc evidence-report vòng 1/2 (giữ id cũ, đúng chủ
+ý) rồi tra bảng sẽ tra nhầm ca cho AC-6 và AC-11. Đây là lỗi TÀI LIỆU trên một
+contract đã `signed-off`, không phải eval hỏng — không eval nào khẳng định bảng
+này, nên nó không làm đỏ cổng. Tôi KHÔNG tự sửa contract đã ký; nêu để người
+quyết. Bảng đúng phải là:
+
+    truoc | P58 | P59 | P60 | P61 | P62 | P63 | P64
+    sau   | P65 | P66 | P67 | P68 | P69 | P70 | P71
+
+### 6. Nợ nhỏ kèm theo: nhãn id cũ còn sót trong suite và fixture
+
+- Dòng PASS của P68 vẫn in "P61 hai loi goi khop tren cay that" (header đã là
+  P68). Một ca mà tiêu đề và thông điệp mang hai id khác nhau là mồi cho đúng lớp
+  lẫn lộn ở mục 5.
+- Tiêu đề `tests/plugins/fixtures/ac-line-corpus.md` còn ghi "nguồn sự thật cho
+  P58/P59/P60/P61".
+- Biến nội bộ `P58*`–`P64*` giữ tên cũ (chấp nhận được, nhưng cộng với hai mục
+  trên thì dấu vết id cũ đang nằm ở ba lớp).
+
+Đây là nợ nhãn, không chạm tính chất nào — mọi ca đo đúng thứ nó khai.
+
+### 7. Ghi chú ngoài phạm vi eval
+
+`node scripts/eval-coverage-lint.js .` (executor `script.coverage_lint`) in 8
+cảnh báo ADVISORY và trả mã khác 0. **Không eval nào của slug này trỏ tới
+executor đó**, và cả 8 cảnh báo đều thuộc slug KHÁC
+(`claim-scan-parser-hardening`, `findings-section-boundary`, `s4-scope-triage`) —
+0 cảnh báo cho `gate-card-ac-visibility`. Nêu ra để người duyệt không bất ngờ,
+không tính vào verdict. Hai suite lân cận cũng chạy sạch: hooks 51 xanh,
+workflows toàn bộ xanh.
 
 ## Variance
 
 none — không eval nào có `runs > 1`; mọi eval máy deterministic và cho kết quả
-đồng nhất qua hai lần chạy trên cùng cây (lần trước đột biến và lần xác nhận cuối
-sau khi khôi phục: plugins "all plugin tests passed" ở CẢ HAI chế độ env,
-scripts "594 passed, 0 failed", mirror "plugins/ mirror in sync.").
+đồng nhất qua các lần chạy trên cùng cây (lần đo chính, hai lần trong thí nghiệm
+đột biến, và lần xác nhận cuối sau khi khôi phục: plugins "all plugin tests
+passed" ở CẢ HAI chế độ env, scripts "596 passed, 0 failed", mirror
+"plugins/ mirror in sync.").
 
 ## Iterations
 
@@ -401,19 +452,29 @@ CẢ HAI chiều (đường card :176 và đường critText :265) — case đ�
 trong đó mục 2 là mới: lane opt-in KHÔNG đóng được vế phủ-hồi-quy của AC-3.
 E11/E12 vẫn chờ người (T3) -> PENDING-JUDGMENT.
 
+Round 3 (sau merge `origin/main`): mọi eval máy PASS lại trên commit
+`23b8dc67`, case đổi id P58-P64 -> P65-P71. Ba phép kiểm tích hợp: (a) hồi quy
+`section()` trước/sau refactor — 1.187.466 phép so trên 686 file thật, 1.731
+heading, **0 lệch**, harness tự falsify được (1.626 lệch khi đột biến); hồi quy
+`acBlindSpot` cũng 0 lệch; (b) bảng marker CÒN là nguồn runtime — lật một dòng
+bảng đổi output của 32 file; (c) tôi tự làm lệch hai lối gọi thật theo CẢ HAI
+chiều bằng cú pháp khác đối chứng có sẵn — P68 đỏ cả hai lần, cây khôi phục sạch
+(`git diff` rỗng, HEAD không đổi). Bốn lệch phủ cũ còn nguyên (đã là Known
+limits). MỚI: bảng "Đổi id case" của contract đảo hai ô P63/P64 (Analyst mục 5) —
+lỗi tài liệu, không eval nào đỏ vì nó.
+
 ## Gate 2 checklist (human)
 
-- [ ] Đọc bảng + soi khối E4 (chỗ vòng 1 bác, giờ đã có case đỏ hai chiều)
-- [ ] E11 và E12 vẫn UNCERTAIN — T3 đòi người phán trực tiếp; điền
-      `human_override: <tên> <ngày>` cho từng cái, rồi mới nâng verdict lên PASS
-- [ ] Quyết lệch phủ Analyst mục 2 (AC-3 vế phủ-hồi-quy 2 dòng repo tiêu thụ
-      KHÔNG đo được kể cả khi bật lane): sửa P60 để nó quét dòng theo khuôn MỚI
-      (không lọc qua khuôn CŨ) và ghim đích danh 2 dòng đó, HAY hạ lời AC-3/E3
-      xuống đúng thứ thước chạm được. Tính chất đã được đo là ĐÚNG (4/177 dòng
-      code-span-only, 2 dòng kia giữ judgment) — đây là nợ thước, không phải bug.
-- [ ] Quyết lệch phủ mục 1: CI (không env) không phủ "cả hai repo" như AC-2 khai
-      — chấp nhận lane opt-in + dòng `PHAM-VI:` khai báo, hay bắt CI phải phủ
-- [ ] Quyết hai nợ nhỏ: mục 3 (AC-6 chưa có case đỏ cho vế "nêu đích danh file")
-      và mục 4 (đối chứng dương P59 canh sai nhánh) — vá hay ghi known-limit
+- [ ] Đọc bảng + soi khối E4 (chỗ vòng 1 bác; vòng 3 đột biến lại hai chiều trên
+      cây đã merge, cú pháp độc lập với đối chứng của case)
+- [ ] **Sửa bảng "Đổi id case" trong contract**: hai ô đảo — đúng là `P63 → P70`
+      (dogfood/AC-6) và `P64 → P71` (CỤT/AC-11). Contract đã `signed-off` nên tôi
+      không tự sửa; đây là lỗi tra cứu, không phải thay đổi phạm vi
+- [ ] Quyết nợ nhãn (Analyst mục 6): dòng PASS của P68 còn in "P61"; header
+      corpus fixture còn ghi P58-P61 — vá hay ghi known-limit
+- [ ] Bốn Known limits (Analyst mục 4) đã được chốt ghi nhận ở Cổng 2 vòng 2 —
+      xác nhận chúng CÒN NGUYÊN trên cây mới, không mục nào âm thầm mở rộng
+- [ ] `human_signoff` + `human_override` E11/E12 đã có từ Cổng 2 vòng 2; nếu chữ
+      ký cần đặt lại trên mã mới (merge 30 commit) thì đó là quyết định của người
 - [ ] Nhắc: phân hạng T3 và đề xuất thêm `scripts/gate-card.js` vào `t3_paths`
       (Notes của contract) vẫn đang chờ quyết
