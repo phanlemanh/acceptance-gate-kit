@@ -4,13 +4,14 @@ feature: "design-pass-skill — skill mới `design-pass`: nghi thức thiết k
 slug: design-pass-skill
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-07-30T03:48:08Z
 owner: phanlemanh@gmail.com
 source: docs/superpowers/specs/2026-07-30-design-pass-skill-design.md
 time_human_minutes:
   gate1: 10
+  gate2: 10
 ---
 
 # Acceptance contract — design-pass-skill
