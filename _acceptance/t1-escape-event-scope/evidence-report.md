@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 9d01b830e0db240097122b5849fdb07732399fac
+verified_commit: 23b8dc67e9386bd137690cd8eabc4129fee42e72
 human_signoff: Manh Phan 2026-07-28
 ---
 
@@ -762,3 +762,71 @@ runner `tests/scripts` chạy mọi `*.test.mjs`, bump acceptance-gate 1.25.0.
 - **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
   `human_override` giữ nguyên; chữ ký cũ KHÔNG được hiểu là đã phán về
   luật ranh giới mới.
+
+### Re-pin lần 6 — 2026-07-30, do vá AC-regex của gate-card
+
+`verified_commit` lên `3a80983`. Nguyên nhân stale: `scripts/gate-card.js` nới
+`AC_LINE` + tách `parseAC()` — dòng AC dạng `- **AC-N (nhãn):**`,
+`- **AC-N** (judgment)`, `- AC-N (nhãn):` trước đây bị bỏ CÂM, nên thẻ Cổng 1
+hiện thiếu tiêu chí hoặc rỗng hẳn.
+
+**KHÁC lần 2-4: lần này staleness bắt ĐÚNG HOÀN TOÀN.** Không được viện "không
+đổi hành vi cổng" như hai lần trước — thay đổi này đổi CHÍNH cái thẻ Cổng 1
+render ra. Đo tính chất trên 176 contract (2 repo): 916 → 1246 dòng AC đọc
+được; **0 dòng mất**, **0 lật cờ judgment** trên dòng cả hai parser cùng đọc
+được, **0 false-positive**.
+
+Slug này KHÔNG có eval nào đụng `scripts/gate-card.js`; staleness ở đây thuần
+theo ĐƯỜNG DẪN. Thẻ Cổng 1 của chính nó: 16 AC trước và sau — không đổi.
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY ở `3a80983` — 6 suite EXIT=0
+  (588 scripts · 51 hooks · plugins pass · workflows pass · skills pass · codex
+  pass) + `sync-plugin-packages.sh --check` EXIT=0 (mirror in sync).
+  **Provenance YẾU HƠN lần 2-4:** chạy MỘT lượt trong một phiên, KHÔNG phải 5
+  agent tươi độc lập mỗi slug. Sha nhất quán vì cùng một cây, không phải vì
+  năm lần đo độc lập đồng ý với nhau — đọc con số này với đúng trọng lượng đó.
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
+  `human_override` sẵn có giữ nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là
+  đã phán về AC-regex mới của gate-card.
+
+### Re-pin lần 7 — 2026-07-30, do gói cảnh báo mù criterion (cùng chuỗi với lần 5)
+
+`verified_commit` lên `afe223f`. Cùng nguyên nhân và cùng posture với lần 5
+(vá AC-regex): `scripts/gate-card.js` đổi tiếp, thêm `lib/ac-line.js`. Vẫn
+**KHÔNG viện được "không đổi hành vi cổng"** — gói này đổi cả cái card render ra.
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY ở `afe223f` — 6 suite EXIT=0 (592 scripts ·
+  51 hooks · plugins · workflows · skills · codex) + `sync-plugin-packages.sh
+  --check` EXIT=0. Case đụng gate-card: P38a/b · P52 · P53 (byte-đối-byte) ·
+  GPM21 · GPM20g đều PASS. Provenance vẫn YẾU như lần 5: một lượt chạy một
+  phiên, không phải 5 agent tươi độc lập.
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký sẵn có giữ
+  nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là đã phán về cảnh báo mù mới.
+
+### Re-pin lần 8 — 2026-07-30, do vòng verify 2 của gate-card-ac-visibility
+
+`verified_commit` lên `246e7e1`. Cùng chuỗi, cùng posture với lần 6: vòng 2 viết
+lại case P61 (thước cũ không đo AC-4) và mở lane corpus repo tiêu thụ.
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY ở `246e7e1` — 6 suite EXIT=0 (594 scripts · 51
+  hooks · plugins · workflows · skills · codex) + `sync-plugin-packages.sh --check`
+  EXIT=0. Case đụng gate-card: P38a/b · P52 · P53 (byte-đối-byte) · GPM21 · GPM20g
+  đều PASS. Provenance vẫn một lượt chạy một phiên, không phải 5 agent độc lập.
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký sẵn có giữ nguyên
+  hiệu lực; chữ ký cũ KHÔNG được hiểu là đã phán về cảnh báo mù hay thước mới.
+
+### Re-pin lần 9 — 2026-07-30, do merge origin/main vào nhánh gate-card-ac-visibility
+
+`verified_commit` lên `23b8dc6`. Nguyên nhân stale: đợt tích hợp gộp nhánh
+`fix/ac-bullet-regex-widen` với main — `lib/md-section.js` thêm `sectionLines()`
+và `section()` thành lớp mỏng trên nó, `lib/ac-line.js` bỏ bản duyệt ranh giới
+riêng, `scripts/gate-card.js` + suite đổi theo.
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY ở `23b8dc6` — 6 suite EXIT=0 (596 scripts ·
+  51 hooks · plugins · workflows · skills · codex) + `sync-plugin-packages.sh
+  --check` EXIT=0. Kèm phép kiểm hồi quy `section()` trước/sau refactor trên
+  686 file × 1.731 heading = 1.187.466 phép so → **0 lệch**, harness tự falsify
+  được (đổi `lv>=2`→`lv>=3` cho 1.626 lệch). Provenance: một lượt chạy một
+  phiên, không phải agent độc lập mỗi slug.
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký sẵn có giữ
+  nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là đã phán về mã sau merge.

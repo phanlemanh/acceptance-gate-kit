@@ -23,6 +23,17 @@ phải phủ.
 _Avoid_: requirement, user story, test (criterion là *điều phải đúng*, không
 phải cách chứng minh).
 
+**Dấu**:
+Hậu tố trong ngoặc mà contract gắn vào một criterion để ĐỔI CÁCH MÁY XỬ LÝ nó —
+`(judgment)` (cần người phán) và `(cross-layer)` (đòi eval `layer:
+backend-effect`). Chốt 2026-07-30 vì repo chưa có từ cho khái niệm này.
+_Avoid_: thẻ, tag
+
+**Nhãn**:
+Phần mô tả tự do trong ngoặc giữa id và nội dung criterion — `- AC-1 (biên
+dịch): …`. Đối lập với **Dấu**: nhãn KHÔNG đổi hành vi máy, chỉ là chú thích
+cho người đọc; parser nuốt nó vào `gwt`.
+
 **Eval**:
 Một entry trong `evals.yaml` sinh evidence cho ≥1 criterion, chạy bởi đúng một
 executor.
@@ -102,6 +113,10 @@ Nơi feature lộ ra với người dùng — enum frontmatter `surfaces:` (`web
 `mobile`, `api`…). Quyết định làn evidence. Không dùng từ này cho bề mặt
 interface của code.
 _Avoid_: platform
+_Allow_: artifact-platform
+# `artifact-platform` là TÊN RIÊNG của repo tiêu thụ đầu tiên — nó xuất hiện
+# trong contract/evidence mỗi lần ta dẫn số đo thật từ đó. Carve-out đích danh
+# cụm, KHÔNG nới "platform" trơ: dùng sai từ ở chỗ khác vẫn phải kêu.
 
 **Layer**:
 Trường cấp eval (`layer: backend-effect`) — tầng hệ thống mà evidence chạm

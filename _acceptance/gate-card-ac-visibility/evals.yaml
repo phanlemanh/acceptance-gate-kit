@@ -1,0 +1,82 @@
+schema_version: 1
+feature_slug: gate-card-ac-visibility
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P65: corpus fixture tests/plugins/fixtures/ac-line-corpus.md — mỗi dòng kèm id/gwt/judgment GHIM SẴN — chạy qua CHÍNH hàm bóc của gate-card.js, Then khớp đúng cả BA trường từng dòng (không chỉ 'khác rỗng'); phủ 5 khuôn hợp lệ + ≥2 dòng-không-phải-criterion (văn xuôi nhắc id, dòng bảng Coverage `- **Trục …**: AC-6, AC-11`) ra 0 criterion. In dòng LỆCH nêu đích danh ca lệch, không chỉ đếm"
+    paths: [scripts/gate-card.js, tests/plugins/**]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P66 (bao-tập): chạy khuôn CŨ và khuôn MỚI trên corpus fixture của P65 HỢP với toàn bộ `_acceptance/*/contract.md` của repo này (corpus là bắt buộc: contract của kit chỉ dùng 2/5 khuôn nên một mình nó gần như rỗng nghĩa), Then tập id MỚI ⊇ tập id CŨ với 0 dòng mất; in đích danh dòng mất nếu có. Nửa should-NOT-fire (biên trên của phép nới): dòng mà khuôn CŨ đã KHÔNG đọc vì nó không phải criterion — văn xuôi nhắc id, dòng bảng Coverage `- **Trục …**: AC-6, AC-11` — khuôn MỚI cũng phải KHÔNG đọc; nới thước không được kéo theo dòng rác, tức tập mới lớn hơn nhưng chỉ lớn về phía dòng criterion THẬT. Đối chứng dương: tiêm một khuôn mới cố ý hẹp hơn (bỏ nhánh `\\s*:` của template) → case ĐỎ nêu đúng dòng bị mất"
+    paths: [scripts/gate-card.js, tests/plugins/**]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P67 (cờ judgment): trên mọi dòng CẢ HAI khuôn cùng đọc được → cờ judgment y hệt, 0 lật; trên dòng CHỈ khuôn mới đọc được → cờ khớp giá trị ghim trong corpus P65 (không có baseline thì phải có bảng ghim); `- AC-5 (chi phí có trần — judgment): G` → true; dòng có chữ judgment trong THÂN mà không có dấu `(judgment)` → false (should-NOT-fire: không hạ criterion máy-kiểm-được xuống human-only); đối chứng dương: thêm dấu judgment vào cuối chính dòng đó → true; dấu nằm HOÀN TOÀN trong code span backtick (criterion trích dẫn dấu chứ không mang nó) → false, và đối chứng dương: gỡ backtick trên chính dòng đó → true. Phủ hồi quy: 2 dòng của repo tiêu thụ có dấu trong backtick NHƯNG có chữ judgment trong nhãn phải VẪN true (không declassify criterion judgment thật)"
+    paths: [scripts/gate-card.js, tests/plugins/**]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P68 (một nguồn sự thật, đo bằng HÀNH VI): cho cả hai lối gọi của gate-card.js (đường card Cổng 1 và đường critText Cổng 2) bóc corpus P65 → trả CÙNG tập id→gwt. KHÔNG dùng grep đếm regex: assertion vắng-mặt-một-mình là lớp CLAUDE.md #4 cấm — viết lại khuôn bằng cú pháp khác thì grep vẫn xanh trong khi hai lối gọi đã trôi. Đối chứng dương: bản sao cho một lối gọi dùng khuôn hẹp hơn → ĐỎ nêu đích danh dòng lệch"
+    paths: [scripts/gate-card.js, tests/plugins/**]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P69 (rỗng phải KÊU), HAI ca kích hoạt: (a) fixture có `## Criteria` với 3 dòng `-` chứa `AC-n` theo khuôn CỐ Ý LẠ (ngoài 5 khuôn P65); (b) fixture dùng heading `## Acceptance criteria` — section() trả rỗng nên KHÔNG có section để quét, đây đúng ca đã sinh ra feature này và là lý do phạm vi quét phải là CẢ FILE. Cả hai → card CHỨA cảnh báo nêu số dòng nghi vấn + heading section đã tìm, và KHÔNG render khối criterion trắng. Đối chứng dương (chống cry-wolf): fixture khuôn chuẩn → KHÔNG cảnh báo nào"
+    paths: [scripts/gate-card.js, tests/plugins/**]
+  - id: E6
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case GCV1 (đường end-to-end): chạy gate-card.js THẬT trên workspace fixture rỗng-criterion và đo stdout/exit — cảnh báo phải đi ra đường người duyệt thật sự nhìn, không chỉ tồn tại trong hàm. Ghép cặp với P69 (đơn vị) theo mẫu GPM21: một luật, hai lối vào, so từng ca"
+    paths: [scripts/gate-card.js, tests/scripts/**]
+  - id: E13
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P71 (CỤT phải KÊU): fixture có 8 dòng nghi vấn mà parser chỉ bóc được 2 (dựng đúng hình dạng radar-d3-crawl-cron: vài dòng khuôn chuẩn xen giữa các dòng khuôn lạ) → card nêu rõ đang đọc thiếu 6 dòng và liệt số dòng bỏ sót. Đây là ca AC-5 KHÔNG phủ (n>=1). Đối chứng dương (chống cry-wolf): fixture m == n → KHÔNG cảnh báo"
+    paths: [scripts/gate-card.js, tests/plugins/**]
+  - id: E7
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P70 (dogfood heading): quét mọi `_acceptance/*/contract.md` của repo này → heading section criterion đều là `## Criteria`. Đối chứng dương: bản sao đổi một heading thành `## Acceptance criteria` → ĐỎ và thông điệp nêu đích danh đường dẫn file"
+    paths: [_acceptance/**, tests/plugins/**]
+  - id: E8
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.mirror_sync
+    expected: "sync-plugin-packages.sh --check exit 0 — plugins/acceptance-gate/scripts/gate-card.js khớp scripts/gate-card.js sau khi vá"
+    paths: [scripts/gate-card.js, plugins/acceptance-gate/scripts/gate-card.js]
+  - id: E9
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "case P53 (đã có, chạy lại làm regression guard): SINH LẠI fixture bằng tests/plugins/fixtures/render-out-of-contract-block.sh (chạy chính gate-card.js) trong cùng lần chạy rồi so BYTE-ĐỐI-BYTE với _acceptance/s4-scope-triage/evidence/out-of-contract-card-sample.md → khớp, tức nới parser không làm trôi khuôn render"
+    paths: [scripts/gate-card.js, lib/out-of-contract.js, tests/plugins/**, _acceptance/s4-scope-triage/evidence/out-of-contract-card-sample.md]
+  - id: E10
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case GPM21 + GPM20g (đã có, chạy lại): bảng parity decision card vs pre-merge trên gap-probe vẫn khớp từng ca sau khi đổi khuôn bóc criterion — bản vá không rò sang luật khác"
+    paths: [scripts/gate-card.js, lib/gap-probe.js, scripts/pre-merge-check.sh, tests/scripts/**]
+  - id: E11
+    criterion: AC-9
+    executor: judgment
+    question: "Đọc card Cổng 1 render từ contract dùng khuôn `- **AC-n (nhãn):** …`: phần nhãn trong ngoặc (giờ nằm trong gwt) đọc ra như thông tin bổ trợ của criterion, hay thành rác chen ngang làm câu khó hiểu?"
+    # Sinh bằng: render card từ _acceptance/cross-feature-claim-index (khuôn `- **AC-n** (judgment) …`)
+    # và một contract khuôn `- **AC-n (nhãn):**` của artifact-platform — KHÔNG chép tay.
+    paths: [scripts/gate-card.js]
+  - id: E12
+    criterion: AC-10
+    executor: judgment
+    question: "Đọc cảnh báo 'không đọc được criterion nào' trên card Cổng 1: một người duyệt hiểu rằng CARD ĐANG KHÔNG TIN ĐƯỢC và việc tiếp theo là sửa contract (không phải bấm duyệt) không? Hay nó đọc như một dòng thông tin phụ dễ lướt qua?"
+    # Sinh bằng: render card thật từ fixture rỗng-criterion của P69 — KHÔNG chép tay.
+    paths: [scripts/gate-card.js]
