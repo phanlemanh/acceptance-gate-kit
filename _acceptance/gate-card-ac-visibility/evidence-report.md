@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 246e7e1f7f2dfc640677ab5d33468d93ed4467f6
-human_signoff:
+human_signoff: Manh Phan 2026-07-30
 ---
 
 # Evidence Report: gate-card-ac-visibility
