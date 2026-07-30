@@ -76,7 +76,7 @@ import json, sys
 data = json.load(open(sys.argv[1]))
 assert data["name"] == "feature-loop-codex"
 assert data["skills"] == "./skills/"
-assert data["version"] == "1.18.1"
+assert data["version"] == "1.19.0"
 assert data["description"]
 PY
 
@@ -268,11 +268,11 @@ import json, sys
 from pathlib import Path
 root = Path(sys.argv[1])
 
-assert json.loads((root / "codex/feature-loop-codex/.codex-plugin/plugin.json").read_text())["version"] == "1.18.1"
+assert json.loads((root / "codex/feature-loop-codex/.codex-plugin/plugin.json").read_text())["version"] == "1.19.0"
 assert json.loads((root / "codex/design-loop/.codex-plugin/plugin.json").read_text())["version"] == "0.3.0"
 # version của acceptance-gate không ghim literal ở đây (xem P03); chỉ kiểm hai
 # plugin có version ĐỘC LẬP là còn đúng số của chúng.
-assert json.loads((root / "feature-loop/.claude-plugin/plugin.json").read_text())["version"] == "1.18.1"
+assert json.loads((root / "feature-loop/.claude-plugin/plugin.json").read_text())["version"] == "1.19.0"
 assert "machine: 'haiku'" in (root / "feature-loop/workflows/acceptance-verify.js").read_text()
 assert "judge: 'sonnet'" in (root / "feature-loop/workflows/acceptance-verify.js").read_text()
 assert "executor: null" in (root / "feature-loop/workflows/execute-parallel.js").read_text()
@@ -1943,6 +1943,31 @@ assert text.count("| **CT1") == 1 and text.count("| **CT2") == 1, "bang tra CT1/
 # Doi chung am: go doan lane trong ban sao -> pin phai truot.
 mutated = text.replace("Nghi thức S1-D", "Nghi thuc da go", 1)
 assert "Nghi thức S1-D" not in mutated, "dot bien khong hieu luc"
+PY
+
+# ── P88: release co chu dich — version floor + description khop hanh vi ─────
+# Consumer chi nhan luoi qua release: quen bump = feature ship ma hieu luc 0.
+# Floor semver (>=), KHONG ghim literal == — tranh vong "bump -> stale" (P03).
+run "P88 version floor 1.27/1.19 + description nhac hanh vi moi" \
+  python3 - "$ROOT" <<'PY'
+import json, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+def ver(rel):
+    return tuple(int(x) for x in json.loads((root / rel).read_text())["version"].split("."))
+def desc(rel):
+    return json.loads((root / rel).read_text())["description"]
+assert ver(".claude-plugin/plugin.json") >= (1, 27, 0), "acceptance-gate chua bump toi 1.27.0"
+assert ver("feature-loop/.claude-plugin/plugin.json") >= (1, 19, 0), "feature-loop chua bump toi 1.19.0"
+assert ver("codex/feature-loop-codex/.codex-plugin/plugin.json") >= (1, 19, 0), "feature-loop-codex chua bump toi 1.19.0"
+# Description phai nhac hanh vi moi (keyword chuc nang, on dinh qua cac ban sau):
+assert "opportunity-template" in desc(".claude-plugin/plugin.json"), "desc acceptance-gate thieu opportunity-template"
+d = desc("feature-loop/.claude-plugin/plugin.json")
+for kw in ("ui_standards_skill", "design-pass", "GOAL-TEMPLATE"):
+    assert kw in d, f"desc feature-loop thieu {kw}"
+assert "platform-fit" in desc("codex/feature-loop-codex/.codex-plugin/plugin.json"), "desc codex thieu platform-fit"
+# Doi chung am cua phep so semver: version thap hon floor phai truot.
+assert not ((1, 18, 1) >= (1, 19, 0)), "phep so semver chet — tuple compare khong con dung"
 PY
 
 if [ "$failures" -gt 0 ]; then
