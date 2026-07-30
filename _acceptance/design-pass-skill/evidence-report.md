@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: a8f0d70d2b23ab2f749606f19403d189157fdcdb
+verified_commit: 8ee3f4c18335ca5846c6ddd278299135ee61d1c5
 human_signoff: Manh Phan 2026-07-30
 ---
 
@@ -233,3 +233,12 @@ không dịch chuyển điểm).
   2026-07-30 phán trên bản trước amendment; phần thêm (worked example, mục 4)
   do owner ra lệnh minh danh trong chat cùng ngày, ledger
   d-20260730T*-amendment ghi vết; panel E15 không chấm lại.
+
+### Re-pin — 2026-07-30 (sau merge hai nhánh), tại 8ee3f4c
+
+`verified_commit` lên `8ee3f4c` — merge commit tích hợp design-pass-skill
+(1.26.0, case đánh lại số P72–P81) với gate-card-ac-visibility (PR 18) trên
+origin/main. Machine lane ở `8ee3f4c` do 3 agent tươi chạy độc lập, sha nhất
+quán cả 3, tất cả exit 0 (596 scripts · 51 hooks · plugins pass gồm case của
+CẢ HAI feature · workflows pass · mirror in sync). Judgment + chữ ký giữ
+nguyên như các lần re-pin trước.

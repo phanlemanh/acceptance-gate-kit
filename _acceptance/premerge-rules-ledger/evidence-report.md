@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 23b8dc67e9386bd137690cd8eabc4129fee42e72
+verified_commit: 8ee3f4c18335ca5846c6ddd278299135ee61d1c5
 # bypass_ack:
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -664,3 +664,12 @@ không dịch chuyển điểm).
   51 hooks · plugins pass gồm P58–P67 · workflows pass · mirror in sync).
 - **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
   `human_override` giữ nguyên.
+
+### Re-pin — 2026-07-30 (sau merge hai nhánh), tại 8ee3f4c
+
+`verified_commit` lên `8ee3f4c` — merge commit tích hợp design-pass-skill
+(1.26.0, case đánh lại số P72–P81) với gate-card-ac-visibility (PR 18) trên
+origin/main. Machine lane ở `8ee3f4c` do 3 agent tươi chạy độc lập, sha nhất
+quán cả 3, tất cả exit 0 (596 scripts · 51 hooks · plugins pass gồm case của
+CẢ HAI feature · workflows pass · mirror in sync). Judgment + chữ ký giữ
+nguyên như các lần re-pin trước.

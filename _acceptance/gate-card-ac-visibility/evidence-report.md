@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 23b8dc67e9386bd137690cd8eabc4129fee42e72
+verified_commit: 8ee3f4c18335ca5846c6ddd278299135ee61d1c5
 human_signoff: Manh Phan 2026-07-30
 ---
 
@@ -478,3 +478,12 @@ lỗi tài liệu, không eval nào đỏ vì nó.
       ký cần đặt lại trên mã mới (merge 30 commit) thì đó là quyết định của người
 - [ ] Nhắc: phân hạng T3 và đề xuất thêm `scripts/gate-card.js` vào `t3_paths`
       (Notes của contract) vẫn đang chờ quyết
+
+### Re-pin — 2026-07-30 (sau merge hai nhánh), tại 8ee3f4c
+
+`verified_commit` lên `8ee3f4c` — merge commit tích hợp design-pass-skill
+(1.26.0, case đánh lại số P72–P81) với gate-card-ac-visibility (PR 18) trên
+origin/main. Machine lane ở `8ee3f4c` do 3 agent tươi chạy độc lập, sha nhất
+quán cả 3, tất cả exit 0 (596 scripts · 51 hooks · plugins pass gồm case của
+CẢ HAI feature · workflows pass · mirror in sync). Judgment + chữ ký giữ
+nguyên như các lần re-pin trước.
