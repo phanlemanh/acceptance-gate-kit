@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict   # the `enforcement` value from _acceptance/config.yaml (default strict). CI pre-merge BLOCKS off; warn only warns.
 bypass_used: false              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
-verified_commit: 3a80983243cdd1d8403eacc741baec7aa7aebc63
+verified_commit: afe223f9f27de43c97c8ae6b97733c08e22a58de
 # bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -344,3 +344,17 @@ chính slug này: 14 AC trước và sau — không đổi.
 - **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
   `human_override` sẵn có giữ nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là
   đã phán về AC-regex mới của gate-card.
+
+### Re-pin lần 6 — 2026-07-30, do gói cảnh báo mù criterion (cùng chuỗi với lần 5)
+
+`verified_commit` lên `afe223f`. Cùng nguyên nhân và cùng posture với lần 5
+(vá AC-regex): `scripts/gate-card.js` đổi tiếp, thêm `lib/ac-line.js`. Vẫn
+**KHÔNG viện được "không đổi hành vi cổng"** — gói này đổi cả cái card render ra.
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY ở `afe223f` — 6 suite EXIT=0 (592 scripts ·
+  51 hooks · plugins · workflows · skills · codex) + `sync-plugin-packages.sh
+  --check` EXIT=0. Case đụng gate-card: P38a/b · P52 · P53 (byte-đối-byte) ·
+  GPM21 · GPM20g đều PASS. Provenance vẫn YẾU như lần 5: một lượt chạy một
+  phiên, không phải 5 agent tươi độc lập.
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký sẵn có giữ
+  nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là đã phán về cảnh báo mù mới.
