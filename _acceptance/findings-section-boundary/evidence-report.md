@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 8ee3f4c18335ca5846c6ddd278299135ee61d1c5
+verified_commit: f929ceb553b3ea4d0d4204907ed8c1c291241a9e
 human_signoff: Manh Phan 2026-07-29
 ---
 
@@ -262,3 +262,15 @@ origin/main. Machine lane ở `8ee3f4c` do 3 agent tươi chạy độc lập, s
 quán cả 3, tất cả exit 0 (596 scripts · 51 hooks · plugins pass gồm case của
 CẢ HAI feature · workflows pass · mirror in sync). Judgment + chữ ký giữ
 nguyên như các lần re-pin trước.
+
+
+### Re-pin — 2026-07-30 (sau pha3-goi-luoi), tại f929ceb
+
+- **Machine lane chạy lại bởi agent TƯƠI** (S4 round 3 của feature
+  `pha3-goi-luoi`, Workflow `wf_cfa3bb5d-5df`, doer≠grader): 5 suite tại
+  `f929ceb553b3ea4d0d4204907ed8c1c291241a9e` — scripts 596 pass · hooks 51 pass ·
+  plugins pass (P01–P88, gồm case của slug này) · workflows pass ·
+  `sync-plugin-packages.sh --check` mirror in sync — tất cả exit 0.
+- `verified_commit` re-pin → `f929ceb553b3ea4d0d4204907ed8c1c291241a9e` (chỉ dòng máy).
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
+  `human_override` giữ nguyên.

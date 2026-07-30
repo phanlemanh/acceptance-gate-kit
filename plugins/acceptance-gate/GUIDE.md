@@ -301,8 +301,9 @@ S3 tuần tự + điều phối S4 chạy model phiên; CLI chưa có `/effort` 
 định auto) → dán `/goal` theo template dưới → rời máy. Các vai agent-hóa được đã
 ghim qua `feature_loop.models` (xem mục "Model theo giai đoạn" ngay dưới).
 
-**Template (điền slug của bạn, dán thành 1 dòng — xuống dòng dưới đây chỉ để dễ đọc):**
+**Template (điền slug của bạn, dán thành 1 dòng — xuống dòng dưới đây chỉ để dễ đọc; bản runtime nằm ngay trong SKILL feature-loop mục Gate 1, hai bản được test P85 giữ khớp):**
 
+<!-- <<<GOAL-TEMPLATE -->
 ```
 /goal Feature <slug>: coi là HOÀN THÀNH chỉ khi transcript tường thuật rõ
 S4 verdict PASS hoặc PENDING-JUDGMENT và xác nhận đã set contract
@@ -311,6 +312,7 @@ user (REJECT quá 3 round / BLOCKED / chờ input người) cũng coi là HOÀN 
 — để dừng. Thông tin mơ hồ hoặc không chắc = CHƯA hoàn thành. Hoặc dừng
 sau 15 turns.
 ```
+<!-- GOAL-TEMPLATE>>> -->
 
 **Vì sao template dài vậy:** checker của `/goal` đọc *transcript*, không đọc file —
 điều kiện phải neo vào tường thuật của loop (verdict + set status), không neo vào
@@ -542,6 +544,7 @@ Tham chiếu đầy đủ `config.yaml` — mục 8 có phần tinh chỉnh:
 | `capture.ui` | Lệnh chụp `<cmd> <url> <out.png>` → slideshow Cổng 2 | evidence UI = HTML |
 | `feature_loop.suite_keys` | Lệnh chạy MỌI vòng verify (build/typecheck...) — S4 tự hỏi rồi tự ghi | S4 hỏi một lần |
 | `feature_loop.models.<role>` | Override model từng vai trò verify (mục 8) | bảng default |
+| `feature_loop.ui_standards_skill` | Tên skill chuẩn-plugin/DS của repo (vd `create-<org>-plugin`) — feature chạm UI thì S1 BẮT BUỘC nạp nó trước khi sinh contract/evals (đối trọng chuẩn nội với vật liệu ngoài) | ghi chú vàng 1 dòng trong gói Cổng 1, không chặn |
 
 ### 5.3 Wire CI (bắt buộc để gate có răng ở PR)
 

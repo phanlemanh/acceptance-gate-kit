@@ -237,7 +237,14 @@ section (even if it is a single skip line):
    not an enumeration problem (single-axis, obvious ACs, scope fixed by an
    external spec), skip the scan with an explicit auto-drafted `descope` entry
    plus a one-line Coverage skip note. Never skip silently.
-4. Write a design doc using repo convention, commonly
+4. When the feature touches UI, first read `feature_loop.ui_standards_skill`
+   from `_acceptance/config.yaml` (its value names the consuming repo's
+   plugin/design-standards skill): when present you MUST invoke that skill
+   before generating the three artifacts (the internal counterweight to
+   external material); when absent, add exactly one line to the Gate 1 package
+   ("repo has not declared `feature_loop.ui_standards_skill` — UI artifacts
+   lack an internal standards counterweight") and do not block. Then write a
+   design doc using repo convention, commonly
    `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md`.
 5. Write `_acceptance/<slug>/contract.md` using the acceptance-gate contract
    shape: status `draft`, risk tier, surfaces, 5-15 Given/When/Then criteria,
@@ -269,7 +276,10 @@ section (even if it is a single skip line):
    severity P0/P1/P2 · proposed measure — no scenario means DROP; (4) mandatory
    cross-checks: ACs with no eval, GWTs that cannot be measured, Coverage axes
    with no AC, and criteria whose When/Then crosses the backend but lack the
-   `(cross-layer)` tag or carry UI-layer evals only (ui-check/judgment); (5) at most 5 findings; verdict `clean` is a VALID outcome;
+   `(cross-layer)` tag or carry UI-layer evals only (ui-check/judgment), and
+   platform-fit: does the artifact set follow the consuming repo's existing
+   UI/plugin standards, and which repo skill or rule SHOULD have been loaded
+   but was not; (5) at most 5 findings; verdict `clean` is a VALID outcome;
    (6) never relitigate sealed/descoped ledger decisions without a NEW reason.
    Write `_acceptance/<slug>/gap-probe.md` — frontmatter `slug / at (ISO UTC) /
    verdict: clean|findings|probe-failed / p0 / p1 / p2` plus a `## Findings`

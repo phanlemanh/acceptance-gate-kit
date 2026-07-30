@@ -76,7 +76,7 @@ import json, sys
 data = json.load(open(sys.argv[1]))
 assert data["name"] == "feature-loop-codex"
 assert data["skills"] == "./skills/"
-assert data["version"] == "1.18.1"
+assert data["version"] == "1.19.0"
 assert data["description"]
 PY
 
@@ -268,11 +268,11 @@ import json, sys
 from pathlib import Path
 root = Path(sys.argv[1])
 
-assert json.loads((root / "codex/feature-loop-codex/.codex-plugin/plugin.json").read_text())["version"] == "1.18.1"
+assert json.loads((root / "codex/feature-loop-codex/.codex-plugin/plugin.json").read_text())["version"] == "1.19.0"
 assert json.loads((root / "codex/design-loop/.codex-plugin/plugin.json").read_text())["version"] == "0.3.0"
 # version của acceptance-gate không ghim literal ở đây (xem P03); chỉ kiểm hai
 # plugin có version ĐỘC LẬP là còn đúng số của chúng.
-assert json.loads((root / "feature-loop/.claude-plugin/plugin.json").read_text())["version"] == "1.18.1"
+assert json.loads((root / "feature-loop/.claude-plugin/plugin.json").read_text())["version"] == "1.19.0"
 assert "machine: 'haiku'" in (root / "feature-loop/workflows/acceptance-verify.js").read_text()
 assert "judge: 'sonnet'" in (root / "feature-loop/workflows/acceptance-verify.js").read_text()
 assert "executor: null" in (root / "feature-loop/workflows/execute-parallel.js").read_text()
@@ -1738,6 +1738,256 @@ assert "name: design-pass" in t, "mirror SKILL.md khong doc duoc frontmatter nam
 assert "DESIGN-PASS-NOTE-TEMPLATE" in t, "mirror SKILL.md thieu khuon marker"
 PY
 # --- design-pass cases end ---
+
+# ── P82: ROUND-TRIP frontmatter opportunity-template <-> reader that ─────────
+# Khuon rut tu CHINH template (marker OPP-FRONTMATTER-TEMPLATE), doc bang
+# frontmatterField cua lib/evidence-core.js — reader ma hook/CI dung.
+# Doi chung duong chay truoc, dot bien mat frontmatter chay sau.
+run "P82 opportunity-template round-trip frontmatter (marker -> frontmatterField)" \
+  node - "$ROOT" <<'JS'
+const fs = require('fs');
+const path = require('path');
+const root = process.argv[2];
+const tplPath = path.join(root, 'skills/acceptance/references/opportunity-template.md');
+const tpl = fs.readFileSync(tplPath, 'utf8');
+const core = require(path.join(root, 'lib/evidence-core.js'));
+const m = tpl.match(/<!-- <<<OPP-FRONTMATTER-TEMPLATE -->\n```yaml\n([\s\S]*?)```\n<!-- OPP-FRONTMATTER-TEMPLATE>>> -->/);
+if (!m) { console.error('KHONG rut duoc khuon OPP-FRONTMATTER-TEMPLATE tu template'); process.exit(1); }
+const SAMPLE = { slug: 'demo-coho', feature: 'Demo', owner: 'a@b.c', stage: 'decided',
+  decision: 'build', decided_by: 'a@b.c', decided_at: '2026-07-30T00:00:00Z',
+  gate0_minutes: '6', base_commit: 'abc123', disposition: 'archive' };
+let unknown = null;
+const filled = m[1].replace(/\{(\w+)\}/g, (_, k) => {
+  if (SAMPLE[k] === undefined) { unknown = k; return ''; }
+  return SAMPLE[k];
+});
+if (unknown) { console.error('placeholder la [' + unknown + '] khong co trong SAMPLE — khuon va test da lech'); process.exit(1); }
+// Doi chung DUONG: reader that doc dung tung key top-level.
+for (const k of ['slug', 'stage', 'decision', 'decided_by', 'decided_at', 'owner']) {
+  const v = core.frontmatterField(filled, k);
+  if (v !== SAMPLE[k]) { console.error('reader doc key ' + k + ' = [' + v + '] nhung phai la [' + SAMPLE[k] + ']'); process.exit(1); }
+}
+// Dot bien: xoa dong --- DONG -> reader phai tra null (ghim hanh vi fail).
+const broken = filled.replace(/\n---[ \t]*(\r?\n|$)(?![\s\S]*\n---)/, '\n');
+if (broken === filled) { console.error('dot bien khong tac dung len khuon — regex xoa --- dong da chet'); process.exit(1); }
+if (core.frontmatterField(broken, 'slug') !== null) {
+  console.error('dot bien xoa --- dong ma reader van doc duoc — phep do da chet'); process.exit(1);
+}
+console.log('round-trip OK; dot bien mat frontmatter bi bat');
+JS
+
+# ── P83: opportunity-template du 8 section V1 + truong Nguon ngoai ───────────
+# Anchor la cac muc DA DUNG THAT o V1 (trang-tu-van-v2) + luoi ke thua B1.
+# Checker chay tren ban that (duong) roi tren tung ban dot bien (am).
+run "P83 opportunity-template du muc V1 + luoi ke thua (kem doi chung am)" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+text = (root / "skills/acceptance/references/opportunity-template.md").read_text(encoding="utf-8")
+
+REQUIRED = [
+    "OPP-FRONTMATTER-TEMPLATE",
+    "## Vấn đề & ai gặp",
+    "## Giả định chốt sinh tử",
+    "## Ngưỡng chết / ngưỡng UAT",
+    "## Kết quả prototype",
+    "## Nguồn ngoài & phạm vi kế thừa",
+    "## Cổng 0",
+    "## Thước đo thành công",
+    "## Bảng nợ kế thừa",
+    "## Out of scope từ khám phá",
+    "triết-lý/logic",
+    "ngôn-ngữ-thiết-kế/hình-thái",
+    "không phân loại = chưa đủ điều kiện ký Cổng 0",
+]
+def missing(t):
+    return [n for n in REQUIRED if n not in t]
+
+# Doi chung DUONG: ban that phai du het.
+assert missing(text) == [], f"template thieu: {missing(text)}"
+# Doi chung AM: pha tung anchor trong ban sao (MOI lan xuat hien — vai anchor
+# co mat >1 cho) -> checker PHAI bao thieu dung anchor do.
+for needle in REQUIRED:
+    mutated = text.replace(needle, needle[:-1] + "_")
+    got = missing(mutated)
+    assert needle in got, f"dot bien go [{needle}] ma checker khong do — phep do chet"
+PY
+
+# ── P84: gap-probe platform-fit cross-check o CA HAI harness ────────────────
+# Luoi B1 (retro V1): khong tang nao hoi platform-fit. Ve nay phai nam TRONG
+# danh sach cross-check bat buoc cua gap-probe, khong phai cho khac trong file.
+run "P84 gap-probe co ve platform-fit (Claude + Codex, kem doi chung am)" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+PINS = {
+    "feature-loop/skills/feature-loop/SKILL.md":
+        "artifact có tuân chuẩn UI/plugin sẵn có của repo tiêu thụ không; skill/quy định nào của repo LẼ RA phải nạp mà chưa nạp",
+    "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md":
+        "platform-fit: does the artifact set follow the consuming repo's existing",
+}
+for rel, needle in PINS.items():
+    text = (root / rel).read_text(encoding="utf-8")
+    assert needle in text, f"{rel} thieu ve platform-fit"
+    # ve phai nam TRONG doan cross-check bat buoc (y (4)), khong troi cho khac
+    idx = text.find(needle)
+    ctx = text[max(0, idx - 700):idx]
+    assert "cross-check" in ctx, f"{rel}: ve platform-fit khong nam trong muc cross-check"
+    # doi chung am: go ve trong ban sao -> pin phai truot
+    assert needle not in text.replace(needle, "", 1), f"{rel}: dot bien khong hieu luc"
+PY
+
+# ── P85: GOAL-TEMPLATE — SKILL la nguon runtime, GUIDE la ban nguoi doc ──────
+# B4 (retro V1): package feature-loop KHONG ship GUIDE nen "in theo GUIDE" chet
+# o runtime — template nay nhung thang vao SKILL. P85 giu 2 ban khop tung ky tu
+# (duong truoc, dot bien sau) va noi LENH IN voi khoi (gap-probe F1).
+run "P85 GOAL-TEMPLATE nhung trong SKILL, khop GUIDE, lenh in noi voi khoi" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+RX = re.compile(r"<!-- <<<GOAL-TEMPLATE -->\n```\n([\s\S]*?)```\n<!-- GOAL-TEMPLATE>>> -->")
+skill_p = "feature-loop/skills/feature-loop/SKILL.md"
+guide_p = "GUIDE.md"
+def block(rel, text):
+    m = RX.search(text)
+    assert m, f"{rel}: KHONG rut duoc khoi GOAL-TEMPLATE qua marker"
+    return m.group(1).strip()
+skill_t = (root / skill_p).read_text(encoding="utf-8")
+guide_t = (root / guide_p).read_text(encoding="utf-8")
+sb, gb = block(skill_p, skill_t), block(guide_p, guide_t)
+# Doi chung DUONG: hai ban nguyen ven phai khop truoc khi tin phep so.
+assert sb == gb, f"GOAL-TEMPLATE lech giua {skill_p} va {guide_p} — dong bo lai 2 khoi marker"
+# Tinh chat noi dung template.
+assert sb.startswith("/goal "), "template phai bat dau bang /goal "
+assert "verified" in sb, "template phai neo dieu kien verified"
+assert "REJECT quá 3 round" in sb, "template phai co loi thoat escalate (REJECT qua 3 round)"
+assert "signed-off" not in sb, "template KHONG duoc nham dich signed-off"
+# Lenh in phai NOI voi khoi — khong chi khoi ton tai (gap-probe F1).
+assert "IN NGUYÊN VĂN khối GOAL-TEMPLATE" in skill_t, "GATE 1 thieu lenh in-mac-dinh tham chieu dich danh khoi marker"
+assert "template mục /goal trong GUIDE, điền sẵn slug" not in skill_t, "SKILL van tro template sang GUIDE — goc benh B4 chua cat"
+# Doi chung AM: dot bien khoi trong ban sao (bo nho) -> phep so phai DO.
+mutated = skill_t.replace("sau 15 turns", "sau 16 turns", 1)
+assert mutated != skill_t, "dot bien khong tac dung — chuoi neo da doi"
+assert block(skill_p, mutated) != gb, f"dot bien khoi trong {skill_p} ma van khop {guide_p} — phep so GOAL-TEMPLATE da chet"
+# Doi chung khong-pha: dong /goal native cua codex SKILL con nguyen (AC-9) —
+# chinh feature nay sua cung file codex, khong duoc cat mat no.
+codex_t = (root / "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md").read_text(encoding="utf-8")
+assert "suggest the native Codex `/goal` command" in codex_t, "codex SKILL mat dong goi y /goal native"
+assert "Never create or suggest a goal that reaches" in codex_t, "codex SKILL mat rao chan signed-off"
+PY
+
+# ── P86: S1 bat nap skill chuan-plugin/DS cua repo tieu thu (2 harness) ──────
+# Luoi B1: doi trong chuan noi phai len ban can TRUOC khi sinh artifact.
+# Key vang -> ghi chu 1 dong, KHONG chan (khong phai hard-gate).
+run "P86 S1 doc feature_loop.ui_standards_skill (Claude + Codex, kem doi chung am)" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+CASES = {
+    "feature-loop/skills/feature-loop/SKILL.md": [
+        "feature_loop.ui_standards_skill",
+        "BẮT BUỘC invoke skill đó ngay",
+        "KHÔNG chặn",
+    ],
+    "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md": [
+        "feature_loop.ui_standards_skill",
+        "you MUST invoke that skill",
+        "do not block",
+    ],
+}
+for rel, pins in CASES.items():
+    text = (root / rel).read_text(encoding="utf-8")
+    key = pins[0]
+    idx = text.find(key)
+    assert idx >= 0, f"{rel} thieu key {key}"
+    # cac ve hanh vi phai nam trong CUNG doan quanh key (mot buoc, khong rai rac)
+    ctx = text[max(0, idx - 200):idx + 900]
+    for pin in pins[1:]:
+        assert pin in ctx, f"{rel}: [{pin}] khong nam cung doan voi key ui_standards_skill"
+    # doi chung am: go key trong ban sao -> pin phai truot
+    assert key not in text.replace(key, "ui_standards_key_bi_go"), f"{rel}: dot bien khong hieu luc"
+# Vi du trong van engine phai la placeholder TRUNG TINH — khong mang ten san
+# pham cua repo tieu thu (bat bien "kit khong chua", finding S4-r2 #3).
+for rel in ["feature-loop/skills/feature-loop/SKILL.md", "GUIDE.md"]:
+    t = (root / rel).read_text(encoding="utf-8")
+    assert "create-onehub-plugin" not in t, f"{rel}: vi du mang ten repo tieu thu — dung placeholder create-<org>-plugin"
+assert "create-<org>-plugin" in (root / "GUIDE.md").read_text(encoding="utf-8"), "GUIDE mat vi du placeholder cho ui_standards_skill"
+PY
+
+# ── P87: S1-D — lane cua feature cham UI la design-pass TRUOC Gate 1 ─────────
+# S1-D visual-first (quyet 30/07): Gate 1 duyet UI tren ban bam duoc. Descope
+# phai co ten trong so quyet dinh. Bang CT1/CT2 cu GIU NGUYEN (duong doc-cu,
+# P20 canh) — case nay chi ghim lane moi + cau Gate 1.
+run "P87 lane S1-D tro design-pass + Gate 1 ban bam duoc (kem doi chung am)" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+rel = "feature-loop/skills/feature-loop/SKILL.md"
+text = (root / rel).read_text(encoding="utf-8")
+# Lane moi: mot doan, du 3 ve. Neo vao HEADING dam cua doan — cac cho khac
+# trong file (bang tra CT1, S1#6) cung nhac cum "Nghi thức S1-D" khi tro ve day.
+idx = text.find("**Nghi thức S1-D (")
+assert idx >= 0, f"{rel} thieu doan Nghi thức S1-D"
+ctx = text[idx:idx + 1200]
+assert "design-pass" in ctx and "TRƯỚC Gate 1" in ctx, "lane S1-D phai tro design-pass TRUOC Gate 1"
+assert '"bỏ design-pass — ' in ctx, "descope lane phai co chuoi may-doc 'bỏ design-pass — '"
+assert "BẢN BẤM ĐƯỢC" in ctx, "lane S1-D thieu menh de ban bam duoc"
+# Gate 1: trinh ban bam duoc trong muc GATE 1 (sau heading). Chot BIEN cua lat
+# cat phai ton tai — find() tra -1 se lang le bien pin theo-section thanh pin
+# ca-file (lop bug section-scan da sua o 1.20.1).
+g1 = text.find("## GATE 1")
+assert g1 >= 0, "thieu muc GATE 1"
+s2 = text.find("## S2", g1)
+assert s2 > g1, "khong tim thay heading '## S2' sau GATE 1 — lat cat section chet, pin se phinh ca file"
+g1ctx = text[g1:s2]
+assert "BẢN BẤM ĐƯỢC" in g1ctx, "muc GATE 1 thieu cau trinh ban bam duoc cho UI feature"
+assert "ui_standards_skill" in g1ctx, "muc GATE 1 thieu dong ghi chu vang ui_standards_skill"
+# Cau hoi lane CU (mockup vs static-only) phai da duoc thay the — va KHONG con
+# tham chieu mo coi nao toi no trong toan file (round 2, AC-10 mo rong: sua mot
+# cho ma sot tham chieu cung-hinh-dang la lop loi CLAUDE.md goi ten).
+assert "Surface mới/redesign → vẽ mockup" not in text, "cau hoi lane cu van con — chua wire S1-D"
+assert "câu hỏi lane" not in text, "van con tham chieu mo coi 'câu hỏi lane' — chi dan S1 tu mau thuan"
+# Duong doc-cu con nguyen: bang tra CT1/CT2 dung 1 lan moi cong tac (nhu P20).
+assert text.count("| **CT1") == 1 and text.count("| **CT2") == 1, "bang tra CT1/CT2 bi pha"
+# Doi chung am: go MOI lan xuat hien trong ban sao (cum nay co mat >1 cho:
+# bang tra CT1, doan chinh, S1#6) -> pin phai truot.
+mutated = text.replace("Nghi thức S1-D", "Nghi thuc da go")
+assert "Nghi thức S1-D" not in mutated, "dot bien khong hieu luc"
+# Quet LOP ra ngoai mot file: design-subtrack (nguon design-loop, cung tieng
+# Viet) khong duoc con tro ve cau hoi lane da xoa (finding S4-r2 #1).
+ds = (root / "design-loop/skills/design-subtrack/SKILL.md").read_text(encoding="utf-8")
+assert "câu hỏi lane" not in ds, "design-subtrack van tro ve 'câu hỏi lane' da xoa — chi dan lech giua 2 plugin"
+PY
+
+# ── P88: release co chu dich — version floor + description khop hanh vi ─────
+# Consumer chi nhan luoi qua release: quen bump = feature ship ma hieu luc 0.
+# Floor semver (>=), KHONG ghim literal == — tranh vong "bump -> stale" (P03).
+run "P88 version floor 1.27/1.19 + description nhac hanh vi moi" \
+  python3 - "$ROOT" <<'PY'
+import json, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+def ver(rel):
+    return tuple(int(x) for x in json.loads((root / rel).read_text())["version"].split("."))
+def desc(rel):
+    return json.loads((root / rel).read_text())["description"]
+assert ver(".claude-plugin/plugin.json") >= (1, 27, 0), "acceptance-gate chua bump toi 1.27.0"
+assert ver("feature-loop/.claude-plugin/plugin.json") >= (1, 19, 0), "feature-loop chua bump toi 1.19.0"
+assert ver("codex/feature-loop-codex/.codex-plugin/plugin.json") >= (1, 19, 0), "feature-loop-codex chua bump toi 1.19.0"
+# Description phai nhac hanh vi moi (keyword chuc nang, on dinh qua cac ban sau):
+assert "opportunity-template" in desc(".claude-plugin/plugin.json"), "desc acceptance-gate thieu opportunity-template"
+d = desc("feature-loop/.claude-plugin/plugin.json")
+for kw in ("ui_standards_skill", "design-pass", "GOAL-TEMPLATE"):
+    assert kw in d, f"desc feature-loop thieu {kw}"
+assert "platform-fit" in desc("codex/feature-loop-codex/.codex-plugin/plugin.json"), "desc codex thieu platform-fit"
+# Doi chung am cua phep so semver: version thap hon floor phai truot.
+assert not ((1, 18, 1) >= (1, 19, 0)), "phep so semver chet — tuple compare khong con dung"
+PY
 
 if [ "$failures" -gt 0 ]; then
   echo

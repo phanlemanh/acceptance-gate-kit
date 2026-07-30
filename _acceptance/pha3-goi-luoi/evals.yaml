@@ -1,0 +1,124 @@
+# Evals — pha3-goi-luoi
+# Mọi eval máy chạy qua suite tests/plugins (case P82-P87 sinh ở S3).
+# cmd là config: ref — resolve tại S4; paths phục vụ carry-forward P1.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P83 pass: template có marker OPP-FRONTMATTER-TEMPLATE + đủ 8 section V1; đối chứng âm: bản sao bị xoá 1 section → case KHÔNG pass (ghim thông điệp thiếu section)"
+    paths:
+      - skills/acceptance/references/opportunity-template.md
+      - tests/plugins/run-tests.sh
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P82 pass: round-trip khuôn-từ-marker → frontmatterField đọc đúng 6 key; đột biến xoá --- đóng → reader trả null, case ghim rõ hành vi này — thiếu đối chứng âm thì KHÔNG pass"
+    paths:
+      - skills/acceptance/references/opportunity-template.md
+      - lib/evidence-core.js
+      - tests/plugins/run-tests.sh
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P83 pass: section Nguồn ngoài & phạm vi kế thừa có đủ 2 lớp phân loại + mệnh đề người-ký-tại-Cổng-0 + anchor nguyên văn 'không phân loại = chưa đủ điều kiện ký Cổng 0'"
+    paths:
+      - skills/acceptance/references/opportunity-template.md
+      - tests/plugins/run-tests.sh
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P84 pass: SKILL Claude S1#7 có vế platform-fit trong cross-check; đối chứng âm: bản sao bị gỡ vế → case KHÔNG pass"
+    paths:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P84 pass: SKILL codex step 8 có vế platform-fit bản tiếng Anh; đối chứng âm: bản sao bị gỡ vế → case KHÔNG pass"
+    paths:
+      - codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P86 pass: SKILL Claude có key feature_loop.ui_standards_skill + hành vi bắt-buộc-nạp / vắng-key ghi chú 1 dòng không chặn; đối chứng âm: bản sao bị gỡ key → case KHÔNG pass; ví dụ placeholder trung tính create-<org>-plugin, cấm create-onehub-plugin trong SKILL/GUIDE (AC-6 mở rộng)"
+    paths:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P86 pass: SKILL codex parity cùng key + cùng hành vi; đối chứng âm: bản sao bị gỡ key → case KHÔNG pass"
+    paths:
+      - codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P85 pass: SKILL Gate 1 có khối GOAL-TEMPLATE bắt đầu /goal, chứa verified + REJECT quá 3 round, không nhắm signed-off; VÀ mục GATE 1 có mệnh đề in-mặc-định-đã-điền-slug tham chiếu đích danh khối marker (lệnh in nối với khối, không chỉ khối tồn tại)"
+    paths:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P85 pass theo thứ tự bắt buộc: bản sao NGUYÊN VẸN so khớp XANH trước (đối chứng dương), rồi đột biến một bản trong bản sao → so sánh ĐỎ với thông điệp mismatch nêu tên 2 file + nhãn GOAL-TEMPLATE; và grep-pin dòng /goal native trong codex SKILL còn nguyên (đối chứng không-phá)"
+    paths:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - GUIDE.md
+      - codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P87 pass: câu hỏi lane trỏ design-pass TRƯỚC Gate 1 + descope có tên trong sổ quyết định + Gate 1 trình bản bấm được + toàn file SKILL không còn chuỗi 'câu hỏi lane' mồ côi (AC-10 mở rộng round 2); đối chứng âm: bản sao bị gỡ câu lane → case KHÔNG pass; design-subtrack SKILL cũng sạch chuỗi 'câu hỏi lane'; lát cắt section GATE 1 có chốt biên '## S2' (AC-10 mở rộng round 3)"
+    paths:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - design-loop/skills/design-subtrack/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E12
+    criterion: AC-12
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P88 pass: version acceptance-gate >= 1.27.0 và feature-loop >= 1.19.0 (so semver bằng node, không so chuỗi); description 2 plugin.json chứa từ khoá hành vi mới (opportunity template / lưới S1)"
+    paths:
+      - .claude-plugin/plugin.json
+      - feature-loop/.claude-plugin/plugin.json
+      - codex/feature-loop-codex/.codex-plugin/plugin.json
+      - tests/plugins/run-tests.sh
+
+  - id: E11
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.mirror_sync
+    expected: "exit 0 — mirror plugins/ khớp nguồn sau sync (đối chứng âm đã có sẵn ở P41: tiêm drift → --check exit 1, KHÔNG pass)"
+    paths:
+      - skills/**
+      - codex/**
+      - plugins/**
+      - lib/**
+      - hooks/**
+      - vendor/**
+      - scripts/**
+      - feature-loop/**
