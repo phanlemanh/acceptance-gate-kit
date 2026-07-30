@@ -30,7 +30,7 @@ ghi vết); chấm máy là việc của S4, chấm thẩm mỹ là việc của
    plugin acceptance-gate, dry-run mặc định):
 
    ```bash
-   node <acceptance-gate-plugin-root>/scripts/config-patch.mjs --config _acceptance/config.yaml --key design_pass.proto_route --value "http://localhost:3000/proto/{slug}" --write
+   node <acceptance-gate-plugin-root>/scripts/config-patch.mjs --config _acceptance/config.yaml --key design_pass.proto_route --value "http://localhost:3000/proto/{slug}"
    ```
 
 2. **Thiếu khối `design_pass` hoặc thiếu `proto_route` → DỪNG nghi thức

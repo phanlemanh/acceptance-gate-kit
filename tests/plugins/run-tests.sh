@@ -1409,10 +1409,17 @@ files = [root / "skills/design-pass/SKILL.md",
          root / "plugins/acceptance-gate/skills/design-pass/SKILL.md"]
 texts = {str(p.relative_to(root)): p.read_text(encoding="utf-8") for p in files}
 rt = (root / "tests/plugins/run-tests.sh").read_text(encoding="utf-8")
-b = rt.find("# --- design-pass cases (P58-P67) begin ---")
-e = rt.find("# --- design-pass cases end ---")
+# Marker GHÉP MẢNH — nếu để nguyên chuỗi, find() khớp chính literal trong
+# source của case này trước khi tới comment thật, vùng quét cụt mất đuôi P66
+# + toàn bộ P67 mà mọi sanity vẫn xanh (finding S4 round 1).
+BEGIN = "# --- design-pass cases " + "(P58-P67) begin ---"
+END = "# --- design-pass cases " + "end ---"
+b = rt.find(BEGIN)
+e = rt.find(END, b + 1)
 assert b != -1 and e != -1 and e > b, "khong tim thay vung case design-pass trong run-tests.sh"
-texts["tests:design-pass-region"] = rt[b:e]
+region = rt[b:e]
+assert "P67 design-pass smoke" in region, "vung quet cut duoi — thieu anchor P67 (thuoc phai gan vao vat)"
+texts["tests:design-pass-region"] = region
 # Pattern ghep manh de vung nay tu-quet khong tu-trung.
 CONSUMER = ["one" + "hub", "deal" + "-page", "@one" + "hub", "ms" + "tar"]
 SURFACE = ["claude.ai/" + "design", "/design" + "-sync", "/design" + "-login", "/design" + "-mockup"]
