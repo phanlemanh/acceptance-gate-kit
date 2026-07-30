@@ -1923,8 +1923,9 @@ from pathlib import Path
 root = Path(sys.argv[1])
 rel = "feature-loop/skills/feature-loop/SKILL.md"
 text = (root / rel).read_text(encoding="utf-8")
-# Lane moi: mot doan, du 3 ve.
-idx = text.find("Nghi thức S1-D")
+# Lane moi: mot doan, du 3 ve. Neo vao HEADING dam cua doan — cac cho khac
+# trong file (bang tra CT1, S1#6) cung nhac cum "Nghi thức S1-D" khi tro ve day.
+idx = text.find("**Nghi thức S1-D (")
 assert idx >= 0, f"{rel} thieu doan Nghi thức S1-D"
 ctx = text[idx:idx + 1200]
 assert "design-pass" in ctx and "TRƯỚC Gate 1" in ctx, "lane S1-D phai tro design-pass TRUOC Gate 1"
@@ -1936,12 +1937,16 @@ assert g1 >= 0, "thieu muc GATE 1"
 g1ctx = text[g1:text.find("## S2", g1)]
 assert "BẢN BẤM ĐƯỢC" in g1ctx, "muc GATE 1 thieu cau trinh ban bam duoc cho UI feature"
 assert "ui_standards_skill" in g1ctx, "muc GATE 1 thieu dong ghi chu vang ui_standards_skill"
-# Cau hoi lane CU (mockup vs static-only) phai da duoc thay the.
+# Cau hoi lane CU (mockup vs static-only) phai da duoc thay the — va KHONG con
+# tham chieu mo coi nao toi no trong toan file (round 2, AC-10 mo rong: sua mot
+# cho ma sot tham chieu cung-hinh-dang la lop loi CLAUDE.md goi ten).
 assert "Surface mới/redesign → vẽ mockup" not in text, "cau hoi lane cu van con — chua wire S1-D"
+assert "câu hỏi lane" not in text, "van con tham chieu mo coi 'câu hỏi lane' — chi dan S1 tu mau thuan"
 # Duong doc-cu con nguyen: bang tra CT1/CT2 dung 1 lan moi cong tac (nhu P20).
 assert text.count("| **CT1") == 1 and text.count("| **CT2") == 1, "bang tra CT1/CT2 bi pha"
-# Doi chung am: go doan lane trong ban sao -> pin phai truot.
-mutated = text.replace("Nghi thức S1-D", "Nghi thuc da go", 1)
+# Doi chung am: go MOI lan xuat hien trong ban sao (cum nay co mat >1 cho:
+# bang tra CT1, doan chinh, S1#6) -> pin phai truot.
+mutated = text.replace("Nghi thức S1-D", "Nghi thuc da go")
 assert "Nghi thức S1-D" not in mutated, "dot bien khong hieu luc"
 PY
 

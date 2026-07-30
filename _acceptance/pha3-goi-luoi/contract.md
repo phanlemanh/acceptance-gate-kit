@@ -4,10 +4,10 @@ feature: Pha 3 — gói lưới 5 món cho discovery + feature-loop (template op
 slug: pha3-goi-luoi
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: implemented
 owner: phanlemanh@gmail.com
 approved_by: Manh Phan
-approved_at: 2026-07-30T07:32:36Z
+approved_at: 2026-07-30T08:08:00Z
 time_human_minutes:
   gate1: 5
   gate2:
@@ -26,7 +26,7 @@ time_human_minutes:
 - AC-7 (món 3 — nạp DS skill, Codex): Given codex SKILL S1, Then cùng hành vi AC-6 (đọc `feature_loop.ui_standards_skill`, bắt buộc nạp khi có, ghi chú 1 dòng khi vắng, không chặn).
 - AC-8 (món 4 — /goal nhúng + in mặc định): Given `feature-loop/skills/feature-loop/SKILL.md` mục GATE 1, Then template /goal nằm NGUYÊN VĂN trong khối marker `GOAL-TEMPLATE` ngay trong SKILL (không phụ thuộc GUIDE lúc runtime), với chỉ dẫn in mặc định đã điền slug ngay khi duyệt; template bắt đầu bằng `/goal`, chứa điều kiện `verified`, chứa lối thoát escalate (`REJECT quá 3 round`), KHÔNG nhắm đích `signed-off`.
 - AC-9 (món 4 — chống trôi 2 bản + không phá Codex): Given khối `GOAL-TEMPLATE` trong SKILL và trong GUIDE.md, When rút cả hai qua marker và chuẩn hoá fence, Then hai khối bằng nhau từng ký tự — bản sao nguyên vẹn phải XANH trước (đối chứng dương), rồi đột biến một bản trong bản sao → phép so ĐỎ với đúng thông điệp mismatch nêu tên 2 file + nhãn GOAL-TEMPLATE; và dòng gợi ý `/goal` native trong codex SKILL vẫn còn nguyên (đối chứng không-phá — chính feature này sửa cùng file đó).
-- AC-10 (món 5 — lane → design-pass): Given feature chạm UI, Then câu hỏi lane trong SKILL đổi thành: chạy skill `design-pass` (acceptance-gate ≥ 1.26.0) TRƯỚC Gate 1; bỏ qua PHẢI là entry `descope` có tên trong ledger; và mục GATE 1 ghi rõ: UI feature trình BẢN BẤM ĐƯỢC cùng thẻ, không duyệt UI bằng chữ.
+- AC-10 (món 5 — lane → design-pass): Given feature chạm UI, Then câu hỏi lane trong SKILL đổi thành: chạy skill `design-pass` (acceptance-gate ≥ 1.26.0) TRƯỚC Gate 1; bỏ qua PHẢI là entry `descope` có tên trong sổ quyết định; mục GATE 1 ghi rõ: UI feature trình BẢN BẤM ĐƯỢC cùng thẻ, không duyệt UI bằng chữ; VÀ (mở rộng tại Cổng 2 round 1, Manh duyệt trong chat) toàn file SKILL không còn tham chiếu mồ côi nào tới "câu hỏi lane" đã xoá — mọi điểm cũ (bảng tra CT1, S1#6, mục GATE 1 CT2) phải trỏ về nghi thức S1-D.
 - AC-11 (mirror đồng bộ): Given mọi sửa đổi nguồn `skills/` + `codex/`, When chạy `sync-plugin-packages.sh --check`, Then exit 0 — mirror `plugins/` được sync và commit cùng lượt.
 - AC-12 (release có chủ đích): Given deliverable ship xong, Then `.claude-plugin/plugin.json` (acceptance-gate) version ≥ 1.27.0 và `feature-loop/.claude-plugin/plugin.json` version ≥ 1.19.0 (so semver, không so chuỗi), và description của cả hai nhắc hành vi mới (template opportunity / các lưới S1-Gate 1) — consumer chỉ nhận lưới qua release, quên bump = feature ship mà hiệu lực bằng 0.
 
@@ -49,3 +49,4 @@ time_human_minutes:
 
 - Template opportunity nằm trong package acceptance-gate → cả hai harness đọc cùng file; không cần bản codex riêng.
 - Key nồng cốt lồng nhau (`prototype.*`, `time_human_minutes.*`) chưa có reader máy — reader thật là việc F-B; marker để test nâng cấp sau.
+- **Known limits (Cổng 2 round 1, Manh quyết ①a ②a):** (1) dòng bảng GUIDE cho `feature_loop.ui_standards_skill` được thêm dạng sửa-T1 cùng vòng (GUIDE + mirror thuộc `t1_skip_globs`, không stale evidence) — không có eval máy ghim riêng dòng đó; (2) vài chỗ văn MỚI dùng "ledger" trần trái `_Avoid_` CONTEXT.md (SKILL đoạn S1-D, evals E10) — sweep ở feature kế chạm các file này, không đáng một round riêng.

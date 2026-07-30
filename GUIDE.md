@@ -544,6 +544,7 @@ Tham chiếu đầy đủ `config.yaml` — mục 8 có phần tinh chỉnh:
 | `capture.ui` | Lệnh chụp `<cmd> <url> <out.png>` → slideshow Cổng 2 | evidence UI = HTML |
 | `feature_loop.suite_keys` | Lệnh chạy MỌI vòng verify (build/typecheck...) — S4 tự hỏi rồi tự ghi | S4 hỏi một lần |
 | `feature_loop.models.<role>` | Override model từng vai trò verify (mục 8) | bảng default |
+| `feature_loop.ui_standards_skill` | Tên skill chuẩn-plugin/DS của repo (vd `create-onehub-plugin`) — feature chạm UI thì S1 BẮT BUỘC nạp nó trước khi sinh contract/evals (đối trọng chuẩn nội với vật liệu ngoài) | ghi chú vàng 1 dòng trong gói Cổng 1, không chặn |
 
 ### 5.3 Wire CI (bắt buộc để gate có răng ở PR)
 
