@@ -3130,12 +3130,18 @@ mk_gcv() { # <slug> <heading> <than>
 mk_gcv blankcase '## Criteria' '- **AC-1**' '- **AC-2**' '- **AC-3**'
 mk_gcv headcase  '## Acceptance criteria' '- AC-1: Given x, Then y.' '- AC-2: Given x, Then y.'
 mk_gcv okcase    '## Criteria' '- AC-1: Given x, Then y.' '- AC-2: Given x, Then y.'
+# Nhanh CUT (AC-11) cung phai ra toi card THAT, khong chi song o tang don vi:
+# vai criterion khuon chuan xen giua khuon la -> parse duoc mot phan.
+mk_gcv cutcase '## Criteria' '- AC-1: Given x, Then y.' '- AC-2: Given x, Then y.' '- **AC-3**' '- **AC-4**' '- **AC-5**' '- **AC-6**'
+GCV_CUT="$(node "$GCARD" --root "$T/gcv" --slug cutcase --gate 1 2>&1)"
 GCV_BLANK="$(node "$GCARD" --root "$T/gcv" --slug blankcase --gate 1 2>&1)"
 GCV_HEAD="$(node "$GCARD" --root "$T/gcv" --slug headcase --gate 1 2>&1)"
 GCV_OK="$(node "$GCARD" --root "$T/gcv" --slug okcase --gate 1 2>&1)"
 hasout "GCV1a khuon la -> card neu KHONG doc duoc criterion nao" "KHÔNG đọc được criterion nào" "$GCV_BLANK"
 hasout "GCV1b heading lech -> card neu ten heading sai" "## Acceptance criteria" "$GCV_HEAD"
 hasout "GCV1c card mu phai bao dung KHONG duyet" "đừng duyệt" "$GCV_BLANK"
+hasout "GCV1e nhanh CUT ra toi card that: card neu doc THIEU" "Đọc THIẾU" "$GCV_CUT"
+hasout "GCV1f card cut cung bao dung duyet" "đừng duyệt" "$GCV_CUT"
 case "$GCV_OK" in
   *"KHÔNG đọc được criterion nào"*|*"Đọc THIẾU"*)
     echo "  FAIL: GCV1d contract lanh bi canh bao (cry-wolf)"; FAIL_COUNT=$((FAIL_COUNT+1));;

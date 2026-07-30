@@ -1,0 +1,11 @@
+{"ts":"2026-07-30T02:05:42Z","round":1,"evalId":"E1","run_id":"gate-card-ac-visibility-E1-20260730T020612Z","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-30T02:05:42Z","round":1,"evalId":"E2","run_id":"gate-card-ac-visibility-E2-20260730T020612Z","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-30T02:05:42Z","round":1,"evalId":"E3","run_id":"gate-card-ac-visibility-E3-20260730T020612Z","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-30T02:05:42Z","round":1,"evalId":"E4","run_id":"gate-card-ac-visibility-E4-20260730T020612Z","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-30T02:05:42Z","round":1,"evalId":"E5","run_id":"gate-card-ac-visibility-E5-20260730T020612Z","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-30T02:05:42Z","round":1,"evalId":"E13","run_id":"gate-card-ac-visibility-E13-20260730T020612Z","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-30T02:05:42Z","round":1,"evalId":"E7","run_id":"gate-card-ac-visibility-E7-20260730T020612Z","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-30T02:05:42Z","round":1,"evalId":"E9","run_id":"gate-card-ac-visibility-E9-20260730T020612Z","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-30T02:06:12Z","round":1,"evalId":"E6","run_id":"gate-card-ac-visibility-E6-20260730T020658Z","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-30T02:06:12Z","round":1,"evalId":"E10","run_id":"gate-card-ac-visibility-E10-20260730T020658Z","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-07-30T02:06:58Z","round":1,"evalId":"E8","run_id":"gate-card-ac-visibility-E8-20260730T020659Z","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
