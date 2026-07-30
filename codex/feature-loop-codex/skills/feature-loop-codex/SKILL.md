@@ -237,7 +237,14 @@ section (even if it is a single skip line):
    not an enumeration problem (single-axis, obvious ACs, scope fixed by an
    external spec), skip the scan with an explicit auto-drafted `descope` entry
    plus a one-line Coverage skip note. Never skip silently.
-4. Write a design doc using repo convention, commonly
+4. When the feature touches UI, first read `feature_loop.ui_standards_skill`
+   from `_acceptance/config.yaml` (its value names the consuming repo's
+   plugin/design-standards skill): when present you MUST invoke that skill
+   before generating the three artifacts (the internal counterweight to
+   external material); when absent, add exactly one line to the Gate 1 package
+   ("repo has not declared `feature_loop.ui_standards_skill` — UI artifacts
+   lack an internal standards counterweight") and do not block. Then write a
+   design doc using repo convention, commonly
    `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md`.
 5. Write `_acceptance/<slug>/contract.md` using the acceptance-gate contract
    shape: status `draft`, risk tier, surfaces, 5-15 Given/When/Then criteria,

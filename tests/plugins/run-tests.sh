@@ -1879,6 +1879,39 @@ assert "suggest the native Codex `/goal` command" in codex_t, "codex SKILL mat d
 assert "Never create or suggest a goal that reaches" in codex_t, "codex SKILL mat rao chan signed-off"
 PY
 
+# ── P86: S1 bat nap skill chuan-plugin/DS cua repo tieu thu (2 harness) ──────
+# Luoi B1: doi trong chuan noi phai len ban can TRUOC khi sinh artifact.
+# Key vang -> ghi chu 1 dong, KHONG chan (khong phai hard-gate).
+run "P86 S1 doc feature_loop.ui_standards_skill (Claude + Codex, kem doi chung am)" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+CASES = {
+    "feature-loop/skills/feature-loop/SKILL.md": [
+        "feature_loop.ui_standards_skill",
+        "BẮT BUỘC invoke skill đó ngay",
+        "KHÔNG chặn",
+    ],
+    "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md": [
+        "feature_loop.ui_standards_skill",
+        "you MUST invoke that skill",
+        "do not block",
+    ],
+}
+for rel, pins in CASES.items():
+    text = (root / rel).read_text(encoding="utf-8")
+    key = pins[0]
+    idx = text.find(key)
+    assert idx >= 0, f"{rel} thieu key {key}"
+    # cac ve hanh vi phai nam trong CUNG doan quanh key (mot buoc, khong rai rac)
+    ctx = text[max(0, idx - 200):idx + 900]
+    for pin in pins[1:]:
+        assert pin in ctx, f"{rel}: [{pin}] khong nam cung doan voi key ui_standards_skill"
+    # doi chung am: go key trong ban sao -> pin phai truot
+    assert key not in text.replace(key, "ui_standards_key_bi_go"), f"{rel}: dot bien khong hieu luc"
+PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
