@@ -78,8 +78,7 @@ hạ bậc phải ĐỂ VẾT, không hạ ngầm:
 | `static` | Repo mới tinh / khác stack — HTML tĩnh token-only | Chỉ ý định thị giác; công port xa nhất |
 
 Bậc đang dùng PHẢI khai `material:` trong ghi vết kết phiên (mục 5) — thẻ
-Gate 1 hiện nó để người duyệt biết mình đang duyệt trên vật liệu gì. Thiếu
-khai material khi ha bac vat lieu là vi phạm nghi thức.
+Gate 1 hiện nó để người duyệt biết mình đang duyệt trên vật liệu gì.
 
 Route không mở được (404 / connection refused) → **DỪNG nghi thức**: nói rõ
 bản bấm được chưa chạy; repo đã khai `design_pass.dev_cmd` → in đúng lệnh đó
