@@ -269,7 +269,10 @@ section (even if it is a single skip line):
    severity P0/P1/P2 · proposed measure — no scenario means DROP; (4) mandatory
    cross-checks: ACs with no eval, GWTs that cannot be measured, Coverage axes
    with no AC, and criteria whose When/Then crosses the backend but lack the
-   `(cross-layer)` tag or carry UI-layer evals only (ui-check/judgment); (5) at most 5 findings; verdict `clean` is a VALID outcome;
+   `(cross-layer)` tag or carry UI-layer evals only (ui-check/judgment), and
+   platform-fit: does the artifact set follow the consuming repo's existing
+   UI/plugin standards, and which repo skill or rule SHOULD have been loaded
+   but was not; (5) at most 5 findings; verdict `clean` is a VALID outcome;
    (6) never relitigate sealed/descoped ledger decisions without a NEW reason.
    Write `_acceptance/<slug>/gap-probe.md` — frontmatter `slug / at (ISO UTC) /
    verdict: clean|findings|probe-failed / p0 / p1 / p2` plus a `## Findings`

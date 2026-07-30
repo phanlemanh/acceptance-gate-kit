@@ -1814,6 +1814,31 @@ for needle in REQUIRED:
     assert needle in got, f"dot bien go [{needle}] ma checker khong do — phep do chet"
 PY
 
+# ── P84: gap-probe platform-fit cross-check o CA HAI harness ────────────────
+# Luoi B1 (retro V1): khong tang nao hoi platform-fit. Ve nay phai nam TRONG
+# danh sach cross-check bat buoc cua gap-probe, khong phai cho khac trong file.
+run "P84 gap-probe co ve platform-fit (Claude + Codex, kem doi chung am)" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+PINS = {
+    "feature-loop/skills/feature-loop/SKILL.md":
+        "artifact có tuân chuẩn UI/plugin sẵn có của repo tiêu thụ không; skill/quy định nào của repo LẼ RA phải nạp mà chưa nạp",
+    "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md":
+        "platform-fit: does the artifact set follow the consuming repo's existing",
+}
+for rel, needle in PINS.items():
+    text = (root / rel).read_text(encoding="utf-8")
+    assert needle in text, f"{rel} thieu ve platform-fit"
+    # ve phai nam TRONG doan cross-check bat buoc (y (4)), khong troi cho khac
+    idx = text.find(needle)
+    ctx = text[max(0, idx - 700):idx]
+    assert "cross-check" in ctx, f"{rel}: ve platform-fit khong nam trong muc cross-check"
+    # doi chung am: go ve trong ban sao -> pin phai truot
+    assert needle not in text.replace(needle, "", 1), f"{rel}: dot bien khong hieu luc"
+PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
