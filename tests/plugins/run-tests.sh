@@ -1739,6 +1739,81 @@ assert "DESIGN-PASS-NOTE-TEMPLATE" in t, "mirror SKILL.md thieu khuon marker"
 PY
 # --- design-pass cases end ---
 
+# ── P82: ROUND-TRIP frontmatter opportunity-template <-> reader that ─────────
+# Khuon rut tu CHINH template (marker OPP-FRONTMATTER-TEMPLATE), doc bang
+# frontmatterField cua lib/evidence-core.js — reader ma hook/CI dung.
+# Doi chung duong chay truoc, dot bien mat frontmatter chay sau.
+run "P82 opportunity-template round-trip frontmatter (marker -> frontmatterField)" \
+  node - "$ROOT" <<'JS'
+const fs = require('fs');
+const path = require('path');
+const root = process.argv[2];
+const tplPath = path.join(root, 'skills/acceptance/references/opportunity-template.md');
+const tpl = fs.readFileSync(tplPath, 'utf8');
+const core = require(path.join(root, 'lib/evidence-core.js'));
+const m = tpl.match(/<!-- <<<OPP-FRONTMATTER-TEMPLATE -->\n```yaml\n([\s\S]*?)```\n<!-- OPP-FRONTMATTER-TEMPLATE>>> -->/);
+if (!m) { console.error('KHONG rut duoc khuon OPP-FRONTMATTER-TEMPLATE tu template'); process.exit(1); }
+const SAMPLE = { slug: 'demo-coho', feature: 'Demo', owner: 'a@b.c', stage: 'decided',
+  decision: 'build', decided_by: 'a@b.c', decided_at: '2026-07-30T00:00:00Z',
+  gate0_minutes: '6', base_commit: 'abc123', disposition: 'archive' };
+let unknown = null;
+const filled = m[1].replace(/\{(\w+)\}/g, (_, k) => {
+  if (SAMPLE[k] === undefined) { unknown = k; return ''; }
+  return SAMPLE[k];
+});
+if (unknown) { console.error('placeholder la [' + unknown + '] khong co trong SAMPLE — khuon va test da lech'); process.exit(1); }
+// Doi chung DUONG: reader that doc dung tung key top-level.
+for (const k of ['slug', 'stage', 'decision', 'decided_by', 'decided_at', 'owner']) {
+  const v = core.frontmatterField(filled, k);
+  if (v !== SAMPLE[k]) { console.error('reader doc key ' + k + ' = [' + v + '] nhung phai la [' + SAMPLE[k] + ']'); process.exit(1); }
+}
+// Dot bien: xoa dong --- DONG -> reader phai tra null (ghim hanh vi fail).
+const broken = filled.replace(/\n---[ \t]*(\r?\n|$)(?![\s\S]*\n---)/, '\n');
+if (broken === filled) { console.error('dot bien khong tac dung len khuon — regex xoa --- dong da chet'); process.exit(1); }
+if (core.frontmatterField(broken, 'slug') !== null) {
+  console.error('dot bien xoa --- dong ma reader van doc duoc — phep do da chet'); process.exit(1);
+}
+console.log('round-trip OK; dot bien mat frontmatter bi bat');
+JS
+
+# ── P83: opportunity-template du 8 section V1 + truong Nguon ngoai ───────────
+# Anchor la cac muc DA DUNG THAT o V1 (trang-tu-van-v2) + luoi ke thua B1.
+# Checker chay tren ban that (duong) roi tren tung ban dot bien (am).
+run "P83 opportunity-template du muc V1 + luoi ke thua (kem doi chung am)" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+text = (root / "skills/acceptance/references/opportunity-template.md").read_text(encoding="utf-8")
+
+REQUIRED = [
+    "OPP-FRONTMATTER-TEMPLATE",
+    "## Vấn đề & ai gặp",
+    "## Giả định chốt sinh tử",
+    "## Ngưỡng chết / ngưỡng UAT",
+    "## Kết quả prototype",
+    "## Nguồn ngoài & phạm vi kế thừa",
+    "## Cổng 0",
+    "## Thước đo thành công",
+    "## Bảng nợ kế thừa",
+    "## Out of scope từ khám phá",
+    "triết-lý/logic",
+    "ngôn-ngữ-thiết-kế/hình-thái",
+    "không phân loại = chưa đủ điều kiện ký Cổng 0",
+]
+def missing(t):
+    return [n for n in REQUIRED if n not in t]
+
+# Doi chung DUONG: ban that phai du het.
+assert missing(text) == [], f"template thieu: {missing(text)}"
+# Doi chung AM: pha tung anchor trong ban sao (MOI lan xuat hien — vai anchor
+# co mat >1 cho) -> checker PHAI bao thieu dung anchor do.
+for needle in REQUIRED:
+    mutated = text.replace(needle, needle[:-1] + "_")
+    got = missing(mutated)
+    assert needle in got, f"dot bien go [{needle}] ma checker khong do — phep do chet"
+PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
