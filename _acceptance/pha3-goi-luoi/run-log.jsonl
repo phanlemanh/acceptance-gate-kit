@@ -1,0 +1,13 @@
+{"ts":"2026-07-30T07:50:19Z","round":1,"evalId":"E1","run_id":"minted-pha3-goi-luoi-E1-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-30T07:50:19Z","round":1,"evalId":"E2","run_id":"minted-pha3-goi-luoi-E2-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-30T07:50:19Z","round":1,"evalId":"E3","run_id":"minted-pha3-goi-luoi-E3-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-30T07:50:19Z","round":1,"evalId":"E4","run_id":"minted-pha3-goi-luoi-E4-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-30T07:50:19Z","round":1,"evalId":"E5","run_id":"minted-pha3-goi-luoi-E5-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-30T07:50:19Z","round":1,"evalId":"E6","run_id":"minted-pha3-goi-luoi-E6-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-30T07:50:19Z","round":1,"evalId":"E7","run_id":"minted-pha3-goi-luoi-E7-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-30T07:50:19Z","round":1,"evalId":"E8","run_id":"minted-pha3-goi-luoi-E8-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-30T07:50:19Z","round":1,"evalId":"E9","run_id":"minted-pha3-goi-luoi-E9-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-30T07:50:19Z","round":1,"evalId":"E10","run_id":"minted-pha3-goi-luoi-E10-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-30T07:50:19Z","round":1,"evalId":"E12","run_id":"minted-pha3-goi-luoi-E12-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-07-30T07:50:19Z","round":1,"evalId":"E11","run_id":"minted-pha3-goi-luoi-E11-r1","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
+{"ts":"2026-07-30T07:50:19Z","round":1,"kind":"baseline","evals_hash":"8b8922b207e1a5628333cef9bc7c93eaf3573b1871328761105ed126d6e88dc3","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E7","E8","E9","E10","E12"]},{"cmd":"bash scripts/sync-plugin-packages.sh --check","evals":["E11"]}]}
