@@ -1912,6 +1912,39 @@ for rel, pins in CASES.items():
     assert key not in text.replace(key, "ui_standards_key_bi_go"), f"{rel}: dot bien khong hieu luc"
 PY
 
+# ── P87: S1-D — lane cua feature cham UI la design-pass TRUOC Gate 1 ─────────
+# S1-D visual-first (quyet 30/07): Gate 1 duyet UI tren ban bam duoc. Descope
+# phai co ten trong so quyet dinh. Bang CT1/CT2 cu GIU NGUYEN (duong doc-cu,
+# P20 canh) — case nay chi ghim lane moi + cau Gate 1.
+run "P87 lane S1-D tro design-pass + Gate 1 ban bam duoc (kem doi chung am)" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+rel = "feature-loop/skills/feature-loop/SKILL.md"
+text = (root / rel).read_text(encoding="utf-8")
+# Lane moi: mot doan, du 3 ve.
+idx = text.find("Nghi thức S1-D")
+assert idx >= 0, f"{rel} thieu doan Nghi thức S1-D"
+ctx = text[idx:idx + 1200]
+assert "design-pass" in ctx and "TRƯỚC Gate 1" in ctx, "lane S1-D phai tro design-pass TRUOC Gate 1"
+assert '"bỏ design-pass — ' in ctx, "descope lane phai co chuoi may-doc 'bỏ design-pass — '"
+assert "BẢN BẤM ĐƯỢC" in ctx, "lane S1-D thieu menh de ban bam duoc"
+# Gate 1: trinh ban bam duoc trong muc GATE 1 (sau heading).
+g1 = text.find("## GATE 1")
+assert g1 >= 0, "thieu muc GATE 1"
+g1ctx = text[g1:text.find("## S2", g1)]
+assert "BẢN BẤM ĐƯỢC" in g1ctx, "muc GATE 1 thieu cau trinh ban bam duoc cho UI feature"
+assert "ui_standards_skill" in g1ctx, "muc GATE 1 thieu dong ghi chu vang ui_standards_skill"
+# Cau hoi lane CU (mockup vs static-only) phai da duoc thay the.
+assert "Surface mới/redesign → vẽ mockup" not in text, "cau hoi lane cu van con — chua wire S1-D"
+# Duong doc-cu con nguyen: bang tra CT1/CT2 dung 1 lan moi cong tac (nhu P20).
+assert text.count("| **CT1") == 1 and text.count("| **CT2") == 1, "bang tra CT1/CT2 bi pha"
+# Doi chung am: go doan lane trong ban sao -> pin phai truot.
+mutated = text.replace("Nghi thức S1-D", "Nghi thuc da go", 1)
+assert "Nghi thức S1-D" not in mutated, "dot bien khong hieu luc"
+PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
