@@ -8,7 +8,7 @@ surfaces: [cli]
 status: verified
 approved_by: Manh Phan
 approved_at: 2026-07-30T01:09:13Z
-time_human_minutes: {gate1: 0, gate2: 0}
+time_human_minutes: {gate1: 10, gate2: 10}
 ---
 
 # Acceptance Contract: gate-card-ac-visibility
