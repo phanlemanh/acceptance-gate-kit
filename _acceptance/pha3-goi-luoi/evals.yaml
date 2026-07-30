@@ -53,7 +53,7 @@ evals:
     criterion: AC-6
     executor: test
     cmd: config:executors.test.plugins
-    expected: "P86 pass: SKILL Claude có key feature_loop.ui_standards_skill + hành vi bắt-buộc-nạp / vắng-key ghi chú 1 dòng không chặn; đối chứng âm: bản sao bị gỡ key → case KHÔNG pass"
+    expected: "P86 pass: SKILL Claude có key feature_loop.ui_standards_skill + hành vi bắt-buộc-nạp / vắng-key ghi chú 1 dòng không chặn; đối chứng âm: bản sao bị gỡ key → case KHÔNG pass; ví dụ placeholder trung tính create-<org>-plugin, cấm create-onehub-plugin trong SKILL/GUIDE (AC-6 mở rộng)"
     paths:
       - feature-loop/skills/feature-loop/SKILL.md
       - tests/plugins/run-tests.sh
@@ -91,9 +91,10 @@ evals:
     criterion: AC-10
     executor: test
     cmd: config:executors.test.plugins
-    expected: "P87 pass: câu hỏi lane trỏ design-pass TRƯỚC Gate 1 + descope có tên trong sổ quyết định + Gate 1 trình bản bấm được + toàn file SKILL không còn chuỗi 'câu hỏi lane' mồ côi (AC-10 mở rộng round 2); đối chứng âm: bản sao bị gỡ câu lane → case KHÔNG pass"
+    expected: "P87 pass: câu hỏi lane trỏ design-pass TRƯỚC Gate 1 + descope có tên trong sổ quyết định + Gate 1 trình bản bấm được + toàn file SKILL không còn chuỗi 'câu hỏi lane' mồ côi (AC-10 mở rộng round 2); đối chứng âm: bản sao bị gỡ câu lane → case KHÔNG pass; design-subtrack SKILL cũng sạch chuỗi 'câu hỏi lane'; lát cắt section GATE 1 có chốt biên '## S2' (AC-10 mở rộng round 3)"
     paths:
       - feature-loop/skills/feature-loop/SKILL.md
+      - design-loop/skills/design-subtrack/SKILL.md
       - tests/plugins/run-tests.sh
 
   - id: E12

@@ -1910,6 +1910,12 @@ for rel, pins in CASES.items():
         assert pin in ctx, f"{rel}: [{pin}] khong nam cung doan voi key ui_standards_skill"
     # doi chung am: go key trong ban sao -> pin phai truot
     assert key not in text.replace(key, "ui_standards_key_bi_go"), f"{rel}: dot bien khong hieu luc"
+# Vi du trong van engine phai la placeholder TRUNG TINH — khong mang ten san
+# pham cua repo tieu thu (bat bien "kit khong chua", finding S4-r2 #3).
+for rel in ["feature-loop/skills/feature-loop/SKILL.md", "GUIDE.md"]:
+    t = (root / rel).read_text(encoding="utf-8")
+    assert "create-onehub-plugin" not in t, f"{rel}: vi du mang ten repo tieu thu — dung placeholder create-<org>-plugin"
+assert "create-<org>-plugin" in (root / "GUIDE.md").read_text(encoding="utf-8"), "GUIDE mat vi du placeholder cho ui_standards_skill"
 PY
 
 # ── P87: S1-D — lane cua feature cham UI la design-pass TRUOC Gate 1 ─────────
@@ -1931,10 +1937,14 @@ ctx = text[idx:idx + 1200]
 assert "design-pass" in ctx and "TRƯỚC Gate 1" in ctx, "lane S1-D phai tro design-pass TRUOC Gate 1"
 assert '"bỏ design-pass — ' in ctx, "descope lane phai co chuoi may-doc 'bỏ design-pass — '"
 assert "BẢN BẤM ĐƯỢC" in ctx, "lane S1-D thieu menh de ban bam duoc"
-# Gate 1: trinh ban bam duoc trong muc GATE 1 (sau heading).
+# Gate 1: trinh ban bam duoc trong muc GATE 1 (sau heading). Chot BIEN cua lat
+# cat phai ton tai — find() tra -1 se lang le bien pin theo-section thanh pin
+# ca-file (lop bug section-scan da sua o 1.20.1).
 g1 = text.find("## GATE 1")
 assert g1 >= 0, "thieu muc GATE 1"
-g1ctx = text[g1:text.find("## S2", g1)]
+s2 = text.find("## S2", g1)
+assert s2 > g1, "khong tim thay heading '## S2' sau GATE 1 — lat cat section chet, pin se phinh ca file"
+g1ctx = text[g1:s2]
 assert "BẢN BẤM ĐƯỢC" in g1ctx, "muc GATE 1 thieu cau trinh ban bam duoc cho UI feature"
 assert "ui_standards_skill" in g1ctx, "muc GATE 1 thieu dong ghi chu vang ui_standards_skill"
 # Cau hoi lane CU (mockup vs static-only) phai da duoc thay the — va KHONG con
@@ -1948,6 +1958,10 @@ assert text.count("| **CT1") == 1 and text.count("| **CT2") == 1, "bang tra CT1/
 # bang tra CT1, doan chinh, S1#6) -> pin phai truot.
 mutated = text.replace("Nghi thức S1-D", "Nghi thuc da go")
 assert "Nghi thức S1-D" not in mutated, "dot bien khong hieu luc"
+# Quet LOP ra ngoai mot file: design-subtrack (nguon design-loop, cung tieng
+# Viet) khong duoc con tro ve cau hoi lane da xoa (finding S4-r2 #1).
+ds = (root / "design-loop/skills/design-subtrack/SKILL.md").read_text(encoding="utf-8")
+assert "câu hỏi lane" not in ds, "design-subtrack van tro ve 'câu hỏi lane' da xoa — chi dan lech giua 2 plugin"
 PY
 
 # ── P88: release co chu dich — version floor + description khop hanh vi ─────
