@@ -1,7 +1,7 @@
 ---
 schema_version: 2
 feature_slug: gate-card-ac-visibility
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
@@ -308,7 +308,7 @@ viết lại và tôi **tự dựng đột biến độc lập, theo cả hai ch
     chấm. Câu hỏi cần người trả lời: đọc card Cổng 1 render từ contract khuôn
     `- **AC-n (nhãn):** …`, phần nhãn trong ngoặc (giờ nằm trong `gwt`) đọc ra
     như thông tin bổ trợ hay thành rác chen ngang câu?
-  human_override:
+  human_override: Manh Phan 2026-07-30
 
 - eval: E12
   criterion: AC-10
@@ -320,7 +320,7 @@ viết lại và tôi **tự dựng đột biến độc lập, theo cả hai ch
     ĐƯỢC và việc tiếp theo là sửa contract (không phải bấm duyệt) không?
     (Chuỗi thật trên card, lấy từ `lib/ac-line.js:blindSpotText`, có câu
     "Card này KHÔNG phản ánh hợp đồng — sửa contract rồi render lại, đừng duyệt.")
-  human_override:
+  human_override: Manh Phan 2026-07-30
 
 ## Analyst
 
