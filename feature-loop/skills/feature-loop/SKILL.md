@@ -94,7 +94,20 @@ Workspace cũ (contract sinh trước 1.13.0, không có Coverage) → cờ vàn
 
 🎨 **(CT2)** KHÔNG render card / vào Gate 1 khi thiếu mockup provenance + state-matrix. User chủ động bỏ ceremony ở câu hỏi lane → entry `descope` trong decisions.jsonl là dấu vết hiện (thay marker `design_subtrack: skipped-by-user` cũ — workspace cũ còn marker thì vẫn đọc được, không lỗi).
 
-Khi duyệt: set contract `status: approved`, `approved_by`, `approved_at` (ISO); append seal entry vào decisions.jsonl (xem "Sổ quyết định"); hỏi user số phút đã tốn ở gate → ghi `time_human_minutes.gate1`. Commit design doc + contract + evals. **LUÔN IN gợi ý `/goal` — bắt buộc, không chờ user hỏi** (đây là cơ chế duy nhất để đoạn S2→S4 chạy không-người-trông; bỏ qua nó là nguyên nhân số 1 của "loop không tự loop" — findings 2026-07-26): IN gợi ý lệnh theo template mục /goal trong GUIDE, điền sẵn slug — CHỈ in gợi ý (slash command là của user, không tự đặt); TUYỆT ĐỐI không gợi ý goal tới `signed-off` (hook chặn chữ ký máy → spin vô hạn). Kèm theo: nếu phiên đang chạy model đắt hơn mức đoạn máy cần (vd tier thiết kế), in thêm gợi ý `/model opus` + `/effort high` TRƯỚC dòng /goal — alias `opus` tự trỏ bản mới nhất của tier (KHÔNG ghim model ID có số version kẻo lỗi thời), effort high giữ chất lượng đoạn máy; S3 tuần tự + điều phối S4 chạy model phiên nên đổi ca ở Gate 1 là điểm rẻ nhất (GUIDE mục "Model theo giai đoạn"); KHÔNG tự đổi model (là lệnh của user).
+Khi duyệt: set contract `status: approved`, `approved_by`, `approved_at` (ISO); append seal entry vào decisions.jsonl (xem "Sổ quyết định"); hỏi user số phút đã tốn ở gate → ghi `time_human_minutes.gate1`. Commit design doc + contract + evals. **LUÔN IN gợi ý `/goal` — bắt buộc, không chờ user hỏi** (đây là cơ chế duy nhất để đoạn S2→S4 chạy không-người-trông; bỏ qua nó là nguyên nhân số 1 của "loop không tự loop" — findings 2026-07-26): IN NGUYÊN VĂN khối GOAL-TEMPLATE ngay dưới đây, thay `<slug>` bằng slug thật — CHỈ in gợi ý (slash command là của user, không tự đặt); TUYỆT ĐỐI không gợi ý goal tới `signed-off` (hook chặn chữ ký máy → spin vô hạn). Kèm theo: nếu phiên đang chạy model đắt hơn mức đoạn máy cần (vd tier thiết kế), in thêm gợi ý `/model opus` + `/effort high` TRƯỚC dòng /goal — alias `opus` tự trỏ bản mới nhất của tier (KHÔNG ghim model ID có số version kẻo lỗi thời), effort high giữ chất lượng đoạn máy; S3 tuần tự + điều phối S4 chạy model phiên nên đổi ca ở Gate 1 là điểm rẻ nhất (GUIDE mục "Model theo giai đoạn"); KHÔNG tự đổi model (là lệnh của user).
+
+<!-- <<<GOAL-TEMPLATE -->
+```
+/goal Feature <slug>: coi là HOÀN THÀNH chỉ khi transcript tường thuật rõ
+S4 verdict PASS hoặc PENDING-JUDGMENT và xác nhận đã set contract
+_acceptance/<slug>/contract.md sang status: verified. Loop đã escalate cho
+user (REJECT quá 3 round / BLOCKED / chờ input người) cũng coi là HOÀN THÀNH
+— để dừng. Thông tin mơ hồ hoặc không chắc = CHƯA hoàn thành. Hoặc dừng
+sau 15 turns.
+```
+<!-- GOAL-TEMPLATE>>> -->
+
+(Khối trên là bản runtime — bản người-đọc kèm giải thích nằm ở GUIDE mục /goal, hai bản được test giữ khớp từng ký tự. Dán thành 1 dòng khi dùng; xuống dòng chỉ để dễ đọc.)
 
 ## S2 — PLAN
 

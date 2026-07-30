@@ -301,8 +301,9 @@ S3 tuần tự + điều phối S4 chạy model phiên; CLI chưa có `/effort` 
 định auto) → dán `/goal` theo template dưới → rời máy. Các vai agent-hóa được đã
 ghim qua `feature_loop.models` (xem mục "Model theo giai đoạn" ngay dưới).
 
-**Template (điền slug của bạn, dán thành 1 dòng — xuống dòng dưới đây chỉ để dễ đọc):**
+**Template (điền slug của bạn, dán thành 1 dòng — xuống dòng dưới đây chỉ để dễ đọc; bản runtime nằm ngay trong SKILL feature-loop mục Gate 1, hai bản được test P85 giữ khớp):**
 
+<!-- <<<GOAL-TEMPLATE -->
 ```
 /goal Feature <slug>: coi là HOÀN THÀNH chỉ khi transcript tường thuật rõ
 S4 verdict PASS hoặc PENDING-JUDGMENT và xác nhận đã set contract
@@ -311,6 +312,7 @@ user (REJECT quá 3 round / BLOCKED / chờ input người) cũng coi là HOÀN 
 — để dừng. Thông tin mơ hồ hoặc không chắc = CHƯA hoàn thành. Hoặc dừng
 sau 15 turns.
 ```
+<!-- GOAL-TEMPLATE>>> -->
 
 **Vì sao template dài vậy:** checker của `/goal` đọc *transcript*, không đọc file —
 điều kiện phải neo vào tường thuật của loop (verdict + set status), không neo vào

@@ -1839,6 +1839,46 @@ for rel, needle in PINS.items():
     assert needle not in text.replace(needle, "", 1), f"{rel}: dot bien khong hieu luc"
 PY
 
+# ── P85: GOAL-TEMPLATE — SKILL la nguon runtime, GUIDE la ban nguoi doc ──────
+# B4 (retro V1): package feature-loop KHONG ship GUIDE nen "in theo GUIDE" chet
+# o runtime — template nay nhung thang vao SKILL. P85 giu 2 ban khop tung ky tu
+# (duong truoc, dot bien sau) va noi LENH IN voi khoi (gap-probe F1).
+run "P85 GOAL-TEMPLATE nhung trong SKILL, khop GUIDE, lenh in noi voi khoi" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+RX = re.compile(r"<!-- <<<GOAL-TEMPLATE -->\n```\n([\s\S]*?)```\n<!-- GOAL-TEMPLATE>>> -->")
+skill_p = "feature-loop/skills/feature-loop/SKILL.md"
+guide_p = "GUIDE.md"
+def block(rel, text):
+    m = RX.search(text)
+    assert m, f"{rel}: KHONG rut duoc khoi GOAL-TEMPLATE qua marker"
+    return m.group(1).strip()
+skill_t = (root / skill_p).read_text(encoding="utf-8")
+guide_t = (root / guide_p).read_text(encoding="utf-8")
+sb, gb = block(skill_p, skill_t), block(guide_p, guide_t)
+# Doi chung DUONG: hai ban nguyen ven phai khop truoc khi tin phep so.
+assert sb == gb, f"GOAL-TEMPLATE lech giua {skill_p} va {guide_p} — dong bo lai 2 khoi marker"
+# Tinh chat noi dung template.
+assert sb.startswith("/goal "), "template phai bat dau bang /goal "
+assert "verified" in sb, "template phai neo dieu kien verified"
+assert "REJECT quá 3 round" in sb, "template phai co loi thoat escalate (REJECT qua 3 round)"
+assert "signed-off" not in sb, "template KHONG duoc nham dich signed-off"
+# Lenh in phai NOI voi khoi — khong chi khoi ton tai (gap-probe F1).
+assert "IN NGUYÊN VĂN khối GOAL-TEMPLATE" in skill_t, "GATE 1 thieu lenh in-mac-dinh tham chieu dich danh khoi marker"
+assert "template mục /goal trong GUIDE, điền sẵn slug" not in skill_t, "SKILL van tro template sang GUIDE — goc benh B4 chua cat"
+# Doi chung AM: dot bien khoi trong ban sao (bo nho) -> phep so phai DO.
+mutated = skill_t.replace("sau 15 turns", "sau 16 turns", 1)
+assert mutated != skill_t, "dot bien khong tac dung — chuoi neo da doi"
+assert block(skill_p, mutated) != gb, f"dot bien khoi trong {skill_p} ma van khop {guide_p} — phep so GOAL-TEMPLATE da chet"
+# Doi chung khong-pha: dong /goal native cua codex SKILL con nguyen (AC-9) —
+# chinh feature nay sua cung file codex, khong duoc cat mat no.
+codex_t = (root / "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md").read_text(encoding="utf-8")
+assert "suggest the native Codex `/goal` command" in codex_t, "codex SKILL mat dong goi y /goal native"
+assert "Never create or suggest a goal that reaches" in codex_t, "codex SKILL mat rao chan signed-off"
+PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
