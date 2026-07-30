@@ -1692,6 +1692,22 @@ check RP05 1 $?
 
 echo "U01 wf-usage.mjs unit suite (feature-loop/scripts — dedupe/label/totals/--latest)"
 UOUT="$(node "$HERE/wf-usage.test.mjs" 2>&1)"; UST=$?
+
+# Mọi *.test.mjs trong thư mục này PHẢI chạy — file test không được wire là
+# test không sống (S4-r1 phát hiện md-section.test.mjs chưa từng chạy trong CI).
+# Dùng `check` (bộ đếm THẬT của runner này) — `pass`/`fail` chỉ tồn tại ở
+# tests/plugins/run-tests.sh; gọi nhầm chúng ở đây làm test đỏ vẫn cho suite
+# exit 0 (S4-r2 bắt: vá "test không chạy" bằng lỗ "verdict bị vứt").
+_MJS_SEEN=0
+for _f in "$HERE"/*.test.mjs; do
+  [ -e "$_f" ] || continue
+  case "$_f" in */wf-usage.test.mjs) continue;; esac
+  _MJS_SEEN=$((_MJS_SEEN+1))
+  echo "=== $(basename "$_f") ==="
+  node "$_f"; check "$(basename "$_f")" 0 $?
+done
+# 0 hit chính là chế độ hỏng đã xảy ra một lần — phải ĐỎ, không im lặng.
+check "co it nhat mot *.test.mjs duoc chay" 1 "$([ "$_MJS_SEEN" -ge 1 ] && echo 1 || echo 0)"
 [ "$UST" -eq 0 ] || printf '%s\n' "$UOUT"
 check U01 0 "$UST"
 

@@ -1,0 +1,21 @@
+{
+  "feature_plain": "Vá 5 lỗ 'hỏng mà im lặng' trong công cụ gom bài học xuyên feature (claim-scan) — nặng nhất là bảng nằm sau phần Findings bị đọc nhầm thành bài học ma có mã trích dẫn giả, đầu độc chính kênh bài học vừa ship. Scope do anh chốt ở Cổng 2 vòng trước (3 mục) + 2 mục cùng lớp do quét-theo-lớp tìm thấy.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ chỉ đọc bảng trong đúng phần Findings — nội dung sau đó không thể thành bài học ma nữa"},
+    {"id": "AC-2", "p": "Sẽ báo to khi một bài học có mã nhận diện sai khuôn bị loại — không biến mất câm lặng nữa"},
+    {"id": "AC-3", "p": "Sẽ cảnh báo khi hai feature khác nhau trùng mã bài học (data lỗi); trùng trong cùng một feature thì im lặng đúng chủ đích — không bắn cảnh báo nhiễu"},
+    {"id": "AC-4", "p": "Sẽ phân biệt 'file hỏng khuôn không đọc được' (báo to) với 'file hợp lệ nhưng không có gì để lấy' (im lặng đúng)"},
+    {"id": "AC-5", "p": "Sẽ không nhả bài học rỗng ruột khi sổ quyết định thiếu trường nội dung — đếm vào cảnh báo sẵn có"},
+    {"id": "AC-6", "p": "Sẽ giữ nguyên mọi hành vi đã ship: 35 case kiểm cũ phải xanh nguyên vẹn"},
+    {"id": "AC-7", "p": "Sẽ được 3 giám khảo độc lập soi code xác nhận lớp câm-lặng đã đóng TRỌN — không còn đường rơi dữ liệu nào ngoài các bỏ-qua có tên"},
+    {"id": "AC-8", "p": "Sẽ đóng gói 1.18.1 + trả luôn món nợ mô tả 'v1.18 adds…' của vòng trước — lần này có phép kiểm riêng để nó không trượt nữa"}
+  ],
+  "wont_do": [
+    {"id": "OOS-1", "p": "Sẽ KHÔNG mở rộng nguồn bài học (review-findings/run-log) — vẫn chờ ngưỡng GO của cửa sổ đo"},
+    {"id": "OOS-2", "p": "Sẽ KHÔNG đổi cấu trúc bài học, thứ tự xếp, hay mức trần 10 — đây là vá lỗ, không phải làm lại"}
+  ],
+  "scope_plain": "Chờ GO: nguồn V2, bản Codex. Không thuộc vá này: đổi schema/sort/cap.",
+  "decisions_plain": [
+    {"id": "d-gop-lop", "p": "Gộp 2 lỗ cùng lớp mới phát hiện vào 3 mục đã chốt — theo luật sửa-theo-lớp của repo; đổi lại scope rộng hơn nguyên văn Cổng 2, anh soi tại đây"}
+  ]
+}

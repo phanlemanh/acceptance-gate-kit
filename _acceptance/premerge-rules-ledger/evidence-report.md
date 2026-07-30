@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 246e7e1f7f2dfc640677ab5d33468d93ed4467f6
+verified_commit: 9d01b830e0db240097122b5849fdb07732399fac
 # bypass_ack:
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -541,7 +541,36 @@ plugins đổi thật nên bằng chứng suite phải chạy lại.
   `human_override` sẵn có giữ nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là
   đã phán về claim-scan hay feature-loop 1.18.0.
 
-### Re-pin lần 5 — 2026-07-30, do vá AC-regex của gate-card
+### Re-pin lần 5 — 2026-07-29, do feature claim-scan-parser-hardening
+
+`verified_commit` lên `69e797a`. Nguyên nhân stale: feature
+claim-scan-parser-hardening sửa `feature-loop/scripts/claim-scan.mjs` (đóng
+lớp câm-lặng parser), thêm case test trong `tests/workflows/`, bump manifest
+1.18.1 + description. Suite workflows/plugins đổi thật nên bằng chứng suite
+chạy lại là đúng việc.
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY — machine lane ở `69e797a` do 6 agent
+  tươi chạy (mỗi slug một agent), sha nhất quán cả 6, tất cả exit 0
+  (588 scripts · 51 hooks · plugins pass · workflows pass · mirror in sync).
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
+  `human_override` giữ nguyên; chữ ký cũ KHÔNG được hiểu là đã phán về
+  claim-scan 1.18.1.
+
+### Re-pin — 2026-07-29, do feature findings-section-boundary
+
+`verified_commit` lên `9d01b83`. Nguyên nhân stale: feature
+findings-section-boundary thêm `lib/md-section.js` (luật ranh giới
+per-section), gỡ bản sao `section()` khỏi gate-card + evidence-page, wire
+runner `tests/scripts` chạy mọi `*.test.mjs`, bump acceptance-gate 1.25.0.
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY — machine lane ở `9d01b83` do 7 agent
+  tươi chạy (mỗi slug một agent), sha nhất quán cả 7, tất cả exit 0
+  (590 scripts · 51 hooks · plugins pass · workflows pass · mirror in sync).
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
+  `human_override` giữ nguyên; chữ ký cũ KHÔNG được hiểu là đã phán về
+  luật ranh giới mới.
+
+### Re-pin lần 6 — 2026-07-30, do vá AC-regex của gate-card
 
 `verified_commit` lên `3a80983`. Nguyên nhân stale: `scripts/gate-card.js` nới
 `AC_LINE` + tách `parseAC()` — dòng AC dạng `- **AC-N (nhãn):**`,
@@ -567,7 +596,7 @@ theo ĐƯỜNG DẪN. Thẻ Cổng 1 của chính nó: 11 AC trước và sau �
   `human_override` sẵn có giữ nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là
   đã phán về AC-regex mới của gate-card.
 
-### Re-pin lần 6 — 2026-07-30, do gói cảnh báo mù criterion (cùng chuỗi với lần 5)
+### Re-pin lần 7 — 2026-07-30, do gói cảnh báo mù criterion (cùng chuỗi với lần 5)
 
 `verified_commit` lên `afe223f`. Cùng nguyên nhân và cùng posture với lần 5
 (vá AC-regex): `scripts/gate-card.js` đổi tiếp, thêm `lib/ac-line.js`. Vẫn
@@ -581,7 +610,7 @@ theo ĐƯỜNG DẪN. Thẻ Cổng 1 của chính nó: 11 AC trước và sau �
 - **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký sẵn có giữ
   nguyên hiệu lực; chữ ký cũ KHÔNG được hiểu là đã phán về cảnh báo mù mới.
 
-### Re-pin lần 7 — 2026-07-30, do vòng verify 2 của gate-card-ac-visibility
+### Re-pin lần 8 — 2026-07-30, do vòng verify 2 của gate-card-ac-visibility
 
 `verified_commit` lên `246e7e1`. Cùng chuỗi, cùng posture với lần 6: vòng 2 viết
 lại case P61 (thước cũ không đo AC-4) và mở lane corpus repo tiêu thụ.

@@ -30,6 +30,9 @@ function ledgerClaims(file, slug, warn) {
     if (!line.trim()) continue;
     let e; try { e = JSON.parse(line); } catch { bad++; continue; }
     if (e.type !== 'fix' && e.type !== 'descope') continue;
+    // Entry rỗng ruột (thiếu decision/impact) = malformed — emit claim text
+    // rỗng là câm-lặng kiểu khác (parser-hardening PH5).
+    if (!e.decision || !e.impact) { bad++; continue; }
     out.push({ id: e.id, source: 'ledger', slug, kind: e.type, stage: e.stage ?? null,
       sev: null, at: e.at ?? null, claim: cut(e.decision), lesson: cut(e.impact),
       pointer: `_acceptance/${slug}/decisions.jsonl`,
@@ -45,9 +48,24 @@ function probeClaims(file, slug, warn) {
   const meta = {}; if (fm) for (const l of fm[1].split('\n')) {
     const m = /^([a-z0-9_]+):\s*(.*)$/.exec(l.trim()); if (m) meta[m[1]] = m[2];
   }
+  // Frontmatter không đọc được (mất ---, thiếu key verdict) phải PHÂN BIỆT
+  // với verdict hợp lệ ≠ findings — trước đây cả hai cùng im lặng (PH4).
+  if (!fm || !('verdict' in meta)) {
+    warn(`claim-scan: skipped ${file} (unreadable frontmatter)`);
+    return [];
+  }
+  // Verdict ngoài enum của SKILL (clean|findings|probe-failed) là data lỗi,
+  // không phải bỏ-qua-chủ-đích — typo "findigns" từng nuốt cả file câm (S4-r1).
+  if (!['clean', 'findings', 'probe-failed'].includes(meta.verdict)) {
+    warn(`claim-scan: skipped ${file} (unknown verdict)`);
+    return [];
+  }
   if (meta.verdict !== 'findings') return [];
   if (!meta.at) { warn(`claim-scan: skipped ${file} (missing at)`); return []; }
-  const sect = /## Findings([\s\S]*)/.exec(text);
+  // Capture DỪNG ở heading kế tiếp BẤT KỂ cấp (#..######) — chỉ dừng ở h2
+  // vẫn để "### Notes"/"# Appendix" lọt vào capture và sinh claim ma
+  // (finding HIGH S4-r1 của parser-hardening; gốc: HIGH round 3 V1).
+  const sect = /## Findings([\s\S]*?)(?=\n#{1,6} |$)/.exec(text);
   if (!sect) { warn(`claim-scan: skipped ${file} (malformed table)`); return []; }
   const rows = sect[1].split('\n').filter(l => l.trim().startsWith('|'));
   const out = []; let badRows = 0;
@@ -64,6 +82,9 @@ function probeClaims(file, slug, warn) {
   // Thông điệp per-row: "(malformed table)" chỉ dành cho nhánh bỏ CẢ FILE ở
   // trên — hàng lành vẫn được giữ thì phải nói đúng là bỏ N hàng (S4-r1).
   if (badRows) warn(`claim-scan: skipped ${badRows} malformed rows in ${file}`);
+  // verdict: findings mà section không có hàng dữ liệu nào = nhánh câm thứ ba
+  // không có tên — file hứa findings phải có ≥1 hàng (S4-r1 parser-hardening).
+  if (!out.length && !badRows) warn(`claim-scan: skipped ${file} (malformed table)`);
   return out;
 }
 
@@ -79,8 +100,28 @@ export function scan(root, slug, warn = (m) => console.error(m)) {
     const gp = path.join(d, 'gap-probe.md');
     if (existsSync(gp)) claims.push(...probeClaims(gp, name, warn));
   }
-  const seen = new Set();
-  claims = claims.filter(c => ID_RE.test(c.id) && !seen.has(c.id) && seen.add(c.id));
+  // Lớp câm-lặng đã đóng (parser-hardening): mọi đường drop đều có tiếng,
+  // trừ hai bỏ-qua-chủ-đích có tên trong design — (a) verdict hợp lệ ≠
+  // findings, (b) dedupe id trùng trong CÙNG slug.
+  const invalidBySlug = new Map();
+  const firstSlugOf = new Map();
+  const kept = [];
+  for (const c of claims) {
+    if (!ID_RE.test(String(c.id ?? ''))) {
+      invalidBySlug.set(c.slug, (invalidBySlug.get(c.slug) ?? 0) + 1);
+      continue;
+    }
+    if (firstSlugOf.has(c.id)) {
+      if (firstSlugOf.get(c.id) !== c.slug)
+        warn(`claim-scan: duplicate id ${c.id} across features (kept first)`);
+      continue; // cùng slug: dedupe im lặng chủ đích
+    }
+    firstSlugOf.set(c.id, c.slug);
+    kept.push(c);
+  }
+  for (const [s, n] of invalidBySlug)
+    warn(`claim-scan: dropped ${n} claims with invalid id in ${s}`);
+  claims = kept;
   const rank = (s) => ({ P0: 0, P1: 1, P2: 2 })[s] ?? 3;
   // at thiếu/không phải chuỗi → xếp CUỐI nhóm cùng sev, không phải đầu:
   // String(null) = "null" thắng mọi ISO date theo lexicographic (finding S4-r2).

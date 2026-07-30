@@ -8,11 +8,8 @@
  */
 // Blind-spot detector. AC_LINE below can only ever recognise the variants we have
 // ALREADY seen; the next house style drifts in silently and the card renders short.
-// So count, across the WHOLE FILE, lines that LOOK like an AC bullet, and compare
-// against what actually parsed. Whole-file is deliberate: when the heading itself is
-// off (`## Acceptance criteria`), section() returns empty and there is no section left
-// to scan — that is exactly the case that motivated this, so scoping the scan to the
-// section would build an alarm that never fires on the first real failure.
+// So count lines that LOOK like an AC bullet and compare against what actually
+// parsed (scope rule spelled out below the two regexes).
 //   n === 0 && m > 0  → BLANK  (card shows nothing; obvious once seen)
 //   0 < n < m         → SHORT  (card looks normal while hiding criteria — the case
 //                               that survived a real signature: 2 of 8 on radar-d3)
@@ -30,17 +27,13 @@ const AC_XREF = /^\s*(?:[-*]\s+)?\*{0,2}\s*AC-\d+\s*[,;/]/;
 // declaration-shaped but is not a declaration (measured: s4-scope-triage line 88 raised
 // a false 15/16). Whole-file only when section() came back empty keeps the case this
 // detector exists for: a wrong heading leaves no section to scope to.
-function criteriaSectionLines(t) {
-  const out = []; let inS = false, lvl = 0;
-  t.split('\n').forEach((l, i) => {
-    const m = l.match(/^(#{2,6})\s/);
-    if (m) { if (/^#{2,6}\s+Criteria\b/i.test(l)) { inS = true; lvl = m[1].length; return; } if (inS && m[1].length <= lvl) { inS = false; return; } }
-    if (inS) out.push({ no: i + 1, l });
-  });
-  return out;
-}
+// Luật ranh giới KHÔNG sống ở đây — nó ở bảng marker của lib/md-section.js. Bản
+// duyệt riêng trước đây của file này là đúng thứ `findings-section-boundary` vừa
+// gỡ khỏi gate-card.js ("xoá bản sao section()"); giữ nó lại là dựng lại y hệt
+// điều kiện sinh lỗi mà cả hai feature đang đi đóng.
+const { sectionLines } = require('./md-section.js');
 function acBlindSpot(contractText, parsedIds) {
-  const inSec = criteriaSectionLines(contractText);
+  const inSec = sectionLines(contractText, 'Criteria');
   const scan = inSec.length ? inSec : contractText.split('\n').map((l, i) => ({ no: i + 1, l }));
   const suspect = [];
   for (const { no, l } of scan) { if (AC_SUSPECT.test(l) && !AC_XREF.test(l)) suspect.push(no); }
@@ -102,4 +95,4 @@ function parseAC(line) {
   return { id, gwt, judgment };
 }
 
-module.exports = { AC_LINE, AC_SUSPECT, AC_XREF, parseAC, acBlindSpot, blindSpotText, criteriaSectionLines };
+module.exports = { AC_LINE, AC_SUSPECT, AC_XREF, parseAC, acBlindSpot, blindSpotText };

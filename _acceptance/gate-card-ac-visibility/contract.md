@@ -73,6 +73,20 @@ chữa triệu chứng. Duyệt AC-5 = mở rộng PR#18.
 - **Đổi khuôn render của card** (bố cục, nhãn, thứ tự khối). AC-8 khoá chiều này lại.
 - **Hồi tố chữ ký đã đặt trên card cụt/rỗng.** Re-pin không làm được việc đó; muốn chữ ký dựa trên criterion thật thì phải xem lại card — quyết định của người, ngoài phạm vi máy.
 
+## Đổi id case khi tích hợp với main (2026-07-30)
+
+Merge `origin/main` vào nhánh này thì `P58` đụng case đã có sẵn trên main
+(`smoke ban MIRROR: gate-card cua plugin chay that`). Case của slug này dời
+thành **P65–P71**:
+
+| trước | P58 | P59 | P60 | P61 | P62 | P63 | P64 |
+|---|---|---|---|---|---|---|---|
+| **sau** | **P65** | **P66** | **P67** | **P68** | **P69** | **P71** | **P70** |
+
+`evidence-report.md` của vòng verify 1 và 2 **giữ nguyên id cũ** — nó ghi đúng
+cái đã chạy tại thời điểm đó, sửa lại là viết lại lịch sử. Dùng bảng trên để
+tra khi đọc hai vòng đó.
+
 ## Known limits (người duyệt chốt ở Cổng 2 — 2026-07-30)
 
 Bốn **nợ THƯỚC**, không phải lỗi tính chất. Verify vòng 2 (context sạch) đo tay
@@ -86,7 +100,7 @@ một lần, nên nó được ghi to hơn ba mục kia.
    bất biến bao-tập ĐÚNG trên cả hai repo — chỉ là CI không chứng minh được. Có
    dòng `PHAM-VI:` in ra khi thiếu env, nên phạm vi hẹp được KHAI chứ không im
    lặng. **Khai không phải là phủ** — đừng đọc dấu xanh CI như đã phủ 170 contract.
-2. **Vế "2 dòng repo tiêu thụ" của AC-3 không được đo, kể cả khi bật env.** P60 bỏ
+2. **Vế "2 dòng repo tiêu thụ" của AC-3 không được đo, kể cả khi bật env.** P67 bỏ
    qua mọi dòng khuôn CŨ không đọc được (`if(!o) continue`), mà hai dòng đó
    (`- **AC-2 (LÕI — …, judgment):**` ở `creator-choicecard` và
    `ds-debt-artifact-table`) đúng là loại đó. Grader đo trực tiếp: cả hai
@@ -94,9 +108,9 @@ một lần, nên nó được ghi to hơn ba mục kia.
    `TAGGED=162 CODESPAN_ONLY=4`, khớp con số contract khai. **`FLIP=0` sẽ vẫn xanh
    y hệt nếu hai dòng đó biến mất** — đó là dấu hiệu thước không chạm.
 3. **Vế "thông điệp nêu đích danh file" của AC-6 chưa có case đỏ.** Đối chứng của
-   P63 chỉ chứng minh phép grep bắt được bản sao đổi heading, không chứng minh
+   P70 chỉ chứng minh phép grep bắt được bản sao đổi heading, không chứng minh
    thông điệp có nêu tên file.
-4. **Đối chứng script của P59 canh nhánh GAINED, không canh nhánh LOST** như
+4. **Đối chứng script của P66 canh nhánh GAINED, không canh nhánh LOST** như
    `expected` mô tả. Grader kiểm tay: nhánh LOST CÓ nổ và CÓ nêu tên dòng — nên
    đây là nợ script-hoá, không phải phép đo rỗng.
 
@@ -120,7 +134,7 @@ chứng minh bản duyệt viết chưa đúng, không phải nới scope:
    giữ nguyên ca heading-lệch mà AC-5 sinh ra để bắt.
 2. AC-3 ban đầu ghi "0 lật" trơ, tự mâu thuẫn với chính vế code-span của nó
    (luật đó theo định nghĩa lật đúng những dòng trích dẫn dấu). Sửa thành
-   "0 lật NGOÀI luật code-span"; case P60 ghim đúng nghĩa đó.
+   "0 lật NGOÀI luật code-span"; case P67 ghim đúng nghĩa đó.
 
 **Ba hành vi lộ ra khi implement, đều đã nằm trong corpus của AC-1** (không mở
 criterion mới): dòng tham-chiếu-chéo (`**AC-5, AC-9, AC-10 …**`) không được ra

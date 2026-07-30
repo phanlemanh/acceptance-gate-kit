@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SCAN = path.join(HERE, '..', '..', 'feature-loop', 'scripts', 'claim-scan.mjs');
@@ -250,6 +251,223 @@ const row = (sev, tag) => ({ sev, artifact: 'evals', gap: `gap-${tag}`, fail: `f
     assert.ok(ids.some(i => i.startsWith('d-')), 'thiếu id ledger');
     assert.ok(ids.some(i => /#F\d+$/.test(i)), 'thiếu id gap-probe');
     assert.ok(dt < 5000, `${dt}ms`); });
+}
+
+// ==== PH — parser hardening (claim-scan-parser-hardening) ====
+
+// ---- PH1: bảng SAU section Findings không được thành claim ma ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'ph1-'));
+  const tail = `\n## Notes\n\n| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |\n|---|---|---|---|---|---|\n| P0 | evals | ghost-gap | ghost-fail | ghost-m | ghost-disp |\n`;
+  const base = gapProbe('2026-07-25T00:00:00Z', 'findings', [row('P1', 'real')]);
+  mkWorkspace(root, 'with-tail', { probe: base + tail });
+  mkWorkspace(root, 'no-tail', { probe: base });
+  const a = run(['--root', root, '--slug', 'zz', '--json']);
+  const withTail = JSON.parse(a.out).claims.filter(c => c.slug === 'with-tail');
+  const noTail = JSON.parse(a.out).claims.filter(c => c.slug === 'no-tail');
+  check('PH1 section sau Findings sinh ZERO claim — dãy id giống hệt đối chứng dương không-đuôi', () => {
+    assert.equal(a.code, 0);
+    assert.deepEqual(withTail.map(c => c.id.split('#')[1]), noTail.map(c => c.id.split('#')[1]));
+    assert.equal(withTail.length, 1); assert.equal(withTail[0].id, 'with-tail#F1');
+    assert.ok(!a.out.includes('ghost-gap'), 'claim ma từ bảng đuôi lọt vào output'); });
+  rmSync(root, { recursive: true, force: true });
+}
+
+// ---- PH2: id vắng/sai khuôn nổ to, không biến mất câm ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'ph2-'));
+  mkWorkspace(root, 'badid', { ledger: [
+    JSON.stringify({ type: 'fix', stage: 'S1', at: '2026-07-20T10:00:00Z', decision: 'no-id-entry', impact: 'x' }),
+    ledgerLine('BAD ID', 'fix'),
+    ledgerLine('d-20260720T100000Z-90', 'fix')] });
+  const r = run(['--root', root, '--slug', 'zz', '--json']);
+  const ids = JSON.parse(r.out).claims.map(c => c.id);
+  check('PH2 entry chuẩn còn (đối chứng dương), id hỏng vắng, warn đếm 2, exit 0', () => {
+    assert.equal(r.code, 0);
+    assert.deepEqual(ids, ['d-20260720T100000Z-90']);
+    assert.match(r.err, /claim-scan: dropped 2 claims with invalid id in badid/); });
+  rmSync(root, { recursive: true, force: true });
+}
+
+// ---- PH3: id trùng — khác slug CẢNH, cùng slug IM, corpus sạch IM ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'ph3-'));
+  const DUP = 'd-20260720T110000Z-77';
+  mkWorkspace(root, 'slug-a', { ledger: [ledgerLine(DUP, 'fix')] });
+  mkWorkspace(root, 'slug-b', { ledger: [ledgerLine(DUP, 'descope')] });
+  const a = run(['--root', root, '--slug', 'zz', '--json']);
+  check('PH3a khác slug: giữ claim gặp trước + warn duplicate + exit 0', () => {
+    assert.equal(a.code, 0);
+    const dups = JSON.parse(a.out).claims.filter(c => c.id === DUP);
+    assert.equal(dups.length, 1); assert.equal(dups[0].slug, 'slug-a');
+    assert.match(a.err, new RegExp(`claim-scan: duplicate id ${DUP} across features \\(kept first\\)`)); });
+  const root2 = mkdtempSync(path.join(tmpdir(), 'ph3b-'));
+  mkWorkspace(root2, 'clean-a', { ledger: [ledgerLine('d-20260720T110001Z-78', 'fix')] });
+  const b = run(['--root', root2, '--slug', 'zz', '--json']);
+  check('PH3b corpus sạch: KHÔNG dòng duplicate (đối chứng âm)', () =>
+    assert.ok(!b.err.includes('duplicate id')));
+  const root3 = mkdtempSync(path.join(tmpdir(), 'ph3c-'));
+  mkWorkspace(root3, 'same', { ledger: [ledgerLine(DUP, 'fix'), ledgerLine(DUP, 'descope')] });
+  const c = run(['--root', root3, '--slug', 'zz', '--json']);
+  check('PH3c trùng trong CÙNG slug: dedupe im lặng chủ đích — không warn', () => {
+    assert.equal(JSON.parse(c.out).claims.filter(x => x.id === DUP).length, 1);
+    assert.ok(!c.err.includes('duplicate id')); });
+  for (const d of [root, root2, root3]) rmSync(d, { recursive: true, force: true });
+}
+
+// ---- PH4: frontmatter không đọc được ≠ clean hợp lệ ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'ph4-'));
+  const good = gapProbe('2026-07-25T00:00:00Z', 'findings', [row('P1', 'g')]);
+  mkWorkspace(root, 'no-fm', { probe: good.replace(/^---\n/, '') });          // mất --- mở
+  mkWorkspace(root, 'no-verdict', { probe: good.replace(/^verdict: findings\n/m, '') }); // thiếu key verdict
+  mkWorkspace(root, 'is-clean', { probe: gapProbe('2026-07-25T00:00:00Z', 'clean', [row('P2', 'c')]) });
+  const r = run(['--root', root, '--slug', 'zz', '--json']);
+  check('PH4 unreadable frontmatter nổ to (cả 2 kiểu), exit 0', () => {
+    assert.equal(r.code, 0);
+    assert.match(r.err, /claim-scan: skipped .*no-fm.*gap-probe\.md \(unreadable frontmatter\)/);
+    assert.match(r.err, /claim-scan: skipped .*no-verdict.*gap-probe\.md \(unreadable frontmatter\)/); });
+  check('PH4 đối chứng: verdict clean hợp lệ bỏ qua IM LẶNG — phân biệt được', () =>
+    assert.ok(!r.err.includes('is-clean')));
+  rmSync(root, { recursive: true, force: true });
+}
+
+// ---- PH5: entry thiếu decision/impact — không emit rỗng, đếm vào malformed ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'ph5-'));
+  mkWorkspace(root, 'hollow', { ledger: [
+    JSON.stringify({ id: 'd-20260720T120000Z-95', type: 'fix', stage: 'S1', at: '2026-07-20T12:00:00Z', impact: 'only-impact' }),
+    JSON.stringify({ id: 'd-20260720T120001Z-96', type: 'fix', stage: 'S1', at: '2026-07-20T12:00:01Z', decision: 'only-decision' }),
+    ledgerLine('d-20260720T120002Z-97', 'fix')] });
+  const r = run(['--root', root, '--slug', 'zz', '--json']);
+  const claims = JSON.parse(r.out).claims;
+  check('PH5 entry rỗng ruột không emit, đếm vào malformed, entry đủ vẫn ra (đối chứng dương), exit 0', () => {
+    assert.equal(r.code, 0);
+    assert.deepEqual(claims.map(c => c.id), ['d-20260720T120002Z-97']);
+    assert.ok(claims.every(c => c.claim.length > 0 && c.lesson.length > 0));
+    assert.match(r.err, /claim-scan: skipped 2 malformed lines in .*hollow.*decisions\.jsonl/); });
+  rmSync(root, { recursive: true, force: true });
+}
+
+// ---- PH8: description 2 manifest phải khai "v1.18 adds" (trả known-limit) ----
+{
+  const fl = JSON.parse(readFileSync(path.join(HERE, '..', '..', 'feature-loop', '.claude-plugin', 'plugin.json'), 'utf8'));
+  const flc = JSON.parse(readFileSync(path.join(HERE, '..', '..', 'codex', 'feature-loop-codex', '.codex-plugin', 'plugin.json'), 'utf8'));
+  check('PH8 description CẢ HAI manifest chứa "v1.18 adds"', () => {
+    assert.match(fl.description, /v1\.18 adds/);
+    assert.match(flc.description, /v1\.18 adds/); });
+  // Control THẬT (vá known-limit vòng trước): nửa ÂM trên văn bản tiền-1.18 do
+  // code sinh — không phải "xoá chuỗi rồi tìm chuỗi" (phép kiểm không-thể-đỏ).
+  const OLD_DESC = 'Feature loop for AI-coded features. v1.17 adds S4 scope-triage.';
+  check('PH8 control ÂM: regex TRƯỢT trên description tiền-1.18', () =>
+    assert.doesNotMatch(OLD_DESC, /v1\.18 adds/));
+  check('PH8 control DƯƠNG: cùng regex TRÚNG description hiện hành đọc từ file thật', () =>
+    assert.match(fl.description, /v1\.18 adds/));
+}
+
+// ---- PH1b: đuôi heading KHÔNG-h2 (### / #) cũng không được sinh claim ma ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'ph1b-'));
+  const ghost = `| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |\n|---|---|---|---|---|---|\n| P0 | evals | ghost-gap | ghost-fail | ghost-m | ghost-disp |\n`;
+  const base = gapProbe('2026-07-25T00:00:00Z', 'findings', [row('P1', 'real')]);
+  mkWorkspace(root, 'h3tail', { probe: base + `\n### Notes\n\n${ghost}` });
+  mkWorkspace(root, 'h1tail', { probe: base + `\n# Appendix\n\n${ghost}` });
+  mkWorkspace(root, 'control', { probe: base });
+  const r = run(['--root', root, '--slug', 'zz', '--json']);
+  const claims = JSON.parse(r.out).claims;
+  check('PH1b heading cấp BẤT KỲ sau Findings: zero claim ma, dãy id khớp đối chứng', () => {
+    assert.equal(r.code, 0);
+    for (const s of ['h3tail', 'h1tail', 'control']) {
+      const ids = claims.filter(c => c.slug === s).map(c => c.id.split('#')[1]);
+      assert.deepEqual(ids, ['F1'], `${s} lệch: ${ids}`);
+    }
+    assert.ok(!r.out.includes('ghost-gap')); });
+  rmSync(root, { recursive: true, force: true });
+}
+
+// ---- PH4b: verdict ngoài enum (typo) phải nổ to, không nuốt câm ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'ph4b-'));
+  const good = gapProbe('2026-07-25T00:00:00Z', 'findings', [row('P0', 'real')]);
+  mkWorkspace(root, 'typo', { probe: good.replace('verdict: findings', 'verdict: findigns') });
+  mkWorkspace(root, 'ok-clean', { probe: gapProbe('2026-07-25T00:00:00Z', 'clean', [row('P2', 'c')]) });
+  const r = run(['--root', root, '--slug', 'zz', '--json']);
+  check('PH4b verdict typo: zero claim + warn (unknown verdict) + exit 0; clean hợp lệ vẫn im lặng', () => {
+    assert.equal(r.code, 0);
+    assert.equal(JSON.parse(r.out).claims.length, 0);
+    assert.match(r.err, /claim-scan: skipped .*typo.*gap-probe\.md \(unknown verdict\)/);
+    assert.ok(!r.err.includes('ok-clean')); });
+  rmSync(root, { recursive: true, force: true });
+}
+
+// ---- PH6: verdict findings mà section không có hàng nào → nổ to ----
+{
+  const root = mkdtempSync(path.join(tmpdir(), 'ph6-'));
+  const empty = gapProbe('2026-07-25T00:00:00Z', 'findings', [row('P1', 'x')])
+    .replace(/\| Sev[\s\S]*$/, ''); // giữ heading Findings, xoá sạch bảng
+  mkWorkspace(root, 'empty-sect', { probe: empty });
+  mkWorkspace(root, 'has-rows', { probe: gapProbe('2026-07-25T00:00:00Z', 'findings', [row('P1', 'y')]) });
+  const r = run(['--root', root, '--slug', 'zz', '--json']);
+  check('PH6 findings + section rỗng: warn (malformed table) + exit 0; file có hàng thì KHÔNG warn (đối chứng dương)', () => {
+    assert.equal(r.code, 0);
+    assert.match(r.err, /claim-scan: skipped .*empty-sect.*gap-probe\.md \(malformed table\)/);
+    assert.ok(!r.err.includes('has-rows'));
+    assert.ok(JSON.parse(r.out).claims.some(c => c.slug === 'has-rows')); });
+  rmSync(root, { recursive: true, force: true });
+}
+
+// ---- FSB7: round-trip ranh giới xuyên package (claim-scan ↔ lib/md-section) ----
+{
+  const ROOT2 = path.join(HERE, '..', '..');
+  const libText = readFileSync(path.join(ROOT2, 'lib', 'md-section.js'), 'utf8');
+  // Rút luật TỪ MARKER của writer, áp bằng reader độc lập — không chép tay.
+  const table = (() => {
+    const m = libText.match(/<<<SECTION-BOUNDARY-TABLE\n([\s\S]*?)SECTION-BOUNDARY-TABLE>>>/);
+    if (!m) throw new Error('KHONG rut duoc bang SECTION-BOUNDARY-TABLE');
+    const out = {};
+    for (const l of m[1].split('\n')) {
+      const mm = l.match(/^\s*\/\/\s*([A-Za-z ]+?)\s*->\s*(any-heading|same-or-higher)\s*$/);
+      if (mm) out[mm[1].trim()] = mm[2];
+    }
+    return out;
+  })();
+  // Đọc bằng CHÍNH reader được giao (lib/md-section.js), không viết lại luật:
+  // reader tự viết từng lệch với lib ở ca h1 → FSB7 không thể đỏ khi section()
+  // hồi quy (S4-r2, đúng lớp 'thước phải gắn vào vật được giao').
+  const { section } = createRequire(import.meta.url)(path.join(ROOT2, 'lib', 'md-section.js'));
+  const rowsByRule = (text, rule) => {
+    const lines = rule === 'any-heading'
+      ? section(text, 'Findings')
+      : section(text, 'Findings').concat(); // luật khác chỉ dùng cho đối chứng
+    return lines.filter(l => l.trim().startsWith('|')).slice(2);
+  };
+  const root = mkdtempSync(path.join(tmpdir(), 'fsb7-'));
+  const tail = ['', '### Notes', '', '| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |',
+    '|---|---|---|---|---|---|', '| P0 | evals | g | g | g | g |', ''].join('\n');
+  mkWorkspace(root, 'rt', { probe: gapProbe('2026-07-25T00:00:00Z', 'findings', [row('P1', 'a'), row('P2', 'b')]) + tail });
+  const scanIds = JSON.parse(run(['--root', root, '--slug', 'zz', '--json']).out).claims
+    .filter(c => c.source === 'gap-probe').map(c => c.id);
+  const libRows = rowsByRule(readFileSync(path.join(root, '_acceptance', 'rt', 'gap-probe.md'), 'utf8'), table['Findings']);
+  check('FSB7 round-trip: claim-scan và luật rút-từ-marker cho CÙNG số hàng Findings', () => {
+    if (scanIds.length !== libRows.length)
+      throw new Error(`round-trip lech: ${scanIds.length} vs ${libRows.length} hang`);
+    assert.deepEqual(scanIds, ['rt#F1', 'rt#F2']);
+  });
+  check('FSB7 đối chứng đột biến: bản sao lib đổi luật Findings → lệch, đúng thông điệp', () => {
+    const tmp = mkdtempSync(path.join(tmpdir(), 'fsb7m-'));
+    const libCopy = path.join(tmp, 'md-section.js');
+    writeFileSync(libCopy, readFileSync(path.join(ROOT2, 'lib', 'md-section.js'), 'utf8')
+      .replace('Findings -> any-heading', 'Findings -> same-or-higher'));
+    const mutatedSection = createRequire(import.meta.url)(libCopy).section;
+    const mutatedRows = mutatedSection(readFileSync(path.join(root, '_acceptance', 'rt', 'gap-probe.md'), 'utf8'), 'Findings')
+      .filter(l => l.trim().startsWith('|')).slice(2);
+    assert.throws(() => {
+      if (scanIds.length !== mutatedRows.length)
+        throw new Error(`round-trip lech: ${scanIds.length} vs ${mutatedRows.length} hang`);
+    }, /round-trip lech: 2 vs \d+ hang/);
+    rmSync(tmp, { recursive: true, force: true });
+  });
+  rmSync(root, { recursive: true, force: true });
 }
 
 console.log(`\nResults: ${passed} passed, ${failed} failed`);
