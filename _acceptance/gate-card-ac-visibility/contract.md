@@ -73,6 +73,33 @@ chữa triệu chứng. Duyệt AC-5 = mở rộng PR#18.
 - **Đổi khuôn render của card** (bố cục, nhãn, thứ tự khối). AC-8 khoá chiều này lại.
 - **Hồi tố chữ ký đã đặt trên card cụt/rỗng.** Re-pin không làm được việc đó; muốn chữ ký dựa trên criterion thật thì phải xem lại card — quyết định của người, ngoài phạm vi máy.
 
+## Known limits (người duyệt chốt ở Cổng 2 — 2026-07-30)
+
+Bốn **nợ THƯỚC**, không phải lỗi tính chất. Verify vòng 2 (context sạch) đo tay
+từng cái và xác nhận tính chất ĐÚNG; chỗ thiếu là eval không chạm tới. Manh chọn
+ghi nhận thay vì tiêu vòng 3. **Không mục nào bị bỏ im lặng** — mỗi mục dưới đây
+có bằng chứng đo tay kèm theo, và mục 2 là nợ ĐÃ TỪNG được đánh dấu "fixed" sai
+một lần, nên nó được ghi to hơn ba mục kia.
+
+1. **Chế độ CI đo ít hơn AC-2 khai.** `AC_EXTRA_CORPUS_ROOT` là opt-in; CI không
+   có repo tiêu thụ. CI phủ +19 dòng, bật env phủ +427; `LOST=0` cả hai chiều nên
+   bất biến bao-tập ĐÚNG trên cả hai repo — chỉ là CI không chứng minh được. Có
+   dòng `PHAM-VI:` in ra khi thiếu env, nên phạm vi hẹp được KHAI chứ không im
+   lặng. **Khai không phải là phủ** — đừng đọc dấu xanh CI như đã phủ 170 contract.
+2. **Vế "2 dòng repo tiêu thụ" của AC-3 không được đo, kể cả khi bật env.** P60 bỏ
+   qua mọi dòng khuôn CŨ không đọc được (`if(!o) continue`), mà hai dòng đó
+   (`- **AC-2 (LÕI — …, judgment):**` ở `creator-choicecard` và
+   `ds-debt-artifact-table`) đúng là loại đó. Grader đo trực tiếp: cả hai
+   `OLD_MATCH=false`, `parseAC.judgment=true`; quét độc lập 177 contract cho
+   `TAGGED=162 CODESPAN_ONLY=4`, khớp con số contract khai. **`FLIP=0` sẽ vẫn xanh
+   y hệt nếu hai dòng đó biến mất** — đó là dấu hiệu thước không chạm.
+3. **Vế "thông điệp nêu đích danh file" của AC-6 chưa có case đỏ.** Đối chứng của
+   P63 chỉ chứng minh phép grep bắt được bản sao đổi heading, không chứng minh
+   thông điệp có nêu tên file.
+4. **Đối chứng script của P59 canh nhánh GAINED, không canh nhánh LOST** như
+   `expected` mô tả. Grader kiểm tay: nhánh LOST CÓ nổ và CÓ nêu tên dòng — nên
+   đây là nợ script-hoá, không phải phép đo rỗng.
+
 ## Notes
 
 **Phân hạng — cần Manh chốt ở Cổng 1.** Máy tính ra **T2**: `scripts/gate-card.js`
