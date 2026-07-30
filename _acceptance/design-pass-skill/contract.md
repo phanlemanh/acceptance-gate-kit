@@ -4,7 +4,7 @@ feature: "design-pass-skill — skill mới `design-pass`: nghi thức thiết k
 slug: design-pass-skill
 risk_tier: T2
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-07-30T03:48:08Z
 owner: phanlemanh@gmail.com
