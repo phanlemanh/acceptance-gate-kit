@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict   # the `enforcement` value from _acceptance/config.yaml (default strict). CI pre-merge BLOCKS off; warn only warns.
 bypass_used: false              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
-verified_commit: 9d01b830e0db240097122b5849fdb07732399fac
+verified_commit: 3ab4ee6cc0ea51ea4516595018fd74a4017ffbec
 # bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -345,3 +345,17 @@ runner `tests/scripts` chạy mọi `*.test.mjs`, bump acceptance-gate 1.25.0.
 - **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
   `human_override` giữ nguyên; chữ ký cũ KHÔNG được hiểu là đã phán về
   luật ranh giới mới.
+
+### Re-pin — 2026-07-30, do feature design-pass-skill
+
+`verified_commit` lên `3ab4ee6`. Nguyên nhân stale: feature design-pass-skill
+thêm skill `skills/design-pass/` (nghi thức thiết kế in-harness S1-D) + 10
+case P58–P67 trong `tests/plugins/run-tests.sh` + bump acceptance-gate
+1.26.0 (3 manifest) + mirror sync.
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY — machine lane ở `3ab4ee6` do 3 agent
+  tươi chạy độc lập, sha nhất quán cả 3, tất cả exit 0 (590 scripts ·
+  51 hooks · plugins pass gồm P58–P67 · workflows pass · mirror in sync).
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
+  `human_override` giữ nguyên; chữ ký cũ KHÔNG được hiểu là đã phán về
+  design-pass 1.26.0.

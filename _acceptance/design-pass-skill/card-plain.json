@@ -1,26 +1,82 @@
 {
   "feature_plain": "Thêm skill design-pass: phiên chuyên trách chỉnh thẩm mỹ + UX trực tiếp trên bản bấm được đang chạy trong Browser pane, owner ngồi xem và phản hồi bằng lời từng vòng — để Cổng 1 duyệt trên bản bấm được thay vì duyệt UI bằng chữ. Một nghi thức, hai thang mở rộng: phủ cả repo hiện hữu lẫn repo mới.",
   "will_do": [
-    { "id": "AC-1", "p": "Sẽ có skill đúng khuôn: mô tả nói rõ khi nào dùng / không dùng, và feature-loop được phép tự gọi nó (không khoá model-invocation)." },
-    { "id": "AC-2", "p": "Sẽ đọc cấu hình từ config repo: proto_route là TEMPLATE chứa {slug} (per-repo khai một lần, per-feature tự điền); thiếu key là DỪNG nói đích danh — không chạy liều với route mặc định." },
-    { "id": "AC-3", "p": "Sẽ nạp 2 nguồn luật: ux-ui-craft + nguồn DS theo thang có tên — skill repo khai; vắng thì dùng từ vựng token của repo; repo 0 token thì dùng shadcn làm mặc định, và luôn ghi finding nêu rõ nấc đã dùng." },
-    { "id": "AC-4", "p": "Sẽ làm việc trên bản bấm được ĐANG CHẠY theo thang vật liệu 3 bậc (component thật mặc định / khung token / HTML tĩnh) — hạ bậc phải khai material trên vết, route chết thì dừng và in đúng lệnh dev repo đã khai." },
-    { "id": "AC-5", "p": "Sẽ khắc 4 luật cứng thành văn: không hex mới, không webfont, không sửa components/ui cho proto đẹp, không thêm logic/write-path." },
-    { "id": "AC-6", "p": "Sẽ lặp theo nhịp sửa proto → reload → chờ owner phản ứng bằng lời; cấm tự chấm thẩm mỹ thay owner." },
-    { "id": "AC-7", "p": "Sẽ chụp ma trận state × breakpoint (× theme nếu repo có dark mode) về thư mục riêng evidence/design-pass/; proto không khai states thì hỏi owner đầu phiên chứ không bịa — và không đụng đường của ceremony cũ (CT2)." },
-    { "id": "AC-8", "p": "Sẽ ghi findings 2 nhóm (đã-vá-trong-token / đòi-đổi-DS-chờ-Cổng-1) vào design-pass.md theo khuôn một-chỗ-có-marker, frontmatter 10 trường máy-đọc (gồm material + nấc DS thật đã dùng), kiểm round-trip." },
-    { "id": "AC-9", "p": "Sẽ sạch vật liệu repo tiêu thụ (không tên OneHub/mstar) và không surface ngoài (Claude Design, design-sync) — kit là engine, một mặt phẳng làm việc." },
-    { "id": "AC-10", "p": "Sẽ đồng bộ mirror cùng commit và smoke đọc được skill từ chính bản mirror — vật giao chạy thật." },
-    { "id": "AC-11", "p": "Sẽ giữ cả 4 suite test hiện hành xanh — không hồi quy." }
+    {
+      "id": "AC-1",
+      "p": "Sẽ có skill đúng khuôn: mô tả nói rõ khi nào dùng / không dùng, và feature-loop được phép tự gọi nó (không khoá model-invocation)."
+    },
+    {
+      "id": "AC-2",
+      "p": "Sẽ đọc cấu hình từ config repo: proto_route là TEMPLATE chứa {slug} (per-repo khai một lần, per-feature tự điền); thiếu key là DỪNG nói đích danh — không chạy liều với route mặc định."
+    },
+    {
+      "id": "AC-3",
+      "p": "Sẽ nạp 2 nguồn luật: ux-ui-craft + nguồn DS theo thang có tên — skill repo khai; vắng thì dùng từ vựng token của repo; repo 0 token thì dùng shadcn làm mặc định, và luôn ghi finding nêu rõ nấc đã dùng."
+    },
+    {
+      "id": "AC-4",
+      "p": "Sẽ làm việc trên bản bấm được ĐANG CHẠY theo thang vật liệu 3 bậc (component thật mặc định / khung token / HTML tĩnh) — hạ bậc phải khai material trên vết, route chết thì dừng và in đúng lệnh dev repo đã khai."
+    },
+    {
+      "id": "AC-5",
+      "p": "Sẽ khắc 4 luật cứng thành văn: không hex mới, không webfont, không sửa components/ui cho proto đẹp, không thêm logic/write-path."
+    },
+    {
+      "id": "AC-6",
+      "p": "Sẽ lặp theo nhịp sửa proto → reload → chờ owner phản ứng bằng lời; cấm tự chấm thẩm mỹ thay owner."
+    },
+    {
+      "id": "AC-7",
+      "p": "Sẽ chụp ma trận state × breakpoint (× theme nếu repo có dark mode) về thư mục riêng evidence/design-pass/; proto không khai states thì hỏi owner đầu phiên chứ không bịa — và không đụng đường của ceremony cũ (CT2)."
+    },
+    {
+      "id": "AC-8",
+      "p": "Sẽ ghi findings 2 nhóm (đã-vá-trong-token / đòi-đổi-DS-chờ-Cổng-1) vào design-pass.md theo khuôn một-chỗ-có-marker, frontmatter 10 trường máy-đọc (gồm material + nấc DS thật đã dùng), kiểm round-trip."
+    },
+    {
+      "id": "AC-9",
+      "p": "Sẽ sạch vật liệu repo tiêu thụ (không tên OneHub/mstar) và không surface ngoài (Claude Design, design-sync) — kit là engine, một mặt phẳng làm việc."
+    },
+    {
+      "id": "AC-10",
+      "p": "Sẽ đồng bộ mirror cùng commit và smoke đọc được skill từ chính bản mirror — vật giao chạy thật."
+    },
+    {
+      "id": "AC-11",
+      "p": "Sẽ giữ cả 4 suite test hiện hành xanh — không hồi quy."
+    }
   ],
   "wont_do": [],
   "scope_plain": "Dời sang việc khác: khai tử ceremony cũ (design-mockup/evidence/push), máy soi proto-lint + proto-init, wire tự động vào feature-loop, bản Codex, uat-session — skill này phải đứng được một mình trước.",
   "decisions_plain": [
-    { "id": "d-20260730T031311Z-13968", "p": "KHÔNG dọn ceremony cũ trong lượt này — đổi lại plugin design-loop còn tự mâu thuẫn (bridge chết vs một mặt phẳng) thêm một thời gian." },
-    { "id": "d-20260730T031311Z-21499", "p": "KHÔNG sửa feature-loop để tự gọi design-pass — đổi lại chưa có đường gọi tự động cho tới spec v2." },
-    { "id": "d-20260730T031311Z-11762", "p": "Ảnh chụp về thư mục riêng, cấm ghi vào đường của làn CT2 cũ — đổi lại workspace có thể có 2 chỗ chứa ảnh design nếu slug từng chạy ceremony cũ." },
-    { "id": "d-20260730T034302Z-11444", "p": "Chọn thang vật liệu 3 bậc thay vì chỉ-component-thật — phủ được repo mới, đổi lại Cổng 1 có thể duyệt trên vật liệu yếu hơn (bù bằng khai material ngay trên thẻ)." },
-    { "id": "d-20260730T034302Z-24673", "p": "Repo chưa có hệ token thì dùng shadcn làm từ vựng mặc định có tên — repo mới có luật ngay phiên đầu, đổi lại khuôn shadcn thiên React/Tailwind (repo khác stack chỉ mượn từ vựng token)." },
-    { "id": "d-20260730T034302Z-6787", "p": "KHÔNG kiểm các đường degrade trên repo thật vòng này — r2 pilot là người dùng duy nhất, đổi lại degrade là văn bản chưa kiểm (đã ghi thành hạn chế đã biết)." }
-  ]
+    {
+      "id": "d-20260730T031311Z-13968",
+      "p": "KHÔNG dọn ceremony cũ trong lượt này — đổi lại plugin design-loop còn tự mâu thuẫn (bridge chết vs một mặt phẳng) thêm một thời gian."
+    },
+    {
+      "id": "d-20260730T031311Z-21499",
+      "p": "KHÔNG sửa feature-loop để tự gọi design-pass — đổi lại chưa có đường gọi tự động cho tới spec v2."
+    },
+    {
+      "id": "d-20260730T031311Z-11762",
+      "p": "Ảnh chụp về thư mục riêng, cấm ghi vào đường của làn CT2 cũ — đổi lại workspace có thể có 2 chỗ chứa ảnh design nếu slug từng chạy ceremony cũ."
+    },
+    {
+      "id": "d-20260730T034302Z-11444",
+      "p": "Chọn thang vật liệu 3 bậc thay vì chỉ-component-thật — phủ được repo mới, đổi lại Cổng 1 có thể duyệt trên vật liệu yếu hơn (bù bằng khai material ngay trên thẻ)."
+    },
+    {
+      "id": "d-20260730T034302Z-24673",
+      "p": "Repo chưa có hệ token thì dùng shadcn làm từ vựng mặc định có tên — repo mới có luật ngay phiên đầu, đổi lại khuôn shadcn thiên React/Tailwind (repo khác stack chỉ mượn từ vựng token)."
+    },
+    {
+      "id": "d-20260730T034302Z-6787",
+      "p": "KHÔNG kiểm các đường degrade trên repo thật vòng này — r2 pilot là người dùng duy nhất, đổi lại degrade là văn bản chưa kiểm (đã ghi thành hạn chế đã biết)."
+    },
+    {
+      "id": "d-20260730T034808Z-7818",
+      "p": "Chọn nhà cho skill là plugin acceptance-gate (phương án A) — đến tay mọi repo đã cài plugin lõi, đổi lại plugin lõi phình khái niệm; sẽ xét lại khi bộ F-D đủ mảnh."
+    }
+  ],
+  "analyst_plain": ""
 }
