@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 887eaa846d512c53cac69a88979738d82f5041d2
+verified_commit: a8f0d70d2b23ab2f749606f19403d189157fdcdb
 human_signoff: Manh Phan 2026-07-30
 ---
 
@@ -216,3 +216,20 @@ Round 3 (this report): fix 887eaa8 — lệnh mẫu config-patch chuyển sang q
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter + `time_human_minutes.gate2` in contract
+
+### Re-pin — 2026-07-30 (lần 2), do amendment worked-example của design-pass-skill
+
+`verified_commit` lên `a8f0d70`. Nguyên nhân stale: amendment sau signoff của
+design-pass-skill (lệnh owner trong chat — skill-creator audit mục 1): thêm
+worked example vào SKILL.md; description GIỮ NGUYÊN (trigger-eval 3 iteration
+không dịch chuyển điểm).
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY — machine lane ở `a8f0d70` do 3 agent
+  tươi chạy độc lập, sha nhất quán cả 3, tất cả exit 0 (590 scripts ·
+  51 hooks · plugins pass gồm P58–P67 · workflows pass · mirror in sync).
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
+  `human_override` giữ nguyên.
+- **Riêng slug này:** SKILL.md là chính vật của contract — chữ ký Manh Phan
+  2026-07-30 phán trên bản trước amendment; phần thêm (worked example, mục 4)
+  do owner ra lệnh minh danh trong chat cùng ngày, ledger
+  d-20260730T*-amendment ghi vết; panel E15 không chấm lại.

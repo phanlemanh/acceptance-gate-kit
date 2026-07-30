@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 3ab4ee6cc0ea51ea4516595018fd74a4017ffbec
+verified_commit: a8f0d70d2b23ab2f749606f19403d189157fdcdb
 human_signoff: Manh Phan 2026-07-29
 ---
 
@@ -185,3 +185,16 @@ case P58–P67 trong `tests/plugins/run-tests.sh` + bump acceptance-gate
 - **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
   `human_override` giữ nguyên; chữ ký cũ KHÔNG được hiểu là đã phán về
   design-pass 1.26.0.
+
+### Re-pin — 2026-07-30 (lần 2), do amendment worked-example của design-pass-skill
+
+`verified_commit` lên `a8f0d70`. Nguyên nhân stale: amendment sau signoff của
+design-pass-skill (lệnh owner trong chat — skill-creator audit mục 1): thêm
+worked example vào SKILL.md; description GIỮ NGUYÊN (trigger-eval 3 iteration
+không dịch chuyển điểm).
+
+- **ĐÃ chạy lại:** toàn bộ eval MÁY — machine lane ở `a8f0d70` do 3 agent
+  tươi chạy độc lập, sha nhất quán cả 3, tất cả exit 0 (590 scripts ·
+  51 hooks · plugins pass gồm P58–P67 · workflows pass · mirror in sync).
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
+  `human_override` giữ nguyên.
