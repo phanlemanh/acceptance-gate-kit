@@ -22,7 +22,7 @@ xuất claim từ `decisions.jsonl` + `gap-probe.md` của mọi slug, nạp là
 thứ 5 cho gap-probe S1 — advisory, có trích dẫn đo được, ngưỡng sống/chết
 DP-1 khai trước trong design doc.
 
-## Acceptance criteria
+## Criteria
 
 - **AC-1** Given repo có ≥2 workspace slug với `decisions.jsonl` chứa entry
   `fix`/`descope` và `gap-probe.md` có `verdict: findings`, When chạy

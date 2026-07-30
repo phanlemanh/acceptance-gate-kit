@@ -21,7 +21,7 @@ ma có id citable đầu độc kênh bài học); Gate 2 chốt mở contract n
 theo-LỚP thêm 2 thành viên cùng hình dạng. Một lớp duy nhất: cửa parse hỏng
 phải câm-có-tiếng (warn đếm to, không emit rác, exit 0), không câm-lặng.
 
-## Acceptance criteria
+## Criteria
 
 - **AC-1** Given `gap-probe.md` hợp lệ có section `## Notes` (hoặc bất kỳ
   heading nào) chứa bảng 6 cột NẰM SAU section Findings, When chạy scan,
