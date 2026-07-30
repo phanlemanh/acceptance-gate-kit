@@ -157,3 +157,9 @@ tiền nhiệm):
   ngoài pilot artifact-platform (quyết r2-trước, breadth theo usage);
   (e) phiên design-pass SAU Gate 1 → findings đổ về `review-findings.md`
   (kênh giữa-vòng spec v2), không ghi đè design-pass.md của bản đã duyệt.
+- Known-limits Cổng 2 (round 3, disposition Manh Phan 2026-07-30): (f) SKILL.md
+  nói thẻ Gate 1 hiện `material:` nhưng reader của thẻ CHƯA đọc design-pass.md
+  — writer ship trước, reader đi cùng hạng mục F-B card modes (workflow v2);
+  tạm thời người duyệt đọc trực tiếp ghi vết. (g) description gói Codex nhắc
+  v1.26 design-pass trong khi gói Codex chưa chứa skill này (parity đã khai
+  Out of scope) — sửa mô tả ở đợt đối-chiếu-marketplace kế.
