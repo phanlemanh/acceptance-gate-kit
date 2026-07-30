@@ -1418,7 +1418,10 @@ b = rt.find(BEGIN)
 e = rt.find(END, b + 1)
 assert b != -1 and e != -1 and e > b, "khong tim thay vung case design-pass trong run-tests.sh"
 region = rt[b:e]
-assert "P67 design-pass smoke" in region, "vung quet cut duoi — thieu anchor P67 (thuoc phai gan vao vat)"
+# Anchor cũng GHÉP MẢNH — round 2 để nguyên chuỗi nên anchor tự khớp source
+# của chính assert này, xoá cả P67 guard vẫn xanh (finding S4 round 2).
+TAIL = "P67 design-pass" + " smoke"
+assert TAIL in region, "vung quet cut duoi — thieu anchor P67 (thuoc phai gan vao vat)"
 texts["tests:design-pass-region"] = region
 # Pattern ghep manh de vung nay tu-quet khong tu-trung.
 CONSUMER = ["one" + "hub", "deal" + "-page", "@one" + "hub", "ms" + "tar"]
