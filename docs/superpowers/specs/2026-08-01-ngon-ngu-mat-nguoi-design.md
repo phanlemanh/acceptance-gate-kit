@@ -104,6 +104,7 @@ skills/acceptance/references/human-facing-language.md   ← BẢN THI HÀNH
   ├─ Hai phép thử: Xoá-tên-máy · Người-thứ-ba
   ├─ Bảng ví dụ TRƯỚC/SAU (mỗi luật ≥1 cặp)
   ├─ <<<PLAN-SUMMARY-TABLE-TEMPLATE … >>>   ← khuôn 3 cột, một chỗ, có marker
+  ├─ <<<DECISION-DIAGRAM-TEMPLATE … >>>     ← khuôn sơ đồ mermaid (luật N5)
   ├─ <<<HFL-GLOSSARY-TERMS … >>>       ← từ feature này thêm vào từ điển
   └─ Quyền trả lại tại cổng + cách ghi sổ
 
@@ -153,6 +154,27 @@ hành không làm hai bản lệch nhau.
 
 Một dòng một việc (N4). Cột 1 phải qua được phép thử Xoá-tên-máy.
 
+**Khuôn sơ đồ — luật N5 (bổ sung tại Cổng 1, owner bắt).** Trước đó N5 là luật
+duy nhất trong sáu luật KHÔNG có gì cưỡng chế: nó được kiểm là "có mặt trong
+bảng luật" và hết. Bảng ba cột phục vụ trọn vẹn dạng *bảng có cột rõ* của N5,
+nhưng dạng *sơ đồ* thì không khuôn nào làm ra. Nên bộ khuôn thành hai:
+
+```mermaid
+graph LR
+  A[Điểm quyết định] --> B{Từ 3 bước<br/>hoặc 2 nhánh?}
+  B -->|có| C[Bắt buộc kèm sơ đồ]
+  B -->|không| D[Bảng ba cột là đủ]
+```
+
+Ngưỡng đếm được — người liếc là biết, không phải phán: **điểm quyết định có từ
+ba bước nối tiếp hoặc từ hai nhánh rẽ trở lên thì bắt buộc kèm sơ đồ**; ít hơn
+thì bảng là đủ. Nhãn nút trong sơ đồ chịu đúng luật N1/N2 như ô bảng: nhãn là
+chữ cho người, tên file xuống chú thích — và phép đo bắt được điều đó (P92).
+
+**Vì sao sơ đồ sống trong văn bản chứ không trong thẻ:** thẻ cổng là HTML tĩnh
+mở bằng trình duyệt, không có bộ vẽ; nhúng bộ vẽ từ mạng thì mở offline là
+hỏng. Sơ đồ hiện đúng ở nơi nó thực sự được đọc — khung hội thoại và tài liệu.
+
 ## 5. Cưỡng chế thật sự nằm ở đâu (và không nằm ở đâu)
 
 | Điểm nghẽn | Cưỡng chế bằng gì | Đo được trong CI? |
@@ -173,10 +195,10 @@ Mọi case đi vào `tests/plugins/run-tests.sh` (suite `executors.test.plugins`
 
 | Case | Đo gì | Đối chứng dương | Đột biến → thông điệp ghim |
 |---|---|---|---|
-| P89 | File nguồn đủ N1–N6, 2 phép thử có tên, ≥6 cặp TRƯỚC/SAU, vế loại trừ mặt máy, dòng N6 chỉ đích từ điển | bản nguyên vẹn XANH | xoá 1 luật → `thiếu luật N<i>`; xoá vế loại trừ → `thiếu vế phạm vi KHÔNG áp` |
+| P89 | File nguồn đủ N1–N6, 2 phép thử có tên, ≥6 cặp TRƯỚC/SAU, vế loại trừ mặt máy, dòng N6 chỉ đích từ điển, **ngưỡng kích hoạt sơ đồ của N5** | bản nguyên vẹn XANH | xoá 1 luật → `thiếu luật N<i>`; xoá vế loại trừ → `thiếu vế phạm vi KHÔNG áp`; xoá ngưỡng → `N5 không có ngưỡng kích hoạt` |
 | P90 | 8 chỗ trỏ có path + động từ nạp; 2 SKILL vòng lặp có mệnh đề **mọi lần trình** + gọi khuôn theo tên marker | bản nguyên vẹn XANH | gỡ pointer khỏi 1 bản sao → `<file>: thiếu mệnh lệnh nạp`; thu mệnh đề về riêng T3 → `phạm vi khuôn bị thu hẹp` |
 | P91 | Path RÚT TỪ 8 file trỏ vào file thật **trên cây nguồn** (+ đếm sanity = 8 path rút được) | bản sao cây nguyên vẹn XANH | đổi tên file đích trong bản sao → `pointer trỏ file không tồn tại` |
-| P92 | Round-trip khuôn: rút từ marker → parser bảng → đúng 3 header + ≥1 dòng ví dụ 3 ô | bản nguyên vẹn XANH | xoá 1 cột / thêm cột 4 / nhét 2 việc vào 1 ô → 3 thông điệp riêng |
+| P92 | Round-trip **hai** khuôn: bảng → 3 header + ≥1 dòng ví dụ 3 ô; sơ đồ → fence khai `mermaid`, ≥2 nút, ≥1 cạnh, mọi nhãn nút là chữ cho người | bản nguyên vẹn XANH | xoá 1 cột / thêm cột 4 / nhét 2 việc vào 1 ô / fence mất khai báo `mermaid` / nhãn nút thành tên file → 5 thông điệp riêng |
 | P93 | Nguồn duy nhất: bảng N1–N6 **khớp từng ký tự** giữa file tham chiếu và spec §4.1, không có bản thứ ba; tên 3 cột chỉ ở 1 file (**đếm sanity** ≥40 file đã quét) | so khớp bản nguyên vẹn XANH | sửa 1 chữ ở 1 bản → `bảng luật lệch giữa <file A> và <file B>`; chép tên cột sang file thứ 2 → `tên cột xuất hiện ở N file — khuôn phải một chỗ` |
 | P94 | Quyền trả lại + tiền tố sổ `lỗ-kit — ngôn ngữ mặt người` có ở lệnh dựng thẻ, 2 harness | bản nguyên vẹn XANH | gỡ câu khỏi 1 bản → `<file>: thiếu quyền trả lại tại cổng` |
 | P95 ⭐ | **Pointer giải được TRONG GÓI ĐÃ ĐÓNG**: 3 skill Codex giải `${PLUGIN_ROOT}`+path ra file thật trong `plugins/acceptance-gate/`; 2 SKILL vòng lặp phải đi qua bộ giải plugin (gói của chúng không chứa file tham chiếu) và bộ giải phải có mặt | gói nguyên vẹn XANH | di chuyển file tham chiếu trong bản sao gói → `pointer trong gói <tên> trỏ file không tồn tại`; đổi pointer vòng lặp thành ghép-thẳng-gốc-gói → `gói này không chứa file tham chiếu — phải qua bộ giải plugin` |

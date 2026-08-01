@@ -12,7 +12,7 @@ evals:
     criterion: AC-1
     executor: test
     cmd: config:executors.test.plugins
-    expected: "P89 pass: file tham chiếu có đủ 6 mã luật N1..N6 kèm nội dung; đối chứng dương — bản sao NGUYÊN VẸN chạy trước và XANH; đột biến xoá 1 luật khỏi bản sao → ĐỎ ghim thông điệp nêu đích danh mã luật thiếu"
+    expected: "P89 pass: file tham chiếu có đủ 6 mã luật N1..N6 kèm nội dung VÀ một ngưỡng đếm được cho N5 (khi nào điểm quyết định bắt buộc kèm sơ đồ); đối chứng dương — bản sao NGUYÊN VẸN chạy trước và XANH; hai đột biến riêng: xoá 1 luật → ĐỎ ghim mã luật thiếu, xoá ngưỡng → ĐỎ ghim thông điệp N5-không-có-ngưỡng-kích-hoạt"
     paths:
       - skills/acceptance/references/human-facing-language.md
       - tests/plugins/run-tests.sh
@@ -106,7 +106,7 @@ evals:
     criterion: AC-8
     executor: test
     cmd: config:executors.test.plugins
-    expected: "P92 pass: đúng MỘT cặp marker PLAN-SUMMARY-TABLE-TEMPLATE trong vùng quét nguồn, khối rút được là bảng 3 cột đúng tên đã chốt + >=1 dòng ví dụ; đối chứng dương bản nguyên vẹn XANH trước; đột biến xoá marker mở → ĐỎ ghim thông điệp không-rút-được-khuôn"
+    expected: "P92 pass: mỗi cặp marker PLAN-SUMMARY-TABLE-TEMPLATE và DECISION-DIAGRAM-TEMPLATE xuất hiện ĐÚNG MỘT lần trong vùng quét nguồn; khối 1 là bảng 3 cột đúng tên đã chốt + >=1 dòng ví dụ, khối 2 là fence khai mermaid + >=1 ví dụ; đối chứng dương bản nguyên vẹn XANH trước; hai đột biến riêng: xoá marker mở của khuôn bảng → ĐỎ ghim không-rút-được-khuôn-bảng, xoá marker mở của khuôn sơ đồ → ĐỎ ghim không-rút-được-khuôn-sơ-đồ"
     paths:
       - skills/acceptance/references/human-facing-language.md
       - tests/plugins/run-tests.sh
@@ -115,7 +115,7 @@ evals:
     criterion: AC-9
     executor: test
     cmd: config:executors.test.plugins
-    expected: "P92 pass round-trip: fixture SINH TỪ khuôn rút qua marker (không viết tay bên đọc), đọc bằng luật tách ô bảng markdown của kit → đúng 3 header + mỗi dòng ví dụ đúng 3 ô; đối chứng dương bản nguyên vẹn XANH trước; BA đột biến (bỏ 1 cột / thêm cột 4 / nhồi 2 việc vào 1 ô) mỗi cái ĐỎ với thông điệp RIÊNG của nó"
+    expected: "P92 pass round-trip HAI khuôn: fixture SINH TỪ khuôn rút qua marker (không viết tay bên đọc). Khuôn bảng đọc bằng luật tách ô bảng markdown của kit → đúng 3 header + mỗi dòng ví dụ đúng 3 ô. Khuôn sơ đồ đọc bằng luật tách fence có khai ngôn ngữ → ngôn ngữ là mermaid, >=2 nút, >=1 cạnh, và MỌI nhãn nút qua phép thử Xoá-tên-máy (không nhãn nào là đường dẫn hay tên file có đuôi). Đối chứng dương bản nguyên vẹn XANH trước; NĂM đột biến (bỏ 1 cột / thêm cột 4 / nhồi 2 việc vào 1 ô / fence mất khai báo mermaid / nhãn nút thành tên file) mỗi cái ĐỎ với thông điệp RIÊNG của nó"
     paths:
       - skills/acceptance/references/human-facing-language.md
       - tests/plugins/run-tests.sh
@@ -124,7 +124,7 @@ evals:
     criterion: AC-10
     executor: test
     cmd: config:executors.test.plugins
-    expected: "P93 pass: tên 3 cột chỉ xuất hiện ở đúng 1 file nguồn (cùng vùng quét + bộ đếm sanity như E8; literal trong case ghép mảnh để không tự khớp source của chính case — bẫy P80); đối chứng dương bản nguyên vẹn XANH trước; đột biến chép tên cột sang file thứ 2 → ĐỎ ghim thông điệp khuôn-phải-một-chỗ kèm số file đếm được"
+    expected: "P93 pass: tên 3 cột VÀ thân khuôn sơ đồ mỗi thứ chỉ xuất hiện ở đúng 1 file nguồn (cùng vùng quét + bộ đếm sanity như E8; literal trong case ghép mảnh để không tự khớp source của chính case — bẫy P80); đối chứng dương bản nguyên vẹn XANH trước; hai đột biến riêng: chép tên cột sang file thứ 2 → ĐỎ ghim khuôn-bảng-phải-một-chỗ kèm số file, chép thân sơ đồ sang file thứ 2 → ĐỎ ghim khuôn-sơ-đồ-phải-một-chỗ kèm số file"
     paths:
       - skills/acceptance/references/human-facing-language.md
       - commands/**
