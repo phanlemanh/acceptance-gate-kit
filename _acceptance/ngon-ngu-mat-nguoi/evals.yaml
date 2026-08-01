@@ -12,7 +12,7 @@ evals:
     criterion: AC-1
     executor: test
     cmd: config:executors.test.plugins
-    expected: "P89 pass: file tham chiếu có đủ 6 mã luật N1..N6 kèm nội dung VÀ một ngưỡng đếm được cho N5 (khi nào điểm quyết định bắt buộc kèm sơ đồ); đối chứng dương — bản sao NGUYÊN VẸN chạy trước và XANH; hai đột biến riêng: xoá 1 luật → ĐỎ ghim mã luật thiếu, xoá ngưỡng → ĐỎ ghim thông điệp N5-không-có-ngưỡng-kích-hoạt"
+    expected: "P89 pass: đủ 6 mã luật N1..N6 kèm nội dung VÀ ngưỡng đếm được cho N5; đối chứng dương bản NGUYÊN VẸN XANH trước; hai đột biến riêng: xoá 1 luật → ĐỎ ghim mã luật thiếu, xoá ngưỡng → ĐỎ ghim N5-không-có-ngưỡng-kích-hoạt"
     paths:
       - skills/acceptance/references/human-facing-language.md
       - tests/plugins/run-tests.sh
@@ -21,7 +21,7 @@ evals:
     criterion: AC-1
     executor: test
     cmd: config:executors.test.plugins
-    expected: "P89 pass: có đúng tên 2 phép thử Xoá-tên-máy + Người-thứ-ba, và bảng TRƯỚC/SAU phủ cả 6 luật; đối chứng dương bản nguyên vẹn XANH trước; đột biến xoá 1 cặp ví dụ khỏi bản sao → ĐỎ ghim thông điệp nêu luật chưa có ví dụ"
+    expected: "P89 pass: hai phép thử được NEO VÀO MỤC ĐỊNH NGHĨA (rút khối '## Hai phép thử' rồi tìm gạch đầu dòng định nghĩa) chứ không tìm chuỗi trên toàn file — mỗi tên còn xuất hiện lần thứ hai ở chỗ nhắc tên, tìm toàn file thì xoá mất định nghĩa vẫn xanh (round 3 bắt); bảng TRƯỚC/SAU phủ cả 6 luật; đối chứng dương XANH trước; hai đột biến: xoá 1 cặp ví dụ → ĐỎ ghim luật chưa có ví dụ, xoá định nghĩa Xoá-tên-máy (giữ nguyên các chỗ nhắc tên) → ĐỎ ghim thiếu-phép-thử"
     paths:
       - skills/acceptance/references/human-facing-language.md
       - tests/plugins/run-tests.sh
@@ -39,7 +39,7 @@ evals:
     criterion: AC-3
     executor: test
     cmd: config:executors.test.plugins
-    expected: "P89 pass: dòng vận hành đi kèm N6 chứa đích danh CONTEXT.md; đối chứng dương bản nguyên vẹn XANH trước; đột biến thay bằng cụm chung chung 'từ điển sản phẩm' → ĐỎ ghim thông điệp N6-không-chỉ-đích-từ-điển"
+    expected: "P89 pass: phép đo NEO VÀO ĐÚNG DÒNG vận hành của N6 (khớp từ đầu dòng), không tìm chuỗi trên toàn file — CONTEXT.md còn xuất hiện ở mục danh sách từ mới, tìm toàn file thì phá hỏng đúng dòng cần đo vẫn xanh (round 3 bắt); đối chứng dương XANH trước; đột biến thay dòng đó bằng cụm chung chung 'từ điển sản phẩm' → ĐỎ ghim N6-không-chỉ-đích-từ-điển"
     paths:
       - skills/acceptance/references/human-facing-language.md
       - tests/plugins/run-tests.sh
@@ -111,7 +111,7 @@ evals:
     criterion: AC-8
     executor: test
     cmd: config:executors.test.plugins
-    expected: "P92 pass: mỗi cặp marker PLAN-SUMMARY-TABLE-TEMPLATE và DECISION-DIAGRAM-TEMPLATE xuất hiện ĐÚNG MỘT lần trong vùng quét nguồn; khối 1 là bảng 3 cột đúng tên đã chốt + >=1 dòng ví dụ, khối 2 là fence khai mermaid + >=1 ví dụ; đối chứng dương bản nguyên vẹn XANH trước; hai đột biến riêng: xoá marker mở của khuôn bảng → ĐỎ ghim không-rút-được-khuôn-bảng, xoá marker mở của khuôn sơ đồ → ĐỎ ghim không-rút-được-khuôn-sơ-đồ"
+    expected: "AC-8 đo bằng HAI case: P93 đếm CẶP MARKER THẬT (mở + đóng) trên TOÀN KHO — mỗi khuôn đúng 1 cặp, bảng luật đúng 2 cặp (hai nhà hợp lệ); đếm cặp chứ không đếm lần nhắc tên, vì sơ đồ ASCII trong tài liệu nhắc tên marker là hợp lệ còn một KHỐI thứ hai rút được thì không (round 3 bắt: trồng cặp marker trùng tên ruột khác vẫn xanh). P92 đo cấu trúc khối: khối 1 là bảng 3 cột đúng tên + >=1 dòng ví dụ, khối 2 là fence khai mermaid. Đối chứng dương XANH trước; hai đột biến: xoá marker mở của khuôn bảng → ĐỎ ghim không-rút-được-khuôn-bảng, xoá marker mở của khuôn sơ đồ → ĐỎ ghim không-rút-được-khuôn-sơ-đồ"
     paths:
       - skills/acceptance/references/human-facing-language.md
       - tests/plugins/run-tests.sh
@@ -129,7 +129,7 @@ evals:
     criterion: AC-10
     executor: test
     cmd: config:executors.test.plugins
-    expected: "P93 pass: tên 3 cột VÀ thân khuôn sơ đồ mỗi thứ chỉ xuất hiện ở đúng 1 file nguồn (cùng vùng quét danh-sách-loại-trừ + bộ đếm theo từng thư mục như E8; literal trong case ghép mảnh để không tự khớp source của chính case — bẫy P80). Đối chứng dương bản nguyên vẹn XANH trước; đối chứng âm GHI FILE THẬT chứa bản sao vào CẢ HAI vùng từng bị bỏ lọt (design-loop/ mà round 1 không quét, docs/superpowers/ mà round 2 khoét ra) trong bản sao rsync → ba thông điệp riêng cho khuôn bảng, khuôn sơ đồ và thân luật"
+    expected: "P93 pass: tên 3 cột VÀ thân khuôn sơ đồ mỗi thứ chỉ ở đúng 1 file nguồn. Vùng quét loại ĐÚNG BA mục AC-10 khai, CỘNG ba mục hạ tầng có TÊN kèm lý do (.git, .claude, node_modules — không phải cây nguồn); KHÔNG lọc đuôi file và đọc NHỊ PHÂN, nên bản sao trong .yaml/.txt hay trong thư mục tên bắt đầu bằng dấu chấm không còn là điểm mù (round 3 bắt: bản sao trong .out-of-scope/ lọt lưới). Bộ đếm theo TỪNG thư mục nguồn; literal ghép mảnh chống bẫy P80. Đối chứng dương XANH trước; đối chứng âm GHI FILE THẬT vào CẢ BA vùng từng bị bỏ lọt qua ba vòng, cộng một phép thử riêng cho bản sao đuôi .yaml trong thư mục dấu-chấm"
     paths:
       - skills/acceptance/references/human-facing-language.md
       - commands/**

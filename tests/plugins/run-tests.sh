@@ -2006,12 +2006,19 @@ PY
 # Bat bien kho: moi case chay ban NGUYEN VEN truoc (doi chung DUONG) roi moi
 # dot bien, va ghim DUNG THONG DIEP chu khong chi ma thoat.
 
-run "P89 ban luat: du N1-N6 + 2 phep thu + vi du 6 luat + ve mien tru + nguong N5 + tu dien (E1-E4)" \
+run "P89 ban luat: neo vao dung vat — 6 luat, 2 phep thu (dinh nghia), vi du, mien tru, nguong N5, dong tu dien N6 (E1-E4)" \
   python3 - "$ROOT" <<'PY'
 import re, sys
 from pathlib import Path
 root = Path(sys.argv[1])
 t = (root / "skills/acceptance/references/human-facing-language.md").read_text(encoding="utf-8")
+
+# NEO vao DUNG VAT, khong tim chuoi tren toan file. Round 3 bat hai lan cung mot
+# lop: "CONTEXT.md" va "Xoá-tên-máy" moi chuoi xuat hien HAI lan trong file, nen
+# pha hong dung cho can do van XANH vi lan xuat hien thu hai giu den.
+def section(text, heading):
+    m = re.search(rf"^## {re.escape(heading)}\s*$\n([\s\S]*?)(?=^## |\Z)", text, re.M)
+    return m.group(1) if m else None
 
 def check(text):
     errs = []
@@ -2021,9 +2028,16 @@ def check(text):
     for n in range(1, 7):
         if not re.search(rf"^\| N{n} \| \S", m.group(1), re.M):
             errs.append(f"thieu luat N{n}")
-    for name in ("Xoá-tên-máy", "Người-thứ-ba"):
-        if name not in text:
-            errs.append(f"thieu phep thu {name}")
+
+    # AC-1 ve "hai phep thu": neo vao muc dinh nghia, khong phai toan van ban.
+    tests = section(text, "Hai phép thử (rẻ, làm được trong vài giây)")
+    if tests is None:
+        errs.append("thieu muc dinh nghia hai phep thu")
+    else:
+        for name in ("Xoá-tên-máy", "Người-thứ-ba"):
+            if not re.search(rf"^- \*\*{re.escape(name)}\*\*:", tests, re.M):
+                errs.append(f"thieu phep thu {name}")
+
     outside = text.replace(m.group(0), "")
     for n in range(1, 7):
         if not re.search(rf"^\| N{n} \| .+ \| .+ \|", outside, re.M):
@@ -2035,7 +2049,10 @@ def check(text):
         errs.append("thieu ve pham vi KHONG ap")
     if not re.search(r"ba bước nối tiếp hoặc[\s\S]{0,40}hai nhánh rẽ", text):
         errs.append("N5 khong co nguong kich hoat")
-    if "CONTEXT.md" not in text:
+
+    # AC-3: neo vao DUNG dong van hanh cua N6. Chuoi CONTEXT.md con xuat hien o
+    # muc "Tu moi ... dua vao tu dien" — tim tren toan file la do nham cho do.
+    if not re.search(r"^\*\*Từ điển sản phẩm sống ở đâu \(N6\):\*\*[^\n]*CONTEXT\.md", text, re.M):
         errs.append("N6 khong chi dich tu dien")
     return errs
 
@@ -2052,6 +2069,18 @@ assert "thieu ve pham vi KHONG ap" in check(m3), "dot bien xoa ve mien tru khong
 
 m4 = t.replace("| N6 | Bật CT-S cho slug này |", "|", 1)
 assert "luat N6 chua co vi du TRUOC/SAU" in check(m4), "dot bien xoa vi du N6 khong do dung thong diep"
+
+# Dot bien E4 KHAI trong evals.yaml — round 3 phat hien no chua bao gio ton tai.
+m5 = re.sub(r"^\*\*Từ điển sản phẩm sống ở đâu \(N6\):\*\*[^\n]*$",
+            "**Từ điển sản phẩm sống ở đâu (N6):** từ điển sản phẩm của kho đang làm.",
+            t, count=1, flags=re.M)
+assert "N6 khong chi dich tu dien" in check(m5), \
+    "dot bien thay dong N6 bang cum chung chung khong do dung thong diep"
+
+# Dot bien cho ve "hai phep thu" — xoa DINH NGHIA, giu nguyen cac cho NHAC TEN.
+m6 = re.sub(r"^- \*\*Xoá-tên-máy\*\*:[\s\S]*?(?=^- \*\*Người-thứ-ba\*\*:)", "", t, count=1, flags=re.M)
+assert "thieu phep thu Xoá-tên-máy" in check(m6), \
+    "dot bien xoa dinh nghia phep thu khong do dung thong diep"
 PY
 
 run "P92 hai khuon trinh bay: marker duy nhat + round-trip bang 3 cot + so do mermaid (E9, E10)" \
@@ -2140,6 +2169,16 @@ assert has(check(m4), "khong khai mermaid"), "dot bien bo khai bao ngon ngu khon
 
 m5 = t.replace("A[Người duyệt mở thẻ]", "A[gate-card.js]", 1)
 assert has(check(m5), "nhan nut la ten may"), "dot bien nhan nut ten file khong do dung thong diep"
+
+# Hai dot bien duoi day E9 DA KHAI tu dau nhung round 3 phat hien chung chua bao
+# gio ton tai — hai nhanh "khong rut duoc khuon ..." chua tung bi da RED.
+m6 = t.replace("<!-- <<<PLAN-SUMMARY-TABLE-TEMPLATE -->", "", 1)
+assert has(check(m6), "khong rut duoc khuon bang"), \
+    "dot bien xoa marker mo cua khuon bang khong do dung thong diep"
+
+m7 = t.replace("<!-- <<<DECISION-DIAGRAM-TEMPLATE -->", "", 1)
+assert has(check(m7), "khong rut duoc khuon so do"), \
+    "dot bien xoa marker mo cua khuon so do khong do dung thong diep"
 PY
 
 run "P96 tu dien: rut tu qua marker HFL-GLOSSARY-TERMS roi tra CONTEXT.md (E14)" \
@@ -2264,7 +2303,7 @@ finally:
     shutil.rmtree(tmp)
 PY
 
-run "P93 mot-nguon: bang luat khop tung ky tu + khuon chi o 1 file, quet DENYLIST (E8, E11)" \
+run "P93 mot-nguon: bang luat khop tung ky tu + than khuon va CAP MARKER duy nhat toan kho (E8, E11)" \
   python3 - "$ROOT" <<'PY'
 import re, shutil, subprocess, sys, tempfile
 from pathlib import Path
@@ -2293,101 +2332,120 @@ errs = compare(ref, mut)
 assert errs and "bang luat lech" in errs[0] and REF_REL in errs[0] and SPEC_REL in errs[0], \
     f"dot bien sua 1 chu khong do dung thong diep (phai neu ten CA HAI file): {errs}"
 
-# ── Vung quet: DENYLIST, khong phai allowlist ────────────────────────────────
-# Round 1 dung allowlist 8 thu muc va bo lot design-loop/ + vendor/ — hai cay
-# nguon that (CLAUDE.md liet ke ca hai la nguon su that). Review round 1 da
-# chung minh bang dot bien: chep nguyen van ban luat vao design-loop/ thi CA
-# SUITE van xanh. Allowlist bien fail-loud thanh fail-silent, va doi chung am
-# cu chi noi MOT TEN GIA vao danh sach da dem nen khong bao gio cham bien.
-# Bay gio: di tu goc, loai dung nhung gi da khai, va doi chung am GHI FILE THAT
-# ra ngoai allowlist cu.
-# DUNG 3 muc AC-10 khai, khong hon. Round 2 tung khoet them ("docs","superpowers")
-# voi ly do "ho so xay dung" — va chinh vung do dang chua ban sao thu ba that
-# (ban ke hoach chep nguyen van bang luat + ca hai khuon). Ha thuoc cho vua vat
-# roi hop thuc bang mot dong so quyet dinh la dung dieu kit cam: so quyet dinh
-# KHONG duoc de contract. Duong dung da lam: go ban sao khoi ban ke hoach.
-SKIP_TOP = {"plugins", "_acceptance", "tests"}
-EXT = {".md", ".js", ".mjs", ".sh", ".json"}
+# ── Vung quet ───────────────────────────────────────────────────────────────
+# Loai DUNG ba muc AC-10 khai, cong ba muc ha tang KHONG phai cay nguon, moi muc
+# ghi ly do. Ba vong truoc deu chet vi vung quet hep hon loi hua:
+#   r1 danh-sach-cho-phep 8 thu muc  -> bo lot design-loop/ va vendor/
+#   r2 khoet them docs/superpowers/  -> vung do dang chua ban sao that
+#   r3 bo moi path co dau cham + loc duoi file -> bo lot .out-of-scope/ (nguon
+#      that, CLAUDE.md goi dich danh) va moi ban sao nam trong .yaml/.txt/.py
+# Nen bay gio: khong loc duoi file (doc NHI PHAN, so byte — cung het luon lop
+# loi decode im lang), va chi loai nhung muc co TEN kem ly do.
+SKIP_TOP = {"plugins", "_acceptance", "tests"}      # ba muc AC-10 khai
+SKIP_INFRA = {".git", ".claude", "node_modules"}    # ruot VCS / cache phien / phu thuoc — khong phai nguon
 
 def scan(base):
     out = []
     for p in base.rglob("*"):
-        if not p.is_file() or p.suffix not in EXT:
+        if not p.is_file():
             continue
         rel = p.relative_to(base).parts
-        if any(part.startswith(".") for part in rel):
-            continue
         if rel[0] in SKIP_TOP:
+            continue
+        if any(x in SKIP_INFRA for x in rel):
             continue
         out.append(p)
     return out
 
-# Bo dem sanity theo TUNG thu muc nguon: mot thu muc bi doi ten/xoa se cho 0 file
-# ma tong van > 40, nen tong khong bao gio bat duoc. Kiem tung cai mot.
 EXPECT_DIRS = ["skills", "commands", "feature-loop", "codex", "lib", "scripts",
                "hooks", "docs", "design-loop", "vendor"]
 
-def dir_counts(base, files):
-    c = {d: 0 for d in EXPECT_DIRS}
-    for p in files:
-        top = p.relative_to(base).parts[0]
-        if top in c:
-            c[top] += 1
-    return c
-
 files = scan(root)
-dc = dir_counts(root, files)
+dc = {d: 0 for d in EXPECT_DIRS}
+for p in files:
+    top = p.relative_to(root).parts[0]
+    if top in dc:
+        dc[top] += 1
 empty = [d for d, n in dc.items() if n == 0]
 assert not empty, f"thu muc nguon khong gop file nao (doi ten? xoa?): {empty}"
 assert len(files) >= 40, f"chi quet duoc {len(files)} file — vung quet hong"
 
-COL = "Người dùng thấy" + " gì khác"          # ghep manh — bay P80
-DIAG = "Đủ ba bước<br/>" + "hoặc hai nhánh?"
-LAW = "Mã số là tra cứu, " + "không phải nội dung."
+COL = ("Người dùng thấy" + " gì khác").encode()      # ghep manh — bay P80
+DIAG = ("Đủ ba bước<br/>" + "hoặc hai nhánh?").encode()
+LAW = ("Mã số là tra cứu, " + "không phải nội dung.").encode()
+# AC-8 doi cap marker duy nhat TRONG TOAN KHO. Dem CAP THAT (mo + dong), khong
+# dem lan nhac ten: mot so do ASCII trong tai lieu nhac ten marker la hop le,
+# mot KHOI thu hai rut duoc thi khong.
+PAIRS = {"PLAN-SUMMARY-TABLE-TEMPLATE": 1, "DECISION-DIAGRAM-TEMPLATE": 1,
+         "HFL-GLOSSARY-TERMS": 1, "HFL-LAW-TABLE": 2}
 
-def count(base):
-    c = {COL: [], DIAG: [], LAW: []}
+def survey(base):
+    body = {COL: 0, DIAG: 0, LAW: 0}
+    where = {COL: [], DIAG: [], LAW: []}
+    pair = {k: 0 for k in PAIRS}
+    pair_where = {k: [] for k in PAIRS}
     for p in scan(base):
-        t = p.read_text(encoding="utf-8", errors="ignore")
-        for k in c:
-            if k in t:
-                c[k].append(str(p.relative_to(base)))
-    return c
+        b = p.read_bytes()
+        for k in body:
+            if k in b:
+                body[k] += 1
+                where[k].append(str(p.relative_to(base)))
+        try:
+            t = b.decode("utf-8")
+        except UnicodeDecodeError:
+            continue
+        for name in pair:
+            c = len(re.findall(rf"<!-- <<<{name} -->\n[\s\S]*?<!-- {name}>>> -->", t))
+            if c:
+                pair[name] += c
+                pair_where[name].append(str(p.relative_to(base)))
+    return body, where, pair, pair_where
 
-def verdict(c):
+def verdict(base):
+    body, where, pair, pair_where = survey(base)
     errs = []
-    if len(c[COL]) != 1:
-        errs.append(f"ten cot xuat hien o {len(c[COL])} file — khuon bang phai mot cho: {c[COL]}")
-    if len(c[DIAG]) != 1:
-        errs.append(f"than so do xuat hien o {len(c[DIAG])} file — khuon so do phai mot cho: {c[DIAG]}")
-    if len(c[LAW]) != 2:
-        errs.append(f"than luat xuat hien o {len(c[LAW])} file — chi duoc 2 cho da biet: {c[LAW]}")
+    if body[COL] != 1:
+        errs.append(f"ten cot xuat hien o {body[COL]} file — khuon bang phai mot cho: {where[COL]}")
+    if body[DIAG] != 1:
+        errs.append(f"than so do xuat hien o {body[DIAG]} file — khuon so do phai mot cho: {where[DIAG]}")
+    if body[LAW] != 2:
+        errs.append(f"than luat xuat hien o {body[LAW]} file — chi duoc 2 cho da biet: {where[LAW]}")
+    for name, want in PAIRS.items():
+        if pair[name] != want:
+            errs.append(f"cap marker {name} co {pair[name]} khoi (mong doi {want}) — {pair_where[name]}")
     return errs
 
-assert verdict(count(root)) == [], verdict(count(root))           # doi chung DUONG
+assert verdict(root) == [], verdict(root)                         # doi chung DUONG
 
-# Doi chung AM: GHI FILE THAT vao design-loop/ — dung cho nam NGOAI allowlist cu.
+# Doi chung AM: GHI FILE THAT vao CA BA vung tung bi bo lot qua ba vong.
 tmp = Path(tempfile.mkdtemp())
 try:
     dst = tmp / "repo"
-    subprocess.run(["rsync", "-a", "--exclude", ".git", "--exclude", "plugins",
-                    "--exclude", "node_modules", f"{root}/", f"{dst}/"], check=True)
-    assert verdict(count(dst)) == [], f"ban sao NGUYEN VEN phai XANH truoc: {verdict(count(dst))}"
-    # Trong file that vao CA HAI vung tung bi bo lot: design-loop/ (round 1 dung
-    # allowlist nen khong thay) va docs/superpowers/ (round 2 khoet ra).
+    subprocess.run(["rsync", "-a", "--exclude", ".git", "--exclude", ".claude",
+                    "--exclude", "plugins", "--exclude", "node_modules",
+                    f"{root}/", f"{dst}/"], check=True)
+    assert verdict(dst) == [], f"ban sao NGUYEN VEN phai XANH truoc: {verdict(dst)}"
     src = (dst / REF_REL).read_text(encoding="utf-8")
-    for rel in ("design-loop/skills/design-subtrack/BAN-SAO-THU.md",
-                "docs/superpowers/plans/BAN-SAO-THU.md"):
+    for rel in ("design-loop/skills/design-subtrack/BAN-SAO-THU.md",   # r1 bo lot
+                "docs/superpowers/plans/BAN-SAO-THU.md",               # r2 khoet ra
+                ".out-of-scope/BAN-SAO-THU.md"):                       # r3 bo lot
         plant = dst / rel
         plant.parent.mkdir(parents=True, exist_ok=True)
         plant.write_text(src, encoding="utf-8")
-    e = verdict(count(dst))
-    assert any("khuon bang phai mot cho" in x for x in e), \
-        f"chep khuon bang ra design-loop/ ma khong bi bat: {e}"
-    assert any("khuon so do phai mot cho" in x for x in e), \
-        f"chep khuon so do ra design-loop/ ma khong bi bat: {e}"
-    assert any("chi duoc 2 cho da biet" in x for x in e), \
-        f"chep than luat ra design-loop/ ma khong bi bat: {e}"
+    e = verdict(dst)
+    for frag in ("khuon bang phai mot cho", "khuon so do phai mot cho",
+                 "chi duoc 2 cho da biet", "cap marker PLAN-SUMMARY-TABLE-TEMPLATE"):
+        assert any(frag in x for x in e), f"trong ban sao that ma khong bat duoc '{frag}': {e}"
+    # Chung minh RIENG rang vung dau-cham va duoi-file-la khong con la diem mu.
+    shutil.rmtree(dst); subprocess.run(["rsync", "-a", "--exclude", ".git",
+        "--exclude", ".claude", "--exclude", "plugins", "--exclude", "node_modules",
+        f"{root}/", f"{dst}/"], check=True)
+    only = dst / ".out-of-scope/ban-sao-thu.yaml"
+    only.parent.mkdir(parents=True, exist_ok=True)
+    only.write_text(src, encoding="utf-8")
+    e2 = verdict(dst)
+    assert any("khuon bang phai mot cho" in x for x in e2), \
+        f"ban sao trong thu muc dau-cham voi duoi .yaml van lot luoi: {e2}"
 finally:
     shutil.rmtree(tmp)
 PY
@@ -2443,10 +2501,13 @@ def check(pkg_ag, pkg_fl):
                 errs.append(f"pointer trong goi acceptance-gate tro file khong ton tai — {h}")
     fl = pkg_fl / "skills/feature-loop-codex/SKILL.md"
     t = fl.read_text(encoding="utf-8")
+    # HAI dieu kien khac nhau, HAI thong diep khac nhau. Round 3 bat: dung chung
+    # mot thong diep thi dot bien chi chung minh duoc dieu kien thu nhat, nhanh
+    # con lai khong bao gio bi da RED rieng.
     if f"--plugin acceptance-gate --require {REF}" not in t:
-        errs.append("goi feature-loop-codex khong chua ban luat — phai qua bo giai plugin")
+        errs.append("goi feature-loop-codex thieu loi goi bo giai plugin")
     if "PLUGIN_ROOT}/" + REF in t:
-        errs.append("goi feature-loop-codex khong chua ban luat — phai qua bo giai plugin")
+        errs.append("goi feature-loop-codex ghep thang goc goi — goi nay khong chua ban luat")
     if not (pkg_fl / "scripts/resolve-plugin.mjs").is_file():
         errs.append("bo giai plugin vang trong goi feature-loop-codex")
     return errs
@@ -2464,12 +2525,23 @@ try:
         f"dot bien di chuyen ban luat trong goi khong do dung thong diep: {e1}"
     shutil.rmtree(a2); shutil.copytree(AG, a2)
     fl2 = f2 / "skills/feature-loop-codex/SKILL.md"
-    fl2.write_text(fl2.read_text(encoding="utf-8").replace(
+    orig = fl2.read_text(encoding="utf-8")
+    fl2.write_text(orig.replace(
         f"--plugin acceptance-gate --require {REF}", "${PLUGIN_ROOT}/" + REF),
         encoding="utf-8")
     e2 = check(a2, f2)
-    assert any("phai qua bo giai plugin" in x for x in e2), \
+    assert any("thieu loi goi bo giai plugin" in x for x in e2), \
+        f"dot bien go loi goi bo giai khong do dung thong diep: {e2}"
+    assert any("ghep thang goc goi" in x for x in e2), \
         f"dot bien ghep thang goc goi khong do dung thong diep: {e2}"
+    # Nhanh THU HAI mot minh: GIU nguyen loi goi bo giai, chi THEM dang ghep
+    # thang goc goi. Hai dieu kien dung chung thong diep thi case nay im lang.
+    fl2.write_text(orig + "\n${PLUGIN_ROOT}/" + REF + "\n", encoding="utf-8")
+    e3 = check(a2, f2)
+    assert any("ghep thang goc goi" in x for x in e3), \
+        f"nhanh ghep-thang-goc-goi mot minh khong bi bat: {e3}"
+    assert not any("thieu loi goi bo giai" in x for x in e3), \
+        f"nhanh thu nhat bao oan khi loi goi bo giai VAN CON: {e3}"
 finally:
     shutil.rmtree(tmp)
 PY
