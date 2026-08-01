@@ -1,117 +1,101 @@
-# Review Findings: ngon-ngu-mat-nguoi (round 2)
+# Review Findings: ngon-ngu-mat-nguoi (round 3)
 
 ## Trong hợp đồng
 
-### 1. Luật "một nguồn" không được đo: bản sao thứ ba thật sự tồn tại trong vùng vừa bị loại khỏi phép quét
-- file: `tests/plugins/run-tests.sh:2305`
+### P89 đo AC-3 bằng substring toàn-file — đột biến E4 khai vẫn XANH
+- file: `/Users/manhphan/dev/acceptance-gate-kit/.claude/worktrees/adoring-rubin-5bf1c9/tests/plugins/run-tests.sh:2038`
 - severity: high
-- source: conventions
-- AC: AC-7
-
-P93 quét toàn kho để chứng minh bảng luật chỉ nằm 2 chỗ và mỗi khuôn chỉ nằm 1 chỗ, nhưng `SKIP_SUB = {("docs", "superpowers")}` loại đúng vùng đang chứa bản sao thứ ba.
-
-SỰ THẬT TRÊN CÂY (grep, không phải suy đoán):
-- Thân luật `"Mã số là tra cứu, không phải nội dung."` có ở 3 file nguồn: `skills/acceptance/references/human-facing-language.md`, `docs/specs/workflow-v2-spec.md`, VÀ `docs/superpowers/plans/2026-08-01-ngon-ngu-mat-nguoi.md`.
-- File plan chứa NGUYÊN cặp marker: `plan.count("<<<PLAN-SUMMARY-TABLE-TEMPLATE") == 2` và `plan.count("<<<DECISION-DIAGRAM-TEMPLATE") == 2` — tức khuôn có marker nằm ở 2 file, không phải 1.
-
-Điều này phủ định trực tiếp AC-8 (contract.md:42 — "mỗi cặp marker chỉ xuất hiện đúng một lần trong toàn kho nguồn") và AC-7 (contract.md:41 — "tìm nó trên toàn kho... chỉ nằm ở đúng hai chỗ"), trong khi E8/E9/E11 vẫn báo PASS. Mô tả plugin 1.28.0 cũng bán ra lời hứa này ("byte-identical across its two homes").
-
-ĐỐI CHỨNG ÂM ĐÃ CHẠY (bản sao `scratchpad/repo2`, baseline XANH trước khi tiêm):
-1. Sửa lệch một câu luật trong bản sao ở file plan → `Results: all plugin tests passed`.
-2. Trồng NGUYÊN file `human-facing-language.md` thành `docs/superpowers/specs/BAN-SAO-THU.md` → vẫn `all plugin tests passed`.
-
-Đây đúng lớp lỗi mà bên soi round 1 đã chứng minh một lần rồi (chép ra `design-loop/` mà suite vẫn xanh): bản vá đổi allowlist→denylist nhưng khoét lại một lỗ cùng hình dạng, và lần này lỗ đó đang chứa hàng thật. Khớp bất biến CLAUDE.md "allowlist biến fail-loud thành fail-silent" và "thước phải gắn vào vật được giao".
-
-Hướng xử lý (không tự sửa): hoặc gỡ bản sao khỏi file plan và để plan trỏ tới marker theo tên, hoặc bỏ `SKIP_SUB` và chấp nhận phép đo đỏ cho tới khi bản sao được gỡ.
-
-Rationale (map vào AC): AC-7 (contract.md:41) yêu cầu nội dung sáu luật chỉ nằm ở đúng hai chỗ trên toàn kho, nhưng finding chứng minh bằng grep + đối chứng âm rằng vùng quét hiện tại loại trừ đúng nơi đang chứa bản sao thứ ba, nên AC-7 thất bại.
-
-### 2. Phạm vi đo đã duyệt của AC-10 bị thu hẹp bằng entry ledger thay vì sửa contract
-- file: `tests/plugins/run-tests.sh:2304`
-- severity: high
-- source: conventions
-- AC: AC-10
-
-AC-10 (`_acceptance/ngon-ngu-mat-nguoi/contract.md:44`) khai chính xác ba vùng loại trừ: "trừ mirror `plugins/`, `_acceptance/`, `tests/`". Bản thi hành loại BỐN vùng — thêm `docs/superpowers/**`.
-
-Cách hợp thức hoá là một entry `fix` trong `_acceptance/ngon-ngu-mat-nguoi/decisions.jsonl`: "Thu hẹp vùng quét một-nguồn: loại thêm docs/superpowers/** (design doc + plan) so với AC-10 đã duyệt vốn chỉ loại plugins/, _acceptance/, tests/". Đây là dùng sổ quyết định để đè contract — điều mà chính kit cấm: CONTEXT.md định nghĩa Contract là "Nguồn sự thật của phạm vi", và `docs/specs/workflow-v2-spec.md` §4.1 (file feature này vừa thêm) viết "Sổ quyết định `decisions.jsonl`: rationale KHÔNG override contract".
-
-Hệ quả đo được: `evidence-report.md` vẫn ghi E11 (AC-10) PASS trong khi tiêu chí được duyệt không còn được đo như đã duyệt.
-
-Còn một chỗ chú thích sai ngay tại hiện trường: dòng 2304 ghi `# dung 3 muc AC-10 khai` trong khi dòng 2305 ngay dưới thêm vùng loại trừ thứ tư — người đọc sau sẽ tin phép đo khớp contract.
-
-Đường đúng theo nghi thức repo: hoặc sửa AC-10 rồi duyệt lại ở Cổng 1, hoặc đẩy thành mục "Ngoài hợp đồng" cho Cổng 2 quyết (ghi Known limits / mở hợp đồng mới / nâng phạm vi) — không phải hạ thước rồi ghi ledger.
-
-Rationale (map vào AC): AC-10 (contract.md:44) khai đích danh đúng ba vùng loại trừ; bản thi hành loại thêm một vùng thứ tư chưa qua Cổng 1, nên phép đo không còn đúng với AC-10 đã duyệt dù được hợp thức hoá bằng ledger.
-
-### 3. E8/E11 expected text describes the pre-fix allowlist scan region, not the denylist P93 actually implements
-- file: `_acceptance/ngon-ngu-mat-nguoi/evals.yaml:96`
-- severity: medium
+- AC: AC-3
 - source: bugs
-- AC: AC-7
 
-E8's `expected` pins the scan region as "(skills/ commands/ feature-loop/ codex/ lib/ scripts/ hooks/ docs/ + md gốc; trừ plugins,_acceptance,tests)" and E11 says "cùng vùng quét … như E8". P93 was rewritten in S4-r1 (ledger d-20260801T110823Z-21458) to a denylist: `SKIP_TOP = {plugins,_acceptance,tests}`, `SKIP_SUB = {(docs,superpowers)}`, plus a skip of every dot-prefixed path segment (run-tests.sh:2304-2320). The evals were never updated.
+AC-3 đòi *dòng vận hành đi kèm N6* phải chỉ đích danh `CONTEXT.md` "thay vì chỉ nói 'từ điển sản phẩm' chung chung". P89 chỉ kiểm `if "CONTEXT.md" not in text` trên TOÀN file. Chuỗi `CONTEXT.md` xuất hiện HAI lần trong skills/acceptance/references/human-facing-language.md: dòng 37 (dòng N6 — vật thật được đo) và dòng 88 (mục 'Từ mới feature này đưa vào từ điển'). Lần thứ hai giữ phép đo xanh vĩnh viễn.
 
-This is not cosmetic drift: `docs/superpowers/plans/2026-08-01-ngon-ngu-mat-nguoi.md` contains a verbatim third copy of the law table AND a second copy of both templates (confirmed by grep — LAW string appears in docs/specs/workflow-v2-spec.md, docs/superpowers/plans/…, plugins mirror, and the reference file). Under E8's own written region ("docs/" included), that copy makes the criterion fail; under the implemented region it is carved out and the test is green. The measure and the thing it claims to measure disagree, and the exclusion is invisible to anyone reading AC-7/AC-10 or the eval. Also unscanned by the dot rule: .out-of-scope/, .github/, .agents/.
+RED-probe đã chạy (bản sao sạch, baseline XANH trước): thay dòng 37 thành '**Từ điển sản phẩm sống ở đâu (N6):** từ điển sản phẩm của kho đang làm.' → `Results: all plugin tests passed`. Đúng vi phạm AC-3 mà không phép đo nào đỏ.
 
-Rationale (map vào AC): Finding cho thấy chính eval E8 — phép đo của AC-7 — không còn phản ánh đúng vùng quét thật đang thi hành, khiến AC-7 được báo PASS dù bản sao thứ ba (đã nêu ở finding 1) vẫn tồn tại trong vùng bị loại; đây là cùng một thất bại AC-7, nhìn từ phía evals.yaml.
+Nặng hơn: _acceptance/ngon-ngu-mat-nguoi/evals.yaml E4 KHAI chính đột biến này làm đối chứng âm ("đột biến thay bằng cụm chung chung 'từ điển sản phẩm' → ĐỎ ghim thông điệp N6-không-chỉ-đích-từ-điển"), nhưng P89 không hề có đột biến đó — 4 đột biến hiện có là N4/ngưỡng/KHÔNG-ÁP/ví-dụ-N6. E4 đang PASS trong evidence-report mà chưa bao giờ có đối chứng âm.
+
+Sửa: neo phép đo vào ĐÚNG dòng N6, ví dụ `re.search(r'^\*\*Từ điển sản phẩm sống ở đâu \(N6\):\*\*[^\n]*CONTEXT\.md', text, re.M)`, rồi thêm đột biến E4 đã khai.
+
+### AC-8 'cặp marker duy nhất trong toàn kho nguồn' không có phép đo nào — marker trùng nội-dung-khác vẫn XANH
+- file: `/Users/manhphan/dev/acceptance-gate-kit/.claude/worktrees/adoring-rubin-5bf1c9/tests/plugins/run-tests.sh:2122`
+- severity: high
+- AC: AC-8
+- source: bugs
+
+AC-8 đòi "mỗi cặp marker chỉ xuất hiện đúng một lần TRONG TOÀN KHO NGUỒN". Không phép đo nào đo điều đó:
+- P92 dòng 2122-2123 chỉ đếm TRONG một file (`t.count(...) == 1` với t = human-facing-language.md).
+- P93 đếm theo NỘI DUNG (tên ba cột `COL`, thân sơ đồ `DIAG`), không đếm TÊN MARKER — một khối marker trùng tên nhưng nội dung khác hoàn toàn lọt lưới.
+
+RED-probe đã chạy (baseline XANH trước): thêm vào cuối docs/superpowers/specs/2026-08-01-ngon-ngu-mat-nguoi-design.md một cặp `<!-- <<<PLAN-SUMMARY-TABLE-TEMPLATE -->` bọc bảng 2 cột `| A | B |` và một cặp `<!-- <<<DECISION-DIAGRAM-TEMPLATE -->` bọc fence khai `text` (không phải mermaid) → `Results: all plugin tests passed`.
+
+Đây đúng seam LLM-viết→máy/LLM-đọc mà CLAUDE.md nêu: hai SKILL vòng lặp (feature-loop + feature-loop-codex) chỉ dẫn 'trình theo khuôn PLAN-SUMMARY-TABLE-TEMPLATE' — gọi theo TÊN. Tên trùng ở hai chỗ với nội dung mâu thuẫn nghĩa là bên đọc có thể bốc nhầm khối, im lặng.
+
+Kèm theo: E9 trong evals.yaml khai hai đột biến ('xoá marker mở của khuôn bảng', 'xoá marker mở của khuôn sơ đồ') mà P92 không hề thực hiện — hai nhánh lỗi 'khong rut duoc khuon bang'/'khong rut duoc khuon so do' (dòng 2086, 2088) chưa từng được đá RED.
+
+Sửa: đếm cặp marker trên cùng vùng quét của P93 (scan(root)), không phải trong một file; và bổ sung hai đột biến E9 đã khai.
+
+### P93 loại thêm HAI vùng ngoài ba mục AC-10 khai (mọi path bắt đầu bằng dấu chấm, và mọi đuôi ngoài allowlist)
+- file: `/Users/manhphan/dev/acceptance-gate-kit/.claude/worktrees/adoring-rubin-5bf1c9/tests/plugins/run-tests.sh:2318`
+- severity: medium
+- AC: AC-10
+- source: bugs
+
+AC-10 khai vùng quét là "toàn bộ cây nguồn (trừ mirror plugins/, _acceptance/, tests/)" — ĐÚNG ba mục, và commit d22e7e4 nói rõ 'cấm khoét thêm mục nào'. Nhưng `scan()` khoét thêm hai lớp nữa, cả hai không khai ở đâu:
+1. dòng 2318 `if any(part.startswith(".") for part in rel): continue` — bỏ TOÀN BỘ path có phần bắt đầu bằng dấu chấm. Trong kho này .out-of-scope/ (2 file .md, git-tracked) và .agents/ (marketplace.json, git-tracked) là nguồn thật, CLAUDE.md gọi đích danh .out-of-scope/ là nơi ghi đề xuất bị từ chối.
+2. dòng 2310 `EXT = {".md", ".js", ".mjs", ".sh", ".json"}` — bản sao nằm trong .yaml/.yml/.txt/.html/.py không bao giờ bị thấy.
+
+RED-probe đã chạy (baseline XANH trước): `cp skills/acceptance/references/human-facing-language.md .out-of-scope/BAN-SAO-THU-3.md` — tức bản sao thứ ba NGUYÊN VĂN của cả bảng luật lẫn hai khuôn → `Results: all plugin tests passed`. Bảo đảm một-nguồn của AC-7/AC-10 sai mà phép đo vẫn báo đạt.
+
+Đây cùng hình dạng lỗi mà round 1 (allowlist bỏ lọt design-loop/) và round 2 (khoét docs/superpowers/) đã dẫm; danh sách loại-trừ mới vẫn còn hai mục ẩn.
+
+Sửa: loại đích danh chỉ những gì AC khai cộng vùng máy sinh không thể tránh (`.git`, `.claude`, `node_modules`) và ghi lý do từng mục, thay vì luật 'mọi path có dấu chấm'; nới EXT hoặc bỏ hẳn lọc đuôi (đọc nhị phân đã có errors='ignore').
+
+### P89 kiểm 'hai phép thử' cũng bằng substring toàn-file — xoá định nghĩa Xoá-tên-máy vẫn XANH
+- file: `/Users/manhphan/dev/acceptance-gate-kit/.claude/worktrees/adoring-rubin-5bf1c9/tests/plugins/run-tests.sh:2024`
+- severity: medium
+- AC: AC-1
+- source: bugs
+
+Cùng lớp lỗi với finding #1. AC-1 đòi file tham chiếu chứa 'hai phép thử gọi đích danh tên Xoá-tên-máy và Người-thứ-ba'. P89 chỉ làm `if name not in text`. Chuỗi 'Xoá-tên-máy' xuất hiện HAI lần trong human-facing-language.md: dòng 43 (định nghĩa phép thử — vật thật) và dòng 62 (câu dẫn của khuôn bảng, chỉ nhắc tên).
+
+RED-probe đã chạy (baseline XANH trước): xoá nguyên gạch đầu dòng định nghĩa 'Xoá-tên-máy' ở mục '## Hai phép thử' (giữ nguyên nhắc tên dòng 62) → `Results: all plugin tests passed`. Phép thử biến mất khỏi bản luật mà phép đo AC-1 không đỏ.
+
+(Ghi chú cùng file, mức thấp hơn: P95 dòng 2447 và 2449 là HAI điều kiện khác nhau nhưng phát ra CÙNG MỘT thông điệp, nên đột biến ở dòng 2471 chỉ chứng minh được điều kiện thứ nhất — nhánh 'ghép thẳng ${PLUGIN_ROOT} khi vẫn còn dòng resolver' chưa từng được đá RED riêng.)
+
+Sửa: neo vào mục '## Hai phép thử' (rút block rồi tìm tên trong block đó), không tìm trên toàn văn bản; và tách thông điệp của hai nhánh P95.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **Bản phát hành 1.28.0/1.20.0 không có phép đo nào ghim — gỡ bump vẫn xanh toàn suite**
-  Người dùng thấy gì: Nếu ai đó lỡ gỡ ngược bản phát hành vừa ra mắt của luật ngôn ngữ mặt người, bộ kiểm tra tự động sẽ không phát hiện ra, và tính năng có thể âm thầm biến mất mà không ai được cảnh báo.
-  file: `tests/plugins/run-tests.sh`
-  severity: medium
-  Đề xuất: known-limits
-
-- **verified_commit ghim cây TRƯỚC các sửa đổi mà chính báo cáo mô tả**
-  Người dùng thấy gì: Báo cáo bằng chứng đưa cho người duyệt đang được đóng dấu ở một thời điểm trước khi các bản vá cuối cùng được thêm vào, nên người duyệt có thể đang tin vào một báo cáo không phản ánh đúng bản thi hành thật hiện có.
-  file: `_acceptance/ngon-ngu-mat-nguoi/evidence-report.md`
-  severity: medium
-  Đề xuất: known-limits
-
-- **11 feature cũ bị đẩy thành stale-evidence; nghi thức re-pin đã có tiền lệ không được thực hiện**
-  Người dùng thấy gì: Khi nhánh này được gộp vào nhánh chính, 11 tính năng đã duyệt trước đó sẽ bị đánh dấu là bằng chứng cũ và có thể chặn đỏ cổng kiểm tra tự động cho tới khi có người ghim lại thủ công.
-  file: `_acceptance/pha3-goi-luoi/evidence-report.md`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Evidence blocks for E1–E14 all quote the same unrelated case (P95), so no eval is individually evidenced**
-  Người dùng thấy gì: Báo cáo bằng chứng gửi cho người duyệt trích dẫn cùng một đoạn kết quả chạy test cho gần hết các tiêu chí, nên người duyệt không thực sự thấy bằng chứng riêng cho tiêu chí mình đang xét — chỉ đang tin vào một dòng tóm tắt chung.
-  file: `_acceptance/ngon-ngu-mat-nguoi/evidence-report.md`
-  severity: high
-  Đề xuất: new-contract
-
-- **feature-loop 1.20.0 adds a hard acceptance-gate ≥1.28.0 dependency at S2 with no preflight declaration and no non-zero-exit branch**
-  Người dùng thấy gì: Nếu người dùng đã cập nhật công cụ vòng lặp tính năng nhưng chưa cập nhật gói duyệt lên bản mới nhất, hệ thống có thể âm thầm bỏ qua luật ngôn ngữ mặt người khi trình kế hoạch mà không báo lỗi gì cho họ biết.
-  file: `feature-loop/skills/feature-loop/SKILL.md`
+- **feature-loop 1.20.0 hard-depends on acceptance-gate ≥1.28.0 at S2 with no preflight declaration and no failure branch**
+  Người dùng thấy gì: Nếu máy đang chạy bản vòng lặp tính năng mới trong khi phần công cụ chấp nhận vẫn ở bản cũ hơn, bước trình kế hoạch giữa vòng lặp có thể lặng lẽ không áp luật ngôn ngữ mặt người, khiến người xem tiếp tục nhận bảng kế hoạch viết bằng lối diễn đạt kỹ thuật khó hiểu mà không có cảnh báo nào.
+  file: `/Users/manhphan/dev/acceptance-gate-kit/.claude/worktrees/adoring-rubin-5bf1c9/feature-loop/skills/feature-loop/SKILL.md:116`
   severity: high
   Đề xuất: known-limits
 
-- **acceptance-card's PLUGIN_ROOT fallback resolves with the wrong --require and can return a version lacking the rules file**
-  Người dùng thấy gì: Trên máy có cài nhiều phiên bản gói duyệt cùng lúc, lệnh dựng thẻ quyết định có thể vô tình dùng bản cũ chưa có luật ngôn ngữ mặt người mà không báo cho người dùng biết thẻ đang thiếu luật.
-  file: `commands/acceptance-card.md`
+- **P88 release-intent guard not updated for the 1.28.0 / 1.20.0 release — reverting the bump stays green**
+  Người dùng thấy gì: Bộ kiểm dùng để đảm bảo một bản phát hành mới thật sự mang tính năng mới không được cập nhật cho đợt này, nên nếu sau này ai đó lỡ đưa các thành phần liên quan về phiên bản cũ hơn, hệ thống kiểm tra tự động vẫn báo mọi thứ ổn thay vì cảnh báo.
+  file: `/Users/manhphan/dev/acceptance-gate-kit/.claude/worktrees/adoring-rubin-5bf1c9/tests/plugins/run-tests.sh:1992`
   severity: medium
   Đề xuất: known-limits
 
-- **P88 (the "release có chủ đích" guard) was not updated for 1.28.0/1.20.0, so reverting the release bump stays green**
-  Người dùng thấy gì: Nếu bản phát hành của luật ngôn ngữ mặt người bị gỡ ngược phiên bản, không phép kiểm tra tự động nào báo động — việc quên nâng cấp khi phát hành có thể trôi qua mà không ai hay biết.
-  file: `tests/plugins/run-tests.sh`
+- **Duplicate decision entry in the ledger — same decision appended twice with two ids**
+  Người dùng thấy gì: Sổ ghi quyết định của tính năng này đang lưu trùng một quyết định thành hai dòng gần như giống hệt nhau, nên người xem lại thẻ quyết định hoặc đếm số quyết định đã đưa ra có thể bị nhầm lẫn hay đếm sai.
+  file: `/Users/manhphan/dev/acceptance-gate-kit/.claude/worktrees/adoring-rubin-5bf1c9/_acceptance/ngon-ngu-mat-nguoi/decisions.jsonl:16`
   severity: medium
   Đề xuất: known-limits
 
-- **P95's two failure conditions emit an identical message, and it never asserts the rules file is absent from the feature-loop-codex package**
-  Người dùng thấy gì: Một phép kiểm tra tự động đang bảo vệ tính năng này có thể ngừng hoạt động đúng lúc mà không ai nhận ra, vì hai lỗi khác nhau nó cần bắt lại đang báo cùng một thông điệp.
-  file: `tests/plugins/run-tests.sh`
-  severity: low
+- **acceptance-card's PLUGIN_ROOT fallback resolves with the wrong --require, so it can return a version lacking the rules file**
+  Người dùng thấy gì: Trong một số cách cài đặt thiếu biến môi trường gốc-công-cụ, thẻ quyết định có thể tự động chọn nhầm một bản cài cũ hơn không mang theo luật ngôn ngữ mặt người, khiến thẻ hiển thị cho người duyệt thiếu áp luật mà không có cảnh báo nào.
+  file: `/Users/manhphan/dev/acceptance-gate-kit/.claude/worktrees/adoring-rubin-5bf1c9/commands/acceptance-card.md:37`
+  severity: medium
   Đề xuất: known-limits
 
-- **P93 reads scanned files with errors="ignore", silently discarding decode failures in an exact-count check**
-  Người dùng thấy gì: Nếu có một bản sao luật bị lưu với mã hoá ký tự lỗi, phép kiểm tra "chỉ một nguồn" có thể lặng lẽ bỏ qua bản sao đó và vẫn báo mọi thứ ổn dù thực ra không phải vậy.
-  file: `tests/plugins/run-tests.sh`
-  severity: low
+- **Gate-2 review artifact cites code the same commit deleted**
+  Người dùng thấy gì: Tài liệu rà soát dùng để người duyệt xem xét ở cổng thứ hai vẫn mô tả một số lỗi nghiêm trọng như đang còn tồn tại, dù các lỗi đó đã được sửa trong cùng đợt sửa — người đọc tài liệu này có thể tưởng nhầm công việc chưa hoàn tất.
+  file: `/Users/manhphan/dev/acceptance-gate-kit/.claude/worktrees/adoring-rubin-5bf1c9/_acceptance/ngon-ngu-mat-nguoi/review-findings.md:11`
+  severity: medium
   Đề xuất: known-limits
 
-⚠ Cụm ngoài vùng phủ: 4/12 lỗi rơi vào file không bộ đo nào phủ (_acceptance/ngon-ngu-mat-nguoi/evidence-report.md, _acceptance/pha3-goi-luoi/evidence-report.md, _acceptance/ngon-ngu-mat-nguoi/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+⚠ Cụm ngoài vùng phủ: 2/9 lỗi rơi vào file không bộ đo nào phủ (_acceptance/ngon-ngu-mat-nguoi/decisions.jsonl, _acceptance/ngon-ngu-mat-nguoi/review-findings.md) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
