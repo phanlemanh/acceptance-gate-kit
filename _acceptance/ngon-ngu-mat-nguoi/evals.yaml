@@ -1,0 +1,205 @@
+# Evals — ngon-ngu-mat-nguoi
+# Mọi eval máy chạy qua suite tests/plugins (case P89-P96 sinh ở S3).
+# cmd là config: ref — resolve tại S4; paths phục vụ carry-forward P1.
+#
+# LUẬT ÁP CHO CẢ FILE (bất biến kho, gap-probe P1#1 siết theo LỚP):
+# mọi case dựng bản sao rồi kết luận từ đột biến PHẢI (a) chạy bản NGUYÊN VẸN
+# trước và bản đó phải XANH, (b) ghim đúng thông điệp mong đợi chứ không chỉ
+# mã thoát. Eval nào dưới đây không nêu đủ hai vế là eval chưa siết.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P89 pass: file tham chiếu có đủ 6 mã luật N1..N6 kèm nội dung; đối chứng dương — bản sao NGUYÊN VẸN chạy trước và XANH; đột biến xoá 1 luật khỏi bản sao → ĐỎ ghim thông điệp nêu đích danh mã luật thiếu"
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - tests/plugins/run-tests.sh
+
+  - id: E2
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P89 pass: có đúng tên 2 phép thử Xoá-tên-máy + Người-thứ-ba, và bảng TRƯỚC/SAU phủ cả 6 luật; đối chứng dương bản nguyên vẹn XANH trước; đột biến xoá 1 cặp ví dụ khỏi bản sao → ĐỎ ghim thông điệp nêu luật chưa có ví dụ"
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - tests/plugins/run-tests.sh
+
+  - id: E3
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P89 pass: vế phạm vi KHÔNG áp có mặt và gọi đích danh evals.yaml + run-log.jsonl + frontmatter; đối chứng dương bản nguyên vẹn XANH trước; đột biến xoá vế loại trừ → ĐỎ ghim thông điệp thiếu-vế-loại-trừ (chống agent đi dịch mặt máy cho dễ đọc)"
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - tests/plugins/run-tests.sh
+
+  - id: E4
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P89 pass: dòng vận hành đi kèm N6 chứa đích danh CONTEXT.md; đối chứng dương bản nguyên vẹn XANH trước; đột biến thay bằng cụm chung chung 'từ điển sản phẩm' → ĐỎ ghim thông điệp N6-không-chỉ-đích-từ-điển"
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - tests/plugins/run-tests.sh
+
+  - id: E5
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P90 pass: đủ 8/8 file có đường dẫn file tham chiếu + động từ nạp bắt buộc, 8 đường dẫn liệt kê đích danh trong case (không glob); đối chứng dương bản nguyên vẹn XANH trước; đột biến gỡ pointer khỏi MỘT bản sao → ĐỎ ghim thông điệp nêu tên file thiếu"
+    paths:
+      - commands/acceptance-card.md
+      - commands/acceptance-report.md
+      - commands/acceptance-status.md
+      - feature-loop/skills/feature-loop/SKILL.md
+      - codex/acceptance-gate/skills/acceptance-card/SKILL.md
+      - codex/acceptance-gate/skills/acceptance-report/SKILL.md
+      - codex/acceptance-gate/skills/acceptance-status/SKILL.md
+      - codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E6
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P91 pass: đường dẫn RÚT RA từ chính 8 file (không viết tay trong case) trỏ vào file tồn tại trên cây nguồn, path suy từ ROOT; đối chứng dương — bản sao cây NGUYÊN VẸN chạy trước và XANH; đột biến đổi tên file đích trong bản sao → ĐỎ ghim thông điệp pointer-trỏ-file-không-tồn-tại; kèm bộ đếm sanity xác nhận rút được đúng 8 đường dẫn (rút 0 đường là grep hỏng, không phải sạch)"
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - commands/acceptance-card.md
+      - commands/acceptance-report.md
+      - commands/acceptance-status.md
+      - feature-loop/skills/feature-loop/SKILL.md
+      - codex/acceptance-gate/skills/acceptance-card/SKILL.md
+      - codex/acceptance-gate/skills/acceptance-report/SKILL.md
+      - codex/acceptance-gate/skills/acceptance-status/SKILL.md
+      - codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E7
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P95 pass (răng P0 của gap-probe): 3 skill acceptance trong plugins/acceptance-gate giải ${PLUGIN_ROOT}+đường-dẫn ra file tham chiếu CÓ THẬT trong gói đó; 2 bản vòng lặp tính năng (feature-loop nguồn + plugins/feature-loop-codex) KHÔNG được ghép thẳng gốc gói mà phải đi qua resolve-plugin.mjs --plugin acceptance-gate, và resolve-plugin.mjs phải tồn tại trong gói; đối chứng dương — gói NGUYÊN VẸN chạy trước và XANH; hai đột biến trên bản sao gói: (a) di chuyển file tham chiếu → ĐỎ ghim 'pointer trong gói trỏ file không tồn tại' kèm tên gói, (b) đổi pointer feature-loop thành dạng ghép-thẳng-gốc-gói → ĐỎ ghim 'gói này không chứa file tham chiếu — phải qua bộ giải plugin'"
+    paths:
+      - plugins/acceptance-gate/**
+      - plugins/feature-loop-codex/**
+      - feature-loop/skills/feature-loop/SKILL.md
+      - codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E8
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P93 pass: bảng 6 luật rút qua marker ở file tham chiếu KHỚP TỪNG KÝ TỰ với bảng ở docs/specs/workflow-v2-spec.md §4.1, và không có bản thứ ba trong vùng quét (skills/ commands/ feature-loop/ codex/ lib/ scripts/ hooks/ docs/ + md gốc; trừ plugins,_acceptance,tests) — kèm bộ đếm sanity >=40 file đã quét, 0 hit là grep hỏng chứ không phải sạch; đối chứng dương — bản nguyên vẹn so khớp XANH trước; đột biến sửa một chữ ở MỘT bản → ĐỎ ghim thông điệp nêu tên CẢ HAI file lệch"
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - docs/specs/workflow-v2-spec.md
+      - commands/**
+      - feature-loop/**
+      - codex/**
+      - tests/plugins/run-tests.sh
+
+  - id: E9
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P92 pass: đúng MỘT cặp marker PLAN-SUMMARY-TABLE-TEMPLATE trong vùng quét nguồn, khối rút được là bảng 3 cột đúng tên đã chốt + >=1 dòng ví dụ; đối chứng dương bản nguyên vẹn XANH trước; đột biến xoá marker mở → ĐỎ ghim thông điệp không-rút-được-khuôn"
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - tests/plugins/run-tests.sh
+
+  - id: E10
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P92 pass round-trip: fixture SINH TỪ khuôn rút qua marker (không viết tay bên đọc), đọc bằng luật tách ô bảng markdown của kit → đúng 3 header + mỗi dòng ví dụ đúng 3 ô; đối chứng dương bản nguyên vẹn XANH trước; BA đột biến (bỏ 1 cột / thêm cột 4 / nhồi 2 việc vào 1 ô) mỗi cái ĐỎ với thông điệp RIÊNG của nó"
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - tests/plugins/run-tests.sh
+
+  - id: E11
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P93 pass: tên 3 cột chỉ xuất hiện ở đúng 1 file nguồn (cùng vùng quét + bộ đếm sanity như E8; literal trong case ghép mảnh để không tự khớp source của chính case — bẫy P80); đối chứng dương bản nguyên vẹn XANH trước; đột biến chép tên cột sang file thứ 2 → ĐỎ ghim thông điệp khuôn-phải-một-chỗ kèm số file đếm được"
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - commands/**
+      - feature-loop/**
+      - codex/**
+      - tests/plugins/run-tests.sh
+
+  - id: E12
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P90 pass: cả 2 SKILL vòng lặp (Claude + Codex) có mệnh đề áp cho MỌI lần trình kế hoạch/tiến độ (không chỉ điểm dừng T3) và gọi khuôn theo tên marker PLAN-SUMMARY-TABLE-TEMPLATE; đối chứng dương bản nguyên vẹn XANH trước; đột biến thu hẹp mệnh đề về riêng T3 trong bản sao → ĐỎ ghim thông điệp phạm-vi-khuôn-bị-thu-hẹp"
+    paths:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E13
+    criterion: AC-12
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P94 pass: cả 2 bản lệnh dựng thẻ (commands/acceptance-card.md + codex skill) nêu quyền trả lại tại cổng VÀ tiền tố sổ nguyên văn 'lỗ-kit — ngôn ngữ mặt người'; đối chứng dương bản nguyên vẹn XANH trước; đột biến gỡ câu quyền trả lại khỏi MỘT bản → ĐỎ ghim thông điệp nêu tên bản thiếu (chống chỉ sửa 1 harness)"
+    paths:
+      - commands/acceptance-card.md
+      - codex/acceptance-gate/skills/acceptance-card/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E14
+    criterion: AC-13
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P96 pass: danh sách từ RÚT từ khối marker HFL-GLOSSARY-TERMS trong file tham chiếu (không viết tay trong case), mỗi từ có mục trong CONTEXT.md; bộ đếm sanity xác nhận rút được >=3 từ (rút 0 từ là parser hỏng); đối chứng dương bản nguyên vẹn XANH trước; đột biến xoá một mục khỏi bản sao CONTEXT.md → ĐỎ ghim thông điệp nêu đích danh từ thiếu"
+    paths:
+      - CONTEXT.md
+      - skills/acceptance/references/human-facing-language.md
+      - tests/plugins/run-tests.sh
+
+  - id: E15
+    criterion: AC-14
+    executor: script
+    cmd: config:executors.script.mirror_sync
+    expected: "exit 0 — mirror plugins/ khớp nguồn sau sync (đối chứng âm đã có sẵn ở P41: tiêm drift → --check exit 1)"
+    paths:
+      - skills/**
+      - codex/**
+      - plugins/**
+      - lib/**
+      - hooks/**
+      - vendor/**
+      - scripts/**
+      - feature-loop/**
+
+  - id: E16
+    criterion: AC-15
+    executor: judgment
+    runs: 3
+    inputs:
+      - ../../skills/acceptance/references/human-facing-language.md
+      - ../../commands/acceptance-card.md
+      - ../../commands/acceptance-report.md
+      - ../../commands/acceptance-status.md
+      - ../../feature-loop/skills/feature-loop/SKILL.md
+      - ../../codex/acceptance-gate/skills/acceptance-card/SKILL.md
+      - ../../codex/acceptance-gate/skills/acceptance-report/SKILL.md
+      - ../../codex/acceptance-gate/skills/acceptance-status/SKILL.md
+      - ../../codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md
+    question: >
+      Bạn nhận CHÍN file. Với TỪNG file một, áp phép thử Xoá-tên-máy lên phần
+      TRÌNH CHO NGƯỜI của nó: xoá hết tên file, tên hàm, tên biến và mã số khỏi
+      từng câu, rồi hỏi câu đó còn nghĩa cho một người không đọc mã nguồn
+      không. Vùng TRÌNH CHO NGƯỜI là các câu mà sản phẩm cuối sẽ hiện cho người
+      duyệt đọc (bảng luật, ví dụ TRƯỚC/SAU, khuôn bảng tóm tắt, câu về quyền
+      trả lại, các câu mô tả việc sẽ trình). Vùng KHÔNG tính là chỉ dẫn kỹ
+      thuật dành cho agent (đường dẫn script, tên khoá cấu hình, lệnh chạy) —
+      luật loại trừ mặt máy nên đừng chấm phần đó. Bắt buộc: liệt kê tên cả
+      chín file đã soi và cho kết luận đạt/không đạt RIÊNG cho từng file; với
+      mỗi câu không qua được, trích câu đó kèm bản viết lại đề xuất.
+    expected: "Judge liệt kê đủ 9 tên file đã soi và phán riêng từng file; văn mặt-người qua được Xoá-tên-máy, câu không qua được phải nêu đích danh kèm đề xuất viết lại. 3 lượt chạy để lộ variance."

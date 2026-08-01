@@ -1,0 +1,31 @@
+{
+  "feature_plain": "Luật viết-cho-người-đọc được nhúng thẳng vào chỗ máy sinh ra thứ trình cho người, nên không còn đường vòng để trình bảng bằng ngôn ngữ máy.",
+  "will_do": [
+    { "id": "AC-1", "p": "Sẽ có một bản luật viết-cho-người đặt cùng chỗ với các khuôn mẫu khác của cổng: đủ sáu điều luật, hai phép thử nhanh, và ví dụ trước/sau cho từng điều." },
+    { "id": "AC-2", "p": "Sẽ nói rõ luật chỉ áp cho thứ trình cho người, và miễn trừ vùng máy đọc — ở đó tên chính xác mới là đúng." },
+    { "id": "AC-3", "p": "Sẽ chỉ đích danh nơi từ điển sản phẩm sống, để điều luật cấm biệt ngữ có chỗ tra thật thay vì một lời khuyên suông." },
+    { "id": "AC-4", "p": "Sẽ buộc tám chỗ sinh chữ cho người nạp bản luật trước khi viết chữ đầu tiên — bốn việc quen thuộc, trên cả hai môi trường chạy." },
+    { "id": "AC-5", "p": "Sẽ kiểm rằng mỗi con trỏ tới bản luật dẫn tới một file có thật, không phải một đường dẫn nghe hợp lý." },
+    { "id": "AC-6", "p": "Sẽ kiểm cả trong bản đã đóng gói để giao, vì đường dẫn đúng trên máy tác giả vẫn có thể chết trong gói người dùng cài." },
+    { "id": "AC-7", "p": "Sẽ giữ bản luật ở đúng hai nơi — nơi ghi quyết định và nơi đem ra thi hành — và bắt hai bản khớp nhau từng chữ." },
+    { "id": "AC-8", "p": "Sẽ có một khuôn bảng tóm tắt kế hoạch ba cột, đặt đúng một chỗ, để mọi lần trình đều cùng một hình dạng." },
+    { "id": "AC-9", "p": "Sẽ đọc lại chính khuôn đó bằng máy để chứng minh nó dùng được thật, không phải một khối trang trí." },
+    { "id": "AC-10", "p": "Sẽ chặn việc chép khuôn ra chỗ thứ hai — hai bản khuôn là hai bản sẽ trôi khỏi nhau." },
+    { "id": "AC-11", "p": "Sẽ áp khuôn cho mọi lần trình kế hoạch hay tiến độ, không riêng lần duyệt kế hoạch của việc rủi ro cao." },
+    { "id": "AC-12", "p": "Sẽ nói thẳng cho người duyệt biết họ có quyền trả lại tại cổng khi thấy vi phạm, và ghi lần trả lại đó vào sổ như một lỗ của bộ công cụ." },
+    { "id": "AC-13", "p": "Sẽ đưa các từ mới vào từ điển, để bộ công cụ không vi phạm chính điều luật cấm biệt ngữ mà nó vừa đặt ra." },
+    { "id": "AC-14", "p": "Sẽ đóng gói lại cả hai bản phát hành trong cùng một lần, để bản người dùng cài không tụt lại sau bản nguồn." }
+  ],
+  "wont_do": [],
+  "scope_plain": "Chưa làm máy tự đếm mật độ chữ kỹ thuật rồi siết dần, và chưa viết lại văn cũ của cả bộ công cụ.",
+  "decisions_plain": [
+    { "id": "d-20260801T035753Z-20939", "p": "KHÔNG làm máy tự đếm mật độ chữ kỹ thuật ở đợt này — đổi lại, giữa hai đợt việc bắt vi phạm nằm ở mắt người duyệt, không có số đo." },
+    { "id": "d-20260801T035754Z-20939", "p": "Đã chọn cưỡng chế trên cả hai môi trường chạy thay vì một — đổi lại phải sửa gấp đôi số file và mỗi lần đổi câu luật phải đổi cả hai bản." },
+    { "id": "d-20260801T035755Z-20939", "p": "Đã chọn áp khuôn cho mọi lần trình kế hoạch, không riêng lần duyệt của việc rủi ro cao — đổi lại phạm vi rộng hơn nên khó ghim bằng một câu duy nhất." },
+    { "id": "d-20260801T035756Z-20939", "p": "Đã chọn đặt bản luật cạnh các khuôn mẫu của cổng thay vì trong tài liệu — đổi lại nó nằm lẫn trong đồ nghề của một việc cụ thể, nhưng đặt ở tài liệu thì bản đóng gói thứ hai không có nó." },
+    { "id": "d-20260801T035757Z-20939", "p": "Đã chọn không dựng thêm bộ đọc trong mã sản phẩm chỉ để phục vụ phép đo — đổi lại bộ đọc sống trong bài kiểm, bù lại dữ liệu kiểm bắt buộc lấy từ chính khuôn gốc." },
+    { "id": "d-20260801T035758Z-20939", "p": "KHÔNG viết lại văn cũ của cả bộ công cụ ở đợt này — đổi lại văn cũ còn vi phạm cho tới khi có đợt riêng." },
+    { "id": "d-20260801T041239Z-25728", "p": "Đã chọn giữ một lượt chấm chất lượng văn bằng máy dù một việc trước đã bỏ đúng cách làm này — vì ở đây thứ được giao chính là luật ngôn ngữ, nên câu hỏi trung tâm là bản luật có tự tuân luật không." },
+    { "id": "d-20260801T041240Z-12487", "p": "Đã chọn giữ luật ở hai nơi và bắt chúng khớp từng chữ, thay vì rút ruột nơi ghi quyết định — đổi lại mỗi lần sửa câu luật phải sửa hai file cùng lượt." }
+  ]
+}
