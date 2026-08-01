@@ -17,12 +17,12 @@ table. For each feature directory (skip `config.yaml` and `README.md`):
 |---|---|---|---|---|
 | login-flow | T2 | verified | PASS | — |
 
-5. Below the table, flag actionable items:
-   - status `draft` → "Gate 1 pending: review contract + evals"
-   - status `approved`, no evidence report → "Awaiting implementation"
-   - status `implemented`, no evidence report → "Verification pending: run the acceptance skill (Phase 3)"
-   - verdict PASS + empty signoff → "Gate 2 pending: review evidence report"
-   - verdict PENDING-JUDGMENT → "Gate 2 pending: resolve judgment items (fill human_override, upgrade to PASS)"
-   - verdict REJECT → "Implementation fixes needed: see failed_evals"
-   - verdict BLOCKED → "Environment issue: see reason"
+5. Dưới bảng, nêu việc cần làm — mỗi dòng một ý, tên trường máy để trong ngoặc:
+   - `draft` → "Chờ người duyệt bộ tiêu chí trước khi code"
+   - `approved`, chưa có báo cáo bằng chứng → "Chờ code"
+   - `implemented`, chưa có báo cáo bằng chứng → "Chờ chấm bằng chứng — chạy Phase 3 của skill acceptance"
+   - PASS, chưa có chữ ký → "Chờ người ký sau khi đọc bằng chứng"
+   - PENDING-JUDGMENT → "Chờ người phán các mục cần quyết nghiệp vụ, rồi nâng lên đạt (điền `human_override`)"
+   - REJECT → "Cần sửa code — xem danh sách phép đo đã trượt (`failed_evals`)"
+   - BLOCKED → "Môi trường hỏng, chưa chấm được — xem lý do"
 6. If `_acceptance/` does not exist → suggest `/acceptance-init`.

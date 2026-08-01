@@ -52,17 +52,24 @@ machine face. Every render re-reads the file.
 
 - Table: `| Slug | Tier | Status | Verdict | G1 min | G2 min | Rounds | Flags |`
 - Headline: signed-off count; median + mean total minutes over features with
-  recorded minutes; baseline median from `baseline_minutes` (empty →
-  "baseline chưa ghi — điền `_acceptance/config.yaml::baseline_minutes`");
-  % reduction vs the ≥50% target → ĐẠT / CHƯA ĐẠT / KHÔNG ĐO ĐƯỢC (state
-  which inputs are missing).
-- Hygiene counts: gate1_skipped · un-acked bypasses · non-strict reports ·
-  stale-evidence features · features with minutes chưa ghi.
-- Network truth (advisory rail): `clean N · app-fail N · no-app-traffic N ·
-  third-party-only N · n-a N · unscoped N · unscoped-partial N — K features
-  with data`. One action line per feature carrying `app-fail` or
-  `no-app-traffic` on a `(cross-layer)` criterion. When K ≥ 5, add: "đủ mẫu
-  vận hành — cân nhắc máy-kiểm hóa network (schema v3, spec wave 2 §5)".
+  recorded minutes; baseline median from `baseline_minutes` (empty → "chưa ghi
+  mốc so sánh trước khi có cổng — điền vào cấu hình nghiệm thu, khoá
+  `baseline_minutes`"); % reduction vs the ≥50% target → ĐẠT / CHƯA ĐẠT /
+  KHÔNG ĐO ĐƯỢC (state which inputs are missing).
+- Vệ sinh cổng — mỗi dòng một ý, tên trường máy để trong ngoặc:
+  - N việc bỏ qua cổng duyệt tiêu chí (`gate1_skipped`)
+  - N việc dùng đường thoát mà chưa ai xác nhận (bypass chưa `bypass_ack`)
+  - N báo cáo chạy ở mức lỏng hơn chặt nhất (`enforcement_mode` ≠ strict)
+  - N việc có bằng chứng cũ hơn mã nguồn
+  - N việc chưa ghi số phút của người
+- Sự thật mạng (chỉ để tham khảo, không chặn): đếm theo bảy nhóm, mỗi mã kèm
+  nghĩa ngay lần đầu — `clean` (sạch) · `app-fail` (chính app lỗi) ·
+  `no-app-traffic` (app không gọi mạng) · `third-party-only` (chỉ bên thứ ba) ·
+  `n-a` (không đo được) · `unscoped` (ngoài phạm vi app) · `unscoped-partial`
+  (ngoài phạm vi một phần) — kèm số việc có dữ liệu. Một dòng hành động cho mỗi
+  việc có "chính app lỗi", hoặc "app không gọi mạng" trên một tiêu chí xuyên
+  lớp. Từ 5 việc có dữ liệu trở lên, thêm: "đủ mẫu vận hành — cân nhắc máy-kiểm
+  hóa network (schema v3, spec wave 2 §5)".
 - Action items: one actionable line per hygiene hit.
 
 `_acceptance/` missing → suggest the `acceptance-init` skill. No features →

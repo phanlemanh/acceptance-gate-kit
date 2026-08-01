@@ -24,18 +24,17 @@ Print:
 |---|---|---|---|---|
 | login-flow | T2 | verified | PASS | — |
 
-Then report actionable items:
+Nêu việc cần làm — mỗi dòng một ý, tên trường máy để trong ngoặc:
 
-- `draft`: Gate 1 pending; review contract and evals.
-- `approved` without evidence: implementation or plan pending.
-- `implemented` without evidence: verification pending; resume the Acceptance
-  skill at Phase 3.
-- `PASS` with empty signoff: Gate 2 pending.
-- `PENDING-JUDGMENT`: Gate 2 must resolve judgment or variance items before a
-  PASS upgrade.
-- `REJECT`: implementation fixes required; list `failed_evals`.
-- `BLOCKED`: environment or configuration issue; show the exact reason.
-- `signed-off`: complete; still report stale evidence if the verified commit no
-  longer matches product code.
+- `draft`: chờ người duyệt bộ tiêu chí trước khi code.
+- `approved`, chưa có bằng chứng: chờ code.
+- `implemented`, chưa có bằng chứng: chờ chấm bằng chứng — chạy Phase 3 của
+  skill acceptance.
+- `PASS`, chưa có chữ ký: chờ người ký ở Gate 2 sau khi đọc bằng chứng.
+- `PENDING-JUDGMENT`: Gate 2 phải phán các mục cần quyết nghiệp vụ hoặc mục dao
+  động giữa các lượt chạy, rồi mới nâng lên đạt.
+- `REJECT`: cần sửa code — liệt kê các phép đo đã trượt (`failed_evals`).
+- `BLOCKED`: môi trường hoặc cấu hình hỏng, chưa chấm được — in nguyên lý do.
+- `signed-off`: xong; vẫn phải báo nếu bằng chứng cũ hơn mã nguồn hiện tại.
 
 Do not modify artifacts while reporting status.
