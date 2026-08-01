@@ -207,6 +207,13 @@ Mọi case đi vào `tests/plugins/run-tests.sh` (suite `executors.test.plugins`
 Mirror: `executors.script.mirror_sync` (`sync-plugin-packages.sh --check`) —
 đối chứng âm đã có sẵn ở P41, không dựng lại.
 
+**Sửa trong lúc làm (S3), đã ghi sổ:** vùng quét một-nguồn loại thêm
+`docs/superpowers/**`. Lý do buộc phải đổi: bản kế hoạch **là bản chỉ dẫn tạo
+file**, nên nó bắt buộc chứa nguyên văn cả khuôn lẫn bảng luật — để trong vùng
+quét thì phép đo bắt nhầm chính hồ sơ xây dựng của mình. `docs/specs/` VẪN nằm
+trong vùng quét, vì đó là nơi bản luật thứ hai sống. Đây là nới một tiêu chí đã
+duyệt (AC-10 chỉ loại `plugins/`, `_acceptance/`, `tests/`) nên nó lên gói Cổng 2.
+
 **Bẫy đã biết, tránh trước:**
 - Case P93 quét chuỗi mà **chính source của case chứa chuỗi đó** → loại `tests/`
   khỏi vùng quét VÀ ghép mảnh literal như P80 đã phải làm.

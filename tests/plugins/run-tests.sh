@@ -71,13 +71,24 @@ for rel in [
 PY
 
 run "P04 feature-loop-codex manifest is version-aligned" \
-  python3 - "$ROOT/plugins/feature-loop-codex/.codex-plugin/plugin.json" <<'PY'
+  python3 - "$ROOT" <<'PY'
 import json, sys
-data = json.load(open(sys.argv[1]))
+from pathlib import Path
+root = Path(sys.argv[1])
+load = lambda rel: json.loads((root / rel).read_text(encoding="utf-8"))
+data = load("plugins/feature-loop-codex/.codex-plugin/plugin.json")
 assert data["name"] == "feature-loop-codex"
 assert data["skills"] == "./skills/"
-assert data["version"] == "1.19.0"
 assert data["description"]
+# KHONG ghim literal version: ghim literal bat moi lan bump phai sua suite, ma
+# suite doi la code doi that nen evidence stale — vong "ky -> bump -> stale ->
+# verify lai -> ky lai" da dam o P03/P22. Doc tu manifest va bat BA ban khop
+# nhau; lech mot ban la DO, dung lop loi ma phep do nay sinh ra de bat.
+overlay = load("codex/feature-loop-codex/.codex-plugin/plugin.json")
+claude = load("feature-loop/.claude-plugin/plugin.json")
+versions = {data["version"], overlay["version"], claude["version"]}
+assert len(versions) == 1, f"ba manifest feature-loop lech nhau: {versions}"
+assert data["version"], "version rong"
 PY
 
 run "P05 feature-loop-codex source and generated skill match" \
@@ -268,11 +279,13 @@ import json, sys
 from pathlib import Path
 root = Path(sys.argv[1])
 
-assert json.loads((root / "codex/feature-loop-codex/.codex-plugin/plugin.json").read_text())["version"] == "1.19.0"
 assert json.loads((root / "codex/design-loop/.codex-plugin/plugin.json").read_text())["version"] == "0.3.0"
-# version của acceptance-gate không ghim literal ở đây (xem P03); chỉ kiểm hai
-# plugin có version ĐỘC LẬP là còn đúng số của chúng.
-assert json.loads((root / "feature-loop/.claude-plugin/plugin.json").read_text())["version"] == "1.19.0"
+# version của acceptance-gate và feature-loop KHÔNG ghim literal (xem P03/P04):
+# ghim literal bắt mỗi lần bump phải sửa suite, mà suite đổi là code đổi thật
+# nên evidence stale. Ở đây chỉ bắt hai bản feature-loop khớp nhau — lệch là ĐỎ.
+_fl_c = json.loads((root / "feature-loop/.claude-plugin/plugin.json").read_text())["version"]
+_fl_x = json.loads((root / "codex/feature-loop-codex/.codex-plugin/plugin.json").read_text())["version"]
+assert _fl_c and _fl_c == _fl_x, f"feature-loop lệch giữa bản Claude ({_fl_c}) và Codex ({_fl_x})"
 assert "machine: 'haiku'" in (root / "feature-loop/workflows/acceptance-verify.js").read_text()
 assert "judge: 'sonnet'" in (root / "feature-loop/workflows/acceptance-verify.js").read_text()
 assert "executor: null" in (root / "feature-loop/workflows/execute-parallel.js").read_text()

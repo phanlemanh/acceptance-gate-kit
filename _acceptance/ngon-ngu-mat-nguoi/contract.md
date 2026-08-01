@@ -5,7 +5,7 @@ slug: ngon-ngu-mat-nguoi
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-08-01T04:18:44Z
 time_human_minutes: {gate1: 0, gate2: 0}
