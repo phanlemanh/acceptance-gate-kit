@@ -47,3 +47,19 @@
 {"ts":"2026-08-01T12:40:00Z","round":3,"evalId":"E14","run_id":"minted-ngon-ngu-mat-nguoi-E14-r3","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-01T12:40:00Z","round":3,"evalId":"E15","run_id":"minted-ngon-ngu-mat-nguoi-E15-r3","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
 {"ts":"2026-08-01T12:40:00Z","round":3,"kind":"baseline","evals_hash":"4aeb51bfb8eb41083a2487695cce8c88185a4de0e4096f3716a5a43b4f976801","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E7","E8","E9","E10","E11","E12","E13","E14"]},{"cmd":"bash scripts/sync-plugin-packages.sh --check","evals":["E15"]}]}
+{"ts":"2026-08-01T14:10:00Z","round":4,"evalId":"E1","run_id":"minted-ngon-ngu-mat-nguoi-E1-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-01T14:10:00Z","round":4,"evalId":"E2","run_id":"minted-ngon-ngu-mat-nguoi-E2-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-01T14:10:00Z","round":4,"evalId":"E3","run_id":"minted-ngon-ngu-mat-nguoi-E3-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-01T14:10:00Z","round":4,"evalId":"E4","run_id":"minted-ngon-ngu-mat-nguoi-E4-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-01T14:10:00Z","round":4,"evalId":"E5","run_id":"minted-ngon-ngu-mat-nguoi-E5-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-01T14:10:00Z","round":4,"evalId":"E6","run_id":"minted-ngon-ngu-mat-nguoi-E6-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-01T14:10:00Z","round":4,"evalId":"E7","run_id":"minted-ngon-ngu-mat-nguoi-E7-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-01T14:10:00Z","round":4,"evalId":"E8","run_id":"minted-ngon-ngu-mat-nguoi-E8-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-01T14:10:00Z","round":4,"evalId":"E9","run_id":"minted-ngon-ngu-mat-nguoi-E9-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-01T14:10:00Z","round":4,"evalId":"E10","run_id":"minted-ngon-ngu-mat-nguoi-E10-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-01T14:10:00Z","round":4,"evalId":"E11","run_id":"minted-ngon-ngu-mat-nguoi-E11-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-01T14:10:00Z","round":4,"evalId":"E12","run_id":"minted-ngon-ngu-mat-nguoi-E12-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-01T14:10:00Z","round":4,"evalId":"E13","run_id":"minted-ngon-ngu-mat-nguoi-E13-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-01T14:10:00Z","round":4,"evalId":"E14","run_id":"minted-ngon-ngu-mat-nguoi-E14-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-01T14:10:00Z","round":4,"evalId":"E15","run_id":"minted-ngon-ngu-mat-nguoi-E15-r4","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
+{"ts":"2026-08-01T14:10:00Z","round":4,"kind":"baseline","evals_hash":"96903facd2b60be2e4f69c69bc8f204556fb4db9090ffad8a30f143148172151","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E7","E8","E9","E10","E11","E12","E13","E14"]},{"cmd":"bash scripts/sync-plugin-packages.sh --check","evals":["E15"]}]}
