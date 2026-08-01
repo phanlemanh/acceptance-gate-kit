@@ -129,6 +129,27 @@ Tuyến xử lý một surface: làn design (mockup/fidelity — CT1/CT2) vs là
 (e2e). Mobile đi làn test, không kích hoạt làn design.
 _Avoid_: flow, track.
 
+### Song diện
+
+**Mặt người**:
+Nửa artifact dành cho người đọc và quyết: thẻ cổng, bảng tóm tắt kế hoạch, báo
+cáo checkpoint, tin nhắn tại điểm quyết định. Chịu luật ngôn ngữ mặt người
+(`skills/acceptance/references/human-facing-language.md`).
+_Avoid_: UI (đó là surface của sản phẩm tiêu thụ), bản đẹp.
+
+**Mặt máy**:
+Nửa artifact dành cho hook/CI/script đọc: frontmatter, `evals.yaml`,
+`run-log.jsonl`, mã nguồn. Ở đây tên chính xác là bắt buộc — luật ngôn ngữ mặt
+người KHÔNG áp vào đây.
+_Avoid_: backend, internal.
+
+**Lỗ-kit**:
+Vi phạm luật ngôn ngữ mặt người bị người duyệt bắt tại cổng, ghi vào sổ quyết
+định bằng entry `revisit` có `decision` mở đầu `lỗ-kit — ngôn ngữ mặt người`.
+Là lỗ của bộ công cụ chứ không phải lỗi của người viết — đếm được để đợt nâng
+bộ thẻ đọc lại bằng số.
+_Avoid_: bug, lỗi trình bày.
+
 ### Evidence vocabulary
 
 **Residual**:

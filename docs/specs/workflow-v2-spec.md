@@ -189,6 +189,7 @@ tóm tắt kế hoạch, báo cáo checkpoint, tin nhắn tại điểm quyết 
 release notes. **KHÔNG áp** cho mặt máy (evals, run-log, code, frontmatter) —
 ở đó tên chính xác là bắt buộc.
 
+<!-- <<<HFL-LAW-TABLE -->
 | # | Luật |
 |---|---|
 | N1 | **Chủ ngữ là người dùng hoặc sản phẩm, không phải file.** Câu nói *người dùng sẽ thấy gì khác*, không nói *sửa gì ở đâu*. |
@@ -197,6 +198,7 @@ release notes. **KHÔNG áp** cho mặt máy (evals, run-log, code, frontmatter)
 | N4 | **Một dòng một ý** — không nhồi nhiều việc vào một ô bằng dấu phân cách. |
 | N5 | **Hình trước, chữ là chú thích** tại mọi điểm quyết định (bảng có cột rõ · sơ đồ · bản bấm được). Câu hỏi cho người phải trả lời được bằng có/không hoặc a/b. |
 | N6 | **Không dùng biệt ngữ nội bộ chưa có trong từ điển sản phẩm.** |
+<!-- HFL-LAW-TABLE>>> -->
 
 **Hai phép thử (rẻ, làm được trong vài giây):**
 - **Xoá-tên-máy**: xoá hết tên file/hàm/biến/mã số khỏi câu — còn nghĩa cho
@@ -210,6 +212,9 @@ ba chỗ trỏ tới nó: thẻ cổng · bảng tóm tắt kế hoạch · báo
 Nấc máy soi (khi nâng bộ thẻ): đếm mật độ token kỹ thuật ở vùng mặt-người,
 ratchet như census design system. Vi phạm ở cổng = người duyệt có quyền trả
 lại, ghi `lỗ-kit` vào sổ.
+
+Bản thi hành: `skills/acceptance/references/human-facing-language.md` — bảng
+luật ở hai nơi được giữ khớp từng ký tự bằng case P93.
 
 *Vì sao là luật chứ không phải skill: skill chờ được gọi sẽ chết lúc bận
 (tiền lệ ceremony design đã khai tử). Luật nhúng vào chỗ nghẽn đầu ra thì
