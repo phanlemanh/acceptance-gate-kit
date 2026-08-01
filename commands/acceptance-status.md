@@ -20,7 +20,7 @@ table. For each feature directory (skip `config.yaml` and `README.md`):
 5. Dưới bảng, nêu việc cần làm — mỗi dòng một ý, tên trường máy để trong ngoặc:
    - `draft` → "Chờ người duyệt bộ tiêu chí trước khi code"
    - `approved`, chưa có báo cáo bằng chứng → "Chờ code"
-   - `implemented`, chưa có báo cáo bằng chứng → "Chờ chấm bằng chứng — chạy Phase 3 của skill acceptance"
+   - `implemented`, chưa có báo cáo bằng chứng → "Code xong rồi, chưa ai chấm — chạy bước nghiệm thu (Phase 3 của skill acceptance)"
    - PASS, chưa có chữ ký → "Chờ người ký sau khi đọc bằng chứng"
    - PENDING-JUDGMENT → "Chờ người phán các mục cần quyết nghiệp vụ, rồi nâng lên đạt (điền `human_override`)"
    - REJECT → "Cần sửa code — xem danh sách phép đo đã trượt (`failed_evals`)"

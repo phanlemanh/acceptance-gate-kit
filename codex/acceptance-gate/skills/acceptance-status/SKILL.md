@@ -28,8 +28,8 @@ Nêu việc cần làm — mỗi dòng một ý, tên trường máy để trong
 
 - `draft`: chờ người duyệt bộ tiêu chí trước khi code.
 - `approved`, chưa có bằng chứng: chờ code.
-- `implemented`, chưa có bằng chứng: chờ chấm bằng chứng — chạy Phase 3 của
-  skill acceptance.
+- `implemented`, chưa có bằng chứng: code xong rồi, chưa ai chấm — chạy bước
+  nghiệm thu (Phase 3 của skill acceptance).
 - `PASS`, chưa có chữ ký: chờ người ký ở Gate 2 sau khi đọc bằng chứng.
 - `PENDING-JUDGMENT`: Gate 2 phải phán các mục cần quyết nghiệp vụ hoặc mục dao
   động giữa các lượt chạy, rồi mới nâng lên đạt.

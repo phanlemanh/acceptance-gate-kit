@@ -61,8 +61,9 @@ Steps:
      mỗi việc có "chính app lỗi", hoặc "app không gọi mạng" trên một tiêu chí
      xuyên lớp (dấu hiệu nút bấm chết). Từ 5 việc có dữ liệu trở lên, thêm: "đủ
      mẫu vận hành — cân nhắc máy-kiểm hóa network (schema v3, spec wave 2 §5)".
-   - Action items: one actionable line per hygiene hit (e.g. "2 contracts
-     thiếu `time_human_minutes` — điền lúc duyệt/ký; số liệu KPI đang mù").
+   - Việc cần làm: mỗi dấu hiệu mất vệ sinh một dòng, viết bằng tiếng người
+     (vd "2 việc chưa ghi số phút của người — điền lúc duyệt và lúc ký, khoá
+     `time_human_minutes`; thiếu nó thì không đo được cổng có đáng không").
 5. `_acceptance/` missing → suggest `/acceptance-init`. No features → say so.
 
 Read-only guarantee: this command never edits contracts, reports, or config —

@@ -146,11 +146,12 @@ tiền lệ `GOAL-TEMPLATE` (SKILL là bản runtime, GUIDE là bản người �
 giữ khớp). Phần "từ điển sống ở đâu" cố ý nằm NGOÀI bảng luật, để bổ sung vận
 hành không làm hai bản lệch nhau.
 
-**Khuôn 3 cột** (tên cột là literal đã chốt, chỉ tồn tại ở file nguồn):
-
-| Người dùng thấy gì khác | Đụng đâu | Phục vụ tiêu chí |
-|---|---|---|
-| 1 câu, chủ ngữ là người dùng/sản phẩm (N1) | tên kỹ thuật trong nháy (N2) | mã + 3–5 chữ nói nó là gì (N3) |
+**Khuôn 3 cột** — tên cột là literal đã chốt và **chỉ được tồn tại ở file
+nguồn**, nên thiết kế này cố ý KHÔNG chép chúng ra: khuôn nằm giữa cặp marker
+`PLAN-SUMMARY-TABLE-TEMPLATE`, đọc ở đó. Ba cột lần lượt trả lời: *người dùng
+thấy gì khác* (một câu, chủ ngữ là người dùng hoặc sản phẩm — N1) · *đụng đâu*
+(tên kỹ thuật, trong nháy — N2) · *phục vụ tiêu chí nào* (mã kèm 3–5 chữ nói nó
+là gì — N3).
 
 Một dòng một việc (N4). Cột 1 phải qua được phép thử Xoá-tên-máy.
 

@@ -19,7 +19,7 @@
 - Bảng luật N1–N6 phải **khớp từng ký tự** giữa `skills/acceptance/references/human-facing-language.md` và `docs/specs/workflow-v2-spec.md` §4.1.
 - Tiền tố sổ quyết định đã chốt, nguyên văn: `lỗ-kit — ngôn ngữ mặt người`.
 - Tên hai marker khuôn đã chốt: `PLAN-SUMMARY-TABLE-TEMPLATE`, `DECISION-DIAGRAM-TEMPLATE`. Marker bảng luật: `HFL-LAW-TABLE`. Marker từ mới: `HFL-GLOSSARY-TERMS`.
-- Ba tên cột đã chốt, nguyên văn: `Người dùng thấy gì khác` · `Đụng đâu` · `Phục vụ tiêu chí`.
+- Ba tên cột của khuôn bảng đã chốt — lấy nguyên văn từ khối marker `PLAN-SUMMARY-TABLE-TEMPLATE`, KHÔNG chép ra đây (xem hợp đồng case P93).
 - Ngưỡng kích hoạt sơ đồ đã chốt: **từ ba bước nối tiếp hoặc từ hai nhánh rẽ trở lên**.
 
 ---
@@ -63,113 +63,26 @@
 
 - [ ] **Step 1: Tạo bản luật thi hành**
 
-Tạo `skills/acceptance/references/human-facing-language.md` với nội dung ĐÚNG như dưới đây. Bảng giữa cặp `HFL-LAW-TABLE` phải khớp TỪNG KÝ TỰ với bảng hiện có ở `docs/specs/workflow-v2-spec.md` dòng 192–199 — chép, đừng gõ lại.
+Tạo `skills/acceptance/references/human-facing-language.md`. **KHÔNG chép nội
+dung file đó vào đây** — bản kế hoạch là hồ sơ xây dựng, không phải chỗ thứ hai
+để luật sống. Chép vào đây là tự tay tạo bản sao mà AC-7/AC-8/AC-10 sinh ra để
+chặn, và case P93 sẽ bắt đúng file này (round 2 đã bắt thật một lần).
 
-````markdown
-# Ngôn ngữ mặt người — luật bắt buộc khi trình cho người
+Cấu trúc file, theo thứ tự — nội dung lấy từ `docs/specs/workflow-v2-spec.md`
+§4.1, chép NGUYÊN VĂN phần bảng luật:
 
-Nguồn quyết định: `docs/specs/workflow-v2-spec.md` §4.1 (Manh, 2026-08-01).
-File này là **bản thi hành**: bộ dựng thẻ, bảng tóm tắt kế hoạch và báo cáo
-checkpoint NẠP file này trước khi viết chữ đầu tiên cho người đọc. Mỗi lần
-render là một lần đọc — luật không sống trong trí nhớ.
-
-## Áp ở đâu — và KHÔNG áp ở đâu
-
-**ÁP** cho mọi thứ trình cho người để đọc/quyết: thẻ cổng, bảng tóm tắt kế
-hoạch, báo cáo checkpoint và tổng kết, tin nhắn tại điểm quyết định, handbook,
-release notes.
-
-**KHÔNG ÁP** cho mặt máy: `evals.yaml`, `run-log.jsonl`, frontmatter,
-`contract.md` phần Given/When/Then, mã nguồn, thông điệp lỗi của script, tên
-file. Ở đó **tên chính xác là bắt buộc** — "dịch cho dễ đọc" một khoá
-frontmatter hay một `id:` của eval là làm hỏng hợp đồng máy, không phải làm
-tốt cho người.
-
-## Sáu luật
-
-<!-- <<<HFL-LAW-TABLE -->
-| # | Luật |
-|---|---|
-| N1 | **Chủ ngữ là người dùng hoặc sản phẩm, không phải file.** Câu nói *người dùng sẽ thấy gì khác*, không nói *sửa gì ở đâu*. |
-| N2 | **Tên kỹ thuật (file/hàm/biến/bảng) xuống cột phụ hoặc ngoặc** — không bao giờ làm chủ ngữ. |
-| N3 | **Mã số là tra cứu, không phải nội dung.** Lần đầu xuất hiện ở mặt người phải kèm 3–5 chữ nói nó là gì. |
-| N4 | **Một dòng một ý** — không nhồi nhiều việc vào một ô bằng dấu phân cách. |
-| N5 | **Hình trước, chữ là chú thích** tại mọi điểm quyết định (bảng có cột rõ · sơ đồ · bản bấm được). Câu hỏi cho người phải trả lời được bằng có/không hoặc a/b. |
-| N6 | **Không dùng biệt ngữ nội bộ chưa có trong từ điển sản phẩm.** |
-<!-- HFL-LAW-TABLE>>> -->
-
-**Ngưỡng kích hoạt sơ đồ (N5):** điểm quyết định có **từ ba bước nối tiếp hoặc
-từ hai nhánh rẽ trở lên** thì bắt buộc kèm sơ đồ; ít hơn thì bảng ba cột là đủ.
-Ngưỡng này đếm được — liếc là biết, không phải phán.
-
-**Từ điển sản phẩm sống ở đâu (N6):** `CONTEXT.md` ở gốc kho đang làm. Từ chưa
-có mục trong đó thì hoặc thêm mục trước, hoặc viết bằng chữ thường ai cũng
-hiểu. "Từ điển sản phẩm" không phải một khái niệm trừu tượng — nó là một file.
-
-## Hai phép thử (vài giây, làm được ngay)
-
-- **Xoá-tên-máy**: xoá hết tên file/hàm/biến/mã số khỏi câu — còn nghĩa cho
-  người không đọc code thì ĐẠT; thành rỗng hoặc mơ hồ thì viết lại.
-- **Người-thứ-ba**: một người trong đội không đọc code kể lại được *"sau việc
-  này người dùng thấy gì khác"* không?
-
-## Ví dụ TRƯỚC/SAU
-
-| Luật | TRƯỚC (ngôn ngữ máy) | SAU (ngôn ngữ mặt người) |
+| Mục | Nguồn nội dung | Ràng buộc |
 |---|---|---|
-| N1 | Bộ dựng thẻ đọc thêm khoá độ phủ từ hợp đồng | Người duyệt thấy ngay bộ tiêu chí đã phủ hết những gì |
-| N2 | Sửa bước lập kế hoạch trong SKILL của vòng lặp | Bước trình kế hoạch nạp bản luật trước khi viết (trong SKILL của vòng lặp) |
-| N3 | Phục vụ AC-7, E12 | Phục vụ AC-7 (luật chỉ nằm một chỗ) và E12 (khuôn áp mọi lần trình) |
-| N4 | Thêm marker, sửa bên đọc, thêm phép đo, chạy đóng gói | Bốn dòng riêng, mỗi dòng một việc |
-| N5 | Ba đoạn văn mô tả một luồng có ba nhánh | Một sơ đồ ba nhánh, chữ là chú thích dưới hình |
-| N6 | Bật CT-S cho slug này | Bật lưới chống sót tiêu chí cho việc này |
-
-## Khuôn bảng tóm tắt kế hoạch
-
-Dùng cho MỌI lần trình kế hoạch hoặc tiến độ cho người. Cột một phải qua được
-phép thử Xoá-tên-máy. Một dòng một việc — cấm nhồi nhiều việc vào một ô bằng
-dấu chấm giữa hay dấu chấm phẩy.
-
-<!-- <<<PLAN-SUMMARY-TABLE-TEMPLATE -->
-| Người dùng thấy gì khác | Đụng đâu | Phục vụ tiêu chí |
-|---|---|---|
-| <một câu, chủ ngữ là người dùng hoặc sản phẩm> | `<tên kỹ thuật>` | <mã> (<3–5 chữ nói nó là gì>) |
-| Người duyệt đọc được bảng kế hoạch bằng tiếng sản phẩm | `human-facing-language.md` | AC-1 (bản luật đủ sáu điều) |
-<!-- PLAN-SUMMARY-TABLE-TEMPLATE>>> -->
-
-## Khuôn sơ đồ điểm quyết định
-
-Dùng khi vượt ngưỡng kích hoạt của N5. Nhãn nút chịu đúng N1/N2: nhãn là chữ
-cho người, tên file xuống chú thích dưới hình.
-
-<!-- <<<DECISION-DIAGRAM-TEMPLATE -->
-```mermaid
-graph LR
-  A[Người duyệt mở thẻ] --> B{Đủ ba bước<br/>hoặc hai nhánh?}
-  B -->|có| C[Kèm sơ đồ]
-  B -->|không| D[Bảng ba cột là đủ]
-```
-<!-- DECISION-DIAGRAM-TEMPLATE>>> -->
-
-## Từ mới feature này đưa vào từ điển
-
-Mỗi từ dưới đây phải có mục trong `CONTEXT.md` — nếu không, chính kit vi phạm
-luật N6 nó vừa đặt ra.
-
-<!-- <<<HFL-GLOSSARY-TERMS -->
-- mặt người
-- mặt máy
-- lỗ-kit
-<!-- HFL-GLOSSARY-TERMS>>> -->
-
-## Vi phạm tại cổng — người duyệt có quyền TRẢ LẠI
-
-Thấy vi phạm ở thứ được trình, người duyệt **trả lại tại cổng** — không phải
-duyệt cho xong rồi góp ý sau. Trả lại là một lỗ của bộ công cụ, không phải lỗi
-của người viết: ghi vào sổ quyết định `_acceptance/<slug>/decisions.jsonl` một
-entry `revisit` có `decision` bắt đầu đúng chuỗi `lỗ-kit — ngôn ngữ mặt người`
-kèm câu vi phạm, để đợt nâng bộ thẻ đọc lại bằng số thay vì bằng trí nhớ.
-````
+| Phạm vi áp / KHÔNG áp | §4.1 đoạn "Phạm vi áp dụng" | phải gọi đích danh `evals.yaml`, `run-log.jsonl`, frontmatter là vùng miễn trừ |
+| Bảng sáu luật, bọc cặp marker `HFL-LAW-TABLE` | §4.1 bảng N1–N6 | khớp TỪNG KÝ TỰ với bản trong spec — chép, đừng gõ lại |
+| Ngưỡng kích hoạt sơ đồ (N5) | quyết tại Cổng 1 | "từ ba bước nối tiếp hoặc từ hai nhánh rẽ trở lên"; nằm NGOÀI bảng luật |
+| Nơi từ điển sống (N6) | quyết tại Cổng 1 | trỏ đích danh `CONTEXT.md`; nằm NGOÀI bảng luật |
+| Hai phép thử | §4.1 | tên nguyên văn `Xoá-tên-máy` và `Người-thứ-ba` |
+| Bảng ví dụ TRƯỚC/SAU | viết mới | mỗi luật N1–N6 ít nhất một cặp |
+| Khuôn bảng, bọc cặp marker `PLAN-SUMMARY-TABLE-TEMPLATE` | viết mới | đúng ba cột (người-thấy-gì-khác · đụng-đâu · phục-vụ-tiêu-chí); ≥1 dòng ví dụ; không ô nào chứa dấu chấm giữa hay chấm phẩy |
+| Khuôn sơ đồ, bọc cặp marker `DECISION-DIAGRAM-TEMPLATE` | viết mới | fence khai `mermaid`, ≥2 nút, ≥1 cạnh, nhãn nút không được là tên file |
+| Danh sách từ mới, bọc cặp marker `HFL-GLOSSARY-TERMS` | viết mới | ≥3 từ, mỗi từ phải có mục trong `CONTEXT.md` |
+| Quyền trả lại tại cổng | §4.1 câu cuối | nêu entry `revisit` với tiền tố nguyên văn `lỗ-kit — ngôn ngữ mặt người` |
 
 - [ ] **Step 2: Bọc bảng luật ở spec bằng cùng cặp marker**
 
@@ -413,189 +326,30 @@ git commit -m "feat(acceptance): 8 chỗ sinh chữ-cho-người nạp bản lu�
 - Consumes: bốn cặp marker của Task 1.
 - Produces: helper không có — mỗi case là một khối `run "..." python3 - "$ROOT" <<'PY' … PY` độc lập, theo đúng khuôn P79/P83/P85 đã có trong file.
 
-- [ ] **Step 1: Viết P89 (nội dung bản luật) — đối chứng dương trước, hai đột biến sau**
+- [ ] **Step 1: Viết ba case P89, P92, P96 vào `tests/plugins/run-tests.sh`**
 
-Chèn vào `tests/plugins/run-tests.sh`:
+**KHÔNG chép mã case vào bản kế hoạch này.** Mã sống ở `tests/plugins/run-tests.sh`
+— chép sang đây là tạo bản sao thứ hai của đúng những chuỗi mà P93 canh (tên ba
+cột, thân khuôn sơ đồ, thân bảng luật), và round 2 đã bắt thật lỗi đó một lần.
+Bản kế hoạch nêu HỢP ĐỒNG của mỗi case; mã là vật, không phải bản chép.
 
-```bash
-run "P89 ban luat: du N1-N6 + 2 phep thu + vi du 6 luat + ve mien tru + nguong N5 + tu dien" \
-  python3 - "$ROOT" <<'PY'
-import re, sys
-from pathlib import Path
-root = Path(sys.argv[1])
-REF = root / "skills/acceptance/references/human-facing-language.md"
-t = REF.read_text(encoding="utf-8")
+Mỗi case theo cùng một khuôn đã có sẵn trong file (xem P79, P83, P85 làm mẫu):
+`run "<tên>" python3 - "$ROOT" <<'PY' … PY`, đường dẫn suy từ `$ROOT`.
 
-def check(text):
-    errs = []
-    m = re.search(r"<!-- <<<HFL-LAW-TABLE -->\n([\s\S]*?)<!-- HFL-LAW-TABLE>>> -->", text)
-    if not m:
-        return ["KHONG rut duoc HFL-LAW-TABLE"]
-    for n in range(1, 7):
-        if not re.search(rf"^\| N{n} \| \S", m.group(1), re.M):
-            errs.append(f"thieu luat N{n}")
-    for name in ("Xoá-tên-máy", "Người-thứ-ba"):
-        if name not in text:
-            errs.append(f"thieu phep thu {name}")
-    # vi du TRUOC/SAU: moi luat >=1 cap, dem trong bang vi du (ngoai marker luat)
-    outside = text.replace(m.group(0), "")
-    for n in range(1, 7):
-        if not re.search(rf"^\| N{n} \| .+ \| .+ \|", outside, re.M):
-            errs.append(f"luat N{n} chua co vi du TRUOC/SAU")
-    for machine in ("evals.yaml", "run-log.jsonl", "frontmatter"):
-        if machine not in text:
-            errs.append(f"ve mien tru khong goi dich danh {machine}")
-    if "KHÔNG ÁP" not in text:
-        errs.append("thieu ve pham vi KHONG ap")
-    if not re.search(r"ba bước nối tiếp hoặc.*hai nhánh rẽ", text, re.S):
-        errs.append("N5 khong co nguong kich hoat")
-    if "CONTEXT.md" not in text:
-        errs.append("N6 khong chi dich tu dien")
-    return errs
+| Case | Đo gì | Đối chứng dương | Đột biến bắt buộc → thông điệp ghim |
+|---|---|---|---|
+| P89 | Bản luật đủ sáu mã luật, hai phép thử đúng tên, ví dụ TRƯỚC/SAU phủ cả sáu, vế miễn trừ gọi đích danh ba vật máy, ngưỡng kích hoạt sơ đồ, nơi từ điển sống | bản nguyên vẹn XANH trước | xoá một luật → nêu đích danh mã luật thiếu · xoá ngưỡng → `N5 khong co nguong kich hoat` · xoá vế miễn trừ → `thieu ve pham vi KHONG ap` · xoá một cặp ví dụ → nêu luật chưa có ví dụ |
+| P92 | Mỗi cặp marker khuôn xuất hiện đúng một lần; khuôn bảng rút qua marker cho đúng ba tiêu đề cột và mỗi dòng ví dụ ba ô; khuôn sơ đồ cho fence khai `mermaid`, ≥2 nút, ≥1 cạnh, nhãn nút không phải tên file | bản nguyên vẹn XANH trước | bỏ một cột · thêm cột thứ tư · nhồi hai việc vào một ô · fence mất khai báo ngôn ngữ · nhãn nút thành tên file — **năm thông điệp RIÊNG** |
+| P96 | Danh sách từ rút qua marker, mỗi từ có mục trong `CONTEXT.md`; bộ đếm sanity ≥3 từ | bản nguyên vẹn XANH trước | xoá một mục khỏi bản sao từ điển → nêu đích danh từ thiếu |
 
-assert check(t) == [], check(t)                      # doi chung DUONG
+Luật chung cho cả ba: fixture **rút từ marker của bên viết**, không viết tay ở
+bên đọc; literal nào cũng nằm trong file bị quét thì phải ghép mảnh (bẫy P80).
 
-mut1 = re.sub(r"^\| N4 \|.*$", "", t, count=1, flags=re.M)
-assert "thieu luat N4" in check(mut1), "dot bien xoa luat N4 khong do dung thong diep"
-
-mut2 = t.replace("ba bước nối tiếp hoặc", "nhiều bước hoặc")
-assert "N5 khong co nguong kich hoat" in check(mut2), "dot bien xoa nguong khong do dung thong diep"
-
-mut3 = t.replace("KHÔNG ÁP", "xxx", 1)
-assert "thieu ve pham vi KHONG ap" in check(mut3), "dot bien xoa ve mien tru khong do dung thong diep"
-PY
-```
-
-- [ ] **Step 2: Chạy P89 và xác nhận XANH**
-
-Run: `bash tests/plugins/run-tests.sh 2>&1 | grep -A1 "^P89"`
-Expected: `  PASS: P89 …`
-
-- [ ] **Step 3: Viết P92 (hai khuôn + round-trip) — năm đột biến, mỗi cái một thông điệp**
-
-```bash
-run "P92 hai khuon trinh bay: marker duy nhat + round-trip bang 3 cot + so do mermaid" \
-  python3 - "$ROOT" <<'PY'
-import re, sys
-from pathlib import Path
-root = Path(sys.argv[1])
-REF = root / "skills/acceptance/references/human-facing-language.md"
-t = REF.read_text(encoding="utf-8")
-COLS = ["Người dùng thấy gì khác", "Đụng đâu", "Phục vụ tiêu chí"]
-
-def block(text, name):
-    m = re.search(rf"<!-- <<<{name} -->\n([\s\S]*?)<!-- {name}>>> -->", text)
-    return m.group(1) if m else None
-
-# --- luat tach o bang markdown cua kit (cung luat gate-card.js dung) ---
-def rows(md):
-    out = []
-    for l in md.splitlines():
-        if not l.strip().startswith("|"):
-            continue
-        cells = [c.strip() for c in l.split("|")[1:-1]]
-        if not cells or all(re.fullmatch(r":?-+:?", c) for c in cells):
-            continue
-        out.append(cells)
-    return out
-
-def check(text):
-    errs = []
-    tb = block(text, "PLAN-SUMMARY-TABLE-TEMPLATE")
-    dg = block(text, "DECISION-DIAGRAM-TEMPLATE")
-    if tb is None:
-        errs.append("khong rut duoc khuon bang")
-    if dg is None:
-        errs.append("khong rut duoc khuon so do")
-    if tb is not None:
-        r = rows(tb)
-        if not r or r[0] != COLS:
-            errs.append(f"khuon bang sai tieu de cot: {r[0] if r else None}")
-        for i, row in enumerate(r):
-            if len(row) != 3:
-                errs.append(f"dong {i} khong du 3 o (co {len(row)})")
-            for c in row:
-                if "·" in c or ";" in c:
-                    errs.append("o bang nhoi nhieu viec — N4")
-        if len(r) < 2:
-            errs.append("khuon bang thieu dong vi du")
-    if dg is not None:
-        f = re.search(r"```(\w+)\n([\s\S]*?)```", dg)
-        if not f or f.group(1) != "mermaid":
-            errs.append("khoi so do khong khai mermaid")
-        else:
-            body = f.group(2)
-            labels = re.findall(r"[\[\{]([^\]\}]+)[\]\}]", body)
-            if len(labels) < 2:
-                errs.append("so do it hon 2 nut")
-            if "-->" not in body:
-                errs.append("so do khong co canh")
-            for lb in labels:
-                if re.search(r"[\w-]+\.(md|js|mjs|json|yaml|sh)\b|/", lb):
-                    errs.append(f"nhan nut la ten may: {lb}")
-    return errs
-
-assert check(t) == [], check(t)                       # doi chung DUONG
-assert t.count("<<<PLAN-SUMMARY-TABLE-TEMPLATE") == 1, "khuon bang khong duy nhat"
-assert t.count("<<<DECISION-DIAGRAM-TEMPLATE") == 1, "khuon so do khong duy nhat"
-
-def has(errs, frag):
-    return any(frag in e for e in errs)
-
-m1 = t.replace("| Đụng đâu ", "", 1)
-assert has(check(m1), "sai tieu de cot"), "dot bien bo 1 cot khong do dung thong diep"
-
-m2 = t.replace("| Phục vụ tiêu chí |", "| Phục vụ tiêu chí | Cột thừa |", 1)
-assert has(check(m2), "sai tieu de cot"), "dot bien them cot 4 khong do dung thong diep"
-
-m3 = t.replace("Người duyệt đọc được bảng kế hoạch bằng tiếng sản phẩm",
-               "Sửa bên viết · sửa bên đọc", 1)
-assert has(check(m3), "nhoi nhieu viec"), "dot bien nhoi 2 viec vao 1 o khong do dung thong diep"
-
-m4 = t.replace("```mermaid", "```", 1)
-assert has(check(m4), "khong khai mermaid"), "dot bien bo khai bao ngon ngu khong do dung thong diep"
-
-m5 = t.replace("A[Người duyệt mở thẻ]", "A[gate-card.js]", 1)
-assert has(check(m5), "nhan nut la ten may"), "dot bien nhan nut ten file khong do dung thong diep"
-PY
-```
-
-- [ ] **Step 4: Chạy P92 và xác nhận XANH**
-
-Run: `bash tests/plugins/run-tests.sh 2>&1 | grep -A1 "^P92"`
-Expected: `  PASS: P92 …`
-
-- [ ] **Step 5: Viết P96 (từ điển) — rút danh sách từ marker, tra CONTEXT.md**
-
-```bash
-run "P96 tu dien: rut tu qua marker HFL-GLOSSARY-TERMS roi tra CONTEXT.md" \
-  python3 - "$ROOT" <<'PY'
-import re, sys
-from pathlib import Path
-root = Path(sys.argv[1])
-ref = (root / "skills/acceptance/references/human-facing-language.md").read_text(encoding="utf-8")
-ctx = (root / "CONTEXT.md").read_text(encoding="utf-8")
-m = re.search(r"<!-- <<<HFL-GLOSSARY-TERMS -->\n([\s\S]*?)<!-- HFL-GLOSSARY-TERMS>>> -->", ref)
-assert m, "KHONG rut duoc HFL-GLOSSARY-TERMS"
-terms = [l.strip()[2:].strip() for l in m.group(1).splitlines() if l.strip().startswith("- ")]
-assert len(terms) >= 3, f"chi rut duoc {len(terms)} tu — parser hong hoac danh sach rong"
-
-def check(glossary):
-    return [f"tu '{x}' chua co muc trong tu dien" for x in terms
-            if not re.search(rf"^\*\*{re.escape(x)}\*\*:", glossary, re.M | re.I)]
-
-assert check(ctx) == [], check(ctx)                   # doi chung DUONG
-mut = re.sub(rf"^\*\*{re.escape(terms[0])}\*\*:.*?(?=^\*\*|\Z)", "", ctx,
-             count=1, flags=re.M | re.S | re.I)
-assert check(mut) == [f"tu '{terms[0]}' chua co muc trong tu dien"], \
-    "dot bien xoa muc tu dien khong do dung thong diep"
-PY
-```
-
-- [ ] **Step 6: Chạy toàn suite**
+- [ ] **Step 2: Chạy suite và xác nhận ba case XANH**
 
 Run: `bash tests/plugins/run-tests.sh`
 Expected: không có dòng `FAIL:` nào; thấy `PASS: P89`, `PASS: P92`, `PASS: P96`.
+
 
 - [ ] **Step 7: Commit**
 
@@ -617,251 +371,23 @@ git commit -m "test(plugins): P89 P92 P96 — nội dung bản luật, hai khuô
 **Interfaces:**
 - Consumes: tám chỗ trỏ của Task 2, marker `HFL-LAW-TABLE` của Task 1, mirror của Task 5 (P95 chạy trên `plugins/**` — nên Task 5 phải chạy sync TRƯỚC khi P95 xanh; xem ghi chú thứ tự ở Step 6).
 
-- [ ] **Step 1: Viết P90 (tám chỗ trỏ + mệnh đề mọi-lần-trình)**
+- [ ] **Step 1: Viết năm case P90, P91, P93, P94, P95 vào `tests/plugins/run-tests.sh`**
 
-```bash
-run "P90 tam cho tro nap ban luat + 2 SKILL vong lap ap khuon MOI lan trinh" \
-  python3 - "$ROOT" <<'PY'
-import sys
-from pathlib import Path
-root = Path(sys.argv[1])
-REF = "skills/acceptance/references/human-facing-language.md"
-SITES = ["commands/acceptance-card.md", "commands/acceptance-report.md",
-         "commands/acceptance-status.md",
-         "feature-loop/skills/feature-loop/SKILL.md",
-         "codex/acceptance-gate/skills/acceptance-card/SKILL.md",
-         "codex/acceptance-gate/skills/acceptance-report/SKILL.md",
-         "codex/acceptance-gate/skills/acceptance-status/SKILL.md",
-         "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md"]
-LOOPS = SITES[3], SITES[7]
+Cùng luật với Task 3: **không chép mã vào bản kế hoạch**, chỉ nêu hợp đồng.
 
-def check(read):
-    errs = []
-    for rel in SITES:
-        t = read(rel)
-        if REF not in t: errs.append(f"{rel}: thieu duong dan ban luat")
-        if "TRƯỚC khi viết" not in t: errs.append(f"{rel}: thieu menh lenh nap")
-    for rel in LOOPS:
-        t = read(rel)
-        if "PLAN-SUMMARY-TABLE-TEMPLATE" not in t:
-            errs.append(f"{rel}: thieu ten khuon bang")
-        if "MỌI lần trình" not in t and "MOI lan trinh" not in t:
-            errs.append(f"{rel}: pham vi khuon bi thu hep")
-        if "DECISION-DIAGRAM-TEMPLATE" not in t:
-            errs.append(f"{rel}: thieu ten khuon so do")
-    return errs
+| Case | Đo gì | Đối chứng dương | Đột biến bắt buộc → thông điệp ghim |
+|---|---|---|---|
+| P90 | Đủ tám chỗ trỏ có đường dẫn bản luật + mệnh lệnh nạp; hai bản vòng lặp có mệnh đề áp cho MỌI lần trình và gọi cả hai tên khuôn | bản nguyên vẹn XANH trước | gỡ con trỏ khỏi MỘT file → nêu tên file thiếu · thu mệnh đề về riêng T3 → `pham vi khuon bi thu hep` |
+| P91 | Đường dẫn **rút từ chính tám file** trỏ vào vật thật trên cây nguồn; bộ đếm sanity đúng 8/8 | bản sao dựng đủ MỌI vật được trỏ, XANH trước | đổi tên vật đích trong bản sao → `con tro tro file khong ton tai` |
+| P93 | Bảng luật khớp **từng ký tự** giữa bản thi hành và spec; thân luật đúng hai chỗ, tên ba cột và thân khuôn sơ đồ mỗi thứ đúng một chỗ. Vùng quét là **danh-sách-loại-trừ đi từ gốc cây**, loại đúng ba mục hợp đồng khai (`plugins/`, `_acceptance/`, `tests/`) — không được khoét thêm. Bộ đếm sanity **theo từng thư mục nguồn** | bản nguyên vẹn XANH trước | sửa một chữ ở MỘT bản luật → nêu tên CẢ HAI file lệch · **ghi file thật** chứa bản sao vào một cây nguồn bất kỳ (bản sao rsync) → ba thông điệp riêng |
+| P94 | Cả hai bản lệnh dựng thẻ nêu quyền trả lại và tiền tố sổ nguyên văn | bản nguyên vẹn XANH trước | gỡ khỏi MỘT bản → nêu tên bản thiếu |
+| P95 | Con trỏ giải được **trong gói đã đóng**: ba skill cùng gói ghép gốc-gói ra vật thật; bản vòng lặp thuộc gói KHÁC phải đi qua bộ giải, và bộ giải có mặt trong gói | gói nguyên vẹn XANH trước | di chuyển bản luật trong bản sao gói → `pointer trong goi … khong ton tai` · đổi con trỏ vòng lặp thành ghép-thẳng-gốc-gói → `phai qua bo giai plugin` |
 
-live = lambda rel: (root / rel).read_text(encoding="utf-8")
-assert check(live) == [], check(live)                 # doi chung DUONG
-assert len(SITES) == 8, "danh sach cho tro khong du 8"
+**Bẫy đã trả giá hai vòng, đừng dẫm lại:** vùng quét của P93 phải là
+danh-sách-loại-trừ, và đối chứng âm phải **ghi file thật ra ngoài** vùng từng bị
+bỏ lọt. Round 1 dùng danh-sách-cho-phép nên bỏ lọt hai cây nguồn; round 2 khoét
+thêm một mục loại trừ và mục đó đang chứa hàng thật.
 
-gone = SITES[5]
-m1 = lambda rel: live(rel).replace(REF, "xxx") if rel == gone else live(rel)
-assert f"{gone}: thieu duong dan ban luat" in check(m1), \
-    "dot bien go pointer khoi 1 file khong do dung thong diep"
-
-lp = LOOPS[0]
-m2 = lambda rel: live(rel).replace("MỌI lần trình", "riêng T3") if rel == lp else live(rel)
-assert f"{lp}: pham vi khuon bi thu hep" in check(m2), \
-    "dot bien thu hep pham vi khuon khong do dung thong diep"
-PY
-```
-
-- [ ] **Step 2: Viết P91 (con trỏ trỏ vào file thật trên cây nguồn)**
-
-```bash
-run "P91 con tro RUT TU file tro vao vat that tren cay nguon (+ dem sanity 8)" \
-  python3 - "$ROOT" <<'PY'
-import re, sys
-from pathlib import Path
-root = Path(sys.argv[1])
-SITES = ["commands/acceptance-card.md", "commands/acceptance-report.md",
-         "commands/acceptance-status.md",
-         "feature-loop/skills/feature-loop/SKILL.md",
-         "codex/acceptance-gate/skills/acceptance-card/SKILL.md",
-         "codex/acceptance-gate/skills/acceptance-report/SKILL.md",
-         "codex/acceptance-gate/skills/acceptance-status/SKILL.md",
-         "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md"]
-RX = re.compile(r"skills/acceptance/references/[\w.-]+\.md")
-
-def check(base):
-    errs, found = [], 0
-    for rel in SITES:
-        hits = set(RX.findall((base / rel).read_text(encoding="utf-8")))
-        if not hits:
-            errs.append(f"{rel}: khong rut duoc con tro nao")
-            continue
-        found += 1
-        for h in hits:
-            if not (base / h).is_file():
-                errs.append(f"{rel}: con tro tro file khong ton tai — {h}")
-    if found != 8:
-        errs.append(f"chi rut duoc con tro tu {found}/8 file — grep hong")
-    return errs
-
-assert check(root) == [], check(root)                 # doi chung DUONG
-import shutil, tempfile
-tmp = Path(tempfile.mkdtemp())
-try:
-    for rel in SITES + ["skills/acceptance/references/human-facing-language.md"]:
-        (tmp / rel).parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(root / rel, tmp / rel)
-    assert check(tmp) == [], f"ban sao NGUYEN VEN phai XANH truoc: {check(tmp)}"
-    (tmp / "skills/acceptance/references/human-facing-language.md").rename(
-        tmp / "skills/acceptance/references/doi-ten.md")
-    errs = check(tmp)
-    assert any("tro file khong ton tai" in e for e in errs), \
-        f"dot bien doi ten vat dich khong do dung thong diep: {errs}"
-finally:
-    shutil.rmtree(tmp)
-PY
-```
-
-- [ ] **Step 3: Viết P93 (một-nguồn: bảng luật hai nơi khớp + tên cột một chỗ)**
-
-Chú ý bẫy P80: literal tên cột ghép mảnh để không tự khớp source của chính case.
-
-```bash
-run "P93 mot-nguon: bang luat khop tung ky tu + ten cot chi o 1 file (+ dem sanity)" \
-  python3 - "$ROOT" <<'PY'
-import re, sys
-from pathlib import Path
-root = Path(sys.argv[1])
-REF = root / "skills/acceptance/references/human-facing-language.md"
-SPEC = root / "docs/specs/workflow-v2-spec.md"
-RX = re.compile(r"<!-- <<<HFL-LAW-TABLE -->\n([\s\S]*?)<!-- HFL-LAW-TABLE>>> -->")
-COL = "Người dùng thấy" + " gì khác"        # ghep manh — bay P80
-DIAG = "Đủ ba bước<br/>" + "hoặc hai nhánh?"
-
-def law(text):
-    m = RX.search(text)
-    return m.group(1) if m else None
-
-def compare(a_text, b_text):
-    a, b = law(a_text), law(b_text)
-    if a is None or b is None:
-        return [f"thieu marker bang luat: ref={a is not None} spec={b is not None}"]
-    if a != b:
-        return ["bang luat lech giua skills/acceptance/references/human-facing-language.md"
-                " va docs/specs/workflow-v2-spec.md"]
-    return []
-
-assert compare(REF.read_text(encoding="utf-8"), SPEC.read_text(encoding="utf-8")) == [], \
-    compare(REF.read_text(encoding="utf-8"), SPEC.read_text(encoding="utf-8"))   # doi chung DUONG
-mut = SPEC.read_text(encoding="utf-8").replace("Một dòng một ý", "Mot dong mot y", 1)
-errs = compare(REF.read_text(encoding="utf-8"), mut)
-assert errs and "bang luat lech" in errs[0], "dot bien sua 1 chu khong do dung thong diep"
-
-SCAN = ["skills", "commands", "feature-loop", "codex", "lib", "scripts", "hooks", "docs"]
-files = [p for d in SCAN for p in (root / d).rglob("*")
-         if p.is_file() and p.suffix in (".md", ".js", ".mjs", ".sh", ".json")]
-files += [p for p in root.glob("*.md")]
-assert len(files) >= 40, f"chi quet duoc {len(files)} file — vung quet hong"
-
-def count(paths, extra=None):
-    c = {COL: [], DIAG: []}
-    for p in paths:
-        t = p.read_text(encoding="utf-8", errors="ignore")
-        for k in c:
-            if k in t:
-                c[k].append(str(p.relative_to(root)))
-    if extra:
-        for k in c:
-            if k in extra[1]:
-                c[k].append(extra[0])
-    return c
-
-c = count(files)
-assert len(c[COL]) == 1, f"ten cot xuat hien o {len(c[COL])} file — khuon bang phai mot cho: {c[COL]}"
-assert len(c[DIAG]) == 1, f"than so do xuat hien o {len(c[DIAG])} file — khuon so do phai mot cho: {c[DIAG]}"
-c2 = count(files, extra=("gia-file-thu-hai.md", COL + DIAG))
-assert len(c2[COL]) == 2 and len(c2[DIAG]) == 2, \
-    "dot bien chep khuon sang file thu hai khong bi bat"
-PY
-```
-
-- [ ] **Step 4: Viết P94 (quyền trả lại, hai bản lệnh dựng thẻ)**
-
-```bash
-run "P94 quyen tra lai tai cong + tien to so, ca hai ban lenh dung the" \
-  python3 - "$ROOT" <<'PY'
-import sys
-from pathlib import Path
-root = Path(sys.argv[1])
-CARDS = ["commands/acceptance-card.md",
-         "codex/acceptance-gate/skills/acceptance-card/SKILL.md"]
-PREFIX = "lỗ-kit — ngôn ngữ mặt người"
-
-def check(read):
-    errs = []
-    for rel in CARDS:
-        t = read(rel)
-        if PREFIX not in t:
-            errs.append(f"{rel}: thieu tien to so quyet dinh")
-        if "revisit" not in t:
-            errs.append(f"{rel}: khong noi ghi vao so bang entry nao")
-        if "TRẢ LẠI" not in t and "reject the card" not in t:
-            errs.append(f"{rel}: thieu quyen tra lai tai cong")
-    return errs
-
-live = lambda rel: (root / rel).read_text(encoding="utf-8")
-assert check(live) == [], check(live)                 # doi chung DUONG
-gone = CARDS[1]
-mut = lambda rel: live(rel).replace(PREFIX, "xxx") if rel == gone else live(rel)
-assert f"{gone}: thieu tien to so quyet dinh" in check(mut), \
-    "dot bien go quyen tra lai khoi 1 harness khong do dung thong diep"
-PY
-```
-
-- [ ] **Step 5: Viết P95 (con trỏ giải được TRONG GÓI ĐÃ ĐÓNG) — răng P0 của gap-probe**
-
-```bash
-run "P95 con tro giai duoc TRONG GOI da dong (goi khac goi phai qua bo giai)" \
-  python3 - "$ROOT" <<'PY'
-import re, shutil, sys, tempfile
-from pathlib import Path
-root = Path(sys.argv[1])
-REF = "skills/acceptance/references/human-facing-language.md"
-IN_PKG = ["skills/acceptance-card/SKILL.md", "skills/acceptance-report/SKILL.md",
-          "skills/acceptance-status/SKILL.md"]
-
-def check(pkg_ag, pkg_fl):
-    errs = []
-    for rel in IN_PKG:                      # cung goi: ghep goc goi phai ra vat that
-        t = (pkg_ag / rel).read_text(encoding="utf-8")
-        for h in set(re.findall(r"skills/acceptance/references/[\w.-]+\.md", t)):
-            if not (pkg_ag / h).is_file():
-                errs.append(f"pointer trong goi acceptance-gate tro file khong ton tai — {h}")
-    fl = pkg_fl / "skills/feature-loop-codex/SKILL.md"
-    t = fl.read_text(encoding="utf-8")
-    if f"--plugin acceptance-gate --require {REF}" not in t:
-        errs.append("goi feature-loop-codex khong chua ban luat — phai qua bo giai plugin")
-    if "PLUGIN_ROOT}/" + REF in t:
-        errs.append("goi feature-loop-codex khong chua ban luat — phai qua bo giai plugin")
-    if not (pkg_fl / "scripts/resolve-plugin.mjs").is_file():
-        errs.append("bo giai plugin vang trong goi feature-loop-codex")
-    return errs
-
-AG, FL = root / "plugins/acceptance-gate", root / "plugins/feature-loop-codex"
-assert check(AG, FL) == [], check(AG, FL)             # doi chung DUONG — goi nguyen ven
-tmp = Path(tempfile.mkdtemp())
-try:
-    a2, f2 = tmp / "ag", tmp / "fl"
-    shutil.copytree(AG, a2); shutil.copytree(FL, f2)
-    assert check(a2, f2) == [], f"ban sao goi NGUYEN VEN phai XANH truoc: {check(a2, f2)}"
-    (a2 / REF).rename(a2 / "skills/acceptance/references/doi-cho.md")
-    e1 = check(a2, f2)
-    assert any("tro file khong ton tai" in x for x in e1), f"dot bien di chuyen ban luat: {e1}"
-    shutil.rmtree(a2); shutil.copytree(AG, a2)
-    fl2 = f2 / "skills/feature-loop-codex/SKILL.md"
-    fl2.write_text(fl2.read_text(encoding="utf-8").replace(
-        f"--plugin acceptance-gate --require {REF}", "${PLUGIN_ROOT}/" + REF), encoding="utf-8")
-    e2 = check(a2, f2)
-    assert any("phai qua bo giai plugin" in x for x in e2), f"dot bien ghep thang goc goi: {e2}"
-finally:
-    shutil.rmtree(tmp)
-PY
-```
 
 - [ ] **Step 6: Đồng bộ mirror TRƯỚC khi chạy suite (P95 đọc `plugins/**`)**
 

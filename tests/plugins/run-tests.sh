@@ -2301,8 +2301,12 @@ assert errs and "bang luat lech" in errs[0] and REF_REL in errs[0] and SPEC_REL 
 # cu chi noi MOT TEN GIA vao danh sach da dem nen khong bao gio cham bien.
 # Bay gio: di tu goc, loai dung nhung gi da khai, va doi chung am GHI FILE THAT
 # ra ngoai allowlist cu.
-SKIP_TOP = {"plugins", "_acceptance", "tests"}   # dung 3 muc AC-10 khai
-SKIP_SUB = {("docs", "superpowers")}             # ho so xay dung, xem so quyet dinh
+# DUNG 3 muc AC-10 khai, khong hon. Round 2 tung khoet them ("docs","superpowers")
+# voi ly do "ho so xay dung" — va chinh vung do dang chua ban sao thu ba that
+# (ban ke hoach chep nguyen van bang luat + ca hai khuon). Ha thuoc cho vua vat
+# roi hop thuc bang mot dong so quyet dinh la dung dieu kit cam: so quyet dinh
+# KHONG duoc de contract. Duong dung da lam: go ban sao khoi ban ke hoach.
+SKIP_TOP = {"plugins", "_acceptance", "tests"}
 EXT = {".md", ".js", ".mjs", ".sh", ".json"}
 
 def scan(base):
@@ -2314,8 +2318,6 @@ def scan(base):
         if any(part.startswith(".") for part in rel):
             continue
         if rel[0] in SKIP_TOP:
-            continue
-        if len(rel) >= 2 and (rel[0], rel[1]) in SKIP_SUB:
             continue
         out.append(p)
     return out
@@ -2371,9 +2373,14 @@ try:
     subprocess.run(["rsync", "-a", "--exclude", ".git", "--exclude", "plugins",
                     "--exclude", "node_modules", f"{root}/", f"{dst}/"], check=True)
     assert verdict(count(dst)) == [], f"ban sao NGUYEN VEN phai XANH truoc: {verdict(count(dst))}"
-    plant = dst / "design-loop/skills/design-subtrack/BAN-SAO-THU.md"
-    plant.parent.mkdir(parents=True, exist_ok=True)
-    plant.write_text((dst / REF_REL).read_text(encoding="utf-8"), encoding="utf-8")
+    # Trong file that vao CA HAI vung tung bi bo lot: design-loop/ (round 1 dung
+    # allowlist nen khong thay) va docs/superpowers/ (round 2 khoet ra).
+    src = (dst / REF_REL).read_text(encoding="utf-8")
+    for rel in ("design-loop/skills/design-subtrack/BAN-SAO-THU.md",
+                "docs/superpowers/plans/BAN-SAO-THU.md"):
+        plant = dst / rel
+        plant.parent.mkdir(parents=True, exist_ok=True)
+        plant.write_text(src, encoding="utf-8")
     e = verdict(count(dst))
     assert any("khuon bang phai mot cho" in x for x in e), \
         f"chep khuon bang ra design-loop/ ma khong bi bat: {e}"

@@ -70,7 +70,8 @@ machine face. Every render re-reads the file.
   việc có "chính app lỗi", hoặc "app không gọi mạng" trên một tiêu chí xuyên
   lớp. Từ 5 việc có dữ liệu trở lên, thêm: "đủ mẫu vận hành — cân nhắc máy-kiểm
   hóa network (schema v3, spec wave 2 §5)".
-- Action items: one actionable line per hygiene hit.
+- Việc cần làm: mỗi dấu hiệu mất vệ sinh một dòng, viết bằng tiếng người —
+  nói việc phải làm, tên khoá máy (vd `time_human_minutes`) để trong ngoặc.
 
 `_acceptance/` missing → suggest the `acceptance-init` skill. No features →
 say so.

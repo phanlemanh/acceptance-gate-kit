@@ -93,13 +93,18 @@ evals:
     criterion: AC-7
     executor: test
     cmd: config:executors.test.plugins
-    expected: "P93 pass: bảng 6 luật rút qua marker ở file tham chiếu KHỚP TỪNG KÝ TỰ với bảng ở docs/specs/workflow-v2-spec.md §4.1, và không có bản thứ ba trong vùng quét (skills/ commands/ feature-loop/ codex/ lib/ scripts/ hooks/ docs/ + md gốc; trừ plugins,_acceptance,tests) — kèm bộ đếm sanity >=40 file đã quét, 0 hit là grep hỏng chứ không phải sạch; đối chứng dương — bản nguyên vẹn so khớp XANH trước; đột biến sửa một chữ ở MỘT bản → ĐỎ ghim thông điệp nêu tên CẢ HAI file lệch"
+    expected: "P93 pass: bảng 6 luật rút qua marker ở file tham chiếu KHỚP TỪNG KÝ TỰ với bảng ở docs/specs/workflow-v2-spec.md §4.1, và KHÔNG có bản thứ ba ở bất kỳ đâu. Vùng quét là DANH-SÁCH-LOẠI-TRỪ đi từ gốc cây, loại ĐÚNG BA mục AC-10 khai (plugins/, _acceptance/, tests/) — cấm khoét thêm mục nào; bộ đếm sanity THEO TỪNG thư mục nguồn (thư mục nào góp 0 file là ĐỎ — tổng >=40 không bắt được một thư mục bị đổi tên). Đối chứng dương bản nguyên vẹn so khớp XANH trước; đột biến sửa một chữ ở MỘT bản → ĐỎ ghim thông điệp nêu tên CẢ HAI file lệch"
     paths:
       - skills/acceptance/references/human-facing-language.md
-      - docs/specs/workflow-v2-spec.md
+      - docs/**
       - commands/**
       - feature-loop/**
       - codex/**
+      - design-loop/**
+      - vendor/**
+      - lib/**
+      - scripts/**
+      - hooks/**
       - tests/plugins/run-tests.sh
 
   - id: E9
@@ -124,7 +129,7 @@ evals:
     criterion: AC-10
     executor: test
     cmd: config:executors.test.plugins
-    expected: "P93 pass: tên 3 cột VÀ thân khuôn sơ đồ mỗi thứ chỉ xuất hiện ở đúng 1 file nguồn (cùng vùng quét + bộ đếm sanity như E8; literal trong case ghép mảnh để không tự khớp source của chính case — bẫy P80); đối chứng dương bản nguyên vẹn XANH trước; hai đột biến riêng: chép tên cột sang file thứ 2 → ĐỎ ghim khuôn-bảng-phải-một-chỗ kèm số file, chép thân sơ đồ sang file thứ 2 → ĐỎ ghim khuôn-sơ-đồ-phải-một-chỗ kèm số file"
+    expected: "P93 pass: tên 3 cột VÀ thân khuôn sơ đồ mỗi thứ chỉ xuất hiện ở đúng 1 file nguồn (cùng vùng quét danh-sách-loại-trừ + bộ đếm theo từng thư mục như E8; literal trong case ghép mảnh để không tự khớp source của chính case — bẫy P80). Đối chứng dương bản nguyên vẹn XANH trước; đối chứng âm GHI FILE THẬT chứa bản sao vào CẢ HAI vùng từng bị bỏ lọt (design-loop/ mà round 1 không quét, docs/superpowers/ mà round 2 khoét ra) trong bản sao rsync → ba thông điệp riêng cho khuôn bảng, khuôn sơ đồ và thân luật"
     paths:
       - skills/acceptance/references/human-facing-language.md
       - commands/**
