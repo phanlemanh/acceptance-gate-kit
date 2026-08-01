@@ -1989,6 +1989,418 @@ assert "platform-fit" in desc("codex/feature-loop-codex/.codex-plugin/plugin.jso
 assert not ((1, 18, 1) >= (1, 19, 0)), "phep so semver chet — tuple compare khong con dung"
 PY
 
+# ── P89-P96: luat ngon ngu mat nguoi (ngon-ngu-mat-nguoi) ───────────────────
+# Bat bien kho: moi case chay ban NGUYEN VEN truoc (doi chung DUONG) roi moi
+# dot bien, va ghim DUNG THONG DIEP chu khong chi ma thoat.
+
+run "P89 ban luat: du N1-N6 + 2 phep thu + vi du 6 luat + ve mien tru + nguong N5 + tu dien (E1-E4)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+t = (root / "skills/acceptance/references/human-facing-language.md").read_text(encoding="utf-8")
+
+def check(text):
+    errs = []
+    m = re.search(r"<!-- <<<HFL-LAW-TABLE -->\n([\s\S]*?)<!-- HFL-LAW-TABLE>>> -->", text)
+    if not m:
+        return ["KHONG rut duoc HFL-LAW-TABLE"]
+    for n in range(1, 7):
+        if not re.search(rf"^\| N{n} \| \S", m.group(1), re.M):
+            errs.append(f"thieu luat N{n}")
+    for name in ("Xoá-tên-máy", "Người-thứ-ba"):
+        if name not in text:
+            errs.append(f"thieu phep thu {name}")
+    outside = text.replace(m.group(0), "")
+    for n in range(1, 7):
+        if not re.search(rf"^\| N{n} \| .+ \| .+ \|", outside, re.M):
+            errs.append(f"luat N{n} chua co vi du TRUOC/SAU")
+    for machine in ("evals.yaml", "run-log.jsonl", "frontmatter"):
+        if machine not in text:
+            errs.append(f"ve mien tru khong goi dich danh {machine}")
+    if "KHÔNG ÁP" not in text:
+        errs.append("thieu ve pham vi KHONG ap")
+    if not re.search(r"ba bước nối tiếp hoặc[\s\S]{0,40}hai nhánh rẽ", text):
+        errs.append("N5 khong co nguong kich hoat")
+    if "CONTEXT.md" not in text:
+        errs.append("N6 khong chi dich tu dien")
+    return errs
+
+assert check(t) == [], check(t)                                  # doi chung DUONG
+
+m1 = re.sub(r"^\| N4 \|.*$", "", t, count=1, flags=re.M)
+assert "thieu luat N4" in check(m1), "dot bien xoa luat N4 khong do dung thong diep"
+
+m2 = t.replace("ba bước nối tiếp hoặc", "nhiều bước hoặc")
+assert "N5 khong co nguong kich hoat" in check(m2), "dot bien xoa nguong khong do dung thong diep"
+
+m3 = t.replace("KHÔNG ÁP", "xxx", 1)
+assert "thieu ve pham vi KHONG ap" in check(m3), "dot bien xoa ve mien tru khong do dung thong diep"
+
+m4 = t.replace("| N6 | Bật CT-S cho slug này |", "|", 1)
+assert "luat N6 chua co vi du TRUOC/SAU" in check(m4), "dot bien xoa vi du N6 khong do dung thong diep"
+PY
+
+run "P92 hai khuon trinh bay: marker duy nhat + round-trip bang 3 cot + so do mermaid (E9, E10)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+t = (root / "skills/acceptance/references/human-facing-language.md").read_text(encoding="utf-8")
+COLS = ["Người dùng thấy gì khác", "Đụng đâu", "Phục vụ tiêu chí"]
+
+def block(text, name):
+    m = re.search(rf"<!-- <<<{name} -->\n([\s\S]*?)<!-- {name}>>> -->", text)
+    return m.group(1) if m else None
+
+# luat tach o bang markdown cua kit — cung luat scripts/gate-card.js dung
+def rows(md):
+    out = []
+    for l in md.splitlines():
+        if not l.strip().startswith("|"):
+            continue
+        cells = [c.strip() for c in l.split("|")[1:-1]]
+        if not cells or all(re.fullmatch(r":?-+:?", c) for c in cells):
+            continue
+        out.append(cells)
+    return out
+
+def check(text):
+    errs = []
+    tb = block(text, "PLAN-SUMMARY-TABLE-TEMPLATE")
+    dg = block(text, "DECISION-DIAGRAM-TEMPLATE")
+    if tb is None:
+        errs.append("khong rut duoc khuon bang")
+    if dg is None:
+        errs.append("khong rut duoc khuon so do")
+    if tb is not None:
+        r = rows(tb)
+        if not r or r[0] != COLS:
+            errs.append(f"khuon bang sai tieu de cot: {r[0] if r else None}")
+        for i, row in enumerate(r):
+            if len(row) != 3:
+                errs.append(f"dong {i} khong du 3 o (co {len(row)})")
+            for c in row:
+                if "·" in c or ";" in c:
+                    errs.append("o bang nhoi nhieu viec — N4")
+        if len(r) < 2:
+            errs.append("khuon bang thieu dong vi du")
+    if dg is not None:
+        f = re.search(r"```(\w*)\n([\s\S]*?)```", dg)
+        if not f or f.group(1) != "mermaid":
+            errs.append("khoi so do khong khai mermaid")
+        else:
+            body = f.group(2)
+            labels = re.findall(r"[\[\{]([^\]\}]+)[\]\}]", body)
+            if len(labels) < 2:
+                errs.append("so do it hon 2 nut")
+            if "-->" not in body:
+                errs.append("so do khong co canh")
+            for lb in labels:
+                # <br/> la thang xuong dong cua mermaid, khong phai duong dan —
+                # go truoc khi soi, neu khong moi nhan co xuong dong deu bi ket
+                # oan la ten may (round 1 cua case nay dam dung bay do).
+                bare = re.sub(r"<br\s*/?>", " ", lb)
+                if re.search(r"[\w-]+\.(md|js|mjs|json|yaml|yml|sh)\b|\w/\w", bare):
+                    errs.append(f"nhan nut la ten may: {lb}")
+    return errs
+
+assert check(t) == [], check(t)                                  # doi chung DUONG
+assert t.count("<<<PLAN-SUMMARY-TABLE-TEMPLATE") == 1, "khuon bang khong duy nhat"
+assert t.count("<<<DECISION-DIAGRAM-TEMPLATE") == 1, "khuon so do khong duy nhat"
+
+def has(errs, frag):
+    return any(frag in e for e in errs)
+
+m1 = t.replace("| Đụng đâu ", "", 1)
+assert has(check(m1), "sai tieu de cot"), "dot bien bo 1 cot khong do dung thong diep"
+
+m2 = t.replace("| Phục vụ tiêu chí |", "| Phục vụ tiêu chí | Cột thừa |", 1)
+assert has(check(m2), "sai tieu de cot"), "dot bien them cot 4 khong do dung thong diep"
+
+m3 = t.replace("Người duyệt đọc được bảng kế hoạch bằng tiếng sản phẩm",
+               "Sửa bên viết · sửa bên đọc", 1)
+assert has(check(m3), "nhoi nhieu viec"), "dot bien nhoi 2 viec vao 1 o khong do dung thong diep"
+
+m4 = t.replace("```mermaid", "```", 1)
+assert has(check(m4), "khong khai mermaid"), "dot bien bo khai bao ngon ngu khong do dung thong diep"
+
+m5 = t.replace("A[Người duyệt mở thẻ]", "A[gate-card.js]", 1)
+assert has(check(m5), "nhan nut la ten may"), "dot bien nhan nut ten file khong do dung thong diep"
+PY
+
+run "P96 tu dien: rut tu qua marker HFL-GLOSSARY-TERMS roi tra CONTEXT.md (E14)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+ref = (root / "skills/acceptance/references/human-facing-language.md").read_text(encoding="utf-8")
+ctx = (root / "CONTEXT.md").read_text(encoding="utf-8")
+m = re.search(r"<!-- <<<HFL-GLOSSARY-TERMS -->\n([\s\S]*?)<!-- HFL-GLOSSARY-TERMS>>> -->", ref)
+assert m, "KHONG rut duoc HFL-GLOSSARY-TERMS"
+terms = [l.strip()[2:].strip() for l in m.group(1).splitlines() if l.strip().startswith("- ")]
+assert len(terms) >= 3, f"chi rut duoc {len(terms)} tu — parser hong hoac danh sach rong"
+
+def check(glossary):
+    return [f"tu '{x}' chua co muc trong tu dien" for x in terms
+            if not re.search(rf"^\*\*{re.escape(x)}\*\*:", glossary, re.M | re.I)]
+
+assert check(ctx) == [], check(ctx)                              # doi chung DUONG
+mut = re.sub(rf"^\*\*{re.escape(terms[0])}\*\*:.*?(?=^\*\*|\Z)", "", ctx,
+             count=1, flags=re.M | re.S | re.I)
+assert check(mut) == [f"tu '{terms[0]}' chua co muc trong tu dien"], \
+    "dot bien xoa muc tu dien khong do dung thong diep"
+PY
+
+run "P90 tam cho tro nap ban luat + 2 SKILL vong lap ap khuon MOI lan trinh (E5, E12)" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+REF = "skills/acceptance/references/human-facing-language.md"
+SITES = ["commands/acceptance-card.md", "commands/acceptance-report.md",
+         "commands/acceptance-status.md",
+         "feature-loop/skills/feature-loop/SKILL.md",
+         "codex/acceptance-gate/skills/acceptance-card/SKILL.md",
+         "codex/acceptance-gate/skills/acceptance-report/SKILL.md",
+         "codex/acceptance-gate/skills/acceptance-status/SKILL.md",
+         "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md"]
+LOOPS = (SITES[3], SITES[7])
+assert len(SITES) == 8, "danh sach cho tro khong du 8"
+
+def check(read):
+    errs = []
+    for rel in SITES:
+        t = read(rel)
+        if REF not in t:
+            errs.append(f"{rel}: thieu duong dan ban luat")
+        if "TRƯỚC khi viết" not in t:
+            errs.append(f"{rel}: thieu menh lenh nap")
+    for rel in LOOPS:
+        t = read(rel)
+        if "PLAN-SUMMARY-TABLE-TEMPLATE" not in t:
+            errs.append(f"{rel}: thieu ten khuon bang")
+        if "DECISION-DIAGRAM-TEMPLATE" not in t:
+            errs.append(f"{rel}: thieu ten khuon so do")
+        if "MỌI lần trình" not in t:
+            errs.append(f"{rel}: pham vi khuon bi thu hep")
+    return errs
+
+live = lambda rel: (root / rel).read_text(encoding="utf-8")
+assert check(live) == [], check(live)                            # doi chung DUONG
+
+gone = SITES[5]
+m1 = lambda rel: live(rel).replace(REF, "xxx") if rel == gone else live(rel)
+assert f"{gone}: thieu duong dan ban luat" in check(m1), \
+    "dot bien go pointer khoi 1 file khong do dung thong diep"
+
+lp = LOOPS[0]
+m2 = lambda rel: live(rel).replace("MỌI lần trình", "riêng T3") if rel == lp else live(rel)
+assert f"{lp}: pham vi khuon bi thu hep" in check(m2), \
+    "dot bien thu hep pham vi khuon khong do dung thong diep"
+PY
+
+run "P91 con tro RUT TU file tro vao vat that tren cay nguon, kem dem sanity 8 (E6)" \
+  python3 - "$ROOT" <<'PY'
+import re, shutil, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+SITES = ["commands/acceptance-card.md", "commands/acceptance-report.md",
+         "commands/acceptance-status.md",
+         "feature-loop/skills/feature-loop/SKILL.md",
+         "codex/acceptance-gate/skills/acceptance-card/SKILL.md",
+         "codex/acceptance-gate/skills/acceptance-report/SKILL.md",
+         "codex/acceptance-gate/skills/acceptance-status/SKILL.md",
+         "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md"]
+RX = re.compile(r"skills/acceptance/references/[\w.-]+\.md")
+
+def check(base):
+    errs, found = [], 0
+    for rel in SITES:
+        hits = sorted(set(RX.findall((base / rel).read_text(encoding="utf-8"))))
+        if not hits:
+            errs.append(f"{rel}: khong rut duoc con tro nao")
+            continue
+        found += 1
+        for h in hits:
+            if not (base / h).is_file():
+                errs.append(f"{rel}: con tro tro file khong ton tai — {h}")
+    if found != 8:
+        errs.append(f"chi rut duoc con tro tu {found}/8 file — grep hong, khong phai sach")
+    return errs
+
+assert check(root) == [], check(root)                            # doi chung DUONG (cay that)
+
+# Ban sao dung DU moi vat duoc tro toi — khong chi ban luat — de doi chung
+# duong that su xanh; thieu mot vat la ban sao do san va phep do chet.
+targets = set()
+for rel in SITES:
+    targets |= set(RX.findall((root / rel).read_text(encoding="utf-8")))
+tmp = Path(tempfile.mkdtemp())
+try:
+    for rel in list(SITES) + sorted(targets):
+        (tmp / rel).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(root / rel, tmp / rel)
+    assert check(tmp) == [], f"ban sao NGUYEN VEN phai XANH truoc: {check(tmp)}"
+    victim = tmp / "skills/acceptance/references/human-facing-language.md"
+    victim.rename(victim.with_name("doi-ten.md"))
+    errs = check(tmp)
+    assert any("con tro tro file khong ton tai" in e for e in errs), \
+        f"dot bien doi ten vat dich khong do dung thong diep: {errs}"
+finally:
+    shutil.rmtree(tmp)
+PY
+
+run "P93 mot-nguon: bang luat khop tung ky tu + khuon chi o 1 file, kem dem sanity (E8, E11)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+REF_REL = "skills/acceptance/references/human-facing-language.md"
+SPEC_REL = "docs/specs/workflow-v2-spec.md"
+ref = (root / REF_REL).read_text(encoding="utf-8")
+spec = (root / SPEC_REL).read_text(encoding="utf-8")
+RX = re.compile(r"<!-- <<<HFL-LAW-TABLE -->\n([\s\S]*?)<!-- HFL-LAW-TABLE>>> -->")
+
+def law(text):
+    m = RX.search(text)
+    return m.group(1) if m else None
+
+def compare(a_text, b_text):
+    a, b = law(a_text), law(b_text)
+    if a is None or b is None:
+        return [f"thieu marker bang luat: {REF_REL}={a is not None} {SPEC_REL}={b is not None}"]
+    if a != b:
+        return [f"bang luat lech giua {REF_REL} va {SPEC_REL}"]
+    return []
+
+assert compare(ref, spec) == [], compare(ref, spec)              # doi chung DUONG
+mut = spec.replace("Một dòng một ý", "Mot dong mot y", 1)
+errs = compare(ref, mut)
+assert errs and "bang luat lech" in errs[0] and REF_REL in errs[0] and SPEC_REL in errs[0], \
+    f"dot bien sua 1 chu khong do dung thong diep (phai neu ten CA HAI file): {errs}"
+
+# Vung quet: cay VAN HANH — thu duoc agent nap luc chay. docs/superpowers/ la
+# ho so xay dung co ngay thang (design doc + plan), khong bao gio duoc nap luc
+# chay va bat buoc chua nguyen van khuon vi no LA ban chi dan tao file — de
+# trong vung quet thi phep do bat nham chinh ho so cua minh.
+SCAN = ["skills", "commands", "feature-loop", "codex", "lib", "scripts", "hooks", "docs"]
+SKIP = root / "docs/superpowers"
+files = [p for d in SCAN for p in (root / d).rglob("*")
+         if p.is_file() and p.suffix in (".md", ".js", ".mjs", ".sh", ".json")
+         and SKIP not in p.parents]
+files += sorted(root.glob("*.md"))
+assert len(files) >= 40, f"chi quet duoc {len(files)} file — vung quet hong"
+
+COL = "Người dùng thấy" + " gì khác"          # ghep manh — bay P80
+DIAG = "Đủ ba bước<br/>" + "hoặc hai nhánh?"
+LAW = "Mã số là tra cứu, " + "không phải nội dung."
+
+def count(extra=None):
+    c = {COL: [], DIAG: [], LAW: []}
+    for p in files:
+        t = p.read_text(encoding="utf-8", errors="ignore")
+        for k in c:
+            if k in t:
+                c[k].append(str(p.relative_to(root)))
+    if extra:
+        for k in c:
+            if k in extra[1]:
+                c[k].append(extra[0])
+    return c
+
+c = count()
+assert len(c[COL]) == 1, f"ten cot xuat hien o {len(c[COL])} file — khuon bang phai mot cho: {c[COL]}"
+assert len(c[DIAG]) == 1, f"than so do xuat hien o {len(c[DIAG])} file — khuon so do phai mot cho: {c[DIAG]}"
+assert len(c[LAW]) == 2, f"than luat xuat hien o {len(c[LAW])} file — chi duoc 2 cho da biet: {c[LAW]}"
+
+c2 = count(extra=("gia-file-thu-hai.md", COL + DIAG + LAW))
+assert len(c2[COL]) == 2 and len(c2[DIAG]) == 2 and len(c2[LAW]) == 3, \
+    "dot bien chep khuon sang file thu hai khong bi bat"
+PY
+
+run "P94 quyen tra lai tai cong + tien to so, ca hai ban lenh dung the (E13)" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+CARDS = ["commands/acceptance-card.md",
+         "codex/acceptance-gate/skills/acceptance-card/SKILL.md"]
+PREFIX = "lỗ-kit — ngôn ngữ mặt người"
+
+def check(read):
+    errs = []
+    for rel in CARDS:
+        t = read(rel)
+        if PREFIX not in t:
+            errs.append(f"{rel}: thieu tien to so quyet dinh")
+        if "revisit" not in t:
+            errs.append(f"{rel}: khong noi ghi vao so bang entry nao")
+        if "TRẢ LẠI" not in t and "reject the card" not in t:
+            errs.append(f"{rel}: thieu quyen tra lai tai cong")
+    return errs
+
+live = lambda rel: (root / rel).read_text(encoding="utf-8")
+assert check(live) == [], check(live)                            # doi chung DUONG
+gone = CARDS[1]
+mut = lambda rel: live(rel).replace(PREFIX, "xxx") if rel == gone else live(rel)
+assert f"{gone}: thieu tien to so quyet dinh" in check(mut), \
+    "dot bien go quyen tra lai khoi 1 harness khong do dung thong diep"
+PY
+
+run "P95 con tro giai duoc TRONG GOI da dong — goi khac goi phai qua bo giai (E7)" \
+  python3 - "$ROOT" <<'PY'
+import re, shutil, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+REF = "skills/acceptance/references/human-facing-language.md"
+IN_PKG = ["skills/acceptance-card/SKILL.md", "skills/acceptance-report/SKILL.md",
+          "skills/acceptance-status/SKILL.md"]
+RX = re.compile(r"skills/acceptance/references/[\w.-]+\.md")
+
+def check(pkg_ag, pkg_fl):
+    errs = []
+    for rel in IN_PKG:                    # cung goi: ghep goc goi phai ra vat that
+        t = (pkg_ag / rel).read_text(encoding="utf-8")
+        hits = sorted(set(RX.findall(t)))
+        if not hits:
+            errs.append(f"{rel}: khong rut duoc con tro nao trong goi")
+        for h in hits:
+            if not (pkg_ag / h).is_file():
+                errs.append(f"pointer trong goi acceptance-gate tro file khong ton tai — {h}")
+    fl = pkg_fl / "skills/feature-loop-codex/SKILL.md"
+    t = fl.read_text(encoding="utf-8")
+    if f"--plugin acceptance-gate --require {REF}" not in t:
+        errs.append("goi feature-loop-codex khong chua ban luat — phai qua bo giai plugin")
+    if "PLUGIN_ROOT}/" + REF in t:
+        errs.append("goi feature-loop-codex khong chua ban luat — phai qua bo giai plugin")
+    if not (pkg_fl / "scripts/resolve-plugin.mjs").is_file():
+        errs.append("bo giai plugin vang trong goi feature-loop-codex")
+    return errs
+
+AG, FL = root / "plugins/acceptance-gate", root / "plugins/feature-loop-codex"
+assert check(AG, FL) == [], check(AG, FL)                        # doi chung DUONG (goi that)
+tmp = Path(tempfile.mkdtemp())
+try:
+    a2, f2 = tmp / "ag", tmp / "fl"
+    shutil.copytree(AG, a2); shutil.copytree(FL, f2)
+    assert check(a2, f2) == [], f"ban sao goi NGUYEN VEN phai XANH truoc: {check(a2, f2)}"
+    (a2 / REF).rename((a2 / REF).with_name("doi-cho.md"))
+    e1 = check(a2, f2)
+    assert any("tro file khong ton tai" in x for x in e1), \
+        f"dot bien di chuyen ban luat trong goi khong do dung thong diep: {e1}"
+    shutil.rmtree(a2); shutil.copytree(AG, a2)
+    fl2 = f2 / "skills/feature-loop-codex/SKILL.md"
+    fl2.write_text(fl2.read_text(encoding="utf-8").replace(
+        f"--plugin acceptance-gate --require {REF}", "${PLUGIN_ROOT}/" + REF),
+        encoding="utf-8")
+    e2 = check(a2, f2)
+    assert any("phai qua bo giai plugin" in x for x in e2), \
+        f"dot bien ghep thang goc goi khong do dung thong diep: {e2}"
+finally:
+    shutil.rmtree(tmp)
+PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
