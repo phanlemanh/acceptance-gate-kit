@@ -8,7 +8,7 @@ surfaces: [cli]
 status: implemented
 approved_by: Manh Phan
 approved_at: 2026-08-01T04:18:44Z
-time_human_minutes: {gate1: 0, gate2: 0}
+time_human_minutes: {gate1: 15, gate2: 0}
 ---
 
 # Acceptance Contract: ngon-ngu-mat-nguoi
