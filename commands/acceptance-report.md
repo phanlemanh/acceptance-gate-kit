@@ -35,7 +35,11 @@ Steps:
      commits — `git rev-list --count <sha>..HEAD -- . ':!_acceptance'` — and
      flag "N commits after evidence" when N > 0 (cheap staleness signal; the
      authoritative check stays in `pre-merge-check.sh`).
-3. **Print:**
+3. **Nạp luật TRƯỚC khi viết:** đọc `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/human-facing-language.md`
+   (sáu luật N1–N6, hai phép thử, khuôn trình bày) TRƯỚC khi viết bất kỳ câu nào
+   sẽ hiện cho người — bảng tổng kết là mặt người, không phải mặt máy.
+
+4. **Print:**
    - Table: `| Slug | Tier | Status | Verdict | G1 min | G2 min | Rounds | Flags |`
    - Headline: signed-off count; median + mean total minutes over features
      with recorded minutes; baseline median from `baseline_minutes` (empty →
@@ -52,7 +56,7 @@ Steps:
      máy-kiểm hóa network (schema v3, spec wave 2 §5)".
    - Action items: one actionable line per hygiene hit (e.g. "2 contracts
      thiếu `time_human_minutes` — điền lúc duyệt/ký; số liệu KPI đang mù").
-4. `_acceptance/` missing → suggest `/acceptance-init`. No features → say so.
+5. `_acceptance/` missing → suggest `/acceptance-init`. No features → say so.
 
 Read-only guarantee: this command never edits contracts, reports, or config —
 it only reads and prints.

@@ -337,6 +337,15 @@ roles were pinned.
 Create an implementation plan with `superpowers:writing-plans` when available,
 commonly `docs/superpowers/plans/YYYY-MM-DD-<slug>.md`. Each task must list
 files, verification command, related eval ids, and `independent: true|false`.
+Load the language rules TRƯỚC khi viết anything a human will read: run
+`node "${PLUGIN_ROOT}/scripts/resolve-plugin.mjs" --plugin acceptance-gate --require skills/acceptance/references/human-facing-language.md`
+then read that file. This package does not ship the rules, so joining them onto
+the package root is a dead pointer — always go through the resolver. Present
+every plan or progress summary — MỌI lần trình, not only the T3 review stop —
+with the `PLAN-SUMMARY-TABLE-TEMPLATE` table; a decision point with three or
+more sequential steps or two or more branches also needs a diagram from
+`DECISION-DIAGRAM-TEMPLATE`.
+
 For T3, stop for plan review before execution. For T2, continue unless the user
 requests review. Append any load-bearing approach or descope decision to the
 ledger.

@@ -31,7 +31,12 @@ Steps:
    chốt ở feature này" (term mới/sửa). Đây là lối gọi DUY NHẤT khiến gate-card
    đụng git; thiếu cờ thì thẻ chỉ ghi chú info, không im lặng bỏ qua.
 
-3. **Translate** the extract into PLAIN PRODUCT LANGUAGE for this repo's persona
+3. **Nạp luật TRƯỚC khi viết:** đọc `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/human-facing-language.md`
+   (sáu luật N1–N6, hai phép thử, khuôn trình bày) TRƯỚC khi viết bất kỳ câu nào
+   sẽ hiện cho người. Mỗi lần render là một lần đọc — luật không sống trong trí
+   nhớ. Biến gốc-plugin không có thì giải như bước 1.
+
+   **Translate** the extract into PLAIN PRODUCT LANGUAGE for this repo's persona
    (read `AGENTS.md`, `CLAUDE.md`, or repo docs for who the user is). Keep
    meaning, do not invent:
    - `feature_plain`: one plain sentence — what it does for the user.
@@ -79,3 +84,10 @@ Steps:
 6. The card NEVER decides. The human's click flows into the REAL gate: Gate 1 →
    contract `approved_by`; Gate 2 → `human_signoff` / per-item `human_override`.
    The verdict, hook enforcement, and machine evidence are unchanged.
+
+7. **Người duyệt có quyền TRẢ LẠI thẻ.** Thẻ vi phạm luật ngôn ngữ mặt người thì
+   người duyệt trả lại tại cổng, không duyệt cho xong rồi góp ý sau. Trả lại là
+   lỗ của bộ công cụ chứ không phải lỗi của người viết: ghi vào
+   `_acceptance/<slug>/decisions.jsonl` một entry `revisit` có `decision` mở đầu
+   đúng chuỗi `lỗ-kit — ngôn ngữ mặt người` kèm câu vi phạm, để đợt nâng bộ thẻ
+   đọc lại bằng số thay vì bằng trí nhớ.

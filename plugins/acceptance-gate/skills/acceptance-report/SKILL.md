@@ -44,6 +44,12 @@ flags:
 
 ## 3. Print
 
+**Load the language rules first.** Read
+`${PLUGIN_ROOT}/skills/acceptance/references/human-facing-language.md`
+(six rules N1–N6, two quick tests, the presentation templates) TRƯỚC khi viết
+bất kỳ câu nào sẽ hiện cho người — the summary table is the human face, not the
+machine face. Every render re-reads the file.
+
 - Table: `| Slug | Tier | Status | Verdict | G1 min | G2 min | Rounds | Flags |`
 - Headline: signed-off count; median + mean total minutes over features with
   recorded minutes; baseline median from `baseline_minutes` (empty →

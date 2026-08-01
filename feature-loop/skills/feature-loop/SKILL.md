@@ -113,7 +113,7 @@ sau 15 turns.
 
 1. Invoke `superpowers:writing-plans` → `docs/superpowers/plans/YYYY-MM-DD-<slug>.md`.
 2. Mỗi task PHẢI ghi: Files / verify command per-task / evals nó phục vụ (vd "phục vụ E1, E3") / cờ `independent: true|false` so với các task khác.
-3. **T3: GATE 1.5** — trình tóm tắt plan (task list + files + thứ tự), chờ duyệt. T2: đi tiếp luôn, không dừng.
+3. **Trình cho người bằng tiếng sản phẩm — áp cho MỌI lần trình, không riêng T3.** Nạp bản luật TRƯỚC khi viết: `node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gate --require skills/acceptance/references/human-facing-language.md` rồi đọc `<kết quả>/skills/acceptance/references/human-facing-language.md`. Gói feature-loop KHÔNG chứa bản luật nên ghép thẳng gốc gói là con trỏ chết — luôn đi qua bộ giải. Mọi lần trình kế hoạch hoặc tiến độ cho người dùng khuôn `PLAN-SUMMARY-TABLE-TEMPLATE` trong file đó; điểm quyết định từ ba bước nối tiếp hoặc hai nhánh rẽ trở lên thì kèm sơ đồ theo khuôn `DECISION-DIAGRAM-TEMPLATE`. **T3: GATE 1.5** — trình tóm tắt plan (task list + files + thứ tự) theo đúng khuôn đó, chờ duyệt. T2: đi tiếp luôn, không dừng.
 4. Cuối S2: append entry ledger cho lựa chọn load-bearing (nếu có). Xong → vào S3 NGAY, không hỏi.
 
 ## S3 — EXECUTE

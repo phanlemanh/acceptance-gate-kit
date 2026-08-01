@@ -31,6 +31,12 @@ nothing is `BLOCKED` with the exact install instruction.
 
 ## 3. Create the plain-language overlay
 
+**Load the language rules first.** Read
+`${PLUGIN_ROOT}/skills/acceptance/references/human-facing-language.md`
+(six rules N1–N6, two quick tests, the presentation templates) TRƯỚC khi viết
+bất kỳ câu nào sẽ hiện cho người. Every render re-reads the file — the rules do
+not live in memory. No `PLUGIN_ROOT` → resolve as in section 2.
+
 Translate the extracted JSON without changing meaning:
 
 - `feature_plain`: one product sentence;
@@ -100,3 +106,12 @@ details.
   approved verdict changes.
 - Never click, infer, or write a human decision without the user's explicit
   instruction.
+
+## 7. The reviewer may reject the card
+
+A card that breaks the human-facing language rules is rejected at the gate — not
+approved with a comment for later. A rejection is a kit defect, not an author
+mistake: append to `_acceptance/<slug>/decisions.jsonl` a `revisit` entry whose
+`decision` starts with the exact string `lỗ-kit — ngôn ngữ mặt người`, quoting
+the offending sentence, so the next card-set upgrade reads it as a number rather
+than a memory.
