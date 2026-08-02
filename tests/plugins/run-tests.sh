@@ -1989,17 +1989,18 @@ def ver(rel):
     return tuple(int(x) for x in json.loads((root / rel).read_text())["version"].split("."))
 def desc(rel):
     return json.loads((root / rel).read_text())["description"]
-assert ver(".claude-plugin/plugin.json") >= (1, 27, 0), "acceptance-gate chua bump toi 1.27.0"
-assert ver("feature-loop/.claude-plugin/plugin.json") >= (1, 19, 0), "feature-loop chua bump toi 1.19.0"
-assert ver("codex/feature-loop-codex/.codex-plugin/plugin.json") >= (1, 19, 0), "feature-loop-codex chua bump toi 1.19.0"
+assert ver(".claude-plugin/plugin.json") >= (1, 29, 0), "acceptance-gate chua bump toi 1.29.0"
+assert ver("feature-loop/.claude-plugin/plugin.json") >= (1, 21, 0), "feature-loop chua bump toi 1.21.0"
+assert ver("codex/feature-loop-codex/.codex-plugin/plugin.json") >= (1, 21, 0), "feature-loop-codex chua bump toi 1.21.0"
 # Description phai nhac hanh vi moi (keyword chuc nang, on dinh qua cac ban sau):
-assert "opportunity-template" in desc(".claude-plugin/plugin.json"), "desc acceptance-gate thieu opportunity-template"
+for kw in ("opportunity-template", "DECISION-DIAGRAM-SURFACES"):
+    assert kw in desc(".claude-plugin/plugin.json"), f"desc acceptance-gate thieu {kw}"
 d = desc("feature-loop/.claude-plugin/plugin.json")
-for kw in ("ui_standards_skill", "design-pass", "GOAL-TEMPLATE"):
+for kw in ("ui_standards_skill", "design-pass", "GOAL-TEMPLATE", "LOOP-PICTURE-CLAUSE"):
     assert kw in d, f"desc feature-loop thieu {kw}"
 assert "platform-fit" in desc("codex/feature-loop-codex/.codex-plugin/plugin.json"), "desc codex thieu platform-fit"
 # Doi chung am cua phep so semver: version thap hon floor phai truot.
-assert not ((1, 18, 1) >= (1, 19, 0)), "phep so semver chet — tuple compare khong con dung"
+assert not ((1, 20, 1) >= (1, 21, 0)), "phep so semver chet — tuple compare khong con dung"
 PY
 
 # ── P89-P96: luat ngon ngu mat nguoi (ngon-ngu-mat-nguoi) ───────────────────
@@ -2111,6 +2112,10 @@ def check(text):
     errs = []
     tb = block(text, "PLAN-SUMMARY-TABLE-TEMPLATE")
     dg = block(text, "DECISION-DIAGRAM-TEMPLATE")
+    lead = text.split("<!-- <<<DECISION-DIAGRAM-TEMPLATE -->")[0]
+    tail = lead.rstrip().rsplit("\n\n", 1)[-1]
+    if "mặt phẳng cụ thể" not in tail:
+        errs.append("khoi vi du khong noi ro mat phang")
     if tb is None:
         errs.append("khong rut duoc khuon bang")
     if dg is None:
@@ -2176,6 +2181,10 @@ m6 = t.replace("<!-- <<<PLAN-SUMMARY-TABLE-TEMPLATE -->", "", 1)
 assert has(check(m6), "khong rut duoc khuon bang"), \
     "dot bien xoa marker mo cua khuon bang khong do dung thong diep"
 
+m8 = t.replace("một mặt phẳng cụ thể", "một cách", 1)
+assert has(check(m8), "khong noi ro mat phang"), \
+    "dot bien xoa nhan mat phang cua khoi vi du khong do dung thong diep"
+
 m7 = t.replace("<!-- <<<DECISION-DIAGRAM-TEMPLATE -->", "", 1)
 assert has(check(m7), "khong rut duoc khuon so do"), \
     "dot bien xoa marker mo cua khuon so do khong do dung thong diep"
@@ -2204,9 +2213,9 @@ assert check(mut) == [f"tu '{terms[0]}' chua co muc trong tu dien"], \
     "dot bien xoa muc tu dien khong do dung thong diep"
 PY
 
-run "P90 tam cho tro nap ban luat + 2 SKILL vong lap ap khuon MOI lan trinh (E5, E12)" \
+run "P90 tam cho tro nap ban luat + khuon MOI lan trinh + round-trip cau-ve-hinh (E5, E12, E6h)" \
   python3 - "$ROOT" <<'PY'
-import sys
+import re, sys
 from pathlib import Path
 root = Path(sys.argv[1])
 REF = "skills/acceptance/references/human-facing-language.md"
@@ -2220,6 +2229,13 @@ SITES = ["commands/acceptance-card.md", "commands/acceptance-report.md",
 LOOPS = (SITES[3], SITES[7])
 assert len(SITES) == 8, "danh sach cho tro khong du 8"
 
+# Khuon cau-ve-hinh: rut tu BAN LUAT (ben viet), tim trong hai ban vong lap
+# (ben doc). Phep do DUONG thay cho ve phu dinh "khong ghim mot dinh dang nao" —
+# danh sach cam tren khong gian mo khong bao gio du (gap-probe P1).
+LAW = (root / REF).read_text(encoding="utf-8")
+_m = re.search(r"<!-- <<<LOOP-PICTURE-CLAUSE -->\n([\s\S]*?)<!-- LOOP-PICTURE-CLAUSE>>> -->", LAW)
+CLAUSE = _m.group(1).strip() if _m else None
+
 def check(read):
     errs = []
     for rel in SITES:
@@ -2232,8 +2248,10 @@ def check(read):
         t = read(rel)
         if "PLAN-SUMMARY-TABLE-TEMPLATE" not in t:
             errs.append(f"{rel}: thieu ten khuon bang")
-        if "DECISION-DIAGRAM-TEMPLATE" not in t:
-            errs.append(f"{rel}: thieu ten khuon so do")
+        if CLAUSE is None:
+            errs.append("khong rut duoc khuon LOOP-PICTURE-CLAUSE tu ban luat")
+        elif CLAUSE not in t:
+            errs.append(f"{rel}: cau ve hinh lech khuon mot-nguon")
         if "MỌI lần trình" not in t:
             errs.append(f"{rel}: pham vi khuon bi thu hep")
     return errs
@@ -2250,6 +2268,15 @@ lp = LOOPS[0]
 m2 = lambda rel: live(rel).replace("MỌI lần trình", "riêng T3") if rel == lp else live(rel)
 assert f"{lp}: pham vi khuon bi thu hep" in check(m2), \
     "dot bien thu hep pham vi khuon khong do dung thong diep"
+
+assert CLAUSE, "khong rut duoc khuon cau-ve-hinh tu ban luat"
+lp2 = LOOPS[1]
+m3 = lambda rel: live(rel).replace(CLAUSE, CLAUSE.replace("kèm hình", "kèm sơ đồ"), 1) if rel == lp2 else live(rel)
+assert f"{lp2}: cau ve hinh lech khuon mot-nguon" in check(m3), \
+    "dot bien sua mot chu trong khuon khong do dung thong diep"
+m4 = lambda rel: live(rel).replace(CLAUSE, "Điểm quyết định rắc rối thì vẽ bằng khối ký tự.", 1) if rel == lp2 else live(rel)
+assert f"{lp2}: cau ve hinh lech khuon mot-nguon" in check(m4), \
+    "dot bien tu dien dat kem ghim mot dinh dang khac khong bi bat"
 PY
 
 run "P91 con tro RUT TU file tro vao vat that tren cay nguon, kem dem sanity 8 (E6)" \
@@ -2377,7 +2404,9 @@ LAW = ("Mã số là tra cứu, " + "không phải nội dung.").encode()
 # dem lan nhac ten: mot so do ASCII trong tai lieu nhac ten marker la hop le,
 # mot KHOI thu hai rut duoc thi khong.
 PAIRS = {"PLAN-SUMMARY-TABLE-TEMPLATE": 1, "DECISION-DIAGRAM-TEMPLATE": 1,
-         "HFL-GLOSSARY-TERMS": 1, "HFL-LAW-TABLE": 2}
+         "HFL-GLOSSARY-TERMS": 1, "HFL-LAW-TABLE": 2,
+         "DECISION-DIAGRAM-SURFACES": 1, "DECISION-PICTURE-TEST": 1,
+         "LOOP-PICTURE-CLAUSE": 1}
 
 def survey(base):
     body = {COL: 0, DIAG: 0, LAW: 0}
@@ -2412,7 +2441,11 @@ def verdict(base):
         errs.append(f"than luat xuat hien o {body[LAW]} file — chi duoc 2 cho da biet: {where[LAW]}")
     for name, want in PAIRS.items():
         if pair[name] != want:
-            errs.append(f"cap marker {name} co {pair[name]} khoi (mong doi {want}) — {pair_where[name]}")
+            per_dir = {}
+            for w in pair_where[name]:
+                d0 = w.split("/")[0]
+                per_dir[d0] = per_dir.get(d0, 0) + 1
+            errs.append(f"cap marker {name} co {pair[name]} khoi (mong doi {want}) — theo thu muc goc {per_dir}, chi tiet {pair_where[name]}")
     return errs
 
 assert verdict(root) == [], verdict(root)                         # doi chung DUONG
@@ -2434,7 +2467,9 @@ try:
         plant.write_text(src, encoding="utf-8")
     e = verdict(dst)
     for frag in ("khuon bang phai mot cho", "khuon so do phai mot cho",
-                 "chi duoc 2 cho da biet", "cap marker PLAN-SUMMARY-TABLE-TEMPLATE"):
+                 "chi duoc 2 cho da biet", "cap marker PLAN-SUMMARY-TABLE-TEMPLATE",
+                 "cap marker DECISION-DIAGRAM-SURFACES", "cap marker DECISION-PICTURE-TEST",
+                 "cap marker LOOP-PICTURE-CLAUSE"):
         assert any(frag in x for x in e), f"trong ban sao that ma khong bat duoc '{frag}': {e}"
     # Chung minh RIENG rang vung dau-cham va duoi-file-la khong con la diem mu.
     shutil.rmtree(dst); subprocess.run(["rsync", "-a", "--exclude", ".git",
@@ -2510,6 +2545,13 @@ def check(pkg_ag, pkg_fl):
         errs.append("goi feature-loop-codex ghep thang goc goi — goi nay khong chua ban luat")
     if not (pkg_fl / "scripts/resolve-plugin.mjs").is_file():
         errs.append("bo giai plugin vang trong goi feature-loop-codex")
+    # Con tro phai giai toi tan VAT, khong chi toi FILE: tu trong goi phai rut
+    # duoc khoi bang tra ma ban vong lap goi ten.
+    law = pkg_ag / REF
+    if law.is_file():
+        if not re.search(r"<!-- <<<DECISION-DIAGRAM-SURFACES -->\n[\s\S]*?<!-- DECISION-DIAGRAM-SURFACES>>> -->",
+                         law.read_text(encoding="utf-8")):
+            errs.append("con tro giai duoc file nhung khong co bang tra trong goi")
     return errs
 
 AG, FL = root / "plugins/acceptance-gate", root / "plugins/feature-loop-codex"
@@ -2529,6 +2571,14 @@ try:
     fl2.write_text(orig.replace(
         f"--plugin acceptance-gate --require {REF}", "${PLUGIN_ROOT}/" + REF),
         encoding="utf-8")
+    lawp = a2 / REF
+    lawt = lawp.read_text(encoding="utf-8")
+    lawp.write_text(lawt.replace("<!-- <<<DECISION-DIAGRAM-SURFACES -->", "", 1), encoding="utf-8")
+    e_sf = check(a2, f2)
+    assert any("khong co bang tra trong goi" in x for x in e_sf), \
+        f"go bang tra khoi ban luat trong goi ma khong bi bat: {e_sf}"
+    lawp.write_text(lawt, encoding="utf-8")
+
     e2 = check(a2, f2)
     assert any("thieu loi goi bo giai plugin" in x for x in e2), \
         f"dot bien go loi goi bo giai khong do dung thong diep: {e2}"
@@ -2544,6 +2594,107 @@ try:
         f"nhanh thu nhat bao oan khi loi goi bo giai VAN CON: {e3}"
 finally:
     shutil.rmtree(tmp)
+PY
+
+run "P97 hinh theo mat phang: bang tra co co che cu the + hang hoi thoai mac dinh + phep thu nhin-thay-hinh (E1-E3)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+t = (root / "skills/acceptance/references/human-facing-language.md").read_text(encoding="utf-8")
+
+def block(text, name):
+    m = re.search(rf"<!-- <<<{name} -->\n([\s\S]*?)<!-- {name}>>> -->", text)
+    return m.group(1) if m else None
+
+def rows(md):
+    out = []
+    for l in md.splitlines():
+        if not l.strip().startswith("|"):
+            continue
+        cells = [c.strip() for c in l.split("|")[1:-1]]
+        if not cells or all(re.fullmatch(r":?-+:?", c) for c in cells):
+            continue
+        out.append(cells)
+    return out
+
+# Danh sach DONG cac co che ve — rut tu chinh ban luat, khong viet tay o ben doc.
+def mechanisms(text):
+    m = re.search(r"Danh sách đóng các cơ chế vẽ:([^\n]*(?:\n[^\n<|#]*)*)", text)
+    if not m:
+        return None
+    return [" ".join(x.split()) for x in re.findall(r"`([^`]+)`", m.group(1))]
+
+def check(text):
+    errs = []
+    tb = block(text, "DECISION-DIAGRAM-SURFACES")
+    pt = block(text, "DECISION-PICTURE-TEST")
+    mech = mechanisms(text)
+    if tb is None:
+        return ["khong rut duoc bang tra mat phang"]
+    if mech is None or len(mech) < 3:
+        errs.append("khong rut duoc danh sach dong cac co che ve")
+        mech = mech or []
+    r = rows(tb)
+    body = r[1:] if r else []
+    if len(body) < 3:
+        errs.append(f"bang tra duoi ba mat phang (co {len(body)})")
+    for row in body:
+        if len(row) != 3:
+            errs.append(f"hang bang tra khong du 3 o: {row}")
+            continue
+        if mech and " ".join(row[1].split()) not in mech:
+            errs.append(f"cach-ve khong neu co che trong danh sach dong: {row[1]}")
+    hoi_thoai = [x for x in body if "hội thoại" in x[0]]
+    if not hoi_thoai:
+        errs.append("thieu mat phang khung hoi thoai")
+    elif not any("mặc định" in x[2] for x in hoi_thoai):
+        errs.append("khong hang nao la mac dinh")
+    if pt is None:
+        errs.append("khong rut duoc phep thu nhin-thay-hinh")
+    else:
+        if "nhìn-thấy-hình" not in pt:
+            errs.append("thieu ten phep thu nhin-thay-hinh")
+        if "thiếu bộ vẽ" not in pt:
+            errs.append("thieu ca truot cua phep thu nhin-thay-hinh")
+    return errs
+
+assert check(t) == [], check(t)                                  # doi chung DUONG
+
+def has(errs, frag):
+    return any(frag in e for e in errs)
+
+# Bang co 4 hang: xoa MOT hang van con 3, chua vuot nguong. Dot bien phai that
+# su di qua nguong moi chung minh duoc phep do song.
+m1 = re.sub(r"^\| Terminal thuần \|.*$", "", t, count=1, flags=re.M)
+m1 = re.sub(r"^\| Tài liệu trong kho \|.*$", "", m1, count=1, flags=re.M)
+assert has(check(m1), "duoi ba mat phang"), \
+    "dot bien xoa hai hang mat phang khong do dung thong diep"
+m1b = re.sub(r"^\| Terminal thuần \|.*$", "", t, count=1, flags=re.M)
+assert check(m1b) == [], \
+    "xoa MOT hang (con du 3) ma van DO — nguong ba mat phang bi do sai"
+
+m2 = t.replace("| Khung hội thoại | hình vẽ nội tuyến của phiên | ✔ mặc định |",
+               "| Khung hội thoại | vẽ hình phù hợp với khung hội thoại | ✔ mặc định |", 1)
+assert has(check(m2), "khong neu co che trong danh sach dong"), \
+    "dot bien thay co che bang cum chung chung khong do dung thong diep (rang P0 gap-probe)"
+
+m3 = re.sub(r"^\| Khung hội thoại \|.*$", "", t, count=1, flags=re.M)
+assert has(check(m3), "thieu mat phang khung hoi thoai"), \
+    "dot bien xoa hang hoi thoai khong do dung thong diep"
+
+m4 = t.replace("| ✔ mặc định |", "| dùng khi tiện |", 1)
+assert has(check(m4), "khong hang nao la mac dinh"), \
+    "dot bien go dau mac dinh khong do dung thong diep"
+
+# Dot bien theo DUNG kich ban gap-probe: chen mot ban sao cau phep thu NGOAI
+# marker roi pha ban TRONG marker. Tim-chuoi-toan-file se XANH oan; neo vao
+# marker thi phai DO.
+pt_body = block(t, "DECISION-PICTURE-TEST")
+m5 = t.replace(pt_body, pt_body.replace("thiếu bộ vẽ", "chua san sang"), 1)
+m5 = m5 + "\n\nGhi chu: dan mot khoi ma vao mat phang thiếu bộ vẽ la ca truot.\n"
+assert has(check(m5), "thieu ca truot cua phep thu"), \
+    "pha ban TRONG marker ma ban sao NGOAI marker van giu xanh — phep do chua neo vao vat"
 PY
 
 if [ "$failures" -gt 0 ]; then

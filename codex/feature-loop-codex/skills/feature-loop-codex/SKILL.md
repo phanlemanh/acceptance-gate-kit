@@ -342,9 +342,8 @@ Load the language rules TRƯỚC khi viết anything a human will read: run
 then read that file. This package does not ship the rules, so joining them onto
 the package root is a dead pointer — always go through the resolver. Present
 every plan or progress summary — MỌI lần trình, not only the T3 review stop —
-with the `PLAN-SUMMARY-TABLE-TEMPLATE` table; a decision point with three or
-more sequential steps or two or more branches also needs a diagram from
-`DECISION-DIAGRAM-TEMPLATE`.
+with the `PLAN-SUMMARY-TABLE-TEMPLATE` table.
+Điểm quyết định vượt ngưỡng N5 thì kèm hình; chọn cách vẽ bằng bảng tra `DECISION-DIAGRAM-SURFACES` theo mặt phẳng đang trình, và kiểm lại bằng phép thử nhìn-thấy-hình.
 
 For T3, stop for plan review before execution. For T2, continue unless the user
 requests review. Append any load-bearing approach or descope decision to the

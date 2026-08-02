@@ -69,19 +69,53 @@ dấu chấm giữa hay dấu chấm phẩy.
 | Người duyệt đọc được bảng kế hoạch bằng tiếng sản phẩm | `human-facing-language.md` | AC-1 (bản luật đủ sáu điều) |
 <!-- PLAN-SUMMARY-TABLE-TEMPLATE>>> -->
 
-## Khuôn sơ đồ điểm quyết định
+## Hình tại điểm quyết định
 
-Dùng khi vượt ngưỡng kích hoạt của N5. Nhãn nút chịu đúng N1/N2: nhãn là chữ
-cho người, tên file xuống chú thích dưới hình.
+Vượt ngưỡng N5 thì bắt buộc có hình. **Hình là thứ người nhận NHÌN THẤY, không
+phải một định dạng.** Chọn cách vẽ theo mặt phẳng đang trình, không theo thói
+quen — tra bảng dưới đây.
+
+Danh sách đóng các cơ chế vẽ:
+`hình vẽ nội tuyến của phiên` ·
+`trang HTML gửi kèm` ·
+`hình bằng ký tự trong khối mã` ·
+`khối mermaid`.
+
+<!-- <<<DECISION-DIAGRAM-SURFACES -->
+| Mặt phẳng đang trình | Vẽ bằng | Mặc định |
+|---|---|---|
+| Khung hội thoại | hình vẽ nội tuyến của phiên | ✔ mặc định |
+| Panel bên hoặc file mở được | trang HTML gửi kèm | khi cần soi lâu, cần cuộn |
+| Terminal thuần | hình bằng ký tự trong khối mã | chốt cuối, luôn chạy |
+| Tài liệu trong kho | khối mermaid | khi hình sống trong tài liệu |
+<!-- DECISION-DIAGRAM-SURFACES>>> -->
+
+<!-- <<<DECISION-PICTURE-TEST -->
+**Phép thử nhìn-thấy-hình:** thứ người nhận nhận được có phải là HÌNH chưa? Ca
+trượt điển hình: dán một khối mã vào mặt phẳng thiếu bộ vẽ — người nhận thấy mã,
+còn khó đọc hơn một cái bảng.
+<!-- DECISION-PICTURE-TEST>>> -->
+
+Nhãn nút chịu đúng N1/N2: nhãn là chữ cho người, tên file xuống chú thích dưới
+hình. Khối dưới đây là ví dụ cho **một mặt phẳng cụ thể — tài liệu trong kho**,
+là một trong các cách vẽ liệt kê ở bảng tra; chép nó sang mặt phẳng khác là ca
+trượt của phép thử ngay trên.
 
 <!-- <<<DECISION-DIAGRAM-TEMPLATE -->
 ```mermaid
 graph LR
   A[Người duyệt mở thẻ] --> B{Đủ ba bước<br/>hoặc hai nhánh?}
-  B -->|có| C[Kèm sơ đồ]
+  B -->|có| C[Kèm hình]
   B -->|không| D[Bảng ba cột là đủ]
 ```
 <!-- DECISION-DIAGRAM-TEMPLATE>>> -->
+
+Câu dưới đây là bản gốc DUY NHẤT của chỉ dẫn về hình trong vòng lặp tính năng.
+Hai harness chép nguyên văn, không tự diễn đạt.
+
+<!-- <<<LOOP-PICTURE-CLAUSE -->
+Điểm quyết định vượt ngưỡng N5 thì kèm hình; chọn cách vẽ bằng bảng tra `DECISION-DIAGRAM-SURFACES` theo mặt phẳng đang trình, và kiểm lại bằng phép thử nhìn-thấy-hình.
+<!-- LOOP-PICTURE-CLAUSE>>> -->
 
 ## Từ mới feature này đưa vào từ điển
 
