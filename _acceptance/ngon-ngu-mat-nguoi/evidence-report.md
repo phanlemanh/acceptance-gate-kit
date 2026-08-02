@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: ngon-ngu-mat-nguoi
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: b7f658d42b6a8a72d6ef0a1310bac28127364423
-human_signoff:
+human_signoff: Manh Phan 2026-08-01
 ---
 
 # Evidence Report: ngon-ngu-mat-nguoi (round 4)
@@ -216,7 +216,7 @@ Ba lệnh sau chạy trong cùng round, cùng xanh, nhưng không map vào eval 
     trong quy tắc chấm của judge-personas.md — mục này là UNCERTAIN, chờ người
     quyết trực tiếp tại Cổng 2 thay vì máy tự chốt. Chi tiết từng lens (đầy đủ,
     không rút gọn) ở mục "Judge panel — E16" ngay dưới đây.
-  human_override:
+  human_override: Manh Phan 2026-08-01 — Nâng lên đạt. Bản luật và hai bản dựng thẻ đều sạch; chỗ chưa sạch nằm ở văn kế thừa của feature pha3-goi-luoi, vốn đã ở ngoài phạm vi đã duyệt (mục sweep hồi tố trong Out of scope). Ghi vào hạn chế đã biết, sửa ở đợt nâng bộ thẻ.
 
 ### Judge panel — E16 (AC-15)
 
