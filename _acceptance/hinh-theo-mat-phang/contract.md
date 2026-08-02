@@ -5,7 +5,7 @@ slug: hinh-theo-mat-phang
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-08-02T01:00:55Z
 time_human_minutes: {gate1: 0, gate2: 0}

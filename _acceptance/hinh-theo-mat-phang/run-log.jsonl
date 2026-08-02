@@ -1,0 +1,10 @@
+{"ts":"2026-08-02T01:30:00Z","round":1,"evalId":"E1","run_id":"minted-hinh-theo-mat-phang-E1-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-02T01:30:00Z","round":1,"evalId":"E2","run_id":"minted-hinh-theo-mat-phang-E2-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-02T01:30:00Z","round":1,"evalId":"E3","run_id":"minted-hinh-theo-mat-phang-E3-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-02T01:30:00Z","round":1,"evalId":"E4","run_id":"minted-hinh-theo-mat-phang-E4-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-02T01:30:00Z","round":1,"evalId":"E5","run_id":"minted-hinh-theo-mat-phang-E5-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-02T01:30:00Z","round":1,"evalId":"E6","run_id":"minted-hinh-theo-mat-phang-E6-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-02T01:30:00Z","round":1,"evalId":"E7","run_id":"minted-hinh-theo-mat-phang-E7-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-02T01:30:00Z","round":1,"evalId":"E8","run_id":"minted-hinh-theo-mat-phang-E8-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-02T01:30:00Z","round":1,"evalId":"E9","run_id":"minted-hinh-theo-mat-phang-E9-r1","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
+{"ts":"2026-08-02T01:30:00Z","round":1,"kind":"baseline","evals_hash":"a02270663449fcf2c995b985a20ef1d54c3f2872a35eb3971d3c2e1d4c0ba72a","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E7","E8"]},{"cmd":"bash scripts/sync-plugin-packages.sh --check","evals":["E9"]}]}
