@@ -56,7 +56,7 @@ evals:
     criterion: AC-6
     executor: test
     cmd: config:executors.test.plugins
-    expected: "P90 pass (nới) round-trip: rút khuôn câu-về-hình từ marker LOOP-PICTURE-CLAUSE ở bản luật (bên VIẾT) rồi tìm nó trong cả 2 SKILL vòng lặp (bên ĐỌC) — phải KHỚP TỪNG KÝ TỰ, không viết tay khuôn ở bên đọc; đối chứng dương XANH trước; hai đột biến riêng: sửa một chữ trong khuôn ở MỘT bản → ĐỎ ghim tên bản lệch, thay khuôn bằng câu tự diễn đạt có ghim một định dạng bất kỳ → ĐỎ. Phép đo DƯƠNG thay cho vế phủ định cũ. THÊM (S4-r2): tên bảng tra mà chính khuôn nhắc phải GIẢI RA một cặp marker THẬT trong bản luật — đánh sai tên rồi lan đều cả ba nơi thì ba bản vẫn khớp nhau nên phép so cũ XANH oan; đã tái hiện được, đột biến mới ghim đúng ca đó"
+    expected: "P90 pass (nới) round-trip: rút khuôn câu-về-hình từ marker LOOP-PICTURE-CLAUSE ở bản luật (bên VIẾT) rồi tìm nó trong cả 2 SKILL vòng lặp (bên ĐỌC) — phải KHỚP TỪNG KÝ TỰ, không viết tay khuôn ở bên đọc; đối chứng dương XANH trước; hai đột biến riêng: sửa một chữ trong khuôn ở MỘT bản → ĐỎ ghim tên bản lệch, thay khuôn bằng câu tự diễn đạt có ghim một định dạng bất kỳ → ĐỎ. Phép đo DƯƠNG thay cho vế phủ định cũ. THÊM (S4-r2, mở rộng S4-r3): tên bảng tra mà khuôn câu-về-hình VÀ mục từ điển Mặt phẳng nhắc tới đều phải GIẢI RA một cặp marker THẬT trong bản luật — đánh sai tên rồi lan đều cả ba nơi thì ba bản vẫn khớp nhau nên phép so cũ XANH oan; đã tái hiện được, đột biến mới ghim đúng ca đó"
     paths:
       - skills/acceptance/references/human-facing-language.md
       - feature-loop/skills/feature-loop/SKILL.md

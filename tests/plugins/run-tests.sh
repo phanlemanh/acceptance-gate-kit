@@ -2317,6 +2317,16 @@ def cited_marker_ok(law_text, clause):
     return bad
 
 assert cited_marker_ok(LAW, CLAUSE) == [], cited_marker_ok(LAW, CLAUSE)
+
+# Tu dien cung tro toi bang tra BANG TEN. Cung chang con tro, cung lop loi:
+# danh sai ten thi nguoi doc di tim mot bang khong ton tai (bat o S4-r3).
+CTX = (root / "CONTEXT.md").read_text(encoding="utf-8")
+_mp = re.search(r"^\*\*Mặt phẳng\*\*:[\s\S]*?(?=^\*\*|\Z)", CTX, re.M)
+assert _mp, "CONTEXT.md khong co muc 'Mat phang'"
+assert cited_marker_ok(LAW, _mp.group(0)) == [], cited_marker_ok(LAW, _mp.group(0))
+_ctx_typo = _mp.group(0).replace("DECISION-DIAGRAM-SURFACES", "DECISION-DIAGRAM-SURFACE")
+assert cited_marker_ok(LAW, _ctx_typo), \
+    "danh sai ten bang tra trong tu dien ma khong bi bat — con tro chet van xanh"
 _typo = CLAUSE.replace("DECISION-DIAGRAM-SURFACES", "DECISION-DIAGRAM-SURFACE")
 assert cited_marker_ok(LAW.replace(CLAUSE, _typo, 1), _typo), \
     "danh sai ten bang tra trong khuon ma khong bi bat — con tro chet van xanh"
