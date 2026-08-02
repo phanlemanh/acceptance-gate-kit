@@ -11,7 +11,7 @@ evals:
     criterion: AC-1
     executor: test
     cmd: config:executors.test.plugins
-    expected: "P97 pass: rút khối giữa marker DECISION-DIAGRAM-SURFACES, đọc bằng luật tách ô bảng markdown của kit → >=3 hàng, và ô cách-vẽ của MỌI hàng khớp một mục trong danh sách đóng đặt ngay cạnh bảng; đối chứng dương bản NGUYÊN VẸN XANH trước; hai đột biến riêng: xoá một hàng → ĐỎ ghim bảng-tra-dưới-ba-mặt-phẳng, thay ô cách-vẽ của hàng hội thoại bằng cụm chung chung ngoài danh sách đóng → ĐỎ ghim cách-vẽ-không-nêu-cơ-chế (răng P0 của gap-probe)"
+    expected: "P97 pass: bảng tra rút qua marker DECISION-DIAGRAM-SURFACES → >=3 hàng, ô cách-vẽ của MỌI hàng khớp một mục trong danh sách đóng rút QUA MARKER. RÀNG BUỘC QUAN HỆ chứ không phải từ vựng: các cơ chế phải ĐÔI MỘT KHÁC NHAU và ĐÚNG MỘT hàng mang dấu mặc định — bản trước chỉ hỏi ô có nằm trong danh sách đóng không, nên gộp mọi mặt phẳng về cùng một cơ chế vẫn XANH, tức bảng tra có thể bảo vẽ mermaid vào terminal thuần (đã tái hiện ở S4-r5). Đối chứng dương XANH trước; năm đột biến: cụm chung chung → ĐỎ, xoá HAI hàng → ĐỎ, xoá MỘT hàng (còn đủ ba) → vẫn XANH, gộp hai mặt phẳng về cùng cơ chế → ĐỎ, hai hàng cùng mang dấu mặc định → ĐỎ"
     paths:
       - skills/acceptance/references/human-facing-language.md
       - tests/plugins/run-tests.sh

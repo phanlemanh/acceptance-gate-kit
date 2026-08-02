@@ -2713,6 +2713,17 @@ def check(text):
         if mech and " ".join(row[1].split()) not in mech:
             errs.append(f"cach-ve khong neu co che trong danh sach dong: {row[1]}")
     ok_rows = [x for x in body if len(x) == 3]
+    # RANG BUOC QUAN HE, khong phai tu vung. Ban truoc chi hoi "o nay co nam
+    # trong danh sach dong khong" — nen gop MOI mat phang ve CUNG mot co che van
+    # XANH, tuc bang tra co the bao ve mermaid vao terminal thuan, dung ca truot
+    # ma phep thu nhin-thay-hinh goi ten. Da tai hien (S4-r5).
+    mechs = [" ".join(x[1].split()) for x in ok_rows]
+    if len(set(mechs)) != len(mechs):
+        dup = sorted({m for m in mechs if mechs.count(m) > 1})
+        errs.append(f"hai mat phang tro cung mot co che ve: {dup}")
+    defaults = [x for x in ok_rows if "mặc định" in x[2]]
+    if len(defaults) != 1:
+        errs.append(f"phai co DUNG MOT hang mac dinh, dang co {len(defaults)}")
     hoi_thoai = [x for x in ok_rows if "hội thoại" in x[0]]
     if not hoi_thoai:
         errs.append("thieu mat phang khung hoi thoai")
@@ -2754,6 +2765,15 @@ m2b = m2b.replace("| Khung hội thoại | hình vẽ nội tuyến của phiên
                   "| Khung hội thoại | " + GEN + " | ✔ mặc định |", 1)
 assert has(check(m2b), "khong neu co che trong danh sach dong"), \
     "ghi chu CO nhay nguoc NGOAI marker van noi duoc danh sach dong — phep rut chua neo vao marker"
+
+m2c = t.replace("| Terminal thuần | hình bằng ký tự trong khối mã |",
+                "| Terminal thuần | khối mermaid |", 1)
+assert has(check(m2c), "cung mot co che ve"), \
+    "gop hai mat phang ve cung mot co che ma khong bi bat — phep do chi kiem tu vung"
+
+m2d = t.replace("| khi cần soi lâu, cần cuộn |", "| ✔ mặc định |", 1)
+assert has(check(m2d), "DUNG MOT hang mac dinh"), \
+    "hai hang cung mang dau mac dinh ma khong bi bat"
 
 m3 = re.sub(r"^\| Khung hội thoại \|.*$", "", t, count=1, flags=re.M)
 assert has(check(m3), "thieu mat phang khung hoi thoai"), \
