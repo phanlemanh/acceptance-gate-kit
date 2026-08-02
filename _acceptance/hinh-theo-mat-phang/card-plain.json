@@ -1,24 +1,15 @@
 {
   "feature_plain": "Hình ở điểm quyết định được chọn theo nơi người đang đọc, và câu hướng dẫn về hình chỉ còn một bản gốc cho cả hai môi trường chạy.",
   "decisions": [],
-  "analyst_plain": "Mọi phép đo máy đạt trên cả bản mới lẫn bản gốc để so — chúng canh việc không-được-hỏng. Bằng chứng riêng cho phần mới nằm ở các đột biến trong từng phép đo: phá đúng vật thì đỏ.",
-  "scope_plain": "Chưa đo được agent có thật sự chọn đúng cách vẽ lúc chạy, và chưa thêm mặt phẳng nào ngoài bốn cái đang dùng.",
+  "analyst_plain": "Mọi phép đo máy đạt trên cả bản mới lẫn bản gốc để so — chúng canh việc không-được-hỏng. Bằng chứng riêng cho phần mới nằm ở các phép thử ngược: phá đúng vật thì đỏ.",
+  "scope_plain": "Chưa đo được máy có thật sự chọn đúng cách vẽ lúc chạy, và chưa thêm nơi hiển thị nào ngoài bốn cái đang dùng.",
   "decisions_plain": [
-    {
-      "id": "d-20260802T005105Z-19102",
-      "p": "KHÔNG quét không gian tiêu chí — bài toán một chiều, phạm vi bạn chốt tại chỗ."
-    },
-    {
-      "id": "d-20260802T005106Z-29916",
-      "p": "Đã chọn giữ khối ví dụ cũ và gắn nhãn nơi dùng, thay vì gỡ bỏ."
-    },
-    {
-      "id": "d-20260802T005107Z-8501",
-      "p": "Đã chọn tái dùng nguyên vùng quét của việc trước, vì bốn vòng chấm đã trả giá để có nó."
-    },
-    {
-      "id": "d-20260802T011234Z-2824",
-      "p": "CHƯA DUYỆT — nâng phiên bản và nâng luôn sàn của phép đo canh-phát-hành, dù chín tiêu chí không đòi; nếu không thì bản phát hành lại không có gì canh."
-    }
+    { "id": "d-20260802T005105Z-19102", "p": "KHÔNG quét không gian tiêu chí — bài toán một chiều, phạm vi bạn chốt tại chỗ." },
+    { "id": "d-20260802T005106Z-29916", "p": "Đã chọn giữ khối ví dụ cũ và gắn nhãn nơi dùng, thay vì gỡ bỏ." },
+    { "id": "d-20260802T005107Z-8501", "p": "Đã chọn dùng lại vùng quét của việc trước, vì nó đã trả giá bốn vòng để đúng." },
+    { "id": "d-20260802T011234Z-2824", "p": "CHƯA DUYỆT — nâng số hiệu bản phát hành và nâng luôn mức chặn của phép đo canh-phát-hành, dù bộ tiêu chí không đòi." },
+    { "id": "d-20260802T013640Z-23338", "p": "CHƯA DUYỆT — bạn chọn mở rộng phạm vi ngay tại cổng: thêm hai tiêu chí thay vì ghi hạn chế rồi để đợt sau." },
+    { "id": "d-20260802T020930Z-23629", "p": "CHƯA DUYỆT — bốn bản vá sau khi tự tái hiện được bốn lỗ: bỏ tự-gác, buộc tên gọi phải dẫn tới thứ có thật, bỏ một từ cấm sai, và thôi văng lỗi thô." },
+    { "id": "d-20260802T023345Z-18651", "p": "CHƯA DUYỆT — thay một phép thử ngược giả (không bao giờ đỏ được) bằng phép thử phá thật, và bỏ một từ cấm đang báo oan bốn lần." }
   ]
 }
