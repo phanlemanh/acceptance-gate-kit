@@ -151,9 +151,9 @@ thuần, tài liệu trong kho. Quyết định hình ở điểm quyết địn
 frontmatter `surfaces:` — web, mobile, api); mặt phẳng là nơi *một thông điệp*
 được hiển thị. Một feature `surfaces: [cli]` vẫn trình qua nhiều mặt phẳng.
 _Avoid_: màn hình.
-# KHONG liet 'surface' o day: no la term CHUAN cua kit (xem muc Surface), nen
-# parser coi la allow-span va alias khong bao gio ban — mot luat khong the do.
-# Phan biet hai khai niem da nam o cau canh bao ngay tren, va co rang canh o P96.
+<!-- KHÔNG liệt "surface" ở đây: nó là term CHUẨN của kit (xem mục Surface), nên
+parser coi là allow-span và alias không bao giờ bắn — một luật không thể đỏ.
+Phân biệt hai khái niệm đã nằm ở câu cảnh báo ngay trên, và có răng canh ở P96. -->
 
 **Nhìn-thấy-hình**:
 Phép thử một câu tại điểm quyết định: thứ người nhận nhận được có phải là HÌNH

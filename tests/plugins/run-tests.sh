@@ -2607,11 +2607,14 @@ def check(pkg_ag, pkg_fl):
         errs.append("bo giai plugin vang trong goi feature-loop-codex")
     # Con tro phai giai toi tan VAT, khong chi toi FILE: tu trong goi phai rut
     # duoc khoi bang tra ma ban vong lap goi ten.
+    # KHONG boc trong `if law.is_file()`: nhanh tu-gac khong co duong do rieng,
+    # file bien mat thi phep do im lang. Cung lop vua go khoi P96 (S4-r2).
     law = pkg_ag / REF
-    if law.is_file():
-        if not re.search(r"<!-- <<<DECISION-DIAGRAM-SURFACES -->\n[\s\S]*?<!-- DECISION-DIAGRAM-SURFACES>>> -->",
-                         law.read_text(encoding="utf-8")):
-            errs.append("con tro giai duoc file nhung khong co bang tra trong goi")
+    if not law.is_file():
+        errs.append("ban luat vang trong goi acceptance-gate — khong co gi de rut bang tra")
+    elif not re.search(r"<!-- <<<DECISION-DIAGRAM-SURFACES -->\n[\s\S]*?<!-- DECISION-DIAGRAM-SURFACES>>> -->",
+                       law.read_text(encoding="utf-8")):
+        errs.append("con tro giai duoc file nhung khong co bang tra trong goi")
     return errs
 
 AG, FL = root / "plugins/acceptance-gate", root / "plugins/feature-loop-codex"
