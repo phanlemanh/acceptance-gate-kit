@@ -1,57 +1,24 @@
 {
-  "feature_plain": "Hình ở điểm quyết định được chọn theo mặt phẳng người đang đọc, thay vì luôn dùng một định dạng cố định.",
-  "will_do": [
-    {
-      "id": "AC-1",
-      "p": "Sẽ có một bảng tra nói rõ ở mỗi nơi thì vẽ bằng cách nào, mỗi cách là một cơ chế cụ thể dùng được ngay."
-    },
-    {
-      "id": "AC-2",
-      "p": "Sẽ mặc định vẽ thẳng vào khung hội thoại, vì đó là nơi người quyết đang đọc."
-    },
-    {
-      "id": "AC-3",
-      "p": "Sẽ có một phép thử một câu: người nhận có nhìn thấy hình hay chưa."
-    },
-    {
-      "id": "AC-4",
-      "p": "Sẽ ghi rõ khối ví dụ sẵn có chỉ hợp cho một nơi, để không ai chép nó ra chỗ khác."
-    },
-    {
-      "id": "AC-5",
-      "p": "Giữ nguyên quy tắc khi nào bắt buộc có hình — chỉ đổi cách vẽ, không đổi lúc phải vẽ."
-    },
-    {
-      "id": "AC-6",
-      "p": "Sẽ khiến câu hướng dẫn về hình chỉ có một bản gốc, hai môi trường chạy đều chép từ đó."
-    },
-    {
-      "id": "AC-7",
-      "p": "Sẽ chặn việc chép bảng tra ra chỗ thứ hai — hai bản là hai bản sẽ trôi khỏi nhau."
-    },
-    {
-      "id": "AC-8",
-      "p": "Sẽ kiểm cả trong bản đã đóng gói: mở theo con trỏ phải thấy được bảng tra thật."
-    },
-    {
-      "id": "AC-9",
-      "p": "Sẽ đóng gói lại cả hai bản phát hành để người dùng nhận được thay đổi này."
-    }
-  ],
-  "wont_do": [],
+  "feature_plain": "Hình ở điểm quyết định được chọn theo nơi người đang đọc, và câu hướng dẫn về hình chỉ còn một bản gốc cho cả hai môi trường chạy.",
+  "decisions": [],
+  "analyst_plain": "Mọi phép đo máy đạt trên cả bản mới lẫn bản gốc để so — chúng canh việc không-được-hỏng. Bằng chứng riêng cho phần mới nằm ở các đột biến trong từng phép đo: phá đúng vật thì đỏ.",
   "scope_plain": "Chưa đo được agent có thật sự chọn đúng cách vẽ lúc chạy, và chưa thêm mặt phẳng nào ngoài bốn cái đang dùng.",
   "decisions_plain": [
     {
       "id": "d-20260802T005105Z-19102",
-      "p": "KHÔNG quét không gian tiêu chí — bài toán một chiều, phạm vi bạn chốt tại chỗ; đổi lại không có bằng chứng độ phủ."
+      "p": "KHÔNG quét không gian tiêu chí — bài toán một chiều, phạm vi bạn chốt tại chỗ."
     },
     {
       "id": "d-20260802T005106Z-29916",
-      "p": "Đã chọn giữ khối ví dụ cũ và hạ nó xuống một hàng trong bảng, thay vì gỡ bỏ — sai lầm là coi nó là câu trả lời duy nhất, không phải bản thân nó."
+      "p": "Đã chọn giữ khối ví dụ cũ và gắn nhãn nơi dùng, thay vì gỡ bỏ."
     },
     {
       "id": "d-20260802T005107Z-8501",
-      "p": "Đã chọn tái dùng nguyên vùng quét của việc trước — bốn vòng chấm đã trả giá để có nó, dựng lại là mời lại đúng lớp lỗi đó."
+      "p": "Đã chọn tái dùng nguyên vùng quét của việc trước, vì bốn vòng chấm đã trả giá để có nó."
+    },
+    {
+      "id": "d-20260802T011234Z-2824",
+      "p": "CHƯA DUYỆT — nâng phiên bản và nâng luôn sàn của phép đo canh-phát-hành, dù chín tiêu chí không đòi; nếu không thì bản phát hành lại không có gì canh."
     }
   ]
 }

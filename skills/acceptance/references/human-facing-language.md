@@ -75,11 +75,13 @@ Vượt ngưỡng N5 thì bắt buộc có hình. **Hình là thứ người nh�
 phải một định dạng.** Chọn cách vẽ theo mặt phẳng đang trình, không theo thói
 quen — tra bảng dưới đây.
 
+<!-- <<<DECISION-DRAW-MECHANISMS -->
 Danh sách đóng các cơ chế vẽ:
 `hình vẽ nội tuyến của phiên` ·
 `trang HTML gửi kèm` ·
 `hình bằng ký tự trong khối mã` ·
 `khối mermaid`.
+<!-- DECISION-DRAW-MECHANISMS>>> -->
 
 <!-- <<<DECISION-DIAGRAM-SURFACES -->
 | Mặt phẳng đang trình | Vẽ bằng | Mặc định |
@@ -126,6 +128,8 @@ luật N6 nó vừa đặt ra.
 - mặt người
 - mặt máy
 - lỗ-kit
+- mặt phẳng
+- nhìn-thấy-hình
 <!-- HFL-GLOSSARY-TERMS>>> -->
 
 ## Vi phạm tại cổng — người duyệt có quyền TRẢ LẠI

@@ -5,9 +5,9 @@ slug: hinh-theo-mat-phang
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: implemented
 approved_by: Manh Phan
-approved_at: 2026-08-02T01:00:55Z
+approved_at: 2026-08-02T01:36:40Z
 time_human_minutes: {gate1: 0, gate2: 0}
 ---
 
@@ -37,6 +37,9 @@ Source input: prompt (`/feature-loop`) + quan sát trực tiếp của owner 202
 - AC-7: Given cây nguồn, loại đúng bốn vùng có tên và có lý do (`plugins/` là bản sinh máy của AC-9, `_acceptance/` là hồ sơ nghiệm thu, `tests/` là bên đo, và ruột công cụ `.git` `.claude` `node_modules` thuộc hạ tầng), When đếm cặp marker thật của `DECISION-DIAGRAM-SURFACES`, `DECISION-PICTURE-TEST` và `LOOP-PICTURE-CLAUSE`, Then mỗi cái đúng một cặp, và số đếm được in theo từng thư mục gốc kèm tổng.
 - AC-8: Given hai gói đã đóng `plugins/acceptance-gate/` và `plugins/feature-loop-codex/`, When đi theo con trỏ tới bản luật ghi trong bản vòng lặp của từng gói rồi rút khối bảng tra, Then rút được khối đó từ bên trong gói — con trỏ giải tới tận vật được dùng.
 - AC-9: Given nguồn đã sửa xong, When chạy `scripts/sync-plugin-packages.sh --check`, Then thoát 0 — mirror khớp nguồn.
+
+- AC-10: Given bản luật, When rút khối giữa cặp marker `DECISION-DRAW-MECHANISMS`, Then danh sách đóng các cơ chế vẽ nằm trọn trong khối đó, và bộ đếm cặp marker toàn cây nguồn tính luôn nó với số mong đợi một — cùng luật một-chỗ như ba vật anh em.
+- AC-11: Given hai từ mới `mặt phẳng` và `nhìn-thấy-hình` mà feature này đưa vào văn của kit, When tra `CONTEXT.md`, Then mỗi từ có mục riêng, và mục `mặt phẳng` nêu rõ nó khác `Surface` đã có ở chỗ nào.
 
 ## Coverage
 

@@ -102,3 +102,22 @@ evals:
       - codex/**
       - plugins/**
       - feature-loop/**
+
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P97 pass: danh sách đóng RÚT QUA marker DECISION-DRAW-MECHANISMS, không quét toàn file; P93 đếm cặp marker này với số mong đợi 1. Đối chứng dương XANH trước; đột biến theo đúng ca đã tái hiện ở vòng 1: chèn ghi chú CÓ nhảy ngược NGOÀI marker rồi thay ô cách-vẽ bằng đúng cụm trong ghi chú → vẫn phải ĐỎ ghim cách-vẽ-không-nêu-cơ-chế (bản trước quét toàn file nên ca này XANH oan)"
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - tests/plugins/run-tests.sh
+
+  - id: E11
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P96 pass: khối HFL-GLOSSARY-TERMS giờ có 5 từ gồm mặt phẳng và nhìn-thấy-hình, mỗi từ có mục trong CONTEXT.md; mục mặt phẳng nêu rõ khác Surface ở chỗ nào. Đối chứng dương XANH trước; đột biến xoá một mục khỏi bản sao CONTEXT.md → ĐỎ ghim đích danh từ thiếu"
+    paths:
+      - CONTEXT.md
+      - skills/acceptance/references/human-facing-language.md
+      - tests/plugins/run-tests.sh

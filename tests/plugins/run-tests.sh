@@ -1980,7 +1980,7 @@ PY
 # ── P88: release co chu dich — version floor + description khop hanh vi ─────
 # Consumer chi nhan luoi qua release: quen bump = feature ship ma hieu luc 0.
 # Floor semver (>=), KHONG ghim literal == — tranh vong "bump -> stale" (P03).
-run "P88 version floor 1.27/1.19 + description nhac hanh vi moi" \
+run "P88 version floor 1.29/1.21 + description nhac hanh vi moi" \
   python3 - "$ROOT" <<'PY'
 import json, sys
 from pathlib import Path
@@ -2207,6 +2207,18 @@ def check(glossary):
             if not re.search(rf"^\*\*{re.escape(x)}\*\*:", glossary, re.M | re.I)]
 
 assert check(ctx) == [], check(ctx)                              # doi chung DUONG
+# Tu moi cham mot khai niem DA CO trong tu dien thi muc cua no phai noi ro khac
+# o cho nao — khong thi tu dien co hai tu cho hai thu ma nguoi doc khong phan
+# biet duoc (finding S4-r1).
+if "mặt phẳng" in terms:
+    # Neo vao dung VE PHAN BIET, khong phai chi vao chu "Surface" — chu do con
+    # xuat hien o cau giai thich nen kiem long se khong bao gio do.
+    def has_contrast(g):
+        m = re.search(r"^\*\*Mặt phẳng\*\*:[\s\S]*?(?=^\*\*|\Z)", g, re.M)
+        return bool(m) and "Khác **Surface**" in m.group(0)
+    assert has_contrast(ctx), "muc 'mat phang' khong neu ro khac Surface o cho nao"
+    assert not has_contrast(ctx.replace("Khác **Surface**", "Ghi chu them", 1)), \
+        "dot bien go ve phan biet Surface khong lam phep do doi"
 mut = re.sub(rf"^\*\*{re.escape(terms[0])}\*\*:.*?(?=^\*\*|\Z)", "", ctx,
              count=1, flags=re.M | re.S | re.I)
 assert check(mut) == [f"tu '{terms[0]}' chua co muc trong tu dien"], \
@@ -2406,7 +2418,7 @@ LAW = ("Mã số là tra cứu, " + "không phải nội dung.").encode()
 PAIRS = {"PLAN-SUMMARY-TABLE-TEMPLATE": 1, "DECISION-DIAGRAM-TEMPLATE": 1,
          "HFL-GLOSSARY-TERMS": 1, "HFL-LAW-TABLE": 2,
          "DECISION-DIAGRAM-SURFACES": 1, "DECISION-PICTURE-TEST": 1,
-         "LOOP-PICTURE-CLAUSE": 1}
+         "LOOP-PICTURE-CLAUSE": 1, "DECISION-DRAW-MECHANISMS": 1}
 
 def survey(base):
     body = {COL: 0, DIAG: 0, LAW: 0}
@@ -2469,7 +2481,7 @@ try:
     for frag in ("khuon bang phai mot cho", "khuon so do phai mot cho",
                  "chi duoc 2 cho da biet", "cap marker PLAN-SUMMARY-TABLE-TEMPLATE",
                  "cap marker DECISION-DIAGRAM-SURFACES", "cap marker DECISION-PICTURE-TEST",
-                 "cap marker LOOP-PICTURE-CLAUSE"):
+                 "cap marker LOOP-PICTURE-CLAUSE", "cap marker DECISION-DRAW-MECHANISMS"):
         assert any(frag in x for x in e), f"trong ban sao that ma khong bat duoc '{frag}': {e}"
     # Chung minh RIENG rang vung dau-cham va duoi-file-la khong con la diem mu.
     shutil.rmtree(dst); subprocess.run(["rsync", "-a", "--exclude", ".git",
@@ -2620,10 +2632,14 @@ def rows(md):
 
 # Danh sach DONG cac co che ve — rut tu chinh ban luat, khong viet tay o ben doc.
 def mechanisms(text):
-    m = re.search(r"Danh sách đóng các cơ chế vẽ:([^\n]*(?:\n[^\n<|#]*)*)", text)
-    if not m:
+    # NEO VAO MARKER. Ban truoc quet toan file bang regex tham: moi doan van xuoi
+    # phia sau danh sach bi nuot vao, nen mot dong ghi chu CO nhay nguoc — ke ca
+    # cau giai thich "dung viet nhu vay" — bien dung cum bi cam thanh co che hop
+    # le. Da tai hien duoc truoc khi sua (finding S4-r1).
+    b = block(text, "DECISION-DRAW-MECHANISMS")
+    if b is None:
         return None
-    return [" ".join(x.split()) for x in re.findall(r"`([^`]+)`", m.group(1))]
+    return [" ".join(x.split()) for x in re.findall(r"`([^`]+)`", b)]
 
 def check(text):
     errs = []
@@ -2678,6 +2694,14 @@ m2 = t.replace("| Khung hội thoại | hình vẽ nội tuyến của phiên | 
                "| Khung hội thoại | vẽ hình phù hợp với khung hội thoại | ✔ mặc định |", 1)
 assert has(check(m2), "khong neu co che trong danh sach dong"), \
     "dot bien thay co che bang cum chung chung khong do dung thong diep (rang P0 gap-probe)"
+
+GEN = "vẽ hình phù hợp với khung hội thoại"
+m2b = t.replace("<!-- DECISION-DRAW-MECHANISMS>>> -->",
+                "<!-- DECISION-DRAW-MECHANISMS>>> -->\n\nGhi chú: `" + GEN + "` la mo ta muc dich, dung viet nhu vay.\n", 1)
+m2b = m2b.replace("| Khung hội thoại | hình vẽ nội tuyến của phiên | ✔ mặc định |",
+                  "| Khung hội thoại | " + GEN + " | ✔ mặc định |", 1)
+assert has(check(m2b), "khong neu co che trong danh sach dong"), \
+    "ghi chu CO nhay nguoc NGOAI marker van noi duoc danh sach dong — phep rut chua neo vao marker"
 
 m3 = re.sub(r"^\| Khung hội thoại \|.*$", "", t, count=1, flags=re.M)
 assert has(check(m3), "thieu mat phang khung hoi thoai"), \

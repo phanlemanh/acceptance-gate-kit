@@ -143,6 +143,20 @@ Nửa artifact dành cho hook/CI/script đọc: frontmatter, `evals.yaml`,
 người KHÔNG áp vào đây.
 _Avoid_: backend, internal.
 
+**Mặt phẳng**:
+Nơi một thứ trình cho người được HIỂN THỊ: khung hội thoại, panel bên, terminal
+thuần, tài liệu trong kho. Quyết định hình ở điểm quyết định vẽ bằng cơ chế nào
+(bảng tra `DECISION-DIAGRAM-SURFACES`).
+⚠️ Khác **Surface**: Surface là nơi *feature* lộ ra với người dùng (enum
+frontmatter `surfaces:` — web, mobile, api); mặt phẳng là nơi *một thông điệp*
+được hiển thị. Một feature `surfaces: [cli]` vẫn trình qua nhiều mặt phẳng.
+_Avoid_: surface, màn hình, kênh.
+
+**Nhìn-thấy-hình**:
+Phép thử một câu tại điểm quyết định: thứ người nhận nhận được có phải là HÌNH
+chưa? Ca trượt điển hình là dán khối mã vào mặt phẳng thiếu bộ vẽ.
+_Avoid_: kiểm hình, visual check.
+
 **Lỗ-kit**:
 Vi phạm luật ngôn ngữ mặt người bị người duyệt bắt tại cổng, ghi vào sổ quyết
 định bằng entry `revisit` có `decision` mở đầu `lỗ-kit — ngôn ngữ mặt người`.
