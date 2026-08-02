@@ -5,10 +5,10 @@ slug: hinh-theo-mat-phang
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-02T01:36:40Z
-time_human_minutes: {gate1: 0, gate2: 0}
+time_human_minutes: {gate1: 0, gate2: 15}
 ---
 
 # Acceptance Contract: hinh-theo-mat-phang

@@ -9,7 +9,7 @@ enforcement_mode: strict
 bypass_used: false
 verified_commit: 2b6823d400df3360975c9029b120ac5871e36bbf
 # bypass_ack:
-human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER review
+human_signoff: Manh Phan 2026-08-02          # Gate 2 — human writes "<name> <ISO date>" AFTER review
 ---
 
 # Evidence Report: hinh-theo-mat-phang
