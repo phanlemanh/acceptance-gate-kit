@@ -1,0 +1,104 @@
+# Evals — hinh-theo-mat-phang
+# Case mới P97; nới ba case sẵn có P90/P92/P93 + P95. Chạy qua suite tests/plugins.
+#
+# LUẬT ÁP CHO CẢ FILE (bất biến kho): mọi case dựng bản sao rồi kết luận từ đột
+# biến PHẢI (a) chạy bản NGUYÊN VẸN trước và bản đó XANH, (b) ghim đúng thông
+# điệp mong đợi. Và mọi phép đo nội dung NEO vào đúng khối/dòng cần đo — không
+# tìm chuỗi trên toàn file (feature trước mất 4 vòng vì đúng lỗi này).
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P97 pass: rút khối giữa marker DECISION-DIAGRAM-SURFACES, đọc bằng luật tách ô bảng markdown của kit → >=3 hàng, và ô cách-vẽ của MỌI hàng khớp một mục trong danh sách đóng đặt ngay cạnh bảng; đối chứng dương bản NGUYÊN VẸN XANH trước; hai đột biến riêng: xoá một hàng → ĐỎ ghim bảng-tra-dưới-ba-mặt-phẳng, thay ô cách-vẽ của hàng hội thoại bằng cụm chung chung ngoài danh sách đóng → ĐỎ ghim cách-vẽ-không-nêu-cơ-chế (răng P0 của gap-probe)"
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - tests/plugins/run-tests.sh
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P97 pass: bảng tra có hàng khung hội thoại VÀ hàng đó mang dấu mặc định; đối chứng dương XANH trước; hai đột biến riêng: xoá hàng hội thoại → ĐỎ ghim thiếu-mặt-phẳng-hội-thoại, gỡ dấu mặc định → ĐỎ ghim không-hàng-nào-là-mặc-định"
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - tests/plugins/run-tests.sh
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P97 pass: phép thử một câu RÚT TỪ marker DECISION-PICTURE-TEST (không tìm chuỗi toàn file) và nêu rõ khối-mã-ở-mặt-phẳng-không-vẽ-được là KHÔNG đạt; đối chứng dương XANH trước; đột biến theo đúng kịch bản gap-probe: CHÈN một bản sao câu đó NGOÀI marker rồi PHÁ bản TRONG marker → vẫn phải ĐỎ, ghim thiếu-phép-thử-nhìn-thấy-hình"
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - tests/plugins/run-tests.sh
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P92 pass (nới): đoạn văn liền TRƯỚC marker DECISION-DIAGRAM-TEMPLATE ghi rõ đây là ví dụ cho một mặt phẳng cụ thể — neo vào đoạn liền trước marker, không tìm chuỗi toàn file; đối chứng dương XANH trước; đột biến xoá câu nhãn-mặt-phẳng → ĐỎ ghim khối-ví-dụ-không-nói-rõ-mặt-phẳng. Mọi phép đo cấu trúc khối cũ của P92 GIỮ NGUYÊN và vẫn phải xanh"
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - tests/plugins/run-tests.sh
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P89 pass KHÔNG đổi — đối chứng KHÔNG-PHÁ: ngưỡng kích hoạt N5 giữ nguyên nguyên văn (ba bước nối tiếp / hai nhánh rẽ) và đột biến sửa ngưỡng vẫn ĐỎ như trước. Chứng minh feature này chỉ đổi cách vẽ, không đổi lúc nào phải vẽ"
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - tests/plugins/run-tests.sh
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P90 pass (nới) round-trip: rút khuôn câu-về-hình từ marker LOOP-PICTURE-CLAUSE ở bản luật (bên VIẾT) rồi tìm nó trong cả 2 SKILL vòng lặp (bên ĐỌC) — phải KHỚP TỪNG KÝ TỰ, không viết tay khuôn ở bên đọc; đối chứng dương XANH trước; hai đột biến riêng: sửa một chữ trong khuôn ở MỘT bản → ĐỎ ghim tên bản lệch, thay khuôn bằng câu tự diễn đạt có ghim một định dạng bất kỳ → ĐỎ. Đây là phép đo DƯƠNG thay cho vế phủ định cũ: danh sách cấm trên không gian mở không bao giờ đủ (răng P1 của gap-probe)"
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - feature-loop/skills/feature-loop/SKILL.md
+      - codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P93 pass (nới): bộ đếm CẶP MARKER THẬT thêm ba marker mới, mỗi cái mong đợi 1; vùng quét TÁI DÙNG nguyên danh-sách-loại-trừ đã có (bốn vùng CÓ TÊN kèm lý do, gồm cả mirror plugins/ là bản sinh máy) — không dựng lại; số cặp in THEO TỪNG thư mục gốc chứ không chỉ tổng; đối chứng dương XANH trước; đối chứng âm sẵn có (ghi file thật vào ba vùng từng bị bỏ lọt) phải bắt luôn cả ba marker mới"
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - docs/**
+      - commands/**
+      - feature-loop/**
+      - codex/**
+      - design-loop/**
+      - vendor/**
+      - lib/**
+      - scripts/**
+      - hooks/**
+      - tests/plugins/run-tests.sh
+
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P95 pass (nới): từ mỗi gói đã đóng, đi theo con trỏ bản luật ghi trong bản vòng lặp của gói đó rồi RÚT ĐƯỢC khối giữa marker DECISION-DIAGRAM-SURFACES — con trỏ giải tới tận VẬT, không chỉ tới file; MỌI răng cũ của P95 (con trỏ trỏ file có thật, gói khác gói phải qua bộ giải, hai thông điệp riêng) GIỮ NGUYÊN và vẫn phải xanh — chống lớp lỗi bỏ-rơi-răng-đã-ký; đối chứng dương gói NGUYÊN VẸN XANH trước; đột biến gỡ khối bảng tra khỏi bản luật trong bản sao gói → ĐỎ ghim con-trỏ-giải-được-file-nhưng-không-có-bảng-tra"
+    paths:
+      - plugins/acceptance-gate/**
+      - plugins/feature-loop-codex/**
+      - skills/acceptance/references/human-facing-language.md
+      - tests/plugins/run-tests.sh
+
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.mirror_sync
+    expected: "exit 0 — mirror plugins/ khớp nguồn sau sync (đối chứng âm có sẵn ở P41)"
+    paths:
+      - skills/**
+      - codex/**
+      - plugins/**
+      - feature-loop/**
