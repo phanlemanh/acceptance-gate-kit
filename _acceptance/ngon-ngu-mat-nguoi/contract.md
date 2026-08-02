@@ -77,5 +77,16 @@ trục A; 12 ô Core → 15 tiêu chí.
 1. Không phép đo nào chứng minh được agent CÓ THẬT SỰ tuân luật khi sinh đầu ra. CI chỉ chứng minh luật có mặt, nối đúng vật thật, và chỉ có một nguồn. Hành vi thật chờ pilot — cùng tiền lệ `design-pass` (ký 30/07). Dấu hiệu đọc ở vòng sau: số entry `lỗ-kit` trong sổ quyết định.
 2. Luật là văn tiếng Việt và được kiểm bằng khớp chuỗi. Viết lại một luật bằng từ đồng nghĩa mà giữ nguyên nghĩa vẫn làm case ĐỎ. Đánh đổi có chủ đích: ghim chuỗi là cách duy nhất khiến "xoá mất một luật" nổ; chi phí là mỗi lần sửa câu chữ luật phải sửa case cùng lượt.
 
+**Known limits ghi tại Cổng 2 (Manh Phan, 2026-08-01) — chấp nhận và ship:**
+
+3. Văn của hai bản vòng lặp còn định nghĩa từ hiển thị bằng tên công tắc nội bộ. Ba lượt chấm độc lập đều nêu; bản luật và cả hai bản dựng thẻ thì sạch. Đây là văn kế thừa của feature `pha3-goi-luoi`, đã nằm trong mục Out of scope "sweep hồi tố" — sửa ở đợt nâng bộ thẻ.
+4. Phép đo canh chủ-đích-phát-hành chưa nâng sàn cho bản 1.28.0/1.20.0, nên revert nguyên đợt bump vẫn xanh. Đã chứng minh bằng phép thử ngược ở vòng 4.
+5. Bước kiểm-trước-khi-chạy của vòng lặp chưa khai phụ thuộc mới vào bản nghiệm thu ≥1.28.0, và lời gọi bộ giải mới không có nhánh xử lý khi thất bại. Kho cài lệch phiên bản sẽ qua bước kiểm rồi chết giữa vòng.
+6. Đường dự phòng của lệnh dựng thẻ giải plugin bằng danh sách yêu-cầu không chứa bản luật, nên có thể trả về bản không mang luật mà không cờ nào.
+7. Chỉ dẫn ghi entry `revisit` cho quyền trả lại không mang theo khuôn của sổ quyết định, và tiền tố `lỗ-kit — ngôn ngữ mặt người` chưa có bên đọc nào trong kit — mới là quy ước cho người, chưa phải seam máy-đọc.
+
+Mục 4–7 là việc ngoài phạm vi đã duyệt ở Cổng 1, người quyết ghi hạn chế đã biết
+thay vì mở rộng hợp đồng giữa chừng. Chi tiết + phép thử ngược: `review-findings.md`.
+
 Ràng buộc kho: sửa nguồn PHẢI chạy `scripts/sync-plugin-packages.sh` và commit
 mirror cùng lượt (CLAUDE.md; P30 chặn drift).
