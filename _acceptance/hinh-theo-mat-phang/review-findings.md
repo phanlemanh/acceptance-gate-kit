@@ -1,55 +1,55 @@
 ## Trong hợp đồng
 
-(Không có finding nào ánh xạ được vào AC trong round 5 — toàn bộ 11/11 eval máy đạt, 0 lỗi trong hợp đồng.)
-
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **Con dấu bằng chứng cũ 4 commit — ba bản vá sau S4-r2 chưa có vòng chấm nào**
-  Người dùng thấy gì: Báo cáo bằng chứng đang xác nhận kết quả PASS cho một phiên bản mã cũ hơn phiên bản sắp được duyệt — ba lần sửa gần nhất chưa được chấm lại lần nào. Người ký Cổng 2 có thể ký duyệt một trạng thái không còn đúng với mã hiện tại mà không được cảnh báo.
+- **Con dấu bằng chứng ghim commit cũ — PASS 11/11 không được sinh bởi evals/phép đo đang ở HEAD**
+  Người dùng thấy gì: Bằng chứng đã ghi PASS đang chứng nhận cho một phiên bản mã cũ hơn phiên bản đang có mặt bây giờ — nếu ký duyệt Cổng 2 lúc này, người duyệt đang ký cho một bản đã lỗi thời mà không hề biết.
   file: `_acceptance/hinh-theo-mat-phang/evidence-report.md`
   severity: high
   Đề xuất: new-contract
 
-- **Bảng tra mặt phẳng có thể gộp về MỘT cơ chế vẽ mà suite vẫn xanh — phép đo không ràng buộc đúng thứ feature sinh ra để chặn**
-  Người dùng thấy gì: Cách kiểm tra máy hiện tại không phát hiện được nếu ai đó vô tình gán CÙNG một cách vẽ cho mọi nơi hiển thị khác nhau trong bảng tra, dù mục tiêu của tính năng là mỗi nơi phải có cách vẽ phù hợp riêng. Nếu lỗi đó lọt qua sau này, người dùng ở một số nơi có thể lại nhận được hình không xem được, giống sự cố ban đầu khiến tính năng này ra đời.
-  file: `tests/plugins/run-tests.sh`
-  severity: high
-  Đề xuất: known-limits
-
-- **Đối chứng âm của P88 là hằng-đúng trên literal — không bao giờ đỏ được**
-  Người dùng thấy gì: Một phép kiểm tra an toàn phiên bản trong bộ máy chỉ tự so sánh với chính nó nên không bao giờ có thể phát hiện lỗi thật — nếu cách đọc phiên bản bị hỏng ở nơi khác, hệ thống vẫn báo mọi thứ ổn.
-  file: `tests/plugins/run-tests.sh`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Thân luật N5 vẫn ghim định dạng "sơ đồ" — đúng câu chữ mà feature này sinh ra để gỡ**
-  Người dùng thấy gì: Phần hướng dẫn khi nào cần vẽ hình vẫn còn dùng từ ngữ ngầm chỉ định đúng một kiểu vẽ (sơ đồ), dù tính năng này đã đổi sang cho phép chọn cách vẽ theo nơi hiển thị — người đọc bản hướng dẫn có thể vẫn hiểu nhầm là chỉ được vẽ sơ đồ.
-  file: `skills/acceptance/references/human-facing-language.md`
-  severity: medium
-  Đề xuất: known-limits
-
-- **review-findings.md ở HEAD liệt kê lỗi ĐÃ SỬA và trùng lặp một lỗi — thẻ Cổng 2 trình cho người trạng thái sai**
-  Người dùng thấy gì: Tài liệu tóm tắt lỗi trình cho người duyệt ở Cổng 2 đang liệt kê một số lỗi đã được sửa xong từ trước và có một mục bị lặp lại hai lần, khiến người duyệt nhìn thấy số lượng và danh sách việc cần quyết định nhiều hơn thực tế.
-  file: `_acceptance/hinh-theo-mat-phang/review-findings.md`
+- **Tiêu chí AC-1/AC-2 không được nâng theo khi phép đo siết sang ràng buộc quan hệ**
+  Người dùng thấy gì: Tiêu chí đang hiển thị cho người duyệt đọc mô tả yêu cầu lỏng hơn những gì hệ thống kiểm tra tự động thực sự đang bắt buộc — người duyệt có thể ký mà không biết máy đang đòi hỏi chặt hơn văn bản họ vừa đọc.
+  file: `_acceptance/hinh-theo-mat-phang/contract.md`
   severity: medium
   Đề xuất: new-contract
 
-- **verified_commit của bằng chứng đã cũ 4 commit, và luật chặn bằng-chứng-cũ không bao giờ chạy tới vì rule signoff `continue` trước**
-  Người dùng thấy gì: Báo cáo bằng chứng ghi nhận đã kiểm tra ở một phiên bản mã cũ hơn phiên bản hiện tại, và cơ chế lẽ ra phải cảnh báo điều này cho người ký lại không hiển thị cảnh báo đúng lúc cần quyết định — nghĩa là người ký có thể ký mà không biết bằng chứng đã lỗi thời.
-  file: `_acceptance/hinh-theo-mat-phang/evidence-report.md`
+- **Hai đối chứng âm mới của P90 chỉ kiểm truthiness, không ghim thông điệp mong đợi**
+  Người dùng thấy gì: Một phần kiểm tra tự động hiện chỉ xác nhận 'có báo lỗi hay không', chưa chắc báo đúng loại lỗi — nếu về sau ai đó vô tình làm hỏng phần liên kết tên trong tài liệu luật, hệ thống kiểm tra vẫn có thể báo nhầm là ổn.
+  file: `tests/plugins/run-tests.sh`
   severity: medium
-  Đề xuất: new-contract
+  Đề xuất: known-limits
 
-- **Hai đối chứng âm con-trỏ-tên của P90 chỉ khẳng định truthiness, không ghim thông điệp**
-  Người dùng thấy gì: Một phép kiểm tra không phân biệt được giữa hai loại lỗi khác nhau khi trích dẫn tên bảng tra trong bản luật, nên nếu lỗi thật xảy ra ở loại thứ nhất, phép kiểm tra vẫn có thể báo đạt vì nhầm sang loại thứ hai.
+- **Đối chứng âm hằng-đúng còn sót trong P88 — cùng lớp mà chính diff này tuyên bố đã quét**
+  Người dùng thấy gì: Một phép kiểm tra số phiên bản phần mềm hiện không thực sự so sánh với dữ liệu thật của kho — nó luôn cho kết quả 'đúng' bất kể tình trạng thực tế, nên sẽ không phát hiện được nếu số phiên bản bị đặt sai.
   file: `tests/plugins/run-tests.sh`
   severity: low
   Đề xuất: known-limits
 
-## Chưa adversarial-verify (refuter chết)
+- **P97's new "quan hệ" constraint is permutation-invariant — the exact mermaid-into-terminal state the fix claims to block is still GREEN**
+  Người dùng thấy gì: Bảng tra cách-vẽ có thể bị ghép sai (một mặt phẳng lại mang cách vẽ của mặt phẳng khác) mà hệ thống kiểm tra tự động vẫn báo đạt — nếu lỗi ghép sai đó lọt vào tài liệu thật sau này, máy sẽ không bắt được, dù bảng đang hướng dẫn sai cho người dùng.
+  file: `tests/plugins/run-tests.sh`
+  severity: high
+  Đề xuất: new-contract
 
-(Không có finding nào với `unverified=true` trong round 5.)
+- **Evidence report certifies a commit 2 behind HEAD, and the gate's stale-evidence check never prints because the empty-signoff branch `continue`s first**
+  Người dùng thấy gì: Bằng chứng trình cho người duyệt ở Cổng 2 đang chứng cho một bản mã cũ hơn bản hiện tại, và lời cảnh báo 'bằng chứng cũ' đáng lẽ phải hiện ra lại không xuất hiện trong trường hợp này — người ký duyệt không được cảnh báo về việc đó trước khi ký.
+  file: `_acceptance/hinh-theo-mat-phang/evidence-report.md`
+  severity: high
+  Đề xuất: new-contract
 
-⚠ Cụm ngoài vùng phủ: 3/7 lỗi rơi vào file không bộ đo nào phủ (_acceptance/hinh-theo-mat-phang/evidence-report.md, _acceptance/hinh-theo-mat-phang/review-findings.md) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+- **P97 pins only the `hội thoại` row by name while the table has 4 rows and the floor is 3 — any other surface can be deleted and the suite stays green (and line 2753 asserts it must)**
+  Người dùng thấy gì: Trong bốn cách trình bày hình mà tài liệu liệt kê, hệ thống kiểm tra tự động chỉ thực sự đảm bảo có mặt đúng một cách (khung hội thoại); ba cách còn lại có thể bị xoá khỏi tài liệu mà không bị phát hiện, dù nơi khác của kit vẫn nói có đủ bốn cách.
+  file: `tests/plugins/run-tests.sh`
+  severity: medium
+  Đề xuất: new-contract
+
+- **P90's two cited-marker negative controls assert truthiness only, so they cannot distinguish which failure branch fired**
+  Người dùng thấy gì: Một phần kiểm tra tự động khác cũng chỉ xác nhận 'có báo lỗi', chưa chắc báo đúng loại lỗi — cùng rủi ro: một thay đổi vô tình về sau có thể khiến hệ thống báo nhầm là ổn dù lỗi thật đã xảy ra.
+  file: `tests/plugins/run-tests.sh`
+  severity: low
+  Đề xuất: known-limits
+
+⚠ Cụm ngoài vùng phủ: 3/8 lỗi rơi vào file không bộ đo nào phủ (_acceptance/hinh-theo-mat-phang/evidence-report.md, _acceptance/hinh-theo-mat-phang/contract.md) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
