@@ -5,7 +5,7 @@ slug: hinh-theo-mat-phang
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-08-02T01:36:40Z
 time_human_minutes: {gate1: 0, gate2: 0}
@@ -60,6 +60,18 @@ xem entry `descope` trong `decisions.jsonl`.
 > Out of scope = scope-truth (Gate 1 duyệt mục này).
 
 ## Notes
+
+**Known limits chốt tại Cổng 2 (2026-08-02) — chấp nhận và ship:**
+
+1. **Bảng tra không bị ràng buộc ánh xạ.** Phép đo hiện chặn được: ô ngoài danh sách đóng, gộp mọi mặt phẳng về một cơ chế, thiếu hàng, sai số hàng mặc định. Nhưng KHÔNG chặn hoán vị — đổi chỗ cơ chế giữa hai mặt phẳng thì mọi điều kiện vẫn qua, kể cả trạng thái "terminal thuần thì vẽ mermaid". Đã tái hiện: `check()` trả rỗng trên cây hoán vị. Bản vá đúng là ghim toàn bộ ánh xạ mặt-phẳng→cơ-chế thành một bảng mong đợi cố định trong phép đo (~4 dòng). Để đợt nâng bộ thẻ.
+2. **Thân luật N5 vẫn dùng chữ "sơ đồ"** ở tiêu đề ngưỡng, ở bảng sáu luật và ở ví dụ TRƯỚC/SAU — trong khi khuôn một-nguồn đã chuyển sang "hình". Agent đọc bản luật gặp "bắt buộc kèm sơ đồ" trước khi tới bảng tra. AC-5 cố ý đóng băng ngưỡng nguyên văn, nên văn bị đóng băng mang theo cả cách vẽ. Gỡ nó là một lần sửa bảng luật ở CẢ HAI nhà (bản thi hành + nguồn quyết định).
+3. **Tài liệu nguồn quyết định chưa cập nhật:** `docs/specs/workflow-v2-spec.md` còn ghim mermaid ở hai chỗ vận hành. Ai đọc nó thay vì bản thi hành vẫn nhận chỉ dẫn cũ.
+4. **Bộ dựng thẻ không tra bản dịch ở mục "Đã duyệt"**, nên phần đó hiện văn thô của sổ quyết định. Lỗi nằm ở bộ dựng thẻ — thành phần khác, cần hợp đồng riêng.
+5. **Hai đối chứng âm của phép đo con-trỏ-tên chỉ kiểm khác-rỗng**, chưa ghim đúng thông điệp; và một đối chứng hằng-đúng còn sót ở phép đo canh-phát-hành. Cùng lớp đã sửa ở chỗ khác, chưa quét hết theo lớp.
+
+Sáu vòng chấm, mỗi vòng bắt cùng một lớp lỗi lùi một bậc trừu tượng. Chốt ở đây
+là quyết định của người duyệt: feature đang chạy ĐÚNG, cái thiếu là răng canh nó
+khỏi trôi về sau.
 
 Feature này là bản vá cho `ngon-ngu-mat-nguoi` (ký 2026-08-01). Bốn vòng chấm
 của feature đó đã trả giá để có vùng quét và cách đếm cặp marker trong `P93` —
