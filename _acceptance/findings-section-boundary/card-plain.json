@@ -1,26 +1,12 @@
 {
-  "feature_plain": "Hai bộ đọc của kit đang bất đồng về 'phần Findings kết thúc ở đâu' — nên thẻ duyệt có thể hiện một phát hiện KHÔNG CÓ THẬT mà chỉ số bài học không thấy. Việc này đặt luật ranh giới vào MỘT chỗ có dấu neo, theo từng loại mục (mục dạng bảng khác mục dạng văn xuôi), và giữ nguyên bất biến 'thẻ không được cắt cụt tiêu chí'.",
-  "will_do": [
-    {"id": "AC-1", "p": "Sẽ chặn phát hiện ma: ghi chú lồng dưới phần Findings không còn bị đọc thành phát hiện thật"},
-    {"id": "AC-2", "p": "Sẽ hết cảnh báo oan 'mâu thuẫn: sạch nhưng bảng có phát hiện' do bảng ma gây ra"},
-    {"id": "AC-3", "p": "Sẽ giữ đủ mọi tiêu chí trên thẻ kể cả khi hợp đồng có tiêu đề nhóm phụ — đây là lỗi cũ từng làm thẻ cụt, không được tái diễn"},
-    {"id": "AC-4", "p": "Sẽ giữ đủ tiêu chí cả trên trang bằng chứng Cổng 2 (bộ đọc thứ hai không lệch)"},
-    {"id": "AC-5", "p": "Sẽ khai luật ranh giới thành một bảng có dấu neo, máy rút ra được — không chép tay ở nhiều nơi"},
-    {"id": "AC-6", "p": "Sẽ xoá bản sao luật trong hai script — cả hai dùng chung một nguồn"},
-    {"id": "AC-7", "p": "Sẽ ghim đồng thuận giữa hai gói cài đặt khác nhau bằng phép đối chiếu hành vi trên cùng dữ liệu mẫu"},
-    {"id": "AC-12", "p": "Sẽ chứng minh bảng luật LÀ thứ máy thật sự đọc: sửa bảng trong bản sao thì hành vi phải đổi theo — chống 'bảng trang trí'"},
-    {"id": "AC-11", "p": "Sẽ chạy thử trên chính bản đóng gói (mirror), không chỉ kiểm 'không lệch bản'"},
-    {"id": "AC-8", "p": "Sẽ chạy đủ 4 bộ kiểm hiện có, gồm cả bộ hooks trước đây không ai chạm"},
-    {"id": "AC-9", "p": "Sẽ vá phép kiểm không-thể-đỏ của vòng trước thành phép kiểm thật (có cả vế đúng lẫn vế sai)"}
-  ],
-  "wont_do": [
-    {"id": "AC-10", "p": "Sẽ KHÔNG để bất kỳ chỗ gọi nào tự chế luật riêng — 3 giám khảo soi code xác nhận (anh phải phê ở Cổng 2 vì đây là mức rủi ro T3)"},
-    {"id": "OOS-1", "p": "Sẽ KHÔNG gộp bộ đọc thứ ba (công cụ soi độ phủ) vào lần này — luật của nó đang đúng, chưa có triệu chứng"},
-    {"id": "OOS-2", "p": "Sẽ KHÔNG đổi ranh giới cho các mục của báo cáo bằng chứng — không có triệu chứng"}
-  ],
-  "scope_plain": "Để sau: gộp bộ đọc thứ ba, bản Codex. Ghim rõ: trang bằng chứng không có chỗ đọc mục dạng bảng nên không dựng phép kiểm cho đường không tồn tại.",
+  "feature_plain": "Luật 'phần Findings kết thúc ở đâu' nay nằm MỘT chỗ có dấu neo và máy thật sự đọc nó lúc chạy; thẻ duyệt và trang bằng chứng dùng chung nguồn đó. Ba vòng kiểm đã đào ra 3 lỗi nghiêm trọng — trong đó hai lỗi do CHÍNH bản sửa này gây ra — và cả ba đã đóng. Còn lại 8 ghi nhận ngoài phạm vi cho anh quyết.",
+  "decisions": [],
+  "analyst_plain": "Mọi phép kiểm máy chạy qua các lệnh chung của bộ test repo — ghi nhận từ vòng 1, không đổi.",
+  "scope_plain": "Đã khai để sau: bộ đọc thứ ba (công cụ soi độ phủ), bản Codex, cách đọc file review-findings. Phát sinh mới cần anh quyết: hai bộ đọc còn lại (soi độ phủ + cổng trước merge) nay LỆCH luật với nguồn chung.",
   "decisions_plain": [
-    {"id": "d-per-section", "p": "Chọn luật THEO TỪNG LOẠI MỤC thay vì một luật chung như báo cáo lỗi đề nghị — vì mỗi bên đều có lỗi lịch sử: một luật chung sẽ làm thẻ cụt tiêu chí trở lại; đổi lại việc này chạm vùng lõi nên lên mức T3, thêm một cửa duyệt kế hoạch"},
-    {"id": "d-descope-lint", "p": "KHÔNG gộp bộ đọc thứ ba lần này — giảm bề mặt thay đổi ở mức T3; đổi lại còn một bản luật ngoài bảng neo, đã ghi vết"}
+    {"id": "d-per-section", "p": "Luật theo TỪNG LOẠI MỤC thay vì một luật chung — giữ được cả hai bất biến (không phát hiện ma / không cắt cụt tiêu chí); đổi lại chạm vùng lõi nên lên T3"},
+    {"id": "d-runtime-table", "p": "Bảng luật được máy đọc lúc chạy (tự đọc chính file) thay vì chép tay — nhờ vậy chứng minh được bảng điều khiển hành vi thật; đổi lại tốn một lần đọc file khi nạp"},
+    {"id": "d-r1", "p": "Vòng 1 sửa 3 lỗi nghiêm trọng, trong đó có lỗi DO CHÍNH bản sửa gây ra: nới luật nhận diện tiêu đề làm hai cảnh báo đỏ ở Cổng 2 biến mất; và bộ kiểm mới chưa từng được chạy trong CI"},
+    {"id": "d-r2", "p": "Vòng 2 lộ thêm lỗ trong chính bản vá vòng 1: vòng lặp gọi hai hàm không tồn tại nên bài kiểm đỏ vẫn cho toàn bộ xanh — đã sửa và thử-đỏ để chứng minh nó đỏ được"}
   ]
 }
