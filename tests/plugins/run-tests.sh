@@ -2216,20 +2216,29 @@ assert check(ctx) == [], check(ctx)                              # doi chung DUO
 MUST = ["mặt người", "mặt máy", "lỗ-kit", "mặt phẳng", "nhìn-thấy-hình"]
 missing_must = [x for x in MUST if x not in terms]
 assert not missing_must, f"khoi tu dien thieu tu bat buoc: {missing_must}"
-if True:
+
+# Doi chung am THAT: pha KHOI tu dien trong mot ban sao roi chay lai CHINH phep
+# rut + phep kiem. Ban truoc chi lam so hoc tren hai list dung tai cho nen no
+# hang dung — ca ban ghim-cung lan ban tu-gac deu qua, tuc no khong phan biet
+# duoc dung lop loi no tu nhan la canh (bat o S4-r3).
+def terms_of(law_text):
+    mm = re.search(r"<!-- <<<HFL-GLOSSARY-TERMS -->\n([\s\S]*?)<!-- HFL-GLOSSARY-TERMS>>> -->", law_text)
+    if not mm:
+        return None
+    return [l.strip()[2:].strip() for l in mm.group(1).splitlines() if l.strip().startswith("- ")]
+
+_law_mut = ref.replace("- mặt phẳng\n", "", 1)
+_t_mut = terms_of(_law_mut)
+assert _t_mut is not None and [x for x in MUST if x not in _t_mut] == ["mặt phẳng"], \
+    "go 'mat phang' khoi KHOI TU DIEN that ma phep kiem khong bao thieu — rang tu-gac"
     # Neo vao dung VE PHAN BIET, khong phai chi vao chu "Surface" — chu do con
     # xuat hien o cau giai thich nen kiem long se khong bao gio do.
-    def has_contrast(g):
-        m = re.search(r"^\*\*Mặt phẳng\*\*:[\s\S]*?(?=^\*\*|\Z)", g, re.M)
-        return bool(m) and "Khác **Surface**" in m.group(0)
-    assert has_contrast(ctx), "muc 'mat phang' khong neu ro khac Surface o cho nao"
-    assert not has_contrast(ctx.replace("Khác **Surface**", "Ghi chu them", 1)), \
-        "dot bien go ve phan biet Surface khong lam phep do doi"
-# Doi chung am: go mot tu khoi KHOI TU DIEN phai DO (truoc day am tham qua).
-terms_mut = [x for x in terms if x != "mặt phẳng"]
-assert [x for x in MUST if x not in terms_mut] == ["mặt phẳng"], \
-    "go 'mat phang' khoi khoi tu dien ma danh sach mong doi khong doi — rang tu-gac"
-
+def has_contrast(g):
+    m = re.search(r"^\*\*Mặt phẳng\*\*:[\s\S]*?(?=^\*\*|\Z)", g, re.M)
+    return bool(m) and "Khác **Surface**" in m.group(0)
+assert has_contrast(ctx), "muc 'mat phang' khong neu ro khac Surface o cho nao"
+assert not has_contrast(ctx.replace("Khác **Surface**", "Ghi chu them", 1)), \
+    "dot bien go ve phan biet Surface khong lam phep do doi"
 mut = re.sub(rf"^\*\*{re.escape(terms[0])}\*\*:.*?(?=^\*\*|\Z)", "", ctx,
              count=1, flags=re.M | re.S | re.I)
 assert check(mut) == [f"tu '{terms[0]}' chua co muc trong tu dien"], \
