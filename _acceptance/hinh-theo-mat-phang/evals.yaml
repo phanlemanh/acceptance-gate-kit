@@ -56,7 +56,7 @@ evals:
     criterion: AC-6
     executor: test
     cmd: config:executors.test.plugins
-    expected: "P90 pass (nới) round-trip: rút khuôn câu-về-hình từ marker LOOP-PICTURE-CLAUSE ở bản luật (bên VIẾT) rồi tìm nó trong cả 2 SKILL vòng lặp (bên ĐỌC) — phải KHỚP TỪNG KÝ TỰ, không viết tay khuôn ở bên đọc; đối chứng dương XANH trước; hai đột biến riêng: sửa một chữ trong khuôn ở MỘT bản → ĐỎ ghim tên bản lệch, thay khuôn bằng câu tự diễn đạt có ghim một định dạng bất kỳ → ĐỎ. Đây là phép đo DƯƠNG thay cho vế phủ định cũ: danh sách cấm trên không gian mở không bao giờ đủ (răng P1 của gap-probe)"
+    expected: "P90 pass (nới) round-trip: rút khuôn câu-về-hình từ marker LOOP-PICTURE-CLAUSE ở bản luật (bên VIẾT) rồi tìm nó trong cả 2 SKILL vòng lặp (bên ĐỌC) — phải KHỚP TỪNG KÝ TỰ, không viết tay khuôn ở bên đọc; đối chứng dương XANH trước; hai đột biến riêng: sửa một chữ trong khuôn ở MỘT bản → ĐỎ ghim tên bản lệch, thay khuôn bằng câu tự diễn đạt có ghim một định dạng bất kỳ → ĐỎ. Phép đo DƯƠNG thay cho vế phủ định cũ. THÊM (S4-r2): tên bảng tra mà chính khuôn nhắc phải GIẢI RA một cặp marker THẬT trong bản luật — đánh sai tên rồi lan đều cả ba nơi thì ba bản vẫn khớp nhau nên phép so cũ XANH oan; đã tái hiện được, đột biến mới ghim đúng ca đó"
     paths:
       - skills/acceptance/references/human-facing-language.md
       - feature-loop/skills/feature-loop/SKILL.md
@@ -116,7 +116,7 @@ evals:
     criterion: AC-11
     executor: test
     cmd: config:executors.test.plugins
-    expected: "P96 pass: khối HFL-GLOSSARY-TERMS giờ có 5 từ gồm mặt phẳng và nhìn-thấy-hình, mỗi từ có mục trong CONTEXT.md; mục mặt phẳng nêu rõ khác Surface ở chỗ nào. Đối chứng dương XANH trước; đột biến xoá một mục khỏi bản sao CONTEXT.md → ĐỎ ghim đích danh từ thiếu"
+    expected: "P96 pass: khối HFL-GLOSSARY-TERMS giờ có 5 từ gồm mặt phẳng và nhìn-thấy-hình, mỗi từ có mục trong CONTEXT.md; mục mặt phẳng chứa vế phân biệt với Surface, phép đo neo vào ĐÚNG VẾ đó chứ không vào chữ Surface trơ. Danh sách từ bắt buộc GHIM CỨNG trong case, KHÔNG suy từ chính khối đang đo — bản trước bọc cả răng trong điều kiện 'nếu khối có từ này', nên gỡ hai từ khỏi CẢ HAI nơi là gỡ luôn yêu cầu (đã tái hiện: suite XANH). Đối chứng dương XANH trước; ba đột biến: xoá một mục từ điển → ĐỎ ghim từ thiếu, gỡ vế phân biệt → ĐỎ, gỡ từ khỏi khối → ĐỎ ghim khối-thiếu-từ-bắt-buộc"
     paths:
       - CONTEXT.md
       - skills/acceptance/references/human-facing-language.md

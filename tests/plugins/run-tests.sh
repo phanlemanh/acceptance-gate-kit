@@ -2210,7 +2210,13 @@ assert check(ctx) == [], check(ctx)                              # doi chung DUO
 # Tu moi cham mot khai niem DA CO trong tu dien thi muc cua no phai noi ro khac
 # o cho nao — khong thi tu dien co hai tu cho hai thu ma nguoi doc khong phan
 # biet duoc (finding S4-r1).
-if "mặt phẳng" in terms:
+# Danh sach MONG DOI ghim cung — KHONG suy tu chinh khoi dang do. Ban truoc
+# bao boc ca rang nay trong `if "mặt phẳng" in terms:`, nen go hai tu khoi khoi
+# la go luon yeu cau: da tai hien duoc, go 2 tu o CA HAI noi -> suite van XANH.
+MUST = ["mặt người", "mặt máy", "lỗ-kit", "mặt phẳng", "nhìn-thấy-hình"]
+missing_must = [x for x in MUST if x not in terms]
+assert not missing_must, f"khoi tu dien thieu tu bat buoc: {missing_must}"
+if True:
     # Neo vao dung VE PHAN BIET, khong phai chi vao chu "Surface" — chu do con
     # xuat hien o cau giai thich nen kiem long se khong bao gio do.
     def has_contrast(g):
@@ -2219,6 +2225,11 @@ if "mặt phẳng" in terms:
     assert has_contrast(ctx), "muc 'mat phang' khong neu ro khac Surface o cho nao"
     assert not has_contrast(ctx.replace("Khác **Surface**", "Ghi chu them", 1)), \
         "dot bien go ve phan biet Surface khong lam phep do doi"
+# Doi chung am: go mot tu khoi KHOI TU DIEN phai DO (truoc day am tham qua).
+terms_mut = [x for x in terms if x != "mặt phẳng"]
+assert [x for x in MUST if x not in terms_mut] == ["mặt phẳng"], \
+    "go 'mat phang' khoi khoi tu dien ma danh sach mong doi khong doi — rang tu-gac"
+
 mut = re.sub(rf"^\*\*{re.escape(terms[0])}\*\*:.*?(?=^\*\*|\Z)", "", ctx,
              count=1, flags=re.M | re.S | re.I)
 assert check(mut) == [f"tu '{terms[0]}' chua co muc trong tu dien"], \
@@ -2282,6 +2293,24 @@ assert f"{lp}: pham vi khuon bi thu hep" in check(m2), \
     "dot bien thu hep pham vi khuon khong do dung thong diep"
 
 assert CLAUSE, "khong rut duoc khuon cau-ve-hinh tu ban luat"
+
+# Ten bang tra ma KHUON tu nhac phai giai ra mot cap marker THAT trong ban luat.
+# Danh sai ten roi lan deu ca ba noi thi ba ban van KHOP NHAU — da tai hien
+# duoc: suite XANH trong khi ca hai harness tro toi mot bang khong ton tai.
+def cited_marker_ok(law_text, clause):
+    names = re.findall(r"`([A-Z][A-Z0-9-]+)`", clause)
+    if not names:
+        return ["khuon cau-ve-hinh khong nhac ten bang tra nao"]
+    bad = []
+    for n in names:
+        if not re.search(rf"<!-- <<<{re.escape(n)} -->\n[\s\S]*?<!-- {re.escape(n)}>>> -->", law_text):
+            bad.append(f"khuon nhac ten '{n}' nhung ban luat khong co cap marker do")
+    return bad
+
+assert cited_marker_ok(LAW, CLAUSE) == [], cited_marker_ok(LAW, CLAUSE)
+_typo = CLAUSE.replace("DECISION-DIAGRAM-SURFACES", "DECISION-DIAGRAM-SURFACE")
+assert cited_marker_ok(LAW.replace(CLAUSE, _typo, 1), _typo), \
+    "danh sai ten bang tra trong khuon ma khong bi bat — con tro chet van xanh"
 lp2 = LOOPS[1]
 m3 = lambda rel: live(rel).replace(CLAUSE, CLAUSE.replace("kèm hình", "kèm sơ đồ"), 1) if rel == lp2 else live(rel)
 assert f"{lp2}: cau ve hinh lech khuon mot-nguon" in check(m3), \
@@ -2661,7 +2690,8 @@ def check(text):
             continue
         if mech and " ".join(row[1].split()) not in mech:
             errs.append(f"cach-ve khong neu co che trong danh sach dong: {row[1]}")
-    hoi_thoai = [x for x in body if "hội thoại" in x[0]]
+    ok_rows = [x for x in body if len(x) == 3]
+    hoi_thoai = [x for x in ok_rows if "hội thoại" in x[0]]
     if not hoi_thoai:
         errs.append("thieu mat phang khung hoi thoai")
     elif not any("mặc định" in x[2] for x in hoi_thoai):

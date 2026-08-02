@@ -150,7 +150,10 @@ thuần, tài liệu trong kho. Quyết định hình ở điểm quyết địn
 ⚠️ Khác **Surface**: Surface là nơi *feature* lộ ra với người dùng (enum
 frontmatter `surfaces:` — web, mobile, api); mặt phẳng là nơi *một thông điệp*
 được hiển thị. Một feature `surfaces: [cli]` vẫn trình qua nhiều mặt phẳng.
-_Avoid_: surface, màn hình, kênh.
+_Avoid_: màn hình, kênh.
+# KHONG liet 'surface' o day: no la term CHUAN cua kit (xem muc Surface), nen
+# parser coi la allow-span va alias khong bao gio ban — mot luat khong the do.
+# Phan biet hai khai niem da nam o cau canh bao ngay tren, va co rang canh o P96.
 
 **Nhìn-thấy-hình**:
 Phép thử một câu tại điểm quyết định: thứ người nhận nhận được có phải là HÌNH
