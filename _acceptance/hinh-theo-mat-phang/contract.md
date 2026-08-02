@@ -8,7 +8,7 @@ surfaces: [cli]
 status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-02T01:36:40Z
-time_human_minutes: {gate1: 0, gate2: 15}
+time_human_minutes: {gate1: 15, gate2: 15}
 ---
 
 # Acceptance Contract: hinh-theo-mat-phang
