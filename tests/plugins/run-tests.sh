@@ -3320,13 +3320,18 @@ const mkFixture = () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p104-'));
   fs.mkdirSync(path.join(tmp, '_acceptance'), { recursive: true });
   fs.writeFileSync(path.join(tmp, '_acceptance/config.yaml'), 'schema_version: 1\n');
-  for (const v of VOCAB) {
-    const d = path.join(tmp, '_acceptance', 'v-' + v.toLowerCase());
-    fs.mkdirSync(d, { recursive: true });
-    fs.writeFileSync(path.join(d, 'contract.md'),
-      `---\nslug: v-${v.toLowerCase()}\nrisk_tier: T2\nstatus: implemented\n---\n`);
-    fs.writeFileSync(path.join(d, 'evidence-report.md'),
-      `---\nschema_version: 2\nverdict: ${v}\n---\n`);
+  // CA HAI nhanh status deu doc verdict — r3 hong dung vi fixture chi co
+  // `implemented`, nen nhanh `verified` troi khoi tu vung ma P104 van xanh.
+  for (const st of ['implemented', 'verified']) {
+    for (const v of VOCAB) {
+      const slug = `${st}-${v.toLowerCase()}`;
+      const d = path.join(tmp, '_acceptance', slug);
+      fs.mkdirSync(d, { recursive: true });
+      fs.writeFileSync(path.join(d, 'contract.md'),
+        `---\nslug: ${slug}\nrisk_tier: T2\nstatus: ${st}\napproved_at: 2026-01-01T00:00:00Z\n---\n`);
+      fs.writeFileSync(path.join(d, 'evidence-report.md'),
+        `---\nschema_version: 2\nverdict: ${v}\nhuman_signoff:\n---\n`);
+    }
   }
   return tmp;
 };
@@ -3334,11 +3339,13 @@ const check = scanPath => {
   const tmp = mkFixture();
   const r = JSON.parse(execFileSync('node', [scanPath, '--root', tmp], { encoding: 'utf8' }));
   const errs = [];
-  for (const v of VOCAB) {
-    const slug = 'v-' + v.toLowerCase();
-    const bad = r.broken.find(b => b.slug === slug);
-    if (bad && /không nhận diện được/.test(bad.reason))
-      errs.push(`verdict ${v} co trong khuon writer nhung reader goi la khong-nhan-dien-duoc`);
+  for (const st of ['implemented', 'verified']) {
+    for (const v of VOCAB) {
+      const slug = `${st}-${v.toLowerCase()}`;
+      const bad = r.broken.find(b => b.slug === slug);
+      if (bad && /không nhận diện được/.test(bad.reason))
+        errs.push(`[${st}] verdict ${v} co trong khuon writer nhung reader goi la khong-nhan-dien-duoc`);
+    }
   }
   return errs;
 };
@@ -3354,13 +3361,16 @@ fs.mkdirSync(path.join(mut, 'lib'), { recursive: true });
 fs.copyFileSync(path.join(root, 'lib/evidence-core.js'), path.join(mut, 'lib/evidence-core.js'));
 const src = fs.readFileSync(SCAN, 'utf8');
 const gone = VOCAB[VOCAB.length - 1];                     // go phan tu cuoi khuon writer
-const mutSrc = src.replace(new RegExp(`,\\s*'${gone}'`), '');
-if (mutSrc === src) die(`dot bien khong hieu luc — khong tim thay '${gone}' trong VERDICT_OK cua reader`);
+const mutSrc = src.replace(new RegExp(`^\\s*'${gone}':.*$`, 'm'), '');
+if (mutSrc === src) die(`dot bien khong hieu luc — khong tim thay '${gone}' trong bang tra verdict cua reader`);
 const mutPath = path.join(mut, 'scripts/start-scan.mjs');
 fs.writeFileSync(mutPath, mutSrc);
 const e1 = check(mutPath);
-if (!e1.some(x => x.includes(`verdict ${gone} co trong khuon writer`)))
-  die(`dot bien go ${gone} khoi tu vung reader KHONG bi bat dung thong diep: ${JSON.stringify(e1)}`);
+// Phai bat o CA HAI nhanh: mot bang tra dung chung thi go mot dong lam ca hai do.
+// Neu chi mot nhanh do => nhanh kia dang giu danh sach song song (lop loi r2/r3).
+for (const st of ['implemented', 'verified'])
+  if (!e1.some(x => x.includes(`[${st}] verdict ${gone} co trong khuon writer`)))
+    die(`dot bien go ${gone} KHONG lam nhanh ${st} do — nhanh nay dang giu tu vung rieng: ${JSON.stringify(e1)}`);
 console.log(`P104 OK (tu vung writer: ${VOCAB.join(', ')})`);
 JS
 

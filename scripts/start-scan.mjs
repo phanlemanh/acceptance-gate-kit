@@ -72,7 +72,19 @@ const gates = [], inProgress = [], done = [], broken = [];
 // Bỏ sót BLOCKED = một vòng đang dở bị chặn môi trường bị gọi là "hồ sơ hỏng"
 // rồi biến khỏi danh sách chọn của /start (S4-r2, thoái lui do chính vòng này gây).
 // P104 round-trip rút từ vựng TỪ khuôn writer rồi đọc bằng reader — hai đầu hết trôi.
-const VERDICT_OK = ['PASS', 'REJECT', 'PENDING-JUDGMENT', 'BLOCKED'];
+// MỘT bảng tra verdict → ý nghĩa, CẢ HAI nhánh status đọc chung. Hai danh sách
+// song song ở hai nhánh là hình dạng đã hỏng HAI round liên tiếp: r2 bỏ sót
+// BLOCKED ở nhánh implemented, r3 bỏ sót đúng nó ở nhánh verified. Gộp về một
+// bảng để khi khuôn writer thêm giá trị thì chỉ còn MỘT chỗ phải sửa.
+//   settled=true  → máy chấm xong, việc còn lại là của NGƯỜI (cổng bằng chứng)
+//   settled=false → máy chưa xong, còn việc của MÁY (nextStep)
+const VERDICT_MEANING = {
+  'PASS':             { settled: true,  nextStep: 'S4' },
+  'PENDING-JUDGMENT': { settled: true,  nextStep: 'S4' },
+  'REJECT':           { settled: false, nextStep: 'S3-fix' },
+  'BLOCKED':          { settled: false, nextStep: 'S4' },
+};
+const VERDICT_OK = Object.keys(VERDICT_MEANING);
 const offVocab = verdict => ({ file: 'evidence-report.md', reason: `verdict không nhận diện được: ${verdict}` });
 // Khớp CHẶT khuôn tên plan YYYY-MM-DD-<slug>.md — substring trần khiến slug là
 // tiền tố của slug khác dính plan không phải của nó (S4-r1, nextStep S3 oan)
@@ -88,10 +100,14 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
   const slug = entry.name;
   const dir = path.join(acc, slug);
   const cPath = path.join(dir, 'contract.md'), oPath = path.join(dir, 'opportunity.md');
-  const cRead = read(cPath), oRead = read(oPath);
+  // opportunity.md CHỈ được đọc khi KHÔNG có contract.md (nhánh else bên dưới).
+  // Đọc-rồi-bail vô điều kiện khiến một việc có hợp đồng lành mạnh đang chờ ký
+  // biến khỏi thẻ chỉ vì một file không bao giờ dùng tới bị lỗi quyền (S4-r3,
+  // lỗi trong hợp đồng do chính round 1 gây). Lỗi của file KHÔNG dùng tới thì
+  // không được quyết định ô của slug.
+  const cRead = read(cPath);
   if (cRead.err) { broken.push({ slug, file: 'contract.md', reason: ioReason(cRead.err) }); continue; }
-  if (oRead.err) { broken.push({ slug, file: 'opportunity.md', reason: ioReason(oRead.err) }); continue; }
-  const cTxt = cRead.t, oTxt = oRead.t;
+  const cTxt = cRead.t;
   if (cTxt != null) {
     const statusRaw = fmOrNull(cTxt, 'status');
     if (statusRaw == null) { broken.push({ slug, file: 'contract.md', reason: 'frontmatter không parse được hoặc thiếu status' }); continue; }
@@ -111,20 +127,29 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       // Bảng phân ô spec: chờ-Cổng-Bằng-chứng = verdict PASS/PENDING-JUDGMENT
       // và CHƯA human_signoff — verified không kèm điều kiện là hiện "chờ ký" oan (S4-r1)
       const signoff = eTxt != null ? (frontmatterField(eTxt, 'human_signoff') || '') : '';
+      const meaning = VERDICT_MEANING[verdict];
       if (verdict == null) broken.push({ slug, file: '(workspace)', reason: 'status verified nhưng thiếu evidence-report.md' });
       else if (signoff) done.push({ slug, state: 'signed-off' });
-      else if (verdict === 'PASS' || verdict === 'PENDING-JUDGMENT') gates.push({ slug, gate: 'bang-chung', since: since(cPath, frontmatterField(cTxt, 'approved_at')), tier });
-      else if (verdict === 'REJECT') inProgress.push({ slug, status, nextStep: 'S3-fix', tier });
-      else broken.push({ slug, ...offVocab(verdict) });
+      else if (!meaning) broken.push({ slug, ...offVocab(verdict) });
+      else if (meaning.settled) gates.push({ slug, gate: 'bang-chung', since: since(cPath, frontmatterField(cTxt, 'approved_at')), tier });
+      else inProgress.push({ slug, status, nextStep: meaning.nextStep, tier });
     }
     else if (status === 'implemented') {
-      if (eTxt != null && !VERDICT_OK.includes(verdict)) broken.push({ slug, ...offVocab(verdict) });
-      else inProgress.push({ slug, status, nextStep: verdict === 'REJECT' ? 'S3-fix' : 'S4', tier });
+      // Chưa có evidence = máy chưa chấm lần nào → bước kế là nghiệm thu máy
+      const meaning = eTxt == null ? { nextStep: 'S4' } : VERDICT_MEANING[verdict];
+      if (!meaning) broken.push({ slug, ...offVocab(verdict) });
+      else inProgress.push({ slug, status, nextStep: meaning.nextStep, tier });
     }
     else if (status === 'approved') inProgress.push({ slug, status, nextStep: planExists(slug) ? 'S3' : 'S2', tier });
     else if (status === 'draft') gates.push({ slug, gate: 'pham-vi', since: since(cPath, null), tier });
     else broken.push({ slug, file: 'contract.md', reason: `status không nhận diện được: ${status || '(rỗng)'}` });
-  } else if (oTxt != null) {
+    continue;
+  }
+  // Không có contract.md — GIỜ mới đọc opportunity.md (xem ghi chú ở trên)
+  const oRead = read(oPath);
+  if (oRead.err) { broken.push({ slug, file: 'opportunity.md', reason: ioReason(oRead.err) }); continue; }
+  const oTxt = oRead.t;
+  if (oTxt != null) {
     const stageRaw = fmOrNull(oTxt, 'stage');
     if (stageRaw == null) { broken.push({ slug, file: 'opportunity.md', reason: 'frontmatter không parse được hoặc thiếu stage' }); continue; }
     const stage = stageRaw.toLowerCase();
