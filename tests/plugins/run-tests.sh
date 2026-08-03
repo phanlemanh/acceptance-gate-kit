@@ -3293,6 +3293,77 @@ if (JSON.parse(r2.stdout).config !== false) die('root that chua init phai tra co
 console.log('P103 OK');
 JS
 
+# ── P104: ROUND-TRIP tu vung verdict writer <-> reader (AC-2) ──────────────
+# S4-r2 bat mot THOAI LUI: VERDICT_OK cua reader hardcode 3 gia tri, bo sot
+# BLOCKED — mot vong dang do bi chan moi truong bi goi la "ho so hong" roi bien
+# khoi danh sach chon cua /start. Thuoc cu chi hoi "gia tri la co bi goi ten
+# khong", KHONG ai ghim TU VUNG AY LAY TU DAU. Case nay rut tu vung tu chinh
+# khuon WRITER roi cho READER that doc (mau P55).
+run "P104 round-trip tu vung verdict: khuon writer <-> start-scan reader (E10)" \
+  node - "$ROOT" <<'JS'
+const fs = require('fs'), path = require('path'), os = require('os');
+const { execFileSync } = require('child_process');
+const root = process.argv[2];
+const SCAN = path.join(root, 'scripts/start-scan.mjs');
+const TPL = path.join(root, 'skills/acceptance/references/evidence-report-template.md');
+const die = m => { console.error(m); process.exit(1); };
+
+// 1. Rut tu vung tu WRITER (khong hardcode o day)
+const tplTxt = fs.readFileSync(TPL, 'utf8');
+const m = tplTxt.match(/^verdict:\s*\{\{([A-Z|-]+)\}\}/m);
+if (!m) die('KHONG rut duoc tu vung verdict tu khuon evidence-report-template.md');
+const VOCAB = m[1].split('|').map(s => s.trim()).filter(Boolean);
+if (VOCAB.length < 3) die(`tu vung rut ra qua ngan (${VOCAB.join(',')}) — regex hong`);
+
+// 2. Dung fixture cho TUNG verdict, cho READER that doc
+const mkFixture = () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p104-'));
+  fs.mkdirSync(path.join(tmp, '_acceptance'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, '_acceptance/config.yaml'), 'schema_version: 1\n');
+  for (const v of VOCAB) {
+    const d = path.join(tmp, '_acceptance', 'v-' + v.toLowerCase());
+    fs.mkdirSync(d, { recursive: true });
+    fs.writeFileSync(path.join(d, 'contract.md'),
+      `---\nslug: v-${v.toLowerCase()}\nrisk_tier: T2\nstatus: implemented\n---\n`);
+    fs.writeFileSync(path.join(d, 'evidence-report.md'),
+      `---\nschema_version: 2\nverdict: ${v}\n---\n`);
+  }
+  return tmp;
+};
+const check = scanPath => {
+  const tmp = mkFixture();
+  const r = JSON.parse(execFileSync('node', [scanPath, '--root', tmp], { encoding: 'utf8' }));
+  const errs = [];
+  for (const v of VOCAB) {
+    const slug = 'v-' + v.toLowerCase();
+    const bad = r.broken.find(b => b.slug === slug);
+    if (bad && /không nhận diện được/.test(bad.reason))
+      errs.push(`verdict ${v} co trong khuon writer nhung reader goi la khong-nhan-dien-duoc`);
+  }
+  return errs;
+};
+
+const e0 = check(SCAN);
+if (e0.length) die('doi chung DUONG that bai: ' + JSON.stringify(e0));   // ban that XANH
+
+// 3. Dot bien: go MOT verdict khoi tu vung cua reader -> phai DO dung thong diep.
+// Ban sao can lib/evidence-core.js giai duoc, nen dung cay tam co ca hai thu muc.
+const mut = fs.mkdtempSync(path.join(os.tmpdir(), 'p104m-'));
+fs.mkdirSync(path.join(mut, 'scripts'), { recursive: true });
+fs.mkdirSync(path.join(mut, 'lib'), { recursive: true });
+fs.copyFileSync(path.join(root, 'lib/evidence-core.js'), path.join(mut, 'lib/evidence-core.js'));
+const src = fs.readFileSync(SCAN, 'utf8');
+const gone = VOCAB[VOCAB.length - 1];                     // go phan tu cuoi khuon writer
+const mutSrc = src.replace(new RegExp(`,\\s*'${gone}'`), '');
+if (mutSrc === src) die(`dot bien khong hieu luc — khong tim thay '${gone}' trong VERDICT_OK cua reader`);
+const mutPath = path.join(mut, 'scripts/start-scan.mjs');
+fs.writeFileSync(mutPath, mutSrc);
+const e1 = check(mutPath);
+if (!e1.some(x => x.includes(`verdict ${gone} co trong khuon writer`)))
+  die(`dot bien go ${gone} khoi tu vung reader KHONG bi bat dung thong diep: ${JSON.stringify(e1)}`);
+console.log(`P104 OK (tu vung writer: ${VOCAB.join(', ')})`);
+JS
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

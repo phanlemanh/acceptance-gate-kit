@@ -65,6 +65,21 @@ evals:
     cmd: config:executors.script.mirror_sync
     expected: exit 0 — mirror khớp nguồn sau sync (đối chứng âm sẵn ở P41).
     paths: ["scripts/**", "plugins/**", "tests/**"]
+  # S4-r2: thước AC-2 cũ hỏi "giá trị lạ có bị gọi tên không" mà KHÔNG ai ghim
+  # TỪ VỰNG ẤY LẤY TỪ ĐÂU — nên reader bỏ sót BLOCKED mà mọi eval vẫn xanh
+  # (thoái lui do chính vòng này gây). E10 nối hai đầu writer↔reader.
+  - id: E10
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case P104 pass: RÚT từ vựng verdict từ chính khuôn WRITER
+      (skills/acceptance/references/evidence-report-template.md dòng `verdict:`),
+      dựng fixture code-sinh cho TỪNG giá trị, cho READER thật (start-scan.mjs)
+      đọc — không giá trị nào của writer bị reader gọi là "không nhận diện
+      được"; đối chứng dương bản thật XANH trước; đột biến gỡ MỘT verdict khỏi
+      từ vựng của reader → ĐỎ ghim đúng tên verdict bị gỡ.
+    paths: [scripts/start-scan.mjs, skills/acceptance/references/evidence-report-template.md, tests/plugins/run-tests.sh]
   # gap-probe P2-2: AC-5 Then nói 4 suite — mỗi suite một thước, không hạ Then
   - id: E7
     criterion: AC-5

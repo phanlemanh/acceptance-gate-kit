@@ -66,7 +66,13 @@ const gates = [], inProgress = [], done = [], broken = [];
 // MỘT từ vựng verdict cho MỌI nhánh: nhánh `verified` gọi tên giá trị lạ trong
 // khi nhánh `implemented` nuốt im lặng là chỗ duy nhất cùng một artifact hỏng
 // được phát hiện hay không tuỳ status của contract (Cổng 2 start-command, known-limit 3).
-const VERDICT_OK = ['PASS', 'REJECT', 'PENDING-JUDGMENT'];
+// Từ vựng phải khớp bên VIẾT, không phải trí nhớ của bên đọc: nguồn là
+// skills/acceptance/references/evidence-report-template.md (dòng `verdict:`),
+// và acceptance-verify.js tự sinh BLOCKED khi verifier không chạy được.
+// Bỏ sót BLOCKED = một vòng đang dở bị chặn môi trường bị gọi là "hồ sơ hỏng"
+// rồi biến khỏi danh sách chọn của /start (S4-r2, thoái lui do chính vòng này gây).
+// P104 round-trip rút từ vựng TỪ khuôn writer rồi đọc bằng reader — hai đầu hết trôi.
+const VERDICT_OK = ['PASS', 'REJECT', 'PENDING-JUDGMENT', 'BLOCKED'];
 const offVocab = verdict => ({ file: 'evidence-report.md', reason: `verdict không nhận diện được: ${verdict}` });
 // Khớp CHẶT khuôn tên plan YYYY-MM-DD-<slug>.md — substring trần khiến slug là
 // tiền tố của slug khác dính plan không phải của nó (S4-r1, nextStep S3 oan)
