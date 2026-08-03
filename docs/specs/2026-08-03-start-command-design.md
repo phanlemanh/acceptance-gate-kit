@@ -79,7 +79,8 @@ một cổng).
 Hai quyết định chốt với owner đầu S1 (ledger `_acceptance/start-command/`):
 
 1. **Phân loại nằm trong script, prose nằm trong lệnh.** Thêm
-   `scripts/start-scan.mjs --root <dir> [--json]`: quét `_acceptance/*/`,
+   `scripts/start-scan.mjs --root <dir>` (đầu ra LUÔN là JSON một dòng — không
+   có cờ định dạng): quét `_acceptance/*/`,
    đọc frontmatter (qua `lib/evidence-core.js` — cùng reader mọi cổng đang
    dùng, không viết parser mới), xuất inventory ĐÃ PHÂN Ô dạng JSON.
    `commands/start.md` chỉ còn: chạy script → nạp

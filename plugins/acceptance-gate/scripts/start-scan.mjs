@@ -25,8 +25,10 @@ const acc = path.join(root, '_acceptance');
 if (!existsSync(path.join(acc, 'config.yaml'))) { out({ schema_version: 1, config: false }); process.exit(0); }
 
 const read = p => { try { return readFileSync(p, 'utf8'); } catch { return null; } };
-// frontmatter hợp lệ = fence mở đầu file + fence đóng; field đọc qua evidence-core
-const hasFm = t => t != null && /^---\n[\s\S]*?\n---/.test(t);
+// KHÔNG có parser fence thứ hai: tiêu chí "đọc được" là CHÍNH frontmatterField
+// của evidence-core trả ra key bắt buộc (S4-r1: hasFm riêng đã chặt hơn reader
+// chuẩn — CRLF/dòng trắng đầu file bị báo hỏng oan trong khi mọi cổng khác đọc được)
+const fmOrNull = (t, key) => (t == null ? null : frontmatterField(t, key));
 const git = (() => {
   try {
     const branch = execFileSync('git', ['-C', root, 'rev-parse', '--abbrev-ref', 'HEAD'],
@@ -38,8 +40,11 @@ const git = (() => {
 })();
 
 const gates = [], inProgress = [], done = [], broken = [];
+// Khớp CHẶT khuôn tên plan YYYY-MM-DD-<slug>.md — substring trần khiến slug là
+// tiền tố của slug khác dính plan không phải của nó (S4-r1, nextStep S3 oan)
+const planSlug = f => { const m = f.match(/^\d{4}-\d{2}-\d{2}-(.+)\.md$/); return m ? m[1] : null; };
 const planExists = slug => [path.join(root, 'docs', 'superpowers', 'plans'), path.join(root, 'docs', 'plans')]
-  .some(d => existsSync(d) && readdirSync(d).some(f => f.includes(slug)));
+  .some(d => existsSync(d) && readdirSync(d).some(f => planSlug(f) === slug));
 // since: timestamp frontmatter thắng mtime — cổng chờ lâu nhất không được trôi
 // xuống cuối nhóm chỉ vì file bị format/sync chạm lại (AC-6, đối chứng P98)
 const since = (file, fmTs) => fmTs || statSync(file).mtime.toISOString();
@@ -51,21 +56,32 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
   const cPath = path.join(dir, 'contract.md'), oPath = path.join(dir, 'opportunity.md');
   const cTxt = read(cPath), oTxt = read(oPath);
   if (cTxt != null) {
-    if (!hasFm(cTxt)) { broken.push({ slug, file: 'contract.md', reason: 'frontmatter không parse được' }); continue; }
-    const status = (frontmatterField(cTxt, 'status') || '').toLowerCase();
+    const statusRaw = fmOrNull(cTxt, 'status');
+    if (statusRaw == null) { broken.push({ slug, file: 'contract.md', reason: 'frontmatter không parse được hoặc thiếu status' }); continue; }
+    const status = statusRaw.toLowerCase();
     const tier = frontmatterField(cTxt, 'risk_tier') || null;
     const eTxt = read(path.join(dir, 'evidence-report.md'));
-    if (eTxt != null && !hasFm(eTxt)) { broken.push({ slug, file: 'evidence-report.md', reason: 'frontmatter không parse được' }); continue; }
-    const verdict = eTxt != null ? (frontmatterField(eTxt, 'verdict') || '').toUpperCase() : null;
+    if (eTxt != null && fmOrNull(eTxt, 'verdict') == null) { broken.push({ slug, file: 'evidence-report.md', reason: 'frontmatter không parse được hoặc thiếu verdict' }); continue; }
+    const verdict = eTxt != null ? frontmatterField(eTxt, 'verdict').toUpperCase() : null;
     if (status === 'signed-off') done.push({ slug, state: 'signed-off' });
-    else if (status === 'verified') gates.push({ slug, gate: 'bang-chung', since: since(cPath, frontmatterField(cTxt, 'approved_at')), tier });
+    else if (status === 'verified') {
+      // Bảng phân ô spec: chờ-Cổng-Bằng-chứng = verdict PASS/PENDING-JUDGMENT
+      // và CHƯA human_signoff — verified không kèm điều kiện là hiện "chờ ký" oan (S4-r1)
+      const signoff = eTxt != null ? (frontmatterField(eTxt, 'human_signoff') || '') : '';
+      if (verdict == null) broken.push({ slug, file: '(workspace)', reason: 'status verified nhưng thiếu evidence-report.md' });
+      else if (signoff) done.push({ slug, state: 'signed-off' });
+      else if (verdict === 'PASS' || verdict === 'PENDING-JUDGMENT') gates.push({ slug, gate: 'bang-chung', since: since(cPath, frontmatterField(cTxt, 'approved_at')), tier });
+      else if (verdict === 'REJECT') inProgress.push({ slug, status, nextStep: 'S3-fix', tier });
+      else broken.push({ slug, file: 'evidence-report.md', reason: `verdict không nhận diện được: ${verdict}` });
+    }
     else if (status === 'implemented') inProgress.push({ slug, status, nextStep: verdict === 'REJECT' ? 'S3-fix' : 'S4', tier });
     else if (status === 'approved') inProgress.push({ slug, status, nextStep: planExists(slug) ? 'S3' : 'S2', tier });
     else if (status === 'draft') gates.push({ slug, gate: 'pham-vi', since: since(cPath, null), tier });
     else broken.push({ slug, file: 'contract.md', reason: `status không nhận diện được: ${status || '(rỗng)'}` });
   } else if (oTxt != null) {
-    if (!hasFm(oTxt)) { broken.push({ slug, file: 'opportunity.md', reason: 'frontmatter không parse được' }); continue; }
-    const stage = (frontmatterField(oTxt, 'stage') || '').toLowerCase();
+    const stageRaw = fmOrNull(oTxt, 'stage');
+    if (stageRaw == null) { broken.push({ slug, file: 'opportunity.md', reason: 'frontmatter không parse được hoặc thiếu stage' }); continue; }
+    const stage = stageRaw.toLowerCase();
     const decision = (frontmatterField(oTxt, 'decision') || '').toLowerCase();
     if (stage !== 'decided' || !decision) gates.push({ slug, gate: 'dang', since: since(oPath, frontmatterField(oTxt, 'decided_at')), tier: null });
     else if (decision === 'build' || decision === 'iterate') inProgress.push({ slug, status: 'opportunity-decided', nextStep: 'S1', tier: null });

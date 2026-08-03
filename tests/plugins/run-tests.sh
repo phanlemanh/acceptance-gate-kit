@@ -2835,6 +2835,15 @@ W('_acceptance/k-pass/evidence-report.md', evidence('PASS'));
 W('_acceptance/l-pending/contract.md', contract('l-pending', 'verified', 'approved_at: 2026-01-01T00:00:00Z\n'));
 W('_acceptance/l-pending/evidence-report.md', evidence('PENDING-JUDGMENT'));
 W('_acceptance/m-signed/contract.md', contract('m-signed', 'signed-off'));
+// cac nhanh verified co dieu kien (S4-r1) + CRLF + slug-tien-to
+W('_acceptance/n-verified-reject/contract.md', contract('n-verified-reject', 'verified'));
+W('_acceptance/n-verified-reject/evidence-report.md', evidence('REJECT'));
+W('_acceptance/o-verified-signed/contract.md', contract('o-verified-signed', 'verified'));
+W('_acceptance/o-verified-signed/evidence-report.md',
+  '---\nschema_version: 2\nslug: o\nverdict: PASS\nhuman_signoff: "Manh Phan 2026-08-03"\n---\n# E\n');
+W('_acceptance/p-crlf/contract.md',
+  '---\r\nschema_version: 1\r\nslug: p-crlf\r\nrisk_tier: T2\r\nstatus: draft\r\n---\r\n# C\r\n');
+W('_acceptance/h-approved/contract.md', contract('h-approved', 'approved')); // tien to cua h-approved-plan
 
 const scan = dir => JSON.parse(execFileSync('node', [SCAN, '--root', dir], { encoding: 'utf8' }));
 // hash toan bo cay file (portable, khong dung md5 cua he dieu hanh)
@@ -2855,9 +2864,13 @@ const r = scan(tmp);
 if (r.config !== true) die('doi chung duong: config:true phai co');
 
 const want = {
-  gates: { 'a-opp-moi': 'dang', 'b-opp-thieu-decision': 'dang', 'f-draft': 'pham-vi', 'k-pass': 'bang-chung', 'l-pending': 'bang-chung' },
-  inProgress: { 'c-opp-build': 'S1', 'd-opp-iterate': 'S1', 'g-approved': 'S2', 'h-approved-plan': 'S3', 'i-implemented': 'S4', 'j-reject': 'S3-fix' },
-  done: { 'e-opp-park': 'park', 'm-signed': 'signed-off' },
+  gates: { 'a-opp-moi': 'dang', 'b-opp-thieu-decision': 'dang', 'f-draft': 'pham-vi', 'k-pass': 'bang-chung', 'l-pending': 'bang-chung',
+           'p-crlf': 'pham-vi' },                                  // CRLF doc bang reader chuan, KHONG broken
+  inProgress: { 'c-opp-build': 'S1', 'd-opp-iterate': 'S1', 'g-approved': 'S2', 'h-approved-plan': 'S3', 'i-implemented': 'S4', 'j-reject': 'S3-fix',
+                'n-verified-reject': 'S3-fix',                     // verified + REJECT khong phai "cho ky"
+                'h-approved': 'S2' },                              // tien to: KHONG duoc dinh plan cua h-approved-plan
+  done: { 'e-opp-park': 'park', 'm-signed': 'signed-off',
+          'o-verified-signed': 'signed-off' },                     // da ky (status chua flip) khong hien "cho ky"
 };
 for (const [slug, gate] of Object.entries(want.gates)) {
   const hit = r.groups.gates.find(g => g.slug === slug);
@@ -2872,7 +2885,7 @@ for (const [slug, state] of Object.entries(want.done)) {
   if (!hit || hit.state !== state) die(`slug ${slug} phai done state=${state}, duoc: ${JSON.stringify(hit)}`);
 }
 const total = r.groups.gates.length + r.groups.inProgress.length + r.groups.done.length + r.broken.length;
-if (total !== 13) die(`tong slug vao o phai 13 (khong sot khong trung), duoc ${total}`);
+if (total !== 17) die(`tong slug vao o phai 17 (khong sot khong trung), duoc ${total}`);
 
 // skipped neu TEN nguon vang (AC-5)
 for (const src of ['PRODUCT-MAP.md', 'phiên-nghiệm-thu'])

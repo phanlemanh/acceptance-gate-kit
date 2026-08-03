@@ -35,11 +35,15 @@ phẩm, không sửa gì, không tự làm nội dung thay nghi thức đích.
      chí trước khi code · `bang-chung` = Cổng Bằng chứng: đọc bằng chứng rồi ký),
      của việc nào, ước ~10 phút.
    - **Đang dở** (`groups.inProgress`): mỗi vòng một dòng — *người dùng sẽ được
-     gì* (một câu từ tên việc, KHÔNG mở file sản phẩm ra đọc) + đang đứng ở bước
-     nào kế tiếp (`nextStep`, để trong ngoặc).
+     gì* (một câu từ tên việc, KHÔNG mở file sản phẩm ra đọc) + bước kế viết
+     BẰNG CHỮ, mã máy trong ngoặc — tra bảng: chốt thiết kế và tiêu chí (`S1`)
+     · lập kế hoạch (`S2`) · viết code (`S3`) · sửa theo bằng chứng (`S3-fix`)
+     · nghiệm thu máy (`S4`). Lần đầu một mã hiện trên thẻ phải kèm nghĩa.
    - **Bắt đầu việc mới** — đúng ba lối, không thêm lối nào: (a) ý còn mơ hồ →
-     buổi khai thác vòng HIỂU; (b) việc đã rõ → `/feature-loop <mô tả>`; (c)
-     việc vặt khớp miễn trừ T1 → sửa thẳng, không mở vòng.
+     buổi khai thác vòng HIỂU (grill/brainstorm theo nghi thức advisor); (b)
+     việc đã rõ → `/feature-loop <mô tả>`; (c) việc vặt khớp miễn trừ T1 →
+     xác nhận nó là T1 rồi KẾT THÚC `/start` — người ra lệnh sửa ở lượt kế,
+     ngoài nghi thức này (lệnh `/start` không sửa gì, kể cả việc vặt).
    - Dưới thẻ: mỗi phần tử `skipped[]` in đúng một dòng "(bỏ qua nguồn
      `source` — `reason`)" — nguồn vắng phải có tên, không im lặng; mỗi phần tử
      `broken[]` một dòng cờ hỏng: việc nào, hồ sơ nào (`file`), vì sao

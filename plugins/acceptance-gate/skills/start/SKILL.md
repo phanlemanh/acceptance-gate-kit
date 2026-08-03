@@ -41,11 +41,16 @@ ritual itself.
      chứng: read the evidence, then sign), for which piece of work, ~10 minutes.
    - **Đang dở** (`groups.inProgress`): one line per loop — *what the user will
      get* (one sentence from the work's name; do NOT open product files) + the
-     next step (`nextStep`, in parentheses).
+     next step written IN WORDS, machine code in parentheses — lookup table:
+     chốt thiết kế và tiêu chí (`S1`) · lập kế hoạch (`S2`) · viết code (`S3`)
+     · sửa theo bằng chứng (`S3-fix`) · nghiệm thu máy (`S4`). The first time a
+     code appears on the card it must carry its meaning.
    - **Bắt đầu việc mới** — exactly three paths, never more: (a) idea still
-     fuzzy → a discovery (HIỂU) session; (b) work already clear → the
-     feature-loop skill with a description; (c) a small chore covered by the T1
-     exemption → fix directly, no loop.
+     fuzzy → a discovery (HIỂU) session (grill/brainstorm per the advisor
+     ritual); (b) work already clear → the feature-loop skill with a
+     description; (c) a small chore covered by the T1 exemption → confirm it IS
+     T1, then END this skill — the human orders the fix in a later turn,
+     outside this ritual (this skill never edits anything, chores included).
    - Below the card: one line per `skipped[]` entry "(bỏ qua nguồn `source` —
      `reason`)" — every absent source is named, never silent; one warning line
      per `broken[]` entry: which work, which file (`file`), why (`reason`) — a
