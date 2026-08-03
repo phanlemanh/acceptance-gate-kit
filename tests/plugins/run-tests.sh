@@ -4005,6 +4005,44 @@ for needle in ["PRODUCT-MAP.md", "--check", "t1-skip-globs-github-and-manifests"
     assert needle in at, f"ADR khong neu {needle}"
 P113PY
 
+# ── P114: cai gi BAT consumer commit thi phai PHAT kem mien tru + cong canh ─
+run "P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)" \
+  python3 - "$ROOT" <<'P114PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+
+# Than lenh cong NAO bat repo tieu thu commit ban do?
+BODIES = ["commands/approve.md", "commands/signoff.md",
+          "codex/acceptance-gate/skills/approve/SKILL.md",
+          "codex/acceptance-gate/skills/signoff/SKILL.md"]
+bat_commit = [b for b in BODIES if "PRODUCT-MAP.md" in (root / b).read_text(encoding="utf-8")]
+assert bat_commit, "doi chung duong hong: khong than lenh nao nhac PRODUCT-MAP.md"
+
+# ... thi KHUON config ma acceptance-init phat cho ho phai co CA HAI:
+#   (a) mien tru t1 — thieu no thi chinh commit chu ky lam evidence stale va
+#       pre-merge chan merge, thanh vong khong thoat (ADR 0007);
+#   (b) executor canh — ADR 0007 noi mien tru CHI an toan khi con cong doc lap.
+# Thieu mot trong hai la kit phat cho consumer mot cai bay ma chinh kit da
+# dam phai o S4-r4 va da ghi ADR de khoi ai dam lai.
+INITS = ["commands/acceptance-init.md",
+         "codex/acceptance-gate/skills/acceptance-init/SKILL.md"]
+for rel in INITS:
+    txt = (root / rel).read_text(encoding="utf-8")
+    assert re.search(r'^\s*-\s*"PRODUCT-MAP\.md"\s*$', txt, re.M), \
+        f"{rel}: khuon config KHONG phat mien tru PRODUCT-MAP.md — consumer se ket merge ngay lan ky dau ({bat_commit} bat ho commit no)"
+    assert re.search(r'^\s*product_map:\s*"', txt, re.M), \
+        f"{rel}: khuon config KHONG phat executors.script.product_map — mien tru mat cong canh (ADR 0007)"
+
+# Doi chung AM: go dong mien tru khoi mot ban sao thi phep do phai DO
+mut = re.sub(r'^\s*-\s*"PRODUCT-MAP\.md"\s*$', "", (root / INITS[0]).read_text(encoding="utf-8"), flags=re.M)
+assert not re.search(r'^\s*-\s*"PRODUCT-MAP\.md"\s*$', mut, re.M), "buoc tiem chua bao gio chay"
+
+# ADR 0007 phai noi ro dieu kien an toan de nguoi sau khong noi mien tru mu quang
+adr = (root / "docs/adr/0007-product-map-t1-exemption.md").read_text(encoding="utf-8")
+assert "--check" in adr, "ADR 0007 khong neu cong canh"
+P114PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

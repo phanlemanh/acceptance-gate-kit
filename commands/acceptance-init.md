@@ -25,7 +25,10 @@ Initialize the Acceptance-Gate Kit in the current repository.
        target: local|staging|mock` line in ## Notes (lint W5 checks presence;
        the Gate-1 human eyeballs the value).
    d. Paths that are critical (auth/data/payments) → `t3_paths`
-   e. Globs safe to skip entirely (docs, pure-config) → `t1_skip_globs`
+   e. Globs safe to skip entirely (docs, pure-config) → `t1_skip_globs`.
+      Always keep the `PRODUCT-MAP.md` line the template ships — and tell the
+      repo owner to run `executors.script.product_map` in their CI, because
+      that check is what makes the exemption safe (ADR 0007).
    f. Who can sign off (names) → `signoff.approvers`
    g. (optional, pilot metric) Roughly how many minutes did acceptance take
       for each of the last 3 features? → `baseline_minutes`
@@ -49,6 +52,7 @@ executors:
     # e2e_mobile: "<from 2c3>"   # native E2E runner (xcodebuild test … / ./gradlew connectedAndroidTest) — exit code = UI-layer evidence only
   script:
     cli: "<from 2b>"
+    product_map: "node ${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs --root . --check"
   design:                                              # keep if the repo has any web UI
     gate: "node ${CLAUDE_PLUGIN_ROOT}/scripts/design-gate.mjs"   # script tier (a11y/slop)
     ui_check: "${CLAUDE_PLUGIN_ROOT}/scripts/design-scan.js"     # browser tier (authoritative P0)
@@ -57,6 +61,12 @@ executors:
 risk_tiers:
   t1_skip_globs:
     - "<from 2e>"
+    # Bản đồ sản phẩm — máy sinh, và /approve + /signoff commit nó CÙNG commit
+    # chữ ký. Thiếu dòng này thì chính commit chữ ký làm evidence stale và
+    # pre-merge chặn merge, thành vòng không thoát (ADR 0007). Miễn trừ CHỈ an
+    # toàn khi repo cũng chạy `executors.script.product_map` trong CI của mình —
+    # cổng đó là thứ duy nhất canh bản đồ sau khi nó ra khỏi tầm stale-check.
+    - "PRODUCT-MAP.md"
   t3_paths:
     - "<from 2d>"
 signoff:
