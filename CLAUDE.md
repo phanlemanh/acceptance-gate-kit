@@ -13,8 +13,8 @@
   Khi viết/sửa SKILL.md, docs, message của script: dùng đúng term chuẩn và
   tránh mọi từ nằm trong `_Avoid_`. Term mới chỉ thêm khi kit thật sự cần nó.
 
-- **5 thao tác cổng người** (`approve`, `signoff`, `acceptance-init`,
-  `acceptance-status`, `acceptance-report`) bị khoá model-invocation ở CẢ HAI
+- **6 thao tác cổng người** (`approve`, `signoff`, `acceptance-init`,
+  `acceptance-status`, `acceptance-report`, `start`) bị khoá model-invocation ở CẢ HAI
   harness; `acceptance-card` cố tình để mở (feature-loop và approve/signoff
   model-invoke nó). Đừng "sửa" sự bất đối xứng này — test P31/P32 giữ nó,
   lý do ở [docs/adr/0002](docs/adr/0002-human-gate-invocation-lock.md).

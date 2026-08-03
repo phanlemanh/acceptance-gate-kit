@@ -104,7 +104,9 @@ Hai quyết định chốt với owner đầu S1 (ledger `_acceptance/start-comm
 | `contract.md` status `draft` | chờ-Cổng-Phạm-vi | — |
 | status `approved`, chưa có plan khớp `*<slug>*` trong `docs/**/plans/` | vòng-đang-dở | S2 |
 | status `approved`, có plan | vòng-đang-dở | S3 |
-| status `implemented`, evidence vắng hoặc verdict REJECT | vòng-đang-dở | S4 / S3-fix |
+| status `implemented`, evidence vắng hoặc verdict BLOCKED | vòng-đang-dở | S4 |
+| status `implemented` hoặc `verified`, verdict REJECT | vòng-đang-dở | S3-fix |
+| status `verified`, verdict BLOCKED (bị chặn môi trường — vẫn là việc đang dở, không phải hồ sơ hỏng) | vòng-đang-dở | S4 |
 | status `verified`, verdict PASS/PENDING-JUDGMENT, chưa `human_signoff` | chờ-Cổng-Bằng-chứng | — |
 | status `signed-off` | đã-ký | — |
 | frontmatter không parse được | cờ hỏng (broken[]) — vẫn hiện, không crash | — |

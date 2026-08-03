@@ -1,0 +1,40 @@
+{
+  "feature_plain": "Bộ quét vào-phiên nay gặp đầu vào bất thường thì nói tên lỗi thay vì đổi nghĩa hay giấu việc: hồ sơ đọc thất bại lên thẻ kèm mã lỗi, kết quả nghiệm thu lạ bị gọi tên ở mọi ngả, gõ sai lệnh thì dừng ngay kèm lời báo đúng, và bài kiểm tài liệu nay đỏ được thật. Máy chấm ĐẠT ở vòng thứ 5 — bốn vòng đầu chính bộ nghiệm thu đã bắt được lỗi do bản vá tự gây, buộc đổi hẳn cách đo sang ghim toàn bộ bảng phân ô (59 ô).",
+  "decisions": [],
+  "analyst_plain": "",
+  "scope_plain": "Chưa làm vòng này (đã ghi hẹn trong sổ): lỗi git nuốt về trống, fixture kiểm thử rút từ khuôn mẫu gốc, và các lỗ ngoài phạm vi tích lại từ 5 vòng chấm — trình riêng bên dưới cho anh quyết.",
+  "decisions_plain": [
+    {
+      "id": "d-20260803T064042Z-30944",
+      "p": "KHÔNG quét lại không gian tiêu chí — phạm vi là danh sách đóng 4 mục anh đã ký tại cổng trước."
+    },
+    {
+      "id": "d-20260803T064042Z-31475",
+      "p": "Đã chọn cho lỗi gõ lệnh chết to ngay theo tiền lệ hai script gác cổng của kit — hôm nay không ai gãy vì hai thân lệnh đều gọi đúng cách."
+    },
+    {
+      "id": "d-20260803T064042Z-24786",
+      "p": "Hoãn vá lỗi git-nuốt-về-trống — cần đổi khuôn dữ liệu thẻ ở cả hai môi trường; hẹn vòng đổi khuôn."
+    },
+    {
+      "id": "d-20260803T064042Z-11263",
+      "p": "Hoãn rút fixture kiểm thử từ khuôn mẫu gốc — chất lượng bộ đo, hẹn vòng kế chạm cùng file."
+    },
+    {
+      "id": "d-20260803T073032Z-16240",
+      "p": "Vòng chấm 1 trả lại: kết quả nghiệm thu bỏ trống bị báo bằng câu cụt — đã sửa tại một chốt dùng chung cho cả hai ngả và siết thước đo theo."
+    },
+    {
+      "id": "d-20260803T075500Z-13564",
+      "p": "Vòng chấm 2: tôi ghi đè phân loại của máy — lỗi bỏ sót trạng thái bị-chặn-môi-trường là do chính vòng này gây, không đẩy sang anh; sửa và dựng phép đo nối từ vựng hai đầu viết–đọc."
+    },
+    {
+      "id": "d-20260803T081639Z-359",
+      "p": "Vòng chấm 3-4: sửa theo lớp — gộp ba bản danh sách kết quả song song thành một bảng tra chung, dời chốt hồ sơ-cơ-hội về đúng ngả dùng nó."
+    },
+    {
+      "id": "d-20260803T095320Z-11723",
+      "p": "Vòng 5 (anh duyệt sau phân tích lại): đổi hẳn cách đo — ghim toàn bộ 59 ô bảng phân ô thay vì đo điểm; kèm luật dừng cam kết trước nếu lỗi cùng lớp còn tái diễn."
+    }
+  ]
+}
