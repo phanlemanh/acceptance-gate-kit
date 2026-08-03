@@ -4041,6 +4041,36 @@ assert not re.search(r'^\s*-\s*"PRODUCT-MAP\.md"\s*$', mut, re.M), "buoc tiem ch
 # ADR 0007 phai noi ro dieu kien an toan de nguoi sau khong noi mien tru mu quang
 adr = (root / "docs/adr/0007-product-map-t1-exemption.md").read_text(encoding="utf-8")
 assert "--check" in adr, "ADR 0007 khong neu cong canh"
+
+# (c) Lenh ma khuon Codex PHAT ra phai CHAY DUOC — do QUAN HE, khong do chuoi.
+#     S4-r10: khuon phat `codex-plugin-runner.mjs ... product-map` trong khi
+#     action do khong co trong allowlist cua runner -> BLOCKED ngay lan chay
+#     dau, tuc consumer Codex nhan mien tru t1 MA KHONG co cong canh nao. Phep
+#     do cu chi assert chuoi `product_map:` co mat — dung bay "do tu vung thay
+#     vi quan he" ma chinh vong nay vua ghi memory.
+import subprocess as sp
+codex_init = (root / "codex/acceptance-gate/skills/acceptance-init/SKILL.md").read_text(encoding="utf-8")
+m = re.search(r'^\s*product_map:\s*"([^"]+)"', codex_init, re.M)
+assert m, "khuon Codex khong khai product_map"
+lenh = m.group(1).split()
+assert lenh[0] == "node", f"lenh la: {lenh}"
+runner = root / "codex/acceptance-gate/skills/acceptance-init/references/codex-plugin-runner.mjs"
+assert runner.is_file(), "khong tim thay codex-plugin-runner.mjs"
+rc = sp.run(["node", str(runner)] + lenh[2:], cwd=root, capture_output=True, text=True)
+ra = (rc.stdout + rc.stderr)
+assert "unsupported plugin/action" not in ra, \
+    f"lenh khuon Codex PHAT ra bi runner tu choi: {ra.strip()[:120]} — consumer Codex se co mien tru ma khong co cong canh"
+
+# (d) Duong DOC-CU: 4 than cong phai co nhanh bo qua cho repo init truoc 1.31.0.
+#     CLAUDE.md: doi schema artifact phai co duong doc-cu, KHONG bat consumer
+#     migrate hang loat. Thieu nhanh nay thi moi repo cu ket merge ngay lan ky.
+for rel in ["commands/approve.md", "commands/signoff.md",
+            "codex/acceptance-gate/skills/approve/SKILL.md",
+            "codex/acceptance-gate/skills/signoff/SKILL.md"]:
+    body = (root / rel).read_text(encoding="utf-8")
+    assert "t1_skip_globs" in body, f"{rel}: khong doc t1_skip_globs — khong co duong doc-cu"
+    assert re.search(r"(SKIP|BỎ QUA|Bật bằng hai dòng|opt-in note)", body), \
+        f"{rel}: khong co nhanh bo qua + ghi chu bat cho repo chua bat ban do"
 P114PY
 
 if [ "$failures" -gt 0 ]; then

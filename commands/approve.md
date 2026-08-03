@@ -45,11 +45,23 @@ Steps:
    - If `_acceptance/<slug>/decisions.jsonl` exists (feature-loop), append the
      seal entry `{"id":"d-<next>","type":"seal","gate":1,"at":"<ISO>"}` in the
      same write-batch as `approved_by`.
-   - Regenerate the product map — `node
-     ${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs --root .` — AFTER the gate
-     fields are written. The map is a view over the workshop's records, and a
-     human closing a gate is exactly when those records change; CI's `--check`
-     turns any drift red.
+   - Regenerate the product map — but FIRST check the repo opted in: read
+     `risk_tiers.t1_skip_globs` in `_acceptance/config.yaml`. If `PRODUCT-MAP.md`
+     is NOT listed, this repo was initialised before acceptance-gate 1.31.0 —
+     **SKIP the regen** and print this note instead, then carry on:
+
+     > Bản đồ sản phẩm chưa bật cho repo này. Bật bằng hai dòng trong
+     > `_acceptance/config.yaml`: thêm `- "PRODUCT-MAP.md"` vào
+     > `risk_tiers.t1_skip_globs`, và `product_map: "node
+     > ${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs --root . --check"` vào
+     > `executors.script` — rồi chạy executor đó trong CI. Thiếu miễn trừ thì
+     > chính commit chữ ký này làm bằng chứng stale và chặn merge (ADR 0007).
+
+     Listed → run `node ${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs --root .`
+     AFTER the gate fields are written, and include `PRODUCT-MAP.md` in the
+     commit below. The map is a view over the workshop's records, and a human
+     closing a gate is exactly when those records change; CI's `--check` turns
+     any drift red.
    - Offer ONE commit: contract + evals (+ design doc when present) +
      `PRODUCT-MAP.md` — the Gate-1 record.
 6. **"Not now" / rejected** → the contract stays `draft`; capture the reason in

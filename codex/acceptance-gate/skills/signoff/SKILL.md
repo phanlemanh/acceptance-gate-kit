@@ -50,8 +50,14 @@ verify/fix loop.
 
 ## 6. Regenerate the product map
 
-Run `node ${PLUGIN_ROOT}/scripts/product-map.mjs --root .` after
-`human_signoff` is written. The map is machine-generated from records this gate
+First check the repo opted in: read `risk_tiers.t1_skip_globs` in
+`_acceptance/config.yaml`. `PRODUCT-MAP.md` NOT listed → repo initialised before
+acceptance-gate 1.31.0: SKIP this step, do NOT add the map to the commit, and
+print the opt-in note (add `- "PRODUCT-MAP.md"` to `t1_skip_globs` plus a
+`product_map` executor, then run it in CI) — without the exemption the signature
+commit itself makes evidence stale and pre-merge blocks the merge (ADR 0007).
+Listed → run `node ${PLUGIN_ROOT}/scripts/product-map.mjs --root .` after
+`human_signoff` is written; the map is machine-generated from records this gate
 just changed, so it belongs in the signature commit below.
 
 ## 7. Land the signature in its own commit

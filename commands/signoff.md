@@ -38,10 +38,22 @@ Steps:
    backstop). You contribute no values of your own.
 5. **Any item the human rejects** → the feature is NOT signable: leave every
    signoff field empty, stop, and route back to the verify/fix loop.
-6. **Regenerate the product map** — `node
-   ${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs --root .` — after
-   `human_signoff` is written. The map is machine-generated from records this
-   gate just changed, so it belongs in the signature commit below.
+6. **Regenerate the product map — only if this repo opted in.** Read
+   `risk_tiers.t1_skip_globs` in `_acceptance/config.yaml`. `PRODUCT-MAP.md`
+   NOT listed → the repo was initialised before acceptance-gate 1.31.0: **SKIP
+   this step**, do NOT add the map to the commit, and print the note below —
+   otherwise the signature commit itself makes the evidence stale and
+   pre-merge blocks the merge with no way out (ADR 0007).
+
+   > Bản đồ sản phẩm chưa bật cho repo này. Bật bằng hai dòng trong
+   > `_acceptance/config.yaml`: thêm `- "PRODUCT-MAP.md"` vào
+   > `risk_tiers.t1_skip_globs`, và `product_map: "node
+   > ${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs --root . --check"` vào
+   > `executors.script` — rồi chạy executor đó trong CI.
+
+   Listed → run `node ${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs --root .`
+   after `human_signoff` is written; the map is machine-generated from records
+   this gate just changed, so it belongs in the signature commit below.
 
 7. **Land the signature as its own commit** touching only the human-owned
    lines in `evidence-report.md` (`human_signoff`, `human_override`, the

@@ -1,13 +1,13 @@
 ---
 schema_version: 2
 feature_slug: product-map-uat-session
-verdict: PASS
+verdict: PENDING-JUDGMENT
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: f301cb470538c67705743e76d1fb4686f2b30c56
+verified_commit: 53956ec15e2e8f281cabeff614380eeac8211ce8
 human_signoff:
 ---
 
@@ -27,7 +27,7 @@ human_signoff:
 | E10 | AC-10 | test | PASS |
 | E11 | AC-11 | test | PASS |
 | E12 | AC-12 | test | PASS |
-| E13 | AC-13b | judgment | PASS |
+| E13 | AC-13b | judgment | UNCERTAIN |
 | E14 | AC-6 | script | PASS |
 | E15 | AC-1 | test | PASS |
 | E16 | AC-1 | test | PASS |
@@ -37,86 +37,86 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-product-map-uat-session-E1-r9
+  run_id: minted-product-map-uat-session-E1-r10
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-03T13:16:41Z
+  verified_at: 2026-08-03T14:20:00Z
   output: |
       PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
 - eval: E2
-  run_id: minted-product-map-uat-session-E2-r9
+  run_id: minted-product-map-uat-session-E2-r10
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-03T13:16:41Z
+  verified_at: 2026-08-03T14:20:00Z
   output: |
       PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
 - eval: E3
-  run_id: minted-product-map-uat-session-E3-r9
+  run_id: minted-product-map-uat-session-E3-r10
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-03T13:16:41Z
+  verified_at: 2026-08-03T14:20:00Z
   output: |
       PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
 - eval: E4
-  run_id: minted-product-map-uat-session-E4-r9
+  run_id: minted-product-map-uat-session-E4-r10
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-03T13:16:41Z
+  verified_at: 2026-08-03T14:20:00Z
   output: |
       PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
 - eval: E5
-  run_id: minted-product-map-uat-session-E5-r9
+  run_id: minted-product-map-uat-session-E5-r10
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-03T13:16:41Z
+  verified_at: 2026-08-03T14:20:00Z
   output: |
       PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
 - eval: E6
-  run_id: minted-product-map-uat-session-E6-r9
+  run_id: minted-product-map-uat-session-E6-r10
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-03T13:16:41Z
+  verified_at: 2026-08-03T14:20:00Z
   output: |
       PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
 - eval: E7
-  run_id: minted-product-map-uat-session-E7-r9
+  run_id: minted-product-map-uat-session-E7-r10
   exit_code: 0
   baseline: red
   verifier: config:executors.script.product_map
-  verified_at: 2026-08-03T13:16:41Z
+  verified_at: 2026-08-03T14:20:00Z
   output: |
       PRODUCT-MAP.md khớp hồ sơ xưởng.
 
 - eval: E8
-  run_id: minted-product-map-uat-session-E8-r9
+  run_id: minted-product-map-uat-session-E8-r10
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-03T13:16:41Z
+  verified_at: 2026-08-03T14:20:00Z
   output: |
       PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
@@ -125,37 +125,37 @@ human_signoff:
 - eval: E9
   judged_by: 3-lens judge panel (fresh context) — domain-correctness / operational-feasibility / spec-alignment
   verdict: PASS
-  rationale: Đề xuất tổng hợp của panel round này là PASS, đồng thuận cả 3 lens (không phân rẽ) — không đổi qua 9 round liên tiếp. Đầy đủ vote từng lens (không rút gọn) xem section "Judge panel — E9" ngay dưới Evidence.
+  rationale: Đề xuất tổng hợp của panel round này là PASS, đồng thuận cả 3 lens (không phân rẽ) — không đổi qua 10 round liên tiếp. Đầy đủ vote từng lens (không rút gọn) xem section "Judge panel — E9" ngay dưới Evidence.
   human_override:
 
 - eval: E10
-  run_id: minted-product-map-uat-session-E10-r9
+  run_id: minted-product-map-uat-session-E10-r10
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-03T13:16:41Z
+  verified_at: 2026-08-03T14:20:00Z
   output: |
       PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
 - eval: E11
-  run_id: minted-product-map-uat-session-E11-r9
+  run_id: minted-product-map-uat-session-E11-r10
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-03T13:16:41Z
+  verified_at: 2026-08-03T14:20:00Z
   output: |
       PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
 - eval: E12
-  run_id: minted-product-map-uat-session-E12-r9
+  run_id: minted-product-map-uat-session-E12-r10
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-03T13:16:41Z
+  verified_at: 2026-08-03T14:20:00Z
   output: |
       PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
@@ -163,58 +163,58 @@ human_signoff:
 
 - eval: E13
   judged_by: 3-lens judge panel (fresh context) — domain-correctness / operational-feasibility / spec-alignment
-  verdict: PASS
-  rationale: Đề xuất tổng hợp của panel round này là PASS trên phiếu 2/3 — domain-correctness và spec-alignment PASS, operational-feasibility FAIL. Đảo lần thứ ba qua 9 round: tổ hợp bất đồng KHÁC round 7 (khi đó domain-correctness + operational-feasibility PASS, spec-alignment FAIL) dù cùng kết luận thuận — cùng một lớp vấn đề (4 nhãn cổng viết hoa tự đặt trong mermaid PRODUCT-MAP.md chưa có mục trong CONTEXT.md) tiếp tục được lens operational-feasibility gắn cờ. Đề xuất thuận nên panel tự chốt PASS (tier T2, không bắt buộc human_override khi panel đã tự chốt, giống round 7). Cả ba phiếu, kể cả phiếu bất đồng, KHÔNG bị gộp/ẩn — giữ nguyên toàn văn ở section "Judge panel — E13" ngay dưới Evidence.
+  verdict: UNCERTAIN
+  rationale: Đề xuất tổng hợp của panel round này là FAIL, đồng thuận cả 3 lens — LẦN ĐẦU TIÊN qua 10 round cả ba lens cùng nghiêng FAIL (các round trước luôn chia phiếu 2/3, đổi hướng nhiều lần: PASS ở round 2/7/9, FAIL ở round 3/4/5/8). Cùng đúng một lớp vấn đề xuyên suốt: 4 nhãn cổng tự đặt trong khối mermaid của PRODUCT-MAP.md ("Cổng Đáng"/"Cổng Phạm vi"/"Cổng Bằng chứng"/"Cổng Giá trị") chưa có mục trong CONTEXT.md. Vì đây là một judgment item và đề xuất không phải PASS đồng thuận, verdict ghi UNCERTAIN thay vì tự chốt REJECT — người quyết tại Cổng 2 phải tự xem và điền human_override. Đầy đủ vote từng lens (không rút gọn, kể cả khi đồng thuận) xem section "Judge panel — E13" ngay dưới Evidence.
   human_override:
 
 - eval: E14
-  run_id: minted-product-map-uat-session-E14-r9
+  run_id: minted-product-map-uat-session-E14-r10
   exit_code: 0
   baseline: green
   verifier: config:executors.script.mirror_sync
-  verified_at: 2026-08-03T13:16:41Z
+  verified_at: 2026-08-03T14:20:00Z
   output: |
       plugins/ mirror in sync.
 
 - eval: E15
-  run_id: minted-product-map-uat-session-E15-r9
+  run_id: minted-product-map-uat-session-E15-r10
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-03T13:16:41Z
+  verified_at: 2026-08-03T14:20:00Z
   output: |
       PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
 - eval: E16
-  run_id: minted-product-map-uat-session-E16-r9
+  run_id: minted-product-map-uat-session-E16-r10
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-03T13:16:41Z
+  verified_at: 2026-08-03T14:20:00Z
   output: |
       PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
 - eval: E17
-  run_id: minted-product-map-uat-session-E17-r9
+  run_id: minted-product-map-uat-session-E17-r10
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-03T13:16:41Z
+  verified_at: 2026-08-03T14:20:00Z
   output: |
       PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
 - eval: E18
-  run_id: minted-product-map-uat-session-E18-r9
+  run_id: minted-product-map-uat-session-E18-r10
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-03T13:16:41Z
+  verified_at: 2026-08-03T14:20:00Z
   output: |
       PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
@@ -224,17 +224,17 @@ human_signoff:
 
 Đề xuất tổng hợp của panel: PASS, đồng thuận cả 3 lens. Vote từng lens (giữ nguyên toàn bộ, không rút gọn/viết lại):
 
-- domain-correctness: PASS — SKILL.md giữ đủ 7 chốt của §2.3 đúng thứ tự: điều kiện vào ở §0 (contract signed-off + opportunity.md có ngưỡng UAT chốt tại Cổng Đáng); §1 chép NGUYÊN VĂN ngưỡng + cấm sửa sau khi thấy số (đổi thật phải SUPERSEDED và dừng chờ Cổng Đáng); §3 chấm kín TRƯỚC khối Thảo luận + câu ràng buộc "gửi cho khách nào, khi nào?"; §5 verdict do người ký điền, agent bị cấm điền thay; câu "KILL tại cổng này là THÀNH CÔNG của quy trình" xuất hiện tường minh (dòng 12); §6 làm mới PRODUCT-MAP sau khi ký. Không thấy chốt nào bị thiếu, đảo thứ tự hay diễn giải sai so với spec.
-- operational-feasibility: PASS — Cả 7 chốt của §2.3 đều có mặt và đúng thứ tự vận hành trong uat-session/SKILL.md: điều kiện vào ở mục 0 (signed-off + ngưỡng UAT đã chốt tại Cổng Đáng, đúng câu "chốt tại Cổng Đáng"), chép nguyên văn ngưỡng + cấm sửa sau khi thấy số ở mục 1, chấm kín trước khi mở khối Thảo luận + commitment device ("gửi cho khách nào, khi nào?") gộp đúng vị trí ở mục 3, verdict do người ký (agent không điền thay) ở mục 5, và làm mới PRODUCT-MAP ở mục 6 sau khi ký — khớp trình tự phiên UAT → Cổng Giá Trị → S5 của spec. Câu "KILL là thành công của quy trình" xuất hiện ở đầu file như khung dẫn nhưng mục 0 chỉ dẫn rõ "nói câu đó ra khi trình quyết định" (mục 5), nên về mặt vận hành nó rơi đúng thời điểm ra quyết định như spec yêu cầu, không lệch thứ tự thực thi.
-- spec-alignment: PASS — Skill uat-session giữ đủ và đúng thứ tự các chốt của spec §2.3: §0 kiểm signed-off + ngưỡng UAT đã chốt tại Cổng Đáng trước khi vào; §1 chép NGUYÊN VĂN ngưỡng và cấm sửa sau khi thấy số (cơ chế SUPERSEDED); §2→§3 mời người rồi chấm kín TRƯỚC thảo luận, cùng lúc hỏi câu ràng buộc "gửi cho khách nào, khi nào?"; §5 minh thị "Agent KHÔNG điền verdict thay người"; câu "KILL là thành công của quy trình" xuất hiện ngay đầu skill khớp nguyên văn tinh thần spec; §6 làm mới PRODUCT-MAP ngay sau khi ký. Không thấy chốt nào bị thiếu, đổi thứ tự hay diễn giải lệch so với §2.3.
+- domain-correctness: PASS — SKILL.md giữ đủ 7 chốt của spec §2.3 theo đúng thứ tự: điều kiện vào (signed-off + ngưỡng UAT tại Cổng Đáng, mục 0) → chép nguyên văn ngưỡng + cấm sửa sau khi thấy số (mục 1) → mời người (mục 2) → chấm kín trước thảo luận + commitment device "gửi cho khách nào, khi nào" (mục 3) → đặt số đo cạnh ngưỡng từ tracking thật (mục 4) → verdict do người ký, "Agent KHÔNG điền verdict thay người" (mục 5) → làm mới PRODUCT-MAP sau ký (mục 6). Câu "KILL là thành công của quy trình" xuất hiện ở đầu file nhưng gắn ngữ cảnh rõ ràng với thời điểm trình quyết định (mục 5), không lệch thứ tự nghi thức.
+- operational-feasibility: PASS — SKILL.md giữ đủ và đúng thứ tự 7 chốt của §2.3: điều kiện vào §0 khớp nguyên văn (signed-off + ngưỡng UAT chốt tại Cổng Đáng), chép nguyên văn ngưỡng + cấm sửa sau khi thấy số ở §1, chấm kín trước thảo luận ở §3 (có chặn thứ tự file là vết), commitment device cùng bước với chấm kín ở §3, verdict human-owned tường minh ở §5 ("Agent KHÔNG điền verdict thay người"), câu "KILL là thành công của quy trình" xuất hiện ngay đầu file, và làm mới bản đồ sau ký ở §6. Trình tự các bước (0 điều kiện vào → 1 dựng hồ sơ/ngưỡng → 2 mời người → 3 chấm kín+commitment → 4 số đo cạnh ngưỡng → 5 người ký → 6 sau ký) khớp đúng thứ tự nghi thức mô tả trong workflow-v2-spec §2.3.
+- spec-alignment: PASS — Đủ 7 chốt và đúng thứ tự: §0 điều kiện vào (signed-off + ngưỡng UAT chốt tại Cổng Đáng) → §1 chép nguyên văn ngưỡng + cấm sửa sau khi thấy số → §2 mời người → §3 chấm kín trước thảo luận + commitment device → §4 đặt số đo cạnh ngưỡng (tracking thật) → §5 verdict human-owned (agent không điền thay) → §6 làm mới PRODUCT-MAP sau ký, khớp khít với §2.3 spec. Câu "KILL là thành công của quy trình" có mặt ở đầu file kèm chỉ dẫn "nói câu đó ra khi trình quyết định" — đúng vị trí chức năng dù không lặp lại trong thân §5.
 
 ### Judge panel — E13 (AC-13b)
 
-Đề xuất tổng hợp của panel: PASS trên phiếu 2/3 — domain-correctness và spec-alignment PASS, operational-feasibility FAIL. Không phải đồng thuận. Vote từng lens (giữ nguyên toàn bộ, không rút gọn/viết lại — bao gồm cả phiếu bất đồng):
+Đề xuất tổng hợp của panel: FAIL, đồng thuận cả 3 lens — lần đầu tiên qua 10 round không còn chia phiếu. Vote từng lens (giữ nguyên toàn bộ, không rút gọn/viết lại):
 
-- domain-correctness: PASS — Phần tự viết (tiêu đề, ghi chú, khối mermaid 4 cổng, dòng bản đồ mẫu trên thẻ /start) đọc được bằng tiếng sản phẩm: chủ ngữ là trạng thái/sản phẩm, chặng rỗng nói "chưa có" thay vì để trống, tên cổng (Cổng Đáng/Phạm vi/Bằng chứng/Giá trị) được ngữ cảnh hoá qua chính luồng mũi tên — đạt N1-N6. Phần THỪA HƯỞNG nguyên văn trường `feature:` của hồ sơ cũ (vd. "đóng lớp câm-lặng của 6 cửa parse trong claim-scan.mjs", "luật ranh giới section PER-SECTION đặt... trong lib/md-section.js") KHÔNG đọc được bằng tiếng sản phẩm — chủ ngữ là tên file/cơ chế máy, đầy jargon (frontmatter, round-trip, biên merge) — nhưng đây đúng là phần bị loại khỏi phạm vi sửa vòng này (ghi rõ trong contract.md AC-13b + note "mở rộng phạm vi tại Cổng 2"), không phải lỗi mới của bộ sinh. Vì AC-13b chỉ đòi phần tự-viết đạt N1-N6 và phần kế thừa được phán riêng có ghi rõ bên — cả hai điều kiện đều thoả nên PASS.
-- operational-feasibility: FAIL — Phần TỰ VIẾT của vòng này (tiêu đề/ghi chú, headers "Đang làm/Đã giao", và 4 nhãn cổng trong mermaid của PRODUCT-MAP.md — "Cổng Đáng"/"Cổng Phạm vi"/"Cổng Bằng chứng"/"Cổng Giá trị", lặp lại y hệt ở dòng bản đồ trên thẻ /start): FAIL N6 — đây là biệt ngữ viết hoa hoàn toàn mới, không có mục nào trong CONTEXT.md (mục "Gates & verbs" chỉ định nghĩa Gate 1/1.5/2 và "cổng" thường; "Cổng N" viết hoa được ghim riêng cho Gate 1/2, không bao trùm 4 tên cổng mới này). N1/N2/N3/N5 của phần tự viết thì đạt (chủ ngữ không phải file, tên kỹ thuật trong ghi chú đã xuống ngoặc, mã cổng ở start.md có giải thích lần đầu, hình mermaid đi trước chữ). Phần THỪA HƯỞNG nguyên văn từ hồ sơ cũ (các dòng dưới "Đang làm"/"Đã giao"/"Ngoài phạm vi đã ký") không tính vào phán quyết vòng này vì cố ý không sửa, dù một vài dòng cũ (vd "gate-card + evidence-page hết bản sao, claim-scan ghim bằng round-trip") tự nó cũng lệch N1/N6 sẵn từ trước.
-- spec-alignment: PASS — Phần chữ TỰ VIẾT (tiêu đề "Bản đồ sản phẩm", ghi chú, tên mục "Đang làm"/"Đã giao"/"Ngoài phạm vi đã ký", nhãn các nút mermaid trong PRODUCT-MAP.md, và ba dòng trạng thái bản đồ trên thẻ /start — "chưa có bản đồ sản phẩm...", "bản đồ đang lệch với hồ sơ...", "chưa kiểm được bản đồ") đạt N1–N6: chủ ngữ là sản phẩm/trạng thái chứ không phải file, không lộ tên kỹ thuật, mỗi nhãn một ý, và dùng đúng cơ chế mermaid cho điểm quyết định nhiều nhánh như N5 đòi. Phần THỪA HƯỞNG nguyên văn trường mô tả feature cũ (các bullet dưới "Đang làm"/"Đã giao", ví dụ nhắc thẳng `claim-scan.mjs`, `lib/md-section.js`, "cửa parse", "S1", "id sai khuôn") KHÔNG đạt N1/N2/N6 — đây là ngôn ngữ mặt máy chưa có mục trong CONTEXT.md — nhưng lỗi này thuộc về hồ sơ cũ đã ký, vòng này cố ý không sửa nên không tính là hồi quy của bộ sinh round này.
+- domain-correctness: FAIL — Phần TỰ VIẾT của vòng này (tiêu đề, ghi chú, headers "Đang làm/Đã giao", ba dòng bản đồ trên thẻ /start, và 4 nhãn cổng trong khối mermaid của PRODUCT-MAP.md — "Cổng Đáng"/"Cổng Phạm vi"/"Cổng Bằng chứng"/"Cổng Giá trị") phần lớn đạt N1-N5, nhưng 4 nhãn cổng vẫn là biệt ngữ viết hoa tự đặt, không có mục trong CONTEXT.md (đã grep lại lần này, vẫn 0 kết quả) — khác ba nhãn "Cổng Phạm vi/Bằng chứng/Giá trị" đủ tự giải nghĩa qua ngữ cảnh mũi tên, riêng "Cổng Đáng" không tự nhiên đủ rõ để qua phép thử người-thứ-ba như N6 đòi, và xu hướng lặp lại đều đặn qua nhiều round khiến đây không còn là ồn nhất thời mà là một khiếm khuyết ổn định của bộ sinh. Phần THỪA HƯỞNG nguyên văn không tính vào phán quyết vòng này vì cố ý không sửa.
+- operational-feasibility: FAIL — Phần TỰ VIẾT (tiêu đề/ghi chú, headers "Đang làm/Đã giao", và 4 nhãn cổng trong mermaid của PRODUCT-MAP.md, lặp lại y hệt ở dòng bản đồ trên thẻ /start): vẫn FAIL N6 — biệt ngữ viết hoa hoàn toàn mới, không có mục nào trong CONTEXT.md (mục "Gates & verbs" chỉ định nghĩa Gate 1/1.5/2 và "cổng" thường; "Cổng N" viết hoa được ghim riêng cho Gate 1/2, không bao trùm 4 tên cổng mới này). N1/N2/N3/N5 của phần tự viết thì đạt. Sau 10 round quan sát cùng một lớp lỗi lặp lại không đổi hình dạng, lens này giữ nguyên FAIL. Phần THỪA HƯỞNG nguyên văn từ hồ sơ cũ không tính vào phán quyết vòng này vì cố ý không sửa.
+- spec-alignment: FAIL — Chữ TỰ VIẾT cho vòng này: 4 nhãn cổng tự đặt trong mermaid ("Cổng Đáng"/"Cổng Phạm vi"/"Cổng Bằng chứng"/"Cổng Giá trị") nối dài đúng quy ước viết-hoa mà CONTEXT.md dành riêng cho "Cổng 1"/"Cổng 2" (Gate 1/Gate 2) nhưng không có mục riêng cho 4 tên này — người đọc quen quy ước cũ dễ hiểu nhầm đây là các cổng người chính thức ngang hàng Cổng 1/Cổng 2. Các phần tự viết khác (tiêu đề, ghi chú, tên mục, ba dòng trạng thái bản đồ trên thẻ /start) đạt N1–N6. Phần THỪA HƯỞNG nguyên văn không tính vào phán quyết vòng này vì cố ý không sửa.
 
 ## Analyst
 
@@ -256,6 +256,7 @@ Round 6 (fix nối tiếp, không có report/verdict riêng — decisions.jsonl 
 Round 7: toàn bộ 16 eval máy/script (E1-E8, E10-E12, E14-E18) PASS, exit 0, gồm cả E7 (script, baseline: red — có phân biệt) và E3 nay phủ đủ 8 chân fail-closed từ round 6 (bao gồm hai chân mới: mode lạ → exit 2 không ghi đè, và xoá bản đồ đã-track → exit 1). Suite chung tests/scripts (596), tests/hooks (51), tests/workflows (10) vẫn xanh, không gán eval. Panel E9 giữ nguyên đồng thuận PASS (3/3), không đổi qua 7 round. Panel E13 LẦN ĐẦU đổi sang đa số PASS (2/3: domain-correctness, operational-feasibility PASS; spec-alignment FAIL) — đảo ngược hình dạng chia phiếu FAIL 2/3 đã giữ nguyên suốt round 3-5; phiếu FAIL còn lại chỉ ra 4 nhãn cổng tự đặt trong mermaid (Cổng Đáng/Phạm vi/Bằng chứng/Giá trị) là biệt ngữ mới chưa vào CONTEXT.md, dissent đầy đủ ở "Judge panel — E13". Scope-triage review round này: mục "Trong hợp đồng" RỖNG — không finding nào map được vào AC; 9 finding thật đều xếp "Ngoài hợp đồng" (xem review-findings.md), không finding nào chặn AC. Verdict tổng round này: PASS — không eval máy nào fail (failed_evals: []), không finding "Trong hợp đồng" nào chặn merge, và panel E13 đa số PASS (không còn UNCERTAIN chờ human_override — tier T2, không bắt buộc override khi panel đã tự chốt).
 Round 8: toàn bộ 16 eval máy/script (E1-E8, E10-E12, E14-E18) PASS, exit 0, gồm cả E7 (script, baseline: red — có phân biệt). Suite chung tests/scripts (596), tests/hooks (51), tests/workflows (10) vẫn xanh, không gán eval. Panel E9 giữ nguyên đồng thuận PASS (3/3), không đổi qua 8 round. Panel E13 LẦN NỮA đảo phiếu — quay lại đa số FAIL 2/3 (domain-correctness, spec-alignment FAIL; operational-feasibility PASS), đảo ngược hình dạng đa số PASS vừa xuất hiện ở round 7; hai phiếu FAIL cùng chỉ một lớp: 4 nhãn cổng tự đặt trong mermaid ("Cổng Đáng"/"Phạm vi"/"Bằng chứng"/"Giá trị") vẫn chưa có mục trong CONTEXT.md và nối dài đúng quy ước viết-hoa mà CONTEXT.md dành riêng cho "Cổng 1"/"Cổng 2", dissent đầy đủ ở "Judge panel — E13". Scope-triage review round này: mục "Trong hợp đồng" RỖNG — không finding nào map được vào AC; 10 finding thật đều xếp "Ngoài hợp đồng" (xem review-findings.md, 2/10 rơi vào file ngoài vùng phủ của bộ đo), không finding nào chặn AC. Khác round 7 (đề xuất thuận PASS nên tự chốt, không cần override), round này đề xuất nghiêng FAIL — không tự chốt REJECT cho một judgment item đang phân rẽ, ghi UNCERTAIN thay. Verdict tổng round này: PENDING-JUDGMENT — không eval máy nào fail (failed_evals: []), không finding "Trong hợp đồng" chặn merge, duy nhất E13 UNCERTAIN chờ human_override tại Cổng 2.
 Round 9: toàn bộ 16 eval máy/script (E1-E8, E10-E12, E14-E18) PASS, exit 0, gồm cả E7 (script, baseline: red — có phân biệt). Suite chung tests/scripts (596), tests/hooks (51), tests/workflows (227, gồm execute-parallel 16 + skill-claims 10 + các suite khác) đều xanh, không gán eval. Panel E9 giữ nguyên đồng thuận PASS (3/3), không đổi qua 9 round. Panel E13 lần thứ ba đảo phiếu — quay lại đa số PASS 2/3 (domain-correctness, spec-alignment PASS; operational-feasibility FAIL), tổ hợp bất đồng KHÁC round 7 (khi đó domain-correctness + operational-feasibility PASS, spec-alignment FAIL) dù cùng kết luận thuận; phiếu FAIL vẫn chỉ đúng lớp cũ đã theo dõi từ round 3: 4 nhãn cổng tự đặt trong mermaid ("Cổng Đáng"/"Cổng Phạm vi"/"Cổng Bằng chứng"/"Cổng Giá trị") chưa có mục trong CONTEXT.md, dissent đầy đủ ở "Judge panel — E13" ngay dưới Evidence. Scope-triage review round này: mục "Trong hợp đồng" RỖNG — không finding nào map được vào AC; 6 finding thật đều xếp "Ngoài hợp đồng" (xem review-findings.md), không finding nào chặn AC. Verdict tổng round này: PASS — không eval máy nào fail (failed_evals: []), không finding "Trong hợp đồng" chặn merge, panel E9 đồng thuận PASS và panel E13 đa số PASS (2/3, tier T2 — không bắt buộc human_override khi panel tự chốt, giống round 7).
+Round 10: toàn bộ 16 eval máy/script (E1-E8, E10-E12, E14-E18) PASS, exit 0, gồm cả E7 (script, baseline: red — có phân biệt). Suite chung tests/scripts (596), tests/hooks (51), tests/workflows (10) đều xanh, không gán eval. Panel E9 giữ nguyên đồng thuận PASS (3/3), không đổi qua 10 round. Panel E13 LẦN ĐẦU đồng thuận cả 3/3 FAIL — khác mọi round trước (3-9) luôn chia phiếu 2/3 theo cả hai hướng, không lần nào cả ba lens cùng một verdict; ba phiếu vẫn quy về đúng một lớp cũ: 4 nhãn cổng tự đặt trong mermaid ("Cổng Đáng"/"Cổng Phạm vi"/"Cổng Bằng chứng"/"Cổng Giá trị") chưa có mục trong CONTEXT.md. Vì đề xuất không phải PASS đồng thuận, verdict E13 ghi UNCERTAIN thay vì tự chốt REJECT cho một judgment item, dissent đầy đủ ở "Judge panel — E13" ngay dưới Evidence. Scope-triage review round này: mục "Trong hợp đồng" RỖNG — không finding nào map được vào AC; 9 finding thật đều xếp "Ngoài hợp đồng" (xem review-findings.md, 3/9 rơi vào file ngoài vùng phủ của bộ đo), không finding nào chặn AC. Verdict tổng round này: PENDING-JUDGMENT — không eval máy nào fail (failed_evals: []), không finding "Trong hợp đồng" chặn merge, duy nhất E13 UNCERTAIN (đồng thuận FAIL 3/3, lần đầu tiên không chia phiếu qua 10 round) chờ human_override tại Cổng 2.
 
 ## Gate 2 checklist (human)
 

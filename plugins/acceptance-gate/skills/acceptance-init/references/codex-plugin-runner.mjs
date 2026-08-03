@@ -13,6 +13,7 @@ const ACTIONS = Object.freeze({
     'recheck-evidence': 'scripts/recheck-evidence.js',
     'eval-coverage-lint': 'scripts/eval-coverage-lint.js',
     'config-patch': 'scripts/config-patch.mjs',
+    'product-map': 'scripts/product-map.mjs',
   }),
   'design-loop': Object.freeze({
     'design-static-check': 'scripts/design-static-check.mjs',
