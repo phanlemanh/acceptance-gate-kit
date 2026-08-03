@@ -3316,6 +3316,58 @@ if (/epic|thay thế|liên quan/.test(lineOf("zebra")))
 console.log("P105 OK");
 P105JS
 
+# ── P106: --check 4 trang thai + goi y lenh chay duoc o CHINH repo dang do ──
+run "P106 --check fresh/stale/thieu-file/chua-init + path suy tu vi tri script (E3)" \
+  node --input-type=module - "$ROOT" <<'P106JS'
+const root = process.argv[2];  // dang stdin: argv[1] la "-"
+const fs = await import("node:fs"); const os = await import("node:os");
+const path = await import("node:path");
+const { execFileSync } = await import("node:child_process");
+const { fileFromTemplate } = await import(path.join(root, "tests/fixtures/from-template.mjs"));
+const die = m => { console.error(m); process.exit(1); };
+const SCRIPT = path.join(root, "scripts/product-map.mjs");
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "p106-"));
+const W = (rel, s) => { const p = path.join(tmp, rel);
+  fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, s); };
+const runCheck = () => { try {
+    const out = execFileSync("node", [SCRIPT, "--root", tmp, "--check"],
+      { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    return { code: 0, out, err: "" };
+  } catch (e) { return { code: e.status, out: String(e.stdout || ""), err: String(e.stderr || "") }; } };
+
+// 1. chua init -> exit 0 co note (KHONG do oan repo chua dung cong)
+let r = runCheck();
+if (r.code !== 0 || !/chưa dựng cổng/.test(r.out)) die("chua init: code=" + r.code + " out=" + r.out);
+
+W("_acceptance/config.yaml", "schema_version: 1\n");
+W("_acceptance/x/contract.md", fileFromTemplate(
+  path.join(root, "skills/acceptance/references/contract-template.md"),
+  "CONTRACT-FRONTMATTER-TEMPLATE",
+  { feature: "viec x", slug: "x", owner: "o@o", risk_tier: "T2", surfaces: "cli", status: "draft" }));
+
+// 2. chua co PRODUCT-MAP.md -> exit 0 co note (duong doc-cu cho consumer chua dung)
+r = runCheck();
+if (r.code !== 0 || !/chưa có/.test(r.out)) die("thieu file: code=" + r.code + " out=" + r.out);
+
+// 3. DOI CHUNG DUONG: sinh roi check -> phai XANH truoc khi tin mau do o buoc 4
+execFileSync("node", [SCRIPT, "--root", tmp], { stdio: "ignore" });
+r = runCheck();
+if (r.code !== 0) die("vua sinh xong ma --check do: " + r.err);
+
+// 4. tiem lech -> exit 1 + DUNG thong diep + duong dan goi y chay duoc
+const mapPath = path.join(tmp, "PRODUCT-MAP.md");
+fs.writeFileSync(mapPath, fs.readFileSync(mapPath, "utf8") + "\n- **la-hoac**\n");
+r = runCheck();
+if (r.code !== 1) die("map lech ma --check khong exit 1 (code=" + r.code + ")");
+if (!r.err.includes("PRODUCT-MAP.md lệch với hồ sơ xưởng — chạy: node "))
+  die("thong diep khong khop khuon ghim: " + r.err);
+const m = r.err.match(/chạy: node (\S+) --root \./);
+if (!m) die("thong diep khong neu duong dan script: " + r.err);
+if (!fs.existsSync(path.resolve(tmp, m[1])))
+  die("duong dan trong goi y KHONG ton tai khi chay tu repo dang do: " + m[1]);
+console.log("P106 OK");
+P106JS
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
