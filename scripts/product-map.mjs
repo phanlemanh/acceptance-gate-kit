@@ -11,6 +11,7 @@
 // fence thứ hai (tiền lệ start-command S4-r1 — parser riêng chặt hơn reader
 // chuẩn thì báo hỏng oan những hồ sơ mọi cổng khác đọc được).
 import { readFileSync, readdirSync, existsSync, writeFileSync, realpathSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -195,6 +196,28 @@ const isMain = (() => {
 })();
 if (isMain) {
   const args = process.argv.slice(2);
+  // Chốt mode + thứ tự tham số, theo đúng khuôn scripts/sync-plugin-packages.sh
+  // đã dựng cho chính lớp lỗi này: một lỗi gõ (`--chek`) không được biến lệnh
+  // KIỂM thành lệnh GHI rồi báo thành công — nó xoá luôn cái drift vừa tiêm.
+  // Và `--root` không có giá trị thì `--check` bị nuốt làm đường dẫn, script
+  // soi một thư mục không tồn tại rồi exit 0 mà chẳng kiểm gì. ADR 0003 lấy
+  // `--check` làm cổng độc lập DUY NHẤT biện minh cho miễn trừ t1 của bản đồ,
+  // nên `--check` fail-open là cả miễn trừ mất căn cứ.
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--check') continue;
+    if (args[i] === '--root') {
+      const v = args[i + 1];
+      if (!v || v.startsWith('--')) {
+        console.error('product-map: `--root` cần một đường dẫn ngay sau nó — nhận được ' +
+          (v ? `\`${v}\`` : '(trống)'));
+        process.exit(2);
+      }
+      i++;
+      continue;
+    }
+    console.error(`product-map: tham số lạ ${args[i]} — chỉ nhận \`--root <thư-mục>\` và \`--check\``);
+    process.exit(2);
+  }
   const rootIx = args.indexOf('--root');
   const root = path.resolve(rootIx >= 0 && args[rootIx + 1] ? args[rootIx + 1] : '.');
   const mapPath = path.join(root, 'PRODUCT-MAP.md');
@@ -217,6 +240,21 @@ if (isMain) {
     process.exit(0);
   }
   if (!existsSync(mapPath)) {
+    // Phân biệt "repo CHƯA TỪNG dựng bản đồ" (đường đọc-cũ, hợp lệ) với "đã có
+    // rồi MẤT". File được git theo dõi mà biến khỏi cây làm việc là một lần
+    // XOÁ — và vì bản đồ nằm trong t1_skip_globs, một PR chỉ xoá nó vừa bỏ qua
+    // cổng nghiệm thu vừa xanh ở CI nếu đây cũng exit 0. Mirror bị xoá thì P30
+    // đỏ; bản đồ phải xử như vậy.
+    let daTheoDoi = false;
+    try {
+      execFileSync('git', ['-C', root, 'ls-files', '--error-unmatch', 'PRODUCT-MAP.md'],
+        { stdio: 'ignore' });
+      daTheoDoi = true;
+    } catch { daTheoDoi = false; }
+    if (daTheoDoi) {
+      console.error(`PRODUCT-MAP.md đã bị xoá khỏi cây làm việc — khôi phục, hoặc vẽ lại: node ${hint} --root .`);
+      process.exit(1);
+    }
     console.log('PRODUCT-MAP.md chưa có — repo chưa dựng bản đồ; nó sẽ tự sinh ở lần đóng cổng người kế.');
     process.exit(0);
   }

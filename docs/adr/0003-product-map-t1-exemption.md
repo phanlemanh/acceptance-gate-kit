@@ -7,7 +7,13 @@ re-verify xong ký lại thì lại chạm bản đồ lại, tức một vòng 
 chính nghi thức sinh ra (dựng lại được, S4-r4 của `product-map-uat-session`).
 Miễn trừ an toàn vì bản đồ KHÔNG phải hành vi: nó là hàm thuần của hồ sơ trong
 `_acceptance/`, và `node scripts/product-map.mjs --root . --check` trong CI
-canh `bản đồ == hồ sơ` độc lập — đúng vai P30 canh `mirror == nguồn` ở ADR
+canh `bản đồ == hồ sơ` độc lập — canh CẢ HAI cạnh: sửa tay thì đỏ, và **xoá
+cũng đỏ** (file đã được git theo dõi mà biến mất là một lần xoá, không phải
+"repo chưa dựng bản đồ"), vì nếu không thì một PR chỉ xoá bản đồ vừa bỏ qua
+cổng nhờ miễn trừ này vừa xanh ở CI. Cổng đó cũng phải fail-CLOSED trước lỗi
+gõ: `--chek` bị từ chối với exit 2 thay vì rơi về nhánh GHI và xoá mất bằng
+chứng lệch — cùng chốt mà `sync-plugin-packages.sh` đã dựng cho chính lớp lỗi
+này — đúng vai P30 canh `mirror == nguồn` ở ADR
 0001, nên sửa tay ở đây bị bắt bởi một luật khác chứ không lọt. Miễn trừ này
 KHÔNG mở rộng sang bất kỳ file gốc repo nào khác: điều kiện để được vào danh
 sách là **máy sinh toàn phần + có một cổng độc lập canh drift**, và đề xuất

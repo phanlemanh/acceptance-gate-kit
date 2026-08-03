@@ -3419,6 +3419,53 @@ try {
 if (viaLink.code !== 1 || !viaLink.err.includes("lệch với hồ sơ xưởng"))
   die("goi qua symlink: map dang lech ma script khong bao (code=" + viaLink.code +
       ") — khoi CLI khong chay, --check se xanh gia o moi repo co symlink");
+// 6. CHOT MODE: mot loi go khong duoc bien lenh KIEM thanh lenh GHI. Khuon nay
+// chep tu scripts/sync-plugin-packages.sh — no da dung chot cho dung lop loi
+// nay ("--chek tung in 'Synced', thoat 0, VA xoa luon drift vua tiem").
+fs.writeFileSync(mapPath, fs.readFileSync(mapPath, "utf8"));  // map dang LECH tu buoc 4
+const truocKhiGoNham = fs.readFileSync(mapPath, "utf8");
+let goNham;
+try {
+  execFileSync("node", [SCRIPT, "--root", tmp, "--chek"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  goNham = { code: 0, err: "" };
+} catch (e) { goNham = { code: e.status, err: String(e.stderr || "") }; }
+if (goNham.code !== 2) die(`mode la '--chek' phai exit 2, duoc ${goNham.code}`);
+if (!/tham số lạ/.test(goNham.err)) die("mode la khong ghim dung thong diep: " + goNham.err);
+if (fs.readFileSync(mapPath, "utf8") !== truocKhiGoNham)
+  die("mot loi go da GHI DE ban do — lenh KIEM bien thanh lenh GHI, xoa luon bang chung lech");
+
+// 7. CHOT THU TU: `--root` khong co gia tri thi `--check` bi nuot lam duong dan
+let saiThuTu;
+try {
+  execFileSync("node", [SCRIPT, "--root", "--check"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  saiThuTu = { code: 0, err: "" };
+} catch (e) { saiThuTu = { code: e.status, err: String(e.stderr || "") }; }
+if (saiThuTu.code !== 2) die(`--root khong gia tri phai exit 2, duoc ${saiThuTu.code}`);
+
+// 8. XOA ban do: file DA duoc git theo doi ma bien mat la mot lan XOA, khong
+// phai "chua tung dung". Ban do nam trong t1_skip_globs nen mot PR chi xoa no
+// vua bo qua cong nghiem thu vua xanh o CI neu day cung exit 0. Mirror bi xoa
+// thi P30 do — ban do phai xu nhu vay.
+const gitTmp = fs.mkdtempSync(path.join(os.tmpdir(), "p106-git-"));
+fs.mkdirSync(path.join(gitTmp, "_acceptance/x"), { recursive: true });
+fs.writeFileSync(path.join(gitTmp, "_acceptance/config.yaml"), "schema_version: 1\n");
+fs.writeFileSync(path.join(gitTmp, "_acceptance/x/contract.md"), "---\nstatus: draft\n---\n");
+const g = (...a) => execFileSync("git", ["-C", gitTmp, ...a], { stdio: "ignore" });
+g("init", "-q"); g("config", "user.email", "t@t"); g("config", "user.name", "t");
+execFileSync("node", [SCRIPT, "--root", gitTmp], { stdio: "ignore" });
+g("add", "-A"); g("commit", "-qm", "init");
+// doi chung DUONG: con file thi --check xanh
+try { execFileSync("node", [SCRIPT, "--root", gitTmp, "--check"], { stdio: "ignore" }); }
+catch { die("doi chung duong hong: ban do vua sinh + commit ma --check da do"); }
+fs.unlinkSync(path.join(gitTmp, "PRODUCT-MAP.md"));
+let daXoa;
+try {
+  execFileSync("node", [SCRIPT, "--root", gitTmp, "--check"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  daXoa = { code: 0, err: "" };
+} catch (e) { daXoa = { code: e.status, err: String(e.stderr || "") }; }
+if (daXoa.code === 0) die("XOA ban do da theo doi ma --check VAN xanh — cong duy nhat canh no im lang");
+if (!/đã bị xoá/.test(daXoa.err)) die("xoa ban do khong ghim dung thong diep: " + daXoa.err);
+fs.rmSync(gitTmp, { recursive: true, force: true });
 console.log("P106 OK");
 P106JS
 
