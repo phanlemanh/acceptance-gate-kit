@@ -1,73 +1,58 @@
 ## Trong hợp đồng
 
-### ALLOW_EMPTY is unreachable in practice — an empty nav field swallows the NEXT frontmatter line, so an unsigned UAT session is reported as "hồ sơ hỏng"
+- **Workspace có mỗi uat-session.md bị NUỐT im lặng ở start-scan và xếp SAI ô ở product-map (hai reader trái nhau)**
+  file: `lib/workspace-record.js:61`
+  severity: high
+  source: bugs
+  AC: AC-1
+  detail: `recordProblem` chỉ trả lỗi "không có contract.md lẫn opportunity.md" khi `!present.length`, mà `present` lọc trên CẢ BA file trong NAV_FIELDS (kể cả uat-session.md). Nên một thư mục `_acceptance/<slug>/` chỉ có `uat-session.md` (contract.md/opportunity.md vắng, hoặc đọc không được vì `read()` nuốt mọi lỗi I/O thành null) KHÔNG còn bị coi là hồ sơ hỏng.
 
-- file: `lib/workspace-record.js:48`
-- severity: high
-- AC: AC-10
-- source: bugs
+  Hậu quả — đã dựng lại và chạy thật:
 
-`fieldProblem` treats `raw === ''` as the legal "chưa ký" state for `verdict`/`decision`. But `frontmatterField` (lib/evidence-core.js:83) builds the regex `^<key>\s*[:=]\s*(.*)$` — `\s` matches newline, so for an empty value the `\s*` after `[:=]` eats the line break and `(.*)` captures the FOLLOWING frontmatter line. It therefore returns `''` only when the empty key happens to be the last line of the frontmatter (or is followed by an inline `#` comment, which `.replace(/^#.*$/,'')` blanks).
+  1. `scripts/start-scan.mjs`: qua được recordProblem, `nav.verdict` rỗng → không vào nhánh verdict; rồi `if (cTxt != null) … else if (oTxt != null) …` (dòng 82/109) KHÔNG có nhánh else, nên slug rơi ra ngoài hoàn toàn — không có trong gates, inProgress, done, LẪN broken. Output thật: `{"groups":{"gates":[],"inProgress":[],"done":[]},"map":{...},"broken":[]}` — slug biến mất khỏi thẻ vào phiên, không một dòng cờ nào.
 
-Reproduced on the real scripts. Workspace: contract `status: signed-off`, opportunity `decision: build`, and a `uat-session.md` written exactly as skills/uat-session/SKILL.md §1 instructs ("`verdict` để TRỐNG") but without the template's inline `#` comment:
+  2. `scripts/product-map.mjs` cùng hồ sơ đó: status='' → bỏ qua; `stage` từ oTxt=null → '' ≠ 'decided' → xếp vào **"## Đang cân nhắc cơ hội"** dù không hề có `opportunity.md`.
 
-```
-verdict:
-decided_by:
-```
+  Đây đúng là lớp false-green mà `lib/workspace-record.js` được dựng ra để diệt (comment đầu file + case P110): hai bên đọc cùng một sự thật cho hai kết luận trái nhau. P110 không bắt được vì danh sách CASES không có hình dạng "chỉ uat-session.md".
 
-`node scripts/start-scan.mjs` → `broken: [{slug:"foo", file:"uat-session.md", reason:"verdict không nhận diện được: decided_by:"}]`, and `renderProductMap` puts it under `## Hồ sơ hỏng`. The slug disappears from the `gia-tri` gate entirely — the pending human gate becomes invisible on /start, and the map calls a healthy record corrupt. Same for `decision:` in opportunity.md.
+  Còn là REGRESSION so với trước diff: chạy `start-scan.mjs` ở 9732271 trên cùng fixture cho `broken:[{slug:"orphan-uat",file:"(workspace)",reason:"không có contract.md lẫn opportunity.md"}]`. Nhánh `else broken.push(...'(workspace)')` cũ đã bị xoá và luật chung không thay thế được nó.
 
-Why every test is still green: all fixtures come from `fileFromTemplate(...)` on the canonical templates, and `uat-session-template.md:15` happens to carry `# release | iterate | kill …` right after `{verdict}`. P108's `uat("b-cho-co-uat", "")` and P110's "uat verdict rong (chua ky)" case pass only because that comment absorbs the swallow. Nothing in the templates or SKILL requires the human to keep those `#` comments (contract-template.md even tells the copier to strip marker comments).
+  Sửa: guard phải là "không có contract.md lẫn opportunity.md" thật (kiểm hai file đó), không phải `!present.length` trên cả ba; và/hoặc start-scan phải có nhánh else đẩy vào broken[].
 
-Same root cause hits `since()`: `node -e` on `approved_at:` (empty) followed by `time_human_minutes: {gate1: 0, gate2: 0}` returns the literal string `"time_human_minutes: {gate1: 0, gate2: 0}"`, so start-scan.mjs:101 uses that as the gate's `since` instead of falling back to mtime, garbling gate ordering. Line 92's `fmOrNull(uTxt, 'decided_at')` has the identical exposure.
-
-Fix belongs in `frontmatterField` (`[ \t]*` instead of `\s*` after the separator), plus a round-trip case that builds an empty-value fixture WITHOUT an inline comment. Mirror copy: plugins/acceptance-gate/lib/workspace-record.js.
+  rationale: Một thư mục chỉ có uat-session.md (không contract.md, không opportunity.md) đúng là trạng thái 'hồ sơ hỏng' theo định nghĩa của chính module (REQUIRED_BY_FILE), nhưng product-map.mjs lại xếp nó vào mục thường 'Đang cân nhắc cơ hội' thay vì mục hồ sơ hỏng riêng — vi phạm trực tiếp yêu cầu AC-1 'hồ sơ hỏng vẫn hiện trong mục riêng — không sót, không trùng, không crash'.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **product-map.mjs không có chốt tham số lạ — lỗi gõ biến lệnh KIỂM thành lệnh GHI rồi báo thành công (fail-open đúng lớp đã có invariant)**
-  Người dùng thấy gì: Nếu người dùng gõ sai tên tuỳ chọn dòng lệnh (ví dụ gõ nhầm cờ kiểm tra), công cụ có thể âm thầm GHI ĐÈ lại file bản đồ sản phẩm thay vì chỉ kiểm tra, và vẫn báo thành công — không có cảnh báo nào cho biết lệnh đã bị hiểu sai.
-  file: `scripts/product-map.mjs:162`
-  severity: high
-  Đề xuất: known-limits
-
-- **Điểm làm mới bản đồ thiếu ở CẢ HAI bản feature-loop — đường đóng cổng chính của kit để PRODUCT-MAP.md trôi rồi CI đỏ**
-  Người dùng thấy gì: Khi một tính năng được duyệt hoặc ký thông qua lệnh /feature-loop (đường dùng hằng ngày của kit) thay vì các lệnh /approve, /signoff riêng lẻ, bản đồ sản phẩm sẽ KHÔNG được cập nhật lại theo trạng thái mới nhất — có thể khiến CI báo lỗi oan ở một PR sau đó mà không có hướng dẫn nào để sửa.
-  file: `feature-loop/skills/feature-loop/SKILL.md:97`
-  severity: high
-  Đề xuất: new-contract
-
-- **Codex start route sang uat-session, nhưng bản Codex của skill đó là bản Claude nguyên xi: ${CLAUDE_PLUGIN_ROOT} không tồn tại và không có agents/openai.yaml**
-  Người dùng thấy gì: Khi chạy phiên nghiệm thu bằng Codex (thay vì Claude Code), bước cập nhật lại bản đồ sản phẩm sau khi ký có thể chạy sai đường dẫn và thiếu cấu hình dành riêng cho Codex, nên bước làm mới bản đồ ở phiên bản Codex có thể không chạy đúng như mong đợi.
-  file: `codex/acceptance-gate/skills/start/SKILL.md:67`
+- **NAV_ENUMS keyed by field name only — `stage` means two different enums in two files**
+  Người dùng thấy gì: Nếu sau này có người mở rộng việc kiểm tra sang trường 'giai đoạn' của phiên nghiệm thu, hệ thống có thể hiểu nhầm giá trị hợp lệ thành lỗi (hoặc ngược lại) vì đang dùng nhầm bảng đối chiếu của một hồ sơ khác. Hiện tại chưa ai bị ảnh hưởng, nhưng đây là rủi ro để lại cho lần sửa kế tiếp.
+  file: `lib/workspace-record.js:13`
   severity: medium
   Đề xuất: known-limits
 
-- **Khuôn uat-session không dặn bỏ marker + fence ```yaml khi chép — chép nguyên văn là hồ sơ hỏng ở CẢ HAI reader**
-  Người dùng thấy gì: Nếu người dùng chép nguyên cả khuôn mẫu phiên nghiệm thu — kể cả dòng đánh dấu và khung mã — thay vì chỉ phần nội dung bên trong, hồ sơ tạo ra sẽ bị hệ thống coi là hỏng, và màn hình quyết định (Cổng Giá trị) sẽ không hiện ra cho tới khi người dùng tự phát hiện và sửa lại thủ công.
-  file: `skills/acceptance/references/uat-session-template.md:5`
+- **New human gate (Cổng Giá trị / uat-session) is documented nowhere for the human; GUIDE still says "đúng 2 điểm dừng"**
+  Người dùng thấy gì: Người dùng sẽ thấy một dòng cổng mới ('Cổng Giá trị') xuất hiện trên thẻ vào phiên, nhưng tài liệu hướng dẫn tổng quan của bộ công cụ vẫn nói chỉ có 2 điểm dừng và không giải thích cổng mới này là gì — dễ gây bối rối khi gặp lần đầu.
+  file: `GUIDE.md:109`
+  severity: medium
+  Đề xuất: known-limits
+
+- **CONTEXT.md glossary not extended for the new load-bearing terms**
+  Người dùng thấy gì: Các tên gọi mới ('Cổng Giá trị', 'phiên nghiệm thu', 'bản đồ sản phẩm'...) chưa được ghi vào từ điển thuật ngữ dùng chung của kit, nên người viết tài liệu hoặc thông báo lỗi sau này có thể gọi cùng một khái niệm bằng nhiều tên khác nhau, gây khó hiểu cho người đọc.
+  file: `CONTEXT.md:68`
   severity: low
   Đề xuất: known-limits
 
-- **classify() đọc `stage` thẳng bằng frontmatterField thay vì qua navValues — đi vòng qua chính luật-một-chỗ vừa dựng**
-  Người dùng thấy gì: Hiện tại không có ảnh hưởng nào tới người dùng; đây là một chỗ trong mã nguồn có nguy cơ lệch kết quả trong tương lai nếu có người sửa cách đọc trạng thái ở một chỗ mà quên sửa ở chỗ còn lại.
-  file: `scripts/product-map.mjs:96`
-  severity: low
-  Đề xuất: known-limits
-
-- **The two readers still disagree about "hồ sơ hỏng" — evidence-report.md problems are scanner-only, and P110 asserts the invariant without testing them**
-  Người dùng thấy gì: Có một số trường hợp hồ sơ nghiệm thu máy bị hỏng hoặc thiếu mà bản đồ sản phẩm và màn hình /start có thể kết luận khác nhau về việc hồ sơ đó có hỏng hay không — cùng một hồ sơ nhưng hai nơi hiển thị hai kết quả trái ngược.
-  file: `scripts/product-map.mjs:78`
+- **fileFromTemplate im lặng để lại placeholder chưa thay — đúng lớp trôi khuôn mà helper sinh ra để chặn**
+  Người dùng thấy gì: Khi dựng dữ liệu mẫu để kiểm thử, nếu người viết test quên điền một trường thì trường đó âm thầm bị để trống thay vì báo lỗi ngay — điều này có thể khiến một số bài kiểm thử trông như đã chạy đúng trong khi thực ra đang kiểm nhầm một giá trị rác, làm lọt lỗi thật ra sản phẩm.
+  file: `tests/fixtures/from-template.mjs:17`
   severity: medium
   Đề xuất: known-limits
 
-- **start-scan silently drops a workspace that has uat-session.md but no contract.md/opportunity.md — not in any group, not in broken[]**
-  Người dùng thấy gì: Một hồ sơ xưởng chỉ có phiên nghiệm thu mà chưa từng có hợp đồng hay cơ hội đi kèm có thể biến mất hoàn toàn khỏi cả bản đồ sản phẩm lẫn màn hình /start — không hiển thị ở đâu và cũng không được báo là hồ sơ hỏng.
-  file: `scripts/start-scan.mjs:109`
+- **P110 case "status rong": bước tiêm là no-op nên hình dạng khoá-rỗng-trần không bao giờ được chạy**
+  Người dùng thấy gì: Một bài kiểm thử được viết ra để bắt lỗi 'trường trạng thái bị để trống' hoá ra không thực sự tạo ra tình huống đó khi chạy, nên nếu một bản vá liên quan bị gỡ bỏ trong tương lai, lỗi tương ứng có thể lọt qua mà không ai phát hiện.
+  file: `tests/plugins/run-tests.sh:3675`
   severity: medium
   Đề xuất: known-limits
 
-Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
+⚠ Cụm ngoài vùng phủ: 3/6 lỗi rơi vào file không bộ đo nào phủ (GUIDE.md, CONTEXT.md, tests/fixtures/from-template.mjs) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
