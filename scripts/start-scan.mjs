@@ -84,7 +84,6 @@ const VERDICT_MEANING = {
   'REJECT':           { settled: false, nextStep: 'S3-fix' },
   'BLOCKED':          { settled: false, nextStep: 'S4' },
 };
-const VERDICT_OK = Object.keys(VERDICT_MEANING);
 const offVocab = verdict => ({ file: 'evidence-report.md', reason: `verdict không nhận diện được: ${verdict}` });
 // Khớp CHẶT khuôn tên plan YYYY-MM-DD-<slug>.md — substring trần khiến slug là
 // tiền tố của slug khác dính plan không phải của nó (S4-r1, nextStep S3 oan)
@@ -113,32 +112,50 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
     if (statusRaw == null) { broken.push({ slug, file: 'contract.md', reason: 'frontmatter không parse được hoặc thiếu status' }); continue; }
     const status = statusRaw.toLowerCase();
     const tier = frontmatterField(cTxt, 'risk_tier') || null;
-    const eRead = read(path.join(dir, 'evidence-report.md'));
-    if (eRead.err) { broken.push({ slug, file: 'evidence-report.md', reason: ioReason(eRead.err) }); continue; }
-    const eTxt = eRead.t;
-    // Guard DÙNG CHUNG cho cả hai nhánh: frontmatterField trả '' (không phải
-    // null) khi key có mặt mà giá trị rỗng — `== null` để lọt, slug rơi xuống
-    // offVocab('') và báo "không nhận diện được: " không nêu tên gì (S4-r1 AC-2).
-    // Rỗng = VẮNG, và phải kết luận ở ĐÂY để không vá riêng một nhánh.
-    if (eTxt != null && !fmOrNull(eTxt, 'verdict')) { broken.push({ slug, file: 'evidence-report.md', reason: 'frontmatter không parse được hoặc thiếu verdict' }); continue; }
-    const verdict = eTxt != null ? frontmatterField(eTxt, 'verdict').toUpperCase() : null;
+    // evidence-report.md CHỈ được đọc trong hai nhánh tiêu thụ nó (verified,
+    // implemented). Chốt lỗi đặt TRƯỚC chỗ rẽ trạng thái là lớp lỗi đã dẫm 4
+    // round (r1: opportunity, r4: chính file này) — lỗi của hồ sơ mà trạng thái
+    // hiện tại KHÔNG cần vẫn quyết định ô của slug. Câu hỏi kiểm đúng: "MỌI lối
+    // đi qua chốt này có dùng file đó không?" — không phải "file có được dùng
+    // đâu đó không". Helper trả null = đã kết luận broken, nhánh gọi dừng luôn.
+    // P105 ghim TOÀN BỘ ma trận (trạng thái × tình trạng evidence): chốt dời
+    // ngược lên là ma trận đỏ.
+    const readEvidence = () => {
+      const eRead = read(path.join(dir, 'evidence-report.md'));
+      if (eRead.err) { broken.push({ slug, file: 'evidence-report.md', reason: ioReason(eRead.err) }); return null; }
+      const eTxt = eRead.t;
+      // Rỗng = VẮNG, kết luận một chỗ cho cả hai nhánh (S4-r1: frontmatterField
+      // trả '' cho key-có-giá-trị-rỗng nên `== null` để lọt xuống offVocab(''))
+      if (eTxt != null && !fmOrNull(eTxt, 'verdict')) { broken.push({ slug, file: 'evidence-report.md', reason: 'frontmatter không parse được hoặc thiếu verdict' }); return null; }
+      return {
+        exists: eTxt != null,
+        verdict: eTxt != null ? frontmatterField(eTxt, 'verdict').toUpperCase() : null,
+        signoff: eTxt != null ? (frontmatterField(eTxt, 'human_signoff') || '') : '',
+      };
+    };
     if (status === 'signed-off') done.push({ slug, state: 'signed-off' });
     else if (status === 'verified') {
-      // Bảng phân ô spec: chờ-Cổng-Bằng-chứng = verdict PASS/PENDING-JUDGMENT
-      // và CHƯA human_signoff — verified không kèm điều kiện là hiện "chờ ký" oan (S4-r1)
-      const signoff = eTxt != null ? (frontmatterField(eTxt, 'human_signoff') || '') : '';
-      const meaning = VERDICT_MEANING[verdict];
-      if (verdict == null) broken.push({ slug, file: '(workspace)', reason: 'status verified nhưng thiếu evidence-report.md' });
-      else if (signoff) done.push({ slug, state: 'signed-off' });
-      else if (!meaning) broken.push({ slug, ...offVocab(verdict) });
-      else if (meaning.settled) gates.push({ slug, gate: 'bang-chung', since: since(cPath, frontmatterField(cTxt, 'approved_at')), tier });
-      else inProgress.push({ slug, status, nextStep: meaning.nextStep, tier });
+      // Bảng phân ô spec: chờ-Cổng-Bằng-chứng = verdict đã-chốt (PASS/PENDING-
+      // JUDGMENT) và CHƯA human_signoff — verified không kèm điều kiện là hiện
+      // "chờ ký" oan (S4-r1)
+      const ev = readEvidence();
+      if (ev) {
+        const meaning = VERDICT_MEANING[ev.verdict];
+        if (!ev.exists) broken.push({ slug, file: '(workspace)', reason: 'status verified nhưng thiếu evidence-report.md' });
+        else if (ev.signoff) done.push({ slug, state: 'signed-off' });
+        else if (!meaning) broken.push({ slug, ...offVocab(ev.verdict) });
+        else if (meaning.settled) gates.push({ slug, gate: 'bang-chung', since: since(cPath, frontmatterField(cTxt, 'approved_at')), tier });
+        else inProgress.push({ slug, status, nextStep: meaning.nextStep, tier });
+      }
     }
     else if (status === 'implemented') {
-      // Chưa có evidence = máy chưa chấm lần nào → bước kế là nghiệm thu máy
-      const meaning = eTxt == null ? { nextStep: 'S4' } : VERDICT_MEANING[verdict];
-      if (!meaning) broken.push({ slug, ...offVocab(verdict) });
-      else inProgress.push({ slug, status, nextStep: meaning.nextStep, tier });
+      const ev = readEvidence();
+      if (ev) {
+        // Chưa có evidence = máy chưa chấm lần nào → bước kế là nghiệm thu máy
+        const meaning = !ev.exists ? { nextStep: 'S4' } : VERDICT_MEANING[ev.verdict];
+        if (!meaning) broken.push({ slug, ...offVocab(ev.verdict) });
+        else inProgress.push({ slug, status, nextStep: meaning.nextStep, tier });
+      }
     }
     else if (status === 'approved') inProgress.push({ slug, status, nextStep: planExists(slug) ? 'S3' : 'S2', tier });
     else if (status === 'draft') gates.push({ slug, gate: 'pham-vi', since: since(cPath, null), tier });

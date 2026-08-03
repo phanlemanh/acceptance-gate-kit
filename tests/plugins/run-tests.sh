@@ -3177,38 +3177,49 @@ if (brokenOf(r0, 'a-eacces')) die('doi chung duong: a-eacces chua tiem ma da bro
 if (!r0.groups.gates.find(g => g.slug === 'a-eacces')) die('doi chung duong: a-eacces phai o gates');
 if (!r0.groups.inProgress.find(g => g.slug === 'f-ok')) die('doi chung duong: f-ok phai o inProgress');
 
-// ---- (a) EACCES tren contract.md ----
-const aPath = path.join(tmp, '_acceptance/a-eacces/contract.md');
-fs.chmodSync(aPath, 0o000);
-let readable = true;
-try { fs.readFileSync(aPath, 'utf8') } catch { readable = false }
-if (readable) { fs.chmodSync(aPath, 0o644); console.log('P102 SKIP: chay bang root, chmod khong chan duoc doc'); process.exit(0); }
-const r1 = scan();
-const a = brokenOf(r1, 'a-eacces');
-if (!a) die('EACCES contract phai vao broken[], khong duoc im lang');
-if (a.file !== 'contract.md') die(`broken phai ghim dung ten file, duoc: ${JSON.stringify(a)}`);
-if (!/EACCES/.test(a.reason)) die(`reason phai neu ma loi he thong, duoc: ${a.reason}`);
-if (/không có|khong co/.test(a.reason)) die(`reason noi doi "khong co file" trong khi file con do: ${a.reason}`);
-if (r1.groups.done.find(g => g.slug === 'a-eacces')) die('slug loi I/O bi roi sang o park cua opportunity ben canh');
-fs.chmodSync(aPath, 0o644);
+// Do nang luc chan quyen doc MOT lan. Duoi root/chmod-vo-hieu: bo qua RIENG
+// hai chan (a)(c) can EACCES, IN CANH BAO — moi chan khac VAN chay. Ban cu
+// `process.exit(0)` ngay sau (a) nuot luon 6 chan sau ma suite bao PASS —
+// dung lop "assertion khong song" (S4-r4).
+const permProbe = path.join(tmp, 'perm-probe');
+fs.writeFileSync(permProbe, 'x'); fs.chmodSync(permProbe, 0o000);
+let canBlockRead = false;
+try { fs.readFileSync(permProbe) } catch { canBlockRead = true }
+fs.chmodSync(permProbe, 0o644);
 
-// ---- (b) contract.md la THU MUC ----
+if (canBlockRead) {
+  // ---- (a) EACCES tren contract.md ----
+  const aPath = path.join(tmp, '_acceptance/a-eacces/contract.md');
+  fs.chmodSync(aPath, 0o000);
+  const r1 = scan();
+  const a = brokenOf(r1, 'a-eacces');
+  if (!a) die('EACCES contract phai vao broken[], khong duoc im lang');
+  if (a.file !== 'contract.md') die(`broken phai ghim dung ten file, duoc: ${JSON.stringify(a)}`);
+  if (!/EACCES/.test(a.reason)) die(`reason phai neu ma loi he thong, duoc: ${a.reason}`);
+  if (/không có|khong co/.test(a.reason)) die(`reason noi doi "khong co file" trong khi file con do: ${a.reason}`);
+  if (r1.groups.done.find(g => g.slug === 'a-eacces')) die('slug loi I/O bi roi sang o park cua opportunity ben canh');
+  fs.chmodSync(aPath, 0o644);
+
+  // ---- (c) EACCES tren evidence-report.md (slug implemented) ----
+  const cPath = path.join(tmp, '_acceptance/c-ev-eacces/evidence-report.md');
+  fs.chmodSync(cPath, 0o000);
+  const r3 = scan();
+  const c = brokenOf(r3, 'c-ev-eacces');
+  if (!c) die('EACCES evidence-report phai vao broken[]');
+  if (c.file !== 'evidence-report.md') die(`phai ghim ten evidence-report.md, duoc: ${JSON.stringify(c)}`);
+  if (!/EACCES/.test(c.reason)) die(`reason phai neu ma loi, duoc: ${c.reason}`);
+  if (r3.groups.inProgress.find(g => g.slug === 'c-ev-eacces'))
+    die('slug co evidence loi I/O van bi day sang nextStep — khong duoc doan buoc ke');
+  fs.chmodSync(cPath, 0o644);
+} else {
+  console.log('P102 CANH BAO: khong chan duoc quyen doc (root?) — bo qua RIENG chan (a)(c) EACCES; moi chan khac van chay');
+}
+
+// ---- (b) contract.md la THU MUC (khong can quyen — LUON chay) ----
 fs.mkdirSync(path.join(tmp, '_acceptance/b-eisdir/contract.md'));
 const b = brokenOf(scan(), 'b-eisdir');
 if (!b || b.file !== 'contract.md' || !/EISDIR/.test(b.reason))
   die(`contract la thu muc phai vao broken kem EISDIR, duoc: ${JSON.stringify(b)}`);
-
-// ---- (c) EACCES tren evidence-report.md (slug implemented) ----
-const cPath = path.join(tmp, '_acceptance/c-ev-eacces/evidence-report.md');
-fs.chmodSync(cPath, 0o000);
-const r3 = scan();
-const c = brokenOf(r3, 'c-ev-eacces');
-if (!c) die('EACCES evidence-report phai vao broken[]');
-if (c.file !== 'evidence-report.md') die(`phai ghim ten evidence-report.md, duoc: ${JSON.stringify(c)}`);
-if (!/EACCES/.test(c.reason)) die(`reason phai neu ma loi, duoc: ${c.reason}`);
-if (r3.groups.inProgress.find(g => g.slug === 'c-ev-eacces'))
-  die('slug co evidence loi I/O van bi day sang nextStep — khong duoc doan buoc ke');
-fs.chmodSync(cPath, 0o644);
 
 // ---- (d) verdict NGOAI tu vung tren implemented ----
 const d = brokenOf(scan(), 'd-offvocab');
@@ -3372,6 +3383,135 @@ for (const st of ['implemented', 'verified'])
   if (!e1.some(x => x.includes(`[${st}] verdict ${gone} co trong khuon writer`)))
     die(`dot bien go ${gone} KHONG lam nhanh ${st} do — nhanh nay dang giu tu vung rieng: ${JSON.stringify(e1)}`);
 console.log(`P104 OK (tu vung writer: ${VOCAB.join(', ')})`);
+JS
+
+# ── P105: MA TRAN phan o toan phan — thuoc dong khong gian thoat (S4-r5) ────
+# 4 round truoc deu cung mot hinh dang: chot dat sai cho, va DIEM-case chi ghim
+# o bi neu ten nen lo con cho tron. Ma tran ghim TOAN BO to hop
+# (trang thai contract × tinh trang evidence) + (khong contract × tinh trang
+# opportunity) — chot nao dat sai cho deu lat it nhat mot o da ghim.
+run "P105 ma tran phan o: trang-thai × tinh-trang-artifact, ghim toan bo (E1,E2,E10)" \
+  node - "$ROOT" <<'JS'
+const fs = require('fs'), path = require('path'), os = require('os');
+const { execFileSync } = require('child_process');
+const root = process.argv[2];
+const SCAN = path.join(root, 'scripts/start-scan.mjs');
+const die = m => { console.error(m); process.exit(1); };
+
+// Do nang luc chan quyen doc MOT lan (root/chmod-vo-hieu → bo RIENG cac o
+// mat-quyen, in canh bao; moi o khac van ghim — EISDIR song duoi root nen
+// lop chot-sai-cho van bi ma tran bat ke ca khi thieu cac o EACCES).
+const probeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'p105p-'));
+const probe = path.join(probeDir, 'probe'); fs.writeFileSync(probe, 'x'); fs.chmodSync(probe, 0o000);
+let canBlockRead = false; try { fs.readFileSync(probe) } catch { canBlockRead = true }
+fs.chmodSync(probe, 0o644);
+if (!canBlockRead) console.log('P105 CANH BAO: khong chan duoc quyen doc — bo rieng cac o mat-quyen, ma tran con lai van ghim du');
+
+const EVC = '---\nschema_version: 1\nrisk_tier: T2\nstatus: %S\napproved_at: 2026-01-01T00:00:00Z\n---\n';
+// Tinh trang evidence-report.md → ham dung fixture
+const EV_STATES = {
+  'vang':        d => {},
+  'matquyen':    d => { const p = path.join(d, 'evidence-report.md'); fs.writeFileSync(p, '---\nverdict: PASS\n---\n'); fs.chmodSync(p, 0o000); },
+  'lathumuc':    d => fs.mkdirSync(path.join(d, 'evidence-report.md')),
+  'thieuverdict':d => fs.writeFileSync(path.join(d, 'evidence-report.md'), '---\nschema_version: 2\nslug: x\n---\n'),
+  'verdictrong': d => fs.writeFileSync(path.join(d, 'evidence-report.md'), '---\nverdict:\n---\n'),
+  'verdictrac':  d => fs.writeFileSync(path.join(d, 'evidence-report.md'), '---\nverdict: FAIL\n---\n'),
+  'pass':        d => fs.writeFileSync(path.join(d, 'evidence-report.md'), '---\nverdict: PASS\nhuman_signoff:\n---\n'),
+  'pending':     d => fs.writeFileSync(path.join(d, 'evidence-report.md'), '---\nverdict: PENDING-JUDGMENT\nhuman_signoff:\n---\n'),
+  'reject':      d => fs.writeFileSync(path.join(d, 'evidence-report.md'), '---\nverdict: REJECT\nhuman_signoff:\n---\n'),
+  'blocked':     d => fs.writeFileSync(path.join(d, 'evidence-report.md'), '---\nverdict: BLOCKED\nhuman_signoff:\n---\n'),
+};
+// O mong doi: "cell:detail" — gates:<gate> | prog:<nextStep> | done:<state> | broken:<regex reason>
+const IGNORES_EV = { 'draft': 'gates:pham-vi', 'approved': 'prog:S2', 'signed-off': 'done:signed-off' };
+const MATRIX = {};
+for (const [st, cell] of Object.entries(IGNORES_EV))
+  for (const ev of Object.keys(EV_STATES)) MATRIX[`${st}|${ev}`] = cell;   // evidence KHONG duoc quyet dinh o
+Object.assign(MATRIX, {
+  'implemented|vang': 'prog:S4',            'verified|vang': 'broken:thiếu evidence-report',
+  'implemented|matquyen': 'broken:EACCES',  'verified|matquyen': 'broken:EACCES',
+  'implemented|lathumuc': 'broken:EISDIR',  'verified|lathumuc': 'broken:EISDIR',
+  'implemented|thieuverdict': 'broken:thiếu verdict', 'verified|thieuverdict': 'broken:thiếu verdict',
+  'implemented|verdictrong': 'broken:thiếu verdict',  'verified|verdictrong': 'broken:thiếu verdict',
+  'implemented|verdictrac': 'broken:không nhận diện được: FAIL', 'verified|verdictrac': 'broken:không nhận diện được: FAIL',
+  'implemented|pass': 'prog:S4',    'verified|pass': 'gates:bang-chung',
+  'implemented|pending': 'prog:S4', 'verified|pending': 'gates:bang-chung',
+  'implemented|reject': 'prog:S3-fix', 'verified|reject': 'prog:S3-fix',
+  'implemented|blocked': 'prog:S4', 'verified|blocked': 'prog:S4',
+});
+// Nhanh opportunity (khong co contract.md)
+const OPP_STATES = {
+  'o-matquyen':  d => { const p = path.join(d, 'opportunity.md'); fs.writeFileSync(p, '---\nstage: decided\ndecision: build\n---\n'); fs.chmodSync(p, 0o000); },
+  'o-thieustage':d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nslug: x\n---\n'),
+  'o-discovery': d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: discovery\ndecision:\n---\n'),
+  'o-build':     d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: decided\ndecision: build\n---\n'),
+  'o-iterate':   d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: decided\ndecision: iterate\n---\n'),
+  'o-park':      d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: decided\ndecision: park\n---\n'),
+  'o-kill':      d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: decided\ndecision: kill\n---\n'),
+  'o-rac':       d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: decided\ndecision: maybe\n---\n'),
+  'o-trong':     d => {},
+};
+Object.assign(MATRIX, {
+  'noc|o-matquyen': 'broken:EACCES', 'noc|o-thieustage': 'broken:thiếu stage',
+  'noc|o-discovery': 'gates:dang',   'noc|o-build': 'prog:S1', 'noc|o-iterate': 'prog:S1',
+  'noc|o-park': 'done:park',         'noc|o-kill': 'done:kill',
+  'noc|o-rac': 'broken:decision không nhận diện được', 'noc|o-trong': 'broken:không có contract.md lẫn opportunity.md',
+});
+
+const build = () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p105-'));
+  fs.mkdirSync(path.join(tmp, '_acceptance'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, '_acceptance/config.yaml'), 'schema_version: 1\n');
+  for (const key of Object.keys(MATRIX)) {
+    const [st, ev] = key.split('|');
+    if (!canBlockRead && /matquyen/.test(ev)) continue;
+    const slug = key.replace(/[|]/g, '-');
+    const d = path.join(tmp, '_acceptance', slug);
+    fs.mkdirSync(d, { recursive: true });
+    if (st !== 'noc') fs.writeFileSync(path.join(d, 'contract.md'), EVC.replace('%S', st));
+    (st === 'noc' ? OPP_STATES[ev] : EV_STATES[ev])(d);
+  }
+  return tmp;
+};
+const cellOf = (r, slug) => {
+  const g = r.groups.gates.find(x => x.slug === slug);      if (g) return `gates:${g.gate}`;
+  const p = r.groups.inProgress.find(x => x.slug === slug); if (p) return `prog:${p.nextStep}`;
+  const dn = r.groups.done.find(x => x.slug === slug);      if (dn) return `done:${dn.state}`;
+  const b = r.broken.find(x => x.slug === slug);            if (b) return `broken:${b.reason}`;
+  return '(mat tich)';
+};
+const checkMatrix = scanPath => {
+  const tmp = build();
+  const r = JSON.parse(execFileSync('node', [scanPath, '--root', tmp], { encoding: 'utf8' }));
+  const errs = [];
+  for (const [key, want] of Object.entries(MATRIX)) {
+    const [, ev] = key.split('|');
+    if (!canBlockRead && /matquyen/.test(ev)) continue;
+    const got = cellOf(r, key.replace(/[|]/g, '-'));
+    const [wc, wd] = [want.slice(0, want.indexOf(':')), want.slice(want.indexOf(':') + 1)];
+    const [gc, gd] = [got.slice(0, got.indexOf(':') < 0 ? got.length : got.indexOf(':')), got.slice(got.indexOf(':') + 1)];
+    const ok = wc === gc && (wc !== 'broken' ? wd === gd : gd.includes(wd));
+    if (!ok) errs.push(`o [${key}] mong ${want}, duoc ${got}`);
+  }
+  return errs;
+};
+
+const e0 = checkMatrix(SCAN);
+if (e0.length) die(`ma tran ghim ${Object.keys(MATRIX).length} o — ${e0.length} o lech:\n` + e0.join('\n'));
+
+// Pha-thu: mutant keo chot evidence NGUOC LEN truoc cho re trang thai (chinh
+// con bug S4-r4) → ma tran phai DO tai cac o draft/approved/signed-off × loi-doc.
+const mut = fs.mkdtempSync(path.join(os.tmpdir(), 'p105m-'));
+fs.mkdirSync(path.join(mut, 'scripts')); fs.mkdirSync(path.join(mut, 'lib'));
+fs.copyFileSync(path.join(root, 'lib/evidence-core.js'), path.join(mut, 'lib/evidence-core.js'));
+const src = fs.readFileSync(SCAN, 'utf8');
+const anchor = "if (status === 'signed-off')";
+if (!src.includes(anchor)) die('mutant: khong tim thay anchor cho re trang thai');
+const hoist = "{ const __e = read(path.join(dir, 'evidence-report.md')); if (__e.err) { broken.push({ slug, file: 'evidence-report.md', reason: ioReason(__e.err) }); continue; } }\n    ";
+fs.writeFileSync(path.join(mut, 'scripts/start-scan.mjs'), src.replace(anchor, hoist + anchor));
+const e1 = checkMatrix(path.join(mut, 'scripts/start-scan.mjs'));
+if (!e1.some(x => /\[(draft|approved|signed-off)\|(matquyen|lathumuc)\]/.test(x)))
+  die('mutant keo chot len truoc cho re ma ma tran van XANH — thuoc chua gan vao vat: ' + JSON.stringify(e1.slice(0,3)));
+console.log(`P105 OK — ghim ${Object.keys(MATRIX).length} o${canBlockRead ? '' : ' (tru cac o mat-quyen)'}; mutant chot-sai-cho bi bat`);
 JS
 
 if [ "$failures" -gt 0 ]; then

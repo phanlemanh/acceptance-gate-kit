@@ -38,4 +38,11 @@ Nguồn scope: 4 known-limits ký tại Cổng 2 start-command (03/08) — xem
 
 ## Notes
 
-(trống)
+- Từ vựng verdict trong AC-2 ({PASS, REJECT, PENDING-JUDGMENT}) là ảnh chụp
+  thời điểm viết. Nguồn sự thật của từ vựng là KHUÔN BÊN VIẾT
+  (`skills/acceptance/references/evidence-report-template.md`, gồm cả BLOCKED)
+  — thước sống là E10/P104 (round-trip writer↔reader) chứ không phải danh sách
+  cứng trong câu AC; phát hiện + quyết tại S4-r2.
+- Chốt lỗi của một artifact chỉ được chạy trên các trạng thái TIÊU THỤ artifact
+  đó (quyết tại S4-r5 sau 4 round dẫm cùng lớp); thước là P105 — ma trận
+  trạng-thái × tình-trạng-artifact ghim toàn phần.
