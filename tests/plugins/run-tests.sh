@@ -3386,6 +3386,60 @@ if (viaLink.code !== 1 || !viaLink.err.includes("lệch với hồ sơ xưởng"
 console.log("P106 OK");
 P106JS
 
+# ── P107: nghi thuc uat-session du chot + DUNG THU TU + khong khoa invocation ─
+run "P107 uat-session giu chot spec §2.3 dung thu tu; skill MO nhu design-pass (E12)" \
+  python3 - "$ROOT" <<'PY107'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+p = root / "skills/uat-session/SKILL.md"
+assert p.is_file(), "thieu skills/uat-session/SKILL.md"
+raw = p.read_text(encoding="utf-8")
+# Chuan hoa khoang trang TRUOC khi soi: lo hua la "than skill co chot X",
+# khong phai "chuoi X nam gon tren mot dong". Do nguyen van thi mot lan
+# xuong dong lam phep do do — do la do TU VUNG chu khong do QUAN HE.
+t = re.sub(r"\s+", " ", raw)
+
+# 5 chot QUY TRINH phai xuat hien dung thu tu nay trong than skill
+FLOW = [
+    ("dieu kien vao", "status: signed-off"),
+    ("nguong da chot tai Cong Dang", "ngưỡng UAT đã chốt tại"),
+    ("chep nguyen van + cam sua sau khi thay so", "NGUYÊN VĂN"),
+    ("cham kin TRUOC thao luan", "Chấm kín TRƯỚC thảo luận"),
+    ("cau rang buoc", "gửi cho khách nào"),
+    # Neo luc KY phai nam trong chuoi thu tu: thieu no thi ca khoi cham-kin co
+    # the bi chuyen xuong SAU khi ky ma phep do van xanh (thu tu tuong doi
+    # giua hai chot trong cung khoi khong doi) — do da dam mot lan.
+    ("luc ky", "Agent KHÔNG điền verdict"),
+    ("lam moi ban do sau khi ky", "product-map.mjs"),
+]
+pos = []
+for label, needle in FLOW:
+    i = t.find(needle)
+    assert i >= 0, f"thieu chot: {label} ({needle!r})"
+    pos.append((label, i))
+for a, b in zip(pos, pos[1:]):
+    assert a[1] < b[1], f"chot lech thu tu: {a[0]} phai dung truoc {b[0]}"
+
+# 2 chot TUYEN BO chi can co mat (co the nam o loi mo dau)
+assert "THÀNH CÔNG của quy trình" in t, "thieu cau 'kill la thanh cong cua quy trinh'"
+
+# lam moi ban do, va phai nam SAU luc ky
+assert "product-map.mjs" in t, "thieu buoc lam moi ban do"
+assert t.find("product-map.mjs") > t.find("decided_by"), \
+    "buoc lam moi ban do nam TRUOC luc ky — sai diem regen"
+
+# skill MO: khong co co khoa invocation (doi chung duong tren mot lenh LOCKED)
+assert "disable-model-invocation" not in t, "uat-session bi khoa — tien le design-pass la MO"
+locked = (root / "commands/start.md").read_text(encoding="utf-8")
+assert "disable-model-invocation: true" in locked, \
+    "doi chung duong hong: commands/start.md le ra phai co co khoa"
+
+# dot bien: bo mot chot thi phep do PHAI mat dau moc
+mut = t.replace("Chấm kín TRƯỚC thảo luận", "Thu y kien")
+assert "Chấm kín TRƯỚC thảo luận" not in mut, "buoc tiem chua bao gio chay"
+PY107
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
