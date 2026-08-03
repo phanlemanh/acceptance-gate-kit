@@ -462,7 +462,7 @@ run "P31 Codex human-gate skills locked from implicit invocation; card stays ope
 import sys
 from pathlib import Path
 root = Path(sys.argv[1])
-LOCKED = ["approve", "signoff", "acceptance-init", "acceptance-status", "acceptance-report"]
+LOCKED = ["approve", "signoff", "acceptance-init", "acceptance-status", "acceptance-report", "start"]
 for base in ["codex/acceptance-gate/skills", "plugins/acceptance-gate/skills"]:
     for name in LOCKED:
         y = root / base / name / "agents/openai.yaml"
@@ -479,7 +479,7 @@ run "P32 Claude gate commands locked from model invocation; card stays open" \
 import sys
 from pathlib import Path
 root = Path(sys.argv[1])
-LOCKED = ["approve", "signoff", "acceptance-init", "acceptance-status", "acceptance-report"]
+LOCKED = ["approve", "signoff", "acceptance-init", "acceptance-status", "acceptance-report", "start"]
 for name in LOCKED:
     t = (root / "commands" / f"{name}.md").read_text()
     assert "disable-model-invocation: true" in t, f"commands/{name}.md lacks lock"
@@ -2916,6 +2916,181 @@ const r4 = scan(tmp2);
 if (r4.config !== false) die('repo chua co config.yaml phai tra config:false, exit 0');
 console.log('P98 OK');
 JS
+
+# ── P99: ROUND-TRIP key JSON — rut tu khoi START-SCAN-KEYS cua HAI than lenh,
+# doi chieu voi dau ra start-scan.mjs THAT tren fixture code-sinh (E13).
+# Cung ho voi P55: seam viet<->doc phai co phep noi hai dau, khong grep mot phia.
+run "P99 round-trip START-SCAN-KEYS <-> start-scan output (2 harness, E13)" \
+  node - "$ROOT" <<'JS'
+const fs = require('fs'), path = require('path'), os = require('os');
+const { execFileSync } = require('child_process');
+const root = process.argv[2];
+const die = m => { console.error(m); process.exit(1); };
+const SOURCES = ['commands/start.md', 'codex/acceptance-gate/skills/start/SKILL.md',
+                 'plugins/acceptance-gate/skills/start/SKILL.md'];
+
+const extractKeys = txt => {
+  const m = txt.match(/<<<START-SCAN-KEYS\n([\s\S]*?)START-SCAN-KEYS>>>/);
+  if (!m) return null;
+  return m[1].split(/\s+/).filter(Boolean);
+};
+// fixture toi thieu 1 slug moi nhom de moi key mang co phan tu that ma soi
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p99-'));
+const W = (rel, s) => { const p = path.join(tmp, rel);
+  fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, s); };
+W('_acceptance/config.yaml', 'schema_version: 1\n');
+W('_acceptance/w-draft/contract.md', '---\nslug: w-draft\nrisk_tier: T2\nstatus: draft\n---\n');
+W('_acceptance/w-go/contract.md', '---\nslug: w-go\nrisk_tier: T2\nstatus: approved\n---\n');
+W('_acceptance/w-done/contract.md', '---\nslug: w-done\nrisk_tier: T2\nstatus: signed-off\n---\n');
+W('_acceptance/w-bad/contract.md', 'khong fence\n');
+const outJson = JSON.parse(execFileSync('node',
+  [path.join(root, 'scripts/start-scan.mjs'), '--root', tmp], { encoding: 'utf8' }));
+
+const resolveKey = (obj, dotted) => dotted.split('.').reduce((acc, part) => {
+  if (acc === undefined || acc === null) return undefined;
+  if (part.endsWith('[]')) {
+    const arr = acc[part.slice(0, -2)];
+    if (!Array.isArray(arr) || arr.length === 0) return undefined;
+    return arr[0];
+  }
+  return acc[part];
+}, obj);
+
+const check = entries => {
+  const errs = [];
+  for (const [rel, txt] of entries) {
+    const keys = extractKeys(txt);
+    if (!keys) { errs.push(`${rel}: khong rut duoc khoi START-SCAN-KEYS`); continue; }
+    for (const k of keys)
+      if (resolveKey(outJson, k) === undefined)
+        errs.push(`${rel}: key ${k} khong co trong dau ra start-scan that`);
+  }
+  return errs;
+};
+const load = rel => [rel, fs.readFileSync(path.join(root, rel), 'utf8')];
+const e0 = check(SOURCES.map(load));
+if (e0.length) die('doi chung duong FAIL: ' + JSON.stringify(e0));   // ban that XANH
+// dot bien: doi ten mot key phia LENH → phai DO dung thong diep
+const mut = fs.readFileSync(path.join(root, SOURCES[0]), 'utf8')
+  .replace('skipped[].source', 'sources_skipped[].source');
+const e1 = check([['(ban-doi-key)', mut]]);
+if (!e1.some(x => /key sources_skipped\[\]\.source khong co/.test(x)))
+  die('dot bien doi ten key khong bi bat dung thong diep: ' + JSON.stringify(e1));
+// dot bien: xoa ca khoi marker → phai DO "khong rut duoc"
+const e2 = check([['(ban-xoa-marker)', mut.replace(/<!-- <<<START-SCAN-KEYS[\s\S]*?START-SCAN-KEYS>>> -->/, '')]]);
+if (!e2.some(x => /khong rut duoc khoi START-SCAN-KEYS/.test(x)))
+  die('dot bien xoa marker khong bi bat: ' + JSON.stringify(e2));
+console.log('P99 OK');
+JS
+
+# ── P100: con tro cua /start giai duoc TRONG GOI moi harness (E14, ho P95) ──
+run "P100 con tro /start giai duoc trong goi Claude (repo root) + goi Codex (E14)" \
+  python3 - "$ROOT" <<'PY'
+import re, shutil, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+SCAN = "scripts/start-scan.mjs"
+LAW = "skills/acceptance/references/human-facing-language.md"
+
+def check_claude(pkg):
+    # Goi Claude = repo root (marketplace tro thang repo): con tro trong
+    # commands/start.md ghep goc goi phai ra vat that.
+    errs = []
+    t = (pkg / "commands/start.md").read_text(encoding="utf-8")
+    for ref in [SCAN, LAW]:
+        if ref not in t:
+            errs.append(f"commands/start.md: khong rut duoc con tro {ref}")
+        elif not (pkg / ref).is_file():
+            errs.append(f"con tro {ref} tro file khong ton tai trong goi Claude")
+    return errs
+
+def check_codex(pkg):
+    errs = []
+    sk = pkg / "skills/start/SKILL.md"
+    if not sk.is_file():
+        return [f"goi codex thieu {sk}"]
+    t = sk.read_text(encoding="utf-8")
+    if "${PLUGIN_ROOT}/" + SCAN not in t:
+        errs.append("SKILL start: khong rut duoc con tro bo quet qua goc goi")
+    elif not (pkg / SCAN).is_file():
+        errs.append(f"con tro {SCAN} tro file khong ton tai trong goi codex")
+    if "${PLUGIN_ROOT}/" + LAW not in t:
+        errs.append("SKILL start: khong rut duoc con tro ban luat qua goc goi")
+    elif not (pkg / LAW).is_file():
+        errs.append(f"con tro {LAW} tro file khong ton tai trong goi codex")
+    return errs
+
+PKG = root / "plugins/acceptance-gate"
+assert check_claude(root) == [], check_claude(root)      # doi chung DUONG goi Claude
+assert check_codex(PKG) == [], check_codex(PKG)          # doi chung DUONG goi Codex
+tmp = Path(tempfile.mkdtemp())
+try:
+    c2 = tmp / "ag"
+    shutil.copytree(PKG, c2)
+    assert check_codex(c2) == [], f"ban sao goi NGUYEN VEN phai XANH truoc: {check_codex(c2)}"
+    (c2 / SCAN).rename(c2 / "scripts/doi-cho.mjs")       # dot bien 1: bo quet bien mat
+    e1 = check_codex(c2)
+    assert any("tro file khong ton tai" in x for x in e1), \
+        f"dot bien doi cho bo quet khong do dung thong diep: {e1}"
+    (c2 / "scripts/doi-cho.mjs").rename(c2 / SCAN)
+    sk = c2 / "skills/start/SKILL.md"
+    sk.write_text(sk.read_text(encoding="utf-8").replace("${PLUGIN_ROOT}/" + LAW, "(da xoa)"),
+                  encoding="utf-8")                       # dot bien 2: mat con tro ban luat
+    e2 = check_codex(c2)
+    assert any("khong rut duoc con tro ban luat" in x for x in e2), \
+        f"dot bien xoa con tro ban luat khong do dung thong diep: {e2}"
+finally:
+    shutil.rmtree(tmp)
+PY
+
+# ── P101: nap luat ngon ngu TRUOC render (E15) + muc /start trong docs (E11) ─
+run "P101 nap human-facing-language truoc render (2 harness) + GUIDE/README co muc /start (E11,E15)" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+LAW = "human-facing-language.md"
+# Moi harness: (file, anchor cua khoi render) — buoc nap phai dung TRUOC anchor.
+RENDER = {"commands/start.md": "Trình MỘT thẻ",
+          "codex/acceptance-gate/skills/start/SKILL.md": "Present ONE card"}
+
+def check_load(files):
+    errs = []
+    for rel, anchor in files.items():
+        t = (root / rel).read_text(encoding="utf-8") if isinstance(rel, str) else rel
+        i_law, i_render = t.find(LAW), t.find(anchor)
+        if i_law < 0:
+            errs.append(f"{rel}: thieu buoc nap luat ngon ngu mat nguoi")
+        elif i_render < 0:
+            errs.append(f"{rel}: khong tim thay khoi render (anchor {anchor})")
+        elif i_law > i_render:
+            errs.append(f"{rel}: buoc nap luat nam SAU khoi render")
+    return errs
+
+def check_text(pairs):
+    errs = []
+    for name, (t, anchor) in pairs.items():
+        i_law, i_render = t.find(LAW), t.find(anchor)
+        if i_law < 0: errs.append(f"{name}: thieu buoc nap luat ngon ngu mat nguoi")
+        elif i_law > i_render: errs.append(f"{name}: buoc nap luat nam SAU khoi render")
+    return errs
+
+assert check_load(RENDER) == [], check_load(RENDER)      # doi chung DUONG
+# dot bien: xoa dong nap → DO dung thong diep
+t = (root / "commands/start.md").read_text(encoding="utf-8")
+mut = t.replace(LAW, "khong-nap-gi.md")
+e1 = check_text({"(ban-xoa-nap)": (mut, RENDER["commands/start.md"])})
+assert any("thieu buoc nap luat" in x for x in e1), f"dot bien xoa buoc nap khong bi bat: {e1}"
+
+# (E11) GUIDE + README co muc /start noi dung ban chat vao-phien
+for doc in ["GUIDE.md", "README.md"]:
+    td = (root / doc).read_text(encoding="utf-8")
+    assert "/start" in td and "vào phiên" in td, f"{doc} thieu muc vao phien bang /start"
+gm = (root / "GUIDE.md").read_text(encoding="utf-8")
+mut2 = "\n".join(l for l in gm.splitlines() if "/start" not in l and "vào phiên" not in l)
+assert not ("/start" in mut2 and "vào phiên" in mut2), \
+    "dot bien xoa muc /start khoi GUIDE ma phep do van xanh"
+PY
 
 if [ "$failures" -gt 0 ]; then
   echo
