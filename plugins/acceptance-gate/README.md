@@ -173,6 +173,10 @@ templates produce advisory NOTEs, not failures).
 
 ## Daily use
 
+- `/start` → mở phiên (vào phiên bằng một lệnh, không cần câu mở đầu tự do):
+  máy quét xưởng, trình thẻ ba nhóm — chờ ký · đang dở · việc mới — bạn chọn
+  một chữ cái là vào đúng nghi thức; lệnh chỉ định hướng + bàn giao, không tự
+  làm nội dung (human-typed, model-invocation locked on both harnesses).
 - New feature → invoke the `acceptance` skill → contract + evals → approve
   (Gate 1) → implement → verify → sign off (Gate 2).
 - `/acceptance-status` → table of every feature's gate state.
