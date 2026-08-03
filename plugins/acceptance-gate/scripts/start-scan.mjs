@@ -24,7 +24,14 @@ const out = obj => process.stdout.write(JSON.stringify(obj) + '\n');
 const acc = path.join(root, '_acceptance');
 if (!existsSync(path.join(acc, 'config.yaml'))) { out({ schema_version: 1, config: false }); process.exit(0); }
 
-const read = p => { try { return readFileSync(p, 'utf8'); } catch { return null; } };
+// ENOENT (file vắng) là tin bình thường; MỌI lỗi khác là sự thật phải nêu tên —
+// nuốt chung một rọ biến "mất quyền đọc" thành "không có file", và slug bị phân
+// ô theo artifact bên cạnh (Cổng 2 start-command, known-limit 1).
+const read = p => {
+  try { return { t: readFileSync(p, 'utf8'), err: null }; }
+  catch (e) { return e.code === 'ENOENT' ? { t: null, err: null } : { t: null, err: e }; }
+};
+const ioReason = err => `không đọc được (${err.code})`;
 // KHÔNG có parser fence thứ hai: tiêu chí "đọc được" là CHÍNH frontmatterField
 // của evidence-core trả ra key bắt buộc (S4-r1: hasFm riêng đã chặt hơn reader
 // chuẩn — CRLF/dòng trắng đầu file bị báo hỏng oan trong khi mọi cổng khác đọc được)
@@ -54,13 +61,18 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
   const slug = entry.name;
   const dir = path.join(acc, slug);
   const cPath = path.join(dir, 'contract.md'), oPath = path.join(dir, 'opportunity.md');
-  const cTxt = read(cPath), oTxt = read(oPath);
+  const cRead = read(cPath), oRead = read(oPath);
+  if (cRead.err) { broken.push({ slug, file: 'contract.md', reason: ioReason(cRead.err) }); continue; }
+  if (oRead.err) { broken.push({ slug, file: 'opportunity.md', reason: ioReason(oRead.err) }); continue; }
+  const cTxt = cRead.t, oTxt = oRead.t;
   if (cTxt != null) {
     const statusRaw = fmOrNull(cTxt, 'status');
     if (statusRaw == null) { broken.push({ slug, file: 'contract.md', reason: 'frontmatter không parse được hoặc thiếu status' }); continue; }
     const status = statusRaw.toLowerCase();
     const tier = frontmatterField(cTxt, 'risk_tier') || null;
-    const eTxt = read(path.join(dir, 'evidence-report.md'));
+    const eRead = read(path.join(dir, 'evidence-report.md'));
+    if (eRead.err) { broken.push({ slug, file: 'evidence-report.md', reason: ioReason(eRead.err) }); continue; }
+    const eTxt = eRead.t;
     if (eTxt != null && fmOrNull(eTxt, 'verdict') == null) { broken.push({ slug, file: 'evidence-report.md', reason: 'frontmatter không parse được hoặc thiếu verdict' }); continue; }
     const verdict = eTxt != null ? frontmatterField(eTxt, 'verdict').toUpperCase() : null;
     if (status === 'signed-off') done.push({ slug, state: 'signed-off' });

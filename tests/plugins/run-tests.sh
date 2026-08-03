@@ -3105,6 +3105,102 @@ assert not ("/start" in mut2 and "vào phiên" in mut2), \
     "dot bien xoa muc /start khoi GUIDE ma phep do van xanh"
 PY
 
+# ── P102: loi I/O co TEN, verdict ngoai tu vung bi goi ten (AC-1, AC-2) ─────
+# Doi chung DUONG (fixture nguyen ven XANH) truoc moi buoc tiem; moi buoc tiem
+# ghim DUNG thong diep. Fixture do CODE sinh trong chinh lan chay.
+run "P102 start-scan: loi I/O neu ten file+ma loi; verdict la/vang bi goi ten (E1,E2)" \
+  node - "$ROOT" <<'JS'
+const fs = require('fs'), path = require('path'), os = require('os');
+const { execFileSync } = require('child_process');
+const root = process.argv[2];
+const SCAN = path.join(root, 'scripts/start-scan.mjs');
+const die = m => { console.error(m); process.exit(1); };
+
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p102-'));
+const W = (rel, s) => { const p = path.join(tmp, rel);
+  fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, s); };
+const contract = (slug, status) =>
+  `---\nschema_version: 1\nslug: ${slug}\nrisk_tier: T2\nstatus: ${status}\n---\n# C\n`;
+const opp = (slug, decision) =>
+  `---\nschema_version: 1\nslug: ${slug}\nstage: decided\ndecision: ${decision}\n---\n# O\n`;
+
+W('_acceptance/config.yaml', 'schema_version: 1\n');
+// a: contract mat quyen doc, CO opportunity park nam canh -> khong duoc roi sang park
+W('_acceptance/a-eacces/contract.md', contract('a-eacces', 'verified'));
+W('_acceptance/a-eacces/opportunity.md', opp('a-eacces', 'park'));
+W('_acceptance/a-eacces/evidence-report.md', '---\nschema_version: 2\nverdict: PASS\nhuman_signoff:\n---\n# E\n');
+// b: contract la THU MUC
+W('_acceptance/b-eisdir/x', 'noise\n');
+// c: evidence-report mat quyen doc tren slug implemented
+W('_acceptance/c-ev-eacces/contract.md', contract('c-ev-eacces', 'implemented'));
+W('_acceptance/c-ev-eacces/evidence-report.md', '---\nschema_version: 2\nverdict: PASS\n---\n# E\n');
+// d/e: nhanh verdict; f/g: doi chung duong
+W('_acceptance/d-offvocab/contract.md', contract('d-offvocab', 'implemented'));
+W('_acceptance/d-offvocab/evidence-report.md', '---\nschema_version: 2\nverdict: FAIL\n---\n# E\n');
+W('_acceptance/e-noverdict/contract.md', contract('e-noverdict', 'implemented'));
+W('_acceptance/e-noverdict/evidence-report.md', '---\nschema_version: 2\nslug: e\n---\n# E\n');
+W('_acceptance/f-ok/contract.md', contract('f-ok', 'approved'));
+W('_acceptance/g-reject/contract.md', contract('g-reject', 'implemented'));
+W('_acceptance/g-reject/evidence-report.md', '---\nschema_version: 2\nverdict: REJECT\n---\n# E\n');
+
+const scan = () => JSON.parse(execFileSync('node', [SCAN, '--root', tmp], { encoding: 'utf8' }));
+const brokenOf = (r, slug) => r.broken.find(b => b.slug === slug);
+
+// ---- DOI CHUNG DUONG: chua tiem gi, moi slug phan o binh thuong ----
+const r0 = scan();
+if (brokenOf(r0, 'a-eacces')) die('doi chung duong: a-eacces chua tiem ma da broken');
+if (!r0.groups.gates.find(g => g.slug === 'a-eacces')) die('doi chung duong: a-eacces phai o gates');
+if (!r0.groups.inProgress.find(g => g.slug === 'f-ok')) die('doi chung duong: f-ok phai o inProgress');
+
+// ---- (a) EACCES tren contract.md ----
+const aPath = path.join(tmp, '_acceptance/a-eacces/contract.md');
+fs.chmodSync(aPath, 0o000);
+let readable = true;
+try { fs.readFileSync(aPath, 'utf8') } catch { readable = false }
+if (readable) { fs.chmodSync(aPath, 0o644); console.log('P102 SKIP: chay bang root, chmod khong chan duoc doc'); process.exit(0); }
+const r1 = scan();
+const a = brokenOf(r1, 'a-eacces');
+if (!a) die('EACCES contract phai vao broken[], khong duoc im lang');
+if (a.file !== 'contract.md') die(`broken phai ghim dung ten file, duoc: ${JSON.stringify(a)}`);
+if (!/EACCES/.test(a.reason)) die(`reason phai neu ma loi he thong, duoc: ${a.reason}`);
+if (/không có|khong co/.test(a.reason)) die(`reason noi doi "khong co file" trong khi file con do: ${a.reason}`);
+if (r1.groups.done.find(g => g.slug === 'a-eacces')) die('slug loi I/O bi roi sang o park cua opportunity ben canh');
+fs.chmodSync(aPath, 0o644);
+
+// ---- (b) contract.md la THU MUC ----
+fs.mkdirSync(path.join(tmp, '_acceptance/b-eisdir/contract.md'));
+const b = brokenOf(scan(), 'b-eisdir');
+if (!b || b.file !== 'contract.md' || !/EISDIR/.test(b.reason))
+  die(`contract la thu muc phai vao broken kem EISDIR, duoc: ${JSON.stringify(b)}`);
+
+// ---- (c) EACCES tren evidence-report.md (slug implemented) ----
+const cPath = path.join(tmp, '_acceptance/c-ev-eacces/evidence-report.md');
+fs.chmodSync(cPath, 0o000);
+const r3 = scan();
+const c = brokenOf(r3, 'c-ev-eacces');
+if (!c) die('EACCES evidence-report phai vao broken[]');
+if (c.file !== 'evidence-report.md') die(`phai ghim ten evidence-report.md, duoc: ${JSON.stringify(c)}`);
+if (!/EACCES/.test(c.reason)) die(`reason phai neu ma loi, duoc: ${c.reason}`);
+if (r3.groups.inProgress.find(g => g.slug === 'c-ev-eacces'))
+  die('slug co evidence loi I/O van bi day sang nextStep — khong duoc doan buoc ke');
+fs.chmodSync(cPath, 0o644);
+
+// ---- (d) verdict NGOAI tu vung tren implemented ----
+const d = brokenOf(scan(), 'd-offvocab');
+if (!d || !/verdict không nhận diện được: FAIL/.test(d.reason))
+  die(`verdict la phai bi goi ten cung khuon nhanh verified, duoc: ${JSON.stringify(d)}`);
+
+// ---- (e) evidence CO frontmatter nhung VANG dong verdict ----
+const e = brokenOf(scan(), 'e-noverdict');
+if (!e || !/thiếu verdict/.test(e.reason))
+  die(`verdict vang phai bi goi ten, duoc: ${JSON.stringify(e)}`);
+
+// ---- doi chung DUONG cuoi: REJECT van ra S3-fix nhu cu ----
+const g = scan().groups.inProgress.find(x => x.slug === 'g-reject');
+if (!g || g.nextStep !== 'S3-fix') die(`REJECT phai giu nextStep S3-fix, duoc: ${JSON.stringify(g)}`);
+console.log('P102 OK');
+JS
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
