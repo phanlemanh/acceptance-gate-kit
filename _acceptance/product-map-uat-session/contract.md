@@ -5,7 +5,7 @@ slug: product-map-uat-session
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-08-03T09:35:00Z
 ---
@@ -38,7 +38,9 @@ Design: docs/superpowers/specs/2026-08-03-product-map-uat-session-design.md
 - AC-10 (start-scan nguồn mới): Given workspace signed-off thuộc đường A (opportunity decision build/iterate) chưa có verdict nghiệm thu, When scan, Then slug vào `gates` với `gate: gia-tri` và `since` theo quy tắc hai nhánh: `decided_at` của uat-session nếu có, thiếu → mtime contract.md; Given uat-session verdict release/iterate/kill, Then vào `done` với state `released`/`uat-iterate`/`uat-kill`; Given uat-session frontmatter hỏng HOẶC `verdict` ngoài enum, Then vào `broken[]` kèm tên file + lý do; và JSON có `map.present`/`map.fresh` đúng cả 4 tổ hợp (vắng · có-fresh · có-stale · lỗi render → null) — hai dòng skip cũ (`PRODUCT-MAP.md`, `phiên-nghiệm-thu`) KHÔNG còn xuất hiện.
 - AC-11 (marker 2 harness): Given khối START-SCAN-KEYS trong `commands/start.md` và `codex/acceptance-gate/skills/start/SKILL.md`, When P99 round-trip chạy, Then key mới `map.present`/`map.fresh` có mặt ở CẢ hai thân và khớp output scan thật; bảng phân ô trong docs/specs/2026-08-03-start-command-design.md có các hàng mới của ô gia-tri/uat.
 - AC-12 (khoá invocation giữ nguyên): Given danh sách LOCKED của P31/P32, When kiểm sau vòng này, Then danh sách KHÔNG đổi (product-map.mjs là script generic không khoá; uat-session là skill nghi thức MỞ theo tiền lệ design-pass) — bất đối xứng ADR 0002 nguyên vẹn.
-- AC-13 (ngôn ngữ mặt người): Given `PRODUCT-MAP.md` sinh ra và dòng bản đồ trên thẻ `/start`, When người không-kỹ-thuật đọc, Then heading/mô tả bằng tiếng sản phẩm (luật N1–N6), mã máy chỉ nằm trong ngoặc hoặc lệnh gợi ý. (judgment)
+- AC-13a (mặt người — HÌNH, đo bằng máy): Given `PRODUCT-MAP.md` sinh ra, When kiểm dạng thức, Then bản đồ mở đầu bằng MỘT khối hình (mermaid — đúng cơ chế của mặt phẳng "tài liệu trong kho" theo bảng tra `DECISION-DIAGRAM-SURFACES`) đứng TRƯỚC mọi mục danh sách; hình nêu đủ bốn cổng người và mang SỐ THẬT của xưởng (thêm một việc thì số trong hình đổi theo); chặng rỗng nói "chưa có" chứ không để trống; dòng ghi chú KHÔNG lấy máy làm chủ ngữ và KHÔNG đặt đường dẫn trong câu chính; tên mục không gọi tên cơ chế máy; mỗi dòng việc theo khuôn `tên việc (slug)` — mã là tra cứu, không phải nội dung.
+- AC-13b (mặt người — CHỮ): Given bản đồ và dòng bản đồ trên thẻ `/start`, When người không-kỹ-thuật đọc, Then chữ đọc được bằng tiếng sản phẩm theo N1–N6; phần mô tả THỪA HƯỞNG nguyên văn `feature:` của hồ sơ cũ được phán riêng và nói rõ thuộc bên nào. (judgment)
+- AC-14 (ký xong phải merge được): Given bước ký Cổng 2 làm mới bản đồ rồi đưa nó vào chính commit chữ ký, When chạy `pre-merge-check.sh`, Then KHÔNG có vi phạm stale — `PRODUCT-MAP.md` nằm trong `risk_tiers.t1_skip_globs`; và miễn trừ đó chỉ hợp lệ khi còn cổng độc lập canh: `product-map.mjs --root . --check` phải có mặt trong `.github/workflows/gate.yml`, sửa tay bản đồ phải làm `--check` ĐỎ đúng thông điệp, miễn trừ KHÔNG lan sang `.github/**` hay `.claude-plugin/plugin.json` (đề xuất đã bị từ chối), và quyết định có ADR.
 
 ## Coverage
 
@@ -50,7 +52,7 @@ chấm kín, Scrum Sprint Review — nghiệm thu trên sản phẩm chạy):
 - **A. Nguồn dữ liệu đọc** (opportunity · contract · uat-session · .out-of-scope · vắng config) — phủ bởi AC-1, AC-3, AC-8, AC-10.
 - **B. Trạng thái vòng đời slug** (7 nhóm + hỏng) — phủ bởi AC-1, AC-2, AC-10; thước CE: bảng bucket design = mở rộng bảng phân ô start-command (P98).
 - **C. Chế độ chạy** (generate · check-fresh · check-stale · check-missing · chưa-init) — phủ bởi AC-3, AC-4, AC-7.
-- **D. Consumer** (người đọc map · start-scan · CI · điểm regen 2 harness) — phủ bởi AC-6, AC-7, AC-11, AC-13.
+- **D. Consumer** (người đọc map · start-scan · CI · điểm regen 2 harness) — phủ bởi AC-6, AC-7, AC-11, AC-13a/13b, AC-14.
 - Nghi thức phiên (spec §2.3) là chuỗi thứ tự, không phải trục rời rạc — phủ tập trung ở AC-9 (judgment).
 
 ## Out of scope
@@ -64,6 +66,11 @@ chấm kín, Scrum Sprint Review — nghiệm thu trên sản phẩm chạy):
 
 ## Notes
 
+- **Mở rộng phạm vi tại Cổng 2 (owner cho phép 2026-08-03):** AC-13 tách thành
+  13a (trục HÌNH, đo bằng máy) + 13b (trục CHỮ, judgment) sau khi owner bắt
+  được lỗ-kit — bản đồ vi phạm N5 ở dạng thức mà 12 lượt chấm qua 4 vòng đều
+  bỏ sót, vì câu hỏi eval gộp N1–N6 thành một khối chữ nên người chấm hiểu
+  thành "soi từ vựng". AC-14 thêm cùng lượt. Cần owner phê lại phần này khi ký.
 - Cổng Đáng hiện ký tay (chưa có lệnh riêng) → không có điểm regen máy cho
   chuyển discovery→decided; lưới: `--check` CI (AC-7) + cờ `map.fresh` trên
   thẻ /start (AC-10). Khi lệnh Cổng 0 ra đời (vòng card sau), thêm điểm regen

@@ -1,0 +1,16 @@
+# Miễn trừ `PRODUCT-MAP.md` khỏi `t1_skip_globs` — vì nó là view máy sinh có cổng riêng canh
+
+Bản đồ sản phẩm được vẽ lại tại mỗi lần đóng cổng người, và bước ký Cổng 2 đưa
+nó vào CHÍNH commit chữ ký. Không miễn trừ thì `stale_files()` của
+`pre-merge-check.sh` đọc nó là "code đổi sau khi verify" và chặn merge — mà
+re-verify xong ký lại thì lại chạm bản đồ lại, tức một vòng không thoát do
+chính nghi thức sinh ra (dựng lại được, S4-r4 của `product-map-uat-session`).
+Miễn trừ an toàn vì bản đồ KHÔNG phải hành vi: nó là hàm thuần của hồ sơ trong
+`_acceptance/`, và `node scripts/product-map.mjs --root . --check` trong CI
+canh `bản đồ == hồ sơ` độc lập — đúng vai P30 canh `mirror == nguồn` ở ADR
+0001, nên sửa tay ở đây bị bắt bởi một luật khác chứ không lọt. Miễn trừ này
+KHÔNG mở rộng sang bất kỳ file gốc repo nào khác: điều kiện để được vào danh
+sách là **máy sinh toàn phần + có một cổng độc lập canh drift**, và đề xuất
+nới `t1_skip_globs` cho `.github/**` + `.claude-plugin/plugin.json` đã bị TỪ
+CHỐI (`.out-of-scope/t1-skip-globs-github-and-manifests.md`) đúng vì hai path
+đó không thoả điều kiện — chúng khai được hành vi và không có cổng nào canh.

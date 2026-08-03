@@ -3222,7 +3222,7 @@ const sectionOfIn = (txt, slug) => {
   let cur = null;
   for (const line of txt.split("\n")) {
     if (line.startsWith("## ")) cur = line.slice(3).trim();
-    if (line.includes("**" + slug + "**")) return cur;
+    if (line.includes("(`" + slug + "`)") || line.includes("`" + slug + "` —")) return cur;
   }
   return null;
 };
@@ -3230,10 +3230,10 @@ const out = renderProductMap(tmp);
 const EXPECT = {
   "a-can-nhac": "Đang cân nhắc cơ hội",
   "b-sap-mo": "Sắp mở vòng",
-  "c-cho-duyet": "Vòng đang mở — chờ duyệt phạm vi",
-  "d-dang-dung": "Vòng đang mở — đang dựng và nghiệm thu máy",
-  "e-cho-nghiem-thu": "Đã ship — chờ phiên nghiệm thu",
-  "f-da-ship": "Đã ship",
+  "c-cho-duyet": "Chờ duyệt phạm vi",
+  "d-dang-dung": "Đang làm",
+  "e-cho-nghiem-thu": "Đã giao — chờ phiên nghiệm thu",
+  "f-da-ship": "Đã giao",
   "g-release": "Đã nghiệm thu giá trị",
   "h-kill": "Đã nghiệm thu giá trị",
   "i-xep-lai": "Xếp lại sau",
@@ -3244,11 +3244,13 @@ for (const [slug, sec] of Object.entries(EXPECT))
   if (sectionOfIn(out, slug) !== sec)
     die(slug + ": nam o " + JSON.stringify(sectionOfIn(out, slug)) + ", mong " + JSON.stringify(sec));
 if (!out.includes("Mien tru X — DA TU CHOI")) die("thieu muc ngoai pham vi (title dong # dau file)");
-const khoiNghiemThu = (out.split("Đã nghiệm thu giá trị")[1] || "").split("\n## ")[0];
+// Neo vao TIEU DE muc, khong cat chuoi tran: ten o gio xuat hien ca trong
+// hinh mermaid o dau file lan o tieu de, cat tran se vo nham khoi hinh.
+const khoiNghiemThu = (out.split("## Đã nghiệm thu giá trị")[1] || "").split("\n## ")[0];
 if (!/release/i.test(khoiNghiemThu) || !/kill/i.test(khoiNghiemThu))
   die("muc da nghiem thu khong ghi ket cuc tung slug");
 for (const slug of Object.keys(EXPECT)) {
-  const n = out.split("**" + slug + "**").length - 1;
+  const n = out.split("`" + slug + "`").length - 1;
   if (n !== 1) die(slug + " xuat hien " + n + " lan trong map");
 }
 
@@ -3331,9 +3333,9 @@ W("_acceptance/alpha/contract.md", contract("alpha", "\nepic: nen-tang\nrelates:
 W("_acceptance/mike/contract.md", contract("mike"));
 const a = renderProductMap(tmp), b = renderProductMap(tmp);
 if (a !== b) die("hai lan render khac nhau — --check khong the tin duoc");
-const order = ["alpha", "mike", "zebra"].map(s => a.indexOf("**" + s + "**"));
+const order = ["alpha", "mike", "zebra"].map(s => a.indexOf("(`" + s + "`)"));
 if (!(order[0] < order[1] && order[1] < order[2])) die("khong sort theo slug: " + JSON.stringify(order));
-const lineOf = s => a.split("\n").find(l => l.includes("**" + s + "**")) || "";
+const lineOf = s => a.split("\n").find(l => l.includes("(`" + s + "`)")) || "";
 if (!lineOf("alpha").includes("epic: nen-tang") || !lineOf("alpha").includes("liên quan: zebra"))
   die("canh co trong ho so ma khong hien: " + lineOf("alpha"));
 if (/epic|thay thế|liên quan/.test(lineOf("zebra")))
@@ -3343,7 +3345,7 @@ if (/epic|thay thế|liên quan/.test(lineOf("zebra")))
 W("_acceptance/omega/contract.md", contract("omega").replace(
   "feature: viec omega", "feature: omega — lam cho nguoi dung X"));
 const withEcho = renderProductMap(tmp);
-const lo = withEcho.split("\n").find(l => l.includes("**omega**")) || "";
+const lo = withEcho.split("\n").find(l => l.includes("(`omega`)")) || "";
 if ((lo.match(/omega/g) || []).length !== 1)
   die("dong ban do vong lai ten may hai lan: " + lo);
 if (!lo.includes("lam cho nguoi dung X")) die("cat tien to lam mat luon mo ta: " + lo);
@@ -3715,7 +3717,7 @@ for (const [ten, files, phaiHong] of CASES) {
   const scan = JSON.parse(execFileSync("node", [SCAN, "--root", tmp], { encoding: "utf8" }));
   const scanHong = scan.broken.some(b => b.slug === "x");
   const mapTxt = renderProductMap(tmp);
-  const mapHong = (mapTxt.split("## Hồ sơ hỏng")[1] || "").includes("**x**");
+  const mapHong = (mapTxt.split("## Hồ sơ hỏng")[1] || "").includes("`x`");
 
   if (scanHong !== mapHong)
     die(`[${ten}] HAI BEN DOC KHAC NHAU: bo quet hong=${scanHong}, ban do hong=${mapHong}`);
@@ -3725,7 +3727,7 @@ for (const [ten, files, phaiHong] of CASES) {
   if (phaiHong) {
     const b = scan.broken.find(b => b.slug === "x");
     if (!b.file || !b.reason) die(`[${ten}] bo quet bao hong ma khong neu file/ly do`);
-    const dong = mapTxt.split("\n").find(l => l.includes("**x**")) || "";
+    const dong = mapTxt.split("\n").find(l => l.includes("`x`")) || "";
     if (!dong.includes(b.file)) die(`[${ten}] ban do khong neu ten file hong: ${dong}`);
   }
   checked++;
@@ -3781,6 +3783,139 @@ const p = recordProblem({ "contract.md": "---\nstatus: signed-off\n---\n",
 if (p) die("phien CHUA KY bi goi la ho so hong: " + JSON.stringify(p));
 console.log("P111 OK");
 P111JS
+
+# ── P112: CHAN HINH cua AC-13 — do bang may, khong giao cho panel judge ────
+run "P112 ban do co HINH dan dau, hinh mang so THAT, chu tu viet qua N1/N2/N3 (E17)" \
+  node --input-type=module - "$ROOT" <<'P112JS'
+const root = process.argv[2];  // dang stdin: argv[1] la "-"
+const fs = await import("node:fs"); const os = await import("node:os");
+const path = await import("node:path");
+const { renderProductMap } = await import(path.join(root, "scripts/product-map.mjs"));
+const { fileFromTemplate } = await import(path.join(root, "tests/fixtures/from-template.mjs"));
+const R = p => path.join(root, "skills/acceptance/references", p);
+const die = m => { console.error(m); process.exit(1); };
+
+// CHAN HINH cua AC-13 — do bang MAY, khong giao cho panel judge. 12 luot cham
+// qua 4 vong deu chi soi truc TU VUNG (N1-N6) va bo tron truc HINH, du phep
+// thu nhin-thay-hinh nam cung file luat duoc truyen lam input. Phep do nao
+// giao cho nguoi cham thi phai cho no mot chan may khong bo qua duoc.
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "p112-"));
+const W = (rel, s) => { const p = path.join(tmp, rel);
+  fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, s); };
+const contract = (slug, status) => fileFromTemplate(R("contract-template.md"),
+  "CONTRACT-FRONTMATTER-TEMPLATE",
+  { feature: "lam cho nguoi dung " + slug, slug, owner: "o@o", risk_tier: "T2",
+    surfaces: "cli", status });
+W("_acceptance/config.yaml", "schema_version: 1\n");
+W("_acceptance/mot-viec/contract.md", contract("mot-viec", "approved"));
+W("_acceptance/viec-da-giao/contract.md", contract("viec-da-giao", "signed-off"));
+
+const out = renderProductMap(tmp);
+const dongs = out.split("\n");
+
+// 1. Co HINH, va hinh dung co che cua mat phang "tai lieu trong kho" (mermaid)
+const iFence = dongs.findIndex(l => l.trim() === "```mermaid");
+if (iFence < 0) die("ban do KHONG co hinh — vi pham N5 o dang thuc (diem quyet dinh vuot nguong 3 buoc / 2 nhanh)");
+const iClose = dongs.findIndex((l, i) => i > iFence && l.trim() === "```");
+if (iClose < 0) die("khoi hinh khong dong fence");
+
+// 2. HINH DAN DAU: khong duoc co muc danh sach nao truoc no (chu la chu thich)
+const iMuc = dongs.findIndex(l => l.startsWith("## "));
+if (iMuc >= 0 && iMuc < iFence) die(`muc "${dongs[iMuc]}" dung TRUOC hinh — chu dan dau, sai N5`);
+
+// 3. Hinh phai la HINH cua chinh xuong nay: du chang + du 3 cong nguoi + so THAT
+const hinh = dongs.slice(iFence, iClose + 1).join("\n");
+for (const cong of ["Cổng Đáng", "Cổng Phạm vi", "Cổng Bằng chứng", "Cổng Giá trị"])
+  if (!hinh.includes(cong)) die(`hinh thieu ${cong} — nguoi doc khong thay day du diem dung`);
+if (!/Đang làm<br\/>1 việc/.test(hinh)) die("hinh khong mang SO THAT cua xuong (1 viec dang lam): " + hinh);
+if (!/Đã giao<br\/>1 việc/.test(hinh)) die("hinh khong mang SO THAT cua xuong (1 viec da giao)");
+if (!/chưa có/.test(hinh)) die("chang rong phai noi 'chua co', khong duoc de trong");
+
+// 4. Doi chung DUONG: so trong hinh doi theo ho so, khong phai chuoi ghim cung
+W("_acceptance/viec-thu-hai/contract.md", contract("viec-thu-hai", "approved"));
+if (!/Đang làm<br\/>2 việc/.test(renderProductMap(tmp)))
+  die("them mot viec ma so trong hinh khong doi — hinh la chuoi chet, khong phai hinh cua xuong");
+
+// 5. Chu do bo sinh TU VIET: chu ngu khong phai may, duong dan khong lam chu ngu
+const ghiChu = dongs.filter(l => l.startsWith("> ")).join(" ");
+if (!ghiChu) die("thieu dong ghi chu dau ban do");
+if (/^> Máy sinh/.test(dongs.find(l => l.startsWith("> ")) || "")) die("cau ghi chu lay MAY lam chu ngu — N1");
+const cauChinh = (dongs.find(l => l.startsWith("> ")) || "");
+if (/`_acceptance\/`/.test(cauChinh)) die("duong dan nam trong cau chinh — N2 doi no xuong chu thich");
+
+// 6. Ten o KHONG goi ten co che may
+for (const l of dongs.filter(l => l.startsWith("## ")))
+  if (/nghiệm thu máy|start-scan|frontmatter|_acceptance/.test(l))
+    die(`ten muc goi ten co che may: ${l}`);
+
+// 7. Moi dong viec: TEN VIEC truoc, slug la ma TRA CUU trong ngoac (N3)
+const dongViec = dongs.filter(l => l.startsWith("- ") && l.includes("(`"));
+if (!dongViec.length) die("khong co dong viec nao de soi");
+for (const l of dongViec) {
+  const m = l.match(/^- (.+) \(`([a-z0-9-]+)`\)/);
+  if (!m) die(`dong khong theo khuon "ten viec (slug)": ${l}`);
+  if (m[1].startsWith("**")) die(`dong con in dam ca cau: ${l}`);
+  if (m[1] === m[2]) die(`ten viec chi la slug lap lai: ${l}`);
+}
+console.log("P112 OK");
+P112JS
+
+# ── P113: mien tru PRODUCT-MAP.md chi hop le khi con cong doc lap canh ────
+run "P113 PRODUCT-MAP.md mien tru t1 + --check canh that + co trong CI + co ADR (E18)" \
+  python3 - "$ROOT" <<'P113PY'
+import re, subprocess, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+
+# 1. PRODUCT-MAP.md nam TRONG t1_skip_globs (do QUAN HE: rut dung danh sach)
+cfg = (root / "_acceptance/config.yaml").read_text(encoding="utf-8")
+def globs(txt, key):
+    out, inside = [], False
+    for ln in txt.splitlines():
+        if ln.strip() == key + ":": inside = True; continue
+        if inside:
+            s = ln.strip()
+            if s.startswith('- '): out.append(s[2:].strip().strip('"'))
+            elif s and not s.startswith('#'): break
+    return out
+t1 = globs(cfg, "t1_skip_globs")
+assert "PRODUCT-MAP.md" in t1, f"PRODUCT-MAP.md chua duoc mien tru (thay: {t1})"
+
+# 2. Mien tru chi hop le VI co cong doc lap canh — doi chung DUONG rooi tiem:
+#    ban do khop -> --check XANH; tiem lech -> --check DO. Khong co ve nay thi
+#    mien tru bien mot view may sinh thanh vung khong ai kiem.
+def check():
+    return subprocess.run(["node", "scripts/product-map.mjs", "--root", ".", "--check"],
+                          cwd=root, capture_output=True, text=True)
+r = check()
+assert r.returncode == 0, f"doi chung duong hong: ban do cua kit dang lech san ({r.stderr.strip()})"
+mp = root / "PRODUCT-MAP.md"
+orig = mp.read_text(encoding="utf-8")
+try:
+    mp.write_text(orig + "\n- viec bia dat\n", encoding="utf-8")
+    r2 = check()
+    assert r2.returncode != 0, "sua tay ban do ma --check VAN xanh — mien tru dang che mot vung khong ai canh"
+    assert "lệch với hồ sơ xưởng" in r2.stderr, f"thong diep khong khop khuon ghim: {r2.stderr}"
+finally:
+    mp.write_text(orig, encoding="utf-8")
+assert check().returncode == 0, "khoi phuc ban do that bai"
+
+# 3. Cong do PHAI chay trong CI, khong chi trong suite verify cua feature-loop
+ci = (root / ".github/workflows/gate.yml").read_text(encoding="utf-8")
+assert "product-map.mjs --root . --check" in ci, \
+    "gate.yml khong chay --check — mien tru mat can cu (khong con cong nao canh o moi PR)"
+
+# 4. Mien tru KHONG duoc lan sang path khac o goc repo
+for xau in [".github/**", ".claude-plugin/plugin.json"]:
+    assert xau not in t1, f"{xau} da bi nuot vao t1_skip_globs — de xuat nay DA BI TU CHOI (.out-of-scope/)"
+
+# 5. Quyet dinh chinh sach nay phai co ADR
+adr = root / "docs/adr/0003-product-map-t1-exemption.md"
+assert adr.is_file(), "thieu ADR cho mot lan noi danh sach mien tru"
+at = adr.read_text(encoding="utf-8")
+for needle in ["PRODUCT-MAP.md", "--check", "t1-skip-globs-github-and-manifests"]:
+    assert needle in at, f"ADR khong neu {needle}"
+P113PY
 
 if [ "$failures" -gt 0 ]; then
   echo

@@ -27,19 +27,48 @@ const { recordProblem, navValues, NAV_RULES } =
 
 export { NAV_RULES };
 
+// Tên ô nói VIỆC ĐANG Ở ĐÂU, không gọi tên cơ chế máy (N1). Thứ tự cố định —
+// nó cũng là thứ tự các chặng trong hình.
 const SECTIONS = [
   ['can-nhac', 'Đang cân nhắc cơ hội'],
   ['sap-mo', 'Sắp mở vòng'],
-  ['cho-duyet', 'Vòng đang mở — chờ duyệt phạm vi'],
-  ['dang-dung', 'Vòng đang mở — đang dựng và nghiệm thu máy'],
-  ['cho-nghiem-thu', 'Đã ship — chờ phiên nghiệm thu'],
-  ['da-ship', 'Đã ship'],
+  ['cho-duyet', 'Chờ duyệt phạm vi'],
+  ['dang-dung', 'Đang làm'],
+  ['cho-nghiem-thu', 'Đã giao — chờ phiên nghiệm thu'],
+  ['da-ship', 'Đã giao'],
   ['da-nghiem-thu', 'Đã nghiệm thu giá trị'],
   ['xep-lai', 'Xếp lại sau'],
   ['da-bac', 'Đã bác từ khám phá'],
   ['ngoai-pham-vi', 'Ngoài phạm vi đã ký'],
   ['hong', 'Hồ sơ hỏng'],
 ];
+
+// HÌNH dẫn đầu, chữ là chú thích (N5). Bản đồ là điểm quyết định — người ta
+// đọc nó lúc chọn việc tiếp theo — và nó có 3+ chặng nối tiếp cùng 2 nhánh rẽ,
+// tức vượt ngưỡng bắt buộc kèm sơ đồ. Mặt phẳng ở đây là tài liệu trong kho,
+// nên cách vẽ đúng theo bảng tra DECISION-DIAGRAM-SURFACES là khối mermaid.
+const dem = n => (n === 0 ? 'chưa có' : `${n} việc`);
+function mermaidBlock(count) {
+  const n = key => dem(count[key] || 0);
+  const lines = [
+    '```mermaid',
+    'flowchart TD',
+    `  A["Đang cân nhắc cơ hội<br/>${n('can-nhac')}"] --> GD{"Cổng Đáng"}`,
+    `  GD --> B["Sắp mở vòng<br/>${n('sap-mo')}"]`,
+    `  GD --> XL["Xếp lại sau<br/>${n('xep-lai')}"]`,
+    `  GD --> DB["Đã bác từ khám phá<br/>${n('da-bac')}"]`,
+    `  B --> CD["Chờ duyệt phạm vi<br/>${n('cho-duyet')}"] --> GP{"Cổng Phạm vi"}`,
+    `  GP --> DL["Đang làm<br/>${n('dang-dung')}"] --> GB{"Cổng Bằng chứng"}`,
+    `  GB --> DG["Đã giao<br/>${n('da-ship')}"]`,
+    `  DG --> CN["Chờ phiên nghiệm thu<br/>${n('cho-nghiem-thu')}"] --> GG{"Cổng Giá trị"}`,
+    `  GG --> NT["Đã nghiệm thu giá trị<br/>${n('da-nghiem-thu')}"]`,
+  ];
+  // Ô hỏng KHÔNG nằm trong mạch — nó là cờ. Chỉ hiện khi có, và hiện thì phải
+  // đập vào mắt chứ không nấp cuối danh sách.
+  if (count.hong) lines.push(`  HS["Hồ sơ hỏng<br/>${dem(count.hong)}"]`);
+  lines.push('```');
+  return lines;
+}
 const UAT_KET_CUC = {
   release: 'giao rộng (release)',
   iterate: 'lặp thêm (iterate)',
@@ -126,8 +155,10 @@ export function renderProductMap(root) {
   const lines = [
     '# Bản đồ sản phẩm',
     '',
-    '> Máy sinh từ hồ sơ trong `_acceptance/` và `.out-of-scope/` — đừng sửa tay.',
-    '> Bản đồ được làm mới ở mỗi lần một người ký một cổng.',
+    '> Bản đồ vẽ lại từ hồ sơ của xưởng mỗi lần một người ký một cổng — đừng sửa tay.',
+    '> (đọc từ thư mục `_acceptance/` và `.out-of-scope/`)',
+    '',
+    ...mermaidBlock(Object.fromEntries(SECTIONS.map(([k]) => [k, buckets[k].length]))),
     '',
   ];
   for (const [key, title] of SECTIONS) {
@@ -135,9 +166,14 @@ export function renderProductMap(root) {
     if (!items.length) continue;
     lines.push(`## ${title}`, '');
     for (const it of items) {
-      if (key === 'hong') lines.push(`- **${it.slug}** — \`${it.file}\`: ${it.reason}`);
-      else if (key === 'ngoai-pham-vi') lines.push(`- **${it.name}** (\`.out-of-scope/${it.file}\`)`);
-      else lines.push(`- **${it.slug}** — ${it.name}${it.note ? ` — ${it.note}` : ''}${it.edge}`);
+      // Tên việc đứng trước, slug xuống cuối dòng trong ngoặc: mã là thứ để
+      // TRA CỨU, không phải nội dung (N3). Không in đậm — tên việc thừa hưởng
+      // từ hồ sơ có thể dài cả câu, bôi đậm cả câu thì dòng nặng và hết quét
+      // được. Hình ở đầu file mới là thứ dẫn mắt.
+      if (key === 'hong') lines.push(`- \`${it.slug}\` — không đọc được hồ sơ (\`${it.file}\`): ${it.reason}`);
+      else if (key === 'ngoai-pham-vi') lines.push(`- ${it.name} (\`.out-of-scope/${it.file}\`)`);
+      else if (it.name === it.slug) lines.push(`- \`${it.slug}\`${it.note ? ` — ${it.note}` : ''}${it.edge}`);
+      else lines.push(`- ${it.name} (\`${it.slug}\`)${it.note ? ` — ${it.note}` : ''}${it.edge}`);
     }
     lines.push('');
   }

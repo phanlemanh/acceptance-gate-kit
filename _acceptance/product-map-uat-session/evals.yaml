@@ -127,7 +127,7 @@ evals:
       - tests/plugins/run-tests.sh
 
   - id: E13
-    criterion: AC-13
+    criterion: AC-13b
     executor: judgment
     question: "PRODUCT-MAP.md sinh từ hồ sơ xưởng thật của kit và dòng bản đồ trên thẻ /start có đọc được bằng tiếng sản phẩm với người không-kỹ-thuật không (luật N1–N6: không jargon máy trần, mã máy trong ngoặc, mỗi mục nói 'người dùng được gì / việc gì đang chờ ai')?"
     inputs:
@@ -166,4 +166,25 @@ evals:
     paths:
       - lib/evidence-core.js
       - lib/workspace-record.js
+      - tests/plugins/run-tests.sh
+
+  - id: E17
+    criterion: AC-13a
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case P112 pass: bản đồ có khối mermaid ĐỨNG TRƯỚC mọi mục danh sách; hình nêu đủ 4 cổng người và mang số THẬT (thêm một việc vào fixture → số trong hình đổi theo, đây là đối chứng dương chống hình-chuỗi-chết); chặng rỗng nói 'chưa có'; dòng ghi chú không lấy máy làm chủ ngữ và không có đường dẫn trong câu chính; tên mục không chứa tên cơ chế máy; mọi dòng việc khớp khuôn 'tên việc (slug)' và không in đậm cả câu"
+    paths:
+      - scripts/product-map.mjs
+      - tests/plugins/run-tests.sh
+
+  - id: E18
+    criterion: AC-14
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case P113 pass: PRODUCT-MAP.md nằm TRONG t1_skip_globs (rút đúng danh sách, không grep cả file); đối chứng dương --check XANH trước, rồi sửa tay bản đồ → --check ĐỎ đúng thông điệp ghim (chứng minh miễn trừ vẫn có cổng canh); gate.yml có bước chạy --check; miễn trừ KHÔNG lan sang .github/** hay .claude-plugin/plugin.json; ADR 0003 tồn tại và nêu cả lý do lẫn đề xuất đã bị từ chối"
+    paths:
+      - _acceptance/config.yaml
+      - .github/workflows/gate.yml
+      - docs/adr/0003-product-map-t1-exemption.md
+      - scripts/product-map.mjs
       - tests/plugins/run-tests.sh
