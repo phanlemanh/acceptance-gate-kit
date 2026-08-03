@@ -80,7 +80,14 @@ function frontmatterField(payload, key) {
   const text = String(payload).replace(/^(?:[ \t]*\r?\n)+/, '');
   const fm = text.match(/^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/);
   if (!fm) return null;
-  const line = fm[1].match(new RegExp('^' + key + '\\s*[:=]\\s*(.*)$', 'mi'));
+  // `[ \t]*` chứ KHÔNG phải `\s*` sau dấu phân cách: `\s` khớp cả xuống dòng,
+  // nên một khoá để TRỐNG (`verdict:`, `approved_at:`, `human_signoff:`) nuốt
+  // luôn dòng kế và trả về giá trị của khoá khác. Đọc `verdict:` rỗng ra
+  // "decided_by: Manh" khiến một phiên chưa ký bị gọi là hồ sơ hỏng, và
+  // `approved_at:` rỗng làm hỏng thứ tự xếp cổng chờ ký. Bug này ẩn được lâu
+  // vì mọi khuôn mẫu đều tình cờ có comment `#` ngay sau khoá rỗng — comment
+  // hút mất cú nuốt (S4-r2).
+  const line = fm[1].match(new RegExp('^' + key + '[ \\t]*[:=][ \\t]*(.*)$', 'mi'));
   if (!line) return null;
   return line[1]
     .replace(/^#.*$/, '')      // comment-only value ("# placeholder") = empty

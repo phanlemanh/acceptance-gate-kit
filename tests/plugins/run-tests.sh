@@ -3712,6 +3712,52 @@ if (!CASES.some(c => !c[2])) die("khong co ca LANH MANH nao — phep do thieu do
 console.log("P110 OK (" + checked + " ca, hai reader dong y tung ca)");
 P110JS
 
+# ── P111: khoa RONG khong duoc nuot dong ke (lop loi cua reader chung) ─────
+# `\s` khop ca xuong dong, nen `^key\s*[:=]\s*(.*)$` doc mot khoa de TRONG ra
+# thanh gia tri cua khoa DUOI no. An duoc lau vi moi khuon mau tinh co co
+# comment `#` ngay sau khoa rong — fixture o day co Y KHONG co comment do.
+run "P111 frontmatterField: khoa rong tra '' chu khong nuot dong ke (S4-r2)" \
+  node --input-type=module - "$ROOT" <<'P111JS'
+const root = process.argv[2];  // dang stdin: argv[1] la "-"
+const path = await import("node:path");
+const { createRequire } = await import("node:module");
+const require = createRequire(import.meta.url);
+const core = require(path.join(root, "lib/evidence-core.js"));
+const die = m => { console.error(m); process.exit(1); };
+const F = core.frontmatterField;
+
+// 1. khoa rong o GIUA frontmatter, KHONG co comment che
+const uat = "---\nschema_version: 1\nslug: x\nverdict:\ndecided_by: Manh\ndecided_at: 2026-08-03T00:00:00Z\n---\n# U\n";
+if (F(uat, "verdict") !== "") die(`verdict rong doc ra ${JSON.stringify(F(uat, "verdict"))} — dang nuot dong ke`);
+if (F(uat, "decided_by") !== "Manh") die("khoa duoi bi anh huong: " + JSON.stringify(F(uat, "decided_by")));
+
+// 2. cung hinh dang tren contract: approved_at rong khong duoc nuot dong duoi
+const ct = "---\nstatus: verified\napproved_at:\ntime_human_minutes: {gate1: 0, gate2: 0}\n---\n";
+if (F(ct, "approved_at") !== "") die(`approved_at rong doc ra ${JSON.stringify(F(ct, "approved_at"))}`);
+
+// 3. va tren evidence-report: human_signoff rong la truong hop CHUA KY
+const ev = "---\nverdict: PASS\nhuman_signoff:\nbypass_used: false\n---\n";
+if (F(ev, "human_signoff") !== "") die(`human_signoff rong doc ra ${JSON.stringify(F(ev, "human_signoff"))}`);
+if (F(ev, "bypass_used") !== "false") die("khoa duoi human_signoff bi nuot");
+
+// 4. DOI CHUNG DUONG — cac hinh dang khac phai giu nguyen hanh vi
+const d = "---\nkey:   co khoang trang\nquoted: \"abc\"\ncmt: val # ghi chu\nonlycmt: # chi comment\ncrlf: x\r\nlast:\n---\n";
+const MONG = { key: "co khoang trang", quoted: "abc", cmt: "val", onlycmt: "", crlf: "x", last: "" };
+for (const [k, v] of Object.entries(MONG))
+  if (F(d, k) !== v) die(`hinh dang ${k}: doc ra ${JSON.stringify(F(d, k))}, mong ${JSON.stringify(v)}`);
+if (F(d, "khong-co") !== null) die("khoa vang phai tra null");
+if (F("khong co frontmatter\n", "key") !== null) die("khong co frontmatter phai tra null");
+
+// 5. Ca DAU-DEN-CUOI: uat-session chua ky (verdict rong, khong comment) phai
+// la ho so LANH MANH voi ca hai reader — day la ca that ma nghi thuc sinh ra.
+const { recordProblem } = require(path.join(root, "lib/workspace-record.js"));
+const p = recordProblem({ "contract.md": "---\nstatus: signed-off\n---\n",
+                          "opportunity.md": "---\nstage: decided\ndecision: build\n---\n",
+                          "uat-session.md": uat });
+if (p) die("phien CHUA KY bi goi la ho so hong: " + JSON.stringify(p));
+console.log("P111 OK");
+P111JS
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
