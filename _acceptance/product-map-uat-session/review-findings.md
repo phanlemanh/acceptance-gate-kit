@@ -49,3 +49,22 @@ Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt 
   Đề xuất: known-limits
 
 Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
+
+## Phản hồi người tại Cổng 2 (2026-08-03)
+
+- **Bước:** Cổng 2, sau khi owner đọc `PRODUCT-MAP.md` nguyên văn.
+- **Nguyên văn:** "Product-map vẫn là ngôn ngữ của máy, không phải ngôn ngữ của
+  người và thiếu visual trong khi đây là không gian của ngừoi và visual tốt nhất?"
+- **Xử lý:** ghi nhận là **lỗ-kit — ngôn ngữ mặt người**, không phải lỗi người
+  viết. Đối chiếu luật: N5 (hình trước, chữ là chú thích) bị vi phạm ở DẠNG
+  THỨC — bản đồ là điểm quyết định vượt ngưỡng "3 bước nối tiếp hoặc 2 nhánh
+  rẽ" mà không có hình; bảng tra DECISION-DIAGRAM-SURFACES chỉ đích danh
+  "tài liệu trong kho → khối mermaid" và bộ sinh không dùng. Thêm N1/N2 ở dòng
+  ghi chú đầu file (chủ ngữ là "máy", hai đường dẫn nằm trong câu chính) và N3
+  ở mỗi dòng (slug — một mã tra cứu — làm chủ ngữ).
+- **Hệ quả cho phán quyết:** AC-13 KHÔNG đạt ở phần bộ sinh TỰ VIẾT, không chỉ
+  ở phần thừa hưởng `feature:` của hồ sơ cũ. Khuyến nghị "chấp nhận + override"
+  ở lượt trình trước đã RÚT.
+- **Lỗ của bộ đo:** panel judge E13 ba vòng đều chỉ soi trục từ vựng N1–N6 và
+  không chạy phép thử nhìn-thấy-hình, dù phép thử đó nằm cùng file luật được
+  truyền làm input. Câu hỏi của eval AC-13 cũng không nhắc trục hình.
