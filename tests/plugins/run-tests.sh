@@ -3201,6 +3201,61 @@ if (!g || g.nextStep !== 'S3-fix') die(`REJECT phai giu nextStep S3-fix, duoc: $
 console.log('P102 OK');
 JS
 
+# ── P103: argv hong CHET TO exit 2, khong doi nghia thanh chan doan repo (AC-3)
+# Lop "declared-but-unusable" da chot o pre-merge-check v1.22.1 va
+# sync-plugin-packages (mode la khong duoc am tham roi ve ghi de).
+run "P103 start-scan argv: 5 loi chet exit 2 ghim thong diep + doi chung duong (E3)" \
+  node - "$ROOT" <<'JS'
+const fs = require('fs'), path = require('path'), os = require('os');
+const { spawnSync } = require('child_process');
+const root = process.argv[2];
+const SCAN = path.join(root, 'scripts/start-scan.mjs');
+const die = m => { console.error(m); process.exit(1); };
+const runScan = a => spawnSync('node', [SCAN, ...a], { encoding: 'utf8' });
+
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p103-'));
+fs.mkdirSync(path.join(tmp, 'ok/_acceptance'), { recursive: true });
+fs.writeFileSync(path.join(tmp, 'ok/_acceptance/config.yaml'), 'schema_version: 1\n');
+const okDir = path.join(tmp, 'ok');
+const plainFile = path.join(tmp, 'la-file-thuong.txt');
+fs.writeFileSync(plainFile, 'toi khong phai thu muc\n');
+
+// ---- DOI CHUNG DUONG truoc moi loi chet: loi goi DUNG van chay ----
+const ok = runScan(['--root', okDir]);
+if (ok.status !== 0) die(`doi chung duong that bai: --root hop le phai exit 0, duoc ${ok.status} / ${ok.stderr}`);
+let parsed; try { parsed = JSON.parse(ok.stdout) } catch { die('doi chung duong: stdout khong parse duoc JSON') }
+if (parsed.config !== true) die('doi chung duong: root hop le co config phai tra config:true');
+
+// ---- 5 loi chet: exit 2, stdout RONG, stderr ghim thong diep RIENG ----
+const CASES = [
+  { name: '--root thieu gia tri', argv: ['--root'],                needle: /--root/ },
+  { name: "--root chuoi rong",    argv: ['--root', ''],            needle: /--root/ },
+  { name: 'token la',             argv: ['--foo'],                 needle: /--foo/ },
+  { name: 'duong dan ma',         argv: ['--root', path.join(tmp, 'khong-ton-tai')], needle: /khong-ton-tai/ },
+  { name: 'duong dan la FILE',    argv: ['--root', plainFile],     needle: /la-file-thuong\.txt/ },
+];
+const seen = new Set();
+for (const c of CASES) {
+  const r = runScan(c.argv);
+  if (r.status !== 2) die(`[${c.name}] phai exit 2, duoc ${r.status} (stdout=${r.stdout.slice(0,80)})`);
+  if (r.stdout.trim() !== '') die(`[${c.name}] KHONG duoc in JSON ra stdout, duoc: ${r.stdout.slice(0,80)}`);
+  if (!c.needle.test(r.stderr)) die(`[${c.name}] stderr phai ghim ${c.needle}, duoc: ${r.stderr.slice(0,120)}`);
+  seen.add(r.stderr.trim());
+}
+// Moi loi mot thong diep RIENG: dung chung mot cau thi dot bien chi chung minh
+// duoc mot nhanh, cac nhanh con lai khong bao gio bi da RED rieng (bai hoc P95).
+if (seen.size < CASES.length)
+  die(`5 loi chet chi cho ${seen.size} thong diep khac nhau — nhanh dung chung cau khong do rieng duoc`);
+
+// ---- doi chung DUONG cuoi: root hop le NHUNG chua acceptance-init ----
+// Phan biet RANH ROI voi loi go lenh: day moi la "repo chua dung cong".
+const bare = fs.mkdtempSync(path.join(os.tmpdir(), 'p103b-'));
+const r2 = runScan(['--root', bare]);
+if (r2.status !== 0) die(`root that nhung chua init phai exit 0, duoc ${r2.status}`);
+if (JSON.parse(r2.stdout).config !== false) die('root that chua init phai tra config:false');
+console.log('P103 OK');
+JS
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

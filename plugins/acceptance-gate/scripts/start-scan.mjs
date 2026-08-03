@@ -16,9 +16,25 @@ const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence-core.js'));
 
+// Argv hỏng CHẾT TO (exit 2), không âm thầm rơi về cwd: một cờ được KHAI mà
+// dùng không được lại đổi nghĩa lệnh thành "quét cây khác rồi báo thành công",
+// và `--root` sai biến lỗi gõ lệnh thành chẩn đoán "repo chưa dựng cổng".
+// Cùng doctrine với pre-merge-check v1.22.1 + sync-plugin-packages (mode lạ).
+// MỖI lối một thông điệp riêng — dùng chung một câu thì đột biến chỉ chứng
+// minh được một nhánh (bài học P95).
 const args = process.argv.slice(2);
-const rootIx = args.indexOf('--root');
-const root = path.resolve(rootIx >= 0 && args[rootIx + 1] ? args[rootIx + 1] : '.');
+const bail = msg => { process.stderr.write(`start-scan: ${msg}\n`); process.exit(2); };
+let rootArg = '.';
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === '--root') {
+    if (i + 1 >= args.length) bail('--root khai báo nhưng thiếu giá trị — nêu thư mục repo cần quét');
+    if (args[i + 1] === '') bail('--root nhận chuỗi rỗng — nêu thư mục repo cần quét');
+    rootArg = args[++i];
+  } else bail(`tham số lạ ${args[i]} — chỉ nhận --root <thư mục>`);
+}
+const root = path.resolve(rootArg);
+if (!existsSync(root)) bail(`--root trỏ đường dẫn không tồn tại: ${root}`);
+if (!statSync(root).isDirectory()) bail(`--root trỏ vào thứ không phải thư mục: ${root}`);
 const out = obj => process.stdout.write(JSON.stringify(obj) + '\n');
 
 const acc = path.join(root, '_acceptance');
