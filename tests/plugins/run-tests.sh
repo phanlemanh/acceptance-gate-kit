@@ -3372,6 +3372,10 @@ const mut = fs.mkdtempSync(path.join(os.tmpdir(), 'p104m-'));
 fs.mkdirSync(path.join(mut, 'scripts'), { recursive: true });
 fs.mkdirSync(path.join(mut, 'lib'), { recursive: true });
 fs.copyFileSync(path.join(root, 'lib/evidence-core.js'), path.join(mut, 'lib/evidence-core.js'));
+// start-scan nay dung LUAT CHUNG cho field dieu huong (lib/workspace-record.js)
+// — ban sao chay thu phai co no, khong thi ket luan "chay duoc/khong" chi noi
+// ve viec thieu file chu khong ve hanh vi dang do.
+fs.copyFileSync(path.join(root, 'lib/workspace-record.js'), path.join(mut, 'lib/workspace-record.js'));
 const src = fs.readFileSync(SCAN, 'utf8');
 const gone = VOCAB[VOCAB.length - 1];                     // go phan tu cuoi khuon writer
 const mutSrc = src.replace(new RegExp(`^\\s*'${gone}':.*$`, 'm'), '');
@@ -3505,6 +3509,10 @@ if (e0.length) die(`ma tran ghim ${Object.keys(MATRIX).length} o — ${e0.length
 const mut = fs.mkdtempSync(path.join(os.tmpdir(), 'p105m-'));
 fs.mkdirSync(path.join(mut, 'scripts')); fs.mkdirSync(path.join(mut, 'lib'));
 fs.copyFileSync(path.join(root, 'lib/evidence-core.js'), path.join(mut, 'lib/evidence-core.js'));
+// start-scan nay dung LUAT CHUNG cho field dieu huong (lib/workspace-record.js)
+// — ban sao chay thu phai co no, khong thi ket luan "chay duoc/khong" chi noi
+// ve viec thieu file chu khong ve hanh vi dang do.
+fs.copyFileSync(path.join(root, 'lib/workspace-record.js'), path.join(mut, 'lib/workspace-record.js'));
 const src = fs.readFileSync(SCAN, 'utf8');
 const anchor = "if (status === 'signed-off')";
 if (!src.includes(anchor)) die('mutant: khong tim thay anchor cho re trang thai');
@@ -4080,106 +4088,89 @@ assert rc.returncode == 0, f"PRODUCT-MAP.md cua kit lech voi ho so xuong: {rc.st
 PY109
 
 # ── P123: HAI READER cua cung bo ho so phai dong y cai gi HONG ─────────────
-run "P123 ban do va bo quet dong ket luan tren moi ca ho so hong (E1,E10)" \
-  node --input-type=module - "$ROOT" <<'P110JS'
+run "P123 hai reader dong ket luan tren TICH DESCARTES contract x opportunity x uat (E1,E10)" \
+  node --input-type=module - "$ROOT" <<'P123JS'
 const root = process.argv[2];  // dang stdin: argv[1] la "-"
 const fs = await import("node:fs"); const os = await import("node:os");
 const path = await import("node:path");
 const { execFileSync } = await import("node:child_process");
 const { renderProductMap } = await import(path.join(root, "scripts/product-map.mjs"));
-const { fileFromTemplate } = await import(path.join(root, "tests/fixtures/from-template.mjs"));
-const R = p => path.join(root, "skills/acceptance/references", p);
 const die = m => { console.error(m); process.exit(1); };
 const SCAN = path.join(root, "scripts/start-scan.mjs");
 
-// Ban do va bo quet vao phien la HAI READER cua cung mot bo ho so. Chung phai
-// dong y ve cau hoi "slug nao hong". S4-r1: cung mot uat-session.md mat
-// frontmatter, bo quet goi la hong con ban do xep vao "cho phien nghiem thu" —
-// hai ket luan trai nhau ve cung mot su that. Phep do nay gan vao QUAN HE do,
-// khong gan vao tung ben.
-const contract = (slug, status) => fileFromTemplate(R("contract-template.md"),
-  "CONTRACT-FRONTMATTER-TEMPLATE",
-  { feature: "viec " + slug, slug, owner: "o@o", risk_tier: "T2", surfaces: "cli", status });
-const opp = (slug, stage, decision) => fileFromTemplate(R("opportunity-template.md"),
-  "OPP-FRONTMATTER-TEMPLATE",
-  { slug, feature: "co hoi", owner: "o@o", stage, decision, decided_by: "M",
-    decided_at: "2026-08-01T00:00:00Z", gate0_minutes: "10", base_commit: "a", disposition: "archive" });
-const uat = (slug, verdict) => fileFromTemplate(R("uat-session-template.md"),
-  "UAT-FRONTMATTER-TEMPLATE",
-  { slug, feature: "phien", owner: "o@o", stage: "held", verdict, decided_by: "M",
-    decided_at: "2026-08-02T00:00:00Z", gateUAT_minutes: "20" });
-
-// Bien mot khoa thanh RONG TRAN (khong con comment # phia sau). Comment la
-// thu tung che mat bug nuot-dong-ke o S4-r2, nen fixture phai co duong khong
-// comment. GUARD: neu replace khong doi gi thi buoc tiem chua bao gio chay.
-const bareEmpty = (txt, key) => {
-  const lines = txt.split("\n");
-  const i = lines.findIndex(l => l.startsWith(key + ":"));
-  if (i < 0) die(`buoc tiem '${key}: tran' chua bao gio chay — khuon khong con dong ${key}:`);
-  lines[i] = key + ":";
-  // comment trong khuon co the TRAN sang dong ke (uat-session-template) — go het
-  while (i + 1 < lines.length && /^\s+#/.test(lines[i + 1])) lines.splice(i + 1, 1);
-  const out = lines.join("\n");
-  if (out === txt) die(`buoc tiem '${key}: tran' chua bao gio chay — noi dung khong doi`);
-  if (/^\s*#/.test(lines[i + 1] || "")) die(`van con comment che sau ${key}:`);
-  return out;
+// Ban do va bo quet vao phien la HAI READER cua cung mot bo ho so; loi hua la
+// chung KHONG BAO GIO cho hai ket luan trai nhau ve "slug nay co hong khong".
+// Danh sach ca GO TAY bo tron lop TO HOP: S4-r12 dung lai duoc 3 to hop lech
+// ma 13 ca cu deu xanh. Nen sinh ca bang TICH DESCARTES va assert DUNG MOT
+// dieu — scanHong === mapHong — thay vi liet ke ky vong tung ca.
+const CONTRACT = {
+  "vang":        null,
+  "draft":       "---\nstatus: draft\n---\n",
+  "approved":    "---\nstatus: approved\n---\n",
+  "implemented": "---\nstatus: implemented\n---\n",
+  "verified":    "---\nstatus: verified\n---\n",
+  "signed-off":  "---\nstatus: signed-off\n---\n",
+  "status-la":   "---\nstatus: xong-roi\n---\n",
+  "status-rong": "---\nstatus:\nrisk_tier: T2\n---\n",
+  "mat-fm":      "khong co frontmatter\n",
+};
+const OPP = {
+  "vang":       null,
+  "lanh-build": "---\nstage: decided\ndecision: build\n---\n",
+  "lanh-park":  "---\nstage: decided\ndecision: park\n---\n",
+  "chua-quyet": "---\nstage: discovery\ndecision:\n---\n",
+  "stage-la":   "---\nstage: dang-nghi\ndecision: build\n---\n",
+  "stage-rong": "---\nstage:\ndecision: build\n---\n",
+  "decision-la":"---\nstage: decided\ndecision: Build-hoa\n---\n",
+  "mat-fm":     "khong co frontmatter\n",
+};
+const UAT = {
+  "vang":         null,
+  "chua-ky":      "---\nstage: held\nverdict:\ndecided_by:\n---\n",
+  "release":      "---\nstage: held\nverdict: release\n---\n",
+  "kill":         "---\nstage: held\nverdict: kill\n---\n",
+  "verdict-la":   "---\nstage: held\nverdict: xong-roi\n---\n",
+  "mat-fm":       "khong co frontmatter\n",
 };
 
-// Moi ca: [ten, cac file cua workspace, co PHAI hong khong]
-const CASES = [
-  ["lanh-manh", { "contract.md": contract("x", "signed-off"), "opportunity.md": opp("x", "decided", "build") }, false],
-  ["uat mat frontmatter", { "contract.md": contract("x", "signed-off"), "opportunity.md": opp("x", "decided", "build"),
-    "uat-session.md": "khong co frontmatter gi ca\n" }, true],
-  ["uat verdict la", { "contract.md": contract("x", "signed-off"), "uat-session.md": uat("x", "xong-roi") }, true],
-  ["uat verdict rong (chua ky)", { "contract.md": contract("x", "signed-off"), "opportunity.md": opp("x", "decided", "build"),
-    "uat-session.md": uat("x", "") }, false],
-  ["status rong TRAN (khong comment che)", { "contract.md": bareEmpty(contract("x", ""), "status") }, true],
-  ["status la", { "contract.md": contract("x", "xong-roi") }, true],
-  ["contract mat frontmatter", { "contract.md": "khong co gi\n" }, true],
-  ["decision la tren signed-off", { "contract.md": contract("x", "signed-off"), "opportunity.md": opp("x", "decided", "Build-hoa") }, true],
-  ["stage la", { "opportunity.md": opp("x", "dang-nghi", "") }, true],
-  ["opp mat frontmatter", { "opportunity.md": "khong co gi\n" }, true],
-  ["workspace rong", {}, true],
-  // Hoi quy S4-r3: ban va gop luat da xoa mat nhanh bat workspace thieu ca
-  // contract lan opportunity — slug bien mat khoi MOI o, ke ca broken.
-  ["chi co uat-session.md", { "uat-session.md": uat("x", "") }, true],
-  // Ca LANH MANH ma nghi thuc that sinh ra: phien da dung, verdict de TRONG,
-  // va KHONG co comment # che (comment la thu tung giau bug nuot-dong-ke).
-  ["uat verdict rong TRAN", { "contract.md": contract("x", "signed-off"),
-    "opportunity.md": opp("x", "decided", "build"),
-    "uat-session.md": bareEmpty(uat("x", ""), "verdict") }, false],
-];
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "p123-"));
+fs.writeFileSync(path.join(tmp, "_acceptance/config.yaml".replace("_acceptance/", (fs.mkdirSync(path.join(tmp, "_acceptance"), {recursive:true}), "_acceptance/"))), "schema_version: 1\n");
+const dir = path.join(tmp, "_acceptance", "x");
+const dat = (name, txt) => { const p = path.join(dir, name);
+  if (txt == null) { if (fs.existsSync(p)) fs.unlinkSync(p); } else fs.writeFileSync(p, txt); };
 
-let checked = 0;
-for (const [ten, files, phaiHong] of CASES) {
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "p110-"));
-  fs.mkdirSync(path.join(tmp, "_acceptance/x"), { recursive: true });
-  fs.writeFileSync(path.join(tmp, "_acceptance/config.yaml"), "schema_version: 1\n");
-  for (const [f, s] of Object.entries(files)) fs.writeFileSync(path.join(tmp, "_acceptance/x", f), s);
-
+let n = 0, lanhManh = 0, hong = 0;
+const lech = [];
+for (const [cn, ct] of Object.entries(CONTRACT))
+for (const [on, ot] of Object.entries(OPP))
+for (const [un, ut] of Object.entries(UAT)) {
+  fs.rmSync(dir, { recursive: true, force: true }); fs.mkdirSync(dir, { recursive: true });
+  dat("contract.md", ct); dat("opportunity.md", ot); dat("uat-session.md", ut);
+  // Trục evidence-report.md CỐ Ý nằm ngoài phép đo này: luật chung hiện phủ ba
+  // hồ sơ (contract/opportunity/uat) và bộ quét còn giữ luật RIÊNG cho
+  // evidence-report — chính lỗ mà hợp đồng workspace-reader-unification (AC-1)
+  // ghi nợ. Để trục đó lọt vào đây thì phép đo đỏ vì một việc ĐÃ khai là ngoài
+  // phạm vi, che mất các lệch THẬT của ba trục đang đo. Nên: mọi fixture
+  // `verified` được cấp một evidence-report LÀNH MẠNH.
+  if (cn === "verified") dat("evidence-report.md", "---\nverdict: PASS\nhuman_signoff:\n---\n");
   const scan = JSON.parse(execFileSync("node", [SCAN, "--root", tmp], { encoding: "utf8" }));
   const scanHong = scan.broken.some(b => b.slug === "x");
   const mapTxt = renderProductMap(tmp);
   const mapHong = (mapTxt.split("## Hồ sơ hỏng")[1] || "").includes("`x`");
-
+  n++; scanHong ? hong++ : lanhManh++;
   if (scanHong !== mapHong)
-    die(`[${ten}] HAI BEN DOC KHAC NHAU: bo quet hong=${scanHong}, ban do hong=${mapHong}`);
-  if (scanHong !== phaiHong)
-    die(`[${ten}] ca hai deu tra hong=${scanHong}, mong ${phaiHong}`);
-  // ho so hong phai NEU TEN file + ly do, khong duoc bien mat im lang
-  if (phaiHong) {
-    const b = scan.broken.find(b => b.slug === "x");
-    if (!b.file || !b.reason) die(`[${ten}] bo quet bao hong ma khong neu file/ly do`);
-    const dong = mapTxt.split("\n").find(l => l.includes("`x`")) || "";
-    if (!dong.includes(b.file)) die(`[${ten}] ban do khong neu ten file hong: ${dong}`);
-  }
-  checked++;
-  fs.rmSync(tmp, { recursive: true, force: true });
+    lech.push(`[contract=${cn} opp=${on} uat=${un}] quet=${scanHong} ban do=${mapHong}`);
+  // Slug KHONG duoc bien mat: phai o dung MOT o nao do o CA HAI ben
+  const oNao = scanHong || scan.groups.gates.some(g => g.slug === "x")
+    || scan.groups.inProgress.some(g => g.slug === "x") || scan.groups.done.some(g => g.slug === "x");
+  if (!oNao) lech.push(`[contract=${cn} opp=${on} uat=${un}] slug BIEN MAT khoi bo quet`);
+  if (!mapTxt.includes("`x`")) lech.push(`[contract=${cn} opp=${on} uat=${un}] slug BIEN MAT khoi ban do`);
 }
-if (checked !== CASES.length) die("khong chay du ca: " + checked);
-if (!CASES.some(c => !c[2])) die("khong co ca LANH MANH nao — phep do thieu doi chung duong");
-console.log("P123 OK (" + checked + " ca, hai reader dong y tung ca)");
-P110JS
+if (lech.length) die(`${lech.length}/${n} to hop LECH:\n  ` + lech.slice(0, 8).join("\n  "));
+// Doi chung DUONG: phep do phai co ca hai mau, khong duoc toan hong hay toan lanh
+if (!hong || !lanhManh) die(`phep do mot mau: hong=${hong} lanh=${lanhManh} — khong phan biet duoc gi`);
+console.log(`P123 OK (${n} to hop, ${hong} hong / ${lanhManh} lanh, hai reader dong y tat ca)`);
+P123JS
 
 # ── P124: khoa RONG khong duoc nuot dong ke (lop loi cua reader chung) ─────
 # `\s` khop ca xuong dong, nen `^key\s*[:=]\s*(.*)$` doc mot khoa de TRONG ra

@@ -105,8 +105,19 @@ function classify(dir, slug) {
   // quyết định ô của slug. Doctrine này của start-scan-hardening (học qua 4
   // round), và bộ quét vào phiên áp cùng luật — hai bên đọc phải tiêu thụ CÙNG
   // tập hồ sơ thì mới có nghĩa khi so kết luận (case P123).
+  // ĐIỀU KIỆN TIÊU THỤ — phải khớp từng lối với bộ quét vào phiên, nếu không
+  // hai bên đọc cùng hồ sơ lại cho hai kết luận trái nhau (S4-r12 dựng lại
+  // được 3 tổ hợp). Doctrine gốc của start-scan-hardening: hồ sơ nào trạng
+  // thái hiện tại KHÔNG dùng thì lỗi của nó không quyết định ô của slug.
+  //   contract.md    — luôn tiêu thụ (nó quyết định mọi lối).
+  //   opportunity.md — chỉ khi KHÔNG có contract, HOẶC signed-off mà phiên
+  //                    nghiệm thu chưa chốt verdict (lúc đó mới dò đường A).
+  //   uat-session.md — chỉ khi signed-off.
   const daKy = (fm(cTxt, 'status') || '').toLowerCase() === 'signed-off';
-  const texts = { 'contract.md': cTxt, 'opportunity.md': oTxt,
+  const uatVerdict = daKy && uTxt != null ? (fm(uTxt, 'verdict') || '') : '';
+  const dungOpp = cTxt == null || (daKy && !uatVerdict);
+  const texts = { 'contract.md': cTxt,
+                  'opportunity.md': dungOpp ? oTxt : null,
                   'uat-session.md': daKy ? uTxt : null };
 
   // Lượt 1 — luật chung: hồ sơ đọc được không? (file có mà frontmatter hỏng,

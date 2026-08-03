@@ -16,6 +16,9 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence-core.js'));
+// Luật "field điều hướng này có hợp lệ không" sống MỘT chỗ và bản đồ sản phẩm
+// dùng chung — hai bên đọc cùng hồ sơ không được cho hai kết luận trái nhau.
+const { fieldProblem } = require(path.join(__dirname, '..', 'lib', 'workspace-record.js'));
 
 // Argv hỏng CHẾT TO (exit 2), không âm thầm rơi về cwd: một cờ được KHAI mà
 // dùng không được lại đổi nghĩa lệnh thành "quét cây khác rồi báo thành công",
@@ -158,10 +161,15 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       // opportunity.md ở ĐÂY là hồ sơ được tiêu thụ, nên đọc tại chỗ.
       const oR = read(oPath);
       if (oR.err) { broken.push({ slug, file: 'opportunity.md', reason: ioReason(oR.err) }); continue; }
+      // opportunity.md ĐƯỢC tiêu thụ ở đây (dò đường A) nên MỌI field điều
+      // hướng của nó phải qua LUẬT CHUNG — kiểm tay từng field là cách chắc
+      // chắn sót một field, và sót field nào thì bản đồ với bộ quét lệch nhau
+      // đúng ở đó (S4-r12 dựng lại được: stage lạ, stage rỗng, mất frontmatter).
+      let oProblem = null;
+      if (oR.t != null)
+        for (const f of ['stage', 'decision']) { oProblem = oProblem || fieldProblem('opportunity.md', oR.t, f); }
+      if (oProblem) { broken.push({ slug, ...oProblem }); continue; }
       const oDec = oR.t != null ? (frontmatterField(oR.t, 'decision') || '').toLowerCase() : '';
-      if (oDec && !['build', 'iterate', 'park', 'kill'].includes(oDec)) {
-        broken.push({ slug, file: 'opportunity.md', reason: `decision không nhận diện được: ${oDec}` }); continue;
-      }
       if (oDec === 'build' || oDec === 'iterate')
         gates.push({ slug, gate: 'gia-tri', since: since(cPath, fmOrNull(uTxt, 'decided_at')), tier });
       else done.push({ slug, state: 'signed-off' });
