@@ -146,3 +146,14 @@ evals:
       - commands/
       - codex/
       - lib/
+
+  - id: E15
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case P110 pass: 11 ca hồ sơ (lành mạnh · uat mất frontmatter · verdict lạ · verdict rỗng · status rỗng · status lạ · contract mất frontmatter · decision lạ trên signed-off · stage lạ · opportunity mất frontmatter · workspace rỗng) đưa cho CẢ bản đồ lẫn bộ quét — hai reader phải cho CÙNG kết luận hỏng/không-hỏng từng ca, và hồ sơ hỏng phải nêu tên file ở cả hai; có ca lành mạnh làm đối chứng dương"
+    paths:
+      - lib/workspace-record.js
+      - scripts/product-map.mjs
+      - scripts/start-scan.mjs
+      - tests/plugins/run-tests.sh
