@@ -1,58 +1,51 @@
 ## Trong hợp đồng
 
-- **Workspace có mỗi uat-session.md bị NUỐT im lặng ở start-scan và xếp SAI ô ở product-map (hai reader trái nhau)**
-  file: `lib/workspace-record.js:61`
-  severity: high
-  source: bugs
-  AC: AC-1
-  detail: `recordProblem` chỉ trả lỗi "không có contract.md lẫn opportunity.md" khi `!present.length`, mà `present` lọc trên CẢ BA file trong NAV_FIELDS (kể cả uat-session.md). Nên một thư mục `_acceptance/<slug>/` chỉ có `uat-session.md` (contract.md/opportunity.md vắng, hoặc đọc không được vì `read()` nuốt mọi lỗi I/O thành null) KHÔNG còn bị coi là hồ sơ hỏng.
-
-  Hậu quả — đã dựng lại và chạy thật:
-
-  1. `scripts/start-scan.mjs`: qua được recordProblem, `nav.verdict` rỗng → không vào nhánh verdict; rồi `if (cTxt != null) … else if (oTxt != null) …` (dòng 82/109) KHÔNG có nhánh else, nên slug rơi ra ngoài hoàn toàn — không có trong gates, inProgress, done, LẪN broken. Output thật: `{"groups":{"gates":[],"inProgress":[],"done":[]},"map":{...},"broken":[]}` — slug biến mất khỏi thẻ vào phiên, không một dòng cờ nào.
-
-  2. `scripts/product-map.mjs` cùng hồ sơ đó: status='' → bỏ qua; `stage` từ oTxt=null → '' ≠ 'decided' → xếp vào **"## Đang cân nhắc cơ hội"** dù không hề có `opportunity.md`.
-
-  Đây đúng là lớp false-green mà `lib/workspace-record.js` được dựng ra để diệt (comment đầu file + case P110): hai bên đọc cùng một sự thật cho hai kết luận trái nhau. P110 không bắt được vì danh sách CASES không có hình dạng "chỉ uat-session.md".
-
-  Còn là REGRESSION so với trước diff: chạy `start-scan.mjs` ở 9732271 trên cùng fixture cho `broken:[{slug:"orphan-uat",file:"(workspace)",reason:"không có contract.md lẫn opportunity.md"}]`. Nhánh `else broken.push(...'(workspace)')` cũ đã bị xoá và luật chung không thay thế được nó.
-
-  Sửa: guard phải là "không có contract.md lẫn opportunity.md" thật (kiểm hai file đó), không phải `!present.length` trên cả ba; và/hoặc start-scan phải có nhánh else đẩy vào broken[].
-
-  rationale: Một thư mục chỉ có uat-session.md (không contract.md, không opportunity.md) đúng là trạng thái 'hồ sơ hỏng' theo định nghĩa của chính module (REQUIRED_BY_FILE), nhưng product-map.mjs lại xếp nó vào mục thường 'Đang cân nhắc cơ hội' thay vì mục hồ sơ hỏng riêng — vi phạm trực tiếp yêu cầu AC-1 'hồ sơ hỏng vẫn hiện trong mục riêng — không sót, không trùng, không crash'.
+Không có finding nào map được vào AC ở round này — finding high/AC-1 (workspace-mồ-côi, chỉ có uat-session.md biến mất khỏi bộ quét) tìm thấy ở round 3 đã được sửa (decisions.jsonl d-20260803T094746Z-19579) và đo lại bằng case P110 với 2 hình dạng fixture mới; không phát hiện regression tương đương nào khác round này.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **NAV_ENUMS keyed by field name only — `stage` means two different enums in two files**
-  Người dùng thấy gì: Nếu sau này có người mở rộng việc kiểm tra sang trường 'giai đoạn' của phiên nghiệm thu, hệ thống có thể hiểu nhầm giá trị hợp lệ thành lỗi (hoặc ngược lại) vì đang dùng nhầm bảng đối chiếu của một hồ sơ khác. Hiện tại chưa ai bị ảnh hưởng, nhưng đây là rủi ro để lại cho lần sửa kế tiếp.
-  file: `lib/workspace-record.js:13`
+- **PRODUCT-MAP.md thiếu miễn trừ t1_skip_globs — chính commit ký Cổng 2 tự làm evidence stale và chặn merge**
+  Người dùng thấy gì: Khi ký duyệt bằng chứng (Cổng 2) cho một tính năng, bước tự động cập nhật bản đồ sản phẩm có thể khiến hệ thống báo bằng chứng đã cũ và chặn việc gộp mã — người ký có thể bị kẹt trong vòng lặp không thoát được, phải ký lại nhiều lần.
+  file: `_acceptance/config.yaml`
+  severity: high
+  Đề xuất: new-contract
+
+- **Hai reader vẫn cho hai kết luận trái nhau về evidence-report.md hỏng — đúng lớp lỗi lib/workspace-record.js sinh ra để diệt**
+  Người dùng thấy gì: Thẻ /start và bản đồ sản phẩm có thể cho hai câu trả lời khác nhau về việc hồ sơ bằng chứng của một tính năng có bị hỏng hay không — một bên báo lỗi, bên kia vẫn coi là bình thường, khiến người xem thẻ dễ hiểu sai tình trạng thật.
+  file: `scripts/start-scan.mjs`
+  severity: high
+  Đề xuất: known-limits
+
+- **skills/uat-session/SKILL.md trỏ vào references/ không tồn tại trong gói**
+  Người dùng thấy gì: Khi làm theo hướng dẫn của kỹ năng phiên nghiệm thu, bước đầu tiên trỏ tới một khuôn mẫu không có ở đúng chỗ đó — người thực hiện có thể tự bịa nội dung thay vì dùng đúng mẫu chuẩn, làm hồ sơ phiên nghiệm thu sai định dạng.
+  file: `skills/uat-session/SKILL.md`
   severity: medium
   Đề xuất: known-limits
 
-- **New human gate (Cổng Giá trị / uat-session) is documented nowhere for the human; GUIDE still says "đúng 2 điểm dừng"**
-  Người dùng thấy gì: Người dùng sẽ thấy một dòng cổng mới ('Cổng Giá trị') xuất hiện trên thẻ vào phiên, nhưng tài liệu hướng dẫn tổng quan của bộ công cụ vẫn nói chỉ có 2 điểm dừng và không giải thích cổng mới này là gì — dễ gây bối rối khi gặp lần đầu.
-  file: `GUIDE.md:109`
+- **GUIDE.md còn mô tả hành vi skipped[] đã bị gỡ**
+  Người dùng thấy gì: Tài liệu hướng dẫn chung vẫn mô tả một hành vi cũ đã bị gỡ bỏ, và chưa có phần nào giải thích về bản đồ sản phẩm hay bước duyệt giá trị mới — người đọc tài liệu để hiểu tính năng sẽ nhận thông tin lỗi thời hoặc thiếu.
+  file: `GUIDE.md`
   severity: medium
   Đề xuất: known-limits
 
-- **CONTEXT.md glossary not extended for the new load-bearing terms**
-  Người dùng thấy gì: Các tên gọi mới ('Cổng Giá trị', 'phiên nghiệm thu', 'bản đồ sản phẩm'...) chưa được ghi vào từ điển thuật ngữ dùng chung của kit, nên người viết tài liệu hoặc thông báo lỗi sau này có thể gọi cùng một khái niệm bằng nhiều tên khác nhau, gây khó hiểu cho người đọc.
-  file: `CONTEXT.md:68`
-  severity: low
+- **Hai reader vẫn trái nhau về "hồ sơ hỏng": check evidence-report.md nằm ngoài luật chung**
+  Người dùng thấy gì: Thẻ /start và bản đồ sản phẩm có thể cho hai câu trả lời khác nhau về việc hồ sơ bằng chứng của một tính năng có bị hỏng hay không, khiến người xem thẻ dễ hiểu sai tình trạng thật của tính năng đó.
+  file: `scripts/start-scan.mjs`
+  severity: high
   Đề xuất: known-limits
 
-- **fileFromTemplate im lặng để lại placeholder chưa thay — đúng lớp trôi khuôn mà helper sinh ra để chặn**
-  Người dùng thấy gì: Khi dựng dữ liệu mẫu để kiểm thử, nếu người viết test quên điền một trường thì trường đó âm thầm bị để trống thay vì báo lỗi ngay — điều này có thể khiến một số bài kiểm thử trông như đã chạy đúng trong khi thực ra đang kiểm nhầm một giá trị rác, làm lọt lỗi thật ra sản phẩm.
-  file: `tests/fixtures/from-template.mjs:17`
+- **Cơ hội `stage: archived` nằm mãi trong nhóm chờ chữ ký người**
+  Người dùng thấy gì: Một cơ hội sản phẩm đã được xếp kho (không theo đuổi nữa) vẫn hiện trên thẻ /start ở nhóm "chờ chữ ký của anh" như thể còn chưa quyết định — không có cách nào gỡ nó khỏi danh sách chờ ký ngoài việc sửa ngược hồ sơ để nói sai tình trạng thật.
+  file: `lib/workspace-record.js`
   severity: medium
   Đề xuất: known-limits
 
-- **P110 case "status rong": bước tiêm là no-op nên hình dạng khoá-rỗng-trần không bao giờ được chạy**
-  Người dùng thấy gì: Một bài kiểm thử được viết ra để bắt lỗi 'trường trạng thái bị để trống' hoá ra không thực sự tạo ra tình huống đó khi chạy, nên nếu một bản vá liên quan bị gỡ bỏ trong tương lai, lỗi tương ứng có thể lọt qua mà không ai phát hiện.
-  file: `tests/plugins/run-tests.sh:3675`
+- **Phiên nghiệm thu đã dựng nhưng chưa ký biến mất khỏi nhóm chờ ký khi slug không thuộc đường A**
+  Người dùng thấy gì: Nếu ai đó đã lên lịch một phiên nghiệm thu cho một tính năng ngoài luồng chính thông thường, phiên đó có thể biến mất khỏi danh sách chờ chữ ký trên thẻ /start mà không cảnh báo — trông như tính năng đã xong trong khi thực ra vẫn cần người quyết định.
+  file: `scripts/start-scan.mjs`
   severity: medium
   Đề xuất: known-limits
 
-⚠ Cụm ngoài vùng phủ: 3/6 lỗi rơi vào file không bộ đo nào phủ (GUIDE.md, CONTEXT.md, tests/fixtures/from-template.mjs) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
