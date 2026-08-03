@@ -486,14 +486,46 @@ Thẻ trình đúng ba nhóm, theo thứ tự ưu tiên:
 Người chọn một dòng là lệnh bàn giao sang nghi thức đích (thẻ cổng, vòng lặp,
 hay buổi khai thác) — lệnh **không tự làm nội dung**, không đọc/ghi file sản
 phẩm; phần phân loại nằm trong bộ quét `scripts/start-scan.mjs` (chỉ-đọc).
-Nguồn dữ liệu chưa dựng (bản đồ sản phẩm, phiên nghiệm thu) thì thẻ nói tên
-nguồn vắng thay vì im lặng. Chọn tiếp một vòng dở khi cây làm việc đang bẩn
+Thẻ nói luôn bản đồ sản phẩm đang mới hay đã lệch, để người biết mình đang
+nhìn bức tranh nào. Chọn tiếp một vòng dở khi cây làm việc đang bẩn
 hay dùng chung → lệnh nhắc mở worktree/phiên riêng trước.
 
 Đây là thao tác cổng người thứ sáu: khoá model-invocation ở CẢ HAI harness
 (cùng lý do ADR 0002) — nghi thức vào phiên là của người; model tự gọi giữa
 chừng chỉ tạo nhiễu định hướng lại, đúng loại biến thể lệnh này sinh ra để
 diệt.
+
+## Bản đồ sản phẩm và phiên nghiệm thu (1.31.0)
+
+Trước bản này, câu "đội đang làm gì, và những thứ đã giao có ăn thua không?"
+chỉ trả lời được bằng cách mở từng thư mục hồ sơ ra đọc. Hai thứ mới lấp chỗ đó.
+
+**`PRODUCT-MAP.md` ở gốc repo** — một trang, mở đầu bằng sơ đồ các chặng kèm số
+việc thật ở mỗi chặng, rồi danh sách từng việc đang nằm đâu. Nó là **view máy
+sinh**, không phải kho: mỗi lần một cổng người đóng lại, `/approve`, `/signoff`
+và phiên nghiệm thu vẽ lại nó và đưa vào chính commit chữ ký. Không ai sửa tay
+bản đồ; muốn bản đồ khác thì sửa hồ sơ.
+
+Vì nó máy sinh, `acceptance-init` xếp nó vào `risk_tiers.t1_skip_globs` — bắt
+một view tự sinh phải đi qua cổng nghiệm thu là bắt người ký một thứ máy vừa
+viết. Đổi lại, CI chạy `product-map.mjs --root . --check`: bản đồ lệch với hồ
+sơ, hay biến mất, thì đỏ. Đó là cổng canh duy nhất của miễn trừ này — lý do và
+đánh đổi ghi ở [ADR 0007](docs/adr/0007-product-map-t1-exemption.md).
+
+Repo dựng trước 1.31.0 không tự bật: các thân cổng đọc `t1_skip_globs`, không
+thấy `PRODUCT-MAP.md` thì **bỏ qua** bước vẽ lại và in hai dòng chỉ cách bật.
+Không có bước này thì chính commit chữ ký làm bằng chứng cũ đi và merge kẹt.
+
+**Phiên nghiệm thu (Cổng Giá trị)** — cổng người sau khi ship, cho những việc
+đi từ một cơ hội đã quyết `build`/`iterate`. Cổng Bằng chứng hỏi "làm đúng thứ
+đã hứa chưa?"; Cổng Giá trị hỏi "thứ đó có ăn thua không?". Nghi thức chép
+nguyên văn ngưỡng đã chốt từ lúc mở vòng và **cấm sửa ngưỡng sau khi thấy số**,
+thu điểm kín trước mọi thảo luận chung, rồi người — không phải agent — điền
+`verdict`: `release`, `iterate`, hay `kill`. Kết quả `kill` là **thành công của
+quy trình**: câu trả lời mua bằng giá một vòng dựng.
+
+Kết quả phiên ghi vào `_acceptance/<slug>/uat-session.md`; `/start` và bản đồ
+đọc nó để biết việc đã nghiệm thu hay còn chờ.
 
 ## 5. Cài đặt
 
@@ -562,7 +594,7 @@ Tham chiếu đầy đủ `config.yaml` — mục 8 có phần tinh chỉnh:
 | `gap_probe` | Luật phản biện context sạch ở pre-merge check: `required` (chặn) / `advisory` (NOTE) / `off` (im) | `advisory` — bỏ qua vẫn thấy được, nhưng không chặn merge của repo chưa quen |
 | `executors.test.*` `executors.script.*` | Lệnh thật của repo; evals chỉ tham chiếu `config:executors...` | — |
 | `executors.design.*` | Design gate (do `/design-init` ghi) | design eval bị skip |
-| `risk_tiers.t1_skip_globs` | Glob an toàn bỏ qua gate (docs, *.md) | không gì được miễn |
+| `risk_tiers.t1_skip_globs` | Glob an toàn bỏ qua gate (docs, *.md). Từ 1.31.0 `/acceptance-init` phát sẵn `PRODUCT-MAP.md` — bản đồ là view máy sinh lại ở mỗi lần đóng cổng, không phải thứ để nghiệm thu | `PRODUCT-MAP.md` |
 | `risk_tiers.t3_paths` | Path critical → T3 | không gì bị nâng T3 |
 | `signoff.required_for` | Tier nào bắt buộc ký trước merge | `[T2, T3]` |
 | `signoff.approvers` | Danh sách người được ký — **thông tin, KHÔNG được cổng cưỡng chế** (1.24.0: bốn bản vá cố đọc khoá này từ YAML bằng công cụ text của shell đều hỏng theo một hình dạng hợp lệ mới, nên cả lớp bị gỡ). Chữ ký vẫn bị kiểm bằng chốt rỗng + lưới giữ-chỗ | — |

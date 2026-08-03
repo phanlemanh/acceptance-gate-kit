@@ -23,7 +23,7 @@ ritual itself.
    groups.gates[].slug groups.gates[].gate groups.gates[].since groups.gates[].tier
    groups.inProgress[].slug groups.inProgress[].status groups.inProgress[].nextStep groups.inProgress[].tier
    groups.done[].slug groups.done[].state
-   map.present map.fresh
+   map.present map.fresh map.enabled
    broken[].slug broken[].file broken[].reason
    START-SCAN-KEYS>>> -->
 
@@ -54,7 +54,11 @@ ritual itself.
      T1, then END this skill — the human orders the fix in a later turn,
      outside this ritual (this skill never edits anything, chores included).
    - Below the card: one product-map line — `map.present` is `false` → "chưa có
-     bản đồ sản phẩm (sẽ tự vẽ ở lần ký cổng kế)"; `map.fresh` is `false` →
+     bản đồ sản phẩm (sẽ tự vẽ ở lần ký cổng kế)" — but ONLY when `map.enabled`
+     is `true`; `false` → "repo chưa bật bản đồ sản phẩm — bật bằng hai dòng
+     trong `_acceptance/config.yaml`". Never promise the map will appear on its
+     own in a repo that has not opted in: every human-gate body is told to SKIP
+     the redraw in exactly that repo. `map.fresh` is `false` →
      "bản đồ đang lệch với hồ sơ — làm mới bằng một lệnh"; `null` → "chưa kiểm
      được bản đồ" (never report it as matching). Then one warning line
      per `broken[]` entry: which work, which file (`file`), why (`reason`) — a

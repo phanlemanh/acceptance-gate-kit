@@ -3886,7 +3886,37 @@ try {
 } catch (e) { daXoa = { code: e.status, err: String(e.stderr || "") }; }
 if (daXoa.code === 0) die("XOA ban do da theo doi ma --check VAN xanh — cong duy nhat canh no im lang");
 if (!/đã bị xoá/.test(daXoa.err)) die("xoa ban do khong ghim dung thong diep: " + daXoa.err);
+
+// 9. XOA DA COMMIT — hinh dang THAT ma CI gap. Chan 8 chi xoa o cay lam viec,
+// nhung mot PR mang toi CI la mot cay da checkout SAU khi xoa duoc commit: file
+// khong con trong index, nen hoi ls-files mot minh la fail-OPEN (in "repo chua
+// dung ban do" roi exit 0). Do la lo nang nhat: PRODUCT-MAP.md nam trong
+// t1_skip_globs nen rang T1-escape cua pre-merge KHONG doi PR mang _acceptance/
+// cho no, va --check trong CI la cong DOC LAP DUY NHAT ma ADR 0007 lay lam can
+// cu cho mien tru do (S4-r14).
+g("checkout", "--", "PRODUCT-MAP.md");
+g("rm", "-q", "PRODUCT-MAP.md"); g("commit", "-qm", "xoa ban do");
+let daXoaCommit;
+try {
+  execFileSync("node", [SCRIPT, "--root", gitTmp, "--check"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  daXoaCommit = { code: 0, err: "" };
+} catch (e) { daXoaCommit = { code: e.status, err: String(e.stderr || "") }; }
+if (daXoaCommit.code === 0)
+  die("XOA DA COMMIT ma --check xanh — mot PR chi xoa ban do vua bo qua cong nghiem thu vua xanh CI");
+if (!/đã bị xoá/.test(daXoaCommit.err))
+  die("xoa da commit khong ghim dung thong diep: " + daXoaCommit.err);
 fs.rmSync(gitTmp, { recursive: true, force: true });
+
+// 10. Doi chung DUONG cho chan 9: repo CHUA TUNG dung ban do van phai di duong
+// doc-cu (exit 0). Thieu chan nay thi "luon exit 1" cung qua chan 9 — va no se
+// chan moi repo tieu thu chua bat ban do, dung cai ADR 0007 viet ra de tranh.
+const chuaTung = fs.mkdtempSync(path.join(os.tmpdir(), "p106-moi-"));
+fs.mkdirSync(path.join(chuaTung, "_acceptance"), { recursive: true });
+fs.writeFileSync(path.join(chuaTung, "_acceptance/config.yaml"), "schema_version: 1\n");
+execFileSync("git", ["-C", chuaTung, "init", "-q"], { stdio: "ignore" });
+try { execFileSync("node", [SCRIPT, "--root", chuaTung, "--check"], { stdio: "ignore" }); }
+catch { die("repo CHUA TUNG dung ban do ma --check do — duong doc-cu bi chan (ADR 0007)"); }
+fs.rmSync(chuaTung, { recursive: true, force: true });
 console.log("P119 OK");
 P106JS
 
@@ -4181,10 +4211,12 @@ let n = 0, lanhManh = 0, hong = 0;
 const lech = [];
 
 // Dung workspace roi hoi CA HAI reader ve dung mot cau: slug nay co hong khong.
-function doiChieu(nhan, { c, o, u, evidence = null }) {
-  fs.rmSync(dir, { recursive: true, force: true }); fs.mkdirSync(dir, { recursive: true });
-  dat("contract.md", c); dat("opportunity.md", o); dat("uat-session.md", u);
-  if (evidence) dat("evidence-report.md", evidence);
+function doiChieu(nhan, { c, o, u, evidence = null, giuNguyenCay = false }) {
+  if (!giuNguyenCay) {
+    fs.rmSync(dir, { recursive: true, force: true }); fs.mkdirSync(dir, { recursive: true });
+    dat("contract.md", c); dat("opportunity.md", o); dat("uat-session.md", u);
+    if (evidence) dat("evidence-report.md", evidence);
+  }
   const scan = JSON.parse(execFileSync("node", [SCAN, "--root", tmp], { encoding: "utf8" }));
   const scanHong = scan.broken.some(b => b.slug === "x");
   const mapTxt = renderProductMap(tmp);
@@ -4268,10 +4300,67 @@ for (const { nhan, vals } of tichField(file)) {
   nChang2++;
 }
 
+// ── Chang 3: DOC DUOC — ho so co mat nhung khong mo duoc ──────────────────
+// Hai chang tren chi bien thien NOI DUNG file; chung KHONG BAO GIO dung mot file
+// khong doc duoc. Do la truc thu ba: ban do tung nuot MOI loi I/O thanh "file
+// vang", nen ho so mat quyen doc bi xep theo artifact BEN CANH (S4-r14).
+//
+// Ngu canh phai co CHO CHO LOI ROI VAO. Lan dau viet chang nay toi dat file
+// hong mot minh — luc do "vang" van ra ho so hong qua luat neo (chi khac ly
+// do), hai reader van dong y, va mutation go chot loi VAN XANH. Nen moi ca
+// duoi day deu kem mot artifact LANH de duong truot lo ra, dung hinh dang ma
+// vong 14 dung lai duoc. Va assert GHIM THONG DIEP: phai la "khong doc duoc",
+// khong phai chi "hong o dau do".
+const CA_IO = [
+  { file: "contract.md",    truot: "Sap mo vong",
+    cay: { c: "---\nstatus: approved\n---\n", o: "---\nstage: decided\ndecision: build\n---\n", u: null } },
+  { file: "uat-session.md", truot: "Cho phien nghiem thu",
+    cay: { c: "---\nstatus: signed-off\n---\n", o: "---\nstage: decided\ndecision: build\n---\n",
+           u: "---\nstage: held\nverdict: release\n---\n" } },
+  { file: "opportunity.md", truot: "Da giao",
+    cay: { c: "---\nstatus: signed-off\n---\n", o: "---\nstage: decided\ndecision: build\n---\n",
+           u: "---\nstage: held\nverdict:\n---\n" } },
+];
+let nChang3 = 0;
+for (const { file, truot, cay } of CA_IO) {
+  fs.rmSync(dir, { recursive: true, force: true }); fs.mkdirSync(dir, { recursive: true });
+  dat("contract.md", cay.c); dat("opportunity.md", cay.o); dat("uat-session.md", cay.u);
+  const p = path.join(dir, file);
+  // Doi chung DUONG: cay nay khi doc duoc phai LANH — khong thi ca nay khong
+  // phan biet duoc "bat dung loi I/O" voi "von da hong san".
+  const truocScan = JSON.parse(execFileSync("node", [SCAN, "--root", tmp], { encoding: "utf8" }));
+  if (truocScan.broken.some(b => b.slug === "x"))
+    die(`ca I/O ${file}: cay da hong san khi CHUA khoa quyen doc — khong phan biet duoc gi`);
+  fs.chmodSync(p, 0o000);
+  // Doi chung: chay bang root thi chmod khong chan doc, ca chang do vao khoang
+  // khong ma van xanh. Kiem THAT su khong doc duoc, khong thi DUNG.
+  let khoaDuoc = false;
+  try { fs.readFileSync(p, "utf8"); } catch { khoaDuoc = true; }
+  if (!khoaDuoc) { fs.chmodSync(p, 0o644);
+    die(`chmod 000 tren ${file} van doc duoc (chay bang root?) — chang DOC DUOC do vao khoang khong`); }
+
+  const scan = JSON.parse(execFileSync("node", [SCAN, "--root", tmp], { encoding: "utf8" }));
+  const mapTxt = renderProductMap(tmp);
+  fs.chmodSync(p, 0o644);
+  n++; hong++;
+
+  const bScan = scan.broken.find(b => b.slug === "x");
+  const khoiHong = (mapTxt.split("## Hồ sơ hỏng")[1] || "").split("\n## ")[0];
+  const mapHong = khoiHong.includes("`x`");
+  if (!bScan) lech.push(`[IO ${file}] bo quet KHONG goi la hong`);
+  if (!mapHong) lech.push(`[IO ${file}] ban do KHONG goi la hong — no truot xuong "${truot}" theo artifact ben canh`);
+  // Ghim THONG DIEP: "hong vi ly do khac" khong dong nghia bat duoc loi I/O.
+  if (bScan && !/không đọc được/.test(bScan.reason))
+    lech.push(`[IO ${file}] bo quet goi la hong nhung ly do khong phai loi doc: ${bScan.reason}`);
+  if (mapHong && !/không đọc được/.test(khoiHong))
+    lech.push(`[IO ${file}] ban do goi la hong nhung ly do khong phai loi doc: ${khoiHong.trim().slice(0, 90)}`);
+  nChang3++;
+}
+
 if (lech.length) die(`${lech.length}/${n} to hop LECH:\n  ` + lech.slice(0, 8).join("\n  "));
 // Doi chung DUONG: phep do phai co ca hai mau, khong duoc toan hong hay toan lanh
 if (!hong || !lanhManh) die(`phep do mot mau: hong=${hong} lanh=${lanhManh} — khong phan biet duoc gi`);
-console.log(`P123 OK (${n} to hop = ${nChang1} tieu-thu + ${nChang2} tu-vung, ${hong} hong / ${lanhManh} lanh, hai reader dong y tat ca)`);
+console.log(`P123 OK (${n} to hop = ${nChang1} tieu-thu + ${nChang2} tu-vung + ${nChang3} doc-duoc, ${hong} hong / ${lanhManh} lanh, hai reader dong y tat ca)`);
 P123JS
 
 # ── P124: khoa RONG khong duoc nuot dong ke (lop loi cua reader chung) ─────
@@ -4367,6 +4456,21 @@ if (iMuc >= 0 && iMuc < iFence) die(`muc "${dongs[iMuc]}" dung TRUOC hinh — ch
 const hinh = dongs.slice(iFence, iClose + 1).join("\n");
 for (const cong of ["Cổng Đáng", "Cổng Phạm vi", "Cổng Bằng chứng", "Cổng Giá trị"])
   if (!hinh.includes(cong)) die(`hinh thieu ${cong} — nguoi doc khong thay day du diem dung`);
+
+// 3b. QUAN HE cac canh, khong chi su CO MAT cua cac nut. Dem dung + du nut van
+// de lot mot hinh NOI DOI: ban dau hinh ve "Da giao --> Cho phien nghiem thu"
+// thanh mot mach, trong khi classify() coi hai o do la HAI KET CUC loai tru
+// nhau cua cung Cong Bang chung (duong B/C/E ship thang, khong bao gio chuyen
+// sang cho nghiem thu). Nguoi doc thay mot viec da giao dang di tiep toi Cong
+// Gia tri — sai (S4-r14). Hinh la mat doc chinh (N5) nen no phai chiu do.
+// Bo NHAN nut truoc khi soi canh: `CN["Cho phien...<br/>2 viec"] --> GG`
+// van la canh CN->GG, regex bat tren van ban tho se truot vi cai nhan.
+const xuong = hinh.replace(/\[[^\]]*\]/g, "").replace(/\{[^}]*\}/g, "");
+const canh = (a, b) => new RegExp(`\\b${a}\\s*-->\\s*${b}\\b`).test(xuong);
+if (!canh("GB", "DG")) die("hinh: Cong Bang chung khong dan toi 'Da giao'");
+if (!canh("GB", "CN")) die("hinh: 'Cho phien nghiem thu' phai la KET CUC cua Cong Bang chung, khong phai chang sau 'Da giao'");
+if (canh("DG", "CN")) die("hinh ve 'Da giao --> Cho phien nghiem thu' thanh mach noi tiep — code coi hai o do la hai ket cuc loai tru nhau");
+if (!canh("CN", "GG")) die("hinh: 'Cho phien nghiem thu' khong dan toi Cong Gia tri");
 if (!/Đang làm<br\/>1 việc/.test(hinh)) die("hinh khong mang SO THAT cua xuong (1 viec dang lam): " + hinh);
 if (!/Đã giao<br\/>1 việc/.test(hinh)) die("hinh khong mang SO THAT cua xuong (1 viec da giao)");
 if (!/chưa có/.test(hinh)) die("chang rong phai noi 'chua co', khong duoc de trong");
@@ -4621,6 +4725,57 @@ for rel in KHUON:
     assert re.search(r"(fence|hàng rào)", flat), \
         f"{rel}: loi dan khong neu ca HANG RAO ```yaml — chep thieu moi dong ```yaml van du lam hong ho so"
 P114PY
+
+# ── P128: tai lieu nguoi-doc phai theo kip be mat 1.31.0, va khong duoc hua
+#         mot khoa dau ra ma bo quet khong con phat ──────────────────────────
+run "P128 3 tai lieu co be mat 1.31.0 + khong hua khoa dau ra da go (E11,E18)" \
+  python3 - "$ROOT" <<'P128PY'
+import json, re, subprocess, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+DOCS = ["README.md", "GUIDE.md", "QUICKSTART.md"]
+
+# (a) Be mat 1.31.0 phat cho repo tieu thu la NGUOI dung thay: mot file moi o
+#     goc repo ma cong tu commit vao, va mot nghi thuc nguoi moi. Tien le ngay
+#     tren cung file: 1.30.0 (/start) co muc rieng va P101 ghim no. Thieu muc
+#     thi nguoi gap ghi chu "Ban do san pham chua bat cho repo nay" do /approve
+#     in ra ma khong co cho nao tra tiep (S4-r14).
+for rel in DOCS:
+    t = (root / rel).read_text(encoding="utf-8")
+    assert "PRODUCT-MAP.md" in t, f"{rel}: khong nhac PRODUCT-MAP.md — mot file moi o goc repo ma tai lieu khong ta"
+    assert re.search(r"(uat-session|Cổng Giá trị|UAT session)", t), \
+        f"{rel}: khong nhac phien nghiem thu / Cong Gia tri — mot nghi thuc NGUOI moi ma tai lieu khong ta"
+    # Mien tru t1 la thu de nguoi giat minh nhat ("sao ban do khong qua cong?"),
+    # nen phai co duong tra: it nhat mot doc noi ro no + cai canh no.
+docs_all = "\n".join((root / r).read_text(encoding="utf-8") for r in DOCS)
+assert "t1_skip_globs" in docs_all and "0007" in docs_all, \
+    "khong doc nao noi vi sao ban do duoc mien cong + tro toi ADR 0007"
+
+# (b) QUAN HE, khong phai danh sach cam: tai lieu chi duoc hua nhung khoa dau ra
+#     ma bo quet THAT SU phat. `skipped[]` bi go o F-B; neu ai do them lai thi
+#     assert nay TU NOI LONG, khong phai sua test. (Blacklist tren khong gian mo
+#     thi va-roi-lai-thung; ghim quan he thi khong.)
+out = json.loads(subprocess.run(["node", str(root / "scripts/start-scan.mjs"), "--root", str(root)],
+                                capture_output=True, text=True, check=True).stdout)
+khoa_that = set(out.keys()) | set(out.get("groups", {}).keys())
+assert "broken" in khoa_that and "map" in khoa_that, f"bo dem tinh tao: dau ra scan la {sorted(khoa_that)} — nghi buoc chay hong"
+BODIES = DOCS + ["scripts/start-scan.mjs", "commands/start.md",
+                 "codex/acceptance-gate/skills/start/SKILL.md"]
+for rel in BODIES:
+    t = (root / rel).read_text(encoding="utf-8")
+    for m in re.finditer(r"(?<![A-Za-z_])(\w+)\[\]", t):
+        khoa = m.group(1)
+        if khoa in khoa_that: continue
+        # Cho phep noi ve no trong cau GIAI THICH rang no da bi go.
+        dong = t[t.rfind("\n", 0, m.start()) + 1 : t.find("\n", m.end())]
+        # Cua so +-200 ky tu, khong phai MOT dong: van xuoi xuong dong theo do
+        # rong cot nen cau "khoa do da GO HAN" thuong nam o dong ke.
+        cua_so = t[max(0, m.start() - 200) : m.end() + 200]
+        if re.search(r"(đã (được )?(GỠ|gỡ)|không còn|bị gỡ|removed)", cua_so): continue
+        raise AssertionError(
+            f"{rel}: hua khoa dau ra `{khoa}[]` ma bo quet khong phat ({sorted(khoa_that)}) — dong: {dong.strip()[:100]}")
+print("P128 OK (3 tai lieu co be mat 1.31.0; khoa dau ra khop dau ra THAT)")
+P128PY
 
 if [ "$failures" -gt 0 ]; then
   echo

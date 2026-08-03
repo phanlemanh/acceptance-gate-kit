@@ -8,6 +8,20 @@
 // là false-green đúng nghĩa, và vá riêng từng bên chỉ dời chỗ trôi. Ai thêm
 // bên đọc thứ ba thì gọi hàm này, đừng chép luật.
 const { frontmatterField } = require('./evidence-core.js');
+const { readFileSync } = require('node:fs');
+
+// ĐỌC hồ sơ — ENOENT (file vắng) là tin bình thường; MỌI lỗi khác là sự thật
+// phải nêu tên. Nuốt chung một rọ biến "mất quyền đọc" thành "không có file",
+// và slug bị phân ô theo artifact bên cạnh: bản đồ từng xếp một việc mất quyền
+// đọc contract.md vào "Sắp mở vòng" trong khi bộ quét gọi nó là hỏng (S4-r14,
+// dựng lại được bằng chmod 000). Ngữ nghĩa đọc là MỘT PHẦN của luật đọc hồ sơ,
+// nên nó ở đây chứ không phải một `read` cục bộ trong từng reader.
+function readRecord(p) {
+  try { return { t: readFileSync(p, 'utf8'), err: null }; }
+  catch (e) { return e.code === 'ENOENT' ? { t: null, err: null } : { t: null, err: e }; }
+}
+
+const ioReason = err => `không đọc được (${err.code})`;
 
 // Luật khoá theo (FILE, FIELD) chứ không theo tên field trần: `stage` là HAI
 // enum khác nhau — `discovery|decided|archived` trong opportunity.md và
@@ -129,4 +143,5 @@ module.exports = {
   NAV_RULES, NAV_FIELDS, ANCHOR_FILES,
   recordProblem, navValues, fieldProblem,
   usesUat, usesOpportunity, consumedTexts,
+  readRecord, ioReason,
 };

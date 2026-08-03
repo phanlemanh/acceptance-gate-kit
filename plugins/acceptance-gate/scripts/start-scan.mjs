@@ -4,9 +4,10 @@
 // CHỈ-ĐỌC tuyệt đối. Đầu ra: JSON một dòng (schema_version 1) — các key mà
 // commands/start.md đọc được ghim trong khối START-SCAN-KEYS của chính file đó;
 // case P99 round-trip giữ hai đầu khớp, P98 giữ bảng phân ô.
-// F-B: đọc thêm uat-session.md (ô Cổng Giá trị) + trạng thái bản đồ sản phẩm.
-// Ô chưa có nguồn (PRODUCT-MAP, phiên nghiệm thu) emit skipped[] có tên —
-// KHÔNG bịa dữ liệu thay thế (ledger d-descope 03/08 của start-command).
+// F-B: đọc thêm uat-session.md (ô Cổng Giá trị) + trạng thái bản đồ sản phẩm
+// (`map.present` / `map.fresh`). Hai nguồn này trước đây chưa dựng nên bộ quét
+// emit `skipped[]` có tên thay vì bịa dữ liệu; F-B dựng xong cả hai nên khoá đó
+// đã GỠ HẲN — một khoá khai mà không thứ gì sinh ra được là hợp đồng chết.
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
@@ -227,7 +228,13 @@ gates.sort((a, b) => String(a.since).localeCompare(String(b.since)));
 // gì sinh ra được là hợp đồng chết — case round-trip P99 đòi mọi khoá khai
 // phải soi được trong đầu ra THẬT.
 const mapPath = path.join(root, 'PRODUCT-MAP.md');
-const map = { present: existsSync(mapPath), fresh: null };
+// `enabled` = repo NÀY đã bật bản đồ chưa (PRODUCT-MAP.md có trong
+// risk_tiers.t1_skip_globs). Không có tín hiệu này thì thẻ hứa với repo dựng
+// trước 1.31.0 rằng "bản đồ sẽ tự vẽ ở lần ký cổng kế" — trong khi đường
+// đọc-cũ dặn CẢ NĂM thân cổng người BỎ QUA đúng ở repo đó, nên lời hứa không
+// bao giờ thành sự thật và người đợi một thứ không tới (S4-r14).
+const cfgTxt = (() => { try { return readFileSync(path.join(root, '_acceptance', 'config.yaml'), 'utf8'); } catch { return ''; } })();
+const map = { present: existsSync(mapPath), fresh: null, enabled: /^\s*-\s*["']?PRODUCT-MAP\.md["']?\s*$/m.test(cfgTxt) };
 if (map.present) {
   // fresh = null khi KHÔNG kiểm được (không phải "khớp"): thẻ nói "chưa kiểm
   // được bản đồ", không nói xanh.

@@ -19,7 +19,7 @@ phẩm, không sửa gì, không tự làm nội dung thay nghi thức đích.
    groups.gates[].slug groups.gates[].gate groups.gates[].since groups.gates[].tier
    groups.inProgress[].slug groups.inProgress[].status groups.inProgress[].nextStep groups.inProgress[].tier
    groups.done[].slug groups.done[].state
-   map.present map.fresh
+   map.present map.fresh map.enabled
    broken[].slug broken[].file broken[].reason
    START-SCAN-KEYS>>> -->
 
@@ -45,8 +45,12 @@ phẩm, không sửa gì, không tự làm nội dung thay nghi thức đích.
      việc đã rõ → `/feature-loop <mô tả>`; (c) việc vặt khớp miễn trừ T1 →
      xác nhận nó là T1 rồi KẾT THÚC `/start` — người ra lệnh sửa ở lượt kế,
      ngoài nghi thức này (lệnh `/start` không sửa gì, kể cả việc vặt).
-   - Dưới thẻ: một dòng bản đồ sản phẩm — `map.present` là `false` → "chưa có
-     bản đồ sản phẩm (sẽ tự vẽ ở lần ký cổng kế)"; `map.fresh` là `false` →
+   - Dưới thẻ: một dòng bản đồ sản phẩm — `map.present` là `false` thì đọc
+     `map.enabled`: `true` → "chưa có bản đồ sản phẩm (sẽ tự vẽ ở lần ký cổng
+     kế)"; `false` → "repo chưa bật bản đồ sản phẩm — bật bằng hai dòng trong
+     `_acceptance/config.yaml`". ĐỪNG hứa bản đồ sẽ tự tới khi repo chưa bật:
+     mọi thân cổng người được dặn BỎ QUA việc vẽ ở đúng repo đó, nên người sẽ
+     đợi một thứ không bao giờ tới. `map.fresh` là `false` →
      "bản đồ đang lệch với hồ sơ — làm mới bằng một lệnh"; `null` → "chưa kiểm
      được bản đồ" (KHÔNG nói là khớp). Rồi mỗi phần tử
      `broken[]` một dòng cờ hỏng: việc nào, hồ sơ nào

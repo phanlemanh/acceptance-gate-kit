@@ -179,6 +179,24 @@ templates produce advisory NOTEs, not failures).
   làm nội dung (human-typed, model-invocation locked on both harnesses).
 - New feature → invoke the `acceptance` skill → contract + evals → approve
   (Gate 1) → implement → verify → sign off (Gate 2).
+- `PRODUCT-MAP.md` (repo root) → one page answering "where is every piece of
+  work?": a diagram of the stages with real counts, then each item under the
+  stage it sits in. Machine-generated from the workspace records — `/approve`,
+  `/signoff` and the UAT session redraw it and include it in the signature
+  commit. Never hand-edit it; change the records instead. `acceptance-init`
+  puts it in `risk_tiers.t1_skip_globs` (a regenerated view should not need
+  human sign-off) and CI runs `product-map.mjs --root . --check` to catch drift
+  or deletion — see [ADR 0007](docs/adr/0007-product-map-t1-exemption.md).
+  Repos initialised before 1.31.0 keep working: the gate bodies read the config,
+  skip the redraw, and print how to opt in.
+- Phiên nghiệm thu / **Cổng Giá trị** (`skills/uat-session`) → the human gate
+  AFTER shipping, for work that came from an opportunity decided `build` or
+  `iterate`. Gate 2 asks "did we build what we promised?"; this one asks "did it
+  actually matter?". Thresholds are copied verbatim from when the round opened
+  and may NOT be changed once the numbers are on the table; scoring is blind and
+  collected before any group discussion; a human — never the agent — writes
+  `verdict: release | iterate | kill`. A `kill` is a SUCCESS of the process.
+  Result lands in `_acceptance/<slug>/uat-session.md`.
 - `/acceptance-status` → table of every feature's gate state.
 - `/acceptance-card <slug>` → render a plain-language DECISION CARD for the gate:
   Gate 1 as "sẽ làm / sẽ KHÔNG làm" + coverage flags, or Gate 2 as "your

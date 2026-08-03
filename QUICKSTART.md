@@ -129,7 +129,16 @@ Sửa trực tiếp nếu cần → approve (máy ghi `approved_by`). **Đây l�
 5. Điền `human_signoff: <Tên> <ngày>` trong frontmatter → xong, merge được
 6. **Commit các sửa đổi Cổng-2 thành commit RIÊNG** (chỉ chạm override/verdict/signoff — report máy-viết đã được commit trước đó). Repo bật `signoff.require_human_commit` thì CI chặn chữ ký sinh cùng commit với body report — chính bạn commit dòng ký, đó là dấu vết "người đã duyệt"
 
-**Xem trạng thái mọi tính năng:** `/acceptance-status`
+**Xem trạng thái mọi tính năng:** `/acceptance-status` · **Xem cả xưởng trên
+một trang:** mở `PRODUCT-MAP.md` ở gốc repo (sơ đồ các chặng + từng việc đang
+nằm đâu; máy vẽ lại ở mỗi lần đóng cổng — đừng sửa tay, sửa hồ sơ)
+
+**Sau khi ship, việc đi từ một cơ hội đã quyết `build`/`iterate` còn MỘT cổng
+nữa — phiên nghiệm thu (Cổng Giá trị):** Cổng 2 hỏi "làm đúng thứ đã hứa chưa?",
+cổng này hỏi "thứ đó có ăn thua không?". Ngưỡng chép nguyên văn từ lúc mở vòng
+và cấm sửa sau khi thấy số; chấm kín trước khi thảo luận; **người** điền
+`verdict: release | iterate | kill`. `kill` là THÀNH CÔNG của quy trình — câu
+trả lời mua bằng giá một vòng dựng, không phải thất bại của người làm.
 
 **Duyệt Cổng 1 nhanh:** `/approve <slug>` · **Ký Cổng 2:** `/signoff <slug>` ·
 **Đo hiệu quả kit:** `/acceptance-report` (phút người vs baseline, vệ sinh gate)

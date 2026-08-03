@@ -23,7 +23,8 @@ const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence
 // Luật "hồ sơ này có hỏng không" sống một chỗ và được CẢ bộ quét vào phiên
 // dùng chung — xem lib/workspace-record.js để biết vì sao (S4-r1: hai bên đọc
 // cùng hồ sơ cho hai kết luận trái nhau).
-const { recordProblem, navValues, consumedTexts, NAV_RULES } =
+const { recordProblem, navValues, consumedTexts, usesUat, usesOpportunity,
+        readRecord, ioReason, NAV_RULES } =
   require(path.join(__dirname, '..', 'lib', 'workspace-record.js'));
 
 export { NAV_RULES };
@@ -61,7 +62,7 @@ function mermaidBlock(count) {
     `  B --> CD["Chờ duyệt phạm vi<br/>${n('cho-duyet')}"] --> GP{"Cổng Phạm vi"}`,
     `  GP --> DL["Đang làm<br/>${n('dang-dung')}"] --> GB{"Cổng Bằng chứng"}`,
     `  GB --> DG["Đã giao<br/>${n('da-ship')}"]`,
-    `  DG --> CN["Chờ phiên nghiệm thu<br/>${n('cho-nghiem-thu')}"] --> GG{"Cổng Giá trị"}`,
+    `  GB --> CN["Chờ phiên nghiệm thu<br/>${n('cho-nghiem-thu')}"] --> GG{"Cổng Giá trị"}`,
     `  GG --> NT["Đã nghiệm thu giá trị<br/>${n('da-nghiem-thu')}"]`,
   ];
   // Ô hỏng KHÔNG nằm trong mạch — nó là cờ. Chỉ hiện khi có, và hiện thì phải
@@ -76,7 +77,10 @@ const UAT_KET_CUC = {
   kill: 'dừng (kill)',
 };
 
-const read = p => { try { return readFileSync(p, 'utf8'); } catch { return null; } };
+// Doc file KHONG phai ho so workspace (chinh PRODUCT-MAP.md khi so noi dung,
+// va cac de xuat trong .out-of-scope/). Ho so workspace di qua readRecord cua
+// luat chung — phan biet ENOENT voi loi khac, khong nuot chung mot ro.
+const readPlain = p => { try { return readFileSync(p, 'utf8'); } catch { return null; } };
 const fm = (txt, key) => (txt == null ? null : frontmatterField(txt, key));
 const low = v => (v == null ? null : v.toLowerCase());
 
@@ -92,9 +96,27 @@ function edges(cTxt, oTxt) {
 }
 
 function classify(dir, slug) {
-  const cTxt = read(path.join(dir, 'contract.md'));
-  const oTxt = read(path.join(dir, 'opportunity.md'));
-  const uTxt = read(path.join(dir, 'uat-session.md'));
+  // Đọc LƯỜI và phân biệt lỗi, đúng thứ tự bộ quét đi: mở file nào là câu hỏi
+  // của luật chung. Đọc cả ba vô điều kiện thì (a) lỗi quyền ở một hồ sơ trạng
+  // thái hiện tại không dùng lại quyết định ô của slug, và (b) `read` cũ nuốt
+  // mọi lỗi thành "vắng" nên một contract.md mất quyền đọc bị xếp xuống đường
+  // opportunity — bản đồ nói "Sắp mở vòng" trong khi bộ quét nói hỏng (S4-r14).
+  const cR = readRecord(path.join(dir, 'contract.md'));
+  if (cR.err) return { key: 'hong', slug, file: 'contract.md', reason: ioReason(cR.err) };
+  const cTxt = cR.t;
+
+  let uTxt = null;
+  if (usesUat(cTxt)) {
+    const uR = readRecord(path.join(dir, 'uat-session.md'));
+    if (uR.err) return { key: 'hong', slug, file: 'uat-session.md', reason: ioReason(uR.err) };
+    uTxt = uR.t;
+  }
+  let oTxt = null;
+  if (usesOpportunity(cTxt, uTxt)) {
+    const oR = readRecord(path.join(dir, 'opportunity.md'));
+    if (oR.err) return { key: 'hong', slug, file: 'opportunity.md', reason: ioReason(oR.err) };
+    oTxt = oR.t;
+  }
   // `feature:` hay mở đầu bằng chính slug ("<slug> — mô tả"); dòng bản đồ đã
   // in slug rồi nên để nguyên là đọc thành tiếng máy vọng lại hai lần.
   const rawName = fm(cTxt, 'feature') || fm(oTxt, 'feature') || fm(uTxt, 'feature') || slug;
@@ -152,7 +174,7 @@ export function renderProductMap(root) {
   if (existsSync(oos)) {
     for (const f of readdirSync(oos)) {
       if (!f.endsWith('.md')) continue;
-      const txt = read(path.join(oos, f)) || '';
+      const txt = readPlain(path.join(oos, f)) || '';
       const title = (txt.split('\n').find(l => l.startsWith('# ')) || '# ' + f).slice(2).trim();
       buckets['ngoai-pham-vi'].push({ slug: f.replace(/\.md$/, ''), name: title, file: f });
     }
@@ -252,12 +274,19 @@ if (isMain) {
     // XOÁ — và vì bản đồ nằm trong t1_skip_globs, một PR chỉ xoá nó vừa bỏ qua
     // cổng nghiệm thu vừa xanh ở CI nếu đây cũng exit 0. Mirror bị xoá thì P30
     // đỏ; bản đồ phải xử như vậy.
-    let daTheoDoi = false;
-    try {
-      execFileSync('git', ['-C', root, 'ls-files', '--error-unmatch', 'PRODUCT-MAP.md'],
-        { stdio: 'ignore' });
-      daTheoDoi = true;
-    } catch { daTheoDoi = false; }
+    // Hỏi INDEX thôi là fail-OPEN ở đúng hình dạng CI gặp: một PR đã COMMIT
+    // việc xoá thì `actions/checkout` ra cây không còn file trong index,
+    // `ls-files` thất bại, và cổng in "repo chưa dựng bản đồ" rồi exit 0 —
+    // tức PR xoá bản đồ vừa bỏ qua cổng nghiệm thu vừa xanh CI (S4-r14, dựng
+    // lại được). Nên hỏi thêm LỊCH SỬ: file từng bị xoá trong quá khứ cũng là
+    // "đã có rồi mất". Chỉ repo chưa từng có bản đồ mới đi đường đọc-cũ.
+    const gitCo = args => {
+      try { return execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }); }
+      catch { return null; }
+    };
+    const trongIndex = gitCo(['ls-files', '--error-unmatch', '--', 'PRODUCT-MAP.md']) != null;
+    const tungBiXoa = (gitCo(['log', '--diff-filter=D', '--format=%H', '-1', '--', 'PRODUCT-MAP.md']) || '').trim() !== '';
+    const daTheoDoi = trongIndex || tungBiXoa;
     if (daTheoDoi) {
       console.error(`PRODUCT-MAP.md đã bị xoá khỏi cây làm việc — khôi phục, hoặc vẽ lại: node ${hint} --root .`);
       process.exit(1);
@@ -265,7 +294,7 @@ if (isMain) {
     console.log('PRODUCT-MAP.md chưa có — repo chưa dựng bản đồ; nó sẽ tự sinh ở lần đóng cổng người kế.');
     process.exit(0);
   }
-  if (read(mapPath) === rendered) {
+  if (readPlain(mapPath) === rendered) {
     console.log('PRODUCT-MAP.md khớp hồ sơ xưởng.');
     process.exit(0);
   }
