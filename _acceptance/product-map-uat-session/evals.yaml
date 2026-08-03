@@ -157,3 +157,13 @@ evals:
       - scripts/product-map.mjs
       - scripts/start-scan.mjs
       - tests/plugins/run-tests.sh
+
+  - id: E16
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case P111 pass: khoá frontmatter để TRỐNG trả '' chứ không nuốt dòng kế — fixture CỐ Ý không có comment # che (verdict: giữa uat-session, approved_at: giữa contract, human_signoff: giữa evidence-report); đối chứng dương 7 hình dạng giá trị khác giữ nguyên hành vi (khoảng trắng, quote, comment cuối dòng, comment-only, CRLF, khoá cuối, khoá vắng→null); và ca đầu-đến-cuối: phiên chưa ký là hồ sơ LÀNH MẠNH với recordProblem"
+    paths:
+      - lib/evidence-core.js
+      - lib/workspace-record.js
+      - tests/plugins/run-tests.sh
