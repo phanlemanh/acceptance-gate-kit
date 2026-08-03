@@ -6,58 +6,52 @@
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **Codex edition: executor `product_map` được phát cho consumer là lệnh BLOCKED — cổng canh duy nhất của ADR 0007 chết ở harness Codex**
-  Người dùng thấy gì: Ở các dự án dùng Codex, bước tự động kiểm tra bản đồ sản phẩm khi ký cổng người sẽ báo lỗi thay vì chạy được — cổng canh giữ cho bản đồ luôn khớp hồ sơ coi như không hoạt động ở nhóm dùng Codex.
-  file: `codex/acceptance-gate/skills/acceptance-init/references/codex-plugin-runner.mjs`
-  severity: high
-  Đề xuất: known-limits
-
-- **Không có đường nâng cấp cho repo tiêu thụ đã init trước 1.31.0 — chính commit chữ ký Cổng 2 sẽ chặn merge**
-  Người dùng thấy gì: Các dự án đã khởi tạo cổng nghiệm thu trước bản cập nhật này sẽ bị chặn không gộp được nhánh ngay tại bước ký duyệt, vì bản đồ sản phẩm mới bị hệ thống hiểu nhầm là bằng chứng đã cũ.
-  file: `commands/signoff.md`
-  severity: high
-  Đề xuất: new-contract
-
-- **GUIDE.md mô tả sai hành vi /start đã bị gỡ, và không có mục nào cho bản đồ sản phẩm / Cổng Giá trị**
-  Người dùng thấy gì: Tài liệu hướng dẫn vẫn mô tả một cơ chế cũ đã bị gỡ bỏ, và không hề nhắc tới bản đồ sản phẩm hay phiên nghiệm thu mới — người đọc hướng dẫn sẽ không biết các tính năng này tồn tại hoặc bị hiểu nhầm thông tin lỗi thời.
-  file: `GUIDE.md`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Notes của contract mâu thuẫn với AC-10 và với code đã ship về `skipped[]`**
-  Người dùng thấy gì: Một dòng ghi chú cuối hợp đồng nói sai về một cơ chế cũ đã bị gỡ bỏ, có thể khiến người đọc sau hiểu nhầm là hệ thống vẫn còn giữ cơ chế đó.
-  file: `_acceptance/product-map-uat-session/contract.md`
-  severity: low
-  Đề xuất: known-limits
-
-- **`product-map.mjs --check` exits 0 on a wrong/uninitialised `--root` — the one gate ADR 0007 relies on fails open**
-  Người dùng thấy gì: Nếu đường dẫn thư mục bị gõ sai trong hệ thống kiểm tra tự động, công cụ vẽ bản đồ sẽ báo yên tâm "chưa có gì để kiểm" thay vì báo lỗi — nghĩa là một đường dẫn sai có thể khiến cổng kiểm tra luôn xanh mà chưa thực sự so sánh gì.
+- **`product-map.mjs --check` fail-open khi `--root` trỏ sai — cổng duy nhất biện minh cho miễn trừ t1 xanh mà không so byte nào**
+  Người dùng thấy gì: Nếu đường dẫn tới kho lặp bị gõ sai, công cụ kiểm tra bản đồ sản phẩm vẫn báo 'ổn' dù chưa thực sự so sánh gì — người dùng có thể tin bản đồ luôn đúng trong khi nó đã lệch từ lâu mà không hay biết.
   file: `scripts/product-map.mjs`
   severity: high
   Đề xuất: known-limits
 
-- **Copying `uat-session-template.md` as the skill instructs produces a record both readers call broken**
-  Người dùng thấy gì: Nếu ai đó nhân bản đúng theo hướng dẫn sao chép cho phiên nghiệm thu mới, kết quả tạo ra sẽ bị cả hai hệ thống đọc coi là hồ sơ hỏng — phiên nghiệm thu đó biến mất khỏi hàng chờ duyệt mà không có cảnh báo nào.
-  file: `skills/acceptance/references/uat-session-template.md`
-  severity: high
+- **Skill `uat-session` phát vào gói Codex với `${CLAUDE_PLUGIN_ROOT}` — hai con trỏ chết, trong khi `start` bản Codex đã trỏ người dùng tới nó**
+  Người dùng thấy gì: Trên phiên bản Codex, bước hướng dẫn chép khuôn và làm mới bản đồ trong nghi thức nghiệm thu sẽ trỏ tới một đường dẫn không hoạt động, khiến người dùng Codex phải tự đoán cách làm thay vì được dẫn dắt đúng — ngay trên đường dẫn mà lệnh /start vừa mở ra cho họ.
+  file: `skills/uat-session/SKILL.md`
+  severity: medium
   Đề xuất: known-limits
 
-- **A deleted PRODUCT-MAP.md reads as "never built" to /start while `--check` calls it a deletion**
-  Người dùng thấy gì: Khi bản đồ sản phẩm bị xoá khỏi kho, người mở phiên làm việc được báo yên tâm là bản đồ sẽ tự vẽ lại, trong khi hệ thống kiểm tra tự động lại báo lỗi ngay cho đúng sự việc đó — hai nơi nói hai điều trái ngược về cùng một tình huống.
+- **Chốt `PLUGIN_ROOT` của P109 là phép đo từ vựng — `CLAUDE_PLUGIN_ROOT` lọt qua vì là chuỗi con**
+  Người dùng thấy gì: Phép kiểm tự động cho loại đường dẫn này chỉ tìm đúng một cụm chữ, nên nếu sau này ai đó đổi sang một cách viết khác không hoạt động trên Codex, hệ thống kiểm tra tự động vẫn báo xanh — không bắt được lỗi cùng dạng với lỗi đã nêu ở trên.
+  file: `tests/plugins/run-tests.sh`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Cổng Giá trị là cổng người thứ 7 nhưng nghi thức để MỞ model-invocation; CLAUDE.md và ADR 0002 không đổi cùng PR**
+  Người dùng thấy gì: Cổng phê duyệt 'Giá trị' mới cho phiên nghiệm thu hiện không bị khoá chặt như các cổng người khác — về lý thuyết trợ lý AI có thể tự điền thay vì luôn chờ người quyết định, và tài liệu chính sách nội bộ chưa được cập nhật để ghi nhận sự tồn tại của cổng này.
+  file: `skills/uat-session/SKILL.md`
+  severity: medium
+  Đề xuất: known-limits
+
+- **contract.md nói `skipped[]` GIỮ trong schema start-scan, code gỡ hẳn và 2 test assert nó phải VẮNG**
+  Người dùng thấy gì: Tài liệu mô tả tính năng vẫn ghi rằng một trường dữ liệu cũ (danh sách nguồn bị bỏ qua) sẽ tiếp tục xuất hiện trong kết quả, nhưng bản cài đặt thực tế đã bỏ hẳn trường đó — người đọc tài liệu có thể hiểu sai những gì hệ thống thực sự đưa ra.
+  file: `_acceptance/product-map-uat-session/contract.md`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Hai reader vẫn bất đồng về "hồ sơ hỏng": 3 luật broken chỉ sống trong start-scan, bản đồ không thấy**
+  Người dùng thấy gì: Nếu một hồ sơ tự nhận đã 'nghiệm thu xong' nhưng bằng chứng ký duyệt bị thiếu hoặc không đọc được, bản đồ sản phẩm vẫn hiển thị nó như một việc đang làm bình thường thay vì cảnh báo đây là hồ sơ có vấn đề — người xem bản đồ để chọn việc tiếp theo có thể bỏ sót nó.
+  file: `lib/workspace-record.js`
+  severity: high
+  Đề xuất: new-contract
+
+- **Cổng `gia-tri` xếp thứ tự bằng mtime — nhánh timestamp frontmatter không bao giờ chạy được**
+  Người dùng thấy gì: Trong nghi thức thật, thứ tự chờ duyệt ở cổng 'Giá trị' hiện dựa vào thời điểm file được chạm gần nhất (ví dụ do định dạng lại hay đồng bộ) thay vì thời điểm hồ sơ thực sự bắt đầu chờ — một hồ sơ chờ lâu có thể bị trôi xuống cuối danh sách chỉ vì file bị chạm vào, không phải vì nó mới.
   file: `scripts/start-scan.mjs`
   severity: medium
-  Đề xuất: new-contract
+  Đề xuất: known-limits
 
-- **`evidence-report.md` rules live only in start-scan, so the product map never flags them — the two readers disagree**
-  Người dùng thấy gì: Nếu hồ sơ bằng chứng bị lỗi định dạng, bản đồ sản phẩm không phát hiện ra và vẫn hiển thị như đang tiến triển bình thường, trong khi công cụ quét khác cùng lúc báo hồ sơ đó hỏng — hai công cụ cho hai kết luận trái ngược về cùng một việc.
-  file: `lib/workspace-record.js`
-  severity: medium
-  Đề xuất: new-contract
-
-- **Unpaired quote-stripping still live in `resolveConfigKey`, 15 lines above the same bug this diff fixed**
-  Người dùng thấy gì: Nếu một dòng cấu hình lệnh kiểm tra được viết thiếu dấu ngoặc kép bao quanh nhưng có dấu nháy ở cuối, hệ thống có thể cắt mất ký tự cuối khi hiển thị — chỉ ảnh hưởng phần hiển thị, không ảnh hưởng việc chạy kiểm tra thật.
-  file: `lib/evidence-core.js`
+- **`--check` fail-open ở hai cửa: git không trả lời được, và thiếu `_acceptance/config.yaml`**
+  Người dùng thấy gì: Có thêm hai tình huống khác (công cụ quản lý mã nguồn báo lỗi bất thường, hoặc thư mục cấu hình bị thiếu) mà công cụ kiểm tra bản đồ vẫn âm thầm báo 'ổn' thay vì báo lỗi rõ ràng — cùng rủi ro như vấn đề đường dẫn sai đã nêu, chỉ khác nguyên nhân kỹ thuật.
+  file: `scripts/product-map.mjs`
   severity: low
   Đề xuất: known-limits
 
-⚠ Cụm ngoài vùng phủ: 3/9 lỗi rơi vào file không bộ đo nào phủ (codex/acceptance-gate/skills/acceptance-init/references/codex-plugin-runner.mjs, GUIDE.md, _acceptance/product-map-uat-session/contract.md) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).

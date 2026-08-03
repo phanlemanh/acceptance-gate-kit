@@ -5,7 +5,7 @@ slug: product-map-uat-session
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-08-03T09:35:00Z
 ---
@@ -90,5 +90,10 @@ chấm kín, Scrum Sprint Review — nghiệm thu trên sản phẩm chạy):
   chuyển discovery→decided; lưới: `--check` CI (AC-7) + cờ `map.fresh` trên
   thẻ /start (AC-10). Khi lệnh Cổng 0 ra đời (vòng card sau), thêm điểm regen
   ở đó.
-- `skipped[]` giữ trong schema start-scan (thường rỗng) — cơ chế skip-có-tên
-  còn dùng cho nguồn tương lai.
+- **`skipped[]` đã GỠ HẲN** khỏi đầu ra start-scan và khỏi khối START-SCAN-KEYS
+  của cả hai harness (ghi chú Cổng 1 trước đó dự tính giữ nó; owner xác nhận gỡ
+  tại Cổng 2 — sổ quyết định `d-20260803T082900Z-20225`). Lý do: hai nguồn từng
+  bỏ qua nay đã dựng, nên không còn thứ gì sinh ra phần tử cho mảng đó, mà một
+  khoá khai không ai sinh được là hợp đồng chết — case round-trip P99 đòi mọi
+  khoá khai phải soi được trong đầu ra THẬT. Hai case (P98, P108) nay ghim sự
+  VẮNG MẶT của khoá.
