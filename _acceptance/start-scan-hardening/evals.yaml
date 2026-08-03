@@ -1,0 +1,83 @@
+# Evals: start-scan-hardening — mọi AC đều máy-đo, không judgment
+# cmd là config: ref (resolve tại S4); paths phục vụ carry-forward round delta
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case P102 pass: fixture code-sinh; đối chứng dương (mọi file đọc được →
+      phân ô thường) XANH trước; rồi (a) chmod 000 contract.md → slug vào
+      broken[] reason chứa EACCES + đúng tên file, không rơi sang opportunity.md
+      bên cạnh; (b) contract.md là THƯ MỤC → reason chứa EISDIR; (c) slug
+      implemented + chmod 000 evidence-report.md → broken[] reason chứa EACCES
+      + đúng tên evidence-report.md, KHÔNG rơi về nextStep S4; slug lành vẫn
+      phân ô đúng. (gap-probe P1-1)
+    paths: [scripts/start-scan.mjs, tests/plugins/run-tests.sh]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case P102 pass: (a) contract implemented + evidence verdict FAIL →
+      broken[] reason "verdict không nhận diện được: FAIL" (cùng khuôn nhánh
+      verified); (b) evidence CÓ frontmatter nhưng KHÔNG có dòng verdict →
+      broken[] reason chứa "thiếu verdict" — không lặng lẽ sang bước kế
+      (gap-probe P2-3); đối chứng dương: implemented + REJECT vẫn ra nextStep
+      S3-fix như cũ.
+    paths: [scripts/start-scan.mjs, tests/plugins/run-tests.sh]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case P103 pass: 5 lối chết — "--root" thiếu giá trị · "--root ''" ·
+      token lạ "--foo" · "--root /khong/ton/tai" · "--root <file thường>"
+      (đường dẫn có thật nhưng không phải thư mục, gap-probe P1-2) — đều exit
+      2, stderr ghim đúng thông điệp từng lối (lối 5 nêu đường dẫn), stdout
+      KHÔNG có JSON; đối chứng dương "--root <dir hợp lệ>" exit 0 JSON parse được.
+    paths: [scripts/start-scan.mjs, tests/plugins/run-tests.sh]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      P101 viết lại pass: hàm check_docs dùng chung; chân dương (bản thật) trả
+      rỗng; chân âm cho TỪNG file (gap-probe P2-1): mutant GUIDE xoá mục
+      /start → hàm trả lỗi ghim tên GUIDE, mutant README riêng → lỗi ghim tên
+      README; mutant nào xanh = case đỏ.
+    paths: [GUIDE.md, README.md, tests/plugins/run-tests.sh]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Toàn suite plugins xanh (P98/P99/P100 + chân dương P101 không đổi hành
+      vi); marker START-SCAN-KEYS hai harness không đổi (P99 chính là phép đo).
+    paths: [scripts/start-scan.mjs, commands/start.md, codex/acceptance-gate/skills/start/SKILL.md, tests/plugins/run-tests.sh]
+  - id: E6
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.mirror_sync
+    expected: exit 0 — mirror khớp nguồn sau sync (đối chứng âm sẵn ở P41).
+    paths: ["scripts/**", "plugins/**", "tests/**"]
+  # gap-probe P2-2: AC-5 Then nói 4 suite — mỗi suite một thước, không hạ Then
+  - id: E7
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: exit 0 — suite scripts xanh sau thay đổi.
+    paths: ["scripts/**", "tests/scripts/**"]
+  - id: E8
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: exit 0 — suite hooks xanh sau thay đổi.
+    paths: ["hooks/**", "lib/**", "tests/hooks/**"]
+  - id: E9
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: exit 0 — suite workflows xanh sau thay đổi.
+    paths: ["feature-loop/workflows/**", "tests/workflows/**"]

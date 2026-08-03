@@ -1,0 +1,19 @@
+{
+  "feature_plain": "Vá 4 điểm yếu của bộ quét vào-phiên đã ký nhận tại cổng trước: gặp đầu vào bất thường thì lỗi phải có tên trên thẻ, thay vì lặng lẽ đổi nghĩa hoặc giấu việc đang chờ chữ ký.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ nêu tên mọi hồ sơ đọc thất bại — đúng file, đúng mã lỗi, nói đúng sự thật là file còn đó; việc chờ ký hết đường biến mất im lặng khỏi thẻ."},
+    {"id": "AC-4", "p": "Sẽ làm chân đối chứng của bài kiểm tài liệu ĐỎ được thật — kiểm riêng từng trang (sách hướng dẫn, trang giới thiệu) bằng chính một phép đo."},
+    {"id": "AC-5", "p": "Sẽ giữ nguyên toàn bộ hành vi đã nghiệm thu — mọi phép đo cũ và cả bốn bộ kiểm chạy xanh, khuôn dữ liệu thẻ đọc không đổi."}
+  ],
+  "wont_do": [
+    {"id": "AC-2", "p": "Chặn kết quả nghiệm thu lạ hoặc thiếu lọt qua im lặng — mọi nhánh đều gọi tên nó ra thay vì đoán bước kế tiếp."},
+    {"id": "AC-3", "p": "Chặn lỗi gõ lệnh đổi nghĩa thành chẩn đoán sai — gõ sai đường dẫn hay thiếu tham số thì lệnh dừng ngay kèm lời báo đúng lỗi, thay vì trả lời như thể repo chưa dựng cổng."}
+  ],
+  "scope_plain": "Chưa làm vòng này: lỗi git nuốt về trống (cần đổi khuôn dữ liệu — để vòng sau, đã ghi hẹn), fixture kiểm thử rút từ khuôn mẫu gốc (đã ghi hẹn), cờ lệnh mới, và hai nguồn dữ liệu thuộc việc F-B đang chạy riêng.",
+  "decisions_plain": [
+    {"id": "d-20260803T064042Z-30944", "p": "KHÔNG quét lại không gian tiêu chí — phạm vi là danh sách đóng 4 mục anh đã ký tại cổng trước; đổi lại nếu có lỗi cùng lớp ngoài 4 mục thì vòng này không bắt."},
+    {"id": "d-20260803T064042Z-31475", "p": "Đã chọn cho lỗi gõ lệnh chết to ngay (theo tiền lệ hai script gác cổng của kit) thay vì âm thầm chạy tiếp — ai đang dựa vào hành vi cũ sẽ gãy, nhưng hôm nay hai thân lệnh đều gọi đúng cách nên không ai gãy."},
+    {"id": "d-20260803T064042Z-24786", "p": "Hoãn vá lỗi git-nuốt-về-trống — sửa nó phải đổi khuôn dữ liệu thẻ ở cả hai môi trường, đắt hơn cả phần còn lại; hẹn xét lại khi có vòng đổi khuôn."},
+    {"id": "d-20260803T064042Z-11263", "p": "Hoãn việc rút fixture kiểm thử từ khuôn mẫu gốc — chất lượng bộ đo, chưa đổi hành vi; hẹn vòng kế chạm cùng file."}
+  ]
+}
