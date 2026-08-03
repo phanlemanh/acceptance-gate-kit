@@ -10,7 +10,7 @@
 // Reader duy nhất là frontmatterField của lib/evidence-core.js: không parser
 // fence thứ hai (tiền lệ start-command S4-r1 — parser riêng chặt hơn reader
 // chuẩn thì báo hỏng oan những hồ sơ mọi cổng khác đọc được).
-import { readFileSync, readdirSync, existsSync, writeFileSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync, writeFileSync, realpathSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -165,7 +165,18 @@ export function renderProductMap(root) {
 }
 
 // ─── CLI ───
-const isMain = process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename);
+// So bằng realpath, KHÔNG bằng path.resolve: loader ESM đã giải symlink cho
+// import.meta.url trong khi argv[1] giữ nguyên đường người gõ. Repo nằm dưới
+// một symlink (/tmp, /var/folders trên macOS, home mount…) thì hai chuỗi khác
+// nhau, khối CLI im lặng không chạy, và `--check` exit 0 mà chẳng kiểm gì —
+// đúng dạng false-green. Case P106 chạy trong bản sao dưới /var/folders bắt
+// được điều này.
+const isMain = (() => {
+  if (!process.argv[1]) return false;
+  const same = (a, b) => { try { return realpathSync(a) === realpathSync(b); } catch { return false; } };
+  return same(process.argv[1], __filename) ||
+    path.resolve(process.argv[1]) === path.resolve(__filename);
+})();
 if (isMain) {
   const args = process.argv.slice(2);
   const rootIx = args.indexOf('--root');

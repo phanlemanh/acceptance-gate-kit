@@ -3365,6 +3365,24 @@ const m = r.err.match(/chạy: node (\S+) --root \./);
 if (!m) die("thong diep khong neu duong dan script: " + r.err);
 if (!fs.existsSync(path.resolve(tmp, m[1])))
   die("duong dan trong goi y KHONG ton tai khi chay tu repo dang do: " + m[1]);
+
+// 5. goi script QUA MOT SYMLINK: loader ESM giai symlink cho import.meta.url
+// nhung argv[1] thi khong, nen so bang path.resolve se cho isMain=false va
+// script IM LANG exit 0 — --check xanh ma chua kiem gi. Repo duoi /tmp,
+// /var/folders, hay home mount deu dinh. Chan do nay phai o day, khong the
+// dua vao viec suite tinh co chay trong ban sao co symlink.
+const linkDir = fs.mkdtempSync(path.join(os.tmpdir(), "p106-link-"));
+const link = path.join(linkDir, "kit");
+fs.symlinkSync(root, link);
+let viaLink;
+try {
+  execFileSync("node", [path.join(link, "scripts/product-map.mjs"), "--root", tmp, "--check"],
+    { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  viaLink = { code: 0, err: "" };
+} catch (e) { viaLink = { code: e.status, err: String(e.stderr || "") }; }
+if (viaLink.code !== 1 || !viaLink.err.includes("lệch với hồ sơ xưởng"))
+  die("goi qua symlink: map dang lech ma script khong bao (code=" + viaLink.code +
+      ") — khoi CLI khong chay, --check se xanh gia o moi repo co symlink");
 console.log("P106 OK");
 P106JS
 
