@@ -40,3 +40,14 @@
 {"ts":"2026-08-03T08:16:39Z","round":4,"evalId":"E8","run_id":"minted-start-scan-hardening-E8-r4","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
 {"ts":"2026-08-03T08:16:39Z","round":4,"evalId":"E9","run_id":"minted-start-scan-hardening-E9-r4","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
 {"ts":"2026-08-03T08:16:39Z","round":4,"kind":"baseline","evals_hash":"31373e9252b751be95462bcd1bfd9cf64e649f653e1e8b941d371d4b1513ba3d","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E10","E3","E4","E5"]},{"cmd":"bash scripts/sync-plugin-packages.sh --check","evals":["E6"]},{"cmd":"bash tests/scripts/run-tests.sh","evals":["E7"]},{"cmd":"bash tests/hooks/run-tests.sh","evals":["E8"]},{"cmd":"bash tests/workflows/run-tests.sh","evals":["E9"]}]}
+{"ts":"2026-08-03T09:53:20Z","round":5,"evalId":"E1","run_id":"minted-start-scan-hardening-E1-r5","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T09:53:20Z","round":5,"evalId":"E2","run_id":"minted-start-scan-hardening-E2-r5","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T09:53:20Z","round":5,"evalId":"E10","run_id":"minted-start-scan-hardening-E10-r5","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T09:53:20Z","round":5,"evalId":"E3","run_id":"minted-start-scan-hardening-E3-r5","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T09:53:20Z","round":5,"evalId":"E4","run_id":"minted-start-scan-hardening-E4-r5","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T09:53:20Z","round":5,"evalId":"E5","run_id":"minted-start-scan-hardening-E5-r5","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T09:53:20Z","round":5,"evalId":"E6","run_id":"minted-start-scan-hardening-E6-r5","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
+{"ts":"2026-08-03T09:53:20Z","round":5,"evalId":"E7","run_id":"minted-start-scan-hardening-E7-r5","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-03T09:53:20Z","round":5,"evalId":"E8","run_id":"minted-start-scan-hardening-E8-r5","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-08-03T09:53:20Z","round":5,"evalId":"E9","run_id":"minted-start-scan-hardening-E9-r5","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-03T09:53:20Z","round":5,"kind":"baseline","evals_hash":"31373e9252b751be95462bcd1bfd9cf64e649f653e1e8b941d371d4b1513ba3d","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E10","E3","E4","E5"]},{"cmd":"bash scripts/sync-plugin-packages.sh --check","evals":["E6"]},{"cmd":"bash tests/scripts/run-tests.sh","evals":["E7"]},{"cmd":"bash tests/hooks/run-tests.sh","evals":["E8"]},{"cmd":"bash tests/workflows/run-tests.sh","evals":["E9"]}]}

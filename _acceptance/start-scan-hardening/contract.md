@@ -5,7 +5,7 @@ slug: start-scan-hardening
 owner: manh@mstar.vn
 risk_tier: T2
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-08-03T07:20:00Z
 time_human_minutes: {gate1: 8, gate2: 0}

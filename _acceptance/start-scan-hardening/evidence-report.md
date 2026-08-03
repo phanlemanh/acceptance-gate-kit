@@ -1,13 +1,13 @@
 ---
 schema_version: 2
 feature_slug: start-scan-hardening
-verdict: REJECT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: f9bd06b636e2fefd8752fcd28c31c98fff778c12
+verified_commit: 6f3449c5b92c5ba1a7f5a7716fd83ade7fdeb8e7
 human_signoff:
 ---
 
@@ -29,110 +29,107 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-start-scan-hardening-E1-r4
+  run_id: minted-start-scan-hardening-E1-r5
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-03T09:30:00Z
+  verified_at: 2026-08-03T11:00:00Z
   output: |
-      PASS: P104 round-trip tu vung verdict: khuon writer <-> start-scan reader (E10)
+      PASS: P105 ma tran phan o: trang-thai × tinh-trang-artifact, ghim toan bo (E1,E2,E10)
 
     Results: all plugin tests passed
 
 - eval: E2
-  run_id: minted-start-scan-hardening-E2-r4
+  run_id: minted-start-scan-hardening-E2-r5
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-03T09:30:00Z
+  verified_at: 2026-08-03T11:00:00Z
   output: |
-      PASS: P104 round-trip tu vung verdict: khuon writer <-> start-scan reader (E10)
+      PASS: P105 ma tran phan o: trang-thai × tinh-trang-artifact, ghim toan bo (E1,E2,E10)
 
     Results: all plugin tests passed
 
 - eval: E3
-  run_id: minted-start-scan-hardening-E3-r4
+  run_id: minted-start-scan-hardening-E3-r5
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-03T09:30:00Z
+  verified_at: 2026-08-03T11:00:00Z
   output: |
-      PASS: P104 round-trip tu vung verdict: khuon writer <-> start-scan reader (E10)
+      PASS: P105 ma tran phan o: trang-thai × tinh-trang-artifact, ghim toan bo (E1,E2,E10)
 
     Results: all plugin tests passed
 
 - eval: E4
-  run_id: minted-start-scan-hardening-E4-r4
+  run_id: minted-start-scan-hardening-E4-r5
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-03T09:30:00Z
+  verified_at: 2026-08-03T11:00:00Z
   output: |
-      PASS: P104 round-trip tu vung verdict: khuon writer <-> start-scan reader (E10)
+      PASS: P105 ma tran phan o: trang-thai × tinh-trang-artifact, ghim toan bo (E1,E2,E10)
 
     Results: all plugin tests passed
 
 - eval: E5
-  run_id: minted-start-scan-hardening-E5-r4
+  run_id: minted-start-scan-hardening-E5-r5
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-03T09:30:00Z
+  verified_at: 2026-08-03T11:00:00Z
   output: |
-      PASS: P104 round-trip tu vung verdict: khuon writer <-> start-scan reader (E10)
+      PASS: P105 ma tran phan o: trang-thai × tinh-trang-artifact, ghim toan bo (E1,E2,E10)
 
     Results: all plugin tests passed
 
 - eval: E6
-  run_id: minted-start-scan-hardening-E6-r4
+  run_id: minted-start-scan-hardening-E6-r5
   exit_code: 0
   baseline: green
   verifier: config:executors.script.mirror_sync
-  verified_at: 2026-08-03T09:30:00Z
+  verified_at: 2026-08-03T11:00:00Z
   output: |
     plugins/ mirror in sync.
 
 - eval: E7
-  run_id: minted-start-scan-hardening-E7-r4
+  run_id: minted-start-scan-hardening-E7-r5
   exit_code: 0
-  baseline: green
   verifier: config:executors.test.scripts
-  verified_at: 2026-08-03T09:30:00Z
+  verified_at: 2026-08-03T11:00:00Z
   output: |
-      PASS: GCV1d contract lanh khong sinh canh bao nao
-
     Results: 596 passed, 0 failed
 
 - eval: E8
-  run_id: minted-start-scan-hardening-E8-r4
+  run_id: minted-start-scan-hardening-E8-r5
   exit_code: 0
   baseline: green
   verifier: config:executors.test.hooks
-  verified_at: 2026-08-03T09:30:00Z
+  verified_at: 2026-08-03T11:00:00Z
   output: |
       PASS: T42
 
     Results: 51 passed, 0 failed
 
 - eval: E9
-  run_id: minted-start-scan-hardening-E9-r4
+  run_id: minted-start-scan-hardening-E9-r5
   exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-03T09:30:00Z
+  verified_at: 2026-08-03T11:00:00Z
   output: |
-      PASS: CS8 prompt có ràng buộc: cite [<id>] nguyên văn
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E10
-  run_id: minted-start-scan-hardening-E10-r4
+  run_id: minted-start-scan-hardening-E10-r5
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-03T09:30:00Z
+  verified_at: 2026-08-03T11:00:00Z
   output: |
-      PASS: P104 round-trip tu vung verdict: khuon writer <-> start-scan reader (E10)
+      PASS: P105 ma tran phan o: trang-thai × tinh-trang-artifact, ghim toan bo (E1,E2,E10)
 
     Results: all plugin tests passed
 
@@ -153,7 +150,8 @@ none — every multi-run eval is uniform.
 Round 1: 9 eval máy (E1-E9) PASS ngay lần chạy đầu, nhưng review adversarial phát hiện lỗi TRONG hợp đồng AC-2 — verdict rỗng (khoá `verdict:` có mặt nhưng giá trị trống) lọt qua guard "thiếu verdict". Trả về implementation.
 Round 2: re-verify 9 eval máy PASS (bao gồm chân (c) mới của E2 sau khi gộp guard rỗng=vắng dùng chung hai nhánh, S4-r1 fix); review adversarial round này lại phát hiện một THOÁI LUI do chính bản vá S4-r1 gây ra — `VERDICT_OK` bỏ sót BLOCKED khiến `implemented` + `verdict: BLOCKED` bị gọi "hồ sơ hỏng" thay vì giữ nguyên trạng đang-dở. Trả về implementation (S4-r2 fix: thêm BLOCKED vào `VERDICT_OK`, dựng P104 round-trip rút từ vựng từ khuôn writer).
 Round 3: thêm E10 (P104), chạy lại toàn bộ 10 eval máy — tất cả PASS. Review round này tìm thêm các finding ngoài hợp đồng (nhánh `verified` vẫn bỏ sót BLOCKED cùng hình dạng vừa vá ở nhánh implemented, P102 chạy dưới root có thể che một loạt chân test mà vẫn báo PASS, contract AC-2 chưa cập nhật từ vựng theo BLOCKED) — đưa ra Gate 2 cho người quyết; không quay lại implementation.
-Round 4 (vòng này): re-verify toàn bộ 10 eval máy — vẫn PASS, không eval nào bắt được lỗi mới (mọi suite baseline=green, không phân biệt). Review adversarial round này phát hiện 2 finding TRONG hợp đồng, cùng lớp AC-1 vừa được vá cho `opportunity.md` ở round 3: guard đọc + guard verdict của `evidence-report.md` (scripts/start-scan.mjs:116-123) vẫn chạy TRƯỚC khi rẽ nhánh theo status, nên lỗi đọc/verdict-rỗng của một file không thuộc luồng kiểm của status `draft`/`approved`/`signed-off` vẫn đẩy nhầm slug ra khỏi ô đúng — đúng kịch bản AC-1 cấm, và đúng bản REGRESSION do chính diff round 3 gây ra so với base (base nuốt lỗi đọc, giữ slug ở gates). Verdict REJECT, trả về implementation.
+Round 4: re-verify toàn bộ 10 eval máy — vẫn PASS, không eval nào bắt được lỗi mới (mọi suite baseline=green, không phân biệt). Review adversarial round này phát hiện 2 finding TRONG hợp đồng, cùng lớp AC-1 vừa được vá cho `opportunity.md` ở round 3: guard đọc + guard verdict của `evidence-report.md` (scripts/start-scan.mjs:116-123) vẫn chạy TRƯỚC khi rẽ nhánh theo status, nên lỗi đọc/verdict-rỗng của một file không thuộc luồng kiểm của status `draft`/`approved`/`signed-off` vẫn đẩy nhầm slug ra khỏi ô đúng — đúng kịch bản AC-1 cấm, và đúng bản REGRESSION do chính diff round 3 gây ra so với base (base nuốt lỗi đọc, giữ slug ở gates). Verdict REJECT, trả về implementation.
+Round 5 (vòng này): re-verify toàn bộ 10 eval máy sau khi dời guard đọc + guard verdict của `evidence-report.md` vào trong hai nhánh `verified`/`implemented` (S4 fix cho regression round 4, cùng cách round 3 đã xử lý cho `opportunity.md`) — tất cả PASS, mọi suite baseline=green (không eval nào phân biệt round này, harness ổn định chứ không phải feature mới). Review adversarial không tìm thêm finding TRONG hợp đồng; phát hiện 1 finding NGOÀI hợp đồng (trục `human_signoff` chưa được ma trận P105 biến thiên — verdict ngoài từ vựng đi kèm chữ ký người ở nhánh `verified` có thể lọt qua guard là `done` thay vì `broken`), không phải regression của diff round 5 (thứ tự nhánh đã có từ code cũ) — đưa ra Gate 2 làm known-limit. Verdict PASS.
 
 ## Gate 2 checklist (human)
 
