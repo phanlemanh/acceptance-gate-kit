@@ -1,70 +1,75 @@
 ## Trong hợp đồng
 
-Không có finding nào map được vào AC ở round này — finding high/AC-1 (workspace-mồ-côi, chỉ có uat-session.md biến mất khỏi bộ quét) tìm thấy ở round 3 đã được sửa (decisions.jsonl d-20260803T094746Z-19579) và đo lại bằng case P110 với 2 hình dạng fixture mới; không phát hiện regression tương đương nào khác round này.
+- **Bản đồ sản phẩm in tên việc bị cụt vì frontmatterField cắt nhầm dấu nháy cuối — bản đã commit đang sai**
+  AC: AC-13b
+  file: `PRODUCT-MAP.md:36`
+  severity: medium
+  detail: lib/evidence-core.js:96 dùng `.replace(/^["']|["']$/g, '')` — nó gỡ nháy ĐẦU và nháy CUỐI độc lập, nên một giá trị KHÔNG được quote nhưng kết thúc bằng `"` bị mất ký tự cuối.
+
+  Đo thật trên hồ sơ có sẵn trong repo:
+  `_acceptance/s4-scope-triage/contract.md:3` →  `feature: Scope-triage cho review findings ở S4 — ngăn thứ ba "thật nhưng ngoài hợp đồng"`
+  `frontmatterField(...,'feature')` → `'Scope-triage cho review findings ở S4 — ngăn thứ ba "thật nhưng ngoài hợp đồng'`   (mất dấu `"` cuối)
+
+  Hệ quả nhìn thấy được: PRODUCT-MAP.md:36 đã commit với dòng nháy lệch `... ngăn thứ ba "thật nhưng ngoài hợp đồng (`s4-scope-triage`)`. Đây là artifact mặt người, máy sinh, có CI canh — nên cái sai này được ghim cứng và tái sinh mỗi lần regen.
+
+  Lỗi gốc ở evidence-core có trước diff này, nhưng diff này mới là thứ dựng consumer in nguyên văn `feature:` ra văn bản cho người đọc, và commit sẵn đầu ra hỏng. Sửa đúng chỗ: chỉ bóc nháy khi cặp KHỚP (`/^"(.*)"$/` hoặc `/^'(.*)'$/`), kèm ca RED trong P111 (khối "đối chứng dương" ở mục 4 hiện chưa có hình dạng giá trị-kết-thúc-bằng-nháy).
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **PRODUCT-MAP.md thiếu miễn trừ t1_skip_globs — chính commit ký Cổng 2 tự làm evidence stale và chặn merge**
-  Người dùng thấy gì: Khi ký duyệt bằng chứng (Cổng 2) cho một tính năng, bước tự động cập nhật bản đồ sản phẩm có thể khiến hệ thống báo bằng chứng đã cũ và chặn việc gộp mã — người ký có thể bị kẹt trong vòng lặp không thoát được, phải ký lại nhiều lần.
-  file: `_acceptance/config.yaml`
-  severity: high
-  Đề xuất: new-contract
-
-- **Hai reader vẫn cho hai kết luận trái nhau về evidence-report.md hỏng — đúng lớp lỗi lib/workspace-record.js sinh ra để diệt**
-  Người dùng thấy gì: Thẻ /start và bản đồ sản phẩm có thể cho hai câu trả lời khác nhau về việc hồ sơ bằng chứng của một tính năng có bị hỏng hay không — một bên báo lỗi, bên kia vẫn coi là bình thường, khiến người xem thẻ dễ hiểu sai tình trạng thật.
+- **start-scan giữ luật "hồ sơ hỏng" thứ hai ngoài lib/workspace-record.js — hai reader vẫn cho kết luận trái nhau**
+  Người dùng thấy gì: Khi một hồ sơ bằng chứng bị lỗi định dạng, /start báo "hồ sơ hỏng" nhưng bản đồ sản phẩm lại hiển thị việc đó như đang làm bình thường — hai nơi nói khác nhau về cùng một việc, dễ khiến bạn bỏ sót việc cần sửa.
   file: `scripts/start-scan.mjs`
   severity: high
   Đề xuất: known-limits
 
-- **skills/uat-session/SKILL.md trỏ vào references/ không tồn tại trong gói**
-  Người dùng thấy gì: Khi làm theo hướng dẫn của kỹ năng phiên nghiệm thu, bước đầu tiên trỏ tới một khuôn mẫu không có ở đúng chỗ đó — người thực hiện có thể tự bịa nội dung thay vì dùng đúng mẫu chuẩn, làm hồ sơ phiên nghiệm thu sai định dạng.
+- **Cổng Giá trị là cổng người thứ tư nhưng không nằm trong danh sách khoá, và quyết định đó không được ghi ở đâu ngoài comment test**
+  Người dùng thấy gì: Bước ký duyệt giá trị sản phẩm (Cổng Giá trị) không có lệnh gõ tay riêng để bàn giao như ba cổng còn lại, và lý do vì sao bước này được để mở chỉ nằm trong ghi chú kỹ thuật nội bộ — người vận hành có thể không nắm được quy tắc này.
   file: `skills/uat-session/SKILL.md`
   severity: medium
   Đề xuất: known-limits
 
-- **GUIDE.md còn mô tả hành vi skipped[] đã bị gỡ**
-  Người dùng thấy gì: Tài liệu hướng dẫn chung vẫn mô tả một hành vi cũ đã bị gỡ bỏ, và chưa có phần nào giải thích về bản đồ sản phẩm hay bước duyệt giá trị mới — người đọc tài liệu để hiểu tính năng sẽ nhận thông tin lỗi thời hoặc thiếu.
-  file: `GUIDE.md`
+- **`.out-of-scope/` là input của bản đồ nhưng không có điểm regen nào — mọi PR ghi một quyết-định-không-làm sẽ đỏ CI**
+  Người dùng thấy gì: Khi bạn ghi lại một quyết định "không làm" vào hồ sơ, bước kiểm tra tự động trên các PR sau có thể báo lỗi "lệch bản đồ" dù không ai làm gì sai, vì chưa có bước nào tự cập nhật lại bản đồ sau khi ghi quyết định đó.
+  file: `.github/workflows/gate.yml`
   severity: medium
   Đề xuất: known-limits
 
-- **Hai reader vẫn trái nhau về "hồ sơ hỏng": check evidence-report.md nằm ngoài luật chung**
-  Người dùng thấy gì: Thẻ /start và bản đồ sản phẩm có thể cho hai câu trả lời khác nhau về việc hồ sơ bằng chứng của một tính năng có bị hỏng hay không, khiến người xem thẻ dễ hiểu sai tình trạng thật của tính năng đó.
+- **P113 phá PRODUCT-MAP.md THẬT trong cây làm việc thay vì trong bản sao**
+  Người dùng thấy gì: Đây là vấn đề trong bộ kiểm thử nội bộ chứ không phải trong sản phẩm bàn giao — nếu bộ kiểm thử bị ngắt giữa chừng, file bản đồ sản phẩm đã lưu trong kho có thể bị ghi bẩn một dòng giả.
+  file: `tests/plugins/run-tests.sh`
+  severity: low
+  Đề xuất: known-limits
+
+- **Hai reader vẫn trái nhau về "hồ sơ hỏng": evidence-report.md nằm ngoài luật chung**
+  Người dùng thấy gì: Cùng một hồ sơ nghiệm thu bị lỗi lại được /start và bản đồ sản phẩm báo cáo khác nhau — một bên nói "hỏng", một bên nói "đang làm bình thường" — khiến người xem không biết nên tin bên nào.
   file: `scripts/start-scan.mjs`
   severity: high
   Đề xuất: known-limits
 
-- **Cơ hội `stage: archived` nằm mãi trong nhóm chờ chữ ký người**
-  Người dùng thấy gì: Một cơ hội sản phẩm đã được xếp kho (không theo đuổi nữa) vẫn hiện trên thẻ /start ở nhóm "chờ chữ ký của anh" như thể còn chưa quyết định — không có cách nào gỡ nó khỏi danh sách chờ ký ngoài việc sửa ngược hồ sơ để nói sai tình trạng thật.
-  file: `lib/workspace-record.js`
+- **--check exit 0 khi PRODUCT-MAP.md bị xoá — xoá bản đồ lọt qua cổng CI duy nhất canh nó**
+  Người dùng thấy gì: Nếu file bản đồ sản phẩm bị xoá nhầm (không phải chưa từng có), công cụ kiểm tra tự động vẫn báo "ổn" thay vì báo lỗi — việc xoá nhầm bản đồ có thể lọt qua mà không ai phát hiện.
+  file: `scripts/product-map.mjs`
   severity: medium
   Đề xuất: known-limits
 
 - **Phiên nghiệm thu đã dựng nhưng chưa ký biến mất khỏi nhóm chờ ký khi slug không thuộc đường A**
-  Người dùng thấy gì: Nếu ai đó đã lên lịch một phiên nghiệm thu cho một tính năng ngoài luồng chính thông thường, phiên đó có thể biến mất khỏi danh sách chờ chữ ký trên thẻ /start mà không cảnh báo — trông như tính năng đã xong trong khi thực ra vẫn cần người quyết định.
+  Người dùng thấy gì: Một phiên nghiệm thu đã được chuẩn bị nhưng chưa có người ký kết luận có thể biến mất khỏi danh sách "đang chờ bạn ký" trên thẻ /start nếu việc đó không đi theo đúng nhánh quy trình đã ghi.
   file: `scripts/start-scan.mjs`
   severity: medium
   Đề xuất: known-limits
 
+- **Cơ hội stage: archived nằm mãi trong nhóm chờ chữ ký người**
+  Người dùng thấy gì: Một cơ hội sản phẩm đã được xếp vào kho lưu vẫn bị liệt kê mãi trong danh sách "đang chờ bạn cân nhắc" trên thẻ /start, dù thực ra không còn cần quyết định gì nữa.
+  file: `scripts/start-scan.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Case P113 ghi đè file PRODUCT-MAP.md đang được theo dõi của chính repo trong lúc chạy test**
+  Người dùng thấy gì: Đây là vấn đề trong bộ kiểm thử nội bộ chứ không phải trong sản phẩm bàn giao — nếu bộ kiểm thử bị ngắt giữa chừng hoặc chạy chồng với thao tác ghi khác, file bản đồ sản phẩm đã lưu trong kho có thể bị ghi bẩn.
+  file: `tests/plugins/run-tests.sh`
+  severity: low
+  Đề xuất: known-limits
+
 Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
-
-## Phản hồi người tại Cổng 2 (2026-08-03)
-
-- **Bước:** Cổng 2, sau khi owner đọc `PRODUCT-MAP.md` nguyên văn.
-- **Nguyên văn:** "Product-map vẫn là ngôn ngữ của máy, không phải ngôn ngữ của
-  người và thiếu visual trong khi đây là không gian của ngừoi và visual tốt nhất?"
-- **Xử lý:** ghi nhận là **lỗ-kit — ngôn ngữ mặt người**, không phải lỗi người
-  viết. Đối chiếu luật: N5 (hình trước, chữ là chú thích) bị vi phạm ở DẠNG
-  THỨC — bản đồ là điểm quyết định vượt ngưỡng "3 bước nối tiếp hoặc 2 nhánh
-  rẽ" mà không có hình; bảng tra DECISION-DIAGRAM-SURFACES chỉ đích danh
-  "tài liệu trong kho → khối mermaid" và bộ sinh không dùng. Thêm N1/N2 ở dòng
-  ghi chú đầu file (chủ ngữ là "máy", hai đường dẫn nằm trong câu chính) và N3
-  ở mỗi dòng (slug — một mã tra cứu — làm chủ ngữ).
-- **Hệ quả cho phán quyết:** AC-13 KHÔNG đạt ở phần bộ sinh TỰ VIẾT, không chỉ
-  ở phần thừa hưởng `feature:` của hồ sơ cũ. Khuyến nghị "chấp nhận + override"
-  ở lượt trình trước đã RÚT.
-- **Lỗ của bộ đo:** panel judge E13 ba vòng đều chỉ soi trục từ vựng N1–N6 và
-  không chạy phép thử nhìn-thấy-hình, dù phép thử đó nằm cùng file luật được
-  truyền làm input. Câu hỏi của eval AC-13 cũng không nhắc trục hình.

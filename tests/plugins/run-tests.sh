@@ -3767,8 +3767,12 @@ if (F(ev, "human_signoff") !== "") die(`human_signoff rong doc ra ${JSON.stringi
 if (F(ev, "bypass_used") !== "false") die("khoa duoi human_signoff bi nuot");
 
 // 4. DOI CHUNG DUONG — cac hinh dang khac phai giu nguyen hanh vi
-const d = "---\nkey:   co khoang trang\nquoted: \"abc\"\ncmt: val # ghi chu\nonlycmt: # chi comment\ncrlf: x\r\nlast:\n---\n";
-const MONG = { key: "co khoang trang", quoted: "abc", cmt: "val", onlycmt: "", crlf: "x", last: "" };
+const d = "---\nkey:   co khoang trang\nquoted: \"abc\"\ncmt: val # ghi chu\nonlycmt: # chi comment\ncrlf: x\r\nnhayle: ngan thu ba \"that nhung ngoai hop dong\"\nnhaymo: \"chua dong\nlast:\n---\n";
+// nhayle: gia tri KHONG duoc quote nhung ket thuc bang nhay — boc dau/cuoi doc
+// lap se an mat ky tu cuoi, va ban do in nguyen van ra cho nguoi doc nen cai
+// cut do thanh van ban hong (S4-r5). Chi boc khi CA CAP khop.
+const MONG = { key: "co khoang trang", quoted: "abc", cmt: "val", onlycmt: "", crlf: "x",
+               nhayle: 'ngan thu ba "that nhung ngoai hop dong"', nhaymo: '"chua dong', last: "" };
 for (const [k, v] of Object.entries(MONG))
   if (F(d, k) !== v) die(`hinh dang ${k}: doc ra ${JSON.stringify(F(d, k))}, mong ${JSON.stringify(v)}`);
 if (F(d, "khong-co") !== null) die("khoa vang phai tra null");
@@ -3889,16 +3893,31 @@ def check():
                           cwd=root, capture_output=True, text=True)
 r = check()
 assert r.returncode == 0, f"doi chung duong hong: ban do cua kit dang lech san ({r.stderr.strip()})"
-mp = root / "PRODUCT-MAP.md"
-orig = mp.read_text(encoding="utf-8")
+
+# Pha vat that trong mot BAN SAO, khong pha tai cho: suite bi Ctrl-C giua hai
+# lenh ghi se de lai cay lam viec ban voi mot dong bia trong artifact may sinh
+# DA COMMIT — va vi ban do vua vao t1_skip_globs, dong bia do khong kich hoat
+# cong nao ngoai chinh --check (doctrine CLAUDE.md; chinh case nay vi pham no
+# o S4-r5).
+import shutil, tempfile
+tmp = Path(tempfile.mkdtemp(prefix="p113-"))
 try:
-    mp.write_text(orig + "\n- viec bia dat\n", encoding="utf-8")
-    r2 = check()
+    shutil.copytree(root / "_acceptance", tmp / "_acceptance")
+    if (root / ".out-of-scope").is_dir():
+        shutil.copytree(root / ".out-of-scope", tmp / ".out-of-scope")
+    shutil.copy2(root / "PRODUCT-MAP.md", tmp / "PRODUCT-MAP.md")
+    def check_tmp():
+        return subprocess.run(["node", str(root / "scripts/product-map.mjs"), "--root", str(tmp), "--check"],
+                              cwd=root, capture_output=True, text=True)
+    assert check_tmp().returncode == 0, "ban sao nguyen ven da lech san — doi chung duong hong"
+    (tmp / "PRODUCT-MAP.md").write_text(
+        (tmp / "PRODUCT-MAP.md").read_text(encoding="utf-8") + "\n- viec bia dat\n", encoding="utf-8")
+    r2 = check_tmp()
     assert r2.returncode != 0, "sua tay ban do ma --check VAN xanh — mien tru dang che mot vung khong ai canh"
     assert "lệch với hồ sơ xưởng" in r2.stderr, f"thong diep khong khop khuon ghim: {r2.stderr}"
 finally:
-    mp.write_text(orig, encoding="utf-8")
-assert check().returncode == 0, "khoi phuc ban do that bai"
+    shutil.rmtree(tmp, ignore_errors=True)
+assert check().returncode == 0, "cay lam viec that phai KHONG bi cham"
 
 # 3. Cong do PHAI chay trong CI, khong chi trong suite verify cua feature-loop
 ci = (root / ".github/workflows/gate.yml").read_text(encoding="utf-8")
