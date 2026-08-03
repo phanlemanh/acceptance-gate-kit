@@ -107,9 +107,35 @@ kit chưa được đóng gói. Lỗ mới phát hiện 29/07: kit KHÔNG có k�
 phản hồi người GIỮA vòng (chỉ có Gate 2) — thêm quy ước "phản hồi người giữa
 vòng → review-findings.md, card Cổng 2 trình lại" vào spec v2.
 
+**Khung spec v2 (chốt 30/07 sau đối chiếu Graph-Engineering playbook +
+restructure Nhịp):** Chương 1 **Nhịp KLĐQ** (primitive + 5 luật lồng + định lý
+tự-động-hoá-Quyết: máy ⟺ thước-máy-ĐỘC-LẬP-DOER ∧ đảo-rẻ ∧ horizon-ngắn —
+vế độc-lập-doer học từ r1-round-3 thước bị doer ghi sai; Quyết-máy PHẢI để
+vết như Quyết-người) · C2 **Ba vòng
+HIỂU/LÀM/TRAO + định tuyến A/B/C/D** · C3 **Cổng theo câu hỏi** (Đáng · Phạm-vi
+· Kế-hoạch · Bằng-chứng · Giá-trị — display name, mã máy giữ) · C4 **Song
+diện artifact** (mặt máy + mặt người) · C5 **Máy móc theo 5 planes**
+(control/execution/artifact/graph/evaluation) + T3-hardening + block
+`feature_loop.budget` (token/agent/cost khai trước — Workflow hỗ trợ sẵn) ·
+C6 **Vận hành đội** (handbook, bảng dịch BRD/PRD/SPEC). Câu kiểm Bắc Đẩu của
+cả spec: "mọi output quan trọng truy được về objective → plan → artifact →
+source → evaluator → bounded run". Cross-feature knowledge: giữ
+frontmatter-first; ngưỡng xét lại = tiêu chí §VIII.C playbook (connected
+queries + provenance thành trung tâm) → lúc đó theo cookbook KG chính thức
+(extract→resolve→assemble, luật chống false-merge). Đối chiếu đầy đủ:
+hội thoại 30/07 + doc Graph-Engineering (~/Documents/Work/Docs/).
+
 ### 1 · ĐIỀU CHỈNH (spec v2 — viết một thể, không vá lẻ)
 - Mô hình pha mới: phép đo tại UAT, Cổng UAT có quyền giết, luật phân loại
   giả định (đổi-thiết-kế → thử trước · đổi-giá-trị → đo tại UAT).
+- **S1-D visual-first (quyết Manh 30/07, từ retro B1):** feature chạm UI →
+  BẮT BUỘC khoảnh khắc visual TRƯỚC Gate 1: C2 proto bằng component thật +
+  design-pass in-harness + capture; **Gate 1 duyệt trên bản bấm được, không
+  duyệt UI bằng chữ**; AC UX neo vào bản đã duyệt; UAT chỉ đo giá trị trên
+  sản phẩm đã đúng hình (tách 2 tín hiệu — chống âm-tính-giả). Đây là thay
+  thế có-slot cho làn CT2 đã khai tử: nhu cầu visual-first giữ nguyên, chỉ
+  đổi cỗ máy (in-harness, không gương ngoài). F-D theo đó NÂNG từ hạng mục
+  đóng gói → giai đoạn workflow; r2 (T7-T9) là pilot chạy trước.
 - D2.5 phép-thử-rẻ-không-cần-dựng (pattern schema-probe 8'); luật rẽ C2/C1/H1
   cho D3; template opportunity tách build/field + mục Đo-sau-ship.
 - Trình-người-quyết = visual trước: mermaid trong design-doc + artifact sống
@@ -137,6 +163,42 @@ vòng → review-findings.md, card Cổng 2 trình lại" vào spec v2.
   sẻ cộng đồng); kiểm P30 mirror + version sync; kiểm các executor mồ côi
   trong config consumer (vd `design_static_video_qf` trỏ plugin đã gỡ).
 - Cài lại `pm-data-analytics` khi tới vòng đo (1 lệnh).
+
+## Pilot r2 — kế hoạch thử nghiệm (30/07, Manh yêu cầu; pilot của TOÀN workflow v2)
+
+**Trình tự:** B0 ship design-pass (merge branch signed-off về main + update plugin,
+~15') → B1 Pha 3 gói lưới 5 món (chip kit, 1-2 buổi máy + ~20' gate) → B2 song
+song: chuẩn bị r2 (chip artifact-platform: workspace `trang-tu-van-v2-r2`,
+opportunity-r2 tham chiếu r1 + trường "Nguồn ngoài & phạm vi kế thừa" [E03:
+logic CÓ / hình thái KHÔNG] + ngưỡng UAT chuyển từ r1 + bảng nợ kế thừa đề
+xuất: T1-T6 keep kèm guard baseline-bắt-buộc & branch-cắt-từ-main [toàn bộ
+code kế thừa nằm trong diff S4] / T7-T9 archive → trình Cổng 0, Manh ký ~10')
+→ **B2.5 đấu dây consumer (review 30/07 phát hiện — không có chủ trước đó):**
+config artifact-platform thêm `feature_loop.ui_standards_skill: create-onehub-plugin`
++ khối `design_pass` (`proto_route` — kèm quyết định dựng `/proto` shell hay hạ
+bậc có khai); pilot-journal thêm LUẬT ĐẾM can-thiệp (không tính: entry có tài
+liệu + câu neo · trả lời câu loop hỏi · quyết định tại cổng · hậu cần UAT);
+contract r2 Notes ghi guard baseline-keep (7.3 chưa máy hoá — F-A); hẹn lịch
+môi giới UAT ngay tại Gate 1 (chủ: Manh — bài học logistics-không-chủ r1)
+→ B3 `/feature-loop trang-tu-van-v2-r2` session mới, kit-tự-dẫn 100%: S1
+khuôn plugin → **S1-D design-pass chạy thật lần đầu** (quyết bậc vật liệu tại
+chỗ: dựng `/proto` shell = C2 Đợt 1, hoặc degrade có khai `material:`) →
+Gate 1 trên bản bấm được → S2→S4 → Gate 2 → B4 **phiên UAT đầu tiên** (bản
+tay, uat-session skill chưa có): 3-5 môi giới, chấm kín + commitment device,
+số so ngưỡng T1′/T2′ → Cổng UAT: release / iterate / kill.
+
+**Số đo pilot (khai TRƯỚC khi chạy):**
+
+| Số | Ngưỡng thành công | Tham chiếu |
+|---|---|---|
+| Can thiệp ngoài (đỡ tay) | ≤3 | r1: hàng chục · design-pass: ≈0 |
+| Drift lớp-B1 (E03/khuôn plugin) tái xuất | 0 finding | r1: nguyên nhân bác Gate 2 |
+| Round S4 | ≤3 | r1: 8 |
+| Phút người mỗi gate | ~10′ | chuẩn đang giữ |
+| UAT chạy thật | phiên diễn ra ≤7 ngày sau Gate 2, verdict có số | giả thuyết lớn nhất chưa kiểm |
+
+**Định nghĩa thất bại (khai trước):** can thiệp >10 HOẶC drift B1 tái xuất →
+DỪNG build, quay lại vá kit trước — không lặp lại lỗi đo-tại-cuối của r1.
 
 ## Nợ đã khai (NGOÀI kế hoạch này — không phải bỏ sót)
 
@@ -170,12 +232,63 @@ vòng → review-findings.md, card Cổng 2 trình lại" vào spec v2.
 4. Dòng D3 spec: "interactive-prototype (C1i)" → "theo luật rẽ C2/C1/H1" (bề mặt đã tồn tại → C2 mặc định).
 5. D1a đắt vì khảo cổ thiếu nền (293'/373' probe) — dữ liệu n=1 cho việc nâng lại nhánh R product-context; chờ feature thứ 2.
 
+## Bổ sung 2026-08-03 (quyết Manh trong chat maintainer)
+
+**Amendment F-A — ruột buổi phỏng vấn = NGHI THỨC ADVISOR** (thiết kế đã duyệt
+03/08; r3 Trang Tư Vấn chạy bản tay đầu tiên qua `grill-questions.md` bên
+artifact-platform, bài học đổ ngược vào F-A khi đóng gói):
+
+1. **Tờ khai bối cảnh** (artifact mới, trước buổi, máy điền): ba loại dòng
+   phân biệt rạch ròi — *sự thật đọc được* (kèm nguồn từng dòng; CẤM hỏi lại)
+   · *suy đoán rút từ sự thật* (đánh dấu inference) · *không thể biết từ
+   repo* (→ thành câu hỏi của buổi). Áp luật provenance 4-bất-biến vào
+   elicitation; thước có sẵn: DP-1 "hỏi trùng thông tin đã có ≤1 câu".
+2. **Chân ngành trước buổi**: thủ tục web-grounding domain (bài học
+   morphological-scan) để hỏi bằng từ vựng nghề — advisor biết nghề, không
+   chỉ biết hồ sơ.
+3. **Mở buổi = soát tờ khai 5-7′**: người gạch chỗ sai; chỗ gạch là mỏ tri
+   thức ngầm, đào tại chỗ. Ngầm-định → thứ-bắn-được.
+4. **Luật chống mớm**: câu tầng KHUNG (người/việc) hỏi MỞ trước
+   (kể-một-ngày, kể-lần-gần-nhất), nghe xong mới đối chiếu tờ khai; tờ khai
+   chỉ để soát sự thật + bắn suy đoán, không bao giờ thay câu trả lời —
+   chống đúng cơ chế giết r2 (khung kế thừa ngầm, người gật theo).
+5. Phân bổ theo bốn câu thực tế: câu Dữ liệu/Vật liệu phần lớn máy đọc được
+   (schema, kho linh kiện) → tờ khai điền trước, buổi chỉ hỏi phần đời thật
+   (ai nhập · công mỗi lần · trễ bao lâu); câu Người/Việc ngoài repo → hỏi.
+
+**Lỗ-kit ghi tại Gate 1 vòng start-command (03/08, maintainer quan sát):**
+luật ngôn ngữ mặt người ĐÃ đấu dây (3 lệnh thẻ + feature-loop "MỌI lần
+trình" + P93 giữ bảng luật) nhưng lần trình gói duyệt Gate 1 vẫn lòi mặt máy:
+bảng AC→eval→executor cho người đọc nguyên chữ máy (fixture, frontmatter/
+mtime, mã P55/P95/E-n không kèm nghĩa, chuỗi mũi tên) — trượt phép thử
+xoá-tên-máy. Nguyên nhân tầng khuôn, không phải tầng luật: bản luật có khuôn
+cho bảng-kế-hoạch (`PLAN-SUMMARY-TABLE-TEMPLATE`) + sơ đồ quyết định, nhưng
+CHƯA có khuôn cho *bảng gói duyệt Cổng Phạm-vi* (mỗi tiêu chí: "điều phải
+đúng" tiếng người + "đo bằng" tiếng người + mã trong ngoặc) → model tự chế
+và trôi về mặt máy (đúng hình dạng blacklist-trên-không-gian-mở: chỗ nghẽn
+chưa có khuôn thì luật mô tả không giữ được). Việc vá: thêm marker khuôn
+`GATE1-EVAL-MAP` vào `human-facing-language.md` + case kiểu P93; máy soi
+mật độ (F-G) sẽ bắt lớp này về sau.
+
+| ID | Việc | Nơi chạm | Tier | Phụ thuộc |
+|---|---|---|---|---|
+| F-E | Máy tự nhận đường A/B/C/D/E từ artifact (hiện là quy ước người khai trong hồ sơ, người duyệt soi tại cổng) | `feature-loop/skills/` + mirror | T2 | spec v2 §2.4 |
+| F-F | Script kiểm kê kho linh kiện cho câu thực tế #4 + giai đoạn 0 design-pass | `scripts/` + mirror | T2 | — |
+| F-G | Máy soi mật độ chữ kỹ thuật ở vùng mặt-người (ratchet như census DS, chạy khi nâng bộ dựng thẻ) | `scripts/` + `commands/` + mirror | T2 | spec v2 §4.1 |
+| F-H | Lệnh `/start` — nghi thức vào phiên: người gõ một lệnh, máy quét `_acceptance/` + PRODUCT-MAP trình thẻ 3 nhóm (chờ ký · đang dở · bắt đầu mới), người chọn một chữ cái, bàn giao sang nghi thức đích; khoá model-invocation 2 harness (thao tác người thứ 6 — nợ P31/P32 mở rộng trả tại đây). Design đã duyệt hướng: `docs/specs/2026-08-03-start-command-design.md` | `commands/` + `codex/` + `tests/` + `GUIDE.md` + mirror | T2 | thi công qua feature-loop, 1-2 buổi | 
+
 ## DP-1 — Scorecard (điền sau V1)
 
-| Tiêu chí | Ngưỡng | Kết quả | Đạt? |
+| Tiêu chí | Ngưỡng | Kết quả (đo 29/07, v1-journal worktree) | Đạt? |
 |---|---|---|---|
-| Thước đo thành công → criterion | ≥70% | | |
-| Out of scope chép sang contract | không mất bullet không giải trình | | |
-| S1 hỏi trùng thông tin đã có | ≤1 câu | | |
+| Thước đo thành công → criterion | ≥70% | **2/2 (100%)** — "% khách chấm" → AC-15+AC-10 (chỉnh-mạnh-lên: contract buộc định nghĩa đếm + truy vấn); "xếp hạng mục mở" → AC-6+AC-14 (chỉnh-hạ-cấp-có-lý-do: khai thiên lệch vị trí). Bonus: cả 3 ngưỡng UAT/async cũng truy được (nguyên-chuyển-thì / mất-có-giải-trình) | ✅ |
+| Out of scope chép sang contract | không mất bullet không giải trình | **Mất 0/5** — 3 nguyên văn, 2 nhánh-đã-bác thành ràng buộc kiến trúc (có ghi chú); S1 còn THÊM 6 bullet mới | ✅ |
+| S1 hỏi trùng thông tin đã có | ≤1 câu | **0/5 câu trùng** (bảng đối chiếu từng câu trong journal) | ✅ |
 
-**Verdict:** GO / NO-GO / VÙNG-GIỮA — ký: __________ ngày: __________
+*Chú thích hợp lệ: memory `e03-direction` không cách ly trước session C — nhưng
+mọi tracer quyết định đều "chỉ-file" (re-rank #1, SourceBundle/TA, 3 lớp ô);
+cột nguồn ghi rõ từng dòng.*
+
+**Verdict: GO** — ký: **Manh Phan** ngày: **2026-07-30** (lệnh minh danh trong
+chat maintainer session; máy điền số 29/07, người ký 30/07). **DP-1 GO chính
+thức mở khoá F-A + F-B** theo §Trình tự & điểm quyết.

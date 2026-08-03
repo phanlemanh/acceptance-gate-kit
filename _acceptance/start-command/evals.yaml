@@ -1,0 +1,154 @@
+# Evals — start-command
+# Mọi eval máy chạy qua suite tests/plugins (case P89+ sinh ở S3, số chính xác
+# chốt khi viết test). cmd là config: ref — resolve tại S4; paths phục vụ
+# carry-forward P1. Fixture workspace cho P-scan PHẢI do code sinh trong chính
+# lần chạy (bất biến "thước gắn vào vật được giao"), kèm đối chứng dương
+# (fixture nguyên vẹn → phân ô đúng, XANH) trước bản tiêm hỏng (ghim đúng
+# thông điệp, không chỉ mã thoát).
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case scan-no-config pass: fixture KHÔNG có config.yaml → JSON config:false, exit 0; đối chứng dương: fixture CÓ config → config:true; commands/start.md ghim hành vi một-dòng-gợi-ý /acceptance-init rồi dừng"
+    paths:
+      - scripts/start-scan.mjs
+      - commands/start.md
+      - tests/plugins/run-tests.sh
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case scan-classify pass: fixture code-sinh phủ ĐỦ MỌI HÀNG bảng phân ô của spec (liệt kê theo bảng, không theo con số — gồm cả opportunity thiếu decision, decision iterate, verdict PENDING-JUDGMENT) → assert từng hàng ra đúng ô đích danh, tổng slug vào ô = tổng slug fixture (không sót, không trùng)"
+    paths:
+      - scripts/start-scan.mjs
+      - tests/plugins/run-tests.sh
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case scan-next-step pass: approved-không-plan → S2, approved-có-plan (fixture sinh file plan khớp *<slug>*) → S3, implemented → S4, evidence REJECT → S3-fix, opportunity-build-chưa-contract → S1"
+    paths:
+      - scripts/start-scan.mjs
+      - tests/plugins/run-tests.sh
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case scan-broken pass: đối chứng dương fixture nguyên vẹn XANH trước; tiêm frontmatter hỏng vào 1 slug → slug đó vào broken[] kèm file+reason, các slug còn lại phân ô như bản nguyên vẹn, exit 0 (ghim thông điệp reason, không chỉ exit code)"
+    paths:
+      - scripts/start-scan.mjs
+      - lib/evidence-core.js
+      - tests/plugins/run-tests.sh
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case scan-skipped pass: fixture không có PRODUCT-MAP.md → skipped[] chứa entry nêu tên PRODUCT-MAP.md và entry nguồn phiên-nghiệm-thu; commands/start.md ghim khuôn in một dòng skip-có-tên mỗi nguồn"
+    paths:
+      - scripts/start-scan.mjs
+      - commands/start.md
+      - tests/plugins/run-tests.sh
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case scan-gate-order pass: fixture 2 cổng có frontmatter timestamp và mtime MÂU THUẪN nhau (approved_at cũ + mtime mới, và ngược lại) → thứ tự theo frontmatter; đối chứng: xoá frontmatter timestamp → rơi về mtime; commands/start.md ghim thứ tự nhóm Chờ-chữ-ký đứng đầu thẻ"
+    paths:
+      - scripts/start-scan.mjs
+      - commands/start.md
+      - tests/plugins/run-tests.sh
+
+  - id: E7
+    criterion: AC-7
+    executor: judgment
+    inputs:
+      - ../../commands/start.md
+      - ../../codex/acceptance-gate/skills/start/SKILL.md
+      - ../../docs/specs/2026-08-03-start-command-design.md
+      - ../../skills/acceptance/references/human-facing-language.md
+    question: "Đọc thân lệnh /start ở cả hai harness: (1) khuôn có buộc kết thúc bằng đúng MỘT câu hỏi chọn chữ cái/số dòng không? (2) mỗi lựa chọn có bàn giao sang đúng nghi thức đích (cổng → acceptance-card, vòng dở → feature-loop <slug>, việc mới → đúng 3 lối) không? (3) có chỗ nào cho phép/lôi kéo model tự làm nội dung thay vì bàn giao không — kể cả ngầm định? (4) khuôn thẻ có tuân 6 luật ngôn ngữ mặt người (file chuẩn đính kèm) không — ví dụ mẫu trong thân lệnh có lọt tiếng máy nào không?"
+
+  - id: E8
+    criterion: AC-8
+    executor: judgment
+    inputs:
+      - ../../commands/start.md
+      - ../../codex/acceptance-gate/skills/start/SKILL.md
+    question: "Khi người chọn resume một vòng dở mà JSON scan báo git dirty hoặc phiên đứng cây chung, thân lệnh có buộc nhắc mở worktree/phiên riêng TRƯỚC khi đưa lệnh resume không, hay có đường đi nào bàn giao thẳng vào cây bẩn?"
+
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case scan-readonly pass: chụp cây fixture (find -newer sentinel hoặc hash toàn bộ) trước và sau khi chạy scan → giống hệt, không file tạo/sửa/xoá"
+    paths:
+      - scripts/start-scan.mjs
+      - tests/plugins/run-tests.sh
+
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P31/P32 pass với LOCKED đã mở rộng thêm start (6 thao tác): commands/start.md có disable-model-invocation:true, codex start openai.yaml có allow_implicit_invocation:false, acceptance-card vẫn KHÔNG bị khoá ở cả hai"
+    paths:
+      - commands/start.md
+      - codex/acceptance-gate/skills/start/agents/openai.yaml
+      - tests/plugins/run-tests.sh
+
+  - id: E11
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case docs-start pass: GUIDE.md và README.md đều có mục /start nêu đủ chuỗi hành-vi người-gõ→máy-định-hướng→người-chọn→bàn-giao; đối chứng âm: bản sao GUIDE bị xoá mục → case KHÔNG pass (ghim thông điệp thiếu mục)"
+    paths:
+      - GUIDE.md
+      - README.md
+      - tests/plugins/run-tests.sh
+
+  - id: E13
+    criterion: AC-13
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case scan-roundtrip pass (mẫu P55): chạy start-scan.mjs trên fixture code-sinh, rút danh sách key JSON được tham chiếu trong khối marker của commands/start.md, assert từng key có mặt trong output thật; đối chứng dương + bản sao lệnh bị đổi tên 1 key → ĐỎ ghim đúng thông điệp key vắng"
+    paths:
+      - scripts/start-scan.mjs
+      - commands/start.md
+      - tests/plugins/run-tests.sh
+
+  - id: E14
+    criterion: AC-14
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case họ P95 mở rộng: mọi con trỏ file trong commands/start.md và codex start SKILL.md giải ra file tồn tại BÊN TRONG gói mirror của harness tương ứng (plugins/... cho Claude, codex/... cho Codex); tiêm con trỏ chết → ĐỎ ghim tên con trỏ"
+    paths:
+      - commands/start.md
+      - codex/acceptance-gate/skills/start/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E15
+    criterion: AC-15
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case start-language-load pass: thân lệnh CẢ HAI harness có bước nạp human-facing-language.md TRƯỚC bước render; đối chứng âm: bản sao bị xoá dòng nạp → case KHÔNG pass (ghim thông điệp thiếu bước nạp)"
+    paths:
+      - commands/start.md
+      - codex/acceptance-gate/skills/start/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E12
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.mirror_sync
+    expected: "exit 0 — mirror plugins/ khớp nguồn sau sync (đối chứng âm sẵn ở P41: tiêm drift → --check exit 1)"
+    paths:
+      - commands/**
+      - codex/**
+      - scripts/**
+      - plugins/**

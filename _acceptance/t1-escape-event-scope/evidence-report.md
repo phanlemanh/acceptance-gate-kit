@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 2b6823d400df3360975c9029b120ac5871e36bbf
+verified_commit: b2d2eac2cabe2fe3bccff9d2e0a65ac3edca32e3
 human_signoff: Manh Phan 2026-07-28
 ---
 
@@ -900,5 +900,16 @@ nguyên như các lần re-pin trước.
   plugins pass (P01–P97, gồm case của slug này) · workflows pass ·
   `sync-plugin-packages.sh --check` mirror in sync — tất cả exit 0.
 - `verified_commit` re-pin → `2b6823d400df3360975c9029b120ac5871e36bbf` (chỉ dòng máy).
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
+  `human_override` giữ nguyên.
+
+### Re-pin — 2026-08-03 (sau start-command), tại b2d2eac
+
+- **Machine lane chạy lại bởi agent TƯƠI** (S4 round 2 của feature
+  `start-command`, Workflow `wf_73dc61df-6d8`, doer≠grader): 5 suite tại
+  `b2d2eac2cabe2fe3bccff9d2e0a65ac3edca32e3` — scripts 596 pass · hooks 51 pass ·
+  plugins pass (P01–P101, gồm case của slug này) · workflows pass ·
+  `sync-plugin-packages.sh --check` mirror in sync — tất cả exit 0.
+- `verified_commit` re-pin → `b2d2eac2cabe2fe3bccff9d2e0a65ac3edca32e3` (chỉ dòng máy).
 - **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
   `human_override` giữ nguyên.

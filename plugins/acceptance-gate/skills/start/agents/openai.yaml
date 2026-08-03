@@ -1,0 +1,5 @@
+interface:
+  display_name: "Start Session"
+  short_description: "Scan the workspace and present the session entry card"
+policy:
+  allow_implicit_invocation: false

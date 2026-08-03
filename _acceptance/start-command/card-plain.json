@@ -1,0 +1,12 @@
+{
+  "feature_plain": "Mở phiên làm việc bằng một lệnh duy nhất: máy nhìn quanh xưởng, trình thẻ ba nhóm — việc chờ anh ký, việc đang dở, việc mới — anh chọn một chữ cái là vào đúng nghi thức. Máy đã nghiệm thu xong bản này: 15/15 tiêu chí đạt, trong đó 2 tiêu chí do hội đồng giám khảo máy chấm và đề nghị đạt.",
+  "decisions": [],
+  "analyst_plain": "",
+  "scope_plain": "Chưa làm trong vòng này: tự nhận đường đi cho việc mới, đọc sổ bàn giao riêng của repo kit, thay bảng tra soát hiện có, và hai nguồn dữ liệu chưa dựng (bản đồ sản phẩm, phiên nghiệm thu) thì nói tên chứ không bịa khuôn.",
+  "decisions_plain": [
+    {"id": "d-20260803T033952Z-28400", "p": "Đã chọn để máy phân ô bằng bộ quét đo được, lệnh chỉ lo phần chữ cho người — đổi lại thêm một file so với dự tính, nhưng kiểm thử bám vào kết quả thật."},
+    {"id": "d-20260803T033952Z-3799", "p": "KHÔNG dựng hai ô chưa có nguồn dữ liệu — thẻ nói tên nguồn vắng thay vì đoán khuôn; vòng sau dựng nguồn thì chỉ bộ quét phải sửa."},
+    {"id": "d-20260803T035833Z-21535", "p": "Người duyệt trả thẻ tại Cổng 1 vì bảng trình bày còn tiếng máy — đã ghi thành một lỗ của bộ công cụ để đợt nâng bộ thẻ đọc lại bằng số."},
+    {"id": "d-20260803T050141Z-31384", "p": "Sau vòng nghiệm thu đầu bị trả lại: sửa bộ quét dùng đúng bộ đọc hồ sơ chuẩn của kit (hết báo hỏng oan file kiểu Windows), nhận diện đúng việc đã ký, khớp chặt tên kế hoạch, và thẻ hết chỗ tự cho phép sửa file — chọn sửa vật theo thiết kế thay vì hạ thiết kế theo code."}
+  ]
+}

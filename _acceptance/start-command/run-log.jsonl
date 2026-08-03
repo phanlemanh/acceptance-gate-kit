@@ -1,0 +1,44 @@
+{"ts":"2026-08-03T04:20:39Z","round":1,"evalId":"E1","run_id":"minted-start-command-E1-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:20:39Z","round":1,"evalId":"E2","run_id":"minted-start-command-E2-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:20:39Z","round":1,"evalId":"E3","run_id":"minted-start-command-E3-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:20:39Z","round":1,"evalId":"E4","run_id":"minted-start-command-E4-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:20:39Z","round":1,"evalId":"E5","run_id":"minted-start-command-E5-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:20:39Z","round":1,"evalId":"E6","run_id":"minted-start-command-E6-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:20:39Z","round":1,"evalId":"E9","run_id":"minted-start-command-E9-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:20:39Z","round":1,"evalId":"E10","run_id":"minted-start-command-E10-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:20:39Z","round":1,"evalId":"E11","run_id":"minted-start-command-E11-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:20:39Z","round":1,"evalId":"E13","run_id":"minted-start-command-E13-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:20:39Z","round":1,"evalId":"E14","run_id":"minted-start-command-E14-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:20:39Z","round":1,"evalId":"E15","run_id":"minted-start-command-E15-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:20:39Z","round":1,"evalId":"E12","run_id":"minted-start-command-E12-r1","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
+{"ts":"2026-08-03T04:20:39Z","round":1,"kind":"baseline","evals_hash":"32449ae849cf1c05bc042a7f066f49e3be354cd4060a503eb1323adaa441df63","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E9","E10","E11","E13","E14","E15"]},{"cmd":"bash scripts/sync-plugin-packages.sh --check","evals":["E12"]}]}
+{"ts":"2026-08-03T04:40:57Z","round":1,"evalId":"E1","run_id":"minted-start-command-E1-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:40:57Z","round":1,"evalId":"E2","run_id":"minted-start-command-E2-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:40:57Z","round":1,"evalId":"E3","run_id":"minted-start-command-E3-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:40:57Z","round":1,"evalId":"E4","run_id":"minted-start-command-E4-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:40:57Z","round":1,"evalId":"E5","run_id":"minted-start-command-E5-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:40:57Z","round":1,"evalId":"E6","run_id":"minted-start-command-E6-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:40:57Z","round":1,"evalId":"E9","run_id":"minted-start-command-E9-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:40:57Z","round":1,"evalId":"E10","run_id":"minted-start-command-E10-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:40:57Z","round":1,"evalId":"E11","run_id":"minted-start-command-E11-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:40:57Z","round":1,"evalId":"E13","run_id":"minted-start-command-E13-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:40:57Z","round":1,"evalId":"E14","run_id":"minted-start-command-E14-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:40:57Z","round":1,"evalId":"E15","run_id":"minted-start-command-E15-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T04:40:57Z","round":1,"evalId":"E12","run_id":"minted-start-command-E12-r1","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
+{"ts":"2026-08-03T04:40:57Z","round":1,"kind":"baseline","evals_hash":"32449ae849cf1c05bc042a7f066f49e3be354cd4060a503eb1323adaa441df63","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E9","E10","E11","E13","E14","E15"]},{"cmd":"bash scripts/sync-plugin-packages.sh --check","evals":["E12"]}]}
+{"ts":"2026-08-03T05:01:59Z","round":2,"evalId":"E1","run_id":"minted-start-command-E1-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T05:01:59Z","round":2,"evalId":"E2","run_id":"minted-start-command-E2-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T05:01:59Z","round":2,"evalId":"E3","run_id":"minted-start-command-E3-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T05:01:59Z","round":2,"evalId":"E4","run_id":"minted-start-command-E4-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T05:01:59Z","round":2,"evalId":"E5","run_id":"minted-start-command-E5-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T05:01:59Z","round":2,"evalId":"E6","run_id":"minted-start-command-E6-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T05:01:59Z","round":2,"evalId":"E9","run_id":"minted-start-command-E9-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T05:01:59Z","round":2,"evalId":"E10","run_id":"minted-start-command-E10-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T05:01:59Z","round":2,"evalId":"E11","run_id":"minted-start-command-E11-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T05:01:59Z","round":2,"evalId":"E13","run_id":"minted-start-command-E13-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T05:01:59Z","round":2,"evalId":"E14","run_id":"minted-start-command-E14-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T05:01:59Z","round":2,"evalId":"E15","run_id":"minted-start-command-E15-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-03T05:01:59Z","round":2,"evalId":"E12","run_id":"minted-start-command-E12-r2","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
+{"ts":"2026-08-03T05:01:59Z","round":2,"evalId":"E7","kind":"panel","proposal":"PASS","votes":[{"lens":"domain-correctness","verdict":"PASS"},{"lens":"operational-feasibility","verdict":"PASS"},{"lens":"spec-alignment","verdict":"PASS"}],"inputs_hash":"99709eff0da25f3f61f8e7572c6e9de7ce2217f2f527042a80b282942cb1ded8"}
+{"ts":"2026-08-03T05:01:59Z","round":2,"evalId":"E8","kind":"panel","proposal":"PASS","votes":[{"lens":"domain-correctness","verdict":"PASS"},{"lens":"operational-feasibility","verdict":"PASS"},{"lens":"spec-alignment","verdict":"PASS"}],"inputs_hash":"0db5fd223990c2a261721fac48d0c64bcc5cb8607dc86623d633f60648769edc"}
+{"ts":"2026-08-03T05:01:59Z","round":2,"kind":"baseline","evals_hash":"32449ae849cf1c05bc042a7f066f49e3be354cd4060a503eb1323adaa441df63","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E9","E10","E11","E13","E14","E15"]},{"cmd":"bash scripts/sync-plugin-packages.sh --check","evals":["E12"]}],"carried_from_round":1}

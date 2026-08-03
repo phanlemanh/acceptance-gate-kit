@@ -467,6 +467,34 @@ workspace cũ không bắt migrate, bỏ chủ động = entry `descope` bắt �
 T3 — preset `risk-premortem` của morphological-scan đã phủ. Spec:
 `docs/superpowers/specs/2026-07-23-s1-gap-probe-design.md`.
 
+## Vào phiên bằng /start (1.30.0)
+
+Bước 0 của mọi phiên — mở Claude Code lên rồi *gõ gì đầu tiên* — vốn là
+xổ số câu chữ: mỗi cách mở đầu ra một biến thể phiên, có phiên đọc đúng việc
+đang chờ, có phiên tự chọn việc, có phiên hỏi lan man. `/start` thay câu tự do
+bằng một nghi thức: **người gõ một lệnh — máy nhìn quanh xưởng — người chọn
+một chữ cái — bàn giao**.
+
+Thẻ trình đúng ba nhóm, theo thứ tự ưu tiên:
+
+| Nhóm | Nghĩa |
+|---|---|
+| Chờ chữ ký của anh | Các cổng đang đợi người quyết — cổng chờ lâu nhất lên đầu, mỗi cổng ~10 phút |
+| Đang dở | Các vòng đang giữa chừng — mỗi vòng một dòng: người dùng sẽ được gì + bước kế |
+| Bắt đầu việc mới | Đúng ba lối: ý mơ hồ → buổi khai thác; việc rõ → `/feature-loop`; việc vặt miễn T1 → sửa thẳng |
+
+Người chọn một dòng là lệnh bàn giao sang nghi thức đích (thẻ cổng, vòng lặp,
+hay buổi khai thác) — lệnh **không tự làm nội dung**, không đọc/ghi file sản
+phẩm; phần phân loại nằm trong bộ quét `scripts/start-scan.mjs` (chỉ-đọc).
+Nguồn dữ liệu chưa dựng (bản đồ sản phẩm, phiên nghiệm thu) thì thẻ nói tên
+nguồn vắng thay vì im lặng. Chọn tiếp một vòng dở khi cây làm việc đang bẩn
+hay dùng chung → lệnh nhắc mở worktree/phiên riêng trước.
+
+Đây là thao tác cổng người thứ sáu: khoá model-invocation ở CẢ HAI harness
+(cùng lý do ADR 0002) — nghi thức vào phiên là của người; model tự gọi giữa
+chừng chỉ tạo nhiễu định hướng lại, đúng loại biến thể lệnh này sinh ra để
+diệt.
+
 ## 5. Cài đặt
 
 ### 5.1 Mỗi máy dev (một lần)

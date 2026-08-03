@@ -462,7 +462,7 @@ run "P31 Codex human-gate skills locked from implicit invocation; card stays ope
 import sys
 from pathlib import Path
 root = Path(sys.argv[1])
-LOCKED = ["approve", "signoff", "acceptance-init", "acceptance-status", "acceptance-report"]
+LOCKED = ["approve", "signoff", "acceptance-init", "acceptance-status", "acceptance-report", "start"]
 for base in ["codex/acceptance-gate/skills", "plugins/acceptance-gate/skills"]:
     for name in LOCKED:
         y = root / base / name / "agents/openai.yaml"
@@ -479,7 +479,7 @@ run "P32 Claude gate commands locked from model invocation; card stays open" \
 import sys
 from pathlib import Path
 root = Path(sys.argv[1])
-LOCKED = ["approve", "signoff", "acceptance-init", "acceptance-status", "acceptance-report"]
+LOCKED = ["approve", "signoff", "acceptance-init", "acceptance-status", "acceptance-report", "start"]
 for name in LOCKED:
     t = (root / "commands" / f"{name}.md").read_text()
     assert "disable-model-invocation: true" in t, f"commands/{name}.md lacks lock"
@@ -2791,6 +2791,318 @@ m5 = t.replace(pt_body, pt_body.replace("thiếu bộ vẽ", "chua san sang"), 1
 m5 = m5 + "\n\nGhi chu: dan mot khoi ma vao mat phang thiếu bộ vẽ la ca truot.\n"
 assert has(check(m5), "thieu ca truot cua phep thu"), \
     "pha ban TRONG marker ma ban sao NGOAI marker van giu xanh — phep do chua neo vao vat"
+PY
+
+# ── P98: start-scan.mjs — phan o tren fixture CODE-SINH (E1-E6, E9) ─────────
+# Fixture sinh trong chinh lan chay; doi chung duong (ban nguyen ven XANH)
+# truoc ban tiem hong (ghim dung thong diep). Bang phan o = spec start-command
+# (docs/specs/2026-08-03-start-command-design.md).
+run "P98 start-scan phan o du moi hang bang + broken/skipped/readonly/gate-order (E1-E6,E9)" \
+  node - "$ROOT" <<'JS'
+const fs = require('fs'), path = require('path'), os = require('os');
+const crypto = require('crypto');
+const { execFileSync } = require('child_process');
+const root = process.argv[2];
+const SCAN = path.join(root, 'scripts/start-scan.mjs');
+const die = m => { console.error(m); process.exit(1); };
+
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p98-'));
+const W = (rel, s) => { const p = path.join(tmp, rel);
+  fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, s); };
+const contract = (slug, status, extra = '') =>
+  `---\nschema_version: 1\nfeature: f-${slug}\nslug: ${slug}\nowner: t@t\nrisk_tier: T2\nsurfaces: [cli]\nstatus: ${status}\n${extra}---\n# C\n`;
+const opp = (slug, stage, decision) =>
+  `---\nschema_version: 1\nslug: ${slug}\nfeature: f\nowner: t@t\nstage: ${stage}\ndecision: ${decision}\n---\n# O\n`;
+const evidence = (verdict) =>
+  `---\nschema_version: 2\nslug: x\nverdict: ${verdict}\nhuman_signoff:\n---\n# E\n`;
+
+// ---- 1. Fixture NGUYEN VEN: du MOI HANG bang phan o cua spec ----
+W('_acceptance/config.yaml', 'schema_version: 1\n');
+W('_acceptance/a-opp-moi/opportunity.md', opp('a-opp-moi', 'discovery', ''));
+W('_acceptance/b-opp-thieu-decision/opportunity.md', opp('b-opp-thieu-decision', 'decided', ''));
+W('_acceptance/c-opp-build/opportunity.md', opp('c-opp-build', 'decided', 'build'));
+W('_acceptance/d-opp-iterate/opportunity.md', opp('d-opp-iterate', 'decided', 'iterate'));
+W('_acceptance/e-opp-park/opportunity.md', opp('e-opp-park', 'decided', 'park'));
+W('_acceptance/f-draft/contract.md', contract('f-draft', 'draft'));
+W('_acceptance/g-approved/contract.md', contract('g-approved', 'approved'));
+W('_acceptance/h-approved-plan/contract.md', contract('h-approved-plan', 'approved'));
+W('docs/superpowers/plans/2026-01-01-h-approved-plan.md', '# plan\n');
+W('_acceptance/i-implemented/contract.md', contract('i-implemented', 'implemented'));
+W('_acceptance/j-reject/contract.md', contract('j-reject', 'implemented'));
+W('_acceptance/j-reject/evidence-report.md', evidence('REJECT'));
+W('_acceptance/k-pass/contract.md', contract('k-pass', 'verified', 'approved_at: 2026-01-02T00:00:00Z\n'));
+W('_acceptance/k-pass/evidence-report.md', evidence('PASS'));
+W('_acceptance/l-pending/contract.md', contract('l-pending', 'verified', 'approved_at: 2026-01-01T00:00:00Z\n'));
+W('_acceptance/l-pending/evidence-report.md', evidence('PENDING-JUDGMENT'));
+W('_acceptance/m-signed/contract.md', contract('m-signed', 'signed-off'));
+// cac nhanh verified co dieu kien (S4-r1) + CRLF + slug-tien-to
+W('_acceptance/n-verified-reject/contract.md', contract('n-verified-reject', 'verified'));
+W('_acceptance/n-verified-reject/evidence-report.md', evidence('REJECT'));
+W('_acceptance/o-verified-signed/contract.md', contract('o-verified-signed', 'verified'));
+W('_acceptance/o-verified-signed/evidence-report.md',
+  '---\nschema_version: 2\nslug: o\nverdict: PASS\nhuman_signoff: "Manh Phan 2026-08-03"\n---\n# E\n');
+W('_acceptance/p-crlf/contract.md',
+  '---\r\nschema_version: 1\r\nslug: p-crlf\r\nrisk_tier: T2\r\nstatus: draft\r\n---\r\n# C\r\n');
+W('_acceptance/h-approved/contract.md', contract('h-approved', 'approved')); // tien to cua h-approved-plan
+
+const scan = dir => JSON.parse(execFileSync('node', [SCAN, '--root', dir], { encoding: 'utf8' }));
+// hash toan bo cay file (portable, khong dung md5 cua he dieu hanh)
+const treeHash = d => {
+  const h = crypto.createHash('sha256');
+  const walk = p => {
+    for (const e of fs.readdirSync(p, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      const fp = path.join(p, e.name);
+      if (e.isDirectory()) walk(fp);
+      else { h.update(fp.slice(d.length)); h.update(fs.readFileSync(fp)); }
+    }
+  };
+  walk(d); return h.digest('hex');
+};
+const before = treeHash(tmp);
+
+const r = scan(tmp);
+if (r.config !== true) die('doi chung duong: config:true phai co');
+
+const want = {
+  gates: { 'a-opp-moi': 'dang', 'b-opp-thieu-decision': 'dang', 'f-draft': 'pham-vi', 'k-pass': 'bang-chung', 'l-pending': 'bang-chung',
+           'p-crlf': 'pham-vi' },                                  // CRLF doc bang reader chuan, KHONG broken
+  inProgress: { 'c-opp-build': 'S1', 'd-opp-iterate': 'S1', 'g-approved': 'S2', 'h-approved-plan': 'S3', 'i-implemented': 'S4', 'j-reject': 'S3-fix',
+                'n-verified-reject': 'S3-fix',                     // verified + REJECT khong phai "cho ky"
+                'h-approved': 'S2' },                              // tien to: KHONG duoc dinh plan cua h-approved-plan
+  done: { 'e-opp-park': 'park', 'm-signed': 'signed-off',
+          'o-verified-signed': 'signed-off' },                     // da ky (status chua flip) khong hien "cho ky"
+};
+for (const [slug, gate] of Object.entries(want.gates)) {
+  const hit = r.groups.gates.find(g => g.slug === slug);
+  if (!hit || hit.gate !== gate) die(`slug ${slug} phai vao o gate=${gate}, duoc: ${JSON.stringify(hit)}`);
+}
+for (const [slug, step] of Object.entries(want.inProgress)) {
+  const hit = r.groups.inProgress.find(g => g.slug === slug);
+  if (!hit || hit.nextStep !== step) die(`slug ${slug} phai nextStep=${step}, duoc: ${JSON.stringify(hit)}`);
+}
+for (const [slug, state] of Object.entries(want.done)) {
+  const hit = r.groups.done.find(g => g.slug === slug);
+  if (!hit || hit.state !== state) die(`slug ${slug} phai done state=${state}, duoc: ${JSON.stringify(hit)}`);
+}
+const total = r.groups.gates.length + r.groups.inProgress.length + r.groups.done.length + r.broken.length;
+if (total !== 17) die(`tong slug vao o phai 17 (khong sot khong trung), duoc ${total}`);
+
+// skipped neu TEN nguon vang (AC-5)
+for (const src of ['PRODUCT-MAP.md', 'phiên-nghiệm-thu'])
+  if (!r.skipped.some(s => s.source === src)) die(`skipped[] thieu nguon co ten ${src}`);
+
+// gate-order (AC-6): frontmatter approved_at THANG mtime — cham mtime l-pending
+// cho MOI nhat, thu tu van phai theo approved_at (l-pending cu hon → len dau)
+const now = new Date();
+fs.utimesSync(path.join(tmp, '_acceptance/l-pending/contract.md'), now, now);
+const bc = scan(tmp).groups.gates.filter(g => g.gate === 'bang-chung').map(g => g.slug);
+if (bc[0] !== 'l-pending') die(`cong cho lau nhat (approved_at cu nhat) phai len dau: ${bc}`);
+// doi chung roi-ve-mtime: xoa approved_at ca hai → mtime quyet dinh
+for (const s of ['k-pass', 'l-pending']) W(`_acceptance/${s}/contract.md`, contract(s, 'verified'));
+W('_acceptance/k-pass/evidence-report.md', evidence('PASS'));
+W('_acceptance/l-pending/evidence-report.md', evidence('PENDING-JUDGMENT'));
+const old = new Date(Date.now() - 864e5);
+fs.utimesSync(path.join(tmp, '_acceptance/k-pass/contract.md'), old, old);
+const bc2 = scan(tmp).groups.gates.filter(g => g.gate === 'bang-chung').map(g => g.slug);
+if (bc2[0] !== 'k-pass') die(`thieu frontmatter phai roi ve mtime: ${bc2}`);
+
+// readonly (AC-9): khoi phuc fixture goc roi so hash truoc/sau scan
+for (const s of ['k-pass', 'l-pending'])
+  W(`_acceptance/${s}/contract.md`, contract(s, 'verified', `approved_at: 2026-01-0${s === 'k-pass' ? 2 : 1}T00:00:00Z\n`));
+const snap = treeHash(tmp);
+scan(tmp);
+if (treeHash(tmp) !== snap) die('scan da cham vao cay file — vi pham chi-doc');
+
+// ---- 2. Tiem hong (AC-4): doi chung duong DA xanh o tren ----
+W('_acceptance/f-draft/contract.md', 'status: draft\nkhong co frontmatter fence\n');
+const r3 = scan(tmp);
+const bad = r3.broken.find(b => b.slug === 'f-draft');
+if (!bad) die('slug hong phai vao broken[], khong duoc im lang bo qua');
+if (bad.file !== 'contract.md' || !/frontmatter/.test(bad.reason))
+  die(`broken phai ghim file+reason frontmatter, duoc: ${JSON.stringify(bad)}`);
+if (!r3.groups.inProgress.find(g => g.slug === 'g-approved')) die('slug lanh phai phan o binh thuong khi co slug hong');
+if (r3.groups.gates.find(g => g.slug === 'f-draft')) die('slug hong khong duoc dong thoi nam trong gates');
+
+// ---- 3. Config vang (AC-1) ----
+const tmp2 = fs.mkdtempSync(path.join(os.tmpdir(), 'p98b-'));
+const r4 = scan(tmp2);
+if (r4.config !== false) die('repo chua co config.yaml phai tra config:false, exit 0');
+console.log('P98 OK');
+JS
+
+# ── P99: ROUND-TRIP key JSON — rut tu khoi START-SCAN-KEYS cua HAI than lenh,
+# doi chieu voi dau ra start-scan.mjs THAT tren fixture code-sinh (E13).
+# Cung ho voi P55: seam viet<->doc phai co phep noi hai dau, khong grep mot phia.
+run "P99 round-trip START-SCAN-KEYS <-> start-scan output (2 harness, E13)" \
+  node - "$ROOT" <<'JS'
+const fs = require('fs'), path = require('path'), os = require('os');
+const { execFileSync } = require('child_process');
+const root = process.argv[2];
+const die = m => { console.error(m); process.exit(1); };
+const SOURCES = ['commands/start.md', 'codex/acceptance-gate/skills/start/SKILL.md',
+                 'plugins/acceptance-gate/skills/start/SKILL.md'];
+
+const extractKeys = txt => {
+  const m = txt.match(/<<<START-SCAN-KEYS\n([\s\S]*?)START-SCAN-KEYS>>>/);
+  if (!m) return null;
+  return m[1].split(/\s+/).filter(Boolean);
+};
+// fixture toi thieu 1 slug moi nhom de moi key mang co phan tu that ma soi
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p99-'));
+const W = (rel, s) => { const p = path.join(tmp, rel);
+  fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, s); };
+W('_acceptance/config.yaml', 'schema_version: 1\n');
+W('_acceptance/w-draft/contract.md', '---\nslug: w-draft\nrisk_tier: T2\nstatus: draft\n---\n');
+W('_acceptance/w-go/contract.md', '---\nslug: w-go\nrisk_tier: T2\nstatus: approved\n---\n');
+W('_acceptance/w-done/contract.md', '---\nslug: w-done\nrisk_tier: T2\nstatus: signed-off\n---\n');
+W('_acceptance/w-bad/contract.md', 'khong fence\n');
+const outJson = JSON.parse(execFileSync('node',
+  [path.join(root, 'scripts/start-scan.mjs'), '--root', tmp], { encoding: 'utf8' }));
+
+const resolveKey = (obj, dotted) => dotted.split('.').reduce((acc, part) => {
+  if (acc === undefined || acc === null) return undefined;
+  if (part.endsWith('[]')) {
+    const arr = acc[part.slice(0, -2)];
+    if (!Array.isArray(arr) || arr.length === 0) return undefined;
+    return arr[0];
+  }
+  return acc[part];
+}, obj);
+
+const check = entries => {
+  const errs = [];
+  for (const [rel, txt] of entries) {
+    const keys = extractKeys(txt);
+    if (!keys) { errs.push(`${rel}: khong rut duoc khoi START-SCAN-KEYS`); continue; }
+    for (const k of keys)
+      if (resolveKey(outJson, k) === undefined)
+        errs.push(`${rel}: key ${k} khong co trong dau ra start-scan that`);
+  }
+  return errs;
+};
+const load = rel => [rel, fs.readFileSync(path.join(root, rel), 'utf8')];
+const e0 = check(SOURCES.map(load));
+if (e0.length) die('doi chung duong FAIL: ' + JSON.stringify(e0));   // ban that XANH
+// dot bien: doi ten mot key phia LENH → phai DO dung thong diep
+const mut = fs.readFileSync(path.join(root, SOURCES[0]), 'utf8')
+  .replace('skipped[].source', 'sources_skipped[].source');
+const e1 = check([['(ban-doi-key)', mut]]);
+if (!e1.some(x => /key sources_skipped\[\]\.source khong co/.test(x)))
+  die('dot bien doi ten key khong bi bat dung thong diep: ' + JSON.stringify(e1));
+// dot bien: xoa ca khoi marker → phai DO "khong rut duoc"
+const e2 = check([['(ban-xoa-marker)', mut.replace(/<!-- <<<START-SCAN-KEYS[\s\S]*?START-SCAN-KEYS>>> -->/, '')]]);
+if (!e2.some(x => /khong rut duoc khoi START-SCAN-KEYS/.test(x)))
+  die('dot bien xoa marker khong bi bat: ' + JSON.stringify(e2));
+console.log('P99 OK');
+JS
+
+# ── P100: con tro cua /start giai duoc TRONG GOI moi harness (E14, ho P95) ──
+run "P100 con tro /start giai duoc trong goi Claude (repo root) + goi Codex (E14)" \
+  python3 - "$ROOT" <<'PY'
+import re, shutil, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+SCAN = "scripts/start-scan.mjs"
+LAW = "skills/acceptance/references/human-facing-language.md"
+
+def check_claude(pkg):
+    # Goi Claude = repo root (marketplace tro thang repo): con tro trong
+    # commands/start.md ghep goc goi phai ra vat that.
+    errs = []
+    t = (pkg / "commands/start.md").read_text(encoding="utf-8")
+    for ref in [SCAN, LAW]:
+        if ref not in t:
+            errs.append(f"commands/start.md: khong rut duoc con tro {ref}")
+        elif not (pkg / ref).is_file():
+            errs.append(f"con tro {ref} tro file khong ton tai trong goi Claude")
+    return errs
+
+def check_codex(pkg):
+    errs = []
+    sk = pkg / "skills/start/SKILL.md"
+    if not sk.is_file():
+        return [f"goi codex thieu {sk}"]
+    t = sk.read_text(encoding="utf-8")
+    if "${PLUGIN_ROOT}/" + SCAN not in t:
+        errs.append("SKILL start: khong rut duoc con tro bo quet qua goc goi")
+    elif not (pkg / SCAN).is_file():
+        errs.append(f"con tro {SCAN} tro file khong ton tai trong goi codex")
+    if "${PLUGIN_ROOT}/" + LAW not in t:
+        errs.append("SKILL start: khong rut duoc con tro ban luat qua goc goi")
+    elif not (pkg / LAW).is_file():
+        errs.append(f"con tro {LAW} tro file khong ton tai trong goi codex")
+    return errs
+
+PKG = root / "plugins/acceptance-gate"
+assert check_claude(root) == [], check_claude(root)      # doi chung DUONG goi Claude
+assert check_codex(PKG) == [], check_codex(PKG)          # doi chung DUONG goi Codex
+tmp = Path(tempfile.mkdtemp())
+try:
+    c2 = tmp / "ag"
+    shutil.copytree(PKG, c2)
+    assert check_codex(c2) == [], f"ban sao goi NGUYEN VEN phai XANH truoc: {check_codex(c2)}"
+    (c2 / SCAN).rename(c2 / "scripts/doi-cho.mjs")       # dot bien 1: bo quet bien mat
+    e1 = check_codex(c2)
+    assert any("tro file khong ton tai" in x for x in e1), \
+        f"dot bien doi cho bo quet khong do dung thong diep: {e1}"
+    (c2 / "scripts/doi-cho.mjs").rename(c2 / SCAN)
+    sk = c2 / "skills/start/SKILL.md"
+    sk.write_text(sk.read_text(encoding="utf-8").replace("${PLUGIN_ROOT}/" + LAW, "(da xoa)"),
+                  encoding="utf-8")                       # dot bien 2: mat con tro ban luat
+    e2 = check_codex(c2)
+    assert any("khong rut duoc con tro ban luat" in x for x in e2), \
+        f"dot bien xoa con tro ban luat khong do dung thong diep: {e2}"
+finally:
+    shutil.rmtree(tmp)
+PY
+
+# ── P101: nap luat ngon ngu TRUOC render (E15) + muc /start trong docs (E11) ─
+run "P101 nap human-facing-language truoc render (2 harness) + GUIDE/README co muc /start (E11,E15)" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+LAW = "human-facing-language.md"
+# Moi harness: (file, anchor cua khoi render) — buoc nap phai dung TRUOC anchor.
+RENDER = {"commands/start.md": "Trình MỘT thẻ",
+          "codex/acceptance-gate/skills/start/SKILL.md": "Present ONE card"}
+
+def check_load(files):
+    errs = []
+    for rel, anchor in files.items():
+        t = (root / rel).read_text(encoding="utf-8") if isinstance(rel, str) else rel
+        i_law, i_render = t.find(LAW), t.find(anchor)
+        if i_law < 0:
+            errs.append(f"{rel}: thieu buoc nap luat ngon ngu mat nguoi")
+        elif i_render < 0:
+            errs.append(f"{rel}: khong tim thay khoi render (anchor {anchor})")
+        elif i_law > i_render:
+            errs.append(f"{rel}: buoc nap luat nam SAU khoi render")
+    return errs
+
+def check_text(pairs):
+    errs = []
+    for name, (t, anchor) in pairs.items():
+        i_law, i_render = t.find(LAW), t.find(anchor)
+        if i_law < 0: errs.append(f"{name}: thieu buoc nap luat ngon ngu mat nguoi")
+        elif i_law > i_render: errs.append(f"{name}: buoc nap luat nam SAU khoi render")
+    return errs
+
+assert check_load(RENDER) == [], check_load(RENDER)      # doi chung DUONG
+# dot bien: xoa dong nap → DO dung thong diep
+t = (root / "commands/start.md").read_text(encoding="utf-8")
+mut = t.replace(LAW, "khong-nap-gi.md")
+e1 = check_text({"(ban-xoa-nap)": (mut, RENDER["commands/start.md"])})
+assert any("thieu buoc nap luat" in x for x in e1), f"dot bien xoa buoc nap khong bi bat: {e1}"
+
+# (E11) GUIDE + README co muc /start noi dung ban chat vao-phien
+for doc in ["GUIDE.md", "README.md"]:
+    td = (root / doc).read_text(encoding="utf-8")
+    assert "/start" in td and "vào phiên" in td, f"{doc} thieu muc vao phien bang /start"
+gm = (root / "GUIDE.md").read_text(encoding="utf-8")
+mut2 = "\n".join(l for l in gm.splitlines() if "/start" not in l and "vào phiên" not in l)
+assert not ("/start" in mut2 and "vào phiên" in mut2), \
+    "dot bien xoa muc /start khoi GUIDE ma phep do van xanh"
 PY
 
 if [ "$failures" -gt 0 ]; then

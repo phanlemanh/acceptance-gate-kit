@@ -1,3 +1,5 @@
+> ⚠️ **[SUPERSEDED 30/07/2026 → `workflow-v2-spec.md`]** — file này là trầm tích lịch sử, giữ làm sử liệu. Session mới: đọc `workflow-v2-spec.md`, KHÔNG đọc file này.
+
 # Discovery lane & Cổng 0 — từ chọn-feature đến bàn giao prototype — Design Spec
 
 > **Trạng thái: DRAFT đề xuất** (2026-07-27, hội thoại máy A). File này là input
