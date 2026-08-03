@@ -73,3 +73,58 @@ một cổng).
 - KHÔNG tự nhận đường A/B/C/D/E (đó là F-E).
 - KHÔNG thay `/acceptance-status` (status = bảng tra soát máy; start = thẻ
   định hướng + bàn giao — hai vật khác nhau).
+
+## Thiết kế thi công (S1 vòng start-command, 03/08)
+
+Hai quyết định chốt với owner đầu S1 (ledger `_acceptance/start-command/`):
+
+1. **Phân loại nằm trong script, prose nằm trong lệnh.** Thêm
+   `scripts/start-scan.mjs --root <dir> [--json]`: quét `_acceptance/*/`,
+   đọc frontmatter (qua `lib/evidence-core.js` — cùng reader mọi cổng đang
+   dùng, không viết parser mới), xuất inventory ĐÃ PHÂN Ô dạng JSON.
+   `commands/start.md` chỉ còn: chạy script → nạp
+   `human-facing-language.md` → dịch sang tiếng sản phẩm → MỘT câu hỏi.
+   Cùng khuôn gate-card: *cái gì buộc phải hiện thì script render/emit,
+   model không được quên hay điền sai*; và thước S4 gắn được vào ĐẦU RA
+   script trên fixture code-sinh thay vì grep file hướng dẫn.
+2. **Ô nào chưa có nguồn thì skip-có-tên, không bịa schema.** Cổng-Đáng
+   dựng THẬT (schema `opportunity.md` đã chốt ở opportunity-template).
+   PRODUCT-MAP + phiên-nghiệm-thu (nguồn UAT): chưa tồn tại (F-B) → JSON
+   emit mục `skipped[]` có tên nguồn + lý do, thẻ in đúng một dòng mỗi
+   nguồn. Khi F-B dựng nguồn, chỉ script đổi — lệnh giữ nguyên khuôn.
+
+### Bảng phân ô (nguồn sự thật cho scan + test)
+
+| Artifact quan sát được | Ô | Bước kế |
+|---|---|---|
+| `opportunity.md` stage ≠ `decided` (hoặc thiếu `decision`) | chờ-Cổng-Đáng | — |
+| `opportunity.md` decision `build`/`iterate`, CHƯA có `contract.md` | vòng-đang-dở | S1 |
+| `opportunity.md` decision `park`/`kill` | đã-xếp (nhóm đã-ký/nghỉ) | — |
+| `contract.md` status `draft` | chờ-Cổng-Phạm-vi | — |
+| status `approved`, chưa có plan khớp `*<slug>*` trong `docs/**/plans/` | vòng-đang-dở | S2 |
+| status `approved`, có plan | vòng-đang-dở | S3 |
+| status `implemented`, evidence vắng hoặc verdict REJECT | vòng-đang-dở | S4 / S3-fix |
+| status `verified`, verdict PASS/PENDING-JUDGMENT, chưa `human_signoff` | chờ-Cổng-Bằng-chứng | — |
+| status `signed-off` | đã-ký | — |
+| frontmatter không parse được | cờ hỏng (broken[]) — vẫn hiện, không crash | — |
+
+Mỗi slug đúng MỘT ô; ưu tiên tra từ artifact muộn nhất (evidence → contract
+→ opportunity). `since` của ô chờ-cổng = timestamp frontmatter nếu có
+(`approved_at`…), thiếu → mtime file — chỉ để XẾP thứ tự trong nhóm chờ ký,
+không phải evidence.
+
+### JSON scan (khuôn ổn định cho test + lệnh)
+
+```json
+{ "schema_version": 1,
+  "config": true,
+  "git": { "branch": "main", "dirty": false },
+  "groups": { "gates": [ { "slug", "gate", "since", "tier" } ],
+              "inProgress": [ { "slug", "status", "nextStep", "tier" } ],
+              "done": [ { "slug", "state" } ] },
+  "skipped": [ { "source": "PRODUCT-MAP.md", "reason": "chưa có — F-B" } ],
+  "broken":  [ { "slug", "file", "reason" } ] }
+```
+
+Config vắng → `{ "config": false }` + exit 0; lệnh in một dòng gợi ý
+`/acceptance-init` rồi dừng. Script tuyệt đối chỉ-đọc.
