@@ -2793,6 +2793,130 @@ assert has(check(m5), "thieu ca truot cua phep thu"), \
     "pha ban TRONG marker ma ban sao NGOAI marker van giu xanh — phep do chua neo vao vat"
 PY
 
+# ── P98: start-scan.mjs — phan o tren fixture CODE-SINH (E1-E6, E9) ─────────
+# Fixture sinh trong chinh lan chay; doi chung duong (ban nguyen ven XANH)
+# truoc ban tiem hong (ghim dung thong diep). Bang phan o = spec start-command
+# (docs/specs/2026-08-03-start-command-design.md).
+run "P98 start-scan phan o du moi hang bang + broken/skipped/readonly/gate-order (E1-E6,E9)" \
+  node - "$ROOT" <<'JS'
+const fs = require('fs'), path = require('path'), os = require('os');
+const crypto = require('crypto');
+const { execFileSync } = require('child_process');
+const root = process.argv[2];
+const SCAN = path.join(root, 'scripts/start-scan.mjs');
+const die = m => { console.error(m); process.exit(1); };
+
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p98-'));
+const W = (rel, s) => { const p = path.join(tmp, rel);
+  fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, s); };
+const contract = (slug, status, extra = '') =>
+  `---\nschema_version: 1\nfeature: f-${slug}\nslug: ${slug}\nowner: t@t\nrisk_tier: T2\nsurfaces: [cli]\nstatus: ${status}\n${extra}---\n# C\n`;
+const opp = (slug, stage, decision) =>
+  `---\nschema_version: 1\nslug: ${slug}\nfeature: f\nowner: t@t\nstage: ${stage}\ndecision: ${decision}\n---\n# O\n`;
+const evidence = (verdict) =>
+  `---\nschema_version: 2\nslug: x\nverdict: ${verdict}\nhuman_signoff:\n---\n# E\n`;
+
+// ---- 1. Fixture NGUYEN VEN: du MOI HANG bang phan o cua spec ----
+W('_acceptance/config.yaml', 'schema_version: 1\n');
+W('_acceptance/a-opp-moi/opportunity.md', opp('a-opp-moi', 'discovery', ''));
+W('_acceptance/b-opp-thieu-decision/opportunity.md', opp('b-opp-thieu-decision', 'decided', ''));
+W('_acceptance/c-opp-build/opportunity.md', opp('c-opp-build', 'decided', 'build'));
+W('_acceptance/d-opp-iterate/opportunity.md', opp('d-opp-iterate', 'decided', 'iterate'));
+W('_acceptance/e-opp-park/opportunity.md', opp('e-opp-park', 'decided', 'park'));
+W('_acceptance/f-draft/contract.md', contract('f-draft', 'draft'));
+W('_acceptance/g-approved/contract.md', contract('g-approved', 'approved'));
+W('_acceptance/h-approved-plan/contract.md', contract('h-approved-plan', 'approved'));
+W('docs/superpowers/plans/2026-01-01-h-approved-plan.md', '# plan\n');
+W('_acceptance/i-implemented/contract.md', contract('i-implemented', 'implemented'));
+W('_acceptance/j-reject/contract.md', contract('j-reject', 'implemented'));
+W('_acceptance/j-reject/evidence-report.md', evidence('REJECT'));
+W('_acceptance/k-pass/contract.md', contract('k-pass', 'verified', 'approved_at: 2026-01-02T00:00:00Z\n'));
+W('_acceptance/k-pass/evidence-report.md', evidence('PASS'));
+W('_acceptance/l-pending/contract.md', contract('l-pending', 'verified', 'approved_at: 2026-01-01T00:00:00Z\n'));
+W('_acceptance/l-pending/evidence-report.md', evidence('PENDING-JUDGMENT'));
+W('_acceptance/m-signed/contract.md', contract('m-signed', 'signed-off'));
+
+const scan = dir => JSON.parse(execFileSync('node', [SCAN, '--root', dir], { encoding: 'utf8' }));
+// hash toan bo cay file (portable, khong dung md5 cua he dieu hanh)
+const treeHash = d => {
+  const h = crypto.createHash('sha256');
+  const walk = p => {
+    for (const e of fs.readdirSync(p, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      const fp = path.join(p, e.name);
+      if (e.isDirectory()) walk(fp);
+      else { h.update(fp.slice(d.length)); h.update(fs.readFileSync(fp)); }
+    }
+  };
+  walk(d); return h.digest('hex');
+};
+const before = treeHash(tmp);
+
+const r = scan(tmp);
+if (r.config !== true) die('doi chung duong: config:true phai co');
+
+const want = {
+  gates: { 'a-opp-moi': 'dang', 'b-opp-thieu-decision': 'dang', 'f-draft': 'pham-vi', 'k-pass': 'bang-chung', 'l-pending': 'bang-chung' },
+  inProgress: { 'c-opp-build': 'S1', 'd-opp-iterate': 'S1', 'g-approved': 'S2', 'h-approved-plan': 'S3', 'i-implemented': 'S4', 'j-reject': 'S3-fix' },
+  done: { 'e-opp-park': 'park', 'm-signed': 'signed-off' },
+};
+for (const [slug, gate] of Object.entries(want.gates)) {
+  const hit = r.groups.gates.find(g => g.slug === slug);
+  if (!hit || hit.gate !== gate) die(`slug ${slug} phai vao o gate=${gate}, duoc: ${JSON.stringify(hit)}`);
+}
+for (const [slug, step] of Object.entries(want.inProgress)) {
+  const hit = r.groups.inProgress.find(g => g.slug === slug);
+  if (!hit || hit.nextStep !== step) die(`slug ${slug} phai nextStep=${step}, duoc: ${JSON.stringify(hit)}`);
+}
+for (const [slug, state] of Object.entries(want.done)) {
+  const hit = r.groups.done.find(g => g.slug === slug);
+  if (!hit || hit.state !== state) die(`slug ${slug} phai done state=${state}, duoc: ${JSON.stringify(hit)}`);
+}
+const total = r.groups.gates.length + r.groups.inProgress.length + r.groups.done.length + r.broken.length;
+if (total !== 13) die(`tong slug vao o phai 13 (khong sot khong trung), duoc ${total}`);
+
+// skipped neu TEN nguon vang (AC-5)
+for (const src of ['PRODUCT-MAP.md', 'phiên-nghiệm-thu'])
+  if (!r.skipped.some(s => s.source === src)) die(`skipped[] thieu nguon co ten ${src}`);
+
+// gate-order (AC-6): frontmatter approved_at THANG mtime — cham mtime l-pending
+// cho MOI nhat, thu tu van phai theo approved_at (l-pending cu hon → len dau)
+const now = new Date();
+fs.utimesSync(path.join(tmp, '_acceptance/l-pending/contract.md'), now, now);
+const bc = scan(tmp).groups.gates.filter(g => g.gate === 'bang-chung').map(g => g.slug);
+if (bc[0] !== 'l-pending') die(`cong cho lau nhat (approved_at cu nhat) phai len dau: ${bc}`);
+// doi chung roi-ve-mtime: xoa approved_at ca hai → mtime quyet dinh
+for (const s of ['k-pass', 'l-pending']) W(`_acceptance/${s}/contract.md`, contract(s, 'verified'));
+W('_acceptance/k-pass/evidence-report.md', evidence('PASS'));
+W('_acceptance/l-pending/evidence-report.md', evidence('PENDING-JUDGMENT'));
+const old = new Date(Date.now() - 864e5);
+fs.utimesSync(path.join(tmp, '_acceptance/k-pass/contract.md'), old, old);
+const bc2 = scan(tmp).groups.gates.filter(g => g.gate === 'bang-chung').map(g => g.slug);
+if (bc2[0] !== 'k-pass') die(`thieu frontmatter phai roi ve mtime: ${bc2}`);
+
+// readonly (AC-9): khoi phuc fixture goc roi so hash truoc/sau scan
+for (const s of ['k-pass', 'l-pending'])
+  W(`_acceptance/${s}/contract.md`, contract(s, 'verified', `approved_at: 2026-01-0${s === 'k-pass' ? 2 : 1}T00:00:00Z\n`));
+const snap = treeHash(tmp);
+scan(tmp);
+if (treeHash(tmp) !== snap) die('scan da cham vao cay file — vi pham chi-doc');
+
+// ---- 2. Tiem hong (AC-4): doi chung duong DA xanh o tren ----
+W('_acceptance/f-draft/contract.md', 'status: draft\nkhong co frontmatter fence\n');
+const r3 = scan(tmp);
+const bad = r3.broken.find(b => b.slug === 'f-draft');
+if (!bad) die('slug hong phai vao broken[], khong duoc im lang bo qua');
+if (bad.file !== 'contract.md' || !/frontmatter/.test(bad.reason))
+  die(`broken phai ghim file+reason frontmatter, duoc: ${JSON.stringify(bad)}`);
+if (!r3.groups.inProgress.find(g => g.slug === 'g-approved')) die('slug lanh phai phan o binh thuong khi co slug hong');
+if (r3.groups.gates.find(g => g.slug === 'f-draft')) die('slug hong khong duoc dong thoi nam trong gates');
+
+// ---- 3. Config vang (AC-1) ----
+const tmp2 = fs.mkdtempSync(path.join(os.tmpdir(), 'p98b-'));
+const r4 = scan(tmp2);
+if (r4.config !== false) die('repo chua co config.yaml phai tra config:false, exit 0');
+console.log('P98 OK');
+JS
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
