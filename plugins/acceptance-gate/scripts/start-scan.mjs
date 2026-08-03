@@ -47,6 +47,11 @@ const git = (() => {
 })();
 
 const gates = [], inProgress = [], done = [], broken = [];
+// MỘT từ vựng verdict cho MỌI nhánh: nhánh `verified` gọi tên giá trị lạ trong
+// khi nhánh `implemented` nuốt im lặng là chỗ duy nhất cùng một artifact hỏng
+// được phát hiện hay không tuỳ status của contract (Cổng 2 start-command, known-limit 3).
+const VERDICT_OK = ['PASS', 'REJECT', 'PENDING-JUDGMENT'];
+const offVocab = verdict => ({ file: 'evidence-report.md', reason: `verdict không nhận diện được: ${verdict}` });
 // Khớp CHẶT khuôn tên plan YYYY-MM-DD-<slug>.md — substring trần khiến slug là
 // tiền tố của slug khác dính plan không phải của nó (S4-r1, nextStep S3 oan)
 const planSlug = f => { const m = f.match(/^\d{4}-\d{2}-\d{2}-(.+)\.md$/); return m ? m[1] : null; };
@@ -84,9 +89,12 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       else if (signoff) done.push({ slug, state: 'signed-off' });
       else if (verdict === 'PASS' || verdict === 'PENDING-JUDGMENT') gates.push({ slug, gate: 'bang-chung', since: since(cPath, frontmatterField(cTxt, 'approved_at')), tier });
       else if (verdict === 'REJECT') inProgress.push({ slug, status, nextStep: 'S3-fix', tier });
-      else broken.push({ slug, file: 'evidence-report.md', reason: `verdict không nhận diện được: ${verdict}` });
+      else broken.push({ slug, ...offVocab(verdict) });
     }
-    else if (status === 'implemented') inProgress.push({ slug, status, nextStep: verdict === 'REJECT' ? 'S3-fix' : 'S4', tier });
+    else if (status === 'implemented') {
+      if (eTxt != null && !VERDICT_OK.includes(verdict)) broken.push({ slug, ...offVocab(verdict) });
+      else inProgress.push({ slug, status, nextStep: verdict === 'REJECT' ? 'S3-fix' : 'S4', tier });
+    }
     else if (status === 'approved') inProgress.push({ slug, status, nextStep: planExists(slug) ? 'S3' : 'S2', tier });
     else if (status === 'draft') gates.push({ slug, gate: 'pham-vi', since: since(cPath, null), tier });
     else broken.push({ slug, file: 'contract.md', reason: `status không nhận diện được: ${status || '(rỗng)'}` });
