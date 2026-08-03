@@ -39,9 +39,9 @@ schema_version: 1
 feature: {feature}
 slug: {slug}
 owner: {owner}
-risk_tier: {risk_tier}
-surfaces: [{surfaces}]
-status: {status}
+risk_tier: {risk_tier}      # T2 (chuẩn) | T3 (auth/dữ liệu/API phá vỡ)
+surfaces: [{surfaces}]      # api | cli | sdk | ui | mobile — ngăn cách bằng dấu phẩy
+status: {status}            # LUÔN là `draft` lúc tạo hồ sơ; chỉ Cổng 1 đổi nó
 approved_by:
 approved_at:
 time_human_minutes: {gate1: 0, gate2: 0}

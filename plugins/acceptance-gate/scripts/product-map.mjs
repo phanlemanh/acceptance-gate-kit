@@ -19,16 +19,13 @@ const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence-core.js'));
+// Luật "hồ sơ này có hỏng không" sống một chỗ và được CẢ bộ quét vào phiên
+// dùng chung — xem lib/workspace-record.js để biết vì sao (S4-r1: hai bên đọc
+// cùng hồ sơ cho hai kết luận trái nhau).
+const { recordProblem, navValues, NAV_ENUMS } =
+  require(path.join(__dirname, '..', 'lib', 'workspace-record.js'));
 
-// Enum của các field ĐIỀU HƯỚNG. Giá trị ngoài enum KHÔNG được rơi vào khoảng
-// trống: một lỗi gõ (`verdict: done`, `decision: Build`) mà làm slug biến mất
-// khỏi bản đồ thì bản đồ nói dối đúng lúc người ta tin nó nhất.
-export const NAV_ENUMS = {
-  status: ['draft', 'approved', 'implemented', 'verified', 'signed-off'],
-  stage: ['discovery', 'decided', 'archived'],
-  decision: ['build', 'iterate', 'park', 'kill'],
-  verdict: ['release', 'iterate', 'kill'],
-};
+export { NAV_ENUMS };
 
 const SECTIONS = [
   ['can-nhac', 'Đang cân nhắc cơ hội'],
@@ -73,37 +70,18 @@ function classify(dir, slug) {
   const rawName = fm(cTxt, 'feature') || fm(oTxt, 'feature') || fm(uTxt, 'feature') || slug;
   const name = rawName.startsWith(slug + ' — ') ? rawName.slice(slug.length + 3) : rawName;
   const edge = edges(cTxt, oTxt);
-  const hong = (file, reason) => ({ key: 'hong', slug, file, reason });
+  const texts = { 'contract.md': cTxt, 'opportunity.md': oTxt, 'uat-session.md': uTxt };
 
-  if (cTxt == null && oTxt == null && uTxt == null)
-    return hong('(hồ sơ)', 'không có contract.md lẫn opportunity.md');
-
-  // Lượt 1 — soi MỌI field điều hướng có mặt, trước khi xếp ô.
-  const checks = [
-    [cTxt, 'contract.md', 'status'],
-    [oTxt, 'opportunity.md', 'stage'],
-    [oTxt, 'opportunity.md', 'decision'],
-    [uTxt, 'uat-session.md', 'verdict'],
-  ];
-  for (const [txt, file, field] of checks) {
-    if (txt == null) continue;
-    const raw = fm(txt, field);
-    if (raw == null) {
-      // decision/verdict được phép VẮNG (chưa tới lúc ký); status/stage thì không
-      if (field === 'decision' || field === 'verdict') continue;
-      return hong(file, `frontmatter không đọc được hoặc thiếu ${field}`);
-    }
-    if (raw === '') continue;
-    if (!NAV_ENUMS[field].includes(raw.toLowerCase()))
-      return hong(file, `${field} không nhận diện được: ${raw}`);
-  }
+  // Lượt 1 — luật chung: hồ sơ đọc được không? (file có mà frontmatter hỏng,
+  // field bắt buộc rỗng, giá trị ngoài enum — tất cả là hỏng, không cái nào
+  // được rơi vào khoảng trống rồi hiện ở một ô bình thường.)
+  const problem = recordProblem(texts);
+  if (problem) return { key: 'hong', slug, file: problem.file, reason: problem.reason };
 
   // Lượt 2 — xếp ô, tra từ artifact muộn nhất về sớm nhất.
-  const verdict = low(fm(uTxt, 'verdict')) || '';
+  const { status, decision, verdict } = navValues(texts);
   if (verdict) return { key: 'da-nghiem-thu', slug, name, edge, note: UAT_KET_CUC[verdict] };
 
-  const status = low(fm(cTxt, 'status')) || '';
-  const decision = low(fm(oTxt, 'decision')) || '';
   if (status) {
     if (status === 'signed-off') {
       // Đường A (cơ hội quyết build/iterate) còn một cổng người nữa: phiên

@@ -19,6 +19,10 @@ import { renderProductMap } from './product-map.mjs';
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence-core.js'));
+// Cùng luật "hồ sơ có hỏng không" với bản đồ sản phẩm — hai bên đọc cùng bộ
+// hồ sơ thì không được cho hai kết luận trái nhau (S4-r1, case P110).
+const { recordProblem, navValues } =
+  require(path.join(__dirname, '..', 'lib', 'workspace-record.js'));
 
 const args = process.argv.slice(2);
 const rootIx = args.indexOf('--root');
@@ -60,24 +64,23 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
   const cPath = path.join(dir, 'contract.md'), oPath = path.join(dir, 'opportunity.md');
   const uPath = path.join(dir, 'uat-session.md');
   const cTxt = read(cPath), oTxt = read(oPath), uTxt = read(uPath);
+  const texts = { 'contract.md': cTxt, 'opportunity.md': oTxt, 'uat-session.md': uTxt };
+
+  // Luật chung TRƯỚC mọi phân ô: hồ sơ này đọc được không.
+  const problem = recordProblem(texts);
+  if (problem) { broken.push({ slug, file: problem.file, reason: problem.reason }); continue; }
+  const nav = navValues(texts);
+
   // Hồ sơ phiên nghiệm thu là artifact MUỘN NHẤT — tra trước contract.
-  if (uTxt != null) {
-    const vRaw = fmOrNull(uTxt, 'verdict');
-    if (vRaw == null) { broken.push({ slug, file: 'uat-session.md', reason: 'frontmatter không parse được hoặc thiếu verdict' }); continue; }
-    const v = vRaw.toLowerCase();
-    // verdict RỖNG = phiên đã dựng nhưng CHƯA ký → vẫn là ô chờ-Cổng-Giá-trị,
-    // rơi xuống nhánh contract bên dưới.
-    if (v) {
-      const UAT_STATE = { release: 'released', iterate: 'uat-iterate', kill: 'uat-kill' };
-      if (UAT_STATE[v]) { done.push({ slug, state: UAT_STATE[v] }); continue; }
-      broken.push({ slug, file: 'uat-session.md', reason: `verdict không nhận diện được: ${vRaw}` });
-      continue;
-    }
+  // verdict RỖNG = phiên đã dựng nhưng CHƯA ký → vẫn là ô chờ-Cổng-Giá-trị,
+  // rơi xuống nhánh contract bên dưới.
+  if (nav.verdict) {
+    const UAT_STATE = { release: 'released', iterate: 'uat-iterate', kill: 'uat-kill' };
+    done.push({ slug, state: UAT_STATE[nav.verdict] });
+    continue;
   }
   if (cTxt != null) {
-    const statusRaw = fmOrNull(cTxt, 'status');
-    if (statusRaw == null) { broken.push({ slug, file: 'contract.md', reason: 'frontmatter không parse được hoặc thiếu status' }); continue; }
-    const status = statusRaw.toLowerCase();
+    const status = nav.status;
     const tier = frontmatterField(cTxt, 'risk_tier') || null;
     const eTxt = read(path.join(dir, 'evidence-report.md'));
     if (eTxt != null && fmOrNull(eTxt, 'verdict') == null) { broken.push({ slug, file: 'evidence-report.md', reason: 'frontmatter không parse được hoặc thiếu verdict' }); continue; }
@@ -85,8 +88,7 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
     if (status === 'signed-off') {
       // Đường A (cơ hội đã quyết build/iterate) còn MỘT cổng người nữa: phiên
       // nghiệm thu. Đường B/C/E ship thẳng — không dựng phiên giả cho chúng.
-      const oDecision = oTxt != null ? (frontmatterField(oTxt, 'decision') || '').toLowerCase() : '';
-      if (oDecision === 'build' || oDecision === 'iterate')
+      if (nav.decision === 'build' || nav.decision === 'iterate')
         gates.push({ slug, gate: 'gia-tri', since: since(cPath, fmOrNull(uTxt, 'decided_at')), tier });
       else done.push({ slug, state: 'signed-off' });
     }
@@ -103,18 +105,12 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
     else if (status === 'implemented') inProgress.push({ slug, status, nextStep: verdict === 'REJECT' ? 'S3-fix' : 'S4', tier });
     else if (status === 'approved') inProgress.push({ slug, status, nextStep: planExists(slug) ? 'S3' : 'S2', tier });
     else if (status === 'draft') gates.push({ slug, gate: 'pham-vi', since: since(cPath, null), tier });
-    else broken.push({ slug, file: 'contract.md', reason: `status không nhận diện được: ${status || '(rỗng)'}` });
+    // status ngoài enum / rỗng đã bị luật chung bắt ở đầu vòng lặp
   } else if (oTxt != null) {
-    const stageRaw = fmOrNull(oTxt, 'stage');
-    if (stageRaw == null) { broken.push({ slug, file: 'opportunity.md', reason: 'frontmatter không parse được hoặc thiếu stage' }); continue; }
-    const stage = stageRaw.toLowerCase();
-    const decision = (frontmatterField(oTxt, 'decision') || '').toLowerCase();
+    const { stage, decision } = nav;
     if (stage !== 'decided' || !decision) gates.push({ slug, gate: 'dang', since: since(oPath, frontmatterField(oTxt, 'decided_at')), tier: null });
     else if (decision === 'build' || decision === 'iterate') inProgress.push({ slug, status: 'opportunity-decided', nextStep: 'S1', tier: null });
-    else if (decision === 'park' || decision === 'kill') done.push({ slug, state: decision });
-    else broken.push({ slug, file: 'opportunity.md', reason: `decision không nhận diện được: ${decision}` });
-  } else {
-    broken.push({ slug, file: '(workspace)', reason: 'không có contract.md lẫn opportunity.md' });
+    else done.push({ slug, state: decision });   // park | kill — enum đã kiểm ở luật chung
   }
 }
 gates.sort((a, b) => String(a.since).localeCompare(String(b.since)));
