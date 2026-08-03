@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 62444dfd5f6ce79836034b2695bc69f87425495d
-human_signoff:
+human_signoff: Manh Phan 2026-08-03
 ---
 
 # Evidence Report: product-map-uat-session
@@ -165,7 +165,7 @@ human_signoff:
   judged_by: 3-lens judge panel (fresh context) — domain-correctness / operational-feasibility / spec-alignment
   verdict: PASS
   rationale: Đề xuất tổng hợp của panel round này là PASS, đồng thuận cả 3 lens — LẦN ĐẦU TIÊN qua 11 round panel đạt đồng thuận PASS tuyệt đối (round 10 vừa là lần đầu đồng thuận FAIL 3/3; round 7/9 trước đó chỉ là đa số PASS 2/3, chưa từng đồng thuận). Cả ba phiếu xác nhận phần TỰ VIẾT của bộ sinh (tiêu đề, ghi chú, tên mục, nhãn mermaid, ba dòng bản đồ trên thẻ /start) đạt N1-N6, ghi nhận 4 mã cổng dang/pham-vi/bang-chung/gia-tri nay đều kèm gloss ngay lần đầu xuất hiện — không còn nêu lại vướng mắc "chưa có mục trong CONTEXT.md" đã lặp lại xuyên suốt round 3-10. Phần THỪA HƯỞNG nguyên văn từ hồ sơ cũ vẫn bị cả 3 lens ghi nhận có vi phạm N1/N2/N4/N6 nhưng không tính vào phán quyết vòng này vì cố ý không sửa (đúng phạm vi AC-13b). Vì đề xuất là PASS đồng thuận, verdict tự chốt PASS — tier T2, không bắt buộc human_override khi panel tự chốt (giống round 7/9). Đầy đủ vote từng lens (không rút gọn) xem section "Judge panel — E13" ngay dưới Evidence.
-  human_override:
+  human_override: Manh Phan 2026-08-03 — CHẤP NHẬN; phần không đạt là tên việc thừa hưởng từ hồ sơ cũ đã ký, cố ý không sửa, bản đồ sạch dần theo hồ sơ mới, đảo ngược được
 
 - eval: E14
   run_id: minted-product-map-uat-session-E14-r11
