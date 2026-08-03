@@ -45,8 +45,13 @@ Steps:
    - If `_acceptance/<slug>/decisions.jsonl` exists (feature-loop), append the
      seal entry `{"id":"d-<next>","type":"seal","gate":1,"at":"<ISO>"}` in the
      same write-batch as `approved_by`.
-   - Offer ONE commit: contract + evals (+ design doc when present) — the
-     Gate-1 record.
+   - Regenerate the product map — `node
+     ${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs --root .` — AFTER the gate
+     fields are written. The map is a view over the workshop's records, and a
+     human closing a gate is exactly when those records change; CI's `--check`
+     turns any drift red.
+   - Offer ONE commit: contract + evals (+ design doc when present) +
+     `PRODUCT-MAP.md` — the Gate-1 record.
 6. **"Not now" / rejected** → the contract stays `draft`; capture the reason in
    chat; write nothing to gate fields.
 

@@ -48,21 +48,27 @@ contribute no values of your own. Any item the human rejects → the feature is
 NOT signable: leave every signoff field empty, stop, route back to the
 verify/fix loop.
 
-## 6. Land the signature in its own commit
+## 6. Regenerate the product map
+
+Run `node ${PLUGIN_ROOT}/scripts/product-map.mjs --root .` after
+`human_signoff` is written. The map is machine-generated from records this gate
+just changed, so it belongs in the signature commit below.
+
+## 7. Land the signature in its own commit
 
 Touch only the human-owned lines in `evidence-report.md` (`human_signoff`,
 `human_override`, the verdict upgrade, `bypass_ack`) plus the contract's
-`status` + `time_human_minutes.gate2`:
+`status` + `time_human_minutes.gate2` and the regenerated `PRODUCT-MAP.md`:
 
 ```bash
-git add _acceptance/<slug>/evidence-report.md _acceptance/<slug>/contract.md
+git add _acceptance/<slug>/evidence-report.md _acceptance/<slug>/contract.md PRODUCT-MAP.md
 git commit -m "Gate 2 signoff: <slug> — <name>"
 ```
 
 The reviewer runs it themselves, or explicitly orders you to run exactly that
 and nothing more.
 
-## 7. Re-check merge readiness
+## 8. Re-check merge readiness
 
 Codex write-time hooks may be inactive, so always re-check: run the consumer's
 `bash scripts/pre-merge-check.sh . --slug <slug>` (add
@@ -71,7 +77,7 @@ if the consumer copies are missing, run them from the installed Acceptance
 Gate cache via the consumer runner. Report READY TO MERGE or the exact
 violations.
 
-## 8. Preserve ownership
+## 9. Preserve ownership
 
 - Never invent or assume a name, date, or verdict.
 - Never upgrade a verdict while any override line is empty.

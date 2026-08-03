@@ -68,7 +68,10 @@ function classify(dir, slug) {
   const cTxt = read(path.join(dir, 'contract.md'));
   const oTxt = read(path.join(dir, 'opportunity.md'));
   const uTxt = read(path.join(dir, 'uat-session.md'));
-  const name = fm(cTxt, 'feature') || fm(oTxt, 'feature') || fm(uTxt, 'feature') || slug;
+  // `feature:` hay mở đầu bằng chính slug ("<slug> — mô tả"); dòng bản đồ đã
+  // in slug rồi nên để nguyên là đọc thành tiếng máy vọng lại hai lần.
+  const rawName = fm(cTxt, 'feature') || fm(oTxt, 'feature') || fm(uTxt, 'feature') || slug;
+  const name = rawName.startsWith(slug + ' — ') ? rawName.slice(slug.length + 3) : rawName;
   const edge = edges(cTxt, oTxt);
   const hong = (file, reason) => ({ key: 'hong', slug, file, reason });
 

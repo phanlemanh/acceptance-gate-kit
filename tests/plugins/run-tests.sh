@@ -3332,6 +3332,15 @@ if (!lineOf("alpha").includes("epic: nen-tang") || !lineOf("alpha").includes("li
   die("canh co trong ho so ma khong hien: " + lineOf("alpha"));
 if (/epic|thay thế|liên quan/.test(lineOf("zebra")))
   die("slug khong khai canh ma dong van co nhan canh: " + lineOf("zebra"));
+
+// feature: mo dau bang chinh slug -> dong ban do khong duoc lap lai slug hai lan
+W("_acceptance/omega/contract.md", contract("omega").replace(
+  "feature: viec omega", "feature: omega — lam cho nguoi dung X"));
+const withEcho = renderProductMap(tmp);
+const lo = withEcho.split("\n").find(l => l.includes("**omega**")) || "";
+if ((lo.match(/omega/g) || []).length !== 1)
+  die("dong ban do vong lai ten may hai lan: " + lo);
+if (!lo.includes("lam cho nguoi dung X")) die("cat tien to lam mat luon mo ta: " + lo);
 console.log("P105 OK");
 P105JS
 
@@ -3548,6 +3557,43 @@ if (jErr.map.present !== true || jErr.map.fresh !== null)
   die("khong doc duoc ban do phai cho present=true/fresh=null, got " + JSON.stringify(jErr.map));
 console.log("P108 OK");
 P108JS
+
+# ── P109: diem lam moi ban do o MOI than cong nguoi + config self-host ─────
+run "P109 buoc lam moi ban do nam SAU buoc ghi field cong, 2 harness + plugin-root (E6,E7)" \
+  python3 - "$ROOT" <<'PY109'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+# (than lenh, moc "ghi field cong" phai dung TRUOC buoc regen)
+BODIES = [
+    ("commands/approve.md", "approved_by"),
+    ("commands/signoff.md", "human_signoff"),
+    ("codex/acceptance-gate/skills/approve/SKILL.md", "approved_by"),
+    ("codex/acceptance-gate/skills/signoff/SKILL.md", "human_signoff"),
+    ("skills/uat-session/SKILL.md", "decided_by"),
+]
+for rel, anchor_field in BODIES:
+    t = (root / rel).read_text(encoding="utf-8")
+    assert "product-map.mjs" in t, f"{rel}: thieu buoc lam moi ban do"
+    assert t.find("product-map.mjs") > t.find(anchor_field), \
+        f"{rel}: buoc lam moi ban do nam TRUOC {anchor_field} — sai diem regen"
+    if rel.startswith(("commands/", "codex/")):
+        # Dan script qua PLUGIN_ROOT, khong hardcode 'scripts/' kieu self-host:
+        # ghim duong self-host la consumer khong bao gio regen (gap-probe F3).
+        seg = t[max(0, t.find("product-map.mjs") - 240): t.find("product-map.mjs")]
+        assert "PLUGIN_ROOT" in seg, \
+            f"{rel}: dan script bang duong dan self-host — consumer se khong bao gio regen"
+
+cfg = (root / "_acceptance/config.yaml").read_text(encoding="utf-8")
+assert "product_map:" in cfg, "config thieu executors.script.product_map"
+assert "executors.script.product_map" in cfg, "product_map chua nam trong feature_loop.suite_keys"
+# dot bien: go dong suite_keys thi phep do PHAI mat dau moc
+mut = "\n".join(l for l in cfg.splitlines() if "executors.script.product_map" not in l)
+assert "executors.script.product_map" not in mut, "buoc tiem chua bao gio chay"
+
+# ban do cua CHINH kit da commit va khop ho so xuong (doi chung song cua P30)
+assert (root / "PRODUCT-MAP.md").is_file(), "kit chua commit PRODUCT-MAP.md cua chinh no"
+PY109
 
 if [ "$failures" -gt 0 ]; then
   echo

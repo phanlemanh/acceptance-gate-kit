@@ -56,7 +56,12 @@ agent-editable), re-render the card, ask again.
 - If `_acceptance/<slug>/decisions.jsonl` exists, append the seal entry
   `{"id":"d-<next>","type":"seal","gate":1,"at":"<ISO>"}` in the same
   write-batch as `approved_by`.
-- Offer ONE commit: contract + evals (+ design doc when present).
+- Regenerate the product map — `node ${PLUGIN_ROOT}/scripts/product-map.mjs
+  --root .` — AFTER the gate fields are written. The map is a view over the
+  workshop's records, and a human closing a gate is exactly when those records
+  change; CI's `--check` turns any drift red.
+- Offer ONE commit: contract + evals (+ design doc when present) +
+  `PRODUCT-MAP.md`.
 - Where write-time hooks are not active in the Codex session, run the
   consumer's `scripts/recheck-evidence.js` path later at Gate 2 as usual; the
   contract transition itself is re-checked by CI `pre-merge-check.sh`.
