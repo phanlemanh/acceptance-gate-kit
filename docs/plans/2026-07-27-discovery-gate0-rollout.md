@@ -232,6 +232,38 @@ DỪNG build, quay lại vá kit trước — không lặp lại lỗi đo-tại
 4. Dòng D3 spec: "interactive-prototype (C1i)" → "theo luật rẽ C2/C1/H1" (bề mặt đã tồn tại → C2 mặc định).
 5. D1a đắt vì khảo cổ thiếu nền (293'/373' probe) — dữ liệu n=1 cho việc nâng lại nhánh R product-context; chờ feature thứ 2.
 
+## Bổ sung 2026-08-03 (quyết Manh trong chat maintainer)
+
+**Amendment F-A — ruột buổi phỏng vấn = NGHI THỨC ADVISOR** (thiết kế đã duyệt
+03/08; r3 Trang Tư Vấn chạy bản tay đầu tiên qua `grill-questions.md` bên
+artifact-platform, bài học đổ ngược vào F-A khi đóng gói):
+
+1. **Tờ khai bối cảnh** (artifact mới, trước buổi, máy điền): ba loại dòng
+   phân biệt rạch ròi — *sự thật đọc được* (kèm nguồn từng dòng; CẤM hỏi lại)
+   · *suy đoán rút từ sự thật* (đánh dấu inference) · *không thể biết từ
+   repo* (→ thành câu hỏi của buổi). Áp luật provenance 4-bất-biến vào
+   elicitation; thước có sẵn: DP-1 "hỏi trùng thông tin đã có ≤1 câu".
+2. **Chân ngành trước buổi**: thủ tục web-grounding domain (bài học
+   morphological-scan) để hỏi bằng từ vựng nghề — advisor biết nghề, không
+   chỉ biết hồ sơ.
+3. **Mở buổi = soát tờ khai 5-7′**: người gạch chỗ sai; chỗ gạch là mỏ tri
+   thức ngầm, đào tại chỗ. Ngầm-định → thứ-bắn-được.
+4. **Luật chống mớm**: câu tầng KHUNG (người/việc) hỏi MỞ trước
+   (kể-một-ngày, kể-lần-gần-nhất), nghe xong mới đối chiếu tờ khai; tờ khai
+   chỉ để soát sự thật + bắn suy đoán, không bao giờ thay câu trả lời —
+   chống đúng cơ chế giết r2 (khung kế thừa ngầm, người gật theo).
+5. Phân bổ theo bốn câu thực tế: câu Dữ liệu/Vật liệu phần lớn máy đọc được
+   (schema, kho linh kiện) → tờ khai điền trước, buổi chỉ hỏi phần đời thật
+   (ai nhập · công mỗi lần · trễ bao lâu); câu Người/Việc ngoài repo → hỏi.
+
+**Ba việc 02/08 (từ handoff — bổ sung vào nhật ký cho đủ, chưa làm):**
+
+| ID | Việc | Nơi chạm | Tier | Phụ thuộc |
+|---|---|---|---|---|
+| F-E | Máy tự nhận đường A/B/C/D/E từ artifact (hiện là quy ước người khai trong hồ sơ, người duyệt soi tại cổng) | `feature-loop/skills/` + mirror | T2 | spec v2 §2.4 |
+| F-F | Script kiểm kê kho linh kiện cho câu thực tế #4 + giai đoạn 0 design-pass | `scripts/` + mirror | T2 | — |
+| F-G | Máy soi mật độ chữ kỹ thuật ở vùng mặt-người (ratchet như census DS, chạy khi nâng bộ dựng thẻ) | `scripts/` + `commands/` + mirror | T2 | spec v2 §4.1 |
+
 ## DP-1 — Scorecard (điền sau V1)
 
 | Tiêu chí | Ngưỡng | Kết quả (đo 29/07, v1-journal worktree) | Đạt? |
