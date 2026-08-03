@@ -1,29 +1,23 @@
 {
  "feature_plain": "Repo tự vẽ một bản đồ sản phẩm từ hồ sơ xưởng, và có nghi thức phiên nghiệm thu để người dùng thật quyết giao rộng, lặp thêm, hay dừng.",
- "decisions": [
-  {
-   "id": "E13",
-   "q": "Bản đồ đọc được với người không rành kỹ thuật chưa, hay phải sửa tên việc của 14 hồ sơ cũ trước?",
-   "why": "Ba người chấm đều thấy phần bản đồ TỰ VIẾT đạt; phần mô tả từng việc chép nguyên văn tên do hồ sơ cũ đặt, và chúng viết bằng tiếng kỹ sư. Sửa nghĩa là viết lại hồ sơ đã ký."
-  }
- ],
+ "decisions": [],
  "scope_plain": "Vòng này KHÔNG làm: thẻ trình Cổng 0 và Cổng Giá trị, bảng số phễu, phần ghi liên kết khi khai thác, bản Codex của nghi thức nghiệm thu, kho quan hệ riêng, tự đo tracking.",
  "decisions_plain": [
   {
    "id": "d-20260803T065309Z-10077",
-   "p": "Đã chọn bản đồ vẽ NÉT THÔ (gộp các bước máy thành một nhãn) — đổi lại ít chi tiết hơn thẻ vào phiên, nhưng không báo đỏ oan giữa vòng."
+   "p": "Đã chọn bản đồ vẽ NÉT THÔ — ít chi tiết hơn thẻ vào phiên, đổi lại không báo đỏ oan giữa vòng."
   },
   {
    "id": "d-20260803T065309Z-29784",
-   "p": "Đã chọn nghi thức nghiệm thu là skill MỞ, vòng này chỉ có bản Claude — đổi lại Codex chưa có nghi thức phiên."
+   "p": "Nghi thức nghiệm thu là skill MỞ, vòng này chỉ có bản Claude — Codex chưa có nghi thức phiên."
   },
   {
    "id": "d-20260803T065309Z-30291",
-   "p": "KHÔNG làm thẻ trình Cổng 0/Cổng Giá trị và bảng số phễu ở vòng này — xem lại khi bản đồ và phiên nghiệm thu đã sống qua một việc thật."
+   "p": "KHÔNG làm thẻ Cổng 0/Cổng Giá trị và bảng số phễu ở vòng này."
   },
   {
    "id": "d-20260803T065309Z-29281",
-   "p": "Đã chọn làm mới bản đồ bằng bước ghi trong thân lệnh cổng + lưới kiểm CI, thay vì tự động ngầm — đổi lại repo không bao giờ đóng cổng thì không bao giờ có bản đồ."
+   "p": "Làm mới bản đồ bằng bước ghi trong thân lệnh cổng + lưới kiểm CI, thay vì tự động ngầm."
   },
   {
    "id": "d-20260803T071139Z-30291",
@@ -31,35 +25,63 @@
   },
   {
    "id": "d-20260803T072024Z-5760",
-   "p": "Đã chọn cho thẻ vào phiên đọc bản đồ bằng cách gọi thẳng bộ sinh thay vì chạy tiến trình riêng — nhanh hơn, đổi lại hai thứ dính nhau."
+   "p": "Thẻ vào phiên đọc bản đồ bằng cách gọi thẳng bộ sinh — nhanh hơn, đổi lại hai thứ dính nhau."
   },
   {
    "id": "d-20260803T073345Z-14806",
-   "p": "Đã sửa: script nhận diện chính nó bằng đường dẫn thật — repo nằm dưới lối tắt không còn làm cổng báo xanh giả."
+   "p": "Sửa: script nhận diện chính nó bằng đường dẫn thật — repo dưới lối tắt không còn làm cổng xanh giả."
   },
   {
    "id": "d-20260803T074824Z-2844",
-   "p": "Đã đưa luật hồ-sơ-có-hỏng-không về một chỗ dùng chung cho cả bản đồ lẫn thẻ vào phiên — chặn cả lớp lỗi hai bên đọc trái nhau."
+   "p": "Đưa luật hồ-sơ-có-hỏng-không về một chỗ dùng chung — chặn lớp lỗi hai bên đọc trái nhau."
   },
   {
    "id": "d-20260803T082900Z-30306",
-   "p": "Đã nối lệnh kiểm bản đồ vào CI và vá 4 phép đo hằng-đúng, trong đó 2 phép có sẵn từ vòng trước."
+   "p": "Nối lệnh kiểm bản đồ vào CI và vá 4 phép đo hằng-đúng."
   },
   {
    "id": "d-20260803T082900Z-20225",
-   "p": "KHÔNG giữ chỗ khai nguồn-bỏ-qua trong thẻ vào phiên vì không còn nguồn nào bỏ qua — TRÁI với ghi chú trong hợp đồng, cần anh xác nhận."
+   "p": "KHÔNG giữ chỗ khai nguồn-bỏ-qua vì không còn nguồn nào bỏ qua — TRÁI ghi chú hợp đồng, cần anh xác nhận."
   },
   {
    "id": "d-20260803T085535Z-4554",
-   "p": "Đã sửa lỗi đọc hồ sơ dùng chung: một ô để trống không còn nuốt mất dòng bên dưới."
+   "p": "Sửa lỗi đọc hồ sơ: ô để trống không còn nuốt mất dòng bên dưới."
   },
   {
    "id": "d-20260803T091500Z-26794",
-   "p": "Đã dừng ở vòng kiểm thứ 3 để hỏi anh thay vì tự chạy tiếp."
+   "p": "Dừng ở vòng kiểm thứ 3 để hỏi anh thay vì tự chạy tiếp."
   },
   {
    "id": "d-20260803T094746Z-19579",
-   "p": "Đã sửa ba việc anh duyệt: hồ sơ mồ côi hiện lại, phép đo hết hằng-đúng, bảng luật tách theo từng loại hồ sơ."
+   "p": "Sửa ba việc anh duyệt: hồ sơ mồ côi hiện lại, phép đo hết hằng-đúng, bảng luật tách theo loại hồ sơ."
+  },
+  {
+   "id": "d-20260803T101732Z-23812",
+   "p": "MỞ RỘNG PHẠM VI (anh cho phép): tách tiêu chí mặt người thành hai chân hình/chữ, thêm tiêu chí ký-xong-phải-merge-được."
+  },
+  {
+   "id": "d-20260803T103008Z-31657",
+   "p": "Sửa: tên việc kết thúc bằng dấu nháy không còn bị cụt trên bản đồ; phép đo thôi phá vật thật."
+  },
+  {
+   "id": "d-20260803T105727Z-9473",
+   "p": "Sửa: gõ nhầm lệnh kiểm không còn ghi đè bản đồ, và xoá bản đồ nay báo đỏ."
+  },
+  {
+   "id": "d-20260803T111906Z-29745",
+   "p": "Sửa: đánh số lại ADR bị trùng, và con trỏ khuôn trong nghi thức nghiệm thu giờ mở được."
+  },
+  {
+   "id": "d-20260803T122500Z-8789",
+   "p": "Sửa: khuôn khởi tạo phát cho repo khác nay kèm đủ miễn trừ + cổng canh — trước đó họ kẹt merge ngay lần ký đầu."
+  },
+  {
+   "id": "d-20260803T123341Z-9227",
+   "p": "(quyết định trong vòng)"
+  },
+  {
+   "id": "d-20260803T130000Z-4115",
+   "p": "(quyết định trong vòng)"
   }
  ]
 }

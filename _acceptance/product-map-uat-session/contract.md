@@ -5,7 +5,7 @@ slug: product-map-uat-session
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-08-03T09:35:00Z
 ---
@@ -71,6 +71,21 @@ chấm kín, Scrum Sprint Review — nghiệm thu trên sản phẩm chạy):
   được lỗ-kit — bản đồ vi phạm N5 ở dạng thức mà 12 lượt chấm qua 4 vòng đều
   bỏ sót, vì câu hỏi eval gộp N1–N6 thành một khối chữ nên người chấm hiểu
   thành "soi từ vựng". AC-14 thêm cùng lượt. Cần owner phê lại phần này khi ký.
+- **Known limits (ghi tại Cổng 2, owner chấp nhận ship):**
+  1. Khuôn `uat-session-template.md` chưa có câu cảnh báo "đừng chép dấu marker
+     và khối ```yaml" mà `contract-template.md` đã có — chép nguyên văn theo chỉ
+     dẫn sẽ tạo một hồ sơ mà CẢ HAI bên đọc gọi là hỏng.
+  2. `product-map.mjs --check` vẫn exit 0 khi `--root` trỏ vào thư mục không
+     tồn tại: nhánh "repo chưa dựng cổng" chạy TRƯỚC khi phân biệt mode ghi và
+     mode kiểm, nên gõ sai đường dẫn trong CI là cổng xanh mà chưa so byte nào.
+  3. Bản Codex của nghi thức phiên nghiệm thu chưa có (gói Codex nhận bản Claude
+     với `${CLAUDE_PLUGIN_ROOT}` không nở) — cùng dạng known-limit với design-pass.
+  4. Cổng Giá trị là cổng người mà nghi thức của nó để MỞ model-invocation; căn
+     cứ hiện chỉ sống trong một assert của P107, chưa có ADR riêng.
+  5. `since` của ô chờ-Cổng-Giá-trị neo vào `decided_at` — trường chỉ tồn tại
+     SAU khi ký, nên nhánh đó không sinh ra được trong nghi thức thật.
+  Cả 5 mục và họ lỗi "luật viết hai bản" đi tiếp ở hợp đồng
+  `workspace-reader-unification` (xem `.out-of-scope/` nếu bị hoãn).
 - Cổng Đáng hiện ký tay (chưa có lệnh riêng) → không có điểm regen máy cho
   chuyển discovery→decided; lưới: `--check` CI (AC-7) + cờ `map.fresh` trên
   thẻ /start (AC-10). Khi lệnh Cổng 0 ra đời (vòng card sau), thêm điểm regen
