@@ -74,6 +74,30 @@ plugin/DS của repo · handbook đội · 2 key consumer:
   nhớ), rồi phân loại từng món: *triết lý/logic* kế thừa được; *ngôn ngữ
   thiết kế/hình thái* mặc định KHÔNG (chuẩn repo tiêu thụ thắng; muốn kế
   thừa phải khai + người ký).
+- **BỐN CÂU HỎI THỰC TẾ (bắt buộc — bổ sung 02/08 sau khi vòng r1+r2 trượt
+  cả bốn).** Đây là NỘI DUNG của buổi grill, chạy TRƯỚC khi viết hồ sơ. Lớp
+  phòng thủ cũ nói *cách hỏi*; bốn câu này nói *hỏi gì*.
+
+  | # | Hỏi gì | Bằng chứng mới tính là trả lời được | Chưa trả lời được |
+  |---|---|---|---|
+  | 1 | **Người** — ai vận hành hàng ngày (chịu công), ai thụ hưởng, mỗi bên trên bề mặt nào | Kể được một ngày làm việc thật của người vận hành; đếm được mấy bề mặt | Cấm viết tiêu chí giao diện |
+  | 2 | **Việc** — việc cốt lõi bằng động từ thật, không phải khái niệm sản phẩm | Mô tả được họ làm việc đó ra sao khi CHƯA có công cụ | Mọi thiết kế sau là phỏng đoán |
+  | 3 | **Dữ liệu** — bảng đường dữ liệu: nguồn · ai nhập · ai giữ tươi · công mỗi lần · đổi lúc nào · **thiếu thì màn hình xử sự thế nào** | Bóc một bộ hồ sơ thật + bấm giờ | Dòng không có chủ → **cổng không mở** |
+  | 4 | **Vật liệu** — dựng bằng đồ gì đã có; mẫu nào chưa có; mỗi cái thiếu chọn một lối có tên (cắt về đồ cũ / tách việc hệ thiết kế / dựng riêng kèm nợ có hạn) | Kiểm kê kho bằng máy | Phiên thiết kế sẽ tự phát minh mẫu mới dưới sức ép |
+
+  Cột "thiếu thì xử sự thế nào" (câu 3) **chuyển thành tiêu chí nghiệm thu** —
+  phần máy gác được. Chống phình: mỗi câu MỘT BẢNG không văn xuôi · chưa biết
+  thì thành giả định + phép thử rẻ, cấm viết dài để đoán · bốn câu co giãn
+  theo đường A/B/C/D/E · vẫn nằm trong một trang hồ sơ cơ hội.
+
+  **Luật kèm theo:** (a) ô kiểm kê nguồn ngoài phải hỏi cả KHUNG (người/việc/
+  dữ liệu), không chỉ vật liệu — vòng r2 kế thừa khung sai vì ô cũ chỉ phân
+  loại logic-vs-hình-thái; (b) **đổi hình thái sản phẩm ⇒ hỏi lại ai vận
+  hành** (đồng bộ→bất đồng bộ, một người→nhiều người thường đổi luôn người
+  dùng chính — chỗ khung trượt vô hình); (c) vòng làm lại KHÔNG được tham
+  chiếu hồ sơ vòng trước làm nguồn khung, chỉ làm danh mục ý tưởng + kho
+  kỹ thuật có bảng nợ.
+
 - **D2 red-team** — phiên/pass TÁCH khỏi brainstorm (chống cùng-mù-điểm);
   output: bảng giả định xếp theo phép-thử-rẻ-nhất.
 - **D2.5 phép-thử-rẻ** — chạy HẾT ẩn số không-cần-dựng trước (đọc schema,
@@ -103,6 +127,30 @@ plugin/DS của repo · handbook đội · 2 key consumer:
   khai `material:`; thang DS: skill repo → shadcn-vocabulary mặc định);
   owner ngồi xem Browser pane; cấm sửa `components/ui` "cho đẹp";
   kết phiên: capture ma trận state + findings 2 nhóm.
+
+  **Bổ sung 02/08 — bốn mục biến S1-D thành vòng thật:**
+  1. **Khai NẤC TRUNG THỰC trước khi trình**: bản mẫu này trả lời câu hỏi
+     *cấu trúc* / *bố cục* / *chất lượng thị giác* — và **nội dung phải khớp
+     nấc**. Duyệt thị giác đòi nội dung thật (ảnh/chữ dài như thật/trường
+     thiếu). Duyệt sai nấc = câu trả lời vô nghĩa.
+  2. **Câu hỏi phân loại mẫu mở đầu phiên** (giai đoạn 0): màn này cần mẫu
+     nào hệ chưa có? Ba lối ra BẮT BUỘC chọn (cắt về đồ có sẵn / tách việc
+     hệ thiết kế / dựng riêng kèm nợ có hạn). Kiểm kê kho = script; phân
+     loại mẫu-mới-hay-tổ-hợp = model; chọn lối = người.
+  3. **Sổ phương án**: kết phiên ghi *đã thử gì · bác gì · vì sao* vào hồ sơ
+     ghi vết — vòng sau đọc để không đi lại đường cũ (lineage kiểu commit
+     DAG, không cần hạ tầng riêng).
+  4. **Ratchet phần đo được khai thành luật** (a11y · census · từ vựng token
+     · cỡ chữ/đường canh/vùng chạm): siết dần, máy gác. **KHÔNG** ratchet tự
+     động cho thẩm mỹ — hàm mục tiêu không tồn tại dạng máy, tự động sẽ đánh
+     lừa thước; đó là lý do phiên có người ngồi xem.
+
+  **Đường E — làn hệ thiết kế** (bổ sung vào bảng định tuyến §2.4): sản phẩm
+  giao ra là LINH KIỆN, không phải màn hình. Nhịp riêng: Khai (mẫu giải quyết
+  gì, dùng ở đâu, thước gì) → Làm (dựng trên trang trưng bày) → Đo (dùng được
+  ≥2 chỗ thật · a11y đạt · census không tăng · token hợp lệ) → Quyết (nhận
+  vào hệ / trả về). Không phiên UAT. Nợ linh kiện (lối "dựng riêng") phải
+  hiện trong PRODUCT-MAP kèm hạn trả — không hiện thì nợ tan vào code.
 - **CỔNG PHẠM VI** (`gate1`, người): duyệt contract + evals + **BẢN BẤM
   ĐƯỢC** — không duyệt UI bằng chữ; sơ đồ trình bằng mermaid trong doc
   (visual-as-code); khi duyệt: in MẶC ĐỊNH gợi ý `/goal` (GOAL-TEMPLATE
@@ -114,6 +162,11 @@ plugin/DS của repo · handbook đội · 2 key consumer:
   independent → đường Y vì Z"); chuỗi dài → checkpoint giữa chuỗi
   (build+smoke sau cụm nền tảng); code kế thừa (keep) phải nêu đích danh
   trong plan.
+- **Nối bản duyệt với bản dựng (bổ sung 02/08)**: chạy **cùng một bộ thước
+  hai lần** — lần một trên bản mẫu lúc duyệt (lưu số vào hồ sơ cổng làm mốc),
+  lần hai trên sản phẩm sau khi dựng; hai bộ số phải khớp trong sai số. Không
+  so từng điểm ảnh, dùng chính bộ kiểm giao diện đã có. Lấp chỗ trống để lại
+  khi nghi thức so-chồng-ảnh bị khai tử.
 - **S4 verify** — MỘT Workflow run/round (`acceptance-verify.js`, fresh
   agents): evals máy + judge panel đa-lens + review + baseline analyst ·
   carry-forward P1 (delta×paths, atomic-pair cross-layer) / P2 (baseline
