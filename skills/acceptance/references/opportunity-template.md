@@ -6,6 +6,12 @@
 > Frontmatter là phần MÁY ĐỌC (card/funnel Cổng 0 sẽ đọc) — giữ nguyên tên key,
 > chỉ thay giá trị. Xoá các dòng hướng dẫn `>` khi dùng thật.
 
+**ĐỪNG chép hai dòng chú thích `<!-- … -->` và hàng rào ```` ```yaml ```` quanh
+frontmatter.** Chúng ở đó để test rút được đúng khuôn máy-đọc (case P115 cho nó
+đi vòng qua chính bộ đọc mà các cổng dùng); `opportunity.md` thật phải BẮT ĐẦU
+ngay ở dòng `---`. Chép cả hàng rào thì dòng đầu file là ```` ```yaml ````, mọi
+bên đọc coi đây là hồ sơ hỏng và slug rơi xuống mục "Hồ sơ hỏng".
+
 <!-- <<<OPP-FRONTMATTER-TEMPLATE -->
 ```yaml
 ---

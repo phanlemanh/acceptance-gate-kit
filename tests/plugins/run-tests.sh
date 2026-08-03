@@ -3648,28 +3648,55 @@ for (const slug of Object.keys(EXPECT)) {
   if (n !== 1) die(slug + " xuat hien " + n + " lan trong map");
 }
 
-const MUT = [
-  ["d-dang-dung/contract.md", "status: approved", "status: xong-roi", "status"],
-  ["a-can-nhac/opportunity.md", "stage: discovery", "stage: dang-nghi", "stage"],
-  ["b-sap-mo/opportunity.md", "decision: build", "decision: Build-hoa", "decision"],
-  ["g-release/uat-session.md", "verdict: release", "verdict: done", "verdict"],
-];
-for (const [rel, from, to, field] of MUT) {
-  const p = path.join(tmp, "_acceptance", rel);
+// Danh sach cap (file, field) can tiem lay TU NAV_RULES, khong go tay: ban go
+// tay cu co 4 muc va thieu dung `uat-session.md/stage` — cap thu 5 cua bang
+// luat khong he co phep do nao, xoa han khoi bang van xanh ca suite (S4-r13).
+// Bang fixture duoi day chi tra loi "do cap nay o workspace nao"; bang luat no
+// ra ma bang nay khong no theo thi case DUNG AM I, khong lang le bo qua.
+const { NAV_FIELDS } = (await import("node:module")).createRequire(
+  path.join(root, "lib/workspace-record.js"))(path.join(root, "lib/workspace-record.js"));
+const FIXTURE = {
+  "contract.md/status":      "d-dang-dung",
+  "opportunity.md/stage":    "a-can-nhac",
+  "opportunity.md/decision": "b-sap-mo",
+  "uat-session.md/verdict":  "g-release",
+  "uat-session.md/stage":    "g-release",
+};
+const LAC = "khong-thuoc-tu-vung";
+// MO NEO hai chieu. Suy danh sach tu NAV_RULES vá được lỗ "them field ma quen
+// them ca", nhung tu no lai mo lo nguoc lai: XOA mot luat khoi bang thi danh
+// sach suy ra cung ngan lai, ca hai reader cung ngung kiem, va khong phep do
+// nao do. Thuoc suy tu vat thi no theo vat — va teo theo vat. Nen FIXTURE
+// dong vai mo neo VIET TAY: hai ben phai phu nhau, lech chieu nao cung DUNG.
+const capLuat = new Set(NAV_FIELDS.map(([f, k]) => f + "/" + k));
+const capNeo = new Set(Object.keys(FIXTURE));
+for (const c of capNeo)
+  if (!capLuat.has(c)) die("P116 neo cap " + c + " ma NAV_RULES khong con — "
+    + "mot field dieu huong vua bi xoa khoi bang luat: hai reader cung ngung kiem no. "
+    + "Co chu y thi bo dong tuong ung khoi FIXTURE, dung sua thuoc cho vua vat.");
+for (const [file, field] of NAV_FIELDS) {
+  const slug = FIXTURE[file + "/" + field];
+  if (!slug) die("NAV_RULES co " + file + "/" + field + " ma P116 khong co fixture — "
+    + "them fixture cho cap do, dung de mot field dieu huong khong ai do");
+  const p = path.join(tmp, "_acceptance", slug, file);
   const orig = fs.readFileSync(p, "utf8");
-  if (!orig.includes(from)) die("fixture " + rel + " khong chua \"" + from + "\" — buoc tiem chua bao gio chay");
-  fs.writeFileSync(p, orig.replace(from, to));
-  const slug = rel.split("/")[0];
+  const re = new RegExp("^" + field + ":.*$", "m");
+  // Doi chung duong hai chan: fixture PHAI chua field (khong thi buoc tiem
+  // chua bao gio chay), va ban NGUYEN VEN phai KHONG nam o Ho so hong.
+  if (!re.test(orig)) die("fixture " + slug + "/" + file + " khong co dong \"" + field + ":\" — buoc tiem chua bao gio chay");
+  if (sectionOfIn(renderProductMap(tmp), slug) === "Hồ sơ hỏng")
+    die("fixture " + slug + " da hong san truoc khi tiem — case khong phan biet duoc gi");
+  fs.writeFileSync(p, orig.replace(re, field + ": " + LAC));
   const mutated = renderProductMap(tmp);
   const cur = sectionOfIn(mutated, slug);
   if (cur !== "Hồ sơ hỏng")
-    die("enum-lac o " + field + " (" + rel + "): slug nam o " + JSON.stringify(cur) + ", mong Ho so hong");
+    die("enum-lac o " + file + "/" + field + " (" + slug + "): slug nam o " + JSON.stringify(cur) + ", mong Ho so hong");
   const hongBlock = (mutated.split("## Hồ sơ hỏng")[1] || "");
-  if (!hongBlock.includes(field) || !hongBlock.includes(to.split(": ")[1]))
-    die("enum-lac o " + field + ": muc Ho so hong khong neu ten field + gia tri la");
+  if (!hongBlock.includes(field) || !hongBlock.includes(LAC))
+    die("enum-lac o " + file + "/" + field + ": muc Ho so hong khong neu ten field + gia tri la");
   fs.writeFileSync(p, orig);
 }
-console.log("P116 OK");
+console.log("P116 OK (" + NAV_FIELDS.length + " cap field dieu huong, suy tu NAV_RULES)");
 P103JS
 
 run "P117 map GIU NGUYEN qua approved->implemented->verified; DOI qua cong nguoi (E2)" \
@@ -4097,12 +4124,23 @@ const { execFileSync } = await import("node:child_process");
 const { renderProductMap } = await import(path.join(root, "scripts/product-map.mjs"));
 const die = m => { console.error(m); process.exit(1); };
 const SCAN = path.join(root, "scripts/start-scan.mjs");
+const { createRequire } = await import("node:module");
+const LIB = path.join(root, "lib/workspace-record.js");
+const { NAV_RULES, consumedTexts } = createRequire(LIB)(LIB);
 
 // Ban do va bo quet vao phien la HAI READER cua cung mot bo ho so; loi hua la
 // chung KHONG BAO GIO cho hai ket luan trai nhau ve "slug nay co hong khong".
-// Danh sach ca GO TAY bo tron lop TO HOP: S4-r12 dung lai duoc 3 to hop lech
-// ma 13 ca cu deu xanh. Nen sinh ca bang TICH DESCARTES va assert DUNG MOT
-// dieu — scanHong === mapHong — thay vi liet ke ky vong tung ca.
+//
+// Phep do co HAI CHANG vi lech sinh ra tu HAI nguon khac nhau:
+//   Chang 1 — TIEU THU: file nao duoc doc o trang thai nao. Tich Descartes
+//     cheo file (contract x opportunity x uat) voi cac hinh dang tho.
+//   Chang 2 — TU VUNG: gia tri tung field co hop luat khong. Chang 1 khong the
+//     bat lop nay: moi phan tu cua no la mot GOI co dinh nhieu field cung luc
+//     ("stage-la" luon di kem decision lanh), nen to hop (stage lanh x decision
+//     lac) va (verdict lanh x uat-stage lac) nam NGOAI khong gian ca — dung hai
+//     to hop S4-r13 dung lai duoc trong khi chang 1 van xanh. Chang 2 nhan
+//     TUNG FIELD, va lay danh sach field + enum TU CHINH NAV_RULES: bang luat
+//     no ra thi phep do tu no theo, khong cho ai them field ma quen them ca.
 const CONTRACT = {
   "vang":        null,
   "draft":       "---\nstatus: draft\n---\n",
@@ -4141,35 +4179,99 @@ const dat = (name, txt) => { const p = path.join(dir, name);
 
 let n = 0, lanhManh = 0, hong = 0;
 const lech = [];
+
+// Dung workspace roi hoi CA HAI reader ve dung mot cau: slug nay co hong khong.
+function doiChieu(nhan, { c, o, u, evidence = null }) {
+  fs.rmSync(dir, { recursive: true, force: true }); fs.mkdirSync(dir, { recursive: true });
+  dat("contract.md", c); dat("opportunity.md", o); dat("uat-session.md", u);
+  if (evidence) dat("evidence-report.md", evidence);
+  const scan = JSON.parse(execFileSync("node", [SCAN, "--root", tmp], { encoding: "utf8" }));
+  const scanHong = scan.broken.some(b => b.slug === "x");
+  const mapTxt = renderProductMap(tmp);
+  const mapHong = (mapTxt.split("## Hồ sơ hỏng")[1] || "").includes("`x`");
+  n++; scanHong ? hong++ : lanhManh++;
+  if (scanHong !== mapHong) lech.push(`[${nhan}] quet=${scanHong} ban do=${mapHong}`);
+  // Slug KHONG duoc bien mat: phai o dung MOT o nao do o CA HAI ben
+  const oNao = scanHong || scan.groups.gates.some(g => g.slug === "x")
+    || scan.groups.inProgress.some(g => g.slug === "x") || scan.groups.done.some(g => g.slug === "x");
+  if (!oNao) lech.push(`[${nhan}] slug BIEN MAT khoi bo quet`);
+  if (!mapTxt.includes("`x`")) lech.push(`[${nhan}] slug BIEN MAT khoi ban do`);
+  return scanHong;
+}
+
+// ── Chang 1: TIEU THU — tich Descartes cheo file ──────────────────────────
 for (const [cn, ct] of Object.entries(CONTRACT))
 for (const [on, ot] of Object.entries(OPP))
 for (const [un, ut] of Object.entries(UAT)) {
-  fs.rmSync(dir, { recursive: true, force: true }); fs.mkdirSync(dir, { recursive: true });
-  dat("contract.md", ct); dat("opportunity.md", ot); dat("uat-session.md", ut);
   // Trục evidence-report.md CỐ Ý nằm ngoài phép đo này: luật chung hiện phủ ba
   // hồ sơ (contract/opportunity/uat) và bộ quét còn giữ luật RIÊNG cho
   // evidence-report — chính lỗ mà hợp đồng workspace-reader-unification (AC-1)
   // ghi nợ. Để trục đó lọt vào đây thì phép đo đỏ vì một việc ĐÃ khai là ngoài
   // phạm vi, che mất các lệch THẬT của ba trục đang đo. Nên: mọi fixture
   // `verified` được cấp một evidence-report LÀNH MẠNH.
-  if (cn === "verified") dat("evidence-report.md", "---\nverdict: PASS\nhuman_signoff:\n---\n");
-  const scan = JSON.parse(execFileSync("node", [SCAN, "--root", tmp], { encoding: "utf8" }));
-  const scanHong = scan.broken.some(b => b.slug === "x");
-  const mapTxt = renderProductMap(tmp);
-  const mapHong = (mapTxt.split("## Hồ sơ hỏng")[1] || "").includes("`x`");
-  n++; scanHong ? hong++ : lanhManh++;
-  if (scanHong !== mapHong)
-    lech.push(`[contract=${cn} opp=${on} uat=${un}] quet=${scanHong} ban do=${mapHong}`);
-  // Slug KHONG duoc bien mat: phai o dung MOT o nao do o CA HAI ben
-  const oNao = scanHong || scan.groups.gates.some(g => g.slug === "x")
-    || scan.groups.inProgress.some(g => g.slug === "x") || scan.groups.done.some(g => g.slug === "x");
-  if (!oNao) lech.push(`[contract=${cn} opp=${on} uat=${un}] slug BIEN MAT khoi bo quet`);
-  if (!mapTxt.includes("`x`")) lech.push(`[contract=${cn} opp=${on} uat=${un}] slug BIEN MAT khoi ban do`);
+  doiChieu(`contract=${cn} opp=${on} uat=${un}`, { c: ct, o: ot, u: ut,
+    evidence: cn === "verified" ? "---\nverdict: PASS\nhuman_signoff:\n---\n" : null });
 }
+const nChang1 = n;
+
+// ── Chang 2: TU VUNG — tich Descartes tung FIELD, suy tu NAV_RULES ─────────
+// Mien gia tri moi field: MOI gia tri hop enum + mot gia tri ngoai tu vung +
+// rong + thieu han key. Suy tu bang luat nen them enum/them field la phep do
+// tu no rong ra.
+const mienGiaTri = rule => [
+  ...rule.enum.map(v => [v, v]),
+  ["gia-tri-lac", "khong-thuoc-tu-vung"],
+  ["rong", ""],
+  ["thieu-key", null],
+];
+const dungFm = vals => "---\n"
+  + Object.entries(vals).filter(([, v]) => v !== null).map(([k, v]) => `${k}: ${v}`).join("\n")
+  + "\n---\n";
+const tichField = file => {
+  const fields = Object.entries(NAV_RULES[file]);
+  let acc = [{ nhan: [], vals: {} }];
+  for (const [field, rule] of fields)
+    acc = acc.flatMap(p => mienGiaTri(rule).map(([tenGt, gt]) =>
+      ({ nhan: [...p.nhan, `${field}=${tenGt}`], vals: { ...p.vals, [field]: gt } })));
+  return acc;
+};
+
+// Ngu canh phai BAO DAM file dang do that su duoc TIEU THU — neu khong, ca
+// chang 2 lang le do mot workspace ma khong reader nao doc file do, va van
+// xanh vinh vien. Nen moi ngu canh bi chinh consumedTexts kiem lai duoi day.
+const NGU_CANH = {
+  "contract.md": [
+    { ten: "mot-minh", khac: { o: null, u: null } },
+  ],
+  "opportunity.md": [
+    { ten: "chua-co-hop-dong", khac: { c: null, u: null } },
+    { ten: "da-ky-chua-nghiem-thu", khac: { c: "---\nstatus: signed-off\n---\n", u: "---\nstage: held\nverdict:\n---\n" } },
+  ],
+  "uat-session.md": [
+    { ten: "da-ky", khac: { c: "---\nstatus: signed-off\n---\n", o: "---\nstage: decided\ndecision: build\n---\n" } },
+  ],
+};
+const KHOA = { "contract.md": "c", "opportunity.md": "o", "uat-session.md": "u" };
+let nChang2 = 0;
+for (const file of Object.keys(NAV_RULES))
+for (const nc of NGU_CANH[file])
+for (const { nhan, vals } of tichField(file)) {
+  const txt = dungFm(vals);
+  const arg = { ...nc.khac, [KHOA[file]]: txt };
+  // Doi chung: ngu canh nay CO tieu thu file dang do khong? Luat chung tra loi.
+  const daDoc = consumedTexts({ contract: arg.c ?? null, opportunity: arg.o ?? null, uat: arg.u ?? null });
+  if (daDoc[file] == null)
+    die(`ngu canh "${nc.ten}" KHONG tieu thu ${file} — chang 2 do vao khoang khong`);
+  doiChieu(`${file} @${nc.ten} ${nhan.join(" ")}`, {
+    c: arg.c ?? null, o: arg.o ?? null, u: arg.u ?? null,
+    evidence: /status: verified/.test(arg.c || "") ? "---\nverdict: PASS\nhuman_signoff:\n---\n" : null });
+  nChang2++;
+}
+
 if (lech.length) die(`${lech.length}/${n} to hop LECH:\n  ` + lech.slice(0, 8).join("\n  "));
 // Doi chung DUONG: phep do phai co ca hai mau, khong duoc toan hong hay toan lanh
 if (!hong || !lanhManh) die(`phep do mot mau: hong=${hong} lanh=${lanhManh} — khong phan biet duoc gi`);
-console.log(`P123 OK (${n} to hop, ${hong} hong / ${lanhManh} lanh, hai reader dong y tat ca)`);
+console.log(`P123 OK (${n} to hop = ${nChang1} tieu-thu + ${nChang2} tu-vung, ${hong} hong / ${lanhManh} lanh, hai reader dong y tat ca)`);
 P123JS
 
 # ── P124: khoa RONG khong duoc nuot dong ke (lop loi cua reader chung) ─────
@@ -4450,12 +4552,30 @@ ra = (rc.stdout + rc.stderr)
 assert "unsupported plugin/action" not in ra, \
     f"lenh khuon Codex PHAT ra bi runner tu choi: {ra.strip()[:120]} — consumer Codex se co mien tru ma khong co cong canh"
 
-# (d) Duong DOC-CU: 4 than cong phai co nhanh bo qua cho repo init truoc 1.31.0.
-#     CLAUDE.md: doi schema artifact phai co duong doc-cu, KHONG bat consumer
-#     migrate hang loat. Thieu nhanh nay thi moi repo cu ket merge ngay lan ky.
-for rel in ["commands/approve.md", "commands/signoff.md",
-            "codex/acceptance-gate/skills/approve/SKILL.md",
-            "codex/acceptance-gate/skills/signoff/SKILL.md"]:
+# (d) Duong DOC-CU: MOI than cong co buoc regen deu phai co nhanh bo qua cho
+#     repo init truoc 1.31.0. CLAUDE.md: doi schema artifact phai co duong
+#     doc-cu, KHONG bat consumer migrate hang loat. Thieu nhanh nay thi moi
+#     repo cu ket merge ngay lan ky dau tien.
+#
+#     Danh sach than lay bang QUET, khong go tay: ban go tay cu liet 4 than va
+#     bo sot `skills/uat-session/SKILL.md` — chinh nghi thuc Cong Gia tri dung
+#     ra cai bay ma ADR 0007 viet ra de chan (S4-r13). Dinh nghia lop la "than
+#     nao RA LENH regen thi than do phai co duong doc-cu", nen than thu sau
+#     them sau nay tu dong bi do.
+#     Dau hieu cua THAN CONG (khac khuon init): no RA LENH ve lai ban do —
+#     `--root .` KHONG kem `--check`. Khuon acceptance-init cung nhac script
+#     nhung chi de phat mot dong config dang `--check`, no khong ky gi ca nen
+#     khong can duong doc-cu.
+RE_REGEN = re.compile(r"product-map\.mjs --root \.(?!\s*--check)")
+THAN = sorted(
+    p.relative_to(root).as_posix()
+    for d in ("commands", "codex", "skills")
+    for p in (root / d).rglob("*.md")
+    if RE_REGEN.search(p.read_text(encoding="utf-8"))
+)
+# Bo dem tinh tao: 0 hit gan nhu luon la grep hong, khong phai "khong co than".
+assert len(THAN) >= 5, f"quet ra {len(THAN)} than cong co buoc regen — mong >=5, nghi buoc quet hong: {THAN}"
+for rel in THAN:
     body = (root / rel).read_text(encoding="utf-8")
     assert "t1_skip_globs" in body, f"{rel}: khong doc t1_skip_globs — khong co duong doc-cu"
     # Chuan hoa khoang trang TRUOC khi soi: loi hua la "than co neu dieu kien
@@ -4483,6 +4603,23 @@ for rel in ["commands/approve.md", "commands/signoff.md",
         if "Offer ONE commit" in s and "ONLY" not in s:
             raise AssertionError(
                 f"{rel}: dong 'Offer ONE commit' keo ban do vao vo dieu kien: {s[:90]}")
+
+# (e) MOI khuon co marker trich xuat phai DAN dung chep marker + hang rao.
+#     Marker + ```yaml ton tai vi TEST can rut khuon may-doc; nguoi chep nguyen
+#     van thi dong dau file la ```yaml, `^---` khong khop, va MOI reader goi ho
+#     so do la hong. contract-template co loi dan tu dau, uat/opportunity thi
+#     khong (S4-r13) — cung mot lop, sua theo lop: danh sach lay bang QUET
+#     chinh cac file CO marker, nen khuon thu tu them sau nay tu dong bi do.
+REF = root / "skills/acceptance/references"
+KHUON = sorted(p.relative_to(root).as_posix() for p in REF.rglob("*.md")
+               if re.search(r"<<<[A-Z0-9-]+-FRONTMATTER-TEMPLATE", p.read_text(encoding="utf-8")))
+assert len(KHUON) >= 3, f"quet ra {len(KHUON)} khuon co marker — mong >=3, nghi buoc quet hong: {KHUON}"
+for rel in KHUON:
+    flat = re.sub(r"\s+", " ", (root / rel).read_text(encoding="utf-8"))
+    assert re.search(r"(Do NOT copy|ĐỪNG chép)", flat), \
+        f"{rel}: co marker trich xuat ma khong dan 'dung chep marker' — nguoi chep nguyen van se tao ho so hong"
+    assert re.search(r"(fence|hàng rào)", flat), \
+        f"{rel}: loi dan khong neu ca HANG RAO ```yaml — chep thieu moi dong ```yaml van du lam hong ho so"
 P114PY
 
 if [ "$failures" -gt 0 ]; then

@@ -4,6 +4,12 @@
 > Frontmatter là phần MÁY ĐỌC (`/start` và bản đồ sản phẩm đọc) — giữ nguyên
 > tên khoá, chỉ thay giá trị. Xoá các dòng hướng dẫn `>` khi dùng thật.
 
+**ĐỪNG chép hai dòng chú thích `<!-- … -->` và hàng rào ```` ```yaml ```` quanh
+frontmatter.** Chúng ở đó để test rút được đúng khuôn máy-đọc (case P115 cho nó
+đi vòng qua chính bộ đọc mà các cổng dùng); `uat-session.md` thật phải BẮT ĐẦU
+ngay ở dòng `---`. Chép cả hàng rào thì dòng đầu file là ```` ```yaml ````, mọi
+bên đọc coi đây là hồ sơ hỏng và slug rơi xuống mục "Hồ sơ hỏng".
+
 <!-- <<<UAT-FRONTMATTER-TEMPLATE -->
 ```yaml
 ---

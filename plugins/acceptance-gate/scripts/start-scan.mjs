@@ -16,9 +16,12 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence-core.js'));
-// Luật "field điều hướng này có hợp lệ không" sống MỘT chỗ và bản đồ sản phẩm
-// dùng chung — hai bên đọc cùng hồ sơ không được cho hai kết luận trái nhau.
-const { fieldProblem } = require(path.join(__dirname, '..', 'lib', 'workspace-record.js'));
+// Luật "hồ sơ nào được tiêu thụ" VÀ luật "field điều hướng có hợp lệ không"
+// đều sống MỘT chỗ, bản đồ sản phẩm dùng chung — hai bên đọc cùng hồ sơ không
+// được cho hai kết luận trái nhau. Kiểm tay lại ở đây là cách hai bên đã trôi
+// khỏi nhau ở r12 và r13 dù bảng enum đã gom xong từ r3.
+const { recordProblem, navValues, consumedTexts, usesOpportunity } =
+  require(path.join(__dirname, '..', 'lib', 'workspace-record.js'));
 
 // Argv hỏng CHẾT TO (exit 2), không âm thầm rơi về cwd: một cờ được KHAI mà
 // dùng không được lại đổi nghĩa lệnh thành "quét cây khác rồi báo thành công",
@@ -89,6 +92,9 @@ const VERDICT_MEANING = {
   'BLOCKED':          { settled: false, nextStep: 'S4' },
 };
 const offVocab = verdict => ({ file: 'evidence-report.md', reason: `verdict không nhận diện được: ${verdict}` });
+// verdict của PHIÊN NGHIỆM THU → ô kết cục. Giá trị ngoài bảng này không tới
+// được đây: luật chung đã gọi nó là hồ sơ hỏng trước đó.
+const UAT_STATE = { release: 'released', iterate: 'uat-iterate', kill: 'uat-kill' };
 // Khớp CHẶT khuôn tên plan YYYY-MM-DD-<slug>.md — substring trần khiến slug là
 // tiền tố của slug khác dính plan không phải của nó (S4-r1, nextStep S3 oan)
 const planSlug = f => { const m = f.match(/^\d{4}-\d{2}-\d{2}-(.+)\.md$/); return m ? m[1] : null; };
@@ -145,32 +151,28 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       const uRead = read(path.join(dir, 'uat-session.md'));
       if (uRead.err) { broken.push({ slug, file: 'uat-session.md', reason: ioReason(uRead.err) }); continue; }
       const uTxt = uRead.t;
-      if (uTxt != null) {
-        const vRaw = fmOrNull(uTxt, 'verdict');
-        if (vRaw == null) { broken.push({ slug, file: 'uat-session.md', reason: 'frontmatter không parse được hoặc thiếu verdict' }); continue; }
-        const v = vRaw.toLowerCase();
-        // verdict RỖNG = phiên đã dựng nhưng CHƯA ký → rơi xuống ô chờ-Cổng-Giá-trị
-        if (v) {
-          const UAT_STATE = { release: 'released', iterate: 'uat-iterate', kill: 'uat-kill' };
-          if (!UAT_STATE[v]) { broken.push({ slug, file: 'uat-session.md', reason: `verdict không nhận diện được: ${vRaw}` }); continue; }
-          done.push({ slug, state: UAT_STATE[v] }); continue;
-        }
-      }
       // Đường A (cơ hội đã quyết build/iterate) còn MỘT cổng người nữa: phiên
       // nghiệm thu. Đường B/C/E ship thẳng — không dựng phiên giả cho chúng.
-      // opportunity.md ở ĐÂY là hồ sơ được tiêu thụ, nên đọc tại chỗ.
-      const oR = read(oPath);
-      if (oR.err) { broken.push({ slug, file: 'opportunity.md', reason: ioReason(oR.err) }); continue; }
-      // opportunity.md ĐƯỢC tiêu thụ ở đây (dò đường A) nên MỌI field điều
-      // hướng của nó phải qua LUẬT CHUNG — kiểm tay từng field là cách chắc
-      // chắn sót một field, và sót field nào thì bản đồ với bộ quét lệch nhau
-      // đúng ở đó (S4-r12 dựng lại được: stage lạ, stage rỗng, mất frontmatter).
-      let oProblem = null;
-      if (oR.t != null)
-        for (const f of ['stage', 'decision']) { oProblem = oProblem || fieldProblem('opportunity.md', oR.t, f); }
-      if (oProblem) { broken.push({ slug, ...oProblem }); continue; }
-      const oDec = oR.t != null ? (frontmatterField(oR.t, 'decision') || '').toLowerCase() : '';
-      if (oDec === 'build' || oDec === 'iterate')
+      // CÓ đọc opportunity.md hay không là câu hỏi của luật chung, không phải
+      // của chỗ này: đọc lười vẫn giữ (lỗi quyền ở file không dùng tới không
+      // được quyết định ô của slug), nhưng điều kiện thì hỏi usesOpportunity.
+      let oTxt = null;
+      if (usesOpportunity(cTxt, uTxt)) {
+        const oR = read(oPath);
+        if (oR.err) { broken.push({ slug, file: 'opportunity.md', reason: ioReason(oR.err) }); continue; }
+        oTxt = oR.t;
+      }
+      // MỘT lượt hỏi luật chung cho CẢ tập hồ sơ được tiêu thụ. Kiểm tay từng
+      // field là cách chắc chắn sót một field — sót field nào thì bản đồ với
+      // bộ quét lệch nhau đúng ở đó (r12: stage/frontmatter của opportunity;
+      // r13: stage của phiên nghiệm thu, và decision lạ khi stage chưa quyết).
+      const texts = consumedTexts({ contract: cTxt, opportunity: oTxt, uat: uTxt });
+      const problem = recordProblem(texts);
+      if (problem) { broken.push({ slug, ...problem }); continue; }
+      const { decision, verdict } = navValues(texts);
+      // verdict RỖNG = phiên đã dựng nhưng CHƯA ký → rơi xuống ô chờ-Cổng-Giá-trị
+      if (verdict) { done.push({ slug, state: UAT_STATE[verdict] }); continue; }
+      if (decision === 'build' || decision === 'iterate')
         gates.push({ slug, gate: 'gia-tri', since: since(cPath, fmOrNull(uTxt, 'decided_at')), tier });
       else done.push({ slug, state: 'signed-off' });
     }
@@ -205,27 +207,18 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
   // Không có contract.md — GIỜ mới đọc opportunity.md (xem ghi chú ở trên)
   const oRead = read(oPath);
   if (oRead.err) { broken.push({ slug, file: 'opportunity.md', reason: ioReason(oRead.err) }); continue; }
-  const oTxt = oRead.t;
-  if (oTxt != null) {
-    const stageRaw = fmOrNull(oTxt, 'stage');
-    if (stageRaw == null) { broken.push({ slug, file: 'opportunity.md', reason: 'frontmatter không parse được hoặc thiếu stage' }); continue; }
-    const stage = stageRaw.toLowerCase();
-    // stage RỖNG hoặc ngoài từ vựng là hồ sơ ghi dở, phải được NÊU TÊN chứ
-    // không im lặng thành "chờ-Cổng-Đáng" (known-limit 3 của start-scan-
-    // hardening). Bản đồ sản phẩm đã gọi nó là hỏng — hai bên đọc cùng hồ sơ
-    // không được cho hai kết luận trái nhau (case P123).
-    if (!stage || !['discovery', 'decided', 'archived'].includes(stage)) {
-      broken.push({ slug, file: 'opportunity.md', reason: `stage không nhận diện được: ${stageRaw || '(rỗng)'}` });
-      continue;
-    }
-    const decision = (frontmatterField(oTxt, 'decision') || '').toLowerCase();
-    if (stage !== 'decided' || !decision) gates.push({ slug, gate: 'dang', since: since(oPath, frontmatterField(oTxt, 'decided_at')), tier: null });
-    else if (decision === 'build' || decision === 'iterate') inProgress.push({ slug, status: 'opportunity-decided', nextStep: 'S1', tier: null });
-    else if (decision === 'park' || decision === 'kill') done.push({ slug, state: decision });
-    else broken.push({ slug, file: 'opportunity.md', reason: `decision không nhận diện được: ${decision}` });
-  } else {
-    broken.push({ slug, file: '(workspace)', reason: 'không có contract.md lẫn opportunity.md' });
-  }
+  // MỌI field điều hướng qua LUẬT CHUNG, kể cả khi trạng thái không dùng tới
+  // nó để xếp ô. Bảng enum chép tay ở đây là chỗ r13 lệch: `decision` ngoài từ
+  // vựng lọt im lặng vì nhánh `stage !== 'decided'` rẽ TRƯỚC khi nó được đối
+  // chiếu — hồ sơ ghi dở phải được NÊU TÊN, không hoá thành "chờ-Cổng-Đáng".
+  // recordProblem cũng trả luôn ca không-có-cả-hai-hồ-sơ (ANCHOR_FILES).
+  const texts = consumedTexts({ contract: null, opportunity: oRead.t, uat: null });
+  const problem = recordProblem(texts);
+  if (problem) { broken.push({ slug, ...problem }); continue; }
+  const { stage, decision } = navValues(texts);
+  if (stage !== 'decided' || !decision) gates.push({ slug, gate: 'dang', since: since(oPath, fmOrNull(oRead.t, 'decided_at')), tier: null });
+  else if (decision === 'build' || decision === 'iterate') inProgress.push({ slug, status: 'opportunity-decided', nextStep: 'S1', tier: null });
+  else done.push({ slug, state: decision });
 }
 gates.sort((a, b) => String(a.since).localeCompare(String(b.since)));
 

@@ -69,7 +69,22 @@ là thứ duy nhất phiên này sinh ra mà máy không thay được.
 
 ## 6. Sau khi ký
 
-- Làm mới bản đồ sản phẩm:
+- **Làm mới bản đồ sản phẩm — chỉ khi repo đã bật.** Đọc
+  `risk_tiers.t1_skip_globs` trong `_acceptance/config.yaml`. KHÔNG thấy
+  `PRODUCT-MAP.md` trong danh sách → repo dựng trước acceptance-gate 1.31.0:
+  **BỎ QUA bước này**, đừng thêm bản đồ vào commit, và in ghi chú dưới đây —
+  nếu không, chính commit chữ ký làm bằng chứng cũ đi và lưới trước-merge chặn
+  merge mà không có lối ra (ADR 0007). Cổng Giá trị là thân cổng người thứ
+  NĂM: bốn thân kia (`/approve`, `/signoff` ở cả hai harness) đã có đường
+  đọc-cũ này, thiếu ở đây thì chính phiên nghiệm thu dựng ra cái bẫy đó.
+
+  > Bản đồ sản phẩm chưa bật cho repo này. Bật bằng hai dòng trong
+  > `_acceptance/config.yaml`: thêm `- "PRODUCT-MAP.md"` vào
+  > `risk_tiers.t1_skip_globs`, và `product_map: "node
+  > ${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs --root . --check"` vào
+  > `executors.script` — rồi chạy executor đó trong CI.
+
+  Có trong danh sách → chạy
   `node ${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs --root .` (repo tự host
   kit chạy `node scripts/product-map.mjs --root .`). Bản đồ vừa có một ô đổi
   chủ; để nó lệch là để người sau đọc một bản đồ nói dối.
