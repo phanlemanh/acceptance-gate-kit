@@ -5,10 +5,10 @@ slug: start-scan-hardening
 owner: manh@mstar.vn
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-03T07:20:00Z
-time_human_minutes: {gate1: 8, gate2: 0}
+time_human_minutes: {gate1: 8, gate2: 10}
 ---
 
 # Acceptance Contract: start-scan-hardening
@@ -46,3 +46,15 @@ Nguồn scope: 4 known-limits ký tại Cổng 2 start-command (03/08) — xem
 - Chốt lỗi của một artifact chỉ được chạy trên các trạng thái TIÊU THỤ artifact
   đó (quyết tại S4-r5 sau 4 round dẫm cùng lớp); thước là P105 — ma trận
   trạng-thái × tình-trạng-artifact ghim toàn phần.
+
+Known limits (Gate 2, Manh Phan 2026-08-03 — tích từ 5 vòng chấm):
+
+- Hồ sơ verified có chữ ký nhưng verdict sai định dạng → báo "đã xong" thay vì
+  "cần xem lại" (thứ tự ưu tiên chữ-ký có sẵn từ trước vòng này; trục signoff
+  chưa vào ma trận P105).
+- `--root` lặp hai lần → lần đầu bị nuốt im lặng (hai thân lệnh hardcode một lần).
+- `stage:` bỏ trống trong opportunity.md → hiện như cổng chờ-Cổng-Đáng thay vì
+  được nêu tên là hồ sơ ghi dở.
+- CHUYỂN VÒNG F-B (quyết Gate 2): thư mục `_acceptance/` mất quyền đọc →
+  `config:false` nói dối "repo chưa dựng cổng" / `readdirSync` văng lỗi thô —
+  F-B sửa bộ quét khi nối nguồn mới, vá vỏ ngoài tại đó.
