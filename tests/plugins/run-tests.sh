@@ -4056,6 +4056,18 @@ lenh = m.group(1).split()
 assert lenh[0] == "node", f"lenh la: {lenh}"
 runner = root / "codex/acceptance-gate/skills/acceptance-init/references/codex-plugin-runner.mjs"
 assert runner.is_file(), "khong tim thay codex-plugin-runner.mjs"
+#     DOI CHUNG DUONG truoc: mot action BIA phai bi tu choi DUNG thong diep va
+#     DUNG ma thoat. Khong co ve nay thi assert am-tinh ben duoi la xanh-rong —
+#     doi wording cua blocked(), hay lam runner chet truoc khi toi allowlist,
+#     deu cho "khong thay chuoi do" va phep do van xanh (mutation M2/M3 cua
+#     review S4-r10 da chung minh dung hai duong do).
+bia = sp.run(["node", str(runner), "acceptance-gate", "khong-he-ton-tai", "--root", "."],
+             cwd=root, capture_output=True, text=True)
+ba = (bia.stdout + bia.stderr)
+assert "unsupported plugin/action" in ba, \
+    f"doi chung duong hong: action BIA phai bi tu choi dung thong diep, duoc: {ba.strip()[:160]}"
+assert bia.returncode == 2, f"action bia phai exit 2, duoc {bia.returncode}"
+
 rc = sp.run(["node", str(runner)] + lenh[2:], cwd=root, capture_output=True, text=True)
 ra = (rc.stdout + rc.stderr)
 assert "unsupported plugin/action" not in ra, \
@@ -4069,8 +4081,31 @@ for rel in ["commands/approve.md", "commands/signoff.md",
             "codex/acceptance-gate/skills/signoff/SKILL.md"]:
     body = (root / rel).read_text(encoding="utf-8")
     assert "t1_skip_globs" in body, f"{rel}: khong doc t1_skip_globs — khong co duong doc-cu"
-    assert re.search(r"(SKIP|BỎ QUA|Bật bằng hai dòng|opt-in note)", body), \
+    # Chuan hoa khoang trang TRUOC khi soi: loi hua la "than co neu dieu kien
+    # phu dinh", khong phai "chuoi nam gon mot dong" — van xuoi xuong dong theo
+    # do rong cot, do nguyen van la do TU VUNG chu khong do QUAN HE.
+    flat = re.sub(r"\s+", " ", body)
+    assert re.search(r"(SKIP|BỎ QUA|Bật bằng hai dòng|opt-in note)", flat), \
         f"{rel}: khong co nhanh bo qua + ghi chu bat cho repo chua bat ban do"
+    # Chieu phai dung: CHUA co trong t1_skip_globs -> SKIP. Dao nghia ("moi repo
+    # phai migrate") giu nguyen tu vung nen kiem su-co-mat khong bat duoc (M5).
+    assert re.search(r"(NOT listed|không có|NOT in|chưa bật)", flat), \
+        f"{rel}: nhanh doc-cu khong neu dieu kien PHU DINH (chua co trong t1_skip_globs)"
+    # ... va khong duoc de mot dong nao BAT commit ban do vo dieu kien: tren
+    # repo chua opt-in file do khong ton tai, `git add` chet giua nghi thuc ky.
+    for dong in body.splitlines():
+        if "PRODUCT-MAP.md" not in dong: continue
+        s = dong.strip()
+        # Nguy hiem la LENH COPY-PASTE DUOC neu ten mot file co the khong ton
+        # tai (repo chua opt-in) — `git add` chet pathspec giua nghi thuc ky.
+        # Cau van xuoi CO DIEU KIEN ("Repo opted in -> append ...") thi khong
+        # phai lenh, va no chinh la thu ta muon co.
+        if s.startswith("git add "):
+            raise AssertionError(
+                f"{rel}: LENH git-add ghim san ban do (repo chua opt-in se chet pathspec): {s[:90]}")
+        if "Offer ONE commit" in s and "ONLY" not in s:
+            raise AssertionError(
+                f"{rel}: dong 'Offer ONE commit' keo ban do vao vo dieu kien: {s[:90]}")
 P114PY
 
 if [ "$failures" -gt 0 ]; then

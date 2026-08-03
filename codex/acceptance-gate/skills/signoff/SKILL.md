@@ -64,12 +64,17 @@ just changed, so it belongs in the signature commit below.
 
 Touch only the human-owned lines in `evidence-report.md` (`human_signoff`,
 `human_override`, the verdict upgrade, `bypass_ack`) plus the contract's
-`status` + `time_human_minutes.gate2` and the regenerated `PRODUCT-MAP.md`:
+`status` + `time_human_minutes.gate2` — plus the regenerated `PRODUCT-MAP.md`
+ONLY if the step above actually regenerated it:
 
 ```bash
-git add _acceptance/<slug>/evidence-report.md _acceptance/<slug>/contract.md PRODUCT-MAP.md
+git add _acceptance/<slug>/evidence-report.md _acceptance/<slug>/contract.md
 git commit -m "Gate 2 signoff: <slug> — <name>"
 ```
+
+Repo opted in → append ` PRODUCT-MAP.md` to that `git add`. Repo NOT opted in →
+leave it out: the file does not exist there and naming it makes `git add` fail
+with a pathspec error mid-signature.
 
 The reviewer runs it themselves, or explicitly orders you to run exactly that
 and nothing more.

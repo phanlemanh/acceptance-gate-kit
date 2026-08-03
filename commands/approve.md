@@ -48,7 +48,8 @@ Steps:
    - Regenerate the product map — but FIRST check the repo opted in: read
      `risk_tiers.t1_skip_globs` in `_acceptance/config.yaml`. If `PRODUCT-MAP.md`
      is NOT listed, this repo was initialised before acceptance-gate 1.31.0 —
-     **SKIP the regen** and print this note instead, then carry on:
+     **SKIP the regen**, do NOT add the map to the commit, and print this
+     note instead, then carry on:
 
      > Bản đồ sản phẩm chưa bật cho repo này. Bật bằng hai dòng trong
      > `_acceptance/config.yaml`: thêm `- "PRODUCT-MAP.md"` vào
@@ -62,8 +63,10 @@ Steps:
      commit below. The map is a view over the workshop's records, and a human
      closing a gate is exactly when those records change; CI's `--check` turns
      any drift red.
-   - Offer ONE commit: contract + evals (+ design doc when present) +
-     `PRODUCT-MAP.md` — the Gate-1 record.
+   - Offer ONE commit: contract + evals (+ design doc when present) — the
+     Gate-1 record. Add `PRODUCT-MAP.md` to that commit ONLY if you regenerated
+     it above; a repo that has not opted in has no such file, and naming it in
+     `git add` fails the whole command mid-ritual.
 6. **"Not now" / rejected** → the contract stays `draft`; capture the reason in
    chat; write nothing to gate fields.
 
