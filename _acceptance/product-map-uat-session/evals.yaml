@@ -1,0 +1,148 @@
+# Evals — product-map-uat-session
+# Mọi eval máy chạy qua suite tests/plugins (case P102+ viết ở S3, số chốt khi
+# viết test). cmd là config: ref — resolve tại S4; paths phục vụ carry-forward
+# P1. Fixture PHẢI do code sinh trong chính lần chạy; mọi case âm tính có đối
+# chứng dương (bản nguyên vẹn XANH trước bản tiêm hỏng) + ghim đúng thông điệp.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case product-map-bucket pass: fixture code-sinh RÚT TỪ KHUÔN CANONICAL (opportunity từ marker OPP-FRONTMATTER-TEMPLATE, contract từ khuôn contract-template.md — chưa có marker thì vòng này đặt) phủ ĐỦ mọi hàng bảng bucket kể cả .out-of-scope + frontmatter hỏng → mỗi slug đúng MỘT mục, tổng slug vào map = tổng fixture, title out-of-scope = dòng # đầu file; mutation enum-lạc cho TỪNG field điều hướng (status/stage/decision/verdict) → Hồ sơ hỏng kèm tên field + giá trị, có đối chứng dương"
+    paths:
+      - scripts/product-map.mjs
+      - tests/plugins/run-tests.sh
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case product-map-coarse pass: cùng fixture, đổi status approved→implemented→verified → renderProductMap trả chuỗi GIỐNG HỆT từng byte; đối chứng dương: đổi draft→approved (chuyển qua cổng người) → chuỗi PHẢI khác"
+    paths:
+      - scripts/product-map.mjs
+      - tests/plugins/run-tests.sh
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case product-map-check pass: fresh → exit 0 (đối chứng dương trước); tiêm lệch → exit 1 + thông điệp khớp khuôn 'PRODUCT-MAP.md lệch với hồ sơ xưởng — chạy: node <path> --root .' với <path> là VỊ TRÍ THẬT của script đang chạy (assert path trong message trỏ đúng file script của lần chạy); xoá PRODUCT-MAP.md → exit 0 có note; xoá config.yaml → exit 0 có note"
+    paths:
+      - scripts/product-map.mjs
+      - tests/plugins/run-tests.sh
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case product-map-determinism pass: render 2 lần liên tiếp trên cùng fixture → giống hệt từng byte; fixture có ≥3 slug tên không theo thứ tự tạo file để chứng minh sort theo slug"
+    paths:
+      - scripts/product-map.mjs
+      - tests/plugins/run-tests.sh
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case product-map-edges pass: fixture slug có epic/supersedes/relates → dòng slug chứa cạnh tương ứng; slug không có key → dòng slug KHÔNG chứa nhãn cạnh nào (assert phủ định trên chính dòng đó, có đối chứng dương)"
+    paths:
+      - scripts/product-map.mjs
+      - tests/plugins/run-tests.sh
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case regen-wiring pass: 4 thân lệnh cổng (approve/signoff × Claude/Codex) + skills/uat-session/SKILL.md đều chứa bước chạy product-map.mjs SAU bước ghi field cổng (kiểm thứ tự xuất hiện trong văn bản, không chỉ có mặt) và 4 thân lệnh dẫn script qua ${CLAUDE_PLUGIN_ROOT} — không hardcode scripts/ self-host-only (đối chứng dương trên chuỗi plugin-root sẵn có trong thân lệnh hiện hành); config.yaml self-host có executors.script.product_map trong feature_loop.suite_keys"
+    paths:
+      - commands/approve.md
+      - commands/signoff.md
+      - codex/acceptance-gate/skills/approve/SKILL.md
+      - codex/acceptance-gate/skills/signoff/SKILL.md
+      - skills/uat-session/SKILL.md
+      - _acceptance/config.yaml
+      - tests/plugins/run-tests.sh
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.product_map
+    expected: "exit 0 trên CHÍNH repo kit: PRODUCT-MAP.md đã commit và fresh — đây là đối chứng sống của pattern P30 cho map"
+    paths:
+      - scripts/product-map.mjs
+      - PRODUCT-MAP.md
+      - _acceptance/
+
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case uat-template-roundtrip pass: rút khối UAT-FRONTMATTER-TEMPLATE từ reference bằng marker, điền placeholder bằng code, đưa cho start-scan VÀ product-map đọc → đúng ô/mục theo verdict; tiêm frontmatter hỏng → broken[] có tên file + lý do; template đổi khuôn mà reader không đọc được → case này đỏ"
+    paths:
+      - skills/acceptance/references/uat-session-template.md
+      - scripts/start-scan.mjs
+      - scripts/product-map.mjs
+      - tests/plugins/run-tests.sh
+
+  - id: E9
+    criterion: AC-9
+    executor: judgment
+    question: "Skill uat-session có giữ đủ và đúng thứ tự các chốt nghi thức của workflow-v2-spec §2.3 không: điều kiện vào (signed-off + ngưỡng UAT đã chốt tại Cổng Đáng), chép nguyên văn ngưỡng + cấm sửa sau khi thấy số, chấm kín TRƯỚC thảo luận, commitment device, verdict human-owned, câu 'KILL là thành công của quy trình', regen map sau ký?"
+    inputs:
+      - ../../skills/uat-session/SKILL.md
+      - ../../docs/specs/workflow-v2-spec.md
+
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "case start-scan-new-sources pass: fixture code-sinh rút từ khuôn canonical → gia-tri gate khi signed-off + opportunity build/iterate + chưa verdict, since đúng quy tắc hai nhánh (decided_at có/vắng); done state released/uat-iterate/uat-kill theo verdict; uat frontmatter hỏng HOẶC verdict ngoài enum → broken[] kèm tên field + giá trị; map.present/map.fresh đúng 4 tổ hợp (vắng/fresh/stale/lỗi→null); output KHÔNG chứa 2 chuỗi skip cũ 'PRODUCT-MAP.md'/'phiên-nghiệm-thu' trong skipped[]"
+    paths:
+      - scripts/start-scan.mjs
+      - scripts/product-map.mjs
+      - tests/plugins/run-tests.sh
+
+  - id: E11
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P99 mở rộng pass: key map.present/map.fresh có trong khối START-SCAN-KEYS của CẢ commands/start.md lẫn codex start SKILL.md và khớp output scan thật; P98 pass với các hàng mới của bảng phân ô trong spec start-command"
+    paths:
+      - commands/start.md
+      - codex/acceptance-gate/skills/start/SKILL.md
+      - scripts/start-scan.mjs
+      - docs/specs/2026-08-03-start-command-design.md
+      - tests/plugins/run-tests.sh
+
+  - id: E12
+    criterion: AC-12
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P31/P32 pass KHÔNG ĐỔI danh sách LOCKED (6 thao tác); case bổ sung assert uat-session SKILL không có cờ khoá invocation (mở như design-pass, có đối chứng dương trên một lệnh LOCKED)"
+    paths:
+      - commands/
+      - codex/acceptance-gate/skills/
+      - skills/uat-session/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E13
+    criterion: AC-13
+    executor: judgment
+    question: "PRODUCT-MAP.md sinh từ hồ sơ xưởng thật của kit và dòng bản đồ trên thẻ /start có đọc được bằng tiếng sản phẩm với người không-kỹ-thuật không (luật N1–N6: không jargon máy trần, mã máy trong ngoặc, mỗi mục nói 'người dùng được gì / việc gì đang chờ ai')?"
+    inputs:
+      - ../../PRODUCT-MAP.md
+      - ../../commands/start.md
+      - ../../skills/acceptance/references/human-facing-language.md
+
+  - id: E14
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.mirror_sync
+    expected: "exit 0: mirror plugins/ khớp nguồn sau khi sửa scripts/ skills/ commands/ codex/"
+    paths:
+      - scripts/
+      - skills/
+      - commands/
+      - codex/
+      - lib/

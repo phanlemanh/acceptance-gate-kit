@@ -1,0 +1,25 @@
+{
+  "feature_plain": "Repo tự vẽ một bản đồ sản phẩm (việc gì đang chạy, đã ship, xếp lại, đã bác) từ hồ sơ xưởng — và có nghi thức phiên nghiệm thu để người dùng thật quyết release, lặp thêm, hay dừng.",
+  "will_do": [
+    { "id": "AC-2", "p": "Sẽ giữ bản đồ đứng yên trong lúc máy đang làm việc giữa hai cổng — bản đồ chỉ đổi khi có người ký một cổng." },
+    { "id": "AC-6", "p": "Sẽ tự làm mới bản đồ ngay sau mỗi chữ ký cổng (duyệt phạm vi, ký bằng chứng, ký nghiệm thu) — ở cả hai harness." },
+    { "id": "AC-7", "p": "Sẽ giữ bản đồ của chính repo kit luôn khớp hiện trạng: ai đổi trạng thái xưởng mà quên làm mới là CI báo đỏ kèm đúng một lệnh sửa." },
+    { "id": "AC-8", "p": "Sẽ có một khuôn hồ sơ phiên nghiệm thu mà máy đọc được — khuôn viết và máy đọc kiểm khớp vòng tròn, đổi một phía là kiểm thử đỏ." },
+    { "id": "AC-11", "p": "Sẽ cập nhật thẻ /start ở cả hai harness để nó biết đọc bản đồ và hồ sơ nghiệm thu — hai dòng 'bỏ qua nguồn' cũ được trả nợ." }
+  ],
+  "wont_do": [
+    { "id": "AC-1", "p": "Chặn việc một hồ sơ biến mất im lặng khỏi bản đồ: mọi trạng thái đều có chỗ, hồ sơ hỏng hay gõ sai giá trị vẫn hiện ra kèm lý do." },
+    { "id": "AC-3", "p": "Chặn bản đồ lệch với thực tế: lệch là báo đỏ kèm lệnh sửa chạy được ở chính repo đang đỏ; repo chưa dựng bản đồ thì không bị đỏ oan." },
+    { "id": "AC-4", "p": "Chặn bản đồ đổi nội dung ngẫu nhiên: cùng hồ sơ xưởng thì hai lần sinh ra giống hệt nhau từng byte." },
+    { "id": "AC-5", "p": "Sẽ KHÔNG bịa quan hệ giữa các việc: liên kết (epic, thay thế, liên quan) chỉ hiện khi hồ sơ thật có ghi." },
+    { "id": "AC-10", "p": "Sẽ KHÔNG bỏ sót việc đã ship mà chưa nghiệm thu giá trị: thẻ /start xếp nó vào hàng chờ Cổng Giá trị, đúng thứ tự chờ lâu nhất trước." },
+    { "id": "AC-12", "p": "Sẽ KHÔNG đổi danh sách lệnh chỉ-người-được-gõ: nghi thức nghiệm thu là skill mở như design-pass, sáu thao tác cổng giữ nguyên khoá." }
+  ],
+  "scope_plain": "Vòng này KHÔNG làm: thẻ trình Cổng 0/Cổng Giá trị + bảng số phễu (vòng thẻ riêng), phần ghi epic khi khai thác (thuộc F-A), bản Codex của nghi thức nghiệm thu, và mọi dạng graph DB hay tự đo tracking.",
+  "decisions_plain": [
+    { "id": "d-20260803T065309Z-10077", "p": "Đã chọn bản đồ vẽ NÉT THÔ (gộp các bước máy làm thành một nhãn) — đổi lại bản đồ ít chi tiết hơn thẻ /start, nhưng không bao giờ báo đỏ oan giữa vòng." },
+    { "id": "d-20260803T065309Z-29784", "p": "Đã chọn nghi thức nghiệm thu là skill MỞ, vòng này chỉ có bản Claude — đổi lại Codex chưa có nghi thức phiên (vẫn đọc được bản đồ và thẻ /start)." },
+    { "id": "d-20260803T065309Z-30291", "p": "KHÔNG làm thẻ trình Cổng 0/Cổng Giá trị và bảng số phễu ở vòng này — xem lại khi bản đồ và phiên nghiệm thu đã sống qua ít nhất một feature thật." },
+    { "id": "d-20260803T065309Z-29281", "p": "Đã chọn cách làm mới bản đồ bằng bước ghi trong thân lệnh cổng + lưới kiểm CI, thay vì hook tự động — đổi lại repo nào không bao giờ đóng cổng thì không bao giờ có bản đồ, lưới là dòng nhắc trên thẻ /start." }
+  ]
+}
