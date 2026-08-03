@@ -21,7 +21,8 @@ const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence
 // đều sống MỘT chỗ, bản đồ sản phẩm dùng chung — hai bên đọc cùng hồ sơ không
 // được cho hai kết luận trái nhau. Kiểm tay lại ở đây là cách hai bên đã trôi
 // khỏi nhau ở r12 và r13 dù bảng enum đã gom xong từ r3.
-const { recordProblem, navValues, consumedTexts, usesOpportunity } =
+const { recordProblem, navValues, consumedTexts, usesOpportunity, readRecord, ioReason,
+        configList } =
   require(path.join(__dirname, '..', 'lib', 'workspace-record.js'));
 
 // Argv hỏng CHẾT TO (exit 2), không âm thầm rơi về cwd: một cờ được KHAI mà
@@ -51,11 +52,12 @@ if (!existsSync(path.join(acc, 'config.yaml'))) { out({ schema_version: 1, confi
 // ENOENT (file vắng) là tin bình thường; MỌI lỗi khác là sự thật phải nêu tên —
 // nuốt chung một rọ biến "mất quyền đọc" thành "không có file", và slug bị phân
 // ô theo artifact bên cạnh (Cổng 2 start-command, known-limit 1).
-const read = p => {
-  try { return { t: readFileSync(p, 'utf8'), err: null }; }
-  catch (e) { return e.code === 'ENOENT' ? { t: null, err: null } : { t: null, err: e }; }
-};
-const ioReason = err => `không đọc được (${err.code})`;
+// read/ioReason KHÔNG có bản sao ở đây: chúng là một phần của luật đọc hồ sơ
+// và sống ở lib/workspace-record.js. Hai bản y hệt nhau hôm nay vẫn là đúng
+// hình dạng đã sinh ra ba hồi quy liên tiếp — lần sửa ENOENT (hay sửa câu
+// "không đọc được (CODE)" mà broken[].reason bị assert theo) tiếp theo sẽ rơi
+// vào một bên (S4-r15).
+const read = readRecord;
 // KHÔNG có parser fence thứ hai: tiêu chí "đọc được" là CHÍNH frontmatterField
 // của evidence-core trả ra key bắt buộc (S4-r1: hasFm riêng đã chặt hơn reader
 // chuẩn — CRLF/dòng trắng đầu file bị báo hỏng oan trong khi mọi cổng khác đọc được)
@@ -233,8 +235,20 @@ const mapPath = path.join(root, 'PRODUCT-MAP.md');
 // trước 1.31.0 rằng "bản đồ sẽ tự vẽ ở lần ký cổng kế" — trong khi đường
 // đọc-cũ dặn CẢ NĂM thân cổng người BỎ QUA đúng ở repo đó, nên lời hứa không
 // bao giờ thành sự thật và người đợi một thứ không tới (S4-r14).
-const cfgTxt = (() => { try { return readFileSync(path.join(root, '_acceptance', 'config.yaml'), 'utf8'); } catch { return ''; } })();
-const map = { present: existsSync(mapPath), fresh: null, enabled: /^\s*-\s*["']?PRODUCT-MAP\.md["']?\s*$/m.test(cfgTxt) };
+// Đọc bằng LUẬT CHUNG (configList), không phải regex quét cả file: khoá này
+// đã có hai bên đọc khác trong repo (pre-merge-check.sh cắt đúng section, và
+// năm thân cổng người được dặn đọc `risk_tiers.t1_skip_globs`). Regex toàn file
+// sai cả hai chiều — comment đuôi dòng thành "chưa bật", và cùng chuỗi nằm dưới
+// một list khác thành "đã bật" (S4-r15).
+const cfgRead = read(path.join(root, '_acceptance', 'config.yaml'));
+const map = {
+  present: existsSync(mapPath),
+  fresh: null,
+  // Không đọc được config KHÔNG phải "chưa bật" — nói thẳng là chưa biết, để
+  // thẻ đừng khuyên bật một thứ có thể đã bật rồi.
+  enabled: cfgRead.err || cfgRead.t == null ? null
+    : configList(cfgRead.t, 't1_skip_globs').includes('PRODUCT-MAP.md'),
+};
 if (map.present) {
   // fresh = null khi KHÔNG kiểm được (không phải "khớp"): thẻ nói "chưa kiểm
   // được bản đồ", không nói xanh.

@@ -56,7 +56,8 @@ ritual itself.
    - Below the card: one product-map line — `map.present` is `false` → "chưa có
      bản đồ sản phẩm (sẽ tự vẽ ở lần ký cổng kế)" — but ONLY when `map.enabled`
      is `true`; `false` → "repo chưa bật bản đồ sản phẩm — bật bằng hai dòng
-     trong `_acceptance/config.yaml`". Never promise the map will appear on its
+     trong `_acceptance/config.yaml`"; `null` → "chưa đọc được cấu hình nên chưa
+     biết bản đồ đã bật chưa" (never advise enabling what may already be on). Never promise the map will appear on its
      own in a repo that has not opted in: every human-gate body is told to SKIP
      the redraw in exactly that repo. `map.fresh` is `false` →
      "bản đồ đang lệch với hồ sơ — làm mới bằng một lệnh"; `null` → "chưa kiểm

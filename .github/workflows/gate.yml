@@ -11,7 +11,13 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
+      # fetch-depth: 0 — bước `product-map.mjs --check` dưới đây hỏi LỊCH SỬ git
+      # để phân biệt "repo chưa từng dựng bản đồ" với "đã có rồi bị xoá". Trên
+      # clone nông (depth 1) commit bị graft nên git không thấy lần xoá nào, và
+      # chốt duy nhất canh miễn trừ t1 của ADR 0007 fail-open (S4-r15).
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'

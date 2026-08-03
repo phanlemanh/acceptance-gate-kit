@@ -13,6 +13,11 @@ là chữ của người ký.
 một vòng dựng, không phải thất bại của người làm. Nói câu đó ra khi trình
 quyết định; đừng để người ký cảm thấy họ phải bảo vệ code đã viết.
 
+> Đường dẫn plugin dưới đây viết `${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}`: Claude
+> Code đặt biến thứ nhất, Codex đặt biến thứ hai. Skill này ship vào CẢ HAI
+> gói (`skills/` được rsync sang gói Codex, không có bản đè riêng), nên ghim
+> một biến là để lại con trỏ chết ở harness kia.
+
 ## 0. Điều kiện vào — kiểm trước, không hỏi
 
 - `_acceptance/<slug>/contract.md` có `status: signed-off`.
@@ -26,7 +31,7 @@ cho nó.
 
 ## 1. Dựng hồ sơ TRƯỚC khi mời người
 
-Chép khuôn từ `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/uat-session-template.md` sang
+Chép khuôn từ `${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/acceptance/references/uat-session-template.md` sang
 `_acceptance/<slug>/uat-session.md`, `stage: scheduled`, `verdict` để TRỐNG.
 
 **Chép NGUYÊN VĂN ngưỡng** từ `opportunity.md` vào section ngưỡng. Từ giây
@@ -81,11 +86,11 @@ là thứ duy nhất phiên này sinh ra mà máy không thay được.
   > Bản đồ sản phẩm chưa bật cho repo này. Bật bằng hai dòng trong
   > `_acceptance/config.yaml`: thêm `- "PRODUCT-MAP.md"` vào
   > `risk_tiers.t1_skip_globs`, và `product_map: "node
-  > ${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs --root . --check"` vào
+  > ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/scripts/product-map.mjs --root . --check"` vào
   > `executors.script` — rồi chạy executor đó trong CI.
 
   Có trong danh sách → chạy
-  `node ${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs --root .` (repo tự host
+  `node ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/scripts/product-map.mjs --root .` (repo tự host
   kit chạy `node scripts/product-map.mjs --root .`). Bản đồ vừa có một ô đổi
   chủ; để nó lệch là để người sau đọc một bản đồ nói dối.
 - Bước kế theo verdict: `release` → nghi thức phát hành của repo · `iterate` →

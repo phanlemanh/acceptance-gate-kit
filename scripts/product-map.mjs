@@ -24,7 +24,7 @@ const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence
 // dùng chung — xem lib/workspace-record.js để biết vì sao (S4-r1: hai bên đọc
 // cùng hồ sơ cho hai kết luận trái nhau).
 const { recordProblem, navValues, consumedTexts, usesUat, usesOpportunity,
-        readRecord, ioReason, NAV_RULES } =
+        readRecord, ioReason, configList, NAV_RULES } =
   require(path.join(__dirname, '..', 'lib', 'workspace-record.js'));
 
 export { NAV_RULES };
@@ -104,19 +104,26 @@ function classify(dir, slug) {
   const cR = readRecord(path.join(dir, 'contract.md'));
   if (cR.err) return { key: 'hong', slug, file: 'contract.md', reason: ioReason(cR.err) };
   const cTxt = cR.t;
+  const uR = readRecord(path.join(dir, 'uat-session.md'));
+  const oR = readRecord(path.join(dir, 'opportunity.md'));
 
-  let uTxt = null;
-  if (usesUat(cTxt)) {
-    const uR = readRecord(path.join(dir, 'uat-session.md'));
-    if (uR.err) return { key: 'hong', slug, file: 'uat-session.md', reason: ioReason(uR.err) };
-    uTxt = uR.t;
-  }
-  let oTxt = null;
-  if (usesOpportunity(cTxt, uTxt)) {
-    const oR = readRecord(path.join(dir, 'opportunity.md'));
-    if (oR.err) return { key: 'hong', slug, file: 'opportunity.md', reason: ioReason(oR.err) };
-    oTxt = oR.t;
-  }
+  // HAI câu hỏi khác nhau, đừng trộn:
+  //   PHÂN Ô — hồ sơ nào được quyền quyết định ô của slug, và lỗi của hồ sơ nào
+  //     làm slug thành hỏng. Câu này do luật chung trả lời (consumedTexts), và
+  //     lỗi ở hồ sơ KHÔNG được tiêu thụ thì không quyết định gì.
+  //   HIỂN THỊ — tên việc và các cạnh (epic/thay thế/liên quan) lấy ở đâu. Câu
+  //     này đọc CẢ BA, luôn luôn: `epic:` được khai lúc khám phá, tức nằm trong
+  //     opportunity.md — mà opportunity chỉ được TIÊU THỤ khi chưa có hợp đồng
+  //     hoặc đã ký. S4-r14 tôi gộp hai câu này làm một, nên suốt cả pha dựng
+  //     (draft→verified) bản đồ mất tên việc lẫn mọi cạnh của hồ sơ khám phá
+  //     (S4-r15 dựng lại được: `- Ban do gia tri (\`x\`) · epic: EP-1` thành
+  //     `- \`x\``). Lỗi đọc ở hồ sơ không tiêu thụ chỉ làm mất phần hiển thị
+  //     của nó, không làm hỏng slug.
+  if (usesUat(cTxt) && uR.err)
+    return { key: 'hong', slug, file: 'uat-session.md', reason: ioReason(uR.err) };
+  if (usesOpportunity(cTxt, usesUat(cTxt) ? uR.t : null) && oR.err)
+    return { key: 'hong', slug, file: 'opportunity.md', reason: ioReason(oR.err) };
+  const uTxt = uR.t, oTxt = oR.t;
   // `feature:` hay mở đầu bằng chính slug ("<slug> — mô tả"); dòng bản đồ đã
   // in slug rồi nên để nguyên là đọc thành tiếng máy vọng lại hai lần.
   const rawName = fm(cTxt, 'feature') || fm(oTxt, 'feature') || fm(uTxt, 'feature') || slug;
@@ -286,12 +293,25 @@ if (isMain) {
     };
     const trongIndex = gitCo(['ls-files', '--error-unmatch', '--', 'PRODUCT-MAP.md']) != null;
     const tungBiXoa = (gitCo(['log', '--diff-filter=D', '--format=%H', '-1', '--', 'PRODUCT-MAP.md']) || '').trim() !== '';
-    const daTheoDoi = trongIndex || tungBiXoa;
+    // Hai chốt trên đều cần LỊCH SỬ, mà `actions/checkout` mặc định là depth 1:
+    // commit bị graft nên git không thấy lần xoá nào và cổng lại fail-open y
+    // như trước khi vá (S4-r15). Đặt `fetch-depth: 0` chỉ cứu CI của kit — repo
+    // tiêu thụ dùng checkout mặc định thì lỗ vẫn còn, và đây là cổng độc lập
+    // DUY NHẤT canh miễn trừ t1 của ADR 0007.
+    //
+    // Tín hiệu KHÔNG cần lịch sử: repo đã KHAI dùng bản đồ chưa. Có
+    // `PRODUCT-MAP.md` trong `t1_skip_globs` = repo này bật bản đồ, nên vắng
+    // bản đồ là chuyện phải sửa — dù vì bị xoá hay vì chưa vẽ lần nào. Sai về
+    // phía ĐỎ ở đây là đỏ sửa được bằng đúng một lệnh đã in sẵn; sai về phía
+    // xanh là một PR xoá bản đồ đi thẳng qua cổng.
+    const cfgTxt = (() => { try { return readFileSync(path.join(root, '_acceptance', 'config.yaml'), 'utf8'); } catch { return ''; } })();
+    const daBat = configList(cfgTxt, 't1_skip_globs').includes('PRODUCT-MAP.md');
+    const daTheoDoi = trongIndex || tungBiXoa || daBat;
     if (daTheoDoi) {
       console.error(`PRODUCT-MAP.md đã bị xoá khỏi cây làm việc — khôi phục, hoặc vẽ lại: node ${hint} --root .`);
       process.exit(1);
     }
-    console.log('PRODUCT-MAP.md chưa có — repo chưa dựng bản đồ; nó sẽ tự sinh ở lần đóng cổng người kế.');
+    console.log('PRODUCT-MAP.md chưa có — repo chưa bật bản đồ sản phẩm; bật thì nó tự sinh ở lần đóng cổng người kế.');
     process.exit(0);
   }
   if (readPlain(mapPath) === rendered) {
