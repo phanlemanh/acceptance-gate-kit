@@ -2815,6 +2815,8 @@ const opp = (slug, stage, decision) =>
   `---\nschema_version: 1\nslug: ${slug}\nfeature: f\nowner: t@t\nstage: ${stage}\ndecision: ${decision}\n---\n# O\n`;
 const evidence = (verdict) =>
   `---\nschema_version: 2\nslug: x\nverdict: ${verdict}\nhuman_signoff:\n---\n# E\n`;
+const uat = (verdict) =>
+  `---\nschema_version: 1\nslug: x\nstage: held\nverdict: ${verdict}\ndecided_at: 2026-01-05T00:00:00Z\n---\n# U\n`;
 
 // ---- 1. Fixture NGUYEN VEN: du MOI HANG bang phan o cua spec ----
 W('_acceptance/config.yaml', 'schema_version: 1\n');
@@ -2835,6 +2837,13 @@ W('_acceptance/k-pass/evidence-report.md', evidence('PASS'));
 W('_acceptance/l-pending/contract.md', contract('l-pending', 'verified', 'approved_at: 2026-01-01T00:00:00Z\n'));
 W('_acceptance/l-pending/evidence-report.md', evidence('PENDING-JUDGMENT'));
 W('_acceptance/m-signed/contract.md', contract('m-signed', 'signed-off'));
+// hang moi cua bang phan o (F-B): cho-Cong-Gia-tri + ket cuc nghiem thu + verdict la
+W('_acceptance/r-cho-gia-tri/contract.md', contract('r-cho-gia-tri', 'signed-off'));
+W('_acceptance/r-cho-gia-tri/opportunity.md', opp('r-cho-gia-tri', 'decided', 'build'));
+W('_acceptance/s-uat-release/contract.md', contract('s-uat-release', 'signed-off'));
+W('_acceptance/s-uat-release/uat-session.md', uat('release'));
+W('_acceptance/t-uat-la/contract.md', contract('t-uat-la', 'signed-off'));
+W('_acceptance/t-uat-la/uat-session.md', uat('xong-roi'));
 // cac nhanh verified co dieu kien (S4-r1) + CRLF + slug-tien-to
 W('_acceptance/n-verified-reject/contract.md', contract('n-verified-reject', 'verified'));
 W('_acceptance/n-verified-reject/evidence-report.md', evidence('REJECT'));
@@ -2885,11 +2894,21 @@ for (const [slug, state] of Object.entries(want.done)) {
   if (!hit || hit.state !== state) die(`slug ${slug} phai done state=${state}, duoc: ${JSON.stringify(hit)}`);
 }
 const total = r.groups.gates.length + r.groups.inProgress.length + r.groups.done.length + r.broken.length;
-if (total !== 17) die(`tong slug vao o phai 17 (khong sot khong trung), duoc ${total}`);
+if (total !== 20) die(`tong slug vao o phai 20 (khong sot khong trung), duoc ${total}`);
 
-// skipped neu TEN nguon vang (AC-5)
-for (const src of ['PRODUCT-MAP.md', 'phiên-nghiệm-thu'])
-  if (!r.skipped.some(s => s.source === src)) die(`skipped[] thieu nguon co ten ${src}`);
+// F-B da dung ca hai nguon: khoa skipped[] bi go han (khong con nguon sinh),
+// va cac hang moi cua bang phan o phai xep dung o.
+if ('skipped' in r) die('skipped[] van con trong dau ra du khong con nguon sinh nao');
+const gateOf = s => (r.groups.gates.find(g => g.slug === s) || {}).gate;
+const stateOf = s => (r.groups.done.find(d => d.slug === s) || {}).state;
+if (gateOf('r-cho-gia-tri') !== 'gia-tri')
+  die(`signed-off duong A phai vao o cho-Cong-Gia-tri, duoc: ${gateOf('r-cho-gia-tri')}`);
+if (stateOf('s-uat-release') !== 'released')
+  die(`uat verdict release phai la state released, duoc: ${stateOf('s-uat-release')}`);
+if (!r.broken.some(b => b.slug === 't-uat-la' && /xong-roi/.test(b.reason)))
+  die('uat verdict ngoai enum phai vao broken[] kem gia tri la');
+if (stateOf('m-signed') !== 'signed-off')
+  die('signed-off khong thuoc duong A phai la da-ky thuong');
 
 // gate-order (AC-6): frontmatter approved_at THANG mtime — cham mtime l-pending
 // cho MOI nhat, thu tu van phai theo approved_at (l-pending cu hon → len dau)
@@ -2985,9 +3004,9 @@ const e0 = check(SOURCES.map(load));
 if (e0.length) die('doi chung duong FAIL: ' + JSON.stringify(e0));   // ban that XANH
 // dot bien: doi ten mot key phia LENH → phai DO dung thong diep
 const mut = fs.readFileSync(path.join(root, SOURCES[0]), 'utf8')
-  .replace('skipped[].source', 'sources_skipped[].source');
+  .replace('map.present', 'map_present_doi_ten');
 const e1 = check([['(ban-doi-key)', mut]]);
-if (!e1.some(x => /key sources_skipped\[\]\.source khong co/.test(x)))
+if (!e1.some(x => /key map_present_doi_ten khong co/.test(x)))
   die('dot bien doi ten key khong bi bat dung thong diep: ' + JSON.stringify(e1));
 // dot bien: xoa ca khoi marker → phai DO "khong rut duoc"
 const e2 = check([['(ban-xoa-marker)', mut.replace(/<!-- <<<START-SCAN-KEYS[\s\S]*?START-SCAN-KEYS>>> -->/, '')]]);
@@ -3439,6 +3458,96 @@ assert "disable-model-invocation: true" in locked, \
 mut = t.replace("Chấm kín TRƯỚC thảo luận", "Thu y kien")
 assert "Chấm kín TRƯỚC thảo luận" not in mut, "buoc tiem chua bao gio chay"
 PY107
+
+# ── P108: start-scan doc phien nghiem thu + trang thai ban do (E10) ────────
+run "P108 o cho-Cong-Gia-tri + state theo verdict + since 2 nhanh + map 4 to hop (E10)" \
+  node --input-type=module - "$ROOT" <<'P108JS'
+const root = process.argv[2];  // dang stdin: argv[1] la "-"
+const fs = await import("node:fs"); const os = await import("node:os");
+const path = await import("node:path");
+const { execFileSync } = await import("node:child_process");
+const { fileFromTemplate } = await import(path.join(root, "tests/fixtures/from-template.mjs"));
+const die = m => { console.error(m); process.exit(1); };
+const SCAN = path.join(root, "scripts/start-scan.mjs");
+const MAP = path.join(root, "scripts/product-map.mjs");
+const R = p => path.join(root, "skills/acceptance/references", p);
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "p108-"));
+const W = (rel, s) => { const p = path.join(tmp, rel);
+  fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, s); };
+const scan = () => JSON.parse(execFileSync("node", [SCAN, "--root", tmp], { encoding: "utf8" }));
+const contract = (slug, status) => fileFromTemplate(R("contract-template.md"),
+  "CONTRACT-FRONTMATTER-TEMPLATE",
+  { feature: "viec " + slug, slug, owner: "o@o", risk_tier: "T2", surfaces: "cli", status });
+const opp = (slug, decision) => fileFromTemplate(R("opportunity-template.md"),
+  "OPP-FRONTMATTER-TEMPLATE",
+  { slug, feature: "co hoi", owner: "o@o", stage: "decided", decision, decided_by: "M",
+    decided_at: "2026-08-01T00:00:00Z", gate0_minutes: "10", base_commit: "a", disposition: "archive" });
+const uat = (slug, verdict, decidedAt = "2026-08-02T00:00:00Z") =>
+  fileFromTemplate(R("uat-session-template.md"), "UAT-FRONTMATTER-TEMPLATE",
+    { slug, feature: "phien", owner: "o@o", stage: "held", verdict, decided_by: "M",
+      decided_at: decidedAt, gateUAT_minutes: "20" });
+
+W("_acceptance/config.yaml", "schema_version: 1\n");
+W("_acceptance/a-cho-gia-tri/contract.md", contract("a-cho-gia-tri", "signed-off"));
+W("_acceptance/a-cho-gia-tri/opportunity.md", opp("a-cho-gia-tri", "build"));
+W("_acceptance/b-cho-co-uat/contract.md", contract("b-cho-co-uat", "signed-off"));
+W("_acceptance/b-cho-co-uat/opportunity.md", opp("b-cho-co-uat", "iterate"));
+W("_acceptance/b-cho-co-uat/uat-session.md", uat("b-cho-co-uat", "", "2026-07-01T00:00:00Z"));
+W("_acceptance/c-release/contract.md", contract("c-release", "signed-off"));
+W("_acceptance/c-release/uat-session.md", uat("c-release", "release"));
+W("_acceptance/d-iterate/contract.md", contract("d-iterate", "signed-off"));
+W("_acceptance/d-iterate/uat-session.md", uat("d-iterate", "iterate"));
+W("_acceptance/e-kill/contract.md", contract("e-kill", "signed-off"));
+W("_acceptance/e-kill/uat-session.md", uat("e-kill", "kill"));
+W("_acceptance/f-uat-hong/contract.md", contract("f-uat-hong", "signed-off"));
+W("_acceptance/f-uat-hong/uat-session.md", "khong co frontmatter\n");
+W("_acceptance/g-uat-la/contract.md", contract("g-uat-la", "signed-off"));
+W("_acceptance/g-uat-la/uat-session.md", uat("g-uat-la", "xong-roi"));
+W("_acceptance/h-ship-thang/contract.md", contract("h-ship-thang", "signed-off"));
+
+let j = scan();
+const gate = s => (j.groups.gates.find(g => g.slug === s) || {}).gate;
+const state = s => (j.groups.done.find(d => d.slug === s) || {}).state;
+const broken = s => j.broken.find(b => b.slug === s);
+if (gate("a-cho-gia-tri") !== "gia-tri") die("signed-off duong A khong vao o cho-Cong-Gia-tri");
+if (gate("b-cho-co-uat") !== "gia-tri") die("uat co file nhung verdict rong phai VAN cho ky");
+if (state("c-release") !== "released") die("verdict release -> released, got " + state("c-release"));
+if (state("d-iterate") !== "uat-iterate") die("verdict iterate -> uat-iterate, got " + state("d-iterate"));
+if (state("e-kill") !== "uat-kill") die("verdict kill -> uat-kill, got " + state("e-kill"));
+if (!broken("f-uat-hong") || !/uat-session/.test(broken("f-uat-hong").file))
+  die("uat hong khong vao broken[] kem ten file");
+if (!broken("g-uat-la") || !/xong-roi/.test(broken("g-uat-la").reason))
+  die("verdict ngoai enum khong vao broken[] kem gia tri la");
+if (state("h-ship-thang") !== "signed-off") die("signed-off khong duong A phai la da-ky thuong");
+// since 2 nhanh: co decided_at cua uat -> dung no; thieu -> mtime contract
+const gA = j.groups.gates.find(g => g.slug === "a-cho-gia-tri");
+const gB = j.groups.gates.find(g => g.slug === "b-cho-co-uat");
+if (gB.since !== "2026-07-01T00:00:00Z") die("since khong lay decided_at cua uat: " + gB.since);
+if (!gA.since || gA.since === gB.since) die("since thieu decided_at phai roi ve mtime contract");
+if (j.groups.gates[0].slug !== "b-cho-co-uat") die("cong cho lau nhat phai dung dau");
+// hai dong skip cu KHONG con
+const skipTxt = JSON.stringify(j.skipped || []);
+if (/PRODUCT-MAP|nghiệm-thu/.test(skipTxt)) die("van con dong skip cu: " + skipTxt);
+
+// map 4 to hop
+if (j.map.present !== false || j.map.fresh !== null) die("map vang: " + JSON.stringify(j.map));
+execFileSync("node", [MAP, "--root", tmp], { stdio: "ignore" });
+j = scan();
+if (j.map.present !== true || j.map.fresh !== true) die("map fresh: " + JSON.stringify(j.map));
+fs.appendFileSync(path.join(tmp, "PRODUCT-MAP.md"), "\n- **la**\n");
+j = scan();
+if (j.map.present !== true || j.map.fresh !== false) die("map stale: " + JSON.stringify(j.map));
+// khong doc duoc ban do -> fresh null (KHONG crash, KHONG bao xanh gia).
+// Ep loi bang cach bien PRODUCT-MAP.md thanh THU MUC: EISDIR xay ra cho moi
+// nguoi dung ke ca root, nen phep do khong phu thuoc quyen cua may chay CI.
+const mapP = path.join(tmp, "PRODUCT-MAP.md");
+fs.unlinkSync(mapP); fs.mkdirSync(mapP);
+const jErr = scan();
+fs.rmdirSync(mapP);
+if (jErr.map.present !== true || jErr.map.fresh !== null)
+  die("khong doc duoc ban do phai cho present=true/fresh=null, got " + JSON.stringify(jErr.map));
+console.log("P108 OK");
+P108JS
 
 if [ "$failures" -gt 0 ]; then
   echo

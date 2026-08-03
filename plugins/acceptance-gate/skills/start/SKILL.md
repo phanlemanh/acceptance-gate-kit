@@ -23,7 +23,7 @@ ritual itself.
    groups.gates[].slug groups.gates[].gate groups.gates[].since groups.gates[].tier
    groups.inProgress[].slug groups.inProgress[].status groups.inProgress[].nextStep groups.inProgress[].tier
    groups.done[].slug groups.done[].state
-   skipped[].source skipped[].reason
+   map.present map.fresh
    broken[].slug broken[].file broken[].reason
    START-SCAN-KEYS>>> -->
 
@@ -38,7 +38,9 @@ ritual itself.
      longest-waiting gate first; keep its order): one line per gate — which gate
      (`dang` = Cổng Đáng: decide whether this work is worth doing · `pham-vi` =
      Cổng Phạm vi: approve the criteria before code · `bang-chung` = Cổng Bằng
-     chứng: read the evidence, then sign), for which piece of work, ~10 minutes.
+     chứng: read the evidence, then sign · `gia-tri` = Cổng Giá trị: look at the
+     real numbers from the acceptance session, then decide ship-wide / iterate /
+     stop), for which piece of work, ~10 minutes.
    - **Đang dở** (`groups.inProgress`): one line per loop — *what the user will
      get* (one sentence from the work's name; do NOT open product files) + the
      next step written IN WORDS, machine code in parentheses — lookup table:
@@ -51,15 +53,19 @@ ritual itself.
      description; (c) a small chore covered by the T1 exemption → confirm it IS
      T1, then END this skill — the human orders the fix in a later turn,
      outside this ritual (this skill never edits anything, chores included).
-   - Below the card: one line per `skipped[]` entry "(bỏ qua nguồn `source` —
-     `reason`)" — every absent source is named, never silent; one warning line
+   - Below the card: one product-map line — `map.present` is `false` → "chưa có
+     bản đồ sản phẩm (sẽ tự vẽ ở lần ký cổng kế)"; `map.fresh` is `false` →
+     "bản đồ đang lệch với hồ sơ — làm mới bằng một lệnh"; `null` → "chưa kiểm
+     được bản đồ" (never report it as matching). Then one warning line
      per `broken[]` entry: which work, which file (`file`), why (`reason`) — a
      work item with a broken record still shows, never hidden.
    - `groups.done` is a single summary count at the bottom of the card.
 
 4. **ONE letter/line-number question** — never a second question. After the
    human picks → hand off to the target ritual:
-   - A gate → the `acceptance-card` skill for that slug.
+   - A gate → the `acceptance-card` skill for that slug; a `gia-tri` gate goes
+     to the `uat-session` skill instead (the acceptance session has its own
+     ritual, not a card).
    - An in-progress loop → the feature-loop skill for that slug — BUT when
      `git.dirty` is `true` or this session shares a working tree with another
      loop: remind the human to open a separate worktree/session FIRST; do not

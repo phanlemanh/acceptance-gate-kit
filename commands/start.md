@@ -19,7 +19,7 @@ phẩm, không sửa gì, không tự làm nội dung thay nghi thức đích.
    groups.gates[].slug groups.gates[].gate groups.gates[].since groups.gates[].tier
    groups.inProgress[].slug groups.inProgress[].status groups.inProgress[].nextStep groups.inProgress[].tier
    groups.done[].slug groups.done[].state
-   skipped[].source skipped[].reason
+   map.present map.fresh
    broken[].slug broken[].file broken[].reason
    START-SCAN-KEYS>>> -->
 
@@ -32,8 +32,9 @@ phẩm, không sửa gì, không tự làm nội dung thay nghi thức đích.
    - **Chờ chữ ký của anh** (`groups.gates` — script đã xếp cổng chờ lâu nhất
      lên đầu, giữ nguyên thứ tự): mỗi cổng một dòng — cổng nào (`dang` = Cổng
      Đáng: quyết có làm việc này không · `pham-vi` = Cổng Phạm vi: duyệt bộ tiêu
-     chí trước khi code · `bang-chung` = Cổng Bằng chứng: đọc bằng chứng rồi ký),
-     của việc nào, ước ~10 phút.
+     chí trước khi code · `bang-chung` = Cổng Bằng chứng: đọc bằng chứng rồi ký
+     · `gia-tri` = Cổng Giá trị: xem số thật từ phiên nghiệm thu rồi quyết giao
+     rộng / lặp thêm / dừng), của việc nào, ước ~10 phút.
    - **Đang dở** (`groups.inProgress`): mỗi vòng một dòng — *người dùng sẽ được
      gì* (một câu từ tên việc, KHÔNG mở file sản phẩm ra đọc) + bước kế viết
      BẰNG CHỮ, mã máy trong ngoặc — tra bảng: chốt thiết kế và tiêu chí (`S1`)
@@ -44,15 +45,18 @@ phẩm, không sửa gì, không tự làm nội dung thay nghi thức đích.
      việc đã rõ → `/feature-loop <mô tả>`; (c) việc vặt khớp miễn trừ T1 →
      xác nhận nó là T1 rồi KẾT THÚC `/start` — người ra lệnh sửa ở lượt kế,
      ngoài nghi thức này (lệnh `/start` không sửa gì, kể cả việc vặt).
-   - Dưới thẻ: mỗi phần tử `skipped[]` in đúng một dòng "(bỏ qua nguồn
-     `source` — `reason`)" — nguồn vắng phải có tên, không im lặng; mỗi phần tử
-     `broken[]` một dòng cờ hỏng: việc nào, hồ sơ nào (`file`), vì sao
-     (`reason`) — việc có hồ sơ hỏng vẫn phải hiện, không giấu.
+   - Dưới thẻ: một dòng bản đồ sản phẩm — `map.present` là `false` → "chưa có
+     bản đồ sản phẩm (sẽ tự vẽ ở lần ký cổng kế)"; `map.fresh` là `false` →
+     "bản đồ đang lệch với hồ sơ — làm mới bằng một lệnh"; `null` → "chưa kiểm
+     được bản đồ" (KHÔNG nói là khớp). Rồi mỗi phần tử
+     `broken[]` một dòng cờ hỏng: việc nào, hồ sơ nào
+     (`file`), vì sao (`reason`) — việc có hồ sơ hỏng vẫn phải hiện, không giấu.
    - `groups.done` chỉ đếm gộp một dòng cuối thẻ (đã xong/đã xếp lại: N việc).
 
 4. **MỘT câu hỏi chọn bằng chữ cái/số dòng** — không hỏi câu thứ hai. Người
    chọn xong → bàn giao sang nghi thức đích:
-   - Chọn một cổng → `/acceptance-card <slug>`.
+   - Chọn một cổng → `/acceptance-card <slug>`; riêng cổng `gia-tri` → skill
+     `uat-session <slug>` (phiên nghiệm thu có nghi thức riêng, không phải thẻ).
    - Chọn một vòng dở → `/feature-loop <slug>` — NHƯNG nếu `git.dirty` là
      `true` hoặc phiên đang đứng cây chung với vòng khác: nhắc mở worktree/
      phiên riêng TRƯỚC, chưa đưa lệnh resume (cạm bẫy một-worktree-một-phiên).

@@ -4,13 +4,17 @@
 // CHỈ-ĐỌC tuyệt đối. Đầu ra: JSON một dòng (schema_version 1) — các key mà
 // commands/start.md đọc được ghim trong khối START-SCAN-KEYS của chính file đó;
 // case P99 round-trip giữ hai đầu khớp, P98 giữ bảng phân ô.
-// Ô chưa có nguồn (PRODUCT-MAP, phiên nghiệm thu) emit skipped[] có tên —
-// KHÔNG bịa dữ liệu thay thế (ledger d-descope 03/08 của start-command).
+// Hai nguồn từng vắng (PRODUCT-MAP, phiên nghiệm thu) đã dựng ở F-B, nên
+// mảng skipped[] không còn nguồn sinh nào và đã được gỡ: một khoá khai mà
+// không thứ gì sinh ra được là hợp đồng chết — case round-trip P99 đòi mọi
+// khoá khai phải soi được trong đầu ra THẬT. Cần bỏ-qua-có-tên trở lại thì
+// nó quay lại CÙNG nguồn sinh của nó.
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { renderProductMap } from './product-map.mjs';
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -54,7 +58,22 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
   const slug = entry.name;
   const dir = path.join(acc, slug);
   const cPath = path.join(dir, 'contract.md'), oPath = path.join(dir, 'opportunity.md');
-  const cTxt = read(cPath), oTxt = read(oPath);
+  const uPath = path.join(dir, 'uat-session.md');
+  const cTxt = read(cPath), oTxt = read(oPath), uTxt = read(uPath);
+  // Hồ sơ phiên nghiệm thu là artifact MUỘN NHẤT — tra trước contract.
+  if (uTxt != null) {
+    const vRaw = fmOrNull(uTxt, 'verdict');
+    if (vRaw == null) { broken.push({ slug, file: 'uat-session.md', reason: 'frontmatter không parse được hoặc thiếu verdict' }); continue; }
+    const v = vRaw.toLowerCase();
+    // verdict RỖNG = phiên đã dựng nhưng CHƯA ký → vẫn là ô chờ-Cổng-Giá-trị,
+    // rơi xuống nhánh contract bên dưới.
+    if (v) {
+      const UAT_STATE = { release: 'released', iterate: 'uat-iterate', kill: 'uat-kill' };
+      if (UAT_STATE[v]) { done.push({ slug, state: UAT_STATE[v] }); continue; }
+      broken.push({ slug, file: 'uat-session.md', reason: `verdict không nhận diện được: ${vRaw}` });
+      continue;
+    }
+  }
   if (cTxt != null) {
     const statusRaw = fmOrNull(cTxt, 'status');
     if (statusRaw == null) { broken.push({ slug, file: 'contract.md', reason: 'frontmatter không parse được hoặc thiếu status' }); continue; }
@@ -63,7 +82,14 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
     const eTxt = read(path.join(dir, 'evidence-report.md'));
     if (eTxt != null && fmOrNull(eTxt, 'verdict') == null) { broken.push({ slug, file: 'evidence-report.md', reason: 'frontmatter không parse được hoặc thiếu verdict' }); continue; }
     const verdict = eTxt != null ? frontmatterField(eTxt, 'verdict').toUpperCase() : null;
-    if (status === 'signed-off') done.push({ slug, state: 'signed-off' });
+    if (status === 'signed-off') {
+      // Đường A (cơ hội đã quyết build/iterate) còn MỘT cổng người nữa: phiên
+      // nghiệm thu. Đường B/C/E ship thẳng — không dựng phiên giả cho chúng.
+      const oDecision = oTxt != null ? (frontmatterField(oTxt, 'decision') || '').toLowerCase() : '';
+      if (oDecision === 'build' || oDecision === 'iterate')
+        gates.push({ slug, gate: 'gia-tri', since: since(cPath, fmOrNull(uTxt, 'decided_at')), tier });
+      else done.push({ slug, state: 'signed-off' });
+    }
     else if (status === 'verified') {
       // Bảng phân ô spec: chờ-Cổng-Bằng-chứng = verdict PASS/PENDING-JUDGMENT
       // và CHƯA human_signoff — verified không kèm điều kiện là hiện "chờ ký" oan (S4-r1)
@@ -93,7 +119,13 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
 }
 gates.sort((a, b) => String(a.since).localeCompare(String(b.since)));
 
-const skipped = [{ source: 'phiên-nghiệm-thu', reason: 'nguồn chưa dựng — F-B' }];
-if (!existsSync(path.join(root, 'PRODUCT-MAP.md'))) skipped.unshift({ source: 'PRODUCT-MAP.md', reason: 'chưa có — F-B' });
+const mapPath = path.join(root, 'PRODUCT-MAP.md');
+const map = { present: existsSync(mapPath), fresh: null };
+if (map.present) {
+  // fresh = null khi KHÔNG kiểm được (không phải "khớp"): thẻ nói "chưa kiểm
+  // được bản đồ", không nói xanh.
+  try { map.fresh = readFileSync(mapPath, 'utf8') === renderProductMap(root); }
+  catch { map.fresh = null; }
+}
 
-out({ schema_version: 1, config: true, git, groups: { gates, inProgress, done }, skipped, broken });
+out({ schema_version: 1, config: true, git, groups: { gates, inProgress, done }, map, broken });
