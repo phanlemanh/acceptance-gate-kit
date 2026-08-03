@@ -1,49 +1,91 @@
-# Review Findings: start-scan-hardening (round 3)
+# Review Findings: start-scan-hardening (round 4)
 
 ## Trong hợp đồng
 
-- **Lỗi I/O trên opportunity.md làm biến mất slug lành đang chờ Cổng 2 (contract còn đọc được tốt)**
-  file: `scripts/start-scan.mjs:93`
-  severity: low
-  AC: AC-1
-  Guard mới `if (oRead.err) { broken.push(...); continue; }` (dòng 93) chạy TRƯỚC khi code kiểm `cTxt != null`. Nhưng opportunity.md chỉ được dùng ở nhánh `else` (dòng 127) — tức khi KHÔNG có contract.md. Vì vậy một slug có contract.md nguyên vẹn bị loại khỏi phân ô chỉ vì một file không bao giờ được đọc tới bị lỗi quyền.
+### Guard I/O evidence-report.md quyết định ô của slug ở CẢ status không đọc file đó — đúng lớp lỗi vừa vá cho opportunity.md 5 dòng trên, chưa quét lớp
+- file: `scripts/start-scan.mjs:117`
+- severity: high
+- AC: AC-1
+- source: conventions
 
-  Đã chạy thật (fixture: contract status verified + evidence PASS + opportunity.md):
-    trước:            gates: [{"slug":"s1","gate":"bang-chung",...}], broken: []
-    chmod 000 opp:    gates: [], broken: [{"slug":"s1","file":"opportunity.md","reason":"không đọc được (EACCES)"}]
+Commit f9bd06b sửa đúng lớp lỗi này cho `opportunity.md` (dời việc đọc xuống nhánh không-có-contract, kèm comment "Lỗi của file KHÔNG dùng tới thì không được quyết định ô của slug"), nhưng để nguyên hình dạng y hệt cho `evidence-report.md`: dòng 116-117 đọc + bail TRƯỚC khi dispatch theo status, trong khi các status `draft` / `approved` không bao giờ dùng tới file đó.
 
-  Một việc đang chờ ký Cổng 2 rời khỏi danh sách chọn của /start. Đây vẫn là fail-loud (có tên file + mã lỗi trong broken[]) nên không phải nuốt lỗi im lặng, nhưng hướng thiệt hại ngược với ý định AC-1: artifact bên cạnh lại quyết định ô của slug. Sửa: dời guard oRead.err xuống trong nhánh `else if (oTxt != null)`/nhánh không-có-contract, hoặc chỉ đọc opportunity.md khi contract.md vắng.
+Đã chạy thật (fixture code sinh, root=cây tạm):
+  contract status=draft + evidence-report.md nguyên vẹn
+    → gates:[{slug:"draft-slug",gate:"pham-vi",tier:"T2"}]  broken:[]
+  chmod 000 evidence-report.md (file KHÔNG được nhánh draft đọc)
+    → gates:[]  broken:[{slug:"draft-slug",file:"evidence-report.md",reason:"không đọc được (EACCES)"}]
 
-  Mirror plugins/acceptance-gate/scripts/start-scan.mjs giống hệt.
+Hậu quả: một việc đang chờ Cổng Phạm vi (hoặc `approved` đang chờ S2/S3) biến khỏi nhóm "Chờ chữ ký của anh" / "Đang dở" trên thẻ /start chỉ vì một artifact bên cạnh không liên quan bị lỗi quyền — chính hướng thiệt hại mà AC-1 nói phải chặn ("slug giữ nguyên chỗ ... thay vì bị phân ô theo artifact bên cạnh").
 
-  Vì sao khớp AC-1: AC-1 nêu đích danh rằng khi đọc thất bại, slug phải giữ nguyên chỗ trong broken[] "thay vì bị phân ô theo artifact bên cạnh" — finding mô tả đúng kịch bản này: một slug có contract.md lành bị đẩy khỏi phân ô đúng chỉ vì opportunity.md (artifact bên cạnh, không được dùng tới) đọc lỗi.
+Đây là bản REGRESSION do chính diff này gây: base f907ae1 có `read()` nuốt mọi lỗi nên `eTxt=null` và slug draft vẫn vào `gates`. CLAUDE.md nêu đích danh: "sửa phải theo LỚP: quét cả file tìm mọi case cùng hình dạng, đừng chỉ vá case bị nêu tên".
+
+Ghi chú kèm: guard `!fmOrNull(eTxt,'verdict')` ở dòng 123 cũng cùng hình dạng (draft có evidence-report.md thiếu verdict → broken, mất khỏi gates) nhưng cái đó có sẵn từ base.
+
+Mirror `plugins/acceptance-gate/scripts/start-scan.mjs:117` giống hệt.
+
+Rationale: Slug bị đẩy khỏi ô đúng vì lỗi đọc của một artifact không thuộc luồng kiểm của status đó — đúng kịch bản AC-1 cấm ("slug ... thay vì bị phân ô theo artifact bên cạnh").
+
+### Guard I/O + guard verdict của evidence-report.md chạy cho cả status không đọc file đó — slug lành biến khỏi ô đúng (đúng lớp lỗi r3 vừa sửa cho opportunity.md)
+- file: `scripts/start-scan.mjs:116`
+- severity: high
+- AC: AC-1
+- source: bugs
+
+Hunk mới đặt `const eRead = read(...); if (eRead.err) {broken.push(...); continue;}` (116-117) và `if (eTxt != null && !fmOrNull(eTxt,'verdict')) {broken.push(...); continue;}` (123) TRƯỚC chỗ rẽ nhánh theo `status` (125-145). Nhưng evidence-report.md chỉ được dùng ở hai nhánh `verified` và `implemented`. Với `draft`, `approved`, `signed-off` thì file đó không bao giờ được đọc tới, vậy mà lỗi của nó vẫn quyết định ô của slug — đúng kịch bản mà AC-1 cấm ("slug giữ nguyên chỗ ... thay vì bị phân ô theo artifact bên cạnh") và đúng lớp lỗi mà round S4-r3 vừa sửa cho opportunity.md, chỉ dời một file mà bỏ file kia.
+
+Đã chạy thật trên fixture code-sinh (3 slug: contract status approved / draft / signed-off, mỗi slug kèm một evidence-report.md):
+  baseline: gates=[{s-draft,pham-vi}] inProgress=[{s-approved,S2}] done=[{s-signed,signed-off}] broken=[]
+  chmod 000 evidence-report.md: gates=[] inProgress=[] done=[]
+    broken=[{s-approved,evidence-report.md,"không đọc được (EACCES)"},{s-draft,...},{s-signed,...}]
+
+Biến thể thứ hai (cùng guard, dòng 123): đổi `== null` → `!` ở bản vá S4-r1 làm vùng bắn rộng thêm sang giá trị rỗng — evidence-report.md có `verdict:` rỗng (hoặc thiếu dòng verdict) nằm cạnh contract `status: draft` cũng đẩy slug khỏi gates:
+  broken=[{s-draft,evidence-report.md,"frontmatter không parse được hoặc thiếu verdict"}]
+
+Thiệt hại: một việc đang chờ NGƯỜI ở Cổng 1 (draft) hoặc một việc đã ký xong (signed-off) rời khỏi danh sách chọn của /start chỉ vì một artifact không liên quan đến ô của nó. Sửa: dời cả hai guard vào trong hai nhánh `verified`/`implemented` (giống cách r3 đã làm với opportunity.md), hoặc chỉ đọc evidence-report.md khi status ∈ {verified, implemented}.
+
+Mirror `plugins/acceptance-gate/scripts/start-scan.mjs:116-123` giống hệt từng ký tự.
+
+Rationale: Cùng lớp lỗi với finding trên: slug bị phân ô sai vì lỗi của một artifact không thuộc luồng kiểm của status đó, đúng điều AC-1 cấm.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **Nhánh `verified` vẫn gọi BLOCKED là "không nhận diện được" — chỉ vá nhánh `implemented`, trái chính comment vừa viết**
-  Người dùng thấy gì: Khi một việc đã ở trạng thái đã-xác-minh bị dừng lại vì lý do môi trường (ví dụ mất quyền tạm thời), hệ thống có thể gắn nhãn hồ sơ đó là 'hỏng' thay vì cho phép người dùng tiếp tục phần việc còn dang dở, khiến việc đó biến mất khỏi danh sách để làm tiếp.
-  file: `scripts/start-scan.mjs:118`
-  severity: medium
-  Đề xuất: new-contract
-
-- **P102 chạy bằng root → `process.exit(0)` bỏ TOÀN BỘ case nhưng vẫn báo PASS**
-  Người dùng thấy gì: Khi bộ kiểm thử tự động chạy trong môi trường có quyền quản trị cao (một số hệ thống kiểm tra tự động dùng cấu hình này), một loạt phép kiểm tra quan trọng bị bỏ qua âm thầm nhưng bảng kết quả vẫn hiện 'đạt' — khiến đội ngũ tưởng nhầm rằng tính năng đã được kiểm chứng đầy đủ trong khi thực ra một phần chưa từng được chạy thử.
-  file: `tests/plugins/run-tests.sh:3185`
+- **P102 gặp môi trường root thì exit 0 sau case (a) — bỏ 6 case còn lại nhưng bảng kết quả vẫn báo PASS**
+  Người dùng thấy gì: Trên một số môi trường chạy bằng quyền quản trị, bài kiểm tra bảo vệ cho trường hợp kết quả thẩm định ghi sai định dạng có thể báo đạt dù phần lớn các tình huống lỗi chưa từng được thử thật — một lỗi thật trong tương lai có thể lọt qua mà không ai biết.
+  file: `tests/plugins/run-tests.sh`
   severity: medium
   Đề xuất: known-limits
 
-- **contract.md AC-2 vẫn ghi từ vựng {PASS, REJECT, PENDING-JUDGMENT} sau khi S4-r2 đổi hành vi sang gồm BLOCKED**
-  Người dùng thấy gì: Tài liệu mô tả phạm vi tính năng vẫn liệt kê danh sách trạng thái kết quả cũ, chưa cập nhật theo thay đổi hành vi mới nhất, nên người đọc tài liệu này để ra quyết định có thể hiểu sai phạm vi thực tế mà phần mềm đang làm.
-  file: `_acceptance/start-scan-hardening/contract.md:22`
+- **Evidence của chính slug này đã cũ so với cây: verified_commit ghim 428bfdb, code sửa tiếp ở f9bd06b mà không re-verify**
+  Người dùng thấy gì: Báo cáo bằng chứng của tính năng này đang xác nhận cho một phiên bản mã cũ hơn phiên bản hiện có — một sửa lỗi sau đó chưa được thẩm định lại, nên kết quả đạt hiện ghi trên báo cáo chưa chắc còn đúng với mã hiện tại.
+  file: `_acceptance/start-scan-hardening/evidence-report.md`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Bảng phân ô trong spec — được khai là "nguồn sự thật cho scan + test" — không được cập nhật khi hành vi verdict BLOCKED đổi**
+  Người dùng thấy gì: Tài liệu mô tả cách phân loại công việc mà sản phẩm coi là nguồn tham chiếu chính xác đã lỗi thời so với hành vi mới — người đọc tài liệu này để hiểu quy trình sẽ bị dẫn sai.
+  file: `docs/specs/2026-08-03-start-command-design.md`
+  severity: medium
+  Đề xuất: known-limits
+
+- **VERDICT_OK là code chết — không nơi nào tham chiếu sau khi gộp về bảng tra**
+  Người dùng thấy gì: Có một đoạn khai báo còn sót lại từ phiên bản cũ, không còn ai dùng — không gây lỗi hiện tại, nhưng dễ khiến người sửa sau lầm tưởng vẫn cần cập nhật ở đó, dẫn tới sửa nhầm chỗ về sau.
+  file: `scripts/start-scan.mjs`
   severity: low
   Đề xuất: known-limits
 
-- **Từ vựng verdict vẫn KHÔNG dùng chung: nhánh `verified` bỏ sót BLOCKED — cùng một artifact bị phân ô khác nhau theo status**
-  Người dùng thấy gì: Cùng một loại hồ sơ công việc bị xếp loại 'còn tiếp tục được' hay 'hỏng' khác nhau tuỳ vào giai đoạn nó đang ở, dù nguyên nhân dừng lại giống hệt nhau — người dùng có thể thấy việc của mình biến mất khỏi danh sách chỉ vì nó đang ở một giai đoạn khác.
-  file: `scripts/start-scan.mjs:118`
+- **P102 báo PASS khi chmod không chặn được đọc — process.exit(0) bỏ TOÀN BỘ assertion, kể cả 5 case không dùng chmod**
+  Người dùng thấy gì: Trên một số môi trường chạy bằng quyền quản trị, bài kiểm tra bảo vệ cho trường hợp kết quả thẩm định ghi sai định dạng báo đạt dù gần như toàn bộ các tình huống cần thử đều bị bỏ qua — một lỗi thật có thể lọt qua mà không bị phát hiện.
+  file: `tests/plugins/run-tests.sh`
   severity: medium
-  Đề xuất: new-contract
+  Đề xuất: known-limits
 
-Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
+- **VERDICT_OK là hằng chết sau khi gộp về bảng tra — không còn ai đọc**
+  Người dùng thấy gì: Có một đoạn khai báo còn sót lại từ phiên bản cũ, không còn ai dùng — không gây lỗi hiện tại, nhưng dễ khiến người sửa sau lầm tưởng vẫn cần cập nhật ở đó, dẫn tới sửa nhầm chỗ về sau.
+  file: `scripts/start-scan.mjs`
+  severity: low
+  Đề xuất: known-limits
+
+⚠ Cụm ngoài vùng phủ: 2/8 lỗi rơi vào file không bộ đo nào phủ (_acceptance/start-scan-hardening/evidence-report.md, docs/specs/2026-08-03-start-command-design.md) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
