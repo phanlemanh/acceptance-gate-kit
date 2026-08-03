@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: b2d2eac2cabe2fe3bccff9d2e0a65ac3edca32e3
+verified_commit: 62444dfd5f6ce79836034b2695bc69f87425495d
 human_signoff: Manh Phan 2026-08-01
 ---
 
@@ -287,3 +287,12 @@ Round 4: 15/15 eval máy (E1-E15) PASS — bốn lỗ đo mà round 3 nêu trên
 - `verified_commit` re-pin → `b2d2eac2cabe2fe3bccff9d2e0a65ac3edca32e3` (chỉ dòng máy).
 - **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
   `human_override` giữ nguyên.
+
+### Re-pin — 2026-08-03 (sau product-map-uat-session), tại 62444df
+
+Machine lane do agent TƯƠI của S4 round 11 (`wf_7c6d877e-022`, doer≠grader)
+chạy tại đúng sha `62444dfd5f6ce79836034b2695bc69f87425495d`: 5 suite exit 0 —
+scripts 596 pass · hooks 51 pass · plugins pass (P01–P114, gồm case của slug
+này) · workflows pass · mirror `sync-plugin-packages.sh --check` in sync. Bản
+đồ sản phẩm `--check` exit 0 cùng lượt. Judgment + chữ ký của slug này GIỮ
+NGUYÊN — chỉ đổi mốc ghim của làn máy.
