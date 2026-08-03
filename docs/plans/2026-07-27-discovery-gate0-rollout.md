@@ -256,7 +256,19 @@ artifact-platform, bài học đổ ngược vào F-A khi đóng gói):
    (schema, kho linh kiện) → tờ khai điền trước, buổi chỉ hỏi phần đời thật
    (ai nhập · công mỗi lần · trễ bao lâu); câu Người/Việc ngoài repo → hỏi.
 
-**Ba việc 02/08 (từ handoff — bổ sung vào nhật ký cho đủ, chưa làm):**
+**Lỗ-kit ghi tại Gate 1 vòng start-command (03/08, maintainer quan sát):**
+luật ngôn ngữ mặt người ĐÃ đấu dây (3 lệnh thẻ + feature-loop "MỌI lần
+trình" + P93 giữ bảng luật) nhưng lần trình gói duyệt Gate 1 vẫn lòi mặt máy:
+bảng AC→eval→executor cho người đọc nguyên chữ máy (fixture, frontmatter/
+mtime, mã P55/P95/E-n không kèm nghĩa, chuỗi mũi tên) — trượt phép thử
+xoá-tên-máy. Nguyên nhân tầng khuôn, không phải tầng luật: bản luật có khuôn
+cho bảng-kế-hoạch (`PLAN-SUMMARY-TABLE-TEMPLATE`) + sơ đồ quyết định, nhưng
+CHƯA có khuôn cho *bảng gói duyệt Cổng Phạm-vi* (mỗi tiêu chí: "điều phải
+đúng" tiếng người + "đo bằng" tiếng người + mã trong ngoặc) → model tự chế
+và trôi về mặt máy (đúng hình dạng blacklist-trên-không-gian-mở: chỗ nghẽn
+chưa có khuôn thì luật mô tả không giữ được). Việc vá: thêm marker khuôn
+`GATE1-EVAL-MAP` vào `human-facing-language.md` + case kiểu P93; máy soi
+mật độ (F-G) sẽ bắt lớp này về sau.
 
 | ID | Việc | Nơi chạm | Tier | Phụ thuộc |
 |---|---|---|---|---|
