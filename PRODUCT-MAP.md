@@ -16,6 +16,11 @@ flowchart TD
   GG --> NT["Đã nghiệm thu giá trị<br/>chưa có"]
 ```
 
+> **Bốn cổng người** — mỗi cổng là một câu hỏi chỉ người trả lời được:
+> **Cổng Đáng** việc này có đáng làm không · **Cổng Phạm vi** bộ tiêu chí
+> đã đủ và đúng chưa · **Cổng Bằng chứng** đã làm đúng thứ đã hứa chưa ·
+> **Cổng Giá trị** thứ đã giao có ăn thua không.
+
 ## Chờ duyệt phạm vi
 
 - Gom luật đọc hồ sơ xưởng về một chỗ — mọi bên đọc phải cho cùng một kết luận (`workspace-reader-unification`) · liên quan: product-map-uat-session

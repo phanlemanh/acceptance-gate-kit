@@ -91,6 +91,24 @@ cho điểm dừng con người, và văn tiếng Anh vẫn theo luật cũ (**t
 review S4 đếm được 15 lượt drift qua ADR 0004/0005 và README — hoặc ghi ngoại
 lệ, hoặc sweep mãi mà lần sau lại tái diễn.
 
+**Tên bốn cổng (mặt người, tiếng Việt)**:
+`Gate 1`/`Gate 2` là tên MÁY-ĐỌC của điểm dừng; khi trình cho người, mỗi cổng
+có một tên nói *câu hỏi cổng đó hỏi*. Bốn tên này viết hoa cả cụm và dùng
+nguyên văn trên mọi mặt người (thẻ `/start`, bản đồ sản phẩm, thân lệnh cổng):
+
+| Tên mặt người | Câu hỏi | Mã máy | Ghi ở |
+|---|---|---|---|
+| **Cổng Đáng** | Việc này có đáng làm không? | `dang` | `opportunity.md` — `decision` |
+| **Cổng Phạm vi** | Bộ tiêu chí đã đủ và đúng chưa? | `pham-vi` | `contract.md` — `approved_by` (= Gate 1) |
+| **Cổng Bằng chứng** | Đã làm đúng thứ đã hứa chưa? | `bang-chung` | `evidence-report.md` — `human_signoff` (= Gate 2) |
+| **Cổng Giá trị** | Thứ đã giao có ăn thua không? | `gia-tri` | `uat-session.md` — `verdict` |
+
+Một tên cổng đứng MỘT MÌNH ở mặt người mà không có bảng/chú giải quanh nó là
+vi phạm N6: người đọc lần đầu không suy ra được "Đáng" nghĩa là gì. Hình có
+nhãn cổng thì ngay dưới hình phải có dòng giải nghĩa.
+_Avoid_: gọi Cổng Bằng chứng là "Gate 2" trong văn mặt người; đặt tên cổng mới
+mà không thêm hàng vào bảng này.
+
 **Approve**:
 Động từ của Gate 1 — người thật ghi `approved_by`/`approved_at` sau một câu
 YES tường minh trong chat.

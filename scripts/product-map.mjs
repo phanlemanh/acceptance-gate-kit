@@ -69,6 +69,15 @@ function mermaidBlock(count) {
   // đập vào mắt chứ không nấp cuối danh sách.
   if (count.hong) lines.push(`  HS["Hồ sơ hỏng<br/>${dem(count.hong)}"]`);
   lines.push('```');
+  // Nhãn cổng đứng MỘT MÌNH trong hình là chữ người đọc lần đầu không suy ra
+  // được — "Đáng" nghĩa là gì? Mỗi cổng nói CÂU HỎI nó hỏi, ngay dưới hình
+  // (luật N6 + bảng tên cổng trong CONTEXT.md). Thẻ /start đã giải nghĩa bốn mã
+  // này ngay lần đầu hiện; bản đồ là mặt người thứ hai nên cũng phải tự đủ.
+  lines.push('',
+    '> **Bốn cổng người** — mỗi cổng là một câu hỏi chỉ người trả lời được:',
+    '> **Cổng Đáng** việc này có đáng làm không · **Cổng Phạm vi** bộ tiêu chí',
+    '> đã đủ và đúng chưa · **Cổng Bằng chứng** đã làm đúng thứ đã hứa chưa ·',
+    '> **Cổng Giá trị** thứ đã giao có ăn thua không.');
   return lines;
 }
 const UAT_KET_CUC = {

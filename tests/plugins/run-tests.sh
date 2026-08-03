@@ -4526,6 +4526,25 @@ if (!canh("GB", "DG")) die("hinh: Cong Bang chung khong dan toi 'Da giao'");
 if (!canh("GB", "CN")) die("hinh: 'Cho phien nghiem thu' phai la KET CUC cua Cong Bang chung, khong phai chang sau 'Da giao'");
 if (canh("DG", "CN")) die("hinh ve 'Da giao --> Cho phien nghiem thu' thanh mach noi tiep — code coi hai o do la hai ket cuc loai tru nhau");
 if (!canh("CN", "GG")) die("hinh: 'Cho phien nghiem thu' khong dan toi Cong Gia tri");
+
+// 3c. MOI nhan cong trong hinh phai duoc GIAI NGHIA ngay tren ban do, va phai
+// co trong glossary CONTEXT.md. Nhan cong dung mot minh la chu nguoi doc lan
+// dau khong suy ra duoc — "Dang" nghia la gi? (N6; hoi dong AC-13b danh FAIL
+// dung diem nay o S4-r15). Danh sach cong SUY TU HINH, khong go tay: them cong
+// thu nam thi case tu doi giai nghia cho no.
+const nhanCong = [...new Set([...hinh.matchAll(/\{"(Cổng [^"]+)"\}/g)].map(m => m[1]))];
+if (nhanCong.length < 4) die(`bo dem tinh tao: quet ra ${nhanCong.length} nhan cong trong hinh — mong >=4`);
+const ctx = fs.readFileSync(path.join(root, "CONTEXT.md"), "utf8");
+const sauHinh = out.slice(out.indexOf("```", out.indexOf("```mermaid") + 3));
+for (const cong of nhanCong) {
+  // Giai nghia = ten cong xuat hien LAI ngoai hinh, kem mot cau hoi.
+  const i = sauHinh.indexOf(cong);
+  if (i < 0) die(`ban do co nhan "${cong}" trong hinh ma khong giai nghia o dau ca — nguoi doc lan dau khong suy ra duoc`);
+  if (!/(không|chưa|gì)\b/.test(sauHinh.slice(i, i + 120)))
+    die(`"${cong}" duoc nhac lai nhung khong kem CAU HOI no hoi — nhac ten khong phai giai nghia`);
+  if (!ctx.includes(cong))
+    die(`CONTEXT.md khong co muc cho "${cong}" — dat ten mat nguoi moi ma khong vao glossary (N6)`);
+}
 if (!/Đang làm<br\/>1 việc/.test(hinh)) die("hinh khong mang SO THAT cua xuong (1 viec dang lam): " + hinh);
 if (!/Đã giao<br\/>1 việc/.test(hinh)) die("hinh khong mang SO THAT cua xuong (1 viec da giao)");
 if (!/chưa có/.test(hinh)) die("chang rong phai noi 'chua co', khong duoc de trong");
