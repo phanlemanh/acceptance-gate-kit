@@ -1,27 +1,12 @@
 {
-  "feature_plain": "Mở phiên làm việc bằng một lệnh duy nhất: máy tự nhìn quanh xưởng, trình một thẻ ba nhóm — việc chờ anh ký, việc đang dở, việc mới có thể bắt đầu — anh chọn một chữ cái là vào đúng nghi thức, khỏi phải gõ câu mở đầu tự do.",
-  "will_do": [
-    {"id": "AC-2", "p": "Sẽ xếp mỗi việc trong xưởng vào đúng một ô — không việc nào bị sót, không việc nào hiện hai chỗ."},
-    {"id": "AC-3", "p": "Sẽ nói rõ việc đang dở đứng ở bước nào và bước kế tiếp là gì."},
-    {"id": "AC-6", "p": "Sẽ đưa nhóm chờ-anh-ký lên đầu thẻ, cổng nào chờ lâu nhất đứng trước."},
-    {"id": "AC-7", "p": "Sẽ kết thúc bằng đúng một câu hỏi chọn chữ cái, rồi bàn giao sang nghi thức đích — lệnh không tự làm nội dung thay."},
-    {"id": "AC-8", "p": "Sẽ nhắc mở cây làm việc riêng trước khi tiếp tục một vòng dở, nếu phiên đang đứng trên cây bẩn hay cây chung."},
-    {"id": "AC-10", "p": "Sẽ chỉ chạy khi NGƯỜI gõ — máy không tự gọi được lệnh này ở cả hai môi trường (Claude và Codex); thẻ quyết định vẫn để mở như cũ."},
-    {"id": "AC-11", "p": "Sẽ có mục hướng dẫn vào-phiên trong sách hướng dẫn và trang giới thiệu."},
-    {"id": "AC-12", "p": "Sẽ đồng bộ bản phân phối cùng lượt với nguồn, như mọi lần đổi engine."},
-    {"id": "AC-13", "p": "Sẽ có phép đo nối hai đầu: chữ mà lệnh đọc phải đúng là chữ mà bộ quét viết ra — đổi tên một phía là kiểm thử đỏ ngay."},
-    {"id": "AC-14", "p": "Sẽ kiểm mọi đường trỏ tới file trong gói cài đặt của từng môi trường — người cài plugin dùng được ngay, không gãy vì đường dẫn chỉ đúng trên máy tác giả."},
-    {"id": "AC-15", "p": "Sẽ nạp bản luật ngôn-ngữ-mặt-người trước khi viết bất kỳ câu nào lên thẻ, ở cả hai môi trường."}
-  ],
-  "wont_do": [
-    {"id": "AC-1", "p": "Chặn chạy trên repo chưa dựng cổng: chỉ in một dòng chỉ đường dựng cổng rồi dừng, không hỏi lan man."},
-    {"id": "AC-4", "p": "Chặn sập vì một hồ sơ hỏng: việc có hồ sơ hỏng vẫn hiện trên thẻ kèm cờ báo, các việc khác không bị ảnh hưởng."},
-    {"id": "AC-5", "p": "Sẽ KHÔNG im lặng khi thiếu nguồn dữ liệu (bản đồ sản phẩm, phiên nghiệm thu chưa dựng) — mỗi nguồn vắng in đúng một dòng nói tên nó."},
-    {"id": "AC-9", "p": "Sẽ KHÔNG chạm vào bất kỳ file nào — lệnh chỉ nhìn, không sửa."}
-  ],
-  "scope_plain": "Chưa làm trong vòng này: tự nhận đường đi cho việc mới (vòng sau), đọc sổ bàn giao riêng của repo kit, thay bảng tra soát hiện có, và hai nguồn dữ liệu chưa tồn tại thì không bịa khuôn trước.",
+  "feature_plain": "Mở phiên làm việc bằng một lệnh duy nhất: máy nhìn quanh xưởng, trình thẻ ba nhóm — việc chờ anh ký, việc đang dở, việc mới — anh chọn một chữ cái là vào đúng nghi thức. Máy đã nghiệm thu xong bản này: 15/15 tiêu chí đạt, trong đó 2 tiêu chí do hội đồng giám khảo máy chấm và đề nghị đạt.",
+  "decisions": [],
+  "analyst_plain": "",
+  "scope_plain": "Chưa làm trong vòng này: tự nhận đường đi cho việc mới, đọc sổ bàn giao riêng của repo kit, thay bảng tra soát hiện có, và hai nguồn dữ liệu chưa dựng (bản đồ sản phẩm, phiên nghiệm thu) thì nói tên chứ không bịa khuôn.",
   "decisions_plain": [
-    {"id": "d-20260803T033952Z-28400", "p": "Đã chọn để máy phân ô bằng bộ quét đo được, lệnh chỉ lo phần chữ cho người — đổi lại thêm một file so với dự tính ban đầu, nhưng kiểm thử bám được vào kết quả thật thay vì vào lời hướng dẫn."},
-    {"id": "d-20260803T033952Z-3799", "p": "KHÔNG dựng hai ô chưa có nguồn dữ liệu (bản đồ sản phẩm, phiên nghiệm thu) — thẻ nói tên nguồn vắng thay vì đoán khuôn; khi vòng sau dựng nguồn, chỉ bộ quét phải sửa."}
+    {"id": "d-20260803T033952Z-28400", "p": "Đã chọn để máy phân ô bằng bộ quét đo được, lệnh chỉ lo phần chữ cho người — đổi lại thêm một file so với dự tính, nhưng kiểm thử bám vào kết quả thật."},
+    {"id": "d-20260803T033952Z-3799", "p": "KHÔNG dựng hai ô chưa có nguồn dữ liệu — thẻ nói tên nguồn vắng thay vì đoán khuôn; vòng sau dựng nguồn thì chỉ bộ quét phải sửa."},
+    {"id": "d-20260803T035833Z-21535", "p": "Người duyệt trả thẻ tại Cổng 1 vì bảng trình bày còn tiếng máy — đã ghi thành một lỗ của bộ công cụ để đợt nâng bộ thẻ đọc lại bằng số."},
+    {"id": "d-20260803T050141Z-31384", "p": "Sau vòng nghiệm thu đầu bị trả lại: sửa bộ quét dùng đúng bộ đọc hồ sơ chuẩn của kit (hết báo hỏng oan file kiểu Windows), nhận diện đúng việc đã ký, khớp chặt tên kế hoạch, và thẻ hết chỗ tự cho phép sửa file — chọn sửa vật theo thiết kế thay vì hạ thiết kế theo code."}
   ]
 }

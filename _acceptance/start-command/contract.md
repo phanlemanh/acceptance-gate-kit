@@ -5,10 +5,10 @@ slug: start-command
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-03T04:02:00Z
-time_human_minutes: {gate1: 12, gate2: 0}
+time_human_minutes: {gate1: 12, gate2: 5}
 ---
 
 # Acceptance Contract: start-command
@@ -65,3 +65,10 @@ Từ morphological-scan (preset test-matrix, 03/08):
 ## Notes
 
 - Ô "chờ-phiên-nghiệm-thu" trong spec gốc: vòng này render dưới dạng skip-có-tên vì nguồn chưa tồn tại; khi F-B dựng nguồn, chỉ `start-scan.mjs` đổi, khuôn lệnh giữ nguyên.
+
+Known limits (Gate 2, Manh Phan 2026-08-03 — 4 finding ngoài hợp đồng, chấp nhận ship):
+
+- File hợp đồng mất quyền đọc (không phải vắng) → bộ quét coi như vắng: việc chờ ký có thể biến mất khỏi thẻ hoặc báo sai lý do (`scripts/start-scan.mjs` read() nuốt lỗi ngoài ENOENT).
+- Chân đối chứng âm của phép đo mục docs trong P101 không thể đỏ theo cách dựng (tests/plugins/run-tests.sh).
+- Contract `implemented` + evidence verdict ngoài từ vựng → nuốt im lặng thành bước nghiệm thu máy, không nêu tên như nhánh `verified`.
+- `--root` thiếu giá trị / trỏ đường dẫn sai → rơi về quét cwd hoặc báo nhầm "chưa dựng cổng" (hai thân lệnh hiện hardcode `--root .`).

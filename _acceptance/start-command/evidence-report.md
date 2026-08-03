@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: b2d2eac2cabe2fe3bccff9d2e0a65ac3edca32e3
-human_signoff:
+human_signoff: "Manh Phan 2026-08-03"
 ---
 
 # Evidence Report: start-command
