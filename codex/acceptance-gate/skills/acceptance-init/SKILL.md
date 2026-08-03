@@ -59,12 +59,18 @@ executors:
     api: "<discovered-or-approved command>"
   script:
     cli: "<discovered-or-approved command>"
+    product_map: "node scripts/codex-plugin-runner.mjs acceptance-gate product-map --root . --check"
   design:
     gate: "node scripts/codex-plugin-runner.mjs acceptance-gate design-gate"
     ui_check: "node scripts/codex-plugin-runner.mjs acceptance-gate design-scan"
 risk_tiers:
   t1_skip_globs:
     - "docs/**"
+    # Bản đồ sản phẩm — máy sinh, và approve/signoff commit nó CÙNG commit chữ
+    # ký. Thiếu dòng này thì chính commit chữ ký làm evidence stale và
+    # pre-merge chặn merge (ADR 0007). Miễn trừ chỉ an toàn khi repo cũng chạy
+    # `executors.script.product_map` trong CI của mình.
+    - "PRODUCT-MAP.md"
   t3_paths:
     - "src/auth/**"
 signoff:

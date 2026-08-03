@@ -43,7 +43,7 @@ contrast as advisory.
      evaluate JavaScript.
 2. **Navigate** the browser to the surface. Screenshot →
    `evidence/E-design-B-step1.png`.
-3. **Inject + scan in one eval.** Read `${CLAUDE_PLUGIN_ROOT}/scripts/design-scan.js`
+3. **Inject + scan in one eval.** Read `${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/scripts/design-scan.js`
    and evaluate it in the page, then call the scan. The file sets
    `autoScan:false`, so no overlay is drawn.
 

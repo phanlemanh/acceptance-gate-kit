@@ -1,8 +1,14 @@
 # Contract Template
 
 Copy everything below the `---8<---` line into `_acceptance/{slug}/contract.md`,
-replace `{{placeholders}}`. Keep criterion IDs stable (AC-1, AC-2, …) — evals
-reference them.
+replace the placeholders (`{single-brace}` in the frontmatter,
+`{{double-brace}}` in the body). Keep criterion IDs stable (AC-1, AC-2, …) —
+evals reference them.
+
+**Do NOT copy the `<!-- … -->` marker comments or the ```` ```yaml ```` fence
+around the frontmatter.** They exist so tests can extract the exact machine-read
+shape (case P115 round-trips it through the same reader the gates use); the
+real `contract.md` must start at its `---` line.
 
 Frontmatter rules:
 - `risk_tier:` keeps its own line as shown; the enforcement hook reads it
@@ -26,18 +32,22 @@ Frontmatter rules:
   local|staging|mock` line (lint W5 checks presence; the human eyeballs the value)
 
 ---8<---
+<!-- <<<CONTRACT-FRONTMATTER-TEMPLATE -->
+```yaml
 ---
 schema_version: 1
-feature: {{one-line feature name}}
-slug: {{kebab-case-slug}}
-owner: {{git config user.email}}
-risk_tier: {{T2|T3}}
-surfaces: [{{api|cli|sdk|ui|mobile, comma-separated}}]
-status: draft
+feature: {feature}
+slug: {slug}
+owner: {owner}
+risk_tier: {risk_tier}      # T2 (chuẩn) | T3 (auth/dữ liệu/API phá vỡ)
+surfaces: [{surfaces}]      # api | cli | sdk | ui | mobile — ngăn cách bằng dấu phẩy
+status: {status}            # LUÔN là `draft` lúc tạo hồ sơ; chỉ Cổng 1 đổi nó
 approved_by:
 approved_at:
 time_human_minutes: {gate1: 0, gate2: 0}
 ---
+```
+<!-- CONTRACT-FRONTMATTER-TEMPLATE>>> -->
 
 # Acceptance Contract: {{slug}}
 

@@ -1,0 +1,143 @@
+{
+ "feature_plain": "Repo tự vẽ một bản đồ sản phẩm từ hồ sơ xưởng, và có nghi thức phiên nghiệm thu để người dùng thật quyết giao rộng, lặp thêm, hay dừng.",
+ "decisions": [],
+ "scope_plain": "Vòng này KHÔNG làm: thẻ trình Cổng 0 và Cổng Giá trị, bảng số phễu, phần ghi liên kết khi khai thác, bản Codex của nghi thức nghiệm thu, kho quan hệ riêng, tự đo tracking.",
+ "decisions_plain": [
+  {
+   "id": "d-20260803T065309Z-10077",
+   "p": "Đã chọn bản đồ vẽ NÉT THÔ — ít chi tiết hơn thẻ vào phiên, đổi lại không báo đỏ oan giữa vòng."
+  },
+  {
+   "id": "d-20260803T065309Z-29784",
+   "p": "Nghi thức nghiệm thu là skill MỞ, vòng này chỉ có bản Claude — Codex chưa có nghi thức phiên."
+  },
+  {
+   "id": "d-20260803T065309Z-30291",
+   "p": "KHÔNG làm thẻ Cổng 0/Cổng Giá trị và bảng số phễu ở vòng này."
+  },
+  {
+   "id": "d-20260803T065309Z-29281",
+   "p": "Làm mới bản đồ bằng bước ghi trong thân lệnh cổng + lưới kiểm CI, thay vì tự động ngầm."
+  },
+  {
+   "id": "d-20260803T071139Z-30291",
+   "p": "Cổng 1 đã ký (dấu niêm)."
+  },
+  {
+   "id": "d-20260803T072024Z-5760",
+   "p": "Thẻ vào phiên đọc bản đồ bằng cách gọi thẳng bộ sinh — nhanh hơn, đổi lại hai thứ dính nhau."
+  },
+  {
+   "id": "d-20260803T073345Z-14806",
+   "p": "Sửa: script nhận diện chính nó bằng đường dẫn thật — repo dưới lối tắt không còn làm cổng xanh giả."
+  },
+  {
+   "id": "d-20260803T074824Z-2844",
+   "p": "Đưa luật hồ-sơ-có-hỏng-không về một chỗ dùng chung — chặn lớp lỗi hai bên đọc trái nhau."
+  },
+  {
+   "id": "d-20260803T082900Z-30306",
+   "p": "Nối lệnh kiểm bản đồ vào CI và vá 4 phép đo hằng-đúng."
+  },
+  {
+   "id": "d-20260803T082900Z-20225",
+   "p": "KHÔNG giữ chỗ khai nguồn-bỏ-qua vì không còn nguồn nào bỏ qua — TRÁI ghi chú hợp đồng, cần anh xác nhận."
+  },
+  {
+   "id": "d-20260803T085535Z-4554",
+   "p": "Sửa lỗi đọc hồ sơ: ô để trống không còn nuốt mất dòng bên dưới."
+  },
+  {
+   "id": "d-20260803T091500Z-26794",
+   "p": "Dừng ở vòng kiểm thứ 3 để hỏi anh thay vì tự chạy tiếp."
+  },
+  {
+   "id": "d-20260803T094746Z-19579",
+   "p": "Sửa ba việc anh duyệt: hồ sơ mồ côi hiện lại, phép đo hết hằng-đúng, bảng luật tách theo loại hồ sơ."
+  },
+  {
+   "id": "d-20260803T101732Z-23812",
+   "p": "MỞ RỘNG PHẠM VI (anh cho phép): tách tiêu chí mặt người thành hai chân hình/chữ, thêm tiêu chí ký-xong-phải-merge-được."
+  },
+  {
+   "id": "d-20260803T103008Z-31657",
+   "p": "Sửa: tên việc kết thúc bằng dấu nháy không còn bị cụt trên bản đồ; phép đo thôi phá vật thật."
+  },
+  {
+   "id": "d-20260803T105727Z-9473",
+   "p": "Sửa: gõ nhầm lệnh kiểm không còn ghi đè bản đồ, và xoá bản đồ nay báo đỏ."
+  },
+  {
+   "id": "d-20260803T111906Z-29745",
+   "p": "Sửa: đánh số lại ADR bị trùng, và con trỏ khuôn trong nghi thức nghiệm thu giờ mở được."
+  },
+  {
+   "id": "d-20260803T122500Z-8789",
+   "p": "Sửa: khuôn khởi tạo phát cho repo khác nay kèm đủ miễn trừ + cổng canh — trước đó họ kẹt merge ngay lần ký đầu."
+  },
+  {
+   "id": "d-20260803T123341Z-9227",
+   "p": "(quyết định trong vòng)"
+  },
+  {
+   "id": "d-20260803T130000Z-4115",
+   "p": "(quyết định trong vòng)"
+  },
+  {
+   "id": "d-20260803T154121Z-26085",
+   "p": "Gộp bản chính vào một lần thay vì viết lại từng bước — đổi lại phải kiểm tra lại toàn bộ sau khi gộp."
+  },
+  {
+   "id": "d-20260803T161823Z-7771",
+   "p": "Phép kiểm hai-bên-đọc chuyển từ 13 ca chọn tay sang 432 tổ hợp sinh tự động — không còn phụ thuộc người viết nghĩ ra đủ ca."
+  },
+  {
+   "id": "d-20260803T161823Z-2935",
+   "p": "Bộ quét vào phiên dùng chung một bộ luật đọc hồ sơ với bản đồ — hết cảnh mỗi bên tự hiểu một kiểu."
+  },
+  {
+   "id": "d-20260804T021500Z-7731",
+   "p": "Câu hỏi 'trạng thái này dùng hồ sơ nào' cũng về một chỗ — hai bên đọc hết đường trôi khỏi nhau."
+  },
+  {
+   "id": "d-20260804T021501Z-4482",
+   "p": "Phép đo tự nở theo bảng luật, nhưng có một danh sách tay giữ độ rộng — xoá luật lén sẽ bị phát hiện."
+  },
+  {
+   "id": "d-20260804T033000Z-9014",
+   "p": "Cách đọc file (vắng khác với không đọc được) cũng về một chỗ — hồ sơ mất quyền đọc không còn bị xếp nhầm ô lành."
+  },
+  {
+   "id": "d-20260804T033001Z-2276",
+   "p": "Máy phân biệt được 'chưa từng có bản đồ' với 'bản đồ bị xoá' — thay đổi xoá bản đồ không lọt qua kiểm tra."
+  },
+  {
+   "id": "d-20260804T033002Z-5518",
+   "p": "Ca kiểm lỗi phải dựng đủ bối cảnh cho lỗi trượt vào chỗ sai — không chỉ đặt một file hỏng đứng một mình."
+  },
+  {
+   "id": "d-20260804T093000Z-3391",
+   "p": "Tên việc và các liên kết luôn hiện trên bản đồ ở mọi giai đoạn — sửa lỗi bản đồ mất tên việc trong lúc đang dựng."
+  },
+  {
+   "id": "d-20260804T093001Z-8825",
+   "p": "Kiểm tra xoá-bản-đồ chạy đúng cả trên máy CI tải nông — đổi lại repo đã bật mà chưa vẽ lần nào sẽ đỏ tới lần vẽ đầu."
+  },
+  {
+   "id": "d-20260804T093002Z-1147",
+   "p": "Đường dẫn trong hướng dẫn chạy được ở cả hai môi trường (Claude và Codex) — hết con trỏ chết ở một bên."
+  },
+  {
+   "id": "d-20260804T101500Z-6602",
+   "p": "Bốn tên cổng có định nghĩa trong sổ từ vựng và bản đồ tự giải nghĩa ngay dưới hình — người đọc lần đầu hiểu được."
+  },
+  {
+   "id": "d-20260803T144625Z-6403",
+   "p": "Quét cả sáu chỗ hướng dẫn commit bản đồ thay vì hai chỗ được nêu tên — sửa theo lớp, không vá điểm."
+  },
+  {
+   "id": "d-20260803T140050Z-13407",
+   "p": "Người dùng Codex chạy được lệnh vẽ bản đồ ngay từ khuôn phát sẵn — chặn hai chỗ kẹt trước khi ship."
+  }
+ ]
+}

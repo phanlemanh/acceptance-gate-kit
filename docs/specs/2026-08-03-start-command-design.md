@@ -108,12 +108,16 @@ Hai quyết định chốt với owner đầu S1 (ledger `_acceptance/start-comm
 | status `implemented` hoặc `verified`, verdict REJECT | vòng-đang-dở | S3-fix |
 | status `verified`, verdict BLOCKED (bị chặn môi trường — vẫn là việc đang dở, không phải hồ sơ hỏng) | vòng-đang-dở | S4 |
 | status `verified`, verdict PASS/PENDING-JUDGMENT, chưa `human_signoff` | chờ-Cổng-Bằng-chứng | — |
-| status `signed-off` | đã-ký | — |
+| status `signed-off`, opportunity decision `build`/`iterate`, chưa verdict nghiệm thu | chờ-Cổng-Giá-trị | — |
+| status `signed-off` không thuộc đường A (không opportunity, hoặc park/kill) | đã-ký | — |
+| `uat-session.md` có mặt, `verdict` TRỐNG | chờ-Cổng-Giá-trị | — |
+| `uat-session.md` verdict `release`/`iterate`/`kill` | đã-ký (`released`/`uat-iterate`/`uat-kill`) | — |
+| `uat-session.md` verdict ngoài enum, hoặc frontmatter không parse được | cờ hỏng (broken[]) | — |
 | frontmatter không parse được | cờ hỏng (broken[]) — vẫn hiện, không crash | — |
 
-Mỗi slug đúng MỘT ô; ưu tiên tra từ artifact muộn nhất (evidence → contract
-→ opportunity). `since` của ô chờ-cổng = timestamp frontmatter nếu có
-(`approved_at`…), thiếu → mtime file — chỉ để XẾP thứ tự trong nhóm chờ ký,
+Mỗi slug đúng MỘT ô; ưu tiên tra từ artifact muộn nhất (uat-session → evidence
+→ contract → opportunity). `since` của ô chờ-cổng = timestamp frontmatter nếu có
+(`approved_at`; ô chờ-Cổng-Giá-trị lấy `decided_at` của `uat-session.md`), thiếu → mtime file — chỉ để XẾP thứ tự trong nhóm chờ ký,
 không phải evidence.
 
 ### JSON scan (khuôn ổn định cho test + lệnh)
@@ -125,7 +129,7 @@ không phải evidence.
   "groups": { "gates": [ { "slug", "gate", "since", "tier" } ],
               "inProgress": [ { "slug", "status", "nextStep", "tier" } ],
               "done": [ { "slug", "state" } ] },
-  "skipped": [ { "source": "PRODUCT-MAP.md", "reason": "chưa có — F-B" } ],
+  "map": { "present": true, "fresh": false },
   "broken":  [ { "slug", "file", "reason" } ] }
 ```
 

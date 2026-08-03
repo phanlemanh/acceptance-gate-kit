@@ -38,19 +38,41 @@ Steps:
    backstop). You contribute no values of your own.
 5. **Any item the human rejects** → the feature is NOT signable: leave every
    signoff field empty, stop, and route back to the verify/fix loop.
-6. **Land the signature as its own commit** touching only the human-owned
+6. **Regenerate the product map — only if this repo opted in.** Read
+   `risk_tiers.t1_skip_globs` in `_acceptance/config.yaml`. `PRODUCT-MAP.md`
+   NOT listed → the repo was initialised before acceptance-gate 1.31.0: **SKIP
+   this step**, do NOT add the map to the commit, and print the note below —
+   otherwise the signature commit itself makes the evidence stale and
+   pre-merge blocks the merge with no way out (ADR 0007).
+
+   > Bản đồ sản phẩm chưa bật cho repo này. Bật bằng hai dòng trong
+   > `_acceptance/config.yaml`: thêm `- "PRODUCT-MAP.md"` vào
+   > `risk_tiers.t1_skip_globs`, và `product_map: "node
+   > ${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs --root . --check"` vào
+   > `executors.script` — rồi chạy executor đó trong CI.
+
+   Listed → run `node ${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs --root .`
+   after `human_signoff` is written; the map is machine-generated from records
+   this gate just changed, so it belongs in the signature commit below.
+
+7. **Land the signature as its own commit** touching only the human-owned
    lines in `evidence-report.md` (`human_signoff`, `human_override`, the
    verdict upgrade, `bypass_ack`) plus the contract's `status` +
-   `time_human_minutes.gate2`. Print the exact sequence:
+   `time_human_minutes.gate2` — plus the regenerated `PRODUCT-MAP.md` ONLY if
+   step 6 actually regenerated it. Print the exact sequence:
 
    ```bash
    git add _acceptance/<slug>/evidence-report.md _acceptance/<slug>/contract.md
    git commit -m "Gate 2 signoff: <slug> — <name>"
    ```
 
+   Repo opted in (step 6 regenerated the map) → append ` PRODUCT-MAP.md` to that
+   `git add`. Repo NOT opted in → leave it out: the file does not exist there and
+   naming it makes `git add` fail with a pathspec error mid-signature.
+
    The reviewer runs it themselves, or explicitly orders you to run exactly
    that and nothing more.
-7. **Re-check merge readiness.** If the repo ships `scripts/pre-merge-check.sh`
+8. **Re-check merge readiness.** If the repo ships `scripts/pre-merge-check.sh`
    run `bash scripts/pre-merge-check.sh . --slug <slug>` (add
    `--base origin/<default-branch>` when known); otherwise run the installed
    plugin's copy. In Codex sessions where write-time hooks are not active,

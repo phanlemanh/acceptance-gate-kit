@@ -56,7 +56,18 @@ agent-editable), re-render the card, ask again.
 - If `_acceptance/<slug>/decisions.jsonl` exists, append the seal entry
   `{"id":"d-<next>","type":"seal","gate":1,"at":"<ISO>"}` in the same
   write-batch as `approved_by`.
-- Offer ONE commit: contract + evals (+ design doc when present).
+- Regenerate the product map — but FIRST check the repo opted in: read
+  `risk_tiers.t1_skip_globs` in `_acceptance/config.yaml`. `PRODUCT-MAP.md` NOT
+  listed → repo initialised before acceptance-gate 1.31.0: SKIP the regen, do NOT
+  add the map to the commit, print
+  the opt-in note (add `- "PRODUCT-MAP.md"` to `t1_skip_globs` plus a
+  `product_map` executor, then run it in CI), and carry on — without the
+  exemption the signature commit itself makes evidence stale (ADR 0007).
+  Listed → run `node ${PLUGIN_ROOT}/scripts/product-map.mjs --root .` AFTER the
+  gate fields are written; CI's `--check` turns any drift red.
+- Offer ONE commit: contract + evals (+ design doc when present). Add
+  `PRODUCT-MAP.md` ONLY if you regenerated it above — a repo that has not opted
+  in has no such file, and naming it in `git add` fails the whole command.
 - Where write-time hooks are not active in the Codex session, run the
   consumer's `scripts/recheck-evidence.js` path later at Gate 2 as usual; the
   contract transition itself is re-checked by CI `pre-merge-check.sh`.

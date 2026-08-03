@@ -48,21 +48,38 @@ contribute no values of your own. Any item the human rejects → the feature is
 NOT signable: leave every signoff field empty, stop, route back to the
 verify/fix loop.
 
-## 6. Land the signature in its own commit
+## 6. Regenerate the product map
+
+First check the repo opted in: read `risk_tiers.t1_skip_globs` in
+`_acceptance/config.yaml`. `PRODUCT-MAP.md` NOT listed → repo initialised before
+acceptance-gate 1.31.0: SKIP this step, do NOT add the map to the commit, and
+print the opt-in note (add `- "PRODUCT-MAP.md"` to `t1_skip_globs` plus a
+`product_map` executor, then run it in CI) — without the exemption the signature
+commit itself makes evidence stale and pre-merge blocks the merge (ADR 0007).
+Listed → run `node ${PLUGIN_ROOT}/scripts/product-map.mjs --root .` after
+`human_signoff` is written; the map is machine-generated from records this gate
+just changed, so it belongs in the signature commit below.
+
+## 7. Land the signature in its own commit
 
 Touch only the human-owned lines in `evidence-report.md` (`human_signoff`,
 `human_override`, the verdict upgrade, `bypass_ack`) plus the contract's
-`status` + `time_human_minutes.gate2`:
+`status` + `time_human_minutes.gate2` — plus the regenerated `PRODUCT-MAP.md`
+ONLY if the step above actually regenerated it:
 
 ```bash
 git add _acceptance/<slug>/evidence-report.md _acceptance/<slug>/contract.md
 git commit -m "Gate 2 signoff: <slug> — <name>"
 ```
 
+Repo opted in → append ` PRODUCT-MAP.md` to that `git add`. Repo NOT opted in →
+leave it out: the file does not exist there and naming it makes `git add` fail
+with a pathspec error mid-signature.
+
 The reviewer runs it themselves, or explicitly orders you to run exactly that
 and nothing more.
 
-## 7. Re-check merge readiness
+## 8. Re-check merge readiness
 
 Codex write-time hooks may be inactive, so always re-check: run the consumer's
 `bash scripts/pre-merge-check.sh . --slug <slug>` (add
@@ -71,7 +88,7 @@ if the consumer copies are missing, run them from the installed Acceptance
 Gate cache via the consumer runner. Report READY TO MERGE or the exact
 violations.
 
-## 8. Preserve ownership
+## 9. Preserve ownership
 
 - Never invent or assume a name, date, or verdict.
 - Never upgrade a verdict while any override line is empty.

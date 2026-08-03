@@ -11,7 +11,13 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
+      # fetch-depth: 0 — bước `product-map.mjs --check` dưới đây hỏi LỊCH SỬ git
+      # để phân biệt "repo chưa từng dựng bản đồ" với "đã có rồi bị xoá". Trên
+      # clone nông (depth 1) commit bị graft nên git không thấy lần xoá nào, và
+      # chốt duy nhất canh miễn trừ t1 của ADR 0007 fail-open (S4-r15).
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -23,6 +29,13 @@ jobs:
         run: bash tests/plugins/run-tests.sh
       - name: workflows suite (lớp thuần của acceptance-verify + execute-parallel)
         run: bash tests/workflows/run-tests.sh
+      # Bản đồ sản phẩm là view máy sinh: mọi PR đổi hồ sơ xưởng mà quên làm
+      # mới nó là bản đồ nói dối. Bốn thân cổng người hứa với người ký rằng
+      # "CI bắt drift" — bước này là chỗ lời hứa đó có thật (cùng vai P30 với
+      # mirror). Thiếu nó thì bản đồ chỉ được kiểm khi tình cờ có ai chạy một
+      # vòng nghiệm thu.
+      - name: bản đồ sản phẩm khớp hồ sơ xưởng
+        run: node scripts/product-map.mjs --root . --check
 
   gate:
     runs-on: ubuntu-latest

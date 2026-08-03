@@ -4,8 +4,10 @@
 // CHỈ-ĐỌC tuyệt đối. Đầu ra: JSON một dòng (schema_version 1) — các key mà
 // commands/start.md đọc được ghim trong khối START-SCAN-KEYS của chính file đó;
 // case P99 round-trip giữ hai đầu khớp, P98 giữ bảng phân ô.
-// Ô chưa có nguồn (PRODUCT-MAP, phiên nghiệm thu) emit skipped[] có tên —
-// KHÔNG bịa dữ liệu thay thế (ledger d-descope 03/08 của start-command).
+// F-B: đọc thêm uat-session.md (ô Cổng Giá trị) + trạng thái bản đồ sản phẩm
+// (`map.present` / `map.fresh`). Hai nguồn này trước đây chưa dựng nên bộ quét
+// emit `skipped[]` có tên thay vì bịa dữ liệu; F-B dựng xong cả hai nên khoá đó
+// đã GỠ HẲN — một khoá khai mà không thứ gì sinh ra được là hợp đồng chết.
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
@@ -15,6 +17,13 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence-core.js'));
+// Luật "hồ sơ nào được tiêu thụ" VÀ luật "field điều hướng có hợp lệ không"
+// đều sống MỘT chỗ, bản đồ sản phẩm dùng chung — hai bên đọc cùng hồ sơ không
+// được cho hai kết luận trái nhau. Kiểm tay lại ở đây là cách hai bên đã trôi
+// khỏi nhau ở r12 và r13 dù bảng enum đã gom xong từ r3.
+const { recordProblem, navValues, consumedTexts, usesOpportunity, readRecord, ioReason,
+        configList } =
+  require(path.join(__dirname, '..', 'lib', 'workspace-record.js'));
 
 // Argv hỏng CHẾT TO (exit 2), không âm thầm rơi về cwd: một cờ được KHAI mà
 // dùng không được lại đổi nghĩa lệnh thành "quét cây khác rồi báo thành công",
@@ -43,11 +52,12 @@ if (!existsSync(path.join(acc, 'config.yaml'))) { out({ schema_version: 1, confi
 // ENOENT (file vắng) là tin bình thường; MỌI lỗi khác là sự thật phải nêu tên —
 // nuốt chung một rọ biến "mất quyền đọc" thành "không có file", và slug bị phân
 // ô theo artifact bên cạnh (Cổng 2 start-command, known-limit 1).
-const read = p => {
-  try { return { t: readFileSync(p, 'utf8'), err: null }; }
-  catch (e) { return e.code === 'ENOENT' ? { t: null, err: null } : { t: null, err: e }; }
-};
-const ioReason = err => `không đọc được (${err.code})`;
+// read/ioReason KHÔNG có bản sao ở đây: chúng là một phần của luật đọc hồ sơ
+// và sống ở lib/workspace-record.js. Hai bản y hệt nhau hôm nay vẫn là đúng
+// hình dạng đã sinh ra ba hồi quy liên tiếp — lần sửa ENOENT (hay sửa câu
+// "không đọc được (CODE)" mà broken[].reason bị assert theo) tiếp theo sẽ rơi
+// vào một bên (S4-r15).
+const read = readRecord;
 // KHÔNG có parser fence thứ hai: tiêu chí "đọc được" là CHÍNH frontmatterField
 // của evidence-core trả ra key bắt buộc (S4-r1: hasFm riêng đã chặt hơn reader
 // chuẩn — CRLF/dòng trắng đầu file bị báo hỏng oan trong khi mọi cổng khác đọc được)
@@ -85,6 +95,9 @@ const VERDICT_MEANING = {
   'BLOCKED':          { settled: false, nextStep: 'S4' },
 };
 const offVocab = verdict => ({ file: 'evidence-report.md', reason: `verdict không nhận diện được: ${verdict}` });
+// verdict của PHIÊN NGHIỆM THU → ô kết cục. Giá trị ngoài bảng này không tới
+// được đây: luật chung đã gọi nó là hồ sơ hỏng trước đó.
+const UAT_STATE = { release: 'released', iterate: 'uat-iterate', kill: 'uat-kill' };
 // Khớp CHẶT khuôn tên plan YYYY-MM-DD-<slug>.md — substring trần khiến slug là
 // tiền tố của slug khác dính plan không phải của nó (S4-r1, nextStep S3 oan)
 const planSlug = f => { const m = f.match(/^\d{4}-\d{2}-\d{2}-(.+)\.md$/); return m ? m[1] : null; };
@@ -133,7 +146,39 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
         signoff: eTxt != null ? (frontmatterField(eTxt, 'human_signoff') || '') : '',
       };
     };
-    if (status === 'signed-off') done.push({ slug, state: 'signed-off' });
+    // uat-session.md CHỈ được tiêu thụ ở nhánh signed-off — một phiên nghiệm
+    // thu nằm cạnh hợp đồng còn draft là hồ sơ chưa tới lượt, lỗi của nó không
+    // được quyết định ô của slug (cùng doctrine với opportunity/evidence ở
+    // trên, học qua 4 round của start-scan-hardening).
+    if (status === 'signed-off') {
+      const uRead = read(path.join(dir, 'uat-session.md'));
+      if (uRead.err) { broken.push({ slug, file: 'uat-session.md', reason: ioReason(uRead.err) }); continue; }
+      const uTxt = uRead.t;
+      // Đường A (cơ hội đã quyết build/iterate) còn MỘT cổng người nữa: phiên
+      // nghiệm thu. Đường B/C/E ship thẳng — không dựng phiên giả cho chúng.
+      // CÓ đọc opportunity.md hay không là câu hỏi của luật chung, không phải
+      // của chỗ này: đọc lười vẫn giữ (lỗi quyền ở file không dùng tới không
+      // được quyết định ô của slug), nhưng điều kiện thì hỏi usesOpportunity.
+      let oTxt = null;
+      if (usesOpportunity(cTxt, uTxt)) {
+        const oR = read(oPath);
+        if (oR.err) { broken.push({ slug, file: 'opportunity.md', reason: ioReason(oR.err) }); continue; }
+        oTxt = oR.t;
+      }
+      // MỘT lượt hỏi luật chung cho CẢ tập hồ sơ được tiêu thụ. Kiểm tay từng
+      // field là cách chắc chắn sót một field — sót field nào thì bản đồ với
+      // bộ quét lệch nhau đúng ở đó (r12: stage/frontmatter của opportunity;
+      // r13: stage của phiên nghiệm thu, và decision lạ khi stage chưa quyết).
+      const texts = consumedTexts({ contract: cTxt, opportunity: oTxt, uat: uTxt });
+      const problem = recordProblem(texts);
+      if (problem) { broken.push({ slug, ...problem }); continue; }
+      const { decision, verdict } = navValues(texts);
+      // verdict RỖNG = phiên đã dựng nhưng CHƯA ký → rơi xuống ô chờ-Cổng-Giá-trị
+      if (verdict) { done.push({ slug, state: UAT_STATE[verdict] }); continue; }
+      if (decision === 'build' || decision === 'iterate')
+        gates.push({ slug, gate: 'gia-tri', since: since(cPath, fmOrNull(uTxt, 'decided_at')), tier });
+      else done.push({ slug, state: 'signed-off' });
+    }
     else if (status === 'verified') {
       // Bảng phân ô spec: chờ-Cổng-Bằng-chứng = verdict đã-chốt (PASS/PENDING-
       // JUDGMENT) và CHƯA human_signoff — verified không kèm điều kiện là hiện
@@ -165,23 +210,52 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
   // Không có contract.md — GIỜ mới đọc opportunity.md (xem ghi chú ở trên)
   const oRead = read(oPath);
   if (oRead.err) { broken.push({ slug, file: 'opportunity.md', reason: ioReason(oRead.err) }); continue; }
-  const oTxt = oRead.t;
-  if (oTxt != null) {
-    const stageRaw = fmOrNull(oTxt, 'stage');
-    if (stageRaw == null) { broken.push({ slug, file: 'opportunity.md', reason: 'frontmatter không parse được hoặc thiếu stage' }); continue; }
-    const stage = stageRaw.toLowerCase();
-    const decision = (frontmatterField(oTxt, 'decision') || '').toLowerCase();
-    if (stage !== 'decided' || !decision) gates.push({ slug, gate: 'dang', since: since(oPath, frontmatterField(oTxt, 'decided_at')), tier: null });
-    else if (decision === 'build' || decision === 'iterate') inProgress.push({ slug, status: 'opportunity-decided', nextStep: 'S1', tier: null });
-    else if (decision === 'park' || decision === 'kill') done.push({ slug, state: decision });
-    else broken.push({ slug, file: 'opportunity.md', reason: `decision không nhận diện được: ${decision}` });
-  } else {
-    broken.push({ slug, file: '(workspace)', reason: 'không có contract.md lẫn opportunity.md' });
-  }
+  // MỌI field điều hướng qua LUẬT CHUNG, kể cả khi trạng thái không dùng tới
+  // nó để xếp ô. Bảng enum chép tay ở đây là chỗ r13 lệch: `decision` ngoài từ
+  // vựng lọt im lặng vì nhánh `stage !== 'decided'` rẽ TRƯỚC khi nó được đối
+  // chiếu — hồ sơ ghi dở phải được NÊU TÊN, không hoá thành "chờ-Cổng-Đáng".
+  // recordProblem cũng trả luôn ca không-có-cả-hai-hồ-sơ (ANCHOR_FILES).
+  const texts = consumedTexts({ contract: null, opportunity: oRead.t, uat: null });
+  const problem = recordProblem(texts);
+  if (problem) { broken.push({ slug, ...problem }); continue; }
+  const { stage, decision } = navValues(texts);
+  if (stage !== 'decided' || !decision) gates.push({ slug, gate: 'dang', since: since(oPath, fmOrNull(oRead.t, 'decided_at')), tier: null });
+  else if (decision === 'build' || decision === 'iterate') inProgress.push({ slug, status: 'opportunity-decided', nextStep: 'S1', tier: null });
+  else done.push({ slug, state: decision });
 }
 gates.sort((a, b) => String(a.since).localeCompare(String(b.since)));
 
-const skipped = [{ source: 'phiên-nghiệm-thu', reason: 'nguồn chưa dựng — F-B' }];
-if (!existsSync(path.join(root, 'PRODUCT-MAP.md'))) skipped.unshift({ source: 'PRODUCT-MAP.md', reason: 'chưa có — F-B' });
+// Hai nguồn từng vắng (PRODUCT-MAP, phiên nghiệm thu) đã dựng ở F-B, nên mảng
+// skipped[] không còn nguồn sinh nào và đã được gỡ: một khoá khai mà không thứ
+// gì sinh ra được là hợp đồng chết — case round-trip P99 đòi mọi khoá khai
+// phải soi được trong đầu ra THẬT.
+const mapPath = path.join(root, 'PRODUCT-MAP.md');
+// `enabled` = repo NÀY đã bật bản đồ chưa (PRODUCT-MAP.md có trong
+// risk_tiers.t1_skip_globs). Không có tín hiệu này thì thẻ hứa với repo dựng
+// trước 1.31.0 rằng "bản đồ sẽ tự vẽ ở lần ký cổng kế" — trong khi đường
+// đọc-cũ dặn CẢ NĂM thân cổng người BỎ QUA đúng ở repo đó, nên lời hứa không
+// bao giờ thành sự thật và người đợi một thứ không tới (S4-r14).
+// Đọc bằng LUẬT CHUNG (configList), không phải regex quét cả file: khoá này
+// đã có hai bên đọc khác trong repo (pre-merge-check.sh cắt đúng section, và
+// năm thân cổng người được dặn đọc `risk_tiers.t1_skip_globs`). Regex toàn file
+// sai cả hai chiều — comment đuôi dòng thành "chưa bật", và cùng chuỗi nằm dưới
+// một list khác thành "đã bật" (S4-r15).
+const cfgRead = read(path.join(root, '_acceptance', 'config.yaml'));
+const map = {
+  present: existsSync(mapPath),
+  fresh: null,
+  // Không đọc được config KHÔNG phải "chưa bật" — nói thẳng là chưa biết, để
+  // thẻ đừng khuyên bật một thứ có thể đã bật rồi.
+  enabled: cfgRead.err || cfgRead.t == null ? null
+    : configList(cfgRead.t, 't1_skip_globs').includes('PRODUCT-MAP.md'),
+};
+if (map.present) {
+  // fresh = null khi KHÔNG kiểm được (không phải "khớp"): thẻ nói "chưa kiểm
+  // được bản đồ", không nói xanh.
+  try {
+    const { renderProductMap } = await import('./product-map.mjs');
+    map.fresh = readFileSync(mapPath, 'utf8') === renderProductMap(root);
+  } catch { map.fresh = null; }
+}
 
-out({ schema_version: 1, config: true, git, groups: { gates, inProgress, done }, skipped, broken });
+out({ schema_version: 1, config: true, git, groups: { gates, inProgress, done }, map, broken });
