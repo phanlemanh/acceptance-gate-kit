@@ -3109,8 +3109,8 @@ PY
 # Fixture cua moi case sau nay rut tu marker nay; case nay chung minh khuon
 # VIET va khuon MAY DOC con khop. Doi chung duong truoc, roi tiem hong.
 run "P102 khuon canonical 3 artifact rut duoc + frontmatterField doc duoc (E1,E8)" \
-  node --input-type=module -e '
-const root = process.argv[1];
+  node --input-type=module - "$ROOT" <<'P102JS'
+const root = process.argv[2];  // dang stdin: argv[1] la "-"
 const path = await import("node:path");
 const { createRequire } = await import("node:module");
 const require = createRequire(import.meta.url);
@@ -3144,7 +3144,177 @@ for (const [file, marker, values, expect] of cases) {
   if (!threw) die(file + ": marker sai ma helper van tra ve noi dung");
 }
 console.log("P102 OK");
-' "$ROOT"
+P102JS
+
+# ── P103-P105: bo sinh ban do — bucket, bat bien, xac dinh, canh ───────────
+# Fixture code-sinh trong chinh lan chay, RUT TU KHUON canonical (P102 canh
+# khuon do). Moi case am tinh co doi chung duong truoc va ghim dung thong diep.
+run "P103 product-map bucket du moi hang + enum-lac tung field dieu huong (E1)" \
+  node --input-type=module - "$ROOT" <<'P103JS'
+const root = process.argv[2];  // dang stdin: argv[1] la "-"
+const fs = await import("node:fs"); const os = await import("node:os");
+const path = await import("node:path");
+const { renderProductMap } = await import(path.join(root, "scripts/product-map.mjs"));
+const { fileFromTemplate } = await import(path.join(root, "tests/fixtures/from-template.mjs"));
+const R = p => path.join(root, "skills/acceptance/references", p);
+const die = m => { console.error(m); process.exit(1); };
+
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "p103-"));
+const W = (rel, s) => { const p = path.join(tmp, rel);
+  fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, s); };
+const contract = (slug, status) => fileFromTemplate(R("contract-template.md"),
+  "CONTRACT-FRONTMATTER-TEMPLATE",
+  { feature: "viec " + slug, slug, owner: "o@o", risk_tier: "T2", surfaces: "cli", status });
+const opp = (slug, stage, decision) => fileFromTemplate(R("opportunity-template.md"),
+  "OPP-FRONTMATTER-TEMPLATE",
+  { slug, feature: "co hoi " + slug, owner: "o@o", stage, decision, decided_by: "M",
+    decided_at: "2026-08-01T00:00:00Z", gate0_minutes: "10", base_commit: "abc",
+    disposition: "archive" });
+const uat = (slug, verdict) => fileFromTemplate(R("uat-session-template.md"),
+  "UAT-FRONTMATTER-TEMPLATE",
+  { slug, feature: "phien " + slug, owner: "o@o", stage: "held", verdict,
+    decided_by: "M", decided_at: "2026-08-02T00:00:00Z", gateUAT_minutes: "20" });
+
+W("_acceptance/config.yaml", "schema_version: 1\n");
+W("_acceptance/a-can-nhac/opportunity.md", opp("a-can-nhac", "discovery", ""));
+W("_acceptance/b-sap-mo/opportunity.md", opp("b-sap-mo", "decided", "build"));
+W("_acceptance/c-cho-duyet/contract.md", contract("c-cho-duyet", "draft"));
+W("_acceptance/d-dang-dung/contract.md", contract("d-dang-dung", "approved"));
+W("_acceptance/e-cho-nghiem-thu/contract.md", contract("e-cho-nghiem-thu", "signed-off"));
+W("_acceptance/e-cho-nghiem-thu/opportunity.md", opp("e-cho-nghiem-thu", "decided", "build"));
+W("_acceptance/f-da-ship/contract.md", contract("f-da-ship", "signed-off"));
+W("_acceptance/g-release/contract.md", contract("g-release", "signed-off"));
+W("_acceptance/g-release/opportunity.md", opp("g-release", "decided", "build"));
+W("_acceptance/g-release/uat-session.md", uat("g-release", "release"));
+W("_acceptance/h-kill/contract.md", contract("h-kill", "signed-off"));
+W("_acceptance/h-kill/uat-session.md", uat("h-kill", "kill"));
+W("_acceptance/i-xep-lai/opportunity.md", opp("i-xep-lai", "decided", "park"));
+W("_acceptance/j-bac/opportunity.md", opp("j-bac", "decided", "kill"));
+W("_acceptance/k-hong/contract.md", "khong co frontmatter\n");
+W(".out-of-scope/mot-de-xuat-da-bac.md", "# Mien tru X — DA TU CHOI\n\nvan xuoi\n");
+
+const sectionOfIn = (txt, slug) => {
+  let cur = null;
+  for (const line of txt.split("\n")) {
+    if (line.startsWith("## ")) cur = line.slice(3).trim();
+    if (line.includes("**" + slug + "**")) return cur;
+  }
+  return null;
+};
+const out = renderProductMap(tmp);
+const EXPECT = {
+  "a-can-nhac": "Đang cân nhắc cơ hội",
+  "b-sap-mo": "Sắp mở vòng",
+  "c-cho-duyet": "Vòng đang mở — chờ duyệt phạm vi",
+  "d-dang-dung": "Vòng đang mở — đang dựng và nghiệm thu máy",
+  "e-cho-nghiem-thu": "Đã ship — chờ phiên nghiệm thu",
+  "f-da-ship": "Đã ship",
+  "g-release": "Đã nghiệm thu giá trị",
+  "h-kill": "Đã nghiệm thu giá trị",
+  "i-xep-lai": "Xếp lại sau",
+  "j-bac": "Đã bác từ khám phá",
+  "k-hong": "Hồ sơ hỏng",
+};
+for (const [slug, sec] of Object.entries(EXPECT))
+  if (sectionOfIn(out, slug) !== sec)
+    die(slug + ": nam o " + JSON.stringify(sectionOfIn(out, slug)) + ", mong " + JSON.stringify(sec));
+if (!out.includes("Mien tru X — DA TU CHOI")) die("thieu muc ngoai pham vi (title dong # dau file)");
+const khoiNghiemThu = (out.split("Đã nghiệm thu giá trị")[1] || "").split("\n## ")[0];
+if (!/release/i.test(khoiNghiemThu) || !/kill/i.test(khoiNghiemThu))
+  die("muc da nghiem thu khong ghi ket cuc tung slug");
+for (const slug of Object.keys(EXPECT)) {
+  const n = out.split("**" + slug + "**").length - 1;
+  if (n !== 1) die(slug + " xuat hien " + n + " lan trong map");
+}
+
+const MUT = [
+  ["d-dang-dung/contract.md", "status: approved", "status: xong-roi", "status"],
+  ["a-can-nhac/opportunity.md", "stage: discovery", "stage: dang-nghi", "stage"],
+  ["b-sap-mo/opportunity.md", "decision: build", "decision: Build-hoa", "decision"],
+  ["g-release/uat-session.md", "verdict: release", "verdict: done", "verdict"],
+];
+for (const [rel, from, to, field] of MUT) {
+  const p = path.join(tmp, "_acceptance", rel);
+  const orig = fs.readFileSync(p, "utf8");
+  if (!orig.includes(from)) die("fixture " + rel + " khong chua \"" + from + "\" — buoc tiem chua bao gio chay");
+  fs.writeFileSync(p, orig.replace(from, to));
+  const slug = rel.split("/")[0];
+  const mutated = renderProductMap(tmp);
+  const cur = sectionOfIn(mutated, slug);
+  if (cur !== "Hồ sơ hỏng")
+    die("enum-lac o " + field + " (" + rel + "): slug nam o " + JSON.stringify(cur) + ", mong Ho so hong");
+  const hongBlock = (mutated.split("## Hồ sơ hỏng")[1] || "");
+  if (!hongBlock.includes(field) || !hongBlock.includes(to.split(": ")[1]))
+    die("enum-lac o " + field + ": muc Ho so hong khong neu ten field + gia tri la");
+  fs.writeFileSync(p, orig);
+}
+console.log("P103 OK");
+P103JS
+
+run "P104 map GIU NGUYEN qua approved->implemented->verified; DOI qua cong nguoi (E2)" \
+  node --input-type=module - "$ROOT" <<'P104JS'
+const root = process.argv[2];  // dang stdin: argv[1] la "-"
+const fs = await import("node:fs"); const os = await import("node:os");
+const path = await import("node:path");
+const { renderProductMap } = await import(path.join(root, "scripts/product-map.mjs"));
+const { fileFromTemplate } = await import(path.join(root, "tests/fixtures/from-template.mjs"));
+const die = m => { console.error(m); process.exit(1); };
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "p104-"));
+const W = (rel, s) => { const p = path.join(tmp, rel);
+  fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, s); };
+const contract = status => fileFromTemplate(
+  path.join(root, "skills/acceptance/references/contract-template.md"),
+  "CONTRACT-FRONTMATTER-TEMPLATE",
+  { feature: "viec x", slug: "x", owner: "o@o", risk_tier: "T2", surfaces: "cli", status });
+W("_acceptance/config.yaml", "schema_version: 1\n");
+W("_acceptance/x/contract.md", contract("approved"));
+const cPath = path.join(tmp, "_acceptance/x/contract.md");
+const base = renderProductMap(tmp);
+for (const s of ["implemented", "verified"]) {
+  fs.writeFileSync(cPath, contract(s));
+  if (renderProductMap(tmp) !== base)
+    die("map DOI khi chuyen may sang " + s + " — --check se do oan giua vong");
+}
+// doi chung DUONG: qua cong NGUOI thi map PHAI doi, khong thi phep do nay chet
+fs.writeFileSync(cPath, contract("signed-off"));
+if (renderProductMap(tmp) === base) die("map khong doi khi da ky signed-off — bucket khong con phan biet gi");
+fs.writeFileSync(cPath, contract("draft"));
+if (renderProductMap(tmp) === base) die("map khong doi giua draft va approved — phep do nay khong song");
+console.log("P104 OK");
+P104JS
+
+run "P105 render 2 lan giong het + sort theo slug + canh chi hien khi ho so co (E4,E5)" \
+  node --input-type=module - "$ROOT" <<'P105JS'
+const root = process.argv[2];  // dang stdin: argv[1] la "-"
+const fs = await import("node:fs"); const os = await import("node:os");
+const path = await import("node:path");
+const { renderProductMap } = await import(path.join(root, "scripts/product-map.mjs"));
+const { fileFromTemplate } = await import(path.join(root, "tests/fixtures/from-template.mjs"));
+const die = m => { console.error(m); process.exit(1); };
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "p105-"));
+const W = (rel, s) => { const p = path.join(tmp, rel);
+  fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, s); };
+const contract = (slug, extra = "") => fileFromTemplate(
+  path.join(root, "skills/acceptance/references/contract-template.md"),
+  "CONTRACT-FRONTMATTER-TEMPLATE",
+  { feature: "viec " + slug, slug, owner: "o@o", risk_tier: "T2", surfaces: "cli",
+    status: "draft" }).replace("status: draft", "status: draft" + extra);
+W("_acceptance/config.yaml", "schema_version: 1\n");
+// tao KHONG theo thu tu chu, de chung minh sort theo slug chu khong theo thu tu file
+W("_acceptance/zebra/contract.md", contract("zebra"));
+W("_acceptance/alpha/contract.md", contract("alpha", "\nepic: nen-tang\nrelates: zebra"));
+W("_acceptance/mike/contract.md", contract("mike"));
+const a = renderProductMap(tmp), b = renderProductMap(tmp);
+if (a !== b) die("hai lan render khac nhau — --check khong the tin duoc");
+const order = ["alpha", "mike", "zebra"].map(s => a.indexOf("**" + s + "**"));
+if (!(order[0] < order[1] && order[1] < order[2])) die("khong sort theo slug: " + JSON.stringify(order));
+const lineOf = s => a.split("\n").find(l => l.includes("**" + s + "**")) || "";
+if (!lineOf("alpha").includes("epic: nen-tang") || !lineOf("alpha").includes("liên quan: zebra"))
+  die("canh co trong ho so ma khong hien: " + lineOf("alpha"));
+if (/epic|thay thế|liên quan/.test(lineOf("zebra")))
+  die("slug khong khai canh ma dong van co nhan canh: " + lineOf("zebra"));
+console.log("P105 OK");
+P105JS
 
 if [ "$failures" -gt 0 ]; then
   echo
