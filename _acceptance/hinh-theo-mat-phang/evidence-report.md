@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 62444dfd5f6ce79836034b2695bc69f87425495d
+verified_commit: 6f3449c5b92c5ba1a7f5a7716fd83ade7fdeb8e7
 # bypass_ack:
 human_signoff: Manh Phan 2026-08-02          # Gate 2 — human writes "<name> <ISO date>" AFTER review
 ---
@@ -187,11 +187,13 @@ Round 6: E1-E11 pass (11/11) tại commit 2b6823d (HEAD) — chấm lại toàn 
 - **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
   `human_override` giữ nguyên.
 
-### Re-pin — 2026-08-03 (sau product-map-uat-session), tại 62444df
+### Re-pin — 2026-08-03 (sau start-scan-hardening), tại 6f3449c
 
-Machine lane do agent TƯƠI của S4 round 11 (`wf_7c6d877e-022`, doer≠grader)
-chạy tại đúng sha `62444dfd5f6ce79836034b2695bc69f87425495d`: 5 suite exit 0 —
-scripts 596 pass · hooks 51 pass · plugins pass (P01–P127, gồm case của slug
-này) · workflows pass · mirror `sync-plugin-packages.sh --check` in sync. Bản
-đồ sản phẩm `--check` exit 0 cùng lượt. Judgment + chữ ký của slug này GIỮ
-NGUYÊN — chỉ đổi mốc ghim của làn máy.
+- **Machine lane chạy lại bởi agent TƯƠI** (S4 round 5 của feature
+  `start-scan-hardening`, Workflow `wf_4cdd5992-610`, doer≠grader): 5 suite tại
+  `6f3449c5b92c5ba1a7f5a7716fd83ade7fdeb8e7` — scripts 596 pass · hooks 51 pass ·
+  plugins pass (P01–P105, gồm case của slug này) · workflows pass ·
+  `sync-plugin-packages.sh --check` mirror in sync — tất cả exit 0.
+- `verified_commit` re-pin → `6f3449c5b92c5ba1a7f5a7716fd83ade7fdeb8e7` (chỉ dòng máy).
+- **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
+  `human_override` giữ nguyên.

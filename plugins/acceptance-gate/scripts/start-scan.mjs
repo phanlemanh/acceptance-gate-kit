@@ -4,35 +4,51 @@
 // CHỈ-ĐỌC tuyệt đối. Đầu ra: JSON một dòng (schema_version 1) — các key mà
 // commands/start.md đọc được ghim trong khối START-SCAN-KEYS của chính file đó;
 // case P99 round-trip giữ hai đầu khớp, P98 giữ bảng phân ô.
-// Hai nguồn từng vắng (PRODUCT-MAP, phiên nghiệm thu) đã dựng ở F-B, nên
-// mảng skipped[] không còn nguồn sinh nào và đã được gỡ: một khoá khai mà
-// không thứ gì sinh ra được là hợp đồng chết — case round-trip P99 đòi mọi
-// khoá khai phải soi được trong đầu ra THẬT. Cần bỏ-qua-có-tên trở lại thì
-// nó quay lại CÙNG nguồn sinh của nó.
+// F-B: đọc thêm uat-session.md (ô Cổng Giá trị) + trạng thái bản đồ sản phẩm.
+// Ô chưa có nguồn (PRODUCT-MAP, phiên nghiệm thu) emit skipped[] có tên —
+// KHÔNG bịa dữ liệu thay thế (ledger d-descope 03/08 của start-command).
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { renderProductMap } from './product-map.mjs';
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence-core.js'));
-// Cùng luật "hồ sơ có hỏng không" với bản đồ sản phẩm — hai bên đọc cùng bộ
-// hồ sơ thì không được cho hai kết luận trái nhau (S4-r1, case P123).
-const { recordProblem, navValues } =
-  require(path.join(__dirname, '..', 'lib', 'workspace-record.js'));
 
+// Argv hỏng CHẾT TO (exit 2), không âm thầm rơi về cwd: một cờ được KHAI mà
+// dùng không được lại đổi nghĩa lệnh thành "quét cây khác rồi báo thành công",
+// và `--root` sai biến lỗi gõ lệnh thành chẩn đoán "repo chưa dựng cổng".
+// Cùng doctrine với pre-merge-check v1.22.1 + sync-plugin-packages (mode lạ).
+// MỖI lối một thông điệp riêng — dùng chung một câu thì đột biến chỉ chứng
+// minh được một nhánh (bài học P95).
 const args = process.argv.slice(2);
-const rootIx = args.indexOf('--root');
-const root = path.resolve(rootIx >= 0 && args[rootIx + 1] ? args[rootIx + 1] : '.');
+const bail = msg => { process.stderr.write(`start-scan: ${msg}\n`); process.exit(2); };
+let rootArg = '.';
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === '--root') {
+    if (i + 1 >= args.length) bail('--root khai báo nhưng thiếu giá trị — nêu thư mục repo cần quét');
+    if (args[i + 1] === '') bail('--root nhận chuỗi rỗng — nêu thư mục repo cần quét');
+    rootArg = args[++i];
+  } else bail(`tham số lạ ${args[i]} — chỉ nhận --root <thư mục>`);
+}
+const root = path.resolve(rootArg);
+if (!existsSync(root)) bail(`--root trỏ đường dẫn không tồn tại: ${root}`);
+if (!statSync(root).isDirectory()) bail(`--root trỏ vào thứ không phải thư mục: ${root}`);
 const out = obj => process.stdout.write(JSON.stringify(obj) + '\n');
 
 const acc = path.join(root, '_acceptance');
 if (!existsSync(path.join(acc, 'config.yaml'))) { out({ schema_version: 1, config: false }); process.exit(0); }
 
-const read = p => { try { return readFileSync(p, 'utf8'); } catch { return null; } };
+// ENOENT (file vắng) là tin bình thường; MỌI lỗi khác là sự thật phải nêu tên —
+// nuốt chung một rọ biến "mất quyền đọc" thành "không có file", và slug bị phân
+// ô theo artifact bên cạnh (Cổng 2 start-command, known-limit 1).
+const read = p => {
+  try { return { t: readFileSync(p, 'utf8'), err: null }; }
+  catch (e) { return e.code === 'ENOENT' ? { t: null, err: null } : { t: null, err: e }; }
+};
+const ioReason = err => `không đọc được (${err.code})`;
 // KHÔNG có parser fence thứ hai: tiêu chí "đọc được" là CHÍNH frontmatterField
 // của evidence-core trả ra key bắt buộc (S4-r1: hasFm riêng đã chặt hơn reader
 // chuẩn — CRLF/dòng trắng đầu file bị báo hỏng oan trong khi mọi cổng khác đọc được)
@@ -48,6 +64,28 @@ const git = (() => {
 })();
 
 const gates = [], inProgress = [], done = [], broken = [];
+// MỘT từ vựng verdict cho MỌI nhánh: nhánh `verified` gọi tên giá trị lạ trong
+// khi nhánh `implemented` nuốt im lặng là chỗ duy nhất cùng một artifact hỏng
+// được phát hiện hay không tuỳ status của contract (Cổng 2 start-command, known-limit 3).
+// Từ vựng phải khớp bên VIẾT, không phải trí nhớ của bên đọc: nguồn là
+// skills/acceptance/references/evidence-report-template.md (dòng `verdict:`),
+// và acceptance-verify.js tự sinh BLOCKED khi verifier không chạy được.
+// Bỏ sót BLOCKED = một vòng đang dở bị chặn môi trường bị gọi là "hồ sơ hỏng"
+// rồi biến khỏi danh sách chọn của /start (S4-r2, thoái lui do chính vòng này gây).
+// P104 round-trip rút từ vựng TỪ khuôn writer rồi đọc bằng reader — hai đầu hết trôi.
+// MỘT bảng tra verdict → ý nghĩa, CẢ HAI nhánh status đọc chung. Hai danh sách
+// song song ở hai nhánh là hình dạng đã hỏng HAI round liên tiếp: r2 bỏ sót
+// BLOCKED ở nhánh implemented, r3 bỏ sót đúng nó ở nhánh verified. Gộp về một
+// bảng để khi khuôn writer thêm giá trị thì chỉ còn MỘT chỗ phải sửa.
+//   settled=true  → máy chấm xong, việc còn lại là của NGƯỜI (cổng bằng chứng)
+//   settled=false → máy chưa xong, còn việc của MÁY (nextStep)
+const VERDICT_MEANING = {
+  'PASS':             { settled: true,  nextStep: 'S4' },
+  'PENDING-JUDGMENT': { settled: true,  nextStep: 'S4' },
+  'REJECT':           { settled: false, nextStep: 'S3-fix' },
+  'BLOCKED':          { settled: false, nextStep: 'S4' },
+};
+const offVocab = verdict => ({ file: 'evidence-report.md', reason: `verdict không nhận diện được: ${verdict}` });
 // Khớp CHẶT khuôn tên plan YYYY-MM-DD-<slug>.md — substring trần khiến slug là
 // tiền tố của slug khác dính plan không phải của nó (S4-r1, nextStep S3 oan)
 const planSlug = f => { const m = f.match(/^\d{4}-\d{2}-\d{2}-(.+)\.md$/); return m ? m[1] : null; };
@@ -62,66 +100,140 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
   const slug = entry.name;
   const dir = path.join(acc, slug);
   const cPath = path.join(dir, 'contract.md'), oPath = path.join(dir, 'opportunity.md');
-  const uPath = path.join(dir, 'uat-session.md');
-  const cTxt = read(cPath), oTxt = read(oPath), uTxt = read(uPath);
-  const texts = { 'contract.md': cTxt, 'opportunity.md': oTxt, 'uat-session.md': uTxt };
-
-  // Luật chung TRƯỚC mọi phân ô: hồ sơ này đọc được không.
-  const problem = recordProblem(texts);
-  if (problem) { broken.push({ slug, file: problem.file, reason: problem.reason }); continue; }
-  const nav = navValues(texts);
-
-  // Hồ sơ phiên nghiệm thu là artifact MUỘN NHẤT — tra trước contract.
-  // verdict RỖNG = phiên đã dựng nhưng CHƯA ký → vẫn là ô chờ-Cổng-Giá-trị,
-  // rơi xuống nhánh contract bên dưới.
-  if (nav.verdict) {
-    const UAT_STATE = { release: 'released', iterate: 'uat-iterate', kill: 'uat-kill' };
-    done.push({ slug, state: UAT_STATE[nav.verdict] });
-    continue;
-  }
+  // opportunity.md CHỈ được đọc khi KHÔNG có contract.md (nhánh else bên dưới).
+  // Đọc-rồi-bail vô điều kiện khiến một việc có hợp đồng lành mạnh đang chờ ký
+  // biến khỏi thẻ chỉ vì một file không bao giờ dùng tới bị lỗi quyền (S4-r3,
+  // lỗi trong hợp đồng do chính round 1 gây). Lỗi của file KHÔNG dùng tới thì
+  // không được quyết định ô của slug.
+  const cRead = read(cPath);
+  if (cRead.err) { broken.push({ slug, file: 'contract.md', reason: ioReason(cRead.err) }); continue; }
+  const cTxt = cRead.t;
   if (cTxt != null) {
-    const status = nav.status;
+    const statusRaw = fmOrNull(cTxt, 'status');
+    if (statusRaw == null) { broken.push({ slug, file: 'contract.md', reason: 'frontmatter không parse được hoặc thiếu status' }); continue; }
+    const status = statusRaw.toLowerCase();
     const tier = frontmatterField(cTxt, 'risk_tier') || null;
-    const eTxt = read(path.join(dir, 'evidence-report.md'));
-    if (eTxt != null && fmOrNull(eTxt, 'verdict') == null) { broken.push({ slug, file: 'evidence-report.md', reason: 'frontmatter không parse được hoặc thiếu verdict' }); continue; }
-    const verdict = eTxt != null ? frontmatterField(eTxt, 'verdict').toUpperCase() : null;
+    // evidence-report.md CHỈ được đọc trong hai nhánh tiêu thụ nó (verified,
+    // implemented). Chốt lỗi đặt TRƯỚC chỗ rẽ trạng thái là lớp lỗi đã dẫm 4
+    // round (r1: opportunity, r4: chính file này) — lỗi của hồ sơ mà trạng thái
+    // hiện tại KHÔNG cần vẫn quyết định ô của slug. Câu hỏi kiểm đúng: "MỌI lối
+    // đi qua chốt này có dùng file đó không?" — không phải "file có được dùng
+    // đâu đó không". Helper trả null = đã kết luận broken, nhánh gọi dừng luôn.
+    // P105 ghim TOÀN BỘ ma trận (trạng thái × tình trạng evidence): chốt dời
+    // ngược lên là ma trận đỏ.
+    const readEvidence = () => {
+      const eRead = read(path.join(dir, 'evidence-report.md'));
+      if (eRead.err) { broken.push({ slug, file: 'evidence-report.md', reason: ioReason(eRead.err) }); return null; }
+      const eTxt = eRead.t;
+      // Rỗng = VẮNG, kết luận một chỗ cho cả hai nhánh (S4-r1: frontmatterField
+      // trả '' cho key-có-giá-trị-rỗng nên `== null` để lọt xuống offVocab(''))
+      if (eTxt != null && !fmOrNull(eTxt, 'verdict')) { broken.push({ slug, file: 'evidence-report.md', reason: 'frontmatter không parse được hoặc thiếu verdict' }); return null; }
+      return {
+        exists: eTxt != null,
+        verdict: eTxt != null ? frontmatterField(eTxt, 'verdict').toUpperCase() : null,
+        signoff: eTxt != null ? (frontmatterField(eTxt, 'human_signoff') || '') : '',
+      };
+    };
+    // uat-session.md CHỈ được tiêu thụ ở nhánh signed-off — một phiên nghiệm
+    // thu nằm cạnh hợp đồng còn draft là hồ sơ chưa tới lượt, lỗi của nó không
+    // được quyết định ô của slug (cùng doctrine với opportunity/evidence ở
+    // trên, học qua 4 round của start-scan-hardening).
     if (status === 'signed-off') {
+      const uRead = read(path.join(dir, 'uat-session.md'));
+      if (uRead.err) { broken.push({ slug, file: 'uat-session.md', reason: ioReason(uRead.err) }); continue; }
+      const uTxt = uRead.t;
+      if (uTxt != null) {
+        const vRaw = fmOrNull(uTxt, 'verdict');
+        if (vRaw == null) { broken.push({ slug, file: 'uat-session.md', reason: 'frontmatter không parse được hoặc thiếu verdict' }); continue; }
+        const v = vRaw.toLowerCase();
+        // verdict RỖNG = phiên đã dựng nhưng CHƯA ký → rơi xuống ô chờ-Cổng-Giá-trị
+        if (v) {
+          const UAT_STATE = { release: 'released', iterate: 'uat-iterate', kill: 'uat-kill' };
+          if (!UAT_STATE[v]) { broken.push({ slug, file: 'uat-session.md', reason: `verdict không nhận diện được: ${vRaw}` }); continue; }
+          done.push({ slug, state: UAT_STATE[v] }); continue;
+        }
+      }
       // Đường A (cơ hội đã quyết build/iterate) còn MỘT cổng người nữa: phiên
       // nghiệm thu. Đường B/C/E ship thẳng — không dựng phiên giả cho chúng.
-      if (nav.decision === 'build' || nav.decision === 'iterate')
+      // opportunity.md ở ĐÂY là hồ sơ được tiêu thụ, nên đọc tại chỗ.
+      const oR = read(oPath);
+      if (oR.err) { broken.push({ slug, file: 'opportunity.md', reason: ioReason(oR.err) }); continue; }
+      const oDec = oR.t != null ? (frontmatterField(oR.t, 'decision') || '').toLowerCase() : '';
+      if (oDec && !['build', 'iterate', 'park', 'kill'].includes(oDec)) {
+        broken.push({ slug, file: 'opportunity.md', reason: `decision không nhận diện được: ${oDec}` }); continue;
+      }
+      if (oDec === 'build' || oDec === 'iterate')
         gates.push({ slug, gate: 'gia-tri', since: since(cPath, fmOrNull(uTxt, 'decided_at')), tier });
       else done.push({ slug, state: 'signed-off' });
     }
     else if (status === 'verified') {
-      // Bảng phân ô spec: chờ-Cổng-Bằng-chứng = verdict PASS/PENDING-JUDGMENT
-      // và CHƯA human_signoff — verified không kèm điều kiện là hiện "chờ ký" oan (S4-r1)
-      const signoff = eTxt != null ? (frontmatterField(eTxt, 'human_signoff') || '') : '';
-      if (verdict == null) broken.push({ slug, file: '(workspace)', reason: 'status verified nhưng thiếu evidence-report.md' });
-      else if (signoff) done.push({ slug, state: 'signed-off' });
-      else if (verdict === 'PASS' || verdict === 'PENDING-JUDGMENT') gates.push({ slug, gate: 'bang-chung', since: since(cPath, frontmatterField(cTxt, 'approved_at')), tier });
-      else if (verdict === 'REJECT') inProgress.push({ slug, status, nextStep: 'S3-fix', tier });
-      else broken.push({ slug, file: 'evidence-report.md', reason: `verdict không nhận diện được: ${verdict}` });
+      // Bảng phân ô spec: chờ-Cổng-Bằng-chứng = verdict đã-chốt (PASS/PENDING-
+      // JUDGMENT) và CHƯA human_signoff — verified không kèm điều kiện là hiện
+      // "chờ ký" oan (S4-r1)
+      const ev = readEvidence();
+      if (ev) {
+        const meaning = VERDICT_MEANING[ev.verdict];
+        if (!ev.exists) broken.push({ slug, file: '(workspace)', reason: 'status verified nhưng thiếu evidence-report.md' });
+        else if (ev.signoff) done.push({ slug, state: 'signed-off' });
+        else if (!meaning) broken.push({ slug, ...offVocab(ev.verdict) });
+        else if (meaning.settled) gates.push({ slug, gate: 'bang-chung', since: since(cPath, frontmatterField(cTxt, 'approved_at')), tier });
+        else inProgress.push({ slug, status, nextStep: meaning.nextStep, tier });
+      }
     }
-    else if (status === 'implemented') inProgress.push({ slug, status, nextStep: verdict === 'REJECT' ? 'S3-fix' : 'S4', tier });
+    else if (status === 'implemented') {
+      const ev = readEvidence();
+      if (ev) {
+        // Chưa có evidence = máy chưa chấm lần nào → bước kế là nghiệm thu máy
+        const meaning = !ev.exists ? { nextStep: 'S4' } : VERDICT_MEANING[ev.verdict];
+        if (!meaning) broken.push({ slug, ...offVocab(ev.verdict) });
+        else inProgress.push({ slug, status, nextStep: meaning.nextStep, tier });
+      }
+    }
     else if (status === 'approved') inProgress.push({ slug, status, nextStep: planExists(slug) ? 'S3' : 'S2', tier });
     else if (status === 'draft') gates.push({ slug, gate: 'pham-vi', since: since(cPath, null), tier });
-    // status ngoài enum / rỗng đã bị luật chung bắt ở đầu vòng lặp
-  } else if (oTxt != null) {
-    const { stage, decision } = nav;
+    else broken.push({ slug, file: 'contract.md', reason: `status không nhận diện được: ${status || '(rỗng)'}` });
+    continue;
+  }
+  // Không có contract.md — GIỜ mới đọc opportunity.md (xem ghi chú ở trên)
+  const oRead = read(oPath);
+  if (oRead.err) { broken.push({ slug, file: 'opportunity.md', reason: ioReason(oRead.err) }); continue; }
+  const oTxt = oRead.t;
+  if (oTxt != null) {
+    const stageRaw = fmOrNull(oTxt, 'stage');
+    if (stageRaw == null) { broken.push({ slug, file: 'opportunity.md', reason: 'frontmatter không parse được hoặc thiếu stage' }); continue; }
+    const stage = stageRaw.toLowerCase();
+    // stage RỖNG hoặc ngoài từ vựng là hồ sơ ghi dở, phải được NÊU TÊN chứ
+    // không im lặng thành "chờ-Cổng-Đáng" (known-limit 3 của start-scan-
+    // hardening). Bản đồ sản phẩm đã gọi nó là hỏng — hai bên đọc cùng hồ sơ
+    // không được cho hai kết luận trái nhau (case P123).
+    if (!stage || !['discovery', 'decided', 'archived'].includes(stage)) {
+      broken.push({ slug, file: 'opportunity.md', reason: `stage không nhận diện được: ${stageRaw || '(rỗng)'}` });
+      continue;
+    }
+    const decision = (frontmatterField(oTxt, 'decision') || '').toLowerCase();
     if (stage !== 'decided' || !decision) gates.push({ slug, gate: 'dang', since: since(oPath, frontmatterField(oTxt, 'decided_at')), tier: null });
     else if (decision === 'build' || decision === 'iterate') inProgress.push({ slug, status: 'opportunity-decided', nextStep: 'S1', tier: null });
-    else done.push({ slug, state: decision });   // park | kill — enum đã kiểm ở luật chung
+    else if (decision === 'park' || decision === 'kill') done.push({ slug, state: decision });
+    else broken.push({ slug, file: 'opportunity.md', reason: `decision không nhận diện được: ${decision}` });
+  } else {
+    broken.push({ slug, file: '(workspace)', reason: 'không có contract.md lẫn opportunity.md' });
   }
 }
 gates.sort((a, b) => String(a.since).localeCompare(String(b.since)));
 
+// Hai nguồn từng vắng (PRODUCT-MAP, phiên nghiệm thu) đã dựng ở F-B, nên mảng
+// skipped[] không còn nguồn sinh nào và đã được gỡ: một khoá khai mà không thứ
+// gì sinh ra được là hợp đồng chết — case round-trip P99 đòi mọi khoá khai
+// phải soi được trong đầu ra THẬT.
 const mapPath = path.join(root, 'PRODUCT-MAP.md');
 const map = { present: existsSync(mapPath), fresh: null };
 if (map.present) {
   // fresh = null khi KHÔNG kiểm được (không phải "khớp"): thẻ nói "chưa kiểm
   // được bản đồ", không nói xanh.
-  try { map.fresh = readFileSync(mapPath, 'utf8') === renderProductMap(root); }
-  catch { map.fresh = null; }
+  try {
+    const { renderProductMap } = await import('./product-map.mjs');
+    map.fresh = readFileSync(mapPath, 'utf8') === renderProductMap(root);
+  } catch { map.fresh = null; }
 }
 
 out({ schema_version: 1, config: true, git, groups: { gates, inProgress, done }, map, broken });

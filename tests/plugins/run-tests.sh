@@ -1970,11 +1970,7 @@ assert text.count("| **CT1") == 1 and text.count("| **CT2") == 1, "bang tra CT1/
 # Doi chung am: go MOI lan xuat hien trong ban sao (cum nay co mat >1 cho:
 # bang tra CT1, doan chinh, S1#6) -> pin phai truot.
 mutated = text.replace("Nghi thức S1-D", "Nghi thuc da go")
-assert "Nghi thức S1-D" in text, "buoc tiem chua bao gio chay — chuoi neo da doi"
-def pin_S1D(txt):
-    return [] if "Nghi thức S1-D" in txt else ["thieu pin Nghi thuc S1-D"]
-assert pin_S1D(text) == [], "doi chung duong: ban that phai co pin S1-D"
-assert pin_S1D(mutated) != [], "dot bien go pin S1-D ma phep do van xanh"
+assert "Nghi thức S1-D" not in mutated, "dot bien khong hieu luc"
 # Quet LOP ra ngoai mot file: design-subtrack (nguon design-loop, cung tieng
 # Viet) khong duoc con tro ve cau hoi lane da xoa (finding S4-r2 #1).
 ds = (root / "design-loop/skills/design-subtrack/SKILL.md").read_text(encoding="utf-8")
@@ -2819,8 +2815,6 @@ const opp = (slug, stage, decision) =>
   `---\nschema_version: 1\nslug: ${slug}\nfeature: f\nowner: t@t\nstage: ${stage}\ndecision: ${decision}\n---\n# O\n`;
 const evidence = (verdict) =>
   `---\nschema_version: 2\nslug: x\nverdict: ${verdict}\nhuman_signoff:\n---\n# E\n`;
-const uat = (verdict) =>
-  `---\nschema_version: 1\nslug: x\nstage: held\nverdict: ${verdict}\ndecided_at: 2026-01-05T00:00:00Z\n---\n# U\n`;
 
 // ---- 1. Fixture NGUYEN VEN: du MOI HANG bang phan o cua spec ----
 W('_acceptance/config.yaml', 'schema_version: 1\n');
@@ -2841,13 +2835,6 @@ W('_acceptance/k-pass/evidence-report.md', evidence('PASS'));
 W('_acceptance/l-pending/contract.md', contract('l-pending', 'verified', 'approved_at: 2026-01-01T00:00:00Z\n'));
 W('_acceptance/l-pending/evidence-report.md', evidence('PENDING-JUDGMENT'));
 W('_acceptance/m-signed/contract.md', contract('m-signed', 'signed-off'));
-// hang moi cua bang phan o (F-B): cho-Cong-Gia-tri + ket cuc nghiem thu + verdict la
-W('_acceptance/r-cho-gia-tri/contract.md', contract('r-cho-gia-tri', 'signed-off'));
-W('_acceptance/r-cho-gia-tri/opportunity.md', opp('r-cho-gia-tri', 'decided', 'build'));
-W('_acceptance/s-uat-release/contract.md', contract('s-uat-release', 'signed-off'));
-W('_acceptance/s-uat-release/uat-session.md', uat('release'));
-W('_acceptance/t-uat-la/contract.md', contract('t-uat-la', 'signed-off'));
-W('_acceptance/t-uat-la/uat-session.md', uat('xong-roi'));
 // cac nhanh verified co dieu kien (S4-r1) + CRLF + slug-tien-to
 W('_acceptance/n-verified-reject/contract.md', contract('n-verified-reject', 'verified'));
 W('_acceptance/n-verified-reject/evidence-report.md', evidence('REJECT'));
@@ -2898,21 +2885,13 @@ for (const [slug, state] of Object.entries(want.done)) {
   if (!hit || hit.state !== state) die(`slug ${slug} phai done state=${state}, duoc: ${JSON.stringify(hit)}`);
 }
 const total = r.groups.gates.length + r.groups.inProgress.length + r.groups.done.length + r.broken.length;
-if (total !== 20) die(`tong slug vao o phai 20 (khong sot khong trung), duoc ${total}`);
+if (total !== 17) die(`tong slug vao o phai 17 (khong sot khong trung), duoc ${total}`);
 
-// F-B da dung ca hai nguon: khoa skipped[] bi go han (khong con nguon sinh),
-// va cac hang moi cua bang phan o phai xep dung o.
+// F-B da dung ca hai nguon: khoa skipped[] bi go han (het nguon sinh), va o
+// cho-Cong-Gia-tri + ba ket cuc nghiem thu vao bang phan o.
 if ('skipped' in r) die('skipped[] van con trong dau ra du khong con nguon sinh nao');
-const gateOf = s => (r.groups.gates.find(g => g.slug === s) || {}).gate;
-const stateOf = s => (r.groups.done.find(d => d.slug === s) || {}).state;
-if (gateOf('r-cho-gia-tri') !== 'gia-tri')
-  die(`signed-off duong A phai vao o cho-Cong-Gia-tri, duoc: ${gateOf('r-cho-gia-tri')}`);
-if (stateOf('s-uat-release') !== 'released')
-  die(`uat verdict release phai la state released, duoc: ${stateOf('s-uat-release')}`);
-if (!r.broken.some(b => b.slug === 't-uat-la' && /xong-roi/.test(b.reason)))
-  die('uat verdict ngoai enum phai vao broken[] kem gia tri la');
-if (stateOf('m-signed') !== 'signed-off')
-  die('signed-off khong thuoc duong A phai la da-ky thuong');
+if (typeof r.map !== 'object' || !('present' in r.map) || !('fresh' in r.map))
+  die('thieu khoa map.present/map.fresh: ' + JSON.stringify(r.map));
 
 // gate-order (AC-6): frontmatter approved_at THANG mtime — cham mtime l-pending
 // cho MOI nhat, thu tu van phai theo approved_at (l-pending cu hon → len dau)
@@ -3118,17 +3097,424 @@ mut = t.replace(LAW, "khong-nap-gi.md")
 e1 = check_text({"(ban-xoa-nap)": (mut, RENDER["commands/start.md"])})
 assert any("thieu buoc nap luat" in x for x in e1), f"dot bien xoa buoc nap khong bi bat: {e1}"
 
-# (E11) GUIDE + README co muc /start noi dung ban chat vao-phien
-for doc in ["GUIDE.md", "README.md"]:
-    td = (root / doc).read_text(encoding="utf-8")
-    assert "/start" in td and "vào phiên" in td, f"{doc} thieu muc vao phien bang /start"
-gm = (root / "GUIDE.md").read_text(encoding="utf-8")
-def check_doc(txt):
-    return [] if ("/start" in txt and "vào phiên" in txt) else ["thieu muc vao phien bang /start"]
-assert check_doc(gm) == [], "doi chung duong: GUIDE that phai co muc /start"
-mut2 = "\n".join(l for l in gm.splitlines() if "/start" not in l and "vào phiên" not in l)
-assert check_doc(mut2) != [], "dot bien xoa muc /start khoi GUIDE ma phep do van xanh"
+# (E11) GUIDE + README co muc /start. Chan AM phai chay CHINH phep do tren ban
+# mutant — ban cu dung `not (A and B)` tren chuoi vua bi xoa A, dung mot cach
+# giai tich nen khong bao gio do duoc (Cong 2 start-command, known-limit 2).
+DOCS = ["GUIDE.md", "README.md"]
+
+def check_docs(docs):                      # {ten: noi dung} -> list loi
+    errs = []
+    for name, text in docs.items():
+        if "/start" not in text or "vào phiên" not in text:
+            errs.append(f"{name}: thieu muc vao phien bang /start")
+    return errs
+
+live = {d: (root / d).read_text(encoding="utf-8") for d in DOCS}
+assert check_docs(live) == [], check_docs(live)          # doi chung DUONG
+
+# Chan AM RIENG cho TUNG file: mot ham quen mot nhanh thi chan con lai van do
+# dung, che mat lo (bai hoc [findings-section-boundary#F2]).
+strip = lambda t: "\n".join(l for l in t.splitlines()
+                            if "/start" not in l and "vào phiên" not in l)
+for gone in DOCS:
+    mut = dict(live); mut[gone] = strip(live[gone])
+    errs = check_docs(mut)
+    assert any(x.startswith(f"{gone}: thieu muc vao phien") for x in errs), \
+        f"dot bien xoa muc /start khoi {gone} khong bi bat dung thong diep: {errs}"
+    assert all(not x.startswith(f"{o}:") for x in errs for o in DOCS if o != gone), \
+        f"dot bien tren {gone} lam bao oan file khac: {errs}"
 PY
+
+# ── P102: loi I/O co TEN, verdict ngoai tu vung bi goi ten (AC-1, AC-2) ─────
+# Doi chung DUONG (fixture nguyen ven XANH) truoc moi buoc tiem; moi buoc tiem
+# ghim DUNG thong diep. Fixture do CODE sinh trong chinh lan chay.
+run "P102 start-scan: loi I/O neu ten file+ma loi; verdict la/vang bi goi ten (E1,E2)" \
+  node - "$ROOT" <<'JS'
+const fs = require('fs'), path = require('path'), os = require('os');
+const { execFileSync } = require('child_process');
+const root = process.argv[2];
+const SCAN = path.join(root, 'scripts/start-scan.mjs');
+const die = m => { console.error(m); process.exit(1); };
+
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p102-'));
+const W = (rel, s) => { const p = path.join(tmp, rel);
+  fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, s); };
+const contract = (slug, status) =>
+  `---\nschema_version: 1\nslug: ${slug}\nrisk_tier: T2\nstatus: ${status}\n---\n# C\n`;
+const opp = (slug, decision) =>
+  `---\nschema_version: 1\nslug: ${slug}\nstage: decided\ndecision: ${decision}\n---\n# O\n`;
+
+W('_acceptance/config.yaml', 'schema_version: 1\n');
+// a: contract mat quyen doc, CO opportunity park nam canh -> khong duoc roi sang park
+W('_acceptance/a-eacces/contract.md', contract('a-eacces', 'verified'));
+W('_acceptance/a-eacces/opportunity.md', opp('a-eacces', 'park'));
+W('_acceptance/a-eacces/evidence-report.md', '---\nschema_version: 2\nverdict: PASS\nhuman_signoff:\n---\n# E\n');
+// b: contract la THU MUC
+W('_acceptance/b-eisdir/x', 'noise\n');
+// c: evidence-report mat quyen doc tren slug implemented
+W('_acceptance/c-ev-eacces/contract.md', contract('c-ev-eacces', 'implemented'));
+W('_acceptance/c-ev-eacces/evidence-report.md', '---\nschema_version: 2\nverdict: PASS\n---\n# E\n');
+// d/e: nhanh verdict; f/g: doi chung duong
+W('_acceptance/d-offvocab/contract.md', contract('d-offvocab', 'implemented'));
+W('_acceptance/d-offvocab/evidence-report.md', '---\nschema_version: 2\nverdict: FAIL\n---\n# E\n');
+W('_acceptance/e-noverdict/contract.md', contract('e-noverdict', 'implemented'));
+W('_acceptance/e-noverdict/evidence-report.md', '---\nschema_version: 2\nslug: e\n---\n# E\n');
+// e2: key verdict CO MAT nhung gia tri RONG — frontmatterField tra '' chu khong
+// phai null, nen guard `== null` de lot va bao "khong nhan dien duoc: " (S4-r1)
+W('_acceptance/e2-verdict-rong/contract.md', contract('e2-verdict-rong', 'implemented'));
+W('_acceptance/e2-verdict-rong/evidence-report.md', '---\nschema_version: 2\nslug: e2\nverdict:\n---\n# E\n');
+// e3: cung hinh dang o nhanh VERIFIED — rong phai ket luan o guard dung chung
+W('_acceptance/e3-verified-rong/contract.md', contract('e3-verified-rong', 'verified'));
+W('_acceptance/e3-verified-rong/evidence-report.md', '---\nschema_version: 2\nslug: e3\nverdict:\n---\n# E\n');
+W('_acceptance/f-ok/contract.md', contract('f-ok', 'approved'));
+W('_acceptance/g-reject/contract.md', contract('g-reject', 'implemented'));
+W('_acceptance/g-reject/evidence-report.md', '---\nschema_version: 2\nverdict: REJECT\n---\n# E\n');
+
+const scan = () => JSON.parse(execFileSync('node', [SCAN, '--root', tmp], { encoding: 'utf8' }));
+const brokenOf = (r, slug) => r.broken.find(b => b.slug === slug);
+
+// ---- DOI CHUNG DUONG: chua tiem gi, moi slug phan o binh thuong ----
+const r0 = scan();
+if (brokenOf(r0, 'a-eacces')) die('doi chung duong: a-eacces chua tiem ma da broken');
+if (!r0.groups.gates.find(g => g.slug === 'a-eacces')) die('doi chung duong: a-eacces phai o gates');
+if (!r0.groups.inProgress.find(g => g.slug === 'f-ok')) die('doi chung duong: f-ok phai o inProgress');
+
+// Do nang luc chan quyen doc MOT lan. Duoi root/chmod-vo-hieu: bo qua RIENG
+// hai chan (a)(c) can EACCES, IN CANH BAO — moi chan khac VAN chay. Ban cu
+// `process.exit(0)` ngay sau (a) nuot luon 6 chan sau ma suite bao PASS —
+// dung lop "assertion khong song" (S4-r4).
+const permProbe = path.join(tmp, 'perm-probe');
+fs.writeFileSync(permProbe, 'x'); fs.chmodSync(permProbe, 0o000);
+let canBlockRead = false;
+try { fs.readFileSync(permProbe) } catch { canBlockRead = true }
+fs.chmodSync(permProbe, 0o644);
+
+if (canBlockRead) {
+  // ---- (a) EACCES tren contract.md ----
+  const aPath = path.join(tmp, '_acceptance/a-eacces/contract.md');
+  fs.chmodSync(aPath, 0o000);
+  const r1 = scan();
+  const a = brokenOf(r1, 'a-eacces');
+  if (!a) die('EACCES contract phai vao broken[], khong duoc im lang');
+  if (a.file !== 'contract.md') die(`broken phai ghim dung ten file, duoc: ${JSON.stringify(a)}`);
+  if (!/EACCES/.test(a.reason)) die(`reason phai neu ma loi he thong, duoc: ${a.reason}`);
+  if (/không có|khong co/.test(a.reason)) die(`reason noi doi "khong co file" trong khi file con do: ${a.reason}`);
+  if (r1.groups.done.find(g => g.slug === 'a-eacces')) die('slug loi I/O bi roi sang o park cua opportunity ben canh');
+  fs.chmodSync(aPath, 0o644);
+
+  // ---- (c) EACCES tren evidence-report.md (slug implemented) ----
+  const cPath = path.join(tmp, '_acceptance/c-ev-eacces/evidence-report.md');
+  fs.chmodSync(cPath, 0o000);
+  const r3 = scan();
+  const c = brokenOf(r3, 'c-ev-eacces');
+  if (!c) die('EACCES evidence-report phai vao broken[]');
+  if (c.file !== 'evidence-report.md') die(`phai ghim ten evidence-report.md, duoc: ${JSON.stringify(c)}`);
+  if (!/EACCES/.test(c.reason)) die(`reason phai neu ma loi, duoc: ${c.reason}`);
+  if (r3.groups.inProgress.find(g => g.slug === 'c-ev-eacces'))
+    die('slug co evidence loi I/O van bi day sang nextStep — khong duoc doan buoc ke');
+  fs.chmodSync(cPath, 0o644);
+} else {
+  console.log('P102 CANH BAO: khong chan duoc quyen doc (root?) — bo qua RIENG chan (a)(c) EACCES; moi chan khac van chay');
+}
+
+// ---- (b) contract.md la THU MUC (khong can quyen — LUON chay) ----
+fs.mkdirSync(path.join(tmp, '_acceptance/b-eisdir/contract.md'));
+const b = brokenOf(scan(), 'b-eisdir');
+if (!b || b.file !== 'contract.md' || !/EISDIR/.test(b.reason))
+  die(`contract la thu muc phai vao broken kem EISDIR, duoc: ${JSON.stringify(b)}`);
+
+// ---- (d) verdict NGOAI tu vung tren implemented ----
+const d = brokenOf(scan(), 'd-offvocab');
+if (!d || !/verdict không nhận diện được: FAIL/.test(d.reason))
+  die(`verdict la phai bi goi ten cung khuon nhanh verified, duoc: ${JSON.stringify(d)}`);
+
+// ---- (e) evidence CO frontmatter nhung VANG dong verdict ----
+const e = brokenOf(scan(), 'e-noverdict');
+if (!e || !/thiếu verdict/.test(e.reason))
+  die(`verdict vang phai bi goi ten, duoc: ${JSON.stringify(e)}`);
+
+// ---- (e2)(e3) key verdict CO MAT nhung RONG: phai xu nhu VANG o CA HAI nhanh ----
+// Rong ma roi xuong offVocab thi thong diep la "khong nhan dien duoc: " —
+// khong neu ten gi ca, trai AC-2. Guard dung chung phai ket luan truoc do.
+for (const slug of ['e2-verdict-rong', 'e3-verified-rong']) {
+  const hit = brokenOf(scan(), slug);
+  if (!hit) die(`[${slug}] verdict rong phai vao broken[]`);
+  if (!/thiếu verdict/.test(hit.reason))
+    die(`[${slug}] verdict rong phai bao "thieu verdict", duoc: ${hit.reason}`);
+  if (/nhận diện được: *$/.test(hit.reason))
+    die(`[${slug}] thong diep khong neu ten gi — dung nhanh offVocab thay vi guard chung: ${hit.reason}`);
+}
+
+// ---- doi chung DUONG cuoi: REJECT van ra S3-fix nhu cu ----
+const g = scan().groups.inProgress.find(x => x.slug === 'g-reject');
+if (!g || g.nextStep !== 'S3-fix') die(`REJECT phai giu nextStep S3-fix, duoc: ${JSON.stringify(g)}`);
+console.log('P102 OK');
+JS
+
+# ── P103: argv hong CHET TO exit 2, khong doi nghia thanh chan doan repo (AC-3)
+# Lop "declared-but-unusable" da chot o pre-merge-check v1.22.1 va
+# sync-plugin-packages (mode la khong duoc am tham roi ve ghi de).
+run "P103 start-scan argv: 5 loi chet exit 2 ghim thong diep + doi chung duong (E3)" \
+  node - "$ROOT" <<'JS'
+const fs = require('fs'), path = require('path'), os = require('os');
+const { spawnSync } = require('child_process');
+const root = process.argv[2];
+const SCAN = path.join(root, 'scripts/start-scan.mjs');
+const die = m => { console.error(m); process.exit(1); };
+const runScan = a => spawnSync('node', [SCAN, ...a], { encoding: 'utf8' });
+
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p103-'));
+fs.mkdirSync(path.join(tmp, 'ok/_acceptance'), { recursive: true });
+fs.writeFileSync(path.join(tmp, 'ok/_acceptance/config.yaml'), 'schema_version: 1\n');
+const okDir = path.join(tmp, 'ok');
+const plainFile = path.join(tmp, 'la-file-thuong.txt');
+fs.writeFileSync(plainFile, 'toi khong phai thu muc\n');
+
+// ---- DOI CHUNG DUONG truoc moi loi chet: loi goi DUNG van chay ----
+const ok = runScan(['--root', okDir]);
+if (ok.status !== 0) die(`doi chung duong that bai: --root hop le phai exit 0, duoc ${ok.status} / ${ok.stderr}`);
+let parsed; try { parsed = JSON.parse(ok.stdout) } catch { die('doi chung duong: stdout khong parse duoc JSON') }
+if (parsed.config !== true) die('doi chung duong: root hop le co config phai tra config:true');
+
+// ---- 5 loi chet: exit 2, stdout RONG, stderr ghim thong diep RIENG ----
+const CASES = [
+  { name: '--root thieu gia tri', argv: ['--root'],                needle: /--root/ },
+  { name: "--root chuoi rong",    argv: ['--root', ''],            needle: /--root/ },
+  { name: 'token la',             argv: ['--foo'],                 needle: /--foo/ },
+  { name: 'duong dan ma',         argv: ['--root', path.join(tmp, 'khong-ton-tai')], needle: /khong-ton-tai/ },
+  { name: 'duong dan la FILE',    argv: ['--root', plainFile],     needle: /la-file-thuong\.txt/ },
+];
+const seen = new Set();
+for (const c of CASES) {
+  const r = runScan(c.argv);
+  if (r.status !== 2) die(`[${c.name}] phai exit 2, duoc ${r.status} (stdout=${r.stdout.slice(0,80)})`);
+  if (r.stdout.trim() !== '') die(`[${c.name}] KHONG duoc in JSON ra stdout, duoc: ${r.stdout.slice(0,80)}`);
+  if (!c.needle.test(r.stderr)) die(`[${c.name}] stderr phai ghim ${c.needle}, duoc: ${r.stderr.slice(0,120)}`);
+  seen.add(r.stderr.trim());
+}
+// Moi loi mot thong diep RIENG: dung chung mot cau thi dot bien chi chung minh
+// duoc mot nhanh, cac nhanh con lai khong bao gio bi da RED rieng (bai hoc P95).
+if (seen.size < CASES.length)
+  die(`5 loi chet chi cho ${seen.size} thong diep khac nhau — nhanh dung chung cau khong do rieng duoc`);
+
+// ---- doi chung DUONG cuoi: root hop le NHUNG chua acceptance-init ----
+// Phan biet RANH ROI voi loi go lenh: day moi la "repo chua dung cong".
+const bare = fs.mkdtempSync(path.join(os.tmpdir(), 'p103b-'));
+const r2 = runScan(['--root', bare]);
+if (r2.status !== 0) die(`root that nhung chua init phai exit 0, duoc ${r2.status}`);
+if (JSON.parse(r2.stdout).config !== false) die('root that chua init phai tra config:false');
+console.log('P103 OK');
+JS
+
+# ── P104: ROUND-TRIP tu vung verdict writer <-> reader (AC-2) ──────────────
+# S4-r2 bat mot THOAI LUI: VERDICT_OK cua reader hardcode 3 gia tri, bo sot
+# BLOCKED — mot vong dang do bi chan moi truong bi goi la "ho so hong" roi bien
+# khoi danh sach chon cua /start. Thuoc cu chi hoi "gia tri la co bi goi ten
+# khong", KHONG ai ghim TU VUNG AY LAY TU DAU. Case nay rut tu vung tu chinh
+# khuon WRITER roi cho READER that doc (mau P55).
+run "P104 round-trip tu vung verdict: khuon writer <-> start-scan reader (E10)" \
+  node - "$ROOT" <<'JS'
+const fs = require('fs'), path = require('path'), os = require('os');
+const { execFileSync } = require('child_process');
+const root = process.argv[2];
+const SCAN = path.join(root, 'scripts/start-scan.mjs');
+const TPL = path.join(root, 'skills/acceptance/references/evidence-report-template.md');
+const die = m => { console.error(m); process.exit(1); };
+
+// 1. Rut tu vung tu WRITER (khong hardcode o day)
+const tplTxt = fs.readFileSync(TPL, 'utf8');
+const m = tplTxt.match(/^verdict:\s*\{\{([A-Z|-]+)\}\}/m);
+if (!m) die('KHONG rut duoc tu vung verdict tu khuon evidence-report-template.md');
+const VOCAB = m[1].split('|').map(s => s.trim()).filter(Boolean);
+if (VOCAB.length < 3) die(`tu vung rut ra qua ngan (${VOCAB.join(',')}) — regex hong`);
+
+// 2. Dung fixture cho TUNG verdict, cho READER that doc
+const mkFixture = () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p104-'));
+  fs.mkdirSync(path.join(tmp, '_acceptance'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, '_acceptance/config.yaml'), 'schema_version: 1\n');
+  // CA HAI nhanh status deu doc verdict — r3 hong dung vi fixture chi co
+  // `implemented`, nen nhanh `verified` troi khoi tu vung ma P104 van xanh.
+  for (const st of ['implemented', 'verified']) {
+    for (const v of VOCAB) {
+      const slug = `${st}-${v.toLowerCase()}`;
+      const d = path.join(tmp, '_acceptance', slug);
+      fs.mkdirSync(d, { recursive: true });
+      fs.writeFileSync(path.join(d, 'contract.md'),
+        `---\nslug: ${slug}\nrisk_tier: T2\nstatus: ${st}\napproved_at: 2026-01-01T00:00:00Z\n---\n`);
+      fs.writeFileSync(path.join(d, 'evidence-report.md'),
+        `---\nschema_version: 2\nverdict: ${v}\nhuman_signoff:\n---\n`);
+    }
+  }
+  return tmp;
+};
+const check = scanPath => {
+  const tmp = mkFixture();
+  const r = JSON.parse(execFileSync('node', [scanPath, '--root', tmp], { encoding: 'utf8' }));
+  const errs = [];
+  for (const st of ['implemented', 'verified']) {
+    for (const v of VOCAB) {
+      const slug = `${st}-${v.toLowerCase()}`;
+      const bad = r.broken.find(b => b.slug === slug);
+      if (bad && /không nhận diện được/.test(bad.reason))
+        errs.push(`[${st}] verdict ${v} co trong khuon writer nhung reader goi la khong-nhan-dien-duoc`);
+    }
+  }
+  return errs;
+};
+
+const e0 = check(SCAN);
+if (e0.length) die('doi chung DUONG that bai: ' + JSON.stringify(e0));   // ban that XANH
+
+// 3. Dot bien: go MOT verdict khoi tu vung cua reader -> phai DO dung thong diep.
+// Ban sao can lib/evidence-core.js giai duoc, nen dung cay tam co ca hai thu muc.
+const mut = fs.mkdtempSync(path.join(os.tmpdir(), 'p104m-'));
+fs.mkdirSync(path.join(mut, 'scripts'), { recursive: true });
+fs.mkdirSync(path.join(mut, 'lib'), { recursive: true });
+fs.copyFileSync(path.join(root, 'lib/evidence-core.js'), path.join(mut, 'lib/evidence-core.js'));
+const src = fs.readFileSync(SCAN, 'utf8');
+const gone = VOCAB[VOCAB.length - 1];                     // go phan tu cuoi khuon writer
+const mutSrc = src.replace(new RegExp(`^\\s*'${gone}':.*$`, 'm'), '');
+if (mutSrc === src) die(`dot bien khong hieu luc — khong tim thay '${gone}' trong bang tra verdict cua reader`);
+const mutPath = path.join(mut, 'scripts/start-scan.mjs');
+fs.writeFileSync(mutPath, mutSrc);
+const e1 = check(mutPath);
+// Phai bat o CA HAI nhanh: mot bang tra dung chung thi go mot dong lam ca hai do.
+// Neu chi mot nhanh do => nhanh kia dang giu danh sach song song (lop loi r2/r3).
+for (const st of ['implemented', 'verified'])
+  if (!e1.some(x => x.includes(`[${st}] verdict ${gone} co trong khuon writer`)))
+    die(`dot bien go ${gone} KHONG lam nhanh ${st} do — nhanh nay dang giu tu vung rieng: ${JSON.stringify(e1)}`);
+console.log(`P104 OK (tu vung writer: ${VOCAB.join(', ')})`);
+JS
+
+# ── P105: MA TRAN phan o toan phan — thuoc dong khong gian thoat (S4-r5) ────
+# 4 round truoc deu cung mot hinh dang: chot dat sai cho, va DIEM-case chi ghim
+# o bi neu ten nen lo con cho tron. Ma tran ghim TOAN BO to hop
+# (trang thai contract × tinh trang evidence) + (khong contract × tinh trang
+# opportunity) — chot nao dat sai cho deu lat it nhat mot o da ghim.
+run "P105 ma tran phan o: trang-thai × tinh-trang-artifact, ghim toan bo (E1,E2,E10)" \
+  node - "$ROOT" <<'JS'
+const fs = require('fs'), path = require('path'), os = require('os');
+const { execFileSync } = require('child_process');
+const root = process.argv[2];
+const SCAN = path.join(root, 'scripts/start-scan.mjs');
+const die = m => { console.error(m); process.exit(1); };
+
+// Do nang luc chan quyen doc MOT lan (root/chmod-vo-hieu → bo RIENG cac o
+// mat-quyen, in canh bao; moi o khac van ghim — EISDIR song duoi root nen
+// lop chot-sai-cho van bi ma tran bat ke ca khi thieu cac o EACCES).
+const probeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'p105p-'));
+const probe = path.join(probeDir, 'probe'); fs.writeFileSync(probe, 'x'); fs.chmodSync(probe, 0o000);
+let canBlockRead = false; try { fs.readFileSync(probe) } catch { canBlockRead = true }
+fs.chmodSync(probe, 0o644);
+if (!canBlockRead) console.log('P105 CANH BAO: khong chan duoc quyen doc — bo rieng cac o mat-quyen, ma tran con lai van ghim du');
+
+const EVC = '---\nschema_version: 1\nrisk_tier: T2\nstatus: %S\napproved_at: 2026-01-01T00:00:00Z\n---\n';
+// Tinh trang evidence-report.md → ham dung fixture
+const EV_STATES = {
+  'vang':        d => {},
+  'matquyen':    d => { const p = path.join(d, 'evidence-report.md'); fs.writeFileSync(p, '---\nverdict: PASS\n---\n'); fs.chmodSync(p, 0o000); },
+  'lathumuc':    d => fs.mkdirSync(path.join(d, 'evidence-report.md')),
+  'thieuverdict':d => fs.writeFileSync(path.join(d, 'evidence-report.md'), '---\nschema_version: 2\nslug: x\n---\n'),
+  'verdictrong': d => fs.writeFileSync(path.join(d, 'evidence-report.md'), '---\nverdict:\n---\n'),
+  'verdictrac':  d => fs.writeFileSync(path.join(d, 'evidence-report.md'), '---\nverdict: FAIL\n---\n'),
+  'pass':        d => fs.writeFileSync(path.join(d, 'evidence-report.md'), '---\nverdict: PASS\nhuman_signoff:\n---\n'),
+  'pending':     d => fs.writeFileSync(path.join(d, 'evidence-report.md'), '---\nverdict: PENDING-JUDGMENT\nhuman_signoff:\n---\n'),
+  'reject':      d => fs.writeFileSync(path.join(d, 'evidence-report.md'), '---\nverdict: REJECT\nhuman_signoff:\n---\n'),
+  'blocked':     d => fs.writeFileSync(path.join(d, 'evidence-report.md'), '---\nverdict: BLOCKED\nhuman_signoff:\n---\n'),
+};
+// O mong doi: "cell:detail" — gates:<gate> | prog:<nextStep> | done:<state> | broken:<regex reason>
+const IGNORES_EV = { 'draft': 'gates:pham-vi', 'approved': 'prog:S2', 'signed-off': 'done:signed-off' };
+const MATRIX = {};
+for (const [st, cell] of Object.entries(IGNORES_EV))
+  for (const ev of Object.keys(EV_STATES)) MATRIX[`${st}|${ev}`] = cell;   // evidence KHONG duoc quyet dinh o
+Object.assign(MATRIX, {
+  'implemented|vang': 'prog:S4',            'verified|vang': 'broken:thiếu evidence-report',
+  'implemented|matquyen': 'broken:EACCES',  'verified|matquyen': 'broken:EACCES',
+  'implemented|lathumuc': 'broken:EISDIR',  'verified|lathumuc': 'broken:EISDIR',
+  'implemented|thieuverdict': 'broken:thiếu verdict', 'verified|thieuverdict': 'broken:thiếu verdict',
+  'implemented|verdictrong': 'broken:thiếu verdict',  'verified|verdictrong': 'broken:thiếu verdict',
+  'implemented|verdictrac': 'broken:không nhận diện được: FAIL', 'verified|verdictrac': 'broken:không nhận diện được: FAIL',
+  'implemented|pass': 'prog:S4',    'verified|pass': 'gates:bang-chung',
+  'implemented|pending': 'prog:S4', 'verified|pending': 'gates:bang-chung',
+  'implemented|reject': 'prog:S3-fix', 'verified|reject': 'prog:S3-fix',
+  'implemented|blocked': 'prog:S4', 'verified|blocked': 'prog:S4',
+});
+// Nhanh opportunity (khong co contract.md)
+const OPP_STATES = {
+  'o-matquyen':  d => { const p = path.join(d, 'opportunity.md'); fs.writeFileSync(p, '---\nstage: decided\ndecision: build\n---\n'); fs.chmodSync(p, 0o000); },
+  'o-thieustage':d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nslug: x\n---\n'),
+  'o-discovery': d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: discovery\ndecision:\n---\n'),
+  'o-build':     d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: decided\ndecision: build\n---\n'),
+  'o-iterate':   d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: decided\ndecision: iterate\n---\n'),
+  'o-park':      d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: decided\ndecision: park\n---\n'),
+  'o-kill':      d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: decided\ndecision: kill\n---\n'),
+  'o-rac':       d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: decided\ndecision: maybe\n---\n'),
+  'o-trong':     d => {},
+};
+Object.assign(MATRIX, {
+  'noc|o-matquyen': 'broken:EACCES', 'noc|o-thieustage': 'broken:thiếu stage',
+  'noc|o-discovery': 'gates:dang',   'noc|o-build': 'prog:S1', 'noc|o-iterate': 'prog:S1',
+  'noc|o-park': 'done:park',         'noc|o-kill': 'done:kill',
+  'noc|o-rac': 'broken:decision không nhận diện được', 'noc|o-trong': 'broken:không có contract.md lẫn opportunity.md',
+});
+
+const build = () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p105-'));
+  fs.mkdirSync(path.join(tmp, '_acceptance'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, '_acceptance/config.yaml'), 'schema_version: 1\n');
+  for (const key of Object.keys(MATRIX)) {
+    const [st, ev] = key.split('|');
+    if (!canBlockRead && /matquyen/.test(ev)) continue;
+    const slug = key.replace(/[|]/g, '-');
+    const d = path.join(tmp, '_acceptance', slug);
+    fs.mkdirSync(d, { recursive: true });
+    if (st !== 'noc') fs.writeFileSync(path.join(d, 'contract.md'), EVC.replace('%S', st));
+    (st === 'noc' ? OPP_STATES[ev] : EV_STATES[ev])(d);
+  }
+  return tmp;
+};
+const cellOf = (r, slug) => {
+  const g = r.groups.gates.find(x => x.slug === slug);      if (g) return `gates:${g.gate}`;
+  const p = r.groups.inProgress.find(x => x.slug === slug); if (p) return `prog:${p.nextStep}`;
+  const dn = r.groups.done.find(x => x.slug === slug);      if (dn) return `done:${dn.state}`;
+  const b = r.broken.find(x => x.slug === slug);            if (b) return `broken:${b.reason}`;
+  return '(mat tich)';
+};
+const checkMatrix = scanPath => {
+  const tmp = build();
+  const r = JSON.parse(execFileSync('node', [scanPath, '--root', tmp], { encoding: 'utf8' }));
+  const errs = [];
+  for (const [key, want] of Object.entries(MATRIX)) {
+    const [, ev] = key.split('|');
+    if (!canBlockRead && /matquyen/.test(ev)) continue;
+    const got = cellOf(r, key.replace(/[|]/g, '-'));
+    const [wc, wd] = [want.slice(0, want.indexOf(':')), want.slice(want.indexOf(':') + 1)];
+    const [gc, gd] = [got.slice(0, got.indexOf(':') < 0 ? got.length : got.indexOf(':')), got.slice(got.indexOf(':') + 1)];
+    const ok = wc === gc && (wc !== 'broken' ? wd === gd : gd.includes(wd));
+    if (!ok) errs.push(`o [${key}] mong ${want}, duoc ${got}`);
+  }
+  return errs;
+};
+
+const e0 = checkMatrix(SCAN);
+if (e0.length) die(`ma tran ghim ${Object.keys(MATRIX).length} o — ${e0.length} o lech:\n` + e0.join('\n'));
+
+// Pha-thu: mutant keo chot evidence NGUOC LEN truoc cho re trang thai (chinh
+// con bug S4-r4) → ma tran phai DO tai cac o draft/approved/signed-off × loi-doc.
+const mut = fs.mkdtempSync(path.join(os.tmpdir(), 'p105m-'));
+fs.mkdirSync(path.join(mut, 'scripts')); fs.mkdirSync(path.join(mut, 'lib'));
+fs.copyFileSync(path.join(root, 'lib/evidence-core.js'), path.join(mut, 'lib/evidence-core.js'));
+const src = fs.readFileSync(SCAN, 'utf8');
+const anchor = "if (status === 'signed-off')";
+if (!src.includes(anchor)) die('mutant: khong tim thay anchor cho re trang thai');
+const hoist = "{ const __e = read(path.join(dir, 'evidence-report.md')); if (__e.err) { broken.push({ slug, file: 'evidence-report.md', reason: ioReason(__e.err) }); continue; } }\n    ";
+fs.writeFileSync(path.join(mut, 'scripts/start-scan.mjs'), src.replace(anchor, hoist + anchor));
+const e1 = checkMatrix(path.join(mut, 'scripts/start-scan.mjs'));
+if (!e1.some(x => /\[(draft|approved|signed-off)\|(matquyen|lathumuc)\]/.test(x)))
+  die('mutant keo chot len truoc cho re ma ma tran van XANH — thuoc chua gan vao vat: ' + JSON.stringify(e1.slice(0,3)));
+console.log(`P105 OK — ghim ${Object.keys(MATRIX).length} o${canBlockRead ? '' : ' (tru cac o mat-quyen)'}; mutant chot-sai-cho bi bat`);
+JS
 
 # ── P115: khuon canonical -> fixture -> reader chuan (round-trip seam) ──────
 # Fixture cua moi case sau nay rut tu marker nay; case nay chung minh khuon

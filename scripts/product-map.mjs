@@ -100,7 +100,14 @@ function classify(dir, slug) {
   const rawName = fm(cTxt, 'feature') || fm(oTxt, 'feature') || fm(uTxt, 'feature') || slug;
   const name = rawName.startsWith(slug + ' — ') ? rawName.slice(slug.length + 3) : rawName;
   const edge = edges(cTxt, oTxt);
-  const texts = { 'contract.md': cTxt, 'opportunity.md': oTxt, 'uat-session.md': uTxt };
+  // uat-session.md CHỈ được TIÊU THỤ khi hợp đồng đã ký — một phiên nghiệm thu
+  // nằm cạnh hợp đồng còn draft là hồ sơ chưa tới lượt, lỗi của nó không được
+  // quyết định ô của slug. Doctrine này của start-scan-hardening (học qua 4
+  // round), và bộ quét vào phiên áp cùng luật — hai bên đọc phải tiêu thụ CÙNG
+  // tập hồ sơ thì mới có nghĩa khi so kết luận (case P123).
+  const daKy = (fm(cTxt, 'status') || '').toLowerCase() === 'signed-off';
+  const texts = { 'contract.md': cTxt, 'opportunity.md': oTxt,
+                  'uat-session.md': daKy ? uTxt : null };
 
   // Lượt 1 — luật chung: hồ sơ đọc được không? (file có mà frontmatter hỏng,
   // field bắt buộc rỗng, giá trị ngoài enum — tất cả là hỏng, không cái nào
