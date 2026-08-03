@@ -3095,14 +3095,32 @@ mut = t.replace(LAW, "khong-nap-gi.md")
 e1 = check_text({"(ban-xoa-nap)": (mut, RENDER["commands/start.md"])})
 assert any("thieu buoc nap luat" in x for x in e1), f"dot bien xoa buoc nap khong bi bat: {e1}"
 
-# (E11) GUIDE + README co muc /start noi dung ban chat vao-phien
-for doc in ["GUIDE.md", "README.md"]:
-    td = (root / doc).read_text(encoding="utf-8")
-    assert "/start" in td and "vào phiên" in td, f"{doc} thieu muc vao phien bang /start"
-gm = (root / "GUIDE.md").read_text(encoding="utf-8")
-mut2 = "\n".join(l for l in gm.splitlines() if "/start" not in l and "vào phiên" not in l)
-assert not ("/start" in mut2 and "vào phiên" in mut2), \
-    "dot bien xoa muc /start khoi GUIDE ma phep do van xanh"
+# (E11) GUIDE + README co muc /start. Chan AM phai chay CHINH phep do tren ban
+# mutant — ban cu dung `not (A and B)` tren chuoi vua bi xoa A, dung mot cach
+# giai tich nen khong bao gio do duoc (Cong 2 start-command, known-limit 2).
+DOCS = ["GUIDE.md", "README.md"]
+
+def check_docs(docs):                      # {ten: noi dung} -> list loi
+    errs = []
+    for name, text in docs.items():
+        if "/start" not in text or "vào phiên" not in text:
+            errs.append(f"{name}: thieu muc vao phien bang /start")
+    return errs
+
+live = {d: (root / d).read_text(encoding="utf-8") for d in DOCS}
+assert check_docs(live) == [], check_docs(live)          # doi chung DUONG
+
+# Chan AM RIENG cho TUNG file: mot ham quen mot nhanh thi chan con lai van do
+# dung, che mat lo (bai hoc [findings-section-boundary#F2]).
+strip = lambda t: "\n".join(l for l in t.splitlines()
+                            if "/start" not in l and "vào phiên" not in l)
+for gone in DOCS:
+    mut = dict(live); mut[gone] = strip(live[gone])
+    errs = check_docs(mut)
+    assert any(x.startswith(f"{gone}: thieu muc vao phien") for x in errs), \
+        f"dot bien xoa muc /start khoi {gone} khong bi bat dung thong diep: {errs}"
+    assert all(not x.startswith(f"{o}:") for x in errs for o in DOCS if o != gone), \
+        f"dot bien tren {gone} lam bao oan file khac: {errs}"
 PY
 
 # ── P102: loi I/O co TEN, verdict ngoai tu vung bi goi ten (AC-1, AC-2) ─────
