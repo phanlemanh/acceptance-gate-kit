@@ -3664,6 +3664,22 @@ const uat = (slug, verdict) => fileFromTemplate(R("uat-session-template.md"),
   { slug, feature: "phien", owner: "o@o", stage: "held", verdict, decided_by: "M",
     decided_at: "2026-08-02T00:00:00Z", gateUAT_minutes: "20" });
 
+// Bien mot khoa thanh RONG TRAN (khong con comment # phia sau). Comment la
+// thu tung che mat bug nuot-dong-ke o S4-r2, nen fixture phai co duong khong
+// comment. GUARD: neu replace khong doi gi thi buoc tiem chua bao gio chay.
+const bareEmpty = (txt, key) => {
+  const lines = txt.split("\n");
+  const i = lines.findIndex(l => l.startsWith(key + ":"));
+  if (i < 0) die(`buoc tiem '${key}: tran' chua bao gio chay — khuon khong con dong ${key}:`);
+  lines[i] = key + ":";
+  // comment trong khuon co the TRAN sang dong ke (uat-session-template) — go het
+  while (i + 1 < lines.length && /^\s+#/.test(lines[i + 1])) lines.splice(i + 1, 1);
+  const out = lines.join("\n");
+  if (out === txt) die(`buoc tiem '${key}: tran' chua bao gio chay — noi dung khong doi`);
+  if (/^\s*#/.test(lines[i + 1] || "")) die(`van con comment che sau ${key}:`);
+  return out;
+};
+
 // Moi ca: [ten, cac file cua workspace, co PHAI hong khong]
 const CASES = [
   ["lanh-manh", { "contract.md": contract("x", "signed-off"), "opportunity.md": opp("x", "decided", "build") }, false],
@@ -3672,13 +3688,21 @@ const CASES = [
   ["uat verdict la", { "contract.md": contract("x", "signed-off"), "uat-session.md": uat("x", "xong-roi") }, true],
   ["uat verdict rong (chua ky)", { "contract.md": contract("x", "signed-off"), "opportunity.md": opp("x", "decided", "build"),
     "uat-session.md": uat("x", "") }, false],
-  ["status rong", { "contract.md": contract("x", "").replace("status: \n", "status:\n") }, true],
+  ["status rong TRAN (khong comment che)", { "contract.md": bareEmpty(contract("x", ""), "status") }, true],
   ["status la", { "contract.md": contract("x", "xong-roi") }, true],
   ["contract mat frontmatter", { "contract.md": "khong co gi\n" }, true],
   ["decision la tren signed-off", { "contract.md": contract("x", "signed-off"), "opportunity.md": opp("x", "decided", "Build-hoa") }, true],
   ["stage la", { "opportunity.md": opp("x", "dang-nghi", "") }, true],
   ["opp mat frontmatter", { "opportunity.md": "khong co gi\n" }, true],
   ["workspace rong", {}, true],
+  // Hoi quy S4-r3: ban va gop luat da xoa mat nhanh bat workspace thieu ca
+  // contract lan opportunity — slug bien mat khoi MOI o, ke ca broken.
+  ["chi co uat-session.md", { "uat-session.md": uat("x", "") }, true],
+  // Ca LANH MANH ma nghi thuc that sinh ra: phien da dung, verdict de TRONG,
+  // va KHONG co comment # che (comment la thu tung giau bug nuot-dong-ke).
+  ["uat verdict rong TRAN", { "contract.md": contract("x", "signed-off"),
+    "opportunity.md": opp("x", "decided", "build"),
+    "uat-session.md": bareEmpty(uat("x", ""), "verdict") }, false],
 ];
 
 let checked = 0;

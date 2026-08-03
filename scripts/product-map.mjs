@@ -22,10 +22,10 @@ const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence
 // Luật "hồ sơ này có hỏng không" sống một chỗ và được CẢ bộ quét vào phiên
 // dùng chung — xem lib/workspace-record.js để biết vì sao (S4-r1: hai bên đọc
 // cùng hồ sơ cho hai kết luận trái nhau).
-const { recordProblem, navValues, NAV_ENUMS } =
+const { recordProblem, navValues, NAV_RULES } =
   require(path.join(__dirname, '..', 'lib', 'workspace-record.js'));
 
-export { NAV_ENUMS };
+export { NAV_RULES };
 
 const SECTIONS = [
   ['can-nhac', 'Đang cân nhắc cơ hội'],
@@ -79,7 +79,7 @@ function classify(dir, slug) {
   if (problem) return { key: 'hong', slug, file: problem.file, reason: problem.reason };
 
   // Lượt 2 — xếp ô, tra từ artifact muộn nhất về sớm nhất.
-  const { status, decision, verdict } = navValues(texts);
+  const { status, stage, decision, verdict } = navValues(texts);
   if (verdict) return { key: 'da-nghiem-thu', slug, name, edge, note: UAT_KET_CUC[verdict] };
 
   if (status) {
@@ -93,7 +93,6 @@ function classify(dir, slug) {
     return { key: 'dang-dung', slug, name, edge };
   }
 
-  const stage = low(fm(oTxt, 'stage')) || '';
   if (stage !== 'decided' || !decision) return { key: 'can-nhac', slug, name, edge };
   if (decision === 'build' || decision === 'iterate') return { key: 'sap-mo', slug, name, edge };
   if (decision === 'park') return { key: 'xep-lai', slug, name, edge };
