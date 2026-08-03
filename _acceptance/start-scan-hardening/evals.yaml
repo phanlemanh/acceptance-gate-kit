@@ -24,8 +24,11 @@ evals:
       broken[] reason "verdict không nhận diện được: FAIL" (cùng khuôn nhánh
       verified); (b) evidence CÓ frontmatter nhưng KHÔNG có dòng verdict →
       broken[] reason chứa "thiếu verdict" — không lặng lẽ sang bước kế
-      (gap-probe P2-3); đối chứng dương: implemented + REJECT vẫn ra nextStep
-      S3-fix như cũ.
+      (gap-probe P2-3); (c) key `verdict:` CÓ MẶT nhưng giá trị RỖNG → xử như
+      VẮNG ("thiếu verdict") ở CẢ nhánh implemented lẫn verified, và thông điệp
+      KHÔNG được là "không nhận diện được: " bỏ trống tên (S4-r1, lỗi trong
+      hợp đồng — kết luận phải ở guard dùng chung, không vá riêng một nhánh);
+      đối chứng dương: implemented + REJECT vẫn ra nextStep S3-fix như cũ.
     paths: [scripts/start-scan.mjs, tests/plugins/run-tests.sh]
   - id: E3
     criterion: AC-3

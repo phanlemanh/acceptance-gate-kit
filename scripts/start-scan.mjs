@@ -94,7 +94,11 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
     const eRead = read(path.join(dir, 'evidence-report.md'));
     if (eRead.err) { broken.push({ slug, file: 'evidence-report.md', reason: ioReason(eRead.err) }); continue; }
     const eTxt = eRead.t;
-    if (eTxt != null && fmOrNull(eTxt, 'verdict') == null) { broken.push({ slug, file: 'evidence-report.md', reason: 'frontmatter không parse được hoặc thiếu verdict' }); continue; }
+    // Guard DÙNG CHUNG cho cả hai nhánh: frontmatterField trả '' (không phải
+    // null) khi key có mặt mà giá trị rỗng — `== null` để lọt, slug rơi xuống
+    // offVocab('') và báo "không nhận diện được: " không nêu tên gì (S4-r1 AC-2).
+    // Rỗng = VẮNG, và phải kết luận ở ĐÂY để không vá riêng một nhánh.
+    if (eTxt != null && !fmOrNull(eTxt, 'verdict')) { broken.push({ slug, file: 'evidence-report.md', reason: 'frontmatter không parse được hoặc thiếu verdict' }); continue; }
     const verdict = eTxt != null ? frontmatterField(eTxt, 'verdict').toUpperCase() : null;
     if (status === 'signed-off') done.push({ slug, state: 'signed-off' });
     else if (status === 'verified') {

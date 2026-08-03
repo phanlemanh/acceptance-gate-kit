@@ -3157,6 +3157,13 @@ W('_acceptance/d-offvocab/contract.md', contract('d-offvocab', 'implemented'));
 W('_acceptance/d-offvocab/evidence-report.md', '---\nschema_version: 2\nverdict: FAIL\n---\n# E\n');
 W('_acceptance/e-noverdict/contract.md', contract('e-noverdict', 'implemented'));
 W('_acceptance/e-noverdict/evidence-report.md', '---\nschema_version: 2\nslug: e\n---\n# E\n');
+// e2: key verdict CO MAT nhung gia tri RONG — frontmatterField tra '' chu khong
+// phai null, nen guard `== null` de lot va bao "khong nhan dien duoc: " (S4-r1)
+W('_acceptance/e2-verdict-rong/contract.md', contract('e2-verdict-rong', 'implemented'));
+W('_acceptance/e2-verdict-rong/evidence-report.md', '---\nschema_version: 2\nslug: e2\nverdict:\n---\n# E\n');
+// e3: cung hinh dang o nhanh VERIFIED — rong phai ket luan o guard dung chung
+W('_acceptance/e3-verified-rong/contract.md', contract('e3-verified-rong', 'verified'));
+W('_acceptance/e3-verified-rong/evidence-report.md', '---\nschema_version: 2\nslug: e3\nverdict:\n---\n# E\n');
 W('_acceptance/f-ok/contract.md', contract('f-ok', 'approved'));
 W('_acceptance/g-reject/contract.md', contract('g-reject', 'implemented'));
 W('_acceptance/g-reject/evidence-report.md', '---\nschema_version: 2\nverdict: REJECT\n---\n# E\n');
@@ -3212,6 +3219,18 @@ if (!d || !/verdict không nhận diện được: FAIL/.test(d.reason))
 const e = brokenOf(scan(), 'e-noverdict');
 if (!e || !/thiếu verdict/.test(e.reason))
   die(`verdict vang phai bi goi ten, duoc: ${JSON.stringify(e)}`);
+
+// ---- (e2)(e3) key verdict CO MAT nhung RONG: phai xu nhu VANG o CA HAI nhanh ----
+// Rong ma roi xuong offVocab thi thong diep la "khong nhan dien duoc: " —
+// khong neu ten gi ca, trai AC-2. Guard dung chung phai ket luan truoc do.
+for (const slug of ['e2-verdict-rong', 'e3-verified-rong']) {
+  const hit = brokenOf(scan(), slug);
+  if (!hit) die(`[${slug}] verdict rong phai vao broken[]`);
+  if (!/thiếu verdict/.test(hit.reason))
+    die(`[${slug}] verdict rong phai bao "thieu verdict", duoc: ${hit.reason}`);
+  if (/nhận diện được: *$/.test(hit.reason))
+    die(`[${slug}] thong diep khong neu ten gi — dung nhanh offVocab thay vi guard chung: ${hit.reason}`);
+}
 
 // ---- doi chung DUONG cuoi: REJECT van ra S3-fix nhu cu ----
 const g = scan().groups.inProgress.find(x => x.slug === 'g-reject');
