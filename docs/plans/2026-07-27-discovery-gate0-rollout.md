@@ -263,6 +263,7 @@ artifact-platform, bài học đổ ngược vào F-A khi đóng gói):
 | F-E | Máy tự nhận đường A/B/C/D/E từ artifact (hiện là quy ước người khai trong hồ sơ, người duyệt soi tại cổng) | `feature-loop/skills/` + mirror | T2 | spec v2 §2.4 |
 | F-F | Script kiểm kê kho linh kiện cho câu thực tế #4 + giai đoạn 0 design-pass | `scripts/` + mirror | T2 | — |
 | F-G | Máy soi mật độ chữ kỹ thuật ở vùng mặt-người (ratchet như census DS, chạy khi nâng bộ dựng thẻ) | `scripts/` + `commands/` + mirror | T2 | spec v2 §4.1 |
+| F-H | Lệnh `/start` — nghi thức vào phiên: người gõ một lệnh, máy quét `_acceptance/` + PRODUCT-MAP trình thẻ 3 nhóm (chờ ký · đang dở · bắt đầu mới), người chọn một chữ cái, bàn giao sang nghi thức đích; khoá model-invocation 2 harness (thao tác người thứ 6 — nợ P31/P32 mở rộng trả tại đây). Design đã duyệt hướng: `docs/specs/2026-08-03-start-command-design.md` | `commands/` + `codex/` + `tests/` + `GUIDE.md` + mirror | T2 | thi công qua feature-loop, 1-2 buổi | 
 
 ## DP-1 — Scorecard (điền sau V1)
 
