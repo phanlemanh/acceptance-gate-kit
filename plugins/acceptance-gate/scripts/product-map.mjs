@@ -200,7 +200,7 @@ if (isMain) {
   // đã dựng cho chính lớp lỗi này: một lỗi gõ (`--chek`) không được biến lệnh
   // KIỂM thành lệnh GHI rồi báo thành công — nó xoá luôn cái drift vừa tiêm.
   // Và `--root` không có giá trị thì `--check` bị nuốt làm đường dẫn, script
-  // soi một thư mục không tồn tại rồi exit 0 mà chẳng kiểm gì. ADR 0003 lấy
+  // soi một thư mục không tồn tại rồi exit 0 mà chẳng kiểm gì. ADR 0007 lấy
   // `--check` làm cổng độc lập DUY NHẤT biện minh cho miễn trừ t1 của bản đồ,
   // nên `--check` fail-open là cả miễn trừ mất căn cứ.
   for (let i = 0; i < args.length; i++) {

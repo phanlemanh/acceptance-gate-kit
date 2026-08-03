@@ -3512,6 +3512,16 @@ assert "product-map.mjs" in t, "thieu buoc lam moi ban do"
 assert t.find("product-map.mjs") > t.find("decided_by"), \
     "buoc lam moi ban do nam TRUOC luc ky — sai diem regen"
 
+# Con tro khuon phai GIAI DUOC tren dia — do DAU RA chu khong do CHI DAN.
+# Truoc S4-r7 than skill viet "references/uat-session-template.md" (tuong doi
+# voi thu muc skill) trong khi khuon nam o skills/acceptance/references/, nen
+# agent chay that se doc truot va tu go frontmatter — mat luon seam ma P102
+# dung ra de giu ben viet va ben doc khop nhau.
+m = re.search(r"Chép khuôn từ `([^`]+)`", raw)
+assert m, "than skill khong con cau 'Chép khuôn từ `<duong-dan>`'"
+ct = m.group(1).replace("${CLAUDE_PLUGIN_ROOT}/", "").replace("$CLAUDE_PLUGIN_ROOT/", "")
+assert (root / ct).is_file(), f"con tro khuon KHONG giai duoc: {m.group(1)} -> {ct}"
+
 # skill MO: khong co co khoa invocation (doi chung duong tren mot lenh LOCKED)
 assert "disable-model-invocation" not in t, "uat-session bi khoa — tien le design-pass la MO"
 locked = (root / "commands/start.md").read_text(encoding="utf-8")
@@ -3975,8 +3985,20 @@ assert "product-map.mjs --root . --check" in ci, \
 for xau in [".github/**", ".claude-plugin/plugin.json"]:
     assert xau not in t1, f"{xau} da bi nuot vao t1_skip_globs — de xuat nay DA BI TU CHOI (.out-of-scope/)"
 
-# 5. Quyet dinh chinh sach nay phai co ADR
-adr = root / "docs/adr/0003-product-map-t1-exemption.md"
+# 5a. KHONG hai ADR nao duoc trung so — dinh danh trung lam hong chinh chuc
+#     nang tra nguoc ma ADR ton tai de phuc vu (vong nay tung dam: file moi lay
+#     lai so 0003 trong khi 0003 da thuoc mot quyet dinh khac).
+import collections
+sos = collections.defaultdict(list)
+for f in sorted((root / "docs/adr").glob("*.md")):
+    m = re.match(r"^(\d{4})-", f.name)
+    assert m, f"ten ADR khong theo khuon NNNN-...: {f.name}"
+    sos[m.group(1)].append(f.name)
+trung = {k: v for k, v in sos.items() if len(v) > 1}
+assert not trung, f"ADR trung so: {trung}"
+
+# 5b. Quyet dinh chinh sach nay phai co ADR
+adr = root / "docs/adr/0007-product-map-t1-exemption.md"
 assert adr.is_file(), "thieu ADR cho mot lan noi danh sach mien tru"
 at = adr.read_text(encoding="utf-8")
 for needle in ["PRODUCT-MAP.md", "--check", "t1-skip-globs-github-and-manifests"]:

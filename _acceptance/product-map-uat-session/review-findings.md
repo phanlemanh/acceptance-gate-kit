@@ -1,74 +1,62 @@
 ## Trong hợp đồng
 
-- **Bản đồ sản phẩm in tên việc bị cụt vì frontmatterField cắt nhầm dấu nháy cuối — bản đã commit đang sai**
-  AC: AC-13b
-  file: `PRODUCT-MAP.md:36`
-  severity: medium
-  detail: lib/evidence-core.js:96 dùng `.replace(/^["']|["']$/g, '')` — nó gỡ nháy ĐẦU và nháy CUỐI độc lập, nên một giá trị KHÔNG được quote nhưng kết thúc bằng `"` bị mất ký tự cuối.
-
-  Đo thật trên hồ sơ có sẵn trong repo:
-  `_acceptance/s4-scope-triage/contract.md:3` →  `feature: Scope-triage cho review findings ở S4 — ngăn thứ ba "thật nhưng ngoài hợp đồng"`
-  `frontmatterField(...,'feature')` → `'Scope-triage cho review findings ở S4 — ngăn thứ ba "thật nhưng ngoài hợp đồng'`   (mất dấu `"` cuối)
-
-  Hệ quả nhìn thấy được: PRODUCT-MAP.md:36 đã commit với dòng nháy lệch `... ngăn thứ ba "thật nhưng ngoài hợp đồng (`s4-scope-triage`)`. Đây là artifact mặt người, máy sinh, có CI canh — nên cái sai này được ghim cứng và tái sinh mỗi lần regen.
-
-  Lỗi gốc ở evidence-core có trước diff này, nhưng diff này mới là thứ dựng consumer in nguyên văn `feature:` ra văn bản cho người đọc, và commit sẵn đầu ra hỏng. Sửa đúng chỗ: chỉ bóc nháy khi cặp KHỚP (`/^"(.*)"$/` hoặc `/^'(.*)'$/`), kèm ca RED trong P111 (khối "đối chứng dương" ở mục 4 hiện chưa có hình dạng giá trị-kết-thúc-bằng-nháy).
+Không có finding nào map được vào AC round này.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **start-scan giữ luật "hồ sơ hỏng" thứ hai ngoài lib/workspace-record.js — hai reader vẫn cho kết luận trái nhau**
-  Người dùng thấy gì: Khi một hồ sơ bằng chứng bị lỗi định dạng, /start báo "hồ sơ hỏng" nhưng bản đồ sản phẩm lại hiển thị việc đó như đang làm bình thường — hai nơi nói khác nhau về cùng một việc, dễ khiến bạn bỏ sót việc cần sửa.
-  file: `scripts/start-scan.mjs`
+- **ADR số 0003 bị trùng — hai ADR khác nhau cùng số, mọi tham chiếu "ADR 0003" thành nhập nhằng**
+  Người dùng thấy gì: Hai quyết định thiết kế khác nhau trong hồ sơ dự án đang dùng chung một số hiệu tài liệu, nên khi ai đó tra lại quyết định theo số hiệu này có thể mở nhầm tài liệu và hiểu sai lý do đằng sau.
+  file: `docs/adr/0003-product-map-t1-exemption.md`
   severity: high
   Đề xuất: known-limits
 
-- **Cổng Giá trị là cổng người thứ tư nhưng không nằm trong danh sách khoá, và quyết định đó không được ghi ở đâu ngoài comment test**
-  Người dùng thấy gì: Bước ký duyệt giá trị sản phẩm (Cổng Giá trị) không có lệnh gõ tay riêng để bàn giao như ba cổng còn lại, và lý do vì sao bước này được để mở chỉ nằm trong ghi chú kỹ thuật nội bộ — người vận hành có thể không nắm được quy tắc này.
+- **skills/uat-session/SKILL.md trỏ tới `references/uat-session-template.md` không tồn tại trong thư mục skill**
+  Người dùng thấy gì: Bước hướng dẫn đầu tiên của nghi thức phiên nghiệm thu trỏ tới một khuôn mẫu không có ở nơi được chỉ, nên người hoặc trợ lý làm theo bước này sẽ không tìm thấy khuôn mẫu và có thể phải tự đoán cách điền phiên nghiệm thu.
   file: `skills/uat-session/SKILL.md`
+  severity: high
+  Đề xuất: known-limits
+
+- **Luật "bản đồ có mặt không" KHÔNG được gom về một chỗ — hai reader cho hai kết luận trái nhau khi PRODUCT-MAP.md bị xoá**
+  Người dùng thấy gì: Khi bản đồ sản phẩm bị mất sau khi từng được lưu, một công cụ báo bình thường ("chưa có bản đồ, sẽ tự vẽ") còn công cụ kia báo cần khôi phục ngay — người mở phiên làm việc có thể yên tâm nhầm trong khi hệ thống kiểm tra tự động đang báo lỗi.
+  file: `scripts/start-scan.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **`.out-of-scope/` là input của bản đồ nhưng không có điểm regen nào — mọi PR ghi một quyết-định-không-làm sẽ đỏ CI**
-  Người dùng thấy gì: Khi bạn ghi lại một quyết định "không làm" vào hồ sơ, bước kiểm tra tự động trên các PR sau có thể báo lỗi "lệch bản đồ" dù không ai làm gì sai, vì chưa có bước nào tự cập nhật lại bản đồ sau khi ghi quyết định đó.
-  file: `.github/workflows/gate.yml`
-  severity: medium
-  Đề xuất: known-limits
-
-- **P113 phá PRODUCT-MAP.md THẬT trong cây làm việc thay vì trong bản sao**
-  Người dùng thấy gì: Đây là vấn đề trong bộ kiểm thử nội bộ chứ không phải trong sản phẩm bàn giao — nếu bộ kiểm thử bị ngắt giữa chừng, file bản đồ sản phẩm đã lưu trong kho có thể bị ghi bẩn một dòng giả.
-  file: `tests/plugins/run-tests.sh`
+- **Thêm một cổng người thứ tư (Cổng Giá trị / uat-session) mà không cập nhật ADR 0002 và CLAUDE.md — chính sách khoá invocation chỉ còn sống trong comment của test**
+  Người dùng thấy gì: Cổng nghiệm thu mới (Cổng Giá trị) cố tình được để mở cho máy gọi, nhưng lý do đó chưa được ghi vào tài liệu chính sách chung — người bảo trì sau này đọc tài liệu có thể tưởng đây là thiếu sót và khoá nhầm, làm gãy luồng bàn giao đang hoạt động.
+  file: `docs/adr/0002-human-gate-invocation-lock.md`
   severity: low
   Đề xuất: known-limits
 
-- **Hai reader vẫn trái nhau về "hồ sơ hỏng": evidence-report.md nằm ngoài luật chung**
-  Người dùng thấy gì: Cùng một hồ sơ nghiệm thu bị lỗi lại được /start và bản đồ sản phẩm báo cáo khác nhau — một bên nói "hỏng", một bên nói "đang làm bình thường" — khiến người xem không biết nên tin bên nào.
+- **Hai reader vẫn cho hai kết luận trái nhau về 'hồ sơ hỏng' (evidence-report.md nằm ngoài luật chung)**
+  Người dùng thấy gì: Một hồ sơ công việc có báo cáo bằng chứng bị hỏng hoặc thiếu sẽ được một công cụ gắn cờ có vấn đề, nhưng công cụ kia lại xếp nó vào mục bình thường trên bản đồ sản phẩm — người xem bản đồ không biết công việc đó đang gặp trục trặc.
   file: `scripts/start-scan.mjs`
   severity: high
   Đề xuất: known-limits
 
-- **--check exit 0 khi PRODUCT-MAP.md bị xoá — xoá bản đồ lọt qua cổng CI duy nhất canh nó**
-  Người dùng thấy gì: Nếu file bản đồ sản phẩm bị xoá nhầm (không phải chưa từng có), công cụ kiểm tra tự động vẫn báo "ổn" thay vì báo lỗi — việc xoá nhầm bản đồ có thể lọt qua mà không ai phát hiện.
+- **`--check` fail-open khi `git ls-files` lỗi vì lý do KHÁC 'file chưa được theo dõi'**
+  Người dùng thấy gì: Trong một số tình huống môi trường bất thường, công cụ kiểm tra bản đồ sản phẩm có thể báo mọi thứ ổn ngay cả khi bản đồ thực ra đã bị mất — khiến người xem tin nhầm là an toàn.
   file: `scripts/product-map.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **Phiên nghiệm thu đã dựng nhưng chưa ký biến mất khỏi nhóm chờ ký khi slug không thuộc đường A**
-  Người dùng thấy gì: Một phiên nghiệm thu đã được chuẩn bị nhưng chưa có người ký kết luận có thể biến mất khỏi danh sách "đang chờ bạn ký" trên thẻ /start nếu việc đó không đi theo đúng nhánh quy trình đã ghi.
+- **`since` của cổng `gia-tri` neo vào `decided_at` — trường chỉ tồn tại SAU khi slug đã rời khỏi nhóm cổng**
+  Người dùng thấy gì: Cách tính thời gian chờ của bước nghiệm thu giá trị có thể bị đặt lại mỗi khi hồ sơ được chạm vào bởi việc định dạng hoặc đồng bộ, nên một công việc thực sự chờ đã lâu có thể trông như mới chờ gần đây và bị xếp xuống dưới trong danh sách ưu tiên.
   file: `scripts/start-scan.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **Cơ hội stage: archived nằm mãi trong nhóm chờ chữ ký người**
-  Người dùng thấy gì: Một cơ hội sản phẩm đã được xếp vào kho lưu vẫn bị liệt kê mãi trong danh sách "đang chờ bạn cân nhắc" trên thẻ /start, dù thực ra không còn cần quyết định gì nữa.
-  file: `scripts/start-scan.mjs`
-  severity: medium
+- **Giá trị có nháy kèm ` #` đọc ra thừa một dấu nháy mở, in nguyên văn ra bản đồ**
+  Người dùng thấy gì: Nếu mô tả tính năng trong hồ sơ có chứa dấu # bên trong cặp nháy kép, bản đồ sản phẩm hiển thị mô tả đó bị cụt và còn sót một dấu nháy lạc — người đọc thấy dòng mô tả trông hỏng hoặc không rõ nghĩa.
+  file: `lib/evidence-core.js`
+  severity: low
   Đề xuất: known-limits
 
-- **Case P113 ghi đè file PRODUCT-MAP.md đang được theo dõi của chính repo trong lúc chạy test**
-  Người dùng thấy gì: Đây là vấn đề trong bộ kiểm thử nội bộ chứ không phải trong sản phẩm bàn giao — nếu bộ kiểm thử bị ngắt giữa chừng hoặc chạy chồng với thao tác ghi khác, file bản đồ sản phẩm đã lưu trong kho có thể bị ghi bẩn.
-  file: `tests/plugins/run-tests.sh`
+- **Thân `/start` bên Codex trỏ sang skill `uat-session` không tồn tại trong harness đó**
+  Người dùng thấy gì: Người dùng harness Codex khi được điều hướng tới bước phiên nghiệm thu sẽ gặp ngõ cụt vì bước đó chưa có bên Codex — đây là giới hạn đã biết, chưa hỗ trợ ở harness này.
+  file: `codex/acceptance-gate/skills/start/SKILL.md`
   severity: low
   Đề xuất: known-limits
 

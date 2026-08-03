@@ -26,7 +26,7 @@ cho nó.
 
 ## 1. Dựng hồ sơ TRƯỚC khi mời người
 
-Chép khuôn từ `references/uat-session-template.md` sang
+Chép khuôn từ `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/uat-session-template.md` sang
 `_acceptance/<slug>/uat-session.md`, `stage: scheduled`, `verdict` để TRỐNG.
 
 **Chép NGUYÊN VĂN ngưỡng** từ `opportunity.md` vào section ngưỡng. Từ giây
