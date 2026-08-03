@@ -197,7 +197,7 @@ plugin/DS của repo · handbook đội · 2 key consumer:
 - **Vòng đo sau ship**: kết quả đo append vào opportunity → retro
   per-feature (input: journal + ledger + rounds + usage) → nuôi D1 vòng sau.
 
-### 2.4 Định tuyến A/B/C/D — máy-suy, không hỏi người
+### 2.4 Định tuyến A/B/C/D/E — máy-suy, không hỏi người
 
 > **UAT theo GIẢ ĐỊNH, không theo kích thước/UI.**
 
@@ -207,9 +207,31 @@ plugin/DS của repo · handbook đội · 2 key consumer:
 | **B** UI-không-giả-định-mới | chạm UI, không opportunity | không (nguồn: lát-2/known-limits) | **BẬT** | chuẩn plugin/DS | ship thẳng (nghiệm thu trải nghiệm = Cổng Phạm-vi bản-bấm-được; đo qua tracking) |
 | **C** backend/kỹ thuật | không UI, không opportunity | không (nguồn: queue/plan/retro) | tắt | **invariant backend repo** | ship thẳng ("UAT" = itest trong evals; T3 → soak) |
 | **D** T1 | match `t1_skip_globs` | — | — | — | thoát S0 có xác nhận |
+| **E** hệ thiết kế | vật giao ra là LINH KIỆN vào hệ dùng chung (không phải màn hình) | không | **BẬT** — nhưng trên trang trưng bày linh kiện, không trên màn sản phẩm | chuẩn DS + kiểm đếm | ship thẳng; không phiên UAT |
 
-Chống-quên: đường B/C → contract Notes TỰ ghi "không giả định giá trị mới —
+**Đường E — chi tiết.** Biến thể của B, khác ở **vật giao** nên khác ở
+**thước**: màn hình đo bằng "người dùng làm được việc X"; linh kiện đo bằng
+*dùng được ≥2 chỗ thật · số biến thể không tăng (ratchet) · a11y đạt · từ
+vựng token hợp lệ*. Nhịp riêng: Khai (mẫu giải quyết gì · dùng ở đâu · thước
+gì) → Làm (dựng trên trang trưng bày) → Đo (4 thước trên) → Quyết (nhận vào
+hệ / trả về). **Guard chống lạm dụng:** đường E CHỈ dành cho thứ vào hệ dùng
+chung; sửa nhỏ một chỗ hoặc dựng-một-lần-dùng-riêng đi lối **nợ có tên**
+(hiện trong PRODUCT-MAP kèm hạn trả), không mở nghi thức đường E.
+
+Chống-quên: đường B/C/E → contract Notes TỰ ghi "không giả định giá trị mới —
 không phiên UAT" (cổng thấy chữ); có ngưỡng UAT mà định ship thẳng → CHẶN.
+
+**Phân loại mẫu ở HAI tầng — không phải trùng lặp** (ghi rõ kẻo bị xoá nhầm):
+khám phá (câu thực tế #4) hỏi *có rủi ro vật liệu không, cỡ nào* → đổi **phạm
+vi + quyết định làm** tại Cổng Đáng; phiên thiết kế (giai đoạn 0) hỏi *cụ thể
+mẫu nào, đối chiếu kho thật, chọn lối từng cái* → đổi **cách chạy phiên**.
+Cùng cặp altitude với câu dữ liệu (khám phá: có tồn tại không · S1: trường
+nào lấy đâu).
+
+**Trạng thái máy-suy:** định tuyến hiện là **quy ước người/model đọc hồ sơ**,
+CHƯA có máy tự nhận đường; kiểm kê kho cho câu #4 cũng chưa có script. Hai
+việc này thuộc F-series — cho tới lúc đó, đường và kiểm kê do phiên khai
+tường minh trong hồ sơ, người duyệt soi tại cổng.
 
 ---
 
@@ -357,7 +379,7 @@ invoke định kỳ: skill 0-invoke một quý → khai tử hoặc tái định
 ## PHỤ LỤC
 
 **A. Thuật ngữ mới (authoring-level; CONTEXT.md cập nhật khi F-series land):**
-Nhịp KLĐQ · grill-mode · song diện · đường A/B/C/D · Cổng
+Nhịp KLĐQ · grill-mode · song diện · đường A/B/C/D/E · Cổng
 Đáng/Phạm-vi/Kế-hoạch/Bằng-chứng/Giá-trị (display) · nuôi-không-sinh ·
 inventory-first · một-mặt-phẳng · phễu-phải-có-lưới.
 
