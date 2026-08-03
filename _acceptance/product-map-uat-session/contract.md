@@ -98,3 +98,27 @@ chấm kín, Scrum Sprint Review — nghiệm thu trên sản phẩm chạy):
   khoá khai không ai sinh được là hợp đồng chết — case round-trip P99 đòi mọi
   khoá khai phải soi được trong đầu ra THẬT. Hai case (P98, P121) nay ghim sự
   VẮNG MẶT của khoá.
+
+## Known limits (ký Cổng 2, 2026-08-04 — round 16)
+
+Bảy hạn chế đã biết, chấp nhận để ship; món 1–5 và 7 có chủ là hợp đồng
+`workspace-reader-unification` (draft, chờ Cổng 1):
+
+1. Trục `evidence-report.md` chưa vào luật đọc chung — bộ quét còn luật riêng
+   cho file này (AC-1 hợp đồng nối tiếp).
+2. Luật xếp ô (`stage !== 'decided'`) còn đứng ở cả hai bên đọc — luật hỏng đã
+   chung, luật xếp ô thì chưa (AC-3).
+3. `--check` với `--root` trỏ sai đường vẫn xanh — so với cây rỗng thay vì kêu
+   to (AC-5).
+4. Glossary còn thiếu 3 term: `uat-session.md`, `PRODUCT-MAP.md`, `verdict`
+   mang hai enum (AC-6).
+5. `_acceptance/` mất quyền đọc → thẻ /start nói "repo chưa dựng cổng" thay vì
+   nói không đọc được (bàn giao từ start-scan-hardening).
+6. Chữ thừa hưởng trường `feature:` của 14 hồ sơ đã ký chưa qua chuẩn N1–N6 —
+   hội đồng AC-13b tự loại khỏi phán quyết; sửa là chiến dịch trên hồ sơ cũ,
+   không thuộc engine.
+7. `configList` trượt dòng khoá có comment đuôi (`t1_skip_globs:   # …`) →
+   `map.enabled` báo sai và tín hiệu `daBat` của chốt xoá-bản-đồ tắt trên CI
+   checkout nông (finding round 16, medium). Khuôn `acceptance-init` phát sẵn
+   không mang hình dạng này. Sửa: regex cho phép comment sau dấu hai chấm + thêm
+   hình dạng key-line-comment vào bộ HINH của P130 — nhập vào hợp đồng nối tiếp.

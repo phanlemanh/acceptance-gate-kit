@@ -48,6 +48,14 @@ Known limits mục 1–2 của contract đó.
 
 ## Notes
 
+**Nhận từ Cổng 2 của product-map-uat-session (2026-08-04, round 16):**
+`configList` (lib/workspace-record.js) trượt dòng khoá có comment đuôi — bản
+bash của pre-merge đọc được, bản JS trả rỗng, tức chính hàm sinh ra để thống
+nhất cách đọc config lại tự mở một chiều lệch mới. Kèm hệ quả chuỗi: tắt tín
+hiệu `daBat` của chốt xoá-bản-đồ trên CI checkout nông. Khi làm AC về cách đọc
+config, thêm hình dạng key-line-comment vào bộ HINH của P130 làm RED case.
+
+
 - Vòng trước dạy: **vá một file trong họ lỗi này thì nó hiện ra ở file kế tiếp**.
   Cách đo đúng là gắn thước vào QUAN HỆ "mọi bên đọc đồng ý" trên TOÀN BỘ tập
   file, không gắn vào bảng luật hiện có — P123 xanh suốt chín vòng chính vì
