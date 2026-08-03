@@ -3105,6 +3105,47 @@ assert not ("/start" in mut2 and "vào phiên" in mut2), \
     "dot bien xoa muc /start khoi GUIDE ma phep do van xanh"
 PY
 
+# ── P102: khuon canonical -> fixture -> reader chuan (round-trip seam) ──────
+# Fixture cua moi case sau nay rut tu marker nay; case nay chung minh khuon
+# VIET va khuon MAY DOC con khop. Doi chung duong truoc, roi tiem hong.
+run "P102 khuon canonical 3 artifact rut duoc + frontmatterField doc duoc (E1,E8)" \
+  node --input-type=module -e '
+const root = process.argv[1];
+const path = await import("node:path");
+const { createRequire } = await import("node:module");
+const require = createRequire(import.meta.url);
+const { frontmatterField } = require(path.join(root, "lib/evidence-core.js"));
+const { fileFromTemplate } = await import(path.join(root, "tests/fixtures/from-template.mjs"));
+const R = p => path.join(root, "skills/acceptance/references", p);
+const die = m => { console.error(m); process.exit(1); };
+
+const cases = [
+  ["uat-session-template.md", "UAT-FRONTMATTER-TEMPLATE",
+   { slug: "s1", feature: "f", owner: "o", stage: "held", verdict: "release",
+     decided_by: "Manh", decided_at: "2026-08-03T00:00:00Z", gateUAT_minutes: "20" },
+   { verdict: "release", stage: "held", decided_at: "2026-08-03T00:00:00Z" }],
+  ["contract-template.md", "CONTRACT-FRONTMATTER-TEMPLATE",
+   { feature: "f", slug: "s2", owner: "o", risk_tier: "T2", surfaces: "cli", status: "draft" },
+   { status: "draft", risk_tier: "T2", slug: "s2" }],
+  ["opportunity-template.md", "OPP-FRONTMATTER-TEMPLATE",
+   { slug: "s3", feature: "f", owner: "o", stage: "decided", decision: "build",
+     decided_by: "M", decided_at: "2026-08-03T00:00:00Z", gate0_minutes: "10",
+     base_commit: "abc", disposition: "keep" },
+   { stage: "decided", decision: "build" }],
+];
+for (const [file, marker, values, expect] of cases) {
+  const txt = fileFromTemplate(R(file), marker, values);
+  for (const [k, v] of Object.entries(expect))
+    if (frontmatterField(txt, k) !== v)
+      die(file + ": reader doc " + k + " = " + JSON.stringify(frontmatterField(txt, k)) + ", mong " + v);
+  // doi chung am: marker sai thi helper PHAI nem, khong im lang tra rong
+  let threw = false;
+  try { fileFromTemplate(R(file), marker + "-KHONG-CO", values); } catch { threw = true; }
+  if (!threw) die(file + ": marker sai ma helper van tra ve noi dung");
+}
+console.log("P102 OK");
+' "$ROOT"
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
