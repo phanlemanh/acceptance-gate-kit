@@ -292,7 +292,7 @@ Round 4: 15/15 eval máy (E1-E15) PASS — bốn lỗ đo mà round 3 nêu trên
 
 Machine lane do agent TƯƠI của S4 round 11 (`wf_7c6d877e-022`, doer≠grader)
 chạy tại đúng sha `62444dfd5f6ce79836034b2695bc69f87425495d`: 5 suite exit 0 —
-scripts 596 pass · hooks 51 pass · plugins pass (P01–P114, gồm case của slug
+scripts 596 pass · hooks 51 pass · plugins pass (P01–P127, gồm case của slug
 này) · workflows pass · mirror `sync-plugin-packages.sh --check` in sync. Bản
 đồ sản phẩm `--check` exit 0 cùng lượt. Judgment + chữ ký của slug này GIỮ
 NGUYÊN — chỉ đổi mốc ghim của làn máy.

@@ -1,5 +1,5 @@
 # Evals — product-map-uat-session
-# Mọi eval máy chạy qua suite tests/plugins (case P102+ viết ở S3, số chốt khi
+# Mọi eval máy chạy qua suite tests/plugins (case P115+ viết ở S3, số chốt khi
 # viết test). cmd là config: ref — resolve tại S4; paths phục vụ carry-forward
 # P1. Fixture PHẢI do code sinh trong chính lần chạy; mọi case âm tính có đối
 # chứng dương (bản nguyên vẹn XANH trước bản tiêm hỏng) + ghim đúng thông điệp.
@@ -151,7 +151,7 @@ evals:
     criterion: AC-1
     executor: test
     cmd: config:executors.test.plugins
-    expected: "case P110 pass: 11 ca hồ sơ (lành mạnh · uat mất frontmatter · verdict lạ · verdict rỗng · status rỗng · status lạ · contract mất frontmatter · decision lạ trên signed-off · stage lạ · opportunity mất frontmatter · workspace rỗng) đưa cho CẢ bản đồ lẫn bộ quét — hai reader phải cho CÙNG kết luận hỏng/không-hỏng từng ca, và hồ sơ hỏng phải nêu tên file ở cả hai; có ca lành mạnh làm đối chứng dương"
+    expected: "case P123 pass: 11 ca hồ sơ (lành mạnh · uat mất frontmatter · verdict lạ · verdict rỗng · status rỗng · status lạ · contract mất frontmatter · decision lạ trên signed-off · stage lạ · opportunity mất frontmatter · workspace rỗng) đưa cho CẢ bản đồ lẫn bộ quét — hai reader phải cho CÙNG kết luận hỏng/không-hỏng từng ca, và hồ sơ hỏng phải nêu tên file ở cả hai; có ca lành mạnh làm đối chứng dương"
     paths:
       - lib/workspace-record.js
       - scripts/product-map.mjs
@@ -162,7 +162,7 @@ evals:
     criterion: AC-1
     executor: test
     cmd: config:executors.test.plugins
-    expected: "case P111 pass: khoá frontmatter để TRỐNG trả '' chứ không nuốt dòng kế — fixture CỐ Ý không có comment # che (verdict: giữa uat-session, approved_at: giữa contract, human_signoff: giữa evidence-report); đối chứng dương 7 hình dạng giá trị khác giữ nguyên hành vi (khoảng trắng, quote, comment cuối dòng, comment-only, CRLF, khoá cuối, khoá vắng→null); và ca đầu-đến-cuối: phiên chưa ký là hồ sơ LÀNH MẠNH với recordProblem"
+    expected: "case P124 pass: khoá frontmatter để TRỐNG trả '' chứ không nuốt dòng kế — fixture CỐ Ý không có comment # che (verdict: giữa uat-session, approved_at: giữa contract, human_signoff: giữa evidence-report); đối chứng dương 7 hình dạng giá trị khác giữ nguyên hành vi (khoảng trắng, quote, comment cuối dòng, comment-only, CRLF, khoá cuối, khoá vắng→null); và ca đầu-đến-cuối: phiên chưa ký là hồ sơ LÀNH MẠNH với recordProblem"
     paths:
       - lib/evidence-core.js
       - lib/workspace-record.js
@@ -172,7 +172,7 @@ evals:
     criterion: AC-13a
     executor: test
     cmd: config:executors.test.plugins
-    expected: "case P112 pass: bản đồ có khối mermaid ĐỨNG TRƯỚC mọi mục danh sách; hình nêu đủ 4 cổng người và mang số THẬT (thêm một việc vào fixture → số trong hình đổi theo, đây là đối chứng dương chống hình-chuỗi-chết); chặng rỗng nói 'chưa có'; dòng ghi chú không lấy máy làm chủ ngữ và không có đường dẫn trong câu chính; tên mục không chứa tên cơ chế máy; mọi dòng việc khớp khuôn 'tên việc (slug)' và không in đậm cả câu"
+    expected: "case P125 pass: bản đồ có khối mermaid ĐỨNG TRƯỚC mọi mục danh sách; hình nêu đủ 4 cổng người và mang số THẬT (thêm một việc vào fixture → số trong hình đổi theo, đây là đối chứng dương chống hình-chuỗi-chết); chặng rỗng nói 'chưa có'; dòng ghi chú không lấy máy làm chủ ngữ và không có đường dẫn trong câu chính; tên mục không chứa tên cơ chế máy; mọi dòng việc khớp khuôn 'tên việc (slug)' và không in đậm cả câu"
     paths:
       - scripts/product-map.mjs
       - tests/plugins/run-tests.sh
@@ -181,7 +181,7 @@ evals:
     criterion: AC-14
     executor: test
     cmd: config:executors.test.plugins
-    expected: "case P113 pass: PRODUCT-MAP.md nằm TRONG t1_skip_globs (rút đúng danh sách, không grep cả file); đối chứng dương --check XANH trước, rồi sửa tay bản đồ → --check ĐỎ đúng thông điệp ghim (chứng minh miễn trừ vẫn có cổng canh); gate.yml có bước chạy --check; miễn trừ KHÔNG lan sang .github/** hay .claude-plugin/plugin.json; ADR 0003 tồn tại và nêu cả lý do lẫn đề xuất đã bị từ chối"
+    expected: "case P126 pass: PRODUCT-MAP.md nằm TRONG t1_skip_globs (rút đúng danh sách, không grep cả file); đối chứng dương --check XANH trước, rồi sửa tay bản đồ → --check ĐỎ đúng thông điệp ghim (chứng minh miễn trừ vẫn có cổng canh); gate.yml có bước chạy --check; miễn trừ KHÔNG lan sang .github/** hay .claude-plugin/plugin.json; ADR 0003 tồn tại và nêu cả lý do lẫn đề xuất đã bị từ chối"
     paths:
       - _acceptance/config.yaml
       - .github/workflows/gate.yml

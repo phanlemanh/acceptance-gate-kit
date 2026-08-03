@@ -3130,10 +3130,10 @@ mut2 = "\n".join(l for l in gm.splitlines() if "/start" not in l and "vào phiê
 assert check_doc(mut2) != [], "dot bien xoa muc /start khoi GUIDE ma phep do van xanh"
 PY
 
-# ── P102: khuon canonical -> fixture -> reader chuan (round-trip seam) ──────
+# ── P115: khuon canonical -> fixture -> reader chuan (round-trip seam) ──────
 # Fixture cua moi case sau nay rut tu marker nay; case nay chung minh khuon
 # VIET va khuon MAY DOC con khop. Doi chung duong truoc, roi tiem hong.
-run "P102 khuon canonical 3 artifact rut duoc + frontmatterField doc duoc (E1,E8)" \
+run "P115 khuon canonical 3 artifact rut duoc + frontmatterField doc duoc (E1,E8)" \
   node --input-type=module - "$ROOT" <<'P102JS'
 const root = process.argv[2];  // dang stdin: argv[1] la "-"
 const path = await import("node:path");
@@ -3168,13 +3168,13 @@ for (const [file, marker, values, expect] of cases) {
   try { fileFromTemplate(R(file), marker + "-KHONG-CO", values); } catch { threw = true; }
   if (!threw) die(file + ": marker sai ma helper van tra ve noi dung");
 }
-console.log("P102 OK");
+console.log("P115 OK");
 P102JS
 
-# ── P103-P105: bo sinh ban do — bucket, bat bien, xac dinh, canh ───────────
-# Fixture code-sinh trong chinh lan chay, RUT TU KHUON canonical (P102 canh
+# ── P116-P118: bo sinh ban do — bucket, bat bien, xac dinh, canh ───────────
+# Fixture code-sinh trong chinh lan chay, RUT TU KHUON canonical (P115 canh
 # khuon do). Moi case am tinh co doi chung duong truoc va ghim dung thong diep.
-run "P103 product-map bucket du moi hang + enum-lac tung field dieu huong (E1)" \
+run "P116 product-map bucket du moi hang + enum-lac tung field dieu huong (E1)" \
   node --input-type=module - "$ROOT" <<'P103JS'
 const root = process.argv[2];  // dang stdin: argv[1] la "-"
 const fs = await import("node:fs"); const os = await import("node:os");
@@ -3275,10 +3275,10 @@ for (const [rel, from, to, field] of MUT) {
     die("enum-lac o " + field + ": muc Ho so hong khong neu ten field + gia tri la");
   fs.writeFileSync(p, orig);
 }
-console.log("P103 OK");
+console.log("P116 OK");
 P103JS
 
-run "P104 map GIU NGUYEN qua approved->implemented->verified; DOI qua cong nguoi (E2)" \
+run "P117 map GIU NGUYEN qua approved->implemented->verified; DOI qua cong nguoi (E2)" \
   node --input-type=module - "$ROOT" <<'P104JS'
 const root = process.argv[2];  // dang stdin: argv[1] la "-"
 const fs = await import("node:fs"); const os = await import("node:os");
@@ -3307,10 +3307,10 @@ fs.writeFileSync(cPath, contract("signed-off"));
 if (renderProductMap(tmp) === base) die("map khong doi khi da ky signed-off — bucket khong con phan biet gi");
 fs.writeFileSync(cPath, contract("draft"));
 if (renderProductMap(tmp) === base) die("map khong doi giua draft va approved — phep do nay khong song");
-console.log("P104 OK");
+console.log("P117 OK");
 P104JS
 
-run "P105 render 2 lan giong het + sort theo slug + canh chi hien khi ho so co (E4,E5)" \
+run "P118 render 2 lan giong het + sort theo slug + canh chi hien khi ho so co (E4,E5)" \
   node --input-type=module - "$ROOT" <<'P105JS'
 const root = process.argv[2];  // dang stdin: argv[1] la "-"
 const fs = await import("node:fs"); const os = await import("node:os");
@@ -3349,11 +3349,11 @@ const lo = withEcho.split("\n").find(l => l.includes("(`omega`)")) || "";
 if ((lo.match(/omega/g) || []).length !== 1)
   die("dong ban do vong lai ten may hai lan: " + lo);
 if (!lo.includes("lam cho nguoi dung X")) die("cat tien to lam mat luon mo ta: " + lo);
-console.log("P105 OK");
+console.log("P118 OK");
 P105JS
 
-# ── P106: --check 4 trang thai + goi y lenh chay duoc o CHINH repo dang do ──
-run "P106 --check fresh/stale/thieu-file/chua-init + path suy tu vi tri script (E3)" \
+# ── P119: --check 4 trang thai + goi y lenh chay duoc o CHINH repo dang do ──
+run "P119 --check fresh/stale/thieu-file/chua-init + path suy tu vi tri script (E3)" \
   node --input-type=module - "$ROOT" <<'P106JS'
 const root = process.argv[2];  // dang stdin: argv[1] la "-"
 const fs = await import("node:fs"); const os = await import("node:os");
@@ -3466,11 +3466,11 @@ try {
 if (daXoa.code === 0) die("XOA ban do da theo doi ma --check VAN xanh — cong duy nhat canh no im lang");
 if (!/đã bị xoá/.test(daXoa.err)) die("xoa ban do khong ghim dung thong diep: " + daXoa.err);
 fs.rmSync(gitTmp, { recursive: true, force: true });
-console.log("P106 OK");
+console.log("P119 OK");
 P106JS
 
-# ── P107: nghi thuc uat-session du chot + DUNG THU TU + khong khoa invocation ─
-run "P107 uat-session giu chot spec §2.3 dung thu tu; skill MO nhu design-pass (E12)" \
+# ── P120: nghi thuc uat-session du chot + DUNG THU TU + khong khoa invocation ─
+run "P120 uat-session giu chot spec §2.3 dung thu tu; skill MO nhu design-pass (E12)" \
   python3 - "$ROOT" <<'PY107'
 import re, sys
 from pathlib import Path
@@ -3515,7 +3515,7 @@ assert t.find("product-map.mjs") > t.find("decided_by"), \
 # Con tro khuon phai GIAI DUOC tren dia — do DAU RA chu khong do CHI DAN.
 # Truoc S4-r7 than skill viet "references/uat-session-template.md" (tuong doi
 # voi thu muc skill) trong khi khuon nam o skills/acceptance/references/, nen
-# agent chay that se doc truot va tu go frontmatter — mat luon seam ma P102
+# agent chay that se doc truot va tu go frontmatter — mat luon seam ma P115
 # dung ra de giu ben viet va ben doc khop nhau.
 m = re.search(r"Chép khuôn từ `([^`]+)`", raw)
 assert m, "than skill khong con cau 'Chép khuôn từ `<duong-dan>`'"
@@ -3545,8 +3545,8 @@ assert any("cham kin" in e for e in flow_errs(mut)), \
     f"dot bien go chot cham kin ma phep do van xanh: {flow_errs(mut)}"
 PY107
 
-# ── P108: start-scan doc phien nghiem thu + trang thai ban do (E10) ────────
-run "P108 o cho-Cong-Gia-tri + state theo verdict + since 2 nhanh + map 4 to hop (E10)" \
+# ── P121: start-scan doc phien nghiem thu + trang thai ban do (E10) ────────
+run "P121 o cho-Cong-Gia-tri + state theo verdict + since 2 nhanh + map 4 to hop (E10)" \
   node --input-type=module - "$ROOT" <<'P108JS'
 const root = process.argv[2];  // dang stdin: argv[1] la "-"
 const fs = await import("node:fs"); const os = await import("node:os");
@@ -3632,11 +3632,11 @@ const jErr = scan();
 fs.rmdirSync(mapP);
 if (jErr.map.present !== true || jErr.map.fresh !== null)
   die("khong doc duoc ban do phai cho present=true/fresh=null, got " + JSON.stringify(jErr.map));
-console.log("P108 OK");
+console.log("P121 OK");
 P108JS
 
-# ── P109: diem lam moi ban do o MOI than cong nguoi + config self-host ─────
-run "P109 buoc lam moi ban do nam SAU buoc ghi field cong, 2 harness + plugin-root (E6,E7)" \
+# ── P122: diem lam moi ban do o MOI than cong nguoi + config self-host ─────
+run "P122 buoc lam moi ban do nam SAU buoc ghi field cong, 2 harness + plugin-root (E6,E7)" \
   python3 - "$ROOT" <<'PY109'
 import sys
 from pathlib import Path
@@ -3693,8 +3693,8 @@ rc = subprocess.run(["node", "scripts/product-map.mjs", "--root", ".", "--check"
 assert rc.returncode == 0, f"PRODUCT-MAP.md cua kit lech voi ho so xuong: {rc.stderr.strip()}"
 PY109
 
-# ── P110: HAI READER cua cung bo ho so phai dong y cai gi HONG ─────────────
-run "P110 ban do va bo quet dong ket luan tren moi ca ho so hong (E1,E10)" \
+# ── P123: HAI READER cua cung bo ho so phai dong y cai gi HONG ─────────────
+run "P123 ban do va bo quet dong ket luan tren moi ca ho so hong (E1,E10)" \
   node --input-type=module - "$ROOT" <<'P110JS'
 const root = process.argv[2];  // dang stdin: argv[1] la "-"
 const fs = await import("node:fs"); const os = await import("node:os");
@@ -3792,14 +3792,14 @@ for (const [ten, files, phaiHong] of CASES) {
 }
 if (checked !== CASES.length) die("khong chay du ca: " + checked);
 if (!CASES.some(c => !c[2])) die("khong co ca LANH MANH nao — phep do thieu doi chung duong");
-console.log("P110 OK (" + checked + " ca, hai reader dong y tung ca)");
+console.log("P123 OK (" + checked + " ca, hai reader dong y tung ca)");
 P110JS
 
-# ── P111: khoa RONG khong duoc nuot dong ke (lop loi cua reader chung) ─────
+# ── P124: khoa RONG khong duoc nuot dong ke (lop loi cua reader chung) ─────
 # `\s` khop ca xuong dong, nen `^key\s*[:=]\s*(.*)$` doc mot khoa de TRONG ra
 # thanh gia tri cua khoa DUOI no. An duoc lau vi moi khuon mau tinh co co
 # comment `#` ngay sau khoa rong — fixture o day co Y KHONG co comment do.
-run "P111 frontmatterField: khoa rong tra '' chu khong nuot dong ke (S4-r2)" \
+run "P124 frontmatterField: khoa rong tra '' chu khong nuot dong ke (S4-r2)" \
   node --input-type=module - "$ROOT" <<'P111JS'
 const root = process.argv[2];  // dang stdin: argv[1] la "-"
 const path = await import("node:path");
@@ -3842,11 +3842,11 @@ const p = recordProblem({ "contract.md": "---\nstatus: signed-off\n---\n",
                           "opportunity.md": "---\nstage: decided\ndecision: build\n---\n",
                           "uat-session.md": uat });
 if (p) die("phien CHUA KY bi goi la ho so hong: " + JSON.stringify(p));
-console.log("P111 OK");
+console.log("P124 OK");
 P111JS
 
-# ── P112: CHAN HINH cua AC-13 — do bang may, khong giao cho panel judge ────
-run "P112 ban do co HINH dan dau, hinh mang so THAT, chu tu viet qua N1/N2/N3 (E17)" \
+# ── P125: CHAN HINH cua AC-13 — do bang may, khong giao cho panel judge ────
+run "P125 ban do co HINH dan dau, hinh mang so THAT, chu tu viet qua N1/N2/N3 (E17)" \
   node --input-type=module - "$ROOT" <<'P112JS'
 const root = process.argv[2];  // dang stdin: argv[1] la "-"
 const fs = await import("node:fs"); const os = await import("node:os");
@@ -3918,11 +3918,11 @@ for (const l of dongViec) {
   if (m[1].startsWith("**")) die(`dong con in dam ca cau: ${l}`);
   if (m[1] === m[2]) die(`ten viec chi la slug lap lai: ${l}`);
 }
-console.log("P112 OK");
+console.log("P125 OK");
 P112JS
 
-# ── P113: mien tru PRODUCT-MAP.md chi hop le khi con cong doc lap canh ────
-run "P113 PRODUCT-MAP.md mien tru t1 + --check canh that + co trong CI + co ADR (E18)" \
+# ── P126: mien tru PRODUCT-MAP.md chi hop le khi con cong doc lap canh ────
+run "P126 PRODUCT-MAP.md mien tru t1 + --check canh that + co trong CI + co ADR (E18)" \
   python3 - "$ROOT" <<'P113PY'
 import re, subprocess, sys
 from pathlib import Path
@@ -4005,8 +4005,8 @@ for needle in ["PRODUCT-MAP.md", "--check", "t1-skip-globs-github-and-manifests"
     assert needle in at, f"ADR khong neu {needle}"
 P113PY
 
-# ── P114: cai gi BAT consumer commit thi phai PHAT kem mien tru + cong canh ─
-run "P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)" \
+# ── P127: cai gi BAT consumer commit thi phai PHAT kem mien tru + cong canh ─
+run "P127 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)" \
   python3 - "$ROOT" <<'P114PY'
 import re, sys
 from pathlib import Path

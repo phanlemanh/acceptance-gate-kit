@@ -186,7 +186,7 @@ export function renderProductMap(root) {
 // import.meta.url trong khi argv[1] giữ nguyên đường người gõ. Repo nằm dưới
 // một symlink (/tmp, /var/folders trên macOS, home mount…) thì hai chuỗi khác
 // nhau, khối CLI im lặng không chạy, và `--check` exit 0 mà chẳng kiểm gì —
-// đúng dạng false-green. Case P106 chạy trong bản sao dưới /var/folders bắt
+// đúng dạng false-green. Case P119 chạy trong bản sao dưới /var/folders bắt
 // được điều này.
 const isMain = (() => {
   if (!process.argv[1]) return false;

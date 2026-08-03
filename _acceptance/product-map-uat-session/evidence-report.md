@@ -43,7 +43,7 @@ human_signoff: Manh Phan 2026-08-03
   verifier: config:executors.test.plugins
   verified_at: 2026-08-03T15:05:00Z
   output: |
-      PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
+      PASS: P127 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
@@ -54,7 +54,7 @@ human_signoff: Manh Phan 2026-08-03
   verifier: config:executors.test.plugins
   verified_at: 2026-08-03T15:05:00Z
   output: |
-      PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
+      PASS: P127 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
@@ -65,7 +65,7 @@ human_signoff: Manh Phan 2026-08-03
   verifier: config:executors.test.plugins
   verified_at: 2026-08-03T15:05:00Z
   output: |
-      PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
+      PASS: P127 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
@@ -76,7 +76,7 @@ human_signoff: Manh Phan 2026-08-03
   verifier: config:executors.test.plugins
   verified_at: 2026-08-03T15:05:00Z
   output: |
-      PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
+      PASS: P127 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
@@ -87,7 +87,7 @@ human_signoff: Manh Phan 2026-08-03
   verifier: config:executors.test.plugins
   verified_at: 2026-08-03T15:05:00Z
   output: |
-      PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
+      PASS: P127 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
@@ -98,7 +98,7 @@ human_signoff: Manh Phan 2026-08-03
   verifier: config:executors.test.plugins
   verified_at: 2026-08-03T15:05:00Z
   output: |
-      PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
+      PASS: P127 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
@@ -118,7 +118,7 @@ human_signoff: Manh Phan 2026-08-03
   verifier: config:executors.test.plugins
   verified_at: 2026-08-03T15:05:00Z
   output: |
-      PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
+      PASS: P127 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
@@ -135,7 +135,7 @@ human_signoff: Manh Phan 2026-08-03
   verifier: config:executors.test.plugins
   verified_at: 2026-08-03T15:05:00Z
   output: |
-      PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
+      PASS: P127 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
@@ -146,7 +146,7 @@ human_signoff: Manh Phan 2026-08-03
   verifier: config:executors.test.plugins
   verified_at: 2026-08-03T15:05:00Z
   output: |
-      PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
+      PASS: P127 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
@@ -157,7 +157,7 @@ human_signoff: Manh Phan 2026-08-03
   verifier: config:executors.test.plugins
   verified_at: 2026-08-03T15:05:00Z
   output: |
-      PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
+      PASS: P127 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
@@ -183,7 +183,7 @@ human_signoff: Manh Phan 2026-08-03
   verifier: config:executors.test.plugins
   verified_at: 2026-08-03T15:05:00Z
   output: |
-      PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
+      PASS: P127 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
@@ -194,7 +194,7 @@ human_signoff: Manh Phan 2026-08-03
   verifier: config:executors.test.plugins
   verified_at: 2026-08-03T15:05:00Z
   output: |
-      PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
+      PASS: P127 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
@@ -205,7 +205,7 @@ human_signoff: Manh Phan 2026-08-03
   verifier: config:executors.test.plugins
   verified_at: 2026-08-03T15:05:00Z
   output: |
-      PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
+      PASS: P127 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
@@ -216,7 +216,7 @@ human_signoff: Manh Phan 2026-08-03
   verifier: config:executors.test.plugins
   verified_at: 2026-08-03T15:05:00Z
   output: |
-      PASS: P114 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
+      PASS: P127 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
 
       Results: all plugin tests passed
 
@@ -249,10 +249,10 @@ none — every multi-run eval is uniform
 
 Round 1: 12/12 eval máy (E1-E8, E10-E12, E14) PASS. E9 (AC-9, judgment) panel đồng thuận PASS. E13 (AC-13, judgment) panel đồng thuận thất bại về chất lượng ngôn-ngữ-mặt-người của phần thân PRODUCT-MAP.md (N1/N3/N6) — ghi UNCERTAIN thay vì tự chốt REJECT cho một judgment item, verdict tổng PENDING-JUDGMENT, chuyển tới Cổng 2 cho người quyết trực tiếp.
 Round 2: toàn bộ 13 eval máy/script (E1-E8, E10-E12, E14, E15 — E15 mới thêm round này) PASS, exit 0, gồm cả E7 (script, baseline: red — có phân biệt). Panel E9 giữ nguyên đồng thuận PASS (3/3). Panel E13 đổi từ đồng thuận-thất-bại (round 1) sang chia phiếu 2/3 PASS (domain-correctness, spec-alignment) với operational-feasibility vẫn FAIL — dissent chép đầy đủ ở "Judge panel — E13". Verdict tổng round này: REJECT, failed_evals: [] (không eval máy nào fail; căn cứ scope-triage và các phát hiện ngoài hợp đồng nằm ở review-findings.md).
-Round 3: toàn bộ 14 eval máy/script (E1-E8, E10-E12, E14, E15, E16 — E16 mới thêm round này, case P111) PASS, exit 0, gồm cả E7 (script, baseline: red). Suite chung tests/scripts (596), tests/hooks (51), tests/workflows (10) đều xanh, không gán eval. Panel E9 giữ nguyên đồng thuận PASS (3/3). Panel E13 đổi từ chia phiếu PASS 2/3 (round 2) sang chia phiếu FAIL 2/3 round này (domain-correctness và operational-feasibility FAIL, spec-alignment PASS). Song song, scope-triage review tìm được 1 finding "Trong hợp đồng" mức high, map AC-1: `lib/workspace-record.js` — `recordProblem` không còn coi thư mục `_acceptance/<slug>/` chỉ có `uat-session.md` (thiếu contract.md lẫn opportunity.md) là hồ sơ hỏng, khiến slug đó biến mất khỏi MỌI nhóm trên thẻ /start và hai reader trái nhau — đúng lớp false-green mà module này được dựng ra để diệt. Verdict tổng round này: REJECT. failed_evals: [] — REJECT căn cứ (a) panel E13 chia phiếu nghiêng FAIL và (b) finding "Trong hợp đồng" mức high/AC-1 nói trên. Người quyết (decisions.jsonl d-...-26794): dừng tại cap 3 round, escalate cho người thay vì tự chạy round 4.
-Round 4 (người phê chuẩn vượt cap 3 round — decisions.jsonl d-20260803T094746Z-19579): sửa hồi quy workspace-mồ-côi phát hiện ở round 3 (guard đếm ANCHOR_FILES thay vì cả ba file bắt buộc — slug chỉ có uat-session.md nay quay lại hiện ở broken/Hồ sơ hỏng ở CẢ hai reader), bỏ bước tiêm no-op trong case P110 kèm thêm 2 hình dạng fixture, và khoá NAV_RULES theo (file,field) để stage của uat-session (scheduled|held) không còn nguy cơ bị gán nhầm enum của opportunity. Toàn bộ 14 eval máy/script (E1-E8, E10-E12, E14, E15, E16) PASS, exit 0, gồm cả E7 (script, baseline: red — có phân biệt). Suite chung tests/scripts (596), tests/hooks (51), tests/workflows (10) vẫn xanh, không gán eval. Panel E9 giữ nguyên đồng thuận PASS (3/3), không đổi qua 4 round. Panel E13 GIỮ NGUYÊN chia phiếu FAIL 2/3 (domain-correctness, operational-feasibility FAIL; spec-alignment PASS) — không đổi so với round 3, dissent đầy đủ ở "Judge panel — E13". Scope-triage review round này: mục "Trong hợp đồng" RỖNG — finding high/AC-1 của round 3 đã được sửa và không còn phát hiện nào map được vào AC; 7 finding còn lại đều xếp "Ngoài hợp đồng" (xem review-findings.md), không finding nào chặn AC. Verdict tổng round này: PENDING-JUDGMENT — không còn finding "Trong hợp đồng" chặn merge, chỉ còn duy nhất phiếu chia của panel E13 (2 FAIL/1 PASS, không đồng thuận) cần người quyết định trực tiếp tại Cổng 2 thay vì máy tự chốt REJECT hay PASS cho một judgment item đang phân rẽ.
-Round 5: thêm 2 eval mới (E17/AC-13a case P112 — bản đồ mermaid đứng trước danh sách + số thật; E18/AC-14 case P113 — PRODUCT-MAP.md miễn trừ t1_skip_globs). AC-13 cũ tách thành AC-13a (E17) + AC-13b (E13) round này. Toàn bộ 16 eval máy/script (E1-E8, E10-E12, E14-E18) PASS, exit 0, gồm cả E7 (script, baseline: red — có phân biệt). Suite chung tests/scripts (596), tests/hooks (51), tests/workflows (10) vẫn xanh, không gán eval. Panel E9 giữ nguyên đồng thuận PASS (3/3), không đổi qua 5 round. Panel E13 GIỮ NGUYÊN chia phiếu FAIL 2/3 (domain-correctness, operational-feasibility FAIL; spec-alignment PASS) — không đổi hình dạng so với round 3-4, rationale viết lại chi tiết hơn nhưng cùng kết luận, dissent đầy đủ ở "Judge panel — E13". Scope-triage review round này: mục "Trong hợp đồng" có 1 finding MỚI mức medium, map AC-13b — `lib/evidence-core.js:96` bóc nháy đầu/cuối độc lập thay vì theo cặp khớp khiến `frontmatterField` cắt nhầm dấu nháy cuối của giá trị không-quote, hệ quả đã thấy trên PRODUCT-MAP.md:36 (dòng feature của s4-scope-triage bị cụt nháy) — cùng đúng lớp bug mà panel E13 đang chỉ ra, không phải phát hiện tách biệt khỏi AC-13b. 8 finding còn lại xếp "Ngoài hợp đồng" (xem review-findings.md). Verdict tổng round này: PENDING-JUDGMENT — không eval máy nào fail (failed_evals: []), finding "Trong hợp đồng" duy nhất củng cố đúng phiếu FAIL đã có của E13 chứ không mở AC mới; vẫn còn duy nhất phiếu chia của panel E13 (2 FAIL/1 PASS) cần người quyết định trực tiếp tại Cổng 2.
-Round 6 (fix nối tiếp, không có report/verdict riêng — decisions.jsonl d-20260803T105727Z-9473 và d-20260803T111906Z-29745): (a) sửa finding medium/AC-13b của round 5 — `frontmatterField` (lib/evidence-core.js) đổi sang chỉ bóc nháy khi CẢ CẶP khớp, không còn cắt nhầm dấu nháy cuối của giá trị không-quote; P113 đổi sang phá BẢN SAO thay vì phá PRODUCT-MAP.md thật của kit. (b) `product-map.mjs` chuyển fail-OPEN → fail-CLOSED: chốt mode hợp lệ + thứ tự tham số (mode lạ như `--chek` nay exit 2 và KHÔNG ghi đè bản đồ), và XOÁ bản đồ đã-git-theo-dõi nay exit 1 kèm thông điệp thay vì im lặng exit 0 — case P106 (E3) mở rộng từ 6 lên 8 chân. Hai fix này không tự sinh report/PENDING-JUDGMENT riêng; round 7 verify cả hai cùng lúc.
+Round 3: toàn bộ 14 eval máy/script (E1-E8, E10-E12, E14, E15, E16 — E16 mới thêm round này, case P124) PASS, exit 0, gồm cả E7 (script, baseline: red). Suite chung tests/scripts (596), tests/hooks (51), tests/workflows (10) đều xanh, không gán eval. Panel E9 giữ nguyên đồng thuận PASS (3/3). Panel E13 đổi từ chia phiếu PASS 2/3 (round 2) sang chia phiếu FAIL 2/3 round này (domain-correctness và operational-feasibility FAIL, spec-alignment PASS). Song song, scope-triage review tìm được 1 finding "Trong hợp đồng" mức high, map AC-1: `lib/workspace-record.js` — `recordProblem` không còn coi thư mục `_acceptance/<slug>/` chỉ có `uat-session.md` (thiếu contract.md lẫn opportunity.md) là hồ sơ hỏng, khiến slug đó biến mất khỏi MỌI nhóm trên thẻ /start và hai reader trái nhau — đúng lớp false-green mà module này được dựng ra để diệt. Verdict tổng round này: REJECT. failed_evals: [] — REJECT căn cứ (a) panel E13 chia phiếu nghiêng FAIL và (b) finding "Trong hợp đồng" mức high/AC-1 nói trên. Người quyết (decisions.jsonl d-...-26794): dừng tại cap 3 round, escalate cho người thay vì tự chạy round 4.
+Round 4 (người phê chuẩn vượt cap 3 round — decisions.jsonl d-20260803T094746Z-19579): sửa hồi quy workspace-mồ-côi phát hiện ở round 3 (guard đếm ANCHOR_FILES thay vì cả ba file bắt buộc — slug chỉ có uat-session.md nay quay lại hiện ở broken/Hồ sơ hỏng ở CẢ hai reader), bỏ bước tiêm no-op trong case P123 kèm thêm 2 hình dạng fixture, và khoá NAV_RULES theo (file,field) để stage của uat-session (scheduled|held) không còn nguy cơ bị gán nhầm enum của opportunity. Toàn bộ 14 eval máy/script (E1-E8, E10-E12, E14, E15, E16) PASS, exit 0, gồm cả E7 (script, baseline: red — có phân biệt). Suite chung tests/scripts (596), tests/hooks (51), tests/workflows (10) vẫn xanh, không gán eval. Panel E9 giữ nguyên đồng thuận PASS (3/3), không đổi qua 4 round. Panel E13 GIỮ NGUYÊN chia phiếu FAIL 2/3 (domain-correctness, operational-feasibility FAIL; spec-alignment PASS) — không đổi so với round 3, dissent đầy đủ ở "Judge panel — E13". Scope-triage review round này: mục "Trong hợp đồng" RỖNG — finding high/AC-1 của round 3 đã được sửa và không còn phát hiện nào map được vào AC; 7 finding còn lại đều xếp "Ngoài hợp đồng" (xem review-findings.md), không finding nào chặn AC. Verdict tổng round này: PENDING-JUDGMENT — không còn finding "Trong hợp đồng" chặn merge, chỉ còn duy nhất phiếu chia của panel E13 (2 FAIL/1 PASS, không đồng thuận) cần người quyết định trực tiếp tại Cổng 2 thay vì máy tự chốt REJECT hay PASS cho một judgment item đang phân rẽ.
+Round 5: thêm 2 eval mới (E17/AC-13a case P125 — bản đồ mermaid đứng trước danh sách + số thật; E18/AC-14 case P126 — PRODUCT-MAP.md miễn trừ t1_skip_globs). AC-13 cũ tách thành AC-13a (E17) + AC-13b (E13) round này. Toàn bộ 16 eval máy/script (E1-E8, E10-E12, E14-E18) PASS, exit 0, gồm cả E7 (script, baseline: red — có phân biệt). Suite chung tests/scripts (596), tests/hooks (51), tests/workflows (10) vẫn xanh, không gán eval. Panel E9 giữ nguyên đồng thuận PASS (3/3), không đổi qua 5 round. Panel E13 GIỮ NGUYÊN chia phiếu FAIL 2/3 (domain-correctness, operational-feasibility FAIL; spec-alignment PASS) — không đổi hình dạng so với round 3-4, rationale viết lại chi tiết hơn nhưng cùng kết luận, dissent đầy đủ ở "Judge panel — E13". Scope-triage review round này: mục "Trong hợp đồng" có 1 finding MỚI mức medium, map AC-13b — `lib/evidence-core.js:96` bóc nháy đầu/cuối độc lập thay vì theo cặp khớp khiến `frontmatterField` cắt nhầm dấu nháy cuối của giá trị không-quote, hệ quả đã thấy trên PRODUCT-MAP.md:36 (dòng feature của s4-scope-triage bị cụt nháy) — cùng đúng lớp bug mà panel E13 đang chỉ ra, không phải phát hiện tách biệt khỏi AC-13b. 8 finding còn lại xếp "Ngoài hợp đồng" (xem review-findings.md). Verdict tổng round này: PENDING-JUDGMENT — không eval máy nào fail (failed_evals: []), finding "Trong hợp đồng" duy nhất củng cố đúng phiếu FAIL đã có của E13 chứ không mở AC mới; vẫn còn duy nhất phiếu chia của panel E13 (2 FAIL/1 PASS) cần người quyết định trực tiếp tại Cổng 2.
+Round 6 (fix nối tiếp, không có report/verdict riêng — decisions.jsonl d-20260803T105727Z-9473 và d-20260803T111906Z-29745): (a) sửa finding medium/AC-13b của round 5 — `frontmatterField` (lib/evidence-core.js) đổi sang chỉ bóc nháy khi CẢ CẶP khớp, không còn cắt nhầm dấu nháy cuối của giá trị không-quote; P126 đổi sang phá BẢN SAO thay vì phá PRODUCT-MAP.md thật của kit. (b) `product-map.mjs` chuyển fail-OPEN → fail-CLOSED: chốt mode hợp lệ + thứ tự tham số (mode lạ như `--chek` nay exit 2 và KHÔNG ghi đè bản đồ), và XOÁ bản đồ đã-git-theo-dõi nay exit 1 kèm thông điệp thay vì im lặng exit 0 — case P119 (E3) mở rộng từ 6 lên 8 chân. Hai fix này không tự sinh report/PENDING-JUDGMENT riêng; round 7 verify cả hai cùng lúc.
 Round 7: toàn bộ 16 eval máy/script (E1-E8, E10-E12, E14-E18) PASS, exit 0, gồm cả E7 (script, baseline: red — có phân biệt) và E3 nay phủ đủ 8 chân fail-closed từ round 6 (bao gồm hai chân mới: mode lạ → exit 2 không ghi đè, và xoá bản đồ đã-track → exit 1). Suite chung tests/scripts (596), tests/hooks (51), tests/workflows (10) vẫn xanh, không gán eval. Panel E9 giữ nguyên đồng thuận PASS (3/3), không đổi qua 7 round. Panel E13 LẦN ĐẦU đổi sang đa số PASS (2/3: domain-correctness, operational-feasibility PASS; spec-alignment FAIL) — đảo ngược hình dạng chia phiếu FAIL 2/3 đã giữ nguyên suốt round 3-5; phiếu FAIL còn lại chỉ ra 4 nhãn cổng tự đặt trong mermaid (Cổng Đáng/Phạm vi/Bằng chứng/Giá trị) là biệt ngữ mới chưa vào CONTEXT.md, dissent đầy đủ ở "Judge panel — E13". Scope-triage review round này: mục "Trong hợp đồng" RỖNG — không finding nào map được vào AC; 9 finding thật đều xếp "Ngoài hợp đồng" (xem review-findings.md), không finding nào chặn AC. Verdict tổng round này: PASS — không eval máy nào fail (failed_evals: []), không finding "Trong hợp đồng" nào chặn merge, và panel E13 đa số PASS (không còn UNCERTAIN chờ human_override — tier T2, không bắt buộc override khi panel đã tự chốt).
 Round 8: toàn bộ 16 eval máy/script (E1-E8, E10-E12, E14-E18) PASS, exit 0, gồm cả E7 (script, baseline: red — có phân biệt). Suite chung tests/scripts (596), tests/hooks (51), tests/workflows (10) vẫn xanh, không gán eval. Panel E9 giữ nguyên đồng thuận PASS (3/3), không đổi qua 8 round. Panel E13 LẦN NỮA đảo phiếu — quay lại đa số FAIL 2/3 (domain-correctness, spec-alignment FAIL; operational-feasibility PASS), đảo ngược hình dạng đa số PASS vừa xuất hiện ở round 7; hai phiếu FAIL cùng chỉ một lớp: 4 nhãn cổng tự đặt trong mermaid ("Cổng Đáng"/"Phạm vi"/"Bằng chứng"/"Giá trị") vẫn chưa có mục trong CONTEXT.md và nối dài đúng quy ước viết-hoa mà CONTEXT.md dành riêng cho "Cổng 1"/"Cổng 2", dissent đầy đủ ở "Judge panel — E13". Scope-triage review round này: mục "Trong hợp đồng" RỖNG — không finding nào map được vào AC; 10 finding thật đều xếp "Ngoài hợp đồng" (xem review-findings.md, 2/10 rơi vào file ngoài vùng phủ của bộ đo), không finding nào chặn AC. Khác round 7 (đề xuất thuận PASS nên tự chốt, không cần override), round này đề xuất nghiêng FAIL — không tự chốt REJECT cho một judgment item đang phân rẽ, ghi UNCERTAIN thay. Verdict tổng round này: PENDING-JUDGMENT — không eval máy nào fail (failed_evals: []), không finding "Trong hợp đồng" chặn merge, duy nhất E13 UNCERTAIN chờ human_override tại Cổng 2.
 Round 9: toàn bộ 16 eval máy/script (E1-E8, E10-E12, E14-E18) PASS, exit 0, gồm cả E7 (script, baseline: red — có phân biệt). Suite chung tests/scripts (596), tests/hooks (51), tests/workflows (227, gồm execute-parallel 16 + skill-claims 10 + các suite khác) đều xanh, không gán eval. Panel E9 giữ nguyên đồng thuận PASS (3/3), không đổi qua 9 round. Panel E13 lần thứ ba đảo phiếu — quay lại đa số PASS 2/3 (domain-correctness, spec-alignment PASS; operational-feasibility FAIL), tổ hợp bất đồng KHÁC round 7 (khi đó domain-correctness + operational-feasibility PASS, spec-alignment FAIL) dù cùng kết luận thuận; phiếu FAIL vẫn chỉ đúng lớp cũ đã theo dõi từ round 3: 4 nhãn cổng tự đặt trong mermaid ("Cổng Đáng"/"Cổng Phạm vi"/"Cổng Bằng chứng"/"Cổng Giá trị") chưa có mục trong CONTEXT.md, dissent đầy đủ ở "Judge panel — E13" ngay dưới Evidence. Scope-triage review round này: mục "Trong hợp đồng" RỖNG — không finding nào map được vào AC; 6 finding thật đều xếp "Ngoài hợp đồng" (xem review-findings.md), không finding nào chặn AC. Verdict tổng round này: PASS — không eval máy nào fail (failed_evals: []), không finding "Trong hợp đồng" chặn merge, panel E9 đồng thuận PASS và panel E13 đa số PASS (2/3, tier T2 — không bắt buộc human_override khi panel tự chốt, giống round 7).

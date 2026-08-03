@@ -164,25 +164,25 @@ time_human_minutes:
 
 ## 4. Kiểm chứng (đối chứng dương + ghim thông điệp — bất biến CLAUDE.md)
 
-Case mới trong tests/plugins (P102+), fixture code-sinh trong chính lần chạy.
+Case mới trong tests/plugins (P115+), fixture code-sinh trong chính lần chạy.
 **Khuôn fixture canonical (gap-probe F2):** fixture opportunity rút từ khối
 marker `OPP-FRONTMATTER-TEMPLATE` của opportunity-template.md, fixture
 contract rút từ khuôn contract-template.md (chưa có marker → vòng này ĐẶT
 marker, cùng lý do khối UAT tồn tại), điền placeholder bằng code — test không
 được tự dựng frontmatter theo khuôn bên đọc (hình dạng 3 của "thước gắn vào
 vật được giao").
-- **P102** product-map phân bucket: fixture phủ ĐỦ mọi hàng bảng bucket
+- **P115** product-map phân bucket: fixture phủ ĐỦ mọi hàng bảng bucket
   (kể cả broken + out-of-scope + cạnh có/vắng); assert từng slug đúng mục,
   tổng vào map = tổng fixture.
-- **P103** bất biến giữa chuyển máy + `--check` 3 trạng thái: cùng fixture đổi
+- **P116** bất biến giữa chuyển máy + `--check` 3 trạng thái: cùng fixture đổi
   approved→implemented→verified → render BẤT BIẾN; bản nguyên vẹn `--check`
   XANH trước, tiêm lệch → exit 1 + ĐÚNG thông điệp ghim; xoá file → exit 0 có note.
-- **P104** (kiểu P30) `--check` trên CHÍNH repo: PRODUCT-MAP.md của kit đã
+- **P117** (kiểu P30) `--check` trên CHÍNH repo: PRODUCT-MAP.md của kit đã
   commit và fresh — CI đỏ khi ai đó đổi trạng thái xưởng mà quên regen.
-- **P105** round-trip template UAT: rút khối UAT-FRONTMATTER-TEMPLATE từ
+- **P118** round-trip template UAT: rút khối UAT-FRONTMATTER-TEMPLATE từ
   reference, điền placeholder bằng code, đưa cho start-scan + product-map đọc
   → ra đúng ô/mục; tiêm hỏng frontmatter → broken[] có tên + lý do.
-- **P106** start-scan nguồn mới: các ô gia-tri/released/uat-iterate/uat-kill +
+- **P119** start-scan nguồn mới: các ô gia-tri/released/uat-iterate/uat-kill +
   `map.present/fresh` đúng cả 4 tổ hợp (vắng, có-fresh, có-stale, lỗi render);
   hai dòng skip cũ KHÔNG còn trong output.
 - **P98/P99 mở rộng:** fixture P98 thêm hàng mới của bảng phân ô; P99 tự ăn

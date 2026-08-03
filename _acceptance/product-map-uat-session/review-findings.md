@@ -18,7 +18,7 @@ Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt 
   severity: medium
   Đề xuất: known-limits
 
-- **Chốt `PLUGIN_ROOT` của P109 là phép đo từ vựng — `CLAUDE_PLUGIN_ROOT` lọt qua vì là chuỗi con**
+- **Chốt `PLUGIN_ROOT` của P122 là phép đo từ vựng — `CLAUDE_PLUGIN_ROOT` lọt qua vì là chuỗi con**
   Người dùng thấy gì: Phép kiểm tự động cho loại đường dẫn này chỉ tìm đúng một cụm chữ, nên nếu sau này ai đó đổi sang một cách viết khác không hoạt động trên Codex, hệ thống kiểm tra tự động vẫn báo xanh — không bắt được lỗi cùng dạng với lỗi đã nêu ở trên.
   file: `tests/plugins/run-tests.sh`
   severity: medium

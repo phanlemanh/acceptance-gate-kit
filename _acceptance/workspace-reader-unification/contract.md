@@ -14,7 +14,7 @@ relates: product-map-uat-session
 ## Context
 
 Vòng `product-map-uat-session` dựng `lib/workspace-record.js` làm "luật duy nhất
-trả lời hồ sơ của slug này có hỏng không", và case P110 ghim quan hệ hai bên đọc
+trả lời hồ sơ của slug này có hỏng không", và case P123 ghim quan hệ hai bên đọc
 phải đồng ý. Nhưng luật chỉ phủ ba file; **mọi luật về `evidence-report.md` vẫn
 nằm riêng trong `start-scan.mjs`**, còn bản đồ không đọc file đó lần nào. Chín
 vòng S4 của feature trước bắt lại đúng lớp lỗi này ở **bốn file khác nhau** —
@@ -50,5 +50,5 @@ Known limits mục 1–2 của contract đó.
 
 - Vòng trước dạy: **vá một file trong họ lỗi này thì nó hiện ra ở file kế tiếp**.
   Cách đo đúng là gắn thước vào QUAN HỆ "mọi bên đọc đồng ý" trên TOÀN BỘ tập
-  file, không gắn vào bảng luật hiện có — P110 xanh suốt chín vòng chính vì
+  file, không gắn vào bảng luật hiện có — P123 xanh suốt chín vòng chính vì
   danh sách ca của nó chỉ dựng những file mà bảng luật đã biết.

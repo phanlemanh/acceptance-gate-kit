@@ -7,7 +7,7 @@ evals reference them.
 
 **Do NOT copy the `<!-- … -->` marker comments or the ```` ```yaml ```` fence
 around the frontmatter.** They exist so tests can extract the exact machine-read
-shape (case P102 round-trips it through the same reader the gates use); the
+shape (case P115 round-trips it through the same reader the gates use); the
 real `contract.md` must start at its `---` line.
 
 Frontmatter rules:

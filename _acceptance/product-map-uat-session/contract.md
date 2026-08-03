@@ -82,7 +82,7 @@ chấm kín, Scrum Sprint Review — nghiệm thu trên sản phẩm chạy):
   3. Bản Codex của nghi thức phiên nghiệm thu chưa có (gói Codex nhận bản Claude
      với `${CLAUDE_PLUGIN_ROOT}` không nở) — cùng dạng known-limit với design-pass.
   4. Cổng Giá trị là cổng người mà nghi thức của nó để MỞ model-invocation; căn
-     cứ hiện chỉ sống trong một assert của P107, chưa có ADR riêng.
+     cứ hiện chỉ sống trong một assert của P120, chưa có ADR riêng.
   5. `since` của ô chờ-Cổng-Giá-trị neo vào `decided_at` — trường chỉ tồn tại
      SAU khi ký, nên nhánh đó không sinh ra được trong nghi thức thật.
   Cả 5 mục và họ lỗi "luật viết hai bản" đi tiếp ở hợp đồng
@@ -96,5 +96,5 @@ chấm kín, Scrum Sprint Review — nghiệm thu trên sản phẩm chạy):
   tại Cổng 2 — sổ quyết định `d-20260803T082900Z-20225`). Lý do: hai nguồn từng
   bỏ qua nay đã dựng, nên không còn thứ gì sinh ra phần tử cho mảng đó, mà một
   khoá khai không ai sinh được là hợp đồng chết — case round-trip P99 đòi mọi
-  khoá khai phải soi được trong đầu ra THẬT. Hai case (P98, P108) nay ghim sự
+  khoá khai phải soi được trong đầu ra THẬT. Hai case (P98, P121) nay ghim sự
   VẮNG MẶT của khoá.

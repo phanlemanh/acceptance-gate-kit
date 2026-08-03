@@ -38,7 +38,7 @@
 | `commands/approve.md`, `commands/signoff.md`, `codex/.../approve/SKILL.md`, `codex/.../signoff/SKILL.md` (modify) | Bước làm mới bản đồ sau khi ghi field cổng |
 | `docs/specs/2026-08-03-start-command-design.md` (modify) | Bảng phân ô + khuôn JSON: hàng/khoá mới |
 | `_acceptance/config.yaml` (modify) | `executors.script.product_map` + `feature_loop.suite_keys` |
-| `tests/plugins/run-tests.sh` (modify) | P102–P109 mới; P98 thêm hàng mới |
+| `tests/plugins/run-tests.sh` (modify) | P115–P122 mới; P98 thêm hàng mới |
 | `plugins/**` (generated) | Mirror, sinh bởi sync script |
 
 Thứ tự phụ thuộc: T1 → T2 → T3 → T5 → T6 → T7. T4 (skill uat-session) chỉ cần T1. Chỉ MỘT task độc lập ⇒ S3 chạy TUẦN TỰ trong main loop, không dùng `execute-parallel`.
@@ -51,7 +51,7 @@ Thứ tự phụ thuộc: T1 → T2 → T3 → T5 → T6 → T7. T4 (skill uat-s
 - Create: `skills/acceptance/references/uat-session-template.md`
 - Modify: `skills/acceptance/references/contract-template.md` (bọc marker quanh khối frontmatter sau `---8<---`)
 - Create: `tests/fixtures/from-template.mjs`
-- Test: `tests/plugins/run-tests.sh` (case P102)
+- Test: `tests/plugins/run-tests.sh` (case P115)
 
 **Interfaces:**
 - Produces: `tests/fixtures/from-template.mjs` export `blockFromTemplate(absPath, markerName)` → chuỗi YAML frontmatter nguyên khối (đã bóc fence ```` ```yaml ````) và `fillTemplate(block, values)` → chuỗi đã thay `{key}`; `fileFromTemplate(absPath, markerName, values, body)` → nội dung file hoàn chỉnh. Task 2/3/5 dùng cả ba để sinh fixture.
@@ -179,15 +179,15 @@ export function fileFromTemplate(absPath, marker, values, body = '# fixture\n') 
 }
 ```
 
-- [ ] **Step 4: Viết case P102 (đỏ trước)**
+- [ ] **Step 4: Viết case P115 (đỏ trước)**
 
 Chèn vào `tests/plugins/run-tests.sh` ngay sau case P101:
 
 ```bash
-# ── P102: khuon canonical -> fixture -> reader chuan (round-trip seam) ──────
+# ── P115: khuon canonical -> fixture -> reader chuan (round-trip seam) ──────
 # Fixture cua MOI case sau nay rut tu marker nay; case nay chung minh khuon
 # VIET va khuon MAY DOC con khop. Doi chung duong truoc, roi tiem hong.
-run "P102 khuon canonical 3 artifact rut duoc + frontmatterField doc duoc (E1,E8)" \
+run "P115 khuon canonical 3 artifact rut duoc + frontmatterField doc duoc (E1,E8)" \
   node --input-type=module -e "
 const root = process.argv[1];
 const path = await import('node:path');
@@ -222,25 +222,25 @@ for (const [file, marker, values, expect] of cases) {
   try { fileFromTemplate(R(file), marker + '-KHONG-CO', values); } catch { threw = true; }
   if (!threw) die(\`\${file}: marker sai ma helper van tra ve noi dung\`);
 }
-console.log('P102 OK');
+console.log('P115 OK');
 " "$ROOT"
 ```
 
-- [ ] **Step 5: Chạy P102 để thấy nó ĐỎ**
+- [ ] **Step 5: Chạy P115 để thấy nó ĐỎ**
 
-Run: `bash tests/plugins/run-tests.sh 2>&1 | grep -A3 P102`
+Run: `bash tests/plugins/run-tests.sh 2>&1 | grep -A3 P115`
 Expected: FAIL — `không rút được khối CONTRACT-FRONTMATTER-TEMPLATE` (khi chưa làm Step 2) hoặc thiếu file uat-session-template.md.
 
 - [ ] **Step 6: Chạy lại sau khi Step 1–3 xong → XANH**
 
-Run: `bash tests/plugins/run-tests.sh 2>&1 | grep -E "P102|Results"`
-Expected: `PASS: P102 …` và tổng suite không có FAIL mới.
+Run: `bash tests/plugins/run-tests.sh 2>&1 | grep -E "P115|Results"`
+Expected: `PASS: P115 …` và tổng suite không có FAIL mới.
 
 - [ ] **Step 7: Commit**
 
 ```bash
 git add skills/acceptance/references/uat-session-template.md skills/acceptance/references/contract-template.md tests/fixtures/from-template.mjs tests/plugins/run-tests.sh
-git commit -m "feat(references): khuôn uat-session + marker contract-template + helper fixture canonical (P102)"
+git commit -m "feat(references): khuôn uat-session + marker contract-template + helper fixture canonical (P115)"
 ```
 
 ---
@@ -249,20 +249,20 @@ git commit -m "feat(references): khuôn uat-session + marker contract-template +
 
 **Files:**
 - Create: `scripts/product-map.mjs`
-- Test: `tests/plugins/run-tests.sh` (P103, P104, P105)
+- Test: `tests/plugins/run-tests.sh` (P116, P117, P118)
 
 **Interfaces:**
 - Consumes: `blockFromTemplate`/`fileFromTemplate` (Task 1), `frontmatterField` (`lib/evidence-core.js`).
 - Produces: `export function renderProductMap(root) -> string` (chuỗi Markdown đầy đủ, kết thúc bằng `\n`) và `export const NAV_ENUMS` (`{status, stage, decision, verdict}` → mảng giá trị hợp lệ). Task 3 gọi `renderProductMap` cho `--check`; Task 5 gọi từ `start-scan.mjs`.
 
-- [ ] **Step 1: Viết case P103 (bucket đủ + enum-lạc) — ĐỎ trước**
+- [ ] **Step 1: Viết case P116 (bucket đủ + enum-lạc) — ĐỎ trước**
 
 ```bash
-# ── P103: product-map phan bucket tren fixture RUT TU KHUON (E1) ────────────
-# Fixture code-sinh trong chinh lan chay, rut tu marker canonical (P102 canh
+# ── P116: product-map phan bucket tren fixture RUT TU KHUON (E1) ────────────
+# Fixture code-sinh trong chinh lan chay, rut tu marker canonical (P115 canh
 # khuon). Phu DU moi hang bang bucket cua design + luat enum-lac theo LOP:
 # tiem gia tri la cho TUNG field dieu huong, khong chi verdict.
-run "P103 product-map bucket du moi hang + enum-lac tung field (E1)" \
+run "P116 product-map bucket du moi hang + enum-lac tung field (E1)" \
   node --input-type=module -e "
 const root = process.argv[1];
 const fs = await import('node:fs'); const os = await import('node:os');
@@ -366,13 +366,13 @@ for (const [rel, from, to, field] of MUT) {
     die(\`enum-lac o \${field}: muc Ho so hong khong neu ten field + gia tri la\`);
   fs.writeFileSync(p, orig);
 }
-console.log('P103 OK');
+console.log('P116 OK');
 " "$ROOT"
 ```
 
-- [ ] **Step 2: Chạy P103 → ĐỎ vì chưa có script**
+- [ ] **Step 2: Chạy P116 → ĐỎ vì chưa có script**
 
-Run: `bash tests/plugins/run-tests.sh 2>&1 | grep -A3 P103`
+Run: `bash tests/plugins/run-tests.sh 2>&1 | grep -A3 P116`
 Expected: FAIL — `Cannot find module .../scripts/product-map.mjs`.
 
 - [ ] **Step 3: Viết `scripts/product-map.mjs`**
@@ -558,16 +558,16 @@ if (isMain) {
 }
 ```
 
-- [ ] **Step 4: Chạy P103 → XANH**
+- [ ] **Step 4: Chạy P116 → XANH**
 
-Run: `bash tests/plugins/run-tests.sh 2>&1 | grep -E "P103|Results"`
-Expected: `PASS: P103 …`
+Run: `bash tests/plugins/run-tests.sh 2>&1 | grep -E "P116|Results"`
+Expected: `PASS: P116 …`
 
-- [ ] **Step 5: Viết P104 (bất biến giữa chuyển máy) + P105 (xác định + cạnh)**
+- [ ] **Step 5: Viết P117 (bất biến giữa chuyển máy) + P118 (xác định + cạnh)**
 
 ```bash
-# ── P104: bat bien giua chuyen may (E2) ────────────────────────────────────
-run "P104 map GIU NGUYEN qua approved->implemented->verified; DOI qua cong nguoi (E2)" \
+# ── P117: bat bien giua chuyen may (E2) ────────────────────────────────────
+run "P117 map GIU NGUYEN qua approved->implemented->verified; DOI qua cong nguoi (E2)" \
   node --input-type=module -e "
 const root = process.argv[1];
 const fs = await import('node:fs'); const os = await import('node:os');
@@ -595,11 +595,11 @@ fs.writeFileSync(cPath, contract('signed-off'));
 if (renderProductMap(tmp) === base) die('map khong doi khi slug da ky signed-off — bucket khong con phan biet gi');
 fs.writeFileSync(cPath, contract('draft'));
 if (renderProductMap(tmp) === base) die('map khong doi giua draft va approved — phep do nay khong song');
-console.log('P104 OK');
+console.log('P117 OK');
 " "$ROOT"
 
-# ── P105: xac dinh + canh hien-khi-co (E4, E5) ──────────────────────────────
-run "P105 render 2 lan giong het + sort theo slug + canh chi hien khi ho so co (E4,E5)" \
+# ── P118: xac dinh + canh hien-khi-co (E4, E5) ──────────────────────────────
+run "P118 render 2 lan giong het + sort theo slug + canh chi hien khi ho so co (E4,E5)" \
   node --input-type=module -e "
 const root = process.argv[1];
 const fs = await import('node:fs'); const os = await import('node:os');
@@ -629,11 +629,11 @@ if (!lineOf('alpha').includes('epic: nen-tang') || !lineOf('alpha').includes('li
   die('canh co trong ho so ma khong hien: ' + lineOf('alpha'));
 if (/epic|thay thế|liên quan/.test(lineOf('zebra')))
   die('slug khong khai canh ma dong van co nhan canh: ' + lineOf('zebra'));
-console.log('P105 OK');
+console.log('P118 OK');
 " "$ROOT"
 ```
 
-- [ ] **Step 6: Chạy P104 + P105**
+- [ ] **Step 6: Chạy P117 + P118**
 
 Run: `bash tests/plugins/run-tests.sh 2>&1 | grep -E "P10[345]|Results"`
 Expected: cả ba PASS.
@@ -642,7 +642,7 @@ Expected: cả ba PASS.
 
 ```bash
 git add scripts/product-map.mjs tests/plugins/run-tests.sh
-git commit -m "feat(product-map): bộ sinh bản đồ sản phẩm — bucket thô, enum-lạc → hồ sơ hỏng, render xác định (P103-P105)"
+git commit -m "feat(product-map): bộ sinh bản đồ sản phẩm — bucket thô, enum-lạc → hồ sơ hỏng, render xác định (P116-P118)"
 ```
 
 ---
@@ -651,17 +651,17 @@ git commit -m "feat(product-map): bộ sinh bản đồ sản phẩm — bucket 
 
 **Files:**
 - Modify: `scripts/product-map.mjs` (chỉ nếu Step 3 của Task 2 cần chỉnh sau khi test soi)
-- Test: `tests/plugins/run-tests.sh` (P106)
+- Test: `tests/plugins/run-tests.sh` (P119)
 
 **Interfaces:**
 - Consumes: CLI của `product-map.mjs` (Task 2).
 - Produces: hợp đồng exit-code cho `_acceptance/config.yaml` executor `script.product_map` (Task 6) — `0` khớp / chưa có file / chưa init, `1` lệch.
 
-- [ ] **Step 1: Viết P106**
+- [ ] **Step 1: Viết P119**
 
 ```bash
-# ── P106: --check 4 trang thai + goi y lenh chay duoc o CHINH repo do (E3) ──
-run "P106 --check fresh/stale/thieu-file/chua-init + path goi y suy tu vi tri script (E3)" \
+# ── P119: --check 4 trang thai + goi y lenh chay duoc o CHINH repo do (E3) ──
+run "P119 --check fresh/stale/thieu-file/chua-init + path goi y suy tu vi tri script (E3)" \
   node --input-type=module -e "
 const root = process.argv[1];
 const fs = await import('node:fs'); const os = await import('node:os');
@@ -709,20 +709,20 @@ const m = r.err.match(/chạy: node (\S+) --root \./);
 if (!m) die('thong diep khong neu duong dan script: ' + r.err);
 if (!fs.existsSync(path.resolve(tmp, m[1])))
   die('duong dan trong goi y KHONG ton tai khi chay tu repo dang do: ' + m[1]);
-console.log('P106 OK');
+console.log('P119 OK');
 " "$ROOT"
 ```
 
-- [ ] **Step 2: Chạy P106**
+- [ ] **Step 2: Chạy P119**
 
-Run: `bash tests/plugins/run-tests.sh 2>&1 | grep -A3 P106`
+Run: `bash tests/plugins/run-tests.sh 2>&1 | grep -A3 P119`
 Expected: PASS. Nếu ĐỎ ở nhánh path (`m[1]` không tồn tại khi resolve từ `tmp`) → sửa `hint` trong `product-map.mjs` thành absolute `__filename` khi `path.relative(root, __filename)` bắt đầu bằng `..` (nhánh này đã có trong code Task 2; case đang soi đúng nó).
 
 - [ ] **Step 3: Commit**
 
 ```bash
 git add scripts/product-map.mjs tests/plugins/run-tests.sh
-git commit -m "test(product-map): --check 4 trạng thái + gợi ý lệnh chạy được ở repo tiêu thụ (P106)"
+git commit -m "test(product-map): --check 4 trạng thái + gợi ý lệnh chạy được ở repo tiêu thụ (P119)"
 ```
 
 ---
@@ -731,7 +731,7 @@ git commit -m "test(product-map): --check 4 trạng thái + gợi ý lệnh ch�
 
 **Files:**
 - Create: `skills/uat-session/SKILL.md`
-- Test: `tests/plugins/run-tests.sh` (P107)
+- Test: `tests/plugins/run-tests.sh` (P120)
 
 **Interfaces:**
 - Consumes: `skills/acceptance/references/uat-session-template.md` (Task 1); CLI `product-map.mjs --root .` (Task 2) cho bước làm mới sau ký.
@@ -814,11 +814,11 @@ verdict thay người, kể cả khi số đã rõ.
 - Kết quả đo append vào `opportunity.md` — vòng đo sau ship nuôi retro.
 ```
 
-- [ ] **Step 2: Viết P107**
+- [ ] **Step 2: Viết P120**
 
 ```bash
-# ── P107: nghi thuc uat-session du chot + DUNG THU TU + khong khoa invocation ─
-run "P107 uat-session giu 7 chot spec §2.3 dung thu tu; skill MO nhu design-pass (E12)" \
+# ── P120: nghi thuc uat-session du chot + DUNG THU TU + khong khoa invocation ─
+run "P120 uat-session giu 7 chot spec §2.3 dung thu tu; skill MO nhu design-pass (E12)" \
   python3 - "$ROOT" <<'PY'
 import sys
 from pathlib import Path
@@ -866,16 +866,16 @@ assert "Chấm kín TRƯỚC thảo luận" not in mut, "buoc tiem chua bao gio 
 PY
 ```
 
-- [ ] **Step 3: Chạy P107**
+- [ ] **Step 3: Chạy P120**
 
-Run: `bash tests/plugins/run-tests.sh 2>&1 | grep -E "P107|Results"`
+Run: `bash tests/plugins/run-tests.sh 2>&1 | grep -E "P120|Results"`
 Expected: PASS.
 
 - [ ] **Step 4: Commit**
 
 ```bash
 git add skills/uat-session/SKILL.md tests/plugins/run-tests.sh
-git commit -m "feat(uat-session): nghi thức phiên nghiệm thu — chấm kín, ngưỡng bất biến, verdict human-owned (P107)"
+git commit -m "feat(uat-session): nghi thức phiên nghiệm thu — chấm kín, ngưỡng bất biến, verdict human-owned (P120)"
 ```
 
 ---
@@ -887,17 +887,17 @@ git commit -m "feat(uat-session): nghi thức phiên nghiệm thu — chấm kí
 - Modify: `commands/start.md` (khối START-SCAN-KEYS + dòng bản đồ ở bước 3)
 - Modify: `codex/acceptance-gate/skills/start/SKILL.md` (cùng hai chỗ)
 - Modify: `docs/specs/2026-08-03-start-command-design.md` (bảng phân ô + khuôn JSON)
-- Modify: `tests/plugins/run-tests.sh` (P108 mới; P98 thêm hàng)
+- Modify: `tests/plugins/run-tests.sh` (P121 mới; P98 thêm hàng)
 
 **Interfaces:**
 - Consumes: `renderProductMap` (Task 2), khuôn UAT (Task 1).
 - Produces: khoá JSON `map.present` (bool), `map.fresh` (bool|null); `gates[].gate` nhận giá trị `gia-tri`; `done[].state` nhận `released`/`uat-iterate`/`uat-kill`.
 
-- [ ] **Step 1: Viết P108 — ĐỎ trước**
+- [ ] **Step 1: Viết P121 — ĐỎ trước**
 
 ```bash
-# ── P108: start-scan doc uat-session + trang thai ban do (E10) ──────────────
-run "P108 o cho-Cong-Gia-tri + state theo verdict + map.present/fresh 4 to hop (E10)" \
+# ── P121: start-scan doc uat-session + trang thai ban do (E10) ──────────────
+run "P121 o cho-Cong-Gia-tri + state theo verdict + map.present/fresh 4 to hop (E10)" \
   node --input-type=module -e "
 const root = process.argv[1];
 const fs = await import('node:fs'); const os = await import('node:os');
@@ -978,13 +978,13 @@ if (j.map.present !== true || j.map.fresh !== false) die('map stale: ' + JSON.st
 fs.chmodSync(path.join(tmp, '_acceptance'), 0o000);
 try { j = scan(); } finally { fs.chmodSync(path.join(tmp, '_acceptance'), 0o755); }
 if (j.map.fresh !== null) die('loi render phai cho fresh=null, got ' + JSON.stringify(j.map));
-console.log('P108 OK');
+console.log('P121 OK');
 " "$ROOT"
 ```
 
-- [ ] **Step 2: Chạy P108 → ĐỎ**
+- [ ] **Step 2: Chạy P121 → ĐỎ**
 
-Run: `bash tests/plugins/run-tests.sh 2>&1 | grep -A3 P108`
+Run: `bash tests/plugins/run-tests.sh 2>&1 | grep -A3 P121`
 Expected: FAIL — `j.map` undefined / `gia-tri` không có.
 
 - [ ] **Step 3: Sửa `scripts/start-scan.mjs`**
@@ -1044,9 +1044,9 @@ out({ schema_version: 1, config: true, git, groups: { gates, inProgress, done },
 
 Lưu ý: `fmOrNull(uTxt, ...)` an toàn khi `uTxt` là `null` (hàm đã trả `null`).
 
-- [ ] **Step 4: Chạy P108 → XANH**
+- [ ] **Step 4: Chạy P121 → XANH**
 
-Run: `bash tests/plugins/run-tests.sh 2>&1 | grep -E "P108|Results"`
+Run: `bash tests/plugins/run-tests.sh 2>&1 | grep -E "P121|Results"`
 Expected: PASS.
 
 - [ ] **Step 5: Cập nhật marker + thẻ ở CẢ HAI harness**
@@ -1090,13 +1090,13 @@ Trong case P98, thêm vào phần fixture nguyên vẹn (dùng đúng helper c�
 - [ ] **Step 8: Chạy toàn suite**
 
 Run: `bash tests/plugins/run-tests.sh 2>&1 | tail -5`
-Expected: `Results: all plugin tests passed` (P98, P99, P108 đều xanh).
+Expected: `Results: all plugin tests passed` (P98, P99, P121 đều xanh).
 
 - [ ] **Step 9: Commit**
 
 ```bash
 git add scripts/start-scan.mjs commands/start.md codex/acceptance-gate/skills/start/SKILL.md docs/specs/2026-08-03-start-command-design.md tests/plugins/run-tests.sh
-git commit -m "feat(start-scan): đọc phiên nghiệm thu + trạng thái bản đồ, trả nợ 2 dòng skip (P108, P98/P99 mở rộng)"
+git commit -m "feat(start-scan): đọc phiên nghiệm thu + trạng thái bản đồ, trả nợ 2 dòng skip (P121, P98/P99 mở rộng)"
 ```
 
 ---
@@ -1107,17 +1107,17 @@ git commit -m "feat(start-scan): đọc phiên nghiệm thu + trạng thái bả
 - Modify: `commands/approve.md`, `commands/signoff.md`, `codex/acceptance-gate/skills/approve/SKILL.md`, `codex/acceptance-gate/skills/signoff/SKILL.md`
 - Modify: `_acceptance/config.yaml`
 - Create: `PRODUCT-MAP.md` (máy sinh)
-- Modify: `tests/plugins/run-tests.sh` (P109)
+- Modify: `tests/plugins/run-tests.sh` (P122)
 
 **Interfaces:**
 - Consumes: CLI + exit-code của `product-map.mjs` (Task 2/3); skill `uat-session` (Task 4) đã có bước regen sẵn từ Task 4 Step 1.
 - Produces: `executors.script.product_map` — eval E7 của contract dùng ref này.
 
-- [ ] **Step 1: Viết P109 — ĐỎ trước**
+- [ ] **Step 1: Viết P122 — ĐỎ trước**
 
 ```bash
-# ── P109: diem lam moi ban do o MOI than cong nguoi + config self-host (E6) ─
-run "P109 buoc lam moi ban do nam SAU buoc ghi field cong, 2 harness + plugin-root (E6)" \
+# ── P122: diem lam moi ban do o MOI than cong nguoi + config self-host (E6) ─
+run "P122 buoc lam moi ban do nam SAU buoc ghi field cong, 2 harness + plugin-root (E6)" \
   python3 - "$ROOT" <<'PY'
 import sys
 from pathlib import Path
@@ -1205,7 +1205,7 @@ Và dưới `feature_loop.suite_keys`, thêm dòng cuối:
 Run: `node scripts/product-map.mjs --root .`
 Rồi đọc `PRODUCT-MAP.md` bằng mắt: mỗi mục có đọc được bằng tiếng sản phẩm không, có slug nào rơi nhầm "Hồ sơ hỏng" không (repo có 15 workspace thật — hỏng thật thì sửa hồ sơ, KHÔNG nới luật để bản đồ đẹp).
 
-- [ ] **Step 7: Chạy P109 + toàn suite**
+- [ ] **Step 7: Chạy P122 + toàn suite**
 
 Run: `bash tests/plugins/run-tests.sh 2>&1 | tail -5`
 Expected: `Results: all plugin tests passed`.
@@ -1219,7 +1219,7 @@ Expected: `PRODUCT-MAP.md khớp hồ sơ xưởng.` + `exit=0`.
 
 ```bash
 git add commands/approve.md commands/signoff.md codex/acceptance-gate/skills/approve/SKILL.md codex/acceptance-gate/skills/signoff/SKILL.md _acceptance/config.yaml PRODUCT-MAP.md tests/plugins/run-tests.sh
-git commit -m "feat(gates): làm mới bản đồ tại mỗi lần đóng cổng người + bản đồ của chính kit (P109)"
+git commit -m "feat(gates): làm mới bản đồ tại mỗi lần đóng cổng người + bản đồ của chính kit (P122)"
 ```
 
 ---
@@ -1275,22 +1275,22 @@ git commit -m "chore(mirror): sync plugins sau product-map-uat-session; contract
 
 | AC | Task |
 |---|---|
-| AC-1 bucket + enum-lạc | T2 (P103) |
-| AC-2 bất biến chuyển máy | T2 (P104) |
-| AC-3 --check 3 trạng thái + path động | T3 (P106) |
-| AC-4 xác định | T2 (P105) |
-| AC-5 cạnh | T2 (P105) |
-| AC-6 điểm regen + config | T6 (P109) |
+| AC-1 bucket + enum-lạc | T2 (P116) |
+| AC-2 bất biến chuyển máy | T2 (P117) |
+| AC-3 --check 3 trạng thái + path động | T3 (P119) |
+| AC-4 xác định | T2 (P118) |
+| AC-5 cạnh | T2 (P118) |
+| AC-6 điểm regen + config | T6 (P122) |
 | AC-7 map của kit fresh | T6 (Step 6/8) + eval E7 |
-| AC-8 round-trip template UAT | T1 (P102) + T5 (P108 dùng khuôn đó cho reader thật) |
-| AC-9 nghi thức phiên | T4 (P107) + eval judgment E9 |
-| AC-10 start-scan nguồn mới + since | T5 (P108) |
+| AC-8 round-trip template UAT | T1 (P115) + T5 (P121 dùng khuôn đó cho reader thật) |
+| AC-9 nghi thức phiên | T4 (P120) + eval judgment E9 |
+| AC-10 start-scan nguồn mới + since | T5 (P121) |
 | AC-11 marker 2 harness + bảng phân ô | T5 (Step 5–7, P99/P98) |
-| AC-12 LOCKED không đổi | T4 (P107 kiểm skill mở) + P31/P32 sẵn có |
+| AC-12 LOCKED không đổi | T4 (P120 kiểm skill mở) + P31/P32 sẵn có |
 | AC-13 ngôn ngữ mặt người | T2 (render tiếng sản phẩm) + T6 Step 6 (đọc bằng mắt) + eval judgment E13 |
 
 **Placeholder scan:** không có TBD/TODO; mọi step có lệnh hoặc code thật.
 
-**Type consistency:** `renderProductMap(root) -> string` dùng nhất quán ở T2/T3/T5; `fileFromTemplate(absPath, marker, values, body?)` dùng nhất quán ở T1/T2/T3/T5; tên marker `UAT-FRONTMATTER-TEMPLATE` / `CONTRACT-FRONTMATTER-TEMPLATE` / `OPP-FRONTMATTER-TEMPLATE` khớp giữa helper, template và test; khoá JSON `map.present`/`map.fresh` khớp giữa `start-scan.mjs`, marker hai harness, spec và P108.
+**Type consistency:** `renderProductMap(root) -> string` dùng nhất quán ở T2/T3/T5; `fileFromTemplate(absPath, marker, values, body?)` dùng nhất quán ở T1/T2/T3/T5; tên marker `UAT-FRONTMATTER-TEMPLATE` / `CONTRACT-FRONTMATTER-TEMPLATE` / `OPP-FRONTMATTER-TEMPLATE` khớp giữa helper, template và test; khoá JSON `map.present`/`map.fresh` khớp giữa `start-scan.mjs`, marker hai harness, spec và P121.
 
-**Rủi ro đã biết:** P108 Step 1 dùng `chmod 000` để ép lỗi render — chạy dưới `root` sẽ KHÔNG lỗi (root đọc được mọi thứ) và case đó sẽ đỏ; nếu suite chạy trong container root, đổi cách ép lỗi sang ghi `_acceptance` thành file thường (không phải thư mục) trong một tmp riêng.
+**Rủi ro đã biết:** P121 Step 1 dùng `chmod 000` để ép lỗi render — chạy dưới `root` sẽ KHÔNG lỗi (root đọc được mọi thứ) và case đó sẽ đỏ; nếu suite chạy trong container root, đổi cách ép lỗi sang ghi `_acceptance` thành file thường (không phải thư mục) trong một tmp riêng.

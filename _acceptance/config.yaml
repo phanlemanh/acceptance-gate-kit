@@ -60,7 +60,7 @@ risk_tiers:
     # miễn trừ thì chính commit chữ ký Cổng 2 (nó kèm bản đồ vừa vẽ lại) tự làm
     # bằng chứng stale và chặn merge, thành vòng không thoát. An toàn vì
     # `product-map.mjs --check` trong CI canh `bản đồ == hồ sơ` độc lập, y như
-    # P30 canh `mirror == nguồn`; case P113 là RED bắt buộc chứng minh điều đó.
+    # P30 canh `mirror == nguồn`; case P126 là RED bắt buộc chứng minh điều đó.
     - "PRODUCT-MAP.md"
   t3_paths:
     # Lõi cưỡng chế: bug ở đây biến thành false-green im lặng trên MỌI repo tiêu thụ.

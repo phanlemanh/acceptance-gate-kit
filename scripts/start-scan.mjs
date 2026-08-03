@@ -20,7 +20,7 @@ const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence-core.js'));
 // Cùng luật "hồ sơ có hỏng không" với bản đồ sản phẩm — hai bên đọc cùng bộ
-// hồ sơ thì không được cho hai kết luận trái nhau (S4-r1, case P110).
+// hồ sơ thì không được cho hai kết luận trái nhau (S4-r1, case P123).
 const { recordProblem, navValues } =
   require(path.join(__dirname, '..', 'lib', 'workspace-record.js'));
 
