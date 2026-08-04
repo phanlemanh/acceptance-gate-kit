@@ -1,0 +1,191 @@
+# Evals: judgment-runs — lớp thuần vm-realm của acceptance-verify.js (không sinh
+# agent nào), cộng hai cổng chống trôi: doc-sites và mirror.
+# cmd là config: ref (resolve tại S4); paths phục vụ carry-forward round delta.
+#
+# TỰ CHỨNG MINH — ĐỌC TRƯỚC KHI "DỌN": eval E10 CỐ Ý mang `runs: 3` dù chính
+# feature này khẳng định `runs` vô hiệu trên judgment. Đó là chủ đích: nhờ nó,
+# round S4 của chính workspace này chạy nhánh `inertFields` khác rỗng, và
+# `## Variance` trong evidence-report của nó phải nêu đích danh E10 — người ký
+# thấy hành vi mới trên vật thật. Bỏ dòng đó đi thì nhánh mới CHƯA TỪNG chạy
+# một lần nào trước khi ký. Các eval máy còn lại deterministic nên không khai `runs`.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      Case ghim: args có eval judgment mang `runs: 3` → result.inertFields có ĐÚNG
+      một mục với evalId đúng tên, field "runs", value 3, executor "judgment", và
+      reason nhắc panel 3-lens. Đối chứng dương ĐI KÈM trong cùng case: cùng args
+      bỏ `runs` → inertFields RỖNG (chứng minh phép đo phân biệt được, không phải
+      luôn-xanh). Thông điệp reason được ghim bằng chuỗi, không chỉ kiểm độ dài.
+    evidence_required: [run_id, exit_code]
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs]
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      Case ghim: args có eval judgment mang `paths: [...]` → inertFields có mục
+      field "paths" cho eval đó, sinh bởi CÙNG hàm luật đã bắt E1 (không phải nhánh
+      if riêng). Đối chứng dương: bỏ `paths` → không mục nào.
+    evidence_required: [run_id, exit_code]
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs]
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      Nửa-KHÔNG-được-bắn: eval test/script mang `runs: 3`, và eval
+      test/script/ui-check mang `paths` → inertFields KHÔNG có mục nào cho chúng.
+      Kèm hồi quy hành vi cũ: `runs: 3` trên eval test vẫn cho 3 agent machine cho
+      lệnh đó (đếm calls theo nhãn `machine:`), chứng minh bản vá không nuốt mất
+      đường variance đang chạy.
+    evidence_required: [run_id, exit_code]
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs]
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      Eval ui-check mang `runs: 3` → inertFields có mục cho nó (ô inert theo cùng
+      luật, do mã hardcode runs:1 cho ui-check). Đối chứng dương: bỏ `runs` → rỗng.
+    evidence_required: [run_id, exit_code]
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs]
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      Bắt prompt THẬT gửi tới agent nhãn `synthesize:report` (qua calls của harness,
+      không đọc mã nguồn): round có eval inert → prompt chứa câu `inertNote` do JS
+      tính sẵn, nêu đích danh evalId + field, kèm chỉ dẫn chép NGUYÊN VĂN vào
+      `## Variance`. Đối chứng dương trong cùng case: round không eval inert nào →
+      prompt KHÔNG chứa inertNote lẫn chỉ dẫn đó. Đo ĐẦU RA của bên viết, không grep
+      chỉ dẫn.
+    evidence_required: [run_id, exit_code]
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs]
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      inertFields không rỗng → có đúng một dòng trong logs nêu số lượng + tên
+      field/eval. Đối chứng dương: không có eval inert → không dòng log nào khớp.
+    evidence_required: [run_id, exit_code]
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs]
+
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      ROUND-TRIP: test RÚT bảng luật giữa cặp marker `<<<INERT-FIELD-TABLE` …
+      `INERT-FIELD-TABLE>>>` trong acceptance-verify.js, parse ra tập cặp
+      (field, executor), rồi SINH args cho từng cặp và kiểm hàm thật bắn đúng tập
+      đó — không cặp nào thừa, không cặp nào thiếu. Bảng KHÔNG được chép tay vào
+      test. Đối chứng dương: xoá một hàng khỏi BẢN SAO của file → round-trip đỏ.
+    evidence_required: [run_id, exit_code]
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs]
+
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      Ba chỗ mô tả `runs` (acceptance-verify.js dòng args-contract,
+      feature-loop/skills/feature-loop/SKILL.md, codex/feature-loop-codex SKILL.md)
+      đều nêu giới hạn test/script và KHÔNG còn mô tả trơ "eval ngẫu nhiên (LLM)".
+      Đối chứng đột biến bắt buộc: khôi phục câu cũ vào BẢN SAO từng file → detector
+      phải ĐỎ ở đúng file đó; path suy từ vị trí script (không hardcode ROOT).
+    evidence_required: [run_id, exit_code]
+    paths:
+      - feature-loop/workflows/acceptance-verify.js
+      - feature-loop/skills/feature-loop/SKILL.md
+      - codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md
+      - tests/workflows/acceptance-verify.test.mjs
+
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      ĐƯỜNG ĐỌC-CŨ, fixture do CODE SINH: test tự quét `_acceptance/*/evals.yaml`
+      của chính cây đang kiểm (path suy từ vị trí script), rút ra MỌI eval judgment
+      đang mang `runs`/`paths`, dựng args từ chúng rồi chạy workflow — verdict KHÔNG
+      phải BLOCKED và không eval nào bị đẩy vào failedEvals vì field inert. Sanity
+      counter TÁCH THEO HÌNH DẠNG, ngưỡng viết thẳng ở đây: phải quét ra ≥1 eval
+      mang `runs` VÀ ≥1 eval mang `paths` — đếm tổng sẽ xanh oan khi regex sót một
+      hình dạng (mảng YAML khác vô hướng). Đối chứng dương: bản sao args bị tiêm một
+      eval gây BLOCKED thật phải cho verdict BLOCKED, chứng minh phép đo biết đỏ.
+    evidence_required: [run_id, exit_code]
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs]
+
+  - id: E10
+    criterion: AC-10
+    executor: judgment
+    runs: 3   # CỐ Ý INERT — xem đầu file. Đây là ca sống để round này tự chứng minh.
+    question: >
+      Bước "Mọi verdict" của S4 trong HAI harness — feature-loop/skills/feature-loop/
+      SKILL.md (input 1) và codex/feature-loop-codex/skills/feature-loop-codex/
+      SKILL.md (input 2) — có thực sự BUỘC main loop trình `inertFields` cho người ở
+      Cổng 2 không, hay chỉ nhắc qua? PASS đòi đủ bốn điều: (1) CẢ HAI harness đều
+      có mệnh lệnh (một bên có, một bên thiếu = FAIL — lỗ im-lặng còn nguyên trên
+      harness kia); (2) mệnh lệnh nằm cùng hạng với luật minh bạch đang áp cho
+      `carried`, tức nêu rõ KHÔNG được nén vào phần "máy đã lo"; (3) chỉ dẫn viết
+      bằng ngôn ngữ sản phẩm, nêu đích danh eval + field, để người ký hiểu "cái này
+      bạn khai mà máy không dùng" mà không cần biết tên biến; (4) không mâu thuẫn
+      với phần còn lại của chính file đó. Đối chiếu hợp đồng (input 3) để biết mức
+      đòi hỏi. FAIL nếu chỉ là một dòng nhắc trôi nổi không ràng buộc.
+    inputs:
+      - ../../feature-loop/skills/feature-loop/SKILL.md
+      - ../../codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md
+      - contract.md
+    evidence_required: [judged_by, verdict, rationale]
+
+  - id: E11
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.mirror_sync
+    expected: >
+      mirror plugins/ khớp nguồn sau khi sửa feature-loop/, skills/, scripts/ — exit 0.
+    evidence_required: [run_id, exit_code]
+    paths: [plugins/**, feature-loop/**, skills/**, scripts/**]
+
+  - id: E12
+    criterion: AC-12
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      ROUND-TRIP writer→reader, một chỗ, fixture do code sinh: (1) chạy
+      acceptance-verify qua harness với eval inert, RÚT câu `inertNote` từ kết quả
+      thật (không chép tay); (2) sinh workspace fixture tạm có evidence-report.md mà
+      mục `## Variance` chứa nguyên văn câu đó; (3) chạy `scripts/gate-card.js` trên
+      fixture — thẻ phải hiện cờ nêu đúng bản chất "field khai mà máy không dùng",
+      và KHÔNG mượn nhãn "eval ngẫu nhiên (pass-rate hỗn hợp)". Ghim thêm: inertNote
+      KHÔNG bắt đầu bằng "none" (reader lọc /^none/i sẽ nuốt câu bắt đầu bằng none →
+      im lặng tái diễn ở đúng mặt người ký). Đối chứng dương: cùng fixture với
+      Variance = "none — …" thì không cờ nào bắn. Mọi path suy từ vị trí script.
+    evidence_required: [run_id, exit_code]
+    paths:
+      - feature-loop/workflows/acceptance-verify.js
+      - scripts/gate-card.js
+      - tests/workflows/acceptance-verify.test.mjs
+
+  - id: E13
+    criterion: AC-13
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      inertFields không rỗng → result.runLog có đúng một dòng JSON `kind: "inert"`
+      mang round + danh sách (evalId, field, executor), và dòng đó KHÔNG có `run_id`
+      (để loadRunLogIds bỏ qua như dòng kind panel/baseline — consumer cũ không vỡ).
+      Đối chứng dương: round không eval inert → không dòng kind inert nào.
+    evidence_required: [run_id, exit_code]
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs]
