@@ -27,7 +27,7 @@ flowchart TD
 
 ## Đang làm
 
-- Trục ngữ cảnh cho bản mẫu — khoá context 3 nấc trong sổ phiên design-pass, thẻ Cổng 1 render nấc, generic mọi repo (`context-ladder`)
+- Trục ngữ cảnh cho bản mẫu — khoá context 3 nấc trong sổ phiên design-pass, card Cổng 1 render nấc, generic mọi repo (`context-ladder`)
 
 ## Đã giao
 

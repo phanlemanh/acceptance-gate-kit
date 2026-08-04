@@ -5,7 +5,7 @@ slug: context-ladder
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-08-04T15:32:00Z
 ---
