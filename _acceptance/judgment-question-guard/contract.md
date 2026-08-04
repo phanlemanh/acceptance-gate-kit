@@ -10,6 +10,9 @@ approved_at: 2026-08-04T12:30:00Z
 human_signoff: Manh Phan 2026-08-04
 owner: omre.cnsp4@onemount.com
 source: docs/superpowers/specs/2026-08-04-judgment-question-guard-design.md
+time_human_minutes:
+  gate1: 10
+  gate2: 10
 ---
 
 # Acceptance contract — judgment-question-guard
@@ -172,6 +175,12 @@ rồi chọn ca đo phủ: mọi ô trục D + mỗi hình dạng trục C ≥1 
 ## Notes
 
 ### Quyết định Cổng 2 — 2026-08-04, Manh Phan
+
+- **Thời gian người, ghi đủ:** Cổng 1 = 10 phút · **Cổng 1.5 = 10 phút** · Cổng 2
+  = 10 phút. Tổng 30 phút cho một thay đổi T3 chạm lõi cưỡng chế. Lược đồ
+  `time_human_minutes` CHỈ có khoá `gate1`/`gate2` nên 10 phút của Cổng 1.5 ghi
+  ở đây thay vì trong frontmatter — cộng nó vào `gate1` sẽ báo sai một điểm
+  dừng thành hai. Mọi feature T3 đều có Cổng 1.5, nên đây là lỗ nhỏ của lược đồ.
 
 - **VIỆC RIÊNG (chưa làm, quyết ở Cổng 2):** bảng field bắt buộc chặn đúng bộ
   eval thiết kế mà chính kit hướng dẫn viết. `skills/acceptance/SKILL.md` rule
