@@ -924,4 +924,66 @@ console.log('W-G7 prompt hoi dong chan tu-cuu + dump chinh danh');
   check('W-G7 dump chua id eval + inputs cua lan chay', /E9/.test(jp) && /\/repo\/a\.md/.test(jp) && /\/repo\/b\.md/.test(jp), 'thieu id hoac inputs');
 }
 
+console.log('W-G8 ton kho that: moi _acceptance/*/evals.yaml qua bang RUT TU MARKER');
+{
+  const { readFileSync, readdirSync, existsSync, mkdtempSync, writeFileSync, cpSync } = await import('node:fs');
+  const os = await import('node:os');
+  const ROOT = path.join(HERE, '..', '..');
+  const src = readFileSync(WF, 'utf8');
+  // Bang phai RUT TU MARKER, khong chep tay sang test — chep tay la hai ben troi
+  // khoi nhau ma van xanh (hinh dang (3) trong 4 hinh dang da dam, CLAUDE.md).
+  const m = src.match(/\/\/ <<<EVAL-REQUIRED-FIELDS\n([\s\S]*?)\/\/ EVAL-REQUIRED-FIELDS>>>/);
+  check('W-G8 rut duoc bang tu marker', !!m, 'marker khong khop — bang khong con o mot cho co dau moc');
+  const TABLE = new Function(`${m[1]}; return EVAL_REQUIRED;`)();
+  check('W-G8 bang co du 4 executor', Object.keys(TABLE).sort().join(',') === 'judgment,script,test,ui-check', Object.keys(TABLE).join(','));
+
+  const parseEvals = (file) => {
+    const out = []; let cur = null;
+    for (const raw of readFileSync(file, 'utf8').split('\n')) {
+      const idM = raw.match(/^\s*-\s*id:\s*(.+)$/);
+      if (idM) { if (cur) out.push(cur); cur = { id: idM[1].trim(), _k: new Set(['id']) }; continue; }
+      if (!cur) continue;
+      const kv = raw.replace(/\s+$/, '').match(/^\s{2,}([a-z_]+):\s*(.*)$/);
+      if (kv) { cur._k.add(kv[1]); cur[kv[1]] = kv[2].trim().replace(/^["']|["']$/g, ''); }
+    }
+    if (cur) out.push(cur);
+    return out;
+  };
+  const scan = (dir) => {
+    const hard = [], soft = [];
+    let files = 0;
+    for (const slug of readdirSync(dir)) {
+      const f = path.join(dir, slug, 'evals.yaml');
+      if (!existsSync(f)) continue;
+      files++;
+      for (const e of parseEvals(f)) {
+        const spec = TABLE[e.executor];
+        if (!spec) { hard.push(`${slug}/${e.id}: executor`); continue; }
+        for (const fl of spec.str) if (!e._k.has(fl) || !String(e[fl] || '').trim()) hard.push(`${slug}/${e.id}: ${fl}`);
+        for (const fl of spec.arr) if (!e._k.has(fl)) hard.push(`${slug}/${e.id}: ${fl}`);
+        if (e.executor === 'judgment' && !e._k.has('inputs')) soft.push(`${slug}/${e.id}`);
+      }
+    }
+    return { hard, soft, files };
+  };
+  const AC = path.join(ROOT, '_acceptance');
+  const { hard, soft, files } = scan(AC);
+  check('W-G8 sanity: quet duoc it nhat 10 workspace co evals.yaml', files >= 10, String(files));
+  check('W-G8 0 eval bi chan cung tren ton kho that', hard.length === 0, hard.join(' | '));
+  check('W-G8 ca ha UNCERTAIN dung bang danh sach mien tru da khai o Notes',
+    soft.slice().sort().join(',') === 'gate-card-ac-visibility/E11,gate-card-ac-visibility/E12', soft.join(','));
+
+  // dot bien: tiem field rong vao BAN SAO sinh trong chinh lan chay -> phai do
+  const tmp = mkdtempSync(path.join(os.tmpdir(), 'inv-'));
+  cpSync(AC, path.join(tmp, '_acceptance'), { recursive: true });
+  const victim = path.join(tmp, '_acceptance', 'judgment-question-guard', 'evals.yaml');
+  const before = readFileSync(victim, 'utf8');
+  const after = before.replace(/^    criterion: AC-1$/m, '    criterion: ');
+  check('W-G8 dot bien: buoc tiem THUC SU doi file', after !== before, 'khong tiem duoc — regex khong khop');
+  writeFileSync(victim, after);
+  const mut = scan(path.join(tmp, '_acceptance'));
+  check('W-G8 dot bien: ban tiem field rong phai DO', mut.hard.length === 1, mut.hard.join(' | '));
+  check('W-G8 dot bien: neu dung slug + id + field', /^judgment-question-guard\/E1: criterion$/.test(mut.hard[0] || ''), mut.hard[0]);
+}
+
 summary('acceptance-verify');
