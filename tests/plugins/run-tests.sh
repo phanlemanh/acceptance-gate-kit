@@ -5493,6 +5493,33 @@ assert any("thieu term Nac ngu canh" in e for e in check(spec, m2)), "dot bien x
 print("P141 OK (doi chung duong + 2 dot bien)")
 PY
 
+run "P142 context-ladder coverage-lint scoped: khong canh bao nao ngoai W3 da-biet (E12)" \
+  python3 - "$ROOT" <<'PY'
+import re, subprocess, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+# Thuoc scoped: lint rieng slug nay. W3 la bao gia DA BIET (lint doc expected
+# mot-dong, khong thay ca am trong block scalar — cung lop bug parser gate-card,
+# chip sua rieng). Luat: canh bao cua context-ladder ⊆ {W3}; lint sua xong
+# (exit 0, khong W3) case nay VAN xanh — khong ghim bao gia thanh yeu cau.
+r = subprocess.run(["node", str(root / "scripts/eval-coverage-lint.js"), str(root), "--slug", "context-ladder"],
+                   capture_output=True, text=True)
+warns = [l for l in r.stdout.splitlines() if l.strip().startswith("[context-ladder]")]
+bad = [l for l in warns if " W3 " not in l]
+assert bad == [], f"canh bao NGOAI W3 cho context-ladder: {bad}"
+# DOI CHUNG DUONG (che do --files; W6 tat trong mode nay theo thiet ke — dong 214
+# cua lint): tiem AC nguong KHONG co eval am -> W1 phai no dung ten AC.
+ct = (root / "_acceptance/context-ladder/contract.md").read_text(encoding="utf-8")
+ev = (root / "_acceptance/context-ladder/evals.yaml").read_text(encoding="utf-8")
+d = Path(tempfile.mkdtemp())
+(d / "contract.md").write_text(ct.replace("## Coverage", "- AC-99: Given x, When đạt ngưỡng 5, Then y.\n\n## Coverage", 1), encoding="utf-8")
+(d / "evals.yaml").write_text(ev + "  - id: E99\n    criterion: AC-99\n    executor: script\n    cmd: config:executors.script.product_map\n    expected: chay xong la dat\n", encoding="utf-8")
+r2 = subprocess.run(["node", str(root / "scripts/eval-coverage-lint.js"), str(root), "--files", str(d / "contract.md"), str(d / "evals.yaml")],
+                    capture_output=True, text=True)
+assert "W1" in r2.stdout and "AC-99" in r2.stdout, f"doi chung duong hong: tiem AC nguong ma W1 khong no: {r2.stdout[:300]}"
+print("P142 OK (chi W3 da-biet; doi chung duong W1 no dung)")
+PY
+
 # --- context-ladder cases end ---
 
 if [ "$failures" -gt 0 ]; then

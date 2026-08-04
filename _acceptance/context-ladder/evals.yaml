@@ -129,12 +129,18 @@ evals:
     paths: [skills/design-pass/SKILL.md, scripts/gate-card.js, feature-loop/skills/feature-loop/SKILL.md, plugins/**]
   - id: E12
     criterion: AC-10
-    executor: script
-    cmd: config:executors.script.coverage_lint
+    executor: test
+    cmd: config:executors.test.plugins
     expected: >
-      eval-coverage-lint xanh trên chính workspace này (mọi AC có ≥1 eval) —
-      thuần coverage-lint, phép kiểm docs tách sang E13 (gap-probe F3).
-    paths: [_acceptance/context-ladder/evals.yaml]
+      Case P142 pass (đổi thước tại S3, provisional — ledger d-20260804T16*):
+      lint toàn-repo không bao giờ xanh vì cảnh báo advisory của workspace CŨ
+      (ngoài hợp đồng), nên đo scoped: eval-coverage-lint --slug context-ladder
+      không được có cảnh báo nào NGOÀI W3 (W3 là báo giả đã biết — lint đọc
+      expected một-dòng không thấy ca âm trong block scalar, cùng lớp bug
+      parser gate-card, chip sửa riêng đã treo; khi chip sửa xong exit 0 thì
+      case vẫn xanh). Đối chứng dương qua chế độ --files: tiêm từ _Avoid_ vào
+      bản sao contract → W6 phải nổ đúng thông điệp.
+    paths: [_acceptance/context-ladder/contract.md, _acceptance/context-ladder/evals.yaml, tests/plugins/run-tests.sh]
   - id: E13
     criterion: AC-10
     executor: test
