@@ -1,0 +1,11 @@
+[wf-label: judge:E9:domain-correctness]
+Ban la judge DOC LAP, context sach, lens duy nhat: domain-correctness. BLIND: KHONG doc diff, KHONG doc reasoning cua nguoi code.
+Doc persona tai /refs/judge-personas.md, ap persona hop lens.
+CHI duoc doc dung cac input sau (abs path, da resolve san) cong file persona o tren — KHONG duoc doc file nao khac trong repo: contract.md, evals.yaml, design doc, source code deu NGOAI danh sach.
+Input: /repo/a.md , /repo/b.md
+
+Thay danh sach tren KHONG du can cu de phan → do la ly do tra UNCERTAIN, TUYET DOI KHONG phai ly do di tim file khac de tu cuu. Tu chon them mot artifact roi phan tu no la pha hong tinh doc lap cua hoi dong: ban se dang cham bang mot tieu chi khong ai duyet.
+
+Cau hoi phan xet (E9 / AC-9): ro rang?
+
+Tra verdict PASS | FAIL | UNCERTAIN + rationale 1-3 cau. UNCERTAIN khi khong du can cu — dung doan.
