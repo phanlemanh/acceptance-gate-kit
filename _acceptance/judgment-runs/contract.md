@@ -77,7 +77,7 @@ hai luật NGƯỢC NHAU trên cùng một điều kiện (inputs không đổi)
   bảo bên viết chèn câu cảnh báo vào `## Variance`, và mục `## Variance` chỉ còn
   mang phương sai thật. Câu cảnh báo tới tay người **chỉ qua kênh máy**: dòng sổ chạy
   `kind:"inert"` (AC-13) → trình-cho-người ở Cổng 2 (AC-12, AC-14) và gói duyệt (AC-10).
-  Đối chứng dương: round có eval inert vẫn phải cho cờ vàng đúng trên thẻ, chứng minh
+  Đối chứng dương: round có eval inert vẫn phải cho cờ vàng đúng khi trình cho người, chứng minh
   bỏ chỉ dẫn KHÔNG làm mất cảnh báo.
   *Vì sao viết lại:* hai bản trước bắt bên viết (một LLM) chép câu vào `## Variance`,
   rồi bên đọc phải gỡ nó ra. Mối nối đó gãy **bốn lần liên tiếp** theo bốn chiều khác
