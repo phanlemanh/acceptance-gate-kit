@@ -1515,6 +1515,53 @@ printf -- '---\nschema_version: 1\nfeature: billing fix\nslug: billing-fix\nrisk
 git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm pr
 bash "$CHECK" "$R" --base "$BASE" >/dev/null; check B02 0 $?
 
+# ── B07/B08/B09: chỉ hồ sơ THẬT của một slug mới bảo lãnh cho code T3 ────────
+# Lỗ đo SỐNG ở repo tiêu thụ 2026-08-04 (kit 1.31.0): răng T1-escape coi MỌI
+# path dưới `_acceptance/` là "PR có kèm hồ sơ", nên một commit mà thay đổi
+# `_acceptance/` duy nhất là `_acceptance/config.yaml` làm VIOLATION T3 biến
+# mất — code T3 vẫn không ai nghiệm thu, chỉ là không còn ai báo.
+#
+# HAI bản dựng bằng CÙNG một hàm, khác nhau ĐÚNG ở thứ nằm dưới `_acceptance/`.
+# B07 (đối chứng DƯƠNG) phải XANH thì B08 đỏ mới nói lên điều gì: thiếu vế này
+# thì fixture hỏng, commit trượt, hay $CHECK sai đường dẫn (exit 127) đều cho
+# cùng một màu "đỏ" và case tự nghiệm mãi mãi.
+mk_pr_t3() { # <root> <slug|configonly> — PR đụng t3_paths + một thay đổi dưới _acceptance/
+  local R="$1"; mk_pr "$R"
+  printf 'charge()\n' > "$R/src/billing/charge.js"
+  case "$2" in
+    slug)
+      mkdir -p "$R/_acceptance/billing-fix"
+      printf -- '---\nschema_version: 1\nfeature: billing fix\nslug: billing-fix\nrisk_tier: T3\nsurfaces: [api]\nstatus: draft\napproved_by:\n---\n' > "$R/_acceptance/billing-fix/contract.md" ;;
+    configonly)
+      # Một lần chỉnh cấu hình cổng thật (khoá hợp lệ, không đổi t1/t3 globs).
+      printf 'baseline_minutes: []\n' >> "$R/_acceptance/config.yaml" ;;
+  esac
+  git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm pr
+}
+
+echo "B07 ĐỐI CHỨNG DƯƠNG: T3 + hồ sơ THẬT _acceptance/<slug>/ -> clean"
+R="$T/b07"; mk_pr_t3 "$R" slug
+outB="$(bash "$CHECK" "$R" --base "$(git -C "$R" rev-parse HEAD~1)" 2>&1)"; check B07 0 $?
+nothas B07-msg "carries NO _acceptance/<slug>/ artifacts" "$outB"
+
+echo "B08 T3 + CHỈ _acceptance/config.yaml (không phải hồ sơ của slug nào) -> fail"
+R="$T/b08"; mk_pr_t3 "$R" configonly
+outB="$(bash "$CHECK" "$R" --base "$(git -C "$R" rev-parse HEAD~1)" 2>&1)"; check B08 1 $?
+# Ghim ĐÚNG thông điệp, không chỉ mã thoát: một fixture đỏ vì lý do khác (config
+# lint, ledger, scope) sẽ qua được phép thử exit-khác-0 mà không chứng minh gì.
+hasout B08-msg "VIOLATION [PR]: T3 paths (t3_paths) changed but the PR carries NO _acceptance/<slug>/ artifacts" "$outB"
+hasout B08-offender "src/billing/charge.js" "$outB"
+# `_acceptance/config.yaml` là TRUNG LẬP: không bảo lãnh, cũng không bị liệt như
+# code chưa nghiệm thu (liệt nó = đổi fail-open lấy false-positive).
+nothas B08-neutral "_acceptance/config.yaml" "$(printf '%s\n' "$outB" | sed -n 's/^    //p')"
+
+echo "B09 PR CHỈ chỉnh _acceptance/config.yaml, không đụng code -> clean"
+R="$T/b09"; mk_pr "$R"; BASE="$(git -C "$R" rev-parse HEAD)"
+printf 'baseline_minutes: []\n' >> "$R/_acceptance/config.yaml"
+git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm cfg
+outB="$(bash "$CHECK" "$R" --base "$BASE" 2>&1)"; check B09 0 $?
+nothas B09-msg "VIOLATION [PR]" "$outB"
+
 echo "B03 PR touches only t1_skip_globs files -> clean"
 R="$T/b03"; mk_pr "$R"; BASE="$(git -C "$R" rev-parse HEAD)"
 printf 'notes\n' > "$R/docs/notes.txt"; git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm docs
