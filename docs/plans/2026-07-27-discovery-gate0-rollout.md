@@ -17,6 +17,19 @@ G2 handbook = **repo nhẹ mới**; R1/V2 giả định cùng repo Artifact Plat
 
 ## Bảng tổng hạng mục
 
+**Lỗ-kit ghi tại S1-D vòng r3 (04/08, feedback Manh):** thang vật liệu
+design-pass chấm đúng chiều VẬT (real-components/scaffold/static, hạ bậc có
+khai — phiên r3 tuân đủ) nhưng KHÔNG có chiều NGỮ CẢNH: proto route đứng một
+mình không cho thấy vật sống ở đâu (plugin trong chat/canvas của Creator —
+đúng hình dung owner), kích hoạt từ đâu, kết quả đi đâu. Hệ quả: owner duyệt
+thị giác xong vẫn không hình dung được cách hoạt động; đường cửa-vào (chip
+Creator, canvas render, gửi Zalo) có nguy cơ thành phát-hiện-muộn ở S4/UAT.
+Việc vá (gộp vào phần còn lại làn thiết kế): thêm trục "nấc ngữ cảnh" vào
+frontmatter design-pass.md — `context: standalone | khung-giả-tĩnh |
+nhúng-host-thật` — khai bắt buộc như `material:`; nấc `standalone` trước
+Gate 1 phải kèm ≥1 cảnh ngữ-cảnh (khung host thật bọc artifact + storyboard
+hành trình) hoặc entry descope có tên.
+
 | ID | Việc | Nơi chạm | Tier | Phụ thuộc | Effort ước |
 |---|---|---|---|---|---|
 | **Đợt 0 — Kiểm chứng** | | | | | |
