@@ -1,0 +1,30 @@
+{
+  "feature_plain": "Khi hồ sơ nghiệm thu của một việc bị khai thiếu, vòng kiểm dừng lại và gọi tên chỗ thiếu, thay vì lặng lẽ chấm bừa rồi tuyên ĐẠT.",
+
+  "decisions": [
+    {
+      "id": "E10",
+      "q": "Đề bài giao cho hội đồng đã chặn được lối tự đi tìm thêm tài liệu chưa?",
+      "why": "Hội đồng 3/3 đề xuất ĐẠT, cả ba đều trích đích danh câu luật trong bản đề bài thật. Vòng 1 đã bắt và sửa một lỗi nặng ở chính chỗ này: bản cũ cấm theo LOẠI file nên cấm nhầm đúng những tài liệu mà nhiều mục hội đồng khai làm đầu vào hợp lệ. Bản hiện tại neo vào QUAN HỆ — có tên trong danh sách hay không."
+    }
+  ],
+
+  "scope_plain": "Không đụng bộ soát hồ sơ lúc soạn thảo, không đụng danh sách đường dẫn hạng rủi ro cao, không đổi cách tính kết luận hay cách mang kết quả cũ sang vòng mới.",
+
+  "analyst_plain": "Phép đối chứng trên bản gốc được giữ lại từ vòng 1 vì bộ tiêu chí không đổi giữa các vòng.",
+
+  "decisions_plain": [
+    { "id": "d-20260804T073023Z-26693", "p": "Đã chọn soi TOÀN BỘ hồ sơ trước khi lọc, kể cả phần mang sang từ vòng trước và cả lúc chạy thử — đổi lại tốn thêm một vòng duyệt, nhưng nếu chỉ soi phần mới thì chính lối thoát đã gây ra lỗi này vẫn còn mở." },
+    { "id": "d-20260804T073023Z-11846", "p": "Đã chọn hai mức nặng: khai thiếu thì dừng hẳn, còn riêng thiếu vật cho hội đồng đọc thì hạ xuống chưa-đủ-căn-cứ cho người quyết — đổi lại thêm một nhánh xử lý, nhưng dừng hẳn cả hai sẽ chặn cứng một việc đã ký xong." },
+    { "id": "d-20260804T073023Z-3198",  "p": "KHÔNG làm bộ soát lúc soạn thảo — mất cơ hội bắt lỗi sớm hơn một nhịp, đổi lại giữ đúng một cơ chế chịu lực ở một chỗ." },
+    { "id": "d-20260804T073023Z-16553", "p": "KHÔNG sửa danh sách đường dẫn hạng rủi ro cao trong lần này — đổi lại chính bộ chấm điểm vẫn bị xếp hạng thấp hơn mức nó xứng đáng; đây là câu hỏi chính sách, để người quyết riêng." },
+    { "id": "d-20260804T073932Z-28753", "p": "Đã chọn đo tồn kho thật ngay tại bước thiết kế thay vì chỉ hứa sẽ đo — tốn thêm một bước, đổi lại cổng duyệt trên con số đã đo chứ không duyệt mù." },
+    { "id": "d-20260804T073932Z-30379", "p": "Đã chọn đặt bảng khai bắt buộc ở một chỗ có dấu mốc và bắt phép đo rút bảng từ đó — thêm một ràng buộc cho người cài đặt, đổi lại chặn kiểu hỏng cũ: bên viết và bên đo trôi khỏi nhau mà vẫn xanh." },
+
+    { "id": "d-20260804T075232Z-23937", "p": "Đã chọn commit sẵn bản đề bài mẫu của hội đồng thay vì để bộ kiểm sinh ra lúc chạy — đổi lại một tệp máy-sinh nằm trong kho, bù lại bộ kiểm sinh lại và so khớp mỗi lần nên nó không thể lệch âm thầm." },
+    { "id": "d-20260804T092947Z-18754", "p": "Đã viết lại luật đọc của hội đồng theo QUAN HỆ thay vì liệt kê loại tài liệu — bản cũ cấm nhầm chính những tài liệu mà nhiều mục hội đồng khai làm đầu vào hợp lệ, khiến hội đồng nhận hai chỉ dẫn ngược nhau về cùng một tệp." },
+    { "id": "d-20260804T092947Z-9834",  "p": "Đã đưa các luật đọc hồ sơ vào một chỗ có dấu mốc để phép đo dùng lại y nguyên — bản cũ để phép đo tự viết lại luật, và bản viết lại yếu hơn bản thật nên nó báo an toàn trong khi lần chạy thật sẽ chặn." },
+    { "id": "d-20260804T095523Z-9043",  "p": "Đã đưa nốt hai luật còn sót vào cùng chỗ đó ở vòng sau — vòng trước làm thiếu nên đúng lớp lỗi ấy tái phát một lần nữa." },
+    { "id": "d-20260804T095523Z-22626", "p": "KHÔNG sửa các lỗi nằm ngoài phạm vi đã duyệt, kể cả lỗi nặng về mục kiểm tra giao diện — đổi lại lỗi đó còn nguyên khi ship, bù lại tránh vòng xoáy vá-trong-vùng-chưa-ai-đặc-tả; người quyết ở cổng này." }
+  ]
+}

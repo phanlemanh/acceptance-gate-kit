@@ -1,0 +1,233 @@
+---
+schema_version: 2
+feature_slug: judgment-question-guard
+verdict: PASS
+failed_evals: []
+reason:
+verified_by: fresh-context verification subagent
+enforcement_mode: strict
+bypass_used: false
+verified_commit: d8efcfe01875288b9607254f3ab3e4f347a9bc76
+human_signoff: Manh Phan 2026-08-04
+---
+
+# Evidence Report: judgment-question-guard
+
+| Eval | Criterion | Executor | Verdict |
+|---|---|---|---|
+| E1 | AC-1 | test | PASS |
+| E2 | AC-2 | test | PASS |
+| E3 | AC-3 | test | PASS |
+| E4 | AC-4 | test | PASS |
+| E5 | AC-5 | test | PASS |
+| E6 | AC-6 | test | PASS |
+| E7 | AC-7 | test | PASS |
+| E8 | AC-8 | test | PASS |
+| E9 | AC-9 | test | PASS |
+| E10 | AC-10 | judgment | PASS |
+| E11 | AC-11 | test | PASS |
+| E12 | AC-12 | test | PASS |
+| E13 | AC-12 | script | PASS |
+| E14 | AC-13 | test | PASS |
+| E15 | AC-14 | test | PASS |
+| E16 | AC-15 | test | PASS |
+
+## Evidence
+
+- eval: E1
+  run_id: minted-judgment-question-guard-E1-r3
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.test.workflows
+  verified_at: 2026-08-04T09:00:00+07:00
+  output: |
+    Results: 16 passed, 0 failed (execute-parallel)
+    Results: 10 passed, 0 failed
+    Results: all workflow tests passed
+
+- eval: E2
+  run_id: minted-judgment-question-guard-E2-r3
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.test.workflows
+  verified_at: 2026-08-04T09:00:00+07:00
+  output: |
+    Results: 16 passed, 0 failed (execute-parallel)
+    Results: 10 passed, 0 failed
+    Results: all workflow tests passed
+
+- eval: E3
+  run_id: minted-judgment-question-guard-E3-r3
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.test.workflows
+  verified_at: 2026-08-04T09:00:00+07:00
+  output: |
+    Results: 16 passed, 0 failed (execute-parallel)
+    Results: 10 passed, 0 failed
+    Results: all workflow tests passed
+
+- eval: E4
+  run_id: minted-judgment-question-guard-E4-r3
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.test.workflows
+  verified_at: 2026-08-04T09:00:00+07:00
+  output: |
+    Results: 16 passed, 0 failed (execute-parallel)
+    Results: 10 passed, 0 failed
+    Results: all workflow tests passed
+
+- eval: E5
+  run_id: minted-judgment-question-guard-E5-r3
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.test.workflows
+  verified_at: 2026-08-04T09:00:00+07:00
+  output: |
+    Results: 16 passed, 0 failed (execute-parallel)
+    Results: 10 passed, 0 failed
+    Results: all workflow tests passed
+
+- eval: E6
+  run_id: minted-judgment-question-guard-E6-r3
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.test.workflows
+  verified_at: 2026-08-04T09:00:00+07:00
+  output: |
+    Results: 16 passed, 0 failed (execute-parallel)
+    Results: 10 passed, 0 failed
+    Results: all workflow tests passed
+
+- eval: E7
+  run_id: minted-judgment-question-guard-E7-r3
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.test.workflows
+  verified_at: 2026-08-04T09:00:00+07:00
+  output: |
+    Results: 16 passed, 0 failed (execute-parallel)
+    Results: 10 passed, 0 failed
+    Results: all workflow tests passed
+
+- eval: E8
+  run_id: minted-judgment-question-guard-E8-r3
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.test.workflows
+  verified_at: 2026-08-04T09:00:00+07:00
+  output: |
+    Results: 16 passed, 0 failed (execute-parallel)
+    Results: 10 passed, 0 failed
+    Results: all workflow tests passed
+
+- eval: E9
+  run_id: minted-judgment-question-guard-E9-r3
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.test.workflows
+  verified_at: 2026-08-04T09:00:00+07:00
+  output: |
+    Results: 16 passed, 0 failed (execute-parallel)
+    Results: 10 passed, 0 failed
+    Results: all workflow tests passed
+
+- eval: E10
+  judged_by: judge panel (fresh context) — domain-correctness, operational-feasibility, spec-alignment
+  verdict: PASS
+  votes:
+    - domain-correctness: PASS — Prompt dòng 4 nói thẳng luật neo vào QUAN HE (co-trong-danh-sach "Input:" cong persona), khong phai LOAI FILE, va tu giai thich vi sao: "cung mot ten file co the la input hop le cua eval nay va ngoai pham vi cua eval khac" — dieu nay chinh xac giai toa nguy co nham lan voi cac eval khac coi contract.md/design doc la input hop le, vi phep thu la thanh vien trong danh sach cua TUNG eval chu khong phai loai ten file co dinh. Dong 7 con noi ro rang khi danh sach khong du can cu thi PHAI tra UNCERTAIN va "TUYET DOI KHONG phai ly do di tim file khac de tu cuu" — mot hoi dong vien doc se hieu dung ca hai diem ma cau hoi neu ra.
+    - operational-feasibility: PASS — Prompt dòng 4 nêu rõ luật scope neo theo QUAN HE ("co-trong-danh-sach hay khong"), KHONG theo loai file, và minh hoạ ngay: cùng một tên file có thể là input hợp lệ của eval này nhưng ngoài phạm vi của eval khác — điều này trực tiếp ngừa hiểu nhầm luật-theo-loại-file mà câu hỏi nêu. Dòng 7 nói thẳng: thiếu căn cứ → lý do trả UNCERTAIN, tuyệt đối không phải lý do tự đi tìm file khác để tự cứu/tự chế tiêu chí, và cảnh báo rõ hành vi đó phá tính độc lập của hội đồng. Cả hai vế câu hỏi đều được văn bản trả lời minh bạch, không cần suy luận thêm.
+    - spec-alignment: PASS — Prompt neo ro vao QUAN HE, khong theo loai file: dong 4 noi thang "Luat nay theo QUAN HE (co-trong-danh-sach hay khong), KHONG theo loai file — cung mot ten file co the la input hop le cua eval nay va ngoai pham vi cua eval khac" — cau nay chinh la lam ro truoc moi lan can nham voi cac eval khac ma design doc/contract.md la input hop le. Dong 7 noi ro rang thieu can cu la ly do tra UNCERTAIN, "TUYET DOI KHONG phai ly do di tim file khac de tu cuu", va giai thich vi sao (pha hong tinh doc lap hoi dong) — khop voi persona "UNCERTAIN la mot verdict TOT". Khong thay mau thuan giua danh sach Input va luat pham vi trong prompt nay.
+  human_override: Manh Phan 2026-08-04
+
+- eval: E11
+  run_id: minted-judgment-question-guard-E11-r3
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.test.workflows
+  verified_at: 2026-08-04T09:00:00+07:00
+  output: |
+    Results: 16 passed, 0 failed (execute-parallel)
+    Results: 10 passed, 0 failed
+    Results: all workflow tests passed
+
+- eval: E12
+  run_id: minted-judgment-question-guard-E12-r3
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.test.workflows
+  verified_at: 2026-08-04T09:00:00+07:00
+  output: |
+    Results: 16 passed, 0 failed (execute-parallel)
+    Results: 10 passed, 0 failed
+    Results: all workflow tests passed
+
+- eval: E13
+  run_id: minted-judgment-question-guard-E13-r3
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.script.mirror_sync
+  verified_at: 2026-08-04T09:00:00+07:00
+  output: |
+    plugins/ mirror in sync.
+
+- eval: E14
+  run_id: minted-judgment-question-guard-E14-r3
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.test.workflows
+  verified_at: 2026-08-04T09:00:00+07:00
+  output: |
+    Results: 16 passed, 0 failed (execute-parallel)
+    Results: 10 passed, 0 failed
+    Results: all workflow tests passed
+
+- eval: E15
+  run_id: minted-judgment-question-guard-E15-r3
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.test.workflows
+  verified_at: 2026-08-04T09:00:00+07:00
+  output: |
+    Results: 16 passed, 0 failed (execute-parallel)
+    Results: 10 passed, 0 failed
+    Results: all workflow tests passed
+
+- eval: E16
+  run_id: minted-judgment-question-guard-E16-r3
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.test.workflows
+  verified_at: 2026-08-04T09:00:00+07:00
+  output: |
+    Results: 16 passed, 0 failed (execute-parallel)
+    Results: 10 passed, 0 failed
+    Results: all workflow tests passed
+
+## Analyst
+
+carried tu round 1 — baseline khong do lai round nay
+none — baseline không được đo lại ở round này (P2, không đổi từ lần baseline cuối, round 1), nên không có eval nào được xếp vào non-discriminating ở round này. Các lệnh suite xanh-cả-hai-phía (tests/scripts, tests/hooks, tests/plugins, product-map --check) là regression-guard bình thường, không liệt kê.
+
+## Variance
+
+none — every multi-run eval is uniform (không eval nào khai `runs` > 1 hoặc `variance: true` round này).
+
+## Iterations
+
+Round 1: Contract + evals.yaml chuẩn hoá; baseline (diffBase) được đo cho các eval máy — không đo lại ở các round sau (xem Analyst).
+Round 2: Review ngoài-hợp-đồng phát hiện xung đột giữa bảng EVAL_REQUIRED fail-closed và các mẫu ui-check/design eval mà chính SKILL.md/design-ui-check.md khuyến nghị (xem review-findings.md); quyết định tại S4-r2 là hoãn sửa (known-limits/new-contract), không chặn round.
+Round 3 (round này): toàn bộ 15 eval máy (E1-E9, E11, E12, E14-E16) + mirror-sync (E13) xanh; panel judgment E10 chấm mới, 3/3 lens PASS. Verdict tổng vẫn PENDING-JUDGMENT vì hợp đồng T3 bắt buộc `human_override` trên MỌI judgment item bất kể verdict của judge, trước khi Gate 2 có thể nâng lên PASS.
+
+## Gate 2 checklist (human)
+
+- [ ] Read the table + spot-check 1-2 evidence blocks
+- [ ] Personally verify every judgment item marked UNCERTAIN, then fill its
+      `human_override: <name> <date>` line
+- [ ] T3 only: personally verify ALL judgment items and fill `human_override`
+      on each (judge verdicts are advisory; the hook blocks PASS without them)
+- [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
+      the hook re-validates evidence + overrides)
+- [ ] Fill `human_signoff` in frontmatter + `time_human_minutes.gate2` in contract

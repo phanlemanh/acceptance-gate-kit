@@ -187,7 +187,7 @@ console.log('W09 review lane: refute filter, dead refuter, dead finder');
 
 console.log('W10 model routing characterization (the table a routing change must consciously break)');
 {
-  const jEval = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'q', inputs: [] };
+  const jEval = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'q', inputs: ['/repo/x.md'] };
   const uEval = { id: 'E5', criterion: 'AC-5', executor: 'ui-check', steps: ['open /'], expected: '200' };
   const { calls } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, jEval, uEval] }), responder({
     'review:conventions': { findings: [{ title: 't', file: 'f', severity: 'low', detail: 'd' }] },
@@ -249,7 +249,7 @@ console.log('W14 invokedAt absent (old skill) -> empty ts, still works');
 
 console.log('W15 args.models overrides per role; unspecified roles keep defaults');
 {
-  const jEval = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'q', inputs: [] };
+  const jEval = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'q', inputs: ['/repo/x.md'] };
   const { calls } = await runWorkflow(WF, baseArgs({
     evals: [...baseArgs().evals, jEval],
     models: { judge: 'opus', machine: 'sonnet', finder: 'session' },
@@ -333,8 +333,8 @@ console.log('W19 P2 baseline-once: skip agent, Analyst carried, run-log kind:bas
 
 console.log('W20 P3 carried panels: no judges for memoized item, routing + run-log intact');
 {
-  const e9 = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'q9', inputs: [], inputsHash: 'h9' };
-  const e10 = { id: 'E10', criterion: 'AC-10', executor: 'judgment', question: 'q10', inputs: [] };
+  const e9 = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'q9', inputs: ['/repo/x9.md'], inputsHash: 'h9' };
+  const e10 = { id: 'E10', criterion: 'AC-10', executor: 'judgment', question: 'q10', inputs: ['/repo/x10.md'] };
   const carriedPanel = { evalId: 'E10', proposal: 'UNCERTAIN', votes: [{ lens: 'domain-correctness', verdict: 'UNCERTAIN', rationale: 'bo di' }], fromRound: 3, inputsHash: 'h10' };
   const { result, calls } = await runWorkflow(WF, baseArgs({
     evals: [...baseArgs().evals, e9, e10],
@@ -746,6 +746,350 @@ console.log('WT-T15 synthesize chi dan ghi truong plain cho ngan Ngoai hop dong'
   const sp = byLabel(calls, 'synthesize')[0].prompt;
   check('WT-T15 chi dan doi dong "Người dùng thấy gì"', sp.includes('Người dùng thấy gì'));
   check('WT-T15 payload mang truong plain', sp.includes('Người dùng có thể mất tiện ích khi bấm Cập nhật.'));
+}
+
+// ── W-G*: guard fail-loud cho field ma prompt fan-out noi suy thang vao ────
+// Loi do duoc o motion-floor r1-r2: judgment thieu `question` -> judge nhan
+// literal "undefined" lam de bai va van tra PASS 3/3. Quet lop tim them: eval
+// co `executor` la/vang bi bo roi im lang, run tra verdict=PASS.
+const jOK = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'ro rang?', inputs: ['/repo/a.md'] };
+const BLOCK_SHAPE = ['blocked', 'failedEvals', 'failedCommands', 'panels', 'confirmedFindings', 'reviewIncomplete'];
+
+console.log('W-G1 judgment thieu question: 5 hinh dang deu BLOCKED, neu ten eval + field');
+{
+  const shapes = [
+    ['khoa vang', (e) => { delete e.question; }],
+    ['null', (e) => { e.question = null; }],
+    ['chuoi rong', (e) => { e.question = ''; }],
+    ['khoang trang', (e) => { e.question = '   '; }],
+    ['sai kieu', (e) => { e.question = 42; }],
+  ];
+  for (const [name, mutate] of shapes) {
+    const bad = { ...jOK };
+    mutate(bad);
+    const { result, calls } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, bad] }), responder());
+    const reason = (result.blocked && result.blocked[0] && result.blocked[0].reason) || '';
+    check(`W-G1 ${name} -> BLOCKED`, result.verdict === 'BLOCKED', result.verdict);
+    check(`W-G1 ${name} neu ten eval E9`, /\bE9\b/.test(reason), reason);
+    check(`W-G1 ${name} neu ten field question`, /question/.test(reason), reason);
+    check(`W-G1 ${name} 0 judge spawn`, byLabel(calls, 'judge:').length === 0, String(byLabel(calls, 'judge:').length));
+  }
+  // doi chung DUONG: cung bo args, chi khac question la chuoi that
+  const { result: ok, calls: okCalls } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, jOK] }), responder());
+  check('W-G1 doi chung duong: KHONG BLOCKED', ok.verdict !== 'BLOCKED', ok.verdict);
+  check('W-G1 doi chung duong: 3 judge that su chay', byLabel(okCalls, 'judge:').length === 3, String(byLabel(okCalls, 'judge:').length));
+}
+
+console.log('W-G2 shape tra ve cua BLOCKED du key cho downstream');
+{
+  const bad = { ...jOK, question: '' };
+  const { result } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, bad] }), responder());
+  for (const k of BLOCK_SHAPE) {
+    check(`W-G2 co key ${k} dung kieu mang`, Array.isArray(result[k]), `${k}=${JSON.stringify(result[k])}`);
+  }
+}
+
+console.log('W-G3 judgment thieu inputs: UNCERTAIN co hoc, KHONG BLOCKED, 0 judge');
+{
+  const noInputs = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'ro rang?' };
+  const emptyInputs = { id: 'E8', criterion: 'AC-8', executor: 'judgment', question: 'ro rang?', inputs: [] };
+  const { result, calls } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, noInputs, emptyInputs] }), responder());
+  check('W-G3 KHONG BLOCKED', result.verdict !== 'BLOCKED', result.verdict);
+  check('W-G3 verdict PENDING-JUDGMENT', result.verdict === 'PENDING-JUDGMENT', result.verdict);
+  check('W-G3 0 judge spawn', byLabel(calls, 'judge:').length === 0, String(byLabel(calls, 'judge:').length));
+  const p9 = (result.panels || []).find(p => p.evalId === 'E9');
+  const p8 = (result.panels || []).find(p => p.evalId === 'E8');
+  check('W-G3 panel E9 UNCERTAIN', !!p9 && p9.proposal === 'UNCERTAIN', JSON.stringify(p9));
+  check('W-G3 panel E8 (mang rong) UNCERTAIN', !!p8 && p8.proposal === 'UNCERTAIN', JSON.stringify(p8));
+  const sp = byLabel(calls, 'synthesize')[0].prompt;
+  check('W-G3 synthesize nhan ly do khong khai input', /khong khai input/.test(sp), 'thieu ly do trong payload panel');
+
+  // doi chung PHAN BIET: inputs SAI KIEU van la hong khuon -> BLOCKED
+  const wrongType = { ...noInputs, inputs: 'khong-phai-mang' };
+  const { result: r2 } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, wrongType] }), responder());
+  check('W-G3 inputs sai kieu -> BLOCKED', r2.verdict === 'BLOCKED', r2.verdict);
+  check('W-G3 inputs sai kieu neu ten field', /inputs/.test(r2.blocked[0].reason), r2.blocked[0].reason);
+  const nonStr = { ...noInputs, inputs: [{ a: 1 }] };
+  const { result: r3 } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, nonStr] }), responder());
+  check('W-G3 inputs co phan tu khong phai chuoi -> BLOCKED', r3.verdict === 'BLOCKED', r3.verdict);
+}
+
+console.log('W-G4 3 cua hau khong mien kiem: carriedPanels, carriedEvals, dryRun');
+{
+  // (a) hong khuon + carriedPanels tro dung eval do -> van BLOCKED
+  const badJ = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: '' };
+  const cp = { evalId: 'E9', proposal: 'PASS', votes: [{ lens: 'domain-correctness', verdict: 'PASS' }], fromRound: 2 };
+  const { result: a } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, badJ], carriedPanels: [cp] }), responder());
+  check('W-G4a panel carried KHONG mien kiem hong khuon', a.verdict === 'BLOCKED', a.verdict);
+  check('W-G4a neu ten E9', /\bE9\b/.test(a.blocked[0].reason), a.blocked[0].reason);
+  const okJ = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'ro rang?', inputs: ['/repo/a.md'] };
+  const { result: a2, calls: a2c } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, okJ], carriedPanels: [cp] }), responder());
+  check('W-G4a doi chung duong: KHONG BLOCKED', a2.verdict !== 'BLOCKED', a2.verdict);
+  check('W-G4a doi chung duong: 0 judge (panel carried dung lai)', byLabel(a2c, 'judge:').length === 0, String(byLabel(a2c, 'judge:').length));
+  check('W-G4a doi chung duong: panel giu proposal goc PASS', (a2.panels.find(p => p.evalId === 'E9') || {}).proposal === 'PASS', JSON.stringify(a2.panels));
+
+  // (b) hong khuon + carriedEvals tro dung eval may do -> van BLOCKED
+  const badM = { id: 'E7', criterion: 'AC-7', executor: 'test', ref: 'config:executors.test.api' };
+  const ce = { id: 'E7', runId: 'r-abc123', fromRound: 2, verifiedAt: '2026-08-01T00:00:00Z', cmd: 'pnpm test' };
+  const { result: b } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, badM], carriedEvals: [ce] }), responder());
+  check('W-G4b eval carried KHONG mien kiem', b.verdict === 'BLOCKED', b.verdict);
+  check('W-G4b neu ten E7 + field cmd', /\bE7\b/.test(b.blocked[0].reason) && /cmd/.test(b.blocked[0].reason), b.blocked[0].reason);
+  const okM = { ...badM, cmd: 'pnpm test' };
+  const { result: b2, calls: b2c } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, okM], carriedEvals: [ce] }), responder());
+  check('W-G4b doi chung duong: KHONG BLOCKED', b2.verdict !== 'BLOCKED', b2.verdict);
+  check('W-G4b doi chung duong: carried nen khong them agent may', byLabel(b2c, 'machine:').length === 2, String(byLabel(b2c, 'machine:').length));
+
+  // (c) dryRun + eval hong -> BLOCKED, KHONG tra ke hoach
+  const { result: c, calls: cc } = await runWorkflow(WF, baseArgs({ dryRun: true, evals: [...baseArgs().evals, badJ] }), responder());
+  check('W-G4c dryRun + eval hong -> BLOCKED', c.verdict === 'BLOCKED', c.verdict);
+  check('W-G4c KHONG tra ke hoach fan-out', c.distinctCommands === undefined && c.judgePanels === undefined, JSON.stringify(Object.keys(c)));
+  check('W-G4c 0 agent', cc.length === 0, String(cc.length));
+  const { result: c2 } = await runWorkflow(WF, baseArgs({ dryRun: true, evals: [...baseArgs().evals, okJ] }), responder());
+  check('W-G4c doi chung duong: ke hoach van day du', Array.isArray(c2.distinctCommands) && c2.judgePanels.length === 1, JSON.stringify(c2.judgePanels));
+
+  // (d) nhanh UNCERTAIN cung phai song qua carried + dryRun
+  const noIn = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'ro rang?' };
+  const { result: d, calls: dc } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, noIn], carriedPanels: [cp] }), responder());
+  check('W-G4d panel carried KHONG ghi de duoc nhanh UNCERTAIN', (d.panels.find(p => p.evalId === 'E9') || {}).proposal === 'UNCERTAIN', JSON.stringify(d.panels));
+  check('W-G4d 0 judge', byLabel(dc, 'judge:').length === 0, String(byLabel(dc, 'judge:').length));
+  const { result: d2 } = await runWorkflow(WF, baseArgs({ dryRun: true, evals: [...baseArgs().evals, noIn] }), responder());
+  check('W-G4d dryRun KHONG liet eval khong can cu vao judgePanels', !(d2.judgePanels || []).some(x => x.eval === 'E9'), JSON.stringify(d2.judgePanels));
+  check('W-G4d dryRun neu ro no thuoc dien khong can cu', (d2.ungroundedJudgments || []).includes('E9'), JSON.stringify(d2.ungroundedJudgments));
+}
+
+console.log('W-G5 nhieu eval hong: neu DU ten, so bang TAP khong bang dem chuoi con');
+{
+  // id long tien to CO Y: E1x nam trong E1x1 — dem bang substring se cho 2==2
+  // du guard chi neu mot cai. Trich theo ranh gioi token roi so BANG TAP.
+  const bad1 = { id: 'E1x', criterion: 'AC-1', executor: 'judgment', question: '' };
+  const bad11 = { id: 'E1x1', criterion: 'AC-2', executor: 'ui-check', expected: 'ok' }; // thieu steps
+  const bad3 = { id: 'E3y', criterion: 'AC-3', executor: 'script' };                     // thieu cmd
+  const { result } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, bad1, bad11, bad3] }), responder());
+  const reason = result.blocked[0].reason;
+  const WANT_IDS = ['E1x', 'E1x1', 'E3y'];
+  const ids = new Set((reason.match(/E\d+[a-z]\d*/g) || []).filter(t => WANT_IDS.includes(t)));
+  check('W-G5 tap id BANG DUNG tap da tiem', ids.size === 3 && WANT_IDS.every(i => ids.has(i)), [...ids].join(','));
+  const fields = new Set(['question', 'steps', 'cmd'].filter(f => new RegExp(`"${f}"`).test(reason)));
+  check('W-G5 tap field BANG DUNG tap da tiem', fields.size === 3, [...fields].join(','));
+  // sanity: phep do phai PHAN BIET duoc — bo E1x1 di thi tap phai nho lai
+  const { result: r2 } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, bad1, bad3] }), responder());
+  const ids2 = new Set((r2.blocked[0].reason.match(/E\d+[a-z]\d*/g) || []).filter(t => WANT_IDS.includes(t)));
+  check('W-G5 sanity: bo mot eval hong -> tap nho lai dung 1', ids2.size === 2 && !ids2.has('E1x1'), [...ids2].join(','));
+}
+
+console.log('W-G6 executor la/vang bi CHAN — hom nay bi bo roi im lang');
+{
+  const typo = { id: 'E2t', criterion: 'AC-2', executor: 'judgement', question: 'typo executor', inputs: ['/a.md'] };
+  const noX = { id: 'E3n', criterion: 'AC-3', expected: 'khong khai executor' };
+  const { result } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, typo, noX] }), responder());
+  check('W-G6 BLOCKED', result.verdict === 'BLOCKED', result.verdict);
+  const reason = result.blocked[0].reason;
+  check('W-G6 neu ten ca hai eval', /E2t/.test(reason) && /E3n/.test(reason), reason);
+  check('W-G6 neu gia tri executor la', /judgement/.test(reason), reason);
+  check('W-G6 neu executor VANG', /VANG/.test(reason), reason);
+}
+
+console.log('W-G6b doi chung dot bien: ban TRUOC guard tra PASS tren cung bo args');
+{
+  const { readFileSync, writeFileSync, mkdtempSync } = await import('node:fs');
+  const os = await import('node:os');
+  const src = readFileSync(WF, 'utf8');
+  // Sinh ban TRUOC-GUARD bang CODE trong chinh lan chay: go tu bang marker den
+  // het khoi return BLOCKED. KHONG chep tay ban cu.
+  const stripped = src.replace(/\/\/ <<<EVAL-REQUIRED-FIELDS[\s\S]*?reviewIncomplete: \[\],\n\s*\}\n\}\n/, '');
+  check('W-G6b buoc go guard THUC SU doi file', stripped.length < src.length - 800, `delta=${src.length - stripped.length}`);
+  const preWF = path.join(mkdtempSync(path.join(os.tmpdir(), 'av-preguard-')), 'acceptance-verify.js');
+  writeFileSync(preWF, stripped);
+  const typo = { id: 'E2t', criterion: 'AC-2', executor: 'judgement', question: 'typo', inputs: ['/a.md'] };
+  const { result: pre } = await runWorkflow(preWF, baseArgs({ evals: [...baseArgs().evals, typo] }), responder());
+  check('W-G6b ban truoc guard: eval typo bi bo roi im lang, verdict PASS', pre.verdict === 'PASS', pre.verdict);
+  check('W-G6b ban truoc guard: blocked rong', (pre.blocked || []).length === 0, JSON.stringify(pre.blocked));
+  check('W-G6b ban truoc guard: failedEvals rong', (pre.failedEvals || []).length === 0, JSON.stringify(pre.failedEvals));
+}
+
+console.log('W-G7 prompt hoi dong chan tu-cuu + dump chinh danh');
+{
+  const { readFileSync, writeFileSync, existsSync, rmSync, mkdirSync } = await import('node:fs');
+  const OUT = path.join(HERE, '..', '..', '_acceptance', 'judgment-question-guard', 'evidence', 'judge-prompt.txt');
+  if (existsSync(OUT)) rmSync(OUT);
+  const jOK2 = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'ro rang?', inputs: ['/repo/a.md', '/repo/b.md'] };
+  const { calls } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, jOK2] }), responder());
+  const jp = byLabel(calls, 'judge:')[0].prompt;
+  // Luat phai neo vao DANH SACH (quan he), khong vao loai file — xem W-G7b cho
+  // phep do quan he day du. Assert o day chi ghim rang luat CO mat va dong.
+  check('W-G7 prompt co luat danh sach dong', /CHI duoc doc/.test(jp) && /Danh sach do la DAY DU/.test(jp), jp.slice(0, 240));
+  check('W-G7 prompt: thieu can cu -> UNCERTAIN, khong phai di tim file khac', /ly do tra UNCERTAIN/.test(jp) && /tu cuu/.test(jp), 'thieu ve tu-cuu');
+  mkdirSync(path.dirname(OUT), { recursive: true });
+  writeFileSync(OUT, jp);
+  check('W-G7 dump duoc sinh trong chinh lan chay', existsSync(OUT));
+  check('W-G7 dump BANG DUNG prompt cua lan chay', readFileSync(OUT, 'utf8') === jp);
+  check('W-G7 dump chua id eval + inputs cua lan chay', /E9/.test(jp) && /\/repo\/a\.md/.test(jp) && /\/repo\/b\.md/.test(jp), 'thieu id hoac inputs');
+}
+
+console.log('W-G7b luat doc theo QUAN HE, khong theo loai file (S4-r1 finding)');
+{
+  // Round 1 bat: cau cam liet ke "contract.md, evals.yaml, design doc, source
+  // code deu NGOAI danh sach" — nhung do CHINH LA input that cua kit
+  // (_acceptance/cross-feature-claim-index/evals.yaml:114-131 khai design doc +
+  // contract.md lam inputs; E11 co design doc la input DUY NHAT). Judge nhan hai
+  // chi dan nguoc nhau ve CUNG mot file → tuan cau cam → tra UNCERTAIN.
+  // W-G7 chi grep su CO MAT cua cau cam nen khong the bat lop nay.
+  const declared = ['/repo/_acceptance/x/contract.md', '/repo/docs/superpowers/specs/y-design.md', '/repo/_acceptance/x/evals.yaml'];
+  const e = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'ro rang?', inputs: declared };
+  const { calls } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, e] }), responder());
+  const jp = byLabel(calls, 'judge:')[0].prompt;
+  // Tach dong "Input:" ra; phan CON LAI khong duoc nhac ten file nao da khai.
+  const inputLine = jp.split('\n').find(l => l.startsWith('Input:')) || '';
+  check('W-G7b dong Input: liet ke du ca 3 file da khai', declared.every(p => inputLine.includes(p)), inputLine);
+  const outside = jp.split('\n').filter(l => !l.startsWith('Input:')).join('\n');
+  for (const p of declared) {
+    const base = p.split('/').pop();
+    check(`W-G7b phan ngoai dong Input KHONG nhac "${base}"`, !outside.includes(base), outside.slice(0, 300));
+  }
+  check('W-G7b cau cam neo vao DANH SACH chu khong vao loai file', /dong "Input:"|danh sach/i.test(outside), outside.slice(0, 200));
+}
+
+console.log('W-G7c executor trung ten khoa prototype -> BLOCKED, KHONG nem TypeError');
+{
+  for (const x of ['constructor', '__proto__', 'toString', 'hasOwnProperty', 'valueOf']) {
+    const e = { id: 'EX', criterion: 'AC-9', executor: x, question: 'q' };
+    let result, threw = null;
+    try { ({ result } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, e] }), responder())); }
+    catch (err) { threw = String(err && err.message); }
+    check(`W-G7c executor "${x}" KHONG nem loi`, threw === null, threw || '');
+    check(`W-G7c executor "${x}" -> BLOCKED neu ten eval`, !!result && result.verdict === 'BLOCKED' && /EX/.test(result.blocked[0].reason), threw || (result && result.verdict));
+  }
+}
+
+console.log('W-G7d round toan judgment khong khai inputs: thong diep NOI DUNG SU THAT');
+{
+  const j = { id: 'J1', criterion: 'AC-1', executor: 'judgment', question: 'q' };
+  const { result } = await runWorkflow(WF, baseArgs({ evals: [j], suiteCommands: [] }), responder());
+  check('W-G7d BLOCKED', result.verdict === 'BLOCKED', result.verdict);
+  const r = result.blocked[0].reason;
+  check('W-G7d KHONG noi sai "khong co judgment"', !/khong co eval may va khong co judgment/.test(r), r);
+  check('W-G7d neu dich danh eval judgment va ly do that', /J1/.test(r) && /khong khai inputs/.test(r), r);
+}
+
+console.log('W-G8 ton kho that: moi _acceptance/*/evals.yaml qua bang RUT TU MARKER');
+{
+  const { readFileSync, readdirSync, existsSync, mkdtempSync, writeFileSync, cpSync } = await import('node:fs');
+  const os = await import('node:os');
+  const ROOT = path.join(HERE, '..', '..');
+  const src = readFileSync(WF, 'utf8');
+  // Bang phai RUT TU MARKER, khong chep tay sang test — chep tay la hai ben troi
+  // khoi nhau ma van xanh (hinh dang (3) trong 4 hinh dang da dam, CLAUDE.md).
+  const m = src.match(/\/\/ <<<EVAL-REQUIRED-FIELDS\n([\s\S]*?)\/\/ EVAL-REQUIRED-FIELDS>>>/);
+  check('W-G8 rut duoc bang tu marker', !!m, 'marker khong khop — bang khong con o mot cho co dau moc');
+  // Rut CA BA (bang + hai vi tu) roi ap Y NGUYEN. Round 1 bat: ban truoc chi
+  // kiem `_k.has(fl)` cho field mang trong khi guard that dung badStrArray —
+  // phep do yeu hon chinh thu no do, nen `steps: []` se XANH o day ma BLOCKED
+  // o lan chay that.
+  const { EVAL_REQUIRED: TABLE, isBlankStr, badStrArray, badInputsShape, isUngroundedInputs } = new Function(
+    `${m[1]}; return { EVAL_REQUIRED, isBlankStr, badStrArray, badInputsShape, isUngroundedInputs };`)();
+  check('W-G8 bang co du 4 executor', Object.keys(TABLE).sort().join(',') === 'judgment,script,test,ui-check', Object.keys(TABLE).join(','));
+  check('W-G8 rut duoc CA BON vi tu tu marker', [isBlankStr, badStrArray, badInputsShape, isUngroundedInputs].every(f => typeof f === 'function'));
+  // sanity: vi tu rut ra phai that su phan biet, khong phai ham luon-true
+  check('W-G8 vi tu rut ra co rang', isBlankStr('  ') && !isBlankStr('x') && badStrArray([]) && badStrArray(['']) && !badStrArray(['a']));
+  check('W-G8 vi tu inputs co rang + phan biet dung HAI muc nang',
+    // hard-shape: sai kieu HOAC phan tu rong; vang/rong KHONG phai hard
+    badInputsShape('x') && badInputsShape(['  ']) && !badInputsShape(undefined) && !badInputsShape([]) && !badInputsShape(['/a.md'])
+    // ungrounded: vang HOAC rong; mang co phan tu rong KHONG phai ungrounded (no la hard)
+    && isUngroundedInputs(undefined) && isUngroundedInputs([]) && !isUngroundedInputs(['  ']) && !isUngroundedInputs(['/a.md']));
+
+  // Parser doc duoc: scalar mot dong, list inline [a, b], list gach dau dong,
+  // va block scalar (`key: >` / `key: |`) — thieu ba dang sau thi field co that
+  // bi doc thanh rong va phep do bao dong gia.
+  const parseEvals = (file) => {
+    const out = []; let cur = null, listKey = null, blockKey = null, blockInd = 0;
+    for (const raw of readFileSync(file, 'utf8').split('\n')) {
+      const line = raw.replace(/\s+$/, '');
+      const ind = line.length - line.replace(/^\s*/, '').length;
+      if (blockKey) {
+        if (line.trim() && ind >= blockInd) { cur[blockKey] += (cur[blockKey] ? ' ' : '') + line.trim(); continue; }
+        blockKey = null;
+      }
+      if (listKey) {
+        // Dong trong / comment KHONG dong danh sach: evals.yaml that co comment
+        // xen giua cac muc (design-pass-skill/E15) — dong som la bao dong gia
+        // "eval khong khai inputs" trong khi no khai 3 file.
+        if (!line.trim() || /^\s*#/.test(line)) continue;
+        const it = line.match(/^\s+-\s+(.*)$/);
+        if (it && !/^\s*-\s*id:/.test(line)) { cur[listKey].push(it[1].trim().replace(/^["']|["']$/g, '')); continue; }
+        listKey = null;
+      }
+      const idM = line.match(/^\s*-\s*id:\s*(.+)$/);
+      if (idM) { if (cur) out.push(cur); cur = { id: idM[1].trim(), _k: new Set(['id']) }; continue; }
+      if (!cur) continue;
+      const kv = line.match(/^\s{2,}([a-z_]+):\s*(.*)$/);
+      if (!kv) continue;
+      const [, k, v] = kv;
+      cur._k.add(k);
+      if (v === '>' || v === '|' || v === '>-' || v === '|-') { cur[k] = ''; blockKey = k; blockInd = ind + 1; continue; }
+      if (v === '') { cur[k] = []; listKey = k; continue; }
+      const inline = v.match(/^\[(.*)\]$/);
+      cur[k] = inline
+        ? inline[1].split(',').map(s => s.trim().replace(/^["']|["']$/g, '')).filter(Boolean)
+        : v.trim().replace(/^["']|["']$/g, '');
+    }
+    if (cur) out.push(cur);
+    return out;
+  };
+  const scan = (dir) => {
+    const hard = [], soft = [];
+    let files = 0;
+    for (const slug of readdirSync(dir)) {
+      const f = path.join(dir, slug, 'evals.yaml');
+      if (!existsSync(f)) continue;
+      files++;
+      for (const e of parseEvals(f)) {
+        if (!Object.prototype.hasOwnProperty.call(TABLE, e.executor)) { hard.push(`${slug}/${e.id}: executor`); continue; }
+        const spec = TABLE[e.executor];
+        for (const fl of spec.str) if (isBlankStr(e[fl])) hard.push(`${slug}/${e.id}: ${fl}`);
+        for (const fl of spec.arr) if (badStrArray(e[fl])) hard.push(`${slug}/${e.id}: ${fl}`);
+        // Dung DUNG hai vi tu cua engine — ban truoc chep tay va lech CA HAI
+        // chieu: hard bo qua ve phan-tu-rong, soft dung badStrArray (rong hon
+        // isUngroundedInputs) nen `inputs: ['  ']` roi nham vao soft va assert
+        // "0 ca chan cung" van xanh trong khi lan chay that BLOCKED.
+        if (e.executor === 'judgment' && badInputsShape(e.inputs)) hard.push(`${slug}/${e.id}: inputs`);
+        else if (e.executor === 'judgment' && isUngroundedInputs(e.inputs)) soft.push(`${slug}/${e.id}`);
+      }
+    }
+    return { hard, soft, files };
+  };
+  const AC = path.join(ROOT, '_acceptance');
+  const { hard, soft, files } = scan(AC);
+  check('W-G8 sanity: quet duoc it nhat 10 workspace co evals.yaml', files >= 10, String(files));
+  check('W-G8 0 eval bi chan cung tren ton kho that', hard.length === 0, hard.join(' | '));
+  check('W-G8 ca ha UNCERTAIN dung bang danh sach mien tru da khai o Notes',
+    soft.slice().sort().join(',') === 'gate-card-ac-visibility/E11,gate-card-ac-visibility/E12', soft.join(','));
+
+  // dot bien: tiem field rong vao BAN SAO sinh trong chinh lan chay -> phai do
+  const tmp = mkdtempSync(path.join(os.tmpdir(), 'inv-'));
+  cpSync(AC, path.join(tmp, '_acceptance'), { recursive: true });
+  const victim = path.join(tmp, '_acceptance', 'judgment-question-guard', 'evals.yaml');
+  const before = readFileSync(victim, 'utf8');
+  const after = before.replace(/^    criterion: AC-1$/m, '    criterion: ');
+  check('W-G8 dot bien: buoc tiem THUC SU doi file', after !== before, 'khong tiem duoc — regex khong khop');
+  writeFileSync(victim, after);
+  const mut = scan(path.join(tmp, '_acceptance'));
+  check('W-G8 dot bien: ban tiem field rong phai DO', mut.hard.length === 1, mut.hard.join(' | '));
+  check('W-G8 dot bien: neu dung slug + id + field', /^judgment-question-guard\/E1: criterion$/.test(mut.hard[0] || ''), mut.hard[0]);
+
+  // Dot bien 2 (S4-r2 finding): muc list `inputs` RONG phai vao HARD, khong
+  // duoc roi vao soft. Ban truoc chep tay vi tu nen ca nay xanh o phep do ma
+  // BLOCKED o lan chay that — assert "0 ca chan cung" thanh vo nghia.
+  const tmp2 = mkdtempSync(path.join(os.tmpdir(), 'inv2-'));
+  cpSync(AC, path.join(tmp2, '_acceptance'), { recursive: true });
+  const v2 = path.join(tmp2, '_acceptance', 'judgment-question-guard', 'evals.yaml');
+  const b2 = readFileSync(v2, 'utf8');
+  const a2 = b2.replace(/^      - _acceptance\/judgment-question-guard\/evidence\/judge-prompt\.txt$/m, '      - "  "');
+  check('W-G8 dot bien 2: buoc tiem THUC SU doi file', a2 !== b2, 'regex khong khop muc inputs');
+  writeFileSync(v2, a2);
+  const mut2 = scan(path.join(tmp2, '_acceptance'));
+  check('W-G8 dot bien 2: muc inputs rong vao HARD (nhu engine), khong vao soft',
+    mut2.hard.some(h => /judgment-question-guard\/E10: inputs/.test(h)) && !mut2.soft.some(s => /judgment-question-guard\/E10/.test(s)),
+    `hard=${mut2.hard.join('|')} soft=${mut2.soft.join('|')}`);
 }
 
 summary('acceptance-verify');

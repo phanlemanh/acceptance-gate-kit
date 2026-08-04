@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 80121e4dee9bd1a18ee300036f5a63a6bb0f6733
+verified_commit: d8efcfe01875288b9607254f3ab3e4f347a9bc76
 # bypass_ack:
 human_signoff: Manh Phan 2026-07-28
 ---
