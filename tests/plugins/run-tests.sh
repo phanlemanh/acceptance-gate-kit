@@ -5055,6 +5055,50 @@ assert check(mut) == [victim], f"dot bien xoa symlink {victim} khong bi bat dung
 print(f"P132 OK ({len(cmds)} lenh deu co mat)")
 P132PY
 
+# ── P133: ghim phần CHỮ của gói first-run — lời khuyên recheck, jsdom, attribution ─
+# Ba pin văn xuôi (khuôn P44): chữ là hành vi thật ở repo này, không phải trang trí.
+run "P133 chu first-run: recheck-advice khop init + jsdom o 3 diem init + attribution /start=v1.30" \
+  python3 - "$ROOT" <<'P133PY'
+import json, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+errs = []
+# 1. README: lời khuyên recheck phải khớp thứ init thật sự phát (strict), và
+#    câu cũ "advisory by default" (mô tả một trạng thái init không bao giờ tạo) phải biến mất.
+readme = (root / "README.md").read_text(encoding="utf-8")
+if "scaffolds `recheck: strict`" not in readme:
+    errs.append("README: mat cau init-phat-strict")
+if "advisory by default" in readme:
+    errs.append("README: cau cu 'advisory by default' quay lai — nguoc voi scaffold cua init")
+# 2. jsdom phải có mặt ở CẢ 3 điểm init (Claude acceptance-init, design-init 2 harness) —
+#    thiếu nó mọi design eval BLOCKED (design-gate.mjs DOM mode).
+for rel in ["commands/acceptance-init.md",
+            "design-loop/commands/design-init.md",
+            "codex/design-loop/skills/design-init/SKILL.md"]:
+    if "jsdom" not in (root / rel).read_text(encoding="utf-8"):
+        errs.append(f"{rel}: mat loi nhac jsdom")
+# 3. Manifest Claude: /start thuộc v1.30 (ship 3187b6e), không được trôi về entry khác.
+desc = json.loads((root / ".claude-plugin/plugin.json").read_text(encoding="utf-8"))["description"]
+i29, i30, istart = desc.find("v1.29:"), desc.find("v1.30:"), desc.find("/start session-entry")
+if i30 < 0:
+    errs.append("manifest: mat entry v1.30")
+elif not (0 <= i29 < i30 <= istart):
+    errs.append("manifest: '/start session-entry' khong nam trong entry v1.30 (attribution troi)")
+assert errs == [], errs                                   # doi chung DUONG
+# Dot bien tung pin → DO dung thong diep (kiem bang cach chay lai logic tren van ban da pha)
+def run_pin1(text):
+    out = []
+    if "scaffolds `recheck: strict`" not in text: out.append("mat cau init-phat-strict")
+    if "advisory by default" in text: out.append("cau cu quay lai")
+    return out
+assert run_pin1(readme.replace("scaffolds `recheck: strict`", "scaffolds nothing")), "dot bien pin1a khong do"
+assert run_pin1(readme + "\nThat re-check is advisory by default."), "dot bien pin1b khong do"
+mut_desc = desc.replace("v1.30: /start session-entry", "v1.29-again: /start session-entry")
+assert mut_desc.find("v1.30:") < 0 or not (0 <= mut_desc.find("v1.29:") < mut_desc.find("v1.30:") <= mut_desc.find("/start session-entry")), \
+    "dot bien attribution khong do"
+print("P133 OK (3 pin chu + dot bien deu do dung cho)")
+P133PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
