@@ -187,7 +187,7 @@ console.log('W09 review lane: refute filter, dead refuter, dead finder');
 
 console.log('W10 model routing characterization (the table a routing change must consciously break)');
 {
-  const jEval = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'q', inputs: [] };
+  const jEval = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'q', inputs: ['/repo/x.md'] };
   const uEval = { id: 'E5', criterion: 'AC-5', executor: 'ui-check', steps: ['open /'], expected: '200' };
   const { calls } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, jEval, uEval] }), responder({
     'review:conventions': { findings: [{ title: 't', file: 'f', severity: 'low', detail: 'd' }] },
@@ -249,7 +249,7 @@ console.log('W14 invokedAt absent (old skill) -> empty ts, still works');
 
 console.log('W15 args.models overrides per role; unspecified roles keep defaults');
 {
-  const jEval = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'q', inputs: [] };
+  const jEval = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'q', inputs: ['/repo/x.md'] };
   const { calls } = await runWorkflow(WF, baseArgs({
     evals: [...baseArgs().evals, jEval],
     models: { judge: 'opus', machine: 'sonnet', finder: 'session' },
@@ -333,8 +333,8 @@ console.log('W19 P2 baseline-once: skip agent, Analyst carried, run-log kind:bas
 
 console.log('W20 P3 carried panels: no judges for memoized item, routing + run-log intact');
 {
-  const e9 = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'q9', inputs: [], inputsHash: 'h9' };
-  const e10 = { id: 'E10', criterion: 'AC-10', executor: 'judgment', question: 'q10', inputs: [] };
+  const e9 = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'q9', inputs: ['/repo/x9.md'], inputsHash: 'h9' };
+  const e10 = { id: 'E10', criterion: 'AC-10', executor: 'judgment', question: 'q10', inputs: ['/repo/x10.md'] };
   const carriedPanel = { evalId: 'E10', proposal: 'UNCERTAIN', votes: [{ lens: 'domain-correctness', verdict: 'UNCERTAIN', rationale: 'bo di' }], fromRound: 3, inputsHash: 'h10' };
   const { result, calls } = await runWorkflow(WF, baseArgs({
     evals: [...baseArgs().evals, e9, e10],
@@ -787,6 +787,31 @@ console.log('W-G2 shape tra ve cua BLOCKED du key cho downstream');
   for (const k of BLOCK_SHAPE) {
     check(`W-G2 co key ${k} dung kieu mang`, Array.isArray(result[k]), `${k}=${JSON.stringify(result[k])}`);
   }
+}
+
+console.log('W-G3 judgment thieu inputs: UNCERTAIN co hoc, KHONG BLOCKED, 0 judge');
+{
+  const noInputs = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'ro rang?' };
+  const emptyInputs = { id: 'E8', criterion: 'AC-8', executor: 'judgment', question: 'ro rang?', inputs: [] };
+  const { result, calls } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, noInputs, emptyInputs] }), responder());
+  check('W-G3 KHONG BLOCKED', result.verdict !== 'BLOCKED', result.verdict);
+  check('W-G3 verdict PENDING-JUDGMENT', result.verdict === 'PENDING-JUDGMENT', result.verdict);
+  check('W-G3 0 judge spawn', byLabel(calls, 'judge:').length === 0, String(byLabel(calls, 'judge:').length));
+  const p9 = (result.panels || []).find(p => p.evalId === 'E9');
+  const p8 = (result.panels || []).find(p => p.evalId === 'E8');
+  check('W-G3 panel E9 UNCERTAIN', !!p9 && p9.proposal === 'UNCERTAIN', JSON.stringify(p9));
+  check('W-G3 panel E8 (mang rong) UNCERTAIN', !!p8 && p8.proposal === 'UNCERTAIN', JSON.stringify(p8));
+  const sp = byLabel(calls, 'synthesize')[0].prompt;
+  check('W-G3 synthesize nhan ly do khong khai input', /khong khai input/.test(sp), 'thieu ly do trong payload panel');
+
+  // doi chung PHAN BIET: inputs SAI KIEU van la hong khuon -> BLOCKED
+  const wrongType = { ...noInputs, inputs: 'khong-phai-mang' };
+  const { result: r2 } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, wrongType] }), responder());
+  check('W-G3 inputs sai kieu -> BLOCKED', r2.verdict === 'BLOCKED', r2.verdict);
+  check('W-G3 inputs sai kieu neu ten field', /inputs/.test(r2.blocked[0].reason), r2.blocked[0].reason);
+  const nonStr = { ...noInputs, inputs: [{ a: 1 }] };
+  const { result: r3 } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, nonStr] }), responder());
+  check('W-G3 inputs co phan tu khong phai chuoi -> BLOCKED', r3.verdict === 'BLOCKED', r3.verdict);
 }
 
 summary('acceptance-verify');
