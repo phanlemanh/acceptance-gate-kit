@@ -11,6 +11,8 @@ directly.
    - acceptance-gate step 2b auto-add exists (`skills/acceptance/SKILL.md`, the design-eval that self-disables when `executors.design` is absent).
    - `capture.ui` exists (design evals capture the surface; if missing, only the source token-only check runs).
    - `_acceptance/config.yaml` exists (else tell the user to run `/acceptance-init` first).
+   - `jsdom` resolvable in the repo (`npm i -D jsdom`) — `design-gate` runs in
+     DOM mode; without jsdom every design eval emits `BLOCKED`, not a failure.
    If a seam looks refactored away, warn the user — the 0-edit composition depends on it.
 
 2. **Dry-run the config patch** and show the plan:

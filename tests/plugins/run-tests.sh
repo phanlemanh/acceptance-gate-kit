@@ -3075,7 +3075,7 @@ finally:
 PY
 
 # ── P101: nap luat ngon ngu TRUOC render (E15) + muc /start trong docs (E11) ─
-run "P101 nap human-facing-language truoc render (2 harness) + GUIDE/README co muc /start (E11,E15)" \
+run "P101 nap human-facing-language truoc render (2 harness) + GUIDE/README/QUICKSTART co muc /start (E11,E15)" \
   python3 - "$ROOT" <<'PY'
 import sys
 from pathlib import Path
@@ -3116,7 +3116,7 @@ assert any("thieu buoc nap luat" in x for x in e1), f"dot bien xoa buoc nap khon
 # (E11) GUIDE + README co muc /start. Chan AM phai chay CHINH phep do tren ban
 # mutant — ban cu dung `not (A and B)` tren chuoi vua bi xoa A, dung mot cach
 # giai tich nen khong bao gio do duoc (Cong 2 start-command, known-limit 2).
-DOCS = ["GUIDE.md", "README.md"]
+DOCS = ["GUIDE.md", "README.md", "QUICKSTART.md"]
 
 def check_docs(docs):                      # {ten: noi dung} -> list loi
     errs = []
@@ -4969,6 +4969,135 @@ with tempfile.TemporaryDirectory() as td:
 assert not lech2, "map.enabled KHONG khop luat chung (bo quet dang tu doc config?):\n" + "\n".join(lech2)
 print("P130 OK (%d hinh dang config, %d co / %d khong; hai ben doc dong y VA map.enabled bam luat chung)" % (len(HINH), co, len(HINH) - co))
 P130PY
+
+# ── P131: khuôn CI trong doc — MỌI lời gọi pre-merge-check.sh phải mang --base,
+# và file nào dạy snippet GitHub Actions phải dạy kèm fetch-depth: 0 ───────────
+# Lớp lỗi: doc trôi khỏi vật theo TỪNG FILE — GUIDE dạy đúng khuôn 2 bước còn
+# README/QUICKSTART dạy dạng không-base (răng T1-escape + gap-probe cùng
+# declared-off). Đo QUAN HỆ trên toàn bộ lời gọi, không grep một chuỗi một chỗ.
+run "P131 khuon CI: moi loi goi pre-merge-check.sh trong doc mang --base + fetch-depth di kem" \
+  python3 - "$ROOT" <<'P131PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+DOCS = ["README.md", "QUICKSTART.md", "GUIDE.md"]
+
+def check(docs):                          # {ten: noi dung} -> list loi
+    errs, n_invocations = [], 0
+    for name, text in docs.items():
+        # Moi dong GOI script tren repo root (`pre-merge-check.sh .`) — ke ca
+        # dang inline-code trong cau van. Dong chi NHAC TEN file (copy list,
+        # bang mo ta) khong phai loi goi, khong tinh.
+        calls = [l for l in text.splitlines() if re.search(r"pre-merge-check\.sh\s+\.", l)]
+        n_invocations += len(calls)
+        for l in calls:
+            if "--base" not in l:
+                errs.append(f"{name}: loi goi thieu --base: {l.strip()[:80]}")
+        # Quan he trong cung mot file: day snippet Actions thi phai day ca
+        # fetch-depth: 0 — thieu no, --base khong resolve tren shallow clone
+        # mac dinh cua actions/checkout (GUIDE §5.3 ta dung bay nay).
+        if any("- run:" in l for l in calls) and "fetch-depth: 0" not in text:
+            errs.append(f"{name}: co snippet Actions goi pre-merge-check.sh nhung thieu fetch-depth: 0")
+    # Sanity counter (0 hit thuong la grep hong): 3 doc phai co it nhat 3 loi goi.
+    if n_invocations < 3:
+        errs.append(f"sanity: chi thay {n_invocations} loi goi trong {DOCS} — bo quet hong?")
+    return errs
+
+live = {d: (root / d).read_text(encoding="utf-8") for d in DOCS}
+assert check(live) == [], check(live)                    # doi chung DUONG
+# Dot bien theo TUNG file: xoa --base khoi mot loi goi → DO dung file, khong bao oan.
+for gone in DOCS:
+    if not re.search(r"pre-merge-check\.sh\s+\.", live[gone]):
+        continue
+    mut = dict(live)
+    mut[gone] = re.sub(r"(pre-merge-check\.sh\s+\.)[^\n]*--base\S*\s*(\"[^\"]*\")?",
+                       r"\1", live[gone])
+    errs = check(mut)
+    assert any(x.startswith(f"{gone}: loi goi thieu --base") for x in errs), \
+        f"dot bien xoa --base khoi {gone} khong bi bat: {errs}"
+    assert all(not x.startswith(f"{o}:") for x in errs for o in DOCS if o != gone), \
+        f"dot bien tren {gone} lam bao oan file khac: {errs}"
+# Dot bien fetch-depth: file co snippet Actions mat dong checkout → DO dung thong diep.
+for name in DOCS:
+    if "- run:" not in live[name] or "fetch-depth: 0" not in live[name]:
+        continue
+    mut = dict(live)
+    mut[name] = live[name].replace("fetch-depth: 0", "fetch-depth-DA-XOA")
+    errs = check(mut)
+    assert any("thieu fetch-depth" in x and x.startswith(name) for x in errs), \
+        f"dot bien xoa fetch-depth khoi {name} khong bi bat: {errs}"
+print("P131 OK")
+P131PY
+
+# ── P132: khối pilot-mode README phải symlink ĐỦ MỌI lệnh trong commands/ ─────
+# Ma trận toàn phần suy từ vật thật (ls commands/*.md), không phải danh sách
+# đóng chép tay — thêm lệnh mới mà quên pilot block là case này đỏ.
+run "P132 pilot block README symlink du moi lenh commands/*.md" \
+  python3 - "$ROOT" <<'P132PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+cmds = sorted(p.name for p in (root / "commands").glob("*.md"))
+assert len(cmds) >= 7, f"sanity: chi thay {len(cmds)} lenh trong commands/ — bo quet hong?"
+readme = (root / "README.md").read_text(encoding="utf-8")
+
+def check(text):
+    return [c for c in cmds if f"ln -s <kit>/commands/{c}" not in text]
+
+missing = check(readme)
+assert missing == [], \
+    "pilot block README thieu symlink cho: " + ", ".join(missing) + \
+    " — nguoi pilot theo README se thieu lenh nay trong phien"
+# Dot bien: xoa mot dong symlink bat ky → DO dung ten lenh do.
+victim = cmds[0]
+mut = "\n".join(l for l in readme.splitlines() if f"commands/{victim}" not in l)
+assert check(mut) == [victim], f"dot bien xoa symlink {victim} khong bi bat dung cho: {check(mut)}"
+print(f"P132 OK ({len(cmds)} lenh deu co mat)")
+P132PY
+
+# ── P133: ghim phần CHỮ của gói first-run — lời khuyên recheck, jsdom, attribution ─
+# Ba pin văn xuôi (khuôn P44): chữ là hành vi thật ở repo này, không phải trang trí.
+run "P133 chu first-run: recheck-advice khop init + jsdom o 3 diem init + attribution /start=v1.30" \
+  python3 - "$ROOT" <<'P133PY'
+import json, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+errs = []
+# 1. README: lời khuyên recheck phải khớp thứ init thật sự phát (strict), và
+#    câu cũ "advisory by default" (mô tả một trạng thái init không bao giờ tạo) phải biến mất.
+readme = (root / "README.md").read_text(encoding="utf-8")
+if "scaffolds `recheck: strict`" not in readme:
+    errs.append("README: mat cau init-phat-strict")
+if "advisory by default" in readme:
+    errs.append("README: cau cu 'advisory by default' quay lai — nguoc voi scaffold cua init")
+# 2. jsdom phải có mặt ở CẢ 3 điểm init (Claude acceptance-init, design-init 2 harness) —
+#    thiếu nó mọi design eval BLOCKED (design-gate.mjs DOM mode).
+for rel in ["commands/acceptance-init.md",
+            "design-loop/commands/design-init.md",
+            "codex/design-loop/skills/design-init/SKILL.md"]:
+    if "jsdom" not in (root / rel).read_text(encoding="utf-8"):
+        errs.append(f"{rel}: mat loi nhac jsdom")
+# 3. Manifest Claude: /start thuộc v1.30 (ship 3187b6e), không được trôi về entry khác.
+desc = json.loads((root / ".claude-plugin/plugin.json").read_text(encoding="utf-8"))["description"]
+i29, i30, istart = desc.find("v1.29:"), desc.find("v1.30:"), desc.find("/start session-entry")
+if i30 < 0:
+    errs.append("manifest: mat entry v1.30")
+elif not (0 <= i29 < i30 <= istart):
+    errs.append("manifest: '/start session-entry' khong nam trong entry v1.30 (attribution troi)")
+assert errs == [], errs                                   # doi chung DUONG
+# Dot bien tung pin → DO dung thong diep (kiem bang cach chay lai logic tren van ban da pha)
+def run_pin1(text):
+    out = []
+    if "scaffolds `recheck: strict`" not in text: out.append("mat cau init-phat-strict")
+    if "advisory by default" in text: out.append("cau cu quay lai")
+    return out
+assert run_pin1(readme.replace("scaffolds `recheck: strict`", "scaffolds nothing")), "dot bien pin1a khong do"
+assert run_pin1(readme + "\nThat re-check is advisory by default."), "dot bien pin1b khong do"
+mut_desc = desc.replace("v1.30: /start session-entry", "v1.29-again: /start session-entry")
+assert mut_desc.find("v1.30:") < 0 or not (0 <= mut_desc.find("v1.29:") < mut_desc.find("v1.30:") <= mut_desc.find("/start session-entry")), \
+    "dot bien attribution khong do"
+print("P133 OK (3 pin chu + dot bien deu do dung cho)")
+P133PY
 
 if [ "$failures" -gt 0 ]; then
   echo

@@ -1,0 +1,75 @@
+# Evals: docs-first-run-audit — mọi AC đều máy-đo, không judgment
+# cmd là config: ref (resolve lúc verify); paths phục vụ carry-forward round delta
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case P131 pass: đối chứng dương (3 doc hiện tại sạch) XANH; đột biến xoá
+      --base khỏi TỪNG file → đỏ đúng file không báo oan; đột biến xoá
+      fetch-depth khỏi file có snippet Actions → đỏ đúng thông điệp; sanity
+      counter ≥3 lời gọi chống bộ quét hỏng.
+    paths: [README.md, QUICKSTART.md, GUIDE.md, tests/plugins/run-tests.sh]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case P101 pass với DOCS mở rộng gồm QUICKSTART: chân dương 3 file đều có
+      mục /start + "vào phiên"; chân âm strip từng file đỏ đúng file.
+    paths: [QUICKSTART.md, tests/plugins/run-tests.sh]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case P132 pass: ma trận suy từ ls commands/*.md (sanity ≥7), README pilot
+      block có đủ dòng symlink từng lệnh (gồm start.md vừa thêm); đột biến xoá
+      một dòng symlink → đỏ đúng tên lệnh.
+    paths: [README.md, commands/start.md, tests/plugins/run-tests.sh]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case P133 pass: (a) README có câu init-phát-strict, câu "advisory by
+      default" vắng mặt; (b) jsdom có mặt ở cả 3 file init; (c) trong manifest
+      Claude, "/start session-entry" nằm sau marker "v1.30:" (quan hệ thứ tự,
+      không chỉ chuỗi có mặt); đột biến từng pin đều đỏ.
+    paths: [README.md, commands/acceptance-init.md, design-loop/commands/design-init.md, codex/design-loop/skills/design-init/SKILL.md, .claude-plugin/plugin.json, tests/plugins/run-tests.sh]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: suite scripts xanh nguyên trạng ("all script tests passed").
+    paths: [scripts/]
+  - id: E6
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: suite hooks xanh nguyên trạng ("all hook tests passed").
+    paths: [hooks/]
+  - id: E7
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: suite workflows xanh nguyên trạng ("all workflow tests passed").
+    paths: [feature-loop/]
+  - id: E8
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.mirror_sync
+    expected: >
+      "plugins/ mirror in sync." — doc sửa (README/QUICKSTART) và skill Codex
+      (design-init) đã được sync vào mirror cùng lượt commit.
+    paths: [plugins/]
+  - id: E9
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.product_map
+    expected: >
+      "PRODUCT-MAP.md khớp hồ sơ xưởng." — bản đồ vẽ lại sau khi thêm workspace
+      này khớp hồ sơ.
+    paths: [PRODUCT-MAP.md]

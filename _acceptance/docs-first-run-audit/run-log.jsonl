@@ -1,0 +1,9 @@
+{"ts": "2026-08-04T12:13:26Z", "round": 1, "evalId": "E1", "run_id": "minted-docs-first-run-audit-E1-r1", "exit_code": 0, "cmd": "bash tests/plugins/run-tests.sh"}
+{"ts": "2026-08-04T12:13:26Z", "round": 1, "evalId": "E2", "run_id": "minted-docs-first-run-audit-E2-r1", "exit_code": 0, "cmd": "bash tests/plugins/run-tests.sh"}
+{"ts": "2026-08-04T12:13:26Z", "round": 1, "evalId": "E3", "run_id": "minted-docs-first-run-audit-E3-r1", "exit_code": 0, "cmd": "bash tests/plugins/run-tests.sh"}
+{"ts": "2026-08-04T12:13:26Z", "round": 1, "evalId": "E4", "run_id": "minted-docs-first-run-audit-E4-r1", "exit_code": 0, "cmd": "bash tests/plugins/run-tests.sh"}
+{"ts": "2026-08-04T12:13:26Z", "round": 1, "evalId": "E5", "run_id": "minted-docs-first-run-audit-E5-r1", "exit_code": 0, "cmd": "bash tests/scripts/run-tests.sh"}
+{"ts": "2026-08-04T12:13:26Z", "round": 1, "evalId": "E6", "run_id": "minted-docs-first-run-audit-E6-r1", "exit_code": 0, "cmd": "bash tests/hooks/run-tests.sh"}
+{"ts": "2026-08-04T12:13:26Z", "round": 1, "evalId": "E7", "run_id": "minted-docs-first-run-audit-E7-r1", "exit_code": 0, "cmd": "bash tests/workflows/run-tests.sh"}
+{"ts": "2026-08-04T12:13:26Z", "round": 1, "evalId": "E8", "run_id": "minted-docs-first-run-audit-E8-r1", "exit_code": 0, "cmd": "bash scripts/sync-plugin-packages.sh --check"}
+{"ts": "2026-08-04T12:13:26Z", "round": 1, "evalId": "E9", "run_id": "minted-docs-first-run-audit-E9-r1", "exit_code": 0, "cmd": "node scripts/product-map.mjs --root . --check"}
