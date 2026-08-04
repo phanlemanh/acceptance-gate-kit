@@ -233,7 +233,7 @@ nhiều lần; hợp đồng dừng ở `implemented`, KHÔNG chữ ký nào. Ch
 tiếp, mở feature riêng cho cái seam (xem `docs/superpowers/specs/2026-08-04-seam-may-viet-may-doc-seed.md`).
 
 **Đã giao và đo được:** `runs` khai trên eval hội đồng hết im lặng (dòng chạy · kết quả ·
-sổ chạy · thẻ Cổng 2 · gói duyệt) · `paths` trên judgment hoá ra KHÔNG inert nên bị loại
+sổ chạy · trình-cho-người ở Cổng 2 · gói duyệt) · `paths` trên judgment hoá ra KHÔNG inert nên bị loại
 khỏi bảng (phát hiện nhờ đổi thước sang QUAN HỆ) · ba chỗ mô tả sai khớp lại về
 `eval-executors.md` · 12 eval ở 6 workspace cũ vẫn verify được · `mutation-check` bắt 16/16
 đột biến · 4 suite + mirror + bản đồ + lint đều xanh.
