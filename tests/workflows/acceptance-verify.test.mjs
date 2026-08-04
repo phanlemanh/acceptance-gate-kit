@@ -967,4 +967,43 @@ console.log('WI7 ba cho mo ta runs + buoc "Moi verdict" o CA HAI harness');
   }
 }
 
+console.log('WI8 duong doc-cu: workspace da ky mang runs/paths tren judgment van verify duoc');
+{
+  const { readFileSync, readdirSync, existsSync } = await import('node:fs');
+  const ROOT = path.join(HERE, '..', '..');
+  const WSDIR = path.join(ROOT, '_acceptance');
+
+  // FIXTURE DO CODE SINH: quet chinh cay dang kiem, khong chep tay danh sach
+  const found = { runs: [], paths: [] };
+  for (const slug of readdirSync(WSDIR)) {
+    const f = path.join(WSDIR, slug, 'evals.yaml');
+    if (!existsSync(f)) continue;
+    for (const b of readFileSync(f, 'utf8').split(/(?=^\s*- id:)/m)) {
+      if (!/^\s{4}executor:\s*judgment/m.test(b)) continue;
+      const id = (/- id:\s*(\S+)/.exec(b) || [])[1];
+      if (/^\s{4}runs:\s*([2-9]|\d\d)/m.test(b)) found.runs.push(`${slug}/${id}`);
+      if (/^\s{4}paths:/m.test(b)) found.paths.push(`${slug}/${id}`);
+    }
+  }
+  // SANITY COUNTER TACH THEO HINH DANG. Dem TONG se xanh oan khi regex sot mot hinh dang
+  // (paths la mang YAML, runs la vo huong — hai khuon khac nhau).
+  check('WI8 quet ra >=1 eval judgment mang runs', found.runs.length >= 1, JSON.stringify(found.runs));
+  check('WI8 quet ra >=1 eval judgment mang paths', found.paths.length >= 1, JSON.stringify(found.paths));
+
+  const evals = [
+    ...found.runs.map((k, i) => ({ id: `R${i}`, criterion: 'AC-1', executor: 'judgment', question: `q ${k}`, inputs: ['/a.md'], runs: 3 })),
+    ...found.paths.map((k, i) => ({ id: `P${i}`, criterion: 'AC-2', executor: 'judgment', question: `q ${k}`, inputs: ['/a.md'], paths: ['x.js'] })),
+  ];
+  const { result } = await runWorkflow(WF, baseArgs({ evals, suiteCommands: ['npm run build'] }), responder());
+  check('WI8 verdict KHONG phai BLOCKED', result.verdict !== 'BLOCKED', result.verdict + ' ' + JSON.stringify(result.blocked));
+  check('WI8 khong eval nao bi day vao failedEvals', result.failedEvals.length === 0, JSON.stringify(result.failedEvals));
+  check('WI8 nhung VAN co canh bao co ten cho tung eval',
+    result.inertFields.length === evals.length, `${result.inertFields.length} vs ${evals.length}`);
+
+  // DOI CHUNG DUONG: phep do nay BIET do — tiem agent may chet vao CUNG harness
+  const { result: red } = await runWorkflow(WF, baseArgs({ evals, suiteCommands: ['npm run build'] }),
+    responder({ 'machine:': null }));
+  check('WI8 doi chung duong: agent may chet -> BLOCKED', red.verdict === 'BLOCKED', red.verdict);
+}
+
 summary('acceptance-verify');

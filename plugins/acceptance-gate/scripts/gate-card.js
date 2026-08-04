@@ -370,7 +370,24 @@ const flags = [];
 // đường dẫn file ở thẻ — thẻ là chỗ quyết định, chi tiết nằm ở gói bằng chứng.
 if (ooc.cluster) flags.push(['fwarn', '⚠ Nhiều lỗi rơi ngoài vùng các bộ đo đang phủ — dừng và quyết: mở rộng hợp đồng hay rút phạm vi. Chi tiết trong review-findings.md.']);
 { const analyst = cleanLines(section(report, 'Analyst')).join(' ').trim(); if (analyst && !/^none/i.test(analyst) && !/^\{\{/.test(analyst)) flags.push(['fred', esc(pl.analyst_plain || analyst)]); }
-{ const varr = cleanLines(section(report, 'Variance')).join(' ').trim(); if (varr && !/^none/i.test(varr) && !/^\{\{/.test(varr)) flags.push(['fred', 'Có eval ngẫu nhiên (pass-rate hỗn hợp) — ' + esc(varr)]); }
+// Section Variance mang HAI loai tin hieu khac han nhau, phai ra HAI cờ khác nhau:
+// (a) phương sai thật (pass-rate hỗn hợp) — việc của máy, cờ đỏ;
+// (b) ô inert: field NGƯỜI khai mà máy không dùng — việc của người sửa evals.yaml, cờ vàng.
+// Cụm mở đầu dưới đây là HỢP ĐỒNG CHUỖI LIÊN-FILE với
+// feature-loop/workflows/acceptance-verify.js (hai file không import được nhau — script đó
+// chạy trong sandbox không có module). Đổi cụm này = phải đổi cả bên kia; case WI6 trong
+// tests/workflows/acceptance-verify.test.mjs là mối nối duy nhất giữ hai bên khớp.
+const INERT_NOTE_PREFIX = 'Field khai mà máy không dùng:';
+{
+  const varr = cleanLines(section(report, 'Variance')).join(' ').trim();
+  if (varr && !/^\{\{/.test(varr)) {
+    const cut = varr.indexOf(INERT_NOTE_PREFIX);
+    const inert = cut >= 0 ? varr.slice(cut).trim() : '';
+    const rest = (cut >= 0 ? varr.slice(0, cut) : varr).trim();
+    if (inert) flags.push(['fwarn', esc(inert)]);
+    if (rest && !/^none/i.test(rest)) flags.push(['fred', 'Có eval ngẫu nhiên (pass-rate hỗn hợp) — ' + esc(rest)]);
+  }
+}
 if (tier === 'T3') flags.push(['fok', 'Đụng phần nhạy cảm → tier T3, đúng là cần bạn duyệt kỹ.']);
 if (evComplete) flags.push(['fok', 'Cổng chạy thật, bằng chứng máy đầy đủ (run_id · exit 0 · verifier).']);
 else flags.push(['fwarn', 'Bằng chứng máy CHƯA đủ trường (run_id · exit 0 · verifier) — kiểm trước khi ký.']);

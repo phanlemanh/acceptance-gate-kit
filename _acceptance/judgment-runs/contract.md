@@ -1,6 +1,6 @@
 ---
 schema_version: 2
-feature: "judgment-runs — field khai trên eval mà máy bỏ im lặng (runs trên judgment/ui-check, paths trên judgment) phải nêu đích danh ở log, result, ## Variance và gói Cổng 2; ba chỗ mô tả sai khớp lại về eval-executors.md"
+feature: "Field khai trên eval mà máy không dùng phải được nêu đích danh, không bỏ im lặng"
 slug: judgment-runs
 risk_tier: T3
 surfaces: [cli]
