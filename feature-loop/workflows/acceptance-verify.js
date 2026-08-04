@@ -243,6 +243,39 @@ const runBaseline = args.runBaseline !== false // P2 — default true (tương t
 const machineEvals = args.evals.filter(e => (e.executor === 'test' || e.executor === 'script') && !carriedEvalIds.has(e.id))
 const judgmentEvals = args.evals.filter(e => e.executor === 'judgment')
 const uiEvals = args.evals.filter(e => e.executor === 'ui-check' && !carriedEvalIds.has(e.id))
+
+// ---- O INERT: field khai tren eval ma may KHONG dung. Khong chan, nhung khong im lang.
+// Luat "runs is ignored on ui-check/judgment" (eval-executors.md) von CO CHU Y — cai thieu
+// truoc day la khong mat nao cua may chiu noi ra, nen 10/10 luot dung runs trong repo deu
+// roi vao o inert ma khong ai biet, va bao cao con ghi "## Variance: none".
+// Them/bot mot o = sua DUNG bang duoi day; TUYET DOI khong rai if o cho khac (case WI1
+// rut bang nay bang marker roi doi chieu voi hanh vi that tren ma tran toan phan 2x4).
+// <<<INERT-FIELD-TABLE
+const INERT_FIELD_TABLE = [
+  { field: 'runs', executor: 'judgment', reason: 'panel 3-lens da la co che hap thu nhieu da chon — runs khong duoc doc' },
+  { field: 'runs', executor: 'ui-check', reason: 'ui-check luon chay dung 1 lan — buoc gop machine hardcode runs: 1' },
+  { field: 'paths', executor: 'judgment', reason: 'carry-forward P1 chi nhan eval may/ui — judgment carry bang P3 inputs-hash' },
+]
+// INERT-FIELD-TABLE>>>
+// Khi nao coi la "co khai": runs chi tinh khi >1 (runs:1 la mac dinh, khai ra vo hai — bao
+// no chi tao nhieu roi day nguoi ta den cho bo qua canh bao); paths tinh khi la mang khong rong.
+const INERT_DECLARED = {
+  runs: v => Number.isInteger(v) && v > 1,
+  paths: v => Array.isArray(v) && v.length > 0,
+}
+const inertFieldReport = (evals) => {
+  const out = []
+  for (const e of (Array.isArray(evals) ? evals : [])) {
+    for (const row of INERT_FIELD_TABLE) {
+      if (!e || e.executor !== row.executor) continue
+      const declared = INERT_DECLARED[row.field]
+      if (!declared || !declared(e[row.field])) continue
+      out.push({ evalId: e.id, field: row.field, value: e[row.field], executor: e.executor, reason: row.reason })
+    }
+  }
+  return out
+}
+const inertFields = inertFieldReport(args.evals)
 // P3: panel carried chỉ hợp lệ khi trỏ đúng judgment eval hiện có + proposal hợp lệ
 const carriedPanels = (Array.isArray(args.carriedPanels) ? args.carriedPanels : []).filter(p =>
   p && typeof p.evalId === 'string' && judgmentEvals.some(e => e.id === p.evalId)
@@ -708,6 +741,9 @@ return {
   panels: panels.map(p => ({ evalId: p.evalId, proposal: p.proposal, ...(p.carried ? { carried: true, fromRound: p.fromRound } : {}) })),
   // Đợt 5: main loop in cho user round này carry gì (minh bạch ở Gate 2)
   carried: { evals: carriedEvals.map(c => c.id), panels: carriedPanels.map(p => p.evalId), baseline: !runBaseline },
+  // O inert: field NGUOI khai tren eval ma may khong dung. Main loop trinh RIENG o goi Cong 2
+  // (SKILL buoc "Moi verdict") — cung hang minh bach voi carried, khong nen vao "may da lo".
+  inertFields,
   confirmedFindings,
   triaged,
   triageFailed,

@@ -748,4 +748,81 @@ console.log('WT-T15 synthesize chi dan ghi truong plain cho ngan Ngoai hop dong'
   check('WT-T15 payload mang truong plain', sp.includes('Người dùng có thể mất tiện ích khi bấm Cập nhật.'));
 }
 
+console.log('WI1 o inert: ma tran TOAN PHAN viet-truoc + bang trong nguon phai khop ma tran do');
+{
+  const { readFileSync } = await import('node:fs');
+  // (a) DAC TA VIET-TRUOC — nguon doc lap voi ma. Xoa mot hang khoi bang trong nguon thi
+  // ma tran nay VAN doi o do inert, nen phep do di do. (Ban dau case nay rut ky vong TU
+  // chinh bang trong nguon: xoa hang -> ca hai ve cung dich -> xanh oan. Do la tautology,
+  // dung lop loi ma feature nay sinh ra de diet.)
+  const EXPECTED_INERT = {
+    'runs|test': false, 'runs|script': false, 'runs|ui-check': true, 'runs|judgment': true,
+    'paths|test': false, 'paths|script': false, 'paths|ui-check': false, 'paths|judgment': true,
+  };
+  const sample = (field) => (field === 'runs' ? 3 : ['src/x.js']);
+  const evalFor = (field, executor) => {
+    const base = { id: 'X1', criterion: 'AC-1', executor, expected: 'ok', [field]: sample(field) };
+    if (executor === 'judgment') return { ...base, question: 'q?', inputs: ['/a.md'] };
+    if (executor === 'ui-check') return { ...base, steps: ['open'] };
+    return { ...base, cmd: 'pnpm test', ref: 'config:executors.test.api' };
+  };
+  const mismatches = [];
+  for (const [key, want] of Object.entries(EXPECTED_INERT)) {
+    const [field, executor] = key.split('|');
+    const { result } = await runWorkflow(WF, baseArgs({
+      evals: [evalFor(field, executor)], suiteCommands: ['npm run build'],
+    }), responder());
+    const fired = (result.inertFields || []).some(f => f.evalId === 'X1' && f.field === field);
+    if (fired !== want) mismatches.push(`${key}: got ${fired}, want ${want}`);
+  }
+  check('WI1 hanh vi khop DAC TA viet-truoc o CA 8 o', mismatches.length === 0, mismatches.join(' ; '));
+
+  // (b) ROUND-TRIP: bang trong nguon (rut BANG MARKER, khong chep tay) phai khop dung tap
+  // o inert cua dac ta. Bat ca hai chieu troi: bang thieu hang, va hang khai ma khong co
+  // hieu luc (vd ai do them if roi rac o cho khac).
+  const src = readFileSync(WF, 'utf8');
+  const m = /\/\/ <<<INERT-FIELD-TABLE([\s\S]*?)\/\/ INERT-FIELD-TABLE>>>/.exec(src);
+  check('WI1 bang nam giua cap marker', !!m);
+  const declared = new Set();
+  for (const row of (m ? m[1] : '').matchAll(/field:\s*'([a-z]+)'\s*,\s*executor:\s*'([a-z-]+)'/g)) {
+    declared.add(row[1] + '|' + row[2]);
+  }
+  const wantSet = new Set(Object.entries(EXPECTED_INERT).filter(([, v]) => v).map(([k]) => k));
+  const missing = [...wantSet].filter(k => !declared.has(k));
+  const extra = [...declared].filter(k => !wantSet.has(k));
+  check('WI1 bang trong nguon == tap o inert cua dac ta',
+    missing.length === 0 && extra.length === 0, `thieu: ${missing} · thua: ${extra}`);
+}
+
+console.log('WI2 inertFieldReport: doi chung duong + noi dung muc');
+{
+  const jEval = (over = {}) => ({ id: 'E9', criterion: 'AC-4', executor: 'judgment', question: 'q?', inputs: ['/a.md'], ...over });
+  const { result: hit } = await runWorkflow(WF, baseArgs({ evals: [jEval({ runs: 3 })] }), responder());
+  check('WI2 judgment+runs:3 -> dung 1 muc', (hit.inertFields || []).length === 1, JSON.stringify(hit.inertFields));
+  const it = (hit.inertFields || [])[0] || {};
+  check('WI2 muc neu dich danh evalId/field/value/executor',
+    it.evalId === 'E9' && it.field === 'runs' && it.value === 3 && it.executor === 'judgment', JSON.stringify(it));
+  check('WI2 reason nhac co che panel 3-lens', /3-lens|3 lens/.test(String(it.reason || '')), String(it.reason));
+  // DOI CHUNG DUONG: cung eval bo runs -> phai RONG (phep do phan biet duoc)
+  const { result: clean } = await runWorkflow(WF, baseArgs({ evals: [jEval()] }), responder());
+  check('WI2 doi chung duong: bo runs -> inertFields RONG', (clean.inertFields || []).length === 0, JSON.stringify(clean.inertFields));
+  // runs: 1 la mac dinh, khai ra vo hai -> KHONG bao (tranh nhieu lam nguoi hoc cach bo qua canh bao)
+  const { result: one } = await runWorkflow(WF, baseArgs({ evals: [jEval({ runs: 1 })] }), responder());
+  check('WI2 runs:1 (mac dinh) KHONG bao', (one.inertFields || []).length === 0, JSON.stringify(one.inertFields));
+}
+
+console.log('WI3 nua-KHONG-duoc-ban: field dung cho van chay nhu cu');
+{
+  const { result, calls } = await runWorkflow(WF, baseArgs({
+    evals: [
+      { id: 'E1', criterion: 'AC-1', executor: 'test', cmd: './slow.sh', ref: 'config:executors.test.api', expected: 'ok', runs: 3, paths: ['a.js'] },
+      { id: 'E2', criterion: 'AC-2', executor: 'ui-check', steps: ['open'], expected: 'ok', paths: ['b.js'] },
+    ],
+    suiteCommands: [],
+  }), responder());
+  check('WI3 test+runs / ui-check+paths KHONG vao inertFields', (result.inertFields || []).length === 0, JSON.stringify(result.inertFields));
+  check('WI3 hoi quy: runs:3 tren test van sinh 3 agent machine',
+    byLabel(calls, 'machine:').length === 3, String(byLabel(calls, 'machine:').length));
+}
+
 summary('acceptance-verify');

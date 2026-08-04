@@ -25,7 +25,7 @@ Phục vụ **AC-1, AC-2, AC-3, AC-4, AC-7**. `independent: false` (mọi task s
 
 **Files:**
 - Modify: `feature-loop/workflows/acceptance-verify.js` — chèn ngay SAU khối phân loại eval (`uiEvals` được khai ở ~dòng 244), TRƯỚC khối `carriedPanels`
-- Test: `tests/workflows/acceptance-verify.test.mjs` — thêm case `W20`–`W22` ở cuối file, trước `summary(...)`
+- Test: `tests/workflows/acceptance-verify.test.mjs` — thêm case `WI1`–`WI3` ở cuối file, trước `summary(...)`
 
 **Interfaces:**
 - Produces: `INERT_FIELD_TABLE` — mảng `{field: string, executor: string, reason: string}`, bọc giữa `// <<<INERT-FIELD-TABLE` và `// INERT-FIELD-TABLE>>>`
@@ -37,18 +37,18 @@ Phục vụ **AC-1, AC-2, AC-3, AC-4, AC-7**. `independent: false` (mọi task s
 Thêm vào cuối `tests/workflows/acceptance-verify.test.mjs`, ngay trước dòng `summary(...)`:
 
 ```js
-console.log('W20 inertFieldReport: ma tran toan phan field x executor, bang rut bang marker');
+console.log('WI1 inertFieldReport: ma tran toan phan field x executor, bang rut bang marker');
 {
   const { readFileSync } = await import('node:fs');
   const src = readFileSync(WF, 'utf8');
   const m = /\/\/ <<<INERT-FIELD-TABLE([\s\S]*?)\/\/ INERT-FIELD-TABLE>>>/.exec(src);
-  check('W20 bang nam giua cap marker', !!m);
+  check('WI1 bang nam giua cap marker', !!m);
   // Rut cap (field, executor) TU NGUON — khong chep tay bang vao test
   const declared = new Set();
   for (const row of (m ? m[1] : '').matchAll(/field:\s*'([a-z]+)'\s*,\s*executor:\s*'([a-z-]+)'/g)) {
     declared.add(row[1] + '|' + row[2]);
   }
-  check('W20 bang rut ra khong rong', declared.size > 0, String(declared.size));
+  check('WI1 bang rut ra khong rong', declared.size > 0, String(declared.size));
 
   const FIELDS = ['runs', 'paths'];
   const EXECS = ['test', 'script', 'ui-check', 'judgment'];
@@ -71,27 +71,27 @@ console.log('W20 inertFieldReport: ma tran toan phan field x executor, bang rut 
       if (fired !== want) mismatches.push(`${field}x${executor}: got ${fired}, want ${want}`);
     }
   }
-  check('W20 hanh vi khop bang o CA 8 o', mismatches.length === 0, mismatches.join(' ; '));
+  check('WI1 hanh vi khop bang o CA 8 o', mismatches.length === 0, mismatches.join(' ; '));
 }
 
-console.log('W21 inertFieldReport: doi chung duong + noi dung muc');
+console.log('WI2 inertFieldReport: doi chung duong + noi dung muc');
 {
   const jEval = (over = {}) => ({ id: 'E9', criterion: 'AC-4', executor: 'judgment', question: 'q?', inputs: ['/a.md'], ...over });
   const { result: hit } = await runWorkflow(WF, baseArgs({ evals: [jEval({ runs: 3 })] }), responder());
-  check('W21 judgment+runs:3 -> dung 1 muc', (hit.inertFields || []).length === 1, JSON.stringify(hit.inertFields));
+  check('WI2 judgment+runs:3 -> dung 1 muc', (hit.inertFields || []).length === 1, JSON.stringify(hit.inertFields));
   const it = (hit.inertFields || [])[0] || {};
-  check('W21 muc neu dich danh evalId/field/value/executor',
+  check('WI2 muc neu dich danh evalId/field/value/executor',
     it.evalId === 'E9' && it.field === 'runs' && it.value === 3 && it.executor === 'judgment', JSON.stringify(it));
-  check('W21 reason nhac co che panel 3-lens', /3-lens|3 lens/.test(String(it.reason || '')), String(it.reason));
+  check('WI2 reason nhac co che panel 3-lens', /3-lens|3 lens/.test(String(it.reason || '')), String(it.reason));
   // DOI CHUNG DUONG: cung eval bo runs -> phai RONG (phep do phan biet duoc)
   const { result: clean } = await runWorkflow(WF, baseArgs({ evals: [jEval()] }), responder());
-  check('W21 doi chung duong: bo runs -> inertFields RONG', (clean.inertFields || []).length === 0, JSON.stringify(clean.inertFields));
+  check('WI2 doi chung duong: bo runs -> inertFields RONG', (clean.inertFields || []).length === 0, JSON.stringify(clean.inertFields));
   // runs: 1 la mac dinh, khai ra vo hai -> KHONG bao
   const { result: one } = await runWorkflow(WF, baseArgs({ evals: [jEval({ runs: 1 })] }), responder());
-  check('W21 runs:1 (mac dinh) KHONG bao', (one.inertFields || []).length === 0, JSON.stringify(one.inertFields));
+  check('WI2 runs:1 (mac dinh) KHONG bao', (one.inertFields || []).length === 0, JSON.stringify(one.inertFields));
 }
 
-console.log('W22 nua-KHONG-duoc-ban: field dung cho van chay nhu cu');
+console.log('WI3 nua-KHONG-duoc-ban: field dung cho van chay nhu cu');
 {
   const { result, calls } = await runWorkflow(WF, baseArgs({
     evals: [
@@ -100,8 +100,8 @@ console.log('W22 nua-KHONG-duoc-ban: field dung cho van chay nhu cu');
     ],
     suiteCommands: [],
   }), responder());
-  check('W22 test+runs / ui-check+paths KHONG vao inertFields', (result.inertFields || []).length === 0, JSON.stringify(result.inertFields));
-  check('W22 hoi quy: runs:3 tren test van sinh 3 agent machine',
+  check('WI3 test+runs / ui-check+paths KHONG vao inertFields', (result.inertFields || []).length === 0, JSON.stringify(result.inertFields));
+  check('WI3 hoi quy: runs:3 tren test van sinh 3 agent machine',
     byLabel(calls, 'machine:').length === 3, String(byLabel(calls, 'machine:').length));
 }
 ```
@@ -109,10 +109,10 @@ console.log('W22 nua-KHONG-duoc-ban: field dung cho van chay nhu cu');
 - [ ] **Step 2: Chạy test, xác nhận ĐỎ đúng lý do**
 
 ```bash
-node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep -E "W2[012]"
+node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep -E "WI[123]"
 ```
 
-Kỳ vọng: `W20 bang nam giua cap marker` FAIL (chưa có marker) và `W21 …` FAIL vì `result.inertFields` là `undefined`. Nếu thấy PASS ở đây thì test chưa chạy — kiểm lại đã lưu file chưa.
+Kỳ vọng: `WI1 bang nam giua cap marker` FAIL (chưa có marker) và `WI2 …` FAIL vì `result.inertFields` là `undefined`. Nếu thấy PASS ở đây thì test chưa chạy — kiểm lại đã lưu file chưa.
 
 - [ ] **Step 3: Thêm bảng + hàm thuần vào `acceptance-verify.js`**
 
@@ -166,18 +166,20 @@ Trong object `return { ... }` cuối file, thêm ngay dưới dòng `carried: {.
 node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep -E "W2[012]|Results:"
 ```
 
-Kỳ vọng: mọi dòng `W20`/`W21`/`W22` PASS, và tổng `Results:` không có `failed` nào tăng so với trước Task 1.
+Kỳ vọng: mọi dòng `WI1`/`WI2`/`WI3` PASS, và tổng `Results:` không có `failed` nào tăng so với trước Task 1.
 
-- [ ] **Step 6: Đối chứng đột biến — chứng minh W20 biết đỏ**
+- [ ] **Step 6: Đối chứng đột biến — chứng minh WI1 biết đỏ**
 
 ```bash
 cp feature-loop/workflows/acceptance-verify.js /tmp/av-backup.js
 sed -i '' "/field: 'paths', executor: 'judgment'/d" feature-loop/workflows/acceptance-verify.js
-node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep "W20 hanh vi khop bang"
+node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep "WI1 hanh vi khop bang"
 cp /tmp/av-backup.js feature-loop/workflows/acceptance-verify.js
 ```
 
-Kỳ vọng: dòng giữa in `FAIL: W20 hanh vi khop bang o CA 8 o (paths|judgment: got true, want false)`. Nếu nó PASS thì test không nối bảng với hành vi — dừng và sửa test trước khi đi tiếp.
+Kỳ vọng: **hai** dòng FAIL — `WI1 hanh vi khop DAC TA viet-truoc` và `WI1 bang trong nguon == tap o inert cua dac ta`.
+
+> **Sai lệch đã ghi nhận (S3, 2026-08-04).** Bản đầu của WI1 rút kỳ vọng **từ chính bảng trong nguồn**, nên xoá một hàng làm cả hai vế cùng dịch và đột biến này **xanh oan** — một phép đo tautology, đúng lớp lỗi feature đang đi diệt. Đã sửa THƯỚC (không hạ chốt) thành hai lớp: (a) `EXPECTED_INERT` — ma trận 2×4 **viết trước**, độc lập với mã, là thứ hành vi phải khớp; (b) round-trip bảng-rút-bằng-marker phải **bằng đúng** tập ô inert của (a). Đột biến "xoá hàng" đỏ ở cả hai; đột biến "bảng đúng nhưng hàm bỏ qua `paths`" đỏ ở (a) và xanh ở (b) — đúng, vì bảng không sai ở ca đó.
 
 - [ ] **Step 7: Commit**
 
@@ -193,7 +195,7 @@ Phục vụ **AC-6, AC-13**. `independent: false` (cần `inertFields` của Tas
 
 **Files:**
 - Modify: `feature-loop/workflows/acceptance-verify.js` — dòng `log(...)` đặt cạnh dòng `log(\`Round ${args.round}: ...\`)`; dòng run-log đặt cạnh khối `if (typeof args.evalsHash === 'string' ...)`
-- Test: `tests/workflows/acceptance-verify.test.mjs` — case `W23`
+- Test: `tests/workflows/acceptance-verify.test.mjs` — case `WI4`
 
 **Interfaces:**
 - Consumes: `inertFields` (Task 1)
@@ -202,27 +204,27 @@ Phục vụ **AC-6, AC-13**. `independent: false` (cần `inertFields` của Tas
 - [ ] **Step 1: Viết test thất bại**
 
 ```js
-console.log('W23 o inert: mot dong log + mot dong run-log kind:inert (khong run_id)');
+console.log('WI4 o inert: mot dong log + mot dong run-log kind:inert (khong run_id)');
 {
   const jEval = (over = {}) => ({ id: 'E9', criterion: 'AC-4', executor: 'judgment', question: 'q?', inputs: ['/a.md'], ...over });
   const { result, logs } = await runWorkflow(WF, baseArgs({ evals: [jEval({ runs: 3 })] }), responder());
   const hits = logs.filter(l => /field khai ma may khong dung/i.test(l));
-  check('W23 dung MOT dong log', hits.length === 1, JSON.stringify(logs));
-  check('W23 dong log neu ten eval va field', /E9/.test(hits[0] || '') && /runs/.test(hits[0] || ''), hits[0]);
+  check('WI4 dung MOT dong log', hits.length === 1, JSON.stringify(logs));
+  check('WI4 dong log neu ten eval va field', /E9/.test(hits[0] || '') && /runs/.test(hits[0] || ''), hits[0]);
 
   const inertLines = result.runLog.map(l => JSON.parse(l)).filter(l => l.kind === 'inert');
-  check('W23 dung MOT dong run-log kind:inert', inertLines.length === 1, String(inertLines.length));
-  check('W23 dong inert KHONG mang run_id', !('run_id' in inertLines[0]), JSON.stringify(inertLines[0]));
-  check('W23 dong inert ghi round + cap (evalId, field, executor)',
+  check('WI4 dung MOT dong run-log kind:inert', inertLines.length === 1, String(inertLines.length));
+  check('WI4 dong inert KHONG mang run_id', !('run_id' in inertLines[0]), JSON.stringify(inertLines[0]));
+  check('WI4 dong inert ghi round + cap (evalId, field, executor)',
     inertLines[0].round === 1
     && JSON.stringify(inertLines[0].fields) === JSON.stringify([{ evalId: 'E9', field: 'runs', executor: 'judgment' }]),
     JSON.stringify(inertLines[0]));
 
   // DOI CHUNG DUONG: khong eval inert -> khong dong nao, khong log nao
   const { result: c, logs: cl } = await runWorkflow(WF, baseArgs({ evals: [jEval()] }), responder());
-  check('W23 doi chung duong: khong inert -> khong dong kind:inert',
+  check('WI4 doi chung duong: khong inert -> khong dong kind:inert',
     c.runLog.map(l => JSON.parse(l)).filter(l => l.kind === 'inert').length === 0);
-  check('W23 doi chung duong: khong inert -> khong dong log nao',
+  check('WI4 doi chung duong: khong inert -> khong dong log nao',
     cl.filter(l => /field khai ma may khong dung/i.test(l)).length === 0);
 }
 ```
@@ -230,10 +232,10 @@ console.log('W23 o inert: mot dong log + mot dong run-log kind:inert (khong run_
 - [ ] **Step 2: Chạy test, xác nhận ĐỎ**
 
 ```bash
-node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep "W23"
+node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep "WI4"
 ```
 
-Kỳ vọng: `W23 dung MOT dong log` FAIL với `[]`, và `W23 dung MOT dong run-log kind:inert` FAIL với `0`.
+Kỳ vọng: `WI4 dung MOT dong log` FAIL với `[]`, và `WI4 dung MOT dong run-log kind:inert` FAIL với `0`.
 
 - [ ] **Step 3: Thêm dòng `log()`**
 
@@ -260,7 +262,7 @@ if (inertFields.length) runLogLines.push(JSON.stringify({
 - [ ] **Step 5: Chạy test, xác nhận XANH**
 
 ```bash
-node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep -E "W23|Results:"
+node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep -E "WI4|Results:"
 ```
 
 - [ ] **Step 6: Commit**
@@ -277,7 +279,7 @@ Phục vụ **AC-5**. `independent: false`.
 
 **Files:**
 - Modify: `feature-loop/workflows/acceptance-verify.js` — dựng `inertNote` ngay sau khối run-log của Task 2; chèn chỉ dẫn vào prompt `synthesize:report`
-- Test: `tests/workflows/acceptance-verify.test.mjs` — case `W24`
+- Test: `tests/workflows/acceptance-verify.test.mjs` — case `WI5`
 
 **Interfaces:**
 - Consumes: `inertFields` (Task 1)
@@ -286,27 +288,27 @@ Phục vụ **AC-5**. `independent: false`.
 - [ ] **Step 1: Viết test thất bại**
 
 ```js
-console.log('W24 inertNote: literal do JS tinh + chi dan chep nguyen van vao ## Variance');
+console.log('WI5 inertNote: literal do JS tinh + chi dan chep nguyen van vao ## Variance');
 {
   const jEval = (over = {}) => ({ id: 'E9', criterion: 'AC-4', executor: 'judgment', question: 'q?', inputs: ['/a.md'], ...over });
   const { calls } = await runWorkflow(WF, baseArgs({ evals: [jEval({ runs: 3 })] }), responder());
   const p = byLabel(calls, 'synthesize:report')[0].prompt;
-  check('W24 prompt mang cum mo dau hop dong lien-file', /Field khai mà máy không dùng:/.test(p));
-  check('W24 literal neu dich danh evalId + field + gia tri', /E9/.test(p) && /runs/.test(p) && /3/.test(p));
-  check('W24 co chi dan chep NGUYEN VAN vao Variance', /NGUYEN VAN[\s\S]{0,200}Variance/.test(p) || /Variance[\s\S]{0,200}NGUYEN VAN/.test(p), 'khong thay chi dan');
-  check('W24 literal KHONG bat dau bang "none" (reader loc /^none/i)', !/^\s*none/i.test(/Field khai mà máy không dùng:[^\n]*/.exec(p)[0]));
+  check('WI5 prompt mang cum mo dau hop dong lien-file', /Field khai mà máy không dùng:/.test(p));
+  check('WI5 literal neu dich danh evalId + field + gia tri', /E9/.test(p) && /runs/.test(p) && /3/.test(p));
+  check('WI5 co chi dan chep NGUYEN VAN vao Variance', /NGUYEN VAN[\s\S]{0,200}Variance/.test(p) || /Variance[\s\S]{0,200}NGUYEN VAN/.test(p), 'khong thay chi dan');
+  check('WI5 literal KHONG bat dau bang "none" (reader loc /^none/i)', !/^\s*none/i.test(/Field khai mà máy không dùng:[^\n]*/.exec(p)[0]));
 
   // DOI CHUNG DUONG: khong eval inert -> prompt KHONG chua literal lan chi dan
   const { calls: c2 } = await runWorkflow(WF, baseArgs({ evals: [jEval()] }), responder());
   const p2 = byLabel(c2, 'synthesize:report')[0].prompt;
-  check('W24 doi chung duong: khong inert -> prompt sach', !/Field khai mà máy không dùng/.test(p2));
+  check('WI5 doi chung duong: khong inert -> prompt sach', !/Field khai mà máy không dùng/.test(p2));
 }
 ```
 
 - [ ] **Step 2: Chạy test, xác nhận ĐỎ**
 
 ```bash
-node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep "W24"
+node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep "WI5"
 ```
 
 Kỳ vọng: bốn dòng đầu FAIL; dòng đối chứng dương PASS ngay từ đầu (đúng — nó khẳng định trạng thái hiện tại).
@@ -321,7 +323,7 @@ Ngay SAU khối run-log của Task 2, chèn:
 // CHEP, cung khuon literal dang dung cho verified_commit.
 // Cum mo dau "Field khai ma may khong dung:" la HOP DONG CHUOI LIEN-FILE voi
 // scripts/gate-card.js (no bat cum nay de ban co dung loai). Doi cum nay = phai doi ca ben do;
-// case round-trip W25 trong tests/workflows la moi noi giu hai ben khop.
+// case round-trip WI6 trong tests/workflows la moi noi giu hai ben khop.
 // TUYET DOI khong mo dau bang chu "none" — reader loc /^none/i va se nuot mat canh bao.
 const inertNote = inertFields.length
   ? 'Field khai mà máy không dùng: ' + inertFields.map(f =>
@@ -341,7 +343,7 @@ ${inertNote ? `O INERT (may da tinh san — CHEP NGUYEN VAN, khong tu viet lai, 
 - [ ] **Step 5: Chạy test, xác nhận XANH**
 
 ```bash
-node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep -E "W24|Results:"
+node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep -E "WI5|Results:"
 ```
 
 - [ ] **Step 6: Commit**
@@ -358,7 +360,7 @@ Phục vụ **AC-12**. `independent: false` (cần `inertNote` của Task 3).
 
 **Files:**
 - Modify: `scripts/gate-card.js:373` — tách khối cờ `Variance` thành hai nhánh
-- Test: `tests/workflows/acceptance-verify.test.mjs` — case `W25`
+- Test: `tests/workflows/acceptance-verify.test.mjs` — case `WI6`
 
 **Interfaces:**
 - Consumes: cụm mở đầu `Field khai mà máy không dùng:` từ Task 3
@@ -367,7 +369,7 @@ Phục vụ **AC-12**. `independent: false` (cần `inertNote` của Task 3).
 - [ ] **Step 1: Viết test round-trip thất bại**
 
 ```js
-console.log('W25 ROUND-TRIP writer->reader: inertNote qua scripts/gate-card.js ra co dung loai');
+console.log('WI6 ROUND-TRIP writer->reader: inertNote qua scripts/gate-card.js ra co dung loai');
 {
   const { mkdtempSync, mkdirSync, writeFileSync } = await import('node:fs');
   const { execFileSync } = await import('node:child_process');
@@ -378,8 +380,8 @@ console.log('W25 ROUND-TRIP writer->reader: inertNote qua scripts/gate-card.js r
   const jEval = { id: 'E9', criterion: 'AC-4', executor: 'judgment', question: 'q?', inputs: ['/a.md'], runs: 3 };
   const { calls } = await runWorkflow(WF, baseArgs({ evals: [jEval] }), responder());
   const note = /Field khai mà máy không dùng:[^\n]*/.exec(byLabel(calls, 'synthesize:report')[0].prompt)[0];
-  check('W25 rut duoc literal tu writer', note.length > 40, note);
-  check('W25 literal KHONG bat dau bang "none"', !/^none/i.test(note));
+  check('WI6 rut duoc literal tu writer', note.length > 40, note);
+  check('WI6 literal KHONG bat dau bang "none"', !/^none/i.test(note));
 
   // (2) SINH workspace fixture bang code
   const mkWs = (variance) => {
@@ -398,27 +400,27 @@ console.log('W25 ROUND-TRIP writer->reader: inertNote qua scripts/gate-card.js r
 
   // (3) READER doc literal cua WRITER -> co dung loai
   const withInert = card(note);
-  check('W25 the hien co neu dung ban chat field-inert', /Field khai mà máy không dùng/.test(withInert), 'khong thay cum trong the');
-  check('W25 KHONG muon nhan co phuong-sai', !/pass-rate hỗn hợp[^<]*Field khai/.test(withInert), 'dung nham nhan phuong sai');
+  check('WI6 the hien co neu dung ban chat field-inert', /Field khai mà máy không dùng/.test(withInert), 'khong thay cum trong the');
+  check('WI6 KHONG muon nhan co phuong-sai', !/pass-rate hỗn hợp[^<]*Field khai/.test(withInert), 'dung nham nhan phuong sai');
 
   // (4) DOI CHUNG DUONG: Variance = "none — ..." -> khong co nao
   const withNone = card('none — every multi-run eval is uniform');
-  check('W25 doi chung duong: Variance "none" -> khong co field-inert', !/Field khai mà máy không dùng/.test(withNone));
-  check('W25 doi chung duong: Variance "none" -> khong co phuong-sai', !/pass-rate hỗn hợp/.test(withNone));
+  check('WI6 doi chung duong: Variance "none" -> khong co field-inert', !/Field khai mà máy không dùng/.test(withNone));
+  check('WI6 doi chung duong: Variance "none" -> khong co phuong-sai', !/pass-rate hỗn hợp/.test(withNone));
 
   // (5) Ca phuong sai that van giu co cu
   const withVar = card('E3 pass_rate 4/5 — chua on dinh');
-  check('W25 hoi quy: phuong sai that van ra co cu', /pass-rate hỗn hợp/.test(withVar));
+  check('WI6 hoi quy: phuong sai that van ra co cu', /pass-rate hỗn hợp/.test(withVar));
 }
 ```
 
 - [ ] **Step 2: Chạy test, xác nhận ĐỎ**
 
 ```bash
-node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep "W25"
+node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep "WI6"
 ```
 
-Kỳ vọng: `W25 the hien co neu dung ban chat field-inert` FAIL — hôm nay thẻ có in nội dung nhưng gắn nhãn phương-sai, nên assertion `KHONG muon nhan co phuong-sai` cũng FAIL.
+Kỳ vọng: `WI6 the hien co neu dung ban chat field-inert` FAIL — hôm nay thẻ có in nội dung nhưng gắn nhãn phương-sai, nên assertion `KHONG muon nhan co phuong-sai` cũng FAIL.
 
 - [ ] **Step 3: Sửa `scripts/gate-card.js`**
 
@@ -429,7 +431,7 @@ Thay nguyên dòng 373 (dòng bắt đầu `{ const varr = cleanLines(section(re
 // (a) phuong sai that (pass-rate hon hop) — viec cua may, mau do;
 // (b) o inert: field nguoi ky KHAI ma may khong dung — viec cua NGUOI sua evals.yaml.
 // Cum mo dau duoi day la hop dong chuoi lien-file voi feature-loop/workflows/acceptance-verify.js
-// (khong import duoc nhau); case W25 trong tests/workflows giu hai ben khop.
+// (khong import duoc nhau); case WI6 trong tests/workflows giu hai ben khop.
 {
   const varr = cleanLines(section(report, 'Variance')).join(' ').trim();
   if (varr && !/^\{\{/.test(varr)) {
@@ -445,18 +447,18 @@ Thay nguyên dòng 373 (dòng bắt đầu `{ const varr = cleanLines(section(re
 - [ ] **Step 4: Chạy test, xác nhận XANH**
 
 ```bash
-node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep -E "W25|Results:"
+node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep -E "WI6|Results:"
 bash tests/scripts/run-tests.sh 2>&1 | tail -3
 ```
 
-Kỳ vọng: mọi `W25` PASS, và suite `tests/scripts` (10 case gate-card sẵn có) không hồi quy.
+Kỳ vọng: mọi `WI6` PASS, và suite `tests/scripts` (10 case gate-card sẵn có) không hồi quy.
 
 - [ ] **Step 5: Đối chứng đột biến — chứng minh round-trip biết đỏ**
 
 ```bash
 cp scripts/gate-card.js /tmp/gc-backup.js
 sed -i '' "s/Field khai mà máy không dùng:'/Field khai ma may khong dung:'/" scripts/gate-card.js
-node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep "W25 the hien co neu dung ban chat"
+node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep "WI6 the hien co neu dung ban chat"
 cp /tmp/gc-backup.js scripts/gate-card.js
 ```
 
@@ -478,12 +480,12 @@ Phục vụ **AC-8, AC-10**. `independent: true` (không đụng mã, không ph�
 - Modify: `feature-loop/workflows/acceptance-verify.js:23`
 - Modify: `feature-loop/skills/feature-loop/SKILL.md:130` và bước "Mọi verdict" của S4 (~dòng 160)
 - Modify: `codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md:383-384` và bước Gate-2 package (~dòng 581)
-- Test: `tests/workflows/acceptance-verify.test.mjs` — case `W26`
+- Test: `tests/workflows/acceptance-verify.test.mjs` — case `WI7`
 
 - [ ] **Step 1: Viết test thất bại (có đối chứng đột biến, path suy từ vị trí script)**
 
 ```js
-console.log('W26 ba cho mo ta runs + buoc "Moi verdict" o CA HAI harness');
+console.log('WI7 ba cho mo ta runs + buoc "Moi verdict" o CA HAI harness');
 {
   const { readFileSync, writeFileSync, mkdtempSync } = await import('node:fs');
   const os = await import('node:os');
@@ -495,8 +497,8 @@ console.log('W26 ba cho mo ta runs + buoc "Moi verdict" o CA HAI harness');
   ];
   for (const [rel, re] of SITES) {
     const txt = readFileSync(path.join(ROOT, rel), 'utf8');
-    check(`W26 ${rel}: mo ta neu gioi han test/script`, re.test(txt));
-    check(`W26 ${rel}: khong con mo ta tro "eval ngau nhien (LLM)"`,
+    check(`WI7 ${rel}: mo ta neu gioi han test/script`, re.test(txt));
+    check(`WI7 ${rel}: khong con mo ta tro "eval ngau nhien (LLM)"`,
       !/eval ngẫu nhiên \(LLM\) chạy N lần/.test(txt) && !/stochastic\/LLM eval and must report/.test(txt));
   }
   const GATE2 = [
@@ -504,7 +506,7 @@ console.log('W26 ba cho mo ta runs + buoc "Moi verdict" o CA HAI harness');
     ['codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md', /inertFields/],
   ];
   for (const [rel, re] of GATE2) {
-    check(`W26 ${rel}: buoc Moi verdict buoc trinh inertFields`, re.test(readFileSync(path.join(ROOT, rel), 'utf8')));
+    check(`WI7 ${rel}: buoc Moi verdict buoc trinh inertFields`, re.test(readFileSync(path.join(ROOT, rel), 'utf8')));
   }
   // DOI CHUNG DOT BIEN tren BAN SAO: khoi phuc cau cu -> detector phai do o dung file do
   const tmp = mkdtempSync(path.join(os.tmpdir(), 'agk-doc-'));
@@ -512,7 +514,7 @@ console.log('W26 ba cho mo ta runs + buoc "Moi verdict" o CA HAI harness');
   writeFileSync(copy, readFileSync(path.join(ROOT, SITES[0][0]), 'utf8')
     .replace(/\/\/             runs \}\],[^\n]*/, '//             runs }],  // OPTIONAL int>1: eval ngẫu nhiên (LLM) chạy N lần → pass_rate + variance'));
   const mutated = readFileSync(copy, 'utf8');
-  check('W26 doi chung dot bien: khoi phuc cau cu -> detector DO',
+  check('WI7 doi chung dot bien: khoi phuc cau cu -> detector DO',
     !SITES[0][1].test(mutated) && /eval ngẫu nhiên \(LLM\) chạy N lần/.test(mutated));
 }
 ```
@@ -520,7 +522,7 @@ console.log('W26 ba cho mo ta runs + buoc "Moi verdict" o CA HAI harness');
 - [ ] **Step 2: Chạy test, xác nhận ĐỎ**
 
 ```bash
-node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep "W26"
+node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep "WI7"
 ```
 
 Kỳ vọng: cả 8 assertion đầu FAIL; dòng đối chứng đột biến PASS.
@@ -585,7 +587,7 @@ limit).
 - [ ] **Step 7: Chạy test, xác nhận XANH**
 
 ```bash
-node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep -E "W26|Results:"
+node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep -E "WI7|Results:"
 ```
 
 - [ ] **Step 8: Commit**
@@ -601,13 +603,13 @@ git add feature-loop/workflows/acceptance-verify.js feature-loop/skills/feature-
 Phục vụ **AC-9, AC-11**. `independent: false` (cần Task 1–3).
 
 **Files:**
-- Test: `tests/workflows/acceptance-verify.test.mjs` — case `W27`
+- Test: `tests/workflows/acceptance-verify.test.mjs` — case `WI8`
 - Modify: `plugins/**` (sinh máy, qua script sync)
 
 - [ ] **Step 1: Viết test đường đọc-cũ, fixture do CODE SINH**
 
 ```js
-console.log('W27 duong doc-cu: 6 workspace da ky mang runs/paths tren judgment van verify duoc');
+console.log('WI8 duong doc-cu: 6 workspace da ky mang runs/paths tren judgment van verify duoc');
 {
   const { readFileSync, readdirSync, existsSync } = await import('node:fs');
   const ROOT = path.join(HERE, '..', '..');
@@ -626,33 +628,33 @@ console.log('W27 duong doc-cu: 6 workspace da ky mang runs/paths tren judgment v
     }
   }
   // SANITY COUNTER TACH THEO HINH DANG — dem tong se xanh oan khi regex sot mot hinh dang
-  check('W27 quet ra >=1 eval judgment mang runs', found.runs.length >= 1, JSON.stringify(found.runs));
-  check('W27 quet ra >=1 eval judgment mang paths', found.paths.length >= 1, JSON.stringify(found.paths));
+  check('WI8 quet ra >=1 eval judgment mang runs', found.runs.length >= 1, JSON.stringify(found.runs));
+  check('WI8 quet ra >=1 eval judgment mang paths', found.paths.length >= 1, JSON.stringify(found.paths));
 
   const evals = [
     ...found.runs.map((k, i) => ({ id: `R${i}`, criterion: 'AC-1', executor: 'judgment', question: `q ${k}`, inputs: ['/a.md'], runs: 3 })),
     ...found.paths.map((k, i) => ({ id: `P${i}`, criterion: 'AC-2', executor: 'judgment', question: `q ${k}`, inputs: ['/a.md'], paths: ['x.js'] })),
   ];
   const { result } = await runWorkflow(WF, baseArgs({ evals, suiteCommands: ['npm run build'] }), responder());
-  check('W27 verdict KHONG phai BLOCKED', result.verdict !== 'BLOCKED', result.verdict + ' ' + JSON.stringify(result.blocked));
-  check('W27 khong eval nao bi day vao failedEvals', result.failedEvals.length === 0, JSON.stringify(result.failedEvals));
-  check('W27 nhung VAN co canh bao co ten cho tung eval',
+  check('WI8 verdict KHONG phai BLOCKED', result.verdict !== 'BLOCKED', result.verdict + ' ' + JSON.stringify(result.blocked));
+  check('WI8 khong eval nao bi day vao failedEvals', result.failedEvals.length === 0, JSON.stringify(result.failedEvals));
+  check('WI8 nhung VAN co canh bao co ten cho tung eval',
     result.inertFields.length === evals.length, `${result.inertFields.length} vs ${evals.length}`);
 
   // DOI CHUNG DUONG: phep do nay BIET do — tiem mot agent chet vao cung harness
   const { result: red } = await runWorkflow(WF, baseArgs({ evals, suiteCommands: ['npm run build'] }),
     responder({ 'machine:': null }));
-  check('W27 doi chung duong: agent may chet -> BLOCKED', red.verdict === 'BLOCKED', red.verdict);
+  check('WI8 doi chung duong: agent may chet -> BLOCKED', red.verdict === 'BLOCKED', red.verdict);
 }
 ```
 
 - [ ] **Step 2: Chạy test**
 
 ```bash
-node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep -E "W27|Results:"
+node tests/workflows/acceptance-verify.test.mjs 2>&1 | grep -E "WI8|Results:"
 ```
 
-Kỳ vọng: mọi assertion PASS ngay (Task 1–3 đã cho hành vi đúng). Nếu `W27 quet ra >=1 …` FAIL thì regex quét hỏng — sửa test, KHÔNG nới assertion.
+Kỳ vọng: mọi assertion PASS ngay (Task 1–3 đã cho hành vi đúng). Nếu `WI8 quet ra >=1 …` FAIL thì regex quét hỏng — sửa test, KHÔNG nới assertion.
 
 - [ ] **Step 3: Chạy toàn bộ suite**
 
@@ -684,4 +686,4 @@ git add tests/workflows/acceptance-verify.test.mjs plugins && git commit -m "tes
 
 **Placeholder scan** — không có "TBD"/"tương tự Task N"/"thêm xử lý lỗi phù hợp"; mọi bước code đều có khối mã thật.
 
-**Type consistency** — `inertFieldReport` trả `{evalId, field, value, executor, reason}` ở Task 1; Task 2 đọc `evalId/field/executor`, Task 3 đọc thêm `value/reason`, Task 6 chỉ đếm `.length`. `INERT_FIELD_TABLE` dùng khoá `field`/`executor`/`reason` khớp regex rút bảng ở W20. Cụm chuỗi `Field khai mà máy không dùng:` viết y hệt ở Task 3 (writer), Task 4 (reader) và W25 (round-trip).
+**Type consistency** — `inertFieldReport` trả `{evalId, field, value, executor, reason}` ở Task 1; Task 2 đọc `evalId/field/executor`, Task 3 đọc thêm `value/reason`, Task 6 chỉ đếm `.length`. `INERT_FIELD_TABLE` dùng khoá `field`/`executor`/`reason` khớp regex rút bảng ở WI1. Cụm chuỗi `Field khai mà máy không dùng:` viết y hệt ở Task 3 (writer), Task 4 (reader) và WI6 (round-trip).
