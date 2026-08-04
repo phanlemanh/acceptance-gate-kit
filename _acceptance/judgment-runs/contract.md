@@ -4,9 +4,9 @@ feature: "Field khai trên eval mà máy không dùng phải được nêu đíc
 slug: judgment-runs
 risk_tier: T3
 surfaces: [cli]
-status: verified
+status: implemented
 approved_by: Manh Phan
-approved_at: 2026-08-04T01:18:27Z
+approved_at: 2026-08-04T05:30:28Z
 owner: phanlemanh@gmail.com
 source: docs/superpowers/specs/2026-08-04-judgment-runs-design.md
 time_human_minutes:
@@ -43,11 +43,23 @@ hai luật NGƯỢC NHAU trên cùng một điều kiện (inputs không đổi)
   `reason` giải thích panel 3-lens đã là cơ chế hấp thụ nhiễu; và đối chứng dương:
   cùng eval đó bỏ `runs` đi thì `result.inertFields` RỖNG.
 
-- AC-2: Given args S4 có eval `executor: judgment` mang `paths: [...]`, When chạy
-  `acceptance-verify.js`, Then `result.inertFields` chứa mục nêu đích danh field
-  `paths` cho eval đó — thành viên thứ hai của lớp lỗi phải được bắt bởi CÙNG một
-  luật, không phải một nhánh riêng; và đối chứng dương: cùng eval bỏ `paths` đi thì
-  không sinh mục nào.
+- AC-2 **(viết lại sau S4 vòng 1 — thước cũ đo sai thứ)**: Given MỌI hàng của
+  `INERT_FIELD_TABLE`, When chạy workflow HAI lần trên cùng args — một lần có
+  field đó trên executor đó, một lần bỏ nó — Then **toàn bộ đầu ra còn lại phải
+  GIỐNG HỆT** (so sâu `result` sau khi loại `inertFields`, dòng sổ-chạy
+  `kind:"inert"`, và câu `inertNote` trong lời nhắc). Khác một chỗ nào ⇒ hàng đó
+  KHÔNG inert và phải bị loại khỏi bảng. Đối chứng dương bắt buộc: tiêm một hàng
+  sai vào bản sao (`paths`×`judgment`) → phép đo phải ĐỎ, nêu đích danh đầu ra đã
+  đổi.
+  *Vì sao viết lại:* thước cũ chỉ hỏi "máy có báo không", không bao giờ hỏi "máy
+  có thật sự bỏ qua không" — nên nó ghim luôn một niềm tin sai. S4 vòng 1 đo
+  được: khai `paths` trên eval hội đồng làm cờ cụm-ngoài-vùng-phủ tắt hẳn
+  (`coverageRes` ở dòng 608 đọc `paths` của MỌI eval, không lọc executor).
+
+- AC-2b: Given AC-2 áp lên bảng hiện tại, When chạy, Then hàng `paths`×`judgment`
+  **bị loại khỏi bảng** (nó KHÔNG inert); và hai eval thật đang mang `paths` trên
+  judgment (`gate-card-ac-visibility` E11, E12) KHÔNG sinh cảnh báo nào — cảnh báo
+  cho một field vẫn có tác dụng chính là lời nói dối mà feature này đi diệt.
 
 - AC-3: Given eval `executor: test` hoặc `script` mang `runs: 3`, và eval
   `test`/`script`/`ui-check` mang `paths`, When chạy `acceptance-verify.js`, Then
@@ -57,8 +69,8 @@ hai luật NGƯỢC NHAU trên cùng một điều kiện (inputs không đổi)
 
 - AC-4: Given eval `executor: ui-check` mang `runs: 3`, When chạy
   `acceptance-verify.js`, Then `result.inertFields` chứa mục cho eval đó — ô này
-  inert theo cùng một luật (mã hardcode `runs: 1` cho ui-check) dù repo hiện chưa
-  có consumer nào; và đối chứng dương như AC-1.
+  inert theo cùng một luật (mã ghim cứng `runs: 1` cho eval kiểm giao diện) dù repo
+  hiện chưa có bên tiêu thụ nào; và đối chứng dương như AC-1.
 
 - AC-5: Given round có `inertFields` không rỗng, When script gọi agent
   `synthesize:report`, Then prompt chứa **câu `inertNote` do JS tính sẵn** (nêu đích
@@ -70,13 +82,15 @@ hai luật NGƯỢC NHAU trên cùng một điều kiện (inputs không đổi)
 
 - AC-6: Given `inertFields` không rỗng, When script chạy, Then có đúng một dòng
   `log()` nêu số lượng và tên field/eval — người theo dõi `/workflows` thấy ngay
-  trong lượt chạy, không phải đợi report.
+  trong lượt chạy, không phải đợi report. **Kể cả ở nhánh thoát sớm** (`dryRun`,
+  và BLOCKED "không có gì để verify"): `result` vẫn phải mang `inertFields` —
+  cảnh báo im lặng đúng ở ca hiếm là đúng lỗi đang đi diệt (S4 vòng 1, AC-6).
 
 - AC-7: Given luật "ô nào inert" cần đổi (thêm/bớt một ô), When đọc
   `acceptance-verify.js`, Then luật nằm ở **đúng một chỗ có marker**
   `<<<INERT-FIELD-TABLE` … `INERT-FIELD-TABLE>>>` khai từng cặp (field, executor)
   kèm lý do, và eval rút được bảng đó **bằng marker** rồi đối chiếu với hành vi
-  thật của hàm — không chép tay bảng vào test.
+  thật của hàm — không chép tay bảng vào chính eval đó.
 
 - AC-8: Given ba chỗ mô tả `runs` hiện mâu thuẫn với `eval-executors.md`
   (`acceptance-verify.js:23`, `feature-loop/skills/feature-loop/SKILL.md:130`,
@@ -104,7 +118,7 @@ hai luật NGƯỢC NHAU trên cùng một điều kiện (inputs không đổi)
 - AC-12: **ROUND-TRIP writer → reader.** Given `inertNote` do
   `acceptance-verify.js` sinh ra (bên VIẾT), When đưa nguyên văn câu đó vào mục
   `## Variance` của một `evidence-report.md` fixture rồi chạy `scripts/gate-card.js`
-  (bên ĐỌC) trên workspace fixture, Then thẻ Cổng 2 hiện **một cờ nêu đúng bản
+  (bên ĐỌC) trên workspace fixture, Then trình-cho-người ở Cổng 2 hiện **một cờ nêu đúng bản
   chất** "field khai mà máy không dùng", KHÔNG dùng nhãn "eval ngẫu nhiên
   (pass-rate hỗn hợp)" của cờ phương-sai; và `inertNote` **không được bắt đầu bằng
   chữ "none"** — reader hiện tại lọc `/^none/i` nên câu bắt đầu bằng "none" bị nuốt
@@ -118,6 +132,24 @@ hai luật NGƯỢC NHAU trên cùng một điều kiện (inputs không đổi)
   `run_id` nên `loadRunLogIds` bỏ qua, consumer cũ không vỡ. Đối chứng dương:
   round không eval inert → không dòng `kind: "inert"` nào.
 
+- AC-14 **(mới sau S4 vòng 1)**: Given mục `## Variance` chứa CẢ nội dung phương
+  sai thật LẪN câu cảnh báo field-inert, When `scripts/gate-card.js` đọc, Then nó
+  cắt theo **DÒNG** (loại đúng dòng bắt đầu bằng cụm hợp đồng, mọi dòng còn lại là
+  phương sai) chứ không theo vị trí chuỗi, và cho **hai cờ đúng loại ở CẢ HAI thứ
+  tự** — note trước, và note sau. Đo được ở vòng 1: note đặt trước làm cờ đỏ
+  phương-sai **biến mất hoàn toàn**, và thứ tự chỉ được bảo đảm bằng một câu dặn
+  trong prompt — mối nối máy-đọc không được phụ thuộc vào việc LLM nghe lời.
+
+- AC-15 **(mới sau S4 vòng 1)**: Given hồ sơ bằng chứng cần chứng minh "nhờ đâu mà
+  xanh", When chạy một script chạy-được của repo, Then nó thực thi từng phép đột
+  biến của feature này (xoá một hàng bảng · làm hàm bỏ qua một field · đổi cụm hợp
+  đồng ở bên đọc · khôi phục câu mô tả cũ), mỗi phép có **đối chứng dương** (bản
+  nguyên vẹn phải XANH trước) và **ghim đúng thông điệp** của case đỏ tương ứng;
+  script trả exit khác 0 nếu bất kỳ đột biến nào KHÔNG làm suite đỏ. Vì sao cần:
+  vòng 1 cho cờ "mọi eval máy xanh cả hai phía" — mỗi eval trỏ vào cả một bộ kiểm
+  nên chạy trên mã cũ cũng xanh; bằng chứng phân biệt chỉ tồn tại trong hội thoại,
+  không trong hồ sơ.
+
 ## Coverage
 
 Từ morphological-scan (3 trục — thước CE trong ngoặc):
@@ -126,7 +158,11 @@ Từ morphological-scan (3 trục — thước CE trong ngoặc):
   workspace, và bên ĐỌC = args contract `acceptance-verify.js:14-47`; liệt kê một
   phía là sót theo thiết kế): `runs` → AC-1, AC-3, AC-4 · `paths` → AC-2, AC-3 ·
   `question`/`inputs`/`steps`/`expected`/`notes` → Out of scope có tên (0 lượt dùng
-  sai trong 225 eval)
+  sai trong 225 eval).
+  **Thước CE của trục này đã ĐỔI sau S4 vòng 1:** liệt kê "nơi nào ĐỌC field" phải
+  quét MỌI consumer trong file, không dừng ở consumer đầu tiên tìm được — vòng 1
+  sót `coverageRes` nằm cùng file với `carry-forward`. AC-2 nay đo bằng hành vi
+  (chạy hai lần, so sâu) nên không phụ thuộc vào việc khảo sát có đủ hay không.
 - **B — executor nhận** (CE: enum đóng do `eval-executors.md` định nghĩa):
   `judgment` → AC-1, AC-2 · `ui-check` → AC-4 · `test`/`script` → AC-3
   (nửa-không-được-bắn)
@@ -134,8 +170,8 @@ Từ morphological-scan (3 trục — thước CE trong ngoặc):
   `acceptance-verify.js:700-725` + template evidence + đường đọc thật của
   `scripts/gate-card.js:373`, đối chiếu round 1-3 có thật của motion-floor):
   `result` → AC-1 · `log()` → AC-6 · `## Variance` (literal writer) → AC-5 ·
-  **thẻ Cổng 2 (reader) → AC-12** · **`run-log.jsonl` → AC-13** · bước SKILL hai
-  harness → AC-10 · doc/spec → AC-8 · mirror → AC-11.
+  **trình-cho-người Cổng 2 (bên đọc) → AC-12** · **`run-log.jsonl` → AC-13** · bước SKILL hai
+  harness → AC-10 · tài liệu → AC-8 · mirror → AC-11.
   **Không ô nào của trục C bỏ trống** — 6/6 mặt có AC.
 
 **Tự chứng minh (dogfood):** eval `E10` của chính workspace này CỐ Ý mang
@@ -165,8 +201,10 @@ một chỗ có marker rồi kiểm bằng round-trip (AC-7), không chép tay.
 - **Đổi nhãn cờ phương-sai sẵn có của `gate-card.js`** — AC-12 chỉ đòi cờ MỚI cho
   field-inert nêu đúng bản chất; cờ "eval ngẫu nhiên (pass-rate hỗn hợp)" đang phục
   vụ ca thật của nó, không đụng.
-- **`expected` không tới tay judge; `notes` chưa có trong spec** — Later của scan.
+- **`expected` không tới tay judge; `notes` chưa có trong tài liệu chuẩn** — Later của scan.
 
 ## Notes
 
-(chưa có)
+- **Vòng 1 S4 (2026-08-04)** cho cờ "mọi eval máy xanh cả hai phía": mỗi eval máy
+  trỏ vào cả một bộ kiểm, nên chạy trên mã trước feature cũng xanh. AC-15 đưa bằng
+  chứng phân biệt vào hồ sơ; cờ này sẽ vẫn còn cho các eval trỏ-vào-suite.

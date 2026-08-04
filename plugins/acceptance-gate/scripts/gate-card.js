@@ -377,13 +377,17 @@ if (ooc.cluster) flags.push(['fwarn', '⚠ Nhiều lỗi rơi ngoài vùng các 
 // feature-loop/workflows/acceptance-verify.js (hai file không import được nhau — script đó
 // chạy trong sandbox không có module). Đổi cụm này = phải đổi cả bên kia; case WI6 trong
 // tests/workflows/acceptance-verify.test.mjs là mối nối duy nhất giữ hai bên khớp.
+// Tách theo DÒNG, KHÔNG theo vị trí chuỗi: câu inert là một dòng riêng, mọi dòng còn
+// lại là phương sai. Bản đầu cắt bằng indexOf rồi nuốt phần đuôi, nên thứ tự chỉ được
+// bảo đảm bằng một câu dặn trong prompt — S4 vòng 1 đo được: đặt câu inert TRƯỚC nội
+// dung phương sai thì cờ đỏ "pass-rate hỗn hợp" biến mất HOÀN TOÀN. Một mối nối
+// máy-đọc không được phụ thuộc vào việc bên viết (LLM) nghe lời.
 const INERT_NOTE_PREFIX = 'Field khai mà máy không dùng:';
 {
-  const varr = cleanLines(section(report, 'Variance')).join(' ').trim();
-  if (varr && !/^\{\{/.test(varr)) {
-    const cut = varr.indexOf(INERT_NOTE_PREFIX);
-    const inert = cut >= 0 ? varr.slice(cut).trim() : '';
-    const rest = (cut >= 0 ? varr.slice(0, cut) : varr).trim();
+  const lines = cleanLines(section(report, 'Variance')).map(l => l.trim()).filter(Boolean);
+  if (lines.length && !/^\{\{/.test(lines[0])) {
+    const inert = lines.filter(l => l.startsWith(INERT_NOTE_PREFIX)).join(' ').trim();
+    const rest = lines.filter(l => !l.startsWith(INERT_NOTE_PREFIX)).join(' ').trim();
     if (inert) flags.push(['fwarn', esc(inert)]);
     if (rest && !/^none/i.test(rest)) flags.push(['fred', 'Có eval ngẫu nhiên (pass-rate hỗn hợp) — ' + esc(rest)]);
   }

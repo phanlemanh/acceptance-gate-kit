@@ -35,6 +35,10 @@ executors:
   script:
     coverage_lint: "node scripts/eval-coverage-lint.js ."
     mirror_sync: "bash scripts/sync-plugin-packages.sh --check"
+    # Bang chung PHAN BIET: pha vat that trong ban sao roi doi phep do phai do.
+    # Moi eval may khac tro vao ca mot bo test nen xanh-ca-hai-phia; day la cho tra loi
+    # "nho dau ma xanh". Doi chung duong + ghim dung thong diep nam trong script.
+    mutation_check: "node tests/workflows/mutation-check.mjs"
     product_map: "node scripts/product-map.mjs --root . --check"
 risk_tiers:
   t1_skip_globs:

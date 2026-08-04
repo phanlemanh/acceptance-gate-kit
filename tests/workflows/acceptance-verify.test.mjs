@@ -757,7 +757,11 @@ console.log('WI1 o inert: ma tran TOAN PHAN viet-truoc + bang trong nguon phai k
   // dung lop loi ma feature nay sinh ra de diet.)
   const EXPECTED_INERT = {
     'runs|test': false, 'runs|script': false, 'runs|ui-check': true, 'runs|judgment': true,
-    'paths|test': false, 'paths|script': false, 'paths|ui-check': false, 'paths|judgment': true,
+    // 'paths|judgment' la FALSE — S4 vong 1 do duoc no VAN nuoi coverageRes, tuc
+    // KHONG inert. Dac ta viet-truoc ban dau ghim true o day: viet-truoc van co the
+    // ghim mot niem tin sai, nen WI9 (quan he: chay hai lan, so sau) moi la thuoc
+    // chan duoc lop nay — WI1 chi chan trois giua bang va hanh vi.
+    'paths|test': false, 'paths|script': false, 'paths|ui-check': false, 'paths|judgment': false,
   };
   const sample = (field) => (field === 'runs' ? 3 : ['src/x.js']);
   const evalFor = (field, executor) => {
@@ -917,7 +921,15 @@ console.log('WI6 ROUND-TRIP writer->reader: inertNote qua scripts/gate-card.js r
   check('WI6 hoi quy: phuong sai that van ra co cu', /pass-rate hỗn hợp/.test(withVar));
 
   // (6) CA GOP: co ca phuong sai LAN o inert -> HAI co, khong nuot cai nao
-  const both = card('E3 pass_rate 4/5 — chua on dinh ' + note);
+  // CA HAI THU TU. Vong 1: reader cat theo VI TRI chuoi nen note dat TRUOC lam co do
+  // phuong-sai bien mat HAN — va thu tu chi duoc bao dam bang mot cau dan trong prompt.
+  for (const [ten, body] of [['note-sau', 'E3 pass_rate 4/5 — chua on dinh\n' + note],
+                             ['note-truoc', note + '\nE3 pass_rate 4/5 — chua on dinh']]) {
+    const out = card(body);
+    check(`WI6 [${ten}] co DO phuong-sai van con`, /pass-rate hỗn hợp/.test(out), 'mat co do');
+    check(`WI6 [${ten}] co VANG field-inert van con`, /Field khai mà máy không dùng/.test(out), 'mat co vang');
+  }
+  const both = card('E3 pass_rate 4/5 — chua on dinh\n' + note);
   const divs = [...both.matchAll(/<div class="flag [^"]*">([\s\S]*?)<\/div>/g)].map(x => x[1]);
   const varDiv = divs.filter(d => /pass-rate hỗn hợp/.test(d));
   const inertDiv = divs.filter(d => /Field khai mà máy không dùng/.test(d));
@@ -997,13 +1009,101 @@ console.log('WI8 duong doc-cu: workspace da ky mang runs/paths tren judgment van
   const { result } = await runWorkflow(WF, baseArgs({ evals, suiteCommands: ['npm run build'] }), responder());
   check('WI8 verdict KHONG phai BLOCKED', result.verdict !== 'BLOCKED', result.verdict + ' ' + JSON.stringify(result.blocked));
   check('WI8 khong eval nao bi day vao failedEvals', result.failedEvals.length === 0, JSON.stringify(result.failedEvals));
-  check('WI8 nhung VAN co canh bao co ten cho tung eval',
-    result.inertFields.length === evals.length, `${result.inertFields.length} vs ${evals.length}`);
+  // AC-2b: chi eval mang `runs` bi neu ten. Eval mang `paths` KHONG bi canh bao —
+  // field do that su co tac dung (nuoi vung phu), canh bao no la noi doi.
+  const named = new Set(result.inertFields.map(f => f.evalId));
+  check('WI8 MOI eval mang runs deu bi neu ten',
+    found.runs.every((_, i) => named.has(`R${i}`)), JSON.stringify([...named]));
+  check('WI8 KHONG eval nao mang paths bi canh bao (AC-2b)',
+    found.paths.every((_, i) => !named.has(`P${i}`)), JSON.stringify([...named]));
+  check('WI8 moi muc canh bao deu la field runs',
+    result.inertFields.every(f => f.field === 'runs'), JSON.stringify(result.inertFields.map(f => f.field)));
 
   // DOI CHUNG DUONG: phep do nay BIET do — tiem agent may chet vao CUNG harness
   const { result: red } = await runWorkflow(WF, baseArgs({ evals, suiteCommands: ['npm run build'] }),
     responder({ 'machine:': null }));
   check('WI8 doi chung duong: agent may chet -> BLOCKED', red.verdict === 'BLOCKED', red.verdict);
+}
+
+console.log('WI9 QUAN HE: hang khai inert phai THAT SU khong doi bat ky dau ra nao');
+{
+  const { readFileSync } = await import('node:fs');
+  const src = readFileSync(WF, 'utf8');
+  const m = /\/\/ <<<INERT-FIELD-TABLE([\s\S]*?)\/\/ INERT-FIELD-TABLE>>>/.exec(src);
+  const rows = [...(m ? m[1] : '').matchAll(/field:\s*'([a-z]+)'\s*,\s*executor:\s*'([a-z-]+)'/g)]
+    .map(r => ({ field: r[1], executor: r[2] }));
+  check('WI9 rut duoc hang tu bang', rows.length > 0, String(rows.length));
+
+  // Findings that de coverageCluster co dat co: 2 finding ngoai vung phu cua eval may
+  const F = [{ title: 'A', file: 'src/foo.js', line: 1, detail: 'd', severity: 'high' },
+             { title: 'B', file: 'src/bar.js', line: 2, detail: 'd', severity: 'high' }];
+  const resp = (over = {}) => (c) => {
+    const l = c.label;
+    for (const [k, v] of Object.entries(over)) if (l.startsWith(k)) return typeof v === 'function' ? v(c) : v;
+    if (l.startsWith('machine:')) return { exitCode: 0, outputTail: 'ok', runId: '', cannotRun: false };
+    if (l.startsWith('ui:')) return { exitCode: 0, outputTail: 'ok', runId: '', cannotRun: false, screenshotPath: 'e.png', observed: 'thay dung nhu expected, day du hon 20 ky tu' };
+    if (l.startsWith('judge:')) return { verdict: 'PASS', rationale: 'ok' };
+    if (l.startsWith('review:')) return l.includes('bugs') ? { findings: F } : { findings: [] };
+    if (l.startsWith('refute:')) return { refuted: false, reason: 'that' };
+    if (l.startsWith('triage')) return { triage: F.map(f => ({ title: f.title, file: f.file, inContract: false, acRef: '', rationale: 'r', proposal: 'known-limits', plain: 'p' })) };
+    if (l.startsWith('baseline:')) return { results: [] };
+    if (l === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: VC };
+    if (l === 'synthesize:report') return { report: 'r', findings: 'f' };
+    return null;
+  };
+  const sample = (f) => (f === 'runs' ? 3 : ['src/**']);
+  const evalFor = (field, executor, withField) => {
+    const b = { id: 'X1', criterion: 'AC-1', executor, expected: 'ok', ...(withField ? { [field]: sample(field) } : {}) };
+    if (executor === 'judgment') return { ...b, question: 'q?', inputs: ['/a.md'] };
+    if (executor === 'ui-check') return { ...b, steps: ['open'] };
+    return { ...b, cmd: 'pnpm test', ref: 'config:executors.test.api' };
+  };
+  // Chuan hoa: bo MOI dau ra do chinh co che canh bao sinh ra. Con lai phai giong het.
+  const strip = (r, calls) => {
+    const { inertFields, runLog, ...rest } = r;
+    return JSON.stringify({
+      rest,
+      runLog: (runLog || []).filter(l => JSON.parse(l).kind !== 'inert'),
+      synth: (calls.find(c => c.label === 'synthesize:report') || {}).prompt
+        ?.replace(/O INERT \(may da tinh san[\s\S]*?VARIANCE-N/, 'VARIANCE-N'),
+    });
+  };
+  const bad = [];
+  for (const row of rows) {
+    const args = (withField) => baseArgs({
+      evals: [{ id: 'M1', criterion: 'AC-9', executor: 'test', cmd: 'pnpm test', ref: 'config:executors.test.api', expected: 'ok', paths: ['other/**'] },
+              evalFor(row.field, row.executor, withField)],
+      suiteCommands: [], riskTier: 'T2',
+      contractPath: '/repo/_acceptance/x/contract.md',
+    });
+    const withF = await runWorkflow(WF, args(true), resp());
+    const noF = await runWorkflow(WF, args(false), resp());
+    if (strip(withF.result, withF.calls) !== strip(noF.result, noF.calls)) {
+      const a = withF.result, b = noF.result;
+      bad.push(`${row.field}x${row.executor}: coverageCluster ${JSON.stringify(a.coverageCluster)} vs ${JSON.stringify(b.coverageCluster)}`);
+    }
+  }
+  check('WI9 MOI hang trong bang that su inert (so sau hai lan chay)', bad.length === 0, bad.join(' ; '));
+}
+
+console.log('WI10 nhanh thoat som van mang inertFields (dryRun + BLOCKED khong-co-gi-verify)');
+{
+  const jEval = { id: 'E9', criterion: 'AC-4', executor: 'judgment', question: 'q?', inputs: ['/a.md'], runs: 3 };
+  const { result: dry } = await runWorkflow(WF, baseArgs({ evals: [jEval], dryRun: true }), responder());
+  check('WI10 dryRun mang inertFields', (dry.inertFields || []).length === 1, JSON.stringify(dry.inertFields));
+
+  // BLOCKED "khong co gi de verify": chi judgment carried + suite rong -> khong con gi FRESH
+  const { result: blk } = await runWorkflow(WF, baseArgs({
+    evals: [jEval], suiteCommands: [],
+    carriedPanels: [{ evalId: 'E9', proposal: 'PASS', votes: [], fromRound: 1 }],
+  }), responder());
+  check('WI10 nhanh BLOCKED tra ve dung verdict', blk.verdict === 'BLOCKED', blk.verdict);
+  check('WI10 nhanh BLOCKED VAN mang inertFields', (blk.inertFields || []).length === 1, JSON.stringify(blk.inertFields));
+
+  // Doi chung duong: khong eval inert -> ca hai nhanh deu rong
+  const clean = { id: 'E9', criterion: 'AC-4', executor: 'judgment', question: 'q?', inputs: ['/a.md'] };
+  const { result: d2 } = await runWorkflow(WF, baseArgs({ evals: [clean], dryRun: true }), responder());
+  check('WI10 doi chung duong dryRun sach', (d2.inertFields || []).length === 0);
 }
 
 summary('acceptance-verify');

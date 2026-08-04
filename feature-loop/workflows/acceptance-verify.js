@@ -264,9 +264,13 @@ const INERT_FIELD_TABLE = [
   { field: 'runs', executor: 'ui-check',
     reason: 'ui-check luon chay dung 1 lan — buoc gop machine hardcode runs: 1',
     plain: 'eval kiểm giao diện luôn chạy đúng một lần' },
-  { field: 'paths', executor: 'judgment',
-    reason: 'carry-forward P1 chi nhan eval may/ui — judgment carry bang P3 inputs-hash',
-    plain: 'eval hội đồng quyết bỏ-chấm-lại dựa trên câu hỏi và tài liệu đầu vào, không dựa trên danh sách file' },
+  // KHONG co hang { paths, judgment }. S4 vong 1 (2026-08-04) do duoc: `paths` tren
+  // judgment VAN nuoi coverageRes (dong ~608 doc paths cua MOI eval, khong loc
+  // executor), nen khai `paths` lam co cum-ngoai-vung-phu tat han. Khao sat o Cong 1
+  // chi soi MOT consumer (carry-forward P1) va sot consumer thu hai NAM CUNG FILE.
+  // Bao no la inert = noi doi voi nguoi ky, va loi khuyen "bo field di" se am tham
+  // bat/tat mot co do. Case WI9 gio chan moi hang khai sai kieu nay bang QUAN HE:
+  // chay hai lan, so sau toan bo dau ra.
 ]
 // INERT-FIELD-TABLE>>>
 // Khi nao coi la "co khai": runs chi tinh khi >1 (runs:1 la mac dinh, khai ra vo hai — bao
@@ -333,6 +337,7 @@ if (args.dryRun) {
     carriedEvals: carriedEvals.map(c => c.id),
     carriedPanels: carriedPanels.map(p => p.evalId),
     runBaseline,
+    inertFields,
   }
 }
 
@@ -342,7 +347,8 @@ if (!distinctCmds.length && !freshJudgmentEvals.length && !uiEvals.length) {
   const reason = (carriedEvals.length || carriedPanels.length)
     ? 'toan bo eval/panel deu carry-forward va suite rong — khong co gi FRESH verify cay code moi cua round nay; them feature_loop.suite_keys hoac thu hep paths cua eval'
     : 'evals.yaml khong co eval may va khong co judgment — khong co gi de verify, kiem tra lai evals.yaml'
-  return { verdict: 'BLOCKED', blocked: [{ cmd: '(none)', reason }], failedEvals: [], failedCommands: [], panels: [], confirmedFindings: [], reviewIncomplete: [] }
+  // Canh bao o inert phai song sot CA nhanh thoat som — im lang o ca hiem van la im lang.
+  return { verdict: 'BLOCKED', blocked: [{ cmd: '(none)', reason }], failedEvals: [], failedCommands: [], panels: [], confirmedFindings: [], reviewIncomplete: [], inertFields }
 }
 
 log(`Round ${args.round}: ${distinctCmds.length} lenh may (dedupe tu ${machineEvals.length} eval + ${args.suiteCommands.length} suite), ${uiEvals.length} ui-check, ${freshJudgmentEvals.length} judgment x ${LENSES.length} judges`
