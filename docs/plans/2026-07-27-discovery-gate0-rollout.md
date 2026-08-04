@@ -17,19 +17,6 @@ G2 handbook = **repo nhẹ mới**; R1/V2 giả định cùng repo Artifact Plat
 
 ## Bảng tổng hạng mục
 
-**Lỗ-kit ghi tại S1-D vòng r3 (04/08, feedback Manh):** thang vật liệu
-design-pass chấm đúng chiều VẬT (real-components/scaffold/static, hạ bậc có
-khai — phiên r3 tuân đủ) nhưng KHÔNG có chiều NGỮ CẢNH: proto route đứng một
-mình không cho thấy vật sống ở đâu (plugin trong chat/canvas của Creator —
-đúng hình dung owner), kích hoạt từ đâu, kết quả đi đâu. Hệ quả: owner duyệt
-thị giác xong vẫn không hình dung được cách hoạt động; đường cửa-vào (chip
-Creator, canvas render, gửi Zalo) có nguy cơ thành phát-hiện-muộn ở S4/UAT.
-Việc vá (gộp vào phần còn lại làn thiết kế): thêm trục "nấc ngữ cảnh" vào
-frontmatter design-pass.md — `context: standalone | khung-giả-tĩnh |
-nhúng-host-thật` — khai bắt buộc như `material:`; nấc `standalone` trước
-Gate 1 phải kèm ≥1 cảnh ngữ-cảnh (khung host thật bọc artifact + storyboard
-hành trình) hoặc entry descope có tên.
-
 | ID | Việc | Nơi chạm | Tier | Phụ thuộc | Effort ước |
 |---|---|---|---|---|---|
 | **Đợt 0 — Kiểm chứng** | | | | | |
@@ -306,6 +293,21 @@ vòng vá nhỏ hoặc gộp vào F-A.
 | F-F | Script kiểm kê kho linh kiện cho câu thực tế #4 + giai đoạn 0 design-pass | `scripts/` + mirror | T2 | — |
 | F-G | Máy soi mật độ chữ kỹ thuật ở vùng mặt-người (ratchet như census DS, chạy khi nâng bộ dựng thẻ) | `scripts/` + `commands/` + mirror | T2 | spec v2 §4.1 |
 | F-H | Lệnh `/start` — nghi thức vào phiên: người gõ một lệnh, máy quét `_acceptance/` + PRODUCT-MAP trình thẻ 3 nhóm (chờ ký · đang dở · bắt đầu mới), người chọn một chữ cái, bàn giao sang nghi thức đích; khoá model-invocation 2 harness (thao tác người thứ 6 — nợ P31/P32 mở rộng trả tại đây). Design đã duyệt hướng: `docs/specs/2026-08-03-start-command-design.md`. **ĐÃ SHIP 03/08 (1.30.0)** — 2 vòng signed-off cùng ngày: `start-command` (15 AC, gate1 12′ + gate2 5′) + `start-scan-hardening` (5 round S4 — round 4 REJECT dừng escalate người đúng nghi thức cap, round 5 PASS, ma trận phân ô 59 ô P105; 3 known-limits + 1 chuyển F-B); maintainer verify độc lập: mirror OK, suite xanh toàn phần, scan sống khớp 15/15 slug. Lỗ GATE1-EVAL-MAP (khuôn thẻ gói duyệt) vẫn MỞ — không thuộc vòng này | `commands/` + `codex/` + `tests/` + `GUIDE.md` + mirror | T2 | thi công qua feature-loop, 1-2 buổi | 
+
+## Bổ sung 2026-08-04
+
+**Lỗ-kit ghi tại S1-D vòng r3 (04/08, feedback Manh):** thang vật liệu
+design-pass chấm đúng chiều VẬT (real-components/scaffold/static, hạ bậc có
+khai — phiên r3 tuân đủ) nhưng KHÔNG có chiều NGỮ CẢNH: proto route đứng một
+mình không cho thấy vật sống ở đâu (plugin trong chat/canvas của Creator —
+đúng hình dung owner), kích hoạt từ đâu, kết quả đi đâu. Hệ quả: owner duyệt
+thị giác xong vẫn không hình dung được cách hoạt động; đường cửa-vào (chip
+Creator, canvas render, gửi Zalo) có nguy cơ thành phát-hiện-muộn ở S4/UAT.
+Việc vá (gộp vào phần còn lại làn thiết kế): thêm trục "nấc ngữ cảnh" vào
+frontmatter design-pass.md — `context: standalone | khung-giả-tĩnh |
+nhúng-host-thật` — khai bắt buộc như `material:`; nấc `standalone` trước
+Gate 1 phải kèm ≥1 cảnh ngữ-cảnh (khung host thật bọc artifact + storyboard
+hành trình) hoặc entry descope có tên.
 
 ## DP-1 — Scorecard (điền sau V1)
 
