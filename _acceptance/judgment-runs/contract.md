@@ -242,9 +242,9 @@ khỏi bảng (phát hiện nhờ đổi thước sang QUAN HỆ) · ba chỗ m�
 máy biết, đi qua khuôn dễ vỡ, tới mặt người đọc):
 
 1. `scripts/evidence-page.js` là **bên đọc thứ hai chưa hề được quét** — không có kênh ô
-   inert, và vẫn dán nhãn đỏ "eval ngẫu nhiên" cho câu cảnh báo trong báo cáo cũ. Thẻ Cổng 2
+   inert, và vẫn dán nhãn đỏ "eval ngẫu nhiên" cho câu cảnh báo trong báo cáo cũ. Trình-cho-người ở Cổng 2
    đẩy trang này lên đầu như một mặt người-đọc ngang hàng.
-2. `mutation-check.mjs` không khớp glob `*.test.mjs` của runner và không có trong
+2. `mutation-check.mjs` không khớp glob `*.test.mjs` của bộ chạy và không có trong
    `feature_loop.suite_keys` → bằng chứng phân biệt **ngủ vĩnh viễn** sau khi ký.
 3. Lớp `runs` mới quét nửa: trên `test`/`script`, các giá trị `runs: "3"` (chuỗi), `2.5`,
    `0`, `20` (bị cắt còn 10) đều im lặng.
@@ -259,7 +259,7 @@ máy biết, đi qua khuôn dễ vỡ, tới mặt người đọc):
 8. Nhánh args-guard BLOCKED (`args.evals` không phải array) không mang `inertFields` —
    nhánh thoát sớm duy nhất còn sót, hợp lý vì args chưa hợp lệ, nhưng nên ghi rõ.
 
-**Hai phát hiện engine ngoài phạm vi, đã sửa trong nhánh này** (chủ sở hữu duyệt minh danh):
+**Hai phát hiện lõi cưỡng chế ngoài phạm vi, đã sửa trong nhánh này** (chủ sở hữu duyệt minh danh):
 agent `capture:provenance` chết làm sập cả vòng S4 → nay BLOCKED có lý do; và chốt đó từng
 đè `blocked[]` thật → nay gộp.
 
