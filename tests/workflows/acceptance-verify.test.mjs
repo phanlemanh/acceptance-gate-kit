@@ -853,28 +853,28 @@ console.log('WI4 o inert: mot dong log + mot dong run-log kind:inert (khong run_
     cl.filter(l => /O inert/i.test(l)).length === 0);
 }
 
-console.log('WI5 inertNote: literal do JS tinh + chi dan chep nguyen van vao ## Variance');
+console.log('WI5 loi nhac synthesize KHONG con chi dan chen canh bao vao ## Variance');
 {
   const jEval = (over = {}) => ({ id: 'E9', criterion: 'AC-4', executor: 'judgment', question: 'q?', inputs: ['/a.md'], ...over });
-  const { calls } = await runWorkflow(WF, baseArgs({ evals: [jEval({ runs: 3 })] }), responder());
+  const { calls, result } = await runWorkflow(WF, baseArgs({ evals: [jEval({ runs: 3 })] }), responder());
   const p = byLabel(calls, 'synthesize:report')[0].prompt;
-  check('WI5 prompt mang cum mo dau hop dong lien-file', /Field khai mà máy không dùng:/.test(p));
-  const line = (/Field khai mà máy không dùng:[^\n]*/.exec(p) || [''])[0];
-  check('WI5 literal neu dich danh evalId + field + gia tri', /E9/.test(line) && /runs/.test(line) && /3/.test(line), line);
-  check('WI5 co chi dan chep NGUYEN VAN vao Variance', /CHEP NGUYEN VAN[\s\S]{0,300}Variance/.test(p), 'khong thay chi dan');
-  check('WI5 literal KHONG bat dau bang "none" (reader loc /^none/i)', !/^none/i.test(line), line.slice(0, 40));
-  // PHEP THU XOA-TEN-MAY: cau nay di toi mat nguoi ky, nen KHONG duoc mang ten co che noi bo.
-  // Bo cac ten do di ma cau van con noi duoc dieu gi -> dat. Con lai -> chua dat.
+  // Duong B (S4 vong 3): may KHONG bat mot LLM chep cau roi bat ben doc go ra. Moi noi do
+  // gay BON lan lien tiep. Kenh may la dong so chay; ## Variance tro lai chi mang phuong sai.
+  check('WI5 loi nhac KHONG chua cau canh bao', !/Field khai mà máy không dùng/.test(p));
+  check('WI5 loi nhac KHONG chua chi dan chen vao Variance', !/O INERT \(may da tinh san/.test(p));
+  // ...nhung canh bao KHONG duoc mat: no van o kenh may
+  const inertLine = result.runLog.map(l => JSON.parse(l)).find(l => l.kind === 'inert');
+  check('WI5 canh bao van song o so chay (kenh may)', !!(inertLine && /E9/.test(inertLine.note) && /runs/.test(inertLine.note)), JSON.stringify(inertLine));
+  check('WI5 canh bao van song o result.inertFields', (result.inertFields || []).length === 1);
+  // Phep thu xoa-ten-may van ap cho cau di toi mat nguoi
   const MACHINE_NAMES = /\bP1\b|\bP2\b|\bP3\b|carry-forward|3-lens|inputs-hash|executor|inertField/i;
-  check('WI5 literal khong mang ten co che noi bo (phep thu xoa-ten-may)',
-    !MACHINE_NAMES.test(line), line);
-  // Va van phai neu duoc VIEC CUA NGUOI (sua gi / hoac chap nhan)
-  check('WI5 literal neu viec-cua-nguoi', /evals\.yaml/.test(line) && /hạn chế đã biết/.test(line), line);
-
-  // DOI CHUNG DUONG: khong eval inert -> prompt KHONG chua literal lan chi dan
-  const { calls: c2 } = await runWorkflow(WF, baseArgs({ evals: [jEval()] }), responder());
-  const p2 = byLabel(c2, 'synthesize:report')[0].prompt;
-  check('WI5 doi chung duong: khong inert -> prompt sach', !/Field khai mà máy không dùng/.test(p2));
+  check('WI5 cau khong mang ten co che noi bo (phep thu xoa-ten-may)', !MACHINE_NAMES.test(inertLine.note), inertLine.note);
+  check('WI5 cau neu viec-cua-nguoi', /evals\.yaml/.test(inertLine.note) && /hạn chế đã biết/.test(inertLine.note));
+  // DOI CHUNG DUONG: khong eval inert -> khong dong nao, loi nhac cung sach
+  const { calls: c2, result: r2 } = await runWorkflow(WF, baseArgs({ evals: [jEval()] }), responder());
+  check('WI5 doi chung duong: khong inert -> khong dong so chay',
+    !r2.runLog.map(l => JSON.parse(l)).some(l => l.kind === 'inert'));
+  check('WI5 doi chung duong: loi nhac van sach', !/Field khai mà máy không dùng/.test(byLabel(c2, 'synthesize:report')[0].prompt));
 }
 
 console.log('WI6 ROUND-TRIP writer->reader qua SO CHAY may-viet (khong phan tich van LLM)');
@@ -936,6 +936,28 @@ console.log('WI6 ROUND-TRIP writer->reader qua SO CHAY may-viet (khong phan tich
     String(divs.length));
 
   // (5) DOI CHUNG DUONG: khong co dong inert trong so chay -> KHONG co vang nao
+  // HOI QUY VONG 3: cung MOT cau ra DONG THOI co vang va co do sai nhan. Fixture o day
+  // KHONG duoc viet tay — Variance lay DUNG cai ben viet sinh ra. Voi duong B, ben viet
+  // khong con chen cau vao Variance nua, nen Variance chi mang phuong sai (hoac rong).
+  {
+    for (const [ten, body] of [['tran', inertLine.note],
+                               ['gach dau dong', '- ' + inertLine.note],
+                               ['in dam', '**' + inertLine.note + '**'],
+                               ['lan phuong sai that', 'E3 pass_rate 4/5 — chua on dinh\n' + inertLine.note]]) {
+      const out = card(body, LOG);
+      const fred = [...out.matchAll(/<div class="flag fred">([\s\S]*?)<\/div>/g)].map(x => x[1]);
+      check(`WI6 hoi quy [${ten}]: cau canh bao KHONG deo nhan phuong-sai`,
+        !fred.some(d => /Field khai mà máy không dùng/.test(d)), JSON.stringify(fred).slice(0, 130));
+      check(`WI6 hoi quy [${ten}]: co vang van dung`, /flag fwarn">Field khai mà máy không dùng/.test(out));
+    }
+  }
+  // AC-16 — LUAT FIXTURE: dau vao cho ben doc phai do BEN VIET sinh trong lan chay nay.
+  // Ba vong dau deu truot vi fixture la chuoi VIET TAY nham vao hinh dang san pham khong
+  // bao gio tao ("none — every multi-run eval is uniform" — chinh loi nhac cu CAM sinh ra).
+  check('WI6 [AC-16] fixture doc = DUNG doi tuong ben viet sinh, khong phai chuoi viet tay',
+    LOG.length === 1 && JSON.parse(LOG[0]).note === inertLine.note
+    && result.runLog.includes(LOG[0]), 'fixture khong truy duoc ve writer');
+
   const noLog = card('none — every multi-run eval is uniform', []);
   check('WI6 doi chung duong: khong dong inert -> khong co vang', !/Field khai mà máy không dùng/.test(noLog));
   const varOnly = card('E3 pass_rate 4/5 — chua on dinh', []);

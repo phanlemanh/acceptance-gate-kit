@@ -69,21 +69,14 @@ const MUTATIONS = [
     expect: 'WI6 the hien canh bao field-inert',
   },
   {
-    name: 'ben doc quay ve PHAN TICH VAN XUOI trong ## Variance (co che gay cua 3 vong truoc)',
+    name: 'ben doc bo LOP PHONG THU (khong loc cau inert khoi nhanh phuong-sai)',
     file: CARD_REL,
     apply: s => {
-      // Thay TRON cau lenh doc so chay (2 dong) bang co che cu: khop chuoi tren van LLM
-      const re = /  const inertLine = read\(path\.join\(dir, 'run-log\.jsonl'\)\)\.split\('\\n'\)\n.*\n/;
-      if (!re.test(s)) throw new Error('khong tim thay cau lenh doc so chay');
-      return s.replace(re,
-        "  const inertLine = (() => {\n"
-      + "    const ls = cleanLines(section(report, 'Variance')).map(x => x.trim()).filter(Boolean);\n"
-      + "    if (!ls.length || /^[{][{]/.test(ls[0])) return null;\n"
-      + "    const hit = ls.find(x => x.startsWith('Field khai mà máy không dùng:'));\n"
-      + "    return hit ? { note: hit } : null;\n"
-      + "  })();\n");
+      const a = "    .filter(l => !l.includes(INERT_NOTE_PREFIX)).join(' ').trim();";
+      if (!s.includes(a)) throw new Error('khong tim thay lop phong thu');
+      return s.replace(a, "    .join(' ').trim();");
     },
-    expect: 'WI6 [dong dau con placeholder] co field-inert VAN hien',
+    expect: 'WI6 hoi quy [tran]: cau canh bao KHONG deo nhan phuong-sai',
   },
   {
     name: 'ben VIET bo field note khoi dong run-log kind:inert',
@@ -93,7 +86,9 @@ const MUTATIONS = [
       if (!s.includes(a)) throw new Error('khong tim thay field note');
       return s.replace(a, "kind: 'inert',");
     },
-    expect: 'WI6 writer ghi dong run-log kind:inert co field note',
+    // AC-16: dot bien o phia VIET, case do mong doi nam o phia DOC (case nay chay
+    // scripts/gate-card.js that) — do la bang chung song rang hai dau noi nhau.
+    expect: 'WI6 the hien canh bao field-inert',
   },
   {
     name: 'khoi phuc cau mo ta runs cu (khong neu gioi han executor)',

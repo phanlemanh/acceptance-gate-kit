@@ -6,7 +6,7 @@ risk_tier: T3
 surfaces: [cli]
 status: implemented
 approved_by: Manh Phan
-approved_at: 2026-08-04T05:30:28Z
+approved_at: 2026-08-04T07:01:29Z
 owner: phanlemanh@gmail.com
 source: docs/superpowers/specs/2026-08-04-judgment-runs-design.md
 time_human_minutes:
@@ -72,13 +72,18 @@ hai luật NGƯỢC NHAU trên cùng một điều kiện (inputs không đổi)
   inert theo cùng một luật (mã ghim cứng `runs: 1` cho eval kiểm giao diện) dù repo
   hiện chưa có bên tiêu thụ nào; và đối chứng dương như AC-1.
 
-- AC-5: Given round có `inertFields` không rỗng, When script gọi agent
-  `synthesize:report`, Then prompt chứa **câu `inertNote` do JS tính sẵn** (nêu đích
-  danh evalId + field + lý do) kèm chỉ dẫn **chép NGUYÊN VĂN** vào `## Variance` —
-  cùng khuôn literal đang dùng cho `verified_commit` ("synthesizer chỉ chép, không
-  tự suy diễn"), vì hôm nay `runs` bị strip khỏi định nghĩa eval ở prompt nên
-  synthesizer *không thể* biết; và đối chứng dương: round không có eval inert nào
-  thì prompt KHÔNG chứa `inertNote` lẫn chỉ dẫn đó.
+- AC-5 **(viết lại lần 2 sau S4 vòng 3)**: Given round có `inertFields` không rỗng,
+  When script gọi agent `synthesize:report`, Then lời nhắc **KHÔNG** chứa chỉ dẫn nào
+  bảo bên viết chèn câu cảnh báo vào `## Variance`, và mục `## Variance` chỉ còn
+  mang phương sai thật. Câu cảnh báo tới tay người **chỉ qua kênh máy**: dòng sổ chạy
+  `kind:"inert"` (AC-13) → trình-cho-người ở Cổng 2 (AC-12, AC-14) và gói duyệt (AC-10).
+  Đối chứng dương: round có eval inert vẫn phải cho cờ vàng đúng trên thẻ, chứng minh
+  bỏ chỉ dẫn KHÔNG làm mất cảnh báo.
+  *Vì sao viết lại:* hai bản trước bắt bên viết (một LLM) chép câu vào `## Variance`,
+  rồi bên đọc phải gỡ nó ra. Mối nối đó gãy **bốn lần liên tiếp** theo bốn chiều khác
+  nhau — thứ tự câu, trang trí markdown, placeholder còn sót, và (vòng 3) cùng một
+  câu ra ĐỒNG THỜI cờ vàng lẫn cờ đỏ sai nhãn. Nới phép khớp chỉ đổi một lỗ lấy một
+  lỗ. Máy đã biết sự thật này và đã ghi nó; không có lý do bắt nó đi vòng qua một LLM.
 
 - AC-6: Given `inertFields` không rỗng, When script chạy, Then có đúng một dòng
   `log()` nêu số lượng và tên field/eval — người theo dõi `/workflows` thấy ngay
@@ -149,6 +154,16 @@ hai luật NGƯỢC NHAU trên cùng một điều kiện (inputs không đổi)
   vòng 1 cho cờ "mọi eval máy xanh cả hai phía" — mỗi eval trỏ vào cả một bộ kiểm
   nên chạy trên mã cũ cũng xanh; bằng chứng phân biệt chỉ tồn tại trong hội thoại,
   không trong hồ sơ.
+
+- AC-16 **(mới sau S4 vòng 3 — luật thước, không phải luật mã)**: Given một mối nối
+  bên-viết → bên-đọc, When dựng phép đo cho nó, Then fixture làm đầu vào cho bên đọc
+  PHẢI do **chính bên viết sinh ra trong lần chạy đó**, không được là chuỗi viết tay;
+  và `mutation-check` phải mang một đột biến ở **phía VIẾT** mà case đỏ mong đợi nằm ở
+  **phía ĐỌC** — đó là bằng chứng sống rằng hai đầu thật sự nối nhau.
+  *Vì sao:* ba vòng đầu đều trượt cùng một cách. Fixture của `WI6` dùng chuỗi viết tay
+  `"none — every multi-run eval is uniform"` mà **chính lời nhắc gửi bên viết cấm sinh
+  ra** — nên suốt ba vòng phép đo nhắm vào một hình dạng sản phẩm không bao giờ tạo.
+  221 case xanh trong khi hình dạng thật đỏ. Đây là nguyên nhân gốc, không phải mã.
 
 ## Coverage
 

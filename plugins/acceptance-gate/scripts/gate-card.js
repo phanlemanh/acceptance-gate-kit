@@ -392,9 +392,19 @@ if (ooc.cluster) flags.push(['fwarn', '⚠ Nhiều lỗi rơi ngoài vùng các 
     flags.push(['fwarn', esc(inertLine.note.trim())]);
   }
 }
-// Phương sai thật (pass-rate hỗn hợp) — việc của máy, giữ nguyên đường cũ.
+// Phương sai thật (pass-rate hỗn hợp) — việc của máy.
+// LỚP PHÒNG THỦ: loại mọi dòng mang câu cảnh báo ô-inert ra khỏi đây. Bên viết hiện
+// KHÔNG còn được bảo chèn câu đó vào `## Variance` (đường B, S4 vòng 3), nhưng báo cáo
+// của các vòng CŨ vẫn còn nó — và nếu lọt vào đây thì cùng một câu ra đồng thời cờ vàng
+// (đúng) lẫn cờ đỏ "pass-rate hỗn hợp" (sai chủ thể: việc-của-người bị dán nhãn
+// việc-của-máy, ở hạng cờ nặng nhất). Dùng `includes` chứ không `startsWith`: chuỗi này
+// do máy sinh, không xuất hiện trong văn phương-sai bình thường, nên trang trí markdown
+// (`- `, `**`) không phá được phép loại. Cờ vàng vẫn đến từ sổ chạy bên trên — lớp này
+// chỉ chống dán-nhãn-sai, không phải kênh mang cảnh báo.
 {
-  const varr = cleanLines(section(report, 'Variance')).join(' ').trim();
+  const INERT_NOTE_PREFIX = 'Field khai mà máy không dùng:';
+  const varr = cleanLines(section(report, 'Variance'))
+    .filter(l => !l.includes(INERT_NOTE_PREFIX)).join(' ').trim();
   if (varr && !/^none/i.test(varr) && !/^\{\{/.test(varr)) flags.push(['fred', 'Có eval ngẫu nhiên (pass-rate hỗn hợp) — ' + esc(varr)]);
 }
 if (tier === 'T3') flags.push(['fok', 'Đụng phần nhạy cảm → tier T3, đúng là cần bạn duyệt kỹ.']);
