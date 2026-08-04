@@ -1,0 +1,34 @@
+{
+  "feature_plain": "Khi hồ sơ nghiệm thu của một việc bị khai thiếu, vòng kiểm sẽ dừng lại và gọi tên chỗ thiếu, thay vì lặng lẽ chấm bừa rồi tuyên ĐẠT.",
+
+  "will_do": [
+    { "id": "AC-1",  "p": "Sẽ dừng và gọi tên đúng tiêu chí khi câu hỏi dành cho hội đồng bị bỏ trống — hội đồng không còn nhận chữ rỗng làm đề bài." },
+    { "id": "AC-2",  "p": "Sẽ dừng tương tự khi một phép kiểm giao diện thiếu mô tả kết quả mong đợi, hoặc thiếu các bước phải làm." },
+    { "id": "AC-3",  "p": "Sẽ dừng khi một phép kiểm máy thiếu lệnh để chạy, hoặc thiếu tên và tiêu chí mà nó phục vụ." },
+    { "id": "AC-5",  "p": "Sẽ soi cả những phép kiểm được mang sang từ vòng trước — kết quả cũ không mua được quyền miễn kiểm." },
+    { "id": "AC-6",  "p": "Sẽ soi cả những phép kiểm máy được mang sang từ vòng trước, theo đúng luật trên." },
+    { "id": "AC-7",  "p": "Sẽ báo thiếu ngay cả ở chế độ chạy thử không tốn gì — chạy thử không được vẽ ra một kế hoạch đẹp cho hồ sơ hỏng." },
+    { "id": "AC-8",  "p": "Sẽ liệt kê hết mọi chỗ khai thiếu trong một lần, để người sửa hồ sơ một lượt thay vì sửa-chạy-lại nhiều vòng." },
+    { "id": "AC-11", "p": "Sẽ không chặn nhầm hồ sơ khai đúng — mọi việc đang chạy được vẫn chạy y như cũ." },
+    { "id": "AC-12", "p": "Sẽ giữ toàn bộ các bộ kiểm sẵn có của kho vẫn xanh sau thay đổi này." },
+    { "id": "AC-14", "p": "Sẽ chứng minh trên toàn bộ hồ sơ nghiệm thu đang có thật trong kho, không chỉ trên ví dụ tự dựng." },
+    { "id": "AC-15", "p": "Sẽ bảo đảm bản đề bài đưa cho hội đồng đọc đúng là bản máy thật gửi đi, không phải bản chép tay cho đẹp." }
+  ],
+
+  "wont_do": [
+    { "id": "AC-4",  "p": "Chặn phép kiểm bị gõ sai tên loại — hôm nay một chữ cái sai làm cả một tiêu chí biến mất khỏi vòng kiểm mà trang bằng chứng vẫn xanh." },
+    { "id": "AC-9",  "p": "Sẽ KHÔNG để hội đồng chấm khi chưa ai khai vật cho họ đọc — kết quả chuyển thẳng thành chưa đủ căn cứ, người quyết ở cổng sau." },
+    { "id": "AC-13", "p": "Sẽ KHÔNG để một kết quả chưa đủ căn cứ bị kết quả cũ mang sang đè lên rồi trôi qua vô hạn." }
+  ],
+
+  "scope_plain": "Không đụng bộ soát hồ sơ lúc soạn thảo, không đụng danh sách đường dẫn hạng rủi ro cao, không đổi cách tính kết luận hay cách mang kết quả cũ sang vòng mới.",
+
+  "decisions_plain": [
+    { "id": "d-20260804T073023Z-26693", "p": "Đã chọn soi TOÀN BỘ hồ sơ trước khi lọc, kể cả phần mang sang từ vòng trước và cả lúc chạy thử — đổi lại tốn thêm một vòng duyệt, nhưng nếu chỉ soi phần mới thì chính lối thoát đã gây ra lỗi này vẫn còn mở." },
+    { "id": "d-20260804T073023Z-11846", "p": "Đã chọn hai mức nặng: khai thiếu thì dừng hẳn, còn riêng thiếu vật cho hội đồng đọc thì hạ xuống chưa-đủ-căn-cứ cho người quyết — đổi lại thêm một nhánh xử lý, nhưng dừng hẳn cả hai sẽ chặn cứng một việc đã ký xong." },
+    { "id": "d-20260804T073023Z-3198",  "p": "KHÔNG làm bộ soát lúc soạn thảo — mất cơ hội bắt lỗi sớm hơn một nhịp, đổi lại giữ đúng một cơ chế chịu lực ở một chỗ, vì bộ soát đó mỗi kho tự chọn bật nên không gánh được." },
+    { "id": "d-20260804T073023Z-16553", "p": "KHÔNG sửa danh sách đường dẫn hạng rủi ro cao trong lần này — đổi lại chính bộ chấm điểm vẫn bị xếp hạng thấp hơn mức nó xứng đáng; đây là câu hỏi chính sách, để người quyết riêng." },
+    { "id": "d-20260804T073932Z-28753", "p": "Đã chọn đo tồn kho thật ngay tại bước thiết kế thay vì chỉ hứa sẽ đo — tốn thêm một bước, đổi lại cổng này duyệt trên con số đã đo (không việc nào bị chặn cứng, đúng hai chỗ hạ xuống chưa-đủ-căn-cứ) chứ không duyệt mù." },
+    { "id": "d-20260804T073932Z-30379", "p": "Đã chọn đặt bảng khai bắt buộc ở một chỗ có dấu mốc và bắt phép đo rút bảng từ đó — thêm một ràng buộc cho người cài đặt, đổi lại chặn được kiểu hỏng cũ: bên viết và bên đo trôi khỏi nhau mà vẫn xanh." }
+  ]
+}

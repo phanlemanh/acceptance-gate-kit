@@ -1,0 +1,179 @@
+# evals — judgment-question-guard
+# Mọi case sống ở tests/workflows/acceptance-verify.test.mjs: harness.mjs nạp
+# FILE THẬT trong vm realm với agent đóng hộp, nên fixture do code sinh trong
+# chính lần chạy và path suy từ import.meta.url — không bản sao, không viết tay.
+# Luật kit: mỗi ca âm ĐI KÈM ca dương cùng bộ args chỉ khác field đang xét, và
+# ghim ĐÚNG THÔNG ĐIỆP (tên eval + tên field trong blocked[].reason), không chỉ
+# ghim verdict — ghim verdict một mình không phân biệt "bắt đúng lỗi" với
+# "hỏng theo cách khác".
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "judgment thiếu `question` (5 hình dạng: khoá vắng · null · '' · '   ' · số) → BLOCKED, 0 agent judge, reason nêu id eval + chữ `question`, VÀ đối tượng trả về đủ 6 key shape guard args (blocked/failedEvals/failedCommands/panels/confirmedFindings/reviewIncomplete) đúng kiểu; đối chứng dương: cùng args với question thật → 3 judge spawn, verdict KHÁC BLOCKED"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Ca gốc của đề bài. Ghim cả hai chiều: bản thiếu ĐỎ đúng thông điệp, bản
+      đủ XANH và thực sự spawn judge (đếm calls label judge:) — thiếu vế sau
+      thì case không phân biệt được với "script chưa từng chạy".
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    expected: "ui-check thiếu `expected` hoặc `steps` rỗng/sai kiểu/mảng-có-phần-tử-không-chuỗi → BLOCKED nêu tên eval + field; đối chứng dương: bản đủ → spawn agent ui:<id>"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Lớp anh em CHƯA AI BÁO — bằng chứng bản vá đi theo lớp chứ không vá
+      riêng field bị nêu tên.
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    expected: "machine thiếu `cmd`; eval bất kỳ thiếu `id` hoặc `criterion` → BLOCKED nêu tên (hoặc index khi vắng id) + field; đối chứng dương: bản đủ chạy bình thường"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      `id` vắng là ca riêng: thông điệp không thể nêu tên nên phải nêu index —
+      assert ghim rõ index, không chấp nhận reason trống rỗng.
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    expected: "executor vắng / typo `judgement` → BLOCKED nêu tên eval + giá trị executor lạ; và ĐỐI CHỨNG ĐỘT BIẾN: cùng bộ args chạy qua bản script CHƯA có guard cho verdict PASS + blocked rỗng"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Cửa hậu thứ hai, tìm được khi quét lớp và ĐÃ ĐO trước khi sửa
+      (evidence/probe-executor-before.txt). Đối chứng đột biến dựng bản
+      trước-guard bằng CODE trong chính lần chạy (gỡ khối guard theo cặp
+      marker rồi nạp qua harness), không chép tay bản cũ.
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    expected: "judgment hỏng khuôn + carriedPanels trỏ đúng eval đó → vẫn BLOCKED (panel carried KHÔNG miễn kiểm); đối chứng dương: question hợp lệ + carried → dùng lại panel, 0 judge spawn"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Ô nguy hiểm nhất của trục D — đúng kịch bản E6 motion-floor: panel PASS
+      3/3 giả carry sang round sau thì eval không bao giờ được nhìn lại.
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    expected: "eval máy/ui hỏng khuôn + carriedEvals trỏ đúng eval đó → vẫn BLOCKED; đối chứng dương: field đủ + carried → carry bình thường, không spawn agent cho nó"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Cửa hậu P1, đối xứng với E5.
+
+  - id: E7
+    criterion: AC-7
+    executor: test
+    expected: "dryRun + eval hỏng → BLOCKED, KHÔNG trả distinctCommands/judgePanels; đối chứng dương: dryRun + evals hợp lệ → kế hoạch đầy đủ như trước, 0 agent"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Ghim vị trí đặt guard: dryRun return ở :262 nằm TRƯỚC guard
+      "không có gì để verify", nên guard đặt sau đó là hụt đường này.
+
+  - id: E8
+    criterion: AC-8
+    executor: test
+    expected: "nhiều eval hỏng ở nhiều field/executor → TẬP id trích theo ranh giới token BẰNG ĐÚNG tập id đã tiêm, và tập field nêu ra bằng đúng tập field đã tiêm; ca đo dùng cặp id lồng tiền tố E1/E11 để tự chứng minh nó phân biệt được"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Chống sửa-chạy-lại N vòng. CẤM assert bằng đếm-substring: E1 nằm trong
+      E11/E12/E13 nên "2 tên xuất hiện" xanh cả khi guard chỉ nêu E11. Trích
+      theo ranh giới token rồi so BẰNG TẬP.
+
+  - id: E9
+    criterion: AC-9
+    executor: test
+    expected: "judgment question hợp lệ + inputs vắng/[] → 0 judge spawn, panel proposal UNCERTAIN có rationale nêu 'không khai input', verdict PENDING-JUDGMENT (KHÔNG phải BLOCKED); đối chứng phân biệt: inputs sai kiểu → vẫn BLOCKED"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Hai mức nặng phải PHÂN BIỆT được, không nhoè vào nhau: cùng file, cùng
+      field, khác hình dạng → khác đường ra. Đây cũng là đường đọc-cũ cho
+      gate-card-ac-visibility (đã ký, 2 judgment eval không khai inputs).
+
+  - id: E10
+    criterion: AC-10
+    executor: judgment
+    question: "Đọc prompt hội đồng dưới đây (đây là prompt THẬT do acceptance-verify.js sinh ra, dump từ lần chạy test — không phải văn viết tay): một hội đồng viên đọc xong có hiểu rằng mình CHỈ được đọc các input đã liệt kê, và khi thấy thiếu căn cứ thì việc đúng là trả UNCERTAIN chứ KHÔNG phải tự đi tìm file khác (vd contract.md) để tự chế ra tiêu chí, không? Hay câu chữ vẫn để ngỏ đường tự cứu đó?"
+    inputs:
+      - _acceptance/judgment-question-guard/evidence/judge-prompt.txt
+    paths: ["feature-loop/workflows/acceptance-verify.js"]
+    notes: >
+      ĐO ĐẦU RA, KHÔNG ĐO CHỈ DẪN: input là prompt do CODE sinh trong chính
+      lần chạy (test dump calls[].prompt), không grep file hướng dẫn — đó là
+      hình dạng (1) trong 4 hình dạng đã dẫm ghi ở CLAUDE.md.
+
+  - id: E11
+    criterion: AC-11
+    executor: test
+    expected: "bộ args hợp lệ đủ 4 executor → đúng số agent mỗi loại, đúng dedupe lệnh, đúng verdict, blocked rỗng; eval thiếu field OPTIONAL (runs/ref/paths/evidence_required) vẫn chạy — guard KHÔNG chặn oan"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Đối chứng dương TỔNG. Không có nó thì mọi ca âm ở trên không chứng minh
+      được guard phân biệt hỏng/không-hỏng, chỉ chứng minh nó hay chặn.
+
+  - id: E12
+    criterion: AC-12
+    executor: test
+    expected: "toàn bộ suite scripts/hooks/plugins/workflows xanh sau thay đổi"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      4 case cũ dùng `inputs: []` (dòng 190/252/336/337) phải được SỬA FIXTURE
+      cho khớp hành vi AC-9, KHÔNG được nới thước để chúng xanh trở lại.
+
+  - id: E14
+    criterion: AC-13
+    executor: test
+    expected: "judgment inputs vắng/rỗng + carriedPanels trỏ đúng eval đó → panel cuối vẫn UNCERTAIN (carried KHÔNG ghi đè), 0 judge; + dryRun → eval đó KHÔNG có trong judgePanels; đối chứng dương: inputs có phần tử thật → panel carried dùng lại nguyên proposal gốc"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Nhánh UNCERTAIN cũng phải sống qua trục D, không chỉ nhánh hỏng-khuôn.
+      Lối cài tự nhiên nhất ("đã có panel carried thì bỏ qua vòng chèn") làm
+      panel PASS 3/3 giả carry vô hạn — đúng E6 motion-floor. E5/E6/E7 chỉ phủ
+      nhánh hỏng-khuôn nên KHÔNG bắt được ca này.
+
+  - id: E15
+    criterion: AC-14
+    executor: test
+    expected: "cho TẤT CẢ _acceptance/*/evals.yaml THẬT qua bảng field rút từ marker của acceptance-verify.js → 0 ca BLOCKED; ca UNCERTAIN đúng bằng danh sách miễn trừ khai ở Notes (gate-card-ac-visibility E11+E12); đột biến: tiêm field rỗng vào bản sao code-sinh → đỏ, nêu đúng slug+id+field"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**", "_acceptance/*/evals.yaml"]
+    notes: >
+      ĐO Ở PHÍA TIÊU THỤ: kit tự-host xanh trên fixture tự dựng không chứng
+      minh gì cho tồn kho thật. Bảng field phải RÚT TỪ MARKER trong script,
+      không chép tay sang test — chép tay là hai bên trôi khỏi nhau (hình dạng
+      (3) trong 4 hình dạng đã dẫm ở CLAUDE.md).
+
+  - id: E16
+    criterion: AC-15
+    executor: test
+    expected: "xoá evidence/judge-prompt.txt → chạy → file được sinh lại trong chính lần chạy và BẰNG ĐÚNG prompt agent nhãn judge: của lần chạy đó (chứa id eval + inputs); đột biến: đổi chuỗi prompt trong bản sao code-sinh → dump đổi theo"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Ghim tính CHÍNH DANH của fixture cho hội đồng E10. Không có nó thì một
+      prompt lý tưởng chép tay vào file cũng cho E10 xanh trong khi prompt
+      THẬT vẫn để ngỏ đường tự cứu — hình dạng (2) trong 4 hình dạng đã dẫm.
+
+  - id: E13
+    criterion: AC-12
+    executor: script
+    expected: "plugins/ mirror khớp nguồn sau khi sửa feature-loop/workflows/"
+    cmd: config:executors.script.mirror_sync
+    paths: ["feature-loop/**", "plugins/**"]
+    notes: >
+      P30 chống trôi mirror — bắt buộc vì diff chạm feature-loop/workflows/.
