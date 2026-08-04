@@ -315,6 +315,10 @@ tiêu thụ qua ổ cắm `feature_loop.ui_standards_skill` (mẫu P86 đã ch�
 fixture repo-lạ (không phải artifact-platform) và ghim QUAN HỆ kit-đòi-khai
 ⟂ config-cấp-đích, cấm ghim từ vựng host ("Creator"/"canvas") vào kit.
 
+| ID | Việc | Nơi chạm | Tier | Phụ thuộc |
+|---|---|---|---|---|
+| F-I | Trục ngữ cảnh cho bản mẫu: khoá `context:` 3 nấc trong sổ phiên design-pass + câu hỏi giai đoạn 0 + luật cảnh-ngữ-cảnh + ổ cắm `design_pass.host_embed` (đường đọc-cũ) + thẻ Cổng Phạm-vi render nấc + test RED trên fixture repo-lạ. Design đã duyệt hướng: `docs/specs/2026-08-04-context-ladder-design.md` | `skills/` (design-pass) + bộ dựng thẻ + `feature-loop/skills/` + `GUIDE.md` + tests + mirror | T2 | gộp được với F-D đợt 2 (proto-init/lint) |
+
 ## DP-1 — Scorecard (điền sau V1)
 
 | Tiêu chí | Ngưỡng | Kết quả (đo 29/07, v1-journal worktree) | Đạt? |
