@@ -951,6 +951,40 @@ console.log('WI6 ROUND-TRIP writer->reader qua SO CHAY may-viet (khong phan tich
       check(`WI6 hoi quy [${ten}]: co vang van dung`, /flag fwarn">Field khai mà máy không dùng/.test(out));
     }
   }
+  // ---- Ba lo do S4 vong 4 bat, deu da tai hien tay truoc khi sua ----
+  // (a) NGAT DONG: cau ~200 ky tu bi markdown wrap. Ban truoc loc theo DONG nen chi
+  // dong dau bi loai, phan duoi song sot va deo nhan do sai.
+  {
+    const w = inertLine.note.replace(/ /, '\n');   // ngat dong that su, do writer sinh ra
+    const out = card(w, []);                        // so chay RONG = bao cao cu
+    check('WI6 [ngat dong] KHONG deo nhan phuong-sai cho cau canh bao',
+      !/pass-rate hỗn hợp/.test(out), 'phan duoi cau bi dan nhan do');
+  }
+  // (b) DONG INERT KHONG CO `note` (dung hinh dang vong 1-2 that): phai roi ve `fields`,
+  // KHONG duoc mat ca hai kenh.
+  {
+    const noNote = JSON.stringify({ ts: 't', round: 1, kind: 'inert',
+      fields: [{ evalId: 'E10', field: 'runs', executor: 'judgment' }] });
+    const out = card(inertLine.note, [noNote]);
+    check('WI6 [dong khong co note] van hien co vang tu fields',
+      /flag fwarn">Field khai mà máy không dùng/.test(out), 'mat ca hai kenh');
+    check('WI6 [dong khong co note] van neu dich danh eval + field',
+      /E10/.test(out) && /runs/.test(out));
+  }
+  // (c) LOC THEO VONG: so chay la append-only, va "vong nay sach" duoc ma hoa bang su
+  // VANG MAT cua dong inert. Khong loc vong thi canh bao KHONG BAO GIO tat duoc.
+  {
+    const r2clean = JSON.stringify({ ts: 't', round: 2, kind: 'baseline', evals_hash: 'x', non_discriminating: [] });
+    const out = card('none — every multi-run eval is uniform', [JSON.stringify(inertLine), r2clean]);
+    check('WI6 [vong sau da sach] canh bao cu KHONG con hien',
+      !/Field khai mà máy không dùng/.test(out), 'canh bao khong tat duoc');
+    // Doi chung duong: cung so chay nhung dong inert o dung vong moi nhat -> VAN hien
+    const r2inert = JSON.stringify({ ...inertLine, round: 2 });
+    const out2 = card('none — every multi-run eval is uniform', [JSON.stringify(inertLine), r2inert]);
+    check('WI6 [vong sau van con inert] canh bao VAN hien',
+      /Field khai mà máy không dùng/.test(out2));
+  }
+
   // AC-16 — LUAT FIXTURE: dau vao cho ben doc phai do BEN VIET sinh trong lan chay nay.
   // Ba vong dau deu truot vi fixture la chuoi VIET TAY nham vao hinh dang san pham khong
   // bao gio tao ("none — every multi-run eval is uniform" — chinh loi nhac cu CAM sinh ra).

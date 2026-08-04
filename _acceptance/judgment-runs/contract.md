@@ -137,13 +137,17 @@ hai luật NGƯỢC NHAU trên cùng một điều kiện (inputs không đổi)
   `run_id` nên `loadRunLogIds` bỏ qua, consumer cũ không vỡ. Đối chứng dương:
   round không eval inert → không dòng `kind: "inert"` nào.
 
-- AC-14 **(mới sau S4 vòng 1)**: Given mục `## Variance` chứa CẢ nội dung phương
-  sai thật LẪN câu cảnh báo field-inert, When `scripts/gate-card.js` đọc, Then nó
-  cắt theo **DÒNG** (loại đúng dòng bắt đầu bằng cụm hợp đồng, mọi dòng còn lại là
-  phương sai) chứ không theo vị trí chuỗi, và cho **hai cờ đúng loại ở CẢ HAI thứ
-  tự** — note trước, và note sau. Đo được ở vòng 1: note đặt trước làm cờ đỏ
-  phương-sai **biến mất hoàn toàn**, và thứ tự chỉ được bảo đảm bằng một câu dặn
-  trong prompt — mối nối máy-đọc không được phụ thuộc vào việc LLM nghe lời.
+- AC-14 **(mở rộng sau S4 vòng 4)**: Given mục `## Variance` ở bất kỳ hình dạng nào,
+  When `scripts/gate-card.js` đọc, Then cờ ô-inert vẫn đúng và câu cảnh báo **không bao
+  giờ** đeo nhãn phương-sai. Phải ghim đủ các hình dạng đã đo được là gãy: note đặt
+  sau/trước phương sai · gạch đầu dòng · in đậm · dòng đầu còn placeholder · mục rỗng ·
+  **câu bị ngắt dòng** (markdown wrap — bản lọc-theo-dòng bị một lần ngắt dòng phá).
+  Thêm hai điều kiện sống-còn đo được ở vòng 4: (a) dòng sổ chạy **không có** `note`
+  (hình dạng thật của các vòng trước) phải rơi về `fields`, KHÔNG được mất cả hai kênh;
+  (b) sổ chạy là append-only và "vòng này sạch" mã hoá bằng **sự vắng mặt**, nên chỉ
+  được nhận dòng inert của **vòng mới nhất** — nếu không, người sửa `evals.yaml` đúng
+  như cảnh báo bảo sẽ thấy nó hiện mãi, không bao giờ tắt. Đối chứng dương cho (b):
+  vòng mới vẫn còn inert thì cảnh báo VẪN hiện.
 
 - AC-15 **(mới sau S4 vòng 1)**: Given hồ sơ bằng chứng cần chứng minh "nhờ đâu mà
   xanh", When chạy một script chạy-được của repo, Then nó thực thi từng phép đột

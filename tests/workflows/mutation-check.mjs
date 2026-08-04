@@ -62,29 +62,63 @@ const MUTATIONS = [
     name: 'ben doc thoi doc so chay may-viet (bo hang doc run-log)',
     file: CARD_REL,
     apply: s => {
-      const a = "  if (inertLine && typeof inertLine.note === 'string' && inertLine.note.trim()) {";
+      const a = "read(path.join(dir, 'run-log.jsonl')).split('\\n')";
       if (!s.includes(a)) throw new Error('khong tim thay nhanh doc so chay');
-      return s.replace(a, '  if (false) {');
+      return s.replace(a, "''.split('\\n')");
     },
     expect: 'WI6 the hien canh bao field-inert',
   },
   {
-    name: 'ben doc bo LOP PHONG THU (khong loc cau inert khoi nhanh phuong-sai)',
+    name: 'ben doc bo chan cau-inert khoi nhanh phuong-sai',
     file: CARD_REL,
     apply: s => {
-      const a = "    .filter(l => !l.includes(INERT_NOTE_PREFIX)).join(' ').trim();";
-      if (!s.includes(a)) throw new Error('khong tim thay lop phong thu');
-      return s.replace(a, "    .join(' ').trim();");
+      const a = "  if (varr && !carriesInertNote && !/^none/i.test(varr) && !/^\\{\\{/.test(varr)) {";
+      if (!s.includes(a)) throw new Error('khong tim thay chan cau-inert');
+      return s.replace(a, "  if (varr && !/^none/i.test(varr) && !/^\\{\\{/.test(varr)) {");
     },
     expect: 'WI6 hoi quy [tran]: cau canh bao KHONG deo nhan phuong-sai',
   },
   {
-    name: 'ben VIET bo field note khoi dong run-log kind:inert',
+    name: 'ben doc quay ve loc THEO DONG (bi mot lan ngat dong pha)',
+    file: CARD_REL,
+    apply: s => {
+      const a = "  const varr = cleanLines(section(report, 'Variance')).join(' ').trim();\n  const carriesInertNote = varr.includes(INERT_NOTE_PREFIX);";
+      if (!s.includes(a)) throw new Error('khong tim thay phep chan nhi phan');
+      return s.replace(a,
+        "  const varr = cleanLines(section(report, 'Variance')).filter(l => !l.includes(INERT_NOTE_PREFIX)).join(' ').trim();\n"
+      + "  const carriesInertNote = false;");
+    },
+    expect: 'WI6 [ngat dong] KHONG deo nhan phuong-sai cho cau canh bao',
+  },
+  {
+    name: 'ben doc bo duong roi-ve-fields khi dong inert khong co note',
+    file: CARD_REL,
+    apply: s => {
+      const a = "  if (inertLine) {";
+      if (!s.includes(a)) throw new Error('khong tim thay nhanh dung dong inert');
+      return s.replace(a, "  if (inertLine && inertLine.note) {");
+    },
+    expect: 'WI6 [dong khong co note] van hien co vang tu fields',
+  },
+  {
+    name: 'ben doc bo LOC THEO VONG (canh bao cu khong bao gio tat)',
+    file: CARD_REL,
+    apply: s => {
+      const a = "  const inertLine = lines.filter(e => e.kind === 'inert' && e.round === maxRound).pop() || null;";
+      if (!s.includes(a)) throw new Error('khong tim thay phep loc theo vong');
+      return s.replace(a, "  const inertLine = lines.filter(e => e.kind === 'inert').pop() || null;");
+    },
+    expect: 'WI6 [vong sau da sach] canh bao cu KHONG con hien',
+  },
+  {
+    // AC-16: dot bien o phia VIET (doi cum mo dau cua cau may sinh), case do mong doi
+    // nam o phia DOC — case do chay scripts/gate-card.js that va tim cum do trong the.
+    name: 'ben VIET doi cum mo dau cua cau canh bao',
     file: WF_REL,
     apply: s => {
-      const a = "kind: 'inert', note: inertNote,";
-      if (!s.includes(a)) throw new Error('khong tim thay field note');
-      return s.replace(a, "kind: 'inert',");
+      const a = "? 'Field khai mà máy không dùng: ' + inertFields.map(f =>";
+      if (!s.includes(a)) throw new Error('khong tim thay cum mo dau ben viet');
+      return s.replace(a, "? 'Canh bao: ' + inertFields.map(f =>");
     },
     // AC-16: dot bien o phia VIET, case do mong doi nam o phia DOC (case nay chay
     // scripts/gate-card.js that) — do la bang chung song rang hai dau noi nhau.

@@ -385,27 +385,43 @@ if (ooc.cluster) flags.push(['fwarn', '⚠ Nhiều lỗi rơi ngoài vùng các 
 // `{{…}}` còn sót ở dòng đầu. Nới phép khớp chỉ đổi một lỗ lấy một lỗ; sự thật này
 // máy đã biết và đã ghi, nên đọc thẳng từ nguồn máy-viết là bất biến, không phải
 // bản vá. Văn xuôi trong báo cáo vẫn còn, nhưng chỉ để người đọc.
+const INERT_NOTE_PREFIX = 'Field khai mà máy không dùng:';
+let inertNoteShown = false;
 {
-  const inertLine = read(path.join(dir, 'run-log.jsonl')).split('\n')
-    .reduce((acc, l) => { try { const e = JSON.parse(l); return e && e.kind === 'inert' ? e : acc; } catch (_) { return acc; } }, null);
-  if (inertLine && typeof inertLine.note === 'string' && inertLine.note.trim()) {
-    flags.push(['fwarn', esc(inertLine.note.trim())]);
+  // CHỈ nhận dòng inert của VÒNG MỚI NHẤT có trong sổ. Sổ là append-only, và bên viết
+  // chỉ ghi dòng inert KHI CÒN ô inert — "vòng này sạch" được mã hoá bằng sự VẮNG MẶT.
+  // Lấy dòng inert cuối mà không lọc vòng thì người sửa `evals.yaml` đúng như cảnh báo
+  // bảo sẽ thấy cảnh báo cũ hiện mãi, không bao giờ tắt được.
+  const lines = read(path.join(dir, 'run-log.jsonl')).split('\n')
+    .map(l => { try { return JSON.parse(l); } catch (_) { return null; } }).filter(Boolean);
+  const maxRound = lines.reduce((m, e) => (typeof e.round === 'number' && e.round > m ? e.round : m), 0);
+  const inertLine = lines.filter(e => e.kind === 'inert' && e.round === maxRound).pop() || null;
+  if (inertLine) {
+    // Dòng của các vòng trước 1.x không có `note` — rơi về `fields` chứ KHÔNG im lặng:
+    // mất cả hai kênh là đúng lỗi mà tính năng này sinh ra để diệt.
+    const note = (typeof inertLine.note === 'string' && inertLine.note.trim())
+      ? inertLine.note.trim()
+      : `${INERT_NOTE_PREFIX} ` + (inertLine.fields || []).map(f => `${f.evalId} khai \`${f.field}\` trên eval ${f.executor}`).join(' · ')
+        + '. Giá trị đó bị bỏ qua — sửa evals.yaml (đổi loại eval hoặc bỏ field) hoặc chấp nhận và ghi vào phần hạn chế đã biết.';
+    flags.push(['fwarn', esc(note)]);
+    inertNoteShown = true;
   }
 }
 // Phương sai thật (pass-rate hỗn hợp) — việc của máy.
-// LỚP PHÒNG THỦ: loại mọi dòng mang câu cảnh báo ô-inert ra khỏi đây. Bên viết hiện
-// KHÔNG còn được bảo chèn câu đó vào `## Variance` (đường B, S4 vòng 3), nhưng báo cáo
-// của các vòng CŨ vẫn còn nó — và nếu lọt vào đây thì cùng một câu ra đồng thời cờ vàng
-// (đúng) lẫn cờ đỏ "pass-rate hỗn hợp" (sai chủ thể: việc-của-người bị dán nhãn
-// việc-của-máy, ở hạng cờ nặng nhất). Dùng `includes` chứ không `startsWith`: chuỗi này
-// do máy sinh, không xuất hiện trong văn phương-sai bình thường, nên trang trí markdown
-// (`- `, `**`) không phá được phép loại. Cờ vàng vẫn đến từ sổ chạy bên trên — lớp này
-// chỉ chống dán-nhãn-sai, không phải kênh mang cảnh báo.
+// Bên viết hiện KHÔNG còn chèn câu cảnh báo ô-inert vào `## Variance` (đường B), nên
+// mục này chỉ còn phương sai. Báo cáo của các vòng CŨ vẫn còn câu đó; nếu để nó lọt vào
+// đây thì việc-của-NGƯỜI bị dán nhãn việc-của-MÁY ở hạng cờ nặng nhất.
+// Phép chặn là MỘT CÂU HỎI NHỊ PHÂN trên cả mục — "mục này có mang câu máy sinh không?"
+// — chứ KHÔNG phẫu thuật từng dòng. Bản trước lọc theo dòng và bị một lần ngắt dòng phá
+// (câu dài ~200 ký tự, markdown wrap thì chỉ dòng đầu mang cụm mở đầu, phần đuôi sống
+// sót và đeo nhãn đỏ). Cờ vàng đã đến từ sổ chạy, nên bỏ sót một cờ đỏ trên báo cáo cũ
+// là cái giá rẻ hơn hẳn so với dán nhãn sai cho người ký.
 {
-  const INERT_NOTE_PREFIX = 'Field khai mà máy không dùng:';
-  const varr = cleanLines(section(report, 'Variance'))
-    .filter(l => !l.includes(INERT_NOTE_PREFIX)).join(' ').trim();
-  if (varr && !/^none/i.test(varr) && !/^\{\{/.test(varr)) flags.push(['fred', 'Có eval ngẫu nhiên (pass-rate hỗn hợp) — ' + esc(varr)]);
+  const varr = cleanLines(section(report, 'Variance')).join(' ').trim();
+  const carriesInertNote = varr.includes(INERT_NOTE_PREFIX);
+  if (varr && !carriesInertNote && !/^none/i.test(varr) && !/^\{\{/.test(varr)) {
+    flags.push(['fred', 'Có eval ngẫu nhiên (pass-rate hỗn hợp) — ' + esc(varr)]);
+  }
 }
 if (tier === 'T3') flags.push(['fok', 'Đụng phần nhạy cảm → tier T3, đúng là cần bạn duyệt kỹ.']);
 if (evComplete) flags.push(['fok', 'Cổng chạy thật, bằng chứng máy đầy đủ (run_id · exit 0 · verifier).']);
