@@ -1,0 +1,23 @@
+{
+  "feature_plain": "Phiên thiết kế phải khai bản mẫu đang sống ở đâu — đứng một mình, trong khung giả tĩnh, hay nhúng host thật — và người duyệt thấy nấc đó ngay trên thẻ Cổng 1, với mọi repo chứ không riêng repo nào.",
+  "will_do": [
+    { "id": "AC-1", "p": "Sẽ bắt mỗi phiên thiết kế khai rõ bản mẫu sống ở đâu, bằng câu hỏi bắt buộc ngay đầu phiên (khoá `context:` trong sổ phiên, cạnh khoá vật liệu)." },
+    { "id": "AC-5", "p": "Sẽ cho người duyệt thấy nấc ngữ cảnh bằng tiếng người ngay trên thẻ, đúng như phiên đã khai (thẻ đọc từ chính khuôn sổ phiên, có phép đo khứ hồi)." },
+    { "id": "AC-9", "p": "Sẽ nhắc vòng lặp tính năng kiểm nấc ngữ cảnh khi kết phiên thiết kế và khi quay lại việc đang dở." },
+    { "id": "AC-10", "p": "Sẽ giữ nguyên mọi hành vi đã nghiệm thu trước đó, cập nhật tài liệu và bản đóng gói trong cùng một lượt." }
+  ],
+  "wont_do": [
+    { "id": "AC-2", "p": "Chặn đường bỏ im lặng: bản mẫu đứng-một-mình muốn qua cổng phải kèm ít nhất một cảnh cho thấy người dùng vào–ra thế nào, hoặc một dòng từ-chối có tên trong sổ quyết định." },
+    { "id": "AC-3", "p": "Sẽ KHÔNG cho dựng vỏ giả giống host — host đã có khuôn sẵn thì mặc định nhúng thật sau cờ dev; không có đường nhúng rẻ thì nấc thấp vẫn hợp lệ vĩnh viễn." },
+    { "id": "AC-4", "p": "Sẽ KHÔNG chặn repo chưa khai đường nhúng — chỉ cờ vàng; con trỏ đã khai mà hỏng cũng bị nêu tên thay vì được tin bừa." },
+    { "id": "AC-6", "p": "Chặn duyệt mù: bản mẫu đứng-một-mình thiếu cảnh ngữ-cảnh sẽ hiện cờ vàng để người duyệt có quyền trả lại." },
+    { "id": "AC-7", "p": "Sẽ KHÔNG bắt hồ sơ phiên cũ sửa lại — chỉ cờ vàng \"chưa khai nấc\"; giá trị nấc lạ bị nêu đúng tên, không bị đoán ngầm." },
+    { "id": "AC-8", "p": "Sẽ KHÔNG ghim từ vựng nền tảng của riêng công ty nào vào kit — phép đo phải chạy đúng trên một web app trơn do máy tự dựng." }
+  ],
+  "scope_plain": "Để sau: bộ dựng proto (proto-init + lint), bản Codex, gộp khối hiển thị thiết kế trên thẻ; kit vẫn không ship UI hay host nào — đó là việc của repo.",
+  "decisions_plain": [
+    { "id": "d-20260804T150300Z-25829", "p": "KHÔNG làm bộ dựng proto trong vòng này — đổi lại vòng gọn 1-2 buổi; đường nhúng tạm thời chỉ là hướng dẫn cộng ổ cắm cấu hình." },
+    { "id": "d-20260804T150301Z-31750", "p": "KHÔNG làm bản Codex trong vòng này — theo quyết định đã ghi sổ từ vòng trước, không thêm nợ mới." },
+    { "id": "d-20260804T150302Z-8552", "p": "Đã chọn nêu đúng tên giá trị nấc lạ kèm cờ vàng — đổi lại thêm một nhánh phải test, bù lại không phải trả nợ \"đoán ngầm\" về sau." }
+  ]
+}

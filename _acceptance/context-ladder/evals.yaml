@@ -1,0 +1,171 @@
+# Evals: context-ladder — mọi AC máy-đo qua tests/plugins (case mới P134+),
+# cộng suite chống thoái lui + mirror. cmd là config: ref (resolve tại S4);
+# paths phục vụ carry-forward round delta.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới (khu design-pass, P134+): rút frontmatter giữa cặp marker
+      DESIGN-PASS-NOTE-TEMPLATE bằng máy → có khoá context: đúng 3 giá trị
+      standalone|static-frame|host-embedded cạnh material:; Giai đoạn 0 có câu
+      hỏi bắt buộc thứ hai về chỗ-vật-sống; đối chứng dương bản nguyên vẹn
+      XANH trước; mutation xoá khoá context / xoá câu hỏi giai đoạn 0 → đỏ
+      với đúng thông điệp ghim (tên khoá / tên câu hỏi), không chỉ exit code.
+    paths: [skills/design-pass/SKILL.md, tests/plugins/run-tests.sh]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới: SKILL.md có luật standalone-trước-Cổng-Phạm-vi ⇒ ≥1 cảnh
+      ngữ-cảnh (khung host tĩnh + storyboard vào–ra) hoặc entry descope khuôn
+      máy-đọc bắt đầu đúng chuỗi "bỏ cảnh ngữ-cảnh — "; biểu diễn máy-đọc của
+      cảnh + chuỗi descope nằm TRONG cặp marker DESIGN-PASS-NOTE-TEMPLATE
+      (một chỗ — gap-probe F1); mutation xoá luật / đổi chuỗi khuôn / dời biểu
+      diễn ra ngoài marker → đỏ ghim thông điệp; đối chứng dương xanh trước.
+    paths: [skills/design-pass/SKILL.md, tests/plugins/run-tests.sh]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới: SKILL.md có quy tắc mặc-định-nấc-cao (đơn vị host đã có khuôn
+      ⇒ scaffold đơn vị THẬT sau cờ dev, ruột tạm) + lệnh cấm dựng shell giống
+      thật (gương song song) + câu "hợp lệ vĩnh viễn" cho nhánh không-có-đường-
+      nhúng-rẻ; mutation xoá quy tắc hoặc xoá lệnh cấm → đỏ ghim thông điệp;
+      đối chứng dương xanh.
+    paths: [skills/design-pass/SKILL.md, tests/plugins/run-tests.sh]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới: (a) bảng preflight của SKILL.md khai khoá design_pass.host_embed
+      TUỲ CHỌN (con trỏ hướng dẫn nhúng + route proto + cờ dev) và nói rõ vắng
+      khoá → nấc thấp + cờ vàng, KHÔNG chặn; (b) fixture config code-sinh KHÔNG
+      có khoá → đường render thẻ vẫn exit 0 (không chặn) và card có cờ vàng;
+      (c) fixture config CÓ khoá mà con trỏ KHÔNG giải được (file/skill không
+      tồn tại) → cờ vàng nêu ĐÚNG tên con trỏ hỏng, vẫn không chặn (gap-probe
+      F4, lớp con-trỏ-phải-giải-được); đối chứng dương: config CÓ khoá + con
+      trỏ giải được → không cờ; mutation đổi hành xử vắng-khoá thành DỪNG → đỏ.
+    paths: [skills/design-pass/SKILL.md, scripts/gate-card.js, tests/plugins/run-tests.sh]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới round-trip (mẫu P55/P79/P104): fixture design-pass.md RÚT TỪ
+      chính khuôn DESIGN-PASS-NOTE-TEMPLATE trong SKILL.md (code sinh, không
+      viết tay), điền context: từng nấc → gate-card.js render Cổng 1 → ĐẦU RA
+      card chứa nhãn tiếng người tương ứng (đứng-một-mình / khung-giả-tĩnh /
+      nhúng-host-thật); round-trip phủ CẢ khoá context: LẪN biểu diễn cảnh
+      ngữ-cảnh trong cùng khuôn (gap-probe F1); khuôn writer đổi mà reader
+      không theo → case tự đỏ.
+    paths: [skills/design-pass/SKILL.md, scripts/gate-card.js, tests/plugins/run-tests.sh]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới (đo đầu ra như P52): fixture context: standalone KHÔNG cảnh
+      ngữ-cảnh, ledger không entry "bỏ cảnh ngữ-cảnh — " → card render cờ vàng
+      nêu tên; đối chứng dương 2 nhánh: (a) có cảnh ngữ-cảnh → không cờ;
+      (b) có entry descope đúng khuôn → không cờ; fixture CẢ BA nhánh rút từ
+      khuôn writer bằng code trong lần chạy, KHÔNG dựng tay theo khuôn bên đọc
+      (gap-probe F1); mutation làm reader mù entry descope → đỏ.
+    paths: [scripts/gate-card.js, tests/plugins/run-tests.sh]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới: (a) fixture design-pass.md KHUÔN CŨ không có khoá context: →
+      card render bình thường + cờ vàng "chưa khai nấc ngữ cảnh", exit 0,
+      không đòi migrate; (b) context: mang giá trị lạ (vd "embedded-lite") →
+      cờ vàng nêu ĐÚNG tên giá trị không nhận diện được, không im lặng map;
+      đối chứng dương giá trị hợp lệ → không cờ.
+    paths: [scripts/gate-card.js, tests/plugins/run-tests.sh]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới generic: fixture repo-lạ do code sinh trong lần chạy (web app
+      trơn: config + workspace + design-pass.md không từ vựng artifact-platform
+      nào), chạy lại phép đo E5/E6/E7 trên fixture đó và phân biệt đúng
+      đỏ/xanh; kèm grep-guard: nguồn skills/design-pass + scripts/gate-card.js
+      + case test mới KHÔNG chứa "Creator"/"canvas"/"OneHub" (grep có sanity
+      counter — đối chứng dương tự tiêm chuỗi vào bản sao phải đỏ).
+    paths: [skills/design-pass/SKILL.md, scripts/gate-card.js, tests/plugins/run-tests.sh]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới: feature-loop/skills/feature-loop/SKILL.md — checklist kết phiên
+      S1-D có đủ 3 mục (ma trận capture + findings + nấc ngữ cảnh đã khai) và
+      resume-guard nhắc đọc khoá context khi resume; mutation xoá mục "nấc ngữ
+      cảnh" khỏi checklist → đỏ ghim thông điệp; đối chứng dương xanh.
+    paths: [feature-loop/skills/feature-loop/SKILL.md, tests/plugins/run-tests.sh]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Toàn bộ khu case design-pass hiện có (P72–P81) + case gate-card hiện có
+      vẫn xanh sau thay đổi (chạy trong cùng suite plugins).
+    paths: [skills/design-pass/SKILL.md, scripts/gate-card.js, tests/plugins/run-tests.sh]
+  - id: E11
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.mirror_sync
+    expected: >
+      sync-plugin-packages.sh --check exit 0 — mirror plugins/ khớp nguồn sau
+      khi sửa skills/ + scripts/ + feature-loop/ và đã chạy sync + commit cùng
+      lượt.
+    paths: [skills/design-pass/SKILL.md, scripts/gate-card.js, feature-loop/skills/feature-loop/SKILL.md, plugins/**]
+  - id: E12
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.coverage_lint
+    expected: >
+      eval-coverage-lint xanh trên chính workspace này (mọi AC có ≥1 eval) —
+      thuần coverage-lint, phép kiểm docs tách sang E13 (gap-probe F3).
+    paths: [_acceptance/context-ladder/evals.yaml]
+  - id: E13
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới docs-pin (gap-probe F3): workflow-v2-spec.md §2.2 có đoạn
+      amendment ghim chuỗi "bổ sung 04/08 — trục ngữ cảnh" + trỏ đúng tên file
+      docs/specs/2026-08-04-context-ladder-design.md; CONTEXT.md có term trục
+      ngữ cảnh; mutation xoá đoạn amendment / xoá term → đỏ ghim thông điệp;
+      đối chứng dương xanh.
+    paths: [docs/specs/workflow-v2-spec.md, CONTEXT.md, tests/plugins/run-tests.sh]
+  - id: E14
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      Suite scripts xanh sau thay đổi (gap-probe F2 — vế "4 suite" của AC-10
+      phải có phép đo trong evals, không chỉ nhờ suiteCommands; dedupe cmd ở
+      S4 nên không tốn lần chạy thêm).
+    paths: [scripts/gate-card.js]
+  - id: E15
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: >
+      Suite hooks xanh sau thay đổi (gap-probe F2).
+    paths: [scripts/gate-card.js, lib/**]
+  - id: E16
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      Suite workflows xanh sau thay đổi (gap-probe F2).
+    paths: [feature-loop/workflows/**]
