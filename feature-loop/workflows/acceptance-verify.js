@@ -240,6 +240,9 @@ const agentT = (prompt, opts) => agent(`[wf-label: ${opts.label}]\n${prompt}`, o
 // Test RÚT bảng dưới đây TỪ MARKER, không chép tay — hai bên không được trôi.
 // judgment `inputs` CỐ Ý không nằm trong bảng: vắng/rỗng đi nhánh UNCERTAIN
 // (thiếu căn cứ ≠ hỏng khuôn), chỉ SAI KIỂU mới là hỏng khuôn.
+// Bảng VÀ hai vị từ đọc nó nằm CÙNG trong marker: phép đo tồn kho rút cả ba rồi
+// áp y nguyên. Để vị từ ngoài marker là mời test viết lại luật — và bản viết lại
+// yếu hơn bản thật thì phép đo xanh trong khi lần chạy thật BLOCKED.
 // <<<EVAL-REQUIRED-FIELDS
 const EVAL_REQUIRED = {
   'test': { str: ['id', 'criterion', 'cmd'], arr: [] },
@@ -247,16 +250,20 @@ const EVAL_REQUIRED = {
   'ui-check': { str: ['id', 'criterion', 'expected'], arr: ['steps'] },
   'judgment': { str: ['id', 'criterion', 'question'], arr: [] },
 }
-// EVAL-REQUIRED-FIELDS>>>
-
 const isBlankStr = v => typeof v !== 'string' || !v.trim()
 const badStrArray = v => !Array.isArray(v) || !v.length || v.some(x => isBlankStr(x))
+// EVAL-REQUIRED-FIELDS>>>
 
 const evalProblems = []
 args.evals.forEach((e, i) => {
   const nm = (e && typeof e.id === 'string' && e.id.trim()) ? e.id.trim() : `#${i} (khong co id)`
   if (!e || typeof e !== 'object') { evalProblems.push(`${nm}: khong phai object`); return }
-  const spec = typeof e.executor === 'string' ? EVAL_REQUIRED[e.executor] : null
+  // hasOwnProperty, KHÔNG phải EVAL_REQUIRED[x]: tra thẳng trên object literal thì
+  // khoá kế thừa từ prototype trả về truthy — executor 'constructor'/'__proto__'/
+  // 'toString' lọt qua nhánh fail-loud rồi ném TypeError ở spec.str. Đúng ca
+  // "executor lạ" mà guard này sinh ra để bắt.
+  const spec = (typeof e.executor === 'string' && Object.prototype.hasOwnProperty.call(EVAL_REQUIRED, e.executor))
+    ? EVAL_REQUIRED[e.executor] : null
   if (!spec) {
     evalProblems.push(`${nm}: executor ${e.executor === undefined ? 'VANG' : JSON.stringify(e.executor)} khong thuoc {test, script, ui-check, judgment} — eval nay se bi bo roi im lang`)
     return
@@ -353,7 +360,12 @@ if (args.dryRun) {
 if (!distinctCmds.length && !freshJudgmentEvals.length && !uiEvals.length) {
   const reason = (carriedEvals.length || carriedPanels.length)
     ? 'toan bo eval/panel deu carry-forward va suite rong — khong co gi FRESH verify cay code moi cua round nay; them feature_loop.suite_keys hoac thu hep paths cua eval'
-    : 'evals.yaml khong co eval may va khong co judgment — khong co gi de verify, kiem tra lai evals.yaml'
+    : ungroundedIds.size
+      // Nói ĐÚNG sự thật: judgment CÓ tồn tại, chỉ là không khai inputs nên máy
+      // không chấm được, và không còn eval máy/suite nào xác nhận cây code mới.
+      // Thông điệp cũ ("khong co judgment") sai sự thật và chỉ người sửa nhầm chỗ.
+      ? `${ungroundedIds.size} judgment eval (${[...ungroundedIds].join(', ')}) khong khai inputs nen may khong cham duoc, va khong co eval may/suite nao xac nhan cay code moi — khai inputs cho cac eval do, hoac them feature_loop.suite_keys`
+      : 'evals.yaml khong co eval may va khong co judgment — khong co gi de verify, kiem tra lai evals.yaml'
   return { verdict: 'BLOCKED', blocked: [{ cmd: '(none)', reason }], failedEvals: [], failedCommands: [], panels: [], confirmedFindings: [], reviewIncomplete: [] }
 }
 
@@ -400,7 +412,7 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw, baselineRaw] = await parallel([
   () => parallel(freshJudgmentEvals.flatMap(e =>
     LENSES.map(lens => () =>
       agentT(
-        `Ban la judge DOC LAP, context sach, lens duy nhat: ${lens}. BLIND: KHONG doc diff, KHONG doc reasoning cua nguoi code.\nDoc persona tai ${args.personasPath}, ap persona hop lens.\nCHI duoc doc dung cac input sau (abs path, da resolve san) cong file persona o tren — KHONG duoc doc file nao khac trong repo: contract.md, evals.yaml, design doc, source code deu NGOAI danh sach.\nInput: ${(e.inputs || []).join(' , ')}\n\nThay danh sach tren KHONG du can cu de phan → do la ly do tra UNCERTAIN, TUYET DOI KHONG phai ly do di tim file khac de tu cuu. Tu chon them mot artifact roi phan tu no la pha hong tinh doc lap cua hoi dong: ban se dang cham bang mot tieu chi khong ai duyet.\n\nCau hoi phan xet (${e.id} / ${e.criterion}): ${e.question}\n\nTra verdict PASS | FAIL | UNCERTAIN + rationale 1-3 cau. UNCERTAIN khi khong du can cu — dung doan.`,
+        `Ban la judge DOC LAP, context sach, lens duy nhat: ${lens}. BLIND: KHONG doc diff, KHONG doc reasoning cua nguoi code.\nDoc persona tai ${args.personasPath}, ap persona hop lens.\nCHI duoc doc dung cac file liet ke o dong "Input:" duoi day, cong file persona o tren. Danh sach do la DAY DU: file nao KHONG co ten trong do deu ngoai pham vi, ke ca khi no co ve lien quan hay co ten nghe quan trong. Luat nay theo QUAN HE (co-trong-danh-sach hay khong), KHONG theo loai file — cung mot ten file co the la input hop le cua eval nay va ngoai pham vi cua eval khac.\nInput: ${(e.inputs || []).join(' , ')}\n\nThay danh sach tren KHONG du can cu de phan → do la ly do tra UNCERTAIN, TUYET DOI KHONG phai ly do di tim file khac de tu cuu. Tu chon them mot artifact roi phan tu no la pha hong tinh doc lap cua hoi dong: ban se dang cham bang mot tieu chi khong ai duyet.\n\nCau hoi phan xet (${e.id} / ${e.criterion}): ${e.question}\n\nTra verdict PASS | FAIL | UNCERTAIN + rationale 1-3 cau. UNCERTAIN khi khong du can cu — dung doan.`,
         { label: `judge:${e.id}:${lens}`, phase: 'Judge', schema: VERDICT_SCHEMA, ...modelOpt('judge') }
       ).then(v => v && { evalId: e.id, lens, ...v })
     )

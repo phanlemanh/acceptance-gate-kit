@@ -915,13 +915,60 @@ console.log('W-G7 prompt hoi dong chan tu-cuu + dump chinh danh');
   const jOK2 = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'ro rang?', inputs: ['/repo/a.md', '/repo/b.md'] };
   const { calls } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, jOK2] }), responder());
   const jp = byLabel(calls, 'judge:')[0].prompt;
-  check('W-G7 prompt cam doc ngoai danh sach', /CHI duoc doc/.test(jp) && /KHONG duoc doc file nao khac/.test(jp), jp.slice(0, 240));
+  // Luat phai neo vao DANH SACH (quan he), khong vao loai file — xem W-G7b cho
+  // phep do quan he day du. Assert o day chi ghim rang luat CO mat va dong.
+  check('W-G7 prompt co luat danh sach dong', /CHI duoc doc/.test(jp) && /Danh sach do la DAY DU/.test(jp), jp.slice(0, 240));
   check('W-G7 prompt: thieu can cu -> UNCERTAIN, khong phai di tim file khac', /ly do tra UNCERTAIN/.test(jp) && /tu cuu/.test(jp), 'thieu ve tu-cuu');
   mkdirSync(path.dirname(OUT), { recursive: true });
   writeFileSync(OUT, jp);
   check('W-G7 dump duoc sinh trong chinh lan chay', existsSync(OUT));
   check('W-G7 dump BANG DUNG prompt cua lan chay', readFileSync(OUT, 'utf8') === jp);
   check('W-G7 dump chua id eval + inputs cua lan chay', /E9/.test(jp) && /\/repo\/a\.md/.test(jp) && /\/repo\/b\.md/.test(jp), 'thieu id hoac inputs');
+}
+
+console.log('W-G7b luat doc theo QUAN HE, khong theo loai file (S4-r1 finding)');
+{
+  // Round 1 bat: cau cam liet ke "contract.md, evals.yaml, design doc, source
+  // code deu NGOAI danh sach" — nhung do CHINH LA input that cua kit
+  // (_acceptance/cross-feature-claim-index/evals.yaml:114-131 khai design doc +
+  // contract.md lam inputs; E11 co design doc la input DUY NHAT). Judge nhan hai
+  // chi dan nguoc nhau ve CUNG mot file → tuan cau cam → tra UNCERTAIN.
+  // W-G7 chi grep su CO MAT cua cau cam nen khong the bat lop nay.
+  const declared = ['/repo/_acceptance/x/contract.md', '/repo/docs/superpowers/specs/y-design.md', '/repo/_acceptance/x/evals.yaml'];
+  const e = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'ro rang?', inputs: declared };
+  const { calls } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, e] }), responder());
+  const jp = byLabel(calls, 'judge:')[0].prompt;
+  // Tach dong "Input:" ra; phan CON LAI khong duoc nhac ten file nao da khai.
+  const inputLine = jp.split('\n').find(l => l.startsWith('Input:')) || '';
+  check('W-G7b dong Input: liet ke du ca 3 file da khai', declared.every(p => inputLine.includes(p)), inputLine);
+  const outside = jp.split('\n').filter(l => !l.startsWith('Input:')).join('\n');
+  for (const p of declared) {
+    const base = p.split('/').pop();
+    check(`W-G7b phan ngoai dong Input KHONG nhac "${base}"`, !outside.includes(base), outside.slice(0, 300));
+  }
+  check('W-G7b cau cam neo vao DANH SACH chu khong vao loai file', /dong "Input:"|danh sach/i.test(outside), outside.slice(0, 200));
+}
+
+console.log('W-G7c executor trung ten khoa prototype -> BLOCKED, KHONG nem TypeError');
+{
+  for (const x of ['constructor', '__proto__', 'toString', 'hasOwnProperty', 'valueOf']) {
+    const e = { id: 'EX', criterion: 'AC-9', executor: x, question: 'q' };
+    let result, threw = null;
+    try { ({ result } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, e] }), responder())); }
+    catch (err) { threw = String(err && err.message); }
+    check(`W-G7c executor "${x}" KHONG nem loi`, threw === null, threw || '');
+    check(`W-G7c executor "${x}" -> BLOCKED neu ten eval`, !!result && result.verdict === 'BLOCKED' && /EX/.test(result.blocked[0].reason), threw || (result && result.verdict));
+  }
+}
+
+console.log('W-G7d round toan judgment khong khai inputs: thong diep NOI DUNG SU THAT');
+{
+  const j = { id: 'J1', criterion: 'AC-1', executor: 'judgment', question: 'q' };
+  const { result } = await runWorkflow(WF, baseArgs({ evals: [j], suiteCommands: [] }), responder());
+  check('W-G7d BLOCKED', result.verdict === 'BLOCKED', result.verdict);
+  const r = result.blocked[0].reason;
+  check('W-G7d KHONG noi sai "khong co judgment"', !/khong co eval may va khong co judgment/.test(r), r);
+  check('W-G7d neu dich danh eval judgment va ly do that', /J1/.test(r) && /khong khai inputs/.test(r), r);
 }
 
 console.log('W-G8 ton kho that: moi _acceptance/*/evals.yaml qua bang RUT TU MARKER');
@@ -934,17 +981,51 @@ console.log('W-G8 ton kho that: moi _acceptance/*/evals.yaml qua bang RUT TU MAR
   // khoi nhau ma van xanh (hinh dang (3) trong 4 hinh dang da dam, CLAUDE.md).
   const m = src.match(/\/\/ <<<EVAL-REQUIRED-FIELDS\n([\s\S]*?)\/\/ EVAL-REQUIRED-FIELDS>>>/);
   check('W-G8 rut duoc bang tu marker', !!m, 'marker khong khop — bang khong con o mot cho co dau moc');
-  const TABLE = new Function(`${m[1]}; return EVAL_REQUIRED;`)();
+  // Rut CA BA (bang + hai vi tu) roi ap Y NGUYEN. Round 1 bat: ban truoc chi
+  // kiem `_k.has(fl)` cho field mang trong khi guard that dung badStrArray —
+  // phep do yeu hon chinh thu no do, nen `steps: []` se XANH o day ma BLOCKED
+  // o lan chay that.
+  const { EVAL_REQUIRED: TABLE, isBlankStr, badStrArray } = new Function(
+    `${m[1]}; return { EVAL_REQUIRED, isBlankStr, badStrArray };`)();
   check('W-G8 bang co du 4 executor', Object.keys(TABLE).sort().join(',') === 'judgment,script,test,ui-check', Object.keys(TABLE).join(','));
+  check('W-G8 rut duoc CA HAI vi tu tu marker', typeof isBlankStr === 'function' && typeof badStrArray === 'function');
+  // sanity: vi tu rut ra phai that su phan biet, khong phai ham luon-true
+  check('W-G8 vi tu rut ra co rang', isBlankStr('  ') && !isBlankStr('x') && badStrArray([]) && badStrArray(['']) && !badStrArray(['a']));
 
+  // Parser doc duoc: scalar mot dong, list inline [a, b], list gach dau dong,
+  // va block scalar (`key: >` / `key: |`) — thieu ba dang sau thi field co that
+  // bi doc thanh rong va phep do bao dong gia.
   const parseEvals = (file) => {
-    const out = []; let cur = null;
+    const out = []; let cur = null, listKey = null, blockKey = null, blockInd = 0;
     for (const raw of readFileSync(file, 'utf8').split('\n')) {
-      const idM = raw.match(/^\s*-\s*id:\s*(.+)$/);
+      const line = raw.replace(/\s+$/, '');
+      const ind = line.length - line.replace(/^\s*/, '').length;
+      if (blockKey) {
+        if (line.trim() && ind >= blockInd) { cur[blockKey] += (cur[blockKey] ? ' ' : '') + line.trim(); continue; }
+        blockKey = null;
+      }
+      if (listKey) {
+        // Dong trong / comment KHONG dong danh sach: evals.yaml that co comment
+        // xen giua cac muc (design-pass-skill/E15) — dong som la bao dong gia
+        // "eval khong khai inputs" trong khi no khai 3 file.
+        if (!line.trim() || /^\s*#/.test(line)) continue;
+        const it = line.match(/^\s+-\s+(.*)$/);
+        if (it && !/^\s*-\s*id:/.test(line)) { cur[listKey].push(it[1].trim().replace(/^["']|["']$/g, '')); continue; }
+        listKey = null;
+      }
+      const idM = line.match(/^\s*-\s*id:\s*(.+)$/);
       if (idM) { if (cur) out.push(cur); cur = { id: idM[1].trim(), _k: new Set(['id']) }; continue; }
       if (!cur) continue;
-      const kv = raw.replace(/\s+$/, '').match(/^\s{2,}([a-z_]+):\s*(.*)$/);
-      if (kv) { cur._k.add(kv[1]); cur[kv[1]] = kv[2].trim().replace(/^["']|["']$/g, ''); }
+      const kv = line.match(/^\s{2,}([a-z_]+):\s*(.*)$/);
+      if (!kv) continue;
+      const [, k, v] = kv;
+      cur._k.add(k);
+      if (v === '>' || v === '|' || v === '>-' || v === '|-') { cur[k] = ''; blockKey = k; blockInd = ind + 1; continue; }
+      if (v === '') { cur[k] = []; listKey = k; continue; }
+      const inline = v.match(/^\[(.*)\]$/);
+      cur[k] = inline
+        ? inline[1].split(',').map(s => s.trim().replace(/^["']|["']$/g, '')).filter(Boolean)
+        : v.trim().replace(/^["']|["']$/g, '');
     }
     if (cur) out.push(cur);
     return out;
@@ -957,11 +1038,12 @@ console.log('W-G8 ton kho that: moi _acceptance/*/evals.yaml qua bang RUT TU MAR
       if (!existsSync(f)) continue;
       files++;
       for (const e of parseEvals(f)) {
+        if (!Object.prototype.hasOwnProperty.call(TABLE, e.executor)) { hard.push(`${slug}/${e.id}: executor`); continue; }
         const spec = TABLE[e.executor];
-        if (!spec) { hard.push(`${slug}/${e.id}: executor`); continue; }
-        for (const fl of spec.str) if (!e._k.has(fl) || !String(e[fl] || '').trim()) hard.push(`${slug}/${e.id}: ${fl}`);
-        for (const fl of spec.arr) if (!e._k.has(fl)) hard.push(`${slug}/${e.id}: ${fl}`);
-        if (e.executor === 'judgment' && !e._k.has('inputs')) soft.push(`${slug}/${e.id}`);
+        for (const fl of spec.str) if (isBlankStr(e[fl])) hard.push(`${slug}/${e.id}: ${fl}`);
+        for (const fl of spec.arr) if (badStrArray(e[fl])) hard.push(`${slug}/${e.id}: ${fl}`);
+        if (e.executor === 'judgment' && e.inputs !== undefined && e.inputs !== null && !Array.isArray(e.inputs)) hard.push(`${slug}/${e.id}: inputs`);
+        if (e.executor === 'judgment' && badStrArray(e.inputs)) soft.push(`${slug}/${e.id}`);
       }
     }
     return { hard, soft, files };
