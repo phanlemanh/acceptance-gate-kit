@@ -4,7 +4,7 @@ feature: "Field khai trên eval mà máy không dùng phải được nêu đíc
 slug: judgment-runs
 risk_tier: T3
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-08-04T01:18:27Z
 owner: phanlemanh@gmail.com

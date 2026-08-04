@@ -1,0 +1,14 @@
+{"ts":"2026-08-04T03:59:47Z","round":1,"evalId":"E1","run_id":"minted-judgment-runs-E1-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-04T03:59:47Z","round":1,"evalId":"E2","run_id":"minted-judgment-runs-E2-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-04T03:59:47Z","round":1,"evalId":"E3","run_id":"minted-judgment-runs-E3-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-04T03:59:47Z","round":1,"evalId":"E4","run_id":"minted-judgment-runs-E4-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-04T03:59:47Z","round":1,"evalId":"E5","run_id":"minted-judgment-runs-E5-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-04T03:59:47Z","round":1,"evalId":"E6","run_id":"minted-judgment-runs-E6-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-04T03:59:47Z","round":1,"evalId":"E7","run_id":"minted-judgment-runs-E7-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-04T03:59:47Z","round":1,"evalId":"E8","run_id":"minted-judgment-runs-E8-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-04T03:59:47Z","round":1,"evalId":"E9","run_id":"minted-judgment-runs-E9-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-04T03:59:47Z","round":1,"evalId":"E12","run_id":"minted-judgment-runs-E12-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-04T03:59:47Z","round":1,"evalId":"E13","run_id":"minted-judgment-runs-E13-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-04T03:59:47Z","round":1,"evalId":"E11","run_id":"minted-judgment-runs-E11-r1","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
+{"ts":"2026-08-04T03:59:47Z","round":1,"kind":"baseline","evals_hash":"7d1d06401d5c7459b53e72639780d7a4c54248ad138ec14212dad24ca8c79c60","non_discriminating":[{"cmd":"bash tests/workflows/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E7","E8","E9","E12","E13"]},{"cmd":"bash scripts/sync-plugin-packages.sh --check","evals":["E11"]}]}
+{"ts":"2026-08-04T03:59:47Z","round":1,"kind":"inert","fields":[{"evalId":"E10","field":"runs","executor":"judgment"}]}
