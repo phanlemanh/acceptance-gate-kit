@@ -307,7 +307,13 @@ Việc vá (gộp vào phần còn lại làn thiết kế): thêm trục "nấc
 frontmatter design-pass.md — `context: standalone | khung-giả-tĩnh |
 nhúng-host-thật` — khai bắt buộc như `material:`; nấc `standalone` trước
 Gate 1 phải kèm ≥1 cảnh ngữ-cảnh (khung host thật bọc artifact + storyboard
-hành trình) hoặc entry descope có tên.
+hành trình) hoặc entry descope có tên. **Ràng tách tầng khi đóng gói (lo
+ngại Manh 04/08):** kit chỉ giữ câu-hỏi + thang 3 nấc + luật khai + chốt cổng
+— generic mọi repo; "host là gì / cách nhúng" sống ở skill chuẩn UI của repo
+tiêu thụ qua ổ cắm `feature_loop.ui_standards_skill` (mẫu P86 đã chạy);
+đường C/E miễn theo bảng định tuyến sẵn có; test đóng gói phải ĐỎ trên
+fixture repo-lạ (không phải artifact-platform) và ghim QUAN HỆ kit-đòi-khai
+⟂ config-cấp-đích, cấm ghim từ vựng host ("Creator"/"canvas") vào kit.
 
 ## DP-1 — Scorecard (điền sau V1)
 
