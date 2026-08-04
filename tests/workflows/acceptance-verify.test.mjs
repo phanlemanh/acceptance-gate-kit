@@ -849,4 +849,28 @@ console.log('WI4 o inert: mot dong log + mot dong run-log kind:inert (khong run_
     cl.filter(l => /O inert/i.test(l)).length === 0);
 }
 
+console.log('WI5 inertNote: literal do JS tinh + chi dan chep nguyen van vao ## Variance');
+{
+  const jEval = (over = {}) => ({ id: 'E9', criterion: 'AC-4', executor: 'judgment', question: 'q?', inputs: ['/a.md'], ...over });
+  const { calls } = await runWorkflow(WF, baseArgs({ evals: [jEval({ runs: 3 })] }), responder());
+  const p = byLabel(calls, 'synthesize:report')[0].prompt;
+  check('WI5 prompt mang cum mo dau hop dong lien-file', /Field khai mà máy không dùng:/.test(p));
+  const line = (/Field khai mà máy không dùng:[^\n]*/.exec(p) || [''])[0];
+  check('WI5 literal neu dich danh evalId + field + gia tri', /E9/.test(line) && /runs/.test(line) && /3/.test(line), line);
+  check('WI5 co chi dan chep NGUYEN VAN vao Variance', /CHEP NGUYEN VAN[\s\S]{0,300}Variance/.test(p), 'khong thay chi dan');
+  check('WI5 literal KHONG bat dau bang "none" (reader loc /^none/i)', !/^none/i.test(line), line.slice(0, 40));
+  // PHEP THU XOA-TEN-MAY: cau nay di toi mat nguoi ky, nen KHONG duoc mang ten co che noi bo.
+  // Bo cac ten do di ma cau van con noi duoc dieu gi -> dat. Con lai -> chua dat.
+  const MACHINE_NAMES = /\bP1\b|\bP2\b|\bP3\b|carry-forward|3-lens|inputs-hash|executor|inertField/i;
+  check('WI5 literal khong mang ten co che noi bo (phep thu xoa-ten-may)',
+    !MACHINE_NAMES.test(line), line);
+  // Va van phai neu duoc VIEC CUA NGUOI (sua gi / hoac chap nhan)
+  check('WI5 literal neu viec-cua-nguoi', /evals\.yaml/.test(line) && /hạn chế đã biết/.test(line), line);
+
+  // DOI CHUNG DUONG: khong eval inert -> prompt KHONG chua literal lan chi dan
+  const { calls: c2 } = await runWorkflow(WF, baseArgs({ evals: [jEval()] }), responder());
+  const p2 = byLabel(c2, 'synthesize:report')[0].prompt;
+  check('WI5 doi chung duong: khong inert -> prompt sach', !/Field khai mà máy không dùng/.test(p2));
+}
+
 summary('acceptance-verify');
