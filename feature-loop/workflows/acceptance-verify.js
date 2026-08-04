@@ -758,6 +758,26 @@ const prov = await agentT(
   )
 const runLogWriteFailed = runLogLines.length > 0 // luôn: main loop append, không còn scribe
 if (runLogWriteFailed) log('Run-log: ' + runLogLines.length + ' dong trong result.runLog — main loop TU append truoc Gate 2 (hook/recheck doi chieu run_id voi log nay)')
+
+// Prov chet (agent loi/API 529) → FAIL-TOWARD-HUMAN: BLOCKED co ly do tuong minh.
+// KHONG dereference tiep, va KHONG goi synthesize: enforcement_mode / bypass_used /
+// verified_commit la truong TIN-NHIEM (CI pre-merge dung chung de chan gate yeu va bat
+// stale evidence), nen mot bao cao thieu chung con nguy hiem hon la khong co bao cao.
+// Moi agent khac trong file deu co duong chet an toan (filter(Boolean), cannotRun,
+// dead:true); rieng cho nay khong — mot loi 529 thoang qua da lam sap ca vong S4 va
+// mat trang cong cua 23 agent (2026-08-04, round 6). Cong da tinh duoc VAN tra ve.
+if (!prov) {
+  log('BLOCKED: buoc capture provenance khong tra ket qua — khong co enforcement_mode/bypass_used de ghi report')
+  return {
+    verdict: 'BLOCKED',
+    blocked: [{ cmd: 'capture:provenance', reason: 'buoc do provenance khong tra ket qua (agent loi/qua tai) — khong co enforcement_mode + bypass_used, ma day la truong tin-nhiem CI dung de chan gate yeu; chay lai CUNG round' }],
+    failedEvals: failedEvalIds, failedCommands, panels: panels.map(p => ({ evalId: p.evalId, proposal: p.proposal })),
+    confirmedFindings, triaged, triageFailed, rejectFindings, coverageCluster, reviewIncomplete,
+    nonDiscriminating, inertFields,
+    carried: { evals: carriedEvals.map(c => c.id), panels: carriedPanels.map(p => p.evalId), baseline: !runBaseline },
+    runLog: runLogLines, runLogWriteFailed, report: '', findings: '',
+  }
+}
 // verified_commit sanitize bang JS thuan — khong tin agent: sai shape (khong phai hex SHA) coi nhu
 // khong co (report BO field; pre-merge se NOTE "not pinned" thay vi hook chan oan ca round).
 const verifiedCommit = /^[0-9a-f]{7,40}$/i.test(String((prov && prov.verified_commit) || '').trim())

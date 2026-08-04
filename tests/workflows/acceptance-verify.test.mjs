@@ -1165,4 +1165,30 @@ console.log('WI10 nhanh thoat som van mang inertFields (dryRun + BLOCKED khong-c
   check('WI10 doi chung duong dryRun sach', (d2.inertFields || []).length === 0);
 }
 
+console.log('WI11 agent provenance chet -> BLOCKED co ly do, KHONG sap ca vong');
+{
+  const jEval = { id: 'E9', criterion: 'AC-4', executor: 'judgment', question: 'q?', inputs: ['/a.md'], runs: 3 };
+  // Provenance chet (loi 529 that su da xay ra o S4 vong 6, lam sap ca vong va mat
+  // trang cong cua 23 agent). Moi agent khac trong file deu co duong chet an toan;
+  // rieng prov bi dereference thang. Fail-toward-human: BLOCKED co ly do tuong minh,
+  // KHONG sinh bao cao thieu truong tin-nhiem (enforcement_mode/bypass_used/verified_commit).
+  const { result, calls } = await runWorkflow(WF, baseArgs({ evals: [jEval] }),
+    responder({ 'capture:provenance': null }));
+  check('WI11 verdict BLOCKED', result.verdict === 'BLOCKED', result.verdict);
+  check('WI11 blocked neu dich danh buoc provenance',
+    (result.blocked || []).some(b => /provenance/i.test(b.cmd) || /provenance/i.test(b.reason)),
+    JSON.stringify(result.blocked));
+  check('WI11 KHONG goi synthesize (khong sinh bao cao thieu truong tin-nhiem)',
+    byLabel(calls, 'synthesize:report').length === 0, String(byLabel(calls, 'synthesize:report').length));
+  // Cong cua cac agent khac KHONG duoc mat trang
+  check('WI11 giu run-log da tinh', (result.runLog || []).length > 0, String((result.runLog || []).length));
+  check('WI11 giu inertFields', (result.inertFields || []).length === 1, JSON.stringify(result.inertFields));
+  // DOI CHUNG DUONG: prov song -> KHONG blocked vi ly do nay, VA co goi synthesize
+  const { result: ok, calls: c2 } = await runWorkflow(WF, baseArgs({ evals: [jEval] }), responder());
+  check('WI11 doi chung duong: prov song -> khong blocked vi provenance',
+    !(ok.blocked || []).some(b => /provenance/i.test(b.cmd) || /provenance/i.test(b.reason)), JSON.stringify(ok.blocked));
+  check('WI11 doi chung duong: prov song -> co goi synthesize',
+    byLabel(c2, 'synthesize:report').length === 1);
+}
+
 summary('acceptance-verify');

@@ -111,6 +111,19 @@ const MUTATIONS = [
     expect: 'WI6 [vong sau da sach] canh bao cu KHONG con hien',
   },
   {
+    name: 'bo chot prov-chet (mot loi 529 lai lam sap ca vong)',
+    file: WF_REL,
+    apply: s => {
+      const a = "if (!prov) {";
+      if (!s.includes(a)) throw new Error('khong tim thay chot prov-chet');
+      return s.replace(a, "if (false) {");
+    },
+    // Bo chot nay khong lam mot case do — no lam SAP ca tien trinh test (TypeError khi
+    // dereference prov). Ghim dung dau vet do: do la chinh che do hong da xay ra o vong 6.
+    expect: 'WI11 verdict BLOCKED (crash)',
+    expectRaw: "enforcement_mode.*(of null|null is not an object)|null is not an object.*enforcement_mode|Cannot read propert.*enforcement_mode",
+  },
+  {
     // AC-16: dot bien o phia VIET (doi cum mo dau cua cau may sinh), case do mong doi
     // nam o phia DOC — case do chay scripts/gate-card.js that va tim cum do trong the.
     name: 'ben VIET doi cum mo dau cua cau canh bao',
@@ -177,7 +190,12 @@ try {
     const r = runSuite(WORK);
     writeFileSync(abs, originals.get(m.file)); // khoi phuc truoc dot bien ke
     // (b) GHIM ĐÚNG THÔNG ĐIỆP — exit khac 0 mot minh van xanh khi mot case KHAC do.
-    const hit = new RegExp('FAIL: ' + m.expect.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).test(r.out);
+    // Mot so dot bien gay CRASH (uncaught) chu khong phai assertion do — khi do suite
+    // chet truoc khi in duoc dong FAIL nao. Voi chung, ghim `expectRaw`: dau vet THAT
+    // cua crash. Van la "ghim dung thong diep", chi khac hinh dang thong diep.
+    const hit = m.expectRaw
+      ? new RegExp(m.expectRaw).test(r.out)
+      : new RegExp('FAIL: ' + m.expect.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).test(r.out);
     if (r.code !== 0 && hit) {
       console.log(`PASS: [${m.name}] -> DO dung case "${m.expect}"`);
     } else {
