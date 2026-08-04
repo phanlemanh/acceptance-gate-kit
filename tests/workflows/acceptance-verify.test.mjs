@@ -814,4 +814,47 @@ console.log('W-G3 judgment thieu inputs: UNCERTAIN co hoc, KHONG BLOCKED, 0 judg
   check('W-G3 inputs co phan tu khong phai chuoi -> BLOCKED', r3.verdict === 'BLOCKED', r3.verdict);
 }
 
+console.log('W-G4 3 cua hau khong mien kiem: carriedPanels, carriedEvals, dryRun');
+{
+  // (a) hong khuon + carriedPanels tro dung eval do -> van BLOCKED
+  const badJ = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: '' };
+  const cp = { evalId: 'E9', proposal: 'PASS', votes: [{ lens: 'domain-correctness', verdict: 'PASS' }], fromRound: 2 };
+  const { result: a } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, badJ], carriedPanels: [cp] }), responder());
+  check('W-G4a panel carried KHONG mien kiem hong khuon', a.verdict === 'BLOCKED', a.verdict);
+  check('W-G4a neu ten E9', /\bE9\b/.test(a.blocked[0].reason), a.blocked[0].reason);
+  const okJ = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'ro rang?', inputs: ['/repo/a.md'] };
+  const { result: a2, calls: a2c } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, okJ], carriedPanels: [cp] }), responder());
+  check('W-G4a doi chung duong: KHONG BLOCKED', a2.verdict !== 'BLOCKED', a2.verdict);
+  check('W-G4a doi chung duong: 0 judge (panel carried dung lai)', byLabel(a2c, 'judge:').length === 0, String(byLabel(a2c, 'judge:').length));
+  check('W-G4a doi chung duong: panel giu proposal goc PASS', (a2.panels.find(p => p.evalId === 'E9') || {}).proposal === 'PASS', JSON.stringify(a2.panels));
+
+  // (b) hong khuon + carriedEvals tro dung eval may do -> van BLOCKED
+  const badM = { id: 'E7', criterion: 'AC-7', executor: 'test', ref: 'config:executors.test.api' };
+  const ce = { id: 'E7', runId: 'r-abc123', fromRound: 2, verifiedAt: '2026-08-01T00:00:00Z', cmd: 'pnpm test' };
+  const { result: b } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, badM], carriedEvals: [ce] }), responder());
+  check('W-G4b eval carried KHONG mien kiem', b.verdict === 'BLOCKED', b.verdict);
+  check('W-G4b neu ten E7 + field cmd', /\bE7\b/.test(b.blocked[0].reason) && /cmd/.test(b.blocked[0].reason), b.blocked[0].reason);
+  const okM = { ...badM, cmd: 'pnpm test' };
+  const { result: b2, calls: b2c } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, okM], carriedEvals: [ce] }), responder());
+  check('W-G4b doi chung duong: KHONG BLOCKED', b2.verdict !== 'BLOCKED', b2.verdict);
+  check('W-G4b doi chung duong: carried nen khong them agent may', byLabel(b2c, 'machine:').length === 2, String(byLabel(b2c, 'machine:').length));
+
+  // (c) dryRun + eval hong -> BLOCKED, KHONG tra ke hoach
+  const { result: c, calls: cc } = await runWorkflow(WF, baseArgs({ dryRun: true, evals: [...baseArgs().evals, badJ] }), responder());
+  check('W-G4c dryRun + eval hong -> BLOCKED', c.verdict === 'BLOCKED', c.verdict);
+  check('W-G4c KHONG tra ke hoach fan-out', c.distinctCommands === undefined && c.judgePanels === undefined, JSON.stringify(Object.keys(c)));
+  check('W-G4c 0 agent', cc.length === 0, String(cc.length));
+  const { result: c2 } = await runWorkflow(WF, baseArgs({ dryRun: true, evals: [...baseArgs().evals, okJ] }), responder());
+  check('W-G4c doi chung duong: ke hoach van day du', Array.isArray(c2.distinctCommands) && c2.judgePanels.length === 1, JSON.stringify(c2.judgePanels));
+
+  // (d) nhanh UNCERTAIN cung phai song qua carried + dryRun
+  const noIn = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'ro rang?' };
+  const { result: d, calls: dc } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, noIn], carriedPanels: [cp] }), responder());
+  check('W-G4d panel carried KHONG ghi de duoc nhanh UNCERTAIN', (d.panels.find(p => p.evalId === 'E9') || {}).proposal === 'UNCERTAIN', JSON.stringify(d.panels));
+  check('W-G4d 0 judge', byLabel(dc, 'judge:').length === 0, String(byLabel(dc, 'judge:').length));
+  const { result: d2 } = await runWorkflow(WF, baseArgs({ dryRun: true, evals: [...baseArgs().evals, noIn] }), responder());
+  check('W-G4d dryRun KHONG liet eval khong can cu vao judgePanels', !(d2.judgePanels || []).some(x => x.eval === 'E9'), JSON.stringify(d2.judgePanels));
+  check('W-G4d dryRun neu ro no thuoc dien khong can cu', (d2.ungroundedJudgments || []).includes('E9'), JSON.stringify(d2.ungroundedJudgments));
+}
+
 summary('acceptance-verify');
