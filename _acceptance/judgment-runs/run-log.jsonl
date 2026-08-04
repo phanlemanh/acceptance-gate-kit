@@ -44,3 +44,20 @@
 {"ts":"2026-08-04T06:28:48Z","round":3,"evalId":"E15","run_id":"minted-judgment-runs-E15-r3","exit_code":0,"cmd":"node tests/workflows/mutation-check.mjs"}
 {"ts":"2026-08-04T06:28:48Z","round":3,"kind":"baseline","evals_hash":"cd27bf2375853bbac358d9261a4c9ad27e1ed1c3f3f0278acc36b4659953ad8f","non_discriminating":[{"cmd":"bash tests/workflows/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E7","E8","E9","E12","E13","E14"]}]}
 {"ts":"2026-08-04T06:28:48Z","round":3,"kind":"inert","note":"Field khai mà máy không dùng: E10 khai `runs: 3` nhưng eval hội đồng luôn chạy đúng một lần mỗi góc nhìn, và ba góc nhìn đã là cách hấp thụ sai số. Giá trị đó bị bỏ qua — sửa evals.yaml (đổi loại eval hoặc bỏ field) hoặc chấp nhận và ghi vào phần hạn chế đã biết.","fields":[{"evalId":"E10","field":"runs","executor":"judgment"}]}
+{"ts":"2026-08-04T07:07:59Z","round":4,"evalId":"E1","run_id":"minted-judgment-runs-E1-r4","exit_code":null,"cmd":"bash tests/workflows/run-tests.sh","cannot_run":true}
+{"ts":"2026-08-04T07:07:59Z","round":4,"evalId":"E2","run_id":"minted-judgment-runs-E2-r4","exit_code":null,"cmd":"bash tests/workflows/run-tests.sh","cannot_run":true}
+{"ts":"2026-08-04T07:07:59Z","round":4,"evalId":"E3","run_id":"minted-judgment-runs-E3-r4","exit_code":null,"cmd":"bash tests/workflows/run-tests.sh","cannot_run":true}
+{"ts":"2026-08-04T07:07:59Z","round":4,"evalId":"E4","run_id":"minted-judgment-runs-E4-r4","exit_code":null,"cmd":"bash tests/workflows/run-tests.sh","cannot_run":true}
+{"ts":"2026-08-04T07:07:59Z","round":4,"evalId":"E5","run_id":"minted-judgment-runs-E5-r4","exit_code":null,"cmd":"bash tests/workflows/run-tests.sh","cannot_run":true}
+{"ts":"2026-08-04T07:07:59Z","round":4,"evalId":"E6","run_id":"minted-judgment-runs-E6-r4","exit_code":null,"cmd":"bash tests/workflows/run-tests.sh","cannot_run":true}
+{"ts":"2026-08-04T07:07:59Z","round":4,"evalId":"E7","run_id":"minted-judgment-runs-E7-r4","exit_code":null,"cmd":"bash tests/workflows/run-tests.sh","cannot_run":true}
+{"ts":"2026-08-04T07:07:59Z","round":4,"evalId":"E8","run_id":"minted-judgment-runs-E8-r4","exit_code":null,"cmd":"bash tests/workflows/run-tests.sh","cannot_run":true}
+{"ts":"2026-08-04T07:07:59Z","round":4,"evalId":"E9","run_id":"minted-judgment-runs-E9-r4","exit_code":null,"cmd":"bash tests/workflows/run-tests.sh","cannot_run":true}
+{"ts":"2026-08-04T07:07:59Z","round":4,"evalId":"E12","run_id":"minted-judgment-runs-E12-r4","exit_code":null,"cmd":"bash tests/workflows/run-tests.sh","cannot_run":true}
+{"ts":"2026-08-04T07:07:59Z","round":4,"evalId":"E13","run_id":"minted-judgment-runs-E13-r4","exit_code":null,"cmd":"bash tests/workflows/run-tests.sh","cannot_run":true}
+{"ts":"2026-08-04T07:07:59Z","round":4,"evalId":"E14","run_id":"minted-judgment-runs-E14-r4","exit_code":null,"cmd":"bash tests/workflows/run-tests.sh","cannot_run":true}
+{"ts":"2026-08-04T07:07:59Z","round":4,"evalId":"E16","run_id":"minted-judgment-runs-E16-r4","exit_code":null,"cmd":"bash tests/workflows/run-tests.sh","cannot_run":true}
+{"ts":"2026-08-04T07:07:59Z","round":4,"evalId":"E11","run_id":"minted-judgment-runs-E11-r4","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
+{"ts":"2026-08-04T07:07:59Z","round":4,"evalId":"E15","run_id":"minted-judgment-runs-E15-r4","exit_code":0,"cmd":"node tests/workflows/mutation-check.mjs"}
+{"ts":"2026-08-04T07:07:59Z","round":4,"kind":"baseline","evals_hash":"e3aa1695a66f0f01fac3c98d23f0bdf7f4645a95c68910f26ada67ba8a043ce1","non_discriminating":[{"cmd":"bash scripts/sync-plugin-packages.sh --check","evals":["E11"]}]}
+{"ts":"2026-08-04T07:07:59Z","round":4,"kind":"inert","note":"Field khai mà máy không dùng: E10 khai `runs: 3` nhưng eval hội đồng luôn chạy đúng một lần mỗi góc nhìn, và ba góc nhìn đã là cách hấp thụ sai số. Giá trị đó bị bỏ qua — sửa evals.yaml (đổi loại eval hoặc bỏ field) hoặc chấp nhận và ghi vào phần hạn chế đã biết.","fields":[{"evalId":"E10","field":"runs","executor":"judgment"}]}
