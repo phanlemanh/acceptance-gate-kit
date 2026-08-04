@@ -5465,6 +5465,34 @@ assert any("thieu resume-guard" in e for e in check(m2)), "dot bien xoa resume-g
 print("P140 OK (doi chung duong + 2 dot bien)")
 PY
 
+run "P141 context-ladder docs-pin: amendment spec v2 + term CONTEXT.md (E13)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+spec = (root / "docs/specs/workflow-v2-spec.md").read_text(encoding="utf-8")
+ctx = (root / "CONTEXT.md").read_text(encoding="utf-8")
+flat = lambda s: re.sub(r"\s+", " ", s)
+def check(spec_t, ctx_t):
+    errs = []
+    fs_, fc = flat(spec_t), flat(ctx_t)
+    if "Bổ sung 04/08 — trục ngữ cảnh" not in fs_:
+        errs.append("spec v2 thieu amendment truc ngu canh")
+    if "2026-08-04-context-ladder-design.md" not in fs_:
+        errs.append("amendment khong tro toi file design")
+    if "Nấc ngữ cảnh" not in fc:
+        errs.append("CONTEXT.md thieu term Nac ngu canh")
+    if "Cảnh ngữ-cảnh" not in fc:
+        errs.append("CONTEXT.md thieu term Canh ngu-canh")
+    return errs
+assert check(spec, ctx) == [], f"ban nguyen ven phai xanh: {check(spec, ctx)}"
+m1 = re.sub(r"Bổ sung 04/08 — trục ngữ cảnh", "", spec)
+assert any("thieu amendment" in e for e in check(m1, ctx)), "dot bien xoa amendment khong do"
+m2 = re.sub(r"\*\*Nấc ngữ cảnh[^*]*\*\*", "", ctx)
+assert any("thieu term Nac ngu canh" in e for e in check(spec, m2)), "dot bien xoa term khong do"
+print("P141 OK (doi chung duong + 2 dot bien)")
+PY
+
 # --- context-ladder cases end ---
 
 if [ "$failures" -gt 0 ]; then

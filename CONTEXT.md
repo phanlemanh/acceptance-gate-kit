@@ -48,6 +48,21 @@ Công cụ điều khiển surface bên trong `ui-check` (browser, mobile simula
 Nghĩa hẹp — không dùng cho executor.
 _Avoid_: tool (chung chung).
 
+**Nấc ngữ cảnh (context:)**:
+Khoá `context:` trong sổ phiên design-pass — chỗ bản mẫu SỐNG, 3 nấc:
+`standalone` (đứng một mình) / `static-frame` (khung giả tĩnh) /
+`host-embedded` (nhúng host thật). Chiều thứ hai độc lập với thang vật liệu
+(`material:`): vật là gì ⟂ vật sống ở đâu. Thẻ Cổng 1 render nấc bằng tiếng
+người; đường nhúng rẻ per-repo khai ở khoá config `design_pass.host_embed`.
+_Avoid_: environment, embed mode, host mode.
+
+**Cảnh ngữ-cảnh**:
+Bằng chứng đi kèm bản mẫu `standalone`: khung host thật dạng tĩnh bọc vật +
+storyboard hành trình vào–ra, liệt trong khoá `context_scenes:` của sổ phiên.
+Thiếu nó mà không có entry descope `bỏ cảnh ngữ-cảnh — ` là cờ vàng trên thẻ
+Cổng 1.
+_Avoid_: mockup ngữ cảnh, screenshot host.
+
 **Evidence**:
 Vết máy đã đối chiếu được: `run_id` (khớp `run-log.jsonl`) + `exit_code` +
 `verifier` + `verified_at` (+ `verified_commit`). Không có evidence thì không
