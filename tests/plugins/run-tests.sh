@@ -5363,6 +5363,82 @@ assert "design_pass.host_embed" in skill, "SKILL khong khai khoa host_embed tron
 print("P138 OK (vang->co, chet->ten, song->khong, SKILL khai khoa)")
 PY
 
+run "P139 context-ladder generic: fixture repo-la code-sinh (web app tron) + grep-guard tu vung host (E8)" \
+  python3 - "$ROOT" <<'PY'
+import re, subprocess, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+skill = (root / "skills/design-pass/SKILL.md").read_text(encoding="utf-8")
+block = re.search(r"<<<DESIGN-PASS-NOTE-TEMPLATE\n(.*?)\nDESIGN-PASS-NOTE-TEMPLATE>>>", skill, re.S).group(1)
+SCENES_PH = "[<file cảnh trong evidence/design-pass/, trống nếu không standalone hoặc đã descope>]"
+BODY_PH = re.compile(r"- <file cảnh — [^\n]*>")
+# Fixture = repo web-app TRON do code sinh trong lan chay nay: khong artifact-
+# platform, khong tu vung host nao. Phep do phai phan biet dung tren no —
+# ghim QUAN HE khai-nac <-> config-cap-dich, khong ghim ten host.
+def mkrepo(ctx, drop_context=False):
+    d = Path(tempfile.mkdtemp())
+    (d / "package.json").write_text('{"name":"plain-webapp","private":true}\n', encoding="utf-8")
+    (d / "src").mkdir(); (d / "src" / "app.js").write_text("export const app = () => 'hello';\n", encoding="utf-8")
+    ws = d / "_acceptance" / "fx-web"; ws.mkdir(parents=True)
+    (d / "_acceptance" / "config.yaml").write_text("schema_version: 1\n", encoding="utf-8")
+    (ws / "contract.md").write_text(
+        "---\nschema_version: 1\nfeature: fx-web\nslug: fx-web\nrisk_tier: T2\nstatus: draft\n---\n\n"
+        "## Criteria\n\n- AC-1: Given a, When b, Then c.\n", encoding="utf-8")
+    fx = (block.replace("<slug>", "fx-web").replace("<ISO UTC>", "2026-08-04T00:00:00Z")
+          .replace("<url đã mở>", "http://localhost:5173/preview")
+          .replace("<real-components|scaffold|static>", "static")
+          .replace("<standalone|static-frame|host-embedded>", ctx)
+          .replace(SCENES_PH, "[]")
+          .replace("<tên-skill-đã-nạp|repo-tokens|shadcn-default>", "shadcn-default")
+          .replace("[<danh sách state đã duyệt>]", "[default]").replace("<n>", "0")
+          .replace("<state>", "default").replace("<breakpoint>", "mobile-375")
+          .replace("<theme>", "light").replace("<file>", "f")
+          .replace("<finding — đã đổi gì, 1 dòng/finding>", "x")
+          .replace("<finding — thiếu/xấu gì ở tầng DS/component, đề xuất 1 dòng>", "y"))
+    fx = BODY_PH.sub("- (khong)", fx)
+    if drop_context:
+        fx = "\n".join(l for l in fx.splitlines() if not l.startswith("context"))
+    (ws / "design-pass.md").write_text(fx, encoding="utf-8")
+    return d
+def render(d):
+    r = subprocess.run(["node", str(root / "scripts/gate-card.js"), "--root", str(d), "--slug", "fx-web"],
+                       capture_output=True, text=True)
+    assert r.returncode == 0, f"gate-card exit {r.returncode} tren repo-la: {r.stderr}"
+    return r.stdout
+# ba phep do phan biet dung tren repo-la
+out = render(mkrepo("host-embedded"))
+assert "nhúng host thật" in out, "repo-la: nac hop le khong render nhan"
+out = render(mkrepo("standalone"))
+assert "chưa có cảnh ngữ-cảnh" in out, "repo-la: standalone thieu canh khong co vang"
+out = render(mkrepo("host-embedded", drop_context=True))
+assert "chưa khai nấc ngữ cảnh" in out, "repo-la: so phien doi cu khong co vang doc-cu"
+# grep-guard tu vung host — chuoi GHEP MANH de guard khong tu khop source cua no,
+# co sanity counter (so file quet phai dung) + doi chung duong (tiem -> do).
+BAD = ["Crea" + "tor", "can" + "vas", "One" + "Hub"]
+rt = (root / "tests/plugins/run-tests.sh").read_text(encoding="utf-8")
+B = "# --- context-ladder cases " + "(P134-P141) begin ---"
+E = "# --- context-ladder cases " + "end ---"
+b = rt.find(B); e = rt.find(E, b + 1)
+assert b != -1 and e != -1 and e > b, "khong tim thay vung case context-ladder"
+srcs = {
+    "skills/design-pass/SKILL.md": skill,
+    "scripts/gate-card.js": (root / "scripts/gate-card.js").read_text(encoding="utf-8"),
+    "tests:context-ladder-region": rt[b:e],
+}
+assert len(srcs) == 3, "sanity: so nguon quet phai la 3"
+def guard(texts):
+    errs = []
+    for name, txt in sorted(texts.items()):
+        for w in BAD:
+            if w in txt:
+                errs.append(f"tu vung host '{w}' lot vao {name}")
+    return errs
+assert guard(srcs) == [], f"tu vung host lot vao nguon kit: {guard(srcs)}"
+mut = dict(srcs); mut["skills/design-pass/SKILL.md"] = skill + "\n" + BAD[0]
+assert any("tu vung host" in x and BAD[0] in x for x in guard(mut)), "guard khong do khi tiem tu vung host"
+print("P139 OK (3 phep do dung tren repo-la + guard co doi chung duong)")
+PY
+
 # --- context-ladder cases end ---
 
 if [ "$failures" -gt 0 ]; then
