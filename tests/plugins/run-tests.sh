@@ -5099,6 +5099,63 @@ assert mut_desc.find("v1.30:") < 0 or not (0 <= mut_desc.find("v1.29:") < mut_de
 print("P133 OK (3 pin chu + dot bien deu do dung cho)")
 P133PY
 
+# --- context-ladder cases (P134-P141) begin ---
+# Truc ngu canh cho ban mau (contract _acceptance/context-ladder): writer khai
+# context: 3 nac trong khuon marker, reader gate-card render nac + co vang,
+# generic moi repo. Moi case am co DOI CHUNG DUONG + ghim dung thong diep;
+# fixture rut tu khuon writer bang code (bat bien CLAUDE.md).
+
+run "P134 context-ladder writer: khoa context + giai doan 0 + luat canh + mac-dinh-nac-cao (E1/E2/E3/E4a)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+t = (root / "skills/design-pass/SKILL.md").read_text(encoding="utf-8")
+flat = lambda s: re.sub(r"\s+", " ", s)  # repo hard-wrap prose — pin phai chiu duoc xuong dong
+def check(text):
+    m = re.search(r"<<<DESIGN-PASS-NOTE-TEMPLATE\n(.*?)\nDESIGN-PASS-NOTE-TEMPLATE>>>", text, re.S)
+    if not m:
+        return ["KHONG rut duoc DESIGN-PASS-NOTE-TEMPLATE"]
+    block = m.group(1); ftext = flat(text)
+    errs = []
+    if "context: <standalone|static-frame|host-embedded>" not in block:
+        errs.append("khuon thieu khoa context: 3 nac")
+    if "context_scenes:" not in block:
+        errs.append("khuon thieu khoa context_scenes")
+    if "bỏ cảnh ngữ-cảnh — " not in flat(block):
+        errs.append("chuoi descope canh ngu-canh khong nam trong khuon marker")
+    if "## Cảnh ngữ-cảnh" not in block:
+        errs.append("khuon thieu section Canh ngu-canh")
+    if "vật này sống ở đâu" not in ftext:
+        errs.append("thieu cau hoi giai doan 0: vat nay song o dau")
+    if "Giai đoạn 0" not in ftext:
+        errs.append("thieu section Giai doan 0")
+    if "scaffold đơn vị THẬT sau cờ dev" not in ftext:
+        errs.append("thieu quy tac mac-dinh-nac-cao (scaffold don vi that sau co dev)")
+    if "gương song song" not in ftext:
+        errs.append("thieu lenh cam guong song song")
+    if "hợp lệ vĩnh viễn" not in ftext:
+        errs.append("thieu cau hop le vinh vien cho nhanh khong-co-duong-nhung-re")
+    if "host_embed" not in text:
+        errs.append("bang preflight thieu khoa design_pass.host_embed")
+    if "trước Cổng Phạm-vi" not in ftext and "trước Gate 1" not in ftext:
+        errs.append("thieu luat standalone truoc Cong Pham-vi phai kem canh/descope")
+    return errs
+# DOI CHUNG DUONG: ban nguyen ven phai XANH truoc khi tin cac mutation DO.
+assert check(t) == [], f"ban nguyen ven phai xanh: {check(t)}"
+m1 = t.replace("context: <standalone|static-frame|host-embedded>", "", 1)
+assert any("khuon thieu khoa context" in e for e in check(m1)), "dot bien xoa khoa context khong do"
+m2 = re.sub(r"vật\s+này\s+sống\s+ở\s+đâu", "", t)
+assert any("vat nay song o dau" in e for e in check(m2)), "dot bien xoa cau hoi giai doan 0 khong do"
+m3 = re.sub(r"bỏ\s+cảnh\s+ngữ-cảnh\s+— ", "bo canh ngu canh: ", t)
+assert any("chuoi descope" in e for e in check(m3)), "dot bien lech chuoi descope khong do"
+m4 = re.sub(r"gương\s+song\s+song", "", t, count=1)
+assert any("cam guong song song" in e for e in check(m4)), "dot bien xoa cam guong khong do"
+print("P134 OK (doi chung duong + 4 dot bien deu do dung cho)")
+PY
+
+# --- context-ladder cases end ---
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
