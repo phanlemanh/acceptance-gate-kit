@@ -873,4 +873,58 @@ console.log('WI5 inertNote: literal do JS tinh + chi dan chep nguyen van vao ## 
   check('WI5 doi chung duong: khong inert -> prompt sach', !/Field khai mà máy không dùng/.test(p2));
 }
 
+console.log('WI6 ROUND-TRIP writer->reader: inertNote qua scripts/gate-card.js ra co dung loai');
+{
+  const { mkdtempSync, mkdirSync, writeFileSync } = await import('node:fs');
+  const { execFileSync } = await import('node:child_process');
+  const os = await import('node:os');
+  const ROOT = path.join(HERE, '..', '..');
+
+  // (1) RUT cau literal tu WRITER that — khong chep tay
+  const jEval = { id: 'E9', criterion: 'AC-4', executor: 'judgment', question: 'q?', inputs: ['/a.md'], runs: 3 };
+  const { calls } = await runWorkflow(WF, baseArgs({ evals: [jEval] }), responder());
+  const note = (/Field khai mà máy không dùng:[^\n]*/.exec(byLabel(calls, 'synthesize:report')[0].prompt) || [''])[0];
+  check('WI6 rut duoc literal tu writer', note.length > 40, note);
+  check('WI6 literal KHONG bat dau bang "none"', !/^none/i.test(note));
+
+  // (2) SINH workspace fixture bang CODE (khong co fixture viet tay tren dia)
+  const mkWs = (variance) => {
+    const tmp = mkdtempSync(path.join(os.tmpdir(), 'agk-rt-'));
+    const dir = path.join(tmp, '_acceptance', 'rt');
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(path.join(dir, 'contract.md'),
+      '---\nschema_version: 2\nfeature: "rt"\nslug: rt\nrisk_tier: T2\nstatus: verified\n---\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n\n## Out of scope\n\n- x\n- y\n');
+    writeFileSync(path.join(dir, 'evals.yaml'), 'evals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    cmd: config:executors.test.api\n');
+    writeFileSync(path.join(dir, 'evidence-report.md'),
+      `---\nschema_version: 2\nfeature_slug: rt\nverdict: PASS\n---\n\n## Variance\n\n${variance}\n\n## Iterations\n\n- round 1\n`);
+    return tmp;
+  };
+  const card = (variance) => execFileSync('node', [path.join(ROOT, 'scripts', 'gate-card.js'), '--slug', 'rt'],
+    { cwd: mkWs(variance), encoding: 'utf8' });
+
+  // (3) READER doc literal cua WRITER -> co dung loai
+  const withInert = card(note);
+  check('WI6 the hien canh bao field-inert', /Field khai mà máy không dùng/.test(withInert), 'khong thay cum trong the');
+  check('WI6 KHONG muon nhan co phuong-sai', !/pass-rate hỗn hợp/.test(withInert), 'dung nham nhan phuong sai');
+
+  // (4) DOI CHUNG DUONG: Variance = "none — ..." -> khong co nao
+  const withNone = card('none — every multi-run eval is uniform');
+  check('WI6 doi chung duong: Variance "none" -> khong co field-inert', !/Field khai mà máy không dùng/.test(withNone));
+  check('WI6 doi chung duong: Variance "none" -> khong co phuong-sai', !/pass-rate hỗn hợp/.test(withNone));
+
+  // (5) HOI QUY: phuong sai that van giu co cu
+  const withVar = card('E3 pass_rate 4/5 — chua on dinh');
+  check('WI6 hoi quy: phuong sai that van ra co cu', /pass-rate hỗn hợp/.test(withVar));
+
+  // (6) CA GOP: co ca phuong sai LAN o inert -> HAI co, khong nuot cai nao
+  const both = card('E3 pass_rate 4/5 — chua on dinh ' + note);
+  const divs = [...both.matchAll(/<div class="flag [^"]*">([\s\S]*?)<\/div>/g)].map(x => x[1]);
+  const varDiv = divs.filter(d => /pass-rate hỗn hợp/.test(d));
+  const inertDiv = divs.filter(d => /Field khai mà máy không dùng/.test(d));
+  check('WI6 ca gop: HAI khoi co RIENG BIET', varDiv.length === 1 && inertDiv.length === 1,
+    `phuong-sai:${varDiv.length} inert:${inertDiv.length}`);
+  check('WI6 ca gop: khoi phuong-sai KHONG nuot phan inert', !/Field khai mà máy không dùng/.test(varDiv[0] || ''));
+  check('WI6 ca gop: khoi inert KHONG mang nhan phuong-sai', !/pass-rate hỗn hợp/.test(inertDiv[0] || ''));
+}
+
 summary('acceptance-verify');
