@@ -5255,7 +5255,14 @@ assert FLAG not in out, "da co entry descope dung khuon ma the van co vang oan (
 led2 = '{"id":"d-2","type":"descope","decision":"bo canh ngu canh: ly do"}\n'
 out = render(mkfix("[]", ledger=led2))
 assert FLAG in out, "entry lech khuon ma van duoc tinh la descope hop le"
-print("P136 OK (thieu->co, canh->khong, descope->khong, lech-khuon->co)")
+# PLACEHOLDER NGUYEN TRANG (S4-r1 false-green): khuon chua dien co dau phay ben
+# trong -> split(',') tach doi, nua sau song qua filter cu -> im lang + khoe
+# "1 cảnh ngữ-cảnh". Phai: van co vang + KHONG dem placeholder thanh canh.
+out = render(mkfix(SCENES_PH))
+assert FLAG in out, "placeholder nguyen trang ma co vang standalone-thieu-canh im lang"
+assert "cảnh ngữ-cảnh</b>" not in out and "1 cảnh ngữ-cảnh" not in out, \
+    "placeholder nguyen trang bi dem thanh canh that tren card"
+print("P136 OK (thieu->co, canh->khong, descope->khong, lech-khuon->co, placeholder->co)")
 PY
 
 run "P137 context-ladder duong doc-cu + gia tri la: co vang co ten, khong chan (E7)" \
@@ -5358,9 +5365,20 @@ assert DEAD in out and "docs/nhung.md" in out, "con tro chet khong duoc neu ten 
 # (c) doi chung duong: con tro giai duoc -> khong co loai nao
 out = render(mkfix(CFG_HE, mkguide="docs/nhung.md"))
 assert MISS not in out and DEAD not in out, "con tro giai duoc ma van co vang oan"
+# (d) comment duoi tren guide (khoan dung nhu hook) -> van giai duoc, khong co (S4-r1)
+CFG_CMT = "schema_version: 1\ndesign_pass:\n  host_embed:\n    guide: docs/nhung.md  # duong nhung cua repo\n    route: /proto\n"
+out = render(mkfix(CFG_CMT, mkguide="docs/nhung.md"))
+assert MISS not in out and DEAD not in out, "comment duoi lam hong resolvability -> co vang oan"
+# (e) config CRLF -> khoa van duoc nhan dien, khong co vang-khoa oan (S4-r1)
+out = render(mkfix(CFG_HE.replace("\n", "\r\n"), mkguide="docs/nhung.md"))
+assert MISS not in out, "config CRLF lam khoa host_embed tang hinh -> co vang oan"
+# (f) blank line trong block design_pass truoc host_embed -> van nhan dien (S4-r1)
+CFG_BLANK = "schema_version: 1\ndesign_pass:\n\n  host_embed:\n    guide: docs/nhung.md\n"
+out = render(mkfix(CFG_BLANK, mkguide="docs/nhung.md"))
+assert MISS not in out, "blank line trong block lam khoa tang hinh -> co vang oan"
 # quan he writer-docs: bang preflight SKILL phai khai khoa nay (Task 1 da pin, assert lai quan he)
 assert "design_pass.host_embed" in skill, "SKILL khong khai khoa host_embed trong preflight"
-print("P138 OK (vang->co, chet->ten, song->khong, SKILL khai khoa)")
+print("P138 OK (vang->co, chet->ten, song->khong, comment/CRLF/blank->khong, SKILL khai khoa)")
 PY
 
 run "P139 context-ladder generic: fixture repo-la code-sinh (web app tron) + grep-guard tu vung host (E8)" \

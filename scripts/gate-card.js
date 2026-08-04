@@ -31,6 +31,7 @@ const fs = require('fs');
 const path = require('path');
 const gapProbe = require('../lib/gap-probe.js');
 const outOfContract = require('../lib/out-of-contract.js');
+const evidenceCore = require('../lib/evidence-core.js');
 // Ranh giới section: luật PER-SECTION nằm ở bảng marker trong lib/md-section.js
 // (Findings=any-heading chặn hàng ma; văn xuôi=same-or-higher giữ AC sau sub-heading).
 const { section } = require('../lib/md-section.js');
@@ -211,21 +212,29 @@ if (gate === '1') {
   const dpText = read(path.join(dir, 'design-pass.md'));
   const dpFm = frontmatter(dpText);
   const dp = { present: !!dpText.trim(), material: clean(dpFm.material || ''), context: clean(dpFm.context || ''), scenes: [] };
-  if (dp.present) dp.scenes = clean(dpFm.context_scenes || '').replace(/^\[|\]$/g, '').split(',').map(s => s.trim()).filter(s => s && !/^</.test(s));
-  // socket design_pass.host_embed — đường đọc-cũ: vắng là hợp lệ (nấc thấp), không lỗi
+  if (dp.present) {
+    // Placeholder khuôn chưa điền CHỨA DẤU PHẨY — phải loại '<'/'>' TRƯỚC khi split,
+    // không thì nửa sau placeholder sống qua filter và standalone-thiếu-cảnh im lặng
+    // trong khi card khoe "1 cảnh ngữ-cảnh" (false-green seam writer→reader, S4-r1).
+    const rawScenes = clean(dpFm.context_scenes || '');
+    if (!/[<>]/.test(rawScenes)) dp.scenes = rawScenes.replace(/^\[|\]$/g, '').split(',').map(s => s.trim()).filter(Boolean);
+  }
+  // socket design_pass.host_embed — đường đọc-cũ: vắng là hợp lệ (nấc thấp), không lỗi.
+  // Đọc bằng resolveConfigKey của lib (blank line / comment đuôi / CRLF như hook) —
+  // kit đã trả giá cho 4 parser hand-rolled trùng bug, không mọc con thứ 5 (S4-r1).
   const cfgText = read(path.join(root, '_acceptance', 'config.yaml'));
-  const he = { present: false, guide: '', resolvable: true };
-  { const bm = cfgText.match(/^design_pass:\n((?:[ \t]+.*\n?)*)/m);
-    if (bm && /^[ \t]+host_embed:/m.test(bm[1])) {
-      he.present = true;
-      const g = bm[1].match(/^[ \t]+guide:\s*(.+)$/m);
-      if (g) {
-        he.guide = g[1].trim().replace(/^["']|["']$/g, '');
-        if (he.guide.includes('/') || /\.md$/.test(he.guide)) he.resolvable = fs.existsSync(path.join(root, he.guide));
-        else if (!he.guide.includes(':')) he.resolvable = fs.existsSync(path.join(root, '.claude', 'skills', he.guide, 'SKILL.md'));
-        // tên skill plugin-qualified (a:b) không kiểm được cache người khác → coi giải được
-      }
-    } }
+  const heGuide = evidenceCore.resolveConfigKey(cfgText, 'design_pass.host_embed.guide');
+  const he = {
+    present: heGuide !== null
+      || evidenceCore.resolveConfigKey(cfgText, 'design_pass.host_embed.route') !== null
+      || evidenceCore.resolveConfigKey(cfgText, 'design_pass.host_embed.dev_flag') !== null,
+    guide: heGuide || '', resolvable: true,
+  };
+  if (he.present && he.guide) {
+    if (he.guide.includes('/') || /\.md$/.test(he.guide)) he.resolvable = fs.existsSync(path.join(root, he.guide));
+    else if (!he.guide.includes(':')) he.resolvable = fs.existsSync(path.join(root, '.claude', 'skills', he.guide, 'SKILL.md'));
+    // tên skill plugin-qualified (a:b) không kiểm được cache người khác → coi giải được
+  }
   const dpFlags = [];
   if (dp.present) {
     if (!dp.context) dpFlags.push('Sổ phiên chưa khai nấc ngữ cảnh (đời trước trục ngữ cảnh) — bản mẫu sống ở đâu chưa được khai; không chặn, khuyên bổ sung ở phiên thiết kế sau.');
