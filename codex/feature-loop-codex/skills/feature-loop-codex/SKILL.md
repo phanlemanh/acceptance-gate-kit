@@ -381,7 +381,10 @@ Design Lanes. Do not continue with uncovered UI changes until the lane is raised
 or the human confirms a descope entry.
 
 1. Parse `_acceptance/<slug>/evals.yaml`. Preserve optional `runs`; an integer
-   greater than 1 means stochastic/LLM eval and must report `pass_rate`.
+   greater than 1 applies **only to `test`/`script` executors** — that command
+   runs N times and must report `pass_rate`. On `ui-check`/`judgment` the field
+   is INERT (a judgment eval already runs a 3-lens panel); the run is not
+   blocked, but `result.inertFields` names every such eval and field.
 2. Resolve every `cmd: config:a.b.c` from `_acceptance/config.yaml`. Preserve
    the original `config:` ref as `ref`; evidence `verifier` must use that ref,
    not the resolved shell command.
@@ -582,6 +585,16 @@ baseline analyst notes, what this round carried forward (P1 evals, P3 panels,
 P2 baseline — carry-forward must be visible, never folded into "machine
 handled it"), `review-findings.md`, any incomplete review warning,
 and `git diff --stat <diffBase>...HEAD`.
+
+When `result.inertFields` is non-empty, surface it as its OWN block, never
+folded into the machine-handled summary (same visibility rank as
+carry-forward). Each entry names the eval and the field the author declared
+that the engine does not use, in product language — "E10 declares `runs: 3`
+but a judgment eval always runs exactly once per lens" — followed by the
+human's options: fix `evals.yaml` (change the executor or drop the field), or
+accept it and record a known limit. This is a field a PERSON wrote that the
+machine ignores; staying silent here is the exact defect the `judgment-runs`
+feature exists to kill.
 
 Put the **out-of-contract block first**, ahead of the judgment items: every
 finding triaged out-of-contract is a real defect that sits outside the scope the

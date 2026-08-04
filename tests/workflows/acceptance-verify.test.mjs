@@ -927,4 +927,44 @@ console.log('WI6 ROUND-TRIP writer->reader: inertNote qua scripts/gate-card.js r
   check('WI6 ca gop: khoi inert KHONG mang nhan phuong-sai', !/pass-rate hỗn hợp/.test(inertDiv[0] || ''));
 }
 
+console.log('WI7 ba cho mo ta runs + buoc "Moi verdict" o CA HAI harness');
+{
+  const { readFileSync, writeFileSync, mkdtempSync } = await import('node:fs');
+  const os = await import('node:os');
+  const ROOT = path.join(HERE, '..', '..');
+  // Cau CU (mo ta tro "eval ngau nhien/LLM" khong neu gioi han executor) — chinh cai lam
+  // 10/10 luot dung runs trong repo roi vao o inert. Phai bien mat o ca ba cho.
+  const OLD = [
+    /eval ngẫu nhiên \(LLM\) chạy N lần/,
+    /int>1 = eval ngẫu nhiên\/LLM/,
+    /stochastic\/LLM eval and must report/,
+  ];
+  const SITES = [
+    ['feature-loop/workflows/acceptance-verify.js', /CHI CO HIEU LUC TREN test\/script/],
+    ['feature-loop/skills/feature-loop/SKILL.md', /chỉ có hiệu lực trên\*{0,2} executor `test`\/`script`/],
+    ['codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md', /only to `test`\/`script` executors/],
+  ];
+  for (const [rel, re] of SITES) {
+    const txt = readFileSync(path.join(ROOT, rel), 'utf8');
+    check(`WI7 ${rel}: mo ta neu gioi han test/script`, re.test(txt));
+    check(`WI7 ${rel}: khong con mo ta tro cu`, !OLD.some(o => o.test(txt)));
+  }
+  const GATE2 = [
+    ['feature-loop/skills/feature-loop/SKILL.md', /inertFields[\s\S]{0,500}máy đã lo/],
+    ['codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md', /inertFields/],
+  ];
+  for (const [rel, re] of GATE2) {
+    check(`WI7 ${rel}: buoc trinh inertFields o Cong 2`, re.test(readFileSync(path.join(ROOT, rel), 'utf8')));
+  }
+  // DOI CHUNG DOT BIEN tren BAN SAO: khoi phuc cau cu -> detector phai DO o dung file do
+  const tmp = mkdtempSync(path.join(os.tmpdir(), 'agk-doc-'));
+  for (const [i, [rel, re]] of SITES.entries()) {
+    const copy = path.join(tmp, `s${i}.txt`);
+    writeFileSync(copy, readFileSync(path.join(ROOT, rel), 'utf8').replace(re, 'eval ngẫu nhiên (LLM) chạy N lần'));
+    const mutated = readFileSync(copy, 'utf8');
+    check(`WI7 doi chung dot bien ${rel}: khoi phuc cau cu -> detector DO`,
+      !re.test(mutated) && OLD.some(o => o.test(mutated)));
+  }
+}
+
 summary('acceptance-verify');

@@ -20,7 +20,9 @@ export const meta = {
 //             ref,                      // config: ref GỐC (vd 'config:executors.test.api') — synthesize ghi verifier (hook L2)
 //             expected, evidence_required,
 //             question, inputs,           // judgment only; inputs = abs paths
-//             runs }],                     // OPTIONAL int>1: eval ngẫu nhiên (LLM) chạy N lần → pass_rate + variance
+//             runs }],                     // OPTIONAL int>1, CHI CO HIEU LUC TREN test/script: lenh do chay N lan → pass_rate + variance.
+//                                          // Tren ui-check/judgment field nay INERT (eval judgment da chay panel 3-lens) —
+//                                          // khong con bi bo im lang: xem INERT_FIELD_TABLE + result.inertFields.
 //   suiteCommands: ['npm run build', 'npm run typecheck', ...],
 //   diffBase: 'main',
 //   repoRoot: '<abs repo root>',
