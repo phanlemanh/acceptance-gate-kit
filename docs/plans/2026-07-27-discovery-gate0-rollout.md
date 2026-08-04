@@ -270,6 +270,23 @@ chưa có khuôn thì luật mô tả không giữ được). Việc vá: thêm 
 `GATE1-EVAL-MAP` vào `human-facing-language.md` + case kiểu P93; máy soi
 mật độ (F-G) sẽ bắt lớp này về sau.
 
+**Lỗ-kit ghi tại lần chạy /start đầu tiên trên repo tiêu thụ (03/08, phiên
+r3 Trang Tư Vấn):** người chọn lối (a) "ý còn mơ hồ" → phiên kích hoạt
+`superpowers:brainstorming` (làm-thế-nào, dành cho S1) thay vì nghi thức
+grill / `product-management:brainstorm` (làm-gì, trước Cổng Đáng) — trái
+bảng định tuyến brainstorm spec v2 §C6. Nguyên nhân kép: (1) lối (a) của
+`commands/start.md` bàn giao bằng MÔ TẢ ("buổi khai thác… nghi thức advisor")
+không có ĐÍCH máy-đọc — gói khám phá F-A chưa ship nên đích chưa tồn tại;
+(2) hook SessionStart của superpowers ra lệnh "MUST brainstorm trước mọi
+creative work" to tiếng hơn quy ước spec → trong khoảng trống, hook thắng
+(đúng lớp blacklist-trên-không-gian-mở: quy ước mô tả thua mệnh lệnh đặt tại
+điểm nghẽn). Rủi ro thực: buổi khai thác trượt từ moi-tri-thức-ngầm sang
+bàn-giải-pháp sớm — đúng bệnh giết r1/r2. Việc vá: F-A ship skill khám phá
+CÓ TÊN để lối (a) trỏ đích máy-đọc; trong lúc chờ, thân lệnh lối (a) cần một
+dòng định tuyến phủ định ("trước Cổng Đáng: dùng
+`product-management:brainstorm`, KHÔNG dùng `superpowers:brainstorming`") —
+vòng vá nhỏ hoặc gộp vào F-A.
+
 | ID | Việc | Nơi chạm | Tier | Phụ thuộc |
 |---|---|---|---|---|
 | F-E | Máy tự nhận đường A/B/C/D/E từ artifact (hiện là quy ước người khai trong hồ sơ, người duyệt soi tại cổng) | `feature-loop/skills/` + mirror | T2 | spec v2 §2.4 |
