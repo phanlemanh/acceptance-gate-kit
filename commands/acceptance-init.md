@@ -54,6 +54,8 @@ executors:
     cli: "<from 2b>"
     product_map: "node ${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs --root . --check"
   design:                                              # keep if the repo has any web UI
+    # design-gate runs in DOM mode and needs jsdom resolvable where the gate
+    # runs — remind the user to `npm i -D jsdom`, or every design eval is BLOCKED.
     gate: "node ${CLAUDE_PLUGIN_ROOT}/scripts/design-gate.mjs"   # script tier (a11y/slop)
     ui_check: "${CLAUDE_PLUGIN_ROOT}/scripts/design-scan.js"     # browser tier (authoritative P0)
   # ui:                                                # optional (step 3c): cross-family VLM

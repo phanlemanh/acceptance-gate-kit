@@ -133,6 +133,7 @@ ln -s <kit>/commands/acceptance-card.md   .claude/commands/acceptance-card.md
 ln -s <kit>/commands/approve.md           .claude/commands/approve.md
 ln -s <kit>/commands/signoff.md           .claude/commands/signoff.md
 ln -s <kit>/commands/acceptance-report.md .claude/commands/acceptance-report.md
+ln -s <kit>/commands/start.md             .claude/commands/start.md
 # hook: register in .claude/settings.local.json (machine-local, not committed)
 #   PreToolUse Write|Edit -> node "<kit>/hooks/acceptance-evidence-gate.js"
 ```
@@ -160,16 +161,26 @@ Copy `scripts/pre-merge-check.sh`, `scripts/recheck-evidence.js`, and
 re-check can `require ../lib`), and run the gate in CI:
 
 ```yaml
-# e.g. GitHub Actions step
-- run: bash scripts/pre-merge-check.sh .
+# e.g. GitHub Actions job steps — same two-step form as GUIDE §5.3
+- uses: actions/checkout@v4
+  with: { fetch-depth: 0 }   # full history: verified_commit + signature checks need it
+- run: bash scripts/pre-merge-check.sh . --base "origin/$GITHUB_BASE_REF"
 ```
+
+Always pass `--base` (the PR base): it arms the T1-escape backstop and gives
+the gap-probe rule its diff scope — without it both rules run `declared-off`
+(NOTE only, merge not blocked). `fetch-depth: 0` is part of the same form: on
+the default shallow checkout the base ref does not resolve and the gate exits 2.
+A job that runs on `push` (not a PR) additionally needs `--no-t1-escape` — see
+GUIDE §5.3 for that variant and the rules ledger.
 
 `pre-merge-check.sh` finds `recheck-evidence.js` next to itself; if it (or
 `node`) is absent the pre-merge check still runs, minus the committed-evidence
-re-check. That re-check is advisory by default (`recheck: warn` — prints NOTEs,
-never blocks); set `recheck: strict` in `_acceptance/config.yaml` to make it
-block, once your committed reports meet the current evidence shape (older
-templates produce advisory NOTEs, not failures).
+re-check. `/acceptance-init` scaffolds `recheck: strict` — the right setting
+for a fresh repo. When the key is absent the code falls back to `warn` (NOTEs
+only); that fallback exists so repos ADOPTING the kit with legacy reports
+aren't blocked — do not start a new repo there, and move to `strict` once your
+committed reports meet the current evidence shape.
 
 ## Daily use
 

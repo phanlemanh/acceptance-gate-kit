@@ -70,14 +70,25 @@ Repo mới: chạy `/acceptance-init` hoặc nói với Codex "run acceptance in
 (lệnh test, đường dẫn nhạy cảm...).
 
 **CI:** copy **đủ 3 file** từ plugin vào repo, giữ đúng layout `scripts/` + `lib/`
-(re-check cần `require ../lib`), rồi thêm 1 step `bash scripts/pre-merge-check.sh .`:
+(re-check cần `require ../lib`):
 
 - `scripts/pre-merge-check.sh`
 - `scripts/recheck-evidence.js`
 - `lib/evidence-core.js`
 
+rồi thêm step chạy gate — **luôn truyền `--base`** (thiếu nó hai luật
+T1-escape + gap-probe chỉ in NOTE, không chặn gì) và cần `fetch-depth: 0` ở
+bước checkout (shallow clone mặc định làm base không resolve, gate exit 2):
+
+```yaml
+- uses: actions/checkout@v4
+  with: { fetch-depth: 0 }
+- run: bash scripts/pre-merge-check.sh . --base "origin/$GITHUB_BASE_REF"
+```
+
 Chỉ copy mỗi `pre-merge-check.sh` là repo âm thầm **mất lớp re-check** evidence
-đã commit (chống report bị sửa tay sau hook).
+đã commit (chống report bị sửa tay sau hook). Job chạy trên `push` (không phải
+PR) cần thêm `--no-t1-escape` — xem GUIDE §5.3.
 
 **Repo có web UI:** chạy thêm `npm i -D jsdom` — design gate chạy chế độ DOM
 cần jsdom; thiếu nó mọi eval design sẽ ra `BLOCKED`. Ngoài ra skill
@@ -88,6 +99,12 @@ kỷ luật design-engineer với token, "bản vẽ" Layout Contract ~15 dòng,
 ---
 
 ## Dùng hằng ngày
+
+**Vào phiên làm việc:** gõ `/start` (vào phiên bằng một lệnh, không cần nghĩ
+câu mở đầu) — máy quét xưởng rồi trình thẻ ba nhóm
+(**chờ ký · đang dở · việc mới**), bạn chọn một chữ cái là vào đúng nghi thức.
+Lệnh chỉ định hướng + bàn giao, không tự làm nội dung; chính bạn phải gõ nó
+(máy bị khoá không tự gọi được, trên cả hai harness).
 
 **Bắt đầu tính năng mới** — nói với agent:
 

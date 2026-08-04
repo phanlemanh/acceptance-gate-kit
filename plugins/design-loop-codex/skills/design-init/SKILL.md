@@ -14,6 +14,9 @@ Wire the design sub-track idempotently.
 3. Confirm `capture.ui` when file-backed UI evidence is required. Missing
    capture permits source checks only and must be disclosed.
 4. Confirm Acceptance Gate and Design Loop are installed in the Codex cache.
+5. Confirm `jsdom` is resolvable in the repository (`npm i -D jsdom`) —
+   `design-gate` runs in DOM mode; without jsdom every design eval emits
+   `BLOCKED`, not a failure.
 
 ## Dry run
 
