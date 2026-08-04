@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c4a3fcd22f5206fd289240e8b25128e93c09bef1
+verified_commit: d8efcfe01875288b9607254f3ab3e4f347a9bc76
 human_signoff: Manh Phan 2026-07-30
 ---
 
