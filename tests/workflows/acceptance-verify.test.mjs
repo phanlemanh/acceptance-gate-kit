@@ -857,4 +857,71 @@ console.log('W-G4 3 cua hau khong mien kiem: carriedPanels, carriedEvals, dryRun
   check('W-G4d dryRun neu ro no thuoc dien khong can cu', (d2.ungroundedJudgments || []).includes('E9'), JSON.stringify(d2.ungroundedJudgments));
 }
 
+console.log('W-G5 nhieu eval hong: neu DU ten, so bang TAP khong bang dem chuoi con');
+{
+  // id long tien to CO Y: E1x nam trong E1x1 — dem bang substring se cho 2==2
+  // du guard chi neu mot cai. Trich theo ranh gioi token roi so BANG TAP.
+  const bad1 = { id: 'E1x', criterion: 'AC-1', executor: 'judgment', question: '' };
+  const bad11 = { id: 'E1x1', criterion: 'AC-2', executor: 'ui-check', expected: 'ok' }; // thieu steps
+  const bad3 = { id: 'E3y', criterion: 'AC-3', executor: 'script' };                     // thieu cmd
+  const { result } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, bad1, bad11, bad3] }), responder());
+  const reason = result.blocked[0].reason;
+  const WANT_IDS = ['E1x', 'E1x1', 'E3y'];
+  const ids = new Set((reason.match(/E\d+[a-z]\d*/g) || []).filter(t => WANT_IDS.includes(t)));
+  check('W-G5 tap id BANG DUNG tap da tiem', ids.size === 3 && WANT_IDS.every(i => ids.has(i)), [...ids].join(','));
+  const fields = new Set(['question', 'steps', 'cmd'].filter(f => new RegExp(`"${f}"`).test(reason)));
+  check('W-G5 tap field BANG DUNG tap da tiem', fields.size === 3, [...fields].join(','));
+  // sanity: phep do phai PHAN BIET duoc — bo E1x1 di thi tap phai nho lai
+  const { result: r2 } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, bad1, bad3] }), responder());
+  const ids2 = new Set((r2.blocked[0].reason.match(/E\d+[a-z]\d*/g) || []).filter(t => WANT_IDS.includes(t)));
+  check('W-G5 sanity: bo mot eval hong -> tap nho lai dung 1', ids2.size === 2 && !ids2.has('E1x1'), [...ids2].join(','));
+}
+
+console.log('W-G6 executor la/vang bi CHAN — hom nay bi bo roi im lang');
+{
+  const typo = { id: 'E2t', criterion: 'AC-2', executor: 'judgement', question: 'typo executor', inputs: ['/a.md'] };
+  const noX = { id: 'E3n', criterion: 'AC-3', expected: 'khong khai executor' };
+  const { result } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, typo, noX] }), responder());
+  check('W-G6 BLOCKED', result.verdict === 'BLOCKED', result.verdict);
+  const reason = result.blocked[0].reason;
+  check('W-G6 neu ten ca hai eval', /E2t/.test(reason) && /E3n/.test(reason), reason);
+  check('W-G6 neu gia tri executor la', /judgement/.test(reason), reason);
+  check('W-G6 neu executor VANG', /VANG/.test(reason), reason);
+}
+
+console.log('W-G6b doi chung dot bien: ban TRUOC guard tra PASS tren cung bo args');
+{
+  const { readFileSync, writeFileSync, mkdtempSync } = await import('node:fs');
+  const os = await import('node:os');
+  const src = readFileSync(WF, 'utf8');
+  // Sinh ban TRUOC-GUARD bang CODE trong chinh lan chay: go tu bang marker den
+  // het khoi return BLOCKED. KHONG chep tay ban cu.
+  const stripped = src.replace(/\/\/ <<<EVAL-REQUIRED-FIELDS[\s\S]*?reviewIncomplete: \[\],\n\s*\}\n\}\n/, '');
+  check('W-G6b buoc go guard THUC SU doi file', stripped.length < src.length - 800, `delta=${src.length - stripped.length}`);
+  const preWF = path.join(mkdtempSync(path.join(os.tmpdir(), 'av-preguard-')), 'acceptance-verify.js');
+  writeFileSync(preWF, stripped);
+  const typo = { id: 'E2t', criterion: 'AC-2', executor: 'judgement', question: 'typo', inputs: ['/a.md'] };
+  const { result: pre } = await runWorkflow(preWF, baseArgs({ evals: [...baseArgs().evals, typo] }), responder());
+  check('W-G6b ban truoc guard: eval typo bi bo roi im lang, verdict PASS', pre.verdict === 'PASS', pre.verdict);
+  check('W-G6b ban truoc guard: blocked rong', (pre.blocked || []).length === 0, JSON.stringify(pre.blocked));
+  check('W-G6b ban truoc guard: failedEvals rong', (pre.failedEvals || []).length === 0, JSON.stringify(pre.failedEvals));
+}
+
+console.log('W-G7 prompt hoi dong chan tu-cuu + dump chinh danh');
+{
+  const { readFileSync, writeFileSync, existsSync, rmSync, mkdirSync } = await import('node:fs');
+  const OUT = path.join(HERE, '..', '..', '_acceptance', 'judgment-question-guard', 'evidence', 'judge-prompt.txt');
+  if (existsSync(OUT)) rmSync(OUT);
+  const jOK2 = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'ro rang?', inputs: ['/repo/a.md', '/repo/b.md'] };
+  const { calls } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, jOK2] }), responder());
+  const jp = byLabel(calls, 'judge:')[0].prompt;
+  check('W-G7 prompt cam doc ngoai danh sach', /CHI duoc doc/.test(jp) && /KHONG duoc doc file nao khac/.test(jp), jp.slice(0, 240));
+  check('W-G7 prompt: thieu can cu -> UNCERTAIN, khong phai di tim file khac', /ly do tra UNCERTAIN/.test(jp) && /tu cuu/.test(jp), 'thieu ve tu-cuu');
+  mkdirSync(path.dirname(OUT), { recursive: true });
+  writeFileSync(OUT, jp);
+  check('W-G7 dump duoc sinh trong chinh lan chay', existsSync(OUT));
+  check('W-G7 dump BANG DUNG prompt cua lan chay', readFileSync(OUT, 'utf8') === jp);
+  check('W-G7 dump chua id eval + inputs cua lan chay', /E9/.test(jp) && /\/repo\/a\.md/.test(jp) && /\/repo\/b\.md/.test(jp), 'thieu id hoac inputs');
+}
+
 summary('acceptance-verify');
