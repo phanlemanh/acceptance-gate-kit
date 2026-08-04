@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 662715af710416fb594b5c519e7c77fb5801640d
+verified_commit: c4a3fcd22f5206fd289240e8b25128e93c09bef1
 human_signoff: Manh Phan 2026-08-04
 ---
 
