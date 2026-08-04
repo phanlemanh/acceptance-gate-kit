@@ -15,3 +15,20 @@
 {"ts":"2026-08-04T16:14:53Z","round":1,"evalId":"E15","run_id":"minted-context-ladder-E15-r1","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
 {"ts":"2026-08-04T16:14:53Z","round":1,"evalId":"E16","run_id":"minted-context-ladder-E16-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
 {"ts":"2026-08-04T16:14:53Z","round":1,"kind":"baseline","evals_hash":"c70618f347fbde8ab430a7d4c541df2bef2669deabc6de5569c8629e643cc331","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E7","E8","E9","E10","E12","E13"]},{"cmd":"bash scripts/sync-plugin-packages.sh --check","evals":["E11"]},{"cmd":"bash tests/scripts/run-tests.sh","evals":["E14"]},{"cmd":"bash tests/hooks/run-tests.sh","evals":["E15"]},{"cmd":"bash tests/workflows/run-tests.sh","evals":["E16"]}]}
+{"ts":"2026-08-04T16:50:00Z","round":2,"evalId":"E1","run_id":"minted-context-ladder-E1-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-04T16:50:00Z","round":2,"evalId":"E2","run_id":"minted-context-ladder-E2-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-04T16:50:00Z","round":2,"evalId":"E3","run_id":"minted-context-ladder-E3-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-04T16:50:00Z","round":2,"evalId":"E4","run_id":"minted-context-ladder-E4-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-04T16:50:00Z","round":2,"evalId":"E5","run_id":"minted-context-ladder-E5-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-04T16:50:00Z","round":2,"evalId":"E6","run_id":"minted-context-ladder-E6-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-04T16:50:00Z","round":2,"evalId":"E7","run_id":"minted-context-ladder-E7-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-04T16:50:00Z","round":2,"evalId":"E8","run_id":"minted-context-ladder-E8-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-04T16:50:00Z","round":2,"evalId":"E9","run_id":"minted-context-ladder-E9-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-04T16:50:00Z","round":2,"evalId":"E10","run_id":"minted-context-ladder-E10-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-04T16:50:00Z","round":2,"evalId":"E12","run_id":"minted-context-ladder-E12-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-04T16:50:00Z","round":2,"evalId":"E13","run_id":"minted-context-ladder-E13-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-04T16:50:00Z","round":2,"evalId":"E11","run_id":"minted-context-ladder-E11-r2","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
+{"ts":"2026-08-04T16:50:00Z","round":2,"evalId":"E14","run_id":"minted-context-ladder-E14-r2","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-04T16:50:00Z","round":2,"evalId":"E15","run_id":"minted-context-ladder-E15-r2","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-08-04T16:50:00Z","round":2,"evalId":"E16","run_id":"minted-context-ladder-E16-r2","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-04T16:50:00Z","round":2,"kind":"baseline","evals_hash":"c70618f347fbde8ab430a7d4c541df2bef2669deabc6de5569c8629e643cc331","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E7","E8","E9","E10","E12","E13"]},{"cmd":"bash scripts/sync-plugin-packages.sh --check","evals":["E11"]},{"cmd":"bash tests/scripts/run-tests.sh","evals":["E14"]},{"cmd":"bash tests/hooks/run-tests.sh","evals":["E15"]},{"cmd":"bash tests/workflows/run-tests.sh","evals":["E16"]}],"carried_from_round":1}
