@@ -748,4 +748,45 @@ console.log('WT-T15 synthesize chi dan ghi truong plain cho ngan Ngoai hop dong'
   check('WT-T15 payload mang truong plain', sp.includes('Người dùng có thể mất tiện ích khi bấm Cập nhật.'));
 }
 
+// ── W-G*: guard fail-loud cho field ma prompt fan-out noi suy thang vao ────
+// Loi do duoc o motion-floor r1-r2: judgment thieu `question` -> judge nhan
+// literal "undefined" lam de bai va van tra PASS 3/3. Quet lop tim them: eval
+// co `executor` la/vang bi bo roi im lang, run tra verdict=PASS.
+const jOK = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'ro rang?', inputs: ['/repo/a.md'] };
+const BLOCK_SHAPE = ['blocked', 'failedEvals', 'failedCommands', 'panels', 'confirmedFindings', 'reviewIncomplete'];
+
+console.log('W-G1 judgment thieu question: 5 hinh dang deu BLOCKED, neu ten eval + field');
+{
+  const shapes = [
+    ['khoa vang', (e) => { delete e.question; }],
+    ['null', (e) => { e.question = null; }],
+    ['chuoi rong', (e) => { e.question = ''; }],
+    ['khoang trang', (e) => { e.question = '   '; }],
+    ['sai kieu', (e) => { e.question = 42; }],
+  ];
+  for (const [name, mutate] of shapes) {
+    const bad = { ...jOK };
+    mutate(bad);
+    const { result, calls } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, bad] }), responder());
+    const reason = (result.blocked && result.blocked[0] && result.blocked[0].reason) || '';
+    check(`W-G1 ${name} -> BLOCKED`, result.verdict === 'BLOCKED', result.verdict);
+    check(`W-G1 ${name} neu ten eval E9`, /\bE9\b/.test(reason), reason);
+    check(`W-G1 ${name} neu ten field question`, /question/.test(reason), reason);
+    check(`W-G1 ${name} 0 judge spawn`, byLabel(calls, 'judge:').length === 0, String(byLabel(calls, 'judge:').length));
+  }
+  // doi chung DUONG: cung bo args, chi khac question la chuoi that
+  const { result: ok, calls: okCalls } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, jOK] }), responder());
+  check('W-G1 doi chung duong: KHONG BLOCKED', ok.verdict !== 'BLOCKED', ok.verdict);
+  check('W-G1 doi chung duong: 3 judge that su chay', byLabel(okCalls, 'judge:').length === 3, String(byLabel(okCalls, 'judge:').length));
+}
+
+console.log('W-G2 shape tra ve cua BLOCKED du key cho downstream');
+{
+  const bad = { ...jOK, question: '' };
+  const { result } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, bad] }), responder());
+  for (const k of BLOCK_SHAPE) {
+    check(`W-G2 co key ${k} dung kieu mang`, Array.isArray(result[k]), `${k}=${JSON.stringify(result[k])}`);
+  }
+}
+
 summary('acceptance-verify');

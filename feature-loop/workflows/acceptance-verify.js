@@ -230,6 +230,53 @@ const modelOpt = role => (ROUTES[role] ? { model: ROUTES[role] } : {})
 // scripts/wf-usage.mjs (đo model/token per vai trò, 0-token) map transcript → role bằng tag này.
 const agentT = (prompt, opts) => agent(`[wf-label: ${opts.label}]\n${prompt}`, opts)
 
+// ---- Guard fail-loud: field mà prompt fan-out NỘI SUY THẲNG vào ----
+// Thiếu = agent nhận "undefined"/chuỗi rỗng làm đề bài rồi vẫn trả PASS. Đo được
+// ở motion-floor r1-r2 (judgment thiếu `question` → panel PASS 3/3 vào report).
+// Executor lạ/vắng còn tệ hơn: không khớp bộ lọc nào bên dưới nên eval bị bỏ rơi
+// IM LẶNG — không chạy, không blocked, không failed, verdict vẫn PASS.
+// Kiểm NGUYÊN BỘ args.evals, TRƯỚC mọi lọc carry-forward và TRƯỚC dryRun: soi
+// "tươi" thôi là tự mở lại đúng cửa hậu vừa đóng (panel carried của E6).
+// Test RÚT bảng dưới đây TỪ MARKER, không chép tay — hai bên không được trôi.
+// judgment `inputs` CỐ Ý không nằm trong bảng: vắng/rỗng đi nhánh UNCERTAIN
+// (thiếu căn cứ ≠ hỏng khuôn), chỉ SAI KIỂU mới là hỏng khuôn.
+// <<<EVAL-REQUIRED-FIELDS
+const EVAL_REQUIRED = {
+  'test': { str: ['id', 'criterion', 'cmd'], arr: [] },
+  'script': { str: ['id', 'criterion', 'cmd'], arr: [] },
+  'ui-check': { str: ['id', 'criterion', 'expected'], arr: ['steps'] },
+  'judgment': { str: ['id', 'criterion', 'question'], arr: [] },
+}
+// EVAL-REQUIRED-FIELDS>>>
+
+const isBlankStr = v => typeof v !== 'string' || !v.trim()
+const badStrArray = v => !Array.isArray(v) || !v.length || v.some(x => isBlankStr(x))
+
+const evalProblems = []
+args.evals.forEach((e, i) => {
+  const nm = (e && typeof e.id === 'string' && e.id.trim()) ? e.id.trim() : `#${i} (khong co id)`
+  if (!e || typeof e !== 'object') { evalProblems.push(`${nm}: khong phai object`); return }
+  const spec = typeof e.executor === 'string' ? EVAL_REQUIRED[e.executor] : null
+  if (!spec) {
+    evalProblems.push(`${nm}: executor ${e.executor === undefined ? 'VANG' : JSON.stringify(e.executor)} khong thuoc {test, script, ui-check, judgment} — eval nay se bi bo roi im lang`)
+    return
+  }
+  for (const f of spec.str) if (isBlankStr(e[f])) evalProblems.push(`${nm}: thieu field "${f}"`)
+  for (const f of spec.arr) if (badStrArray(e[f])) evalProblems.push(`${nm}: field "${f}" phai la mang chuoi khong rong`)
+  if (e.executor === 'judgment' && e.inputs !== undefined && e.inputs !== null) {
+    if (!Array.isArray(e.inputs)) evalProblems.push(`${nm}: field "inputs" phai la mang`)
+    else if (e.inputs.some(v => isBlankStr(v))) evalProblems.push(`${nm}: field "inputs" co phan tu khong phai chuoi`)
+  }
+})
+if (evalProblems.length) {
+  log(`evals.yaml khai thieu ${evalProblems.length} cho — BLOCKED truoc khi fan-out, 0 agent`)
+  return {
+    verdict: 'BLOCKED',
+    blocked: [{ cmd: '(evals)', reason: `evals.yaml khai thieu field bat buoc — sua file roi chay lai CUNG round nay: ${evalProblems.join(' ; ')}` }],
+    failedEvals: [], failedCommands: [], panels: [], confirmedFindings: [], reviewIncomplete: [],
+  }
+}
+
 // ---- Đợt 5 carry-forward (P1/P2/P3) — sanitize thuần; args thiếu → hành vi cũ y nguyên ----
 // P1: chỉ nhận carried cho eval máy/ui CÓ TRONG args.evals (định nghĩa eval giữ 1 nguồn duy nhất).
 const evalById = new Map(args.evals.map(e => [e.id, e]))
