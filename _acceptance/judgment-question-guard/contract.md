@@ -4,9 +4,10 @@ feature: "judgment-question-guard — acceptance-verify.js DỪNG fail-closed kh
 slug: judgment-question-guard
 risk_tier: T3
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-04T12:30:00Z
+human_signoff: Manh Phan 2026-08-04
 owner: omre.cnsp4@onemount.com
 source: docs/superpowers/specs/2026-08-04-judgment-question-guard-design.md
 ---
@@ -169,6 +170,35 @@ rồi chọn ca đo phủ: mọi ô trục D + mỗi hình dạng trục C ≥1 
 - Không đổi routing verdict, carry-forward, hay schema `evals.yaml`.
 
 ## Notes
+
+### Quyết định Cổng 2 — 2026-08-04, Manh Phan
+
+- **VIỆC RIÊNG (chưa làm, quyết ở Cổng 2):** bảng field bắt buộc chặn đúng bộ
+  eval thiết kế mà chính kit hướng dẫn viết. `skills/acceptance/SKILL.md` rule
+  2b (mặc định bật cho mọi surface web-UI) + `references/design-ui-check.md`
+  kê ba eval KHÔNG có `criterion`, bản `ui-check` KHÔNG có `expected` lẫn
+  `steps`. Reviewer S4-r3 dựng lại nguyên văn ba eval đó qua harness thật →
+  `BLOCKED`, nêu tên cả ba. Hệ quả: repo tiêu thụ có surface web-UI sẽ BLOCKED
+  MỌI round, không tự khỏi, không có đường đọc-cũ. Gốc rễ: `criterion` bị đòi
+  cho `test`/`script` NGOÀI nguyên tắc đã khai của chính bảng ("field mà prompt
+  fan-out nội suy thẳng vào") — prompt máy không hề nội suy `criterion`. Sửa
+  đúng nghĩa phải quyết hai việc (`criterion` có bắt buộc thật không · tài liệu
+  design-ui-check có phải đổi không) nên nó là một hợp đồng riêng, không phải
+  một bản vá. **Chưa mở workspace — việc kế tiếp.**
+- **Known limit 1:** bản "trước guard" của đối chứng đột biến W-G6b là chương
+  trình hỏng (regex gỡ trọn khối marker nên mất `isUngroundedInputs` mà dòng
+  dùng nó vẫn còn). Hôm nay xanh vì eval tiêm cố ý sai chính tả `executor` nên
+  nhánh đó không chạy; ai mở rộng W-G6b sang ca judgment hợp lệ sẽ nhận
+  `ReferenceError`. Không ảnh hưởng hành vi cổng ở trạng thái hiện tại.
+- **Known limit 2:** thông điệp "không có gì để verify" ưu tiên nhánh
+  carry-forward, nên khi một round vừa có carry-forward vừa có judgment không
+  khai `inputs` thì phần thứ hai bị im lặng bỏ qua trong thông điệp.
+- **Known limit 3 (từ S4-r2, đã ghi):** phép đo tồn kho chưa từng gặp một eval
+  `ui-check` thật — kho này có 0 cái, nên nhánh ràng buộc nặng nhất của bảng
+  chưa chạm dữ liệu do người viết. Đây là điểm mù "đo ở phía tiêu thụ" và nó
+  chính là lý do lỗ VIỆC RIÊNG ở trên lọt qua tới tận vòng 3.
+
+### Đo tại S1
 
 - **Danh sách miễn trừ của AC-14 (đo tại S1, không phải giả định).** Cho toàn
   bộ 18 workspace hiện có đi qua bảng field bắt buộc: **0 eval rơi vào nhánh

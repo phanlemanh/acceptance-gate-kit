@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: judgment-question-guard
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 907ec9b9e487688d4b03437a6cde178d5f836c93
-human_signoff:
+human_signoff: Manh Phan 2026-08-04
 ---
 
 # Evidence Report: judgment-question-guard
@@ -140,7 +140,7 @@ human_signoff:
     - domain-correctness: PASS — Prompt dòng 4 nói thẳng luật neo vào QUAN HE (co-trong-danh-sach "Input:" cong persona), khong phai LOAI FILE, va tu giai thich vi sao: "cung mot ten file co the la input hop le cua eval nay va ngoai pham vi cua eval khac" — dieu nay chinh xac giai toa nguy co nham lan voi cac eval khac coi contract.md/design doc la input hop le, vi phep thu la thanh vien trong danh sach cua TUNG eval chu khong phai loai ten file co dinh. Dong 7 con noi ro rang khi danh sach khong du can cu thi PHAI tra UNCERTAIN va "TUYET DOI KHONG phai ly do di tim file khac de tu cuu" — mot hoi dong vien doc se hieu dung ca hai diem ma cau hoi neu ra.
     - operational-feasibility: PASS — Prompt dòng 4 nêu rõ luật scope neo theo QUAN HE ("co-trong-danh-sach hay khong"), KHONG theo loai file, và minh hoạ ngay: cùng một tên file có thể là input hợp lệ của eval này nhưng ngoài phạm vi của eval khác — điều này trực tiếp ngừa hiểu nhầm luật-theo-loại-file mà câu hỏi nêu. Dòng 7 nói thẳng: thiếu căn cứ → lý do trả UNCERTAIN, tuyệt đối không phải lý do tự đi tìm file khác để tự cứu/tự chế tiêu chí, và cảnh báo rõ hành vi đó phá tính độc lập của hội đồng. Cả hai vế câu hỏi đều được văn bản trả lời minh bạch, không cần suy luận thêm.
     - spec-alignment: PASS — Prompt neo ro vao QUAN HE, khong theo loai file: dong 4 noi thang "Luat nay theo QUAN HE (co-trong-danh-sach hay khong), KHONG theo loai file — cung mot ten file co the la input hop le cua eval nay va ngoai pham vi cua eval khac" — cau nay chinh la lam ro truoc moi lan can nham voi cac eval khac ma design doc/contract.md la input hop le. Dong 7 noi ro rang thieu can cu la ly do tra UNCERTAIN, "TUYET DOI KHONG phai ly do di tim file khac de tu cuu", va giai thich vi sao (pha hong tinh doc lap hoi dong) — khop voi persona "UNCERTAIN la mot verdict TOT". Khong thay mau thuan giua danh sach Input va luat pham vi trong prompt nay.
-  human_override:        # T3 — bat buoc dien "<ten> <ngay>" o Gate 2 du panel da PASS ca 3 lens
+  human_override: Manh Phan 2026-08-04
 
 - eval: E11
   run_id: minted-judgment-question-guard-E11-r3
