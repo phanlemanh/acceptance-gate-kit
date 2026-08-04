@@ -59,28 +59,41 @@ const MUTATIONS = [
     expect: 'WI1 hanh vi khop DAC TA viet-truoc',
   },
   {
-    name: 'doi cum hop dong chuoi o BEN DOC (gate-card)',
+    name: 'ben doc thoi doc so chay may-viet (bo hang doc run-log)',
     file: CARD_REL,
     apply: s => {
-      const a = "const INERT_NOTE_PREFIX = 'Field khai mà máy không dùng:';";
-      if (!s.includes(a)) throw new Error('khong tim thay cum hop dong');
-      return s.replace(a, "const INERT_NOTE_PREFIX = 'Field khai ma may khong dung:';");
+      const a = "  if (inertLine && typeof inertLine.note === 'string' && inertLine.note.trim()) {";
+      if (!s.includes(a)) throw new Error('khong tim thay nhanh doc so chay');
+      return s.replace(a, '  if (false) {');
     },
-    expect: 'WI6 KHONG muon nhan co phuong-sai',
+    expect: 'WI6 the hien canh bao field-inert',
   },
   {
-    name: 'ben doc quay ve cat theo VI TRI chuoi thay vi theo DONG',
+    name: 'ben doc quay ve PHAN TICH VAN XUOI trong ## Variance (co che gay cua 3 vong truoc)',
     file: CARD_REL,
     apply: s => {
-      const a = "    const inert = lines.filter(l => l.startsWith(INERT_NOTE_PREFIX)).join(' ').trim();\n"
-              + "    const rest = lines.filter(l => !l.startsWith(INERT_NOTE_PREFIX)).join(' ').trim();";
-      if (!s.includes(a)) throw new Error('khong tim thay buoc cat theo dong');
-      return s.replace(a,
-        "    const j = lines.join(' ').trim(); const cut = j.indexOf(INERT_NOTE_PREFIX);\n"
-      + "    const inert = cut >= 0 ? j.slice(cut).trim() : '';\n"
-      + "    const rest = (cut >= 0 ? j.slice(0, cut) : j).trim();");
+      // Thay TRON cau lenh doc so chay (2 dong) bang co che cu: khop chuoi tren van LLM
+      const re = /  const inertLine = read\(path\.join\(dir, 'run-log\.jsonl'\)\)\.split\('\\n'\)\n.*\n/;
+      if (!re.test(s)) throw new Error('khong tim thay cau lenh doc so chay');
+      return s.replace(re,
+        "  const inertLine = (() => {\n"
+      + "    const ls = cleanLines(section(report, 'Variance')).map(x => x.trim()).filter(Boolean);\n"
+      + "    if (!ls.length || /^[{][{]/.test(ls[0])) return null;\n"
+      + "    const hit = ls.find(x => x.startsWith('Field khai mà máy không dùng:'));\n"
+      + "    return hit ? { note: hit } : null;\n"
+      + "  })();\n");
     },
-    expect: 'WI6 [note-truoc] co DO phuong-sai van con',
+    expect: 'WI6 [dong dau con placeholder] co field-inert VAN hien',
+  },
+  {
+    name: 'ben VIET bo field note khoi dong run-log kind:inert',
+    file: WF_REL,
+    apply: s => {
+      const a = "kind: 'inert', note: inertNote,";
+      if (!s.includes(a)) throw new Error('khong tim thay field note');
+      return s.replace(a, "kind: 'inert',");
+    },
+    expect: 'WI6 writer ghi dong run-log kind:inert co field note',
   },
   {
     name: 'khoi phuc cau mo ta runs cu (khong neu gioi han executor)',

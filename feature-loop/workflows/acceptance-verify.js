@@ -681,11 +681,6 @@ if (typeof args.evalsHash === 'string' && args.evalsHash) {
 
 // Ban ghi ben vung cho o inert. KHONG co run_id -> loadRunLogIds bo qua (cung khuon dong
 // kind panel/baseline), nen consumer cu doc log nay khong vo.
-if (inertFields.length) runLogLines.push(JSON.stringify({
-  ts: invokedAt, round: args.round, kind: 'inert',
-  fields: inertFields.map(f => ({ evalId: f.evalId, field: f.field, executor: f.executor })),
-}))
-
 // Cau nay di THANG toi mat nguoi ky (muc ## Variance cua evidence-report, roi the Cong 2),
 // nen viet tieng Viet CO DAU — khac phan con lai cua file. May tinh san va synthesize chi
 // CHEP, cung khuon literal dang dung cho verified_commit.
@@ -699,6 +694,19 @@ const inertNote = inertFields.length
       `${f.evalId} khai \`${f.field}: ${Array.isArray(f.value) ? f.value.join(', ') : f.value}\` nhưng ${f.plain}`
     ).join(' · ') + '. Giá trị đó bị bỏ qua — sửa evals.yaml (đổi loại eval hoặc bỏ field) hoặc chấp nhận và ghi vào phần hạn chế đã biết.'
   : ''
+
+// Ban ghi ben vung + NGUON MAY-VIET cho the Cong 2. Field `note` la cau nguyen van
+// da tinh san: the doc THANG tu day, KHONG phan tich van ban do LLM viet trong
+// ## Variance. Ba vong S4 lien tiep cho thay mot moi noi LLM-viet -> may-doc gay theo
+// mot chieu MOI moi lan (thu tu, roi trang tri markdown, roi placeholder con sot) —
+// noi rong phep khop chi doi mot lo lay mot lo. Su that nay may DA biet, nen the phai
+// lay tu day; van xuoi trong bao cao chi con la ban cho nguoi doc.
+// Dong khong co run_id -> loadRunLogIds bo qua, cung khuon dong kind panel/baseline.
+if (inertFields.length) runLogLines.push(JSON.stringify({
+  ts: invokedAt, round: args.round, kind: 'inert', note: inertNote,
+  fields: inertFields.map(f => ({ evalId: f.evalId, field: f.field, executor: f.executor })),
+}))
+
 
 // ---- verdict routing (kit rules) ----
 const blocked = machine.filter(m => m.cannotRun)

@@ -377,20 +377,25 @@ if (ooc.cluster) flags.push(['fwarn', '⚠ Nhiều lỗi rơi ngoài vùng các 
 // feature-loop/workflows/acceptance-verify.js (hai file không import được nhau — script đó
 // chạy trong sandbox không có module). Đổi cụm này = phải đổi cả bên kia; case WI6 trong
 // tests/workflows/acceptance-verify.test.mjs là mối nối duy nhất giữ hai bên khớp.
-// Tách theo DÒNG, KHÔNG theo vị trí chuỗi: câu inert là một dòng riêng, mọi dòng còn
-// lại là phương sai. Bản đầu cắt bằng indexOf rồi nuốt phần đuôi, nên thứ tự chỉ được
-// bảo đảm bằng một câu dặn trong prompt — S4 vòng 1 đo được: đặt câu inert TRƯỚC nội
-// dung phương sai thì cờ đỏ "pass-rate hỗn hợp" biến mất HOÀN TOÀN. Một mối nối
-// máy-đọc không được phụ thuộc vào việc bên viết (LLM) nghe lời.
-const INERT_NOTE_PREFIX = 'Field khai mà máy không dùng:';
+// Ô INERT — field NGƯỜI khai mà máy không dùng. Lấy từ `run-log.jsonl`, dòng
+// `kind:"inert"` do MÁY viết; KHÔNG phân tích văn xuôi trong `## Variance`.
+//
+// Vì sao: ba vòng S4 liên tiếp cho thấy khớp-chuỗi-trên-văn-LLM gãy theo một chiều
+// MỚI mỗi lần — thứ tự câu, rồi trang trí markdown (`- `, `**`), rồi placeholder
+// `{{…}}` còn sót ở dòng đầu. Nới phép khớp chỉ đổi một lỗ lấy một lỗ; sự thật này
+// máy đã biết và đã ghi, nên đọc thẳng từ nguồn máy-viết là bất biến, không phải
+// bản vá. Văn xuôi trong báo cáo vẫn còn, nhưng chỉ để người đọc.
 {
-  const lines = cleanLines(section(report, 'Variance')).map(l => l.trim()).filter(Boolean);
-  if (lines.length && !/^\{\{/.test(lines[0])) {
-    const inert = lines.filter(l => l.startsWith(INERT_NOTE_PREFIX)).join(' ').trim();
-    const rest = lines.filter(l => !l.startsWith(INERT_NOTE_PREFIX)).join(' ').trim();
-    if (inert) flags.push(['fwarn', esc(inert)]);
-    if (rest && !/^none/i.test(rest)) flags.push(['fred', 'Có eval ngẫu nhiên (pass-rate hỗn hợp) — ' + esc(rest)]);
+  const inertLine = read(path.join(dir, 'run-log.jsonl')).split('\n')
+    .reduce((acc, l) => { try { const e = JSON.parse(l); return e && e.kind === 'inert' ? e : acc; } catch (_) { return acc; } }, null);
+  if (inertLine && typeof inertLine.note === 'string' && inertLine.note.trim()) {
+    flags.push(['fwarn', esc(inertLine.note.trim())]);
   }
+}
+// Phương sai thật (pass-rate hỗn hợp) — việc của máy, giữ nguyên đường cũ.
+{
+  const varr = cleanLines(section(report, 'Variance')).join(' ').trim();
+  if (varr && !/^none/i.test(varr) && !/^\{\{/.test(varr)) flags.push(['fred', 'Có eval ngẫu nhiên (pass-rate hỗn hợp) — ' + esc(varr)]);
 }
 if (tier === 'T3') flags.push(['fok', 'Đụng phần nhạy cảm → tier T3, đúng là cần bạn duyệt kỹ.']);
 if (evComplete) flags.push(['fok', 'Cổng chạy thật, bằng chứng máy đầy đủ (run_id · exit 0 · verifier).']);

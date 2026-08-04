@@ -877,66 +877,69 @@ console.log('WI5 inertNote: literal do JS tinh + chi dan chep nguyen van vao ## 
   check('WI5 doi chung duong: khong inert -> prompt sach', !/Field khai mà máy không dùng/.test(p2));
 }
 
-console.log('WI6 ROUND-TRIP writer->reader: inertNote qua scripts/gate-card.js ra co dung loai');
+console.log('WI6 ROUND-TRIP writer->reader qua SO CHAY may-viet (khong phan tich van LLM)');
 {
   const { mkdtempSync, mkdirSync, writeFileSync } = await import('node:fs');
   const { execFileSync } = await import('node:child_process');
   const os = await import('node:os');
   const ROOT = path.join(HERE, '..', '..');
 
-  // (1) RUT cau literal tu WRITER that — khong chep tay
+  // (1) RUT tu WRITER that: dong run-log kind:inert do may viet — khong chep tay
   const jEval = { id: 'E9', criterion: 'AC-4', executor: 'judgment', question: 'q?', inputs: ['/a.md'], runs: 3 };
-  const { calls } = await runWorkflow(WF, baseArgs({ evals: [jEval] }), responder());
-  const note = (/Field khai mà máy không dùng:[^\n]*/.exec(byLabel(calls, 'synthesize:report')[0].prompt) || [''])[0];
-  check('WI6 rut duoc literal tu writer', note.length > 40, note);
-  check('WI6 literal KHONG bat dau bang "none"', !/^none/i.test(note));
+  const { result } = await runWorkflow(WF, baseArgs({ evals: [jEval] }), responder());
+  const inertLine = result.runLog.map(l => JSON.parse(l)).find(l => l.kind === 'inert');
+  check('WI6 writer ghi dong run-log kind:inert co field note', !!(inertLine && inertLine.note), JSON.stringify(inertLine));
+  check('WI6 note neu dich danh eval + field', /E9/.test(inertLine.note) && /runs/.test(inertLine.note), inertLine.note);
 
-  // (2) SINH workspace fixture bang CODE (khong co fixture viet tay tren dia)
-  const mkWs = (variance) => {
+  // (2) SINH workspace fixture bang CODE
+  const mkWs = (variance, runLogLines) => {
     const tmp = mkdtempSync(path.join(os.tmpdir(), 'agk-rt-'));
-    const dir = path.join(tmp, '_acceptance', 'rt');
-    mkdirSync(dir, { recursive: true });
-    writeFileSync(path.join(dir, 'contract.md'),
+    const d = path.join(tmp, '_acceptance', 'rt');
+    mkdirSync(d, { recursive: true });
+    writeFileSync(path.join(d, 'contract.md'),
       '---\nschema_version: 2\nfeature: "rt"\nslug: rt\nrisk_tier: T2\nstatus: verified\n---\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n\n## Out of scope\n\n- x\n- y\n');
-    writeFileSync(path.join(dir, 'evals.yaml'), 'evals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    cmd: config:executors.test.api\n');
-    writeFileSync(path.join(dir, 'evidence-report.md'),
-      `---\nschema_version: 2\nfeature_slug: rt\nverdict: PASS\n---\n\n## Variance\n\n${variance}\n\n## Iterations\n\n- round 1\n`);
+    writeFileSync(path.join(d, 'evals.yaml'), 'evals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    cmd: config:executors.test.api\n');
+    writeFileSync(path.join(d, 'evidence-report.md'),
+      `---\nschema_version: 2\nfeature_slug: rt\nverdict: PASS\n---\n\n## Variance\n\n${variance}\n\n## Iterations\n\n- r1\n`);
+    writeFileSync(path.join(d, 'run-log.jsonl'), (runLogLines || []).join('\n') + (runLogLines && runLogLines.length ? '\n' : ''));
     return tmp;
   };
-  const card = (variance) => execFileSync('node', [path.join(ROOT, 'scripts', 'gate-card.js'), '--slug', 'rt'],
-    { cwd: mkWs(variance), encoding: 'utf8' });
+  const card = (variance, runLogLines) => execFileSync('node', [path.join(ROOT, 'scripts', 'gate-card.js'), '--slug', 'rt'],
+    { cwd: mkWs(variance, runLogLines), encoding: 'utf8' });
+  const LOG = [JSON.stringify(inertLine)];
 
-  // (3) READER doc literal cua WRITER -> co dung loai
-  const withInert = card(note);
-  check('WI6 the hien canh bao field-inert', /Field khai mà máy không dùng/.test(withInert), 'khong thay cum trong the');
-  check('WI6 KHONG muon nhan co phuong-sai', !/pass-rate hỗn hợp/.test(withInert), 'dung nham nhan phuong sai');
+  // (3) READER lay tu SO CHAY -> co dung loai, KHONG muon nhan phuong-sai
+  const withInert = card('none — every multi-run eval is uniform', LOG);
+  check('WI6 the hien canh bao field-inert', /Field khai mà máy không dùng/.test(withInert));
+  check('WI6 KHONG muon nhan co phuong-sai', !/pass-rate hỗn hợp/.test(withInert));
 
-  // (4) DOI CHUNG DUONG: Variance = "none — ..." -> khong co nao
-  const withNone = card('none — every multi-run eval is uniform');
-  check('WI6 doi chung duong: Variance "none" -> khong co field-inert', !/Field khai mà máy không dùng/.test(withNone));
-  check('WI6 doi chung duong: Variance "none" -> khong co phuong-sai', !/pass-rate hỗn hợp/.test(withNone));
-
-  // (5) HOI QUY: phuong sai that van giu co cu
-  const withVar = card('E3 pass_rate 4/5 — chua on dinh');
-  check('WI6 hoi quy: phuong sai that van ra co cu', /pass-rate hỗn hợp/.test(withVar));
-
-  // (6) CA GOP: co ca phuong sai LAN o inert -> HAI co, khong nuot cai nao
-  // CA HAI THU TU. Vong 1: reader cat theo VI TRI chuoi nen note dat TRUOC lam co do
-  // phuong-sai bien mat HAN — va thu tu chi duoc bao dam bang mot cau dan trong prompt.
-  for (const [ten, body] of [['note-sau', 'E3 pass_rate 4/5 — chua on dinh\n' + note],
-                             ['note-truoc', note + '\nE3 pass_rate 4/5 — chua on dinh']]) {
-    const out = card(body);
-    check(`WI6 [${ten}] co DO phuong-sai van con`, /pass-rate hỗn hợp/.test(out), 'mat co do');
-    check(`WI6 [${ten}] co VANG field-inert van con`, /Field khai mà máy không dùng/.test(out), 'mat co vang');
+  // (4) MIEN NHIEM ba chieu gay cua ba vong truoc — the KHONG con doc van xuoi nua.
+  // Moi ca duoi day tung lam mat hoac dan sai nhan mot co o cac vong S4 truoc.
+  const IMMUNE = [
+    ['note dat SAU phuong sai', 'E3 pass_rate 4/5 — chua on dinh\n' + inertLine.note],
+    ['note dat TRUOC phuong sai', inertLine.note + '\nE3 pass_rate 4/5 — chua on dinh'],
+    ['note co gach dau dong', '- ' + inertLine.note],
+    ['note in dam', '**' + inertLine.note + '**'],
+    ['dong dau con placeholder', '{{eval ids with mixed pass_rate}}\n' + inertLine.note],
+    ['Variance rong hoan toan', ''],
+  ];
+  for (const [ten, variance] of IMMUNE) {
+    const out = card(variance, LOG);
+    check(`WI6 [${ten}] co field-inert VAN hien`, /Field khai mà máy không dùng/.test(out), 'mat co vang');
   }
-  const both = card('E3 pass_rate 4/5 — chua on dinh\n' + note);
+  // Phuong sai that van ra co do rieng, va hai co khong nuot nhau
+  const both = card('E3 pass_rate 4/5 — chua on dinh', LOG);
   const divs = [...both.matchAll(/<div class="flag [^"]*">([\s\S]*?)<\/div>/g)].map(x => x[1]);
-  const varDiv = divs.filter(d => /pass-rate hỗn hợp/.test(d));
-  const inertDiv = divs.filter(d => /Field khai mà máy không dùng/.test(d));
-  check('WI6 ca gop: HAI khoi co RIENG BIET', varDiv.length === 1 && inertDiv.length === 1,
-    `phuong-sai:${varDiv.length} inert:${inertDiv.length}`);
-  check('WI6 ca gop: khoi phuong-sai KHONG nuot phan inert', !/Field khai mà máy không dùng/.test(varDiv[0] || ''));
-  check('WI6 ca gop: khoi inert KHONG mang nhan phuong-sai', !/pass-rate hỗn hợp/.test(inertDiv[0] || ''));
+  check('WI6 ca gop: HAI khoi co RIENG BIET',
+    divs.filter(d => /pass-rate hỗn hợp/.test(d)).length === 1
+    && divs.filter(d => /Field khai mà máy không dùng/.test(d)).length === 1,
+    String(divs.length));
+
+  // (5) DOI CHUNG DUONG: khong co dong inert trong so chay -> KHONG co vang nao
+  const noLog = card('none — every multi-run eval is uniform', []);
+  check('WI6 doi chung duong: khong dong inert -> khong co vang', !/Field khai mà máy không dùng/.test(noLog));
+  const varOnly = card('E3 pass_rate 4/5 — chua on dinh', []);
+  check('WI6 hoi quy: phuong sai that van ra co cu', /pass-rate hỗn hợp/.test(varOnly));
 }
 
 console.log('WI7 ba cho mo ta runs + buoc "Moi verdict" o CA HAI harness');
