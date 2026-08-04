@@ -5099,6 +5099,262 @@ assert mut_desc.find("v1.30:") < 0 or not (0 <= mut_desc.find("v1.29:") < mut_de
 print("P133 OK (3 pin chu + dot bien deu do dung cho)")
 P133PY
 
+# ── P134: parser evals block-scalar — covGaps thẻ Cổng 1 không bắn giả trên `expected: >` ─
+# Bug lớp: khuôn eval-gen viết `expected: >` (folded scalar); regex một-dòng cũ
+# bắt được đúng ">" nên NEG_RE test trên ">" luôn false → thẻ bắn cờ "có
+# ngưỡng/biên nhưng chưa có ca dưới ngưỡng" cho MỌI AC khớp THRESHOLD_RE
+# (context-ladder: 8/8 AC dính dù 16/16 eval có ca âm). Bất biến CLAUDE.md:
+# đối chứng dương TRƯỚC (phép đo phải đỏ được trên vật thật thiếu ca âm, ghim
+# đúng thông điệp) rồi mới tin case âm; fixture do code sinh trong chính lần chạy.
+echo "P134 gate-card covGaps: block scalar co ca am -> KHONG co; thieu that -> dung 1 AC"
+P134OK=1
+P134WS="$(mktemp -d)"
+mkdir -p "$P134WS/_acceptance/demo"
+cat > "$P134WS/_acceptance/demo/contract.md" <<'EOF'
+---
+schema_version: 1
+feature: demo
+slug: demo
+risk_tier: T2
+status: draft
+---
+
+## Criteria
+
+- AC-1: Given ngưỡng 5 phút, When quá ngưỡng, Then hệ thống cảnh báo.
+- AC-2: Given hạn mức 3 lần, When vượt hạn mức, Then hệ thống khoá phiên.
+EOF
+P134MSG='có ngưỡng/biên nhưng chưa có ca'
+p134_flags() { node "$ROOT/scripts/gate-card.js" --root "$P134WS" --slug demo --gate 1 2>&1 | grep -o "AC-[0-9]* $P134MSG" ; }
+# (a) đối chứng dương: expected MỘT DÒNG thiếu ca âm → cờ PHẢI bắn cho cả 2 AC,
+# đúng thông điệp — chứng minh máy-cảnh-báo còn sống trước khi tin các case sạch.
+cat > "$P134WS/_acceptance/demo/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    expected: cảnh báo bắn ra đúng kênh
+  - id: E2
+    criterion: AC-2
+    expected: phiên bị khoá ngay
+EOF
+P134A="$(p134_flags)"
+printf '%s\n' "$P134A" | grep -q "AC-1 $P134MSG" || { echo "     doi chung duong: co AC-1 KHONG ban (may canh bao chet?)"; P134OK=0; }
+printf '%s\n' "$P134A" | grep -q "AC-2 $P134MSG" || { echo "     doi chung duong: co AC-2 KHONG ban"; P134OK=0; }
+# (b) folded scalar `>` chứa ca âm cho cả 2 AC → KHÔNG cờ nào (đây là bug gốc)
+cat > "$P134WS/_acceptance/demo/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    expected: >
+      quá ngưỡng → cảnh báo bắn;
+      dưới ngưỡng → KHÔNG bắn cảnh báo.
+  - id: E2
+    criterion: AC-2
+    expected: >
+      vượt hạn mức → khoá;
+      còn trong hạn mức → KHÔNG khoá phiên.
+EOF
+[ -z "$(p134_flags)" ] || { echo "     folded scalar co ca am van bi ban co gia:"; p134_flags | sed 's/^/       /'; P134OK=0; }
+# (c) literal scalar `|` — cùng lớp, phải cùng thuốc
+cat > "$P134WS/_acceptance/demo/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    expected: |
+      dưới ngưỡng → KHÔNG bắn cảnh báo.
+  - id: E2
+    criterion: AC-2
+    expected: |
+      còn trong hạn mức → KHÔNG khoá phiên.
+EOF
+[ -z "$(p134_flags)" ] || { echo "     literal scalar | van bi ban co gia"; P134OK=0; }
+# (d) chính xác từng AC: AC-1 block CÓ ca âm, AC-2 block THIẾU → đúng 1 cờ, đúng AC-2
+# (block-parse không được blanket-suppress cảnh báo)
+cat > "$P134WS/_acceptance/demo/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    expected: >
+      dưới ngưỡng → KHÔNG bắn cảnh báo.
+  - id: E2
+    criterion: AC-2
+    expected: >
+      vượt hạn mức thì phiên bị khoá ngay lập tức.
+EOF
+P134D="$(p134_flags)"
+[ "$(printf '%s\n' "$P134D" | grep -c "$P134MSG")" = "1" ] || { echo "     ky vong DUNG 1 co, thay: [$P134D]"; P134OK=0; }
+printf '%s\n' "$P134D" | grep -q "AC-2 $P134MSG" || { echo "     co phai tro dung AC-2 (AC thieu that)"; P134OK=0; }
+# (e) thân block là DATA: dòng "criterion: AC-9" trong thân expected không được
+# cướp mapping của eval (cướp thì evalsFor(AC-1) rỗng → cờ AC-1 bắn lại)
+cat > "$P134WS/_acceptance/demo/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    expected: >
+      dưới ngưỡng → KHÔNG bắn; dòng sau là DATA chứ không phải key:
+      criterion: AC-9
+      exit 0.
+  - id: E2
+    criterion: AC-2
+    expected: >
+      còn trong hạn mức → KHÔNG khoá phiên.
+EOF
+[ -z "$(p134_flags)" ] || { echo "     dong criterion: trong THAN block cuop mat mapping cua eval"; P134OK=0; }
+rm -rf "$P134WS"
+if [ "$P134OK" -eq 1 ]; then
+  pass "P134 covGaps doc duoc block scalar > va |, canh bao dung AC, than block khong cuop key"
+else
+  fail "P134 covGaps doc duoc block scalar > va |, canh bao dung AC, than block khong cuop key"
+fi
+
+# ── P135: eval-coverage-lint W1/W3 — cùng lớp bug, cùng thuốc (lib/eval-yaml.js) ─
+# Lint có BẢN SAO của parser gate-card (đã trôi cùng nhau); case này ghim phía
+# lint để hai bên không tách thuốc lần nữa: W1 không bắn giả khi ca âm nằm trong
+# block, W3 đếm được ca âm trong block, và cảnh báo thật vẫn đỏ đúng chỗ.
+echo "P135 eval-coverage-lint: W1/W3 doc block scalar, khong ban gia, thieu that van do"
+P135OK=1
+P135WS="$(mktemp -d)"
+cat > "$P135WS/contract.md" <<'EOF'
+---
+schema_version: 1
+feature: demo
+slug: demo
+risk_tier: T2
+status: draft
+---
+
+## Criteria
+
+- AC-1: Given ngưỡng 5 phút, When quá ngưỡng, Then hệ thống cảnh báo.
+- AC-2: Given hạn mức 3 lần, When vượt hạn mức, Then hệ thống khoá phiên.
+
+## Out of scope
+
+- không gửi lại cảnh báo trùng trong 24 giờ
+EOF
+p135_lint() { node "$ROOT/scripts/eval-coverage-lint.js" --files "$P135WS/contract.md" "$P135WS/evals.yaml" 2>&1; }
+# (a) đối chứng dương: một dòng, không ca âm → W1 cho cả 2 AC + W3, ghim thông điệp
+cat > "$P135WS/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    expected: cảnh báo bắn ra đúng kênh
+  - id: E2
+    criterion: AC-2
+    expected: phiên bị khoá ngay
+EOF
+P135A="$(p135_lint)"
+printf '%s' "$P135A" | grep -q 'W1 AC-1 is a threshold/boundary criterion' || { echo "     doi chung duong: W1 AC-1 khong ban"; P135OK=0; }
+printf '%s' "$P135A" | grep -q 'W1 AC-2 is a threshold/boundary criterion' || { echo "     doi chung duong: W1 AC-2 khong ban"; P135OK=0; }
+printf '%s' "$P135A" | grep -q 'W3 Out-of-scope lists' || { echo "     doi chung duong: W3 khong ban"; P135OK=0; }
+# (b) ca âm nằm TRONG block `>` → không W1, không W3, exit 0 kèm dòng sạch
+cat > "$P135WS/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    expected: >
+      dưới ngưỡng → KHÔNG bắn cảnh báo.
+  - id: E2
+    criterion: AC-2
+    expected: >
+      còn trong hạn mức → KHÔNG khoá phiên.
+EOF
+P135B="$(p135_lint)"; P135BST=$?
+[ "$P135BST" -eq 0 ] || { echo "     block co ca am van exit $P135BST"; P135OK=0; }
+printf '%s' "$P135B" | grep -q 'no coverage gaps detected' || { echo "     block co ca am van in canh bao: $P135B"; P135OK=0; }
+# (c) AC-2 block thật sự thiếu ca âm → ĐÚNG 1 dòng W1, trỏ AC-2
+cat > "$P135WS/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    expected: >
+      dưới ngưỡng → KHÔNG bắn cảnh báo.
+  - id: E2
+    criterion: AC-2
+    expected: >
+      vượt hạn mức thì phiên bị khoá ngay lập tức.
+EOF
+P135C="$(p135_lint)"
+[ "$(printf '%s' "$P135C" | grep -c '] W1 ')" = "1" ] || { echo "     ky vong dung 1 dong W1: $P135C"; P135OK=0; }
+printf '%s' "$P135C" | grep -q 'W1 AC-2 is a threshold/boundary criterion' || { echo "     W1 phai tro AC-2"; P135OK=0; }
+rm -rf "$P135WS"
+if [ "$P135OK" -eq 1 ]; then
+  pass "P135 lint W1/W3 doc block scalar, khong ban gia, thieu that van do dung AC"
+else
+  fail "P135 lint W1/W3 doc block scalar, khong ban gia, thieu that van do dung AC"
+fi
+
+# ── P136: awk cross-layer pairing (pre-merge) — thân block scalar là DATA ─────
+# Cùng lớp bug, biến thể "thân làm bẩn state": (i) một bullet "- baseline: green"
+# trong thân expected khớp luật flush → reset crit giữa block → layer thật đặt
+# SAU expected mất pairing → false VIOLATION; (ii) một dòng prose
+# "layer: backend-effect" trong thân pair HỘ eval UI-only → false-green — đúng
+# thứ răng này sinh ra để chặn. Đối chứng dương giữ nguyên khung fixture, chỉ
+# đổi evals.yaml — chứng minh đường chạy tới răng còn sống.
+echo "P136 pre-merge cross-layer: than block khong reset/khong pair ho, thieu that van VIOLATION"
+P136OK=1
+P136WS="$(mktemp -d)"
+mkdir -p "$P136WS/_acceptance/xl"
+cat > "$P136WS/_acceptance/xl/contract.md" <<'EOF'
+---
+schema_version: 1
+feature: xl
+slug: xl
+risk_tier: T2
+status: implemented
+approved_by: tester
+---
+
+## Criteria
+
+- AC-1: Given form, When submit, Then DB có row mới (cross-layer).
+EOF
+P136MSG='AC-1 is tagged (cross-layer) but no eval of it declares layer: backend-effect'
+p136_hits() { bash "$ROOT/scripts/pre-merge-check.sh" "$P136WS" 2>&1 | grep -cF "$P136MSG"; }
+# (a) đối chứng dương: chỉ có layer ui → răng phải cắn, đúng thông điệp
+cat > "$P136WS/_acceptance/xl/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: ui-check
+    layer: ui
+    expected: >
+      form submit xong thấy toast.
+EOF
+[ "$(p136_hits)" = "1" ] || { echo "     doi chung duong: rang cross-layer KHONG can (duong chay toi rang chet?)"; P136OK=0; }
+# (b) bullet "- baseline: green" trong thân expected + layer thật SAU expected → phải SẠCH
+cat > "$P136WS/_acceptance/xl/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    expected: >
+      DB có đúng 1 row mới; log của run in các dòng:
+      - baseline: green
+      - exit 0
+    layer: backend-effect
+EOF
+[ "$(p136_hits)" = "0" ] || { echo "     bullet trong than expected reset crit -> false VIOLATION"; P136OK=0; }
+# (c) layer thật là ui, thân expected nhắc "layer: backend-effect" → PHẢI VIOLATION (chặn false-green)
+cat > "$P136WS/_acceptance/xl/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: ui-check
+    layer: ui
+    expected: >
+      chưa có eval nào khai
+      layer: backend-effect
+      cho tuyến này.
+EOF
+[ "$(p136_hits)" = "1" ] || { echo "     dong prose trong than expected pair HO eval ui-only -> false-green"; P136OK=0; }
+rm -rf "$P136WS"
+if [ "$P136OK" -eq 1 ]; then
+  pass "P136 awk pairing bo qua than block scalar, hai chieu false-VIOLATION/false-green deu chan"
+else
+  fail "P136 awk pairing bo qua than block scalar, hai chieu false-VIOLATION/false-green deu chan"
+fi
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

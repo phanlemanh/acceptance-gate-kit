@@ -558,9 +558,16 @@ for dir in "$ACC"/*/; do
       # key names here: a block opening on an unlisted key would fail to flush,
       # leaking the previous block's `layer:` onto it — false-green, the exact
       # failure these teeth exist to stop. Open wide, discriminate on syntax.
+      # Thân block scalar (`expected: >` — khuôn mặc định của eval-gen — hay
+      # `cmd: |`) là DATA, phải bị nuốt trọn: một bullet "- baseline: green"
+      # trong thân từng khớp luật flush và reset crit giữa block (false
+      # VIOLATION), còn một dòng prose "layer: backend-effect" trong thân từng
+      # pair hộ eval UI-only (false-green — đúng thứ răng này chặn).
       xl_paired="$(awk '
         function flush() { if (lay=="backend-effect" && crit!="") print crit }
+        { if (inblk) { if ($0 ~ /^[[:space:]]*$/) next; if (match($0, /[^[:space:]]/) - 1 > blkind) next; inblk = 0 } }
         tolower($0) ~ /^[[:space:]]*-[[:space:]]*[a-z_]+:([[:space:]]|$)/ { flush(); crit=""; lay="" }
+        /^[[:space:]]*(-[[:space:]]*)?[A-Za-z_][A-Za-z0-9_-]*:[[:space:]]*[>|][+0-9-]*[[:space:]]*(#.*)?$/ { inblk = 1; blkind = match($0, /[^[:space:]]/) - 1; next }
         tolower($0) ~ /^[[:space:]]*(-[[:space:]]*)?criterion:[[:space:]]*/ {v=$0; sub(/^[^:]*:[[:space:]]*/,"",v); gsub(/["'\'']/,"",v); sub(/[[:space:]]+#.*$/,"",v); sub(/[[:space:]]+$/,"",v); crit=v}
         tolower($0) ~ /^[[:space:]]*(-[[:space:]]*)?layer:[[:space:]]*/ {v=tolower($0); sub(/^[^:]*:[[:space:]]*/,"",v); gsub(/["'\'']/,"",v); sub(/[[:space:]]+#.*$/,"",v); sub(/[[:space:]]+$/,"",v); lay=v}
         END { flush() }
