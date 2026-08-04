@@ -1,41 +1,39 @@
 ## Trong hợp đồng
 
-### Phép đo tồn kho viết lại luật `inputs` YẾU HƠN engine — đúng lớp lỗi mà chính quyết định S4-r1 tuyên đã đóng
-- file: `tests/workflows/acceptance-verify.test.mjs:1045`
-- severity: high
-- source: conventions
-- AC: AC-14
-- rationale: AC-14 đòi bảng field bắt buộc phải rút từ marker trong engine chứ không được chép tay sang test; finding chỉ ra đúng hai vị từ về `inputs` nằm ngoài marker, bị chép tay và lệch engine ở cả hai nhánh, nên assurance của AC-14 không còn đúng cho trường hợp này.
-
-Marker `EVAL-REQUIRED-FIELDS` được mở rộng ở S4-r1 để test rút CẢ bảng lẫn hai vị từ rồi "áp y nguyên", vì bản trước tự viết lại luật yếu hơn. Nhưng hai luật về `inputs` vẫn NẰM NGOÀI marker và vẫn bị test viết lại — lần này lệch theo cả hai chiều:
-
-1. Nhánh HARD: engine (`acceptance-verify.js:275-278`) chặn `inputs` khi `!Array.isArray(e.inputs)` HOẶC `e.inputs.some(isBlankStr)`. Scan chỉ kiểm vế đầu (`!Array.isArray`) — bỏ hẳn vế phần-tử-rỗng.
-2. Nhánh SOFT: engine tính `ungroundedIds` bằng `!Array.isArray(e.inputs) || !e.inputs.length` (`acceptance-verify.js:305`), scan lại dùng `badStrArray(e.inputs)` (dòng 1046) — hàm này còn true cho mảng có phần tử rỗng.
-
-Kịch bản fail: một workspace khai `inputs:` với một mục list rỗng/chỉ khoảng trắng (rất dễ xảy ra khi YAML có dòng `- ` treo hoặc quote hỏng). Scan phân nó vào `soft` → assert dòng 1054 `hard.length === 0` VẪN XANH, tức phép đo báo "0 phơi nhiễm chặn cứng"; lần chạy S4 thật thì eval đó BLOCKED cả round. Chính assert này là căn cứ duy nhất đóng finding P0-2 của gap-probe ("phơi nhiễm thật = 0"), nên nó xanh-giả là căn cứ đó mất giá trị. Ca đột biến ở dòng 1058-1070 không bắt được vì chỉ tiêm `criterion` rỗng.
-
-Lối xử: đưa cả hai vị từ `inputs` (hard-shape và ungrounded) vào trong marker rồi để scan rút y nguyên, giống ba vị từ kia.
+_(không có finding nào ánh xạ được vào AC ở round này)_
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **Tồn kho thật có 0 eval `ui-check` — luật khắt khe nhất của guard chưa từng gặp một eval do người viết**
-  Người dùng thấy gì: Phần kiểm tra tự động hiện chưa từng thấy qua một ví dụ thật của loại kiểm tra giao diện khắt khe nhất, nên nếu sau này có nhóm khai loại đó theo cách khác thường, hệ thống có thể chặn hoặc bỏ sót mà chưa ai từng thử trước.
-  file: `tests/workflows/acceptance-verify.test.mjs`
+- **Guard fail-closed chặn đúng bộ design eval mà chính kit hướng dẫn viết — không có đường đọc-cũ**
+  Người dùng thấy gì: Nếu một tính năng làm giao diện web được viết đúng theo hướng dẫn có sẵn của bộ công cụ, bước kiểm tra tự động sẽ chặn đứng ngay cả khi mọi thứ đúng chuẩn tài liệu, và người dùng phải tự sửa tay mới chạy tiếp được — không có cách nào để bỏ qua tạm thời.
+  file: `feature-loop/workflows/acceptance-verify.js:250`
+  severity: high
+  Đề xuất: new-contract
+
+- **Bản "trước guard" của W-G6b là chương trình hỏng — xanh nhờ may, một sửa nhỏ là thành ReferenceError**
+  Người dùng thấy gì: Bài kiểm thử dùng để chứng minh phiên bản chưa có lớp bảo vệ mới thực sự có lỗi hiện đang báo kết quả đúng một phần là do may mắn (một lỗi gõ trong dữ liệu thử), không phải vì nó kiểm tra đúng cơ chế. Nếu sau này ai mở rộng bài kiểm thử này sang tình huống khác, nó có thể báo kết quả sai lệch hoặc dừng đột ngột khó hiểu, khiến người xem không còn tin được kết quả kiểm thử này.
+  file: `tests/workflows/acceptance-verify.test.mjs:899`
   severity: medium
   Đề xuất: known-limits
 
-- **Sanity counter của scan đếm FILE, không đếm eval — parser hỏng một file vẫn cho xanh**
-  Người dùng thấy gì: Nếu một hồ sơ chấp nhận trong tương lai viết các mục theo thứ tự khác thường, phần kiểm tra tự động có thể âm thầm bỏ sót toàn bộ hồ sơ đó mà vẫn báo mọi thứ ổn.
-  file: `tests/workflows/acceptance-verify.test.mjs`
-  severity: low
-  Đề xuất: known-limits
-
-- **Guard fail-closed chặn đúng bộ design eval mà chính kit sinh ra (thiếu criterion/expected/steps)**
-  Người dùng thấy gì: Với các tính năng có màn hình giao diện, bước tự động sinh câu hỏi kiểm tra thiết kế theo đúng hướng dẫn hiện tại của công cụ có thể tạo ra các mục thiếu thông tin bắt buộc, khiến toàn bộ vòng kiểm tra bị chặn đứng và người dùng phải tự sửa tay trước khi làm tiếp — lặp lại mỗi lần bước sinh câu hỏi đó chạy.
-  file: `feature-loop/workflows/acceptance-verify.js`
+- **Guard hard-BLOCKS the kit's own documented ui-check / design eval shape (no read-old path)**
+  Người dùng thấy gì: Đường sinh kiểm tra giao diện web mặc định mà chính bộ công cụ khuyến nghị dùng hiện đang bị hệ thống kiểm tra tự động của cùng bộ công cụ đó từ chối chạy, không có cách nào bỏ qua tạm thời — người dùng phải tự sửa tay file kiểm tra trước khi có thể tiếp tục.
+  file: `/Users/manhphan/dev/acceptance-gate-kit/.claude/worktrees/cranky-shannon-5dc195/feature-loop/workflows/acceptance-verify.js:250`
   severity: high
   Đề xuất: new-contract
+
+- **`criterion` required for test/script executors contradicts SKILL.md 2b and is not used by the machine fan-out prompt**
+  Người dùng thấy gì: Một loại mục kiểm tra mà chính bộ công cụ khuyến nghị tạo ra (kiểm tra thiết kế giao diện, áp dụng ngay cả khi tiêu chí không nhắc tới thiết kế) bị buộc phải khai thêm một nội dung mà bộ công cụ không thật sự cần tới — nếu thiếu, việc kiểm tra bị chặn hoàn toàn dù mục đó vốn không sai.
+  file: `/Users/manhphan/dev/acceptance-gate-kit/.claude/worktrees/cranky-shannon-5dc195/feature-loop/workflows/acceptance-verify.js:247`
+  severity: medium
+  Đề xuất: new-contract
+
+- **nothing-to-verify reason message hides ungrounded judgments when carry-forward is also present**
+  Người dùng thấy gì: Khi một vòng kiểm tra vừa có phần được giữ nguyên từ vòng trước vừa có một câu hỏi đánh giá chưa được cấp đủ dữ liệu, thông báo hiển thị cho người vận hành chỉ nhắc tới phần giữ nguyên và im lặng bỏ qua câu hỏi thiếu dữ liệu — người đọc thông báo không biết cần bổ sung gì, dễ sửa nhầm chỗ.
+  file: `/Users/manhphan/dev/acceptance-gate-kit/.claude/worktrees/cranky-shannon-5dc195/feature-loop/workflows/acceptance-verify.js:367`
+  severity: low
+  Đề xuất: known-limits
 
 Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).

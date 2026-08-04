@@ -4,7 +4,7 @@ feature: "judgment-question-guard — acceptance-verify.js DỪNG fail-closed kh
 slug: judgment-question-guard
 risk_tier: T3
 surfaces: [cli]
-status: approved
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-08-04T12:30:00Z
 owner: omre.cnsp4@onemount.com
