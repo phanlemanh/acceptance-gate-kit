@@ -141,6 +141,28 @@ const MUTATIONS = [
     expect: 'WI13 GIU nguyen nhan chan THAT',
   },
   {
+    name: 'nhanh BLOCKED thoat som thoi mang dong so chay inert',
+    file: WF_REL,
+    apply: s => {
+      // Doi HANH VI, khong pha cu phap: nhanh nay van tra runLog nhung RONG —
+      // dung che do hong that (the roi ve trang thai cua vong TRUOC).
+      const a = "reviewIncomplete: [], inertFields,\n    runLog: [JSON.stringify(";
+      if (!s.includes(a)) throw new Error('khong tim thay runLog o nhanh thoat som');
+      return s.replace(a, "reviewIncomplete: [], inertFields,\n    runLog: [].slice(0, 0) || [JSON.stringify(");
+    },
+    expect: 'WI14 nhanh thoat som VAN mang dong so chay inert',
+  },
+  {
+    name: 'chot prov tra lai report rong (de mat bao cao vong truoc)',
+    file: WF_REL,
+    apply: s => {
+      const a = "    runLog: runLogLines, runLogWriteFailed,\n  }";
+      if (!s.includes(a)) throw new Error('khong tim thay return cua chot prov');
+      return s.replace(a, "    runLog: runLogLines, runLogWriteFailed, report: '', findings: '',\n  }");
+    },
+    expect: 'WI14 chot prov KHONG tra report rong',
+  },
+  {
     name: 'bo chot prov-chet (mot loi 529 lai lam sap ca vong)',
     file: WF_REL,
     apply: s => {

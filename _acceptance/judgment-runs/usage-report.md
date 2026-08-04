@@ -189,3 +189,33 @@
 - **claude-sonnet-5**: 16 agent · 179 calls · out 121,709 · in 1,420 · cache_read 10,356,996 · cache_create 993,142
 - **claude-haiku-4-5-20251001**: 7 agent · 18 calls · out 6,998 · in 158 · cache_read 400,516 · cache_create 141,962
 
+### S4 round 8 (BLOCKED) — wf_c2903938-797 (21 agent, 135,628 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5 | 3 | 22,514 | 6 | 122,567 | 242 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 14 | 20,072 | 28 | 971,957 | 396 |
+| review:bugs | claude-opus-5 | 24 | 18,233 | 48 | 2,161,222 | 403 |
+| review:conventions | claude-opus-5 | 22 | 18,135 | 2,894 | 1,844,048 | 388 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 20 | 11,566 | 40 | 1,353,290 | 249 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 31 | 9,776 | 62 | 2,564,400 | 344 |
+| refute:evals.yaml | claude-sonnet-5 | 17 | 7,185 | 34 | 983,920 | 223 |
+| judge:E10:domain-correctness | claude-sonnet-5 | 7 | 6,330 | 14 | 377,595 | 250 |
+| judge:E10:operational-feasibility | claude-sonnet-5 | 9 | 6,285 | 18 | 521,666 | 303 |
+| refute:evidence-page.js | claude-sonnet-5 | 8 | 3,577 | 1,284 | 423,378 | 82 |
+| baseline:diffBase | claude-sonnet-5 | 11 | 3,491 | 22 | 496,422 | 269 |
+| judge:E10:spec-alignment | claude-sonnet-5 | 8 | 1,804 | 16 | 408,356 | 209 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 9 | 1,515 | 74 | 258,351 | 103 |
+| machine:bash tests/plugins/run-tests.sh | claude-haiku-4-5-20251001 | 7 | 1,402 | 58 | 202,980 | 379 |
+| machine:bash scripts/sync-plugin-packages.sh --c | claude-haiku-4-5-20251001 | 3 | 829 | 26 | 74,464 | 37 |
+| capture:provenance | claude-sonnet-5 | 2 | 825 | 4 | 43,224 | 18 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 4 | 779 | 34 | 104,327 | 52 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 551 | 18 | 27,303 | 13 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 2 | 322 | 18 | 44,713 | 19 |
+| machine:node tests/workflows/mutation-check.mjs | claude-haiku-4-5-20251001 | 2 | 311 | 18 | 44,708 | 35 |
+| triage | claude-sonnet-5 | 2 | 126 | 4 | 48,136 | 153 |
+
+- **claude-sonnet-5**: 12 agent · 132 calls · out 93,551 · in 1,532 · cache_read 8,314,911 · cache_create 779,398
+- **claude-opus-5**: 2 agent · 46 calls · out 36,368 · in 2,942 · cache_read 4,005,270 · cache_create 238,638
+- **claude-haiku-4-5-20251001**: 7 agent · 29 calls · out 5,709 · in 246 · cache_read 756,846 · cache_create 116,277
+

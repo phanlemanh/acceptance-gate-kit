@@ -1257,4 +1257,29 @@ console.log('WI13 chot prov-chet GOP blocked[] that, khong DE');
   check('WI13 khong nuot: co it nhat 2 muc', (result.blocked || []).length >= 2, String((result.blocked || []).length));
 }
 
+console.log('WI14 nhanh BLOCKED thoat som: mang DONG SO CHAY inert, va chot prov khong de bao cao');
+{
+  const jEval = { id: 'E9', criterion: 'AC-4', executor: 'judgment', question: 'q?', inputs: ['/a.md'], runs: 3 };
+  // (a) Nhanh "khong co gi de verify": the Cong 2 lay canh bao CHI tu so chay, nen nhanh
+  // nay khong tra runLog thi vong do khong co dong nao -> the roi ve trang thai vong TRUOC.
+  const { result: b } = await runWorkflow(WF, baseArgs({
+    evals: [jEval], suiteCommands: [], round: 3,
+    carriedPanels: [{ evalId: 'E9', proposal: 'PASS', votes: [], fromRound: 2 }],
+  }), responder());
+  check('WI14 verdict BLOCKED', b.verdict === 'BLOCKED', b.verdict);
+  const bl = (b.runLog || []).map(l => JSON.parse(l)).filter(l => l.kind === 'inert');
+  check('WI14 nhanh thoat som VAN mang dong so chay inert', bl.length === 1, JSON.stringify(b.runLog));
+  check('WI14 dong do dung round hien tai', bl[0] && bl[0].round === 3, JSON.stringify(bl[0]));
+  check('WI14 dong do neu dich danh eval', bl[0] && /E9/.test(bl[0].note), String(bl[0] && bl[0].note).slice(0, 60));
+
+  // (b) Chot prov-chet KHONG duoc tra report/findings rong: SKILL buoc main loop ghi
+  // evidence-report.md = result.report VO DIEU KIEN, nen chuoi rong xoa bao cao vong truoc
+  // (keo theo reset cach dem round va mat anchor verified_commit).
+  const { result: pv } = await runWorkflow(WF, baseArgs({ evals: [jEval] }),
+    responder({ 'capture:provenance': null }));
+  check('WI14 chot prov KHONG tra report rong', !('report' in pv) || pv.report === undefined, JSON.stringify(pv.report));
+  check('WI14 chot prov KHONG tra findings rong', !('findings' in pv) || pv.findings === undefined, JSON.stringify(pv.findings));
+  check('WI14 chot prov VAN mang runLog da tinh', (pv.runLog || []).length > 0, String((pv.runLog || []).length));
+}
+
 summary('acceptance-verify');

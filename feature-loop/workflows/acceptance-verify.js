@@ -292,6 +292,21 @@ const inertFieldReport = (evals) => {
   return out
 }
 const inertFields = inertFieldReport(args.evals)
+// ts cho moi dong so chay — script bi cam Date, skill do bang `date -u` va truyen vao.
+const invokedAt = typeof args.invokedAt === 'string' ? args.invokedAt : ''
+// Cau nay di THANG toi mat nguoi ky, QUA KENH MAY: dong so chay kind:inert -> the Cong 2
+// va goi trinh nguoi. TUYET DOI KHONG nhet no vao prompt synthesize nua — bat mot LLM
+// chep cau roi bat ben doc go no ra da gay BON lan lien tiep (thu tu cau, trang tri
+// markdown, placeholder con sot, va cuoi cung cung mot cau ra dong thoi hai co sai nhan).
+// nen viet tieng Viet CO DAU — khac phan con lai cua file. May tinh san va synthesize chi
+// CHEP, cung khuon literal dang dung cho verified_commit.
+// Cum mo dau "Field khai ma may khong dung:" la HOP DONG CHUOI LIEN-FILE voi
+// scripts/gate-card.js qua field `note` cua dong so chay — khong con phu thuoc van xuoi.
+const inertNote = inertFields.length
+  ? 'Field khai mà máy không dùng: ' + inertFields.map(f =>
+      `${f.evalId} khai \`${f.field}: ${Array.isArray(f.value) ? f.value.join(', ') : f.value}\` nhưng ${f.plain}`
+    ).join(' · ') + '. Giá trị đó bị bỏ qua — sửa evals.yaml (đổi loại eval hoặc bỏ field) hoặc chấp nhận và ghi vào phần hạn chế đã biết.'
+  : ''
 // P3: panel carried chỉ hợp lệ khi trỏ đúng judgment eval hiện có + proposal hợp lệ
 const carriedPanels = (Array.isArray(args.carriedPanels) ? args.carriedPanels : []).filter(p =>
   p && typeof p.evalId === 'string' && judgmentEvals.some(e => e.id === p.evalId)
@@ -348,7 +363,12 @@ if (!distinctCmds.length && !freshJudgmentEvals.length && !uiEvals.length) {
     ? 'toan bo eval/panel deu carry-forward va suite rong — khong co gi FRESH verify cay code moi cua round nay; them feature_loop.suite_keys hoac thu hep paths cua eval'
     : 'evals.yaml khong co eval may va khong co judgment — khong co gi de verify, kiem tra lai evals.yaml'
   // Canh bao o inert phai song sot CA nhanh thoat som — im lang o ca hiem van la im lang.
-  return { verdict: 'BLOCKED', blocked: [{ cmd: '(none)', reason }], failedEvals: [], failedCommands: [], panels: [], confirmedFindings: [], reviewIncomplete: [], inertFields }
+  // Mang theo DONG SO CHAY inert: the Cong 2 lay canh bao CHI tu so chay, nen nhanh nay
+  // khong tra runLog thi vong do khong co dong nao -> the roi ve trang thai cua vong TRUOC.
+  // Ghi ca khi sach (fields: []) cho dung bat bien "sach la tin hieu tuong minh".
+  return { verdict: 'BLOCKED', blocked: [{ cmd: '(none)', reason }], failedEvals: [], failedCommands: [], panels: [], confirmedFindings: [], reviewIncomplete: [], inertFields,
+    runLog: [JSON.stringify({ ts: invokedAt, round: args.round, kind: 'inert', note: inertNote,
+      fields: inertFields.map(f => ({ evalId: f.evalId, field: f.field, executor: f.executor })) })] }
 }
 
 log(`Round ${args.round}: ${distinctCmds.length} lenh may (dedupe tu ${machineEvals.length} eval + ${args.suiteCommands.length} suite), ${uiEvals.length} ui-check, ${freshJudgmentEvals.length} judgment x ${LENSES.length} judges`
@@ -469,7 +489,6 @@ machine.push(...(uiRaw || []).filter(Boolean).map(r => ({ ...r, runs: 1, passes:
 // deterministic) + build NGUYÊN VĂN từng dòng JSONL. Synthesize CHỈ chép map này — hết quyền
 // tự mint. recheck-evidence/hook đối chiếu run_id trong report với log: PASS bịa tay
 // (không qua verify) bị chặn. ts từ args.invokedAt (skill đo bằng `date -u` — script bị cấm Date).
-const invokedAt = typeof args.invokedAt === 'string' ? args.invokedAt : ''
 const evalRunIds = {}
 const runLogLines = []
 for (const m of machine) {
@@ -681,19 +700,6 @@ if (typeof args.evalsHash === 'string' && args.evalsHash) {
 
 // Ban ghi ben vung cho o inert. KHONG co run_id -> loadRunLogIds bo qua (cung khuon dong
 // kind panel/baseline), nen consumer cu doc log nay khong vo.
-// Cau nay di THANG toi mat nguoi ky, QUA KENH MAY: dong so chay kind:inert -> the Cong 2
-// va goi trinh nguoi. TUYET DOI KHONG nhet no vao prompt synthesize nua — bat mot LLM
-// chep cau roi bat ben doc go no ra da gay BON lan lien tiep (thu tu cau, trang tri
-// markdown, placeholder con sot, va cuoi cung cung mot cau ra dong thoi hai co sai nhan).
-// nen viet tieng Viet CO DAU — khac phan con lai cua file. May tinh san va synthesize chi
-// CHEP, cung khuon literal dang dung cho verified_commit.
-// Cum mo dau "Field khai ma may khong dung:" la HOP DONG CHUOI LIEN-FILE voi
-// scripts/gate-card.js qua field `note` cua dong so chay — khong con phu thuoc van xuoi.
-const inertNote = inertFields.length
-  ? 'Field khai mà máy không dùng: ' + inertFields.map(f =>
-      `${f.evalId} khai \`${f.field}: ${Array.isArray(f.value) ? f.value.join(', ') : f.value}\` nhưng ${f.plain}`
-    ).join(' · ') + '. Giá trị đó bị bỏ qua — sửa evals.yaml (đổi loại eval hoặc bỏ field) hoặc chấp nhận và ghi vào phần hạn chế đã biết.'
-  : ''
 
 // Ban ghi ben vung + NGUON MAY-VIET cho the Cong 2. Field `note` la cau nguyen van
 // da tinh san: the doc THANG tu day, KHONG phan tich van ban do LLM viet trong
@@ -785,7 +791,11 @@ if (!prov) {
     confirmedFindings, triaged, triageFailed, rejectFindings, coverageCluster, reviewIncomplete,
     nonDiscriminating, inertFields,
     carried: { evals: carriedEvals.map(c => c.id), panels: carriedPanels.map(p => p.evalId), baseline: !runBaseline },
-    runLog: runLogLines, runLogWriteFailed, report: '', findings: '',
+    // KHONG tra report/findings: SKILL buoc main loop ghi evidence-report.md = result.report
+    // VO DIEU KIEN o buoc "Moi verdict". Mot chuoi rong se DE MAT bao cao vong truoc, keo theo
+    // reset cach dem round (doc tu ## Iterations) va mat anchor verified_commit cua staleness
+    // guard. Hai nhanh BLOCKED con lai cung khong tra hai khoa nay — giu dong nhat.
+    runLog: runLogLines, runLogWriteFailed,
   }
 }
 // verified_commit sanitize bang JS thuan — khong tin agent: sai shape (khong phai hex SHA) coi nhu
