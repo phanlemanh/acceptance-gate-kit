@@ -77,8 +77,10 @@ console.log('W03 happy path: PASS + run-log may-tinh, main loop ghi file (khong 
   const { result, calls } = await runWorkflow(WF, baseArgs(), responder());
   check('W03 verdict PASS', result.verdict === 'PASS', result.verdict);
   check('W03 machine dedupe: 2 machine agents (1 eval-cmd + 1 suite)', byLabel(calls, 'machine:').length === 2, String(byLabel(calls, 'machine:').length));
-  check('W03 runLog: 1 line per eval', result.runLog.length === 2, String(result.runLog.length));
-  const lines = result.runLog.map(l => JSON.parse(l));
+  // Dong kind:"inert" la MEMO ghi moi vong (ke ca khi sach) — khong phai dong eval.
+  const evalLines = result.runLog.map(l => JSON.parse(l)).filter(l => !l.kind);
+  check('W03 runLog: 1 line per eval', evalLines.length === 2, String(evalLines.length));
+  const lines = evalLines;
   check('W03 run_id minted deterministically per eval', lines[0].run_id === 'minted-demo-E1-r1' && lines[1].run_id === 'minted-demo-E2-r1');
   check('W03 ts from args.invokedAt', lines.every(l => l.ts === '2026-07-02T10:00:00Z'));
   // Từ đợt 8: KHÔNG còn agent scribe — agent "chép sẵn dòng audit" trông y hệt
@@ -101,7 +103,7 @@ console.log('W04 failing eval -> REJECT with failed ids');
   check('W04 verdict REJECT', result.verdict === 'REJECT');
   check('W04 failedEvals E1+E2 (shared cmd)', JSON.stringify(result.failedEvals) === JSON.stringify(['E1', 'E2']));
   const lines = result.runLog.map(l => JSON.parse(l));
-  check('W04 run-log records real exit + verifier runId', lines.every(l => l.exit_code === 1 && l.run_id === 'run-777'));
+  check('W04 run-log records real exit + verifier runId', lines.filter(l => !l.kind).every(l => l.exit_code === 1 && l.run_id === 'run-777'));
 }
 
 console.log('W05 cannotRun + dead agent -> BLOCKED, never PASS');
@@ -224,7 +226,8 @@ console.log('W12 run-log: main loop append la duong DUY NHAT (khong con scribe)'
   const { result, logs } = await runWorkflow(WF, baseArgs(), responder());
   check('W12 flag set khi co dong can ghi', result.runLogWriteFailed === true);
   check('W12 log nhac main loop tu append', logs.some(l => /TU append/.test(l)));
-  check('W12 runLog mang du dong cho main loop', result.runLog.length === 2, String(result.runLog.length));
+  check('W12 runLog mang du dong cho main loop',
+    result.runLog.map(l => JSON.parse(l)).filter(l => !l.kind).length === 2, String(result.runLog.length));
 }
 
 console.log('W13 ui-check merges into machine lane + run-log');
@@ -847,8 +850,11 @@ console.log('WI4 o inert: mot dong log + mot dong run-log kind:inert (khong run_
 
   // DOI CHUNG DUONG: khong eval inert -> khong dong nao, khong log nao
   const { result: c, logs: cl } = await runWorkflow(WF, baseArgs({ evals: [jEval()] }), responder());
-  check('WI4 doi chung duong: khong inert -> khong dong kind:inert',
-    c.runLog.map(l => JSON.parse(l)).filter(l => l.kind === 'inert').length === 0);
+  // Dong kind:"inert" nay LUON duoc ghi moi vong (de "vong nay sach" la tin hieu tuong
+  // minh, khong phai suy tu su vang mat). Vong sach => `fields` RONG.
+  const clInert = c.runLog.map(l => JSON.parse(l)).filter(l => l.kind === 'inert');
+  check('WI4 doi chung duong: vong sach -> dong inert co fields RONG',
+    clInert.length === 1 && Array.isArray(clInert[0].fields) && clInert[0].fields.length === 0, JSON.stringify(clInert));
   check('WI4 doi chung duong: khong inert -> khong dong log nao',
     cl.filter(l => /O inert/i.test(l)).length === 0);
 }
@@ -872,8 +878,9 @@ console.log('WI5 loi nhac synthesize KHONG con chi dan chen canh bao vao ## Vari
   check('WI5 cau neu viec-cua-nguoi', /evals\.yaml/.test(inertLine.note) && /hạn chế đã biết/.test(inertLine.note));
   // DOI CHUNG DUONG: khong eval inert -> khong dong nao, loi nhac cung sach
   const { calls: c2, result: r2 } = await runWorkflow(WF, baseArgs({ evals: [jEval()] }), responder());
-  check('WI5 doi chung duong: khong inert -> khong dong so chay',
-    !r2.runLog.map(l => JSON.parse(l)).some(l => l.kind === 'inert'));
+  const cl5 = r2.runLog.map(l => JSON.parse(l)).filter(l => l.kind === 'inert');
+  check('WI5 doi chung duong: vong sach -> dong so chay co fields RONG',
+    cl5.length === 1 && cl5[0].fields.length === 0 && !cl5[0].note, JSON.stringify(cl5));
   check('WI5 doi chung duong: loi nhac van sach', !/Field khai mà máy không dùng/.test(byLabel(c2, 'synthesize:report')[0].prompt));
 }
 
@@ -1104,7 +1111,7 @@ console.log('WI9 QUAN HE: hang khai inert phai THAT SU khong doi bat ky dau ra n
     if (l.startsWith('judge:')) return { verdict: 'PASS', rationale: 'ok' };
     if (l.startsWith('review:')) return l.includes('bugs') ? { findings: F } : { findings: [] };
     if (l.startsWith('refute:')) return { refuted: false, reason: 'that' };
-    if (l.startsWith('triage')) return { triage: F.map(f => ({ title: f.title, file: f.file, inContract: false, acRef: '', rationale: 'r', proposal: 'known-limits', plain: 'p' })) };
+    if (l.startsWith('triage')) return { triaged: F.map(f => ({ title: f.title, file: f.file, inContract: false, acRef: '', rationale: 'r', proposal: 'known-limits', plain: 'p' })) };
     if (l.startsWith('baseline:')) return { results: [] };
     if (l === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: VC };
     if (l === 'synthesize:report') return { report: 'r', findings: 'f' };
@@ -1189,6 +1196,65 @@ console.log('WI11 agent provenance chet -> BLOCKED co ly do, KHONG sap ca vong')
     !(ok.blocked || []).some(b => /provenance/i.test(b.cmd) || /provenance/i.test(b.reason)), JSON.stringify(ok.blocked));
   check('WI11 doi chung duong: prov song -> co goi synthesize',
     byLabel(c2, 'synthesize:report').length === 1);
+}
+
+console.log('WI12 canh bao o-inert: tat duoc khi chay lai CUNG vong, va song sot o BLOCKED/REJECT');
+{
+  const { mkdtempSync, mkdirSync, writeFileSync } = await import('node:fs');
+  const { execFileSync } = await import('node:child_process');
+  const os = await import('node:os');
+  const ROOT = path.join(HERE, '..', '..');
+
+  // Dong so chay lay TU WRITER that (AC-16: fixture do ben viet sinh)
+  const jEval = { id: 'E9', criterion: 'AC-4', executor: 'judgment', question: 'q?', inputs: ['/a.md'], runs: 3 };
+  const { result: hit } = await runWorkflow(WF, baseArgs({ evals: [jEval], round: 3 }), responder());
+  const dirty = hit.runLog.map(l => JSON.parse(l)).find(l => l.kind === 'inert');
+  // Vong sach: writer nay LUON ghi dong inert moi vong, ke ca khi sach (fields: [])
+  const { result: cleanR } = await runWorkflow(WF, baseArgs({
+    evals: [{ ...jEval, runs: undefined }], round: 3 }), responder());
+  const cleanLine = cleanR.runLog.map(l => JSON.parse(l)).find(l => l.kind === 'inert');
+  check('WI12 writer LUON ghi dong inert moi vong (ke ca khi sach)', !!cleanLine, JSON.stringify(cleanR.runLog));
+  check('WI12 dong sach mang fields rong', cleanLine && Array.isArray(cleanLine.fields) && cleanLine.fields.length === 0, JSON.stringify(cleanLine));
+
+  const card = (verdict, logLines) => {
+    const tmp = mkdtempSync(path.join(os.tmpdir(), 'agk-r7-'));
+    const d = path.join(tmp, '_acceptance', 'rt'); mkdirSync(d, { recursive: true });
+    writeFileSync(path.join(d, 'contract.md'), '---\nschema_version: 2\nfeature: "rt"\nslug: rt\nrisk_tier: T2\nstatus: verified\n---\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n\n## Out of scope\n\n- x\n- y\n');
+    writeFileSync(path.join(d, 'evals.yaml'), 'evals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    cmd: config:executors.test.api\n');
+    writeFileSync(path.join(d, 'evidence-report.md'), `---\nschema_version: 2\nfeature_slug: rt\nverdict: ${verdict}\n---\n\n## Variance\n\nnone\n\n## Iterations\n\n- r1\n`);
+    writeFileSync(path.join(d, 'run-log.jsonl'), logLines.join('\n') + '\n');
+    return execFileSync('node', [path.join(ROOT, 'scripts', 'gate-card.js'), '--slug', 'rt'], { cwd: tmp, encoding: 'utf8' });
+  };
+  const seen = out => (out.match(/Field khai mà máy không dùng/g) || []).length;
+
+  // (a) CHAY LAI CUNG VONG: so chay append-only, dong sach cua CUNG round phai tat canh bao.
+  // Truoc day "vong nay sach" duoc suy tu su VANG MAT nen canh bao khong bao gio tat duoc.
+  check('WI12 [chay lai CUNG vong, da sach] canh bao TAT',
+    seen(card('PASS', [JSON.stringify(dirty), JSON.stringify(cleanLine)])) === 0, 'canh bao khong tat duoc');
+  check('WI12 doi chung duong [cung vong, van con inert] canh bao VAN hien',
+    seen(card('PASS', [JSON.stringify(dirty)])) === 1);
+
+  // (b) SONG SOT o nhanh non-approvable. Ben VIET da duoc gia co dung vay; ben doc thoat
+  // som truoc khoi co la hai dau troi khoi nhau.
+  for (const v of ['REJECT', 'BLOCKED']) {
+    check(`WI12 [verdict ${v}] canh bao VAN hien`, seen(card(v, [JSON.stringify(dirty)])) === 1, 'mat canh bao o nhanh thoat som');
+  }
+}
+
+console.log('WI13 chot prov-chet GOP blocked[] that, khong DE');
+{
+  const { result } = await runWorkflow(WF, baseArgs({
+    evals: [{ id: 'E1', criterion: 'AC-1', executor: 'test', cmd: 'pnpm test', ref: 'config:x', expected: 'ok' }],
+    suiteCommands: [],
+  }), responder({
+    'machine:': { exitCode: 1, cannotRun: true, reason: 'DB local chua chay — thieu env DATABASE_URL', outputTail: '', runId: '' },
+    'capture:provenance': null,
+  }));
+  check('WI13 verdict BLOCKED', result.verdict === 'BLOCKED', result.verdict);
+  const reasons = (result.blocked || []).map(b => b.reason).join(' | ');
+  check('WI13 GIU nguyen nhan chan THAT', /DATABASE_URL/.test(reasons), reasons);
+  check('WI13 VA co them muc provenance', /provenance/i.test(reasons), reasons);
+  check('WI13 khong nuot: co it nhat 2 muc', (result.blocked || []).length >= 2, String((result.blocked || []).length));
 }
 
 summary('acceptance-verify');

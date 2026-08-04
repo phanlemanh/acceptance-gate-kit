@@ -702,7 +702,13 @@ const inertNote = inertFields.length
 // noi rong phep khop chi doi mot lo lay mot lo. Su that nay may DA biet, nen the phai
 // lay tu day; van xuoi trong bao cao chi con la ban cho nguoi doc.
 // Dong khong co run_id -> loadRunLogIds bo qua, cung khuon dong kind panel/baseline.
-if (inertFields.length) runLogLines.push(JSON.stringify({
+// LUON ghi dong nay MOI VONG, ke ca khi sach (fields: [], note: ''). "Vong nay sach"
+// phai la tin hieu TUONG MINH, khong duoc suy tu su VANG MAT: so chay la append-only va
+// SKILL chi thi chay lai CUNG round o hai cho (BLOCKED; PASS ma report rong). Neu chi ghi
+// khi CON o inert thi sau lan chay lai da sach, dong inert CU cua cung round van la dong
+// inert cuoi -> canh bao khong bao gio tat duoc, ke ca khi nguoi da sua evals.yaml dung
+// nhu no bao. Ben doc chi hien co khi `fields` khong rong.
+runLogLines.push(JSON.stringify({
   ts: invokedAt, round: args.round, kind: 'inert', note: inertNote,
   fields: inertFields.map(f => ({ evalId: f.evalId, field: f.field, executor: f.executor })),
 }))
@@ -770,7 +776,11 @@ if (!prov) {
   log('BLOCKED: buoc capture provenance khong tra ket qua — khong co enforcement_mode/bypass_used de ghi report')
   return {
     verdict: 'BLOCKED',
-    blocked: [{ cmd: 'capture:provenance', reason: 'buoc do provenance khong tra ket qua (agent loi/qua tai) — khong co enforcement_mode + bypass_used, ma day la truong tin-nhiem CI dung de chan gate yeu; chay lai CUNG round' }],
+    // GOP, khong DE: `blocked` da tinh o tren mang nguyen nhan THAT (cannotRun, agent
+    // skip/chet). Dung kich ban sinh ra chot nay — bao qua tai — la kich ban NHIEU agent
+    // cung chet, nen ghi de bang mot literal se nuot chinh nguyen nhan can trinh cho nguoi
+    // (SKILL buoc BLOCKED: "doc blocked[].cmd + reason, trinh NGUYEN VAN cho user").
+    blocked: [...blocked, { cmd: 'capture:provenance', reason: 'buoc do provenance khong tra ket qua (agent loi/qua tai) — khong co enforcement_mode + bypass_used, ma day la truong tin-nhiem CI dung de chan gate yeu; chay lai CUNG round' }],
     failedEvals: failedEvalIds, failedCommands, panels: panels.map(p => ({ evalId: p.evalId, proposal: p.proposal })),
     confirmedFindings, triaged, triageFailed, rejectFindings, coverageCluster, reviewIncomplete,
     nonDiscriminating, inertFields,

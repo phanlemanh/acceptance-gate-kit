@@ -309,6 +309,30 @@ const plainDec = id => ((pl.decisions && pl.decisions.find(x => x.id === id)) ||
 const scopePlain = pl.scope_plain || oos.join(' · ');
 const P = [STYLE];
 
+// Ô INERT — field NGƯỜI khai mà máy không dùng. Lấy từ `run-log.jsonl`, dòng
+// `kind:"inert"` do MÁY viết; KHÔNG phân tích văn xuôi trong `## Variance`.
+// TÍNH SỚM, TRƯỚC nhánh thoát-sớm non-approvable: cảnh báo này phải sống sót ở CẢ
+// BLOCKED/REJECT. Bên viết đã được gia cố đúng vậy (acceptance-verify.js nhánh BLOCKED
+// mang theo inertFields); bên đọc thoát trước khối cờ là hai đầu trôi khỏi nhau.
+const INERT_NOTE_PREFIX = 'Field khai mà máy không dùng:';
+const inertNoteText = (() => {
+  const lines = read(path.join(dir, 'run-log.jsonl')).split('\n')
+    .map(l => { try { return JSON.parse(l); } catch (_) { return null; } }).filter(Boolean);
+  const maxRound = lines.reduce((m, e) => (typeof e.round === 'number' && e.round > m ? e.round : m), 0);
+  // Dòng CUỐI của vòng mới nhất — bên viết nay luôn ghi mỗi vòng, kể cả khi sạch
+  // (`fields: []`), nên chạy lại CÙNG vòng cũng tắt được cảnh báo. Dòng cũ thiếu
+  // `fields` (bản trước) vẫn coi là "còn ô inert" — đường đọc-cũ, thà thừa một cờ
+  // vàng còn hơn nuốt mất cảnh báo.
+  const last = lines.filter(e => e.kind === 'inert' && e.round === maxRound).pop() || null;
+  const ln = (last && Array.isArray(last.fields) && last.fields.length === 0) ? null : last;
+  if (!ln) return '';
+  // Dòng của các vòng trước không có `note` — rơi về `fields` chứ KHÔNG im lặng.
+  return (typeof ln.note === 'string' && ln.note.trim())
+    ? ln.note.trim()
+    : `${INERT_NOTE_PREFIX} ` + (ln.fields || []).map(f => `${f.evalId} khai \`${f.field}\` trên eval ${f.executor}`).join(' · ')
+      + '. Giá trị đó bị bỏ qua — sửa evals.yaml (đổi loại eval hoặc bỏ field) hoặc chấp nhận và ghi vào phần hạn chế đã biết.';
+})();
+
 // --- non-approvable: REJECT / BLOCKED / unknown — no signoff affordance, no green reassurance ---
 if (!approvable) {
   const ch = verdict === 'REJECT' ? { t: 'có eval fail — trả lại code', c: 'coral' } : verdict === 'BLOCKED' ? { t: 'không chạy được — chưa thể ký', c: 'coral' } : { t: 'verdict không xác định — không ký', c: 'gray' };
@@ -317,6 +341,8 @@ if (!approvable) {
   if (verdict === 'REJECT') notes.push(['fred', (failed.length ? 'Eval chưa đạt: ' + esc(failed.join(', ')) + ' — ' : '') + 'quay lại sửa code, chưa ký.']);
   else if (verdict === 'BLOCKED') notes.push(['fred', 'Không chạy được' + (reason ? ': ' + esc(reason) : '') + ' — sửa môi trường rồi chạy lại, chưa ký.']);
   else notes.push(['fred', 'Verdict "' + esc(verdict || '—') + '" không phải PASS/PENDING-JUDGMENT — không ký ở thẻ này.']);
+  // Ô inert là việc-của-NGƯỜI (sửa evals.yaml), độc lập với verdict — phải hiện cả ở đây.
+  if (inertNoteText) notes.push(['fwarn', esc(inertNoteText)]);
   P.push(`<div class="gc"><div class="card">
 <div class="h"><div><div class="ft">${esc(featurePlain)}</div><div class="sub">Cổng 2 · ${tier === 'T3' ? 'tier T3 · ' : ''}CHƯA ký được</div></div><span class="chip ${ch.c}">${esc(ch.t)}</span></div>
 <div class="lab">Vì sao chưa ký được</div>${notes.map(([c, t]) => `<div class="flag ${c}">${t}</div>`).join('')}
@@ -385,27 +411,8 @@ if (ooc.cluster) flags.push(['fwarn', '⚠ Nhiều lỗi rơi ngoài vùng các 
 // `{{…}}` còn sót ở dòng đầu. Nới phép khớp chỉ đổi một lỗ lấy một lỗ; sự thật này
 // máy đã biết và đã ghi, nên đọc thẳng từ nguồn máy-viết là bất biến, không phải
 // bản vá. Văn xuôi trong báo cáo vẫn còn, nhưng chỉ để người đọc.
-const INERT_NOTE_PREFIX = 'Field khai mà máy không dùng:';
-let inertNoteShown = false;
 {
-  // CHỈ nhận dòng inert của VÒNG MỚI NHẤT có trong sổ. Sổ là append-only, và bên viết
-  // chỉ ghi dòng inert KHI CÒN ô inert — "vòng này sạch" được mã hoá bằng sự VẮNG MẶT.
-  // Lấy dòng inert cuối mà không lọc vòng thì người sửa `evals.yaml` đúng như cảnh báo
-  // bảo sẽ thấy cảnh báo cũ hiện mãi, không bao giờ tắt được.
-  const lines = read(path.join(dir, 'run-log.jsonl')).split('\n')
-    .map(l => { try { return JSON.parse(l); } catch (_) { return null; } }).filter(Boolean);
-  const maxRound = lines.reduce((m, e) => (typeof e.round === 'number' && e.round > m ? e.round : m), 0);
-  const inertLine = lines.filter(e => e.kind === 'inert' && e.round === maxRound).pop() || null;
-  if (inertLine) {
-    // Dòng của các vòng trước 1.x không có `note` — rơi về `fields` chứ KHÔNG im lặng:
-    // mất cả hai kênh là đúng lỗi mà tính năng này sinh ra để diệt.
-    const note = (typeof inertLine.note === 'string' && inertLine.note.trim())
-      ? inertLine.note.trim()
-      : `${INERT_NOTE_PREFIX} ` + (inertLine.fields || []).map(f => `${f.evalId} khai \`${f.field}\` trên eval ${f.executor}`).join(' · ')
-        + '. Giá trị đó bị bỏ qua — sửa evals.yaml (đổi loại eval hoặc bỏ field) hoặc chấp nhận và ghi vào phần hạn chế đã biết.';
-    flags.push(['fwarn', esc(note)]);
-    inertNoteShown = true;
-  }
+  if (inertNoteText) flags.push(['fwarn', esc(inertNoteText)]);
 }
 // Phương sai thật (pass-rate hỗn hợp) — việc của máy.
 // Bên viết hiện KHÔNG còn chèn câu cảnh báo ô-inert vào `## Variance` (đường B), nên

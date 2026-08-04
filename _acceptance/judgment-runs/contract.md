@@ -131,11 +131,15 @@ hai luật NGƯỢC NHAU trên cùng một điều kiện (inputs không đổi)
   fixture với `## Variance` = "none — …" thì KHÔNG cờ nào bắn. Fixture do code sinh
   trong chính lần chạy, câu literal RÚT từ writer (không chép tay).
 
-- AC-13: Given `inertFields` không rỗng, When script trả `runLog`, Then có một dòng
-  `kind: "inert"` ghi round + danh sách (evalId, field, executor) — bản ghi bền
-  vững cùng khuôn với dòng `kind: "panel"`/`"baseline"` đang có; dòng không mang
-  `run_id` nên `loadRunLogIds` bỏ qua, consumer cũ không vỡ. Đối chứng dương:
-  round không eval inert → không dòng `kind: "inert"` nào.
+- AC-13 **(viết lại sau S4 vòng 7)**: Given bất kỳ vòng nào, When script trả
+  `runLog`, Then **luôn** có đúng một dòng `kind: "inert"` cho vòng đó — mang
+  `fields` + `note` khi còn ô inert, và `fields: []` + `note: ""` khi sạch. Dòng
+  không mang `run_id` nên `loadRunLogIds` bỏ qua, bên tiêu thụ cũ không vỡ.
+  *Vì sao viết lại:* bản trước chỉ ghi khi CÒN ô inert, tức mã hoá "vòng này sạch"
+  bằng **sự vắng mặt**. Sổ chạy là append-only và SKILL chỉ thị chạy lại CÙNG vòng ở
+  hai chỗ, nên sau lần chạy lại đã sạch, dòng cũ của cùng vòng vẫn là dòng inert cuối
+  → cảnh báo **không bao giờ tắt được**, kể cả khi người đã sửa `evals.yaml` đúng như
+  nó bảo. "Sạch" phải là tín hiệu tường minh.
 
 - AC-14 **(mở rộng sau S4 vòng 4)**: Given mục `## Variance` ở bất kỳ hình dạng nào,
   When `scripts/gate-card.js` đọc, Then cờ ô-inert vẫn đúng và câu cảnh báo **không bao

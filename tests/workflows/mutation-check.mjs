@@ -94,9 +94,9 @@ const MUTATIONS = [
     name: 'ben doc bo duong roi-ve-fields khi dong inert khong co note',
     file: CARD_REL,
     apply: s => {
-      const a = "  if (inertLine) {";
-      if (!s.includes(a)) throw new Error('khong tim thay nhanh dung dong inert');
-      return s.replace(a, "  if (inertLine && inertLine.note) {");
+      const a = "  return (typeof ln.note === 'string' && ln.note.trim())";
+      if (!s.includes(a)) throw new Error('khong tim thay duong roi-ve-fields');
+      return s.replace(a, "  if (!(typeof ln.note === 'string' && ln.note.trim())) return '';\n  return (typeof ln.note === 'string' && ln.note.trim())");
     },
     expect: 'WI6 [dong khong co note] van hien co vang tu fields',
   },
@@ -104,11 +104,41 @@ const MUTATIONS = [
     name: 'ben doc bo LOC THEO VONG (canh bao cu khong bao gio tat)',
     file: CARD_REL,
     apply: s => {
-      const a = "  const inertLine = lines.filter(e => e.kind === 'inert' && e.round === maxRound).pop() || null;";
+      const a = "  const last = lines.filter(e => e.kind === 'inert' && e.round === maxRound).pop() || null;";
       if (!s.includes(a)) throw new Error('khong tim thay phep loc theo vong');
-      return s.replace(a, "  const inertLine = lines.filter(e => e.kind === 'inert').pop() || null;");
+      return s.replace(a, "  const last = lines.filter(e => e.kind === 'inert').pop() || null;");
     },
     expect: 'WI6 [vong sau da sach] canh bao cu KHONG con hien',
+  },
+  {
+    name: 'ben doc thoat som o nhanh non-approvable (BLOCKED/REJECT mat canh bao)',
+    file: CARD_REL,
+    apply: s => {
+      const a = "  if (inertNoteText) notes.push(['fwarn', esc(inertNoteText)]);";
+      if (!s.includes(a)) throw new Error('khong tim thay co inert o nhanh non-approvable');
+      return s.replace(a, '');
+    },
+    expect: 'WI12 [verdict REJECT] canh bao VAN hien',
+  },
+  {
+    name: 'ben VIET chi ghi dong inert khi CON o inert (canh bao khong tat duoc)',
+    file: WF_REL,
+    apply: s => {
+      const a = "runLogLines.push(JSON.stringify({\n  ts: invokedAt, round: args.round, kind: 'inert', note: inertNote,";
+      if (!s.includes(a)) throw new Error('khong tim thay buoc ghi dong inert');
+      return s.replace(a, "if (inertFields.length) runLogLines.push(JSON.stringify({\n  ts: invokedAt, round: args.round, kind: 'inert', note: inertNote,");
+    },
+    expect: 'WI12 writer LUON ghi dong inert moi vong',
+  },
+  {
+    name: 'chot prov-chet DE thay vi GOP blocked[] that',
+    file: WF_REL,
+    apply: s => {
+      const a = "blocked: [...blocked, { cmd: 'capture:provenance'";
+      if (!s.includes(a)) throw new Error('khong tim thay buoc gop blocked');
+      return s.replace(a, "blocked: [{ cmd: 'capture:provenance'");
+    },
+    expect: 'WI13 GIU nguyen nhan chan THAT',
   },
   {
     name: 'bo chot prov-chet (mot loi 529 lai lam sap ca vong)',

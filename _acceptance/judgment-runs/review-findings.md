@@ -1,63 +1,79 @@
-# Review Findings: judgment-runs (round 6)
-
 ## Trong hợp đồng
 
-- **Lọc-theo-vòng không tắt được cảnh báo khi CHẠY LẠI CÙNG round — đúng lỗ mà comment tuyên bố đã bịt**
+- **Thẻ Cổng 2 không tắt được cảnh báo ô-inert khi chạy lại CÙNG round**
   file: `scripts/gate-card.js:398`
   severity: high
   AC: AC-14
-  source: conventions
-  detail: `lines.filter(e => e.kind === 'inert' && e.round === maxRound).pop()` mã hoá "vòng này sạch" bằng SỰ VẮNG MẶT của dòng inert trong vòng mới nhất. Nhưng sổ chạy là append-only và SKILL.md feature-loop chỉ thị chạy lại CÙNG round ở ít nhất hai chỗ (BLOCKED → "chạy lại CÙNG round"; PASS mà `result.report` rỗng → "chạy lại S4 cùng round"). Sau lần chạy lại, dòng inert CŨ của cùng round đó vẫn nằm trong sổ, `maxRound` không đổi, nên `.pop()` vẫn nhặt đúng nó.
+  `lines.filter(e => e.kind === 'inert' && e.round === maxRound).pop()` mã hoá "vòng này sạch" bằng SỰ VẮNG MẶT của dòng inert ở vòng mới nhất. Sổ chạy là append-only, và SKILL.md feature-loop chỉ thị chạy lại CÙNG round ở ít nhất hai chỗ (BLOCKED → "chạy lại CÙNG round"; PASS mà result.report rỗng → "chạy lại S4 cùng round"). Sau lần chạy lại đã sạch, dòng inert CŨ của cùng round vẫn nằm trong sổ, maxRound không đổi, nên .pop() vẫn nhặt đúng nó.
 
-    Đã tái hiện trên cây đang kiểm: sổ chạy chỉ gồm 2 dòng — `{round:3,kind:"inert",note:…}` rồi `{round:3,kind:"baseline"}` (lần chạy lại đã sạch, không sinh dòng inert) — `node scripts/gate-card.js --slug rt` VẪN in cờ vàng "Field khai mà máy không dùng". Người sửa `evals.yaml` đúng như cảnh báo bảo, chạy lại round, và cảnh báo không bao giờ tắt cho tới khi số round tăng.
+  ĐÃ TÁI HIỆN trên cây đang kiểm: workspace tạm với run-log.jsonl gồm đúng 2 dòng — {round:3,kind:"inert",note:…} rồi {round:3,kind:"baseline"} (lần chạy lại không sinh dòng inert) — `node scripts/gate-card.js --slug rt` VẪN in cờ vàng "Field khai mà máy không dùng" (1 lần, đúng ra phải 0). Người sửa evals.yaml đúng như cảnh báo bảo sẽ thấy cảnh báo không bao giờ tắt cho tới khi số round tăng.
 
-    Cùng round lặp lại là chuyện có thật trong repo này, không phải giả định: `_acceptance/start-command/run-log.jsonl` có 3 dòng `kind:"baseline"` trên 2 round riêng biệt (round 1 xuất hiện hai lần); `_acceptance/gap-probe-presence-hook/run-log.jsonl` có round 1,2,3 rồi lại 1,2,3.
+  Cùng-round-lặp-lại là chuyện có thật trong repo: _acceptance/start-command/run-log.jsonl có round 1 xuất hiện hai lần; _acceptance/gap-probe-presence-hook/run-log.jsonl có 1,2,3 rồi lại 1,2,3.
 
-    Case WI6 `[vòng sau đã sạch]` (tests/workflows/acceptance-verify.test.mjs:977) chỉ dựng dòng sạch ở round 2 — tức chỉ phủ nhánh round TĂNG, không phủ nhánh round LẶP. Đột biến "bỏ LOC THEO VONG" trong mutation-check.mjs cũng chỉ đo được nhánh đã phủ đó.
+  WI6 case [vòng sau đã sạch] (tests/workflows/acceptance-verify.test.mjs:977) chỉ dựng dòng sạch ở round 2 — phủ nhánh round TĂNG, không phủ nhánh round LẶP; đột biến "bỏ LOC THEO VONG" trong mutation-check.mjs cũng chỉ đo được nhánh đã phủ đó. Đây đúng lớp "assertion âm-tính-một-mình" mà CLAUDE.md cấm: phép đo hiện không phân biệt được hai trường hợp.
 
-    Sửa cần một tín hiệu "vòng này đã sạch" tường minh (vd dòng `kind:"inert"` với `fields: []`, hoặc so vị trí dòng inert với dòng `kind:"baseline"` cuối cùng của cùng round) thay vì suy từ sự vắng mặt. Áp cho cả `plugins/acceptance-gate/scripts/gate-card.js` qua sync.
+  Sửa cần tín hiệu "vòng này đã sạch" TƯỜNG MINH (vd luôn ghi dòng kind:"inert" với fields: [] khi sạch, hoặc so vị trí dòng inert với dòng kind:"baseline" cuối cùng của cùng round) thay vì suy từ sự vắng mặt. Áp cả cho plugins/acceptance-gate/scripts/gate-card.js qua sync.
 
-- **Gate-2 card silently drops the inert-field warning on BLOCKED/REJECT verdicts**
+  rationale: AC-14(b) đòi cơ chế 'vòng này sạch' không được mã hoá bằng sự vắng mặt tới mức cảnh báo hiện mãi khi người sửa evals.yaml — case tái hiện cho thấy re-run CÙNG round vẫn giữ cảnh báo, đúng thất bại AC-14(b) mô tả và cấm.
+
+- **Nhánh non-approvable của thẻ thoát TRƯỚC khối ô-inert — cảnh báo mất đúng ở BLOCKED/REJECT**
   file: `scripts/gate-card.js:313`
-  severity: medium
+  severity: high
   AC: AC-12
-  source: bugs
-  detail: The non-approvable branch (`if (!approvable) { ... process.exit(0) }` at lines 313-327) returns before the new inert block at lines 390-409, so the `kind:"inert"` run-log line is never read for a BLOCKED or REJECT card. The writer side was explicitly hardened for exactly this (feature-loop/workflows/acceptance-verify.js:350-351 — "Canh bao o inert phai song sot CA nhanh thoat som"), the reader side was not, and no WI6 case renders a non-PASS fixture (every `card()` fixture in tests/workflows/acceptance-verify.test.mjs hardcodes `verdict: PASS`).
+  `if (!approvable) { … process.exit(0) }` (dòng 313-327) trả về trước khối đọc ô-inert (dòng ~380-409), nên dòng run-log kind:"inert" KHÔNG BAO GIỜ được đọc cho thẻ BLOCKED hoặc REJECT.
 
-    Reproduced on the shipped workspace: `_acceptance/judgment-runs/run-log.jsonl:80` carries a round-5 `kind:"inert"` line for E10, and `_acceptance/judgment-runs/evidence-report.md` is `verdict: BLOCKED`. `node scripts/gate-card.js --slug judgment-runs` emits exactly one flag (`flag fred`, the BLOCKED reason) and zero occurrences of the warning sentence. Same code in the mirror at plugins/acceptance-gate/scripts/gate-card.js:313.
+  Bên VIẾT đã được gia cố tường minh đúng cho trường hợp này — feature-loop/workflows/acceptance-verify.js:350 ghi "Canh bao o inert phai song sot CA nhanh thoat som — im lang o ca hiem van la im lang" và nhánh BLOCKED sớm mang theo inertFields. Bên ĐỌC thì không, nên bất đối xứng viết/đọc đúng hình dạng (3) trong CLAUDE.md ("bên VIẾT và bên ĐỌC của một artifact trôi khỏi nhau").
+
+  ĐÃ TÁI HIỆN trên gói đang ship: _acceptance/judgment-runs/run-log.jsonl mang dòng kind:"inert" cho E10 và _acceptance/judgment-runs/evidence-report.md là verdict: BLOCKED. `node scripts/gate-card.js --slug judgment-runs | grep -c 'Field khai mà máy không dùng'` → 0.
+
+  Không case WI6 nào render fixture non-PASS: mọi fixture card() trong tests/workflows/acceptance-verify.test.mjs hardcode `verdict: PASS`, nên toàn bộ ma trận WI6 mù nhánh này. Cùng mã ở mirror plugins/acceptance-gate/scripts/gate-card.js:313.
+
+  rationale: AC-12 đòi trình-cho-người ở Cổng 2 hiện cờ khi inertNote có mặt trong Variance của evidence-report.md; nhánh non-approvable bỏ qua khối đọc đó nên cờ không hiện, tái hiện đúng trên workspace dogfood mà Notes của contract nói signer phải thấy tại Cổng 2.
+
+- **Thẻ Cổng 2 verdict REJECT/BLOCKED thoát sớm trước khối cờ, nên cảnh báo ô-inert không bao giờ hiện**
+  file: `scripts/gate-card.js:313`
+  severity: low
+  AC: AC-12
+  Nhánh `if (!approvable)` (REJECT / BLOCKED / verdict lạ) render thẻ 'CHƯA ký được' rồi `process.exit(0)` ở dòng ~326 — TRƯỚC khối đọc `run-log.jsonl` và đẩy cờ vàng ô-inert (dòng 388-410). Vậy kênh máy-viết → thẻ chỉ sống trên thẻ approvable.
+
+  Ca sống ngay trong chính commit này: `_acceptance/judgment-runs/evidence-report.md` có `verdict: BLOCKED`, còn run-log có dòng `kind:"inert"` ở cả 6 vòng (E10 khai `runs: 3` trên eval judgment). Render thẻ Cổng 2 cho chính workspace của feature này sẽ KHÔNG in ra cảnh báo mà feature sinh ra để in.
+
+  Còn kênh `result.inertFields` qua SKILL nên không mất trắng, nhưng khối comment mới trong gate-card.js mô tả kênh sổ-chạy như đường bất biến tới mặt người ký mà không nêu giới hạn này — ít nhất nên ghi rõ, hoặc đẩy cờ vào cả nhánh non-approvable.
+
+  rationale: Cùng gốc với nhánh non-approvable: cờ ô-inert không hiện cho thẻ BLOCKED/REJECT, vi phạm đúng yêu cầu 'trình-cho-người ở Cổng 2 hiện một cờ' của AC-12, tái hiện trên workspace dogfood chính contract này.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **Đường đọc-cũ của mục ## Variance nuốt IM LẶNG cờ đỏ phương sai, không có cờ vàng thay thế**
-  Người dùng thấy gì: Nếu một báo cáo cũ đã ghi sẵn câu cảnh báo về field không dùng, và cùng lúc có một eval AI thật đang cho kết quả không ổn định, thẻ quyết định có thể không hiện cảnh báo nào cho cả hai vấn đề — người ký sẽ không biết có eval đang chập chờn.
-  file: `scripts/gate-card.js`
-  severity: low
-  Đề xuất: known-limits
-
-- **Biến `inertNoteShown` gán rồi không ai đọc**
-  Người dùng thấy gì: Đây là mã dư bên trong không ảnh hưởng gì tới nội dung hay cảnh báo mà người dùng thấy trên thẻ quyết định.
-  file: `scripts/gate-card.js`
-  severity: low
-  Đề xuất: known-limits
-
-- **Vị từ `INERT_DECLARED.paths` không hàng nào trong bảng dùng tới**
-  Người dùng thấy gì: Đây là mã nội bộ chưa được dùng tới — không ảnh hưởng tới cảnh báo người dùng thấy hiện tại, nhưng có thể khiến người sửa sau vô tình bật lại một cảnh báo sai cho field khác trong tương lai.
-  file: `feature-loop/workflows/acceptance-verify.js`
-  severity: low
-  Đề xuất: known-limits
-
-- **Report carrying the inert sentence loses BOTH flags — real variance disappears with no replacement**
-  Người dùng thấy gì: Nếu một báo cáo cũ mang câu cảnh báo về field không dùng, và đồng thời có một eval AI thật đang cho kết quả không ổn định, nhưng nhật ký chạy không còn dòng ghi khớp (ví dụ báo cáo cũ được tái tạo lại), thẻ quyết định có thể im lặng hoàn toàn về cả hai vấn đề — người ký không biết có eval đang chập chờn.
-  file: `scripts/gate-card.js`
+- **E15 expected trôi khỏi vật được giao: khai 7 đột biến, script có 11; mô tả sai đột biến phía VIẾT**
+  Người dùng thấy gì: Hồ sơ kiểm tra mô tả sai số lượng và loại phép thử mà máy dùng để chứng minh tính năng hoạt động đúng, nên người duyệt có thể hiểu nhầm mức độ đã được kiểm tra thực tế.
+  file: `_acceptance/judgment-runs/evals.yaml`
   severity: medium
   Đề xuất: known-limits
 
-- **Malformed `runs` value is silently ignored by both the runner and the new inert reporter**
-  Người dùng thấy gì: Nếu người viết eval khai một giá trị lặp-lại không hợp lệ (ví dụ số dạng chữ, số 0, số âm, hoặc số thập phân) thay vì một số nguyên hợp lệ, hệ thống lặng lẽ chạy đúng 1 lần mà không báo cho người viết biết giá trị họ khai đã bị bỏ qua.
-  file: `feature-loop/workflows/acceptance-verify.js`
+- **mutation-check.mjs không nằm trong bất kỳ suite thường trực nào — bằng chứng phân biệt tắt ngay sau khi feature này ký**
+  Người dùng thấy gì: Bộ kiểm chứng minh tính năng này hoạt động đúng có thể ngừng tự chạy ngay sau khi được duyệt, nên các thay đổi mã nguồn sau này có thể làm hỏng tính năng mà không ai phát hiện.
+  file: `_acceptance/config.yaml`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Mã chết mới ở cả hai bên seam ô-inert: inertNoteShown và INERT_DECLARED.paths**
+  Người dùng thấy gì: Có phần cấu hình cảnh báo dư thừa không thực sự được dùng, làm tăng rủi ro là cảnh báo mới thêm sau này có thể bị bỏ sót âm thầm mà không ai biết.
+  file: `scripts/gate-card.js`
   severity: low
   Đề xuất: known-limits
 
-Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
+- **Nhánh BLOCKED khi provenance chết vứt mất toàn bộ `blocked[]` thật**
+  Người dùng thấy gì: Khi hệ thống theo dõi nguồn gốc gặp lỗi cùng lúc với các nguyên nhân chặn khác (như thiếu cấu hình môi trường), người dùng chỉ được báo một lý do và mất hết các lý do chặn thật khác, nên sửa xong vẫn bị chặn lại mà không rõ vì sao.
+  file: `feature-loop/workflows/acceptance-verify.js`
+  severity: high
+  Đề xuất: new-contract
+
+- **Responder triage của WI9 dùng sai khoá (`triage` thay vì `triaged`) — cả làn triage chết im lặng trong phép đo**
+  Người dùng thấy gì: Một phần của bộ kiểm tra dùng để bảo đảm việc phân loại lỗi tự động hoạt động đúng lại không thực sự kiểm tra đúng thứ nó khai báo, nên lỗi trong đường phân loại đó có thể lọt qua mà không bị phát hiện.
+  file: `tests/workflows/acceptance-verify.test.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+⚠ Cụm ngoài vùng phủ: 2/8 lỗi rơi vào file không bộ đo nào phủ (_acceptance/judgment-runs/evals.yaml, _acceptance/config.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.

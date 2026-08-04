@@ -155,3 +155,37 @@
 - **claude-sonnet-5**: 15 agent · 164 calls · out 90,231 · in 770 · cache_read 9,425,175 · cache_create 867,666
 - **claude-haiku-4-5-20251001**: 7 agent · 33 calls · out 7,551 · in 278 · cache_read 904,913 · cache_create 167,813
 
+### S4 round 7 (REJECT) — wf_5b2fad2d-d38 (25 agent, 170,237 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| review:conventions | claude-opus-5 | 25 | 23,612 | 50 | 2,136,638 | 430 |
+| review:bugs | claude-opus-5 | 31 | 17,918 | 62 | 3,415,753 | 468 |
+| synthesize:report | claude-sonnet-5 | 9 | 16,757 | 18 | 598,769 | 306 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 16 | 16,334 | 32 | 949,910 | 298 |
+| triage | claude-sonnet-5 | 4 | 15,174 | 8 | 177,935 | 198 |
+| refute:gate-card.js | claude-sonnet-5 | 20 | 14,715 | 40 | 1,365,131 | 330 |
+| refute:config.yaml | claude-sonnet-5 | 18 | 11,457 | 1,098 | 1,151,455 | 269 |
+| refute:gate-card.js | claude-sonnet-5 | 17 | 6,679 | 34 | 1,034,167 | 199 |
+| refute:gate-card.js | claude-sonnet-5 | 16 | 5,874 | 32 | 983,492 | 210 |
+| judge:E10:spec-alignment | claude-sonnet-5 | 9 | 5,690 | 18 | 510,469 | 112 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 11 | 5,543 | 22 | 607,709 | 113 |
+| refute:evals.yaml | claude-sonnet-5 | 10 | 5,017 | 20 | 499,062 | 158 |
+| refute:gate-card.js | claude-sonnet-5 | 13 | 4,908 | 26 | 743,432 | 128 |
+| judge:E10:domain-correctness | claude-sonnet-5 | 6 | 4,234 | 12 | 312,229 | 82 |
+| refute:acceptance-verify.test.mjs | claude-sonnet-5 | 12 | 3,731 | 24 | 646,429 | 178 |
+| baseline:diffBase | claude-sonnet-5 | 10 | 3,496 | 20 | 448,727 | 99 |
+| judge:E10:operational-feasibility | claude-sonnet-5 | 6 | 1,706 | 12 | 284,856 | 48 |
+| machine:bash tests/plugins/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 1,528 | 18 | 27,303 | 130 |
+| machine:node tests/workflows/mutation-check.mjs | claude-haiku-4-5-20251001 | 2 | 1,519 | 18 | 44,708 | 27 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 941 | 18 | 44,706 | 16 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 5 | 903 | 42 | 120,076 | 68 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 853 | 18 | 44,706 | 17 |
+| machine:bash scripts/sync-plugin-packages.sh --c | claude-haiku-4-5-20251001 | 2 | 653 | 18 | 44,710 | 14 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 3 | 601 | 26 | 74,307 | 18 |
+| capture:provenance | claude-sonnet-5 | 2 | 394 | 4 | 43,224 | 18 |
+
+- **claude-opus-5**: 2 agent · 56 calls · out 41,530 · in 112 · cache_read 5,552,391 · cache_create 254,725
+- **claude-sonnet-5**: 16 agent · 179 calls · out 121,709 · in 1,420 · cache_read 10,356,996 · cache_create 993,142
+- **claude-haiku-4-5-20251001**: 7 agent · 18 calls · out 6,998 · in 158 · cache_read 400,516 · cache_create 141,962
+

@@ -1,13 +1,13 @@
 ---
 schema_version: 2
 feature_slug: judgment-runs
-verdict: BLOCKED
+verdict: REJECT
 failed_evals: []
-reason: Bash classifier service (claude-sonnet-5) tạm thời không khả dụng cho các lệnh không-chỉ-đọc, nên 3 lệnh xác minh không chạy được — không có lệnh nào trong ba lệnh này *thất bại* vì code/test, verifier tool bị khoá ở tầng an toàn: (1) `bash scripts/sync-plugin-packages.sh --check` (eval E11, AC-11 — kiểm mirror plugins/ khớp nguồn) — "Classifier service (claude-sonnet-5) is temporarily unavailable; cannot determine safety of Bash command. The script bash scripts/sync-plugin-packages.sh --check could not be executed."; (2) `bash tests/hooks/run-tests.sh` (không gắn eval nào, suite hook chung) — "Bash classifier (claude-sonnet-5) is temporarily unavailable. Cannot determine safety to execute bash commands at this time. The test script exists but requires the classifier to proceed."; (3) `node scripts/product-map.mjs --root . --check` (không gắn eval nào, suite product-map chung) — "Bash tool unavailable: claude-sonnet-5 is temporarily unavailable, blocking the safety classifier needed to execute bash commands. Retried 4 times over ~20 seconds without recovery. Service appears to be experiencing a temporary outage." E11 thuộc AC-11 (mirror sync) nên riêng nó đủ để BLOCK — mirror plugins/ chưa được xác nhận khớp nguồn sau các sửa ở feature-loop/, skills/, scripts/, codex/ của round này. Mọi eval khác (E1-E10, E12-E16) đã đo được và đều PASS trên round 6. Cần retry cả 3 lệnh khi classifier phục hồi. Đây là lần BLOCKED thứ hai liên tiếp cùng nguyên nhân hạ tầng (round 5 → round 6) — chưa phải vòng verify không hội tụ trên code/eval, nhưng nếu round 7 vẫn BLOCKED cùng lý do này thì nên escalate cho người quyết.
+reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 4fc5841d4dc19eed88d696901875d95cc08ae857
+verified_commit: 8c5452d3a8a03fcbfe63485ab8bd9ff98828a8e9
 human_signoff:
 ---
 
@@ -25,7 +25,7 @@ human_signoff:
 | E8 | AC-8 | test | PASS |
 | E9 | AC-9 | test | PASS |
 | E10 | AC-10 | judgment | PASS |
-| E11 | AC-11 | script | BLOCKED |
+| E11 | AC-11 | script | PASS |
 | E12 | AC-12 | test | PASS |
 | E13 | AC-13 | test | PASS |
 | E14 | AC-14 | test | PASS |
@@ -35,180 +35,180 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-judgment-runs-E1-r6
+  run_id: minted-judgment-runs-E1-r7
   exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04T11:02:11Z
+  verified_at: 2026-08-04T09:12:03Z
   output: |
     Results: 16 passed, 0 failed (execute-parallel)
-    Results: 10 passed, 0 failed
+    Results: 10 passed, 0 failed (skill-claims.test.mjs)
     Results: all workflow tests passed
 
 - eval: E2
-  run_id: minted-judgment-runs-E2-r6
+  run_id: minted-judgment-runs-E2-r7
   exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04T11:02:11Z
+  verified_at: 2026-08-04T09:12:03Z
   output: |
     Results: 16 passed, 0 failed (execute-parallel)
-    Results: 10 passed, 0 failed
+    Results: 10 passed, 0 failed (skill-claims.test.mjs)
     Results: all workflow tests passed
 
 - eval: E3
-  run_id: minted-judgment-runs-E3-r6
+  run_id: minted-judgment-runs-E3-r7
   exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04T11:02:11Z
+  verified_at: 2026-08-04T09:12:03Z
   output: |
     Results: 16 passed, 0 failed (execute-parallel)
-    Results: 10 passed, 0 failed
+    Results: 10 passed, 0 failed (skill-claims.test.mjs)
     Results: all workflow tests passed
 
 - eval: E4
-  run_id: minted-judgment-runs-E4-r6
+  run_id: minted-judgment-runs-E4-r7
   exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04T11:02:11Z
+  verified_at: 2026-08-04T09:12:03Z
   output: |
     Results: 16 passed, 0 failed (execute-parallel)
-    Results: 10 passed, 0 failed
+    Results: 10 passed, 0 failed (skill-claims.test.mjs)
     Results: all workflow tests passed
 
 - eval: E5
-  run_id: minted-judgment-runs-E5-r6
+  run_id: minted-judgment-runs-E5-r7
   exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04T11:02:11Z
+  verified_at: 2026-08-04T09:12:03Z
   output: |
     Results: 16 passed, 0 failed (execute-parallel)
-    Results: 10 passed, 0 failed
+    Results: 10 passed, 0 failed (skill-claims.test.mjs)
     Results: all workflow tests passed
 
 - eval: E6
-  run_id: minted-judgment-runs-E6-r6
+  run_id: minted-judgment-runs-E6-r7
   exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04T11:02:11Z
+  verified_at: 2026-08-04T09:12:03Z
   output: |
     Results: 16 passed, 0 failed (execute-parallel)
-    Results: 10 passed, 0 failed
+    Results: 10 passed, 0 failed (skill-claims.test.mjs)
     Results: all workflow tests passed
 
 - eval: E7
-  run_id: minted-judgment-runs-E7-r6
+  run_id: minted-judgment-runs-E7-r7
   exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04T11:02:11Z
+  verified_at: 2026-08-04T09:12:03Z
   output: |
     Results: 16 passed, 0 failed (execute-parallel)
-    Results: 10 passed, 0 failed
+    Results: 10 passed, 0 failed (skill-claims.test.mjs)
     Results: all workflow tests passed
 
 - eval: E8
-  run_id: minted-judgment-runs-E8-r6
+  run_id: minted-judgment-runs-E8-r7
   exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04T11:02:11Z
+  verified_at: 2026-08-04T09:12:03Z
   output: |
     Results: 16 passed, 0 failed (execute-parallel)
-    Results: 10 passed, 0 failed
+    Results: 10 passed, 0 failed (skill-claims.test.mjs)
     Results: all workflow tests passed
 
 - eval: E9
-  run_id: minted-judgment-runs-E9-r6
+  run_id: minted-judgment-runs-E9-r7
   exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04T11:02:11Z
+  verified_at: 2026-08-04T09:12:03Z
   output: |
     Results: 16 passed, 0 failed (execute-parallel)
-    Results: 10 passed, 0 failed
+    Results: 10 passed, 0 failed (skill-claims.test.mjs)
     Results: all workflow tests passed
 
 - eval: E10
   judged_by: judge panel (3-lens: domain-correctness, operational-feasibility, spec-alignment)
   proposal: PASS
   votes:
-  - domain-correctness: PASS — Cả hai harness đều buộc: feature-loop/SKILL.md:150 (bullet "Mọi verdict") và codex/SKILL.md:589-597 (Gate 2, nối từ S4 bước 1 dòng 387 khai inertFields) — cả hai nói inertFields không rỗng thì phải trình RIÊNG một khối, cùng hạng minh bạch với carried, KHÔNG được nén vào "máy đã lo"/"machine-handled summary", và viết bằng ngôn ngữ sản phẩm nêu đích danh eval+field kèm ví dụ giống nhau ("E10 khai runs: 3..."). Không thấy chỗ nào khác trong hai file mâu thuẫn hoặc cho phép nén inertFields vào phần máy đã lo.
-  - operational-feasibility: PASS — Cả hai file đều có mệnh lệnh rõ ràng: feature-loop/skills/feature-loop/SKILL.md:150 ("Kết quả có inertFields không rỗng → trình RIÊNG một khối, KHÔNG được nén vào phần 'máy đã lo' (cùng hạng minh bạch với carried)... nêu đích danh eval + field"), và codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md:589-597 ("surface it as its OWN block, never folded into the machine-handled summary (same visibility rank as carry-forward)... names the eval and the field... in product language"). Cả hai đạt đủ 4 điều: có mặt trên cả hai harness, cùng hạng minh bạch với carried, ngôn ngữ sản phẩm nêu đích danh eval+field (ví dụ "E10 declares runs: 3"), và không mâu thuẫn với phần còn lại của file (grep "machine handled"/"máy đã lo" không thấy chỗ nào hạ thấp inertFields). Mệnh lệnh trong codex nằm ở section "## Gate 2" ngay sau S4 chứ không mang đúng tiêu đề "Mọi verdict", nhưng đây là bước main loop trình gói Cổng 2 tương đương về chức năng, không phải một dòng nhắc trôi nổi.
-  - spec-alignment: PASS — Cả hai file đều có mệnh lệnh ràng buộc, không phải nhắc qua: feature-loop/SKILL.md dòng 150 (bước "Mọi verdict") nói rõ inertFields "trình RIÊNG một khối, KHÔNG được nén vào phần 'máy đã lo' (cùng hạng minh bạch với carried)" kèm ví dụ ngôn ngữ sản phẩm nêu đích danh eval+field ("E10 khai runs: 3 nhưng..."); codex/SKILL.md dòng 589-597 (mục Gate 2) lặp đúng luật này bằng tiếng Anh: "surface it as its OWN block, never folded into the machine-handled summary (same visibility rank as carry-forward)" cũng kèm ví dụ product-language nêu đích danh eval+field. Cả hai đều không mâu thuẫn với phần còn lại của file (chỉ có đúng hai lượt đề cập inertFields mỗi file, nhất quán với nhau), nên đủ cả bốn điều kiện PASS.
+  - domain-correctness: PASS — Ca hai harness co menh lenh rang buoc, khong phai dong nhac troi noi: feature-loop/SKILL.md:150 ("trinh RIENG mot khoi, KHONG duoc nen vao phan 'may da lo' — cung hang minh bach voi carried") va feature-loop-codex/SKILL.md:589-597 ("surface it as its OWN block, never folded into the machine-handled summary, same visibility rank as carry-forward"); ca hai deu neu vi du dich danh evalId+field bang ngon ngu san pham ("E10 khai runs:3...") kem viec-cua-nguoi (sua evals.yaml hoac ghi Known limits), dung dung yeu cau AC-10 va contract. Khong thay mau thuan noi bo trong ca hai file (cac cho khac chi mo ta hanh vi INERT o buoc parse, khong doi nguoc menh lenh nay).
+  - operational-feasibility: PASS — Cả hai harness đều có mệnh lệnh cứng, không phải câu nhắc trôi nổi: feature-loop/skills/feature-loop/SKILL.md:150 ("Kết quả có inertFields không rỗng → trình RIÊNG một khối, KHÔNG được nén vào phần 'máy đã lo' (cùng hạng minh bạch với carry-forward)") và codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md:589-597 ("surface it as its OWN block, never folded into the machine-handled summary (same visibility rank as carry-forward)") — cả hai đặt đúng ở bước xử lý mọi verdict trước/tại Cổng 2 của S4. Cả hai dùng ngôn ngữ sản phẩm nêu đích danh evalId + field (ví dụ "E10 khai runs: 3 nhưng eval hội đồng luôn chạy đúng một lần mỗi góc nhìn" / "E10 declares runs: 3 but a judgment eval always runs exactly once per lens") kèm việc-của-người (sửa evals.yaml hoặc ghi known limit), khớp cùng hạng minh bạch với carry-forward theo AC-10, và không mâu thuẫn với phần còn lại của mỗi file.
+  - spec-alignment: PASS — Ca hai harness co menh lenh minh bach ngang hang carried (feature-loop/SKILL.md L150 "KHONG duoc nen vao phan may da lo"; codex/SKILL.md L589-597 "never folded into the machine-handled summary, same visibility rank as carry-forward"), ca hai cung dung cau vi du "E10 declares runs: 3..." bang ngon ngu san pham neu dich danh eval + field. Khong tim thay cau nao trong hai file mau thuan hoac lam yeu menh lenh nay (grep toan file cho inertFields / may da lo / machine-handled khong ra ket qua doi lap).
   human_override:
 
 - eval: E11
-  run_id: minted-judgment-runs-E11-r6
-  exit_code: 1
-  status: CANNOT-RUN
+  run_id: minted-judgment-runs-E11-r7
+  exit_code: 0
   baseline: green
   verifier: config:executors.script.mirror_sync
-  verified_at: 2026-08-04T11:09:03Z
-  reason: Classifier service (claude-sonnet-5) is temporarily unavailable; cannot determine safety of Bash command. The script bash scripts/sync-plugin-packages.sh --check could not be executed.
+  verified_at: 2026-08-04T09:18:47Z
+  output: |
+    plugins/ mirror in sync.
 
 - eval: E12
-  run_id: minted-judgment-runs-E12-r6
+  run_id: minted-judgment-runs-E12-r7
   exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04T11:02:11Z
+  verified_at: 2026-08-04T09:12:03Z
   output: |
     Results: 16 passed, 0 failed (execute-parallel)
-    Results: 10 passed, 0 failed
+    Results: 10 passed, 0 failed (skill-claims.test.mjs)
     Results: all workflow tests passed
 
 - eval: E13
-  run_id: minted-judgment-runs-E13-r6
+  run_id: minted-judgment-runs-E13-r7
   exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04T11:02:11Z
+  verified_at: 2026-08-04T09:12:03Z
   output: |
     Results: 16 passed, 0 failed (execute-parallel)
-    Results: 10 passed, 0 failed
+    Results: 10 passed, 0 failed (skill-claims.test.mjs)
     Results: all workflow tests passed
 
 - eval: E14
-  run_id: minted-judgment-runs-E14-r6
+  run_id: minted-judgment-runs-E14-r7
   exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04T11:02:11Z
+  verified_at: 2026-08-04T09:12:03Z
   output: |
     Results: 16 passed, 0 failed (execute-parallel)
-    Results: 10 passed, 0 failed
+    Results: 10 passed, 0 failed (skill-claims.test.mjs)
     Results: all workflow tests passed
 
 - eval: E15
-  run_id: minted-judgment-runs-E15-r6
+  run_id: minted-judgment-runs-E15-r7
   exit_code: 0
   baseline: red
   verifier: config:executors.script.mutation_check
-  verified_at: 2026-08-04T11:07:45Z
+  verified_at: 2026-08-04T09:21:15Z
   output: |
     PASS: [khoi phuc cau mo ta runs cu (khong neu gioi han executor)] -> DO dung case "WI7 feature-loop/workflows/acceptance-verify.js: mo ta neu gioi han test/script"
 
-    Results: 10 dot bien deu bi bat (bang chung phan biet dat)
+    Results: 11 dot bien deu bi bat (bang chung phan biet dat)
 
 - eval: E16
-  run_id: minted-judgment-runs-E16-r6
+  run_id: minted-judgment-runs-E16-r7
   exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04T11:02:11Z
+  verified_at: 2026-08-04T09:12:03Z
   output: |
     Results: 16 passed, 0 failed (execute-parallel)
-    Results: 10 passed, 0 failed
+    Results: 10 passed, 0 failed (skill-claims.test.mjs)
     Results: all workflow tests passed
 
 ## Analyst
 
-E1, E2, E3, E4, E5, E6, E7, E8, E9, E12, E13, E14, E16 — tất cả chạy qua cùng lệnh `bash tests/workflows/run-tests.sh` và đều PASS trên CẢ HEAD lẫn diffBase (baseline: green), nên các eval này chứng minh harness còn sống chứ chưa phân biệt riêng cho feature `judgment-runs` ở lần đo A/B này. E15 (mutation-check, baseline: red) phân biệt được; E11 (script mirror-sync) không chạy được nên chưa xét baseline.
+E1, E2, E3, E4, E5, E6, E7, E8, E9, E12, E13, E14, E16 — tất cả chạy qua cùng lệnh `bash tests/workflows/run-tests.sh` và đều PASS trên CẢ HEAD lẫn diffBase (baseline: green). E11 (`bash scripts/sync-plugin-packages.sh --check`) cũng PASS trên cả hai phía (baseline: green) — mirror sync không phân biệt cho riêng feature này ở lần đo A/B này. Các eval này chứng minh harness còn sống chứ chưa phân biệt riêng cho feature `judgment-runs`. E15 (mutation-check, baseline: red) phân biệt được (đỏ trên code cũ, xanh sau khi feature vá).
 
 ## Variance
 
@@ -216,8 +216,9 @@ none — every multi-run eval is uniform
 
 ## Iterations
 
-Round 5: BLOCKED — mọi eval (E1-E10, E12-E16) đã đo và PASS, nhưng 3 lệnh xác minh (E11 `sync-plugin-packages.sh --check`, suite `tests/hooks/run-tests.sh`, `product-map.mjs --check`) không chạy được vì bash classifier service (claude-sonnet-5) tạm ngưng cho lệnh không-chỉ-đọc — nguyên nhân là hạ tầng verifier, không phải code hay eval của feature; cần retry cả 3 lệnh (đặc biệt E11/AC-11) khi classifier phục hồi trước khi có thể lên PASS/PENDING-JUDGMENT.
-Round 6: BLOCKED — lặp lại đúng nguyên nhân của round 5: mọi eval (E1-E10, E12-E16) đã đo và PASS (bao gồm E15 mutation-check giữ baseline: red, và panel 3-lens E10 giữ PASS đồng thuận), nhưng cùng 3 lệnh (E11 `sync-plugin-packages.sh --check`, `tests/hooks/run-tests.sh`, `product-map.mjs --check`) vẫn không chạy được vì bash classifier (claude-sonnet-5) tiếp tục tạm ngưng — cần retry khi classifier phục hồi; đây là lần thứ 2 liên tiếp cùng lý do hạ tầng, nếu round 7 vẫn BLOCKED giống vậy nên escalate cho người quyết thay vì tiếp tục lặp verify.
+Round 5: BLOCKED — mọi eval (E1-E10, E12-E16) đã đo và PASS, nhưng 3 lệnh xác minh (E11 `sync-plugin-packages.sh --check`, suite `tests/hooks/run-tests.sh`, `product-map.mjs --check`) không chạy được vì bash classifier service (claude-sonnet-5) tạm ngưng cho lệnh không-chỉ-đọc — nguyên nhân hạ tầng, không phải code/eval của feature.
+Round 6: BLOCKED — lặp lại đúng nguyên nhân của round 5: mọi eval đã đo và PASS (E15 giữ baseline: red, panel 3-lens E10 giữ PASS đồng thuận), nhưng cùng 3 lệnh vẫn không chạy được vì classifier tiếp tục tạm ngưng — lần thứ 2 liên tiếp cùng lý do hạ tầng.
+Round 7: REJECT — hạ tầng đã phục hồi, cả 16 eval máy đều PASS (E11 mirror-sync hết bị chặn, E15 mutation-check giữ baseline: red, panel 3-lens E10 đồng thuận PASS), nhưng vòng review/adversarial-verify của round này tìm ra 2 vi phạm hợp đồng nghiêm trọng mà không eval máy nào trong ma trận hiện tại bắt được: AC-12 — cờ ô-inert không hiện trên thẻ Cổng 2 khi verdict là BLOCKED/REJECT vì `scripts/gate-card.js:313` thoát sớm (`process.exit(0)`) trước khối đọc run-log/đẩy cờ, tái hiện trực tiếp trên workspace `_acceptance/judgment-runs` của chính feature này; AC-14(b) — thẻ Cổng 2 không tắt được cảnh báo ô-inert khi verify chạy lại CÙNG round, vì `scripts/gate-card.js:398` suy "vòng này sạch" từ SỰ VẮNG MẶT của dòng inert mới trong sổ append-only, tái hiện bằng workspace tạm dựng lại đúng kịch bản chạy-lại-cùng-round. Cả hai chi tiết đầy đủ nằm trong review-findings.md. Trả về S3: sửa hai điểm trên trong `scripts/gate-card.js` (+ đồng bộ mirror `plugins/acceptance-gate/scripts/gate-card.js`), bổ sung case WI6 phủ nhánh verdict non-PASS và nhánh round-lặp-lại, rồi verify lại CÙNG round 7.
 
 ## Gate 2 checklist (human)
 
