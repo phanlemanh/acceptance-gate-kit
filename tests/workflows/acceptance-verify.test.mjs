@@ -825,4 +825,28 @@ console.log('WI3 nua-KHONG-duoc-ban: field dung cho van chay nhu cu');
     byLabel(calls, 'machine:').length === 3, String(byLabel(calls, 'machine:').length));
 }
 
+console.log('WI4 o inert: mot dong log + mot dong run-log kind:inert (khong run_id)');
+{
+  const jEval = (over = {}) => ({ id: 'E9', criterion: 'AC-4', executor: 'judgment', question: 'q?', inputs: ['/a.md'], ...over });
+  const { result, logs } = await runWorkflow(WF, baseArgs({ evals: [jEval({ runs: 3 })] }), responder());
+  const hits = logs.filter(l => /O inert/i.test(l));
+  check('WI4 dung MOT dong log', hits.length === 1, JSON.stringify(logs));
+  check('WI4 dong log neu ten eval va field', /E9/.test(hits[0] || '') && /runs/.test(hits[0] || ''), hits[0]);
+
+  const inertLines = result.runLog.map(l => JSON.parse(l)).filter(l => l.kind === 'inert');
+  check('WI4 dung MOT dong run-log kind:inert', inertLines.length === 1, String(inertLines.length));
+  check('WI4 dong inert KHONG mang run_id', inertLines.length === 1 && !('run_id' in inertLines[0]), JSON.stringify(inertLines[0]));
+  check('WI4 dong inert ghi round + cap (evalId, field, executor)',
+    inertLines.length === 1 && inertLines[0].round === 1
+    && JSON.stringify(inertLines[0].fields) === JSON.stringify([{ evalId: 'E9', field: 'runs', executor: 'judgment' }]),
+    JSON.stringify(inertLines[0]));
+
+  // DOI CHUNG DUONG: khong eval inert -> khong dong nao, khong log nao
+  const { result: c, logs: cl } = await runWorkflow(WF, baseArgs({ evals: [jEval()] }), responder());
+  check('WI4 doi chung duong: khong inert -> khong dong kind:inert',
+    c.runLog.map(l => JSON.parse(l)).filter(l => l.kind === 'inert').length === 0);
+  check('WI4 doi chung duong: khong inert -> khong dong log nao',
+    cl.filter(l => /O inert/i.test(l)).length === 0);
+}
+
 summary('acceptance-verify');

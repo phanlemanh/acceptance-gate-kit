@@ -337,6 +337,9 @@ log(`Round ${args.round}: ${distinctCmds.length} lenh may (dedupe tu ${machineEv
   + (carriedEvals.length ? ` — carried ${carriedEvals.length} eval (P1)` : '')
   + (carriedPanels.length ? ` — carried ${carriedPanels.length} panel (P3)` : '')
   + (runBaseline ? '' : ' — baseline carried (P2)'))
+// O inert hien NGAY trong luot chay (/workflows), khong doi den bao cao.
+if (inertFields.length) log(`O inert: ${inertFields.length} field khai ma may khong dung — `
+  + inertFields.map(f => `${f.evalId}.${f.field} (${f.executor})`).join(', '))
 
 // Review finders: repo có skill review riêng → dùng; không → review theo conventions chung
 const REVIEWERS = [
@@ -657,6 +660,13 @@ if (typeof args.evalsHash === 'string' && args.evalsHash) {
     ...(runBaseline ? {} : { carried_from_round: carriedAnalyst && typeof carriedAnalyst.fromRound === 'number' ? carriedAnalyst.fromRound : null }),
   }))
 }
+
+// Ban ghi ben vung cho o inert. KHONG co run_id -> loadRunLogIds bo qua (cung khuon dong
+// kind panel/baseline), nen consumer cu doc log nay khong vo.
+if (inertFields.length) runLogLines.push(JSON.stringify({
+  ts: invokedAt, round: args.round, kind: 'inert',
+  fields: inertFields.map(f => ({ evalId: f.evalId, field: f.field, executor: f.executor })),
+}))
 
 // ---- verdict routing (kit rules) ----
 const blocked = machine.filter(m => m.cannotRun)
