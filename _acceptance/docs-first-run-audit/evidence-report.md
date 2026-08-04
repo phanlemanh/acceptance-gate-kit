@@ -8,7 +8,7 @@ verified_by: main-session direct run (owner-directed, per-eval logs archived in 
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 80121e4dee9bd1a18ee300036f5a63a6bb0f6733
-human_signoff:
+human_signoff: Manh Phan 2026-08-04
 ---
 
 # Evidence Report: docs-first-run-audit

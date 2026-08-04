@@ -5,10 +5,10 @@ slug: docs-first-run-audit
 owner: manh@mstar.vn
 risk_tier: T2
 surfaces: [docs]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-04T18:10:00+07:00
-time_human_minutes: {gate1: 10}
+time_human_minutes: {gate1: 10, gate2: 5}
 ---
 
 # Acceptance Contract: docs-first-run-audit
