@@ -46,7 +46,7 @@ evals:
     criterion: AC-5
     executor: test
     cmd: config:executors.test.workflows
-    expected: "Bắt prompt THẬT gửi tới agent nhãn `synthesize:report` (qua calls của harness, không đọc mã nguồn): round có eval inert → prompt chứa câu `inertNote` do JS tính sẵn, nêu đích danh evalId + field, kèm chỉ dẫn chép NGUYÊN VĂN vào `## Variance`. Đối chứng dương trong cùng case: round không eval inert nào → prompt KHÔNG chứa inertNote lẫn chỉ dẫn đó. Đo ĐẦU RA của bên viết, không grep chỉ dẫn."
+    expected: "WI5: lời nhắc THẬT gửi tới synthesize:report KHÔNG còn chứa câu cảnh báo lẫn chỉ dẫn chèn nó vào ## Variance — bên viết (một LLM) không còn nằm trên đường đi của cảnh báo. Nhưng cảnh báo KHÔNG mất: nó vẫn ở dòng sổ chạy kind:inert và result.inertFields, vẫn qua phép thử xoá-tên-máy, vẫn nêu việc-của-người. Đối chứng dương: round không eval inert → không dòng sổ chạy nào, lời nhắc cũng sạch."
     evidence_required: [run_id, exit_code]
     paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs]
 
@@ -139,7 +139,7 @@ evals:
     criterion: AC-14
     executor: test
     cmd: config:executors.test.workflows
-    expected: "WI6 chạy `scripts/gate-card.js` trên fixture do code sinh với mục Variance chứa CẢ phương sai thật LẪN câu cảnh báo, ở CẢ HAI thứ tự (note trước / note sau) — mỗi thứ tự phải cho đủ hai cờ đúng loại. Vòng 1 đo được: note đứng trước làm cờ đỏ phương-sai biến mất hoàn toàn."
+    expected: "MIỄN NHIỄM: thẻ vẫn hiện đúng cờ ô-inert ở mọi hình dạng của ## Variance từng làm gãy (note sau/trước phương sai, gạch đầu dòng, in đậm, placeholder, rỗng) vì thẻ đọc sổ chạy máy-viết. CỘNG ca hồi quy vòng 3: câu cảnh báo KHÔNG bao giờ đeo nhãn phương-sai, kiểm ở bốn hình dạng (trần, gạch đầu dòng, in đậm, lẫn phương sai thật) — và ở mỗi hình dạng cờ vàng vẫn đúng."
     evidence_required: [run_id, exit_code]
     paths: [scripts/gate-card.js, tests/workflows/acceptance-verify.test.mjs]
 
@@ -147,6 +147,14 @@ evals:
     criterion: AC-15
     executor: script
     cmd: config:executors.script.mutation_check
-    expected: "Script chạy 6 phép đột biến trên bản sao (xoá hàng bảng · thêm hàng sai · hàm bỏ qua field · đổi cụm hợp đồng bên đọc · bên đọc quay về cắt theo vị trí · khôi phục câu mô tả cũ). Đối chứng dương chạy TRƯỚC: bản sao nguyên vẹn phải XANH. Mỗi đột biến ghim ĐÚNG TÊN case phải đỏ, không chỉ mã thoát. Exit khác 0 nếu bất kỳ đột biến nào không bị bắt."
+    expected: "Script chạy 7 phép đột biến trên bản sao. Đối chứng dương chạy TRƯỚC: bản sao nguyên vẹn phải XANH. Mỗi đột biến ghim ĐÚNG TÊN case phải đỏ, không chỉ mã thoát. Trong đó có một đột biến ở phía VIẾT (bỏ field note khỏi dòng sổ chạy) mà case đỏ mong đợi nằm ở phía ĐỌC — bằng chứng sống rằng hai đầu nối nhau (AC-16). Exit khác 0 nếu bất kỳ đột biến nào không bị bắt."
     evidence_required: [run_id, exit_code]
     paths: [tests/workflows/mutation-check.mjs, feature-loop/workflows/acceptance-verify.js, scripts/gate-card.js]
+
+  - id: E16
+    criterion: AC-16
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "LUẬT THƯỚC: WI6 ghim rằng đầu vào cho bên đọc là ĐÚNG đối tượng bên viết sinh ra trong lần chạy đó — dòng sổ chạy dùng làm fixture phải truy được về result.runLog của workflow thật, không phải chuỗi viết tay. Ba vòng đầu đều trượt vì fixture viết tay nhắm vào hình dạng sản phẩm không bao giờ tạo ra."
+    paths: [tests/workflows/acceptance-verify.test.mjs, tests/workflows/mutation-check.mjs]
+    evidence_required: [run_id, exit_code]
