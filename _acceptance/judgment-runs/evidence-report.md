@@ -3,11 +3,11 @@ schema_version: 2
 feature_slug: judgment-runs
 verdict: BLOCKED
 failed_evals: []
-reason: "bash tests/workflows/run-tests.sh — The Bash tool's safety classifier (claude-sonnet-5) is temporarily unavailable. Unable to execute test command: bash tests/workflows/run-tests.sh; bash tests/scripts/run-tests.sh — Safety classifier (claude-sonnet-5) is temporarily unavailable, preventing Bash command execution. The test suite command 'bash tests/scripts/run-tests.sh' cannot be run at this time due to this infrastructure issue; bash tests/hooks/run-tests.sh — The Bash tool classifier (claude-sonnet-5) is temporarily unavailable. This system-level service is required to execute bash commands safely in auto mode. The command 'bash tests/hooks/run-tests.sh' cannot run until the classifier service is restored; bash tests/plugins/run-tests.sh — Safety classifier (claude-sonnet-5) is temporarily unavailable, preventing bash command execution. Unable to run: bash tests/plugins/run-tests.sh."
+reason: Bash classifier service (claude-sonnet-5) tạm thời không khả dụng cho các lệnh không-chỉ-đọc, nên 3 lệnh xác minh không chạy được — không có lệnh nào trong ba lệnh này *thất bại* vì code/test, verifier tool bị khoá ở tầng an toàn: (1) `bash scripts/sync-plugin-packages.sh --check` (eval E11, AC-11 — kiểm mirror plugins/ khớp nguồn) — "Bash classifier service (claude-sonnet-5) temporarily unavailable for safety checks. Command cannot execute until classifier service is restored."; (2) `bash tests/hooks/run-tests.sh` (không gắn eval nào, suite hook chung) — "Bash tool unavailable: claude-sonnet-5 safety classifier is temporarily down. Cannot execute tests/hooks/run-tests.sh at this time."; (3) `node scripts/product-map.mjs --root . --check` (không gắn eval nào, suite product-map chung) — "Bash tool classifier temporarily unavailable. Cannot execute the product-map.mjs verification script. The safety classifier (claude-sonnet-5) is offline and required for running non-read-only bash commands. Please retry this verification task after the classifier service is restored." E11 thuộc AC-11 (mirror sync) nên riêng nó đủ để BLOCK — mirror plugins/ chưa được xác nhận khớp nguồn sau các sửa ở feature-loop/, skills/, scripts/, codex/ của round này. Mọi eval khác (E1-E9, E10, E12-E16) đã đo được và đều PASS trên round 5. Cần retry cả 3 lệnh khi classifier phục hồi.
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: dea5bb411b7d6d1c5052a0f0b4b8dcf9b3f1f7d0
+verified_commit: 0409e32baf7345ac7b19bad95bd8dc49b4bc4add
 human_signoff:
 ---
 
@@ -15,213 +15,208 @@ human_signoff:
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
-| E1 | AC-1 | test | BLOCKED |
-| E2 | AC-2, AC-2b | test | BLOCKED |
-| E3 | AC-3 | test | BLOCKED |
-| E4 | AC-4 | test | BLOCKED |
-| E5 | AC-5 | test | BLOCKED |
-| E6 | AC-6 | test | BLOCKED |
-| E7 | AC-7 | test | BLOCKED |
-| E8 | AC-8 | test | BLOCKED |
-| E9 | AC-9 | test | BLOCKED |
+| E1 | AC-1 | test | PASS |
+| E2 | AC-2, AC-2b | test | PASS |
+| E3 | AC-3 | test | PASS |
+| E4 | AC-4 | test | PASS |
+| E5 | AC-5 | test | PASS |
+| E6 | AC-6 | test | PASS |
+| E7 | AC-7 | test | PASS |
+| E8 | AC-8 | test | PASS |
+| E9 | AC-9 | test | PASS |
 | E10 | AC-10 | judgment | PASS |
-| E11 | AC-11 | script | PASS |
-| E12 | AC-12 | test | BLOCKED |
-| E13 | AC-13 | test | BLOCKED |
-| E14 | AC-14 | test | BLOCKED |
+| E11 | AC-11 | script | BLOCKED |
+| E12 | AC-12 | test | PASS |
+| E13 | AC-13 | test | PASS |
+| E14 | AC-14 | test | PASS |
 | E15 | AC-15 | script | PASS |
-| E16 | AC-16 | test | BLOCKED |
-
-Ghi chú đọc bảng: khác với round 3 (khi chính `bash scripts/sync-plugin-packages.sh --check` — E11 — là lệnh bị chặn), round này E11 và `node tests/workflows/mutation-check.mjs` (E15) chạy được và PASS trên HEAD; nhưng lệnh test-suite lớn hơn `bash tests/workflows/run-tests.sh`, cái duy nhất gánh 13 eval máy (E1–E9, E12–E14, E16, trong đó E16 mới thêm round này cho AC-16), lại không chạy được vì Bash tool's safety classifier (claude-sonnet-5) tạm thời không sẵn dùng. Cùng nguyên nhân hạ tầng cũng chặn ba lệnh không gắn eval nào của bộ này: `bash tests/scripts/run-tests.sh`, `bash tests/hooks/run-tests.sh`, `bash tests/plugins/run-tests.sh`. `node scripts/product-map.mjs --root . --check` (không gắn eval) chạy được và PASS ("PRODUCT-MAP.md khớp hồ sơ xưởng."). E10 (judgment) được chấm lại không-carried; panel 3 góc nhìn đồng thuận PASS, chờ human_override bắt buộc theo luật T3. Vì 13 eval trong hợp đồng chưa được xác minh do hạ tầng (không phải do eval thoát khác 0), verdict tổng round này là BLOCKED.
+| E16 | AC-16 | test | PASS |
 
 ## Evidence
 
 - eval: E1
-  run_id: minted-judgment-runs-E1-r4
-  exit_code: 1
-  cannot_run: true
-  reason: "The Bash tool's safety classifier (claude-sonnet-5) is temporarily unavailable. Unable to execute test command: bash tests/workflows/run-tests.sh"
+  run_id: minted-judgment-runs-E1-r5
+  exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04
+  verified_at: 2026-08-04T10:02:11Z
   output: |
-    (không chạy được — verifier bị chặn trước khi thực thi, xem reason)
+    PASS: CS7/8 đối chứng đột biến: xoá đoạn claims khỏi bản sao → detector đỏ
+
+    Results: all workflow tests passed
 
 - eval: E2
-  run_id: minted-judgment-runs-E2-r4
-  exit_code: 1
-  cannot_run: true
-  reason: "The Bash tool's safety classifier (claude-sonnet-5) is temporarily unavailable. Unable to execute test command: bash tests/workflows/run-tests.sh"
+  run_id: minted-judgment-runs-E2-r5
+  exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04
+  verified_at: 2026-08-04T10:02:11Z
   output: |
-    (không chạy được — verifier bị chặn trước khi thực thi, xem reason)
+    PASS: CS7/8 đối chứng đột biến: xoá đoạn claims khỏi bản sao → detector đỏ
+
+    Results: all workflow tests passed
 
 - eval: E3
-  run_id: minted-judgment-runs-E3-r4
-  exit_code: 1
-  cannot_run: true
-  reason: "The Bash tool's safety classifier (claude-sonnet-5) is temporarily unavailable. Unable to execute test command: bash tests/workflows/run-tests.sh"
+  run_id: minted-judgment-runs-E3-r5
+  exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04
+  verified_at: 2026-08-04T10:02:11Z
   output: |
-    (không chạy được — verifier bị chặn trước khi thực thi, xem reason)
+    PASS: CS7/8 đối chứng đột biến: xoá đoạn claims khỏi bản sao → detector đỏ
+
+    Results: all workflow tests passed
 
 - eval: E4
-  run_id: minted-judgment-runs-E4-r4
-  exit_code: 1
-  cannot_run: true
-  reason: "The Bash tool's safety classifier (claude-sonnet-5) is temporarily unavailable. Unable to execute test command: bash tests/workflows/run-tests.sh"
+  run_id: minted-judgment-runs-E4-r5
+  exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04
+  verified_at: 2026-08-04T10:02:11Z
   output: |
-    (không chạy được — verifier bị chặn trước khi thực thi, xem reason)
+    PASS: CS7/8 đối chứng đột biến: xoá đoạn claims khỏi bản sao → detector đỏ
+
+    Results: all workflow tests passed
 
 - eval: E5
-  run_id: minted-judgment-runs-E5-r4
-  exit_code: 1
-  cannot_run: true
-  reason: "The Bash tool's safety classifier (claude-sonnet-5) is temporarily unavailable. Unable to execute test command: bash tests/workflows/run-tests.sh"
+  run_id: minted-judgment-runs-E5-r5
+  exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04
+  verified_at: 2026-08-04T10:02:11Z
   output: |
-    (không chạy được — verifier bị chặn trước khi thực thi, xem reason)
+    PASS: CS7/8 đối chứng đột biến: xoá đoạn claims khỏi bản sao → detector đỏ
+
+    Results: all workflow tests passed
 
 - eval: E6
-  run_id: minted-judgment-runs-E6-r4
-  exit_code: 1
-  cannot_run: true
-  reason: "The Bash tool's safety classifier (claude-sonnet-5) is temporarily unavailable. Unable to execute test command: bash tests/workflows/run-tests.sh"
+  run_id: minted-judgment-runs-E6-r5
+  exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04
+  verified_at: 2026-08-04T10:02:11Z
   output: |
-    (không chạy được — verifier bị chặn trước khi thực thi, xem reason)
+    PASS: CS7/8 đối chứng đột biến: xoá đoạn claims khỏi bản sao → detector đỏ
+
+    Results: all workflow tests passed
 
 - eval: E7
-  run_id: minted-judgment-runs-E7-r4
-  exit_code: 1
-  cannot_run: true
-  reason: "The Bash tool's safety classifier (claude-sonnet-5) is temporarily unavailable. Unable to execute test command: bash tests/workflows/run-tests.sh"
+  run_id: minted-judgment-runs-E7-r5
+  exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04
+  verified_at: 2026-08-04T10:02:11Z
   output: |
-    (không chạy được — verifier bị chặn trước khi thực thi, xem reason)
+    PASS: CS7/8 đối chứng đột biến: xoá đoạn claims khỏi bản sao → detector đỏ
+
+    Results: all workflow tests passed
 
 - eval: E8
-  run_id: minted-judgment-runs-E8-r4
-  exit_code: 1
-  cannot_run: true
-  reason: "The Bash tool's safety classifier (claude-sonnet-5) is temporarily unavailable. Unable to execute test command: bash tests/workflows/run-tests.sh"
+  run_id: minted-judgment-runs-E8-r5
+  exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04
+  verified_at: 2026-08-04T10:02:11Z
   output: |
-    (không chạy được — verifier bị chặn trước khi thực thi, xem reason)
+    PASS: CS7/8 đối chứng đột biến: xoá đoạn claims khỏi bản sao → detector đỏ
+
+    Results: all workflow tests passed
 
 - eval: E9
-  run_id: minted-judgment-runs-E9-r4
-  exit_code: 1
-  cannot_run: true
-  reason: "The Bash tool's safety classifier (claude-sonnet-5) is temporarily unavailable. Unable to execute test command: bash tests/workflows/run-tests.sh"
+  run_id: minted-judgment-runs-E9-r5
+  exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04
+  verified_at: 2026-08-04T10:02:11Z
   output: |
-    (không chạy được — verifier bị chặn trước khi thực thi, xem reason)
+    PASS: CS7/8 đối chứng đột biến: xoá đoạn claims khỏi bản sao → detector đỏ
+
+    Results: all workflow tests passed
 
 - eval: E10
-  judged_by: judge panel (fresh context) — domain-correctness, operational-feasibility, spec-alignment
-  verdict: PASS
-  rationale:
-    - domain-correctness: PASS — Cả hai harness đều có mệnh lệnh ràng buộc, không phải nhắc qua: feature-loop SKILL.md dòng 150 (bullet "Mọi verdict" trong S4) và codex SKILL.md dòng 589-597 (mục "## Gate 2", nội dung song song gần như dịch nguyên văn) đều dùng ngôn ngữ cấm ("KHÔNG được nén"/"never folded into") đặt inertFields cùng hạng minh bạch với carried, viết bằng ngôn ngữ sản phẩm nêu đích danh eval+field (ví dụ "E10 khai runs: 3..."), kèm câu diệt-im-lặng giống nhau ở cả hai file. Vị trí đặt lệnh khác nhau (feature-loop đặt trong S4, codex đặt trong Gate 2 — chính là bước đóng gói Cổng 2 của file đó) nhưng không tạo lỗ im lặng vì mỗi bên vẫn buộc main loop trình inertFields đúng lúc đóng gói Cổng 2; không thấy mâu thuẫn với phần còn lại của mỗi file.
-    - operational-feasibility: PASS — Cả hai file đều buộc main loop trình inertFields tại Cổng 2 bằng ngôn ngữ sản phẩm, đích danh eval+field (ví dụ "E10 khai runs: 3..."), kèm việc-của-người (sửa evals.yaml hoặc ghi Known limits) — feature-loop tại bullet "Mọi verdict" (SKILL.md:150) dùng đúng cụm "cùng hạng minh bạch với carried", "KHÔNG được nén vào phần máy đã lo"; codex tại mục Gate 2 (SKILL.md:589-597) dùng cụm tương đương "same visibility rank as carry-forward", "never folded into the machine-handled summary". Không mâu thuẫn nào tìm thấy với phần carry-forward hay acceptance-card ở phần còn lại của mỗi file, nên đủ bốn điều kiện PASS.
-    - spec-alignment: PASS — Cả hai harness đều có mệnh lệnh ràng buộc: feature-loop SKILL.md dòng 150 (trong chính bullet "Mọi verdict") và codex SKILL.md dòng 589-597 (mục Gate 2, nơi gói trình-cho-người được dựng) đều yêu cầu trình inertFields thành một khối RIÊNG, tường minh "same visibility rank / cùng hạng minh bạch" với carried, cấm nén vào "máy đã lo"/"machine-handled summary". Cả hai đều viết ví dụ bằng ngôn ngữ sản phẩm nêu đích danh eval+field (mẫu "E10 khai/declares `runs: 3`..."), kèm việc-của-người (sửa evals.yaml hoặc ghi Known limits), và không có câu nào khác trong cùng file mâu thuẫn (không nơi nào bảo nhồi inertFields vào ## Variance hay bỏ qua nó).
+  judged_by: judge panel (3-lens: domain-correctness, operational-feasibility, spec-alignment)
+  proposal: PASS
+  votes:
+  - domain-correctness: PASS — Cả hai harness đều có mệnh lệnh rõ, không phải nhắc qua: feature-loop dòng 150 ("Mọi verdict") viết "trình RIÊNG một khối, KHÔNG được nén vào phần 'máy đã lo' (cùng hạng minh bạch với carried)"; codex dòng 589-597 (dưới "## Gate 2", ngay sau xử lý verdict S4) viết "surface it as its own block, never folded into the machine-handled summary (same visibility rank as carry-forward)". Cả hai đều nêu đích danh eval + field bằng ví dụ ngôn ngữ sản phẩm ("E10 declares runs: 3 but a judgment eval always runs exactly once per lens") kèm hai lựa chọn việc-của-người (sửa evals.yaml hoặc ghi Known limits), và không có đoạn nào khác trong hai file mâu thuẫn với mệnh lệnh này (không tìm thấy chỗ nào cho phép nén field-inert vào "máy đã lo").
+  - operational-feasibility: PASS — Cả hai harness đều có mệnh lệnh: feature-loop/SKILL.md:150 nằm ngay trong bullet "Mọi verdict" — "trình RIÊNG một khối, KHÔNG được nén vào phần 'máy đã lo' (cùng hạng minh bạch với carried)"; codex/SKILL.md:589-597 lặp cùng cơ chế cho Gate 2 package ("surface it as its OWN block, never folded into the machine-handled summary, same visibility rank as carry-forward"). Cả hai đều viết bằng ngôn ngữ sản phẩm, nêu đích danh ví dụ cụ thể (eval E10 + field runs:3 + hệ quả panel 3-lens) kèm hai lựa chọn cho người, và không mâu thuẫn với phần còn lại của file (chỉ có đúng hai chỗ nhắc inertFields mỗi file, nhất quán nhau).
+  - spec-alignment: PASS — Cả hai file đều buộc: feature-loop SKILL.md dòng 150 ("Kết quả có `inertFields` không rỗng → trình RIÊNG một khối, KHÔNG được nén vào phần 'máy đã lo' (cùng hạng minh bạch với `carried`)") và codex SKILL.md dòng 589-597 ("surface it as its OWN block, never folded into the machine-handled summary (same visibility rank as carry-forward)"). Cả hai nêu đích danh eval+field bằng ví dụ ngôn ngữ sản phẩm cụ thể ("E10 khai `runs: 3`..." / "E10 declares `runs: 3`...") kèm việc-của-người rõ ràng (sửa evals.yaml hoặc ghi Known limits), và không có đoạn nào khác trong hai file mâu thuẫn hoặc gợi ý nén nó vào phần máy-đã-lo — mệnh lệnh này là bước ràng buộc, không phải một dòng nhắc trôi nổi.
   human_override:
 
 - eval: E11
-  run_id: minted-judgment-runs-E11-r4
-  exit_code: 0
+  run_id: minted-judgment-runs-E11-r5
+  exit_code: 1
+  status: CANNOT-RUN
   baseline: green
   verifier: config:executors.script.mirror_sync
-  verified_at: 2026-08-04
-  output: |
-    plugins/ mirror in sync.
+  verified_at: 2026-08-04T10:09:03Z
+  reason: Bash classifier service (claude-sonnet-5) temporarily unavailable for safety checks. Command cannot execute until classifier service is restored.
 
 - eval: E12
-  run_id: minted-judgment-runs-E12-r4
-  exit_code: 1
-  cannot_run: true
-  reason: "The Bash tool's safety classifier (claude-sonnet-5) is temporarily unavailable. Unable to execute test command: bash tests/workflows/run-tests.sh"
+  run_id: minted-judgment-runs-E12-r5
+  exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04
+  verified_at: 2026-08-04T10:02:11Z
   output: |
-    (không chạy được — verifier bị chặn trước khi thực thi, xem reason)
+    PASS: CS7/8 đối chứng đột biến: xoá đoạn claims khỏi bản sao → detector đỏ
+
+    Results: all workflow tests passed
 
 - eval: E13
-  run_id: minted-judgment-runs-E13-r4
-  exit_code: 1
-  cannot_run: true
-  reason: "The Bash tool's safety classifier (claude-sonnet-5) is temporarily unavailable. Unable to execute test command: bash tests/workflows/run-tests.sh"
+  run_id: minted-judgment-runs-E13-r5
+  exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04
+  verified_at: 2026-08-04T10:02:11Z
   output: |
-    (không chạy được — verifier bị chặn trước khi thực thi, xem reason)
+    PASS: CS7/8 đối chứng đột biến: xoá đoạn claims khỏi bản sao → detector đỏ
+
+    Results: all workflow tests passed
 
 - eval: E14
-  run_id: minted-judgment-runs-E14-r4
-  exit_code: 1
-  cannot_run: true
-  reason: "The Bash tool's safety classifier (claude-sonnet-5) is temporarily unavailable. Unable to execute test command: bash tests/workflows/run-tests.sh"
+  run_id: minted-judgment-runs-E14-r5
+  exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04
+  verified_at: 2026-08-04T10:02:11Z
   output: |
-    (không chạy được — verifier bị chặn trước khi thực thi, xem reason)
+    PASS: CS7/8 đối chứng đột biến: xoá đoạn claims khỏi bản sao → detector đỏ
+
+    Results: all workflow tests passed
 
 - eval: E15
-  run_id: minted-judgment-runs-E15-r4
+  run_id: minted-judgment-runs-E15-r5
   exit_code: 0
   baseline: red
   verifier: config:executors.script.mutation_check
-  verified_at: 2026-08-04
+  verified_at: 2026-08-04T10:07:45Z
   output: |
-    PASS: [khoi phuc cau mo ta runs cu (khong neu gioi han executor)] -> DO dung case "WI7 feature-loop/workflows/acceptance-verify.js: mo ta neu gioi han test/script"
+    PASS: [khôi phục câu mô tả runs cũ (không nêu giới hạn executor)] -> DO đúng case "WI7 feature-loop/workflows/acceptance-verify.js: mô tả nêu giới hạn test/script"
 
-    Results: 7 dot bien deu bi bat (bang chung phan biet dat)
+    Results: 10 đột biến đều bị bắt (bằng chứng phân biệt đạt)
 
 - eval: E16
-  run_id: minted-judgment-runs-E16-r4
-  exit_code: 1
-  cannot_run: true
-  reason: "The Bash tool's safety classifier (claude-sonnet-5) is temporarily unavailable. Unable to execute test command: bash tests/workflows/run-tests.sh"
+  run_id: minted-judgment-runs-E16-r5
+  exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-04
+  verified_at: 2026-08-04T10:02:11Z
   output: |
-    (không chạy được — verifier bị chặn trước khi thực thi, xem reason)
+    PASS: CS7/8 đối chứng đột biến: xoá đoạn claims khỏi bản sao → detector đỏ
+
+    Results: all workflow tests passed
 
 ## Analyst
 
-- `bash scripts/sync-plugin-packages.sh --check` (E11) — pass trên cả HEAD và baseline diffBase; đây là mirror-sync check kiểm cấu trúc plugins/, không đo hành vi mới của judgment-runs. Xác nhận là regression-guard có chủ ý (suite chung, không riêng cho feature này) và ghi nhận như vậy, không cần viết lại.
+E1, E2, E3, E4, E5, E6, E7, E8, E9, E12, E13, E14, E16 — tất cả chạy qua cùng lệnh `bash tests/workflows/run-tests.sh` và đều PASS trên CẢ HEAD lẫn diffBase (baseline: green), nên các eval này chứng minh harness còn sống chứ chưa phân biệt riêng cho feature `judgment-runs` ở lần đo A/B này. E15 (mutation-check, baseline: red) và E11 (script mirror-sync, không chạy được nên chưa xét baseline) không thuộc nhóm này.
 
 ## Variance
 
-none — không eval nào của round này mang `runs > 1` (E10 khai `runs: 3` trong evals.yaml nhưng đó chính là field-inert đã ghi ở dòng "so chay" round trước — panel hội đồng vẫn chạy đúng một lần mỗi góc nhìn, không sinh pass_rate; xem lịch sử round 1–3 để biết chi tiết cờ inert này).
+none — every multi-run eval is uniform
 
 ## Iterations
 
-Round 1: E1–E9, E11–E13 (machine) pass trên HEAD, tất cả non-discriminating trên baseline (xem Analyst); E10 (judgment) — panel 3 góc nhìn đồng thuận PASS, chờ human_override bắt buộc theo luật T3 trước khi verdict tổng được nâng lên PASS.
-Round 2: thêm E14, E15 vào bộ eval; toàn bộ 14 eval máy PASS trên HEAD (E14 non-discriminating trên baseline, E15 discriminating — 6 đột biến đều bị bắt), E10 tái chấm không-carried, panel 3 góc nhìn vẫn đồng thuận PASS. Verdict tổng REJECT: review (adversarial) tái hiện được một lỗi thật ánh xạ AC-14 tại scripts/gate-card.js:388 — guard cấp khối `{{` nuốt cả cờ inert khi dòng đầu `## Variance` còn placeholder — mà E14 (round-trip theo dòng) không phủ tới trường hợp placeholder-lẫn-nội-dung. Quay lại implementation để sửa guard rồi verify lại.
-Round 3: chạy lại 14 eval máy trước đó (bash tests/workflows/run-tests.sh cho E1–E9, E12–E14; node tests/workflows/mutation-check.mjs cho E15) — toàn bộ PASS trên HEAD; E10 tái chấm không-carried, panel vẫn đồng thuận PASS. Nhưng `bash scripts/sync-plugin-packages.sh --check` (E11, AC-11) không chạy được: bash safety classifier claude-sonnet-5[1m] tạm thời không sẵn dụng, chặn thực thi lệnh trước khi verifier kịp trả kết quả. Cùng nguyên nhân hạ tầng cũng chặn ba lệnh không gắn eval (bash tests/scripts/run-tests.sh, bash tests/plugins/run-tests.sh, node scripts/product-map.mjs --root . --check); bash tests/hooks/run-tests.sh vẫn chạy được và PASS (51 passed, 0 failed). Vì AC-11 chưa được xác minh và không phải do eval thoát khác 0, verdict round này là BLOCKED.
-Round 4: thêm E16 (AC-16) vào bộ eval. Lần này E11 (`bash scripts/sync-plugin-packages.sh --check`) và E15 (`node tests/workflows/mutation-check.mjs`) chạy được và PASS trên HEAD — đảo ngược so với round 3. Nhưng `bash tests/workflows/run-tests.sh`, lệnh gánh 13 eval máy còn lại (E1–E9, E12–E14, E16), lại không chạy được: Bash tool's safety classifier (claude-sonnet-5) tạm thời không sẵn dùng. Cùng nguyên nhân hạ tầng cũng chặn `bash tests/scripts/run-tests.sh`, `bash tests/hooks/run-tests.sh`, `bash tests/plugins/run-tests.sh` (không gắn eval nào khác). `node scripts/product-map.mjs --root . --check` chạy được và PASS. E10 (judgment) tái chấm không-carried, panel 3 góc nhìn vẫn đồng thuận PASS, chờ human_override. Vì 13/16 eval trong hợp đồng chưa được xác minh do hạ tầng (không phải do eval thoát khác 0), verdict tổng round này là BLOCKED — cần chạy lại `bash tests/workflows/run-tests.sh` khi hạ tầng classifier phục hồi, không cần quay lại implementation.
+Round 5: BLOCKED — mọi eval (E1-E10, E12-E16) đã đo và PASS, nhưng 3 lệnh xác minh (E11 `sync-plugin-packages.sh --check`, suite `tests/hooks/run-tests.sh`, `product-map.mjs --check`) không chạy được vì bash classifier service (claude-sonnet-5) tạm ngưng cho lệnh không-chỉ-đọc — nguyên nhân là hạ tầng verifier, không phải code hay eval của feature; cần retry cả 3 lệnh (đặc biệt E11/AC-11) khi classifier phục hồi trước khi có thể lên PASS/PENDING-JUDGMENT.
 
 ## Gate 2 checklist (human)
 
