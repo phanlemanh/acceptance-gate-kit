@@ -147,7 +147,7 @@ evals:
     criterion: AC-15
     executor: script
     cmd: config:executors.script.mutation_check
-    expected: "Script chạy 7 phép đột biến trên bản sao. Đối chứng dương chạy TRƯỚC: bản sao nguyên vẹn phải XANH. Mỗi đột biến ghim ĐÚNG TÊN case phải đỏ, không chỉ mã thoát. Trong đó có một đột biến ở phía VIẾT (bỏ field note khỏi dòng sổ chạy) mà case đỏ mong đợi nằm ở phía ĐỌC — bằng chứng sống rằng hai đầu nối nhau (AC-16). Exit khác 0 nếu bất kỳ đột biến nào không bị bắt."
+    expected: "BAT BIEN, khong ghim con so (con so da troi hai lan: 7 -> 14 -> 16): MOI hang trong mang MUTATIONS deu bi bat. Doi chung duong chay TRUOC: ban sao nguyen ven phai XANH. Moi dot bien ghim DUNG TEN case phai do, khong chi ma thoat, va phai doi HANH VI chu khong pha cu phap — tru dot bien nao gay CRASH that su, khi do ghim dau vet crash qua expectRaw. Co it nhat mot dot bien o phia VIET ma case do mong doi nam o phia DOC (AC-16). Exit khac 0 neu bat ky dot bien nao khong bi bat."
     evidence_required: [run_id, exit_code]
     paths: [tests/workflows/mutation-check.mjs, feature-loop/workflows/acceptance-verify.js, scripts/gate-card.js]
 

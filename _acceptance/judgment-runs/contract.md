@@ -228,6 +228,44 @@ một chỗ có marker rồi kiểm bằng round-trip (AC-7), không chép tay.
 
 ## Notes
 
-- **Vòng 1 S4 (2026-08-04)** cho cờ "mọi eval máy xanh cả hai phía": mỗi eval máy
-  trỏ vào cả một bộ kiểm, nên chạy trên mã trước feature cũng xanh. AC-15 đưa bằng
-  chứng phân biệt vào hồ sơ; cờ này sẽ vẫn còn cho các eval trỏ-vào-suite.
+**Trạng thái bàn giao (2026-08-04, sau 8 vòng S4).** Lõi tính năng hoạt động và đã đo
+nhiều lần; hợp đồng dừng ở `implemented`, KHÔNG chữ ký nào. Chủ sở hữu quyết: dừng vá
+tiếp, mở feature riêng cho cái seam (xem `docs/superpowers/specs/2026-08-04-seam-may-viet-may-doc-seed.md`).
+
+**Đã giao và đo được:** `runs` khai trên eval hội đồng hết im lặng (dòng chạy · kết quả ·
+sổ chạy · thẻ Cổng 2 · gói duyệt) · `paths` trên judgment hoá ra KHÔNG inert nên bị loại
+khỏi bảng (phát hiện nhờ đổi thước sang QUAN HỆ) · ba chỗ mô tả sai khớp lại về
+`eval-executors.md` · 12 eval ở 6 workspace cũ vẫn verify được · `mutation-check` bắt 16/16
+đột biến · 4 suite + mirror + bản đồ + lint đều xanh.
+
+**Known limits — 8 lỗ còn mở, tất cả đã tái hiện được, tất cả CÙNG MỘT LỚP** (một sự thật
+máy biết, đi qua khuôn dễ vỡ, tới mặt người đọc):
+
+1. `scripts/evidence-page.js` là **bên đọc thứ hai chưa hề được quét** — không có kênh ô
+   inert, và vẫn dán nhãn đỏ "eval ngẫu nhiên" cho câu cảnh báo trong báo cáo cũ. Thẻ Cổng 2
+   đẩy trang này lên đầu như một mặt người-đọc ngang hàng.
+2. `mutation-check.mjs` không khớp glob `*.test.mjs` của runner và không có trong
+   `feature_loop.suite_keys` → bằng chứng phân biệt **ngủ vĩnh viễn** sau khi ký.
+3. Lớp `runs` mới quét nửa: trên `test`/`script`, các giá trị `runs: "3"` (chuỗi), `2.5`,
+   `0`, `20` (bị cắt còn 10) đều im lặng.
+4. `round` không kiểm kiểu ở bên viết trong khi bên đọc lọc `typeof === 'number'` —
+   `round: "1"` hoặc vắng → cảnh báo biến mất im lặng.
+5. Mã chết hai bên seam: `inertNoteShown` (gán, không ai đọc), `INERT_DECLARED.paths`
+   (vị từ không hàng nào dùng — làm seam trông như "thêm hàng là xong").
+6. Báo cáo cũ mang CẢ câu cảnh báo LẪN phương sai thật → mất cả hai cờ (đường đọc-cũ chọn
+   im lặng thay vì cờ vàng, ngược luật CLAUDE.md).
+7. "sổ chạy" đụng từ vựng: CONTEXT.md đã dùng cụm này cho *sổ luật-đã-chạy*; feature này
+   tạo nghĩa thứ ba mà không thêm entry.
+8. Nhánh args-guard BLOCKED (`args.evals` không phải array) không mang `inertFields` —
+   nhánh thoát sớm duy nhất còn sót, hợp lý vì args chưa hợp lệ, nhưng nên ghi rõ.
+
+**Hai phát hiện engine ngoài phạm vi, đã sửa trong nhánh này** (chủ sở hữu duyệt minh danh):
+agent `capture:provenance` chết làm sập cả vòng S4 → nay BLOCKED có lý do; và chốt đó từng
+đè `blocked[]` thật → nay gộp.
+
+**Tiêu chí đã viết lại SAU seal** (sổ quyết định ghi `supersedes`, chờ người phê): `AC-2`
+(từ vựng → quan hệ), `AC-5` (hai lần: literal → bỏ hẳn khỏi `## Variance`), `AC-13`
+("sạch" từ vắng-mặt → tín hiệu tường minh).
+
+**Hạ tầng:** 5/8 vòng BLOCKED vì bộ phân loại an toàn chập chờn — không phải lỗi mã, không
+sửa được từ phía này. Vòng 7 là verdict hợp lệ duy nhất (REJECT, 0 eval trượt, 0 lệnh chặn).
