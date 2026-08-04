@@ -252,6 +252,11 @@ const EVAL_REQUIRED = {
 }
 const isBlankStr = v => typeof v !== 'string' || !v.trim()
 const badStrArray = v => !Array.isArray(v) || !v.length || v.some(x => isBlankStr(x))
+// judgment `inputs` KHÔNG ở bảng str/arr vì nó có HAI mức nặng riêng, và CẢ HAI
+// phải nằm trong marker: S4-r1 đưa hai vị từ trên vào nhưng bỏ quên hai cái này,
+// nên phép đo tồn kho lại chép tay và lại lệch engine theo cả hai chiều.
+const badInputsShape = v => v !== undefined && v !== null && (!Array.isArray(v) || v.some(isBlankStr))
+const isUngroundedInputs = v => !Array.isArray(v) || !v.length
 // EVAL-REQUIRED-FIELDS>>>
 
 const evalProblems = []
@@ -270,9 +275,10 @@ args.evals.forEach((e, i) => {
   }
   for (const f of spec.str) if (isBlankStr(e[f])) evalProblems.push(`${nm}: thieu field "${f}"`)
   for (const f of spec.arr) if (badStrArray(e[f])) evalProblems.push(`${nm}: field "${f}" phai la mang chuoi khong rong`)
-  if (e.executor === 'judgment' && e.inputs !== undefined && e.inputs !== null) {
-    if (!Array.isArray(e.inputs)) evalProblems.push(`${nm}: field "inputs" phai la mang`)
-    else if (e.inputs.some(v => isBlankStr(v))) evalProblems.push(`${nm}: field "inputs" co phan tu khong phai chuoi`)
+  if (e.executor === 'judgment' && badInputsShape(e.inputs)) {
+    evalProblems.push(!Array.isArray(e.inputs)
+      ? `${nm}: field "inputs" phai la mang`
+      : `${nm}: field "inputs" co phan tu khong phai chuoi`)
   }
 })
 if (evalProblems.length) {
@@ -302,7 +308,7 @@ const uiEvals = args.evals.filter(e => e.executor === 'ui-check' && !carriedEval
 // 0 input); chèn panel UNCERTAIN cơ học → routing đẩy PENDING-JUDGMENT → người
 // quyết ở Gate 2. Cũng là đường đọc-cũ cho workspace đã ký khai judgment không
 // có inputs (gate-card-ac-visibility E11/E12) — không bắt migrate hàng loạt.
-const ungroundedIds = new Set(judgmentEvals.filter(e => !Array.isArray(e.inputs) || !e.inputs.length).map(e => e.id))
+const ungroundedIds = new Set(judgmentEvals.filter(e => isUngroundedInputs(e.inputs)).map(e => e.id))
 // P3: panel carried chỉ hợp lệ khi trỏ đúng judgment eval hiện có + proposal hợp lệ.
 // ungrounded LOẠI khỏi carried: panel cũ KHÔNG được ghi đè nhánh UNCERTAIN, nếu
 // không thì một panel PASS 3/3 giả carry vô hạn (kịch bản E6 motion-floor).

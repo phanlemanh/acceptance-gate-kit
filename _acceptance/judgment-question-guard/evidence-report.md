@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 379fb0e8c40f16f5b196f7913abba9b4b58cb52a
+verified_commit: 82cb46645b454ae2aaff5273b53ed8244d5e5dd5
 human_signoff:
 ---
 
@@ -35,173 +35,173 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-judgment-question-guard-E1-r1
+  run_id: minted-judgment-question-guard-E1-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.workflows
   verified_at: 2026-08-04T00:00:00Z
   output: |
-    skill-claims.test.mjs: 10 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E2
-  run_id: minted-judgment-question-guard-E2-r1
+  run_id: minted-judgment-question-guard-E2-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.workflows
   verified_at: 2026-08-04T00:00:00Z
   output: |
-    skill-claims.test.mjs: 10 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E3
-  run_id: minted-judgment-question-guard-E3-r1
+  run_id: minted-judgment-question-guard-E3-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.workflows
   verified_at: 2026-08-04T00:00:00Z
   output: |
-    skill-claims.test.mjs: 10 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E4
-  run_id: minted-judgment-question-guard-E4-r1
+  run_id: minted-judgment-question-guard-E4-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.workflows
   verified_at: 2026-08-04T00:00:00Z
   output: |
-    skill-claims.test.mjs: 10 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E5
-  run_id: minted-judgment-question-guard-E5-r1
+  run_id: minted-judgment-question-guard-E5-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.workflows
   verified_at: 2026-08-04T00:00:00Z
   output: |
-    skill-claims.test.mjs: 10 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E6
-  run_id: minted-judgment-question-guard-E6-r1
+  run_id: minted-judgment-question-guard-E6-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.workflows
   verified_at: 2026-08-04T00:00:00Z
   output: |
-    skill-claims.test.mjs: 10 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E7
-  run_id: minted-judgment-question-guard-E7-r1
+  run_id: minted-judgment-question-guard-E7-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.workflows
   verified_at: 2026-08-04T00:00:00Z
   output: |
-    skill-claims.test.mjs: 10 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E8
-  run_id: minted-judgment-question-guard-E8-r1
+  run_id: minted-judgment-question-guard-E8-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.workflows
   verified_at: 2026-08-04T00:00:00Z
   output: |
-    skill-claims.test.mjs: 10 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E9
-  run_id: minted-judgment-question-guard-E9-r1
+  run_id: minted-judgment-question-guard-E9-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.workflows
   verified_at: 2026-08-04T00:00:00Z
   output: |
-    skill-claims.test.mjs: 10 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E10
-  judged_by: judge-subagent (fresh context)
+  judged_by: judge-panel (fresh context, 3 lens — không carried, chấm lại round này)
   verdict: PASS
   votes:
-    - domain-correctness: PASS — Prompt dòng 4 liệt kê tường minh input được phép đọc và nói rõ "KHONG duoc doc file nao khac trong repo: contract.md, evals.yaml, design doc, source code deu NGOAI danh sach"; dòng 7 nói thẳng thiếu căn cứ thì tra UNCERTAIN, "TUYET DOI KHONG phai ly do di tim file khac de tu cuu", và cảnh báo tự chọn thêm artifact là phá hỏng tính độc lập của hội đồng. Câu chữ không để ngỏ đường tự cứu — nó chặn rõ hành vi đó bằng chính từ khoá "tu cuu".
-    - operational-feasibility: PASS — Prompt tại dòng 4 nêu tường minh danh sách input đóng và cấm rõ ràng "KHONG duoc doc file nao khac trong repo: contract.md, evals.yaml, design doc, source code deu NGOAI danh sach" — nêu đích danh contract.md như một ví dụ bị cấm. Dòng 7 nối tiếp bằng câu lệnh trực tiếp: thiếu căn cứ là lý do trả UNCERTAIN, "TUYET DOI KHONG phai ly do di tim file khac de tu cuu", và giải thích rõ hệ quả (tự chọn thêm artifact là phá tính độc lập hội đồng). Câu chữ không để ngỏ đường tự cứu — nó đóng chính xác lỗ đó bằng ví dụ cụ thể và diễn giải hệ quả, nên hội đồng viên đọc xong sẽ hiểu đúng như câu hỏi mô tả.
-    - spec-alignment: PASS — Prompt dòng 4 liệt kê tường minh input được phép + loại trừ đích danh (contract.md, evals.yaml, design doc, source code "đều NGOAI danh sach"). Dòng 7 nói thẳng: thiếu căn cứ là lý do trả UNCERTAIN, "TUYET DOI KHONG phai ly do di tim file khac de tu cuu", và gọi rõ hành vi tự chọn thêm artifact là phá tính độc lập hội đồng. Không có kẽ hở tự cứu.
-  rationale: Cả 3 lens đồng thuận PASS trên câu chữ prompt tại dòng 4-7 của judge-prompt.txt — allowlist input tường minh và cấm đường tự cứu rõ ràng bằng từ khoá "tu cuu". (Lưu ý: review-findings.md ghi nhận một mâu thuẫn thực tế giữa câu cấm liệt-kê-loại-file này và các input thật đang khai design doc/contract.md ở workspace khác — xem AC-10 trong "## Trong hợp đồng"; panel không tự mở thêm artifact nào ngoài inputs nên không thấy mâu thuẫn này trong chính bản dump được chấm.)
+    - domain-correctness: PASS — Prompt tự trả lời đúng câu hỏi: dòng 4 nói rõ "CHI duoc doc dung cac file liet ke o dong Input" và danh sách là "DAY DU", đồng thời tự nêu luật neo vào QUAN HE (co-trong-danh-sach) chứ không phải loại file — đúng khớp với lo ngại về contract.md/design doc là input hợp lệ ở eval khác. Dòng 7 cấm rõ ràng hành vi tự cứu: "danh sach tren KHONG du can cu de phan → do la ly do tra UNCERTAIN, TUYET DOI KHONG phai ly do di tim file khac de tu cuu", và giải thích hệ quả (phá tính độc lập hội đồng) nên không để ngỏ đường tự cứu.
+    - operational-feasibility: PASS — Dòng 4 nói rõ luật phạm vi neo vào QUAN HỆ (có-trong-danh-sách-Input hay không), không neo vào loại file, và tự nêu ví dụ "cùng một tên file có thể là input hợp lệ của eval này và ngoài phạm vi của eval khác" — nên không mâu thuẫn với các eval khác liệt kê contract.md/design doc làm input hợp lệ. Dòng 7 tách bạch dứt khoát: thiếu căn cứ trong danh sách đã cho ⇒ trả UNCERTAIN, và nói thẳng "TUYỆT ĐỐI KHÔNG phải lý do đi tìm file khác để tự cứu", kèm lý do (tự chọn thêm artifact là phá tính độc lập của hội dồng) — không để ngỏ đường tự cứu. Câu chữ đủ tường minh để một hội đồng viên đọc xong hiểu đúng giới hạn phạm vi và hành vi đúng khi thiếu bằng chứng.
+    - spec-alignment: PASS — Dong 4 va dong 7 cua prompt noi ro: hoi dong CHI duoc doc file trong danh sach "Input:" cong persona, danh sach la DAY DU, va khi thieu can cu thi PHAI tra UNCERTAIN — "TUYET DOI KHONG phai ly do di tim file khac de tu cuu" vi tu chon them artifact se "pha hong tinh doc lap cua hoi dong". Dong 4 con noi ro luat neo vao QUAN HE (co-trong-danh-sach) chu khong neo vao loai file ("cung mot ten file co the la input hop le cua eval nay va ngoai pham vi cua eval khac"), nen khong mau thuan voi cac eval khac khai design doc/contract.md la input hop le cua chung. Van ban khong con duong ngo nao cho judge tu di tim contract.md de tu che tieu chi.
+  rationale: Hội đồng đồng thuận PASS 3/3 lens, không có dissent; cả ba lens cùng chốt luật neo vào quan hệ có-trong-danh-sách-Input (không neo loại file) và cấm rõ hành vi tự cứu khi thiếu căn cứ.
   human_override:
 
 - eval: E11
-  run_id: minted-judgment-question-guard-E11-r1
+  run_id: minted-judgment-question-guard-E11-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.workflows
   verified_at: 2026-08-04T00:00:00Z
   output: |
-    skill-claims.test.mjs: 10 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E12
-  run_id: minted-judgment-question-guard-E12-r1
+  run_id: minted-judgment-question-guard-E12-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.workflows
   verified_at: 2026-08-04T00:00:00Z
   output: |
-    skill-claims.test.mjs: 10 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E14
-  run_id: minted-judgment-question-guard-E14-r1
+  run_id: minted-judgment-question-guard-E14-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.workflows
   verified_at: 2026-08-04T00:00:00Z
   output: |
-    skill-claims.test.mjs: 10 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E15
-  run_id: minted-judgment-question-guard-E15-r1
+  run_id: minted-judgment-question-guard-E15-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.workflows
   verified_at: 2026-08-04T00:00:00Z
   output: |
-    skill-claims.test.mjs: 10 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E16
-  run_id: minted-judgment-question-guard-E16-r1
+  run_id: minted-judgment-question-guard-E16-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.workflows
   verified_at: 2026-08-04T00:00:00Z
   output: |
-    skill-claims.test.mjs: 10 passed, 0 failed
+    Results: 10 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E13
-  run_id: minted-judgment-question-guard-E13-r1
+  run_id: minted-judgment-question-guard-E13-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.script.mirror_sync
   verified_at: 2026-08-04T00:00:00Z
   output: |
@@ -209,8 +209,9 @@ human_signoff:
 
 ## Analyst
 
-- bash tests/workflows/run-tests.sh: E1, E2, E3, E4, E5, E6, E7, E8, E9, E11, E12, E14, E15, E16 — green trên cả HEAD lẫn diffBase, không phân biệt được feature với code cũ trên riêng suite này. Cân nhắc viết lại để assert trực tiếp hành vi mới của guard (BLOCKED shape, allowlist input) thay vì chỉ chạy lại toàn bộ suite workflows.
-- bash scripts/sync-plugin-packages.sh --check: E13 — green trên cả HEAD lẫn diffBase (mirror đã đồng bộ từ trước round này); không tự nó chứng minh feature-loop/workflows/ vừa sửa đã được sync đúng, chỉ chứng minh mirror hiện tại không lệch.
+carried tu round 1 — baseline khong do lai round nay
+
+none — round này không đo lại baseline (P2, evals.yaml không đổi từ lần baseline cuối ở round 1) nên không xác định được eval nào không-phân-biệt mới; xem round 1 cho baseline gốc.
 
 ## Variance
 
@@ -218,7 +219,9 @@ none — every multi-run eval is uniform
 
 ## Iterations
 
-Round 1: Toàn bộ 15 eval máy (E1-E9, E11, E12, E14-E16, E13) exit 0 và judge panel E10 (AC-10) đồng thuận PASS 3/3 lens, cùng 4 suite hồi quy đầy đủ (tests/scripts, tests/hooks, tests/plugins, product-map --check) xanh. Verdict tổng vẫn REJECT: review-findings.md xác nhận 4 finding "bugs"/"conventions" mức high/medium map trực tiếp vào AC-4, AC-9, AC-10, AC-14 (guard crash TypeError trên executor trùng tên Object.prototype; nhánh BLOCKED-toàn-ungrounded báo sai lý do; câu cấm allowlist trong judge-prompt tự mâu thuẫn với chính input đã khai ở workspace khác; phép đo tồn kho AC-14 yếu hơn guard thật nó đo) — các eval hiện có không bắt được các lớp lỗi này nên bộ máy báo xanh trong khi contract chưa đạt. Trả về implementation; xem review-findings.md mục "Trong hợp đồng" để biết chi tiết từng finding và AC liên quan.
+Round 1: Toàn bộ 15 eval máy (E1-E9, E11, E12, E14-E16, E13) exit 0 và judge panel E10 (AC-10) đồng thuận PASS 3/3 lens, cùng 4 suite hồi quy đầy đủ (tests/scripts, tests/hooks, tests/plugins, product-map --check) xanh. Verdict tổng vẫn REJECT: review-findings.md xác nhận 4 finding "bugs"/"conventions" mức high/medium map trực tiếp vào AC-4, AC-9, AC-10, AC-14 (guard crash TypeError trên executor trùng tên Object.prototype; nhánh BLOCKED-toàn-ungrounded báo sai lý do; câu cấm allowlist trong judge-prompt tự mâu thuẫn với chính input đã khai ở workspace khác; phép đo tồn kho AC-14 yếu hơn guard thật nó đo) — các eval hiện có không bắt được các lớp lỗi này nên bộ máy báo xanh trong khi contract chưa đạt. Trả về implementation.
+
+Round 2: Toàn bộ 15 eval máy (E1-E9, E11, E12, E14-E16, E13) exit 0, judge panel E10 (AC-10) chấm lại (không carried) và đồng thuận PASS 3/3 lens, cùng 4 suite hồi quy đầy đủ (tests/scripts 596 passed, tests/hooks 51 passed, tests/plugins xanh, product-map --check khớp hồ sơ xưởng) xanh. Verdict tổng vẫn REJECT: review-findings.md round này chỉ còn 1 finding trong hợp đồng — map vào AC-14 (E15), severity high — cùng LỚP lỗi round 1 mà quyết định S4-r1 từng tuyên đã đóng (phép đo tồn kho AC-14 viết lại luật yếu hơn engine thật), lần này ở hai vị từ `inputs` (nhánh hard-shape và nhánh ungrounded) nằm ngoài marker EVAL-REQUIRED-FIELDS nên bị test chép tay và lệch khỏi acceptance-verify.js ở cả hai nhánh; các finding AC-4/AC-9/AC-10 của round 1 đã hết trong hợp đồng round này. Trả về implementation; xem review-findings.md mục "Trong hợp đồng" để biết chi tiết.
 
 ## Gate 2 checklist (human)
 

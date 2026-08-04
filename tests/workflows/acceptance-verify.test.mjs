@@ -985,12 +985,17 @@ console.log('W-G8 ton kho that: moi _acceptance/*/evals.yaml qua bang RUT TU MAR
   // kiem `_k.has(fl)` cho field mang trong khi guard that dung badStrArray —
   // phep do yeu hon chinh thu no do, nen `steps: []` se XANH o day ma BLOCKED
   // o lan chay that.
-  const { EVAL_REQUIRED: TABLE, isBlankStr, badStrArray } = new Function(
-    `${m[1]}; return { EVAL_REQUIRED, isBlankStr, badStrArray };`)();
+  const { EVAL_REQUIRED: TABLE, isBlankStr, badStrArray, badInputsShape, isUngroundedInputs } = new Function(
+    `${m[1]}; return { EVAL_REQUIRED, isBlankStr, badStrArray, badInputsShape, isUngroundedInputs };`)();
   check('W-G8 bang co du 4 executor', Object.keys(TABLE).sort().join(',') === 'judgment,script,test,ui-check', Object.keys(TABLE).join(','));
-  check('W-G8 rut duoc CA HAI vi tu tu marker', typeof isBlankStr === 'function' && typeof badStrArray === 'function');
+  check('W-G8 rut duoc CA BON vi tu tu marker', [isBlankStr, badStrArray, badInputsShape, isUngroundedInputs].every(f => typeof f === 'function'));
   // sanity: vi tu rut ra phai that su phan biet, khong phai ham luon-true
   check('W-G8 vi tu rut ra co rang', isBlankStr('  ') && !isBlankStr('x') && badStrArray([]) && badStrArray(['']) && !badStrArray(['a']));
+  check('W-G8 vi tu inputs co rang + phan biet dung HAI muc nang',
+    // hard-shape: sai kieu HOAC phan tu rong; vang/rong KHONG phai hard
+    badInputsShape('x') && badInputsShape(['  ']) && !badInputsShape(undefined) && !badInputsShape([]) && !badInputsShape(['/a.md'])
+    // ungrounded: vang HOAC rong; mang co phan tu rong KHONG phai ungrounded (no la hard)
+    && isUngroundedInputs(undefined) && isUngroundedInputs([]) && !isUngroundedInputs(['  ']) && !isUngroundedInputs(['/a.md']));
 
   // Parser doc duoc: scalar mot dong, list inline [a, b], list gach dau dong,
   // va block scalar (`key: >` / `key: |`) — thieu ba dang sau thi field co that
@@ -1042,8 +1047,12 @@ console.log('W-G8 ton kho that: moi _acceptance/*/evals.yaml qua bang RUT TU MAR
         const spec = TABLE[e.executor];
         for (const fl of spec.str) if (isBlankStr(e[fl])) hard.push(`${slug}/${e.id}: ${fl}`);
         for (const fl of spec.arr) if (badStrArray(e[fl])) hard.push(`${slug}/${e.id}: ${fl}`);
-        if (e.executor === 'judgment' && e.inputs !== undefined && e.inputs !== null && !Array.isArray(e.inputs)) hard.push(`${slug}/${e.id}: inputs`);
-        if (e.executor === 'judgment' && badStrArray(e.inputs)) soft.push(`${slug}/${e.id}`);
+        // Dung DUNG hai vi tu cua engine — ban truoc chep tay va lech CA HAI
+        // chieu: hard bo qua ve phan-tu-rong, soft dung badStrArray (rong hon
+        // isUngroundedInputs) nen `inputs: ['  ']` roi nham vao soft va assert
+        // "0 ca chan cung" van xanh trong khi lan chay that BLOCKED.
+        if (e.executor === 'judgment' && badInputsShape(e.inputs)) hard.push(`${slug}/${e.id}: inputs`);
+        else if (e.executor === 'judgment' && isUngroundedInputs(e.inputs)) soft.push(`${slug}/${e.id}`);
       }
     }
     return { hard, soft, files };
@@ -1066,6 +1075,21 @@ console.log('W-G8 ton kho that: moi _acceptance/*/evals.yaml qua bang RUT TU MAR
   const mut = scan(path.join(tmp, '_acceptance'));
   check('W-G8 dot bien: ban tiem field rong phai DO', mut.hard.length === 1, mut.hard.join(' | '));
   check('W-G8 dot bien: neu dung slug + id + field', /^judgment-question-guard\/E1: criterion$/.test(mut.hard[0] || ''), mut.hard[0]);
+
+  // Dot bien 2 (S4-r2 finding): muc list `inputs` RONG phai vao HARD, khong
+  // duoc roi vao soft. Ban truoc chep tay vi tu nen ca nay xanh o phep do ma
+  // BLOCKED o lan chay that — assert "0 ca chan cung" thanh vo nghia.
+  const tmp2 = mkdtempSync(path.join(os.tmpdir(), 'inv2-'));
+  cpSync(AC, path.join(tmp2, '_acceptance'), { recursive: true });
+  const v2 = path.join(tmp2, '_acceptance', 'judgment-question-guard', 'evals.yaml');
+  const b2 = readFileSync(v2, 'utf8');
+  const a2 = b2.replace(/^      - _acceptance\/judgment-question-guard\/evidence\/judge-prompt\.txt$/m, '      - "  "');
+  check('W-G8 dot bien 2: buoc tiem THUC SU doi file', a2 !== b2, 'regex khong khop muc inputs');
+  writeFileSync(v2, a2);
+  const mut2 = scan(path.join(tmp2, '_acceptance'));
+  check('W-G8 dot bien 2: muc inputs rong vao HARD (nhu engine), khong vao soft',
+    mut2.hard.some(h => /judgment-question-guard\/E10: inputs/.test(h)) && !mut2.soft.some(s => /judgment-question-guard\/E10/.test(s)),
+    `hard=${mut2.hard.join('|')} soft=${mut2.soft.join('|')}`);
 }
 
 summary('acceptance-verify');
