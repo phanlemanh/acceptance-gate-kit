@@ -5439,6 +5439,32 @@ assert any("tu vung host" in x and BAD[0] in x for x in guard(mut)), "guard khon
 print("P139 OK (3 phep do dung tren repo-la + guard co doi chung duong)")
 PY
 
+run "P140 context-ladder wiring: checklist ket phien S1-D + resume-guard doc context (E9)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+t = (root / "feature-loop/skills/feature-loop/SKILL.md").read_text(encoding="utf-8")
+flat = lambda s: re.sub(r"\s+", " ", s)
+def check(text):
+    ftext = flat(text)
+    errs = []
+    if "ma trận capture + findings + nấc ngữ cảnh đã khai" not in ftext:
+        errs.append("checklist ket phien S1-D thieu muc nac ngu canh da khai")
+    # resume-guard: doan S1-D phai noi resume DOC khoa context (duong doc-cu co vang)
+    m = re.search(r"\*\*Nghi thức S1-D.*?(?=\n\n)", text, re.S)
+    seg = flat(m.group(0)) if m else ""
+    if not ("resume" in seg and "`context:`" in seg):
+        errs.append("doan S1-D thieu resume-guard doc khoa context")
+    return errs
+assert check(t) == [], f"ban nguyen ven phai xanh: {check(t)}"
+m1 = re.sub(r"nấc\s+ngữ\s+cảnh\s+đã\s+khai", "", t)
+assert any("thieu muc nac ngu canh" in e for e in check(m1)), "dot bien xoa muc checklist khong do"
+m2 = re.sub(r"resume", "quaylai", t)
+assert any("thieu resume-guard" in e for e in check(m2)), "dot bien xoa resume-guard khong do"
+print("P140 OK (doi chung duong + 2 dot bien)")
+PY
+
 # --- context-ladder cases end ---
 
 if [ "$failures" -gt 0 ]; then
