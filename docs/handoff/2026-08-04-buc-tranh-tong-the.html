@@ -1,0 +1,455 @@
+<title>Workflow v2 — bức tranh tổng thể</title>
+<style>
+  :root {
+    --bg: #F6F7F5;
+    --bg-raise: #FFFFFF;
+    --ink: #22282B;
+    --ink-2: #5B6B70;
+    --line: #DDE2E0;
+    --accent: #B45309;
+    --accent-soft: #F5E8D8;
+    --rail: #C7CFCC;
+    --good: #2F6B4F;
+    --bad: #9B3B2E;
+    --mono-bg: #EDF0EE;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14181A;
+      --bg-raise: #1C2225;
+      --ink: #E5E9E8;
+      --ink-2: #93A29F;
+      --line: #2C3538;
+      --accent: #E0A458;
+      --accent-soft: #33281A;
+      --rail: #3A4548;
+      --good: #6FB593;
+      --bad: #D08070;
+      --mono-bg: #232B2E;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181A; --bg-raise: #1C2225; --ink: #E5E9E8; --ink-2: #93A29F;
+    --line: #2C3538; --accent: #E0A458; --accent-soft: #33281A; --rail: #3A4548;
+    --good: #6FB593; --bad: #D08070; --mono-bg: #232B2E;
+  }
+  :root[data-theme="light"] {
+    --bg: #F6F7F5; --bg-raise: #FFFFFF; --ink: #22282B; --ink-2: #5B6B70;
+    --line: #DDE2E0; --accent: #B45309; --accent-soft: #F5E8D8; --rail: #C7CFCC;
+    --good: #2F6B4F; --bad: #9B3B2E; --mono-bg: #EDF0EE;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 15.5px;
+    line-height: 1.62;
+    margin: 0;
+    padding: 0 20px 80px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+
+  h1, h2, h3 {
+    font-family: Charter, "Bitstream Charter", Cambria, Georgia, serif;
+    line-height: 1.22;
+    text-wrap: balance;
+  }
+  h1 { font-size: 2.3rem; font-weight: 700; margin: 0 0 10px; }
+  h2 { font-size: 1.5rem; font-weight: 700; margin: 0 0 6px; }
+  h3 { font-size: 1.12rem; font-weight: 700; margin: 26px 0 8px; }
+  p { margin: 0 0 12px; }
+
+  .eyebrow {
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 10px;
+  }
+  header.top { padding: 56px 0 8px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+  .meta { color: var(--ink-2); font-size: 0.88rem; margin-top: 8px; }
+  .meta code { font-size: 0.82rem; }
+
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 0.84em;
+    background: var(--mono-bg);
+    padding: 1px 5px; border-radius: 4px;
+    color: var(--ink-2);
+  }
+
+  section { margin-top: 52px; }
+  .sec-head { display: flex; align-items: baseline; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 18px; }
+  .sec-head .no {
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 0.78rem; color: var(--ink-2); letter-spacing: 0.08em;
+  }
+  .lead { color: var(--ink-2); max-width: 62ch; }
+
+  /* ---- nhịp strip ---- */
+  .beat { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 18px 0 14px; }
+  .beat .b {
+    background: var(--bg-raise); border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .beat .b b { display: block; font-size: 0.95rem; margin-bottom: 4px; }
+  .beat .b span { font-size: 0.84rem; color: var(--ink-2); line-height: 1.5; display: block; }
+  @media (max-width: 640px) { .beat { grid-template-columns: 1fr 1fr; } }
+
+  .theorem {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px; margin: 16px 0;
+    font-size: 0.93rem;
+  }
+  .theorem b { color: var(--accent); }
+
+  /* ---- pipeline rail ---- */
+  .rail { position: relative; margin: 22px 0 6px; }
+  .rail::before {
+    content: ""; position: absolute; left: 13px; top: 10px; bottom: 10px;
+    width: 2px; background: var(--rail);
+  }
+  .loop-tag {
+    position: relative; margin: 26px 0 10px; padding-left: 44px;
+    font-family: Charter, Cambria, Georgia, serif;
+    font-size: 1.2rem; font-weight: 700;
+  }
+  .loop-tag::before {
+    content: ""; position: absolute; left: 5px; top: 50%; transform: translateY(-50%);
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--bg); border: 2px solid var(--ink-2);
+  }
+  .loop-tag small { display: block; font-family: system-ui, sans-serif; font-size: 0.82rem; font-weight: 400; color: var(--ink-2); }
+  .step { position: relative; padding: 5px 0 5px 44px; }
+  .step::before {
+    content: ""; position: absolute; left: 10px; top: 14px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--rail);
+  }
+  .step b { font-weight: 600; }
+  .step .d { color: var(--ink-2); font-size: 0.88rem; }
+  .gate {
+    position: relative; margin: 12px 0; padding: 10px 14px 10px 44px;
+    background: var(--accent-soft); border-radius: 8px;
+  }
+  .gate::before {
+    content: ""; position: absolute; left: 7px; top: 50%;
+    width: 12px; height: 12px; transform: translateY(-50%) rotate(45deg);
+    background: var(--accent);
+  }
+  .gate b { color: var(--accent); font-weight: 700; }
+  .gate .q { font-size: 0.9rem; }
+  .gate .d { font-size: 0.84rem; color: var(--ink-2); }
+  .loopback { padding: 8px 0 0 44px; color: var(--ink-2); font-size: 0.88rem; font-style: italic; }
+
+  /* ---- tables ---- */
+  .tblwrap { overflow-x: auto; margin: 14px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+  th {
+    text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--ink-2); font-weight: 600;
+    padding: 8px 12px 6px; border-bottom: 2px solid var(--line);
+    white-space: nowrap;
+  }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td.key { font-weight: 600; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  .pill {
+    display: inline-block; font-size: 0.72rem; font-weight: 600;
+    padding: 1px 8px; border-radius: 999px; white-space: nowrap;
+    border: 1px solid var(--line); color: var(--ink-2);
+  }
+  .pill.ok { color: var(--good); border-color: var(--good); }
+  .pill.no { color: var(--bad); border-color: var(--bad); }
+  .pill.hot { color: var(--accent); border-color: var(--accent); }
+
+  .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 700px) { .cols2 { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--bg-raise); border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .card h3 { margin-top: 0; }
+  ul { margin: 8px 0; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  li::marker { color: var(--ink-2); }
+
+  footer { margin-top: 64px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--ink-2); font-size: 0.84rem; }
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">Acceptance-gate kit · bản đồ cho người đọc</div>
+  <h1>Workflow v2 — bức tranh tổng thể</h1>
+  <p class="lead">Một tính năng đi từ ý-định-mơ-hồ đến tay-người-dùng qua ba vòng,
+  dừng ở năm cổng do người quyết. Máy làm và tự chấm giữa các cổng; người chỉ đứng
+  ở chỗ quyết-sai-thì-đắt.</p>
+  <div class="meta">Bản v2.0-rc · cập nhật 04/08/2026 (vòng ba lên tuyến — đang chờ ở Cổng Đáng) · nguồn sự thật duy nhất:
+  <code>docs/specs/workflow-v2-spec.md</code> — trang này là mặt người, không thay spec.</div>
+</header>
+
+<!-- ================= NHỊP ================= -->
+<section>
+  <div class="sec-head"><span class="no">01</span><h2>Nhịp — đơn vị nhỏ nhất của mọi việc</h2></div>
+  <p class="lead">Toàn bộ quy trình là một nhịp bốn thì, lồng vào nhau theo cỡ.
+  Mọi sự cố đều chẩn đoán được thành "một nhịp thiếu một thì".</p>
+
+  <div class="beat">
+    <div class="b"><b>1 · Khai</b><span>Nói trước mình định làm gì và đo bằng thước nào — ghi thành hồ sơ máy đọc được, trước khi làm.</span></div>
+    <div class="b"><b>2 · Làm</b><span>Máy thực thi.</span></div>
+    <div class="b"><b>3 · Đo</b><span>Bằng chứng so với thước ĐÃ khai — không đổi thước sau khi thấy số.</span></div>
+    <div class="b"><b>4 · Quyết</b><span>Giữ, sửa, hoặc giết — giết cũng là kết cục hợp lệ.</span></div>
+  </div>
+
+  <div class="tblwrap"><table>
+    <tr><th>Cỡ nhịp</th><th>Ví dụ</th></tr>
+    <tr><td class="key">Phút</td><td>Một phép thử rẻ; một vòng chỉnh trong phiên thiết kế</td></tr>
+    <tr><td class="key">Giờ</td><td>Một vòng kiểm chứng; một phiên thiết kế trọn</td></tr>
+    <tr><td class="key">Ngày</td><td>Một vòng tính năng — từ cổng Đáng đến cổng Giá trị</td></tr>
+    <tr><td class="key">Tuần</td><td>Một chương trình / chiến dịch</td></tr>
+  </table></div>
+
+  <div class="theorem">
+    <b>Định lý tự-động-hoá thì Quyết:</b> máy được quyền quyết khi và chỉ khi
+    <b>thước là máy và độc lập với người làm</b> ∧ <b>đảo ngược rẻ</b> ∧
+    <b>vòng phản hồi ngắn</b>. Hỏng một vế → người quyết. Máy quyết vẫn phải
+    để vết như người quyết. Hệ quả: vòng kiểm chứng được tự lặp; <b>chữ ký cổng
+    không bao giờ máy hoá</b> — vì thước của nó là ý định và trách nhiệm.
+  </div>
+
+  <h3>Năm luật lồng ghép</h3>
+  <ul>
+    <li>Nhịp con phải đóng xong thì nhịp cha mới được quyết — bằng chứng cuộn từ dưới lên.</li>
+    <li>Thước của một nhịp được khai từ thì Quyết của nhịp cha trước đó (ngưỡng nghiệm thu khai ở cổng Đáng, bộ kiểm duyệt ở cổng Phạm vi).</li>
+    <li>Người làm và người chấm không chung trí nhớ — trong từng nhịp.</li>
+    <li>Mọi thì để vết trong một chỗ làm việc duy nhất.</li>
+    <li>Cổng người chỉ đặt ở chỗ đảo-ngược-đắt hoặc thước-không-máy-được.</li>
+  </ul>
+</section>
+
+<!-- ================= TOÀN TUYẾN ================= -->
+<section>
+  <div class="sec-head"><span class="no">02</span><h2>Toàn tuyến — ba vòng, năm cổng</h2></div>
+
+  <div class="rail">
+    <div class="step"><b>Vào phiên — gõ <code>/start</code></b> (ship 03/08, bản 1.30.0). Máy quét xưởng, trình thẻ ba nhóm: <i>chờ chữ ký</i> · <i>đang dở</i> · <i>bắt đầu mới</i>; anh chọn một chữ cái, lệnh bàn giao sang đúng nghi thức bên dưới. <span class="d">Thao tác người thứ 6 — máy không tự gọi được; hết cảnh mở phiên bằng câu tự do.</span></div>
+    <div class="loop-tag">Vòng HIỂU<small>từ mơ hồ đến quyết đáng-làm</small></div>
+    <div class="step"><b>Buổi khai thác hai kiểu</b> — cùng nghĩ (brainstorm) hoặc phỏng vấn rút tri thức ngầm (grill), mở bằng <b>bốn câu hỏi thực tế</b> (mục 04). <span class="d">Nghi thức advisor (duyệt 03/08): trước buổi máy viết <b>tờ khai bối cảnh</b> — sự thật đọc được từ repo (có nguồn, không hỏi lại) · suy đoán (đánh dấu) · phải hỏi; mở buổi bằng 5–7 phút người soát tờ khai; câu tầng khung hỏi mở trước, đối chiếu sau — chống mớm. Mỗi câu đổ thẳng vào một mục hồ sơ cơ hội.</span></div>
+    <div class="step"><b>Phản biện</b> — phiên tách riêng tấn công giả định, xếp theo phép-thử-rẻ-nhất. <span class="d">Tách để không cùng mù một điểm với người nghĩ ra.</span></div>
+    <div class="step"><b>Phép thử rẻ</b> — chạy hết ẩn số không-cần-dựng trước (đọc dữ liệu, hỏi thẳng), rẻ trước đắt sau.</div>
+    <div class="step"><b>Bản thăm dò</b> — chỉ để hội tụ ý định, không gánh phép đo; dựng kỷ luật như code sẽ sống, có giờ chót.</div>
+    <div class="gate"><b>Cổng ĐÁNG</b> <span class="q">— có đáng build không? Code thăm dò sống hay chết?</span>
+      <div class="d">Người ký; khai luôn ngưỡng nghiệm thu người dùng tại đây. Kết cục: build / thử tiếp / cất / giết. (mã máy <code>gate0</code>)</div>
+      <div class="d" style="margin-top:6px"><span class="pill ok">✓ vòng ba qua cổng này 04/08 — build, 30′</span></div></div>
+
+    <div class="loop-tag">Vòng LÀM<small>từ quyết đến sản-phẩm-chứng-minh-được</small></div>
+    <div class="step"><b>Vào vòng</b> — xếp hạng độ nặng, việc vặt thoát sớm; mỗi phiên một cây làm việc riêng.</div>
+    <div class="step"><b>Thiết kế + hợp đồng</b> — bản thiết kế, hợp đồng 5–15 tiêu chí nghiệm thu, bộ kiểm máy; một mắt tươi soi lỗ hổng với trí nhớ sạch. <span class="pill hot">📍 vòng ba đang ở đây</span> <span class="d">— hợp đồng nháp (vòng nặng T3), đã nạp chuẩn plugin của repo đúng luật</span></div>
+    <div class="step"><b>Phiên thiết kế</b> (bắt buộc khi chạm giao diện) — chỉ làm thẩm mỹ + trải nghiệm trên bản bấm được, chủ ngồi xem; khai <b>nấc trung thực</b> trước khi trình; mẫu hệ chưa có phải chọn lối có tên; kết phiên ghi sổ phương án đã thử–đã bác.</div>
+    <div class="gate"><b>Cổng PHẠM VI</b> <span class="q">— đúng phạm vi, đúng hình chưa?</span>
+      <div class="d">Người duyệt trên <b>bản bấm được</b>, không duyệt giao diện bằng chữ. (mã máy <code>gate1</code>)</div></div>
+    <div class="step"><b>Kế hoạch</b> — chia việc, mỗi việc có lệnh tự kiểm và nói rõ phục vụ tiêu chí nào.</div>
+    <div class="gate"><b>Cổng KẾ HOẠCH</b> <span class="q">— chỉ với việc nặng: kế hoạch đúng đường chưa?</span>
+      <div class="d">(mã máy <code>gate15</code>)</div></div>
+    <div class="step"><b>Dựng</b> — tuần tự mặc định; việc độc lập thì chia agent song song. <span class="d">Cùng một bộ thước chạy hai lần: lần một trên bản đã duyệt (lưu làm mốc), lần hai trên bản dựng xong — hai bộ số phải khớp.</span></div>
+    <div class="step"><b>Kiểm chứng</b> — mỗi vòng một lượt máy chạy trọn: bộ kiểm + hội đồng chấm nhiều góc nhìn + soát code, trí nhớ tươi. <span class="d">Tối đa 3 vòng; vượt là dừng, cần người phê chuẩn có vết.</span></div>
+    <div class="gate"><b>Cổng BẰNG CHỨNG</b> <span class="q">— bằng chứng tin được không?</span>
+      <div class="d">Người ký; <b>từ chối là kết cục hợp lệ có hồ sơ</b> — hợp đồng chỉ bảo vệ thứ nó có ghi. (mã máy <code>gate2</code>)</div></div>
+
+    <div class="loop-tag">Vòng TRAO<small>từ chứng-minh đến tay người dùng, số quay về</small></div>
+    <div class="step"><b>Phiên nghiệm thu người dùng</b> — trên sản phẩm thật sau công tắc; chấm kín trước khi thảo luận; hỏi câu ràng buộc ("anh gửi cho khách nào, khi nào?"); số so với ngưỡng đã khai ở cổng Đáng.</div>
+    <div class="gate"><b>Cổng GIÁ TRỊ</b> <span class="q">— người dùng có nhận không?</span>
+      <div class="d">Phát hành / sửa tiếp / giết. <b>Giết ở đây là quy trình thành công</b> — câu trả lời mua bằng giá một vòng dựng. (mã máy <code>gateUAT</code>)</div></div>
+    <div class="step"><b>Phát hành + đối soát</b> — gộp code theo nghi thức; tài liệu sản phẩm cập nhật cho khớp hiện trạng (quy trình <b>nuôi</b> tài liệu, không sinh tài liệu); bản đồ sản phẩm dựng lại; hẹn giờ đo sau phát hành.</div>
+    <div class="loopback">↩ Số đo sau phát hành quay về nuôi buổi khai thác của vòng sau.</div>
+  </div>
+</section>
+
+<!-- ================= CỔNG ================= -->
+<section>
+  <div class="sec-head"><span class="no">03</span><h2>Năm cổng người — tên theo câu hỏi</h2></div>
+  <div class="tblwrap"><table>
+    <tr><th>Cổng</th><th>Câu hỏi</th><th>Quyền của người ký</th><th>Mã máy</th></tr>
+    <tr><td class="key">ĐÁNG</td><td>Có đáng build? Code thăm dò sống hay chết?</td><td>Giết cơ hội, cất code</td><td><code>gate0</code></td></tr>
+    <tr><td class="key">PHẠM VI</td><td>Đúng phạm vi + đúng hình? (trên bản bấm được)</td><td>Sửa / chặn trước khi tốn tiền dựng</td><td><code>gate1</code></td></tr>
+    <tr><td class="key">KẾ HOẠCH</td><td>Kế hoạch đúng đường? (chỉ việc nặng)</td><td>Chặn trước khi viết code</td><td><code>gate15</code></td></tr>
+    <tr><td class="key">BẰNG CHỨNG</td><td>Bằng chứng tin được?</td><td>Từ chối có hồ sơ</td><td><code>gate2</code></td></tr>
+    <tr><td class="key">GIÁ TRỊ</td><td>Người dùng nhận không?</td><td>Giết sau khi dựng = thành công</td><td><code>gateUAT</code></td></tr>
+  </table></div>
+  <p class="lead">Nguyên tắc chung: người quyết trên thẻ và bản bấm được — không quyết trên
+  file máy; mỗi cổng ghi lại phút người bỏ ra; chữ ký bị khoá không cho máy tự gọi
+  (cả hai harness).</p>
+</section>
+
+<!-- ================= BỐN CÂU HỎI ================= -->
+<section>
+  <div class="sec-head"><span class="no">04</span><h2>Bốn câu hỏi thực tế — ruột của buổi khai thác</h2></div>
+  <p class="lead">Bổ sung 02/08 sau khi hai vòng Trang Tư Vấn trượt cả bốn. Chạy TRƯỚC khi
+  viết hồ sơ; mỗi câu một bảng, không văn xuôi; chưa biết thì thành giả định + phép thử rẻ.</p>
+  <div class="tblwrap"><table>
+    <tr><th>#</th><th>Hỏi gì</th><th>Bằng chứng mới tính là trả lời được</th><th>Chưa trả lời được thì</th></tr>
+    <tr><td class="num">1</td><td><b>Người</b> — ai vận hành hàng ngày, ai thụ hưởng, mỗi bên trên bề mặt nào</td><td>Kể được một ngày làm việc thật; đếm được số bề mặt</td><td>Cấm viết tiêu chí giao diện</td></tr>
+    <tr><td class="num">2</td><td><b>Việc</b> — việc cốt lõi bằng động từ thật</td><td>Mô tả được cách làm khi CHƯA có công cụ</td><td>Mọi thiết kế sau là phỏng đoán</td></tr>
+    <tr><td class="num">3</td><td><b>Dữ liệu</b> — nguồn · ai nhập · ai giữ tươi · công mỗi lần · đổi lúc nào · thiếu thì màn hình xử sự thế nào</td><td>Bóc một bộ hồ sơ thật + bấm giờ</td><td>Dòng không có chủ → cổng không mở</td></tr>
+    <tr><td class="num">4</td><td><b>Vật liệu</b> — dựng bằng đồ gì đã có; mẫu thiếu chọn lối có tên</td><td>Kiểm kê kho bằng máy</td><td>Phiên thiết kế sẽ tự phát minh mẫu mới dưới sức ép</td></tr>
+  </table></div>
+  <p class="lead">Cột "thiếu thì xử sự thế nào" chuyển thẳng thành tiêu chí nghiệm thu —
+  phần máy gác được. Đổi hình thái sản phẩm thì phải hỏi lại câu 1. Vòng làm lại không
+  được lấy hồ sơ vòng trước làm nguồn khung.</p>
+</section>
+
+<!-- ================= ĐỊNH TUYẾN ================= -->
+<section>
+  <div class="sec-head"><span class="no">05</span><h2>Năm đường đi — nghiệm thu theo giả định, không theo cỡ</h2></div>
+  <div class="tblwrap"><table>
+    <tr><th>Đường</th><th>Dấu hiệu</th><th>Vòng HIỂU</th><th>Phiên thiết kế</th><th>Sau cổng Bằng chứng</th></tr>
+    <tr><td class="key">A · đặt cược giá trị</td><td>Có hồ sơ cơ hội + ngưỡng nghiệm thu</td><td>Đầy đủ</td><td>Theo giao diện</td><td>Nghiệm thu người dùng → cổng Giá trị</td></tr>
+    <tr><td class="key">B · giao diện, không giả định mới</td><td>Chạm giao diện, không hồ sơ cơ hội</td><td>Không</td><td><b>Bật</b></td><td>Phát hành thẳng; đo qua số liệu dùng thật</td></tr>
+    <tr><td class="key">C · kỹ thuật thuần</td><td>Không giao diện</td><td>Không</td><td>Tắt</td><td>Phát hành thẳng; "nghiệm thu" = kiểm tích hợp</td></tr>
+    <tr><td class="key">D · việc vặt</td><td>Khớp danh sách miễn</td><td>—</td><td>—</td><td>Thoát sớm có xác nhận</td></tr>
+    <tr><td class="key">E · hệ thiết kế</td><td>Vật giao là <b>linh kiện</b> dùng chung, không phải màn hình</td><td>Không</td><td>Bật — trên trang trưng bày linh kiện</td><td>Phát hành thẳng; thước riêng: dùng được ≥2 chỗ thật · đạt tiếp cận · số biến thể không tăng · từ vựng hợp lệ</td></tr>
+  </table></div>
+  <p class="lead">Hiện đường đi do phiên tự khai tường minh trong hồ sơ, người duyệt soi tại
+  cổng — máy tự nhận đường nằm trong hàng đợi. Đường B/C/E tự ghi vào hợp đồng "không giả
+  định giá trị mới — không phiên nghiệm thu"; có ngưỡng nghiệm thu mà định phát hành thẳng
+  thì bị chặn.</p>
+</section>
+
+<!-- ================= SONG DIỆN ================= -->
+<section>
+  <div class="sec-head"><span class="no">06</span><h2>Song diện — mọi hồ sơ hai mặt</h2></div>
+  <p class="lead">Mặt máy (khuôn dữ liệu — móc kiểm và CI đọc) + mặt người (thẻ, bản bấm được).
+  Hồ sơ một mặt là hồ sơ hỏng.</p>
+  <div class="cols2">
+    <div class="card">
+      <h3>Sáu luật ngôn ngữ mặt người</h3>
+      <ul>
+        <li>Chủ ngữ là người dùng hoặc sản phẩm — không phải file.</li>
+        <li>Tên kỹ thuật xuống cột phụ hoặc ngoặc.</li>
+        <li>Mã số là tra cứu — lần đầu xuất hiện phải kèm vài chữ nghĩa.</li>
+        <li>Một dòng một ý.</li>
+        <li>Hình trước, chữ là chú thích; câu hỏi cho người trả lời được bằng có/không.</li>
+        <li>Không biệt ngữ chưa có trong từ điển sản phẩm.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Hai phép thử vài giây</h3>
+      <ul>
+        <li><b>Xoá tên máy</b> — xoá hết tên file/hàm/mã số khỏi câu; còn nghĩa thì đạt.</li>
+        <li><b>Người thứ ba</b> — đồng đội không đọc code kể lại được "sau việc này người dùng thấy gì khác" không?</li>
+      </ul>
+      <p class="lead" style="font-size:0.86rem">Luật được bộ dựng thẻ nạp tự động mỗi lần
+      trình — không dựa trí nhớ. Là luật chứ không phải skill: skill chờ được gọi sẽ chết lúc bận.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MÁY MÓC ================= -->
+<section>
+  <div class="sec-head"><span class="no">07</span><h2>Bộ máy — năm mặt phẳng</h2></div>
+  <div class="tblwrap"><table>
+    <tr><th>Mặt phẳng</th><th>Trong kit là gì</th></tr>
+    <tr><td class="key">Điều khiển</td><td>Vòng lặp tính năng dẫn phiên chính (skill <code>feature-loop</code>)</td></tr>
+    <tr><td class="key">Thực thi</td><td>Agent con trí-nhớ-tươi, chạy song song có trần; mỗi phiên một cây làm việc</td></tr>
+    <tr><td class="key">Hồ sơ</td><td>Một thư mục mỗi vòng: hợp đồng, bằng chứng, sổ quyết định (<code>_acceptance/&lt;slug&gt;/</code>)</td></tr>
+    <tr><td class="key">Quan hệ</td><td>Cạnh nối trong đầu file + nhật ký chạy — truy được ai sinh ra cái gì</td></tr>
+    <tr><td class="key">Đánh giá</td><td>Bộ kiểm bốn loại + móc lúc ghi + CI trước gộp + hội đồng chấm + đối chứng nền</td></tr>
+  </table></div>
+  <div class="theorem"><b>Câu Bắc Đẩu</b> (bài kiểm của chính spec): mọi kết quả quan trọng
+  truy ngược được về mục tiêu → kế hoạch → hồ sơ → nguồn → người-chấm → lần-chạy-có-biên.</div>
+  <p class="lead">Kỷ luật thước đo — trả giá bằng 4/8 vòng của lần chạy đầu: thước phải
+  tự-phản-nghiệm được ("nếu tôi phá vật thật, phép đo này có đỏ không?"); người làm ≠ người
+  chấm là tiền đề của mọi quyết-máy.</p>
+</section>
+
+<!-- ================= VAI & KPI ================= -->
+<section>
+  <div class="sec-head"><span class="no">08</span><h2>Vai trong đội & thước đo chương trình</h2></div>
+  <div class="tblwrap"><table>
+    <tr><th>Vai</th><th>Làm gì</th><th>Không làm gì</th></tr>
+    <tr><td class="key">Chủ (Manh)</td><td>Quyết tại cổng + phản hồi bất cứ lúc nào</td><td>Không đỡ nội dung</td></tr>
+    <tr><td class="key">Phiên chạy vòng</td><td>Kit tự dẫn trọn vòng; ghi mọi phản hồi người kèm cách xử lý</td><td>Không vượt cổng, không đổi thước giữa chừng</td></tr>
+    <tr><td class="key">Phiên quan sát</td><td>Tổng hợp, ghi lỗ kit, báo cáo điểm dừng</td><td>Không can thiệp nội dung — mỗi lần phải đỡ tay là một lỗ kit chưa đóng gói</td></tr>
+  </table></div>
+  <p class="lead">Thước đo nói bằng <b>tần suất</b>, không phút/lần: cơ hội vào mỗi tháng ·
+  tỷ lệ giết ở từng cổng · tỷ lệ đi trọn tuyến · phút mỗi cổng. Vì mốc so sánh trước kit
+  là gần như không phê duyệt được gì — không phải "phê duyệt chậm".</p>
+</section>
+
+<!-- ================= HIỆN TRẠNG ================= -->
+<section>
+  <div class="sec-head"><span class="no">09</span><h2>Hiện trạng — 04/08/2026</h2></div>
+
+  <h3>Đã ship trong kit</h3>
+  <div class="tblwrap"><table>
+    <tr><th>Việc</th><th>Trạng thái</th></tr>
+    <tr><td>Spec hợp nhất một file — các bản cũ đóng dấu thay thế</td><td><span class="pill ok">xong</span></td></tr>
+    <tr><td>Phiên thiết kế trong-harness (bản 1.26.0) — nghi thức 5 giai đoạn, thang vật liệu 3 bậc</td><td><span class="pill ok">xong</span></td></tr>
+    <tr><td>Gói năm lưới chặn trôi (bản 1.27.0 / vòng lặp 1.19.0)</td><td><span class="pill ok">xong</span></td></tr>
+    <tr><td>Luật ngôn ngữ mặt người — nạp tự động bởi bộ dựng thẻ</td><td><span class="pill ok">xong</span></td></tr>
+    <tr><td>Bổ sung 02/08: bốn câu hỏi thực tế · phiên thiết kế thành vòng thật · nối bản duyệt với bản dựng · đường E</td><td><span class="pill ok">xong</span></td></tr>
+    <tr><td>Cổng vào đo xong (DP-1): 3/3 tiêu chí đạt, ký 30/07</td><td><span class="pill ok">GO</span></td></tr>
+    <tr><td>Lệnh vào phiên <code>/start</code> (bản 1.30.0) — hai vòng ký cùng ngày 03/08; vòng gia cố chạm trần 3 vòng chấm, dừng xin người đúng nghi thức rồi mới đi tiếp</td><td><span class="pill ok">xong</span></td></tr>
+  </table></div>
+
+  <h3>Chiến dịch chứng chỉ toàn tuyến — Trang Tư Vấn</h3>
+  <div class="tblwrap"><table>
+    <tr><th>Vòng</th><th>Kết cục</th><th>Chết vì</th><th>Phát hiện lúc nào</th></tr>
+    <tr><td class="key">Một</td><td><span class="pill no">đóng, không ký</span></td><td>Khung thị giác vay từ gói ngoài, lệch khuôn sản phẩm</td><td>Sau khi dựng xong — 8 lần chấm</td></tr>
+    <tr><td class="key">Hai</td><td><span class="pill no">đóng, không ký</span></td><td>Khung sai về người dùng, việc cốt lõi, và dữ liệu</td><td>Tại bản mẫu, trước cổng Phạm vi — rẻ hơn hẳn vòng một</td></tr>
+    <tr><td class="key">Ba</td><td><span class="pill ok">đang chạy</span></td><td colspan="2">Vào phiên bằng <code>/start</code> (lần dùng thật đầu tiên); buổi phỏng vấn đã chạy 04/08 đúng nghi thức advisor; hồ sơ cơ hội thành hình — khung chốt: <b>bộ công cụ cho môi giới</b>, thẻ căn tự sinh ship trước, hai bề mặt, môi giới đứng trước</td></tr>
+  </table></div>
+
+  <h3>Vòng ba trên tuyến — từng bước, tính tới 04/08</h3>
+  <div class="tblwrap"><table>
+    <tr><th>Bước trên bản đồ</th><th>Trạng thái</th><th>Vết</th></tr>
+    <tr><td>Vào phiên (<code>/start</code>)</td><td><span class="pill ok">xong</span></td><td>Chip một-lệnh, chọn lối (a); lộ 1 lỗ định tuyến brainstorm — đã nắn, đã ghi sổ</td></tr>
+    <tr><td>Bài tập về nhà: tờ khai bối cảnh + chân ngành</td><td><span class="pill ok">xong</span></td><td>Ba loại dòng, nguồn ghim từng dòng; buổi soát gạch 1 suy đoán, đẻ 2 sự thật mới</td></tr>
+    <tr><td>Buổi phỏng vấn 5 trục (grill)</td><td><span class="pill ok">xong</span></td><td>Sổ buổi đầy đủ; câu phạm vi: <b>hai lát, môi giới trước</b>; checklist chốt buổi 7/7</td></tr>
+    <tr><td>Phản biện (mỗi giả định một phép thử rẻ)</td><td><span class="pill ok">xong</span></td><td>10 đòn, 3 đòn thực chứng từ kho hồ sơ Masteri thật đã đổi hồ sơ</td></tr>
+    <tr><td>Kiểm kê kho kỹ thuật vòng 1/2 + bảng nợ</td><td><span class="pill ok">xong</span></td><td>Giữ/bỏ từng món có lý do; lôi ra 1 lỗ riêng tư sống trên bản chính → chip vá riêng</td></tr>
+    <tr><td>Hồ sơ cơ hội + ngưỡng sống/chết</td><td><span class="pill ok">xong</span></td><td>Hai đồng hồ tách rõ; lỗi số trên thẻ = chết ngay; timebox bản thăm dò ≤2 ngày</td></tr>
+    <tr><td>Bốn câu thực địa + <b>Cổng ĐÁNG</b></td><td><span class="pill ok">xong 04/08</span></td><td>Manh ký <b>build</b>, 30 phút; bảng nợ kho kỹ thuật ký cùng lượt</td></tr>
+    <tr><td>Thiết kế + hợp đồng (S1, vòng nặng T3)</td><td><span class="pill hot">đang chạy 📍</span></td><td>Hợp đồng nháp + bản thiết kế đã có; chuẩn plugin repo (create-onehub-plugin) nạp đúng luật lưới; hai quyết định kiến trúc vào sổ (thẻ theo căn không dính dữ liệu khách · thẻ = ảnh gửi Zalo + trang sống sau link)</td></tr>
+    <tr><td>Phiên thiết kế trên bản bấm được → <b>Cổng PHẠM VI</b> → Cổng Kế hoạch (T3) → dựng</td><td><span class="pill">kế tiếp</span></td><td>Cổng Phạm vi duyệt trên bản bấm được; T3 nên có thêm cổng duyệt kế hoạch</td></tr>
+  </table></div>
+
+  <div class="cols2">
+    <div class="card">
+      <h3>Số đo chiến dịch — khai trước, không đổi giữa chừng</h3>
+      <ul>
+        <li>Số lần phải đỡ tay ≤ 3 <span class="pill">vòng một: hàng chục</span></li>
+        <li>Lệch khuôn sản phẩm tái xuất = 0</li>
+        <li>Số vòng chấm ≤ 3 <span class="pill">vòng một: 8</span></li>
+        <li>Khoảng 10 phút mỗi cổng</li>
+        <li>Buổi nghiệm thu môi giới diễn ra ≤ 7 ngày sau cổng Bằng chứng <span class="pill ok">đã chốt 04/08: 2 môi giới (KN Land + OneHousing), tuần 11–15/08</span> — còn thiếu người thứ ba</li>
+      </ul>
+      <p class="lead" style="font-size:0.86rem">Thất bại định nghĩa trước: đỡ tay quá 10 lần
+      hoặc lệch khuôn tái xuất → dừng dựng, quay lại vá kit.</p>
+    </div>
+    <div class="card">
+      <h3>Hàng đợi kit — chưa làm</h3>
+      <ul>
+        <li>Hướng dẫn khám phá đóng gói — ruột là nghi thức advisor: tờ khai bối cảnh + soát đầu buổi + hỏi-mở-trước (thiết kế duyệt 03/08, vòng ba chạy bản tay đầu tiên)</li>
+        <li>Bản đồ sản phẩm + thẻ cho cổng Đáng và cổng Giá trị + công cụ điều phối buổi nghiệm thu</li>
+        <li>Gói skill khám phá; phần còn lại của làn thiết kế</li>
+        <li>Siết thước đo tầng lõi (đối soát mã thoát, trần vòng cứng, ngân sách khai trước)</li>
+        <li>Mới 02/08: máy tự nhận đường đi · script kiểm kê kho linh kiện · máy soi mật độ chữ kỹ thuật ở mặt người</li>
+        <li>Khuôn mặt-người cho bảng gói duyệt cổng Phạm vi (lỗ ghi 03/08 tại cổng của chính vòng dựng lệnh vào-phiên: bảng tiêu-chí→phép-đo trình cho người còn tiếng máy)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Trang này là mặt người của <code>docs/specs/workflow-v2-spec.md</code> (kit) — khi hai bên
+  lệch nhau, spec thắng. Nhật ký chương trình: <code>docs/plans/2026-07-27-discovery-gate0-rollout.md</code> ·
+  chiến dịch: <code>docs/plans/2026-07-30-full-run-certification.md</code> ·
+  bàn giao gần nhất: <code>docs/handoff/2026-08-02-handoff-doi-tai-khoan.md</code>.
+</footer>
+
+</div>
