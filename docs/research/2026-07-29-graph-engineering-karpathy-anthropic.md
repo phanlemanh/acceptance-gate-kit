@@ -141,3 +141,27 @@ mới không nằm ở code được giao mà ở CHÍNH các phép đo — và 
 Engineering im lặng về tầng này. Ưu tiên mới đề xuất: NG3 (chi phí đang chảy
 máu hằng ngày, cùng logic "cầm máu trước" đã dùng cho loop-stall) → NG2 (nâng
 P105 thành luật engine) → G2/G3 (như cũ) → NG4.
+
+## Đề xuất nâng cấp 05/08 — ĐÃ DUYỆT (owner đồng ý trong chat 2026-08-05)
+
+Phân tích 80/20 trên số đo vận hành thật (không phải trên tài liệu): phút
+người đã tối ưu xong (5-10'/gate, 0 dừng tự chèn) — chiến trường mới là
+**token và round**. Phân bố chi phí: C1 verify-lặp-thứ-đã-biết ~50-60%
+(round fix full re-run + re-pin 18-19 workspace × cùng 4 suite × agent
+riêng) · C2 round-do-thước-sai ~25% (≥13 round thuộc lớp đo-lường) · C3
+round đoán mò sau UNCERTAIN ~10%.
+
+**Hàng đợi đã duyệt (chạy SAU khi `workspace-reader-unification` khép vòng —
+bất biến không-đổi-engine-giữa-vòng; cả 4 đều chạm engine nên đều xếp hàng):**
+
+| # | Slug dự kiến | Việc | Nguyên tắc gốc GE | Ăn vào |
+|---|---|---|---|---|
+| 1 | `delta-verify-repin` | (a) re-pin = 1 machine-lane + N chữ ký trỏ cùng run_id (19 agent chạy cùng suite trên cùng sha = redundancy thuần — nguyên tắc 7 áp cho verifier); (b) mở P1 carry-forward cho round fix sau REJECT (eval có `paths` không chạm diff-fix thì carry) | Ratchet = đo cái ĐỔI; DERIVED_FROM đã có trong run-log | C1: ước cắt 50-70% token vận hành, không đổi phép đo nào |
+| 2 | `matrix-measure-law` | Nâng P105 thành luật: +1 cross-check gap-probe ("criterion không-gian-hữu-hạn nào đang đo bằng điểm-case thay vì ma trận?") + 1 lens `measurement` trong review S4 | "Evaluation feedback loop" — ratchet trên chính thước; lens mới = đa dạng thật (ng.tắc 7) | C2 — nguồn round lớn nhì, chi phí vài đoạn văn |
+| 3+4 | `judge-required-evidence` (gộp gold-seed) | Judge trả `required_evidence[]` thay UNCERTAIN trần (schema verdict + template + card); signoff append 1 dòng jsonl `(item, máy đề xuất, người quyết, lý do)` — gieo gold set từ Gate 2, sau ~10-15 điểm đo luôn G3 correlated-errors từ dữ liệu này + panel memo, khỏi audit riêng | Graph-grounded evaluator trả JSON actionable; ratchet cần lịch sử máy-đọc (G1 đã mở khoá) | C3 + mở đường G5; gần zero chi phí vận hành thêm |
+
+**Đã duyệt NÓI KHÔNG (giữ nguyên):** G6 swarm/DAG phân kỳ · G4 budget khai
+trước (cap 3 round là phanh đúng — bằng chứng NG1) · semantic-matching claim
+(9/12 citation với matching thô, chưa có bằng chứng nhiễu) · persist index.
+Thêm nhóm này bây giờ là vi phạm lời dặn của chính tài liệu: đừng thêm
+graph/swarm chỉ vì hệ có agent.
