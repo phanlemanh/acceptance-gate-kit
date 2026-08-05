@@ -6117,6 +6117,67 @@ for c in clauses:
     assert not re.search(c, s.replace(m.group(0), '', 1)) or len(re.findall(c, s)) > 1, f'detector khong phan biet: {c}'
 PY
 
+echo "P155 (E9) tu dien biet ngu: SIGNOFF-JARGON-GLOSS subset HFL-GLOSSARY-TERMS + co muc CONTEXT.md"
+run "P155 gloss marker subset + CONTEXT + mutant" \
+  python3 - "$ROOT" <<'P155PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+law = (root / "skills/acceptance/references/human-facing-language.md").read_text(encoding="utf-8")
+ctx = (root / "CONTEXT.md").read_text(encoding="utf-8")
+
+GLOSS_RE = r"<!-- <<<SIGNOFF-JARGON-GLOSS -->\n([\s\S]*?)<!-- SIGNOFF-JARGON-GLOSS>>> -->"
+TERMS_RE = r"<!-- <<<HFL-GLOSSARY-TERMS -->\n([\s\S]*?)<!-- HFL-GLOSSARY-TERMS>>> -->"
+
+def gloss_of(text):
+    m = re.search(GLOSS_RE, text)
+    if not m:
+        return None
+    out = {}
+    for l in m.group(1).splitlines():
+        l = l.strip()
+        if l.startswith("- ") and " — " in l:
+            term, gl = l[2:].split(" — ", 1)
+            out[term.strip()] = gl.strip()
+    return out
+
+def terms_of(text):
+    m = re.search(TERMS_RE, text)
+    return None if not m else [l.strip()[2:].strip() for l in m.group(1).splitlines() if l.strip().startswith("- ")]
+
+g = gloss_of(law)
+assert g is not None, "KHONG rut duoc SIGNOFF-JARGON-GLOSS"
+assert len(g) >= 3, "chi rut duoc %d tu — parser hong hoac khoi rong" % len(g)
+MUST = ["known-limits", "dogfood", "single-source"]
+missing = [x for x in MUST if x not in g]
+assert not missing, "khoi gloss thieu tu bat buoc: %s" % missing
+for term, gl in g.items():
+    assert 3 <= len(gl.split()) <= 14, "chu giai cua '%s' dai/ngan bat thuong: %r" % (term, gl)
+
+terms = terms_of(law)
+assert terms, "KHONG rut duoc HFL-GLOSSARY-TERMS"
+def check_subset(gl, tl):
+    return ["gloss term ngoai HFL-GLOSSARY-TERMS: %s" % x for x in gl if x not in tl]
+assert check_subset(g, terms) == [], check_subset(g, terms)
+
+def check_ctx(glossary_text, gl):
+    return ["tu '%s' chua co muc trong tu dien" % x for x in gl
+            if not re.search(r"^\*\*%s\*\*:" % re.escape(x), glossary_text, re.M | re.I)]
+assert check_ctx(ctx, g) == [], check_ctx(ctx, g)
+
+mut_law = law.replace("<!-- SIGNOFF-JARGON-GLOSS>>> -->",
+                      "- zzz-khong-co-that — tu bia de thu rang cua phep do\n<!-- SIGNOFF-JARGON-GLOSS>>> -->", 1)
+mg = gloss_of(mut_law)
+assert mg is not None and "zzz-khong-co-that" in mg, "tiem that bai — mutant khong vao duoc khoi"
+assert check_subset(mg, terms_of(mut_law)) == ["gloss term ngoai HFL-GLOSSARY-TERMS: zzz-khong-co-that"], \
+    "tiem term la vao gloss ma phep kiem subset khong bao — rang tu-gac"
+
+first = MUST[0]
+mut_ctx = re.sub(r"^\*\*%s\*\*:.*?(?=^\*\*|\Z)" % re.escape(first), "", ctx, count=1, flags=re.M | re.S | re.I)
+assert check_ctx(mut_ctx, g) == ["tu '%s' chua co muc trong tu dien" % first], \
+    "go muc CONTEXT.md that ma phep kiem khong bao thieu"
+P155PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

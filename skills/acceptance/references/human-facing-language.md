@@ -130,7 +130,25 @@ luật N6 nó vừa đặt ra.
 - lỗ-kit
 - mặt phẳng
 - nhìn-thấy-hình
+- known-limits
+- dogfood
+- single-source
 <!-- HFL-GLOSSARY-TERMS>>> -->
+
+## Biệt ngữ trong lời ký — chú giải thay vì viết lại
+
+Lời người ký là nguyên văn, luật N4 CẤM viết lại nó. Nhưng lời ký hay mang
+biệt ngữ nội bộ mà người quyết kinh doanh không có nghĩa vụ biết. Đường ra:
+**chú giải**. Mỗi từ dưới đây, khi xuất hiện trong thứ trình cho người, được
+kèm một dòng nghĩa ở khối "Từ điển" cuối trang — lời người giữ nguyên, người
+đọc vẫn hiểu. Từ nào vào khối này PHẢI có trong `HFL-GLOSSARY-TERMS` ở trên
+(và do đó có mục trong `CONTEXT.md`) — phép đo P155 canh quan hệ đó.
+
+<!-- <<<SIGNOFF-JARGON-GLOSS -->
+- known-limits — giới hạn đã biết, người ký chấp nhận trước khi phát hành
+- dogfood — chính đội tự dùng sản phẩm mình làm để thử
+- single-source — một chỗ duy nhất giữ sự thật, nơi khác đọc lại
+<!-- SIGNOFF-JARGON-GLOSS>>> -->
 
 ## Vi phạm tại cổng — người duyệt có quyền TRẢ LẠI
 

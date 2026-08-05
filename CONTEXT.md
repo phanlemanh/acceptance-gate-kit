@@ -238,6 +238,24 @@ contract `premerge-rules-ledger` (AC-2/AC-7d) nên đổi nó là một lần s�
 contract, không phải một lần sửa chữ.
 _Avoid_: "ledger" trần trong văn bản mới.
 
+**known-limits**:
+Giới hạn đã biết của một vòng: khiếm khuyết người ký ĐỌC và CHẤP NHẬN tại Cổng
+2 trước khi phát hành, ghi thành bullet trong `## Notes` của contract. Khác
+"bug chưa biết" (chưa ai thấy) và khác "nợ kỹ thuật" (không qua cổng người).
+_Avoid_: "hạn chế" trơ (không nói ai đã chấp nhận).
+
+**dogfood**:
+Chính đội làm ra bộ công cụ đem nó áp lên công việc của mình — kit tự chạy cổng
+của chính kit. Giá trị: lỗi lộ ra ở lần dùng thật đầu tiên thay vì ở repo tiêu
+thụ. Khác "test" (dựng tình huống) — dogfood là việc thật.
+_Avoid_: "ăn thức ăn cho chó" (dịch thô), "self-test".
+
+**single-source**:
+Một chỗ duy nhất giữ sự thật của một luật/khuôn/số; mọi nơi khác ĐỌC LẠI chứ
+không chép. Chép là mở đường cho bên-viết và bên-đọc trôi khỏi nhau — lớp lỗi
+đã đốt nhiều vòng. Hiện thân trong kit: khối marker + phép đo round-trip.
+_Avoid_: "nguồn duy nhất" trơ khi đang nói về CHÉP vs ĐỌC LẠI.
+
 ## Rejected framings
 
 - **"Gate" cho máy móc** — hook/CI từng được gọi "evidence gate"/"merge gate";
