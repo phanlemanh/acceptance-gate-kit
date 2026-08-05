@@ -48,7 +48,7 @@ export function collectGold(root) {
           const e = JSON.parse(line);
           if (e && e.kind === 'panel' && Array.isArray(e.votes) && e.votes.length) {
             found = true;
-            panels.push({ slug, evalId: e.evalId, proposal: e.proposal, votes: e.votes, carried: !!e.carried_from_round });
+            panels.push({ slug, evalId: e.evalId, proposal: e.proposal, votes: e.votes, carried: ('carried_from_round' in e) });
           }
         } catch (_) { /* dòng hỏng bỏ qua */ }
       }
@@ -79,17 +79,69 @@ export function agreement(panels) {
   return { sample: fresh.length, buckets, lensUncertain, lensTotal };
 }
 
-export function render({ points, panels, noPanel, judgedBlocks }) {
+// Tiếng người cho bảng (sửa theo required_evidence của panel J13, S4-r1):
+// - "Việc" = câu mô tả sản phẩm rút từ frontmatter `feature:` của contract
+//   (phần trước dấu gạch dài), slug máy lùi vào ngoặc (luật N1/N2).
+// - "Hạng mục" = mã + 3-8 chữ chú giải rút từ câu hỏi/expected của eval (N3).
+// - Lời người quyết trích gọn 1 câu — nguyên văn đầy đủ nằm trong evidence
+//   report của việc đó, không viết lại lời người (N4).
+function featureOf(root, slug) {
+  try {
+    const t = fs.readFileSync(path.join(root, '_acceptance', slug, 'contract.md'), 'utf8');
+    const m = t.match(/^feature:\s*"?([^"\n]+)/m);
+    if (m) {
+      // mô tả contract mở đầu bằng chính slug — phần NGƯỜI đọc là sau gạch dài
+      const parts = m[1].split(' — ');
+      const desc = (parts.length > 1 ? parts.slice(1).join(' — ') : parts[0]).trim();
+      return desc.length > 72 ? desc.slice(0, 72).replace(/\s+\S*$/, '') + '…' : desc;
+    }
+  } catch (_) {}
+  return null;
+}
+function glossOf(root, slug, evalId) {
+  try {
+    const y = fs.readFileSync(path.join(root, '_acceptance', slug, 'evals.yaml'), 'utf8');
+    const b = y.split(/\n(?=  - id: )/).find(x => x.trim().startsWith(`- id: ${evalId}`));
+    if (b) {
+      const q = b.match(/question: >\n\s+([^\n]+)/) || b.match(/expected: "([^"\n]{10,})/);
+      if (q) return q[1].trim().slice(0, 60).replace(/\s+\S*$/, '') + '…';
+    }
+  } catch (_) {}
+  return '';
+}
+const LENS_VI = {
+  'domain-correctness': 'đúng nghiệp vụ (domain-correctness)',
+  'operational-feasibility': 'vận hành được (operational-feasibility)',
+  'spec-alignment': 'khớp đặc tả (spec-alignment)',
+};
+const firstSentence = (t) => {
+  // giữ tên+ngày VÀ câu đầu của lý do (cắt kiểu cũ làm rụng mất "vì sao")
+  const dash = t.indexOf(' — ');
+  if (dash < 0) return t.length > 140 ? t.slice(0, 140).replace(/\s+\S*$/, '') + '…' : t;
+  const name = t.slice(0, dash);
+  const reason = t.slice(dash + 3);
+  const sent = (reason.split(/(?<=\.)\s/)[0] || reason);
+  const shown = `${name} — ${sent}`;
+  return shown.length > 180 ? shown.slice(0, 180).replace(/\s+\S*$/, '') + '…' : shown;
+};
+
+export function render({ points, panels, noPanel, judgedBlocks, root }) {
   const out = [];
   out.push('## Sổ vàng — người đã quyết gì trên đề xuất của máy');
   out.push('');
   if (!points.length) out.push('Chưa có điểm nào — chưa lần nào người ký đè/chuẩn y một phán quyết máy tại Cổng 2.');
   else {
-    out.push(`${points.length} lần người quyết trên đề xuất của máy (rút từ chữ ký Cổng 2 đã có, không bịa):`);
+    out.push(`${points.length} lần người quyết trên đề xuất của máy (rút từ chữ ký Cổng 2 đã có, không bịa; nguyên văn đầy đủ nằm trong hồ sơ từng việc):`);
     out.push('');
-    out.push('| Việc | Hạng mục | Máy đề xuất | Người quyết (và vì sao) |');
+    out.push('| Việc | Hạng mục được chấm | Máy đề xuất | Người quyết (trích 1 câu) |');
     out.push('|---|---|---|---|');
-    for (const p of points) out.push(`| ${p.slug} | ${p.evalId} | ${p.machine} | ${p.human.replace(/\|/g, '·')} |`);
+    for (const p of points) {
+      const feat = featureOf(root, p.slug);
+      const viec = feat ? `${feat} (${p.slug})` : p.slug;
+      const gloss = glossOf(root, p.slug, p.evalId);
+      const hm = gloss ? `${p.evalId} — ${gloss}` : p.evalId;
+      out.push(`| ${viec.replace(/\|/g, '·')} | ${hm.replace(/\|/g, '·')} | ${p.machine} | ${firstSentence(p.human).replace(/\|/g, '·')} |`);
+    }
   }
   out.push('');
   const g = agreement(panels);
@@ -98,10 +150,10 @@ export function render({ points, panels, noPanel, judgedBlocks }) {
   if (!g.sample) out.push('Chưa có hội đồng chấm nào được ghi lại — các việc cũ chấm trước khi máy bắt đầu ghi biên bản hội đồng.');
   else {
     out.push(`${g.sample} lần hội đồng chấm tươi: ${g.buckets.unanimous} lần cả ba cùng ý · ${g.buckets.majority} lần 2-trên-1 · ${g.buckets.split} lần phân kỳ hẳn.`);
-    const rates = Object.keys(g.lensTotal).map(l => `${l}: ${g.lensUncertain[l] || 0}/${g.lensTotal[l]} lần nói "chưa chắc/chưa đạt"`);
+    const rates = Object.keys(g.lensTotal).map(l => `${LENS_VI[l] || l}: ${g.lensUncertain[l] || 0}/${g.lensTotal[l]} lần nói "chưa chắc/chưa đạt"`);
     if (rates.length) out.push(`Theo góc nhìn: ${rates.join(' · ')}.`);
   }
-  if (noPanel.length) out.push(`(${noPanel.length} việc chưa có biên bản hội đồng — chấm trước khi có ghi chép: ${noPanel.join(', ')})`);
+  if (noPanel.length) out.push(`(${noPanel.length} việc chưa có biên bản hội đồng — chấm trước khi máy bắt đầu ghi chép: ${noPanel.join(', ')})`);
   return out.join('\n');
 }
 
@@ -114,5 +166,5 @@ if (isMain) {
   const root = ri >= 0 ? path.resolve(process.argv[ri + 1] || '.') : process.cwd();
   const data = collectGold(root);
   if (process.argv.includes('--json')) process.stdout.write(JSON.stringify({ ...data, agreement: agreement(data.panels) }, null, 2) + '\n');
-  else process.stdout.write(render(data) + '\n');
+  else process.stdout.write(render({ ...data, root }) + '\n');
 }
