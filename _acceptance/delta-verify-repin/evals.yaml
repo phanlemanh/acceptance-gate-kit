@@ -1,0 +1,172 @@
+# evals — delta-verify-repin
+# Test pre-merge/recheck sống ở tests/scripts/ (khuôn RL-case sẵn có, fixture
+# repo code-sinh); carry round-fix sống ở tests/workflows/ (harness vm-realm
+# của acceptance-verify). Luật kit: âm tính có đối chứng dương + ghim thông
+# điệp nguyên văn; mutant đảo nghĩa đủ số phần tử của lớp.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "nghi thức SKILL mô tả đúng khuôn: 1 lane → dòng kind:repin {run_id, sha, suites_exit} append vào run-log TỪNG slug, section Re-pin cite run_id nguyên văn, verified_commit == sha; assert đủ các mệnh đề + đối chứng đột biến xoá mệnh đề → assert đỏ với thông điệp đích danh"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/skills/feature-loop/SKILL.md", "skills/acceptance/SKILL.md", "tests/workflows/**"]
+    notes: >
+      Case DV1 (vật được giao là nghi thức trong SKILL text — khuôn
+      skill-claims.test.mjs): đủ mệnh đề, mutation counter từng mệnh đề.
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    expected: "fixture repo code-sinh, 5 nhánh: (1) evidence cite run_id mà run-log không có dòng khớp → VIOLATION; (2) sha != verified_commit → VIOLATION; (3) suites_exit có phần tử != 0 → VIOLATION đích danh (lane đỏ vẫn ký bị MÁY chặn); (4) run-log VẮNG file khi evidence cite run_id → VIOLATION (không skip âm thầm); (5) khớp đủ + suites toàn 0 → clean (đối chứng dương). Mỗi nhánh ghim thông điệp nguyên văn, chạy trên CẢ pre-merge lẫn recheck strict"
+    cmd: config:executors.test.scripts
+    paths: ["scripts/pre-merge-check.sh", "scripts/recheck-evidence.js", "tests/scripts/**"]
+    notes: >
+      Case DV2: 5 nhánh × 2 lưới (pre-merge + recheck strict) — gồm nhánh
+      suites_exit đỏ (fix gap-probe P0) và run-log vắng file (fix P2-1).
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    expected: "fixture gian lận: mượn run_id lane cũ ký slug khi HEAD đã có commit code mới → luật stale HIỆN HÀNH bắn (thông điệp stale sẵn có); fixture sạch cùng harness → clean — chứng minh tầng 2 không cần luật mới"
+    cmd: config:executors.test.scripts
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/**"]
+    notes: >
+      Case DV3: đối chứng dương + fraud; commit code xen giữa do fixture
+      code-sinh tạo bằng git thật.
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    expected: "chạy pre-merge + recheck trên CHÍNH repo hiện tại (141 section cũ, không cite run_id khuôn mới) → clean y như trước thay đổi; đột biến thêm luật retro-enforce vào bản sao → repo hiện tại phải ĐỎ, chứng minh phép đo phân biệt được grandfather"
+    cmd: config:executors.test.scripts
+    paths: ["scripts/pre-merge-check.sh", "scripts/recheck-evidence.js", "tests/scripts/**"]
+    notes: >
+      Case DV4: grandfather đo trên corpus thật + mutant đảo nghĩa.
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    expected: "diff 2 file cưỡng chế: mọi hunk chỉ THÊM. Ba răng chống 0-hit-giả (fix gap-probe P1-2): (a) base suy từ git merge-base với nhánh chính lúc chạy, KHÔNG hardcode sha; (b) sanity counter: số dòng luật cũ nhận diện được phải > 0 — 0 nghĩa là phép nhận diện hỏng, test ĐỎ; (c) đối chứng đột biến: bản sao sửa 1 luật cũ → test ĐỎ với thông điệp đích danh. Ngoại lệ '-' (đếm expected) liệt kê đích danh"
+    cmd: config:executors.test.scripts
+    paths: ["scripts/pre-merge-check.sh", "scripts/recheck-evidence.js", "tests/scripts/**"]
+    notes: >
+      Case DV5 — ngưỡng chết O1 thành phép đo máy. Ngoại lệ (vd đếm
+      expected=3→4) phải liệt kê đích danh trong test, không wildcard.
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    expected: "harness acceptance-verify: args có invokedSha → mọi dòng run-log eval mang sha đúng; args vắng → dòng không field sha, không crash (đối chứng dương cả hai chiều)"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Case DV6 trong acceptance-verify.test.mjs (harness vm-realm sẵn có).
+
+  - id: E7
+    criterion: AC-7
+    executor: test
+    expected: "kịch bản fix-round: eval paths không chạm diff-fix + round trước exit 0 → vào carriedEvals giữ run_id gốc + carried_from_round; eval chạm diff → chạy lại; eval round trước đỏ → chạy lại; eval thiếu paths → chạy lại; suite luôn chạy lại — mỗi nhánh một assert, đủ 5 phần tử của lớp"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "feature-loop/skills/feature-loop/SKILL.md", "tests/workflows/**"]
+    notes: >
+      Case DV7: ma trận 5 nhánh (khuôn P105 — số assert = số phần tử,
+      không tuyên khống quét lớp).
+
+  - id: E8
+    criterion: AC-8
+    executor: test
+    expected: "dòng run-log round trước KHÔNG có sha → 0 eval nào được carry (full re-run); đối chứng dương: cùng kịch bản có sha → carry — hai fixture chỉ khác đúng field sha"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Case DV8: mặc định an toàn cho lịch sử cũ.
+
+  - id: E9
+    criterion: AC-9
+    executor: test
+    expected: "cặp (cross-layer): một thành viên chạm diff-fix → CẢ CẶP chạy lại dù thành viên kia đủ điều kiện carry; đối chứng dương: cả cặp không chạm → cả cặp carry"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Case DV9: atomic-pair giữ nguyên trong fix-round.
+
+  - id: E10
+    criterion: AC-10
+    executor: test
+    expected: "SKILL có mệnh đề bắt buộc ghi rõ danh sách carried của round fix vào báo cáo user + gói Gate 2; đột biến xoá mệnh đề → assert đỏ"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/skills/feature-loop/SKILL.md", "tests/workflows/**"]
+    notes: >
+      Case DV10: minh bạch carry (mở rộng luật Đợt 5).
+
+  - id: E11
+    criterion: AC-11
+    executor: test
+    expected: "4 suite hiện hành xanh; hook L2: fixture run-log có dòng kind:repin xen giữa dòng eval → đối chiếu run_id của eval KHÔNG nhận nhầm dòng repin (khuôn kind phân biệt); đối chứng dương: dòng eval thật vẫn khớp"
+    cmd: config:executors.test.hooks
+    paths: ["hooks/**", "tests/hooks/**"]
+    notes: >
+      Case DV11 trong suite hooks — dòng kind mới không gây nhận nhầm.
+
+  - id: E12
+    criterion: AC-12
+    executor: judgment
+    runs: 3
+    inputs:
+      - ../../scripts/pre-merge-check.sh
+      - ../../scripts/recheck-evidence.js
+      - ../../docs/superpowers/specs/2026-08-05-delta-verify-repin-design.md
+    question: >
+      Soi diff cơ chế cưỡng chế: có đường gian lận MỚI nào không — 1 run_id
+      cho N chữ ký khi code đã đổi giữa chừng, kể cả thứ tự lắt léo (re-pin
+      một phần các slug, commit code xen giữa hai chữ ký, sửa tay run-log,
+      lane fail nhưng vẫn ký)? Hai tầng chặn (khớp run_id+sha; luật stale
+      hiện hành) có phủ hết các hoán vị đó không?
+
+  - id: E13
+    criterion: AC-13
+    executor: judgment
+    runs: 3
+    inputs:
+      - ../../feature-loop/skills/feature-loop/SKILL.md
+      - ../../docs/superpowers/specs/2026-08-05-delta-verify-repin-design.md
+    question: >
+      Nghi thức re-pin mới trong SKILL: một phiên KHÔNG có ngữ cảnh hội thoại
+      này đọc có làm đúng được không — đủ bước (dispatch 1 lane, append dòng
+      repin từng slug, cite run_id, verified_commit=sha), đủ thông điệp lỗi,
+      và có đường lùi khi lane fail (không re-pin, không ký mù)?
+
+  - id: E14
+    criterion: AC-11
+    executor: script
+    expected: "sync --check exit 0 sau bump + mirror — thuần đóng gói, KHÔNG tô xanh AC-14 (bằng chứng dogfood thu tại Cổng 2, xem E16)"
+    cmd: config:executors.script.mirror_sync
+    paths: ["feature-loop/**", "scripts/**", "plugins/**", "codex/**"]
+    notes: >
+      Fix gap-probe P2-2: eval sync tách khỏi AC-14 — treo về AC-11 (hồi
+      quy/đóng gói); AC-14 nhận E16 judgment, người đo tại Cổng 2.
+
+  - id: E15
+    criterion: AC-16
+    executor: test
+    expected: "fixture dòng repin + section Re-pin RÚT TỪ khuôn giữa marker REPIN-TEMPLATE trong SKILL (không chép tay) → parse bằng CHÍNH recheck: clean; đột biến 1 field của khuôn (vd suites_exit → suites) → đỏ với thông điệp đích danh; đối chứng dương cùng harness"
+    cmd: config:executors.test.scripts
+    paths: ["feature-loop/skills/feature-loop/SKILL.md", "scripts/recheck-evidence.js", "tests/scripts/**"]
+    notes: >
+      Case DV12 — round-trip writer↔reader (fix gap-probe P1-1, cite
+      [context-ladder#F1]; khuôn P55/OOC-ITEM-TEMPLATE). Chính design từng
+      wobble suites/suites_exit — đây là răng chặn lớp đó.
+
+  - id: E16
+    criterion: AC-14
+    executor: judgment
+    runs: 1
+    inputs:
+      - contract.md
+      - ../../docs/superpowers/specs/2026-08-05-delta-verify-repin-design.md
+    question: >
+      Sự kiện re-pin dogfood đã xảy ra chưa? Nếu chưa (bình thường tại S4):
+      trả UNCERTAIN và xác nhận gói Cổng 2 có khai rõ cách người đếm bằng
+      chứng (N dòng kind:repin cùng run_id + 1 agent-lane trong usage-report)
+      — TUYỆT ĐỐI không tô xanh AC-14 trước khi sự kiện xảy ra.
