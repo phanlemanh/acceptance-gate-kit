@@ -81,3 +81,23 @@ Từ morphological-scan (4 trục — thước CE trong ngoặc):
 - Gold-set + judge required_evidence — vòng 3 chương trình.
 - Sửa các phép đo cũ đang vi phạm 6 hình dạng — luật chỉ áp lên diff mới.
 - Ngưỡng blocking mới ở pre-merge/hook (không chạm đường bằng chứng).
+
+## Notes
+
+Known limits — chấp nhận tại Cổng 2, Manh Phan 2026-08-05:
+
+- M9 (judgment) override known-limits: schema evals.yaml chưa có ô khai bắt
+  buộc về xuất-xứ fixture nên 2/7 câu đối chiếu chỉ trả lời được khi expected
+  tự khai — ứng viên backlog: "ô khai xuất-xứ fixture trong schema evals"
+  (đổi schema → đường đọc-cũ + contract riêng). Trọng tài O2 = 3 feature kế.
+- MM12m chưa đo quan hệ writer→fixture bằng mutation thật (generator hardcode
+  vẫn xanh); khối A/B trong generator là văn tĩnh — MM12 (file==generator)
+  vẫn giữ vết sửa tay. Revisit cùng đợt với ô-khai-xuất-xứ-fixture.
+- Chiều prompt của phép đo ba-chiều chưa có mutant chứng minh biết đỏ;
+  prompt rỗng làm phép đo degrade im lặng thành hai-chiều. Cùng đợt trên.
+- 14 regex câu đối chiếu sống ở 2 file test (drift sẽ đỏ to — fail-loud,
+  không xanh giả).
+- Phép đếm REVIEWERS dùng regex hình-dạng-dòng (không phải parse mảng thật)
+  — mutant thêm-phần-tử đã có, đủ giữ lời hứa không-nới ở mức hiện tại.
+- Hợp đồng lớn thêm sau seal theo cách THÊM-không-bớt (4→7 câu, 14→20
+  mutant, fixture→code-sinh) — từng bước có ledger, phê chuẩn tại Cổng 2.
