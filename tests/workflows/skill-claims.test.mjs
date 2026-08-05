@@ -57,5 +57,35 @@ for (const [re, name] of REPIN_CLAUSES) check(`DV1m mutant xoá mệnh đề →
   const mutated = SKILL.replace(hit[0], '');
   assert.ok(!re.test(mutated), 'detector không phân biệt được bản bị xoá');
 });
+// MM1/MM2 (matrix-measure-law): 4 câu đối chiếu lớp-đo-lường trong ý (4) của
+// prompt gap-probe — cả hai harness, mutant per-clause (khuôn DV1).
+const CODEX_SKILL = readFileSync(path.join(HERE, '..', '..', 'codex', 'feature-loop-codex', 'skills', 'feature-loop-codex', 'SKILL.md'), 'utf8');
+const MEASURE_CLAUSES_VI = [
+  [/mỗi eval tuyên quét LỚP có ma trận toàn phần viết-trước không \(số assert = số phần tử\)/, 'MM1a: ma trận viết-trước'],
+  [/assertion âm tính nào thiếu đối chứng dương hoặc không ghim thông điệp/, 'MM1b: âm tính + đối chứng + thông điệp'],
+  [/fixture nào viết tay đúng khuôn bên đọc thay vì code-sinh\/round-trip/, 'MM1c: fixture code-sinh/round-trip'],
+  [/assert nào đo chuỗi-có-mặt trong khi lời hứa là quan hệ/, 'MM1d: từ-vựng vs quan hệ'],
+];
+const MEASURE_CLAUSES_EN = [
+  [/every[\s\S]{0,20}eval that claims to sweep a CLASS[\s\S]{0,60}full matrix written in advance[\s\S]{0,20}\(assert count = element count\)/i, 'MM2a: full matrix'],
+  [/negative assertion lacks a positive[\s\S]{0,10}control or a pinned message/i, 'MM2b: positive control + pinned message'],
+  [/fixture is hand-written to the reader'?s[\s\S]{0,10}shape instead of code-generated\/round-trip/i, 'MM2c: code-generated/round-trip'],
+  [/measures[\s\S]{0,10}string-presence while the promise is a relationship/i, 'MM2d: vocabulary vs relationship'],
+];
+for (const [re, name] of MEASURE_CLAUSES_VI) check(`MM1 SKILL có câu: ${name}`, () => assert.match(SKILL, re));
+check('MM1e câu đếm "đủ 7 ý" GIỮ NGUYÊN (mở rộng trong ý 4, không thêm ý)', () => {
+  assert.match(SKILL, /Prompt giữ đủ 7 ý/);
+  assert.doesNotMatch(SKILL, /Prompt giữ đủ 8 ý/);
+});
+for (const [re, name] of MEASURE_CLAUSES_EN) check(`MM2 codex SKILL có câu: ${name}`, () => assert.match(CODEX_SKILL, re));
+for (const [re, name] of MEASURE_CLAUSES_VI) check(`MM1m mutant xoá → đỏ: ${name}`, () => {
+  const hit = SKILL.match(re); assert.ok(hit, 'câu không tồn tại để mutate');
+  assert.ok(!re.test(SKILL.replace(hit[0], '')), 'detector không phân biệt bản bị xoá');
+});
+for (const [re, name] of MEASURE_CLAUSES_EN) check(`MM2m mutant xoá → đỏ: ${name}`, () => {
+  const hit = CODEX_SKILL.match(re); assert.ok(hit, 'câu không tồn tại để mutate');
+  assert.ok(!re.test(CODEX_SKILL.replace(hit[0], '')), 'detector không phân biệt bản bị xoá');
+});
+
 console.log(`\nResults: ${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

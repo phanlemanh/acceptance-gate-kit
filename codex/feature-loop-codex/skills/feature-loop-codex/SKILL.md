@@ -301,7 +301,12 @@ section (even if it is a single skip line):
    `(cross-layer)` tag or carry UI-layer evals only (ui-check/judgment), and
    platform-fit: does the artifact set follow the consuming repo's existing
    UI/plugin standards, and which repo skill or rule SHOULD have been loaded
-   but was not; (5) at most 5 findings; verdict `clean` is a VALID outcome;
+   but was not, and the MEASUREMENT class (matrix-measure-law): does every
+   eval that claims to sweep a CLASS carry a full matrix written in advance
+   (assert count = element count) · which negative assertion lacks a positive
+   control or a pinned message · which fixture is hand-written to the reader's
+   shape instead of code-generated/round-trip · which assert measures
+   string-presence while the promise is a relationship; (5) at most 5 findings; verdict `clean` is a VALID outcome;
    (6) never relitigate sealed/descoped ledger decisions without a NEW reason.
    Write `_acceptance/<slug>/gap-probe.md` — frontmatter `slug / at (ISO UTC) /
    verdict: clean|findings|probe-failed / p0 / p1 / p2` plus a `## Findings`
