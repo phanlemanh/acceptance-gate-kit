@@ -1,0 +1,158 @@
+schema_version: 1
+feature_slug: workspace-reader-unification
+
+# Luat chung cho MOI case duoi day (CLAUDE.md — assertion am-tinh-mot-minh la
+# assertion khong song): moi ca ket luan tu "phai bao do" PHAI di kem doi chung
+# duong trong CUNG mot case — ban nguyen ven XANH truoc, roi ban bi tiem moi
+# duoc tin la DO — va phai ghim DUNG THONG DIEP mong doi, khong chi ma thoat.
+# Fixture do CODE SINH trong chinh lan chay; duong dan suy tu vi tri script.
+#
+# `expected` co Y viet MOT DONG (chuoi trich dan), khong dung block scalar `>-`:
+# eval-coverage-lint.js doc file nay bang parser theo dong, gap `>-` la lay
+# duoc dung hai ky tu do — moi chu con lai tang hinh, va W1/W3/W4 im lang
+# thanh xanh gia. Xem co do o Cong 1.
+
+evals:
+  # ── AC-1: luat doc mot cho ─────────────────────────────────────────────────
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0; case P143 xanh — tich Descartes TAP FILE (rut tu bang luat trong lib, khong chep tay) x 4 hinh dang hong (fm khong doc duoc / thieu field ket luan / gia tri ngoai enum / khai da xong ma thieu han file) x trang thai contract; moi to hop bo quet va ban do cung goi hong-hay-lanh VA cung neu ten file; case ASSERT so to hop duyet == tich so da khai va IN DANH SACH id tung to hop — nho hon ky vong la DO kem ten to hop vang, chi log tong ma khong assert cung la DO"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0; doi chung duong cua E1 — voi MOI file trong bang luat, ban LANH MANH (fm doc duoc, field ket luan trong enum, file ton tai) KHONG duoc ben nao goi la hong va slug KHONG duoc bien mat khoi ca hai ben; so ho so lanh da duyet bang 0 la DO"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0; case dot bien mot-cho — pha luat evidence-report trong BAN SAO cua lib/workspace-record.js thi CA HAI ben doc phai doi ket luan; ben nao KHONG doi la ben do con giu ban sao luat rieng, thong diep phai neu ten ben do"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  # ── AC-2: verdict hai enum ─────────────────────────────────────────────────
+  - id: E4
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0; gan nham enum cheo phai DO — verdict release trong evidence-report.md va verdict PASS trong uat-session.md deu bi goi la hong, thong diep neu dung ten file va enum hop le cua chinh no"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0; doi chung duong cua E4 — moi gia tri hop le cua tung enum (PASS/REJECT/BLOCKED/PENDING-JUDGMENT cho evidence-report; release/iterate/kill cho uat-session) phai LANH; danh sach enum RUT tu bang luat trong lib, khong chep tay, nen them enum ma quen them ca thi case DO"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  # ── AC-3: trang thai ban do mot cho ────────────────────────────────────────
+  - id: E6
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0; PRODUCT-MAP.md da commit roi xoa khoi cay lam viec — bo quet vao phien VA product-map --check cung goi la DA XOA, dung mot chu, KHONG ben nao duoc noi chua dung"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0; nua CHAN cua E6 — repo chua bao gio commit ban do thi KHONG ben nao duoc goi la DA XOA, phai la chua dung, va --check KHONG duoc do vi ly do xoa; hai nhan phai KHAC nhau tren cung mot cay"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0; hinh dang key-line-comment duoc them vao bo HINH cua P130 (nhan nhan tu Cong 2 vong truoc) — dong khoa co comment duoi phai duoc ban JS va ban bash doc CUNG ket luan; ban JS tra rong la DO"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  # ── AC-4: khuon chep duoc (round-trip writer→reader) ───────────────────────
+  - id: E9
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0; round-trip — case RUT khuon uat-session tu mot cho co marker VA RUT thu tuc chep tu khoi co marker trong than skill, thi hanh dung so buoc trong khoi, roi dua ket qua cho reader chuan; ket qua phai la ho so LANH MANH; khoi thu tuc rong hoac so buoc thi hanh khac so buoc trong khoi la DO; fixture KHONG duoc viet tay"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E10
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0; doi chung am cua E9 — khuon chep NGUYEN XI (con marker va khoi fence, chua bo theo chi dan) phai bi reader goi la HONG; hai nua cung xanh moi chung minh phep do phan biet duoc chep-dung voi chep-nguyen"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  # ── AC-5: --check khong xanh gia ───────────────────────────────────────────
+  - id: E11
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0; --root tro thu muc KHONG TON TAI thi --check exit khac 0 va thong diep noi ro duong dan sai; --root tro thu muc ton tai nhung chua init thi exit khac 0 va thong diep noi ro chua init; hai thong diep trung nhau la DO"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E12
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.product_map
+    expected: "exit 0 tren chinh repo nay — doi chung duong cua E11: --check phai XANH o mot cay da init va ban do khop ho so; KHONG co ca nay thi hai ca do cua E11 khong phan biet duoc bat-dung-loi voi chua-bao-gio-chay"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  # ── AC-6: tu vung ──────────────────────────────────────────────────────────
+  - id: E13
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0; do QUAN HE chu KHONG do su hien dien chuoi — tap bon cong nguoi RUT TU CODE (bang luat trong lib va nhan bo quet phat ra) phai bang dung tap cong liet o muc Gate cua CONTEXT.md; muc Artifacts phai co uat-session.md va PRODUCT-MAP.md; phai co canh bao verdict mang hai nghia theo file; them cong trong code ma quen glossary la DO"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  # ── Nua CHAN cua ranh gioi "Out of scope" ──────────────────────────────────
+  # Muc 2 (ADR cho viec de mo model-invocation) la quyet dinh chinh sach viet
+  # bang van xuoi — khong co mat may nao de do; xac nhan la KHONG quan sat duoc
+  # bang may, nguoi doc o Cong 1.
+  - id: E14
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0; ranh gioi muc 1 (ban Codex chua lam) — harness Codex KHONG duoc khai hay dan toi nghi thuc phien nghiem thu; nua voi im lang la ca hong that vi nguoi dung Codex duoc hua mot nghi thuc khong ton tai, nen co route hay mo ta tro toi no la DO"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E15
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0; ranh gioi muc 3 (quy tac since chua lam) — ho so o cho-Cong-Gia-tri KHONG co decided_at thi bo quet phai BO TRONG since, KHONG duoc bia mot moc thoi gian thay the; co gia tri since xuat hien la DO"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  # ── Ca sinh tu phan bien context sach (gap-probe.md) ───────────────────────
+  - id: E16
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0; dot bien them-file — them mot file vao bang luat trong BAN SAO cua lib ma khong them ca tuong ung thi E1 phai DO voi thong diep neu ten file thieu ca; E1 dung yen mau xanh nghia la tap file da bi chep tay chu KHONG rut tu bang luat, va do la DO"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E17
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0; case sinh CA HAI dang cay trong chinh lan chay — clone day du va checkout nong khong chua commit co PRODUCT-MAP.md — roi hoi ben doc hook/pre-merge va bo quet vao phien; nhan trang thai ban do phai GIONG nhau giua hai dang cay va giua hai ben doc"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E18
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0; nhan cua ca hai ben RUT tu cung mot bang nhan, khong ben nao hardcode chuoi rieng — doi mot nhan trong BAN SAO bang nhan thi CA HAI ben phai doi theo; ben nao dung yen la ben do con giu chuoi rieng va do la DO kem ten ben"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E19
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0; dot bien thu-tuc-chep — sua khoi thu tuc trong BAN SAO than skill thi ket qua E9 phai DOI theo; ket qua dung yen nghia la test da cai cung thu tuc thay vi rut tu khoi co marker, va do la DO"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

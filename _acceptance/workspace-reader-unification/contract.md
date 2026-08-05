@@ -3,9 +3,12 @@ schema_version: 1
 feature: Gom luật đọc hồ sơ xưởng về một chỗ — mọi bên đọc phải cho cùng một kết luận
 slug: workspace-reader-unification
 owner: phanlemanh@gmail.com
-risk_tier: T2
+risk_tier: T3
 surfaces: [cli]
-status: draft
+status: approved
+approved_by: Manh Phan
+approved_at: 2026-08-05
+time_human_minutes: {gate1: 10, gate2: 0}
 relates: product-map-uat-session
 ---
 
@@ -26,18 +29,22 @@ Known limits mục 1–2 của contract đó.
 
 ## Criteria
 
-- AC-1 (luật một chỗ): Given `_acceptance/<slug>/` có `evidence-report.md` ở các hình dạng hỏng (frontmatter không đọc được · thiếu `verdict` · `verdict` ngoài enum · `status: verified` mà thiếu hẳn file), When cả bản đồ sản phẩm lẫn bộ quét vào phiên đọc cùng workspace đó, Then hai bên cho CÙNG kết luận hỏng/không-hỏng và cùng nêu tên file — luật sống trong `lib/workspace-record.js`, không bên nào giữ bản sao riêng.
+- AC-1 (luật một chỗ): Given `_acceptance/<slug>/` có hồ sơ ở các hình dạng hỏng (frontmatter không đọc được · thiếu field kết luận · giá trị ngoài enum · trạng thái khai đã xong mà thiếu hẳn file) áp cho MỌI file trong bảng luật của `lib/workspace-record.js` — tập file RÚT từ chính bảng luật, không chép tay vào eval, When cả bản đồ sản phẩm lẫn bộ quét vào phiên đọc cùng workspace đó, Then hai bên cho CÙNG kết luận hỏng/không-hỏng và cùng nêu tên file — luật sống trong `lib/workspace-record.js`, không bên nào giữ bản sao riêng; thêm một file vào bảng luật mà không có ca tương ứng phải làm phép đo ĐỎ.
 - AC-2 (khoá `verdict` hai enum): Given `verdict` xuất hiện ở CẢ `evidence-report.md` (PASS/REJECT/BLOCKED/PENDING-JUDGMENT) lẫn `uat-session.md` (release/iterate/kill), When luật kiểm enum chạy, Then mỗi file được kiểm bằng enum CỦA NÓ — gán nhầm enum chéo phải làm phép đo ĐỎ.
-- AC-3 (trạng thái bản đồ một chỗ): Given `PRODUCT-MAP.md` bị xoá khỏi cây làm việc sau khi đã commit, When bộ quét vào phiên và `--check` cùng nhìn, Then cả hai gọi nó là ĐÃ XOÁ (không phải "chưa dựng"), và thẻ `/start` nói đúng điều CI đang nói.
-- AC-4 (khuôn chép được): Given người dùng chép `uat-session-template.md` theo đúng chỉ dẫn trong thân skill, When file kết quả được đưa cho reader chuẩn, Then nó là hồ sơ LÀNH MẠNH — khuôn phải tự dặn bỏ dấu marker và khối fence, như `contract-template.md` đã dặn. (Known limit 1 của vòng trước.)
+- AC-3 (trạng thái bản đồ một chỗ): Given `PRODUCT-MAP.md` bị xoá khỏi cây làm việc sau khi đã commit, When bộ quét vào phiên và `--check` cùng nhìn, Then cả hai gọi nó là ĐÃ XOÁ (không phải "chưa dựng"), và card `/start` nói đúng điều CI đang nói.
+- AC-4 (khuôn chép được): Given người dùng chép `uat-session-template.md` theo đúng chỉ dẫn trong thân skill, When file kết quả được đưa cho reader chuẩn, Then nó là hồ sơ LÀNH MẠNH — khuôn phải tự dặn bỏ dấu marker và khối fence, như `contract-template.md` đã dặn; và THỦ TỤC CHÉP phải sống trong một khối có marker để phép đo rút ra thi hành, không phải văn xuôi mà eval tự cài lại. (Known limit 1 của vòng trước.)
 - AC-5 (`--check` không xanh giả): Given `--root` trỏ vào thư mục không tồn tại hoặc không phải repo đã init, When chạy `--check`, Then KHÔNG exit 0 im lặng — mode kiểm phải phân biệt được "chưa init" với "đường dẫn sai". (Known limit 2 của vòng trước.)
 - AC-6 (từ vựng): Given `CONTEXT.md` là glossary authoring-time, When vòng này xong, Then nó có mục cho Cổng Giá trị (mục **Gate** liệt đủ bốn cổng người), cho `uat-session.md` và `PRODUCT-MAP.md` trong phần Artifacts, và cảnh báo `verdict` mang hai nghĩa theo file.
+- AC-7 (bên đọc hook/CI, cây nông): Given cùng một kho ở HAI dạng cây — clone đầy đủ, và checkout nông không chứa commit có `PRODUCT-MAP.md` — When bên đọc của hook/pre-merge và bộ quét vào phiên cùng nhìn, Then nhãn trạng thái bản đồ phải GIỐNG nhau giữa hai dạng cây VÀ giữa hai bên đọc, cả hai rút từ cùng một bảng nhãn — không bên nào hardcode chuỗi riêng. (Regression `daBat` ghi ở Notes round 16.)
+- AC-8 (biên out-of-scope không rò rỉ): Given ba mục Out of scope dưới đây chưa làm, When harness Codex và bộ quét vào phiên chạy, Then không mặt nào hứa hay dẫn tới thứ chưa ship — Codex không khai/dẫn tới nghi thức phiên nghiệm thu, và ô chờ Cổng Giá trị bỏ trống `since` thay vì bịa một mốc khi hồ sơ thiếu `decided_at`.
 
 ## Coverage
 
-- **Trục file** (contract · opportunity · uat-session · evidence-report · PRODUCT-MAP) — AC-1, AC-2, AC-3.
-- **Trục bên đọc** (bản đồ · bộ quét vào phiên · `--check` · hook/CI) — AC-1, AC-3, AC-5.
+- **Trục file** (contract · opportunity · uat-session · evidence-report · PRODUCT-MAP) — AC-1 (tập file rút từ bảng luật, phủ cả năm), AC-2, AC-3.
+- **Trục bên đọc** (bản đồ · bộ quét vào phiên · `--check` · hook/CI) — AC-1, AC-3, AC-5, AC-7.
+- **Trục dạng cây** (clone đầy đủ · checkout nông của CI) — AC-7.
 - **Trục người dùng** (chép khuôn tay · tra glossary) — AC-4, AC-6.
+- **Trục biên** (ba mục out-of-scope không rò rỉ ra mặt người dùng) — AC-8.
 - Thước CE: chín vòng S4 của `product-map-uat-session` đã liệt kê từng hình dạng hỏng kèm bước tái dựng — dùng chính danh sách đó làm fixture.
 
 ## Out of scope
