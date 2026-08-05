@@ -6178,6 +6178,107 @@ assert check_ctx(mut_ctx, g) == ["tu '%s' chua co muc trong tu dien" % first], \
     "go muc CONTEXT.md that ma phep kiem khong bao thieu"
 P155PY
 
+echo "P156 (E7,E8) so vang doc tu dien: ma tran 2 surface x 2 chieu + HFL vang no to"
+run "P156 khoi Tu dien round-trip + fallback" \
+  python3 - "$ROOT" <<'P156PY'
+import json, os, re, shutil, subprocess, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+GOLD = root / "scripts/acceptance-gold.mjs"
+law = (root / "skills/acceptance/references/human-facing-language.md").read_text(encoding="utf-8")
+
+# term + chu giai rut TU MARKER THAT (khong chep tay khuon ben doc)
+m = re.search(r"<!-- <<<SIGNOFF-JARGON-GLOSS -->\n([\s\S]*?)<!-- SIGNOFF-JARGON-GLOSS>>> -->", law)
+assert m, "khong rut duoc SIGNOFF-JARGON-GLOSS — fixture khong dung nguon that"
+gloss = {}
+for l in m.group(1).splitlines():
+    l = l.strip()
+    if l.startswith("- ") and " — " in l:
+        k, v = l[2:].split(" — ", 1)
+        gloss[k.strip()] = v.strip()
+assert len(gloss) >= 2, "can >=2 term de chay ma tran 2 surface"
+T_HUMAN, T_ITEM = sorted(gloss)[0], sorted(gloss)[1]
+
+def mkws(base, human_extra="", question_extra=""):
+    """Sinh workspace bang CODE (khong viet tay khuon ben doc)."""
+    ws = Path(base) / "_acceptance" / "vi-du-mot"
+    (ws / "evidence").mkdir(parents=True, exist_ok=True)
+    (ws / "contract.md").write_text(
+        "---\nschema_version: 2\nfeature: \"Việc ví dụ một — mô tả cho người\"\n"
+        "slug: vi-du-mot\nrisk_tier: T2\n---\n", encoding="utf-8")
+    (ws / "evals.yaml").write_text(
+        "evals:\n  - id: J9\n    executor: judgment\n    question: >\n      Câu hỏi chấm %s\n" % question_extra,
+        encoding="utf-8")
+    (ws / "evidence-report.md").write_text(
+        "## Per-eval\n\n- eval: J9\n  judged_by: panel\n  proposal: UNCERTAIN\n"
+        "  rationale: lý do máy nêu ngắn\n  human_override: Manh Phan 2026-08-05 — quyết giữ %s\n" % human_extra,
+        encoding="utf-8")
+    (ws / "run-log.jsonl").write_text("", encoding="utf-8")
+    return ws
+
+def run_gold(rootdir, script=None):
+    out = subprocess.run(["node", str(script or GOLD), "--root", str(rootdir)],
+                         capture_output=True, text=True)
+    assert out.returncode == 0, "gold exit %d: %s" % (out.returncode, out.stderr[-400:])
+    return out.stdout
+
+def dict_block(stdout):
+    """Rut cac term duoc chu giai o khoi Tu dien cua STDOUT."""
+    mm = re.search(r"## Từ điển[^\n]*\n([\s\S]*)$", stdout)
+    if not mm:
+        return {}
+    got = {}
+    for l in mm.group(1).splitlines():
+        l = l.strip()
+        if l.startswith("- ") and " — " in l:
+            k, v = l[2:].split(" — ", 1)
+            got[k.strip()] = v.strip()
+    return got
+
+# --- O1: term o LOI NGUOI -> Tu dien hien, chu giai DUNG tu marker ---
+with tempfile.TemporaryDirectory() as d:
+    mkws(d, human_extra="theo %s" % T_HUMAN)
+    got = dict_block(run_gold(d))
+    assert T_HUMAN in got, "term o loi nguoi khong vao Tu dien: %s (got=%s)" % (T_HUMAN, list(got))
+    assert got[T_HUMAN] == gloss[T_HUMAN], "chu giai lech marker: %r != %r" % (got[T_HUMAN], gloss[T_HUMAN])
+
+# --- O2: term CHI o HANG MUC (cau hoi eval) -> van hien ---
+with tempfile.TemporaryDirectory() as d:
+    mkws(d, human_extra="quyet giu nguyen", question_extra="ve %s cua khoi nay" % T_ITEM)
+    got = dict_block(run_gold(d))
+    assert T_ITEM in got, "term chi o hang muc khong vao Tu dien: %s (got=%s)" % (T_ITEM, list(got))
+
+# --- O3+O4: term KHONG xuat hien o surface nao -> KHONG in (2 chieu) ---
+with tempfile.TemporaryDirectory() as d:
+    mkws(d, human_extra="quyet giu nguyen", question_extra="ve mot thu khac han")
+    got = dict_block(run_gold(d))
+    for term in (T_HUMAN, T_ITEM):
+        assert term not in got, "term khong xuat hien ma van in trong Tu dien: %s" % term
+
+# --- AC-8: script o vi tri khong tra duoc HFL -> van in so + DUNG 1 dong ghi chu ---
+NOTE = "từ điển biệt ngữ không nạp được"
+with tempfile.TemporaryDirectory() as d:
+    ws_base = Path(d) / "corpus"
+    mkws(ws_base, human_extra="theo %s" % T_HUMAN)
+    lonely = Path(d) / "roi-ra" / "acceptance-gold.mjs"
+    lonely.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy(GOLD, lonely)
+    out_lonely = run_gold(ws_base, script=lonely)
+    assert "## Sổ vàng" in out_lonely and "Các giám khảo đồng thuận" in out_lonely, \
+        "HFL vang lam mat khoi chinh cua so — phai van in du"
+    assert out_lonely.count(NOTE) == 1, "HFL vang phai co DUNG 1 dong ghi chu (dem=%d)" % out_lonely.count(NOTE)
+    # doi chung DUONG: o vi tri that thi KHONG co dong ghi chu
+    out_real = run_gold(ws_base)
+    assert NOTE not in out_real, "vi tri that ma van bao khong nap duoc tu dien"
+    # ban MIRROR (plugins/) cung phai tra duoc tu dien — day la ban repo tieu
+    # thu that su chay; duong dan suy tu vi tri script nen no phai dung ca hai noi
+    mirror = root / "plugins/acceptance-gate/scripts/acceptance-gold.mjs"
+    assert mirror.exists(), "khong thay ban mirror de kiem"
+    out_mirror = run_gold(ws_base, script=mirror)
+    assert NOTE not in out_mirror, "ban mirror khong tra duoc tu dien — duong dan hong o repo tieu thu"
+    assert T_HUMAN in dict_block(out_mirror), "ban mirror khong in khoi Tu dien"
+P156PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

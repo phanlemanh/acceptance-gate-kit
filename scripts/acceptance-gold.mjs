@@ -151,6 +151,32 @@ const firstSentence = (t) => {
   return shown.length > 180 ? shown.slice(0, 180).replace(/\s+\S*$/, '') + '…' : shown;
 };
 
+// Từ điển biệt ngữ lời ký (gold-output-measure, AC-7/AC-8). Lời người ký là
+// nguyên văn — N4 CẤM viết lại. Đường ra là CHÚ GIẢI: term nào xuất hiện trong
+// thứ trình cho người thì kèm một dòng nghĩa ở cuối. Nguồn duy nhất là khối
+// marker trong human-facing-language.md (ship cùng plugin, nên repo tiêu thụ
+// cũng có); đường dẫn SUY TỪ VỊ TRÍ SCRIPT, không hardcode ROOT — bản mirror
+// plugins/ và bản kit đều tra được. Không tra được → sổ vẫn in, kèm đúng 1
+// dòng ghi chú (vắng nổ to, không im lặng).
+const GLOSS_NOTE = 'từ điển biệt ngữ không nạp được';
+export function loadGloss(scriptUrl) {
+  const here = path.dirname(fileURLToPath(scriptUrl));
+  const law = path.join(here, '..', 'skills', 'acceptance', 'references', 'human-facing-language.md');
+  let text;
+  try { text = fs.readFileSync(law, 'utf8'); }
+  catch (_) { return { terms: new Map(), error: GLOSS_NOTE }; }
+  const m = text.match(/<!-- <<<SIGNOFF-JARGON-GLOSS -->\n([\s\S]*?)<!-- SIGNOFF-JARGON-GLOSS>>> -->/);
+  if (!m) return { terms: new Map(), error: GLOSS_NOTE };
+  const terms = new Map();
+  for (const raw of m[1].split('\n')) {
+    const l = raw.trim();
+    if (!l.startsWith('- ') || !l.includes(' — ')) continue;
+    const i = l.indexOf(' — ');
+    terms.set(l.slice(2, i).trim(), l.slice(i + 3).trim());
+  }
+  return { terms, error: null };
+}
+
 export function render({ points, panels, noPanel, judgedBlocks, root }) {
   const out = [];
   out.push('## Sổ vàng — người đã quyết gì trên đề xuất của máy');
@@ -180,6 +206,19 @@ export function render({ points, panels, noPanel, judgedBlocks, root }) {
     if (rates.length) out.push(`Theo góc nhìn: ${rates.join(' · ')}.`);
   }
   if (noPanel.length) out.push(`(${noPanel.length} việc chưa có biên bản hội đồng — chấm trước khi máy bắt đầu ghi chép: ${noPanel.join(', ')})`);
+
+  // Khối Từ điển: CHỈ term thật sự xuất hiện trong thứ vừa in ra (quét trên
+  // chính văn bản đã render — cả lời người lẫn hạng mục, không phải quét source).
+  const { terms, error } = loadGloss(import.meta.url);
+  const body = out.join('\n');
+  const used = [...terms.keys()].filter(t => body.includes(t));
+  if (error) { out.push(''); out.push(`(${error} — biệt ngữ trong lời ký chưa được chú giải)`); }
+  else if (used.length) {
+    out.push('');
+    out.push('## Từ điển — biệt ngữ xuất hiện ở trên');
+    out.push('');
+    for (const t of used) out.push(`- ${t} — ${terms.get(t)}`);
+  }
   return out.join('\n');
 }
 
