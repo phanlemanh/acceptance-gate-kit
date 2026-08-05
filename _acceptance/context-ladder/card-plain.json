@@ -1,23 +1,18 @@
 {
   "feature_plain": "Phiên thiết kế phải khai bản mẫu đang sống ở đâu — đứng một mình, trong khung giả tĩnh, hay nhúng host thật — và người duyệt thấy nấc đó ngay trên thẻ Cổng 1, với mọi repo chứ không riêng repo nào.",
-  "will_do": [
-    { "id": "AC-1", "p": "Sẽ bắt mỗi phiên thiết kế khai rõ bản mẫu sống ở đâu, bằng câu hỏi bắt buộc ngay đầu phiên (khoá `context:` trong sổ phiên, cạnh khoá vật liệu)." },
-    { "id": "AC-5", "p": "Sẽ cho người duyệt thấy nấc ngữ cảnh bằng tiếng người ngay trên thẻ, đúng như phiên đã khai (thẻ đọc từ chính khuôn sổ phiên, có phép đo khứ hồi)." },
-    { "id": "AC-9", "p": "Sẽ nhắc vòng lặp tính năng kiểm nấc ngữ cảnh khi kết phiên thiết kế và khi quay lại việc đang dở." },
-    { "id": "AC-10", "p": "Sẽ giữ nguyên mọi hành vi đã nghiệm thu trước đó, cập nhật tài liệu và bản đóng gói trong cùng một lượt." }
-  ],
-  "wont_do": [
-    { "id": "AC-2", "p": "Chặn đường bỏ im lặng: bản mẫu đứng-một-mình muốn qua cổng phải kèm ít nhất một cảnh cho thấy người dùng vào–ra thế nào, hoặc một dòng từ-chối có tên trong sổ quyết định." },
-    { "id": "AC-3", "p": "Sẽ KHÔNG cho dựng vỏ giả giống host — host đã có khuôn sẵn thì mặc định nhúng thật sau cờ dev; không có đường nhúng rẻ thì nấc thấp vẫn hợp lệ vĩnh viễn." },
-    { "id": "AC-4", "p": "Sẽ KHÔNG chặn repo chưa khai đường nhúng — chỉ cờ vàng; con trỏ đã khai mà hỏng cũng bị nêu tên thay vì được tin bừa." },
-    { "id": "AC-6", "p": "Chặn duyệt mù: bản mẫu đứng-một-mình thiếu cảnh ngữ-cảnh sẽ hiện cờ vàng để người duyệt có quyền trả lại." },
-    { "id": "AC-7", "p": "Sẽ KHÔNG bắt hồ sơ phiên cũ sửa lại — chỉ cờ vàng \"chưa khai nấc\"; giá trị nấc lạ bị nêu đúng tên, không bị đoán ngầm." },
-    { "id": "AC-8", "p": "Sẽ KHÔNG ghim từ vựng nền tảng của riêng công ty nào vào kit — phép đo phải chạy đúng trên một web app trơn do máy tự dựng." }
-  ],
-  "scope_plain": "Để sau: bộ dựng proto (proto-init + lint), bản Codex, gộp khối hiển thị thiết kế trên thẻ; kit vẫn không ship UI hay host nào — đó là việc của repo.",
+  "decisions": [],
+  "analyst_plain": "Mỗi lệnh kiểm chứng minh nhiều tiêu chí cùng lúc (một suite phủ 12 tiêu chí) — sự phân biệt nằm ở từng ca kiểm bên trong suite, không ở số lần chạy lệnh; điều này đã ghi nhận từ vòng chấm đầu và vòng hai dùng lại, không chấm lại từ đầu.",
+  "scope_plain": "Để sau: bộ dựng proto (proto-init + lint), bản Codex, gộp khối hiển thị thiết kế trên thẻ; kit vẫn không ship giao diện hay host nào — đó là việc của repo.",
   "decisions_plain": [
-    { "id": "d-20260804T150300Z-25829", "p": "KHÔNG làm bộ dựng proto trong vòng này — đổi lại vòng gọn 1-2 buổi; đường nhúng tạm thời chỉ là hướng dẫn cộng ổ cắm cấu hình." },
+    { "id": "d-20260804T150300Z-25829", "p": "KHÔNG làm bộ dựng proto trong vòng này — đổi lại vòng gọn; đường nhúng tạm thời chỉ là hướng dẫn cộng ổ cắm cấu hình." },
     { "id": "d-20260804T150301Z-31750", "p": "KHÔNG làm bản Codex trong vòng này — theo quyết định đã ghi sổ từ vòng trước, không thêm nợ mới." },
-    { "id": "d-20260804T150302Z-8552", "p": "Đã chọn nêu đúng tên giá trị nấc lạ kèm cờ vàng — đổi lại thêm một nhánh phải test, bù lại không phải trả nợ \"đoán ngầm\" về sau." }
+    { "id": "d-20260804T150302Z-8552", "p": "Đã chọn nêu đúng tên giá trị nấc lạ kèm cờ vàng thay vì đoán ngầm — đổi lại thêm một nhánh phải kiểm." },
+    { "id": "d-20260804T152500Z-19150", "p": "Ghi nhận một lỗ của bộ thẻ: khối độ-phủ hiển thị bằng ký hiệu máy vì chưa có đường dịch — chờ đợt nâng bộ thẻ." },
+    { "id": "d-20260804T152501Z-11899", "p": "Ghi nhận lỗ thứ hai của bộ thẻ: khối phản biện hiển thị nguyên văn lời máy vì phần phản biện chưa bị buộc viết tiếng sản phẩm — chờ đợt nâng." },
+    { "id": "d-20260804T154500Z-32733", "p": "Đã chọn tự mở mục Giai đoạn 0 trong nghi thức thiết kế để chứa câu hỏi ngữ cảnh, thay vì chờ vòng khác dựng xong phần liên quan — đổi lại một chỉnh nhỏ khi phần kia land." },
+    { "id": "d-20260804T154501Z-5052", "p": "Đã chọn ghi cảnh ngữ-cảnh ngay trong khuôn sổ phiên (một chỗ, một khuôn) thay vì mở file hồ sơ riêng — tránh bật nhầm làn nghi thức đã khai tử." },
+    { "id": "d-20260804T154502Z-18429", "p": "Đã chọn làm tuần tự thay vì song song — hai việc tưởng độc lập lại cùng sửa một file kiểm, song song sẽ giẫm nhau." },
+    { "id": "d-20260804T161500Z-30451", "p": "Đã đổi một thước đo giữa chừng: phép soát độ-phủ toàn kho không bao giờ xanh vì cảnh báo tồn đọng của các hồ sơ cũ, nên thu về soát đúng hồ sơ này với luật chỉ-chấp-nhận một cảnh báo giả đã biết (lỗi của chính công cụ soát, đã treo việc sửa riêng)." },
+    { "id": "d-20260804T164500Z-25684", "p": "Đã sửa 5 lỗi vòng chấm đầu chỉ ra trong phạm vi đã duyệt: khuôn chưa điền không còn bị đếm nhầm thành cảnh thật, và ổ cắm cấu hình đọc bằng bộ đọc chung nên chịu được file cấu hình viết kiểu khác." }
   ]
 }
