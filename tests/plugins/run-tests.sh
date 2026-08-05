@@ -6506,6 +6506,87 @@ const ROOT = process.argv[2];
 })().catch(e => { console.error(e); process.exit(1); });
 P159JS
 
+echo "P160 (E10) duong doc-cu tren ho so CU + xuat xu van ban giam khao doc"
+run "P160 --json hinh dang cu + provenance gold-stdout" \
+  python3 - "$ROOT" <<'P160PY'
+import json, re, subprocess, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+GOLD = root / "scripts/acceptance-gold.mjs"
+
+def gold(rootdir, js=False):
+    cmd = ["node", str(GOLD), "--root", str(rootdir)] + (["--json"] if js else [])
+    out = subprocess.run(cmd, capture_output=True, text=True)
+    assert out.returncode == 0, "gold exit %d: %s" % (out.returncode, out.stderr[-300:])
+    return json.loads(out.stdout) if js else out.stdout
+
+# ── (1) HO SO DOI CU: report khong co required_evidence, run-log khong panel,
+#     block-scalar trong report — bản mới phải doc y nhu truoc (ma tran 3 hinh dang) ──
+with tempfile.TemporaryDirectory() as d:
+    acc = Path(d) / "_acceptance"
+    # a) ho so cu co override + KHONG co dong panel
+    a = acc / "ho-so-cu"; a.mkdir(parents=True)
+    (a / "contract.md").write_text("---\nfeature: \"Việc đời cũ\"\nslug: ho-so-cu\n---\n", encoding="utf-8")
+    (a / "evidence-report.md").write_text(
+        "- eval: J1\n  judged_by: panel\n  verdict: UNCERTAIN\n  human_override: Manh Phan 2026-01-01 — cho qua\n",
+        encoding="utf-8")
+    (a / "run-log.jsonl").write_text('{"kind":"eval","evalId":"E1","exit_code":0}\n', encoding="utf-8")
+    # b) ho so co BLOCK SCALAR chua chu human_override trong trich log -> KHONG duoc thanh diem
+    b = acc / "co-block-scalar"; b.mkdir(parents=True)
+    (b / "evidence-report.md").write_text(
+        "- eval: J2\n  judged_by: panel\n  verdict: PASS\n  output: |\n"
+        "    human_override: Ai Do 2026-01-01 — dong nay chi la trich log\n",
+        encoding="utf-8")
+    (b / "run-log.jsonl").write_text(
+        json.dumps({"kind": "panel", "evalId": "J2", "proposal": "PASS",
+                    "votes": [{"lens": "spec-alignment", "verdict": "PASS"},
+                              {"lens": "domain-correctness", "verdict": "PASS"}]}) + "\n", encoding="utf-8")
+    # c) panel CARRIED khong duoc dem lai
+    c = acc / "co-carried"; c.mkdir(parents=True)
+    (c / "evidence-report.md").write_text("- eval: J3\n  judged_by: panel\n  verdict: PASS\n", encoding="utf-8")
+    (c / "run-log.jsonl").write_text(
+        json.dumps({"kind": "panel", "evalId": "J3", "proposal": "PASS", "carried_from_round": 1,
+                    "votes": [{"lens": "spec-alignment", "verdict": "PASS"},
+                              {"lens": "domain-correctness", "verdict": "FAIL"}]}) + "\n", encoding="utf-8")
+    j = gold(d, js=True)
+    assert len(j["points"]) == 1, "ho so cu: cho 1 diem vang, got %d" % len(j["points"])
+    assert j["points"][0]["slug"] == "ho-so-cu", "diem vang sai slug: %r" % j["points"][0]
+    assert j["noPanel"] == ["ho-so-cu"], "slug khong panel phai vao noPanel, got %r" % j["noPanel"]
+    assert j["agreement"]["sample"] == 1, "carried khong duoc vao mau: sample=%d" % j["agreement"]["sample"]
+    assert j["agreement"]["buckets"]["unanimous"] == 1, "hoi dong 2/2 dong y phai la unanimous"
+
+# ── (2) CORPUS THAT: quan he noi tai giua --json va van ban in ra ──
+real = gold(root, js=True)
+text = gold(root)
+assert len(real["points"]) > 0, "corpus that 0 diem vang — sanity counter chong 0-hit-gia"
+rows = [l for l in text.splitlines() if l.startswith("| ") and "---" not in l and "Việc |" not in l]
+assert len(rows) == len(real["points"]), \
+    "so hang bang (%d) khac so diem trong --json (%d)" % (len(rows), len(real["points"]))
+lens_lines = [l for l in text.splitlines() if re.match(r"^- .*: \d+/\d+ lần", l)]
+assert len(lens_lines) == len(real["agreement"]["lensTotal"]), \
+    "so dong goc-nhin (%d) khac so lens trong --json (%d)" % (len(lens_lines), len(real["agreement"]["lensTotal"]))
+
+# ── (3) XUAT XU: van ban giam khao doc phai la ban MAY VUA IN, khong phai viet tay ──
+ev = root / "_acceptance/gold-output-measure/evidence/gold-stdout.txt"
+assert ev.exists(), "thieu evidence/gold-stdout.txt — sinh lai bang: node scripts/acceptance-gold.mjs --root . > <file>"
+saved = ev.read_text(encoding="utf-8")
+fresh = text
+def table(s):   return [l for l in s.splitlines() if l.startswith("| ")]
+def heads(s):   return [l for l in s.splitlines() if l.startswith("## ")]
+def gloss(s):
+    m = re.search(r"## Từ điển[^\n]*\n([\s\S]*)$", s)
+    return sorted(l.strip() for l in (m.group(1).splitlines() if m else []) if l.strip().startswith("- "))
+# so KHOI ON DINH (bang vang + section + tu dien). Khoi dong thuan doi moi round
+# nen khong so — nhung ba khoi nay du de bat "van viet tay" va "render da doi
+# ma quen sinh lai".
+assert table(saved) == table(fresh), \
+    "gold-stdout.txt khong phai ban may vua in: bang vang lech (saved=%d hang, fresh=%d hang)" % (len(table(saved)), len(table(fresh)))
+assert heads(saved) == heads(fresh), \
+    "gold-stdout.txt khong phai ban may vua in: cac muc lech %r vs %r" % (heads(saved), heads(fresh))
+assert gloss(saved) == gloss(fresh), \
+    "gold-stdout.txt khong phai ban may vua in: khoi Tu dien lech"
+P160PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

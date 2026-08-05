@@ -1,0 +1,52 @@
+## Sổ vàng — người đã quyết gì trên đề xuất của máy
+
+20 lần người quyết trên đề xuất của máy (rút từ chữ ký Cổng 2 đã có, không bịa; nguyên văn đầy đủ nằm trong hồ sơ từng việc):
+
+| Việc | Hạng mục được chấm | Máy đề xuất | Người quyết (trích 1 câu) |
+|---|---|---|---|
+| re-pin 1 lượt machine-lane + N chữ ký cùng run_id (chống gian lận 2… (delta-verify-repin) | E12 — Soi diff cơ chế cưỡng chế: có đường gian lận MỚI nào không… | chưa chắc (UNCERTAIN) | Manh Phan 2026-08-05 — E12: chấp nhận known-limits. |
+| re-pin 1 lượt machine-lane + N chữ ký cùng run_id (chống gian lận 2… (delta-verify-repin) | E13 — Nghi thức re-pin mới trong SKILL: một phiên KHÔNG có ngữ… | đạt (PASS) | Manh Phan 2026-08-05 — E13: chuẩn y PASS (panel 3/3, nghi thức đọc-được-làm-được). |
+| re-pin 1 lượt machine-lane + N chữ ký cùng run_id (chống gian lận 2… (delta-verify-repin) | E16 — Sự kiện re-pin dogfood đã xảy ra chưa? Nếu chưa (bình… | chưa chắc (UNCERTAIN) | Manh Phan 2026-08-05 — E16: PASS bằng số đếm dogfood thật… |
+| luật ranh giới section PER-SECTION đặt một chỗ có marker trong… (findings-section-boundary) | E10 — Luật ranh giới section đã single-source ĐÚNG NGHĨA chưa —… | đạt (PASS) | Manh Phan 2026-07-29 |
+| Pre-merge enforce gap-probe presence (merge-boundary, thay cho hook… (gap-probe-presence-hook) | E9 — Đọc thông điệp VIOLATION và NOTE của luật gap-probe: một… | đạt (PASS) | Manh Phan 2026-07-28 |
+| Card Cổng 1 phải hiện ĐỦ criterion contract khai (gate-card-ac-visibility) | E11 — Đọc card Cổng 1 render từ contract dùng khuôn `- **AC-n… | chưa chắc (UNCERTAIN) | Manh Phan 2026-07-30 |
+| Card Cổng 1 phải hiện ĐỦ criterion contract khai (gate-card-ac-visibility) | E12 — Đọc cảnh báo 'không đọc được criterion nào' trên card Cổng… | chưa chắc (UNCERTAIN) | Manh Phan 2026-07-30 |
+| verdict judgment không-PASS phải kèm danh sách bằng-chứng-thiếu… (judge-required-evidence) | J12 — Nghi thức required_evidence trong persona: một judge fresh… | đạt (PASS) | Manh Phan 2026-08-05 — J12: chuẩn y PASS (hội đồng 3/3, nghi thức làm được, có luật chống đòi-bằng-chứng-vô-hạn). |
+| verdict judgment không-PASS phải kèm danh sách bằng-chứng-thiếu… (judge-required-evidence) | J13 — File thứ nhất là STDOUT THẬT của acceptance-gold.mjs chạy… | chưa đạt (FAIL) | Manh Phan 2026-08-05 — J13: known-limits. |
+| verdict judgment không-PASS phải kèm danh sách bằng-chứng-thiếu… (judge-required-evidence) | J14 — Run-log S4 của chính vòng này đã có dòng kind:panel với… | chưa chắc (UNCERTAIN) | Manh Phan 2026-08-05 — J14: PASS bằng số đếm dogfood… |
+| acceptance-verify.js DỪNG fail-closed khi eval thiếu field mà prompt… (judgment-question-guard) | E10 — Đọc prompt hội đồng dưới đây (đây là prompt THẬT do… | đạt (PASS) | Manh Phan 2026-08-04 |
+| lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (7 câu đối chiếu… (matrix-measure-law) | M8 — Prompt lens measurement: một finder fresh không có ngữ cảnh… | đạt (PASS) | Manh Phan 2026-08-05 — M8: chuẩn y PASS (panel 3/3 r1, carry inputs không đổi). |
+| lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (7 câu đối chiếu… (matrix-measure-law) | M9 — 4 câu cross-check lớp-đo-lường trong 2 SKILL: nếu một bộ… | chưa đạt (FAIL) | Manh Phan 2026-08-05 — M9: known-limits. |
+| lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (7 câu đối chiếu… (matrix-measure-law) | M10 — S4 của chính vòng này đã chạy chưa? Nếu chưa (bình thường… | chưa chắc (UNCERTAIN) | Manh Phan 2026-08-05 — M10: PASS bằng số đếm dogfood… |
+| lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (7 câu đối chiếu… (matrix-measure-law) | M11 — Fix gap-probe P1 — đo HÀNH VI chứ không đo chỉ dẫn: file… | đạt (PASS) | Manh Phan 2026-08-05 — M11: chuẩn y PASS (r2+r3, fixture code-sinh từ writer thật)… |
+| Luật ngôn ngữ mặt người (ngon-ngu-mat-nguoi) | E16 — Bạn nhận CHÍN file. Với TỪNG file một, áp phép thử… | chưa chắc (UNCERTAIN) | Manh Phan 2026-08-01 — Nâng lên đạt. |
+| Sổ luật-đã-chạy (premerge-rules-ledger) | E10 — Đọc thông điệp VIOLATION [ledger]: một người chưa từng đọc… | đạt (PASS) | Manh Phan 2026-07-28 |
+| Chặn PASS chưa ai phán ở biên merge (chữ ký giữ-chỗ + slug tự khai phát… (premerge-unjudged-pass) | E15 — Đọc các dòng VIOLATION và NOTE mà luật mới sinh ra. Một… | đạt (PASS) | Manh Phan 2026-07-29 |
+| Scope-triage cho review findings ở S4 (s4-scope-triage) | E11 — Đọc khối 'Ngoài hợp đồng' render theo chỉ dẫn card từ… | đạt (PASS) | Manh Phan 2026-07-28 |
+| Tách phạm vi răng T1-escape khỏi phạm vi diff (cờ opt-out + thứ tự bump… (t1-escape-event-scope) | E13 — Đọc dòng marker T1-ESCAPE: NOT ENFORCED cùng dòng tổng kết:… | đạt (PASS) | Manh Phan 2026-07-28 |
+
+## Các giám khảo đồng thuận tới đâu
+
+37 lần hội đồng chấm tươi: 34 lần cả ba cùng ý · 3 lần 2-trên-1 · 0 lần phân kỳ hẳn.
+
+Theo từng góc nhìn chấm:
+- đúng nghiệp vụ (domain-correctness): 17/37 lần nói "chưa chắc" hoặc "chưa đạt"
+- vận hành được (operational-feasibility): 20/37 lần nói "chưa chắc" hoặc "chưa đạt"
+- khớp đặc tả (spec-alignment): 17/37 lần nói "chưa chắc" hoặc "chưa đạt"
+
+9 việc chưa có biên bản hội đồng trong hồ sơ:
+- Trục ngữ cảnh cho bản mẫu (context-ladder)
+- Tài liệu first-run một khuôn (docs-first-run-audit)
+- luật ranh giới section PER-SECTION đặt một chỗ có marker trong… (findings-section-boundary)
+- Card Cổng 1 phải hiện ĐỦ criterion contract khai (gate-card-ac-visibility)
+- Hình chọn theo mặt phẳng, không theo định dạng (hinh-theo-mat-phang)
+- acceptance-verify.js DỪNG fail-closed khi eval thiếu field mà prompt… (judgment-question-guard)
+- Pha 3 (pha3-goi-luoi)
+- PRODUCT-MAP + phiên nghiệm thu (product-map-uat-session)
+- Làm cứng bộ quét /start (start-scan-hardening)
+
+## Từ điển — biệt ngữ xuất hiện ở trên
+
+- known-limits — giới hạn đã biết, người ký chấp nhận trước khi phát hành
+- dogfood — chính đội tự dùng sản phẩm mình làm để thử
+- single-source — một chỗ duy nhất giữ sự thật, nơi khác đọc lại
