@@ -4,7 +4,7 @@ feature: "matrix-measure-law — lớp lỗi đo-lường thành luật ở 2 đ
 slug: matrix-measure-law
 risk_tier: T2
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-08-05T04:55:42Z
 owner: phanlemanh@gmail.com
