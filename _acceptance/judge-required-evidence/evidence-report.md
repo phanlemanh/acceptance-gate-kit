@@ -148,7 +148,7 @@ human_signoff: Manh Phan 2026-08-05
 
 - eval: J13
   judged_by: judge-panel (fresh context, 3 lenses)
-  verdict: FAIL
+  proposal: FAIL
   rationale: |
     - domain-correctness: FAIL — Cột "Người quyết (trích 1 câu)" và "Hạng mục được chấm" của gold-stdout.txt (dòng 7-23) lặp lại nhiều biệt ngữ nội bộ tiếng Anh không dịch (known-limits, dogfood, single-source, VIOLATION/NOTE, cross-check, lens measurement/finder fresh) — vi phạm N6 rõ ràng theo human-facing-language.md. Cột "Máy đề xuất" (dòng 7-23) in nguyên enum PASS/FAIL/UNCERTAIN trong khi phần tóm tắt bên dưới (dòng 28) lại dịch cùng khái niệm thành "chưa chắc/chưa đạt" — tài liệu tự mâu thuẫn ngay ở chỗ người quyết kinh doanh đọc đầu tiên, đúng câu hỏi phán xét "chỗ nào lộ tiếng máy".
     - operational-feasibility: FAIL — Nhiều dòng trong bảng "Sổ vàng" đọc như tiếng máy chứ không phải tiếng người: cột "Việc" ở dòng judgment-question-guard lấy hẳn tên file làm chủ ngữ ("acceptance-verify.js DỪNG fail-closed khi eval thiếu field mà prompt…", dòng 14), vi phạm N1/N2; cột "Người quyết" nhiều dòng chèn biệt ngữ nội bộ chưa dịch như "dogfood" (dòng 9, 17) và "known-limits"/"fixture" (dòng 8, 18), vi phạm N6. Cột "Máy đề xuất" (dòng 7–23) chỉ in nguyên mã verdict UNCERTAIN/PASS/FAIL không kèm 3–5 chữ giải nghĩa lần đầu xuất hiện, vi phạm N3 — một người quyết kinh doanh đọc dòng 14 hay các chữ "dogfood/fail-closed/fixture" sẽ không hiểu ngay máy đề xuất gì.

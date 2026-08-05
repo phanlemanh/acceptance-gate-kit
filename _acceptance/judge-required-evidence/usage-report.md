@@ -158,3 +158,7 @@
 - **claude-opus-5**: 3 agent · 52 calls · out 49,476 · in 99 · cache_read 4,253,668 · cache_create 308,109
 - **claude-haiku-4-5-20251001**: 6 agent · 31 calls · out 7,817 · in 260 · cache_read 865,761 · cache_create 148,540
 
+
+## Re-pin dogfood #3 — 2026-08-05T10:37:58Z
+
+Sự kiện re-pin 21 slug bằng nghi thức 1-lane: **1 agent-lane** (id ade3ea5d9c821d2eb, ~62k token, 6 suite exit 0 tại `e6dad45`), 21 dòng `kind:repin` cùng `run_id: repin-20260805-judge-required-evidence-lane1`.

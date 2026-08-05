@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict   # the `enforcement` value from _acceptance/config.yaml (default strict). CI pre-merge BLOCKS off; warn only warns.
 bypass_used: false              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
-verified_commit: 5ec937c0746dfeaa3c554f5c44b224954ae989ae
+verified_commit: e6dad45a6169d17c59ac85a95c6d58924c14ffff
 # bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -536,3 +536,7 @@ sha: c1f781d9ccb880091988a9612f2dd0a5b72d3b82 · suites: 6 lệnh exit 0
 ### Re-pin lần 20 — 2026-08-05, do feature matrix-measure-law + hotfix luật repin (nghi thức 1-lane)
 run_id: repin-20260805-matrix-measure-law-lane2
 sha: 5ec937c0746dfeaa3c554f5c44b224954ae989ae · suites: 6 lệnh exit 0
+
+### Re-pin lần 21 — 2026-08-05, do feature judge-required-evidence (nghi thức 1-lane)
+run_id: repin-20260805-judge-required-evidence-lane1
+sha: e6dad45a6169d17c59ac85a95c6d58924c14ffff · suites: 6 lệnh exit 0

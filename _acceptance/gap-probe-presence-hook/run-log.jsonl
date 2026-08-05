@@ -272,3 +272,4 @@
 {"ts":"2026-07-28T07:45:07Z","round":11,"kind":"baseline","evals_hash":"56187913f7b93a664f558ae35dcbcc01d494f1696987dff7555cedf567f69e77","non_discriminating":[{"cmd":"bash tests/scripts/run-tests.sh","evals":["E14","E21"]},{"cmd":"bash tests/plugins/run-tests.sh","evals":["E16","E20"]}]}
 {"ts":"2026-08-05T04:20:56Z","kind":"repin","run_id":"repin-20260805-delta-verify-repin-lane1","sha":"c1f781d9ccb880091988a9612f2dd0a5b72d3b82","suites_exit":[0,0,0,0,0,0]}
 {"ts":"2026-08-05T07:28:12Z","kind":"repin","run_id":"repin-20260805-matrix-measure-law-lane2","sha":"5ec937c0746dfeaa3c554f5c44b224954ae989ae","suites_exit":[0,0,0,0,0,0]}
+{"ts":"2026-08-05T10:37:58Z","kind":"repin","run_id":"repin-20260805-judge-required-evidence-lane1","sha":"e6dad45a6169d17c59ac85a95c6d58924c14ffff","suites_exit":[0,0,0,0,0,0]}
