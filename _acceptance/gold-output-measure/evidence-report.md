@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 49b1c2af70d77e4807db72fae569998ae56649c0
-human_signoff:
+human_signoff: Manh Phan 2026-08-05
 ---
 
 # Evidence Report: gold-output-measure
@@ -157,7 +157,7 @@ human_signoff:
     - spec-alignment: FAIL — Cột "Máy đề xuất" nay có giải nghĩa kèm mã (N3 đạt) và biệt ngữ trong LỜI KÝ (known-limits, dogfood, single-source, run_id, machine-lane, fixture, carry, kind:panel) đã được chú giải đúng cơ chế mới ở file 3 (khối Từ điển thay cho viết lại, hợp N4) — nhưng nhiều biệt ngữ khác trong cột "Việc"/"Hạng mục được chấm" (không phải lời ký, không bị N4 bảo vệ) vẫn trần tiếng máy và KHÔNG có trong khối Từ điển: "VIOLATION và NOTE" (dòng 11, 23, 24), "lens measurement"/"finder fresh"/"cross-check" (dòng 18-19), và dòng 17 vẫn lấy "acceptance-verify.js" làm chủ ngữ với "fail-closed/eval/field" chưa dịch — vi phạm N1/N2/N6 y hệt lý do J13 round 4 đã chấm FAIL. Người quyết kinh doanh không đọc code sẽ vấp ở các dòng này khi áp phép thử Xoá-tên-máy.
       required_evidence:
         - (judge không nêu bằng-chứng-thiếu)
-  human_override:
+  human_override: Manh Phan 2026-08-05 — chấp nhận known-limits: cột Việc/Hạng mục TRÍCH nguyên văn mô tả từ hồ sơ các vòng cũ; sửa nguồn nằm ngoài phạm vi đã duyệt. Luật cho hồ sơ tương lai + rà mô tả cũ đi vòng riêng.
 <!-- JUDGMENT-BLOCK-TEMPLATE>>> -->
 
 ## Analyst

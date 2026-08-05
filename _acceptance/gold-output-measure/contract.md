@@ -4,14 +4,14 @@ feature: "gold-output-measure — sổ vàng in cho người được máy đo t
 slug: gold-output-measure
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-05T11:15:00Z
 owner: phanlemanh@gmail.com
 source: docs/superpowers/specs/2026-08-05-gold-output-measure-design.md
 time_human_minutes:
   gate1: 5
-  gate2:
+  gate2: 10
 ---
 
 # Acceptance contract — gold-output-measure
@@ -84,3 +84,32 @@ Từ morphological-scan (3 trục — thước CE trong ngoặc):
   mục marker.
 - Viết lại / dịch lời người trong human_override (N4 cấm).
 - Đổi hook/evidence-core/lib; đổi khuôn chữ ký người.
+
+## Notes
+
+Known limits — chấp nhận tại Cổng 2, Manh Phan 2026-08-05 (nhóm theo lớp):
+
+- **Nguồn dữ liệu viết bằng tiếng máy (hội đồng 3/3 chấm chưa đạt).** Cột Việc
+  và Hạng mục của sổ TRÍCH nguyên văn `feature:` / `question:` từ hồ sơ các
+  vòng cũ; hồ sơ cũ viết tiếng máy thì sổ hiện tiếng máy (tên file làm chủ ngữ,
+  machine-lane/run_id/fail-closed trong câu chính). Sửa nguồn = đụng hồ sơ đã
+  ký của 20 vòng trước, ngoài phạm vi duyệt ở Cổng 1. Đường ra đã chốt: đặt
+  luật "mô tả trong hồ sơ phải viết tiếng sản phẩm" cho hồ sơ TƯƠNG LAI + rà
+  mô tả cũ trong một vòng riêng. Lối chú-giải chỉ hợp lệ cho LỜI KÝ (N4 cấm
+  viết lại lời người), không phải giấy phép chung.
+- **Hồ sơ xuất xứ khai `repo_sha` không đo được và hiện đang sai** (sinh trước
+  khi ghi commit nên trỏ bản trước đó). Ba trường được đo (lệnh, checksum, độ
+  dài) chỉ chứng minh "không sửa tay sau khi sinh", không chứng minh "mã nào đã
+  in ra nó". Revisit: hoặc phép đo tự chạy lại tại đúng mã đó, hoặc bỏ trường
+  không đo được.
+- **Sổ nói "chưa có biên bản hội đồng nào" khi mọi biên bản đều là bản mang
+  sang từ vòng trước** — biên bản có thật mà biến mất khỏi thứ trình người
+  (kho hiện 31/68 biên bản thuộc dạng này). Ma trận P157 thiếu đúng ô đó.
+- **Phép đo mới ghi file tạm vào thư mục nguồn `scripts/`** — bị ngắt giữa
+  chừng thì rác nằm lại, làm đỏ oan cổng chống-trôi mirror. Cùng lớp "rác máy
+  sinh làm đỏ suite" đã dẫm với card.html.
+- Vặt cùng đợt dọn: mốc so-bản-cũ ghim cứng một mã commit (đọc như golden tĩnh,
+  đỏ trên bản sao nông); lời khai của E10 hứa so-từng-byte trong khi phép đo so
+  3 khối và bỏ đúng khối số liệu hội đồng; ma trận "mỗi góc nhìn một dòng"
+  thiếu ô phân biệt; câu tuyên "đo tính chất" nhưng thân vẫn là danh sách 4
+  chuỗi.
