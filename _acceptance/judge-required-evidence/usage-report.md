@@ -115,3 +115,46 @@
 - **claude-fable-5**: 3 agent · 31 calls · out 44,082 · in 60 · cache_read 2,062,006 · cache_create 278,502
 - **claude-haiku-4-5-20251001**: 6 agent · 30 calls · out 8,028 · in 252 · cache_read 804,432 · cache_create 162,259
 
+### S4 round 4 (carry 9) — wf_089823fc-611 (34 agent, 239,583 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5 | 3 | 25,214 | 6 | 151,323 | 315 |
+| review:bugs | claude-opus-5 | 23 | 18,752 | 44 | 2,224,200 | 421 |
+| review:conventions | claude-opus-5 | 15 | 17,366 | 28 | 1,075,168 | 317 |
+| review:measurement | claude-opus-5 | 14 | 13,358 | 27 | 954,300 | 283 |
+| refute:run-tests.sh | claude-sonnet-5 | 13 | 12,499 | 26 | 744,480 | 209 |
+| refute:run-tests.sh | claude-sonnet-5 | 33 | 12,208 | 66 | 2,172,886 | 254 |
+| refute:acceptance-gold.mjs | claude-sonnet-5 | 11 | 11,817 | 22 | 601,514 | 227 |
+| refute:run-tests.sh | claude-sonnet-5 | 11 | 10,553 | 22 | 571,053 | 174 |
+| refute:run-tests.sh | claude-sonnet-5 | 8 | 10,170 | 16 | 406,230 | 138 |
+| refute:run-tests.sh | claude-sonnet-5 | 14 | 9,884 | 28 | 752,710 | 170 |
+| refute:core-untouched.test.mjs | claude-sonnet-5 | 14 | 9,545 | 28 | 744,673 | 151 |
+| refute:gate-card.js | claude-sonnet-5 | 5 | 9,130 | 10 | 228,036 | 115 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 18 | 8,405 | 36 | 1,172,417 | 162 |
+| refute:run-tests.sh | claude-sonnet-5 | 19 | 8,403 | 38 | 1,187,424 | 148 |
+| judge:J13:domain-correctness | claude-sonnet-5 | 2 | 7,089 | 4 | 44,622 | 83 |
+| refute:core-untouched.test.mjs | claude-sonnet-5 | 8 | 6,710 | 16 | 390,054 | 113 |
+| refute:acceptance-verify.test.mjs | claude-sonnet-5 | 8 | 6,423 | 145 | 362,516 | 90 |
+| refute:run-tests.sh | claude-sonnet-5 | 5 | 5,991 | 10 | 218,991 | 105 |
+| refute:run-tests.sh | claude-sonnet-5 | 8 | 5,657 | 16 | 411,454 | 100 |
+| judge:J13:operational-feasibility | claude-sonnet-5 | 2 | 5,389 | 4 | 67,987 | 70 |
+| refute:run-tests.sh | claude-sonnet-5 | 9 | 4,539 | 18 | 465,500 | 81 |
+| refute:evidence-report-template.md | claude-sonnet-5 | 10 | 3,757 | 20 | 540,079 | 65 |
+| refute:acceptance-gold.mjs | claude-sonnet-5 | 9 | 3,630 | 18 | 448,975 | 77 |
+| refute:acceptance-gold.mjs | claude-sonnet-5 | 7 | 2,841 | 14 | 348,931 | 87 |
+| machine:bash tests/plugins/run-tests.sh | claude-haiku-4-5-20251001 | 13 | 2,354 | 106 | 435,153 | 177 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 7 | 2,082 | 58 | 206,806 | 33 |
+| refute:run-tests.sh | claude-sonnet-5 | 5 | 1,617 | 10 | 203,333 | 65 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 5 | 1,422 | 42 | 122,156 | 65 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 875 | 18 | 45,525 | 17 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 2 | 604 | 18 | 28,062 | 9 |
+| capture:provenance | claude-sonnet-5 | 2 | 502 | 4 | 43,969 | 14 |
+| machine:bash scripts/sync-plugin-packages.sh --c | claude-haiku-4-5-20251001 | 2 | 480 | 18 | 28,059 | 8 |
+| judge:J13:spec-alignment | claude-sonnet-5 | 2 | 200 | 4 | 44,622 | 65 |
+| triage | claude-sonnet-5 | 2 | 117 | 4 | 55,070 | 264 |
+
+- **claude-sonnet-5**: 25 agent · 228 calls · out 182,290 · in 585 · cache_read 12,378,849 · cache_create 1,322,356
+- **claude-opus-5**: 3 agent · 52 calls · out 49,476 · in 99 · cache_read 4,253,668 · cache_create 308,109
+- **claude-haiku-4-5-20251001**: 6 agent · 31 calls · out 7,817 · in 260 · cache_read 865,761 · cache_create 148,540
+

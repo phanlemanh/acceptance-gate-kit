@@ -1,13 +1,13 @@
 ---
 schema_version: 2
 feature_slug: judge-required-evidence
-verdict: REJECT
+verdict: PENDING-JUDGMENT
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: df5322de29414a5597c7e0dd8ac58231c230aeb5
+verified_commit: 186577396323d3f73ac9691c1d0d78e319b8aafd
 human_signoff:
 ---
 
@@ -60,26 +60,22 @@ human_signoff:
   # carry-forward tu round 1 — delta khong cham paths cua eval J3.
 
 - eval: J4
-  run_id: minted-judge-required-evidence-J4-r3
+  run_id: minted-judge-required-evidence-J4-r1
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T16:45:00Z
-  output: |
-    PASS: P154 command clauses + mutant
-
-    Results: all plugin tests passed
+  verified_at: 2026-08-05T08:35:26Z
+  carried_from_round: 1
+  # carry-forward tu round 1 — delta khong cham paths cua eval J4.
 
 - eval: J5
-  run_id: minted-judge-required-evidence-J5-r3
+  run_id: minted-judge-required-evidence-J5-r1
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T16:45:00Z
-  output: |
-    PASS: P154 command clauses + mutant
-
-    Results: all plugin tests passed
+  verified_at: 2026-08-05T08:35:26Z
+  carried_from_round: 1
+  # carry-forward tu round 1 — delta khong cham paths cua eval J5.
 
 - eval: J6
   run_id: minted-judge-required-evidence-J6-r1
@@ -91,48 +87,44 @@ human_signoff:
   # carry-forward tu round 1 — delta khong cham paths cua eval J6.
 
 - eval: J7
-  run_id: minted-judge-required-evidence-J7-r3
+  run_id: minted-judge-required-evidence-J7-r1
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T16:45:00Z
-  output: |
-    PASS: P154 command clauses + mutant
-
-    Results: all plugin tests passed
+  verified_at: 2026-08-05T08:35:26Z
+  carried_from_round: 1
+  # carry-forward tu round 1 — delta khong cham paths cua eval J7.
 
 - eval: J8
-  run_id: minted-judge-required-evidence-J8-r3
+  run_id: minted-judge-required-evidence-J8-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T16:45:00Z
+  verified_at: 2026-08-05T10:00:00Z
   output: |
     PASS: P154 command clauses + mutant
 
     Results: all plugin tests passed
 
 - eval: J9
-  run_id: minted-judge-required-evidence-J9-r3
+  run_id: minted-judge-required-evidence-J9-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T16:45:00Z
+  verified_at: 2026-08-05T10:00:00Z
   output: |
     PASS: P154 command clauses + mutant
 
     Results: all plugin tests passed
 
 - eval: J10
-  run_id: minted-judge-required-evidence-J10-r3
+  run_id: minted-judge-required-evidence-J10-r1
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T16:45:00Z
-  output: |
-    PASS: P154 command clauses + mutant
-
-    Results: all plugin tests passed
+  verified_at: 2026-08-05T08:35:26Z
+  carried_from_round: 1
+  # carry-forward tu round 1 — delta khong cham paths cua eval J10.
 
 - eval: J11
   run_id: minted-judge-required-evidence-J11-r1
@@ -158,18 +150,22 @@ human_signoff:
   judged_by: judge-panel (fresh context, 3 lenses)
   verdict: FAIL
   rationale: |
-    - domain-correctness: FAIL — gold-stdout.txt lộ tiếng máy ở nhiều chỗ: dòng 7 nhét "run_id"/"machine-lane" thẳng vào mệnh đề chính thay vì xuống ngoặc (vi phạm N2) và cả hai từ này không có trong 5 mục HFL-GLOSSARY-TERMS của human-facing-language.md — vi phạm N6; dòng 21 (hạng mục E15) để nguyên câu tiếng Anh máy "All three lenses agree every VIOLATION/NOTE line names the…" chưa dịch, trượt phép thử Xoá-tên-máy; và "known-limits" (dòng 7, 16) là biệt ngữ chưa có trong từ điển. Ngoài ra nhãn "hạng mục người phán tại Cổng 2" lặp y hệt ở 5 dòng (11-14, 20, 22, 23) không cho biết máy đã đề xuất gì cụ thể, thất bại đúng câu hỏi cốt lõi của AC-13 dù không hẳn là vi phạm N-rule đơn lẻ.
-    - operational-feasibility: FAIL — Cột "Việc" và "Hạng mục được chấm" trong gold-stdout.txt bị cắt bằng dấu "…" giữa chừng mà không đóng ngoặc đang mở, tạo câu vỡ nghĩa/ngoặc lệch nhau (ví dụ dòng 7 "...run_id (chống gian lận 2… (delta-verify-repin)", dòng 9 "Nếu chưa (bình…", dòng 17 "Nếu chưa (bình thường…") — người quyết kinh doanh đọc không ra ý câu, vi phạm N1 (câu phải trọn nghĩa cho người đọc). Song song đó, 6 dòng (E10/E11/E12/E13/E15/E16 ở dòng 11, 12, 13, 14, 20, 22, 23) đều mang đúng một cụm nhãn rỗng "hạng mục người phán tại Cổng 2" lặp lại cho các việc hoàn toàn khác nhau, không cho biết máy thật sự đề xuất trên tiêu chí gì — vi phạm N3 (mã số lần đầu xuất hiện phải kèm 3-5 chữ nói nó LÀ GÌ, không phải nhãn chung chung dùng chung cho mọi mã).
-    - spec-alignment: FAIL — Dòng 7 của bảng "Sổ vàng" (gold-stdout.txt) đặt tiếng máy làm chủ ngữ và không dịch: "re-pin 1 lượt machine-lane + N chữ ký cùng run_id (chống gian lận 2… (delta-verify-repin)" — vi phạm N1 (chủ ngữ phải là người dùng/sản phẩm, không phải mô tả cơ chế máy) và N6 (biệt ngữ "machine-lane", "run_id" không có mục trong danh sách từ điển feature này). Cột "Người quyết" cũng lộ biệt ngữ chưa dịch/chưa gloss ở dòng 7 và 9: "chấp nhận known-limits" và "PASS bằng số đếm dogfood thật" — "known-limits", "dogfood" không nằm trong glossary N6 của chính file luật (chỉ có mặt người/mặt máy/lỗ-kit/mặt phẳng/nhìn-thấy-hình). Một người quyết kinh doanh đọc dòng 7 sẽ không hiểu "máy đề xuất gì trên cái gì" vì cả mô tả việc lẫn lý do quyết đều là tiếng máy chưa qua phép thử Xoá-tên-máy.
+    - domain-correctness: FAIL — Cột "Người quyết (trích 1 câu)" và "Hạng mục được chấm" của gold-stdout.txt (dòng 7-23) lặp lại nhiều biệt ngữ nội bộ tiếng Anh không dịch (known-limits, dogfood, single-source, VIOLATION/NOTE, cross-check, lens measurement/finder fresh) — vi phạm N6 rõ ràng theo human-facing-language.md. Cột "Máy đề xuất" (dòng 7-23) in nguyên enum PASS/FAIL/UNCERTAIN trong khi phần tóm tắt bên dưới (dòng 28) lại dịch cùng khái niệm thành "chưa chắc/chưa đạt" — tài liệu tự mâu thuẫn ngay ở chỗ người quyết kinh doanh đọc đầu tiên, đúng câu hỏi phán xét "chỗ nào lộ tiếng máy".
+    - operational-feasibility: FAIL — Nhiều dòng trong bảng "Sổ vàng" đọc như tiếng máy chứ không phải tiếng người: cột "Việc" ở dòng judgment-question-guard lấy hẳn tên file làm chủ ngữ ("acceptance-verify.js DỪNG fail-closed khi eval thiếu field mà prompt…", dòng 14), vi phạm N1/N2; cột "Người quyết" nhiều dòng chèn biệt ngữ nội bộ chưa dịch như "dogfood" (dòng 9, 17) và "known-limits"/"fixture" (dòng 8, 18), vi phạm N6. Cột "Máy đề xuất" (dòng 7–23) chỉ in nguyên mã verdict UNCERTAIN/PASS/FAIL không kèm 3–5 chữ giải nghĩa lần đầu xuất hiện, vi phạm N3 — một người quyết kinh doanh đọc dòng 14 hay các chữ "dogfood/fail-closed/fixture" sẽ không hiểu ngay máy đề xuất gì.
+    - spec-alignment: FAIL — Dòng 28 nhồi 3 lens (domain-correctness/operational-feasibility/spec-alignment) vào một câu bằng dấu "·", và dòng 29 liệt kê 9 slug kỹ thuật thô (context-ladder, docs-first-run-audit, …) nối bằng dấu phẩy trong một ngoặc — cả hai vi phạm N4 (một dòng một ý, cấm nhồi bằng dấu phân cách). Dòng 7 dùng thẳng "machine-lane" và "run_id" làm nội dung câu ở cột "Việc" thay vì đẩy xuống ngoặc/cột phụ, vi phạm N2, và hai từ này không có trong danh sách "Từ mới feature này đưa vào từ điển" của chính file luật nên cũng vi phạm N6. Người quyết kinh doanh không đọc code sẽ vấp ngay ở các chỗ này khi áp phép thử Xoá-tên-máy.
   required_evidence:
-    - "[domain-correctness] gold-stdout.txt dòng 7: cụm 'machine-lane' và 'run_id' nằm trong mệnh đề chính của cột Việc (không trong ngoặc) — sửa để hai tên kỹ thuật này xuống ngoặc/cột phụ theo N2 thì verdict đổi."
-    - "[domain-correctness] human-facing-language.md dòng 128-133 (HFL-GLOSSARY-TERMS): danh sách 5 từ không có 'machine-lane', 'run_id', 'known-limits' — cần bổ sung mục từ điển cho các từ này hoặc thay bằng tiếng Việt thường mới hết vi phạm N6."
-    - "[domain-correctness] gold-stdout.txt dòng 21 (hạng mục E15): câu tiếng Anh nguyên văn 'All three lenses agree every VIOLATION/NOTE line names the…' chưa dịch — dịch sang tiếng Việt mặt người thì hết vi phạm N6/phép thử Xoá-tên-máy."
-    - "[domain-correctness] gold-stdout.txt dòng 11-14, 20, 22, 23: nhãn lặp 'hạng mục người phán tại Cổng 2' cho 5 mục E9-E13 khác nhau — thay bằng mô tả cụ thể 3-5 chữ mỗi mục (đúng N3) thì mới trả lời được 'máy đề xuất gì' cho từng dòng."
-    - "[operational-feasibility] Sửa cách sinh cột \"Việc\"/\"Hạng mục được chấm\" trong gold-stdout.txt để chuỗi bị rút gọn không cắt ngay giữa một ngoặc đang mở — đối chiếu lại đúng ba dòng: dòng 7 (\"...run_id (chống gian lận 2… (delta-verify-repin)\"), dòng 9 (\"Nếu chưa (bình…\"), dòng 17 (\"Nếu chưa (bình thường…\") trong _acceptance/judge-required-evidence/evidence/gold-stdout.txt; nếu cả ba dòng này đọc trọn câu (không còn ngoặc treo/dấu ba chấm cắt ngang câu) thì verdict đổi."
-    - "[operational-feasibility] Thay cụm nhãn rỗng \"hạng mục người phán tại Cổng 2\" ở các dòng 11, 12, 13, 14, 20, 22, 23 của cùng file gold-stdout.txt bằng nội dung tiêu chí thực tế riêng của từng mã E10/E11/E12/E13/E15/E16 (khác nhau theo từng việc) — nếu mỗi dòng cho thấy nội dung phân biệt được thay vì nhãn dùng chung, verdict đổi."
-    - "[spec-alignment] Sửa lại nội dung cột 'Việc' dòng 7 của gold-stdout.txt (việc delta-verify-repin) theo mẫu N1: câu chủ ngữ là người dùng/sản phẩm ('người dùng/người duyệt thấy gì khác'), đẩy 'machine-lane', 'run_id' xuống backtick phụ hoặc ngoặc — rồi chạy lại phép thử Xoá-tên-máy trên câu đó, còn nghĩa mới tính là qua."
-    - "[spec-alignment] Thêm mục 'known-limits' và 'dogfood' vào bảng HFL-GLOSSARY-TERMS trong human-facing-language.md (hoặc CONTEXT.md) rồi re-run acceptance-gold.mjs để cột 'Người quyết' ở dòng 7 và 9 của gold-stdout.txt không còn thuật ngữ chưa gloss — đối chiếu lại bằng phép thử Xoá-tên-máy trên đúng hai dòng đó."
+    - "[domain-correctness] gold-stdout.txt dòng 7 và 16: cụm \"known-limits\" xuất hiện nguyên văn tiếng Anh trong câu trích của người quyết (\"E12: chấp nhận known-limits.\", \"M9: known-limits.\") — cần thay bằng thuật ngữ tiếng Việt có trong CONTEXT.md hoặc câu diễn giải, nếu không verdict giữ FAIL."
+    - "[domain-correctness] gold-stdout.txt dòng 9 và 17: cụm \"dogfood\" trong \"PASS bằng số đếm dogfood thật…\" và \"PASS bằng số đếm dogfood…\" là biệt ngữ nội bộ chưa dịch — cần đối chiếu CONTEXT.md xem có mục glossary cho từ này chưa; nếu không có, phải viết lại bằng chữ thường phổ thông."
+    - "[domain-correctness] gold-stdout.txt dòng 10: \"E10 — Luật ranh giới section đã single-source ĐÚNG NGHĨA chưa\" dùng \"single-source\" tiếng Anh không dịch, vi phạm N6."
+    - "[domain-correctness] gold-stdout.txt dòng 11, 20, 21: cụm \"VIOLATION và NOTE\" / \"VIOLATION [ledger]\" là tên thông điệp máy (log/script) được dán nguyên văn vào mô tả mặt người thay vì diễn giải, trong khi human-facing-language.md dòng 14-18 chỉ miễn trừ tên chính xác cho mặt máy (evals.yaml, run-log.jsonl…), không miễn trừ cho báo cáo trình người."
+    - "[domain-correctness] gold-stdout.txt dòng 15-16: \"lens measurement\", \"finder fresh\", \"cross-check\" là thuật ngữ tiếng Anh nội bộ chưa dịch trong mô tả M8/M9."
+    - "[domain-correctness] gold-stdout.txt cột \"Máy đề xuất\" (dòng 7-23) in nguyên enum PASS/FAIL/UNCERTAIN, đối chiếu với dòng 28 cùng file lại dịch cùng khái niệm thành \"chưa chắc/chưa đạt\" — cần kiểm CONTEXT.md xem PASS/FAIL/UNCERTAIN đã có mục từ điển sản phẩm chưa; nếu chưa, đây là vi phạm N6 trực tiếp ở đúng cột người quyết kinh doanh đọc đầu tiên."
+    - "[operational-feasibility] gold-stdout.txt dòng 14 (cột Việc, hàng judgment-question-guard): 'acceptance-verify.js DỪNG fail-closed khi eval thiếu field mà prompt…' — chủ ngữ là tên file, có 'fail-closed/eval/field' không dịch; sửa lại theo N1/N2 (chủ ngữ là người dùng/sản phẩm, tên kỹ thuật xuống ngoặc) thì verdict đổi."
+    - "[operational-feasibility] gold-stdout.txt dòng 9 và 17 (cột Người quyết): '...PASS bằng số đếm dogfood thật…' — từ 'dogfood' là biệt ngữ nội bộ chưa dịch (N6); thay bằng cụm tiếng Việt phổ thông (vd. 'số lần dùng thật trong chính kit') thì hết vi phạm ở hai dòng này."
+    - "[operational-feasibility] gold-stdout.txt cột 'Máy đề xuất' toàn bộ dòng 7-23 chỉ ghi UNCERTAIN/PASS/FAIL không kèm giải nghĩa 3-5 chữ lần đầu xuất hiện (N3) — thêm chú thích ngắn kèm mã lần đầu (vd. 'UNCERTAIN (máy chưa chắc)') thì phần này đạt."
+    - "[spec-alignment] Dòng 28 gold-stdout.txt: \"Theo góc nhìn: đúng nghiệp vụ (domain-correctness): 16/36 ... · vận hành được (operational-feasibility): 19/36 ... · khớp đặc tả (spec-alignment): 16/36 ...\" — cần tách thành 3 dòng/3 ô riêng để không còn vi phạm N4."
+    - "[spec-alignment] Dòng 29 gold-stdout.txt: liệt kê 9 slug (context-ladder, docs-first-run-audit, findings-section-boundary, ...) nối bằng dấu phẩy trong một ngoặc — cần mỗi việc một dòng kèm tên sản phẩm, không phải slug thô nhồi chung."
+    - "[spec-alignment] Dòng 7 gold-stdout.txt, cột 'Việc': \"re-pin 1 lượt machine-lane + N chữ ký cùng run_id (chống gian lận 2… (delta-verify-repin)\" — cần bỏ 'machine-lane'/'run_id' ra khỏi câu chính hoặc đưa vào ngoặc kỹ thuật; đối chiếu mục 'Từ mới feature này đưa vào từ điển' ở human-facing-language.md (dòng 127-133) không có hai từ này."
   human_override:
 
 - eval: J14
@@ -201,7 +197,8 @@ none — every multi-run eval is uniform
 
 Round 1: J1-J7, J10-J12 PASS; J13 FAIL (Sổ vàng còn tiếng máy trần, vi phạm N3/N6 human-facing-language.md); J14 UNCERTAIN (chưa có dòng kind:panel trong run-log để chấm). Trở lại implementation sửa gold-stdout wording.
 Round 2: J8, J9 (gold set/G3 trên corpus thật) chạy lại — PASS. J13 chấm lại trên gold-stdout mới — vẫn FAIL, biệt ngữ máy còn sót nhiều dòng. J14 carry-forward UNCERTAIN từ round 1 (chưa có input mới để chấm lại). J1-J7, J10-J12 carry-forward PASS (delta không chạm paths của các eval này).
-Round 3 (hiện tại): J4, J5, J7, J8, J9, J10 (tests/plugins) chạy lại — PASS. J13 chấm lại trên gold-stdout mới nhất — vẫn FAIL (ngoặc treo/câu vỡ nghĩa ở dòng 7, 9, 17; nhãn lặp "hạng mục người phán tại Cổng 2" ở 5-6 dòng; "machine-lane"/"run_id"/"known-limits"/"dogfood" vẫn chưa vào HFL-GLOSSARY-TERMS; câu tiếng Anh dòng 21 chưa dịch — xem rationale ở trên). J14 carry-forward UNCERTAIN từ round 1 (chưa có input mới để chấm lại). J1, J2, J3, J6, J11, J12 carry-forward PASS (delta không chạm paths của các eval này). Đây là round 3 verify: theo ngưỡng dừng vòng lặp của template (tối đa 3 round rồi escalate), verdict chuyển REJECT và cần người quyết xem lại thay vì tiếp tục một vòng fix tự động nữa.
+Round 3: J4, J5, J7, J8, J9, J10 (tests/plugins) chạy lại — PASS. J13 chấm lại trên gold-stdout mới nhất — vẫn FAIL (ngoặc treo/câu vỡ nghĩa ở dòng 7, 9, 17; nhãn lặp "hạng mục người phán tại Cổng 2" ở 5-6 dòng; "machine-lane"/"run_id"/"known-limits"/"dogfood" vẫn chưa vào HFL-GLOSSARY-TERMS; câu tiếng Anh dòng 21 chưa dịch). J14 carry-forward UNCERTAIN từ round 1. J1, J2, J3, J6, J11, J12 carry-forward PASS. Đã qua ngưỡng 3 round của template, verdict round đó chuyển REJECT để escalate cho người quyết thay vì tự động fix tiếp.
+Round 4 (hiện tại): bash tests/plugins/run-tests.sh (J8, J9) chạy lại — PASS. J13 chấm lại trên gold-stdout hiện hành — vẫn FAIL, biệt ngữ máy chưa dịch còn ở nhiều dòng khác (known-limits/dogfood/single-source/VIOLATION-NOTE/cross-check/lens measurement/finder fresh, câu Việc dòng 7 dùng machine-lane/run_id làm chủ ngữ, dòng 28-29 nhồi nhiều ý một dòng) — xem rationale mới ở trên. J1, J2, J3, J4, J5, J6, J7, J10, J11, J12, J14 carry-forward (delta round này không chạm paths của các eval đó). Verdict tổng giữ PENDING-JUDGMENT: J13 (FAIL) và J14 (UNCERTAIN) cần người quyết ở Cổng 2 — đây là mục judgment chờ người, không phải máy tự fail nên không tự động REJECT dù đã qua vòng thứ 4.
 
 ## Gate 2 checklist (human)
 
