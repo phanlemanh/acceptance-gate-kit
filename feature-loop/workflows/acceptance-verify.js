@@ -491,6 +491,9 @@ machine.push(...(uiRaw || []).filter(Boolean).map(r => ({ ...r, runs: 1, passes:
 // tự mint. recheck-evidence/hook đối chiếu run_id trong report với log: PASS bịa tay
 // (không qua verify) bị chặn. ts từ args.invokedAt (skill đo bằng `date -u` — script bị cấm Date).
 const invokedAt = typeof args.invokedAt === 'string' ? args.invokedAt : ''
+// AC-6 delta-verify-repin: sha của HEAD lúc invoke (main loop truyền `git rev-parse HEAD`)
+// — chảy vào TỪNG dòng run-log làm anchor cho carry round fix; vắng args → không field.
+const invokedSha = typeof args.invokedSha === 'string' && args.invokedSha ? args.invokedSha : ''
 const evalRunIds = {}
 const runLogLines = []
 for (const m of machine) {
@@ -498,7 +501,7 @@ for (const m of machine) {
     const rid = (m.runId && String(m.runId).trim()) || `minted-${args.slug}-${evalId}-r${args.round}`
     evalRunIds[evalId] = rid
     runLogLines.push(JSON.stringify({
-      ts: invokedAt, round: args.round, evalId, run_id: rid,
+      ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, evalId, run_id: rid,
       exit_code: m.cannotRun ? null : m.exitCode, cmd: m.cmd,
       ...(m.runs > 1 ? { runs: m.runs, passes: m.passes } : {}),
       ...(m.cannotRun ? { cannot_run: true } : {}),
@@ -510,7 +513,7 @@ for (const m of machine) {
 for (const c of carriedEvals) {
   evalRunIds[c.id] = c.runId
   runLogLines.push(JSON.stringify({
-    ts: invokedAt, round: args.round, evalId: c.id, run_id: c.runId,
+    ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, evalId: c.id, run_id: c.runId,
     exit_code: 0, cmd: evalById.get(c.id).cmd || c.cmd || '',
     carried_from_round: typeof c.fromRound === 'number' ? c.fromRound : null,
   }))
@@ -686,20 +689,20 @@ const panels = [
 for (const pn of freshPanels) {
   const ih = (evalById.get(pn.evalId) || {}).inputsHash
   if (typeof ih === 'string' && ih) runLogLines.push(JSON.stringify({
-    ts: invokedAt, round: args.round, evalId: pn.evalId, kind: 'panel', proposal: pn.proposal,
+    ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, evalId: pn.evalId, kind: 'panel', proposal: pn.proposal,
     votes: pn.votes.map(v => ({ lens: v.lens, verdict: v.verdict })), inputs_hash: ih,
   }))
 }
 for (const p of carriedPanels) {
   if (typeof p.inputsHash === 'string' && p.inputsHash) runLogLines.push(JSON.stringify({
-    ts: invokedAt, round: args.round, evalId: p.evalId, kind: 'panel', proposal: p.proposal,
+    ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, evalId: p.evalId, kind: 'panel', proposal: p.proposal,
     votes: (Array.isArray(p.votes) ? p.votes : []).map(v => ({ lens: v.lens, verdict: v.verdict })),
     inputs_hash: p.inputsHash, carried_from_round: typeof p.fromRound === 'number' ? p.fromRound : null,
   }))
 }
 if (typeof args.evalsHash === 'string' && args.evalsHash) {
   runLogLines.push(JSON.stringify({
-    ts: invokedAt, round: args.round, kind: 'baseline', evals_hash: args.evalsHash,
+    ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, kind: 'baseline', evals_hash: args.evalsHash,
     non_discriminating: nonDiscriminating,
     ...(runBaseline ? {} : { carried_from_round: carriedAnalyst && typeof carriedAnalyst.fromRound === 'number' ? carriedAnalyst.fromRound : null }),
   }))

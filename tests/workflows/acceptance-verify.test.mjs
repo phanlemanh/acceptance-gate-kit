@@ -1092,4 +1092,19 @@ console.log('W-G8 ton kho that: moi _acceptance/*/evals.yaml qua bang RUT TU MAR
     `hard=${mut2.hard.join('|')} soft=${mut2.soft.join('|')}`);
 }
 
+console.log('DV6 invokedSha: sha chảy vào TỪNG dòng run-log; vắng args → không field, không crash (AC-6)');
+{
+  const SHA = 'c'.repeat(40);
+  const { result } = await runWorkflow(WF, baseArgs({ invokedSha: SHA }), responder());
+  check('DV6 verdict vẫn PASS khi có invokedSha', result.verdict === 'PASS', result.verdict);
+  const lines = result.runLog.map(l => JSON.parse(l));
+  check('DV6 MỌI dòng run-log mang sha đúng (eval + baseline memo)', lines.length > 0 && lines.every(l => l.sha === SHA),
+    JSON.stringify(lines.map(l => ({ evalId: l.evalId, kind: l.kind, sha: l.sha }))));
+  const { result: r2 } = await runWorkflow(WF, baseArgs(), responder());
+  check('DV6 vắng invokedSha → verdict PASS, không crash', r2.verdict === 'PASS', r2.verdict);
+  const lines2 = r2.runLog.map(l => JSON.parse(l));
+  check('DV6 vắng invokedSha → KHÔNG dòng nào có key sha (không phải null)', lines2.every(l => !('sha' in l)),
+    JSON.stringify(lines2.map(l => Object.keys(l))));
+}
+
 summary('acceptance-verify');
