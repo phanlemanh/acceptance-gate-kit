@@ -1,6 +1,6 @@
 ## Sổ vàng — người đã quyết gì trên đề xuất của máy
 
-20 lần người quyết trên đề xuất của máy (rút từ chữ ký Cổng 2 đã có, không bịa; nguyên văn đầy đủ nằm trong hồ sơ từng việc):
+21 lần người quyết trên đề xuất của máy (rút từ chữ ký Cổng 2 đã có, không bịa; nguyên văn đầy đủ nằm trong hồ sơ từng việc):
 
 | Việc | Hạng mục được chấm | Máy đề xuất | Người quyết (trích 1 câu) |
 |---|---|---|---|
@@ -11,6 +11,7 @@
 | Pre-merge enforce gap-probe presence (merge-boundary, thay cho hook… (gap-probe-presence-hook) | E9 — Đọc thông điệp VIOLATION và NOTE của luật gap-probe: một… | đạt (PASS) | Manh Phan 2026-07-28 |
 | Card Cổng 1 phải hiện ĐỦ criterion contract khai (gate-card-ac-visibility) | E11 — Đọc card Cổng 1 render từ contract dùng khuôn `- **AC-n… | chưa chắc (UNCERTAIN) | Manh Phan 2026-07-30 |
 | Card Cổng 1 phải hiện ĐỦ criterion contract khai (gate-card-ac-visibility) | E12 — Đọc cảnh báo 'không đọc được criterion nào' trên card Cổng… | chưa chắc (UNCERTAIN) | Manh Phan 2026-07-30 |
+| sổ vàng in cho người được máy đo thật đầu-ra (render round-trip, ma… (gold-output-measure) | J1 — File thứ nhất là STDOUT THẬT của acceptance-gold.mjs bản… | chưa đạt (FAIL) | Manh Phan 2026-08-05 — chấp nhận known-limits: cột Việc/Hạng mục TRÍCH nguyên văn mô tả từ hồ sơ các vòng cũ; sửa nguồn nằm ngoài phạm vi đã duyệt. |
 | verdict judgment không-PASS phải kèm danh sách bằng-chứng-thiếu… (judge-required-evidence) | J12 — Nghi thức required_evidence trong persona: một judge fresh… | đạt (PASS) | Manh Phan 2026-08-05 — J12: chuẩn y PASS (hội đồng 3/3, nghi thức làm được, có luật chống đòi-bằng-chứng-vô-hạn). |
 | verdict judgment không-PASS phải kèm danh sách bằng-chứng-thiếu… (judge-required-evidence) | J13 — File thứ nhất là STDOUT THẬT của acceptance-gold.mjs chạy… | chưa đạt (FAIL) | Manh Phan 2026-08-05 — J13: known-limits. |
 | verdict judgment không-PASS phải kèm danh sách bằng-chứng-thiếu… (judge-required-evidence) | J14 — Run-log S4 của chính vòng này đã có dòng kind:panel với… | chưa chắc (UNCERTAIN) | Manh Phan 2026-08-05 — J14: PASS bằng số đếm dogfood… |

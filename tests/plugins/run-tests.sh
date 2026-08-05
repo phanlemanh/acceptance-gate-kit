@@ -6654,8 +6654,17 @@ def gloss(s):
 # so KHOI ON DINH (bang vang + section + tu dien). Khoi dong thuan doi moi round
 # nen khong so — nhung ba khoi nay du de bat "van viet tay" va "render da doi
 # ma quen sinh lai".
-assert table(saved) == table(fresh), \
-    "gold-stdout.txt khong phai ban may vua in: bang vang lech (saved=%d hang, fresh=%d hang)" % (len(table(saved)), len(table(fresh)))
+# Bang vang co MOT hang cho moi quyet dinh nguoi trong CA KHO, nen so bang
+# nhau la buoc phep do nay vao corpus song: dung mot chu ky Cong 2 o BAT KY
+# feature nao la do — va do voi thong diep bao sai nguyen nhan. Da phat tac
+# ngay o chinh chu ky cua feature nay (S4-r2 finding).
+# Quan he DUNG cho muc dich "van ban giam khao doc la ban may in ra": moi hang
+# trong ban luu PHAI ton tai trong ban tuoi (bat van viet tay / hang bia / ban
+# in ra tu render CU), con ban tuoi co THEM hang moi thi khong sao.
+missing = [l for l in table(saved) if l not in table(fresh)]
+assert not missing, \
+    "gold-stdout.txt khong phai ban may vua in: %d hang khong ton tai trong ban tuoi, vd %r" % (len(missing), missing[0][:120])
+assert table(saved), "gold-stdout.txt khong co hang nao — sanity chong 0-hit-gia"
 assert heads(saved) == heads(fresh), \
     "gold-stdout.txt khong phai ban may vua in: cac muc lech %r vs %r" % (heads(saved), heads(fresh))
 assert gloss(saved) == gloss(fresh), \
