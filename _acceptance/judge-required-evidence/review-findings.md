@@ -1,67 +1,72 @@
 ## Trong hợp đồng
 
-- **acceptance-gold.mjs parses evidence-report without skipping block scalars — log excerpts mint fake gold points**
-  file: `scripts/acceptance-gold.mjs:27`
-  severity: medium
-  AC: AC-8
-  collectGold() scans evidence-report.md line-by-line for `judged_by:`, `verdict:/proposal:` and `human_override:` with no YAML block-scalar skipping and no field allowlist. gate-card.js was explicitly hardened against this exact class (scripts/gate-card.js:340-342: "a log excerpt line like 'human_override: ...' inside output can't drop a real decision"), but the new reader re-introduces the naive parser. Reproduced: an eval block whose `output: |` excerpt contains `verdict: FAIL` and `human_override: Ghost 2026-01-01 — fake note` produces a gold point {machine: "FAIL", human: "Ghost 2026-01-01 — fake note from log"} — an invented human decision rendered into the human-facing "Sổ vàng" table, which the command doc promises is "rút từ chữ ký Cổng 2 đã có, không bịa". The excerpt can also supply the `judged_by:` line itself, so machine-eval blocks with log tails are enough to trigger it. Silent (no error, wrong data). Same bug in the mirror plugins/acceptance-gate/scripts/acceptance-gold.mjs — fix source then re-sync.
-  (nguồn: bugs)
-  rationale: AC-8 hứa mỗi điểm gold gồm verdict máy đề xuất và người-quyết+lý-do trích từ human_override thật; finding cho thấy cả hai trường này có thể bị bịa từ đoạn log trích dẫn trong report, phá đúng nội dung AC-8 cam kết.
+- **featureOf drops the main clause of `feature:` — 'Việc' column renders meaningless fragments**
+  file: `scripts/acceptance-gold.mjs:104`
+  severity: high
+  AC: AC-13
+  featureOf assumes the contract's `feature:` value starts with the slug and unconditionally discards everything before the first ' — ' (parts.slice(1)). Most real contracts instead use '<human description> — <subtitle>', so the load-bearing clause is thrown away. Compounding it, the regex /^feature:\s*"?([^"\n]+)/m truncates at any interior double-quote. Verified on the real corpus (`node scripts/acceptance-gold.mjs --root .`): s4-scope-triage ('Scope-triage cho review findings ở S4 — ngăn thứ ba "thật…"') renders as just 'ngăn thứ ba'; gate-card-ac-visibility renders as 'hoặc kêu to khi không đọc được'; premerge-rules-ledger as '`clean` phải được chứng minh, không phải mặc định'. The gold-book table — the human-facing deliverable this feature's S4-r1 fix was specifically about — silently shows nonsense for every contract not in slug-first format. Same bug in the mirror plugins/acceptance-gate/scripts/acceptance-gold.mjs (fix source, re-run sync).
+  (nguồn: bugs; rationale: Bằng chứng chạy trên corpus thật cho thấy bảng Gold set hiện mảnh câu vô nghĩa, trực tiếp thất bại điều kiện 'người đọc hiểu' của AC-13.)
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **JR11a đóng băng vĩnh viễn lib/** và hooks/** trong CI — AC phạm-vi-feature bị nướng thành gate toàn-repo**
-  Người dùng thấy gì: Nếu tính năng này được chấp nhận như hiện tại, mọi thay đổi trong tương lai chạm tới phần lõi dùng chung của công cụ — kể cả những thay đổi hợp lệ và cần thiết cho việc khác — sẽ luôn bị tự động chặn lại. Đội vận hành khi đó buộc phải gỡ bỏ chốt chặn này để đi tiếp, và từ đó về sau phần lõi dùng chung không còn ai bảo vệ nữa.
-  file: `tests/scripts/core-untouched.test.mjs`
-  severity: high
-  Đề xuất: new-contract
+- **Dấu MISSING_EVIDENCE_MARK sống ở 4 chỗ nhưng không có test ghim byte-identical giữa các nhà**
+  Người dùng thấy gì: Nếu dấu hiệu "thiếu bằng chứng" bị sửa chữ ở một nơi mà quên các nơi khác trong hệ thống, người đọc báo cáo có thể không thấy cảnh báo dù bằng chứng thực sự đang thiếu.
+  file: `feature-loop/workflows/acceptance-verify.js`
+  severity: medium
+  Đề xuất: known-limits
 
-- **P150 ghim đẳng-thức toàn-bộ stdout của gate-card so với bản merge-base — đóng băng output card cho mọi thay đổi tương lai**
-  Người dùng thấy gì: Bất kỳ thay đổi nào sau này với cách hiển thị màn quyết định — kể cả thay đổi không liên quan gì tới tính năng này — có thể bị báo lỗi oan dù thực chất không có gì hỏng. Người vận hành sẽ phải tự tay bỏ qua cảnh báo đó, và theo thời gian cảnh báo dần mất tác dụng bảo vệ thật.
+- **P149 nhánh mutant chỉ ghim mã thoát, không ghim thông điệp — vi phạm trực tiếp bất biến assertion âm tính**
+  Người dùng thấy gì: Phép kiểm tự động cho việc chặn báo cáo mang từ ngữ cấm chỉ xem có báo lỗi hay không, không xem lỗi có đúng lý do hay không — nếu về sau báo cáo lỗi vì nguyên nhân khác, phép kiểm này vẫn báo "ổn", che giấu khả năng máy không còn chặn đúng nội dung giả mạo nữa.
   file: `tests/plugins/run-tests.sh`
   severity: medium
   Đề xuất: known-limits
 
-- **Trôi parity hai harness: bước gold set + G3 chỉ thêm vào commands/acceptance-report.md, bản Codex không được cập nhật**
-  Người dùng thấy gì: Người dùng công cụ qua nhánh Codex sẽ nhận báo cáo thiếu hai phần thông tin (bảng tổng hợp quyết định và bảng đồng thuận) mà người dùng qua nhánh còn lại vẫn thấy đầy đủ — cùng một thao tác nhưng cho ra hai kết quả khác nhau tuỳ công cụ đang dùng.
-  file: `codex/acceptance-gate/skills/acceptance-report/SKILL.md`
-  severity: medium
+- **P150 so đường đọc-cũ với `git merge-base HEAD origin/main` — vacuous sau merge và hardcode ref không fallback**
+  Người dùng thấy gì: Phép kiểm chứng minh báo cáo cũ vẫn hiển thị đúng chỉ có giá trị trong lúc thay đổi đang chờ duyệt; sau khi thay đổi được gộp vào nhánh chính, phép kiểm này tự động mất tác dụng mà không ai biết, nên các hỏng hóc sau này ở tính năng hiển thị báo cáo cũ sẽ không bị phát hiện.
+  file: `tests/plugins/run-tests.sh`
+  severity: low
   Đề xuất: known-limits
 
-- **glossOf eval-id prefix collision — J1 can display J10's question gloss**
-  Người dùng thấy gì: Trong một số trường hợp hiếm, bảng tổng hợp quyết định vàng có thể hiện nhầm câu hỏi của một mục khác cạnh mã số đúng. Người đọc bảng có thể hiểu nhầm mục nào đang được nói tới, dù đây chỉ là lỗi hiển thị chứ không đổi kết quả quyết định thật.
+- **glossOf only matches `question: >` folded style — inline-quoted questions silently fall back to generic placeholder**
+  Người dùng thấy gì: Cột tóm tắt câu hỏi trong bảng kết quả tổng hợp có thể chỉ hiện chữ chung chung thay vì nội dung câu hỏi thật, với một số định dạng câu hỏi phổ biến, khiến người đọc khó biết mục đó thực sự đang hỏi gì.
   file: `scripts/acceptance-gold.mjs`
-  severity: low
+  severity: medium
   Đề xuất: known-limits
 
-- **P154 mutant assertion is vacuous whenever a clause occurs more than once**
-  Người dùng thấy gì: Cơ chế tự kiểm rằng báo cáo phải thay đổi khi một bước hướng dẫn quan trọng bị xoá có một kẽ hở: nếu nội dung đó lặp lại hai lần trong tài liệu, phép kiểm sẽ âm thầm bỏ qua việc kiểm tra thay vì báo lỗi — nghĩa là một bước quan trọng có thể bị xoá mà không ai được cảnh báo.
+- **P150 back-compat leg self-neuters after merge: compares gate-card against merge-base, which becomes HEAD**
+  Người dùng thấy gì: Bảo đảm rằng báo cáo cũ hiển thị đúng chỉ được xác minh trong lúc nhánh thay đổi chưa được gộp; sau khi gộp, phép kiểm này luôn báo ổn bất kể mã nguồn có bị hỏng sau đó hay không, nên mất hết tác dụng bảo vệ.
   file: `tests/plugins/run-tests.sh`
   severity: low
   Đề xuất: known-limits
 
-- **Fixture VIẾT TAY đúng khuôn bên đọc (shape 2) — P150 in ra report bằng printf thay vì sinh từ khuôn template**
-  Người dùng thấy gì: Bài kiểm thử cho màn quyết định Cổng 2 dùng một bản dữ liệu mẫu viết tay thay vì bản được sinh ra từ khuôn thật của báo cáo. Nếu khuôn thật của báo cáo thay đổi sau này, phần hiển thị 'bằng chứng còn thiếu' có thể âm thầm biến mất khỏi màn quyết định thật mà không ai phát hiện ra, vì bài kiểm thử vẫn báo ổn.
+- **Shape 2 — fixture viết tay đúng khuôn bên đọc: P150 hand-writes the gate-card report while eval J5 promises 'SINH TỪ khuôn template'**
+  Người dùng thấy gì: Phép kiểm cho khối "Bằng chứng còn thiếu" trên màn quyết định dùng dữ liệu mẫu soạn tay đúng ý người đọc, thay vì dữ liệu do chính hệ thống tạo ra từ khuôn báo cáo thật — nếu khuôn báo cáo thật đổi hình dạng, màn quyết định có thể âm thầm ngừng hiển thị đúng khối này mà không ai phát hiện.
   file: `tests/plugins/run-tests.sh`
-  severity: high
+  severity: medium
   Đề xuất: known-limits
 
-- **Đo từ vựng thay vì quan hệ (shape 3) — JR1 assert prompt judge bằng hai substring độc lập, vế FAIL|UNCERTAIN vacuous**
-  Người dùng thấy gì: Bài kiểm thử xác nhận máy chấm được nhắc phải liệt kê bằng chứng còn thiếu khi không đạt có một lỗ hổng: nó vẫn có thể báo 'ổn' ngay cả khi câu hướng dẫn quan trọng đó bị xoá khỏi lời nhắc, miễn còn sót một cụm từ khác đâu đó. Rủi ro là yêu cầu cốt lõi của tính năng — máy chấm phải nêu bằng chứng còn thiếu — có thể bị vô hiệu mà không ai biết.
+- **Shape 3 — assert 'chuỗi có mặt' thay vì quan hệ: JR1's judge-prompt check is two independent substring tests for a conditional obligation**
+  Người dùng thấy gì: Phép kiểm cho lời nhắc gửi tới máy chấm chỉ xem có xuất hiện vài từ khoá riêng lẻ hay không, chứ không xem các từ khoá đó có ràng buộc đúng quy tắc với nhau hay không — một lời nhắc nói ngược ý vẫn có thể được phép kiểm này chấp nhận là hợp lệ.
   file: `tests/workflows/acceptance-verify.test.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **Âm tính không ghim thông điệp (shape 4b) — P149 mutant leg chỉ so exit code, stderr bị ignore**
-  Người dùng thấy gì: Bài kiểm thử xác nhận công cụ phát hiện đúng kiểu lỗi (báo cáo bịa nhưng ghi đạt) chỉ kiểm tra rằng công cụ CÓ báo lỗi, không kiểm tra công cụ có báo ĐÚNG loại lỗi hay không. Nếu sau này công cụ báo lỗi vì một nguyên nhân khác, bài kiểm thử vẫn báo ổn, khiến lỗi thật có thể lọt qua mà không bị phát hiện.
+- **Shape 4(b) — mutant leg pins only exit code, no message: P149's injected-violation check accepts any exit-1 failure**
+  Người dùng thấy gì: Phép kiểm mô phỏng lỗi vi phạm chỉ xem máy có báo lỗi (bất kỳ lý do gì) hay không, không xem lỗi có đúng nội dung mong đợi hay không — điều này có thể che giấu việc máy không còn phát hiện đúng loại vi phạm cụ thể mà nó được kỳ vọng bắt.
   file: `tests/plugins/run-tests.sh`
   severity: medium
   Đề xuất: known-limits
 
-- **Mutant leg có lối thoát vacuous khi clause trùng lặp (biến thể shape 4) — P154 assert `not X or count>1`**
-  Người dùng thấy gì: Cơ chế tự kiểm rằng báo cáo phải thay đổi khi một bước hướng dẫn quan trọng bị xoá có một kẽ hở: nếu nội dung đó lặp lại hai lần trong tài liệu, phép kiểm sẽ âm thầm bỏ qua việc kiểm tra thay vì báo lỗi — nghĩa là một bước quan trọng có thể bị xoá mà không ai được cảnh báo.
+- **Shape 1 — đo chỉ dẫn thay vì đầu ra: JR2 asserts the missing-mark reaches the synthesize PROMPT, while the promised template round-trip of the mark is absent**
+  Người dùng thấy gì: Phép kiểm cho việc dấu "thiếu bằng chứng" truyền tới báo cáo chỉ xem dấu đó có được đưa vào lời hướng dẫn gửi cho máy chấm hay không, chứ chưa từng xem dấu đó có thực sự xuất hiện trong báo cáo hoàn chỉnh mà người dùng đọc — nếu một bước xử lý sau đó làm rơi mất dấu, phép kiểm này sẽ không phát hiện.
+  file: `tests/workflows/acceptance-verify.test.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Shape 4 — mutant discrimination self-neutralizes on duplicate clauses: P154's `or len(findall)>1` branch makes the deletion check vacuous**
+  Người dùng thấy gì: Phép kiểm việc xoá một bước hướng dẫn phải làm cảnh báo đỏ có một lối thoát: khi một câu hướng dẫn xuất hiện lặp lại nhiều lần trong tài liệu, phép kiểm coi như vẫn ổn dù bước đó đã bị xoá, khiến khả năng phát hiện xoá nhầm bước bị suy yếu cho những câu lặp lại.
   file: `tests/plugins/run-tests.sh`
   severity: low
   Đề xuất: known-limits
