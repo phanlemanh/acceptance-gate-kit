@@ -6443,6 +6443,69 @@ with tempfile.TemporaryDirectory() as d:
     assert "Sổ vàng" in out.stdout, "corpus rong phai in so trong hop le"
 P158PY
 
+echo "P159 (E3) ma tran dong thuan TOAN PHAN: 4 hinh dang x 3 chieu = 12 o"
+run "P159 agreement 4x3 ke ca nhanh chan" \
+  node - "$ROOT" <<'P159JS'
+const path = require('path');
+const ROOT = process.argv[2];
+(async () => {
+  const mod = await import(path.join(ROOT, 'scripts/acceptance-gold.mjs'));
+  const { agreement } = mod;
+  const L = ['domain-correctness', 'operational-feasibility', 'spec-alignment'];
+  const v = (lens, verdict) => ({ lens, verdict });
+
+  // MA TRAN VIET-TRUOC: 4 hinh dang x 3 chieu (bucket, lensTotal, lensUncertain).
+  // Nhanh chan 2/2 la nhanh CHUA TUNG co test — dung o day no co 3 o rieng.
+  const MATRIX = [
+    { name: '3/3 dong y', votes: [v(L[0],'PASS'), v(L[1],'PASS'), v(L[2],'PASS')],
+      bucket: 'unanimous', total: { [L[0]]:1, [L[1]]:1, [L[2]]:1 }, uncertain: {} },
+    { name: '2-tren-1',   votes: [v(L[0],'PASS'), v(L[1],'PASS'), v(L[2],'FAIL')],
+      bucket: 'majority',  total: { [L[0]]:1, [L[1]]:1, [L[2]]:1 }, uncertain: { [L[2]]:1 } },
+    { name: 'phan ky han',votes: [v(L[0],'PASS'), v(L[1],'FAIL'), v(L[2],'UNCERTAIN')],
+      bucket: 'split',     total: { [L[0]]:1, [L[1]]:1, [L[2]]:1 }, uncertain: { [L[1]]:1, [L[2]]:1 } },
+    { name: 'hoa 2-2',    votes: [v(L[0],'PASS'), v(L[1],'PASS'), v(L[0],'FAIL'), v(L[1],'FAIL')],
+      bucket: 'split',     total: { [L[0]]:2, [L[1]]:2 }, uncertain: { [L[0]]:1, [L[1]]:1 } },
+  ];
+  const DIMS = ['bucket', 'lensTotal', 'lensUncertain'];
+  const expectedAsserts = MATRIX.length * DIMS.length;   // = 12, dem TU ma tran
+  let ran = 0;
+  const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
+  for (const row of MATRIX) {
+    const g = agreement([{ slug: 's', evalId: 'J1', proposal: 'X', votes: row.votes }]);
+    // chieu 1: bucket
+    const hot = Object.entries(g.buckets).filter(([, n]) => n > 0).map(([k]) => k);
+    if (!eq(hot, [row.bucket])) {
+      console.error(`[${row.name}] bucket sai: cho ${row.bucket}, got ${JSON.stringify(g.buckets)}`);
+      process.exit(1);
+    }
+    ran++;
+    // chieu 2: lensTotal
+    if (!eq(g.lensTotal, row.total)) {
+      console.error(`[${row.name}] lensTotal sai: cho ${JSON.stringify(row.total)}, got ${JSON.stringify(g.lensTotal)}`);
+      process.exit(1);
+    }
+    ran++;
+    // chieu 3: lensUncertain
+    if (!eq(g.lensUncertain, row.uncertain)) {
+      console.error(`[${row.name}] lensUncertain sai: cho ${JSON.stringify(row.uncertain)}, got ${JSON.stringify(g.lensUncertain)}`);
+      process.exit(1);
+    }
+    ran++;
+  }
+  if (ran !== expectedAsserts) {
+    console.error(`ma tran chua quet du: chay ${ran}/${expectedAsserts} o`);
+    process.exit(1);
+  }
+  // sanity: so o dem tu MA TRAN, khong phai hang so go tay
+  if (expectedAsserts !== 12) {
+    console.error(`ma tran doi hinh dang (${expectedAsserts} o) — cap nhat contract AC-3 truoc khi doi test`);
+    process.exit(1);
+  }
+  console.log(`P159 OK (${ran} o ma tran, ke ca nhanh hoa 2-2)`);
+})().catch(e => { console.error(e); process.exit(1); });
+P159JS
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
