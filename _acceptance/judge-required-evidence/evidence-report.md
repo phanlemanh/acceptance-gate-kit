@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 186577396323d3f73ac9691c1d0d78e319b8aafd
+verified_commit: 9962888ed8058d1cec02fe737ff2b22ac80d84bb
 human_signoff: Manh Phan 2026-08-05
 ---
 
@@ -210,3 +210,7 @@ Round 4 (hiện tại): bash tests/plugins/run-tests.sh (J8, J9) chạy lại �
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter + `time_human_minutes.gate2` in contract
+
+### Re-pin lần 1 — 2026-08-05, do engine đổi ở vòng gold-output-measure (sổ vàng + tài liệu luật + bộ kiểm)
+run_id: repin-20260805-gold-output-measure-lane1
+sha: 9962888ed8058d1cec02fe737ff2b22ac80d84bb · suites: 6 lệnh exit 0

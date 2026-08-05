@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: e6dad45a6169d17c59ac85a95c6d58924c14ffff
+verified_commit: 9962888ed8058d1cec02fe737ff2b22ac80d84bb
 # bypass_ack:
 human_signoff: Manh Phan 2026-08-02          # Gate 2 — human writes "<name> <ISO date>" AFTER review
 ---
@@ -228,3 +228,7 @@ sha: 5ec937c0746dfeaa3c554f5c44b224954ae989ae · suites: 6 lệnh exit 0
 ### Re-pin lần 6 — 2026-08-05, do feature judge-required-evidence (nghi thức 1-lane)
 run_id: repin-20260805-judge-required-evidence-lane1
 sha: e6dad45a6169d17c59ac85a95c6d58924c14ffff · suites: 6 lệnh exit 0
+
+### Re-pin lần 4 — 2026-08-05, do engine đổi ở vòng gold-output-measure (sổ vàng + tài liệu luật + bộ kiểm)
+run_id: repin-20260805-gold-output-measure-lane1
+sha: 9962888ed8058d1cec02fe737ff2b22ac80d84bb · suites: 6 lệnh exit 0

@@ -9,3 +9,4 @@ Thay danh sach tren KHONG du can cu de phan → do la ly do tra UNCERTAIN, TUYET
 Cau hoi phan xet (E9 / AC-9): ro rang?
 
 Tra verdict PASS | FAIL | UNCERTAIN + rationale 1-3 cau. UNCERTAIN khi khong du can cu — dung doan.
+Verdict khac PASS thi BAT BUOC dien required_evidence: >=1 muc, MOI muc la MOT bang chung cu the + CHO LAY no (file/lenh/anh nao), du de "neu co muc nay thi verdict doi" — khong loi khuyen chung chung, khong doi bang chung vo han de ne phan. PASS thi bo qua field nay.

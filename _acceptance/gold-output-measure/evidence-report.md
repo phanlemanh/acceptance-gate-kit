@@ -1,13 +1,13 @@
 ---
 schema_version: 2
 feature_slug: gold-output-measure
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 49b1c2af70d77e4807db72fae569998ae56649c0
+verified_commit: 9962888ed8058d1cec02fe737ff2b22ac80d84bb
 human_signoff: Manh Phan 2026-08-05
 ---
 
@@ -185,3 +185,7 @@ Round 2: E1–E10 (test, AC-1..AC-10) vẫn PASS trên `bash tests/plugins/run-t
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter + `time_human_minutes.gate2` in contract
+
+### Re-pin lần 1 — 2026-08-05, do engine đổi ở vòng gold-output-measure (sổ vàng + tài liệu luật + bộ kiểm)
+run_id: repin-20260805-gold-output-measure-lane1
+sha: 9962888ed8058d1cec02fe737ff2b22ac80d84bb · suites: 6 lệnh exit 0
