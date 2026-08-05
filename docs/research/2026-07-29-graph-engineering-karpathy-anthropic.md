@@ -102,3 +102,42 @@ invariant hiện có: schema đổi có đường đọc-cũ, cờ vàng, không
 - Bảng "common misreading" của metric đáng nhớ: high precision che thiếu
   entity · compression cao thưởng cho over-merge · average success che case
   thảm hoạ · nhiều agent hơn = nhiều activity hơn, chưa chắc nhiều value hơn.
+
+## Cập nhật 2026-08-05 — phân tích lại sau ~5 tuần-công vận hành (228 commit, 7→20 workspace)
+
+**Gap ranking cũ — số phận từng dòng:**
+
+| # | Trạng thái 05/08 | Bằng chứng |
+|---|---|---|
+| G1 | **SHIPPED + ĐO GO** — claim-scan làm input 5 của gap-probe từ 1.18.0; 2 vòng hardening (parser + section-boundary) | 9/12 feature sau ship có citation `[id]` trong gap-probe.md (grep được, đúng đường đo DP-1); nhiều finding `fixed` nhờ cite bài học cũ |
+| G2 | CHƯA — judge vẫn trả UNCERTAIN trần, không `required_evidence[]` | grep 0 hit trong skills/scripts/lib |
+| G3 | CHƯA ĐO — panel diversity vẫn chỉ nằm trong note này | không có audit record |
+| G4 | CHƯA — không có `feature_loop.budget`; cap 3 round vẫn là phanh duy nhất | grep 0 hit |
+| G5 | CHƯA có gold set; NHƯNG tinh thần ratchet-engine chạy qua đường khác: retro có nghi thức (V1 retro 27→29/07), memory bài học máy-đọc-một-nửa, và mẫu **ma trận toàn phần P105** (viết thước TRƯỚC, mutant tái tạo bug gần nhất) | docs/research/2026-07-29-v1-retro-bai-hoc.md; case P105 |
+| G6 | Vẫn đúng là KHÔNG làm — không ai nhớ nó | — |
+
+**Graph plane: từ "mặt phẳng thiếu" → V1 sống + đang hợp nhất tầng đọc.**
+Ngoài claim index, `lib/md-section.js` (bảng luật ranh giới có marker, self-read
+runtime) đã gom 2/4 reader; feature đang giữa vòng
+`workspace-reader-unification` (T3, Cổng 1 đã ký 04/08) tổng quát hoá nốt:
+"mọi bên đọc hồ sơ xưởng phải cho cùng một kết luận". Đánh giá 5-plane mới:
+**4.5/5** — graph plane có thật nhưng vẫn per-repo, nguồn hẹp (ledger +
+gap-probe; review-findings/run-log vẫn V2), chưa persist, chưa semantic match.
+
+**Gap MỚI mà 5 tuần vận hành lộ ra (phân tích cũ không thấy — xếp hạng mới):**
+
+| # | Gap mới | Bài học nguồn | Trạng thái |
+|---|---|---|---|
+| NG1 | **Vòng verify không tự hội tụ** — reviewer round N+1 đào bug trong fix của round N; REJECT vô hạn trên diff lớn là CƠ CHẾ của evaluator mở, không phải xui (F-B r12→r16; 3 feature 29/07 đều thấy mầm) | [[vong-verify-khong-tu-hoi-tu]], [[fix-tu-tao-lo-moi]] | Giải pháp cơ chế ĐÃ ship: scope-triage 3 ngăn + luật triage viết trước + escalate hết round; nhưng đây là phát hiện lý thuyết đáng giá — tài liệu Graph Engineering KHÔNG bàn convergence của evaluator |
+| NG2 | **Lớp thước-đo là bề mặt lỗi lớn nhất** — đo từ-vựng thay quan hệ (6 vòng cùng xương), thước không gắn vào vật (4 round start-scan), quét-lớp tuyên khống (1 mutant/5 phần tử) | [[do-tu-vung-thay-vi-quan-he]], [[ha-thuoc-cho-vua-vat]] | Lời giải đóng đã có mẫu (P105 ma trận toàn phần) nhưng chưa thành luật cưỡng chế của engine — ứng viên nâng cấp gap-probe/review |
+| NG3 | **Stale-cascade cost O(N workspace)** — mỗi lần chạm engine phải re-pin machine-only TOÀN BỘ (nay 18-19 workspace/lần, nhiều lần/ngày); mỗi re-pin = N agent tươi chạy CÙNG 4 suite | [[kit-self-hosting]]; các commit re-pin liên tục | CHƯA có delta-verify cho re-pin; chi phí tăng tuyến tính theo số feature đã ship — sẽ thành gánh nặng số 1 của self-host |
+| NG4 | **Đo ở phía consumer** — kit tự-host xanh không chứng minh gì cho repo tiêu thụ; P58 smoke-mirror là mầm, nguyên tắc đã thành memory nhưng chưa thành lớp eval bắt buộc | [[do-o-phia-consumer]] | Một phần (smoke mirror); chưa có consumer-fixture suite chuẩn |
+
+**Kết luận cập nhật theo thước Graph Engineering:** trục *memory* đã tiến rõ
+(graph plane V1 sống, có số đo); trục *evaluation* — vốn là điểm mạnh — hoá ra
+còn một tầng chưa ai chấm: **meta-evaluation** (thước có gắn vào vật không,
+vòng có hội tụ không, đo ở phía nào). 5 tuần vận hành cho thấy phần lớn lỗi
+mới không nằm ở code được giao mà ở CHÍNH các phép đo — và tài liệu Graph
+Engineering im lặng về tầng này. Ưu tiên mới đề xuất: NG3 (chi phí đang chảy
+máu hằng ngày, cùng logic "cầm máu trước" đã dùng cho loop-stall) → NG2 (nâng
+P105 thành luật engine) → G2/G3 (như cũ) → NG4.
