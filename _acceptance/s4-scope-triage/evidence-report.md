@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict   # the `enforcement` value from _acceptance/config.yaml (default strict). CI pre-merge BLOCKS off; warn only warns.
 bypass_used: false              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
-verified_commit: 1edac0ad1ed4a518485be592f3e81ae469367e4b
+verified_commit: 866c89eec081b35144d3c837cd129c1c942b92c7
 # bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -509,3 +509,22 @@ nguyên như các lần re-pin trước.
 - `verified_commit` re-pin → `6f3449c5b92c5ba1a7f5a7716fd83ade7fdeb8e7` (chỉ dòng máy).
 - **KHÔNG chạy lại:** eval `judgment`, vòng review/refute. Chữ ký +
   `human_override` giữ nguyên.
+
+
+### Re-pin — 2026-08-05 (sau gate-card-ngon-ngu-may 1.32.0), tại 866c89e
+
+`verified_commit` lên `866c89e`. Nguyên nhân stale: PR #29 sửa LỚP TRÌNH BÀY
+thẻ cổng — scripts/gate-card.js (nối bullet hard-wrap, tầng card-plain cho
+Coverage/gap-probe, lột markdown ở fallback) + writer doc 2 harness + test
+P146–P148 + bump manifest 1.32.0 + vẽ lại PRODUCT-MAP.md + fix grep portable.
+Không luật cưỡng chế nào đổi: hooks/, lib/, pre-merge-check.sh,
+recheck-evidence.js KHÔNG nằm trong diff.
+
+- **ĐÃ chạy lại:** toàn bộ machine lane tại `866c89e` — 596 case scripts ·
+  51 hooks · plugins pass (kèm P146–P148 mới) · workflows pass · mirror in
+  sync · product-map khớp; cả 6 suite_keys exit 0. Minh bạch: MỘT lượt chạy
+  chung trong phiên fix CI của PR #29 cho cả đợt re-pin 19 slug, không phải
+  agent tươi per-slug (khuôn 1-lượt có máy đối chiếu là việc của
+  delta-verify-repin, đã duyệt Cổng 1, chưa ship).
+- **KHÔNG chạy lại:** eval judgment, vòng review/refute. Chữ ký +
+  `human_override` sẵn có giữ nguyên hiệu lực.
