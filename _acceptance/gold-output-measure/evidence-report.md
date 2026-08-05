@@ -1,13 +1,13 @@
 ---
 schema_version: 2
 feature_slug: gold-output-measure
-verdict: REJECT
+verdict: PENDING-JUDGMENT
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 82bdf33217f7ef5c1831f1e028e848851aeae237
+verified_commit: 49b1c2af70d77e4807db72fae569998ae56649c0
 human_signoff:
 ---
 
@@ -25,115 +25,115 @@ human_signoff:
 | E8 | AC-8 | test | PASS |
 | E9 | AC-9 | test | PASS |
 | E10 | AC-10 | test | PASS |
-| J1 | AC-11 | judgment | UNCERTAIN |
+| J1 | AC-11 | judgment | FAIL |
 
 ## Evidence
 
 - eval: E1
-  run_id: minted-gold-output-measure-E1-r1
+  run_id: minted-gold-output-measure-E1-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T13:07:04Z
+  verified_at: 2026-08-05T20:32:00Z
   output: |
     PASS: P160 --json hinh dang cu + provenance gold-stdout
 
     Results: all plugin tests passed
 
 - eval: E2
-  run_id: minted-gold-output-measure-E2-r1
+  run_id: minted-gold-output-measure-E2-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T13:07:04Z
+  verified_at: 2026-08-05T20:32:00Z
   output: |
     PASS: P160 --json hinh dang cu + provenance gold-stdout
 
     Results: all plugin tests passed
 
 - eval: E3
-  run_id: minted-gold-output-measure-E3-r1
+  run_id: minted-gold-output-measure-E3-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T13:07:04Z
+  verified_at: 2026-08-05T20:32:00Z
   output: |
     PASS: P160 --json hinh dang cu + provenance gold-stdout
 
     Results: all plugin tests passed
 
 - eval: E4
-  run_id: minted-gold-output-measure-E4-r1
+  run_id: minted-gold-output-measure-E4-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T13:07:04Z
+  verified_at: 2026-08-05T20:32:00Z
   output: |
     PASS: P160 --json hinh dang cu + provenance gold-stdout
 
     Results: all plugin tests passed
 
 - eval: E5
-  run_id: minted-gold-output-measure-E5-r1
+  run_id: minted-gold-output-measure-E5-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T13:07:04Z
+  verified_at: 2026-08-05T20:32:00Z
   output: |
     PASS: P160 --json hinh dang cu + provenance gold-stdout
 
     Results: all plugin tests passed
 
 - eval: E6
-  run_id: minted-gold-output-measure-E6-r1
+  run_id: minted-gold-output-measure-E6-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T13:07:04Z
+  verified_at: 2026-08-05T20:32:00Z
   output: |
     PASS: P160 --json hinh dang cu + provenance gold-stdout
 
     Results: all plugin tests passed
 
 - eval: E7
-  run_id: minted-gold-output-measure-E7-r1
+  run_id: minted-gold-output-measure-E7-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T13:07:04Z
+  verified_at: 2026-08-05T20:32:00Z
   output: |
     PASS: P160 --json hinh dang cu + provenance gold-stdout
 
     Results: all plugin tests passed
 
 - eval: E8
-  run_id: minted-gold-output-measure-E8-r1
+  run_id: minted-gold-output-measure-E8-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T13:07:04Z
+  verified_at: 2026-08-05T20:32:00Z
   output: |
     PASS: P160 --json hinh dang cu + provenance gold-stdout
 
     Results: all plugin tests passed
 
 - eval: E9
-  run_id: minted-gold-output-measure-E9-r1
+  run_id: minted-gold-output-measure-E9-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T13:07:04Z
+  verified_at: 2026-08-05T20:32:00Z
   output: |
     PASS: P160 --json hinh dang cu + provenance gold-stdout
 
     Results: all plugin tests passed
 
 - eval: E10
-  run_id: minted-gold-output-measure-E10-r1
+  run_id: minted-gold-output-measure-E10-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T13:07:04Z
+  verified_at: 2026-08-05T20:32:00Z
   output: |
     PASS: P160 --json hinh dang cu + provenance gold-stdout
 
@@ -142,38 +142,38 @@ human_signoff:
 <!-- <<<JUDGMENT-BLOCK-TEMPLATE -->
 - eval: J1
   judged_by: panel (fresh context)
-  proposal: UNCERTAIN
+  proposal: FAIL
   votes:
-    - domain-correctness: UNCERTAIN — Trong phạm vi 2 file được cấp, không có run-log/lệnh chạy nào chứng minh gold-stdout.txt là STDOUT thật của acceptance-gold.mjs sinh trong chính vòng verify này — đáng chú ý, chính sổ vàng lại tự ghi câu hỏi gần giống hệt (hàng J13) từng bị chấm "chưa đạt (FAIL)" và người ký chỉ xử bằng known-limits chứ chưa có xác nhận mới, nên khẳng định "thật" hay "không thật" đều thiếu căn cứ. Về ngôn ngữ mặt người, bảng và khối Từ điển tuân khá chặt N1-N6 (chủ ngữ máy/người rõ ở 2 cột Máy đề xuất/Người quyết, mã số kèm giải nghĩa, known-limits/dogfood được chú giải đúng nguyên văn SIGNOFF-JARGON-GLOSS thay vì viết lại lời ký) nhưng đó không phải câu hỏi chính của AC-11. Phần "required_evidence của J13 vòng judge-required-evidence round 4 mục nào còn chưa xử" không đối chiếu được vì file J13 gốc không nằm trong danh sách Input cấp cho J1 lần này.
+    - domain-correctness: FAIL — Phần lớn gold-stdout.txt đã đọc được bằng tiếng người: bảng dịch cột "Máy đề xuất" nay có chú giải (đạt/chưa chắc/chưa đạt kèm mã), phần đồng thuận đã tách 1-dòng-1-ý (N4), và khối "Từ điển" ở cuối file khớp đúng khối SIGNOFF-JARGON-GLOSS của human-facing-language.md — đúng cơ chế mà chính luật đó cho phép thay việc viết lại lời ký (N4 cấm sửa nguyên văn quyết định của người, nên glossing là lối ra hợp lệ RIÊNG cho lời ký, không phải giấy phép chung cho mọi câu khác trong báo cáo). Nhưng hai mục required_evidence của J13 round 4 vẫn còn nguyên chưa xử: dòng M8/M9 (hàng matrix-measure-law) còn "lens measurement"/"finder fresh"/"cross-check" tiếng Anh trần không có trong Từ điển, và dòng judgment-question-guard vẫn lấy tên file "acceptance-verify.js" làm chủ ngữ với "fail-closed/eval/field" không dịch — một người quyết kinh doanh đọc hai chỗ này sẽ vấp đúng như round 4 đã nêu.
       required_evidence:
-        - File/run-log chứng minh provenance: một dòng ghi lệnh thật trong _acceptance/gold-output-measure/evidence/ (vd run-log.jsonl hoặc tương đương) cho thấy `acceptance-gold.mjs` đã chạy trên corpus repo trong chính vòng verify này, kèm timestamp và checksum/độ dài khớp với gold-stdout.txt — có mục này thì xác nhận được 'STDOUT THẬT', thiếu thì vẫn là văn bản không rõ nguồn gốc máy sinh hay tay soạn.
-        - Đối chứng trực tiếp: chạy `node <đường dẫn thật của acceptance-gold.mjs>` trên đúng corpus hiện tại và diff byte-for-byte (hoặc theo hash) với _acceptance/gold-output-measure/evidence/gold-stdout.txt — khớp thì xác nhận nguồn máy sinh, lệch thì lộ file đã bị chỉnh tay sau khi sinh.
-        - File required_evidence gốc của mục J13 (vòng judge-required-evidence round 4) — ví dụ trong _acceptance/judge-required-evidence/evidence/ — hiện không nằm trong Input cấp cho J1; cần bổ sung để trả lời phần 'mục nào còn chưa xử' của câu hỏi phân xét.
-    - operational-feasibility: FAIL — gold-stdout.txt trộn ngôn ngữ mặt máy vào nội dung chính thay vì xuống cột phụ/ngoặc: cột "Việc" dùng thẳng "machine-lane", "run_id" làm chủ ngữ (vi phạm N1/N2), dòng J14 nhét nguyên field JSONL "kind:panel" giữa câu tiếng người (vi phạm N2/N6), và các từ "fixture", "writer", "carry", "panel 3/3", "r1/r2/r3" trong cột Người quyết là biệt ngữ không có trong khối HFL-GLOSSARY-TERMS (chỉ 8 mục: mặt người/mặt máy/lỗ-kit/mặt phẳng/nhìn-thấy-hình/known-limits/dogfood/single-source) nên vi phạm N6. Cơ chế chú giải cho known-limits/dogfood/single-source đúng như N4 mô tả (giữ nguyên lời ký, thêm nghĩa ở khối Từ điển) nhưng không bao phủ hết biệt ngữ thực tế xuất hiện trong file. Không thể đối chiếu required_evidence của J13 round 4 vì file gốc chứa nó không nằm trong danh sách Input được cấp cho eval này.
+        - gold-stdout.txt dòng 18 (hàng M8, cột "Hạng mục được chấm"): câu "M8 — Prompt lens measurement: một finder fresh không có ngữ cảnh…" còn nguyên cụm tiếng Anh "lens measurement"/"finder fresh", không xuất hiện trong khối Từ điển (dòng 49-58 của gold-stdout.txt) lẫn HFL-GLOSSARY-TERMS của human-facing-language.md — dịch câu hoặc thêm 2 mục glossary ở cả hai nơi thì verdict đổi.
+        - gold-stdout.txt dòng 19 (hàng M9): câu "M9 — 4 câu cross-check lớp-đo-lường trong 2 SKILL: nếu một bộ…" còn "cross-check" tiếng Anh trần, không có mục trong Từ điển lẫn HFL-GLOSSARY-TERMS — dịch hoặc thêm mục glossary thì verdict đổi.
+        - gold-stdout.txt dòng 14 (bảng chính, hàng judgment-question-guard) và dòng 44 (danh sách 10 việc thiếu biên bản): câu "acceptance-verify.js DỪNG fail-closed khi eval thiếu field mà prompt…" lặp lại nguyên vi phạm N1/N2 mà J13 round 4 đã nêu (chủ ngữ là tên file, "fail-closed/eval/field" không dịch) — viết lại theo khuôn N1/N2 (chủ ngữ người dùng/sản phẩm, tên kỹ thuật xuống ngoặc) ở cả hai chỗ xuất hiện thì verdict đổi.
+    - operational-feasibility: FAIL — Cột "Máy đề xuất" và khối "giám khảo đồng thuận" đã sửa tốt (glossing đạt/chưa chắc/chưa đạt, tách 3 lens ra 3 dòng, mỗi việc-thiếu-biên-bản một dòng riêng), và biệt ngữ trong LỜI KÝ (known-limits, dogfood, single-source, run_id, machine-lane, fixture, carry, kind:panel) đã có khối Từ điển đúng khuôn N4-exempt của human-facing-language.md. Nhưng cột "Việc" — văn máy tự viết, KHÔNG phải lời ký nên không được hưởng lối thoát chú giải — vẫn còn nguyên hai vi phạm mà required_evidence J13 round 4 đã nêu đích danh: dòng 17 lấy tên file "acceptance-verify.js" làm chủ ngữ kèm "fail-closed/eval/field" chưa dịch (vi phạm N1/N2/N6, không có mục nào trong Từ điển hay HFL-GLOSSARY-TERMS), và dòng 7-9 vẫn nhét "machine-lane"/"run_id" vào câu chính thay vì đẩy vào ngoặc kỹ thuật. Phép thử Xoá-tên-máy trên dòng 17 cho câu rỗng nghĩa với người không đọc code, nên required_evidence này CHƯA xử trong file 1.
       required_evidence:
-        - Sửa dòng J14 trong bảng Sổ vàng (gold-stdout.txt dòng 16): thay cụm thô 'kind:panel' bằng câu tiếng người + đưa tên field xuống ngoặc/chú thích, hoặc thêm 'kind:panel' vào CONTEXT.md rồi gloss trong khối Từ điển của gold-stdout.txt.
-        - Viết lại cột 'Việc' cho các dòng dùng 'machine-lane'/'run_id' làm nội dung chính (vd dòng 7, 9 — delta-verify-repin) theo khuôn PLAN-SUMMARY-TABLE-TEMPLATE: chủ ngữ là người dùng/sản phẩm, tên kỹ thuật xuống ngoặc.
-        - Thêm 'fixture', 'writer', 'carry' vào CONTEXT.md và vào khối HFL-GLOSSARY-TERMS/SIGNOFF-JARGON-GLOSS của human-facing-language.md, rồi cập nhật khối Từ điển cuối gold-stdout.txt cho khớp — hoặc viết lại các câu chứa chúng (dòng 18, 21) bằng chữ thường không biệt ngữ.
-        - Cấp bổ sung file/run-log gốc chứa required_evidence đầy đủ của J13 (vòng judge-required-evidence round 4) làm Input hợp lệ cho lần chấm lại — hiện J1 không có căn cứ để nói mục nào trong required_evidence đó đã xử lý, mục nào chưa.
-    - spec-alignment: UNCERTAIN — Về nội dung, gold-stdout.txt tuân khá tốt luật N1-N6 của human-facing-language.md — khối "Từ điển" cuối trang khớp đúng 3 mục (known-limits, dogfood, single-source) đúng khuôn SIGNOFF-JARGON-GLOSS, và lời ký giữ nguyên văn (chú giải chứ không viết lại, đúng N4); required_evidence của J13 round 4 coi như còn treo nguyên vì dòng J13 trong sổ ghi "chưa đạt (FAIL)" được xử bằng "known-limits" (miễn trừ), không phải bằng bằng chứng bổ sung nào được liệt kê. Nhưng tiền đề cốt lõi của câu hỏi — file này là STDOUT THẬT của acceptance-gold.mjs chạy trong chính vòng verify này — không có căn cứ nào trong 2 file được cấp để xác nhận (không timestamp, không dòng lệnh, không run-log nối vào bản chạy thật), và cột "Việc" vẫn lẫn biệt ngữ máy (machine-lane, run_id) chưa qua chú giải hay xuống ngoặc đúng N1/N2 — nên không đủ căn cứ để PASS hay FAIL dứt khoát.
+        - gold-stdout.txt dòng 17 (và dòng 44 lặp lại): cụm 'acceptance-verify.js DỪNG fail-closed khi eval thiếu field mà prompt…' phải viết lại theo N1/N2 (chủ ngữ là người dùng/sản phẩm, tên file 'acceptance-verify.js' xuống ngoặc/cột phụ) và giải nghĩa 3-5 chữ cho 'fail-closed' lần đầu xuất hiện (N3) — nếu sửa, verdict đổi.
+        - gold-stdout.txt dòng 7-9, cột Việc: cụm 'machine-lane + N chữ ký cùng run_id' đang là nội dung câu chính (không phải trích lời ký nên không được dùng lối chú-giải-thay-vì-viết-lại của human-facing-language.md §'Biệt ngữ trong lời ký') — cần đưa 'machine-lane'/'run_id' vào ngoặc kỹ thuật hoặc diễn giải bằng chữ thường theo N2; nếu sửa, verdict đổi.
+        - human-facing-language.md HFL-GLOSSARY-TERMS (dòng 127-141) hoặc CONTEXT.md: cần thêm mục cho 'fail-closed', 'eval', 'field' nếu các từ này tiếp tục xuất hiện trần trong mặt người — hiện chưa có mục nào cho ba từ này.
+    - spec-alignment: FAIL — Cột "Máy đề xuất" nay có giải nghĩa kèm mã (N3 đạt) và biệt ngữ trong LỜI KÝ (known-limits, dogfood, single-source, run_id, machine-lane, fixture, carry, kind:panel) đã được chú giải đúng cơ chế mới ở file 3 (khối Từ điển thay cho viết lại, hợp N4) — nhưng nhiều biệt ngữ khác trong cột "Việc"/"Hạng mục được chấm" (không phải lời ký, không bị N4 bảo vệ) vẫn trần tiếng máy và KHÔNG có trong khối Từ điển: "VIOLATION và NOTE" (dòng 11, 23, 24), "lens measurement"/"finder fresh"/"cross-check" (dòng 18-19), và dòng 17 vẫn lấy "acceptance-verify.js" làm chủ ngữ với "fail-closed/eval/field" chưa dịch — vi phạm N1/N2/N6 y hệt lý do J13 round 4 đã chấm FAIL. Người quyết kinh doanh không đọc code sẽ vấp ở các dòng này khi áp phép thử Xoá-tên-máy.
       required_evidence:
-        - Dòng run-log.jsonl (hoặc bản ghi lệnh) trong _acceptance/gold-output-measure/evidence/ nối gold-stdout.txt với một lệnh `node .../acceptance-gold.mjs` thật sự chạy trong vòng verify này (timestamp + checksum/độ dài khớp file) — nếu có, xác nhận đây là STDOUT THẬT chứ không phải văn viết tay.
-        - Danh sách required_evidence gốc của J13 vòng judge-required-evidence round 4 (file evidence thật của feature đó, không phải dòng tóm tắt trong sổ vàng) để xác nhận mục nào bị miễn bằng known-limits và mục nào lẽ ra vẫn còn nợ.
-        - Chú giải hoặc rút gọn cho các cụm biệt ngữ máy 'machine-lane' và 'run_id' xuất hiện trong cột Việc — hiện chưa có trong khối Từ điển lẫn HFL-GLOSSARY-TERMS, vi phạm N6/N2 nếu bảng này được xem là mặt người.
+        - (judge không nêu bằng-chứng-thiếu)
   human_override:
 <!-- JUDGMENT-BLOCK-TEMPLATE>>> -->
 
 ## Analyst
 
-E1, E2, E3, E4, E5, E6, E7, E8, E9, E10 — non-discriminating trên `bash tests/plugins/run-tests.sh` (baseline: green cho toàn bộ suite): cả 10 eval đều pass trên CẢ HEAD lẫn diffBase (code trước feature), nên suite hiện tại chưa chứng minh được đóng góp riêng của gold-output-measure — cần rà lại từng eval để assert đúng hành vi MỚI, hoặc xác nhận có chủ ý đây là regression-guard (xem thêm finding "P160 never compares against the pre-diff script" trong review-findings.md — cùng nguyên nhân gốc: phép đo không thực sự so với bản trước-diff).
+carried tu round 1 — baseline khong do lai round nay
+
+none — không eval nào được đo lại baseline vòng này (5 lệnh suite phụ — scripts/hooks/workflows run-tests, sync-plugin-packages --check, product-map --check — chạy xanh cả hai phía như thường lệ, là regression-guard bình thường, không liệt kê).
 
 ## Variance
 
-none — không eval nào có runs > 1 (không có eval ngẫu nhiên trong vòng này).
+none — không eval nào có runs > 1 (J1 chấm bằng 3 lens cố định, không phải 3 lần chạy ngẫu nhiên).
 
 ## Iterations
 
 Round 1: E1–E10 (test, AC-1..AC-10) đều PASS trên `bash tests/plugins/run-tests.sh` (exit 0, baseline: green trên cả HEAD và diffBase). J1 (AC-11, judgment) — hội đồng 3 lens: domain-correctness UNCERTAIN, operational-feasibility FAIL, spec-alignment UNCERTAIN → đề xuất tổng panel UNCERTAIN, chưa có human_override. Verdict vòng này: REJECT.
+Round 2: E1–E10 (test, AC-1..AC-10) vẫn PASS trên `bash tests/plugins/run-tests.sh`; thêm 5 lệnh suite phụ (scripts/hooks/workflows run-tests, sync-plugin-packages --check, product-map --check) đều xanh, không gắn eval. Baseline không đo lại (P2 — evals.yaml không đổi từ round 1). J1 (AC-11, judgment) — hội đồng 3 lens đều FAIL: domain-correctness, operational-feasibility, spec-alignment, cùng viện dẫn required_evidence J13 round 4 (matrix-measure-law dòng M8/M9, judgment-question-guard) vẫn chưa xử trong gold-stdout.txt → đề xuất tổng panel FAIL, chưa có human_override. Verdict vòng này: PENDING-JUDGMENT.
 
 ## Gate 2 checklist (human)
 

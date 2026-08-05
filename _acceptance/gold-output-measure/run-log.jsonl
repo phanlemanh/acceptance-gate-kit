@@ -9,3 +9,14 @@
 {"ts":"2026-08-05T12:55:00Z","sha":"82bdf33217f7ef5c1831f1e028e848851aeae237","round":1,"evalId":"E9","run_id":"minted-gold-output-measure-E9-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-05T12:55:00Z","sha":"82bdf33217f7ef5c1831f1e028e848851aeae237","round":1,"evalId":"E10","run_id":"minted-gold-output-measure-E10-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-05T12:55:00Z","sha":"82bdf33217f7ef5c1831f1e028e848851aeae237","round":1,"kind":"baseline","evals_hash":"pending","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E7","E8","E9","E10"]}]}
+{"ts":"2026-08-05T13:25:00Z","sha":"49b1c2af70d77e4807db72fae569998ae56649c0","round":2,"evalId":"E1","run_id":"minted-gold-output-measure-E1-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-05T13:25:00Z","sha":"49b1c2af70d77e4807db72fae569998ae56649c0","round":2,"evalId":"E2","run_id":"minted-gold-output-measure-E2-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-05T13:25:00Z","sha":"49b1c2af70d77e4807db72fae569998ae56649c0","round":2,"evalId":"E3","run_id":"minted-gold-output-measure-E3-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-05T13:25:00Z","sha":"49b1c2af70d77e4807db72fae569998ae56649c0","round":2,"evalId":"E4","run_id":"minted-gold-output-measure-E4-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-05T13:25:00Z","sha":"49b1c2af70d77e4807db72fae569998ae56649c0","round":2,"evalId":"E5","run_id":"minted-gold-output-measure-E5-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-05T13:25:00Z","sha":"49b1c2af70d77e4807db72fae569998ae56649c0","round":2,"evalId":"E6","run_id":"minted-gold-output-measure-E6-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-05T13:25:00Z","sha":"49b1c2af70d77e4807db72fae569998ae56649c0","round":2,"evalId":"E7","run_id":"minted-gold-output-measure-E7-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-05T13:25:00Z","sha":"49b1c2af70d77e4807db72fae569998ae56649c0","round":2,"evalId":"E8","run_id":"minted-gold-output-measure-E8-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-05T13:25:00Z","sha":"49b1c2af70d77e4807db72fae569998ae56649c0","round":2,"evalId":"E9","run_id":"minted-gold-output-measure-E9-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-05T13:25:00Z","sha":"49b1c2af70d77e4807db72fae569998ae56649c0","round":2,"evalId":"E10","run_id":"minted-gold-output-measure-E10-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-05T13:25:00Z","sha":"49b1c2af70d77e4807db72fae569998ae56649c0","round":2,"kind":"baseline","evals_hash":"pending2","non_discriminating":[],"carried_from_round":1}

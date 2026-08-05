@@ -4,7 +4,7 @@ feature: "gold-output-measure — sổ vàng in cho người được máy đo t
 slug: gold-output-measure
 risk_tier: T2
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-08-05T11:15:00Z
 owner: phanlemanh@gmail.com
