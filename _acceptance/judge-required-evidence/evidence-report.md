@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: judge-required-evidence
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 186577396323d3f73ac9691c1d0d78e319b8aafd
-human_signoff:
+human_signoff: Manh Phan 2026-08-05
 ---
 
 # Evidence Report: judge-required-evidence
@@ -144,7 +144,7 @@ human_signoff:
     - domain-correctness: PASS (r1)
     - operational-feasibility: PASS (r1)
     - spec-alignment: PASS (r1)
-  human_override:
+  human_override: Manh Phan 2026-08-05 — J12: chuẩn y PASS (hội đồng 3/3, nghi thức làm được, có luật chống đòi-bằng-chứng-vô-hạn).
 
 - eval: J13
   judged_by: judge-panel (fresh context, 3 lenses)
@@ -166,7 +166,7 @@ human_signoff:
     - "[spec-alignment] Dòng 28 gold-stdout.txt: \"Theo góc nhìn: đúng nghiệp vụ (domain-correctness): 16/36 ... · vận hành được (operational-feasibility): 19/36 ... · khớp đặc tả (spec-alignment): 16/36 ...\" — cần tách thành 3 dòng/3 ô riêng để không còn vi phạm N4."
     - "[spec-alignment] Dòng 29 gold-stdout.txt: liệt kê 9 slug (context-ladder, docs-first-run-audit, findings-section-boundary, ...) nối bằng dấu phẩy trong một ngoặc — cần mỗi việc một dòng kèm tên sản phẩm, không phải slug thô nhồi chung."
     - "[spec-alignment] Dòng 7 gold-stdout.txt, cột 'Việc': \"re-pin 1 lượt machine-lane + N chữ ký cùng run_id (chống gian lận 2… (delta-verify-repin)\" — cần bỏ 'machine-lane'/'run_id' ra khỏi câu chính hoặc đưa vào ngoặc kỹ thuật; đối chiếu mục 'Từ mới feature này đưa vào từ điển' ở human-facing-language.md (dòng 127-133) không có hai từ này."
-  human_override:
+  human_override: Manh Phan 2026-08-05 — J13: known-limits. Bốn round lời phê hạ bậc rõ (cột vô nghĩa → chỉ còn biệt ngữ trong LỜI NGƯỜI KÝ và chú giải mã verdict); ba từ bị chê nằm trong trích dẫn nguyên văn quyết định của người — sổ vàng không được viết lại lời người (luật N4). Đường sửa đúng: thêm glossary CONTEXT.md + contract mới đo-đầu-ra-sổ-vàng (đã ghi backlog).
 
 - eval: J14
   judged_by: judge-panel (fresh context, 3 lenses)
@@ -178,7 +178,7 @@ human_signoff:
     - spec-alignment: UNCERTAIN (r1)
   required_evidence:
     - "(xem round 1 — panel carried, không chấm lại; danh sách required_evidence gốc theo 3 lens đều xoay quanh: chạy `grep 'kind:panel' run-log.jsonl` của _acceptance/judge-required-evidence/run-log.jsonl và kiểm mọi dòng proposal khác PASS có required_evidence không rỗng — nếu có, hoặc nếu chưa có dòng non-PASS nào và case harness JR1/JR2 pass, verdict đổi thành PASS; nếu thiếu ở dòng nào, verdict đổi thành FAIL)"
-  human_override:
+  human_override: Manh Phan 2026-08-05 — J14: PASS bằng số đếm dogfood: 6/6 phiếu không-PASS của chính vòng này đều kèm danh sách bằng-chứng-thiếu (run-log 4 round); vòng sửa r2/r4 bổ sung đúng danh sách của giám khảo, không đoán.
 <!-- JUDGMENT-BLOCK-TEMPLATE>>> -->
 
 ## Analyst

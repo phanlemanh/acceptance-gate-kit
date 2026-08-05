@@ -4,14 +4,14 @@ feature: "judge-required-evidence — verdict judgment không-PASS phải kèm d
 slug: judge-required-evidence
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-05T08:12:41Z
 owner: phanlemanh@gmail.com
 source: docs/superpowers/specs/2026-08-05-judge-required-evidence-design.md
 time_human_minutes:
   gate1:
-  gate2:
+  gate2: 10
 ---
 
 # Acceptance contract — judge-required-evidence
@@ -94,3 +94,27 @@ Từ morphological-scan (4 trục — thước CE trong ngoặc):
 - Persist gold set thành file/index mới — dẫn xuất từ artifact sẵn có.
 - Semantic matching required_evidence ↔ evidence có sẵn.
 - Đổi khuôn chữ ký người/human_override; đổi hook/evidence-core.
+
+## Notes
+
+Known limits — chấp nhận tại Cổng 2, Manh Phan 2026-08-05 (nhóm theo lớp):
+
+- Hai phép đo phạm-vi-PR tự vô hiệu sau khi gộp nhánh (JR11a đóng băng
+  lib/hooks so base; P150 so gate-card với bản base): đúng trong cửa sổ PR,
+  vacuous trên main. Revisit: chuyển sang khuôn ghim-hành-vi khi dọn đợt nợ
+  đo-lường.
+- Nợ đo-lường trong bộ test mới (fixture P150 viết tay khuôn bên đọc; P149
+  mutant chỉ ghim mã thoát; dấu-thiếu 3 bản không test round-trip liên-nhà;
+  P154 mutant có lối thoát khi câu lặp; P152/P153 ngưỡng gắn corpus sống;
+  P150 hardcode origin/main; JR1 assert hai-chuỗi-độc-lập) — đều fail-loud
+  hoặc chưa mở lỗ; gom một đợt dọn.
+- Hội đồng carried từ đời trước 1.33 không có danh sách bằng-chứng-thiếu và
+  không cờ vàng trên thẻ — đúng chỗ cần khuôn cờ-vàng 1.13/1.14; revisit.
+- Vặt: bản Codex của lệnh tổng kết chưa có bước Sổ vàng; --root sai in sổ
+  rỗng tự tin; câu giải thích "chấm trước khi có ghi chép" gộp cả trường hợp
+  khác; marker template có thể lọt vào report sinh; hai key phụ đi vòng
+  allowlist trong gate-card.
+- MỞ CONTRACT MỚI (đã chốt tại Cổng 2): "đo đầu-ra-sổ-vàng bằng máy" — gộp
+  2 finding lens (render() không phép đo máy nào chạm; per-lens tuyên quét
+  lớp nhưng điểm-case) + glossary CONTEXT.md cho biệt ngữ trong lời ký
+  (known-limits/dogfood/single-source) để J13 có đường PASS sạch.
