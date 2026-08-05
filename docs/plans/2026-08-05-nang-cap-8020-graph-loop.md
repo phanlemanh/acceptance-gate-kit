@@ -110,3 +110,34 @@ code, chưa evidence → không có gì để stale, không giẫm file (nó ch�
 lib/readers; vòng này chạm SKILL/workflows + pre-merge/recheck). Điều kiện
 giữ nguyên: nếu reader-unification vào S3 trước khi vòng này ký, vòng nào
 tới S4 sau phải re-verify trên HEAD chung như luật hiện hành.
+
+### Amendment 2026-08-05 (tối) — Hiện trạng giữa kỳ: 3/3 vòng đã ký, chuyển pha ĐO
+
+Cả ba vòng ký Cổng 2 trong ngày 05/08 (delta-verify-repin `36104e1` ·
+matrix-measure-law `fb5b3fe` · judge-required-evidence `e6dad45`; ship cuối
+`983067d`, CI xanh). Số giữa kỳ đặt cạnh mục tiêu — SỐ CHÍNH THỨC vẫn chờ 3
+feature tiêu thụ như §Nghiệm thu đã khai, không viết sớm:
+
+- O1(a) ĐẠT: 3 sự kiện re-pin dogfood = 3 lane thay 61 (19+21+21) — ~2.3M
+  token tránh được ngay trong ngày. O1(b) ĐẠT: 23 dòng `carried_from_round`
+  sản xuất (vòng 3 carry 9/11 rồi 5, 9). O1(c) ĐẠT: 0 luật nới — hotfix
+  1.32.1 đi qua đúng cửa ngoại-lệ-đích-danh của DV5.
+- O2 SỚM-TÍN-HIỆU-TỐT: 5/5 finding gap-probe S1 của vòng 3 do 7 câu vòng 2
+  soi; lens `measurement` bắt lỗi thật ở mọi round nó chạy. Số chính thức:
+  3 feature T2/T3 kế.
+- O3 SỚM-TÍN-HIỆU-TỐT: 6/6 phiếu không-PASS của vòng 3 kèm required_evidence;
+  4 round fix đều nhắm danh sách judge, không đoán. Số chính thức: feature kế.
+- O4 VƯỢT TRƯỚC HẠN: 20 điểm vàng (mục tiêu ≥10 sau 5 feature) · 37 hội đồng
+  (34 lần 3/3 · 3 lần 2/1 · 0 phân kỳ) — báo cáo G3 ra từ /acceptance-report.
+- Mục tiêu tổng (−40% token/feature): CHƯA ĐO ĐƯỢC — 3 vòng xây engine tốn
+  ~18M token S4 (đắt hơn thường lệ vì tự-tham-chiếu, R2 hiện đúng như dự
+  liệu ở CẢ 3 vòng, xử đúng đối sách cap+known-limits; vòng 3 người nới cap
+  1 round có ledger). Tiết kiệm dồn cho feature tiêu thụ — đo ở pha kế.
+- Sai lệch so kế hoạch: (1) trigger đổi theo Amendment R3 (reader-unification
+  vẫn `approved`, chưa đụng); (2) +1 hotfix ngoài kế hoạch (luật repin
+  per-section → quan-hệ, 1.32.1 — dogfood #2 phơi); (3) vòng 3 chạy 4 round
+  thay 3 (người uỷ quyền).
+- Pha kế (đã chốt 05/08 tối): ĐO trên 3 feature tiêu thụ = chính 3 chip đang
+  treo (codex carry-plan packaging · gate-card stripMd glob · gold-book-output)
+  → viết "Kết quả chương trình" vào research note; song song KHÔNG mở vòng
+  engine mới cho tới khi số về.
