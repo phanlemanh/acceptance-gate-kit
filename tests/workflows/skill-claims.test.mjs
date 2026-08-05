@@ -31,5 +31,31 @@ check('CS7/8 đối chứng đột biến: xoá đoạn claims khỏi bản sao 
   const mutated = SKILL.replace(/claims_input: failed/g, '').replace(/input thứ 5/g, '').replace(/ADVISORY/gi, '');
   assert.ok([...CLAUSES, ...PROMPT_RULES].some(([re]) => !re.test(mutated)), 'detector không phân biệt được bản bị xoá');
 });
+// DV1/DV10 (delta-verify-repin): nghi thức re-pin 1-lane + khuôn REPIN-TEMPLATE
+// + minh bạch carry round fix — mỗi mệnh đề một mutant (đủ số phần tử của lớp).
+const REPIN_CLAUSES = [
+  [/một sự kiện re-pin = dispatch \*\*1 agent tươi\*\*/, 'DV1a: 1 sự kiện = 1 agent tươi'],
+  [/"kind":"repin"/, 'DV1b1: khuôn dòng kind:repin'],
+  [/run-log\.jsonl CỦA TỪNG slug/, 'DV1b2: append per-slug'],
+  [/cite `run_id` nguyên văn/, 'DV1c1: section cite run_id nguyên văn'],
+  [/`verified_commit` == `sha`/, 'DV1c2: verified_commit == sha'],
+  [/exit ≠ 0 → DỪNG: KHÔNG append dòng repin, KHÔNG sửa evidence[^\n]*lane MỚI/, 'DV1d: lane fail → không ký mù, lane mới'],
+  [/round fix có carry → danh sách eval carried \(P1\) phải nằm RÕ trong báo cáo user và gói Cổng 2/, 'DV10: carry round fix minh bạch'],
+];
+for (const [re, name] of REPIN_CLAUSES) check(`DV1/10 SKILL có mệnh đề: ${name}`, () => assert.match(SKILL, re));
+check('DV1e cặp marker REPIN-TEMPLATE bao đúng khuôn (dòng jsonl + section)', () => {
+  const m = SKILL.match(/<!-- <<<REPIN-TEMPLATE -->([\s\S]*?)<!-- REPIN-TEMPLATE>>> -->/);
+  assert.ok(m, 'thiếu cặp marker REPIN-TEMPLATE');
+  assert.match(m[1], /"kind":"repin"/, 'khuôn giữa marker thiếu kind:repin');
+  assert.match(m[1], /"suites_exit"/, 'khuôn giữa marker thiếu suites_exit');
+  assert.match(m[1], /### Re-pin lần <N>/, 'khuôn giữa marker thiếu khuôn section');
+  assert.match(m[1], /run_id: <id>/, 'khuôn section thiếu dòng run_id:');
+});
+for (const [re, name] of REPIN_CLAUSES) check(`DV1m mutant xoá mệnh đề → detector đỏ: ${name}`, () => {
+  const hit = SKILL.match(re);
+  assert.ok(hit, `mệnh đề "${name}" không tồn tại để mutate`);
+  const mutated = SKILL.replace(hit[0], '');
+  assert.ok(!re.test(mutated), 'detector không phân biệt được bản bị xoá');
+});
 console.log(`\nResults: ${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
