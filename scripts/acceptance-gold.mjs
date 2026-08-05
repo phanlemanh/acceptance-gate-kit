@@ -97,11 +97,17 @@ export function agreement(panels) {
 function featureOf(root, slug) {
   try {
     const t = fs.readFileSync(path.join(root, '_acceptance', slug, 'contract.md'), 'utf8');
-    const m = t.match(/^feature:\s*"?([^"\n]+)/m);
+    // đọc TRỌN giá trị (kể cả quote lồng trong) rồi mới lột quote bao ngoài —
+    // regex dừng-ở-quote-đầu từng cắt cụt mô tả có trích dẫn (fix r4)
+    const m = t.match(/^feature:\s*(.+)$/m);
     if (m) {
-      // mô tả contract mở đầu bằng chính slug — phần NGƯỜI đọc là sau gạch dài
-      const parts = m[1].split(' — ');
-      const desc = (parts.length > 1 ? parts.slice(1).join(' — ') : parts[0]).trim();
+      let v = m[1].trim();
+      if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1);
+      v = v.replace(/\\"/g, '"');
+      // mệnh đề NGƯỜI đọc: contract kiểu "slug — mô tả" → lấy sau gạch;
+      // kiểu "mô tả — phụ đề" → lấy TRƯỚC gạch (fix r4: đừng vứt vế chính)
+      const parts = v.split(' — ');
+      const desc = (parts.length > 1 && parts[0].trim() === slug ? parts.slice(1).join(' — ') : parts[0]).trim();
       return desc.length > 72 ? desc.slice(0, 72).replace(/\s+\S*$/, '') + '…' : desc;
     }
   } catch (_) {}
@@ -113,7 +119,10 @@ function glossOf(root, slug, evalId, rationale) {
     // neo id HẾT CHUỖI (\n) — `- id: J1` không được khớp block của J10
     const b = y.split(/\n(?=  - id: )/).find(x => x.trim().startsWith(`- id: ${evalId}\n`) || x.trim() === `- id: ${evalId}`);
     if (b) {
-      const q = b.match(/question: >\n\s+([^\n]+)/) || b.match(/expected: "([^"\n]{10,})/);
+      // đủ 3 kiểu YAML của question (fix r4): inline "..." · folded > · literal |
+      const q = b.match(/question:\s*"([^"]{10,})/)
+        || b.match(/question:\s*[>|]\n\s+([^\n]+)/)
+        || b.match(/expected: "([^"\n]{10,})/);
       if (q) return q[1].trim().slice(0, 60).replace(/\s+\S*$/, '') + '…';
     }
   } catch (_) {}
