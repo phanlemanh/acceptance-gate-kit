@@ -1,0 +1,29 @@
+## Sổ vàng — người đã quyết gì trên đề xuất của máy
+
+17 lần người quyết trên đề xuất của máy (rút từ chữ ký Cổng 2 đã có, không bịa):
+
+| Việc | Hạng mục | Máy đề xuất | Người quyết (và vì sao) |
+|---|---|---|---|
+| delta-verify-repin | E12 | UNCERTAIN | Manh Phan 2026-08-05 — E12: chấp nhận known-limits. Sửa-tay-run-log là ranh giới CŨ của lớp run-log (thiết kế chống bịa-cho-nhanh, không chống kẻ chủ đích sửa log — diff PR + review là lưới cho đường đó); vòng này không mở đường gian lận mới. Revisit: feature run-log-provenance (kiểm commit như chữ ký người). |
+| delta-verify-repin | E13 | PASS | Manh Phan 2026-08-05 — E13: chuẩn y PASS (panel 3/3, nghi thức đọc-được-làm-được). |
+| delta-verify-repin | E16 | UNCERTAIN | Manh Phan 2026-08-05 — E16: PASS bằng số đếm dogfood thật: 19 dòng kind:repin cùng run_id repin-20260805-delta-verify-repin-lane1, sha c1f781d, đúng 1 agent-lane trong usage-report (baseline cũ: 19 lane). |
+| findings-section-boundary | E10 | PASS | Manh Phan 2026-07-29 |
+| gap-probe-presence-hook | E9 | PASS | Manh Phan 2026-07-28 |
+| gate-card-ac-visibility | E11 | UNCERTAIN | Manh Phan 2026-07-30 |
+| gate-card-ac-visibility | E12 | UNCERTAIN | Manh Phan 2026-07-30 |
+| judgment-question-guard | E10 | PASS | Manh Phan 2026-08-04 |
+| matrix-measure-law | M8 | PASS | Manh Phan 2026-08-05 — M8: chuẩn y PASS (panel 3/3 r1, carry inputs không đổi). |
+| matrix-measure-law | M9 | FAIL | Manh Phan 2026-08-05 — M9: known-limits. Ba round FAIL với ba lý do khác nhau, hai round đầu đã sửa thật (thêm 2 hình dạng; tách round-trip + neo nguồn expected); lời phê r3 — schema evals thiếu ô khai xuất-xứ fixture — là việc ĐỔI SCHEMA (cần đường đọc-cũ, contract riêng, đã ghi backlog), không phải chỉnh prompt. Trọng tài thật của O2 là số đo trên 3 feature kế theo charter; lọt lưới → charter tự kích hoạt chỉnh-một-lần. |
+| matrix-measure-law | M10 | UNCERTAIN | Manh Phan 2026-08-05 — M10: PASS bằng số đếm dogfood: label review:measurement chạy ở 3/3 round S4 (usage-report), lens trả finding source:measurement cả 3 round (2+4+3) — trong đó có lỗi thật của chính bộ test feature này, đã sửa theo lời lens. |
+| matrix-measure-law | M11 | PASS | Manh Phan 2026-08-05 — M11: chuẩn y PASS (r2+r3, fixture code-sinh từ writer thật): critic bắt đúng khối gài hình dạng 4, không báo oan khối sạch. |
+| ngon-ngu-mat-nguoi | E16 | UNCERTAIN | Manh Phan 2026-08-01 — Nâng lên đạt. Bản luật và hai bản dựng thẻ đều sạch; chỗ chưa sạch nằm ở văn kế thừa của feature pha3-goi-luoi, vốn đã ở ngoài phạm vi đã duyệt (mục sweep hồi tố trong Out of scope). Ghi vào hạn chế đã biết, sửa ở đợt nâng bộ thẻ. |
+| premerge-rules-ledger | E10 | PASS | Manh Phan 2026-07-28 |
+| premerge-unjudged-pass | E15 | PASS | Manh Phan 2026-07-29 |
+| s4-scope-triage | E11 | PASS | Manh Phan 2026-07-28 |
+| t1-escape-event-scope | E13 | PASS | Manh Phan 2026-07-28 |
+
+## Các giám khảo đồng thuận tới đâu
+
+31 lần hội đồng chấm tươi: 28 lần cả ba cùng ý · 3 lần 2-trên-1 · 0 lần phân kỳ hẳn.
+Theo góc nhìn: domain-correctness: 12/31 lần nói "chưa chắc/chưa đạt" · operational-feasibility: 15/31 lần nói "chưa chắc/chưa đạt" · spec-alignment: 12/31 lần nói "chưa chắc/chưa đạt".
+(9 việc chưa có biên bản hội đồng — chấm trước khi có ghi chép: context-ladder, docs-first-run-audit, findings-section-boundary, gate-card-ac-visibility, hinh-theo-mat-phang, judgment-question-guard, pha3-goi-luoi, product-map-uat-session, start-scan-hardening)

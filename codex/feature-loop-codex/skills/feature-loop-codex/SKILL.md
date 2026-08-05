@@ -116,7 +116,14 @@ the report as current.
 
 A staleness round entered this way is a DELTA round (P1) when the prior report
 verdict was PASS-family: keep the changed-file list (excluding `_acceptance/**`)
-and the old `verified_commit` as the carry-forward anchor for S4. Fix rounds
+and the old `verified_commit` as the carry-forward anchor for S4. When a judgment panel carries a FAIL/UNCERTAIN vote (judge-required-evidence):
+the FIRST step of the fix round is reading `required_evidence` from the
+`kind:panel` run-log lines (or the report's judgment block) and supplying
+EXACTLY the evidence named there — guessing at the judgment's cause while the
+list exists is forbidden; a vote carrying the marker "(judge không nêu
+bằng-chứng-thiếu)" must be surfaced to the user in the next package.
+
+Fix rounds
 after REJECT: if the previous round's run-log lines carry a `sha` field, compute
 the carry plan with `node <plugin>/scripts/carry-plan.mjs --run-log <ws>/run-log.jsonl
 --evals <ws>/evals.yaml --contract <ws>/contract.md --delta-files <git diff

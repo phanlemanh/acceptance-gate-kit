@@ -347,7 +347,12 @@ const evid = {};
     const em = raw.match(/^-\s+eval:\s*(\S+)/); if (em) { cur = em[1]; evid[cur] = {}; skip = -1; continue; }
     if (!cur) continue;
     if (skip >= 0) { if (raw.trim() === '') continue; if (raw.match(/^(\s*)/)[1].length > skip) continue; skip = -1; }
+    // judge-required-evidence: gom list items dưới `required_evidence:` (dòng "- …"
+    // không match khuôn key:value nên parser cũ bỏ qua — thêm nhánh additive).
+    const li = raw.match(/^\s+-\s+(.+)$/);
+    if (li && evid[cur].__reOpen) { (evid[cur].required_evidence_list = evid[cur].required_evidence_list || []).push(li[1].trim()); continue; }
     const fm = raw.match(/^(\s*)(\w+):\s*(.*)$/); if (!fm) continue;
+    evid[cur].__reOpen = fm[2] === 'required_evidence';
     const indent = fm[1].length, key = fm[2], val = fm[3].trim();
     if (/^[|>]/.test(val)) { skip = indent; if (FIELDS.indexOf(key) >= 0) evid[cur][key] = ''; continue; } // block scalar → skip body
     if (FIELDS.indexOf(key) < 0) continue;
@@ -428,7 +433,11 @@ if (ooc.findings.length) {
 const yourCount = decisions.length + (oos.length ? 1 : 0);
 if (yourCount) {
   P.push(`<div class="lab">Việc chỉ mình bạn quyết được — ${yourCount} việc</div>`);
-  for (const d of decisions) P.push(`<div class="item"><p class="q">${esc(plainDec(d.id) || stripMd(d.q))}</p><p class="ai">Máy: chưa chắc${d.why ? ' — ' + esc(stripMd(d.why)) : ' (cần mắt người).'}</p><div class="btns"><button class="b bn">Đạt</button><button class="b no">Chưa đạt</button></div></div>`);
+  for (const d of decisions) {
+    const reList = (evid[d.id] && evid[d.id].required_evidence_list) || [];
+    const reHtml = reList.length ? `<p class="ai"><b>Muốn máy đổi ý, cần:</b> ${reList.map(x => esc(stripMd(x))).join(' · ')}</p>` : '';
+    P.push(`<div class="item"><p class="q">${esc(plainDec(d.id) || stripMd(d.q))}</p><p class="ai">Máy: chưa chắc${d.why ? ' — ' + esc(stripMd(d.why)) : ' (cần mắt người).'}</p>${reHtml}<div class="btns"><button class="b bn">Đạt</button><button class="b no">Chưa đạt</button></div></div>`);
+  }
   if (oos.length) P.push(`<div class="item"><p class="q">Xác nhận các phần đã cắt/hoãn ngoài phạm vi:</p><p class="ai">${esc(scopePlain)}</p><div class="btns"><button class="b bn">Đồng ý cắt</button><button class="b no">Không, kéo vào</button></div></div>`);
 }
 const plDec2 = id => (((pl.decisions_plain || []).find(x => x.id === id)) || {}).p;

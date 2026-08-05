@@ -35,6 +35,15 @@ Rules:
 5. Output exactly:
    verdict: PASS|FAIL|UNCERTAIN
    rationale: <1-3 sentences, concrete>
+   required_evidence:   # MANDATORY when verdict is FAIL or UNCERTAIN; omit on PASS
+     - <ONE concrete piece of evidence + where to get it (file/command/frame),
+        specific enough that "if this existed the verdict would change">
+6. required_evidence rules: every item must be ACTIONABLE — name the artifact
+   and the way to produce it, never generic advice ("add more tests" is
+   invalid; "run config:executors.test.api and attach the exit-0 output for
+   the migrate path" is valid). Do NOT use required_evidence to dodge a
+   verdict you already have grounds for: if the listed evidence would not
+   change your verdict, do not list it (no evidence-shopping).
 ```
 
 ## Calibration rules

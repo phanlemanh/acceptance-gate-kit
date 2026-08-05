@@ -39,6 +39,15 @@ Steps:
    (sáu luật N1–N6, hai phép thử, khuôn trình bày) TRƯỚC khi viết bất kỳ câu nào
    sẽ hiện cho người — bảng tổng kết là mặt người, không phải mặt máy.
 
+3b. **Gold set + đồng thuận giám khảo (judge-required-evidence):** chạy
+   `node ${CLAUDE_PLUGIN_ROOT}/scripts/acceptance-gold.mjs --root .` và chép
+   nguyên văn hai khối nó in — khối "Sổ vàng" (mỗi dòng: việc gì, máy đề xuất
+   gì, người đã quyết gì và vì sao — rút từ chữ ký tại Cổng 2, không bịa) và
+   khối "Các giám khảo đồng thuận tới đâu" (bao nhiêu phần chấm 3/3 cùng ý,
+   bao nhiêu 2/1, bao nhiêu phân kỳ; góc nhìn nào hay nói "chưa chắc" nhất).
+   Script lỗi → in một dòng "sổ vàng chưa đọc được" + lý do, không chặn báo
+   cáo.
+
 4. **Print:**
    - Table: `| Slug | Tier | Status | Verdict | G1 min | G2 min | Rounds | Flags |`
    - Headline: signed-off count; median + mean total minutes over features

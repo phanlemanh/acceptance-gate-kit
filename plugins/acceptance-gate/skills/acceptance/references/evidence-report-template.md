@@ -146,11 +146,15 @@ human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER revi
 
 # Example shows the PENDING-JUDGMENT state; under an overall PASS verdict
 # this UNCERTAIN-without-override combination is hook-blocked.
+<!-- <<<JUDGMENT-BLOCK-TEMPLATE -->
 - eval: E4
   judged_by: judge-subagent (fresh context)
   verdict: UNCERTAIN
   rationale: {{1-3 sentences — what the judge could not determine and why}}
+  required_evidence:
+    - {{one CONCRETE piece of evidence + where to get it — "if this existed the verdict would change"; when the judge left it empty on a non-PASS verdict, write the single line `(judge không nêu bằng-chứng-thiếu)` instead of inventing items}}
   human_override:        # human fills "<name> <date>" + optional note to resolve
+<!-- JUDGMENT-BLOCK-TEMPLATE>>> -->
 
 ## Analyst
 

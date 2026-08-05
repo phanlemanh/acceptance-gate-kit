@@ -5979,6 +5979,140 @@ if [ "$failures" -gt 0 ]; then
   exit 1
 fi
 
+
+# ── P149-P154: judge-required-evidence ───────────────────────────────────────
+echo "P149 (JR4) khuon JUDGMENT-BLOCK-TEMPLATE round-trip qua evidence-core that"
+run "P149 fixture sinh-tu-khuon -> recheck clean; mutant token cam -> do" \
+  node - "$ROOT" <<'NODE'
+const fs = require('fs'), path = require('path'), os = require('os'), cp = require('child_process');
+const ROOT = process.argv[2];
+const tpl = fs.readFileSync(path.join(ROOT, 'skills/acceptance/references/evidence-report-template.md'), 'utf8');
+const m = tpl.match(/<!-- <<<JUDGMENT-BLOCK-TEMPLATE -->([\s\S]*?)<!-- JUDGMENT-BLOCK-TEMPLATE>>> -->/);
+if (!m) { console.error('thieu marker JUDGMENT-BLOCK-TEMPLATE'); process.exit(1); }
+// SINH block tu khuon: thay placeholder {{...}} + dien override (round-trip writer that)
+let block = m[1].trim().split('\n').filter(l => !l.trim().startsWith('<!--')).join('\n');
+block = block.replace(/\{\{[^}]*\}\}/g, 'noi dung cu the du dai cho hook doc duoc o day')
+  .replace(/- eval: E4/, '- eval: EJ')
+  .replace(/required_evidence:\n\s+- .*$/m, 'required_evidence:\n    - anh chup state sau buoc 2 — lay bang capture.ui')
+  .replace(/human_override:.*$/m, 'human_override: Manh 2026-08-05');
+const root = fs.mkdtempSync(path.join(os.tmpdir(), 'jr4-'));
+const dir = path.join(root, '_acceptance', 'feat-jr4'); fs.mkdirSync(dir, { recursive: true });
+const verifier = path.join(root, 'verify.sh'); fs.writeFileSync(verifier, '#!/bin/sh\nexit 0\n'); fs.chmodSync(verifier, 0o755);
+fs.writeFileSync(path.join(dir, 'run-log.jsonl'), JSON.stringify({ ts: 't', round: 1, evalId: 'E1', run_id: 'jr4-E1-001', exit_code: 0, cmd: 'x' }) + '\n');
+const report = `---\nschema_version: 1\nfeature_slug: feat-jr4\nverdict: PASS\nhuman_signoff: Manh 2026-08-05\n---\n\n## Evidence\n- eval: E1\n  run_id: jr4-E1-001\n  exit_code: 0\n  verifier: ${verifier}\n  verified_at: 2026-08-05\n${block}\n`;
+fs.writeFileSync(path.join(dir, 'evidence-report.md'), report);
+const run = (rp) => { try { cp.execFileSync('node', [path.join(ROOT, 'scripts/recheck-evidence.js'), rp], { stdio: 'ignore' }); return 0; } catch (e) { return e.status; } };
+if (run(path.join(dir, 'evidence-report.md')) !== 0) { console.error('fixture sinh-tu-khuon bi evidence-core chan'); process.exit(1); }
+fs.writeFileSync(path.join(dir, 'evidence-report.md'), report + '\nghi chu: verdict: FAIL\n');
+if (run(path.join(dir, 'evidence-report.md')) !== 1) { console.error('mutant token cam khong bi chan'); process.exit(1); }
+NODE
+
+echo "P150 (JR5) gate-card hien 'Muon may doi y, can:' + duong doc-cu so voi BASE commit"
+run "P150 required_evidence tren the + report cu render y het ban base" \
+  bash -c '
+    set -e
+    T=$(mktemp -d)
+    mkdir -p "$T/ws/_acceptance/feat-jr5"
+    printf -- "---\nschema_version: 2\nfeature: feat-jr5 demo\nslug: feat-jr5\nrisk_tier: T3\nsurfaces: [cli]\nstatus: implemented\napproved_by: Manh Phan\n---\n\n## Criteria\n\n- AC-1: (judgment) Given a, When b, Then c.\n" > "$T/ws/_acceptance/feat-jr5/contract.md"
+    printf -- "evals:\n  - id: EJ1\n    criterion: AC-1\n    executor: judgment\n    inputs: [contract.md]\n    question: \"on chua?\"\n" > "$T/ws/_acceptance/feat-jr5/evals.yaml"
+    REP="$T/ws/_acceptance/feat-jr5/evidence-report.md"
+    printf -- "---\nschema_version: 2\nfeature_slug: feat-jr5\nverdict: PENDING-JUDGMENT\n---\n\n| Eval | Criterion | Executor | Verdict |\n|---|---|---|---|\n| EJ1 | AC-1 | judgment | UNCERTAIN |\n\n## Evidence\n- eval: EJ1\n  judged_by: judge panel\n  verdict: UNCERTAIN\n  rationale: chua du can cu\n  required_evidence:\n    - anh chup man hinh saved-state — lay bang capture.ui\n  human_override:\n" > "$REP"
+    OUT_NEW=$(cd "$T/ws" && node "'"$ROOT"'/scripts/gate-card.js" --slug feat-jr5 2>/dev/null)
+    echo "$OUT_NEW" | grep -q "Muốn máy đổi ý, cần:" || { echo "thieu khoi bang-chung-con-thieu"; exit 1; }
+    echo "$OUT_NEW" | grep -q "saved-state" || { echo "thieu noi dung muc"; exit 1; }
+    # report CU (khong field) → stdout == stdout cua gate-card TAI BASE COMMIT
+    printf -- "---\nschema_version: 2\nfeature_slug: feat-jr5\nverdict: PENDING-JUDGMENT\n---\n\n| Eval | Criterion | Executor | Verdict |\n|---|---|---|---|\n| EJ1 | AC-1 | judgment | UNCERTAIN |\n\n## Evidence\n- eval: EJ1\n  judged_by: judge panel\n  verdict: UNCERTAIN\n  rationale: chua du can cu\n  human_override:\n" > "$REP"
+    BASE=$(git -C "'"$ROOT"'" merge-base HEAD origin/main)
+    mkdir -p "$T/base/scripts"
+    git -C "'"$ROOT"'" show "$BASE:scripts/gate-card.js" > "$T/base/scripts/gate-card.js"
+    cp -R "'"$ROOT"'/lib" "$T/base/lib"
+    A=$(cd "$T/ws" && node "'"$ROOT"'/scripts/gate-card.js" --slug feat-jr5 2>/dev/null)
+    B=$(cd "$T/ws" && node "$T/base/scripts/gate-card.js" --slug feat-jr5 2>/dev/null)
+    [ -n "$A" ] || { echo "stdout moi rong"; exit 1; }
+    [ "$A" = "$B" ] || { echo "report cu render KHAC ban base — duong doc-cu vo"; exit 1; }
+  '
+
+echo "P151 (JR7) persona co required_evidence + luat actionable + chong evidence-shopping"
+run "P151 clauses + mutant per-clause" \
+  python3 - "$ROOT/skills/acceptance/references/judge-personas.md" <<'PY'
+import re, sys
+s = open(sys.argv[1], encoding='utf-8').read()
+clauses = [
+    r'required_evidence:\s+# MANDATORY when verdict is FAIL or UNCERTAIN; omit on PASS',
+    r'if this existed the verdict would change',
+    r'every item must be ACTIONABLE',
+    r'no evidence-shopping',
+]
+for c in clauses:
+    m = re.search(c, s)
+    assert m, f'thieu clause: {c}'
+    mutated = s.replace(m.group(0), '')
+    assert not re.search(c, mutated), f'detector khong phan biet ban xoa: {c}'
+PY
+
+echo "P152 (JR8) so vang: corpus that >=7 diem du 4 truong + fixture 2 chieu"
+run "P152 gold points tren corpus that + fixture doi chung" \
+  node - "$ROOT" <<'NODE'
+const fs = require('fs'), path = require('path'), os = require('os'), cp = require('child_process');
+const ROOT = process.argv[2];
+const real = JSON.parse(cp.execFileSync('node', [path.join(ROOT, 'scripts/acceptance-gold.mjs'), '--root', ROOT, '--json'], { encoding: 'utf8' }));
+if (real.judgedBlocks <= 0) { console.error('sanity: 0 block judgment doc duoc'); process.exit(1); }
+if (real.points.length < 7) { console.error('corpus that <7 diem: ' + real.points.length); process.exit(1); }
+for (const p of real.points) if (!p.slug || !p.evalId || !p.machine || !p.human) { console.error('diem thieu truong: ' + JSON.stringify(p)); process.exit(1); }
+const mk = (override) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'jr8-'));
+  const dir = path.join(root, '_acceptance', 's1'); fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'evidence-report.md'),
+    `---\nverdict: PASS\n---\n\n## Evidence\n- eval: EJ\n  judged_by: panel\n  verdict: FAIL\n  rationale: x\n${override ? '  human_override: Manh 2026-08-05 — dong y known-limits\n' : '  human_override:\n'}`);
+  return JSON.parse(cp.execFileSync('node', [path.join(ROOT, 'scripts/acceptance-gold.mjs'), '--root', root, '--json'], { encoding: 'utf8' }));
+};
+const with_ = mk(true), without = mk(false);
+if (with_.points.length !== 1 || with_.points[0].machine !== 'FAIL' || !/known-limits/.test(with_.points[0].human)) { console.error('fixture co override phai ra dung 1 diem: ' + JSON.stringify(with_.points)); process.exit(1); }
+if (without.points.length !== 0) { console.error('fixture khong override phai 0 diem'); process.exit(1); }
+NODE
+
+echo "P153 (JR9) G3: ma tran 3 hinh dang dong thuan + grandfather log cu + corpus that"
+run "P153 agreement buckets + noPanel + corpus >=5 panel" \
+  node - "$ROOT" <<'NODE'
+const fs = require('fs'), path = require('path'), os = require('os'), cp = require('child_process');
+const ROOT = process.argv[2];
+const root = fs.mkdtempSync(path.join(os.tmpdir(), 'jr9-'));
+const mkws = (slug, lines) => {
+  const dir = path.join(root, '_acceptance', slug); fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'evidence-report.md'), '---\nverdict: PASS\n---\n');
+  if (lines !== null) fs.writeFileSync(path.join(dir, 'run-log.jsonl'), lines.map(l => JSON.stringify(l)).join('\n') + '\n');
+};
+const panel = (id, verdicts) => ({ ts: 't', round: 1, evalId: id, kind: 'panel', proposal: 'UNCERTAIN', votes: verdicts.map((v, i) => ({ lens: 'l' + i, verdict: v })), inputs_hash: 'h' });
+mkws('sA', [panel('E1', ['PASS', 'PASS', 'PASS'])]);          // 3/3
+mkws('sB', [panel('E1', ['PASS', 'PASS', 'FAIL'])]);          // 2/1
+mkws('sC', [panel('E1', ['PASS', 'FAIL', 'UNCERTAIN'])]);     // phan ky
+mkws('sOld', null);                                            // log cu: khong run-log
+const d = JSON.parse(cp.execFileSync('node', [path.join(ROOT, 'scripts/acceptance-gold.mjs'), '--root', root, '--json'], { encoding: 'utf8' }));
+const b = d.agreement.buckets;
+if (d.agreement.sample !== 3 || b.unanimous !== 1 || b.majority !== 1 || b.split !== 1) { console.error('buckets sai: ' + JSON.stringify(d.agreement)); process.exit(1); }
+if (!d.noPanel.includes('sOld')) { console.error('grandfather: sOld phai nam trong noPanel'); process.exit(1); }
+const real = JSON.parse(cp.execFileSync('node', [path.join(ROOT, 'scripts/acceptance-gold.mjs'), '--root', ROOT, '--json'], { encoding: 'utf8' }));
+if (real.agreement.sample < 5) { console.error('corpus that <5 panel tuoi: ' + real.agreement.sample); process.exit(1); }
+NODE
+
+echo "P154 (JR10) lenh tong ket goi acceptance-gold + in 2 khoi tieng nguoi"
+run "P154 command clauses + mutant" \
+  python3 - "$ROOT/commands/acceptance-report.md" <<'PY'
+import re, sys
+s = open(sys.argv[1], encoding='utf-8').read()
+clauses = [r'acceptance-gold\.mjs --root', r'Sổ vàng', r'đồng thuận tới đâu', r'sổ vàng chưa đọc được']
+for c in clauses:
+    m = re.search(c, s)
+    assert m, f'thieu clause: {c}'
+    assert not re.search(c, s.replace(m.group(0), '', 1)) or len(re.findall(c, s)) > 1, f'detector khong phan biet: {c}'
+PY
+
+if [ "$failures" -gt 0 ]; then
+  echo
+  echo "Results: $failures failed"
+  exit 1
+fi
+
 echo
 echo "Results: all plugin tests passed"
 exit 0

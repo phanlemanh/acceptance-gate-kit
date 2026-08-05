@@ -93,5 +93,19 @@ for (const [re, name] of MEASURE_CLAUSES_EN) check(`MM2m mutant xoá → đỏ: 
   assert.ok(!re.test(CODEX_SKILL.replace(hit[0], '')), 'detector không phân biệt bản bị xoá');
 });
 
+
+// JR6 (judge-required-evidence): round fix đọc required_evidence trước, cấm đoán mò
+const JRE_CLAUSES = [
+  [SKILL, /bước ĐẦU của round fix là đọc `required_evidence` từ dòng `kind:panel`/, 'JR6-VI: đọc required_evidence trước'],
+  [SKILL, /CẤM đoán-mò nguyên nhân judgment khi danh sách tồn tại/, 'JR6-VI: cấm đoán mò'],
+  [CODEX_SKILL, /FIRST step of the fix round is reading `required_evidence`/, 'JR6-EN: đọc trước'],
+  [CODEX_SKILL, /guessing at the judgment's cause while the[\s\S]{0,10}list exists is forbidden/, 'JR6-EN: cấm đoán mò'],
+];
+for (const [txt, re, name] of JRE_CLAUSES) check(`JR6 SKILL có mệnh đề: ${name}`, () => assert.match(txt, re));
+for (const [txt, re, name] of JRE_CLAUSES) check(`JR6m mutant xoá → đỏ: ${name}`, () => {
+  const hit = txt.match(re); assert.ok(hit, 'câu không tồn tại');
+  assert.ok(!re.test(txt.replace(hit[0], '')), 'detector không phân biệt');
+});
+
 console.log(`\nResults: ${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
