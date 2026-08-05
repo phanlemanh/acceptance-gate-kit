@@ -1,13 +1,13 @@
 ---
 schema_version: 2
 feature_slug: delta-verify-repin
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: fb1ece5223d14e3769fb60c5cb6d1e6b834eea01
-human_signoff: 
+human_signoff: Manh Phan 2026-08-05
 ---
 
 # Evidence Report: delta-verify-repin
@@ -165,7 +165,7 @@ human_signoff:
     - domain-correctness: FAIL — Hai tầng chặn (khớp run_id+sha, luật stale) xử lý tốt các hoán vị: re-pin một phần slug (thiếu dòng kind:repin cho slug đó → VIOLATION), commit code xen giữa hai chữ ký khi verified_commit không đổi (luật stale bắt), và sha lệch giữa report với run-log. Nhưng cả hai reader (recheck-evidence.js dùng Map ghi-đè-theo-thứ-tự, pre-merge-check.sh dùng `grep | tail -1`) đều lấy dòng kind:repin CUỐI CÙNG khớp run_id mà không có cơ chế provenance nào xác thực run-log.jsonl — không giống cơ chế git-commit-provenance đã có cho human_signoff (REQ_HUMAN_COMMIT/AGENT_AUTHORS). Vì vậy "sửa tay run-log" và biến thể "lane fail nhưng vẫn ký" (chạy lane thật một lần bị đỏ, rồi tự thêm một dòng kind:repin thứ hai cùng run_id với suites_exit toàn 0) đều lọt qua: cả hai tầng chỉ so khớp trường trong run-log chứ không xác thực ai/cách nào ghi ra dòng đó.
     - operational-feasibility: FAIL — Cả hai tầng (pre-merge-check.sh dòng ~780-810 và recheck-evidence.js dòng 52-91) chỉ đối chiếu NỘI DUNG của run-log.jsonl (run_id khớp, sha == verified_commit, suites_exit toàn 0) — không script nào xác minh dòng {"kind":"repin"} đó thật sự do một lượt lane máy chạy sinh ra, khác hẳn cách chốt human_signoff có kiểm provenance qua git commit (log -S, kiểm tác giả, kiểm commit chỉ chạm field người). run-log.jsonl lại nằm dưới _acceptance/ nên bị loại khỏi stale_files() (không kích hoạt luật stale), tức ai đó tay chèn thêm một dòng kind:repin giả (run_id + sha đúng verified_commit + suites_exit:[0,0,0,0] bịa) sẽ qua trót lọt cả hai tầng — đúng nguyên văn kịch bản "sửa tay run-log" nêu trong câu hỏi. Các hoán vị còn lại (lane đỏ vẫn ký, mượn run cũ khi code đổi tiếp, tái dùng run_id khác slug không có dòng repin khớp) đều bị hai tầng bắt đúng như thiết kế mô tả, nhưng lỗ hand-edit-run-log là đường gian lận thật, chưa được luật nào phủ.
     - spec-alignment: FAIL — Cả pre-merge-check.sh lẫn recheck-evidence.js đều đối chiếu run_id bằng cách lấy dòng {"kind":"repin"} CUỐI CÙNG khớp run_id trong run-log.jsonl (bash: `grep ... | tail -1`; JS: `Map.set` nên dòng sau ghi đè dòng trước) — file này không có ràng buộc provenance nào (không commit riêng, không chữ ký) như đã áp cho human_signoff. Do đó "sửa tay run-log" không chỉ là lỗ chưa vá mà còn PHÁ LUÔN cả hai tầng chặn còn lại: chỉ cần append một dòng repin giả (cùng run_id, sha=verified_commit, suites_exit toàn 0) SAU dòng thật, kẻ gian vượt được cả check "lane fail nhưng vẫn ký" lẫn check "run_id chưa từng chạy" mà T2 (stale-commit) không hề soi tới vì sha vẫn khớp. Thiết kế tuyên bố "chống gian lận 2 tầng (máy, không lời hứa)" nhưng permutation "sửa tay run-log" nêu trong câu hỏi không bị bắt bởi tầng nào.
-  human_override: 
+  human_override: Manh Phan 2026-08-05 — E12: chấp nhận known-limits. Sửa-tay-run-log là ranh giới CŨ của lớp run-log (thiết kế chống bịa-cho-nhanh, không chống kẻ chủ đích sửa log — diff PR + review là lưới cho đường đó); vòng này không mở đường gian lận mới. Revisit: feature run-log-provenance (kiểm commit như chữ ký người).
 
 - eval: E13
   judged_by: judge panel (carried from round 1 — inputs unchanged)
@@ -175,7 +175,7 @@ human_signoff:
     - domain-correctness: PASS (r1)
     - operational-feasibility: PASS (r1)
     - spec-alignment: PASS (r1)
-  human_override: 
+  human_override: Manh Phan 2026-08-05 — E13: chuẩn y PASS (panel 3/3, nghi thức đọc-được-làm-được).
 
 - eval: E14
   run_id: minted-delta-verify-repin-E14-r3
@@ -205,7 +205,7 @@ human_signoff:
     - domain-correctness: UNCERTAIN (r1)
     - operational-feasibility: UNCERTAIN (r1)
     - spec-alignment: UNCERTAIN (r1)
-  human_override: 
+  human_override: Manh Phan 2026-08-05 — E16: PASS bằng số đếm dogfood thật: 19 dòng kind:repin cùng run_id repin-20260805-delta-verify-repin-lane1, sha c1f781d, đúng 1 agent-lane trong usage-report (baseline cũ: 19 lane).
 
 ## Analyst
 

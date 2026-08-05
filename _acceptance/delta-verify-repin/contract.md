@@ -4,7 +4,7 @@ feature: "delta-verify-repin — re-pin 1 lượt machine-lane + N chữ ký cù
 slug: delta-verify-repin
 risk_tier: T3
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-05T02:39:09Z
 owner: phanlemanh@gmail.com
@@ -113,3 +113,24 @@ Từ morphological-scan (4 trục — thước CE trong ngoặc):
 - Retro-enforce luật mới lên evidence cũ.
 - Cơ chế carry judgment ngoài P3 hiện có.
 - Đổi khuôn chữ ký người/human_override (không chạm dòng human-owned).
+
+## Notes
+
+Known limits — chấp nhận tại Cổng 2, Manh Phan 2026-08-05:
+
+- Sửa tay `run-log.jsonl` giả được dòng repin lẫn eval — ranh giới cũ của
+  lớp run-log (chống bịa-cho-nhanh; kẻ chủ đích sửa log bị soi bằng diff
+  PR/review, không bằng luật máy). Ứng viên vòng sau: run-log provenance.
+- Matcher glob của carry-plan lệch bản chuẩn theo hướng chạy-lại-thừa (an
+  toàn); revisit khi round carry thật đầu tiên chạy.
+- Hai lưới đọc dòng repin với độ khoan dung JSON khác nhau — khuôn compact
+  trong REPIN-TEMPLATE là chuẩn viết; lệch khuôn → CI đỏ oan (kêu to,
+  không lọt).
+- P146/P147 (suite plugins, thẻ cổng) ghim chữ từ workspace slug này —
+  sửa contract sau ngày ký có thể làm test đỏ oan; guard trong test kêu to.
+- Lưới chặn eval-mượn-repin-id bỏ qua eval block có dòng trống chen giữa
+  field; lưới không-log-thì-chặn vẫn phủ mọi id chưa từng được ghi.
+- AC-9 đổi chữ sau seal: bỏ ngoặc quanh cross-layer để gỡ false-positive
+  detector pairing — không đổi nghĩa, phê tại Cổng 2.
+- Gói Codex thiếu `carry-plan.mjs` (dead pointer) → mở contract mới riêng,
+  không vá chen vào vòng này.
