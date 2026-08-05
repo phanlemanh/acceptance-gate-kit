@@ -24,18 +24,27 @@ export function collectGold(root) {
     if (!fs.existsSync(rp) || !fs.statSync(dir).isDirectory()) continue;
     // ── điểm vàng từ block judgment có human_override thật ──
     const report = fs.readFileSync(rp, 'utf8');
-    let cur = null; let verdict = null; let judged = false;
+    // Guard block-scalar port từ gate-card.js (fix S4-r2, AC-8): dòng nằm trong
+    // `output: |` / `rationale: |` là TRÍCH LOG, không phải field — parser ngây
+    // thơ từng đúc "điểm người đã quyết" bịa từ excerpt. skip mọi dòng thụt sâu
+    // hơn field mở block scalar.
+    let cur = null; let verdict = null; let judged = false; let rationale = ''; let skip = -1;
     for (const raw of report.split('\n')) {
       const em = raw.match(/^-\s+eval:\s*(\S+)/);
-      if (em) { cur = em[1]; verdict = null; judged = false; continue; }
-      if (/^#{1,6}\s/.test(raw)) { cur = null; continue; }
+      if (em) { cur = em[1]; verdict = null; judged = false; rationale = ''; skip = -1; continue; }
+      if (/^#{1,6}\s/.test(raw)) { cur = null; skip = -1; continue; }
       if (!cur) continue;
-      if (/^\s+judged_by\s*:/.test(raw)) judged = true;
-      const vm = raw.match(/^\s+(?:verdict|proposal)\s*:\s*(\S+)/); if (vm && !verdict) verdict = vm[1];
-      const om = raw.match(/^\s+human_override\s*:\s*(.+\S)\s*$/);
-      if (om && judged && !/^#|^<|^\{\{/.test(om[1])) {
+      if (skip >= 0) { if (raw.trim() === '') continue; if ((raw.match(/^(\s*)/) || ['', ''])[1].length > skip) continue; skip = -1; }
+      const fm = raw.match(/^(\s*)(\w+)\s*:\s*(.*)$/);
+      if (fm && /^[|>]/.test(fm[3].trim())) { skip = fm[1].length; continue; }
+      if (!fm) continue;
+      const key = fm[2], val = fm[3].trim();
+      if (key === 'judged_by') judged = true;
+      else if ((key === 'verdict' || key === 'proposal') && !verdict) verdict = val.split(/\s/)[0];
+      else if (key === 'rationale' && !rationale) rationale = val;
+      else if (key === 'human_override' && val && judged && !/^#|^<|^\{\{/.test(val)) {
         judgedBlocks++;
-        points.push({ slug, evalId: cur, machine: verdict || '(không đọc được)', human: om[1] });
+        points.push({ slug, evalId: cur, machine: verdict || '(không đọc được)', human: val, rationale });
       }
     }
     // ── panel lines cho G3 ──
@@ -98,16 +107,20 @@ function featureOf(root, slug) {
   } catch (_) {}
   return null;
 }
-function glossOf(root, slug, evalId) {
+function glossOf(root, slug, evalId, rationale) {
   try {
     const y = fs.readFileSync(path.join(root, '_acceptance', slug, 'evals.yaml'), 'utf8');
-    const b = y.split(/\n(?=  - id: )/).find(x => x.trim().startsWith(`- id: ${evalId}`));
+    // neo id HẾT CHUỖI (\n) — `- id: J1` không được khớp block của J10
+    const b = y.split(/\n(?=  - id: )/).find(x => x.trim().startsWith(`- id: ${evalId}\n`) || x.trim() === `- id: ${evalId}`);
     if (b) {
       const q = b.match(/question: >\n\s+([^\n]+)/) || b.match(/expected: "([^"\n]{10,})/);
       if (q) return q[1].trim().slice(0, 60).replace(/\s+\S*$/, '') + '…';
     }
   } catch (_) {}
-  return '';
+  // feature cũ không tra được câu hỏi → dùng rationale của chính report (nội
+  // dung judge đã chấm gì) — fix theo required_evidence J13-r2, không để mã trần
+  if (rationale) return rationale.slice(0, 60).replace(/\s+\S*$/, '') + '…';
+  return 'hạng mục người phán tại Cổng 2';
 }
 const LENS_VI = {
   'domain-correctness': 'đúng nghiệp vụ (domain-correctness)',
@@ -120,7 +133,11 @@ const firstSentence = (t) => {
   if (dash < 0) return t.length > 140 ? t.slice(0, 140).replace(/\s+\S*$/, '') + '…' : t;
   const name = t.slice(0, dash);
   const reason = t.slice(dash + 3);
-  const sent = (reason.split(/(?<=\.)\s/)[0] || reason);
+  let sent = (reason.split(/(?<=\.)\s/)[0] || reason);
+  // đuôi sau dấu ':' thứ hai thường là liệt kê kỹ thuật (run_id, sha, đếm dòng)
+  // — cắt để giữ mệnh đề quyết định, nguyên văn đầy đủ vẫn nằm trong hồ sơ
+  const parts = sent.split(': ');
+  if (parts.length > 2) sent = parts.slice(0, 2).join(': ') + '…';
   const shown = `${name} — ${sent}`;
   return shown.length > 180 ? shown.slice(0, 180).replace(/\s+\S*$/, '') + '…' : shown;
 };
@@ -138,8 +155,8 @@ export function render({ points, panels, noPanel, judgedBlocks, root }) {
     for (const p of points) {
       const feat = featureOf(root, p.slug);
       const viec = feat ? `${feat} (${p.slug})` : p.slug;
-      const gloss = glossOf(root, p.slug, p.evalId);
-      const hm = gloss ? `${p.evalId} — ${gloss}` : p.evalId;
+      const gloss = glossOf(root, p.slug, p.evalId, p.rationale);
+      const hm = `${p.evalId} — ${gloss}`;
       out.push(`| ${viec.replace(/\|/g, '·')} | ${hm.replace(/\|/g, '·')} | ${p.machine} | ${firstSentence(p.human).replace(/\|/g, '·')} |`);
     }
   }

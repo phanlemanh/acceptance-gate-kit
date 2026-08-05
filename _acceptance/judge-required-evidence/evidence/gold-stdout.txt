@@ -6,24 +6,24 @@
 |---|---|---|---|
 | re-pin 1 lượt machine-lane + N chữ ký cùng run_id (chống gian lận 2… (delta-verify-repin) | E12 — Soi diff cơ chế cưỡng chế: có đường gian lận MỚI nào không… | UNCERTAIN | Manh Phan 2026-08-05 — E12: chấp nhận known-limits. |
 | re-pin 1 lượt machine-lane + N chữ ký cùng run_id (chống gian lận 2… (delta-verify-repin) | E13 — Nghi thức re-pin mới trong SKILL: một phiên KHÔNG có ngữ… | PASS | Manh Phan 2026-08-05 — E13: chuẩn y PASS (panel 3/3, nghi thức đọc-được-làm-được). |
-| re-pin 1 lượt machine-lane + N chữ ký cùng run_id (chống gian lận 2… (delta-verify-repin) | E16 — Sự kiện re-pin dogfood đã xảy ra chưa? Nếu chưa (bình… | UNCERTAIN | Manh Phan 2026-08-05 — E16: PASS bằng số đếm dogfood thật: 19 dòng kind:repin cùng run_id repin-20260805-delta-verify-repin-lane1, sha c1f781d, đúng 1 agent-lane trong… |
+| re-pin 1 lượt machine-lane + N chữ ký cùng run_id (chống gian lận 2… (delta-verify-repin) | E16 — Sự kiện re-pin dogfood đã xảy ra chưa? Nếu chưa (bình… | UNCERTAIN | Manh Phan 2026-08-05 — E16: PASS bằng số đếm dogfood thật… |
 | luật ranh giới section PER-SECTION đặt một chỗ có marker trong… (findings-section-boundary) | E10 — Luật ranh giới section đã single-source ĐÚNG NGHĨA chưa —… | PASS | Manh Phan 2026-07-29 |
-| Pre-merge enforce gap-probe presence (merge-boundary, thay cho hook… (gap-probe-presence-hook) | E9 | PASS | Manh Phan 2026-07-28 |
-| hoặc kêu to khi không đọc được (gate-card-ac-visibility) | E11 | UNCERTAIN | Manh Phan 2026-07-30 |
-| hoặc kêu to khi không đọc được (gate-card-ac-visibility) | E12 | UNCERTAIN | Manh Phan 2026-07-30 |
-| acceptance-verify.js DỪNG fail-closed khi eval thiếu field mà prompt… (judgment-question-guard) | E10 | PASS | Manh Phan 2026-08-04 |
+| Pre-merge enforce gap-probe presence (merge-boundary, thay cho hook… (gap-probe-presence-hook) | E9 — hạng mục người phán tại Cổng 2 | PASS | Manh Phan 2026-07-28 |
+| hoặc kêu to khi không đọc được (gate-card-ac-visibility) | E11 — hạng mục người phán tại Cổng 2 | UNCERTAIN | Manh Phan 2026-07-30 |
+| hoặc kêu to khi không đọc được (gate-card-ac-visibility) | E12 — hạng mục người phán tại Cổng 2 | UNCERTAIN | Manh Phan 2026-07-30 |
+| acceptance-verify.js DỪNG fail-closed khi eval thiếu field mà prompt… (judgment-question-guard) | E10 — hạng mục người phán tại Cổng 2 | PASS | Manh Phan 2026-08-04 |
 | lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (7 câu đối chiếu… (matrix-measure-law) | M8 — Prompt lens measurement: một finder fresh không có ngữ cảnh… | PASS | Manh Phan 2026-08-05 — M8: chuẩn y PASS (panel 3/3 r1, carry inputs không đổi). |
 | lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (7 câu đối chiếu… (matrix-measure-law) | M9 — 4 câu cross-check lớp-đo-lường trong 2 SKILL: nếu một bộ… | FAIL | Manh Phan 2026-08-05 — M9: known-limits. |
-| lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (7 câu đối chiếu… (matrix-measure-law) | M10 — S4 của chính vòng này đã chạy chưa? Nếu chưa (bình thường… | UNCERTAIN | Manh Phan 2026-08-05 — M10: PASS bằng số đếm dogfood: label review:measurement chạy ở 3/3 round S4 (usage-report), lens trả finding source:measurement cả 3 round (2+4+3) — trong… |
-| lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (7 câu đối chiếu… (matrix-measure-law) | M11 — Fix gap-probe P1 — đo HÀNH VI chứ không đo chỉ dẫn: file… | PASS | Manh Phan 2026-08-05 — M11: chuẩn y PASS (r2+r3, fixture code-sinh từ writer thật): critic bắt đúng khối gài hình dạng 4, không báo oan khối sạch. |
+| lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (7 câu đối chiếu… (matrix-measure-law) | M10 — S4 của chính vòng này đã chạy chưa? Nếu chưa (bình thường… | UNCERTAIN | Manh Phan 2026-08-05 — M10: PASS bằng số đếm dogfood… |
+| lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (7 câu đối chiếu… (matrix-measure-law) | M11 — Fix gap-probe P1 — đo HÀNH VI chứ không đo chỉ dẫn: file… | PASS | Manh Phan 2026-08-05 — M11: chuẩn y PASS (r2+r3, fixture code-sinh từ writer thật)… |
 | cưỡng chế bằng file tham chiếu + khuôn trình bày (ngon-ngu-mat-nguoi) | E16 — Bạn nhận CHÍN file. Với TỪNG file một, áp phép thử… | UNCERTAIN | Manh Phan 2026-08-01 — Nâng lên đạt. |
-| `clean` phải được chứng minh, không phải mặc định (premerge-rules-ledger) | E10 | PASS | Manh Phan 2026-07-28 |
-| Chặn PASS chưa ai phán ở biên merge (chữ ký giữ-chỗ + slug tự khai phát… (premerge-unjudged-pass) | E15 | PASS | Manh Phan 2026-07-29 |
-| ngăn thứ ba (s4-scope-triage) | E11 | PASS | Manh Phan 2026-07-28 |
-| Tách phạm vi răng T1-escape khỏi phạm vi diff (cờ opt-out + thứ tự bump… (t1-escape-event-scope) | E13 | PASS | Manh Phan 2026-07-28 |
+| `clean` phải được chứng minh, không phải mặc định (premerge-rules-ledger) | E10 — hạng mục người phán tại Cổng 2 | PASS | Manh Phan 2026-07-28 |
+| Chặn PASS chưa ai phán ở biên merge (chữ ký giữ-chỗ + slug tự khai phát… (premerge-unjudged-pass) | E15 — All three lenses agree every VIOLATION/NOTE line names the… | PASS | Manh Phan 2026-07-29 |
+| ngăn thứ ba (s4-scope-triage) | E11 — hạng mục người phán tại Cổng 2 | PASS | Manh Phan 2026-07-28 |
+| Tách phạm vi răng T1-escape khỏi phạm vi diff (cờ opt-out + thứ tự bump… (t1-escape-event-scope) | E13 — hạng mục người phán tại Cổng 2 | PASS | Manh Phan 2026-07-28 |
 
 ## Các giám khảo đồng thuận tới đâu
 
-34 lần hội đồng chấm tươi: 31 lần cả ba cùng ý · 3 lần 2-trên-1 · 0 lần phân kỳ hẳn.
-Theo góc nhìn: đúng nghiệp vụ (domain-correctness): 14/34 lần nói "chưa chắc/chưa đạt" · vận hành được (operational-feasibility): 17/34 lần nói "chưa chắc/chưa đạt" · khớp đặc tả (spec-alignment): 14/34 lần nói "chưa chắc/chưa đạt".
+35 lần hội đồng chấm tươi: 32 lần cả ba cùng ý · 3 lần 2-trên-1 · 0 lần phân kỳ hẳn.
+Theo góc nhìn: đúng nghiệp vụ (domain-correctness): 15/35 lần nói "chưa chắc/chưa đạt" · vận hành được (operational-feasibility): 18/35 lần nói "chưa chắc/chưa đạt" · khớp đặc tả (spec-alignment): 15/35 lần nói "chưa chắc/chưa đạt".
 (9 việc chưa có biên bản hội đồng — chấm trước khi máy bắt đầu ghi chép: context-ladder, docs-first-run-audit, findings-section-boundary, gate-card-ac-visibility, hinh-theo-mat-phang, judgment-question-guard, pha3-goi-luoi, product-map-uat-session, start-scan-hardening)

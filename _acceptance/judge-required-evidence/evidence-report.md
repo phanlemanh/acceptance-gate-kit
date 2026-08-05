@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 0684fe9c7e5b1d2e70ab59f6d3d6b2b064229e46
+verified_commit: 9f4d4d4081c659c79175cfbdf1761072c5ff0588
 human_signoff:
 ---
 
@@ -18,9 +18,9 @@ human_signoff:
 | J1 | AC-1 | test | PASS |
 | J2 | AC-2 | test | PASS |
 | J3 | AC-3 | test | PASS |
-| J6 | AC-6 | test | PASS |
 | J4 | AC-4 | test | PASS |
 | J5 | AC-5 | test | PASS |
+| J6 | AC-6 | test | PASS |
 | J7 | AC-7 | test | PASS |
 | J8 | AC-8 | test | PASS |
 | J9 | AC-9 | test | PASS |
@@ -35,193 +35,152 @@ human_signoff:
 - eval: J1
   run_id: minted-judge-required-evidence-J1-r1
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-05T09:00:00Z
-  output: |
-    Results: 62 passed, 0 failed
-
-    Results: all workflow tests passed
+  verified_at: 2026-08-05T08:35:26Z
+  carried_from_round: 1
+  # carry-forward tu round 1 — delta khong cham paths cua eval J1.
 
 - eval: J2
   run_id: minted-judge-required-evidence-J2-r1
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-05T09:00:00Z
-  output: |
-    Results: 62 passed, 0 failed
-
-    Results: all workflow tests passed
+  verified_at: 2026-08-05T08:35:26Z
+  carried_from_round: 1
+  # carry-forward tu round 1 — delta khong cham paths cua eval J2.
 
 - eval: J3
   run_id: minted-judge-required-evidence-J3-r1
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-05T09:00:00Z
-  output: |
-    Results: 62 passed, 0 failed
-
-    Results: all workflow tests passed
-
-- eval: J6
-  run_id: minted-judge-required-evidence-J6-r1
-  exit_code: 0
-  baseline: green
-  verifier: config:executors.test.workflows
-  verified_at: 2026-08-05T09:00:00Z
-  output: |
-    Results: 62 passed, 0 failed
-
-    Results: all workflow tests passed
+  verified_at: 2026-08-05T08:35:26Z
+  carried_from_round: 1
+  # carry-forward tu round 1 — delta khong cham paths cua eval J3.
 
 - eval: J4
   run_id: minted-judge-required-evidence-J4-r1
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T09:00:00Z
-  output: |
-      PASS: P154 command clauses + mutant
-
-    Results: all plugin tests passed
+  verified_at: 2026-08-05T08:35:26Z
+  carried_from_round: 1
+  # carry-forward tu round 1 — delta khong cham paths cua eval J4.
 
 - eval: J5
   run_id: minted-judge-required-evidence-J5-r1
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T09:00:00Z
-  output: |
-      PASS: P154 command clauses + mutant
+  verified_at: 2026-08-05T08:35:26Z
+  carried_from_round: 1
+  # carry-forward tu round 1 — delta khong cham paths cua eval J5.
 
-    Results: all plugin tests passed
+- eval: J6
+  run_id: minted-judge-required-evidence-J6-r1
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.test.workflows
+  verified_at: 2026-08-05T08:35:26Z
+  carried_from_round: 1
+  # carry-forward tu round 1 — delta khong cham paths cua eval J6.
 
 - eval: J7
   run_id: minted-judge-required-evidence-J7-r1
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T09:00:00Z
-  output: |
-      PASS: P154 command clauses + mutant
-
-    Results: all plugin tests passed
+  verified_at: 2026-08-05T08:35:26Z
+  carried_from_round: 1
+  # carry-forward tu round 1 — delta khong cham paths cua eval J7.
 
 - eval: J8
-  run_id: minted-judge-required-evidence-J8-r1
+  run_id: minted-judge-required-evidence-J8-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T09:00:00Z
+  verified_at: 2026-08-05T10:05:00Z
   output: |
-      PASS: P154 command clauses + mutant
+    PASS: P154 command clauses + mutant
 
     Results: all plugin tests passed
 
 - eval: J9
-  run_id: minted-judge-required-evidence-J9-r1
+  run_id: minted-judge-required-evidence-J9-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T09:00:00Z
+  verified_at: 2026-08-05T10:05:00Z
   output: |
-      PASS: P154 command clauses + mutant
+    PASS: P154 command clauses + mutant
 
     Results: all plugin tests passed
 
 - eval: J10
   run_id: minted-judge-required-evidence-J10-r1
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-05T09:00:00Z
-  output: |
-      PASS: P154 command clauses + mutant
-
-    Results: all plugin tests passed
+  verified_at: 2026-08-05T08:35:26Z
+  carried_from_round: 1
+  # carry-forward tu round 1 — delta khong cham paths cua eval J10.
 
 - eval: J11
   run_id: minted-judge-required-evidence-J11-r1
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-08-05T09:00:00Z
-  output: |
-      PASS: GCV1d contract lanh khong sinh canh bao nao
+  verified_at: 2026-08-05T08:35:26Z
+  carried_from_round: 1
+  # carry-forward tu round 1 — delta khong cham paths cua eval J11.
 
-    Results: 601 passed, 0 failed
-
+<!-- <<<JUDGMENT-BLOCK-TEMPLATE -->
 - eval: J12
-  judged_by: judge-panel (fresh context, 3 lens)
-  proposal: PASS
-  rationale: Cả 3 lens đồng thuận PASS — quy tắc required_evidence mới (rule 5/6) chỉ thêm ràng buộc lên verdict không-PASS (mục cụ thể + chỗ lấy + câu chống evidence-shopping), không đổi tiêu chí UNCERTAIN và không tạo lối tắt biến UNCERTAIN thành cớ dễ dãi.
-  votes:
-    - domain-correctness: PASS — Rule 5's format ties each required_evidence item to a concrete artifact + a concrete way to get it (file/command/frame), and embeds the actionability test directly in the format ("specific enough that if this existed the verdict would change"). Rule 6 explicitly closes the evidence-shopping hole with a good/bad example pair ("add more tests" invalid vs. a named command+output valid) and a direct anti-shopping clause ("if the listed evidence would not change your verdict, do not list it") — verdict criteria for UNCERTAIN (rule 4) are unchanged by this addition, so the new field adds friction/specificity to non-PASS verdicts rather than an incentive to reach for UNCERTAIN more easily.
-    - operational-feasibility: PASS — Persona (dòng 38-46) buộc required_evidence là MANDATORY khi FAIL/UNCERTAIN, omit khi PASS, và định nghĩa "ACTIONABLE" bằng cặp ví dụ invalid/valid cụ thể (không phải "thêm test" chung chung, mà "chạy config:executors.test.api và đính kèm output exit-0 cho path migrate") kèm khuôn "evidence + chỗ lấy (file/command/frame)" — đủ cho judge fresh làm đúng. Rule 6 có câu chống evidence-shopping tường minh: "nếu bằng chứng liệt kê không đổi được verdict thì đừng liệt kê nó", và UNCERTAIN (rule 4) được định nghĩa độc lập với required_evidence nên cơ chế mới không tạo lối tắt biến UNCERTAIN thành cớ dễ dãi.
-    - spec-alignment: PASS — Rule 5's template (ONE concrete piece + file/command/frame + "specific enough that if this existed the verdict would change") and rule 6's worked contrast ("add more tests" invalid vs "run config:executors.test.api and attach exit-0 output for migrate path" valid) give a fresh judge an operational, action-first bar to write against. Rule 6 also names and forbids the exact dodge in the question ("Do NOT use required_evidence to dodge a verdict you already have grounds for... no evidence-shopping"), and required_evidence is a burden added on TOP of a non-PASS verdict rather than a substitute reason to reach UNCERTAIN, so it does not lower the bar for lazy UNCERTAIN.
+  judged_by: judge-panel (fresh context, 3 lenses)
+  verdict: PASS
+  rationale: |
+    panel giữ nguyên từ round 1 — inputs không đổi, không chấm lại; rationale xem round 1.
+    - domain-correctness: PASS (r1)
+    - operational-feasibility: PASS (r1)
+    - spec-alignment: PASS (r1)
   human_override:
 
 - eval: J13
-  judged_by: judge-panel (fresh context, 3 lens)
-  proposal: FAIL
-  rationale: Cả 3 lens đồng thuận FAIL trên bảng "Sổ vàng" của gold-stdout.txt — vi phạm nhiều luật human-facing-language.md (N1 chủ ngữ-slug-máy, N3 mã trần không giải nghĩa, N4/N6 thuật ngữ máy không dịch), trượt phép thử xoá-tên-máy.
-  votes:
-    - domain-correctness: FAIL — Bảng "Sổ vàng" dùng slug nội bộ (delta-verify-repin, matrix-measure-law...) làm chủ ngữ dòng thay vì câu tả người dùng/sản phẩm thấy gì (vi phạm N1), cột "Hạng mục" chỉ có mã trần E12/E13/M8/M9... không kèm 3-5 chữ giải nghĩa lần đầu xuất hiện (vi phạm N3), và nhiều ô "Người quyết" (vd dòng E16, M9) nhồi nhiều ý bằng dấu chấm phẩy/gạch ngang kèm thuật ngữ máy như run_id, sha, kind:repin, round-trip, charter (vi phạm N4, có dấu hiệu N6). Phép thử xoá-tên-máy: xoá E12/E16/M9/run_id/sha/kind:repin/delta-verify-repin... khỏi bảng thì phần lớn dòng mất nghĩa hoặc trống — người quyết kinh doanh không đọc code không kể lại được "máy đề xuất gì, người đã quyết gì" chỉ bằng bảng này.
-      required_evidence:
-        - Bản sửa cột 'Hạng mục' của bảng Sổ vàng (dòng 7-18 gold-stdout.txt) có thêm 3-5 chữ giải nghĩa ngay lần đầu mỗi mã xuất hiện (VD 'E12 (chấp nhận sửa-tay run-log)') — đúng luật N3.
-        - Bản sửa cột 'Việc' đổi chủ ngữ dòng từ slug nội bộ (delta-verify-repin, matrix-measure-law, ngon-ngu-mat-nguoi...) sang câu tả người dùng/sản phẩm thấy gì khác, đẩy slug xuống ngoặc/cột phụ — đúng luật N1/N2.
-        - Bản sửa ô 'Người quyết' của dòng E16 và M9 (dòng 9, 16) tách các ý đang nhồi bằng dấu chấm phẩy/gạch ngang thành các dòng riêng, thay thuật ngữ máy (run_id, sha, kind:repin, round-trip, charter) bằng chữ thường hoặc chú giải — đúng luật N4/N6.
-    - operational-feasibility: FAIL — Cột "Việc" dùng thẳng slug máy (delta-verify-repin, matrix-measure-law, s4-scope-triage...) làm chủ ngữ của cả bảng, không có mô tả "người dùng/sản phẩm thấy gì khác" — vi phạm N1+N2, và trượt phép thử Xoá-tên-máy vì xoá slug thì dòng đó mất hết nghĩa. Mã hạng mục (E12, E13, E16, M8-M11) xuất hiện bare trong cột "Hạng mục" không kèm 3–5 chữ nói nó là gì lần đầu xuất hiện — vi phạm N3; phần "giám khảo đồng thuận" dùng thẳng tên lens tiếng Anh nội bộ (domain-correctness, operational-feasibility, spec-alignment) không dịch/không giải nghĩa — vi phạm N6. Người quyết định kinh doanh không đọc code sẽ không tự trả lời được "việc gì đã đổi cho người dùng" chỉ từ bảng này.
-      required_evidence:
-        - Bản sửa của _acceptance/judge-required-evidence/evidence/gold-stdout.txt: cột 1 đổi từ slug máy (vd. delta-verify-repin) sang một câu chủ ngữ-người-dùng/sản phẩm mô tả việc đã đổi, slug kỹ thuật lùi xuống ngoặc — kiểm bằng phép thử Xoá-tên-máy trên từng dòng của bảng 'Sổ vàng'
-        - Bản sửa cùng file: lần xuất hiện đầu tiên của mỗi mã hạng mục (E12, E13, E16, M8, M9, M10, M11) trong cột 'Hạng mục' kèm 3–5 chữ nói nó kiểm cái gì, đúng luật N3 ở human-facing-language.md dòng 27
-        - Bản sửa đoạn 'Các giám khảo đồng thuận tới đâu': thay domain-correctness/operational-feasibility/spec-alignment bằng tên tiếng Việt có trong CONTEXT.md (hoặc thêm mục CONTEXT.md cho ba tên này) trước khi trình cho người quyết kinh doanh, đúng luật N6
-    - spec-alignment: FAIL — Cột "Việc" dùng thẳng slug tính năng (vd "delta-verify-repin", "gate-card-ac-visibility") làm chủ ngữ và cột "Hạng mục" là mã trần (E12, M9, E16...) không kèm 3-5 chữ giải nghĩa lần đầu xuất hiện — vi phạm N1/N2/N3; cột "Người quyết" đặc biệt tại các dòng UNCERTAIN/FAIL (E12, M9, M10, E16) nhồi biệt ngữ nội bộ chưa dịch (run-log, known-limits, dogfood, fixture, schema evals, charter, agent-lane, round-trip, label review:measurement) — vi phạm N6. Áp phép thử Xoá-tên-máy vào một dòng bất kỳ (vd dòng gap-probe-presence-hook) gần như rỗng nghĩa, cho thấy người quyết kinh doanh không tự đọc hiểu được "máy đề xuất gì" mà không tra cứu thêm.
-      required_evidence:
-        - Dòng 7 gold-stdout.txt (delta-verify-repin | E12 | UNCERTAIN): xoá hết 'delta-verify-repin', 'E12', 'run-log', 'known-limits' khỏi câu — phần còn lại không còn truyền đạt được quyết định gì; nếu bản sửa thay slug bằng mô tả người-dùng-thấy-gì và giải nghĩa mã 3-5 chữ thì verdict đổi.
-        - Toàn bộ cột 'Hạng mục' (dòng 7-23): liệt kê mọi mã xuất hiện lần đầu (E9, E10, E11, E12, E13, E15, E16, M8-M11) không có 3-5 chữ chú giải theo đúng luật N3 ở file human-facing-language.md dòng 27 — nếu thêm chú giải cạnh mỗi mã lần đầu thì verdict đổi.
-        - Dòng 28 gold-stdout.txt: 'domain-correctness', 'operational-feasibility', 'spec-alignment' dùng làm nhãn lens không dịch, vi phạm N6 (human-facing-language.md dòng 30) — nếu thay bằng tên lens tiếng sản phẩm hoặc chua nghĩa thì verdict đổi.
+  judged_by: judge-panel (fresh context, 3 lenses)
+  verdict: FAIL
+  rationale: |
+    - domain-correctness: FAIL — Sổ vàng vẫn lộ tiếng máy ở nhiều chỗ: nhiều mã AC (E9, E10, E11, E13, E15 ở các dòng gap-probe-presence-hook, premerge-rules-ledger, gate-card-ac-visibility, t1-escape-event-scope, premerge-unjudged-pass) xuất hiện trơ trọi không kèm 3-5 chữ giải nghĩa, vi phạm N3. Ô "Người quyết" của dòng delta-verify-repin/E16 và matrix-measure-law/M10 nhồi nhiều sự kiện kỹ thuật (run_id, sha, agent-lane, label review:measurement, source:measurement) bằng dấu phẩy vào một câu, vừa vi phạm N4 (một dòng một ý) vừa vi phạm N6 (biệt ngữ nội bộ chưa có trong từ điển sản phẩm — các từ này không có trong HFL-GLOSSARY-TERMS). Người quyết kinh doanh không đọc code sẽ không hiểu ngay các mã và jargon đó là gì.
+    - operational-feasibility: FAIL — Cột "Việc" và các trích dẫn quyết định nhồi thẳng biệt ngữ máy chưa dịch (run_id, sha, machine-lane, agent-lane, kind:repin, known-limits, re-pin) làm chủ ngữ/nội dung chính thay vì đẩy xuống ngoặc kèm giải nghĩa 3–5 chữ — phép thử Xoá-tên-máy trên dòng 7 ("re-pin 1 lượt machine-lane + N chữ ký cùng run_id…") cho câu rỗng nghĩa với người không đọc code. Danh sách 9 slug thô ở dòng 29 (context-ladder, docs-first-run-audit…) bày nguyên văn không dịch, vi phạm N1/N2/N6 của file luật thứ hai.
+    - spec-alignment: FAIL — Nhiều ô "Hạng mục được chấm" trong bảng chỉ có mã trần không kèm 3-5 chữ giải nghĩa (vi phạm N3: "Mã số là tra cứu, không phải nội dung"), nên người quyết kinh doanh không đọc code sẽ không hiểu hạng mục đó chấm cái gì khi lần đầu gặp — phép thử Xoá-tên-máy trả về rỗng ("E9 | PASS | Manh Phan 2026-07-28" xoá mã đi thì không còn nghĩa). Cột "Máy đề xuất/Người quyết" và cột "Việc" thì đạt N1/N2 (chủ ngữ đúng, tên kỹ thuật đã xuống ngoặc).
   required_evidence:
-    - "[domain-correctness] Bản sửa cột 'Hạng mục' của bảng Sổ vàng (dòng 7-18 gold-stdout.txt) có thêm 3-5 chữ giải nghĩa ngay lần đầu mỗi mã xuất hiện (VD 'E12 (chấp nhận sửa-tay run-log)') — đúng luật N3."
-    - "[domain-correctness] Bản sửa cột 'Việc' đổi chủ ngữ dòng từ slug nội bộ (delta-verify-repin, matrix-measure-law, ngon-ngu-mat-nguoi...) sang câu tả người dùng/sản phẩm thấy gì khác, đẩy slug xuống ngoặc/cột phụ — đúng luật N1/N2."
-    - "[domain-correctness] Bản sửa ô 'Người quyết' của dòng E16 và M9 (dòng 9, 16) tách các ý đang nhồi bằng dấu chấm phẩy/gạch ngang thành các dòng riêng, thay thuật ngữ máy (run_id, sha, kind:repin, round-trip, charter) bằng chữ thường hoặc chú giải — đúng luật N4/N6."
-    - "[operational-feasibility] Bản sửa của _acceptance/judge-required-evidence/evidence/gold-stdout.txt: cột 1 đổi từ slug máy (vd. delta-verify-repin) sang một câu chủ ngữ-người-dùng/sản phẩm mô tả việc đã đổi, slug kỹ thuật lùi xuống ngoặc — kiểm bằng phép thử Xoá-tên-máy trên từng dòng của bảng 'Sổ vàng'"
-    - "[operational-feasibility] Bản sửa cùng file: lần xuất hiện đầu tiên của mỗi mã hạng mục (E12, E13, E16, M8, M9, M10, M11) trong cột 'Hạng mục' kèm 3–5 chữ nói nó kiểm cái gì, đúng luật N3 ở human-facing-language.md dòng 27"
-    - "[operational-feasibility] Bản sửa đoạn 'Các giám khảo đồng thuận tới đâu': thay domain-correctness/operational-feasibility/spec-alignment bằng tên tiếng Việt có trong CONTEXT.md (hoặc thêm mục CONTEXT.md cho ba tên này) trước khi trình cho người quyết kinh doanh, đúng luật N6"
-    - "[spec-alignment] Dòng 7 gold-stdout.txt (delta-verify-repin | E12 | UNCERTAIN): xoá hết 'delta-verify-repin', 'E12', 'run-log', 'known-limits' khỏi câu — phần còn lại không còn truyền đạt được quyết định gì; nếu bản sửa thay slug bằng mô tả người-dùng-thấy-gì và giải nghĩa mã 3-5 chữ thì verdict đổi."
-    - "[spec-alignment] Toàn bộ cột 'Hạng mục' (dòng 7-23): liệt kê mọi mã xuất hiện lần đầu (E9, E10, E11, E12, E13, E15, E16, M8-M11) không có 3-5 chữ chú giải theo đúng luật N3 ở file human-facing-language.md dòng 27 — nếu thêm chú giải cạnh mỗi mã lần đầu thì verdict đổi."
-    - "[spec-alignment] Dòng 28 gold-stdout.txt: 'domain-correctness', 'operational-feasibility', 'spec-alignment' dùng làm nhãn lens không dịch, vi phạm N6 (human-facing-language.md dòng 30) — nếu thay bằng tên lens tiếng sản phẩm hoặc chua nghĩa thì verdict đổi."
+    - "[domain-correctness] gold-stdout.txt dòng 11 (hàng gap-probe-presence-hook): sửa 'E9' thành có kèm 3-5 chữ nói nó kiểm gì (vd 'E9 — <mô tả ngắn>') — nếu bản sửa xuất hiện thì hết vi phạm N3 ở dòng này; áp tương tự cho dòng 20 (E10, premerge-rules-ledger), dòng 12-13 (E11/E12, gate-card-ac-visibility), dòng 21 (E15), dòng 23 (E13, t1-escape-event-scope)."
+    - "[domain-correctness] gold-stdout.txt dòng 9 (hàng delta-verify-repin/E16): viết lại cụm 'run_id repin-20260805-delta-verify-repin-lane1, sha c1f781d, đúng 1 agent-lane' bằng tiếng sản phẩm không có run_id/sha/agent-lane, tách thành câu riêng thay vì nhồi bằng dấu phẩy — nếu bản viết lại này thay thế thì đổi verdict."
+    - "[domain-correctness] gold-stdout.txt dòng 17 (hàng matrix-measure-law/M10): viết lại 'label review:measurement chạy ở 3/3 round S4 (usage-report), lens trả finding source:measurement cả 3 round (2+4+3)' bỏ các tên trường máy (label, lens, source:measurement) sang tiếng người hoặc xuống chú thích — nếu có bản thay thế thì đổi verdict."
+    - "[operational-feasibility] gold-stdout.txt dòng 7: cột Việc = 're-pin 1 lượt machine-lane + N chữ ký cùng run_id (chống gian lận 2… (delta-verify-repin)' — vi phạm N1 (chủ ngữ là kỹ thuật, không phải người dùng/sản phẩm) và N6 (machine-lane, run_id, re-pin là biệt ngữ nội bộ không kèm giải nghĩa) đối chiếu human-facing-language.md dòng 25 (N1) và dòng 30 (N6)"
+    - "[operational-feasibility] gold-stdout.txt dòng 9: trích dẫn quyết định '...19 dòng kind:repin cùng run_id repin-20260805-delta-verify-repin-lane1, sha c1f781d, đúng 1 agent-lane trong…' — tên trường máy (kind:repin, run_id, sha, agent-lane) làm nội dung chính thay vì xuống cột phụ/ngoặc, vi phạm N2 (human-facing-language.md dòng 26)"
+    - "[operational-feasibility] gold-stdout.txt dòng 29: liệt kê 9 slug kỹ thuật thô 'context-ladder, docs-first-run-audit, findings-section-boundary, gate-card-ac-visibility, hinh-theo-mat-phang, judgment-question-guard, pha3-goi-luoi, product-map-uat-session, start-scan-hardening' không có bản dịch tiếng người kèm theo — vi phạm N1/N2, đối chiếu bảng TRƯỚC/SAU ở human-facing-language.md dòng 50-57"
+    - "[operational-feasibility] gold-stdout.txt các dòng 7,16 dùng thuật ngữ 'known-limits' không có 3-5 chữ giải nghĩa lần đầu xuất hiện — vi phạm N3 (human-facing-language.md dòng 27)"
+    - "[spec-alignment] gold-stdout.txt dòng 11: ô Hạng mục được chấm chỉ ghi 'E9' trần, không có 3-5 chữ mô tả — vi phạm N3; nếu thêm mô tả (vd 'E9 — <ý eval đó chấm gì>') thì verdict đổi"
+    - "[spec-alignment] gold-stdout.txt các dòng 12,13,14,20,21,22,23: cùng hình dạng — 'E11', 'E12', 'E10', 'E10', 'E15', 'E11', 'E13' đều xuất hiện trần không kèm giải nghĩa dù các dòng 8,9,10,15,16,17,18 (cùng cột) đều có mô tả kèm sau dấu '—'; cần sửa ĐỒNG LOẠT cả lớp (không chỉ dòng 11) để qua N3 và phép thử Xoá-tên-máy"
   human_override:
 
 - eval: J14
-  judged_by: judge-panel (fresh context, 3 lens)
-  proposal: UNCERTAIN
-  rationale: Cả 3 lens đồng thuận UNCERTAIN — input được cấp cho vòng chấm này không có run-log.jsonl của S4 nên không thể tự grep kind:panel để đếm proposal ≠ PASS có required_evidence hay không; AC-14 trong contract.md có khai đúng công thức đếm nhưng đó là lời khai chứ không phải bằng chứng run-log thật đã chạy.
-  votes:
-    - domain-correctness: UNCERTAIN — Trong phạm vi input được cấp (contract.md + design spec) không có run-log.jsonl của S4 vòng này nên không thể grep kind:panel để đếm dòng non-PASS có required_evidence hay không — đúng tình huống "chưa chấm được S4 lúc chấm". Gói Cổng 2 CÓ khai rõ cách đếm: AC-14 trong contract.md nói đúng công thức — "mọi dòng kind:panel proposal ≠ PASS phải mang required_evidence không rỗng; chưa có dòng không-PASS nào thì đo bằng harness + máy trả UNCERTAIN, người đếm tại Cổng 2" — khớp với thiết kế mục "Ngưỡng sống/chết (1) dogfood" trong design spec.
-      required_evidence:
-        - run-log.jsonl của S4 chính vòng judge-required-evidence này (đường dẫn dạng _acceptance/judge-required-evidence/... hoặc nơi S4 ghi log) — chạy `grep 'kind:panel' run-log.jsonl` rồi kiểm mỗi dòng có proposal khác PASS có field required_evidence không rỗng; nếu file này được đưa vào input, verdict có thể đổi thành PASS (nếu mọi dòng non-PASS đều có required_evidence, hoặc không có dòng non-PASS nào và case harness JR1/JR2 pass) hoặc FAIL (nếu có dòng non-PASS thiếu required_evidence).
-    - operational-feasibility: UNCERTAIN — Danh sách Input chỉ có contract.md và design spec — không có run-log.jsonl của slug judge-required-evidence, nên không thể tự grep kind:panel để đếm proposal ≠ PASS có required_evidence hay không. Trong phạm vi cho phép, AC-14 của contract.md đã khai rõ cách người đếm tại Cổng 2 (grep kind:panel; dòng không-PASS phải mang required_evidence không rỗng; chưa có dòng không-PASS nào thì đo bằng harness case JR1/JR2, máy trả UNCERTAIN) — khớp đúng nghi thức được yêu cầu, nhưng đây là lời khai trong contract chứ không phải bằng chứng run-log thật đã chạy.
-      required_evidence:
-        - run-log.jsonl của vòng S4 hiện tại cho slug judge-required-evidence (đường dẫn dạng _acceptance/judge-required-evidence/run-log.jsonl hoặc tương đương) — chạy `grep '"kind":"panel"' run-log.jsonl` rồi với mỗi dòng có proposal ≠ PASS, kiểm `required_evidence` có mặt và không rỗng; nếu mọi dòng đều có thì verdict đổi thành PASS, nếu thiếu ở dòng nào thì verdict đổi thành FAIL
-        - Nếu chưa có dòng kind:panel không-PASS nào: output của harness case JR1/JR2 (đường dẫn script/case trong _acceptance/judge-required-evidence/ hoặc evals/ tương ứng) xác nhận case này thực sự chạy và PASS/FAIL — để phân biệt 'chưa chạy' với 'chạy và không có non-PASS'
-    - spec-alignment: UNCERTAIN — Chưa có run-log.jsonl của S4 vòng này trong phạm vi input được cấp nên không thể tự chạy grep kind:panel để đếm — đúng tình huống "bình thường lúc chấm" mà đề bài dự liệu. Gói Cổng 2 (AC-14 trong contract.md) đã khai rõ cách người đếm: mọi dòng kind:panel có proposal ≠ PASS phải mang required_evidence không rỗng, và nếu chưa có dòng không-PASS nào thì đo bằng harness (case JR1/JR2) — khớp đúng nghi thức đếm mà câu hỏi J14 yêu cầu, nên không tô xanh trước mà để người đếm tại Cổng 2.
-      required_evidence:
-        - Chạy S4 verify thật cho slug judge-required-evidence rồi lấy _acceptance/judge-required-evidence/run-log.jsonl, grep 'kind:panel' — nếu tồn tại dòng có proposal khác PASS mà required_evidence rỗng/thiếu thì verdict đổi thành FAIL; nếu mọi dòng không-PASS đều có required_evidence không rỗng (hoặc không có dòng không-PASS nào) thì verdict đổi thành PASS
-        - Nếu run-log.jsonl chưa tồn tại (S4 chưa chạy), lấy kết quả case harness JR1/JR2 (đường dẫn cụ thể, ví dụ output test hoặc file case trong _acceptance/judge-required-evidence/ hoặc thư mục test tương ứng) chứng minh máy tự trả UNCERTAIN đúng như AC-14 mô tả khi chưa có dòng không-PASS nào
+  judged_by: judge-panel (fresh context, 3 lenses)
+  verdict: UNCERTAIN
+  rationale: |
+    panel giữ nguyên từ round 1 — inputs không đổi, không chấm lại; rationale xem round 1.
+    - domain-correctness: UNCERTAIN (r1)
+    - operational-feasibility: UNCERTAIN (r1)
+    - spec-alignment: UNCERTAIN (r1)
   required_evidence:
-    - "[domain-correctness] run-log.jsonl của S4 chính vòng judge-required-evidence này (đường dẫn dạng _acceptance/judge-required-evidence/... hoặc nơi S4 ghi log) — chạy `grep 'kind:panel' run-log.jsonl` rồi kiểm mỗi dòng có proposal khác PASS có field required_evidence không rỗng; nếu file này được đưa vào input, verdict có thể đổi thành PASS (nếu mọi dòng non-PASS đều có required_evidence, hoặc không có dòng non-PASS nào và case harness JR1/JR2 pass) hoặc FAIL (nếu có dòng non-PASS thiếu required_evidence)."
-    - "[operational-feasibility] run-log.jsonl của vòng S4 hiện tại cho slug judge-required-evidence (đường dẫn dạng _acceptance/judge-required-evidence/run-log.jsonl hoặc tương đương) — chạy `grep '\"kind\":\"panel\"' run-log.jsonl` rồi với mỗi dòng có proposal ≠ PASS, kiểm `required_evidence` có mặt và không rỗng; nếu mọi dòng đều có thì verdict đổi thành PASS, nếu thiếu ở dòng nào thì verdict đổi thành FAIL"
-    - "[operational-feasibility] Nếu chưa có dòng kind:panel không-PASS nào: output của harness case JR1/JR2 (đường dẫn script/case trong _acceptance/judge-required-evidence/ hoặc evals/ tương ứng) xác nhận case này thực sự chạy và PASS/FAIL — để phân biệt 'chưa chạy' với 'chạy và không có non-PASS'"
-    - "[spec-alignment] Chạy S4 verify thật cho slug judge-required-evidence rồi lấy _acceptance/judge-required-evidence/run-log.jsonl, grep 'kind:panel' — nếu tồn tại dòng có proposal khác PASS mà required_evidence rỗng/thiếu thì verdict đổi thành FAIL; nếu mọi dòng không-PASS đều có required_evidence không rỗng (hoặc không có dòng không-PASS nào) thì verdict đổi thành PASS"
-    - "[spec-alignment] Nếu run-log.jsonl chưa tồn tại (S4 chưa chạy), lấy kết quả case harness JR1/JR2 (đường dẫn cụ thể, ví dụ output test hoặc file case trong _acceptance/judge-required-evidence/ hoặc thư mục test tương ứng) chứng minh máy tự trả UNCERTAIN đúng như AC-14 mô tả khi chưa có dòng không-PASS nào"
+    - "(xem round 1 — panel carried, không chấm lại; danh sách required_evidence gốc theo 3 lens đều xoay quanh: chạy `grep 'kind:panel' run-log.jsonl` của _acceptance/judge-required-evidence/run-log.jsonl và kiểm mọi dòng proposal khác PASS có required_evidence không rỗng — nếu có, hoặc nếu chưa có dòng non-PASS nào và case harness JR1/JR2 pass, verdict đổi thành PASS; nếu thiếu ở dòng nào, verdict đổi thành FAIL)"
   human_override:
+<!-- JUDGMENT-BLOCK-TEMPLATE>>> -->
 
 ## Analyst
 
-Các eval sau PASS trên CẢ head lẫn baseline (diffBase) — không phân biệt được feature với code cũ, cần người xem lại nên viết lại để assert hành vi mới hay xác nhận là regression-guard có chủ ý:
+carried tu round 1 — baseline khong do lai round nay.
 
 - bash tests/workflows/run-tests.sh: J1, J2, J3, J6
 - bash tests/plugins/run-tests.sh: J4, J5, J7, J8, J9, J10
@@ -229,11 +188,12 @@ Các eval sau PASS trên CẢ head lẫn baseline (diffBase) — không phân bi
 
 ## Variance
 
-none — every multi-run eval is uniform (không có eval nào mang field `runs` > 1 trong lần chạy này).
+none — every multi-run eval is uniform
 
 ## Iterations
 
-Chưa có — đây là vòng verify đầu tiên (round 1); chưa có vòng trước nào để đối chiếu.
+Round 1: J1-J7, J10-J12 PASS; J13 FAIL (Sổ vàng còn tiếng máy trần, vi phạm N3/N6 human-facing-language.md); J14 UNCERTAIN (chưa có dòng kind:panel trong run-log để chấm). Trở lại implementation sửa gold-stdout wording.
+Round 2 (hiện tại): J8, J9 (gold set/G3 trên corpus thật) chạy lại — PASS. J13 chấm lại trên gold-stdout mới — vẫn FAIL, biệt ngữ máy còn sót nhiều dòng (xem rationale ở trên). J14 carry-forward UNCERTAIN từ round 1 (chưa có input mới để chấm lại). J1-J7, J10-J12 carry-forward PASS (delta không chạm paths của các eval này).
 
 ## Gate 2 checklist (human)
 

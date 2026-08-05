@@ -6069,6 +6069,16 @@ const mk = (override) => {
 const with_ = mk(true), without = mk(false);
 if (with_.points.length !== 1 || with_.points[0].machine !== 'FAIL' || !/known-limits/.test(with_.points[0].human)) { console.error('fixture co override phai ra dung 1 diem: ' + JSON.stringify(with_.points)); process.exit(1); }
 if (without.points.length !== 0) { console.error('fixture khong override phai 0 diem'); process.exit(1); }
+// AC-8 fix S4-r2: excerpt trong block scalar KHONG duoc duc diem vang bia
+const mkScalar = () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'jr8s-'));
+  const dir = path.join(root, '_acceptance', 's1'); fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'evidence-report.md'),
+    `---\nverdict: PASS\n---\n\n## Evidence\n- eval: E1\n  run_id: x-001\n  exit_code: 0\n  output: |\n    trich log co chua:\n    judged_by: panel\n    verdict: FAIL\n    human_override: Ghost 2026-01-01 — diem bia tu log\n  verifier: v.sh\n`);
+  return JSON.parse(cp.execFileSync('node', [path.join(ROOT, 'scripts/acceptance-gold.mjs'), '--root', root, '--json'], { encoding: 'utf8' }));
+};
+const scalar = mkScalar();
+if (scalar.points.length !== 0) { console.error('excerpt block-scalar duc ra diem vang bia: ' + JSON.stringify(scalar.points)); process.exit(1); }
 NODE
 
 echo "P153 (JR9) G3: ma tran 3 hinh dang dong thuan + grandfather log cu + corpus that"
