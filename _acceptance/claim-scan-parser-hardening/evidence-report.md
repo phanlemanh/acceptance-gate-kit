@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c1f781d9ccb880091988a9612f2dd0a5b72d3b82
+verified_commit: 5ec937c0746dfeaa3c554f5c44b224954ae989ae
 human_signoff: Manh Phan 2026-07-29
 ---
 
@@ -306,3 +306,7 @@ recheck-evidence.js KHÔNG nằm trong diff.
 ### Re-pin lần 12 — 2026-08-05, do feature delta-verify-repin (nghi thức 1-lane: 1 lượt machine-lane cho cả sự kiện)
 run_id: repin-20260805-delta-verify-repin-lane1
 sha: c1f781d9ccb880091988a9612f2dd0a5b72d3b82 · suites: 6 lệnh exit 0
+
+### Re-pin lần 13 — 2026-08-05, do feature matrix-measure-law + hotfix luật repin (nghi thức 1-lane)
+run_id: repin-20260805-matrix-measure-law-lane2
+sha: 5ec937c0746dfeaa3c554f5c44b224954ae989ae · suites: 6 lệnh exit 0

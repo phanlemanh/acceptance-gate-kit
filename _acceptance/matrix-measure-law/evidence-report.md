@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ebbef53b953c5a6a418d57866e14b5d6109ce172
+verified_commit: 5ec937c0746dfeaa3c554f5c44b224954ae989ae
 # bypass_ack:
 human_signoff: Manh Phan 2026-08-05
 ---
@@ -168,3 +168,7 @@ Round 3 (hiện tại): M1–M7 xanh (33+54 test passed trong measure-law-mutant
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter + `time_human_minutes.gate2` in contract
+
+### Re-pin lần 1 — 2026-08-05, do feature matrix-measure-law + hotfix luật repin (nghi thức 1-lane)
+run_id: repin-20260805-matrix-measure-law-lane2
+sha: 5ec937c0746dfeaa3c554f5c44b224954ae989ae · suites: 6 lệnh exit 0

@@ -209,3 +209,4 @@
 {"ts":"2026-07-28T07:00:09Z","round":12,"evalId":"E13","kind":"panel","proposal":"PASS","votes":[{"lens":"domain-correctness","verdict":"PASS"},{"lens":"operational-feasibility","verdict":"PASS"},{"lens":"spec-alignment","verdict":"PASS"}],"inputs_hash":"56818077dae9ebab02fad0d3869e2231c60288d484bc62fd93ad2809597a7024","carried_from_round":8}
 {"ts":"2026-07-28T07:00:09Z","round":12,"kind":"baseline","evals_hash":"780a7c9b0f35bd2d3900bf01985bb3c621cd092ef7070be668f3a94d216d2756","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E6","E8","E9","E10","E11","E12"]}]}
 {"ts":"2026-08-05T04:20:56Z","kind":"repin","run_id":"repin-20260805-delta-verify-repin-lane1","sha":"c1f781d9ccb880091988a9612f2dd0a5b72d3b82","suites_exit":[0,0,0,0,0,0]}
+{"ts":"2026-08-05T07:28:12Z","kind":"repin","run_id":"repin-20260805-matrix-measure-law-lane2","sha":"5ec937c0746dfeaa3c554f5c44b224954ae989ae","suites_exit":[0,0,0,0,0,0]}

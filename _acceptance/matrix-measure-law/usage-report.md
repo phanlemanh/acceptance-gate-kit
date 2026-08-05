@@ -113,3 +113,7 @@
 - **claude-fable-5**: 3 agent · 23 calls · out 24,231 · in 45 · cache_read 1,231,049 · cache_create 188,416
 - **claude-haiku-4-5-20251001**: 6 agent · 29 calls · out 6,510 · in 248 · cache_read 758,825 · cache_create 213,443
 
+
+## Re-pin dogfood #2 — 2026-08-05T07:28:12Z
+
+Sự kiện re-pin 21 slug bằng nghi thức 1-lane: **1 agent-lane** (id a90fde79942d79f62, ~47k token, 6 suite exit 0 tại `5ec937c`), 21 dòng `kind:repin` cùng `run_id: repin-20260805-matrix-measure-law-lane2`. Sự kiện còn kiểm SỐNG hotfix 1.32.1: các report giờ mang 2 section Re-pin khuôn mới — luật quan-hệ mới sạch (bản per-section cũ từng báo oan 20 VIOLATION).

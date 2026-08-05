@@ -154,3 +154,4 @@
 {"ts":"2026-07-28T05:05:49Z","round":12,"evalId":"E10","kind":"panel","proposal":"PASS","votes":[{"lens":"domain-correctness","verdict":"PASS"},{"lens":"operational-feasibility","verdict":"PASS"},{"lens":"spec-alignment","verdict":"PASS"}],"inputs_hash":"93581f389e6c8357a68fbd06a316c3795fe2312997931082f02bb66646b27879","carried_from_round":4}
 {"ts":"2026-07-28T05:05:49Z","round":12,"kind":"baseline","evals_hash":"c3d28050c95e2e900f99f9d3497069002ea58cdaeed20ddcea2f04ec464f1059","non_discriminating":[]}
 {"ts":"2026-08-05T04:20:56Z","kind":"repin","run_id":"repin-20260805-delta-verify-repin-lane1","sha":"c1f781d9ccb880091988a9612f2dd0a5b72d3b82","suites_exit":[0,0,0,0,0,0]}
+{"ts":"2026-08-05T07:28:12Z","kind":"repin","run_id":"repin-20260805-matrix-measure-law-lane2","sha":"5ec937c0746dfeaa3c554f5c44b224954ae989ae","suites_exit":[0,0,0,0,0,0]}

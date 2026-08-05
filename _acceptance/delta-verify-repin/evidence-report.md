@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: fb1ece5223d14e3769fb60c5cb6d1e6b834eea01
+verified_commit: 5ec937c0746dfeaa3c554f5c44b224954ae989ae
 human_signoff: Manh Phan 2026-08-05
 ---
 
@@ -237,3 +237,7 @@ Round 3 (round này): mọi eval máy (E1–E11, E14, E15) vẫn xanh, fix round
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter + `time_human_minutes.gate2` in contract
+
+### Re-pin lần 1 — 2026-08-05, do feature matrix-measure-law + hotfix luật repin (nghi thức 1-lane)
+run_id: repin-20260805-matrix-measure-law-lane2
+sha: 5ec937c0746dfeaa3c554f5c44b224954ae989ae · suites: 6 lệnh exit 0
