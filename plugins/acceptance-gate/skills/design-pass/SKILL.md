@@ -15,6 +15,31 @@ Vai trong feature-loop: chạy ở **S1-D, TRƯỚC Gate 1** — để người 
 được thứ họ duyệt. Doer≠grader giữ nguyên: skill này chỉ AUTHOR (sửa proto,
 ghi vết); chấm máy là việc của S4, chấm thẩm mỹ là việc của owner ngồi xem.
 
+## Giai đoạn 0 — vật này sống ở đâu (bắt buộc chọn trước khi mở Browser pane)
+
+Câu hỏi bắt buộc mở phiên (đứng cạnh câu phân loại mẫu khi mục bổ sung 02/08
+của spec v2 §2.2 land): **"vật này sống ở đâu — phiên trình ở nấc nào?"**
+Ba nấc, khai vào khoá `context:` của sổ phiên (mục 5), như `material:`:
+
+| Nấc `context:` | Tiếng người | Nghĩa |
+|---|---|---|
+| `host-embedded` | nhúng host thật | vật render TRONG host thật của repo, sau cờ dev |
+| `static-frame` | khung giả tĩnh | khung host thật dạng tĩnh bọc vật — thấy chỗ sống, host chưa chạy |
+| `standalone` | đứng một mình | vật trần trên route proto — KHÔNG thấy người dùng vào–ra thế nào |
+
+**Quy tắc chọn nấc — RẺ nhất đạt thị giác thật:** vật giao là một "đơn vị
+host đã có khuôn" (plugin / route / screen) ⇒ mặc định **scaffold đơn vị THẬT
+sau cờ dev, ruột tạm** — host render vật; CẤM dựng shell giống thật (gương
+song song). Không có đường nhúng rẻ (khoá `design_pass.host_embed` vắng —
+mục 1) ⇒ `static-frame` hoặc `standalone`+cảnh — hợp lệ vĩnh viễn: thang là
+khai báo, không ép.
+
+**Luật cảnh ngữ-cảnh:** `standalone` trước Cổng Phạm-vi (Gate 1) ⇒ kèm ≥1
+**cảnh ngữ-cảnh** (khung host thật dạng tĩnh bọc vật + storyboard hành trình
+vào–ra, capture về `evidence/design-pass/`, liệt vào khoá `context_scenes:`)
+HOẶC entry descope có tên trong sổ quyết định theo đúng khuôn trong template
+mục 5. Không có đường bỏ im lặng — thẻ Cổng 1 cờ vàng.
+
 ## 1. Preflight — thiếu gì nói đích danh, không lỗi mờ
 
 1. Đọc `_acceptance/config.yaml` khối `design_pass`:
@@ -25,6 +50,7 @@ ghi vết); chấm máy là việc của S4, chấm thẩm mỹ là việc của
    | `design_pass.ds_skill` | khuyến nghị | Tên skill chuẩn DS/plugin của repo tiêu thụ (vd `<plugin>:<skill>`). Vắng → thang DS ở mục 2. |
    | `design_pass.dev_cmd` | optional | Lệnh khởi động dev server của repo — để thông điệp DỪNG-vì-route-chết in đúng lệnh. |
    | `design_pass.capture_cmd` | optional | Lệnh chụp riêng của repo; vắng → chụp bằng Browser pane. |
+   | `design_pass.host_embed` | optional | Ổ cắm đường-nhúng-rẻ của repo: `guide:` con trỏ hướng dẫn nhúng (thường trỏ cùng chỗ `feature_loop.ui_standards_skill`) + `route:` proto trong host + `dev_flag:` cờ dev. VẮNG → repo chưa có đường nhúng rẻ: phiên đi nấc thấp (`static-frame`/`standalone`+cảnh, Giai đoạn 0) + thẻ Cổng 1 cờ vàng, KHÔNG chặn. Khoá CÓ mà con trỏ không giải được → thẻ cờ vàng nêu tên con trỏ hỏng, cũng không chặn. |
 
    Repo chưa có khối → in lệnh mẫu cho user chạy (script `config-patch` của
    plugin acceptance-gate, dry-run mặc định):
@@ -148,6 +174,8 @@ slug: <slug>
 at: <ISO UTC>
 route: <url đã mở>
 material: <real-components|scaffold|static>
+context: <standalone|static-frame|host-embedded>
+context_scenes: [<file cảnh trong evidence/design-pass/, trống nếu không standalone hoặc đã descope>]
 ds_skill: <tên-skill-đã-nạp|repo-tokens|shadcn-default>
 states: [<danh sách state đã duyệt>]
 breakpoints: [mobile-375, desktop-1280]
@@ -162,6 +190,10 @@ deferred: <n>
 | state | breakpoint | theme | file |
 |---|---|---|---|
 | <state> | <breakpoint> | <theme> | evidence/design-pass/<file>.png |
+
+## Cảnh ngữ-cảnh
+
+- <file cảnh — khung host thật dạng tĩnh bọc vật + storyboard vào–ra; standalone mà bỏ cảnh ⇒ entry sổ quyết định bắt đầu đúng chuỗi "bỏ cảnh ngữ-cảnh — <lý do 1 dòng>">
 
 ## Findings
 
@@ -187,6 +219,8 @@ DESIGN-PASS-NOTE-TEMPLATE>>>
 | Route không mở được | DỪNG + in `dev_cmd` nếu khai + trỏ đường dựng. Không tự dựng. |
 | Proto không khai states | Hỏi owner danh sách state đầu phiên, ghi frontmatter. Không bịa. |
 | Slug không xác định (standalone) | Hỏi 1 câu chọn slug trong `_acceptance/`; không có workspace → không chạy mồ côi. |
+| `design_pass.host_embed` vắng | Nấc thấp (Giai đoạn 0) + cờ vàng trên thẻ Cổng 1. Không chặn. |
+| `context: standalone` thiếu cảnh ngữ-cảnh | Entry descope đúng khuôn (mục 5) hoặc thẻ cờ vàng — không có đường bỏ im lặng. |
 
 ## Ranh giới
 

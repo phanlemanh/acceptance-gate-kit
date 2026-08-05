@@ -145,6 +145,14 @@ plugin/DS của repo · handbook đội · 2 key consumer:
      động cho thẩm mỹ — hàm mục tiêu không tồn tại dạng máy, tự động sẽ đánh
      lừa thước; đó là lý do phiên có người ngồi xem.
 
+  **Bổ sung 04/08 — trục ngữ cảnh:** sổ phiên khai thêm nấc ngữ cảnh
+  `context: standalone | static-frame | host-embedded` (chiều thứ hai độc
+  lập với thang vật liệu — VẬT là gì ⟂ VẬT SỐNG Ở ĐÂU); `standalone` trước
+  Cổng Phạm-vi phải kèm ≥1 cảnh ngữ-cảnh hoặc entry descope có tên; ổ cắm
+  `design_pass.host_embed` cấp đường-nhúng-rẻ per-repo (vắng = nấc thấp +
+  cờ vàng, không chặn — đường đọc-cũ); thẻ Cổng Phạm-vi render nấc bằng
+  tiếng người. Chi tiết: `docs/specs/2026-08-04-context-ladder-design.md`.
+
   **Đường E — làn hệ thiết kế** (bổ sung vào bảng định tuyến §2.4): sản phẩm
   giao ra là LINH KIỆN, không phải màn hình. Nhịp riêng: Khai (mẫu giải quyết
   gì, dùng ở đâu, thước gì) → Làm (dựng trên trang trưng bày) → Đo (dùng được

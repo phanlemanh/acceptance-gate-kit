@@ -5099,18 +5099,459 @@ assert mut_desc.find("v1.30:") < 0 or not (0 <= mut_desc.find("v1.29:") < mut_de
 print("P133 OK (3 pin chu + dot bien deu do dung cho)")
 P133PY
 
-# ── P134: parser evals block-scalar — covGaps thẻ Cổng 1 không bắn giả trên `expected: >` ─
+# --- context-ladder cases (P134-P141) begin ---
+# Truc ngu canh cho ban mau (contract _acceptance/context-ladder): writer khai
+# context: 3 nac trong khuon marker, reader gate-card render nac + co vang,
+# generic moi repo. Moi case am co DOI CHUNG DUONG + ghim dung thong diep;
+# fixture rut tu khuon writer bang code (bat bien CLAUDE.md).
+
+run "P134 context-ladder writer: khoa context + giai doan 0 + luat canh + mac-dinh-nac-cao (E1/E2/E3/E4a)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+t = (root / "skills/design-pass/SKILL.md").read_text(encoding="utf-8")
+flat = lambda s: re.sub(r"\s+", " ", s)  # repo hard-wrap prose — pin phai chiu duoc xuong dong
+def check(text):
+    m = re.search(r"<<<DESIGN-PASS-NOTE-TEMPLATE\n(.*?)\nDESIGN-PASS-NOTE-TEMPLATE>>>", text, re.S)
+    if not m:
+        return ["KHONG rut duoc DESIGN-PASS-NOTE-TEMPLATE"]
+    block = m.group(1); ftext = flat(text)
+    errs = []
+    if "context: <standalone|static-frame|host-embedded>" not in block:
+        errs.append("khuon thieu khoa context: 3 nac")
+    if "context_scenes:" not in block:
+        errs.append("khuon thieu khoa context_scenes")
+    if "bỏ cảnh ngữ-cảnh — " not in flat(block):
+        errs.append("chuoi descope canh ngu-canh khong nam trong khuon marker")
+    if "## Cảnh ngữ-cảnh" not in block:
+        errs.append("khuon thieu section Canh ngu-canh")
+    if "vật này sống ở đâu" not in ftext:
+        errs.append("thieu cau hoi giai doan 0: vat nay song o dau")
+    if "Giai đoạn 0" not in ftext:
+        errs.append("thieu section Giai doan 0")
+    if "scaffold đơn vị THẬT sau cờ dev" not in ftext:
+        errs.append("thieu quy tac mac-dinh-nac-cao (scaffold don vi that sau co dev)")
+    if "gương song song" not in ftext:
+        errs.append("thieu lenh cam guong song song")
+    if "hợp lệ vĩnh viễn" not in ftext:
+        errs.append("thieu cau hop le vinh vien cho nhanh khong-co-duong-nhung-re")
+    if "host_embed" not in text:
+        errs.append("bang preflight thieu khoa design_pass.host_embed")
+    if "trước Cổng Phạm-vi" not in ftext and "trước Gate 1" not in ftext:
+        errs.append("thieu luat standalone truoc Cong Pham-vi phai kem canh/descope")
+    return errs
+# DOI CHUNG DUONG: ban nguyen ven phai XANH truoc khi tin cac mutation DO.
+assert check(t) == [], f"ban nguyen ven phai xanh: {check(t)}"
+m1 = t.replace("context: <standalone|static-frame|host-embedded>", "", 1)
+assert any("khuon thieu khoa context" in e for e in check(m1)), "dot bien xoa khoa context khong do"
+m2 = re.sub(r"vật\s+này\s+sống\s+ở\s+đâu", "", t)
+assert any("vat nay song o dau" in e for e in check(m2)), "dot bien xoa cau hoi giai doan 0 khong do"
+m3 = re.sub(r"bỏ\s+cảnh\s+ngữ-cảnh\s+— ", "bo canh ngu canh: ", t)
+assert any("chuoi descope" in e for e in check(m3)), "dot bien lech chuoi descope khong do"
+m4 = re.sub(r"gương\s+song\s+song", "", t, count=1)
+assert any("cam guong song song" in e for e in check(m4)), "dot bien xoa cam guong khong do"
+print("P134 OK (doi chung duong + 4 dot bien deu do dung cho)")
+PY
+
+run "P135 context-ladder round-trip: khuon writer -> the render nhan tieng nguoi (E5)" \
+  python3 - "$ROOT" <<'PY'
+import re, subprocess, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+skill = (root / "skills/design-pass/SKILL.md").read_text(encoding="utf-8")
+block = re.search(r"<<<DESIGN-PASS-NOTE-TEMPLATE\n(.*?)\nDESIGN-PASS-NOTE-TEMPLATE>>>", skill, re.S).group(1)
+LABELS = {"standalone": "đứng một mình", "static-frame": "khung giả tĩnh", "host-embedded": "nhúng host thật"}
+SCENES_PH = "[<file cảnh trong evidence/design-pass/, trống nếu không standalone hoặc đã descope>]"
+BODY_PH = re.compile(r"- <file cảnh — [^\n]*>")
+def mkfix(ctx, scenes, drop_context=False, ledger=None, cfg="schema_version: 1\n"):
+    d = Path(tempfile.mkdtemp())
+    ws = d / "_acceptance" / "fx"; ws.mkdir(parents=True)
+    (d / "_acceptance" / "config.yaml").write_text(cfg, encoding="utf-8")
+    (ws / "contract.md").write_text(
+        "---\nschema_version: 1\nfeature: fx\nslug: fx\nrisk_tier: T2\nstatus: draft\n---\n\n"
+        "## Criteria\n\n- AC-1: Given a, When b, Then c.\n", encoding="utf-8")
+    fx = (block.replace("<slug>", "fx").replace("<ISO UTC>", "2026-08-04T00:00:00Z")
+          .replace("<url đã mở>", "http://localhost:3000/proto/fx")
+          .replace("<real-components|scaffold|static>", "scaffold")
+          .replace("<standalone|static-frame|host-embedded>", ctx)
+          .replace(SCENES_PH, scenes)
+          .replace("<tên-skill-đã-nạp|repo-tokens|shadcn-default>", "shadcn-default")
+          .replace("[<danh sách state đã duyệt>]", "[default]").replace("<n>", "1")
+          .replace("<state>", "default").replace("<breakpoint>", "mobile-375")
+          .replace("<theme>", "light").replace("<file>", "default--mobile-375")
+          .replace("<finding — đã đổi gì, 1 dòng/finding>", "x")
+          .replace("<finding — thiếu/xấu gì ở tầng DS/component, đề xuất 1 dòng>", "y"))
+    fx = BODY_PH.sub("- evidence/design-pass/canh-1.png", fx)
+    if drop_context:
+        fx = "\n".join(l for l in fx.splitlines() if not l.startswith("context"))
+    assert "<" not in fx.split("---", 2)[1], f"frontmatter fixture con placeholder song: {fx.split('---',2)[1]}"
+    (ws / "design-pass.md").write_text(fx, encoding="utf-8")
+    if ledger is not None:
+        (ws / "decisions.jsonl").write_text(ledger, encoding="utf-8")
+    return d
+def render(d):
+    r = subprocess.run(["node", str(root / "scripts/gate-card.js"), "--root", str(d), "--slug", "fx"],
+                       capture_output=True, text=True)
+    assert r.returncode == 0, f"gate-card exit {r.returncode}: {r.stderr}"
+    return r.stdout
+# round-trip: moi nac -> dung nhan tieng nguoi tren DAU RA the
+for ctx, label in LABELS.items():
+    out = render(mkfix(ctx, "[evidence/design-pass/ctx.png]"))
+    assert label in out, f"the khong render nhan '{label}' cho {ctx}"
+    assert "Bản mẫu" in out, "the thieu khoi Ban mau & ngu canh"
+print("P135 OK (3 nac round-trip tu khuon writer)")
+PY
+
+run "P136 context-ladder co vang standalone thieu canh: 3 nhanh fixture tu writer (E6)" \
+  python3 - "$ROOT" <<'PY'
+import re, subprocess, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+skill = (root / "skills/design-pass/SKILL.md").read_text(encoding="utf-8")
+block = re.search(r"<<<DESIGN-PASS-NOTE-TEMPLATE\n(.*?)\nDESIGN-PASS-NOTE-TEMPLATE>>>", skill, re.S).group(1)
+SCENES_PH = "[<file cảnh trong evidence/design-pass/, trống nếu không standalone hoặc đã descope>]"
+BODY_PH = re.compile(r"- <file cảnh — [^\n]*>")
+def mkfix(scenes, ledger=None):
+    d = Path(tempfile.mkdtemp())
+    ws = d / "_acceptance" / "fx"; ws.mkdir(parents=True)
+    (d / "_acceptance" / "config.yaml").write_text("schema_version: 1\n", encoding="utf-8")
+    (ws / "contract.md").write_text(
+        "---\nschema_version: 1\nfeature: fx\nslug: fx\nrisk_tier: T2\nstatus: draft\n---\n\n"
+        "## Criteria\n\n- AC-1: Given a, When b, Then c.\n", encoding="utf-8")
+    fx = (block.replace("<slug>", "fx").replace("<ISO UTC>", "2026-08-04T00:00:00Z")
+          .replace("<url đã mở>", "u").replace("<real-components|scaffold|static>", "scaffold")
+          .replace("<standalone|static-frame|host-embedded>", "standalone")
+          .replace(SCENES_PH, scenes)
+          .replace("<tên-skill-đã-nạp|repo-tokens|shadcn-default>", "repo-tokens")
+          .replace("[<danh sách state đã duyệt>]", "[default]").replace("<n>", "0")
+          .replace("<state>", "default").replace("<breakpoint>", "mobile-375")
+          .replace("<theme>", "light").replace("<file>", "f")
+          .replace("<finding — đã đổi gì, 1 dòng/finding>", "x")
+          .replace("<finding — thiếu/xấu gì ở tầng DS/component, đề xuất 1 dòng>", "y"))
+    fx = BODY_PH.sub("- (chua co)", fx)
+    (ws / "design-pass.md").write_text(fx, encoding="utf-8")
+    if ledger is not None:
+        (ws / "decisions.jsonl").write_text(ledger, encoding="utf-8")
+    return d
+def render(d):
+    r = subprocess.run(["node", str(root / "scripts/gate-card.js"), "--root", str(d), "--slug", "fx"],
+                       capture_output=True, text=True)
+    assert r.returncode == 0, f"gate-card exit {r.returncode}: {r.stderr}"
+    return r.stdout
+FLAG = "chưa có cảnh ngữ-cảnh"
+# nhanh thieu: standalone + scenes rong + khong ledger -> CO co vang
+out = render(mkfix("[]"))
+assert FLAG in out, "standalone thieu canh ma the KHONG co vang"
+# doi chung duong (a): co canh -> KHONG co
+out = render(mkfix("[evidence/design-pass/ctx.png]"))
+assert FLAG not in out, "co canh ngu-canh ma the van co vang oan"
+# doi chung duong (b): co entry descope dung khuon -> KHONG co
+# (nhanh nay dong thoi la mutation-detector: reader mu ledger se co oan -> case do)
+led = '{"id":"d-1","type":"descope","decision":"bỏ cảnh ngữ-cảnh — proto đã chạy trong host thật"}\n'
+out = render(mkfix("[]", ledger=led))
+assert FLAG not in out, "da co entry descope dung khuon ma the van co vang oan (reader mu ledger)"
+# entry LECH khuon (khong bat dau dung chuoi) -> van phai co
+led2 = '{"id":"d-2","type":"descope","decision":"bo canh ngu canh: ly do"}\n'
+out = render(mkfix("[]", ledger=led2))
+assert FLAG in out, "entry lech khuon ma van duoc tinh la descope hop le"
+# PLACEHOLDER NGUYEN TRANG (S4-r1 false-green): khuon chua dien co dau phay ben
+# trong -> split(',') tach doi, nua sau song qua filter cu -> im lang + khoe
+# "1 cảnh ngữ-cảnh". Phai: van co vang + KHONG dem placeholder thanh canh.
+out = render(mkfix(SCENES_PH))
+assert FLAG in out, "placeholder nguyen trang ma co vang standalone-thieu-canh im lang"
+assert "cảnh ngữ-cảnh</b>" not in out and "1 cảnh ngữ-cảnh" not in out, \
+    "placeholder nguyen trang bi dem thanh canh that tren card"
+print("P136 OK (thieu->co, canh->khong, descope->khong, lech-khuon->co, placeholder->co)")
+PY
+
+run "P137 context-ladder duong doc-cu + gia tri la: co vang co ten, khong chan (E7)" \
+  python3 - "$ROOT" <<'PY'
+import re, subprocess, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+skill = (root / "skills/design-pass/SKILL.md").read_text(encoding="utf-8")
+block = re.search(r"<<<DESIGN-PASS-NOTE-TEMPLATE\n(.*?)\nDESIGN-PASS-NOTE-TEMPLATE>>>", skill, re.S).group(1)
+SCENES_PH = "[<file cảnh trong evidence/design-pass/, trống nếu không standalone hoặc đã descope>]"
+BODY_PH = re.compile(r"- <file cảnh — [^\n]*>")
+def mkfix(ctx, drop_context=False):
+    d = Path(tempfile.mkdtemp())
+    ws = d / "_acceptance" / "fx"; ws.mkdir(parents=True)
+    (d / "_acceptance" / "config.yaml").write_text("schema_version: 1\n", encoding="utf-8")
+    (ws / "contract.md").write_text(
+        "---\nschema_version: 1\nfeature: fx\nslug: fx\nrisk_tier: T2\nstatus: draft\n---\n\n"
+        "## Criteria\n\n- AC-1: Given a, When b, Then c.\n", encoding="utf-8")
+    fx = (block.replace("<slug>", "fx").replace("<ISO UTC>", "2026-08-04T00:00:00Z")
+          .replace("<url đã mở>", "u").replace("<real-components|scaffold|static>", "static")
+          .replace("<standalone|static-frame|host-embedded>", ctx)
+          .replace(SCENES_PH, "[]")
+          .replace("<tên-skill-đã-nạp|repo-tokens|shadcn-default>", "repo-tokens")
+          .replace("[<danh sách state đã duyệt>]", "[default]").replace("<n>", "0")
+          .replace("<state>", "default").replace("<breakpoint>", "mobile-375")
+          .replace("<theme>", "light").replace("<file>", "f")
+          .replace("<finding — đã đổi gì, 1 dòng/finding>", "x")
+          .replace("<finding — thiếu/xấu gì ở tầng DS/component, đề xuất 1 dòng>", "y"))
+    fx = BODY_PH.sub("- (khong)", fx)
+    if drop_context:
+        # so phien DOI TRUOC truc ngu canh: khong co context/context_scenes
+        fx = "\n".join(l for l in fx.splitlines() if not l.startswith("context"))
+    (ws / "design-pass.md").write_text(fx, encoding="utf-8")
+    return d
+def render(d):
+    r = subprocess.run(["node", str(root / "scripts/gate-card.js"), "--root", str(d), "--slug", "fx"],
+                       capture_output=True, text=True)
+    assert r.returncode == 0, f"gate-card exit {r.returncode} (duong doc-cu PHAI khong chan): {r.stderr}"
+    return r.stdout
+OLD = "chưa khai nấc ngữ cảnh"
+ALIEN = "không nhận diện được"
+# khuon cu (khong co context:) -> exit 0 + co vang doc-cu
+out = render(mkfix("host-embedded", drop_context=True))
+assert OLD in out, "so phien doi cu ma the khong co vang 'chua khai nac ngu canh'"
+# gia tri ngoai enum -> co vang neu DUNG ten gia tri la
+out = render(mkfix("embedded-lite"))
+assert ALIEN in out and "embedded-lite" in out, "gia tri la khong duoc neu ten tren the"
+# doi chung duong: gia tri hop le -> khong co ca hai loai co
+out = render(mkfix("host-embedded"))
+assert OLD not in out and ALIEN not in out, "gia tri hop le ma van co vang oan"
+print("P137 OK (doc-cu co ten, gia tri la co ten, hop le khong co)")
+PY
+
+run "P138 context-ladder socket host_embed: vang->co vang, con tro hong->neu ten, giai duoc->khong (E4)" \
+  python3 - "$ROOT" <<'PY'
+import re, subprocess, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+skill = (root / "skills/design-pass/SKILL.md").read_text(encoding="utf-8")
+block = re.search(r"<<<DESIGN-PASS-NOTE-TEMPLATE\n(.*?)\nDESIGN-PASS-NOTE-TEMPLATE>>>", skill, re.S).group(1)
+SCENES_PH = "[<file cảnh trong evidence/design-pass/, trống nếu không standalone hoặc đã descope>]"
+BODY_PH = re.compile(r"- <file cảnh — [^\n]*>")
+def mkfix(cfg, mkguide=None):
+    d = Path(tempfile.mkdtemp())
+    ws = d / "_acceptance" / "fx"; ws.mkdir(parents=True)
+    (d / "_acceptance" / "config.yaml").write_text(cfg, encoding="utf-8")
+    (ws / "contract.md").write_text(
+        "---\nschema_version: 1\nfeature: fx\nslug: fx\nrisk_tier: T2\nstatus: draft\n---\n\n"
+        "## Criteria\n\n- AC-1: Given a, When b, Then c.\n", encoding="utf-8")
+    fx = (block.replace("<slug>", "fx").replace("<ISO UTC>", "2026-08-04T00:00:00Z")
+          .replace("<url đã mở>", "u").replace("<real-components|scaffold|static>", "scaffold")
+          .replace("<standalone|static-frame|host-embedded>", "host-embedded")
+          .replace(SCENES_PH, "[]")
+          .replace("<tên-skill-đã-nạp|repo-tokens|shadcn-default>", "repo-tokens")
+          .replace("[<danh sách state đã duyệt>]", "[default]").replace("<n>", "0")
+          .replace("<state>", "default").replace("<breakpoint>", "mobile-375")
+          .replace("<theme>", "light").replace("<file>", "f")
+          .replace("<finding — đã đổi gì, 1 dòng/finding>", "x")
+          .replace("<finding — thiếu/xấu gì ở tầng DS/component, đề xuất 1 dòng>", "y"))
+    fx = BODY_PH.sub("- (khong)", fx)
+    (ws / "design-pass.md").write_text(fx, encoding="utf-8")
+    if mkguide:
+        p = d / mkguide; p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text("huong dan nhung\n", encoding="utf-8")
+    return d
+def render(d):
+    r = subprocess.run(["node", str(root / "scripts/gate-card.js"), "--root", str(d), "--slug", "fx"],
+                       capture_output=True, text=True)
+    assert r.returncode == 0, f"gate-card exit {r.returncode} (socket PHAI khong chan): {r.stderr}"
+    return r.stdout
+MISS = "chưa khai đường nhúng"
+DEAD = "con trỏ không giải được"
+CFG_HE = "schema_version: 1\ndesign_pass:\n  host_embed:\n    guide: docs/nhung.md\n    route: /proto\n    dev_flag: DEV=1\n"
+# (a) config khong co design_pass.host_embed -> co vang vang-duong-nhung, van exit 0
+out = render(mkfix("schema_version: 1\n"))
+assert MISS in out, "vang khoa host_embed ma the khong co vang"
+# (b) khoa CO ma con tro chet -> co vang neu NGUYEN VAN con tro
+out = render(mkfix(CFG_HE))
+assert DEAD in out and "docs/nhung.md" in out, "con tro chet khong duoc neu ten tren the"
+# (c) doi chung duong: con tro giai duoc -> khong co loai nao
+out = render(mkfix(CFG_HE, mkguide="docs/nhung.md"))
+assert MISS not in out and DEAD not in out, "con tro giai duoc ma van co vang oan"
+# (d) comment duoi tren guide (khoan dung nhu hook) -> van giai duoc, khong co (S4-r1)
+CFG_CMT = "schema_version: 1\ndesign_pass:\n  host_embed:\n    guide: docs/nhung.md  # duong nhung cua repo\n    route: /proto\n"
+out = render(mkfix(CFG_CMT, mkguide="docs/nhung.md"))
+assert MISS not in out and DEAD not in out, "comment duoi lam hong resolvability -> co vang oan"
+# (e) config CRLF -> khoa van duoc nhan dien, khong co vang-khoa oan (S4-r1)
+out = render(mkfix(CFG_HE.replace("\n", "\r\n"), mkguide="docs/nhung.md"))
+assert MISS not in out, "config CRLF lam khoa host_embed tang hinh -> co vang oan"
+# (f) blank line trong block design_pass truoc host_embed -> van nhan dien (S4-r1)
+CFG_BLANK = "schema_version: 1\ndesign_pass:\n\n  host_embed:\n    guide: docs/nhung.md\n"
+out = render(mkfix(CFG_BLANK, mkguide="docs/nhung.md"))
+assert MISS not in out, "blank line trong block lam khoa tang hinh -> co vang oan"
+# quan he writer-docs: bang preflight SKILL phai khai khoa nay (Task 1 da pin, assert lai quan he)
+assert "design_pass.host_embed" in skill, "SKILL khong khai khoa host_embed trong preflight"
+print("P138 OK (vang->co, chet->ten, song->khong, comment/CRLF/blank->khong, SKILL khai khoa)")
+PY
+
+run "P139 context-ladder generic: fixture repo-la code-sinh (web app tron) + grep-guard tu vung host (E8)" \
+  python3 - "$ROOT" <<'PY'
+import re, subprocess, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+skill = (root / "skills/design-pass/SKILL.md").read_text(encoding="utf-8")
+block = re.search(r"<<<DESIGN-PASS-NOTE-TEMPLATE\n(.*?)\nDESIGN-PASS-NOTE-TEMPLATE>>>", skill, re.S).group(1)
+SCENES_PH = "[<file cảnh trong evidence/design-pass/, trống nếu không standalone hoặc đã descope>]"
+BODY_PH = re.compile(r"- <file cảnh — [^\n]*>")
+# Fixture = repo web-app TRON do code sinh trong lan chay nay: khong artifact-
+# platform, khong tu vung host nao. Phep do phai phan biet dung tren no —
+# ghim QUAN HE khai-nac <-> config-cap-dich, khong ghim ten host.
+def mkrepo(ctx, drop_context=False):
+    d = Path(tempfile.mkdtemp())
+    (d / "package.json").write_text('{"name":"plain-webapp","private":true}\n', encoding="utf-8")
+    (d / "src").mkdir(); (d / "src" / "app.js").write_text("export const app = () => 'hello';\n", encoding="utf-8")
+    ws = d / "_acceptance" / "fx-web"; ws.mkdir(parents=True)
+    (d / "_acceptance" / "config.yaml").write_text("schema_version: 1\n", encoding="utf-8")
+    (ws / "contract.md").write_text(
+        "---\nschema_version: 1\nfeature: fx-web\nslug: fx-web\nrisk_tier: T2\nstatus: draft\n---\n\n"
+        "## Criteria\n\n- AC-1: Given a, When b, Then c.\n", encoding="utf-8")
+    fx = (block.replace("<slug>", "fx-web").replace("<ISO UTC>", "2026-08-04T00:00:00Z")
+          .replace("<url đã mở>", "http://localhost:5173/preview")
+          .replace("<real-components|scaffold|static>", "static")
+          .replace("<standalone|static-frame|host-embedded>", ctx)
+          .replace(SCENES_PH, "[]")
+          .replace("<tên-skill-đã-nạp|repo-tokens|shadcn-default>", "shadcn-default")
+          .replace("[<danh sách state đã duyệt>]", "[default]").replace("<n>", "0")
+          .replace("<state>", "default").replace("<breakpoint>", "mobile-375")
+          .replace("<theme>", "light").replace("<file>", "f")
+          .replace("<finding — đã đổi gì, 1 dòng/finding>", "x")
+          .replace("<finding — thiếu/xấu gì ở tầng DS/component, đề xuất 1 dòng>", "y"))
+    fx = BODY_PH.sub("- (khong)", fx)
+    if drop_context:
+        fx = "\n".join(l for l in fx.splitlines() if not l.startswith("context"))
+    (ws / "design-pass.md").write_text(fx, encoding="utf-8")
+    return d
+def render(d):
+    r = subprocess.run(["node", str(root / "scripts/gate-card.js"), "--root", str(d), "--slug", "fx-web"],
+                       capture_output=True, text=True)
+    assert r.returncode == 0, f"gate-card exit {r.returncode} tren repo-la: {r.stderr}"
+    return r.stdout
+# ba phep do phan biet dung tren repo-la
+out = render(mkrepo("host-embedded"))
+assert "nhúng host thật" in out, "repo-la: nac hop le khong render nhan"
+out = render(mkrepo("standalone"))
+assert "chưa có cảnh ngữ-cảnh" in out, "repo-la: standalone thieu canh khong co vang"
+out = render(mkrepo("host-embedded", drop_context=True))
+assert "chưa khai nấc ngữ cảnh" in out, "repo-la: so phien doi cu khong co vang doc-cu"
+# grep-guard tu vung host — chuoi GHEP MANH de guard khong tu khop source cua no,
+# co sanity counter (so file quet phai dung) + doi chung duong (tiem -> do).
+BAD = ["Crea" + "tor", "can" + "vas", "One" + "Hub"]
+rt = (root / "tests/plugins/run-tests.sh").read_text(encoding="utf-8")
+B = "# --- context-ladder cases " + "(P134-P141) begin ---"
+E = "# --- context-ladder cases " + "end ---"
+b = rt.find(B); e = rt.find(E, b + 1)
+assert b != -1 and e != -1 and e > b, "khong tim thay vung case context-ladder"
+srcs = {
+    "skills/design-pass/SKILL.md": skill,
+    "scripts/gate-card.js": (root / "scripts/gate-card.js").read_text(encoding="utf-8"),
+    "tests:context-ladder-region": rt[b:e],
+}
+assert len(srcs) == 3, "sanity: so nguon quet phai la 3"
+def guard(texts):
+    errs = []
+    for name, txt in sorted(texts.items()):
+        for w in BAD:
+            if w in txt:
+                errs.append(f"tu vung host '{w}' lot vao {name}")
+    return errs
+assert guard(srcs) == [], f"tu vung host lot vao nguon kit: {guard(srcs)}"
+mut = dict(srcs); mut["skills/design-pass/SKILL.md"] = skill + "\n" + BAD[0]
+assert any("tu vung host" in x and BAD[0] in x for x in guard(mut)), "guard khong do khi tiem tu vung host"
+print("P139 OK (3 phep do dung tren repo-la + guard co doi chung duong)")
+PY
+
+run "P140 context-ladder wiring: checklist ket phien S1-D + resume-guard doc context (E9)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+t = (root / "feature-loop/skills/feature-loop/SKILL.md").read_text(encoding="utf-8")
+flat = lambda s: re.sub(r"\s+", " ", s)
+def check(text):
+    ftext = flat(text)
+    errs = []
+    if "ma trận capture + findings + nấc ngữ cảnh đã khai" not in ftext:
+        errs.append("checklist ket phien S1-D thieu muc nac ngu canh da khai")
+    # resume-guard: doan S1-D phai noi resume DOC khoa context (duong doc-cu co vang)
+    m = re.search(r"\*\*Nghi thức S1-D.*?(?=\n\n)", text, re.S)
+    seg = flat(m.group(0)) if m else ""
+    if not ("resume" in seg and "`context:`" in seg):
+        errs.append("doan S1-D thieu resume-guard doc khoa context")
+    return errs
+assert check(t) == [], f"ban nguyen ven phai xanh: {check(t)}"
+m1 = re.sub(r"nấc\s+ngữ\s+cảnh\s+đã\s+khai", "", t)
+assert any("thieu muc nac ngu canh" in e for e in check(m1)), "dot bien xoa muc checklist khong do"
+m2 = re.sub(r"resume", "quaylai", t)
+assert any("thieu resume-guard" in e for e in check(m2)), "dot bien xoa resume-guard khong do"
+print("P140 OK (doi chung duong + 2 dot bien)")
+PY
+
+run "P141 context-ladder docs-pin: amendment spec v2 + term CONTEXT.md (E13)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+spec = (root / "docs/specs/workflow-v2-spec.md").read_text(encoding="utf-8")
+ctx = (root / "CONTEXT.md").read_text(encoding="utf-8")
+flat = lambda s: re.sub(r"\s+", " ", s)
+def check(spec_t, ctx_t):
+    errs = []
+    fs_, fc = flat(spec_t), flat(ctx_t)
+    if "Bổ sung 04/08 — trục ngữ cảnh" not in fs_:
+        errs.append("spec v2 thieu amendment truc ngu canh")
+    if "2026-08-04-context-ladder-design.md" not in fs_:
+        errs.append("amendment khong tro toi file design")
+    if "Nấc ngữ cảnh" not in fc:
+        errs.append("CONTEXT.md thieu term Nac ngu canh")
+    if "Cảnh ngữ-cảnh" not in fc:
+        errs.append("CONTEXT.md thieu term Canh ngu-canh")
+    return errs
+assert check(spec, ctx) == [], f"ban nguyen ven phai xanh: {check(spec, ctx)}"
+m1 = re.sub(r"Bổ sung 04/08 — trục ngữ cảnh", "", spec)
+assert any("thieu amendment" in e for e in check(m1, ctx)), "dot bien xoa amendment khong do"
+m2 = re.sub(r"\*\*Nấc ngữ cảnh[^*]*\*\*", "", ctx)
+assert any("thieu term Nac ngu canh" in e for e in check(spec, m2)), "dot bien xoa term khong do"
+print("P141 OK (doi chung duong + 2 dot bien)")
+PY
+
+run "P142 context-ladder coverage-lint scoped: khong canh bao nao ngoai W3 da-biet (E12)" \
+  python3 - "$ROOT" <<'PY'
+import re, subprocess, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+# Thuoc scoped: lint rieng slug nay. W3 la bao gia DA BIET (lint doc expected
+# mot-dong, khong thay ca am trong block scalar — cung lop bug parser gate-card,
+# chip sua rieng). Luat: canh bao cua context-ladder ⊆ {W3}; lint sua xong
+# (exit 0, khong W3) case nay VAN xanh — khong ghim bao gia thanh yeu cau.
+r = subprocess.run(["node", str(root / "scripts/eval-coverage-lint.js"), str(root), "--slug", "context-ladder"],
+                   capture_output=True, text=True)
+warns = [l for l in r.stdout.splitlines() if l.strip().startswith("[context-ladder]")]
+bad = [l for l in warns if " W3 " not in l]
+assert bad == [], f"canh bao NGOAI W3 cho context-ladder: {bad}"
+# DOI CHUNG DUONG (che do --files; W6 tat trong mode nay theo thiet ke — dong 214
+# cua lint): tiem AC nguong KHONG co eval am -> W1 phai no dung ten AC.
+ct = (root / "_acceptance/context-ladder/contract.md").read_text(encoding="utf-8")
+ev = (root / "_acceptance/context-ladder/evals.yaml").read_text(encoding="utf-8")
+d = Path(tempfile.mkdtemp())
+(d / "contract.md").write_text(ct.replace("## Coverage", "- AC-99: Given x, When đạt ngưỡng 5, Then y.\n\n## Coverage", 1), encoding="utf-8")
+(d / "evals.yaml").write_text(ev + "  - id: E99\n    criterion: AC-99\n    executor: script\n    cmd: config:executors.script.product_map\n    expected: chay xong la dat\n", encoding="utf-8")
+r2 = subprocess.run(["node", str(root / "scripts/eval-coverage-lint.js"), str(root), "--files", str(d / "contract.md"), str(d / "evals.yaml")],
+                    capture_output=True, text=True)
+assert "W1" in r2.stdout and "AC-99" in r2.stdout, f"doi chung duong hong: tiem AC nguong ma W1 khong no: {r2.stdout[:300]}"
+print("P142 OK (chi W3 da-biet; doi chung duong W1 no dung)")
+PY
+
+# --- context-ladder cases end ---
+
+# ── P143: parser evals block-scalar — covGaps thẻ Cổng 1 không bắn giả trên `expected: >` ─
 # Bug lớp: khuôn eval-gen viết `expected: >` (folded scalar); regex một-dòng cũ
 # bắt được đúng ">" nên NEG_RE test trên ">" luôn false → thẻ bắn cờ "có
 # ngưỡng/biên nhưng chưa có ca dưới ngưỡng" cho MỌI AC khớp THRESHOLD_RE
 # (context-ladder: 8/8 AC dính dù 16/16 eval có ca âm). Bất biến CLAUDE.md:
 # đối chứng dương TRƯỚC (phép đo phải đỏ được trên vật thật thiếu ca âm, ghim
 # đúng thông điệp) rồi mới tin case âm; fixture do code sinh trong chính lần chạy.
-echo "P134 gate-card covGaps: block scalar co ca am -> KHONG co; thieu that -> dung 1 AC"
-P134OK=1
-P134WS="$(mktemp -d)"
-mkdir -p "$P134WS/_acceptance/demo"
-cat > "$P134WS/_acceptance/demo/contract.md" <<'EOF'
+echo "P143 gate-card covGaps: block scalar co ca am -> KHONG co; thieu that -> dung 1 AC"
+P143OK=1
+P143WS="$(mktemp -d)"
+mkdir -p "$P143WS/_acceptance/demo"
+cat > "$P143WS/_acceptance/demo/contract.md" <<'EOF'
 ---
 schema_version: 1
 feature: demo
@@ -5124,11 +5565,11 @@ status: draft
 - AC-1: Given ngưỡng 5 phút, When quá ngưỡng, Then hệ thống cảnh báo.
 - AC-2: Given hạn mức 3 lần, When vượt hạn mức, Then hệ thống khoá phiên.
 EOF
-P134MSG='có ngưỡng/biên nhưng chưa có ca'
-p134_flags() { node "$ROOT/scripts/gate-card.js" --root "$P134WS" --slug demo --gate 1 2>&1 | grep -o "AC-[0-9]* $P134MSG" ; }
+P143MSG='có ngưỡng/biên nhưng chưa có ca'
+p134_flags() { node "$ROOT/scripts/gate-card.js" --root "$P143WS" --slug demo --gate 1 2>&1 | grep -o "AC-[0-9]* $P143MSG" ; }
 # (a) đối chứng dương: expected MỘT DÒNG thiếu ca âm → cờ PHẢI bắn cho cả 2 AC,
 # đúng thông điệp — chứng minh máy-cảnh-báo còn sống trước khi tin các case sạch.
-cat > "$P134WS/_acceptance/demo/evals.yaml" <<'EOF'
+cat > "$P143WS/_acceptance/demo/evals.yaml" <<'EOF'
 evals:
   - id: E1
     criterion: AC-1
@@ -5137,11 +5578,11 @@ evals:
     criterion: AC-2
     expected: phiên bị khoá ngay
 EOF
-P134A="$(p134_flags)"
-printf '%s\n' "$P134A" | grep -q "AC-1 $P134MSG" || { echo "     doi chung duong: co AC-1 KHONG ban (may canh bao chet?)"; P134OK=0; }
-printf '%s\n' "$P134A" | grep -q "AC-2 $P134MSG" || { echo "     doi chung duong: co AC-2 KHONG ban"; P134OK=0; }
+P143A="$(p134_flags)"
+printf '%s\n' "$P143A" | grep -q "AC-1 $P143MSG" || { echo "     doi chung duong: co AC-1 KHONG ban (may canh bao chet?)"; P143OK=0; }
+printf '%s\n' "$P143A" | grep -q "AC-2 $P143MSG" || { echo "     doi chung duong: co AC-2 KHONG ban"; P143OK=0; }
 # (b) folded scalar `>` chứa ca âm cho cả 2 AC → KHÔNG cờ nào (đây là bug gốc)
-cat > "$P134WS/_acceptance/demo/evals.yaml" <<'EOF'
+cat > "$P143WS/_acceptance/demo/evals.yaml" <<'EOF'
 evals:
   - id: E1
     criterion: AC-1
@@ -5154,9 +5595,9 @@ evals:
       vượt hạn mức → khoá;
       còn trong hạn mức → KHÔNG khoá phiên.
 EOF
-[ -z "$(p134_flags)" ] || { echo "     folded scalar co ca am van bi ban co gia:"; p134_flags | sed 's/^/       /'; P134OK=0; }
+[ -z "$(p134_flags)" ] || { echo "     folded scalar co ca am van bi ban co gia:"; p134_flags | sed 's/^/       /'; P143OK=0; }
 # (c) literal scalar `|` — cùng lớp, phải cùng thuốc
-cat > "$P134WS/_acceptance/demo/evals.yaml" <<'EOF'
+cat > "$P143WS/_acceptance/demo/evals.yaml" <<'EOF'
 evals:
   - id: E1
     criterion: AC-1
@@ -5167,10 +5608,10 @@ evals:
     expected: |
       còn trong hạn mức → KHÔNG khoá phiên.
 EOF
-[ -z "$(p134_flags)" ] || { echo "     literal scalar | van bi ban co gia"; P134OK=0; }
+[ -z "$(p134_flags)" ] || { echo "     literal scalar | van bi ban co gia"; P143OK=0; }
 # (d) chính xác từng AC: AC-1 block CÓ ca âm, AC-2 block THIẾU → đúng 1 cờ, đúng AC-2
 # (block-parse không được blanket-suppress cảnh báo)
-cat > "$P134WS/_acceptance/demo/evals.yaml" <<'EOF'
+cat > "$P143WS/_acceptance/demo/evals.yaml" <<'EOF'
 evals:
   - id: E1
     criterion: AC-1
@@ -5181,12 +5622,12 @@ evals:
     expected: >
       vượt hạn mức thì phiên bị khoá ngay lập tức.
 EOF
-P134D="$(p134_flags)"
-[ "$(printf '%s\n' "$P134D" | grep -c "$P134MSG")" = "1" ] || { echo "     ky vong DUNG 1 co, thay: [$P134D]"; P134OK=0; }
-printf '%s\n' "$P134D" | grep -q "AC-2 $P134MSG" || { echo "     co phai tro dung AC-2 (AC thieu that)"; P134OK=0; }
+P143D="$(p134_flags)"
+[ "$(printf '%s\n' "$P143D" | grep -c "$P143MSG")" = "1" ] || { echo "     ky vong DUNG 1 co, thay: [$P143D]"; P143OK=0; }
+printf '%s\n' "$P143D" | grep -q "AC-2 $P143MSG" || { echo "     co phai tro dung AC-2 (AC thieu that)"; P143OK=0; }
 # (e) thân block là DATA: dòng "criterion: AC-9" trong thân expected không được
 # cướp mapping của eval (cướp thì evalsFor(AC-1) rỗng → cờ AC-1 bắn lại)
-cat > "$P134WS/_acceptance/demo/evals.yaml" <<'EOF'
+cat > "$P143WS/_acceptance/demo/evals.yaml" <<'EOF'
 evals:
   - id: E1
     criterion: AC-1
@@ -5199,22 +5640,22 @@ evals:
     expected: >
       còn trong hạn mức → KHÔNG khoá phiên.
 EOF
-[ -z "$(p134_flags)" ] || { echo "     dong criterion: trong THAN block cuop mat mapping cua eval"; P134OK=0; }
-rm -rf "$P134WS"
-if [ "$P134OK" -eq 1 ]; then
-  pass "P134 covGaps doc duoc block scalar > va |, canh bao dung AC, than block khong cuop key"
+[ -z "$(p134_flags)" ] || { echo "     dong criterion: trong THAN block cuop mat mapping cua eval"; P143OK=0; }
+rm -rf "$P143WS"
+if [ "$P143OK" -eq 1 ]; then
+  pass "P143 covGaps doc duoc block scalar > va |, canh bao dung AC, than block khong cuop key"
 else
-  fail "P134 covGaps doc duoc block scalar > va |, canh bao dung AC, than block khong cuop key"
+  fail "P143 covGaps doc duoc block scalar > va |, canh bao dung AC, than block khong cuop key"
 fi
 
-# ── P135: eval-coverage-lint W1/W3 — cùng lớp bug, cùng thuốc (lib/eval-yaml.js) ─
+# ── P144: eval-coverage-lint W1/W3 — cùng lớp bug, cùng thuốc (lib/eval-yaml.js) ─
 # Lint có BẢN SAO của parser gate-card (đã trôi cùng nhau); case này ghim phía
 # lint để hai bên không tách thuốc lần nữa: W1 không bắn giả khi ca âm nằm trong
 # block, W3 đếm được ca âm trong block, và cảnh báo thật vẫn đỏ đúng chỗ.
-echo "P135 eval-coverage-lint: W1/W3 doc block scalar, khong ban gia, thieu that van do"
-P135OK=1
-P135WS="$(mktemp -d)"
-cat > "$P135WS/contract.md" <<'EOF'
+echo "P144 eval-coverage-lint: W1/W3 doc block scalar, khong ban gia, thieu that van do"
+P144OK=1
+P144WS="$(mktemp -d)"
+cat > "$P144WS/contract.md" <<'EOF'
 ---
 schema_version: 1
 feature: demo
@@ -5232,9 +5673,9 @@ status: draft
 
 - không gửi lại cảnh báo trùng trong 24 giờ
 EOF
-p135_lint() { node "$ROOT/scripts/eval-coverage-lint.js" --files "$P135WS/contract.md" "$P135WS/evals.yaml" 2>&1; }
+p135_lint() { node "$ROOT/scripts/eval-coverage-lint.js" --files "$P144WS/contract.md" "$P144WS/evals.yaml" 2>&1; }
 # (a) đối chứng dương: một dòng, không ca âm → W1 cho cả 2 AC + W3, ghim thông điệp
-cat > "$P135WS/evals.yaml" <<'EOF'
+cat > "$P144WS/evals.yaml" <<'EOF'
 evals:
   - id: E1
     criterion: AC-1
@@ -5243,12 +5684,12 @@ evals:
     criterion: AC-2
     expected: phiên bị khoá ngay
 EOF
-P135A="$(p135_lint)"
-printf '%s' "$P135A" | grep -q 'W1 AC-1 is a threshold/boundary criterion' || { echo "     doi chung duong: W1 AC-1 khong ban"; P135OK=0; }
-printf '%s' "$P135A" | grep -q 'W1 AC-2 is a threshold/boundary criterion' || { echo "     doi chung duong: W1 AC-2 khong ban"; P135OK=0; }
-printf '%s' "$P135A" | grep -q 'W3 Out-of-scope lists' || { echo "     doi chung duong: W3 khong ban"; P135OK=0; }
+P144A="$(p135_lint)"
+printf '%s' "$P144A" | grep -q 'W1 AC-1 is a threshold/boundary criterion' || { echo "     doi chung duong: W1 AC-1 khong ban"; P144OK=0; }
+printf '%s' "$P144A" | grep -q 'W1 AC-2 is a threshold/boundary criterion' || { echo "     doi chung duong: W1 AC-2 khong ban"; P144OK=0; }
+printf '%s' "$P144A" | grep -q 'W3 Out-of-scope lists' || { echo "     doi chung duong: W3 khong ban"; P144OK=0; }
 # (b) ca âm nằm TRONG block `>` → không W1, không W3, exit 0 kèm dòng sạch
-cat > "$P135WS/evals.yaml" <<'EOF'
+cat > "$P144WS/evals.yaml" <<'EOF'
 evals:
   - id: E1
     criterion: AC-1
@@ -5259,11 +5700,11 @@ evals:
     expected: >
       còn trong hạn mức → KHÔNG khoá phiên.
 EOF
-P135B="$(p135_lint)"; P135BST=$?
-[ "$P135BST" -eq 0 ] || { echo "     block co ca am van exit $P135BST"; P135OK=0; }
-printf '%s' "$P135B" | grep -q 'no coverage gaps detected' || { echo "     block co ca am van in canh bao: $P135B"; P135OK=0; }
+P144B="$(p135_lint)"; P144BST=$?
+[ "$P144BST" -eq 0 ] || { echo "     block co ca am van exit $P144BST"; P144OK=0; }
+printf '%s' "$P144B" | grep -q 'no coverage gaps detected' || { echo "     block co ca am van in canh bao: $P144B"; P144OK=0; }
 # (c) AC-2 block thật sự thiếu ca âm → ĐÚNG 1 dòng W1, trỏ AC-2
-cat > "$P135WS/evals.yaml" <<'EOF'
+cat > "$P144WS/evals.yaml" <<'EOF'
 evals:
   - id: E1
     criterion: AC-1
@@ -5274,28 +5715,28 @@ evals:
     expected: >
       vượt hạn mức thì phiên bị khoá ngay lập tức.
 EOF
-P135C="$(p135_lint)"
-[ "$(printf '%s' "$P135C" | grep -c '] W1 ')" = "1" ] || { echo "     ky vong dung 1 dong W1: $P135C"; P135OK=0; }
-printf '%s' "$P135C" | grep -q 'W1 AC-2 is a threshold/boundary criterion' || { echo "     W1 phai tro AC-2"; P135OK=0; }
-rm -rf "$P135WS"
-if [ "$P135OK" -eq 1 ]; then
-  pass "P135 lint W1/W3 doc block scalar, khong ban gia, thieu that van do dung AC"
+P144C="$(p135_lint)"
+[ "$(printf '%s' "$P144C" | grep -c '] W1 ')" = "1" ] || { echo "     ky vong dung 1 dong W1: $P144C"; P144OK=0; }
+printf '%s' "$P144C" | grep -q 'W1 AC-2 is a threshold/boundary criterion' || { echo "     W1 phai tro AC-2"; P144OK=0; }
+rm -rf "$P144WS"
+if [ "$P144OK" -eq 1 ]; then
+  pass "P144 lint W1/W3 doc block scalar, khong ban gia, thieu that van do dung AC"
 else
-  fail "P135 lint W1/W3 doc block scalar, khong ban gia, thieu that van do dung AC"
+  fail "P144 lint W1/W3 doc block scalar, khong ban gia, thieu that van do dung AC"
 fi
 
-# ── P136: awk cross-layer pairing (pre-merge) — thân block scalar là DATA ─────
+# ── P145: awk cross-layer pairing (pre-merge) — thân block scalar là DATA ─────
 # Cùng lớp bug, biến thể "thân làm bẩn state": (i) một bullet "- baseline: green"
 # trong thân expected khớp luật flush → reset crit giữa block → layer thật đặt
 # SAU expected mất pairing → false VIOLATION; (ii) một dòng prose
 # "layer: backend-effect" trong thân pair HỘ eval UI-only → false-green — đúng
 # thứ răng này sinh ra để chặn. Đối chứng dương giữ nguyên khung fixture, chỉ
 # đổi evals.yaml — chứng minh đường chạy tới răng còn sống.
-echo "P136 pre-merge cross-layer: than block khong reset/khong pair ho, thieu that van VIOLATION"
-P136OK=1
-P136WS="$(mktemp -d)"
-mkdir -p "$P136WS/_acceptance/xl"
-cat > "$P136WS/_acceptance/xl/contract.md" <<'EOF'
+echo "P145 pre-merge cross-layer: than block khong reset/khong pair ho, thieu that van VIOLATION"
+P145OK=1
+P145WS="$(mktemp -d)"
+mkdir -p "$P145WS/_acceptance/xl"
+cat > "$P145WS/_acceptance/xl/contract.md" <<'EOF'
 ---
 schema_version: 1
 feature: xl
@@ -5309,10 +5750,10 @@ approved_by: tester
 
 - AC-1: Given form, When submit, Then DB có row mới (cross-layer).
 EOF
-P136MSG='AC-1 is tagged (cross-layer) but no eval of it declares layer: backend-effect'
-p136_hits() { bash "$ROOT/scripts/pre-merge-check.sh" "$P136WS" 2>&1 | grep -cF "$P136MSG"; }
+P145MSG='AC-1 is tagged (cross-layer) but no eval of it declares layer: backend-effect'
+p136_hits() { bash "$ROOT/scripts/pre-merge-check.sh" "$P145WS" 2>&1 | grep -cF "$P145MSG"; }
 # (a) đối chứng dương: chỉ có layer ui → răng phải cắn, đúng thông điệp
-cat > "$P136WS/_acceptance/xl/evals.yaml" <<'EOF'
+cat > "$P145WS/_acceptance/xl/evals.yaml" <<'EOF'
 evals:
   - id: E1
     criterion: AC-1
@@ -5321,9 +5762,9 @@ evals:
     expected: >
       form submit xong thấy toast.
 EOF
-[ "$(p136_hits)" = "1" ] || { echo "     doi chung duong: rang cross-layer KHONG can (duong chay toi rang chet?)"; P136OK=0; }
+[ "$(p136_hits)" = "1" ] || { echo "     doi chung duong: rang cross-layer KHONG can (duong chay toi rang chet?)"; P145OK=0; }
 # (b) bullet "- baseline: green" trong thân expected + layer thật SAU expected → phải SẠCH
-cat > "$P136WS/_acceptance/xl/evals.yaml" <<'EOF'
+cat > "$P145WS/_acceptance/xl/evals.yaml" <<'EOF'
 evals:
   - id: E1
     criterion: AC-1
@@ -5334,9 +5775,9 @@ evals:
       - exit 0
     layer: backend-effect
 EOF
-[ "$(p136_hits)" = "0" ] || { echo "     bullet trong than expected reset crit -> false VIOLATION"; P136OK=0; }
+[ "$(p136_hits)" = "0" ] || { echo "     bullet trong than expected reset crit -> false VIOLATION"; P145OK=0; }
 # (c) layer thật là ui, thân expected nhắc "layer: backend-effect" → PHẢI VIOLATION (chặn false-green)
-cat > "$P136WS/_acceptance/xl/evals.yaml" <<'EOF'
+cat > "$P145WS/_acceptance/xl/evals.yaml" <<'EOF'
 evals:
   - id: E1
     criterion: AC-1
@@ -5347,12 +5788,12 @@ evals:
       layer: backend-effect
       cho tuyến này.
 EOF
-[ "$(p136_hits)" = "1" ] || { echo "     dong prose trong than expected pair HO eval ui-only -> false-green"; P136OK=0; }
-rm -rf "$P136WS"
-if [ "$P136OK" -eq 1 ]; then
-  pass "P136 awk pairing bo qua than block scalar, hai chieu false-VIOLATION/false-green deu chan"
+[ "$(p136_hits)" = "1" ] || { echo "     dong prose trong than expected pair HO eval ui-only -> false-green"; P145OK=0; }
+rm -rf "$P145WS"
+if [ "$P145OK" -eq 1 ]; then
+  pass "P145 awk pairing bo qua than block scalar, hai chieu false-VIOLATION/false-green deu chan"
 else
-  fail "P136 awk pairing bo qua than block scalar, hai chieu false-VIOLATION/false-green deu chan"
+  fail "P145 awk pairing bo qua than block scalar, hai chieu false-VIOLATION/false-green deu chan"
 fi
 
 if [ "$failures" -gt 0 ]; then
