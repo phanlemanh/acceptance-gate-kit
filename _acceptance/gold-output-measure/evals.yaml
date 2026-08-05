@@ -1,0 +1,96 @@
+# evals — gold-output-measure
+# Harness tests/plugins (gold script + references sống ở realm plugin).
+# Luật kit: đo QUAN HỆ vào⇒ra của STDOUT thật; ma trận viết-trước, số assert
+# = số phần tử; âm tính có đối chứng dương + ghim thông điệp; fixture code-sinh.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "fixture workspace code-sinh (contract + report có human_override + run-log) → chạy acceptance-gold.mjs bằng node, đọc STDOUT thật: đúng N hàng bảng, từng hàng khớp 4 cột với dữ liệu fixture (so quan hệ, không grep chuỗi tự đặt); đối chứng 2 kiểu: XOÁ human_override → hàng biến mất, và ĐỔI-GIÁ-TRỊ từng trường một cho đủ 4 cột (sửa fixture không xoá) → expectation đúng cột đó đổi theo — chống assert chuỗi-có-mặt (fix gap-probe P2)"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/acceptance-gold.mjs", "tests/plugins/**"]
+    notes: >
+      Đóng finding lens HIGH: render() từ nay có phép đo máy chạm STDOUT.
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    expected: "map VERDICT_VI một-chỗ trong acceptance-gold.mjs; ma trận toàn phần: 3 enum PASS/FAIL/UNCERTAIN render đúng dạng 'tiếng người (MÃ)' + 1 giá trị lạ passthrough nguyên văn — số case test = số phần tử map + 1, đếm phần tử map từ source để mutant thêm/bớt enum bị bắt"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/acceptance-gold.mjs", "tests/plugins/**"]
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    expected: "fixture run-log code-sinh đủ 4 hình dạng {3/3, 2/1, phân kỳ, chẵn 2/2} qua agreement(): ma trận toàn phần viết-trước 4 hình dạng × 3 chiều (bucket, lensTotal, lensUncertain) = 12 assert, 1 assert/ô, per-lens kiểm trên TỪNG hình dạng kể cả nhánh chẵn (fix gap-probe P0 — không dồn per-lens về một hình dạng); số assert đếm được từ ma trận trong test"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/acceptance-gold.mjs", "tests/plugins/**"]
+    notes: >
+      Đóng finding lens MEDIUM: per-lens + nhánh vote chẵn có ma trận thật.
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    expected: "STDOUT thật với ≥2 lens: khối 'Theo góc nhìn' mỗi lens một dòng riêng (đếm dòng = số lens trong dữ liệu, quan hệ số-vào⇒số-dòng-ra); đối chứng: dữ liệu 1 lens → 1 dòng"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/acceptance-gold.mjs", "tests/plugins/**"]
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    expected: "fixture có slug không panel: STDOUT mỗi việc một dòng, slug có contract → hiện tên sản phẩm, slug thiếu contract → fallback slug thô (2 nhánh đều assert); câu giải thích là bản trung tính, chuỗi khẳng-định-nguyên-nhân cũ 'chấm trước khi máy bắt đầu ghi chép' KHÔNG còn xuất hiện"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/acceptance-gold.mjs", "tests/plugins/**"]
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    expected: "--root trỏ thư mục không có _acceptance/ → exit ≠0 + thông điệp ghim nêu path; đối chứng dương: root có _acceptance/ RỖNG → exit 0, sổ trống hợp lệ (RED ngoài allowlist: hai nhánh phân biệt được)"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/acceptance-gold.mjs", "tests/plugins/**"]
+
+  - id: E7
+    criterion: AC-7
+    executor: test
+    expected: "round-trip writer→reader: term rút TỪ marker SIGNOFF-JARGON-GLOSS của human-facing-language.md thật (không chép tay danh sách vào test); ma trận 2 surface × 2 chiều (fix gap-probe P1): term tiêm vào human_override → Từ điển hiện; term CHỈ nằm ở hạng mục (không trong lời người) → Từ điển vẫn hiện; term trong marker không xuất hiện ở surface nào → không in; chú giải đúng từ marker; đường dẫn HFL suy từ vị trí script — test chạy được trên cả bản mirror plugins/"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/acceptance-gold.mjs", "skills/acceptance/references/human-facing-language.md", "tests/plugins/**"]
+
+  - id: E8
+    criterion: AC-8
+    executor: test
+    expected: "bản sao script đặt nơi không tra được human-facing-language.md → STDOUT vẫn đủ sổ + đúng 1 dòng ghi chú ghim 'từ điển biệt ngữ không nạp được'; đối chứng dương: vị trí thật → không có dòng ghi chú"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/acceptance-gold.mjs", "tests/plugins/**"]
+
+  - id: E9
+    criterion: AC-9
+    executor: test
+    expected: "P96 hiện hành xanh SAU khi thêm term mới (known-limits, dogfood, single-source) vào HFL-GLOSSARY-TERMS — mỗi term có mục CONTEXT.md; sanity: đếm term trong marker tăng đúng số thêm; VÀ chốt máy quan hệ hai danh sách (fix gap-probe P1): tập term của SIGNOFF-JARGON-GLOSS ⊆ HFL-GLOSSARY-TERMS, đọc cả hai từ file thật; đối chứng: tiêm term lạ vào bản sao marker gloss → đỏ với thông điệp ghim"
+    cmd: config:executors.test.plugins
+    paths: ["skills/acceptance/references/human-facing-language.md", "CONTEXT.md", "tests/plugins/**"]
+
+  - id: E10
+    criterion: AC-10
+    executor: test
+    expected: "corpus _acceptance/* thật: --json của bản mới == --json bản TRƯỚC-diff sinh trong chính lần chạy (git show/worktree tại base, không golden tĩnh); render mới exit 0, số điểm + số panel == số từ --json (quan hệ nội tại); VÀ provenance evidence cho J1 (fix gap-probe P1): phép đo tự sinh lại STDOUT bằng node rồi byte-compare với evidence/gold-stdout.txt — file judge đọc phải là bản máy vừa in, vắng/lệch → đỏ"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/acceptance-gold.mjs", "tests/plugins/**"]
+
+  - id: J1
+    criterion: AC-11
+    executor: judgment
+    runs: 3
+    inputs:
+      - evidence/gold-stdout.txt
+      - ../../skills/acceptance/references/human-facing-language.md
+    question: >
+      File thứ nhất là STDOUT THẬT của acceptance-gold.mjs bản mới chạy trên
+      corpus repo trong chính vòng verify này. Người quyết kinh doanh không
+      biết tên field máy đọc có hiểu ngay "máy đề xuất gì, người đã quyết gì,
+      các giám khảo đồng thuận tới đâu" không? Biệt ngữ trong lời ký
+      (known-limits, dogfood, single-source…) đã có chú giải qua khối Từ điển
+      chưa — và chú giải có thay được việc viết lại lời người (N4) không?
+      Đối chiếu luật N1-N6 ở file thứ hai; các mục required_evidence của J13
+      vòng judge-required-evidence round 4 mục nào còn chưa xử.
