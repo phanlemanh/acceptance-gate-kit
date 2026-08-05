@@ -131,6 +131,15 @@ function glossOf(root, slug, evalId, rationale) {
   if (rationale) return rationale.slice(0, 60).replace(/\s+\S*$/, '') + '…';
   return 'hạng mục người phán tại Cổng 2';
 }
+// Cột "Máy đề xuất" đọc bằng mắt người quyết kinh doanh: mã máy đi vào ngoặc
+// (N3 — giải nghĩa lần đầu xuất hiện). Map đặt MỘT chỗ; giá trị lạ passthrough
+// nguyên văn để đường đọc-cũ không bị nuốt.
+const VERDICT_VI = {
+  PASS: 'đạt',
+  FAIL: 'chưa đạt',
+  UNCERTAIN: 'chưa chắc',
+};
+const verdictVi = (v) => (VERDICT_VI[v] ? `${VERDICT_VI[v]} (${v})` : v);
 const LENS_VI = {
   'domain-correctness': 'đúng nghiệp vụ (domain-correctness)',
   'operational-feasibility': 'vận hành được (operational-feasibility)',
@@ -192,7 +201,7 @@ export function render({ points, panels, noPanel, judgedBlocks, root }) {
       const viec = feat ? `${feat} (${p.slug})` : p.slug;
       const gloss = glossOf(root, p.slug, p.evalId, p.rationale);
       const hm = `${p.evalId} — ${gloss}`;
-      out.push(`| ${viec.replace(/\|/g, '·')} | ${hm.replace(/\|/g, '·')} | ${p.machine} | ${firstSentence(p.human).replace(/\|/g, '·')} |`);
+      out.push(`| ${viec.replace(/\|/g, '·')} | ${hm.replace(/\|/g, '·')} | ${verdictVi(p.machine)} | ${firstSentence(p.human).replace(/\|/g, '·')} |`);
     }
   }
   out.push('');
@@ -202,10 +211,23 @@ export function render({ points, panels, noPanel, judgedBlocks, root }) {
   if (!g.sample) out.push('Chưa có hội đồng chấm nào được ghi lại — các việc cũ chấm trước khi máy bắt đầu ghi biên bản hội đồng.');
   else {
     out.push(`${g.sample} lần hội đồng chấm tươi: ${g.buckets.unanimous} lần cả ba cùng ý · ${g.buckets.majority} lần 2-trên-1 · ${g.buckets.split} lần phân kỳ hẳn.`);
-    const rates = Object.keys(g.lensTotal).map(l => `${LENS_VI[l] || l}: ${g.lensUncertain[l] || 0}/${g.lensTotal[l]} lần nói "chưa chắc/chưa đạt"`);
-    if (rates.length) out.push(`Theo góc nhìn: ${rates.join(' · ')}.`);
+    const lenses = Object.keys(g.lensTotal);
+    if (lenses.length) {
+      out.push('');
+      out.push('Theo từng góc nhìn chấm:');
+      for (const l of lenses) {
+        out.push(`- ${LENS_VI[l] || l}: ${g.lensUncertain[l] || 0}/${g.lensTotal[l]} lần nói "chưa chắc" hoặc "chưa đạt"`);
+      }
+    }
   }
-  if (noPanel.length) out.push(`(${noPanel.length} việc chưa có biên bản hội đồng — chấm trước khi máy bắt đầu ghi chép: ${noPanel.join(', ')})`);
+  if (noPanel.length) {
+    out.push('');
+    out.push(`${noPanel.length} việc chưa có biên bản hội đồng trong hồ sơ:`);
+    for (const s of noPanel) {
+      const f = featureOf(root, s);
+      out.push(`- ${f ? `${f} (${s})` : s}`);
+    }
+  }
 
   // Khối Từ điển: CHỈ term thật sự xuất hiện trong thứ vừa in ra (quét trên
   // chính văn bản đã render — cả lời người lẫn hạng mục, không phải quét source).

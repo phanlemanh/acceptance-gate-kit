@@ -6279,6 +6279,87 @@ with tempfile.TemporaryDirectory() as d:
     assert T_HUMAN in dict_block(out_mirror), "ban mirror khong in khoi Tu dien"
 P156PY
 
+echo "P157 (E2,E4,E5) ba luat ngon ngu co hoc: enum ma tran, moi goc nhin mot dong, cau trung tinh"
+run "P157 verdict-vi + lens-per-line + noPanel" \
+  python3 - "$ROOT" <<'P157PY'
+import json, re, subprocess, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+GOLD = root / "scripts/acceptance-gold.mjs"
+src = GOLD.read_text(encoding="utf-8")
+
+def run_gold(rootdir):
+    out = subprocess.run(["node", str(GOLD), "--root", str(rootdir)], capture_output=True, text=True)
+    assert out.returncode == 0, "gold exit %d: %s" % (out.returncode, out.stderr[-400:])
+    return out.stdout
+
+def mkslug(base, slug, proposal="UNCERTAIN", contract=True, panel_votes=None):
+    ws = Path(base) / "_acceptance" / slug
+    ws.mkdir(parents=True, exist_ok=True)
+    if contract:
+        (ws / "contract.md").write_text(
+            "---\nschema_version: 2\nfeature: \"Tên sản phẩm của %s — mô tả\"\nslug: %s\n---\n" % (slug, slug),
+            encoding="utf-8")
+    (ws / "evals.yaml").write_text("evals:\n  - id: J1\n    executor: judgment\n    question: >\n      Câu hỏi chấm cho %s\n" % slug, encoding="utf-8")
+    (ws / "evidence-report.md").write_text(
+        "## Per-eval\n\n- eval: J1\n  judged_by: panel\n  proposal: %s\n  rationale: lý do máy\n"
+        "  human_override: Manh Phan 2026-08-05 — quyết giữ nguyên\n" % proposal, encoding="utf-8")
+    if panel_votes is None:
+        (ws / "run-log.jsonl").write_text("", encoding="utf-8")
+    else:
+        (ws / "run-log.jsonl").write_text(json.dumps(
+            {"kind": "panel", "evalId": "J1", "proposal": proposal, "votes": panel_votes}) + "\n", encoding="utf-8")
+    return ws
+
+# ── (a) MA TRAN ENUM: so case = so phan tu VERDICT_VI (dem TU SOURCE) + 1 la ──
+mm = re.search(r"const VERDICT_VI = \{([\s\S]*?)\}", src)
+assert mm, "khong thay map VERDICT_VI trong source — luat phai dat MOT cho"
+enum_keys = re.findall(r"(\w+):", mm.group(1))
+assert len(enum_keys) >= 3, "map VERDICT_VI chi co %d phan tu" % len(enum_keys)
+cases = list(enum_keys) + ["WEIRD"]
+assert len(cases) == len(enum_keys) + 1, "so case phai bang so phan tu map + 1"
+for code in cases:
+    with tempfile.TemporaryDirectory() as d:
+        mkslug(d, "vi-du", proposal=code)
+        out = run_gold(d)
+        row = [l for l in out.splitlines() if l.startswith("| ") and "vi-du" in l]
+        assert row, "khong thay hang bang cho case %s" % code
+        cell = row[0].split("|")[3].strip()
+        if code == "WEIRD":
+            assert cell == "WEIRD", "gia tri la phai passthrough nguyen van, got %r" % cell
+        else:
+            assert re.fullmatch(r"[^()]+ \(%s\)" % code, cell), \
+                "enum %s phai render 'tieng nguoi (MA)', got %r" % (code, cell)
+
+# ── (b) MOI GOC NHIN MOT DONG: quan he so-lens-vao => so-dong-ra ──
+LENSES = ["domain-correctness", "operational-feasibility", "spec-alignment"]
+# hoi dong <2 phieu khong vao mau (agreement loc votes>=2), nen quet 2 va 3 lens
+for n in (2, 3):
+    with tempfile.TemporaryDirectory() as d:
+        votes = [{"lens": LENSES[i], "verdict": "PASS" if i else "FAIL"} for i in range(n)]
+        mkslug(d, "vi-du", panel_votes=votes)
+        out = run_gold(d)
+        lines = [l for l in out.splitlines() if re.match(r"^- .*: \d+/\d+ lần", l)]
+        assert len(lines) == n, "%d goc nhin vao phai ra %d dong, got %d: %r" % (n, n, len(lines), lines)
+
+# ── (c) noPanel: moi viec mot dong, ten san pham + fallback, khong khang dinh nguyen nhan ──
+with tempfile.TemporaryDirectory() as d:
+    mkslug(d, "co-hop-dong", contract=True)
+    mkslug(d, "khong-hop-dong", contract=False)
+    out = run_gold(d)
+    OLD = "chấm trước khi máy bắt đầu ghi chép"
+    assert OLD not in out, "cau khang dinh nguyen nhan cu van con: %s" % OLD
+    # cat DUNG khoi chua-co-bien-ban (dem tren ca so se lan sang bang vang)
+    mblock = re.search(r"^\d+ việc chưa có biên bản hội đồng trong hồ sơ:\n([\s\S]*?)(?=\n##|\n\n|\Z)", out, re.M)
+    assert mblock, "khong thay khoi chua-co-bien-ban trong STDOUT"
+    items = [l for l in mblock.group(1).splitlines() if l.strip().startswith("- ")]
+    assert len(items) == 2, "2 viec khong panel phai ra DUNG 2 dong, got %d: %r" % (len(items), items)
+    named = [l for l in items if "Tên sản phẩm của co-hop-dong" in l]
+    raw = [l for l in items if l.strip() == "- khong-hop-dong"]
+    assert len(named) == 1, "slug co contract phai hien ten san pham: %r" % items
+    assert len(raw) == 1, "slug thieu contract phai fallback slug tho: %r" % items
+P157PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"
