@@ -35,6 +35,10 @@ const evidenceCore = require('../lib/evidence-core.js');
 // Ranh giới section: luật PER-SECTION nằm ở bảng marker trong lib/md-section.js
 // (Findings=any-heading chặn hàng ma; văn xuôi=same-or-higher giữ AC sau sub-heading).
 const { section } = require('../lib/md-section.js');
+// Parser evals.yaml dùng chung với eval-coverage-lint (lib/eval-yaml.js) — hiểu
+// block scalar: khuôn eval-gen viết `expected: >`, regex một-dòng cũ bắt được
+// ">" nên NEG_RE luôn false → covGaps bắn cảnh báo giả cho MỌI AC có số.
+const { parseEvals } = require('../lib/eval-yaml.js');
 
 const a = process.argv.slice(2);
 const opt = n => { const i = a.indexOf(n); return i >= 0 ? a[i + 1] : null; };
@@ -172,7 +176,7 @@ if (gate === '1') {
   const acs = []; const seen = {}; const dupIds = [];
   for (const l of section(contract, 'Criteria')) { const ac = parseAC(l); if (ac) { if (seen[ac.id]) dupIds.push(ac.id); seen[ac.id] = 1; acs.push(ac); } }
   const blindSpot = acBlindSpot(contract, acs.map(x => x.id));
-  const evalList = []; { let cur = null; for (const l of evalsT.split('\n')) { const id = l.match(/^\s*-\s+id:\s*(.+)$/); if (id) { if (cur) evalList.push(cur); cur = { id: id[1].trim(), criterion: '', expected: '' }; continue; } if (!cur) continue; const c = l.match(/^\s*criterion:\s*(.+)$/); if (c) cur.criterion = unquote(c[1]); const e = l.match(/^\s*expected:\s*(.+)$/); if (e) cur.expected = unquote(e[1]); } if (cur) evalList.push(cur); }
+  const evalList = parseEvals(evalsT, ['criterion', 'expected'], unquote);
   const evalsFor = id => evalList.filter(e => e.criterion === id);
   const willDo = acs.filter(x => !x.judgment && !NEG_RE.test(thenOf(x.gwt)));
   const wontDo = acs.filter(x => !x.judgment && NEG_RE.test(thenOf(x.gwt)));

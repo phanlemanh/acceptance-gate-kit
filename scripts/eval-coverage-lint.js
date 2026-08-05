@@ -41,6 +41,12 @@ const path = require('path');
 let glossaryLib = null;
 try { glossaryLib = require(path.join(__dirname, '..', 'lib', 'context-glossary.js')); } catch (_) {}
 
+// Parser evals.yaml dùng chung với gate-card.js (block-scalar aware — khuôn
+// eval-gen viết `expected: >`, regex một-dòng cũ bắt ">" nên W1/W3 bắn giả).
+// Thiếu lib thì skip TO TIẾNG (advisory, fail-open) chứ không lint sai.
+let evalYaml = null;
+try { evalYaml = require(path.join(__dirname, '..', 'lib', 'eval-yaml.js')); } catch (_) {}
+
 // ─── Detectors (intentionally generous; advisory) ───────────────────────────
 
 // A criterion that has a boundary worth bracketing: a comparator, a threshold
@@ -102,28 +108,12 @@ function outOfScopeBullets(contractText) {
     .filter(l => /^\s*[-*]\s+\S/.test(l)).length;
 }
 
+// Delegated to lib/eval-yaml.js (shared with gate-card.js): block-scalar aware,
+// and body lines are never key-scanned. executor is parsed-but-unused by W4 ON
+// PURPOSE: the wave-2 hook (schema v3 evaluateNetwork) keys pairing enforcement
+// off executor+layer — keep it as the machine-readable anchor, do not "clean it up".
 function parseEvals(evalsText) {
-  const evals = [];
-  let cur = null;
-  for (const raw of evalsText.split('\n')) {
-    const line = raw.replace(/\t/g, '  ');
-    const idM = line.match(/^\s*-\s+id:\s*(.+)$/);
-    if (idM) { if (cur) evals.push(cur); cur = { id: idM[1].trim(), criterion: '', expected: '', executor: '', layer: '' }; continue; }
-    if (!cur) continue;
-    const cM = line.match(/^\s*criterion:\s*(.+)$/);
-    if (cM) cur.criterion = fieldVal(cM[1]);
-    const eM = line.match(/^\s*expected:\s*(.+)$/);
-    if (eM) cur.expected = fieldVal(eM[1]);
-    const xM = line.match(/^\s*executor:\s*(.+)$/);
-    // executor is parsed-but-unused by W4 ON PURPOSE: the wave-2 hook (schema v3
-    // evaluateNetwork) keys pairing enforcement off executor+layer — keep it as
-    // the machine-readable anchor, do not "clean it up".
-    if (xM) cur.executor = fieldVal(xM[1]);
-    const lM = line.match(/^\s*layer:\s*(.+)$/);
-    if (lM) cur.layer = fieldVal(lM[1]);
-  }
-  if (cur) evals.push(cur);
-  return evals;
+  return evalYaml.parseEvals(evalsText, ['criterion', 'expected', 'executor', 'layer'], fieldVal);
 }
 
 // ─── Lint one feature ────────────────────────────────────────────────────────
@@ -206,6 +196,8 @@ function run(argv) {
     else if (argv[i] === '--files') { filesMode = [argv[++i], argv[++i]]; }
     else root = argv[i];
   }
+
+  if (!evalYaml) { console.log('eval-coverage-lint: lib/eval-yaml.js missing (package incomplete) — skipping (advisory, fail-open)'); return 0; }
 
   const warns = [];
   if (filesMode) {
