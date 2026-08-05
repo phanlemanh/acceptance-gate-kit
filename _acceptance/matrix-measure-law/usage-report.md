@@ -76,3 +76,40 @@
 - **claude-fable-5**: 3 agent · 33 calls · out 34,216 · in 63 · cache_read 2,108,064 · cache_create 262,435
 - **claude-haiku-4-5-20251001**: 6 agent · 25 calls · out 6,740 · in 212 · cache_read 662,858 · cache_create 154,255
 
+### S4 round 3 — wf_7dbadc80-818 (28 agent, 91,030 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| judge:M9:spec-alignment | claude-sonnet-5 | 2 | 13,966 | 4 | 44,463 | 155 |
+| review:bugs | claude-fable-5 | 8 | 10,564 | 16 | 450,111 | 170 |
+| review:conventions | claude-fable-5 | 9 | 8,263 | 17 | 504,128 | 143 |
+| refute:measure-law-mutants.test.mjs | claude-sonnet-5 | 10 | 8,231 | 20 | 572,117 | 160 |
+| judge:M9:operational-feasibility | claude-sonnet-5 | 3 | 7,529 | 6 | 134,285 | 144 |
+| synthesize:report | claude-sonnet-5 | 8 | 6,097 | 16 | 573,415 | 359 |
+| review:measurement | claude-fable-5 | 6 | 5,404 | 12 | 276,810 | 146 |
+| refute:measure-pins.mjs | claude-sonnet-5 | 9 | 5,199 | 18 | 449,869 | 98 |
+| refute:gen-red-probe.mjs | claude-sonnet-5 | 7 | 3,965 | 14 | 325,484 | 66 |
+| judge:M11:domain-correctness | claude-sonnet-5 | 2 | 3,595 | 4 | 67,776 | 50 |
+| refute:measure-law-mutants.test.mjs | claude-sonnet-5 | 6 | 2,884 | 12 | 260,875 | 79 |
+| refute:measure-law-mutants.test.mjs | claude-sonnet-5 | 7 | 2,781 | 14 | 354,113 | 76 |
+| refute:measure-law-mutants.test.mjs | claude-sonnet-5 | 5 | 2,680 | 10 | 228,212 | 69 |
+| machine:bash tests/plugins/run-tests.sh | claude-haiku-4-5-20251001 | 11 | 2,591 | 94 | 355,392 | 175 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 7 | 1,475 | 58 | 185,503 | 100 |
+| baseline:diffBase | claude-sonnet-5 | 7 | 1,224 | 14 | 287,567 | 35 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 4 | 1,205 | 34 | 103,506 | 21 |
+| judge:M10:domain-correctness | claude-sonnet-5 | 2 | 1,111 | 4 | 44,348 | 19 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 3 | 717 | 26 | 58,310 | 11 |
+| capture:provenance | claude-sonnet-5 | 3 | 580 | 6 | 91,819 | 13 |
+| judge:M10:spec-alignment | claude-sonnet-5 | 2 | 306 | 4 | 67,602 | 20 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 276 | 18 | 28,055 | 12 |
+| machine:bash scripts/sync-plugin-packages.sh --c | claude-haiku-4-5-20251001 | 2 | 246 | 18 | 28,059 | 8 |
+| triage | claude-sonnet-5 | 2 | 108 | 4 | 48,209 | 143 |
+| judge:M9:domain-correctness | claude-sonnet-5 | 2 | 12 | 4 | 44,463 | 148 |
+| judge:M11:spec-alignment | claude-sonnet-5 | 2 | 8 | 4 | 67,776 | 40 |
+| judge:M10:operational-feasibility | claude-sonnet-5 | 2 | 7 | 4 | 44,350 | 20 |
+| judge:M11:operational-feasibility | claude-sonnet-5 | 2 | 6 | 4 | 67,778 | 43 |
+
+- **claude-sonnet-5**: 19 agent · 83 calls · out 60,289 · in 166 · cache_read 3,774,521 · cache_create 1,070,526
+- **claude-fable-5**: 3 agent · 23 calls · out 24,231 · in 45 · cache_read 1,231,049 · cache_create 188,416
+- **claude-haiku-4-5-20251001**: 6 agent · 29 calls · out 6,510 · in 248 · cache_read 758,825 · cache_create 213,443
+
