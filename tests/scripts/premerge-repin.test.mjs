@@ -52,6 +52,22 @@ check('DV2p-4 run-log vắng file -> VIOLATION đích danh, không skip âm th�
   assert.match(r.out, /VIOLATION \[feat-repin\]: re-pin run_id cited in ### Re-pin but _acceptance\/feat-repin\/run-log\.jsonl does not exist/);
 });
 
+check('DV2p-6 dòng repin THIẾU hẳn suites_exit → VIOLATION đích danh (fix S4-r1: lane chưa ghi suite không back được chữ ký)', () => {
+  const f = mkRepinFixture({ noSuites: true });
+  const r = runCheck(CHECK, f.root);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /VIOLATION \[feat-repin\]: re-pin line for run_id "repin-test-1" has no well-formed suites_exit array/);
+});
+check('DV2p-7 section dòng trống + run_id dòng sau — pre-merge vẫn enforce (đồng bộ 2 reader)', () => {
+  const body = '\nSuite xanh.\nrun_id: repin-test-1\nsha: ' + SHA_A;
+  const bad = mkRepinFixture({ noRepinLine: true, sectionBody: body });
+  const r = runCheck(CHECK, bad.root);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /re-pin run_id "repin-test-1" cited in ### Re-pin but no/);
+  const good = mkRepinFixture({ sectionBody: body });
+  assert.equal(runCheck(CHECK, good.root).code, 0, 'đối chứng dương');
+});
+
 // ── DV3: fraud mượn run_id khi HEAD đã đổi → luật stale HIỆN HÀNH bắn ────────
 check('DV3 fixture sạch trong git repo: repin hợp lệ tại HEAD -> exit 0 (đối chứng dương)', () => {
   const f = mkRepinFixture();

@@ -50,12 +50,17 @@ if (!core.determineEnforce(payload)) process.exit(0);
 // cannot back a signature. Old-form sections (no "run_id:") are grandfathered:
 // no rule below applies to them.
 {
-  const secRe = /^###\s+Re-pin\b[^\n]*\n([\s\S]*?)(?=\n#{1,3}\s|\n*$)/gm;
+  // End-anchor phải là HẾT-VĂN-BẢN ($(?![\s\S])) chứ không phải cuối-dòng:
+  // với flag m, nhánh `\n*$` thoả ngay cuối dòng đầu nên body chỉ còn 1 dòng —
+  // section có dòng trống sau heading bị grandfather ÂM THẦM (fail-open,
+  // finding S4-r1). Quét TRỌN body và bắt MỌI dòng run_id (không đòi hết dòng
+  // sau id — cùng ngữ nghĩa với awk của pre-merge: `run_id: X · ghi chú` vẫn
+  // là citation).
+  const secRe = /^###\s+Re-pin\b[^\n]*\n([\s\S]*?)(?=\n#{1,3}\s|$(?![\s\S]))/gm;
   const cited = [];
   let m;
   while ((m = secRe.exec(payload)) !== null) {
-    const idm = m[1].match(/^\s*run_id\s*[:=]\s*([^\s·,]+)\s*$/im);
-    if (idm) cited.push(idm[1]);
+    for (const im of m[1].matchAll(/^\s*run_id\s*[:=]\s*([^\s·,]+)/gim)) cited.push(im[1]);
   }
   if (cited.length) {
     const dir = path.dirname(path.resolve(reportPath));
@@ -75,7 +80,7 @@ if (!core.determineEnforce(payload)) process.exit(0);
         const e = repins.get(id);
         if (!e) { errs.push(`REPIN x run_id "${id}" cited in ### Re-pin but no {"kind":"repin"} line with that run_id in run-log.jsonl — the lane never logged this re-pin; re-run the lane, do not hand-mint run_ids`); continue; }
         if (vc && e.sha !== vc) { errs.push(`REPIN x repin line for run_id "${id}" has sha ${e.sha} but report verified_commit is ${vc} — signature and lane disagree; re-pin against the verified commit`); continue; }
-        if (!Array.isArray(e.suites_exit) || e.suites_exit.some(x => x !== 0)) errs.push(`REPIN x repin line for run_id "${id}" has nonzero suites_exit ${JSON.stringify(e.suites_exit)} — a red lane cannot back a signature; fix the suites and run a NEW lane`);
+        if (!Array.isArray(e.suites_exit) || e.suites_exit.length === 0 || e.suites_exit.some(x => x !== 0)) errs.push(`REPIN x repin line for run_id "${id}" has nonzero suites_exit ${JSON.stringify(e.suites_exit)} — a red lane cannot back a signature; fix the suites and run a NEW lane`);
       }
     }
     if (errs.length) {

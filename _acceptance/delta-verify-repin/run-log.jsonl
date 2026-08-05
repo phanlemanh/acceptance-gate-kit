@@ -1,0 +1,17 @@
+{"ts":"2026-08-05T03:09:30Z","round":1,"evalId":"E1","run_id":"minted-delta-verify-repin-E1-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-05T03:09:30Z","round":1,"evalId":"E6","run_id":"minted-delta-verify-repin-E6-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-05T03:09:30Z","round":1,"evalId":"E7","run_id":"minted-delta-verify-repin-E7-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-05T03:09:30Z","round":1,"evalId":"E8","run_id":"minted-delta-verify-repin-E8-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-05T03:09:30Z","round":1,"evalId":"E9","run_id":"minted-delta-verify-repin-E9-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-05T03:09:30Z","round":1,"evalId":"E10","run_id":"minted-delta-verify-repin-E10-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-05T03:09:30Z","round":1,"evalId":"E2","run_id":"minted-delta-verify-repin-E2-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-05T03:09:30Z","round":1,"evalId":"E3","run_id":"minted-delta-verify-repin-E3-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-05T03:09:30Z","round":1,"evalId":"E4","run_id":"minted-delta-verify-repin-E4-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-05T03:09:30Z","round":1,"evalId":"E5","run_id":"minted-delta-verify-repin-E5-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-05T03:09:30Z","round":1,"evalId":"E15","run_id":"minted-delta-verify-repin-E15-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-05T03:09:30Z","round":1,"evalId":"E11","run_id":"minted-delta-verify-repin-E11-r1","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-08-05T03:09:30Z","round":1,"evalId":"E14","run_id":"minted-delta-verify-repin-E14-r1","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
+{"ts":"2026-08-05T03:09:30Z","round":1,"evalId":"E12","kind":"panel","proposal":"FAIL","votes":[{"lens":"domain-correctness","verdict":"FAIL"},{"lens":"operational-feasibility","verdict":"FAIL"},{"lens":"spec-alignment","verdict":"FAIL"}],"inputs_hash":"9a338aa0777f769fb51a5abb446888d47f60c8d941fda36561e9e81c4ef727e4"}
+{"ts":"2026-08-05T03:09:30Z","round":1,"evalId":"E13","kind":"panel","proposal":"PASS","votes":[{"lens":"domain-correctness","verdict":"PASS"},{"lens":"operational-feasibility","verdict":"PASS"},{"lens":"spec-alignment","verdict":"PASS"}],"inputs_hash":"d092975cf371ce6880b2bb5de410a64805ee23a8aa0f83a0516ad5a06a5a98b8"}
+{"ts":"2026-08-05T03:09:30Z","round":1,"evalId":"E16","kind":"panel","proposal":"UNCERTAIN","votes":[{"lens":"domain-correctness","verdict":"UNCERTAIN"},{"lens":"operational-feasibility","verdict":"UNCERTAIN"},{"lens":"spec-alignment","verdict":"UNCERTAIN"}],"inputs_hash":"c91325f0edc681ba06d3f017e104bb62319e37fc1243389afb89b12b5d86cba2"}
+{"ts":"2026-08-05T03:09:30Z","round":1,"kind":"baseline","evals_hash":"60dff7efb06224662ca51e364e289d950a6b270e2167b27f8f0f60416ea1eabc","non_discriminating":[{"cmd":"bash tests/workflows/run-tests.sh","evals":["E1","E6","E7","E8","E9","E10"]},{"cmd":"bash tests/scripts/run-tests.sh","evals":["E2","E3","E4","E5","E15"]},{"cmd":"bash tests/hooks/run-tests.sh","evals":["E11"]},{"cmd":"bash scripts/sync-plugin-packages.sh --check","evals":["E14"]}]}

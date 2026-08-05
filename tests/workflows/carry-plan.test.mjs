@@ -114,5 +114,27 @@ console.log('DV9 atomic-pair cross-layer (AC-9)');
     r2.json.carriedEvals.some(x => x.id === 'E4') && r2.json.carriedEvals.some(x => x.id === 'E5'), JSON.stringify(r2.json));
 }
 
+console.log('DV9c parser cross-layer đồng bộ chuẩn (fix S4-r1: parser thứ hai lệch → atomic-pair tắt im lặng)');
+{
+  // bullet `*`, thụt lề, dấu `.`, tag Hoa-thường nằm ở DÒNG NỐI — parser chuẩn
+  // (eval-coverage-lint parseACs) công nhận tất cả các hình dạng này.
+  const d = mkFix();
+  writeFileSync(path.join(d, 'contract.md'), [
+    '---', 'slug: demo', '---', '', '## Criteria', '',
+    '- AC-1: Given a, When b, Then c.',
+    '- AC-2: Given a, When b, Then c.',
+    '  * AC-3. Given a, When b, Then qua backend',
+    '    (Cross-Layer) — bằng chứng hai lớp phải cùng round.',
+    '',
+  ].join('\n'));
+  const r = run(d, 'ui/screen.tsx');
+  check('DV9c tag hoa thường ở dòng nối + bullet * thụt lề → cặp VẪN bị ép chạy lại',
+    r.json.rerun.includes('E4') && r.json.rerun.includes('E5') && !r.json.carriedEvals.some(x => x.id === 'E5'),
+    JSON.stringify(r.json));
+  const r2 = run(d, 'nowhere/z.js');
+  check('DV9c+ đối chứng dương: không chạm → cả cặp vẫn carried',
+    r2.json.carriedEvals.some(x => x.id === 'E4') && r2.json.carriedEvals.some(x => x.id === 'E5'), JSON.stringify(r2.json));
+}
+
 console.log(`\nResults: ${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

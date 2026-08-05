@@ -6,8 +6,8 @@ import path from 'node:path';
 
 export const SHA_A = 'a'.repeat(40);
 
-// opts: { slug, runId, sha, verifiedCommit, suitesExit, noRepinLine, noRunLog,
-//         oldStyleSection, sectionBody }  — mọi field có default hợp lệ (clean).
+// opts: { slug, runId, sha, verifiedCommit, suitesExit, noSuites, noRepinLine,
+//         noRunLog, oldStyleSection, sectionBody }  — mọi field có default hợp lệ (clean).
 export function mkRepinFixture(opts = {}) {
   const slug = opts.slug || 'feat-repin';
   const runId = opts.runId || 'repin-test-1';
@@ -25,7 +25,11 @@ export function mkRepinFixture(opts = {}) {
   const lines = [
     JSON.stringify({ ts: '2026-08-05T00:00:00Z', round: 1, evalId: 'E1', run_id: evalRunId, exit_code: 0, cmd: 'pnpm test' }),
   ];
-  if (!opts.noRepinLine) lines.push(JSON.stringify({ ts: '2026-08-05T01:00:00Z', kind: 'repin', run_id: runId, sha, suites_exit: suites }));
+  if (!opts.noRepinLine) {
+    const rl = { ts: '2026-08-05T01:00:00Z', kind: 'repin', run_id: runId, sha, suites_exit: suites };
+    if (opts.noSuites) delete rl.suites_exit;
+    lines.push(JSON.stringify(rl));
+  }
   if (!opts.noRunLog) writeFileSync(path.join(dir, 'run-log.jsonl'), lines.join('\n') + '\n');
   const section = opts.oldStyleSection
     ? `### Re-pin lần 1 — 2026-08-05, do engine đổi\n\n\`verified_commit\` lên \`${vc.slice(0, 7)}\`. Suite chạy lại xanh.\n`

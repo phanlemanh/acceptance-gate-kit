@@ -59,5 +59,37 @@ check('DV2-6 grandfather: section Re-pin kiểu CŨ (không run_id:) -> exit 0, 
   assert.equal(r.code, 0, `old-style section must stay clean, got ${r.code}: ${r.err}`);
 });
 
+check('DV2-7 section có DÒNG TRỐNG + văn xuôi trước run_id: fraud vẫn bị bắt (fix S4-r1 fail-open)', () => {
+  const body = '\nSuite chạy lại xanh tại HEAD.\nrun_id: repin-test-1\nsha: ' + SHA_A;
+  const bad = mkRepinFixture({ noRepinLine: true, sectionBody: body });
+  const r = run(bad.report);
+  assert.equal(r.code, 1, 'run_id sau dòng trống bị grandfather âm thầm — regex vẫn fail-open');
+  assert.match(r.err, /REPIN x run_id "repin-test-1" cited in ### Re-pin/);
+  const good = mkRepinFixture({ sectionBody: body });
+  assert.equal(run(good.report).code, 0, 'đối chứng dương: section hợp lệ có dòng trống phải clean');
+});
+
+check('DV2-8 dòng `run_id: X · ghi chú` — recheck cùng ngữ nghĩa với awk pre-merge (vẫn là citation)', () => {
+  const body = 'run_id: repin-test-1 · sha: ' + SHA_A + ' · suites: 4 lệnh exit 0';
+  const bad = mkRepinFixture({ noRepinLine: true, sectionBody: body });
+  const r = run(bad.report);
+  assert.equal(r.code, 1, 'run_id có đuôi · bị recheck bỏ qua trong khi pre-merge enforce — hai reader lệch nhau');
+  assert.match(r.err, /REPIN x run_id "repin-test-1"/, 'phải là luật repin bắt, không phải luật khác che');
+  // Writer lệch khuôn (run_id không đứng riêng dòng): luật repin MỚI clean,
+  // nhưng luật đối chiếu run_id CŨ (evidence-core, own-line template) vẫn đỏ
+  // — fail-CLOSED đúng hướng, và AC-5 cấm nới luật cũ. Ghim đúng ngữ nghĩa đó:
+  const good = mkRepinFixture({ sectionBody: body });
+  const rg = run(good.report);
+  assert.doesNotMatch(rg.err, /REPIN x/, 'luật repin mới không được báo oan trên bộ khớp đủ');
+  assert.match(rg.err, /run-log\.jsonl/, 'luật cũ own-line phải là bên bắt (fail-closed), không im lặng');
+});
+
+check('DV2-9 suites_exit RỖNG [] — lane không ghi suite nào không back được chữ ký', () => {
+  const f = mkRepinFixture({ suitesExit: [] });
+  const r = run(f.report);
+  assert.equal(r.code, 1);
+  assert.match(r.err, /nonzero suites_exit \[\]/);
+});
+
 console.log(`\nResults: ${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

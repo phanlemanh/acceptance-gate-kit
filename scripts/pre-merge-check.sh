@@ -792,6 +792,10 @@ GLOBS2
         echo "VIOLATION [$slug]: re-pin line for run_id \"$rid\" has sha $rsha but verified_commit is $vc — signature and lane disagree; re-pin against the verified commit"
         repin_bad=1; continue
       fi
+      if ! printf '%s' "$rline" | grep -Eq '"suites_exit":[[:space:]]*\[[0-9][0-9, ]*\]'; then
+        echo "VIOLATION [$slug]: re-pin line for run_id \"$rid\" has no well-formed suites_exit array — a lane that never recorded its suite results cannot back a signature; re-run the lane"
+        repin_bad=1; continue
+      fi
       if printf '%s' "$rline" | grep -Eq '"suites_exit":[[:space:]]*\[[0-9, ]*[1-9]'; then
         echo "VIOLATION [$slug]: re-pin line for run_id \"$rid\" has nonzero suites_exit — a red lane cannot back a signature; fix the suites and run a NEW lane"
         repin_bad=1; continue

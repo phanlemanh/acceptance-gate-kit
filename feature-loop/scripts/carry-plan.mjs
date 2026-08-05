@@ -59,13 +59,22 @@ function parseEvals(text) {
   return evals;
 }
 
-// Criterion mang dấu (cross-layer) trong contract → atomic-pair.
+// Criterion mang dấu (cross-layer) trong contract → atomic-pair. Cùng ngữ
+// nghĩa với parser chuẩn (eval-coverage-lint parseACs): bullet -/*, cho phép
+// thụt lề, `:` hoặc `.`, tag không phân biệt hoa thường và có thể nằm ở dòng
+// NỐI của bullet (finding S4-r1: parser thứ hai lệch chuẩn → atomic-pair tắt
+// im lặng — false-green).
 function crossLayerACs(contract) {
   const out = new Set();
-  for (const m of contract.matchAll(/^-\s+(AC-\d+):\s*(?:\((?:judgment|cross-layer)\)\s*)?/gm)) {
-    const line = contract.slice(m.index, contract.indexOf('\n', m.index));
-    if (/\(cross-layer\)/.test(line)) out.add(m[1]);
+  let cur = null, buf = '';
+  const flush = () => { if (cur && /\(cross-layer\)/i.test(buf)) out.add(cur); };
+  for (const line of contract.split('\n')) {
+    const m = line.match(/^\s*[-*]\s*(AC-\d+)\s*[:.]/);
+    if (m) { flush(); cur = m[1]; buf = line; }
+    else if (/^#{1,6}\s/.test(line)) { flush(); cur = null; buf = ''; }
+    else if (cur) buf += ' ' + line;
   }
+  flush();
   return out;
 }
 
