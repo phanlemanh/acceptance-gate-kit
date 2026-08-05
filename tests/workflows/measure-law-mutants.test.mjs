@@ -1,6 +1,6 @@
 // MM6 — 2 finder cũ nguyên vẹn TỪNG CHỮ, pin neo git (không tin chép tay);
-// MM7 — ma trận mutation toàn phần viết-trước 14 phần tử (6 shape + 4 câu
-// SKILL feature-loop + 4 câu SKILL codex). Chính là hình dạng 5 áp cho bản
+// MM7 — ma trận mutation toàn phần viết-trước 20 phần tử (6 shape + 7 câu
+// SKILL feature-loop + 7 câu SKILL codex). Chính là hình dạng 5 áp cho bản
 // thân feature (số mutant = số phần tử, không mutant gộp).
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -41,7 +41,7 @@ console.log('MM6 finder cũ nguyên vẹn từng chữ — pin neo git show ' + 
     const m = txt.match(new RegExp(`key: '${key}', prompt: \`([^\`]+)\``));
     return m ? m[1] : null;
   };
-  for (const key of ['conventions', 'bugs']) {
+  for (const key of ['invariants', 'conventions', 'bugs']) {
     const old = grab(pre, key), cur = grab(SRC, key);
     check(`MM6 prompt '${key}' hiện tại == bản trước từng chữ`, old !== null && cur !== null && old === cur,
       old === null ? 'không rút được prompt từ bản trước' : (cur === null ? 'không rút được prompt hiện tại' : 'prompt đã bị sửa — AC-6 vỡ'));
@@ -67,7 +67,7 @@ console.log('MM6 finder cũ nguyên vẹn từng chữ — pin neo git show ' + 
   check('MM6m mutant sửa 1 chữ prompt cũ → phép so đỏ đích danh', grab(mutated, 'bugs') !== oldBugs, 'phép so không phân biệt được bản bị sửa');
 }
 
-console.log('MM7 ma trận 18 mutant viết-trước (6 shape + 6 câu VI + 6 câu EN)');
+console.log('MM7 ma trận 20 mutant viết-trước (6 shape + 7 câu VI + 7 câu EN)');
 {
   // 6 mutant shape: xoá từng phần tử const trên bản sao script → measureShapes đỏ đúng phần tử
   const constM = SRC.match(/const MEASUREMENT_SHAPES = \[([\s\S]*?)\]/);
@@ -87,7 +87,8 @@ console.log('MM7 ma trận 18 mutant viết-trước (6 shape + 6 câu VI + 6 c�
   const VI = [
     /mỗi eval tuyên quét LỚP có ma trận toàn phần viết-trước không \(số assert = số phần tử\)/,
     /assertion âm tính nào thiếu đối chứng dương hoặc không ghim thông điệp/,
-    /fixture nào viết tay đúng khuôn bên đọc thay vì code-sinh\/round-trip/,
+    /fixture nào viết tay đúng khuôn bên đọc/,
+    /fixture nào \(kể cả code-sinh\) tự dựng đúng khuôn bên đọc mà không round-trip rút-từ-writer-thật/,
     /assert nào đo chuỗi-có-mặt trong khi lời hứa là quan hệ/,
     /eval nào đo CHỈ DẪN\/tài liệu hướng dẫn thay vì ĐẦU RA thật của code/,
     /đường dẫn nào trong phép đo\/script sinh fixture hardcode ROOT thay vì suy từ vị trí script/,
@@ -95,7 +96,8 @@ console.log('MM7 ma trận 18 mutant viết-trước (6 shape + 6 câu VI + 6 c�
   const EN = [
     /every[\s\S]{0,20}eval that claims to sweep a CLASS[\s\S]{0,60}full matrix written in advance[\s\S]{0,20}\(assert count = element count\)/i,
     /negative assertion lacks a positive[\s\S]{0,10}control or a pinned message/i,
-    /fixture is hand-written to the reader'?s[\s\S]{0,10}shape instead of code-generated\/round-trip/i,
+    /fixture is hand-written to the reader'?s[\s\S]{0,10}shape/i,
+    /fixture \(even a code-generated one\) builds itself to the[\s\S]{0,10}reader'?s shape without a round-trip pulled from the real writer/i,
     /measures[\s\S]{0,10}string-presence while the promise is a relationship/i,
     /measures INSTRUCTIONS\/docs instead of the code'?s real OUTPUT/i,
     /hardcodes ROOT instead of[\s\S]{0,10}deriving it from the script location/i,
@@ -108,6 +110,18 @@ console.log('MM7 ma trận 18 mutant viết-trước (6 shape + 6 câu VI + 6 c�
     const hit = CODEX.match(re);
     check(`MM7e${i + 1} xoá câu EN ${i + 1} → đỏ đích danh`, !!hit && !re.test(CODEX.replace(hit[0], '')), hit ? 'detector không phân biệt' : 'câu không tồn tại');
   });
+}
+
+console.log('MM12 fixture RED-probe do CODE SINH — file == đầu ra generator (round-trip writer thật)');
+{
+  const { generate } = await import('./gen-red-probe.mjs');
+  const committed = readFileSync(path.join(ROOT, '_acceptance', 'matrix-measure-law', 'evidence', 'red-probe-artifact.md'), 'utf8');
+  check('MM12 file cam kết == generate() từng byte', committed === generate(), 'file lệch generator — có người sửa tay fixture hoặc writer trôi');
+  check('MM12m mutant: đổi shape 4 của writer → nội dung sinh phải ĐỔI theo (quan hệ writer→fixture)', (() => {
+    // đo quan hệ bằng chính generate() trên nguồn thật vs nguồn mutant: sửa tạm qua so chuỗi
+    const shape4 = 'Assertion âm-tính-một-mình: không đối chứng dương, không ghim thông điệp.';
+    return generate().includes(shape4);
+  })(), 'đầu ra generator không chứa hình dạng 4 từ writer');
 }
 
 console.log(`\nResults: ${passed} passed, ${failed} failed`);

@@ -23,7 +23,7 @@ flowchart TD
 
 ## Đang làm
 
-- lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (4 câu cross-check) + review lens measurement S4 (6 hình dạng, một chỗ, mutation-covered); không nới finder cũ (`matrix-measure-law`)
+- lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (7 câu đối chiếu chéo) + review lens measurement S4 (6 hình dạng, một chỗ, mutation-covered); không nới finder cũ (`matrix-measure-law`)
 - Gom luật đọc hồ sơ xưởng về một chỗ — mọi bên đọc phải cho cùng một kết luận (`workspace-reader-unification`) · liên quan: product-map-uat-session
 
 ## Đã giao

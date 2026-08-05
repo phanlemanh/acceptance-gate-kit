@@ -301,12 +301,15 @@ section (even if it is a single skip line):
    `(cross-layer)` tag or carry UI-layer evals only (ui-check/judgment), and
    platform-fit: does the artifact set follow the consuming repo's existing
    UI/plugin standards, and which repo skill or rule SHOULD have been loaded
-   but was not, and the MEASUREMENT class (matrix-measure-law): does every
+   but was not, and the MEASUREMENT class (matrix-measure-law — answer these
+   from the `expected` fields of evals.yaml plus the design doc, i.e. the
+   PLANNED measurements; no code needed, code does not exist yet): does every
    eval that claims to sweep a CLASS carry a full matrix written in advance
    (assert count = element count) · which negative assertion lacks a positive
    control or a pinned message · which fixture is hand-written to the reader's
-   shape instead of code-generated/round-trip · which assert measures
-   string-presence while the promise is a relationship · which
+   shape · which fixture (even a code-generated one) builds itself to the
+   reader's shape without a round-trip pulled from the real writer · which
+   assert measures string-presence while the promise is a relationship · which
    eval measures INSTRUCTIONS/docs instead of the code's real OUTPUT · which
    path in a measurement/fixture-generating script hardcodes ROOT instead of
    deriving it from the script location; (5) at most 5 findings; verdict `clean` is a VALID outcome;

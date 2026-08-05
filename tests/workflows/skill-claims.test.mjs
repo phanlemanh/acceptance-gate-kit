@@ -63,7 +63,8 @@ const CODEX_SKILL = readFileSync(path.join(HERE, '..', '..', 'codex', 'feature-l
 const MEASURE_CLAUSES_VI = [
   [/mỗi eval tuyên quét LỚP có ma trận toàn phần viết-trước không \(số assert = số phần tử\)/, 'MM1a: ma trận viết-trước'],
   [/assertion âm tính nào thiếu đối chứng dương hoặc không ghim thông điệp/, 'MM1b: âm tính + đối chứng + thông điệp'],
-  [/fixture nào viết tay đúng khuôn bên đọc thay vì code-sinh\/round-trip/, 'MM1c: fixture code-sinh/round-trip'],
+  [/fixture nào viết tay đúng khuôn bên đọc/, 'MM1c: fixture viết tay'],
+  [/fixture nào \(kể cả code-sinh\) tự dựng đúng khuôn bên đọc mà không round-trip rút-từ-writer-thật/, 'MM1c2: round-trip từ writer thật'],
   [/assert nào đo chuỗi-có-mặt trong khi lời hứa là quan hệ/, 'MM1d: từ-vựng vs quan hệ'],
   [/eval nào đo CHỈ DẪN\/tài liệu hướng dẫn thay vì ĐẦU RA thật của code/, 'MM1e2: chỉ dẫn vs đầu ra'],
   [/đường dẫn nào trong phép đo\/script sinh fixture hardcode ROOT thay vì suy từ vị trí script/, 'MM1f: hardcode ROOT'],
@@ -71,7 +72,8 @@ const MEASURE_CLAUSES_VI = [
 const MEASURE_CLAUSES_EN = [
   [/every[\s\S]{0,20}eval that claims to sweep a CLASS[\s\S]{0,60}full matrix written in advance[\s\S]{0,20}\(assert count = element count\)/i, 'MM2a: full matrix'],
   [/negative assertion lacks a positive[\s\S]{0,10}control or a pinned message/i, 'MM2b: positive control + pinned message'],
-  [/fixture is hand-written to the reader'?s[\s\S]{0,10}shape instead of code-generated\/round-trip/i, 'MM2c: code-generated/round-trip'],
+  [/fixture is hand-written to the reader'?s[\s\S]{0,10}shape/i, 'MM2c: hand-written fixture'],
+  [/fixture \(even a code-generated one\) builds itself to the[\s\S]{0,10}reader'?s shape without a round-trip pulled from the real writer/i, 'MM2c2: round-trip from real writer'],
   [/measures[\s\S]{0,10}string-presence while the promise is a relationship/i, 'MM2d: vocabulary vs relationship'],
   [/measures INSTRUCTIONS\/docs instead of the code'?s real OUTPUT/i, 'MM2e: instructions vs output'],
   [/hardcodes ROOT instead of[\s\S]{0,10}deriving it from the script location/i, 'MM2f: hardcode ROOT'],

@@ -1,6 +1,6 @@
 ---
 schema_version: 2
-feature: "matrix-measure-law — lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (4 câu cross-check) + review lens measurement S4 (6 hình dạng, một chỗ, mutation-covered); không nới finder cũ"
+feature: "matrix-measure-law — lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (7 câu đối chiếu chéo) + review lens measurement S4 (6 hình dạng, một chỗ, mutation-covered); không nới finder cũ"
 slug: matrix-measure-law
 risk_tier: T2
 surfaces: [cli]
@@ -23,13 +23,14 @@ chương trình 80/20: biến bài học thành luật ở 2 chốt sẵn có, k
 ## Criteria
 
 - AC-1: Given prompt gap-probe S1#7 trong SKILL feature-loop, When đọc ý (4)
-  — mục đối chiếu chéo bắt buộc, Then có đủ 4 câu hỏi lớp-đo-lường: (a) eval tuyên quét LỚP có
-  ma trận toàn phần viết-trước không (số assert = số phần tử); (b) assertion
-  âm tính có đối chứng dương + ghim thông điệp không; (c) fixture do code
-  sinh / round-trip writer-đọc-reader không, hay viết tay đúng khuôn bên
-  đọc; (d) assert đo chuỗi-có-mặt trong khi lời hứa là quan hệ không — và
-  câu đếm "đủ 7 ý" GIỮ NGUYÊN (mở rộng trong ý 4, không thêm ý).
-- AC-2: Given SKILL codex (bước gap-probe của nó), When đọc, Then có cùng 4
+  — mục đối chiếu chéo bắt buộc, Then có đủ 7 câu hỏi lớp-đo-lường (bản đầu 4 câu, r1 thêm chỉ-dẫn-vs-đầu-ra
+  + hardcode-ROOT, r2 tách round-trip thành câu riêng + neo nguồn trả lời là
+  field expected của evals.yaml): (a) ma trận viết-trước; (b) âm tính có đối
+  chứng dương + ghim thông điệp; (c) fixture viết tay; (c2) fixture không
+  round-trip từ writer thật; (d) từ-vựng vs quan hệ; (e) chỉ-dẫn vs đầu-ra;
+  (f) hardcode ROOT — và câu đếm "đủ 7 ý" GIỮ NGUYÊN (mở rộng trong ý 4,
+  không thêm ý).
+- AC-2: Given SKILL codex (bước gap-probe của nó), When đọc, Then có cùng 7
   câu hỏi đối chiếu chéo lớp-đo-lường (quét cùng-lớp 2 harness, không lệch).
 - AC-3: Given acceptance-verify.js, When S4 chạy review, Then REVIEWERS có
   finder thứ 3 `key: measurement` — prompt build từ danh sách
@@ -45,9 +46,9 @@ chương trình 80/20: biến bài học thành luật ở 2 chốt sẵn có, k
 - AC-6: Given diff acceptance-verify.js của feature này, When so với bản
   trước, Then 2 finder cũ (conventions/invariants + bugs) nguyên vẹn TỪNG
   CHỮ prompt và đường refute/triage không bị sửa — chỉ THÊM.
-- AC-7: Given danh sách 6 hình dạng + 4 câu đối chiếu chéo, When đột biến
+- AC-7: Given danh sách 6 hình dạng + 7 câu đối chiếu chéo, When đột biến
   xoá từng phần tử trên bản sao, Then phép đo tương ứng ĐỎ đích danh — đủ
-  14 mutant (6 shape + 4 câu SKILL feature-loop + 4 câu SKILL codex),
+  20 mutant (6 shape + 7 câu SKILL feature-loop + 7 câu SKILL codex),
   không mutant gộp.
 - AC-8: (judgment) Prompt lens measurement thực thi được bởi finder fresh
   không có ngữ cảnh: ranh giới high-confidence rõ, không mở cửa style-nit,

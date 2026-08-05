@@ -7,7 +7,7 @@ evals:
   - id: M1
     criterion: AC-1
     executor: test
-    expected: "SKILL feature-loop: ý (4) cross-check của prompt gap-probe chứa đủ 4 câu lớp-đo-lường (ma trận viết-trước / âm tính + đối chứng dương + ghim thông điệp / fixture code-sinh hoặc round-trip / từ-vựng vs quan hệ) VÀ câu đếm 'đủ 7 ý' giữ nguyên (CS7b không đổi); mutant xoá từng câu → assert đỏ đích danh"
+    expected: "SKILL feature-loop: ý (4) — mục đối chiếu chéo — chứa đủ 7 câu lớp-đo-lường (ma trận viết-trước / âm tính + đối chứng dương + ghim thông điệp / fixture viết tay / round-trip rút-từ-writer-thật / từ-vựng vs quan hệ / chỉ-dẫn vs đầu-ra / hardcode ROOT), kèm câu neo nguồn trả lời là field expected của evals.yaml, VÀ câu đếm 'đủ 7 ý' giữ nguyên (CS7b không đổi); mutant xoá từng câu → assert đỏ đích danh"
     cmd: config:executors.test.workflows
     paths: ["feature-loop/skills/feature-loop/SKILL.md", "tests/workflows/**"]
     notes: >
@@ -17,7 +17,7 @@ evals:
   - id: M2
     criterion: AC-2
     executor: test
-    expected: "SKILL codex: bước gap-probe chứa 4 câu cross-check tương đương (không phân biệt cách hành văn EN, nhưng đủ 4 quan hệ); mutant xoá → đỏ"
+    expected: "SKILL codex: bước gap-probe chứa 7 câu đối chiếu tương đương (không phân biệt hành văn EN, đủ 7 quan hệ) + câu neo nguồn expected; mutant xoá → đỏ"
     cmd: config:executors.test.workflows
     paths: ["codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md", "tests/workflows/**"]
     notes: >
@@ -63,7 +63,7 @@ evals:
   - id: M7
     criterion: AC-7
     executor: test
-    expected: "14 mutant đích danh (fix gap-probe P1: ma trận toàn phần cả 3 vật): xoá từng phần tử MEASUREMENT_SHAPES (6) trên bản sao script → MM3 đỏ đúng shape; xoá từng câu đối chiếu chéo (4) trên bản sao SKILL feature-loop → MM1 đỏ đúng câu; xoá từng câu tương đương (4) trên bản sao SKILL codex → MM2 đỏ đúng câu — số mutant = số phần tử, không mutant gộp"
+    expected: "20 mutant đích danh (ma trận toàn phần cả 3 vật, cập nhật sau r1/r2): xoá từng phần tử MEASUREMENT_SHAPES (6) trên bản sao script → đỏ ĐÍCH DANH phần tử; xoá từng câu đối chiếu (7) trên bản sao SKILL feature-loop → đỏ đúng câu; xoá từng câu tương đương (7) trên bản sao SKILL codex → đỏ đúng câu — số mutant = số phần tử, không mutant gộp"
     cmd: config:executors.test.workflows
     paths: ["feature-loop/workflows/acceptance-verify.js", "feature-loop/skills/feature-loop/SKILL.md", "tests/workflows/**"]
     notes: >
@@ -121,7 +121,8 @@ evals:
     question: >
       Fix gap-probe P1 — đo HÀNH VI chứ không đo chỉ dẫn: file thứ hai là
       một bộ artifact S1 thu nhỏ có GÀI đúng MỘT vi phạm lớp-đo-lường (khối
-      A) và một bản sạch tương đương (khối B), sinh kèm ghi chú nguồn khuôn.
+      A) và một bản sạch tương đương (khối B) — file do gen-red-probe.mjs SINH
+      từ chính MEASUREMENT_SHAPES (round-trip writer thật, case MM12 giữ).
       Hãy đóng vai critic chạy ĐÚNG ý (4) của prompt gap-probe trong SKILL:
       (1) khối A — gọi TÊN hình dạng bị gài và chỉ đúng dòng; (2) khối B —
       xác nhận clean. Trả FAIL nếu ý (4) như đang viết không đủ căn cứ để
