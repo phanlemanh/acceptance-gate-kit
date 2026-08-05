@@ -4,6 +4,7 @@
 // with deterministic canned agents. These pin behavior BEFORE any routing
 // change (Đợt 2 rule: tách logic thuần + unit test trước, đổi routing sau).
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { runWorkflow, check, summary } from './harness.mjs';
 
@@ -1105,6 +1106,79 @@ console.log('DV6 invokedSha: sha chảy vào TỪNG dòng run-log; vắng args �
   const lines2 = r2.runLog.map(l => JSON.parse(l));
   check('DV6 vắng invokedSha → KHÔNG dòng nào có key sha (không phải null)', lines2.every(l => !('sha' in l)),
     JSON.stringify(lines2.map(l => Object.keys(l))));
+}
+
+// ── MM3/MM4/MM5 (matrix-measure-law): finder thứ 3 `measurement` ────────────
+// PIN 6 hình dạng — HẰNG ĐỘC LẬP chép nguyên văn từ design doc
+// docs/superpowers/specs/2026-08-05-matrix-measure-law-design.md §"Sáu hình
+// dạng" (chống expectation-cùng-nguồn với vật đo — gap-probe P0).
+const PIN_SHAPES = [
+  'Đo CHỈ DẪN thay vì ĐẦU RA (grep file hướng dẫn trong khi renderer không đọc key).',
+  'Fixture VIẾT TAY đúng khuôn bên đọc — không round-trip rút-từ-writer-đọc-bằng-reader.',
+  'Assert "chuỗi có mặt" trong khi lời hứa là QUAN HỆ giữa các giá trị.',
+  'Assertion âm-tính-một-mình: không đối chứng dương, không ghim thông điệp.',
+  'Tuyên quét LỚP nhưng chỉ có điểm-case — thiếu ma trận toàn phần viết-trước (số assert = số phần tử, mẫu P105).',
+  'Đường dẫn hardcode ROOT — đo checkout của tác giả thay vì cây đang kiểm.',
+];
+// Hàm đo ba-chiều tái dùng cho MM7 (đọc const từ MỘT văn bản script bất kỳ):
+export function measureShapes(srcText, promptText) {
+  const m = srcText.match(/const MEASUREMENT_SHAPES = \[([\s\S]*?)\]/);
+  if (!m) return { ok: false, why: 'không thấy const MEASUREMENT_SHAPES' };
+  const constShapes = [...m[1].matchAll(/'((?:[^'\\]|\\.)*)'/g)].map(x => x[1].replace(/\\'/g, "'"));
+  for (const p of PIN_SHAPES) {
+    if (!constShapes.some(c => c === p)) return { ok: false, why: `const thiếu pin: ${p.slice(0, 40)}` };
+    if (promptText && !promptText.includes(p)) return { ok: false, why: `prompt thiếu pin: ${p.slice(0, 40)}` };
+  }
+  if (constShapes.length !== PIN_SHAPES.length) return { ok: false, why: `const có ${constShapes.length} phần tử, pin có ${PIN_SHAPES.length}` };
+  return { ok: true };
+}
+
+console.log('MM3 finder measurement: label + pin ba-chiều (AC-3)');
+{
+  const { result, calls } = await runWorkflow(WF, triArgs(), triResp({ findings: [], triage: [] }));
+  const mCall = calls.find(c => c.label === 'review:measurement');
+  check('MM3 fan-out có label review:measurement', !!mCall, calls.map(c => c.label).join('|'));
+  const srcText = readFileSync(WF, 'utf8');
+  const three = measureShapes(srcText, mCall ? mCall.prompt : '');
+  check('MM3 ba-chiều pin↔const↔prompt khớp từng phần tử', three.ok, three.why || '');
+  check('MM3 prompt có ranh giới high-confidence + khoanh vùng phép đo', !!mCall && /high-confidence/.test(mCall.prompt) && /KIEM THU|kiem thu/i.test(mCall.prompt));
+  check('MM3 đối chứng dương: đủ 3 reviewer (2 cũ còn nguyên)', ['review:conventions', 'review:bugs'].every(k => calls.some(c => c.label === k)), calls.filter(c => c.label.startsWith('review:')).map(c => c.label).join('|'));
+  check('MM3 run sạch vẫn PASS', result.verdict === 'PASS', result.verdict);
+}
+
+console.log('MM4 finding của lens đi đường refute→triage chuẩn, không đường tắt (AC-4)');
+{
+  const F_M = { title: 'điểm-case đội lốt quét-lớp', file: 'tests/x.test.mjs', line: 5, severity: 'high', detail: 'tuyên quét 5 nhánh, assert 1' };
+  const respOOC = responder({
+    'review:measurement': { findings: [F_M] },
+    'review:': { findings: [] },
+    'refute:': { refuted: false, reason: 'thật' },
+    'triage': { triaged: [{ title: F_M.title, file: F_M.file, inContract: false, acRef: '', rationale: 'ngoài scope', proposal: 'known-limits' }] },
+  });
+  const { result } = await runWorkflow(WF, triArgs(), respOOC);
+  check('MM4 finding sống qua refute → vào triaged', (result.triaged || []).some(t => t.title === F_M.title));
+  check('MM4 out-of-contract → KHÔNG vào rejectFindings (về Cổng 2)', !(result.rejectFindings || []).some(f => f.title === F_M.title));
+  const respRefuted = responder({
+    'review:measurement': { findings: [F_M] },
+    'review:': { findings: [] },
+    'refute:': { refuted: true, reason: 'không tái hiện được' },
+    'triage': { triaged: [] },
+  });
+  const { result: r2 } = await runWorkflow(WF, triArgs(), respRefuted);
+  check('MM4 nhánh 2: bị refute → biến mất khỏi confirmedFindings', !(r2.confirmedFindings || []).some(f => f.title === F_M.title));
+}
+
+console.log('MM5 finder measurement chết → reviewIncomplete, không im lặng (AC-5)');
+{
+  const respDead = responder({
+    'review:measurement': () => { throw new Error('finder chet'); },
+    'review:': { findings: [] },
+    'triage': { triaged: [] },
+  });
+  const { result } = await runWorkflow(WF, triArgs(), respDead);
+  check('MM5 reviewIncomplete chứa measurement', (result.reviewIncomplete || []).includes('measurement'), JSON.stringify(result.reviewIncomplete));
+  const { result: r2 } = await runWorkflow(WF, triArgs(), triResp({ findings: [], triage: [] }));
+  check('MM5 đối chứng dương: finder sống → không nằm trong reviewIncomplete', !(r2.reviewIncomplete || []).includes('measurement'));
 }
 
 summary('acceptance-verify');

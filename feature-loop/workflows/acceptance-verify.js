@@ -380,12 +380,27 @@ log(`Round ${args.round}: ${distinctCmds.length} lenh may (dedupe tu ${machineEv
   + (carriedPanels.length ? ` — carried ${carriedPanels.length} panel (P3)` : '')
   + (runBaseline ? '' : ' — baseline carried (P2)'))
 
+// Sáu hình dạng lỗi đo-lường (matrix-measure-law — chưng cất từ baseline B4
+// ≥13 round bị đốt + 4 hình dạng CLAUDE.md "thước gắn vào vật"). MỘT CHỖ:
+// prompt finder `measurement` build từ danh sách này; test pin ba-chiều
+// (pin-độc-lập ↔ const này ↔ prompt) + mutation từng phần tử.
+const MEASUREMENT_SHAPES = [
+  'Đo CHỈ DẪN thay vì ĐẦU RA (grep file hướng dẫn trong khi renderer không đọc key).',
+  'Fixture VIẾT TAY đúng khuôn bên đọc — không round-trip rút-từ-writer-đọc-bằng-reader.',
+  'Assert "chuỗi có mặt" trong khi lời hứa là QUAN HỆ giữa các giá trị.',
+  'Assertion âm-tính-một-mình: không đối chứng dương, không ghim thông điệp.',
+  'Tuyên quét LỚP nhưng chỉ có điểm-case — thiếu ma trận toàn phần viết-trước (số assert = số phần tử, mẫu P105).',
+  'Đường dẫn hardcode ROOT — đo checkout của tác giả thay vì cây đang kiểm.',
+]
+
 // Review finders: repo có skill review riêng → dùng; không → review theo conventions chung
 const REVIEWERS = [
   args.reviewSkillPath
     ? { key: 'invariants', prompt: `Trong repo ${args.repoRoot}: doc ${args.reviewSkillPath} va lam DUNG quy trinh cua skill do tren diff ${args.diffBase}...HEAD. Tra ve danh sach violation lam findings (title=ten check/rule, detail=vi pham gi o dau). Khong tu fix.` }
     : { key: 'conventions', prompt: `Review diff ${args.diffBase}...HEAD trong repo ${args.repoRoot} theo conventions cua repo (doc CLAUDE.md / CONTRIBUTING.md neu co): vi pham invariant kien truc, sai pattern co san, thieu validation o system boundary. CHI bao finding high-confidence. Khong tu fix.` },
   { key: 'bugs', prompt: `Review diff ${args.diffBase}...HEAD trong repo ${args.repoRoot}, tim correctness bugs va silent failures (catch nuot loi, fallback an, error bi nuot). CHI bao finding high-confidence — khong style nit, khong suy dien.` },
+  // matrix-measure-law: lens do-luong — san loi trong chinh cac PHEP DO cua diff
+  { key: 'measurement', prompt: `Review CAC FILE KIEM THU/EVAL trong diff ${args.diffBase}...HEAD cua repo ${args.repoRoot} (cac file test/spec, tests/**, evals.yaml, fixtures — bo qua file khong phai phep do; diff khong cham phep do nao thi tra findings rong). San DUNG 6 hinh dang loi do-luong sau, CHI bao finding high-confidence (thay RO trong code, khong suy dien y dinh), khong style-nit, khong tu fix, khong phan xu pham-vi (viec cua triage):\n${MEASUREMENT_SHAPES.map((s, i) => `${i + 1}. ${s}`).join('\n')}\nMoi finding: title goi TEN hinh dang bi pham + detail chi dong/assert cu the va vi sao no la hinh dang do.` },
 ]
 
 // ---- Machine + UI-check + Judge + Review chạy đồng thời (không phụ thuộc nhau; Judge là blind) ----
