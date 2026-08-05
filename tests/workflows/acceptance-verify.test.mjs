@@ -1160,4 +1160,85 @@ console.log('MM5 finder measurement chết → reviewIncomplete, không im lặn
   check('MM5 đối chứng dương: finder sống → không nằm trong reviewIncomplete', !(r2.reviewIncomplete || []).includes('measurement'));
 }
 
+// ── JR1/JR2/JR3 (judge-required-evidence): bằng-chứng-thiếu chảy judge→memo ──
+// Stub SINH TỪ VERDICT_SCHEMA đọc từ source (round-trip writer thật — gap-probe
+// P1-1 của feature): schema đổi khuôn thì stub đổi theo, test không tự dựng
+// khuôn bên đọc.
+const SRC_TEXT = readFileSync(WF, 'utf8');
+const MISSING_MARK = '(judge không nêu bằng-chứng-thiếu)';
+function stubFromSchema(over = {}) {
+  const m = SRC_TEXT.match(/const VERDICT_SCHEMA = \{[\s\S]*?\n\}/);
+  if (!m) throw new Error('không thấy VERDICT_SCHEMA trong source');
+  const props = [...m[0].matchAll(/^    (\w+):/gm)].map(x => x[1]);
+  const base = {};
+  for (const p of props) {
+    if (p === 'verdict') base[p] = 'FAIL';
+    else if (p === 'rationale') base[p] = 'thiếu căn cứ X';
+    else if (p === 'required_evidence') base[p] = ['ảnh chụp state sau bước 2 — lấy bằng capture.ui', 'log exit của lệnh migrate — chạy config:executors.test.api'];
+    else base[p] = 'x';
+  }
+  return { ...base, ...over };
+}
+const judgeArgs = (ih = 'ih-' + 'a'.repeat(60)) => baseArgs({
+  evals: [
+    { id: 'E1', criterion: 'AC-1', executor: 'script', cmd: 'pnpm test', ref: 'config:executors.test.api', expected: 'pass' },
+    { id: 'EJ', criterion: 'AC-2', executor: 'judgment', runs: 3, inputs: ['/repo/_acceptance/demo/contract.md'], question: 'ổn chưa?', inputsHash: ih },
+  ],
+  suiteCommands: [],
+});
+
+console.log('JR1 judge FAIL kèm required_evidence → memo panel mang danh sách (AC-1)');
+{
+  const stub = stubFromSchema();
+  const { result, calls } = await runWorkflow(WF, judgeArgs(), responder({ 'judge:': stub }));
+  check('JR1 schema có field required_evidence (stub sinh được từ schema)', 'required_evidence' in stub, Object.keys(stub).join(','));
+  const jp = calls.find(c => c.label.startsWith('judge:EJ'));
+  check('JR1 prompt judge có quy định không-PASS phải kèm bằng-chứng-thiếu', !!jp && /required_evidence/.test(jp.prompt) && /(FAIL|UNCERTAIN)/.test(jp.prompt));
+  const memo = result.runLog.map(l => JSON.parse(l)).find(l => l.kind === 'panel' && l.evalId === 'EJ');
+  check('JR1 memo panel: từng vote mang danh sách đúng từng mục (so sâu)',
+    !!memo && memo.votes.length === 3 && memo.votes.every(v => JSON.stringify(v.required_evidence) === JSON.stringify(stub.required_evidence)),
+    memo ? JSON.stringify(memo.votes[0]) : 'no memo');
+  const stubPass = stubFromSchema({ verdict: 'PASS' });
+  delete stubPass.required_evidence;
+  const { result: r2 } = await runWorkflow(WF, judgeArgs(), responder({ 'judge:': stubPass }));
+  const memo2 = r2.runLog.map(l => JSON.parse(l)).find(l => l.kind === 'panel' && l.evalId === 'EJ');
+  check('JR1 đối chứng dương: PASS không đòi field, memo không có dấu thiếu',
+    !!memo2 && memo2.votes.every(v => !(v.required_evidence || []).includes(MISSING_MARK)), memo2 ? JSON.stringify(memo2.votes) : 'no memo');
+}
+
+console.log('JR2 judge không-PASS bỏ trống → dấu thiếu, không bịa hộ (AC-2)');
+{
+  const stubEmpty = stubFromSchema({ verdict: 'UNCERTAIN' });
+  delete stubEmpty.required_evidence;
+  const { result, calls } = await runWorkflow(WF, judgeArgs(), responder({ 'judge:': stubEmpty }));
+  const memo = result.runLog.map(l => JSON.parse(l)).find(l => l.kind === 'panel' && l.evalId === 'EJ');
+  check('JR2 memo mang ĐÚNG dấu thiếu ghim, không danh sách bịa',
+    !!memo && memo.votes.every(v => JSON.stringify(v.required_evidence) === JSON.stringify([MISSING_MARK])),
+    memo ? JSON.stringify(memo.votes[0]) : 'no memo');
+  const synth = calls.find(c => c.label === 'synthesize:report');
+  check('JR2 synthesize nhận panels có dấu thiếu để render theo khuôn template', !!synth && synth.prompt.includes(MISSING_MARK));
+}
+
+console.log('JR3 carry P3 giữ nguyên danh sách per-vote (AC-3)');
+{
+  const stub = stubFromSchema();
+  const ih = 'ih-' + 'b'.repeat(60);
+  const { result: rN } = await runWorkflow(WF, judgeArgs(ih), responder({ 'judge:': stub }));
+  const memoN = rN.runLog.map(l => JSON.parse(l)).find(l => l.kind === 'panel' && l.evalId === 'EJ');
+  check('JR3 round N ghi memo có danh sách', !!memoN && memoN.votes[0].required_evidence.length === 2);
+  // round N+1: carried panel RÚT TỪ memo THẬT round N (không tự dựng)
+  const { result: rN1 } = await runWorkflow(WF, judgeArgs(ih), responder({}), );
+  void rN1;
+  const carriedArgs = judgeArgs(ih);
+  carriedArgs.carriedPanels = [{ evalId: 'EJ', proposal: memoN.proposal, votes: memoN.votes, fromRound: 1, inputsHash: ih }];
+  const { result: rC, calls: cC } = await runWorkflow(WF, carriedArgs, responder({}));
+  check('JR3 eval carried KHÔNG bị chấm tươi lại', !cC.some(c => c.label.startsWith('judge:EJ')), cC.map(c => c.label).join('|'));
+  const memoC = rC.runLog.map(l => JSON.parse(l)).find(l => l.kind === 'panel' && l.evalId === 'EJ');
+  check('JR3 carried panel + memo round sau GIỮ NGUYÊN danh sách từng mục (so sâu)',
+    !!memoC && JSON.stringify(memoC.votes.map(v => v.required_evidence)) === JSON.stringify(memoN.votes.map(v => v.required_evidence)),
+    memoC ? JSON.stringify(memoC.votes[0]) : 'no memo');
+  const panelC = (rC.panels || []).find(p => p.evalId === 'EJ');
+  check('JR3 result.panels có mục carried (bản rút gọn — danh sách sống ở memo)', !!panelC && panelC.carried === true, JSON.stringify(panelC || {}));
+}
+
 summary('acceptance-verify');

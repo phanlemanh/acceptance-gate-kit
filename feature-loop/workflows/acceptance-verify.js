@@ -88,8 +88,20 @@ const VERDICT_SCHEMA = {
   properties: {
     verdict: { type: 'string', enum: ['PASS', 'FAIL', 'UNCERTAIN'] },
     rationale: { type: 'string', description: '1-3 cau can cu' },
+    required_evidence: { type: 'array', items: { type: 'string' }, description: 'BAT BUOC (nghi thuc) khi verdict khac PASS: moi muc la MOT bang chung cu the + cho lay no, du de "co muc nay thi verdict doi". PASS thi bo qua.' },
   },
   required: ['verdict', 'rationale'],
+}
+
+// judge-required-evidence: dấu ghim khi judge không-PASS mà bỏ trống danh sách
+// bằng-chứng-thiếu — máy KHÔNG bịa hộ, dấu này chảy vào memo + report cho
+// người thấy (đo O3). Chuỗi phải khớp token trong evidence-report-template.
+const MISSING_EVIDENCE_MARK = '(judge không nêu bằng-chứng-thiếu)'
+const normalizeVote = v => {
+  if (!v) return v
+  if (v.verdict === 'PASS') { const { required_evidence, ...rest } = v; return rest }
+  const re = (Array.isArray(v.required_evidence) ? v.required_evidence : []).map(x => String(x).trim()).filter(Boolean)
+  return { ...v, required_evidence: re.length ? re : [MISSING_EVIDENCE_MARK] }
 }
 
 const FINDINGS_SCHEMA = {
@@ -433,7 +445,7 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw, baselineRaw] = await parallel([
   () => parallel(freshJudgmentEvals.flatMap(e =>
     LENSES.map(lens => () =>
       agentT(
-        `Ban la judge DOC LAP, context sach, lens duy nhat: ${lens}. BLIND: KHONG doc diff, KHONG doc reasoning cua nguoi code.\nDoc persona tai ${args.personasPath}, ap persona hop lens.\nCHI duoc doc dung cac file liet ke o dong "Input:" duoi day, cong file persona o tren. Danh sach do la DAY DU: file nao KHONG co ten trong do deu ngoai pham vi, ke ca khi no co ve lien quan hay co ten nghe quan trong. Luat nay theo QUAN HE (co-trong-danh-sach hay khong), KHONG theo loai file — cung mot ten file co the la input hop le cua eval nay va ngoai pham vi cua eval khac.\nInput: ${(e.inputs || []).join(' , ')}\n\nThay danh sach tren KHONG du can cu de phan → do la ly do tra UNCERTAIN, TUYET DOI KHONG phai ly do di tim file khac de tu cuu. Tu chon them mot artifact roi phan tu no la pha hong tinh doc lap cua hoi dong: ban se dang cham bang mot tieu chi khong ai duyet.\n\nCau hoi phan xet (${e.id} / ${e.criterion}): ${e.question}\n\nTra verdict PASS | FAIL | UNCERTAIN + rationale 1-3 cau. UNCERTAIN khi khong du can cu — dung doan.`,
+        `Ban la judge DOC LAP, context sach, lens duy nhat: ${lens}. BLIND: KHONG doc diff, KHONG doc reasoning cua nguoi code.\nDoc persona tai ${args.personasPath}, ap persona hop lens.\nCHI duoc doc dung cac file liet ke o dong "Input:" duoi day, cong file persona o tren. Danh sach do la DAY DU: file nao KHONG co ten trong do deu ngoai pham vi, ke ca khi no co ve lien quan hay co ten nghe quan trong. Luat nay theo QUAN HE (co-trong-danh-sach hay khong), KHONG theo loai file — cung mot ten file co the la input hop le cua eval nay va ngoai pham vi cua eval khac.\nInput: ${(e.inputs || []).join(' , ')}\n\nThay danh sach tren KHONG du can cu de phan → do la ly do tra UNCERTAIN, TUYET DOI KHONG phai ly do di tim file khac de tu cuu. Tu chon them mot artifact roi phan tu no la pha hong tinh doc lap cua hoi dong: ban se dang cham bang mot tieu chi khong ai duyet.\n\nCau hoi phan xet (${e.id} / ${e.criterion}): ${e.question}\n\nTra verdict PASS | FAIL | UNCERTAIN + rationale 1-3 cau. UNCERTAIN khi khong du can cu — dung doan.\nVerdict khac PASS thi BAT BUOC dien required_evidence: >=1 muc, MOI muc la MOT bang chung cu the + CHO LAY no (file/lenh/anh nao), du de "neu co muc nay thi verdict doi" — khong loi khuyen chung chung, khong doi bang chung vo han de ne phan. PASS thi bo qua field nay.`,
         { label: `judge:${e.id}:${lens}`, phase: 'Judge', schema: VERDICT_SCHEMA, ...modelOpt('judge') }
       ).then(v => v && { evalId: e.id, lens, ...v })
     )
@@ -550,7 +562,7 @@ const nonDiscriminating = runBaseline
       .filter(m => (byCmd.get(m.cmd) || []).length > 0 && !m.cannotRun && !m.variance && m.exitCode === 0 && baselineStatus(m.cmd) === 'green')
       .map(m => ({ cmd: m.cmd, evals: byCmd.get(m.cmd) }))
   : (carriedAnalyst ? carriedAnalyst.nonDiscriminating : [])
-const judges = (judgeRaw || []).filter(Boolean)
+const judges = (judgeRaw || []).filter(Boolean).map(normalizeVote)
 const reviewResults = (reviewRaw || []).filter(Boolean)
 const confirmedFindings = reviewResults.flatMap(r => r.findings)
 const reviewIncomplete = reviewResults.filter(r => r.dead).map(r => r.key)
@@ -689,7 +701,7 @@ const panels = [
   ...freshPanels,
   ...carriedPanels.map(p => ({
     evalId: p.evalId, proposal: p.proposal,
-    votes: (Array.isArray(p.votes) ? p.votes : []).map(v => ({ lens: v.lens, verdict: v.verdict })),
+    votes: (Array.isArray(p.votes) ? p.votes : []).map(v => ({ lens: v.lens, verdict: v.verdict, ...(v.required_evidence ? { required_evidence: v.required_evidence } : {}) })),
     carried: true, fromRound: typeof p.fromRound === 'number' ? p.fromRound : null,
   })),
   // Không khai input → máy không có căn cứ. Panel cơ học, KHÔNG do agent nào phán.
@@ -705,13 +717,13 @@ for (const pn of freshPanels) {
   const ih = (evalById.get(pn.evalId) || {}).inputsHash
   if (typeof ih === 'string' && ih) runLogLines.push(JSON.stringify({
     ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, evalId: pn.evalId, kind: 'panel', proposal: pn.proposal,
-    votes: pn.votes.map(v => ({ lens: v.lens, verdict: v.verdict })), inputs_hash: ih,
+    votes: pn.votes.map(v => ({ lens: v.lens, verdict: v.verdict, ...(v.required_evidence ? { required_evidence: v.required_evidence } : {}) })), inputs_hash: ih,
   }))
 }
 for (const p of carriedPanels) {
   if (typeof p.inputsHash === 'string' && p.inputsHash) runLogLines.push(JSON.stringify({
     ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, evalId: p.evalId, kind: 'panel', proposal: p.proposal,
-    votes: (Array.isArray(p.votes) ? p.votes : []).map(v => ({ lens: v.lens, verdict: v.verdict })),
+    votes: (Array.isArray(p.votes) ? p.votes : []).map(v => ({ lens: v.lens, verdict: v.verdict, ...(v.required_evidence ? { required_evidence: v.required_evidence } : {}) })),
     inputs_hash: p.inputsHash, carried_from_round: typeof p.fromRound === 'number' ? p.fromRound : null,
   }))
 }
