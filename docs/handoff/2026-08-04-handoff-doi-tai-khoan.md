@@ -84,8 +84,27 @@ ghim chuỗi-cấm chưa, đã merge chưa) rồi thúc qua cổng nếu đạt.
   của phiên khác). Trước MỌI commit: kiểm `git branch --show-current`; lỡ
   rơi nhầm → cherry-pick qua worktree tạm + `update-ref` trả nhánh nguyên
   trạng, KHÔNG checkout cây chung.
-- **Phiên mở trước khi plugin cập nhật chạy bản cũ** — cache máy này đã
-  1.30.0/1.21.0, nhưng nhớ luật khi có release mới.
+- **Phiên mở trước khi plugin cập nhật chạy bản cũ** — nhớ luật khi có release
+  mới: bản cài chỉ áp cho phiên mở SAU đó.
+
+- **"Đã mới nhất" là lời nói dối im lặng khi số không đổi mà nội dung đổi**
+  (bắt 05/08). Trình cập nhật khoá theo SỐ phiên bản: số bump từ 13/07, thân
+  skill `design-pass` sửa 04/08 dưới cùng số → `plugin update` báo *"already
+  at the latest version (1.31.0)"* trong khi bản cài **tụt sau nguồn 34 dòng**
+  (200 vs 234) và **thiếu hẳn trục ngữ cảnh 3 nấc**. Kho marketplace clone thì
+  tươi — chỉ thư mục cache kẹt. Cả `acceptance-gate` lẫn `feature-loop` cùng
+  dính.
+  **Phép thử tin được là SO NỘI DUNG, không tin con số:**
+  ```
+  diff -q skills/design-pass/SKILL.md \
+    ~/.claude/plugins/cache/acceptance-gate-kit/acceptance-gate/<V>/skills/design-pass/SKILL.md
+  ```
+  **Cách chữa:** `plugin update` KHÔNG cứu được — phải
+  `claude plugin uninstall <plugin>@acceptance-gate-kit` rồi
+  `claude plugin install <plugin>@acceptance-gate-kit`.
+  **Khi nào phải nghi:** mọi lần vòng sửa skill mà không bump version (rất hay
+  xảy ra vì bump nằm ở task cuối, sửa skill nằm ở task giữa). Sau MỌI đợt ship
+  kit: so nội dung ít nhất 1 skill vừa sửa trước khi mở phiên chạy vòng.
 - **Artifact theo tài khoản**: đừng hứa "cùng địa chỉ" xuyên tài khoản; file
   nguồn trang phải sống trong repo (đã làm lần này).
 - **Nghi thức đã khai tử đừng gợi lại**: mockup ngoài, panel so ảnh, đẩy
