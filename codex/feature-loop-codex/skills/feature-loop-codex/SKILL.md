@@ -117,7 +117,29 @@ the report as current.
 A staleness round entered this way is a DELTA round (P1) when the prior report
 verdict was PASS-family: keep the changed-file list (excluding `_acceptance/**`)
 and the old `verified_commit` as the carry-forward anchor for S4. Fix rounds
-after REJECT have no anchor and always rerun everything.
+after REJECT: if the previous round's run-log lines carry a `sha` field, compute
+the carry plan with `node <plugin>/scripts/carry-plan.mjs --run-log <ws>/run-log.jsonl
+--evals <ws>/evals.yaml --contract <ws>/contract.md --delta-files <git diff
+--name-only from that sha, minus _acceptance/**> --round <fix round>` — exit 0
+gives `carriedEvals` (suite commands still ALWAYS rerun; judgment still follows
+P3); exit 3 means the log predates `sha` — full rerun, the safe default. Any
+fix round that carries evals MUST list them explicitly in the user report and
+the Gate 2 package.
+
+**Re-pin ritual (one lane, N signatures):** a re-pin event that stales N slugs
+dispatches exactly ONE fresh agent to run the machine lane (all suites + mirror
+`--check`) at HEAD, returning `{run_id, sha, suites_exit}` with `sha = git
+rev-parse HEAD`. If ANY suite exits nonzero: STOP — do not append repin lines,
+do not touch evidence; fix the cause and dispatch a NEW lane (new run_id). On a
+green lane, for EACH re-pinned slug append one line
+`{"ts":"<ISO>","kind":"repin","run_id":"<id>","sha":"<40-hex>","suites_exit":[0,...]}`
+to that slug's `run-log.jsonl`, set the report's `verified_commit` to `sha`, and
+append a `### Re-pin` section citing `run_id: <id>` on its own line (never touch
+human-owned signature lines). Old-form Re-pin sections without a `run_id:` line
+are grandfathered; pre-merge and recheck machine-enforce the new form (missing
+line / sha mismatch / nonzero suites_exit / missing run-log are VIOLATIONs).
+When S4 args are prepared, always pass `invokedSha` = `git rev-parse HEAD` so
+every run-log line carries the anchor.
 
 ## Decision Ledger
 

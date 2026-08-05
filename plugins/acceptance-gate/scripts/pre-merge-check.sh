@@ -768,6 +768,39 @@ GLOBS2
   if [ ! -f "$dir/run-log.jsonl" ]; then
     echo "NOTE [$slug]: no run-log.jsonl (older verify flow) — run_id provenance is not machine-logged; report run_ids are unreconciled. Re-verify to generate the log."
   fi
+  # Re-pin provenance (delta-verify-repin, additive): new-form "### Re-pin"
+  # sections cite run_id on its own line — the lane must be logged per-slug
+  # ({"kind":"repin"} line), its sha must equal verified_commit, and every
+  # suites_exit element must be 0 (a red lane cannot back a signature).
+  # Old-form sections (no "run_id:" line) are grandfathered — no rule applies.
+  repin_ids="$(awk '/^### Re-pin/{s=1;next} /^#/{s=0} s && /^[[:space:]]*run_id[:=]/{t=$0; sub(/^[[:space:]]*run_id[:=][[:space:]]*/,"",t); sub(/[ \t·,].*$/,"",t); if(t!="")print t}' "$report")"
+  if [ -n "$repin_ids" ]; then
+    if [ ! -f "$dir/run-log.jsonl" ]; then
+      echo "VIOLATION [$slug]: re-pin run_id cited in ### Re-pin but _acceptance/$slug/run-log.jsonl does not exist — no lane was ever logged for this workspace"
+      violations=$((violations+1)); continue
+    fi
+    repin_bad=""
+    while IFS= read -r rid; do
+      [ -n "$rid" ] || continue
+      rline="$(grep -F "\"run_id\":\"$rid\"" "$dir/run-log.jsonl" | grep -F '"kind":"repin"' | tail -1)"
+      if [ -z "$rline" ]; then
+        echo "VIOLATION [$slug]: re-pin run_id \"$rid\" cited in ### Re-pin but no {\"kind\":\"repin\"} line with that run_id in run-log.jsonl — the lane never logged this re-pin; re-run the lane, do not hand-mint run_ids"
+        repin_bad=1; continue
+      fi
+      rsha="$(printf '%s' "$rline" | sed -n 's/.*"sha":"\([0-9a-fA-F]\{7,40\}\)".*/\1/p')"
+      if [ -n "$vc" ] && [ "$rsha" != "$vc" ]; then
+        echo "VIOLATION [$slug]: re-pin line for run_id \"$rid\" has sha $rsha but verified_commit is $vc — signature and lane disagree; re-pin against the verified commit"
+        repin_bad=1; continue
+      fi
+      if printf '%s' "$rline" | grep -Eq '"suites_exit":[[:space:]]*\[[0-9, ]*[1-9]'; then
+        echo "VIOLATION [$slug]: re-pin line for run_id \"$rid\" has nonzero suites_exit — a red lane cannot back a signature; fix the suites and run a NEW lane"
+        repin_bad=1; continue
+      fi
+    done <<REPINIDS
+$repin_ids
+REPINIDS
+    if [ -n "$repin_bad" ]; then violations=$((violations+1)); continue; fi
+  fi
   # observed (schema v2): older reports with screenshot evidence never faced the
   # inspected-frames bar — tolerated, but must be visible.
   sv="$(front_field "$report" schema_version)"

@@ -1996,7 +1996,7 @@ PY
 # ── P88: release co chu dich — version floor + description khop hanh vi ─────
 # Consumer chi nhan luoi qua release: quen bump = feature ship ma hieu luc 0.
 # Floor semver (>=), KHONG ghim literal == — tranh vong "bump -> stale" (P03).
-run "P88 version floor 1.29/1.21 + description nhac hanh vi moi" \
+run "P88 version floor 1.29/1.22 + description nhac hanh vi moi" \
   python3 - "$ROOT" <<'PY'
 import json, sys
 from pathlib import Path
@@ -2006,13 +2006,13 @@ def ver(rel):
 def desc(rel):
     return json.loads((root / rel).read_text())["description"]
 assert ver(".claude-plugin/plugin.json") >= (1, 29, 0), "acceptance-gate chua bump toi 1.29.0"
-assert ver("feature-loop/.claude-plugin/plugin.json") >= (1, 21, 0), "feature-loop chua bump toi 1.21.0"
-assert ver("codex/feature-loop-codex/.codex-plugin/plugin.json") >= (1, 21, 0), "feature-loop-codex chua bump toi 1.21.0"
+assert ver("feature-loop/.claude-plugin/plugin.json") >= (1, 22, 0), "feature-loop chua bump toi 1.22.0"
+assert ver("codex/feature-loop-codex/.codex-plugin/plugin.json") >= (1, 22, 0), "feature-loop-codex chua bump toi 1.22.0"
 # Description phai nhac hanh vi moi (keyword chuc nang, on dinh qua cac ban sau):
 for kw in ("opportunity-template", "DECISION-DIAGRAM-SURFACES"):
     assert kw in desc(".claude-plugin/plugin.json"), f"desc acceptance-gate thieu {kw}"
 d = desc("feature-loop/.claude-plugin/plugin.json")
-for kw in ("ui_standards_skill", "design-pass", "GOAL-TEMPLATE", "LOOP-PICTURE-CLAUSE"):
+for kw in ("ui_standards_skill", "design-pass", "GOAL-TEMPLATE", "LOOP-PICTURE-CLAUSE", "REPIN-TEMPLATE", "carry-plan.mjs"):
     assert kw in d, f"desc feature-loop thieu {kw}"
 assert "platform-fit" in desc("codex/feature-loop-codex/.codex-plugin/plugin.json"), "desc codex thieu platform-fit"
 # Doi chung am cua phep so semver: version thap hon floor phai truot.
