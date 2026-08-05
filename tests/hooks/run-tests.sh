@@ -453,6 +453,33 @@ verdict: PASS
   verified_at: 2026-07-02T10:00:00Z' | node "$HOOK" >/dev/null; check T29 0 $?
 rm -rf "$RL_DIR"
 
+echo "DV11 (delta-verify-repin) dong kind:repin xen giua KHONG bi nhan nham lam dong eval"
+RL_DIR="$REPO/_acceptance/rl-repin"
+mkdir -p "$RL_DIR"
+printf '%s\n' '{"ts":"2026-08-05T00:00:00Z","round":1,"evalId":"E1","run_id":"rl-real-002","exit_code":0,"cmd":"pnpm test"}' > "$RL_DIR/run-log.jsonl"
+printf '%s\n' '{"ts":"2026-08-05T01:00:00Z","kind":"repin","run_id":"repin-abc-1","sha":"deadbeefdeadbeefdeadbeefdeadbeefdeadbeef","suites_exit":[0,0,0,0]}' >> "$RL_DIR/run-log.jsonl"
+
+echo "DV11a doi chung duong: dong eval that van khop du co dong repin xen giua -> allow"
+payload Write "$RL_DIR/evidence-report.md" '---
+verdict: PASS
+---
+- eval: E1
+  run_id: rl-real-002
+  exit_code: 0
+  verifier: config:executors.test.api
+  verified_at: 2026-08-05T10:00:00Z' | node "$HOOK" >/dev/null; check DV11a 0 $?
+
+echo "DV11b run_id gia van bi chan — dong repin khong che mo duoc doi chieu"
+payload Write "$RL_DIR/evidence-report.md" '---
+verdict: PASS
+---
+- eval: E1
+  run_id: rl-KHONG-TON-TAI
+  exit_code: 0
+  verifier: config:executors.test.api
+  verified_at: 2026-08-05T10:00:00Z' | node "$HOOK" >/dev/null 2>/dev/null; check DV11b 2 $?
+rm -rf "$RL_DIR"
+
 echo ""
 echo "--- L2 OBSERVED (schema v2: screenshot blocks must be inspected) ---"
 
