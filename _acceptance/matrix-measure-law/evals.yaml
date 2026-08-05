@@ -1,0 +1,128 @@
+# evals — matrix-measure-law
+# SKILL clauses sống ở tests/workflows (khuôn skill-claims); lens + pipeline
+# sống ở tests/workflows/acceptance-verify.test.mjs (harness vm-realm). Luật
+# kit: âm tính có đối chứng dương + ghim thông điệp; mutant đủ số phần tử.
+
+evals:
+  - id: M1
+    criterion: AC-1
+    executor: test
+    expected: "SKILL feature-loop: ý (4) cross-check của prompt gap-probe chứa đủ 4 câu lớp-đo-lường (ma trận viết-trước / âm tính + đối chứng dương + ghim thông điệp / fixture code-sinh hoặc round-trip / từ-vựng vs quan hệ) VÀ câu đếm 'đủ 7 ý' giữ nguyên (CS7b không đổi); mutant xoá từng câu → assert đỏ đích danh"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/skills/feature-loop/SKILL.md", "tests/workflows/**"]
+    notes: >
+      Case MM1 trong skill-claims.test.mjs — khuôn DV1 (regex per-clause +
+      mutant per-clause).
+
+  - id: M2
+    criterion: AC-2
+    executor: test
+    expected: "SKILL codex: bước gap-probe chứa 4 câu cross-check tương đương (không phân biệt cách hành văn EN, nhưng đủ 4 quan hệ); mutant xoá → đỏ"
+    cmd: config:executors.test.workflows
+    paths: ["codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md", "tests/workflows/**"]
+    notes: >
+      Case MM2 — parity 2 harness, chống lệch cùng-lớp.
+
+  - id: M3
+    criterion: AC-3
+    executor: test
+    expected: "harness acceptance-verify: run có diff → fan-out chứa agent label review:measurement. Ba-chiều chống cùng-nguồn (fix gap-probe P0): test PIN danh sách 6 hình dạng thành HẰNG ĐỘC LẬP chép nguyên văn từ design doc (ghi nguồn trong comment) → so từng-phần-tử pin↔MEASUREMENT_SHAPES-trong-script↔prompt; thiếu bất kỳ chiều nào → đỏ đích danh phần tử đó. Prompt có ranh giới high-confidence + khoanh vùng file kiểm thử/eval trong diff; đối chứng dương: 2 finder cũ vẫn hiện diện (đủ 3 reviewer)"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Case MM3 — harness capture calls, assert prompt theo từng shape.
+
+  - id: M4
+    criterion: AC-4
+    executor: test
+    expected: "harness: stub finder measurement trả 1 finding → finding đi qua refute (bị refute → biến mất; sống → vào triage) và scope-triage phân ngăn như finder cũ; stub triage inContract:false → finding KHÔNG vào rejectFindings (về Cổng 2) — cả hai nhánh assert"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Case MM4 — không đường tắt: đo QUAN HỆ finding-đi-qua-pipeline, không
+      đo chuỗi (tự áp luật của chính feature này).
+
+  - id: M5
+    criterion: AC-5
+    executor: test
+    expected: "harness: agent review:measurement chết (responder throw) → reviewIncomplete chứa key measurement, run không crash, verdict không tự thành PASS nhờ finder chết; đối chứng dương: finder sống → reviewIncomplete không chứa nó"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Case MM5 — chết không im lặng (khuôn W-case finder-dead sẵn có).
+
+  - id: M6
+    criterion: AC-6
+    executor: test
+    expected: "prompt 2 finder cũ (conventions + bugs) nguyên vẹn TỪNG CHỮ so với chuỗi ghim trong test; NGUỒN pin kiểm được (fix gap-probe P2): test ghi sha-trước-feature và chuỗi pin phải khớp git show <sha>:file — không tin lời chép tay; REVIEWERS.length == 3; mutant sửa 1 chữ prompt cũ trên bản sao → đỏ đích danh"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Case MM6 — không-nới thành phép đo máy; ghim nguyên văn 2 prompt cũ.
+
+  - id: M7
+    criterion: AC-7
+    executor: test
+    expected: "14 mutant đích danh (fix gap-probe P1: ma trận toàn phần cả 3 vật): xoá từng phần tử MEASUREMENT_SHAPES (6) trên bản sao script → MM3 đỏ đúng shape; xoá từng câu đối chiếu chéo (4) trên bản sao SKILL feature-loop → MM1 đỏ đúng câu; xoá từng câu tương đương (4) trên bản sao SKILL codex → MM2 đỏ đúng câu — số mutant = số phần tử, không mutant gộp"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "feature-loop/skills/feature-loop/SKILL.md", "tests/workflows/**"]
+    notes: >
+      Case MM7 — ma trận mutation toàn phần viết-trước (chính là hình dạng
+      5 áp cho bản thân feature).
+
+  - id: M8
+    criterion: AC-8
+    executor: judgment
+    runs: 3
+    inputs:
+      - ../../feature-loop/workflows/acceptance-verify.js
+      - ../../docs/superpowers/specs/2026-08-05-matrix-measure-law-design.md
+    question: >
+      Prompt lens measurement: một finder fresh không có ngữ cảnh hội thoại
+      đọc có làm đúng được không — ranh giới high-confidence rõ chưa, có mở
+      cửa style-nit không, có lấn vai scope-triage/tự-fix không, scope
+      test/eval-trong-diff có thực thi được không?
+
+  - id: M9
+    criterion: AC-9
+    executor: judgment
+    runs: 3
+    inputs:
+      - ../../feature-loop/skills/feature-loop/SKILL.md
+      - ../../codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md
+      - ../../docs/superpowers/specs/2026-08-05-matrix-measure-law-design.md
+    question: >
+      4 câu cross-check lớp-đo-lường trong 2 SKILL: nếu một bộ artifact S1
+      tái phạm đúng 4 hình dạng lịch sử (đo chỉ dẫn thay đầu ra; fixture
+      viết tay cho judge; writer/reader trôi vì test tự dựng fixture; đo
+      từ-vựng thay quan hệ) thì critic đọc prompt này có đủ căn cứ để bắt
+      không? Câu nào mơ hồ tới mức critic có thể trả clean mà vẫn đúng chữ?
+
+  - id: M10
+    criterion: AC-10
+    executor: judgment
+    runs: 1
+    inputs:
+      - contract.md
+      - ../../docs/superpowers/specs/2026-08-05-matrix-measure-law-design.md
+    question: >
+      S4 của chính vòng này đã chạy chưa? Nếu chưa (bình thường lúc chấm):
+      trả UNCERTAIN và xác nhận gói Cổng 2 có khai rõ cách người đếm bằng
+      chứng dogfood (label review:measurement trong usage/transcript của
+      round S4) — KHÔNG tô xanh AC-10 trước khi S4 chạy.
+
+  - id: M11
+    criterion: AC-9
+    executor: judgment
+    runs: 3
+    inputs:
+      - ../../feature-loop/skills/feature-loop/SKILL.md
+      - evidence/red-probe-artifact.md
+    question: >
+      Fix gap-probe P1 — đo HÀNH VI chứ không đo chỉ dẫn: file thứ hai là
+      một bộ artifact S1 thu nhỏ có GÀI đúng MỘT vi phạm lớp-đo-lường (khối
+      A) và một bản sạch tương đương (khối B), sinh kèm ghi chú nguồn khuôn.
+      Hãy đóng vai critic chạy ĐÚNG ý (4) của prompt gap-probe trong SKILL:
+      (1) khối A — gọi TÊN hình dạng bị gài và chỉ đúng dòng; (2) khối B —
+      xác nhận clean. Trả FAIL nếu ý (4) như đang viết không đủ căn cứ để
+      bắt khối A hoặc khiến khối B bị báo oan.
