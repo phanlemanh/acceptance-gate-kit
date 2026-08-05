@@ -5,9 +5,10 @@ slug: context-ladder
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-04T15:32:00Z
+time_human_minutes: {gate1: 15, gate2: 15}
 ---
 
 # Acceptance Contract: context-ladder
@@ -44,3 +45,16 @@ BỐN điều KHÔNG đổi trong bản thiết kế đã duyệt — không ôm
 - Ép migrate workspace/sổ phiên cũ — đường đọc-cũ + cờ vàng là đủ.
 - Hợp nhất khối material + context trên card thành panel design riêng — thẩm mỹ trình bày, vòng sau nếu cần.
 - Bảng định tuyến A/B/C/D/E — giữ nguyên (đường C không áp trục, đường E host = trang trưng bày).
+
+## Notes
+
+Known limits (Cổng 2, Manh Phan 2026-08-05):
+
+- Câu kiểm phụ đếm-số-cảnh trong case P136 ghim chuỗi không khớp được đúng
+  kiểu hồi quy nó định canh (hình dạng render là `</b> · N cảnh ngữ-cảnh`,
+  và placeholder tách thành 2 phần tử chứ không phải 1) — lưới chính (nhánh
+  cờ-vàng) vẫn bắt được hồi quy hiện tại; nếu logic cờ và logic đếm cảnh
+  tách nhau sau này, phần đếm có thể sai mà suite vẫn xanh.
+- CHUYỂN HỢP ĐỒNG MỚI (quyết Cổng 2): giá trị từ sổ phiên/config chèn vào
+  HTML thẻ không qua esc() (XSS tại cổng người) — lớp an-toàn-chuỗi trên mọi
+  renderer mặt người, làm thành feature riêng có AC + eval của nó.
