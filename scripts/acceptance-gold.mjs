@@ -138,6 +138,10 @@ function glossOf(root, slug, evalId, rationale) {
 // Cột "Máy đề xuất" đọc bằng mắt người quyết kinh doanh: mã máy đi vào ngoặc
 // (N3 — giải nghĩa lần đầu xuất hiện). Map đặt MỘT chỗ; giá trị lạ passthrough
 // nguyên văn để đường đọc-cũ không bị nuốt.
+// Thiếu biên bản hội đồng có nhiều nguyên nhân (chấm trước khi máy ghi chép ·
+// hồ sơ thất lạc · chưa từng chấm). Sổ KHÔNG được đoán hộ — câu này đặt MỘT
+// chỗ cho cả hai nhánh (có việc / không việc nào) nên chúng không trôi khỏi nhau.
+const NO_PANEL_REASON = 'Sổ không suy đoán vì sao thiếu — tra hồ sơ từng việc để biết.';
 const VERDICT_VI = {
   PASS: 'đạt',
   FAIL: 'chưa đạt',
@@ -212,7 +216,7 @@ export function render({ points, panels, noPanel, judgedBlocks, root }) {
   const g = agreement(panels);
   out.push('## Các giám khảo đồng thuận tới đâu');
   out.push('');
-  if (!g.sample) out.push('Chưa có hội đồng chấm nào được ghi lại — các việc cũ chấm trước khi máy bắt đầu ghi biên bản hội đồng.');
+  if (!g.sample) out.push(`Chưa có biên bản hội đồng nào trong hồ sơ. ${NO_PANEL_REASON}`);
   else {
     out.push(`${g.sample} lần hội đồng chấm tươi: ${g.buckets.unanimous} lần cả ba cùng ý · ${g.buckets.majority} lần 2-trên-1 · ${g.buckets.split} lần phân kỳ hẳn.`);
     const lenses = Object.keys(g.lensTotal);
@@ -226,7 +230,7 @@ export function render({ points, panels, noPanel, judgedBlocks, root }) {
   }
   if (noPanel.length) {
     out.push('');
-    out.push(`${noPanel.length} việc chưa có biên bản hội đồng trong hồ sơ:`);
+    out.push(`${noPanel.length} việc chưa có biên bản hội đồng trong hồ sơ. ${NO_PANEL_REASON}`);
     for (const s of noPanel) {
       const f = featureOf(root, s);
       out.push(`- ${f ? `${f} (${s})` : s}`);

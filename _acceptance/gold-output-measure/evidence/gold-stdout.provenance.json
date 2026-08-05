@@ -1,0 +1,8 @@
+{
+  "artifact": "gold-stdout.txt",
+  "command": "node scripts/acceptance-gold.mjs --root .",
+  "repo_sha": "82bdf33217f7ef5c1831f1e028e848851aeae237",
+  "generated_at": "2026-08-05T13:19:14Z",
+  "sha256": "d2c4905689659868165a2d2220af0be72ba74c5085fe26f413800a50a9fd01f9",
+  "bytes": 7642
+}

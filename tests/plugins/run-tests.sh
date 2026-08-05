@@ -6314,7 +6314,9 @@ def mkslug(base, slug, proposal="UNCERTAIN", contract=True, panel_votes=None):
 # ── (a) MA TRAN ENUM: so case = so phan tu VERDICT_VI (dem TU SOURCE) + 1 la ──
 mm = re.search(r"const VERDICT_VI = \{([\s\S]*?)\}", src)
 assert mm, "khong thay map VERDICT_VI trong source — luat phai dat MOT cho"
-enum_keys = re.findall(r"(\w+):", mm.group(1))
+enum_pairs = re.findall(r"(\w+):\s*'([^']+)'", mm.group(1))
+enum_vi = dict(enum_pairs)
+enum_keys = [k for k, _ in enum_pairs]
 assert len(enum_keys) >= 3, "map VERDICT_VI chi co %d phan tu" % len(enum_keys)
 cases = list(enum_keys) + ["WEIRD"]
 assert len(cases) == len(enum_keys) + 1, "so case phai bang so phan tu map + 1"
@@ -6328,8 +6330,11 @@ for code in cases:
         if code == "WEIRD":
             assert cell == "WEIRD", "gia tri la phai passthrough nguyen van, got %r" % cell
         else:
-            assert re.fullmatch(r"[^()]+ \(%s\)" % code, cell), \
-                "enum %s phai render 'tieng nguoi (MA)', got %r" % (code, cell)
+            # QUAN HE map=>render: o phai bang DUNG gia tri trong VERDICT_VI cua
+            # source. Ban truoc chi khop hinh dang "<chu> (MA)" nen doi mot nghia
+            # trong map (vd FAIL -> "dat") van xanh — do chuoi, khong do quan he.
+            want = "%s (%s)" % (enum_vi[code], code)
+            assert cell == want, "enum %s phai render %r theo map trong source, got %r" % (code, want, cell)
 
 # ── (b) MOI GOC NHIN MOT DONG: quan he so-lens-vao => so-dong-ra ──
 LENSES = ["domain-correctness", "operational-feasibility", "spec-alignment"]
@@ -6343,14 +6348,30 @@ for n in (2, 3):
         assert len(lines) == n, "%d goc nhin vao phai ra %d dong, got %d: %r" % (n, n, len(lines), lines)
 
 # ── (c) noPanel: moi viec mot dong, ten san pham + fallback, khong khang dinh nguyen nhan ──
+NEUTRAL_CHECK = "Sổ không suy đoán vì sao thiếu"
 with tempfile.TemporaryDirectory() as d:
     mkslug(d, "co-hop-dong", contract=True)
     mkslug(d, "khong-hop-dong", contract=False)
     out = run_gold(d)
-    OLD = "chấm trước khi máy bắt đầu ghi chép"
-    assert OLD not in out, "cau khang dinh nguyen nhan cu van con: %s" % OLD
+    # Do PROPERTY chu khong ghim mot chuoi: moi menh de NHAN-QUA ve du lieu
+    # thieu deu vi pham AC-5. Ban truoc ghim dung 1 chuoi nen nhanh con lai
+    # (khong co hoi dong nao) van khang dinh nguyen nhan ma test xanh (S4-r1).
+    CAUSAL = ["chấm trước khi", "do máy chưa", "vì hồ sơ", "bởi vì"]
+    for c in CAUSAL:
+        assert c not in out, "sổ khang dinh nguyen nhan thieu du lieu: %r" % c
+    # ...VA nhanh KHONG-CO-HOI-DONG-NAO cung phai sach (day la ca pho bien nhat
+    # o repo tieu thu moi tinh) — sinh corpus rieng, khong panel o bat ky slug nao
+    with tempfile.TemporaryDirectory() as d2:
+        mkslug(d2, "chua-cham")
+        out2 = run_gold(d2)
+        for c in CAUSAL:
+            assert c not in out2, "nhanh khong-co-hoi-dong-nao khang dinh nguyen nhan: %r" % c
+        # doi chung DUONG: cau trung tinh MOT CHO phai co mat o CA HAI nhanh
+        NEUTRAL = "Sổ không suy đoán vì sao thiếu"
+        assert NEUTRAL in out2, "nhanh khong-co-hoi-dong thieu cau trung tinh"
+    assert NEUTRAL_CHECK in out, "nhanh co-viec-khong-panel thieu cau trung tinh"
     # cat DUNG khoi chua-co-bien-ban (dem tren ca so se lan sang bang vang)
-    mblock = re.search(r"^\d+ việc chưa có biên bản hội đồng trong hồ sơ:\n([\s\S]*?)(?=\n##|\n\n|\Z)", out, re.M)
+    mblock = re.search(r"^\d+ việc chưa có biên bản hội đồng trong hồ sơ\.[^\n]*\n([\s\S]*?)(?=\n##|\n\n|\Z)", out, re.M)
     assert mblock, "khong thay khoi chua-co-bien-ban trong STDOUT"
     items = [l for l in mblock.group(1).splitlines() if l.strip().startswith("- ")]
     assert len(items) == 2, "2 viec khong panel phai ra DUNG 2 dong, got %d: %r" % (len(items), items)
@@ -6555,6 +6576,47 @@ with tempfile.TemporaryDirectory() as d:
     assert j["agreement"]["sample"] == 1, "carried khong duoc vao mau: sample=%d" % j["agreement"]["sample"]
     assert j["agreement"]["buckets"]["unanimous"] == 1, "hoi dong 2/2 dong y phai la unanimous"
 
+# ── (1b) DUONG DOC-CU THAT SU: so --json cua ban HIEN TAI voi ban TRUOC-DIFF
+#     sinh trong CHINH lan chay (git show <base>:...). Ban truoc chi so script
+#     voi CHINH NO nen khong the do duoc "parser co doi hanh vi khong" (S4-r1).
+base_sha = subprocess.run(["git", "-C", str(root), "merge-base", "HEAD", "04d3413"],
+                          capture_output=True, text=True)
+if base_sha.returncode != 0:
+    base_sha = subprocess.run(["git", "-C", str(root), "rev-parse", "04d3413"], capture_output=True, text=True)
+assert base_sha.returncode == 0, "khong resolve duoc base commit: %s" % base_sha.stderr[-200:]
+BASE = base_sha.stdout.strip()
+show = subprocess.run(["git", "-C", str(root), "show", "%s:scripts/acceptance-gold.mjs" % BASE],
+                      capture_output=True, text=True)
+assert show.returncode == 0 and len(show.stdout) > 500, \
+    "khong lay duoc ban TRUOC-DIFF cua script tai %s: %s" % (BASE, show.stderr[-200:])
+with tempfile.TemporaryDirectory() as d:
+    # dat ban base DUNG do sau trong cay lam viec de duong `..` cua no van tra
+    # duoc human-facing-language.md — neu khong, khac biet se den tu duong dan
+    # chu khong tu parser (do nham vat)
+    base_script = root / "scripts" / ".base-acceptance-gold.tmp.mjs"
+    base_script.write_text(show.stdout, encoding="utf-8")
+    try:
+        old_json = subprocess.run(["node", str(base_script), "--root", str(root), "--json"],
+                                  capture_output=True, text=True)
+        assert old_json.returncode == 0, "ban base chay loi: %s" % old_json.stderr[-300:]
+        new_json = subprocess.run(["node", str(GOLD), "--root", str(root), "--json"],
+                                  capture_output=True, text=True)
+        assert new_json.returncode == 0, "ban moi chay loi: %s" % new_json.stderr[-300:]
+        assert old_json.stdout == new_json.stdout, \
+            "kenh may-doc (--json) DOI so voi ban truoc-diff — parser da doi hanh vi, khong con la duong doc-cu"
+        # doi chung DUONG: hai ban PHAI phan biet duoc — tiem 1 thay doi that
+        # vao ban base roi so lai; giong nhau nghia la phep do nay mu
+        probe = show.stdout.replace("points.push({ slug, evalId: cur",
+                                    "points.push({ slug, evalId: 'PROBE'", 1)
+        assert probe != show.stdout, "tiem probe that bai — anchor doi, cap nhat phep do"
+        base_script.write_text(probe, encoding="utf-8")
+        probe_json = subprocess.run(["node", str(base_script), "--root", str(root), "--json"],
+                                    capture_output=True, text=True)
+        assert probe_json.returncode == 0 and probe_json.stdout != new_json.stdout, \
+            "phep do mu: ban base BI SUA ma --json van y het ban moi"
+    finally:
+        base_script.unlink(missing_ok=True)
+
 # ── (2) CORPUS THAT: quan he noi tai giua --json va van ban in ra ──
 real = gold(root, js=True)
 text = gold(root)
@@ -6570,6 +6632,19 @@ assert len(lens_lines) == len(real["agreement"]["lensTotal"]), \
 ev = root / "_acceptance/gold-output-measure/evidence/gold-stdout.txt"
 assert ev.exists(), "thieu evidence/gold-stdout.txt — sinh lai bang: node scripts/acceptance-gold.mjs --root . > <file>"
 saved = ev.read_text(encoding="utf-8")
+# So XUAT XU truoc (judge J1-r1 doi dich danh): file ke ben ghi lenh + checksum
+# + do dai; khong khop = van ban da bi sua tay sau khi may in ra.
+import hashlib
+pv = ev.with_name("gold-stdout.provenance.json")
+assert pv.exists(), "thieu gold-stdout.provenance.json — van ban giam khao doc khong co xuat xu"
+prov = json.loads(pv.read_text(encoding="utf-8"))
+raw = ev.read_bytes()
+assert prov.get("bytes") == len(raw), \
+    "gold-stdout.txt bi sua sau khi sinh: do dai %d != %s trong ho so xuat xu" % (len(raw), prov.get("bytes"))
+assert prov.get("sha256") == hashlib.sha256(raw).hexdigest(), \
+    "gold-stdout.txt bi sua sau khi sinh: checksum lech ho so xuat xu"
+assert "acceptance-gold.mjs" in (prov.get("command") or ""), \
+    "ho so xuat xu khong ghi lenh sinh that: %r" % prov.get("command")
 fresh = text
 def table(s):   return [l for l in s.splitlines() if l.startswith("| ")]
 def heads(s):   return [l for l in s.splitlines() if l.startswith("## ")]

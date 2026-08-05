@@ -133,6 +133,11 @@ luật N6 nó vừa đặt ra.
 - known-limits
 - dogfood
 - single-source
+- run_id
+- machine-lane
+- fixture
+- carry
+- kind:panel
 <!-- HFL-GLOSSARY-TERMS>>> -->
 
 ## Biệt ngữ trong lời ký — chú giải thay vì viết lại
@@ -148,6 +153,11 @@ kèm một dòng nghĩa ở khối "Từ điển" cuối trang — lời ngườ
 - known-limits — giới hạn đã biết, người ký chấp nhận trước khi phát hành
 - dogfood — chính đội tự dùng sản phẩm mình làm để thử
 - single-source — một chỗ duy nhất giữ sự thật, nơi khác đọc lại
+- run_id — mã một lượt chạy, dùng để đối chiếu bằng chứng
+- machine-lane — làn máy chạy trọn bộ kiểm, không có người can thiệp
+- fixture — hồ sơ dựng sẵn để thử, không phải hồ sơ thật
+- carry — mang kết quả lượt trước sang lượt sau thay vì chạy lại
+- kind:panel — dòng biên bản hội đồng trong sổ chạy của máy
 <!-- SIGNOFF-JARGON-GLOSS>>> -->
 
 ## Vi phạm tại cổng — người duyệt có quyền TRẢ LẠI

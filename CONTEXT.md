@@ -256,6 +256,35 @@ không chép. Chép là mở đường cho bên-viết và bên-đọc trôi kh�
 đã đốt nhiều vòng. Hiện thân trong kit: khối marker + phép đo round-trip.
 _Avoid_: "nguồn duy nhất" trơ khi đang nói về CHÉP vs ĐỌC LẠI.
 
+**run_id**:
+Mã định danh MỘT lượt chạy máy. Mọi dòng bằng chứng của lượt đó mang cùng mã,
+nên người soi đối chiếu được "bằng chứng này ra từ lần chạy nào". Khác `sha`
+(mã bản mã nguồn) — một `sha` có thể có nhiều lượt chạy.
+_Avoid_: "id chạy" trơ (không phân biệt được với id việc).
+
+**machine-lane**:
+Làn chạy trọn bộ phép kiểm bằng máy, không người can thiệp giữa chừng — đơn vị
+của nghi thức ghim lại bằng chứng (một làn, nhiều chữ ký). Khác "suite" (tập
+lệnh) — làn là một LƯỢT chạy tập đó.
+_Avoid_: "lane" trơ.
+
+**fixture**:
+Hồ sơ/dữ liệu dựng sẵn để phép đo chạy trên đó, KHÔNG phải hồ sơ thật của sản
+phẩm. Luật kit: fixture phải do code sinh trong chính lần chạy, không viết tay
+theo khuôn của bên đọc.
+_Avoid_: "dữ liệu mẫu" khi đang nói về luật sinh-fixture.
+
+**carry**:
+Mang kết quả xanh của lượt trước sang lượt sau thay vì chạy lại, khi phần được
+đo không đổi. Tiết kiệm thật nhưng phải MINH BẠCH: lượt nào carry gì đều hiện
+trong báo cáo và gói trình người.
+_Avoid_: "cache" (gợi ý máy tự lo, giấu người).
+
+**kind:panel**:
+Dòng biên bản hội đồng trong sổ chạy của máy — ghi mỗi giám khảo bỏ phiếu gì và
+đòi thêm bằng chứng nào. Nguồn của báo cáo "các giám khảo đồng thuận tới đâu".
+_Avoid_: dán tên field trần vào câu trình người mà không chú giải.
+
 ## Rejected framings
 
 - **"Gate" cho máy móc** — hook/CI từng được gọi "evidence gate"/"merge gate";
