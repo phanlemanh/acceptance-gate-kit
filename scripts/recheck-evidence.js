@@ -43,6 +43,48 @@ try {
 // Only a PASS-family verdict carries an evidence bar to re-check.
 if (!core.determineEnforce(payload)) process.exit(0);
 
+// ── Re-pin provenance (delta-verify-repin, additive rule) ────────────────────
+// New-form "### Re-pin" sections cite a run_id on its own line; the lane that
+// produced it must be logged per-slug ({"kind":"repin"} line), its sha must
+// equal verified_commit, and every suites_exit element must be 0 — a red lane
+// cannot back a signature. Old-form sections (no "run_id:") are grandfathered:
+// no rule below applies to them.
+{
+  const secRe = /^###\s+Re-pin\b[^\n]*\n([\s\S]*?)(?=\n#{1,3}\s|\n*$)/gm;
+  const cited = [];
+  let m;
+  while ((m = secRe.exec(payload)) !== null) {
+    const idm = m[1].match(/^\s*run_id\s*[:=]\s*([^\s·,]+)\s*$/im);
+    if (idm) cited.push(idm[1]);
+  }
+  if (cited.length) {
+    const dir = path.dirname(path.resolve(reportPath));
+    const vcm = payload.match(/^verified_commit\s*:\s*(\S+)/m);
+    const vc = vcm ? vcm[1] : '';
+    const slug = path.basename(dir);
+    const errs = [];
+    const logPath = path.join(dir, 'run-log.jsonl');
+    if (!fs.existsSync(logPath)) {
+      for (const id of cited) errs.push(`REPIN x report cites repin run_id "${id}" but _acceptance/${slug}/run-log.jsonl does not exist — no lane was ever logged for this workspace`);
+    } else {
+      const repins = new Map();
+      for (const l of fs.readFileSync(logPath, 'utf8').split('\n')) {
+        try { const e = JSON.parse(l); if (e && e.kind === 'repin' && typeof e.run_id === 'string') repins.set(e.run_id, e); } catch (_) {}
+      }
+      for (const id of cited) {
+        const e = repins.get(id);
+        if (!e) { errs.push(`REPIN x run_id "${id}" cited in ### Re-pin but no {"kind":"repin"} line with that run_id in run-log.jsonl — the lane never logged this re-pin; re-run the lane, do not hand-mint run_ids`); continue; }
+        if (vc && e.sha !== vc) { errs.push(`REPIN x repin line for run_id "${id}" has sha ${e.sha} but report verified_commit is ${vc} — signature and lane disagree; re-pin against the verified commit`); continue; }
+        if (!Array.isArray(e.suites_exit) || e.suites_exit.some(x => x !== 0)) errs.push(`REPIN x repin line for run_id "${id}" has nonzero suites_exit ${JSON.stringify(e.suites_exit)} — a red lane cannot back a signature; fix the suites and run a NEW lane`);
+      }
+    }
+    if (errs.length) {
+      process.stderr.write(`recheck-evidence: ${reportPath} — re-pin provenance fails:\n` + errs.map(s => '  ' + s).join('\n') + '\n');
+      process.exit(1);
+    }
+  }
+}
+
 const fileDir = path.dirname(path.resolve(reportPath));
 const configPath = core.findAcceptanceConfig(fileDir);
 let configText = null;
