@@ -100,3 +100,13 @@ baseline §2 — số nào trượt thì ghi trượt, không làm tròn.
 - **R3 · Reader-unification kéo dài** → chương trình chờ, không chen; nếu >1
   tuần, owner quyết thứ tự lại một lần ở đây (sửa mục này bằng amendment có
   ngày, không sửa ngầm).
+
+### Amendment 2026-08-05 (R3 — owner đổi thứ tự)
+
+Owner khởi động `delta-verify-repin` TRƯỚC khi `workspace-reader-unification`
+khép vòng (lệnh `/feature-loop delta-verify-repin` trong chat). Cơ sở: kiểm
+tra va chạm cho thấy reader-unification mới ở `approved` — chưa plan, chưa
+code, chưa evidence → không có gì để stale, không giẫm file (nó chạm
+lib/readers; vòng này chạm SKILL/workflows + pre-merge/recheck). Điều kiện
+giữ nguyên: nếu reader-unification vào S3 trước khi vòng này ký, vòng nào
+tới S4 sau phải re-verify trên HEAD chung như luật hiện hành.
