@@ -4,7 +4,7 @@ feature: "delta-verify-repin — re-pin 1 lượt machine-lane + N chữ ký cù
 slug: delta-verify-repin
 risk_tier: T3
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-08-05T02:39:09Z
 owner: phanlemanh@gmail.com
