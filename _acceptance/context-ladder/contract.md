@@ -56,5 +56,5 @@ Known limits (Cổng 2, Manh Phan 2026-08-05):
   cờ-vàng) vẫn bắt được hồi quy hiện tại; nếu logic cờ và logic đếm cảnh
   tách nhau sau này, phần đếm có thể sai mà suite vẫn xanh.
 - CHUYỂN HỢP ĐỒNG MỚI (quyết Cổng 2): giá trị từ sổ phiên/config chèn vào
-  HTML thẻ không qua esc() (XSS tại cổng người) — lớp an-toàn-chuỗi trên mọi
+  HTML card không qua esc() (XSS tại cổng người) — lớp an-toàn-chuỗi trên mọi
   renderer mặt người, làm thành feature riêng có AC + eval của nó.
