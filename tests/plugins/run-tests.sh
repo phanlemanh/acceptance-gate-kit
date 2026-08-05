@@ -6360,6 +6360,89 @@ with tempfile.TemporaryDirectory() as d:
     assert len(raw) == 1, "slug thieu contract phai fallback slug tho: %r" % items
 P157PY
 
+echo "P158 (E1,E6) bang vang round-trip 4 cot + doi chung doi-gia-tri + root sai no to"
+run "P158 bang vang quan he vao=>ra + fail-loud root" \
+  python3 - "$ROOT" <<'P158PY'
+import re, subprocess, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+GOLD = root / "scripts/acceptance-gold.mjs"
+
+FIX = {"feature": "Việc mẫu số một", "question": "Câu hỏi chấm mẫu số một",
+       "verdict": "FAIL", "human": "Manh Phan 2026-08-05 — quyết cho qua vì lý do mẫu"}
+
+def mkws(base, over=None):
+    """Sinh workspace bang CODE tu dict FIX (doi 1 truong = doi 1 o mong doi)."""
+    f = dict(FIX); f.update(over or {})
+    ws = Path(base) / "_acceptance" / "viec-mau"
+    ws.mkdir(parents=True, exist_ok=True)
+    (ws / "contract.md").write_text(
+        "---\nschema_version: 2\nfeature: \"%s\"\nslug: viec-mau\n---\n" % f["feature"], encoding="utf-8")
+    (ws / "evals.yaml").write_text(
+        "evals:\n  - id: J1\n    executor: judgment\n    question: >\n      %s\n" % f["question"], encoding="utf-8")
+    body = "## Per-eval\n\n- eval: J1\n  judged_by: panel\n  proposal: %s\n  rationale: lý do máy\n" % f["verdict"]
+    if f["human"] is not None:
+        body += "  human_override: %s\n" % f["human"]
+    (ws / "evidence-report.md").write_text(body, encoding="utf-8")
+    (ws / "run-log.jsonl").write_text("", encoding="utf-8")
+    return f
+
+def run_gold(rootdir, expect_ok=True):
+    out = subprocess.run(["node", str(GOLD), "--root", str(rootdir)], capture_output=True, text=True)
+    if expect_ok:
+        assert out.returncode == 0, "gold exit %d: %s" % (out.returncode, out.stderr[-300:])
+    return out
+
+def row_of(stdout):
+    rows = [l for l in stdout.splitlines() if l.startswith("| ") and "---" not in l and "Việc |" not in l]
+    return None if not rows else [c.strip() for c in rows[0].strip("|").split("|")]
+
+# ── doi chung DUONG: 1 diem vang, 4 cot khop du lieu fixture ──
+with tempfile.TemporaryDirectory() as d:
+    f = mkws(d)
+    cells = row_of(run_gold(d).stdout)
+    assert cells and len(cells) == 4, "bang phai co dung 1 hang 4 cot, got %r" % (cells,)
+    assert f["feature"] in cells[0] and "viec-mau" in cells[0], "cot Viec khong khop fixture: %r" % cells[0]
+    assert "J1" in cells[1] and f["question"][:20] in cells[1], "cot Hang muc khong khop fixture: %r" % cells[1]
+    assert f["verdict"] in cells[2], "cot May de xuat khong khop fixture: %r" % cells[2]
+    assert "Manh Phan" in cells[3] and "lý do mẫu" in cells[3], "cot Nguoi quyet khong khop fixture: %r" % cells[3]
+
+# ── doi chung AM 1 (XOA): bo human_override -> hang bien mat ──
+with tempfile.TemporaryDirectory() as d:
+    mkws(d, {"human": None})
+    assert row_of(run_gold(d).stdout) is None, "xoa human_override ma hang van con — duong loc hong"
+
+# ── doi chung AM 2 (DOI GIA TRI): tung truong mot, DUNG o do phai doi theo ──
+MUT = [("feature", "Việc mẫu ĐÃ ĐỔI", 0), ("question", "Câu hỏi ĐÃ ĐỔI hoàn toàn", 1),
+       ("verdict", "PASS", 2), ("human", "Manh Phan 2026-08-05 — lý do ĐÃ ĐỔI hẳn", 3)]
+with tempfile.TemporaryDirectory() as d:
+    mkws(d)
+    base_cells = row_of(run_gold(d).stdout)
+for field, newval, col in MUT:
+    with tempfile.TemporaryDirectory() as d:
+        mkws(d, {field: newval})
+        cells = row_of(run_gold(d).stdout)
+        assert cells, "mutant %s lam mat hang" % field
+        assert cells[col] != base_cells[col], \
+            "doi truong '%s' ma cot %d KHONG doi (%r) — assert dang do chuoi-co-mat chu khong do quan he" % (field, col, cells[col])
+        for other in range(4):
+            if other != col:
+                assert cells[other] == base_cells[other], \
+                    "doi truong '%s' lam doi ca cot %d — cot khong doc lap" % (field, other)
+
+# ── AC-6: root khong co _acceptance/ -> no to; root co _acceptance/ rong -> exit 0 ──
+with tempfile.TemporaryDirectory() as d:
+    out = run_gold(d, expect_ok=False)
+    assert out.returncode != 0, "root khong co _acceptance/ ma van exit 0 — so rong tu tin"
+    msg = (out.stderr + out.stdout)
+    assert "_acceptance" in msg and str(d) in msg, "thong diep loi phai neu path va thu muc thieu: %r" % msg[-200:]
+with tempfile.TemporaryDirectory() as d:
+    (Path(d) / "_acceptance").mkdir()
+    out = run_gold(d)
+    assert out.returncode == 0, "corpus RONG hop le phai exit 0"
+    assert "Sổ vàng" in out.stdout, "corpus rong phai in so trong hop le"
+P158PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

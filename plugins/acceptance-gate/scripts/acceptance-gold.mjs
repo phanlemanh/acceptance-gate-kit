@@ -94,6 +94,10 @@ export function agreement(panels) {
 // - "Hạng mục" = mã + 3-8 chữ chú giải rút từ câu hỏi/expected của eval (N3).
 // - Lời người quyết trích gọn 1 câu — nguyên văn đầy đủ nằm trong evidence
 //   report của việc đó, không viết lại lời người (N4).
+// Cắt CHỈ khi thật sự dài hơn ngưỡng — bản cũ luôn cắt-từ-cuối rồi thêm '…',
+// nên chú giải ngắn cũng mất chữ cuối và dấu ba chấm nói dối là còn nữa (P158).
+const ellipsize = (s, max) =>
+  s.length > max ? s.slice(0, max).replace(/\s+\S*$/, '') + '…' : s;
 function featureOf(root, slug) {
   try {
     const t = fs.readFileSync(path.join(root, '_acceptance', slug, 'contract.md'), 'utf8');
@@ -108,7 +112,7 @@ function featureOf(root, slug) {
       // kiểu "mô tả — phụ đề" → lấy TRƯỚC gạch (fix r4: đừng vứt vế chính)
       const parts = v.split(' — ');
       const desc = (parts.length > 1 && parts[0].trim() === slug ? parts.slice(1).join(' — ') : parts[0]).trim();
-      return desc.length > 72 ? desc.slice(0, 72).replace(/\s+\S*$/, '') + '…' : desc;
+      return ellipsize(desc, 72);
     }
   } catch (_) {}
   return null;
@@ -123,12 +127,12 @@ function glossOf(root, slug, evalId, rationale) {
       const q = b.match(/question:\s*"([^"]{10,})/)
         || b.match(/question:\s*[>|]\n\s+([^\n]+)/)
         || b.match(/expected: "([^"\n]{10,})/);
-      if (q) return q[1].trim().slice(0, 60).replace(/\s+\S*$/, '') + '…';
+      if (q) return ellipsize(q[1].trim(), 60);
     }
   } catch (_) {}
   // feature cũ không tra được câu hỏi → dùng rationale của chính report (nội
   // dung judge đã chấm gì) — fix theo required_evidence J13-r2, không để mã trần
-  if (rationale) return rationale.slice(0, 60).replace(/\s+\S*$/, '') + '…';
+  if (rationale) return ellipsize(rationale, 60);
   return 'hạng mục người phán tại Cổng 2';
 }
 // Cột "Máy đề xuất" đọc bằng mắt người quyết kinh doanh: mã máy đi vào ngoặc
@@ -251,6 +255,13 @@ const isMain = (() => {
 if (isMain) {
   const ri = process.argv.indexOf('--root');
   const root = ri >= 0 ? path.resolve(process.argv[ri + 1] || '.') : process.cwd();
+  // Chạy nhầm thư mục KHÔNG được im lặng in "chưa ai từng quyết đè máy" — sổ
+  // rỗng tự tin là kết luận sai đội lốt kết luận đúng. Thư mục _acceptance/ CÓ
+  // mà rỗng vẫn hợp lệ: đó là repo chưa chạy vòng nào.
+  if (!fs.existsSync(path.join(root, '_acceptance'))) {
+    process.stderr.write(`acceptance-gold: không thấy thư mục _acceptance/ dưới ${root} — kiểm lại --root (đang đứng ở kho khác?)\n`);
+    process.exit(2);
+  }
   const data = collectGold(root);
   if (process.argv.includes('--json')) process.stdout.write(JSON.stringify({ ...data, agreement: agreement(data.panels) }, null, 2) + '\n');
   else process.stdout.write(render({ ...data, root }) + '\n');
