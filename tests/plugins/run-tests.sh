@@ -5823,7 +5823,7 @@ printf '%s' "$P146OUT" | grep -qF 'Hoán vị' || { echo "     row gap-probe P0 
 printf '%s' "$P146OUT" | grep -qF 'sha vào run-log' || { echo "     bullet wrap bi cat cut: 'sha vào run-log' khong xuat hien (covLines vut dong noi)"; P146OK=0; }
 # RED lỗi (2): dấu máy markdown không được lên mặt người
 if printf '%s' "$P146OUT" | grep -qF '**'; then echo "     the con dau '**' tho (khoi contract/probe chua qua lot markdown)"; P146OK=0; fi
-if printf '%s' "$P146OUT" | grep -q '\`'; then echo "     the con backtick tho (khoi contract/probe chua qua lot markdown)"; P146OK=0; fi
+if printf '%s' "$P146OUT" | grep -q '[`]'; then echo "     the con backtick tho (khoi contract/probe chua qua lot markdown)"; P146OK=0; fi
 rm -rf "$P146WS"
 if [ "$P146OK" -eq 1 ]; then
   pass "P146 bullet wrap noi tron + Coverage/probe khong dau may (doi chung duong tren artifact that)"
@@ -5930,7 +5930,7 @@ printf '%s' "$P148G1" | grep -qF 'đợt sau mới làm' || { echo "     oos bul
 printf '%s' "$P148G1" | grep -qF 'KHÔNG làm realtime' || { echo "     decLine G1 khong lot dau: thieu 'KHÔNG làm realtime'"; P148OK=0; }
 printf '%s' "$P148G1" | grep -qF 'chậm 5s' || { echo "     decLine impact khong lot dau: thieu 'chậm 5s'"; P148OK=0; }
 if printf '%s' "$P148G1" | grep -qF '**'; then echo "     G1 con '**' tho"; P148OK=0; fi
-if printf '%s' "$P148G1" | grep -q '\`'; then echo "     G1 con backtick tho"; P148OK=0; fi
+if printf '%s' "$P148G1" | grep -q '[`]'; then echo "     G1 con backtick tho"; P148OK=0; fi
 cat > "$P148WS/_acceptance/g2/contract.md" <<'EOF'
 ---
 schema_version: 1
@@ -5965,7 +5965,7 @@ printf '%s' "$P148G2" | grep -qF 'thấy kết quả đúng' || { echo "     cri
 printf '%s' "$P148G2" | grep -qF 'chọn đường A nhanh' || { echo "     decLine G2 (approved) khong lot dau"; P148OK=0; }
 printf '%s' "$P148G2" | grep -qF 'KHÔNG làm offline' || { echo "     decLine G2 (provisional) khong lot dau"; P148OK=0; }
 if printf '%s' "$P148G2" | grep -qF '**'; then echo "     G2 con '**' tho"; P148OK=0; fi
-if printf '%s' "$P148G2" | grep -q '\`'; then echo "     G2 con backtick tho"; P148OK=0; fi
+if printf '%s' "$P148G2" | grep -q '[`]'; then echo "     G2 con backtick tho"; P148OK=0; fi
 rm -rf "$P148WS"
 if [ "$P148OK" -eq 1 ]; then
   pass "P148 lot dau may o moi fallback tho (gwt, oos wrap, decLine x3, critText)"
