@@ -56,7 +56,7 @@ cùng độ tin, ít lần chạy trùng; mọi lưới cưỡng chế chỉ đ�
 - AC-8: Given dòng run-log round trước KHÔNG có `sha` (lịch sử cũ), When
   chuẩn bị args round fix, Then KHÔNG carry — full re-run như hiện tại
   (mặc định an toàn); đối chứng dương: cùng kịch bản có `sha` thì carry.
-- AC-9: Given criterion mang dấu `(cross-layer)`, When carry round fix, Then
+- AC-9: Given criterion mang dấu cross-layer trong hợp đồng của nó, When carry round fix, Then
   atomic-pair giữ nguyên: bất kỳ thành viên nào của cặp phải chạy lại → chạy
   lại CẢ CẶP.
 - AC-10: Given round fix có carry, When trình kết quả + gói Gate 2, Then ghi

@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict   # the `enforcement` value from _acceptance/config.yaml (default strict). CI pre-merge BLOCKS off; warn only warns.
 bypass_used: false              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
-verified_commit: 866c89eec081b35144d3c837cd129c1c942b92c7
+verified_commit: c1f781d9ccb880091988a9612f2dd0a5b72d3b82
 # bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -528,3 +528,7 @@ recheck-evidence.js KHÔNG nằm trong diff.
   delta-verify-repin, đã duyệt Cổng 1, chưa ship).
 - **KHÔNG chạy lại:** eval judgment, vòng review/refute. Chữ ký +
   `human_override` sẵn có giữ nguyên hiệu lực.
+
+### Re-pin lần 19 — 2026-08-05, do feature delta-verify-repin (nghi thức 1-lane: 1 lượt machine-lane cho cả sự kiện)
+run_id: repin-20260805-delta-verify-repin-lane1
+sha: c1f781d9ccb880091988a9612f2dd0a5b72d3b82 · suites: 6 lệnh exit 0

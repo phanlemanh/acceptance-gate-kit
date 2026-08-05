@@ -92,3 +92,7 @@
 - **claude-fable-5**: 2 agent · 49 calls · out 48,206 · in 93 · cache_read 4,300,666 · cache_create 257,358
 - **claude-haiku-4-5-20251001**: 6 agent · 29 calls · out 6,230 · in 244 · cache_read 807,741 · cache_create 156,547
 
+
+## Re-pin dogfood — 2026-08-05T04:20:56Z
+
+Sự kiện re-pin 19 slug bằng nghi thức MỚI: **1 agent-lane** (id ae76a451a5f722e72, ~48k token, 6 suite exit 0 tại `c1f781d`), 19 dòng `kind:repin` cùng `run_id: repin-20260805-delta-verify-repin-lane1`. Baseline cũ: 19 lane/sự kiện.
