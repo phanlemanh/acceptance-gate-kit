@@ -76,11 +76,18 @@ if (!core.determineEnforce(payload)) process.exit(0);
       for (const l of fs.readFileSync(logPath, 'utf8').split('\n')) {
         try { const e = JSON.parse(l); if (e && e.kind === 'repin' && typeof e.run_id === 'string') repins.set(e.run_id, e); } catch (_) {}
       }
+      // Hotfix sự-kiện-thứ-hai (dogfood #2, 2026-08-05): sha-khớp là quan hệ
+      // TỔNG HỢP, không per-section — report tích nhiều section Re-pin theo
+      // thời gian, chỉ section MỚI NHẤT chống lưng verified_commit hiện hành;
+      // section cũ vẫn phải có lane thật (chống bịa) nhưng sha của nó là lịch
+      // sử. Ít nhất MỘT citation khớp vc = pin có lane chống lưng.
       for (const id of cited) {
         const e = repins.get(id);
         if (!e) { errs.push(`REPIN x run_id "${id}" cited in ### Re-pin but no {"kind":"repin"} line with that run_id in run-log.jsonl — the lane never logged this re-pin; re-run the lane, do not hand-mint run_ids`); continue; }
-        if (vc && e.sha !== vc) { errs.push(`REPIN x repin line for run_id "${id}" has sha ${e.sha} but report verified_commit is ${vc} — signature and lane disagree; re-pin against the verified commit`); continue; }
         if (!Array.isArray(e.suites_exit) || e.suites_exit.length === 0 || e.suites_exit.some(x => x !== 0)) errs.push(`REPIN x repin line for run_id "${id}" has nonzero suites_exit ${JSON.stringify(e.suites_exit)} — a red lane cannot back a signature; fix the suites and run a NEW lane`);
+      }
+      if (vc && !cited.some(id => { const e = repins.get(id); return e && e.sha === vc; })) {
+        errs.push(`REPIN x none of the cited re-pin lane(s) matches verified_commit ${vc} — the current pin has no backing lane; re-pin against the verified commit, do not hand-edit the pin`);
       }
     }
     if (errs.length) {

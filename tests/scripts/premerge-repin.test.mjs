@@ -37,7 +37,7 @@ check('DV2p-2 sha lệch verified_commit -> VIOLATION đích danh', () => {
   const f = mkRepinFixture({ sha: 'b'.repeat(40), verifiedCommit: SHA_A });
   const r = runCheck(CHECK, f.root);
   assert.equal(r.code, 1);
-  assert.match(r.out, /VIOLATION \[feat-repin\]: re-pin line for run_id "repin-test-1" has sha b{40} but verified_commit is a{40} — signature and lane disagree/);
+  assert.match(r.out, /VIOLATION \[feat-repin\]: none of the cited re-pin lane\(s\) matches verified_commit a{40}/);
 });
 check('DV2p-3 suites_exit có phần tử khác 0 -> VIOLATION đích danh', () => {
   const f = mkRepinFixture({ suitesExit: [0, 0, 2, 0] });
@@ -84,6 +84,18 @@ check('DV2p-9 `Run_id:` viết hoa — awk cùng ngữ nghĩa /i với recheck (
   assert.equal(r.code, 1, 'Run_id hoa bị awk bỏ qua — hai reader lệch case');
   const good = mkRepinFixture({ sectionBody: body });
   assert.equal(runCheck(CHECK, good.root).code, 0, 'đối chứng dương');
+});
+
+check('DV2p-10 HAI sự kiện re-pin nối tiếp -> pre-merge clean (đồng bộ hotfix 2 reader)', () => {
+  const f = mkRepinFixture({ secondEvent: { runId: 'repin-test-2', sha: 'b'.repeat(40) } });
+  const r = runCheck(CHECK, f.root);
+  assert.equal(r.code, 0, r.out);
+});
+check('DV2p-11 fraud: không lane nào khớp verified_commit -> VIOLATION đích danh', () => {
+  const f = mkRepinFixture({ secondEvent: { runId: 'repin-test-2', sha: 'b'.repeat(40), line: false } });
+  const r = runCheck(CHECK, f.root);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /VIOLATION \[feat-repin\]: re-pin/);
 });
 
 // ── DV3: fraud mượn run_id khi HEAD đã đổi → luật stale HIỆN HÀNH bắn ────────

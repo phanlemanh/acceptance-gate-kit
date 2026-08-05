@@ -7,7 +7,9 @@ import path from 'node:path';
 export const SHA_A = 'a'.repeat(40);
 
 // opts: { slug, runId, sha, verifiedCommit, suitesExit, noSuites, noRepinLine,
-//         noRunLog, oldStyleSection, sectionBody }  — mọi field có default hợp lệ (clean).
+//         noRunLog, oldStyleSection, sectionBody, secondEvent } — default hợp lệ
+//         (clean). secondEvent: {runId, sha, line:true|false} — thêm SỰ KIỆN
+//         re-pin thứ hai (section 2 + dòng 2 nếu line), verified_commit = sha2.
 export function mkRepinFixture(opts = {}) {
   const slug = opts.slug || 'feat-repin';
   const runId = opts.runId || 'repin-test-1';
@@ -30,13 +32,20 @@ export function mkRepinFixture(opts = {}) {
     if (opts.noSuites) delete rl.suites_exit;
     lines.push(JSON.stringify(rl));
   }
+  if (opts.secondEvent && opts.secondEvent.line !== false) {
+    lines.push(JSON.stringify({ ts: '2026-08-06T01:00:00Z', kind: 'repin', run_id: opts.secondEvent.runId, sha: opts.secondEvent.sha, suites_exit: suites }));
+  }
   if (!opts.noRunLog) writeFileSync(path.join(dir, 'run-log.jsonl'), lines.join('\n') + '\n');
   const section = opts.oldStyleSection
     ? `### Re-pin lần 1 — 2026-08-05, do engine đổi\n\n\`verified_commit\` lên \`${vc.slice(0, 7)}\`. Suite chạy lại xanh.\n`
     : (opts.sectionBody !== undefined
         ? `### Re-pin lần 1 — 2026-08-05, do engine đổi\n${opts.sectionBody}\n`
         : `### Re-pin lần 1 — 2026-08-05, do engine đổi\nrun_id: ${runId}\nsha: ${sha} · suites: ${suites.length} lệnh exit 0\n`);
+  const vcFinal = opts.secondEvent ? opts.secondEvent.sha : vc;
+  const section2 = opts.secondEvent
+    ? `\n### Re-pin lần 2 — 2026-08-06, do sự kiện kế tiếp\nrun_id: ${opts.secondEvent.runId}\nsha: ${opts.secondEvent.sha} · suites: ${suites.length} lệnh exit 0\n`
+    : '';
   writeFileSync(path.join(dir, 'evidence-report.md'),
-    `---\nschema_version: 1\nfeature_slug: ${slug}\nverdict: PASS\nverified_commit: ${vc}\nhuman_signoff: Manh 2026-08-05\n---\n\n## Evidence\n- eval: E1\n  run_id: ${evalRunId}\n  exit_code: 0\n  verifier: ${verifier}\n  verified_at: 2026-08-05\n\n## Iterations\n\n${section}`);
+    `---\nschema_version: 1\nfeature_slug: ${slug}\nverdict: PASS\nverified_commit: ${vcFinal}\nhuman_signoff: Manh 2026-08-05\n---\n\n## Evidence\n- eval: E1\n  run_id: ${evalRunId}\n  exit_code: 0\n  verifier: ${verifier}\n  verified_at: 2026-08-05\n\n## Iterations\n\n${section}${section2}`);
   return { root, dir, report: path.join(dir, 'evidence-report.md'), slug, runId, sha, verifiedCommit: vc };
 }

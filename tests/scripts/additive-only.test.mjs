@@ -13,7 +13,17 @@ import assert from 'node:assert/strict';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
 const FILES = ['scripts/pre-merge-check.sh', 'scripts/recheck-evidence.js'];
-const ALLOWED_REMOVALS = []; // ngoại lệ '-' phải liệt kê ĐÍCH DANH từng dòng nguyên văn
+// Ngoại lệ '-' liệt kê ĐÍCH DANH từng dòng nguyên văn. Hotfix 2026-08-05
+// (sự kiện re-pin THỨ HAI làm luật per-section sha-khớp báo oan mọi section
+// lịch sử — DV2-12/DV2p-10 ghim hành vi mới, DV2-13/DV2p-11 ghim fraud):
+// phép so sha chuyển từ per-section sang quan-hệ ít-nhất-một-khớp-vc.
+const ALLOWED_REMOVALS = [
+  `        if (vc && e.sha !== vc) { errs.push(\`REPIN x repin line for run_id "\${id}" has sha \${e.sha} but report verified_commit is \${vc} — signature and lane disagree; re-pin against the verified commit\`); continue; }`,
+  `      if [ -n "$vc" ] && [ "$rsha" != "$vc" ]; then`,
+  `        echo "VIOLATION [$slug]: re-pin line for run_id \\"$rid\\" has sha $rsha but verified_commit is $vc — signature and lane disagree; re-pin against the verified commit"`,
+  `        repin_bad=1; continue`,
+  `      fi`,
+];
 let passed = 0, failed = 0;
 const check = (n, f) => { try { f(); passed++; console.log(`  PASS: ${n}`); } catch (e) { failed++; console.log(`  FAIL: ${n}\n    ${e.message}`); } };
 const git = (...a) => execFileSync('git', ['-C', ROOT, ...a], { encoding: 'utf8' });

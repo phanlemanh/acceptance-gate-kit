@@ -784,6 +784,7 @@ GLOBS2
       violations=$((violations+1)); continue
     fi
     repin_bad=""
+    repin_current=""
     while IFS= read -r rid; do
       [ -n "$rid" ] || continue
       rline="$(grep -F "\"run_id\":\"$rid\"" "$dir/run-log.jsonl" | grep -F '"kind":"repin"' | tail -1)"
@@ -792,10 +793,9 @@ GLOBS2
         repin_bad=1; continue
       fi
       rsha="$(printf '%s' "$rline" | sed -n 's/.*"sha":"\([0-9a-fA-F]\{7,40\}\)".*/\1/p')"
-      if [ -n "$vc" ] && [ "$rsha" != "$vc" ]; then
-        echo "VIOLATION [$slug]: re-pin line for run_id \"$rid\" has sha $rsha but verified_commit is $vc — signature and lane disagree; re-pin against the verified commit"
-        repin_bad=1; continue
-      fi
+      # Hotfix sự-kiện-thứ-hai: sha-khớp chuyển thành quan hệ tổng hợp bên dưới
+      # (ít nhất MỘT citation khớp vc) — section cũ có sha lịch sử là hợp lệ.
+      if [ -n "$vc" ] && [ "$rsha" = "$vc" ]; then repin_current=1; fi
       if ! printf '%s' "$rline" | grep -Eq '"suites_exit":[[:space:]]*\[[0-9][0-9, ]*\]'; then
         echo "VIOLATION [$slug]: re-pin line for run_id \"$rid\" has no well-formed suites_exit array — a lane that never recorded its suite results cannot back a signature; re-run the lane"
         repin_bad=1; continue
@@ -807,6 +807,10 @@ GLOBS2
     done <<REPINIDS
 $repin_ids
 REPINIDS
+    if [ -n "$vc" ] && [ -z "$repin_current" ]; then
+      echo "VIOLATION [$slug]: none of the cited re-pin lane(s) matches verified_commit $vc — the current pin has no backing lane; re-pin against the verified commit, do not hand-edit the pin"
+      repin_bad=1
+    fi
     if [ -n "$repin_bad" ]; then violations=$((violations+1)); continue; fi
   fi
   # observed (schema v2): older reports with screenshot evidence never faced the

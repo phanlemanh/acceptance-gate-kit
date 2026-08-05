@@ -35,8 +35,8 @@ check('DV2-2 sha dòng repin khác verified_commit -> exit 1 + thông điệp đ
   const f = mkRepinFixture({ sha: 'b'.repeat(40), verifiedCommit: SHA_A });
   const r = run(f.report);
   assert.equal(r.code, 1);
-  assert.match(r.err, new RegExp(`REPIN x repin line for run_id "repin-test-1" has sha b{40} but report verified_commit is a{40}`));
-  assert.match(r.err, /signature and lane disagree/);
+  assert.match(r.err, /REPIN x none of the cited re-pin lane\(s\) matches verified_commit a{40}/);
+  assert.match(r.err, /the current pin has no backing lane/);
 });
 
 check('DV2-3 suites_exit có phần tử khác 0 (lane đỏ vẫn ký) -> exit 1 + thông điệp đích danh', () => {
@@ -108,6 +108,19 @@ check('DV2-11 eval block MƯỢN run_id của dòng repin → đỏ đích danh 
   const r = run(f.report);
   assert.equal(r.code, 1, 'eval block mượn repin id mà provenance vẫn xanh — lazy fabrication lọt');
   assert.match(r.err, /re-pin lane run_id/i, 'phải là thông điệp đích danh về mượn lane id');
+});
+
+check('DV2-12 HAI sự kiện re-pin nối tiếp (section cũ sha cũ + section mới khớp vc) -> clean (fix hotfix: luật per-section sang quan-hệ ít-nhất-một-khớp)', () => {
+  const f = mkRepinFixture({ secondEvent: { runId: 'repin-test-2', sha: 'b'.repeat(40) } });
+  const r = run(f.report);
+  assert.equal(r.code, 0, `sự kiện thứ hai làm section cũ bị báo oan: ${r.err}`);
+});
+
+check('DV2-13 fraud: hai section nhưng KHÔNG dòng lane nào khớp verified_commit -> VIOLATION đích danh', () => {
+  const f = mkRepinFixture({ secondEvent: { runId: 'repin-test-2', sha: 'b'.repeat(40), line: false } });
+  const r = run(f.report);
+  assert.equal(r.code, 1, 'verified_commit không có lane chống lưng mà vẫn xanh');
+  assert.match(r.err, /REPIN x/);
 });
 
 console.log(`\nResults: ${passed} passed, ${failed} failed`);
