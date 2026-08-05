@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import { mkRepinFixture, SHA_A } from './repin-fixture.mjs';
+import * as fsx from 'node:fs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const RC = path.join(HERE, '..', '..', 'scripts', 'recheck-evidence.js');
@@ -89,6 +90,24 @@ check('DV2-9 suites_exit RỖNG [] — lane không ghi suite nào không back đ
   const r = run(f.report);
   assert.equal(r.code, 1);
   assert.match(r.err, /nonzero suites_exit \[\]/);
+});
+
+check('DV2-10 sub-heading #### trong body — recheck vẫn enforce (ngữ pháp ranh giới thống nhất 2 reader)', () => {
+  const body = '#### chi tiết lane\nrun_id: repin-test-1\nsha: ' + SHA_A;
+  const bad = mkRepinFixture({ noRepinLine: true, sectionBody: body });
+  assert.equal(run(bad.report).code, 1);
+  const good = mkRepinFixture({ sectionBody: body });
+  assert.equal(run(good.report).code, 0, 'đối chứng dương');
+});
+
+check('DV2-11 eval block MƯỢN run_id của dòng repin → đỏ đích danh (AC-11, fix S4-r2 L2-bypass)', () => {
+  const { readFileSync: rf, writeFileSync: wf } = fsx;
+  const f = mkRepinFixture();
+  // evidence eval E1 đổi run_id thành id của dòng repin (id ĐANG có trong log)
+  wf(f.report, rf(f.report, 'utf8').replace('run_id: feat-repin-E1-001', 'run_id: repin-test-1'));
+  const r = run(f.report);
+  assert.equal(r.code, 1, 'eval block mượn repin id mà provenance vẫn xanh — lazy fabrication lọt');
+  assert.match(r.err, /re-pin lane run_id/i, 'phải là thông điệp đích danh về mượn lane id');
 });
 
 console.log(`\nResults: ${passed} passed, ${failed} failed`);

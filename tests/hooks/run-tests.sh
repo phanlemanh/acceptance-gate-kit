@@ -469,6 +469,16 @@ verdict: PASS
   verifier: config:executors.test.api
   verified_at: 2026-08-05T10:00:00Z' | node "$HOOK" >/dev/null; check DV11a 0 $?
 
+echo "DV11c eval block MUON run_id cua dong repin -> block (AC-11, fix S4-r2 L2-bypass)"
+payload Write "$RL_DIR/evidence-report.md" '---
+verdict: PASS
+---
+- eval: E1
+  run_id: repin-abc-1
+  exit_code: 0
+  verifier: config:executors.test.api
+  verified_at: 2026-08-05T10:00:00Z' | node "$HOOK" >/dev/null 2>/dev/null; check DV11c 2 $?
+
 echo "DV11b run_id gia van bi chan — dong repin khong che mo duoc doi chieu"
 payload Write "$RL_DIR/evidence-report.md" '---
 verdict: PASS

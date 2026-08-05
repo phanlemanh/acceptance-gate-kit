@@ -773,7 +773,11 @@ GLOBS2
   # ({"kind":"repin"} line), its sha must equal verified_commit, and every
   # suites_exit element must be 0 (a red lane cannot back a signature).
   # Old-form sections (no "run_id:" line) are grandfathered — no rule applies.
-  repin_ids="$(awk '/^### Re-pin/{s=1;next} /^#/{s=0} s && /^[[:space:]]*run_id[:=]/{t=$0; sub(/^[[:space:]]*run_id[:=][[:space:]]*/,"",t); sub(/[ \t·,].*$/,"",t); if(t!="")print t}' "$report")"
+  # Ngữ pháp ranh giới section THỐNG NHẤT với recheck-evidence.js (fix S4-r2):
+  # section chỉ kết thúc ở heading cấp 1-3 (# / ## / ### + khoảng trắng) —
+  # #### sub-heading là NỘI DUNG của section; run_id bắt không phân biệt hoa
+  # thường (recheck dùng flag i). Hai reader lệch ngữ pháp = một bên fail-open.
+  repin_ids="$(awk '/^### Re-pin/{s=1;next} /^(#|##|###)[[:space:]]/{s=0} s { low=tolower($0); if (match(low, /^[[:space:]]*run_id[:=][[:space:]]*/)) { t=substr($0, RSTART+RLENGTH); sub(/[ \t·,].*$/,"",t); if(t!="")print t } }' "$report")"
   if [ -n "$repin_ids" ]; then
     if [ ! -f "$dir/run-log.jsonl" ]; then
       echo "VIOLATION [$slug]: re-pin run_id cited in ### Re-pin but _acceptance/$slug/run-log.jsonl does not exist — no lane was ever logged for this workspace"

@@ -68,6 +68,24 @@ check('DV2p-7 section dòng trống + run_id dòng sau — pre-merge vẫn enfor
   assert.equal(runCheck(CHECK, good.root).code, 0, 'đối chứng dương');
 });
 
+check('DV2p-8 sub-heading #### trong body KHÔNG kết thúc section — run_id sau nó vẫn bị enforce (fix S4-r2)', () => {
+  const body = '#### chi tiết lane\nrun_id: repin-test-1\nsha: ' + SHA_A;
+  const bad = mkRepinFixture({ noRepinLine: true, sectionBody: body });
+  const r = runCheck(CHECK, bad.root);
+  assert.equal(r.code, 1, 'run_id sau #### bị grandfather âm thầm ở pre-merge trong khi recheck enforce');
+  assert.match(r.out, /re-pin run_id "repin-test-1" cited in ### Re-pin but no/);
+  const good = mkRepinFixture({ sectionBody: body });
+  assert.equal(runCheck(CHECK, good.root).code, 0, 'đối chứng dương');
+});
+check('DV2p-9 `Run_id:` viết hoa — awk cùng ngữ nghĩa /i với recheck (fix S4-r2)', () => {
+  const body = 'Run_id: repin-test-1\nsha: ' + SHA_A;
+  const bad = mkRepinFixture({ noRepinLine: true, sectionBody: body });
+  const r = runCheck(CHECK, bad.root);
+  assert.equal(r.code, 1, 'Run_id hoa bị awk bỏ qua — hai reader lệch case');
+  const good = mkRepinFixture({ sectionBody: body });
+  assert.equal(runCheck(CHECK, good.root).code, 0, 'đối chứng dương');
+});
+
 // ── DV3: fraud mượn run_id khi HEAD đã đổi → luật stale HIỆN HÀNH bắn ────────
 check('DV3 fixture sạch trong git repo: repin hợp lệ tại HEAD -> exit 0 (đối chứng dương)', () => {
   const f = mkRepinFixture();
