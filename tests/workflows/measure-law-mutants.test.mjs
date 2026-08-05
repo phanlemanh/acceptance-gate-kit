@@ -46,24 +46,42 @@ console.log('MM6 finder cũ nguyên vẹn từng chữ — pin neo git show ' + 
     check(`MM6 prompt '${key}' hiện tại == bản trước từng chữ`, old !== null && cur !== null && old === cur,
       old === null ? 'không rút được prompt từ bản trước' : (cur === null ? 'không rút được prompt hiện tại' : 'prompt đã bị sửa — AC-6 vỡ'));
   }
-  check('MM6 REVIEWERS có đúng 3 phần tử (2 cũ + measurement)', (SRC.match(/\{ key: '(conventions|bugs|measurement)'/g) || []).length === 3);
+  // Đo QUAN HỆ thật (fix S4-r1): đếm MỌI phần tử trong block mảng REVIEWERS,
+  // không đếm 3 tên key đã biết — thêm reviewer thứ 4 key lạ phải làm đỏ.
+  const revBlock = SRC.match(/const REVIEWERS = \[([\s\S]*?)\n\]/);
+  check('MM6 block REVIEWERS parse được', !!revBlock);
+  // Phần tử của mảng mở ở mức thụt 2 cách (phần tử đầu là ternary nên mở bằng
+  // `args.`); nhánh ternary thụt sâu hơn — không đếm nhầm nhánh làm phần tử.
+  const countElems = (blockBody) => (blockBody.match(/^  (?:\{ key: '|args\.)/gm) || []).length;
+  check('MM6 REVIEWERS có ĐÚNG 3 phần tử (đếm phần tử mảng thật, không whitelist tên)',
+    !!revBlock && countElems(revBlock[1]) === 3,
+    revBlock ? String(countElems(revBlock[1])) : 'no block');
+  check('MM6m2 mutant thêm reviewer thứ 4 key lạ → phép đếm đỏ', (() => {
+    const mutated = SRC.replace(/(\n)\]\n\n\/\/ ---- Machine/, "$1  { key: 'style', prompt: `nit` },\n]\n\n// ---- Machine");
+    const mb = mutated.match(/const REVIEWERS = \[([\s\S]*?)\n\]/);
+    return !!mb && countElems(mb[1]) !== 3;
+  })(), 'thêm phần tử thứ 4 mà phép đếm vẫn ra 3');
   // mutant: sửa 1 chữ prompt cũ trên BẢN SAO → phép so phải đỏ
   const oldBugs = grab(pre, 'bugs');
   const mutated = SRC.replace('tim correctness bugs', 'tim correctness bug');
   check('MM6m mutant sửa 1 chữ prompt cũ → phép so đỏ đích danh', grab(mutated, 'bugs') !== oldBugs, 'phép so không phân biệt được bản bị sửa');
 }
 
-console.log('MM7 ma trận 14 mutant viết-trước');
+console.log('MM7 ma trận 18 mutant viết-trước (6 shape + 6 câu VI + 6 câu EN)');
 {
   // 6 mutant shape: xoá từng phần tử const trên bản sao script → measureShapes đỏ đúng phần tử
   const constM = SRC.match(/const MEASUREMENT_SHAPES = \[([\s\S]*?)\]/);
   check('MM7 sanity: const MEASUREMENT_SHAPES tồn tại để mutate', !!constM);
   const shapeLines = constM ? constM[1].split('\n').filter(l => l.trim().startsWith("'")) : [];
   check('MM7 sanity: đủ 6 dòng shape để mutate', shapeLines.length === 6, String(shapeLines.length));
+  // Đối chứng dương TỰ CHỨA (fix S4-r1): bản nguyên vẹn phải XANH trước khi
+  // tin bản bị tiêm là ĐỎ.
+  check('MM7+ đối chứng dương: bản nguyên vẹn đo ba-chiều XANH', measureShapes(SRC, null).ok, (measureShapes(SRC, null).why || ''));
   shapeLines.forEach((line, i) => {
     const mutated = SRC.replace(line + '\n', '');
     const r = measureShapes(mutated, null);
-    check(`MM7s${i + 1} xoá shape ${i + 1} → đỏ đích danh`, !r.ok && /thiếu pin|phần tử/.test(r.why || ''), r.why || 'vẫn xanh');
+    const pinHead = (line.match(/'((?:[^'\\]|\\.)*)'/) || [, ''])[1].replace(/\\'/g, "'").slice(0, 40);
+    check(`MM7s${i + 1} xoá shape ${i + 1} → đỏ ĐÍCH DANH phần tử đó`, !r.ok && (r.why || '').includes(pinHead), `why=${r.why || 'vẫn xanh'} · cần chứa: ${pinHead}`);
   });
   // 4 mutant SKILL feature-loop + 4 mutant codex: xoá từng câu → regex MM1/MM2 đỏ
   const VI = [
@@ -71,12 +89,16 @@ console.log('MM7 ma trận 14 mutant viết-trước');
     /assertion âm tính nào thiếu đối chứng dương hoặc không ghim thông điệp/,
     /fixture nào viết tay đúng khuôn bên đọc thay vì code-sinh\/round-trip/,
     /assert nào đo chuỗi-có-mặt trong khi lời hứa là quan hệ/,
+    /eval nào đo CHỈ DẪN\/tài liệu hướng dẫn thay vì ĐẦU RA thật của code/,
+    /đường dẫn nào trong phép đo\/script sinh fixture hardcode ROOT thay vì suy từ vị trí script/,
   ];
   const EN = [
     /every[\s\S]{0,20}eval that claims to sweep a CLASS[\s\S]{0,60}full matrix written in advance[\s\S]{0,20}\(assert count = element count\)/i,
     /negative assertion lacks a positive[\s\S]{0,10}control or a pinned message/i,
     /fixture is hand-written to the reader'?s[\s\S]{0,10}shape instead of code-generated\/round-trip/i,
     /measures[\s\S]{0,10}string-presence while the promise is a relationship/i,
+    /measures INSTRUCTIONS\/docs instead of the code'?s real OUTPUT/i,
+    /hardcodes ROOT instead of[\s\S]{0,10}deriving it from the script location/i,
   ];
   VI.forEach((re, i) => {
     const hit = SKILL.match(re);

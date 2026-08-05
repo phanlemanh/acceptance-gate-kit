@@ -306,7 +306,10 @@ section (even if it is a single skip line):
    (assert count = element count) · which negative assertion lacks a positive
    control or a pinned message · which fixture is hand-written to the reader's
    shape instead of code-generated/round-trip · which assert measures
-   string-presence while the promise is a relationship; (5) at most 5 findings; verdict `clean` is a VALID outcome;
+   string-presence while the promise is a relationship · which
+   eval measures INSTRUCTIONS/docs instead of the code's real OUTPUT · which
+   path in a measurement/fixture-generating script hardcodes ROOT instead of
+   deriving it from the script location; (5) at most 5 findings; verdict `clean` is a VALID outcome;
    (6) never relitigate sealed/descoped ledger decisions without a NEW reason.
    Write `_acceptance/<slug>/gap-probe.md` — frontmatter `slug / at (ISO UTC) /
    verdict: clean|findings|probe-failed / p0 / p1 / p2` plus a `## Findings`
