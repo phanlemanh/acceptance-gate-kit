@@ -4,7 +4,7 @@ feature: "judge-required-evidence — verdict judgment không-PASS phải kèm d
 slug: judge-required-evidence
 risk_tier: T2
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-08-05T08:12:41Z
 owner: phanlemanh@gmail.com
