@@ -1,0 +1,150 @@
+# evals — judge-required-evidence
+# Harness vm-realm (tests/workflows) cho dòng chảy trong acceptance-verify;
+# tests/plugins cho gate-card/gold/command; luật kit: âm tính có đối chứng
+# dương + ghim thông điệp; ma trận viết-trước, mutant = số phần tử.
+
+evals:
+  - id: J1
+    criterion: AC-1
+    executor: test
+    expected: "harness: payload stub judge SINH TỪ VERDICT_SCHEMA của chính script (đọc schema, dựng object hợp lệ theo nó — round-trip writer thật, fix gap-probe P1-1) trả FAIL kèm required_evidence → memo panel mang danh sách đúng từng mục (so sâu); prompt judge + schema chứa quy định không-PASS-phải-kèm-≥1-mục-cụ-thể-+chỗ-lấy; PASS không đòi field — hai chiều assert"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Case JR1: dòng chảy judge→memo với schema mới; đối chứng dương PASS.
+
+  - id: J2
+    criterion: AC-2
+    executor: test
+    expected: "harness: payload stub sinh-từ-schema trả FAIL với required_evidence RỖNG/vắng → memo mang dấu thiếu (chuỗi ghim '(judge không nêu bằng-chứng-thiếu)'); dấu là TOKEN trong khuôn template một-chỗ (fix gap-probe P2-2 — không chỉ grep prompt): round-trip fixture-sinh-từ-khuôn qua evidence-core như J4, memo-có-dấu ⇒ block report theo khuôn PHẢI hiện dấu; đối chứng dương: judge nêu đủ → không dấu"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Case JR2 — vắng nổ to (quan hệ vắng-input ⇒ dấu-hiện-ra, không đo
+      chuỗi đơn thuần).
+
+  - id: J3
+    criterion: AC-3
+    executor: test
+    expected: "harness 2 nhánh, payload sinh-từ-schema (không chép tay khuôn bên đọc): (1) round N ghi memo panel với required_evidence per-vote; (2) round N+1 carriedPanels từ dòng memo THẬT round N (rút từ đầu ra, không tự dựng) → panel carried GIỮ NGUYÊN danh sách từng mục (so sâu mảng)"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+    notes: >
+      Case JR3 — carry P3 không rụng field mới.
+
+  - id: J4
+    criterion: AC-4
+    executor: test
+    expected: "template evidence-report có khuôn dòng required_evidence VÀ token dấu-thiếu '(judge không nêu bằng-chứng-thiếu)' trong block judgment (một chỗ); round-trip: fixture block sinh từ khuôn template → evidence-core/hook thật đọc KHÔNG nổ VIOLATION mới; khuôn không chứa token L1 CONSISTENCY — kiểm bằng chạy hook thật trên fixture"
+    cmd: config:executors.test.plugins
+    paths: ["skills/acceptance/references/evidence-report-template.md", "tests/plugins/**"]
+    notes: >
+      Case JR4 — round-trip khuôn template ↔ hook (2 reader: hook +
+      recheck cùng evidence-core).
+
+  - id: J5
+    criterion: AC-5
+    executor: test
+    expected: "gate-card Cổng 2: fixture report SINH TỪ khuôn template (không viết tay khuôn bên đọc) có required_evidence → màn quyết định hiện khối bằng-chứng-còn-thiếu qua tầng tiếng người; fixture report CŨ → so với BASELINE sinh bằng gate-card TẠI BASE COMMIT trong chính lần chạy (git worktree/show, fix gap-probe P2-3 — không golden tĩnh, không so-với-chính-mình): stdout mới == stdout base, 0 cờ oan"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/gate-card.js", "tests/plugins/**"]
+    notes: >
+      Case JR5 — render additive + đường đọc-cũ.
+
+  - id: J6
+    criterion: AC-6
+    executor: test
+    expected: "SKILL cả 2 harness có mệnh đề: round fix khi panel FAIL → đọc required_evidence từ run-log/report và bổ sung ĐÚNG bằng chứng đó trước, CẤM đoán-mò khi danh sách tồn tại; mutation xoá từng mệnh đề (2 harness = 2 mutant) → đỏ đích danh"
+    cmd: config:executors.test.workflows
+    paths: ["feature-loop/skills/feature-loop/SKILL.md", "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md", "tests/workflows/**"]
+    notes: >
+      Case JR6 — đóng vòng ở round fix, khuôn skill-claims.
+
+  - id: J7
+    criterion: AC-7
+    executor: test
+    expected: "judge-personas.md: persona v1 output thêm required_evidence + luật mục-hành-động-được (bằng chứng cụ thể + chỗ lấy, không lời khuyên chung); mutation xoá khối → đỏ đích danh"
+    cmd: config:executors.test.plugins
+    paths: ["skills/acceptance/references/judge-personas.md", "tests/plugins/**"]
+    notes: >
+      Case JR7 — persona là writer của nghi thức.
+
+  - id: J8
+    criterion: AC-8
+    executor: test
+    expected: "acceptance-gold.mjs trên corpus THẬT của repo: ≥7 điểm gold, mỗi điểm đủ 4 trường (slug, evalId, verdict máy, người+lý do từ human_override); sanity counter: số report có block judgment phải >0; fixture code-sinh report KHÔNG override → slug đó 0 điểm (đối chứng); fixture override có → 1 điểm đúng trường"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/acceptance-gold.mjs", "tests/plugins/**"]
+    notes: >
+      Case JR8 — đo ĐẦU RA script trên vật thật + fixture hai chiều.
+
+  - id: J9
+    criterion: AC-9
+    executor: test
+    expected: "G3 từ run-log thật: phân loại 3/3 · 2/1 · phân kỳ đúng trên fixture code-sinh đủ 3 hình dạng (ma trận viết-trước, 1 assert/hình dạng) + per-lens rate; run-log không dòng panel → slug ghi chú 'chưa có dữ liệu panel', exit 0, không vào mẫu số — đối chứng dương corpus thật ≥5 panel"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/acceptance-gold.mjs", "tests/plugins/**"]
+    notes: >
+      Case JR9 — ma trận 3 hình dạng đồng thuận + grandfather log cũ.
+
+  - id: J10
+    criterion: AC-10
+    executor: test
+    expected: "commands/acceptance-report.md có bước gọi acceptance-gold.mjs + in 2 khối Gold set và G3; mutation xoá bước → đỏ; khối in mẫu trong command tuân khuôn tiếng người (không tên field trần)"
+    cmd: config:executors.test.plugins
+    paths: ["commands/acceptance-report.md", "tests/plugins/**"]
+    notes: >
+      Case JR10 — command là chỉ dẫn thật của /acceptance-report.
+
+  - id: J11
+    criterion: AC-11
+    executor: test
+    expected: "4 suite hiện hành xanh; diff feature này: lib/** và hooks/** KHÔNG đổi (git diff so base; sanity: 2 thư mục tồn tại và số file quét >0); recheck strict trên corpus thật: baseline danh-sách-VIOLATION viết TRƯỚC khi diff (hiện tại: 0) và kết quả == baseline; đối chứng dương (fix gap-probe P1-2): tiêm 1 vi phạm biết trước vào BẢN SAO corpus → hook/recheck ĐỎ với đúng thông điệp ghim — chứng minh lưới thật sự chạy và biết đỏ"
+    cmd: config:executors.test.scripts
+    paths: ["lib/**", "hooks/**", "tests/scripts/**"]
+    notes: >
+      Case JR11 — đường đọc-cũ + không-chạm-lõi thành phép đo.
+
+  - id: J12
+    criterion: AC-12
+    executor: judgment
+    runs: 3
+    inputs:
+      - ../../skills/acceptance/references/judge-personas.md
+      - ../../docs/superpowers/specs/2026-08-05-judge-required-evidence-design.md
+    question: >
+      Nghi thức required_evidence trong persona: một judge fresh đọc có làm
+      đúng được không — mục nêu ra có buộc phải cụ-thể-hành-động-được
+      (bằng chứng gì + lấy ở đâu) không, có kẽ hở cho evidence-shopping
+      (đòi bằng chứng vô hạn để né phán, hoặc dùng required_evidence làm cớ
+      trả UNCERTAIN dễ dãi) không?
+
+  - id: J13
+    criterion: AC-13
+    executor: judgment
+    runs: 3
+    inputs:
+      - evidence/gold-stdout.txt
+      - ../../skills/acceptance/references/human-facing-language.md
+    question: >
+      File thứ nhất là STDOUT THẬT của acceptance-gold.mjs chạy trên corpus
+      repo trong chính vòng verify này (fix gap-probe P2-1 — chấm ĐẦU RA,
+      không chấm source). Người quyết kinh doanh không biết tên field máy
+      đọc có hiểu ngay "máy đề xuất gì, người đã quyết gì, các giám khảo
+      đồng thuận tới đâu" không? Chỗ nào lộ tiếng máy — đối chiếu luật
+      N1-N6 ở file thứ hai?
+
+  - id: J14
+    criterion: AC-14
+    executor: judgment
+    runs: 1
+    inputs:
+      - contract.md
+      - ../../docs/superpowers/specs/2026-08-05-judge-required-evidence-design.md
+    question: >
+      Run-log S4 của chính vòng này đã có dòng kind:panel với proposal khác
+      PASS chưa? Nếu chưa chạy S4 (bình thường lúc chấm): trả UNCERTAIN và
+      xác nhận gói Cổng 2 có khai rõ cách người đếm (grep kind:panel trong
+      run-log của slug này: mọi proposal khác PASS phải mang
+      required_evidence không rỗng; không có dòng không-PASS nào thì bằng
+      chứng là case harness JR1/JR2) — KHÔNG tô xanh trước.
