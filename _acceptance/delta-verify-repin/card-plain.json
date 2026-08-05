@@ -1,0 +1,40 @@
+{
+  "feature_plain": "Khi một thay đổi làm nhiều việc đã ký bị cũ, hệ thống kiểm lại bằng MỘT lượt chạy máy chung cho tất cả thay vì N lượt trùng nhau — vẫn chống gian lận bằng máy ở cả hai tầng, và vòng sửa sau khi bị trả chỉ chạy lại phần bị ảnh hưởng.",
+  "will_do": [
+    { "id": "AC-1", "p": "Sẽ chạy đúng MỘT lượt kiểm máy chung cho cả loạt việc bị cũ; từng việc vẫn nhận vết chạy riêng mang cùng mã đối chiếu (dòng kind:repin cùng run_id)." },
+    { "id": "AC-2", "p": "Sẽ chặn tại cổng gộp code khi chữ ký kiểu mới không khớp vết chạy — thiếu vết, hoặc sai phiên bản code, đều bị nêu tên đích danh." },
+    { "id": "AC-3", "p": "Sẽ bắt kẻ mượn mã lượt chạy cũ để ký khi code đã đổi tiếp — luật hiện hành đủ bắt, có ca thử gian lận đỏ và ca sạch xanh chứng minh." },
+    { "id": "AC-5", "p": "Sẽ chỉ THÊM luật vào hai chốt cưỡng chế — không sửa, không nới, không xoá luật nào đang có." },
+    { "id": "AC-6", "p": "Sẽ ghi dấu phiên bản code vào vết chạy của từng phép kiểm, làm nền cho vòng sửa chỉ-chạy-phần-đổi; bên gọi kiểu cũ không vỡ." },
+    { "id": "AC-9", "p": "Sẽ giữ nguyên luật cặp-đi-đôi: phép kiểm xuyên lớp mà một nửa phải chạy lại thì chạy lại CẢ cặp." },
+    { "id": "AC-10", "p": "Sẽ liệt kê rõ trên gói trình ký những phép kiểm dùng lại từ vòng trước — phần dùng lại không được ẩn vào \"máy đã lo\"." },
+    { "id": "AC-11", "p": "Sẽ giữ mọi lưới hiện có xanh, và bộ đối chiếu không nhận nhầm vết chạy chung thành vết phép kiểm thường." },
+    { "id": "AC-15", "p": "Sẽ để MÁY chặn cảnh \"lượt chạy đỏ mà vẫn ký\": vết chạy có bộ kiểm hỏng, hoặc mất cả file vết, đều bị nêu tên tại cổng." },
+    { "id": "AC-16", "p": "Sẽ giữ khuôn ghi vết ở đúng một chỗ có đánh dấu, kèm phép thử viết-rồi-đọc vòng tròn — bên viết và bên đọc không thể trôi khỏi nhau mà kiểm vẫn xanh." }
+  ],
+  "wont_do": [
+    { "id": "AC-4", "p": "Sẽ KHÔNG đụng 141 chữ ký kiểu cũ — không ép luật mới, không bắt di trú; mọi thứ đang xanh vẫn xanh y như trước." },
+    { "id": "AC-7", "p": "Sẽ KHÔNG chạy lại phép kiểm không chạm phần code vừa sửa khi vòng trước đã xanh — chỉ phần bị ảnh hưởng và bộ kiểm chung mới chạy lại." },
+    { "id": "AC-8", "p": "Sẽ KHÔNG dùng lại kết quả khi vết chạy cũ thiếu dấu phiên bản code — quay về chạy lại toàn bộ cho an toàn." }
+  ],
+  "scope_plain": "chưa tiết kiệm cho bộ kiểm chung (vẫn luôn chạy lại) · chưa gộp nhiều sự kiện làm một · không di trú chữ ký cũ · không đổi khuôn chữ ký người",
+  "decisions_plain": [
+    { "id": "d-20260805T022454Z-11692", "p": "Đã chọn ghi vết chạy chung vào sổ của từng việc thay vì mở một sổ chung mới — đổi lại N dòng trùng nội dung, rẻ hơn nuôi thêm một đường đọc mới." },
+    { "id": "d-20260805T022454Z-6865", "p": "Đã chọn chỉ áp luật mới cho chữ ký kiểu mới, chữ ký cũ giữ nguyên — đổi lại hai khuôn sống song song, luật cũ vẫn phủ khuôn cũ." },
+    { "id": "d-20260805T022454Z-9041", "p": "KHÔNG làm phần tiết kiệm cho bộ kiểm chung ở vòng này — giữ lưới hồi quy nguyên vẹn trong vòng rủi ro nhất; phần đó đo xong chương trình mới xét." }
+  ],
+  "coverage_plain": [
+    { "i": 0, "p": "Trục sự-kiện-kiểm-lại phủ 4 cảnh: khuôn vết mới (AC-1), gian lận khi code đổi (AC-3), không đụng chữ ký cũ (AC-4), tự dùng cho chính lần ship này (AC-14) — thước đo là 141 lần đã xảy ra thật." },
+    { "i": 1, "p": "Trục dùng-lại-kết-quả phủ 4 cảnh: dấu phiên bản code (AC-6), dùng lại đúng lúc (AC-7), thiếu dấu thì chạy hết (AC-8), cặp xuyên lớp đi đôi (AC-9) — đối chiếu quy tắc dùng-lại hiện hành." },
+    { "i": 2, "p": "Trục chốt cưỡng chế phủ 4 cảnh: khớp vết với chữ ký (AC-2), chỉ thêm không nới luật (AC-5), lưới cũ vẫn xanh (AC-11), soi đường gian lận mới (AC-12) — đối chiếu danh sách file lõi và luật hiện có." },
+    { "i": 3, "p": "Trục đo mục tiêu tiết kiệm phủ 3 cảnh: một lượt máy thay N là đếm được (AC-1, AC-14), phần dùng lại khai rõ (AC-10), nghi thức đọc-được-làm-được (AC-13) — đối chiếu số nền của chương trình." },
+    { "i": 4, "p": "Hai tiêu chí thêm sau phản biện: máy tự chặn lượt chạy đỏ và mất file vết (AC-15), khuôn viết-đọc có phép thử vòng tròn (AC-16)." }
+  ],
+  "gap_probe_plain": [
+    { "i": 0, "p": "Lỗ nặng nhất: cảnh \"lượt chạy đỏ mà vẫn ký\" mới chỉ nhờ mắt người soi, chưa luật máy nào chặn — đã vá: thêm tiêu chí máy tự chặn (AC-15) kèm nhánh kiểm tương ứng." },
+    { "i": 1, "p": "Khuôn ghi vết để bên viết và bên đọc mỗi nơi một bản, trôi khỏi nhau mà kiểm vẫn xanh — đã vá: đặt khuôn một chỗ có đánh dấu, thêm phép thử viết-rồi-đọc vòng tròn (AC-16)." },
+    { "i": 2, "p": "Một phép kiểm kết luận chỉ từ \"không thấy gì\" — phép so hỏng cũng cho cùng màu xanh — đã vá: siết thêm đối chứng đột biến, bộ đếm kiểm chứng và mốc so sánh được định nghĩa rõ." },
+    { "i": 3, "p": "Chưa xử cảnh mất cả file vết: kẻ gian xoá sổ là lọt lưới — đã vá: gộp vào tiêu chí máy chặn (AC-15), mất file cũng bị nêu tên tại cổng." },
+    { "i": 4, "p": "Một phép kiểm hạ tầng đứng nhầm chỗ, có thể tô xanh lời hứa chưa hề đo — đã vá: trả nó về đúng tiêu chí hạ tầng (AC-11); lời hứa dùng-thật thành mục người chấm khi ký (AC-14), máy không tô xanh trước." }
+  ]
+}
