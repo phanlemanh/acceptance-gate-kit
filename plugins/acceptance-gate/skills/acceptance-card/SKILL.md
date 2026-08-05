@@ -44,9 +44,16 @@ Translate the extracted JSON without changing meaning:
 - Gate 1 `wont_do`: each item starts with `Sẽ KHÔNG` or `Chặn`;
 - Gate 2 `decisions`: short non-technical questions;
 - `scope_plain`: one deferred-scope phrase;
-- Gate 1 `gap_probe`: leave critic rows as written (already product language);
-  never invent findings; absence/probe-failed flags render from the script —
-  the overlay has no key for this block;
+- Gate 1 `coverage_plain` (`[{i,p}]`, `i` = index into the extract's `coverage`
+  array): one product sentence per Coverage axis — what it covers and what
+  "enough" means. Keep AC codes as lookups (rule N3). A missing key or missing
+  entry never hides a line: the script prints a markdown-stripped fallback;
+- Gate 1 `gap_probe_plain` (`[{i,p}]`, `i` = index into `gap_probe.rows`):
+  REWRITE each finding's text in human-facing language — what was missing, how
+  it was handled. Never invent, merge, or soften severity; the sev badge is
+  script-rendered and cannot be overridden, and rows without an overlay entry
+  still render a markdown-stripped fallback (the overlay cannot hide a finding).
+  Absence/probe-failed/parse_dropped flags still render from the script;
 - `decisions_plain`: every approved or provisional ledger choice as
   `đã chọn gì — đổi lại gì`;
 - Gate 2 "Ngoài hợp đồng" block: **do not translate it and do not add an overlay

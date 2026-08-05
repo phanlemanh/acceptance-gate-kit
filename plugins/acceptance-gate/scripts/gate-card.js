@@ -97,6 +97,27 @@ function frontmatter(t) { const m = t.match(/^---\r?\n([\s\S]*?)\r?\n---/); cons
 const clean = s => String(s == null ? '' : s).replace(/["']/g, '').replace(/\s*#.*$/, '').trim(); // strip quotes + trailing # comment (matches hook tolerance)
 const unquote = s => String(s == null ? '' : s).replace(/^["']|["']$/g, '').trim();
 const cleanLines = arr => arr.filter(l => l.trim() && !/^\s*#/.test(l)); // drop blanks + markdown-comment lines
+// Bullet list VỚI dòng-nối: contract hard-wrap 80 cột nên phần nối của một bullet
+// không mở "- " — lọc theo từng dòng từng vứt nửa sau câu ("AC-6 (sha vào" cụt
+// giữa thẻ, findings 2026-08-05). Dòng trắng đóng bullet; prose trước bullet đầu bị bỏ.
+const bullets = arr => {
+  const out = []; let open = false;
+  for (const raw of arr) {
+    const l = String(raw == null ? '' : raw);
+    if (/^\s*-\s+\S/.test(l)) { out.push(l.trim().replace(/^-\s+/, '')); open = true; }
+    else if (!l.trim()) open = false;
+    else if (open && !/^\s*#{1,6}\s/.test(l)) out[out.length - 1] += ' ' + l.trim();
+  }
+  return out;
+};
+// Lột dấu markdown khi buộc in text thô (fallback của tầng card-plain): `code`,
+// **đậm**, *nghiêng*, [nhãn](link) → chữ trần. KHÔNG đụng gạch dưới — run_id,
+// suites_exit là tên máy hợp lệ, lột "_" sẽ phá chúng.
+const stripMd = s => String(s == null ? '' : s)
+  .replace(/\[([^\]]*)\]\([^)\s]*\)/g, '$1')
+  .replace(/`([^`]+)`/g, '$1')
+  .replace(/\*\*([^*]+)\*\*/g, '$1')
+  .replace(/\*([^*]+)\*/g, '$1');
 const { parseAC, acBlindSpot, blindSpotText } = require('../lib/ac-line.js');
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
@@ -109,7 +130,7 @@ const cfm = frontmatter(contract);
 const feature = cfm.feature || cfm.slug || slug;
 const tier = clean(cfm.risk_tier);
 const status = clean(cfm.status);
-const oos = section(contract, 'Out of scope').filter(l => /^\s*-\s+\S/.test(l)).map(l => l.replace(/^\s*-\s+/, '').trim());
+const oos = bullets(section(contract, 'Out of scope'));
 
 // ---- decisions.jsonl (ledger — rationale only, tolerant per-line parse) ----
 // Returns entries in FILE ORDER; sealIdx = index of the first gate-1 seal entry
@@ -137,7 +158,7 @@ const decSort = arr => [...arr.filter(e => e.type === 'descope'), ...arr.filter(
 // no seal yet => NOTHING is approved; everything surfaces as provisional at Gate 2 (fail-visible, not fail-quiet)
 const decsApproved = ledger.sealIdx === null ? [] : ledger.entries.slice(0, ledger.sealIdx).filter(e => e.type !== 'seal');
 const decsProvisional = ledger.sealIdx === null ? decsAll : ledger.entries.slice(ledger.sealIdx + 1).filter(e => e.type !== 'seal');
-const decLine = e => esc(e.decision || '') + (e.impact ? ' — ' + esc(e.impact) : '');
+const decLine = e => esc(stripMd(e.decision || '')) + (e.impact ? ' — ' + esc(stripMd(e.impact)) : '');
 
 // auto-detect gate: prefer contract.status (the SKILL's source of truth), else report presence
 if (!gate) {
@@ -185,7 +206,7 @@ if (gate === '1') {
   // CT-S coverage section — presentation only: render what the contract claims, flag absence/unverified
   const covPresent = /^#{2,6}\s+Coverage\b/im.test(contract);
   const covAll = section(contract, 'Coverage');
-  const covLines = cleanLines(covAll).map(l => l.trim()).filter(l => /^-\s+\S/.test(l) && !/\{\{/.test(l)).map(l => l.replace(/^-\s+/, ''));
+  const covLines = bullets(covAll).filter(l => !/\{\{/.test(l));
   const covUnverified = covAll.some(l => /CE chưa kiểm chứng/i.test(l));
   // gap-probe (S1#7 phản biện context sạch) — presentation only: render findings + disposition, flag absence/failed/dropped
   const gpFm = frontmatter(probeT);
@@ -253,9 +274,13 @@ if (gate === '1') {
   if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, host_embed: he, flags: dpFlags } : { present: false } }, null, 2)); process.exit(0); }
   const featurePlain = pl.feature_plain || feature;
   const pmap = (arr, id) => (((arr || []).find(x => x.id === id)) || {}).p;
-  const willText = x => pmap(pl.will_do, x.id) || x.gwt;
-  const wontText = x => pmap(pl.wont_do, x.id) || x.gwt;
-  const scopePlain = pl.scope_plain || oos.join(' · ');
+  const willText = x => pmap(pl.will_do, x.id) || stripMd(x.gwt);
+  const wontText = x => pmap(pl.wont_do, x.id) || stripMd(x.gwt);
+  const scopePlain = pl.scope_plain || oos.map(stripMd).join(' · ');
+  // Tầng card-plain cho hai khối sinh sau nó (findings 2026-08-05): overlay chỉ
+  // ĐỔI CHỮ theo luật mặt người — script vẫn render đủ MỌI dòng/hàng (không thể
+  // quên) và sev do script in (không đè được). Vắng overlay → bản lột-markdown.
+  const pIdx = (arr, i) => (((arr || []).find(x => x.i === i)) || {}).p;
 
   const P = [STYLE, `<div class="gc"><div class="card">
 <div class="h"><div><div class="ft">${esc(featurePlain)}</div><div class="sub">Cổng 1 · duyệt tiêu chí TRƯỚC khi code · ~5 phút${tier === 'T3' ? ' · tier T3 (đụng critical)' : ''}</div></div><span class="chip amber">duyệt tiêu chí</span></div>`];
@@ -270,11 +295,11 @@ if (gate === '1') {
   if (!decsAll.length) P.push(`<div class="flag finfo">Sổ quyết định: (chưa ghi quyết định nào)</div>`);
   else P.push(`<div class="grp gnot">${decSort(decsAll).map(e => `<p class="li">${e.type === 'descope' ? '<b>KHÔNG làm:</b> ' : ''}${esc(plDec(e.id)) || decLine(e)}</p>`).join('')}</div>`);
   if (ledger.broken) P.push(`<div class="flag fwarn">⚠ ${ledger.broken} dòng ledger hỏng, đã bỏ qua.</div>`);
-  if (covLines.length) P.push(`<div class="lab">Độ phủ AC (bằng chứng "đủ")</div><div class="grp gnot">${covLines.map(t => `<p class="li">${esc(t)}</p>`).join('')}</div>`);
+  if (covLines.length) P.push(`<div class="lab">Độ phủ AC (bằng chứng "đủ")</div><div class="grp gnot">${covLines.map((t, i) => `<p class="li">${esc(pIdx(pl.coverage_plain, i) || stripMd(t))}</p>`).join('')}</div>`);
   if (dp.present) P.push(`<div class="lab">Bản mẫu &amp; ngữ cảnh</div><div class="grp gnot"><p class="li">Vật liệu: ${esc(dp.material || '(chưa khai)')} · sống ở: <b>${esc(CONTEXT_LABEL[dp.context] || dp.context || '(chưa khai)')}</b>${dp.scenes.length ? ' · ' + dp.scenes.length + ' cảnh ngữ-cảnh' : ''}</p></div>`);
   if (glossaryDelta && glossaryDelta.length) P.push(`<div class="lab">Từ vựng chốt ở feature này</div><div class="grp gnot">${glossaryDelta.map(x => `<p class="li">${esc(x.term)} — ${x.added ? 'term MỚI' : 'định nghĩa/_Avoid_ được sửa'}</p>`).join('')}</div>`);
   if (gpPresent && gpVerdict === 'clean' && !gpRows.length && !gpDropped) P.push(`<div class="lab">Phản biện context sạch</div><div class="flag fok">Phản biện: không còn lỗ đáng kể.</div>`);
-  else if (gpRows.length) P.push(`<div class="lab">Phản biện context sạch</div><div class="grp gnot">${gpRows.map(r => `<p class="li"><b>${esc(r.sev)}</b> · ${esc(r.artifact)} · ${esc(r.summary)} — ${esc(r.disposition)}</p>`).join('')}</div>`);
+  else if (gpRows.length) P.push(`<div class="lab">Phản biện context sạch</div><div class="grp gnot">${gpRows.map((r, i) => `<p class="li"><b>${esc(r.sev)}</b> · ${esc(pIdx(pl.gap_probe_plain, i) || stripMd(r.artifact) + ' · ' + stripMd(r.summary) + ' — ' + stripMd(r.disposition))}</p>`).join('')}</div>`);
   const flags = [];
   if (glossaryPresent && glossaryDelta && !glossaryDelta.length) flags.push(['finfo', 'Từ vựng: feature này không thêm/sửa term nào trong CONTEXT.md.']);
   if (glossaryDeltaErr === 'no-base') flags.push(['finfo', 'Từ vựng: repo có CONTEXT.md nhưng thẻ chưa được truyền --glossary-base, nên không trình được term mới/sửa. Truyền base (merge-base với nhánh chính) nếu muốn duyệt cả ngôn ngữ.']);
@@ -354,7 +379,7 @@ if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 2, feature, tier, ver
 
 const featurePlain = pl.feature_plain || feature;
 const plainDec = id => ((pl.decisions && pl.decisions.find(x => x.id === id)) || {}).q;
-const scopePlain = pl.scope_plain || oos.join(' · ');
+const scopePlain = pl.scope_plain || oos.map(stripMd).join(' · ');
 const P = [STYLE];
 
 // --- non-approvable: REJECT / BLOCKED / unknown — no signoff affordance, no green reassurance ---
@@ -363,7 +388,7 @@ if (!approvable) {
   const failed = machineRows.filter(r => r.verdict !== 'PASS').map(r => r.id + (critText[r.crit] ? ' (' + r.crit + ')' : ''));
   const notes = [];
   if (verdict === 'REJECT') notes.push(['fred', (failed.length ? 'Eval chưa đạt: ' + esc(failed.join(', ')) + ' — ' : '') + 'quay lại sửa code, chưa ký.']);
-  else if (verdict === 'BLOCKED') notes.push(['fred', 'Không chạy được' + (reason ? ': ' + esc(reason) : '') + ' — sửa môi trường rồi chạy lại, chưa ký.']);
+  else if (verdict === 'BLOCKED') notes.push(['fred', 'Không chạy được' + (reason ? ': ' + esc(stripMd(reason)) : '') + ' — sửa môi trường rồi chạy lại, chưa ký.']);
   else notes.push(['fred', 'Verdict "' + esc(verdict || '—') + '" không phải PASS/PENDING-JUDGMENT — không ký ở thẻ này.']);
   P.push(`<div class="gc"><div class="card">
 <div class="h"><div><div class="ft">${esc(featurePlain)}</div><div class="sub">Cổng 2 · ${tier === 'T3' ? 'tier T3 · ' : ''}CHƯA ký được</div></div><span class="chip ${ch.c}">${esc(ch.t)}</span></div>
@@ -403,7 +428,7 @@ if (ooc.findings.length) {
 const yourCount = decisions.length + (oos.length ? 1 : 0);
 if (yourCount) {
   P.push(`<div class="lab">Việc chỉ mình bạn quyết được — ${yourCount} việc</div>`);
-  for (const d of decisions) P.push(`<div class="item"><p class="q">${esc(plainDec(d.id) || d.q)}</p><p class="ai">Máy: chưa chắc${d.why ? ' — ' + esc(d.why) : ' (cần mắt người).'}</p><div class="btns"><button class="b bn">Đạt</button><button class="b no">Chưa đạt</button></div></div>`);
+  for (const d of decisions) P.push(`<div class="item"><p class="q">${esc(plainDec(d.id) || stripMd(d.q))}</p><p class="ai">Máy: chưa chắc${d.why ? ' — ' + esc(stripMd(d.why)) : ' (cần mắt người).'}</p><div class="btns"><button class="b bn">Đạt</button><button class="b no">Chưa đạt</button></div></div>`);
   if (oos.length) P.push(`<div class="item"><p class="q">Xác nhận các phần đã cắt/hoãn ngoài phạm vi:</p><p class="ai">${esc(scopePlain)}</p><div class="btns"><button class="b bn">Đồng ý cắt</button><button class="b no">Không, kéo vào</button></div></div>`);
 }
 const plDec2 = id => (((pl.decisions_plain || []).find(x => x.id === id)) || {}).p;
@@ -417,8 +442,8 @@ const flags = [];
 // Cụm ngoài vùng phủ: bộ đo đang hụt so với chỗ lỗi thật xuất hiện. Không nêu
 // đường dẫn file ở thẻ — thẻ là chỗ quyết định, chi tiết nằm ở gói bằng chứng.
 if (ooc.cluster) flags.push(['fwarn', '⚠ Nhiều lỗi rơi ngoài vùng các bộ đo đang phủ — dừng và quyết: mở rộng hợp đồng hay rút phạm vi. Chi tiết trong review-findings.md.']);
-{ const analyst = cleanLines(section(report, 'Analyst')).join(' ').trim(); if (analyst && !/^none/i.test(analyst) && !/^\{\{/.test(analyst)) flags.push(['fred', esc(pl.analyst_plain || analyst)]); }
-{ const varr = cleanLines(section(report, 'Variance')).join(' ').trim(); if (varr && !/^none/i.test(varr) && !/^\{\{/.test(varr)) flags.push(['fred', 'Có eval ngẫu nhiên (pass-rate hỗn hợp) — ' + esc(varr)]); }
+{ const analyst = cleanLines(section(report, 'Analyst')).join(' ').trim(); if (analyst && !/^none/i.test(analyst) && !/^\{\{/.test(analyst)) flags.push(['fred', esc(pl.analyst_plain || stripMd(analyst))]); }
+{ const varr = cleanLines(section(report, 'Variance')).join(' ').trim(); if (varr && !/^none/i.test(varr) && !/^\{\{/.test(varr)) flags.push(['fred', 'Có eval ngẫu nhiên (pass-rate hỗn hợp) — ' + esc(stripMd(varr))]); }
 if (tier === 'T3') flags.push(['fok', 'Đụng phần nhạy cảm → tier T3, đúng là cần bạn duyệt kỹ.']);
 if (evComplete) flags.push(['fok', 'Cổng chạy thật, bằng chứng máy đầy đủ (run_id · exit 0 · verifier).']);
 else flags.push(['fwarn', 'Bằng chứng máy CHƯA đủ trường (run_id · exit 0 · verifier) — kiểm trước khi ký.']);

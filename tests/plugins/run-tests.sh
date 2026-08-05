@@ -5796,6 +5796,183 @@ else
   fail "P145 awk pairing bo qua than block scalar, hai chieu false-VIOLATION/false-green deu chan"
 fi
 
+# ── P146: thẻ Cổng 1 — bullet hard-wrap nối trọn câu, không dấu máy (artifact THẬT) ──
+# Findings 2026-08-05 (gate-card-ngon-ngu-may): covLines lọc /^-\s+\S/ theo TỪNG
+# DÒNG nên phần nối của bullet wrap 80 cột bị vứt ("AC-6 (sha vào" cụt giữa câu),
+# và khối Coverage + gap-probe render esc() thô nên `**`/backtick lên thẳng mặt
+# người. Fixture do CODE SINH từ artifact thật của delta-verify-repin — không
+# viết tay khuôn bên đọc (luật thước-gắn-vật).
+echo "P146 gate-card Coverage/probe: noi tron bullet wrap + khong dau markdown may (artifact THAT)"
+P146OK=1
+P146WS="$(mktemp -d)"
+mkdir -p "$P146WS/_acceptance/demo"
+for f in contract.md gap-probe.md decisions.jsonl evals.yaml; do
+  cp "$ROOT/_acceptance/delta-verify-repin/$f" "$P146WS/_acceptance/demo/$f" \
+    || { echo "     fixture hong: khong cp duoc $f tu workspace that"; P146OK=0; }
+done
+# đối chứng dương cho chính fixture: bản gốc PHẢI chứa bullet wrap đang kiểm
+grep -q 'AC-6 (sha vào$' "$P146WS/_acceptance/demo/contract.md" \
+  || { echo "     artifact that khong con bullet wrap 'AC-6 (sha vào' cuoi dong — chon bullet khac cho case nay"; P146OK=0; }
+P146OUT="$(node "$ROOT/scripts/gate-card.js" --root "$P146WS" --slug demo --gate 1 2>&1)"; P146ST=$?
+[ "$P146ST" -eq 0 ] || { echo "     gate-card exit $P146ST: $P146OUT"; P146OK=0; }
+# đối chứng dương: khối Coverage + gap-probe THẬT SỰ render (răng của các phép đo âm bên dưới)
+printf '%s' "$P146OUT" | grep -qF 'S — sự kiện re-pin' || { echo "     khoi Coverage khong render (doi chung duong chet)"; P146OK=0; }
+printf '%s' "$P146OUT" | grep -qF 'CE: 141 mục thật' || { echo "     bullet Coverage dau tien khong render du (doi chung duong chet)"; P146OK=0; }
+printf '%s' "$P146OUT" | grep -qF 'Hoán vị' || { echo "     row gap-probe P0 khong render (doi chung duong chet)"; P146OK=0; }
+# RED lỗi (1): phần NỐI DÒNG của bullet wrap phải sống trọn trên thẻ
+printf '%s' "$P146OUT" | grep -qF 'sha vào run-log' || { echo "     bullet wrap bi cat cut: 'sha vào run-log' khong xuat hien (covLines vut dong noi)"; P146OK=0; }
+# RED lỗi (2): dấu máy markdown không được lên mặt người
+if printf '%s' "$P146OUT" | grep -qF '**'; then echo "     the con dau '**' tho (khoi contract/probe chua qua lot markdown)"; P146OK=0; fi
+if printf '%s' "$P146OUT" | grep -q '\`'; then echo "     the con backtick tho (khoi contract/probe chua qua lot markdown)"; P146OK=0; fi
+rm -rf "$P146WS"
+if [ "$P146OK" -eq 1 ]; then
+  pass "P146 bullet wrap noi tron + Coverage/probe khong dau may (doi chung duong tren artifact that)"
+else
+  fail "P146 bullet wrap noi tron + Coverage/probe khong dau may (doi chung duong tren artifact that)"
+fi
+
+# ── P147: tầng card-plain phủ Coverage + gap-probe (overlay thay chữ, không giấu được hàng) ──
+# Lớp lỗi: block sinh SAU tầng card-plain không được nối vào tầng đó — AC/decisions
+# có đường plain, Coverage/probe thì không. Phép đo là ROUND-TRIP: overlay sinh
+# BẰNG CODE từ chính --extract (khuôn key rút từ writer doc), rồi reader render.
+# Trust invariant giữ nguyên: sev do script render (overlay không đè được), hàng
+# không có overlay vẫn hiện bản fallback — overlay chỉ đổi CHỮ, không đổi SỰ CÓ MẶT.
+echo "P147 card-plain phu Coverage + gap-probe: overlay thay chu, sev + hang khong overlay van hien"
+P147OK=1
+P147WS="$(mktemp -d)"
+mkdir -p "$P147WS/_acceptance/demo"
+for f in contract.md gap-probe.md decisions.jsonl evals.yaml; do
+  cp "$ROOT/_acceptance/delta-verify-repin/$f" "$P147WS/_acceptance/demo/$f" \
+    || { echo "     fixture hong: khong cp duoc $f"; P147OK=0; }
+done
+# khuôn key: writer doc là NGUỒN, reader phải đọc đúng tập đó (hai chiều — trôi là đỏ)
+node - "$ROOT" <<'JS' || P147OK=0
+const fs = require('fs'), path = require('path');
+const root = process.argv[2];
+const doc = fs.readFileSync(path.join(root, 'commands/acceptance-card.md'), 'utf8');
+const m = doc.match(/<<<CARD-PLAIN-KEYS\n([\s\S]*?)CARD-PLAIN-KEYS>>>/);
+if (!m) { console.error('     KHONG rut duoc khuon CARD-PLAIN-KEYS tu commands/acceptance-card.md'); process.exit(1); }
+const keys = m[1].split(/\s+/).filter(k => /^[a-z_]+$/.test(k));
+if (!keys.includes('coverage_plain') || !keys.includes('gap_probe_plain')) {
+  console.error('     khuon CARD-PLAIN-KEYS thieu coverage_plain/gap_probe_plain'); process.exit(1);
+}
+const gc = fs.readFileSync(path.join(root, 'scripts/gate-card.js'), 'utf8');
+const used = [...new Set([...gc.matchAll(/\bpl\.([a-z_]+)/g)].map(x => x[1]))];
+for (const k of keys) if (!used.includes(k)) { console.error('     key trong khuon ma reader KHONG doc: ' + k); process.exit(1); }
+for (const k of used) if (!keys.includes(k)) { console.error('     reader doc key NGOAI khuon (writer khong duoc bao viet): ' + k); process.exit(1); }
+const cx = fs.readFileSync(path.join(root, 'codex/acceptance-gate/skills/acceptance-card/SKILL.md'), 'utf8');
+for (const k of ['coverage_plain', 'gap_probe_plain'])
+  if (!cx.includes(k)) { console.error('     codex SKILL thieu key ' + k + ' (parity 2 harness)'); process.exit(1); }
+JS
+# overlay sinh bằng code từ extract: phủ TOÀN BỘ coverage, CHỈ row 0 của probe
+P147EX="$(node "$ROOT/scripts/gate-card.js" --root "$P147WS" --slug demo --gate 1 --extract 2>/dev/null)"
+printf '%s' "$P147EX" | node -e '
+const d = JSON.parse(require("fs").readFileSync(0, "utf8"));
+if (!(d.coverage || []).length || !((d.gap_probe || {}).rows || []).length) {
+  console.error("     extract khong co coverage/gap_probe.rows — fixture chet"); process.exit(1);
+}
+const plain = {
+  coverage_plain: d.coverage.map((t, i) => ({ i, p: "PHU-" + i + " câu tiếng sản phẩm cho trục này" })),
+  gap_probe_plain: [{ i: 0, p: "DO-0 lỗ nặng nhất đã vá bằng luật máy mới" }],
+};
+require("fs").writeFileSync(process.argv[1], JSON.stringify(plain));
+' "$P147WS/plain.json" || P147OK=0
+P147OUT="$(node "$ROOT/scripts/gate-card.js" --root "$P147WS" --slug demo --gate 1 --plain "$P147WS/plain.json" 2>&1)"; P147ST=$?
+[ "$P147ST" -eq 0 ] || { echo "     gate-card --plain exit $P147ST: $P147OUT"; P147OK=0; }
+printf '%s' "$P147OUT" | grep -qF 'PHU-0 câu tiếng sản phẩm' || { echo "     overlay coverage_plain KHONG duoc render (key bi bo qua)"; P147OK=0; }
+printf '%s' "$P147OUT" | grep -qF 'DO-0 lỗ nặng nhất' || { echo "     overlay gap_probe_plain KHONG duoc render (key bi bo qua)"; P147OK=0; }
+# có overlay → bản thô của hàng ĐÃ overlay phải biến mất (đối chứng dương: P146 ghim
+# chính hai chuỗi này PHẢI hiện khi KHÔNG overlay — phép đo phân biệt được hai trạng thái)
+if printf '%s' "$P147OUT" | grep -qF 'CE: 141 mục thật'; then echo "     coverage van in ban tho du overlay da phu"; P147OK=0; fi
+if printf '%s' "$P147OUT" | grep -qF 'Hoán vị'; then echo "     row probe 0 van in ban tho du overlay da phu"; P147OK=0; fi
+# hàng KHÔNG có overlay vẫn phải hiện (overlay không giấu được finding)
+printf '%s' "$P147OUT" | grep -qF 'E1 ghim chữ SKILL' || { echo "     row probe khong overlay BIEN MAT — overlay dang giau duoc finding"; P147OK=0; }
+# sev do script render, overlay không đè được
+printf '%s' "$P147OUT" | grep -qF '<b>P0</b>' || { echo "     sev P0 khong con do script render"; P147OK=0; }
+rm -rf "$P147WS"
+if [ "$P147OK" -eq 1 ]; then
+  pass "P147 round-trip card-plain: khuon key 2 chieu + overlay thay chu, khong giau hang, sev giu nguyen"
+else
+  fail "P147 round-trip card-plain: khuon key 2 chieu + overlay thay chu, khong giau hang, sev giu nguyen"
+fi
+
+# ── P148: MỌI fallback render text thô đều lột dấu máy (gwt, oos, decLine cả 3 chỗ) ──
+# Quét theo LỚP: không chỉ Coverage/probe — willText/wontText (gwt), scopePlain
+# (oos), decLine (Gate 1 + Gate 2 approved + Gate 2 provisional), d.q (critText)
+# đều là đường fallback in text contract/ledger thô khi overlay vắng.
+echo "P148 moi fallback tho lot dau may: gwt + oos + decLine (G1) + critText/decLine (G2)"
+P148OK=1
+P148WS="$(mktemp -d)"
+mkdir -p "$P148WS/_acceptance/g1" "$P148WS/_acceptance/g2"
+cat > "$P148WS/_acceptance/g1/contract.md" <<'EOF'
+---
+schema_version: 1
+feature: fx
+slug: g1
+risk_tier: T2
+status: draft
+---
+
+## Criteria
+
+- AC-1: Given `input.csv` sẵn, When chạy **bộ nạp**, Then thấy **kết quả** đúng.
+
+## Out of scope
+
+- Hoãn phần **báo cáo** dài (đợt
+  sau mới làm).
+EOF
+printf '%s\n' '{"id":"d-1","type":"descope","stage":"S1","decision":"KHÔNG làm **realtime**","impact":"chậm `5s`"}' > "$P148WS/_acceptance/g1/decisions.jsonl"
+P148G1="$(node "$ROOT/scripts/gate-card.js" --root "$P148WS" --slug g1 --gate 1 2>&1)"; P148ST=$?
+[ "$P148ST" -eq 0 ] || { echo "     gate-card G1 exit $P148ST: $P148G1"; P148OK=0; }
+printf '%s' "$P148G1" | grep -qF 'thấy kết quả đúng' || { echo "     gwt fallback khong lot dau: thieu 'thấy kết quả đúng'"; P148OK=0; }
+printf '%s' "$P148G1" | grep -qF 'đợt sau mới làm' || { echo "     oos bullet wrap cat cut hoac khong lot dau: thieu 'đợt sau mới làm'"; P148OK=0; }
+printf '%s' "$P148G1" | grep -qF 'KHÔNG làm realtime' || { echo "     decLine G1 khong lot dau: thieu 'KHÔNG làm realtime'"; P148OK=0; }
+printf '%s' "$P148G1" | grep -qF 'chậm 5s' || { echo "     decLine impact khong lot dau: thieu 'chậm 5s'"; P148OK=0; }
+if printf '%s' "$P148G1" | grep -qF '**'; then echo "     G1 con '**' tho"; P148OK=0; fi
+if printf '%s' "$P148G1" | grep -q '\`'; then echo "     G1 con backtick tho"; P148OK=0; fi
+cat > "$P148WS/_acceptance/g2/contract.md" <<'EOF'
+---
+schema_version: 1
+feature: fx
+slug: g2
+risk_tier: T2
+status: implemented
+---
+
+## Criteria
+
+- AC-1: Given `input.csv` sẵn, When chạy **bộ nạp**, Then thấy **kết quả** đúng.
+EOF
+cat > "$P148WS/_acceptance/g2/evidence-report.md" <<'EOF'
+---
+verdict: PASS
+---
+
+| Eval | Criterion | Executor | Verdict |
+|---|---|---|---|
+| E1 | AC-1 | test | PASS |
+| E2 | AC-1 | judgment | UNCERTAIN |
+EOF
+printf '%s\n%s\n%s\n' \
+  '{"id":"d-1","type":"choice","stage":"S1","decision":"chọn đường **A** nhanh","impact":"bỏ `cache`"}' \
+  '{"type":"seal","gate":"1"}' \
+  '{"id":"d-2","type":"descope","stage":"S3","decision":"KHÔNG làm **offline**","impact":"cần `mạng`"}' \
+  > "$P148WS/_acceptance/g2/decisions.jsonl"
+P148G2="$(node "$ROOT/scripts/gate-card.js" --root "$P148WS" --slug g2 --gate 2 2>&1)"; P148ST=$?
+[ "$P148ST" -eq 0 ] || { echo "     gate-card G2 exit $P148ST: $P148G2"; P148OK=0; }
+printf '%s' "$P148G2" | grep -qF 'thấy kết quả đúng' || { echo "     critText fallback G2 khong lot dau"; P148OK=0; }
+printf '%s' "$P148G2" | grep -qF 'chọn đường A nhanh' || { echo "     decLine G2 (approved) khong lot dau"; P148OK=0; }
+printf '%s' "$P148G2" | grep -qF 'KHÔNG làm offline' || { echo "     decLine G2 (provisional) khong lot dau"; P148OK=0; }
+if printf '%s' "$P148G2" | grep -qF '**'; then echo "     G2 con '**' tho"; P148OK=0; fi
+if printf '%s' "$P148G2" | grep -q '\`'; then echo "     G2 con backtick tho"; P148OK=0; fi
+rm -rf "$P148WS"
+if [ "$P148OK" -eq 1 ]; then
+  pass "P148 lot dau may o moi fallback tho (gwt, oos wrap, decLine x3, critText)"
+else
+  fail "P148 lot dau may o moi fallback tho (gwt, oos wrap, decLine x3, critText)"
+fi
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

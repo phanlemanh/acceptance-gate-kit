@@ -39,12 +39,29 @@ Steps:
    **Translate** the extract into PLAIN PRODUCT LANGUAGE for this repo's persona
    (read `AGENTS.md`, `CLAUDE.md`, or repo docs for who the user is). Keep
    meaning, do not invent:
+   Khuôn key của `card-plain.json` — danh sách ĐÓNG, hai chiều: mọi key viết ra
+   phải nằm trong khuôn, và reader (`gate-card.js`) không đọc key nào ngoài khuôn
+   (test P147 canh cả hai chiều):
+
+   <!-- <<<CARD-PLAIN-KEYS
+   feature_plain will_do wont_do scope_plain decisions_plain
+   coverage_plain gap_probe_plain decisions analyst_plain
+   CARD-PLAIN-KEYS>>> -->
+
    - `feature_plain`: one plain sentence — what it does for the user.
    - Gate 1: `will_do[] → {id,p}` each starting "Sẽ …" (what the system DOES);
      `wont_do[] → {id,p}` starting "Sẽ KHÔNG …" or "Chặn …".
-   - Gate 1 `gap_probe`: KHÔNG dịch, KHÔNG bịa — rows render nguyên văn (critic
-     đã viết ngôn ngữ sản phẩm); cờ vắng/probe-failed/parse_dropped do script tự
-     render. Overlay không có key cho khối này.
+   - Gate 1 `coverage_plain[] → {i,p}`: mỗi dòng Coverage của contract (đúng thứ
+     tự trong extract, `i` là chỉ số) → 1 câu tiếng sản phẩm nói trục đó đã phủ
+     gì và bằng chứng "đủ" là gì. Giữ mã AC (N3: mã là tra cứu, kèm 3–5 chữ).
+     Vắng key/thiếu dòng → script tự in bản lột-dấu-markdown của dòng contract —
+     dòng không bao giờ biến mất, overlay chỉ đổi chữ.
+   - Gate 1 `gap_probe_plain[] → {i,p}`: VIẾT LẠI phần chữ của từng finding
+     (theo chỉ số `i` trong extract `gap_probe.rows`) bằng ngôn ngữ mặt người —
+     thiếu gì, đã xử thế nào. KHÔNG bịa, KHÔNG gộp, KHÔNG làm nhẹ mức nặng; mức
+     sev do script render, overlay không đè được, và hàng không có overlay vẫn
+     hiện bản lột-markdown (overlay không giấu được finding nào). Cờ
+     vắng/probe-failed/parse_dropped vẫn do script tự render.
    - Gate 2: `decisions[] → {id,q}` a SHORT product question (≤14 words, ends "?",
      NO Given/When/Then, NO jargon like DOM/exit code); optional `{id,why}` plain;
      `analyst_plain` = plain restatement of the non-discriminating note.
