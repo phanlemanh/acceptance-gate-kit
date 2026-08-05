@@ -334,3 +334,50 @@ cột nguồn ghi rõ từng dòng.*
 **Verdict: GO** — ký: **Manh Phan** ngày: **2026-07-30** (lệnh minh danh trong
 chat maintainer session; máy điền số 29/07, người ký 30/07). **DP-1 GO chính
 thức mở khoá F-A + F-B** theo §Trình tự & điểm quyết.
+
+## Bổ sung 2026-08-05 — KHOẢNG CÁCH giữa bản quy trình và bộ máy (kiểm maintainer)
+
+**Phát hiện:** đối chiếu `workflow-v2-spec.md` với các skill đã ship cho thấy
+hai tài liệu và một bộ máy đang trôi khỏi nhau **theo cả hai chiều**. Cùng lớp
+lỗi "luật nằm ở chỗ mô tả, không nằm ở chỗ thi hành" đã bắt hôm 02/08 với
+bảng định tuyến (đường E) — lần đó trong một file, lần này giữa spec và skill.
+
+**Chiều A — kit ĐI TRƯỚC spec (1 mục, cần kéo ngược vào spec):**
+
+| Mục | Trạng thái |
+|---|---|
+| **Nấc ngữ cảnh** (`context:` — vật sống ở đâu: standalone / khung-giả / nhúng-host-thật) | ĐÃ SHIP trong `skills/design-pass/SKILL.md` (Giai đoạn 0) + ổ cắm `design_pass.host_embed` trong preflight. **Spec v2 §2.2 CHƯA có** → spec đang mô tả thiếu một trục mà kit đã cưỡng chế |
+
+**Chiều B — spec ĐI TRƯỚC kit (6 mục 02/08 chưa mục nào chạm skill):**
+
+| Mục (spec 02/08) | Nơi phải land | Bằng chứng thiếu |
+|---|---|---|
+| Phân loại mẫu mở đầu phiên thiết kế (3 lối ra có tên) | `skills/design-pass` Giai đoạn 0 | SKILL chỉ có 1 dòng ghi chú "đứng cạnh câu phân loại mẫu **khi mục bổ sung 02/08 land**" — tự khai đang chờ |
+| Khai NẤC TRUNG THỰC (cấu trúc / bố cục / thị giác) + nội dung phải khớp nấc | `skills/design-pass` mục 5 + thẻ cổng | 0 hit |
+| Sổ phương án (đã thử · bác · vì sao) | `skills/design-pass` kết phiên | 0 hit |
+| Ratchet phần đo được khai thành luật | `skills/design-pass` ràng buộc cứng | 0 hit |
+| Đường E (làn hệ thiết kế) | `feature-loop/skills/feature-loop` định tuyến | 0 hit — chỉ sống trong spec |
+| Nối bản duyệt ↔ bản dựng (chạy cùng thước 2 lần) | `feature-loop/skills/feature-loop` bước chuẩn-bị-args S4 | 0 hit bên vòng lặp |
+
+**Hệ quả đã quan sát được ở vòng r3:** phiên S1-D chạy ĐÚNG những gì skill có
+(bậc `material: scaffold`, nấc ngữ cảnh, thang DS) — **không sai**. Nhưng ba
+thứ spec đòi (phân loại mẫu · nấc trung thực · sổ phương án) không có vết,
+KHÔNG phải vì phiên bỏ qua mà vì **chưa có gì bảo nó làm**. Đây là bằng chứng
+thực nghiệm cho luật: *spec không tự thi hành; chỉ chỗ nghẽn đầu ra mới thi
+hành được.*
+
+**Quyết trình tự (maintainer đề xuất, chờ Manh):** KHÔNG vá skill lúc này —
+vòng r3 đang đứng ngay trước Cổng Phạm vi, đổi skill giữa chừng là đổi luật
+dưới chân một vòng đang chạy. Thay bằng: (a) tại Cổng Phạm vi r3, Manh hỏi
+MIỆNG hai câu thiếu (màn này cần mẫu nào hệ chưa có? · bản mẫu đang ở nấc
+trung thực nào và nội dung có khớp nấc không?) — rẻ, đủ cho một vòng; (b) sau
+cổng mở một vòng vá kit gom 6 mục chiều B + kéo nấc ngữ cảnh ngược vào spec.
+
+| ID | Việc | Nơi chạm | Tier | Phụ thuộc |
+|---|---|---|---|---|
+| F-J | Đồng bộ spec ⟂ skill làn thiết kế: 6 mục chiều B vào `skills/design-pass` + `feature-loop/skills/` + kéo nấc ngữ cảnh ngược vào `workflow-v2-spec.md` §2.2; gộp được với F-I/F-D đợt 2 | `skills/` + `feature-loop/skills/` + spec + tests + mirror | T2 | sau Cổng Phạm-vi r3 |
+
+**Nợ nghi thức phát sinh:** chưa có bước nào trong quy trình kiểm *spec có
+khớp skill không*. Ứng viên: thêm một mục vào nghi thức audit định kỳ (đang
+chỉ đếm lượt gọi skill) — quét mỗi luật trong spec có ít nhất một chỗ thi
+hành, giống cách kiểm đếm linh kiện của repo tiêu thụ.
