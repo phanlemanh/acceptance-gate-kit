@@ -1,0 +1,89 @@
+# evals — card-text-fidelity
+# Harness tests/plugins (gate-card sống ở realm plugin).
+# Luật kit: ma trận toàn phần rút từ marker STRIP-SHAPE-MATRIX của contract
+# (không chép tay danh sách vào test); đối chứng dương lấy bản TRƯỚC-DIFF tại
+# mốc ĐỌC TỪ decisions.jsonl; đo trên vật được giao (thẻ THẬT), không chỉ hàm.
+
+evals:
+  - id: E1
+    criterion: AC-2
+    executor: test
+    expected: "tập TÊN hình dạng rút từ marker STRIP-SHAPE-MATRIX trong contract.md thật == tập tên của bảng ca trong phép đo (quan hệ TẬP HỢP, không phải số đếm — fix gap-probe P1); 2 mutant cùng lần chạy: (a) xoá một hàng khỏi bản sao marker → ĐỎ nêu đúng tên thiếu, (b) ĐỔI TÊN một hàng → ĐỎ nêu đúng tên lạ + tên thiếu; đối chứng dương: bản nguyên vẹn XANH trước khi tin hai kết quả đỏ"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/gate-card.js", "_acceptance/card-text-fidelity/contract.md", "tests/plugins/**"]
+    notes: >
+      Bảng ca lấy tên TỪ contract nên bên viết (hợp đồng) và bên đọc (test)
+      không cùng một nguồn tự dựng.
+
+  - id: E2
+    criterion: AC-1
+    executor: test
+    expected: "với MỌI hình dạng trong bảng: hàm lột nạp TỪ scripts/gate-card.js thật (không chép biểu thức vào test) cho ra ĐÚNG kỳ vọng khai cạnh tên hình dạng trong marker — gồm cả các hình dạng kỳ vọng GIỮ NGUYÊN (đậm-lỏng, nghiêng-lỏng, glob một-sao); mỗi hình dạng một ô, thông điệp đỏ nêu tên hình dạng + chuỗi vào + chuỗi ra"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/gate-card.js", "tests/plugins/**"]
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    expected: "nhóm LỘT (đậm-chuẩn, nghiêng-chuẩn, đậm-nghiêng-ba-sao, đậm-và-glob-cùng-dòng) giữ nguyên hành vi cũ: kết quả bản mới == kết quả bản TRƯỚC-DIFF trên đúng các hình dạng này — quan hệ so-với-bản-cũ, không tự khai chuỗi mong đợi"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/gate-card.js", "tests/plugins/**"]
+
+  - id: E4
+    criterion: AC-5
+    executor: test
+    expected: "ĐỐI CHỨNG DƯƠNG: lấy scripts/gate-card.js bản TRƯỚC-DIFF bằng git show tại mốc ĐỌC TỪ decisions.jsonl (không hardcode, không tự suy — fix gap-probe P1), chạy cùng bảng ca: bản cũ ĐỎ ở đúng tập hình dạng khai cờ 'bản cũ sai' và XANH ở tập còn lại; cả hai tập không rỗng"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/gate-card.js", "_acceptance/card-text-fidelity/decisions.jsonl", "tests/plugins/**"]
+
+  - id: E5
+    criterion: AC-12
+    executor: test
+    expected: "cây kiểm KHÔNG có commit mốc (dựng bằng bản sao nông/kho tạm trong chính lần chạy) → phép đo báo thông điệp RIÊNG ghim 'không lấy được bản cũ tại mốc <sha>' và KHÔNG báo như khiếm khuyết sản phẩm; đối chứng dương: cây đủ lịch sử → không có thông điệp đó"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/gate-card.js", "tests/plugins/**"]
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    expected: "đo trên VẬT ĐƯỢC GIAO: slug thật có đường dẫn chứa sao (rút từ nguồn bằng biểu thức, không hardcode danh sách slug), sinh thẻ Cổng 1 và Cổng 2 THẬT bằng node scripts/gate-card.js → mọi đường dẫn đó xuất hiện nguyên vẹn trong thẻ; chiều nghịch: thẻ không chứa bản cụt mà nguồn không có; sanity counter số đường dẫn > 0"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/gate-card.js", "tests/plugins/**"]
+
+  - id: E7
+    criterion: AC-7
+    executor: test
+    expected: "đường đọc-cũ HAI CHIỀU (fix gap-probe P0): sinh thẻ bằng bản cũ và bản mới trên cùng slug thật; mọi cụm sao chỉ-có-ở-bản-mới phải nằm trong một chuỗi xuất hiện NGUYÊN VĂN trong file nguồn của slug đó, và không cụm nào truy không được về nguồn — CẤM chuẩn hoá bỏ-sao rồi so bằng (phép đó xoá đúng dấu vết cần bắt)"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/gate-card.js", "tests/plugins/**"]
+
+  - id: E8
+    criterion: AC-8
+    executor: test
+    expected: "mutant cho chính E7: tiêm 'không lột chữ đậm nữa' vào BẢN SAO gate-card.js → phép đo E7 phải ĐỎ với thông điệp ghim (cụm sao không truy được về nguồn); đối chứng dương: bản nguyên vẹn XANH trước — chống assertion âm-tính-một-mình"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/gate-card.js", "tests/plugins/**"]
+
+  - id: E9
+    criterion: AC-9
+    executor: test
+    expected: "quét corpus: rút MỌI cụm dấu sao từ hồ sơ thật trong _acceptance/ (contract.md + decisions.jsonl), chạy qua cả bản cũ lẫn bản mới — mọi chênh lệch phải phân loại được vào một hình dạng CÓ TÊN trong marker; chênh lệch không thuộc hình dạng nào → ĐỎ kèm chuỗi gốc; sanity: số cụm rút được > 0, ghi số vào bằng chứng"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/gate-card.js", "tests/plugins/**"]
+    notes: >
+      Chân chống hồi quy trên dữ liệu THẬT — bảng ca là hình dạng ta nghĩ tới,
+      quét corpus là hình dạng hồ sơ thật sự có.
+
+  - id: E10
+    criterion: AC-10
+    executor: test
+    expected: "đếm chỗ gọi hàm lột TỪ mã nguồn scripts/gate-card.js == con số 13 khai ở trục C mục Coverage của contract (rút cả hai bằng biểu thức, lệch → ĐỎ nêu hai số); mỗi lối gọi khác biệt (thẻ Cổng 1, thẻ Cổng 2, các lối in dự phòng) có ít nhất một đầu ra thật được sinh và kiểm; lối không đo phải có dòng descope nêu số lượng"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/gate-card.js", "_acceptance/card-text-fidelity/contract.md", "tests/plugins/**"]
+
+  - id: E11
+    criterion: AC-11
+    executor: test
+    expected: "6 lệnh kiểm hiện hành xanh; và trong diff feature này trên tests/plugins/run-tests.sh, các khối P đã có TRƯỚC mốc chỉ được THÊM dòng, không đổi/không xoá assert cũ (so với bản tại mốc trong sổ) — chống hạ thước cũ cho vừa hành vi mới"
+    cmd: config:executors.test.plugins
+    paths: ["tests/plugins/**"]
