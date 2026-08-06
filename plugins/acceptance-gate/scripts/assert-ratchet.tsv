@@ -1,0 +1,13 @@
+# Sổ SIẾT/NỚI cho các dòng assert của cây kiểm — nguồn sự thật của chốt P165.
+# Đặt CẠNH cây kiểm, KHÔNG trong _acceptance/: chốt chạy mỗi PR không được lấy
+# thẩm quyền từ hồ sơ workspace của một việc đã đóng (luật đã viết ở đầu
+# scripts/codex-self-script-refs.tsv; S4-r2 bắt vòng này vi phạm chính nó).
+#
+# Mỗi dòng: SIET|NOI <TAB> <đoạn trích phân biệt của dòng assert cũ> <TAB> <lý do>
+# Chốt chỉ xét assert bị sửa TRONG PR HIỆN TẠI (so với merge-base), không so
+# với một mốc đóng băng — mốc cố định làm tập chỉ tăng và biến chốt thành vật
+# cản cho mọi feature sau.
+SIET	len(kinds) <= 25	ngưỡng dung sai 25 trong khi số thật 18 — hạ thước; thay bằng zero-tolerance cho cụm có đường dẫn
+SIET	so cho goi ham lot lech	đếm chỗ gọi giữ nguyên, chỉ đổi thông điệp cho rõ
+SIET	chi doc %d file chi dan	ngưỡng đếm thay bằng quan hệ tập hợp với danh sách gói viết trước
+SIET	goi co tham chieu — nhanh quet da goi chua chay	như trên, cùng lớp ngưỡng-đếm

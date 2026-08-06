@@ -7,7 +7,9 @@
 //     phân kỳ + per-lens hay-nói-chưa-chắc.
 // Không ghi file nào. Run-log cũ không có dòng panel → slug ghi chú "chưa có
 // dữ liệu panel", không vào mẫu số. Usage:
-//   node acceptance-gold.mjs --root <repo-root> [--json]
+//   node acceptance-gold.mjs --root <repo-root> [--json | --stats]
+// --stats: {judgmentBlocks, points} — bo dem doc lap cho chan sanity. Hai co
+// loai tru nhau (truyen ca hai = exit 2, khong de --stats chiem quyen im lang).
 import fs from 'node:fs';
 import path from 'node:path';
 import { realpathSync } from 'node:fs';
@@ -81,7 +83,10 @@ export function countJudgmentBlocks(root) {
     const rp = path.join(acc, slug, 'evidence-report.md');
     if (!fs.existsSync(rp)) continue;
     for (const line of fs.readFileSync(rp, 'utf8').split('\n')) {
-      if (/^\s+judged_by\s*:/.test(line)) n++;
+      // CUNG luat nhan field voi collectGold (^\s*, khong doi thut le) —
+      // lech luat lam bat dang thuc sanity ĐỎ OAN va do loi cho reader trong
+      // khi vat that chi la ho so viet thieu thut le (S4-r2)
+      if (/^\s*judged_by\s*:/.test(line)) n++;
     }
   }
   return n;
@@ -287,6 +292,10 @@ if (isMain) {
     process.exit(2);
   }
   const data = collectGold(root);
+  if (process.argv.includes('--stats') && process.argv.includes('--json')) {
+    process.stderr.write('acceptance-gold: --stats va --json loai tru nhau — chon mot\n');
+    process.exit(2);
+  }
   if (process.argv.includes('--stats')) {
     // chân sanity độc lập: judgmentBlocks đếm bằng nhánh riêng; points từ parser
     process.stdout.write(JSON.stringify({ judgmentBlocks: countJudgmentBlocks(root), points: data.points.length }) + '\n');

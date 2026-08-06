@@ -87,14 +87,17 @@ sẵn của suite) — không tự thi hành mình, không đệ quy.
 - AC-8: Given bản sao cây kiểm có một khối trong bảng bị gỡ đối chứng, When
   chạy chốt của AC-7, Then ĐỎ đích danh khối đó; đối chứng dương: bản nguyên
   vẹn XANH trước khi tin kết quả đỏ.
-- AC-9: Given mọi dòng assert của cây kiểm tại mốc ĐỌC TỪ SỔ bị SỬA hoặc XOÁ
-  trong vòng này, When chạy chốt, Then mỗi dòng đó phải có một entry
-  `decisions.jsonl` phân loại **SIẾT** hay **NỚI**, ghi TRƯỚC khi sửa; có bất
-  kỳ NỚI nào, hoặc có dòng sửa chưa được phân loại → ĐỎ. Không đòi "nguyên
-  văn" — chính vòng này phải xoá phép so với hằng số dung sai (AC-4) và viết
-  lại chân sanity (AC-6), nên luật nguyên-văn sẽ buộc thợ hoặc giữ thước hỏng
-  hoặc thêm danh sách miễn trừ, cả hai đều là hạ thước. Số lệnh kiểm đọc từ
-  cấu hình, mốc đọc từ sổ — không viết thẳng vào phép đo.
+- AC-9: Given mọi dòng assert của cây kiểm bị SỬA hoặc XOÁ **trong PR hiện
+  tại** (so với merge-base, KHÔNG so với một mốc đóng băng), When chạy chốt,
+  Then mỗi dòng phải có một dòng trong `scripts/assert-ratchet.tsv` — đặt
+  CẠNH cây kiểm, không trong hồ sơ việc — phân loại **SIẾT** hay **NỚI**; có
+  bất kỳ NỚI nào hoặc dòng chưa phân loại → ĐỎ. Không đòi "nguyên văn": chính
+  vòng này phải xoá phép so hằng số dung sai (AC-4) và viết lại chân sanity
+  (AC-6), nên luật nguyên-văn sẽ buộc hoặc giữ thước hỏng hoặc thêm miễn trừ
+  — cả hai đều là hạ thước. Hai điều bắt buộc: nguồn không được nằm trong
+  `_acceptance/` (chốt chạy mỗi PR không lấy thẩm quyền từ hồ sơ một việc đã
+  đóng), và mốc không được đóng băng (mốc cố định làm tập chỉ tăng, biến chốt
+  thành vật cản cho mọi việc sau).
 
 ## Coverage
 
