@@ -77,7 +77,7 @@ evals:
   - id: E10
     criterion: AC-10
     executor: test
-    expected: "đếm chỗ gọi hàm lột TỪ mã nguồn scripts/gate-card.js == con số 13 khai ở trục C mục Coverage của contract (rút cả hai bằng biểu thức, lệch → ĐỎ nêu hai số); mỗi lối gọi khác biệt (thẻ Cổng 1, thẻ Cổng 2, các lối in dự phòng) có ít nhất một đầu ra thật được sinh và kiểm; lối không đo phải có dòng descope nêu số lượng"
+    expected: "đếm chỗ gọi hàm lột TỪ mã nguồn scripts/gate-card.js == con số khai ở trục C mục Coverage của contract (rút số từ contract, KHÔNG ghim lại trong lời khai này) (rút cả hai bằng biểu thức, lệch → ĐỎ nêu hai số); mỗi lối gọi khác biệt (thẻ Cổng 1, thẻ Cổng 2, các lối in dự phòng) có ít nhất một đầu ra thật được sinh và kiểm; lối không đo phải có dòng descope nêu số lượng"
     cmd: config:executors.test.plugins
     paths: ["scripts/gate-card.js", "_acceptance/card-text-fidelity/contract.md", "tests/plugins/**"]
 

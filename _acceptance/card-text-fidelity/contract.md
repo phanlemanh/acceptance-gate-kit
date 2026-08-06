@@ -41,6 +41,7 @@ hợp, không phải số đếm).
 - đậm-lỏng-có-khoảng-trắng — giữ nguyên (chuẩn CommonMark không coi là nhấn mạnh)
 - nghiêng-lỏng-có-khoảng-trắng — giữ nguyên
 - đậm-và-glob-cùng-dòng — lột đậm, giữ glob
+- đậm-dính-chữ-trước — lột dấu, giữ chữ
 <!-- STRIP-SHAPE-MATRIX>>> -->
 
 ## Criteria
