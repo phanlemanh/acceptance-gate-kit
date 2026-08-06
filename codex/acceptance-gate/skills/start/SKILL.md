@@ -55,7 +55,11 @@ ritual itself.
      `discovery.brainstorm_skill`): a value → open the session with exactly
      that skill; `null` → run the kit's own grill ritual per
      `${PLUGIN_ROOT}/skills/acceptance/references/opportunity-template.md`
-     (an undeclared repo is normal — never block, never flag). Before Cổng
+     (an undeclared repo is normal — never block, never flag). A third branch
+     is MANDATORY: a value that is NOT in this session's available-skill list
+     → say so in one line ("repo khai buổi khai thác bằng `<tên>`, phiên này
+     không có skill đó"), then run the kit's grill ritual — silently using a
+     declared target that does not resolve hands the session a dead pointer. Before Cổng
      Đáng do NOT use `superpowers:brainstorming` — that skill belongs to S1
      of the build loop: it answers "how to build" while this session asks
      "whether / what to build"; (b) work already clear → the feature-loop

@@ -252,16 +252,41 @@ const cfgRead = read(path.join(root, '_acceptance', 'config.yaml'));
 // mới một consumer, chưa phải luật dùng chung — promote lên lib kèm test
 // đồng-kết-luận kiểu P130 khi có reader thứ hai (entry d-10002 của hồ sơ
 // discovery-brainstorm-socket).
+// Ba lớp lỗi S4-r1 đã sửa, ghi lại vì cả ba đều trả RÁC chứ không trả null:
+// (1) THỨ TỰ bóc: quote bóc TRƯỚC, `#` chỉ là comment khi nằm NGOÀI quote
+//     (luật YAML: `#` mở comment chỉ khi có khoảng trắng đứng trước). Bản cũ
+//     strip comment trước nên `"acme:brain#storm"` bị cắt còn `"acme:brain`
+//     — mất quote đóng nên regex bóc quote không khớp, guard phi-scalar cũng
+//     không thấy hình dạng gốc, và giá trị rác lọt ra như một khai báo hợp lệ.
+// (2) THỤT ĐẦU DÒNG không phải lúc nào cũng 2: repo thụt 4 space có khai báo
+//     hợp lệ mà bản cũ không thấy — im lặng rơi về fallback. Lấy mức thụt của
+//     dòng con ĐẦU TIÊN làm chuẩn rồi đòi khớp đúng mức đó: nhận mọi kiểu thụt
+//     nhất quán, vẫn không nuốt key của map lồng sâu hơn.
+// (3) HÌNH DẠNG tên: giá trị lọt guard vẫn có thể là câu văn/tên bậy. Tên skill
+//     hai thân lệnh giả định là `plugin:skill` hay `skill` — không khớp khuôn
+//     đó thì đây không phải "tên dùng ngay được" ⇒ null ⇒ grill kit-own, thay
+//     vì đẩy phiên đi gọi một đích không tồn tại.
+const SKILL_NAME_RE = /^[A-Za-z0-9_.-]+(?::[A-Za-z0-9_.-]+)*$/;
 const configScalar = (cfgTxt, section, key) => {
   const lines = String(cfgTxt || '').split('\n');
   const start = lines.findIndex(l => new RegExp('^' + section + ':\\s*(#.*)?$').test(l));
   if (start < 0) return null;
+  let baseIndent = null;
   for (const line of lines.slice(start + 1)) {
     if (/^[A-Za-z0-9_-]+:/.test(line)) break;              // sang section kế
-    const m = line.match(new RegExp('^\\s{2}' + key + ':(.*)$'));
+    if (!line.trim() || /^\s*#/.test(line)) continue;      // dòng trắng / comment thuần
+    const indent = line.match(/^(\s*)/)[1].length;
+    if (baseIndent === null) baseIndent = indent;          // mức thụt của section này
+    if (indent !== baseIndent) continue;                   // sâu hơn = key của map con
+    const m = line.match(new RegExp('^\\s{' + baseIndent + '}' + key + ':(.*)$'));
     if (!m) continue;
-    let v = m[1].replace(/\s*#.*$/, '').trim().replace(/^["'](.*)["']$/, '$1').trim();
+    const raw = m[1].trim();
+    // Có quote → nội dung giữ NGUYÊN VĂN (kể cả `#`), comment chỉ tính phần
+    // sau quote đóng. Không quote → cắt từ ` #` (khoảng trắng + thăng).
+    const quoted = raw.match(/^(["'])([\s\S]*)\1\s*(?:#.*)?$/);
+    const v = quoted ? quoted[2] : raw.replace(/(^|\s)#.*$/, '$1').trim();
     if (!v || v === '~' || v === 'null' || /^[\[{>|&*]/.test(v)) return null;
+    if (!SKILL_NAME_RE.test(v)) return null;               // không phải tên dùng ngay được
     return v;
   }
   return null;

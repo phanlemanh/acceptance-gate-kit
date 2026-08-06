@@ -5,7 +5,7 @@ slug: discovery-brainstorm-socket
 owner: manh@mstar.vn
 risk_tier: T2
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-08-06T09:02:18Z
 time_human_minutes: {gate1: 5}
@@ -86,3 +86,19 @@ config per-repo.
   Bằng chứng).
 - Kit tự chạy trên chính nó: repo kit KHÔNG khai `discovery.brainstorm_skill`
   → chính /start của kit đi đường fallback grill — dogfood đường AC-3.
+
+Known limits (đề xuất trình Cổng Bằng chứng — Manh đọc và quyết chấp nhận):
+
+- `_acceptance/config.yaml` tồn tại nhưng ĐỌC KHÔNG ĐƯỢC (mất quyền, là thư
+  mục) cho ra cùng `null` như "repo chưa khai" — người khai rồi sẽ thấy thẻ
+  nói "chưa khai" mà không biết nguyên nhân là quyền đọc. Hành vi (rơi về
+  grill, không chặn) vẫn đúng; chỉ nguyên nhân là không phân biệt được. Sửa
+  đúng cần thêm khoá vào schema JSON + marker hai thân + P99 — phình hơn giá
+  trị ở vòng này.
+- Nhánh "tên khai không giải được thành skill có thật" nằm ở VĂN thân lệnh,
+  chưa có máy gác: bộ quét kiểm được hình dạng tên (`plugin:skill`) nhưng
+  không biết phiên có skill đó hay không — danh sách skill khả dụng là thứ
+  của harness, không phải của repo.
+- Lỗi cùng lớp trong `lib/workspace-record.js` (`configList` bóc comment
+  trước bóc quote) CÒN SỐNG — đã bốc ra hồ sơ riêng vì `lib/**` là T3 và
+  cần bản bash đồng-kết-luận trong pre-merge (entry d-10010).

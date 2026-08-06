@@ -47,7 +47,11 @@ phẩm, không sửa gì, không tự làm nội dung thay nghi thức đích.
      `discovery.brainstorm_skill`): CÓ giá trị → mở buổi khai thác bằng đúng
      skill đó; `null` → đi nghi thức grill của kit theo khuôn
      `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/opportunity-template.md`
-     (repo chưa khai là bình thường — KHÔNG chặn, không cờ). Trước Cổng Đáng
+     (repo chưa khai là bình thường — KHÔNG chặn, không cờ). Nhánh thứ ba,
+     BẮT BUỘC có: giá trị CÓ nhưng skill đó KHÔNG nằm trong danh sách skill
+     khả dụng của phiên → NÓI THẲNG một dòng ("repo khai buổi khai thác bằng
+     `<tên>`, phiên này không có skill đó") rồi đi grill của kit — đích khai
+     mà không giải được thì im lặng dùng nó là đẩy phiên vào con trỏ chết. Trước Cổng Đáng
      KHÔNG dùng `superpowers:brainstorming` — skill đó thuộc S1 vòng LÀM, nó
      trả lời "làm thế nào" trong khi buổi này hỏi "có làm không / làm gì"; (b)
      việc đã rõ → `/feature-loop <mô tả>`; (c) việc vặt khớp miễn trừ T1 →
