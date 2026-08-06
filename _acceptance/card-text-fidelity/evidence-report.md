@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: e17023a712fe0e95265191f8e3dfa86a14868c86
+verified_commit: a3d8eb2d36db28551e72252c5d98e6324ab60970
 human_signoff:
 ---
 
@@ -26,125 +26,137 @@ human_signoff:
 | E9 | AC-9 | test | PASS |
 | E10 | AC-10 | test | PASS |
 | E11 | AC-11 | test | PASS |
+| E12 | AC-13 | test | PASS |
 
 ## Evidence
 
 - eval: E1
-  run_id: minted-card-text-fidelity-E1-r3
+  run_id: minted-card-text-fidelity-E1-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T11:15:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
 - eval: E2
-  run_id: minted-card-text-fidelity-E2-r3
+  run_id: minted-card-text-fidelity-E2-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T11:15:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
 - eval: E3
-  run_id: minted-card-text-fidelity-E3-r3
+  run_id: minted-card-text-fidelity-E3-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T11:15:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
 - eval: E4
-  run_id: minted-card-text-fidelity-E4-r3
+  run_id: minted-card-text-fidelity-E4-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T11:15:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
 - eval: E5
-  run_id: minted-card-text-fidelity-E5-r3
+  run_id: minted-card-text-fidelity-E5-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T11:15:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
 - eval: E6
-  run_id: minted-card-text-fidelity-E6-r3
+  run_id: minted-card-text-fidelity-E6-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T11:15:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
 - eval: E7
-  run_id: minted-card-text-fidelity-E7-r3
+  run_id: minted-card-text-fidelity-E7-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T11:15:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
 - eval: E8
-  run_id: minted-card-text-fidelity-E8-r3
+  run_id: minted-card-text-fidelity-E8-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T11:15:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
 - eval: E9
-  run_id: minted-card-text-fidelity-E9-r3
+  run_id: minted-card-text-fidelity-E9-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T11:15:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
 - eval: E10
-  run_id: minted-card-text-fidelity-E10-r3
+  run_id: minted-card-text-fidelity-E10-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T11:15:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
 - eval: E11
-  run_id: minted-card-text-fidelity-E11-r3
+  run_id: minted-card-text-fidelity-E11-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T11:15:00Z
+  output: |
+    PASS: P161 strip-md giu duong dan + ma tran toan phan
+
+    Results: all plugin tests passed
+
+- eval: E12
+  run_id: minted-card-text-fidelity-E12-r4
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.test.plugins
+  verified_at: 2026-08-06T11:15:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
@@ -164,6 +176,7 @@ none — every multi-run eval is uniform
 Round 1: contract + evals dựng cho card-text-fidelity (strip-md giữ đường dẫn có dấu sao trên thẻ Cổng 1/2).
 Round 2: 3 chân đo mù (must-fail, clone assert, hậu-điều-kiện) + 1 lỗ hardcode ROOT được nêu ra và một phần được vá — quyết định S4-r2 (decisions.jsonl d-20260806T032557Z-562) liệt kê 4 việc theo LỚP, trong đó (b) must-fail chưa thực sự có răng.
 Round 3: 11/11 eval máy xanh (exit 0) VÀ 6 suite regression-guard khác xanh, nhưng review phát hiện 2 hình dạng đường-dẫn-chứa-sao thật trên thẻ vẫn bị cụt (AC-6 đỏ trên dữ liệu sống dù E6/E7/E9 báo xanh), cộng 3 chân đo (E9, E10, E11) đo chỉ-dẫn hoặc chuỗi-có-mặt thay vì quan hệ mà AC hứa. REJECT — quay lại implementation để gắn thước đúng vào vật trước khi verify lại.
+Round 4: người uỷ quyền vượt trần 3 vòng (decisions.jsonl d-20260806T040916Z-11054) — đổi lời giải sang che nội dung trong nháy ngược trước khi lột + guard cả hai phía mở/đóng của dấu nhấn mạnh, và thêm E12/AC-13 (bảng phải phủ corpus, rút từ dữ liệu thật thay vì tự nghĩ) như chân mới đóng nguyên nhân gốc round 3. 12/12 eval máy xanh (exit 0) + 6 suite regression-guard khác xanh, nhưng scope-triage phát hiện E12 dùng ngưỡng dung sai `<= 25` thay vì quan hệ đỏ-khi-có-cụm-mồ-côi (18 loại mồ côi đo được hiện tại vẫn xanh, không có đối chứng dương chứng minh khối này biết đỏ) và ma trận chỉ ràng 11/19 hình dạng khai trong marker; cộng lớp "đo tổng-gộp/chỉ-dẫn/chuỗi-có-mặt thay vì quan hệ toàn phần" từ round 3 vẫn còn nguyên ở E6 (AC-6), E9 (AC-9), E10 (AC-10), E11 (AC-11). REJECT — quay lại implementation, sửa theo LỚP chứ không theo từng finding.
 
 ## Gate 2 checklist (human)
 

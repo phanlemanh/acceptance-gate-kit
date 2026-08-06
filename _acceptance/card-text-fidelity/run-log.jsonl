@@ -34,3 +34,16 @@
 {"ts":"2026-08-06T03:55:00Z","sha":"e17023a712fe0e95265191f8e3dfa86a14868c86","round":3,"evalId":"E10","run_id":"minted-card-text-fidelity-E10-r3","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-06T03:55:00Z","sha":"e17023a712fe0e95265191f8e3dfa86a14868c86","round":3,"evalId":"E11","run_id":"minted-card-text-fidelity-E11-r3","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-06T03:55:00Z","sha":"e17023a712fe0e95265191f8e3dfa86a14868c86","round":3,"kind":"baseline","evals_hash":"ctf-r3","non_discriminating":[],"carried_from_round":1}
+{"ts":"2026-08-06T05:05:00Z","sha":"a3d8eb2d36db28551e72252c5d98e6324ab60970","round":4,"evalId":"E1","run_id":"minted-card-text-fidelity-E1-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T05:05:00Z","sha":"a3d8eb2d36db28551e72252c5d98e6324ab60970","round":4,"evalId":"E2","run_id":"minted-card-text-fidelity-E2-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T05:05:00Z","sha":"a3d8eb2d36db28551e72252c5d98e6324ab60970","round":4,"evalId":"E3","run_id":"minted-card-text-fidelity-E3-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T05:05:00Z","sha":"a3d8eb2d36db28551e72252c5d98e6324ab60970","round":4,"evalId":"E4","run_id":"minted-card-text-fidelity-E4-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T05:05:00Z","sha":"a3d8eb2d36db28551e72252c5d98e6324ab60970","round":4,"evalId":"E5","run_id":"minted-card-text-fidelity-E5-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T05:05:00Z","sha":"a3d8eb2d36db28551e72252c5d98e6324ab60970","round":4,"evalId":"E6","run_id":"minted-card-text-fidelity-E6-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T05:05:00Z","sha":"a3d8eb2d36db28551e72252c5d98e6324ab60970","round":4,"evalId":"E7","run_id":"minted-card-text-fidelity-E7-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T05:05:00Z","sha":"a3d8eb2d36db28551e72252c5d98e6324ab60970","round":4,"evalId":"E8","run_id":"minted-card-text-fidelity-E8-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T05:05:00Z","sha":"a3d8eb2d36db28551e72252c5d98e6324ab60970","round":4,"evalId":"E9","run_id":"minted-card-text-fidelity-E9-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T05:05:00Z","sha":"a3d8eb2d36db28551e72252c5d98e6324ab60970","round":4,"evalId":"E10","run_id":"minted-card-text-fidelity-E10-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T05:05:00Z","sha":"a3d8eb2d36db28551e72252c5d98e6324ab60970","round":4,"evalId":"E11","run_id":"minted-card-text-fidelity-E11-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T05:05:00Z","sha":"a3d8eb2d36db28551e72252c5d98e6324ab60970","round":4,"evalId":"E12","run_id":"minted-card-text-fidelity-E12-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T05:05:00Z","sha":"a3d8eb2d36db28551e72252c5d98e6324ab60970","round":4,"kind":"baseline","evals_hash":"ctf-r4","non_discriminating":[],"carried_from_round":1}
