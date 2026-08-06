@@ -83,7 +83,7 @@ plugin/DS của repo · handbook đội · 2 key consumer:
   | 1 | **Người** — ai vận hành hàng ngày (chịu công), ai thụ hưởng, mỗi bên trên bề mặt nào | Kể được một ngày làm việc thật của người vận hành; đếm được mấy bề mặt | Cấm viết tiêu chí giao diện |
   | 2 | **Việc** — việc cốt lõi bằng động từ thật, không phải khái niệm sản phẩm | Mô tả được họ làm việc đó ra sao khi CHƯA có công cụ | Mọi thiết kế sau là phỏng đoán |
   | 3 | **Dữ liệu** — bảng đường dữ liệu: nguồn · ai nhập · ai giữ tươi · công mỗi lần · đổi lúc nào · **thiếu thì màn hình xử sự thế nào** | Bóc một bộ hồ sơ thật + bấm giờ | Dòng không có chủ → **cổng không mở** |
-  | 4 | **Vật liệu** — dựng bằng đồ gì đã có; mẫu nào chưa có; mỗi cái thiếu chọn một lối có tên (cắt về đồ cũ / tách việc hệ thiết kế / dựng riêng kèm nợ có hạn) | Kiểm kê kho bằng máy | Phiên thiết kế sẽ tự phát minh mẫu mới dưới sức ép |
+  | 4 | **Vật liệu & chỗ sống** — dựng bằng đồ gì đã có; mẫu nào chưa có; mỗi cái thiếu chọn một lối có tên (cắt về đồ cũ / tách việc hệ thiết kế / dựng riêng kèm nợ có hạn); VÀ vật này sống ở đâu trong hệ sẵn có (bảng chỗ-sống — khối W6 dưới bảng) | Kiểm kê kho bằng máy + bảng chỗ-sống có bằng chứng theo thang 3 nấc | Phiên thiết kế sẽ tự phát minh mẫu mới dưới sức ép; vòng dựng vật song song vật cũ mà không ai khai số phận vật cũ |
 
   Cột "thiếu thì xử sự thế nào" (câu 3) **chuyển thành tiêu chí nghiệm thu** —
   phần máy gác được. Chống phình: mỗi câu MỘT BẢNG không văn xuôi · chưa biết
@@ -97,6 +97,20 @@ plugin/DS của repo · handbook đội · 2 key consumer:
   dùng chính — chỗ khung trượt vô hình); (c) vòng làm lại KHÔNG được tham
   chiếu hồ sơ vòng trước làm nguồn khung, chỉ làm danh mục ý tưởng + kho
   kỹ thuật có bảng nợ.
+
+  **Vế "chỗ sống" của câu #4 (bổ sung 06/08 — W6).** Trả lời bằng MỘT bảng,
+  mỗi hàng một vật cũ cùng lớp: vật cũ cùng lớp → quan hệ với vật mới
+  (thay / kế thừa / song song) → số phận vật cũ (khai tử có đo · giữ, làm
+  gì, hạn nào) → bằng chứng. Bằng chứng theo THANG 3 NẤC, lấy nấc cao nhất
+  với được: (1) nguồn repo tự khai qua ổ cắm config (kiểu
+  `feature_loop.architecture_sources` — danh mục nơi-liệt-kê-vật theo lớp);
+  (2) liệt kê bằng máy từ mã (glob/grep có sanity counter); (3) khai tay +
+  CỜ VÀNG trên hồ sơ — không chặn. CẤM trả lời theo trí nhớ — nấc nào cũng
+  phải trỏ được vào vật thật trong cây đang kiểm. Greenfield hợp lệ: một
+  dòng "kho trống — vật đầu tiên của lớp", và dòng đó máy kiểm được (liệt kê
+  nấc 1/2 trả rỗng). Câu #4 mở rộng là bản SÂU cho đường A; lưới CHÍNH cho
+  mọi đường nằm ở khuôn design doc S1, mục "Hệ sẵn có & chỗ sống" (§2.2 S1)
+  — vì B/C/E không chạy Vòng HIỂU nên lưới đặt ở đây thì B/C/E lọt.
 
 - **D2 red-team** — phiên/pass TÁCH khỏi brainstorm (chống cùng-mù-điểm);
   output: bảng giả định xếp theo phép-thử-rẻ-nhất.
@@ -121,6 +135,18 @@ plugin/DS của repo · handbook đội · 2 key consumer:
   (subagent fresh, chỉ 4 file; cross-check gồm câu platform-fit: "artifact
   có tuân CHUẨN SẴN CÓ của repo cho lớp artifact này — skill/quy định nào
   LẼ RA phải nạp mà chưa?").
+
+  **Mục bắt buộc "Hệ sẵn có & chỗ sống" trong design doc S1 (bổ sung 06/08
+  — W6):** trước khi vẽ mới, khai vật này SỐNG Ở ĐÂU trong hệ sẵn có — bảng
+  vật-cũ-cùng-lớp → quan hệ (thay/kế thừa/song song) → số phận vật cũ →
+  bằng chứng theo thang 3 nấc của §2.1 (ổ cắm config → liệt kê máy → khai
+  tay + cờ vàng, không chặn); cấm trả lời theo trí nhớ; greenfield = một
+  dòng "kho trống" máy kiểm được. Đây là lưới CHÍNH — mọi đường A/B/C/E đều
+  qua S1; gap-probe platform-fit hỏi thêm "vật cũ cùng lớp đã khai số phận
+  chưa". **Trạng thái máy gác:** khuôn design doc S1 + ổ cắm
+  `feature_loop.architecture_sources` thuộc đợt F-J (CHƯA thi hành) — tới
+  lúc đó mục này do phiên khai tường minh, người duyệt soi tại Cổng Phạm vi
+  (cùng cơ chế mục "Trạng thái máy-suy" §2.4).
 - **S1-D (UI feature, BẮT BUỘC — descope phải có tên)**: skill
   `design-pass` (acceptance-gate ≥1.26.0) — phiên chuyên trách CHỈ thẩm mỹ
   + UX trên bản bấm được (component thật, thang vật liệu 3 bậc — hạ bậc
@@ -145,6 +171,16 @@ plugin/DS của repo · handbook đội · 2 key consumer:
      động cho thẩm mỹ — hàm mục tiêu không tồn tại dạng máy, tự động sẽ đánh
      lừa thước; đó là lý do phiên có người ngồi xem.
 
+  **Bổ sung 06/08 — soi UX/UI là vòng riêng có KIỂM ÂM:** audit UX/UI chạy
+  theo đợt như một vòng nhỏ (Khai danh mục soi → Làm thước → Đo → Quyết),
+  không rải lẻ trong lúc code. Thước mới dựng PHẢI thử-phá một lần trước khi
+  tin: phá vật trong bản sao (bỏ nhánh lỗi) ⇒ thước phải đỏ — thước chưa
+  từng đỏ là thước chưa chứng minh nó đo được gì (bất biến "thước gắn vào
+  vật"). Bất biến mọi repo: mọi bề mặt có trạng thái CHỜ và trạng thái LỖI
+  có đường phục hồi. Danh mục hiện vật soi khai THEO LỚP APP của repo —
+  rớt-mạng là hiện vật của lớp web, không phải bất biến chung; không nâng
+  hiện vật của một lớp thành luật mọi repo.
+
   **Bổ sung 04/08 — trục ngữ cảnh:** sổ phiên khai thêm nấc ngữ cảnh
   `context: standalone | static-frame | host-embedded` (chiều thứ hai độc
   lập với thang vật liệu — VẬT là gì ⟂ VẬT SỐNG Ở ĐÂU); `standalone` trước
@@ -152,6 +188,15 @@ plugin/DS của repo · handbook đội · 2 key consumer:
   `design_pass.host_embed` cấp đường-nhúng-rẻ per-repo (vắng = nấc thấp +
   cờ vàng, không chặn — đường đọc-cũ); thẻ Cổng Phạm-vi render nấc bằng
   tiếng người. Chi tiết: `docs/specs/2026-08-04-context-ladder-design.md`.
+
+  **Leo nấc giữa vòng (bổ sung 06/08):** vật leo nấc ngữ cảnh giữa vòng
+  (`standalone` → `host-embedded`…) ⇒ frontmatter sổ phiên design-pass PHẢI
+  cập nhật CÙNG LƯỢT với thân sổ — tối thiểu `context:` + con trỏ route/proto
+  (route trỏ proto đã khai tử là con trỏ hỏng). r3: thân sổ đã host-thật
+  nhưng đầu sổ còn `standalone` + route trỏ proto đã khai tử — người đọc
+  thân thì đúng, máy đọc đầu thì sai; song diện lệch nhau là artifact hỏng
+  (Chương 4). Máy gác (design-pass tự soi khi kết phiên): đợt F-J, CHƯA thi
+  hành — tới lúc đó phiên tự cập nhật, người duyệt soi tại cổng.
 
   **Đường E — làn hệ thiết kế** (bổ sung vào bảng định tuyến §2.4): sản phẩm
   giao ra là LINH KIỆN, không phải màn hình. Nhịp riêng: Khai (mẫu giải quyết
@@ -170,11 +215,27 @@ plugin/DS của repo · handbook đội · 2 key consumer:
   independent → đường Y vì Z"); chuỗi dài → checkpoint giữa chuỗi
   (build+smoke sau cụm nền tảng); code kế thừa (keep) phải nêu đích danh
   trong plan.
-- **Nối bản duyệt với bản dựng (bổ sung 02/08)**: chạy **cùng một bộ thước
-  hai lần** — lần một trên bản mẫu lúc duyệt (lưu số vào hồ sơ cổng làm mốc),
-  lần hai trên sản phẩm sau khi dựng; hai bộ số phải khớp trong sai số. Không
-  so từng điểm ảnh, dùng chính bộ kiểm giao diện đã có. Lấp chỗ trống để lại
-  khi nghi thức so-chồng-ảnh bị khai tử.
+- **Nối bản duyệt với bản dựng (viết lại 06/08 — nguyên lý một-nguồn-sự-thật;
+  bản đo-2-lần 02/08 hạ xuống fallback)**: sản phẩm thật dựng xong thì bản
+  nháp PHẢI khai tử — kèm MỘT lần đo độ lệch nháp↔thật làm bằng chứng khai
+  tử; từ đó mọi bằng chứng chụp từ bề mặt THẬT, không để hai nguồn sự thật
+  chạy song song rồi trôi khỏi nhau. Bảng-trạng-thái-bằng-linh-kiện-thật
+  (states-gallery: một trang liệt đủ các ô trạng thái dựng bằng component
+  thật, kiêm bản-vẽ-chuẩn + bề mặt chụp bằng chứng) là PATTERN CÓ TÊN cho
+  web-app có route — KHÔNG phải khuôn bắt buộc; repo không phải web-app chọn
+  hình khác miễn giữ nguyên lý. Fallback khi lúc duyệt CHƯA có bản thật:
+  chạy **cùng một bộ thước hai lần** — lần một trên bản mẫu lúc duyệt (lưu
+  số vào hồ sơ cổng làm mốc), lần hai trên sản phẩm sau khi dựng; hai bộ số
+  khớp trong sai số; dùng chính bộ kiểm giao diện đã có, không so từng điểm
+  ảnh. (Thực nghiệm r3: proto khai tử có đo đạc, bảng trạng thái 10 ô bằng
+  component thật lên thay làm bản-vẽ-chuẩn.)
+- **Lái tay toàn tuyến trước S4 (bổ sung 06/08)**: trước khi mở vòng verify,
+  MỘT lượt đi hết luồng qua ĐƯỜNG THẬT — không mock chỗ nối. Vật có UI: đi
+  như người dùng thật từ đầu tới cuối việc; đường C không UI: chạy chuỗi
+  API/pipeline đầu-cuối qua đường thật. Lý do tồn tại: phép máy đo từng
+  mảnh, chỗ NỐI chỉ lộ khi lái tay — r3 bắt 2 lỗ mà mọi phép máy đều xanh
+  (giá/loại căn bị vứt khi nhập · broadcast không ra việc). Lỗ tìm thấy quay
+  về S3-fix như finding thường — lượt lái tay không thay thế S4.
 - **S4 verify** — MỘT Workflow run/round (`acceptance-verify.js`, fresh
   agents): evals máy + judge panel đa-lens + review + baseline analyst ·
   carry-forward P1 (delta×paths, atomic-pair cross-layer) / P2 (baseline
@@ -225,6 +286,14 @@ gì) → Làm (dựng trên trang trưng bày) → Đo (4 thước trên) → Qu
 hệ / trả về). **Guard chống lạm dụng:** đường E CHỈ dành cho thứ vào hệ dùng
 chung; sửa nhỏ một chỗ hoặc dựng-một-lần-dùng-riêng đi lối **nợ có tên**
 (hiện trong PRODUCT-MAP kèm hạn trả), không mở nghi thức đường E.
+
+**Nguyên lý tầng dùng chung (bổ sung 06/08):** GIỮA vòng phát hiện lỗi nằm
+trên TẦNG DÙNG CHUNG (sửa là đụng mọi chỗ đang dùng) → bốc ra hồ sơ riêng +
+phiên riêng, KHÔNG sửa lẫn trong vòng đang chạy — vòng hiện tại ghi nợ có
+tên rồi đi tiếp trên hiện trạng. Đường E chỉ là CA LINH KIỆN UI của nguyên
+lý này; nợ thư viện backend dùng chung không mở nghi thức đường E — đi hồ sơ
+T2 thường. (r3: nợ vỏ dùng chung bốc ra hồ sơ riêng `ds-debt-tap-primary-soft`
+giữa vòng — trước đây guard đường E chỉ nói lúc định tuyến đầu vòng.)
 
 Chống-quên: đường B/C/E → contract Notes TỰ ghi "không giả định giá trị mới —
 không phiên UAT" (cổng thấy chữ); có ngưỡng UAT mà định ship thẳng → CHẶN.
