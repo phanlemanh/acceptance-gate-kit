@@ -3059,13 +3059,18 @@ from pathlib import Path
 root = Path(sys.argv[1])
 SCAN = "scripts/start-scan.mjs"
 LAW = "skills/acceptance/references/human-facing-language.md"
+# Con tro thu ba (F-K, them o S4-r2): nhanh fallback cua loi (a) tro khuon
+# grill kit-own. Danh sach nay TUNG la hardcode 2 muc va con tro moi khong
+# duoc them vao — goi ship con tro chet ma suite van xanh, dung lop loi ma
+# chinh feature nay sinh ra de chan.
+OPP = "skills/acceptance/references/opportunity-template.md"
 
 def check_claude(pkg):
     # Goi Claude = repo root (marketplace tro thang repo): con tro trong
     # commands/start.md ghep goc goi phai ra vat that.
     errs = []
     t = (pkg / "commands/start.md").read_text(encoding="utf-8")
-    for ref in [SCAN, LAW]:
+    for ref in [SCAN, LAW, OPP]:
         if ref not in t:
             errs.append(f"commands/start.md: khong rut duoc con tro {ref}")
         elif not (pkg / ref).is_file():
@@ -3086,6 +3091,10 @@ def check_codex(pkg):
         errs.append("SKILL start: khong rut duoc con tro ban luat qua goc goi")
     elif not (pkg / LAW).is_file():
         errs.append(f"con tro {LAW} tro file khong ton tai trong goi codex")
+    if "${PLUGIN_ROOT}/" + OPP not in t:
+        errs.append("SKILL start: khong rut duoc con tro khuon grill qua goc goi")
+    elif not (pkg / OPP).is_file():
+        errs.append(f"con tro {OPP} tro file khong ton tai trong goi codex")
     return errs
 
 PKG = root / "plugins/acceptance-gate"
@@ -3107,6 +3116,13 @@ try:
     e2 = check_codex(c2)
     assert any("khong rut duoc con tro ban luat" in x for x in e2), \
         f"dot bien xoa con tro ban luat khong do dung thong diep: {e2}"
+    sk.write_text(sk.read_text(encoding="utf-8").replace("(da xoa)", "${PLUGIN_ROOT}/" + LAW),
+                  encoding="utf-8")
+    (c2 / OPP).rename(c2 / "skills/acceptance/references/doi-cho.md")  # dot bien 3: khuon grill bien mat
+    e3 = check_codex(c2)
+    assert any(OPP in x and "tro file khong ton tai" in x for x in e3), \
+        f"dot bien doi cho khuon grill khong do dung thong diep: {e3}"
+    (c2 / "skills/acceptance/references/doi-cho.md").rename(c2 / OPP)
 finally:
     shutil.rmtree(tmp)
 PY
@@ -7387,12 +7403,19 @@ const scan = cfg => {
   if (!('discovery' in json)) die('JSON thiếu khối discovery');
   return json.discovery.brainstormSkill;
 };
-const cfg = body => `schema_version: 1\ndiscovery:\n${body}`;
+const cfg = body => (/\r\n/.test(body)
+  ? `schema_version: 1\r\ndiscovery:\r\n${body}`
+  : `schema_version: 1\ndiscovery:\n${body}`);
 const NAME = 'acme:brainstorm';
 
-// ── MA TRẬN TOÀN PHẦN viết-trước (mẫu P105). Mỗi nhánh guard của reader một ô,
-// KHÔNG gộp cả lớp phi-scalar vào một đại diện: r1 bắt được đúng chỗ này
-// (tuyên phủ "mọi hình dạng phi-scalar" nhưng chỉ có 1/6 nhánh có chân đo).
+// ── MA TRẬN viết-trước (mẫu P105): mỗi nhánh guard của reader một ô, KHÔNG
+// gộp cả lớp phi-scalar vào một đại diện (r1 bắt đúng chỗ này).
+// GIỚI HẠN đã biết, ghi cho trung thực (r2): ma trận đo ĐẦU RA, nên nó KHÔNG
+// phân biệt được mọi đường đi nội bộ. Cụ thể: ô 'quote chứa #' một mình KHÔNG
+// canh được thứ tự bóc quote↔comment — SKILL_NAME_RE loại cả hai đường về null
+// (kiểm bằng cách tiêm mutant đảo thứ tự vào bản sao cây: sống sót trọn ma
+// trận). Ô THẬT SỰ có răng cho lớp 'cắt comment quá tay' là
+// 'unquoted chứa #': bản đúng → null, bản cắt-quá-tay → 'acme:brain'.
 const MATRIX = [
   // [nhãn, thân YAML dưới `discovery:`, kỳ vọng]
   ['trần',              `  ${KEY}: ${NAME}\n`,                       NAME],
@@ -7414,6 +7437,12 @@ const MATRIX = [
   ['neo &',             `  ${KEY}: &anchor x\n`,                     null],
   ['alias *',           `  ${KEY}: *anchor\n`,                       null],
   ['quote chứa #',      `  ${KEY}: "acme:brain#storm"\n`,            null],
+  // Ô CÓ RĂNG cho lớp cắt-comment-quá-tay (r2): `#` không có khoảng trắng
+  // đứng trước KHÔNG mở comment theo YAML. Bản `replace(/\s*#.*$/,'')` cắt
+  // thành 'acme:brain' rồi lọt shape check — ô này là chỗ duy nhất thấy được.
+  ['unquoted chứa #',   `  ${KEY}: acme:brain#storm\n`,              null],
+  // CRLF: repo Windows / core.autocrlf khai ĐÚNG mà bị bỏ qua im lặng (r2)
+  ['CRLF, giá trị trần', `  ${KEY}: ${NAME}\n`.replace(/\n/g, '\r\n'),  NAME],
   ['câu văn có dấu cách', `  ${KEY}: hãy dùng skill nào đó\n`,       null],
   ['map con lồng sâu',  `  other:\n    ${KEY}: ${NAME}\n`,           null],
   ['YAML hỏng',         `  ${KEY} thiếu dấu hai chấm\n\t:::bad\n`,   null],
@@ -7435,10 +7464,15 @@ if (scan(cfg(`  ${KEY}_doi_ten: ${NAME}\n`)) !== null)
 const SEG = [
   { rel: 'commands/start.md', a: 'Bắt đầu việc mới', b: 'Dưới thẻ',
     pos: /CÓ giá trị\s*→\s*mở buổi khai thác bằng đúng\s+skill đó/,
-    neg: /`null`\s*→\s*đi nghi thức grill của kit/, tail: 'KHÔNG chặn' },
+    neg: /`null`\s*→\s*đi nghi thức grill của kit/, tail: 'KHÔNG chặn',
+    // Nhánh THỨ BA: đích khai mà phiên không có skill đó → NÓI THẲNG rồi grill.
+    // Thêm ở r1 mà quên thước (r2 bắt): xoá cả mệnh đề thì mọi case vẫn xanh,
+    // trong khi đây là nhánh duy nhất mà vắng nó gây đúng cái hại đã ghi.
+    third: /nằm trong danh sách skill[\s\S]{0,40}?khả dụng[\s\S]{0,60}?→[\s\S]{0,40}?NÓI THẲNG[\s\S]{0,260}?grill của kit/i },
   { rel: 'codex/acceptance-gate/skills/start/SKILL.md', a: 'Bắt đầu việc mới', b: 'Below the card',
     pos: /a value\s*→\s*open the session with exactly\s+that skill/,
-    neg: /`null`\s*→\s*run the kit's own grill ritual/, tail: 'never block' },
+    neg: /`null`\s*→\s*run the kit's own grill ritual/, tail: 'never block',
+    third: /NOT in this session's available-skill list[\s\S]{0,60}?→[\s\S]{0,40}?say so in one line[\s\S]{0,260}?grill ritual/i },
 ];
 const segOf = (txt, s) => {
   const i = txt.indexOf(s.a), j = i < 0 ? -1 : txt.indexOf(s.b, i);
@@ -7453,6 +7487,7 @@ const checkSeg = (s, txt) => {
   if (!seg.includes('opportunity-template.md')) errs.push(`${s.rel}: nhánh fallback không trỏ khuôn opportunity-template.md`);
   if (!seg.includes(s.tail)) errs.push(`${s.rel}: đoạn lối (a) thiếu chữ "${s.tail}"`);
   if (!seg.includes(`discovery.${KEY}`)) errs.push(`${s.rel}: đoạn lối (a) không nêu khoá config discovery.${KEY}`);
+  if (!s.third.test(seg)) errs.push(`${s.rel}: đoạn lối (a) thiếu NHÁNH THỨ BA — đích khai không giải được → nói thẳng rồi grill`);
   return errs;
 };
 for (const s of SEG) {
@@ -7467,8 +7502,13 @@ for (const s of SEG) {
   const m2 = txt.replace(s.neg, '`null` thì thôi');
   if (!checkSeg(s, m2).some(x => /thiếu QUAN HỆ nhánh-null/.test(x)))
     die(`${s.rel}: mutant xoá nhánh fallback không bị bắt`);
+  // mutant 3: xoá mệnh đề nhánh thứ ba → phải đỏ đúng thông điệp
+  const m3 = txt.replace(s.third, 'đích khai thì cứ dùng');
+  if (m3 === txt) die(`${s.rel}: tiêm mutant nhánh thứ ba thất bại — regex không khớp bản sống`);
+  if (!checkSeg(s, m3).some(x => /thiếu NHÁNH THỨ BA/.test(x)))
+    die(`${s.rel}: mutant xoá nhánh thứ ba không bị bắt`);
 }
-console.log(`P166 OK (khoá '${KEY}' rút từ thân lệnh · ma trận ${MATRIX.length} ô · đối chứng seam · 2 đoạn × 2 mutant quan hệ)`);
+console.log(`P166 OK (khoá '${KEY}' rút từ thân lệnh · ma trận ${MATRIX.length} ô · đối chứng seam · 2 đoạn × 3 mutant quan hệ)`);
 JS
 
 # ── P167: F-K cấm hardcode tên bên-thứ-ba không-dependency trong cây nguồn

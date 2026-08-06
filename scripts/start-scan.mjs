@@ -268,7 +268,11 @@ const cfgRead = read(path.join(root, '_acceptance', 'config.yaml'));
 //     vì đẩy phiên đi gọi một đích không tồn tại.
 const SKILL_NAME_RE = /^[A-Za-z0-9_.-]+(?::[A-Za-z0-9_.-]+)*$/;
 const configScalar = (cfgTxt, section, key) => {
-  const lines = String(cfgTxt || '').split('\n');
+  // Tách dòng chịu CẢ CRLF: `\r` sót lại làm regex khoá (neo `$`) không khớp,
+  // nên repo Windows / core.autocrlf khai đúng vẫn ra null — im lặng rơi về
+  // grill, không dòng nào nói vì sao. Cùng lớp lỗi (2) ở trên (khai báo hợp lệ
+  // bị bỏ qua), chỉ đổi tác nhân từ dấu cách sang ký tự xuống dòng (S4-r2).
+  const lines = String(cfgTxt || '').split(/\r?\n/);
   const start = lines.findIndex(l => new RegExp('^' + section + ':\\s*(#.*)?$').test(l));
   if (start < 0) return null;
   let baseIndent = null;

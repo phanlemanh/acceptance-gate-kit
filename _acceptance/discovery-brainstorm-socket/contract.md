@@ -15,7 +15,7 @@ time_human_minutes: {gate1: 5}
 
 Nguồn scope: F-K trong nhật ký rollout (Bổ sung 06/08 — bảng soi
 "đúng-trên-mọi-repo", hàng F-K "NẶNG — ca duy nhất cấp danh sách"). Nguyên
-nhân kép ghi ở Bổ sung 03/08: lối (a) không có đích máy-đọc + hook
+nhân kép ghi ở Bổ sung 03/08: lối (a) không có đích máy-đọc + lời nhắc của
 superpowers to tiếng hơn ở điểm nghẽn, nên phiên vào vòng HIỂU bị hút sang
 `superpowers:brainstorming` (skill thuộc S1 vòng LÀM). Cấm hardcode tên
 plugin bên-thứ-ba không-dependency vào cây nguồn kit — vế dương phải là ổ cắm
@@ -90,15 +90,16 @@ config per-repo.
 Known limits (đề xuất trình Cổng Bằng chứng — Manh đọc và quyết chấp nhận):
 
 - `_acceptance/config.yaml` tồn tại nhưng ĐỌC KHÔNG ĐƯỢC (mất quyền, là thư
-  mục) cho ra cùng `null` như "repo chưa khai" — người khai rồi sẽ thấy thẻ
-  nói "chưa khai" mà không biết nguyên nhân là quyền đọc. Hành vi (rơi về
+  mục) cho ra cùng `null` như "repo chưa khai" — người khai rồi sẽ thấy bộ
+  quét báo "chưa khai" mà không biết nguyên nhân là quyền đọc. Hành vi (rơi về
   grill, không chặn) vẫn đúng; chỉ nguyên nhân là không phân biệt được. Sửa
   đúng cần thêm khoá vào schema JSON + marker hai thân + P99 — phình hơn giá
   trị ở vòng này.
-- Nhánh "tên khai không giải được thành skill có thật" nằm ở VĂN thân lệnh,
-  chưa có máy gác: bộ quét kiểm được hình dạng tên (`plugin:skill`) nhưng
-  không biết phiên có skill đó hay không — danh sách skill khả dụng là thứ
-  của harness, không phải của repo.
+- Nhánh "tên khai không giải được thành skill có thật": SỰ CÓ MẶT của nhánh
+  trong hai thân lệnh đã có máy gác (P166 + mutant, thêm ở round 2), nhưng
+  VIỆC THI HÀNH lúc chạy vẫn là của phiên — bộ quét kiểm được hình dạng tên
+  (`plugin:skill`) chứ không biết phiên có skill đó hay không; danh sách
+  skill khả dụng là thứ của harness, không phải của repo.
 - Lỗi cùng lớp trong `lib/workspace-record.js` (`configList` bóc comment
   trước bóc quote) CÒN SỐNG — đã bốc ra hồ sơ riêng vì `lib/**` là T3 và
   cần bản bash đồng-kết-luận trong pre-merge (entry d-10010).
