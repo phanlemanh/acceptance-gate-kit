@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: cba0e3850e06519a75cccefafbafbd6582ae6c55
+verified_commit: 27ce6620b639632b11842992008f7bfcc9066b17
 human_signoff:
 ---
 
@@ -30,137 +30,142 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-card-text-fidelity-E1-r1
+  run_id: minted-card-text-fidelity-E1-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T02:00:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
 - eval: E2
-  run_id: minted-card-text-fidelity-E2-r1
+  run_id: minted-card-text-fidelity-E2-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T02:00:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
 - eval: E3
-  run_id: minted-card-text-fidelity-E3-r1
+  run_id: minted-card-text-fidelity-E3-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T02:00:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
 - eval: E4
-  run_id: minted-card-text-fidelity-E4-r1
+  run_id: minted-card-text-fidelity-E4-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T02:00:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
 - eval: E5
-  run_id: minted-card-text-fidelity-E5-r1
+  run_id: minted-card-text-fidelity-E5-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T02:00:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
 - eval: E6
-  run_id: minted-card-text-fidelity-E6-r1
+  run_id: minted-card-text-fidelity-E6-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T02:00:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
 - eval: E7
-  run_id: minted-card-text-fidelity-E7-r1
+  run_id: minted-card-text-fidelity-E7-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T02:00:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
 - eval: E8
-  run_id: minted-card-text-fidelity-E8-r1
+  run_id: minted-card-text-fidelity-E8-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T02:00:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
 - eval: E9
-  run_id: minted-card-text-fidelity-E9-r1
+  run_id: minted-card-text-fidelity-E9-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T02:00:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
 - eval: E10
-  run_id: minted-card-text-fidelity-E10-r1
+  run_id: minted-card-text-fidelity-E10-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T02:00:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
 - eval: E11
-  run_id: minted-card-text-fidelity-E11-r1
+  run_id: minted-card-text-fidelity-E11-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T09:00:00Z
+  verified_at: 2026-08-06T02:00:00Z
   output: |
     PASS: P161 strip-md giu duong dan + ma tran toan phan
 
     Results: all plugin tests passed
 
+Regression-guard suites chạy cùng lượt (không gắn eval id, không đại diện cho AC nào): `bash tests/scripts/run-tests.sh` (601 passed, 0 failed), `bash tests/hooks/run-tests.sh` (54 passed, 0 failed), `bash scripts/sync-plugin-packages.sh --check` (plugins/ mirror in sync), `bash tests/workflows/run-tests.sh` (62 passed, 0 failed), `node scripts/product-map.mjs --root . --check` (PRODUCT-MAP.md khớp hồ sơ xưởng) — tất cả đều xanh (exit code 0).
+
 ## Analyst
 
-E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11 — xanh trên CẢ HEAD lẫn diffBase (bash tests/plugins/run-tests.sh, baseline: green cho toàn bộ khối P161) — không phân biệt được feature này với code cũ. Điều này khớp với thứ review (scope-triage) phát hiện: khối P161 dùng chung một lệnh cho cả 11 eval, và phần lớn phép đo (đặc biệt E6, E7, E9, E11) yếu hơn hẳn quan hệ mà AC hứa (đếm/tồn-tại thay vì toàn phần/truy-nguồn; E9/E11 không có cài đặt), nên suite xanh không chứng minh được các AC tương ứng. Cần viết lại phép đo theo đúng quan hệ đã khai trước khi coi các eval này là bằng chứng phân biệt.
+carried tu round 1 — baseline khong do lai round nay
+
+none — baseline không đo lại round này (P2, evals.yaml không đổi từ lần baseline cuối = round 1); xem evidence round 1 cho kết quả A/B của từng eval.
 
 ## Variance
 
-none — không có eval nào runs > 1 trong vòng này.
+none — every multi-run eval is uniform (không có eval nào khai `runs` > 1 round này).
 
 ## Iterations
 
-Round 1: E1-E11 đều PASS trên máy (bash tests/plugins/run-tests.sh, exit 0) nhưng đối chứng KHÔNG phân biệt được feature — cùng bộ eval cũng PASS trên baseline pre-feature. Review phát hiện đối chứng dương của P161 fail-open lặng lẽ trên bản sao nông (E4/E5/E7/E8 biến mất mà vẫn xanh), E6/E7 đo bằng đếm/tồn-tại thay vì quan hệ toàn phần/truy-nguồn mà AC-6/AC-7 hứa, và E9/E11 hoàn toàn không có phép đo dù nhãn khối tự khai phủ E1-E11. Verdict: REJECT — quay lại sửa phép đo (không chỉ hành vi gate-card.js) trước khi tính PASS.
+Round 1: review-findings round 1 REJECT — E5 (AC-12) fail-open trên fixture kho-nông, E6 (AC-6) đo hẹp qua nhánh continue tự miễn, E7/E8 (AC-7/AC-8) dùng lại đúng mutant nên không tự đứng vững, E9 (AC-9) không có phép so quan hệ theo hình dạng có tên. Returned to implementation (S4-r1, commit 27ce662).
+Round 2 (this): 11/11 eval máy xanh (bash tests/plugins/run-tests.sh, executor test) + 5 suite regression-guard xanh, nhưng review round 2 đo lại bằng đối chứng dương trên vật thật cho thấy cùng lớp lỗi còn sống dưới da mới của S4-r1 — E6 hẹp hơn (checked 3/36 want-instance), E9 vẫn không phân biệt được (`set(b) >= set(a)` tha 5/13 dòng chênh lệch, hàm `classify()` là mã chết), E5 vẫn fail-open khi git clone kho-nông hỏng (returncode không được kiểm). REJECT.
 
 ## Gate 2 checklist (human)
 

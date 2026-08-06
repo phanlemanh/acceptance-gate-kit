@@ -42,6 +42,8 @@ hợp, không phải số đếm).
 - nghiêng-lỏng-có-khoảng-trắng — giữ nguyên
 - đậm-và-glob-cùng-dòng — lột đậm, giữ glob
 - đậm-dính-chữ-trước — lột dấu, giữ chữ
+- đậm-dính-dấu-câu-trước — lột dấu, giữ chữ
+- đậm-dính-gạch-ngang-trước — lột dấu, giữ chữ
 <!-- STRIP-SHAPE-MATRIX>>> -->
 
 ## Criteria
@@ -94,7 +96,7 @@ hợp, không phải số đếm).
 
 Từ morphological-scan (3 trục — thước CE trong ngoặc):
 
-- **A — hình dạng đánh dấu** (CE: 12 hình dạng khai trong bảng
+- **A — hình dạng đánh dấu** (CE: **15** hình dạng khai trong bảng
   `STRIP-SHAPE-MATRIX` ở trên, mỗi hình dạng có kỳ vọng): AC-1 (kỳ vọng từng
   hình dạng), AC-2 (tính toàn phần của tập tên), AC-3 (nhóm lột), AC-4 (lồng)
 - **B — nội dung bị đe doạ** (CE: quét nguồn thật — đường dẫn chứa sao có mặt

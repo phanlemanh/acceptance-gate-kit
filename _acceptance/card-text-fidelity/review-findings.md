@@ -1,126 +1,142 @@
-# Review Findings — card-text-fidelity (round 1)
-
-Scope-triage: 17 lỗi tổng cộng — 13 map được vào AC trong hợp đồng, 4 nằm ngoài phạm vi đã duyệt ở Cổng 1.
-
 ## Trong hợp đồng
 
-- **Đối chứng dương của P161 fail-open trên bản sao nông — cả E4/E5/E7/E8 biến mất mà test vẫn XANH**
-  file: `tests/plugins/run-tests.sh:6770`
-  severity: high
-  AC: AC-12
-  detail: P161 lấy mốc so-bản-cũ từ decisions.jsonl rồi kiểm `git cat-file -e $BASE^{commit}`. Nếu commit không có trong cây, nhánh `if have.returncode != 0` chỉ IN một dòng ghi chú rồi chạy tiếp — và vì E7/E8 nằm trong `if have.returncode == 0` (dòng 6835), TOÀN BỘ chân đối chứng (E4 bản-cũ-sai-ở-đâu, E5, E7 xuất xứ, E8 mutant, E3 nhóm-lột-không-suy-giảm) bị bỏ qua trong khi P161 vẫn báo PASS. Đã kiểm chứng thật: `git clone --depth 1` repo này → base 044968e KHÔNG reachable → toàn bộ chặng đối chứng bị skip. Đây đúng lớp lỗi CLAUDE.md cấm ("assertion âm-tính-một-mình"/"đối chứng dương phải XANH trước khi tin bản bị tiêm là ĐỎ") — chỉ đảo chiều: control bị vô hiệu âm thầm, không phải kêu. Ngoài ra E5 trong evals.yaml khai "dựng bằng bản sao nông/kho tạm TRONG CHÍNH LẦN CHẠY" — không có fixture nào được dựng; nhánh này chưa từng chạy trong cây đủ lịch sử, tức đường mà E5 hứa đo lại chính là đường fail-open. Cách chữa đúng doctrine: dựng fixture kho-nông trong lần chạy để E5 có ĐƯỜNG DƯƠNG, và khi cây thật thiếu mốc thì phải ĐỎ (hoặc unfetch/deepen), không phải bỏ qua.
-  rationale: AC-12 đòi khi cây kiểm thiếu commit mốc phải có thông điệp riêng và (qua E5) một fixture kho-nông dựng trong lần chạy để chứng minh đường đó chạy được; hiện tại chỉ print rồi bỏ qua, đúng phần AC-12 thất bại.
+### E6 (AC-6) không phân biệt được bản đã sửa với bản có lỗi — xanh trên chính bản TRƯỚC-DIFF
+- file: `tests/plugins/run-tests.sh:6885`
+- severity: high
+- AC: AC-6
+- source: conventions
+- detail: Dòng 6885 `if re.search(re.escape(stem) + r"(?![A-Za-z0-9_.*/-])", src_all): continue` bỏ qua TOÀN BỘ phần quét bản-cụt cho glob nào mà chuỗi gốc (đã bỏ sao) cũng xuất hiện hợp lệ ở đâu đó trong nguồn. Đo thật trên corpus: 12/18 glob bị bỏ qua, gồm chính `plugins/**` trong contract của card-text-fidelity, `lib/**` + `hooks/**` của gate-card-ac-visibility, `_acceptance/*` của 3 slug.
 
-- **E7/E8 đo bằng ĐẾM số đường dẫn thay vì QUAN HỆ xuất xứ mà AC-7 khai; mutant AC-8 không được tiêm**
-  file: `tests/plugins/run-tests.sh:6848`
-  severity: high
-  AC: AC-7
-  detail: AC-7 yêu cầu quan hệ hai chiều: mọi cụm sao chỉ-có-ở-bản-mới phải nằm trong một chuỗi xuất hiện NGUYÊN VĂN trong file nguồn của slug, VÀ không cụm nào truy không được về nguồn. Phần cài đặt lại chỉ đếm match của `PATH_RE = re.compile(r"\*\*/|[A-Za-z0-9_.-]+/\*\*")` trên hai thẻ rồi assert `na >= nb` và `gained > 0` — tức đo TỪ VỰNG/số đếm, không đọc file nguồn lần nào. Chiều nghịch (cụm sao bản mới không truy được về nguồn) hoàn toàn không được đo: một bản làm rò rỉ dấu sao bịa ra sẽ chỉ làm `gained` TĂNG và test vẫn xanh. Đây là lớp lỗi đã ghi trong bộ nhớ kit ("Đo từ vựng thay vì quan hệ" — 6 vòng cùng một xương) và "thước phải gắn vào vật được giao". Kèm theo, AC-8/E8 khai mutant là "tiêm 'không lột chữ đậm nữa' vào bản sao", nhưng mã dùng chính BẢN CŨ làm mutant (`mut2.write_text(show.stdout)`) — mà bản cũ đã là đối chứng của E4, nên E8 không thêm sức phân biệt nào: nó không thể phát hiện hồi quy "ngừng lột chữ đậm" của bản MỚI.
-  rationale: AC-7 khai rõ quan hệ hai chiều truy-về-nguồn và cấm phép đếm/chuẩn hoá-rồi-so, còn cài đặt chỉ so hai con số đếm — đúng phần AC-7 thất bại.
+  Đối chứng dương (nghi thức CLAUDE.md "phá vật thật trong một bản sao, phép đo này có đỏ không?"): tôi dựng scripts/gate-card.js tại mốc 044968e (bản CÓ lỗi mà feature này đi sửa) rồi chạy đúng logic E6 → `checked=3, fails=0` — Y HỆT bản mới. Nghĩa là E6 không thể đỏ trên vật hỏng, và assert duy nhất đóng chân này (`assert checked > 0`, dòng 6890) chỉ ghim sự tồn tại của 3 chuỗi con, trong khi AC-6 hứa quan hệ TOÀN PHẦN "mọi đường dẫn đó xuất hiện nguyên vẹn".
 
-- **Khối P161 khai "(E1-E11)" nhưng E9 và E11 không có phép đo nào trong toàn kho — AC-9/AC-11 chưa được đo**
-  file: `tests/plugins/run-tests.sh:6674`
-  severity: medium
-  AC: AC-9
-  detail: Tiêu đề khối và dòng echo (6678) khai phủ E1-E11. Đọc mã: (1)=E1, (2)=E2, (3)=E3, (4)=E4/E5, (5)=E6, (6)=E7/E8, rồi nhảy thẳng sang (8)=E10 — số (7) trống. Grep toàn `tests/plugins/run-tests.sh` không có phép đo nào khác cho slug card-text-fidelity, nên E9 (quét MỌI cụm sao trong corpus thật, phân loại vào hình dạng CÓ TÊN trong marker) và E11 (6 lệnh kiểm + chống hạ-thước-cũ) không tồn tại. Hệ quả cụ thể chứ không lý thuyết: E9 chính là chân duy nhất bắt hình dạng KHÔNG có tên trong marker, và có hình dạng như vậy thật — chạy hàm lột thật từ scripts/gate-card.js cho thấy dấu mở DÍNH ký tự trước đã đổi hành vi so với bản cũ và không nằm trong 12 hình dạng đã khai: "Chú ý:**Đậm**" → giữ nguyên (trước: lột), "—**Đậm**" → giữ nguyên (trước: lột), "**a**b**c**" → "ab**c**" (trước: "abc"). Contract tự đặt tiền đề "mọi hình dạng dấu sao phải có kỳ vọng KHAI TRƯỚC — kể cả hình dạng 'giữ nguyên'", nên đúng chân đo dùng để giữ tiền đề đó lại là chân bị bỏ.
-  rationale: AC-9 đòi quét mọi cụm sao trong corpus thật và phân loại vào hình dạng có tên kèm sanity đếm được — phần đo đó hoàn toàn không tồn tại trong mã.
+  Đây đúng finding high của review round 1 (`review-findings.md`, mục "Hình dạng 3 — E6/AC-6 hứa MỌI đường dẫn nguyên vẹn nhưng assert chỉ là có ít nhất một chuỗi có mặt") — bản sửa S4-r1 làm phạm vi đo HẸP đi (checked 10 → 3) chứ không làm nó sống lại. Vi phạm bất biến CLAUDE.md "Assertion âm-tính-một-mình là assertion không sống" và "Thước phải gắn vào vật được giao".
 
-- **E9 (AC-9) không có phép đo nào — nhưng khối P161 tự khai "quét corpus thật"**
-  file: `tests/plugins/run-tests.sh:6678`
-  severity: high
-  AC: AC-9
-  detail: Khối P161 tự nhận là "(E1-E11)" và dòng echo quảng cáo "quet corpus that", nhưng trong 187 dòng python chỉ có các mốc (1) E1, (2) E2, (3) E3, (4) E4/E5, (5) E6, (6) E7/E8, (8) E10. Không có đoạn nào rút MỌI cụm dấu sao từ hồ sơ thật trong `_acceptance/` (contract.md + decisions.jsonl), chạy qua CẢ bản cũ lẫn bản mới, rồi phân loại từng chênh lệch vào một hình dạng CÓ TÊN trong marker — tức đúng nội dung AC-9/E9. Đoạn E6 (dòng 6796-6832) chỉ quét glob trong contract.md rồi kiểm thẻ, không phải phép đo E9. Vì mọi eval của slug này đều dùng cùng một cmd `config:executors.test.plugins`, suite xanh ⇒ E9 sẽ được ghi PASS mà phía sau không có gì. Đây chính là chân chống mà AC-9 sinh ra để giữ: hình dạng hồ sơ thật SỰ CÓ nhưng bảng 12 ca không nghĩ tới. Kịch bản hỏng cụ thể: chữ đậm dính liền chữ trước (`tier T3**mới**`, `xem CONTEXT.md**đây**`) là nhấn mạnh hợp lệ theo CommonMark, bản cũ lột, bản mới KHÔNG lột (đã kiểm chạy thật) — nó không nằm trong 12 hình dạng nên E1/E2 không thấy, và không có E9 nên không phép đo nào thấy.
-  rationale: Trùng đúng nội dung AC-9 (quét mọi cụm sao thật trong corpus, phân loại vào hình dạng có tên, sanity > 0) — phép đo này không tồn tại trong mã.
+### E9 (AC-9) không thể đỏ — mệnh đề thoát `set(b) >= set(a)` là phép so TỪ VỰNG ký tự
+- file: `tests/plugins/run-tests.sh:6917`
+- severity: high
+- AC: AC-9
+- source: conventions
+- detail: Dòng 6917: `if len(b) >= len(a) and a == re.sub(r"\*", "", b) or set(b) >= set(a): continue`. Ưu tiên Python cho `(len&&eq) or (set(b) >= set(a))` — vế thứ hai chỉ so TẬP KÝ TỰ, mà bản mới theo định nghĩa giữ lại dấu sao bản cũ nuốt nên `set(b) ⊇ set(a)` gần như luôn đúng.
 
-- **E11 (AC-11) không có phép đo — không có chốt "chỉ được THÊM, không sửa assert cũ"**
-  file: `tests/plugins/run-tests.sh:6674`
-  severity: high
-  AC: AC-11
-  detail: E11 khai: "trong diff feature này trên tests/plugins/run-tests.sh, các khối P đã có TRƯỚC mốc chỉ được THÊM dòng, không đổi/không xoá assert cũ (so với bản tại mốc trong sổ)". Trong P161 không có bất kỳ đoạn nào `git show <BASE>:tests/plugins/run-tests.sh` rồi so khối P cũ. Cùng lý do như E9: mọi eval trỏ về một cmd suite chung, nên suite xanh ⇒ E11 ghi PASS mà không có phép đo. Kịch bản hỏng: một vòng sau nới/xoá assert trong P30, P55 hay P160 cho vừa hành vi mới — đúng lớp "hạ thước cho vừa vật" mà AC-11 dựng ra để chặn — suite vẫn xanh và bằng chứng vẫn ghi E11 PASS.
-  rationale: AC-11 đòi một chốt so khối P cũ trước/sau mốc để đảm bảo chỉ thêm không sửa assert cũ; chốt đó không tồn tại trong mã.
+  Đo thật trên corpus (25 slug × contract.md + decisions.jsonl): 13 dòng có chênh lệch cũ↔mới; 5 dòng TRƯỢT mệnh đề quan hệ thật và chỉ được cứu bởi `set(b) >= set(a)` (judgment-question-guard, s4-scope-triage, t1-escape-event-scope ×3). Không dòng nào rơi vào `unexplained`, và không có cấu hình dữ liệu thực tế nào làm nó rơi vào.
 
-- **E7/E8 đo yếu hơn hẳn điều khai: không có truy-về-nguồn, và mutant AC-8 không bao giờ được tiêm**
-  file: `tests/plugins/run-tests.sh:6834`
-  severity: medium
-  AC: AC-7
-  detail: E7 khai quan hệ hai chiều: "mọi cụm sao chỉ-có-ở-bản-mới phải nằm trong một chuỗi xuất hiện NGUYÊN VĂN trong file nguồn của slug đó, và không cụm nào truy không được về nguồn". Code thực tế (dòng 6845-6859) chỉ đếm số khớp của `PATH_RE = /\*\*\/|[A-Za-z0-9_.-]+\/\*\*/` trên thẻ bản mới (na) và bản cũ (nb), rồi assert `na >= nb` và tổng `gained > 0`. Không hề mở file nguồn của slug để đối chiếu chuỗi nguyên văn — tức chiều nghịch của AC-7 ("cụm sao KHÔNG truy được về nguồn") không được đo ở đây. E8 khai mutant riêng "tiêm 'không lột chữ đậm nữa' vào BẢN SAO gate-card.js"; code dùng lại đúng bản TRƯỚC-DIFF của E4/E5 làm mutant (`mut2.write_text(show.stdout)`, dòng 6842), nên mutant mà AC-8 gọi tên không bao giờ chạy. Ngoài ra `mut = d2/gate-card.mut.js` (dòng 6837) được ghi rồi không dùng đến. Hệ quả: E7 và E8 báo PASS trong khi quan hệ chúng khai chưa được kiểm; phép đo hiện tại chỉ phân biệt được theo SỐ LƯỢNG cụm khớp một biểu thức hẹp, không theo xuất xứ.
-  rationale: Trọng tâm là AC-7 hứa quan hệ truy-về-nguồn hai chiều nhưng cài đặt chỉ so số đếm, không đối chiếu chuỗi nguyên văn nào với file nguồn.
+  Nặng hơn: AC-9/E9 hứa "mọi chênh lệch phải thuộc một hình dạng CÓ TÊN trong bảng" — mã không hề ánh xạ chênh lệch nào về tên hình dạng nào. Đây đúng lớp lỗi đã ghi trong bộ nhớ kit ("Đo từ vựng thay vì quan hệ" — assert hỏi "chuỗi/ký tự có mặt không" trong khi lời hứa là quan hệ), và đúng chân mà review round 1 REJECT vì thiếu.
 
-- **_scan_cut bỏ qua bản cụt của một glob nếu glob đó xuất hiện nguyên vẹn ở chỗ khác trên cùng thẻ**
-  file: `tests/plugins/run-tests.sh:6806`
-  severity: low
-  AC: AC-6
-  detail: `for g in globs: if g in plain: hits += 1; continue` — hễ tìm thấy MỘT lần xuất hiện nguyên vẹn của glob trên thẻ là vòng lặp bỏ qua luôn phần quét bản cụt cho glob đó. Chiều nghịch của AC-6 ("thẻ không chứa bản cụt mà nguồn không hề có") vì vậy chỉ phủ những glob bị cụt TOÀN BỘ trên thẻ. Kịch bản hỏng: một thẻ in `plugins/**` đúng ở khối 'Sẽ làm' nhưng in `plugins/` cụt ở khối 'Quyết định' (hai lối gọi stripMd khác nhau, dòng 289 vs 171 của gate-card.js) — hits += 1 rồi continue, phép đo xanh, người vẫn đọc phải bản cụt.
-  rationale: AC-6 đòi mọi đường dẫn xuất hiện nguyên vẹn và thẻ không chứa bản cụt; cơ chế quét hiện tại có lỗ khiến một bản cụt thật lọt qua khi glob đó cũng xuất hiện đầy đủ ở chỗ khác.
+### E5 (AC-12) fail-open: nhánh kho-nông bị bỏ qua âm thầm nếu clone hỏng
+- file: `tests/plugins/run-tests.sh:6785`
+- severity: high
+- AC: AC-12
+- source: conventions
+- detail: Dòng 6782-6789: `subprocess.run(["git","clone","--quiet","--depth","1", ...], capture_output=True)` — returncode KHÔNG được kiểm — rồi `if (sub / ".git").exists():` mới chạy assert. Clone hỏng vì bất kỳ lý do gì (sandbox cấm file://, hết đĩa, git config `protocol.file.allow=never` — mặc định của git ≥ 2.38.1 cho submodule và đã lan sang một số bản đóng gói) ⇒ toàn bộ chân đo AC-12 biến mất, P161 vẫn XANH.
 
-- **Hình dạng 3 — E6/AC-6 hứa "MỌI đường dẫn nguyên vẹn" nhưng assert chỉ là "có ít nhất một chuỗi có mặt"**
-  file: `tests/plugins/run-tests.sh:6832`
-  severity: high
-  AC: AC-6
-  detail: AC-6/E6 khai quan hệ TOÀN PHẦN: "mọi đường dẫn đó xuất hiện nguyên vẹn trong thẻ". Nhưng `_scan_cut` (6803-6813) chỉ CỘNG `hits` khi `g in plain`; nhánh `if not g in plain` không hề báo lỗi — nó lặng lẽ bỏ qua. Assert duy nhất đóng chân này là dòng 6832 `assert checked > 0` — một biến cộng dồn trên TẤT CẢ slug × 2 cổng. Tôi đã đo thật: 26/40 cặp (glob × cổng) KHÔNG có mặt trên thẻ (vd `plugins/**` vắng ở cả 2 cổng của chính slug card-text-fidelity, `lib/**` + `hooks/**` vắng ở gate-card-ac-visibility và judge-required-evidence) mà P161 vẫn xanh. Nặng hơn: chạy đúng scan đó trên bản TRƯỚC-DIFF (044968e) cho `checked = 10 > 0` — nghĩa là assert 6832 xanh trên chính bản có lỗi mà feature này đi sửa. Lời hứa là quan hệ phổ quát; thứ đang được ghim là sự tồn tại của một chuỗi con.
-  rationale: Trực tiếp nêu tên AC-6: lời hứa là quan hệ toàn phần (mọi đường dẫn) nhưng assert duy nhất chỉ kiểm tồn tại (checked > 0), đã đo được nhiều cặp glob×cổng vắng mặt mà vẫn xanh.
+  Chính khối ngay dưới (dòng 6792-6794) ghi rõ `# KHONG fail-open: cay kiem that PHAI co moc, neu khong thi ĐỎ (S4-r1 finding)` — tức tác giả đã sửa fail-open ở nhánh cây-thật nhưng để nguyên fail-open ở nhánh fixture kho-nông, đúng kiểu "sửa theo finding chứ không theo LỚP" mà CLAUDE.md bất biến #4 cấm. E5 là chân DUY NHẤT chứng minh đường "không lấy được bản cũ" chạy được; nó cần đối chứng dương tường minh (assert clone thành công) chứ không phải một `if` bỏ qua.
 
-- **Hình dạng 3 — E7/AC-7 hứa quan hệ TRUY-VỀ-NGUỒN, code chỉ so hai con SỐ ĐẾM**
-  file: `tests/plugins/run-tests.sh:6857`
-  severity: high
-  AC: AC-7
-  detail: AC-7/E7 khai hai chiều: "MỌI cụm sao chỉ-có-ở-bản-mới phải nằm trong một chuỗi xuất hiện NGUYÊN VĂN trong file nguồn" + "không cụm nào truy không được về nguồn", và CẤM chuẩn hoá-rồi-so-bằng. Cài đặt (6848-6859) lại là: `PATH_RE = re.compile(r"\*\*/|[A-Za-z0-9_.-]+/\*\*")`, `na, nb = len(PATH_RE.findall(a.stdout)), len(PATH_RE.findall(b.stdout))`, rồi `assert na >= nb` và `assert gained > 0`. Không dòng nào đối chiếu một cụm sao cụ thể nào về `contract.md` nguồn. Đây là phép đo yếu hơn cả thứ bị AC-7 cấm: nó không so nội dung, chỉ so số lượng. Một hồi quy sinh ra cụm sao GIẢ (không có trong nguồn) sẽ làm `na` tăng và phép đo càng xanh hơn; chiều nghịch mà AC-7 nêu đích danh hoàn toàn không được cài.
-  rationale: Trực tiếp nêu tên AC-7: cấm chuẩn hoá-so-bằng và đòi đối chiếu chuỗi nguyên văn với nguồn, cài đặt chỉ so số đếm của một biểu thức hẹp.
+### Hàm `classify()` chết trong E9 — vết tích của phép phân loại chưa từng được cài
+- file: `tests/plugins/run-tests.sh:6901`
+- severity: medium
+- AC: AC-9
+- source: conventions
+- detail: Dòng 6901-6905 định nghĩa `def classify(line)` với thân là vòng lặp `for name, inp, want, _ in CASES:` chứa duy nhất `if ...: pass` rồi `return None`. Hàm không bao giờ được gọi, không có tác dụng phụ, và tham chiếu biến `want` che biến `want` của E6 phía trên.
 
-- **Hình dạng 4 — nhánh raise của _scan_cut là assertion âm-tính-một-mình: không mutant nào chạy qua chính phép đo đó**
-  file: `tests/plugins/run-tests.sh:6812`
-  severity: high
-  AC: AC-6
-  detail: `raise AssertionError("%s in duong dan CUT %r ...")` ở 6812 là thứ DUY NHẤT trong E6 có thể bắt lỗi cụt đường dẫn. AC-8/E8 hứa: "tiêm đột biến vào bản sao → phép đo của AC-7 phải ĐỎ với thông điệp ghim; đối chứng dương: bản nguyên vẹn XANH trước". Nhưng khối E7/E8 (6835-6860) chỉ chạy bản cũ qua `PATH_RE` đếm — nó KHÔNG BAO GIỜ gọi lại `_scan_cut` trên bản cũ/mutant. Nên trong cả lần chạy, nhánh 6812 chưa từng đỏ một lần nào: không có gì phân biệt "chưa bắt được lỗi nào" với "assert không bao giờ chạy được" (regex `GLOBRE` hỏng, `stem` rỗng, thẻ exit != 0 đều cho cùng màu xanh). Tôi đã kiểm: chạy `_scan_cut` trên bản 044968e THÌ nó đỏ (`.github/` cụt ở t1-escape-event-scope) — tức đối chứng dương tồn tại và rẻ, chỉ là test không làm.
-  rationale: _scan_cut là cơ chế duy nhất AC-6 dùng để bắt bản cụt (chiều nghịch); finding cho thấy nhánh raise của nó chưa từng được một đối chứng dương/mutant nào chạy qua trong toàn bộ lần chạy, nên chưa ai chứng minh nó thật sự bắt được lỗi.
+  Nó là bằng chứng trực tiếp cho finding #2: đây là chỗ đáng lẽ ánh xạ mỗi chênh lệch về một hình dạng CÓ TÊN theo AC-9, nhưng phần thân bị bỏ trống và thay bằng mệnh đề `set(b) >= set(a)` ở dòng 6917. Để lại mã chết ở đây làm người đọc sau tưởng E9 có phân loại.
 
-- **Hình dạng 4 — toàn bộ đối chứng dương (E3/E4/E7/E8) nằm sau một nhánh bỏ-qua chỉ print, không assert**
-  file: `tests/plugins/run-tests.sh:6770`
-  severity: high
-  AC: AC-12
-  detail: 6769-6772: `have = git cat-file -e BASE^{commit}`; `if have.returncode != 0: print("P161-NOTE: ...")`. Không assert. Và cả hai khối dùng bản cũ đều gác bằng cùng điều kiện: `else:` ở 6773 (chứa E4 + E3) và `if have.returncode == 0:` ở 6835 (chứa E7/E8). Hệ quả: trên bản sao nông / CI `fetch-depth=1` / sau khi mốc bị gộp mất, P161 in một dòng ghi chú rồi XANH với 0 phép đối chứng bản cũ — E3, E4, E7, E8 bốc hơi cùng lúc mà nhãn "P161 OK" vẫn in ra. Thêm nữa E5 khai "dựng bản sao nông/kho tạm TRONG CHÍNH LẦN CHẠY" để chứng minh thông điệp riêng đó chạy được; test không dựng gì cả — trong một checkout bình thường nhánh 6772 là mã chết, nên chính lời hứa E5 chưa từng được đo.
-  rationale: Cùng nội dung AC-12: khi thiếu mốc, thay vì có thông điệp riêng đã chứng minh bằng fixture kho-nông (E5), toàn bộ chuỗi đối chứng bản cũ chỉ print ghi chú rồi bị bỏ qua lặng lẽ.
+### AC-9 corpus scan (E9) has zero discriminating power — bold-strip mutant leaves it green
+- file: `tests/plugins/run-tests.sh:6917`
+- severity: high
+- AC: AC-9
+- source: bugs
+- detail: The divergence guard is `if len(b) >= len(a) and a == re.sub(r"\*", "", b) or set(b) >= set(a): continue`. Both disjuncts are satisfied by every star-only divergence between old and new stripMd, because the new regexes are strictly more restrictive — b is always `a` with some `*` re-inserted, so `re.sub('\*','',b) == a` and `set(b) ⊇ set(a)` both hold unconditionally.
 
-- **Hình dạng 3 — E2 hứa so với "kỳ vọng khai ở marker" nhưng thực tế so với hằng viết tay trong test**
-  file: `tests/plugins/run-tests.sh:6757`
-  severity: medium
-  AC: AC-1
-  detail: E2 khai: "cho ra ĐÚNG kỳ vọng khai cạnh tên hình dạng trong marker". Marker `STRIP-SHAPE-MATRIX` trong contract.md mang cột kỳ vọng ("giữ nguyên" / "lột dấu, giữ chữ" / "lột đậm, giữ glob"). Nhưng bảng `CASES` (6699-6712) chép TAY chuỗi kỳ vọng vào test, và dòng 6757 assert `got == want` với `want` lấy từ CASES; `SHAPES[name]` chỉ được dùng trong THÔNG ĐIỆP lỗi. Chỉ tập TÊN được ràng vào contract (check_names), còn cột kỳ vọng — thứ AC-1 gọi là "kỳ vọng ĐÃ KHAI TRƯỚC" — không tham gia phép so nào. Đổi marker từ "glob-hai-sao-trần — giữ nguyên" thành "— lột dấu" thì test vẫn xanh (E3 lọc bằng `SHAPES[name].startswith("lột")` ở 6789 cũng chỉ assert `strip_new == strip_old`, luôn đúng cho hình dạng old_wrong=False). Bên VIẾT (hợp đồng) và bên ĐỌC (test) vẫn trôi khỏi nhau đúng ở cột quan trọng nhất.
-  rationale: AC-1/E2 đòi kết quả lột đúng kỳ vọng khai CẠNH TÊN hình dạng trong marker của contract; cột kỳ vọng thật của marker không tham gia phép so nào, test so với hằng chép tay riêng.
+  Proven: I injected the same 'drop the bold-strip .replace line' mutant that E8 uses (anchor at run-tests.sh:6884) and re-ran E9's exact loop over the real `_acceptance/` corpus — result `unexplained = 0` over 511 star clusters. A version of gate-card.js that stops stripping `**bold**` entirely passes E9.
 
-- **Hình dạng 5 — nhãn tuyên "E1-E11" nhưng E9 (quét corpus) và E11 không có một dòng mã nào**
-  file: `tests/plugins/run-tests.sh:6678`
-  severity: medium
-  AC: AC-9
-  detail: Dòng 6678 `echo "P161 (E1-E11) ... quet corpus that"` và comment 6674 tự khai phủ 11 eval. Grep các mốc `══ (n) En` trong khối chỉ có: (1) E1, (2) E2, (3) E3, (4) E4/E5, (5) E6, (6) E7/E8, (8) E10. KHÔNG có E9 và KHÔNG có E11. E9 chính là chân mà gap-probe xếp P0 ("chân quét mọi cụm sao trong corpus thật — hình dạng hồ sơ THẬT sự có, không phải hình dạng ta nghĩ tới") và AC-9 đòi "mọi chênh lệch phải thuộc một hình dạng CÓ TÊN trong bảng, sanity số cụm rút được > 0 và ghi vào bằng chứng" — không có dòng nào rút cụm sao từ corpus rồi phân loại. Nên thứ đang chạy là 12 điểm-case viết tay cộng một scan glob hẹp, trong khi nhãn nói là quét lớp; và E5 như nêu ở trên chỉ là print. Nếu E9/E11 cố ý hoãn thì phải có dòng descope, không phải nhãn "E1-E11".
-  rationale: Cùng nội dung AC-9: chân quét-mọi-cụm-sao-trong-corpus-thật mà AC-9 dựng ra hoàn toàn không có mã tương ứng dù nhãn khối tự khai đã phủ đủ E1-E11.
+  Second, E9 never consults SHAPES or CASES at all, so it cannot verify what AC-9 states ('mọi chênh lệch phải thuộc một hình dạng CÓ TÊN trong bảng'). The vestigial `def classify(line)` at run-tests.sh:6901 confirms this — its body is `for name, inp, want, _ in CASES: if strip_old(line) != strip_new(line): pass` and it always returns None; it is never called. The `assert cum_count > 0` sanity counter passes regardless, so the block looks alive while measuring nothing.
+
+  This is the 'assertion âm-tính-một-mình' / 'thước không gắn vào vật' class named in CLAUDE.md: the 510-cluster number printed in the P161 pass line is provenance, not evidence.
+
+### AC-12 shallow-clone fixture is skipped silently when the clone fails
+- file: `tests/plugins/run-tests.sh:6783`
+- severity: high
+- AC: AC-12
+- source: bugs
+- detail: ```python
+subprocess.run(["git", "clone", "--quiet", "--depth", "1", "file://" + str(root), str(sub)],
+               capture_output=True)
+if (sub / ".git").exists():
+    src_s, err_s = old_at(BASE, sub)
+    assert src_s is None and err_s and "cay thieu lich su" in err_s, ...
+```
+  The clone's return code is discarded and the assertion is guarded by `.git` existing. Any clone failure makes the entire AC-12 measurement vanish with no diagnostic — the run still prints `P161 OK`.
+
+  Reproduced: `git -c protocol.file.allow=never clone --quiet --depth 1 file:///…/acceptance-gate-kit nong2` → `fatal: transport 'file' not allowed`, no `nong2/.git`. `protocol.file.allow=never` is a common CI hardening setting after CVE-2022-39253, so this is not hypothetical. Same for a read-only or full TMPDIR.
+
+  The rest of P161 gets this right — line 6800 (`assert src_old, "...chan doi chung KHONG duoc bo qua am tham"`) explicitly refuses to fail open on the same class of problem, and the pre-existing shallow-clone test at run-tests.sh:3936 uses `execFileSync` which throws. Only this new block regresses to a silent skip, and it is precisely the branch the commit message claims to have hardened ('co fixture kho-nong rieng cho duong "khong lay duoc ban cu"').
+
+### Tuyên quét LỚP nhưng không có phân loại nào — E9 để lọt chênh lệch qua phép so TẬP KÝ TỰ (hàm classify là mã chết)
+- file: `tests/plugins/run-tests.sh:6917`
+- severity: high
+- AC: AC-9
+- source: measurement
+- detail: evals.yaml E9 hứa: "mọi chênh lệch phải phân loại được vào một hình dạng CÓ TÊN trong marker; chênh lệch không thuộc hình dạng nào → ĐỎ". Mã thực thi không hề chạm tới tên hình dạng nào: hàm `classify(line)` (dòng 6901-6905) lặp qua CASES rồi `pass` và luôn trả `None`, và KHÔNG BAO GIỜ được gọi. Phép lọc thật là dòng 6917: `if len(b) >= len(a) and a == re.sub(r"\*", "", b) or set(b) >= set(a): continue` — vế `set(b) >= set(a)` là quan hệ SIÊU TẬP TRÊN TẬP KÝ TỰ, không liên quan gì tới 13 hình dạng. Đo thật trên corpus hiện tại (25 hồ sơ, contract.md + decisions.jsonl): 13 dòng có chênh lệch old/new, trong đó 5 dòng được tha DUY NHẤT bởi vế `set(b) >= set(a)` (không thoả vế thứ nhất), tức chưa từng bị đối chiếu với hình dạng nào. Vì bản mới chỉ GIỮ LẠI dấu sao so với bản cũ nên tập ký tự đầu ra mới luôn ⊇ tập cũ trên chính cặp đang đo, khiến assert 6920 gần như không thể đỏ; mọi hồi quy giữ nguyên bộ ký tự của dòng (nuốt một từ có chữ trùng chỗ khác, đổi thứ tự, nuốt khoảng trắng thừa) đều lọt. Sanity counter `cum_count > 0` chỉ chứng minh có dữ liệu vào, không chứng minh assert có răng.
+
+### Fixture kho NÔNG dựng không kiểm — E5 âm thầm bỏ qua cả ca khi git clone thất bại
+- file: `tests/plugins/run-tests.sh:6783`
+- severity: high
+- AC: AC-12
+- source: measurement
+- detail: Ca duy nhất đo đường "không lấy được bản cũ" (AC-12) dựng fixture bằng `subprocess.run(["git", "clone", "--quiet", "--depth", "1", "file://" + str(root), str(sub)], capture_output=True)` ở dòng 6783 và KHÔNG kiểm returncode, cũng không assert fixture dựng được. Toàn bộ assert của ca nằm dưới `if (sub / ".git").exists():` (dòng 6785) — clone hỏng (mạng file:// bị chặn, sandbox cấm ghi, git thiếu, đường dẫn có ký tự lạ) thì nhánh không chạy và bộ kiểm vẫn XANH, đúng lớp "fixture hỏng cho cùng một màu xanh" mà invariant kit cấm. Ca này có ghim thông điệp (`"cay thieu lich su" in err_s`) và có đối chứng dương ở dòng sau (cây đủ lịch sử → err_old is None), nhưng cả hai vô nghĩa khi bước dựng fixture im lặng thất bại. Đối chiếu: khối cùng file đo mutant có kiểm bước tiêm (`assert mut_src != CARD.read_text(...)`, dòng 6894) — chỗ này thiếu đúng bước tương ứng.
+
+### Tuyên quét LỚP "không xoá assert cũ" nhưng chỉ phủ một dạng cú pháp, và đo bằng có-mặt-chuỗi thay vì quan hệ theo khối
+- file: `tests/plugins/run-tests.sh:6927`
+- severity: medium
+- AC: AC-11
+- source: measurement
+- detail: Dòng 6927-6930 chống "hạ thước cho vừa vật" bằng: `old_asserts = [l.strip() for l in r.stdout.split("\n") if l.strip().startswith("assert ")]` rồi `missing = [l for l in old_asserts if l not in new_text]`. Hai lỗ: (1) phạm vi — ở bản mốc 044968e, file có 408 dòng bắt đầu bằng `assert ` NHƯNG cũng có 99 dòng dùng `grep` và 43 dòng `throw new Error`/`process.exit(1)` làm phép đo; toàn bộ 142 dòng đó nằm ngoài lượt quét, nên nới một pattern grep hay bỏ một `throw` trong khối P cũ vẫn XANH, trong khi evals.yaml E11 tuyên là "các khối P đã có TRƯỚC mốc chỉ được THÊM dòng, không đổi/không xoá assert cũ". (2) quan hệ — `l not in new_text` chỉ hỏi chuỗi còn xuất hiện ở ĐÂU ĐÓ trong file, không ràng buộc nó còn nằm trong đúng khối P cũ và còn được chạy; một assert bị chuyển sang khối khác, bị comment trong ngữ cảnh khác, hoặc trùng lặp văn bản đều thoả phép đo này.
+
+### Mệnh đề "MỌI đường dẫn" của E6 tự miễn 24/36 trường hợp bằng nhánh continue
+- file: `tests/plugins/run-tests.sh:6885`
+- severity: low
+- AC: AC-6
+- source: measurement
+- detail: E6 tuyên "mọi đường dẫn đó xuất hiện nguyên vẹn trong thẻ", nhưng dòng 6885 `if re.search(re.escape(stem) + r"(?![A-Za-z0-9_.*/-])", src_all): continue` bỏ qua mọi glob mà phần gốc (đã cắt sao) cũng là chuỗi hợp lệ ở nơi khác trong hồ sơ. Đo thật trên cây hiện tại: 36 lượt want-instance, 24 bị nhánh này bỏ qua, chỉ 12 lượt được so, và counter `checked` chỉ đạt 3. `assert checked > 0` (dòng 6892) giữ cho ca không rỗng hoàn toàn, nên đây không phải phép đo mù, nhưng độ phủ thực tế thấp hơn nhiều so với chữ "mọi" trong lời khai và không có dòng descope nào nêu phần tự miễn.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **evals.yaml E10 còn ghim con số 13 trong khi trục C của contract đã sửa lên 14**
-  Người dùng thấy gì: Tài liệu mô tả phép kiểm tra nội bộ vẫn ghi một con số cũ dù hệ thống đã cập nhật; điều này không làm thay đổi kết quả kiểm tra thật, nhưng có thể khiến người đọc tài liệu hiểu nhầm mốc đang được áp dụng.
-  file: `_acceptance/card-text-fidelity/evals.yaml`
+- **Luật mở loại trừ `.` và `-` gây hồi quy nhóm LỘT trên văn xuôi, và hình dạng này không có tên trong ma trận**
+  Người dùng thấy gì: Một số đoạn chữ đậm hoặc nghiêng đứng ngay sau dấu chấm, dấu gạch ngang hoặc gạch dưới trong câu văn thường (không phải đường dẫn kỹ thuật) có thể hiển thị nguyên cặp dấu sao thô trên thẻ thay vì được làm sạch, ảnh hưởng đến độ dễ đọc của thẻ.
+  file: `scripts/gate-card.js`
+  severity: high
+  Đề xuất: known-limits
+
+- **Trục A của Coverage trôi khỏi ma trận: contract khai 12 hình dạng, marker có 13**
+  Người dùng thấy gì: Tài liệu mô tả nội bộ của tính năng này ghi nhầm số lượng dạng đánh dấu cần bao phủ (12 thay vì 13 dạng thật đang có); không ảnh hưởng gì tới nội dung thẻ mà người dùng nhìn thấy, chỉ là con số thống kê trong tài liệu bị lệch.
+  file: `_acceptance/card-text-fidelity/contract.md`
   severity: medium
   Đề xuất: known-limits
 
-- **Luật lột mới thu hẹp nhấn mạnh dính-chữ (hợp lệ theo CommonMark) — hình dạng này không có trong bảng 12**
-  Người dùng thấy gì: Một số cách viết chữ đậm hợp lệ (đứng ngay sau một chữ hoặc dấu câu, không có khoảng trắng) hiện chưa được liệt vào danh sách các trường hợp đã kiểm; nếu hồ sơ tương lai viết theo cách này, thẻ quyết định có thể hiển thị sai mà chưa có cơ chế nào phát hiện ngay.
+- **card() swallows gate-card.js failures — E6/E7 silently skip any slug whose card crashes**
+  Người dùng thấy gì: Nếu việc dựng thẻ cho một hồ sơ nào đó gặp lỗi kỹ thuật ngầm, hồ sơ đó có thể bị âm thầm loại khỏi phép kiểm mà không có cảnh báo. Hiện chưa xảy ra trên các hồ sơ thật đang có, nhưng nếu phát sinh sau này sẽ không có ai biết để xử lý.
+  file: `tests/plugins/run-tests.sh`
+  severity: medium
+  Đề xuất: known-limits
+
+- **stripMd no longer strips emphasis opened right after '.', '-' or '_' — behavior narrowing outside the declared shape matrix**
+  Người dùng thấy gì: Một số đoạn chữ đậm hoặc nghiêng đứng ngay sau dấu chấm, dấu gạch ngang hoặc gạch dưới trong câu văn thường có thể hiển thị nguyên cặp dấu sao thô trên thẻ thay vì được làm sạch, ảnh hưởng đến độ dễ đọc.
   file: `scripts/gate-card.js`
   severity: medium
   Đề xuất: known-limits
 
-- **evals.yaml E10 còn ghim con số cũ 13 trong khi contract và mã nguồn đều là 14**
-  Người dùng thấy gì: Tài liệu mô tả phép kiểm tra nội bộ vẫn ghi một con số cũ dù hệ thống đã cập nhật; kết quả kiểm tra thật vẫn đúng, nhưng người đọc tài liệu có thể hiểu nhầm mốc đang dùng.
-  file: `_acceptance/card-text-fidelity/evals.yaml`
+- **Contract Coverage axis A declares 12 shapes; the STRIP-SHAPE-MATRIX marker holds 13 and nothing measures the mismatch**
+  Người dùng thấy gì: Tài liệu mô tả nội bộ ghi nhầm số lượng dạng đánh dấu cần bao phủ (12 thay vì 13 dạng thật); không ảnh hưởng nội dung thẻ người dùng thấy, chỉ là con số thống kê tài liệu bị lệch.
+  file: `_acceptance/card-text-fidelity/contract.md`
   severity: low
   Đề xuất: known-limits
 
-- **Trục đo tự mâu thuẫn — evals.yaml E10 ghim "13" trong khi contract trục C khai 14 và test đọc 14**
-  Người dùng thấy gì: Tài liệu nội bộ mô tả phép kiểm tra ghi hai con số khác nhau ở hai chỗ, có thể khiến người đọc tài liệu để thẩm định bị nhầm mốc — dù kết quả kiểm tra thật vẫn đúng.
-  file: `_acceptance/card-text-fidelity/evals.yaml`
-  severity: low
+- **Assert "chuỗi có mặt" trong HTML thô thay vì quan hệ trên chữ người đọc — sức giết của mutant E8 đến từ thẻ HTML dính, không từ tính chất được hứa**
+  Người dùng thấy gì: Phép kiểm hiện đang phát hiện đúng lỗi dấu sao bị bỏ sót trên thẻ, nhưng lý do nó bắt được là do trùng hợp về cách ghép chữ HTML chứ chưa hẳn vì đúng logic được hứa; nếu lỗi tương tự xảy ra ở vị trí khác trên thẻ, phép kiểm có thể bỏ lọt mà không ai biết.
+  file: `tests/plugins/run-tests.sh`
+  severity: medium
   Đề xuất: known-limits
 
-⚠ Cụm ngoài vùng phủ: 3/17 lỗi rơi vào file không bộ đo nào phủ (_acceptance/card-text-fidelity/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).

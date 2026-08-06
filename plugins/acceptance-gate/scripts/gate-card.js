@@ -114,10 +114,12 @@ const bullets = arr => {
 // **đậm**, *nghiêng*, [nhãn](link) → chữ trần. KHÔNG đụng gạch dưới — run_id,
 // suites_exit là tên máy hợp lệ, lột "_" sẽ phá chúng.
 // Lột định dạng để in cho NGƯỜI. Dấu nhấn mạnh cần ĐỦ BA điều kiện: dấu mở
-// KHÔNG dính vào ký tự kiểu ĐƯỜNG DẪN ngay trước nó (/ . - _), ngay sau dấu
+// KHÔNG dính vào dấu gạch chéo ngay trước nó (đó là hình dạng đường dẫn:
+// `commands/*.md`, `docs/**`), ngay sau dấu
 // mở là ký tự không-trắng, và ngay trước dấu đóng là ký tự không-trắng. Chữ
-// và số đứng trước dấu mở vẫn hợp lệ, nên `tier T3**mới**` lột y như bản cũ
-// (AC-3: nhóm lột không được suy giảm).
+// Mọi ký tự khác — chữ, số, dấu chấm, gạch ngang — đứng trước dấu mở vẫn hợp
+// lệ, nên `tier T3**mới**` và `hết câu.**Đậm**` lột y như bản cũ (AC-3: nhóm
+// lột không được suy giảm).
 // Vì sao cần ràng buộc đó: đường dẫn đệ quy (`plugins/**`, `lib/**`) và mẫu
 // glob (`*.md`) trông y hệt cặp nhấn mạnh, nên luật "mọi cặp sao là chữ đậm"
 // nuốt mất dấu sao của đường dẫn — và nuốt theo kiểu phụ thuộc số lượng glob
@@ -126,9 +128,9 @@ const bullets = arr => {
 const stripMd = s => String(s == null ? '' : s)
   .replace(/\[([^\]]*)\]\([^)\s]*\)/g, '$1')
   .replace(/`([^`]+)`/g, '$1')
-  .replace(/(^|[^*/._-])\*\*\*(?=\S)([^*]+?)(?<=\S)\*\*\*(?!\*)/g, '$1$2')
-  .replace(/(^|[^*/._-])\*\*(?=\S)([^*]+?)(?<=\S)\*\*(?!\*)/g, '$1$2')
-  .replace(/(^|[^*/._-])\*(?=\S)([^*]+?)(?<=\S)\*(?!\*)/g, '$1$2');
+  .replace(/(^|[^*/])\*\*\*(?=\S)([^*]+?)(?<=\S)\*\*\*(?!\*)/g, '$1$2')
+  .replace(/(^|[^*/])\*\*(?=\S)([^*]+?)(?<=\S)\*\*(?!\*)/g, '$1$2')
+  .replace(/(^|[^*/])\*(?=\S)([^*]+?)(?<=\S)\*(?!\*)/g, '$1$2');
 const { parseAC, acBlindSpot, blindSpotText } = require('../lib/ac-line.js');
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
