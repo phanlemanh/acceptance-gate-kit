@@ -19,3 +19,11 @@
 {"ts":"2026-08-06T08:15:00Z","sha":"fa22f3d42efbd6d76d2de165fc278fa867f50cf6","round":3,"evalId":"E5","run_id":"minted-codex-script-packaging-E5-r3","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-06T08:15:00Z","sha":"fa22f3d42efbd6d76d2de165fc278fa867f50cf6","round":3,"evalId":"E6","run_id":"minted-codex-script-packaging-E6-r3","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-06T08:15:00Z","sha":"fa22f3d42efbd6d76d2de165fc278fa867f50cf6","round":3,"kind":"baseline","evals_hash":"csp-r3","non_discriminating":[],"carried_from_round":1}
+{"ts":"2026-08-06T09:20:00Z","sha":"b9aa534ff50d798293376b96e8ccc250bef72dc5","round":4,"evalId":"E1","run_id":"minted-codex-script-packaging-E1-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T09:20:00Z","sha":"b9aa534ff50d798293376b96e8ccc250bef72dc5","round":4,"evalId":"E2","run_id":"minted-codex-script-packaging-E2-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T09:20:00Z","sha":"b9aa534ff50d798293376b96e8ccc250bef72dc5","round":4,"evalId":"E3","run_id":"minted-codex-script-packaging-E3-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T09:20:00Z","sha":"b9aa534ff50d798293376b96e8ccc250bef72dc5","round":4,"evalId":"E4","run_id":"minted-codex-script-packaging-E4-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T09:20:00Z","sha":"b9aa534ff50d798293376b96e8ccc250bef72dc5","round":4,"evalId":"E5","run_id":"minted-codex-script-packaging-E5-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T09:20:00Z","sha":"b9aa534ff50d798293376b96e8ccc250bef72dc5","round":4,"evalId":"E6","run_id":"minted-codex-script-packaging-E6-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T09:20:00Z","sha":"b9aa534ff50d798293376b96e8ccc250bef72dc5","round":4,"kind":"baseline","evals_hash":"csp-r4","non_discriminating":[],"carried_from_round":1}
+{"ts":"2026-08-06T08:55:19Z","kind":"repin","run_id":"repin-20260806-codex-script-packaging-lane1","sha":"451840967a9ef3726e953246da03225504c71675","suites_exit":[0,0,0,0,0,0]}

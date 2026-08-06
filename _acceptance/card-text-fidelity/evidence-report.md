@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 2b01e982116f80b50828d30cb2d593025c918dbe
+verified_commit: 451840967a9ef3726e953246da03225504c71675
 human_signoff: Manh Phan 2026-08-06 — ship với 6 nhóm giới hạn đã biết ghi trong contract; chọn đường (b) sau khi hết vòng uỷ quyền
 ---
 
@@ -192,3 +192,7 @@ Round 4: người uỷ quyền vượt trần 3 vòng (decisions.jsonl d-2026080
 ### Re-pin lần 1 — 2026-08-06, do engine đổi ở vòng card-text-fidelity (hàm lột định dạng của thẻ + bộ kiểm)
 run_id: repin-20260806-card-text-fidelity-lane1
 sha: 2b01e982116f80b50828d30cb2d593025c918dbe · suites: 6 lệnh exit 0
+
+### Re-pin lần 2 — 2026-08-06, do engine đổi ở vòng codex-script-packaging (công cụ mang-kết-quả + hàm dựng gói + chỉ dẫn 2 bản)
+run_id: repin-20260806-codex-script-packaging-lane1
+sha: 451840967a9ef3726e953246da03225504c71675 · suites: 6 lệnh exit 0

@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: codex-script-packaging
-verdict: PASS
+verdict: REJECT
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: b9aa534ff50d798293376b96e8ccc250bef72dc5
-human_signoff: Manh Phan 2026-08-06 — ship với 3 giới hạn đã biết; theo kiến nghị, gom cả ba vào đợt dọn nợ đo-lường thay vì sửa ngay
+verified_commit: 451840967a9ef3726e953246da03225504c71675
+human_signoff:
 ---
 
 # Evidence Report: codex-script-packaging
@@ -118,3 +118,7 @@ Round 4 (đã qua ngưỡng 3 vòng — theo luật escalate lên người): má
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter + `time_human_minutes.gate2` in contract
+
+### Re-pin lần 1 — 2026-08-06, do engine đổi ở vòng codex-script-packaging (công cụ mang-kết-quả + hàm dựng gói + chỉ dẫn 2 bản)
+run_id: repin-20260806-codex-script-packaging-lane1
+sha: 451840967a9ef3726e953246da03225504c71675 · suites: 6 lệnh exit 0

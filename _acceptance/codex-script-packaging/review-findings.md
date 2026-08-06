@@ -1,104 +1,96 @@
+# Review Findings: codex-script-packaging (round 4)
+
 ## Trong hợp đồng
 
-- **P162: phạm vi quét chỉ được canh bằng bộ đếm — rơi trọn một gói vẫn XANH**
-  file: `tests/plugins/run-tests.sh:7083`
-  severity: high
-  source: conventions
-  AC: AC-2
-  detail: AC-2 và eval E2 của contract nói rõ: "tập tệp chỉ dẫn đã quét phải PHỦ CẢ 3 GÓI, đối chiếu danh sách viết trước" và "KHÔNG dùng bộ đếm >0 làm thước phạm vi". Nhưng bản cài đặt chỉ có 3 assert đếm: `nfiles >= 40` (7083), `nnon_read > 0` (7084), `len(pkgs_with_ref) >= 2` (7086). Không có danh sách gói viết trước nào được đối chiếu.
+### P162 E4 pins only exit code 2 on three fail-loud cases — violating the repo's message-pinning invariant, and one case demonstrably fires for the wrong reason
+- file: `tests/plugins/run-tests.sh:7166`
+- severity: high
+- AC: AC-4
+- source: conventions
 
-  Hệ quả: `DECLARED` chỉ có hàng cho acceptance-gate và feature-loop-codex, nên design-loop-codex có 0 hàng SELF — quan hệ `found == DECLARED` không hề ràng buộc gói đó. Nếu vòng quét bỏ sót nó (đổi tên gói, glob trượt, thêm gói thứ 4), phép đo im lặng.
+The negative matrix at lines 7161-7167 asserts `rr.returncode == 2` for "bo han co", "go sai ten co", "chuoi rong" with no message assertion. CLAUDE.md states the requirement literally: every such case must have (a) a positive control — present here, lines 7168-7172 — **and (b) ghim đúng thông điệp mong đợi, không chỉ mã thoát**. (b) is missing.
 
-  Đã kiểm bằng 2 mutant chạy thật trên cây hiện tại:
-  1. Thêm `or pkg_dir.name == "design-loop-codex"` vào điều kiện bỏ qua ở dòng 7061 → vẫn in "P162 OK" (64→55 file, `pkgs_with_ref` vẫn 2).
-  2. Thu `DOC_EXT` (7050) còn `{".md"}`, tức ngừng đọc .toml/.yaml/.yml → vẫn in "P162 OK" (64→52 file).
+The consequence is not hypothetical. `carry-plan.mjs` uses exit 2 for at least five distinct paths (`__error` from parseArgs, missing required flags, the delta/no-delta XOR, empty `--delta-files`, unreadable input, bad `--round`), so exit code alone cannot tell "caught the intended error" from "blew up earlier for an unrelated reason". Run empirically:
 
-  Đây đúng lớp "đếm-rồi-vứt" mà gap-probe P0 của chính feature này tuyên đã đóng, và đúng hình dạng (1)/(4) trong bất biến "Thước phải gắn vào vật được giao" của CLAUDE.md. Cách chữa cùng doctrine với phần còn lại của P162: ghim một danh sách gói + danh sách phần mở rộng viết trước rồi assert tập gói đã quét BẰNG ĐÚNG danh sách đó (thừa đỏ, thiếu đỏ), thay vì ngưỡng `>= 2` / `>= 40`; hoặc khai vào scripts/codex-self-script-refs.tsv một phần thứ ba liệt kê gói phải quét.
-  rationale: AC-2 đòi tập trỏ-gói-mình phải BẰNG ĐÚNG danh sách viết trước (thừa đỏ, thiếu đỏ) và cấm dùng bộ đếm làm thước phạm vi; bản cài chỉ có 3 assert ngưỡng, mutant bỏ hẳn một gói vẫn XANH.
+    $ node feature-loop/scripts/carry-plan.mjs --run-log … --contract … --round 4 --delta_files "src/a.js"
+    carry-plan: tham số lạ (không phải cờ): src/a.js
+    exit=2
 
-- **carry-plan.mjs: --delta-files bị bỏ / gõ sai / rỗng → carry TOÀN BỘ, rerun rỗng, exit 0 (fail-open im lặng)**
-  file: `plugins/feature-loop-codex/scripts/carry-plan.mjs:149`
-  severity: high
-  source: bugs
-  AC: AC-4
-  detail: `--delta-files` KHÔNG nằm trong danh sách tham số bắt buộc (dòng 137 chỉ kiểm run-log/evals/contract/round), và `parseArgs` (dòng 20-27) chấp nhận mọi cờ lạ mà không báo lỗi. Dòng 149 `const deltaFiles = (a['delta-files'] || '').split(...)` biến "thiếu tham số" thành "diff-fix không chạm gì" — không phân biệt được hai trạng thái đó.
+The intended `cờ không nhận diện được: --delta_files` branch never runs — see the companion finding on `carry-plan.mjs:29` below (out-of-contract). The typo case therefore passes P162 while exercising a different code path than the one the case name and the S4-r3 comment claim it covers. Pinning the expected substring (`cờ không nhận diện được`, `phải nêu ĐÚNG MỘT`, `--delta-files rỗng`) would have surfaced this at authoring time.
 
-  Đã kiểm chứng thật (chạy trên bản mirror vừa ship):
-  - `node carry-plan.mjs --run-log ... --evals ... --contract ... --round 5` (bỏ hẳn --delta-files) trên `_acceptance/card-text-fidelity` → exit 0, carriedEvals = 12/12, rerun = [].
-  - `--delta_files src/a.js --bogus x` (gõ sai gạch dưới + cờ lạ) → exit 0, carried = [E1,E2,E3], rerun = [] — đúng ngược với ý định.
-  - `--delta-files ""` → cùng kết quả.
+Per CLAUDE.md this must be fixed as a *lớp*, not a single case: sweep the new P162 block for every assertion that concludes from a bare exit code.
 
-  Đường đi thật đến lỗi: SKILL (`feature-loop/skills/feature-loop/SKILL.md:154` và `plugins/feature-loop-codex/skills/feature-loop-codex/SKILL.md:127-131`) bảo dựng tham số bằng `--delta-files "$(git diff --name-only <sha> | grep -v '^_acceptance/' | paste -sd, -)"`. Nếu vòng sửa chỉ chạm `_acceptance/**` (grep lọc sạch), hoặc sha truyền sai, hoặc agent gõ lệch tên cờ, chuỗi thay thế ra RỖNG → công cụ trả kế hoạch "mang sang tất cả, chạy lại không gì" với exit 0. Vòng fix sau REJECT khi đó chỉ chạy lại suite, mọi eval được ghi là đã verify bằng kết quả round trước, và báo cáo/gói Cổng 2 công bố carry đó như bằng chứng hợp lệ. Đây là fail-open ở đúng chỗ cổng đang tin. Cần: bắt buộc `--delta-files` (thiếu → exit 2) và nổ với cờ không nhận diện được; nếu "diff rỗng" là trạng thái hợp lệ thì phải khai tường minh bằng cờ riêng (vd `--no-delta`).
-  rationale: AC-4 đòi rõ: thiếu tham số phải trả mã thoát 2 kèm thông điệp hướng dẫn; bằng chứng chạy thật cho thấy thiếu/gõ sai --delta-files vẫn exit 0 và mang-sang toàn bộ, đúng lỗi AC-4 cấm.
+Rationale: AC-4 yêu cầu rõ — thiếu tham số phải trả mã thoát 2 KÈM thông điệp hướng dẫn được ghim; ba ca này chỉ ghim mã thoát nên không chứng minh được vế thông điệp mà AC-4 đòi hỏi.
 
-- **Hình dạng 5 — tuyên quét LỚP (3 gói) nhưng phạm vi quét chỉ đo bằng bộ đếm ngưỡng, không có ma trận viết trước**
-  file: `tests/plugins/run-tests.sh:7086`
-  severity: high
-  source: measurement
-  AC: AC-2
-  detail: E2 (evals.yaml) hứa: "tập tệp chỉ dẫn đã quét phải phủ cả 3 gói, đối chiếu danh sách viết trước", và AC-2 nói thẳng "Bộ đếm chỉ là phụ trợ, KHÔNG dùng làm thước phạm vi". Nhưng toàn bộ chiều PHẠM VI QUÉT chỉ được ghim bằng ba bộ đếm ngưỡng ở 7083-7086: `assert nfiles >= 40`, `assert nnon_read > 0`, `assert len(pkgs_with_ref) >= 2`. Không có danh sách 3 gói viết trước, không có assert nào nói "cả acceptance-gate, design-loop-codex, feature-loop-codex đều đã được duyệt".
+### P162 silently skips any script reference whose filename has `_`, uppercase, or a non-(mjs|js|sh) extension — dead pointers stay invisible
+- file: `tests/plugins/run-tests.sh:7053`
+- severity: high
+- AC: AC-2
+- source: bugs
 
-  Hai lỗ cụ thể:
-  (a) `pkgs_with_ref` được suy ra từ `found`, mà ngay trên đó (7080-7081) đã assert `found == DECLARED`. Vì bảng TSV chỉ có 2 gói, `len(pkgs_with_ref)` LUÔN bằng 2 — assert 7086 không thể đỏ, thông điệp "nhanh quet da goi chua chay" là lời hứa không có thật.
-  (b) Ngưỡng 40 quá lỏng so với thực tế 64 (acceptance-gate 46 + design-loop-codex 9 + feature-loop-codex 9). Tôi đã tiêm mutant `if not pkg_dir.is_dir() or pkg_dir.name == "design-loop-codex": continue` vào `extract()` — bỏ HẲN gói Codex thứ ba khỏi vòng quét — và phép đo vẫn XANH: "55 file chi dan (41 ngoai SKILL.md) · 2 goi co ref". Nghĩa là nếu glob/overlay làm rơi cả một gói khỏi đường quét, quan hệ chỉ-dẫn⇔gói của gói đó không được canh và không gì đỏ. Đúng lớp lỗi mà chốt này được dựng để chặn.
-  rationale: Cùng lỗi với finding P162 đầu tiên: AC-2 cấm dùng bộ đếm làm thước phạm vi và đòi so khớp BẰNG ĐÚNG danh sách viết trước; mutant bỏ hẳn một gói khỏi vòng quét vẫn XANH, đúng lỗ AC-2 được dựng để chặn.
+AC-2 promises the gate extracts EVERY `<prefix>/scripts/<name>` form and classifies it, with unclassified prefixes going RED ("không được im lặng bỏ qua"). But `ANY_REF = re.compile(r"([^\s\`\"'()\[\]]{1,60})/scripts/([a-z0-9-]+\.(?:mjs|js|sh))")` constrains the *filename* to `[a-z0-9-]+` and three extensions, so non-matching names never reach `classify()` at all — they land in neither `refs` nor `unknown`. This is exactly the blacklist-on-open-space shape the kit's own doctrine warns about, and the escape hatch is in the filename half of the regex where the AC's reasoning never looked.
+
+Proof (temp copy of plugins/, injected one line into feature-loop-codex SKILL.md, ran the P162 extract+dead_pointers logic verbatim):
+
+    ${PLUGIN_ROOT}/scripts/khong_ton_tai.mjs  -> dead=[] unknown=[]   (GREEN, file does not exist)
+    ${PLUGIN_ROOT}/scripts/KhongTonTai.mjs    -> dead=[] unknown=[]   (GREEN)
+    ${PLUGIN_ROOT}/scripts/khong-ton-tai.py   -> dead=[] unknown=[]   (GREEN)
+    ${PLUGIN_ROOT}/scripts/khong-ton-tai.mjs  -> dead=[('feature-loop-codex','khong-ton-tai.mjs')]  (RED, correct)
+
+Only the all-lowercase `.mjs` mutant is caught. The E3 mutation legs all use `khong-ton-tai-{a,b,c}.mjs`, so the whole matrix probes only inside the regex's blind spot.
+
+This is not hypothetical for this repo: `/Users/manhphan/dev/acceptance-gate-kit/plugins/acceptance-gate/GUIDE.md:411` already references `skills/ux-ui-craft/scripts/measure_layout.js`, and `plugins/acceptance-gate/skills/ux-ui-craft/scripts/` is a real second scripts directory. That line is invisible to the gate today purely because of the underscore — had it matched, its prefix `skills/ux-ui-craft` is in neither `NOTSELF` nor the PLUGIN_ROOT branch, so it would have gone to `unknown` and turned P162 red. The gate is green by accident, and the next tool added with an underscored or `.py`/`.ts` name gets no coverage — precisely the regression P162 exists to prevent.
+
+Fix: widen the name group to `[A-Za-z0-9._-]+\.[a-z]{1,4}` (or drop the extension whitelist) and let `classify()` decide, adding a NOTSELF row for `skills/ux-ui-craft`. Add a mutation leg using an underscored name so the matrix covers the character class itself.
+
+Rationale: AC-2 nêu rõ — tiền tố không thuộc cả hai danh sách (trỏ-gói-mình / NOTSELF) phải ĐỎ, "không được im lặng bỏ qua"; finding chứng minh bằng tham chiếu thật (skills/ux-ui-craft) rằng tham chiếu bị bỏ qua hoàn toàn thay vì bị đánh dấu, vi phạm trực tiếp câu chữ AC-2.
+
+### Hình dạng 4 — ma trận fail-open 3 ca chỉ ghim MÃ THOÁT 2, không ghim thông điệp
+- file: `tests/plugins/run-tests.sh:7167`
+- severity: medium
+- AC: AC-4
+- source: measurement
+
+Ba ca "bo han co" / "go sai ten co" / "chuoi rong" (7161-7167) đều kết luận bằng `assert rr.returncode == 2`. carry-plan.mjs có ≥5 đường thoát 2 khác nhau (tham số lạ không phải cờ; cờ thiếu giá trị; cờ không nhận diện được; thiếu run-log/evals/contract/round; vi phạm đúng-một-trong-delta-files/no-delta; --delta-files rỗng; đọc file lỗi; --round không hợp lệ). Assert không phân biệt được guard nào nổ, nên nó không đo được ca nào trong ba ca đó.
+
+Đối chứng dương thì có (7168-7172 chạy hai ca exit 0 + json.loads), nhưng vế (b) của bất biến CLAUDE.md — ghim ĐÚNG THÔNG ĐIỆP — thiếu. Lưu ý ca không-tham-số ngay trên (7154) LÀM đúng: nó assert `"usage" in (stdout+stderr)`. Ba ca này bỏ mất.
+
+Đã chứng minh bằng mutant: gỡ nguyên dòng `if (unknown.length) return { __error: \`cờ không nhận diện được: ...\` };` khỏi plugins/feature-loop-codex/scripts/carry-plan.mjs — tức gỡ đúng bản vá đầu bài của diff này (KNOWN_FLAGS) — thì `--delta_files src/a.js` vẫn thoát mã 2, nhưng qua guard KHÁC (token `src/a.js` không bắt đầu bằng `--` → "tham số lạ"), và P162 VẪN XANH.
+
+Rationale: Cùng finding với ca "P162 E4 pins only exit code 2..." ở trên — vi phạm trực tiếp vế "kèm thông điệp hướng dẫn ghim" của AC-4, có kèm chứng minh bằng mutant rằng bài kiểm không phân biệt được đường lỗi nào đã nổ.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **P162 E4 lấy fixture từ hồ sơ _acceptance của một feature không liên quan, chọn bằng first-match**
-  Người dùng thấy gì: Phép kiểm việc mang kết quả sang vòng sau có thể tự động đổi sang đối chiếu với một dự án cũ không liên quan khi có dự án mới ra đời, khiến việc phê duyệt đôi khi báo lỗi vì lý do không liên quan tới thay đổi đang xét.
-  file: `tests/plugins/run-tests.sh:7139`
+- **P162 relation guard is structurally blind to the prefix-less `scripts/<name>` shape — vacuous for design-loop-codex while the PKG list advertises coverage**
+  Người dùng thấy gì: Khi chỉ dẫn của một gói Codex nêu tên công cụ theo kiểu không kèm tên gói ở phía trước, cổng kiểm không phát hiện được công cụ đó có tồn tại hay không — người dùng làm theo chỉ dẫn có thể chạy phải một lệnh không có trong gói mà không nhận được cảnh báo nào.
+  file: `tests/plugins/run-tests.sh`
+  severity: high
+  Đề xuất: new-contract
+
+- **parseArgs reports the wrong token for a mistyped flag: the unknown-flag branch is unreachable whenever the bad flag carries a value**
+  Người dùng thấy gì: Khi gõ nhầm tên một tuỳ chọn dòng lệnh mà tuỳ chọn đó có kèm theo giá trị, thông điệp lỗi hiển thị lại chỉ ra sai giá trị thay vì chỉ ra đúng tuỳ chọn bị gõ sai — người dùng phải đoán mới tìm ra chỗ cần sửa.
+  file: `feature-loop/scripts/carry-plan.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **Bảng dữ liệu chỉ dùng cho test được ship vào gói acceptance-gate phát cho người dùng**
-  Người dùng thấy gì: Gói phần mềm phát cho người dùng cuối sẽ mang theo một tệp dữ liệu chỉ phục vụ kiểm thử nội bộ, không ảnh hưởng tính năng nhưng làm gói nặng hơn một chút và dễ gây nhầm lẫn nếu ai đó sửa nhầm bản sao thay vì bản gốc.
-  file: `scripts/sync-plugin-packages.sh:43`
-  severity: medium
-  Đề xuất: known-limits
+- **Delta list from `git diff --name-only <sha>` omits untracked files, so a fix round that adds new files carries stale green evidence forward**
+  Người dùng thấy gì: Nếu một vòng sửa lỗi tạo thêm tệp mới thay vì chỉ sửa tệp có sẵn, hệ thống có thể không nhận ra các tệp mới đó và báo lại kết quả kiểm tra của vòng trước (có khi báo "không có gì thay đổi"), dù mã mới chưa từng được kiểm — người duyệt có thể ký một bản chưa thực sự được kiểm.
+  file: `feature-loop/skills/feature-loop/SKILL.md`
+  severity: high
+  Đề xuất: new-contract
 
-- **evals.yaml E2 còn nói bảng ghim nằm 'trong contract', trái với contract sau S4-r2**
-  Người dùng thấy gì: Tài liệu mô tả phép kiểm còn trỏ sai vị trí của bảng dữ liệu nguồn, có thể khiến người đọc lại sau này chép nhầm thông tin vào chỗ cũ và tạo ra hai bản dữ liệu mâu thuẫn nhau.
-  file: `_acceptance/codex-script-packaging/evals.yaml:18`
+- **`_acceptance/**` is filtered out of the delta, so an evals.yaml edit during a fix round carries the old result under the redefined eval**
+  Người dùng thấy gì: Nếu một vòng sửa lỗi đổi định nghĩa của một mục kiểm (ví dụ đổi lệnh chạy kiểm) mà không đổi tên mục đó, hệ thống có thể gắn nhầm kết quả kiểm của định nghĩa CŨ cho mục đã được định nghĩa LẠI — báo cáo trông như đã kiểm nhưng thực chất chưa kiểm đúng nội dung mới.
+  file: `feature-loop/skills/feature-loop/SKILL.md`
+  severity: medium
+  Đề xuất: new-contract
+
+- **Assert vô điều kiện đúng — không bao giờ đỏ được**
+  Người dùng thấy gì: Một dòng kiểm tra nội bộ trong bộ kiểm không bao giờ có thể tự phát hiện lỗi — không gây hậu quả trực tiếp cho người dùng vì phần kiểm thật đã nằm ở dòng ngay bên cạnh, nhưng khiến bộ kiểm trông kỹ hơn thực tế.
+  file: `tests/plugins/run-tests.sh`
   severity: low
   Đề xuất: known-limits
 
-- **evals.yaml E5 vẫn mô tả phép đo neo-vào-decisions.jsonl mà chốt P162 đã bỏ — kỳ vọng khai báo không có thật**
-  Người dùng thấy gì: Tài liệu mô tả phép kiểm vẫn nói có một lớp bảo vệ dựa trên lịch sử thay đổi, nhưng lớp đó thực ra không còn tồn tại; người đọc tài liệu để đánh giá độ an toàn có thể tin nhầm là có bảo vệ nhiều hơn thực tế.
-  file: `_acceptance/codex-script-packaging/evals.yaml:39`
-  severity: medium
-  Đề xuất: known-limits
-
-- **P162 E4 gắn vào workspace _acceptance đầu-bảng-chữ-cái và tính kỳ vọng bỏ qua luật atomic-pair của chính công cụ**
-  Người dùng thấy gì: Phép kiểm việc mang kết quả sang vòng sau chưa mô phỏng đúng một quy tắc ghép cặp mà công cụ thật đang dùng, và việc chọn dữ liệu đối chiếu có thể tự đổi theo thời gian, khiến việc phê duyệt đôi khi báo lỗi vì lý do không liên quan tới thay đổi đang xét.
-  file: `tests/plugins/run-tests.sh:7161`
-  severity: medium
-  Đề xuất: known-limits
-
-- **scripts/codex-self-script-refs.tsv bị rsync vào gói acceptance-gate phát cho người dùng**
-  Người dùng thấy gì: Một tệp dữ liệu chỉ dùng để kiểm thử nội bộ bị đóng gói kèm theo phần mềm phát cho người dùng; không gây lỗi chức năng nhưng tạo ra bản sao thừa dễ bị sửa nhầm về sau.
-  file: `scripts/sync-plugin-packages.sh:43`
-  severity: low
-  Đề xuất: known-limits
-
-- **Hình dạng 5 — quan hệ mang-sang chỉ đo ở MỘT ô suy biến của ma trận (delta không chạm gì)**
-  Người dùng thấy gì: Phép kiểm việc mang kết quả từ vòng trước sang vòng sau chỉ thử tình huống không có gì thay đổi; nếu về sau công cụ này mang-sang sai trong tình huống có thay đổi thật, phép kiểm hiện tại sẽ không phát hiện ra.
-  file: `tests/plugins/run-tests.sh:7152`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Hình dạng 4 — assert không thể đỏ (tautology) đứng tên đối chứng phạm vi trong E6**
-  Người dùng thấy gì: Một dòng kiểm tra trong bộ kiểm không thể nào báo lỗi dù dữ liệu có sai, nên nó tạo cảm giác có thêm một lớp bảo vệ trong khi thực ra không thêm gì.
-  file: `tests/plugins/run-tests.sh:7221`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Hình dạng 5 — evals.yaml E5 khai ma trận 2 đối chứng, phép đo chỉ có 1; đối chứng fail-open được mô tả không tồn tại trong mã**
-  Người dùng thấy gì: Tài liệu mô tả phép kiểm tuyên bố có hai lớp kiểm chứng an toàn nhưng thực tế chỉ có một; người đọc tài liệu để đánh giá độ chắc chắn có thể tin nhầm mức bảo vệ cao hơn thực tế.
-  file: `_acceptance/codex-script-packaging/evals.yaml:39`
-  severity: low
-  Đề xuất: known-limits
-
-⚠ Cụm ngoài vùng phủ: 3/12 lỗi rơi vào file không bộ đo nào phủ (_acceptance/codex-script-packaging/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
