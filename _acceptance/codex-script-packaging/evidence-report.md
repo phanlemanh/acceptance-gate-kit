@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: codex-script-packaging
-verdict: REJECT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 451840967a9ef3726e953246da03225504c71675
-human_signoff:
+human_signoff: Manh Phan 2026-08-06 — ship với 3 giới hạn đã biết; theo kiến nghị, gom cả ba vào đợt dọn nợ đo-lường thay vì sửa ngay
 ---
 
 # Evidence Report: codex-script-packaging
