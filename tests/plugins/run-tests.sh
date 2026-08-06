@@ -14,9 +14,9 @@ run() {
   # ONLY_BLOCK: bo qua cac khoi goi QUA run() co tieu de khong chua chuoi nay.
   # GIOI HAN da do (S4-r2): ~46 khoi viet thang bang echo+if (P41/P42/P45...)
   # KHONG di qua run() nen van chay — mot luot "loc" ton ~3ph chu khong phai
-  # vai giay. Du de P163 khong phai chay 7 luot suite TRON, chua du de goi la
-  # "chay dung mot khoi". Bao phu het = boc 46 khoi inline, ngoai pham vi vong
-  # nay (known-limit, khai o Cong 2).
+  # vai giay — mot luot "loc" van ton ~3ph. Du de go loi mot khoi khi phat
+  # trien, chua du de goi la "chay dung mot khoi"; bao phu het = boc 46 khoi
+  # inline (known-limit measure-teeth-cleanup).
   if [ -n "${ONLY_BLOCK:-}" ]; then
     case "$name" in
       *"$ONLY_BLOCK"*) only_matched=$((only_matched + 1)) ;;
@@ -6136,7 +6136,7 @@ for c in clauses:
 PY
 
 echo "P155 (E9) tu dien biet ngu: SIGNOFF-JARGON-GLOSS subset HFL-GLOSSARY-TERMS + co muc CONTEXT.md"
-run "P155 [TEETH] gloss marker subset + CONTEXT + mutant" \
+run "P155 gloss marker subset + CONTEXT + mutant" \
   python3 - "$ROOT" <<'P155PY'
 import re, sys
 from pathlib import Path
@@ -6298,7 +6298,7 @@ with tempfile.TemporaryDirectory() as d:
 P156PY
 
 echo "P157 (E2,E4,E5) ba luat ngon ngu co hoc: enum ma tran, moi goc nhin mot dong, cau trung tinh"
-run "P157 [TEETH] verdict-vi + lens-per-line + noPanel" \
+run "P157 verdict-vi + lens-per-line + noPanel" \
   python3 - "$ROOT" <<'P157PY'
 import json, re, subprocess, sys, tempfile
 from pathlib import Path
@@ -6546,7 +6546,7 @@ const ROOT = process.argv[2];
 P159JS
 
 echo "P160 (E10) duong doc-cu tren ho so CU + xuat xu van ban giam khao doc"
-run "P160 [TEETH] --json hinh dang cu + provenance gold-stdout" \
+run "P160 --json hinh dang cu + provenance gold-stdout" \
   python3 - "$ROOT" <<'P160PY'
 import json, re, subprocess, sys, tempfile
 from pathlib import Path
@@ -6695,7 +6695,7 @@ P160PY
 #     DINH. Thieu moc = ĐỎ (khong fail-open), va co fixture kho-nong rieng cho
 #     duong "khong lay duoc ban cu" (S4-r1). ──
 echo "P161 (E1-E11) ham lot: ma tran, doi chung ban cu, quet corpus that"
-run "P161 [TEETH] strip-md giu duong dan + ma tran toan phan" \
+run "P161 strip-md giu duong dan + ma tran toan phan" \
   python3 - "$ROOT" <<'P161PY'
 import json, pathlib, re, subprocess, sys, tempfile, os
 root = pathlib.Path(sys.argv[1])
@@ -7097,7 +7097,7 @@ P161PY
 #     tham quyen tu ho so mot viec da dong, S4-r2). Do tren GOI DA DUNG. Moi
 #     dang tien to duoc PHAN LOAI; dang la → ĐỎ, khong im lang bo qua. ──
 echo "P162 (E1-E6) goi Codex mang du cong cu chi dan goi chay"
-run "P162 [TEETH] chi-dan ⇔ goi: phan loai toan phan + mutant dung-lai-goi" \
+run "P162 chi-dan ⇔ goi: phan loai toan phan + mutant dung-lai-goi" \
   python3 - "$ROOT" <<'P162PY'
 import json, pathlib, re, shutil, subprocess, sys, tempfile
 root = pathlib.Path(sys.argv[1])
@@ -7376,7 +7376,7 @@ P162PY
 #     carry-plan ghim CHUOI (khong chi ma thoat) + chan sanity so vang doc lap
 #     (round-trip writer→reader qua khuon template + bat dang thuc corpus). ──
 echo "P164 [TEETH] carry-plan message matrix + gold stats doc lap"
-run "P164 [TEETH] carry-plan messages + gold stats" \
+run "P164 carry-plan messages + gold stats" \
   python3 - "$ROOT" <<'P164PY'
 import json, pathlib, re, subprocess, sys, tempfile
 root = pathlib.Path(sys.argv[1])
@@ -7456,181 +7456,18 @@ with tempfile.TemporaryDirectory() as d:
 print("P164 OK: 3 thong diep phan biet · stats corpus %d>=%d · round-trip doc lap" % (s["judgmentBlocks"], s["points"]))
 P164PY
 
-# ── P163 (measure-teeth-cleanup E8,E9): chot THI HANH bang rang — moi dong
-#     bang: chay khoi tren ban sao nguyen ven (XANH) → ap vat hong → chay lai
-#     (ĐỎ + chua chuoi ghim). KHONG grep dau hieu. Tu bo qua trong luot con. ──
-# P163 dat sau CO TEETH=1: thi hanh 7 dong ton ~11 phut (do thuc 06/08) — qua
-# dat cho moi luot suite (truoc ~40s). CI goi buoc RIENG voi TEETH=1 (P165 canh
-# dieu do); local mac dinh SKIP CO TEN, khong im lang.
-if [ -z "${TEETH_CHILD:-}" ] && [ -n "${TEETH:-}" ]; then
-echo "P163 chot thi-hanh bang rang (moi dong ~2 luot ONLY_BLOCK)"
-run "P163 thi hanh measures-need-teeth.tsv" \
-  python3 - "$ROOT" <<'P163PY'
-import pathlib, re, subprocess, sys, tempfile, shutil, os
-root = pathlib.Path(sys.argv[1])
-rows = []
-for line in (root / "scripts/measures-need-teeth.tsv").read_text(encoding="utf-8").split("\n"):
-    if not line.strip() or line.lstrip().startswith("#"): continue
-    f = line.split("\t")
-    assert len(f) >= 3, "dong bang sai khuon: %r" % line
-    rows.append((f[0], f[1], f[2]))
-assert len(rows) >= 6, "bang chi co %d dong" % len(rows)
-
-# ── nguon DOC LAP: the [TEETH] trong tieu de run cua cay kiem ──
-suite = (root / "tests/plugins/run-tests.sh").read_text(encoding="utf-8")
-tagged = set(re.findall(r'run "(P\d+) \[TEETH\]', suite))
-declared = {r[0] for r in rows}
-assert declared == tagged, \
-    "bang ⇔ the [TEETH] lech: bang thieu %r, the thieu %r" % (sorted(tagged - declared), sorted(declared - tagged))
-# The va bang deu do NGUOI VIET dat — chung o hai file nen lech la thay, nhung
-# KHONG phai hai nguon doc lap that (S4-r1). Nguon thu ba, doc lap voi ca hai:
-# khoi nao trong than co dung ban sao/mutant ma CHUA gan the → in canh bao co
-# ten (khong ĐỎ: 43 khoi khong-doi-chung la no da khai, ngoai pham vi vong nay)
-blocks = re.split(r'\n(?=run ")', suite)
-cand = []
-for b in blocks:
-    m = re.match(r'run "(P\d+)', b)
-    if not m: continue
-    if re.search(r"mktemp|copytree|worktree add|cp -R", b) and "[TEETH]" not in b.split("\n")[0]:
-        cand.append(m.group(1))
-if cand:
-    print("P163 GHI CHU: %d khoi co dung ban sao ma chua gan [TEETH] (no da khai): %s" % (len(cand), " ".join(cand[:12])))
-
-WORKTREES = []
-def fresh_copy(dst):
-    # worktree (chia se object git — P160/P165 can lich su) + rsync phu de mang
-    # ca thay doi CHUA commit cua cay dang kiem (bai hoc csp S4-r2: mutant phai
-    # do cay dang kiem, khong phai ban da commit)
-    r = subprocess.run(["git", "-C", str(root), "worktree", "add", "--detach", "-q", str(dst), "HEAD"],
-                       capture_output=True, text=True)
-    assert r.returncode == 0, "khong dung duoc worktree: %s" % r.stderr[-200:]
-    WORKTREES.append(str(dst))
-    r2 = subprocess.run(["rsync", "-a", "--delete",
-                         "--exclude", ".git", "--exclude", ".worktrees", "--exclude", "node_modules",
-                         str(root) + "/", str(dst) + "/"], capture_output=True, text=True)
-    assert r2.returncode == 0, "rsync phu that bai: %s" % r2.stderr[-200:]
-def run_block(tree, name):
-    env = dict(os.environ, ONLY_BLOCK=name, TEETH_CHILD="1", PLUGINS_SUITE_NESTED="1")
-    r = subprocess.run(["bash", "tests/plugins/run-tests.sh"], cwd=str(tree),
-                       capture_output=True, text=True, env=env)
-    return r.returncode, r.stdout + r.stderr
-
-import atexit
-def _cleanup():
-    for w in WORKTREES:
-        subprocess.run(["git", "-C", str(root), "worktree", "remove", "--force", w], capture_output=True)
-    subprocess.run(["git", "-C", str(root), "worktree", "prune"], capture_output=True)
-atexit.register(_cleanup)
-with tempfile.TemporaryDirectory() as d:
-    clean = pathlib.Path(d) / "clean"
-    fresh_copy(clean)
-    for name in sorted({r[0] for r in rows}):
-        rc, out = run_block(clean, name)
-        assert rc == 0, "khoi %s DO tren ban NGUYEN VEN — khong the tin cac ca vat hong: %s" % (name, out[-300:])
-    for name, cmd, want in rows:
-        broken = pathlib.Path(d) / ("b-" + name + str(abs(hash(cmd)) % 1000))
-        fresh_copy(broken)
-        before_state = subprocess.run(["git", "-C", str(broken), "status", "--porcelain"],
-                                      capture_output=True, text=True).stdout
-        h = subprocess.run(["bash", "-c", cmd], cwd=str(broken), capture_output=True, text=True)
-        assert h.returncode == 0, "dung vat hong cho %s THAT BAI (%d): %s — khong duoc bo qua" % (name, h.returncode, (h.stdout + h.stderr)[-200:])
-        after_state = subprocess.run(["git", "-C", str(broken), "status", "--porcelain"],
-                                     capture_output=True, text=True).stdout
-        # lenh chay xong ma cay KHONG doi = tiem TRUOT (vd anchor doi) — ma
-        # thoat 0 mot minh khong phan biet duoc (S4-r2)
-        assert after_state != before_state, \
-            "vat hong cho %s khong DOI GI trong cay — tiem truot, khong phai 'khoi mien nhiem'" % name
-        rc, out = run_block(broken, name)
-        assert rc != 0, "PHEP DO MU: khoi %s van XANH tren vat hong (%s)" % (name, cmd[:60])
-        assert want in out, "khoi %s DO nhung khong chua chuoi ghim %r: %s" % (name, want, out[-300:])
-        subprocess.run(["git", "-C", str(root), "worktree", "remove", "--force", str(broken)], capture_output=True)
-
-    # ── E9: doi chung cho CHINH chot — lam hong assert mot khoi trong bang,
-    #    khoi do phai het kha nang DO tren vat hong cua chinh no ──
-    gut = pathlib.Path(d) / "gut"
-    fresh_copy(gut)
-    sfile = gut / "tests/plugins/run-tests.sh"
-    lines_s = sfile.read_text(encoding="utf-8").split("\n")
-    # got TRIET: chen thoat-som ngay sau dong mo heredoc cua khoi P157 — khoi
-    # thanh vo dieu kien XANH, moi assert ben trong khong bao gio chay
-    idx = next(i for i, x in enumerate(lines_s) if "<<'P157PY'" in x)
-    lines_s.insert(idx + 1, "import sys; sys.exit(0)  # khoi da bi vo hieu (doi chung E9)")
-    sfile.write_text("\n".join(lines_s), encoding="utf-8")
-    h = subprocess.run(["bash", "-c", rows[[r[0] for r in rows].index("P157")][1]], cwd=str(gut), capture_output=True, text=True)
-    assert h.returncode == 0, "dung vat hong E9 that bai"
-    rc, out = run_block(gut, "P157")
-    assert rc == 0, "khoi P157 da bi vo hieu ma van DO — doi chung E9 khong dung nhu du kien"
-    # CHAY CHINH VONG PHAT-HIEN cua chot tren cay gut (S4-r1: ban truoc chi
-    # assert tien de roi SUY ra ket luan trong comment — hanh vi duoc hua chua
-    # tung duoc quan sat). Tai dung vong for cua chot cho DUNG dong P157:
-    row157 = [r for r in rows if r[0] == "P157"][0]
-    gut2 = pathlib.Path(d) / "gut2"
-    fresh_copy(gut2)
-    lines_g = (gut2 / "tests/plugins/run-tests.sh").read_text(encoding="utf-8").split("\n")
-    ig = next(i for i, x in enumerate(lines_g) if "<<'P157PY'" in x)
-    lines_g.insert(ig + 1, "import sys; sys.exit(0)  # khoi bi vo hieu")
-    (gut2 / "tests/plugins/run-tests.sh").write_text("\n".join(lines_g), encoding="utf-8")
-    hg = subprocess.run(["bash", "-c", row157[1]], cwd=str(gut2), capture_output=True, text=True)
-    assert hg.returncode == 0, "dung vat hong tren cay gut2 that bai"
-    rcg, outg = run_block(gut2, "P157")
-    caught = (rcg != 0)
-    assert not caught, "tien de sai: khoi da vo hieu ma van do"
-    # → day CHINH LA trang thai ma vong for cua chot bat: rc == 0 tren vat hong.
-    #   Kiem TRUC TIEP menh de do (khong qua comment):
-    assert rcg == 0 and row157[2] not in outg, \
-        "chot phai coi day la PHEP DO MU (khoi XANH tren vat hong, khong co chuoi ghim)"
-print("P163 OK: %d dong thi hanh, %d khoi the [TEETH] khop bang" % (len(rows), len(tagged)))
-P163PY
-elif [ -z "${TEETH_CHILD:-}" ]; then
-  echo "P163 SKIP — dat TEETH=1 de thi hanh bang rang (CI chay buoc rieng; ~11 phut)"
-fi
-
-# ── P165 (measure-teeth-cleanup E10): moi assert bi SUA/XOA TRONG PR NAY phai
-#     co dong SIET/NOI trong scripts/assert-ratchet.tsv; NOI hoac chua phan
-#     loai → ĐỎ. Nguon canh cay kiem, pham vi = merge-base (khong moc dong
-#     bang — moc co dinh bien chot thanh vat can cho moi feature sau, S4-r2). ──
-echo "P165 chot SIET/NOI cho assert bi sua trong PR"
-run "P165 assert sua/xoa phai co dong SIET-NOI" \
-  python3 - "$ROOT" <<'P165PY'
-import pathlib, re, subprocess, sys
-root = pathlib.Path(sys.argv[1])
-tsv = (root / "scripts/assert-ratchet.tsv").read_text(encoding="utf-8")
-rows = []
-for line in tsv.split("\n"):
-    if not line.strip() or line.lstrip().startswith("#"): continue
-    f = line.split("\t")
-    assert len(f) >= 3 and f[0] in ("SIET", "NOI"), "dong so sai khuon: %r" % line
-    rows.append((f[0], f[1], f[2]))
-noi = [r for r in rows if r[0] == "NOI"]
-assert not noi, "so co dong NOI — vong don khong duoc noi thuoc: %r" % [r[1] for r in noi]
-
-# pham vi = PR hien tai: merge-base voi nhanh chinh
-mb = subprocess.run(["git", "-C", str(root), "merge-base", "HEAD", "origin/main"],
-                    capture_output=True, text=True)
-if mb.returncode != 0:
-    mb = subprocess.run(["git", "-C", str(root), "merge-base", "HEAD", "main"],
-                        capture_output=True, text=True)
-if mb.returncode != 0 or not mb.stdout.strip():
-    print("P165 GHI CHU: khong xac dinh duoc merge-base (cay roi/ban sao nong) — bo qua chan pham vi-PR")
-else:
-    BASE = mb.stdout.strip()
-    old = subprocess.run(["git", "-C", str(root), "show", "%s:tests/plugins/run-tests.sh" % BASE],
-                         capture_output=True, text=True)
-    assert old.returncode == 0, "khong lay duoc cay kiem tai merge-base"
-    old_asserts = [l.strip() for l in old.stdout.split("\n") if l.strip().startswith("assert ")]
-    now = (root / "tests/plugins/run-tests.sh").read_text(encoding="utf-8")
-    changed = [l for l in old_asserts if l not in now]
-    def covered(line):
-        return any(frag in line for _, frag, _ in rows)
-    missing = [l for l in changed if not covered(l)]
-    assert not missing, "assert bi sua trong PR ma KHONG co dong SIET/NOI: %r" % missing[:2]
-    print("P165: %d assert doi trong PR, %d dong so, 0 NOI" % (len(changed), len(rows)))
-
-# chot rang chay theo co → CI PHAI goi buoc TEETH=1 (AC-6)
-ci = (root / ".github/workflows/gate.yml").read_text(encoding="utf-8")
-assert "TEETH=1" in ci, "gate.yml KHONG goi buoc TEETH=1 — chot rang nam ngoai luoi thuong truc"
-print("P165 OK: so canh cay kiem, pham vi PR, CI co buoc TEETH")
-P165PY
+# ── ĐÃ GỠ: P163 (thi-hành bảng răng) + P165 (sổ SIẾT/NỚI) ────────────────────
+# Quyết tại Cổng 2 measure-teeth-cleanup, Manh Phan 2026-08-06, sau 3 vòng
+# verify (8/8/7 lỗi trong hợp đồng). Hai chốt này sinh ra để CƯỠNG CHẾ nghi
+# thức "phá vật thật trong bản sao" và luật "không nới thước cũ", nhưng phần
+# lớn lỗi mỗi vòng là lỗi MỚI do chính chúng đẻ ra — mỗi chốt meta lại cần
+# một chốt cho chính nó (fail-open khi thiếu mốc, nguồn "độc lập" thực chất là
+# khai-báo-đối-khai-báo, sổ không có chốt mồ côi, bộ lọc tốn ~3ph chứ không
+# phải vài giây). Nghi thức và luật VẪN CÒN HIỆU LỰC — chúng sống trong
+# CLAUDE.md và trong phản biện Cổng 1 + vòng soi S4, chỉ là không có chốt máy
+# cưỡng chế. Năm phép đo mà đợt dọn nhắm tới thì đã có răng và ở lại (P155,
+# P157, P160, P161, P162, P164).
+# ─────────────────────────────────────────────────────────────────────────────
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then

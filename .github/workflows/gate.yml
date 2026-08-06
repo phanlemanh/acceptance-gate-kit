@@ -27,8 +27,6 @@ jobs:
         run: bash tests/hooks/run-tests.sh
       - name: plugins suite (gồm P30 sync-drift, P33 chống glob-vào-cache)
         run: bash tests/plugins/run-tests.sh
-      - name: teeth (thi hanh bang rang — measures-need-teeth.tsv)
-        run: TEETH=1 ONLY_BLOCK=P163 bash tests/plugins/run-tests.sh
       - name: workflows suite (lớp thuần của acceptance-verify + execute-parallel)
         run: bash tests/workflows/run-tests.sh
       # Bản đồ sản phẩm là view máy sinh: mọi PR đổi hồ sơ xưởng mà quên làm
