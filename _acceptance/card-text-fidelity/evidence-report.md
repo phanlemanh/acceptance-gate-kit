@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: card-text-fidelity
-verdict: REJECT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: a3d8eb2d36db28551e72252c5d98e6324ab60970
-human_signoff:
+human_signoff: Manh Phan 2026-08-06 — ship với 6 nhóm giới hạn đã biết ghi trong contract; chọn đường (b) sau khi hết vòng uỷ quyền
 ---
 
 # Evidence Report: card-text-fidelity

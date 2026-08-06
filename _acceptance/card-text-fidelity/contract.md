@@ -4,7 +4,7 @@ feature: "Thẻ quyết định in đúng thứ hồ sơ viết — đường d�
 slug: card-text-fidelity
 risk_tier: T2
 surfaces: [cli]
-status: implemented
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-06T01:42:39Z
 owner: phanlemanh@gmail.com
@@ -124,3 +124,35 @@ Từ morphological-scan (3 trục — thước CE trong ngoặc):
 - Đổi cách trang bằng chứng hay bản đồ sản phẩm trình bày — chúng dùng chung
   hàm bị sửa nên AC-10 canh, không để tuyên bố này gánh một mình.
 - Chuẩn hoá cách hồ sơ viết đường dẫn (thuộc vòng "luật mô tả tiếng sản phẩm").
+
+## Notes
+
+Known limits — chấp nhận tại Cổng 2, Manh Phan 2026-08-06, sau 4 vòng verify
+(người uỷ quyền vòng 4 vượt trần, rồi chọn ship thay vì vòng 5). Nhóm theo lớp:
+
+- **Hồi quy nhấn-mạnh-lồng.** `**A *B* C**` nay để lại dấu sao thô (bản cũ lột
+  được): lớp nội dung của luật đậm không cho phép dấu sao bên trong nên cụm
+  ngoài không khớp. Hình dạng này hiện **0 lượt** trong hồ sơ thật — đó là lý
+  do chấp nhận được, không phải lý do nó vô hại. Revisit: bộ quét tuyến tính
+  (đường (c) đã cân nhắc và hoãn).
+- **Chân "bảng phủ corpus" đang hạ thước.** Ngưỡng dung sai 25 mẫu mồ côi
+  trong khi số thật là 18 — người viết đặt thước cao hơn vật cho vừa xanh,
+  đúng lớp lỗi bất biến CLAUDE.md cấm. Phải siết về 0 kèm sửa bộ phân loại
+  (che đoạn mã thay vì xoá, như chính hàm lột đang làm) ở đợt dọn.
+- **Hai chỗ fail-open còn sót trong bộ đo.** Bộ đếm thẻ render đếm rồi vứt
+  (tiêm lỗi giết đúng thẻ của chính việc này mà phép đo vẫn xanh); chân phủ-
+  corpus không có đối chứng dương thật sự chạy được. Cùng lớp với hai chỗ đã
+  sửa ở vòng 2-3 — sửa chưa hết lớp.
+- **Bốn phép đo đo yếu hơn điều khai:** đường-dẫn-nguyên-vẹn đo hiệu số thay
+  vì quan hệ toàn phần; quét-corpus không chạy qua bản cũ nên quan hệ cũ↔mới
+  chưa được ghim; đếm-lối-gọi đo từ vựng thay vì đầu ra từng lối; chống-hạ-
+  thước kiểm chuỗi-có-mặt thay vì quan hệ theo khối.
+- **Câu Out of scope sai tiền đề:** trang bằng chứng và bản đồ sản phẩm KHÔNG
+  dùng chung hàm lột (grep toàn nguồn: chỉ `scripts/gate-card.js`), nên lý do
+  "AC-10 canh" không đúng. Lý do đúng: hai mặt kia không gọi hàm này nên không
+  mang lớp lỗi. Rủi ro thật thấp, nhưng hồ sơ sẽ được đọc như tiền lệ.
+- Vặt: biến `checked` gán rồi không đọc (sót của đợt "xoá hàm chết" vòng 2).
+
+**Vì sao vẫn ship:** trên 25 hồ sơ thật, bản mới cải thiện **26 dòng** và có
+**0 hồi quy**; hai khuyết tật tiền-tồn (đường dẫn trong cụm đậm, glob mở đầu
+một sao) đã đóng — đó là hai thứ ba vòng đầu không chạm tới được.
