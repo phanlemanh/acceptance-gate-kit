@@ -47,3 +47,4 @@
 {"ts":"2026-08-06T05:05:00Z","sha":"a3d8eb2d36db28551e72252c5d98e6324ab60970","round":4,"evalId":"E11","run_id":"minted-card-text-fidelity-E11-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-06T05:05:00Z","sha":"a3d8eb2d36db28551e72252c5d98e6324ab60970","round":4,"evalId":"E12","run_id":"minted-card-text-fidelity-E12-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-06T05:05:00Z","sha":"a3d8eb2d36db28551e72252c5d98e6324ab60970","round":4,"kind":"baseline","evals_hash":"ctf-r4","non_discriminating":[],"carried_from_round":1}
+{"ts":"2026-08-06T05:15:12Z","kind":"repin","run_id":"repin-20260806-card-text-fidelity-lane1","sha":"2b01e982116f80b50828d30cb2d593025c918dbe","suites_exit":[0,0,0,0,0,0]}

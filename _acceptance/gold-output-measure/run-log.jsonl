@@ -21,3 +21,4 @@
 {"ts":"2026-08-05T13:25:00Z","sha":"49b1c2af70d77e4807db72fae569998ae56649c0","round":2,"evalId":"E10","run_id":"minted-gold-output-measure-E10-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-05T13:25:00Z","sha":"49b1c2af70d77e4807db72fae569998ae56649c0","round":2,"kind":"baseline","evals_hash":"pending2","non_discriminating":[],"carried_from_round":1}
 {"ts":"2026-08-05T14:02:40Z","kind":"repin","run_id":"repin-20260805-gold-output-measure-lane1","sha":"9962888ed8058d1cec02fe737ff2b22ac80d84bb","suites_exit":[0,0,0,0,0,0]}
+{"ts":"2026-08-06T05:15:12Z","kind":"repin","run_id":"repin-20260806-card-text-fidelity-lane1","sha":"2b01e982116f80b50828d30cb2d593025c918dbe","suites_exit":[0,0,0,0,0,0]}
