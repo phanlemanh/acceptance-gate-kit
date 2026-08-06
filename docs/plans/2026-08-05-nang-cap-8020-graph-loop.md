@@ -141,3 +141,59 @@ feature tiêu thụ như §Nghiệm thu đã khai, không viết sớm:
   treo (codex carry-plan packaging · gate-card stripMd glob · gold-book-output)
   → viết "Kết quả chương trình" vào research note; song song KHÔNG mở vòng
   engine mới cho tới khi số về.
+
+## 7 · Kết quả chương trình (viết 2026-08-06, sau 3 vòng engine + 3 feature tiêu thụ)
+
+Viết đúng điều kiện charter đặt ra: **sau khi đủ 3 feature tiêu thụ**. Số nào
+trượt thì ghi trượt, không làm tròn.
+
+### 7.1 Đối chiếu từng mục tiêu
+
+| Mục tiêu | Ngưỡng đã khai | Đo được | Kết luận |
+|---|---|---|---|
+| **O1a** re-pin 1 lượt/sự kiện | số lane/sự kiện = 1 (baseline = N) | 6 sự kiện, **133 lượt ghim bằng 6 làn** (19·21·21·23·24·25) | **ĐẠT** |
+| **O1b** carry round fix | ≥1 dòng `carried_from_round` | 23 dòng sản xuất; carry 9/11 rồi 5, 9 | **ĐẠT** |
+| **O1c** không nới lưới | 0 luật bị nới | 0 — hotfix 1.32.1 đi qua cửa ngoại-lệ-đích-danh có sẵn | **ĐẠT** |
+| **O2** thước thành luật | 0 round REJECT vì lớp đo-lường **HOẶC** ≥1 finding gap-probe bắt từ S1 | vế 2: **5/5/5 finding** ở cả 3 feature, đều trước Cổng 1 · vế 1: **TRƯỢT NẶNG** — 11 vòng máy, phần lớn REJECT vì đúng lớp đó | **ĐẠT theo chữ, TRƯỢT theo tinh thần** — xem 7.2 |
+| **O3** judge trả bằng-chứng-thiếu | 100% verdict mới không-PASS có danh sách | **3/3 phiếu** có danh sách — nhưng chỉ 1/3 feature có hội đồng (hai cái kia thuần máy) | **MẪU QUÁ NHỎ để kết luận** |
+| **O4** gold set + G3 | ≥10 điểm sau 5 feature | **20 điểm · 37 hội đồng** sau 3 feature | **VƯỢT** |
+| **Tổng** −40% token/feature | so trung vị 5 feature trước chương trình | **KHÔNG ĐO ĐƯỢC** — `usage-report.md` chỉ có dữ liệu ở 1/18 hồ sơ cũ, không dựng được trung vị đáng tin | **TRƯỢT vì thiếu dụng cụ đo, không phải vì kết quả xấu** |
+
+Ba feature tiêu thụ: `gold-output-measure` 2 vòng/~3,6M · `card-text-fidelity`
+4 vòng/~7,2M · `codex-script-packaging` 4 vòng/~6,6M. **Tổng ~17,4M token, 30
+phút của người, 10 vòng máy.**
+
+### 7.2 Điều số liệu nói mà mục tiêu không hỏi
+
+**Ở vòng CUỐI của cả ba feature, không một phép đo máy nào đỏ.** Mọi lần bị
+trả lại đều đến từ vòng soi độc lập, và phần lớn là **thước sai chứ không phải
+vật sai**. Đó là phát hiện quan trọng nhất của chương trình, và nó không nằm
+trong bất kỳ mục tiêu nào đã khai.
+
+Hệ quả cho O2: luật đo-lường **có tác dụng ở chỗ nó được đặt** — 15/15 lỗ mà
+gap-probe bắt được đều trước Cổng 1, rẻ. Nhưng nó **không chặn được lỗi thước
+sinh ra TRONG lúc viết phép đo mới ở S3** — đó mới là nơi 11 vòng máy bị tiêu.
+Luật hiện đặt ở khâu *duyệt kế hoạch đo*; chỗ thủng nằm ở khâu *viết phép đo*.
+
+Ba lớp lỗi lặp lại nhiều nhất, đã có tên và có thuốc, nhưng **biết về chúng
+không đủ để tránh chúng** — cùng một người viết vẫn tái phạm ở vòng kế tiếp:
+ngưỡng dung sai đặt cao hơn số hiện tại (hạ thước); bộ đếm/biến tính rồi không
+ai assert (đếm-rồi-vứt); nhánh không lấy được dữ liệu thì bỏ qua (fail-open).
+
+**Một lỗ an toàn có sẵn được lôi ra** ngoài kế hoạch: công cụ mang-kết-quả,
+khi thiếu tham số hoặc gõ sai cờ, mang sang TOÀN BỘ và báo thành công — một
+vòng sửa có thể không kiểm lại gì mà báo cáo vẫn công bố đã kiểm. Chỉ lộ khi
+lần đầu có phép đo CHẠY công cụ trên hồ sơ thật thay vì đọc mã.
+
+### 7.3 Kết luận cho mục tiêu kế tiếp
+
+Chi phí của kit đã **dịch chuyển**: không còn nằm ở viết code hay ở token vòng
+lặp, mà ở **viết một phép đo cho đúng**. Mục tiêu kế tiếp nên nhắm vào đó —
+ví dụ một khuôn phép-đo bắt buộc (mọi chân mới phải tự chứng minh nó biết ĐỎ
+trước khi được tính là xong), thay vì tiếp tục tối ưu token.
+
+**Nợ để lại:** 14 mục đo-lường từ ba vòng tiêu thụ, trong đó vài mục làm phép
+đo *mất răng* (chốt mù với hai dạng viết; ngưỡng hạ thước; ca fail-loud chỉ
+ghim mã thoát). Dọn trước khi mở tính năng mới — mọi vòng sau đều chạy trên
+lưới đó. Cộng `workspace-reader-unification` còn treo từ trước chương trình.
+
