@@ -1,0 +1,48 @@
+# evals — codex-script-packaging
+# Harness tests/plugins (gói + hàm dựng sống ở realm plugin).
+# Luật kit: đo trên GÓI ĐÃ DỰNG (không đo mã nguồn hàm dựng); rút danh sách
+# bằng biểu thức từ chỉ dẫn thật (không hardcode tên file); sanity counter;
+# KHÔNG ngưỡng dung sai — thiếu 1 là đỏ; mỗi chân tự chứng minh biết đỏ.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "gói Codex ĐÃ DỰNG (plugins/feature-loop-codex/scripts/) có carry-plan.mjs; đo bằng cách liệt kê file thật trong gói, KHÔNG grep hàm dựng — đo đầu ra chứ không đo chỉ dẫn"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/sync-plugin-packages.sh", "plugins/**", "tests/plugins/**"]
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    expected: "rút bằng biểu thức MỌI tham chiếu dạng ${PLUGIN_ROOT}/scripts/<file> hoặc <plugin>/scripts/<file> từ TẤT CẢ chỉ dẫn của 3 gói Codex thật; tập rút được phải BẰNG ĐÚNG bảng CODEX-SELF-SCRIPT-REFS trong contract (fix gap-probe P0 — thừa đỏ, thiếu đỏ; số assert = số dòng bảng, KHÔNG dùng bộ đếm >0 làm thước phạm vi); mỗi tham chiếu phải có file trong gói đã dựng tương ứng, thiếu → ĐỎ nêu gói + tên file + tên chỉ dẫn; VÀ tập tệp chỉ dẫn đã quét phải phủ cả 3 gói, đối chiếu danh sách viết trước"
+    cmd: config:executors.test.plugins
+    paths: ["codex/**", "plugins/**", "tests/plugins/**"]
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    expected: "ma trận mutant 2 dương + 1 âm (fix gap-probe P1): tiêm tham chiếu BỊA theo TỪNG hình dạng — ${PLUGIN_ROOT}/scripts/khong-ton-tai-a.mjs và <plugin>/scripts/khong-ton-tai-b.mjs — vào BẢN SAO chỉ dẫn, mỗi ca phải ĐỎ nêu đúng tên file bịa; chiều ÂM: chèn tham chiếu trỏ sang gói bạn qua bộ giải (dạng $AG/scripts/...) thì phép đo vẫn XANH, không rút nhầm; bản nguyên vẹn XANH trước mọi ca; tiêm thất bại cũng ĐỎ thông điệp riêng"
+    cmd: config:executors.test.plugins
+    paths: ["codex/**", "tests/plugins/**"]
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    expected: "chạy THẬT bằng node từ vị trí trong gói đã dựng: không tham số → mã thoát 2 kèm thông điệp hướng dẫn ghim; với hồ sơ THẬT của một việc đã niêm trong repo (do đường ghi thật sinh, KHÔNG phải fixture dựng theo khuôn bên đọc — fix gap-probe P1) → mã thoát 0 VÀ tập mã-hạng-mục mang-sang BẰNG ĐÚNG tập tính độc lập từ hồ sơ đó (quan hệ, không phải 'có khoá carriedEvals'); có-mặt-nhưng-không-chạy-được KHÔNG tính là đã đóng gói"
+    cmd: config:executors.test.plugins
+    paths: ["feature-loop/scripts/carry-plan.mjs", "plugins/**", "tests/plugins/**"]
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    expected: "KHÔNG fail-open (fix gap-probe P0): assert TRƯỚC rằng lấy được commit ghi trong decisions.jsonl — không lấy được → ĐỎ thông điệp RIÊNG phân biệt với hành-vi-sai; bản dựng tại mốc phải ra ĐÚNG 3 gói và mỗi gói > 0 file (base rỗng thì 'không mất file' luôn đúng vô nghĩa); rồi mới so: gói nào mất file → ĐỎ nêu tên. Hai đối chứng: bỏ một dòng chép trong bản sao hàm dựng → ĐỎ đúng file mất; đổi mã commit trong BẢN SAO sổ thành mã không tồn tại → ĐỎ đúng thông điệp không-lấy-được-bản-cũ"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/sync-plugin-packages.sh", "plugins/**", "tests/plugins/**"]
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    expected: "danh sách lệnh kiểm ĐỌC TỪ feature_loop.suite_keys trong _acceptance/config.yaml (fix gap-probe P2 — không ghim số), tất cả xanh, gồm chốt chống-trôi nguồn⇔gói; VÀ chốt quan hệ mới nằm trong lưới thường trực: ca âm đổi tên khối chốt trong BẢN SAO cây kiểm → lưới phải ĐỎ (chốt ngoài đường quét thì lần thêm công cụ kế lại không gì đỏ)"
+    cmd: config:executors.test.plugins
+    paths: ["tests/plugins/**", "plugins/**"]
