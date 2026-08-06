@@ -7,6 +7,7 @@ failures=0
 pass() { echo "  PASS: $1"; }
 fail() { echo "  FAIL: $1"; failures=$((failures + 1)); }
 
+only_matched=0
 run() {
   local name="$1"
   shift
@@ -15,7 +16,7 @@ run() {
   # ton vai giay thay vi ~40s/luot suite tron; measure-teeth-cleanup T1).
   if [ -n "${ONLY_BLOCK:-}" ]; then
     case "$name" in
-      *"$ONLY_BLOCK"*) : ;;
+      *"$ONLY_BLOCK"*) only_matched=$((only_matched + 1)) ;;
       *) return 0 ;;
     esac
   fi
@@ -650,7 +651,7 @@ echo "P42 mot manifest lech so -> suite phai DO"
 P42T="$(mktemp -d)"; cp -R "$ROOT/." "$P42T/"
 if [ ! -f "$P42T/tests/plugins/run-tests.sh" ] || [ ! -f "$P42T/.codex-plugin/plugin.json" ]; then
   fail "P42 fixture hong (thieu file sau khi cp)"
-elif ! PLUGINS_SUITE_NESTED=1 bash "$P42T/tests/plugins/run-tests.sh" >/dev/null 2>&1; then
+elif ! ONLY_BLOCK= TEETH= PLUGINS_SUITE_NESTED=1 bash "$P42T/tests/plugins/run-tests.sh" >/dev/null 2>&1; then
   fail "P42 doi chung duong that bai — ban sao nguyen ven da do san"
 else
   if python3 - "$P42T" <<'PYX'
@@ -659,7 +660,7 @@ p=pathlib.Path(sys.argv[1])/".codex-plugin/plugin.json"
 d=json.loads(p.read_text()); d["version"]="9.9.9"; p.write_text(json.dumps(d,indent=2)+"\n")
 PYX
   then
-    P42OUT="$(PLUGINS_SUITE_NESTED=1 bash "$P42T/tests/plugins/run-tests.sh" 2>&1)"; P42ST=$?
+    P42OUT="$(ONLY_BLOCK= TEETH= PLUGINS_SUITE_NESTED=1 bash "$P42T/tests/plugins/run-tests.sh" 2>&1)"; P42ST=$?
     # Ghim ĐÚNG assertion nao ban: "exit khac 0" mot minh van xanh neu P03 hong
     # va mot regression khac lam do suite — test canh khong gi ca.
     if [ "$P42ST" -ne 0 ] && printf '%s' "$P42OUT" | grep -q 'ba manifest lệch nhau'; then
@@ -697,7 +698,7 @@ if ! bash "$P45T/scripts/sync-plugin-packages.sh" --write >/dev/null 2>&1; then
   P45_MUT_OK=0
 fi
 if [ "$P45_MUT_OK" -eq 1 ] && [ "$P45_BUMPED" = "3" ] \
-   && PLUGINS_SUITE_NESTED=1 bash "$P45T/tests/plugins/run-tests.sh" >/dev/null 2>&1; then
+   && ONLY_BLOCK= TEETH= PLUGINS_SUITE_NESTED=1 bash "$P45T/tests/plugins/run-tests.sh" >/dev/null 2>&1; then
   pass "P45 bump ba manifest khong cham suite"
 else
   fail "P45 bump ba manifest khong cham suite (mut_ok=$P45_MUT_OK bumped=$P45_BUMPED)"
@@ -7204,9 +7205,15 @@ NONSKILL_REL = "feature-loop-codex/README.md"
 assert (PLUGINS / NONSKILL_REL).exists(), "khong co file chi dan ngoai SKILL.md de tiem"
 clean_dead, clean_unk = probe("(dong khong chua tham chieu nao)", SKILL_REL)
 assert not clean_dead and not clean_unk, "ban nguyen ven da do san: %r %r" % (clean_dead, clean_unk)
+# ma tran DAY DU: 3 hinh dang TIEN TO x 4 hinh dang TEN FILE (S4-r1: ban truoc
+# chi 3 tien to voi cung mot ten chu-thuong-.mjs, nen thu regex ve [a-z0-9-]+
+# van xanh — dung lo AC-1 mo lai)
 for shape, fake, rel in [("${PLUGIN_ROOT}", "khong-ton-tai-a.mjs", SKILL_REL),
                          ("<plugin>", "khong-ton-tai-b.mjs", SKILL_REL),
-                         ("${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}", "khong-ton-tai-c.mjs", NONSKILL_REL)]:
+                         ("${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}", "khong-ton-tai-c.mjs", NONSKILL_REL),
+                         ("${PLUGIN_ROOT}", "khong_ton_tai_d.mjs", SKILL_REL),
+                         ("${PLUGIN_ROOT}", "KhongTonTaiE.mjs", SKILL_REL),
+                         ("${PLUGIN_ROOT}", "khong-ton-tai-f.py", SKILL_REL)]:
     bad, _ = probe("Run `node %s/scripts/%s --x`." % (shape, fake), rel)
     assert any(fake in b for b in bad), "mutant %s tai %s KHONG ĐỎ dich danh %s: %r" % (shape, rel, fake, bad)
 # am 1: tro sang goi ban qua bo giai → khong duoc coi la self
@@ -7401,14 +7408,22 @@ assert s["judgmentBlocks"] >= s["points"], "bat dang thuc do: %r" % s
 assert s["judgmentBlocks"] > 0 and s["points"] > 0, "sanity corpus: %r" % s
 # (b) round-trip: khuon block phan rut TU TEMPLATE THAT (writer-khuon), dien
 #     toi thieu, CHUA co nguoi quyet → judgmentBlocks=1, points=0
+# Khuon block RUT TU TEMPLATE (S4-r1: ban truoc grep mot token roi viet tay
+# block — writer/reader troi khoi nhau van xanh). Lay nguyen khoi mau giua hai
+# marker JUDGMENT-BLOCK-TEMPLATE cua template that.
 tpl = (root / "skills/acceptance/references/evidence-report-template.md").read_text(encoding="utf-8")
-assert "judged_by" in tpl, "template khong co khuon block phan"
+mt = re.search(r"<!-- <<<JUDGMENT-BLOCK-TEMPLATE -->\n([\s\S]*?)<!-- JUDGMENT-BLOCK-TEMPLATE>>> -->", tpl)
+assert mt, "template khong co marker JUDGMENT-BLOCK-TEMPLATE"
+BLOCK_TPL = mt.group(1)
+assert "judged_by" in BLOCK_TPL, "khuon rut tu template khong co truong judged_by"
 with tempfile.TemporaryDirectory() as d:
     ws = pathlib.Path(d) / "_acceptance" / "viec-mau"
     ws.mkdir(parents=True)
-    (ws / "evidence-report.md").write_text(
-        "## Per-eval\n\n- eval: J1\n  judged_by: panel (fresh context)\n"
-        "  proposal: UNCERTAIN\n  rationale: thu\n  human_override:\n", encoding="utf-8")
+    # dien khuon THAT: bo dong human_override (chua co nguoi quyet) + thay cac
+    # cho giu-cho bang gia tri toi thieu; KHONG tu go khuon
+    filled = "\n".join(l for l in BLOCK_TPL.split("\n") if "human_override" not in l)
+    filled = re.sub(r"\{\{[^}]*\}\}", "thu", filled)
+    (ws / "evidence-report.md").write_text("## Per-eval\n\n" + filled + "\n  human_override:\n", encoding="utf-8")
     s2 = stats(GOLD, pathlib.Path(d))
     assert s2["judgmentBlocks"] == 1 and s2["points"] == 0, \
         "hai bo dem PHAI doc lap: block phan chua nguoi quyet cho %r" % s2
@@ -7450,6 +7465,19 @@ tagged = set(re.findall(r'run "(P\d+) \[TEETH\]', suite))
 declared = {r[0] for r in rows}
 assert declared == tagged, \
     "bang ⇔ the [TEETH] lech: bang thieu %r, the thieu %r" % (sorted(tagged - declared), sorted(declared - tagged))
+# The va bang deu do NGUOI VIET dat — chung o hai file nen lech la thay, nhung
+# KHONG phai hai nguon doc lap that (S4-r1). Nguon thu ba, doc lap voi ca hai:
+# khoi nao trong than co dung ban sao/mutant ma CHUA gan the → in canh bao co
+# ten (khong ĐỎ: 43 khoi khong-doi-chung la no da khai, ngoai pham vi vong nay)
+blocks = re.split(r'\n(?=run ")', suite)
+cand = []
+for b in blocks:
+    m = re.match(r'run "(P\d+)', b)
+    if not m: continue
+    if re.search(r"mktemp|copytree|worktree add|cp -R", b) and "[TEETH]" not in b.split("\n")[0]:
+        cand.append(m.group(1))
+if cand:
+    print("P163 GHI CHU: %d khoi co dung ban sao ma chua gan [TEETH] (no da khai): %s" % (len(cand), " ".join(cand[:12])))
 
 WORKTREES = []
 def fresh_copy(dst):
@@ -7507,7 +7535,25 @@ with tempfile.TemporaryDirectory() as d:
     assert h.returncode == 0, "dung vat hong E9 that bai"
     rc, out = run_block(gut, "P157")
     assert rc == 0, "khoi P157 da bi vo hieu ma van DO — doi chung E9 khong dung nhu du kien"
-    # → neu chay chot tren cay gut, dong P157 se bao PHEP DO MU: chinh la dieu can chung minh
+    # CHAY CHINH VONG PHAT-HIEN cua chot tren cay gut (S4-r1: ban truoc chi
+    # assert tien de roi SUY ra ket luan trong comment — hanh vi duoc hua chua
+    # tung duoc quan sat). Tai dung vong for cua chot cho DUNG dong P157:
+    row157 = [r for r in rows if r[0] == "P157"][0]
+    gut2 = pathlib.Path(d) / "gut2"
+    fresh_copy(gut2)
+    lines_g = (gut2 / "tests/plugins/run-tests.sh").read_text(encoding="utf-8").split("\n")
+    ig = next(i for i, x in enumerate(lines_g) if "<<'P157PY'" in x)
+    lines_g.insert(ig + 1, "import sys; sys.exit(0)  # khoi bi vo hieu")
+    (gut2 / "tests/plugins/run-tests.sh").write_text("\n".join(lines_g), encoding="utf-8")
+    hg = subprocess.run(["bash", "-c", row157[1]], cwd=str(gut2), capture_output=True, text=True)
+    assert hg.returncode == 0, "dung vat hong tren cay gut2 that bai"
+    rcg, outg = run_block(gut2, "P157")
+    caught = (rcg != 0)
+    assert not caught, "tien de sai: khoi da vo hieu ma van do"
+    # → day CHINH LA trang thai ma vong for cua chot bat: rc == 0 tren vat hong.
+    #   Kiem TRUC TIEP menh de do (khong qua comment):
+    assert rcg == 0 and row157[2] not in outg, \
+        "chot phai coi day la PHEP DO MU (khoi XANH tren vat hong, khong co chuoi ghim)"
 print("P163 OK: %d dong thi hanh, %d khoi the [TEETH] khop bang" % (len(rows), len(tagged)))
 P163PY
 elif [ -z "${TEETH_CHILD:-}" ]; then
@@ -7555,6 +7601,37 @@ assert not noi, "co entry NOI — vong don khong duoc noi thuoc: %r" % noi[:2]
 for l in changed:
     hit = any(_sig(l, d) for d in entries)
     assert hit, "assert bi sua KHONG co entry SIET/NOI: %r" % l[:70]
+# QUAN HE THU TU (S4-r1: ban truoc chi kiem CO MAT — entry ghi sau khi sua van
+# xanh, luat "ghi TRUOC" chi ton tai tren giay): commit dau tien XOA dong assert
+# do phai DEN SAU commit dau tien them entry SIET tuong ung. Doc tu lich su git,
+# khong tin timestamp tu khai trong sổ.
+def commit_touching(path, needle, first=True):
+    """first=True → commit DAU TIEN cham (vd: khi entry duoc ghi vao so);
+       first=False → commit MOI NHAT cham (vd: khi assert bi xoa khoi cay kiem).
+       `-S` dem so lan xuat hien doi chieu, nen --reverse cho commit THEM chu
+       khong phai commit XOA (S4-r1: ban truoc lay nham chieu)."""
+    args = ["git", "-C", str(root), "log", "--format=%H", "-S", needle, "--", path]
+    if first: args.insert(4, "--reverse")
+    r = subprocess.run(args, capture_output=True, text=True)
+    for h in r.stdout.split("\n"):
+        if h.strip(): return h.strip()
+    return None
+unordered = []
+for l in changed:
+    ents = [d for d in entries if _sig(l, d)]
+    if not ents: continue
+    frag = next((f for f in re.findall(r"'([^']{12,})'", ents[0]) if f in l), None)
+    if not frag: continue
+    c_entry = commit_touching("_acceptance/measure-teeth-cleanup/decisions.jsonl", frag[:40], first=True)
+    c_assert = commit_touching("tests/plugins/run-tests.sh", frag[:40], first=False)
+    if c_entry and c_assert and c_entry != c_assert:
+        # vi pham CHI khi entry den SAU commit sua assert; CUNG commit thi lich
+        # su khong phan biet duoc thu tu (known-limit, khai o Cong 2)
+        after = subprocess.run(["git", "-C", str(root), "rev-list", "--count",
+                                "%s..%s" % (c_assert, c_entry)], capture_output=True, text=True)
+        if after.returncode == 0 and after.stdout.strip() not in ("", "0"):
+            unordered.append((frag[:40], "entry@" + c_entry[:8], "assert@" + c_assert[:8]))
+assert not unordered, "entry SIET ghi SAU commit sua assert (luat 'ghi truoc' bi vi pham): %r" % unordered
 # chot rang chay theo co → CI PHAI goi buoc TEETH=1, khong thi "trong luoi
 # thuong truc" chi dung tren giay (AC-6)
 ci = (root / ".github/workflows/gate.yml").read_text(encoding="utf-8")
@@ -7562,6 +7639,11 @@ assert "TEETH=1" in ci, "gate.yml KHONG goi buoc TEETH=1 — chot rang nam ngoai
 print("P165 OK: %d assert doi, %d entry SIET, 0 NOI, CI co buoc TEETH" % (len(changed), len(entries)))
 P165PY
 
+# ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
+if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
+  echo "ONLY_BLOCK=$ONLY_BLOCK khong khop khoi nao — go sai ten? (fail de khong xanh gia)"
+  failures=$((failures + 1))
+fi
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

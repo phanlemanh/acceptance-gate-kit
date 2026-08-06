@@ -1,0 +1,11 @@
+{"ts":"2026-08-06T11:40:00Z","sha":"508d5029265bbd6f776471db5d41428fdc0513b8","round":1,"evalId":"E1","run_id":"minted-measure-teeth-cleanup-E1-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T11:40:00Z","sha":"508d5029265bbd6f776471db5d41428fdc0513b8","round":1,"evalId":"E2","run_id":"minted-measure-teeth-cleanup-E2-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T11:40:00Z","sha":"508d5029265bbd6f776471db5d41428fdc0513b8","round":1,"evalId":"E3","run_id":"minted-measure-teeth-cleanup-E3-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T11:40:00Z","sha":"508d5029265bbd6f776471db5d41428fdc0513b8","round":1,"evalId":"E4","run_id":"minted-measure-teeth-cleanup-E4-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T11:40:00Z","sha":"508d5029265bbd6f776471db5d41428fdc0513b8","round":1,"evalId":"E5","run_id":"minted-measure-teeth-cleanup-E5-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T11:40:00Z","sha":"508d5029265bbd6f776471db5d41428fdc0513b8","round":1,"evalId":"E6","run_id":"minted-measure-teeth-cleanup-E6-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T11:40:00Z","sha":"508d5029265bbd6f776471db5d41428fdc0513b8","round":1,"evalId":"E7","run_id":"minted-measure-teeth-cleanup-E7-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T11:40:00Z","sha":"508d5029265bbd6f776471db5d41428fdc0513b8","round":1,"evalId":"E8","run_id":"minted-measure-teeth-cleanup-E8-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T11:40:00Z","sha":"508d5029265bbd6f776471db5d41428fdc0513b8","round":1,"evalId":"E9","run_id":"minted-measure-teeth-cleanup-E9-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T11:40:00Z","sha":"508d5029265bbd6f776471db5d41428fdc0513b8","round":1,"evalId":"E10","run_id":"minted-measure-teeth-cleanup-E10-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T11:40:00Z","sha":"508d5029265bbd6f776471db5d41428fdc0513b8","round":1,"kind":"baseline","evals_hash":"mtc-r1","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E7","E8","E9","E10"]}]}

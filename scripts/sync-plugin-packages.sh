@@ -40,7 +40,7 @@ build_acceptance() {
   rm -rf "$out"
   mkdir -p "$out"
   rsync -a --exclude '.DS_Store' "$ROOT/skills/" "$out/skills/"
-  rsync -a --exclude '.DS_Store' --exclude 'sync-plugin-packages.sh' --exclude 'codex-self-script-refs.tsv' "$ROOT/scripts/" "$out/scripts/"
+  rsync -a --exclude '.DS_Store' --exclude 'sync-plugin-packages.sh' --exclude 'codex-self-script-refs.tsv' --exclude 'measures-need-teeth.tsv' "$ROOT/scripts/" "$out/scripts/"
   rsync -a --exclude '.DS_Store' "$ROOT/lib/" "$out/lib/"
   rsync -a --exclude '.DS_Store' "$ROOT/vendor/" "$out/vendor/"
   rsync -a --exclude '.DS_Store' "$ROOT/hooks/" "$out/hooks/"
