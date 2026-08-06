@@ -1,7 +1,7 @@
 ---
 schema_version: 2
 feature_slug: measure-teeth-cleanup
-verdict: REJECT
+verdict: PASS
 failed_evals: []
 reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
@@ -9,7 +9,7 @@ enforcement_mode: strict
 bypass_used: false
 verified_commit: 69ce1e94b83abb24636a87b3a0cc25a93c018834
 # bypass_ack:
-human_signoff:
+human_signoff: Manh Phan 2026-08-06 — ký + gỡ nhóm B (hai chốt meta); ship 5 phép đo đã có răng
 ---
 
 # Evidence Report: measure-teeth-cleanup
