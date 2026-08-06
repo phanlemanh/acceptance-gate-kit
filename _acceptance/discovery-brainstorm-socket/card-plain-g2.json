@@ -1,0 +1,13 @@
+{
+  "feature_plain": "Máy chấm ĐẠT ở vòng thứ 3 — cả 6 phép đo xanh trên đúng bản mã đã ghim. Hai vòng đầu chính bộ nghiệm thu bắt được lỗi thật: vòng 1 là một verdict ĐẠT giả (bộ phân loại phạm vi hỏng nên không lỗi nào kéo verdict xuống được — tôi coi nó là TỪ CHỐI và sửa); vòng 2 bắt hai lỗi do chính bản vá vòng 1 gây ra (file cấu hình kiểu Windows bị bỏ qua im lặng · một ô ma trận mất khả năng phân biệt). Vòng 3 còn 4 phát hiện mới, dừng đúng luật-dừng đã viết trước — tất cả nằm trong bảng bên dưới chờ anh quyết.",
+  "analyst_plain": "Cột baseline xanh cả hai phía là kỳ vọng thiết kế (các phép đo tự tiêm bản-phá vào bản sao và đòi bản-phá đỏ — sức phân biệt nằm ở đó, không ở so-trước-sau). ĐIỀU CẦN ANH QUYẾT — phát hiện R3-1, vi phạm tiêu chí AC-2 ở hình dạng hiếm: repo khai tên skill bọc ngoặc kép kèm chú thích đuôi dòng mà chú thích CÓ dấu nháy → bị đối xử như chưa khai, rơi về grill im lặng. Sửa là một ký tự + một ô ma trận. Anh chọn: (a) tôi sửa có vết + một lượt chấm khoanh vùng (vượt trần 3 vòng, cần anh phê chuẩn — có sẵn khuôn vết), hoặc (b) ký thành giới-hạn-đã-biết vì hình dạng hiếm và đường lui an toàn. Ba phát hiện còn lại đề xuất ký known-limit: hai hình dạng YAML hiếm cùng lớp (đi cùng hồ sơ config-reader đã có chip riêng) + một lỗ thước quan hệ trong P166 (siết lần chạm tới).",
+  "decisions_plain": [
+    { "id": "d-20260806T093000Z-10009", "p": "Vòng chấm 1: verdict ĐẠT trên giấy nhưng bộ phân loại phạm vi hỏng — tôi không tin nó, coi là TỪ CHỐI và quay lại sửa. Không ký trên verdict giả xanh." },
+    { "id": "d-20260806T093000Z-10010", "p": "Lỗi cùng lớp trong thư viện lõi cưỡng chế KHÔNG sửa lẫn trong vòng này — bốc ra hồ sơ riêng đúng nguyên lý tầng dùng chung anh duyệt sáng nay; chip việc đã treo sẵn." },
+    { "id": "d-20260806T094500Z-10011", "p": "Sửa 3 lớp lỗi của bộ đọc cấu hình (thứ tự bóc ngoặc/chú thích · mức thụt đầu dòng · kiểm hình dạng tên) — kiểm tay 22 hình dạng trước và sau." },
+    { "id": "d-20260806T094500Z-10012", "p": "Sửa 5 lỗ THƯỚC — quan trọng hơn sửa lỗi, vì thước hỏng mới sinh giả xanh: nối khoá viết↔đọc, bảng giao ước đo hai chiều, ma trận đủ ô, đếm từng cây, đo quan hệ thay đếm chữ." },
+    { "id": "d-20260806T101500Z-10013", "p": "Luật dừng viết TRƯỚC vòng 3: vòng 3 là cuối; phát hiện mới thành giới-hạn-đã-biết trình anh, không tự mở vòng 4. Học từ vụ vòng lặp không hội tụ trước đây." },
+    { "id": "d-20260806T101500Z-10014", "p": "Vòng chấm 2 bắt hai lỗi do chính bản vá vòng 1 gây — cả hai kiểm tay rồi mới sửa, kèm ô đo mới chứng minh bản lỗi cũ phải đỏ." },
+    { "id": "d-20260806T105500Z-10015", "p": "Vòng 3 dừng đúng luật: 4 phát hiện mới vào bảng chờ anh quyết, mỗi mục kèm đề xuất — không giấu phát hiện nào dưới verdict ĐẠT." }
+  ]
+}
