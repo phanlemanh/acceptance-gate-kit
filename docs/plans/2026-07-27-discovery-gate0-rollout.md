@@ -381,3 +381,62 @@ cổng mở một vòng vá kit gom 6 mục chiều B + kéo nấc ngữ cảnh 
 khớp skill không*. Ứng viên: thêm một mục vào nghi thức audit định kỳ (đang
 chỉ đếm lượt gọi skill) — quét mỗi luật trong spec có ít nhất một chỗ thi
 hành, giống cách kiểm đếm linh kiện của repo tiêu thụ.
+
+## Bổ sung 2026-08-06 — TỔNG HỢP review giữa vòng r3: hạng mục fix workflow + đồng bộ kit
+
+*Nguồn: đối chiếu từng-bước r3 ↔ spec (bảng trực quan đã trình Manh 05-06/08),
+truy nguyên vụ định tuyến brainstorm, và các mục treo từ Bổ sung 03-05/08.
+Ghi chú trạng thái: chiều A của F-J (kéo nấc ngữ cảnh vào spec §2.2) ĐÃ ĐÓNG
+04/08 23:06 bởi amendment context-ladder (`9a593f3`) — F-J còn 6 mục chiều B.*
+
+**Kiểm r3 đến 05/08 tối:** Cổng Đáng + Cổng Phạm vi đã ký (30′ + 30′, hai
+điều kiện ký host-embedded); 19 task nửa đầu XONG gồm cả hai điều kiện ký
+(T0 `host_embed`, T12 plugin trong Creator thật, T13 ma trận in-host 7 bề
+mặt); 44 ảnh bằng chứng 5 thư mục; proto khai tử có đo đạc, bảng trạng thái
+10 ô bằng component thật lên thay làm bản-vẽ-chuẩn; nợ vỏ dùng chung bốc ra
+hồ sơ riêng `ds-debt-tap-primary-soft`. Vòng ĐI TRƯỚC spec ở 4 nghi thức và
+HỤT spec ở 2 chỗ vết (Gate 1.5, pilot-journal).
+
+### Nhóm 1 — sửa BẢN QUY TRÌNH (spec v2; văn bản, không chạm máy đang đỡ vòng)
+
+| # | Việc | Chỗ sửa |
+|---|---|---|
+| W1 | Viết lại "Nối bản duyệt với bản dựng": thực nghiệm r3 cho thấy đường mạnh hơn đo-2-lần là **một-nguồn-sự-thật** — khi sản phẩm thật đã dựng, KHAI TỬ bản nháp (có đo độ lệch làm bằng chứng) + bảng-trạng-thái-bằng-linh-kiện-thật thành bản-vẽ-chuẩn kiêm bề mặt chụp bằng chứng; đo-2-lần chỉ còn là fallback khi chưa có bản thật. Sửa spec TRƯỚC rồi mới đồng bộ vào skill (đừng ship luật cũ F-J mục 6) | §2.2 mục "Nối bản duyệt…" |
+| W2 | Thêm nghi thức **lái tay toàn tuyến trước S4**: đi hết luồng như người dùng thật một lượt, trước vòng verify — r3 bắt 2 lỗ mọi phép máy xanh (giá/loại căn bị vứt khi nhập · broadcast không ra việc); phép máy đo từng mảnh, chỗ nối chỉ lộ khi lái tay | §2.2 giữa S3 và S4 |
+| W3 | Thêm **soi UX/UI thành vòng riêng có kiểm âm**: audit theo đợt, mỗi thước mới dựng phải thử-phá một lần (bỏ nhánh lỗi ⇒ thước đỏ); trạng thái đang-tải + rớt-mạng thuộc danh mục soi bắt buộc | §2.2 (gộp cạnh mục ratchet) |
+| W4 | Thêm lối **tách nợ vỏ dùng chung GIỮA vòng**: lỗi nằm trên vỏ dùng chung (sửa là đụng mọi màn) → bốc ra hồ sơ riêng đường E + chip phiên khác, KHÔNG sửa lẫn trong vòng; guard đường E hiện chỉ nói lúc định tuyến đầu vòng, chưa nói lúc phát hiện giữa chừng | §2.4 đường E |
+| W5 | Khai **nghi thức leo nấc ngữ cảnh giữa vòng**: khi vật leo nấc (standalone → host thật), frontmatter sổ design-pass PHẢI cập nhật cùng lượt (r3: thân sổ đã là host thật, đầu sổ vẫn `standalone` + route trỏ proto đã khai tử — người đọc thân thì đúng, máy đọc đầu thì sai) | §2.2 trục ngữ cảnh + skill design-pass (đợt F-J) |
+
+### Nhóm 2 — đồng bộ KIT (chạm máy; trình tự theo đợt ở dưới)
+
+| ID | Việc | Nơi chạm | Tier |
+|---|---|---|---|
+| F-J (còn lại) | 6 mục chiều B vào skill — trong đó mục "nối duyệt↔dựng" ship theo BẢN ĐÃ SỬA W1, không ship bản đo-2-lần | `skills/design-pass` + `feature-loop/skills/` + tests + mirror | T2 |
+| F-K | Vá định tuyến lối (a) `/start`: 1 dòng phủ định "trước Cổng Đáng dùng `product-management:brainstorm`, KHÔNG dùng `superpowers:brainstorming`" — bản ngắn trong lúc chờ F-A; nguyên nhân kép đã ghi Bổ sung 03/08 (lối (a) không đích máy-đọc + hook superpowers to tiếng hơn ở điểm nghẽn) | `commands/start.md` + `codex/` + test + mirror | T1-T2 |
+| F-L | Guard **Cổng Kế hoạch để lại vết**: T3 vào S3 phải có vết duyệt plan (r3 skip không vết — plan 9h48, task đầu 9h54; kiểm cả hai phía: skill S2→S3 đòi vết + pre-merge/thẻ Gate 2 soi thiếu vết thì cờ) | `feature-loop/skills/` + `scripts/` + tests + mirror | T2 |
+| F-M | **Điều kiện ký có chỗ máy gác**: điều kiện Manh gắn khi ký cổng (đang là văn xuôi trong contract Notes) → khuôn máy-đọc + thẻ Gate 2 render thành mục soi bắt buộc; r3 là ca thật đầu tiên (điều kiện #1 ảnh phễu/shortlist in-host, nửa sau dễ trượt về chụp màn rời) | `scripts/gate-card.js` + khuôn contract + tests + mirror | T2 |
+| F-B (nhắc ưu tiên) | Thẻ gate0/gateUAT — review 06/08 xác nhận hai đầu quy trình là chỗ mỏng vết nhất (ký trong hội thoại, không thẻ); xứng lên trước trong hàng đợi | như đã ghi | T2 |
+| Nghi thức ship (không cần vòng) | Sau MỌI release: so NỘI DUNG ≥1 skill vừa sửa giữa cache và nguồn (cạm bẫy "đã mới nhất" 05/08, đã ghi handoff §7 + memory); cân nhắc máy hoá thành lệnh kiểm trong đợt F-J | handbook/handoff | — |
+
+### Nhóm 3 — việc bên VÒNG r3 (không phải kit; phiên r3 làm)
+
+1. Ghi bù vết Cổng Kế hoạch vào `decisions.jsonl` (duyệt lúc nào, cái gì);
+   nếu thật chưa duyệt → Manh đọc lại plan TRƯỚC vòng S4.
+2. Mở `pilot-journal.md`, ghi bù can-thiệp từ git log + decisions (số đo
+   chiến dịch đang trống ở vòng quan trọng nhất).
+3. Sửa 2 dòng frontmatter `design-pass.md`: `context:` → host-embedded,
+   `route:` → bảng trạng thái `/agent/ds/consult` (thân sổ đã đúng).
+4. Bóng sân Manh: bảng hàng Masteri hạn **08/08** (fixture E2/E10 chờ) ·
+   môi giới thứ 3 phiên 11–15/08.
+
+### Trình tự đề xuất (chờ Manh gật)
+
+- **Đợt 1 — làm ngay, không đổi luật dưới chân vòng:** Nhóm 3 (phiên r3) +
+  Nhóm 1 W1-W5 (spec là văn bản) + F-K (lệnh vào phiên, không dùng giữa vòng).
+- **Đợt 2 — cửa sổ sau khi nửa đầu r3 qua Cổng Bằng chứng, TRƯỚC nửa sau:**
+  F-M (phục vụ đúng Gate 2 nửa sau của r3) + F-L + F-J còn lại (r3 nửa sau có
+  thể gọi lại design-pass cho màn phễu/shortlist → phải land trước phiên đó
+  hoặc sau hẳn, không giữa).
+- **Đợt 3 — nền, không gấp:** F-A (ruột khám phá, đóng luôn gốc F-K) · F-B ·
+  F-E/F-F/F-G · nghi thức audit spec-khớp-skill (quét mỗi luật spec có ≥1 chỗ
+  thi hành) · máy hoá kiểm cache-vs-nguồn.
