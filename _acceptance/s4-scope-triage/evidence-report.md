@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict   # the `enforcement` value from _acceptance/config.yaml (default strict). CI pre-merge BLOCKS off; warn only warns.
 bypass_used: false              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
-verified_commit: 451840967a9ef3726e953246da03225504c71675
+verified_commit: cdc64cfb184559e9f60f3fd57b215726f2b2cb44
 # bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -552,3 +552,7 @@ sha: 2b01e982116f80b50828d30cb2d593025c918dbe · suites: 6 lệnh exit 0
 ### Re-pin lần 14 — 2026-08-06, do engine đổi ở vòng codex-script-packaging (công cụ mang-kết-quả + hàm dựng gói + chỉ dẫn 2 bản)
 run_id: repin-20260806-codex-script-packaging-lane1
 sha: 451840967a9ef3726e953246da03225504c71675 · suites: 6 lệnh exit 0
+
+### Re-pin lần 15 — 2026-08-06, do engine đổi ở vòng dọn nợ đo-lường (5 phép đo có răng + gỡ hai chốt meta)
+run_id: repin-20260806-measure-teeth-cleanup-lane1
+sha: cdc64cfb184559e9f60f3fd57b215726f2b2cb44 · suites: 6 lệnh exit 0

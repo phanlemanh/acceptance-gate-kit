@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 451840967a9ef3726e953246da03225504c71675
+verified_commit: cdc64cfb184559e9f60f3fd57b215726f2b2cb44
 human_signoff: Manh Phan 2026-07-30
 ---
 
@@ -343,3 +343,7 @@ sha: 2b01e982116f80b50828d30cb2d593025c918dbe · suites: 6 lệnh exit 0
 ### Re-pin lần 6 — 2026-08-06, do engine đổi ở vòng codex-script-packaging (công cụ mang-kết-quả + hàm dựng gói + chỉ dẫn 2 bản)
 run_id: repin-20260806-codex-script-packaging-lane1
 sha: 451840967a9ef3726e953246da03225504c71675 · suites: 6 lệnh exit 0
+
+### Re-pin lần 7 — 2026-08-06, do engine đổi ở vòng dọn nợ đo-lường (5 phép đo có răng + gỡ hai chốt meta)
+run_id: repin-20260806-measure-teeth-cleanup-lane1
+sha: cdc64cfb184559e9f60f3fd57b215726f2b2cb44 · suites: 6 lệnh exit 0
