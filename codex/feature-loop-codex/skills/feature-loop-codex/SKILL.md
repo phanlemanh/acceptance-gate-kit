@@ -127,7 +127,11 @@ Fix rounds
 after REJECT: if the previous round's run-log lines carry a `sha` field, compute
 the carry plan with `node <plugin>/scripts/carry-plan.mjs --run-log <ws>/run-log.jsonl
 --evals <ws>/evals.yaml --contract <ws>/contract.md --delta-files <git diff
---name-only from that sha, minus _acceptance/**> --round <fix round>` — exit 0
+--name-only from that sha, minus _acceptance/**> --round <fix round>` — when that
+delta list comes out EMPTY (the fix touched only `_acceptance/**`), pass
+`--no-delta` INSTEAD of an empty `--delta-files`: "nothing changed" is what
+licenses carrying everything forward, so it must be stated, not inferred from a
+missing flag; the tool exits 2 otherwise (fail-open bug, S4-r3) — exit 0
 gives `carriedEvals` (suite commands still ALWAYS rerun; judgment still follows
 P3); exit 3 means the log predates `sha` — full rerun, the safe default. Any
 fix round that carries evals MUST list them explicitly in the user report and

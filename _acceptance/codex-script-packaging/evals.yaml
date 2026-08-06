@@ -15,7 +15,7 @@ evals:
   - id: E2
     criterion: AC-2
     executor: test
-    expected: "rút bằng biểu thức MỌI tham chiếu dạng ${PLUGIN_ROOT}/scripts/<file> hoặc <plugin>/scripts/<file> từ TẤT CẢ chỉ dẫn của 3 gói Codex thật; tập rút được phải BẰNG ĐÚNG bảng CODEX-SELF-SCRIPT-REFS trong contract (fix gap-probe P0 — thừa đỏ, thiếu đỏ; số assert = số dòng bảng, KHÔNG dùng bộ đếm >0 làm thước phạm vi); mỗi tham chiếu phải có file trong gói đã dựng tương ứng, thiếu → ĐỎ nêu gói + tên file + tên chỉ dẫn; VÀ tập tệp chỉ dẫn đã quét phải phủ cả 3 gói, đối chiếu danh sách viết trước"
+    expected: "rút bằng biểu thức MỌI tham chiếu dạng ${PLUGIN_ROOT}/scripts/<file> hoặc <plugin>/scripts/<file> từ TẤT CẢ chỉ dẫn của 3 gói Codex thật; tập rút được phải BẰNG ĐÚNG phần SELF của scripts/codex-self-script-refs.tsv (dời khỏi contract ở S4-r2) (fix gap-probe P0 — thừa đỏ, thiếu đỏ; số assert = số dòng bảng, KHÔNG dùng bộ đếm >0 làm thước phạm vi); mỗi tham chiếu phải có file trong gói đã dựng tương ứng, thiếu → ĐỎ nêu gói + tên file + tên chỉ dẫn; VÀ tập tệp chỉ dẫn đã quét phải phủ cả 3 gói, đối chiếu danh sách viết trước"
     cmd: config:executors.test.plugins
     paths: ["codex/**", "plugins/**", "tests/plugins/**"]
 
@@ -36,7 +36,7 @@ evals:
   - id: E5
     criterion: AC-5
     executor: test
-    expected: "KHÔNG fail-open (fix gap-probe P0): assert TRƯỚC rằng lấy được commit ghi trong decisions.jsonl — không lấy được → ĐỎ thông điệp RIÊNG phân biệt với hành-vi-sai; bản dựng tại mốc phải ra ĐÚNG 3 gói và mỗi gói > 0 file (base rỗng thì 'không mất file' luôn đúng vô nghĩa); rồi mới so: gói nào mất file → ĐỎ nêu tên. Hai đối chứng: bỏ một dòng chép trong bản sao hàm dựng → ĐỎ đúng file mất; đổi mã commit trong BẢN SAO sổ thành mã không tồn tại → ĐỎ đúng thông điệp không-lấy-được-bản-cũ"
+    expected: "mutant trên CÂY ĐANG KIỂM (bỏ neo mốc lịch sử ở S4-r2 — 'không được xoá file nào kể từ một ngày' là luật sai): chép cây, dựng bản NGUYÊN VẸN trước — mã thoát 0, đúng 3 gói, mỗi gói khác rỗng, danh sách mất-file RỖNG; rồi gỡ một dòng chép, dựng lại — mã thoát VẪN 0 (lượt dựng hỏng cũng để lại gói rỗng và cho cùng màu đỏ vì lý do khác) và danh sách mất-file BẰNG ĐÚNG {feature-loop-codex: [scripts/resolve-plugin.mjs]}"
     cmd: config:executors.test.plugins
     paths: ["scripts/sync-plugin-packages.sh", "plugins/**", "tests/plugins/**"]
 

@@ -7037,12 +7037,14 @@ PLUGINS = root / "plugins"
 
 # ── nguon su that canh ham dung ──
 tsv = (root / "scripts/codex-self-script-refs.tsv").read_text(encoding="utf-8")
-DECLARED, NOTSELF = set(), set()
+DECLARED, NOTSELF, MUST_PKGS, SAMPLES = set(), set(), set(), []
 for line in tsv.split("\n"):
     if not line.strip() or line.lstrip().startswith("#"): continue
     f = line.split("\t")
     if f[0] == "SELF" and len(f) >= 4: DECLARED.add((f[1], f[2], f[3]))
     elif f[0] == "NOTSELF" and len(f) >= 2: NOTSELF.add(f[1])
+    elif f[0] == "PKG" and len(f) >= 2: MUST_PKGS.add(f[1])
+    elif f[0] == "SAMPLE" and len(f) >= 2: SAMPLES.append(f[1])
 assert len(DECLARED) >= 10, "bang SELF chi co %d hang — sanity chong file hong" % len(DECLARED)
 assert NOTSELF, "bang NOTSELF rong — moi tien to la se do, chot se ket"
 
@@ -7055,10 +7057,11 @@ def classify(prefix):
     return "unknown"
 
 def extract(plugins_dir):
-    """tra (self_refs, unknown, so file doc, so file ngoai SKILL.md DA DOC)"""
-    refs, unknown, nfile, nnon = set(), [], 0, 0
+    """tra (self_refs, unknown, so file doc, so file ngoai SKILL.md, tap goi DA QUET)"""
+    refs, unknown, nfile, nnon, seen = set(), [], 0, 0, set()
     for pkg_dir in sorted(pathlib.Path(plugins_dir).iterdir()):
         if not pkg_dir.is_dir(): continue
+        seen.add(pkg_dir.name)
         for f in sorted(pkg_dir.rglob("*")):
             if not f.is_file() or f.suffix not in DOC_EXT: continue
             nfile += 1
@@ -7068,9 +7071,9 @@ def extract(plugins_dir):
                 k = classify(prefix)
                 if k == "self": refs.add((pkg_dir.name, rel, name))
                 elif k == "unknown": unknown.append((pkg_dir.name, rel, prefix, name))
-    return refs, unknown, nfile, nnon
+    return refs, unknown, nfile, nnon, seen
 
-found, unknown, nfiles, nnon_read = extract(PLUGINS)
+found, unknown, nfiles, nnon_read, seen_pkgs = extract(PLUGINS)
 # fail-LOUD: dang viet moi chua phan loai duoc phai ĐỎ (S4-r2: dang
 # ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT} tung vo hinh voi chot)
 assert not unknown, "tien to CHUA PHAN LOAI (khai vao scripts/codex-self-script-refs.tsv): %r" % unknown[:5]
@@ -7080,10 +7083,13 @@ missing, extra = sorted(DECLARED - found), sorted(found - DECLARED)
 assert not missing, "bang khai %d tham chieu ma goi da dung KHONG con nhac: %r" % (len(missing), missing)
 assert not extra, "goi da dung co tham chieu KHONG khai trong bang: %r" % extra
 # sanity do NHANH DOC (khong do he tep, S4-r2): so file da THUC SU doc
-assert nfiles >= 40, "chi doc %d file chi dan — glob co ve hong" % nfiles
+# Pham vi quet do bang QUAN HE tap hop voi danh sach viet truoc (S4-r3: nguong
+# dem cu de roi tron mot goi ma van xanh — da chung minh bang mutant).
+assert MUST_PKGS, "bang thieu phan PKG — khong co danh sach goi phai quet"
+assert seen_pkgs == MUST_PKGS, \
+    "tap goi da quet LECH danh sach: thieu %r, thua %r" % (sorted(MUST_PKGS - seen_pkgs), sorted(seen_pkgs - MUST_PKGS))
 assert nnon_read > 0, "nhanh doc file NGOAI SKILL.md chua bao gio chay"
 pkgs_with_ref = {p for p, _, _ in found}
-assert len(pkgs_with_ref) >= 2, "chi %d goi co tham chieu — nhanh quet da goi chua chay" % len(pkgs_with_ref)
 
 def files_in(pkg):
     d = PLUGINS / pkg / "scripts"
@@ -7110,7 +7116,7 @@ def probe(inject_line, target_rel):
         before = target.read_text(encoding="utf-8")
         target.write_text(before + "\n" + inject_line + "\n", encoding="utf-8")
         assert target.read_text(encoding="utf-8") != before, "tiem that bai"
-        refs2, unk2, _, _ = extract(dst)
+        refs2, unk2, _, _, _ = extract(dst)
         return dead_pointers(refs2, dst), unk2
 
 SKILL_REL = "feature-loop-codex/skills/feature-loop-codex/SKILL.md"
@@ -7135,17 +7141,35 @@ TOOL = PLUGINS / "feature-loop-codex/scripts/carry-plan.mjs"
 r = subprocess.run(["node", str(TOOL)], capture_output=True, text=True)
 assert r.returncode == 2, "thieu tham so phai tra ma thoat 2, got %d" % r.returncode
 assert "usage" in (r.stdout + r.stderr).lower(), "thieu tham so phai in huong dan"
-real = None
-for d in sorted((root / "_acceptance").iterdir()):
-    rl, ev, ct = d / "run-log.jsonl", d / "evals.yaml", d / "contract.md"
-    if not (rl.exists() and ev.exists() and ct.exists()): continue
-    lines = [json.loads(l) for l in rl.read_text(encoding="utf-8").split("\n") if l.strip()]
-    ok = [e for e in lines if e.get("kind") is None and e.get("sha") and e.get("exit_code") == 0 and e.get("evalId")]
-    if len(ok) >= 5 and "paths:" in ev.read_text(encoding="utf-8"):
-        last = max(e.get("round", 0) for e in ok)
-        prev = [e for e in ok if e.get("round") == last]
-        if len(prev) >= 5: real = (d, prev, last + 1); break
-assert real, "sanity: khong tim duoc ho so THAT co dong eval mang sha"
+# Ho so mau GHIM DICH DANH trong bang (S4-r3: first-match lam phep do phu thuoc
+# viec nao tinh co dung dau bang chu cai, va mot lan ghim-lai co the lam do oan)
+assert SAMPLES, "bang thieu phan SAMPLE — khong biet chay thu tren ho so nao"
+d = root / "_acceptance" / SAMPLES[0]
+rl, ev, ct = d / "run-log.jsonl", d / "evals.yaml", d / "contract.md"
+assert rl.exists() and ev.exists() and ct.exists(), \
+    "ho so mau %s da khai trong bang nhung THIEU file — sua bang hoac phuc hoi ho so" % SAMPLES[0]
+lines = [json.loads(l) for l in rl.read_text(encoding="utf-8").split("\n") if l.strip()]
+ok_all = [e for e in lines if e.get("kind") is None and e.get("sha") and e.get("exit_code") == 0 and e.get("evalId")]
+assert len(ok_all) >= 5, "ho so mau %s chi co %d dong eval mang sha" % (SAMPLES[0], len(ok_all))
+last = max(e.get("round", 0) for e in ok_all)
+real = (d, [e for e in ok_all if e.get("round") == last], last + 1)
+
+# ── LO AN TOAN S4-r3: thieu/go sai/rong deu tung cho "khong cham gi" = mang
+#    sang TOAN BO voi ma thoat 0. Nay phai NO. Ma tran 3 ca do + 2 ca duong. ──
+WS_S = real[0]
+BASE_ARGS = ["--run-log", str(WS_S / "run-log.jsonl"), "--evals", str(WS_S / "evals.yaml"),
+             "--contract", str(WS_S / "contract.md"), "--round", str(real[2])]
+for name, extra in [("bo han co", []),
+                    ("go sai ten co", ["--delta_files", "src/a.js"]),
+                    ("chuoi rong", ["--delta-files", ""])]:
+    rr = subprocess.run(["node", str(TOOL)] + BASE_ARGS + extra, capture_output=True, text=True)
+    assert rr.returncode == 2, \
+        "ca %r phai NO (ma thoat 2), got %d — fail-open: mang sang toan bo ma van bao thanh cong" % (name, rr.returncode)
+for name, extra in [("hop le", ["--delta-files", "docs/khong-cham-gi.md"]),
+                    ("khai tuong minh khong doi gi", ["--no-delta"])]:
+    rr = subprocess.run(["node", str(TOOL)] + BASE_ARGS + extra, capture_output=True, text=True)
+    assert rr.returncode == 0, "ca %r phai chay duoc, got %d: %s" % (name, rr.returncode, rr.stderr[-160:])
+    json.loads(rr.stdout)
 ws_dir, ok_lines, next_round = real
 r2 = subprocess.run(["node", str(TOOL), "--run-log", str(ws_dir / "run-log.jsonl"),
                      "--evals", str(ws_dir / "evals.yaml"), "--contract", str(ws_dir / "contract.md"),

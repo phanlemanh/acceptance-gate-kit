@@ -16,12 +16,24 @@ import fs from 'node:fs';
 import { realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
+// Cờ được nhận DIỆN — một chỗ duy nhất. Cờ lạ (kể cả gõ lệch dấu gạch, vd
+// `--delta_files`) PHẢI nổ: bản trước im lặng nhận mọi tên, nên một lần gõ sai
+// biến thành "không có delta" = mang sang TOÀN BỘ với mã thoát 0 (S4-r3).
+const KNOWN_FLAGS = new Set(['run-log', 'evals', 'contract', 'delta-files', 'round', 'no-delta']);
 function parseArgs(argv) {
-  const a = {};
-  for (let i = 0; i < argv.length; i += 2) {
-    if (!argv[i].startsWith('--') || argv[i + 1] === undefined) return null;
-    a[argv[i].slice(2)] = argv[i + 1];
+  const a = {}; const unknown = [];
+  for (let i = 0; i < argv.length; i += 1) {
+    const tok = argv[i];
+    if (!tok.startsWith('--')) return { __error: `tham số lạ (không phải cờ): ${tok}` };
+    const name = tok.slice(2);
+    if (!KNOWN_FLAGS.has(name)) { unknown.push(tok); continue; }
+    if (name === 'no-delta') { a[name] = true; continue; }   // cờ không nhận giá trị
+    if (argv[i + 1] === undefined || argv[i + 1].startsWith('--')) {
+      return { __error: `cờ ${tok} thiếu giá trị` };
+    }
+    a[name] = argv[i + 1]; i += 1;
   }
+  if (unknown.length) return { __error: `cờ không nhận diện được: ${unknown.join(' ')}` };
   return a;
 }
 
@@ -134,8 +146,25 @@ const isMain = (() => {
 
 if (isMain) {
   const a = parseArgs(process.argv.slice(2));
-  if (!a || !a['run-log'] || !a.evals || !a.contract || !a.round) {
-    process.stderr.write('carry-plan: usage: carry-plan.mjs --run-log <p> --evals <p> --contract <p> --delta-files <f1,f2,...> --round <N>\n');
+  const USAGE = 'carry-plan: usage: carry-plan.mjs --run-log <p> --evals <p> --contract <p> --round <N> (--delta-files <f1,f2,...> | --no-delta)\n';
+  if (!a || a.__error) {
+    process.stderr.write(`carry-plan: ${a && a.__error ? a.__error : 'không đọc được tham số'}\n` + USAGE);
+    process.exit(2);
+  }
+  if (!a['run-log'] || !a.evals || !a.contract || !a.round) {
+    process.stderr.write(USAGE); process.exit(2);
+  }
+  // --delta-files BẮT BUỘC. "Bản sửa không chạm file nào" là một khẳng định
+  // mạnh (nó cho phép mang sang TẤT CẢ), nên phải nói ra bằng --no-delta chứ
+  // không được suy từ việc THIẾU tham số hay từ một chuỗi rỗng (S4-r3: bỏ cờ
+  // hay gõ lệch tên đều cho 12/12 mang sang, chạy lại 0, mã thoát 0).
+  const hasDelta = a['delta-files'] !== undefined;
+  if (hasDelta === Boolean(a['no-delta'])) {
+    process.stderr.write('carry-plan: phải nêu ĐÚNG MỘT trong --delta-files <danh sách> hoặc --no-delta (khai rõ bản sửa không chạm file nào)\n' + USAGE);
+    process.exit(2);
+  }
+  if (hasDelta && !String(a['delta-files']).split(',').map(s => s.trim()).filter(Boolean).length) {
+    process.stderr.write('carry-plan: --delta-files rỗng — nếu bản sửa thật sự không chạm file nào thì dùng --no-delta\n' + USAGE);
     process.exit(2);
   }
   let runLogText, evalsText, contractText;

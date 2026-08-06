@@ -32,3 +32,15 @@ NOTSELF	$DL	biến trỏ sang gói design-loop sau khi chạy bộ giải
 NOTSELF	<acceptance-gate>	giữ chỗ cho gốc gói acceptance-gate trong tài liệu
 NOTSELF	<acceptance-gate-plugin>	như trên, biến thể dài
 NOTSELF	<design-loop>	giữ chỗ cho gốc gói design-loop trong tài liệu
+#
+# ── PHẦN 3: gói PHẢI được quét. Chốt assert tập gói đã quét BẰNG ĐÚNG danh
+# sách này (thừa đỏ, thiếu đỏ) — ngưỡng đếm cũ để rơi trọn một gói mà vẫn xanh
+# (S4-r3). Thêm/bớt gói ở hàm dựng thì phải sửa cả đây.
+PKG	acceptance-gate
+PKG	feature-loop-codex
+PKG	design-loop-codex
+#
+# ── PHẦN 4: hồ sơ mẫu để chạy thử công cụ mang-sang. Ghim ĐÍCH DANH, không
+# chọn theo thứ tự chữ cái (S4-r3: first-match làm phép đo phụ thuộc việc nào
+# tình cờ đứng đầu, và một lần ghim-lại hàng loạt có thể làm nó đỏ oan).
+SAMPLE	card-text-fidelity
