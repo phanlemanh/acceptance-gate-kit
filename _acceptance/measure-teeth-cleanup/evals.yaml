@@ -1,0 +1,75 @@
+# evals — measure-teeth-cleanup
+# Luật kit: mỗi chân phải TỰ CHỨNG MINH biết ĐỎ (chạy lại chính nó trên vật
+# hỏng); KHÔNG ngưỡng dung sai; ghim THÔNG ĐIỆP chứ không chỉ mã thoát; đo
+# trên vật được giao.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "chốt gói Codex thấy được dạng KHÔNG tiền tố và tên file có gạch dưới/chữ hoa/đuôi khác: số tham chiếu rút ở gói design-loop-codex > 0 (hiện 0 — chốt mù); nhóm phân loại THỨ BA — CONSUMER (fix review Cổng 1: 19 lượt node scripts/codex-plugin-runner.mjs trỏ vào scripts/ của repo TIÊU THỤ do acceptance-init tạo, không phải của gói — thiếu nhóm này là 19 con-trỏ-chết oan); tên không-tiền-tố ngoài danh sách CONSUMER phải có file trong scripts/ của gói; ma trận mutant 4 hình dạng tên file (chữ thường .mjs · gạch dưới · chữ hoa · đuôi .py) tiêm vào bản sao gói → mỗi ca ĐỎ đích danh; bản nguyên vẹn XANH trước"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/codex-self-script-refs.tsv", "plugins/**", "tests/plugins/**"]
+
+  - id: E2
+    criterion: AC-1
+    executor: test
+    expected: "vật hỏng THẬT: xoá provenance.mjs khỏi BẢN SAO gói design-loop-codex → chốt ĐỎ nêu đích danh gói + công cụ + chỉ dẫn nào nhắc (hiện tại vẫn XANH — đây là bằng chứng chốt chưa canh gói đó); bản nguyên vẹn XANH trước"
+    cmd: config:executors.test.plugins
+    paths: ["plugins/**", "tests/plugins/**"]
+
+  - id: E3
+    criterion: AC-2
+    executor: test
+    expected: "ba ca fail-loud của công cụ mang-kết-quả ghim ĐÚNG chuỗi thông điệp: bỏ cờ → chuỗi của nhánh thiếu-đúng-một-trong-hai; gõ sai cờ → chuỗi nhánh cờ-không-nhận-diện-được; chuỗi rỗng → chuỗi nhánh delta-rỗng; mỗi ca kiểm CẢ mã thoát LẪN thông điệp, và ba chuỗi phải khác nhau đôi một (chống một nhánh nuốt hai ca)"
+    cmd: config:executors.test.plugins
+    paths: ["feature-loop/scripts/carry-plan.mjs", "plugins/**", "tests/plugins/**"]
+
+  - id: E4
+    criterion: AC-3
+    executor: test
+    expected: "cờ viết sai CÓ giá trị (--delta_files a.js) → thông điệp nêu đúng chuỗi cờ sai, KHÔNG nêu giá trị đi sau; cờ viết sai KHÔNG giá trị ở cuối → vẫn thông điệp đó; đối chứng dương: cờ đúng → chạy được. Ba ca, mỗi ca ghim thông điệp"
+    cmd: config:executors.test.plugins
+    paths: ["feature-loop/scripts/carry-plan.mjs", "plugins/**", "tests/plugins/**"]
+
+  - id: E5
+    criterion: AC-4
+    executor: test
+    expected: "ĐO HÀNH VI, không đọc mã tìm hằng số (fix gap-probe P1 — gỡ hằng 25 rồi viết dung sai dưới dạng tỉ lệ/danh-sách-bỏ-qua/cắt-bớt thì grep vẫn xanh): corpus dựng bằng chính đường sinh, tiêm ĐÚNG MỘT cụm mồ côi → ĐỎ nêu đích danh cụm đó (n=1 chứng minh không còn dung sai dưới bất kỳ hình dạng nào); mẫu số bắt buộc: số cụm chốt phân loại được > 0 và BẰNG số cụm corpus khai, lệch → ĐỎ; corpus nguyên vẹn XANH trước"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/gate-card.js", "_acceptance/card-text-fidelity/contract.md", "tests/plugins/**"]
+
+  - id: E6
+    criterion: AC-5
+    executor: test
+    expected: "assert ĐỦ BA SỐ cùng lần chạy (fix gap-probe P1 — thiếu mẫu số thì '0 hỏng' luôn đúng vô nghĩa): số thẻ ĐÃ THỬ dựng == số việc trong kho kiểm và > 0; số hỏng == 0; ĐỎ nêu số hỏng khi khác. Đối chứng dương bản nguyên vẹn XANH TRƯỚC; ca tiêm lỗi giết đúng thẻ của một việc → ĐỎ nêu đúng số thẻ hỏng + tên việc; bước tiêm thất bại có thông điệp ĐỎ riêng"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/gate-card.js", "tests/plugins/**"]
+
+  - id: E7
+    criterion: AC-6
+    executor: test
+    expected: "ROUND-TRIP writer→reader (fix gap-probe P1 — fixture viết tay đúng khuôn bên đọc không chứng minh được gì): hồ sơ do CHÍNH đường ghi sinh trong lần chạy, có khối phán nhưng chưa có dòng người quyết → bộ đếm khối phán > 0 VÀ số điểm vàng == 0; CỘNG bất đẳng thức cấu trúc trên corpus THẬT: số khối phán ≥ số điểm vàng, in cả hai số vào bằng chứng (fix review Cổng 1: KHÔNG dùng bằng-nhau làm cờ đỏ — trên kho đã ký trọn hai số bằng nhau là hợp lệ, phép phân biệt nằm ở fixture round-trip); đối chứng: hỏng đường đọc khối phán → ĐỎ"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/acceptance-gold.mjs", "tests/plugins/**"]
+
+  - id: E8
+    criterion: AC-7
+    executor: test
+    expected: "THI HÀNH từng dòng, KHÔNG grep dấu hiệu (fix gap-probe P0 — grep chính là lớp đo-hình-dạng-chuỗi vòng này đi chữa): với mỗi dòng, chạy đúng khối đó trên bản sao NGUYÊN VẸN (phải XANH), dựng vật hỏng theo lệnh cột hai, chạy lại (phải ĐỎ VÀ chứa nguyên văn chuỗi cột ba); dựng vật hỏng thất bại → ĐỎ thông điệp riêng, không bỏ qua. CƠ CHẾ đã quyết tại Cổng 1 (fix review — không để S3 tự phát hiện chi phí): bộ chạy kiểm nhận biến lọc chạy-đúng-một-khối nên mỗi dòng tốn vài giây (~6 dòng < 1 phút, thay vì 7 lượt suite × 40s), và chốt BỎ QUA CHÍNH NÓ trong lượt con (biến lồng sẵn có) — không đệ quy. Tập khối khai == tập rút từ NGUỒN ĐỘC LẬP với bảng (quét cây kiểm tìm khối có dựng bản sao) — thừa đỏ thiếu đỏ; sanity: số dòng bảng ≥ 6"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/measures-need-teeth.tsv", "tests/plugins/**"]
+
+  - id: E9
+    criterion: AC-8
+    executor: test
+    expected: "đối chứng cho chính chốt mới, đi qua ĐƯỜNG THI HÀNH: chép cây kiểm, làm HỎNG phần assert của một khối có tên trong bảng (để nó không còn đỏ được trên vật hỏng của chính nó) → chốt ĐỎ đích danh khối đó; bản nguyên vẹn XANH trước; gỡ thất bại cũng ĐỎ thông điệp riêng"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/measures-need-teeth.tsv", "tests/plugins/**"]
+
+  - id: E10
+    criterion: AC-9
+    executor: test
+    expected: "danh sách lệnh kiểm ĐỌC TỪ config, mốc ĐỌC TỪ sổ (fix gap-probe P0 — luật nguyên-văn mâu thuẫn với chính AC-4/AC-6 vốn PHẢI xoá assert cũ, sẽ buộc thợ giữ thước hỏng hoặc thêm miễn trừ): liệt kê máy mọi dòng assert của base bị SỬA/XOÁ; mỗi dòng phải có entry decisions.jsonl phân loại SIẾT hoặc NỚI ghi TRƯỚC khi sửa; có bất kỳ NỚI nào hoặc có dòng chưa phân loại → ĐỎ nêu dòng; sanity: số dòng bị sửa > 0 (vòng này chắc chắn sửa assert)"
+    cmd: config:executors.test.plugins
+    paths: ["tests/plugins/**"]
