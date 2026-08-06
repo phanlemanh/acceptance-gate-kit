@@ -5,7 +5,7 @@ slug: discovery-brainstorm-socket
 owner: manh@mstar.vn
 risk_tier: T2
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-08-06T09:02:18Z
 time_human_minutes: {gate1: 5}
@@ -103,3 +103,9 @@ Known limits (đề xuất trình Cổng Bằng chứng — Manh đọc và quy�
 - Lỗi cùng lớp trong `lib/workspace-record.js` (`configList` bóc comment
   trước bóc quote) CÒN SỐNG — đã bốc ra hồ sơ riêng vì `lib/**` là T3 và
   cần bản bash đồng-kết-luận trong pre-merge (entry d-10010).
+- Round 3 (round cuối theo luật dừng d-10013) thêm 4 finding, chi tiết +
+  đề xuất từng mục ở `review-findings.md` (R3-1…R3-4): một vi phạm AC-2
+  hình dạng hiếm (quote + comment chứa dấu nháy → bị coi như chưa khai;
+  sửa là một ký tự — Manh chọn sửa-có-vết hay ký known-limit), hai hình
+  dạng YAML hiếm cùng lớp reader (gộp hồ sơ config-reader đã có chip),
+  một lỗ thước quan hệ trong P166 (siết lần chạm tới).
