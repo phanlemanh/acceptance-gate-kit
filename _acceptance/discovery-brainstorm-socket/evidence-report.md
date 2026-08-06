@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 59c8013678a63fd5eef918a6e7b35917fb5e686c
+verified_commit: 4383b814def31b4627eb290d3e0ea688ca80887f
 human_signoff: Manh Phan 2026-08-06
 ---
 
@@ -139,3 +139,7 @@ Round 5 (hiện tại): S4-r5 (commit 59c8013678a63fd5eef918a6e7b35917fb5e686c) 
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter + `time_human_minutes.gate2` in contract
+
+### Re-pin lần 1 — 2026-08-06, do engine đổi ở vòng discovery-brainstorm-socket (ổ cắm khám phá + bộ quét /start + bộ kiểm), ghim lại sau rebase lên main
+run_id: repin-20260806-discovery-brainstorm-socket-lane2
+sha: 4383b814def31b4627eb290d3e0ea688ca80887f · suites: 5 lệnh exit 0
