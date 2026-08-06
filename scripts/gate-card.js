@@ -110,27 +110,38 @@ const bullets = arr => {
   }
   return out;
 };
-// Lột dấu markdown khi buộc in text thô (fallback của tầng card-plain): `code`,
-// **đậm**, *nghiêng*, [nhãn](link) → chữ trần. KHÔNG đụng gạch dưới — run_id,
-// suites_exit là tên máy hợp lệ, lột "_" sẽ phá chúng.
-// Lột định dạng để in cho NGƯỜI. Dấu nhấn mạnh cần ĐỦ BA điều kiện: dấu mở
-// KHÔNG dính vào dấu gạch chéo ngay trước nó (đó là hình dạng đường dẫn:
-// `commands/*.md`, `docs/**`), ngay sau dấu
-// mở là ký tự không-trắng, và ngay trước dấu đóng là ký tự không-trắng. Chữ
-// Mọi ký tự khác — chữ, số, dấu chấm, gạch ngang — đứng trước dấu mở vẫn hợp
-// lệ, nên `tier T3**mới**` và `hết câu.**Đậm**` lột y như bản cũ (AC-3: nhóm
-// lột không được suy giảm).
-// Vì sao cần ràng buộc đó: đường dẫn đệ quy (`plugins/**`, `lib/**`) và mẫu
-// glob (`*.md`) trông y hệt cặp nhấn mạnh, nên luật "mọi cặp sao là chữ đậm"
-// nuốt mất dấu sao của đường dẫn — và nuốt theo kiểu phụ thuộc số lượng glob
-// trên dòng (một cái thì sống, hai cái thì cụt cả hai). Kỳ vọng cho TỪNG hình
-// dạng khai ở marker STRIP-SHAPE-MATRIX trong hợp đồng card-text-fidelity.
-const stripMd = s => String(s == null ? '' : s)
-  .replace(/\[([^\]]*)\]\([^)\s]*\)/g, '$1')
-  .replace(/`([^`]+)`/g, '$1')
-  .replace(/(^|[^*/])\*\*\*(?=\S)([^*]+?)(?<=\S)\*\*\*(?!\*)/g, '$1$2')
-  .replace(/(^|[^*/])\*\*(?=\S)([^*]+?)(?<=\S)\*\*(?!\*)/g, '$1$2')
-  .replace(/(^|[^*/])\*(?=\S)([^*]+?)(?<=\S)\*(?!\*)/g, '$1$2');
+// Lột dấu markdown khi buộc in text thô (fallback của tầng card-plain):
+// `code`, **đậm**, *nghiêng*, [nhãn](link) → chữ trần. KHÔNG đụng gạch dưới —
+// run_id, suites_exit là tên máy hợp lệ, lột "_" sẽ phá chúng.
+//
+// HAI CHÂN giữ đường dẫn nguyên vẹn (card-text-fidelity):
+//
+// (1) CHE nội dung trong dấu nháy ngược TRƯỚC, lột sau, trả lại cuối. Đây là
+//     khôi phục ngữ nghĩa markdown chuẩn — nội dung đoạn mã KHÔNG tham gia
+//     nhấn mạnh. Bản cũ lột nháy trước rồi mới lột đậm, tức tự tay phá lớp bảo
+//     vệ đó: `**Miễn trừ `+"`"+`.github/**`+"`"+` khỏi …**` bị ghép dấu đóng
+//     của cụm đậm với hai sao của glob.
+//
+// (2) Dùng lookbehind (không tiêu thụ ký tự dẫn — nhóm dẫn kiểu (^|[^*/])
+//     ăn mất khoảng trắng phân tách nên cụm đậm liền sau bị trượt).
+//     Dấu nhấn mạnh không được MỞ ngay trước dấu gạch chéo và không được ĐÓNG
+//     ngay sau dấu gạch chéo — `*/_acceptance/*` là đường dẫn, không phải chữ
+//     nghiêng. Ba vòng trước chỉ đặt chốt ở dấu mở nên hình dạng đóng-sau-gạch
+//     -chéo vẫn lọt.
+//
+// Kỳ vọng cho TỪNG hình dạng nằm ở bộ kiểm P161 (tests/plugins/run-tests.sh),
+// và bảng hình dạng ở đó RÚT TỪ hồ sơ thật chứ không do người viết tự nghĩ.
+const MASK = '\u0000';
+const stripMd = s => {
+  const code = [];
+  let t = String(s == null ? '' : s)
+    .replace(/`([^`]+)`/g, (_, c) => { code.push(c); return MASK + (code.length - 1) + MASK; })
+    .replace(/\[([^\]]*)\]\([^)\s]*\)/g, '$1')
+    .replace(/(?<![*/])\*\*\*(?=[^\s/])([^*]+?)(?<=[^\s/])\*\*\*(?!\*)/g, '$1')
+    .replace(/(?<![*/])\*\*(?=[^\s/])([^*]+?)(?<=[^\s/])\*\*(?!\*)/g, '$1')
+    .replace(/(?<![*/])\*(?=[^\s/])([^*]+?)(?<=[^\s/])\*(?!\*)/g, '$1');
+  return t.replace(new RegExp(MASK + '(\\d+)' + MASK, 'g'), (_, i) => (code[+i] !== undefined ? code[+i] : ''));
+};
 const { parseAC, acBlindSpot, blindSpotText } = require('../lib/ac-line.js');
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 

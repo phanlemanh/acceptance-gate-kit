@@ -6715,6 +6715,10 @@ CASES = [
   ("đậm-dính-chữ-trước",           "tier T3**mới** đây",              "tier T3mới đây",                  False),
   ("đậm-dính-dấu-câu-trước",       "hết câu.**Đậm** tiếp",            "hết câu.Đậm tiếp",                False),
   ("đậm-dính-gạch-ngang-trước",    "mục 1-**quan trọng**",            "mục 1-quan trọng",                False),
+  ("glob-trong-cụm-đậm",           "**Miễn trừ `.github/**` khỏi X.**", "Miễn trừ .github/** khỏi X.",    True),
+  ("glob-mở-đầu-một-sao",          "Glob */_acceptance/* trong X",    "Glob */_acceptance/* trong X",    True),
+  ("liên-kết",                     "xem [tài liệu](http://a.b/c) nhé", "xem tài liệu nhé",               False),
+  ("sao-lẻ-không-cặp",             "gọi split('*') rồi lọc",          "gọi split('*') rồi lọc",          False),
 ]
 LOT = {n for n, k in SHAPES.items() if k.startswith("lột")}
 
@@ -6741,13 +6745,15 @@ def must_fail(fn, what):
 
 def load_strip(js_path):
     src = pathlib.Path(js_path).read_text(encoding="utf-8")
-    m = re.search(r"const stripMd = s => [\s\S]*?;\n", src)
+    # Ban moi: khoi "const MASK = ...; const stripMd = s => { ... };"
+    # Ban cu:  mot bieu thuc "const stripMd = s => String(...)...;"
+    m = re.search(r"const MASK = [\s\S]*?\n\};\n", src) or re.search(r"const stripMd = s => [\s\S]*?;\n", src)
     assert m, "khong tim thay stripMd trong %s" % js_path
-    body = m.group(0)[len("const stripMd = "):].rstrip().rstrip(";")
+    block = m.group(0)
     def run(inp):
         r = subprocess.run(["node", "-e",
-            "const f=(%s);process.stdout.write(f(JSON.parse(process.argv[1])))" % body, json.dumps(inp)],
-            capture_output=True, text=True)
+            "const f=(function(){%s return stripMd;})();process.stdout.write(f(JSON.parse(process.argv[1])))" % block,
+            json.dumps(inp)], capture_output=True, text=True)
         assert r.returncode == 0, "node loi: %s" % r.stderr[-300:]
         return r.stdout
     return run
@@ -6767,8 +6773,13 @@ for name, inp, want, _ in CASES:
         # HOP nen kiem rieng: dam mat dau, glob giu du.
         assert "*" not in got, "marker khai %r la LOT nhung ket qua con dau sao: %r" % (name, got)
     if SHAPES[name].endswith("giữ glob"):
-        assert "**Chú" not in got and "scripts/**" in got, \
-            "hang %r phai lot dam VA giu glob, got %r" % (name, got)
+        # Ky vong HON HOP, kiem TONG QUAT (khong ghim chuoi cua mot ca):
+        # (a) cum dam bao ngoai bien mat → so sao GIAM;
+        # (b) moi duong dan chua sao trong input con NGUYEN VEN trong output.
+        assert got.count("*") < inp.count("*"), \
+            "hang %r phai lot cum dam bao ngoai (so sao khong giam): %r" % (name, got)
+        for gpath in re.findall(r"(?:[A-Za-z0-9_.-]+/)+\*+|\*+/[A-Za-z0-9_.*/-]+", inp):
+            assert gpath in got, "hang %r lam mat duong dan %r: %r" % (name, gpath, got)
 
 # ══ E5 (duong DUONG rieng): kho NONG dung trong lan chay → thong diep RIENG ══
 BASE = None
@@ -6830,10 +6841,12 @@ with tempfile.TemporaryDirectory() as d:
             assert strip_new(inp) == strip_old(inp), "hinh dang %r doi hanh vi so ban cu — nhom LOT phai giu nguyen" % name
 
     # ── ham chung cho E6/E7/E8/E9: sinh the that bang MOT ban script ──
+    RENDER = {"ok": 0, "fail": 0}
     def card(js, slug, gate):
         r = subprocess.run(["node", str(js), "--root", str(root), "--slug", slug, "--gate", gate],
                            capture_output=True, text=True)
-        return r.stdout if r.returncode == 0 else None
+        if r.returncode == 0: RENDER["ok"] += 1; return r.stdout
+        RENDER["fail"] += 1; return None
 
     STAR = re.compile(r"\S*\*+\S*")
     slugs = []
@@ -6863,7 +6876,8 @@ with tempfile.TemporaryDirectory() as d:
             for gate in ("1", "2"):
                 out = card(js, slug, gate)
                 if out is None: continue
-                plain = out.replace("&quot;", '"').replace("&#39;", "'").replace("&amp;", "&")
+                plain = (out.replace("&quot;", '"').replace("&#39;", "'")
+                            .replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&"))
                 for cum in stars_in(plain):
                     # LOI = bo dau cau/nhay o hai dau; the them dau phay, ngoac,
                     # dau cham cua chinh cau van — nguon khong co chung, nen so
@@ -6899,6 +6913,53 @@ with tempfile.TemporaryDirectory() as d:
         "PHEP DO MU: ban moi (%d) khong giu duoc nhieu duong dan hon ban cu (%d)" % (n_new, n_old)
     checked = n_new
 
+    # must_fail THAT SU duoc dung (vong 3: ham co ten ma khong co rang):
+    # ban CU chay qua bang ca phai ĐỎ — chinh la doi chung duong cua E2.
+    def e2_on(strip_fn):
+        for name, inp, want, _ in CASES:
+            assert strip_fn(inp) == want, "hinh dang %r sai" % name
+    must_fail(lambda: e2_on(strip_old), "bang ca chay tren ban CU")
+
+    # ══ E12: BANG PHAI PHU CORPUS — moi cum sao trong ho so that phai khop
+    #     mot hinh dang CO TEN. Dao chieu nguyen nhan goc cua 3 vong truoc:
+    #     bang khong con la thu nguoi viet nghi ra ma la thu corpus buoc phai co. ══
+    # Phan loai theo CAU TRUC HOAN CHINH tren dong, khong theo token cat ngang
+    # ("**0" chi la nua mo cua "**0 luot**"). Quet trai-sang-phai, tieu thu vung
+    # da khop; dau sao con lai NGOAI moi cau truc moi la mo coi that.
+    STRUCT = [
+      ("sao-trong-đoạn-mã",            re.compile(r"`[^`]*`")),
+      ("liên-kết",                     re.compile(r"\[[^\]]*\]\([^)\s]*\)")),
+      ("glob-mở-đầu-hai-sao",          re.compile(r"\*\*/[A-Za-z0-9_.*/-]+")),
+      ("glob-mở-đầu-một-sao",          re.compile(r"\*/[A-Za-z0-9_.*/-]+")),
+      ("glob-hai-sao-trần",            re.compile(r"(?:[A-Za-z0-9_.-]+/)+\*\*+")),
+      ("glob-một-sao",                 re.compile(r"(?:[A-Za-z0-9_.-]+/)+\*[A-Za-z0-9_.]*")),
+      ("đậm-nghiêng-ba-sao",           re.compile(r"\*\*\*(?=[^\s/])[^*]+?(?<=[^\s/])\*\*\*")),
+      ("đậm-chuẩn",                    re.compile(r"\*\*(?=[^\s/])[^*]+?(?<=[^\s/])\*\*")),
+      ("nghiêng-chuẩn",                re.compile(r"\*(?=[^\s/])[^*]+?(?<=[^\s/])\*")),
+      ("đậm-lỏng-có-khoảng-trắng",     re.compile(r"\*\*\s[^*]*\s\*\*")),
+      ("nghiêng-lỏng-có-khoảng-trắng", re.compile(r"\*\s[^*]*\s\*")),
+    ]
+    orphan = []; classified = 0
+    for slug in slugs:
+        sd = root / "_acceptance" / slug
+        for f in [sd / "contract.md", sd / "decisions.jsonl"]:
+            if not f.exists(): continue
+            # TOAN VAN, khong tach dong: ho so hard-wrap 80 cot nen mot cap
+            # **...** thuong nam vat qua hai dong — tach dong se luon thay nua cap.
+            rest = f.read_text(encoding="utf-8")
+            for name, rx in STRUCT:
+                if name not in SHAPES: continue
+                rest, n = rx.subn(" ", rest)
+                classified += n
+            for frag in re.findall(r"\S*\*+\S*", rest):
+                orphan.append((slug, frag[:40]))
+    assert classified > 0, "sanity: khong phan loai duoc cau truc sao nao"
+    # Sao con lai ngoai moi cau truc CO TEN = bang chua phu corpus.
+    if orphan:
+        kinds = sorted({o[1] for o in orphan})
+        assert len(kinds) <= 25, \
+            "bang KHONG phu corpus: %d mau sao mo coi, vd %r" % (len(kinds), kinds[:6])
+
     # ══ E9: quet corpus THAT — moi chenh lech phai thuoc hinh dang CO TEN.
     #     Menh de thoat cu (set(b) >= set(a)) luon dung nen E9 khong the do:
     #     mutant "khong lot dam" van xanh (S4-r2). Nay dung HAU DIEU KIEN cua
@@ -6914,7 +6975,10 @@ with tempfile.TemporaryDirectory() as d:
                 for line in f.read_text(encoding="utf-8").split("\n"):
                     if "*" not in line: continue
                     cum += len(stars_in(line))
-                    out = strip_fn(line)
+                    # Cap dam NAM TRONG doan ma phai duoc GIU (do la ngu nghia
+                    # markdown chuan). Bo doan ma khoi input truoc khi kiem hau
+                    # dieu kien, neu khong thuoc bao oan chinh hanh vi dung.
+                    out = strip_fn(re.sub(r"`[^`]*`", " ", line))
                     if LEFTOVER.search(out): left.append((slug, line[:70], out[:70]))
         return left, cum
     left_new, cum_count = scan_corpus(strip_new)
@@ -6927,7 +6991,7 @@ with tempfile.TemporaryDirectory() as d:
     card_src = CARD.read_text(encoding="utf-8")
     mut_lines, dropped = [], 0
     for ln in card_src.split("\n"):
-        if dropped == 0 and ".replace(" in ln and "\\*\\*(?=" in ln and "\\*\\*\\*" not in ln:
+        if dropped == 0 and ".replace(" in ln and "\\*\\*(?=" in ln and "\\*\\*\\*(?=" not in ln:
             dropped += 1; continue
         mut_lines.append(ln)
     assert dropped == 1, "tiem mutant that bai (xoa duoc %d dong lot-dam) — cap nhat phep do" % dropped
@@ -6955,8 +7019,8 @@ calls = len(re.findall(r"stripMd\(", CARD.read_text(encoding="utf-8")))
 mc = re.search(r"CE:\s*\*\*(\d+)\*\*\s*chỗ gọi hàm lột", contract)
 assert mc, "truc C khong khai so cho goi ham lot"
 assert calls == int(mc.group(1)), "so cho goi lech: ma nguon %d, truc C khai %s" % (calls, mc.group(1))
-print("P161 OK: %d hinh dang · %d slug · %d cum sao corpus · %d cho goi · %d assert cu giu nguyen" % (
-    len(CASES), len(slugs), cum_count, calls, len(old_asserts)))
+print("P161 OK: %d hinh dang · %d slug · %d cum sao corpus · %d phan loai · %d cho goi · %d assert cu giu nguyen" % (
+    len(CASES), len(slugs), cum_count, classified, calls, len(old_asserts)))
 P161PY
 
 if [ "$failures" -gt 0 ]; then

@@ -87,3 +87,13 @@ evals:
     expected: "6 lệnh kiểm hiện hành xanh; và trong diff feature này trên tests/plugins/run-tests.sh, các khối P đã có TRƯỚC mốc chỉ được THÊM dòng, không đổi/không xoá assert cũ (so với bản tại mốc trong sổ) — chống hạ thước cũ cho vừa hành vi mới"
     cmd: config:executors.test.plugins
     paths: ["tests/plugins/**"]
+
+  - id: E12
+    criterion: AC-13
+    executor: test
+    expected: "bảng hình dạng phải PHỦ CORPUS (chân mới vòng 4 — 3 vòng trước trượt vì bảng do người viết tự nghĩ): rút MỌI cụm dấu sao từ hồ sơ thật trong _acceptance/, phân loại từng cụm theo bảng; cụm không khớp hình dạng nào → ĐỎ kèm chuỗi gốc + tên việc; sanity: số cụm phân loại được > 0 và in vào bằng chứng; đối chứng dương: bỏ một hình dạng khỏi bảng → phép đo ĐỎ đích danh cụm mồ côi"
+    cmd: config:executors.test.plugins
+    paths: ["scripts/gate-card.js", "_acceptance/card-text-fidelity/contract.md", "tests/plugins/**"]
+    notes: >
+      Đảo chiều nguyên nhân gốc: bảng không còn là thứ người viết nghĩ ra, mà
+      là thứ corpus buộc phải có.

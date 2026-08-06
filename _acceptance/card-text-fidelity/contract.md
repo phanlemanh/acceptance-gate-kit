@@ -44,6 +44,10 @@ hợp, không phải số đếm).
 - đậm-dính-chữ-trước — lột dấu, giữ chữ
 - đậm-dính-dấu-câu-trước — lột dấu, giữ chữ
 - đậm-dính-gạch-ngang-trước — lột dấu, giữ chữ
+- glob-trong-cụm-đậm — lột cụm đậm bao ngoài, giữ glob
+- glob-mở-đầu-một-sao — giữ nguyên
+- liên-kết — lột dấu, giữ nhãn
+- sao-lẻ-không-cặp — giữ nguyên (dấu sao đơn độc trong văn xuôi kỹ thuật)
 <!-- STRIP-SHAPE-MATRIX>>> -->
 
 ## Criteria
@@ -92,13 +96,20 @@ hợp, không phải số đếm).
   rõ "không lấy được bản cũ" với "hành vi sai", không đỏ oan như một khiếm
   khuyết sản phẩm.
 
+- AC-13: Given mọi cụm dấu sao rút được từ hồ sơ thật trong `_acceptance/`,
+  When phân loại từng cụm theo bảng hình dạng, Then MỌI cụm phải khớp ít nhất
+  một hình dạng CÓ TÊN — cụm không khớp hình dạng nào → ĐỎ kèm chuỗi gốc và
+  tên việc chứa nó. Bảng do đó bị buộc phải phủ dữ liệu thật, không phải phủ
+  trí tưởng tượng của người viết (3 vòng trước trượt đúng chỗ này).
+
 ## Coverage
 
 Từ morphological-scan (3 trục — thước CE trong ngoặc):
 
-- **A — hình dạng đánh dấu** (CE: **15** hình dạng khai trong bảng
-  `STRIP-SHAPE-MATRIX` ở trên, mỗi hình dạng có kỳ vọng): AC-1 (kỳ vọng từng
-  hình dạng), AC-2 (tính toàn phần của tập tên), AC-3 (nhóm lột), AC-4 (lồng)
+- **A — hình dạng đánh dấu** (CE: **19** hình dạng khai trong bảng
+  `STRIP-SHAPE-MATRIX` ở trên, mỗi hình dạng có kỳ vọng — con số này nay do
+  CORPUS quyết, xem AC-13): AC-1 (kỳ vọng từng hình dạng), AC-2 (tính toàn
+  phần của tập tên), AC-3 (nhóm lột), AC-4 (lồng), AC-13 (bảng phủ corpus)
 - **B — nội dung bị đe doạ** (CE: quét nguồn thật — đường dẫn chứa sao có mặt
   trong hồ sơ nhiều việc [SP]): AC-6 (đường dẫn nguyên vẹn), AC-9 (mọi cụm sao
   thật đều thuộc hình dạng có tên), AC-5 (bản cũ sai ở đâu)
