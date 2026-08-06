@@ -15,3 +15,24 @@ Cổng Bằng chứng.
 
 Round 3 không sửa gì trên cây — mọi số đo của evidence-report ứng đúng
 `verified_commit 03f4a02`.
+
+## Round 4 (Manh phê chuẩn vượt trần, khoanh vùng R3-1)
+
+R3-1 ĐÓNG: 4 hình dạng quote+comment đều đọc ra tên đúng; ô ma trận mới giết
+được bản tham lam (kiểm bằng tiêm mutant vào bản sao cây). Ma trận 26 ô.
+
+Nhưng round 4 lộ ra **khuôn giải sai của cả vòng** + một vi phạm in-contract:
+
+| # | Sev | Trong hợp đồng? | Finding (kiểm tay) | Đề xuất |
+|---|---|---|---|---|
+| R4-1 | **nặng** | **CÓ — AC-4** | Bộ lọc đuôi file của P167 bỏ sót 6 thân prompt agent `.toml`, `check_contrast.py`, `codex-self-script-refs.tsv`. Tiêm `product-management:brainstorm` vào `acceptance_judge.toml` → P167 vẫn OK exit 0. Đúng loại file dễ bị hardcode tên plugin nhất lại nằm ngoài vùng quét; chốt per-cây không cứu vì nó đếm file ĐÃ QUA bộ lọc | Sửa: quét theo DANH SÁCH LOẠI TRỪ (nhị phân/ảnh) thay vì danh sách cho phép, + ô đối chứng tiêm vào `.toml` |
+| R4-2 | **nặng** | không (nhưng là gốc của cả vòng) | Kit ĐÃ CÓ reader config dùng chung `lib/evidence-core.js resolveConfigKey`; ổ cắm anh em `design_pass.host_embed` đọc bằng đúng nó (`scripts/gate-card.js:275`). Tôi tự viết parser THỨ BA. Tiền đề d-10002 sai cả hai vế (hàm đã có → chỉ gọi, không sửa lib → không phải T3; consumer thứ hai có từ 1.30.x). Đo tay: reader chung ĐÚNG SẴN ở CRLF · quote+comment-chứa-nháy · `key : value` · section-lạ-kế — tức 4 hình dạng tôi mất 4 round để vá | **Thay `configScalar` bằng `resolveConfigKey` + guard hình dạng ở ngoài** — xoá cả lớp thay vì vá hình dạng thứ năm |
+| R4-3 | vừa | không | Bản vá "nới thụt đầu dòng" (r1) NGƯỢC hợp đồng repo (`acceptance-init.md:38` "2-space REQUIRED", pre-merge coi thụt lẻ là VIOLATION). Hậu quả thật: repo thụt 4 → ổ cắm đọc được nhưng `map.enabled=false` → thẻ `/start` nói dối "repo chưa bật bản đồ" | GỠ 2 ô thụt-lẻ khỏi ma trận; đi cùng R4-2 |
+| R4-4 | vừa | không | Ổ cắm không có ở `GUIDE.md` §5.2 lẫn khuôn `acceptance-init` → repo tiêu thụ không có đường nào biết mà khai; vế dương không tới tay consumer | d-10005 đã hoãn có chủ đích chờ F-A; tối thiểu thêm 1 dòng chú thích trong khuôn init |
+| R4-5 | thấp | không | `NULL`, `Null`, `true`, `False` lọt guard thành tên skill | Đi cùng R4-2 (guard hình dạng viết lại) |
+| R4-6 | vừa/thấp | không | Hai lỗ thước còn lại: bằng chứng E1/E2/E3 ghim thông điệp của case KHÁC; quan hệ fallback→khuôn-grill vẫn đo bằng `includes` rời | Siết khi chạm P166 lần tới |
+
+**Verdict round 4 KHÔNG dùng làm căn cứ ký được**: `triageFailed=true` lần thứ
+hai (cùng nguyên nhân round 1 — khoá ghép đường dẫn giữa hai lane review), nên
+finding in-contract R4-1 không được phép kéo verdict xuống. Cùng lớp giả xanh
+đã ghi ở d-10009.
