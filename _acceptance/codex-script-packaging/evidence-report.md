@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 747df7fd4d2925dcb7e1a159e540b6145267dfb4
+verified_commit: fa22f3d42efbd6d76d2de165fc278fa867f50cf6
 human_signoff:
 ---
 
@@ -22,73 +22,71 @@ human_signoff:
 | E5 | AC-5 | test | PASS |
 | E6 | AC-6 | test | PASS |
 
-Ghi chú verdict: cả 6 eval máy đều thoát mã 0 (`failed_evals: []`) và toàn bộ suite regression-guard khác (`tests/scripts`, `tests/hooks`, `tests/workflows`, `sync-plugin-packages.sh --check`, `product-map.mjs --check`) cũng xanh. Verdict tổng vẫn là REJECT — không phải vì lệnh máy đỏ, mà vì review-findings.md round này (section "Trong hợp đồng") xác nhận nhiều chân đo P162 vẫn thiếu đúng đối chứng dương/ca âm mà AC-2, AC-5, AC-6 tự khai trong contract.md: ca âm AC-6 kiểm một chuỗi bịa luôn-đúng-vô-điều-kiện thay vì đổi tên tệp chốt trong bản sao cây kiểm; đối chứng dương AC-5 không kiểm mã thoát của lượt dựng lại và không ghim đích danh file mất; hai chân phạm vi của AC-2 đo hệ tệp/thư mục độc lập với vòng đọc thật thay vì đo tập tệp ĐÃ QUÉT. Nghĩa là các eval hôm nay vẫn không phân biệt được "bắt đúng lỗi" với "chưa bao giờ chạy" trên đúng những chân mà chúng tuyên đóng — cùng lớp lỗi đã REJECT ở round 1, chưa được đóng triệt để.
-
 ## Evidence
 
 - eval: E1
-  run_id: minted-codex-script-packaging-E1-r2
+  run_id: minted-codex-script-packaging-E1-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T07:20:00Z
+  verified_at: 2026-08-06T10:42:00Z
   output: |
-      PASS: P162 chi-dan ⇔ goi: quan he tap hop + mutant hai chieu
+    PASS: P162 chi-dan ⇔ goi: phan loai toan phan + mutant dung-lai-goi
 
     Results: all plugin tests passed
 
 - eval: E2
-  run_id: minted-codex-script-packaging-E2-r2
+  run_id: minted-codex-script-packaging-E2-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T07:20:00Z
+  verified_at: 2026-08-06T10:42:00Z
   output: |
-      PASS: P162 chi-dan ⇔ goi: quan he tap hop + mutant hai chieu
+    PASS: P162 chi-dan ⇔ goi: phan loai toan phan + mutant dung-lai-goi
 
     Results: all plugin tests passed
 
 - eval: E3
-  run_id: minted-codex-script-packaging-E3-r2
+  run_id: minted-codex-script-packaging-E3-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T07:20:00Z
+  verified_at: 2026-08-06T10:42:00Z
   output: |
-      PASS: P162 chi-dan ⇔ goi: quan he tap hop + mutant hai chieu
+    PASS: P162 chi-dan ⇔ goi: phan loai toan phan + mutant dung-lai-goi
 
     Results: all plugin tests passed
 
 - eval: E4
-  run_id: minted-codex-script-packaging-E4-r2
+  run_id: minted-codex-script-packaging-E4-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T07:20:00Z
+  verified_at: 2026-08-06T10:42:00Z
   output: |
-      PASS: P162 chi-dan ⇔ goi: quan he tap hop + mutant hai chieu
+    PASS: P162 chi-dan ⇔ goi: phan loai toan phan + mutant dung-lai-goi
 
     Results: all plugin tests passed
 
 - eval: E5
-  run_id: minted-codex-script-packaging-E5-r2
+  run_id: minted-codex-script-packaging-E5-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T07:20:00Z
+  verified_at: 2026-08-06T10:42:00Z
   output: |
-      PASS: P162 chi-dan ⇔ goi: quan he tap hop + mutant hai chieu
+    PASS: P162 chi-dan ⇔ goi: phan loai toan phan + mutant dung-lai-goi
 
     Results: all plugin tests passed
 
 - eval: E6
-  run_id: minted-codex-script-packaging-E6-r2
+  run_id: minted-codex-script-packaging-E6-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-06T07:20:00Z
+  verified_at: 2026-08-06T10:42:00Z
   output: |
-      PASS: P162 chi-dan ⇔ goi: quan he tap hop + mutant hai chieu
+    PASS: P162 chi-dan ⇔ goi: phan loai toan phan + mutant dung-lai-goi
 
     Results: all plugin tests passed
 
@@ -96,7 +94,7 @@ Ghi chú verdict: cả 6 eval máy đều thoát mã 0 (`failed_evals: []`) và 
 
 carried tu round 1 — baseline khong do lai round nay
 
-none — baseline không đo lại round này (round 1 đã ghi `baseline: green` đồng loạt cho E1-E6 trên lệnh `bash tests/plugins/run-tests.sh`; xem round 1 report để biết chi tiết A/B).
+Non-discriminating evals: none
 
 ## Variance
 
@@ -104,9 +102,9 @@ none — every multi-run eval is uniform
 
 ## Iterations
 
-Round 1: cả 6 eval máy (E1-E6, `bash tests/plugins/run-tests.sh`) PASS mã thoát 0, các suite regression-guard khác cũng xanh — nhưng review scope-triage phát hiện AC-2 (phạm vi quét chỉ SKILL.md nguồn, bỏ sót 4/12 tệp chỉ dẫn shipped + các dạng chỉ dẫn khác), AC-5 (thiếu đối chứng dương "bỏ dòng chép → ĐỎ nêu file mất"), và AC-6 (không có ca âm "đổi tên tệp chốt → lưới ĐỎ", resolver dò theo tên khoá lá) đều thiếu đúng đối chứng mà contract.md tự khai. Verdict REJECT, quay lại implementation.
-
-Round 2: cả 6 eval máy vẫn PASS mã thoát 0 và mọi suite regression-guard khác cũng xanh, nhưng review-findings.md round này (section "Trong hợp đồng") xác nhận cùng lớp lỗi chưa đóng: ca âm AC-6 (dòng 7255) chỉ kiểm một chuỗi bịa không tồn tại trong config nên luôn đúng vô điều kiện thay vì đổi tên tệp chốt trong BẢN SAO cây kiểm; đối chứng dương AC-5 (dòng 7213, lặp lại ở dòng 7211) không kiểm mã thoát của lượt dựng lại (nên sync script crash giữa chừng cho cùng màu xanh với đúng mutant) và không ghim đích danh file/gói mất; hai chân phạm vi của AC-2 (dòng 7076, 7078) đo sự tồn tại của thư mục gói và đếm lại hệ tệp độc lập với vòng `extract()` thật, nên có thể xanh dù vòng đọc chính hỏng. Verdict REJECT, quay lại implementation để viết lại đúng mutant/đối chứng đã khai cho từng chân trước khi verify lại.
+Round 1: E2, E5 written against the first scan/mutant design; self-review (S4-r2) found scope and anchor gaps — a denylist that missed the `${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}` prefix shape, a tautological negative case in the anchor-location check, an E5 baseline anchored to `decisions.jsonl`'s recorded commit, and an E5 rebuild done against a worktree at HEAD instead of the tree under test — returned to implementation.
+Round 2 (S4-r2 fix): denylist widened to catch the missed prefix shape, E6's negative case rewritten to actually relocate the anchor file instead of asserting an unconditionally-true string, E5 rebuilt from the tree under test with the `decisions.jsonl` anchor dropped from AC-5 — machine evals rewritten and carried into this contract as E1-E6.
+Round 3: `bash tests/plugins/run-tests.sh` and the full companion suites (scripts, hooks, workflows, sync-plugin-packages --check, product-map --check) all exit 0 and E1-E6 show green — but review-findings.md surfaced 3 in-contract high-severity gaps: AC-2 (×2, P162's scanned-package scope is asserted only by threshold counters (`nfiles >= 40`, `len(pkgs_with_ref) >= 2`) with no fixed 3-package/extension list to diff against — a mutant that drops `design-loop-codex` entirely from the scan still prints "P162 OK") and AC-4 (`carry-plan.mjs` does not require `--delta-files`; a missing or misspelled flag silently carries every eval forward and exits 0 instead of failing loud). Verdict REJECT, returned to implementation.
 
 ## Gate 2 checklist (human)
 
