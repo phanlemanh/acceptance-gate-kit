@@ -6671,6 +6671,203 @@ assert gloss(saved) == gloss(fresh), \
     "gold-stdout.txt khong phai ban may vua in: khoi Tu dien lech"
 P160PY
 
+# ── P161 (card-text-fidelity, E1-E11): ham lot dinh dang giu nguyen duong dan
+#     co dau sao. MA TRAN lay TEN + KY VONG tu marker STRIP-SHAPE-MATRIX trong
+#     contract that (mot nguon), doi chung duong lay ban TRUOC-DIFF tai MOC DOC
+#     TU SO QUYET DINH (khong hardcode sha trong test — bai hoc P160). ──
+echo "P161 (E1-E11) ham lot: 12 hinh dang, doi chung ban cu, quet corpus that"
+run "P161 strip-md giu duong dan + ma tran toan phan" \
+  python3 - "$ROOT" <<'P161PY'
+import json, pathlib, re, subprocess, sys, tempfile, os
+root = pathlib.Path(sys.argv[1])
+WS = root / "_acceptance/card-text-fidelity"
+CARD = root / "scripts/gate-card.js"
+
+# ── nguon SU THAT cua ma tran: marker trong contract, KHONG chep tay vao test ──
+contract = (WS / "contract.md").read_text(encoding="utf-8")
+mm = re.search(r"<!-- <<<STRIP-SHAPE-MATRIX -->\n([\s\S]*?)<!-- STRIP-SHAPE-MATRIX>>> -->", contract)
+assert mm, "khong rut duoc marker STRIP-SHAPE-MATRIX tu contract"
+SHAPES = {}
+for line in mm.group(1).strip().split("\n"):
+    m = re.match(r"^-\s+(\S+)\s+—\s+(.+)$", line.strip())
+    assert m, "hang marker sai khuon: %r" % line
+    SHAPES[m.group(1)] = m.group(2)
+assert len(SHAPES) >= 12, "marker chi co %d hinh dang — sanity chong marker hong" % len(SHAPES)
+
+# ── bang ca: TEN phai khop marker; chuoi vao/ra + co 'ban cu sai' khai o day ──
+# cot 4 (old_wrong) = ban TRUOC-DIFF co sai o hinh dang nay khong
+CASES = [
+  ("glob-hai-sao-trong-đoạn-mã",      "chạm `lib/**` nhé",            "chạm lib/** nhé",                 False),
+  ("glob-hai-sao-trần",               "docs/** thôi",                 "docs/** thôi",                    False),
+  ("nhiều-glob-một-dòng",             "docs/** · plugins/** · hooks/**", "docs/** · plugins/** · hooks/**", True),
+  ("glob-mở-đầu-hai-sao",             "**/*.ts và **/*.js",           "**/*.ts và **/*.js",              True),
+  ("glob-một-sao",                    "commands/*.md và lib/*",       "commands/*.md và lib/*",          True),
+  ("sao-trong-đoạn-mã",               "`a**b`",                       "a**b",                            False),
+  ("đậm-chuẩn",                       "**Nhấn mạnh** đây",            "Nhấn mạnh đây",                   False),
+  ("nghiêng-chuẩn",                   "*nghiêng* đây",                "nghiêng đây",                     False),
+  ("đậm-nghiêng-ba-sao",              "***rất*** quan trọng",         "rất quan trọng",                  False),
+  ("đậm-lỏng-có-khoảng-trắng",        "** Cảnh báo **",               "** Cảnh báo **",                  True),
+  ("nghiêng-lỏng-có-khoảng-trắng",    "*ghi chú *",                   "*ghi chú *",                      True),
+  ("đậm-và-glob-cùng-dòng",           "**Chú ý** với `scripts/**`",   "Chú ý với scripts/**",            False),
+]
+
+def names(cases): return {c[0] for c in cases}
+
+# ══ (1) E1: quan he TAP HOP giua ten bang ca va ten marker + 2 mutant ══
+def check_names(case_names, shape_names):
+    """tra ve danh sach loi — rong = khop"""
+    errs = []
+    for miss in sorted(shape_names - case_names): errs.append("thieu o kiem cho hinh dang %r" % miss)
+    for extra in sorted(case_names - shape_names): errs.append("bang ca co ten LA khong co trong marker: %r" % extra)
+    return errs
+
+# doi chung DUONG truoc: ban nguyen ven phai KHOP
+base_errs = check_names(names(CASES), set(SHAPES))
+assert not base_errs, "ban nguyen ven da lech san: %s" % "; ".join(base_errs)
+# mutant (a): xoa mot hang khoi marker
+mut_a = set(SHAPES) - {"glob-mở-đầu-hai-sao"}
+errs_a = check_names(names(CASES), mut_a)
+assert errs_a and any("ten LA" in e and "glob-mở-đầu-hai-sao" in e for e in errs_a), \
+    "mutant xoa-hang KHONG do dung ten: %r" % errs_a
+# mutant (b): doi ten mot hang
+mut_b = (set(SHAPES) - {"đậm-chuẩn"}) | {"đậm-doi-ten"}
+errs_b = check_names(names(CASES), mut_b)
+assert any("đậm-doi-ten" in e for e in errs_b) and any("đậm-chuẩn" in e for e in errs_b), \
+    "mutant doi-ten KHONG do ca hai chieu: %r" % errs_b
+
+# ── nap ham lot TU FILE THAT (khong chep bieu thuc vao test) ──
+def load_strip(js_path):
+    src = pathlib.Path(js_path).read_text(encoding="utf-8")
+    m = re.search(r"const stripMd = s => [\s\S]*?;\n", src)
+    assert m, "khong tim thay stripMd trong %s" % js_path
+    body = m.group(0)[len("const stripMd = "):].rstrip().rstrip(";")
+    def run(inp):
+        r = subprocess.run(["node", "-e",
+            "const f=(%s);process.stdout.write(f(JSON.parse(process.argv[1])))" % body, json.dumps(inp)],
+            capture_output=True, text=True)
+        assert r.returncode == 0, "node loi: %s" % r.stderr[-300:]
+        return r.stdout
+    return run
+
+strip_new = load_strip(CARD)
+
+# ══ (2) E2: moi hinh dang cho ra DUNG ky vong khai o marker ══
+for name, inp, want, _ in CASES:
+    got = strip_new(inp)
+    assert got == want, "hinh dang %r (%s): vao %r → ra %r, ky vong %r" % (name, SHAPES[name], inp, got, want)
+
+# ══ (4) E4/E5: ban TRUOC-DIFF tai MOC DOC TU SO QUYET DINH ══
+BASE = None
+for line in (WS / "decisions.jsonl").read_text(encoding="utf-8").split("\n"):
+    if not line.strip(): continue
+    try: e = json.loads(line)
+    except Exception: continue
+    m = re.search(r"base = ([0-9a-f]{40})", e.get("decision", ""))
+    if m: BASE = m.group(1)
+assert BASE, "so quyet dinh khong ghi moc so-ban-cu (base = <sha>) — xem AC-12"
+
+have = subprocess.run(["git", "-C", str(root), "cat-file", "-e", BASE + "^{commit}"], capture_output=True)
+if have.returncode != 0:
+    # E5: cay thieu lich su → THONG DIEP RIENG, khong bao nhu khiem khuyet san pham
+    print("P161-NOTE: khong lay duoc ban cu tai moc %s (cay thieu lich su) — bo qua chan doi chung" % BASE)
+else:
+    with tempfile.TemporaryDirectory() as d:   # NGOAI cay nguon (bai hoc rac trong scripts/)
+        old_js = pathlib.Path(d) / "gate-card.base.js"
+        show = subprocess.run(["git", "-C", str(root), "show", "%s:scripts/gate-card.js" % BASE],
+                              capture_output=True, text=True)
+        assert show.returncode == 0 and len(show.stdout) > 500, \
+            "khong lay duoc ban cu tai moc %s: %s" % (BASE, show.stderr[-200:])
+        old_js.write_text(show.stdout, encoding="utf-8")
+        strip_old = load_strip(old_js)
+        wrong, right = [], []
+        for name, inp, want, old_wrong in CASES:
+            ok = (strip_old(inp) == want)
+            (right if ok else wrong).append(name)
+            assert ok != old_wrong, \
+                "ban cu o hinh dang %r: khai old_wrong=%s nhung thuc te %s" % (name, old_wrong, "dung" if ok else "sai")
+        assert wrong and right, "phep do MU: ban cu %s — hai tap phai deu khong rong" % (
+            "sai het" if not right else "dung het")
+        # ══ (3) E3: nhom LOT khong suy giam — so ban moi voi ban cu tren dung nhom do ══
+        for name, inp, want, old_wrong in CASES:
+            if SHAPES[name].startswith("lột") and not old_wrong:
+                assert strip_new(inp) == strip_old(inp), \
+                    "hinh dang %r doi hanh vi so voi ban cu — nhom LOT phai giu nguyen" % name
+
+# ══ (5) E6: do tren VAT DUOC GIAO — the THAT 2 cong ══
+# DUONG DAN chua sao = phai co dau gach cheo lam neo. Ban truoc bat ca duoi
+# cua chu dam markdown ("...bang**" → "ng**") nen bao CUT oan — thuoc sai, khong
+# phai vat sai.
+# Ban CUT phai la TOKEN TRON: "lib/" trong "lib/context-glossary" KHONG phai
+# ban cut cua "lib/**" — do bang chuoi-con lam phep do bao oan (thuoc sai).
+def _scan_cut(out, globs, where):
+    plain = out.replace("&quot;", '"')
+    hits = 0
+    for g in globs:
+        if g in plain: hits += 1; continue
+        stem = g.rstrip("*")
+        if not stem: continue
+        for m in re.finditer(re.escape(stem), plain):
+            nxt = plain[m.end():m.end() + 1]
+            if nxt not in ("*",) and not re.match(r"[A-Za-z0-9_.*/-]", nxt or " "):
+                raise AssertionError("%s in duong dan CUT %r (nguon co %r)" % (where, stem, g))
+    return hits
+
+GLOBRE = re.compile(r"(?:[A-Za-z0-9_.-]+/)+\*\*+|\*\*/[A-Za-z0-9_.*/-]+|(?:[A-Za-z0-9_.-]+/)+\*[A-Za-z0-9_.]*")
+slugs = []
+for d in sorted((root / "_acceptance").iterdir()):
+    if not d.is_dir(): continue
+    c = d / "contract.md"
+    if c.exists() and GLOBRE.search(c.read_text(encoding="utf-8")): slugs.append(d.name)
+assert slugs, "sanity: khong slug nao co duong dan chua sao — phep do se rong"
+checked = 0
+for slug in slugs:          # KHONG cat top-N: slug duy nhat co glob tren the
+    src = (root / "_acceptance" / slug / "contract.md").read_text(encoding="utf-8")
+    globs = {g for g in GLOBRE.findall(src) if g.count("*") and len(g) > 3}
+    for gate in ("1", "2"):
+        r = subprocess.run(["node", str(CARD), "--root", str(root), "--slug", slug, "--gate", gate],
+                           capture_output=True, text=True)
+        if r.returncode != 0: continue      # Cong 2 chua co evidence → bo qua
+        out = r.stdout
+        checked += _scan_cut(out, globs, "the Cong %s cua %s" % (gate, slug))
+assert checked > 0, "sanity: khong doi chieu duoc duong dan nao tren the that"
+
+# ══ (6) E7/E8: doi chung DUONG cho chan the-that — ban CU phai lam no ĐỎ ══
+if have.returncode == 0:
+    with tempfile.TemporaryDirectory() as d2:
+        mut = pathlib.Path(d2) / "gate-card.mut.js"
+        mut.write_text(show.stdout, encoding="utf-8")   # ban CU = mutant that
+        os.makedirs(pathlib.Path(d2) / "lib", exist_ok=True)
+        for f in (root / "lib").iterdir():
+            if f.suffix == ".js": (pathlib.Path(d2) / "lib" / f.name).write_text(f.read_text(encoding="utf-8"), encoding="utf-8")
+        os.makedirs(pathlib.Path(d2) / "scripts", exist_ok=True)
+        mut2 = pathlib.Path(d2) / "scripts" / "gate-card.js"
+        mut2.write_text(show.stdout, encoding="utf-8")
+        # Quan he manh hon _scan_cut: dem duong dan NGUYEN VEN tren the that.
+        # Ban CU phai in IT hon ban MOI o it nhat mot slug — neu bang nhau het
+        # thi phep do khong phan biet duoc hai ban, tuc la mu.
+        PATH_RE = re.compile(r"\*\*/|[A-Za-z0-9_.-]+/\*\*")
+        gained = 0
+        for slug in slugs:
+            a = subprocess.run(["node", str(CARD), "--root", str(root), "--slug", slug, "--gate", "1"],
+                               capture_output=True, text=True)
+            b = subprocess.run(["node", str(mut2), "--root", str(root), "--slug", slug, "--gate", "1"],
+                               capture_output=True, text=True)
+            if a.returncode != 0 or b.returncode != 0: continue
+            na, nb = len(PATH_RE.findall(a.stdout)), len(PATH_RE.findall(b.stdout))
+            assert na >= nb, "ban moi in IT duong dan hon ban cu o %s (%d < %d) — hoi quy" % (slug, na, nb)
+            gained += na - nb
+        assert gained > 0, "PHEP DO MU: ban CU va ban MOI in y het so duong dan tren MOI the that"
+        print("P161 the that: ban moi phuc hoi %d duong dan so voi ban cu" % gained)
+
+# ══ (8) E10: dem cho goi ham lot TU MA NGUON == con so khai o truc C ══
+calls = len(re.findall(r"stripMd\(", CARD.read_text(encoding="utf-8")))
+mc = re.search(r"CE:\s*\*\*(\d+)\*\*\s*chỗ gọi hàm lột", contract)
+assert mc, "truc C khong khai so cho goi ham lot"
+assert calls == int(mc.group(1)), \
+    "so cho goi ham lot lech: ma nguon %d, truc C khai %s — truc da troi khoi ma" % (calls, mc.group(1))
+print("P161 OK: %d hinh dang · %d slug the that · %d cho goi" % (len(CASES), len(slugs), calls))
+P161PY
+
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

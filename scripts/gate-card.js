@@ -113,11 +113,21 @@ const bullets = arr => {
 // Lột dấu markdown khi buộc in text thô (fallback của tầng card-plain): `code`,
 // **đậm**, *nghiêng*, [nhãn](link) → chữ trần. KHÔNG đụng gạch dưới — run_id,
 // suites_exit là tên máy hợp lệ, lột "_" sẽ phá chúng.
+// Lột định dạng để in cho NGƯỜI. Dấu nhấn mạnh cần ĐỦ BA điều kiện: dấu mở
+// đứng ở đầu chuỗi hoặc sau khoảng trắng/dấu mở bao (KHÔNG bao giờ dính vào
+// ký tự trước như / . - hay chữ — đó là hình dạng của đường dẫn), ngay sau
+// dấu mở là ký tự không-trắng, và ngay trước dấu đóng là ký tự không-trắng.
+// Vì sao cần ràng buộc đó: đường dẫn đệ quy (`plugins/**`, `lib/**`) và mẫu
+// glob (`*.md`) trông y hệt cặp nhấn mạnh, nên luật "mọi cặp sao là chữ đậm"
+// nuốt mất dấu sao của đường dẫn — và nuốt theo kiểu phụ thuộc số lượng glob
+// trên dòng (một cái thì sống, hai cái thì cụt cả hai). Kỳ vọng cho TỪNG hình
+// dạng khai ở marker STRIP-SHAPE-MATRIX trong hợp đồng card-text-fidelity.
 const stripMd = s => String(s == null ? '' : s)
   .replace(/\[([^\]]*)\]\([^)\s]*\)/g, '$1')
   .replace(/`([^`]+)`/g, '$1')
-  .replace(/\*\*([^*]+)\*\*/g, '$1')
-  .replace(/\*([^*]+)\*/g, '$1');
+  .replace(/(^|[\s(\[{"'“‘>])\*\*\*(?=\S)([^*]+?)(?<=\S)\*\*\*(?!\*)/g, '$1$2')
+  .replace(/(^|[\s(\[{"'“‘>])\*\*(?=\S)([^*]+?)(?<=\S)\*\*(?!\*)/g, '$1$2')
+  .replace(/(^|[\s(\[{"'“‘>])\*(?=\S)([^*]+?)(?<=\S)\*(?!\*)/g, '$1$2');
 const { parseAC, acBlindSpot, blindSpotText } = require('../lib/ac-line.js');
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
