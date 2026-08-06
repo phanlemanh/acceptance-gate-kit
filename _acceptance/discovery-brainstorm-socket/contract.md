@@ -5,10 +5,10 @@ slug: discovery-brainstorm-socket
 owner: manh@mstar.vn
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-06T09:02:18Z
-time_human_minutes: {gate1: 5}
+time_human_minutes: {gate1: 5, gate2: 10}
 ---
 
 # Acceptance Contract: discovery-brainstorm-socket
