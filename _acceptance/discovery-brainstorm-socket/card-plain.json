@@ -1,0 +1,98 @@
+{
+  "feature_plain": "Mở phiên bằng /start, chọn lối 'ý còn mơ hồ': phiên mở buổi khai thác bằng đúng skill mà repo đã khai trong hồ sơ cấu hình; repo chưa khai thì đi bộ câu hỏi grill của chính kit. Hết cảnh phiên bị hút nhầm sang buổi brainstorm kỹ thuật của vòng LÀM trước khi anh quyết việc có đáng làm.",
+  "will_do": [
+    {
+      "id": "AC-1",
+      "p": "Cả hai môi trường (Claude lẫn Codex) dặn rõ ngay tại lối 'việc mới còn mơ hồ': chưa qua Cổng Đáng thì không dùng buổi brainstorm kỹ thuật của vòng LÀM. Xoá lời dặn ở bất kỳ bản nào là bộ kiểm đỏ ngay, nêu đúng tên bản thiếu."
+    },
+    {
+      "id": "AC-2",
+      "p": "Repo khai tên skill khai thác trong hồ sơ cấu hình (khoá discovery.brainstorm_skill) thì thẻ vào-phiên đọc đúng tên đó — kể cả khi giá trị viết kèm ngoặc kép, ngoặc đơn hay chú thích đuôi dòng."
+    },
+    {
+      "id": "AC-5",
+      "p": "Khoá mới nằm trong bảng giao-ước giữa bộ quét và hai thân lệnh — phép đo tự đối chiếu hai đầu mỗi lần chạy. Bản quy trình cũng trỏ về ổ cắm, hết nhắc tên bộ skill của một repo cụ thể."
+    }
+  ],
+  "wont_do": [
+    {
+      "id": "AC-3",
+      "p": "Repo CHƯA khai gì vẫn chạy êm: thẻ trả 'chưa khai' và phiên đi bộ câu hỏi grill của kit — không chặn, không cờ đỏ, không văng lỗi, kể cả khi file cấu hình viết hỏng."
+    },
+    {
+      "id": "AC-4",
+      "p": "Chặn vĩnh viễn việc khắc tên bộ skill của một repo cụ thể vào ruột kit: máy quét 120 file nguồn, thấy một cái tên như vậy là đỏ (kho đồ vendor được miễn có chủ đích — đồ vendor giữ tên gốc)."
+    }
+  ],
+  "scope_plain": "Hoãn có hẹn: đích mặc định của buổi khai thác và khoá mẫu trong khuôn khởi tạo + sách hướng dẫn — cả hai đi cùng đợt F-A. Không đụng ba vùng thuộc đợt 2 vì vòng r3 đang chạy giữa chừng.",
+  "coverage_plain": [
+    {
+      "i": 0,
+      "p": "Không quét lại không gian tiêu chí — phạm vi là danh sách đóng anh đã soi từng cột trong bảng 06/08; đổi lại nhận rủi ro sót mục ngoài bảng."
+    },
+    {
+      "i": 1,
+      "p": "Mỗi nguyên nhân gốc của vụ lệch làn có tiêu chí đo riêng: thiếu đích máy-đọc, bị hút sang skill to tiếng, luật khắc tên một repo, chống thoái lui."
+    }
+  ],
+  "gap_probe_plain": [
+    {
+      "i": 0,
+      "p": "Năm tiêu chí từng dồn vào một nhãn đo duy nhất — đã tách ba phép đo riêng, mỗi tiêu chí trỏ đúng phép đo của nó."
+    },
+    {
+      "i": 1,
+      "p": "Lời hứa 'file cấu hình hỏng vẫn chạy êm' từng không có chân đo — đã thêm ca file hỏng thật: vẫn chạy, trả 'chưa khai'."
+    },
+    {
+      "i": 2,
+      "p": "Giá trị viết kiểu lạ (ngoặc đơn, danh sách, khối nhiều dòng) từng lọt lưới — đã ghim đủ: hoặc đọc đúng tên, hoặc coi như chưa khai, không bao giờ vỡ."
+    },
+    {
+      "i": 3,
+      "p": "Phép kiểm bản quy trình từng chỉ dò 'chuỗi cũ vắng mặt' — kiểu đo dễ xanh oan; đã đổi sang đo quan hệ trên đúng hai đoạn luật, có thử-phá."
+    },
+    {
+      "i": 4,
+      "p": "Bản mồi thử-phá từng có nguy cơ chép tay — đã khai rõ: máy tự sinh từ bản sống trong chính lần chạy."
+    },
+    {
+      "i": 5,
+      "p": "Kho đồ vendor nằm ngoài vùng quét mà không lời giải thích — đã ghi quyết định: loại trừ có chủ đích, tên gốc ở đó là đúng."
+    },
+    {
+      "i": 6,
+      "p": "Phép đo từng dò cả file thay vì đúng đoạn lối (a) — đã neo hai đầu đoạn; lời dặn nằm ngoài đoạn là đỏ."
+    }
+  ],
+  "decisions_plain": [
+    {
+      "id": "d-20260806T053925Z-10001",
+      "p": "Ổ cắm đi qua máy quét vào-phiên chứ không phải lời dặn suông — vì gốc bệnh chính là lối (a) không có đích máy đọc; repo chưa khai đo được bằng hồ sơ thật."
+    },
+    {
+      "id": "d-20260806T053925Z-10002",
+      "p": "Hàm đọc khoá đặt ngay trong bộ quét, chưa vào thư viện chung — giữ vòng ở mức T2; nâng lên thư viện khi có bên đọc thứ hai."
+    },
+    {
+      "id": "d-20260806T053925Z-10003",
+      "p": "Quét cả kho theo lớp bệnh trước khi sửa: ruột kit sạch, bệnh chỉ còn ở hai dòng của bản quy trình — sửa luôn trong vòng này; hai bản quy trình cũ giữ nguyên làm sử liệu."
+    },
+    {
+      "id": "d-20260806T053925Z-10004",
+      "p": "KHÔNG quét lại không gian tiêu chí — phạm vi là danh sách đóng anh đã duyệt từng cột."
+    },
+    {
+      "id": "d-20260806T053925Z-10005",
+      "p": "Chưa phát khoá mẫu vào khuôn khởi tạo — đích mặc định sắp đổi khi đợt F-A ship; phát bây giờ là dạy người dùng một mặc định sắp lỗi thời."
+    },
+    {
+      "id": "d-20260806T055500Z-10006",
+      "p": "Kho đồ vendor cố ý nằm ngoài vùng quét tên — đồ vendor giữ tên + phiên bản gốc là luật của kho."
+    },
+    {
+      "id": "d-20260806T055500Z-10007",
+      "p": "Bảy góp ý của vòng phản biện đều xử xong trước khi trình — không còn mục treo."
+    }
+  ]
+}
