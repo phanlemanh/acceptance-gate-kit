@@ -56,6 +56,17 @@ Khoá `context:` trong sổ phiên design-pass — chỗ bản mẫu SỐNG, 3 n
 người; đường nhúng rẻ per-repo khai ở khoá config `design_pass.host_embed`.
 _Avoid_: environment, embed mode, host mode.
 
+**Ổ cắm (config socket)**:
+Khoá trong `_acceptance/config.yaml` để repo tiêu thụ TỰ KHAI nguồn/danh mục
+của mình, thay vì kit hardcode tên một kho đồ cụ thể. Hình dạng bắt buộc: kit
+giữ *câu hỏi + thang*, repo giữ *giá trị*; khoá VẮNG → nấc thấp + đường
+fallback kit-own, KHÔNG chặn, không cờ đỏ. Chữa cho bệnh "luật gắn vào kho đồ
+của MỘT repo" (họ hàng với thước-gắn-vào-checkout-tác-giả). Hiện thân:
+`feature_loop.ui_standards_skill` · `design_pass.host_embed` ·
+`discovery.brainstorm_skill`.
+_Avoid_: hook, plugin point, "khoá config" trơ (không nói lên luật vắng-thì-
+fallback), extension point.
+
 **Cảnh ngữ-cảnh**:
 Bằng chứng đi kèm bản mẫu `standalone`: khung host thật dạng tĩnh bọc vật +
 storyboard hành trình vào–ra, liệt trong khoá `context_scenes:` của sổ phiên.
