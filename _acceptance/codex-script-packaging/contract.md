@@ -25,17 +25,20 @@ tiêu thụ #3 pha Đo chương trình 80/20.
 ## Bảng tham chiếu công cụ-của-chính-gói — rút từ chỉ dẫn thật 2026-08-06
 
 Mỗi dòng là MỘT tham chiếu mà chỉ dẫn của gói bảo chạy công cụ CỦA CHÍNH GÓI
-ĐÓ. Phép đo phải rút được tập BẰNG ĐÚNG bảng này (thừa cũng đỏ, thiếu cũng
-đỏ) — số assert bằng số dòng, không dùng bộ đếm ">0" làm thước phạm vi.
+ĐÓ, rút từ **GÓI ĐÃ DỰNG** (không phải thư mục overlay nguồn — gói acceptance-gate
+gộp cả `skills/` gốc nên overlay hẹp hơn vật được giao) và quét MỌI loại file
+chỉ dẫn (`.md`, `.toml`, `.yaml`), không riêng `SKILL.md`. Phép đo phải rút
+được tập BẰNG ĐÚNG bảng này (thừa cũng đỏ, thiếu cũng đỏ) — số assert bằng số
+dòng, không dùng bộ đếm ">0" làm thước phạm vi. Cột hai là đường dẫn TRONG gói.
 
 <!-- <<<CODEX-SELF-SCRIPT-REFS -->
-- acceptance-gate | acceptance-card | gate-card.js
-- acceptance-gate | approve | eval-coverage-lint.js
-- acceptance-gate | approve | product-map.mjs
-- acceptance-gate | signoff | product-map.mjs
-- acceptance-gate | start | start-scan.mjs
-- feature-loop-codex | feature-loop-codex | carry-plan.mjs
-- feature-loop-codex | feature-loop-codex | resolve-plugin.mjs
+- acceptance-gate | skills/acceptance-card/SKILL.md | gate-card.js
+- acceptance-gate | skills/approve/SKILL.md | eval-coverage-lint.js
+- acceptance-gate | skills/approve/SKILL.md | product-map.mjs
+- acceptance-gate | skills/signoff/SKILL.md | product-map.mjs
+- acceptance-gate | skills/start/SKILL.md | start-scan.mjs
+- feature-loop-codex | skills/feature-loop-codex/SKILL.md | carry-plan.mjs
+- feature-loop-codex | skills/feature-loop-codex/SKILL.md | resolve-plugin.mjs
 <!-- CODEX-SELF-SCRIPT-REFS>>> -->
 
 ## Criteria
@@ -43,7 +46,9 @@ Mỗi dòng là MỘT tham chiếu mà chỉ dẫn của gói bảo chạy công
 - AC-1: Given gói Codex đã dựng, When liệt kê công cụ trong đó, Then
   `carry-plan.mjs` có mặt — đo trên gói ĐÃ DỰNG (mirror sau đồng bộ), không
   đo mã nguồn của hàm dựng.
-- AC-2: Given mọi chỉ dẫn của mọi gói Codex, When rút bằng biểu thức các tham
+- AC-2: Given mọi chỉ dẫn trong MỌI GÓI ĐÃ DỰNG (quét `plugins/<gói>/**` với
+  đủ loại file `.md`/`.toml`/`.yaml` — KHÔNG quét thư mục overlay nguồn, vì
+  gói gộp cả `skills/` gốc nên overlay hẹp hơn vật được giao), When rút bằng biểu thức các tham
   chiếu trỏ vào công cụ CỦA CHÍNH GÓI MÌNH (dạng `${PLUGIN_ROOT}/scripts/…`
   hoặc `<plugin>/scripts/…`), Then từng tham chiếu phải có file thật trong gói
   đã dựng tương ứng; thiếu → ĐỎ nêu đích danh gói + tên file + chỉ dẫn nào
