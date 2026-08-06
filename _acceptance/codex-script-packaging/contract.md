@@ -4,7 +4,7 @@ feature: "Gói Codex mang đủ mọi công cụ mà chỉ dẫn của nó bảo
 slug: codex-script-packaging
 risk_tier: T2
 surfaces: [cli]
-status: implemented
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-06T05:38:36Z
 owner: phanlemanh@gmail.com
@@ -97,3 +97,31 @@ Từ morphological-scan (3 trục — thước CE trong ngoặc):
 - Hợp nhất hai bản chỉ dẫn Claude và Codex.
 - Đổi cách bộ giải tìm gói bạn.
 - Thêm công cụ mới nào ngoài việc chép cái đã có.
+
+## Notes
+
+Known limits — trình tại Cổng 2 sau 4 vòng verify (người uỷ quyền vòng 4 với
+phạm vi khoá chặt). Nhóm theo lớp:
+
+- **Chốt quan hệ vẫn mù với hai dạng viết.** Biểu thức rút tham chiếu đòi có
+  tiền tố ngay trước `/scripts/`, nên mọi chỉ dẫn viết `` `scripts/x.mjs` ``
+  hoặc `node scripts/x.mjs` là vô hình; nó cũng chỉ nhận tên file chữ thường
+  với ba đuôi. Hệ quả đo được: gói `design-loop-codex` rút ra **0** tham chiếu
+  dù chỉ dẫn của nó gọi 4 công cụ — xoá `provenance.mjs` khỏi gói thì chốt
+  vẫn xanh. Phần PKG của bảng khai gói đó "đã được quét", tạo tín hiệu phủ
+  sóng cho một gói chốt không đo gì. Lớp: đo hình dạng chuỗi thay vì quan hệ.
+- **Ma trận ba ca fail-loud chỉ ghim MÃ THOÁT, không ghim thông điệp.** Công
+  cụ dùng mã thoát 2 cho ít nhất năm nhánh lỗi khác nhau, nên "exit 2" không
+  phân biệt được bắt-đúng-lỗi với nổ-vì-lý-do-khác. Đã lộ ngay: ca "gõ sai
+  tên cờ" thực tế đi nhánh *tham số lạ (không phải cờ)* chứ không phải nhánh
+  *cờ không nhận diện được* mà tên ca tuyên bố.
+- **Thông điệp lỗi trỏ sai chỗ cho người dùng.** Khi cờ gõ sai có kèm giá
+  trị, bộ đọc tham số báo về giá trị (đường dẫn file) thay vì về cái cờ viết
+  sai — đúng ca `--delta_files` mà bản vá sinh ra để bắt. Nó vẫn NỔ (lỗ an
+  toàn đã đóng), chỉ là chỉ sai ngón tay. Một dòng sửa.
+
+**Vì sao vẫn trình ký:** lỗ an toàn — thứ có thể làm bằng chứng nói dối — đã
+đóng và có ma trận 5 ca canh; con trỏ chết đã hết; chốt canh được 10 tham
+chiếu ở hai gói và bắt được 3 dạng viết mà bốn vòng trước không thấy. Ba mục
+trên đều là chốt *chưa đủ rộng*, không phải chốt *sai*; không mục nào làm
+hỏng thứ đang chạy.
