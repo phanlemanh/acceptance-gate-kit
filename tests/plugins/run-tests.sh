@@ -10,6 +10,15 @@ fail() { echo "  FAIL: $1"; failures=$((failures + 1)); }
 run() {
   local name="$1"
   shift
+  # ONLY_BLOCK: chay dung MOT khoi (tieu de chua chuoi nay), khoi khac bo qua
+  # khong tinh pass/fail — ha tang cho chot thi-hanh P163 (moi dong bang rang
+  # ton vai giay thay vi ~40s/luot suite tron; measure-teeth-cleanup T1).
+  if [ -n "${ONLY_BLOCK:-}" ]; then
+    case "$name" in
+      *"$ONLY_BLOCK"*) : ;;
+      *) return 0 ;;
+    esac
+  fi
   echo "$name"
   if "$@"; then
     pass "$name"
@@ -6056,7 +6065,12 @@ run "P152 gold points tren corpus that + fixture doi chung" \
 const fs = require('fs'), path = require('path'), os = require('os'), cp = require('child_process');
 const ROOT = process.argv[2];
 const real = JSON.parse(cp.execFileSync('node', [path.join(ROOT, 'scripts/acceptance-gold.mjs'), '--root', ROOT, '--json'], { encoding: 'utf8' }));
-if (real.judgedBlocks <= 0) { console.error('sanity: 0 block judgment doc duoc'); process.exit(1); }
+// Chan sanity DOC LAP (measure-teeth-cleanup AC-6): judgedBlocks cu tang cung
+// nhip voi points (cung nhanh code) nen la hang dung; judgmentBlocks tu --stats
+// dem bang nhanh rieng — =0 trong khi corpus co block phan la reader hong.
+const st = JSON.parse(cp.execFileSync('node', [path.join(ROOT, 'scripts/acceptance-gold.mjs'), '--root', ROOT, '--stats'], { encoding: 'utf8' }));
+if (st.judgmentBlocks <= 0) { console.error('sanity doc lap: 0 block phan doc duoc (--stats)'); process.exit(1); }
+if (st.judgmentBlocks < real.points.length) { console.error('bat dang thuc vo: phan < diem'); process.exit(1); }
 if (real.points.length < 7) { console.error('corpus that <7 diem: ' + real.points.length); process.exit(1); }
 for (const p of real.points) if (!p.slug || !p.evalId || !p.machine || !p.human) { console.error('diem thieu truong: ' + JSON.stringify(p)); process.exit(1); }
 const mk = (override) => {
@@ -6118,7 +6132,7 @@ for c in clauses:
 PY
 
 echo "P155 (E9) tu dien biet ngu: SIGNOFF-JARGON-GLOSS subset HFL-GLOSSARY-TERMS + co muc CONTEXT.md"
-run "P155 gloss marker subset + CONTEXT + mutant" \
+run "P155 [TEETH] gloss marker subset + CONTEXT + mutant" \
   python3 - "$ROOT" <<'P155PY'
 import re, sys
 from pathlib import Path
@@ -6280,7 +6294,7 @@ with tempfile.TemporaryDirectory() as d:
 P156PY
 
 echo "P157 (E2,E4,E5) ba luat ngon ngu co hoc: enum ma tran, moi goc nhin mot dong, cau trung tinh"
-run "P157 verdict-vi + lens-per-line + noPanel" \
+run "P157 [TEETH] verdict-vi + lens-per-line + noPanel" \
   python3 - "$ROOT" <<'P157PY'
 import json, re, subprocess, sys, tempfile
 from pathlib import Path
@@ -6528,7 +6542,7 @@ const ROOT = process.argv[2];
 P159JS
 
 echo "P160 (E10) duong doc-cu tren ho so CU + xuat xu van ban giam khao doc"
-run "P160 --json hinh dang cu + provenance gold-stdout" \
+run "P160 [TEETH] --json hinh dang cu + provenance gold-stdout" \
   python3 - "$ROOT" <<'P160PY'
 import json, re, subprocess, sys, tempfile
 from pathlib import Path
@@ -6677,7 +6691,7 @@ P160PY
 #     DINH. Thieu moc = ĐỎ (khong fail-open), va co fixture kho-nong rieng cho
 #     duong "khong lay duoc ban cu" (S4-r1). ──
 echo "P161 (E1-E11) ham lot: ma tran, doi chung ban cu, quet corpus that"
-run "P161 strip-md giu duong dan + ma tran toan phan" \
+run "P161 [TEETH] strip-md giu duong dan + ma tran toan phan" \
   python3 - "$ROOT" <<'P161PY'
 import json, pathlib, re, subprocess, sys, tempfile, os
 root = pathlib.Path(sys.argv[1])
@@ -6719,6 +6733,10 @@ CASES = [
   ("glob-mở-đầu-một-sao",          "Glob */_acceptance/* trong X",    "Glob */_acceptance/* trong X",    True),
   ("liên-kết",                     "xem [tài liệu](http://a.b/c) nhé", "xem tài liệu nhé",               False),
   ("sao-lẻ-không-cặp",             "gọi split('*') rồi lọc",          "gọi split('*') rồi lọc",          False),
+  ("đuôi-sao-bắt-mọi",             "khoá executors.design.* và GP* xong", "khoá executors.design.* và GP* xong", True),
+  ("cờ-gạch-sao",                  "dạng --* và -* đều khớp",         "dạng --* và -* đều khớp",         True),
+  ("sao-trước-ngoặc-đóng",         "mẫu (a.*) rồi thôi",              "mẫu (a.*) rồi thôi",              False),
+  ("sao-sau-lớp-ký-tự",            "regex [^\\t]* trong luật",        "regex [^\\t]* trong luật",        False),
 ]
 LOT = {n for n, k in SHAPES.items() if k.startswith("lột")}
 
@@ -6909,6 +6927,22 @@ with tempfile.TemporaryDirectory() as d:
         return n
     n_new, n_old = intact_count(CARD), intact_count(old_js)
     assert n_new > 0, "sanity: khong duong dan nao nguyen ven tren the ban moi"
+    # ── AC-5 measure-teeth-cleanup: bo dem render phai duoc ASSERT du 3 so,
+    #    khong dem-roi-vut (S4-r3 ctf: tiem loi giet dung the cua chinh viec
+    #    nay ma phep do van xanh). Moi slug 1 the theo CONG HIEN HANH cua no
+    #    (auto-detect tu status) — tat ca phai dung duoc. ──
+    RENDER["ok"] = RENDER["fail"] = 0
+    attempted = 0
+    for slug in slugs:
+        attempted += 1
+        r = subprocess.run(["node", str(CARD), "--root", str(root), "--slug", slug],
+                           capture_output=True, text=True)
+        if r.returncode == 0: RENDER["ok"] += 1
+        else: RENDER["fail"] += 1
+    assert attempted == len(slugs) and attempted > 0, \
+        "mau so hong: attempted=%d, slugs=%d" % (attempted, len(slugs))
+    assert RENDER["fail"] == 0, \
+        "%d/%d the KHONG dung duoc (cong hien hanh cua viec) — nguoi ky se khong co the de xem" % (RENDER["fail"], attempted)
     assert n_new > n_old, \
         "PHEP DO MU: ban moi (%d) khong giu duoc nhieu duong dan hon ban cu (%d)" % (n_new, n_old)
     checked = n_new
@@ -6938,6 +6972,15 @@ with tempfile.TemporaryDirectory() as d:
       ("nghiêng-chuẩn",                re.compile(r"\*(?=[^\s/])[^*]+?(?<=[^\s/])\*")),
       ("đậm-lỏng-có-khoảng-trắng",     re.compile(r"\*\*\s[^*]*\s\*\*")),
       ("nghiêng-lỏng-có-khoảng-trắng", re.compile(r"\*\s[^*]*\s\*")),
+      # 4 hình dạng đợt dọn (measure-teeth-cleanup AC-4 — corpus buộc phải có):
+      ("sao-lẻ-không-cặp",             re.compile(r"(?:(?<=\s)|(?<=\()|^)\*{1,3}(?=\s|$)", re.M)),
+      ("đuôi-sao-bắt-mọi",             re.compile(r"[A-Za-z0-9_.'\)\]-]\*+")),
+      ("cờ-gạch-sao",                  re.compile(r"(?<![\w*])-+\*+")),
+      ("sao-trước-ngoặc-đóng",         re.compile(r"\*+\)")),
+      ("sao-sau-lớp-ký-tự",            re.compile(r"\]\*+")),
+      # tạo tác của phép che: sao kề vùng Ø (nguồn thật là sao kề đoạn mã/nội
+      # dung đã che) — phân loại theo ngữ cảnh, không phải hình dạng văn thật
+      ("sao-trong-đoạn-mã",            re.compile(r"\(?\*+(?=Ø)|(?<=Ø)\*+\)?")),
     ]
     orphan = []; classified = 0
     for slug in slugs:
@@ -6949,16 +6992,23 @@ with tempfile.TemporaryDirectory() as d:
             rest = f.read_text(encoding="utf-8")
             for name, rx in STRUCT:
                 if name not in SHAPES: continue
-                rest, n = rx.subn(" ", rest)
+                # CHE bang token thay vi xoa thanh khoang trang: xoa lam cum
+                # dam bao quanh doan ma mat ranh khong-trang ("**X `a` Y**" →
+                # "**X   Y**" voi space truoc ** dong) va tu de ra mo coi NHIEU
+                # — chinh nhieu do la ly do nguong 25 ra doi (ha thuoc,
+                # measure-teeth-cleanup AC-4)
+                rest, n = rx.subn("Ø", rest)
                 classified += n
             for frag in re.findall(r"\S*\*+\S*", rest):
                 orphan.append((slug, frag[:40]))
     assert classified > 0, "sanity: khong phan loai duoc cau truc sao nao"
     # Sao con lai ngoai moi cau truc CO TEN = bang chua phu corpus.
-    if orphan:
-        kinds = sorted({o[1] for o in orphan})
-        assert len(kinds) <= 25, \
-            "bang KHONG phu corpus: %d mau sao mo coi, vd %r" % (len(kinds), kinds[:6])
+    # ZERO tolerance (measure-teeth-cleanup AC-4 — nguong 25 cu la ha thuoc:
+    # dat cao hon so thuc 18 de vua xanh, con du cho cho 7 hinh dang moi lot):
+    # MOT cum mo coi la ĐỎ, neu dich danh cum dau tien + ten viec.
+    assert not orphan, \
+        "bang KHONG phu corpus: cum sao mo coi dau tien %r trong viec %s (tong %d)" % (
+            orphan[0][1], orphan[0][0], len(orphan))
 
     # ══ E9: quet corpus THAT — moi chenh lech phai thuoc hinh dang CO TEN.
     #     Menh de thoat cu (set(b) >= set(a)) luon dung nen E9 khong the do:
@@ -7029,7 +7079,7 @@ P161PY
 #     tham quyen tu ho so mot viec da dong, S4-r2). Do tren GOI DA DUNG. Moi
 #     dang tien to duoc PHAN LOAI; dang la → ĐỎ, khong im lang bo qua. ──
 echo "P162 (E1-E6) goi Codex mang du cong cu chi dan goi chay"
-run "P162 chi-dan ⇔ goi: phan loai toan phan + mutant dung-lai-goi" \
+run "P162 [TEETH] chi-dan ⇔ goi: phan loai toan phan + mutant dung-lai-goi" \
   python3 - "$ROOT" <<'P162PY'
 import json, pathlib, re, shutil, subprocess, sys, tempfile
 root = pathlib.Path(sys.argv[1])
@@ -7037,7 +7087,8 @@ PLUGINS = root / "plugins"
 
 # ── nguon su that canh ham dung ──
 tsv = (root / "scripts/codex-self-script-refs.tsv").read_text(encoding="utf-8")
-DECLARED, NOTSELF, MUST_PKGS, SAMPLES = set(), set(), set(), []
+DECLARED, NOTSELF, MUST_PKGS, SAMPLES, CONSUMER = set(), set(), set(), [], set()
+KITNAMES, OTHERPKG = set(), {}
 for line in tsv.split("\n"):
     if not line.strip() or line.lstrip().startswith("#"): continue
     f = line.split("\t")
@@ -7045,15 +7096,26 @@ for line in tsv.split("\n"):
     elif f[0] == "NOTSELF" and len(f) >= 2: NOTSELF.add(f[1])
     elif f[0] == "PKG" and len(f) >= 2: MUST_PKGS.add(f[1])
     elif f[0] == "SAMPLE" and len(f) >= 2: SAMPLES.append(f[1])
+    elif f[0] == "CONSUMER" and len(f) >= 2: CONSUMER.add(f[1])
+    elif f[0] == "KIT" and len(f) >= 2: KITNAMES.add(f[1])
+    elif f[0] == "OTHERPKG" and len(f) >= 3: OTHERPKG[f[1]] = f[2]
 assert len(DECLARED) >= 10, "bang SELF chi co %d hang — sanity chong file hong" % len(DECLARED)
 assert NOTSELF, "bang NOTSELF rong — moi tien to la se do, chot se ket"
 
 # ── rut MOI dang <tien to>/scripts/<ten> roi PHAN LOAI (khong blacklist) ──
 DOC_EXT = {".md", ".toml", ".yaml", ".yml"}
-ANY_REF = re.compile(r"([^\s`\"'()\[\]]{1,60})/scripts/([a-z0-9-]+\.(?:mjs|js|sh))")
-def classify(prefix):
-    if "PLUGIN_ROOT" in prefix or prefix == "<plugin>": return "self"
-    if prefix in NOTSELF: return "notself"
+# Bat MOI dang: co tien to HOAC khong (dau dong/sau khoang trang/nhay), va ten
+# file voi moi ky tu chu-so-gach (ke ca gach duoi, chu hoa) + moi duoi ngan —
+# gioi han [a-z0-9-]+.(mjs|js|sh) cu la blacklist tren khong gian mo: ten co
+# gach duoi/chu hoa/duoi .py lot khong dau vet (measure-teeth-cleanup AC-1).
+ANY_REF = re.compile(r"([^\s`\"'()\[\]]{0,60}?)\bscripts/([A-Za-z0-9_.-]+\.[a-z]{1,4})\b")
+def classify(prefix, name):
+    if "PLUGIN_ROOT" in prefix or prefix == "<plugin>/": return "self"
+    if prefix.rstrip("/") in NOTSELF or prefix in NOTSELF: return "notself"
+    # the HTML (<br/>, </td>...) ngay truoc duong dan chi la ranh gioi trinh
+    # bay, khong phai tien to duong dan
+    if prefix in ("", "./") or prefix.endswith(">"):
+        return "consumer" if name in CONSUMER else "self"
     return "unknown"
 
 def extract(plugins_dir):
@@ -7068,7 +7130,25 @@ def extract(plugins_dir):
             if f.name != "SKILL.md": nnon += 1
             rel = str(f.relative_to(pkg_dir))
             for prefix, name in ANY_REF.findall(f.read_text(encoding="utf-8", errors="replace")):
-                k = classify(prefix)
+                k = classify(prefix, name)
+                noprefix = prefix in ("", "./") or prefix.endswith(">")
+                if k == "self" and noprefix:
+                    # thu tu phan giai cho dang KHONG tien to:
+                    if name in KITNAMES: continue                     # script noi bo kho nguon
+                    if name in OTHERPKG and OTHERPKG[name] != pkg_dir.name:  # goi ban co ten (trung goi minh thi la self)
+                        od = pathlib.Path(plugins_dir) / OTHERPKG[name] / "scripts"
+                        if not (od / name).is_file():
+                            unknown.append((pkg_dir.name, rel, "OTHERPKG:" + OTHERPKG[name], name + " (THIEU)"))
+                        continue
+                    if (f.parent / "scripts" / name).is_file(): continue        # scripts/ canh tai lieu
+                    if (f.parent.parent / "scripts" / name).is_file(): continue # tai lieu trong references/, scripts/ canh thu muc cha
+                if k == "unknown" and (pkg_dir / prefix / "scripts").is_dir():
+                    # thu muc scripts/ PHU trong goi (vd skills/<x>/scripts/):
+                    # kiem thang file ton tai — thieu la con tro chet, du thi
+                    # khong vao bang SELF (bang chi quan ly scripts/ goc)
+                    if not (pkg_dir / prefix / "scripts" / name).is_file():
+                        unknown.append((pkg_dir.name, rel, prefix + "scripts/", name + " (THIEU)"))
+                    continue
                 if k == "self": refs.add((pkg_dir.name, rel, name))
                 elif k == "unknown": unknown.append((pkg_dir.name, rel, prefix, name))
     return refs, unknown, nfile, nnon, seen
@@ -7267,6 +7347,220 @@ with tempfile.TemporaryDirectory() as d:
 print("P162 OK: %d self-ref khai · %d rut duoc · %d file chi dan (%d ngoai SKILL.md) · %d goi co ref · ho so that %s (%d mang sang) · chot tai %s" % (
     len(DECLARED), len(found), nfiles, nnon_read, len(pkgs_with_ref), ws_dir.name, len(got), hs_now[0]))
 P162PY
+
+# ── P164 [TEETH] (measure-teeth-cleanup E3,E4,E7): thong diep fail-loud cua
+#     carry-plan ghim CHUOI (khong chi ma thoat) + chan sanity so vang doc lap
+#     (round-trip writer→reader qua khuon template + bat dang thuc corpus). ──
+echo "P164 [TEETH] carry-plan message matrix + gold stats doc lap"
+run "P164 [TEETH] carry-plan messages + gold stats" \
+  python3 - "$ROOT" <<'P164PY'
+import json, pathlib, re, subprocess, sys, tempfile
+root = pathlib.Path(sys.argv[1])
+
+# ══ E3+E4: ma tran thong diep — CHUOI ghim, khac nhau doi mot ══
+TOOL = root / "plugins/feature-loop-codex/scripts/carry-plan.mjs"
+W = root / "_acceptance/card-text-fidelity"
+_lines = [json.loads(l) for l in (W / "run-log.jsonl").read_text(encoding="utf-8").split("\n") if l.strip()]
+_last = max(e.get("round", 0) for e in _lines if e.get("kind") is None and e.get("evalId"))
+BASE_ARGS = ["--run-log", str(W / "run-log.jsonl"), "--evals", str(W / "evals.yaml"),
+             "--contract", str(W / "contract.md"), "--round", str(_last + 1)]
+def run_tool(extra):
+    r = subprocess.run(["node", str(TOOL)] + BASE_ARGS + extra, capture_output=True, text=True)
+    return r.returncode, r.stdout + r.stderr
+MSGS = {
+  "bo-han-co":      ([],                                "phải nêu ĐÚNG MỘT"),
+  "go-sai-co":      (["--delta_files", "src/a.js"],     "cờ không nhận diện được"),
+  "chuoi-rong":     (["--delta-files", ""],             "--delta-files rỗng"),
+}
+seen = {}
+for name, (extra, want) in MSGS.items():
+    rc, out = run_tool(extra)
+    assert rc == 2, "ca %s phai exit 2, got %d" % (name, rc)
+    assert want in out, "ca %s phai chua %r, got %r" % (name, want, out[:150])
+    seen[name] = want
+vals = list(seen.values())
+assert len(set(vals)) == len(vals), "ba thong diep phai khac nhau doi mot: %r" % vals
+# AC-3: co sai CO gia tri → neu DUNG co, KHONG neu gia tri
+rc, out = run_tool(["--delta_files", "src/a.js"])
+assert "--delta_files" in out, "phai neu dich danh co viet sai, got %r" % out[:150]
+assert "src/a.js" not in out, "khong duoc tro vao GIA TRI di sau co: %r" % out[:150]
+rc2, out2 = run_tool(["--oops"])   # co sai KHONG gia tri o cuoi — cung nhanh
+assert rc2 == 2 and "cờ không nhận diện được" in out2, "co sai khong gia tri phai cung nhanh"
+rc3, _ = run_tool(["--delta-files", "docs/x.md"])
+assert rc3 == 0, "doi chung duong: co dung phai chay duoc"
+
+# ══ E7: chan sanity DOC LAP — round-trip writer→reader ══
+GOLD = root / "scripts/acceptance-gold.mjs"
+def stats(gold_js, r):
+    p = subprocess.run(["node", str(gold_js), "--root", str(r), "--stats"], capture_output=True, text=True)
+    assert p.returncode == 0, "gold --stats loi: %s" % p.stderr[-200:]
+    return json.loads(p.stdout)
+# (a) corpus THAT: bat dang thuc cau truc + in hai so vao bang chung
+s = stats(GOLD, root)
+assert s["judgmentBlocks"] >= s["points"], "bat dang thuc do: %r" % s
+assert s["judgmentBlocks"] > 0 and s["points"] > 0, "sanity corpus: %r" % s
+# (b) round-trip: khuon block phan rut TU TEMPLATE THAT (writer-khuon), dien
+#     toi thieu, CHUA co nguoi quyet → judgmentBlocks=1, points=0
+tpl = (root / "skills/acceptance/references/evidence-report-template.md").read_text(encoding="utf-8")
+assert "judged_by" in tpl, "template khong co khuon block phan"
+with tempfile.TemporaryDirectory() as d:
+    ws = pathlib.Path(d) / "_acceptance" / "viec-mau"
+    ws.mkdir(parents=True)
+    (ws / "evidence-report.md").write_text(
+        "## Per-eval\n\n- eval: J1\n  judged_by: panel (fresh context)\n"
+        "  proposal: UNCERTAIN\n  rationale: thu\n  human_override:\n", encoding="utf-8")
+    s2 = stats(GOLD, pathlib.Path(d))
+    assert s2["judgmentBlocks"] == 1 and s2["points"] == 0, \
+        "hai bo dem PHAI doc lap: block phan chua nguoi quyet cho %r" % s2
+    # (c) doi chung: hong duong doc khoi phan → bo dem khoi phan = 0 trong khi
+    #     block van ton tai — chan sanity phai DO duoc
+    mut = pathlib.Path(d) / "gold-mut.mjs"
+    src = GOLD.read_text(encoding="utf-8")
+    broken = src.replace("judged_by\\s*:", "zzz_no_read\\s*:")   # chuoi regex duy nhat cua BO DEM (khong cham parser)
+    assert broken != src, "tiem that bai"
+    mut.write_text(broken, encoding="utf-8")
+    s3 = stats(mut, pathlib.Path(d))
+    assert s3["judgmentBlocks"] == 0, "duong doc hong ma bo dem van dem duoc: %r — bo dem khoi phan khong doc lap" % s3
+print("P164 OK: 3 thong diep phan biet · stats corpus %d>=%d · round-trip doc lap" % (s["judgmentBlocks"], s["points"]))
+P164PY
+
+# ── P163 (measure-teeth-cleanup E8,E9): chot THI HANH bang rang — moi dong
+#     bang: chay khoi tren ban sao nguyen ven (XANH) → ap vat hong → chay lai
+#     (ĐỎ + chua chuoi ghim). KHONG grep dau hieu. Tu bo qua trong luot con. ──
+# P163 dat sau CO TEETH=1: thi hanh 7 dong ton ~11 phut (do thuc 06/08) — qua
+# dat cho moi luot suite (truoc ~40s). CI goi buoc RIENG voi TEETH=1 (P165 canh
+# dieu do); local mac dinh SKIP CO TEN, khong im lang.
+if [ -z "${TEETH_CHILD:-}" ] && [ -n "${TEETH:-}" ]; then
+echo "P163 chot thi-hanh bang rang (moi dong ~2 luot ONLY_BLOCK)"
+run "P163 thi hanh measures-need-teeth.tsv" \
+  python3 - "$ROOT" <<'P163PY'
+import pathlib, re, subprocess, sys, tempfile, shutil, os
+root = pathlib.Path(sys.argv[1])
+rows = []
+for line in (root / "scripts/measures-need-teeth.tsv").read_text(encoding="utf-8").split("\n"):
+    if not line.strip() or line.lstrip().startswith("#"): continue
+    f = line.split("\t")
+    assert len(f) >= 3, "dong bang sai khuon: %r" % line
+    rows.append((f[0], f[1], f[2]))
+assert len(rows) >= 6, "bang chi co %d dong" % len(rows)
+
+# ── nguon DOC LAP: the [TEETH] trong tieu de run cua cay kiem ──
+suite = (root / "tests/plugins/run-tests.sh").read_text(encoding="utf-8")
+tagged = set(re.findall(r'run "(P\d+) \[TEETH\]', suite))
+declared = {r[0] for r in rows}
+assert declared == tagged, \
+    "bang ⇔ the [TEETH] lech: bang thieu %r, the thieu %r" % (sorted(tagged - declared), sorted(declared - tagged))
+
+WORKTREES = []
+def fresh_copy(dst):
+    # worktree (chia se object git — P160/P165 can lich su) + rsync phu de mang
+    # ca thay doi CHUA commit cua cay dang kiem (bai hoc csp S4-r2: mutant phai
+    # do cay dang kiem, khong phai ban da commit)
+    r = subprocess.run(["git", "-C", str(root), "worktree", "add", "--detach", "-q", str(dst), "HEAD"],
+                       capture_output=True, text=True)
+    assert r.returncode == 0, "khong dung duoc worktree: %s" % r.stderr[-200:]
+    WORKTREES.append(str(dst))
+    r2 = subprocess.run(["rsync", "-a", "--delete",
+                         "--exclude", ".git", "--exclude", ".worktrees", "--exclude", "node_modules",
+                         str(root) + "/", str(dst) + "/"], capture_output=True, text=True)
+    assert r2.returncode == 0, "rsync phu that bai: %s" % r2.stderr[-200:]
+def run_block(tree, name):
+    env = dict(os.environ, ONLY_BLOCK=name, TEETH_CHILD="1", PLUGINS_SUITE_NESTED="1")
+    r = subprocess.run(["bash", "tests/plugins/run-tests.sh"], cwd=str(tree),
+                       capture_output=True, text=True, env=env)
+    return r.returncode, r.stdout + r.stderr
+
+import atexit
+def _cleanup():
+    for w in WORKTREES:
+        subprocess.run(["git", "-C", str(root), "worktree", "remove", "--force", w], capture_output=True)
+    subprocess.run(["git", "-C", str(root), "worktree", "prune"], capture_output=True)
+atexit.register(_cleanup)
+with tempfile.TemporaryDirectory() as d:
+    clean = pathlib.Path(d) / "clean"
+    fresh_copy(clean)
+    for name in sorted({r[0] for r in rows}):
+        rc, out = run_block(clean, name)
+        assert rc == 0, "khoi %s DO tren ban NGUYEN VEN — khong the tin cac ca vat hong: %s" % (name, out[-300:])
+    for name, cmd, want in rows:
+        broken = pathlib.Path(d) / ("b-" + name + str(abs(hash(cmd)) % 1000))
+        fresh_copy(broken)
+        h = subprocess.run(["bash", "-c", cmd], cwd=str(broken), capture_output=True, text=True)
+        assert h.returncode == 0, "dung vat hong cho %s THAT BAI (%d): %s — khong duoc bo qua" % (name, h.returncode, (h.stdout + h.stderr)[-200:])
+        rc, out = run_block(broken, name)
+        assert rc != 0, "PHEP DO MU: khoi %s van XANH tren vat hong (%s)" % (name, cmd[:60])
+        assert want in out, "khoi %s DO nhung khong chua chuoi ghim %r: %s" % (name, want, out[-300:])
+        subprocess.run(["git", "-C", str(root), "worktree", "remove", "--force", str(broken)], capture_output=True)
+
+    # ── E9: doi chung cho CHINH chot — lam hong assert mot khoi trong bang,
+    #    khoi do phai het kha nang DO tren vat hong cua chinh no ──
+    gut = pathlib.Path(d) / "gut"
+    fresh_copy(gut)
+    sfile = gut / "tests/plugins/run-tests.sh"
+    lines_s = sfile.read_text(encoding="utf-8").split("\n")
+    # got TRIET: chen thoat-som ngay sau dong mo heredoc cua khoi P157 — khoi
+    # thanh vo dieu kien XANH, moi assert ben trong khong bao gio chay
+    idx = next(i for i, x in enumerate(lines_s) if "<<'P157PY'" in x)
+    lines_s.insert(idx + 1, "import sys; sys.exit(0)  # khoi da bi vo hieu (doi chung E9)")
+    sfile.write_text("\n".join(lines_s), encoding="utf-8")
+    h = subprocess.run(["bash", "-c", rows[[r[0] for r in rows].index("P157")][1]], cwd=str(gut), capture_output=True, text=True)
+    assert h.returncode == 0, "dung vat hong E9 that bai"
+    rc, out = run_block(gut, "P157")
+    assert rc == 0, "khoi P157 da bi vo hieu ma van DO — doi chung E9 khong dung nhu du kien"
+    # → neu chay chot tren cay gut, dong P157 se bao PHEP DO MU: chinh la dieu can chung minh
+print("P163 OK: %d dong thi hanh, %d khoi the [TEETH] khop bang" % (len(rows), len(tagged)))
+P163PY
+elif [ -z "${TEETH_CHILD:-}" ]; then
+  echo "P163 SKIP — dat TEETH=1 de thi hanh bang rang (CI chay buoc rieng; ~11 phut)"
+fi
+
+# ── P165 (measure-teeth-cleanup E10): moi assert cua moc bi SUA/XOA phai co
+#     entry ledger SIET/NOI viet truoc; co NOI hoac chua phan loai → ĐỎ. ──
+echo "P165 chot SIET/NOI cho assert bi sua"
+run "P165 assert sua/xoa phai co entry SIET-NOI" \
+  python3 - "$ROOT" <<'P165PY'
+import json, pathlib, re, subprocess, sys
+root = pathlib.Path(sys.argv[1])
+WS = root / "_acceptance/measure-teeth-cleanup"
+BASE = None
+for line in (WS / "decisions.jsonl").read_text(encoding="utf-8").split("\n"):
+    if not line.strip(): continue
+    try: e = json.loads(line)
+    except Exception: continue
+    m = re.search(r"base = ([0-9a-f]{40})", e.get("decision", ""))
+    if m: BASE = m.group(1)
+assert BASE, "so quyet dinh khong ghi moc"
+r = subprocess.run(["git", "-C", str(root), "show", "%s:tests/plugins/run-tests.sh" % BASE],
+                   capture_output=True, text=True)
+assert r.returncode == 0 and r.stdout, "khong lay duoc cay kiem tai moc %s" % BASE
+old_asserts = [l.strip() for l in r.stdout.split("\n") if l.strip().startswith("assert ")]
+new_text = (root / "tests/plugins/run-tests.sh").read_text(encoding="utf-8")
+changed = [l for l in old_asserts if l not in new_text]
+assert changed, "sanity: vong nay chac chan sua assert ma khong thay dong nao doi"
+ledger = (WS / "decisions.jsonl").read_text(encoding="utf-8")
+entries = []
+for line in ledger.split("\n"):
+    if not line.strip(): continue
+    try: e = json.loads(line)
+    except Exception: continue
+    d = e.get("decision", "")
+    if d.startswith("SIẾT —") or d.startswith("NỚI —"): entries.append(d)
+def _sig(line, decision):
+    # entry phai trich mot doan phan biet cua dong cu
+    for frag in re.findall(r"'([^']{12,})'", decision):
+        if frag in line: return True
+    return False
+noi = [d for d in entries if d.startswith("NỚI —")]
+assert not noi, "co entry NOI — vong don khong duoc noi thuoc: %r" % noi[:2]
+for l in changed:
+    hit = any(_sig(l, d) for d in entries)
+    assert hit, "assert bi sua KHONG co entry SIET/NOI: %r" % l[:70]
+# chot rang chay theo co → CI PHAI goi buoc TEETH=1, khong thi "trong luoi
+# thuong truc" chi dung tren giay (AC-6)
+ci = (root / ".github/workflows/gate.yml").read_text(encoding="utf-8")
+assert "TEETH=1" in ci, "gate.yml KHONG goi buoc TEETH=1 — chot rang nam ngoai luoi thuong truc"
+print("P165 OK: %d assert doi, %d entry SIET, 0 NOI, CI co buoc TEETH" % (len(changed), len(entries)))
+P165PY
 
 if [ "$failures" -gt 0 ]; then
   echo

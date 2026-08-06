@@ -1,0 +1,14 @@
+# Bảng phép-đo-phải-có-răng (measure-teeth-cleanup AC-7) — nguồn sự thật của
+# chốt P163. Mỗi dòng: <tên khối> <TAB> <lệnh dựng vật hỏng, bash, chạy tại gốc
+# BẢN SAO cây> <TAB> <chuỗi phải xuất hiện khi khối chạy trên vật hỏng>.
+# Chốt THI HÀNH từng dòng (không grep dấu hiệu): chạy khối trên bản sao nguyên
+# vẹn (phải XANH) → áp lệnh cột 2 → chạy lại (phải ĐỎ và output chứa cột 3).
+# Khối có tên ở đây PHẢI mang thẻ [TEETH] trong tiêu đề run — hai nguồn ở hai
+# file, lệch chiều nào cũng ĐỎ.
+P155	python3 -c "import pathlib; p=pathlib.Path('skills/acceptance/references/human-facing-language.md'); p.write_text(p.read_text().replace('- single-source — một chỗ duy nhất giữ sự thật, nơi khác đọc lại', '- single-source — một chỗ duy nhất giữ sự thật, nơi khác đọc lại\n- tu-la-khong-khai — một chú giải đủ dài để qua kiểm độ dài'))" && bash scripts/sync-plugin-packages.sh >/dev/null 2>&1	gloss term ngoai HFL-GLOSSARY-TERMS
+P157	python3 -c "import pathlib; p=pathlib.Path('scripts/acceptance-gold.mjs'); p.write_text(p.read_text().replace('Sổ không suy đoán vì sao thiếu — tra hồ sơ từng việc để biết.', 'Các việc cũ chấm trước khi máy bắt đầu ghi chép nên thiếu.'))" && bash scripts/sync-plugin-packages.sh >/dev/null 2>&1	khang dinh nguyen nhan
+P160	python3 -c "import pathlib; p=pathlib.Path('_acceptance/gold-output-measure/evidence/gold-stdout.txt'); p.write_text(p.read_text() + '| viec bia | X — thu | dat (PASS) | ai do — vi sao |\n')"	bi sua sau khi sinh
+P161	python3 -c "import pathlib; p=pathlib.Path('_acceptance/card-text-fidelity/contract.md'); p.write_text(p.read_text().replace('- glob-một-sao — giữ nguyên' + chr(10), ''))"	truc A troi khoi marker
+P162	python3 -c "import pathlib; p=pathlib.Path('codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md'); p.write_text(p.read_text() + chr(10) + 'Run node \${PLUGIN_ROOT}/scripts/khong-co-that.mjs now.')" && bash scripts/sync-plugin-packages.sh >/dev/null 2>&1	KHONG khai trong bang
+P162	python3 -c "import pathlib; p=pathlib.Path('scripts/sync-plugin-packages.sh'); L=p.read_text().split(chr(10)); L=[x for x in L if 'carry-plan.mjs' not in x]; p.write_text(chr(10).join(L))" && bash scripts/sync-plugin-packages.sh >/dev/null 2>&1	CON TRO CHET
+P164	python3 -c "import pathlib; p=pathlib.Path('scripts/acceptance-gold.mjs'); p.write_text(p.read_text().replace('judged_by\\\\s*:', 'zzz_no_read\\\\s*:'))" && bash scripts/sync-plugin-packages.sh >/dev/null 2>&1	bat dang thuc do

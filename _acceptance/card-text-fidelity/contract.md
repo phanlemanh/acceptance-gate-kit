@@ -48,6 +48,10 @@ hợp, không phải số đếm).
 - glob-mở-đầu-một-sao — giữ nguyên
 - liên-kết — lột dấu, giữ nhãn
 - sao-lẻ-không-cặp — giữ nguyên (dấu sao đơn độc trong văn xuôi kỹ thuật)
+- đuôi-sao-bắt-mọi — giữ nguyên (khoá/mã + sao nghĩa là mọi biến thể: executors.design.*, GP*)
+- cờ-gạch-sao — giữ nguyên (mẫu cờ dòng lệnh --*, -*)
+- sao-trước-ngoặc-đóng — giữ nguyên (đuôi biểu thức mẫu như a.*) trong văn kỹ thuật)
+- sao-sau-lớp-ký-tự — giữ nguyên (đuôi regex ]* trong văn kỹ thuật)
 <!-- STRIP-SHAPE-MATRIX>>> -->
 
 ## Criteria
@@ -106,7 +110,7 @@ hợp, không phải số đếm).
 
 Từ morphological-scan (3 trục — thước CE trong ngoặc):
 
-- **A — hình dạng đánh dấu** (CE: **19** hình dạng khai trong bảng
+- **A — hình dạng đánh dấu** (CE: **23** hình dạng khai trong bảng
   `STRIP-SHAPE-MATRIX` ở trên, mỗi hình dạng có kỳ vọng — con số này nay do
   CORPUS quyết, xem AC-13): AC-1 (kỳ vọng từng hình dạng), AC-2 (tính toàn
   phần của tập tên), AC-3 (nhóm lột), AC-4 (lồng), AC-13 (bảng phủ corpus)

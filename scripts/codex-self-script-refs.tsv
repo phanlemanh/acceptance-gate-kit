@@ -14,6 +14,15 @@ SELF	acceptance-gate	skills/start/SKILL.md	start-scan.mjs
 SELF	acceptance-gate	skills/design-pass/SKILL.md	config-patch.mjs
 SELF	acceptance-gate	skills/uat-session/SKILL.md	product-map.mjs
 SELF	acceptance-gate	skills/acceptance/references/design-ui-check.md	design-scan.js
+SELF	acceptance-gate	skills/acceptance-init/SKILL.md	pre-merge-check.sh
+SELF	acceptance-gate	skills/acceptance-init/SKILL.md	recheck-evidence.js
+SELF	acceptance-gate	skills/acceptance/SKILL.md	pre-merge-check.sh
+SELF	acceptance-gate	skills/acceptance/SKILL.md	recheck-evidence.js
+SELF	acceptance-gate	skills/approve/SKILL.md	recheck-evidence.js
+SELF	acceptance-gate	skills/signoff/SKILL.md	pre-merge-check.sh
+SELF	acceptance-gate	skills/signoff/SKILL.md	recheck-evidence.js
+SELF	design-loop-codex	skills/design-subtrack/references/design-command-map.md	design-detect-surface.mjs
+SELF	design-loop-codex	skills/design-subtrack/references/design-command-map.md	provenance.mjs
 SELF	feature-loop-codex	skills/feature-loop-codex/SKILL.md	carry-plan.mjs
 SELF	feature-loop-codex	skills/feature-loop-codex/SKILL.md	resolve-plugin.mjs
 #
@@ -44,3 +53,24 @@ PKG	design-loop-codex
 # chọn theo thứ tự chữ cái (S4-r3: first-match làm phép đo phụ thuộc việc nào
 # tình cờ đứng đầu, và một lần ghim-lại hàng loạt có thể làm nó đỏ oan).
 SAMPLE	card-text-fidelity
+#
+# ── PHẦN 5: tên công cụ dạng KHÔNG-TIỀN-TỐ (`scripts/<tên>` đứng đầu hoặc sau
+# khoảng trắng/nháy) trỏ vào scripts/ của REPO TIÊU THỤ — acceptance-init tạo
+# file ở đó từ bản mẫu trong gói. KHÔNG phải con trỏ vào gói; tên không-tiền-tố
+# NGOÀI danh sách này phải có file trong scripts/ của gói, không thì ĐỎ
+# (measure-teeth-cleanup AC-1).
+CONSUMER	codex-plugin-runner.mjs
+CONSUMER	vlm-assert.mjs
+CONSUMER	verify-ui-login.sh
+#
+# ── PHẦN 6: KIT — script nội bộ KHO NGUỒN, cố ý không ship vào gói (tài liệu
+# trong gói nhắc tới nó khi nói về việc bảo trì kho).
+KIT	sync-plugin-packages.sh
+#
+# ── PHẦN 7: OTHERPKG — tên không-tiền-tố nhưng văn cảnh trỏ sang GÓI BẠN có
+# tên; chốt kiểm file tồn tại Ở GÓI ĐÓ, thiếu vẫn là con trỏ chết.
+OTHERPKG	resolve-plugin.mjs	feature-loop-codex
+OTHERPKG	pre-merge-check.sh	acceptance-gate
+OTHERPKG	recheck-evidence.js	acceptance-gate
+OTHERPKG	gate-card.js	acceptance-gate
+OTHERPKG	design-gate.mjs	acceptance-gate

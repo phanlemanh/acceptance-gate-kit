@@ -26,7 +26,14 @@ function parseArgs(argv) {
     const tok = argv[i];
     if (!tok.startsWith('--')) return { __error: `tham số lạ (không phải cờ): ${tok}` };
     const name = tok.slice(2);
-    if (!KNOWN_FLAGS.has(name)) { unknown.push(tok); continue; }
+    if (!KNOWN_FLAGS.has(name)) {
+      unknown.push(tok);
+      // tiêu thụ giá trị đi kèm (nếu có) — không tiêu thụ thì vòng kế vấp
+      // vào giá trị và báo "tham số lạ: <đường dẫn>", trỏ sai ngón tay về
+      // phía file thay vì về cái cờ viết sai (AC-3 measure-teeth-cleanup)
+      if (argv[i + 1] !== undefined && !argv[i + 1].startsWith('--')) i += 1;
+      continue;
+    }
     if (name === 'no-delta') { a[name] = true; continue; }   // cờ không nhận giá trị
     if (argv[i + 1] === undefined || argv[i + 1].startsWith('--')) {
       return { __error: `cờ ${tok} thiếu giá trị` };

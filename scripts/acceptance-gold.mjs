@@ -67,6 +67,26 @@ export function collectGold(root) {
   return { points, panels, noPanel, judgedBlocks };
 }
 
+// Bộ đếm ĐỘC LẬP cho chân sanity (measure-teeth-cleanup AC-6): đếm block có
+// `judged_by` bằng một lượt quét RIÊNG, không dùng lại parser điểm vàng —
+// trường judgedBlocks cũ tăng cùng nhịp với points (cùng nhánh code) nên chân
+// sanity dựa vào nó là hằng đúng: không phân biệt được "corpus không có block
+// phán" với "reader hỏng nhánh đọc". Chỉ lộ qua --stats; --json giữ nguyên
+// từng byte (đường đọc-cũ P160 không bị đụng).
+export function countJudgmentBlocks(root) {
+  const acc = path.join(root, '_acceptance');
+  let n = 0;
+  if (!fs.existsSync(acc)) return n;
+  for (const slug of fs.readdirSync(acc).sort()) {
+    const rp = path.join(acc, slug, 'evidence-report.md');
+    if (!fs.existsSync(rp)) continue;
+    for (const line of fs.readFileSync(rp, 'utf8').split('\n')) {
+      if (/^\s+judged_by\s*:/.test(line)) n++;
+    }
+  }
+  return n;
+}
+
 export function agreement(panels) {
   // Chỉ tính panel CHẤM TƯƠI (carried là bản sao của lần chấm gốc — đếm nữa là
   // nhân đôi mẫu). Phân loại theo verdict các vote: 3/3 cùng ý · 2/1 · phân kỳ.
@@ -267,6 +287,9 @@ if (isMain) {
     process.exit(2);
   }
   const data = collectGold(root);
-  if (process.argv.includes('--json')) process.stdout.write(JSON.stringify({ ...data, agreement: agreement(data.panels) }, null, 2) + '\n');
+  if (process.argv.includes('--stats')) {
+    // chân sanity độc lập: judgmentBlocks đếm bằng nhánh riêng; points từ parser
+    process.stdout.write(JSON.stringify({ judgmentBlocks: countJudgmentBlocks(root), points: data.points.length }) + '\n');
+  } else if (process.argv.includes('--json')) process.stdout.write(JSON.stringify({ ...data, agreement: agreement(data.panels) }, null, 2) + '\n');
   else process.stdout.write(render({ ...data, root }) + '\n');
 }

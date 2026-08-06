@@ -4,7 +4,7 @@ feature: "Trả răng cho năm phép đo đã bị ghi là mất răng — chún
 slug: measure-teeth-cleanup
 risk_tier: T2
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-08-06T10:15:31Z
 owner: phanlemanh@gmail.com
