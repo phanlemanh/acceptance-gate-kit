@@ -440,3 +440,49 @@ HỤT spec ở 2 chỗ vết (Gate 1.5, pilot-journal).
 - **Đợt 3 — nền, không gấp:** F-A (ruột khám phá, đóng luôn gốc F-K) · F-B ·
   F-E/F-F/F-G · nghi thức audit spec-khớp-skill (quét mỗi luật spec có ≥1 chỗ
   thi hành) · máy hoá kiểm cache-vs-nguồn.
+
+### Cùng ngày 06/08 — W6 (bản đã soi) + soi "đúng-trên-mọi-repo" toàn danh sách
+
+**Bối cảnh:** Manh hỏi hai câu liên tiếp: (1) quyết định kiến trúc nằm ở đâu
+trong workflow — điều tra cho thấy superpowers KHÔNG làm kiến trúc; r3 KHÔNG
+dùng lại lỗi r2 (sổ khai tử r2 tự chẩn "dựng lại theo khuôn plugin", kiểm kê
+mang di sản đúng cách); nhưng cơ chế đưa khung "vật này là plugin" vào vòng là
+NGƯỜI NHẮC NHIỀU LẦN, không phải máy — cả 3 lưới hiện có (ui_standards_skill ·
+platform-fit của gap-probe · kiểm kê) đều bắn SAU khi khung đã chọn. (2) đề
+xuất vá có đúng trên mọi repo không → soi ra bệnh chung, đặt tên:
+
+**Bệnh "luật gắn vào kho đồ của MỘT repo"** — cùng họ với thước-gắn-vào-
+checkout-tác-giả. Mẫu chữa 3 tầng (rút từ công thức nấc ngữ cảnh "kit giữ
+thang / repo giữ host"): **câu hỏi + thang vào spec/kit (bất biến mọi repo) ·
+nguồn/danh mục vào Ổ CẮM config per-repo · hiện vật cụ thể chỉ là PATTERN CÓ
+TÊN, không phải khuôn bắt buộc**; nguồn vắng → nấc thấp + cờ vàng, không chặn.
+
+**W6 (chốt theo bản đã soi):** câu thực tế #4 thêm vế "vật này sống ở đâu
+trong hệ sẵn có" — bảng: vật cũ cùng lớp → quan hệ (thay/kế thừa/song song) →
+số phận vật cũ → bằng chứng theo THANG 3 NẤC (nguồn repo khai qua ổ cắm kiểu
+`feature_loop.architecture_sources` → liệt kê bằng máy từ mã → khai tay + cờ
+vàng); cấm trả lời theo trí nhớ; greenfield = 1 dòng "kho trống — vật đầu
+tiên của lớp" có máy kiểm. **Lưới CHÍNH đặt ở khuôn design doc S1** mục "Hệ
+sẵn có & chỗ sống" (mọi đường qua S1 — B/C/E không chạy HIỂU nên #4 không
+chạm); #4 mở rộng là bản sâu cho đường A. Gap-probe platform-fit thêm ý "vật
+cũ cùng lớp đã khai số phận chưa". F-F liệt kê theo lệnh config khai, không
+hardcode lớp vật. RED test trên fixture KHÔNG có nguồn (đường cờ vàng phải
+sống) — bài "đo ở phía consumer".
+
+**Kết quả soi cùng bệnh trên các mục còn lại:**
+
+| Mục | Bệnh? | Sửa khi thi công |
+|---|---|---|
+| **F-K** | **NẶNG — ca duy nhất cấp danh sách.** Vế dương "dùng `product-management:brainstorm`" đưa tên plugin bên-thứ-ba KHÔNG-phải-dependency vào engine lần đầu (đã grep: engine hiện chỉ nhắc superpowers — là dependency khai ở preflight). Repo khác không cài pm-skills → lệnh trỏ đích không tồn tại | Vế ÂM giữ nguyên trong kit ("trước Cổng Đáng KHÔNG dùng `superpowers:brainstorming` — nó thuộc S1"); vế DƯƠNG thành ổ cắm config (kiểu `discovery.brainstorm_skill`) — vắng → trỏ nghi thức grill kit-own trong opportunity-template; F-A ship thì đích mặc định là skill khám phá của kit |
+| W1 | Nhẹ: "bảng trạng thái linh kiện thật" giả định web-app có route | Spec ghi NGUYÊN LÝ (sản phẩm thật dựng xong → bản nháp phải chết, bằng chứng chụp từ bề mặt thật) + states-gallery là pattern có tên; đo-2-lần vẫn là fallback |
+| W2 | Nhẹ: "như người dùng thật" nghiêng UI | Thêm vế đường C: lái tay = chạy chuỗi thật đầu-cuối qua đường thật (API/pipeline), không mock chỗ nối |
+| W3 | Nhẹ: "rớt mạng" giả định app nối mạng | Danh mục trạng thái bắt buộc khai THEO LỚP APP (chờ + lỗi có đường phục hồi là bất biến; rớt-mạng là hiện vật của lớp web) |
+| W4 | Nhẹ: đóng đinh vào đường E (UI) | Nguyên lý chung "lỗi trên tầng dùng chung → bốc hồ sơ riêng, không sửa lẫn trong vòng"; đường E là ca linh kiện UI, nợ lib backend đi hồ sơ T2 thường |
+| W5 · F-L · F-M · F-B · nghi thức ship | Sạch — khái niệm kit thuần | F-M nhớ luật khuôn seam: marker một chỗ + round-trip test (mẫu OOC-ITEM-TEMPLATE/P55) |
+| F-J mục ratchet (chiều B #4) | Nhẹ: "census · token" giả định repo có DS token | Thước ratchet đọc từ skill repo khai (`ui_standards_skill`); vắng → sàn a11y tối thiểu + cờ vàng |
+| F-G (đợt 3) | Nhẹ, ghi trước cho khỏi quên: máy soi mật độ chữ kỹ thuật phụ thuộc NGÔN NGỮ đội | Danh sách từ theo repo/handbook khai, kit giữ cơ chế ratchet |
+| F-A (đợt 3) | Cùng gốc F-K | Ruột buổi khai thác phải kit-own hoặc vendor có tên+version, không mượn thân plugin ngoài |
+
+**Trình tự không đổi.** W6 phần spec vào đợt 1 cùng W1-W5 (viết theo bản sửa
+trên); phần khuôn S1 + ổ cắm vào đợt F-J; F-K thi công theo dạng ổ-cắm ngay
+từ đầu (không ship bản hardcode rồi sửa).
