@@ -7429,8 +7429,9 @@ const MATRIX = [
   // kiểu nháy là một đường backreference riêng.
   ['quote kép + comment có nháy', `  ${KEY}: "${NAME}"  # chú thích có "nháy"\n`, NAME],
   ['quote đơn + comment có nháy', `  ${KEY}: '${NAME}'  # it's fine\n`,           NAME],
-  ['thụt 4 space',      `    ${KEY}: ${NAME}\n`,                     NAME],
-  ['thụt 3 space',      `   ${KEY}: ${NAME}\n`,                      NAME],
+  // r5: đọc bằng reader DÙNG CHUNG (resolveConfigKey) nên hai hình dạng dưới
+  // hết sai — bản tự viết trước đây trả null cho cả hai.
+  ['key : value (cách trước hai chấm)', `  ${KEY} : ${NAME}\n`,     NAME],
   ['vắng section',      null,                                        null],
   ['thiếu key con',     `  other: x\n`,                              null],
   ['giá trị rỗng',      `  ${KEY}:\n`,                               null],
@@ -7451,6 +7452,16 @@ const MATRIX = [
   ['CRLF, giá trị trần', `  ${KEY}: ${NAME}\n`.replace(/\n/g, '\r\n'),  NAME],
   ['câu văn có dấu cách', `  ${KEY}: hãy dùng skill nào đó\n`,       null],
   ['map con lồng sâu',  `  other:\n    ${KEY}: ${NAME}\n`,           null],
+  // r5 — thụt LẺ trả null là ĐÚNG hợp đồng repo (acceptance-init "2-space
+  // REQUIRED"; pre-merge coi thụt lẻ là VIOLATION). Bản vá r1 từng nới chỗ
+  // này và gây bất đồng thật với configList cùng file (R4-3).
+  ['thụt 4 (ngược hợp đồng)', `    ${KEY}: ${NAME}\n`,              null],
+  // r5 — section kế tiếp có khoá ngoài lớp [A-Za-z0-9_-] không được coi là
+  // con của discovery (R3-2: bản tự viết trả 'evil' của section lạ)
+  ['section lạ kế tiếp', `  x: 1\n"weird":\n  ${KEY}: evil\n`,     null],
+  // r5 — từ vựng null/boolean của YAML mọi cách viết (R4-5)
+  ['literal NULL hoa',  `  ${KEY}: NULL\n`,                          null],
+  ['literal true',      `  ${KEY}: true\n`,                          null],
   ['YAML hỏng',         `  ${KEY} thiếu dấu hai chấm\n\t:::bad\n`,   null],
 ];
 for (const [label, body, want] of MATRIX) {
@@ -7531,7 +7542,15 @@ from pathlib import Path
 root = Path(sys.argv[1])
 BAD = ["product-management:", "pm-execution:"]
 TREES = ["commands", "codex", "skills", "feature-loop", "design-loop", "scripts", "lib", "hooks"]
-EXTS = {".md", ".js", ".mjs", ".sh", ".json", ".yaml", ".yml"}
+# R4-1 (r5): DANH SÁCH LOẠI TRỪ, không phải danh sách cho phép. Bản cũ liệt 7
+# đuôi được quét và bỏ lọt 6 thân prompt agent .toml + .py + .tsv — đúng loại
+# file mà một tên plugin bên-thứ-ba sẽ bị nhét vào (kiểm tay: tiêm vào
+# acceptance_judge.toml, phép quét vẫn OK). Chốt per-cây không cứu được vì nó
+# đếm file ĐÃ QUA bộ lọc. Danh sách cho phép là allowlist trên không gian mở —
+# mỗi loại file mới thêm vào kho lại lặng lẽ nằm ngoài lệnh cấm.
+SKIP_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".pdf", ".zip",
+             ".gz", ".woff", ".woff2", ".ttf", ".otf", ".mp4", ".mov"}
+SKIP_DIRS = {"node_modules", ".git"}
 
 def sweep(base):
     """→ (offenders, {cây: số file đã đọc}). Cây vắng KHÔNG bị nuốt: nó vào
@@ -7542,7 +7561,9 @@ def sweep(base):
         n = 0
         if d.exists():
             for p in sorted(d.rglob("*")):
-                if not (p.is_file() and p.suffix in EXTS): continue
+                if not p.is_file(): continue
+                if p.suffix.lower() in SKIP_EXTS: continue
+                if any(part in SKIP_DIRS for part in p.parts): continue
                 n += 1
                 txt = p.read_text(encoding="utf-8", errors="replace")
                 for bad in BAD:
@@ -7566,7 +7587,8 @@ for area in TREES:
         tmp = Path(tempfile.mkdtemp(prefix="p167-"))
         try:
             shutil.copytree(root / area, tmp / area)
-            victims = sorted(p for p in (tmp / area).rglob("*") if p.is_file() and p.suffix in EXTS)
+            victims = sorted(p for p in (tmp / area).rglob("*")
+                             if p.is_file() and p.suffix.lower() not in SKIP_EXTS)
             assert victims, f"{area}: không có file nào để tiêm — fixture hỏng"
             v = victims[0]
             v.write_text(v.read_text(encoding="utf-8") + f"\n{bad}mut\n", encoding="utf-8")
@@ -7575,6 +7597,22 @@ for area in TREES:
                 f"đối chứng dương FAIL: tiêm '{bad}' vào {area}/{v.name} mà phép quét vẫn xanh — {off2[:3]}"
         finally:
             shutil.rmtree(tmp)
+
+# ── R4-1: đối chứng ĐÍCH DANH loại file từng lọt (thân prompt agent .toml) ──
+# Không gộp vào vòng tiêm chung ở trên: vòng đó lấy file ĐẦU TIÊN của mỗi cây,
+# nên nếu bộ lọc lại thu hẹp thì .toml vẫn có thể lặng lẽ ra ngoài vùng quét.
+tomls = sorted((root / "codex").rglob("*.toml"))
+assert tomls, "khong tim thay file .toml nao trong codex/ — fixture hong hoac cay da doi"
+tmp = Path(tempfile.mkdtemp(prefix="p167toml-"))
+try:
+    shutil.copytree(root / "codex", tmp / "codex")
+    v = sorted((tmp / "codex").rglob("*.toml"))[0]
+    v.write_text(v.read_text(encoding="utf-8") + "\nproduct-management:brainstorm\n", encoding="utf-8")
+    off3, _ = sweep(tmp)
+    assert any(v.name in o for o in off3), \
+        f"doi chung .toml FAIL: tiem ten plugin vao {v.name} ma phep quet van xanh — {off3[:3]}"
+finally:
+    shutil.rmtree(tmp)
 
 # ── hai đoạn luật sống spec v2: quan hệ chứa-ổ-cắm ∧ không-chứa-tên-cũ ──
 SPEC = root / "docs/specs/workflow-v2-spec.md"

@@ -16,7 +16,7 @@ import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence-core.js'));
+const { frontmatterField, resolveConfigKey } = require(path.join(__dirname, '..', 'lib', 'evidence-core.js'));
 // Luật "hồ sơ nào được tiêu thụ" VÀ luật "field điều hướng có hợp lệ không"
 // đều sống MỘT chỗ, bản đồ sản phẩm dùng chung — hai bên đọc cùng hồ sơ không
 // được cho hai kết luận trái nhau. Kiểm tay lại ở đây là cách hai bên đã trôi
@@ -244,64 +244,39 @@ const cfgRead = read(path.join(root, '_acceptance', 'config.yaml'));
 // Ổ cắm F-K (`discovery.brainstorm_skill`): tên skill mở buổi khai thác vòng
 // HIỂU do repo tiêu thụ TỰ KHAI — engine không hardcode tên plugin bên-thứ-ba
 // không-dependency (bệnh "luật gắn vào kho đồ của MỘT repo", bảng soi 06/08).
-// Đọc scalar lồng một cấp (section → key con), line-based như configList:
-// YAML hỏng không throw; MỌI hình dạng "không đọc ra tên dùng ngay" (thiếu
-// section/key con, rỗng, ~/null, phi-scalar [/{/>/|, neo &/*) đều trả null —
-// thẻ trỏ nghi thức grill kit-own, KHÔNG cờ đỏ, không chặn (đường fallback
-// phải sống ở repo chưa khai). Hàm ở ĐÂY chứ không lib/workspace-record.js:
-// mới một consumer, chưa phải luật dùng chung — promote lên lib kèm test
-// đồng-kết-luận kiểu P130 khi có reader thứ hai (entry d-10002 của hồ sơ
-// discovery-brainstorm-socket).
-// Ba lớp lỗi S4-r1 đã sửa, ghi lại vì cả ba đều trả RÁC chứ không trả null:
-// (1) THỨ TỰ bóc: quote bóc TRƯỚC, `#` chỉ là comment khi nằm NGOÀI quote
-//     (luật YAML: `#` mở comment chỉ khi có khoảng trắng đứng trước). Bản cũ
-//     strip comment trước nên `"acme:brain#storm"` bị cắt còn `"acme:brain`
-//     — mất quote đóng nên regex bóc quote không khớp, guard phi-scalar cũng
-//     không thấy hình dạng gốc, và giá trị rác lọt ra như một khai báo hợp lệ.
-// (2) THỤT ĐẦU DÒNG không phải lúc nào cũng 2: repo thụt 4 space có khai báo
-//     hợp lệ mà bản cũ không thấy — im lặng rơi về fallback. Lấy mức thụt của
-//     dòng con ĐẦU TIÊN làm chuẩn rồi đòi khớp đúng mức đó: nhận mọi kiểu thụt
-//     nhất quán, vẫn không nuốt key của map lồng sâu hơn.
-// (3) HÌNH DẠNG tên: giá trị lọt guard vẫn có thể là câu văn/tên bậy. Tên skill
-//     hai thân lệnh giả định là `plugin:skill` hay `skill` — không khớp khuôn
-//     đó thì đây không phải "tên dùng ngay được" ⇒ null ⇒ grill kit-own, thay
-//     vì đẩy phiên đi gọi một đích không tồn tại.
+//
+// ĐỌC bằng resolveConfigKey của lib — reader config DÙNG CHUNG của kit, đúng
+// hàm mà ổ cắm anh em `design_pass.host_embed` đọc (scripts/gate-card.js).
+// KHÔNG tự viết parser: bốn round S4 của chính vòng này đã vá bốn hình dạng
+// YAML (CRLF · thụt đầu dòng · chú thích chứa dấu nháy · section lạ kế tiếp)
+// mà reader chung ĐÚNG SẴN cả bốn — vá hình dạng thứ năm là đi tiếp một khuôn
+// giải sai. Hai bên đọc cùng một config.yaml không được cho hai kết luận trái
+// nhau (cùng doctrine với ghi chú `configList` ở trên; entry d-10019 siêu chọn
+// d-10002, tiền đề "chưa có consumer thứ hai / phải sửa lib" đã sai cả hai vế).
+//
+// GUARD hình dạng đặt NGOÀI reader — đây là luật của Ổ CẮM NÀY (đích phải là
+// tên skill dùng được ngay), không phải luật đọc YAML:
+//   · từ vựng rỗng/null của YAML (mọi cách viết hoa-thường + boolean) → null
+//   · phi-scalar (`[`/`{`/`>`/`|`) và neo/alias (`&`/`*`) → null
+//   · không khớp khuôn `plugin:skill` / `skill` → null
+// MỌI hình dạng "không đọc ra tên dùng ngay" đều về null ⇒ thẻ trỏ nghi thức
+// grill kit-own, KHÔNG cờ đỏ, không chặn (đường fallback phải sống ở repo
+// chưa khai). Thụt đầu dòng: reader chung đòi 2-space, ĐÚNG hợp đồng repo
+// (`commands/acceptance-init.md` "2-space indentation REQUIRED"; pre-merge coi
+// thụt lẻ là VIOLATION) — bản vá r1 từng nới chỗ này và gây bất đồng thật với
+// `configList` cùng file (map.enabled sai ⇒ thẻ nói dối về bản đồ, R4-3).
 const SKILL_NAME_RE = /^[A-Za-z0-9_.-]+(?::[A-Za-z0-9_.-]+)*$/;
-const configScalar = (cfgTxt, section, key) => {
-  // Tách dòng chịu CẢ CRLF: `\r` sót lại làm regex khoá (neo `$`) không khớp,
-  // nên repo Windows / core.autocrlf khai đúng vẫn ra null — im lặng rơi về
-  // grill, không dòng nào nói vì sao. Cùng lớp lỗi (2) ở trên (khai báo hợp lệ
-  // bị bỏ qua), chỉ đổi tác nhân từ dấu cách sang ký tự xuống dòng (S4-r2).
-  const lines = String(cfgTxt || '').split(/\r?\n/);
-  const start = lines.findIndex(l => new RegExp('^' + section + ':\\s*(#.*)?$').test(l));
-  if (start < 0) return null;
-  let baseIndent = null;
-  for (const line of lines.slice(start + 1)) {
-    if (/^[A-Za-z0-9_-]+:/.test(line)) break;              // sang section kế
-    if (!line.trim() || /^\s*#/.test(line)) continue;      // dòng trắng / comment thuần
-    const indent = line.match(/^(\s*)/)[1].length;
-    if (baseIndent === null) baseIndent = indent;          // mức thụt của section này
-    if (indent !== baseIndent) continue;                   // sâu hơn = key của map con
-    const m = line.match(new RegExp('^\\s{' + baseIndent + '}' + key + ':(.*)$'));
-    if (!m) continue;
-    const raw = m[1].trim();
-    // Có quote → nội dung giữ NGUYÊN VĂN (kể cả `#`), comment chỉ tính phần
-    // sau quote đóng. Không quote → cắt từ ` #` (khoảng trắng + thăng).
-    // Quantifier LAZY: tham lam thì backreference khớp dấu nháy CUỐI dòng, nên
-    // chú thích đuôi dòng có chứa dấu nháy nuốt luôn giá trị — khai báo hợp lệ
-    // bị coi như chưa khai (R3-1, vi phạm AC-2; lớp "im lặng bỏ qua" lần thứ ba
-    // của vòng này sau thụt-4-space và CRLF).
-    const quoted = raw.match(/^(["'])([\s\S]*?)\1\s*(?:#.*)?$/);
-    const v = quoted ? quoted[2] : raw.replace(/(^|\s)#.*$/, '$1').trim();
-    if (!v || v === '~' || v === 'null' || /^[\[{>|&*]/.test(v)) return null;
-    if (!SKILL_NAME_RE.test(v)) return null;               // không phải tên dùng ngay được
-    return v;
-  }
-  return null;
+const YAML_NULLISH = new Set(['~', 'null', 'Null', 'NULL', 'true', 'false', 'True', 'False', 'TRUE', 'FALSE']);
+const discoverySkill = cfgTxt => {
+  const v = resolveConfigKey(String(cfgTxt || ''), 'discovery.brainstorm_skill');
+  if (v == null) return null;
+  const s = String(v).trim();
+  if (!s || YAML_NULLISH.has(s)) return null;
+  if (/^[\[{>|&*]/.test(s)) return null;
+  return SKILL_NAME_RE.test(s) ? s : null;
 };
 const discovery = {
-  brainstormSkill: cfgRead.err || cfgRead.t == null ? null
-    : configScalar(cfgRead.t, 'discovery', 'brainstorm_skill'),
+  brainstormSkill: cfgRead.err || cfgRead.t == null ? null : discoverySkill(cfgRead.t),
 };
 const map = {
   present: existsSync(mapPath),
