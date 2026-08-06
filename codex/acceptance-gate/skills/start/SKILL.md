@@ -24,6 +24,7 @@ ritual itself.
    groups.inProgress[].slug groups.inProgress[].status groups.inProgress[].nextStep groups.inProgress[].tier
    groups.done[].slug groups.done[].state
    map.present map.fresh map.enabled
+   discovery.brainstormSkill
    broken[].slug broken[].file broken[].reason
    START-SCAN-KEYS>>> -->
 
@@ -48,11 +49,24 @@ ritual itself.
      · sửa theo bằng chứng (`S3-fix`) · nghiệm thu máy (`S4`). The first time a
      code appears on the card it must carry its meaning.
    - **Bắt đầu việc mới** — exactly three paths, never more: (a) idea still
-     fuzzy → a discovery (HIỂU) session (grill/brainstorm per the advisor
-     ritual); (b) work already clear → the feature-loop skill with a
-     description; (c) a small chore covered by the T1 exemption → confirm it IS
-     T1, then END this skill — the human orders the fix in a later turn,
-     outside this ritual (this skill never edits anything, chores included).
+     fuzzy → a discovery (HIỂU) session; the target comes from
+     `discovery.brainstormSkill` in the scan JSON (a per-repo socket the
+     consuming repo declares in `_acceptance/config.yaml` under
+     `discovery.brainstorm_skill`): a value → open the session with exactly
+     that skill; `null` → run the kit's own grill ritual per
+     `${PLUGIN_ROOT}/skills/acceptance/references/opportunity-template.md`
+     (an undeclared repo is normal — never block, never flag). A third branch
+     is MANDATORY: a value that is NOT in this session's available-skill list
+     → say so in one line ("repo khai buổi khai thác bằng `<tên>`, phiên này
+     không có skill đó"), then run the kit's grill ritual — silently using a
+     declared target that does not resolve hands the session a dead pointer. Before Cổng
+     Đáng do NOT use `superpowers:brainstorming` — that skill belongs to S1
+     of the build loop: it answers "how to build" while this session asks
+     "whether / what to build"; (b) work already clear → the feature-loop
+     skill with a description; (c) a small chore covered by the T1 exemption
+     → confirm it IS T1, then END this skill — the human orders the fix in a
+     later turn, outside this ritual (this skill never edits anything,
+     chores included).
    - Below the card: one product-map line — `map.present` is `false` → "chưa có
      bản đồ sản phẩm (sẽ tự vẽ ở lần ký cổng kế)" — but ONLY when `map.enabled`
      is `true`; `false` → "repo chưa bật bản đồ sản phẩm — bật bằng hai dòng

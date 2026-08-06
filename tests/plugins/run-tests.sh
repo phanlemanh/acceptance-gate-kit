@@ -3024,7 +3024,44 @@ if (!e1.some(x => /key map_present_doi_ten khong co/.test(x)))
 const e2 = check([['(ban-xoa-marker)', mut.replace(/<!-- <<<START-SCAN-KEYS[\s\S]*?START-SCAN-KEYS>>> -->/, '')]]);
 if (!e2.some(x => /khong rut duoc khoi START-SCAN-KEYS/.test(x)))
   die('dot bien xoa marker khong bi bat: ' + JSON.stringify(e2));
-console.log('P99 OK');
+
+// ── CHIEU NGUOC (S4-r1 discovery-brainstorm-socket, hinh dang 3): tren day chi
+// do marker ⊆ dau ra. Xoa mot dong KHOI marker chi lam mang `keys` ngan di nen
+// khong the sinh loi — tuc "key nam trong marker CA HAI than" khong co thuoc
+// nao do. Chieu nay ghim: moi key LA GOC (khong phai key sinh ra tu mang) cua
+// dau ra THAT phai duoc KHAI trong marker cua MOI than.
+const leafKeys = (obj, prefix) => {
+  const out = [];
+  for (const [k, v] of Object.entries(obj)) {
+    const p = prefix ? prefix + '.' + k : k;
+    if (Array.isArray(v)) out.push(...(v.length ? leafKeys(v[0], p + '[]') : [p + '[]']));
+    else if (v && typeof v === 'object') out.push(...leafKeys(v, p));
+    else out.push(p);
+  }
+  return out;
+};
+const IGNORE = new Set(['schema_version', 'config']);   // hai khoa dieu khien, than lenh doc bang van
+const produced = leafKeys(outJson, '').filter(k => !IGNORE.has(k));
+const missingSide = entries => {
+  const errs = [];
+  for (const [rel, txt] of entries) {
+    const declared = new Set(extractKeys(txt) || []);
+    for (const k of produced)
+      if (!declared.has(k)) errs.push(`${rel}: dau ra co key ${k} ma marker KHONG khai`);
+  }
+  return errs;
+};
+const e3 = missingSide(SOURCES.map(load));
+if (e3.length) die('chieu nguoc FAIL (ban that phai xanh): ' + JSON.stringify(e3));
+// dot bien: xoa mot dong khoi marker phia LENH → phai DO dung thong diep
+const cut = fs.readFileSync(path.join(root, SOURCES[0]), 'utf8')
+  .replace(/\n\s*discovery\.brainstormSkill/, '');
+if (cut === fs.readFileSync(path.join(root, SOURCES[0]), 'utf8'))
+  die('tiem mutant that bai: khong xoa duoc dong discovery.brainstormSkill khoi marker');
+const e4 = missingSide([['(ban-xoa-1-dong-marker)', cut]]);
+if (!e4.some(x => /key discovery\.brainstormSkill ma marker KHONG khai/.test(x)))
+  die('dot bien xoa 1 dong marker khong bi bat dung thong diep: ' + JSON.stringify(e4));
+console.log(`P99 OK (2 chieu: marker ⊆ dau ra + dau ra ⊆ marker, ${produced.length} key la)`);
 JS
 
 # ── P100: con tro cua /start giai duoc TRONG GOI moi harness (E14, ho P95) ──
@@ -3035,13 +3072,18 @@ from pathlib import Path
 root = Path(sys.argv[1])
 SCAN = "scripts/start-scan.mjs"
 LAW = "skills/acceptance/references/human-facing-language.md"
+# Con tro thu ba (F-K, them o S4-r2): nhanh fallback cua loi (a) tro khuon
+# grill kit-own. Danh sach nay TUNG la hardcode 2 muc va con tro moi khong
+# duoc them vao — goi ship con tro chet ma suite van xanh, dung lop loi ma
+# chinh feature nay sinh ra de chan.
+OPP = "skills/acceptance/references/opportunity-template.md"
 
 def check_claude(pkg):
     # Goi Claude = repo root (marketplace tro thang repo): con tro trong
     # commands/start.md ghep goc goi phai ra vat that.
     errs = []
     t = (pkg / "commands/start.md").read_text(encoding="utf-8")
-    for ref in [SCAN, LAW]:
+    for ref in [SCAN, LAW, OPP]:
         if ref not in t:
             errs.append(f"commands/start.md: khong rut duoc con tro {ref}")
         elif not (pkg / ref).is_file():
@@ -3062,6 +3104,10 @@ def check_codex(pkg):
         errs.append("SKILL start: khong rut duoc con tro ban luat qua goc goi")
     elif not (pkg / LAW).is_file():
         errs.append(f"con tro {LAW} tro file khong ton tai trong goi codex")
+    if "${PLUGIN_ROOT}/" + OPP not in t:
+        errs.append("SKILL start: khong rut duoc con tro khuon grill qua goc goi")
+    elif not (pkg / OPP).is_file():
+        errs.append(f"con tro {OPP} tro file khong ton tai trong goi codex")
     return errs
 
 PKG = root / "plugins/acceptance-gate"
@@ -3083,6 +3129,13 @@ try:
     e2 = check_codex(c2)
     assert any("khong rut duoc con tro ban luat" in x for x in e2), \
         f"dot bien xoa con tro ban luat khong do dung thong diep: {e2}"
+    sk.write_text(sk.read_text(encoding="utf-8").replace("(da xoa)", "${PLUGIN_ROOT}/" + LAW),
+                  encoding="utf-8")
+    (c2 / OPP).rename(c2 / "skills/acceptance/references/doi-cho.md")  # dot bien 3: khuon grill bien mat
+    e3 = check_codex(c2)
+    assert any(OPP in x and "tro file khong ton tai" in x for x in e3), \
+        f"dot bien doi cho khuon grill khong do dung thong diep: {e3}"
+    (c2 / "skills/acceptance/references/doi-cho.md").rename(c2 / OPP)
 finally:
     shutil.rmtree(tmp)
 PY
@@ -7371,6 +7424,333 @@ with tempfile.TemporaryDirectory() as d:
 print("P162 OK: %d self-ref khai · %d rut duoc · %d file chi dan (%d ngoai SKILL.md) · %d goi co ref · ho so that %s (%d mang sang) · chot tai %s" % (
     len(DECLARED), len(found), nfiles, nnon_read, len(pkgs_with_ref), ws_dir.name, len(got), hs_now[0]))
 P162PY
+# ── P165: F-K vế ÂM — câu phủ định superpowers:brainstorming nằm TRONG đoạn
+# lối (a) của CẢ HAI thân /start; mutant code-sinh per-file (E1). Đo trong
+# ĐOẠN chứ không grep toàn file — chống "đo từ vựng thay vì quan hệ".
+run "P165 F-K ve am: cam superpowers:brainstorming truoc Cong Dang trong doan loi (a), mutant per-file (E1)" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+# (file, anchor đầu đoạn lối (a), anchor cuối đoạn, câu phủ định phải có mặt)
+BODIES = [
+    ("commands/start.md", "Bắt đầu việc mới", "Dưới thẻ",
+     "KHÔNG dùng `superpowers:brainstorming`"),
+    ("codex/acceptance-gate/skills/start/SKILL.md", "Bắt đầu việc mới", "Below the card",
+     "do NOT use `superpowers:brainstorming`"),
+]
+def segment(rel, txt, a, b):
+    i = txt.find(a)
+    if i < 0: return None, f"{rel}: anchor đầu đoạn lối (a) '{a}' không thấy"
+    j = txt.find(b, i)
+    if j < 0: return None, f"{rel}: anchor cuối đoạn lối (a) '{b}' không thấy"
+    return txt[i:j], None
+def check(entries):
+    errs = []
+    for rel, txt, a, b, needle in entries:
+        seg, err = segment(rel, txt, a, b)
+        if err: errs.append(err); continue
+        if needle not in seg:
+            errs.append(f"{rel}: đoạn lối (a) thiếu câu phủ định {needle}")
+    return errs
+live = [(rel, (root / rel).read_text(encoding="utf-8"), a, b, n) for rel, a, b, n in BODIES]
+e0 = check(live)
+assert e0 == [], f"đối chứng dương FAIL — bản thật phải xanh: {e0}"          # bản thật XANH
+# mutant CODE-SINH per-file: bản sao thân sống, máy xoá đúng dòng chứa chuỗi cấm
+for rel, txt, a, b, needle in live:
+    mut = "\n".join(l for l in txt.split("\n") if needle not in l)
+    assert mut != txt, f"{rel}: tiêm mutant thất bại — không dòng nào chứa câu phủ định"
+    errs = check([(rel, mut, a, b, needle)])
+    assert any("thiếu câu phủ định" in e and rel in e for e in errs), \
+        f"mutant xoá câu ở {rel} không bị bắt đúng thông điệp: {errs}"
+print("P165 OK (2 thân xanh + 2 mutant per-file đỏ đúng tên)")
+PY
+
+# ── P166: F-K ổ cắm MÁY — discovery.brainstormSkill từ fixture code-sinh:
+# 4 hình dạng CÓ (đối chứng dương) + 6 hình dạng KHÔNG-đọc-ra-tên → null,
+# exit 0, không văng lỗi (E2, E3 — RED phía consumer: fallback phải sống);
+# kèm nhánh văn trong đoạn lối (a) hai thân.
+run "P166 F-K o cam config: ma tran hinh dang TOAN PHAN + seam khoa viet<->doc + quan he 2 nhanh (E2,E3)" \
+  node - "$ROOT" <<'JS'
+const fs = require('fs'), path = require('path'), os = require('os');
+const { execFileSync } = require('child_process');
+const root = process.argv[2];
+const die = m => { console.error(m); process.exit(1); };
+
+// ── SEAM khoá viết↔đọc (S4-r1, hình dạng 2): tên khoá KHÔNG gõ tay ở đây.
+// Rút TỪ thân lệnh — bên DẶN NGƯỜI VIẾT config — rồi dựng fixture bằng chính
+// chuỗi đó. Thân lệnh đổi tên khoá mà reader không đổi ⇒ fixture khai khoá mới
+// ⇒ reader trả null ⇒ case ĐỎ. Bản cũ gõ tay 'brainstorm_skill' đúng khuôn bên
+// ĐỌC nên hai đầu không bao giờ được nối (bài "đo ở phía consumer").
+const BODIES = ['commands/start.md', 'codex/acceptance-gate/skills/start/SKILL.md'];
+const declared = BODIES.map(rel => {
+  const txt = fs.readFileSync(path.join(root, rel), 'utf8');
+  const m = txt.match(/`discovery\.([a-z0-9_]+)`/);
+  if (!m) die(`${rel}: không rút được tên khoá config từ thân lệnh (dạng \`discovery.<key>\`)`);
+  return { rel, key: m[1] };
+});
+const keys = [...new Set(declared.map(d => d.key))];
+if (keys.length !== 1) die(`hai thân lệnh dặn HAI tên khoá khác nhau: ${JSON.stringify(declared)}`);
+const KEY = keys[0];
+
+const scan = cfg => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p166-'));
+  fs.mkdirSync(path.join(tmp, '_acceptance'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, '_acceptance', 'config.yaml'), cfg);
+  let out;
+  try {
+    out = execFileSync('node', [path.join(root, 'scripts/start-scan.mjs'), '--root', tmp],
+      { encoding: 'utf8' });
+  } catch (e) { die(`start-scan văng lỗi (phải exit 0, JSON nguyên hình): ${e.message}`); }
+  finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+  const json = JSON.parse(out);
+  if (!('discovery' in json)) die('JSON thiếu khối discovery');
+  return json.discovery.brainstormSkill;
+};
+const cfg = body => (/\r\n/.test(body)
+  ? `schema_version: 1\r\ndiscovery:\r\n${body}`
+  : `schema_version: 1\ndiscovery:\n${body}`);
+const NAME = 'acme:brainstorm';
+
+// ── MA TRẬN viết-trước (mẫu P105): mỗi nhánh guard của reader một ô, KHÔNG
+// gộp cả lớp phi-scalar vào một đại diện (r1 bắt đúng chỗ này).
+// GIỚI HẠN đã biết, ghi cho trung thực (r2): ma trận đo ĐẦU RA, nên nó KHÔNG
+// phân biệt được mọi đường đi nội bộ. Cụ thể: ô 'quote chứa #' một mình KHÔNG
+// canh được thứ tự bóc quote↔comment — SKILL_NAME_RE loại cả hai đường về null
+// (kiểm bằng cách tiêm mutant đảo thứ tự vào bản sao cây: sống sót trọn ma
+// trận). Ô THẬT SỰ có răng cho lớp 'cắt comment quá tay' là
+// 'unquoted chứa #': bản đúng → null, bản cắt-quá-tay → 'acme:brain'.
+const MATRIX = [
+  // [nhãn, thân YAML dưới `discovery:`, kỳ vọng]
+  ['trần',              `  ${KEY}: ${NAME}\n`,                       NAME],
+  ['quote kép',         `  ${KEY}: "${NAME}"\n`,                     NAME],
+  ['quote đơn',         `  ${KEY}: '${NAME}'\n`,                     NAME],
+  ['comment đuôi',      `  ${KEY}: ${NAME}  # ghi chú\n`,            NAME],
+  ['quote + comment',   `  ${KEY}: "${NAME}"  # ghi chú\n`,          NAME],
+  // R3-1 (r4, Manh phê chuẩn vượt trần): chú thích đuôi dòng CHỨA dấu nháy.
+  // Quantifier tham lam khớp dấu nháy cuối dòng → giá trị thành rác → null,
+  // tức khai báo hợp lệ bị coi như chưa khai. Hai ô (nháy kép/đơn) vì mỗi
+  // kiểu nháy là một đường backreference riêng.
+  ['quote kép + comment có nháy', `  ${KEY}: "${NAME}"  # chú thích có "nháy"\n`, NAME],
+  ['quote đơn + comment có nháy', `  ${KEY}: '${NAME}'  # it's fine\n`,           NAME],
+  // r5: đọc bằng reader DÙNG CHUNG (resolveConfigKey) nên hai hình dạng dưới
+  // hết sai — bản tự viết trước đây trả null cho cả hai.
+  ['key : value (cách trước hai chấm)', `  ${KEY} : ${NAME}\n`,     NAME],
+  ['vắng section',      null,                                        null],
+  ['thiếu key con',     `  other: x\n`,                              null],
+  ['giá trị rỗng',      `  ${KEY}:\n`,                               null],
+  ['literal ~',         `  ${KEY}: ~\n`,                             null],
+  ['literal null',      `  ${KEY}: null\n`,                          null],
+  ['inline list [',     `  ${KEY}: [a, b]\n`,                        null],
+  ['inline map {',      `  ${KEY}: {a: 1}\n`,                        null],
+  ['block scalar >',    `  ${KEY}: >\n    acme\n`,                   null],
+  ['block scalar |',    `  ${KEY}: |\n    acme\n`,                   null],
+  ['neo &',             `  ${KEY}: &anchor x\n`,                     null],
+  ['alias *',           `  ${KEY}: *anchor\n`,                       null],
+  ['quote chứa #',      `  ${KEY}: "acme:brain#storm"\n`,            null],
+  // Ô CÓ RĂNG cho lớp cắt-comment-quá-tay (r2): `#` không có khoảng trắng
+  // đứng trước KHÔNG mở comment theo YAML. Bản `replace(/\s*#.*$/,'')` cắt
+  // thành 'acme:brain' rồi lọt shape check — ô này là chỗ duy nhất thấy được.
+  ['unquoted chứa #',   `  ${KEY}: acme:brain#storm\n`,              null],
+  // CRLF: repo Windows / core.autocrlf khai ĐÚNG mà bị bỏ qua im lặng (r2)
+  ['CRLF, giá trị trần', `  ${KEY}: ${NAME}\n`.replace(/\n/g, '\r\n'),  NAME],
+  ['câu văn có dấu cách', `  ${KEY}: hãy dùng skill nào đó\n`,       null],
+  ['map con lồng sâu',  `  other:\n    ${KEY}: ${NAME}\n`,           null],
+  // r5 — thụt LẺ trả null là ĐÚNG hợp đồng repo (acceptance-init "2-space
+  // REQUIRED"; pre-merge coi thụt lẻ là VIOLATION). Bản vá r1 từng nới chỗ
+  // này và gây bất đồng thật với configList cùng file (R4-3).
+  ['thụt 4 (ngược hợp đồng)', `    ${KEY}: ${NAME}\n`,              null],
+  // r5 — section kế tiếp có khoá ngoài lớp [A-Za-z0-9_-] không được coi là
+  // con của discovery (R3-2: bản tự viết trả 'evil' của section lạ)
+  ['section lạ kế tiếp', `  x: 1\n"weird":\n  ${KEY}: evil\n`,     null],
+  // r5 — từ vựng null/boolean của YAML mọi cách viết (R4-5)
+  ['literal NULL hoa',  `  ${KEY}: NULL\n`,                          null],
+  ['literal true',      `  ${KEY}: true\n`,                          null],
+  ['YAML hỏng',         `  ${KEY} thiếu dấu hai chấm\n\t:::bad\n`,   null],
+];
+for (const [label, body, want] of MATRIX) {
+  const got = scan(body === null ? 'schema_version: 1\n' : cfg(body));
+  if (got !== want) die(`ô "${label}": nhận ${JSON.stringify(got)}, khai trước là ${JSON.stringify(want)}`);
+}
+
+// ── ĐỐI CHỨNG SEAM: fixture khai khoá tên KHÁC (giả cảnh thân lệnh đổi tên mà
+// reader không đổi) phải cho null — chứng minh ô "trần" ở trên xanh vì hai đầu
+// KHỚP, không phải vì reader đọc bừa.
+if (scan(cfg(`  ${KEY}_doi_ten: ${NAME}\n`)) !== null)
+  die('đối chứng seam FAIL: khoá tên khác vẫn đọc ra tên — reader không thật sự khớp khoá');
+
+// ── QUAN HỆ hai nhánh trong ĐOẠN lối (a) (S4-r1, hình dạng 3): không đo
+// "token có mặt" nữa. Nhánh CÓ và nhánh null phải nằm ĐÚNG phía của nó, và
+// mutant xoá/đảo phải ĐỎ.
+const SEG = [
+  { rel: 'commands/start.md', a: 'Bắt đầu việc mới', b: 'Dưới thẻ',
+    pos: /CÓ giá trị\s*→\s*mở buổi khai thác bằng đúng\s+skill đó/,
+    neg: /`null`\s*→\s*đi nghi thức grill của kit/, tail: 'KHÔNG chặn',
+    // Nhánh THỨ BA: đích khai mà phiên không có skill đó → NÓI THẲNG rồi grill.
+    // Thêm ở r1 mà quên thước (r2 bắt): xoá cả mệnh đề thì mọi case vẫn xanh,
+    // trong khi đây là nhánh duy nhất mà vắng nó gây đúng cái hại đã ghi.
+    third: /nằm trong danh sách skill[\s\S]{0,40}?khả dụng[\s\S]{0,60}?→[\s\S]{0,40}?NÓI THẲNG[\s\S]{0,260}?grill của kit/i },
+  { rel: 'codex/acceptance-gate/skills/start/SKILL.md', a: 'Bắt đầu việc mới', b: 'Below the card',
+    pos: /a value\s*→\s*open the session with exactly\s+that skill/,
+    neg: /`null`\s*→\s*run the kit's own grill ritual/, tail: 'never block',
+    third: /NOT in this session's available-skill list[\s\S]{0,60}?→[\s\S]{0,40}?say so in one line[\s\S]{0,260}?grill ritual/i },
+];
+const segOf = (txt, s) => {
+  const i = txt.indexOf(s.a), j = i < 0 ? -1 : txt.indexOf(s.b, i);
+  if (i < 0 || j < 0) die(`${s.rel}: anchor đoạn lối (a) không thấy ('${s.a}' → '${s.b}')`);
+  return txt.slice(i, j);
+};
+const checkSeg = (s, txt) => {
+  const seg = segOf(txt, s);
+  const errs = [];
+  if (!s.pos.test(seg)) errs.push(`${s.rel}: đoạn lối (a) thiếu QUAN HỆ nhánh-CÓ → dùng skill đã khai`);
+  if (!s.neg.test(seg)) errs.push(`${s.rel}: đoạn lối (a) thiếu QUAN HỆ nhánh-null → grill kit-own`);
+  if (!seg.includes('opportunity-template.md')) errs.push(`${s.rel}: nhánh fallback không trỏ khuôn opportunity-template.md`);
+  if (!seg.includes(s.tail)) errs.push(`${s.rel}: đoạn lối (a) thiếu chữ "${s.tail}"`);
+  if (!seg.includes(`discovery.${KEY}`)) errs.push(`${s.rel}: đoạn lối (a) không nêu khoá config discovery.${KEY}`);
+  if (!s.third.test(seg)) errs.push(`${s.rel}: đoạn lối (a) thiếu NHÁNH THỨ BA — đích khai không giải được → nói thẳng rồi grill`);
+  return errs;
+};
+for (const s of SEG) {
+  const txt = fs.readFileSync(path.join(root, s.rel), 'utf8');
+  const e0 = checkSeg(s, txt);
+  if (e0.length) die(`đối chứng dương FAIL: ${JSON.stringify(e0)}`);
+  // mutant 1: xoá mệnh đề nhánh dương → phải đỏ đúng thông điệp
+  const m1 = txt.replace(s.pos, 'CÓ giá trị thì tuỳ phiên');
+  if (!checkSeg(s, m1).some(x => /thiếu QUAN HỆ nhánh-CÓ/.test(x)))
+    die(`${s.rel}: mutant xoá nhánh dương không bị bắt`);
+  // mutant 2: xoá mệnh đề nhánh fallback → phải đỏ đúng thông điệp
+  const m2 = txt.replace(s.neg, '`null` thì thôi');
+  if (!checkSeg(s, m2).some(x => /thiếu QUAN HỆ nhánh-null/.test(x)))
+    die(`${s.rel}: mutant xoá nhánh fallback không bị bắt`);
+  // mutant 3: xoá mệnh đề nhánh thứ ba → phải đỏ đúng thông điệp
+  const m3 = txt.replace(s.third, 'đích khai thì cứ dùng');
+  if (m3 === txt) die(`${s.rel}: tiêm mutant nhánh thứ ba thất bại — regex không khớp bản sống`);
+  if (!checkSeg(s, m3).some(x => /thiếu NHÁNH THỨ BA/.test(x)))
+    die(`${s.rel}: mutant xoá nhánh thứ ba không bị bắt`);
+}
+console.log(`P166 OK (khoá '${KEY}' rút từ thân lệnh · ma trận ${MATRIX.length} ô · đối chứng seam · 2 đoạn × 3 mutant quan hệ)`);
+JS
+
+# ── P167: F-K cấm hardcode tên bên-thứ-ba không-dependency trong cây nguồn
+# kit (vendor/ loại trừ CÓ CHỦ ĐÍCH — entry d-10006) + hai đoạn luật sống
+# spec v2 đo QUAN HỆ (chứa ổ cắm VÀ không chứa tên cũ), mutant per-đoạn (E4,E5).
+# S4-r1 sửa hai lỗ: (a) sanity counter GỘP `n > 50` cho phép mất trọn vài cây mà
+# vẫn xanh → đổi sang đếm PER-CÂY, cây vắng là ĐỎ CÓ TÊN chứ không `continue`;
+# (b) đối chứng dương chỉ tiêm 1 chuỗi vào 1 cây → tiêm MỌI chuỗi cấm vào MỌI
+# cây, mỗi lượt phải đỏ nêu đúng tên file.
+run "P167 F-K cam hardcode ben-thu-ba: quet PER-CAY + doi chung tiem day du + 2 doan luat spec (E4,E5)" \
+  python3 - "$ROOT" <<'PY'
+import shutil, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+BAD = ["product-management:", "pm-execution:"]
+TREES = ["commands", "codex", "skills", "feature-loop", "design-loop", "scripts", "lib", "hooks"]
+# R4-1 (r5): DANH SÁCH LOẠI TRỪ, không phải danh sách cho phép. Bản cũ liệt 7
+# đuôi được quét và bỏ lọt 6 thân prompt agent .toml + .py + .tsv — đúng loại
+# file mà một tên plugin bên-thứ-ba sẽ bị nhét vào (kiểm tay: tiêm vào
+# acceptance_judge.toml, phép quét vẫn OK). Chốt per-cây không cứu được vì nó
+# đếm file ĐÃ QUA bộ lọc. Danh sách cho phép là allowlist trên không gian mở —
+# mỗi loại file mới thêm vào kho lại lặng lẽ nằm ngoài lệnh cấm.
+SKIP_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".pdf", ".zip",
+             ".gz", ".woff", ".woff2", ".ttf", ".otf", ".mp4", ".mov"}
+SKIP_DIRS = {"node_modules", ".git"}
+
+def sweep(base):
+    """→ (offenders, {cây: số file đã đọc}). Cây vắng KHÔNG bị nuốt: nó vào
+    counts với 0 và chốt per-cây bên dưới sẽ đỏ, nêu đúng tên cây."""
+    offenders, counts = [], {}
+    for area in TREES:
+        d = base / area
+        n = 0
+        if d.exists():
+            for p in sorted(d.rglob("*")):
+                if not p.is_file(): continue
+                if p.suffix.lower() in SKIP_EXTS: continue
+                if any(part in SKIP_DIRS for part in p.parts): continue
+                n += 1
+                txt = p.read_text(encoding="utf-8", errors="replace")
+                for bad in BAD:
+                    if bad in txt:
+                        offenders.append(f"{p.relative_to(base)}: chứa '{bad}'")
+        counts[area] = n
+    return offenders, counts
+
+off, counts = sweep(root)
+# Chốt PER-CÂY: một cây bị đổi tên/di chuyển mà TREES quên sửa thì lệnh cấm
+# ngừng hiệu lực trên cây đó — ngưỡng gộp không bao giờ thấy (S4-r1).
+empty = [a for a, n in counts.items() if n == 0]
+assert not empty, f"cây khai trong TREES mà không đọc được file nào: {empty} — walker hỏng hoặc cây đã đổi tên; 0-hit không tin được"
+assert off == [], f"cây nguồn kit hardcode tên plugin bên-thứ-ba không-dependency: {off[:5]}"
+
+# ── ĐỐI CHỨNG DƯƠNG ĐẦY ĐỦ: tiêm MỖI chuỗi cấm vào MỖI cây, quét lại bằng
+# CÙNG hàm. Bản cũ chỉ tiêm 1 chuỗi vào 1 cây nên 7 cây và chuỗi thứ hai chưa
+# bao giờ được chứng minh là thật sự được đọc.
+for area in TREES:
+    for bad in BAD:
+        tmp = Path(tempfile.mkdtemp(prefix="p167-"))
+        try:
+            shutil.copytree(root / area, tmp / area)
+            victims = sorted(p for p in (tmp / area).rglob("*")
+                             if p.is_file() and p.suffix.lower() not in SKIP_EXTS)
+            assert victims, f"{area}: không có file nào để tiêm — fixture hỏng"
+            v = victims[0]
+            v.write_text(v.read_text(encoding="utf-8") + f"\n{bad}mut\n", encoding="utf-8")
+            off2, _ = sweep(tmp)
+            assert any(v.name in o and bad in o for o in off2), \
+                f"đối chứng dương FAIL: tiêm '{bad}' vào {area}/{v.name} mà phép quét vẫn xanh — {off2[:3]}"
+        finally:
+            shutil.rmtree(tmp)
+
+# ── R4-1: đối chứng ĐÍCH DANH loại file từng lọt (thân prompt agent .toml) ──
+# Không gộp vào vòng tiêm chung ở trên: vòng đó lấy file ĐẦU TIÊN của mỗi cây,
+# nên nếu bộ lọc lại thu hẹp thì .toml vẫn có thể lặng lẽ ra ngoài vùng quét.
+tomls = sorted((root / "codex").rglob("*.toml"))
+assert tomls, "khong tim thay file .toml nao trong codex/ — fixture hong hoac cay da doi"
+tmp = Path(tempfile.mkdtemp(prefix="p167toml-"))
+try:
+    shutil.copytree(root / "codex", tmp / "codex")
+    v = sorted((tmp / "codex").rglob("*.toml"))[0]
+    v.write_text(v.read_text(encoding="utf-8") + "\nproduct-management:brainstorm\n", encoding="utf-8")
+    off3, _ = sweep(tmp)
+    assert any(v.name in o for o in off3), \
+        f"doi chung .toml FAIL: tiem ten plugin vao {v.name} ma phep quet van xanh — {off3[:3]}"
+finally:
+    shutil.rmtree(tmp)
+
+# ── hai đoạn luật sống spec v2: quan hệ chứa-ổ-cắm ∧ không-chứa-tên-cũ ──
+SPEC = root / "docs/specs/workflow-v2-spec.md"
+SEGS = [
+    ("§2.1 D1 hai mode", "**D1 hai mode**", "**Luật kế thừa vật liệu ngoài**"),
+    ("§6 định tuyến brainstorm", "**Định tuyến brainstorm**", "**Lối vào người mới**"),
+]
+def check_spec(txt):
+    errs = []
+    for name, a, b in SEGS:
+        i = txt.find(a)
+        j = txt.find(b, i) if i >= 0 else -1
+        if i < 0 or j < 0:
+            errs.append(f"{name}: anchor không thấy ('{a}' → '{b}')"); continue
+        seg = txt[i:j]
+        if "discovery.brainstorm_skill" not in seg:
+            errs.append(f"{name}: thiếu ổ cắm discovery.brainstorm_skill")
+        if "product-management:brainstorm" in seg:
+            errs.append(f"{name}: còn hardcode product-management:brainstorm")
+    return errs
+spec = SPEC.read_text(encoding="utf-8")
+assert check_spec(spec) == [], f"đối chứng dương FAIL — spec thật phải xanh: {check_spec(spec)}"
+for name, a, b in SEGS:
+    i = spec.find(a)
+    mut = spec[:i] + a + " product-management:brainstorm " + spec[i + len(a):]
+    errs = check_spec(mut)
+    assert any(name in e and "còn hardcode" in e for e in errs), \
+        f"mutant tiêm tên cũ vào {name} không bị bắt đúng thông điệp: {errs}"
+    mut2 = spec[:i] + spec[i:].replace("discovery.brainstorm_skill", "o_cam_doi_ten", 1)
+    errs2 = check_spec(mut2)
+    assert any(name in e and "thiếu ổ cắm" in e for e in errs2), \
+        f"mutant xoá ổ cắm khỏi {name} không bị bắt đúng thông điệp: {errs2}"
+print(f"P167 OK (per-cây {counts} · tiêm {len(TREES)}×{len(BAD)} đều đỏ · 2 đoạn luật spec + 4 mutant)")
+PY
 
 # ── P164 [TEETH] (measure-teeth-cleanup E3,E4,E7): thong diep fail-loud cua
 #     carry-plan ghim CHUOI (khong chi ma thoat) + chan sanity so vang doc lap

@@ -284,3 +284,6 @@ sha: 451840967a9ef3726e953246da03225504c71675 · suites: 6 lệnh exit 0
 ### Re-pin lần 7 — 2026-08-06, do engine đổi ở vòng dọn nợ đo-lường (5 phép đo có răng + gỡ hai chốt meta)
 run_id: repin-20260806-measure-teeth-cleanup-lane1
 sha: cdc64cfb184559e9f60f3fd57b215726f2b2cb44 · suites: 6 lệnh exit 0
+### Re-pin lần 7 — 2026-08-06, do engine đổi ở vòng discovery-brainstorm-socket (ổ cắm khám phá + bộ quét /start + bộ kiểm), ghim lại sau rebase lên main
+run_id: repin-20260806-discovery-brainstorm-socket-lane2
+sha: 4383b814def31b4627eb290d3e0ea688ca80887f · suites: 5 lệnh exit 0

@@ -1,0 +1,46 @@
+{
+  "feature_plain": "Máy chấm ĐẠT ở lượt thứ 5, trên đúng bản mã cuối cùng. Bốn lượt trước chính bộ nghiệm thu bắt được lỗi thật — trong đó hai lượt bắt lỗi do chính bản vá của lượt trước gây ra, và lượt 4 bắt được điều quan trọng nhất: tôi đã tự viết một bộ đọc cấu hình thứ ba trong khi kit đã có sẵn bộ đọc dùng chung làm đúng. Lượt 5 gỡ bộ đọc tự viết, ổ cắm nay đọc bằng đúng hàm mà thẻ cổng vẫn dùng — kit từ ba bộ đọc còn hai.",
+  "analyst_plain": "Bằng chứng ghim đúng bản mã cuối (59c8013), sổ chạy toàn dòng của lượt 5. MỘT LỖ KIT cần anh biết khi đọc bảng: năm phép đo máy dùng chung một lệnh nên bộ máy dán chung một khối kết quả — tôi đã bù bằng phụ lục liệt dòng kết của TỪNG phép đo, rút từ file toàn văn lưu cùng thư mục. CÒN LẠI để anh quyết chấp nhận: (a) ổ cắm chưa được giới thiệu trong sách hướng dẫn lẫn khuôn khởi tạo, nên hôm nay mọi repo tiêu thụ đều đi nhánh grill — vế dương chưa tới tay ai (hoãn có chủ đích chờ đợt sau); (b) vài lỗ thước còn hở trong bộ kiểm (quan hệ nhánh-lui → khuôn grill vẫn đo bằng phép có-mặt-chuỗi); (c) file cấu hình đọc không được vẫn bị coi như chưa khai. Không phát hiện nào của lượt 5 nói về mã sản phẩm — tất cả đều về hồ sơ và thước, và đã xử hoặc ghi thành giới-hạn-đã-biết.",
+  "decisions_plain": [
+    {
+      "id": "d-20260806T093000Z-10009",
+      "p": "Lượt chấm 1: máy nói ĐẠT nhưng bộ phân loại phạm vi hỏng — tôi không tin, coi là TỪ CHỐI và quay lại sửa."
+    },
+    {
+      "id": "d-20260806T093000Z-10010",
+      "p": "Lỗi cùng lớp trong thư viện lõi KHÔNG sửa lẫn trong vòng này — bốc ra hồ sơ riêng theo nguyên lý tầng dùng chung; chip việc đã treo."
+    },
+    {
+      "id": "d-20260806T094500Z-10011",
+      "p": "Lượt 1 sửa 3 lớp lỗi bộ đọc, kiểm tay 22 hình dạng — về sau hoá ra là vá sai chỗ (xem quyết định cuối)."
+    },
+    {
+      "id": "d-20260806T094500Z-10012",
+      "p": "Sửa 5 lỗ THƯỚC — quan trọng hơn sửa lỗi, vì thước hỏng mới sinh giả xanh."
+    },
+    {
+      "id": "d-20260806T101500Z-10013",
+      "p": "Luật dừng viết TRƯỚC lượt 3, để vòng không lặp vô hạn theo phát hiện mới."
+    },
+    {
+      "id": "d-20260806T101500Z-10014",
+      "p": "Lượt 2 bắt hai lỗi do chính bản vá lượt 1 gây — kiểm tay rồi mới sửa, kèm ô đo chứng minh bản lỗi phải đỏ."
+    },
+    {
+      "id": "d-20260806T105500Z-10015",
+      "p": "Lượt 3 dừng đúng luật: phát hiện mới vào bảng chờ anh, không giấu dưới verdict ĐẠT."
+    },
+    {
+      "id": "d-20260806T113000Z-10017",
+      "p": "Lượt 4 đóng được lỗi anh cho sửa, nhưng lộ ra một vi phạm khác: phép quét cấm-hardcode bỏ sót đúng loại file dễ bị nhét tên nhất (thân prompt agent)."
+    },
+    {
+      "id": "d-20260806T113000Z-10018",
+      "p": "CHẨN ĐOÁN: khuôn giải của cả vòng sai — tôi tự viết bộ đọc thứ ba trong khi kit đã có bộ đọc chung làm đúng sẵn 4 hình dạng tôi mất 4 lượt để vá."
+    },
+    {
+      "id": "d-20260806T114500Z-10019",
+      "p": "Lượt 5 theo phê chuẩn của anh: gỡ bộ đọc tự viết, dùng bộ đọc chung + kiểm hình dạng ở ngoài; gỡ hai ô nới sai ngược hợp đồng repo; phép quét đổi sang danh sách loại trừ. Quyết định cũ bị thay thế có vết."
+    }
+  ]
+}
