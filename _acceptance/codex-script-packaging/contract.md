@@ -4,7 +4,7 @@ feature: "Gói Codex mang đủ mọi công cụ mà chỉ dẫn của nó bảo
 slug: codex-script-packaging
 risk_tier: T2
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-08-06T05:38:36Z
 owner: phanlemanh@gmail.com

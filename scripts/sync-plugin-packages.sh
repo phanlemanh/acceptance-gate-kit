@@ -54,9 +54,15 @@ build_feature_loop() {
   local out="$DEST/feature-loop-codex"
   rm -rf "$out"
   mkdir -p "$out/scripts"
-  # resolve-plugin.mjs has ONE source of truth (feature-loop/scripts) and ships in
-  # both editions — the Codex skill invokes it via ${PLUGIN_ROOT}.
+  # Công cụ nào chỉ dẫn Codex bảo chạy dưới dạng ${PLUGIN_ROOT}/scripts/… hay
+  # <plugin>/scripts/… thì PHẢI có mặt ở đây — nếu không, người dùng Codex làm
+  # đúng chỉ dẫn sẽ gặp lỗi không-tìm-thấy-file. Quan hệ đó nay có chốt máy:
+  # bảng CODEX-SELF-SCRIPT-REFS trong hợp đồng codex-script-packaging + phép đo
+  # P162 (tests/plugins). Thêm dòng ở đây mà quên cập nhật bảng, hoặc ngược
+  # lại, đều làm lưới ĐỎ.
+  # Cả hai đều có MỘT nguồn sự thật là feature-loop/scripts và ship ở cả hai bản.
   rsync -a "$ROOT/feature-loop/scripts/resolve-plugin.mjs" "$out/scripts/"
+  rsync -a "$ROOT/feature-loop/scripts/carry-plan.mjs" "$out/scripts/"
   sync_overlay "$ROOT/codex/feature-loop-codex" "$out"
 }
 
