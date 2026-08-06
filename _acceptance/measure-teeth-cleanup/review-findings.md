@@ -1,143 +1,128 @@
 ## Trong hợp đồng
 
-### 1. Hai bộ đếm của acceptance-gold bất đồng về thụt lề → bất đẳng thức sanity đỏ oan, đổ lỗi cho reader
-- file: `scripts/acceptance-gold.mjs:84`
+### 1. countJudgmentBlocks bỏ guard block-scalar mà collectGold có — mở lại đúng lớp lỗi 'parser bịa điểm từ excerpt' đã vá ở AC-8
+- file: `scripts/acceptance-gold.mjs:86`
+- severity: medium
+- AC: AC-6
+- source: conventions
+
+Comment khẳng định "CUNG luat nhan field voi collectGold (^\s*, khong doi thut le)" nhưng điều đó sai: `collectGold` (dòng 28-46) có nguyên một máy trạng thái bỏ qua vùng block-scalar (`output: |`, `rationale: |`) với ghi chú "Guard block-scalar port từ gate-card.js (fix S4-r2, AC-8): dòng nằm trong `output: |` ... là TRÍCH LOG, không phải field — parser ngây thơ từng đúc 'điểm người đã quyết' bịa từ excerpt", và chỉ đếm bên trong khối `- eval:`. `countJudgmentBlocks` thì quét thô toàn file bằng `/^\s*judged_by\s*:/` — đếm cả dòng nằm trong trích log, trong fenced code, và ngoài mọi khối eval.
+
+Hệ quả trên chân sanity P152/P164: nếu một evidence-report trích một khối judgment vào `output: |` (khuôn hoàn toàn hợp lệ, và chính là kịch bản AC-8 đã dẫm), `judgmentBlocks > 0` sẽ XANH ngay cả khi nhánh đọc thật của reader đã hỏng — tức bộ đếm 'độc lập' vừa dựng để chống hằng-đúng lại tự trở thành một hằng-đúng khác. Corpus hôm nay chưa có ca nào (kiểm: 0 dòng judged_by trong block-scalar, 0 trong fenced), nên đây là lỗ tiềm ẩn chứ chưa đỏ.
+
+### 2. `countJudgmentBlocks` counts `judged_by:` inside block scalars — the "independent sanity leg" can be satisfied by a quoted log excerpt
+- file: `/Users/manhphan/dev/acceptance-gate-kit/scripts/acceptance-gold.mjs:89`
 - severity: medium
 - AC: AC-6
 - source: bugs
 
-`countJudgmentBlocks` yêu cầu `^\s+judged_by\s*:` (ÍT NHẤT một khoảng trắng), trong khi parser điểm vàng `collectGold` khớp field bằng `^(\s*)(\w+)\s*:` (KHÔNG hoặc nhiều). Một evidence-report có field không thụt lề vẫn được collectGold nhận, nhưng bộ đếm độc lập không thấy — vi phạm bất biến `judgmentBlocks >= points` mà cả P152 (run-tests.sh:6074) lẫn P164 (run-tests.sh:7407) dựa vào.
+The new counter is a flat per-line regex `/^\s*judged_by\s*:/` with no `- eval:` context requirement and, critically, no block-scalar guard. `collectGold` right above it has an explicit guard (lines 30-41) precisely because a naive parser once fabricated points from `output: |` / `rationale: |` excerpts. The in-code comment claims "CUNG luat nhan field voi collectGold (^\s*, khong doi thut le)" — that claim is false; the two readers do not share the field-recognition law.
 
-Đã dựng lại đúng ca này:
+Demonstrated: a workspace whose only `judged_by:` line sits inside an `output: |` excerpt reports `{"judgmentBlocks":1,"points":0}`.
 ```
-$ printf '## Per-eval\n\n- eval: E1\n  verdict: PASS\njudged_by: model-x\nhuman_override: nguoi quyet vi ly do\n' > t1/_acceptance/viec-mau/evidence-report.md
-$ node scripts/acceptance-gold.mjs --root t1 --stats
-{"judgmentBlocks":0,"points":1}
-$ node scripts/acceptance-gold.mjs --root t1 --json | grep judgedBlocks
-  "judgedBlocks": 1,
+- eval: E1
+  proposal: PASS
+  output: |
+    judged_by: nguoi khac
 ```
-Kết quả: cả plugins suite ĐỎ với thông điệp 'bat dang thuc vo: phan < diem' / 'bat dang thuc do' — tức chốt tố cáo NHÁNH ĐỌC HỎNG trong khi vật thật chỉ là một hồ sơ viết thiếu thụt lề. Người sửa sẽ đi tìm bug trong reader thay vì trong artifact. Bản mirror plugins/acceptance-gate/scripts/acceptance-gold.mjs mang y hệt lỗi.
+Consequence: the sanity legs added in P152 (`if (st.judgmentBlocks <= 0) ...`) and P164 (`assert s["judgmentBlocks"] > 0`) go green on a corpus with zero real judgment blocks, i.e. exactly the false-green the counter was introduced to prevent. The `judgmentBlocks >= points` inequality is likewise satisfiable for the wrong reason. On today's corpus the count is 29 vs 21 points and none of the 29 are excerpts, so this is latent, not currently firing.
 
-Sửa: cho hai bên dùng CÙNG một luật nhận field (`^\s*judged_by\s*:`), hoặc nếu cố ý giữ bộ đếm 'ngây thơ' thì bất đẳng thức phải chấp nhận sai lệch đó thay vì biến nó thành ĐỎ.
+Same line in the mirror: `/Users/manhphan/dev/acceptance-gate-kit/plugins/acceptance-gate/scripts/acceptance-gold.mjs:89`
 
-### 2. P161-E12 zero-tolerance biến một glob thường trong bất kỳ contract nào thành ĐỎ toàn suite
-- file: `tests/plugins/run-tests.sh:7011`
+### 3. P161: failed card renders are still swallowed; the new AC-5 counter zeroes the very counts that would have caught it
+- file: `/Users/manhphan/dev/acceptance-gate-kit/tests/plugins/run-tests.sh:6938`
 - severity: medium
-- AC: AC-4
-- source: bugs
-
-Ngưỡng cũ `len(kinds) <= 25` được thay bằng `assert not orphan` — MỘT cụm sao không phân loại được là đỏ. Vòng quét chạy trên `_acceptance/*/contract.md` + `decisions.jsonl` của MỌI slug (27 hôm nay, còn tăng) — tức văn xuôi tự do do người/LLM viết ở mọi feature tương lai.
-
-Bảng 23 hình dạng KHÔNG phủ glob dạng `*.<ext>` (không có `/` đứng trước, không có sao đóng cặp). Chạy lại đúng vòng phân loại của P161 trên corpus thật, chỉ thêm MỘT dòng bình thường vào một contract:
-```
-khong tiem        -> orphan: 0 []
-them 1 glob *.md  -> orphan: 1 [('card-text-fidelity', '*.md')]
-```
-→ toàn bộ tests/plugins/run-tests.sh (và cả CI) ĐỎ với 'bang KHONG phu corpus', vì một feature khác viết `*.md` trong hợp đồng của nó. Chi phí gỡ: phải sửa contract.md của card-text-fidelity — một workspace ĐÃ KÝ — thêm hàng vào marker STRIP-SHAPE-MATRIX, bump 'CE: **23**', thêm hàng CASES + STRUCT.
-
-Ghi chú phụ (cùng chỗ): vòng quét đọc TOÀN VĂN không tách dòng, nên regex `nghiêng-chuẩn` cho phép một sao lẻ bắt cặp với một sao lẻ khác ở BẤT KỲ đâu trong file. Vì vậy phép đo vừa quá chặt với `*.md` vừa mù với sao mồ côi thật khi file có số sao lẻ chẵn.
-
-### 3. ONLY_BLOCK chỉ lọc khối bọc bởi run() — 30 assertion inline vẫn chạy và vẫn tính pass/fail
-- file: `tests/plugins/run-tests.sh:16`
-- severity: medium
-- AC: AC-8
-- source: bugs
-
-Bộ lọc nằm TRONG hàm `run()`, nhưng suite có 112 khối `run` và 64 lệnh `pass`/`fail` gọi thẳng ngoài `run` (P41, P42, P45, P145–P148…). Đo thật:
-```
-$ PLUGINS_SUITE_NESTED=1 ONLY_BLOCK=__nomatch__ bash tests/plugins/run-tests.sh | grep -cE '^  (PASS|FAIL)'
-30
-$ time PLUGINS_SUITE_NESTED=1 ONLY_BLOCK=P161 bash tests/plugins/run-tests.sh   # 37.5s
-```
-Ba hệ quả:
-(a) Bước CI `TEETH=1 ONLY_BLOCK=P163` (gate.yml:31) KHÔNG đặt PLUGINS_SUITE_NESTED, nên P42 và P45 vẫn chạy — mỗi khối tự sinh một lượt suite LỒNG trọn vẹn (P42 chạy hai lượt). Bước 'răng' vì thế chạy lại 3 lượt suite đầy đủ đã chạy ở bước trước đó, cộng ~10 phút của P163.
-(b) Verdict của bước CI đó không thuộc phạm vi P163: bất kỳ khối inline nào đỏ cũng làm bước răng đỏ, chỉ tay sai chỗ.
-(c) Trong P163, `run_block` cũng không cô lập được khối: assert ở dòng 7512 ('khoi %s DO tren ban NGUYEN VEN — khong the tin cac ca vat hong') sẽ quy tội cho khối được nêu tên khi thật ra một trong 30 khối inline mới là cái đỏ. Đây cũng là lý do mỗi lượt tốn ~37s chứ không phải 'vài giây' như chú thích ở dòng 14–15 khai.
-
-Sửa: đưa bộ lọc lên một chốt bao cả khối inline (vd một hàm `skip_block <ten>` gọi đầu mỗi khối), hoặc bọc các khối inline vào `run`.
-
-### 4. Quan hệ thứ tự 'ghi entry TRƯỚC khi sửa assert' của P165 tự vô hiệu trong đúng quy trình chuẩn
-- file: `tests/plugins/run-tests.sh:7634`
-- severity: medium
-- AC: AC-9
-- source: bugs
-
-Vòng kiểm thứ tự chỉ tính vi phạm khi `c_entry != c_assert` (dòng 7628). Nhưng quy trình của kit commit sổ quyết định CÙNG LƯỢT với bản sửa, nên hai mốc luôn trùng và vòng luôn `continue`. Đo trên chính vòng này:
-```
-$ git log --format=%h -S 'len(kinds) <= 25' -- _acceptance/measure-teeth-cleanup/decisions.jsonl
-508d502
-$ git log --format=%h -S 'len(kinds) <= 25' -- tests/plugins/run-tests.sh
-508d502
-a3d8eb2
-```
-→ c_entry == c_assert == 508d502, `unordered` rỗng. Chạy thật xác nhận: 'P165 OK: 1 assert doi, 4 entry SIET, 0 NOI' — vế thứ tự chưa từng được quan sát ĐỎ một lần nào, kể cả trên vòng nó được viết ra để canh.
-
-Đây đúng lớp lỗi CLAUDE.md gọi là assertion không sống: nhánh phát hiện không bao giờ chạy nên không phân biệt được 'không có vi phạm' với 'chưa bao giờ đo'. Sổ có khai known-limit 'cùng-commit không phân biệt được thứ tự', nhưng khai đó biến trường hợp CHUẨN thành ngoại lệ, tức luật chỉ còn tồn tại trên giấy. Muốn có răng thì phải đo bằng thứ tự trong-commit (vd entry phải có mặt ở commit cha, hoặc bắt buộc entry landing ở commit riêng trước).
-
-### 5. Hình dạng 4 — assertion không sống: mẫu số `attempted == len(slugs)` là hằng đúng, và bộ đếm được assert không phải bộ đếm mà các chân khác dựa vào
-- file: `tests/plugins/run-tests.sh:6935`
-- severity: high
 - AC: AC-5
+- source: bugs
+
+`card()` (line 6867-6871) returns `None` when `gate-card.js` exits non-zero, and both consumers swallow it: `untraceable()` does `if out is None: continue` (line 6900) and `intact_count()` does the same (line 6928). So a slug/gate whose card fails to render is silently dropped from the E6 and E7 measurements and both stay green.
+
+The new block added by this diff claims to close that ("bo dem render phai duoc ASSERT du 3 so, khong dem-roi-vut"), but it starts with `RENDER["ok"] = RENDER["fail"] = 0` — explicitly discarding every failure accumulated by the `--gate 1` / `--gate 2` calls — and then re-renders each slug with a *different* invocation (`--slug X` with no `--gate`, auto-detect). The assertion `RENDER["fail"] == 0` therefore measures the auto-detect path only; the two gate-explicit paths that are actually swallowed remain unasserted.
+
+Failure scenario: gate-card.js regresses so that `--gate 1` exits non-zero for some slug while the auto-detected gate (2) still renders. Every slug/gate pair for gate 1 is skipped in `untraceable`/`intact_count`, `bad_new` stays empty, `n_new` shrinks but may still exceed `n_old`, and the new counter renders only gate 2 successfully — P161 passes. Verified all 26 slugs currently render for both gates, so this is latent today.
+
+### 4. Thiếu đối chứng dương cho chốt zero-tolerance — và bộ phân loại được nới đến khi dư lượng = 0 (hình dạng 4)
+- file: `tests/plugins/run-tests.sh:7024`
+- severity: high
+- AC: AC-4
 - source: measurement
 
-Hai lỗi cùng chỗ trong chân AC-5 mới (6935-6947). (a) `attempted` được tăng đúng một lần mỗi vòng lặp `for slug in slugs` (6938-6939), nên `assert attempted == len(slugs)` (6943) là mệnh đề hằng đúng — không có đường nào làm nó đỏ; phần còn sống chỉ là `attempted > 0`, đã được `assert slugs` ở trên bảo đảm. E6 đòi mẫu số để chặn "0 hỏng luôn đúng vô nghĩa", nhưng mẫu số lại lấy từ chính vòng lặp nó canh. (b) Dòng 6935 RESET `RENDER["ok"]/["fail"]` về 0, vứt đúng số đếm của các lời gọi thật: `untraceable(CARD)` (6910) và `intact_count(CARD/old_js)` (6929) gọi `card(js, slug, gate)` với `--gate 1/2` và `if out is None: continue` — thẻ hỏng bị bỏ qua im lặng, và nếu MỌI thẻ hỏng thì `bad_new == []` nên `assert not bad_new` (6911) xanh vô nghĩa. Vòng đếm mới lại gọi `node CARD --root … --slug …` KHÔNG có `--gate` (6940-6941), tức đo một lời gọi khác với lời gọi mà các assert quan hệ phụ thuộc vào. Lỗ "đếm rồi vứt" mà comment 6932-6934 nói đang chữa vẫn còn nguyên trên đường `--gate`.
+`assert not hard` (dòng 7024) thay cho ngưỡng cũ `len(kinds) <= 25`, nhưng không có bất kỳ ca tiêm nào chứng minh nó biết ĐỎ. Eval E5 khai rõ cơ chế: 'tiêm ĐÚNG MỘT cụm mồ côi → ĐỎ nêu đích danh cụm đó (n=1 chứng minh không còn dung sai dưới bất kỳ hình dạng nào)'. Trong P161 không có bước tiêm nào cho đường này — chỉ chạy trên corpus thật rồi assert rỗng. Mutant duy nhất của P161 (dòng 7059-7074) nhắm đường lột đậm, và dòng bảng răng của P161 nhắm assert marker 'truc A troi khoi marker', đều không đi qua `hard`.
 
-### 6. Hình dạng 5 — tuyên ma trận toàn phần nhưng chỉ có điểm-case: comment ghi "3 tiền tố x 4 tên file" mà bảng chỉ có 6 phần tử
-- file: `tests/plugins/run-tests.sh:7208`
-- severity: high
+Đo thực trên cây hiện tại: tổng số cụm mồ côi = 0 (cả `hard` lẫn `soft` đều rỗng, nên nhánh `if soft: print(...)` dòng 7027 cũng chưa bao giờ chạy). Bỏ riêng một hình dạng mới `đuôi-sao-bắt-mọi` (dòng 6985, `[A-Za-z0-9_.'\)\]-]\*+` — khớp MỌI dấu sao đứng sau một ký tự chữ/số/dấu) thì dư lượng bật lên 4 cụm / 1 cụm có đường dẫn; bỏ thêm `sao-trong-đoạn-mã` biến thể-Ø (dòng 6991, khớp mọi sao kề vùng đã che) thì 12 cụm / 2 cụm có đường dẫn. Nghĩa là 'zero tolerance' đạt được phần lớn nhờ NỚI bộ phân loại cho hết dư lượng, không phải nhờ vật sạch — cùng lớp 'hạ thước cho vừa vật' mà vòng này đi chữa. Chân `assert classified > 0` (7012) không phân biệt được điều đó.
+
+### 5. Đối chứng E9 chỉ khẳng định TIỀN ĐỀ, không chạy vòng phát-hiện của chính chốt (hình dạng 1: đo thay-thế thay vì đo đầu ra của vật)
+- file: `tests/plugins/run-tests.sh:7580`
+- severity: medium
+- AC: AC-8
+- source: measurement
+
+Comment dòng 7570-7573 hứa 'CHAY CHINH VONG PHAT-HIEN cua chot tren cay gut ... Tai dung vong for cua chot cho DUNG dong P157'. Thực tế đoạn 7574-7581 dựng `gut2` bằng ĐÚNG cùng phép tiêm đã làm cho `gut` (chèn `import sys; sys.exit(0)` sau heredoc P157), gọi `run_block(gut2, 'P157')` — cùng một lời gọi đã chạy ở dòng 7562 — rồi kết bằng:
+
+    assert rcg == 0 and row157[2] not in outg
+
+Đây là mệnh đề tiền đề (khối bị vô hiệu thì XANH), không phải quan sát chốt P163 ĐỎ. Vòng for thật của chốt (dòng 7530-7545, `assert rc != 0` + `assert want in out`) không hề được chạy trên cây `gut`/`gut2`. Hệ quả: nếu ai xoá `assert rc != 0` ở dòng 7544, P163 mất hoàn toàn răng mà E9 vẫn XANH — đúng lỗ mà E9 sinh ra để bịt. Hai cây `gut` và `gut2` là bản sao trùng nhau, cùng assert một điều (`rc == 0` ở 7563 và `rcg == 0` ở 7579-7580), nên bước 'tái dựng' không thêm thông tin nào.
+
+### 6. Tuyên 'ma trận ĐẦY ĐỦ 3 × 4' nhưng chỉ liệt kê 6/12 điểm-case (hình dạng 5)
+- file: `tests/plugins/run-tests.sh:7228`
+- severity: medium
 - AC: AC-1
 - source: measurement
 
-Comment 7208-7210 khai "ma tran DAY DU: 3 hinh dang TIEN TO x 4 hinh dang TEN FILE" — tích đầy đủ là 12 phần tử. Danh sách thực tế (7211-7216) chỉ có 6 hàng: `${PLUGIN_ROOT}` được ghép với cả 4 hình dạng tên (chữ thường .mjs, gạch dưới, chữ hoa, đuôi .py), còn `<plugin>` và `${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}` mỗi cái chỉ có đúng một tên chữ-thường-.mjs. Nghĩa là 6/12 ô của ma trận đã khai không có assert nào — cùng đúng lớp lỗi mà comment nói mình đang chữa ("ban truoc chi 3 tien to voi cung mot ten chu-thuong-.mjs, nen thu regex ve [a-z0-9-]+ van xanh"): một lần thu hẹp `ANY_REF` (7113) chỉ ở nhánh tiền tố `<plugin>` hoặc `${CLAUDE_PLUGIN_ROOT:-…}` sẽ vẫn xanh. Ngoài ra hình dạng KHÔNG-tiền-tố (nhánh mới `prefix in ("", "./")` ở 7118-7119 và thang phân giải KITNAMES/OTHERPKG ở 7141-7150 — chính lõi của AC-1) không có ô nào trong ma trận mutant.
+Comment dòng 7225-7227 viết: 'ma tran DAY DU: 3 hinh dang TIEN TO x 4 hinh dang TEN FILE'. Danh sách thi hành ngay sau đó chỉ có 6 phần tử: 3 tiền tố (${PLUGIN_ROOT}, <plugin>, ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}) đều đi với tên chữ-thường-.mjs, cộng 3 tên mới (gạch dưới, chữ hoa, đuôi .py) đều chỉ đi với ${PLUGIN_ROOT}. Ma trận toàn phần 3×4 phải là 12 assert. Ba ô chưa bao giờ được đo: tiền tố `<plugin>` và `${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}` với tên gạch-dưới / chữ-hoa / .py. Chính đây là chỗ regex mới (dòng 7237, `([^\s`"'()\[\]]{0,60}?)\bscripts/([A-Za-z0-9_.-]+\.[a-z]{1,4})`) có thể thoái lui theo trục tiền tố mà 6 ca hiện tại vẫn xanh — cùng lớp lỗ mà comment nói đang đóng ('ban truoc chi 3 tien to voi cung mot ten chu-thuong-.mjs, nen thu regex ve [a-z0-9-]+ van xanh').
 
-### 7. Hình dạng 1 — đo NHÃN người viết thay vì nguồn độc lập: `declared == tagged` so hai danh sách chép tay, nguồn thứ ba chỉ print
-- file: `tests/plugins/run-tests.sh:7466`
+### 7. 'Nguồn độc lập' của P163 là khai-báo-đối-khai-báo; nguồn độc lập thật chỉ được IN, không ĐỎ (hình dạng 1)
+- file: `tests/plugins/run-tests.sh:7497`
 - severity: medium
 - AC: AC-7
 - source: measurement
 
-E8 (evals.yaml) hứa "Tập khối khai == tập rút từ NGUỒN ĐỘC LẬP với bảng (quét cây kiểm tìm khối có dựng bản sao) — thừa đỏ thiếu đỏ". Assert duy nhất (7466-7467) so `declared` (đọc từ scripts/measures-need-teeth.tsv) với `tagged` (regex `run "(P\d+) [TEETH]` trên chính run-tests.sh) — cả hai đều là nhãn do cùng một người viết trong cùng một lượt, và comment 7468-7471 tự thừa nhận điều đó ("KHONG phai hai nguon doc lap that"). Nguồn thật sự độc lập — quét khối có `mktemp|copytree|worktree add|cp -R` mà chưa gắn thẻ (7473-7480) — chỉ `print` cảnh báo, không đưa vào assert nào. Kết quả: một khối cần răng bị quên gắn thẻ VÀ quên khai bảng sẽ không làm đỏ bất cứ gì; phép đo chỉ bắt được trường hợp lệch giữa hai bản chép của cùng một tuyên bố.
-
-### 8. Hình dạng 4 — bước tiêm không phân biệt "tiêm thành công" với "tiêm không làm gì"
-- file: `tests/plugins/run-tests.sh:7517`
-- severity: low
-- AC: AC-7
-- source: measurement
-
-`assert h.returncode == 0, "dung vat hong cho %s THAT BAI…"` (7517) là chân duy nhất canh bước dựng vật hỏng. Mọi lệnh trong scripts/measures-need-teeth.tsv đều có dạng `python3 -c "…p.write_text(p.read_text().replace(A, B))"`, mà `str.replace` trả về chuỗi gốc và thoát 0 khi A không còn tồn tại — ví dụ hàng P155 ghim nguyên văn `'- single-source — một chỗ duy nhất giữ sự thật, nơi khác đọc lại'`, hàng P157 ghim nguyên văn một câu trong acceptance-gold.mjs, hàng P161 ghim `'- glob-một-sao — giữ nguyên'`. Khi văn bản nguồn đổi một chữ, lệnh vẫn exit 0, `assert` ở 7517 im lặng, và lỗi chỉ nổi lên ở 7519 dưới thông điệp sai địa chỉ ("PHEP DO MU: khoi X van XANH tren vat hong") — chỉ người đọc không có cách phân biệt "khối mất răng" với "lệnh tiêm no-op". E8 đòi "dựng vật hỏng thất bại → ĐỎ thông điệp riêng"; chân hiện tại chỉ bắt được lệnh CRASH, không bắt được lệnh chạy xong mà không đổi byte nào.
+Eval E8 khai: 'Tập khối khai == tập rút từ NGUỒN ĐỘC LẬP với bảng (quét cây kiểm tìm khối có dựng bản sao) — thừa đỏ thiếu đỏ'. Assert duy nhất có răng là dòng 7487-7489: `declared == tagged`, so tập tên trong scripts/measures-need-teeth.tsv với tập thẻ `[TEETH]` trong tiêu đề `run` — cả hai đều do người viết gõ tay, và comment 7490-7492 tự thừa nhận 'KHONG phai hai nguon doc lap that'. Phép quét độc lập thật (dòng 7493-7497: tìm khối có `mktemp|copytree|worktree add|cp -R` mà chưa gắn thẻ) chỉ `print` ghi chú, không bao giờ làm chốt ĐỎ. Nên quan hệ 'thừa đỏ thiếu đỏ' với nguồn độc lập chưa được thi hành: thêm một khối dựng bản sao mà quên gắn thẻ vẫn XANH, đúng đường thoái lui mà AC-7 nhắm.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **P165 — chốt thường trực lấy thẩm quyền từ hồ sơ workspace của một feature (đúng anti-pattern đã ghi trong repo)**
-  Người dùng thấy gì: Một quy tắc kiểm tra áp dụng vĩnh viễn cho mọi thay đổi sau này lại dựa vào nhật ký quyết định của một tính năng đã đóng; càng về sau, ai sửa bất kỳ dòng kiểm tra cũ nào cũng buộc phải ghi thêm vào đúng hồ sơ cũ đó, khiến gánh nặng bảo trì tăng dần theo thời gian.
-  file: `/Users/manhphan/dev/acceptance-gate-kit/tests/plugins/run-tests.sh`
+- **P165 (chốt SIẾT/NỚI) fail-open khi không resolve được merge-base — trái luật fail-closed đã ghi ngay trong chính gate.yml**
+  Người dùng thấy gì: Khi hệ thống không xác định được điểm mốc so sánh của một thay đổi (ví dụ do cách lấy mã nguồn rút gọn), bước canh giữ chống hạ thấp tiêu chuẩn kiểm tra sẽ tự động bỏ qua mà vẫn báo đạt — một thay đổi làm yếu bài kiểm tra có thể lọt qua âm thầm.
+  file: `tests/plugins/run-tests.sh`
   severity: high
-  Đề xuất: new-contract
+  Đề xuất: known-limits
 
-- **ONLY_BLOCK chỉ lọc khối gọi qua run() — lời hứa "chạy đúng MỘT khối, vài giây" sai, bước CI teeth chạy lại nửa suite**
-  Người dùng thấy gì: Bước kiểm tra 'phải có răng' được mô tả là chỉ mất vài giây mỗi lần chạy, nhưng thực tế mất hơn ba phút vì vẫn chạy lại phần lớn bộ kiểm tra đầy đủ, làm quy trình kiểm tra tự động chậm hơn nhiều so với cam kết.
+- **assert-ratchet.tsv bị rsync vào gói acceptance-gate trong khi hai TSV cùng loại bị loại trừ**
+  Người dùng thấy gì: Một tệp ghi chú chỉ dùng nội bộ cho việc kiểm tra của riêng dự án này bị gói kèm và gửi tới mọi dự án khác dùng chung bộ công cụ, dù nó vô nghĩa với họ — không làm hỏng chức năng, chỉ là phần thừa không cần thiết.
+  file: `scripts/sync-plugin-packages.sh`
+  severity: medium
+  Đề xuất: known-limits
+
+- **assert-ratchet allowlist has no orphan check — 3 of its 4 rows already match nothing, so a bogus row is undetectable**
+  Người dùng thấy gì: Sổ phân loại 'siết chặt hay nới lỏng' tiêu chuẩn kiểm tra hiện chấp nhận một số dòng ghi chú không khớp thay đổi thực tế nào; nếu sau này có người thêm một dòng ghi chú quá chung chung, nó có thể vô tình che giấu một thay đổi làm yếu bài kiểm tra thật mà không ai biết.
+  file: `/Users/manhphan/dev/acceptance-gate-kit/scripts/assert-ratchet.tsv`
+  severity: medium
+  Đề xuất: known-limits
+
+- **P165 skips the entire PR-scope ratchet with a print when merge-base cannot be resolved**
+  Người dùng thấy gì: Khi không xác định được phạm vi thay đổi của một thay đổi mã nguồn, phần canh giữ chống hạ thấp tiêu chuẩn kiểm tra chỉ in một ghi chú rồi bỏ qua toàn bộ mà vẫn báo đạt — công cụ chống suy yếu bài kiểm tra có thể tắt lặng lẽ đúng lúc cần nó nhất.
   file: `/Users/manhphan/dev/acceptance-gate-kit/tests/plugins/run-tests.sh`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Cờ --stats mới không có trong usage của acceptance-gold.mjs và âm thầm chiếm quyền trước --json**
-  Người dùng thấy gì: Tùy chọn xuất số liệu mới của công cụ đo không được ghi trong hướng dẫn sử dụng, và nếu gọi cùng lúc với tùy chọn cũ, công cụ âm thầm đổi định dạng kết quả trả về mà không báo lỗi.
-  file: `/Users/manhphan/dev/acceptance-gate-kit/scripts/acceptance-gold.mjs`
   severity: low
   Đề xuất: known-limits
 
-- **P163 dọn worktree sai thứ tự và gọi `git worktree prune` không điều kiện lên kho của người dùng**
-  Người dùng thấy gì: Quá trình dọn dẹp sau khi chạy kiểm tra có thể để lại rác trên máy nếu bị ngắt giữa chừng, và trong một số trường hợp còn xoá nhầm thông tin không gian làm việc của các công cụ khác đang chạy trên cùng kho mã.
-  file: `tests/plugins/run-tests.sh`
+- **`assert-ratchet.tsv` ships into the acceptance-gate plugin mirror while its sibling ledger is excluded**
+  Người dùng thấy gì: Một tệp sổ theo dõi chỉ có ý nghĩa nội bộ bị gửi kèm tới các dự án khác dùng chung bộ công cụ, dù họ không dùng được nó — chỉ là phần thừa, không ảnh hưởng chức năng.
+  file: `/Users/manhphan/dev/acceptance-gate-kit/scripts/sync-plugin-packages.sh`
   severity: low
-  Đề xuất: new-contract
-
-- **Hình dạng 3 — assert "chuỗi có mặt" trong khi lời hứa là bước CI đang chạy**
-  Người dùng thấy gì: Phép kiểm xác nhận bước kiểm 'răng' có chạy trong quy trình tự động chỉ tìm một chuỗi chữ xuất hiện đâu đó trong tệp cấu hình, kể cả khi đó chỉ là một dòng chú thích hoặc một bước đã bị tắt — nên không thật sự đảm bảo bước kiểm tra đó đang chạy.
-  file: `tests/plugins/run-tests.sh`
-  severity: medium
   Đề xuất: known-limits
 
-Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
+- **Mẫu số tautology — hai vế của assert rút từ CÙNG một lượt quét (hình dạng 4: assertion không bao giờ ĐỎ được)**
+  Người dùng thấy gì: Một phép đếm dùng để xác nhận 'đã thử đủ số thẻ' được tính theo cách mà hai vế so sánh luôn khớp nhau một cách máy móc bất kể hệ thống có lỗi hay không, nên phép kiểm này không thực sự canh gác được gì — hợp đồng đã ghi rõ việc dò tìm tự động các phép kiểm kiểu này nằm ngoài phạm vi vòng này.
+  file: `tests/plugins/run-tests.sh`
+  severity: high
+  Đề xuất: known-limits
+
+- **P165 fail-open khi không dựng được phạm vi PR, và vô hiệu trên push nhánh chính (hình dạng 4)**
+  Người dùng thấy gì: Trên nhánh chính, khi thay đổi được đưa thẳng vào (không qua một yêu cầu hợp nhất riêng), phần canh giữ chống hạ thấp tiêu chuẩn kiểm tra coi như không có gì để kiểm — mất tác dụng đúng lúc kho tự vận hành cổng kiểm của chính mình.
+  file: `tests/plugins/run-tests.sh`
+  severity: low
+  Đề xuất: known-limits
+
+⚠ Cụm ngoài vùng phủ: 2/14 lỗi rơi vào file không bộ đo nào phủ (scripts/sync-plugin-packages.sh) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.

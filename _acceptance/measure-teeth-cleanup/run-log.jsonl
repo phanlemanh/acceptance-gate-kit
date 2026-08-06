@@ -20,3 +20,14 @@
 {"ts":"2026-08-06T13:10:00Z","sha":"5e40e55ba98522741c290902689c4ce019584125","round":2,"evalId":"E9","run_id":"minted-measure-teeth-cleanup-E9-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-06T13:10:00Z","sha":"5e40e55ba98522741c290902689c4ce019584125","round":2,"evalId":"E10","run_id":"minted-measure-teeth-cleanup-E10-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-06T13:10:00Z","sha":"5e40e55ba98522741c290902689c4ce019584125","round":2,"kind":"baseline","evals_hash":"mtc-r2","non_discriminating":[],"carried_from_round":1}
+{"ts":"2026-08-06T14:30:00Z","sha":"69ce1e94b83abb24636a87b3a0cc25a93c018834","round":3,"evalId":"E1","run_id":"minted-measure-teeth-cleanup-E1-r3","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T14:30:00Z","sha":"69ce1e94b83abb24636a87b3a0cc25a93c018834","round":3,"evalId":"E2","run_id":"minted-measure-teeth-cleanup-E2-r3","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T14:30:00Z","sha":"69ce1e94b83abb24636a87b3a0cc25a93c018834","round":3,"evalId":"E3","run_id":"minted-measure-teeth-cleanup-E3-r3","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T14:30:00Z","sha":"69ce1e94b83abb24636a87b3a0cc25a93c018834","round":3,"evalId":"E4","run_id":"minted-measure-teeth-cleanup-E4-r3","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T14:30:00Z","sha":"69ce1e94b83abb24636a87b3a0cc25a93c018834","round":3,"evalId":"E5","run_id":"minted-measure-teeth-cleanup-E5-r3","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T14:30:00Z","sha":"69ce1e94b83abb24636a87b3a0cc25a93c018834","round":3,"evalId":"E6","run_id":"minted-measure-teeth-cleanup-E6-r3","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T14:30:00Z","sha":"69ce1e94b83abb24636a87b3a0cc25a93c018834","round":3,"evalId":"E7","run_id":"minted-measure-teeth-cleanup-E7-r3","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T14:30:00Z","sha":"69ce1e94b83abb24636a87b3a0cc25a93c018834","round":3,"evalId":"E8","run_id":"minted-measure-teeth-cleanup-E8-r3","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T14:30:00Z","sha":"69ce1e94b83abb24636a87b3a0cc25a93c018834","round":3,"evalId":"E9","run_id":"minted-measure-teeth-cleanup-E9-r3","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T14:30:00Z","sha":"69ce1e94b83abb24636a87b3a0cc25a93c018834","round":3,"evalId":"E10","run_id":"minted-measure-teeth-cleanup-E10-r3","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T14:30:00Z","sha":"69ce1e94b83abb24636a87b3a0cc25a93c018834","round":3,"kind":"baseline","evals_hash":"mtc-r3","non_discriminating":[],"carried_from_round":1}
