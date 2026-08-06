@@ -7423,6 +7423,12 @@ const MATRIX = [
   ['quote đơn',         `  ${KEY}: '${NAME}'\n`,                     NAME],
   ['comment đuôi',      `  ${KEY}: ${NAME}  # ghi chú\n`,            NAME],
   ['quote + comment',   `  ${KEY}: "${NAME}"  # ghi chú\n`,          NAME],
+  // R3-1 (r4, Manh phê chuẩn vượt trần): chú thích đuôi dòng CHỨA dấu nháy.
+  // Quantifier tham lam khớp dấu nháy cuối dòng → giá trị thành rác → null,
+  // tức khai báo hợp lệ bị coi như chưa khai. Hai ô (nháy kép/đơn) vì mỗi
+  // kiểu nháy là một đường backreference riêng.
+  ['quote kép + comment có nháy', `  ${KEY}: "${NAME}"  # chú thích có "nháy"\n`, NAME],
+  ['quote đơn + comment có nháy', `  ${KEY}: '${NAME}'  # it's fine\n`,           NAME],
   ['thụt 4 space',      `    ${KEY}: ${NAME}\n`,                     NAME],
   ['thụt 3 space',      `   ${KEY}: ${NAME}\n`,                      NAME],
   ['vắng section',      null,                                        null],

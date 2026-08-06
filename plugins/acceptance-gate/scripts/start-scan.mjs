@@ -287,7 +287,11 @@ const configScalar = (cfgTxt, section, key) => {
     const raw = m[1].trim();
     // Có quote → nội dung giữ NGUYÊN VĂN (kể cả `#`), comment chỉ tính phần
     // sau quote đóng. Không quote → cắt từ ` #` (khoảng trắng + thăng).
-    const quoted = raw.match(/^(["'])([\s\S]*)\1\s*(?:#.*)?$/);
+    // Quantifier LAZY: tham lam thì backreference khớp dấu nháy CUỐI dòng, nên
+    // chú thích đuôi dòng có chứa dấu nháy nuốt luôn giá trị — khai báo hợp lệ
+    // bị coi như chưa khai (R3-1, vi phạm AC-2; lớp "im lặng bỏ qua" lần thứ ba
+    // của vòng này sau thụt-4-space và CRLF).
+    const quoted = raw.match(/^(["'])([\s\S]*?)\1\s*(?:#.*)?$/);
     const v = quoted ? quoted[2] : raw.replace(/(^|\s)#.*$/, '$1').trim();
     if (!v || v === '~' || v === 'null' || /^[\[{>|&*]/.test(v)) return null;
     if (!SKILL_NAME_RE.test(v)) return null;               // không phải tên dùng ngay được
