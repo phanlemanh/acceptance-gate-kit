@@ -22,24 +22,16 @@ script-gói-mình là con trỏ chết, và **không phép đo nào canh quan h�
 thêm công cụ mới vào chỉ dẫn mà quên chép thì hôm nay không gì đỏ. Feature
 tiêu thụ #3 pha Đo chương trình 80/20.
 
-## Bảng tham chiếu công cụ-của-chính-gói — rút từ chỉ dẫn thật 2026-08-06
+## Nguồn sự thật của chốt — đặt cạnh hàm dựng, KHÔNG trong hồ sơ này
 
-Mỗi dòng là MỘT tham chiếu mà chỉ dẫn của gói bảo chạy công cụ CỦA CHÍNH GÓI
-ĐÓ, rút từ **GÓI ĐÃ DỰNG** (không phải thư mục overlay nguồn — gói acceptance-gate
-gộp cả `skills/` gốc nên overlay hẹp hơn vật được giao) và quét MỌI loại file
-chỉ dẫn (`.md`, `.toml`, `.yaml`), không riêng `SKILL.md`. Phép đo phải rút
-được tập BẰNG ĐÚNG bảng này (thừa cũng đỏ, thiếu cũng đỏ) — số assert bằng số
-dòng, không dùng bộ đếm ">0" làm thước phạm vi. Cột hai là đường dẫn TRONG gói.
+Bảng tham chiếu nằm ở `scripts/codex-self-script-refs.tsv`, cạnh hàm dựng gói.
+Lý do: chốt chạy mỗi PR trên mã nguồn sống, nên nó không được lấy thẩm quyền
+từ hồ sơ workspace của một việc đã đóng — thêm một công cụ ở vòng sau lẽ ra
+không phải sửa hợp đồng của vòng này. File đó có hai phần: danh sách tham
+chiếu-gói-mình, và danh sách tiền tố KHÔNG trỏ gói mình. Tiền tố nào không
+thuộc cả hai → chốt ĐỎ, buộc người viết quyết (chống danh-sách-cấm trên không
+gian mở).
 
-<!-- <<<CODEX-SELF-SCRIPT-REFS -->
-- acceptance-gate | skills/acceptance-card/SKILL.md | gate-card.js
-- acceptance-gate | skills/approve/SKILL.md | eval-coverage-lint.js
-- acceptance-gate | skills/approve/SKILL.md | product-map.mjs
-- acceptance-gate | skills/signoff/SKILL.md | product-map.mjs
-- acceptance-gate | skills/start/SKILL.md | start-scan.mjs
-- feature-loop-codex | skills/feature-loop-codex/SKILL.md | carry-plan.mjs
-- feature-loop-codex | skills/feature-loop-codex/SKILL.md | resolve-plugin.mjs
-<!-- CODEX-SELF-SCRIPT-REFS>>> -->
 
 ## Criteria
 
@@ -52,10 +44,12 @@ dòng, không dùng bộ đếm ">0" làm thước phạm vi. Cột hai là đư
   chiếu trỏ vào công cụ CỦA CHÍNH GÓI MÌNH (dạng `${PLUGIN_ROOT}/scripts/…`
   hoặc `<plugin>/scripts/…`), Then từng tham chiếu phải có file thật trong gói
   đã dựng tương ứng; thiếu → ĐỎ nêu đích danh gói + tên file + chỉ dẫn nào
-  nhắc. Tập rút được phải BẰNG ĐÚNG bảng `CODEX-SELF-SCRIPT-REFS` ở trên —
-  thừa một dòng cũng đỏ, thiếu một dòng cũng đỏ; và tập TỆP CHỈ DẪN đã quét
-  phải phủ cả ba gói Codex, đối chiếu danh sách viết trước. Bộ đếm chỉ là phụ
-  trợ, KHÔNG dùng làm thước phạm vi.
+  nhắc. Chốt rút MỌI dạng `<tiền tố>/scripts/<tên>` rồi PHÂN LOẠI: tiền tố
+  mang `PLUGIN_ROOT` (ở bất kỳ dạng viết nào) hoặc `<plugin>` là trỏ gói mình;
+  tiền tố khai ở phần hai của `scripts/codex-self-script-refs.tsv` là không
+  trỏ gói mình; **tiền tố không thuộc cả hai → ĐỎ**, không được im lặng bỏ
+  qua. Tập trỏ-gói-mình phải BẰNG ĐÚNG phần một của file đó — thừa đỏ, thiếu
+  đỏ. Bộ đếm chỉ là phụ trợ, KHÔNG dùng làm thước phạm vi.
 - AC-3: Given HAI hình dạng tham chiếu đã khai ở AC-2, When tiêm một tham
   chiếu BỊA theo TỪNG hình dạng vào bản sao chỉ dẫn, Then mỗi ca đều ĐỎ với
   thông điệp nêu đúng tên file bịa (2 ca dương, một ca cho mỗi hình dạng);
@@ -69,15 +63,15 @@ dòng, không dùng bộ đếm ">0" làm thước phạm vi. Cột hai là đư
   bên đọc), trả mã thoát 0 và tập mã-hạng-mục mang-sang BẰNG ĐÚNG tập đủ điều
   kiện tính độc lập từ hồ sơ đó — quan hệ, không phải "kết quả có khoá đó".
   Có mặt nhưng không chạy được thì chưa tính là đã đóng gói.
-- AC-5: Given bản dựng mới, When so danh sách file của TỪNG gói với bản trước
-  thay đổi, Then chỉ được THÊM — không gói nào mất file (chống sửa hàm dựng
-  làm rơi gói khác); đối chứng: bỏ một dòng chép trong hàm dựng → ĐỎ nêu file
-  bị mất. KHÔNG fail-open: phải assert TRƯỚC rằng lấy được commit đã ghim
-  trong sổ (không lấy được → ĐỎ với thông điệp RIÊNG, phân biệt rõ với
-  hành-vi-sai) và bản dựng tại mốc ra đúng ba gói, mỗi gói có số file > 0 —
-  danh sách base rỗng thì "không mất file nào" luôn đúng một cách vô nghĩa.
-  Ca đối chứng thêm: đổi mã commit trong BẢN SAO sổ thành mã không tồn tại →
-  phải ĐỎ đúng thông điệp không-lấy-được-bản-cũ.
+- AC-5: Given hàm dựng gói, When gỡ MỘT dòng chép công cụ khỏi bản sao rồi
+  dựng lại từ CÂY ĐANG KIỂM (không phải từ bản đã commit), Then chốt phải ĐỎ
+  và nêu ĐÍCH DANH gói + công cụ bị mất — không chấp nhận "có gói nào đó mất
+  file nào đó". Bắt buộc kèm: (a) lượt dựng phải trả mã thoát 0, vì hàm dựng
+  xoá gói trước khi chép nên một lượt chạy hỏng cũng để lại gói rỗng và cho
+  cùng màu đỏ vì lý do khác; (b) đối chứng dương — dựng lại bản NGUYÊN VẸN
+  trong chính cây tạm đó phải cho danh sách mất-file RỖNG. Không neo vào mốc
+  lịch sử: "chỉ được thêm kể từ một ngày" là luật sai, thứ cần canh là hàm
+  dựng không làm rơi gói khác.
 - AC-6: Given danh sách lệnh kiểm ĐỌC TỪ cấu hình đã khai (không ghim số),
   When chạy sau thay đổi, Then toàn bộ xanh, chốt chống-trôi nguồn⇔gói báo
   khớp, VÀ chốt quan hệ mới thật sự nằm trong lưới thường trực — ca âm: đổi

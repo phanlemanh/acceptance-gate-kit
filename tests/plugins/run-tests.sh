@@ -7024,76 +7024,83 @@ print("P161 OK: %d hinh dang · %d slug · %d cum sao corpus · %d phan loai · 
 P161PY
 
 # ── P162 (codex-script-packaging, E1-E6): goi Codex phai MANG DU cong cu ma
-#     chi dan cua no bao chay. Do tren GOI DA DUNG (khong phai overlay nguon —
-#     goi acceptance-gate gop ca skills/ goc nen overlay HEP hon vat duoc giao,
-#     S4-r1 bat duoc). Bang CODEX-SELF-SCRIPT-REFS ghim trong hop dong; thua do,
-#     thieu do; moi chan tu chung minh biet ĐỎ. ──
+#     chi dan cua no bao chay. Nguon su that: scripts/codex-self-script-refs.tsv
+#     (canh ham dung, KHONG trong _acceptance — chot chay moi PR khong duoc lay
+#     tham quyen tu ho so mot viec da dong, S4-r2). Do tren GOI DA DUNG. Moi
+#     dang tien to duoc PHAN LOAI; dang la → ĐỎ, khong im lang bo qua. ──
 echo "P162 (E1-E6) goi Codex mang du cong cu chi dan goi chay"
-run "P162 chi-dan ⇔ goi: quan he tap hop + mutant hai chieu" \
+run "P162 chi-dan ⇔ goi: phan loai toan phan + mutant dung-lai-goi" \
   python3 - "$ROOT" <<'P162PY'
-import json, os, pathlib, re, shutil, subprocess, sys, tempfile
+import json, pathlib, re, shutil, subprocess, sys, tempfile
 root = pathlib.Path(sys.argv[1])
-WS = root / "_acceptance/codex-script-packaging"
+PLUGINS = root / "plugins"
 
-contract = (WS / "contract.md").read_text(encoding="utf-8")
-mm = re.search(r"<!-- <<<CODEX-SELF-SCRIPT-REFS -->\n([\s\S]*?)<!-- CODEX-SELF-SCRIPT-REFS>>> -->", contract)
-assert mm, "khong rut duoc bang CODEX-SELF-SCRIPT-REFS tu hop dong"
-DECLARED = set()
-for line in mm.group(1).strip().split("\n"):
-    m = re.match(r"^-\s*(\S+)\s*\|\s*(\S+)\s*\|\s*(\S+)\s*$", line.strip())
-    assert m, "hang bang sai khuon: %r" % line
-    DECLARED.add((m.group(1), m.group(2), m.group(3)))
-assert len(DECLARED) >= 7, "bang chi co %d hang" % len(DECLARED)
+# ── nguon su that canh ham dung ──
+tsv = (root / "scripts/codex-self-script-refs.tsv").read_text(encoding="utf-8")
+DECLARED, NOTSELF = set(), set()
+for line in tsv.split("\n"):
+    if not line.strip() or line.lstrip().startswith("#"): continue
+    f = line.split("\t")
+    if f[0] == "SELF" and len(f) >= 4: DECLARED.add((f[1], f[2], f[3]))
+    elif f[0] == "NOTSELF" and len(f) >= 2: NOTSELF.add(f[1])
+assert len(DECLARED) >= 10, "bang SELF chi co %d hang — sanity chong file hong" % len(DECLARED)
+assert NOTSELF, "bang NOTSELF rong — moi tien to la se do, chot se ket"
 
-# ── quet GOI DA DUNG, moi loai file chi dan (khong rieng SKILL.md, S4-r1) ──
+# ── rut MOI dang <tien to>/scripts/<ten> roi PHAN LOAI (khong blacklist) ──
 DOC_EXT = {".md", ".toml", ".yaml", ".yml"}
-SELF_REF = re.compile(r"(?:\$\{PLUGIN_ROOT\}|\$PLUGIN_ROOT|<plugin>)/scripts/([a-z0-9-]+\.(?:mjs|js|sh))")
+ANY_REF = re.compile(r"([^\s`\"'()\[\]]{1,60})/scripts/([a-z0-9-]+\.(?:mjs|js|sh))")
+def classify(prefix):
+    if "PLUGIN_ROOT" in prefix or prefix == "<plugin>": return "self"
+    if prefix in NOTSELF: return "notself"
+    return "unknown"
+
 def extract(plugins_dir):
-    """tra (tap tham chieu, tap goi da quet, so file da doc)"""
-    refs, pkgs, nfile = set(), set(), 0
+    """tra (self_refs, unknown, so file doc, so file ngoai SKILL.md DA DOC)"""
+    refs, unknown, nfile, nnon = set(), [], 0, 0
     for pkg_dir in sorted(pathlib.Path(plugins_dir).iterdir()):
         if not pkg_dir.is_dir(): continue
-        pkgs.add(pkg_dir.name)
         for f in sorted(pkg_dir.rglob("*")):
             if not f.is_file() or f.suffix not in DOC_EXT: continue
             nfile += 1
+            if f.name != "SKILL.md": nnon += 1
             rel = str(f.relative_to(pkg_dir))
-            for name in SELF_REF.findall(f.read_text(encoding="utf-8", errors="replace")):
-                refs.add((pkg_dir.name, rel, name))
-    return refs, pkgs, nfile
+            for prefix, name in ANY_REF.findall(f.read_text(encoding="utf-8", errors="replace")):
+                k = classify(prefix)
+                if k == "self": refs.add((pkg_dir.name, rel, name))
+                elif k == "unknown": unknown.append((pkg_dir.name, rel, prefix, name))
+    return refs, unknown, nfile, nnon
 
-PLUGINS = root / "plugins"
-found, scanned_pkgs, nfiles = extract(PLUGINS)
+found, unknown, nfiles, nnon_read = extract(PLUGINS)
+# fail-LOUD: dang viet moi chua phan loai duoc phai ĐỎ (S4-r2: dang
+# ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT} tung vo hinh voi chot)
+assert not unknown, "tien to CHUA PHAN LOAI (khai vao scripts/codex-self-script-refs.tsv): %r" % unknown[:5]
 
-# ══ E2 (a): tap rut duoc BANG DUNG bang ghim ══
-missing = sorted(DECLARED - found)
-extra = sorted(found - DECLARED)
+# ══ E2: tap self BANG DUNG bang ghim ══
+missing, extra = sorted(DECLARED - found), sorted(found - DECLARED)
 assert not missing, "bang khai %d tham chieu ma goi da dung KHONG con nhac: %r" % (len(missing), missing)
 assert not extra, "goi da dung co tham chieu KHONG khai trong bang: %r" % extra
-
-# ══ E2 (b): phu ca 3 goi + doc du loai file ══
-PKGS = {"acceptance-gate", "feature-loop-codex", "design-loop-codex"}
-assert PKGS <= scanned_pkgs, "quet thieu goi: %r" % sorted(PKGS - scanned_pkgs)
-assert nfiles >= 40, "chi doc duoc %d file chi dan — bieu thuc glob co ve hong" % nfiles
-non_skill = sum(1 for pkg in PKGS for f in (PLUGINS / pkg).rglob("*")
-                if f.is_file() and f.suffix in DOC_EXT and f.name != "SKILL.md")
-assert non_skill > 0, "khong doc file chi dan NGOAI SKILL.md nao — nhanh do chua bao gio chay"
+# sanity do NHANH DOC (khong do he tep, S4-r2): so file da THUC SU doc
+assert nfiles >= 40, "chi doc %d file chi dan — glob co ve hong" % nfiles
+assert nnon_read > 0, "nhanh doc file NGOAI SKILL.md chua bao gio chay"
+pkgs_with_ref = {p for p, _, _ in found}
+assert len(pkgs_with_ref) >= 2, "chi %d goi co tham chieu — nhanh quet da goi chua chay" % len(pkgs_with_ref)
 
 def files_in(pkg):
     d = PLUGINS / pkg / "scripts"
     return {f.name for f in d.iterdir()} if d.is_dir() else set()
+def dead_pointers(refs, base=PLUGINS):
+    out = []
+    for pkg, doc, name in sorted(refs):
+        d = base / pkg / "scripts"
+        have = {f.name for f in d.iterdir()} if d.is_dir() else set()
+        if name not in have: out.append("goi %s thieu %s (chi dan %s nhac)" % (pkg, name, doc))
+    return out
 
-def dead_pointers(refs):
-    return ["goi %s thieu %s (chi dan %s nhac)" % (pkg, name, doc)
-            for pkg, doc, name in sorted(refs) if name not in files_in(pkg)]
-
-# ══ E1 + E2 (c) ══
-dead = dead_pointers(found)
-assert not dead, "CON TRO CHET: %s" % "; ".join(dead)
+# ══ E1 ══
+assert not dead_pointers(found), "CON TRO CHET: %s" % "; ".join(dead_pointers(found))
 assert "carry-plan.mjs" in files_in("feature-loop-codex"), "goi Codex van thieu carry-plan.mjs"
 
-# ══ E3: ma tran mutant — 2 duong (2 hinh dang) + 1 duong o file NGOAI SKILL.md
-#        + 1 am (tro sang goi ban khong duoc rut nham) ══
+# ══ E3: mutant 3 duong (2 hinh dang + 1 file ngoai SKILL.md) + 1 am ══
 def probe(inject_line, target_rel):
     with tempfile.TemporaryDirectory() as d:
         dst = pathlib.Path(d) / "plugins"
@@ -7102,29 +7109,32 @@ def probe(inject_line, target_rel):
         assert target.exists(), "muc tieu tiem khong ton tai: %s" % target_rel
         before = target.read_text(encoding="utf-8")
         target.write_text(before + "\n" + inject_line + "\n", encoding="utf-8")
-        assert target.read_text(encoding="utf-8") != before, "tiem that bai — ban sao khong ghi duoc"
-        refs2, _, _ = extract(dst)
-        return dead_pointers(refs2)
+        assert target.read_text(encoding="utf-8") != before, "tiem that bai"
+        refs2, unk2, _, _ = extract(dst)
+        return dead_pointers(refs2, dst), unk2
 
 SKILL_REL = "feature-loop-codex/skills/feature-loop-codex/SKILL.md"
 NONSKILL_REL = "feature-loop-codex/README.md"
-assert (PLUGINS / NONSKILL_REL).exists(), "khong tim thay file chi dan ngoai SKILL.md de tiem"
-assert not probe("(dong khong chua tham chieu nao)", SKILL_REL), "ban nguyen ven da co con tro chet"
+assert (PLUGINS / NONSKILL_REL).exists(), "khong co file chi dan ngoai SKILL.md de tiem"
+clean_dead, clean_unk = probe("(dong khong chua tham chieu nao)", SKILL_REL)
+assert not clean_dead and not clean_unk, "ban nguyen ven da do san: %r %r" % (clean_dead, clean_unk)
 for shape, fake, rel in [("${PLUGIN_ROOT}", "khong-ton-tai-a.mjs", SKILL_REL),
                          ("<plugin>", "khong-ton-tai-b.mjs", SKILL_REL),
-                         ("${PLUGIN_ROOT}", "khong-ton-tai-c.mjs", NONSKILL_REL)]:
-    bad = probe("Run `node %s/scripts/%s --x`." % (shape, fake), rel)
-    assert any(fake in b for b in bad), \
-        "mutant %s tai %s KHONG lam phep do ĐỎ dich danh %s (got %r)" % (shape, rel, fake, bad)
-assert not probe('Run `node "$AG/scripts/gate-card.js" --root .`.', SKILL_REL), \
-    "tham chieu sang goi ban bi rut nham thanh cong cu goi minh"
+                         ("${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}", "khong-ton-tai-c.mjs", NONSKILL_REL)]:
+    bad, _ = probe("Run `node %s/scripts/%s --x`." % (shape, fake), rel)
+    assert any(fake in b for b in bad), "mutant %s tai %s KHONG ĐỎ dich danh %s: %r" % (shape, rel, fake, bad)
+# am 1: tro sang goi ban qua bo giai → khong duoc coi la self
+bad_neg, unk_neg = probe('Run `node "$AG/scripts/gate-card.js" --root .`.', SKILL_REL)
+assert not bad_neg and not unk_neg, "tham chieu sang goi ban bi rut nham: %r %r" % (bad_neg, unk_neg)
+# am 2: tien to LA phai vao nhanh unknown (fail-loud), khong im lang
+_, unk_new = probe('Run `node ${MOT_BIEN_LA}/scripts/gate-card.js`.', SKILL_REL)
+assert unk_new, "tien to LA khong roi vao nhanh unknown — chot se im lang voi dang viet moi"
 
 # ══ E4: cong cu CHAY DUOC tren HO SO THAT ══
 TOOL = PLUGINS / "feature-loop-codex/scripts/carry-plan.mjs"
 r = subprocess.run(["node", str(TOOL)], capture_output=True, text=True)
 assert r.returncode == 2, "thieu tham so phai tra ma thoat 2, got %d" % r.returncode
 assert "usage" in (r.stdout + r.stderr).lower(), "thieu tham so phai in huong dan"
-
 real = None
 for d in sorted((root / "_acceptance").iterdir()):
     rl, ev, ct = d / "run-log.jsonl", d / "evals.yaml", d / "contract.md"
@@ -7143,120 +7153,95 @@ r2 = subprocess.run(["node", str(TOOL), "--run-log", str(ws_dir / "run-log.jsonl
                     capture_output=True, text=True)
 assert r2.returncode == 0, "chay tren ho so that phai exit 0, got %d: %s" % (r2.returncode, r2.stderr[-200:])
 plan = json.loads(r2.stdout)
-# Ky vong tinh DOC LAP theo dung luat mang-sang: eval co `paths` VA vong truoc xanh.
-# (S4-r1: ban truoc them dieu kien `executor: test` — luat KHAC luat cua cong cu.)
 blocks = re.split(r"\n(?=  - id: )", (ws_dir / "evals.yaml").read_text(encoding="utf-8"))
 with_paths = {re.search(r"- id: (\S+)", b).group(1) for b in blocks
               if re.search(r"- id: (\S+)", b) and "paths:" in b}
 expect = with_paths & {e["evalId"] for e in ok_lines}
 got = {c["id"] for c in plan.get("carriedEvals", [])}
-assert expect, "sanity: khong co eval nao du dieu kien mang sang"
-assert got == expect, "tap mang-sang LECH: cong cu tra %r, tinh doc lap ra %r" % (sorted(got), sorted(expect))
+assert expect and got == expect, "tap mang-sang LECH: %r vs %r" % (sorted(got), sorted(expect))
 
-# ══ E5: danh sach file TUNG goi chi duoc THEM — KHONG fail-open, CO mutant that ══
-def base_from(ledger_text):
-    b = None
-    for line in ledger_text.split("\n"):
-        if not line.strip(): continue
-        try: e = json.loads(line)
-        except Exception: continue
-        m = re.search(r"base = ([0-9a-f]{40})", e.get("decision", ""))
-        if m: b = m.group(1)
-    return b
-LEDGER = (WS / "decisions.jsonl").read_text(encoding="utf-8")
-BASE = base_from(LEDGER)
-assert BASE, "so quyet dinh khong ghi moc so-ban-cu (base = <sha>)"
-
-def pkg_files_at(rev):
-    if rev is None: return None
-    if subprocess.run(["git", "-C", str(root), "cat-file", "-e", rev + "^{commit}"],
-                      capture_output=True).returncode != 0: return None
-    r = subprocess.run(["git", "-C", str(root), "ls-tree", "-r", "--name-only", rev, "plugins/"],
+# ══ E5: ham dung khong duoc lam ROI goi khac — mutant tren CAY DANG KIEM ══
+def build_into(workdir):
+    """chay ham dung trong workdir; tra (ma thoat, {goi: {file}})"""
+    r = subprocess.run(["bash", "scripts/sync-plugin-packages.sh"], cwd=str(workdir),
                        capture_output=True, text=True)
-    if r.returncode != 0: return None
     out = {}
-    for line in r.stdout.split("\n"):
-        parts = line.split("/")
-        if len(parts) >= 3 and parts[0] == "plugins": out.setdefault(parts[1], set()).add("/".join(parts[2:]))
-    return out
+    pdir = pathlib.Path(workdir) / "plugins"
+    if pdir.is_dir():
+        for d in pdir.iterdir():
+            if d.is_dir():
+                out[d.name] = {str(f.relative_to(d)) for f in d.rglob("*") if f.is_file() and f.name != ".DS_Store"}
+    return r.returncode, out
 
-base_map = pkg_files_at(BASE)
-assert base_map is not None, "khong lay duoc ban cu tai moc %s (cay thieu lich su) — chan AC-5 mat" % BASE
-assert len(base_map) == 3, "ban tai moc phai ra DUNG 3 goi, got %d" % len(base_map)
-for pkg, files in base_map.items():
-    assert files, "goi %s tai moc rong — 'khong mat file nao' se luon dung vo nghia" % pkg
-
-def now_map_from(plugins_dir):
-    out = {}
-    for d in pathlib.Path(plugins_dir).iterdir():
-        if d.is_dir():
-            out[d.name] = {str(f.relative_to(d)) for f in d.rglob("*") if f.is_file() and f.name != ".DS_Store"}
-    return out
-def lost_files(now):
-    return [(pkg, sorted(files - now.get(pkg, set()))) for pkg, files in base_map.items()
-            if files - now.get(pkg, set())]
-assert not lost_files(now_map_from(PLUGINS)), "goi MAT file so voi moc: %r" % lost_files(now_map_from(PLUGINS))
-
-# doi chung DUONG THAT: go mot dong chep khoi BAN SAO ham dung, dung lai, phai ĐỎ
 with tempfile.TemporaryDirectory() as d:
     work = pathlib.Path(d) / "kit"
-    subprocess.run(["git", "-C", str(root), "worktree", "add", "--detach", "-q", str(work), "HEAD"],
-                   capture_output=True, check=False)
-    if (work / "scripts/sync-plugin-packages.sh").exists():
-        sh = work / "scripts/sync-plugin-packages.sh"
-        src = sh.read_text(encoding="utf-8")
-        cut = re.sub(r'\n\s*rsync -a "\$ROOT/feature-loop/scripts/resolve-plugin\.mjs" "\$out/scripts/"', "", src, count=1)
-        assert cut != src, "tiem mutant that bai — anchor dong chep doi"
-        sh.write_text(cut, encoding="utf-8")
-        subprocess.run(["bash", str(sh)], cwd=str(work), capture_output=True)
-        mutated = now_map_from(work / "plugins")
-        assert lost_files(mutated), "PHEP DO MU: go dong chep khoi ham dung ma khong goi nao bao MAT file"
-        subprocess.run(["git", "-C", str(root), "worktree", "remove", "--force", str(work)], capture_output=True)
-    else:
-        raise AssertionError("khong dung duoc cay lam viec tam de tiem mutant ham dung")
+    # CHEP CAY DANG KIEM (S4-r2: worktree tai HEAD do ban da commit, khong do
+    # cay tac gia dang sua)
+    shutil.copytree(root, work, symlinks=True,
+                    ignore=shutil.ignore_patterns(".git", "node_modules", ".worktrees", "_acceptance"))
+    rc0, base_pkgs = build_into(work)
+    assert rc0 == 0, "dung lai ban NGUYEN VEN that bai (ma thoat %d) — khong the tin ket qua mutant" % rc0
+    assert len(base_pkgs) == 3, "ban nguyen ven phai ra 3 goi, got %r" % sorted(base_pkgs)
+    for pkg, fs in base_pkgs.items(): assert fs, "goi %s rong o ban nguyen ven" % pkg
 
-# doi chung: moc BIA di qua DUONG DOC SO (khong goi thang ham)
-fake_ledger = LEDGER.replace(BASE, "0" * 40)
-assert base_from(fake_ledger) == "0" * 40, "duong doc so khong lay duoc moc bia"
-assert pkg_files_at(base_from(fake_ledger)) is None, "moc khong ton tai phai tra nhanh khong-lay-duoc"
+    sh = work / "scripts/sync-plugin-packages.sh"
+    src = sh.read_text(encoding="utf-8")
+    cut = re.sub(r'\n\s*rsync -a "\$ROOT/feature-loop/scripts/resolve-plugin\.mjs" "\$out/scripts/"', "", src, count=1)
+    assert cut != src, "tiem mutant that bai — anchor dong chep doi"
+    sh.write_text(cut, encoding="utf-8")
+    rc1, mut_pkgs = build_into(work)
+    # (a) ma thoat PHAI 0: mot luot dung hong cung de lai goi rong va cho cung
+    #     mau do vi ly do KHAC (S4-r2 chung minh bang mutant khac)
+    assert rc1 == 0, "lan dung mutant that bai (ma thoat %d) — khong phan biet duoc voi 'go dung dong chep'" % rc1
+    lost = {pkg: sorted(fs - mut_pkgs.get(pkg, set())) for pkg, fs in base_pkgs.items() if fs - mut_pkgs.get(pkg, set())}
+    # (b) ghim DICH DANH goi + cong cu, khong chap nhan "goi nao do mat file nao do"
+    assert lost == {"feature-loop-codex": ["scripts/resolve-plugin.mjs"]}, \
+        "mutant phai lam MAT dung scripts/resolve-plugin.mjs cua feature-loop-codex, got %r" % lost
 
-# ══ E6: chot MOI phai nam trong luoi thuong truc — vi tri SUY TU NOI DUNG ══
+# ══ E6: chot MOI phai nam trong luoi thuong truc — ca AM di qua duong THAT ══
 cfg = (root / "_acceptance/config.yaml").read_text(encoding="utf-8")
 keys = re.findall(r"^\s+-\s+(executors\.[\w.]+)\s*$", cfg, re.M)
 assert keys, "khong doc duoc feature_loop.suite_keys tu config"
 def walk(text, dotted):
-    """di DUNG duong dotted theo thut le, khong khop ten la o bat ky dau"""
-    lines = text.split("\n"); depth = -1; idx = 0
+    lines = text.split("\n"); depth = -1; idx = 0; val = None
     for part in dotted.split("."):
-        found_i = None
+        found = None
         for i in range(idx, len(lines)):
             m = re.match(r"^(\s*)%s:\s*(.*)$" % re.escape(part), lines[i])
             if not m: continue
             ind = len(m.group(1))
             if depth >= 0 and ind <= depth: break
-            found_i, depth, idx = i, ind, i + 1
+            found, depth, idx = i, ind, i + 1
             val = m.group(2).strip().strip('"\'')
             break
-        if found_i is None: return None
+        if found is None: return None
     return val
 resolved = [walk(cfg, k) for k in keys]
-assert all(v for v in resolved), "co suite_key khong resolve duoc: %r" % [
-    k for k, v in zip(keys, resolved) if not v]
-assert len(resolved) == len(keys), "so lenh resolve (%d) != so key khai (%d)" % (len(resolved), len(keys))
-# vi tri chot SUY TU NOI DUNG cay kiem, khong hardcode (S4-r1)
+assert all(resolved), "co suite_key khong resolve duoc: %r" % [k for k, v in zip(keys, resolved) if not v]
+assert len(resolved) == len(keys), "so lenh resolve != so key khai"
 MARK = "P162 chi-dan"
-holders = [str(f.relative_to(root)) for f in (root / "tests").rglob("*")
-           if f.is_file() and MARK in f.read_text(encoding="utf-8", errors="replace")]
-assert len(holders) == 1, "chot P162 phai nam o DUNG mot file, got %r" % holders
-holder = holders[0]
-assert any(holder in c for c in resolved), \
-    "chot nam trong %s nhung file do KHONG co trong danh sach lenh luoi chay: %r" % (holder, resolved)
-# ca AM: gia lap chot doi cho sang file luoi khong goi → phai phat hien
-assert not any("tests/plugins/khong-co-trong-luoi.sh" in c for c in resolved), \
-    "ca am hong: file khong nam trong luoi lai duoc bao la co"
+def holder_in(tree):
+    return [str(f.relative_to(tree)) for f in (pathlib.Path(tree) / "tests").rglob("*")
+            if f.is_file() and MARK in f.read_text(encoding="utf-8", errors="replace")]
+def chot_trong_luoi(tree, cmds):
+    hs = holder_in(tree)
+    if len(hs) != 1: return None, hs
+    return any(hs[0] in c for c in cmds), hs
+ok_now, hs_now = chot_trong_luoi(root, resolved)
+assert ok_now is True, "chot nam o %r nhung khong file nao trong danh sach lenh luoi: %r" % (hs_now, resolved)
+# ca AM THAT (S4-r2: ban truoc chi assert mot chuoi bia khong co trong danh sach
+# — menh de dung vo dieu kien): DOI CHO chot sang file luoi khong goi, phai phat hien
+with tempfile.TemporaryDirectory() as d:
+    tw = pathlib.Path(d) / "t"
+    shutil.copytree(root / "tests", tw / "tests")
+    src_f = tw / hs_now[0]
+    moved = tw / "tests/plugins/khong-nam-trong-luoi.sh"
+    src_f.rename(moved)
+    ok_moved, hs_moved = chot_trong_luoi(tw, resolved)
+    assert ok_moved is False, "ca am hong: chot doi sang %r ma van bao la nam trong luoi (hs=%r)" % (str(moved), hs_moved)
 
-print("P162 OK: %d tham chieu khai · %d rut duoc · %d file chi dan (%d ngoai SKILL.md) · ho so that %s (%d mang sang) · chot tai %s" % (
-    len(DECLARED), len(found), nfiles, non_skill, ws_dir.name, len(got), holder))
+print("P162 OK: %d self-ref khai · %d rut duoc · %d file chi dan (%d ngoai SKILL.md) · %d goi co ref · ho so that %s (%d mang sang) · chot tai %s" % (
+    len(DECLARED), len(found), nfiles, nnon_read, len(pkgs_with_ref), ws_dir.name, len(got), hs_now[0]))
 P162PY
 
 if [ "$failures" -gt 0 ]; then

@@ -1,0 +1,34 @@
+# Nguồn sự thật của chốt P162 (tests/plugins/run-tests.sh) — đặt CẠNH hàm dựng
+# gói, không nằm trong _acceptance/: đây là bất biến trên mã nguồn sống, chạy
+# mỗi PR, nên nó không được lấy thẩm quyền từ hồ sơ workspace của một feature
+# đã đóng (S4-r2 finding). Hợp đồng codex-script-packaging trỏ về file này.
+#
+# ── PHẦN 1: SELF — chỉ dẫn của gói bảo chạy công cụ CỦA CHÍNH GÓI ĐÓ.
+# Mỗi dòng: <gói> <TAB> <đường dẫn trong gói đã dựng> <TAB> <tên công cụ>
+# Công cụ phải có mặt trong plugins/<gói>/scripts/ — thiếu là con trỏ chết.
+SELF	acceptance-gate	skills/acceptance-card/SKILL.md	gate-card.js
+SELF	acceptance-gate	skills/approve/SKILL.md	eval-coverage-lint.js
+SELF	acceptance-gate	skills/approve/SKILL.md	product-map.mjs
+SELF	acceptance-gate	skills/signoff/SKILL.md	product-map.mjs
+SELF	acceptance-gate	skills/start/SKILL.md	start-scan.mjs
+SELF	acceptance-gate	skills/design-pass/SKILL.md	config-patch.mjs
+SELF	acceptance-gate	skills/uat-session/SKILL.md	product-map.mjs
+SELF	acceptance-gate	skills/acceptance/references/design-ui-check.md	design-scan.js
+SELF	feature-loop-codex	skills/feature-loop-codex/SKILL.md	carry-plan.mjs
+SELF	feature-loop-codex	skills/feature-loop-codex/SKILL.md	resolve-plugin.mjs
+#
+# ── PHẦN 2: tiền tố KHÔNG trỏ vào gói mình (không cần có file trong gói).
+# Chốt rút MỌI dạng `<tiền tố>/scripts/<tên>` rồi phân loại; tiền tố nào không
+# thuộc PHẦN 2 và không mang PLUGIN_ROOT thì ĐỎ — buộc người viết quyết, thay
+# vì im lặng bỏ qua (chống blacklist trên không gian mở).
+NOTSELF	skill	đường dẫn tương đối trong tài liệu, không phải lệnh chạy
+NOTSELF	tests	đường dẫn cây kiểm của kit
+NOTSELF	feature-loop	thư mục nguồn của kit, không phải gói đã dựng
+NOTSELF	design-loop	thư mục nguồn của kit
+NOTSELF	'design-loop	như trên, dính dấu nháy đơn khi trích trong câu
+NOTSELF	<kit>	giữ chỗ cho gốc kit trong tài liệu
+NOTSELF	$AG	biến trỏ SANG gói bạn sau khi chạy bộ giải
+NOTSELF	$DL	biến trỏ sang gói design-loop sau khi chạy bộ giải
+NOTSELF	<acceptance-gate>	giữ chỗ cho gốc gói acceptance-gate trong tài liệu
+NOTSELF	<acceptance-gate-plugin>	như trên, biến thể dài
+NOTSELF	<design-loop>	giữ chỗ cho gốc gói design-loop trong tài liệu

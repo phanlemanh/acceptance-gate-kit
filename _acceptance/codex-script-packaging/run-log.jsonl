@@ -5,3 +5,10 @@
 {"ts":"2026-08-06T06:00:00Z","sha":"d6bd16b22709a94365d4077f8b576c3f039bdde0","round":1,"evalId":"E5","run_id":"minted-codex-script-packaging-E5-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-06T06:00:00Z","sha":"d6bd16b22709a94365d4077f8b576c3f039bdde0","round":1,"evalId":"E6","run_id":"minted-codex-script-packaging-E6-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-06T06:00:00Z","sha":"d6bd16b22709a94365d4077f8b576c3f039bdde0","round":1,"kind":"baseline","evals_hash":"csp-r1","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6"]}]}
+{"ts":"2026-08-06T07:10:00Z","sha":"747df7fd4d2925dcb7e1a159e540b6145267dfb4","round":2,"evalId":"E1","run_id":"minted-codex-script-packaging-E1-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T07:10:00Z","sha":"747df7fd4d2925dcb7e1a159e540b6145267dfb4","round":2,"evalId":"E2","run_id":"minted-codex-script-packaging-E2-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T07:10:00Z","sha":"747df7fd4d2925dcb7e1a159e540b6145267dfb4","round":2,"evalId":"E3","run_id":"minted-codex-script-packaging-E3-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T07:10:00Z","sha":"747df7fd4d2925dcb7e1a159e540b6145267dfb4","round":2,"evalId":"E4","run_id":"minted-codex-script-packaging-E4-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T07:10:00Z","sha":"747df7fd4d2925dcb7e1a159e540b6145267dfb4","round":2,"evalId":"E5","run_id":"minted-codex-script-packaging-E5-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T07:10:00Z","sha":"747df7fd4d2925dcb7e1a159e540b6145267dfb4","round":2,"evalId":"E6","run_id":"minted-codex-script-packaging-E6-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-06T07:10:00Z","sha":"747df7fd4d2925dcb7e1a159e540b6145267dfb4","round":2,"kind":"baseline","evals_hash":"csp-r2","non_discriminating":[],"carried_from_round":1}
