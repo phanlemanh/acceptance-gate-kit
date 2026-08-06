@@ -4,7 +4,7 @@ feature: "Trả răng cho năm phép đo đã bị ghi là mất răng — chún
 slug: measure-teeth-cleanup
 risk_tier: T2
 surfaces: [cli]
-status: implemented
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-06T10:15:31Z
 owner: phanlemanh@gmail.com
@@ -119,3 +119,58 @@ Từ morphological-scan (3 trục — thước CE trong ngoặc):
 - Viết lại các khối kiểm không nằm trong bảng ghim.
 - Đổi hành vi sản phẩm nào ngoài một dòng thông điệp lỗi (AC-3).
 - Phát hiện tautology tự động — bài toán mở, không đuổi bằng luật cú pháp.
+
+## Notes
+
+Known limits — trình tại Cổng 2 sau 3 vòng verify (8/8/7 lỗi trong hợp đồng,
+không hội tụ). Nhóm theo lớp:
+
+**Nhóm A — năm phép đo mục tiêu ĐÃ có răng (phần đạt, đo được):**
+chốt gói Codex từ mù thành thấy 19 tham chiếu/3 gói · ba ca fail-loud ghim
+chuỗi thật, ba chuỗi phân biệt · thông điệp trỏ đúng cờ sai · ngưỡng dung sai
+đã bỏ và thu về đúng vật cần canh (cụm có đường dẫn) · bộ đếm sổ vàng tách
+độc lập, `--json` giữ nguyên từng byte, hai cờ loại trừ nhau.
+
+**Nhóm B — hai chốt CHỐNG TÁI PHÁT tự thêm, còn khiếm khuyết:**
+
+- **Chốt SIẾT/NỚI fail-open**: không lấy được mốc so sánh thì bỏ qua toàn bộ
+  phần kiểm và XANH — đúng lớp fail-open mà chính vòng này vá ở chỗ khác, và
+  trái luật fail-closed ghi trong CI của kho. Nó cũng đoán tên nhánh chính
+  thay vì lấy từ biến CI. Chốt vẫn chạy, chỉ là mất răng khi cây thiếu lịch sử.
+- **Sổ SIẾT/NỚI không có chốt mồ côi**: 3/4 dòng hiện khớp không dòng nào —
+  một dòng khai bằng đoạn trích quá chung sẽ "phủ" mọi lần xoá assert sau đó.
+- **Chốt thi-hành bảng răng**: nguồn "độc lập" thực chất là khai-báo-đối-khai-
+  báo (bảng ⇔ thẻ, cùng một người viết); nguồn thứ ba chỉ cảnh báo, không chặn.
+  Bộ lọc chạy-một-khối chỉ bao khối đi qua hàm bọc — ~46 khối viết thẳng vẫn
+  chạy, nên một lượt "lọc" tốn ~3 phút chứ không phải vài giây; con số 11 phút
+  dùng để biện minh cho việc đặt chốt sau cờ vì thế chẩn đoán sai nguyên nhân.
+
+**Nhóm C — ba khiếm khuyết tiềm ẩn (chưa phát tác trên kho hôm nay):**
+
+- Bộ đếm khối phán **thiếu lớp bảo vệ đoạn-mã** mà bộ đọc gốc có, nên một khối
+  phán nằm trong trích log sẽ làm nó dương giả — bộ đếm dựng ra để chống
+  hằng-đúng tự trở thành một hằng-đúng khác.
+- Bộ đếm thẻ render **xoá sạch số đếm cũ** rồi đo lại bằng một đường gọi khác;
+  hai đường gọi có nêu cổng vẫn nuốt lỗi như trước.
+- Sổ SIẾT/NỚI **bị chép vào gói phát** cho repo tiêu thụ, trong khi hai tệp
+  cùng loại đã được loại trừ — sửa một dòng, cùng lớp.
+
+**QUYẾT TẠI CỔNG 2 (Manh Phan 2026-08-06): ký + GỠ nhóm B.** Hai chốt meta
+(thi-hành bảng răng, sổ SIẾT/NỚI) cùng hai tệp nguồn riêng và bước CI của
+chúng đã được gỡ khỏi cây; lý do ghi ngay tại chỗ chúng từng đứng trong cây
+kiểm. Nhóm C mất theo vì hai mục thuộc chốt đã gỡ; mục còn lại — **bộ đếm
+khối phán thiếu lớp bảo vệ đoạn-mã** — ở lại như nợ có tên, chưa phát tác
+trên kho hôm nay.
+
+**Hệ quả phải nói rõ:** AC-7, AC-8, AC-9 **không còn phép đo máy nào cưỡng
+chế**. Nghi thức "phá vật thật trong bản sao" và luật "không nới thước cũ"
+vẫn là luật sống — chúng nằm trong CLAUDE.md, trong phản biện Cổng 1 và trong
+vòng soi S4 (ba vòng vừa rồi chính là bằng chứng chúng có hiệu lực) — nhưng
+việc tuân thủ giờ dựa vào thủ tục lúc viết, không phải chốt tự động.
+
+**Bài học đắt nhất của vòng này:** ba vòng, 8/8/7 lỗi, phần lớn là lỗi MỚI do
+chính hai chốt meta đẻ ra. Mỗi chốt cưỡng chế lại cần một chốt cho chính nó —
+hồi quy không đáy. Cùng hình dạng với kết luận của card-text-fidelity về việc
+phân tích markdown bằng nhiều tầng regex: **sai khuôn giải, không phải sai
+chi tiết**. Hướng cho lần sau là thủ tục bắt buộc lúc viết, không phải chốt
+tự động canh việc viết.
