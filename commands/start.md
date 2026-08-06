@@ -20,6 +20,7 @@ phẩm, không sửa gì, không tự làm nội dung thay nghi thức đích.
    groups.inProgress[].slug groups.inProgress[].status groups.inProgress[].nextStep groups.inProgress[].tier
    groups.done[].slug groups.done[].state
    map.present map.fresh map.enabled
+   discovery.brainstormSkill
    broken[].slug broken[].file broken[].reason
    START-SCAN-KEYS>>> -->
 
@@ -41,7 +42,14 @@ phẩm, không sửa gì, không tự làm nội dung thay nghi thức đích.
      · lập kế hoạch (`S2`) · viết code (`S3`) · sửa theo bằng chứng (`S3-fix`)
      · nghiệm thu máy (`S4`). Lần đầu một mã hiện trên thẻ phải kèm nghĩa.
    - **Bắt đầu việc mới** — đúng ba lối, không thêm lối nào: (a) ý còn mơ hồ →
-     buổi khai thác vòng HIỂU (grill/brainstorm theo nghi thức advisor); (b)
+     buổi khai thác vòng HIỂU; đích lấy từ `discovery.brainstormSkill` trong
+     JSON quét (ổ cắm repo tự khai ở `_acceptance/config.yaml`, khoá
+     `discovery.brainstorm_skill`): CÓ giá trị → mở buổi khai thác bằng đúng
+     skill đó; `null` → đi nghi thức grill của kit theo khuôn
+     `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/opportunity-template.md`
+     (repo chưa khai là bình thường — KHÔNG chặn, không cờ). Trước Cổng Đáng
+     KHÔNG dùng `superpowers:brainstorming` — skill đó thuộc S1 vòng LÀM, nó
+     trả lời "làm thế nào" trong khi buổi này hỏi "có làm không / làm gì"; (b)
      việc đã rõ → `/feature-loop <mô tả>`; (c) việc vặt khớp miễn trừ T1 →
      xác nhận nó là T1 rồi KẾT THÚC `/start` — người ra lệnh sửa ở lượt kế,
      ngoài nghi thức này (lệnh `/start` không sửa gì, kể cả việc vặt).

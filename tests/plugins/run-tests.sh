@@ -7267,6 +7267,185 @@ with tempfile.TemporaryDirectory() as d:
 print("P162 OK: %d self-ref khai · %d rut duoc · %d file chi dan (%d ngoai SKILL.md) · %d goi co ref · ho so that %s (%d mang sang) · chot tai %s" % (
     len(DECLARED), len(found), nfiles, nnon_read, len(pkgs_with_ref), ws_dir.name, len(got), hs_now[0]))
 P162PY
+# ── P165: F-K vế ÂM — câu phủ định superpowers:brainstorming nằm TRONG đoạn
+# lối (a) của CẢ HAI thân /start; mutant code-sinh per-file (E1). Đo trong
+# ĐOẠN chứ không grep toàn file — chống "đo từ vựng thay vì quan hệ".
+run "P165 F-K ve am: cam superpowers:brainstorming truoc Cong Dang trong doan loi (a), mutant per-file (E1)" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+# (file, anchor đầu đoạn lối (a), anchor cuối đoạn, câu phủ định phải có mặt)
+BODIES = [
+    ("commands/start.md", "Bắt đầu việc mới", "Dưới thẻ",
+     "KHÔNG dùng `superpowers:brainstorming`"),
+    ("codex/acceptance-gate/skills/start/SKILL.md", "Bắt đầu việc mới", "Below the card",
+     "do NOT use `superpowers:brainstorming`"),
+]
+def segment(rel, txt, a, b):
+    i = txt.find(a)
+    if i < 0: return None, f"{rel}: anchor đầu đoạn lối (a) '{a}' không thấy"
+    j = txt.find(b, i)
+    if j < 0: return None, f"{rel}: anchor cuối đoạn lối (a) '{b}' không thấy"
+    return txt[i:j], None
+def check(entries):
+    errs = []
+    for rel, txt, a, b, needle in entries:
+        seg, err = segment(rel, txt, a, b)
+        if err: errs.append(err); continue
+        if needle not in seg:
+            errs.append(f"{rel}: đoạn lối (a) thiếu câu phủ định {needle}")
+    return errs
+live = [(rel, (root / rel).read_text(encoding="utf-8"), a, b, n) for rel, a, b, n in BODIES]
+e0 = check(live)
+assert e0 == [], f"đối chứng dương FAIL — bản thật phải xanh: {e0}"          # bản thật XANH
+# mutant CODE-SINH per-file: bản sao thân sống, máy xoá đúng dòng chứa chuỗi cấm
+for rel, txt, a, b, needle in live:
+    mut = "\n".join(l for l in txt.split("\n") if needle not in l)
+    assert mut != txt, f"{rel}: tiêm mutant thất bại — không dòng nào chứa câu phủ định"
+    errs = check([(rel, mut, a, b, needle)])
+    assert any("thiếu câu phủ định" in e and rel in e for e in errs), \
+        f"mutant xoá câu ở {rel} không bị bắt đúng thông điệp: {errs}"
+print("P165 OK (2 thân xanh + 2 mutant per-file đỏ đúng tên)")
+PY
+
+# ── P166: F-K ổ cắm MÁY — discovery.brainstormSkill từ fixture code-sinh:
+# 4 hình dạng CÓ (đối chứng dương) + 6 hình dạng KHÔNG-đọc-ra-tên → null,
+# exit 0, không văng lỗi (E2, E3 — RED phía consumer: fallback phải sống);
+# kèm nhánh văn trong đoạn lối (a) hai thân.
+run "P166 F-K o cam config: 4 hinh dang CO + 6 hinh dang vang -> null khong chan (E2,E3)" \
+  node - "$ROOT" <<'JS'
+const fs = require('fs'), path = require('path'), os = require('os');
+const { execFileSync } = require('child_process');
+const root = process.argv[2];
+const die = m => { console.error(m); process.exit(1); };
+const scan = cfg => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p163-'));
+  fs.mkdirSync(path.join(tmp, '_acceptance'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, '_acceptance', 'config.yaml'), cfg);
+  let out;
+  try {
+    out = execFileSync('node', [path.join(root, 'scripts/start-scan.mjs'), '--root', tmp],
+      { encoding: 'utf8' });
+  } catch (e) { die(`start-scan văng lỗi (phải exit 0, JSON nguyên hình): ${e.message}`); }
+  finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+  const json = JSON.parse(out);
+  if (!('discovery' in json)) die('JSON thiếu hẳn khối discovery — marker START-SCAN-KEYS sẽ nói dối');
+  return json.discovery.brainstormSkill;
+};
+// ── ĐỐI CHỨNG DƯƠNG: 4 hình dạng CÓ phải trả đúng tên đã khai ──
+const CO = [
+  ['trần',            'discovery:\n  brainstorm_skill: acme:brainstorm\n'],
+  ['quote kép',       'discovery:\n  brainstorm_skill: "acme:brainstorm"\n'],
+  ['quote đơn',       "discovery:\n  brainstorm_skill: 'acme:brainstorm'\n"],
+  ['comment đuôi',    'discovery:\n  brainstorm_skill: acme:brainstorm  # ghi chú\n'],
+];
+for (const [label, body] of CO) {
+  const v = scan('schema_version: 1\n' + body);
+  if (v !== 'acme:brainstorm') die(`hình dạng CÓ (${label}) trả '${v}' thay vì 'acme:brainstorm'`);
+}
+// ── 6 hình dạng KHÔNG đọc ra tên → null (fallback grill phải sống) ──
+const VANG = [
+  ['không section',   'schema_version: 1\n'],
+  ['thiếu key con',   'schema_version: 1\ndiscovery:\n  other: x\n'],
+  ['giá trị rỗng',    'schema_version: 1\ndiscovery:\n  brainstorm_skill:\n'],
+  ['literal ~',       'schema_version: 1\ndiscovery:\n  brainstorm_skill: ~\n'],
+  ['phi-scalar',      'schema_version: 1\ndiscovery:\n  brainstorm_skill: [a, b]\n'],
+  ['YAML hỏng',       'schema_version: 1\n\t:::bad\ndiscovery: {\n  brainstorm_skill broken\n'],
+];
+for (const [label, cfg] of VANG) {
+  const v = scan(cfg);
+  if (v !== null) die(`hình dạng VẮNG (${label}) trả '${v}' thay vì null — fallback chết hoặc bịa tên`);
+}
+// ── nhánh văn TRONG đoạn lối (a) của hai thân ──
+const SEG = [
+  ['commands/start.md', 'Bắt đầu việc mới', 'Dưới thẻ',
+   ['discovery.brainstormSkill', 'opportunity-template.md', 'KHÔNG chặn']],
+  ['codex/acceptance-gate/skills/start/SKILL.md', 'Bắt đầu việc mới', 'Below the card',
+   ['discovery.brainstormSkill', 'opportunity-template.md', 'never block']],
+];
+for (const [rel, a, b, needles] of SEG) {
+  const txt = fs.readFileSync(path.join(root, rel), 'utf8');
+  const i = txt.indexOf(a), j = i < 0 ? -1 : txt.indexOf(b, i);
+  if (i < 0 || j < 0) die(`${rel}: anchor đoạn lối (a) không thấy ('${a}' → '${b}')`);
+  const seg = txt.slice(i, j);
+  for (const n of needles)
+    if (!seg.includes(n)) die(`${rel}: đoạn lối (a) thiếu '${n}'`);
+}
+console.log('P166 OK (4 CÓ + 6 VẮNG + nhánh văn 2 thân trong đoạn lối (a))');
+JS
+
+# ── P167: F-K cấm hardcode tên bên-thứ-ba không-dependency trong cây nguồn
+# engine (vendor/ loại trừ CÓ CHỦ ĐÍCH — entry d-10006) + hai đoạn luật sống
+# spec v2 đo QUAN HỆ (chứa ổ cắm VÀ không chứa tên cũ), mutant per-đoạn (E4,E5).
+run "P167 F-K cam hardcode ben-thu-ba trong engine + 2 doan luat spec do quan he (E4,E5)" \
+  python3 - "$ROOT" <<'PY'
+import shutil, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+BAD = ["product-management:", "pm-execution:"]
+TREES = ["commands", "codex", "skills", "feature-loop", "design-loop", "scripts", "lib", "hooks"]
+EXTS = {".md", ".js", ".mjs", ".sh", ".json", ".yaml", ".yml"}
+def sweep(base):
+    offenders, n = [], 0
+    for area in TREES:
+        d = base / area
+        if not d.exists(): continue
+        for p in sorted(d.rglob("*")):
+            if not (p.is_file() and p.suffix in EXTS): continue
+            n += 1
+            txt = p.read_text(encoding="utf-8", errors="replace")
+            for bad in BAD:
+                if bad in txt:
+                    offenders.append(f"{p.relative_to(base)}: chứa '{bad}'")
+    return offenders, n
+off, n = sweep(root)
+assert n > 50, f"sanity counter: chỉ quét được {n} file — walker hỏng, 0-hit không tin được"
+assert off == [], f"engine hardcode tên plugin bên-thứ-ba không-dependency: {off[:5]}"
+# ── đối chứng dương: tiêm 1 hit vào BẢN SAO một cây rồi quét lại bằng CÙNG hàm ──
+tmp = Path(tempfile.mkdtemp(prefix="p164-"))
+try:
+    shutil.copytree(root / "commands", tmp / "commands")
+    victim = tmp / "commands" / "start.md"
+    victim.write_text(victim.read_text(encoding="utf-8") + "\nproduct-management:brainstorm\n", encoding="utf-8")
+    off2, _ = sweep(tmp)
+    assert any("start.md" in o and "product-management:" in o for o in off2), \
+        f"đối chứng dương FAIL: tiêm hit mà phép quét vẫn xanh — {off2}"
+finally:
+    shutil.rmtree(tmp)
+# ── hai đoạn luật sống spec v2: quan hệ chứa-ổ-cắm ∧ không-chứa-tên-cũ ──
+SPEC = root / "docs/specs/workflow-v2-spec.md"
+SEGS = [
+    ("§2.1 D1 hai mode", "**D1 hai mode**", "**Luật kế thừa vật liệu ngoài**"),
+    ("§6 định tuyến brainstorm", "**Định tuyến brainstorm**", "**Lối vào người mới**"),
+]
+def check_spec(txt):
+    errs = []
+    for name, a, b in SEGS:
+        i = txt.find(a)
+        j = txt.find(b, i) if i >= 0 else -1
+        if i < 0 or j < 0:
+            errs.append(f"{name}: anchor không thấy ('{a}' → '{b}')"); continue
+        seg = txt[i:j]
+        if "discovery.brainstorm_skill" not in seg:
+            errs.append(f"{name}: thiếu ổ cắm discovery.brainstorm_skill")
+        if "product-management:brainstorm" in seg:
+            errs.append(f"{name}: còn hardcode product-management:brainstorm")
+    return errs
+spec = SPEC.read_text(encoding="utf-8")
+assert check_spec(spec) == [], f"đối chứng dương FAIL — spec thật phải xanh: {check_spec(spec)}"
+for name, a, b in SEGS:
+    i = spec.find(a)
+    mut = spec[:i] + a + " product-management:brainstorm " + spec[i + len(a):]
+    errs = check_spec(mut)
+    assert any(name in e and "còn hardcode" in e for e in errs), \
+        f"mutant tiêm tên cũ vào {name} không bị bắt đúng thông điệp: {errs}"
+    mut2 = spec[:i] + spec[i:].replace("discovery.brainstorm_skill", "o_cam_doi_ten", 1)
+    errs2 = check_spec(mut2)
+    assert any(name in e and "thiếu ổ cắm" in e for e in errs2), \
+        f"mutant xoá ổ cắm khỏi {name} không bị bắt đúng thông điệp: {errs2}"
+print(f"P167 OK (quét {n} file engine 0-hit + đối chứng tiêm đỏ + 2 đoạn luật spec quan hệ + 4 mutant)")
+PY
 
 if [ "$failures" -gt 0 ]; then
   echo

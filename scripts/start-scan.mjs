@@ -241,6 +241,35 @@ const mapPath = path.join(root, 'PRODUCT-MAP.md');
 // sai cả hai chiều — comment đuôi dòng thành "chưa bật", và cùng chuỗi nằm dưới
 // một list khác thành "đã bật" (S4-r15).
 const cfgRead = read(path.join(root, '_acceptance', 'config.yaml'));
+// Ổ cắm F-K (`discovery.brainstorm_skill`): tên skill mở buổi khai thác vòng
+// HIỂU do repo tiêu thụ TỰ KHAI — engine không hardcode tên plugin bên-thứ-ba
+// không-dependency (bệnh "luật gắn vào kho đồ của MỘT repo", bảng soi 06/08).
+// Đọc scalar lồng một cấp (section → key con), line-based như configList:
+// YAML hỏng không throw; MỌI hình dạng "không đọc ra tên dùng ngay" (thiếu
+// section/key con, rỗng, ~/null, phi-scalar [/{/>/|, neo &/*) đều trả null —
+// thẻ trỏ nghi thức grill kit-own, KHÔNG cờ đỏ, không chặn (đường fallback
+// phải sống ở repo chưa khai). Hàm ở ĐÂY chứ không lib/workspace-record.js:
+// mới một consumer, chưa phải luật dùng chung — promote lên lib kèm test
+// đồng-kết-luận kiểu P130 khi có reader thứ hai (entry d-10002 của hồ sơ
+// discovery-brainstorm-socket).
+const configScalar = (cfgTxt, section, key) => {
+  const lines = String(cfgTxt || '').split('\n');
+  const start = lines.findIndex(l => new RegExp('^' + section + ':\\s*(#.*)?$').test(l));
+  if (start < 0) return null;
+  for (const line of lines.slice(start + 1)) {
+    if (/^[A-Za-z0-9_-]+:/.test(line)) break;              // sang section kế
+    const m = line.match(new RegExp('^\\s{2}' + key + ':(.*)$'));
+    if (!m) continue;
+    let v = m[1].replace(/\s*#.*$/, '').trim().replace(/^["'](.*)["']$/, '$1').trim();
+    if (!v || v === '~' || v === 'null' || /^[\[{>|&*]/.test(v)) return null;
+    return v;
+  }
+  return null;
+};
+const discovery = {
+  brainstormSkill: cfgRead.err || cfgRead.t == null ? null
+    : configScalar(cfgRead.t, 'discovery', 'brainstorm_skill'),
+};
 const map = {
   present: existsSync(mapPath),
   fresh: null,
@@ -258,4 +287,4 @@ if (map.present) {
   } catch { map.fresh = null; }
 }
 
-out({ schema_version: 1, config: true, git, groups: { gates, inProgress, done }, map, broken });
+out({ schema_version: 1, config: true, git, groups: { gates, inProgress, done }, map, discovery, broken });

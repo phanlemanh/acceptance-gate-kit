@@ -62,8 +62,10 @@ plugin/DS của repo · handbook đội · 2 key consumer:
 
 ### 2.1 Vòng HIỂU — mơ hồ → quyết đáng-làm
 
-- **D1 hai mode**: *brainstorm* (diverge, cùng nghĩ —
-  `product-management:brainstorm`) và *grill* (phỏng vấn rút tri thức ngầm —
+- **D1 hai mode**: *brainstorm* (diverge, cùng nghĩ — skill do repo tiêu
+  thụ khai ở ổ cắm `discovery.brainstorm_skill` trong
+  `_acceptance/config.yaml`; vắng → grill kit-own, không chặn — F-K 06/08)
+  và *grill* (phỏng vấn rút tri thức ngầm —
   bộ câu hỏi cấu trúc: phạm vi phủ định · biên nhận "build đúng mọi lời mà
   X thì có nhận không?" · trade-off ép chọn · kể-lần-gần-nhất · "điều gì
   hiển nhiên với anh mà tôi không biết?"). Mỗi câu grill đổ THẲNG vào một
@@ -444,8 +446,10 @@ invoke định kỳ: skill 0-invoke một quý → khai tử hoặc tái định
   fix-tại-chỗ / chờ-cổng / lỗ-kit). Không ghi = lỗ.
 - **Quy định prototype**: D3 dựng kỷ luật như code sẽ sống; số phận quyết
   tại Cổng Đáng theo bảng nợ — không theo cảm giác tiếc code.
-- **Định tuyến brainstorm**: chưa qua Cổng Đáng → PM brainstorm (làm gì);
-  trong S1 → `superpowers:brainstorming` (làm thế nào).
+- **Định tuyến brainstorm**: chưa qua Cổng Đáng → brainstorm khám-phá (làm
+  gì — skill do ổ cắm `discovery.brainstorm_skill` của repo khai, vắng →
+  nghi thức grill kit-own; KHÔNG dùng `superpowers:brainstorming` trước
+  Cổng Đáng); trong S1 → `superpowers:brainstorming` (làm thế nào).
 - **Lối vào người mới**: PRODUCT-MAP → PRD → opportunity/card.
 - **KPI bằng TẦN SUẤT** (cơ hội vào/tháng · kill-rate từng cổng ·
   conversion · phút/cổng) — không phút/lần.

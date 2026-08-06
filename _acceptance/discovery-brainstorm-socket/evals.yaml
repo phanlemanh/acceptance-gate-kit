@@ -1,0 +1,78 @@
+# Evals: discovery-brainstorm-socket — mọi AC máy-đo, không judgment
+# cmd là config: ref (resolve tại S4); paths phục vụ carry-forward round delta
+# Sau gap-probe: 3 case per-nhóm-AC (P165/P166/P167) — mỗi eval ghim đúng tên
+# case của nó, không dồn 5 eval vào một nhãn.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case P165 pass: đối chứng dương — rút ĐOẠN lối (a) của cả hai thân
+      /start bằng anchor hai đầu ("Bắt đầu việc mới" → "Dưới thẻ" /
+      "Below the card"; anchor vắng là đỏ có tên), câu phủ định đích danh
+      superpowers:brainstorming nằm TRONG đoạn → danh sách lỗi trống;
+      mutant CODE-SINH trong chính lần chạy (bản sao thân sống, máy xoá
+      câu) cho TỪNG thân riêng lẻ → đỏ với thông điệp nêu đúng tên file
+      (mutant nào xanh là case đỏ).
+    paths: [commands/start.md, codex/acceptance-gate/skills/start/SKILL.md, tests/plugins/run-tests.sh]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case P166 pass: fixture code-sinh repo tiêu thụ CÓ khai discovery:
+      brainstorm_skill — bốn hình dạng giá trị lành (trần · quote KÉP ·
+      quote ĐƠN · kèm comment đuôi dòng) → start-scan exit 0, JSON
+      discovery.brainstormSkill trả đúng tên đã khai, quote/comment bóc
+      sạch; và đoạn lối (a) của hai thân có nhánh "giá trị CÓ → mở bằng
+      skill đó".
+    paths: [scripts/start-scan.mjs, commands/start.md, codex/acceptance-gate/skills/start/SKILL.md, tests/plugins/run-tests.sh]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case P166 pass: fixture code-sinh repo tiêu thụ KHÔNG đọc ra tên —
+      sáu hình dạng (không section discovery · có section thiếu key con ·
+      giá trị rỗng · literal ~/null · phi-scalar block-scalar/inline-list ·
+      YAML tồn tại nhưng hỏng) → đều exit 0, JSON nguyên hình,
+      discovery.brainstormSkill là null, KHÔNG văng lỗi; đoạn lối (a) của
+      hai thân có nhánh fallback trỏ đúng khuôn
+      skills/acceptance/references/opportunity-template.md và chữ KHÔNG chặn.
+    paths: [scripts/start-scan.mjs, commands/start.md, codex/acceptance-gate/skills/start/SKILL.md, tests/plugins/run-tests.sh]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case P167 pass: quét cây nguồn engine (commands/ codex/ skills/
+      feature-loop/ design-loop/ scripts/ lib/ hooks/ — vendor/ loại trừ có
+      chủ đích, entry d-10006) tìm chuỗi product-management: và
+      pm-execution: → 0 hit trên bản thật; đối chứng dương: tiêm 1 hit vào
+      bản sao → chính phép quét đỏ, thông điệp nêu tên file chứa hit.
+    paths: [tests/plugins/run-tests.sh]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      P98 + P99 pass với key discovery.brainstormSkill trong marker
+      START-SCAN-KEYS của cả hai thân (P99 tự đối chiếu marker với đầu ra
+      start-scan thật — thiếu một phía là đỏ). Case P167 pass phần spec:
+      đo QUAN HỆ trên đúng HAI đoạn luật sống (§2.1 D1, §6 định tuyến
+      brainstorm) trong một lượt đọc — mỗi đoạn phải CHỨA
+      discovery.brainstorm_skill VÀ KHÔNG chứa product-management:brainstorm;
+      mutant tiêm chuỗi cũ vào bản sao từng đoạn → đỏ đúng thông điệp nêu
+      tên đoạn.
+    paths: [commands/start.md, codex/acceptance-gate/skills/start/SKILL.md, scripts/start-scan.mjs, docs/specs/workflow-v2-spec.md, tests/plugins/run-tests.sh]
+  - id: E6
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.mirror_sync
+    expected: >
+      sync-plugin-packages.sh --check exit 0 — mirror plugins/ khớp nguồn sau
+      khi sửa commands/ + codex/ + scripts/ (P30 là răng; đây là lượt chạy
+      đích danh trong vòng này).
+    paths: [scripts/sync-plugin-packages.sh]
