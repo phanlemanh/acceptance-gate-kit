@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: cdc64cfb184559e9f60f3fd57b215726f2b2cb44
+verified_commit: 5d20c246f526b312962f2e4f167e48975ac25986
 # bypass_ack:
 human_signoff: Manh Phan 2026-08-06 — ký + gỡ nhóm B (hai chốt meta); ship 5 phép đo đã có răng
 ---
@@ -171,3 +171,7 @@ Round 3: 6 suite lệnh máy đều PASS (E1-E10; baseline round này KHÔNG đo
 ### Re-pin lần 1 — 2026-08-06, do engine đổi ở vòng dọn nợ đo-lường (5 phép đo có răng + gỡ hai chốt meta)
 run_id: repin-20260806-measure-teeth-cleanup-lane1
 sha: cdc64cfb184559e9f60f3fd57b215726f2b2cb44 · suites: 6 lệnh exit 0
+
+### Re-pin lần 2 — 2026-08-07, do hợp nhất hai nhánh (dọn nợ đo-lường + ổ cắm brainstorm) — engine đổi ở cả hai phía
+run_id: repin-20260807-merge-teeth-socket-lane1
+sha: 5d20c246f526b312962f2e4f167e48975ac25986 · suites: 6 lệnh exit 0

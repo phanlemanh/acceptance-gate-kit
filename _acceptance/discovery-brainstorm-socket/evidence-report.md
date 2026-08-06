@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 4383b814def31b4627eb290d3e0ea688ca80887f
+verified_commit: 5d20c246f526b312962f2e4f167e48975ac25986
 human_signoff: Manh Phan 2026-08-06
 ---
 
@@ -143,3 +143,7 @@ Round 5 (hiện tại): S4-r5 (commit 59c8013678a63fd5eef918a6e7b35917fb5e686c) 
 ### Re-pin lần 1 — 2026-08-06, do engine đổi ở vòng discovery-brainstorm-socket (ổ cắm khám phá + bộ quét /start + bộ kiểm), ghim lại sau rebase lên main
 run_id: repin-20260806-discovery-brainstorm-socket-lane2
 sha: 4383b814def31b4627eb290d3e0ea688ca80887f · suites: 5 lệnh exit 0
+
+### Re-pin lần 2 — 2026-08-07, do hợp nhất hai nhánh (dọn nợ đo-lường + ổ cắm brainstorm) — engine đổi ở cả hai phía
+run_id: repin-20260807-merge-teeth-socket-lane1
+sha: 5d20c246f526b312962f2e4f167e48975ac25986 · suites: 6 lệnh exit 0
