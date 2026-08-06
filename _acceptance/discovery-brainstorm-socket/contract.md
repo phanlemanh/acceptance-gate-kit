@@ -103,7 +103,7 @@ Known limits (đề xuất trình Cổng Bằng chứng — Manh đọc và quy�
 - Lỗi cùng lớp trong `lib/workspace-record.js` (`configList` bóc comment
   trước bóc quote) CÒN SỐNG — đã bốc ra hồ sơ riêng vì `lib/**` là T3 và
   cần bản bash đồng-kết-luận trong pre-merge (entry d-10010). Vòng 5 KHÔNG
-  chạm nó: ổ cắm giờ đọc bằng `resolveConfigKey`, nên bug này chỉ còn ảnh
+  chạm nó: ổ cắm giờ đọc bằng `resolveConfigKey`, nên lỗi đó chỉ còn ảnh
   hưởng đường `map.enabled` sẵn có, không phải ổ cắm mới.
 - Vòng 3–5 (chi tiết ở `review-findings.md`): R3-1 (AC-2) và R4-1 (AC-4)
   ĐÃ ĐÓNG; R3-2/R3-3/R4-5 tan theo vòng 5 vì ổ cắm chuyển sang reader dùng
