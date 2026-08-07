@@ -15,20 +15,52 @@ let passed = 0, failed = 0;
 const check = (n, f) => { try { f(); passed++; console.log(`  PASS: ${n}`); } catch (e) { failed++; console.log(`  FAIL: ${n}\n    ${e.message}`); } };
 const git = (...a) => execFileSync('git', ['-C', ROOT, ...a], { encoding: 'utf8' });
 
-function base() {
-  for (const ref of ['origin/main', 'main', 'master']) {
-    try { execFileSync('git', ['-C', ROOT, 'rev-parse', '--verify', '-q', `${ref}^{commit}`], { stdio: 'ignore' }); }
-    catch (_) { continue; }
-    return git('merge-base', 'HEAD', ref).trim();
-  }
-  throw new Error('không resolve được nhánh chính');
+// NEO PHẠM VI RIÊNG (sửa 2026-08-07 — xem Amendment của judge-required-evidence).
+//
+// Bản đầu so `lib/**` + `hooks/**` với một base DI ĐỘNG (merge-base với
+// origin/main). Viết thế thì câu nó khẳng định không còn là "feature NÀY không
+// phải đụng lõi" mà thành "KHÔNG AI được đụng lõi, mãi mãi" — một bất biến chưa
+// ai duyệt, và nó chặn đúng lát đầu tiên có lý do chính đáng để sửa `lib/`
+// (crosslayer-uncoded, #36: Dấu cross-layer phải về cùng một nguồn với judgment).
+// Cùng lớp với `check-manifest-unmoved.sh` bên repo tiêu thụ: ảnh chụp của MỘT
+// PR viết ra trông như luật vĩnh viễn.
+//
+// Nay ghim vào đúng phạm vi commit mà judge-required-evidence sở hữu:
+//   RANGE_BASE = cha của commit Cổng 1 của nó   (d2b6b19^)
+//   RANGE_TIP  = commit chữ ký Cổng 2 của nó    (e6dad45)
+// Đo tại thời điểm ghim: diff `lib`+`hooks` trên phạm vi này TRỐNG — tức lời
+// khẳng định của AC-11 vẫn đúng, chỉ thôi bắt các lát sau chịu chung.
+//
+// KHÔNG dùng `verified_commit` của hồ sơ làm neo: sóng dogfood re-pin ghi đè nó
+// sang commit làn mới nhất mỗi đợt (hiện trỏ ad46195), nên nó không neo được
+// bất kỳ phạm vi lịch sử nào.
+const JR11_RANGE_BASE = 'd2b6b194f9f174321b3f3a44e39a67d30d88c33d~1';
+const JR11_RANGE_TIP  = 'e6dad45';
+
+function haveCommit(rev) {
+  try { execFileSync('git', ['-C', ROOT, 'rev-parse', '--verify', '-q', `${rev}^{commit}`], { stdio: 'ignore' }); return true; }
+  catch (_) { return false; }
 }
 
-check('JR11a lib/** + hooks/** KHÔNG đổi so với base (sanity: 2 thư mục có file)', () => {
+check('JR11a lib/** + hooks/** KHÔNG đổi TRONG PHẠM VI của judge-required-evidence', () => {
+  // FAIL-CLOSED khi không resolve được mốc. Bản nháp đầu của tôi `return` im ở
+  // đây — nhưng `check()` đếm một lần return êm là PASS, tức một phép đo KHÔNG
+  // CHẠY lại báo xanh: đúng thứ false-green cả bộ kit sinh ra để chặn, và tôi
+  // suýt tự tay dựng lại nó ngay trong cái guard đang đi sửa.
+  // An toàn để fail-closed: cả hai job trong .github/workflows/gate.yml đều
+  // `fetch-depth: 0`, nên CI luôn có đủ lịch sử. Clone nông tại chỗ mà đỏ là
+  // đúng — nó nói "chưa đo được", không phải "đo rồi và sạch".
+  for (const rev of [JR11_RANGE_BASE, JR11_RANGE_TIP]) {
+    assert.ok(haveCommit(rev), `không resolve được mốc ${rev} — phép đo KHÔNG chạy (clone nông?). Fetch đủ sâu (CI dùng fetch-depth: 0) rồi chạy lại; đừng đọc dòng này là "lõi sạch"`);
+  }
+  // Răng chống rỗng: phạm vi phải thật sự chứa commit, nếu không thì diff trống
+  // là trống-vì-không-có-gì chứ không phải trống-vì-lõi-bất-động.
+  const n = Number(git('rev-list', '--count', `${JR11_RANGE_BASE}..${JR11_RANGE_TIP}`).trim());
+  assert.ok(n > 0, `phạm vi rỗng (${n} commit) — phép đo tự-khớp, không chứng minh gì`);
   for (const d of ['lib', 'hooks']) {
     assert.ok(readdirSync(path.join(ROOT, d)).length > 0, `sanity: ${d}/ rỗng`);
-    const diff = git('diff', '--name-only', base(), 'HEAD', '--', d).trim();
-    assert.equal(diff, '', `lõi ${d}/ bị chạm:\n${diff}`);
+    const diff = git('diff', '--name-only', JR11_RANGE_BASE, JR11_RANGE_TIP, '--', d).trim();
+    assert.equal(diff, '', `lõi ${d}/ bị chạm TRONG phạm vi của feature:\n${diff}`);
   }
 });
 
