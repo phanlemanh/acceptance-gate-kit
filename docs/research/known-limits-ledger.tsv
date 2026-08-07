@@ -1,0 +1,108 @@
+id	slug	sev	class	status	closed_by	dup_of	note
+card-text-fidelity#1	card-text-fidelity	low	khong-the-do	song			Biến `checked = n_new` được gán rồi bỏ, không assert gì
+card-text-fidelity#2	card-text-fidelity	high	khong-the-do	song			P161 fail-open: gate-card render crashes are counted then discarded — feature's own slug can be dead and the test stays green
+card-text-fidelity#3	card-text-fidelity	medium	khac	song			stripMd leaves literal `
+card-text-fidelity#4	card-text-fidelity	low	fail-open	song			stripMd sentinel collides with U+0000 in input: text silently deleted or replaced with unrelated code-span content
+claim-scan-parser-hardening#1	claim-scan-parser-hardening	low	khong-the-do	song			PH8 mutation-control assertion is vacuous — it can never fail
+codex-script-packaging#1	codex-script-packaging	medium	khac	song			parseArgs reports the wrong token for a mistyped flag: the unknown-flag branch is unreachable whenever the bad flag carries a value
+codex-script-packaging#2	codex-script-packaging	low	khac	song			Assert vô điều kiện đúng — không bao giờ đỏ được
+context-ladder#1	context-ladder	low	khac	song			P136 placeholder-count assertion pins strings that can never match the regression it names
+cross-feature-claim-index#1	cross-feature-claim-index	medium	fail-open	song			claim-scan drops claims with missing/malformed id silently — fail-silent allowlist contradicts the file's own skip-loud pattern
+cross-feature-claim-index#2	cross-feature-claim-index	medium	khac	song			probeClaims `## Findings` regex captures to EOF — any later table is parsed into phantom findings with fake citable ids
+cross-feature-claim-index#3	cross-feature-claim-index	low	dong-goi	song			feature-loop plugin.json bumped to 1.18.0 without a 'v1.18 adds ...' description entry, breaking the v1.12→v1.17 changelog-in-description pa
+cross-feature-claim-index#4	cross-feature-claim-index	high	fail-open	song			probeClaims parses mọi dòng '|' sau '## Findings' đến EOF — bảng phụ sinh claim ma với id #F sai, im lặng exit 0
+cross-feature-claim-index#5	cross-feature-claim-index	medium	fail-open	song			Ledger entry type fix/descope nhưng id thiếu/sai khuôn bị ID_RE filter nuốt im lặng — không warn, trái nguyên tắc skip-loud của chính featur
+delta-verify-repin#1	delta-verify-repin	medium	khac	song			carry-plan globToRe lệch chuẩn matcher paths của kit dù comment tuyên bố 'cùng ngữ nghĩa'
+delta-verify-repin#2	delta-verify-repin	low	khac	song			Hai reader cưỡng chế đọc dòng repin của run-log.jsonl bằng hai ngữ pháp khác nhau (grep -F chuỗi cố định vs JSON.parse)
+delta-verify-repin#3	delta-verify-repin	low	khac	song			P146/P147 ghim chuỗi nguyên văn từ workspace sống _acceptance/delta-verify-repin — sửa contract của slug đó sau này là suite plugins đỏ
+delta-verify-repin#4	delta-verify-repin	high	dong-goi	chet	codex-script-packaging (goi Codex mang carry-plan, P162)		carry-plan.mjs không được ship vào gói feature-loop-codex dù SKILL chỉ thị chạy nó
+delta-verify-repin#5	delta-verify-repin	medium	fail-open	song			stripMd nuốt glob `
+delta-verify-repin#6	delta-verify-repin	low	khac	song			pre-merge repin đối chiếu run-log bằng grep -F chuỗi JSON cứng — lệch với recheck/hook dùng JSON.parse
+design-pass-skill#1	design-pass-skill	medium	doc-drift	song			SKILL.md claims Gate-1 card displays material: but no reader exists (writer→reader seam drift)
+design-pass-skill#2	design-pass-skill	low	dong-goi	song			Codex plugin descriptions advertise design-pass while the Codex package ships no such skill (declared out of scope)
+findings-section-boundary#1	findings-section-boundary	high	fail-open	song			parseBoundaryTable bỏ im lặng mọi dòng không khớp — sai chính tả trong bảng marker trả về default, không nổ
+findings-section-boundary#2	findings-section-boundary	medium	khac	song			FSB7: tham số `rule` chết — giá trị rút từ bảng marker chỉ trang trí trong nhánh assertion dương
+findings-section-boundary#3	findings-section-boundary	medium	fail-open	song			parseBoundaryTable silently drops malformed rows — section falls back to the ghost-row rule with no error
+findings-section-boundary#4	findings-section-boundary	medium	fail-open	song			Heading match is case-insensitive but the rule lookup is case-sensitive — silently downgrades to the default boundary
+findings-section-boundary#5	findings-section-boundary	low	khac	song			New hard runtime dependency lib/md-section.js not added to the P03 packaged-file guard
+findings-section-boundary#6	findings-section-boundary	low	khac	song			FSB7 rowsByRule: the rule extracted from the marker is never actually applied (dead parameter)
+gold-output-measure#1	gold-output-measure	high	snapshot-nguon-song	song			Hồ sơ xuất xứ ghi sai repo_sha, và đó đúng là trường P160 không đo
+gold-output-measure#2	gold-output-measure	medium	snapshot-nguon-song	song			P160 ghim cứng SHA 04d3413 làm chân so-bản-base trong test vĩnh viễn
+gold-output-measure#3	gold-output-measure	medium	dong-goi	song			P160 ghi file tạm vào cây nguồn scripts/ — nơi bị rsync nguyên khối sang mirror
+gold-output-measure#4	gold-output-measure	medium	khac	song			E10 hứa byte-compare gold-stdout.txt, phép đo chỉ so 3 khối và bỏ đúng khối số liệu
+gold-output-measure#5	gold-output-measure	medium	mat-nguoi	song			Sổ vàng khẳng định sai "không có biên bản hội đồng nào" khi mọi panel là carried (hoặc <2 phiếu)
+gold-output-measure#6	gold-output-measure	medium	khac	song			P160 ghi file .mjs tạm vào thư mục nguồn `scripts/` của cây làm việc thật
+gold-output-measure#7	gold-output-measure	low	snapshot-nguon-song	trung		gold-output-measure#2	P160 ghim cứng SHA `04d3413` làm mốc "bản trước-diff"
+gold-output-measure#8	gold-output-measure	low	snapshot-nguon-song	song			P160 (3) gắn snapshot `gold-stdout.txt` vào TOÀN BỘ nội dung `_acceptance/` của repo
+gold-output-measure#9	gold-output-measure	high	fixture-viet-tay	song			Hình dạng 2 — fixture VIẾT TAY đúng khuôn bên đọc, không round-trip từ JUDGMENT-BLOCK-TEMPLATE
+gold-output-measure#10	gold-output-measure	medium	chuoi-thay-quan-he	song			Hình dạng 5 — 'mỗi góc nhìn một dòng' tuyên quan hệ nhưng ma trận thiếu đúng ô phân biệt được
+gold-output-measure#11	gold-output-measure	medium	chuoi-thay-quan-he	song			Hình dạng 5 — comment tuyên 'đo PROPERTY' nhưng thân là blacklist 4 chuỗi điểm-case
+gold-output-measure#12	gold-output-measure	medium	snapshot-nguon-song	trung		gold-output-measure#2	Hình dạng 6 — SHA base hardcode: đường đọc-cũ neo vào lịch sử nhánh của tác giả, không suy từ cây đang kiểm
+hinh-theo-mat-phang#1	hinh-theo-mat-phang	medium	khac	song			Hai đối chứng âm mới của P90 chỉ kiểm truthiness, không ghim thông điệp mong đợi
+hinh-theo-mat-phang#2	hinh-theo-mat-phang	low	khac	song			Đối chứng âm hằng-đúng còn sót trong P88 — cùng lớp mà chính diff này tuyên bố đã quét
+hinh-theo-mat-phang#3	hinh-theo-mat-phang	low	khac	song			P90's two cited-marker negative controls assert truthiness only, so they cannot distinguish which failure branch fired
+judge-required-evidence#1	judge-required-evidence	high	khac	chet	da go JR11a (0 hit trong suite)		JR11a chết ngay khi merge: base = HEAD → `git diff HEAD HEAD` luôn rỗng (và trước merge lại là chốt chặn oan)
+judge-required-evidence#2	judge-required-evidence	high	khac	song			P150 'đường đọc-cũ so với BASE commit' trở thành so file với chính nó sau khi merge
+judge-required-evidence#3	judge-required-evidence	medium	snapshot-nguon-song	song			P150 hardcode `origin/main` không có thang lùi, lệch pattern đã có sẵn trong chính PR này
+judge-required-evidence#4	judge-required-evidence	medium	khong-the-do	song			P154 tự vô hiệu hoá kiểm mutant bằng mệnh đề `or len(re.findall(...)) > 1`
+judge-required-evidence#5	judge-required-evidence	medium	khac	song			Panel carried từ run-log đời cũ đi vòng qua `normalizeVote` — không required_evidence, cũng không dấu thiếu, không cờ vàng
+judge-required-evidence#6	judge-required-evidence	low	snapshot-nguon-song	song			P152/P153 ghim ngưỡng cứng vào corpus `_acceptance/` sống của repo
+judge-required-evidence#7	judge-required-evidence	low	khac	song			gate-card.js ghi `__reOpen` / `required_evidence_list` thẳng vào `evid[cur]`, đi vòng qua allowlist FIELDS mà comment ngay trên đó đang giải
+judge-required-evidence#8	judge-required-evidence	high	khac	chet	da go JR11a (0 hit trong suite)		JR11a hard-wires "lib/
+judge-required-evidence#9	judge-required-evidence	medium	fixture-viet-tay	song			Template round-trip markers leak verbatim into generated evidence reports
+judge-required-evidence#10	judge-required-evidence	medium	mat-nguoi	trung		gold-output-measure#5	acceptance-gold render() states a false cause for every slug with no panel record
+judge-required-evidence#11	judge-required-evidence	medium	fail-open	song			Wrong --root produces a confident empty gold book instead of an error (exit 0)
+judge-required-evidence#12	judge-required-evidence	low	khong-the-do	song			judgedBlocks is not an independent sanity counter — P152's guard is a tautology
+judge-required-evidence#13	judge-required-evidence	high	chuoi-thay-quan-he	song			Assert 'chuỗi có mặt' trong khi lời hứa là QUAN HỆ — token dấu-thiếu tồn tại 3 bản, không phép đo nào ghim chúng bằng nhau
+judge-required-evidence#14	judge-required-evidence	medium	khac	song			Assertion âm-tính chỉ ghim MÃ THOÁT, không ghim thông điệp
+judge-required-evidence#15	judge-required-evidence	medium	fixture-viet-tay	song			Fixture VIẾT TAY đúng khuôn bên đọc — reader thứ hai (gate-card) không round-trip qua marker của khuôn
+judge-required-evidence#16	judge-required-evidence	medium	chuoi-thay-quan-he	trung		judge-required-evidence#13	Assert 'chuỗi có mặt' trong khi lời hứa là QUAN HỆ điều kiện — vế thứ hai của assert luôn đúng sẵn
+judge-required-evidence#17	judge-required-evidence	low	khong-the-do	trung		judge-required-evidence#4	Đối chứng mutant tự vô hiệu hoá khi mệnh đề xuất hiện >1 lần
+judgment-question-guard#1	judgment-question-guard	medium	khac	song			Bản "trước guard" của W-G6b là chương trình hỏng — xanh nhờ may, một sửa nhỏ là thành ReferenceError
+judgment-question-guard#2	judgment-question-guard	low	khac	song			nothing-to-verify reason message hides ungrounded judgments when carry-forward is also present
+matrix-measure-law#1	matrix-measure-law	medium	khac	song			MM12m là mutant test rỗng — không mutate gì, chỉ assert chuỗi-có-mặt
+matrix-measure-law#2	matrix-measure-law	high	khac	song			Hình dạng 3 — MM12m tuyên 'mutant đổi writer → fixture đổi theo' nhưng assert chỉ là chuỗi-có-mặt, không có mutant nào được dựng
+matrix-measure-law#3	matrix-measure-law	medium	fail-open	song			Hình dạng 5 + 4 — phép đo 'ba-chiều' chỉ có mutant cho chiều const; chiều prompt chưa từng được chứng minh biết đỏ và tự-degrade im lặng khi
+matrix-measure-law#4	matrix-measure-law	medium	fixture-viet-tay	song			Hình dạng 2 — fixture RED-probe tuyên 'SINH từ writer thật' nhưng khối A/B (vật critic chấm) là YAML viết tay tĩnh; chỉ 1 dòng blockquote th
+measure-teeth-cleanup#1	measure-teeth-cleanup	high	fail-open	chet	measure-teeth-cleanup nhom B (P165 cu + assert-ratchet da go, suite:7896)		P165 (chốt SIẾT/NỚI) fail-open khi không resolve được merge-base — trái luật fail-closed đã ghi ngay trong chính gate.yml
+measure-teeth-cleanup#2	measure-teeth-cleanup	medium	dong-goi	song			assert-ratchet.tsv bị rsync vào gói acceptance-gate trong khi hai TSV cùng loại bị loại trừ
+measure-teeth-cleanup#3	measure-teeth-cleanup	medium	khac	song			assert-ratchet allowlist has no orphan check — 3 of its 4 rows already match nothing, so a bogus row is undetectable
+measure-teeth-cleanup#4	measure-teeth-cleanup	low	khac	chet	measure-teeth-cleanup nhom B (P165 cu da go, suite:7896)		P165 skips the entire PR-scope ratchet with a print when merge-base cannot be resolved
+measure-teeth-cleanup#5	measure-teeth-cleanup	low	dong-goi	song			`assert-ratchet.tsv` ships into the acceptance-gate plugin mirror while its sibling ledger is excluded
+measure-teeth-cleanup#6	measure-teeth-cleanup	high	khong-the-do	chet	measure-teeth-cleanup nhom B (assert-ratchet.tsv khong con)		Mẫu số tautology — hai vế của assert rút từ CÙNG một lượt quét (hình dạng 4: assertion không bao giờ ĐỎ được)
+measure-teeth-cleanup#7	measure-teeth-cleanup	low	fail-open	chet	measure-teeth-cleanup nhom B (P165 cu da go, suite:7896)		P165 fail-open khi không dựng được phạm vi PR, và vô hiệu trên push nhánh chính (hình dạng 4)
+ngon-ngu-mat-nguoi#1	ngon-ngu-mat-nguoi	high	dong-goi	song			P88 release-intent guard chưa nâng cho bản 1.28.0/1.20.0 — revert nguyên đợt bump vẫn XANH (RED-probe đã chạy)
+ngon-ngu-mat-nguoi#2	ngon-ngu-mat-nguoi	high	khac	song			feature-loop 1.20.0 phụ thuộc CỨNG acceptance-gate ≥1.28.0 ngay giữa vòng lặp (S2) — không khai ở preflight S0, không có nhánh thất bại
+ngon-ngu-mat-nguoi#3	ngon-ngu-mat-nguoi	high	khac	song			Nhánh đang bị chính cổng của kit chặn merge: verdict=REJECT chưa ký, và 11 slug khác vừa bị đẩy thành evidence-stale
+ngon-ngu-mat-nguoi#4	ngon-ngu-mat-nguoi	medium	khac	song			Đường dự phòng của acceptance-card giải plugin bằng --require KHÔNG chứa file luật — có thể trả về bản không mang luật, và không có nhánh th
+ngon-ngu-mat-nguoi#5	ngon-ngu-mat-nguoi	medium	fixture-viet-tay	song			Thêm một bên GHI vào decisions.jsonl mà không mang theo schema — seam LLM-viết→máy-đọc không có khuôn một-chỗ, không round-trip, và tiền tố 
+ngon-ngu-mat-nguoi#6	ngon-ngu-mat-nguoi	low	khac	song			docs/specs/workflow-v2-spec.md lệch quy ước đặt tên của thư mục và có con trỏ chết trong dòng SUPERSEDES
+ngon-ngu-mat-nguoi#7	ngon-ngu-mat-nguoi	high	khac	song			feature-loop 1.20.0 adds a hard dependency on acceptance-gate ≥1.28.0 at S2, but the preflight require-list and the declared floor were not 
+ngon-ngu-mat-nguoi#8	ngon-ngu-mat-nguoi	medium	khac	song			acceptance-card's stated fallback resolves acceptance-gate with the wrong --require, so it can return a version root that lacks the rules fi
+ngon-ngu-mat-nguoi#9	ngon-ngu-mat-nguoi	medium	dong-goi	song			P88 release-intent guard was not bumped for this release — reverting the 1.28.0 / 1.20.0 version bump leaves the suite green
+pha3-goi-luoi#1	pha3-goi-luoi	low	dong-goi	song			Gói evidence tại HEAD trễ 1 round so với code — S4 round 3 chưa chạy sau fix f929ceb
+pha3-goi-luoi#2	pha3-goi-luoi	medium	khac	song			P86/P87 negative controls are tautologies — the 'đối chứng âm' can never fail
+pha3-goi-luoi#3	pha3-goi-luoi	low	khac	song			E10 negative-control claim in evals.yaml is not implemented by P87
+premerge-unjudged-pass#1	premerge-unjudged-pass	medium	doc-drift	song			GUIDE.md không cập nhật cho `signoff.approvers` đã được cưỡng chế + 3 lớp VIOLATION mới
+premerge-unjudged-pass#2	premerge-unjudged-pass	medium	dong-goi	song			Bump 1.24.0 không kèm câu "v1.24 …" trong description của 3 manifest — phá nếp release đang có
+premerge-unjudged-pass#3	premerge-unjudged-pass	low	khac	song			Không có ADR cho quyết định fail-closed "khai approvers mà rỗng = VIOLATION"
+product-map-uat-session#1	product-map-uat-session	medium	fail-open	chet	workspace-reader-unification (P130 ghim key-line-comment)		configList silently returns [] when the key line carries a trailing comment — diverges from pre-merge bash reader
+s4-scope-triage#1	s4-scope-triage	medium	doc-drift	chet	SKILL dinh nghia lai inline (dong 192 reportPath=evidence-report.md)		SKILL feature-loop vẫn chỉ dẫn đọc `reportPath` / `findingsPath` — hai field workflow đã bỏ
+s4-scope-triage#2	s4-scope-triage	medium	doc-drift	song			Bảng vai-trò model trôi khỏi MODEL_ROUTES: `scribe` đã xoá vẫn được quảng cáo, `triage` mới thêm không được khai ở đâu
+s4-scope-triage#3	s4-scope-triage	medium	doc-drift	song			New `triage` model role missing from the SKILL's `feature_loop.models` role enumeration
+s4-scope-triage#4	s4-scope-triage	low	doc-drift	chet	SKILL dinh nghia lai inline (dong 192)		SKILL Gate 2 packaging step still reads removed result keys `reportPath` / `findingsPath`
+s4-scope-triage#5	s4-scope-triage	low	doc-drift	song			GUIDE.md still documents the removed `scribe` agent and the removed `reportPath` return value
+start-command#1	start-command	low	khong-the-do	song			Chân đột biến E11 (GUIDE) trong P101 là phép đo không thể đỏ
+start-command#2	start-command	medium	fail-open	chet	start-scan-hardening (readRecord tach ENOENT)		read() nuốt mọi lỗi I/O — contract.md unreadable bị coi là 'không tồn tại', slug bị phân ô sai hoàn toàn im lặng
+start-command#3	start-command	low	fail-open	chet	start-scan-hardening (verdict ngoai tu vung co nhanh rieng)		Nhánh status=implemented nhận verdict ngoài từ vựng im lặng (FAIL → S4), trong khi nhánh verified cùng verdict thì flag broken
+start-command#4	start-command	low	fail-open	chet	start-scan-hardening + wru (bail 5 loi --root)		--root thiếu giá trị hoặc trỏ đường dẫn sai âm thầm rơi về hành vi khác — không phân biệt được với repo chưa acceptance-init
+start-scan-hardening#1	start-scan-hardening	low	khac	song			P105 matrix omits human_signoff axis; signoff masks off-vocab verdict
+stop-patching-law#1	stop-patching-law	medium	snapshot-nguon-song	song			P169/P170 ghim snapshot evidence vào nguồn sống — mọi edit SKILL.md tương lai làm đỏ toàn suite, message chẩn đoán sai
+stop-patching-law#2	stop-patching-law	low	dong-goi	chet	buoc 0 2026-08-07 (b5763b2 changelog v1.25/v1.26)		Bump 1.26.0 nhưng description changelog của plugin.json dừng ở v1.24 — mệnh đề dừng-vá vô hình trong metadata gói
+stop-patching-law#3	stop-patching-law	low	khac	song			Bộ đo quan-hệ-chứa của P168 nhận nhầm dòng '#' trong code fence là heading markdown
+stop-patching-law#4	stop-patching-law	low	fail-open	song			P168: dòng bảng đột biến thiếu ký tự '|' làm vỡ test bằng IndexError, nuốt sạch chẩn đoán đã thu
+stop-patching-law#5	stop-patching-law	low	fail-open	song			P170: chốt chống-mớm chỉ soi khối ``` ĐẦU TIÊN của hanh-vi-prompt.md — cấu trúc file đổi là chốt âm thầm soi nhầm đoạn
+stop-patching-law#6	stop-patching-law	medium	chuoi-thay-quan-he	song			Đo quan hệ nhưng thiếu một vế: judge J1 phải phán 'khác biệt truy ngược được về mệnh đề bị gỡ' mà inputs không có khối mệnh đề lẫn hai bản c
+workspace-reader-unification#1	workspace-reader-unification	medium	khac	song			Card instruction still claims "longest-waiting gate first" but empty since now sorts to the top
+workspace-reader-unification#2	workspace-reader-unification	medium	khac	song			MAP_LABELS 'da-xoa' asserts a deletion that never happened for a freshly opted-in repo
+workspace-reader-unification#3	workspace-reader-unification	low	khac	song			start-scan runs mapTracked git probes even when PRODUCT-MAP.md exists and the result cannot affect state
