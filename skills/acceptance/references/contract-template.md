@@ -21,7 +21,8 @@ Frontmatter rules:
 - `status` lifecycle: draft → approved (Gate 1) → implemented → verified → signed-off (Gate 2).
   Transition ownership: the acceptance skill sets draft/approved/verified/signed-off;
   the IMPLEMENTING agent sets `implemented` as its final act after coding
-- `time_human_minutes`: fill gate1 when approving, gate2 when signing off (pilot metric)
+- `time_human_minutes`: OPTIONAL — nobody asks for it at the gates; fill only if
+  you personally want the number. Old data is self-reported and untrusted (2026-08-07).
 - `gate1_skipped: true` may be added by the skill when the user insists on
   skipping Gate 1 (audit trail; discouraged)
 - `surfaces` may include `mobile`: app flows driven by the repo's native E2E
@@ -44,7 +45,6 @@ surfaces: [{surfaces}]      # api | cli | sdk | ui | mobile — ngăn cách bằ
 status: {status}            # LUÔN là `draft` lúc tạo hồ sơ; chỉ Cổng 1 đổi nó
 approved_by:
 approved_at:
-time_human_minutes: {gate1: 0, gate2: 0}
 ---
 ```
 <!-- CONTRACT-FRONTMATTER-TEMPLATE>>> -->

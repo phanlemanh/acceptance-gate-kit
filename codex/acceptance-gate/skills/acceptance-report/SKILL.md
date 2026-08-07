@@ -1,14 +1,18 @@
 ---
 name: acceptance-report
-description: Aggregate Acceptance Gate metrics across all features on Codex — human minutes vs baseline (KPI ≥50% reduction), verdict mix, gate hygiene (skips, bypasses, stale evidence). Read-only. Use when the user asks whether the gate pays off, báo cáo hiệu quả gate, or wants acceptance metrics.
+description: Aggregate Acceptance Gate metrics across all features on Codex — human-touch frequency from git (new KPI), verdict mix, gate hygiene (skips, bypasses, stale evidence). Read-only. Use when the user asks whether the gate pays off, báo cáo hiệu quả gate, or wants acceptance metrics.
 ---
 
 # Acceptance Report for Codex
 
 Answer "is the gate paying for itself?" from what the gates already recorded.
-The kit's stated KPI is ≥50% human-time reduction vs baseline; the fields
-exist (`time_human_minutes` per contract, `baseline_minutes` in config) —
-this skill reads them. Read-only: modify nothing while reporting.
+KPI phía người (charter tái lập 2026-08-07): **tần suất sự-kiện-cần-người** —
+đếm từ git bằng lệnh chuẩn (chạy được nguyên văn):
+`git log --format=%H -G'human_signoff|human_override|approved_by' -- _acceptance/<slug>/`
+(đếm dòng = số lần người ra tay tại cổng). `time_human_minutes` cũ là dữ liệu
+TỰ KHAI — KHÔNG ĐÁNG TIN ("tự khai — không đáng tin", 2026-08-07): chỉ trình
+dưới nhãn đó, không trích làm bằng chứng hiệu quả, không coi thiếu-nó là lỗ
+vệ sinh. This skill reads them. Read-only: modify nothing while reporting.
 
 Optional arg `--since YYYY-MM-DD`: include only features whose `approved_at`
 or `verified_at` is on/after that date.
@@ -18,7 +22,7 @@ or `verified_at` is on/after that date.
 Scan `_acceptance/*/` (skip `config.yaml`, `README.md`). Parse:
 
 - `contract.md` frontmatter: `slug`, `risk_tier`, `status`, `approved_by`,
-  `approved_at`, `gate1_skipped`, `time_human_minutes` {gate1, gate2};
+  `approved_at`, `gate1_skipped` (va `time_human_minutes` {gate1, gate2};
 - `evidence-report.md` frontmatter when present: `verdict`, `human_signoff`,
   `verified_at`, `verified_commit`, `enforcement_mode`, `bypass_used`,
   `bypass_ack`, `failed_evals`;
@@ -61,7 +65,6 @@ machine face. Every render re-reads the file.
   - N việc dùng đường thoát mà chưa ai xác nhận (bypass chưa `bypass_ack`)
   - N báo cáo chạy ở mức lỏng hơn chặt nhất (`enforcement_mode` ≠ strict)
   - N việc có bằng chứng cũ hơn mã nguồn
-  - N việc chưa ghi số phút của người
 - Sự thật mạng (chỉ để tham khảo, không chặn): đếm theo bảy nhóm, mỗi mã kèm
   nghĩa ngay lần đầu — `clean` (sạch) · `app-fail` (chính app lỗi) ·
   `no-app-traffic` (app không gọi mạng) · `third-party-only` (chỉ bên thứ ba) ·
@@ -71,7 +74,9 @@ machine face. Every render re-reads the file.
   lớp. Từ 5 việc có dữ liệu trở lên, thêm: "đủ mẫu vận hành — cân nhắc máy-kiểm
   hóa network (schema v3, spec wave 2 §5)".
 - Việc cần làm: mỗi dấu hiệu mất vệ sinh một dòng, viết bằng tiếng người —
-  nói việc phải làm, tên khoá máy (vd `time_human_minutes`) để trong ngoặc.
+  nói việc phải làm, tên khoá máy để trong ngoặc. KHÔNG bao giờ liệt kê
+  "chưa ghi số phút" là việc cần làm — trường đó tuỳ chọn; nếu trình số phút
+  cũ thì luôn kèm nhãn "tự khai — không đáng tin".
 
 `_acceptance/` missing → suggest the `acceptance-init` skill. No features →
 say so.

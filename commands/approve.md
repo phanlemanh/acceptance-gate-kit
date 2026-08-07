@@ -41,7 +41,6 @@ Steps:
    - Edit the contract frontmatter — `status: approved`, `approved_by`,
      `approved_at` (ISO date) — via your file-edit tool so the write-time hook
      validates the transition.
-   - Ask how many minutes Gate 1 took → `time_human_minutes.gate1`.
    - If `_acceptance/<slug>/decisions.jsonl` exists (feature-loop), append the
      seal entry `{"id":"d-<next>","type":"seal","gate":1,"at":"<ISO>"}` in the
      same write-batch as `approved_by`.

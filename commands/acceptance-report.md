@@ -1,12 +1,15 @@
 ---
-description: Aggregate acceptance metrics across all features — human minutes vs baseline (KPI ≥50% reduction), verdict mix, gate hygiene (skips, bypasses, stale evidence). Read-only.
+description: Aggregate acceptance metrics across all features — human-touch frequency from git (new KPI), verdict mix, gate hygiene (skips, bypasses, stale evidence). Read-only.
 disable-model-invocation: true
 ---
 
 Answer "is the gate paying for itself?" from what the gates already recorded.
-The kit's stated KPI is ≥50% human-time reduction vs baseline; the fields exist
-(`time_human_minutes` per contract, `baseline_minutes` in config) — this
-command reads them. It is read-only: modify nothing while reporting.
+KPI phía người (charter tái lập 2026-08-07): **tần suất sự-kiện-cần-người** —
+counted from git, not from self-reported minutes. Any `time_human_minutes`
+found in old contracts is SELF-REPORTED, UNTRUSTED data ("tự khai — không
+đáng tin", owner admission 2026-08-07): report it only under that label,
+never cite it as efficiency evidence, never flag its absence as a hygiene gap.
+It is read-only: modify nothing while reporting.
 
 Optional arg `--since YYYY-MM-DD`: include only features whose `approved_at`
 or `verified_at` is on/after that date.
@@ -15,7 +18,8 @@ Steps:
 
 1. **Scan** `_acceptance/*/` (skip `config.yaml`, `README.md`). Parse:
    - `contract.md` frontmatter: `slug`, `risk_tier`, `status`, `approved_by`,
-     `approved_at`, `gate1_skipped`, `time_human_minutes` {gate1, gate2};
+     `approved_at`, `gate1_skipped` (và `time_human_minutes` nếu có — chỉ để
+     trình dưới nhãn tự-khai);
    - `evidence-report.md` frontmatter when present: `verdict`,
      `human_signoff`, `verified_at`, `verified_commit`, `enforcement_mode`,
      `bypass_used`, `bypass_ack`, `failed_evals`;
@@ -26,8 +30,11 @@ Steps:
      count into the `n-a` bucket (covers `n-a (driver)` and `n-a (tool-error:
      …)`);
    - `_acceptance/config.yaml`: `baseline_minutes`.
-2. **Per feature compute:** total human minutes (gate1+gate2; absent/0 →
-   "chưa ghi"), verify rounds, and flags:
+2. **Per feature compute:** human-touch count — số commit chạm dòng
+   human-owned của hồ sơ, đếm từ git (lệnh chuẩn, chạy được nguyên văn):
+   `git log --format=%H -G'human_signoff|human_override|approved_by' -- _acceptance/<slug>/`
+   rồi đếm dòng (mỗi commit khớp = một lần người phải ra tay tại cổng).
+   Kèm verify rounds, and flags:
    - `gate1_skipped` (audited Gate-1 escape),
    - un-acked bypass (`bypass_used: true` without `bypass_ack`),
    - `enforcement_mode` ≠ strict,
@@ -61,7 +68,6 @@ Steps:
      - N việc dùng đường thoát mà chưa ai xác nhận (bypass chưa `bypass_ack`)
      - N báo cáo chạy ở mức lỏng hơn chặt nhất (`enforcement_mode` ≠ strict)
      - N việc có bằng chứng cũ hơn mã nguồn
-     - N việc chưa ghi số phút của người
    - Sự thật mạng (chỉ để tham khảo, không chặn): đếm theo bảy nhóm, mỗi mã kèm
      nghĩa ngay lần đầu — `clean` (sạch) · `app-fail` (chính app lỗi) ·
      `no-app-traffic` (app không gọi mạng) · `third-party-only` (chỉ bên thứ ba) ·
@@ -70,9 +76,9 @@ Steps:
      mỗi việc có "chính app lỗi", hoặc "app không gọi mạng" trên một tiêu chí
      xuyên lớp (dấu hiệu nút bấm chết). Từ 5 việc có dữ liệu trở lên, thêm: "đủ
      mẫu vận hành — cân nhắc máy-kiểm hóa network (schema v3, spec wave 2 §5)".
-   - Việc cần làm: mỗi dấu hiệu mất vệ sinh một dòng, viết bằng tiếng người
-     (vd "2 việc chưa ghi số phút của người — điền lúc duyệt và lúc ký, khoá
-     `time_human_minutes`; thiếu nó thì không đo được cổng có đáng không").
+   - Việc cần làm: mỗi dấu hiệu mất vệ sinh một dòng, viết bằng tiếng người.
+     KHÔNG bao giờ liệt kê "chưa ghi số phút" là việc cần làm — trường đó là
+     tuỳ chọn; nếu trình số phút cũ thì luôn kèm nhãn "tự khai — không đáng tin".
 5. `_acceptance/` missing → suggest `/acceptance-init`. No features → say so.
 
 Read-only guarantee: this command never edits contracts, reports, or config —

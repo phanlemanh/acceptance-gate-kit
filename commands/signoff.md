@@ -30,7 +30,8 @@ Steps:
    - the verdict upgrade `PENDING-JUDGMENT → PASS`, legal only after ALL those
      lines are filled;
    - `human_signoff: <name> <date>`;
-   - minutes → `time_human_minutes.gate2`; contract `status: signed-off`.
+   - contract `status: signed-off`. (`time_human_minutes` is OPTIONAL — do not ask;
+     record only if the human volunteers it.)
 4. **Collect decisions in chat, item by item** (accept / reject, plus
    name+date once). Apply the human's dictated values VERBATIM via your
    file-edit tool so the write-time hook re-validates each write (a human
@@ -57,8 +58,9 @@ Steps:
 
 7. **Land the signature as its own commit** touching only the human-owned
    lines in `evidence-report.md` (`human_signoff`, `human_override`, the
-   verdict upgrade, `bypass_ack`) plus the contract's `status` +
-   `time_human_minutes.gate2` — plus the regenerated `PRODUCT-MAP.md` ONLY if
+   verdict upgrade, `bypass_ack`) plus the contract's `status`
+   (and `time_human_minutes.gate2` only if the human volunteered it) — plus the
+   regenerated `PRODUCT-MAP.md` ONLY if
    step 6 actually regenerated it. Print the exact sequence:
 
    ```bash
