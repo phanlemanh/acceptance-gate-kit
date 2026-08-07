@@ -251,12 +251,23 @@ if [ -f "$ACC/config.yaml" ]; then
   fi
   cfg_rc="$(sed -n 's/^[[:space:]]*recheck:[[:space:]]*//p' "$ACC/config.yaml" | head -1 | sed 's/[[:space:]]*#.*$//')"
   case "$cfg_rc" in strict|warn|off) RECHECK_MODE="$cfg_rc" ;; esac
-  T1_GLOBS="$(sed -n '/^  t1_skip_globs:/,/^  [a-zA-Z0-9_-]*:/p' "$ACC/config.yaml" \
-    | sed -n 's/^[[:space:]]*-[[:space:]]*//p' \
-    | sed -e 's/[[:space:]]*#.*$//' -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'\$//" -e 's/[[:space:]]*$//')"
-  T3_PATHS="$(sed -n '/^  t3_paths:/,/^  [a-zA-Z0-9_-]*:/p' "$ACC/config.yaml" \
-    | sed -n 's/^[[:space:]]*-[[:space:]]*//p' \
-    | sed -e 's/[[:space:]]*#.*$//' -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'\$//" -e 's/[[:space:]]*$//')"
+  # Đọc danh sách config qua MỘT nguồn luật (lib/workspace-record.js
+  # configList) khi có node — bản sed chỉ còn là fallback cho máy thiếu node.
+  # Hai bản đọc từng lệch ở hình dạng key-line-comment (bug round 16
+  # product-map-uat-session): bản sed đọc được, bản JS trả rỗng — giữ hai bản
+  # ngang hàng là giữ chỗ cho lần lệch kế tiếp (AC-1 workspace-reader-unification;
+  # quan hệ hai-bản-đồng-kết-luận vẫn do case P130 ghim).
+  WSREC_LIB="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)/lib/workspace-record.js"
+  config_list() {
+    if [ -f "$WSREC_LIB" ] && command -v node >/dev/null 2>&1; then
+      _cl_out="$(node -e 'const l=require(process.argv[1]);const fs=require("fs");process.stdout.write(l.configList(fs.readFileSync(process.argv[2],"utf8"),process.argv[3]).join("\n"))' "$WSREC_LIB" "$ACC/config.yaml" "$1" 2>/dev/null)" && { printf '%s\n' "$_cl_out"; return; }
+    fi
+    sed -n "/^  $1:/,/^  [a-zA-Z0-9_-]*:/p" "$ACC/config.yaml" \
+      | sed -n 's/^[[:space:]]*-[[:space:]]*//p' \
+      | sed -e 's/[[:space:]]*#.*$//' -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'\$//" -e 's/[[:space:]]*$//'
+  }
+  T1_GLOBS="$(config_list t1_skip_globs)"
+  T3_PATHS="$(config_list t3_paths)"
   REQ_HUMAN_COMMIT="$(sed -n 's/^[[:space:]]*require_human_commit:[[:space:]]*//p' "$ACC/config.yaml" | head -1 | sed 's/[[:space:]]*#.*$//' | tr '[:upper:]' '[:lower:]')"
   AGENT_AUTHORS="$(sed -n '/^  agent_authors:/,/^  [a-zA-Z0-9_-]*:/p' "$ACC/config.yaml" \
     | sed -n 's/^[[:space:]]*-[[:space:]]*//p' \
