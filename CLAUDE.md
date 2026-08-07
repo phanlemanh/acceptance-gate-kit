@@ -1,5 +1,17 @@
 # Kit maintainer invariants
 
+- **ĐÓNG BĂNG LAB (tái lập 2026-08-07):** engine (`skills/`, `feature-loop/`,
+  `design-loop/`, `codex/`, `commands/`, `scripts/`, `lib/`, `hooks/`) chỉ
+  nhận (a) **bugfix**, (b) **đóng nốt vòng đang dở lúc ra quyết định**
+  (`measure-birth-certificate` — giữa S4, ký hoặc owner chủ động huỷ; KHÔNG
+  mở rộng phạm vi nó), và (c) **đợt phẫu thuật GĐ1** khai trong
+  [docs/plans/2026-08-07-tai-lap-don-gian-va-trien-khai-doi.md](docs/plans/2026-08-07-tai-lap-don-gian-va-trien-khai-doi.md).
+  KHÔNG mở vòng meta MỚI nào (hồ sơ draft `premerge-ac-line` đứng ở Cổng 1
+  chờ owner quyết duyệt-hay-xếp-lại theo tinh thần này) cho đến khi **≥3
+  feature thật ở repo tiêu thụ** đi trọn vòng trên bản mới. Lý do: toàn bộ
+  việc đã giao đến 07/08 là kit-sửa-kit, gate-fatigue của owner là ràng
+  buộc số 1; chi tiết trong kế hoạch trên.
+
 - **Nguồn sự thật** là `skills/`, `feature-loop/`, `design-loop/`, `codex/`,
   `commands/`, **và cả `scripts/`, `lib/`, `hooks/`, `vendor/`** — bốn cái sau
   cũng bị `rsync` vào mirror (xem `scripts/sync-plugin-packages.sh:27-31`), nên
