@@ -1,20 +1,24 @@
 {
-  "feature_plain": "Mọi nơi đọc hồ sơ xưởng — bản đồ, thẻ vào phiên, cổng CI — nay tra cùng MỘT bảng luật, nên cùng một hồ sơ không bao giờ bị nơi này gọi là hỏng mà nơi kia gọi là lành.",
-  "scope_plain": "Không làm nghi thức nghiệm thu bản Codex; không đổi chính sách cổng; không thêm quy tắc mốc thời gian mới.",
+  "feature_plain": "Mọi nơi đọc hồ sơ xưởng — bản đồ sản phẩm, thẻ vào phiên, cổng chặn hợp nhất — nay tra cùng MỘT bảng luật, nên cùng một hồ sơ không còn cảnh nơi này gọi là hỏng mà nơi kia gọi là lành.",
+  "scope_plain": "Không làm nghi thức nghiệm thu cho môi trường Codex; không đổi chính sách cổng; không thêm quy tắc mốc thời gian mới.",
   "analyst_plain": "",
   "decisions": [],
   "decisions_plain": [
     {
       "id": "d-20260807T103000Z-5521",
-      "p": "Đã chọn gom luật về một thư viện chung và một bảng nhãn chung, chỉ hội tụ tầng kiểm-chặt của cổng CI — giữ nguyên tầng dò-rộng có chủ đích."
+      "p": "Đã chọn gom luật về một thư viện chung và một bảng nhãn chung, chỉ hội tụ tầng kiểm-chặt của cổng hợp nhất — giữ nguyên tầng dò-rộng vốn cố ý rộng."
     },
     {
       "id": "d-20260807T110000Z-8812",
-      "p": "Kế hoạch 7 việc được duyệt ở cổng giữa (việc rủi ro cao phải duyệt kế hoạch trước khi làm)."
+      "p": "Kế hoạch bảy việc được bạn duyệt ở cổng giữa, vì đây là vùng rủi ro cao phải duyệt cách làm trước khi làm."
     },
     {
       "id": "d-20260807T112500Z-4407",
-      "p": "Giữa chừng đổi một điểm so với kế hoạch: thay vì bỏ nhánh thoát cũ, đặt chốt gọi đích danh khi bảng ý-nghĩa của bộ quét lệch khỏi bảng luật — vì bỏ trơn làm bộ quét sập thay vì báo lỗi."
+      "p": "Giữa chừng đổi một điểm so với kế hoạch: thay vì bỏ nhánh thoát cũ, đặt chốt gọi đích danh khi bảng ý-nghĩa của thẻ vào phiên lệch khỏi bảng luật — bỏ trơn thì công cụ sập thay vì báo lỗi."
+    },
+    {
+      "id": "d-20260807T121000Z-2231",
+      "p": "Sau vòng một: bạn chọn sửa ngay ba lỗi thay vì ghi giới hạn — gom tín hiệu 'kho này có coi bản đồ là bắt buộc không' về một hàm duy nhất, cho bản Codex đọc nhãn chung, và bắt phép thử phá-hoại chạy qua đúng bộ chấm thật."
     }
   ]
 }

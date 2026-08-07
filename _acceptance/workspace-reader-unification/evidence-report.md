@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 72f690d65189fb0a9b43fa3b164c8e86d2be5c81
+verified_commit: 28660e60903c76ee57463bcd228220a2b9bfe546
 human_signoff: Manh Phan 2026-08-07 — ký thẳng, known-limits cả 4 lỗi ngoài hợp đồng (2 câu chữ mặt người + 2 mục nhẹ)
 ---
 
@@ -269,3 +269,7 @@ Round 2: tái verify trên commit mới (verified_commit 72f690d65189fb0a9b43fa3
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter + `time_human_minutes.gate2` in contract
+
+### Re-pin lần 1 — 2026-08-07, do engine đổi ở vòng workspace-reader-unification (bảng luật đọc hồ sơ + bảng nhãn bản đồ + bộ kiểm P171–P173)
+run_id: repin-20260807-workspace-reader-unification-lane1
+sha: 28660e60903c76ee57463bcd228220a2b9bfe546 · suites: 6 lệnh exit 0

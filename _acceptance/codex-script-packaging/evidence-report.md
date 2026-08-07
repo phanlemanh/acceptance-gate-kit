@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 6bd11f7554effe75a9b1e8c8686a43634e45ec3e
+verified_commit: 28660e60903c76ee57463bcd228220a2b9bfe546
 human_signoff: Manh Phan 2026-08-06 — ship với 3 giới hạn đã biết; theo kiến nghị, gom cả ba vào đợt dọn nợ đo-lường thay vì sửa ngay
 ---
 
@@ -137,3 +137,7 @@ sha: 5d20c246f526b312962f2e4f167e48975ac25986 · suites: 6 lệnh exit 0
 ### Re-pin lần 5 — 2026-08-07, do engine đổi ở vòng stop-patching-law (mệnh đề dừng-vá vào 2 bản chỉ dẫn + bộ kiểm P168–P170)
 run_id: repin-20260807-stop-patching-law-lane1
 sha: 6bd11f7554effe75a9b1e8c8686a43634e45ec3e · suites: 6 lệnh exit 0
+
+### Re-pin lần 6 — 2026-08-07, do engine đổi ở vòng workspace-reader-unification (bảng luật đọc hồ sơ + bảng nhãn bản đồ + bộ kiểm P171–P173)
+run_id: repin-20260807-workspace-reader-unification-lane1
+sha: 28660e60903c76ee57463bcd228220a2b9bfe546 · suites: 6 lệnh exit 0
