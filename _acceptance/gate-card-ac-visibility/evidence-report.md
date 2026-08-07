@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 7d6f42716f2c9b52892c6c341d31da3042ca8e3d
+verified_commit: eb81fd3ad5db935c72c042202d1af2df783f19f9
 human_signoff: Manh Phan 2026-07-30
 ---
 
@@ -615,3 +615,7 @@ sha: 3f96b45349ea1981f6b4cb15c178d3f79bf15c6d · suites: 6 lệnh exit 0
 ### Re-pin lần 13 — 2026-08-07, do hợp nhất hai nhánh (workspace-reader-unification + triage-key-normalize) — engine đổi ở cả hai phía
 run_id: repin-20260807-merge-wru-triage-lane1
 sha: 7d6f42716f2c9b52892c6c341d31da3042ca8e3d · suites: 6 lệnh exit 0
+
+### Re-pin lần 14 — 2026-08-07, do hợp nhất hai nhánh ac-line (eval-coverage-lint W7 + evidence-page parseAC một nguồn) + NEG_RE học từ vựng đối-chứng + changelog feature-loop v1.25/v1.26 — engine lint/trang-ký và manifest gói đổi
+run_id: repin-20260807-ac-line-lane1
+sha: eb81fd3ad5db935c72c042202d1af2df783f19f9 · suites: 6 lệnh exit 0
