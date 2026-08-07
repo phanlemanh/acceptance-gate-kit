@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 28660e60903c76ee57463bcd228220a2b9bfe546
+verified_commit: 7d6f42716f2c9b52892c6c341d31da3042ca8e3d
 human_signoff: Manh Phan 2026-07-29
 ---
 
@@ -349,3 +349,7 @@ sha: 28660e60903c76ee57463bcd228220a2b9bfe546 · suites: 6 lệnh exit 0
 ### Re-pin lần 15 — 2026-08-07, do engine verify đổi ở vòng triage-key-normalize (chuẩn hoá path khoá ghép scope-triage + triage hỏng ra PENDING-JUDGMENT)
 run_id: repin-20260807-triage-key-normalize-lane1
 sha: 3f96b45349ea1981f6b4cb15c178d3f79bf15c6d · suites: 6 lệnh exit 0
+
+### Re-pin lần 14 — 2026-08-07, do hợp nhất hai nhánh (workspace-reader-unification + triage-key-normalize) — engine đổi ở cả hai phía
+run_id: repin-20260807-merge-wru-triage-lane1
+sha: 7d6f42716f2c9b52892c6c341d31da3042ca8e3d · suites: 6 lệnh exit 0

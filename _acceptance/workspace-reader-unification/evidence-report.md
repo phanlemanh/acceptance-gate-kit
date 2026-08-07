@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 28660e60903c76ee57463bcd228220a2b9bfe546
+verified_commit: 7d6f42716f2c9b52892c6c341d31da3042ca8e3d
 human_signoff: Manh Phan 2026-08-07 — ký thẳng, known-limits cả 4 lỗi ngoài hợp đồng (2 câu chữ mặt người + 2 mục nhẹ)
 ---
 
@@ -273,3 +273,7 @@ Round 2: tái verify trên commit mới (verified_commit 72f690d65189fb0a9b43fa3
 ### Re-pin lần 1 — 2026-08-07, do engine đổi ở vòng workspace-reader-unification (bảng luật đọc hồ sơ + bảng nhãn bản đồ + bộ kiểm P171–P173)
 run_id: repin-20260807-workspace-reader-unification-lane1
 sha: 28660e60903c76ee57463bcd228220a2b9bfe546 · suites: 6 lệnh exit 0
+
+### Re-pin lần 2 — 2026-08-07, do hợp nhất hai nhánh (workspace-reader-unification + triage-key-normalize) — engine đổi ở cả hai phía
+run_id: repin-20260807-merge-wru-triage-lane1
+sha: 7d6f42716f2c9b52892c6c341d31da3042ca8e3d · suites: 6 lệnh exit 0
