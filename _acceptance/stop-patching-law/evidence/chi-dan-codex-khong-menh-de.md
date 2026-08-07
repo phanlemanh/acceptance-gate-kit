@@ -286,7 +286,10 @@ section (even if it is a single skip line):
    `time_human_minutes.gate1` / `time_human_minutes.gate2` placeholders.
 6. Write `_acceptance/<slug>/evals.yaml`. Map every AC to at least one eval.
    Prefer `test`, `script`, or `ui-check` before `judgment`. Use `config:`
-   command references, not hardcoded project commands. Machine/ui evals SHOULD
+   command references, not hardcoded project commands. Plan each machine
+   eval's `expected` per the `MEASURE-BIRTH-CLAUSE` mold (block in S3): it
+   must state the RED direction — a two-direction pair on one fixture plus
+   the pinned message. Machine/ui evals SHOULD
    declare `paths: [<repo-relative globs>]` — the files the eval actually
    checks — enabling P1 carry-forward on delta staleness rounds; an eval
    without `paths` always reruns (safe default). A criterion tagged `(cross-layer)` additionally needs ≥1 `test`/`script` eval
@@ -406,6 +409,20 @@ tasks with disjoint file ownership:
    others' changes.
 3. Wait for every worker, review returned diffs, and integrate deliberately.
 4. Repair failed tasks sequentially in the main agent.
+
+<!-- <<<MEASURE-BIRTH-CLAUSE -->
+**A NEW measure (suite case, eval in evals.yaml, rule/check in a script) only
+counts as DONE when it ships with a two-direction case pair on the SAME
+fixture:** intact object → the measure stays green (positive control); break
+the real object in a copy → the measure goes red with a PINNED MESSAGE (mold
+name / case name / invariant — never exit code alone). No pair = the task is
+NOT done — that task's per-task verify must include the break-it run. Full
+mold + living samples: `references/measure-birth.md` in the acceptance-gate
+package (resolve via resolve-plugin.mjs). Why: green from a measure that has
+never been red cannot distinguish "healthy object" from "a ruler that never
+ran" — a broken fixture, a failed cp, exit 127 all paint the same green.
+<!-- MBC-CORE: pair-same-fixture + pinned-message + not-done-without-pair; objects: suite-case, eval, rule-script -->
+<!-- MEASURE-BIRTH-CLAUSE>>> -->
 
 When execution must depart from the approved plan, append a provisional `fix`
 or `descope` entry immediately with `stage: S3`.
