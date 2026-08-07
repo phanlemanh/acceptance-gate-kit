@@ -69,4 +69,41 @@ NHIỆM VỤ: viết (các) case suite kiểm phép đo này, kèm fixture cần
 (heredoc). Trả về ĐÚNG nội dung case bash, không giải thích ngoài lề.
 `;
 fs.writeFileSync(path.join(EV, 'de-bai.md'), DE_BAI);
-process.stdout.write('sinh xong: 4 biến thể chỉ dẫn + de-bai.md\n');
+
+// ── Record hành-vi: SINH từ chính artifact bài-làm trong lần chạy ────────────
+// Đây là writer DUY NHẤT của mọi tín hiệu máy-đọc (S4-r1: header viết tay
+// 'hoàn thành: có' là fixture-viết-tay-đúng-khuôn-bên-đọc — hình dạng 2).
+// `completed` SUY từ khối bash khác rỗng; lượt vắng/rỗng làm script NỔ TO với
+// tên lượt (fail-closed) chứ không được ghi thành "không sinh cặp". P178
+// round-trip record này bằng cách chạy lại chính script — khuôn một chỗ.
+const RUNS = [
+  { id: 'A1', harness: 'claude', variant: 'co', artifact: 'hanh-vi-A1-claude-co.md' },
+  { id: 'A2', harness: 'codex', variant: 'co', artifact: 'hanh-vi-A2-codex-co.md' },
+  { id: 'B1', harness: 'claude', variant: 'khong', artifact: 'hanh-vi-B1-claude-khong.md' },
+  { id: 'B2', harness: 'codex', variant: 'khong', artifact: 'hanh-vi-B2-codex-khong.md' },
+];
+const runs = RUNS.map(r => {
+  const p = path.join(EV, r.artifact);
+  if (!fs.existsSync(p)) { console.error(`lượt ${r.id}: artifact VẮNG (${r.artifact})`); process.exit(2); }
+  const m = fs.readFileSync(p, 'utf8').match(/```bash\n([\s\S]*?)```/);
+  const body = m ? m[1].trim() : '';
+  if (!body) { console.error(`lượt ${r.id}: artifact RỖNG — khối bash không có nội dung`); process.exit(2); }
+  const sameFixture = /(grep -v|sed )[^\n]*\.md["']?\s*>\s*["']?[^\n]*\.md/.test(body);
+  return {
+    ...r,
+    completed: true, // suy từ khối bash khác rỗng — thiếu là đã exit 2 ở trên
+    two_direction: /check \w+ 0 \$\?/.test(body) && /check \w+ 1 \$\?/.test(body),
+    pinned_message: /grep -q .missing slug/.test(body),
+    same_fixture_derivation: sameFixture,
+    pair_per_mold: sameFixture,
+  };
+});
+const tally = v => `${runs.filter(r => r.variant === v && r.pair_per_mold).length}/${runs.filter(r => r.variant === v).length}`;
+const record = {
+  note: 'Record 4 lượt đóng vai AC-5 — MÁY SINH bởi make-record.mjs từ chính artifact bài-làm (không viết tay). Tín hiệu: completed = khối bash khác rỗng (lượt rỗng làm script exit 2 ghim tên lượt); same_fixture_derivation = bản-hỏng SINH TỪ bản-lành trong cùng lượt (grep -v/sed) — đúng "phá vật thật trong BẢN SAO cùng fixture" của mệnh đề; two_direction = có cả check-0 lẫn check-1.',
+  nuance: 'Cả 2 lượt bản-gỡ vẫn viết đủ hai chiều + ghim thông điệp (nền năng lực model tốt sẵn). Khác biệt ĐO ĐƯỢC của mệnh đề nằm ở HÌNH cặp: bản-có 2/2 phá-bản-sao-cùng-fixture kèm bước kiểm-tiêm; bản-gỡ 2/2 dựng hai fixture độc lập (hình "khai sinh giả" mà khuôn cấm). pair_per_mold chấm theo định nghĩa của mệnh đề, không theo có-đủ-hai-chiều.',
+  runs,
+  verdict: { co_pair_per_mold: tally('co'), khong_pair_per_mold: tally('khong'), completed: `${runs.length}/4` },
+};
+fs.writeFileSync(path.join(EV, 'hanh-vi-record.json'), JSON.stringify(record, null, 2) + '\n');
+process.stdout.write('sinh xong: 4 biến thể chỉ dẫn + de-bai.md + hanh-vi-record.json (từ 4 artifact)\n');

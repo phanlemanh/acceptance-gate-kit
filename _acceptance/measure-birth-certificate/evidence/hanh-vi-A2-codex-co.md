@@ -1,4 +1,4 @@
-# Lượt A2 — chỉ dẫn Codex CÓ mệnh đề · hoàn thành: có
+# Lượt A2 — chỉ dẫn Codex CÓ mệnh đề
 
 > Bài làm nguyên văn của agent context-sạch (đề bài: evidence/de-bai.md,
 > chỉ dẫn: evidence/chi-dan-codex-co-mbc.md). Không sửa chữ nào.

@@ -1,4 +1,4 @@
-# Lượt B2 — chỉ dẫn Codex ĐÃ GỠ mệnh đề · hoàn thành: có
+# Lượt B2 — chỉ dẫn Codex ĐÃ GỠ mệnh đề
 
 > Bài làm nguyên văn của agent context-sạch (đề bài: evidence/de-bai.md,
 > chỉ dẫn: evidence/chi-dan-codex-khong-mbc.md). Không sửa chữ nào.

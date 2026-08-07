@@ -1,4 +1,4 @@
-# Lượt A1 — chỉ dẫn Claude CÓ mệnh đề · hoàn thành: có
+# Lượt A1 — chỉ dẫn Claude CÓ mệnh đề
 
 > Bài làm nguyên văn của agent context-sạch (đề bài: evidence/de-bai.md,
 > chỉ dẫn: evidence/chi-dan-claude-co-mbc.md). Không sửa chữ nào.
