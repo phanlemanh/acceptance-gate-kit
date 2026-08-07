@@ -807,6 +807,105 @@ echo "L19 '### nhóm phụ' trong ## Criteria -> AC ngưỡng phía sau vẫn đ
 outL19="$(node "$LINT" "$T/lintP" 2>&1)"; check L19 1 $?
 case "$outL19" in *AC-2*) echo "  PASS: L19-ac2"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: L19-ac2 (sub-heading cắt cụt vùng quét Criteria)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
+# ── Nhà viết criterion mà khuôn HẸP cũ nuốt im lặng (lib/ac-line.js) ──────────
+# Mọi fixture cross-layer phía trên đặt nhãn ở CUỐI câu, nên suite này chưa bao
+# giờ chạm dạng "nhãn chen giữa id và dấu hai chấm" — đó là lý do lỗi sống sót.
+# Đo thật (oneflow, 07/08/2026): 7 dòng ở 5 hợp đồng ĐÃ KÝ vô hình với lint.
+
+# Fixture Q: nhãn (cross-layer) ĐẬM chen giữa id và dấu hai chấm + eval CHỈ có ui
+# -> W4 phải nổ. Trước thay đổi này: parser bỏ dòng, W4 im, exit 0 (false-green).
+Q="$T/lintQ/_acceptance/feat-xl-bold"; mkdir -p "$Q"
+cat > "$Q/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+surfaces: [api]
+---
+## Criteria
+- AC-1: Given user, When mở app, Then thấy dashboard.
+- AC-2 **(cross-layer)**: Given user, When submit order, Then order saved via API.
+## Out of scope
+EOF
+cat > "$Q/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "exit 0"
+  - id: E2
+    criterion: AC-2
+    executor: ui-check
+    expected: "toast hiện 'đã lưu'"
+EOF
+
+echo "L30 nhãn **(cross-layer)** chen giữa id và ':' -> AC vẫn đọc được, W4 nổ"
+outL30="$(node "$LINT" "$T/lintQ" 2>&1)"; check L30 1 $?
+case "$outL30" in *"AC-2 is tagged (cross-layer)"*) echo "  PASS: L30-w4"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: L30-w4 (nhãn giữa id và ':' làm AC vô hình = FALSE-GREEN)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+# Fixture R: chú thích amendment nghiêng chen giữa id và dấu hai chấm, AC có
+# ngưỡng, evals thiếu should-NOT-fire -> W1 phải nổ trên AC đó.
+R="$T/lintR/_acceptance/feat-amend"; mkdir -p "$R"
+cat > "$R/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+surfaces: [api]
+---
+## Criteria
+- AC-1: Given user, When mở app, Then thấy dashboard.
+- AC-2 *(sửa lời 05/08 — xem Amendment)*: Given user, When ≥3 opens trong 48h, Then fire hot.
+## Out of scope
+EOF
+cat > "$R/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "exit 0"
+  - id: E2
+    criterion: AC-2
+    executor: script
+    expected: "exit 0; fires hot"
+EOF
+
+echo "L31 chú thích *(sửa lời …)* chen giữa id và ':' -> AC vẫn đọc được, W1 nổ"
+outL31="$(node "$LINT" "$T/lintR" 2>&1)"; check L31 1 $?
+case "$outL31" in *"W1 AC-2"*) echo "  PASS: L31-w1"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: L31-w1 (chú thích giữa id và ':' làm AC vô hình)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+# Fixture S: dòng TRÔNG như criterion mà parser không đọc nổi -> W7 phải kêu.
+# `- **AC-2**` trống (không có chữ nào sau id) là dạng parseAC() cố tình trả null.
+S5="$T/lintS/_acceptance/feat-blind"; mkdir -p "$S5"
+cat > "$S5/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+surfaces: [api]
+---
+## Criteria
+- AC-1: Given user, When mở app, Then thấy dashboard.
+- **AC-2**
+## Out of scope
+EOF
+cat > "$S5/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "exit 0"
+EOF
+
+echo "L32 dòng trông như criterion mà không parse -> W7 kêu (không nuốt im lặng)"
+outL32="$(node "$LINT" "$T/lintS" 2>&1)"; check L32 1 $?
+case "$outL32" in *"W7"*) echo "  PASS: L32-w7"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: L32-w7 (criterion hỏng bị bỏ qua im lặng — đúng lỗ đã giấu lỗi này)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo "L33 contract lành KHÔNG bị W7 (cry-wolf guard)"
+outL33="$(node "$LINT" "$T/lintB" 2>&1)"
+case "$outL33" in *"W7"*) echo "  FAIL: L33-nowolf (contract lành bị W7)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: L33-nowolf"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
+
+echo "L34 dạng ĐÚNG '- AC-n: **(cross-layer)** …' vẫn nổ W4 khi thiếu cặp (không hồi quy)"
+outL34="$(node "$LINT" "$T/lintE2" 2>&1)"; check L34 1 $?
+case "$outL34" in *"(cross-layer)"*) echo "  PASS: L34-w4"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: L34-w4"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
 echo ""
 echo "--- gate-card.js ---"
 GCARD="$HERE/../../scripts/gate-card.js"

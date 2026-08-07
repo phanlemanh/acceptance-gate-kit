@@ -25,6 +25,11 @@
  *       under `_Avoid_` — the requirement is being written in vocabulary the
  *       team already ruled out, so the eval will faithfully test the wrong
  *       reading. Silent in repos with no CONTEXT.md (opt-in by construction).
+ *   W7  a line that LOOKS like a criterion but did not parse — every warning
+ *       above runs on the AC set this file managed to read, so a dropped line
+ *       silently deletes its own coverage check. W7 is the arm that makes the
+ *       set itself auditable; it fires BEFORE W1 because a short set makes
+ *       every other verdict unsound.
  *
  * ADVISORY by design: NL detection is fuzzy, so this never hard-blocks — it
  * exits 1 when it has warnings so a human reads them at Gate 1 (a repo MAY wire
@@ -46,6 +51,19 @@ try { glossaryLib = require(path.join(__dirname, '..', 'lib', 'context-glossary.
 // Thiếu lib thì skip TO TIẾNG (advisory, fail-open) chứ không lint sai.
 let evalYaml = null;
 try { evalYaml = require(path.join(__dirname, '..', 'lib', 'eval-yaml.js')); } catch (_) {}
+
+// Parser dòng criterion dùng chung với gate-card.js (lib/ac-line.js) — MỘT nơi
+// quyết định "thế nào là một dòng criterion". Bản regex inline trước đây ở file
+// này là bản sao thứ hai của khuôn đó, và nó ĐÃ trôi: một nhãn chen giữa id và
+// dấu hai chấm (`- AC-14 **(cross-layer)**: Given …`, `- AC-6 *(amended …)*: …`)
+// không khớp, nên AC rơi khỏi W1/W4 mà KHÔNG một tiếng động — đúng điều kiện
+// sinh lỗi mà lib/ac-line.js được tách ra để chặn ("Ai cần bóc dòng criterion
+// thì require file này — không copy khuôn"). Đo trên một repo tiêu thụ (oneflow,
+// 07/08/2026): 7 dòng ở 5 hợp đồng ĐÃ KÝ vô hình, 3 trong đó gắn (cross-layer)
+// nên W4 chưa từng chạy cho chúng.
+// Thiếu lib thì quay về khuôn cũ (advisory, fail-open) — hẹp nhưng không lint sai.
+let acLine = null;
+try { acLine = require(path.join(__dirname, '..', 'lib', 'ac-line.js')); } catch (_) {}
 
 // ─── Detectors (intentionally generous; advisory) ───────────────────────────
 
@@ -94,10 +112,23 @@ function fieldVal(raw) {
   return s.replace(/[ \t]+#.*$/, '').trim();
 }
 
+// Khuôn HẸP cũ, giữ lại CHỈ cho đường fail-open khi thiếu lib/ac-line.js.
+// Đừng sửa nó cho khớp nhà mới — sửa lib/ac-line.js, đó là nguồn duy nhất.
+const AC_LINE_NARROW_FALLBACK = /^\s*[-*]\s*(AC-\d+)\s*[:.]\s*(.+)$/;
+
 function parseACs(contractText) {
   const acs = [];
   for (const line of sectionLines(contractText, /^#{1,6}\s+Criteria\b/i)) {
-    const m = line.match(/^\s*[-*]\s*(AC-\d+)\s*[:.]\s*(.+)$/);
+    if (acLine) {
+      // parseAC() tự loại cross-reference (`**AC-5, AC-9 chưa có gì**`) và tự
+      // tính judgment chặt hơn khuôn cũ (nhãn đọc lỏng, thân bài chỉ nhận tag
+      // đúng chữ, code span không tính) — một tiêu chí TRÍCH DẪN `(judgment)`
+      // không còn tự hạ cấp chính nó thành human-only.
+      const p = acLine.parseAC(line);
+      if (p) acs.push({ id: p.id, text: p.gwt, judgment: p.judgment, crossLayer: /\(cross-layer\)/i.test(p.gwt) });
+      continue;
+    }
+    const m = line.match(AC_LINE_NARROW_FALLBACK);
     if (m) acs.push({ id: m[1], text: m[2], judgment: /\(judgment\)/i.test(m[2]), crossLayer: /\(cross-layer\)/i.test(m[2]) });
   }
   return acs;
@@ -124,6 +155,17 @@ function lintFeature(slug, contractText, evalsText, glossary) {
   const evals = parseEvals(evalsText);
   const evalsFor = id => evals.filter(e => e.criterion === id);
   const hasNeg = es => es.some(e => NEG_RE.test(e.expected));
+
+  // W7 — tập AC phải tự kiểm được, và nó đứng TRƯỚC mọi cảnh báo khác: W1/W3/W4
+  // đều chạy trên `acs`, nên một dòng bị bỏ sót xoá luôn phần bảo vệ của chính
+  // nó mà không để lại dấu vết. Đây chính là cách lỗi khuôn-hẹp sống sót qua 5
+  // hợp đồng đã ký ở repo tiêu thụ: không ai đọc được cái mình không thấy.
+  // Bộ dò sống ở lib/ac-line.js (dùng chung với gate-card.js) — nó đã tự loại
+  // cross-reference nên contract lành không bị cry-wolf.
+  if (acLine) {
+    const blind = acLine.acBlindSpot(contractText, acs.map(a => a.id));
+    if (blind) warns.push(`[${slug}] W7 ${acLine.blindSpotText(blind)}`);
+  }
 
   for (const ac of acs) {
     if (ac.judgment) continue;               // subjective — no mechanical boundary
@@ -224,7 +266,7 @@ function run(argv) {
   if (!warns.length) { console.log('eval-coverage-lint: no coverage gaps detected.'); return 0; }
   console.log(`eval-coverage-lint: ${warns.length} coverage warning(s) — ADVISORY, review at Gate 1 (not auto-blocking):\n`);
   for (const w of warns) console.log('  ' + w);
-  console.log('\nW1 = a bounded/threshold criterion needs a just-below should-NOT-fire (boundary) eval; W3 = give the out-of-scope half real negative evals; W4 = a (cross-layer) criterion needs a paired layer: backend-effect eval; W5 = a mobile-surface contract needs a "Mobile backend target:" line; W6 = the contract uses a word this repo\'s CONTEXT.md ruled out under _Avoid_.');
+  console.log('\nW1 = a bounded/threshold criterion needs a just-below should-NOT-fire (boundary) eval; W3 = give the out-of-scope half real negative evals; W4 = a (cross-layer) criterion needs a paired layer: backend-effect eval; W5 = a mobile-surface contract needs a "Mobile backend target:" line; W6 = the contract uses a word this repo\'s CONTEXT.md ruled out under _Avoid_; W7 = a criterion-shaped line did not parse, so every warning above ran on an incomplete AC set — fix the contract line first, then re-read this output.');
   return 1;
 }
 
