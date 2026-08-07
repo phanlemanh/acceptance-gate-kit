@@ -85,17 +85,37 @@ Tài liệu Gate 2 (`evidence-report.md`): verdict + bảng per-eval + các trư
 human-owned.
 _Avoid_: test report, báo cáo QA.
 
+**UAT session**:
+Hồ sơ Cổng Giá trị (`_acceptance/<slug>/uat-session.md`) — phiên nghiệm thu
+sau ship; frontmatter máy-đọc (`stage: scheduled|held`, `verdict:
+release|iterate|kill`). Khuôn ở `uat-session-template.md`, thủ tục chép nằm
+trong khối mốc `UAT-COPY-PROCEDURE`.
+_Avoid_: demo, review meeting; dùng thang PASS/REJECT cho verdict của nó.
+
+**Product map (bản đồ sản phẩm)**:
+View máy sinh `PRODUCT-MAP.md` ở gốc repo — vẽ từ hồ sơ xưởng bởi
+`product-map.mjs`, kiểm bằng `--check` (pattern P30: view == hồ sơ). Trạng
+thái vắng mặt phân biệt "đã xoá" với "chưa bật" theo bảng nhãn chung trong
+`lib/workspace-record.js`.
+_Avoid_: roadmap, dashboard; sửa tay (nó là view, sửa hồ sơ rồi vẽ lại).
+
 **Verdict**:
 Kết luận CẤP REPORT: `PASS` / `REJECT` / `BLOCKED` (± `PENDING-JUDGMENT`).
 Eval riêng lẻ KHÔNG có verdict — nó có `expected`/actual; đừng dùng từ này cho
 một eval đơn lẻ.
-_Avoid_: outcome, result
+⚠ `verdict` mang HAI nghĩa theo file: trong `evidence-report.md` là thang của
+cổng máy (`PASS/REJECT/BLOCKED/PENDING-JUDGMENT`); trong `uat-session.md` là
+thang của Cổng Giá trị (`release/iterate/kill`). Bảng luật khoá theo cặp
+(file, field) đúng vì vậy — nói "verdict" trần mà không kèm tên file là mơ hồ.
+_Avoid_: outcome, result; gán thang file này cho file kia
 
 ### Gates & verbs
 
 **Gate**:
 Viết hoa, CHỈ điểm dừng con người: Gate 1 (duyệt contract+evals), Gate 1.5
-(T3 — duyệt plan), Gate 2 (signoff evidence). Máy móc không phải Gate: hook
+(T3 — duyệt plan), Gate 2 (signoff evidence), và Cổng Giá trị (ký `verdict`
+trong `uat-session.md` — xem bảng "Tên bốn cổng" dưới; Cổng Đáng ký `decision`
+trong `opportunity.md`). Máy móc không phải Gate: hook
 ghi-thời-điểm gọi là **the hook**, CI gọi là **pre-merge check** (tên file
 `acceptance-evidence-gate.js` giữ nguyên — glossary trị văn, không trị tên file).
 _Avoid_: evidence gate, merge gate, quality gate (khi chỉ hook/CI).
