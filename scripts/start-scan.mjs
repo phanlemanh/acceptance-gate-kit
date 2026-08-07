@@ -94,6 +94,13 @@ const VERDICT_MEANING = {
   'REJECT':           { settled: false, nextStep: 'S3-fix' },
   'BLOCKED':          { settled: false, nextStep: 'S4' },
 };
+// Bảng Ý NGHĨA này là từ vựng thứ hai bên cạnh enum của bảng luật chung —
+// hai bảng lệch nhau là bộ quét sập giữa chừng (đã dựng lại được: nới enum
+// trong lib mà không thêm nghĩa ở đây). Giá trị hợp luật chung nhưng không có
+// nghĩa ở bảng này phải là hồ sơ-đọc-được-nhưng-bộ-quét-lệch, nêu đích danh.
+const meaningOf = verdict => VERDICT_MEANING[verdict] || null;
+const bangLech = verdict => ({ file: 'evidence-report.md',
+  reason: `verdict ${verdict} hợp bảng luật chung nhưng bảng ý nghĩa của bộ quét không biết nó — hai bảng lệch, sửa VERDICT_MEANING` });
 // verdict của PHIÊN NGHIỆM THU → ô kết cục. Giá trị ngoài bảng này không tới
 // được đây: luật chung đã gọi nó là hồ sơ hỏng trước đó.
 const UAT_STATE = { release: 'released', iterate: 'uat-iterate', kill: 'uat-kill' };
@@ -192,8 +199,9 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       // "chờ ký" oan (S4-r1)
       const ev = readEvidence();
       if (ev) {
-        const meaning = VERDICT_MEANING[ev.verdict];
+        const meaning = ev.exists ? meaningOf(ev.verdict) : null;
         if (!ev.exists) broken.push({ slug, ...missingArtifact({ 'contract.md': cTxt, 'evidence-report.md': null }) });
+        else if (!meaning) broken.push({ slug, ...bangLech(ev.verdict) });
         else if (ev.signoff) done.push({ slug, state: 'signed-off' });
         else if (meaning.settled) gates.push({ slug, gate: 'bang-chung', since: since(cPath, frontmatterField(cTxt, 'approved_at')), tier });
         else inProgress.push({ slug, status, nextStep: meaning.nextStep, tier });
@@ -203,10 +211,9 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       const ev = readEvidence();
       if (ev) {
         // Chưa có evidence = máy chưa chấm lần nào → bước kế là nghiệm thu máy
-        // verdict ngoài enum không tới được đây — luật chung đã gọi nó là hồ sơ
-        // hỏng trong readEvidence (fieldProblem), nên bảng tra không cần nhánh thoát.
-        const meaning = !ev.exists ? { nextStep: 'S4' } : VERDICT_MEANING[ev.verdict];
-        inProgress.push({ slug, status, nextStep: meaning.nextStep, tier });
+        const meaning = !ev.exists ? { nextStep: 'S4' } : meaningOf(ev.verdict);
+        if (!meaning) broken.push({ slug, ...bangLech(ev.verdict) });
+        else inProgress.push({ slug, status, nextStep: meaning.nextStep, tier });
       }
     }
     else if (status === 'approved') inProgress.push({ slug, status, nextStep: planExists(slug) ? 'S3' : 'S2', tier });

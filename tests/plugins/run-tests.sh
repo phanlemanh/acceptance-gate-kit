@@ -3315,14 +3315,15 @@ const e = brokenOf(scan(), 'e-noverdict');
 if (!e || !/thiếu verdict/.test(e.reason))
   die(`verdict vang phai bi goi ten, duoc: ${JSON.stringify(e)}`);
 
-// ---- (e2)(e3) key verdict CO MAT nhung RONG: phai xu nhu VANG o CA HAI nhanh ----
-// Rong ma roi xuong offVocab thi thong diep la "khong nhan dien duoc: " —
-// khong neu ten gi ca, trai AC-2. Guard dung chung phai ket luan truoc do.
+// ---- (e2)(e3) key verdict CO MAT nhung RONG: hong o CA HAI nhanh ----
+// Tu 1.38.0 verdict di qua luat chung (fieldProblem): rong khong allowEmpty
+// → "không nhận diện được: (rỗng)" — van neu ten field, chi doi khuon chu
+// (workspace-reader-unification AC-1: mot bang luat, mot khuon thong diep).
 for (const slug of ['e2-verdict-rong', 'e3-verified-rong']) {
   const hit = brokenOf(scan(), slug);
   if (!hit) die(`[${slug}] verdict rong phai vao broken[]`);
-  if (!/thiếu verdict/.test(hit.reason))
-    die(`[${slug}] verdict rong phai bao "thieu verdict", duoc: ${hit.reason}`);
+  if (!/verdict không nhận diện được: \(rỗng\)/.test(hit.reason))
+    die(`[${slug}] verdict rong phai bao "khong nhan dien duoc: (rong)", duoc: ${hit.reason}`);
   if (/nhận diện được: *$/.test(hit.reason))
     die(`[${slug}] thong diep khong neu ten gi — dung nhanh offVocab thay vi guard chung: ${hit.reason}`);
 }
@@ -3438,7 +3439,10 @@ const check = scanPath => {
     for (const v of VOCAB) {
       const slug = `${st}-${v.toLowerCase()}`;
       const bad = r.broken.find(b => b.slug === slug);
-      if (bad && /không nhận diện được/.test(bad.reason))
+      // Hai duong do hop le: gia tri ngoai enum luat chung ("khong nhan dien
+      // duoc") HOAC hop luat chung nhung bang y nghia cua bo quet thieu no
+      // ("hai bang lech" — 1.38.0, khi VERDICT_MEANING troi khoi NAV_RULES).
+      if (bad && /(không nhận diện được|hai bảng lệch)/.test(bad.reason))
         errs.push(`[${st}] verdict ${v} co trong khuon writer nhung reader goi la khong-nhan-dien-duoc`);
     }
   }
@@ -3692,6 +3696,9 @@ W("_acceptance/h-kill/uat-session.md", uat("h-kill", "kill"));
 W("_acceptance/i-xep-lai/opportunity.md", opp("i-xep-lai", "decided", "park"));
 W("_acceptance/j-bac/opportunity.md", opp("j-bac", "decided", "kill"));
 W("_acceptance/k-hong/contract.md", "khong co frontmatter\n");
+// cap evidence-report/verdict cua bang luat (1.38.0): tieu thu o implemented
+W("_acceptance/l-dang-cham/contract.md", contract("l-dang-cham", "implemented"));
+W("_acceptance/l-dang-cham/evidence-report.md", "---\nverdict: PASS\nhuman_signoff:\n---\n# E\n");
 W(".out-of-scope/mot-de-xuat-da-bac.md", "# Mien tru X — DA TU CHOI\n\nvan xuoi\n");
 
 const sectionOfIn = (txt, slug) => {
@@ -3743,6 +3750,7 @@ const FIXTURE = {
   "opportunity.md/decision": "b-sap-mo",
   "uat-session.md/verdict":  "g-release",
   "uat-session.md/stage":    "g-release",
+  "evidence-report.md/verdict": "l-dang-cham",
 };
 const LAC = "khong-thuoc-tu-vung";
 // MO NEO hai chieu. Suy danh sach tu NAV_RULES vá được lỗ "them field ma quen
@@ -3798,6 +3806,11 @@ const contract = status => fileFromTemplate(
   { feature: "viec x", slug: "x", owner: "o@o", risk_tier: "T2", surfaces: "cli", status });
 W("_acceptance/config.yaml", "schema_version: 1\n");
 W("_acceptance/x/contract.md", contract("approved"));
+// Tu 1.38.0 verified TIEU THU evidence-report (thieu la ho so hong — luat
+// khai-xong-ma-thieu-file). Loi hua "dung yen giua hai cong nguoi" do tren
+// DUONG LANH: fixture mang evidence lanh nhu vong that (S4 ghi report truoc
+// khi doi status). Duong verified-thieu-evidence do o P123 chang 2b.
+W("_acceptance/x/evidence-report.md", "---\nverdict: PASS\nhuman_signoff:\n---\n# E\n");
 const cPath = path.join(tmp, "_acceptance/x/contract.md");
 const base = renderProductMap(tmp);
 for (const s of ["implemented", "verified"]) {
@@ -4177,12 +4190,17 @@ if (!broken("f-uat-hong") || !/uat-session/.test(broken("f-uat-hong").file))
 if (!broken("g-uat-la") || !/xong-roi/.test(broken("g-uat-la").reason))
   die("verdict ngoai enum khong vao broken[] kem gia tri la");
 if (state("h-ship-thang") !== "signed-off") die("signed-off khong duong A phai la da-ky thuong");
-// since 2 nhanh: co decided_at cua uat -> dung no; thieu -> mtime contract
+// since 2 nhanh (doi 1.38.0, AC-8 workspace-reader-unification): co decided_at
+// cua uat -> dung no; THIEU -> de RONG, khong muon mtime bia mot moc — nghi
+// thuc that chua sinh moc thi thu tu cho khong duoc dua tren thoi diem file
+// bi format/sync cham lai.
 const gA = j.groups.gates.find(g => g.slug === "a-cho-gia-tri");
 const gB = j.groups.gates.find(g => g.slug === "b-cho-co-uat");
 if (gB.since !== "2026-07-01T00:00:00Z") die("since khong lay decided_at cua uat: " + gB.since);
-if (!gA.since || gA.since === gB.since) die("since thieu decided_at phai roi ve mtime contract");
-if (j.groups.gates[0].slug !== "b-cho-co-uat") die("cong cho lau nhat phai dung dau");
+if (gA.since !== "") die("since thieu decided_at phai RONG (khong bia moc tu mtime), duoc: " + JSON.stringify(gA.since));
+// since rong sort len dau bang localeCompare — thu tu van xac dinh, khong assert
+// "cho lau nhat dung dau" tren hai kieu moc khong so sanh duoc voi nhau nua
+if (j.groups.gates[0].slug !== "a-cho-gia-tri") die("since rong phai dung dau danh sach (sort on dinh): " + j.groups.gates[0].slug);
 // Khoa skipped[] da bi go han (het nguon sinh) — kiem SU VANG MAT cua khoa,
 // khong grep noi dung mot mang luon rong (chan chet).
 if ("skipped" in j) die("skipped[] van con trong dau ra du khong con nguon sinh nao");
@@ -4974,6 +4992,11 @@ for (const st of [null, "draft", "approved", "implemented", "verified", "signed-
   const cp = path.join(dir, "contract.md");
   if (st == null) { if (fs.existsSync(cp)) fs.unlinkSync(cp); }
   else fs.writeFileSync(cp, "---\nstatus: " + st + "\n---\n");
+  // verified tieu thu evidence tu 1.38.0 — cap ban lanh de truc dang do
+  // (canh/ten viec) khong bi nhieu boi luat khai-xong-ma-thieu-file
+  const ep = path.join(dir, "evidence-report.md");
+  if (st === "verified") fs.writeFileSync(ep, "---\nverdict: PASS\nhuman_signoff:\n---\n");
+  else if (fs.existsSync(ep)) fs.unlinkSync(ep);
   const dong = renderProductMap(tmp).split("\n").find(l => l.includes("`x`")) || "";
   if (!dong.includes("epic: EP-1") || !dong.includes("liên quan: y"))
     die("status=" + st + ": canh bien mat khoi ban do — \"" + dong.trim()
@@ -8467,6 +8490,152 @@ if errs:
     print("\n".join("  " + e for e in errs)); sys.exit(1)
 print("P172 OK (thu tuc trong khoi moc, thi hanh that: chep dung lanh, chep ca rao hong)")
 P172PY
+
+echo "P173 (AC-1,AC-4,AC-6,AC-8) not luoi reader-unification: mutant mot-cho, tu vung 4 cong, bien Codex, since rong, mutant thu-tuc-chep"
+run "P173 5 ca not: E3/E13/E14/E15/E19" \
+  python3 - "$ROOT" <<'P173PY'
+import json, re, shutil, subprocess, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+errs = []
+run = lambda cmd, **kw: subprocess.run(cmd, capture_output=True, text=True, **kw)
+
+# ── E3: dot bien MOT-CHO — pha luat evidence trong BAN SAO lib, CA HAI reader
+# phai doi ket luan; ben nao khong doi la ben do giu ban sao luat rieng ───────
+with tempfile.TemporaryDirectory() as td:
+    t = Path(td)
+    for d in ("lib", "scripts"):
+        shutil.copytree(root / d, t / d)
+    ws = t / "ws"; (ws / "_acceptance" / "x").mkdir(parents=True)
+    (ws / "_acceptance" / "config.yaml").write_text("schema_version: 1\n")
+    (ws / "_acceptance" / "x" / "contract.md").write_text("---\nstatus: verified\n---\n")
+    (ws / "_acceptance" / "x" / "evidence-report.md").write_text("---\nverdict: PASS\n---\n")
+
+    def hoi_hai_ben(base):
+        scan = json.loads(run(["node", str(base / "scripts/start-scan.mjs"), "--root", str(ws)]).stdout)
+        s_hong = any(b["slug"] == "x" for b in scan["broken"])
+        # argv[1] la tham so DEM: guard chay-nhu-CLI cua product-map so
+        # import.meta.url voi argv[1] — truyen thang duong dan module vao do
+        # la main tu chay va nuot argv cua minh (da dam trong chinh ca nay)
+        mp = run(["node", "--input-type=module", "-e",
+            "const {renderProductMap} = await import(process.argv[2]);"
+            "process.stdout.write(renderProductMap(process.argv[3]))",
+            "khong-phai-module", str(base / "scripts/product-map.mjs"), str(ws)])
+        if mp.returncode != 0:
+            errs.append(f"E3: renderProductMap sap: {mp.stderr.strip()[:120]}")
+        m_hong = "`x`" in (mp.stdout.split("## Hồ sơ hỏng")[1] if "## Hồ sơ hỏng" in mp.stdout else "")
+        return s_hong, m_hong
+
+    # Doi chung duong: ban nguyen ven, ho so lanh → ca hai ben LANH
+    s0, m0 = hoi_hai_ben(t)
+    if s0 or m0:
+        errs.append(f"E3 doi chung duong: cay lanh ma quet={s0} bando={m0}")
+    else:
+        lib = t / "lib" / "workspace-record.js"; src = lib.read_text()
+        # Mutant THU HEP enum (bo 'blocked'): fixture verdict BLOCKED dang lanh
+        # o ca hai ben, luat hep lai thi CA HAI phai doi sang hong — ben nao
+        # khong doi la ben do giu ban sao luat rieng. (Khong dung mutant NOI
+        # enum: gia tri moi hop lib nhung chua co nghia trong bang y nghia cua
+        # bo quet, cho do co guard bang-lech rieng — do o duoi.)
+        mut = src.replace("enum: ['pass', 'pending-judgment', 'reject', 'blocked']",
+                          "enum: ['pass', 'pending-judgment', 'reject']")
+        if mut == src: errs.append("E3: khong tiem duoc mutant enum")
+        (ws / "_acceptance" / "x" / "evidence-report.md").write_text("---\nverdict: BLOCKED\n---\n")
+        s1, m1 = hoi_hai_ben(t)   # lib nguyen ven: BLOCKED hop enum → ca hai LANH
+        if s1 or m1:
+            errs.append(f"E3 doi chung duong: BLOCKED hop luat ma quet={s1} bando={m1}")
+        lib.write_text(mut)
+        s2, m2 = hoi_hai_ben(t)   # lib thu hep: ca hai phai DOI ket luan → HONG
+        if not (s2 and m2):
+            ben = "bo quet" if not s2 else "ban do"
+            errs.append(f"E3: thu hep luat trong lib ma {ben} KHONG doi ket luan — ben do giu ban sao luat rieng")
+        lib.write_text(src)
+        # Quan he HAI BANG cua bo quet: moi gia tri hop enum cua lib phai co
+        # nghia trong bang VERDICT_MEANING — nới enum mà quên thêm nghĩa thì
+        # hồ sơ bị gọi tên "hai bảng lệch", KHÔNG sập giữa chừng.
+        lib.write_text(src.replace("enum: ['pass', 'pending-judgment', 'reject', 'blocked']",
+                                   "enum: ['pass', 'pending-judgment', 'reject', 'blocked', 'ok-nhe']"))
+        (ws / "_acceptance" / "x" / "evidence-report.md").write_text("---\nverdict: ok-nhe\n---\n")
+        r3 = run(["node", str(t / "scripts/start-scan.mjs"), "--root", str(ws)])
+        if r3.returncode != 0:
+            errs.append(f"E3 bang-lech: bo quet SAP thay vi goi ten ({r3.stderr.strip()[:80]})")
+        else:
+            b3 = next((b for b in json.loads(r3.stdout)["broken"] if b["slug"] == "x"), None)
+            if not b3 or "hai bảng lệch" not in b3.get("reason", ""):
+                errs.append(f"E3 bang-lech: khong goi dich danh (thay: {b3})")
+
+# ── E13: tu vung — do QUAN HE trong CONTEXT.md, khong chi chuoi co mat ───────
+ctx = (root / "CONTEXT.md").read_text()
+bang = re.search(r"\| \*\*Cổng Đáng\*\*.*?\| \*\*Cổng Giá trị\*\*[^\n]*\n", ctx, re.S)
+if not bang:
+    errs.append("E13: bang bon cong khong con du bon hang lien tuc")
+else:
+    for cong, file_ghi in (("Cổng Đáng", "opportunity.md"), ("Cổng Phạm vi", "contract.md"),
+                            ("Cổng Bằng chứng", "evidence-report.md"), ("Cổng Giá trị", "uat-session.md")):
+        hang = next((l for l in bang.group(0).splitlines() if cong in l), None)
+        if not hang or file_ghi not in hang:
+            errs.append(f"E13: hang {cong} khong tro dung file {file_ghi}")
+muc_gate = ctx.split("**Gate**:", 1)[1].split("**", 1)[0] if "**Gate**:" in ctx else ""
+if "Cổng Giá trị" not in muc_gate:
+    errs.append("E13: muc Gate chua liet Cong Gia tri")
+muc_verdict = ctx.split("**Verdict**:", 1)[1].split("### ", 1)[0] if "**Verdict**:" in ctx else ""
+if not ("release/iterate/kill" in muc_verdict and "uat-session.md" in muc_verdict):
+    errs.append("E13: canh bao verdict hai nghia phai neu ca enum uat va ten file")
+for art in ("**UAT session**:", "**Product map"):
+    if art not in ctx: errs.append(f"E13: Artifacts thieu muc {art}")
+
+# ── E14: bien Codex — start Codex KHONG duoc tro toi skill uat-session nhu
+# mot dich giai duoc trong an ban (danh sach skill Codex khong co no) ─────────
+codex_skills = {d.name for d in (root / "codex/acceptance-gate/skills").iterdir() if d.is_dir()}
+if "uat-session" in codex_skills:
+    errs.append("E14: an ban Codex NAY co skill uat-session roi — go case nay va mo lai loi hua")
+start_codex = (root / "codex/acceptance-gate/skills/start/SKILL.md").read_text()
+if re.search(r"`uat-session` skill", start_codex):
+    errs.append("E14: start Codex van tro `uat-session` skill — con tro chet trong an ban khong mang skill do")
+if "UAT-COPY-PROCEDURE" not in start_codex:
+    errs.append("E14: start Codex khong chi duong chep khuon (UAT-COPY-PROCEDURE)")
+
+# ── E15: since rong — cho-Cong-Gia-tri thieu decided_at thi de trong, khong
+# bia moc tu mtime ───────────────────────────────────────────────────────────
+with tempfile.TemporaryDirectory() as td:
+    ws = Path(td) / "ws"; (ws / "_acceptance" / "x").mkdir(parents=True)
+    (ws / "_acceptance" / "config.yaml").write_text("schema_version: 1\n")
+    (ws / "_acceptance" / "x" / "contract.md").write_text("---\nstatus: signed-off\n---\n")
+    (ws / "_acceptance" / "x" / "opportunity.md").write_text("---\nstage: decided\ndecision: build\n---\n")
+    (ws / "_acceptance" / "x" / "uat-session.md").write_text("---\nstage: held\nverdict:\n---\n")
+    scan = json.loads(run(["node", str(root / "scripts/start-scan.mjs"), "--root", str(ws)]).stdout)
+    g = next((g for g in scan["groups"]["gates"] if g["slug"] == "x"), None)
+    if not g or g["gate"] != "gia-tri":
+        errs.append(f"E15: fixture khong roi vao o cho-Cong-Gia-tri: {g}")
+    elif g["since"] != "":
+        errs.append(f"E15: thieu decided_at ma since={g['since']!r} — van bia moc")
+    # Doi chung duong: co decided_at thi since phai DUNG moc do
+    (ws / "_acceptance" / "x" / "uat-session.md").write_text(
+        "---\nstage: held\nverdict:\ndecided_at: 2026-01-02T03:04:05Z\n---\n")
+    scan2 = json.loads(run(["node", str(root / "scripts/start-scan.mjs"), "--root", str(ws)]).stdout)
+    g2 = next((g for g in scan2["groups"]["gates"] if g["slug"] == "x"), None)
+    if not g2 or g2["since"] != "2026-01-02T03:04:05Z":
+        errs.append(f"E15 doi chung duong: co decided_at ma since={g2 and g2['since']!r}")
+
+# ── E19: dot bien thu-tuc-chep — xoa mot buoc trong khoi moc cua BAN SAO thi
+# phep do khuon (logic P172) phai DO neu dung buoc bi xoa ────────────────────
+tpl = (root / "skills/acceptance/references/uat-session-template.md").read_text()
+proc = tpl.split("<<<UAT-COPY-PROCEDURE -->", 1)[1].split("<!-- UAT-COPY-PROCEDURE>>>", 1)[0]
+BUOC = ["ĐỪNG chép", "BẮT ĐẦU ngay ở dòng `---`", "Xoá các dòng hướng dẫn"]
+for b in BUOC:
+    if b not in proc: errs.append(f"E19 doi chung duong: khoi thu tuc thieu san buoc {b!r}")
+mut = proc.replace("ĐỪNG chép", "cứ chép", 1)
+if "ĐỪNG chép" in mut:
+    errs.append("E19: mutant khong tiem duoc (buoc xuat hien nhieu lan?)")
+else:
+    thieu = [b for b in BUOC if b not in mut]
+    if thieu != ["ĐỪNG chép"]:
+        errs.append(f"E19: xoa buoc 'ĐỪNG chép' ma phep do thay thieu {thieu} — khong do dung buoc")
+
+if errs:
+    print("\n".join("  " + e for e in errs)); sys.exit(1)
+print("P173 OK (E3 mutant mot-cho 2 ben, E13 tu vung quan he, E14 bien Codex, E15 since rong + doi chung, E19 mutant thu tuc)")
+P173PY
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
