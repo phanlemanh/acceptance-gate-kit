@@ -19,7 +19,7 @@ phẩm, không sửa gì, không tự làm nội dung thay nghi thức đích.
    groups.gates[].slug groups.gates[].gate groups.gates[].since groups.gates[].tier
    groups.inProgress[].slug groups.inProgress[].status groups.inProgress[].nextStep groups.inProgress[].tier
    groups.done[].slug groups.done[].state
-   map.present map.fresh map.enabled
+   map.present map.fresh map.enabled map.state map.label
    discovery.brainstormSkill
    broken[].slug broken[].file broken[].reason
    START-SCAN-KEYS>>> -->
@@ -57,11 +57,13 @@ phẩm, không sửa gì, không tự làm nội dung thay nghi thức đích.
      việc đã rõ → `/feature-loop <mô tả>`; (c) việc vặt khớp miễn trừ T1 →
      xác nhận nó là T1 rồi KẾT THÚC `/start` — người ra lệnh sửa ở lượt kế,
      ngoài nghi thức này (lệnh `/start` không sửa gì, kể cả việc vặt).
-   - Dưới thẻ: một dòng bản đồ sản phẩm — `map.present` là `false` thì đọc
-     `map.enabled`: `true` → "chưa có bản đồ sản phẩm (sẽ tự vẽ ở lần ký cổng
-     kế)"; `false` → "repo chưa bật bản đồ sản phẩm — bật bằng hai dòng trong
-     `_acceptance/config.yaml`"; `null` → "chưa đọc được cấu hình nên chưa biết
-     bản đồ đã bật chưa" (ĐỪNG khuyên bật một thứ có thể đã bật rồi). ĐỪNG hứa bản đồ sẽ tự tới khi repo chưa bật:
+   - Dưới thẻ: một dòng bản đồ sản phẩm — đọc `map.state` + `map.label` (nhãn
+     rút từ bảng nhãn chung trong lib, CÙNG chữ với cổng CI — không tự chế
+     chuỗi): `da-xoa` → in nguyên `map.label` kèm "khôi phục, hoặc vẽ lại bằng
+     một lệnh"; `chua-bat` → in nguyên `map.label` kèm "bật bằng hai dòng trong
+     `_acceptance/config.yaml`"; `map.state` là `null` (config không đọc được)
+     → "chưa đọc được cấu hình nên chưa biết bản đồ đã bật chưa" (ĐỪNG khuyên
+     bật một thứ có thể đã bật rồi). ĐỪNG hứa bản đồ sẽ tự tới khi repo chưa bật:
      mọi thân cổng người được dặn BỎ QUA việc vẽ ở đúng repo đó, nên người sẽ
      đợi một thứ không bao giờ tới. `map.fresh` là `false` →
      "bản đồ đang lệch với hồ sơ — làm mới bằng một lệnh"; `null` → "chưa kiểm

@@ -23,7 +23,7 @@ ritual itself.
    groups.gates[].slug groups.gates[].gate groups.gates[].since groups.gates[].tier
    groups.inProgress[].slug groups.inProgress[].status groups.inProgress[].nextStep groups.inProgress[].tier
    groups.done[].slug groups.done[].state
-   map.present map.fresh map.enabled
+   map.present map.fresh map.enabled map.state map.label
    discovery.brainstormSkill
    broken[].slug broken[].file broken[].reason
    START-SCAN-KEYS>>> -->

@@ -22,7 +22,7 @@ const { frontmatterField, resolveConfigKey } = require(path.join(__dirname, '..'
 // được cho hai kết luận trái nhau. Kiểm tay lại ở đây là cách hai bên đã trôi
 // khỏi nhau ở r12 và r13 dù bảng enum đã gom xong từ r3.
 const { recordProblem, navValues, consumedTexts, usesOpportunity, readRecord, ioReason,
-        configList } =
+        configList, fieldProblem, missingArtifact, mapState, MAP_LABELS } =
   require(path.join(__dirname, '..', 'lib', 'workspace-record.js'));
 
 // Argv hỏng CHẾT TO (exit 2), không âm thầm rơi về cwd: một cờ được KHAI mà
@@ -94,7 +94,6 @@ const VERDICT_MEANING = {
   'REJECT':           { settled: false, nextStep: 'S3-fix' },
   'BLOCKED':          { settled: false, nextStep: 'S4' },
 };
-const offVocab = verdict => ({ file: 'evidence-report.md', reason: `verdict không nhận diện được: ${verdict}` });
 // verdict của PHIÊN NGHIỆM THU → ô kết cục. Giá trị ngoài bảng này không tới
 // được đây: luật chung đã gọi nó là hồ sơ hỏng trước đó.
 const UAT_STATE = { release: 'released', iterate: 'uat-iterate', kill: 'uat-kill' };
@@ -121,9 +120,12 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
   if (cRead.err) { broken.push({ slug, file: 'contract.md', reason: ioReason(cRead.err) }); continue; }
   const cTxt = cRead.t;
   if (cTxt != null) {
-    const statusRaw = fmOrNull(cTxt, 'status');
-    if (statusRaw == null) { broken.push({ slug, file: 'contract.md', reason: 'frontmatter không parse được hoặc thiếu status' }); continue; }
-    const status = statusRaw.toLowerCase();
+    // status đi qua LUẬT CHUNG (fieldProblem) — bản kiểm tay ở đây từng lệch
+    // chuỗi với lib ("parse" vs "đọc") và là một trong hai bản sao cuối cùng
+    // của luật contract/status (workspace-reader-unification AC-1).
+    const statusProblem = fieldProblem('contract.md', cTxt, 'status');
+    if (statusProblem) { broken.push({ slug, ...statusProblem }); continue; }
+    const status = frontmatterField(cTxt, 'status').toLowerCase();
     const tier = frontmatterField(cTxt, 'risk_tier') || null;
     // evidence-report.md CHỈ được đọc trong hai nhánh tiêu thụ nó (verified,
     // implemented). Chốt lỗi đặt TRƯỚC chỗ rẽ trạng thái là lớp lỗi đã dẫm 4
@@ -139,7 +141,10 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       const eTxt = eRead.t;
       // Rỗng = VẮNG, kết luận một chỗ cho cả hai nhánh (S4-r1: frontmatterField
       // trả '' cho key-có-giá-trị-rỗng nên `== null` để lọt xuống offVocab(''))
-      if (eTxt != null && !fmOrNull(eTxt, 'verdict')) { broken.push({ slug, file: 'evidence-report.md', reason: 'frontmatter không parse được hoặc thiếu verdict' }); return null; }
+      if (eTxt != null) {
+        const p = fieldProblem('evidence-report.md', eTxt, 'verdict');
+        if (p) { broken.push({ slug, ...p }); return null; }
+      }
       return {
         exists: eTxt != null,
         verdict: eTxt != null ? frontmatterField(eTxt, 'verdict').toUpperCase() : null,
@@ -176,7 +181,9 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       // verdict RỖNG = phiên đã dựng nhưng CHƯA ký → rơi xuống ô chờ-Cổng-Giá-trị
       if (verdict) { done.push({ slug, state: UAT_STATE[verdict] }); continue; }
       if (decision === 'build' || decision === 'iterate')
-        gates.push({ slug, gate: 'gia-tri', since: since(cPath, fmOrNull(uTxt, 'decided_at')), tier });
+        // since CHỈ từ decided_at của phiên — nghi thức thật chưa sinh mốc thì
+        // để trống, không mượn mtime bịa một mốc (AC-8 workspace-reader-unification)
+        gates.push({ slug, gate: 'gia-tri', since: fmOrNull(uTxt, 'decided_at') || '', tier });
       else done.push({ slug, state: 'signed-off' });
     }
     else if (status === 'verified') {
@@ -186,9 +193,8 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       const ev = readEvidence();
       if (ev) {
         const meaning = VERDICT_MEANING[ev.verdict];
-        if (!ev.exists) broken.push({ slug, file: '(workspace)', reason: 'status verified nhưng thiếu evidence-report.md' });
+        if (!ev.exists) broken.push({ slug, ...missingArtifact({ 'contract.md': cTxt, 'evidence-report.md': null }) });
         else if (ev.signoff) done.push({ slug, state: 'signed-off' });
-        else if (!meaning) broken.push({ slug, ...offVocab(ev.verdict) });
         else if (meaning.settled) gates.push({ slug, gate: 'bang-chung', since: since(cPath, frontmatterField(cTxt, 'approved_at')), tier });
         else inProgress.push({ slug, status, nextStep: meaning.nextStep, tier });
       }
@@ -197,9 +203,10 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       const ev = readEvidence();
       if (ev) {
         // Chưa có evidence = máy chưa chấm lần nào → bước kế là nghiệm thu máy
+        // verdict ngoài enum không tới được đây — luật chung đã gọi nó là hồ sơ
+        // hỏng trong readEvidence (fieldProblem), nên bảng tra không cần nhánh thoát.
         const meaning = !ev.exists ? { nextStep: 'S4' } : VERDICT_MEANING[ev.verdict];
-        if (!meaning) broken.push({ slug, ...offVocab(ev.verdict) });
-        else inProgress.push({ slug, status, nextStep: meaning.nextStep, tier });
+        inProgress.push({ slug, status, nextStep: meaning.nextStep, tier });
       }
     }
     else if (status === 'approved') inProgress.push({ slug, status, nextStep: planExists(slug) ? 'S3' : 'S2', tier });
@@ -286,6 +293,12 @@ const map = {
   enabled: cfgRead.err || cfgRead.t == null ? null
     : configList(cfgRead.t, 't1_skip_globs').includes('PRODUCT-MAP.md'),
 };
+// state/label rút từ BẢNG NHÃN CHUNG (lib) — cùng bảng với product-map --check,
+// để "đã xoá" ở cổng CI không hoá "chưa dựng" trên thẻ /start (AC-3/AC-7).
+// tracked ở đây = enabled (tín hiệu config, sống được trên checkout nông);
+// enabled null (config không đọc được) → state null, thẻ nói "chưa biết".
+map.state = map.enabled == null ? null : mapState({ exists: map.present, tracked: map.enabled });
+map.label = map.state == null ? null : MAP_LABELS[map.state];
 if (map.present) {
   // fresh = null khi KHÔNG kiểm được (không phải "khớp"): thẻ nói "chưa kiểm
   // được bản đồ", không nói xanh.

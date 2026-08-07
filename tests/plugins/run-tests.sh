@@ -3519,7 +3519,7 @@ Object.assign(MATRIX, {
   'implemented|matquyen': 'broken:EACCES',  'verified|matquyen': 'broken:EACCES',
   'implemented|lathumuc': 'broken:EISDIR',  'verified|lathumuc': 'broken:EISDIR',
   'implemented|thieuverdict': 'broken:thiếu verdict', 'verified|thieuverdict': 'broken:thiếu verdict',
-  'implemented|verdictrong': 'broken:thiếu verdict',  'verified|verdictrong': 'broken:thiếu verdict',
+  'implemented|verdictrong': 'broken:không nhận diện được', 'verified|verdictrong': 'broken:không nhận diện được',
   'implemented|verdictrac': 'broken:không nhận diện được: FAIL', 'verified|verdictrac': 'broken:không nhận diện được: FAIL',
   'implemented|pass': 'prog:S4',    'verified|pass': 'gates:bang-chung',
   'implemented|pending': 'prog:S4', 'verified|pending': 'gates:bang-chung',
