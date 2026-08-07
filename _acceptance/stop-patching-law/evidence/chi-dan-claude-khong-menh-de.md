@@ -158,17 +158,7 @@ sau 15 turns.
 2. Invoke: `Workflow({ scriptPath: '<WORKFLOWS_DIR>/acceptance-verify.js', args: { slug, round, riskTier, evals, suiteCommands, diffBase, repoRoot, personasPath, templatePath, contractPath, reviewSkillPath?, invokedAt, invokedSha, carriedEvals?, carriedPanels?, runBaseline?, carriedAnalyst?, evalsHash? } })` (debug fan-out không tốn agent: thêm `dryRun: true` → trả về distinctCommands/judgePanels + carried plan, không chạy gì).
 3. Routing theo verdict trả về:
    - `REJECT` → quay S3 fix `failedEvals` + `failedCommands` + **`rejectFindings`** (findings TRONG hợp đồng — máy chỉ sửa cái contract đã bao). **`triaged` có mục `inContract: false` → TUYỆT ĐỐI KHÔNG sửa trong round này**: đó là lỗi thật nhưng ngoài phạm vi đã duyệt, nó đi Gate 2 cho người quyết. Sửa nó ở đây chính là vòng xoáy mà scope-triage sinh ra để chặn — mỗi bản vá trong vùng-không-đặc-tả lại đẻ ra lựa chọn không-đặc-tả mới. Fix xong → dispatch S4 round mới (round + 1) NGAY, không hỏi giữa chừng — vòng REJECT→fix→round kế là TỰ ĐỘNG. **Panel judgment có vote FAIL/UNCERTAIN (judge-required-evidence):** bước ĐẦU của round fix là đọc `required_evidence` từ dòng `kind:panel` trong run-log (hoặc block judgment của report) và bổ sung ĐÚNG bằng chứng được nêu — CẤM đoán-mò nguyên nhân judgment khi danh sách tồn tại; vote mang dấu "(judge không nêu bằng-chứng-thiếu)" thì báo user dấu đó trong gói kế tiếp. Trước khi rời S3-fix: append entry `fix` (`stage:"S4-r<N>"`).
-     <!-- <<<STOP-PATCHING-CLAUSE -->
-     **Trước khi dispatch vòng kế: so lớp lỗi vòng này với vòng trước.** Vòng
-     sửa thứ HAI vẫn sinh lỗi CÙNG LỚP với vòng một ⇒ **khuôn giải sai**, không
-     phải chi tiết sai. DỪNG — KHÔNG tự dispatch vòng ba. Trình người ba đường:
-     **đổi khuôn** · **thu phạm vi** · **ship với giới hạn đã biết**; vá tiếp là
-     đường người phải chọn tường minh, không phải mặc định. "Cùng lớp" = cùng
-     TÊN LỚP LỖI trong sổ lớp lỗi (đo-chuỗi-thay-quan-hệ, hạ-thước, fail-open,
-     đếm-rồi-vứt, hằng-đúng, assertion-âm-tính-một-mình…), KHÔNG phải cùng dòng
-     mã hay cùng phép đo — hai lỗi ở hai file khác nhau vẫn là cùng lớp nếu
-     cùng tên, và hai lỗi trên cùng một dòng vẫn là khác lớp nếu khác tên.
-     <!-- STOP-PATCHING-CLAUSE>>> -->
+     
 
      **Tối đa 3 round** — quá → DỪNG, escalate user kèm phân tích từng round. `result.report` rỗng ở round REJECT → cảnh báo user lịch sử Iterations của round này không được ghi (vẫn PHẢI ghi report/findings từ result như bước "Mọi verdict" nếu có nội dung).
    - `BLOCKED` → đọc `blocked[].cmd` + `blocked[].reason` từ kết quả, trình NGUYÊN VĂN cho user rồi khắc phục nguyên nhân, chạy lại CÙNG round. Không bao giờ downgrade BLOCKED thành pass.

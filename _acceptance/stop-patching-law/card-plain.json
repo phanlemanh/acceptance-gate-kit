@@ -1,0 +1,34 @@
+{
+  "feature_plain": "Khi bản sửa lần hai vẫn hỏng cùng kiểu như lần một, vòng lặp tự nhận ra là cách làm sai chứ không phải chi tiết sai — nó dừng lại và hỏi bạn, thay vì đốt thêm một vòng nữa rồi hỏng y hệt.",
+  "will_do": [
+    { "id": "AC-1", "p": "Sẽ đặt vào bản chỉ dẫn của cả hai môi trường một mệnh đề dừng đủ bốn ý: so lỗi vòng này với vòng trước · hai vòng cùng lỗi thì kết luận sai cách làm · dừng, không tự chạy tiếp · trình bạn ba đường chọn." },
+    { "id": "AC-2", "p": "Sẽ nói rõ \"cùng kiểu lỗi\" nghĩa là gì — cùng tên loại lỗi, chứ không phải cùng dòng mã hay cùng phép kiểm — để lần sau không ai hiểu rộng ra hoặc hẹp lại tuỳ hứng." },
+    { "id": "AC-3", "p": "Sẽ đặt mệnh đề mới ngay trong nhánh xử lý khi bản sửa bị trả lại, đứng trước luật cũ \"tối đa ba vòng\" — chỗ mà vòng lặp thật sự đi qua, không phải chỗ dễ viết." },
+    { "id": "AC-4", "p": "Sẽ tự phá mệnh đề trong bản sao mười sáu kiểu khác nhau và bắt phép kiểm phải đỏ đúng chỗ bị phá — bằng chứng phép kiểm còn sống, không phải xanh vì chưa bao giờ đọc gì." },
+    { "id": "AC-5", "p": "Sẽ giữ toàn bộ lưới kiểm hiện có xanh và giữ bản đóng gói khớp nguồn — thay đổi này không được kéo theo hỏng chỗ khác." }
+  ],
+  "wont_do": [
+    { "id": "OOS-1", "p": "Sẽ KHÔNG dựng máy tự phát hiện \"cùng kiểu lỗi\" — vòng dọn nợ vừa rồi đã chứng minh mỗi chốt cưỡng chế lại đẻ ra nhu cầu một chốt canh chính nó." },
+    { "id": "OOS-2", "p": "Sẽ KHÔNG động vào luật \"tối đa ba vòng\" đang có — nó là lưới an toàn cuối, giữ nguyên." },
+    { "id": "OOS-3", "p": "Sẽ KHÔNG sửa bất kỳ phép kiểm nào đang chạy — việc này chỉ thêm, không chỉnh cái cũ." }
+  ],
+  "scope_plain": "Chỉ viết luật vào chỉ dẫn và đo cho chắc nó sống; mọi thứ tự-động-hoá việc phân loại lỗi để lần sau.",
+  "coverage_plain": [
+    { "i": 0, "p": "Nội dung mệnh đề — đã phủ đủ bốn ý và hai vế định nghĩa, lấy thẳng từ ba vòng vừa trả giá. Bằng chứng \"đủ\": AC-1 (bốn ý) và AC-2 (hai vế) đo trong đúng khối có mốc, không đọc chữ vương vãi chỗ khác." },
+    { "i": 1, "p": "Vị trí và quan hệ với luật cũ — đã phủ: mệnh đề mới phải cùng nhánh và đứng trước luật \"tối đa ba vòng\". Bằng chứng \"đủ\": AC-3 (cùng nhánh, đúng thứ tự), AC-4 (phá thử phân biệt được từng ý), AC-5 (không phá lưới cũ)." },
+    { "i": 2, "p": "Hiệu lực thật, không chỉ mực in trên giấy — đã phủ bằng AC-6: bốn lượt cho một trợ lý chưa biết gì đọc bản có luật và bản đã xoá luật, xem nó có thật sự dừng hay vẫn chạy tiếp." }
+  ],
+  "gap_probe_plain": [
+    { "i": 0, "p": "Mô tả việc hứa đổi HÀNH VI của vòng lặp, nhưng cả năm phép kiểm chỉ soi chữ có nằm trên giấy hay không. Luật viết xong nhưng viết giọng khuyên nhủ thì lưới vẫn xanh, còn việc kế vẫn chạy đủ ba vòng như cũ. Đã sửa: thêm phép kiểm bằng người-máy đóng vai, bốn lượt, dựa trên biên bản do chính lần chạy sinh chứ không viết tay." },
+    { "i": 1, "p": "Không có mốc đánh dấu khối luật, nên ba phép kiểm (nội dung · vị trí · phá thử) mỗi cái soi một vật khác nhau; rải chữ khắp tệp là cả ba cùng xanh. Đã sửa: khối luật nằm giữa một cặp mốc có tên, mọi phép kiểm chỉ đọc trong khối đó." },
+    { "i": 2, "p": "Phần phá thử mới chỉ có kiểu \"xoá cả khối\", nên tám ô nội dung không ô nào được chứng minh là còn sống — bỏ hẳn một ý quan trọng vẫn xanh. Đã sửa: bảng mười sáu ca phá thử, mỗi ý một ca." },
+    { "i": 3, "p": "Lời hứa là \"nằm cùng nhánh\", nhưng phép đo lại so thứ tự chữ trong tệp — đặt luật ở phần mở đầu cũng qua, trong khi vòng lặp đọc nhánh bị trả lại thì không bao giờ gặp nó. Đã sửa: so quan hệ chứa (cùng một mục cha), kèm phép đối chứng dời khối ra ngoài phải đỏ." },
+    { "i": 4, "p": "Phá thử chỉ đòi \"thông điệp phải khác nhau\", mà hai chốt gộp làm một vẫn cho thông điệp khác nhau ở số dòng; ngoài ra hai vế của định nghĩa không có ca phá nào. Đã sửa: mỗi ca ghim sẵn nguyên văn cụm chữ phải hiện, và thêm hai ca cho hai vế." }
+  ],
+  "decisions_plain": [
+    { "id": "d-20260807T010239Z-4915", "p": "Đã chọn viết luật vào chỉ dẫn cho vòng lặp đọc và tự phán, thay vì dựng máy tự phát hiện — đổi lại không có ai cưỡng chế, việc tuân thủ dựa vào thủ tục lúc viết và vòng soi." },
+    { "id": "d-20260807T010240Z-993", "p": "Đã chọn giữ nguyên luật \"tối đa ba vòng\" và đặt luật mới đứng trước nó — đổi lại có hai mệnh đề dừng nằm cạnh nhau, phải đo cho chắc chúng không lẫn vào nhau." },
+    { "id": "d-20260807T023600Z-7712", "p": "Đã chọn thêm một phép kiểm bằng người-máy đóng vai để xem vòng lặp có thật sự đổi cách xử sự — đổi lại tốn thêm chi phí chạy và kết quả có dao động, bù bằng bốn lượt và tiêu chí chấm ghi sẵn." },
+    { "id": "d-20260807T023601Z-2058", "p": "Đã chọn cho mọi phép kiểm đọc trong một khối có mốc và một bảng ca phá thử duy nhất, thay vì tìm chữ khắp tệp cho rẻ — đổi lại phải nuôi thêm một cặp mốc trong chỉ dẫn." }
+  ]
+}

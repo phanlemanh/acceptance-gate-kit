@@ -7849,6 +7849,300 @@ P164PY
 # P157, P160, P161, P162, P164).
 # ─────────────────────────────────────────────────────────────────────────────
 
+echo "P168 (E1,E2,E3,E4) luat dung-va: khoi co moc, 4 y + 2 ve, quan he chua, ma tran 16 ca"
+run "P168 stop-patching-law: noi dung + vi tri + 16 dot bien" \
+  python3 - "$ROOT" <<'P168PY'
+import re, sys
+from pathlib import Path
+
+ROOT = Path(sys.argv[1])
+errs = []
+
+HARNESS = {
+    'claude': {
+        'path': ROOT / 'feature-loop/skills/feature-loop/SKILL.md',
+        'cap': '**Tối đa 3 round**',
+        'ideas': {
+            'so-lop':   (r'so lớp lỗi vòng này với vòng trước',
+                         'so lớp lỗi vòng này với vòng trước'),
+            'ket-luan': (r'thứ hai[^.]*cùng lớp[^.]*khuôn giải sai',
+                         'Vòng sửa thứ HAI vẫn sinh lỗi CÙNG LỚP với vòng một ⇒ **khuôn giải sai**, không phải chi tiết sai.'),
+            'dung':     (r'dừng[^.]*không tự dispatch vòng ba',
+                         'DỪNG — KHÔNG tự dispatch vòng ba.'),
+            'ba-duong': (r'ba đường.*?đổi khuôn.*?thu phạm vi.*?giới hạn đã biết',
+                         'Trình người ba đường: **đổi khuôn** · **thu phạm vi** · **ship với giới hạn đã biết**;'),
+        },
+        'ves': {
+            'khang-dinh': (r'"cùng lớp"\s*=\s*cùng tên lớp lỗi',
+                           '"Cùng lớp" = cùng TÊN LỚP LỖI trong sổ lớp lỗi'),
+            'phu-dinh':   (r'không phải cùng dòng mã hay cùng phép đo',
+                           'KHÔNG phải cùng dòng mã hay cùng phép đo'),
+        },
+        'examples': ['đo-chuỗi-thay-quan-hệ', 'hạ-thước', 'fail-open'],
+    },
+    'codex': {
+        'path': ROOT / 'codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md',
+        'cap': 'Cap at three rounds',
+        'ideas': {
+            'so-lop':   (r"compare this round's error class with the previous round's",
+                         "compare this round's error class with the\nprevious round's"),
+            'ket-luan': (r'second fix round still produces errors of the same\s*class.*?solution shape is wrong',
+                         'If the SECOND fix round still produces errors of the SAME\nCLASS as round one, the **solution shape is wrong**, not the details.'),
+            'dung':     (r'stop\s*—\s*do\s*not dispatch round three on your own',
+                         'STOP — do\nNOT dispatch round three on your own.'),
+            'ba-duong': (r'three options to the human.*?change the shape.*?narrow the scope.*?ship with known limits',
+                         'Present three options to the human:\n**change the shape** · **narrow the scope** · **ship with known limits**;'),
+        },
+        'ves': {
+            'khang-dinh': (r'"same class" means the same error-class name',
+                           '"Same class" means the same ERROR-CLASS NAME from the error-class ledger'),
+            'phu-dinh':   (r'not the same line of\s*code or the same measurement',
+                           'NOT the same line of\ncode or the same measurement'),
+        },
+        'examples': ['string-presence-instead-of-relation', 'lowering-the-ruler', 'fail-open'],
+    },
+}
+
+OPEN = '<!-- <<<STOP-PATCHING-CLAUSE -->'
+CLOSE = '<!-- STOP-PATCHING-CLAUSE>>> -->'
+
+
+def norm(t):
+    return re.sub(r'\s+', ' ', t).strip()
+
+
+# ── Lop 1: rut khoi giua cap moc (KHONG quet toan tep) ───────────────────────
+def extract(text, h):
+    e = []
+    no, nc = text.count(OPEN), text.count(CLOSE)
+    if no != 1 or nc != 1:
+        e.append(f'[{h}] mệnh đề dừng-vá: mốc mở {no} lần / mốc đóng {nc} lần (phải đúng 1 mỗi loại)')
+        return None, e
+    blk = text.split(OPEN, 1)[1].split(CLOSE, 1)[0]
+    if not norm(blk):
+        e.append(f'[{h}] mệnh đề dừng-vá: khối giữa hai mốc rỗng')
+        return None, e
+    return norm(blk), e
+
+
+# ── Lop 2: 4 y + 2 ve, do TRONG khoi ────────────────────────────────────────
+LABEL = {
+    'so-lop': 'ý so lớp lỗi hai vòng',
+    'ket-luan': 'ý khuôn giải sai',
+    'dung': 'ý dừng không tự dispatch',
+    'ba-duong': 'ý trình người ba đường',
+}
+
+
+def check_content(blk, h):
+    e = []
+    cfg = HARNESS[h]
+    for k, (rx, _snip) in cfg['ideas'].items():
+        if not re.search(rx, blk, re.I | re.S):
+            e.append(f'[{h}] thiếu {LABEL[k]}')
+    if not re.search(cfg['ves']['khang-dinh'][0], blk, re.I | re.S):
+        e.append(f'[{h}] thiếu vế khẳng định của định nghĩa cùng lớp')
+    else:
+        hit = [x for x in cfg['examples'] if x in blk]
+        if len(hit) < 3:
+            e.append(f'[{h}] định nghĩa cùng lớp thiếu ví dụ tên lớp (thấy {len(hit)}/3)')
+    if not re.search(cfg['ves']['phu-dinh'][0], blk, re.I | re.S):
+        e.append(f'[{h}] thiếu vế phủ định: không phải cùng dòng mã hay cùng phép đo')
+    return e
+
+
+# ── Lop 3: QUAN HE CHUA, khong phai chi so ky tu ────────────────────────────
+HEAD_RE = re.compile(r'^#{1,6} .*$', re.M)
+
+
+def enclosing_heading(text, pos):
+    last = None
+    for m in HEAD_RE.finditer(text):
+        if m.start() < pos:
+            last = m.group(0).strip()
+        else:
+            break
+    return last
+
+
+def check_position(text, h):
+    e = []
+    cap = HARNESS[h]['cap']
+    if cap not in text:
+        e.append(f'[{h}] không tìm thấy mệnh đề trần 3 vòng ("{cap}")')
+        return e
+    if OPEN not in text:
+        return e  # da bao o lop 1
+    i_clause, i_cap = text.index(OPEN), text.index(cap)
+    hc, hk = enclosing_heading(text, i_clause), enclosing_heading(text, i_cap)
+    if hc != hk:
+        e.append(f'[{h}] hai mệnh đề dừng KHÁC nhánh: tiêu đề bao ngoài {hc!r} vs {hk!r}')
+    if i_clause > i_cap:
+        e.append(f'[{h}] mốc mở đứng SAU mệnh đề trần 3 vòng')
+    return e
+
+
+def check_all(text, h):
+    blk, e = extract(text, h)
+    if blk is not None:
+        e += check_content(blk, h)
+    e += check_position(text, h)
+    return e
+
+
+SRC = {h: HARNESS[h]['path'].read_text() for h in HARNESS}
+
+# ── Doi chung DUONG: ban nguyen ven phai XANH truoc moi ket luan am tinh ─────
+for h in HARNESS:
+    e = check_all(SRC[h], h)
+    if e:
+        errs.append(f'ĐỐI CHỨNG DƯƠNG ĐỎ ({h}) — bản nguyên vẹn phải xanh: ' + ' | '.join(e))
+if errs:
+    print('\n'.join('  ' + x for x in errs)); sys.exit(1)
+
+# ── Doi chung AC-3: DOI khoi ra khoi nhanh (giu nguyen thu tu tep) ──────────
+for h in HARNESS:
+    t = SRC[h]
+    blk_full = OPEN + t.split(OPEN, 1)[1].split(CLOSE, 1)[0] + CLOSE
+    stripped = t.replace(blk_full, '')
+    m = HEAD_RE.search(stripped)          # tieu de dau tien cua tep
+    m2 = HEAD_RE.search(stripped, m.end())  # dat khoi GIUA hai tieu de dau
+    moved = stripped[:m2.start()] + blk_full + '\n\n' + stripped[m2.start():]
+    e = check_all(moved, h)
+    if not any('KHÁC nhánh' in x for x in e):
+        errs.append(f'[{h}] AC-3 KHÔNG có răng: dời khối ra khỏi nhánh mà phép đo vẫn xanh')
+
+# ── Ma tran dot bien: DOC bang STOP-PATCH-MUTANTS trong hop dong ────────────
+CONTRACT = (ROOT / '_acceptance/stop-patching-law/contract.md').read_text()
+tbl = CONTRACT.split('<!-- <<<STOP-PATCH-MUTANTS -->', 1)[1].split('<!-- STOP-PATCH-MUTANTS>>> -->', 1)[0]
+rows = []
+for line in tbl.splitlines():
+    line = line.strip()
+    if not line.startswith('- '):
+        continue
+    parts = [x.strip() for x in line[2:].split('|')]
+    if len(parts) != 3:
+        errs.append(f'bảng STOP-PATCH-MUTANTS: dòng {line!r} không đủ 3 cột')
+        continue
+    ca, ban, phrase = parts
+    for h in (['claude', 'codex'] if ban == 'cả hai' else [ban]):
+        rows.append((ca, h, phrase))
+
+expected_n = 0
+for line in tbl.splitlines():
+    line = line.strip()
+    if line.startswith('- '):
+        expected_n += 2 if line.split('|')[1].strip() == 'cả hai' else 1
+if len(rows) != expected_n:
+    errs.append(f'ma trận đột biến: dựng {len(rows)} ca nhưng bảng khai {expected_n}')
+
+
+def mutate(text, ca, h):
+    cfg = HARNESS[h]
+    if ca == 'xoá-trọn-khối':
+        blk = OPEN + text.split(OPEN, 1)[1].split(CLOSE, 1)[0] + CLOSE
+        return text.replace(blk, '')
+    if ca == 'xoá-trần-ba-vòng':
+        return text.replace(cfg['cap'], '', 1)
+    key = {'xoá-ý-so-lớp': 'so-lop', 'xoá-ý-kết-luận': 'ket-luan',
+           'xoá-ý-dừng': 'dung', 'xoá-ý-ba-đường': 'ba-duong'}.get(ca)
+    if key:
+        snip = cfg['ideas'][key][1]
+    elif ca == 'xoá-vế-khẳng-định':
+        snip = cfg['ves']['khang-dinh'][1]
+    elif ca == 'xoá-vế-phủ-định':
+        snip = cfg['ves']['phu-dinh'][1]
+    else:
+        return None
+    rx = re.compile(r'\s+'.join(re.escape(w) for w in snip.split()))
+    out, n = rx.subn('', text, count=1)
+    return out if n == 1 else None
+
+
+ran = 0
+for ca, h, phrase in rows:
+    mut = mutate(SRC[h], ca, h)
+    if mut is None:
+        errs.append(f'[{h}] ca {ca}: KHÔNG tiêm được (đoạn cần xoá không khớp file) — ca chưa bao giờ chạy')
+        continue
+    if mut == SRC[h]:
+        errs.append(f'[{h}] ca {ca}: bản tiêm y hệt bản gốc')
+        continue
+    e = check_all(mut, h)
+    if not e:
+        errs.append(f'[{h}] ca {ca}: bản bị tiêm vẫn XANH')
+    elif not any(phrase in x for x in e):
+        errs.append(f'[{h}] ca {ca}: thông điệp KHÔNG chứa nguyên văn {phrase!r} — thấy {e}')
+    else:
+        ran += 1
+
+if ran != expected_n and not errs:
+    errs.append(f'ma trận đột biến: chạy {ran}/{expected_n} ca')
+
+if errs:
+    print('\n'.join('  ' + x for x in errs)); sys.exit(1)
+print(f'P168 OK ({expected_n} ca đột biến + 2 đối chứng dời-khối, 2 bản chỉ dẫn)')
+P168PY
+
+echo "P169 (AC-6) bien ban cham hanh vi phai do CODE SINH, khong viet tay"
+run "P169 bien ban vong-2 round-trip tu ho so that" \
+  python3 - "$ROOT" <<'P169PY'
+import subprocess, sys
+from pathlib import Path
+
+ROOT = Path(sys.argv[1])
+GEN = ROOT / '_acceptance/stop-patching-law/make-record.mjs'
+OUT = ROOT / '_acceptance/stop-patching-law/evidence/bien-ban-vong-2.md'
+errs = []
+
+EV = ROOT / '_acceptance/stop-patching-law/evidence'
+GENERATED = ['bien-ban-vong-2.md'] + [
+    f'chi-dan-{h}-{a}-menh-de.md' for h in ('claude', 'codex') for a in ('co', 'khong')]
+MARK_OPEN = '<!-- <<<STOP-PATCHING-CLAUSE -->'
+
+missing = [f for f in GENERATED if not (EV / f).exists()]
+if missing:
+    errs.append(f'thiếu đầu vào cho phép chấm hành vi: {missing}')
+
+snapshot = {f: (EV / f).read_text() for f in GENERATED if (EV / f).exists()}
+before = snapshot.get('bien-ban-vong-2.md')
+if not errs:
+    r = subprocess.run(['node', str(GEN)], capture_output=True, text=True)
+    if r.returncode != 0:
+        errs.append(f'bộ sinh exit {r.returncode}: {r.stderr.strip()[:200]}')
+    else:
+        drift = [f for f in GENERATED if (EV / f).read_text() != snapshot[f]]
+        if drift:
+            errs.append(f'đầu vào trên đĩa KHÁC bản sinh lại {drift} — có bàn tay người sửa fixture')
+
+# Doi chung phan biet: nhanh CO phai co moc, nhanh DA XOA phai khong con moc
+for h in ('claude', 'codex'):
+    if (EV / f'chi-dan-{h}-co-menh-de.md').exists() and MARK_OPEN not in (EV / f'chi-dan-{h}-co-menh-de.md').read_text():
+        errs.append(f'[{h}] nhánh CÓ mệnh đề lại KHÔNG chứa mốc')
+    if (EV / f'chi-dan-{h}-khong-menh-de.md').exists() and MARK_OPEN in (EV / f'chi-dan-{h}-khong-menh-de.md').read_text():
+        errs.append(f'[{h}] nhánh ĐÃ XOÁ mệnh đề vẫn còn mốc — hai nhánh không khác nhau, đối chứng vô nghĩa')
+
+# Doi chung: nguon that bi doi thi bien ban phai doi theo (khong phai van chet)
+SRC = ROOT / '_acceptance/card-text-fidelity/evidence-report.md'
+orig = SRC.read_text()
+try:
+    SRC.write_text(orig.replace('Round 4: ', 'Round 4: DAU-VET-DOI-CHUNG ', 1))
+    r = subprocess.run(['node', str(GEN)], capture_output=True, text=True)
+    mutated = OUT.read_text()
+    if r.returncode != 0 or 'DAU-VET-DOI-CHUNG' not in mutated:
+        errs.append('đối chứng dương: đổi hồ sơ nguồn mà biên bản KHÔNG đổi theo — bộ sinh không đọc nguồn')
+finally:
+    SRC.write_text(orig)
+    subprocess.run(['node', str(GEN)], capture_output=True, text=True)
+
+if OUT.read_text() != before:
+    errs.append('không khôi phục được biên bản sau đối chứng')
+
+if errs:
+    print('\n'.join('  ' + x for x in errs)); sys.exit(1)
+print('P169 OK (biên bản sinh lại nguyên byte + đổi theo hồ sơ nguồn)')
+P169PY
+
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
   echo "ONLY_BLOCK=$ONLY_BLOCK khong khop khoi nao — go sai ten? (fail de khong xanh gia)"

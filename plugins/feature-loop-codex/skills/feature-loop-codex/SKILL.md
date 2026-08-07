@@ -606,8 +606,24 @@ Verdict routing:
 - `BLOCKED`: verifier cannot run due to environment/config/tooling issues.
 
 For `REJECT`, return to S3, fix, and start the next verify round immediately —
-the REJECT → fix → next-round cycle is automatic, never ask between rounds. Cap
-at three rounds, then stop and escalate with a round-by-round summary. For `BLOCKED`, present exact
+the REJECT → fix → next-round cycle is automatic, never ask between rounds.
+
+<!-- <<<STOP-PATCHING-CLAUSE -->
+**Before dispatching the next round, compare this round's error class with the
+previous round's.** If the SECOND fix round still produces errors of the SAME
+CLASS as round one, the **solution shape is wrong**, not the details. STOP — do
+NOT dispatch round three on your own. Present three options to the human:
+**change the shape** · **narrow the scope** · **ship with known limits**;
+patching further is a path the human must choose explicitly, never the default.
+"Same class" means the same ERROR-CLASS NAME from the error-class ledger
+(string-presence-instead-of-relation, lowering-the-ruler, fail-open,
+count-then-discard, tautology, lone-negative-assertion...), NOT the same line of
+code or the same measurement — two errors in different files are still the same
+class if they share a name, and two errors on one line are different classes if
+their names differ.
+<!-- STOP-PATCHING-CLAUSE>>> -->
+
+Cap at three rounds, then stop and escalate with a round-by-round summary. For `BLOCKED`, present exact
 blocked command and reason, fix environment/config, and rerun the same round.
 On REJECT, the fix list is failed evals, failed commands, and **in-contract
 findings only** — out-of-contract findings never enter it, whatever caused the

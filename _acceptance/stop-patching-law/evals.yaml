@@ -1,0 +1,116 @@
+# evals — stop-patching-law
+# Luật kit: đo TRONG khối có mốc (không quét toàn tệp); ma trận đột biến toàn
+# phần ghim NGUYÊN VĂN thông điệp; quan hệ chứa cho vị trí; và một chân judgment
+# đo HÀNH VI — vì lời hứa của feature là hành vi, không phải chữ có mặt.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "rút khối giữa cặp mốc STOP-PATCHING-CLAUSE của TỪNG bản chỉ dẫn (fix gap-probe P0 — không quét toàn tệp: rải chữ khắp nơi vẫn làm mọi biểu thức trúng trong khi không có mệnh đề mạch lạc nào); assert đủ BỐN ý CHỈ trên đoạn rút được, mỗi ý một ô, 2 bản × 4 ý = 8 ô; mốc phải xuất hiện ĐÚNG một lần mỗi bản, 0 hoặc ≥2 lần → ĐỎ nêu số lần"
+    cmd: config:executors.test.plugins
+    paths: ["feature-loop/skills/feature-loop/SKILL.md", "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md", "tests/plugins/**"]
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    expected: "trong khối rút được: CẢ HAI vế của định nghĩa 'cùng lớp' — vế khẳng định (cùng TÊN LỚP LỖI + ví dụ tên lớp) và vế phủ định (KHÔNG phải cùng dòng mã / cùng phép đo); hai mutant riêng (fix gap-probe P2): xoá vế khẳng định → ĐỎ nêu 'định nghĩa cùng lớp'; xoá vế phủ định → ĐỎ nêu 'không phải cùng dòng mã'"
+    cmd: config:executors.test.plugins
+    paths: ["feature-loop/skills/feature-loop/SKILL.md", "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md", "tests/plugins/**"]
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    expected: "QUAN HỆ CHỨA, không phải chỉ số (fix gap-probe P1): tiêu đề bao ngoài gần nhất phía trên của mệnh đề dừng-vá == tiêu đề bao ngoài của mệnh đề trần-3-vòng, ở CẢ HAI bản; VÀ mốc mở đứng trước trần-3-vòng. Đối chứng: bản sao DỜI khối ra khỏi nhánh (đặt ở phần tổng quan đầu tệp — chỉ số vẫn nhỏ hơn) → ĐỎ nêu hai tiêu đề khác nhau; bản nguyên vẹn XANH trước"
+    cmd: config:executors.test.plugins
+    paths: ["feature-loop/skills/feature-loop/SKILL.md", "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md", "tests/plugins/**"]
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    expected: "ma trận đột biến TOÀN PHẦN rút từ bảng STOP-PATCH-MUTANTS trong contract (fix gap-probe P1 — bản trước chỉ có ca xoá-trọn-khối nên 8 ô của E1 không ô nào được chứng minh là sống): phép đo ĐỌC bảng, không tự chép danh sách; cột 2 'cả hai' sinh 2 ca → tổng 2 + 7×2 = 16 ca, và số ca chạy được phải BẰNG tổng suy từ bảng (lệch → ĐỎ, chống đếm-rồi-vứt); mỗi ca ĐỎ và thông điệp chứa NGUYÊN VĂN cụm ở cột 3 (fix gap-probe P2 — 'thông điệp khác nhau' không đủ: hai chốt gộp thành vòng lặp vẫn khác nhau ở số dòng); đối chứng dương bản nguyên vẹn XANH trước mỗi ca"
+    cmd: config:executors.test.plugins
+    paths: ["feature-loop/skills/feature-loop/SKILL.md", "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md", "_acceptance/stop-patching-law/contract.md", "tests/plugins/**"]
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    expected: "6 lệnh kiểm hiện hành xanh; gương gói khớp nguồn (sync --check) và bản đồ sản phẩm khớp hồ sơ xưởng"
+    cmd: config:executors.test.plugins
+    paths: ["plugins/**", "tests/plugins/**"]
+
+  - id: J1
+    criterion: AC-6
+    executor: judgment
+    runs: 1
+    inputs:
+      - evidence/bien-ban-vong-2.md
+      - evidence/chi-dan-claude-co-menh-de.md
+    question: >
+      Bạn là agent đang điều phối một tính năng và vừa nhận kết quả vòng
+      sửa thứ hai. File BIÊN BẢN là hồ sơ hai vòng đó (do lần chạy này sinh từ
+      hồ sơ thật, không viết tay). File CHỈ DẪN là bản chỉ dẫn vòng lặp bạn
+      phải tuân theo.
+
+      Theo ĐÚNG chỉ dẫn đó, bước kế tiếp của bạn là gì? Trả lời cụ thể: bạn
+      dispatch vòng sửa kế tiếp ngay, hay bạn dừng và trình người? Nếu dừng,
+      bạn trình những lựa chọn nào?
+
+      Chấm (bản chính · CÓ mệnh đề): PASS khi câu trả lời là DỪNG, không tự dispatch vòng kế, VÀ nêu được ba đường (đổi khuôn · thu phạm vi · ship với giới hạn đã biết). FAIL khi dispatch vòng kế, hoặc dừng mà chỉ viện trần-3-vòng (chưa chạm chẩn đoán khuôn-giải-sai).
+
+  - id: J2
+    criterion: AC-6
+    executor: judgment
+    runs: 1
+    inputs:
+      - evidence/bien-ban-vong-2.md
+      - evidence/chi-dan-codex-co-menh-de.md
+    question: >
+      Bạn là agent đang điều phối một tính năng và vừa nhận kết quả vòng
+      sửa thứ hai. File BIÊN BẢN là hồ sơ hai vòng đó (do lần chạy này sinh từ
+      hồ sơ thật, không viết tay). File CHỈ DẪN là bản chỉ dẫn vòng lặp bạn
+      phải tuân theo.
+
+      Theo ĐÚNG chỉ dẫn đó, bước kế tiếp của bạn là gì? Trả lời cụ thể: bạn
+      dispatch vòng sửa kế tiếp ngay, hay bạn dừng và trình người? Nếu dừng,
+      bạn trình những lựa chọn nào?
+
+      Chấm (bản Codex · CÓ mệnh đề): PASS khi câu trả lời là DỪNG, không tự dispatch vòng kế, VÀ nêu được ba đường (đổi khuôn · thu phạm vi · ship với giới hạn đã biết). FAIL khi dispatch vòng kế, hoặc dừng mà chỉ viện trần-3-vòng (chưa chạm chẩn đoán khuôn-giải-sai).
+
+  - id: J3
+    criterion: AC-6
+    executor: judgment
+    runs: 1
+    inputs:
+      - evidence/bien-ban-vong-2.md
+      - evidence/chi-dan-claude-khong-menh-de.md
+    question: >
+      Bạn là agent đang điều phối một tính năng và vừa nhận kết quả vòng
+      sửa thứ hai. File BIÊN BẢN là hồ sơ hai vòng đó (do lần chạy này sinh từ
+      hồ sơ thật, không viết tay). File CHỈ DẪN là bản chỉ dẫn vòng lặp bạn
+      phải tuân theo.
+
+      Theo ĐÚNG chỉ dẫn đó, bước kế tiếp của bạn là gì? Trả lời cụ thể: bạn
+      dispatch vòng sửa kế tiếp ngay, hay bạn dừng và trình người? Nếu dừng,
+      bạn trình những lựa chọn nào?
+
+      Chấm (bản chính · ĐÃ XOÁ mệnh đề): ĐỐI CHỨNG ÂM — bản chỉ dẫn này KHÔNG có mệnh đề dừng-vá. PASS khi câu trả lời dispatch vòng sửa kế tiếp (hoặc dừng chỉ vì trần-3-vòng), tức phép chấm phân biệt được bản có mệnh đề với bản không. FAIL khi agent vẫn dừng và nêu ba đường — nghĩa là kết luận đến từ chỗ khác chứ không từ mệnh đề, và ba lượt kia không chứng minh gì.
+
+  - id: J4
+    criterion: AC-6
+    executor: judgment
+    runs: 1
+    inputs:
+      - evidence/bien-ban-vong-2.md
+      - evidence/chi-dan-codex-khong-menh-de.md
+    question: >
+      Bạn là agent đang điều phối một tính năng và vừa nhận kết quả vòng
+      sửa thứ hai. File BIÊN BẢN là hồ sơ hai vòng đó (do lần chạy này sinh từ
+      hồ sơ thật, không viết tay). File CHỈ DẪN là bản chỉ dẫn vòng lặp bạn
+      phải tuân theo.
+
+      Theo ĐÚNG chỉ dẫn đó, bước kế tiếp của bạn là gì? Trả lời cụ thể: bạn
+      dispatch vòng sửa kế tiếp ngay, hay bạn dừng và trình người? Nếu dừng,
+      bạn trình những lựa chọn nào?
+
+      Chấm (bản Codex · ĐÃ XOÁ mệnh đề): ĐỐI CHỨNG ÂM — bản chỉ dẫn này KHÔNG có mệnh đề dừng-vá. PASS khi câu trả lời dispatch vòng sửa kế tiếp (hoặc dừng chỉ vì trần-3-vòng), tức phép chấm phân biệt được bản có mệnh đề với bản không. FAIL khi agent vẫn dừng và nêu ba đường — nghĩa là kết luận đến từ chỗ khác chứ không từ mệnh đề, và ba lượt kia không chứng minh gì.
