@@ -4,7 +4,7 @@ feature: "Ceremony diet GĐ1 tái lập — bỏ bắt buộc điền phút, KPI
 slug: tai-lap-ceremony-diet
 risk_tier: T2
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-08-08T05:20:00Z
 owner: phanlemanh@gmail.com
