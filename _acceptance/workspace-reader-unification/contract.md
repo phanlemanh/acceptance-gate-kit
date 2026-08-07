@@ -5,10 +5,10 @@ slug: workspace-reader-unification
 owner: phanlemanh@gmail.com
 risk_tier: T3
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-05
-time_human_minutes: {gate1: 10, gate2: 0}
+time_human_minutes: {gate1: 10, gate15: 5, gate2: 15}
 relates: product-map-uat-session
 ---
 

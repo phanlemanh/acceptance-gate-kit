@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 72f690d65189fb0a9b43fa3b164c8e86d2be5c81
-human_signoff:
+human_signoff: Manh Phan 2026-08-07 — ký thẳng, known-limits cả 4 lỗi ngoài hợp đồng (2 câu chữ mặt người + 2 mục nhẹ)
 ---
 
 # Evidence Report: workspace-reader-unification
