@@ -67,11 +67,14 @@ ritual itself.
      → confirm it IS T1, then END this skill — the human orders the fix in a
      later turn, outside this ritual (this skill never edits anything,
      chores included).
-   - Below the card: one product-map line — `map.present` is `false` → "chưa có
-     bản đồ sản phẩm (sẽ tự vẽ ở lần ký cổng kế)" — but ONLY when `map.enabled`
-     is `true`; `false` → "repo chưa bật bản đồ sản phẩm — bật bằng hai dòng
-     trong `_acceptance/config.yaml`"; `null` → "chưa đọc được cấu hình nên chưa
-     biết bản đồ đã bật chưa" (never advise enabling what may already be on). Never promise the map will appear on its
+   - Below the card: one product-map line — read `map.state` + `map.label`
+     (the label comes from the ONE label table in the shared lib, the same
+     wording the CI gate prints — never hand-roll the string): `da-xoa` →
+     print `map.label` verbatim plus "khôi phục, hoặc vẽ lại bằng một lệnh";
+     `chua-bat` → print `map.label` verbatim plus "bật bằng hai dòng trong
+     `_acceptance/config.yaml`"; `map.state` is `null` (config unreadable) →
+     "chưa đọc được cấu hình nên chưa biết bản đồ đã bật chưa" (never advise
+     enabling what may already be on). Never promise the map will appear on its
      own in a repo that has not opted in: every human-gate body is told to SKIP
      the redraw in exactly that repo. `map.fresh` is `false` →
      "bản đồ đang lệch với hồ sơ — làm mới bằng một lệnh"; `null` → "chưa kiểm

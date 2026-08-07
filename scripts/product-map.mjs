@@ -24,7 +24,8 @@ const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence
 // dùng chung — xem lib/workspace-record.js để biết vì sao (S4-r1: hai bên đọc
 // cùng hồ sơ cho hai kết luận trái nhau).
 const { recordProblem, navValues, consumedTexts, usesUat, usesOpportunity, usesEvidence,
-        missingArtifact, readRecord, ioReason, configList, NAV_RULES, mapState, MAP_LABELS } =
+        missingArtifact, readRecord, ioReason, configList, NAV_RULES, mapState, MAP_LABELS,
+        mapTracked } =
   require(path.join(__dirname, '..', 'lib', 'workspace-record.js'));
 
 export { NAV_RULES };
@@ -313,26 +314,12 @@ if (isMain) {
     // tức PR xoá bản đồ vừa bỏ qua cổng nghiệm thu vừa xanh CI (S4-r14, dựng
     // lại được). Nên hỏi thêm LỊCH SỬ: file từng bị xoá trong quá khứ cũng là
     // "đã có rồi mất". Chỉ repo chưa từng có bản đồ mới đi đường đọc-cũ.
-    const gitCo = args => {
-      try { return execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }); }
-      catch { return null; }
-    };
-    const trongIndex = gitCo(['ls-files', '--error-unmatch', '--', 'PRODUCT-MAP.md']) != null;
-    const tungBiXoa = (gitCo(['log', '--diff-filter=D', '--format=%H', '-1', '--', 'PRODUCT-MAP.md']) || '').trim() !== '';
-    // Hai chốt trên đều cần LỊCH SỬ, mà `actions/checkout` mặc định là depth 1:
-    // commit bị graft nên git không thấy lần xoá nào và cổng lại fail-open y
-    // như trước khi vá (S4-r15). Đặt `fetch-depth: 0` chỉ cứu CI của kit — repo
-    // tiêu thụ dùng checkout mặc định thì lỗ vẫn còn, và đây là cổng độc lập
-    // DUY NHẤT canh miễn trừ t1 của ADR 0007.
-    //
-    // Tín hiệu KHÔNG cần lịch sử: repo đã KHAI dùng bản đồ chưa. Có
-    // `PRODUCT-MAP.md` trong `t1_skip_globs` = repo này bật bản đồ, nên vắng
-    // bản đồ là chuyện phải sửa — dù vì bị xoá hay vì chưa vẽ lần nào. Sai về
-    // phía ĐỎ ở đây là đỏ sửa được bằng đúng một lệnh đã in sẵn; sai về phía
-    // xanh là một PR xoá bản đồ đi thẳng qua cổng.
+    // Ba tín hiệu (config daBat · git index · git history) nay sống MỘT chỗ
+    // trong lib.mapTracked — bộ quét vào phiên hỏi cùng hàm đó, hết cảnh hai
+    // bên suy tracked từ hai tín hiệu khác nhau (S4-r1 vòng này). Toàn bộ
+    // rationale từng dòng tín hiệu ghi tại lib/workspace-record.js.
     const cfgTxt = (() => { try { return readFileSync(path.join(root, '_acceptance', 'config.yaml'), 'utf8'); } catch { return ''; } })();
-    const daBat = configList(cfgTxt, 't1_skip_globs').includes('PRODUCT-MAP.md');
-    const daTheoDoi = trongIndex || tungBiXoa || daBat;
+    const daTheoDoi = mapTracked(root, cfgTxt);
     // Nhãn rút từ BẢNG NHÃN CHUNG (lib) — cùng chữ với thẻ /start (AC-3/AC-7).
     const state = mapState({ exists: false, tracked: daTheoDoi });
     if (state === 'da-xoa') {

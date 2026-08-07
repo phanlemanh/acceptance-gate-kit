@@ -8395,6 +8395,23 @@ for co_git in (True, False):
         if scan["map"]["state"] != "da-xoa" or scan["map"]["label"] != labels["da-xoa"]:
             errs.append(f"da-xoa (git={co_git}): /start noi {scan['map']} — khac bang nhan")
 
+# ── da-xoa KHONG config: cay du lich su, config KHONG khai, ban do TUNG commit
+# roi bi xoa — hai ben van phai CUNG noi da-xoa qua tin hieu git cua mapTracked
+# (S4-r1 vong nay: bo quet chi hoi config nen ca nay hai ben trai nhau) ───────
+with tempfile.TemporaryDirectory() as td:
+    ws = dung_cay(td, CFG_TAT, True)
+    run(["git", "-c", "user.email=a@b", "-c", "user.name=t", "add", "-A"], cwd=ws)
+    (ws / "PRODUCT-MAP.md").write_text("x")
+    run(["git", "add", "PRODUCT-MAP.md"], cwd=ws)
+    run(["git", "-c", "user.email=a@b", "-c", "user.name=t", "commit", "-qm", "x"], cwd=ws)
+    (ws / "PRODUCT-MAP.md").unlink()
+    r = run(["node", str(root / "scripts/product-map.mjs"), "--root", str(ws), "--check"])
+    if r.returncode != 1 or labels["da-xoa"] not in (r.stderr + r.stdout):
+        errs.append(f"da-xoa-khong-config: --check exit {r.returncode}: {r.stderr.strip()[:80]}")
+    scan = json.loads(run(["node", str(root / "scripts/start-scan.mjs"), "--root", str(ws)]).stdout)
+    if scan["map"]["state"] != "da-xoa" or scan["map"]["label"] != labels["da-xoa"]:
+        errs.append(f"da-xoa-khong-config: /start noi {scan['map']} — hai ben trai nhau dung ca S4-r1")
+
 # ── chua-bat: config khong khai → --check exit 0 nhung KHONG im lang, va /start
 # cung chu (AC-3) ─────────────────────────────────────────────────────────────
 with tempfile.TemporaryDirectory() as td:
@@ -8431,7 +8448,7 @@ with tempfile.TemporaryDirectory() as td:
 
 if errs:
     print("\n".join("  " + e for e in errs)); sys.exit(1)
-print("P171 OK (3 state x 3 ben doc cung bang nhan, 2 dang cay, --root sai chet to 2 kieu)")
+print("P171 OK (3 state cung bang nhan, 2 dang cay + ca da-xoa-khong-config qua tin hieu git, --root sai chet to 2 kieu)")
 P171PY
 
 echo "P172 (AC-4) khuon UAT round-trip: thi hanh thu tuc chep trong khoi moc -> ho so LANH; chep sai -> HONG"
@@ -8443,20 +8460,29 @@ root = Path(sys.argv[1])
 errs = []
 tpl = (root / "skills/acceptance/references/uat-session-template.md").read_text()
 
-# Thu tuc chep phai SONG trong khoi co moc — van xuoi ngoai moc khong rut duoc
-for mk, want in (("UAT-COPY-PROCEDURE", 1), ("UAT-FRONTMATTER-TEMPLATE", 1)):
-    n_open, n_close = tpl.count(f"<<<{mk}"), tpl.count(f"{mk}>>>")
-    if (n_open, n_close) != (want, want):
-        errs.append(f"moc {mk}: mo {n_open} / dong {n_close} (phai {want})")
+# CHECKER duy nhat — dung cho ban that VA cho mutant (E19). Tra list loi.
+# Truoc day E19 (P173) tu chep danh sach buoc roi tu cham: hai ve cung mot
+# nguon nen khong bao gio do — hinh dang "ben viet va ben doc troi nhau vi
+# test tu dung ban sao dung khuon" (S4-r1 vong nay bat lai). Nay mutant phai
+# di qua CHINH ham nay.
+BUOC = ("ĐỪNG chép", "BẮT ĐẦU ngay ở dòng `---`", "Xoá các dòng hướng dẫn")
+def kiem_khuon(tpl_txt):
+    out = []
+    for mk, want in (("UAT-COPY-PROCEDURE", 1), ("UAT-FRONTMATTER-TEMPLATE", 1)):
+        n_open, n_close = tpl_txt.count(f"<<<{mk}"), tpl_txt.count(f"{mk}>>>")
+        if (n_open, n_close) != (want, want):
+            out.append(f"moc {mk}: mo {n_open} / dong {n_close} (phai {want})")
+    if out:
+        return out
+    proc = tpl_txt.split("<<<UAT-COPY-PROCEDURE -->", 1)[1].split("<!-- UAT-COPY-PROCEDURE>>>", 1)[0]
+    for phrase in BUOC:
+        if phrase not in proc:
+            out.append(f"thu tuc chep thieu buoc: {phrase!r}")
+    return out
+
+errs.extend(kiem_khuon(tpl))
 
 if not errs:
-    proc = tpl.split("<<<UAT-COPY-PROCEDURE -->", 1)[1].split("<!-- UAT-COPY-PROCEDURE>>>", 1)[0]
-    # Khoi thu tuc phai neu du cac buoc may-kiem-duoc: dung chep rao/chu thich,
-    # bat dau bang ---, xoa dong huong dan
-    for phrase in ("ĐỪNG chép", "BẮT ĐẦU ngay ở dòng `---`", "Xoá các dòng hướng dẫn"):
-        if phrase not in proc:
-            errs.append(f"thu tuc chep thieu buoc: {phrase!r}")
-
     # THI HANH thu tuc (round-trip rut-tu-writer-doc-bang-reader):
     khuon = tpl.split("<<<UAT-FRONTMATTER-TEMPLATE -->", 1)[1].split("<!-- UAT-FRONTMATTER-TEMPLATE>>>", 1)[0]
     yaml_body = khuon.split("```yaml", 1)[1].split("```", 1)[0].strip("\n")
@@ -8486,9 +8512,33 @@ if not errs:
     if p_sai is None:
         errs.append("chep CA hang rao ma reader van goi lanh — thu tuc cam mot dieu vo hai, khong co gi de do")
 
+# ── E19: mutant thu-tuc-chep di qua CHINH checker tren — xoa mot buoc trong
+# ban sao khuon thi kiem_khuon phai DO va neu dung buoc do ────────────────────
+if not errs:
+    # Tiem TRONG khoi moc — vai cum cung xuat hien o van xuoi ngoai khoi
+    # (blockquote dau file), replace tren toan tpl se tiem nham cho va mutant
+    # thanh vo hieu (chinh checker nay vua bat duoc ca do khi con tiem toan-tpl)
+    dau, giua_duoi = tpl.split("<<<UAT-COPY-PROCEDURE -->", 1)
+    giua, duoi = giua_duoi.split("<!-- UAT-COPY-PROCEDURE>>>", 1)
+    for buoc in BUOC:
+        giua_mut = giua.replace(buoc, "buoc-da-go", 1)
+        if giua_mut == giua:
+            errs.append(f"E19: khong tiem duoc mutant cho buoc {buoc!r}")
+            continue
+        mut = dau + "<<<UAT-COPY-PROCEDURE -->" + giua_mut + "<!-- UAT-COPY-PROCEDURE>>>" + duoi
+        loi = kiem_khuon(mut)
+        if not loi:
+            errs.append(f"E19: xoa buoc {buoc!r} ma checker van XANH — phep do khong doc buoc nay")
+        elif not any(buoc in l for l in loi):
+            errs.append(f"E19: xoa buoc {buoc!r} nhung checker keu buoc khac: {loi}")
+    # mutant xoa tron khoi thu tuc → checker phai keu thieu moc
+    mut = tpl.replace("<!-- <<<UAT-COPY-PROCEDURE -->", "").replace("<!-- UAT-COPY-PROCEDURE>>> -->", "")
+    if not any("UAT-COPY-PROCEDURE" in l for l in kiem_khuon(mut)):
+        errs.append("E19: xoa tron cap moc thu tuc ma checker van xanh")
+
 if errs:
     print("\n".join("  " + e for e in errs)); sys.exit(1)
-print("P172 OK (thu tuc trong khoi moc, thi hanh that: chep dung lanh, chep ca rao hong)")
+print("P172 OK (thu tuc trong khoi moc, thi hanh that; E19: 3 mutant buoc + 1 mutant moc, cung MOT checker)")
 P172PY
 
 echo "P173 (AC-1,AC-4,AC-6,AC-8) not luoi reader-unification: mutant mot-cho, tu vung 4 cong, bien Codex, since rong, mutant thu-tuc-chep"
@@ -8617,24 +8667,13 @@ with tempfile.TemporaryDirectory() as td:
     if not g2 or g2["since"] != "2026-01-02T03:04:05Z":
         errs.append(f"E15 doi chung duong: co decided_at ma since={g2 and g2['since']!r}")
 
-# ── E19: dot bien thu-tuc-chep — xoa mot buoc trong khoi moc cua BAN SAO thi
-# phep do khuon (logic P172) phai DO neu dung buoc bi xoa ────────────────────
-tpl = (root / "skills/acceptance/references/uat-session-template.md").read_text()
-proc = tpl.split("<<<UAT-COPY-PROCEDURE -->", 1)[1].split("<!-- UAT-COPY-PROCEDURE>>>", 1)[0]
-BUOC = ["ĐỪNG chép", "BẮT ĐẦU ngay ở dòng `---`", "Xoá các dòng hướng dẫn"]
-for b in BUOC:
-    if b not in proc: errs.append(f"E19 doi chung duong: khoi thu tuc thieu san buoc {b!r}")
-mut = proc.replace("ĐỪNG chép", "cứ chép", 1)
-if "ĐỪNG chép" in mut:
-    errs.append("E19: mutant khong tiem duoc (buoc xuat hien nhieu lan?)")
-else:
-    thieu = [b for b in BUOC if b not in mut]
-    if thieu != ["ĐỪNG chép"]:
-        errs.append(f"E19: xoa buoc 'ĐỪNG chép' ma phep do thay thieu {thieu} — khong do dung buoc")
+# E19 da chuyen vao P172: mutant phai di qua CHINH checker cua phep do khuon,
+# khong duoc cham bang ban chep danh sach buoc cua rieng minh (hang-dung,
+# S4-r1 vong nay). Xem khoi P172.
 
 if errs:
     print("\n".join("  " + e for e in errs)); sys.exit(1)
-print("P173 OK (E3 mutant mot-cho 2 ben, E13 tu vung quan he, E14 bien Codex, E15 since rong + doi chung, E19 mutant thu tuc)")
+print("P173 OK (E3 mutant mot-cho 2 ben + bang-lech, E13 tu vung quan he, E14 bien Codex, E15 since rong + doi chung)")
 P173PY
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)

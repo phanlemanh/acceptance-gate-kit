@@ -22,7 +22,7 @@ const { frontmatterField, resolveConfigKey } = require(path.join(__dirname, '..'
 // được cho hai kết luận trái nhau. Kiểm tay lại ở đây là cách hai bên đã trôi
 // khỏi nhau ở r12 và r13 dù bảng enum đã gom xong từ r3.
 const { recordProblem, navValues, consumedTexts, usesOpportunity, readRecord, ioReason,
-        configList, fieldProblem, missingArtifact, mapState, MAP_LABELS } =
+        configList, fieldProblem, missingArtifact, mapState, MAP_LABELS, mapTracked } =
   require(path.join(__dirname, '..', 'lib', 'workspace-record.js'));
 
 // Argv hỏng CHẾT TO (exit 2), không âm thầm rơi về cwd: một cờ được KHAI mà
@@ -300,11 +300,13 @@ const map = {
   enabled: cfgRead.err || cfgRead.t == null ? null
     : configList(cfgRead.t, 't1_skip_globs').includes('PRODUCT-MAP.md'),
 };
-// state/label rút từ BẢNG NHÃN CHUNG (lib) — cùng bảng với product-map --check,
-// để "đã xoá" ở cổng CI không hoá "chưa dựng" trên thẻ /start (AC-3/AC-7).
-// tracked ở đây = enabled (tín hiệu config, sống được trên checkout nông);
+// state/label rút từ BẢNG NHÃN CHUNG và tracked từ MỘT HÀM CHUNG (lib) —
+// cùng nguồn với product-map --check, để "đã xoá" ở cổng CI không hoá "chưa
+// dựng" trên thẻ /start kể cả khi config không khai mà git còn nhớ file
+// (S4-r1 vòng này: hai bên từng suy tracked từ hai tín hiệu khác nhau).
 // enabled null (config không đọc được) → state null, thẻ nói "chưa biết".
-map.state = map.enabled == null ? null : mapState({ exists: map.present, tracked: map.enabled });
+map.state = map.enabled == null ? null
+  : mapState({ exists: map.present, tracked: mapTracked(root, cfgRead.t) });
 map.label = map.state == null ? null : MAP_LABELS[map.state];
 if (map.present) {
   // fresh = null khi KHÔNG kiểm được (không phải "khớp"): thẻ nói "chưa kiểm
