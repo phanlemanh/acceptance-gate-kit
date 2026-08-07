@@ -38,7 +38,8 @@ Run the `acceptance-card` skill: decision card + `evidence-page.html`
 - the verdict upgrade `PENDING-JUDGMENT → PASS`, legal only after ALL those
   lines are filled;
 - `human_signoff: <name> <date>`;
-- minutes → `time_human_minutes.gate2`; contract `status: signed-off`.
+- contract `status: signed-off`. (`time_human_minutes` is OPTIONAL — do not ask;
+  record only if the human volunteers it.)
 
 ## 5. Collect and apply
 
@@ -63,9 +64,9 @@ just changed, so it belongs in the signature commit below.
 ## 7. Land the signature in its own commit
 
 Touch only the human-owned lines in `evidence-report.md` (`human_signoff`,
-`human_override`, the verdict upgrade, `bypass_ack`) plus the contract's
-`status` + `time_human_minutes.gate2` — plus the regenerated `PRODUCT-MAP.md`
-ONLY if the step above actually regenerated it:
+`human_override`, the verdict upgrade, `bypass_ack`) plus the contract's `status`
+(and `time_human_minutes.gate2` only if the human volunteered it) — plus the
+regenerated `PRODUCT-MAP.md` ONLY if the step above actually regenerated it:
 
 ```bash
 git add _acceptance/<slug>/evidence-report.md _acceptance/<slug>/contract.md

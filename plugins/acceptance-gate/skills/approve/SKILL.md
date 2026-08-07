@@ -52,7 +52,6 @@ agent-editable), re-render the card, ask again.
   confirm it; otherwise ask. Never guess; never write an agent's name.
 - Patch the contract frontmatter: `status: approved`, `approved_by`,
   `approved_at` (ISO date).
-- Ask how many minutes Gate 1 took → `time_human_minutes.gate1`.
 - If `_acceptance/<slug>/decisions.jsonl` exists, append the seal entry
   `{"id":"d-<next>","type":"seal","gate":1,"at":"<ISO>"}` in the same
   write-batch as `approved_by`.

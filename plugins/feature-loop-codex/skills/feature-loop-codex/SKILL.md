@@ -282,8 +282,9 @@ section (even if it is a single skip line):
 5. Write `_acceptance/<slug>/contract.md` using the acceptance-gate contract
    shape: status `draft`, risk tier, surfaces, 5-15 Given/When/Then criteria,
    judgment tags where needed, a `## Coverage` section carrying the CT-S output
-   (axes + CE measure, or one skip line), at least two out-of-scope items, and
-   `time_human_minutes.gate1` / `time_human_minutes.gate2` placeholders.
+   (axes + CE measure, or one skip line), at least two out-of-scope items.
+   (`time_human_minutes` is OPTIONAL — no placeholder, never asked at gates;
+   old numbers are self-reported and untrusted, reset charter 2026-08-07.)
 6. Write `_acceptance/<slug>/evals.yaml`. Map every AC to at least one eval.
    Prefer `test`, `script`, or `ui-check` before `judgment`. Use `config:`
    command references, not hardcoded project commands. Plan each machine
@@ -364,8 +365,9 @@ card now includes the "Phản biện context sạch" block (findings + dispositi
 from gap-probe.md; absent file / probe-failed → yellow flag, non-blocking).
 The card is presentation only; contract and evals remain the source of truth.
 Also provide the full design summary, design-reference provenance when present,
-contract, and AC-to-eval mapping. On approval, update `approved_by`,
-`approved_at`, and `time_human_minutes.gate1`, then append the Gate-1 seal.
+contract, and AC-to-eval mapping. On approval, update `approved_by` and
+`approved_at`, then append the Gate-1 seal. Do NOT ask for gate minutes
+(`time_human_minutes` is optional — record only if the human volunteers it).
 
 If the user wants the machine-owned segment S2→S4 to continue unattended,
 suggest the native Codex `/goal` command with an objective that ends at
@@ -690,8 +692,8 @@ human resolves perceptual ACs from reference vs implementation evidence, not
 from text alone. Any fidelity-skip warning from S4 must appear at the top of the
 Gate-2 package.
 
-Ask the human to resolve UNCERTAIN/variance items, fill `human_signoff`, and
-provide `time_human_minutes.gate2`. Do not self-sign. After signoff, update
+Ask the human to resolve UNCERTAIN/variance items and fill `human_signoff`
+(`time_human_minutes.gate2` optional — do not ask). Do not self-sign. After signoff, update
 contract status to `signed-off`. Present every provisional ledger entry and
 append a Gate-2 `revisit` entry when the human leaves a follow-up condition.
 
