@@ -1,0 +1,10 @@
+{"ts":"2026-08-07T10:18:27Z","sha":"fd2cb45911c851db8a4dec54c177de2949710c8d","round":1,"evalId":"E1","run_id":"minted-measure-birth-certificate-E1-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T10:18:27Z","sha":"fd2cb45911c851db8a4dec54c177de2949710c8d","round":1,"evalId":"E2","run_id":"minted-measure-birth-certificate-E2-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T10:18:27Z","sha":"fd2cb45911c851db8a4dec54c177de2949710c8d","round":1,"evalId":"E3","run_id":"minted-measure-birth-certificate-E3-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T10:18:27Z","sha":"fd2cb45911c851db8a4dec54c177de2949710c8d","round":1,"evalId":"E4","run_id":"minted-measure-birth-certificate-E4-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T10:18:27Z","sha":"fd2cb45911c851db8a4dec54c177de2949710c8d","round":1,"evalId":"E5","run_id":"minted-measure-birth-certificate-E5-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T10:18:27Z","sha":"fd2cb45911c851db8a4dec54c177de2949710c8d","round":1,"evalId":"E6","run_id":"minted-measure-birth-certificate-E6-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T10:18:27Z","sha":"fd2cb45911c851db8a4dec54c177de2949710c8d","round":1,"evalId":"E7","run_id":"minted-measure-birth-certificate-E7-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T10:18:27Z","sha":"fd2cb45911c851db8a4dec54c177de2949710c8d","round":1,"evalId":"E8","run_id":"minted-measure-birth-certificate-E8-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T10:18:27Z","sha":"fd2cb45911c851db8a4dec54c177de2949710c8d","round":1,"evalId":"E9","run_id":"minted-measure-birth-certificate-E9-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T10:18:27Z","sha":"fd2cb45911c851db8a4dec54c177de2949710c8d","round":1,"kind":"baseline","evals_hash":"d183642e4af82a7edf93e666fc1e518999545bc969691f05440badf2a8cf0602","non_discriminating":[]}
