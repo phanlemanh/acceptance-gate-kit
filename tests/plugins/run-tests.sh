@@ -8676,6 +8676,342 @@ if errs:
 print("P173 OK (E3 mutant mot-cho 2 ben + bang-lech, E13 tu vung quan he, E14 bien Codex, E15 since rong + doi chung)")
 P173PY
 
+# ═══ measure-birth-certificate (P174–P182) ══════════════════════════════════
+# Khuôn khai sinh phép đo: mỗi case dưới đây TỰ tuân khuôn nó đo — in
+# "P<N> DUONG-OK" khi đối chứng dương xanh và "P<N> MUTANT-OK" khi mọi mutant
+# đỏ ghim thông điệp. P182 kiểm quan hệ tập-hợp trên chính các marker đó.
+# <<<MBC-CASE-IDS
+# P174 P175 P176 P177 P178 P179 P180 P181 P182
+# MBC-CASE-IDS>>>
+
+run "P174 [MBC] E1 menh de MEASURE-BIRTH-CLAUSE trong SKILL Claude: 3 thanh phan + 3 loai vat + neo" \
+  python3 - "$ROOT" <<'P174PY'
+import re, sys, pathlib
+root = pathlib.Path(sys.argv[1])
+t = (root/'feature-loop/skills/feature-loop/SKILL.md').read_text()
+OPEN='<!-- <<<MEASURE-BIRTH-CLAUSE -->'; CLOSE='<!-- MEASURE-BIRTH-CLAUSE>>> -->'
+def measure(text):
+    i, j = text.find(OPEN), text.find(CLOSE)
+    if i < 0 or j < 0: return ['KHONG tim thay khoi giua moc MEASURE-BIRTH-CLAUSE']
+    b = text[i:j]
+    errs = []
+    for name, pat in [('cap hai-chieu cung fixture', r'cặp case hai-chiều.*CÙNG một\s+fixture'),
+                      ('thong diep ghim', r'THÔNG ĐIỆP GHIM'),
+                      ('thieu cap = chua xong', r'Thiếu cặp = task CHƯA XONG'),
+                      ('3 loai vat', r'case suite, eval[\s\S]*rule/check'),
+                      ('neo MBC-CORE', r'MBC-CORE: pair-same-fixture')]:
+        if not re.search(pat, b, re.S): errs.append('khoi thieu thanh phan: ' + name)
+    return errs
+errs = measure(t)
+assert not errs, 'ban that do oan: ' + '; '.join(errs)
+print('P174 DUONG-OK')
+m1 = t[:t.find(OPEN)] + t[t.find(CLOSE)+len(CLOSE):]
+e1 = measure(m1)
+assert e1 and 'MEASURE-BIRTH-CLAUSE' in e1[0], 'mutant xoa khoi khong do ghim ten moc: ' + repr(e1)
+body = t[t.find(OPEN)+len(OPEN):t.find(CLOSE)]
+m2 = t[:t.find(OPEN)] + OPEN + '\n   (khoi rong)\n   ' + CLOSE + body + t[t.find(CLOSE)+len(CLOSE):]
+e2 = measure(m2)
+assert e2 and any('thanh phan' in x for x in e2), 'mutant tach-khoi-moc khong do: ' + repr(e2)
+print('P174 MUTANT-OK (xoa khoi + tach khoi moc deu do ghim thong diep)')
+P174PY
+
+run "P175 [MBC] E2 neo MBC-CORE khop byte giua hai ban chi dan" \
+  python3 - "$ROOT" <<'P175PY'
+import re, sys, pathlib
+root = pathlib.Path(sys.argv[1])
+CANON = re.compile(r'<!-- MBC-CORE: pair-same-fixture \+ pinned-message \+ not-done-without-pair; objects: suite-case, eval, rule-script -->')
+SIDES = {'claude': 'feature-loop/skills/feature-loop/SKILL.md',
+         'codex': 'codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md'}
+def measure(texts):
+    errs, anchors = [], {}
+    for side, text in texts.items():
+        m = re.search(r'<!-- MBC-CORE:.*?-->', text)
+        if not m: errs.append(f'ben {side}: khong co dong neo MBC-CORE'); continue
+        anchors[side] = m.group(0)
+        if not CANON.fullmatch(m.group(0)): errs.append(f'ben {side}: neo MBC-CORE lech khoi khuon chuan')
+    if len(anchors) == 2 and anchors['claude'] != anchors['codex']:
+        errs.append('neo hai ben khac nhau (claude vs codex)')
+    return errs
+texts = {s: (root/p).read_text() for s, p in SIDES.items()}
+errs = measure(texts)
+assert not errs, 'ban that do oan: ' + '; '.join(errs)
+print('P175 DUONG-OK')
+mut = dict(texts); mut['codex'] = re.sub(r'not-done-without-pair', 'optional-pair', mut['codex'])
+e1 = measure(mut)
+assert e1 and any('codex' in x for x in e1), 'mutant lech ben codex khong do neu ten ben: ' + repr(e1)
+print('P175 MUTANT-OK (lech mot ben -> do neu dung ten ben)')
+P175PY
+
+run "P176 [MBC] E3 con tro S1 ve khuon o CA HAI ban chi dan" \
+  python3 - "$ROOT" <<'P176PY'
+import sys, pathlib
+root = pathlib.Path(sys.argv[1])
+PTR = {'claude': ('feature-loop/skills/feature-loop/SKILL.md', 'Kế hoạch đo theo khuôn `MEASURE-BIRTH-CLAUSE`'),
+       'codex': ('codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md', 'per the `MEASURE-BIRTH-CLAUSE` mold')}
+def measure(texts):
+    return [f'ben {s}: doan viet evals.yaml THIEU con tro toi MEASURE-BIRTH-CLAUSE'
+            for s, (p, needle) in PTR.items() if needle not in texts[s]]
+texts = {s: (root/p).read_text() for s, (p, _) in PTR.items()}
+errs = measure(texts)
+assert not errs, 'ban that do oan: ' + '; '.join(errs)
+print('P176 DUONG-OK')
+for side in PTR:
+    mut = dict(texts); mut[side] = mut[side].replace(PTR[side][1], '')
+    e = measure(mut)
+    assert e and any(side in x for x in e), f'mutant xoa con tro ben {side} khong do neu ten ben: ' + repr(e)
+print('P176 MUTANT-OK (xoa con tro tung ben -> do neu dung ben thieu)')
+P176PY
+
+run "P177 [MBC] E4 references measure-birth.md: resolver goc-trong-cay-kiem + 3 muc + 2 mau + bang lop" \
+  python3 - "$ROOT" <<'P177PY'
+import re, subprocess, sys, tempfile, pathlib
+root = pathlib.Path(sys.argv[1])
+REL = 'skills/acceptance/references/measure-birth.md'
+r = subprocess.run(['node', str(root/'feature-loop/scripts/resolve-plugin.mjs'),
+                    '--plugin', 'acceptance-gate', '--root', str(root), '--require', REL],
+                   capture_output=True, text=True)
+assert r.returncode == 0, 'resolver fail tren cay that: ' + r.stderr[:200]
+got = pathlib.Path(r.stdout.strip()).resolve()
+assert str(got).startswith(str(root.resolve())), f'goc resolver NGOAI cay kiem: {got}'
+def measure(text):
+    errs = []
+    m = re.search(r'<!-- <<<MEASURE-BIRTH-SECTIONS -->([\s\S]*?)<!-- MEASURE-BIRTH-SECTIONS>>> -->', text)
+    if not m: return ['references: KHONG co cap moc MEASURE-BIRTH-SECTIONS']
+    body = m.group(1)
+    for name in ['Đối-chứng-dương', 'Phá-vật-thật', 'Thông-điệp-ghim']:
+        if ('### ' not in body) or (name not in body): errs.append('references thieu muc: ' + name)
+    for sample in ['L35', 'PM13']:
+        if sample not in text: errs.append('references thieu mau song: ' + sample)
+    if 'known-limits-ledger.tsv' not in text or '| Lớp |' not in text:
+        errs.append('references thieu bang lop tu ledger')
+    return errs
+text = (got/REL).read_text()
+errs = measure(text)
+assert not errs, 'ban that do oan: ' + '; '.join(errs)
+print('P177 DUONG-OK')
+m1 = text.replace('### 2. Phá-vật-thật', '### 2. (da xoa)')
+e1 = measure(m1)
+assert e1 and any('Phá-vật-thật' in x for x in e1), 'mutant xoa muc khong do ghim ten muc: ' + repr(e1)
+with tempfile.TemporaryDirectory() as d:
+    r2 = subprocess.run(['node', str(root/'feature-loop/scripts/resolve-plugin.mjs'),
+                         '--plugin', 'acceptance-gate', '--root', d, '--require', REL],
+                        capture_output=True, text=True)
+    assert r2.returncode != 0, 'resolver tren cay THIEU file van tra goc — se doc ban lanh ngoai cay'
+print('P177 MUTANT-OK (xoa muc do ghim ten muc; cay thieu file -> resolver fail thay vi tra goc ngoai)')
+P177PY
+
+run "P178 [MBC] E5 round-trip make-record + scanner 4 luot dong vai" \
+  python3 - "$ROOT" <<'P178PY'
+import json, re, shutil, subprocess, sys, tempfile, pathlib
+root = pathlib.Path(sys.argv[1])
+WS = root/'_acceptance/measure-birth-certificate'
+EV = WS/'evidence'
+SKILLS = ['feature-loop/skills/feature-loop/SKILL.md',
+          'codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md']
+GEN = ['chi-dan-claude-co-mbc.md', 'chi-dan-claude-khong-mbc.md',
+       'chi-dan-codex-co-mbc.md', 'chi-dan-codex-khong-mbc.md', 'de-bai.md']
+def run_makerecord(skill_texts):
+    d = pathlib.Path(tempfile.mkdtemp())
+    for rel, text in zip(SKILLS, skill_texts):
+        p = d/rel; p.parent.mkdir(parents=True, exist_ok=True); p.write_text(text)
+    mr = d/'_acceptance/measure-birth-certificate/make-record.mjs'
+    mr.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy(WS/'make-record.mjs', mr)
+    r = subprocess.run(['node', str(mr)], capture_output=True, text=True)
+    return d, r
+def scan(artifact_text):
+    return {
+        'completed': 'hoàn thành: có' in artifact_text,
+        'pinned_message': bool(re.search(r'grep -q .missing slug', artifact_text)),
+        'same_fixture_derivation': bool(re.search(r'(grep -v|sed )[^\n]*\.md["\x27]?\s*>\s*["\x27]?[^\n]*\.md', artifact_text)),
+    }
+def measure(ev_dir, record):
+    errs = []
+    for run_ in record['runs']:
+        p = ev_dir/run_['artifact']
+        if not p.exists() or not p.read_text().strip():
+            errs.append('luot ' + run_['id'] + ': artifact RONG hoac vang'); continue
+        got = scan(p.read_text())
+        if not got['completed']: errs.append('luot ' + run_['id'] + ': thieu dau hoan-thanh')
+        for k in ('pinned_message', 'same_fixture_derivation'):
+            if got[k] != run_[k]: errs.append(f'luot {run_["id"]}: record.{k}={run_[k]} LECH scanner={got[k]}')
+        if run_['pair_per_mold'] != run_['same_fixture_derivation']:
+            errs.append('luot ' + run_['id'] + ': pair_per_mold khong nhat quan voi same_fixture_derivation')
+    return errs
+# DUONG 1: round-trip nguon -> make-record -> khop evidence da commit
+d, r = run_makerecord([(root/s).read_text() for s in SKILLS])
+assert r.returncode == 0, 'make-record fail tren nguon that: ' + r.stderr[:200]
+for g in GEN:
+    a = (d/'_acceptance/measure-birth-certificate/evidence'/g).read_text()
+    b = (EV/g).read_text()
+    assert a == b, f'evidence {g} LECH NGUON hien tai — chay lai make-record.mjs va commit lai'
+# DUONG 2: scanner khop record tren evidence that
+record = json.loads((EV/'hanh-vi-record.json').read_text())
+errs = measure(EV, record)
+assert not errs, 'ban that do oan: ' + '; '.join(errs)
+assert [x['pair_per_mold'] for x in record['runs']] == [True, True, False, False], 'verdict 2/2-0/2 lech record'
+print('P178 DUONG-OK')
+# MUTANT 1: SKILL doi chu trong khoi -> chi-dan sinh ra phai LECH evidence
+mut_texts = [(root/SKILLS[0]).read_text().replace('THÔNG ĐIỆP GHIM', 'THONG DIEP TUY Y'), (root/SKILLS[1]).read_text()]
+d2, r2 = run_makerecord(mut_texts)
+assert r2.returncode == 0
+diff_found = any(((d2/'_acceptance/measure-birth-certificate/evidence'/g).read_text() != (EV/g).read_text()) for g in GEN)
+assert diff_found, 'mutant doi nguon ma round-trip van khop — phep do khong gan vao nguon'
+# MUTANT 2: lam RONG mot artifact trong ban sao -> do ghim ten luot
+d3 = pathlib.Path(tempfile.mkdtemp()); shutil.copytree(EV, d3/'evidence')
+(d3/'evidence'/'hanh-vi-A1-claude-co.md').write_text('')
+e2 = measure(d3/'evidence', record)
+assert e2 and any('A1' in x and 'RONG' in x for x in e2), 'mutant artifact rong khong do ghim ten luot: ' + repr(e2)
+# MUTANT 3: lat pair_per_mold cua B1 trong ban sao record -> do lech scanner/nhat quan
+rec2 = json.loads(json.dumps(record))
+[x for x in rec2['runs'] if x['id'] == 'B1'][0]['pair_per_mold'] = True
+e3 = measure(EV, rec2)
+assert e3 and any('B1' in x for x in e3), 'mutant lat verdict B1 khong do: ' + repr(e3)
+print('P178 MUTANT-OK (doi nguon lech round-trip, artifact rong ghim ten luot, lat verdict ghim B1)')
+P178PY
+
+run "P179 [MBC] E6 ledger known-limits: dem tu corpus + bat bien hang + quan he >=" \
+  python3 - "$ROOT" <<'P179PY'
+import re, sys, pathlib
+root = pathlib.Path(sys.argv[1])
+LEDGER = root/'docs/research/known-limits-ledger.tsv'
+def count_corpus(acc_dir):
+    n = 0
+    for f in sorted(acc_dir.glob('*/review-findings.md')):
+        n += len(re.findall(r'Đề xuất:\s*known-limits', f.read_text()))
+    return n
+def measure(ledger_text, corpus_count):
+    rows = [l.split('\t') for l in ledger_text.strip().split('\n')[1:]]
+    errs = []
+    if len(rows) < corpus_count:
+        errs.append(f'quan he >= vo: ledger {len(rows)} dong < corpus {corpus_count} muc')
+    ids = {r[0] for r in rows}
+    for r in rows:
+        rid, status, closed_by, dup_of = r[0], r[4], r[5], r[6]
+        if status not in ('song', 'chet', 'trung'): errs.append(f'{rid}: status la "{status}" ngoai enum')
+        if status == 'chet' and not closed_by.strip(): errs.append(f'{rid}: chet thieu closed_by')
+        if status == 'trung':
+            if not dup_of.strip(): errs.append(f'{rid}: trung thieu dup_of')
+            elif dup_of not in ids: errs.append(f'{rid}: dup_of tro id ma "{dup_of}"')
+    return errs
+# DOI CHUNG DUONG CHO BO DEM: ho so da biet co muc phai dem > 0
+known = count_corpus(root/'_acceptance')
+one = len(re.findall(r'Đề xuất:\s*known-limits', (root/'_acceptance/stop-patching-law/review-findings.md').read_text()))
+assert one > 0, 'bo dem tra 0 tren ho so DA BIET co muc — bo dem hong, khong phai corpus rong'
+assert known >= one, 'tong corpus be hon mot ho so — bo dem hong'
+text = LEDGER.read_text()
+errs = measure(text, known)
+assert not errs, 'ban that do oan: ' + '; '.join(errs)
+print('P179 DUONG-OK')
+lines = text.strip().split('\n')
+def mut(transform):
+    return measure(transform(text), known)
+chet_i = next(i for i, l in enumerate(lines) if l.split('\t')[4:5] == ['chet'])
+cols = lines[chet_i].split('\t'); cols[5] = ''
+e1 = measure('\n'.join(lines[:chet_i] + ['\t'.join(cols)] + lines[chet_i+1:]), known)
+assert any('chet thieu closed_by' in x for x in e1), 'mutant xoa closed_by khong do ghim bat bien: ' + repr(e1)
+trung_i = next(i for i, l in enumerate(lines) if l.split('\t')[4:5] == ['trung'])
+cols = lines[trung_i].split('\t'); cols[6] = 'id-ma#999'
+e2 = measure('\n'.join(lines[:trung_i] + ['\t'.join(cols)] + lines[trung_i+1:]), known)
+assert any('id ma' in x for x in e2), 'mutant dup_of id ma khong do: ' + repr(e2)
+cols = lines[1].split('\t'); cols[4] = 'zombie'
+e3 = measure('\n'.join([lines[0], '\t'.join(cols)] + lines[2:]), known)
+assert any('ngoai enum' in x for x in e3), 'mutant status la khong do: ' + repr(e3)
+e4 = measure('\n'.join(lines[:-1]), known)
+assert any('quan he >=' in x for x in e4), 'mutant xoa dong khong do quan he >=: ' + repr(e4)
+print('P179 MUTANT-OK (closed_by, dup_of ma, enum, quan he >= deu do ghim ten bat bien)')
+P179PY
+
+run "P180 [MBC] E7 baseline 4/6 trong Notes + entry revisit dieu kien dung" \
+  python3 - "$ROOT" <<'P180PY'
+import json, sys, pathlib
+root = pathlib.Path(sys.argv[1])
+WS = root/'_acceptance/measure-birth-certificate'
+def measure(contract_text, ledger_lines):
+    errs = []
+    if 'Baseline 2026-08-07: 4/6' not in contract_text:
+        errs.append('Notes thieu baseline 4/6 (2026-08-07)')
+    revisits = [json.loads(l) for l in ledger_lines if l.strip() and json.loads(l).get('type') == 'revisit']
+    ok = [e for e in revisits if 'AC-7' in (e.get('serves') or []) and 'dừng' in e.get('impact', '')]
+    if not ok: errs.append('decisions.jsonl thieu entry revisit AC-7 co dieu kien dung')
+    return errs
+c = (WS/'contract.md').read_text()
+d = (WS/'decisions.jsonl').read_text().split('\n')
+errs = measure(c, d)
+assert not errs, 'ban that do oan: ' + '; '.join(errs)
+print('P180 DUONG-OK')
+e1 = measure(c.replace('Baseline 2026-08-07: 4/6', 'Baseline (da xoa)'), d)
+assert any('baseline 4/6' in x for x in e1), 'mutant xoa baseline khong do: ' + repr(e1)
+e2 = measure(c, [l for l in d if '"revisit"' not in l])
+assert any('revisit' in x for x in e2), 'mutant xoa entry revisit khong do: ' + repr(e2)
+print('P180 MUTANT-OK (xoa baseline / xoa revisit deu do ghim thong diep)')
+P180PY
+
+run "P181 [MBC] E9 kenh giao: menh de ton tai -> version goi >= moc (ca twin + mirror)" \
+  python3 - "$ROOT" <<'P181PY'
+import json, sys, pathlib
+root = pathlib.Path(sys.argv[1])
+ver = lambda s: tuple(int(x) for x in s.split('.'))
+GATES = [
+    ('feature-loop (Claude)', 'feature-loop/.claude-plugin/plugin.json', '1.27.0'),
+    ('feature-loop-codex (nguon)', 'codex/feature-loop-codex/.codex-plugin/plugin.json', '1.27.0'),
+    ('feature-loop-codex (mirror)', 'plugins/feature-loop-codex/.codex-plugin/plugin.json', '1.27.0'),
+    ('acceptance-gate (Claude)', '.claude-plugin/plugin.json', '1.39.0'),
+    ('acceptance-gate (Codex)', '.codex-plugin/plugin.json', '1.39.0'),
+    ('acceptance-gate (codex nguon)', 'codex/acceptance-gate/.codex-plugin/plugin.json', '1.39.0'),
+    ('acceptance-gate (mirror)', 'plugins/acceptance-gate/.codex-plugin/plugin.json', '1.39.0'),
+]
+clause = 'MEASURE-BIRTH-CLAUSE' in (root/'feature-loop/skills/feature-loop/SKILL.md').read_text()
+refs = (root/'skills/acceptance/references/measure-birth.md').exists()
+assert clause and refs, 'tien de: khoi/references phai ton tai trong cay nay'
+def measure(versions):
+    return [f'goi {name}: version {versions[name]} < moc {floor}'
+            for name, _, floor in GATES if ver(versions[name]) < ver(floor)]
+versions = {name: json.loads((root/p).read_text())['version'] for name, p, _ in GATES}
+errs = measure(versions)
+assert not errs, 'ban that do oan: ' + '; '.join(errs)
+print('P181 DUONG-OK')
+mut = dict(versions); mut['feature-loop-codex (mirror)'] = '1.26.0'
+e1 = measure(mut)
+assert e1 and any('mirror' in x for x in e1), 'mutant ha version mirror khong do ghim ten goi: ' + repr(e1)
+mut2 = dict(versions); mut2['acceptance-gate (Claude)'] = '1.38.0'
+e2 = measure(mut2)
+assert e2 and any('acceptance-gate (Claude)' in x for x in e2), 'mutant ha acceptance-gate khong do: ' + repr(e2)
+print('P181 MUTANT-OK (ha version tung goi -> do ghim dung ten goi)')
+P181PY
+
+run "P182 [MBC] E8 tu-ap: khoi khai dich danh <-> tap tim duoc + moi case du hai chieu" \
+  python3 - "$ROOT" <<'P182PY'
+import re, sys, pathlib
+root = pathlib.Path(sys.argv[1])
+SRC = pathlib.Path(__file__ if '__file__' in dir() else '.')
+suite = (root/'tests/plugins/run-tests.sh').read_text()
+def measure(text):
+    errs = []
+    m = re.search(r'# <<<MBC-CASE-IDS\n# ([P0-9 ]+)\n# MBC-CASE-IDS>>>', text)
+    if not m: return ['KHONG tim thay khoi khai MBC-CASE-IDS']
+    declared = set(m.group(1).split())
+    found = set('P' + x for x in re.findall(r'^run "P(\d+) \[MBC\]', text, re.M))
+    for missing in sorted(found - declared): errs.append(f'case {missing} co tag [MBC] nhung KHONG khai trong khoi')
+    for ghost in sorted(declared - found): errs.append(f'id {ghost} khai trong khoi nhung KHONG tim thay case')
+    for pid in sorted(declared & found):
+        mm = re.search(r'^run "' + pid + r' \[MBC\][\s\S]*?(?=^run "|\Z)', text, re.M)
+        body = mm.group(0) if mm else ''
+        if f"{pid} DUONG-OK" not in body: errs.append(f'case {pid} thieu nhanh doi-chung-duong (DUONG-OK)')
+        if f"{pid} MUTANT-OK" not in body: errs.append(f'case {pid} thieu nhanh pha-vat (MUTANT-OK)')
+    return errs
+errs = measure(suite)
+assert not errs, 'ban that do oan: ' + '; '.join(errs)
+print('P182 DUONG-OK')
+m1 = suite.replace('# P174 P175 P176 P177 P178 P179 P180 P181 P182', '# P174 P175 P176 P177 P179 P180 P181 P182')
+e1 = measure(m1)
+assert e1 and any('P178' in x for x in e1), 'mutant go id khoi khoi khai khong do ghim id: ' + repr(e1)
+m2 = suite.replace("print('P174 MUTANT-OK", "print('P174 XONG", 1)
+e2 = measure(m2)
+assert e2 and any('P174' in x and 'MUTANT-OK' in x for x in e2), 'mutant go nhanh pha-vat khong do neu ten case: ' + repr(e2)
+print('P182 MUTANT-OK (tap lech ghim id; case mot-chieu ghim ten case)')
+P182PY
+
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
   echo "ONLY_BLOCK=$ONLY_BLOCK khong khop khoi nao — go sai ten? (fail de khong xanh gia)"
