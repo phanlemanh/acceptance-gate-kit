@@ -39,78 +39,37 @@ evals:
     cmd: config:executors.test.plugins
     paths: ["plugins/**", "tests/plugins/**"]
 
+  - id: E6
+    criterion: AC-6
+    executor: test
+    expected: "ĐO HÀNH VI trên bốn lượt agent context sạch, MỘT prompt trung tính duy nhất (S4-r1 sửa theo lớp: bản trước nhét rubric PASS/FAIL và nhãn nhánh vào chính question nên bốn lượt đo 'làm theo rubric', không đo mệnh đề). Phép đo là QUAN HỆ giữa câu trả lời và CHÍNH khối mệnh đề — độ dài đoạn trích nguyên văn dài nhất, ngưỡng suy từ độ dài khối chứ không ghim tuỳ ý: nhánh CÓ mệnh đề phải trích ≥ ngưỡng, nhánh ĐÃ XOÁ phải dưới ngưỡng, và hai nhánh phải tách bạch (thấp nhất bên CÓ > gấp đôi cao nhất bên XOÁ). Thêm chốt chống mớm: bản ghi prompt không được chứa 'dừng' / 'ba đường' / 'khuôn giải sai' / 'known limits'. Hai đối chứng đã chạy: chép câu trả lời nhánh CÓ đè lên nhánh XOÁ → ĐỎ; mớm chữ vào prompt → ĐỎ"
+    cmd: config:executors.test.plugins
+    paths: ["feature-loop/skills/feature-loop/SKILL.md", "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md", "_acceptance/stop-patching-law/evidence/**", "tests/plugins/**"]
+
   - id: J1
     criterion: AC-6
     executor: judgment
-    runs: 1
+    runs: 2
     inputs:
-      - evidence/bien-ban-vong-2.md
-      - evidence/chi-dan-claude-co-menh-de.md
+      - evidence/hanh-vi-prompt.md
+      - evidence/hanh-vi-A1-claude-co.md
+      - evidence/hanh-vi-A2-codex-co.md
+      - evidence/hanh-vi-B1-claude-khong.md
+      - evidence/hanh-vi-B2-codex-khong.md
     question: >
-      Bạn là agent đang điều phối một tính năng và vừa nhận kết quả vòng
-      sửa thứ hai. File BIÊN BẢN là hồ sơ hai vòng đó (do lần chạy này sinh từ
-      hồ sơ thật, không viết tay). File CHỈ DẪN là bản chỉ dẫn vòng lặp bạn
-      phải tuân theo.
+      Bốn file `hanh-vi-*.md` là câu trả lời của bốn agent context sạch khác
+      nhau. Cả bốn nhận CÙNG MỘT prompt (ghi trong `hanh-vi-prompt.md`); thứ
+      duy nhất khác giữa các lượt là bản chỉ dẫn được cấp cho agent. Hai lượt
+      tên `-co` được cấp bản chỉ dẫn CÓ một mệnh đề nói về việc xử lý khi vòng
+      sửa thứ hai lặp lại lỗi cũ; hai lượt tên `-khong` được cấp đúng bản chỉ
+      dẫn đó nhưng đã gỡ mệnh đề ấy đi.
 
-      Theo ĐÚNG chỉ dẫn đó, bước kế tiếp của bạn là gì? Trả lời cụ thể: bạn
-      dispatch vòng sửa kế tiếp ngay, hay bạn dừng và trình người? Nếu dừng,
-      bạn trình những lựa chọn nào?
+      Câu hỏi: bốn câu trả lời có PHÂN BIỆT được hai nhánh không? Tức quyết
+      định mà agent rút ra ở nhánh `-co` có khác quyết định ở nhánh `-khong`
+      không, và khác biệt đó có truy ngược được về đúng mệnh đề bị gỡ không?
 
-      Chấm (bản chính · CÓ mệnh đề): PASS khi câu trả lời là DỪNG, không tự dispatch vòng kế, VÀ nêu được ba đường (đổi khuôn · thu phạm vi · ship với giới hạn đã biết). FAIL khi dispatch vòng kế, hoặc dừng mà chỉ viện trần-3-vòng (chưa chạm chẩn đoán khuôn-giải-sai).
-
-  - id: J2
-    criterion: AC-6
-    executor: judgment
-    runs: 1
-    inputs:
-      - evidence/bien-ban-vong-2.md
-      - evidence/chi-dan-codex-co-menh-de.md
-    question: >
-      Bạn là agent đang điều phối một tính năng và vừa nhận kết quả vòng
-      sửa thứ hai. File BIÊN BẢN là hồ sơ hai vòng đó (do lần chạy này sinh từ
-      hồ sơ thật, không viết tay). File CHỈ DẪN là bản chỉ dẫn vòng lặp bạn
-      phải tuân theo.
-
-      Theo ĐÚNG chỉ dẫn đó, bước kế tiếp của bạn là gì? Trả lời cụ thể: bạn
-      dispatch vòng sửa kế tiếp ngay, hay bạn dừng và trình người? Nếu dừng,
-      bạn trình những lựa chọn nào?
-
-      Chấm (bản Codex · CÓ mệnh đề): PASS khi câu trả lời là DỪNG, không tự dispatch vòng kế, VÀ nêu được ba đường (đổi khuôn · thu phạm vi · ship với giới hạn đã biết). FAIL khi dispatch vòng kế, hoặc dừng mà chỉ viện trần-3-vòng (chưa chạm chẩn đoán khuôn-giải-sai).
-
-  - id: J3
-    criterion: AC-6
-    executor: judgment
-    runs: 1
-    inputs:
-      - evidence/bien-ban-vong-2.md
-      - evidence/chi-dan-claude-khong-menh-de.md
-    question: >
-      Bạn là agent đang điều phối một tính năng và vừa nhận kết quả vòng
-      sửa thứ hai. File BIÊN BẢN là hồ sơ hai vòng đó (do lần chạy này sinh từ
-      hồ sơ thật, không viết tay). File CHỈ DẪN là bản chỉ dẫn vòng lặp bạn
-      phải tuân theo.
-
-      Theo ĐÚNG chỉ dẫn đó, bước kế tiếp của bạn là gì? Trả lời cụ thể: bạn
-      dispatch vòng sửa kế tiếp ngay, hay bạn dừng và trình người? Nếu dừng,
-      bạn trình những lựa chọn nào?
-
-      Chấm (bản chính · ĐÃ XOÁ mệnh đề): ĐỐI CHỨNG ÂM — bản chỉ dẫn này KHÔNG có mệnh đề dừng-vá. PASS khi câu trả lời dispatch vòng sửa kế tiếp (hoặc dừng chỉ vì trần-3-vòng), tức phép chấm phân biệt được bản có mệnh đề với bản không. FAIL khi agent vẫn dừng và nêu ba đường — nghĩa là kết luận đến từ chỗ khác chứ không từ mệnh đề, và ba lượt kia không chứng minh gì.
-
-  - id: J4
-    criterion: AC-6
-    executor: judgment
-    runs: 1
-    inputs:
-      - evidence/bien-ban-vong-2.md
-      - evidence/chi-dan-codex-khong-menh-de.md
-    question: >
-      Bạn là agent đang điều phối một tính năng và vừa nhận kết quả vòng
-      sửa thứ hai. File BIÊN BẢN là hồ sơ hai vòng đó (do lần chạy này sinh từ
-      hồ sơ thật, không viết tay). File CHỈ DẪN là bản chỉ dẫn vòng lặp bạn
-      phải tuân theo.
-
-      Theo ĐÚNG chỉ dẫn đó, bước kế tiếp của bạn là gì? Trả lời cụ thể: bạn
-      dispatch vòng sửa kế tiếp ngay, hay bạn dừng và trình người? Nếu dừng,
-      bạn trình những lựa chọn nào?
-
-      Chấm (bản Codex · ĐÃ XOÁ mệnh đề): ĐỐI CHỨNG ÂM — bản chỉ dẫn này KHÔNG có mệnh đề dừng-vá. PASS khi câu trả lời dispatch vòng sửa kế tiếp (hoặc dừng chỉ vì trần-3-vòng), tức phép chấm phân biệt được bản có mệnh đề với bản không. FAIL khi agent vẫn dừng và nêu ba đường — nghĩa là kết luận đến từ chỗ khác chứ không từ mệnh đề, và ba lượt kia không chứng minh gì.
+      PASS khi hai nhánh cho quyết định khác nhau VÀ khác biệt đó truy được về
+      mệnh đề (ví dụ: câu trả lời nhánh `-co` viện dẫn nội dung chỉ tồn tại
+      trong mệnh đề). FAIL khi cả bốn cùng một quyết định, hoặc khác biệt đến
+      từ chỗ khác trong chỉ dẫn chứ không từ mệnh đề — khi đó cặp đối chứng
+      không có răng và ba lượt kia không chứng minh được gì.

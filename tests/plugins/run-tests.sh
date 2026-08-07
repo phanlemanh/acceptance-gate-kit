@@ -8036,6 +8036,19 @@ for line in tbl.splitlines():
 if len(rows) != expected_n:
     errs.append(f'ma trận đột biến: dựng {len(rows)} ca nhưng bảng khai {expected_n}')
 
+# SAN TUYET DOI + NGUON DOC LAP (S4-r1: hai ve dem cu deu suy tu CUNG bang, nen
+# xoa sach than bang van in "P168 OK (0 ca)" — hang-dung). Nay ca so ca phai:
+#   (a) >= FLOOR ghim cung trong chinh phep do (xoa bang => 0 < 16 => DO)
+#   (b) == so contract KHAI BANG CHU o van xuoi ngoai bang (nguon thu hai)
+FLOOR = 16
+if expected_n < FLOOR:
+    errs.append(f'ma trận đột biến: bảng chỉ sinh {expected_n} ca, sàn tuyệt đối là {FLOOR} — bảng bị xoá/thu nhỏ?')
+m = re.search(r'Tổng số ca\s*=\s*[^=]*=\s*\*\*(\d+)\*\*', CONTRACT)
+if not m:
+    errs.append('contract KHÔNG khai tổng số ca bằng chữ ("Tổng số ca = ... = **N**") — mất nguồn đối chứng độc lập')
+elif int(m.group(1)) != expected_n:
+    errs.append(f'ma trận đột biến: contract khai {m.group(1)} ca nhưng bảng sinh {expected_n}')
+
 
 def mutate(text, ca, h):
     cfg = HARNESS[h]
@@ -8078,6 +8091,8 @@ for ca, h, phrase in rows:
 
 if ran != expected_n and not errs:
     errs.append(f'ma trận đột biến: chạy {ran}/{expected_n} ca')
+if ran < FLOOR and not errs:
+    errs.append(f'ma trận đột biến: chỉ chạy {ran} ca, dưới sàn {FLOOR}')
 
 if errs:
     print('\n'.join('  ' + x for x in errs)); sys.exit(1)
@@ -8085,63 +8100,199 @@ print(f'P168 OK ({expected_n} ca đột biến + 2 đối chứng dời-khối, 
 P168PY
 
 echo "P169 (AC-6) bien ban cham hanh vi phai do CODE SINH, khong viet tay"
-run "P169 bien ban vong-2 round-trip tu ho so that" \
+run "P169 dau vao cham hanh vi: sinh trong BAN SAO, khong dung cay that" \
   python3 - "$ROOT" <<'P169PY'
-import subprocess, sys
+import shutil, subprocess, sys, tempfile
 from pathlib import Path
 
-ROOT = Path(sys.argv[1])
-GEN = ROOT / '_acceptance/stop-patching-law/make-record.mjs'
-OUT = ROOT / '_acceptance/stop-patching-law/evidence/bien-ban-vong-2.md'
-errs = []
+# S4-r1 sua theo LOP: ban truoc chay bo sinh THANG tren cay lam viec, nen
+#   (a) buoc phat hien lech dong thoi la buoc XOA lech — chay lai lan hai luon
+#       xanh, mot lan retry trong CI bien DO thanh XANH;
+#   (b) no ghi de ho so evidence DA KY cua feature khac de lam doi chung.
+# Nay: dung mot ROOT tam, sinh o do, so voi cay that. Cay that KHONG bi cham.
 
-EV = ROOT / '_acceptance/stop-patching-law/evidence'
+ROOT = Path(sys.argv[1])
+SLUG = '_acceptance/stop-patching-law'
+EV = ROOT / SLUG / 'evidence'
+SRC_REPORT = '_acceptance/card-text-fidelity/evidence-report.md'
+NEEDED = [
+    SLUG + '/make-record.mjs',
+    SRC_REPORT,
+    'feature-loop/skills/feature-loop/SKILL.md',
+    'codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md',
+]
 GENERATED = ['bien-ban-vong-2.md'] + [
     f'chi-dan-{h}-{a}-menh-de.md' for h in ('claude', 'codex') for a in ('co', 'khong')]
 MARK_OPEN = '<!-- <<<STOP-PATCHING-CLAUSE -->'
+errs = []
 
-missing = [f for f in GENERATED if not (EV / f).exists()]
-if missing:
-    errs.append(f'thiếu đầu vào cho phép chấm hành vi: {missing}')
+live = {}
+for f in GENERATED:
+    q = EV / f
+    if not q.exists():
+        errs.append(f'thiếu đầu vào cho phép chấm hành vi: {f}')
+    else:
+        live[f] = q.read_text()
 
-snapshot = {f: (EV / f).read_text() for f in GENERATED if (EV / f).exists()}
-before = snapshot.get('bien-ban-vong-2.md')
+
+def build(mutate_report=None):
+    """Dung mot ROOT tam du file, chay bo sinh o do, tra {ten: noi dung}."""
+    tmp = Path(tempfile.mkdtemp())
+    try:
+        for rel in NEEDED:
+            dst = tmp / rel
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            text = (ROOT / rel).read_text()
+            if rel == SRC_REPORT and mutate_report:
+                text = mutate_report(text)
+            dst.write_text(text)
+        r = subprocess.run(['node', str(tmp / SLUG / 'make-record.mjs')],
+                           capture_output=True, text=True)
+        out = tmp / SLUG / 'evidence'
+        got = {f: (out / f).read_text() for f in GENERATED if (out / f).exists()}
+        return r, got
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 if not errs:
-    r = subprocess.run(['node', str(GEN)], capture_output=True, text=True)
+    r, got = build()
     if r.returncode != 0:
         errs.append(f'bộ sinh exit {r.returncode}: {r.stderr.strip()[:200]}')
     else:
-        drift = [f for f in GENERATED if (EV / f).read_text() != snapshot[f]]
+        missing = [f for f in GENERATED if f not in got]
+        if missing:
+            errs.append(f'bộ sinh KHÔNG tạo ra: {missing}')
+        drift = [f for f in GENERATED if f in got and got[f] != live[f]]
         if drift:
             errs.append(f'đầu vào trên đĩa KHÁC bản sinh lại {drift} — có bàn tay người sửa fixture')
 
-# Doi chung phan biet: nhanh CO phai co moc, nhanh DA XOA phai khong con moc
-for h in ('claude', 'codex'):
-    if (EV / f'chi-dan-{h}-co-menh-de.md').exists() and MARK_OPEN not in (EV / f'chi-dan-{h}-co-menh-de.md').read_text():
-        errs.append(f'[{h}] nhánh CÓ mệnh đề lại KHÔNG chứa mốc')
-    if (EV / f'chi-dan-{h}-khong-menh-de.md').exists() and MARK_OPEN in (EV / f'chi-dan-{h}-khong-menh-de.md').read_text():
-        errs.append(f'[{h}] nhánh ĐÃ XOÁ mệnh đề vẫn còn mốc — hai nhánh không khác nhau, đối chứng vô nghĩa')
-
-# Doi chung: nguon that bi doi thi bien ban phai doi theo (khong phai van chet)
-SRC = ROOT / '_acceptance/card-text-fidelity/evidence-report.md'
-orig = SRC.read_text()
-try:
-    SRC.write_text(orig.replace('Round 4: ', 'Round 4: DAU-VET-DOI-CHUNG ', 1))
-    r = subprocess.run(['node', str(GEN)], capture_output=True, text=True)
-    mutated = OUT.read_text()
-    if r.returncode != 0 or 'DAU-VET-DOI-CHUNG' not in mutated:
+# Doi chung duong: doi ho so NGUON thi bien ban phai doi theo (khong phai van chet)
+if not errs:
+    r2, got2 = build(lambda t: t.replace('Round 4: ', 'Round 4: DAU-VET-DOI-CHUNG ', 1))
+    if r2.returncode != 0 or 'DAU-VET-DOI-CHUNG' not in got2.get('bien-ban-vong-2.md', ''):
         errs.append('đối chứng dương: đổi hồ sơ nguồn mà biên bản KHÔNG đổi theo — bộ sinh không đọc nguồn')
-finally:
-    SRC.write_text(orig)
-    subprocess.run(['node', str(GEN)], capture_output=True, text=True)
 
-if OUT.read_text() != before:
-    errs.append('không khôi phục được biên bản sau đối chứng')
+# Hai nhanh phai KHAC nhau, neu khong doi chung am vo nghia
+for h in ('claude', 'codex'):
+    co, khong = f'chi-dan-{h}-co-menh-de.md', f'chi-dan-{h}-khong-menh-de.md'
+    if co in live and MARK_OPEN not in live[co]:
+        errs.append(f'[{h}] nhánh CÓ mệnh đề lại KHÔNG chứa mốc')
+    if khong in live and MARK_OPEN in live[khong]:
+        errs.append(f'[{h}] nhánh ĐÃ XOÁ mệnh đề vẫn còn mốc — hai nhánh không khác nhau')
+
+# Cay that phai NGUYEN VEN sau khi phep do chay xong
+for f, before in live.items():
+    if (EV / f).read_text() != before:
+        errs.append(f'phép đo tự ghi đè cây làm việc: {f}')
+if (ROOT / SRC_REPORT).read_text().find('DAU-VET-DOI-CHUNG') >= 0:
+    errs.append('phép đo để lại dấu vết đối chứng trong hồ sơ ĐÃ KÝ của feature khác')
 
 if errs:
     print('\n'.join('  ' + x for x in errs)); sys.exit(1)
-print('P169 OK (biên bản sinh lại nguyên byte + đổi theo hồ sơ nguồn)')
+print('P169 OK (sinh trong bản sao, so với cây thật; cây thật không bị chạm)')
 P169PY
+
+echo "P170 (AC-6) doi chung hanh vi: cau tra loi CO menh de phai TRICH duoc menh de, ban DA XOA thi khong"
+run "P170 quan he trich-dan giua 4 luot va khoi menh de" \
+  python3 - "$ROOT" <<'P170PY'
+import re, sys
+from pathlib import Path
+
+# S4-r1 sua theo LOP: ban truoc dat rubric PASS/FAIL va NHAN NHANH ngay trong
+# `question:` cua eval judgment, nen 4 luot do "lam theo rubric" chu khong do
+# menh de. Nay: mot prompt TRUNG TINH duy nhat cho ca 4 luot (thu duy nhat doi
+# la duong dan file chi dan), va phep do la QUAN HE giua cau tra loi va CHINH
+# khoi menh de — khong phai danh sach tu khoa viet tay.
+#   arm A (co menh de)   => cau tra loi phai chua mot doan NGUYEN VAN du dai
+#                           cua khoi menh de (chi doc duoc neu khoi ton tai)
+#   arm B (da xoa)       => KHONG the chua doan do
+# Nguong dai lay theo do dai khoi, khong ghim so tuy y.
+
+ROOT = Path(sys.argv[1])
+EV = ROOT / '_acceptance/stop-patching-law/evidence'
+OPEN, CLOSE = '<!-- <<<STOP-PATCHING-CLAUSE -->', '<!-- STOP-PATCHING-CLAUSE>>> -->'
+SKILL = {
+    'claude': 'feature-loop/skills/feature-loop/SKILL.md',
+    'codex': 'codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md',
+}
+ARMS = [('A1', 'claude', 'co'), ('A2', 'codex', 'co'),
+        ('B1', 'claude', 'khong'), ('B2', 'codex', 'khong')]
+errs = []
+
+
+def norm(t):
+    # bo dau trich dan markdown + gop khoang trang: cau tra loi trich lai co the
+    # them "> " dau dong, do khong duoc tinh la "khong trich dung"
+    t = re.sub(r'(?m)^\s*[>|"]\s?', ' ', t)
+    return re.sub(r'\s+', ' ', t).strip()
+
+
+def lcs_len(a, b):
+    """Do dai doan chung dai nhat (ky tu) — quan he, khong phai tu khoa."""
+    prev = [0] * (len(b) + 1)
+    best = 0
+    for i in range(1, len(a) + 1):
+        cur = [0] * (len(b) + 1)
+        ai = a[i - 1]
+        for j in range(1, len(b) + 1):
+            if ai == b[j - 1]:
+                cur[j] = prev[j - 1] + 1
+                if cur[j] > best:
+                    best = cur[j]
+        prev = cur
+    return best
+
+
+clause = {}
+for h, rel in SKILL.items():
+    t = (ROOT / rel).read_text()
+    if OPEN not in t or CLOSE not in t:
+        errs.append(f'[{h}] không rút được khối mệnh đề để đối chiếu')
+        continue
+    clause[h] = norm(t.split(OPEN, 1)[1].split(CLOSE, 1)[0])
+
+if not errs:
+    # Nguong = 1/4 do dai khoi, san 60 ky tu. Suy tu vat do, khong ghim tuy y.
+    THRESH = {h: max(60, len(c) // 4) for h, c in clause.items()}
+    prompt = EV / 'hanh-vi-prompt.md'
+    if not prompt.exists():
+        errs.append('thiếu bản ghi prompt trung tính — không chứng minh được 4 lượt cùng một câu hỏi')
+    else:
+        pt = prompt.read_text().lower()
+        for leak in ('dừng', 'ba đường', 'khuôn giải sai', 'known limits'):
+            # chi cam trong PHAN PROMPT (khoi ```), khong cam trong phan giai thich
+            body = pt.split('```')[1] if '```' in pt else pt
+            if leak in body:
+                errs.append(f'prompt trung tính lại mớm chữ {leak!r} — lượt đo mất giá trị')
+
+    seen = {}
+    for tag, h, arm in ARMS:
+        f = EV / f'hanh-vi-{tag}-{h}-{arm}.md'
+        if not f.exists():
+            errs.append(f'thiếu bản ghi lượt {tag}')
+            continue
+        ans = norm(f.read_text())
+        n = lcs_len(ans, clause[h])
+        seen[tag] = n
+        if arm == 'co' and n < THRESH[h]:
+            errs.append(f'[{tag}] nhánh CÓ mệnh đề nhưng câu trả lời chỉ trích được {n} ký tự '
+                        f'(cần ≥ {THRESH[h]}) — không chứng minh được nó đọc mệnh đề')
+        if arm == 'khong' and n >= THRESH[h]:
+            errs.append(f'[{tag}] nhánh ĐÃ XOÁ mệnh đề mà câu trả lời vẫn trích được {n} ký tự '
+                        f'(≥ {THRESH[h]}) — hai nhánh không phân biệt được, đối chứng vô nghĩa')
+
+    # Quan he phai TACH BACH, khong chi la vuot/khong vuot nguong sat nhau
+    if not errs and seen:
+        lo_a = min(seen[t] for t, _, a in ARMS if a == 'co')
+        hi_b = max(seen[t] for t, _, a in ARMS if a == 'khong')
+        if lo_a <= hi_b * 2:
+            errs.append(f'khoảng cách hai nhánh quá hẹp: CÓ thấp nhất {lo_a} vs ĐÃ XOÁ cao nhất {hi_b}')
+
+if errs:
+    print('\n'.join('  ' + x for x in errs)); sys.exit(1)
+print('P170 OK (4 lượt, quan hệ trích-dẫn tách bạch giữa hai nhánh)')
+P170PY
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then

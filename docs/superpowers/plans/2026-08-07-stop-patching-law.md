@@ -4,7 +4,10 @@ Cổng 1 duyệt 2026-08-07 (Manh Phan). T2 · 6 AC · 6 eval (5 máy + 1 hội 
 
 ## Bảng kế hoạch
 
-| Người dùng thấy gì khác | Đụng đâu | Phục vụ tiêu chí |
+(Cột một viết theo khuôn bảng tóm tắt kế hoạch của bản luật ngôn ngữ
+mặt người; KHÔNG chép nguyên tên cột — khuôn chỉ được nằm một chỗ.)
+
+| Sau việc này khác gì | Đụng đâu | Phục vụ tiêu chí |
 |---|---|---|
 | Vòng lặp dừng lại hỏi khi bản sửa lần hai hỏng cùng kiểu, thay vì đốt thêm một vòng | `feature-loop/skills/feature-loop/SKILL.md` | AC-1 (mệnh đề đủ bốn ý) |
 | Trợ lý chạy môi trường Codex xử sự y hệt bản chính | `codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md` | AC-1, AC-3 (cùng nhánh, đúng thứ tự) |
