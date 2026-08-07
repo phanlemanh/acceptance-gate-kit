@@ -623,7 +623,13 @@ for dir in "$ACC"/*/; do
       ' "${dir}evals.yaml" | sort -u)"
       while IFS= read -r xac; do
         [ -n "$xac" ] || continue
-        if ! printf '%s\n' "$xl_paired" | grep -qx "$xac"; then
+        # `xl_paired` giữ giá trị criterion NGUYÊN VĂN từ evals.yaml, mà nhiều repo
+        # viết kèm chữ mô tả cho người đọc (`criterion: AC-7 (ghi sổ phía sau)`).
+        # So nguyên-chuỗi (`grep -qx`) thì mã "AC-7" không bao giờ khớp những dòng
+        # đó → luật bắn dương-tính-giả cho MỌI tiêu chí có nhãn (cross-layer).
+        # Neo ĐẦU CHUỖI + biên không-phải-số: thiếu biên thì "AC-1" khớp nhầm
+        # "AC-16 (...)" và luật tự tạo xanh-giả — đúng thứ nó sinh ra để chặn. (P183)
+        if ! printf '%s\n' "$xl_paired" | grep -qE "^${xac}([^0-9]|$)"; then
           echo "VIOLATION [$slug]: $xac is tagged (cross-layer) but no eval of it declares layer: backend-effect — a cross-layer criterion would merge on UI-only evidence; add the paired test/script eval, or untag it with the human's signoff at Gate 1"
           violations=$((violations+1))
         fi
@@ -802,7 +808,23 @@ GLOBS2
   elif ! command -v git >/dev/null 2>&1 || ! git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
     echo "NOTE [$slug]: verified_commit present but $ROOT is not a git repo here — staleness unverifiable"
   elif ! git -C "$ROOT" rev-parse --quiet --verify "$vc^{commit}" >/dev/null 2>&1; then
-    echo "NOTE [$slug]: verified_commit $vc not found in this clone (rebase/squash or shallow fetch?) — staleness unverifiable; re-verify to re-pin"
+    # Pin không giải được nghĩa là staleness KHÔNG được kiểm cho hồ sơ này. Hai
+    # nguyên nhân rất khác nhau từng nấp sau cùng một dòng NOTE:
+    #   - clone nông / fetch thiếu: commit có thể vẫn lành, ta chỉ không thấy nó ở
+    #     đây. Không-kiểm-được ≠ sai, nên NOTE và để một clone đầy đủ phán.
+    #   - clone đầy đủ mà commit thật sự không tồn tại: pin là MA. Re-pin vào một
+    #     SHA nhánh rồi bị squash-merge vứt đi sinh ra đúng cảnh này, và nó câm —
+    #     hồ sơ đó tắt thanh chắn trong khi cổng vẫn in "clean". Đo trên một repo
+    #     tiêu thụ: 136/136 hồ sơ ghim vào commit không clone nào có, 135 NOTE,
+    #     không đỏ dòng nào.
+    # Nên: chỉ hạ xuống NOTE khi CHỨNG MINH được là nông. `unknown` (git quá cũ
+    # không trả lời được) giữ nguyên hành vi khoan dung cũ, có chủ đích. (P184)
+    shallow="$(git -C "$ROOT" rev-parse --is-shallow-repository 2>/dev/null || echo unknown)"
+    if [ "$shallow" = false ]; then
+      echo "VIOLATION [$slug]: verified_commit $vc does not exist in this repo — the pin is a phantom, so staleness is NOT machine-checked (evidence could be arbitrarily out of date and this gate would not notice). Usual cause: re-pinned to a branch SHA that squash-merge discarded. Re-pin to a commit that lives on the target branch."
+      violations=$((violations+1)); continue
+    fi
+    echo "NOTE [$slug]: verified_commit $vc not found in this SHALLOW clone (fetch-depth) — staleness unverifiable here; a full clone decides"
   else
     stale="$(stale_files "$ROOT" "$vc")"
     if [ -n "$stale" ]; then

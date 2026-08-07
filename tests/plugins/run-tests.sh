@@ -8715,20 +8715,34 @@ assert e2 and any('thanh phan' in x for x in e2), 'mutant tach-khoi-moc khong do
 print('P174 MUTANT-OK (xoa khoi + tach khoi moc deu do ghim thong diep)')
 P174PY
 
-run "P175 [MBC] E2 neo MBC-CORE khop byte giua hai ban chi dan" \
+run "P175 [MBC] E2 khoi giua moc hai ban: neo TRONG khoi khop khuon + than Codex du thanh phan" \
   python3 - "$ROOT" <<'P175PY'
 import re, sys, pathlib
 root = pathlib.Path(sys.argv[1])
+OPEN = '<!-- <<<MEASURE-BIRTH-CLAUSE -->'; CLOSE = '<!-- MEASURE-BIRTH-CLAUSE>>> -->'
 CANON = re.compile(r'<!-- MBC-CORE: pair-same-fixture \+ pinned-message \+ not-done-without-pair; objects: suite-case, eval, rule-script -->')
 SIDES = {'claude': 'feature-loop/skills/feature-loop/SKILL.md',
          'codex': 'codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md'}
+# Than menh de phia Codex (EN) — P174 da kiem than phia Claude (VN); thieu ve
+# nay thi ruot khoi Codex co the bi moi rong ma moi phep do van xanh (S4-r1
+# hinh dang 3: do dong neo tom tat thay vi menh de that).
+CODEX_KEYS = [('cap hai-chieu cung fixture', 'two-direction case pair on the SAME'),
+              ('thong diep ghim', 'PINNED MESSAGE'),
+              ('thieu cap = chua xong', 'the task is\nNOT done'),
+              ('3 loai vat', 'suite case, eval in evals.yaml, rule/check')]
 def measure(texts):
-    errs, anchors = [], {}
+    errs, anchors, blocks = [], {}, {}
     for side, text in texts.items():
-        m = re.search(r'<!-- MBC-CORE:.*?-->', text)
-        if not m: errs.append(f'ben {side}: khong co dong neo MBC-CORE'); continue
+        i, j = text.find(OPEN), text.find(CLOSE)
+        if i < 0 or j < 0: errs.append(f'ben {side}: khong co khoi giua moc MEASURE-BIRTH-CLAUSE'); continue
+        b = text[i:j]; blocks[side] = b
+        m = re.search(r'<!-- MBC-CORE:.*?-->', b)
+        if not m: errs.append(f'ben {side}: dong neo MBC-CORE khong nam TRONG khoi giua moc'); continue
         anchors[side] = m.group(0)
         if not CANON.fullmatch(m.group(0)): errs.append(f'ben {side}: neo MBC-CORE lech khoi khuon chuan')
+    if 'codex' in blocks:
+        for name, needle in CODEX_KEYS:
+            if needle not in blocks['codex']: errs.append(f'ben codex: than menh de thieu thanh phan: {name}')
     if len(anchors) == 2 and anchors['claude'] != anchors['codex']:
         errs.append('neo hai ben khac nhau (claude vs codex)')
     return errs
@@ -8738,8 +8752,18 @@ assert not errs, 'ban that do oan: ' + '; '.join(errs)
 print('P175 DUONG-OK')
 mut = dict(texts); mut['codex'] = re.sub(r'not-done-without-pair', 'optional-pair', mut['codex'])
 e1 = measure(mut)
-assert e1 and any('codex' in x for x in e1), 'mutant lech ben codex khong do neu ten ben: ' + repr(e1)
-print('P175 MUTANT-OK (lech mot ben -> do neu dung ten ben)')
+assert e1 and any('codex' in x for x in e1), 'mutant lech neo ben codex khong do neu ten ben: ' + repr(e1)
+mut2 = dict(texts); mut2['codex'] = mut2['codex'].replace('PINNED MESSAGE', 'ANY MESSAGE')
+e2 = measure(mut2)
+assert e2 and any('than menh de thieu thanh phan: thong diep ghim' in x for x in e2), \
+    'mutant moi ruot than Codex khong do ghim ten thanh phan: ' + repr(e2)
+mut3 = dict(texts)
+i, j = mut3['claude'].find(OPEN), mut3['claude'].find(CLOSE)
+anchor_line = re.search(r'[ \t]*<!-- MBC-CORE:.*?-->\n', mut3['claude'][i:j]).group(0)
+mut3['claude'] = mut3['claude'][:i] + mut3['claude'][i:j].replace(anchor_line, '') + mut3['claude'][j:] + '\n' + anchor_line
+e3 = measure(mut3)
+assert e3 and any('khong nam TRONG khoi' in x for x in e3), 'mutant doi neo ra ngoai khoi khong do: ' + repr(e3)
+print('P175 MUTANT-OK (lech neo ghim ten ben; moi ruot than Codex ghim thanh phan; neo ngoai khoi bi bat)')
 P175PY
 
 run "P176 [MBC] E3 con tro S1 ve khuon o CA HAI ban chi dan" \
@@ -8796,78 +8820,72 @@ with tempfile.TemporaryDirectory() as d:
     r2 = subprocess.run(['node', str(root/'feature-loop/scripts/resolve-plugin.mjs'),
                          '--plugin', 'acceptance-gate', '--root', d, '--require', REL],
                         capture_output=True, text=True)
-    assert r2.returncode != 0, 'resolver tren cay THIEU file van tra goc — se doc ban lanh ngoai cay'
-print('P177 MUTANT-OK (xoa muc do ghim ten muc; cay thieu file -> resolver fail thay vi tra goc ngoai)')
+    # Ghim THONG DIEP, khong chi ma thoat (S4-r1 hinh dang 4): exit != 0 mot
+    # minh khong phan biet duoc "tu choi tra goc vi thieu file" voi "chet vi
+    # cai co / crash khac" — dung lop exit-code-noi-doi ma khuon nay cam.
+    msg = r2.stderr + r2.stdout
+    assert r2.returncode != 0 and 'does not carry' in msg and 'measure-birth.md' in msg, \
+        f'resolver tren cay thieu file phai fail GHIM dung thong diep does-not-carry (exit={r2.returncode}, msg={msg[:150]})'
+print('P177 MUTANT-OK (xoa muc do ghim ten muc; cay thieu file -> resolver fail ghim does-not-carry)')
 P177PY
 
-run "P178 [MBC] E5 round-trip make-record + scanner 4 luot dong vai" \
+run "P178 [MBC] E5 round-trip make-record (writer duy nhat) + record may sinh tu 4 artifact" \
   python3 - "$ROOT" <<'P178PY'
-import json, re, shutil, subprocess, sys, tempfile, pathlib
+import json, shutil, subprocess, sys, tempfile, pathlib
 root = pathlib.Path(sys.argv[1])
 WS = root/'_acceptance/measure-birth-certificate'
 EV = WS/'evidence'
 SKILLS = ['feature-loop/skills/feature-loop/SKILL.md',
           'codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md']
+ARTIFACTS = ['hanh-vi-A1-claude-co.md', 'hanh-vi-A2-codex-co.md',
+             'hanh-vi-B1-claude-khong.md', 'hanh-vi-B2-codex-khong.md']
 GEN = ['chi-dan-claude-co-mbc.md', 'chi-dan-claude-khong-mbc.md',
-       'chi-dan-codex-co-mbc.md', 'chi-dan-codex-khong-mbc.md', 'de-bai.md']
-def run_makerecord(skill_texts):
+       'chi-dan-codex-co-mbc.md', 'chi-dan-codex-khong-mbc.md',
+       'de-bai.md', 'hanh-vi-record.json']
+# make-record la WRITER DUY NHAT cua record (S4-r1 hinh dang 2): moi tin hieu
+# may-doc suy tu artifact trong lan chay — suite KHONG giu ban sao scanner nao,
+# chi round-trip: chay lai writer trong ban sao roi diff voi evidence da commit.
+def run_makerecord(skill_texts, artifact_overrides=None):
     d = pathlib.Path(tempfile.mkdtemp())
     for rel, text in zip(SKILLS, skill_texts):
         p = d/rel; p.parent.mkdir(parents=True, exist_ok=True); p.write_text(text)
-    mr = d/'_acceptance/measure-birth-certificate/make-record.mjs'
-    mr.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy(WS/'make-record.mjs', mr)
-    r = subprocess.run(['node', str(mr)], capture_output=True, text=True)
+    ws = d/'_acceptance/measure-birth-certificate'
+    (ws/'evidence').mkdir(parents=True, exist_ok=True)
+    shutil.copy(WS/'make-record.mjs', ws/'make-record.mjs')
+    for a in ARTIFACTS:
+        text = (artifact_overrides or {}).get(a) or (EV/a).read_text()
+        (ws/'evidence'/a).write_text(text)
+    r = subprocess.run(['node', str(ws/'make-record.mjs')], capture_output=True, text=True)
     return d, r
-def scan(artifact_text):
-    return {
-        'completed': 'hoàn thành: có' in artifact_text,
-        'pinned_message': bool(re.search(r'grep -q .missing slug', artifact_text)),
-        'same_fixture_derivation': bool(re.search(r'(grep -v|sed )[^\n]*\.md["\x27]?\s*>\s*["\x27]?[^\n]*\.md', artifact_text)),
-    }
-def measure(ev_dir, record):
-    errs = []
-    for run_ in record['runs']:
-        p = ev_dir/run_['artifact']
-        if not p.exists() or not p.read_text().strip():
-            errs.append('luot ' + run_['id'] + ': artifact RONG hoac vang'); continue
-        got = scan(p.read_text())
-        if not got['completed']: errs.append('luot ' + run_['id'] + ': thieu dau hoan-thanh')
-        for k in ('pinned_message', 'same_fixture_derivation'):
-            if got[k] != run_[k]: errs.append(f'luot {run_["id"]}: record.{k}={run_[k]} LECH scanner={got[k]}')
-        if run_['pair_per_mold'] != run_['same_fixture_derivation']:
-            errs.append('luot ' + run_['id'] + ': pair_per_mold khong nhat quan voi same_fixture_derivation')
-    return errs
-# DUONG 1: round-trip nguon -> make-record -> khop evidence da commit
+# DUONG: round-trip nguon+artifact -> writer -> khop evidence da commit
 d, r = run_makerecord([(root/s).read_text() for s in SKILLS])
 assert r.returncode == 0, 'make-record fail tren nguon that: ' + r.stderr[:200]
 for g in GEN:
     a = (d/'_acceptance/measure-birth-certificate/evidence'/g).read_text()
     b = (EV/g).read_text()
-    assert a == b, f'evidence {g} LECH NGUON hien tai — chay lai make-record.mjs va commit lai'
-# DUONG 2: scanner khop record tren evidence that
+    assert a == b, f'evidence {g} LECH writer hien tai — chay lai make-record.mjs va commit lai'
 record = json.loads((EV/'hanh-vi-record.json').read_text())
-errs = measure(EV, record)
-assert not errs, 'ban that do oan: ' + '; '.join(errs)
 assert [x['pair_per_mold'] for x in record['runs']] == [True, True, False, False], 'verdict 2/2-0/2 lech record'
+assert record['verdict']['completed'] == '4/4', 'record khai completed khac 4/4'
 print('P178 DUONG-OK')
 # MUTANT 1: SKILL doi chu trong khoi -> chi-dan sinh ra phai LECH evidence
 mut_texts = [(root/SKILLS[0]).read_text().replace('THÔNG ĐIỆP GHIM', 'THONG DIEP TUY Y'), (root/SKILLS[1]).read_text()]
 d2, r2 = run_makerecord(mut_texts)
-assert r2.returncode == 0
+assert r2.returncode == 0, 'make-record fail tren mutant nguon (phai van sinh duoc): ' + r2.stderr[:200]
 diff_found = any(((d2/'_acceptance/measure-birth-certificate/evidence'/g).read_text() != (EV/g).read_text()) for g in GEN)
 assert diff_found, 'mutant doi nguon ma round-trip van khop — phep do khong gan vao nguon'
-# MUTANT 2: lam RONG mot artifact trong ban sao -> do ghim ten luot
-d3 = pathlib.Path(tempfile.mkdtemp()); shutil.copytree(EV, d3/'evidence')
-(d3/'evidence'/'hanh-vi-A1-claude-co.md').write_text('')
-e2 = measure(d3/'evidence', record)
-assert e2 and any('A1' in x and 'RONG' in x for x in e2), 'mutant artifact rong khong do ghim ten luot: ' + repr(e2)
-# MUTANT 3: lat pair_per_mold cua B1 trong ban sao record -> do lech scanner/nhat quan
+# MUTANT 2: lam RONG khoi bash cua mot artifact -> writer NO TO ghim ten luot
+empty = (EV/'hanh-vi-A1-claude-co.md').read_text().split('```bash')[0] + '```bash\n```\n'
+d3, r3 = run_makerecord([(root/s).read_text() for s in SKILLS], {'hanh-vi-A1-claude-co.md': empty})
+assert r3.returncode == 2 and 'A1' in r3.stderr and 'RỖNG' in r3.stderr, \
+    f'mutant artifact rong: writer phai exit 2 ghim ten luot (exit={r3.returncode}, stderr={r3.stderr[:120]})'
+# MUTANT 3: lat pair_per_mold cua B1 trong ban sao record -> lech ban writer sinh
 rec2 = json.loads(json.dumps(record))
 [x for x in rec2['runs'] if x['id'] == 'B1'][0]['pair_per_mold'] = True
-e3 = measure(EV, rec2)
-assert e3 and any('B1' in x for x in e3), 'mutant lat verdict B1 khong do: ' + repr(e3)
-print('P178 MUTANT-OK (doi nguon lech round-trip, artifact rong ghim ten luot, lat verdict ghim B1)')
+regen = json.loads((d/'_acceptance/measure-birth-certificate/evidence/hanh-vi-record.json').read_text())
+bad = [x['id'] for x, y in zip(rec2['runs'], regen['runs']) if x['pair_per_mold'] != y['pair_per_mold']]
+assert bad == ['B1'], 'mutant lat verdict B1 khong bi round-trip vach ra: ' + repr(bad)
+print('P178 MUTANT-OK (doi nguon lech round-trip, artifact rong writer exit 2 ghim ten luot, lat verdict vach dung B1)')
 P178PY
 
 run "P179 [MBC] E6 ledger known-limits: dem tu corpus + bat bien hang + quan he >=" \
@@ -8917,8 +8935,11 @@ assert any('id ma' in x for x in e2), 'mutant dup_of id ma khong do: ' + repr(e2
 cols = lines[1].split('\t'); cols[4] = 'zombie'
 e3 = measure('\n'.join([lines[0], '\t'.join(cols)] + lines[2:]), known)
 assert any('ngoai enum' in x for x in e3), 'mutant status la khong do: ' + repr(e3)
-e4 = measure('\n'.join(lines[:-1]), known)
-assert any('quan he >=' in x for x in e4), 'mutant xoa dong khong do quan he >=: ' + repr(e4)
+# Xoa XUONG DUOI so dem (S4-r1: xoa dung 1 dong chi vo khi rows == known chinh
+# xac hom nay — ledger duoc phep la sieu tap that su theo quan he >=, luc do
+# mutant het trip va case do oan voi thong diep sai vat).
+e4 = measure('\n'.join(lines[:known]), known)
+assert any('quan he >=' in x for x in e4), 'mutant xoa xuong duoi so dem khong do quan he >=: ' + repr(e4)
 print('P179 MUTANT-OK (closed_by, dup_of ma, enum, quan he >= deu do ghim ten bat bien)')
 P179PY
 
@@ -9011,6 +9032,177 @@ e2 = measure(m2)
 assert e2 and any('P174' in x and 'MUTANT-OK' in x for x in e2), 'mutant go nhanh pha-vat khong do neu ten case: ' + repr(e2)
 print('P182 MUTANT-OK (tap lech ghim id; case mot-chieu ghim ten case)')
 P182PY
+
+# ═══ P183–P184: hai lỗi consumer đi trước kit (upstream 2026-08-07) ═════════
+# Cả hai đo sống trên artifact-platform trong đợt rollout 1.38.0. Chúng KHÔNG bị
+# suite này bắt trước đây vì mọi fixture cross-layer có sẵn (P145) đều viết
+# `criterion: AC-1` TRẦN — đúng hình dạng mà bug không chạm tới. Bài học phép đo:
+# fixture phải mang hình dạng mà repo THẬT dùng, không phải hình dạng dễ viết.
+
+# ── P183: ghép đôi cross-layer khi dòng criterion MANG CHỮ MÔ TẢ ─────────────
+# `grep -qx` so mã "AC-1" với TOÀN BỘ chuỗi criterion. Repo nào viết
+# `criterion: AC-1 (mô tả cho người đọc)` thì không bao giờ khớp → bắn
+# dương-tính-giả cho MỌI tiêu chí có nhãn (cross-layer). 1.38.0 upstream nửa
+# PHÂN TÍCH (lib/ac-line.js) nhưng nửa SO KHỚP vẫn nguyên lỗi.
+# Nhánh (c) canh biên: neo `^AC-1` mà THIẾU biên không-phải-số thì AC-1 khớp
+# nhầm mục "AC-16 (...)" và tự tạo xanh-giả — đúng thứ răng này sinh ra để chặn.
+echo "P183 cross-layer pairing: dong criterion co chu mo ta van ghep doi dung"
+P183OK=1
+P183WS="$(mktemp -d)"
+mkdir -p "$P183WS/_acceptance/xld"
+cat > "$P183WS/_acceptance/xld/contract.md" <<'EOF'
+---
+schema_version: 1
+feature: xld
+slug: xld
+risk_tier: T2
+status: implemented
+approved_by: tester
+---
+
+## Criteria
+
+- AC-1: **(ghi sổ phía sau)** (cross-layer) Given form, When submit, Then DB có row mới.
+- AC-16: **(đường ảnh)** (cross-layer) Given upload, When commit, Then bucket có bytes.
+EOF
+p183_hits() { bash "$ROOT/scripts/pre-merge-check.sh" "$P183WS" 2>&1 | grep -cF "$1 is tagged (cross-layer) but no eval of it declares layer: backend-effect"; }
+# (a) đối chứng dương: criterion TRẦN + chỉ layer ui → răng phải cắn cả hai mã
+cat > "$P183WS/_acceptance/xld/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: ui-check
+    layer: ui
+    expected: thấy toast
+  - id: E2
+    criterion: AC-16
+    executor: ui-check
+    layer: ui
+    expected: thấy ảnh
+EOF
+[ "$(p183_hits AC-1)" = "1" ] || { echo "     doi chung duong: rang cross-layer KHONG can voi criterion tran"; P183OK=0; }
+# (b) LỖI CHÍNH: criterion mang chữ mô tả + layer backend-effect thật → phải SẠCH
+cat > "$P183WS/_acceptance/xld/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1 (ghi sổ phía sau) (cross-layer)
+    executor: script
+    layer: backend-effect
+    expected: DB có đúng 1 row mới
+  - id: E2
+    criterion: AC-16 (đường ảnh) (cross-layer)
+    executor: script
+    layer: backend-effect
+    expected: bucket có bytes
+EOF
+[ "$(p183_hits AC-1)" = "0" ] || { echo "     criterion co chu mo ta -> false VIOLATION (grep -qx so ma voi ca chuoi)"; P183OK=0; }
+[ "$(p183_hits AC-16)" = "0" ] || { echo "     criterion co chu mo ta -> false VIOLATION (AC-16)"; P183OK=0; }
+# (c) canh BIÊN: chỉ AC-16 được ghép đôi; AC-1 chỉ có eval ui → AC-1 PHẢI violation.
+#     Thiếu biên không-phải-số thì "AC-1" khớp nhầm "AC-16 (...)" → xanh-giả.
+cat > "$P183WS/_acceptance/xld/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1 (ghi sổ phía sau) (cross-layer)
+    executor: ui-check
+    layer: ui
+    expected: thấy toast
+  - id: E2
+    criterion: AC-16 (đường ảnh) (cross-layer)
+    executor: script
+    layer: backend-effect
+    expected: bucket có bytes
+EOF
+[ "$(p183_hits AC-1)" = "1" ] || { echo "     thieu bien: AC-1 khop nham muc AC-16 -> xanh-gia"; P183OK=0; }
+[ "$(p183_hits AC-16)" = "0" ] || { echo "     AC-16 da ghep doi that ma van violation"; P183OK=0; }
+rm -rf "$P183WS"
+if [ "$P183OK" -eq 1 ]; then
+  pass "P183 cross-layer pairing dung ca khi criterion mang chu mo ta, co canh bien"
+else
+  fail "P183 cross-layer pairing dung ca khi criterion mang chu mo ta, co canh bien"
+fi
+
+# ── P184: pin phantom — verified_commit không tồn tại trong clone ĐẦY ĐỦ ─────
+# Kit chỉ NOTE khi pin không giải được, gộp hai nguyên nhân rất khác nhau:
+# (a) clone nông → thật sự không kiểm được, NOTE là đúng; (b) clone đầy đủ mà
+# commit KHÔNG tồn tại → pin là ma, staleness KHÔNG được kiểm chút nào trong khi
+# cổng vẫn in "clean". Đo trên artifact-platform: 136/136 hồ sơ ghim vào một
+# commit không clone nào có, 135 NOTE, không đỏ dòng nào — cả thanh chắn tắt câm.
+echo "P184 pin phantom trong clone day du -> VIOLATION, khong phai NOTE"
+P184OK=1
+P184WS="$(mktemp -d)"
+mkdir -p "$P184WS/_acceptance/ph"
+cat > "$P184WS/_acceptance/ph/contract.md" <<'EOF'
+---
+schema_version: 1
+feature: ph
+slug: ph
+risk_tier: T2
+status: signed-off
+approved_by: tester
+---
+
+## Criteria
+
+- AC-1: Given x, When y, Then z.
+EOF
+cat > "$P184WS/_acceptance/ph/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: "true"
+    expected: exit 0
+EOF
+p184_write() {
+  cat > "$P184WS/_acceptance/ph/evidence-report.md" <<EOF
+---
+schema_version: 2
+feature_slug: ph
+verdict: PASS
+failed_evals: []
+verified_by: probe
+enforcement_mode: strict
+bypass_used: false
+verified_commit: $1
+human_signoff: tester 2026-08-07
+---
+
+## Evidence
+
+| Eval | Criterion | Executor | Verdict |
+|---|---|---|---|
+| E1 | AC-1 | test | PASS |
+EOF
+}
+p184_phantom_hits() { bash "$ROOT/scripts/pre-merge-check.sh" "$P184WS" 2>&1 | grep -ci "the pin is a phantom"; }
+p184_setup_repo() {
+  git -C "$P184WS" init -q 2>/dev/null &&
+  git -C "$P184WS" config user.email t@t.t &&
+  git -C "$P184WS" config user.name t &&
+  git -C "$P184WS" add -A &&
+  git -C "$P184WS" commit -q -m seed
+}
+if ! p184_setup_repo >/dev/null 2>&1; then
+  fail "P184 fixture hong (khong dung duoc git repo)"
+else
+  P184SHA="$(git -C "$P184WS" rev-parse HEAD)"
+  [ -n "$P184SHA" ] || { echo "     fixture hong: khong lay duoc HEAD"; P184OK=0; }
+  # đối chứng DƯƠNG: pin trỏ commit CÓ THẬT → không được có phantom
+  p184_write "$P184SHA"
+  git -C "$P184WS" add -A >/dev/null 2>&1 && git -C "$P184WS" commit -q -m realpin >/dev/null 2>&1
+  [ "$(p184_phantom_hits)" = "0" ] || { echo "     doi chung duong that bai: pin CO THAT ma bi goi la phantom"; P184OK=0; }
+  # lỗi chính: pin hợp lệ về hình dạng nhưng KHÔNG tồn tại, repo KHÔNG nông
+  [ "$(git -C "$P184WS" rev-parse --is-shallow-repository)" = "false" ] || { echo "     fixture hong: repo lai la clone nong"; P184OK=0; }
+  p184_write 0123456789abcdef0123456789abcdef01234567
+  git -C "$P184WS" add -A >/dev/null 2>&1 && git -C "$P184WS" commit -q -m phantompin >/dev/null 2>&1
+  [ "$(p184_phantom_hits)" = "1" ] || { echo "     pin ma trong clone day du van chi NOTE -> thanh chan staleness tat cam"; P184OK=0; }
+fi
+rm -rf "$P184WS"
+if [ "$P184OK" -eq 1 ]; then
+  pass "P184 pin phantom bi chan trong clone day du, pin that van sach"
+else
+  fail "P184 pin phantom bi chan trong clone day du, pin that van sach"
+fi
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
