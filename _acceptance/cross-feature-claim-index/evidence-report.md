@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: eb81fd3ad5db935c72c042202d1af2df783f19f9
+verified_commit: ad4619558be1d09b0c827a80baba4740ec8926ac
 # bypass_ack:
 human_signoff: Manh Phan 2026-07-29
 ---
@@ -473,3 +473,7 @@ sha: 7d6f42716f2c9b52892c6c341d31da3042ca8e3d · suites: 6 lệnh exit 0
 ### Re-pin lần 20 — 2026-08-07, do hợp nhất hai nhánh ac-line (eval-coverage-lint W7 + evidence-page parseAC một nguồn) + NEG_RE học từ vựng đối-chứng + changelog feature-loop v1.25/v1.26 — engine lint/trang-ký và manifest gói đổi
 run_id: repin-20260807-ac-line-lane1
 sha: eb81fd3ad5db935c72c042202d1af2df783f19f9 · suites: 6 lệnh exit 0
+
+### Re-pin lần 21 — 2026-08-07, do răng cross-layer của pre-merge chấm bằng lib/ac-line.js (awk làm đường lùi có tiếng) — engine cổng đổi
+run_id: repin-20260807-premerge-ac-line-lane1
+sha: ad4619558be1d09b0c827a80baba4740ec8926ac · suites: 6 lệnh exit 0
