@@ -460,7 +460,9 @@ console.log('WT-T4 triage chet ca retry -> triageFailed, KHONG REJECT du finding
 {
   const { result, calls } = await runWorkflow(WF, triArgs(), triResp({ findings: [F_HIGH], triage: [], triageThrows: true }));
   check('WT-T4 triageFailed true', result.triageFailed === true);
-  check('WT-T4 KHONG REJECT tu finding', result.verdict === 'PASS', result.verdict);
+  // Không ai bị REJECT từ findings, NHƯNG cũng không được là PASS sạch: người ký
+  // phải thấy round này chưa phân loại được (WT-T18).
+  check('WT-T4 KHONG REJECT tu finding', result.verdict === 'PENDING-JUDGMENT', result.verdict);
   check('WT-T4 rejectFindings rong', (result.rejectFindings || []).length === 0);
   check('WT-T4 co retry dung 1 lan (2 luot goi)', byLabel(calls, 'triage').length === 2, String(byLabel(calls, 'triage').length));
 }
@@ -477,7 +479,7 @@ console.log('WT-T4c thieu contractPath -> fail-toward-human, khong spawn agent t
   delete args.contractPath;
   const { result, calls } = await runWorkflow(WF, args, triResp({ findings: [F_HIGH], triage: tri1(F_HIGH) }));
   check('WT-T4c triageFailed true', result.triageFailed === true);
-  check('WT-T4c KHONG REJECT', result.verdict === 'PASS', result.verdict);
+  check('WT-T4c KHONG REJECT', result.verdict === 'PENDING-JUDGMENT', result.verdict);
   check('WT-T4c KHONG spawn agent triage', byLabel(calls, 'triage').length === 0);
 }
 
@@ -648,7 +650,7 @@ console.log('WT-T11 agent bao khong doc duoc hop dong -> triageFailed, khong bia
   check('WT-T11 triageFailed true', result.triageFailed === true);
   check('WT-T11 khong finding nao bi xep out-of-contract', !(result.triaged || []).some(f => !f.inContract && !f.unclassified),
     JSON.stringify((result.triaged || []).map(f => ({ o: !f.inContract, u: f.unclassified }))));
-  check('WT-T11 KHONG REJECT tu finding', result.verdict === 'PASS', result.verdict);
+  check('WT-T11 KHONG REJECT tu finding', result.verdict === 'PENDING-JUDGMENT', result.verdict);
 }
 
 console.log('WT-T11b (doi chung duong) doc duoc hop dong -> phan loai binh thuong');
@@ -724,7 +726,7 @@ console.log('WT-T14 triage bo sot mot finding -> triageFailed, khong ai REJECT')
   check('WT-T14 triageFailed true', result.triageFailed === true);
   check('WT-T14 rejectFindings rong', (result.rejectFindings || []).length === 0,
     JSON.stringify((result.rejectFindings || []).map(f => f.file)));
-  check('WT-T14 KHONG REJECT tu finding', result.verdict === 'PASS', result.verdict);
+  check('WT-T14 KHONG REJECT tu finding', result.verdict === 'PENDING-JUDGMENT', result.verdict);
 }
 
 console.log('WT-T14b (doi chung duong) phan loai DU -> chay binh thuong');
@@ -748,6 +750,233 @@ console.log('WT-T15 synthesize chi dan ghi truong plain cho ngan Ngoai hop dong'
   const sp = byLabel(calls, 'synthesize')[0].prompt;
   check('WT-T15 chi dan doi dong "Người dùng thấy gì"', sp.includes('Người dùng thấy gì'));
   check('WT-T15 payload mang truong plain', sp.includes('Người dùng có thể mất tiện ích khi bấm Cập nhật.'));
+}
+
+// ── WT-T16: khoá ghép triage chuẩn hoá path — hai lane reviewer, hai dạng ──
+// Reviewer được nhắc "trong repo <abs path>" nên lane này trả path TUYỆT ĐỐI,
+// lane kia trả TƯƠNG ĐỐI; agent triage chép lại dạng nó nhận. Ghép bằng chuỗi
+// thô thì hai dạng không khớp → mọi finding rơi unclassified → triageFailed →
+// rejectFindings rỗng → round báo PASS trong khi lỗi in-contract còn sống.
+// (Quan sát thật 3/5 round của discovery-brainstorm-socket, sổ d-...-10021.)
+const F_ABS = { title: F_HIGH.title, file: '/repo/src/install.ts', severity: 'high', detail: F_HIGH.detail };
+const triRow = (title, file, over = {}) => [{ title, file, inContract: true, acRef: 'AC-1', rationale: 'cham AC-1', proposal: '', ...over }];
+
+console.log('WT-T16a finding path TUYET DOI + triage tra TUONG DOI -> van ghep duoc');
+{
+  const { result } = await runWorkflow(WF, triArgs(), triResp({
+    findings: [F_ABS],
+    triage: triRow(F_ABS.title, 'src/install.ts'),
+  }));
+  check('WT-T16a khong con unclassified', !(result.triaged || []).some(f => f.unclassified),
+    JSON.stringify((result.triaged || []).map(f => ({ f: f.file, u: f.unclassified }))));
+  check('WT-T16a triageFailed false', result.triageFailed === false);
+  // Ba lane reviewer cùng báo một lỗi → ba mục; điều phải đúng là KHÔNG mục nào
+  // khác lọt vào fix-list, không phải con số 1.
+  check('WT-T16a finding in-contract vao fix-list',
+    (result.rejectFindings || []).length > 0 && (result.rejectFindings || []).every(f => f.title === F_ABS.title),
+    JSON.stringify((result.rejectFindings || []).map(f => f.title)));
+  check('WT-T16a verdict REJECT (khong con PASS gia)', result.verdict === 'REJECT', result.verdict);
+}
+
+console.log('WT-T16b chieu nguoc: finding TUONG DOI + triage tra TUYET DOI');
+{
+  const { result } = await runWorkflow(WF, triArgs(), triResp({
+    findings: [F_HIGH],
+    triage: triRow(F_HIGH.title, '/repo/src/install.ts'),
+  }));
+  check('WT-T16b triageFailed false', result.triageFailed === false);
+  check('WT-T16b verdict REJECT', result.verdict === 'REJECT', result.verdict);
+}
+
+console.log('WT-T16c dang "./" cung la cung mot file');
+{
+  const { result } = await runWorkflow(WF, triArgs(), triResp({
+    findings: [{ ...F_HIGH, file: './src/install.ts' }],
+    triage: triRow(F_HIGH.title, 'src/install.ts'),
+  }));
+  check('WT-T16c triageFailed false', result.triageFailed === false);
+  check('WT-T16c verdict REJECT', result.verdict === 'REJECT', result.verdict);
+}
+
+// ĐỐI CHỨNG ÂM: chuẩn hoá KHÔNG được biến thành "ghép mọi thứ". Hai finding
+// TRÙNG title (nên nhánh gỡ-mơ-hồ ở WT-T17 tắt) trỏ hai file THẬT SỰ khác với
+// hai dòng triage → phải vẫn là unclassified, không ai được kéo vào fix-list.
+console.log('WT-T16d (doi chung am) file that su khac nhau -> KHONG duoc ghep');
+{
+  const a = { title: 'trung title', file: 'src/a.ts', severity: 'high', detail: 'x' };
+  const b = { title: 'trung title', file: 'src/b.ts', severity: 'high', detail: 'y' };
+  const { result } = await runWorkflow(WF, triArgs(), triResp({
+    findings: [a, b],
+    triage: [...triRow('trung title', 'src/c.ts'), ...triRow('trung title', 'src/d.ts')],
+  }));
+  check('WT-T16d van unclassified', (result.triaged || []).every(f => f.unclassified),
+    JSON.stringify((result.triaged || []).map(f => ({ f: f.file, u: f.unclassified }))));
+  check('WT-T16d triageFailed true', result.triageFailed === true);
+  check('WT-T16d rejectFindings rong', (result.rejectFindings || []).length === 0);
+}
+
+// Ca CÔ LẬP cho phép chuẩn hoá: title TRÙNG nên nhánh gỡ-mơ-hồ (WT-T17) tắt —
+// chỉ còn chuẩn hoá path có thể ghép được. Thiếu ca này thì WT-T16a/b/c vẫn xanh
+// kể cả khi chuẩn hoá bị gỡ, vì nhánh gỡ-mơ-hồ đỡ hộ (đo hai lớp phòng thủ bằng
+// một phép đo = không lớp nào thật sự bị đo).
+console.log('WT-T16e title TRUNG + path lech dang -> CHI chuan hoa cuu duoc');
+{
+  const a = { title: 'trung title', file: '/repo/src/a.ts', severity: 'high', detail: 'in-contract that' };
+  const b = { title: 'trung title', file: '/repo/src/b.ts', severity: 'low', detail: 'out-of-contract that' };
+  const { result } = await runWorkflow(WF, triArgs(), triResp({
+    findings: [a, b],
+    triage: [
+      ...triRow('trung title', 'src/a.ts'),
+      ...triRow('trung title', 'src/b.ts', { inContract: false, acRef: '', proposal: 'known-limits' }),
+    ],
+  }));
+  check('WT-T16e triageFailed false', result.triageFailed === false);
+  check('WT-T16e src/a.ts vao fix-list', (result.rejectFindings || []).some(f => f.file === 'src/a.ts'),
+    JSON.stringify((result.rejectFindings || []).map(f => f.file)));
+  check('WT-T16e src/b.ts KHONG vao fix-list (chuan hoa khong lam nhoe hai file)',
+    !(result.rejectFindings || []).some(f => f.file === 'src/b.ts'));
+  check('WT-T16e verdict REJECT', result.verdict === 'REJECT', result.verdict);
+}
+
+// ── WT-T17: gỡ-mơ-hồ bằng title CHỈ khi cả hai phía đều duy nhất ───────────
+console.log('WT-T17a agent viet lai path (rut gon) nhung title duy nhat -> ghep duoc');
+{
+  const { result } = await runWorkflow(WF, triArgs(), triResp({
+    findings: [F_HIGH],
+    triage: triRow(F_HIGH.title, 'install.ts'), // agent rút gọn path, không còn chuẩn hoá được
+  }));
+  check('WT-T17a triageFailed false', result.triageFailed === false);
+  check('WT-T17a verdict REJECT', result.verdict === 'REJECT', result.verdict);
+}
+
+console.log('WT-T17b (doi chung am) title TRUNG -> tuyet doi khong duoc doan');
+{
+  const { result } = await runWorkflow(WF, triArgs(), triResp({
+    findings: [SAME_A, SAME_B], // cùng title 'missing validation', hai file
+    triage: [
+      ...triByFile([{ ...SAME_A, file: 'src/khac.ts', inContract: true }]),
+      ...triByFile([{ ...SAME_B, file: 'docs/khac.md', inContract: false }]),
+    ],
+  }));
+  check('WT-T17b triageFailed true (mo ho thi khong doan)', result.triageFailed === true);
+  check('WT-T17b rejectFindings rong', (result.rejectFindings || []).length === 0,
+    JSON.stringify((result.rejectFindings || []).map(f => f.file)));
+}
+
+console.log('WT-T17c title duy nhat nhung dong triage da co chu -> khong cuop mat');
+{
+  // Hai finding, hai dòng triage khớp CHẶT cho cả hai: nhánh gỡ-mơ-hồ không
+  // được kích hoạt và không dòng nào bị dùng lại cho finding khác.
+  const other = { title: 'finding thu hai', file: 'src/b.ts', severity: 'low', detail: 'y' };
+  const { result } = await runWorkflow(WF, triArgs(), triResp({
+    findings: [F_HIGH, other],
+    triage: [...tri1(F_HIGH), ...triOut(other)],
+  }));
+  check('WT-T17c moi finding giu dung phan loai cua no',
+    (result.triaged || []).find(f => f.title === F_HIGH.title).inContract === true &&
+    (result.triaged || []).find(f => f.title === other.title).inContract === false);
+}
+
+// ── WT-T18: triage hỏng phải HIỆN trên vật được giao, không chỉ trong log ──
+// Fail-toward-human là chủ ý, nhưng người ký chỉ đọc evidence-report.md. Verdict
+// PASS sạch bong + không dấu vết nào trong frontmatter = người ký duyệt một kết
+// luận mà chính workflow không tin. Verdict phải tự nói ra điều đó.
+console.log('WT-T18a triage hong -> verdict PENDING-JUDGMENT, khong phai PASS sach');
+{
+  const { result } = await runWorkflow(WF, triArgs(), triResp({ findings: [F_HIGH], triage: [], triageThrows: true }));
+  check('WT-T18a triageFailed true', result.triageFailed === true);
+  check('WT-T18a verdict PENDING-JUDGMENT', result.verdict === 'PENDING-JUDGMENT', result.verdict);
+  check('WT-T18a van KHONG ai bi REJECT tu findings', (result.rejectFindings || []).length === 0);
+}
+
+console.log('WT-T18b (doi chung duong) triage song -> verdict KHONG bi keo ve PENDING');
+{
+  const { result } = await runWorkflow(WF, triArgs(), triResp({ findings: [F_MED], triage: tri1(F_MED) }));
+  check('WT-T18b verdict PASS khi triage lanh', result.verdict === 'PASS', result.verdict);
+}
+
+console.log('WT-T18c triage hong -> prompt synthesize doi co trong frontmatter + than bai');
+{
+  const { calls } = await runWorkflow(WF, triArgs(), triResp({ findings: [F_HIGH], triage: [], triageThrows: true }));
+  const sp = byLabel(calls, 'synthesize')[0].prompt;
+  check('WT-T18c doi dong frontmatter triage_failed: true', sp.includes('triage_failed: true'));
+  check('WT-T18c doi dong canh bao trong than evidence-report', sp.includes('phân loại phạm vi KHÔNG chạy được'));
+  // Cờ mới KHÔNG được đẻ thêm section cho evidence-report (WT-T8 giữ tập đóng).
+  const extra = reportSectionsIn(sp).filter(s => !REPORT_SECTIONS_ALLOWED.includes(s));
+  check('WT-T18c khong section moi nao', extra.length === 0, `section la: ${extra.join(' | ')}`);
+}
+
+console.log('WT-T18d (doi chung am) triage lanh -> prompt KHONG mang co triage_failed');
+{
+  const { calls } = await runWorkflow(WF, triArgs(), triResp({ findings: [F_HIGH], triage: tri1(F_HIGH) }));
+  const sp = byLabel(calls, 'synthesize')[0].prompt;
+  check('WT-T18d khong bia co khi triage lanh', !sp.includes('triage_failed'), 'prompt co co du triage lanh');
+}
+
+// ── WT-T19: ma trận mutation viết-TRƯỚC cho 4 bảo đảm vừa thêm ────────────
+// Nghi thức "phá vật thật trong một bản sao": mỗi bảo đảm đúng MỘT mutant, mutant
+// chạy trên bản sao script trong bộ nhớ. Không có bước này thì 4 case trên có thể
+// đang xanh vì lý do khác (fixture sai, nhánh không chạy) chứ không vì code đúng.
+const WF_SRC = readFileSync(WF, 'utf8');
+// Mỗi phần tử: [tên, phép mutate nguồn, phép chạy → trả về true nếu ĐỎ đúng chỗ]
+const MUTANTS = [
+  // Đo trên ca CÔ LẬP (WT-T16e): title trùng nên nhánh gỡ-mơ-hồ tắt, chỉ chuẩn
+  // hoá cứu được — mutant mới thật sự đỏ vì mất chuẩn hoá, không vì mất lớp khác.
+  ['MT1 khoa ghep so path THO (bo ca hai lop chuan hoa) -> WT-T16e do',
+    s => s
+      .replace('.map(f => ({ ...f, file: relPath(f.file) }))', '')
+      .replace('const triageKey = t => `${relFile(t)} :: ${t.title}`', 'const triageKey = t => `${t.file || \'\'} :: ${t.title}`'),
+    async (src) => {
+      const a = { title: 'trung title', file: '/repo/src/a.ts', severity: 'high', detail: 'x' };
+      const b = { title: 'trung title', file: '/repo/src/b.ts', severity: 'low', detail: 'y' };
+      const { result } = await runWorkflow(WF, triArgs(), triResp({
+        findings: [a, b],
+        triage: [
+          ...triRow('trung title', 'src/a.ts'),
+          ...triRow('trung title', 'src/b.ts', { inContract: false, acRef: '', proposal: 'known-limits' }),
+        ],
+      }), src);
+      return result.triageFailed === true && result.verdict !== 'REJECT';
+    }],
+  ['MT2 bo nhanh go-mo-ho bang title duy nhat -> WT-T17a do',
+    s => s.replace(/\n  \|\| \(\(unique\(rowsByTitle[\s\S]*?: undefined\)/, ''),
+    async (src) => {
+      const { result } = await runWorkflow(WF, triArgs(), triResp({
+        findings: [F_HIGH], triage: triRow(F_HIGH.title, 'install.ts'),
+      }), src);
+      return result.triageFailed === true && result.verdict !== 'REJECT';
+    }],
+  ['MT3 bo dinh tuyen verdict khi triage hong -> WT-T18a do (PASS gia quay lai)',
+    s => s.replace("else if (triageFailed) verdict = 'PENDING-JUDGMENT'\n", ''),
+    async (src) => {
+      const { result } = await runWorkflow(WF, triArgs(),
+        triResp({ findings: [F_HIGH], triage: [], triageThrows: true }), src);
+      return result.verdict === 'PASS';
+    }],
+  ['MT4 bo chi dan co trong evidence-report -> WT-T18c do',
+    s => s.replace('${triageFailed ? `TRIAGE HONG', '${false ? `TRIAGE HONG'),
+    async (src) => {
+      const { calls } = await runWorkflow(WF, triArgs(),
+        triResp({ findings: [F_HIGH], triage: [], triageThrows: true }), src);
+      const sp = byLabel(calls, 'synthesize')[0].prompt;
+      return !sp.includes('triage_failed: true') || !sp.includes('phân loại phạm vi KHÔNG chạy được');
+    }],
+];
+
+console.log('WT-T19 ma tran mutation: 4 bao dam, 4 mutant, moi mutant phai do dich danh');
+{
+  // ĐỐI CHỨNG DƯƠNG trước: bản NGUYÊN VẸN phải xanh ở cả 4 phép đo, nếu không
+  // thì "mutant đỏ" chẳng chứng minh gì (mọi thứ đều đỏ).
+  for (const [name, mutate, probe] of MUTANTS) {
+    const clean = await probe(WF_SRC);
+    check(`WT-T19+ doi chung duong: ban nguyen ven XANH (${name.split(' ')[0]})`, clean === false,
+      'bản chưa mutate đã đỏ — phép đo không phân biệt được');
+  }
+  for (const [name, mutate, probe] of MUTANTS) {
+    const mutated = mutate(WF_SRC);
+    check(`${name} — nguon that su bi doi`, mutated !== WF_SRC, 'phép mutate không khớp nguồn (neo đã trôi) — case này KHÔNG được coi là pass');
+    check(`${name}`, mutated !== WF_SRC && (await probe(mutated)) === true, 'phá vật thật mà phép đo vẫn xanh');
+  }
 }
 
 // ── W-G*: guard fail-loud cho field ma prompt fan-out noi suy thang vao ────

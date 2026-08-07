@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 2b6825a91a472f53ff98deeec8b28cd60af95f3e
+verified_commit: 3f96b45349ea1981f6b4cb15c178d3f79bf15c6d
 # bypass_ack:
 human_signoff: Manh Phan 2026-08-07 — ký (a) known-limits: fixture hành vi thiếu provenance máy-kiểm (trong hợp đồng) + 6 mục ngoài hợp đồng
 ---
@@ -139,3 +139,7 @@ Round 1: E1–E5 failed, J1–J4 UNCERTAIN — hợp đồng REJECT với 3 lỗ
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter + `time_human_minutes.gate2` in contract
+
+### Re-pin lần 1 — 2026-08-07, do engine verify đổi ở vòng triage-key-normalize (chuẩn hoá path khoá ghép scope-triage + triage hỏng ra PENDING-JUDGMENT)
+run_id: repin-20260807-triage-key-normalize-lane1
+sha: 3f96b45349ea1981f6b4cb15c178d3f79bf15c6d · suites: 6 lệnh exit 0

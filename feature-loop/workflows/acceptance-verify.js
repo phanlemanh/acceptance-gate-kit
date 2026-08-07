@@ -564,7 +564,20 @@ const nonDiscriminating = runBaseline
   : (carriedAnalyst ? carriedAnalyst.nonDiscriminating : [])
 const judges = (judgeRaw || []).filter(Boolean).map(normalizeVote)
 const reviewResults = (reviewRaw || []).filter(Boolean)
-const confirmedFindings = reviewResults.flatMap(r => r.findings)
+// Chuẩn hoá path ở BIÊN — MỘT lần, ngay chỗ gom findings, trước mọi thứ đọc
+// chúng (prompt triage, khoá ghép, dedupe, vùng phủ, review-findings.md, thẻ).
+// Reviewer agent được nhắc "trong repo <abs path>" nên lane này trả path tuyệt
+// đối và lane kia trả tương đối — cả hai đều hợp lệ theo schema. Mỗi consumer tự
+// so chuỗi thô thì mỗi consumer hỏng một kiểu, và hỏng âm thầm. Chuẩn hoá phòng
+// thủ là đủ; không dựa vào việc agent nghe lời.
+const repoPrefix = String(args.repoRoot || '').replace(/\/+$/, '')
+const relPath = v => {
+  let p = String(v || '')
+  if (repoPrefix && p.startsWith(repoPrefix + '/')) p = p.slice(repoPrefix.length + 1)
+  return p.replace(/^\.\//, '').replace(/^\/+/, '')
+}
+const relFile = f => relPath(f && f.file)
+const confirmedFindings = reviewResults.flatMap(r => r.findings).map(f => ({ ...f, file: relPath(f.file) }))
 const reviewIncomplete = reviewResults.filter(r => r.dead).map(r => r.key)
 for (const k of REVIEWERS.map(r => r.key)) {
   if (!reviewResults.some(r => r.key === k) && !reviewIncomplete.includes(k)) reviewIncomplete.push(k)
@@ -618,12 +631,40 @@ if (triageRaw && triageRaw.contractUnreadable === true) {
 // Khoá ghép là (file, title): title do hai lane reviewer sinh tự do trên cùng
 // một diff nên trùng title giữa hai FILE là chuyện thường; ghép bằng title trần
 // thì Map giữ mục cuối và finding out-of-contract lọt vào fix-list.
-const triageKey = t => `${t.file || ''} :: ${t.title}`
-const triageByKey = new Map(((triageRaw && Array.isArray(triageRaw.triaged)) ? triageRaw.triaged : [])
-  .filter(t => t && typeof t.title === 'string').map(t => [triageKey(t), t]))
+//
+// Path phải CHUẨN HOÁ ở cả hai phía trước khi so. Reviewer được nhắc "trong repo
+// <abs path>" nên lane này trả path tuyệt đối, lane kia trả tương đối, và agent
+// triage chép lại dạng nó nhận: so chuỗi thô thì mọi finding rơi unclassified →
+// triageFailed → rejectFindings rỗng → round báo PASS trong khi lỗi in-contract
+// còn sống. Đây là khớp LLM-viết→máy-đọc: bỏ LLM ra khỏi định danh của khoá,
+// đừng trông vào việc nó chép nguyên văn một đường dẫn dài.
+// (3/5 round của discovery-brainstorm-socket dính, sổ d-20260806T122000Z-10021.)
+const triageKey = t => `${relFile(t)} :: ${t.title}`
+const triageRows = ((triageRaw && Array.isArray(triageRaw.triaged)) ? triageRaw.triaged : [])
+  .filter(t => t && typeof t.title === 'string')
+const triageByKey = new Map(triageRows.map(t => [triageKey(t), t]))
+// Gỡ-mơ-hồ bằng title: agent có thể viết lại path hẳn (rút gọn, đổi thư mục)
+// chứ không chỉ đổi dạng. CHỈ dùng khi title là duy nhất ở CẢ HAI phía — lúc đó
+// chỉ tồn tại đúng một cách ghép, không phải phỏng đoán. Title trùng (chuyện
+// thường giữa hai lane: "missing validation") → không đoán, để fail-toward-human.
+// Đếm theo khoá PHÂN BIỆT chứ không theo số lượt: ba lane reviewer cùng báo một
+// lỗi là chuyện thường và KHÔNG được đọc thành "title mơ hồ" (đọc vậy thì nhánh
+// gỡ-mơ-hồ tắt đúng lúc cần nhất — ca một-lỗi-ba-lane là ca phổ biến nhất).
+const distinctByTitle = arr => arr.reduce((m, x) => {
+  if (!m.has(x.title)) m.set(x.title, new Set())
+  m.get(x.title).add(triageKey(x))
+  return m
+}, new Map())
+const rowsByTitle = distinctByTitle(triageRows)
+const findingsByTitle = distinctByTitle(toTriage)
+const unique = (m, title) => (m.get(title) || new Set()).size === 1
+const matchTriage = f => triageByKey.get(triageKey(f))
+  || ((unique(rowsByTitle, f.title) && unique(findingsByTitle, f.title))
+    ? triageRows.find(t => t.title === f.title)
+    : undefined)
 // Finding gửi đi mà agent KHÔNG trả về → unclassified (không mặc định in/out).
 const triaged = toTriage.map(f => {
-  const t = triageByKey.get(triageKey(f))
+  const t = matchTriage(f)
   const ok = !triageFailed && !!t
   return {
     ...f,
@@ -663,16 +704,8 @@ const globToRe = g => {
   return new RegExp('^' + body + '$')
 }
 const coverageRes = args.evals.flatMap(e => Array.isArray(e.paths) ? e.paths : []).map(globToRe)
-// Chuan hoa path o BIEN truoc khi so glob: reviewer agent duoc nhac "trong repo
-// <abs path>" nen tra path tuyet doi la hop le theo schema, va khi do MOI finding
-// rot khoi MOI glob -> co cum bia ra o moi round. Chuan hoa phong thu la du; khong
-// dua vao viec agent nghe loi.
-const repoPrefix = String(args.repoRoot || '').replace(/\/+$/, '')
-const relFile = f => {
-  let p = String(f.file || '')
-  if (repoPrefix && p.startsWith(repoPrefix + '/')) p = p.slice(repoPrefix.length + 1)
-  return p.replace(/^\.\//, '').replace(/^\/+/, '')
-}
+// Path đã chuẩn hoá bằng relFile khai ở đầu bước Triage — cùng một phép cho khoá
+// ghép, dedupe và vùng phủ, để ba chỗ không trôi khỏi nhau.
 // Đếm theo finding PHÂN BIỆT (file+title), không theo số lượt báo: hai reviewer
 // cùng thấy một lỗi là chuyện thường, và nó KHÔNG được tự nhân đôi thành "cụm".
 // Khoá phân biệt dùng path ĐÃ chuẩn hoá (relFile khai ngay trên): hai lane
@@ -762,6 +795,13 @@ else if (failed.length) verdict = 'REJECT'
 // một lượt cổng người. Đặt DƯỚI BLOCKED (môi trường hỏng thì không sửa gì) và
 // sau failed (cùng kết cục, gộp chung fix-list).
 else if (triageHighInContract.length) verdict = 'REJECT'
+// Triage hỏng = máy KHÔNG biết finding nào trong hợp đồng, nên nó cũng không
+// biết round này sạch. Verdict phải nói ra điều đó: PASS sạch bong là thứ người
+// ký đọc rồi ký, trong khi chính workflow không tin nó (fail-toward-human chỉ có
+// nghĩa khi con người THẤY được là mình đang được chuyển việc). PENDING-JUDGMENT
+// đúng nghĩa sẵn có: máy chạy xong, một người phải quyết. triageFailed chỉ bật
+// khi CÓ finding, nên round không finding không bị kéo vào đây.
+else if (triageFailed) verdict = 'PENDING-JUDGMENT'
 else if (varianceCmds.length || (judgmentEvals.length && (args.riskTier === 'T3' || panels.some(p => p.proposal !== 'PASS')))) verdict = 'PENDING-JUDGMENT'
 else verdict = 'PASS'
 
@@ -801,7 +841,7 @@ const carriedForReport = carriedEvals.map(c => {
   }
 })
 const report = await agentT(
-  `Soan NOI DUNG evidence report cho feature "${args.slug}" round ${args.round} — TRA VE trong field "report", KHONG ghi file nao ca (main loop se append run-log roi MOI ghi evidence-report.md — hook doi chieu run_id trong report voi log nen thu tu do la bat buoc). Noi dung thay tron round cu; lich su round nam trong section Iterations.\nDoc template tai ${args.templatePath} va tuan thu TUYET DOI shape — hook acceptance-evidence-gate.js se chan neu sai (L1 SHAPE: PASS can run_id ≥4 ky tu + exit_code 0 + verifier + verified_at ISO8601; L1 CONSISTENCY: report PASS khong duoc chua token exit khac 0 hay chuoi "verdict: FAIL"; L2: verifier la config: ref hoac script path; L3: moi UNCERTAIN can human_override).\n\nVerdict DA TINH SAN (khong tu thay doi): ${verdict}\nPROVENANCE — ghi NGUYEN VAN cac dong frontmatter nay (DA do bang buoc capture, TUYET DOI KHONG tu doi/suy dien/bo): "enforcement_mode: ${prov.enforcement_mode}" va "bypass_used: ${prov.bypass_used}"${verifiedCommit ? ` va "verified_commit: ${verifiedCommit}"` : ''}. CI pre-merge dung cac field nay de chan gate yeu va phat hien code doi SAU verify (stale evidence).${verifiedCommit ? ' Hook L1 chan verified_commit khong phai hex SHA — chep dung nguyen van, khong rut gon.' : ' Repo khong phai git: BO HAN field verified_commit (khong bia, khong ghi rong).'}\nfailed_evals: ${JSON.stringify(failedEvalIds)}\nblocked (neu BLOCKED, ghi reason vao frontmatter): ${JSON.stringify(blocked)}\nLenh fail khong gan eval (ghi ro trong report neu co): ${JSON.stringify(failedCommands)}\nReview incomplete (finder chet — ghi canh bao trong review-findings.md): ${JSON.stringify(reviewIncomplete)}\n\nKet qua may (moi block cmd cover cac eval cua no; block cua eval ui-check ghi them field "screenshot:" = screenshotPath tu ket qua VA field "observed:" = observed tu ket qua (template schema v2 — hook CHAN report PASS co screenshot: ma thieu observed: thuc chat >=20 ky tu; neu ket qua ui THIEU observed → TU MO tung frame evidence da luu bang Read va viet observed truoc khi ghi report, KHONG bia)): ${JSON.stringify(machineForReportB)}\nNETWORK TRUTH (advisory — schema v2 GIU NGUYEN, hook KHONG kiem field nay): moi block eval ui-check ghi them field "network_observed:" = chep NGUYEN VAN field networkObserved tu ket qua ui o tren; ket qua ui KHONG co field nay → ghi "n-a (driver)". TUYET DOI KHONG tu suy ra "clean". Vocab chu duy nhat: clean | no-app-traffic | third-party-only | app-fail | n-a (driver) | n-a (tool-error) | unscoped | unscoped-partial — CAM ghi so status/exit tho hay chu 'verdict: FAIL' vao report (bay L1 CONSISTENCY; so tho nam trong evidence/E{id}-network.txt).
+  `Soan NOI DUNG evidence report cho feature "${args.slug}" round ${args.round} — TRA VE trong field "report", KHONG ghi file nao ca (main loop se append run-log roi MOI ghi evidence-report.md — hook doi chieu run_id trong report voi log nen thu tu do la bat buoc). Noi dung thay tron round cu; lich su round nam trong section Iterations.\nDoc template tai ${args.templatePath} va tuan thu TUYET DOI shape — hook acceptance-evidence-gate.js se chan neu sai (L1 SHAPE: PASS can run_id ≥4 ky tu + exit_code 0 + verifier + verified_at ISO8601; L1 CONSISTENCY: report PASS khong duoc chua token exit khac 0 hay chuoi "verdict: FAIL"; L2: verifier la config: ref hoac script path; L3: moi UNCERTAIN can human_override).\n\nVerdict DA TINH SAN (khong tu thay doi): ${verdict}\nPROVENANCE — ghi NGUYEN VAN cac dong frontmatter nay (DA do bang buoc capture, TUYET DOI KHONG tu doi/suy dien/bo): "enforcement_mode: ${prov.enforcement_mode}" va "bypass_used: ${prov.bypass_used}"${verifiedCommit ? ` va "verified_commit: ${verifiedCommit}"` : ''}. CI pre-merge dung cac field nay de chan gate yeu va phat hien code doi SAU verify (stale evidence).${verifiedCommit ? ' Hook L1 chan verified_commit khong phai hex SHA — chep dung nguyen van, khong rut gon.' : ' Repo khong phai git: BO HAN field verified_commit (khong bia, khong ghi rong).'}\n${triageFailed ? `TRIAGE HONG — buoc phan loai pham vi KHONG chay duoc round nay, nen may KHONG biet finding nao trong hop dong va KHONG tu sua gi. Ghi CA HAI dau vet sau, khong duoc bo mot cai nao:\n(1) frontmatter THEM DUNG dong "triage_failed: true" (dat ngay duoi dong verdict);\n(2) than bai, NGAY DUOI dong tieu de "# Evidence Report: ...", mot dong canh bao BAT DAU bang "⚠ phân loại phạm vi KHÔNG chạy được" roi noi ro: khong loi nao duoc may tu sua, danh sach day du nam trong review-findings.md, nguoi xem lai toan bo truoc khi ky.\nTUYET DOI KHONG them section "##" moi cho viec nay va KHONG viet lai verdict.\n` : ''}failed_evals: ${JSON.stringify(failedEvalIds)}\nblocked (neu BLOCKED, ghi reason vao frontmatter): ${JSON.stringify(blocked)}\nLenh fail khong gan eval (ghi ro trong report neu co): ${JSON.stringify(failedCommands)}\nReview incomplete (finder chet — ghi canh bao trong review-findings.md): ${JSON.stringify(reviewIncomplete)}\n\nKet qua may (moi block cmd cover cac eval cua no; block cua eval ui-check ghi them field "screenshot:" = screenshotPath tu ket qua VA field "observed:" = observed tu ket qua (template schema v2 — hook CHAN report PASS co screenshot: ma thieu observed: thuc chat >=20 ky tu; neu ket qua ui THIEU observed → TU MO tung frame evidence da luu bang Read va viet observed truoc khi ghi report, KHONG bia)): ${JSON.stringify(machineForReportB)}\nNETWORK TRUTH (advisory — schema v2 GIU NGUYEN, hook KHONG kiem field nay): moi block eval ui-check ghi them field "network_observed:" = chep NGUYEN VAN field networkObserved tu ket qua ui o tren; ket qua ui KHONG co field nay → ghi "n-a (driver)". TUYET DOI KHONG tu suy ra "clean". Vocab chu duy nhat: clean | no-app-traffic | third-party-only | app-fail | n-a (driver) | n-a (tool-error) | unscoped | unscoped-partial — CAM ghi so status/exit tho hay chu 'verdict: FAIL' vao report (bay L1 CONSISTENCY; so tho nam trong evidence/E{id}-network.txt).
 run_id cua TUNG eval: chep NGUYEN VAN tu map nay — JS da tinh san va DA GHI vao ${args.repoRoot}/_acceptance/${args.slug}/run-log.jsonl truoc khi ban viet report; hook + CI recheck doi chieu TUNG run_id trong report voi log do (id la/khong khop = BLOCK). TUYET DOI KHONG tu mint/doi/rut gon run_id: ${JSON.stringify(evalRunIds)}${carriedForReport.length ? `
 EVAL CARRY-FORWARD (P1 — delta staleness khong cham paths cua cac eval nay, round nay KHONG chay lai): moi item van la MOT block eval PASS trong bang + Evidence, ghi run_id va verified_at NGUYEN VAN tu payload (id da nam trong run-log tu round goc), exit_code: 0, verifier = field ref, THEM dong "carried_from_round: <N>" va ghi chu 1 dong "carry-forward tu round <N> — delta khong cham paths cua eval". TUYET DOI KHONG ghi screenshot:/observed: cho block carried (frame goc xem round <N> trong Iterations): ${JSON.stringify(carriedForReport)}` : ''}
 A/B BASELINE: moi block eval may ghi them field "baseline: <green|red|n-a>" lay tu field "baseline" trong ket qua may o tren (green=pass tren code cu diffBase, red=fail tren code cu nghia la eval CO phan biet, n-a=khong chay duoc tren baseline). Field baseline DUNG TU green/red/n-a, TUYET DOI KHONG ghi exit-code so o day hay trong section Analyst — hook L1 CONSISTENCY se chan oan report PASS neu thay token exit khac 0.

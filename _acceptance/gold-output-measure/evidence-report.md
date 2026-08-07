@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 6bd11f7554effe75a9b1e8c8686a43634e45ec3e
+verified_commit: 3f96b45349ea1981f6b4cb15c178d3f79bf15c6d
 human_signoff: Manh Phan 2026-08-05
 ---
 
@@ -212,3 +212,7 @@ sha: 5d20c246f526b312962f2e4f167e48975ac25986 · suites: 6 lệnh exit 0
 ### Re-pin lần 7 — 2026-08-07, do engine đổi ở vòng stop-patching-law (mệnh đề dừng-vá vào 2 bản chỉ dẫn + bộ kiểm P168–P170)
 run_id: repin-20260807-stop-patching-law-lane1
 sha: 6bd11f7554effe75a9b1e8c8686a43634e45ec3e · suites: 6 lệnh exit 0
+
+### Re-pin lần 8 — 2026-08-07, do engine verify đổi ở vòng triage-key-normalize (chuẩn hoá path khoá ghép scope-triage + triage hỏng ra PENDING-JUDGMENT)
+run_id: repin-20260807-triage-key-normalize-lane1
+sha: 3f96b45349ea1981f6b4cb15c178d3f79bf15c6d · suites: 6 lệnh exit 0

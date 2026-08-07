@@ -11,3 +11,4 @@
 {"ts":"2026-08-07T09:30:00Z","sha":"2b6825a91a472f53ff98deeec8b28cd60af95f3e","round":2,"evalId":"E5","run_id":"minted-stop-patching-law-E5-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-07T09:30:00Z","sha":"2b6825a91a472f53ff98deeec8b28cd60af95f3e","round":2,"evalId":"E6","run_id":"minted-stop-patching-law-E6-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-07T09:30:00Z","sha":"2b6825a91a472f53ff98deeec8b28cd60af95f3e","round":2,"kind":"baseline","evals_hash":"$(shasum evals)","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6"]}]}
+{"ts":"2026-08-07T05:02:39Z","kind":"repin","run_id":"repin-20260807-triage-key-normalize-lane1","sha":"3f96b45349ea1981f6b4cb15c178d3f79bf15c6d","suites_exit":[0,0,0,0,0,0]}
