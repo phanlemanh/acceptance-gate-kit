@@ -516,7 +516,12 @@ or the human confirms a descope entry.
       the confirmed list** (a silently dropped finding means the classification
       is incomplete — same rule as the Claude side). Then NO finding may drive
       a REJECT whatever its severity: fail toward the human, never guess the
-      scope, and never auto-fix from a partial classification.
+      scope, and never auto-fix from a partial classification. Handing the work
+      to a human only counts if the human can SEE it: such a round is
+      `PENDING-JUDGMENT`, never a clean `PASS`, and `evidence-report.md` carries
+      `triage_failed: true` in frontmatter plus a `⚠ phân loại phạm vi KHÔNG
+      chạy được` line under the title. A reviewer who reads only the report must
+      never mistake it for a verdict the machine stands behind.
 
     A confirmed finding that is `high` AND in-contract makes the round REJECT —
     the machine fixes what the contract already bounds, without spending a human

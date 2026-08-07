@@ -16,8 +16,11 @@
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
-export function loadWorkflow(file) {
-  const src = readFileSync(file, 'utf8').replace(/^export /m, '');
+// srcOverride: nội dung script ĐÃ mutate (ma trận mutation chạy bản sao trong bộ
+// nhớ — không ghi đè file thật, không cần dọn dẹp).
+export function loadWorkflow(file, srcOverride) {
+  const raw = typeof srcOverride === 'string' ? srcOverride : readFileSync(file, 'utf8');
+  const src = raw.replace(/^export /m, '');
   return vm.runInNewContext(
     '(async (args, agent, parallel, pipeline, phase, log, budget, workflow) => {\n' + src + '\n})',
     { console },
@@ -27,7 +30,7 @@ export function loadWorkflow(file) {
 
 // respond(call) → the canned agent result (value, promise, null = dead agent,
 // or throw = errored agent). call = { label, prompt, opts }.
-export async function runWorkflow(file, args, respond) {
+export async function runWorkflow(file, args, respond, srcOverride) {
   const calls = [];
   const logs = [];
   const phases = [];
@@ -52,7 +55,7 @@ export async function runWorkflow(file, args, respond) {
   const budget = { total: null, spent: () => 0, remaining: () => Infinity };
   const workflow = () => { throw new Error('nested workflow() unavailable in tests'); };
 
-  const fn = loadWorkflow(file);
+  const fn = loadWorkflow(file, srcOverride);
   const result = await fn(args, agent, parallel, pipeline, phase, log, budget, workflow);
   return { result, calls, logs, phases };
 }
