@@ -11,10 +11,12 @@ Verdict rules:
   must contain ZERO `verdict: FAIL` lines and ZERO non-zero exit tokens
   (`exit_code:`, `exit=`) anywhere — including inside `output:` excerpts;
   sanitize pasted logs. Screenshot-bearing blocks additionally need a substantive observed: (see Field notes). If anything failed, the verdict is REJECT.
-- `PENDING-JUDGMENT` — all machine evals passed but ≥1 judgment item is
-  UNCERTAIN (or, for T3, awaits its mandatory direct human verdict). This is
-  the verdict the verify subagent writes so the report can reach Gate 2; the
-  HUMAN upgrades it to PASS after filling `human_override` lines.
+- `PENDING-JUDGMENT` — all machine evals passed but a human still has to decide:
+  ≥1 judgment item is UNCERTAIN (or, for T3, awaits its mandatory direct human
+  verdict), a stochastic eval came back with a mixed `pass_rate`, or scope-triage
+  failed (see `triage_failed` below). This is the verdict the verify subagent
+  writes so the report can reach Gate 2; the HUMAN upgrades it to PASS after
+  filling `human_override` lines.
 - `REJECT` — ≥1 eval failed. List `failed_evals`. No evidence requirements
   (failing honestly is always legal).
 - `BLOCKED` — verifier could not run (env broken, MCP missing). Give `reason`.
@@ -84,6 +86,18 @@ re-verify instead. On resume, the skills downgrade contract `status: verified`
 back to `implemented` when they detect such drift. A report without the field
 (older template) is tolerated with a NOTE: staleness is then unverifiable.
 
+Scope-triage failure (`triage_failed`): the verify workflow classifies every
+confirmed finding as in-contract or out-of-contract before anything reaches the
+fix list. When that step cannot complete — the triage agent died, it could not
+read the contract, or it returned no row for some finding — the machine does not
+know which findings are in scope, so it fixes NOTHING and hands the whole list to
+a human. That round carries `triage_failed: true` in frontmatter, a `⚠ phân loại
+phạm vi KHÔNG chạy được` line under the title, and a `PENDING-JUDGMENT` verdict —
+never a clean PASS. Read the full list in `review-findings.md` (section `## Chưa
+phân loại (triage-failed)`) before signing; upgrading to PASS here means you
+personally checked findings the machine never classified. Absent field = triage
+ran normally (older reports omit it).
+
 Baseline (A/B): each machine eval may carry a `baseline:` field — its status on
 the diffBase (pre-feature) tree. `red` = it failed on the old code (good: the
 eval discriminates), `green` = it passed on the old code too (non-discriminating
@@ -104,6 +118,7 @@ deterministic result is a flaky test, not a score).
 schema_version: 2
 feature_slug: {{slug}}
 verdict: {{PASS|PENDING-JUDGMENT|REJECT|BLOCKED}}
+# triage_failed: true   # ONLY when scope-triage could not classify the findings — machine fixed nothing, a human reviews the full list in review-findings.md. Omit entirely when triage ran.
 failed_evals: []        # REJECT only, e.g. [E2, E5]
 reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
