@@ -1423,6 +1423,32 @@ printf -- '---\nschema_version: 1\nfeature_slug: epsub\nverdict: PENDING-JUDGMEN
 SUBP="$(node "$EP" --root "$EPR" --slug epsub 2>/dev/null)"
 hasout EP10 "charged via API" "$(cat "$SUBP" 2>/dev/null)"
 
+# EP11/EP12 — nhãn chen giữa id và dấu hai chấm. Khuôn cũ ở đây là bản sao HẸP
+# NHẤT trong ba (bullet phải `-`, tách phải `:`), nên nó rụng cả hai nhà viết mà
+# hợp đồng thật đang dùng. Hậu quả không phải cảnh báo thiếu mà là TRANG KÝ cụt:
+# card in mỗi id trần, người ký Cổng 2 không thấy tiêu chí đòi gì.
+echo "EP11 nhãn **(cross-layer)** chen giữa id và ':' -> text tiêu chí vẫn lên trang"
+dxl="$EPR/_acceptance/epxl"; mkdir -p "$dxl"
+printf -- '---\nfeature: EP xl\nslug: epxl\nrisk_tier: T3\n---\n## Criteria\n- AC-1 **(cross-layer)**: Given gio hang, Then charged via API.\n' > "$dxl/contract.md"
+printf -- '---\nschema_version: 1\nfeature_slug: epxl\nverdict: PENDING-JUDGMENT\nhuman_signoff:\n---\n| Eval | Criterion | Executor | Verdict |\n|--|--|--|--|\n| E1 | AC-1 | script | PASS |\n\n## Evidence\n- eval: E1\n  run_id: epxl-E1-001\n  exit_code: 0\n  verifier: scripts/v.sh\n  verified_at: 2026-06-20\n' > "$dxl/evidence-report.md"
+XLP="$(node "$EP" --root "$EPR" --slug epxl 2>/dev/null)"
+hasout EP11 "charged via API" "$(cat "$XLP" 2>/dev/null)"
+
+echo "EP12 chú thích *(sửa lời …)* chen giữa id và ':' -> text tiêu chí vẫn lên trang"
+dam="$EPR/_acceptance/epam"; mkdir -p "$dam"
+printf -- '---\nfeature: EP am\nslug: epam\nrisk_tier: T3\n---\n## Criteria\n- AC-1 *(sua loi 05/08 — xem Amendment)*: Given gio hang, Then refunded via API.\n' > "$dam/contract.md"
+printf -- '---\nschema_version: 1\nfeature_slug: epam\nverdict: PENDING-JUDGMENT\nhuman_signoff:\n---\n| Eval | Criterion | Executor | Verdict |\n|--|--|--|--|\n| E1 | AC-1 | script | PASS |\n\n## Evidence\n- eval: E1\n  run_id: epam-E1-001\n  exit_code: 0\n  verifier: scripts/v.sh\n  verified_at: 2026-06-20\n' > "$dam/evidence-report.md"
+AMP="$(node "$EP" --root "$EPR" --slug epam 2>/dev/null)"
+hasout EP12 "refunded via API" "$(cat "$AMP" 2>/dev/null)"
+
+echo "EP13 tag (judgment) vẫn bị gỡ khỏi text hiển thị (không hồi quy)"
+dj="$EPR/_acceptance/epj"; mkdir -p "$dj"
+printf -- '---\nfeature: EP j\nslug: epj\nrisk_tier: T3\n---\n## Criteria\n- AC-1: (judgment) Given phien dai dien, Then trai nghiem mach lac.\n' > "$dj/contract.md"
+printf -- '---\nschema_version: 1\nfeature_slug: epj\nverdict: PENDING-JUDGMENT\nhuman_signoff:\n---\n| Eval | Criterion | Executor | Verdict |\n|--|--|--|--|\n| E1 | AC-1 | judgment | PASS |\n\n## Evidence\n- eval: E1\n  run_id: epj-E1-001\n  exit_code: 0\n  verifier: scripts/v.sh\n  verified_at: 2026-06-20\n' > "$dj/evidence-report.md"
+JP="$(node "$EP" --root "$EPR" --slug epj 2>/dev/null)"
+hasout EP13 "trai nghiem mach lac" "$(cat "$JP" 2>/dev/null)"
+nothas EP13b "(judgment)" "$(cat "$JP" 2>/dev/null)"
+
 echo ""
 echo "--- Gate-1 approval recorded (approved_by / gate1_skipped) ---"
 echo "A01 implemented + empty approved_by + no gate1_skipped -> fail"
