@@ -394,6 +394,33 @@ else
   case "$outPM17" in *"AC-5 is tagged"*) echo "  PASS: PM17-red"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: PM17-red (vô hiệu khối đè mà cổng vẫn sạch -> khối đè KHÔNG phải thứ đang quyết định kết quả)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 fi
 
+# PM18 (#36) — criterion TRÍCH DẪN Dấu cross-layer trong code span KHÔNG được
+# thành VIOLATION. Một hồ sơ giải thích Dấu cho người mới là chuyện bình thường
+# trong repo dạy chính khái niệm đó; trước bản sửa nó bị CHẶN MERGE.
+mk_xl "$P/pm18" feat-xl18 '- AC-1: Given hồ sơ giải thích Dấu `(cross-layer)` cho người mới, When đọc, Then hiểu được — tiêu chí NÀY không mang Dấu đó.' '  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "ok"'
+echo "PM18 criterion TRÍCH DẪN Dấu trong code span -> KHÔNG được thành VIOLATION"
+outPM18="$(bash "$CHECK" "$P/pm18" 2>&1)"; check PM18 0 $?
+case "$outPM18" in *"AC-1 is tagged"*) echo "  FAIL: PM18-quote (trích dẫn Dấu bị chấm như mang Dấu = VIOLATION GIẢ chặn merge)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: PM18-quote"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
+
+# Mutation: gỡ dòng ĐÈ (`out.delete`) thì phải ĐỎ lại. Không có vế này thì
+# PM18 xanh kể cả khi dòng đè bị xoá — 0-hit-giả. Răng hai vế như PM17: bước
+# tiêm chạm được file VÀ bản tiêm vẫn parse được (xoá cả dòng nên JS vẫn hợp lệ).
+PMMUT2="$T/pmmut2"; mkdir -p "$PMMUT2/scripts" "$PMMUT2/lib"
+cp "$PMROOT"/lib/*.js "$PMMUT2/lib/" 2>/dev/null
+sed '/out.delete(a.id)/d' "$CHECK" > "$PMMUT2/scripts/pre-merge-check.sh"
+if cmp -s "$CHECK" "$PMMUT2/scripts/pre-merge-check.sh"; then
+  echo "  FAIL: PM18-mut (bước tiêm KHÔNG chạm được file)"; FAIL_COUNT=$((FAIL_COUNT+1))
+elif ! bash -n "$PMMUT2/scripts/pre-merge-check.sh" 2>/dev/null; then
+  echo "  FAIL: PM18-mut (bản tiêm không phải bash hợp lệ — sẽ 'đỏ' vì hỏng cú pháp)"; FAIL_COUNT=$((FAIL_COUNT+1))
+else
+  echo "  PASS: PM18-mut (bước tiêm chạm file VÀ bản tiêm vẫn parse được)"; PASS_COUNT=$((PASS_COUNT+1))
+  outPM18m="$(bash "$PMMUT2/scripts/pre-merge-check.sh" "$P/pm18" 2>&1)"
+  case "$outPM18m" in *"AC-1 is tagged"*) echo "  PASS: PM18-red"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: PM18-red (gỡ dòng đè mà cổng vẫn sạch -> dòng đè không phải thứ đang quyết định)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+fi
+
 echo ""
 echo "--- eval-coverage-lint.js ---"
 LINT="$HERE/../../scripts/eval-coverage-lint.js"
@@ -998,6 +1025,30 @@ case "$outL32" in *"W7"*) echo "  PASS: L32-w7"; PASS_COUNT=$((PASS_COUNT+1)) ;;
 echo "L33 contract lành KHÔNG bị W7 (cry-wolf guard)"
 outL33="$(node "$LINT" "$T/lintB" 2>&1)"
 case "$outL33" in *"W7"*) echo "  FAIL: L33-nowolf (contract lành bị W7)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: L33-nowolf"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
+
+# L37 (#36) — nửa lint của PM18: criterion TRÍCH DẪN Dấu trong code span không
+# được sinh W4. Cùng luật `uncoded()` mà `judgment` đã theo từ đầu.
+TV="$T/lintV/_acceptance/feat-quote"; mkdir -p "$TV"
+cat > "$TV/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+surfaces: [api]
+---
+## Criteria
+- AC-1: Given hồ sơ giải thích Dấu `(cross-layer)` cho người mới, When đọc, Then hiểu được — tiêu chí NÀY không mang Dấu đó.
+## Out of scope
+EOF
+cat > "$TV/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "exit 0"
+EOF
+echo "L37 criterion TRÍCH DẪN Dấu cross-layer trong code span -> KHÔNG sinh W4"
+outL37="$(node "$LINT" "$T/lintV" 2>&1)"
+case "$outL37" in *"W4 AC-1"*) echo "  FAIL: L37-quote (trích dẫn Dấu bị chấm như mang Dấu — W4 bắn giả)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: L37-quote"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
 
 echo "L34 dạng ĐÚNG '- AC-n: **(cross-layer)** …' vẫn nổ W4 khi thiếu cặp (không hồi quy)"
 outL34="$(node "$LINT" "$T/lintE2" 2>&1)"; check L34 1 $?

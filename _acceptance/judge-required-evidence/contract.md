@@ -57,11 +57,13 @@ vứt. Vòng 3 (chót) chương trình 80/20.
 - AC-10: Given lệnh `/acceptance-report`, When đọc chỉ dẫn của nó, Then có
   bước gọi acceptance-gold + in 2 khối Gold set và G3 bằng tiếng người;
   mutation xoá bước → phép đo đỏ.
-- AC-11: Given mọi artifact CŨ (report, `run-log.jsonl`, panel không có
+- AC-11: *(sửa lời 07/08 — xem Amendment)* Given mọi artifact CŨ (report,
+  `run-log.jsonl`, panel không có
   field mới),
   When chạy toàn bộ lưới + card + gold, Then hành vi y như trước — 0
-  VIOLATION oan, 0 crash, hook/evidence-core KHÔNG bị sửa (đo bằng diff:
-  lib/** và hooks/** không đổi).
+  VIOLATION oan, 0 crash, hook/evidence-core KHÔNG bị sửa **bởi chính feature
+  này** (đo bằng diff `lib/**` và `hooks/**` trên ĐÚNG phạm vi commit của nó,
+  không phải trên một base di động).
 - AC-12: (judgment) Nghi thức required_evidence đọc-được-làm-được bởi judge
   fresh không có ngữ cảnh: mục có cụ thể-hành-động-được không, có xui judge
   bịa "evidence-shopping" (đòi bằng chứng vô hạn để né phán) không.
@@ -72,6 +74,40 @@ vứt. Vòng 3 (chót) chương trình 80/20.
   mọi dòng `kind:panel` proposal ≠ PASS phải mang `required_evidence` không
   rỗng; chưa có dòng không-PASS nào thì đo bằng harness + máy trả UNCERTAIN,
   người đếm tại Cổng 2.
+
+## Amendment (2026-08-07 — ghim phép đo AC-11 vào phạm vi riêng, KHÔNG nới yêu cầu)
+
+Phép đo của AC-11 (`tests/scripts/core-untouched.test.mjs`, case `JR11a`) so
+`lib/**` + `hooks/**` với một base **di động** — `merge-base(HEAD, origin/main)`.
+Viết thế thì câu nó khẳng định không còn là *"feature NÀY không phải đụng lõi"*
+mà thành *"KHÔNG AI được đụng lõi, mãi mãi"* — một bất biến chưa ai duyệt tại
+cổng nào.
+
+Nó chặn đúng lát đầu tiên có lý do chính đáng để sửa `lib/`: `crosslayer-uncoded`
+(hồ sơ ngược #36) đưa Dấu `cross-layer` về cùng một nguồn với `judgment` trong
+`lib/ac-line.js`. Cùng lớp với `check-manifest-unmoved.sh` bên repo tiêu thụ:
+ảnh chụp của MỘT PR viết ra trông như luật vĩnh viễn.
+
+**Ý định của AC-11 không đổi**, chỉ thước đo bị ghim lại. Phạm vi nay là đúng
+phần commit mà chính feature này sở hữu:
+
+| mốc | commit |
+|---|---|
+| `RANGE_BASE` | `d2b6b19~1` — cha của commit Cổng 1 |
+| `RANGE_TIP` | `e6dad45` — commit chữ ký Cổng 2 |
+
+Đo tại thời điểm ghim: diff `lib` + `hooks` trên phạm vi này **TRỐNG** — lời
+khẳng định của AC-11 vẫn đúng nguyên vẹn, chỉ thôi bắt các lát sau chịu chung.
+Răng đã kiểm hai chiều: ghim vào một phạm vi có đụng `lib/` → đỏ đích danh;
+ghim vào phạm vi rỗng → đỏ vì "phép đo tự-khớp".
+
+**Không dùng `verified_commit` làm neo:** sóng dogfood re-pin ghi đè nó sang
+commit làn mới nhất mỗi đợt (hiện trỏ `ad46195`), nên nó không neo được bất kỳ
+phạm vi lịch sử nào — đó là lý do phải khai hai mốc tường minh.
+
+**Nợ kèm theo:** hồ sơ này `status: signed-off` và phép đo của nó vừa đổi, nên
+evidence của nó cần chạy lại + ký lại theo luật per-file. Chi phí đã biết, trình
+tại Cổng 1 của `crosslayer-uncoded` chứ không để lộ ở Cổng Bằng chứng.
 
 ## Coverage
 

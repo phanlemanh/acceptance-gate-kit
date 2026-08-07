@@ -585,6 +585,13 @@ for dir in "$ACC"/*/; do
         for (const l of section(t, "Criteria")) {
           const a = parseAC(l);
           if (a && /\(cross-layer\)/i.test(a.gwt)) out.add(a.id);
+          // Dòng trên là khuôn CŨ: regex trần trên `gwt`, nên nó KHÔNG phân biệt
+          // được criterion MANG Dấu với criterion TRÍCH DẪN Dấu (hồ sơ giải thích
+          // Dấu cho người mới) → VIOLATION GIẢ chặn merge. Hồ sơ ngược #36.
+          // Luật diff-chỉ-thêm (DV5) cấm sửa dòng cũ của file này, nên phần sửa
+          // là một dòng ĐÈ: parseAC nay trả `crossLayer` tính theo cùng luật với
+          // `judgment` (bỏ code span qua uncoded()), và nó là tiếng nói cuối.
+          if (a && a.crossLayer === false) out.delete(a.id);
         }
         process.stdout.write([...out].sort().join("\n"));
       ' "$AC_LINE_LIB" "$(dirname "$AC_LINE_LIB")/md-section.js" 2>/dev/null)"; then
