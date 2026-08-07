@@ -72,5 +72,10 @@ evals:
   - id: E10
     criterion: AC-9
     executor: judgment
+    # question + inputs: bổ sung tuân-thủ khuôn judgment của engine (W-G8 tồn
+    # kho thật bắt thiếu field) — câu hỏi rút nguyên ý từ expected, không đổi
+    # ngữ nghĩa. Phiên chủ hồ sơ rà lại tự nhiên khi resume (contract còn draft).
+    question: "Giữ HAI đường chấm trong lõi cưỡng chế (lib khi có node, awk khi không) có đúng hơn bắt buộc node không — chấp nhận verdict cổng phụ thuộc môi trường, đổi lại awk rộng hơn nên không bỏ sót và chênh lệch chỉ ở chấm-oan có tiếng?"
+    inputs: [scripts/pre-merge-check.sh]
     expected: "T3 ⇒ người tự phán, verdict của judge chỉ tham khảo. Câu hỏi: giữ HAI đường chấm trong lõi cưỡng chế (lib khi có node, awk khi không) có đúng hơn bắt buộc node không? Nêu rõ: verdict của cổng có thể phụ thuộc môi trường; lập luận bảo vệ là awk rộng hơn nên không bao giờ bỏ sót, chênh lệch chỉ ở chấm-oan, và AC-5 bắt chênh lệch đó phải có tiếng. Judge KHÔNG được xem diff hay lập luận của người viết"
     paths: [scripts/pre-merge-check.sh]
