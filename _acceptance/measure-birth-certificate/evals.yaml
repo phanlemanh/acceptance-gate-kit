@@ -1,0 +1,106 @@
+# evals — measure-birth-certificate
+# Mọi eval máy chạy qua suite plugins của kit (case P mới viết ở S3).
+# Khuôn tự áp: mỗi case mới PHẢI là cặp hai-chiều cùng fixture (AC-8).
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới: bóc khối giữa cặp mốc MEASURE-BIRTH-CLAUSE của SKILL
+      feature-loop (Claude), assert đủ 3 thành phần mệnh đề (cặp hai-chiều
+      cùng fixture · thông điệp ghim · thiếu-cặp-chưa-xong) phủ 3 loại vật;
+      mutation xoá khối / tách mệnh đề khỏi mốc trong bản sao → đỏ ghim tên
+      mốc; đối chứng dương bản nguyên vẹn xanh trước.
+    paths: [feature-loop/skills/feature-loop/SKILL.md, tests/plugins/run-tests.sh]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới: so khối giữa mốc của hai bản chỉ dẫn (Claude vs twin Codex)
+      bằng phép so chuẩn hoá; mutation làm lệch MỘT bên trong bản sao → đỏ
+      nêu tên bên lệch; đối chứng dương hai bản thật khớp → xanh.
+    paths: [feature-loop/skills/feature-loop/SKILL.md, codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md, tests/plugins/run-tests.sh]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới: đoạn S1#4 (viết evals.yaml) của CẢ HAI bản chỉ dẫn có câu
+      con trỏ tới MEASURE-BIRTH-CLAUSE; mutation xoá con trỏ một bên → đỏ
+      nêu bên thiếu; đối chứng dương xanh.
+    paths: [feature-loop/skills/feature-loop/SKILL.md, codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md, tests/plugins/run-tests.sh]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới: resolve-plugin.mjs --require references/measure-birth.md trả
+      gốc gói; assert đường dẫn trả về là tiền tố NẰM TRONG cây đang kiểm
+      (suy từ vị trí script, không hardcode ROOT — chặn hình dạng đọc bản
+      lành từ plugin đã cài); file đủ 3 mục khuôn + ≥2 mẫu sống + bảng lớp
+      lỗi; cả nhánh dương lẫn mutation chạy trên CÙNG gốc đã assert; mutation
+      xoá một mục trong bản sao → đỏ ghim tên mục thiếu; đối chứng dương xanh.
+    paths: [skills/acceptance/references/measure-birth.md, tests/plugins/run-tests.sh]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới: record 4 lượt đóng vai do make-record.mjs sinh trong chính
+      lần chạy; MỖI lượt (cả 4) phải có artifact bài-làm khác rỗng + dấu
+      hoàn-thành — lượt chết/timeout không được tính là "không sinh cặp"
+      (chặn fail-open danh-sách-rỗng); round-trip record↔nguồn SKILL
+      (bản-có: 2/2 sinh cặp hai-chiều + thông điệp ghim; bản-gỡ: 2/2 hoàn
+      thành bài mà không sinh đủ); mutation làm rỗng artifact một lượt +
+      mutation sửa record lệch nguồn trong bản sao → đỏ ghim tên lượt/chỗ
+      lệch; đối chứng dương xanh.
+    paths: [_acceptance/measure-birth-certificate/make-record.mjs, _acceptance/measure-birth-certificate/evidence/, tests/plugins/run-tests.sh]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới: đếm mục known-limits từ chính corpus _acceptance/*/
+      review-findings.md trong lần chạy (KHÔNG hardcode 108) rồi assert
+      ledger ≥ số đó; ĐỐI CHỨNG DƯƠNG CHO BỘ ĐẾM: chạy trên 1 hồ sơ corpus
+      đã biết phải trả > 0 (đếm-ra-0 trên vật có mục = bộ đếm hỏng); kiểm
+      enum status, closed_by của mọi dòng chet, dup_of của mọi dòng trung
+      trỏ id tồn tại; mutation phá từng bất biến hàng (xoá closed_by, dup_of
+      trỏ id ma, status lạ) VÀ mutation xoá K dòng ledger xuống dưới số đếm
+      trong bản sao → đỏ ghim tên bất biến/quan hệ ≥; đối chứng dương xanh.
+    paths: [docs/research/known-limits-ledger.tsv, tests/plugins/run-tests.sh]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới: grep đúng chuỗi baseline 4/6 trong ## Notes của contract này
+      + parse entry revisit trong decisions.jsonl (type revisit, có điều kiện
+      dừng); xoá baseline trong bản sao → đỏ; đối chứng dương xanh.
+    paths: [_acceptance/measure-birth-certificate/contract.md, _acceptance/measure-birth-certificate/decisions.jsonl, tests/plugins/run-tests.sh]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới (tự-áp): đọc khối marker khai ĐÍCH DANH id case mới của feature
+      này, kiểm quan hệ tập-hợp khai↔tìm-được BẰNG NHAU (không phải đếm > 0 —
+      chặn tập-khai-bằng-tập-tìm-được), rồi soi từng case trong tập có đủ
+      nhánh đối-chứng-dương + nhánh phá-vật trên cùng fixture; mutation gỡ 1
+      id khỏi khối khai trong bản sao → đỏ ghim id; mutation gỡ MỘT chiều của
+      một case → đỏ nêu tên case; đối chứng dương bộ thật → xanh.
+    paths: [tests/plugins/run-tests.sh]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới (kênh giao): khối MEASURE-BIRTH-CLAUSE tồn tại trong nguồn →
+      đọc version từ nguồn sống của feature-loop plugin.json (Claude + twin
+      Codex + mirror plugins/) assert ≥ 1.27.0, và khi references
+      measure-birth.md có mặt → acceptance-gate plugin.json ≥ 1.39.0;
+      mutation hạ version một gói trong bản sao → đỏ ghim tên gói; đối chứng
+      dương xanh.
+    paths: [feature-loop/.claude-plugin/plugin.json, codex/feature-loop-codex/.codex-plugin/plugin.json, plugins/feature-loop-codex/.codex-plugin/plugin.json, .claude-plugin/plugin.json, tests/plugins/run-tests.sh]
