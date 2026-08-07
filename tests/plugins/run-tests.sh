@@ -8857,13 +8857,17 @@ def run_makerecord(skill_texts, artifact_overrides=None):
         (ws/'evidence'/a).write_text(text)
     r = subprocess.run(['node', str(ws/'make-record.mjs')], capture_output=True, text=True)
     return d, r
+# Phep so round-trip — MOT ham, dung cho ca DUONG lan mutant (S4-r2: mutant
+# phai chay CHINH phep do nay tren vat bi pha, khong so hai ban trong RAM).
+def diff_check(writer_dir, committed_dir):
+    return [g for g in GEN
+            if (writer_dir/'_acceptance/measure-birth-certificate/evidence'/g).read_text()
+               != (committed_dir/g).read_text()]
 # DUONG: round-trip nguon+artifact -> writer -> khop evidence da commit
 d, r = run_makerecord([(root/s).read_text() for s in SKILLS])
 assert r.returncode == 0, 'make-record fail tren nguon that: ' + r.stderr[:200]
-for g in GEN:
-    a = (d/'_acceptance/measure-birth-certificate/evidence'/g).read_text()
-    b = (EV/g).read_text()
-    assert a == b, f'evidence {g} LECH writer hien tai — chay lai make-record.mjs va commit lai'
+mism = diff_check(d, EV)
+assert not mism, f'evidence {mism} LECH writer hien tai — chay lai make-record.mjs va commit lai'
 record = json.loads((EV/'hanh-vi-record.json').read_text())
 assert [x['pair_per_mold'] for x in record['runs']] == [True, True, False, False], 'verdict 2/2-0/2 lech record'
 assert record['verdict']['completed'] == '4/4', 'record khai completed khac 4/4'
@@ -8879,12 +8883,17 @@ empty = (EV/'hanh-vi-A1-claude-co.md').read_text().split('```bash')[0] + '```bas
 d3, r3 = run_makerecord([(root/s).read_text() for s in SKILLS], {'hanh-vi-A1-claude-co.md': empty})
 assert r3.returncode == 2 and 'A1' in r3.stderr and 'RỖNG' in r3.stderr, \
     f'mutant artifact rong: writer phai exit 2 ghim ten luot (exit={r3.returncode}, stderr={r3.stderr[:120]})'
-# (S4-r2, user chon thu-pham-vi) Mutant "lat verdict B1" DA GO: ban cu so
-# record-lat-trong-RAM voi ban regen vua duoc assert bang-nhau o vong DUONG —
-# hang-dung, khong phep do nao chay tren vat bi pha. Bao ve chong-lat-record
-# THAT nam o chinh vong round-trip byte-compare phia tren: sua tay
-# hanh-vi-record.json da commit la lech writer-regen va case do ngay tai do.
-print('P178 MUTANT-OK (doi nguon lech round-trip, artifact rong writer exit 2 ghim ten luot)')
+# MUTANT 3 (S4-r2 viet lai — ban cu so hai ban trong RAM la hang-dung): lat
+# verdict B1 trong BAN SAO evidence da commit roi chay CHINH diff_check tren
+# ban sao do — phep do that chay tren vat bi pha, ky vong vach dung record.
+d4 = pathlib.Path(tempfile.mkdtemp()); shutil.copytree(EV, d4/'evidence')
+rec3 = json.loads((d4/'evidence/hanh-vi-record.json').read_text())
+[x for x in rec3['runs'] if x['id'] == 'B1'][0]['pair_per_mold'] = True
+(d4/'evidence/hanh-vi-record.json').write_text(json.dumps(rec3, indent=2, ensure_ascii=False) + '\n')
+mism3 = diff_check(d, d4/'evidence')
+assert mism3 == ['hanh-vi-record.json'], \
+    'mutant lat verdict trong ban sao evidence khong bi round-trip vach ra: ' + repr(mism3)
+print('P178 MUTANT-OK (doi nguon lech round-trip, artifact rong writer exit 2 ghim ten luot, lat record trong ban sao bi diff_check vach dung hanh-vi-record.json)')
 P178PY
 
 run "P179 [MBC] E6 ledger known-limits: dem tu corpus + bat bien hang + quan he >=" \

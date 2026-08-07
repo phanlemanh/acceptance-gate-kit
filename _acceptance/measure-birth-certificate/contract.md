@@ -84,9 +84,6 @@ xem descope) · port consumer theo release sau. Never: chốt máy pre-merge
   marker quanh mutant no-op vẫn xanh P182. Phần khai↔tìm-được của P182 là
   quan hệ tập-hợp thật; riêng CHIỀU SÂU mutant sống nhờ nghi thức viết
   (MEASURE-BIRTH-CLAUSE) + vòng review, không nhờ P182.
-- Known limit (S4-r2): mutant "lật verdict record" của P178 đã GỠ vì là
-  hằng-đúng — bảo vệ chống-sửa-tay record nằm ở round-trip byte-compare
-  với bản writer sinh, không có mutant riêng.
 - Known limit (ngoài hợp đồng, Cổng 2): biến `SRC` chết trong P182 — dọn
   dẹp nội bộ, ledger measure-birth-certificate#1.
 - Baseline 2026-08-07: 4/6 lỗi-trong-hợp-đồng của workspace-reader-unification
