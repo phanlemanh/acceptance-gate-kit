@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict   # the `enforcement` value from _acceptance/config.yaml (default strict). CI pre-merge BLOCKS off; warn only warns.
 bypass_used: false              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
-verified_commit: ad4619558be1d09b0c827a80baba4740ec8926ac
+verified_commit: 74dd33f31853e0fe1a39cf6069e2adbabd01f5d7
 # bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -587,3 +587,7 @@ sha: eb81fd3ad5db935c72c042202d1af2df783f19f9 · suites: 6 lệnh exit 0
 ### Re-pin lần 24 — 2026-08-07, do răng cross-layer của pre-merge chấm bằng lib/ac-line.js (awk làm đường lùi có tiếng) — engine cổng đổi
 run_id: repin-20260807-premerge-ac-line-lane1
 sha: ad4619558be1d09b0c827a80baba4740ec8926ac · suites: 6 lệnh exit 0
+
+### Re-pin lần 25 — 2026-08-07, do measure-birth-certificate signed-off (khuôn khai sinh phép đo, feature-loop 1.27.0 + acceptance-gate 1.39.0) + lành 29 pin-phantom (sha re-pin #13 gõ tay sai — luật pin-phantom 18bbe72 bắt được)
+run_id: repin-20260807-mbc-ship-lane1
+sha: 74dd33f31853e0fe1a39cf6069e2adbabd01f5d7 · suites: 6 lệnh exit 0

@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 0834c5e075764f7a8d8b3d3c73199035cbec299c
+verified_commit: 74dd33f31853e0fe1a39cf6069e2adbabd01f5d7
 human_signoff: "Manh Phan 2026-08-07"
 ---
 
@@ -132,3 +132,7 @@ Round 2–3 (S4-r1 → S4-r2 → S4-r2b, gộp vì không có verify log riêng 
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter + `time_human_minutes.gate2` in contract
+
+### Re-pin lần 1 — 2026-08-07, do measure-birth-certificate signed-off (khuôn khai sinh phép đo, feature-loop 1.27.0 + acceptance-gate 1.39.0) + lành 29 pin-phantom (sha re-pin #13 gõ tay sai — luật pin-phantom 18bbe72 bắt được)
+run_id: repin-20260807-mbc-ship-lane1
+sha: 74dd33f31853e0fe1a39cf6069e2adbabd01f5d7 · suites: 6 lệnh exit 0
