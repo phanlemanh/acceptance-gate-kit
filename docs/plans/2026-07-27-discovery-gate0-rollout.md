@@ -486,3 +486,37 @@ sống) — bài "đo ở phía consumer".
 **Trình tự không đổi.** W6 phần spec vào đợt 1 cùng W1-W5 (viết theo bản sửa
 trên); phần khuôn S1 + ổ cắm vào đợt F-J; F-K thi công theo dạng ổ-cắm ngay
 từ đầu (không ship bản hardcode rồi sửa).
+
+### Cập nhật 2026-08-07 — trạng thái hạng mục sau đợt 1 (maintainer đối chiếu)
+
+**ĐÓNG:** W1–W6 (spec, trong main qua merge `5d20c24`) + F-K
+(`discovery-brainstorm-socket` **signed-off Manh 06/08**, 5 round S4 — bài
+học khuôn-giải-sai ghi memory: phiên tự viết parser thứ ba thay vì dùng
+`resolveConfigKey`). Kit đã qua thêm 2 release ngoài backlog này:
+codex-script-packaging (mirror đổi layout `.codex-plugin`) + 1.37.0
+measure-teeth-cleanup. Cache máy Manh: kiểm nội dung 07/08 — acceptance-gate
+1.36.0→1.37.0 khớp origin từng file, feature-loop 1.25.0 khớp; phiên mở SAU
+07/08 sáng mới có lối (a) bản ổ cắm.
+
+**ĐANG CHẠY:** chip dọn 3 phát hiện audit skill giai-đoạn-thiết-kế
+(`task_ea716510`): gỡ `ux-ui-craft` 1.3.1 trùng bản mức máy (kit 1.4.0 là
+nguồn) · thu vai `interactive-prototype` (artifact-platform, PR) ·
+đếm-rồi-gỡ bộ vẽ-mockup-ngoài (taste-skill + img2threejs, sanity counter
+bắt buộc).
+
+**CHỜ CỬA SỔ (đợt 2 — điều kiện: Cổng Bằng chứng NỬA ĐẦU r3 ký, TRƯỚC phiên
+thiết kế nửa sau):** F-J còn lại (6 mục chiều B + khuôn S1 "Hệ sẵn có & chỗ
+sống" + ổ cắm `architecture_sources`) · F-L · F-M. Cửa sổ CHƯA mở: r3 tới
+T21/T22 (trả nợ ranh giới Platform↔Plugin + Canvas=VẬT, 2 quyết định kiến
+trúc vào sổ) — S4 nửa đầu chưa chạy. Dự phòng nếu Gate 2 nửa đầu tới trước
+F-M: Manh soi TAY điều kiện ký #1 (ảnh phễu/shortlist phải in-host) trên thẻ.
+
+**NHÓM 3 bên r3 — kiểm nhánh 07/08: CẢ BA CHƯA LÀM** (gate15 vẫn 0 vết ·
+`pilot-journal.md` chưa mở · frontmatter design-pass vẫn `context:
+standalone` + route proto đã khai tử). Nhắc phiên r3 tại điểm chạm kế
+(trước/tại S4 nửa đầu). Bóng sân Manh: bảng hàng Masteri hạn 08/08 (ngày
+mai) · môi giới thứ 3.
+
+**ĐỢT 3 — nền, không đổi**, một cập nhật: F-A giờ có sẵn ổ cắm đích
+(`discovery.brainstorm_skill` đã ship trong F-K) — thi công F-A là điền ruột
+cho đích đó, không phải đào lại.
