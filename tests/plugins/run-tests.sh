@@ -8879,13 +8879,12 @@ empty = (EV/'hanh-vi-A1-claude-co.md').read_text().split('```bash')[0] + '```bas
 d3, r3 = run_makerecord([(root/s).read_text() for s in SKILLS], {'hanh-vi-A1-claude-co.md': empty})
 assert r3.returncode == 2 and 'A1' in r3.stderr and 'RỖNG' in r3.stderr, \
     f'mutant artifact rong: writer phai exit 2 ghim ten luot (exit={r3.returncode}, stderr={r3.stderr[:120]})'
-# MUTANT 3: lat pair_per_mold cua B1 trong ban sao record -> lech ban writer sinh
-rec2 = json.loads(json.dumps(record))
-[x for x in rec2['runs'] if x['id'] == 'B1'][0]['pair_per_mold'] = True
-regen = json.loads((d/'_acceptance/measure-birth-certificate/evidence/hanh-vi-record.json').read_text())
-bad = [x['id'] for x, y in zip(rec2['runs'], regen['runs']) if x['pair_per_mold'] != y['pair_per_mold']]
-assert bad == ['B1'], 'mutant lat verdict B1 khong bi round-trip vach ra: ' + repr(bad)
-print('P178 MUTANT-OK (doi nguon lech round-trip, artifact rong writer exit 2 ghim ten luot, lat verdict vach dung B1)')
+# (S4-r2, user chon thu-pham-vi) Mutant "lat verdict B1" DA GO: ban cu so
+# record-lat-trong-RAM voi ban regen vua duoc assert bang-nhau o vong DUONG —
+# hang-dung, khong phep do nao chay tren vat bi pha. Bao ve chong-lat-record
+# THAT nam o chinh vong round-trip byte-compare phia tren: sua tay
+# hanh-vi-record.json da commit la lech writer-regen va case do ngay tai do.
+print('P178 MUTANT-OK (doi nguon lech round-trip, artifact rong writer exit 2 ghim ten luot)')
 P178PY
 
 run "P179 [MBC] E6 ledger known-limits: dem tu corpus + bat bien hang + quan he >=" \

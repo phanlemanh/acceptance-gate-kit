@@ -1632,10 +1632,14 @@ mkdir -p "$R/docs"; printf 'notes\n' > "$R/docs/notes.txt"
 git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm docs
 bash "$CHECK" "$R" >/dev/null; check VC03 0 $?
 
-echo "VC04 verified_commit unknown to this clone -> NOTE, not a violation"
+# (18bbe72 — luật pin-phantom upstream từ artifact-platform) fixture này là
+# clone ĐẦY ĐỦ nên pin không tồn tại = pin MA → VIOLATION ghim thông điệp;
+# chỉ clone chứng-minh-được-là-nông mới còn NOTE. Đối chứng dương = VC03 ngay
+# trên (cùng khuôn fixture, pin thật → exit 0).
+echo "VC04 phantom pin trong clone đầy đủ -> VIOLATION ghim 'is a phantom' (hết NOTE câm)"
 R="$T/vc04"; mk_git_repo "$R"; wr_report "$R" deadbeefdeadbeefdeadbeefdeadbeefdeadbeef
-outV="$(bash "$CHECK" "$R" 2>&1)"; check VC04 0 $?
-case "$outV" in *NOTE*feat-vc*) echo "  PASS: VC04-note"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: VC04-note (expected NOTE)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+outV="$(bash "$CHECK" "$R" 2>&1)"; check VC04 1 $?
+case "$outV" in *"is a phantom"*feat-vc*|*feat-vc*"is a phantom"*) echo "  PASS: VC04-phantom"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: VC04-phantom (expected VIOLATION ghim 'is a phantom')"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
 echo "VC05 legacy report without verified_commit in a git repo -> NOTE, clean"
 R="$T/vc05"; mk_git_repo "$R"
