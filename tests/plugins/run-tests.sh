@@ -9384,8 +9384,12 @@ MANIFESTS = ['.claude-plugin/plugin.json', '.codex-plugin/plugin.json',
              'codex/feature-loop-codex/.codex-plugin/plugin.json',
              'plugins/feature-loop-codex/.codex-plugin/plugin.json']
 assert len(MANIFESTS) == 7, 'ma tran khai phai du 7'
+# San >= 2.0.0 (khuon P181): bat tut-ve-1.x nhung song qua bump release ke
+# tiep — P45 bump-thu manifest trong ban sao, suite phai van xanh (bat bien
+# release-invariance cua engine; ban == cung da do o day).
+ver_t = lambda s: tuple(int(x) for x in s.split('.'))
 def measure(vers):
-    return [f'goi {p}: version {v} != 2.0.0' for p, v in vers.items() if v != '2.0.0']
+    return [f'goi {p}: version {v} < 2.0.0' for p, v in vers.items() if ver_t(v) < (2, 0, 0)]
 vers = {p: json.loads((root/p).read_text())['version'] for p in MANIFESTS}
 errs = measure(vers)
 assert not errs, 'ban that do oan: ' + '; '.join(errs)
