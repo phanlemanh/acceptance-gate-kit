@@ -1,10 +1,10 @@
 schema_version: 1
 feature_slug: premerge-ac-line
-# Trạng thái case tại lúc viết hồ sơ (contract HỒI TỐ — xem contract ## Context):
-#   ĐÃ CÓ  : PM13, PM14 (tests/scripts/run-tests.sh), DV5 (additive-only.test.mjs),
-#            GPM18b3 (tests/scripts/run-tests.sh), P30 (mirror)
-#   PHẢI VIẾT: PM15, PM16, PM17 — ba ô của trục B (đường lùi) chưa có case nào.
-#            Chúng là phần việc còn lại của PR #35, không phải mô tả thứ đã chạy.
+# Mọi case đã tồn tại và xanh (tests/scripts 614/0, tests/plugins all passed).
+# PM15/PM16/PM17 — ba ô của trục B (đường lùi) — được viết SAU khi hồ sơ này lần
+# đầu khai chúng là "PHẢI VIẾT". Giữ vết đó ở đây có chủ ý: hồ sơ đã nêu đúng ba
+# ô trống TRƯỚC khi có case, chứ không mô tả lại thứ đã chạy — đó là nửa duy nhất
+# của một contract hồi tố còn giữ được giá trị dự báo.
 evals:
   - id: E1
     criterion: AC-1
@@ -31,14 +31,14 @@ evals:
     criterion: AC-4
     executor: script
     cmd: config:executors.test.scripts
-    expected: "case PM15 (PHẢI VIẾT): bản sao pre-merge-check.sh đặt ở thư mục KHÔNG có lib/ bên cạnh (khuôn GPM18 tái dùng), contract có Dấu (cross-layer) mà evals thiếu cặp → răng VẪN in 'AC-1 is tagged (cross-layer)' và exit khác 0. Đối chứng dương: cùng fixture có lib/ cũng phải đỏ — chứng minh case không xanh vì lý do khác"
+    expected: "case PM15 + PM15-teeth: bản sao pre-merge-check.sh đặt ở thư mục KHÔNG có lib/ bên cạnh (khuôn GPM18 tái dùng), contract mang Dấu cross-layer mà evals thiếu cặp → răng VẪN in 'AC-1 is tagged (cross-layer)' và exit 1. Đối chứng dương PM15b/PM15b-doichung: cùng fixture trên bản CÓ lib/ cũng phải đỏ — không có vế này thì PM15 xanh kể cả khi nó đỏ vì lý do khác hẳn"
     paths: [scripts/pre-merge-check.sh, tests/scripts/run-tests.sh]
 
   - id: E5
     criterion: AC-5
     executor: script
     cmd: config:executors.test.scripts
-    expected: "case PM16 (PHẢI VIẾT): repo fixture có BA slug đều dính đường lùi (không có lib/) → đếm dòng khớp '^NOTE: cross-layer teeth graded with the built-in awk' phải BẰNG 1, không phải 3. Nửa âm: cùng repo có lib/ + node → đếm bằng 0 (đường lùi không chạy thì không được in)"
+    expected: "case PM16-once: repo fixture có BA slug đều dính đường lùi (không có lib/) → đếm dòng khớp '^NOTE: cross-layer teeth graded with the built-in awk' BẰNG 1, không phải 3. Nửa âm PM16b-silent: cùng repo trên bản có lib/ + node → đếm BẰNG 0 — thiếu vế này thì một `echo` vô điều kiện vẫn làm PM16-once xanh"
     paths: [scripts/pre-merge-check.sh, tests/scripts/run-tests.sh]
 
   - id: E6
@@ -52,7 +52,7 @@ evals:
     criterion: AC-7
     executor: script
     cmd: config:executors.test.scripts
-    expected: "case PM17 (PHẢI VIẾT) — mutation: bản sao script bị XOÁ khối đè lib (chỉ còn awk) chạy trên fixture tham chiếu chéo của PM14 → phải ĐỎ đích danh (in 'AC-5 is tagged'). Bản NGUYÊN VẸN xanh trước là đối chứng dương. Không có case này thì 'đã dùng nguồn chung' là khẳng định suông: awk rộng hơn nên đa số fixture cho cùng kết quả ở cả hai đường"
+    expected: "case PM17 — mutation: dòng đè `xl_acs=$xl_from_lib` bị thay bằng no-op `:` (KHÔNG xoá trắng — xoá trắng để lại `then` rỗng, bash từ chối parse, và case sẽ 'đỏ' vì script hỏng chứ không vì mất khối đè: đúng một 0-hit-giả mặc áo mutation, đã dẫm phải khi viết case này). Răng hai vế PM17-mut: bước tiêm chạm được file VÀ bản tiêm vẫn `bash -n` sạch. Rồi PM17-pristine (bản nguyên vẹn SẠCH trên fixture PM14 — đối chứng dương) và PM17-red (bản tiêm in 'AC-5 is tagged'). Không có case này thì 'đã dùng nguồn dùng chung' là khẳng định suông: awk rộng hơn nên đa số fixture cho cùng kết quả ở cả hai đường"
     paths: [scripts/pre-merge-check.sh, tests/scripts/run-tests.sh]
 
   - id: E8
