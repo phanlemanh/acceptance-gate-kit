@@ -46,6 +46,12 @@ const NAV_RULES = {
     verdict: { enum: ['release', 'iterate', 'kill'], required: true, allowEmpty: true },
     stage: { enum: ['scheduled', 'held'], allowEmpty: true },
   },
+  // `verdict` ở đây là enum CỦA CỔNG MÁY — khác hẳn enum release/iterate/kill
+  // của phiên nghiệm thu ngay trên. Khoá theo (FILE, FIELD) là để hai thang
+  // điểm này không bao giờ chấm lẫn nhau (AC-2 workspace-reader-unification).
+  'evidence-report.md': {
+    verdict: { enum: ['pass', 'pending-judgment', 'reject', 'blocked'], required: true },
+  },
 };
 
 // Hai file NÀY là bằng chứng một slug tồn tại. Chỉ có `uat-session.md` mà
@@ -95,15 +101,35 @@ function usesOpportunity(contractTxt, uatTxt) {
   return !(uatTxt != null && frontmatterField(uatTxt, 'verdict'));
 }
 
+// Trạng thái nào TUYÊN đã có bằng chứng thì hồ sơ bằng chứng được tiêu thụ —
+// và khi đó file vắng là hồ sơ hỏng, không phải khoảng trống vô hại (luật
+// khai-xong-mà-thiếu-file, trước sống RIÊNG ở start-scan và pre-merge).
+const EVIDENCE_STATUSES = ['verified', 'signed-off'];
+function usesEvidence(contractTxt) {
+  if (contractTxt == null) return false;
+  return EVIDENCE_STATUSES.includes((frontmatterField(contractTxt, 'status') || '').toLowerCase());
+}
+
+// texts như recordProblem. Trả {file, reason} khi trạng thái khai đã-có-bằng-
+// chứng mà evidence-report.md vắng mặt; null khi lành.
+function missingArtifact(texts) {
+  const c = texts['contract.md'];
+  if (!usesEvidence(c)) return null;
+  if (texts['evidence-report.md'] != null) return null;
+  const st = (frontmatterField(c, 'status') || '').toLowerCase();
+  return { file: 'evidence-report.md', reason: `status ${st} nhưng thiếu evidence-report.md` };
+}
+
 // Nhận NGUYÊN văn 3 file đã đọc, trả đúng tập được tiêu thụ (file bị loại →
 // null). Bên đọc nào cần đọc lười thì gọi thẳng usesUat/usesOpportunity để
 // quyết định có mở file hay không, rồi vẫn đi qua hàm này — một đường duy nhất.
-function consumedTexts({ contract = null, opportunity = null, uat = null }) {
+function consumedTexts({ contract = null, opportunity = null, uat = null, evidence = null }) {
   const u = usesUat(contract) ? uat : null;
   return {
     'contract.md': contract,
     'opportunity.md': usesOpportunity(contract, u) ? opportunity : null,
     'uat-session.md': u,
+    'evidence-report.md': usesEvidence(contract) ? evidence : null,
   };
 }
 
@@ -147,7 +173,11 @@ function navValues(texts) {
 // hai bên đọc cùng một khoá không được cho hai kết luận trái nhau (S4-r15).
 function configList(cfgTxt, key) {
   const lines = String(cfgTxt || '').split('\n');
-  const start = lines.findIndex(l => new RegExp('^\\s{2}' + key + ':\\s*$').test(l));
+  // Dòng khoá được mang comment đuôi (`  t1_skip_globs:   # ghi chú`) — bản
+  // bash của pre-merge đọc được hình dạng này, neo `\s*$` ở đây thì bản JS
+  // trả rỗng và hai bên đọc cùng một khoá cho hai kết luận trái nhau
+  // (bug round 16 product-map-uat-session, Notes của contract kế nhiệm).
+  const start = lines.findIndex(l => new RegExp('^\\s{2}' + key + ':\\s*(#.*)?\\r?$').test(l));
   if (start < 0) return [];
   const out = [];
   for (const line of lines.slice(start + 1)) {
@@ -160,9 +190,27 @@ function configList(cfgTxt, key) {
   return out;
 }
 
+// ── Trạng thái bản đồ sản phẩm — MỘT bảng nhãn cho mọi bên đọc ──────────────
+// Ba bên từng giữ ba chuỗi riêng (product-map --check, bộ quét /start, thân
+// lệnh start.md) nên "đã xoá" ở nơi này là "chưa dựng" ở nơi khác. State suy
+// từ hai tín hiệu máy-kiểm-được:
+//   exists  — PRODUCT-MAP.md có trong cây làm việc
+//   tracked — repo coi bản đồ là PHẢI CÓ: index/lịch-sử git, HOẶC config khai
+//             PRODUCT-MAP.md trong t1_skip_globs (tín hiệu duy nhất sống được
+//             trên checkout nông của CI — không cần lịch sử)
+function mapState({ exists, tracked }) {
+  return exists ? 'dang-co' : (tracked ? 'da-xoa' : 'chua-bat');
+}
+const MAP_LABELS = {
+  'dang-co': 'đang có',
+  'da-xoa': 'PRODUCT-MAP.md đã bị xoá khỏi cây làm việc',
+  'chua-bat': 'repo chưa bật bản đồ sản phẩm',
+};
+
 module.exports = {
   NAV_RULES, NAV_FIELDS, ANCHOR_FILES,
   recordProblem, navValues, fieldProblem,
-  usesUat, usesOpportunity, consumedTexts,
+  usesUat, usesOpportunity, usesEvidence, missingArtifact, consumedTexts,
   readRecord, ioReason, configList,
+  mapState, MAP_LABELS,
 };
