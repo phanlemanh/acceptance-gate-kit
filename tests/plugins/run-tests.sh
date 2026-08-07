@@ -130,7 +130,7 @@ assert "provenance.json" in text
 assert "fidelity pixel-diff" in text
 assert "review-findings.md" in text
 assert "PENDING-JUDGMENT" in text
-assert "time_human_minutes.gate1" in text
+assert "time_human_minutes" in text  # 2.0.0: optional, khong con .gate1 bat buoc
 assert "doer" in text and "grader" in text
 assert "runs" in text and "pass_rate" in text
 assert "baseline" in text
@@ -418,7 +418,7 @@ cmds = Path(sys.argv[1])
 for name in ["acceptance-init", "acceptance-status", "acceptance-card", "approve", "signoff", "acceptance-report"]:
     assert (cmds / f"{name}.md").is_file(), name
 appr = (cmds / "approve.md").read_text()
-for needle in ["approved_by", "time_human_minutes.gate1", "decisions.jsonl", "gate1_skipped", "/acceptance-card"]:
+for needle in ["approved_by", "decisions.jsonl", "gate1_skipped", "/acceptance-card"]:  # 2.0.0: bo needle time_human_minutes.gate1 (khong hoi phut)
     assert needle in appr, needle
 sign = (cmds / "signoff.md").read_text()
 for needle in ["require_human_commit", "human_override", "time_human_minutes.gate2", "pre-merge-check.sh", "own commit"]:
@@ -9211,6 +9211,263 @@ if [ "$P184OK" -eq 1 ]; then
 else
   fail "P184 pin phantom bi chan trong clone day du, pin that van sach"
 fi
+
+# ═══ tai-lap-ceremony-diet (P185–P191) ═══════════════════════════════════════
+# GĐ1 tái lập: toàn subtraction. Mỗi case cặp hai-chiều cùng fixture
+# (MEASURE-BIRTH): DUONG-OK khi vật thật xanh, MUTANT-OK khi phá-bản-sao đỏ
+# ghim thông điệp.
+
+run "P185 [TCD] E1 bo chi dan bat-buoc hoi phut: bang khuon-cam x 7 file, mutation lap tung file" \
+  python3 - "$ROOT" <<'P185PY'
+import sys, pathlib
+root = pathlib.Path(sys.argv[1])
+# <<<TCD-MUST-NOT — bang khuon-cam khai dich danh (AC-1). Optional-mention la
+# hop le; cam la cac cau BAT-BUOC hoi/dien tai cong.
+FORBIDDEN = ['hỏi user số phút', 'Ask how many minutes',
+             'minutes → `time_human_minutes', 'time_human_minutes: {gate1',
+             'provide `time_human_minutes.gate2`',
+             'chưa ghi số phút của người']
+FILES = ['skills/acceptance/references/contract-template.md',
+         'commands/approve.md', 'commands/signoff.md',
+         'codex/acceptance-gate/skills/approve/SKILL.md',
+         'codex/acceptance-gate/skills/signoff/SKILL.md',
+         'feature-loop/skills/feature-loop/SKILL.md',
+         'codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md']
+# TCD-MUST-NOT>>>
+def measure(texts):
+    errs = []
+    scanned = sorted(texts.keys())
+    if scanned != sorted(FILES): errs.append(f'tap quet lech tap khai: {scanned} != {sorted(FILES)}')
+    for f, t in texts.items():
+        for pat in FORBIDDEN:
+            if pat in t: errs.append(f'{f}: con khuon-cam "{pat}"')
+    return errs
+texts = {}
+for f in FILES:
+    p = root/f
+    assert p.exists(), f'file khai khong ton tai: {f}'
+    texts[f] = p.read_text()
+errs = measure(texts)
+assert not errs, 'ban that do oan: ' + '; '.join(errs)
+# doi chung optional-khong-do: mention tuy-chon van con va KHONG bi cam
+assert 'time_human_minutes' in texts['commands/signoff.md'], 'mention optional bien mat — 1a la optional-hoa, khong phai xoa trang'
+print('P185 DUONG-OK')
+hit = 0
+for f in FILES:
+    mut = dict(texts); mut[f] = mut[f] + '\n   - Ask how many minutes Gate 1 took → `time_human_minutes.gate1`.\n'
+    e = measure(mut)
+    assert e and any(f in x for x in e), f'mutant chen khuon-cam vao {f} khong do ghim ten file: ' + repr(e)
+    hit += 1
+assert hit == len(FILES) == 7, 'mutation chua lap du 7 file'
+print('P185 MUTANT-OK (chen khuon-cam vao TUNG file trong 7 -> do ghim dung ten file)')
+P185PY
+
+run "P186 [TCD] E2 nhan tu-khai + KPI tan-suat: chu co mat VA lenh THI HANH ra so" \
+  python3 - "$ROOT" <<'P186PY'
+import re, subprocess, sys, pathlib
+root = pathlib.Path(sys.argv[1])
+FILES = ['commands/acceptance-report.md', 'codex/acceptance-gate/skills/acceptance-report/SKILL.md']
+LABEL = 'tự khai — không đáng tin'
+CMD_RE = re.compile(r"`(git log --format=%H -G'[^']+' -- _acceptance/<slug>/)`")
+def measure(texts):
+    errs = []
+    for f, t in texts.items():
+        if LABEL not in t: errs.append(f'{f}: thieu nhan "{LABEL}"')
+        if not CMD_RE.search(t): errs.append(f'{f}: thieu lenh KPI dem-tu-git')
+    return errs
+texts = {f: (root/f).read_text() for f in FILES}
+errs = measure(texts)
+assert not errs, 'ban that do oan: ' + '; '.join(errs)
+# THI HANH lenh RUT TU chinh chi dan (round-trip: doc noi gi chay nay) tren 1 ho so da ky
+cmd = CMD_RE.search(texts[FILES[0]]).group(1).replace('<slug>', 'measure-birth-certificate')
+r = subprocess.run(cmd, shell=True, cwd=root, capture_output=True, text=True)
+n = len([l for l in r.stdout.splitlines() if l.strip()])
+assert r.returncode == 0 and n >= 1, f'lenh KPI trong chi dan khong chay ra so (exit={r.returncode}, n={n}): {cmd}'
+print(f'P186 DUONG-OK (KPI thi hanh that: measure-birth-certificate = {n} lan nguoi ra tay)')
+mut = dict(texts); mut[FILES[0]] = mut[FILES[0]].replace(LABEL, 'so lieu cu')
+e1 = measure(mut)
+assert e1 and any('nhan' in x for x in e1), 'mutant xoa nhan khong do: ' + repr(e1)
+mut2 = dict(texts); mut2[FILES[1]] = CMD_RE.sub('`git log --broken`', mut2[FILES[1]])
+e2 = measure(mut2)
+assert e2 and any('lenh KPI' in x for x in e2), 'mutant hong cu phap lenh khong do ghim ten lenh: ' + repr(e2)
+print('P186 MUTANT-OK (xoa nhan / hong lenh deu do ghim dung muc)')
+P186PY
+
+run "P187 [TCD] E3 sign-batch: ky lo + tu choi nguyen tu + khong-tu-commit + pre-merge that clean" \
+  bash -c '
+set -u
+R="$(mktemp -d)"; GID="-c user.email=t@t.local -c user.name=tester -c commit.gpgsign=false"
+mkdir -p "$R/src" "$R/_acceptance/alpha" "$R/_acceptance/beta" "$R/_acceptance/gamma"
+git -C "$R" init -q
+printf "schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - \"docs/**\"\n" > "$R/_acceptance/config.yaml"
+printf "code v1\n" > "$R/src/app.js"; printf "#!/bin/sh\nexit 0\n" > "$R/verify.sh"
+for s in alpha beta; do
+  printf -- "---\nschema_version: 1\nfeature: %s\nslug: %s\nrisk_tier: T2\nsurfaces: [api]\nstatus: verified\napproved_by: Manh Phan\n---\n" "$s" "$s" > "$R/_acceptance/$s/contract.md"
+done
+printf -- "---\nschema_version: 1\nfeature: gamma\nslug: gamma\nrisk_tier: T2\nsurfaces: [api]\nstatus: approved\napproved_by: Manh Phan\n---\n" > "$R/_acceptance/gamma/contract.md"
+git -C "$R" add -A >/dev/null && git $GID -C "$R" commit -qm impl
+VC="$(git -C "$R" rev-parse HEAD)"
+for s in alpha beta; do
+  printf -- "---\nschema_version: 1\nfeature_slug: %s\nverdict: PASS\nverified_commit: %s\nhuman_signoff:\n---\n\n## Evidence\n- eval: E1\n  run_id: %s-E1-001\n  exit_code: 0\n  verifier: verify.sh\n  verified_at: 2026-08-08\n" "$s" "$VC" "$s" > "$R/_acceptance/$s/evidence-report.md"
+done
+git -C "$R" add -A >/dev/null && git $GID -C "$R" commit -qm evidence
+N0="$(git -C "$R" log --oneline | wc -l | tr -d " ")"
+# AM 1 (nguyen tu): lo chua gamma(approved - chua verified) -> tu choi ca lo, khong ho so nao bi ky
+outR="$(node "'"$ROOT"'/scripts/sign-batch.mjs" --name "Manh Phan" --root "$R" --slugs alpha,gamma 2>&1)"; rc=$?
+case "$rc:$outR" in 2:*gamma*) : ;; *) echo "  FAIL: P187-atomic (tu choi phai exit 2 ghim gamma; rc=$rc)"; exit 1 ;; esac
+grep -q "human_signoff: \"" "$R/_acceptance/alpha/evidence-report.md" && { echo "  FAIL: P187-atomic (alpha bi ky du lo hong)"; exit 1; }
+# DUONG: ky lo 2 ho so verified
+outS="$(node "'"$ROOT"'/scripts/sign-batch.mjs" --name "Manh Phan" --root "$R" 2>&1)" || { echo "  FAIL: P187-sign ($outS)"; exit 1; }
+grep -q "human_signoff: \"Manh Phan" "$R/_acceptance/alpha/evidence-report.md" || { echo "  FAIL: P187-fields"; exit 1; }
+grep -q "^status: signed-off" "$R/_acceptance/beta/contract.md" || { echo "  FAIL: P187-status"; exit 1; }
+N1="$(git -C "$R" log --oneline | wc -l | tr -d " ")"
+[ "$N0" = "$N1" ] || { echo "  FAIL: P187-nocommit (helper tu commit: $N0 -> $N1)"; exit 1; }
+case "$outS" in *"git add"*"git commit"*) : ;; *) echo "  FAIL: P187-cmd (thieu lenh commit cho nguoi)"; exit 1 ;; esac
+# reader THAT: nguoi chay lenh commit -> pre-merge clean tren fixture da ky
+( cd "$R" && eval "$(printf "%s" "$outS" | grep "git add")" ) >/dev/null 2>&1 || { echo "  FAIL: P187-humancommit"; exit 1; }
+bash "'"$ROOT"'/scripts/pre-merge-check.sh" "$R" >/dev/null 2>&1 || { echo "  FAIL: P187-premerge (reader that khong nhan chu ky helper dien)"; exit 1; }
+echo "P187 DUONG-OK (ky lo + nguyen tu + khong-tu-commit + pre-merge that clean)"
+# MUTANT: mo khoa tu-commit trong BAN SAO helper -> phep do vach "helper tu commit"
+R2="$(mktemp -d)"; cp -R "$R/." "$R2/"
+for s in alpha beta; do
+  python3 - "$R2/_acceptance/$s" <<PYX
+import sys,re,pathlib
+d=pathlib.Path(sys.argv[1])
+c=d/"contract.md"; c.write_text(re.sub(r"^status: signed-off$","status: verified",c.read_text(),flags=re.M))
+r=d/"evidence-report.md"; r.write_text(re.sub(r"^human_signoff: \".*\"$","human_signoff:",r.read_text(),flags=re.M))
+PYX
+done
+( cd "$R2" && git $GID add -A >/dev/null && git $GID commit -qm reset )
+MUT="$(mktemp -d)/sign-batch.mjs"; cp "'"$ROOT"'/scripts/sign-batch.mjs" "$MUT"
+printf "\nconst { execSync } = await import(\"node:child_process\");\nexecSync(\`git -C \"\${root}\" add -A\`);\nexecSync(\`git -C \"\${root}\" -c user.email=m@m -c user.name=m commit -qm auto\`);\n" >> "$MUT"
+M0="$(git -C "$R2" log --oneline | wc -l | tr -d " ")"
+node "$MUT" --name "Manh Phan" --root "$R2" >/dev/null 2>&1
+M1="$(git -C "$R2" log --oneline | wc -l | tr -d " ")"
+[ "$M1" -gt "$M0" ] || { echo "  FAIL: P187-mutant (buoc tiem tu-commit khong doi duoc git log — mutant chua song)"; exit 1; }
+echo "P187 MUTANT-OK (ban sao helper tu commit -> git log doi, phep do vach: helper tu commit)"
+'
+
+run "P188 [TCD] E4 CHANGELOG 2.0.0 du 4 mon + cau chuan-bang-chung" \
+  python3 - "$ROOT" <<'P188PY'
+import sys, pathlib
+root = pathlib.Path(sys.argv[1])
+ITEMS = [('bo dien phut', 'Bỏ điền phút'), ('ky gop', 'Ký gộp'),
+         ('re-pin theo release', 'Re-pin theo release'), ('doi so version', 'Đổi số version')]
+GUARD = 'chuẩn bằng chứng giữ nguyên'
+def measure(t):
+    errs = []
+    if '## 2.0.0' not in t: return ['CHANGELOG thieu muc 2.0.0']
+    for name, needle in ITEMS:
+        if needle not in t: errs.append(f'muc 2.0.0 thieu mon: {name}')
+    if GUARD not in t: errs.append('thieu cau chuan-bang-chung-giu-nguyen')
+    return errs
+t = (root/'CHANGELOG.md').read_text()
+errs = measure(t)
+assert not errs, 'ban that do oan: ' + '; '.join(errs)
+print('P188 DUONG-OK')
+for name, needle in ITEMS:
+    e = measure(t.replace(needle, '(đã lược)'))
+    assert e and any(name in x for x in e), f'mutant xoa mon {name} khong do ghim ten mon: ' + repr(e)
+e = measure(t.replace(GUARD, ''))
+assert any('chuan-bang-chung' in x for x in e), 'mutant xoa cau guard khong do'
+print('P188 MUTANT-OK (xoa tung mon + cau guard deu do ghim ten)')
+P188PY
+
+run "P189 [TCD] E5 7 manifest == 2.0.0, mutation tren ca MIRROR" \
+  python3 - "$ROOT" <<'P189PY'
+import json, sys, pathlib
+root = pathlib.Path(sys.argv[1])
+MANIFESTS = ['.claude-plugin/plugin.json', '.codex-plugin/plugin.json',
+             'codex/acceptance-gate/.codex-plugin/plugin.json',
+             'plugins/acceptance-gate/.codex-plugin/plugin.json',
+             'feature-loop/.claude-plugin/plugin.json',
+             'codex/feature-loop-codex/.codex-plugin/plugin.json',
+             'plugins/feature-loop-codex/.codex-plugin/plugin.json']
+assert len(MANIFESTS) == 7, 'ma tran khai phai du 7'
+def measure(vers):
+    return [f'goi {p}: version {v} != 2.0.0' for p, v in vers.items() if v != '2.0.0']
+vers = {p: json.loads((root/p).read_text())['version'] for p in MANIFESTS}
+errs = measure(vers)
+assert not errs, 'ban that do oan: ' + '; '.join(errs)
+print('P189 DUONG-OK (7/7 manifest 2.0.0)')
+mut = dict(vers); mut['plugins/feature-loop-codex/.codex-plugin/plugin.json'] = '1.27.0'
+e1 = measure(mut)
+assert e1 and any('plugins/feature-loop-codex' in x for x in e1), 'mutant ha MIRROR khong do ghim ten goi: ' + repr(e1)
+mut2 = dict(vers); mut2['.claude-plugin/plugin.json'] = '1.39.0'
+e2 = measure(mut2)
+assert e2 and any('.claude-plugin' in x for x in e2), 'mutant ha nguon khong do: ' + repr(e2)
+print('P189 MUTANT-OK (ha mirror + nguon deu do ghim dung ten goi)')
+P189PY
+
+run "P190 [TCD] E6 chinh sach re-pin-theo-release o 4 cho" \
+  python3 - "$ROOT" <<'P190PY'
+import re, sys, pathlib
+root = pathlib.Path(sys.argv[1])
+CHECKS = [
+  ('GUIDE.md', r'<!-- <<<REPIN-RELEASE-POLICY -->[\s\S]*?MỘT chiến dịch tại mốc RELEASE[\s\S]*?<!-- REPIN-RELEASE-POLICY>>> -->'),
+  ('CLAUDE.md', r'Re-pin theo RELEASE[\s\S]{0,400}?REPIN-RELEASE-POLICY'),
+  ('feature-loop/skills/feature-loop/SKILL.md', r'REPIN-RELEASE-POLICY'),
+  ('codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md', r'REPIN-RELEASE-POLICY'),
+]
+def measure(texts):
+    return [f'{f}: thieu doan chinh sach re-pin-theo-release'
+            for (f, pat) in CHECKS if not re.search(pat, texts[f])]
+texts = {f: (root/f).read_text() for f, _ in CHECKS}
+errs = measure(texts)
+assert not errs, 'ban that do oan: ' + '; '.join(errs)
+print('P190 DUONG-OK')
+for f, _ in CHECKS:
+    mut = dict(texts); mut[f] = mut[f].replace('REPIN-RELEASE-POLICY', 'REPIN-OLD')
+    e = measure(mut)
+    assert e and any(f in x for x in e), f'mutant xoa chinh sach o {f} khong do ghim ten file: ' + repr(e)
+print('P190 MUTANT-OK (xoa tung cho -> do ghim dung ten file)')
+P190PY
+
+run "P191 [TCD] E7 consumer-sim: config rut tu acceptance-init.md -> card -> ky bang sign-batch -> pre-merge clean" \
+  bash -c '
+set -u
+SIM="$(mktemp -d)"; GID="-c user.email=t@t.local -c user.name=tester -c commit.gpgsign=false"
+mkdir -p "$SIM/src" "$SIM/_acceptance/sim-mau"
+git -C "$SIM" init -q
+# Buoc 1: config RUT TU khoi mau cua chinh commands/acceptance-init.md (round-trip tu chi dan that)
+python3 - "'"$ROOT"'/commands/acceptance-init.md" "$SIM/_acceptance/config.yaml" <<PYX
+import re, sys, pathlib
+t = pathlib.Path(sys.argv[1]).read_text()
+m = re.search(r"\x60\x60\x60yaml\n([\s\S]*?)\x60\x60\x60", t)
+assert m, "buoc config: KHONG rut duoc khoi config mau tu acceptance-init.md"
+cfg = m.group(1).replace("<from 2e>", "docs/**")
+pathlib.Path(sys.argv[2]).write_text(cfg)
+PYX
+[ $? -eq 0 ] || { echo "  FAIL: P191-config"; exit 1; }
+printf "code v1\n" > "$SIM/src/app.js"; printf "#!/bin/sh\nexit 0\n" > "$SIM/verify.sh"
+printf -- "---\nschema_version: 1\nfeature: sim mau\nslug: sim-mau\nrisk_tier: T2\nsurfaces: [api]\nstatus: draft\napproved_by: Manh Phan\n---\n\n## Criteria\n- AC-1: Given nguoi dung, When bam nut, Then don hang duoc luu.\n\n## Out of scope\n- khong gi\n" > "$SIM/_acceptance/sim-mau/contract.md"
+# Buoc 2 (Cong 1): card render tu contract DRAFT - the Cong 1 in tieu chi
+CARD1="$(node "'"$ROOT"'/scripts/gate-card.js" --root "$SIM" --slug sim-mau 2>&1)" || { echo "  FAIL: P191-card"; exit 1; }
+case "$CARD1" in *"don hang duoc luu"*) : ;; *) echo "  FAIL: P191-card-noi-dung (the Cong 1 khong mang tieu chi mau)"; exit 1 ;; esac
+sed -i.bak "s/^status: draft$/status: verified/" "$SIM/_acceptance/sim-mau/contract.md" && rm -f "$SIM/_acceptance/sim-mau/contract.md.bak"
+git -C "$SIM" add -A >/dev/null && git $GID -C "$SIM" commit -qm impl
+VC="$(git -C "$SIM" rev-parse HEAD)"
+printf -- "---\nschema_version: 1\nfeature_slug: sim-mau\nverdict: PASS\nverified_commit: %s\nhuman_signoff:\n---\n\n## Evidence\n- eval: E1\n  run_id: sim-mau-E1-001\n  exit_code: 0\n  verifier: verify.sh\n  verified_at: 2026-08-08\n" "$VC" > "$SIM/_acceptance/sim-mau/evidence-report.md"
+git -C "$SIM" add -A >/dev/null && git $GID -C "$SIM" commit -qm evidence
+# Buoc 3: ky bang CHINH sign-batch (cam chep tay chu ky — round-trip 1b)
+OUT="$(node "'"$ROOT"'/scripts/sign-batch.mjs" --name "Manh Phan" --root "$SIM" 2>&1)" || { echo "  FAIL: P191-sign ($OUT)"; exit 1; }
+( cd "$SIM" && eval "$(printf "%s" "$OUT" | grep "git add")" ) >/dev/null 2>&1 || { echo "  FAIL: P191-humancommit"; exit 1; }
+# Buoc 4: pre-merge clean tren repo nhap
+bash "'"$ROOT"'/scripts/pre-merge-check.sh" "$SIM" >/dev/null 2>&1 || { echo "  FAIL: P191-premerge"; exit 1; }
+echo "P191 DUONG-OK (config-tu-chi-dan -> card -> sign-batch -> pre-merge clean)"
+# MUTANT: moi khoi config mau khoi BAN SAO command -> buoc config phai do ghim ten buoc
+MUTCMD="$(mktemp -d)/acceptance-init.md"
+sed "s/\x60\x60\x60yaml/\x60\x60\x60text/" "'"$ROOT"'/commands/acceptance-init.md" > "$MUTCMD"
+ERRM="$(python3 - "$MUTCMD" /dev/null <<PYX 2>&1
+import re, sys, pathlib
+t = pathlib.Path(sys.argv[1]).read_text()
+m = re.search(r"\x60\x60\x60yaml\n([\s\S]*?)\x60\x60\x60", t)
+assert m, "buoc config: KHONG rut duoc khoi config mau tu acceptance-init.md"
+PYX
+)" && { echo "  FAIL: P191-mutant (moi khoi ma van rut duoc)"; exit 1; }
+case "$ERRM" in *"buoc config"*) : ;; *) echo "  FAIL: P191-mutant-msg (khong ghim ten buoc)"; exit 1 ;; esac
+echo "P191 MUTANT-OK (moi khoi config -> do ghim: buoc config)"
+'
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
