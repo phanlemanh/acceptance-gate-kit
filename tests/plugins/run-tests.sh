@@ -2022,7 +2022,7 @@ assert ver(".claude-plugin/plugin.json") >= (1, 29, 0), "acceptance-gate chua bu
 assert ver("feature-loop/.claude-plugin/plugin.json") >= (1, 22, 0), "feature-loop chua bump toi 1.22.0"
 assert ver("codex/feature-loop-codex/.codex-plugin/plugin.json") >= (1, 22, 0), "feature-loop-codex chua bump toi 1.22.0"
 # Description phai nhac hanh vi moi (keyword chuc nang, on dinh qua cac ban sau):
-for kw in ("opportunity-template", "DECISION-DIAGRAM-SURFACES"):
+for kw in ("opportunity-template", "DECISION-DIAGRAM-SURFACES", "MAP_LABELS", "UAT-COPY-PROCEDURE"):
     assert kw in desc(".claude-plugin/plugin.json"), f"desc acceptance-gate thieu {kw}"
 d = desc("feature-loop/.claude-plugin/plugin.json")
 for kw in ("ui_standards_skill", "design-pass", "GOAL-TEMPLATE", "LOOP-PICTURE-CLAUSE", "REPIN-TEMPLATE", "carry-plan.mjs"):
@@ -4336,7 +4336,7 @@ function doiChieu(nhan, { c, o, u, evidence = null, giuNguyenCay = false }) {
   if (!giuNguyenCay) {
     fs.rmSync(dir, { recursive: true, force: true }); fs.mkdirSync(dir, { recursive: true });
     dat("contract.md", c); dat("opportunity.md", o); dat("uat-session.md", u);
-    if (evidence) dat("evidence-report.md", evidence);
+    dat("evidence-report.md", evidence);
   }
   const scan = JSON.parse(execFileSync("node", [SCAN, "--root", tmp], { encoding: "utf8" }));
   const scanHong = scan.broken.some(b => b.slug === "x");
@@ -4356,12 +4356,10 @@ function doiChieu(nhan, { c, o, u, evidence = null, giuNguyenCay = false }) {
 for (const [cn, ct] of Object.entries(CONTRACT))
 for (const [on, ot] of Object.entries(OPP))
 for (const [un, ut] of Object.entries(UAT)) {
-  // Trục evidence-report.md CỐ Ý nằm ngoài phép đo này: luật chung hiện phủ ba
-  // hồ sơ (contract/opportunity/uat) và bộ quét còn giữ luật RIÊNG cho
-  // evidence-report — chính lỗ mà hợp đồng workspace-reader-unification (AC-1)
-  // ghi nợ. Để trục đó lọt vào đây thì phép đo đỏ vì một việc ĐÃ khai là ngoài
-  // phạm vi, che mất các lệch THẬT của ba trục đang đo. Nên: mọi fixture
-  // `verified` được cấp một evidence-report LÀNH MẠNH.
+  // Trục evidence-report nay ĐÃ vào bảng luật (workspace-reader-unification
+  // AC-1): chặng 1 giữ evidence lành cho fixture `verified` để các trục khác
+  // không bị nhiễu; hình dạng hỏng của evidence đo ở chặng 2 (từ-vựng, suy từ
+  // NAV_RULES) và chặng 2b (khai-xong-mà-thiếu-file).
   doiChieu(`contract=${cn} opp=${on} uat=${un}`, { c: ct, o: ot, u: ut,
     evidence: cn === "verified" ? "---\nverdict: PASS\nhuman_signoff:\n---\n" : null });
 }
@@ -4403,22 +4401,53 @@ const NGU_CANH = {
   "uat-session.md": [
     { ten: "da-ky", khac: { c: "---\nstatus: signed-off\n---\n", o: "---\nstage: decided\ndecision: build\n---\n" } },
   ],
+  // evidence-report tieu thu o implemented/verified (luat chung usesEvidence)
+  "evidence-report.md": [
+    { ten: "dang-cham", khac: { c: "---\nstatus: implemented\n---\n" } },
+    { ten: "cho-ky", khac: { c: "---\nstatus: verified\n---\n" } },
+  ],
 };
-const KHOA = { "contract.md": "c", "opportunity.md": "o", "uat-session.md": "u" };
+const KHOA = { "contract.md": "c", "opportunity.md": "o", "uat-session.md": "u", "evidence-report.md": "e" };
 let nChang2 = 0;
+// Rang cua AC-1: them mot file vao bang luat ma khong khai ngu canh tieu thu
+// o day la phep do DO ngay, keu dung ten — khong phai TypeError vo danh.
+for (const file of Object.keys(NAV_RULES))
+  if (!NGU_CANH[file])
+    die(`bang luat NAV_RULES co file "${file}" nhung phep do chua co ngu canh tieu thu cho no — them ca truoc khi them luat`);
 for (const file of Object.keys(NAV_RULES))
 for (const nc of NGU_CANH[file])
 for (const { nhan, vals } of tichField(file)) {
   const txt = dungFm(vals);
   const arg = { ...nc.khac, [KHOA[file]]: txt };
   // Doi chung: ngu canh nay CO tieu thu file dang do khong? Luat chung tra loi.
-  const daDoc = consumedTexts({ contract: arg.c ?? null, opportunity: arg.o ?? null, uat: arg.u ?? null });
+  const daDoc = consumedTexts({ contract: arg.c ?? null, opportunity: arg.o ?? null,
+    uat: arg.u ?? null, evidence: arg.e ?? null });
   if (daDoc[file] == null)
     die(`ngu canh "${nc.ten}" KHONG tieu thu ${file} — chang 2 do vao khoang khong`);
+  const evMacDinh = /status: verified/.test(arg.c || "") ? "---\nverdict: PASS\nhuman_signoff:\n---\n" : null;
   doiChieu(`${file} @${nc.ten} ${nhan.join(" ")}`, {
     c: arg.c ?? null, o: arg.o ?? null, u: arg.u ?? null,
-    evidence: /status: verified/.test(arg.c || "") ? "---\nverdict: PASS\nhuman_signoff:\n---\n" : null });
+    evidence: arg.e !== undefined ? arg.e : evMacDinh });
   nChang2++;
+}
+
+// ── Chang 2b: khai-xong-ma-thieu-file — hai chieu, ca hai reader ──────────
+// verified thieu evidence-report la HONG (missingArtifact); implemented thieu
+// la LANH (chua cham lan nao, buoc ke S4). Do CA HAI chieu de luat khong the
+// bi noi rong (moi trang thai vang deu hong) hay thu hep (khong ai doi file).
+let nChang2b = 0;
+{
+  const hongV = doiChieu("evidence vang @verified", { c: "---\nstatus: verified\n---\n", o: null, u: null, evidence: null });
+  if (!hongV) lech.push("[khai-xong-thieu-file] verified thieu evidence ma KHONG hong");
+  else {
+    const scan = JSON.parse(execFileSync("node", [SCAN, "--root", tmp], { encoding: "utf8" }));
+    const b = scan.broken.find(x => x.slug === "x");
+    if (!b || !/thiếu evidence-report/.test(b.reason))
+      lech.push(`[khai-xong-thieu-file] ly do sai: ${b && b.reason}`);
+  }
+  const hongI = doiChieu("evidence vang @implemented", { c: "---\nstatus: implemented\n---\n", o: null, u: null, evidence: null });
+  if (hongI) lech.push("[khai-xong-thieu-file] implemented chua cham lan nao ma bi goi la hong");
+  nChang2b = 2;
 }
 
 // ── Chang 3: DOC DUOC — ho so co mat nhung khong mo duoc ──────────────────
@@ -4481,7 +4510,7 @@ for (const { file, truot, cay } of CA_IO) {
 if (lech.length) die(`${lech.length}/${n} to hop LECH:\n  ` + lech.slice(0, 8).join("\n  "));
 // Doi chung DUONG: phep do phai co ca hai mau, khong duoc toan hong hay toan lanh
 if (!hong || !lanhManh) die(`phep do mot mau: hong=${hong} lanh=${lanhManh} — khong phan biet duoc gi`);
-console.log(`P123 OK (${n} to hop = ${nChang1} tieu-thu + ${nChang2} tu-vung + ${nChang3} doc-duoc, ${hong} hong / ${lanhManh} lanh, hai reader dong y tat ca)`);
+console.log(`P123 OK (${n} to hop = ${nChang1} tieu-thu + ${nChang2} tu-vung + ${nChang2b} khai-xong + ${nChang3} doc-duoc, ${hong} hong / ${lanhManh} lanh, hai reader dong y tat ca)`);
 P123JS
 
 # ── P124: khoa RONG khong duoc nuot dong ke (lop loi cua reader chung) ─────
@@ -4997,6 +5026,11 @@ HINH = [
   'risk_tiers:\n  t1_skip_globs:\n    - "docs/**"\n    - "PRODUCT-MAP.md"\n  t3_paths:\n    - "src/**"\n',
   'risk_tiers:\n  t1_skip_globs: []\n',
   '',
+  # key-line-comment — bug round 16 product-map-uat-session: dong KHOA mang
+  # comment duoi, ban bash doc duoc con configList tra rong. RED case Notes
+  # cua contract workspace-reader-unification dan them.
+  'risk_tiers:\n  t1_skip_globs:   # ban do may sinh\n    - "PRODUCT-MAP.md"\n',
+  'risk_tiers:\n  t1_skip_globs:  \n    - "PRODUCT-MAP.md"\n',
 ]
 lech, co = [], 0
 with tempfile.TemporaryDirectory() as td:
@@ -8293,6 +8327,146 @@ if errs:
     print('\n'.join('  ' + x for x in errs)); sys.exit(1)
 print('P170 OK (4 lượt, quan hệ trích-dẫn tách bạch giữa hai nhánh)')
 P170PY
+
+echo "P171 (AC-3,AC-5,AC-7) nhan ban do MOT bang: --check va /start cung chu, hai dang cay, --root sai chet to"
+run "P171 MAP_LABELS quan he 3 ben + 2 dang cay + guard --root" \
+  python3 - "$ROOT" <<'P171PY'
+import json, subprocess, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+errs = []
+
+def run(cmd, cwd=None):
+    return subprocess.run(cmd, capture_output=True, text=True, cwd=cwd)
+
+# Bang nhan trong lib la NGUON — doc no ra de doi chieu (quan he, khong hardcode
+# chuoi trong test: test chep chuoi la them mot ban sao thu tu).
+labels = json.loads(run(["node", "-e",
+    "const l=require(process.argv[1]);console.log(JSON.stringify(l.MAP_LABELS))",
+    str(root / "lib/workspace-record.js")]).stdout)
+for k in ("dang-co", "da-xoa", "chua-bat"):
+    if k not in labels: errs.append(f"MAP_LABELS thieu state {k}")
+
+CFG_BAT = 'schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "PRODUCT-MAP.md"\n'
+CFG_TAT = 'schema_version: 1\n'
+
+def dung_cay(td, cfg, co_git):
+    ws = Path(td) / "ws"; (ws / "_acceptance" / "x").mkdir(parents=True)
+    (ws / "_acceptance" / "config.yaml").write_text(cfg)
+    (ws / "_acceptance" / "x" / "contract.md").write_text("---\nstatus: draft\n---\n")
+    if co_git:
+        run(["git", "init", "-q"], cwd=ws)
+    return ws
+
+# ── da-xoa: hai dang cay (co git KHONG lich su ~ checkout nong, va khong git)
+# phai cho CUNG nhan tu tin hieu config (daBat) — AC-7 ────────────────────────
+for co_git in (True, False):
+    with tempfile.TemporaryDirectory() as td:
+        ws = dung_cay(td, CFG_BAT, co_git)
+        r = run(["node", str(root / "scripts/product-map.mjs"), "--root", str(ws), "--check"])
+        if r.returncode != 1:
+            errs.append(f"da-xoa (git={co_git}): --check exit {r.returncode}, phai 1")
+        if labels["da-xoa"] not in (r.stderr + r.stdout):
+            errs.append(f"da-xoa (git={co_git}): --check khong in nhan cua bang: {r.stderr.strip()[:80]}")
+        scan = json.loads(run(["node", str(root / "scripts/start-scan.mjs"), "--root", str(ws)]).stdout)
+        if scan["map"]["state"] != "da-xoa" or scan["map"]["label"] != labels["da-xoa"]:
+            errs.append(f"da-xoa (git={co_git}): /start noi {scan['map']} — khac bang nhan")
+
+# ── chua-bat: config khong khai → --check exit 0 nhung KHONG im lang, va /start
+# cung chu (AC-3) ─────────────────────────────────────────────────────────────
+with tempfile.TemporaryDirectory() as td:
+    ws = dung_cay(td, CFG_TAT, False)
+    r = run(["node", str(root / "scripts/product-map.mjs"), "--root", str(ws), "--check"])
+    if r.returncode != 0:
+        errs.append(f"chua-bat: --check exit {r.returncode}, phai 0 (duong doc-cu hop le)")
+    if labels["chua-bat"] not in (r.stdout + r.stderr):
+        errs.append(f"chua-bat: --check khong in nhan cua bang: {r.stdout.strip()[:80]}")
+    scan = json.loads(run(["node", str(root / "scripts/start-scan.mjs"), "--root", str(ws)]).stdout)
+    if scan["map"]["state"] != "chua-bat" or scan["map"]["label"] != labels["chua-bat"]:
+        errs.append(f"chua-bat: /start noi {scan['map']} — khac bang nhan")
+
+# ── dang-co: doi chung duong ─────────────────────────────────────────────────
+with tempfile.TemporaryDirectory() as td:
+    ws = dung_cay(td, CFG_BAT, False)
+    r = run(["node", str(root / "scripts/product-map.mjs"), "--root", str(ws)])
+    if r.returncode != 0: errs.append(f"khong ve duoc ban do doi chung: {r.stderr[:80]}")
+    scan = json.loads(run(["node", str(root / "scripts/start-scan.mjs"), "--root", str(ws)]).stdout)
+    if scan["map"]["state"] != "dang-co":
+        errs.append(f"dang-co: /start noi {scan['map']['state']}")
+    r2 = run(["node", str(root / "scripts/product-map.mjs"), "--root", str(ws), "--check"])
+    if r2.returncode != 0: errs.append(f"dang-co: --check do oan: {r2.stdout[:80]}{r2.stderr[:80]}")
+
+# ── AC-5: --root sai phai CHET TO exit 2, moi loi mot thong diep rieng ───────
+r = run(["node", str(root / "scripts/product-map.mjs"), "--root", "/khong/ton/tai/dau", "--check"])
+if r.returncode != 2 or "không tồn tại" not in r.stderr:
+    errs.append(f"--root sai: exit {r.returncode}, stderr {r.stderr.strip()[:80]} — phai exit 2 + neu duong dan")
+with tempfile.TemporaryDirectory() as td:
+    f = Path(td) / "file.txt"; f.write_text("x")
+    r = run(["node", str(root / "scripts/product-map.mjs"), "--root", str(f), "--check"])
+    if r.returncode != 2 or "không phải thư mục" not in r.stderr:
+        errs.append(f"--root tro file: exit {r.returncode} — phai exit 2 + noi khong phai thu muc")
+
+if errs:
+    print("\n".join("  " + e for e in errs)); sys.exit(1)
+print("P171 OK (3 state x 3 ben doc cung bang nhan, 2 dang cay, --root sai chet to 2 kieu)")
+P171PY
+
+echo "P172 (AC-4) khuon UAT round-trip: thi hanh thu tuc chep trong khoi moc -> ho so LANH; chep sai -> HONG"
+run "P172 UAT-COPY-PROCEDURE rut-tu-khuon, chep dung lanh / chep ca rao hong" \
+  python3 - "$ROOT" <<'P172PY'
+import json, re, subprocess, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+errs = []
+tpl = (root / "skills/acceptance/references/uat-session-template.md").read_text()
+
+# Thu tuc chep phai SONG trong khoi co moc — van xuoi ngoai moc khong rut duoc
+for mk, want in (("UAT-COPY-PROCEDURE", 1), ("UAT-FRONTMATTER-TEMPLATE", 1)):
+    n_open, n_close = tpl.count(f"<<<{mk}"), tpl.count(f"{mk}>>>")
+    if (n_open, n_close) != (want, want):
+        errs.append(f"moc {mk}: mo {n_open} / dong {n_close} (phai {want})")
+
+if not errs:
+    proc = tpl.split("<<<UAT-COPY-PROCEDURE -->", 1)[1].split("<!-- UAT-COPY-PROCEDURE>>>", 1)[0]
+    # Khoi thu tuc phai neu du cac buoc may-kiem-duoc: dung chep rao/chu thich,
+    # bat dau bang ---, xoa dong huong dan
+    for phrase in ("ĐỪNG chép", "BẮT ĐẦU ngay ở dòng `---`", "Xoá các dòng hướng dẫn"):
+        if phrase not in proc:
+            errs.append(f"thu tuc chep thieu buoc: {phrase!r}")
+
+    # THI HANH thu tuc (round-trip rut-tu-writer-doc-bang-reader):
+    khuon = tpl.split("<<<UAT-FRONTMATTER-TEMPLATE -->", 1)[1].split("<!-- UAT-FRONTMATTER-TEMPLATE>>>", 1)[0]
+    yaml_body = khuon.split("```yaml", 1)[1].split("```", 1)[0].strip("\n")
+    dien = {"{slug}": "x", "{feature}": "thu", "{owner}": "a@b.c", "{stage}": "held",
+            "{verdict}": "release", "{decided_by}": "a", "{decided_at}": "2026-08-07T00:00:00Z",
+            "{gateUAT_minutes}": "5"}
+    filled = yaml_body
+    for k, v in dien.items(): filled = filled.replace(k, v)
+    filled = re.sub(r"[ \t]*#[^\n]*", "", filled)  # buoc 3: xoa ghi chu
+    dung = filled if filled.endswith("\n") else filled + "\n"
+    sai = "```yaml\n" + dung + "```\n"          # chep CA hang rao — dieu thu tuc cam
+
+    def reader_noi_gi(txt):
+        out = subprocess.run(["node", "-e",
+            "const l=require(process.argv[1]);"
+            "const p=l.recordProblem({'contract.md':'---\\nstatus: signed-off\\n---\\n','opportunity.md':null,'uat-session.md':process.argv[2],'evidence-report.md':null});"
+            "console.log(JSON.stringify(p))",
+            str(root / "lib/workspace-record.js"), txt], capture_output=True, text=True)
+        return json.loads(out.stdout)
+
+    p_dung = reader_noi_gi(dung)
+    if p_dung is not None:
+        errs.append(f"chep DUNG thu tuc ma reader van goi hong: {p_dung}")
+    if not dung.startswith("---"):
+        errs.append("ban chep dung khong bat dau bang --- (thu tuc noi doi)")
+    p_sai = reader_noi_gi(sai)
+    if p_sai is None:
+        errs.append("chep CA hang rao ma reader van goi lanh — thu tuc cam mot dieu vo hai, khong co gi de do")
+
+if errs:
+    print("\n".join("  " + e for e in errs)); sys.exit(1)
+print("P172 OK (thu tuc trong khoi moc, thi hanh that: chep dung lanh, chep ca rao hong)")
+P172PY
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
