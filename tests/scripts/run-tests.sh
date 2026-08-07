@@ -319,6 +319,81 @@ mk_xl "$P/pm14" feat-xl14 '- AC-1: Given app, When submit, Then saved via API.
 outPM14="$(bash "$CHECK" "$P/pm14" 2>&1)"; check PM14 0 $?
 case "$outPM14" in *"AC-5 is tagged"*) echo "  FAIL: PM14-xref (tham chiếu chéo bị chấm như tiêu chí = VIOLATION GIẢ)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: PM14-xref"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
 
+# ── PM15/PM16/PM17: trục ĐƯỜNG LÙI (thiếu node/lib) + phép đo có răng ──────────
+# Ba ô này trước đây KHÔNG có case nào: suite chỉ chạy trên máy có node + lib,
+# nên nhánh awk-đường-lùi và khối đè lib đều chưa từng bị đo. Hồ sơ
+# _acceptance/premerge-ac-line/ (AC-4, AC-5, AC-7) đòi đúng ba ô này.
+PMROOT="$(cd "$HERE/../.." && pwd)"
+
+# PM15 (AC-4) — thiếu lib/ac-line.js thì răng VẪN phải cắn. Đây là điều kiện bắt
+# buộc để giữ khuôn awk lại: bỏ awk cho "một nguồn duy nhất" sẽ TẮT răng chặn
+# trên máy thiếu node — chiều hỏng tệ nhất cho một cổng CHẶN.
+# Bản sao script đặt cạnh một thư mục KHÔNG có lib/ (khuôn GPFAKE tái dùng).
+PMNOLIB="$T/pmnolib"; mkdir -p "$PMNOLIB/scripts"
+cp "$CHECK" "$PMNOLIB/scripts/pre-merge-check.sh"
+mk_xl "$P/pm15" feat-xl15 '- AC-1 **(cross-layer)**: Given app, When submit order, Then order saved via API.' '  - id: E1
+    criterion: AC-1
+    executor: ui-check
+    expected: "toast hien"'
+echo "PM15 thiếu lib/ac-line.js -> răng cross-layer VẪN cắn (không tắt im lặng)"
+outPM15="$(bash "$PMNOLIB/scripts/pre-merge-check.sh" "$P/pm15" 2>&1)"; check PM15 1 $?
+case "$outPM15" in *"AC-1 is tagged (cross-layer)"*) echo "  PASS: PM15-teeth"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: PM15-teeth (đường lùi làm răng TẮT — cổng chặn mất hiệu lực trên máy thiếu node)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+# Đối chứng dương: CÙNG fixture trên bản có lib/ cũng phải đỏ. Không có vế này
+# thì PM15 xanh cả khi nó đỏ vì một lý do khác hẳn (fixture hỏng, slug sai…).
+outPM15b="$(bash "$CHECK" "$P/pm15" 2>&1)"; check PM15b 1 $?
+case "$outPM15b" in *"AC-1 is tagged (cross-layer)"*) echo "  PASS: PM15b-doichung"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: PM15b-doichung (đường lib không đỏ trên cùng fixture)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+# PM16 (AC-5) — đường lùi phải CÓ TIẾNG, và đúng MỘT tiếng cho cả lần chạy.
+# Bài học của cả loạt sửa này là sự lệch ÂM THẦM; một đường lùi im lặng dựng lại
+# đúng cái bẫy đó, còn mỗi slug một dòng thì thành nhiễu và người ta học cách bỏ qua.
+mk_xl "$P/pm16" feat-xl16a '- AC-1: Given app, When submit, Then saved via API.' '  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "ok"'
+mk_xl "$P/pm16" feat-xl16b '- AC-1: Given app, When pay, Then charged via API.' '  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "ok"'
+mk_xl "$P/pm16" feat-xl16c '- AC-1: Given app, When refund, Then refunded via API.' '  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "ok"'
+echo "PM16 ba slug cùng dính đường lùi -> ĐÚNG MỘT dòng NOTE cho cả lần chạy"
+outPM16="$(bash "$PMNOLIB/scripts/pre-merge-check.sh" "$P/pm16" 2>&1)"
+n16="$(printf '%s\n' "$outPM16" | grep -c '^NOTE: cross-layer teeth graded with the built-in awk')"
+same PM16-once 1 "$n16"
+# Nửa âm: có node + lib thì đường lùi KHÔNG chạy, nên KHÔNG được in dòng nào.
+# Thiếu vế này, một `echo` vô điều kiện vẫn làm PM16-once xanh.
+outPM16b="$(bash "$CHECK" "$P/pm16" 2>&1)"
+n16b="$(printf '%s\n' "$outPM16b" | grep -c '^NOTE: cross-layer teeth graded with the built-in awk')"
+same PM16b-silent 0 "$n16b"
+
+# PM17 (AC-7) — mutation: XOÁ đúng dòng đè kết quả của lib, giữ nguyên mọi thứ
+# khác (node + lib vẫn đủ). Không có case này thì "đã dùng nguồn dùng chung" là
+# lời khẳng định, không phải phép đo: khuôn awk rộng hơn nên đa số fixture cho
+# cùng kết quả ở cả hai đường, và suite vẫn xanh kể cả khi khối đè bị xoá.
+# Tiêm bằng NO-OP `:`, KHÔNG xoá trắng dòng: xoá trắng để lại `then` rỗng, bash
+# từ chối parse, và case sẽ "đỏ" vì script hỏng chứ không vì khối đè mất tác
+# dụng — đúng một 0-hit-giả mặc áo mutation. Vì thế răng dưới đây kiểm HAI vế:
+# (a) bước tiêm chạm được file, (b) bản tiêm VẪN là bash hợp lệ. Thiếu (b) thì
+# "khác file" là lời khẳng định rỗng.
+PMMUT="$T/pmmut"; mkdir -p "$PMMUT/scripts" "$PMMUT/lib"
+cp "$PMROOT"/lib/*.js "$PMMUT/lib/" 2>/dev/null
+sed 's/^      xl_acs="\$xl_from_lib"$/      :/' "$CHECK" > "$PMMUT/scripts/pre-merge-check.sh"
+echo "PM17 mutation vô hiệu khối đè lib -> phép đo phải ĐỎ đích danh (chống 0-hit-giả)"
+if cmp -s "$CHECK" "$PMMUT/scripts/pre-merge-check.sh"; then
+  echo "  FAIL: PM17-mut (bước tiêm KHÔNG chạm được file — case sẽ xanh mà không kiểm gì)"; FAIL_COUNT=$((FAIL_COUNT+1))
+elif ! bash -n "$PMMUT/scripts/pre-merge-check.sh" 2>/dev/null; then
+  echo "  FAIL: PM17-mut (bản tiêm không phải bash hợp lệ — nó sẽ 'đỏ' vì hỏng cú pháp, không vì mất khối đè)"; FAIL_COUNT=$((FAIL_COUNT+1))
+else
+  echo "  PASS: PM17-mut (bước tiêm chạm file VÀ bản tiêm vẫn parse được)"; PASS_COUNT=$((PASS_COUNT+1))
+  # Đối chứng dương: bản NGUYÊN VẸN phải sạch trên cùng fixture trước đã.
+  outPM17a="$(bash "$CHECK" "$P/pm14" 2>&1)"
+  case "$outPM17a" in *"AC-5 is tagged"*) echo "  FAIL: PM17-pristine (bản nguyên vẹn đã đỏ sẵn — phép đo không chứng minh gì)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: PM17-pristine"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
+  outPM17="$(bash "$PMMUT/scripts/pre-merge-check.sh" "$P/pm14" 2>&1)"
+  case "$outPM17" in *"AC-5 is tagged"*) echo "  PASS: PM17-red"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: PM17-red (vô hiệu khối đè mà cổng vẫn sạch -> khối đè KHÔNG phải thứ đang quyết định kết quả)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+fi
+
 echo ""
 echo "--- eval-coverage-lint.js ---"
 LINT="$HERE/../../scripts/eval-coverage-lint.js"
