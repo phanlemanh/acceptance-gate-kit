@@ -1,0 +1,87 @@
+# evals — tai-lap-ceremony-diet
+# Mọi case mới tuân MEASURE-BIRTH-CLAUSE: cặp hai-chiều cùng fixture (vật lành
+# xanh + phá-bản-sao đỏ ghim thông điệp); case suite plugins, khối khai TCD-CASE-IDS.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới: bảng KHUÔN-CẤM khai đích danh trong khối marker (chuỗi
+      hỏi-phút hai harness + khối time_human_minutes bắt-buộc của template);
+      quét tập 7 file khai — quan hệ khai↔quét là ĐẲNG THỨC tập hợp; mention
+      dạng tuỳ-chọn có đối chứng KHÔNG-đỏ; mutation chèn khuôn-cấm LẶP TRÊN
+      TỪNG file trong tập → đỏ ghim đúng tên file; đối chứng dương xanh.
+    paths: [skills/acceptance/references/contract-template.md, commands/approve.md, commands/signoff.md, feature-loop/skills/feature-loop/SKILL.md, codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md, codex/acceptance-gate/skills/approve/SKILL.md, codex/acceptance-gate/skills/signoff/SKILL.md, tests/plugins/run-tests.sh]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới: commands/acceptance-report.md chứa nguyên văn nhãn "tự khai —
+      không đáng tin" cho dữ liệu phút cũ VÀ định nghĩa KPI tần-suất-sự-kiện-
+      cần-người (đếm commit chạm dòng human-owned qua git log trên
+      _acceptance/<slug>/) VÀ định nghĩa THI HÀNH ĐƯỢC: chạy đúng lệnh trong
+      chỉ dẫn trên chính kit với 1 hồ sơ đã ký → số nguyên ≥ 1 kèm tên slug;
+      mutation xoá nhãn / xoá định nghĩa / hỏng cú pháp lệnh trong bản sao
+      → đỏ ghim tên mục hoặc tên lệnh; đối chứng dương xanh.
+    paths: [commands/acceptance-report.md, tests/plugins/run-tests.sh]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới: fixture repo code-sinh trong lần chạy có 2 hồ sơ verified +
+      1 hồ sơ implemented; chạy sign-batch.mjs một lệnh → 2 hồ sơ verified
+      được điền human_signoff + signed-off, hồ sơ implemented bị TỪ CHỐI ghim
+      tên slug, stdout in MỘT lệnh git commit đích danh và tuyệt đối KHÔNG có
+      lượt git commit nào được helper tự chạy (git log fixture không đổi);
+      SAU KHI ký lô: chạy pre-merge-check.sh THẬT trên fixture → clean (reader
+      thật xác nhận khuôn chữ ký — hồ sơ fixture sinh từ khuôn
+      evidence-report-template.md, cấm viết tay khớp khuôn helper đọc);
+      mutation trong bản sao helper (mở khoá tự-commit) → đỏ ghim "helper tu
+      commit"; đối chứng dương xanh.
+    paths: [scripts/sign-batch.mjs, tests/plugins/run-tests.sh]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới: CHANGELOG.md có mục 2.0.0 đủ 4 món (phút · ký gộp · re-pin
+      release · version) + câu chuẩn-bằng-chứng-giữ-nguyên; mutation xoá một
+      món khỏi bản sao → đỏ ghim tên món; đối chứng dương xanh.
+    paths: [CHANGELOG.md, tests/plugins/run-tests.sh]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới (khuôn P181): danh sách 7 manifest khai đích danh (assert
+      ĐẾM == 7) — acceptance-gate: .claude-plugin + .codex-plugin + codex/ +
+      mirror plugins/; feature-loop: .claude-plugin + codex twin + mirror
+      plugins/ — đọc từ nguồn sống đều == 2.0.0; mutation hạ version chạy
+      trên cả manifest MIRROR chứ không chỉ nguồn → đỏ ghim đúng tên gói;
+      đối chứng dương xanh.
+    paths: [.claude-plugin/plugin.json, .codex-plugin/plugin.json, codex/acceptance-gate/.codex-plugin/plugin.json, plugins/acceptance-gate/.codex-plugin/plugin.json, feature-loop/.claude-plugin/plugin.json, codex/feature-loop-codex/.codex-plugin/plugin.json, plugins/feature-loop-codex/.codex-plugin/plugin.json, tests/plugins/run-tests.sh]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới: GUIDE.md + CLAUDE.md có đoạn chính sách re-pin-theo-release
+      (khuôn chuỗi có mốc), SKILL feature-loop ×2 trỏ về chính sách; mutation
+      xoá đoạn ở một chỗ trong bản sao → đỏ ghim tên file; đối chứng dương
+      xanh.
+    paths: [GUIDE.md, CLAUDE.md, feature-loop/skills/feature-loop/SKILL.md, codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md, tests/plugins/run-tests.sh]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới: dựng repo nháp code-sinh; config.yaml RÚT từ khối mẫu trong
+      commands/acceptance-init.md (round-trip từ chỉ dẫn thật); contract mẫu
+      → gate-card render → chữ ký hồ sơ mẫu do CHÍNH sign-batch điền (cấm
+      chép tay human_signoff — round-trip 1b↔sim) → pre-merge-check clean:
+      cả chuỗi exit 0, card chứa tiêu chí mẫu; mutation moi khối config mẫu
+      khỏi bản sao command → đỏ ghim tên bước; đối chứng dương xanh.
+    paths: [commands/acceptance-init.md, scripts/gate-card.js, scripts/pre-merge-check.sh, tests/plugins/run-tests.sh]
