@@ -130,7 +130,7 @@ assert "provenance.json" in text
 assert "fidelity pixel-diff" in text
 assert "review-findings.md" in text
 assert "PENDING-JUDGMENT" in text
-assert "time_human_minutes" in text  # 2.0.0: optional, khong con .gate1 bat buoc
+assert "time_human_minutes.gate1" in text
 assert "doer" in text and "grader" in text
 assert "runs" in text and "pass_rate" in text
 assert "baseline" in text
@@ -418,7 +418,7 @@ cmds = Path(sys.argv[1])
 for name in ["acceptance-init", "acceptance-status", "acceptance-card", "approve", "signoff", "acceptance-report"]:
     assert (cmds / f"{name}.md").is_file(), name
 appr = (cmds / "approve.md").read_text()
-for needle in ["approved_by", "decisions.jsonl", "gate1_skipped", "/acceptance-card"]:  # 2.0.0: bo needle time_human_minutes.gate1 (khong hoi phut)
+for needle in ["approved_by", "time_human_minutes.gate1", "decisions.jsonl", "gate1_skipped", "/acceptance-card"]:
     assert needle in appr, needle
 sign = (cmds / "signoff.md").read_text()
 for needle in ["require_human_commit", "human_override", "time_human_minutes.gate2", "pre-merge-check.sh", "own commit"]:

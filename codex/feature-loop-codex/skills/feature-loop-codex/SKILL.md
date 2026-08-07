@@ -366,8 +366,9 @@ from gap-probe.md; absent file / probe-failed → yellow flag, non-blocking).
 The card is presentation only; contract and evals remain the source of truth.
 Also provide the full design summary, design-reference provenance when present,
 contract, and AC-to-eval mapping. On approval, update `approved_by` and
-`approved_at`, then append the Gate-1 seal. Do NOT ask for gate minutes
-(`time_human_minutes` is optional — record only if the human volunteers it).
+`approved_at`, then append the Gate-1 seal. Do NOT ask for gate minutes —
+`time_human_minutes.gate1` / `time_human_minutes.gate2` are OPTIONAL keys,
+recorded only when the human volunteers them.
 
 If the user wants the machine-owned segment S2→S4 to continue unattended,
 suggest the native Codex `/goal` command with an objective that ends at
