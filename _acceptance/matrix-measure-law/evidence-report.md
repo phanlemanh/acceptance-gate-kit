@@ -199,3 +199,7 @@ sha: 4383b814def31b4627eb290d3e0ea688ca80887f · suites: 5 lệnh exit 0
 ### Re-pin lần 8 — 2026-08-07, do hợp nhất hai nhánh (dọn nợ đo-lường + ổ cắm brainstorm) — engine đổi ở cả hai phía
 run_id: repin-20260807-merge-teeth-socket-lane1
 sha: 5d20c246f526b312962f2e4f167e48975ac25986 · suites: 6 lệnh exit 0
+
+### Re-pin lần 9 — 2026-08-07, do engine đổi ở vòng stop-patching-law (mệnh đề dừng-vá vào 2 bản chỉ dẫn + bộ kiểm P168–P170)
+run_id: repin-20260807-stop-patching-law-lane1
+sha: 6bd11f7554effe75a9b1e8c8686a43634e45ec3e · suites: 6 lệnh exit 0
