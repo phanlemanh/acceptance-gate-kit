@@ -47,6 +47,11 @@ violations=0
 # Bật khi lưới giữ-chỗ nổ ít nhất một lần; dùng để in ĐÚNG MỘT dòng cảnh báo
 # về phạm vi hẹp của chính lưới đó ở cuối lần chạy.
 NARROW_NET_SEEN=""
+# Bật khi răng cross-layer phải chấm bằng khuôn awk nội bộ vì thiếu node hoặc
+# lib/ac-line.js. Răng VẪN chạy (awk rộng hơn nên không rụng dòng nào), nhưng đó
+# là một định nghĩa "dòng criterion" khác với ba consumer JS — in đúng một dòng ở
+# cuối lần chạy để chỗ lệch có tiếng, thay vì âm thầm như trước.
+AC_LINE_FALLBACK_SEEN=""
 
 # CI evidence re-checker shipped alongside this script (needs ../lib/evidence-core.js).
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -557,6 +562,39 @@ for dir in "$ACC"/*/; do
   # content, not a boundary. Exiting on any heading truncated the scan and every
   # AC after the first sub-heading went untagged (teeth silently off).
   xl_acs="$(awk '/^#/ && !/^###/ {insec=0} tolower($0) ~ /^##[[:space:]]+criteria/{insec=1; next} insec && tolower($0) ~ /^[[:space:]]*[-*].*\(cross-layer\)/ { if (match($0, /AC-[0-9]+/)) print substr($0, RSTART, RLENGTH) }' "$contract" | sort -u)"
+  # "Thế nào là một dòng criterion" có MỘT nguồn: lib/ac-line.js — cùng nơi
+  # gate-card.js, eval-coverage-lint.js và evidence-page.js đọc. Khi có node +
+  # lib, kết quả của nó ĐÈ khuôn awk ở trên; khuôn awk ở lại làm đường lùi cho
+  # máy thiếu node (cùng nếp fail-open có tiếng với gap-probe/recheck-evidence).
+  #
+  # Vì sao KHÔNG xoá awk đi cho gọn: nó RỘNG hơn cả ba khuôn JS nên không rụng
+  # dòng nào — bỏ nó là tự tay tắt răng chặn trên máy thiếu node, đúng chiều hỏng
+  # tệ nhất cho một cổng CHẶN. (Luật diff-chỉ-thêm của DV5 cũng cấm sửa dòng cũ.)
+  # Cái awk KHÔNG làm được, và đây là lý do có khối này: nó không phân biệt được
+  # dòng THAM CHIẾU CHÉO (`- **AC-5, AC-9 chưa có gì** (cross-layer)` là văn xuôi
+  # trong Notes) với một tiêu chí thật, nên nó chấm oan và chặn merge nhầm;
+  # parseAC loại đúng dạng đó bằng AC_XREF. Nó cũng đóng section ở h1 trong khi
+  # lib/md-section.js coi h1 là nội dung.
+  AC_LINE_LIB="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)/lib/ac-line.js"
+  if [ -f "$AC_LINE_LIB" ] && command -v node >/dev/null 2>&1; then
+    if xl_from_lib="$(AGK_CONTRACT="$contract" node -e '
+        const { parseAC } = require(process.argv[1]);
+        const { section } = require(process.argv[2]);
+        const t = require("fs").readFileSync(process.env.AGK_CONTRACT, "utf8");
+        const out = new Set();
+        for (const l of section(t, "Criteria")) {
+          const a = parseAC(l);
+          if (a && /\(cross-layer\)/i.test(a.gwt)) out.add(a.id);
+        }
+        process.stdout.write([...out].sort().join("\n"));
+      ' "$AC_LINE_LIB" "$(dirname "$AC_LINE_LIB")/md-section.js" 2>/dev/null)"; then
+      xl_acs="$xl_from_lib"
+    else
+      AC_LINE_FALLBACK_SEEN=1
+    fi
+  else
+    AC_LINE_FALLBACK_SEEN=1
+  fi
   if [ -n "$xl_acs" ]; then
     if [ ! -f "${dir}evals.yaml" ]; then
       echo "NOTE [$slug]: cross-layer criteria declared but no evals.yaml — pairing unverifiable (fail-open)"
@@ -963,6 +1001,10 @@ if [ "$LEDGER_ENABLED" -eq 1 ]; then
     echo "NOTE: VIOLATION [ledger] là lỗi NỘI TẠI của cổng pre-merge (một khối luật bị trượt qua hoặc sổ lệch) — KHÔNG phải lỗi trong thay đổi của bạn. Bước kế tiếp: báo maintainer của kit kèm TOÀN BỘ output lần chạy này; đừng sửa feature của bạn để né nó."
     exit 2
   fi
+fi
+
+if [ -n "$AC_LINE_FALLBACK_SEEN" ]; then
+  echo "NOTE: cross-layer teeth graded with the built-in awk pattern, not lib/ac-line.js (node or the lib was unavailable). The teeth still fire — the awk form is WIDER than the shared parser, so it drops no criterion — but it does not reject cross-reference bullets and it closes the Criteria section at an H1, so a blocking finding reported above may be spurious. Install node / vendor lib/ac-line.js to grade on the same definition the rest of the kit uses."
 fi
 
 if [ -n "$NARROW_NET_SEEN" ]; then
