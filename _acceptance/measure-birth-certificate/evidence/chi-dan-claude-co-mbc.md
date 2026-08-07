@@ -1,0 +1,17 @@
+1. Mặc định: thực thi plan TUẦN TỰ trong main loop (theo `superpowers:executing-plans` hoặc subagent-driven nếu đang theo skill đó). Quy ước verify của repo (CLAUDE.md) THẮNG default của skill con nếu xung đột (vd repo cấm test framework → verify per-task = build/typecheck/smoke của repo). Buộc đổi hướng so với plan giữa chừng (plan không khớp thực tế) → append ngay 1 entry `fix`/`descope` vào decisions.jsonl (xem "Sổ quyết định") — đây là entry provisional, card Gate 2 sẽ trình để phê.
+   <!-- <<<MEASURE-BIRTH-CLAUSE -->
+   **Một phép đo MỚI (case suite, eval trong evals.yaml, rule/check trong
+   script) chỉ được tính XONG khi đi kèm cặp case hai-chiều trên CÙNG một
+   fixture:** vật lành → thước xanh (đối chứng dương), phá vật thật trong bản
+   sao → thước đỏ với THÔNG ĐIỆP GHIM (tên mốc/case/bất biến — không chỉ exit
+   code). Thiếu cặp = task CHƯA XONG — verify per-task của task đó phải chứa
+   lượt phá-thử. Khuôn đầy đủ + mẫu sống: `references/measure-birth.md` của
+   gói acceptance-gate (nạp qua resolve-plugin.mjs). Vì sao: màu xanh của một
+   phép đo chưa-từng-đỏ không phân biệt được "vật lành" với "thước chưa bao
+   giờ chạy" — fixture hỏng, cp lỗi, exit 127 đều cho cùng một màu xanh.
+   <!-- MBC-CORE: pair-same-fixture + pinned-message + not-done-without-pair; objects: suite-case, eval, rule-script -->
+   <!-- MEASURE-BIRTH-CLAUSE>>> -->
+2. Plan có ≥2 task `independent: true` → gom các task đó, invoke Workflow:
+   `Workflow({ scriptPath: '<WORKFLOWS_DIR>/execute-parallel.js', args: { planPath: '<abs plan path>', repoRoot: '<abs repo root>', tasks: [{ id, title, summary, files, verifyCmd }], models: <feature_loop.models nếu có, như S4> } })` (WORKFLOWS_DIR xem ghi chú đầu file; script chỉ dùng `models.executor` — default kế thừa model phiên)
+   Xong: merge các branch worktree về feature branch (task failed → tự fix tuần tự trong main loop). Ngay khi Workflow trả về: chạy usage report (xem "Đo model/token per run").
+3. Kết thúc S3 (mọi task xong + verify per-task pass): set contract `status: implemented`, rồi **dispatch Workflow S4 NGAY trong cùng lượt**. KHÔNG tự chạy evals trong main loop — nhưng cũng KHÔNG dừng chờ người ở ranh giới này: doer ≠ grader được thoả bởi agent TƯƠI của Workflow S4, không phải bởi một lượt hỏi người.

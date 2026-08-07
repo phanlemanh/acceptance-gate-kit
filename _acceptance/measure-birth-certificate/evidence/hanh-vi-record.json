@@ -1,0 +1,11 @@
+{
+  "note": "Record 4 lượt đóng vai AC-5 (2026-08-07). Tín hiệu phân biệt do máy quét lại được từ chính bài làm (suite round-trip): same_fixture_derivation = bản-hỏng được SINH TỪ bản-lành trong cùng lượt (grep -v/sed từ path lành sang path hỏng) — đúng yêu cầu 'phá vật thật trong BẢN SAO cùng fixture' của mệnh đề; two_direction + pinned_message cả 4 lượt đều có (nền năng lực sẵn — khuôn không nhận công phần đó, xem nuance).",
+  "nuance": "Cả 2 lượt bản-gỡ vẫn viết đủ hai chiều + ghim thông điệp. Khác biệt ĐO ĐƯỢC của mệnh đề nằm ở HÌNH cặp: bản-có 2/2 phá-bản-sao-cùng-fixture kèm bước kiểm-tiêm; bản-gỡ 2/2 dựng hai fixture độc lập (hình 'khai sinh giả' mà khuôn cấm). 'Sinh đủ theo khuôn' dưới đây chấm theo định nghĩa của mệnh đề (pair_per_mold), không phải theo có-đủ-hai-chiều.",
+  "runs": [
+    {"id": "A1", "harness": "claude", "variant": "co", "artifact": "hanh-vi-A1-claude-co.md", "completed": true, "two_direction": true, "pinned_message": true, "same_fixture_derivation": true, "pair_per_mold": true, "quote": "grep -v '^slug:' fixture/slug-ok.contract.md > fixture/slug-missing.contract.md"},
+    {"id": "A2", "harness": "codex", "variant": "co", "artifact": "hanh-vi-A2-codex-co.md", "completed": true, "two_direction": true, "pinned_message": true, "same_fixture_derivation": true, "pair_per_mold": true, "quote": "grep -v '^slug:' \"$sc_dir/contract.md\" > \"$sc_dir/contract-broken.md\""},
+    {"id": "B1", "harness": "claude", "variant": "khong", "artifact": "hanh-vi-B1-claude-khong.md", "completed": true, "two_direction": true, "pinned_message": true, "same_fixture_derivation": false, "pair_per_mold": false, "quote": "hai heredoc độc lập co-slug.md / thieu-slug.md"},
+    {"id": "B2", "harness": "codex", "variant": "khong", "artifact": "hanh-vi-B2-codex-khong.md", "completed": true, "two_direction": true, "pinned_message": true, "same_fixture_derivation": false, "pair_per_mold": false, "quote": "hai heredoc độc lập with-slug.md / without-slug.md"}
+  ],
+  "verdict": {"co_pair_per_mold": "2/2", "khong_pair_per_mold": "0/2", "completed": "4/4"}
+}
