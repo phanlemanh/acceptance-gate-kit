@@ -125,11 +125,13 @@ function parseACs(contractText) {
   for (const line of sectionLines(contractText, /^#{1,6}\s+Criteria\b/i)) {
     if (acLine) {
       // parseAC() tự loại cross-reference (`**AC-5, AC-9 chưa có gì**`) và tự
-      // tính judgment chặt hơn khuôn cũ (nhãn đọc lỏng, thân bài chỉ nhận tag
+      // tính CẢ HAI Dấu theo cùng một luật (nhãn đọc lỏng, thân bài chỉ nhận tag
       // đúng chữ, code span không tính) — một tiêu chí TRÍCH DẪN `(judgment)`
-      // không còn tự hạ cấp chính nó thành human-only.
+      // hay `(cross-layer)` không còn bị chấm như tiêu chí MANG Dấu đó.
+      // crossLayer trước đây dò tại chỗ bằng regex trần trên `gwt`, nên hồ sơ
+      // nào GIẢI THÍCH Dấu cross-layer đều tự bắn W4 giả (#36).
       const p = acLine.parseAC(line);
-      if (p) acs.push({ id: p.id, text: p.gwt, judgment: p.judgment, crossLayer: /\(cross-layer\)/i.test(p.gwt) });
+      if (p) acs.push({ id: p.id, text: p.gwt, judgment: p.judgment, crossLayer: p.crossLayer });
       continue;
     }
     const m = line.match(AC_LINE_NARROW_FALLBACK);
