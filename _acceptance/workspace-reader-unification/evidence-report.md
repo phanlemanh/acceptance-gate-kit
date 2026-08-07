@@ -1,5 +1,3 @@
-# Evidence Report: workspace-reader-unification
-
 ---
 schema_version: 2
 feature_slug: workspace-reader-unification
@@ -12,6 +10,9 @@ bypass_used: false
 verified_commit: 0d9845f6f5dada87dc9f90c97d78aeff51ae5128
 human_signoff:
 ---
+
+# Evidence Report: workspace-reader-unification
+
 
 Round 1: 18 eval máy (E1-E11, E13-E19) qua `bash tests/plugins/run-tests.sh` và 1 eval máy (E12) qua `node scripts/product-map.mjs --root . --check` đều thoát mã sạch (zero) — `failed_evals` rỗng, không lệnh nào rớt. Bốn suite hồi quy còn lại (`tests/scripts`, `tests/hooks`, `tests/workflows`, `sync-plugin-packages.sh --check`) cũng exit 0, không gắn eval nào của contract này (regression-guard bình thường). Không có eval executor `judgment` nào trong bộ 19 eval của round này, nên không có mục UNCERTAIN chờ người. Toàn bộ 19 eval xanh trên CẢ HEAD lẫn baseline (diffBase) — xem cảnh báo không-phân-biệt ở mục Analyst bên dưới, verdict tổng vẫn PASS vì mọi eval đã pass đúng nghĩa exit-code + nội dung expected, nhưng người ký nên đọc mục Analyst trước khi ký.
 
