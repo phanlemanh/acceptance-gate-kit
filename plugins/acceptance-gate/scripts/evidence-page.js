@@ -42,6 +42,8 @@ const clean = s => String(s == null ? '' : s).replace(/["']/g, '').replace(/\s*#
 function frontmatter(t) { const m = t.match(/^---\r?\n([\s\S]*?)\r?\n---/); const o = {}; if (m) for (const l of m[1].split('\n')) { const mm = l.match(/^(\w+)\s*:\s*(.*)$/); if (mm) o[mm[1]] = mm[2].trim(); } return o; }
 // Ranh giới section: dùng chung bảng marker của lib/md-section.js (một nguồn).
 const { section } = require(path.join(__dirname, '..', 'lib', 'md-section.js'));
+// Dòng criterion: dùng chung parseAC của lib/ac-line.js — cùng lý do, một nguồn.
+const { parseAC } = require(path.join(__dirname, '..', 'lib', 'ac-line.js'));
 const cleanLines = arr => arr.filter(l => l.trim() && !/^\s*#/.test(l));
 
 const rfm = frontmatter(report), cfm = frontmatter(contract);
@@ -54,9 +56,16 @@ const enforcement = clean(rfm.enforcement_mode);
 const bypass = clean(rfm.bypass_used).toLowerCase();
 const reason = (rfm.reason || '').replace(/^["']|["']$/g, '').trim();
 
-// criteria text from contract
+// criteria text from contract — qua parseAC (lib/ac-line.js), KHÔNG khuôn riêng.
+// Khuôn cũ ở đây là bản sao thứ BA và hẹp nhất trong ba (bullet phải là `-`, dấu
+// tách phải là `:`), nên nó rụng nhiều hơn cả eval-coverage-lint: một nhãn chen
+// giữa id và dấu hai chấm (`- AC-14 **(cross-layer)**: …`) không khớp, và dòng 170
+// khi đó in MỖI cái id trần. Người ký Cổng 2 nhìn thấy "AC-14" mà không thấy nó
+// đòi gì — mất đúng phần chữ để đối chiếu bằng chứng. parseAC cũng tự bỏ tag
+// (judgment) nên `.replace()` tay ở đây không cần nữa (và nó giữ được code span,
+// thứ replace thô làm hỏng).
 const critText = {};
-for (const l of section(contract, 'Criteria')) { const m = l.match(/^\s*-\s*(AC-\d+)\s*:\s*(.+)$/); if (m && !critText[m[1]]) critText[m[1]] = m[2].replace(/\(judgment\)/i, '').trim(); }
+for (const l of section(contract, 'Criteria')) { const p = parseAC(l); if (p && !critText[p.id]) critText[p.id] = p.gwt; }
 
 // per-eval summary table rows
 const rows = [];
