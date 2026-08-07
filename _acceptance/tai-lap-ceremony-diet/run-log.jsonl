@@ -1,0 +1,8 @@
+{"ts":"2026-08-07T22:41:26Z","sha":"d7cd21c0a03bd3fb2d6625ef8e79ffd3c04a4089","round":1,"evalId":"E1","run_id":"minted-tai-lap-ceremony-diet-E1-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T22:41:26Z","sha":"d7cd21c0a03bd3fb2d6625ef8e79ffd3c04a4089","round":1,"evalId":"E2","run_id":"minted-tai-lap-ceremony-diet-E2-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T22:41:26Z","sha":"d7cd21c0a03bd3fb2d6625ef8e79ffd3c04a4089","round":1,"evalId":"E3","run_id":"minted-tai-lap-ceremony-diet-E3-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T22:41:26Z","sha":"d7cd21c0a03bd3fb2d6625ef8e79ffd3c04a4089","round":1,"evalId":"E4","run_id":"minted-tai-lap-ceremony-diet-E4-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T22:41:26Z","sha":"d7cd21c0a03bd3fb2d6625ef8e79ffd3c04a4089","round":1,"evalId":"E5","run_id":"minted-tai-lap-ceremony-diet-E5-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T22:41:26Z","sha":"d7cd21c0a03bd3fb2d6625ef8e79ffd3c04a4089","round":1,"evalId":"E6","run_id":"minted-tai-lap-ceremony-diet-E6-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T22:41:26Z","sha":"d7cd21c0a03bd3fb2d6625ef8e79ffd3c04a4089","round":1,"evalId":"E7","run_id":"minted-tai-lap-ceremony-diet-E7-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T22:41:26Z","sha":"d7cd21c0a03bd3fb2d6625ef8e79ffd3c04a4089","round":1,"kind":"baseline","evals_hash":"730b3cb335033c4938b679e09a4019c56ea58b0ca22c4b5a632e6a93959497da","non_discriminating":[]}

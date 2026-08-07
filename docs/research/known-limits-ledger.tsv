@@ -107,3 +107,7 @@ workspace-reader-unification#1	workspace-reader-unification	medium	khac	song			C
 workspace-reader-unification#2	workspace-reader-unification	medium	khac	song			MAP_LABELS 'da-xoa' asserts a deletion that never happened for a freshly opted-in repo
 workspace-reader-unification#3	workspace-reader-unification	low	khac	song			start-scan runs mapTracked git probes even when PRODUCT-MAP.md exists and the result cannot affect state
 measure-birth-certificate#1	measure-birth-certificate	low	khac	song			PM17 nuốt lỗi cp lib (case có thể xanh mà không đo khối đè) — đề xuất r4, chờ người quyết Cổng 2; dead-var SRC r1 đã xử known-limits trong Notes contract
+tai-lap-ceremony-diet#1	tai-lap-ceremony-diet	?	khac	song			Đề xuất r1 chờ người quyết Cổng 2 (chi tiết trong review-findings.md của hồ sơ)
+tai-lap-ceremony-diet#2	tai-lap-ceremony-diet	?	khac	song			Đề xuất r1 chờ người quyết Cổng 2 (chi tiết trong review-findings.md của hồ sơ)
+tai-lap-ceremony-diet#3	tai-lap-ceremony-diet	?	khac	song			Đề xuất r1 chờ người quyết Cổng 2 (chi tiết trong review-findings.md của hồ sơ)
+tai-lap-ceremony-diet#4	tai-lap-ceremony-diet	?	khac	song			Đề xuất r1 chờ người quyết Cổng 2 (chi tiết trong review-findings.md của hồ sơ)
