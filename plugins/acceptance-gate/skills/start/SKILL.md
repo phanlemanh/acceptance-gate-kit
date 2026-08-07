@@ -82,9 +82,14 @@ ritual itself.
 
 4. **ONE letter/line-number question** — never a second question. After the
    human picks → hand off to the target ritual:
-   - A gate → the `acceptance-card` skill for that slug; a `gia-tri` gate goes
-     to the `uat-session` skill instead (the acceptance session has its own
-     ritual, not a card).
+   - A gate → the `acceptance-card` skill for that slug; a `gia-tri` gate has
+     its own ritual (an acceptance session, not a card) and that ritual does
+     NOT ship in the Codex edition yet — say so in one plain line and point
+     the human at the copy procedure inside
+     `skills/acceptance/references/uat-session-template.md` (the
+     `UAT-COPY-PROCEDURE` block) to run the session by hand. Never route to a
+     skill this edition does not carry — a declared target that cannot resolve
+     is a dead pointer, not a feature.
    - An in-progress loop → the feature-loop skill for that slug — BUT when
      `git.dirty` is `true` or this session shares a working tree with another
      loop: remind the human to open a separate worktree/session FIRST; do not
