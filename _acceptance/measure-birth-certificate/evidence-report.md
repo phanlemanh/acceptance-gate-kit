@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 0834c5e075764f7a8d8b3d3c73199035cbec299c
-human_signoff:
+human_signoff: "Manh Phan 2026-08-07"
 ---
 
 # Evidence Report: measure-birth-certificate

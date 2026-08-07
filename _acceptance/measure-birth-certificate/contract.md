@@ -4,9 +4,12 @@ feature: "Khuôn khai sinh phép đo — mọi phép đo mới phải tự chứ
 slug: measure-birth-certificate
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-07T09:45:00Z
+time_human_minutes:
+  gate1: 5
+  gate2: 10
 owner: phanlemanh@gmail.com
 source: docs/superpowers/specs/2026-08-07-measure-birth-certificate-design.md
 ---
@@ -86,6 +89,9 @@ xem descope) · port consumer theo release sau. Never: chốt máy pre-merge
   (MEASURE-BIRTH-CLAUSE) + vòng review, không nhờ P182.
 - Known limit (ngoài hợp đồng, Cổng 2): biến `SRC` chết trong P182 — dọn
   dẹp nội bộ, ledger measure-birth-certificate#1.
+- Known limit (ngoài hợp đồng, Cổng 2): PM17 nuốt lỗi cp lib (case tiền-tồn của
+  làn pre-merge-ac-line có thể xanh mà không đo khối đè trong tình huống hiếm) —
+  ledger measure-birth-certificate#1, dọn ở đợt sau.
 - Baseline 2026-08-07: 4/6 lỗi-trong-hợp-đồng của workspace-reader-unification
   là lỗi thước mới viết (nguồn: handoff 2026-08-07 + review-findings của wru).
   Đo lại tỷ lệ lỗi-thước-mới-viết ở 2 feature kế tiếp sau khi khuôn ship;
