@@ -10,7 +10,7 @@
 // Reader duy nhất là frontmatterField của lib/evidence-core.js: không parser
 // fence thứ hai (tiền lệ start-command S4-r1 — parser riêng chặt hơn reader
 // chuẩn thì báo hỏng oan những hồ sơ mọi cổng khác đọc được).
-import { readFileSync, readdirSync, existsSync, writeFileSync, realpathSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync, writeFileSync, realpathSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import path from 'node:path';
@@ -23,8 +23,8 @@ const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence
 // Luật "hồ sơ này có hỏng không" sống một chỗ và được CẢ bộ quét vào phiên
 // dùng chung — xem lib/workspace-record.js để biết vì sao (S4-r1: hai bên đọc
 // cùng hồ sơ cho hai kết luận trái nhau).
-const { recordProblem, navValues, consumedTexts, usesUat, usesOpportunity,
-        readRecord, ioReason, configList, NAV_RULES } =
+const { recordProblem, navValues, consumedTexts, usesUat, usesOpportunity, usesEvidence,
+        missingArtifact, readRecord, ioReason, configList, NAV_RULES, mapState, MAP_LABELS } =
   require(path.join(__dirname, '..', 'lib', 'workspace-record.js'));
 
 export { NAV_RULES };
@@ -132,6 +132,12 @@ function classify(dir, slug) {
     return { key: 'hong', slug, file: 'uat-session.md', reason: ioReason(uR.err) };
   if (usesOpportunity(cTxt, usesUat(cTxt) ? uR.t : null) && oR.err)
     return { key: 'hong', slug, file: 'opportunity.md', reason: ioReason(oR.err) };
+  // evidence-report.md tiêu thụ theo LUẬT CHUNG (implemented/verified) — trước
+  // đây bản đồ không đọc file này lần nào, nên mọi luật về nó sống riêng ở bộ
+  // quét và hai bên trôi nhau đúng trục đó (AC-1 workspace-reader-unification).
+  const eR = usesEvidence(cTxt) ? readRecord(path.join(dir, 'evidence-report.md')) : { t: null, err: null };
+  if (usesEvidence(cTxt) && eR.err)
+    return { key: 'hong', slug, file: 'evidence-report.md', reason: ioReason(eR.err) };
   const uTxt = uR.t, oTxt = oR.t;
   // `feature:` hay mở đầu bằng chính slug ("<slug> — mô tả"); dòng bản đồ đã
   // in slug rồi nên để nguyên là đọc thành tiếng máy vọng lại hai lần.
@@ -145,12 +151,13 @@ function classify(dir, slug) {
   // tập hồ sơ thì mới có nghĩa khi so kết luận (case P123).
   // ĐIỀU KIỆN TIÊU THỤ do LUẬT CHUNG trả lời — chép lại điều kiện ở đây là
   // đúng cách hai reader trôi khỏi nhau suốt r12/r13 dù bảng enum đã gom.
-  const texts = consumedTexts({ contract: cTxt, opportunity: oTxt, uat: uTxt });
+  const texts = consumedTexts({ contract: cTxt, opportunity: oTxt, uat: uTxt, evidence: eR.t });
 
   // Lượt 1 — luật chung: hồ sơ đọc được không? (file có mà frontmatter hỏng,
   // field bắt buộc rỗng, giá trị ngoài enum — tất cả là hỏng, không cái nào
-  // được rơi vào khoảng trống rồi hiện ở một ô bình thường.)
-  const problem = recordProblem(texts);
+  // được rơi vào khoảng trống rồi hiện ở một ô bình thường.) Kèm luật
+  // khai-xong-mà-thiếu-file: verified mà vắng evidence-report là hỏng.
+  const problem = recordProblem(texts) || missingArtifact(texts);
   if (problem) return { key: 'hong', slug, file: problem.file, reason: problem.reason };
 
   // Lượt 2 — xếp ô, tra từ artifact muộn nhất về sớm nhất.
@@ -274,6 +281,16 @@ if (isMain) {
   const rel = path.relative(root, __filename);
   const hint = rel && !rel.startsWith('..') ? rel : __filename;
 
+  // AC-5: đường dẫn sai phải CHẾT TO (exit 2), không rơi xuống "chưa dựng
+  // cổng" rồi exit 0 — mode kiểm phân biệt "chưa init" với "gõ nhầm đường".
+  if (!existsSync(root)) {
+    console.error(`product-map: --root trỏ đường dẫn không tồn tại: ${root}`);
+    process.exit(2);
+  }
+  if (!statSync(root).isDirectory()) {
+    console.error(`product-map: --root trỏ vào thứ không phải thư mục: ${root}`);
+    process.exit(2);
+  }
   if (!existsSync(path.join(root, '_acceptance', 'config.yaml'))) {
     console.log('Repo chưa dựng cổng nghiệm thu — chưa có gì để vẽ bản đồ.');
     process.exit(0);
@@ -316,11 +333,13 @@ if (isMain) {
     const cfgTxt = (() => { try { return readFileSync(path.join(root, '_acceptance', 'config.yaml'), 'utf8'); } catch { return ''; } })();
     const daBat = configList(cfgTxt, 't1_skip_globs').includes('PRODUCT-MAP.md');
     const daTheoDoi = trongIndex || tungBiXoa || daBat;
-    if (daTheoDoi) {
-      console.error(`PRODUCT-MAP.md đã bị xoá khỏi cây làm việc — khôi phục, hoặc vẽ lại: node ${hint} --root .`);
+    // Nhãn rút từ BẢNG NHÃN CHUNG (lib) — cùng chữ với thẻ /start (AC-3/AC-7).
+    const state = mapState({ exists: false, tracked: daTheoDoi });
+    if (state === 'da-xoa') {
+      console.error(`${MAP_LABELS[state]} — khôi phục, hoặc vẽ lại: node ${hint} --root .`);
       process.exit(1);
     }
-    console.log('PRODUCT-MAP.md chưa có — repo chưa bật bản đồ sản phẩm; bật thì nó tự sinh ở lần đóng cổng người kế.');
+    console.log(`${MAP_LABELS[state]} — PRODUCT-MAP.md chưa có; bật thì nó tự sinh ở lần đóng cổng người kế.`);
     process.exit(0);
   }
   if (readPlain(mapPath) === rendered) {

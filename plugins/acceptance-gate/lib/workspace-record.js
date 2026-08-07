@@ -101,22 +101,25 @@ function usesOpportunity(contractTxt, uatTxt) {
   return !(uatTxt != null && frontmatterField(uatTxt, 'verdict'));
 }
 
-// Trạng thái nào TUYÊN đã có bằng chứng thì hồ sơ bằng chứng được tiêu thụ —
-// và khi đó file vắng là hồ sơ hỏng, không phải khoảng trống vô hại (luật
-// khai-xong-mà-thiếu-file, trước sống RIÊNG ở start-scan và pre-merge).
-const EVIDENCE_STATUSES = ['verified', 'signed-off'];
+// Trạng thái nào TIÊU THỤ hồ sơ bằng chứng (đọc và kiểm khuôn khi file có):
+// implemented (máy đang chấm) và verified (máy chấm xong chờ ký). signed-off
+// KHÔNG tiêu thụ — ma trận P105 ghim: sau ký, ô của slug do uat/decision quyết,
+// evidence hỏng không được lôi việc đã ký về "hồ sơ hỏng".
+const EVIDENCE_CONSUMING = ['implemented', 'verified'];
 function usesEvidence(contractTxt) {
   if (contractTxt == null) return false;
-  return EVIDENCE_STATUSES.includes((frontmatterField(contractTxt, 'status') || '').toLowerCase());
+  return EVIDENCE_CONSUMING.includes((frontmatterField(contractTxt, 'status') || '').toLowerCase());
 }
 
-// texts như recordProblem. Trả {file, reason} khi trạng thái khai đã-có-bằng-
-// chứng mà evidence-report.md vắng mặt; null khi lành.
+// Luật khai-xong-mà-thiếu-file (trước sống RIÊNG ở start-scan và pre-merge):
+// CHỈ verified đòi file phải tồn tại — implemented chưa chấm lần nào thì vắng
+// là bình thường (bước kế là S4). Trả {file, reason} hoặc null.
 function missingArtifact(texts) {
   const c = texts['contract.md'];
-  if (!usesEvidence(c)) return null;
-  if (texts['evidence-report.md'] != null) return null;
+  if (c == null) return null;
   const st = (frontmatterField(c, 'status') || '').toLowerCase();
+  if (st !== 'verified') return null;
+  if (texts['evidence-report.md'] != null) return null;
   return { file: 'evidence-report.md', reason: `status ${st} nhưng thiếu evidence-report.md` };
 }
 
