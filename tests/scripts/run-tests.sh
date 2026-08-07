@@ -902,6 +902,45 @@ echo "L33 contract lành KHÔNG bị W7 (cry-wolf guard)"
 outL33="$(node "$LINT" "$T/lintB" 2>&1)"
 case "$outL33" in *"W7"*) echo "  FAIL: L33-nowolf (contract lành bị W7)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: L33-nowolf"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
 
+# Fixture T: AC có ngưỡng, eval khai nửa âm bằng THÀNH NGỮ CỦA KIT (mutation ->
+# đỏ + đối chứng dương) chứ không bằng chữ "không"/"just-below". Trước khi dạy
+# NEG_RE thành ngữ này, W1 kêu oan đúng vào những eval đã có sẵn thứ nó đòi.
+TT="$T/lintT/_acceptance/feat-mut"; mkdir -p "$TT"
+cat > "$TT/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+surfaces: [api]
+---
+## Criteria
+- AC-1: Given user, When ≥3 opens trong 48h, Then fire hot.
+## Out of scope
+EOF
+cat > "$TT/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "case fires hot: đối chứng dương xanh trước; mutation xoá luật ngưỡng → đỏ ghim thông điệp"
+EOF
+
+echo "L35 nửa âm viết bằng thành ngữ mutation/đối chứng -> W1 KHÔNG kêu oan"
+outL35="$(node "$LINT" "$T/lintT" 2>&1)"
+case "$outL35" in *"W1 AC-1"*) echo "  FAIL: L35-idiom (W1 kêu oan trên eval đã có nửa âm)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: L35-idiom"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
+
+echo "L36 đối chứng: cùng AC ngưỡng mà eval KHÔNG có nửa âm nào -> W1 vẫn nổ"
+TU="$T/lintU/_acceptance/feat-nomut"; mkdir -p "$TU"
+sed 's/feat-mut/feat-nomut/' "$TT/contract.md" > "$TU/contract.md"
+cat > "$TU/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "case fires hot: chạy xong là đạt"
+EOF
+outL36="$(node "$LINT" "$T/lintU" 2>&1)"; check L36 1 $?
+case "$outL36" in *"W1 AC-1"*) echo "  PASS: L36-still-fires"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: L36-still-fires (nới NEG_RE đã làm W1 mù)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
 echo "L34 dạng ĐÚNG '- AC-n: **(cross-layer)** …' vẫn nổ W4 khi thiếu cặp (không hồi quy)"
 outL34="$(node "$LINT" "$T/lintE2" 2>&1)"; check L34 1 $?
 case "$outL34" in *"(cross-layer)"*) echo "  PASS: L34-w4"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: L34-w4"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac

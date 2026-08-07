@@ -73,8 +73,21 @@ const THRESHOLD_RE =
   /[≥≤]|[<>]=?|\bthreshold\b|ngưỡng|nguong|\bbiên\b|\bbien\b|\bwindow\b|cửa sổ|cua so|\b\d+\s*(ngày|ngay|giờ|gio|phút|phut|tuần|tuan|lần|lan|%|row|touch|px)\b|\b\d+[dhm]\b|\b(trong|sau|mỗi|moi|quá|qua|>=|<=|tối thiểu|toi thieu|ít nhất|it nhat)\s*\d/i;
 
 // A should-NOT-fire / boundary / absence assertion lives in an eval's expected.
+// `mutant`/`mutation` + `đối chứng` (control) are THIS kit's own idiom for the
+// negative half — "mutation xoá luật → đỏ ghim thông điệp; đối chứng dương xanh
+// trước" IS a should-NOT-fire assertion, phrased as break-it-and-prove-red
+// instead of as a just-below case. Leaving them out made W1 cry wolf on evals
+// that already carry the very thing it asks for.
+// Found the same way as the parser bug this file was just fixed for: widening
+// parseAC made `context-ladder` AC-2 visible, and the first W1 it produced was
+// FALSE. Same class twice — a detector that does not know the house style.
+// Measured before adding (kit `_acceptance/`, 2026-08-07): 73 → 69 warnings.
+// All four removed were hand-checked to carry a real control/negative assertion
+// ("đối chứng âm", "assert phủ định trên chính dòng đó"); a consumer repo
+// (oneflow) moved 7 → 7, i.e. nothing silenced there. This narrows W1 ONLY where
+// the negative half is genuinely present under a different name.
 const NEG_RE =
-  /\bKHÔNG\b|\bkhông\b|\bkhong\b|\bNOT\b|reject|denied|\bdeny\b|từ chối|tu choi|\b0\s*(row|touch|rows)\b|rỗng|\brong\b|\bn-a\b|\bn\/a\b|\bbiên\b|\bbien\b|dưới ngưỡng|duoi nguong|just[- ]?below|should[- ]?not|không tăng|khong tang|không ghi|khong ghi|không fire|khong fire|không kích hoạt|khong kich hoat|suppress|absent|vắng|vang|out of scope|negative|invalid|malformed|spoof|cross[- ]?tenant/i;
+  /\bKHÔNG\b|\bkhông\b|\bkhong\b|\bNOT\b|reject|denied|\bdeny\b|từ chối|tu choi|\b0\s*(row|touch|rows)\b|rỗng|\brong\b|\bn-a\b|\bn\/a\b|\bbiên\b|\bbien\b|dưới ngưỡng|duoi nguong|just[- ]?below|should[- ]?not|không tăng|khong tang|không ghi|khong ghi|không fire|khong fire|không kích hoạt|khong kich hoat|suppress|absent|vắng|vang|out of scope|negative|invalid|malformed|spoof|cross[- ]?tenant|\bmutant\b|\bmutation\b|đối chứng|doi chung/i;
 
 // ─── Parsers (line-based on purpose — no YAML/MD lib, mirror the hooks) ───────
 
