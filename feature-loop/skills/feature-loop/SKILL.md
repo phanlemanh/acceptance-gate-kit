@@ -93,7 +93,7 @@ Workspace cũ (contract sinh trước 1.13.0, không có Coverage) → cờ vàn
 4. Kết thúc brainstorm — 🎨 feature chạm UI: TRƯỚC khi sinh 3 artifact, đọc key `feature_loop.ui_standards_skill` trong `_acceptance/config.yaml` (giá trị = tên skill chuẩn-plugin/DS của repo tiêu thụ, vd `create-<org>-plugin`); key CÓ → BẮT BUỘC invoke skill đó ngay (đối trọng chuẩn nội đặt lên cùng bàn cân với vật liệu ngoài — retro V1 quy luật meta 1: model neo vào khối context mạnh nhất); key VẮNG → ghi chú đúng 1 dòng vào gói Gate 1 ("repo chưa khai `feature_loop.ui_standards_skill` — artifact UI không có đối trọng chuẩn nội"), KHÔNG chặn. Rồi sinh CÙNG LÚC từ một ngữ cảnh:
    - Design doc → `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md` (hoặc convention spec của repo)
    - `_acceptance/<slug>/contract.md` — theo template plugin acceptance-gate (frontmatter schema_version/feature/slug/risk_tier/surfaces/status: draft; 5-15 AC Given/When/Then, tag `(judgment)` cho business-judgment; section `## Coverage` từ bước CT-S; Out of scope ≥2 bullet)
-   - `_acceptance/<slug>/evals.yaml` — map mỗi AC ≥1 eval; executor ưu tiên test > script > ui-check > judgment; cmd PHẢI là `config:` ref (vd `config:executors.test.api`), KHÔNG hardcode lệnh. Mỗi eval máy/ui NÊN khai `paths: [<glob tương đối repo>]` = các file eval này THẬT SỰ kiểm — dùng cho carry-forward round delta (P1, Đợt 5); thiếu `paths` → eval LUÔN chạy lại (mặc định an toàn); criterion tag `(cross-layer)` → thêm ≥1 eval `layer: backend-effect` theo Pairing mechanics của eval-executors.md (ui-check một mình không bao giờ đủ cho criterion xuyên lớp)
+   - `_acceptance/<slug>/evals.yaml` — map mỗi AC ≥1 eval; executor ưu tiên test > script > ui-check > judgment; cmd PHẢI là `config:` ref (vd `config:executors.test.api`), KHÔNG hardcode lệnh. Kế hoạch đo theo khuôn `MEASURE-BIRTH-CLAUSE` (khối ở S3): `expected` của mỗi eval máy phải khai được CHIỀU ĐỎ — cặp hai-chiều cùng fixture + thông điệp ghim. Mỗi eval máy/ui NÊN khai `paths: [<glob tương đối repo>]` = các file eval này THẬT SỰ kiểm — dùng cho carry-forward round delta (P1, Đợt 5); thiếu `paths` → eval LUÔN chạy lại (mặc định an toàn); criterion tag `(cross-layer)` → thêm ≥1 eval `layer: backend-effect` theo Pairing mechanics của eval-executors.md (ui-check một mình không bao giờ đủ cho criterion xuyên lớp)
    - Cuối S1: append entry ledger cho approach/descope thỏa rule đáng-log (xem "Sổ quyết định").
 5. **KHÔNG vào Gate 1 khi chưa đủ 3 artifact — và (CT-S) contract THIẾU section `## Coverage` (dù chỉ 1 dòng skip) cũng tính là chưa đủ.** (HARD-GATE của brainstorming và Gate 1A/1B của kit gộp thành MỘT Gate 1.) Ngược lại, đủ điều kiện rồi (3 artifact + Coverage + gap-probe đã định đoạt) → render thẻ Gate 1 NGAY trong cùng lượt, không chèn câu hỏi trung gian nào trước đó.
 6. 🎨 **(CT1)** static evals + dòng surface&state; MỌI feature chạm UI (CT1 hay không) đi nghi thức S1-D — xem đoạn "Nghi thức S1-D" ở mục Làn design. **(CT2)** kiểm trực tiếp cuối S1: design-doc có state-matrix chưa, `evidence/design/reference/` + `provenance.json` có chưa — THIẾU → DỪNG, in nguyên văn: "surface web-UI ceremony — chạy `/design-mockup <slug>` trước Gate 1".
@@ -130,6 +130,18 @@ sau 15 turns.
 ## S3 — EXECUTE
 
 1. Mặc định: thực thi plan TUẦN TỰ trong main loop (theo `superpowers:executing-plans` hoặc subagent-driven nếu đang theo skill đó). Quy ước verify của repo (CLAUDE.md) THẮNG default của skill con nếu xung đột (vd repo cấm test framework → verify per-task = build/typecheck/smoke của repo). Buộc đổi hướng so với plan giữa chừng (plan không khớp thực tế) → append ngay 1 entry `fix`/`descope` vào decisions.jsonl (xem "Sổ quyết định") — đây là entry provisional, card Gate 2 sẽ trình để phê.
+   <!-- <<<MEASURE-BIRTH-CLAUSE -->
+   **Một phép đo MỚI (case suite, eval trong evals.yaml, rule/check trong
+   script) chỉ được tính XONG khi đi kèm cặp case hai-chiều trên CÙNG một
+   fixture:** vật lành → thước xanh (đối chứng dương), phá vật thật trong bản
+   sao → thước đỏ với THÔNG ĐIỆP GHIM (tên mốc/case/bất biến — không chỉ exit
+   code). Thiếu cặp = task CHƯA XONG — verify per-task của task đó phải chứa
+   lượt phá-thử. Khuôn đầy đủ + mẫu sống: `references/measure-birth.md` của
+   gói acceptance-gate (nạp qua resolve-plugin.mjs). Vì sao: màu xanh của một
+   phép đo chưa-từng-đỏ không phân biệt được "vật lành" với "thước chưa bao
+   giờ chạy" — fixture hỏng, cp lỗi, exit 127 đều cho cùng một màu xanh.
+   <!-- MBC-CORE: pair-same-fixture + pinned-message + not-done-without-pair; objects: suite-case, eval, rule-script -->
+   <!-- MEASURE-BIRTH-CLAUSE>>> -->
 2. Plan có ≥2 task `independent: true` → gom các task đó, invoke Workflow:
    `Workflow({ scriptPath: '<WORKFLOWS_DIR>/execute-parallel.js', args: { planPath: '<abs plan path>', repoRoot: '<abs repo root>', tasks: [{ id, title, summary, files, verifyCmd }], models: <feature_loop.models nếu có, như S4> } })` (WORKFLOWS_DIR xem ghi chú đầu file; script chỉ dùng `models.executor` — default kế thừa model phiên)
    Xong: merge các branch worktree về feature branch (task failed → tự fix tuần tự trong main loop). Ngay khi Workflow trả về: chạy usage report (xem "Đo model/token per run").
