@@ -9,7 +9,7 @@ enforcement_mode: strict
 bypass_used: false
 verified_commit: 2b6825a91a472f53ff98deeec8b28cd60af95f3e
 # bypass_ack:
-human_signoff:
+human_signoff: Manh Phan 2026-08-07 — ký (a) known-limits: fixture hành vi thiếu provenance máy-kiểm (trong hợp đồng) + 6 mục ngoài hợp đồng
 ---
 
 # Evidence Report: stop-patching-law
