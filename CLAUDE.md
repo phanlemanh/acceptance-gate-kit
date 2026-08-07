@@ -72,6 +72,11 @@
   1.14.0). Consumer nhận engine mới theo release có chủ đích — không đổi
   engine dưới chân một feature đang giữa vòng lặp.
 
+- **Re-pin theo RELEASE (2.0.0):** merge chạm engine giữa hai release KHÔNG
+  kéo chiến dịch re-pin từng lần — re-pin chạy MỘT chiến dịch tại mốc release
+  (bump version). Máy móc staleness giữ nguyên; đây là chính sách NHỊP.
+  Khuôn chuẩn: khối `REPIN-RELEASE-POLICY` trong GUIDE.md.
+
 - **Quyết định khó đảo / gây bất ngờ / có trade-off thật** → ghi ADR 1-đoạn-văn
   vào `docs/adr/` (đủ cả 3 điều kiện mới ghi, thiếu 1 thì bỏ). Đề xuất đã
   TỪ CHỐI mà có nguy cơ quay lại → 1 file trong `.out-of-scope/` kèm mục

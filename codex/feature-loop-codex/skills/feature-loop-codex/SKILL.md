@@ -137,7 +137,7 @@ P3); exit 3 means the log predates `sha` — full rerun, the safe default. Any
 fix round that carries evals MUST list them explicitly in the user report and
 the Gate 2 package.
 
-**Re-pin ritual (one lane, N signatures):** a re-pin event that stales N slugs
+**Re-pin ritual (one lane, N signatures):** CADENCE follows the `REPIN-RELEASE-POLICY` block (GUIDE.md, 2.0.0): the re-pin campaign runs at RELEASE marks (version bump), not per merge — merges between two releases only need green suites, and evidence may keep pointing at the previous release mark. a re-pin event that stales N slugs
 dispatches exactly ONE fresh agent to run the machine lane (all suites + mirror
 `--check`) at HEAD, returning `{run_id, sha, suites_exit}` with `sha = git
 rev-parse HEAD`. If ANY suite exits nonzero: STOP — do not append repin lines,

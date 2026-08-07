@@ -383,6 +383,17 @@ Sổ memo duy nhất là `run-log.jsonl` (dòng `kind:"panel"` / `kind:"baseline
 → đối chiếu pass tự nhiên). **Lưới chống rỗng:** round mà mọi thứ đều carried + suite rỗng →
 BLOCKED, không bao giờ PASS chay. Card Gate 2 phải trình rõ round này carry gì.
 
+## Re-pin theo release (2.0.0 — chính sách nhịp, máy móc giữ nguyên)
+
+<!-- <<<REPIN-RELEASE-POLICY -->
+**Re-pin chạy MỘT chiến dịch tại mốc RELEASE (bump version), không mỗi merge.**
+Merge chạm engine giữa hai release KHÔNG kéo chiến dịch re-pin từng lần;
+evidence giữa hai mốc được phép trỏ mốc release trước. Máy móc staleness
+(pre-merge + recheck) giữ nguyên răng — chính sách này chỉ đổi NHỊP chạy
+chiến dịch, không đổi luật; nghi thức một-làn (REPIN-TEMPLATE) áp nguyên
+cho chiến dịch release.
+<!-- REPIN-RELEASE-POLICY>>> -->
+
 ## Skill ux-ui-craft — design engineer trong kit (1.12.0 → 1.17.0)
 
 Từ 1.12.0, plugin acceptance-gate ship kèm skill `ux-ui-craft` (`skills/ux-ui-craft/`):
