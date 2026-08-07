@@ -60,5 +60,10 @@ evals:
   - id: E9
     criterion: AC-8
     executor: judgment
+    # question + inputs: bổ sung tuân-thủ khuôn judgment (W-G8 tồn-kho-thật bắt
+    # thiếu field) — câu hỏi rút nguyên ý expected, không đổi ngữ nghĩa. Phiên
+    # chủ hồ sơ rà lại khi resume (cùng nghi thức đã áp cho premerge-ac-line/E10).
+    question: "crossLayer đọc nhãn lỏng (/cross-layer/i, không đòi ngoặc, sao chép nguyên luật của judgment) có đúng hơn đòi đúng chuỗi (cross-layer) ở cả hai chỗ không — chấp nhận lệch về phía chặn-nhiều-hơn (chiều an toàn cho cổng chặn, hiện 0/556 criterion vướng)?"
+    inputs: [lib/ac-line.js]
     expected: "T3 ⇒ người tự phán, verdict của judge chỉ tham khảo. Câu hỏi: `crossLayer` đọc NHÃN lỏng (`/cross-layer/i`, không đòi ngoặc) — sao chép nguyên luật của `judgment` — có đúng hơn đòi đúng chuỗi `(cross-layer)` ở cả hai chỗ không? Nêu rõ: đọc lỏng khiến `- AC-1 (bàn về cross-layer): …` bị coi là mang Dấu; lệch về phía CHẶN NHIỀU HƠN (chiều an toàn cho cổng chặn); hiện 0/556 criterion vướng. Judge KHÔNG được xem diff hay lập luận người viết"
     paths: [lib/ac-line.js]
