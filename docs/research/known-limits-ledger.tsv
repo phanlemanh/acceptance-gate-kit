@@ -106,4 +106,4 @@ stop-patching-law#6	stop-patching-law	medium	chuoi-thay-quan-he	song			Đo quan 
 workspace-reader-unification#1	workspace-reader-unification	medium	khac	song			Card instruction still claims "longest-waiting gate first" but empty since now sorts to the top
 workspace-reader-unification#2	workspace-reader-unification	medium	khac	song			MAP_LABELS 'da-xoa' asserts a deletion that never happened for a freshly opted-in repo
 workspace-reader-unification#3	workspace-reader-unification	low	khac	song			start-scan runs mapTracked git probes even when PRODUCT-MAP.md exists and the result cannot affect state
-measure-birth-certificate#1	measure-birth-certificate	low	khac	song			Dead variable SRC trong P182 — dọn dẹp nội bộ, chờ người quyết ở Cổng 2
+measure-birth-certificate#1	measure-birth-certificate	low	khac	song			PM17 nuốt lỗi cp lib (case có thể xanh mà không đo khối đè) — đề xuất r4, chờ người quyết Cổng 2; dead-var SRC r1 đã xử known-limits trong Notes contract

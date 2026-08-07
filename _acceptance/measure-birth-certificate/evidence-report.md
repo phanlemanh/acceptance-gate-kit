@@ -1,13 +1,13 @@
 ---
 schema_version: 2
 feature_slug: measure-birth-certificate
-verdict: REJECT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: fd2cb45911c851db8a4dec54c177de2949710c8d
+verified_commit: 0834c5e075764f7a8d8b3d3c73199035cbec299c
 human_signoff:
 ---
 
@@ -28,115 +28,99 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-measure-birth-certificate-E1-r1
+  run_id: minted-measure-birth-certificate-E1-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-07T09:40:00Z
+  verified_at: 2026-08-07T19:00:00Z
   output: |
-    PASS: P181 [MBC] E9 kenh giao: menh de ton tai -> version goi >= moc (ca twin + mirror)
-    P182 [MBC] E8 tu-ap: khoi khai dich danh <-> tap tim duoc + moi case du hai chieu
     Results: all plugin tests passed
 
 - eval: E2
-  run_id: minted-measure-birth-certificate-E2-r1
+  run_id: minted-measure-birth-certificate-E2-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-07T09:40:00Z
+  verified_at: 2026-08-07T19:00:00Z
   output: |
-    PASS: P181 [MBC] E9 kenh giao: menh de ton tai -> version goi >= moc (ca twin + mirror)
-    P182 [MBC] E8 tu-ap: khoi khai dich danh <-> tap tim duoc + moi case du hai chieu
     Results: all plugin tests passed
 
 - eval: E3
-  run_id: minted-measure-birth-certificate-E3-r1
+  run_id: minted-measure-birth-certificate-E3-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-07T09:40:00Z
+  verified_at: 2026-08-07T19:00:00Z
   output: |
-    PASS: P181 [MBC] E9 kenh giao: menh de ton tai -> version goi >= moc (ca twin + mirror)
-    P182 [MBC] E8 tu-ap: khoi khai dich danh <-> tap tim duoc + moi case du hai chieu
     Results: all plugin tests passed
 
 - eval: E4
-  run_id: minted-measure-birth-certificate-E4-r1
+  run_id: minted-measure-birth-certificate-E4-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-07T09:40:00Z
+  verified_at: 2026-08-07T19:00:00Z
   output: |
-    PASS: P181 [MBC] E9 kenh giao: menh de ton tai -> version goi >= moc (ca twin + mirror)
-    P182 [MBC] E8 tu-ap: khoi khai dich danh <-> tap tim duoc + moi case du hai chieu
     Results: all plugin tests passed
 
 - eval: E5
-  run_id: minted-measure-birth-certificate-E5-r1
+  run_id: minted-measure-birth-certificate-E5-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-07T09:40:00Z
+  verified_at: 2026-08-07T19:00:00Z
   output: |
-    PASS: P181 [MBC] E9 kenh giao: menh de ton tai -> version goi >= moc (ca twin + mirror)
-    P182 [MBC] E8 tu-ap: khoi khai dich danh <-> tap tim duoc + moi case du hai chieu
     Results: all plugin tests passed
 
 - eval: E6
-  run_id: minted-measure-birth-certificate-E6-r1
+  run_id: minted-measure-birth-certificate-E6-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-07T09:40:00Z
+  verified_at: 2026-08-07T19:00:00Z
   output: |
-    PASS: P181 [MBC] E9 kenh giao: menh de ton tai -> version goi >= moc (ca twin + mirror)
-    P182 [MBC] E8 tu-ap: khoi khai dich danh <-> tap tim duoc + moi case du hai chieu
     Results: all plugin tests passed
 
 - eval: E7
-  run_id: minted-measure-birth-certificate-E7-r1
+  run_id: minted-measure-birth-certificate-E7-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-07T09:40:00Z
+  verified_at: 2026-08-07T19:00:00Z
   output: |
-    PASS: P181 [MBC] E9 kenh giao: menh de ton tai -> version goi >= moc (ca twin + mirror)
-    P182 [MBC] E8 tu-ap: khoi khai dich danh <-> tap tim duoc + moi case du hai chieu
     Results: all plugin tests passed
 
 - eval: E8
-  run_id: minted-measure-birth-certificate-E8-r1
+  run_id: minted-measure-birth-certificate-E8-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-07T09:40:00Z
+  verified_at: 2026-08-07T19:00:00Z
   output: |
-    PASS: P181 [MBC] E9 kenh giao: menh de ton tai -> version goi >= moc (ca twin + mirror)
-    P182 [MBC] E8 tu-ap: khoi khai dich danh <-> tap tim duoc + moi case du hai chieu
     Results: all plugin tests passed
 
 - eval: E9
-  run_id: minted-measure-birth-certificate-E9-r1
+  run_id: minted-measure-birth-certificate-E9-r4
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-07T09:40:00Z
+  verified_at: 2026-08-07T19:00:00Z
   output: |
-    PASS: P181 [MBC] E9 kenh giao: menh de ton tai -> version goi >= moc (ca twin + mirror)
-    P182 [MBC] E8 tu-ap: khoi khai dich danh <-> tap tim duoc + moi case du hai chieu
     Results: all plugin tests passed
 
 ## Analyst
 
-none — moi eval feature deu red tren baseline (co phan biet)
+carried từ round 1 — baseline không đo lại round này
+none — không eval nào được đo lại baseline round này (danh sách carried rỗng)
 
 ## Variance
 
-none — every multi-run eval is uniform
+none — every multi-run eval is uniform (không eval nào có runs > 1 round này)
 
 ## Iterations
 
-Round 1: E1–E9 chạy máy đều PASS (exit 0, cả 6 lệnh suite phụ trợ scripts/hooks/sync-plugin-packages/workflows/product-map cũng xanh), nhưng review-findings ánh xạ vào AC-2, AC-5, AC-6, AC-8 (P175/P177/P178/P179) chỉ ra phép đo/assertion trong chính suite mới không đúng khuôn contract hứa (fixture viết tay thay vì máy sinh, so chuỗi neo thay vì so khối, exit-code-alone thiếu ghim thông điệp, mutant không thật sự kiểm quan hệ ≥) → verdict REJECT, trả lại S3 để vá đúng lớp trước khi verify lại.
+Round 1: E1–E9 chạy máy đều PASS (exit 0), nhưng review-findings ánh xạ AC-2/AC-5/AC-6/AC-8 (P175/P177/P178/P179) chỉ ra phép đo trên chính suite mới không đúng khuôn contract hứa (fixture viết tay, so chuỗi neo thay vì so khối, exit-code-alone thiếu ghim thông điệp, mutant không thật sự kiểm quan hệ ≥) → verdict REJECT, trả về S3.
+Round 2–3 (S4-r1 → S4-r2 → S4-r2b, gộp vì không có verify log riêng cho từng vòng): S4-r1 vá 4 finding của round 1 (record hành-vi do make-record sinh, P177 ghim thông điệp, P175 bóc khối giữa mốc, P179 mutant xuống dưới số đếm); STOP-PATCHING kích hoạt khi cùng lớp đo-chuỗi-thay-quan-hệ tái xuất ở mutant P178#3 (hằng-đúng) — người dùng chọn thu phạm vi (xoá mutant #3, known-limits P182-proxy + dead SRC); S4-r2b sau đó viết lại mutant P178 thành phép đo SỐNG (diff_check chạy trên bản sao evidence bị phá) để giữ đúng lời hứa E5 mà không cần P178#3. Trả về S3 trước mỗi lần verify lại.
 
 ## Gate 2 checklist (human)
 
