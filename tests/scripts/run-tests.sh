@@ -906,6 +906,41 @@ echo "L34 dạng ĐÚNG '- AC-n: **(cross-layer)** …' vẫn nổ W4 khi thiế
 outL34="$(node "$LINT" "$T/lintE2" 2>&1)"; check L34 1 $?
 case "$outL34" in *"(cross-layer)"*) echo "  PASS: L34-w4"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: L34-w4"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
+# ── NEG_RE biết từ vựng đối-chứng của kit ────────────────────────────────────
+# Eval kiểu-detector viết theo nếp nhà khai ca should-not-fire bằng câu
+# "đối chứng dương … xanh" (thước phải IM trên vật nguyên vẹn) — không có chữ
+# "không/NOT/suppress" nào. NEG_RE cũ mù chữ đó nên W1 bắn giả trên hồ sơ thật
+# (E2 context-ladder, lộ ra khi parseAC mở rộng vùng nhìn ở L30/L31).
+# Hai chiều trên CÙNG fixture, chỉ khác đúng câu đối chứng — đổi được kết luận.
+U="$T/lintU/_acceptance/feat-doichung"; mkdir -p "$U"
+cat > "$U/contract.md" <<'EOF'
+---
+risk_tier: T2
+status: approved
+surfaces: [api]
+---
+## Criteria
+- AC-1: Given SKILL, When kiểm luật, Then bắt buộc kèm ≥1 cảnh ngữ-cảnh.
+## Out of scope
+EOF
+cat > "$U/evals.yaml" <<'EOF'
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: >
+      mutation xoá luật → đỏ ghim thông điệp; đối chứng dương xanh trước.
+EOF
+
+echo "L35 expected khai ca âm bằng 'đối chứng dương xanh' -> W1 phải IM"
+outL35="$(node "$LINT" "$T/lintU" 2>&1)"
+case "$outL35" in *"W1 AC-1"*) echo "  FAIL: L35-negvocab (NEG_RE mù từ vựng đối-chứng của kit — W1 bắn giả)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: L35-negvocab"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
+
+echo "L35b gỡ câu đối chứng khỏi CÙNG fixture -> W1 nổ đúng AC-1 (phép đo còn răng)"
+sed -i.bak 's/; đối chứng dương xanh trước\.//' "$U/evals.yaml" && rm -f "$U/evals.yaml.bak"
+outL35b="$(node "$LINT" "$T/lintU" 2>&1)"; check L35b 1 $?
+case "$outL35b" in *"W1 AC-1"*) echo "  PASS: L35b-w1"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: L35b-w1 (gỡ đối chứng mà W1 vẫn im — từ vựng mới nuốt luôn ca thật)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
 echo ""
 echo "--- gate-card.js ---"
 GCARD="$HERE/../../scripts/gate-card.js"

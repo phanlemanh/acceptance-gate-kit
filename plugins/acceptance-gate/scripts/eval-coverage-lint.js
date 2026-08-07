@@ -73,8 +73,12 @@ const THRESHOLD_RE =
   /[≥≤]|[<>]=?|\bthreshold\b|ngưỡng|nguong|\bbiên\b|\bbien\b|\bwindow\b|cửa sổ|cua so|\b\d+\s*(ngày|ngay|giờ|gio|phút|phut|tuần|tuan|lần|lan|%|row|touch|px)\b|\b\d+[dhm]\b|\b(trong|sau|mỗi|moi|quá|qua|>=|<=|tối thiểu|toi thieu|ít nhất|it nhat)\s*\d/i;
 
 // A should-NOT-fire / boundary / absence assertion lives in an eval's expected.
+// "đối chứng dương" (positive control — thước phải IM trên vật nguyên vẹn) là
+// từ vựng chuẩn của kit cho đúng ca should-not-fire trong eval kiểu-detector;
+// thiếu nó NEG_RE bắn W1 giả trên mọi eval viết theo nếp nhà (đo thật: E2 của
+// context-ladder — mutation→đỏ + đối chứng dương xanh, vẫn bị đòi ca âm).
 const NEG_RE =
-  /\bKHÔNG\b|\bkhông\b|\bkhong\b|\bNOT\b|reject|denied|\bdeny\b|từ chối|tu choi|\b0\s*(row|touch|rows)\b|rỗng|\brong\b|\bn-a\b|\bn\/a\b|\bbiên\b|\bbien\b|dưới ngưỡng|duoi nguong|just[- ]?below|should[- ]?not|không tăng|khong tang|không ghi|khong ghi|không fire|khong fire|không kích hoạt|khong kich hoat|suppress|absent|vắng|vang|out of scope|negative|invalid|malformed|spoof|cross[- ]?tenant/i;
+  /\bKHÔNG\b|\bkhông\b|\bkhong\b|\bNOT\b|reject|denied|\bdeny\b|từ chối|tu choi|\b0\s*(row|touch|rows)\b|rỗng|\brong\b|\bn-a\b|\bn\/a\b|\bbiên\b|\bbien\b|dưới ngưỡng|duoi nguong|just[- ]?below|should[- ]?not|không tăng|khong tang|không ghi|khong ghi|không fire|khong fire|không kích hoạt|khong kich hoat|suppress|absent|vắng|vang|out of scope|negative|invalid|malformed|spoof|cross[- ]?tenant|đối chứng dương|doi chung duong/i;
 
 // ─── Parsers (line-based on purpose — no YAML/MD lib, mirror the hooks) ───────
 
