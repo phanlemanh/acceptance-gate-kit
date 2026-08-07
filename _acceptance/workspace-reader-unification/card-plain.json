@@ -1,41 +1,20 @@
 {
-  "feature_plain": "Mọi nơi đọc hồ sơ của một việc đều cho cùng một kết luận, vì luật đọc gom về một chỗ thay vì mỗi chỗ giữ một bản sao.",
-  "will_do": [
+  "feature_plain": "Mọi nơi đọc hồ sơ xưởng — bản đồ, thẻ vào phiên, cổng CI — nay tra cùng MỘT bảng luật, nên cùng một hồ sơ không bao giờ bị nơi này gọi là hỏng mà nơi kia gọi là lành.",
+  "scope_plain": "Không làm nghi thức nghiệm thu bản Codex; không đổi chính sách cổng; không thêm quy tắc mốc thời gian mới.",
+  "analyst_plain": "",
+  "decisions": [],
+  "decisions_plain": [
     {
-      "id": "AC-2",
-      "p": "Sẽ chấm mỗi loại hồ sơ bằng đúng bảng kết-luận của nó — báo bằng chứng dùng bảng của báo bằng chứng, biên bản nghiệm thu dùng bảng của biên bản nghiệm thu."
+      "id": "d-20260807T103000Z-5521",
+      "p": "Đã chọn gom luật về một thư viện chung và một bảng nhãn chung, chỉ hội tụ tầng kiểm-chặt của cổng CI — giữ nguyên tầng dò-rộng có chủ đích."
     },
     {
-      "id": "AC-6",
-      "p": "Sẽ bổ sung từ điển của kit: đủ bốn cổng người, hai loại hồ sơ mới, và lời cảnh báo rằng một chữ mang hai nghĩa tuỳ hồ sơ."
+      "id": "d-20260807T110000Z-8812",
+      "p": "Kế hoạch 7 việc được duyệt ở cổng giữa (việc rủi ro cao phải duyệt kế hoạch trước khi làm)."
+    },
+    {
+      "id": "d-20260807T112500Z-4407",
+      "p": "Giữa chừng đổi một điểm so với kế hoạch: thay vì bỏ nhánh thoát cũ, đặt chốt gọi đích danh khi bảng ý-nghĩa của bộ quét lệch khỏi bảng luật — vì bỏ trơn làm bộ quét sập thay vì báo lỗi."
     }
-  ],
-  "wont_do": [
-    {
-      "id": "AC-1",
-      "p": "Sẽ KHÔNG để hai nơi đọc cùng một hồ sơ hỏng mà kết luận khác nhau — phủ mọi loại hồ sơ trong bảng luật, không riêng loại đang đau."
-    },
-    {
-      "id": "AC-3",
-      "p": "Sẽ KHÔNG gọi bản đồ sản phẩm đã bị xoá là \"chưa dựng\" — thẻ vào phiên phải nói đúng điều máy kiểm đang nói."
-    },
-    {
-      "id": "AC-4",
-      "p": "Sẽ KHÔNG để người chép khuôn biên bản nghiệm thu bằng tay mà ra một hồ sơ hỏng — thủ tục chép phải sống ở chỗ máy đọc được, không phải lời dặn suông."
-    },
-    {
-      "id": "AC-5",
-      "p": "Sẽ KHÔNG cho lệnh tự kiểm báo xanh khi trỏ vào chỗ không có gì — phải phân biệt \"chưa dựng cổng\" với \"đường dẫn sai\"."
-    },
-    {
-      "id": "AC-7",
-      "p": "Sẽ KHÔNG để máy kiểm trên máy chủ dựng và thẻ vào phiên gọi cùng một bản đồ bằng hai cái tên khác nhau, kể cả khi máy chỉ tải về một phần lịch sử."
-    },
-    {
-      "id": "AC-8",
-      "p": "Sẽ KHÔNG hứa những thứ vòng này chưa làm — không dẫn người dùng bản Codex tới một nghi thức chưa có, không bịa mốc thời gian chờ."
-    }
-  ],
-  "scope_plain": "Chưa làm vòng này: bản Codex của nghi thức phiên nghiệm thu · ghi sổ quyết định cho việc để mở Cổng Giá trị · quy tắc tính thời gian chờ của ô Cổng Giá trị.",
-  "decisions_plain": []
+  ]
 }

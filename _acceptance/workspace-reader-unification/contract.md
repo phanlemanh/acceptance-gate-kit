@@ -5,7 +5,7 @@ slug: workspace-reader-unification
 owner: phanlemanh@gmail.com
 risk_tier: T3
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-08-05
 time_human_minutes: {gate1: 10, gate2: 0}
