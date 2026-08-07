@@ -297,6 +297,28 @@ mk_xl "$P/pm12" feat-xl12 '- AC-1: Given app, When submit, Then saved via API.
 outPM12="$(bash "$CHECK" "$P/pm12" 2>&1)"; check PM12 1 $?
 case "$outPM12" in *"AC-2 is tagged (cross-layer)"*) echo "  PASS: PM12-noleak"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: PM12-noleak (layer của block trước rò sang block sau = FALSE-GREEN)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
+# PM13/PM14 — răng nay chấm trên lib/ac-line.js (nguồn dùng chung), không phải
+# khuôn awk riêng. Hai ca đo đúng hai chỗ awk và parser dùng chung khác nhau.
+echo "PM13 nhãn **(cross-layer)** chen giữa id và ':' -> vẫn bắt được (không rụng)"
+mk_xl "$P/pm13" feat-xl13 '- AC-1 **(cross-layer)**: Given app, When submit order, Then order saved via API.' '  - id: E1
+    criterion: AC-1
+    executor: ui-check
+    expected: "toast hien"'
+outPM13="$(bash "$CHECK" "$P/pm13" 2>&1)"; check PM13 1 $?
+case "$outPM13" in *"AC-1 is tagged (cross-layer)"*) echo "  PASS: PM13-bold"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: PM13-bold (nhãn chen giữa làm răng trượt)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+# Đây là ca awk KHÔNG làm được: `- **AC-5, AC-9 chưa có gì** (cross-layer)` là
+# văn xuôi tham chiếu chéo, không phải tiêu chí. Khuôn awk in ra AC-5 -> VIOLATION
+# GIẢ chặn merge oan. parseAC loại nó bằng AC_XREF.
+echo "PM14 dòng THAM CHIẾU CHÉO có chữ (cross-layer) -> KHÔNG được thành VIOLATION"
+mk_xl "$P/pm14" feat-xl14 '- AC-1: Given app, When submit, Then saved via API.
+- **AC-5, AC-9 chua co gi** (cross-layer)' '  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "ok"'
+outPM14="$(bash "$CHECK" "$P/pm14" 2>&1)"; check PM14 0 $?
+case "$outPM14" in *"AC-5 is tagged"*) echo "  FAIL: PM14-xref (tham chiếu chéo bị chấm như tiêu chí = VIOLATION GIẢ)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: PM14-xref"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
+
 echo ""
 echo "--- eval-coverage-lint.js ---"
 LINT="$HERE/../../scripts/eval-coverage-lint.js"
