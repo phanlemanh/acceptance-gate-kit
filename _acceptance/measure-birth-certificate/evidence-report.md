@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 74dd33f31853e0fe1a39cf6069e2adbabd01f5d7
+verified_commit: d55a836d454685cc1ab820ddada9e90b1a7ace95
 human_signoff: "Manh Phan 2026-08-07"
 ---
 
@@ -136,3 +136,7 @@ Round 2–3 (S4-r1 → S4-r2 → S4-r2b, gộp vì không có verify log riêng 
 ### Re-pin lần 1 — 2026-08-07, do measure-birth-certificate signed-off (khuôn khai sinh phép đo, feature-loop 1.27.0 + acceptance-gate 1.39.0) + lành 29 pin-phantom (sha re-pin #13 gõ tay sai — luật pin-phantom 18bbe72 bắt được)
 run_id: repin-20260807-mbc-ship-lane1
 sha: 74dd33f31853e0fe1a39cf6069e2adbabd01f5d7 · suites: 6 lệnh exit 0
+
+### Re-pin lần 2 — 2026-08-07, do hợp nhất measure-birth-certificate (signed-off) với luật uncoded() cross-layer + JR11a scoped của origin — engine đổi cả hai phía
+run_id: repin-20260807-merge-mbc-uncoded-lane1
+sha: d55a836d454685cc1ab820ddada9e90b1a7ace95 · suites: 6 lệnh exit 0
