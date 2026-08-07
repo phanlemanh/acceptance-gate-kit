@@ -1,0 +1,13 @@
+{"ts":"2026-08-07T03:10:00Z","sha":"10e7d2cc55dc22f831c964fec7a304a861066bef","round":1,"evalId":"E1","run_id":"minted-stop-patching-law-E1-r1","exit_code":1,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T03:10:00Z","sha":"10e7d2cc55dc22f831c964fec7a304a861066bef","round":1,"evalId":"E2","run_id":"minted-stop-patching-law-E2-r1","exit_code":1,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T03:10:00Z","sha":"10e7d2cc55dc22f831c964fec7a304a861066bef","round":1,"evalId":"E3","run_id":"minted-stop-patching-law-E3-r1","exit_code":1,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T03:10:00Z","sha":"10e7d2cc55dc22f831c964fec7a304a861066bef","round":1,"evalId":"E4","run_id":"minted-stop-patching-law-E4-r1","exit_code":1,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T03:10:00Z","sha":"10e7d2cc55dc22f831c964fec7a304a861066bef","round":1,"evalId":"E5","run_id":"minted-stop-patching-law-E5-r1","exit_code":1,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T03:10:00Z","sha":"10e7d2cc55dc22f831c964fec7a304a861066bef","round":1,"kind":"baseline","evals_hash":"7ace35eb611be5679bfcf26911ce638ec1ce93f932e9c46c7ad666e2c230edcd","non_discriminating":[]}
+{"ts":"2026-08-07T09:30:00Z","sha":"2b6825a91a472f53ff98deeec8b28cd60af95f3e","round":2,"evalId":"E1","run_id":"minted-stop-patching-law-E1-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T09:30:00Z","sha":"2b6825a91a472f53ff98deeec8b28cd60af95f3e","round":2,"evalId":"E2","run_id":"minted-stop-patching-law-E2-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T09:30:00Z","sha":"2b6825a91a472f53ff98deeec8b28cd60af95f3e","round":2,"evalId":"E3","run_id":"minted-stop-patching-law-E3-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T09:30:00Z","sha":"2b6825a91a472f53ff98deeec8b28cd60af95f3e","round":2,"evalId":"E4","run_id":"minted-stop-patching-law-E4-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T09:30:00Z","sha":"2b6825a91a472f53ff98deeec8b28cd60af95f3e","round":2,"evalId":"E5","run_id":"minted-stop-patching-law-E5-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T09:30:00Z","sha":"2b6825a91a472f53ff98deeec8b28cd60af95f3e","round":2,"evalId":"E6","run_id":"minted-stop-patching-law-E6-r2","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-07T09:30:00Z","sha":"2b6825a91a472f53ff98deeec8b28cd60af95f3e","round":2,"kind":"baseline","evals_hash":"$(shasum evals)","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6"]}]}

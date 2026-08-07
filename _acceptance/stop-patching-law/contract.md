@@ -4,7 +4,7 @@ feature: "Vòng lặp biết tự nhận ra khi cách sửa sai khuôn — vòng
 slug: stop-patching-law
 risk_tier: T2
 surfaces: [cli]
-status: implemented
+status: verified
 owner: phanlemanh@gmail.com
 approved_by: Manh Phan
 source: docs/superpowers/specs/2026-08-07-stop-patching-law-design.md
