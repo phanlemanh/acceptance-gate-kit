@@ -1,0 +1,76 @@
+schema_version: 1
+feature_slug: premerge-ac-line
+# Trạng thái case tại lúc viết hồ sơ (contract HỒI TỐ — xem contract ## Context):
+#   ĐÃ CÓ  : PM13, PM14 (tests/scripts/run-tests.sh), DV5 (additive-only.test.mjs),
+#            GPM18b3 (tests/scripts/run-tests.sh), P30 (mirror)
+#   PHẢI VIẾT: PM15, PM16, PM17 — ba ô của trục B (đường lùi) chưa có case nào.
+#            Chúng là phần việc còn lại của PR #35, không phải mô tả thứ đã chạy.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case PM14 (ĐÃ CÓ): fixture có dòng tham chiếu chéo '- **AC-5, AC-9 chua co gi** (cross-layer)' + AC-1 thật đủ cặp → exit 0 và stdout KHÔNG chứa 'AC-5 is tagged'. Đối chứng dương bắt buộc: cùng fixture trên bản CHƯA sửa phải đỏ (đã đo: FAIL 'expected exit 0, got 1')"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/run-tests.sh]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case PM13 (ĐÃ CÓ): criterion '- AC-1 **(cross-layer)**: …' + evals thiếu layer: backend-effect → exit 1 và stdout chứa 'AC-1 is tagged (cross-layer)'. Case này XANH cả trước lẫn sau thay đổi — răng chống hồi quy, không phải lỗi được sửa"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/run-tests.sh]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case DV5 (ĐÃ CÓ, additive-only.test.mjs): diff scripts/pre-merge-check.sh so với base suy từ git lúc chạy → 0 dòng luật cũ bị xoá/sửa. Nửa âm bắt buộc (DV5m, mutation): bản sao sửa 1 dòng luật cũ phải làm phép đo ĐỎ đích danh — không có nó thì '0 dòng bị xoá' là 0-hit-giả, xanh kể cả khi phép đo không nhận diện được dòng nào. Đối chứng dương: cây chưa sửa cũng phải xanh"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/additive-only.test.mjs]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case PM15 (PHẢI VIẾT): bản sao pre-merge-check.sh đặt ở thư mục KHÔNG có lib/ bên cạnh (khuôn GPM18 tái dùng), contract có Dấu (cross-layer) mà evals thiếu cặp → răng VẪN in 'AC-1 is tagged (cross-layer)' và exit khác 0. Đối chứng dương: cùng fixture có lib/ cũng phải đỏ — chứng minh case không xanh vì lý do khác"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/run-tests.sh]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case PM16 (PHẢI VIẾT): repo fixture có BA slug đều dính đường lùi (không có lib/) → đếm dòng khớp '^NOTE: cross-layer teeth graded with the built-in awk' phải BẰNG 1, không phải 3. Nửa âm: cùng repo có lib/ + node → đếm bằng 0 (đường lùi không chạy thì không được in)"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/run-tests.sh]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case GPM18b3 (ĐÃ CÓ): nhánh gap_probe advisory + thiếu lib → stdout KHÔNG chứa chuỗi 'VIOLATION'. Case này là thứ đã bắt được bản nháp đầu (NOTE viết 'a VIOLATION reported here…'), nên nó đang canh đúng AC-6 mà không cần case mới"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/run-tests.sh]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.test.scripts
+    expected: "case PM17 (PHẢI VIẾT) — mutation: bản sao script bị XOÁ khối đè lib (chỉ còn awk) chạy trên fixture tham chiếu chéo của PM14 → phải ĐỎ đích danh (in 'AC-5 is tagged'). Bản NGUYÊN VẸN xanh trước là đối chứng dương. Không có case này thì 'đã dùng nguồn chung' là khẳng định suông: awk rộng hơn nên đa số fixture cho cùng kết quả ở cả hai đường"
+    paths: [scripts/pre-merge-check.sh, tests/scripts/run-tests.sh]
+
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.mirror_sync
+    expected: "exit 0; 'plugins/ mirror in sync.' — mirror plugins/acceptance-gate/scripts/pre-merge-check.sh byte-khớp nguồn"
+    paths: [scripts/pre-merge-check.sh, plugins/**]
+
+  - id: E9
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.test.plugins
+    expected: "toàn bộ suite plugins xanh trên cây đã sửa — P42/P45 chạy CẢ suite trong một bản sao nguyên vẹn và đòi bản sao đó xanh, nên chúng là phép đo dây chuyền bắt mọi hồi quy mà tests/scripts bỏ lọt (đã đo: ba PR trước của loạt này đều đỏ ở đây trước khi sync mirror)"
+    paths: [scripts/pre-merge-check.sh, tests/plugins/run-tests.sh]
+
+  - id: E10
+    criterion: AC-9
+    executor: judgment
+    expected: "T3 ⇒ người tự phán, verdict của judge chỉ tham khảo. Câu hỏi: giữ HAI đường chấm trong lõi cưỡng chế (lib khi có node, awk khi không) có đúng hơn bắt buộc node không? Nêu rõ: verdict của cổng có thể phụ thuộc môi trường; lập luận bảo vệ là awk rộng hơn nên không bao giờ bỏ sót, chênh lệch chỉ ở chấm-oan, và AC-5 bắt chênh lệch đó phải có tiếng. Judge KHÔNG được xem diff hay lập luận của người viết"
+    paths: [scripts/pre-merge-check.sh]
