@@ -116,6 +116,25 @@ contract → card) — vì bản này sẽ phát cho đội, không chỉ cho x�
 Không đạt ngưỡng → sửa bug (được phép, là bugfix), thử lại. KHÔNG mở rộng
 phạm vi.
 
+### Tu chính 2026-08-08 — GĐ2 chạy trên 1.39.0, KHÔNG phải 2.0.0
+
+GĐ1 dừng có chủ đích nên **bản 2.0.0 không ra đời**; GĐ2 mở thẳng trên bản
+đội đang cài (acceptance-gate 1.39.0 / feature-loop 1.27.0). Owner duyệt
+2026-08-08.
+
+Hệ quả phải nhớ, đừng để trôi:
+
+- **Bằng chứng GĐ2 KHÔNG chuyển sang được cho 2.0.0.** Khi nhánh
+  `release/2.0.0-wip` hồi sinh, nó cần lượt kiểm riêng theo đúng mục
+  "Nghiệm thu GĐ1" ở trên — không thừa hưởng gì từ ba vòng của GĐ2.
+- Điều kiện mở lại lab (≥3 feature thật đi trọn vòng) **đếm trên 1.39.0**.
+- Ngưỡng phát hành khai trước ở trên giữ nguyên, chỉ đổi vật được kiểm.
+- Cổng Giá trị hoãn tới vòng 3 (vòng đầu tiên có mặt người bấm được) —
+  repo thí điểm là engine greenfield, chạy sớm hơn thì cổng chạy khan.
+
+Repo thí điểm chốt: **floorplanstudio** (khảo sát 0.1 chưa có trả lời;
+chọn theo thực tế đang có việc thật).
+
 ## GĐ 3 — Triển khai đội (1 buổi + 1 tuần theo dõi)
 
 | # | Việc | Ghi chú |
