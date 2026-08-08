@@ -73,12 +73,13 @@ mothball Codex/design-loop · mở lại lab · phép đo mới không phục v�
   ĐẦU TIÊN dưới MEASURE-BIRTH-CLAUSE vẫn sinh 4 lỗi-thước in-contract (r1).
   Dữ liệu này ỦNG HỘ hướng giảm-viết-thước (đóng băng lab, bớt phép đo mới),
   KHÔNG phải lý do thêm chốt meta.
-- Known limits (Cổng 2, nhóm C): (i) dòng parse của Codex acceptance-report
-  đứt ngoặc + rơi nhãn tự-khai (2 finding trùng — ledger 1 mục + dup_of);
-  (ii) con trỏ CHANGELOG chết trong 4 gói con — HẸN BUGFIX trong cửa sổ
-  release 2.0.0, trước thông báo #2 (revisit trong decisions.jsonl);
-  (iii) sign-batch chưa escape tên người ký (YAML/shell + JS replacement
-  pattern) — người ký là chính operator, pre-merge chặn hạ nguồn.
+- Known limits (Cổng 2, nhóm C) — CẢ BA ĐÃ ĐÓNG trong đợt bugfix cửa sổ
+  2.0.0 (08/08, đường (b) ship-với-giới-hạn kéo bugfix lên trước ký):
+  (i) dòng parse Codex acceptance-report đã cân ngoặc + trả nhãn tự-khai;
+  (ii) con trỏ CHANGELOG trong 5 manifest nguồn đã trỏ "repository" thay vì
+  ngầm định file đi kèm gói; (iii) sign-batch từ chối tên chứa " ` $ \
+  (exit 2 ghim thông điệp). Giới hạn còn lại sau đợt: bộ lọc ONLY_BLOCK
+  không phủ ~46 khối inline (đã khai trong ledger, measure-teeth-cleanup).
 - Đo baseline khuôn khai sinh (revisit AC-7 của measure-birth-certificate):
   đây là feature ĐẦU TIÊN viết phép đo mới sau khi MEASURE-BIRTH-CLAUSE
   ship — ghi lại tỷ lệ lỗi-thước-mới-viết của vòng này ở Gate 2.

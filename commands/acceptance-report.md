@@ -32,8 +32,8 @@ Steps:
    - `_acceptance/config.yaml`: `baseline_minutes`.
 2. **Per feature compute:** human-touch count — số commit chạm dòng
    human-owned của hồ sơ, đếm từ git (lệnh chuẩn, chạy được nguyên văn):
-   `git log --format=%H -G'human_signoff|human_override|approved_by' -- _acceptance/<slug>/`
-   rồi đếm dòng (mỗi commit khớp = một lần người phải ra tay tại cổng).
+   `git log --format=%H -G'human_signoff: \"|human_override: \"|approved_by: [A-Za-z]' -- _acceptance/<slug>/`
+   rồi đếm dòng (pickaxe theo GIÁ TRỊ đã điền — commit máy chỉ thêm dòng khoá rỗng KHÔNG được đếm; mỗi commit khớp = một lần người ra tay thật).
    Kèm verify rounds, and flags:
    - `gate1_skipped` (audited Gate-1 escape),
    - un-acked bypass (`bypass_used: true` without `bypass_ack`),

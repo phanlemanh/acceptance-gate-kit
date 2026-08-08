@@ -9243,6 +9243,11 @@ FILES = ['skills/acceptance/references/contract-template.md',
 # thuc cu la hang-đung — hai ve cung nguon).
 # Mien tru CO TEN: report (P186 phu nhan+KPI) + template/uat mang field
 # tuy-chon da chú thích "không ai hỏi" (quét r2 2026-08-08).
+# Tap con cua FILES con mang mention TUY CHON (dang thuc hai chieu — r2-ship):
+# codex approve twin bi quet sach mention o r2 (0 lan, hop le voi 1a) nen
+# KHONG nam day; 8 file con lai phai con mention de reader cu khong vo.
+MENTION_DECLARED = [f for f in FILES
+                    if f != 'codex/acceptance-gate/skills/approve/SKILL.md']
 MENTION_EXEMPT = ['commands/acceptance-report.md',
                   'codex/acceptance-gate/skills/acceptance-report/SKILL.md',
                   'skills/acceptance/references/evidence-report-template.md',
@@ -9263,6 +9268,9 @@ def measure(texts, discovered):
     declared = set(FILES) | set(MENTION_EXEMPT)
     for extra in sorted(discovered - declared):
         errs.append(f'file nhac time_human_minutes NGOAI tap khai: {extra}')
+    # chieu nguoc cua dang thuc: file khai-con-mention ma het mention -> do
+    for ghost in sorted(set(MENTION_DECLARED) - discovered):
+        errs.append(f'file khai khong con mention nao (tap khai thua): {ghost}')
     for gone in sorted(d for d in declared if not (root/d).exists()):
         errs.append(f'file khai khong ton tai (mien tru muc nat): {gone}')
     for f, t in texts.items():
@@ -9286,11 +9294,26 @@ for f in FILES:
     assert e and any(f in x for x in e), f'mutant chen khuon-cam vao {f} khong do ghim ten file: ' + repr(e)
     hit += 1
 assert hit == len(FILES) == 9, 'mutation chua lap du 9 file'
-# mutant quan he tap hop: file MOI nhac key ngoai tap khai -> do ghim ten file
-e2 = measure(texts, discovered | {'commands/ghost-new.md'})
-assert e2 and any('ghost-new' in x for x in e2), 'mutant file-moi-ngoai-tap khong do: ' + repr(e2)
-# mutant tap-khai-thua: mention trong 1 file khai bien mat -> do ghim ten
-print('P185 MUTANT-OK (9 file chen-cam + file-moi-ngoai-tap deu do ghim ten)')
+# mutant quan he tap hop — qua CHINH discover() tren cay code-sinh (r2-ship:
+# ve phat-hien phai TU chung minh biet do; tiem tay vao tap ket qua chi do
+# duoc measure(), khong do duoc buoc di-bo-cay)
+import tempfile, shutil
+tmp = pathlib.Path(tempfile.mkdtemp())
+try:
+    for base in ['commands', 'skills', 'codex', 'feature-loop']:
+        (tmp/base).mkdir()
+    (tmp/'commands'/'clean.md').write_text('khong nhac key nao\n')
+    (tmp/'commands'/'ghost-new.md').write_text('ghi `time_human_minutes` vao day\n')
+    d_tmp = discover(tmp)
+    assert d_tmp == {'commands/ghost-new.md'}, 'discover() hong hai chieu (phai thay ghost-new VA bo qua clean): ' + repr(d_tmp)
+    e2 = measure(texts, discovered | d_tmp)
+    assert e2 and any('ghost-new' in x for x in e2), 'mutant file-moi-ngoai-tap khong do: ' + repr(e2)
+finally:
+    shutil.rmtree(tmp)
+# chieu nguoc: mention cua 1 file khai bien mat khoi tap quet -> do ghim ten
+e3 = measure(texts, discovered - {'commands/signoff.md'})
+assert e3 and any('signoff.md' in x and 'tap khai thua' in x for x in e3), 'mutant tap-khai-thua khong do: ' + repr(e3)
+print('P185 MUTANT-OK (9 file chen-cam + discover() tu biet do + dang thuc du hai chieu)')
 P185PY
 
 run "P186 [TCD] E2 nhan tu-khai + KPI tan-suat: chu co mat VA lenh THI HANH ra so" \
@@ -9331,12 +9354,27 @@ TPL="'"$ROOT"'/skills/acceptance/references/evidence-report-template.md"
 GID="-c user.email=t@t.local -c user.name=tester -c commit.gpgsign=false"
 mk_repo() { # <dir>
   mkdir -p "$1/src"; git -C "$1" init -q
+  git -C "$1" config user.email t@t.local; git -C "$1" config user.name tester
+  git -C "$1" config commit.gpgsign false
   printf "schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - \"docs/**\"\n" > "$1/_acceptance/config.yaml" 2>/dev/null || { mkdir -p "$1/_acceptance"; printf "schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - \"docs/**\"\n" > "$1/_acceptance/config.yaml"; }
   printf "code v1\n" > "$1/src/app.js"; printf "#!/bin/sh\nexit 0\n" > "$1/verify.sh"
 }
-mk_contract() { # <dir> <slug> <status>
+CTPL="'"$ROOT"'/skills/acceptance/references/contract-template.md"
+mk_contract() { # <dir> <slug> <status> — frontmatter RUT TU mold CONTRACT-FRONTMATTER-TEMPLATE (r2-ship: cam printf viet tay khop khuon reader)
   mkdir -p "$1/_acceptance/$2"
-  printf -- "---\nschema_version: 1\nfeature: %s\nslug: %s\nrisk_tier: T2\nsurfaces: [api]\nstatus: %s\napproved_by: Manh Phan\n---\n" "$2" "$2" "$3" > "$1/_acceptance/$2/contract.md"
+  python3 - "$CTPL" "$1/_acceptance/$2/contract.md" "$2" "$3" <<PYX
+import sys, re, pathlib
+tpl = pathlib.Path(sys.argv[1]).read_text()
+m = re.search(r"<!-- <<<CONTRACT-FRONTMATTER-TEMPLATE -->\n\x60\x60\x60yaml\n([\s\S]*?)\x60\x60\x60", tpl)
+assert m, "khong rut duoc mold CONTRACT-FRONTMATTER-TEMPLATE tu contract-template.md"
+fm = m.group(1)
+fm = fm.replace("{feature}", sys.argv[3]).replace("{slug}", sys.argv[3])
+fm = fm.replace("{owner}", "t@t.local").replace("{risk_tier}", "T2").replace("{surfaces}", "api")
+fm = re.sub(r"^status: \{status\}.*$", "status: %s" % sys.argv[4], fm, flags=re.M)
+fm = re.sub(r"^approved_by:.*$", "approved_by: Manh Phan", fm, flags=re.M)
+body = "\n## Criteria\n- AC-1: Given nguoi dung, When bam nut, Then don hang duoc luu.\n\n## Out of scope\n- khong gi\n"
+pathlib.Path(sys.argv[2]).write_text(fm + body)
+PYX
 }
 mk_report() { # <dir> <slug> <verified_commit> <verdict> [<bypass>] — frontmatter RUT TU mold ---8<--- cua template that
   python3 - "$TPL" "$1/_acceptance/$2/evidence-report.md" "$2" "$3" "$4" "${5:-false}" <<PYX
@@ -9500,6 +9538,8 @@ set -u
 SIM="$(mktemp -d)"; GID="-c user.email=t@t.local -c user.name=tester -c commit.gpgsign=false"
 mkdir -p "$SIM/src" "$SIM/_acceptance/sim-mau"
 git -C "$SIM" init -q
+git -C "$SIM" config user.email t@t.local; git -C "$SIM" config user.name tester
+git -C "$SIM" config commit.gpgsign false
 # Buoc 1: config RUT TU khoi mau cua chinh commands/acceptance-init.md (round-trip tu chi dan that)
 python3 - "'"$ROOT"'/commands/acceptance-init.md" "$SIM/_acceptance/config.yaml" <<PYX
 import re, sys, pathlib
@@ -9511,7 +9551,21 @@ pathlib.Path(sys.argv[2]).write_text(cfg)
 PYX
 [ $? -eq 0 ] || { echo "  FAIL: P191-config"; exit 1; }
 printf "code v1\n" > "$SIM/src/app.js"; printf "#!/bin/sh\nexit 0\n" > "$SIM/verify.sh"
-printf -- "---\nschema_version: 1\nfeature: sim mau\nslug: sim-mau\nrisk_tier: T2\nsurfaces: [api]\nstatus: draft\napproved_by: Manh Phan\n---\n\n## Criteria\n- AC-1: Given nguoi dung, When bam nut, Then don hang duoc luu.\n\n## Out of scope\n- khong gi\n" > "$SIM/_acceptance/sim-mau/contract.md"
+# Contract fixture RUT TU mold CONTRACT-FRONTMATTER-TEMPLATE (r2-ship: cung lop cam viet-tay nhu evidence mold)
+python3 - "'"$ROOT"'/skills/acceptance/references/contract-template.md" "$SIM/_acceptance/sim-mau/contract.md" sim-mau draft <<PYX
+import sys, re, pathlib
+tpl = pathlib.Path(sys.argv[1]).read_text()
+m = re.search(r"<!-- <<<CONTRACT-FRONTMATTER-TEMPLATE -->\n\x60\x60\x60yaml\n([\s\S]*?)\x60\x60\x60", tpl)
+assert m, "khong rut duoc mold CONTRACT-FRONTMATTER-TEMPLATE"
+fm = m.group(1)
+fm = fm.replace("{feature}", "sim mau").replace("{slug}", sys.argv[3])
+fm = fm.replace("{owner}", "t@t.local").replace("{risk_tier}", "T2").replace("{surfaces}", "api")
+fm = re.sub(r"^status: \{status\}.*$", "status: %s" % sys.argv[4], fm, flags=re.M)
+fm = re.sub(r"^approved_by:.*$", "approved_by: Manh Phan", fm, flags=re.M)
+body = "\n## Criteria\n- AC-1: Given nguoi dung, When bam nut, Then don hang duoc luu.\n\n## Out of scope\n- khong gi\n"
+pathlib.Path(sys.argv[2]).write_text(fm + body)
+PYX
+[ $? -eq 0 ] || { echo "  FAIL: P191-contract-mold"; exit 1; }
 # Buoc 2 (Cong 1): card render tu contract DRAFT - the Cong 1 in tieu chi
 CARD1="$(node "'"$ROOT"'/scripts/gate-card.js" --root "$SIM" --slug sim-mau 2>&1)" || { echo "  FAIL: P191-card"; exit 1; }
 case "$CARD1" in *"don hang duoc luu"*) : ;; *) echo "  FAIL: P191-card-noi-dung (the Cong 1 khong mang tieu chi mau)"; exit 1 ;; esac

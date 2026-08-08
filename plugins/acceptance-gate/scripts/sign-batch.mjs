@@ -29,6 +29,7 @@ for (let i = 0; i < args.length; i++) {
   else { console.error(`cờ lạ: ${args[i]} — chỉ nhận --name, --slugs, --root`); process.exit(2); }
 }
 if (!opt.name || !opt.name.trim()) { console.error('THIẾU --name "<tên người ký>" — chữ ký phải mang tên người thật'); process.exit(2); }
+if (/["`$\\]/.test(opt.name)) { console.error('TÊN chứa ký tự phá khuôn (" ` $ \\) — dùng tên trơn; chữ ký đi vào YAML và lệnh shell'); process.exit(2); }
 
 const root = path.resolve(opt.root || '.');
 const acc = path.join(root, '_acceptance');
@@ -58,7 +59,7 @@ for (const slug of slugs) {
   const verdict = (report.match(/^verdict:\s*([^\s#]+)/m) || [, ''])[1];
   if (verdict !== 'PASS') { reject.push(`${slug}: verdict là ${verdict || '(trống)'} — còn việc-của-người (chỉ ký PASS; PENDING-JUDGMENT đi /signoff từng item)`); continue; }
   const bypass = (report.match(/^bypass_used:\s*([^\s#]+)/m) || [, ''])[1];
-  if (bypass === 'true' && !/^bypass_ack:\s*\S/m.test(report)) { reject.push(`${slug}: bypass_used chưa có bypass_ack — người phải nhận đường thoát trước khi ký`); continue; }
+  if (bypass === 'true' && !/^bypass_ack:\s*[^\s#]/m.test(report)) { reject.push(`${slug}: bypass_used chưa có bypass_ack — người phải nhận đường thoát trước khi ký`); continue; }
   jobs.push({ slug, cPath, rPath, contract, report });
 }
 if (reject.length) {

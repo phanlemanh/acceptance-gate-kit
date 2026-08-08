@@ -223,8 +223,9 @@ committed reports meet the current evidence shape.
   walk Gate 2: preconditions → `human_override`/`human_signoff` → signature in
   its own human-fields-only commit → pre-merge re-check. The decision verbs
   never decide on their own.
-- `/acceptance-report` → is the gate paying off? Human minutes vs
-  `baseline_minutes` (KPI ≥50% reduction), verdict mix, gate hygiene
+- `/acceptance-report` → is the gate paying off? Human-touch frequency
+  counted from git (2.0.0; legacy minutes shown only under a
+  "self-reported — untrusted" label), verdict mix, gate hygiene
   (skips/bypasses/stale evidence). Read-only.
 - Risk tiers: T1 skips the kit; T3 requires direct human verdicts on all
   judgment items. Tiers/globs are per-repo in `_acceptance/config.yaml`.
@@ -303,11 +304,12 @@ contract cẩu thả; chất lượng contract là việc của Gate 1 và các 
 
 ## Pilot metrics
 
-`time_human_minutes` (gate1/gate2) lives in each contract's frontmatter.
-Capture the pre-kit baseline ONCE during `/acceptance-init` (optional
-question): estimated acceptance minutes for the last 3 features →
-`baseline_minutes` in `_acceptance/config.yaml`.
-Success bar for the pilot: ≥50% less human time than that baseline,
+Human-touch frequency is counted from git history (commits touching
+human-owned values in `_acceptance/<slug>/` — exact command in
+`commands/acceptance-report.md`). `time_human_minutes` is OPTIONAL
+self-reported data — nobody asks for it at the gates (2.0.0), and old
+numbers are only ever shown under a "self-reported — untrusted" label.
+Success bar for the pilot: fewer human-touch events per feature,
 zero business-logic defects slipping past the gate.
 
 ## Known limitations (v1)

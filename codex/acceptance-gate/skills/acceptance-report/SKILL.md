@@ -8,7 +8,7 @@ description: Aggregate Acceptance Gate metrics across all features on Codex — 
 Answer "is the gate paying for itself?" from what the gates already recorded.
 KPI phía người (charter tái lập 2026-08-07): **tần suất sự-kiện-cần-người** —
 đếm từ git bằng lệnh chuẩn (chạy được nguyên văn):
-`git log --format=%H -G'human_signoff|human_override|approved_by' -- _acceptance/<slug>/`
+`git log --format=%H -G'human_signoff: \"|human_override: \"|approved_by: [A-Za-z]' -- _acceptance/<slug>/`
 (đếm dòng = số lần người ra tay tại cổng). `time_human_minutes` cũ là dữ liệu
 TỰ KHAI — KHÔNG ĐÁNG TIN ("tự khai — không đáng tin", 2026-08-07): chỉ trình
 dưới nhãn đó, không trích làm bằng chứng hiệu quả, không coi thiếu-nó là lỗ
@@ -22,7 +22,8 @@ or `verified_at` is on/after that date.
 Scan `_acceptance/*/` (skip `config.yaml`, `README.md`). Parse:
 
 - `contract.md` frontmatter: `slug`, `risk_tier`, `status`, `approved_by`,
-  `approved_at`, `gate1_skipped` (va `time_human_minutes` {gate1, gate2};
+  `approved_at`, `gate1_skipped` (và `time_human_minutes` nếu có — chỉ để
+  trình dưới nhãn tự-khai);
 - `evidence-report.md` frontmatter when present: `verdict`, `human_signoff`,
   `verified_at`, `verified_commit`, `enforcement_mode`, `bypass_used`,
   `bypass_ack`, `failed_evals`;

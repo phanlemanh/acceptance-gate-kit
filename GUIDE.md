@@ -46,7 +46,7 @@ AI không đến từ "AI ngoan" — nó đến từ bằng chứng đối chi�
 
 | # | Mục tiêu | Thước đo |
 |---|---|---|
-| 1 | Giảm **≥ 50%** thời gian người/tính năng so với baseline | `time_human_minutes` (mỗi contract) vs `baseline_minutes` (config) |
+| 1 | Giảm **tần suất sự-kiện-cần-người**/tính năng (2.0.0 — KPI cũ theo phút đã bỏ: số tự khai, không đáng tin) | đếm từ git: commit chạm GIÁ TRỊ human-owned của hồ sơ (lệnh chuẩn trong `commands/acceptance-report.md`) |
 | 2 | **0** defect nghiệp vụ lọt qua gate | Đếm defect phát hiện sau signoff |
 | 3 | Đúng **2 điểm dừng người**, 5–10 phút/cổng (T3: +1 duyệt plan) | Vòng đời chuẩn — mọi tính năng T2/T3 |
 | 4 | **100%** verdict PASS có bằng chứng máy đối chiếu được | `run_id` khớp `run-log.jsonl`, `exit_code 0`, verifier thật, SHA thật |
@@ -767,7 +767,8 @@ bước này). Muốn bỏ cổng? Nói rõ — máy ghi `gate1_skipped: true` l
 2. Tự tay kiểm **chỉ** các item `UNCERTAIN` (T3: **mọi** judgment item) → nhờ agent điền
    `human_override: <Tên> <ngày>` (agent ghi thì hook mới re-validate được).
 3. Verdict `PENDING-JUDGMENT` → nhờ agent nâng thành `PASS`.
-4. Điền `human_signoff: <Tên> <ngày>` + số phút vào `time_human_minutes.gate2`.
+4. Điền `human_signoff: <Tên> <ngày>` (`time_human_minutes.gate2` tuỳ chọn —
+   không ai hỏi; 2.0.0). Ký nhiều hồ sơ một lượt: `node scripts/sign-batch.mjs --name "<Tên>"`.
 5. **Commit các sửa đổi Cổng-2 thành commit RIÊNG** — chỉ chạm các dòng human-owned
    (`human_signoff` / `human_override` / `verdict` / `bypass_ack`). Chính bạn commit
    (hoặc ra lệnh agent commit đúng phần đó). Repo bật `require_human_commit` thì CI
@@ -797,7 +798,7 @@ template, cùng evidence rules, cùng CI** — mức bằng chứng không đổ
 | `/acceptance-card <slug>` | Render thẻ quyết định Cổng 1/Cổng 2 (tự nhận cổng theo trạng thái) |
 | `/approve [slug]` | Ghi quyết định Cổng 1: card → 1 câu hỏi → máy ghi `approved_by`/`approved_at` sau YES tường minh (không bao giờ tự duyệt) |
 | `/signoff [slug]` | Trợ lý Cổng 2: precondition → `human_override`/`human_signoff` → commit chữ ký riêng (human-fields-only) → re-check pre-merge |
-| `/acceptance-report` | Đo hiệu quả kit: phút người vs `baseline_minutes` (mục tiêu ≥50%), verdict mix, vệ sinh gate (skip/bypass/stale) — read-only |
+| `/acceptance-report` | Đo hiệu quả kit: tần suất sự-kiện-cần-người từ git (2.0.0; số phút cũ chỉ trình dưới nhãn "tự khai — không đáng tin"), verdict mix, vệ sinh gate (skip/bypass/stale) — read-only |
 | `node scripts/evidence-page.js --root . --slug <slug>` | Trang HTML evidence đầy đủ: output, screenshot slideshow, checklist Cổng 2 |
 | `node scripts/eval-coverage-lint.js . --slug <slug>` | Lint phủ biên: tiêu chí ngưỡng thiếu ca *không-được-bắn*, out-of-scope thiếu eval âm |
 | `node scripts/config-patch.mjs --key <a.b.c> --value <v> --write` | Ghi key mới vào config.yaml an toàn (dry-run mặc định, `.bak`, từ chối đè key sống) |
