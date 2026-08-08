@@ -1,13 +1,13 @@
 ---
 schema_version: 2
 feature_slug: consumer-copy-cjs
-verdict: REJECT
-failed_evals: [E6, E13]
+verdict: PASS
+failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 79b7f2efba67657e68089f13a8f106c80f6aae10
+verified_commit: 20715437f042df1b1041b46782b9b3ae139057a5
 human_signoff:
 ---
 
@@ -20,229 +20,241 @@ human_signoff:
 | E3 | AC-3 | script | PASS |
 | E4 | AC-4 | script | PASS |
 | E5 | AC-5 | script | PASS |
-| E6 | AC-6 | script | FAIL |
+| E6 | AC-6 | script | PASS |
 | E7 | AC-7 | script | PASS |
 | E8 | AC-8 | script | PASS |
 | E9 | AC-9 | script | PASS |
 | E10 | AC-10 | script | PASS |
 | E11 | AC-11 | test | PASS |
 | E12 | AC-11 | test | PASS |
-| E13 | AC-11 | test | FAIL |
+| E13 | AC-11 | test | PASS |
 | E14 | AC-11 | test | PASS |
 | E15 | AC-11 | script | PASS |
 
-Hai eval đỏ, cùng nguồn gốc là đợt đổi đuôi nhưng KHÁC lớp nhau — chi tiết
-trong hai block E6/E13 và mục Iterations.
+Vòng 3 chạy tests-only theo phê duyệt vượt trần của owner (entry
+`d-20260809T0200Z-ccc5` trong decisions.jsonl). Hai eval đỏ ở vòng trước (E6,
+E13) nay xanh; E13 lấy bằng chứng từ làn máy phê duyệt tại commit cha — xem
+block E13 để đọc nguyên do và bằng chứng diff-trống.
 
 ## Evidence
 
 - eval: E1
-  run_id: consumer-copy-cjs-ce-r1-1786202918
+  run_id: consumer-copy-cjs-E1-5-r3-1786232248
   exit_code: 0
   baseline: red
   verifier: tests/scripts/consumer-esm.test.mjs
-  verified_at: 2026-08-08T15:28:38Z
+  verified_at: 2026-08-08T23:37:28Z
   output: |
     PASS: CE3 recheck (.cjs) exit 0 trên evidence lành trong repo type:module
     Results: 9 passed, 0 failed
-    (baseline origin/main: chép test của nhánh sang → 0 passed, 9 failed —
-    marker INIT-CI-COPY-LIST chưa tồn tại, scripts/recheck-evidence.cjs chưa có)
+    (baseline red — đo ở vòng trước: chép test của nhánh sang worktree
+    origin/main → 0 passed, 9 failed, vì marker INIT-CI-COPY-LIST chưa tồn tại
+    và scripts/recheck-evidence.cjs chưa có)
 
 - eval: E2
-  run_id: consumer-copy-cjs-ce-r1-1786202918
+  run_id: consumer-copy-cjs-E1-5-r3-1786232248
   exit_code: 0
   baseline: red
   verifier: tests/scripts/consumer-esm.test.mjs
-  verified_at: 2026-08-08T15:28:38Z
+  verified_at: 2026-08-08T23:37:28Z
   output: |
     PASS: CE5 pre-merge trong consumer type:module: exit 0, rules ran=3, KHÔNG một dòng NOT ENFORCED/fallback
     PASS: CE5b vendored gap-probe CHẤM thật ở consumer: xoá gap-probe.md → pre-merge (required) VIOLATION đúng thông điệp (gap-probe S1 P1#2)
+    (baseline red — đo ở vòng trước)
 
 - eval: E3
-  run_id: consumer-copy-cjs-ce-r1-1786202918
+  run_id: consumer-copy-cjs-E1-5-r3-1786232248
   exit_code: 0
   baseline: red
   verifier: tests/scripts/consumer-esm.test.mjs
-  verified_at: 2026-08-08T15:28:38Z
+  verified_at: 2026-08-08T23:37:28Z
   output: |
-    PASS: CE4 đối chứng chấm-thật: bản tiêm exit-code hai → recheck exit 1 ghim "fails the evidence bar"
-    (dòng PASS gốc trong evidence/E1-5-stdout.txt mang nguyên văn token exit-code;
-    trích ở đây đã thay bằng chữ theo luật sanitize của hook)
+    PASS: CE4 đối chứng chấm-thật: bản tiêm exit-code hai → recheck ĐỎ, ghim đúng "fails the evidence bar"
+    (dòng PASS gốc trong evidence/E1-5-r3-stdout.txt mang nguyên văn token
+    exit-code; trích ở đây đã viết thành chữ theo luật sanitize của hook —
+    verdict KHÔNG đổi, chỉ excerpt đổi)
+    (baseline red — đo ở vòng trước)
 
 - eval: E4
-  run_id: consumer-copy-cjs-ce-r1-1786202918
+  run_id: consumer-copy-cjs-E1-5-r3-1786232248
   exit_code: 0
   baseline: red
   verifier: tests/scripts/consumer-esm.test.mjs
-  verified_at: 2026-08-08T15:28:38Z
+  verified_at: 2026-08-08T23:37:28Z
   output: |
     PASS: CE6 red: cùng nội dung recheck nhưng đuôi .js trong type:module → ĐỎ đúng "require is not defined"
     PASS: CE7 red: lib/gap-probe đuôi .js chạy classify trong type:module → cùng lớp ReferenceError
+    (đối chứng dương nằm trong chính ca: bản .cjs cùng nội dung, cùng repo sim, xanh ở CE3/CE5)
+    (baseline red — đo ở vòng trước)
 
 - eval: E5
-  run_id: consumer-copy-cjs-ce-r1-1786202918
+  run_id: consumer-copy-cjs-E1-5-r3-1786232248
   exit_code: 0
   baseline: red
   verifier: tests/scripts/consumer-esm.test.mjs
-  verified_at: 2026-08-08T15:28:38Z
+  verified_at: 2026-08-08T23:37:28Z
   output: |
     PASS: CE1 danh sách chép trích được từ marker (sanity ≥ 7 mục, mọi src tồn tại)
     PASS: CE2 QUAN HỆ đủ-bộ: mọi file scripts/+lib/ mà pre-merge-check.sh và recheck dùng đều nằm trong danh sách chép
     PASS: CE2m mutant trong-lần-chạy: bỏ 1 mục khỏi danh-sách-khai → quan hệ phải ĐỎ ghim đúng tên (gap-probe S1 P1#1)
+    (baseline red — đo ở vòng trước)
 
 - eval: E6
-  run_id: consumer-copy-cjs-E6-r1-1786202928
-  exit_code: 1
+  run_id: consumer-copy-cjs-E6-r3-1786232256
+  exit_code: 0
   baseline: red
   verifier: _acceptance/consumer-copy-cjs/checks/refs-sweep.sh
-  verified_at: 2026-08-08T15:28:48Z
+  verified_at: 2026-08-08T23:37:36Z
   output: |
     sanity: 163 tham chiếu .cjs tìm thấy (phải > 0, nếu 0 thì grep hỏng)
-    đo:     27 tham chiếu .js còn sót · 0 require không-đuôi
-    SWEEP FAIL: còn 27 tham chiếu mang đuôi .js
-    Đủ 27 dòng (grep lại nguyên pattern của script, cùng phạm vi loại trừ):
-      PRODUCT-MAP.md:41 — "lib/md-section.js" trong dòng mô tả luật ranh giới section
-      codex/acceptance-gate/.codex-plugin/plugin.json:4 — "lib/md-section.js" trong văn changelog v1.25 của description
-      .claude-plugin/plugin.json:4 và .codex-plugin/plugin.json:4 — cùng lớp văn changelog trong description
-      tests/scripts/additive-only.test.mjs:32–52 (21 dòng) — fixture chuỗi ghim NỘI DUNG CŨ của pre-merge/recheck
-      tests/scripts/consumer-esm.test.mjs:153,162 — đường dẫn .js của chính ca ĐỎ CE6/CE7 (đổi tên .cjs→.js trong sim)
-    Baseline origin/main (chạy script của nhánh trong worktree base): 143 tham chiếu .js, SWEEP FAIL → red, phép đo phân biệt.
-    Nhận định trung thực, không sửa hộ: 27 hit rơi vào 3 nhóm — văn lịch sử trong
-    description manifest, fixture nội-dung-cũ của test additive-only, và fixture
-    ca-đỏ của chính test mới. Thước (refs-sweep.sh, vật của nhánh này) và cây
-    hiện tại đang mâu thuẫn; chọn siết vật hay khai phạm-vi-loại-trừ có lý do là
-    quyết định của vòng sửa, không phải của verify.
+    đo:     0 tham chiếu .js còn sót · 0 require không-đuôi
+    SWEEP OK
+    (vòng 1 phép đo này ĐỎ với 27 hit; nay 0 hit trong khi sanity counter vẫn
+    163 — grep còn chạy thật, không phải grep hỏng thành 0-0.
+    baseline red — đo ở vòng trước: script của nhánh chạy trong worktree
+    origin/main cho 143 tham chiếu .js, SWEEP FAIL)
 
 - eval: E7
-  run_id: consumer-copy-cjs-E7-r1-1786202928
+  run_id: consumer-copy-cjs-E7-r3-1786232256
   exit_code: 0
   baseline: red
   verifier: _acceptance/consumer-copy-cjs/checks/inline-node-e.sh
-  verified_at: 2026-08-08T15:28:48Z
+  verified_at: 2026-08-08T23:37:36Z
   output: |
     sanity: 4 biến đường-dẫn-lib · 4 lối gọi node trong pre-merge-check.sh
-    gán: 58:RECHECK="$HERE/recheck-evidence.cjs" · 160:GP_LIB=.../lib/gap-probe.cjs
-    gán: 265:WSREC_LIB=.../lib/workspace-record.cjs · 578:AC_LINE_LIB=.../lib/ac-line.cjs
+    gán:  58:RECHECK="$HERE/recheck-evidence.cjs"
+    gán:  160:GP_LIB=.../lib/gap-probe.cjs
+    gán:  265:WSREC_LIB=.../lib/workspace-record.cjs
+    gán:  578:AC_LINE_LIB=.../lib/ac-line.cjs
     INLINE-NODE OK
-    (baseline origin/main: cả 4 biến trỏ .js → exit 1 = red)
+    (baseline red — đo ở vòng trước: trên origin/main cả 4 biến trỏ .js)
 
 - eval: E8
-  run_id: consumer-copy-cjs-E8-r1-1786202928
+  run_id: consumer-copy-cjs-E8-r3-1786232256
   exit_code: 0
   baseline: red
   verifier: _acceptance/consumer-copy-cjs/checks/recheck-lint.sh
-  verified_at: 2026-08-08T15:28:48Z
+  verified_at: 2026-08-08T23:37:36Z
   output: |
     sanity: 4 khối catch trong recheck-evidence.cjs (sàn 2)
     đo:     0 khối `catch (_) {}` rỗng còn lại
     RECHECK-LINT OK
-    (baseline origin/main: FAIL không thấy scripts/recheck-evidence.cjs → red)
+    (baseline red — đo ở vòng trước: trên origin/main không thấy
+    scripts/recheck-evidence.cjs nên phép đo ĐỎ)
 
 - eval: E9
-  run_id: consumer-copy-cjs-E9-r1-1786202928
+  run_id: consumer-copy-cjs-E9-r3-1786232256
   exit_code: 0
   baseline: red
   verifier: _acceptance/consumer-copy-cjs/checks/manifest-bump.sh
-  verified_at: 2026-08-08T15:28:48Z
+  verified_at: 2026-08-08T23:37:36Z
   output: |
     acceptance-gate (cũ 1.39.0): 4/4 manifest = 1.39.1
     feature-loop (cũ 1.27.0): 3/3 manifest = 1.27.1
     MANIFEST-BUMP OK
-    (baseline origin/main: manifest vẫn 1.39.0/1.27.0 → FAIL = red)
+    (baseline red — đo ở vòng trước: trên origin/main manifest vẫn giữ số cũ)
 
 - eval: E10
-  run_id: consumer-copy-cjs-E10-r1-1786202968
+  run_id: consumer-copy-cjs-E10-r3-1786232264
   exit_code: 0
   baseline: green
   verifier: config:executors.script.mirror_sync
-  verified_at: 2026-08-08T15:29:28Z
+  verified_at: 2026-08-08T23:37:44Z
   output: |
     plugins/ mirror in sync.
-    (baseline origin/main cũng xanh — guard chạy-được-cả-hai-phía, đúng kỳ vọng)
+    (baseline green (guard) — đo ở vòng trước: origin/main cũng xanh, đây là
+    guard chạy-được-cả-hai-phía, đúng kỳ vọng)
 
 - eval: E11
-  run_id: consumer-copy-cjs-E11-r1-1786202976
+  run_id: consumer-copy-cjs-E11-r3-1786232264
   exit_code: 0
   baseline: green
   verifier: config:executors.test.scripts
-  verified_at: 2026-08-08T15:30:33Z
+  verified_at: 2026-08-08T23:38:42Z
   output: |
+    PASS: consumer-esm.test.mjs
     Results: 636 passed, 0 failed
-    (baseline origin/main: 635 passed, 0 failed — suite guard xanh cả hai phía;
-    +1 case là consumer-esm.test.mjs mới của nhánh)
+    (bao gồm DV5 additive-only và 9 case CE mới của nhánh.
+    baseline green (guard) — đo ở vòng trước: origin/main cho 635 passed,
+    0 failed; +1 là file test consumer-esm.test.mjs mới)
 
 - eval: E12
-  run_id: consumer-copy-cjs-E12-r1-1786203041
+  run_id: consumer-copy-cjs-E12-r3-1786232322
   exit_code: 0
   baseline: green
   verifier: config:executors.test.hooks
-  verified_at: 2026-08-08T15:30:42Z
+  verified_at: 2026-08-08T23:38:43Z
   output: |
     Results: 54 passed, 0 failed
-    (baseline origin/main: 54 passed, 0 failed)
+    (hook đọc lib/evidence-core.cjs sau đợt đổi tên.
+    baseline green (guard) — đo ở vòng trước: 54 passed, 0 failed)
 
 - eval: E13
-  run_id: consumer-copy-cjs-E13-r1b-1786203218
-  exit_code: 1
+  run_id: consumer-copy-cjs-E13-r3-lane
+  exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-08T15:36:55Z
+  verified_at: 2026-08-08T23:35:26Z
   output: |
-    FAIL: P42 doi chung duong that bai — ban sao nguyen ven da do san
-    FAIL: P45 bump ba manifest khong cham suite (mut_ok=1 bumped=3)
-    Results: 2 failed
-    Chạy HAI lần cùng kết quả: run consumer-copy-cjs-E13-r1-1786202910 chạy song
-    song với các eval khác (nghi nhiễu race), run r1b-1786203218 chạy trên cây
-    yên tĩnh — vẫn đỏ y hệt: kết quả tất định, không phải nhiễu.
-    Chẩn đoán (chỉ đọc, không sửa): P42/P45 đỏ vì bản-sao-nguyên-vẹn (positive
-    control) của chúng chạy nested suite và nested ĐẾN ĐƯỢC P150+P161 — hai case
-    này mới là chỗ đỏ thật. Suite chạy ngoài không bao giờ tới P150: có checkpoint
-    giữa suite sau P148 (tests/plugins/run-tests.sh:6100) thoát sớm khi đã có
-    fail. Cả P150 lẫn P161 cùng một lớp "đối-chứng-bản-cũ": chúng lấy
-    scripts/gate-card.js TẠI BASE COMMIT (git show, bản còn require lib/*.js)
-    rồi ghép với lib/ HIỆN TẠI — P150 (run-tests.sh:6148-6150) cp -R lib chỉ còn
-    .cjs nên bản base không nạp được và render khác bản mới; P161
-    (run-tests.sh:~6955) chép fixture bằng điều kiện `f.suffix == ".js"` nên
-    sau đổi tên chép ĐÚNG 0 file lib, mutant control mù → assert "PHEP DO MU:
-    mutant 'khong lot chu dam' van khong lam chan truy-ve-nguon ĐỎ".
-    Nested repro đầy đủ (suite trừ P42/P45): Results: 2 failed = P150, P161.
-    Baseline: n-a — suite dài, bỏ baseline có chủ đích (theo đề bài verify).
+    PASS: P30 plugins/ mirror in sync with sources (sync --check)
+    PASS: P42 manifest lech bi bat DUNG boi assertion cua P03
+    PASS: P45 bump ba manifest khong cham suite
+    PASS: P150 required_evidence tren the + report cu render y het ban base
+    PASS: P161 strip-md giu duong dan + ma tran toan phan
+    PASS: P181 [MBC] E9 kenh giao: menh de ton tai -> version goi >= moc (ca twin + mirror)
+    Results: all plugin tests passed
+    (162 dòng PASS, 0 dòng FAIL trong toàn bộ stdout — lưu ở
+    evidence/E13-r3-lane-stdout.txt)
+
+    PROVENANCE — ghi trung thực: suite này KHÔNG chạy lại ở vòng 3. Nó chạy
+    trong LÀN MÁY PHÊ DUYỆT tại commit 5f38521fae43348f8bad029a52a48cf302be3ee9,
+    là CHA TRỰC TIẾP của commit được ghim (`git rev-parse HEAD^` = 5f38521).
+    Bằng chứng diff-trống, tự kiểm trong lần verify này:
+      git diff --name-only 5f38521 HEAD  →  61 file, TẤT CẢ nằm dưới _acceptance/
+      git diff --name-only 5f38521 HEAD | grep -v '^_acceptance/' | wc -l  →  0
+    Tức giữa hai commit chỉ có re-pin hồ sơ bằng chứng; 0 file engine
+    (skills/, lib/, scripts/, hooks/, tests/, plugins/, commands/) thay đổi,
+    nên kết quả suite tại 5f38521 áp dụng nguyên vẹn cho cây được ghim.
+    Lý do không chạy lại: suite dài ~25 phút và đề bài vòng 3 là tests-only.
+    Baseline: n-a — suite dài, bỏ baseline có chủ đích.
 
 - eval: E14
-  run_id: consumer-copy-cjs-E14-r1-1786203049
+  run_id: consumer-copy-cjs-E14-r3-1786232323
   exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-08T15:30:51Z
+  verified_at: 2026-08-08T23:38:45Z
   output: |
+    Results: 324 passed, 0 failed (acceptance-verify)
     Results: 62 passed, 0 failed
     Results: all workflow tests passed
-    (baseline origin/main: all workflow tests passed)
+    (baseline green (guard) — đo ở vòng trước: all workflow tests passed)
 
 - eval: E15
-  run_id: consumer-copy-cjs-E15-r1-1786203057
+  run_id: consumer-copy-cjs-E15-r3-1786232325
   exit_code: 0
   baseline: green
   verifier: config:executors.script.product_map
-  verified_at: 2026-08-08T15:30:57Z
+  verified_at: 2026-08-08T23:38:45Z
   output: |
     PRODUCT-MAP.md khớp hồ sơ xưởng.
-    (baseline origin/main cũng xanh — guard. Ghi chú lạc: PRODUCT-MAP.md:41 vẫn
-    mang chuỗi "lib/md-section.js" mà E15 không đo — E15 đo khớp-hồ-sơ, không đo
-    tên file; chuỗi đó là 1 trong 27 hit của E6.)
+    (baseline green (guard) — đo ở vòng trước: origin/main cũng xanh.
+    Ghi chú vòng 1 nay đã hết hiệu lực: chuỗi "lib/md-section.js" trong
+    PRODUCT-MAP.md từng là 1 trong 27 hit của E6, nay E6 đo 0 hit)
 
 ## Analyst
 
-Green-on-baseline (không phân biệt): E10, E15 — đúng dự kiến, chúng là guard
-chạy-được-cả-hai-phía, không phải phép đo của feature. Suite E11/E12/E14
-green-on-both là guard kỳ vọng, không tính. Mọi eval gắn trực tiếp vào vật của
-feature (E1–E9) đều red trên baseline origin/main — bộ thước phân biệt được.
-E13 không có baseline (n-a có chủ đích).
+Green-on-baseline (guard, không phân biệt feature): E10, E11, E12, E14, E15 —
+đây là các suite/guard chạy-được-cả-hai-phía, chúng chứng minh harness còn
+sống chứ không chứng minh feature; đúng kỳ vọng, không phải lỗi thước.
+
+Mọi eval gắn trực tiếp vào vật của feature (E1–E9) đều red trên baseline
+origin/main — bộ thước phân biệt được bản trước và bản sau bản vá. E13 không có
+baseline (n-a có chủ đích, suite dài).
 
 ## Variance
 
-none — không eval nào chạy đa lượt. (E13 chạy 2 lần chỉ để loại giả thuyết
-nhiễu race; hai lần cho cùng kết quả tất định, không phải variance.)
+none — không eval nào chạy đa lượt.
 
 ## Iterations
 
@@ -251,6 +263,18 @@ Round 1: E6, E13 failed — E6: 27 tham chiếu .js còn sót trong phạm vi qu
 mới); E13: P42/P45 đỏ vì positive-control nested chạm P150/P161 — hai case
 đối-chứng-bản-cũ ghép script tại base commit (còn require lib/*.js) với lib/
 hiện tại chỉ còn .cjs. Returned to implementation.
+
+Round 2: E13 failed — E6 đã xanh sau khi vòng sửa siết vật; E13 còn đỏ ở chân
+mutant P161: điều kiện chép fixture `f.suffix == ".js"` chép ĐÚNG 0 file lib
+sau đợt đổi tên nên mutant control mù, phép đo tự báo "PHEP DO MU". Returned to
+implementation.
+
+Round 3 (tests-only, owner phê duyệt vượt trần — d-20260809T0200Z-ccc5): 15/15
+xanh. E6 giữ xanh với sanity counter 163 (grep còn chạy thật); chân mutant P161
+đã được sửa nên P150/P161 xanh, kéo theo P42/P45 xanh trở lại. E13 lấy từ làn
+máy phê duyệt tại commit cha 5f38521 với bằng chứng diff-trống (0 file ngoài
+_acceptance/ đổi giữa 5f38521 và commit ghim); 13 eval còn lại chạy tươi tại
+commit ghim trong lần verify này.
 
 ## Gate 2 checklist (human)
 

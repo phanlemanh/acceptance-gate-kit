@@ -1,0 +1,50 @@
+  PASS: UJ17-slug-sig
+  PASS: UJ17-ghost
+  PASS: UJ17neg
+  PASS: UJ17neg2
+UJ11 enforcement off/warn/strict KHONG ha luat moi (AC-11)
+  PASS: UJ11-off
+  PASS: UJ11-off-sig
+  PASS: UJ11-off-ghost
+  PASS: UJ11-warn
+  PASS: UJ11-warn-sig
+  PASS: UJ11-warn-ghost
+  PASS: UJ11-strict
+  PASS: UJ11-strict-sig
+  PASS: UJ11-strict-ghost
+UJ12 stdout + so luat + idempotent (AC-12)
+  PASS: UJ12a
+  PASS: UJ12b1
+  PASS: UJ12b2
+  PASS: UJ12c
+UJ14 tiem dot bien: vo hieu tung nhanh -> DUNG case tuong ung doi mau
+  PASS: UJ14ctrl-ujm_blk
+  PASS: UJ14ctrl-ujm_noc
+  PASS: UJ14ctrl-ujm_fld
+  PASS: UJ14ctrl-ujm_ctr
+  PASS: UJ14-blk
+  PASS: UJ14-noc
+  PASS: UJ14-fld
+  PASS: UJ14-ctr
+UJ14g uj_mut_usable phai TU CHOI ban sao khong chay duoc (meta-test cua chinh guard)
+  PASS: UJ14g-rong
+  PASS: UJ14g-nguyen
+  PASS: UJ14g-cut
+  PASS: UJ14g-cuphap
+UJ14b tiem CHE DO GOI: boc chot chu ky sau --base -> UJ17-nobase phai do
+  PASS: UJ14b-nobase
+  PASS: UJ14b-base
+UJ16 sinh lai evidence/unjudged-messages.txt roi diff byte-doi-byte
+  PASS: UJ16
+  PASS: UJ16b
+  PASS: UJ16d
+  PASS: UJ16e
+GCV1 canh bao mu criterion tren card THAT (2 ca keu + 1 ca im)
+  PASS: GCV1a khuon la -> card neu KHONG doc duoc criterion nao
+  PASS: GCV1b heading lech -> card neu ten heading sai
+  PASS: GCV1c card mu phai bao dung KHONG duyet
+  PASS: GCV1e nhanh CUT ra toi card that: card neu doc THIEU
+  PASS: GCV1f card cut cung bao dung duyet
+  PASS: GCV1d contract lanh khong sinh canh bao nao
+
+Results: 636 passed, 0 failed

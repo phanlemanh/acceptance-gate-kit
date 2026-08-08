@@ -1,0 +1,72 @@
+## ONLY_BLOCK=P42
+  PASS: P58 ban mirror chay that: exit 0 + doc du 5 AC
+  PASS: P38a gate-card require lib/gap-probe.cjs
+  PASS: P38b gate-card khong con literal regex descope
+  PASS: P39[commands/acceptance-init.md:key]
+  PASS: P39[commands/acceptance-init.md:modes]
+  PASS: P39[acceptance-init/SKILL.md:key]
+  PASS: P39[acceptance-init/SKILL.md:modes]
+  PASS: P41 mirror drift bi bat va NEU TEN file lech
+P42 mot manifest lech so -> suite phai DO
+  FAIL: P42 doi chung duong that bai — ban sao nguyen ven da do san
+  FAIL: P45 bump ba manifest khong cham suite (mut_ok=1 bumped=3)
+  PASS: P46 mode la: exit 2, ghim thong diep, KHONG ghi de
+  PASS: P47 entry an bi bat va NEU TEN
+  PASS: P48 chu ky ledger_mark khop EXPECTED (nguon + mirror + dot bien)
+  PASS: P50 argv thua exit 2 + neu ten tham so; mode don van xanh
+  PASS: P51 tests/workflows wired (gate.yml + config executors + suite_keys + dot bien)
+  PASS: P52 khoi Ngoai-hop-dong render that + co cum + khong lo path + backward
+  PASS: P53 fixture judge E11 == ban render that + khong jargon
+  PASS: P54 codex parity scope-triage (6 chuoi khoa + vai tro + dot bien)
+  PASS: P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)
+  PASS: P65 corpus 14 ca khop bang ghim (id+gwt+judgment)
+  PASS: P66 bao-tap: 0 mat, +76 dong criterion that, 0 rac
+  PASS: P67 co judgment: 0 lat; dau trong code-span = trich dan (false), go backtick -> true
+  PASS: P61 hai loi goi khop tren cay that; dot bien lam lech -> bat duoc (A:zulufox A:yankeecrab A:whiskeyelk A:victorowl A:id-AC-3 B:zulufox B:yankeecrab B:xraymoose B:whiskeyelk B:victorowl)
+  PASS: P69 ca (a) khuon la + ca (b) heading lech deu KEU va neu heading; contract lanh IM
+  PASS: P71 ca cut 2/8 KEU dung nhanh short; m==n IM (khong cry-wolf)
+  PASS: P70 moi contract cua kit dung '## Criteria'; doi chung duong bat duoc ban doi heading
+  PASS: P143 covGaps doc duoc block scalar > va |, canh bao dung AC, than block khong cuop key
+  PASS: P144 lint W1/W3 doc block scalar, khong ban gia, thieu that van do dung AC
+  PASS: P145 awk pairing bo qua than block scalar, hai chieu false-VIOLATION/false-green deu chan
+  PASS: P146 bullet wrap noi tron + Coverage/probe khong dau may (doi chung duong tren artifact that)
+  PASS: P147 round-trip card-plain: khuon key 2 chieu + overlay thay chu, khong giau hang, sev giu nguyen
+  PASS: P148 lot dau may o moi fallback tho (gwt, oos wrap, decLine x3, critText)
+Results: 2 failed
+exit(P42)=0
+## ONLY_BLOCK=P45
+  PASS: P58 ban mirror chay that: exit 0 + doc du 5 AC
+  PASS: P38a gate-card require lib/gap-probe.cjs
+  PASS: P38b gate-card khong con literal regex descope
+  PASS: P39[commands/acceptance-init.md:key]
+  PASS: P39[commands/acceptance-init.md:modes]
+  PASS: P39[acceptance-init/SKILL.md:key]
+  PASS: P39[acceptance-init/SKILL.md:modes]
+  PASS: P41 mirror drift bi bat va NEU TEN file lech
+  FAIL: P42 doi chung duong that bai — ban sao nguyen ven da do san
+P45 bump CA BA manifest + sync -> khong file nao duoi tests/ phai sua
+  FAIL: P45 bump ba manifest khong cham suite (mut_ok=1 bumped=3)
+  PASS: P46 mode la: exit 2, ghim thong diep, KHONG ghi de
+  PASS: P47 entry an bi bat va NEU TEN
+  PASS: P48 chu ky ledger_mark khop EXPECTED (nguon + mirror + dot bien)
+  PASS: P50 argv thua exit 2 + neu ten tham so; mode don van xanh
+  PASS: P51 tests/workflows wired (gate.yml + config executors + suite_keys + dot bien)
+  PASS: P52 khoi Ngoai-hop-dong render that + co cum + khong lo path + backward
+  PASS: P53 fixture judge E11 == ban render that + khong jargon
+  PASS: P54 codex parity scope-triage (6 chuoi khoa + vai tro + dot bien)
+  PASS: P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)
+  PASS: P65 corpus 14 ca khop bang ghim (id+gwt+judgment)
+  PASS: P66 bao-tap: 0 mat, +76 dong criterion that, 0 rac
+  PASS: P67 co judgment: 0 lat; dau trong code-span = trich dan (false), go backtick -> true
+  PASS: P61 hai loi goi khop tren cay that; dot bien lam lech -> bat duoc (A:zulufox A:yankeecrab A:whiskeyelk A:victorowl A:id-AC-3 B:zulufox B:yankeecrab B:xraymoose B:whiskeyelk B:victorowl)
+  PASS: P69 ca (a) khuon la + ca (b) heading lech deu KEU va neu heading; contract lanh IM
+  PASS: P71 ca cut 2/8 KEU dung nhanh short; m==n IM (khong cry-wolf)
+  PASS: P70 moi contract cua kit dung '## Criteria'; doi chung duong bat duoc ban doi heading
+  PASS: P143 covGaps doc duoc block scalar > va |, canh bao dung AC, than block khong cuop key
+  PASS: P144 lint W1/W3 doc block scalar, khong ban gia, thieu that van do dung AC
+  PASS: P145 awk pairing bo qua than block scalar, hai chieu false-VIOLATION/false-green deu chan
+  PASS: P146 bullet wrap noi tron + Coverage/probe khong dau may (doi chung duong tren artifact that)
+  PASS: P147 round-trip card-plain: khuon key 2 chieu + overlay thay chu, khong giau hang, sev giu nguyen
+  PASS: P148 lot dau may o moi fallback tho (gwt, oos wrap, decLine x3, critText)
+Results: 2 failed
+exit(P45)=0

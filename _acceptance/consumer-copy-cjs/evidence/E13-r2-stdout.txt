@@ -1,0 +1,50 @@
+P131 khuon CI: moi loi goi pre-merge-check.sh trong doc mang --base + fetch-depth di kem
+P131 OK
+  PASS: P131 khuon CI: moi loi goi pre-merge-check.sh trong doc mang --base + fetch-depth di kem
+P132 pilot block README symlink du moi lenh commands/*.md
+P132 OK (7 lenh deu co mat)
+  PASS: P132 pilot block README symlink du moi lenh commands/*.md
+P133 chu first-run: recheck-advice khop init + jsdom o 3 diem init + attribution /start=v1.30
+P133 OK (3 pin chu + dot bien deu do dung cho)
+  PASS: P133 chu first-run: recheck-advice khop init + jsdom o 3 diem init + attribution /start=v1.30
+P134 context-ladder writer: khoa context + giai doan 0 + luat canh + mac-dinh-nac-cao (E1/E2/E3/E4a)
+P134 OK (doi chung duong + 4 dot bien deu do dung cho)
+  PASS: P134 context-ladder writer: khoa context + giai doan 0 + luat canh + mac-dinh-nac-cao (E1/E2/E3/E4a)
+P135 context-ladder round-trip: khuon writer -> the render nhan tieng nguoi (E5)
+P135 OK (3 nac round-trip tu khuon writer)
+  PASS: P135 context-ladder round-trip: khuon writer -> the render nhan tieng nguoi (E5)
+P136 context-ladder co vang standalone thieu canh: 3 nhanh fixture tu writer (E6)
+P136 OK (thieu->co, canh->khong, descope->khong, lech-khuon->co, placeholder->co)
+  PASS: P136 context-ladder co vang standalone thieu canh: 3 nhanh fixture tu writer (E6)
+P137 context-ladder duong doc-cu + gia tri la: co vang co ten, khong chan (E7)
+P137 OK (doc-cu co ten, gia tri la co ten, hop le khong co)
+  PASS: P137 context-ladder duong doc-cu + gia tri la: co vang co ten, khong chan (E7)
+P138 context-ladder socket host_embed: vang->co vang, con tro hong->neu ten, giai duoc->khong (E4)
+P138 OK (vang->co, chet->ten, song->khong, comment/CRLF/blank->khong, SKILL khai khoa)
+  PASS: P138 context-ladder socket host_embed: vang->co vang, con tro hong->neu ten, giai duoc->khong (E4)
+P139 context-ladder generic: fixture repo-la code-sinh (web app tron) + grep-guard tu vung host (E8)
+P139 OK (3 phep do dung tren repo-la + guard co doi chung duong)
+  PASS: P139 context-ladder generic: fixture repo-la code-sinh (web app tron) + grep-guard tu vung host (E8)
+P140 context-ladder wiring: checklist ket phien S1-D + resume-guard doc context (E9)
+P140 OK (doi chung duong + 2 dot bien)
+  PASS: P140 context-ladder wiring: checklist ket phien S1-D + resume-guard doc context (E9)
+P141 context-ladder docs-pin: amendment spec v2 + term CONTEXT.md (E13)
+P141 OK (doi chung duong + 2 dot bien)
+  PASS: P141 context-ladder docs-pin: amendment spec v2 + term CONTEXT.md (E13)
+P142 context-ladder coverage-lint scoped: khong canh bao nao ngoai W3 da-biet (E12)
+P142 OK (chi W3 da-biet; doi chung duong W1 no dung)
+  PASS: P142 context-ladder coverage-lint scoped: khong canh bao nao ngoai W3 da-biet (E12)
+P143 gate-card covGaps: block scalar co ca am -> KHONG co; thieu that -> dung 1 AC
+  PASS: P143 covGaps doc duoc block scalar > va |, canh bao dung AC, than block khong cuop key
+P144 eval-coverage-lint: W1/W3 doc block scalar, khong ban gia, thieu that van do
+  PASS: P144 lint W1/W3 doc block scalar, khong ban gia, thieu that van do dung AC
+P145 pre-merge cross-layer: than block khong reset/khong pair ho, thieu that van VIOLATION
+  PASS: P145 awk pairing bo qua than block scalar, hai chieu false-VIOLATION/false-green deu chan
+P146 gate-card Coverage/probe: noi tron bullet wrap + khong dau markdown may (artifact THAT)
+  PASS: P146 bullet wrap noi tron + Coverage/probe khong dau may (doi chung duong tren artifact that)
+P147 card-plain phu Coverage + gap-probe: overlay thay chu, sev + hang khong overlay van hien
+  PASS: P147 round-trip card-plain: khuon key 2 chieu + overlay thay chu, khong giau hang, sev giu nguyen
+P148 moi fallback tho lot dau may: gwt + oos + decLine (G1) + critText/decLine (G2)
+  PASS: P148 lot dau may o moi fallback tho (gwt, oos wrap, decLine x3, critText)
+
+Results: 2 failed

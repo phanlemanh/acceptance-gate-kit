@@ -1,0 +1,50 @@
+  PASS: DV1/10 SKILL có mệnh đề: DV10: carry round fix minh bạch
+  PASS: DV1e cặp marker REPIN-TEMPLATE bao đúng khuôn (dòng jsonl + section)
+  PASS: DV1m mutant xoá mệnh đề → detector đỏ: DV1a: 1 sự kiện = 1 agent tươi
+  PASS: DV1m mutant xoá mệnh đề → detector đỏ: DV1b1: khuôn dòng kind:repin
+  PASS: DV1m mutant xoá mệnh đề → detector đỏ: DV1b2: append per-slug
+  PASS: DV1m mutant xoá mệnh đề → detector đỏ: DV1c1: section cite run_id nguyên văn
+  PASS: DV1m mutant xoá mệnh đề → detector đỏ: DV1c2: verified_commit == sha
+  PASS: DV1m mutant xoá mệnh đề → detector đỏ: DV1d: lane fail → không ký mù, lane mới
+  PASS: DV1m mutant xoá mệnh đề → detector đỏ: DV10: carry round fix minh bạch
+  PASS: MM1 SKILL có câu: MM1a: ma trận viết-trước
+  PASS: MM1 SKILL có câu: MM1b: âm tính + đối chứng + thông điệp
+  PASS: MM1 SKILL có câu: MM1c: fixture viết tay
+  PASS: MM1 SKILL có câu: MM1c2: round-trip từ writer thật
+  PASS: MM1 SKILL có câu: MM1d: từ-vựng vs quan hệ
+  PASS: MM1 SKILL có câu: MM1e2: chỉ dẫn vs đầu ra
+  PASS: MM1 SKILL có câu: MM1f: hardcode ROOT
+  PASS: MM1e câu đếm "đủ 7 ý" GIỮ NGUYÊN (mở rộng trong ý 4, không thêm ý)
+  PASS: MM2 codex SKILL có câu: MM2a: full matrix
+  PASS: MM2 codex SKILL có câu: MM2b: positive control + pinned message
+  PASS: MM2 codex SKILL có câu: MM2c: hand-written fixture
+  PASS: MM2 codex SKILL có câu: MM2c2: round-trip from real writer
+  PASS: MM2 codex SKILL có câu: MM2d: vocabulary vs relationship
+  PASS: MM2 codex SKILL có câu: MM2e: instructions vs output
+  PASS: MM2 codex SKILL có câu: MM2f: hardcode ROOT
+  PASS: MM1m mutant xoá → đỏ: MM1a: ma trận viết-trước
+  PASS: MM1m mutant xoá → đỏ: MM1b: âm tính + đối chứng + thông điệp
+  PASS: MM1m mutant xoá → đỏ: MM1c: fixture viết tay
+  PASS: MM1m mutant xoá → đỏ: MM1c2: round-trip từ writer thật
+  PASS: MM1m mutant xoá → đỏ: MM1d: từ-vựng vs quan hệ
+  PASS: MM1m mutant xoá → đỏ: MM1e2: chỉ dẫn vs đầu ra
+  PASS: MM1m mutant xoá → đỏ: MM1f: hardcode ROOT
+  PASS: MM2m mutant xoá → đỏ: MM2a: full matrix
+  PASS: MM2m mutant xoá → đỏ: MM2b: positive control + pinned message
+  PASS: MM2m mutant xoá → đỏ: MM2c: hand-written fixture
+  PASS: MM2m mutant xoá → đỏ: MM2c2: round-trip from real writer
+  PASS: MM2m mutant xoá → đỏ: MM2d: vocabulary vs relationship
+  PASS: MM2m mutant xoá → đỏ: MM2e: instructions vs output
+  PASS: MM2m mutant xoá → đỏ: MM2f: hardcode ROOT
+  PASS: JR6 SKILL có mệnh đề: JR6-VI: đọc required_evidence trước
+  PASS: JR6 SKILL có mệnh đề: JR6-VI: cấm đoán mò
+  PASS: JR6 SKILL có mệnh đề: JR6-EN: đọc trước
+  PASS: JR6 SKILL có mệnh đề: JR6-EN: cấm đoán mò
+  PASS: JR6m mutant xoá → đỏ: JR6-VI: đọc required_evidence trước
+  PASS: JR6m mutant xoá → đỏ: JR6-VI: cấm đoán mò
+  PASS: JR6m mutant xoá → đỏ: JR6-EN: đọc trước
+  PASS: JR6m mutant xoá → đỏ: JR6-EN: cấm đoán mò
+
+Results: 62 passed, 0 failed
+
+Results: all workflow tests passed

@@ -1,0 +1,3 @@
+sanity: 163 tham chiếu .cjs tìm thấy (phải > 0, nếu 0 thì grep hỏng)
+đo:     0 tham chiếu .js còn sót · 0 require không-đuôi
+SWEEP OK

@@ -27,3 +27,14 @@
 {"ts":"2026-08-08T23:11:57Z","round":2,"evalId":"E14","run_id":"consumer-copy-cjs-E14-r2-1786230715","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
 {"ts":"2026-08-08T23:12:05Z","round":2,"evalId":"E15","run_id":"consumer-copy-cjs-E15-r2-1786230725","exit_code":0,"cmd":"node scripts/product-map.mjs --root . --check"}
 {"ts":"2026-08-08T23:17:27Z","round":2,"evalId":"E13-only-diagnostic","run_id":"consumer-copy-cjs-E13only-r2-1786230767","exit_code":0,"cmd":"ONLY_BLOCK=P42|P45 bash tests/plugins/run-tests.sh (lượt chẩn đoán trích dòng FAIL, không thay kết quả E13)"}
+{"ts":"2026-08-08T23:37:28Z","round":3,"evalId":"E1-E5","run_id":"consumer-copy-cjs-E1-5-r3-1786232248","exit_code":0,"cmd":"node tests/scripts/consumer-esm.test.mjs"}
+{"ts":"2026-08-08T23:37:36Z","round":3,"evalId":"E6","run_id":"consumer-copy-cjs-E6-r3-1786232256","exit_code":0,"cmd":"bash _acceptance/consumer-copy-cjs/checks/refs-sweep.sh"}
+{"ts":"2026-08-08T23:37:36Z","round":3,"evalId":"E7","run_id":"consumer-copy-cjs-E7-r3-1786232256","exit_code":0,"cmd":"bash _acceptance/consumer-copy-cjs/checks/inline-node-e.sh"}
+{"ts":"2026-08-08T23:37:36Z","round":3,"evalId":"E8","run_id":"consumer-copy-cjs-E8-r3-1786232256","exit_code":0,"cmd":"bash _acceptance/consumer-copy-cjs/checks/recheck-lint.sh"}
+{"ts":"2026-08-08T23:37:36Z","round":3,"evalId":"E9","run_id":"consumer-copy-cjs-E9-r3-1786232256","exit_code":0,"cmd":"bash _acceptance/consumer-copy-cjs/checks/manifest-bump.sh"}
+{"ts":"2026-08-08T23:37:44Z","round":3,"evalId":"E10","run_id":"consumer-copy-cjs-E10-r3-1786232264","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
+{"ts":"2026-08-08T23:38:42Z","round":3,"evalId":"E11","run_id":"consumer-copy-cjs-E11-r3-1786232264","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-08T23:38:43Z","round":3,"evalId":"E12","run_id":"consumer-copy-cjs-E12-r3-1786232322","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-08-08T23:38:45Z","round":3,"evalId":"E14","run_id":"consumer-copy-cjs-E14-r3-1786232323","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-08T23:38:45Z","round":3,"evalId":"E15","run_id":"consumer-copy-cjs-E15-r3-1786232325","exit_code":0,"cmd":"node scripts/product-map.mjs --root . --check"}
+{"ts":"2026-08-08T23:38:58Z","round":3,"evalId":"E13","run_id":"consumer-copy-cjs-E13-r3-lane","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh (làn máy phê duyệt @5f38521)"}

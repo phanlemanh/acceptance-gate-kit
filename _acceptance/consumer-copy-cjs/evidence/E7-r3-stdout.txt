@@ -1,0 +1,10 @@
+sanity: 4 biến đường-dẫn-lib · 4 lối gọi node trong pre-merge-check.sh
+  gán:  58:RECHECK="$HERE/recheck-evidence.cjs"
+  gán:  160:GP_LIB="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)/lib/gap-probe.cjs"
+  gán:  265:  WSREC_LIB="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)/lib/workspace-record.cjs"
+  gán:  578:  AC_LINE_LIB="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)/lib/ac-line.cjs"
+  gọi:  268:      _cl_out="$(node -e 'const l=require(process.argv[1]);const fs=require("fs");process.stdout.write(l.configList(fs.readFileSync(process.argv[2],"utf8"),process.argv[3]).join("\n"))' "$WSREC_LIB" "$ACC/config.yaml" "$1" 2>/dev/null)" && { printf '%s\n' "$_cl_out"; return; }
+  gọi:  580:    if xl_from_lib="$(AGK_CONTRACT="$contract" node -e '
+  gọi:  666:      gp_line="$(node "$GP_LIB" classify "$dir" 2>/dev/null || true)"
+  gọi:  920:      recheck_out="$(node "$RECHECK" "$report" 2>&1)"; rc=$?
+INLINE-NODE OK
