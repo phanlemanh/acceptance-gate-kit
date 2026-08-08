@@ -14,3 +14,16 @@
 {"ts":"2026-08-08T15:30:57Z","round":1,"evalId":"E15","run_id":"consumer-copy-cjs-E15-r1-1786203057","exit_code":0,"cmd":"node scripts/product-map.mjs --root . --check"}
 {"ts":"2026-08-08T15:31:44Z","round":1,"evalId":"E13","run_id":"consumer-copy-cjs-E13-r1-1786202910","exit_code":1,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-08T15:36:55Z","round":1,"evalId":"E13","run_id":"consumer-copy-cjs-E13-r1b-1786203218","exit_code":1,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-08T15:51:42Z","round":2,"evalId":"E1-E5","run_id":"consumer-copy-cjs-ce-r2-1786204302","exit_code":0,"cmd":"node tests/scripts/consumer-esm.test.mjs"}
+{"ts":"2026-08-08T15:51:52Z","round":2,"evalId":"E6","run_id":"consumer-copy-cjs-E6-r2-1786204311","exit_code":0,"cmd":"bash _acceptance/consumer-copy-cjs/checks/refs-sweep.sh"}
+{"ts":"2026-08-08T15:51:52Z","round":2,"evalId":"E7","run_id":"consumer-copy-cjs-E7-r2-1786204312","exit_code":0,"cmd":"bash _acceptance/consumer-copy-cjs/checks/inline-node-e.sh"}
+{"ts":"2026-08-08T15:51:52Z","round":2,"evalId":"E8","run_id":"consumer-copy-cjs-E8-r2-1786204312","exit_code":0,"cmd":"bash _acceptance/consumer-copy-cjs/checks/recheck-lint.sh"}
+{"ts":"2026-08-08T15:51:52Z","round":2,"evalId":"E9","run_id":"consumer-copy-cjs-E9-r2-1786204312","exit_code":0,"cmd":"bash _acceptance/consumer-copy-cjs/checks/manifest-bump.sh"}
+{"ts":"2026-08-08T15:52:02Z","round":2,"evalId":"E10","run_id":"consumer-copy-cjs-E10-r2-1786204322","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
+{"ts":"2026-08-08T15:53:04Z","round":2,"evalId":"E11","run_id":"consumer-copy-cjs-E11-r2-1786204329","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-08T15:53:21Z","round":2,"evalId":"E12","run_id":"consumer-copy-cjs-E12-r2-1786204399","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-08-08T15:53:51Z","round":2,"evalId":"E6-baseline","run_id":"consumer-copy-cjs-E6base-r2-1786204431","exit_code":1,"cmd":"bash _acceptance/consumer-copy-cjs/checks/refs-sweep.sh (script của nhánh, chạy trong worktree origin/main)"}
+{"ts":"2026-08-08T15:56:23Z","round":2,"evalId":"E13","run_id":"consumer-copy-cjs-E13-r2-1786204414","exit_code":1,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-08T23:11:57Z","round":2,"evalId":"E14","run_id":"consumer-copy-cjs-E14-r2-1786230715","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-08T23:12:05Z","round":2,"evalId":"E15","run_id":"consumer-copy-cjs-E15-r2-1786230725","exit_code":0,"cmd":"node scripts/product-map.mjs --root . --check"}
+{"ts":"2026-08-08T23:17:27Z","round":2,"evalId":"E13-only-diagnostic","run_id":"consumer-copy-cjs-E13only-r2-1786230767","exit_code":0,"cmd":"ONLY_BLOCK=P42|P45 bash tests/plugins/run-tests.sh (lượt chẩn đoán trích dòng FAIL, không thay kết quả E13)"}

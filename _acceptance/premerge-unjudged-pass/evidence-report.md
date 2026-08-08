@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: d55a836d454685cc1ab820ddada9e90b1a7ace95
+verified_commit: 5f38521fae43348f8bad029a52a48cf302be3ee9
 human_signoff: Manh Phan 2026-07-29
 ---
 
@@ -633,3 +633,7 @@ sha: 74dd33f31853e0fe1a39cf6069e2adbabd01f5d7 · suites: 6 lệnh exit 0
 ### Re-pin lần 26 — 2026-08-07, do hợp nhất measure-birth-certificate (signed-off) với luật uncoded() cross-layer + JR11a scoped của origin — engine đổi cả hai phía
 run_id: repin-20260807-merge-mbc-uncoded-lane1
 sha: d55a836d454685cc1ab820ddada9e90b1a7ace95 · suites: 6 lệnh exit 0
+
+### Re-pin lần 36 — 2026-08-08, do bugfix engine 1.39.1 (bộ file chép sang consumer đổi .cjs + danh sách chép đủ 7 file — hooks/lib/scripts/tests đổi)
+run_id: repin-20260809-consumer-copy-cjs-lane1
+sha: 5f38521fae43348f8bad029a52a48cf302be3ee9 · suites: 6 lệnh exit 0
