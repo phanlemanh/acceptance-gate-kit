@@ -118,3 +118,8 @@ tai-lap-ceremony-diet#8	tai-lap-ceremony-diet	low	do-thuoc	chet	30312af		P187/P1
 tai-lap-ceremony-diet#9	tai-lap-ceremony-diet	high	fixture-viet-tay	chet	30312af		contract fixture printf viết-tay dù template có mold — mk_contract rút CONTRACT-FRONTMATTER-TEMPLATE (P187+P191)
 tai-lap-ceremony-diet#10	tai-lap-ceremony-diet	medium	do-thuoc	chet	30312af		discover() P185 chưa từng chứng minh biết đỏ — mutant qua cây code-sinh (thấy ghost-new, bỏ qua clean)
 tai-lap-ceremony-diet#11	tai-lap-ceremony-diet	low	do-thuoc	song			mutant P191 đo BẢN SAO chép tay của phép trích config, không chạy bên đọc thật — ngoài danh sách duyệt đợt (b), chờ đợt sau
+tai-lap-ceremony-diet#12	tai-lap-ceremony-diet	high	fail-open	chet	ecea39e		r3 in-contract AC-3: bypass_ack regex \s* băng-dòng — ack-để-trống-có-dòng-kế + toàn-khoảng-trắng vẫn ký; vá lớp [ \t] cả 8 regex + ma trận 6 hình dạng P187
+tai-lap-ceremony-diet#13	tai-lap-ceremony-diet	medium	fail-open	song			slug/path vào lệnh shell in-một-phát không qua guard như --name — HẸN đợt bugfix 2.0.1 SAU phát hành 2.0.0 + thông báo #2 (quyết Cổng 2 r3 mục 3)
+tai-lap-ceremony-diet#14	tai-lap-ceremony-diet	medium	do-thuoc	song			P186 chưa đo tính CHỌN LỌC của KPI pickaxe (pattern -G bị wildcard, không fixture đếm/không-đếm; twin codex chỉ khớp khuôn) — HẸN 2.0.1 (quyết Cổng 2 r3 mục 3)
+tai-lap-ceremony-diet#15	tai-lap-ceremony-diet	low	do-thuoc	song			mk_repo P187: nhánh printf đầu luôn fail, xả noise No-such-file vào run xanh — ghi sổ (quyết Cổng 2 r3 mục 3)
+tai-lap-ceremony-diet#16	tai-lap-ceremony-diet	low	fail-open	chet	ecea39e		replace human_signoff từng nuốt dòng comment kế (\s* băng-dòng) — ĐÓNG MIỄN PHÍ bởi class-fix dòng 75, đã kiểm sống, không viết test thêm (quyết Cổng 2 r3 mục 3)
