@@ -5,9 +5,9 @@ slug: consumer-copy-cjs
 owner: phanlemanh@gmail.com
 risk_tier: T3
 surfaces: [cli]
-status: draft
-approved_by:
-approved_at:
+status: verified
+approved_by: Phan Le Manh
+approved_at: 2026-08-09
 time_human_minutes: {gate1: 0, gate2: 0}
 ---
 
