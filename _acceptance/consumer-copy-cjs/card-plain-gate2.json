@@ -1,0 +1,13 @@
+{
+  "feature_plain": "Bộ cổng nghiệm thu mà kit chép sang repo của đội giờ chạy được thật ở đó — kể cả khi repo khai kiểu module — thay vì chết im từ ngày cài mà không ai biết.",
+  "scope_plain": "Không mở cơ chế mới (lab đang đóng băng): không thêm khai kiểu cho kho, không viết bộ chép tự động, không chạm ba đề bài đã hẹn sang giai đoạn sau, không tự sửa repo floorplanstudio hộ, không đổi đuôi nhóm file chỉ chạy trong kho.",
+  "analyst_plain": "Năm phép đo xanh cả trước lẫn sau bản vá là các chốt canh-chừng thường trực (bốn bộ kiểm của kho, bản đóng gói, bản đồ sản phẩm) — chúng chứng minh bản vá không làm vỡ gì, còn phần chứng minh bản vá có tác dụng nằm ở chín phép đo chỉ xanh sau khi vá.",
+  "decisions_plain": [
+    { "id": "d-20260808T1200Z-ccc1", "p": "KHÔNG chạy quét-hình-thái độc lập cho vụ này — không gian lỗi đã đóng và liệt được bằng máy đếm; đổi lại, việc canh sót giao cho phép đo quan-hệ-hai-danh-sách thay vì một bảng liệt kê tĩnh." },
+    { "id": "d-20260808T1201Z-ccc2", "p": "Giữ đuôi cũ cho nhóm file chỉ chạy trong kho và trong bộ cài plugin — đổi lại, nếu mai này ai đem một file nhóm này vào danh sách chép mà quên đổi đuôi, phép đo quan hệ sẽ tự đỏ." },
+    { "id": "d-20260808T1210Z-ccc3", "p": "Ghi lại một giả-định-chưa-đo về nơi cài plugin thành việc-phải-xem-lại: vòng nào chạm phần móc nối phải đo thật hoặc đổi đuôi nốt." },
+    { "id": "d-20260809T0100Z-ccc4", "p": "Code đã nằm trên nhánh trước khi hợp đồng qua cổng duyệt tiêu chí — chọn có ý thức vì phiên chạy tự hành không có người ký lúc đó; cổng chặn-merge còn nguyên, nếu owner bác thì lùi đúng hai bản ghi đã nêu đích danh." },
+    { "id": "d-20260809T0200Z-ccc5", "p": "Owner cho phép một vòng sửa thứ ba vượt trần đã khai, kèm điều kiện khoá: chỉ chạm bộ kiểm, phải đổi cách giải chứ không đắp triệu chứng, và còn đỏ thì hoãn bản phát hành — vòng này đã đi đúng cả ba điều kiện." },
+    { "id": "d-20260809T0201Z-ccc6", "p": "Gỡ hẳn kiểu chép-theo-đuôi-file trong bộ kiểm — chính chỗ đó đã sinh cùng một lỗi hai lần dưới hai lớp da; đổi lại bộ kiểm dựng nặng thêm vài file." }
+  ]
+}
