@@ -7186,8 +7186,44 @@ with tempfile.TemporaryDirectory() as d:
         mut_lines.append(ln)
     assert dropped == 1, "tiem mutant that bai (xoa duoc %d dong lot-dam) — cap nhat phep do" % dropped
     mut_src = "\n".join(mut_lines)
-    mut_js = dd / "scripts" / "gate-card.mut.js"
+    # ── ca cô lập lớp (r3-tests-only, owner phê duyệt 2026-08-09): sau đợt
+    # .cjs 1.39.1, HAI THẾ HỆ script có bộ phụ thuộc lib RỜI NHAU — một thư mục
+    # lib không phục vụ được cả hai. Tắt từng thế hệ bằng DỮ LIỆU của bên kia
+    # (khuôn "mutant phải có ca cô lập lớp"): mỗi chiều phải CHẾT khi đứng cạnh
+    # lib của thế hệ kia; và mutant chỉ được chấm khi nó CHẠY ĐƯỢC — card()
+    # nuốt lỗi nạp thành None, nên "không đỏ" của một script chết là mù.
+    def renders_any(js, probe_slugs):
+        return any(card(js, s, g) is not None for s in probe_slugs for g in ("1", "2"))
+    def copy_lib_now(dst):
+        # chép TRỌN lib hiện tại — KHÔNG lọc theo đuôi. Lọc đuôi chính là lớp
+        # lỗi vòng này: `.js` bỏ sót cả bộ sau đợt .cjs, còn `.cjs` bỏ sót
+        # `out-of-contract.js` (file không chép sang consumer nên giữ đuôi cũ).
+        n = 0
+        for f in (root / "lib").iterdir():
+            if f.is_file(): (dst / f.name).write_text(f.read_text(encoding="utf-8"), encoding="utf-8"); n += 1
+        assert n >= 5, "lib hien tai chi co %d file — fixture the he moi khong dung duoc" % n
+    iso_new = dd / "iso-new"; (iso_new / "scripts").mkdir(parents=True); (iso_new / "lib").mkdir()
+    (iso_new / "scripts" / "gate-card.js").write_text(CARD.read_text(encoding="utf-8"), encoding="utf-8")
+    for name in lib_names:
+        blob = subprocess.run(["git", "-C", str(root), "show", "%s:%s" % (BASE, name)],
+                              capture_output=True, text=True)
+        (iso_new / "lib" / pathlib.Path(name).name).write_text(blob.stdout, encoding="utf-8")
+    assert not renders_any(iso_new / "scripts" / "gate-card.js", slugs[:3]), \
+        "co-lap-lop: script the he MOI van chay duoc tren lib the he CU — hai the he khong con roi nhau, cap nhat phep do"
+    iso_old = dd / "iso-old"; (iso_old / "scripts").mkdir(parents=True); (iso_old / "lib").mkdir()
+    (iso_old / "scripts" / "gate-card.js").write_text(src_old, encoding="utf-8")
+    copy_lib_now(iso_old / "lib")
+    assert not renders_any(iso_old / "scripts" / "gate-card.js", slugs[:3]), \
+        "co-lap-lop: script the he CU van chay duoc tren lib the he MOI — hai the he khong con roi nhau, cap nhat phep do"
+    # Vá theo hình (không đắp triệu chứng): mutant là script THẾ HỆ MỚI nên
+    # đứng trong thư mục riêng cạnh lib .cjs hiện tại — dd/lib là nhà của thế
+    # hệ CŨ (bản base), không nhét chung.
+    mut_dir = dd / "cur"; (mut_dir / "scripts").mkdir(parents=True); (mut_dir / "lib").mkdir()
+    copy_lib_now(mut_dir / "lib")
+    mut_js = mut_dir / "scripts" / "gate-card.mut.js"
     mut_js.write_text(mut_src, encoding="utf-8")
+    assert renders_any(mut_js, slugs), \
+        "PHEP DO MU: mutant khong chay duoc (0 the render duoc) — 'khong do' cua mot script chet khong duoc dem la bang chung; dat mutant canh dung lib the he cua no"
     bad_mut = untraceable(mut_js)
     assert bad_mut, "PHEP DO MU: mutant 'khong lot chu dam' van khong lam chan truy-ve-nguon ĐỎ"
     # ...VA phai lam chan quet-corpus (E9) do — day la chan tung mu o S4-r2

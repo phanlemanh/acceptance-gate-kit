@@ -1,0 +1,39 @@
+{
+  "feature_plain": "Bộ cổng nghiệm thu mà kit chép sang repo của đội giờ chạy được thật ở đó — kể cả khi repo khai kiểu module — thay vì chết im từ ngày cài mà không ai biết.",
+  "will_do": [
+    { "id": "AC-1", "p": "Sẽ chạy được tầng kiểm-lại bằng chứng ngay trong repo của đội (trước đây tầng này chưa từng chạy nổi một lần kể từ khi cài): hồ sơ lành đi qua sạch, không lỗi nạp." },
+    { "id": "AC-2", "p": "Sẽ chạy trọn cả ba nhóm luật của cổng chặn-merge trong repo của đội — không còn dòng nào báo \"luật đang tắt\"." },
+    { "id": "AC-3", "p": "Sẽ chứng minh tầng kiểm-lại đang chấm bài thật: hồ sơ bị tiêm lỗi phải bị chặn, kèm đúng thông điệp chặn." },
+    { "id": "AC-4", "p": "Sẽ giữ một ca đối-chứng-bệnh-cũ: dựng lại đúng cảnh hỏng trước bản vá và bắt nó đỏ đúng thông điệp lỗi — để biết phép đo phân biệt được vá-rồi với chưa-vá." },
+    { "id": "AC-5", "p": "Sẽ để máy canh danh sách file cần chép cho đủ: so \"cổng thật sự dùng gì\" với \"chỉ dẫn cài đặt bảo chép gì\", lệch một file là đỏ ghim đúng tên." },
+    { "id": "AC-6", "p": "Sẽ sạch tham chiếu tên-file-cũ trên mọi bề mặt đang sống của kho (hồ sơ lịch sử giữ nguyên đúng sổ)." },
+    { "id": "AC-7", "p": "Sẽ bảo đảm các đoạn gọi-máy-nội-tuyến bên trong cổng chặn-merge cũng nạp đúng bộ file mới, không đường nào còn trỏ tên cũ." },
+    { "id": "AC-8", "p": "Sẽ hết hai cảnh báo lint mà repo của đội nhìn thấy khi soi file kiểm-lại." },
+    { "id": "AC-9", "p": "Sẽ đổi số phiên bản thật ở cả bảy bản khai gói — đội bấm cập nhật là nhận được bản vá (số trùng thì trình cập nhật bỏ qua dù ruột đã đổi)." },
+    { "id": "AC-10", "p": "Sẽ giữ bản đóng gói khớp nguồn từng byte (máy canh, không tay)." }
+  ],
+  "wont_do": [
+    { "id": "AC-11", "p": "Chặn mọi kiểu nới luật cũ: bốn bộ kiểm của kho phải xanh và phép đo chỉ-được-thêm xác nhận không dòng luật nào bị sửa hay xoá." }
+  ],
+  "scope_plain": "Không mở cơ chế mới (lab đang đóng băng): không thêm khai kiểu cho kho, không viết bộ chép tự động, không chạm ba đề bài đã hẹn sang giai đoạn 4, không tự sửa repo floorplanstudio hộ, không đổi đuôi nhóm file chỉ chạy trong kho.",
+  "coverage_plain": [
+    { "i": 0, "p": "Đã liệt đủ \"file nào rời kho sang repo của đội\" — bằng chứng đủ là máy so hai danh sách với nhau (AC-5, quan hệ hai tập), không phải một bảng chép tay." },
+    { "i": 1, "p": "Đã phủ cả hai kiểu repo của đội: kiểu khai module (cảnh hỏng — đo bằng repo nháp máy dựng trong mỗi lần chạy) và kiểu không khai (cảnh xưởng — đo bằng chính kho kit)." },
+    { "i": 2, "p": "Đã phủ đủ ba lối cổng nạp file: nạp trực tiếp, gọi nội tuyến trong cổng chặn-merge (AC-7, đường dễ sót nhất), và chạy như lệnh rời." },
+    { "i": 3, "p": "Đã phủ kênh giao đến đội: số phiên bản phải đổi thật (AC-9) và bản đóng gói phải khớp nguồn (AC-10) — vá đúng mà số không đổi thì đội không bao giờ nhận được." }
+  ],
+  "gap_probe_plain": [
+    { "i": 0, "p": "Phép đo \"danh sách chép đủ\" từng chỉ được phá-thử bằng tay một lần — đã vá ngay trong ngày: giờ mỗi lần chạy đều tự bỏ thử một mục và đòi phép đo đỏ đúng tên mục đó." },
+    { "i": 1, "p": "Hai trong ba luật chép sang mới chỉ được chứng minh là mở-máy-lên-được, chưa chứng minh chấm-được-bài — đã vá ngay trong ngày: thêm ca xoá vật để luật phản biện phải chặn đúng thông điệp ngay trong repo nháp." },
+    { "i": 2, "p": "Lý do giữ đuôi cũ cho nhóm file không-chép đứng trên một giả định chưa đo (nơi cài plugin không khai kiểu module) — ghi thành việc-phải-xem-lại có điều kiện dừng rõ, chưa xử trong đợt này." },
+    { "i": 3, "p": "Hồ sơ mẫu trong ca thử do chính bộ thử sinh ra; nếu khuôn lệch với bên đọc thì ca thử tự đỏ oan và lộ ngay — chấp nhận, không thêm cơ chế dưới lệnh đóng băng." },
+    { "i": 4, "p": "Trục kiểu-repo khai ba giá trị nhưng thực đo hai — chấp nhận theo chuẩn Node (không khai đồng nghĩa commonjs); muốn chỉnh chữ phần Coverage thì chỉnh ở Cổng 1 này." },
+    { "i": 5, "p": "Lời nhắc đưa repo floorplanstudio về cùng bản vá không có luật máy nào canh — chấp nhận: việc thuộc repo đó, lời nhắc nằm trong báo cáo cuối phiên và mục việc-kế của hồ sơ tổng kết." }
+  ],
+  "decisions_plain": [
+    { "id": "d-20260808T1200Z-ccc1", "p": "KHÔNG chạy quét-hình-thái độc lập cho vụ này — không gian lỗi đã đóng và liệt được bằng máy đếm; đổi lại, việc canh sót giao cho phép đo quan-hệ-hai-danh-sách thay vì một bảng liệt kê tĩnh." },
+    { "id": "d-20260808T1201Z-ccc2", "p": "Giữ đuôi cũ cho nhóm file chỉ chạy trong kho và trong bộ cài plugin — đổi lại, nếu mai này ai đem một file nhóm này vào danh sách chép mà quên đổi đuôi, phép đo quan hệ sẽ tự đỏ." },
+    { "id": "d-20260808T1210Z-ccc3", "p": "Ghi lại một giả-định-chưa-đo về nơi cài plugin thành việc-phải-xem-lại: vòng nào chạm phần móc nối (hooks) phải đo thật hoặc đổi đuôi nốt." },
+    { "id": "d-20260809T0100Z-ccc4", "p": "Code đã nằm trên nhánh trước khi hợp đồng qua Cổng 1 — chọn có ý thức vì phiên chạy tự hành không có người ký lúc đó; cổng chặn-merge còn nguyên, nếu owner bác thì lùi đúng hai commit đã ghi đích danh." }
+  ]
+}
