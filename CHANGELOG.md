@@ -6,6 +6,10 @@
 
 ## 2.0.0 — 2026-08-08 (acceptance-gate + feature-loop cùng lên 2.0.0)
 
+> Món *ký gộp một lệnh* (sign-batch) RÚT khỏi bản này theo lối-thoát-khai-trước
+> (4 vòng S4 liên tiếp, fail-open đổi da 4 lần trên parser tự chế) — làm lại ở 2.1
+> trên `lib/workspace-record.js`. Ba món dưới đây giữ nguyên.
+
 Bản "ceremony diet" của đợt tái lập (charter:
 `docs/plans/2026-08-07-tai-lap-don-gian-va-trien-khai-doi.md`). Toàn bộ là
 BỚT nghi thức — **chuẩn bằng chứng giữ nguyên 100%**: hook chữ ký,
@@ -22,9 +26,6 @@ một răng nào.
   sự-kiện-cần-người** — đếm từ git, lệnh chuẩn trong
   `commands/acceptance-report.md` (số commit chạm dòng human-owned của hồ
   sơ). Không field mới, không nghi thức mới.
-- **Ký gộp một lệnh:** `scripts/sign-batch.mjs` — điền chữ ký cả lô hồ sơ
-  `verified`, từ chối nguyên tử khi lô có hồ sơ chưa đủ điều kiện, in đúng
-  MỘT lệnh commit cho người tự chạy. Helper không bao giờ tự commit.
 - **Re-pin theo release:** merge chạm engine giữa hai release không kéo
   chiến dịch re-pin từng lần nữa — re-pin chạy MỘT chiến dịch tại mốc
   release (chính sách trong GUIDE.md + CLAUDE.md; máy móc staleness giữ

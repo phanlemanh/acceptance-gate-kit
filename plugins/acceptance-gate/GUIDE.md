@@ -768,7 +768,7 @@ bước này). Muốn bỏ cổng? Nói rõ — máy ghi `gate1_skipped: true` l
    `human_override: <Tên> <ngày>` (agent ghi thì hook mới re-validate được).
 3. Verdict `PENDING-JUDGMENT` → nhờ agent nâng thành `PASS`.
 4. Điền `human_signoff: <Tên> <ngày>` (`time_human_minutes.gate2` tuỳ chọn —
-   không ai hỏi; 2.0.0). Ký nhiều hồ sơ một lượt: `node scripts/sign-batch.mjs --name "<Tên>"`.
+   không ai hỏi; 2.0.0).
 5. **Commit các sửa đổi Cổng-2 thành commit RIÊNG** — chỉ chạm các dòng human-owned
    (`human_signoff` / `human_override` / `verdict` / `bypass_ack`). Chính bạn commit
    (hoặc ra lệnh agent commit đúng phần đó). Repo bật `require_human_commit` thì CI

@@ -9333,11 +9333,21 @@ texts = {f: (root/f).read_text() for f in FILES}
 errs = measure(texts)
 assert not errs, 'ban that do oan: ' + '; '.join(errs)
 # THI HANH lenh RUT TU chinh chi dan (round-trip: doc noi gi chay nay) tren 1 ho so da ky
-cmd = CMD_RE.search(texts[FILES[0]]).group(1).replace('<slug>', 'measure-birth-certificate')
-r = subprocess.run(cmd, shell=True, cwd=root, capture_output=True, text=True)
-n = len([l for l in r.stdout.splitlines() if l.strip()])
-assert r.returncode == 0 and n >= 1, f'lenh KPI trong chi dan khong chay ra so (exit={r.returncode}, n={n}): {cmd}'
-print(f'P186 DUONG-OK (KPI thi hanh that: measure-birth-certificate = {n} lan nguoi ra tay)')
+# Thi hanh tren HAI slug mang HAI dinh dang chu ky that (va 08/08: regex cu
+# sot dang khong-nhay — 20/21 ho so; thuoc phai gan vao vat duoc giao):
+#   - measure-birth-certificate: co-nhay (may dien ho)
+#   - premerge-unjudged-pass: khong-nhay (/signoff tay) — PHAI dem duoc Cong 2
+base = CMD_RE.search(texts[FILES[0]]).group(1)
+counts = {}
+for slug in ('measure-birth-certificate', 'premerge-unjudged-pass'):
+    r = subprocess.run(base.replace('<slug>', slug), shell=True, cwd=root, capture_output=True, text=True)
+    n = len([l for l in r.stdout.splitlines() if l.strip()])
+    assert r.returncode == 0 and n >= 1, f'lenh KPI khong ra so tren {slug} (exit={r.returncode}, n={n})'
+    counts[slug] = n
+assert counts['premerge-unjudged-pass'] >= 2, ('ho so ky-tay khong-nhay chi dem duoc %d — lenh KPI dang sot su kien Cong 2 (lop undercount 08/08)' % counts['premerge-unjudged-pass'])
+# doi chieu twin codex: lenh trong twin phai IDENTICAL lenh da thi hanh
+assert CMD_RE.search(texts[FILES[1]]).group(1) == base, 'lenh KPI twin codex TROI khoi ban Claude — hai chi dan phai cung mot lenh'
+print(f'P186 DUONG-OK (KPI thi hanh that 2 dinh dang: mbc={counts["measure-birth-certificate"]}, pup={counts["premerge-unjudged-pass"]})')
 mut = dict(texts); mut[FILES[0]] = mut[FILES[0]].replace(LABEL, 'so lieu cu')
 e1 = measure(mut)
 assert e1 and any('nhan' in x for x in e1), 'mutant xoa nhan khong do: ' + repr(e1)
@@ -9347,153 +9357,15 @@ assert e2 and any('lenh KPI' in x for x in e2), 'mutant hong cu phap lenh khong 
 print('P186 MUTANT-OK (xoa nhan / hong lenh deu do ghim dung muc)')
 P186PY
 
-run "P187 [TCD] E3 sign-batch r2: mold-fixture + tu choi 3 hinh dang + dich danh + pre-merge that" \
-  bash -c '
-set -u
-TPL="'"$ROOT"'/skills/acceptance/references/evidence-report-template.md"
-GID="-c user.email=t@t.local -c user.name=tester -c commit.gpgsign=false"
-mk_repo() { # <dir>
-  mkdir -p "$1/src"; git -C "$1" init -q
-  git -C "$1" config user.email t@t.local; git -C "$1" config user.name tester
-  git -C "$1" config commit.gpgsign false
-  printf "schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - \"docs/**\"\n" > "$1/_acceptance/config.yaml" 2>/dev/null || { mkdir -p "$1/_acceptance"; printf "schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - \"docs/**\"\n" > "$1/_acceptance/config.yaml"; }
-  printf "code v1\n" > "$1/src/app.js"; printf "#!/bin/sh\nexit 0\n" > "$1/verify.sh"
-}
-CTPL="'"$ROOT"'/skills/acceptance/references/contract-template.md"
-mk_contract() { # <dir> <slug> <status> — frontmatter RUT TU mold CONTRACT-FRONTMATTER-TEMPLATE (r2-ship: cam printf viet tay khop khuon reader)
-  mkdir -p "$1/_acceptance/$2"
-  python3 - "$CTPL" "$1/_acceptance/$2/contract.md" "$2" "$3" <<PYX
-import sys, re, pathlib
-tpl = pathlib.Path(sys.argv[1]).read_text()
-m = re.search(r"<!-- <<<CONTRACT-FRONTMATTER-TEMPLATE -->\n\x60\x60\x60yaml\n([\s\S]*?)\x60\x60\x60", tpl)
-assert m, "khong rut duoc mold CONTRACT-FRONTMATTER-TEMPLATE tu contract-template.md"
-fm = m.group(1)
-fm = fm.replace("{feature}", sys.argv[3]).replace("{slug}", sys.argv[3])
-fm = fm.replace("{owner}", "t@t.local").replace("{risk_tier}", "T2").replace("{surfaces}", "api")
-fm = re.sub(r"^status: \{status\}.*$", "status: %s" % sys.argv[4], fm, flags=re.M)
-fm = re.sub(r"^approved_by:.*$", "approved_by: Manh Phan", fm, flags=re.M)
-body = "\n## Criteria\n- AC-1: Given nguoi dung, When bam nut, Then don hang duoc luu.\n\n## Out of scope\n- khong gi\n"
-pathlib.Path(sys.argv[2]).write_text(fm + body)
-PYX
-}
-mk_report() { # <dir> <slug> <verified_commit> <verdict> [<bypass>] — frontmatter RUT TU mold ---8<--- cua template that
-  python3 - "$TPL" "$1/_acceptance/$2/evidence-report.md" "$2" "$3" "$4" "${5:-false}" <<PYX
-import sys, re, pathlib
-tpl = pathlib.Path(sys.argv[1]).read_text()
-mold = tpl.split("---8<---", 1)[1]
-m = re.search(r"^---\n([\s\S]*?)\n---", mold.lstrip("\n"), re.M)
-assert m, "khong rut duoc frontmatter mold tu template"
-fm = m.group(0)
-fm = fm.replace("{{slug}}", sys.argv[3])
-fm = fm.replace("{{PASS|PENDING-JUDGMENT|REJECT|BLOCKED}}", sys.argv[5])
-fm = fm.replace("{{strict|warn|off}}", "strict")
-fm = fm.replace("{{true|false}}", sys.argv[6])
-fm = fm.replace("{{git rev-parse HEAD at verify time}}", sys.argv[4])
-body = "\n\n## Evidence\n- eval: E1\n  run_id: %s-E1-001\n  exit_code: 0\n  verifier: verify.sh\n  verified_at: 2026-08-08\n" % sys.argv[3]
-pathlib.Path(sys.argv[2]).write_text(fm + body)
-PYX
-}
-# ── LO LANH: 2 verified-PASS, ky + dich danh + khong-tu-commit + pre-merge that ──
-R="$(mktemp -d)"; mk_repo "$R"; mk_contract "$R" alpha verified; mk_contract "$R" beta verified
-git -C "$R" add -A >/dev/null && git $GID -C "$R" commit -qm impl
-VC="$(git -C "$R" rev-parse HEAD)"
-mk_report "$R" alpha "$VC" PASS || { echo "  FAIL: P187-mold (khong rut duoc mold)"; exit 1; }
-mk_report "$R" beta "$VC" PASS
-git -C "$R" add -A >/dev/null && git $GID -C "$R" commit -qm evidence
-N0="$(git -C "$R" log --oneline | wc -l | tr -d " ")"
-OUT="$(node "'"$ROOT"'/scripts/sign-batch.mjs" --name "Manh Phan" --root "$R" 2>&1)" || { echo "  FAIL: P187-sign ($OUT)"; exit 1; }
-N1="$(git -C "$R" log --oneline | wc -l | tr -d " ")"
-[ "$N0" = "$N1" ] || { echo "  FAIL: P187-nocommit"; exit 1; }
-# DICH DANH: dung 1 lenh commit, va tap file trong lenh == 4 file vua sua
-python3 - "$OUT" <<PYX
-import sys, re
-out = sys.argv[1]
-cmds = [l for l in out.splitlines() if re.search(r"git add .+ && git commit -m", l)]
-assert len(cmds) == 1, "phai DUNG MOT lenh commit, thay %d" % len(cmds)
-listed = set(re.search(r"git add (.+?) && git commit", cmds[0]).group(1).split())
-want = set()
-for s in ("alpha", "beta"):
-    want.add("_acceptance/%s/evidence-report.md" % s); want.add("_acceptance/%s/contract.md" % s)
-assert listed == want, "tap file trong lenh LECH dich danh: %r != %r" % (sorted(listed), sorted(want))
-PYX
-[ $? -eq 0 ] || { echo "  FAIL: P187-dichdanh"; exit 1; }
-( cd "$R" && eval "$(printf "%s" "$OUT" | grep "git add")" ) >/dev/null 2>&1 || { echo "  FAIL: P187-humancommit"; exit 1; }
-bash "'"$ROOT"'/scripts/pre-merge-check.sh" "$R" >/dev/null 2>&1 || { echo "  FAIL: P187-premerge"; exit 1; }
-echo "P187 DUONG-OK (mold-fixture, dich danh tap-hop, khong-tu-commit, pre-merge that clean)"
-# ── TU CHOI NGUYEN TU — 3 hinh dang, moi hinh ghim slug + ly do ──
-R2="$(mktemp -d)"; mk_repo "$R2"
-mk_contract "$R2" ok1 verified; mk_contract "$R2" chua approved
-mk_contract "$R2" pj verified; mk_contract "$R2" byp verified
-git -C "$R2" add -A >/dev/null && git $GID -C "$R2" commit -qm impl
-VC2="$(git -C "$R2" rev-parse HEAD)"
-mk_report "$R2" ok1 "$VC2" PASS
-mk_report "$R2" pj "$VC2" PENDING-JUDGMENT
-mk_report "$R2" byp "$VC2" PASS true
-git -C "$R2" add -A >/dev/null && git $GID -C "$R2" commit -qm evidence
-ERR="$(node "'"$ROOT"'/scripts/sign-batch.mjs" --name "Manh Phan" --root "$R2" --slugs ok1,chua,pj,byp 2>&1)"; rc=$?
-[ "$rc" = "2" ] || { echo "  FAIL: P187-reject-rc (rc=$rc)"; exit 1; }
-case "$ERR" in *"chua: contract"*) : ;; *) echo "  FAIL: P187-reject-chua"; exit 1 ;; esac
-case "$ERR" in *"pj: verdict"*PENDING-JUDGMENT*) : ;; *) echo "  FAIL: P187-reject-verdict (khong ghim slug+ly do)"; exit 1 ;; esac
-case "$ERR" in *"byp: bypass_used"*bypass_ack*) : ;; *) echo "  FAIL: P187-reject-bypass"; exit 1 ;; esac
-grep -q "human_signoff: \"" "$R2/_acceptance/ok1/evidence-report.md" && { echo "  FAIL: P187-atomic (ok1 bi ky du lo hong)"; exit 1; }
-echo "P187 DUONG-OK-2 (tu choi nguyen tu 3 hinh dang, ghim slug + ly do)"
-# ── VE (b)-1: ten nguoi ky chua ky tu pha khuon -> TU CHOI ghim thong diep ──
-ERRN="$(node "'"$ROOT"'/scripts/sign-batch.mjs" --name "Manh\\Phan" --root "$R2" --slugs byp 2>&1)"; rcn=$?
-[ "$rcn" = "2" ] || { echo "  FAIL: P187-badname-rc (rc=$rcn)"; exit 1; }
-case "$ERRN" in *"ký tự phá khuôn"*) : ;; *) echo "  FAIL: P187-badname-msg ($ERRN)"; exit 1 ;; esac
-# ── VE (b)-2: bypass_ack CHI-COMMENT van phai tu choi; ack that -> ky qua ──
-sed -i.bak "s/^# bypass_ack:.*$/bypass_ack: # cho ai do gat/" "$R2/_acceptance/byp/evidence-report.md" && rm -f "$R2/_acceptance/byp/evidence-report.md.bak"
-ERRB="$(node "'"$ROOT"'/scripts/sign-batch.mjs" --name "Manh Phan" --root "$R2" --slugs byp 2>&1)"; rcb=$?
-[ "$rcb" = "2" ] || { echo "  FAIL: P187-ackcomment-rc (rc=$rcb — bypass_ack chi-comment ma van ky)"; exit 1; }
-case "$ERRB" in *"byp: bypass_used"*bypass_ack*) : ;; *) echo "  FAIL: P187-ackcomment-msg ($ERRB)"; exit 1 ;; esac
-sed -i.bak "s/^bypass_ack: #.*$/bypass_ack: Manh Phan 2026-08-08/" "$R2/_acceptance/byp/evidence-report.md" && rm -f "$R2/_acceptance/byp/evidence-report.md.bak"
-OUTB="$(node "'"$ROOT"'/scripts/sign-batch.mjs" --name "Manh Phan" --root "$R2" --slugs byp 2>&1)" || { echo "  FAIL: P187-ackfilled (ack that ma van tu choi: $OUTB)"; exit 1; }
-case "$OUTB" in *"ký: byp"*) : ;; *) echo "  FAIL: P187-ackfilled-sign"; exit 1 ;; esac
-echo "P187 DUONG-OK-3 (ten pha khuon + ack chi-comment deu tu choi; ack that ky qua — cap hai-chieu cung fixture)"
-# ── VE (b)-2b: MA TRAN TOAN PHAN truong ack (viet TRUOC khi sua — mau P105, quyet Cong 2 r3) ──
-# {dien-that · chi-comment · trong-co-dong-ke · trong-cuoi-file ·
-#  toan-khoang-trang · thieu-han-dong} x ky vong {KY / TU-CHOI}:
-# chi dien-that duoc KY (2 hinh dau + thieu-han-dong da do o cac ve tren).
-# HAI HINH BANG-DONG (trong-co-dong-ke, toan-khoang-trang) tung KY NHAM tren
-# ban \s* — do that 2026-08-08 truoc khi va sang [ \t] (fail-open r3, HIGH).
-for SHAPE in trong-co-dong-ke trong-cuoi-file toan-khoang-trang; do
-  RM="$(mktemp -d)"; mk_repo "$RM"; mk_contract "$RM" byp verified
-  git -C "$RM" add -A >/dev/null && git $GID -C "$RM" commit -qm impl
-  mk_report "$RM" byp "$(git -C "$RM" rev-parse HEAD)" PASS true
-  RMR="$RM/_acceptance/byp/evidence-report.md"
-  case "$SHAPE" in
-    trong-co-dong-ke) sed -i.b "s/^# bypass_ack:.*$/bypass_ack:/" "$RMR" ;;
-    trong-cuoi-file)  sed -i.b "/^# bypass_ack:/d" "$RMR"; printf "bypass_ack:" >> "$RMR" ;;
-    toan-khoang-trang) sed -i.b "s/^# bypass_ack:.*$/bypass_ack:   /" "$RMR" ;;
-  esac
-  rm -f "$RMR.b"
-  ERRX="$(node "'"$ROOT"'/scripts/sign-batch.mjs" --name "Manh Phan" --root "$RM" --slugs byp 2>&1)"; rcx=$?
-  [ "$rcx" = "2" ] || { echo "  FAIL: P187-ackmatrix-$SHAPE (rc=$rcx — hinh nay phai TU CHOI)"; exit 1; }
-  case "$ERRX" in *"byp: bypass_used"*bypass_ack*) : ;; *) echo "  FAIL: P187-ackmatrix-$SHAPE-msg ($ERRX)"; exit 1 ;; esac
-  rm -rf "$RM"
-done
-echo "P187 DUONG-OK-4 (ma tran ack 6 hinh dang du: chi dien-that KY; 2 hinh bang-dong da chung minh do that truoc khi va)"
-# ── MUTANT: mo khoa tu-commit trong ban sao helper -> phep do ghim thong diep ──
-MUT="$(mktemp -d)/sign-batch.mjs"; cp "'"$ROOT"'/scripts/sign-batch.mjs" "$MUT"
-printf "\nconst { execSync } = await import(\"node:child_process\");\nexecSync(\`git -C \"\${root}\" add -A\`);\nexecSync(\`git -C \"\${root}\" -c user.email=m@m -c user.name=m commit -qm auto\`);\n" >> "$MUT"
-R3="$(mktemp -d)"; mk_repo "$R3"; mk_contract "$R3" solo verified
-git -C "$R3" add -A >/dev/null && git $GID -C "$R3" commit -qm impl
-mk_report "$R3" solo "$(git -C "$R3" rev-parse HEAD)" PASS
-git -C "$R3" add -A >/dev/null && git $GID -C "$R3" commit -qm evidence
-M0="$(git -C "$R3" log --oneline | wc -l | tr -d " ")"
-node "$MUT" --name "Manh Phan" --root "$R3" >/dev/null 2>&1
-M1="$(git -C "$R3" log --oneline | wc -l | tr -d " ")"
-if [ "$M1" -gt "$M0" ]; then DETECT="helper tu commit (git log $M0 -> $M1)"; else DETECT=""; fi
-case "$DETECT" in *"helper tu commit"*) : ;; *) echo "  FAIL: P187-mutant (khong ghim duoc thong diep helper-tu-commit)"; exit 1 ;; esac
-echo "P187 MUTANT-OK (phep do ghim: $DETECT)"
-'
+# P187 (sign-batch, món 1b) RÚT 08/08 theo lối-thoát-khai-trước — 2.1 làm lại trên lib/workspace-record.js.
 
-run "P188 [TCD] E4 CHANGELOG 2.0.0 du 4 mon + cau chuan-bang-chung" \
+run "P188 [TCD] E4 CHANGELOG 2.0.0 du 3 mon + ghi chu 1b doi 2.1 + cau chuan-bang-chung" \
   python3 - "$ROOT" <<'P188PY'
 import sys, pathlib
 root = pathlib.Path(sys.argv[1])
-ITEMS = [('bo dien phut', 'Bỏ điền phút'), ('ky gop', 'Ký gộp'),
-         ('re-pin theo release', 'Re-pin theo release'), ('doi so version', 'Đổi số version')]
+ITEMS = [('bo dien phut', 'Bỏ điền phút'),
+         ('re-pin theo release', 'Re-pin theo release'), ('doi so version', 'Đổi số version'),
+         ('ghi chu 1b doi 2.1', 'RÚT khỏi bản này')]
 GUARD = 'chuẩn bằng chứng giữ nguyên'
 def measure(t):
     errs = []
@@ -9568,7 +9440,7 @@ for f, _ in CHECKS:
 print('P190 MUTANT-OK (xoa tung cho -> do ghim dung ten file)')
 P190PY
 
-run "P191 [TCD] E7 consumer-sim: config rut tu acceptance-init.md -> card -> ky bang sign-batch -> pre-merge clean" \
+run "P191 [TCD] E7 consumer-sim: config rut tu acceptance-init.md -> card -> ky /signoff tay -> pre-merge clean" \
   bash -c '
 set -u
 SIM="$(mktemp -d)"; GID="-c user.email=t@t.local -c user.name=tester -c commit.gpgsign=false"
@@ -9621,12 +9493,14 @@ pathlib.Path(sys.argv[2]).write_text(fm + body)
 PYX
 [ $? -eq 0 ] || { echo "  FAIL: P191-mold"; exit 1; }
 git -C "$SIM" add -A >/dev/null && git $GID -C "$SIM" commit -qm evidence
-# Buoc 3: ky bang CHINH sign-batch (cam chep tay chu ky — round-trip 1b)
-OUT="$(node "'"$ROOT"'/scripts/sign-batch.mjs" --name "Manh Phan" --root "$SIM" 2>&1)" || { echo "  FAIL: P191-sign ($OUT)"; exit 1; }
-( cd "$SIM" && eval "$(printf "%s" "$OUT" | grep "git add")" ) >/dev/null 2>&1 || { echo "  FAIL: P191-humancommit"; exit 1; }
+# Buoc 3: ky theo nghi thuc /signoff TAY (1b da rut 08/08): nguoi dien
+# human_signoff + nang status, commit chu ky rieng — dung khuon /signoff that.
+sed -i.bak "s/^human_signoff:.*$/human_signoff: \"Manh Phan $(date +%Y-%m-%d)\"/" "$SIM/_acceptance/sim-mau/evidence-report.md" && rm -f "$SIM/_acceptance/sim-mau/evidence-report.md.bak"
+sed -i.bak "s/^status: verified$/status: signed-off/" "$SIM/_acceptance/sim-mau/contract.md" && rm -f "$SIM/_acceptance/sim-mau/contract.md.bak"
+( cd "$SIM" && git add _acceptance/sim-mau/evidence-report.md _acceptance/sim-mau/contract.md && git $GID commit -qm "signoff(sim-mau): Manh Phan ky Cong 2" ) >/dev/null 2>&1 || { echo "  FAIL: P191-humancommit"; exit 1; }
 # Buoc 4: pre-merge clean tren repo nhap
 bash "'"$ROOT"'/scripts/pre-merge-check.sh" "$SIM" >/dev/null 2>&1 || { echo "  FAIL: P191-premerge"; exit 1; }
-echo "P191 DUONG-OK (config-tu-chi-dan -> card -> sign-batch -> pre-merge clean)"
+echo "P191 DUONG-OK (config-tu-chi-dan -> card -> ky /signoff tay -> pre-merge clean)"
 # MUTANT: moi khoi config mau khoi BAN SAO command -> buoc config phai do ghim ten buoc
 MUTCMD="$(mktemp -d)/acceptance-init.md"
 sed "s/\x60\x60\x60yaml/\x60\x60\x60text/" "'"$ROOT"'/commands/acceptance-init.md" > "$MUTCMD"

@@ -8,7 +8,7 @@ description: Aggregate Acceptance Gate metrics across all features on Codex — 
 Answer "is the gate paying for itself?" from what the gates already recorded.
 KPI phía người (charter tái lập 2026-08-07): **tần suất sự-kiện-cần-người** —
 đếm từ git bằng lệnh chuẩn (chạy được nguyên văn):
-`git log --format=%H -G'human_signoff: \"|human_override: \"|approved_by: [A-Za-z]' -- _acceptance/<slug>/`
+`git log --format=%H -G'human_signoff: ["A-Za-z]|human_override: ["A-Za-z]|approved_by: [A-Za-z]' -- _acceptance/<slug>/`
 (đếm dòng = số lần người ra tay tại cổng). `time_human_minutes` cũ là dữ liệu
 TỰ KHAI — KHÔNG ĐÁNG TIN ("tự khai — không đáng tin", 2026-08-07): chỉ trình
 dưới nhãn đó, không trích làm bằng chứng hiệu quả, không coi thiếu-nó là lỗ
