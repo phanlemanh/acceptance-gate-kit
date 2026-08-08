@@ -37,7 +37,7 @@ if (!existsSync(acc)) { console.error(`không thấy _acceptance/ dưới ${root
 
 const wanted = opt.slugs ? opt.slugs.split(',').map(s => s.trim()).filter(Boolean) : null;
 const all = readdirSync(acc).filter(d => existsSync(path.join(acc, d, 'contract.md')));
-const slugs = wanted || all.filter(s => /^status:\s*verified\s*$/m.test(readFileSync(path.join(acc, s, 'contract.md'), 'utf8')));
+const slugs = wanted || all.filter(s => /^status:[ \t]*verified[ \t]*$/m.test(readFileSync(path.join(acc, s, 'contract.md'), 'utf8')));
 if (wanted) for (const s of wanted) if (!all.includes(s)) { console.error(`slug không tồn tại: ${s}`); process.exit(2); }
 if (!slugs.length) { console.error('không có hồ sơ nào ở trạng thái verified để ký'); process.exit(2); }
 
@@ -48,18 +48,21 @@ for (const slug of slugs) {
   const cPath = path.join(acc, slug, 'contract.md');
   const rPath = path.join(acc, slug, 'evidence-report.md');
   const contract = readFileSync(cPath, 'utf8');
-  if (!/^status:\s*verified\s*$/m.test(contract)) { reject.push(`${slug}: contract không ở verified`); continue; }
+  if (!/^status:[ \t]*verified[ \t]*$/m.test(contract)) { reject.push(`${slug}: contract không ở verified`); continue; }
   if (!existsSync(rPath)) { reject.push(`${slug}: thiếu evidence-report.md`); continue; }
   const report = readFileSync(rPath, 'utf8');
   // Khuôn template thật cho phép comment đuôi trên dòng human_signoff —
   // regex phải khớp mold (round-trip), không đòi dòng trống thuần.
-  if (!/^human_signoff:\s*(#.*)?$/m.test(report)) { reject.push(`${slug}: evidence-report không có dòng human_signoff trống (đã ký rồi, hoặc khuôn lạ)`); continue; }
+  // MỌI regex frontmatter ở file này dùng [ \t] thay \s: \s khớp cả xuống
+  // dòng nên 'bypass_ack:' bỏ trống từng LỌT qua nhờ ký tự của dòng kế
+  // (fail-open r3, ma trận 6 hình dạng trong P187 giữ lằn ranh này).
+  if (!/^human_signoff:[ \t]*(#.*)?$/m.test(report)) { reject.push(`${slug}: evidence-report không có dòng human_signoff trống (đã ký rồi, hoặc khuôn lạ)`); continue; }
   // Vế mở rộng AC-3 (người phê Cổng 2, 2026-08-08): KHÔNG ký hồ sơ còn
   // việc-của-người — verdict phải là PASS sạch, bypass phải có người nhận.
-  const verdict = (report.match(/^verdict:\s*([^\s#]+)/m) || [, ''])[1];
+  const verdict = (report.match(/^verdict:[ \t]*([^\s#]+)/m) || [, ''])[1];
   if (verdict !== 'PASS') { reject.push(`${slug}: verdict là ${verdict || '(trống)'} — còn việc-của-người (chỉ ký PASS; PENDING-JUDGMENT đi /signoff từng item)`); continue; }
-  const bypass = (report.match(/^bypass_used:\s*([^\s#]+)/m) || [, ''])[1];
-  if (bypass === 'true' && !/^bypass_ack:\s*[^\s#]/m.test(report)) { reject.push(`${slug}: bypass_used chưa có bypass_ack — người phải nhận đường thoát trước khi ký`); continue; }
+  const bypass = (report.match(/^bypass_used:[ \t]*([^\s#]+)/m) || [, ''])[1];
+  if (bypass === 'true' && !/^bypass_ack:[ \t]*[^\s#]/m.test(report)) { reject.push(`${slug}: bypass_used chưa có bypass_ack — người phải nhận đường thoát trước khi ký`); continue; }
   jobs.push({ slug, cPath, rPath, contract, report });
 }
 if (reject.length) {
@@ -72,8 +75,8 @@ const now = new Date();
 const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`; // ngày LOCAL — chữ ký là hành vi người tại chỗ
 const files = [];
 for (const j of jobs) {
-  writeFileSync(j.rPath, j.report.replace(/^human_signoff:\s*(#.*)?$/m, () => `human_signoff: "${opt.name} ${today}"`));
-  writeFileSync(j.cPath, j.contract.replace(/^status:\s*verified\s*$/m, 'status: signed-off'));
+  writeFileSync(j.rPath, j.report.replace(/^human_signoff:[ \t]*(#.*)?$/m, () => `human_signoff: "${opt.name} ${today}"`));
+  writeFileSync(j.cPath, j.contract.replace(/^status:[ \t]*verified[ \t]*$/m, 'status: signed-off'));
   files.push(path.relative(root, j.rPath), path.relative(root, j.cPath));
   console.log(`ký: ${j.slug}`);
 }

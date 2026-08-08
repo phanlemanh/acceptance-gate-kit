@@ -40,7 +40,12 @@ evals:
       CONTRACT-FRONTMATTER-TEMPLATE của contract-template.md (round-trip từ
       mold thật, cấm printf viết tay khớp khuôn bên đọc); git identity
       repo-local trong fixture (không dựa ambient); sign-batch từ chối tên
-      chứa ký-tự phá khuôn và bypass_ack chỉ-comment; lô lành 2 verified-PASS →
+      chứa ký-tự phá khuôn; trường bypass_ack đo bằng MA TRẬN TOÀN PHẦN 6
+      hình dạng (quyết Cổng 2 r3, mẫu P105): {điền-thật · chỉ-comment ·
+      để-trống-có-dòng-kế · để-trống-cuối-file · toàn-khoảng-trắng ·
+      thiếu-hẳn-dòng} — chỉ điền-thật được KÝ, mọi regex frontmatter dùng
+      [ \t] không \s-băng-dòng (2 hình băng-dòng đã chứng minh đỏ thật
+      trên bản chưa sửa); lô lành 2 verified-PASS →
       ký + signed-off, stdout có ĐÚNG MỘT lệnh git commit và danh sách file
       trong lệnh == đích danh 4 file vừa sửa (quan hệ tập hợp, không phải
       chuỗi-có-mặt), git log không đổi; TỪ CHỐI NGUYÊN TỬ ghim tên slug + lý

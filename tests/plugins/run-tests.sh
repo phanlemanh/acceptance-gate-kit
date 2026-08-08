@@ -9450,6 +9450,29 @@ sed -i.bak "s/^bypass_ack: #.*$/bypass_ack: Manh Phan 2026-08-08/" "$R2/_accepta
 OUTB="$(node "'"$ROOT"'/scripts/sign-batch.mjs" --name "Manh Phan" --root "$R2" --slugs byp 2>&1)" || { echo "  FAIL: P187-ackfilled (ack that ma van tu choi: $OUTB)"; exit 1; }
 case "$OUTB" in *"ký: byp"*) : ;; *) echo "  FAIL: P187-ackfilled-sign"; exit 1 ;; esac
 echo "P187 DUONG-OK-3 (ten pha khuon + ack chi-comment deu tu choi; ack that ky qua — cap hai-chieu cung fixture)"
+# ── VE (b)-2b: MA TRAN TOAN PHAN truong ack (viet TRUOC khi sua — mau P105, quyet Cong 2 r3) ──
+# {dien-that · chi-comment · trong-co-dong-ke · trong-cuoi-file ·
+#  toan-khoang-trang · thieu-han-dong} x ky vong {KY / TU-CHOI}:
+# chi dien-that duoc KY (2 hinh dau + thieu-han-dong da do o cac ve tren).
+# HAI HINH BANG-DONG (trong-co-dong-ke, toan-khoang-trang) tung KY NHAM tren
+# ban \s* — do that 2026-08-08 truoc khi va sang [ \t] (fail-open r3, HIGH).
+for SHAPE in trong-co-dong-ke trong-cuoi-file toan-khoang-trang; do
+  RM="$(mktemp -d)"; mk_repo "$RM"; mk_contract "$RM" byp verified
+  git -C "$RM" add -A >/dev/null && git $GID -C "$RM" commit -qm impl
+  mk_report "$RM" byp "$(git -C "$RM" rev-parse HEAD)" PASS true
+  RMR="$RM/_acceptance/byp/evidence-report.md"
+  case "$SHAPE" in
+    trong-co-dong-ke) sed -i.b "s/^# bypass_ack:.*$/bypass_ack:/" "$RMR" ;;
+    trong-cuoi-file)  sed -i.b "/^# bypass_ack:/d" "$RMR"; printf "bypass_ack:" >> "$RMR" ;;
+    toan-khoang-trang) sed -i.b "s/^# bypass_ack:.*$/bypass_ack:   /" "$RMR" ;;
+  esac
+  rm -f "$RMR.b"
+  ERRX="$(node "'"$ROOT"'/scripts/sign-batch.mjs" --name "Manh Phan" --root "$RM" --slugs byp 2>&1)"; rcx=$?
+  [ "$rcx" = "2" ] || { echo "  FAIL: P187-ackmatrix-$SHAPE (rc=$rcx — hinh nay phai TU CHOI)"; exit 1; }
+  case "$ERRX" in *"byp: bypass_used"*bypass_ack*) : ;; *) echo "  FAIL: P187-ackmatrix-$SHAPE-msg ($ERRX)"; exit 1 ;; esac
+  rm -rf "$RM"
+done
+echo "P187 DUONG-OK-4 (ma tran ack 6 hinh dang du: chi dien-that KY; 2 hinh bang-dong da chung minh do that truoc khi va)"
 # ── MUTANT: mo khoa tu-commit trong ban sao helper -> phep do ghim thong diep ──
 MUT="$(mktemp -d)/sign-batch.mjs"; cp "'"$ROOT"'/scripts/sign-batch.mjs" "$MUT"
 printf "\nconst { execSync } = await import(\"node:child_process\");\nexecSync(\`git -C \"\${root}\" add -A\`);\nexecSync(\`git -C \"\${root}\" -c user.email=m@m -c user.name=m commit -qm auto\`);\n" >> "$MUT"
