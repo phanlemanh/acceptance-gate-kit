@@ -9,10 +9,13 @@ evals:
     expected: >
       Case mới: bảng KHUÔN-CẤM khai đích danh trong khối marker (chuỗi
       hỏi-phút hai harness + khối time_human_minutes bắt-buộc của template);
-      quét tập 7 file khai — quan hệ khai↔quét là ĐẲNG THỨC tập hợp; mention
+      quét tập 9 file khai (r2 quét lớp) — quan hệ khai↔quét là ĐẲNG THỨC
+      tập hợp ĐỦ HAI CHIỀU (tập-mention-khai 8 file; codex approve twin đã
+      sạch mention là hợp lệ 1a); vế phát-hiện discover() tự chứng minh
+      biết-đỏ trên cây code-sinh (thấy file trồng, bỏ qua file sạch); mention
       dạng tuỳ-chọn có đối chứng KHÔNG-đỏ; mutation chèn khuôn-cấm LẶP TRÊN
       TỪNG file trong tập → đỏ ghim đúng tên file; đối chứng dương xanh.
-    paths: [skills/acceptance/references/contract-template.md, commands/approve.md, commands/signoff.md, feature-loop/skills/feature-loop/SKILL.md, codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md, codex/acceptance-gate/skills/approve/SKILL.md, codex/acceptance-gate/skills/signoff/SKILL.md, tests/plugins/run-tests.sh]
+    paths: [skills/acceptance/references/contract-template.md, commands/approve.md, commands/signoff.md, feature-loop/skills/feature-loop/SKILL.md, codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md, codex/acceptance-gate/skills/approve/SKILL.md, codex/acceptance-gate/skills/signoff/SKILL.md, skills/acceptance/SKILL.md, codex/acceptance-gate/skills/acceptance/SKILL.md, tests/plugins/run-tests.sh]
   - id: E2
     criterion: AC-2
     executor: test
@@ -20,8 +23,8 @@ evals:
     expected: >
       Case mới: commands/acceptance-report.md chứa nguyên văn nhãn "tự khai —
       không đáng tin" cho dữ liệu phút cũ VÀ định nghĩa KPI tần-suất-sự-kiện-
-      cần-người (đếm commit chạm dòng human-owned qua git log trên
-      _acceptance/<slug>/) VÀ định nghĩa THI HÀNH ĐƯỢC: chạy đúng lệnh trong
+      cần-người (đếm commit chạm GIÁ-TRỊ human-owned đã điền qua git log
+      pickaxe trên _acceptance/<slug>/ — dòng khoá rỗng máy thêm KHÔNG đếm) VÀ định nghĩa THI HÀNH ĐƯỢC: chạy đúng lệnh trong
       chỉ dẫn trên chính kit với 1 hồ sơ đã ký → số nguyên ≥ 1 kèm tên slug;
       mutation xoá nhãn / xoá định nghĩa / hỏng cú pháp lệnh trong bản sao
       → đỏ ghim tên mục hoặc tên lệnh; đối chứng dương xanh.
@@ -31,9 +34,13 @@ evals:
     executor: test
     cmd: config:executors.test.plugins
     expected: >
-      Case mới (r2 theo quyết Cổng 2): fixture repo code-sinh, hồ sơ RÚT TỪ
-      khối ---8<--- của evidence-report-template.md (round-trip từ mold thật,
-      cấm printf viết tay khớp khuôn helper đọc); lô lành 2 verified-PASS →
+      Case mới (r2 theo quyết Cổng 2; đợt (b) đóng nốt lớp): fixture repo
+      code-sinh, evidence-report RÚT TỪ khối ---8<--- của
+      evidence-report-template.md VÀ contract RÚT TỪ khối
+      CONTRACT-FRONTMATTER-TEMPLATE của contract-template.md (round-trip từ
+      mold thật, cấm printf viết tay khớp khuôn bên đọc); git identity
+      repo-local trong fixture (không dựa ambient); sign-batch từ chối tên
+      chứa ký-tự phá khuôn và bypass_ack chỉ-comment; lô lành 2 verified-PASS →
       ký + signed-off, stdout có ĐÚNG MỘT lệnh git commit và danh sách file
       trong lệnh == đích danh 4 file vừa sửa (quan hệ tập hợp, không phải
       chuỗi-có-mặt), git log không đổi; TỪ CHỐI NGUYÊN TỬ ghim tên slug + lý
@@ -41,7 +48,7 @@ evals:
       bypass_used chưa bypass_ack; SAU ký: pre-merge-check.sh thật → clean;
       mutation mở khoá tự-commit trong bản sao helper → phép đo in đúng
       thông điệp ghim "helper tu commit"; đối chứng dương xanh.
-    paths: [scripts/sign-batch.mjs, tests/plugins/run-tests.sh]
+    paths: [scripts/sign-batch.mjs, skills/acceptance/references/contract-template.md, tests/plugins/run-tests.sh]
   - id: E4
     criterion: AC-4
     executor: test

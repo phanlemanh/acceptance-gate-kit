@@ -9437,6 +9437,19 @@ case "$ERR" in *"pj: verdict"*PENDING-JUDGMENT*) : ;; *) echo "  FAIL: P187-reje
 case "$ERR" in *"byp: bypass_used"*bypass_ack*) : ;; *) echo "  FAIL: P187-reject-bypass"; exit 1 ;; esac
 grep -q "human_signoff: \"" "$R2/_acceptance/ok1/evidence-report.md" && { echo "  FAIL: P187-atomic (ok1 bi ky du lo hong)"; exit 1; }
 echo "P187 DUONG-OK-2 (tu choi nguyen tu 3 hinh dang, ghim slug + ly do)"
+# ── VE (b)-1: ten nguoi ky chua ky tu pha khuon -> TU CHOI ghim thong diep ──
+ERRN="$(node "'"$ROOT"'/scripts/sign-batch.mjs" --name "Manh\\Phan" --root "$R2" --slugs byp 2>&1)"; rcn=$?
+[ "$rcn" = "2" ] || { echo "  FAIL: P187-badname-rc (rc=$rcn)"; exit 1; }
+case "$ERRN" in *"ký tự phá khuôn"*) : ;; *) echo "  FAIL: P187-badname-msg ($ERRN)"; exit 1 ;; esac
+# ── VE (b)-2: bypass_ack CHI-COMMENT van phai tu choi; ack that -> ky qua ──
+sed -i.bak "s/^# bypass_ack:.*$/bypass_ack: # cho ai do gat/" "$R2/_acceptance/byp/evidence-report.md" && rm -f "$R2/_acceptance/byp/evidence-report.md.bak"
+ERRB="$(node "'"$ROOT"'/scripts/sign-batch.mjs" --name "Manh Phan" --root "$R2" --slugs byp 2>&1)"; rcb=$?
+[ "$rcb" = "2" ] || { echo "  FAIL: P187-ackcomment-rc (rc=$rcb — bypass_ack chi-comment ma van ky)"; exit 1; }
+case "$ERRB" in *"byp: bypass_used"*bypass_ack*) : ;; *) echo "  FAIL: P187-ackcomment-msg ($ERRB)"; exit 1 ;; esac
+sed -i.bak "s/^bypass_ack: #.*$/bypass_ack: Manh Phan 2026-08-08/" "$R2/_acceptance/byp/evidence-report.md" && rm -f "$R2/_acceptance/byp/evidence-report.md.bak"
+OUTB="$(node "'"$ROOT"'/scripts/sign-batch.mjs" --name "Manh Phan" --root "$R2" --slugs byp 2>&1)" || { echo "  FAIL: P187-ackfilled (ack that ma van tu choi: $OUTB)"; exit 1; }
+case "$OUTB" in *"ký: byp"*) : ;; *) echo "  FAIL: P187-ackfilled-sign"; exit 1 ;; esac
+echo "P187 DUONG-OK-3 (ten pha khuon + ack chi-comment deu tu choi; ack that ky qua — cap hai-chieu cung fixture)"
 # ── MUTANT: mo khoa tu-commit trong ban sao helper -> phep do ghim thong diep ──
 MUT="$(mktemp -d)/sign-batch.mjs"; cp "'"$ROOT"'/scripts/sign-batch.mjs" "$MUT"
 printf "\nconst { execSync } = await import(\"node:child_process\");\nexecSync(\`git -C \"\${root}\" add -A\`);\nexecSync(\`git -C \"\${root}\" -c user.email=m@m -c user.name=m commit -qm auto\`);\n" >> "$MUT"
