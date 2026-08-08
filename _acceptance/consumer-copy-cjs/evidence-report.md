@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 20715437f042df1b1041b46782b9b3ae139057a5
-human_signoff:
+human_signoff: Phan Le Manh 2026-08-09
 ---
 
 # Evidence Report: consumer-copy-cjs

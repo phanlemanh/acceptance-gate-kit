@@ -5,10 +5,10 @@ slug: consumer-copy-cjs
 owner: phanlemanh@gmail.com
 risk_tier: T3
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Phan Le Manh
 approved_at: 2026-08-09
-time_human_minutes: {gate1: 0, gate2: 0}
+time_human_minutes: {gate1: 0, gate2: 0}   # KHÔNG ĐO: owner khai thẳng "không đo phút" khi ký Cổng 2 (2026-08-09). Hai số 0 ở đây nghĩa là CHƯA ĐO, không phải "mất 0 phút" — đừng gộp chúng vào bất kỳ trung bình nào.
 ---
 
 # Acceptance Contract: consumer-copy-cjs
