@@ -1,0 +1,10 @@
+acceptance-gate (cũ 1.39.0):
+  acceptance-gate · .claude-plugin/plugin.json = 1.39.1
+  acceptance-gate · .codex-plugin/plugin.json = 1.39.1
+  acceptance-gate · codex/acceptance-gate/.codex-plugin/plugin.json = 1.39.1
+  acceptance-gate · plugins/acceptance-gate/.codex-plugin/plugin.json = 1.39.1
+feature-loop (cũ 1.27.0):
+  feature-loop · feature-loop/.claude-plugin/plugin.json = 1.27.1
+  feature-loop · codex/feature-loop-codex/.codex-plugin/plugin.json = 1.27.1
+  feature-loop · plugins/feature-loop-codex/.codex-plugin/plugin.json = 1.27.1
+MANIFEST-BUMP OK

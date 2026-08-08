@@ -1,0 +1,50 @@
+  PASS: C06
+C07 NEW contract born at implemented, empty approved_by -> block
+  PASS: C07
+C08 implemented -> verified (approved earlier) -> allow
+  PASS: C08
+C09 contract violation under enforcement: warn -> allow with warning
+  PASS: C09
+
+--- run-log reconciliation (run_id must exist in machine-written log) ---
+T28 run-log exists but report run_id NOT in it -> block
+  PASS: T28
+T29 run-log exists and report run_id matches -> allow
+  PASS: T29
+DV11 (delta-verify-repin) dong kind:repin xen giua KHONG bi nhan nham lam dong eval
+DV11a doi chung duong: dong eval that van khop du co dong repin xen giua -> allow
+  PASS: DV11a
+DV11c eval block MUON run_id cua dong repin -> block (AC-11, fix S4-r2 L2-bypass)
+  PASS: DV11c
+DV11b run_id gia van bi chan — dong repin khong che mo duoc doi chieu
+  PASS: DV11b
+
+--- L2 OBSERVED (schema v2: screenshot blocks must be inspected) ---
+T30 v2 PASS screenshot block WITHOUT observed -> block
+  PASS: T30
+T31 v2 PASS screenshot block WITH substantive observed -> allow
+  PASS: T31
+T32 v2 observed is template placeholder -> block
+  PASS: T32
+T33 v2 observed too short -> block
+  PASS: T33
+T34 v1 screenshot without observed -> tolerated (backward)
+  PASS: T34
+T35 v2 block WITHOUT screenshot needs no observed -> allow
+  PASS: T35
+T36 v2 multi-line observed (pipe block) -> allow
+  PASS: T36
+T37 v2 .html fallback screenshot without observed -> block
+  PASS: T37
+T38 v2 PENDING-JUDGMENT screenshot without observed -> allow (enforced at PASS upgrade)
+  PASS: T38
+T39 Edit upgrading v2 PENDING-JUDGMENT -> PASS without observed -> block
+  PASS: T39
+T40 v2 observed block scalar with step1:-style lines -> allow (indentation terminator)
+  PASS: T40
+T41 v2 observed containing mid-line #selector -> allow (comment strip must not swallow it)
+  PASS: T41
+T42 v2 short observed then same-indent sibling field -> still block (sibling text must not count)
+  PASS: T42
+
+Results: 54 passed, 0 failed

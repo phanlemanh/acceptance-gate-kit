@@ -1,0 +1,16 @@
+{"ts":"2026-08-08T15:28:38Z","round":1,"evalId":"E1","run_id":"consumer-copy-cjs-ce-r1-1786202918","exit_code":0,"cmd":"node tests/scripts/consumer-esm.test.mjs"}
+{"ts":"2026-08-08T15:28:38Z","round":1,"evalId":"E2","run_id":"consumer-copy-cjs-ce-r1-1786202918","exit_code":0,"cmd":"node tests/scripts/consumer-esm.test.mjs"}
+{"ts":"2026-08-08T15:28:38Z","round":1,"evalId":"E3","run_id":"consumer-copy-cjs-ce-r1-1786202918","exit_code":0,"cmd":"node tests/scripts/consumer-esm.test.mjs"}
+{"ts":"2026-08-08T15:28:38Z","round":1,"evalId":"E4","run_id":"consumer-copy-cjs-ce-r1-1786202918","exit_code":0,"cmd":"node tests/scripts/consumer-esm.test.mjs"}
+{"ts":"2026-08-08T15:28:38Z","round":1,"evalId":"E5","run_id":"consumer-copy-cjs-ce-r1-1786202918","exit_code":0,"cmd":"node tests/scripts/consumer-esm.test.mjs"}
+{"ts":"2026-08-08T15:28:48Z","round":1,"evalId":"E6","run_id":"consumer-copy-cjs-E6-r1-1786202928","exit_code":1,"cmd":"bash _acceptance/consumer-copy-cjs/checks/refs-sweep.sh"}
+{"ts":"2026-08-08T15:28:48Z","round":1,"evalId":"E7","run_id":"consumer-copy-cjs-E7-r1-1786202928","exit_code":0,"cmd":"bash _acceptance/consumer-copy-cjs/checks/inline-node-e.sh"}
+{"ts":"2026-08-08T15:28:48Z","round":1,"evalId":"E8","run_id":"consumer-copy-cjs-E8-r1-1786202928","exit_code":0,"cmd":"bash _acceptance/consumer-copy-cjs/checks/recheck-lint.sh"}
+{"ts":"2026-08-08T15:28:48Z","round":1,"evalId":"E9","run_id":"consumer-copy-cjs-E9-r1-1786202928","exit_code":0,"cmd":"bash _acceptance/consumer-copy-cjs/checks/manifest-bump.sh"}
+{"ts":"2026-08-08T15:29:28Z","round":1,"evalId":"E10","run_id":"consumer-copy-cjs-E10-r1-1786202968","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
+{"ts":"2026-08-08T15:30:33Z","round":1,"evalId":"E11","run_id":"consumer-copy-cjs-E11-r1-1786202976","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-08T15:30:42Z","round":1,"evalId":"E12","run_id":"consumer-copy-cjs-E12-r1-1786203041","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-08-08T15:30:51Z","round":1,"evalId":"E14","run_id":"consumer-copy-cjs-E14-r1-1786203049","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-08T15:30:57Z","round":1,"evalId":"E15","run_id":"consumer-copy-cjs-E15-r1-1786203057","exit_code":0,"cmd":"node scripts/product-map.mjs --root . --check"}
+{"ts":"2026-08-08T15:31:44Z","round":1,"evalId":"E13","run_id":"consumer-copy-cjs-E13-r1-1786202910","exit_code":1,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-08T15:36:55Z","round":1,"evalId":"E13","run_id":"consumer-copy-cjs-E13-r1b-1786203218","exit_code":1,"cmd":"bash tests/plugins/run-tests.sh"}

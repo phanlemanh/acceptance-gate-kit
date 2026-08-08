@@ -525,7 +525,7 @@ root = Path(sys.argv[1])
 # The mirror under plugins/ is generated; check the SOURCES only.
 areas = ["skills", "feature-loop", "design-loop", "codex", "commands", "hooks", "lib", "scripts"]
 files = [p for a in areas for p in (root / a).rglob("*")
-         if p.is_file() and p.suffix in {".md", ".js", ".mjs", ".sh", ".json"}]
+         if p.is_file() and p.suffix in {".md", ".js", ".cjs", ".mjs", ".sh", ".json"}]
 files += [root / f for f in ("README.md", "GUIDE.md", "QUICKSTART.md")]
 ALLOW = {"feature-loop/scripts/resolve-plugin.mjs"}  # documents the pattern it replaces
 offenders = []
@@ -6148,7 +6148,10 @@ run "P150 required_evidence tren the + report cu render y het ban base" \
     BASE=$(git -C "'"$ROOT"'" merge-base HEAD origin/main)
     mkdir -p "$T/base/scripts"
     git -C "'"$ROOT"'" show "$BASE:scripts/gate-card.js" > "$T/base/scripts/gate-card.js"
-    cp -R "'"$ROOT"'/lib" "$T/base/lib"
+    # lib phai lay TAI CUNG BASE, khong duoc ghep lib hien tai vao script base:
+    # dot .cjs 1.39.1 lam ban ghep chet (base require lib/*.js, cay hien tai chi
+    # con .cjs) — "ban base" phai la MOT cay base tron ven.
+    git -C "'"$ROOT"'" archive "$BASE" lib | tar -x -C "$T/base"
     A=$(cd "$T/ws" && node "'"$ROOT"'/scripts/gate-card.js" --slug feat-jr5 2>/dev/null)
     B=$(cd "$T/ws" && node "$T/base/scripts/gate-card.js" --slug feat-jr5 2>/dev/null)
     [ -n "$A" ] || { echo "stdout moi rong"; exit 1; }
@@ -6955,8 +6958,17 @@ with tempfile.TemporaryDirectory() as d:
     (dd / "scripts").mkdir(); (dd / "lib").mkdir()
     old_js = dd / "scripts" / "gate-card.js"
     old_js.write_text(src_old, encoding="utf-8")
-    for f in (root / "lib").iterdir():
-        if f.suffix == ".js": (dd / "lib" / f.name).write_text(f.read_text(encoding="utf-8"), encoding="utf-8")
+    # lib lay TAI BASE (cung commit voi gate-card cu) — khong ghep lib hien tai:
+    # sau dot .cjs 1.39.1, loc `f.suffix == ".js"` tren cay hien tai chep dung
+    # 0 file va ban cu cung khong nap noi lib .cjs — ca hai chieu deu mu.
+    lib_names = subprocess.run(["git", "-C", str(root), "ls-tree", "-r", "--name-only", BASE, "lib"],
+                               capture_output=True, text=True).stdout.split()
+    assert lib_names, "khong liet ke duoc lib/ tai ban cu %s — fixture ban base khong dung duoc" % BASE
+    for name in lib_names:
+        blob = subprocess.run(["git", "-C", str(root), "show", "%s:%s" % (BASE, name)],
+                              capture_output=True, text=True)
+        assert blob.returncode == 0, "khong lay duoc %s tai %s" % (name, BASE)
+        (dd / "lib" / pathlib.Path(name).name).write_text(blob.stdout, encoding="utf-8")
     strip_old = load_strip(old_js)
 
     # ══ E4: ban cu ĐỎ dung tap, XANH dung tap; co khai == su that do duoc ══
