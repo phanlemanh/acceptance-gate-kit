@@ -74,14 +74,17 @@ tiết thi hành, và nó là bên bị chấm. Máy B giữ khoảng cách đ�
 
 ## 5 · Trạng thái tính đến 2026-08-08 (cập nhật khi đổi)
 
-- `origin/main` = `b313868`, acceptance-gate **1.39.0** / feature-loop
-  **1.27.0** — **đội đang dùng bản này, an toàn, chưa ai nhận 2.0.0**.
+- `origin/main` — acceptance-gate **1.39.0** / feature-loop **1.27.0** —
+  **đội đang dùng bản này, chưa ai nhận 2.0.0**.
 - **GĐ 0.0 xong**: `measure-birth-certificate` đã ký; `premerge-ac-line` +
   `crosslayer-uncoded` đã xếp lại có entry sổ.
 - **GĐ 1 — DỪNG có chủ đích sau 5 vòng REJECT.** Hồ sơ
   `tai-lap-ceremony-diet` để REJECT, không ký, 2.0.0 không ship qua cổng.
   1b (sign-batch) đã descope → làm lại ở 2.1 qua `lib/workspace-record.js`.
   Công việc bảo toàn trên nhánh `release/2.0.0-wip` (không phải `main`).
+  Sổ đóng GĐ1 đã về main:
+  [handoff dừng 2.0.0](2026-08-08-handoff-dung-2-0-0-mo-gd2.md) · findings
+  2 bài học · 29 mục ledger tai-lap.
 - **Việc kế**: GĐ0 thông báo #1 cho đội (owner gửi) → **GĐ2: chạy 2–3
   feature THẬT ở repo tiêu thụ trên bản 1.39.0** + phiên nghiệm thu Cổng Giá
   trị lần đầu. Không mở vòng meta mới (lệnh đóng băng trong CLAUDE.md).
