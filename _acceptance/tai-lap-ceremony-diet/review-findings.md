@@ -1,75 +1,81 @@
 ## Trong hợp đồng
 
-- **Hình dạng 2 — Fixture VIẾT TAY đúng khuôn bên đọc, trong khi E3 cấm đích danh điều này**
-  file: `tests/plugins/run-tests.sh:9311`
-  severity: high
-  AC: AC-3
-  detail: E3 (evals.yaml) hứa: "hồ sơ fixture sinh từ khuôn evidence-report-template.md, cấm viết tay khớp khuôn helper đọc". Nhưng P187 dựng evidence-report.md bằng printf viết tay (dòng 9311): front-matter chứa đúng dòng `human_signoff:` trống — chính là khuôn mà reader của sign-batch.mjs đòi (`/^human_signoff:\s*$/m`, scripts/sign-batch.mjs:55). Không có round-trip nào từ evidence-report-template.md (khuôn writer thật). Nếu writer/template thật trôi khuôn (ví dụ đổi cách ghi human_signoff), sign-batch sẽ từ chối hồ sơ thật ngoài đời mà P187 vẫn xanh — đúng hình dạng (3) "bên VIẾT và bên ĐỌC trôi khỏi nhau vì mọi test tự dựng fixture đúng khuôn bên đọc" trong CLAUDE.md, và vi phạm nguyên văn expected của chính E3.
-  source: measurement
+### sign-batch accepts comment-only bypass_ack (fails open on its own reject rule)
+- file: `scripts/sign-batch.mjs:61`
+- severity: medium
+- source: bugs
+- AC: AC-3
 
-- **Hình dạng 3 — E1 hứa QUAN HỆ đẳng-thức khai↔quét nhưng assert là hằng-đúng (so tập với chính nó)**
-  file: `tests/plugins/run-tests.sh:9240`
-  severity: medium
-  AC: AC-1
-  detail: E1 expected: "quét tập 7 file khai — quan hệ khai↔quét là ĐẲNG THỨC tập hợp". Trong P185, check `if scanned != sorted(FILES)` (dòng 9240) so `scanned = sorted(texts.keys())` với `sorted(FILES)` — nhưng `texts` được dựng từ chính FILES (vòng `for f in FILES`), và mọi mutant đều là `mut = dict(texts)` giữ nguyên key. Nhánh này không thể đỏ trong bất kỳ code path nào — quan hệ được hứa bị đo bằng phép so-một-giá-trị-với-chính-nó. Phần còn sống của P185 chỉ là quét chuỗi FORBIDDEN; đẳng thức tập hợp mà eval tuyên bố không hề được đo (không có nguồn độc lập thứ hai — ví dụ rút tập file từ khối marker TCD-MUST-NOT hay từ paths của evals.yaml — để so).
-  source: measurement
+The AC-3 extension check is `if (bypass === 'true' && !/^bypass_ack:\s*\S/m.test(report)) reject(...)`. `\S` matches `#`, so a placeholder line `bypass_ack: # chờ ai đó gật` (comment-only, no actual name) satisfies the check — confirmed by executing the regex: it returns true for that input. sign-batch then signs the bypassed report and prints the commit command; pre-merge-check.sh later rejects it because `front_field` strips trailing comments (`ack` reads empty → VIOLATION bypass_used without bypass_ack). Net effect: the helper's stated invariant ("người phải nhận đường thoát trước khi ký", line 57) is violated — the human lands a signature commit on a record the gate will refuse to merge. This is the same comment-bypass defect class the kit already fixed once (Đợt 6 HIGH, D10), and the sibling checks in this very file get it right (verdict uses `[^\s#]+`; human_signoff explicitly treats comment-only as unsigned). Fix: require a non-comment value, e.g. `/^bypass_ack:\s*[^\s#]/m`. Identical bug in the mirror `plugins/acceptance-gate/scripts/sign-batch.mjs:61` — fix source then run `scripts/sync-plugin-packages.sh`.
 
-- **Hình dạng 3 — E3 hứa 'MỘT lệnh git commit đích danh' nhưng assert chỉ là chuỗi-có-mặt**
-  file: `tests/plugins/run-tests.sh:9325`
-  severity: medium
-  AC: AC-3
-  detail: E3 expected: "stdout in MỘT lệnh git commit đích danh" (đích danh = nêu tên đúng các file vừa sửa). P187 assert bằng glob `case "$outS" in *"git add"*"git commit"*)` (dòng 9325) — chỉ kiểm hai chuỗi có mặt, không kiểm quan hệ lệnh↔tập-file-đã-sửa và không kiểm tính "MỘT lệnh". Một helper hồi quy in `git add -A && git commit ...` (quét cả file không liên quan) vẫn qua glob này, và cũng qua luôn bước eval + pre-merge phía sau vì trong fixture không có thay đổi nào khác ngoài chữ ký — nên tính đích danh không được phân biệt ở bất kỳ tầng nào của case.
-  source: measurement
+Rationale: AC-3 đòi rõ hồ sơ `bypass_used=true` mà chưa có `bypass_ack` phải bị TỪ CHỐI cả lô; một dòng `bypass_ack` chỉ có comment (không giá trị thật) vẫn được chấp nhận như đã có ack, vi phạm đúng nhánh từ-chối này.
 
-- **Hình dạng 4 (một nửa) — mutant P187 không ghim thông điệp 'helper tu commit' mà eval hứa**
-  file: `tests/plugins/run-tests.sh:9346`
-  severity: low
-  AC: AC-3
-  detail: E3 expected: "mutation trong bản sao helper (mở khoá tự-commit) → đỏ ghim 'helper tu commit'". Nhánh mutant của P187 chỉ assert `[ "$M1" -gt "$M0" ]` (dòng 9346) — tức chứng minh mutant SỐNG (git log đổi), rồi tự echo 'phep do vach: helper tu commit' mà không có phép đo nào thật sự chạy đỏ và in/ghim thông điệp đó. Đối chứng dương có (N0==N1 ở dòng 9324) và injection-chết được phân biệt (cp/node hỏng → M1==M0 → fail), nên nửa "âm-tính-một-mình" được che; nhưng nửa "ghim đúng thông điệp" của lời hứa trong eval không tồn tại trong code — logic phát hiện bị tái-cài-đặt inline (đếm git log lần hai) thay vì cho chính phép đo chạy trên mutant.
-  source: measurement
+### Hình dạng 3 — hứa ĐẲNG THỨC tập hợp nhưng chỉ assert MỘT chiều bao hàm (P185)
+- file: `tests/plugins/run-tests.sh:9261`
+- severity: high
+- source: measurement
+- AC: AC-1
+
+evals.yaml E1 hứa "quan hệ khai↔quét là ĐẲNG THỨC tập hợp", nhưng `measure()` (dòng 9261-9271) chỉ kiểm chiều discovered − declared (file NGOÀI tập khai). Chiều ngược — một file TRONG tập khai (FILES) mất mention `time_human_minutes` (trường hợp "tập-khai-thừa") — không được đo: measure chỉ kiểm file-tồn-tại, không kiểm file khai còn mention. Chỉ có một assert điểm-case cho riêng `commands/signoff.md` (dòng 9280). Bằng chứng ngay trong code: dòng 9292 là comment khai mutant "tap-khai-thua: mention trong 1 file khai bien mat -> do ghim ten" nhưng KHÔNG có dòng code nào theo sau — mutant được tuyên trong thông điệp MUTANT-OK (dòng 9293) mà chưa từng chạy; nếu viết ra, nó sẽ XANH oan vì `measure()` không phát hiện được hình dạng này.
+
+Rationale: AC-1 đòi rõ quan hệ tập-file-khai↔tập-quét phải là ĐẲNG THỨC tập hợp; `measure()` chỉ kiểm một chiều (file ngoài tập khai), bỏ sót chiều file-trong-tập-khai-mất-mention mà AC đòi phải đo cả hai chiều.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **Truncated edit leaves unclosed parenthesis and drops the tự-khai qualifier in Codex acceptance-report SKILL**
-  Người dùng thấy gì: Bản hướng dẫn Codex cho bước báo cáo có thể còn sót một câu chỉ dẫn bị cắt cụt giữa chừng, khiến người đọc bản Codex dễ hiểu nhầm về cách xử lý số phút cũ — dù quy tắc dán nhãn chính vẫn còn nguyên ở chỗ khác trong tài liệu.
-  file: `codex/acceptance-gate/skills/acceptance-report/SKILL.md:25`
+- **Top-level docs still teach the mandatory-minutes ritual and the old minutes-KPI that 2.0.0 removed**
+  Người dùng thấy gì: Một số tài liệu hướng dẫn (GUIDE.md, QUICKSTART.md, README.md) vẫn dạy người dùng điền số phút và coi đó là chỉ số đo, dù bản cập nhật này đã bỏ yêu cầu đó — người đọc các tài liệu này có thể bị hướng dẫn sai hoặc lỗi thời.
+  file: `GUIDE.md`
   severity: medium
   Đề xuất: known-limits
 
-- **Plugin descriptions point consumers to CHANGELOG.md that 4 of the 5 non-root packages do not ship (dead pointer per the repo's own P162 convention)**
-  Người dùng thấy gì: Mô tả một số gói cài đặt có thể trỏ người dùng tới file lịch sử thay đổi không được đi kèm trong chính gói họ cài, khiến người muốn xem lại các thay đổi gặp liên kết chết.
-  file: `codex/acceptance-gate/.codex-plugin/plugin.json:4`
-  severity: medium
-  Đề xuất: known-limits
-
-- **sign-batch.mjs interpolates --name unescaped into YAML frontmatter and the printed git commit command**
-  Người dùng thấy gì: Nếu người ký nhập tên có ký tự đặc biệt, hồ sơ chữ ký và dòng lệnh git được in ra có thể bị sai định dạng hoặc chứa nội dung ngoài ý muốn mà người ký phải tự phát hiện và sửa tay.
-  file: `scripts/sign-batch.mjs:63`
+- **Codex acceptance-report twin: unbalanced parenthesis and dropped tự-khai clause vs Claude twin (already acknowledged as known limit i)**
+  Người dùng thấy gì: Bản hướng dẫn dành cho Codex thiếu cụm cảnh báo "dữ liệu tự khai — không đáng tin" mà bản dành cho Claude có, khiến người dùng Codex có thể hiểu nhầm số phút cũ là dữ liệu đáng tin cậy.
+  file: `codex/acceptance-gate/skills/acceptance-report/SKILL.md`
   severity: low
   Đề xuất: known-limits
 
-- **sign-batch signs PENDING-JUDGMENT reports — verdict never checked, contradicting its own atomic-reject boundary**
-  Người dùng thấy gì: Công cụ ký hàng loạt có thể đóng dấu chữ ký xác nhận cho những hồ sơ vẫn đang chờ người ra phán quyết cuối cùng, khiến bản ghi trông như đã có người rà soát trong khi thực tế chưa ai xem qua.
-  file: `scripts/sign-batch.mjs:50`
+- **Distributed package manifests point to CHANGELOG.md that does not exist inside the packages (already acknowledged as known limit ii)**
+  Người dùng thấy gì: Các gói cài đặt trỏ người dùng tới file CHANGELOG.md để xem lịch sử thay đổi, nhưng file đó không có trong gói đã cài — người dùng bấm vào sẽ gặp đường dẫn chết.
+  file: `feature-loop/.claude-plugin/plugin.json`
+  severity: low
+  Đề xuất: known-limits
+
+- **KPI 'human-touch frequency' command counts machine commits as human events**
+  Người dùng thấy gì: Con số "tần suất người phải ra tay" trong báo cáo có thể bị thổi phồng vì đôi khi nó đếm luôn những lần máy tự động ghi hoặc sửa hồ sơ, không chỉ những lần người thật sự ký hay can thiệp — số liệu có thể không phản ánh đúng công sức người dùng đã bỏ ra.
+  file: `commands/acceptance-report.md`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Codex acceptance-report SKILL edit left unbalanced paren and dropped the untrusted-label qualifier**
+  Người dùng thấy gì: Bản hướng dẫn dành cho Codex thiếu cụm cảnh báo "dữ liệu tự khai — không đáng tin" mà bản dành cho Claude có, khiến người dùng Codex có thể hiểu nhầm số phút cũ là dữ liệu đáng tin cậy.
+  file: `codex/acceptance-gate/skills/acceptance-report/SKILL.md`
+  severity: low
+  Đề xuất: known-limits
+
+- **P187/P191 human-commit eval depends on ambient git identity and gpgsign**
+  Người dùng thấy gì: Một số bài kiểm thử nội bộ của kit có thể báo lỗi giả trên máy chưa cấu hình sẵn danh tính Git hoặc đang bật ký GPG bắt buộc — chỉ ảnh hưởng người bảo trì kit khi chạy bộ kiểm thử, không ảnh hưởng người dùng cuối.
+  file: `tests/plugins/run-tests.sh`
+  severity: low
+  Đề xuất: known-limits
+
+- **Hình dạng 2 — contract fixture VIẾT TAY khớp khuôn bên đọc dù template có mold trích được (P187 + P191)**
+  Người dùng thấy gì: Một phần bộ kiểm thử tự tạo dữ liệu mẫu bằng tay thay vì trích từ khuôn mẫu chính thức — nếu khuôn mẫu đó sau này đổi định dạng, phần kiểm thử này có thể không phát hiện ra và báo xanh nhầm, che giấu lỗi thật.
+  file: `tests/plugins/run-tests.sh`
   severity: high
-  Đề xuất: new-contract
-
-- **Signature silently corrupted when --name contains JS replacement patterns or shell metacharacters**
-  Người dùng thấy gì: Nếu tên người ký chứa một số ký tự đặc biệt, chữ ký được ghi vào hồ sơ có thể bị âm thầm sai lệch mà không có cảnh báo nào, gây khó khăn khi đối chiếu lại sau này.
-  file: `scripts/sign-batch.mjs:66`
-  severity: low
   Đề xuất: known-limits
 
-## Chưa phân loại (triage-failed)
+- **Hình dạng 4 — discover() chưa từng được chứng minh biết đỏ: mutant tập-hợp đi vòng qua walker (P185)**
+  Người dùng thấy gì: Một phần bộ kiểm thử chưa từng được chứng minh là phát hiện được lỗi thật, vì nó dùng phép tính giả lập thay vì tạo file thật rồi quét lại — nếu cơ chế quét file bên dưới bị hỏng âm thầm, bài kiểm thử này sẽ không báo động.
+  file: `tests/plugins/run-tests.sh`
+  severity: medium
+  Đề xuất: known-limits
 
-phân loại phạm vi không chạy được — không lỗi nào bị máy tự sửa, người xem lại toàn bộ
-
-- **Codex acceptance-report SKILL parse line is truncated/drifted vs Claude twin**
-  file: `codex/acceptance-gate/skills/acceptance-report/SKILL.md:25`
+- **Hình dạng 2 (biến thể) — mutant P191 đo BẢN SAO chép tay của phép trích, không chạy bên đọc thật**
+  Người dùng thấy gì: Một bài kiểm thử tự chép lại logic đọc dữ liệu thay vì gọi đúng đoạn code thật đang chạy trong sản phẩm — nếu logic đọc thật sau này thay đổi, bài kiểm thử này có thể vẫn báo xanh dù đã mất khả năng phát hiện lỗi.
+  file: `tests/plugins/run-tests.sh`
   severity: low
-  source: bugs
-  detail: Line 25 reads '`gate1_skipped` (va `time_human_minutes` {gate1, gate2};' — unbalanced parenthesis and it dropped the qualifier the Claude twin carries ('nếu có — chỉ để trình dưới nhãn tự-khai', commands/acceptance-report.md:21-22), while keeping the old '{gate1, gate2}' shape. The step-1 parse instruction for the Codex harness therefore no longer tells the model that minutes parsed here are display-under-untrusted-label only; only the intro paragraph carries the rule. Test P186 still passes because it only greps for the label string and the KPI command anywhere in the file, so this drift is invisible to the suite. Same text is mirrored at plugins/acceptance-gate/skills/acceptance-report/SKILL.md:25 — fix in codex/ source and re-sync.
+  Đề xuất: known-limits
 
 Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
