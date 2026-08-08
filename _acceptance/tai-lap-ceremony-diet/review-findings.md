@@ -1,44 +1,44 @@
 ## Trong hợp đồng
 
-### sign-batch.mjs bypass_used check is strict `=== 'true'` while pre-merge accepts case-insensitive true|1|yes — ack requirement silently skipped
-- file: `scripts/sign-batch.mjs:64`
-- severity: medium
-- source: bugs
-- AC: AC-3
+### acceptance-report Print section still mandates the abolished minutes-vs-baseline ≥50% KPI, contradicting the same file's 2.0.0 charter rules
+- file: `commands/acceptance-report.md:60`
+- severity: high
+- source: conventions
+- AC: AC-2
 
-Line 64-65: `const bypass = (report.match(/^bypass_used:[ \t]*([^\s#]+)/m) || [, ''])[1]; if (bypass === 'true' && ...)`. The reference parser pre-merge-check.sh:711 normalizes with `tr '[:upper:]' '[:lower:]'` and matches `true|1|yes` — so a report with `bypass_used: True`, `YES`, or `1` (all valid YAML truthy, and evidence reports are LLM-written) is treated as bypassed by the rest of the engine, but sign-batch treats it as non-bypassed, skips the bypass_ack requirement, and signs blind — the exact ký-mù fail-open class AC-3 targets and that r3/r4 were closing. Downstream pre-merge-check will later flag the un-acked bypass, but by then sign-batch has already mutated evidence-report.md and flipped the contract to signed-off, breaking its own 'từ chối cả lô trước khi ghi' guarantee. The P187 ack matrix only exercises lowercase `true`, so this shape is untested. Mirror copy plugins/acceptance-gate/scripts/sign-batch.mjs has the same code.
+The file's header (lines 8-13) states the 2.0.0 charter: time_human_minutes is self-reported/untrusted, 'never cite it as efficiency evidence, never flag its absence as a hygiene gap', and the KPI is human-touch frequency from git (computed in step 2, line 35). But step 4 'Print' (lines 59-65) was never swept: the Headline still orders 'median + mean total minutes ... baseline median from baseline_minutes (empty → "chưa ghi mốc so sánh ... điền vào cấu hình nghiệm thu, khoá baseline_minutes") ... % reduction vs the ≥50% target → ĐẠT / CHƯA ĐẠT'. That (a) presents untrusted minutes as the headline efficiency verdict without the required 'tự khai — không đáng tin' label, (b) flags missing baseline_minutes as something to go fill — exactly what lines 78-80 of the same file forbid, and (c) the new human-touch count computed in step 2 never appears anywhere in the Print spec (table columns are still 'G1 min | G2 min'). Identical stale block in the Codex twin codex/acceptance-gate/skills/acceptance-report/SKILL.md:58-63 and its mirror plugins/acceptance-gate/skills/acceptance-report/SKILL.md:58-63. This is the same incomplete-layer-sweep class as ledger entry tai-lap-ceremony-diet#3 (GUIDE/QUICKSTART/README minutes sweep, closed_by 30312af) — the sweep missed the report command's own output spec, and eval P186 cannot catch it because it only asserts the label and the git command EXIST somewhere in the file, not that the Print instructions stopped using the old KPI (CLAUDE.md: 'sửa phải theo LỚP' / 'thước phải gắn vào vật được giao').
 
-Rationale: AC-3 buộc: hồ sơ verified có bypass_used true mà chưa có bypass_ack phải bị TỪ CHỐI cả lô; với bypass_used ghi dạng truthy khác 'true' thường, helper không nhận diện là bypass nên bỏ qua yêu cầu ack và ký mù — vi phạm trực tiếp lời hứa 'không ký mù' của AC-3.
+Rationale: AC-2 requires old minutes data be labeled 'tự khai — không đáng tin' and the printed human-side KPI be git-derived event frequency; the Print section of this same file still headlines the old minutes-vs-50% KPI unlabeled and never surfaces the new KPI, directly failing that requirement.
 
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
-- **Lệnh KPI đếm-từ-git bỏ sót commit chữ ký Cổng 2 dạng không-nháy (dạng chiếm đa số hồ sơ thật)**
-  file: `commands/acceptance-report.md:35`
-  severity: high
-  Lệnh chuẩn khai trong chỉ dẫn là `git log --format=%H -G'human_signoff: \"|human_override: \"|approved_by: [A-Za-z]' -- _acceptance/<slug>/` — hai vế đầu đòi dấu nháy kép ngay sau `human_signoff: ` / `human_override: `. Nhưng chỉ sign-batch.mjs (mới, 2.0.0) ghi dạng có nháy `human_signoff: "Manh Phan 2026-08-07"`; toàn bộ hồ sơ cũ VÀ chính chỉ dẫn /signoff + GUIDE.md hiện hành bảo người ghi `human_signoff: <Tên> <ngày>` KHÔNG nháy (kiểm thật: 20/21 record trong _acceptance/ không nháy). Đo sống: với slug claim-scan-parser-hardening, lệnh as-written đếm 1 (chỉ commit approved_by Cổng 1) và BỎ S
-
-- **P186 chỉ thi hành lệnh KPI trên measure-birth-certificate — slug duy nhất ký dạng có-nháy, nên phép đo không thể bắt lỗi undercount ở trên**
-  file: `tests/plugins/run-tests.sh:9319`
+- **All 7 plugin manifests still advertise the deleted sign-batch.mjs in their v2.0 description**
+  file: `.claude-plugin/plugin.json:4`
   severity: medium
-  P186 làm đúng nếp round-trip (rút lệnh từ chính chỉ dẫn rồi chạy), nhưng slug mẫu duy nhất là measure-birth-certificate — hồ sơ duy nhất trong repo có `human_signoff: "..."` dạng nháy (ký bằng sign-batch), nên assertion n>=1 xanh trong khi lệnh miss commit chữ ký của mọi hồ sơ dạng không-nháy. Đây đúng lớp bất biến CLAUDE.md 'thước phải gắn vào vật được giao': mẫu đo phải đại diện định dạng mà code path/nghi thức thật sinh ra (ở đây /signoff + GUIDE sinh dạng không-nháy). Nghi thức 'phá vật thật trong bản sao xem phép đo có đỏ không' áp lên một slug ký tay (vd claim-scan-parser-hardening) sẽ l
+  Commit ff345f1 executed the pre-declared descope of 1b: scripts/sign-batch.mjs and its mirror were deleted, AC-3 descoped, CHANGELOG.md:9 explicitly says 'Món ký gộp một lệnh (sign-batch) RÚT khỏi bản này'. But the v2.0 sentence in the description field of all 7 manifests (source .claude-plugin/plugin.json, .codex-plugin/plugin.json, codex/acceptance-gate/.codex-plugin/plugin.json, feature-loop/.claude-plugin/plugin.json, codex/feature-loop-codex/.codex-plugin/plugin.json, plus both plugins/ mirrors) still claims 'sign-batch.mjs signs a whole batch with ONE human-run commit' — a current-state 
 
-- **New KPI pickaxe regex misses unquoted human_signoff/human_override — systematic undercount of Gate-2 human-touch events**
+- **Human-touch KPI pickaxe omits bypass_ack, undercounting a documented human-owned gate event — same undercount class as ledger #17**
   file: `commands/acceptance-report.md:35`
-  severity: high
-  The documented KPI command `git log --format=%H -G'human_signoff: \"|human_override: \"|approved_by: [A-Za-z]' -- _acceptance/<slug>/` requires a literal double quote after `human_signoff:` / `human_override:`. But the manual /signoff flow (commands/signoff.md:32) dictates `human_signoff: <name> <date>` UNQUOTED, and that is the dominant real shape: 26 of 29 signed reports in _acceptance/ are unquoted. Verified empirically: for slug premerge-unjudged-pass (signed `human_signoff: Manh Phan 2026-07-29`) the documented regex finds 0 signoff commits — its KPI count of 1 comes solely from the appro
-
-- **sign-batch.mjs regexes scan the WHOLE file, not the leading frontmatter — body text can satisfy/poison the checks, diverging from front_field's explicitly guarded scope**
-  file: `scripts/sign-batch.mjs:59`
   severity: medium
-  All frontmatter reads in sign-batch (lines 51, 59, 62, 64, 65, 78, 79) are `/^key:.../m` over the entire file, whereas pre-merge-check.sh's front_field (line 295) reads ONLY the leading `---` block, with an explicit comment that 'a body excerpt cannot poison the read'. Concrete fail-open: a bypassed report whose frontmatter `bypass_ack:` is empty but whose body contains a column-0 line `bypass_ack: <name> <date>` (e.g. quoting the release instruction that pre-merge itself prints) passes the line-65 test `/^bypass_ack:[ \t]*[^\s#]/m` and gets signed. Similarly a body line `human_signoff:` (empt
+  The standard KPI command `git log --format=%H -G'human_signoff: ["A-Za-z]|human_override: ["A-Za-z]|approved_by: [A-Za-z]' -- _acceptance/<slug>/` defines the KPI as commits touching human-owned lines, but the kit's own enumeration of human-owned lines includes bypass_ack: commands/signoff.md step 7 ('human_signoff, human_override, the verdict upgrade, bypass_ack') and QUICKSTART.md describes bypass_ack as a standalone human responsibility act that can land outside the signoff commit (a person acking a bypass to unblock CI). A commit that only fills bypass_ack matches none of the three alterna
 
-- **sign-batch.mjs default discovery silently drops verified contracts whose status value is quoted**
-  file: `scripts/sign-batch.mjs:40`
+- **KPI pickaxe regex misses quoted approved_by — Gate-1 events silently uncounted**
+  file: `commands/acceptance-report.md:35`
+  severity: medium
+  The human-touch KPI command shipped in this diff is `git log --format=%H -G'human_signoff: ["A-Za-z]|human_override: ["A-Za-z]|approved_by: [A-Za-z]' -- _acceptance/<slug>/`. The r4 undercount fix (ff345f1, 'regex pickaxe nhận cả chữ ký không-nháy') added the `"` alternative to the human_signoff and human_override character classes but NOT to approved_by, which still only accepts an unquoted letter. Reproduced live: in a scratch repo, a commit writing `approved_by: "Manh Phan"` (valid YAML; the write-time hook via lib/evidence-core.js:457 only requires non-empty, so quoted values pass) yields 
+
+- **KPI pickaxe counts line REMOVALS as human-touch events**
+  file: `commands/acceptance-report.md:35`
   severity: low
-  Line 40 selects the default batch with `/^status:[ \t]*verified[ \t]*$/m`. front_field strips single/double quotes, so `status: "verified"` is valid and accepted everywhere else in the engine — but sign-batch's default (no --slugs) run silently omits such a record from the batch with no message (other records sign fine, so the omission is invisible; if it were the only record the generic 'không có hồ sơ nào ở trạng thái verified' fires, which misdiagnoses). Same quote-intolerance on line 62 makes `verdict: "PASS"` a wrongful whole-batch rejection (noisy fail-closed, lesser concern). Same diver
+  git log -G selects commits whose diff has an added OR removed line matching the regex. A machine-authored commit that deletes or resets a previously-filled human-owned line — e.g. an S4 report regeneration after a Gate-2 round wiping filled `human_override: <name> <date>` items, or a revert of a signature commit — is counted as a human-touch event, inflating the KPI. The -G semantics are certain; frequency depends on workflow (no current _acceptance record exhibits it, so flagged low). Applies equally to the codex twin skill and both mirror copies. If precision matters, the instruction could t
 
-- **Hình dạng 3 — assert chuỗi-có-mặt + n≥1 trong khi lời hứa E2 là quan hệ loại-trừ (dòng khoá rỗng máy thêm KHÔNG đếm)**
-  file: `tests/plugins/run-tests.sh:9339`
+- **Hình dạng 3 — assert needle toàn-file trong khi lời hứa là 'món nằm TRONG mục 2.0.0' (P188)**
+  file: `tests/plugins/run-tests.sh:9373`
   severity: medium
-  evals.yaml E2 hứa KPI 'đếm commit chạm GIÁ-TRỊ human-owned đã điền … dòng khoá rỗng máy thêm KHÔNG đếm'. P186 chỉ đo: (a) nhãn LABEL và regex CMD_RE có mặt trong 2 file (dòng 9329–9330), (b) chạy lệnh rút từ chỉ dẫn trên repo thật rồi assert exit 0 và n>=1 (dòng 9339). Không có vế nào chứng minh quan hệ loại-trừ: không fixture nào có commit-máy chỉ thêm dòng khoá rỗng để assert count KHÔNG tăng, và measure() cũng không kiểm doc có nêu mệnh đề loại-trừ đó. Một pattern -G sai (đếm cả dòng khoá rỗng) vẫn cho n>=1 và xanh y hệt. Mutation 'xoá định nghĩa' mà E2 liệt kê cũng không có case tương ứng 
+  AC-4/E4 hứa 'tồn tại mục 2.0.0 ... ĐỦ 3 món'. measure(t) kiểm '## 2.0.0' in t rồi kiểm từng needle ('Bỏ điền phút', 'Re-pin theo release', 'RÚT khỏi bản này', GUARD 'chuẩn bằng chứng giữ nguyên') trên TOÀN VĂN CHANGELOG.md, không cắt riêng section 2.0.0. Quan hệ món∈mục-2.0.0 không được đo. Kịch bản đỏ-mà-vẫn-xanh cụ thể và đã được lên lịch: chính CHANGELOG khai 1b sign-batch sẽ 'làm lại ở 2.1' — khi mục 2.1.0 được thêm lên đầu file và nhắc lại bất kỳ needle nào (rất dễ với 'Re-pin theo release' hay 'chuẩn bằng chứng giữ nguyên'), việc món đó bị xoá khỏi mục 2.0.0 sẽ không làm test đỏ. Mutant 
+
+- **Hình dạng 5 — tuyên bảng KHUÔN-CẤM 8 mẫu nhưng mutation chỉ chứng minh 2 mẫu biết đỏ, 6 mẫu chưa bao giờ được chứng minh sống (P185)**
+  file: `tests/plugins/run-tests.sh:9292`
+  severity: low
+  Ma trận mutant có assert đếm cho chiều FILE (hit == len(FILES) == 9, đúng mẫu P105) nhưng chiều MẪU-CẤM không có ma trận: cả 9 lượt đều tiêm cùng MỘT chuỗi cố định 'Ask how many minutes Gate 1 took → `time_human_minutes.gate1`' (dòng 9292). Chuỗi này chỉ khớp 2/8 phần tử FORBIDDEN ('Ask how many minutes', 'how many minutes'); nó KHÔNG khớp 'minutes → `time_human_minutes' (văn tiêm là 'took → `time_...'), không khớp 'time_human_minutes: {gate1' (văn tiêm dùng '.gate1'), và không đụng 'hỏi user số phút', 'minutes spent →', 'provide `time_human_minutes.gate2`', 'chưa ghi số phút của người'. 6 mẫu

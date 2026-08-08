@@ -30,3 +30,10 @@
 {"ts":"2026-08-08T03:57:51Z","round":4,"evalId":"E6","run_id":"minted-tai-lap-ceremony-diet-E6-r4","exit_code":144,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-08T03:57:51Z","round":4,"evalId":"E7","run_id":"minted-tai-lap-ceremony-diet-E7-r4","exit_code":144,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-08T03:57:51Z","round":4,"kind":"baseline","evals_hash":"01e4ac096b5d016fd86787ecec47259738debf2a419454285ff1b01cd6c39b07","non_discriminating":[]}
+{"ts":"2026-08-08T04:41:33Z","round":5,"evalId":"E1","run_id":"b1r2pb6nq","exit_code":-1,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-08T04:41:33Z","round":5,"evalId":"E2","run_id":"b1r2pb6nq","exit_code":-1,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-08T04:41:33Z","round":5,"evalId":"E4","run_id":"b1r2pb6nq","exit_code":-1,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-08T04:41:33Z","round":5,"evalId":"E5","run_id":"b1r2pb6nq","exit_code":-1,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-08T04:41:33Z","round":5,"evalId":"E6","run_id":"b1r2pb6nq","exit_code":-1,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-08T04:41:33Z","round":5,"evalId":"E7","run_id":"b1r2pb6nq","exit_code":-1,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-08T04:41:33Z","round":5,"kind":"baseline","evals_hash":"f64b2cdeb1855d4167480636a6209405b4ab07d9809cde19c7152fd5a375ffea","non_discriminating":[]}
