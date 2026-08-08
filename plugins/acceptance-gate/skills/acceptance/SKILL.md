@@ -163,8 +163,9 @@ Run immediately after the user reviews the contract (same gate, one sitting).
    raw YAML (presentation only; the contract/evals stay the source of truth).
    The `approve` skill walks this stop end-to-end (card → one question →
    recorded decision). On approval:
-   set contract `status: approved`, `approved_by`, `approved_at`, and ask the
-   user how many minutes Gate 1 took → write `time_human_minutes.gate1`.
+   set contract `status: approved`, `approved_by`, `approved_at`. Do NOT ask
+   for gate minutes — `time_human_minutes.gate1` is OPTIONAL, recorded only
+   when the human volunteers it (old numbers are self-reported, untrusted).
 6. Hand off to implementation (normal agent coding flow — the implementing
    agent reads contract + evals and codes until it believes evals will pass).
    The implementing agent's FINAL act is setting the contract's
@@ -278,9 +279,8 @@ Entry: implementation complete, contract `status: implemented`.
    PENDING-JUDGMENT they then upgrade it to PASS (the hook re-validates that
    write) — have the agent apply that edit so the hook actually sees it; a
    human editing outside the agent bypasses PreToolUse (CI pre-merge-check
-   is the backstop). The user (not you) fills `human_signoff`; then ask
-   minutes spent →
-   `time_human_minutes.gate2`, set contract `status: signed-off`. In Codex,
+   is the backstop). The user (not you) fills `human_signoff`; set contract
+   `status: signed-off` (`time_human_minutes.gate2` optional — never ask). In Codex,
    trusted hooks use the native apply_patch adapter; when that adapter is not
    active, run
    `scripts/recheck-evidence.js` or `scripts/pre-merge-check.sh` before calling

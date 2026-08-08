@@ -50,7 +50,15 @@ for (const slug of slugs) {
   if (!/^status:\s*verified\s*$/m.test(contract)) { reject.push(`${slug}: contract không ở verified`); continue; }
   if (!existsSync(rPath)) { reject.push(`${slug}: thiếu evidence-report.md`); continue; }
   const report = readFileSync(rPath, 'utf8');
-  if (!/^human_signoff:\s*$/m.test(report)) { reject.push(`${slug}: evidence-report không có dòng human_signoff trống (đã ký rồi, hoặc khuôn lạ)`); continue; }
+  // Khuôn template thật cho phép comment đuôi trên dòng human_signoff —
+  // regex phải khớp mold (round-trip), không đòi dòng trống thuần.
+  if (!/^human_signoff:\s*(#.*)?$/m.test(report)) { reject.push(`${slug}: evidence-report không có dòng human_signoff trống (đã ký rồi, hoặc khuôn lạ)`); continue; }
+  // Vế mở rộng AC-3 (người phê Cổng 2, 2026-08-08): KHÔNG ký hồ sơ còn
+  // việc-của-người — verdict phải là PASS sạch, bypass phải có người nhận.
+  const verdict = (report.match(/^verdict:\s*([^\s#]+)/m) || [, ''])[1];
+  if (verdict !== 'PASS') { reject.push(`${slug}: verdict là ${verdict || '(trống)'} — còn việc-của-người (chỉ ký PASS; PENDING-JUDGMENT đi /signoff từng item)`); continue; }
+  const bypass = (report.match(/^bypass_used:\s*([^\s#]+)/m) || [, ''])[1];
+  if (bypass === 'true' && !/^bypass_ack:\s*\S/m.test(report)) { reject.push(`${slug}: bypass_used chưa có bypass_ack — người phải nhận đường thoát trước khi ký`); continue; }
   jobs.push({ slug, cPath, rPath, contract, report });
 }
 if (reject.length) {
@@ -63,7 +71,7 @@ const now = new Date();
 const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`; // ngày LOCAL — chữ ký là hành vi người tại chỗ
 const files = [];
 for (const j of jobs) {
-  writeFileSync(j.rPath, j.report.replace(/^human_signoff:\s*$/m, `human_signoff: "${opt.name} ${today}"`));
+  writeFileSync(j.rPath, j.report.replace(/^human_signoff:\s*(#.*)?$/m, () => `human_signoff: "${opt.name} ${today}"`));
   writeFileSync(j.cPath, j.contract.replace(/^status:\s*verified\s*$/m, 'status: signed-off'));
   files.push(path.relative(root, j.rPath), path.relative(root, j.cPath));
   console.log(`ký: ${j.slug}`);

@@ -23,7 +23,7 @@ stage: {stage}              # discovery | decided | archived
 decision: {decision}        # build | iterate | park | kill — người ký Cổng 0 điền
 decided_by: {decided_by}
 decided_at: {decided_at}    # ISO UTC
-time_human_minutes:
+time_human_minutes:            # tuỳ chọn — không ai hỏi; chỉ ghi khi người tự đưa
   gate0: {gate0_minutes}
 prototype:
   base_commit: {base_commit}    # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep

@@ -31,16 +31,16 @@ evals:
     executor: test
     cmd: config:executors.test.plugins
     expected: >
-      Case mới: fixture repo code-sinh trong lần chạy có 2 hồ sơ verified +
-      1 hồ sơ implemented; chạy sign-batch.mjs một lệnh → 2 hồ sơ verified
-      được điền human_signoff + signed-off, hồ sơ implemented bị TỪ CHỐI ghim
-      tên slug, stdout in MỘT lệnh git commit đích danh và tuyệt đối KHÔNG có
-      lượt git commit nào được helper tự chạy (git log fixture không đổi);
-      SAU KHI ký lô: chạy pre-merge-check.sh THẬT trên fixture → clean (reader
-      thật xác nhận khuôn chữ ký — hồ sơ fixture sinh từ khuôn
-      evidence-report-template.md, cấm viết tay khớp khuôn helper đọc);
-      mutation trong bản sao helper (mở khoá tự-commit) → đỏ ghim "helper tu
-      commit"; đối chứng dương xanh.
+      Case mới (r2 theo quyết Cổng 2): fixture repo code-sinh, hồ sơ RÚT TỪ
+      khối ---8<--- của evidence-report-template.md (round-trip từ mold thật,
+      cấm printf viết tay khớp khuôn helper đọc); lô lành 2 verified-PASS →
+      ký + signed-off, stdout có ĐÚNG MỘT lệnh git commit và danh sách file
+      trong lệnh == đích danh 4 file vừa sửa (quan hệ tập hợp, không phải
+      chuỗi-có-mặt), git log không đổi; TỪ CHỐI NGUYÊN TỬ ghim tên slug + lý
+      do cho TỪNG hình dạng: chưa-verified · verdict PENDING-JUDGMENT ·
+      bypass_used chưa bypass_ack; SAU ký: pre-merge-check.sh thật → clean;
+      mutation mở khoá tự-commit trong bản sao helper → phép đo in đúng
+      thông điệp ghim "helper tu commit"; đối chứng dương xanh.
     paths: [scripts/sign-batch.mjs, tests/plugins/run-tests.sh]
   - id: E4
     criterion: AC-4

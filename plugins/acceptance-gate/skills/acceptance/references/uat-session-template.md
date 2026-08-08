@@ -31,7 +31,7 @@ verdict: {verdict}          # release | iterate | kill — người ký Cổng G
                             # điền; để TRỐNG cho tới lúc ký
 decided_by: {decided_by}
 decided_at: {decided_at}    # ISO UTC
-time_human_minutes:
+time_human_minutes:            # tuỳ chọn — không ai hỏi; chỉ ghi khi người tự đưa
   gateUAT: {gateUAT_minutes}
 ---
 ```
