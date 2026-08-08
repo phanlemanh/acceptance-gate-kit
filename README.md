@@ -320,13 +320,20 @@ downstream, and revisited after the pilot:
   backstop now EXISTS (`pre-merge-check.sh`), but a repo has to opt into
   `required` for it to have teeth. The kit's own config sets `required`.
 - **The T1-escape backstop has no path→slug mapping**: `pre-merge-check.sh`
-  counts *any* change under a path matching `_acceptance/*` or `*/_acceptance/*`
-  as "this PR carries gate artifacts". The glob is not anchored to the repo
-  root, so a test fixture living under `<anywhere>/_acceptance/` also satisfies
-  it — a PR touching `t3_paths` can pass the backstop without a real contract.
-  The kit's own suites keep their generated gap-probe fixtures in `mktemp`,
-  outside the repo, to avoid exactly this; anchoring the glob is a queued fix
-  (it changes shared behaviour, so it needs its own contract).
+  counts a change under *any* `_acceptance/<slug>/` as "this PR carries gate
+  artifacts" — including a slug that has nothing to do with the code this PR
+  touches (an unrelated evidence re-pin still vouches), and including a fixture
+  living at `<anywhere>/_acceptance/<slug>/`, since the glob is deliberately not
+  anchored to the repo root (monorepos keep `pkg/_acceptance/`). So a PR
+  touching `t3_paths` can still pass the backstop without a contract that
+  actually covers it. The kit's own suites keep their generated fixtures in
+  `mktemp`, outside the repo, to avoid exactly this; closing the rest needs a
+  real path→slug mapping the kit does not have.
+  **Narrowed 2026-08-04**: gate-level files — `_acceptance/config.yaml`,
+  `_acceptance/README.md`, anything directly under `_acceptance/` — no longer
+  count as artifacts. They used to: a commit whose only `_acceptance/` change
+  was a `config.yaml` bump made a live `t3_paths` violation disappear while the
+  code stayed ungated. Gate config never vouches for product code.
 - **Gap-probe findings parse splits on `|`**: a finding cell containing a
   literal pipe drops that row from the card — counted and flagged as
   unreadable, never silent.
