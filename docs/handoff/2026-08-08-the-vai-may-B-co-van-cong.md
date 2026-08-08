@@ -85,9 +85,11 @@ tiết thi hành, và nó là bên bị chấm. Máy B giữ khoảng cách đ�
   Sổ đóng GĐ1 đã về main:
   [handoff dừng 2.0.0](2026-08-08-handoff-dung-2-0-0-mo-gd2.md) · findings
   2 bài học · 29 mục ledger tai-lap.
-- **Việc kế**: GĐ0 thông báo #1 cho đội (owner gửi) → **GĐ2: chạy 2–3
-  feature THẬT ở repo tiêu thụ trên bản 1.39.0** + phiên nghiệm thu Cổng Giá
-  trị lần đầu. Không mở vòng meta mới (lệnh đóng băng trong CLAUDE.md).
+- **Việc kế**: GĐ2 ĐANG MỞ trên repo thí điểm **floorplanstudio**
+  (khảo sát đội chốt 2026-08-08; thông báo #1 đã gửi). Chạy 2–3 feature THẬT
+  trên bản 1.39.0/1.27.0 + Cổng Giá trị lần đầu; mọi vấp ghi
+  docs/research/so-vap-trien-khai.md, KHÔNG sửa engine giữa chừng trừ chặn-việc.
+  Không mở vòng meta mới (đóng băng trong CLAUDE.md).
 
 ## 6 · Mở phiên máy B trên máy/tài khoản mới
 
