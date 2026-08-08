@@ -119,7 +119,7 @@ tai-lap-ceremony-diet#9	tai-lap-ceremony-diet	high	fixture-viet-tay	chet	30312af
 tai-lap-ceremony-diet#10	tai-lap-ceremony-diet	medium	do-thuoc	chet	30312af		discover() P185 chưa từng chứng minh biết đỏ — mutant qua cây code-sinh (thấy ghost-new, bỏ qua clean)
 tai-lap-ceremony-diet#11	tai-lap-ceremony-diet	low	do-thuoc	song			mutant P191 đo BẢN SAO chép tay của phép trích config, không chạy bên đọc thật — ngoài danh sách duyệt đợt (b), chờ đợt sau
 tai-lap-ceremony-diet#12	tai-lap-ceremony-diet	high	fail-open	chet	ecea39e		r3 in-contract AC-3: bypass_ack regex \s* băng-dòng — ack-để-trống-có-dòng-kế + toàn-khoảng-trắng vẫn ký; vá lớp [ \t] cả 8 regex + ma trận 6 hình dạng P187
-tai-lap-ceremony-diet#13	tai-lap-ceremony-diet	medium	fail-open	song			slug/path vào lệnh shell in-một-phát không qua guard như --name — HẸN đợt bugfix 2.0.1 SAU phát hành 2.0.0 + thông báo #2 (quyết Cổng 2 r3 mục 3)
+tai-lap-ceremony-diet#13	tai-lap-ceremony-diet	medium	fail-open	song			slug/path vào lệnh shell in-một-phát không qua guard như --name — HẸN mốc 2.1 (gom cùng 1b-làm-lại trên lib/workspace-record.js — quyết đóng 2.0.0 08/08) (quyết Cổng 2 r3 mục 3)
 tai-lap-ceremony-diet#14	tai-lap-ceremony-diet	medium	do-thuoc	song			P186 chưa đo tính CHỌN LỌC của KPI pickaxe (pattern -G bị wildcard, không fixture đếm/không-đếm; twin codex chỉ khớp khuôn) — HẸN 2.0.1 (quyết Cổng 2 r3 mục 3)
 tai-lap-ceremony-diet#15	tai-lap-ceremony-diet	low	do-thuoc	song			mk_repo P187: nhánh printf đầu luôn fail, xả noise No-such-file vào run xanh — ghi sổ (quyết Cổng 2 r3 mục 3)
 tai-lap-ceremony-diet#16	tai-lap-ceremony-diet	low	fail-open	chet	ecea39e		replace human_signoff từng nuốt dòng comment kế (\s* băng-dòng) — ĐÓNG MIỄN PHÍ bởi class-fix dòng 75, đã kiểm sống, không viết test thêm (quyết Cổng 2 r3 mục 3)
@@ -128,4 +128,11 @@ tai-lap-ceremony-diet#18	tai-lap-ceremony-diet	medium	do-thuoc	chet	ff345f1		r4:
 tai-lap-ceremony-diet#19	tai-lap-ceremony-diet	medium	fail-open	chet	ff345f1		r4 in-contract AC-3: bypass_used === true phân-biệt-hoa-thường lệch pre-merge (true|1|yes) — ĐÓNG BỞI RÚT 1b (sign-batch xoá); giữ làm input thiết kế 2.1 workspace-record
 tai-lap-ceremony-diet#20	tai-lap-ceremony-diet	medium	fail-open	chet	ff345f1		r4: regex sign-batch quét CẢ FILE thay vì frontmatter đầu (body có thể mồi/độc check) — ĐÓNG BỞI RÚT 1b; input 2.1: dùng một reader frontmatter chung (lý do sinh lib/workspace-record)
 tai-lap-ceremony-diet#21	tai-lap-ceremony-diet	low	fail-open	chet	ff345f1		r4: sign-batch bỏ sót im lặng contract có status nháy kép — ĐÓNG BỞI RÚT 1b; input 2.1
-tai-lap-ceremony-diet#22	tai-lap-ceremony-diet	medium	do-thuoc	trung		tai-lap-ceremony-diet#14	r4: E2 hứa quan-hệ-loại-trừ nhưng P186 assert n>=1 — trùng lớp #14 (P186 chọn-lọc), hẹn 2.0.1
+tai-lap-ceremony-diet#22	tai-lap-ceremony-diet	medium	do-thuoc	trung		tai-lap-ceremony-diet#14	r4: E2 hứa quan-hệ-loại-trừ nhưng P186 assert n>=1 — trùng lớp #14 (P186 chọn-lọc), hẹn 2.1 (quyết đóng 2.0.0 08/08)
+tai-lap-ceremony-diet#23	tai-lap-ceremony-diet	high	doc-drift	song			r5 in-contract AC-2: khối Print của acceptance-report (cả twin+mirror) vẫn ra lệnh in KPI phút-vs-baseline ≥50%, bảng G1min/G2min; số human-touch không có trong spec in — sweep 1a sót OUTPUT SPEC; mốc 2.1
+tai-lap-ceremony-diet#24	tai-lap-ceremony-diet	medium	doc-drift	song			r5: description cả 7 manifest vẫn quảng cáo sign-batch.mjs đã xoá (câu tự tuyên đóng-băng từ 2.0.0) — mốc 2.1
+tai-lap-ceremony-diet#25	tai-lap-ceremony-diet	medium	do-thuoc	song			r5: pickaxe KPI sót bypass_ack (sự kiện human-owned có thể ngoài commit chữ ký) — mốc 2.1, cùng lô #17-lớp-undercount
+tai-lap-ceremony-diet#26	tai-lap-ceremony-diet	medium	do-thuoc	song			r5: pickaxe sót approved_by dạng CÓ-NHÁY — vá r4 sửa 2/3 khoá, phạm bất biến sửa-theo-lớp; mốc 2.1
+tai-lap-ceremony-diet#27	tai-lap-ceremony-diet	low	do-thuoc	song			r5: git log -G đếm cả commit XOÁ dòng human-owned (inflate KPI) — mốc 2.1, hoặc chấp nhận xấp xỉ có khai
+tai-lap-ceremony-diet#28	tai-lap-ceremony-diet	medium	do-thuoc	song			r5: P188 assert needle trên TOÀN VĂN CHANGELOG, không cắt mục 2.0.0 — quan hệ món∈mục không được đo; mốc 2.1
+tai-lap-ceremony-diet#29	tai-lap-ceremony-diet	low	do-thuoc	song			r5: P185 tuyên bảng cấm 8 mẫu nhưng mutation mới chứng minh 2 mẫu biết đỏ — mốc 2.1
