@@ -135,8 +135,8 @@ printf -- '---\nschema_version: 1\nfeature: feat-p10\nslug: feat-p10\nrisk_tier:
 printf -- '\n---\nschema_version: 1\nfeature_slug: feat-p10\nverdict: PASS\nbypass_used: true\nhuman_signoff: Manh 2026-06-20\n---\n' > "$d10/evidence-report.md"
 bash "$CHECK" "$P/p10" >/dev/null; check P10 1 $?
 
-echo "--- evidence re-check (recheck-evidence.js, wired into pre-merge) ---"
-RC="$HERE/../../scripts/recheck-evidence.js"
+echo "--- evidence re-check (recheck-evidence.cjs, wired into pre-merge) ---"
+RC="$HERE/../../scripts/recheck-evidence.cjs"
 mk_badevidence() { # <root> <slug> <evidence body> — a signed PASS whose committed evidence is the arg
   local d="$1/_acceptance/$2"; mkdir -p "$d"
   printf -- '---\nschema_version: 1\nfeature: %s\nslug: %s\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\napproved_by: Manh Phan\n---\n' "$2" "$2" > "$d/contract.md"
@@ -297,7 +297,7 @@ mk_xl "$P/pm12" feat-xl12 '- AC-1: Given app, When submit, Then saved via API.
 outPM12="$(bash "$CHECK" "$P/pm12" 2>&1)"; check PM12 1 $?
 case "$outPM12" in *"AC-2 is tagged (cross-layer)"*) echo "  PASS: PM12-noleak"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: PM12-noleak (layer của block trước rò sang block sau = FALSE-GREEN)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
-# PM13/PM14 — răng nay chấm trên lib/ac-line.js (nguồn dùng chung), không phải
+# PM13/PM14 — răng nay chấm trên lib/ac-line.cjs (nguồn dùng chung), không phải
 # khuôn awk riêng. Hai ca đo đúng hai chỗ awk và parser dùng chung khác nhau.
 echo "PM13 nhãn **(cross-layer)** chen giữa id và ':' -> vẫn bắt được (không rụng)"
 mk_xl "$P/pm13" feat-xl13 '- AC-1 **(cross-layer)**: Given app, When submit order, Then order saved via API.' '  - id: E1
@@ -325,7 +325,7 @@ case "$outPM14" in *"AC-5 is tagged"*) echo "  FAIL: PM14-xref (tham chiếu ch�
 # _acceptance/premerge-ac-line/ (AC-4, AC-5, AC-7) đòi đúng ba ô này.
 PMROOT="$(cd "$HERE/../.." && pwd)"
 
-# PM15 (AC-4) — thiếu lib/ac-line.js thì răng VẪN phải cắn. Đây là điều kiện bắt
+# PM15 (AC-4) — thiếu lib/ac-line.cjs thì răng VẪN phải cắn. Đây là điều kiện bắt
 # buộc để giữ khuôn awk lại: bỏ awk cho "một nguồn duy nhất" sẽ TẮT răng chặn
 # trên máy thiếu node — chiều hỏng tệ nhất cho một cổng CHẶN.
 # Bản sao script đặt cạnh một thư mục KHÔNG có lib/ (khuôn GPFAKE tái dùng).
@@ -335,7 +335,7 @@ mk_xl "$P/pm15" feat-xl15 '- AC-1 **(cross-layer)**: Given app, When submit orde
     criterion: AC-1
     executor: ui-check
     expected: "toast hien"'
-echo "PM15 thiếu lib/ac-line.js -> răng cross-layer VẪN cắn (không tắt im lặng)"
+echo "PM15 thiếu lib/ac-line.cjs -> răng cross-layer VẪN cắn (không tắt im lặng)"
 outPM15="$(bash "$PMNOLIB/scripts/pre-merge-check.sh" "$P/pm15" 2>&1)"; check PM15 1 $?
 case "$outPM15" in *"AC-1 is tagged (cross-layer)"*) echo "  PASS: PM15-teeth"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: PM15-teeth (đường lùi làm răng TẮT — cổng chặn mất hiệu lực trên máy thiếu node)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 # Đối chứng dương: CÙNG fixture trên bản có lib/ cũng phải đỏ. Không có vế này
@@ -931,7 +931,7 @@ echo "L19 '### nhóm phụ' trong ## Criteria -> AC ngưỡng phía sau vẫn đ
 outL19="$(node "$LINT" "$T/lintP" 2>&1)"; check L19 1 $?
 case "$outL19" in *AC-2*) echo "  PASS: L19-ac2"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: L19-ac2 (sub-heading cắt cụt vùng quét Criteria)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
-# ── Nhà viết criterion mà khuôn HẸP cũ nuốt im lặng (lib/ac-line.js) ──────────
+# ── Nhà viết criterion mà khuôn HẸP cũ nuốt im lặng (lib/ac-line.cjs) ──────────
 # Mọi fixture cross-layer phía trên đặt nhãn ở CUỐI câu, nên suite này chưa bao
 # giờ chạm dạng "nhãn chen giữa id và dấu hai chấm" — đó là lý do lỗi sống sót.
 # Đo thật (oneflow, 07/08/2026): 7 dòng ở 5 hợp đồng ĐÃ KÝ vô hình với lint.
@@ -1509,7 +1509,7 @@ same GPP2 "descoped|d-9" "$(node -e '
   const L = require(process.argv[1]);
   const r = L.classify({ probeText: "", ledgerText: process.argv[2] });
   process.stdout.write(r.outcome + "|" + (r.id || ""));
-' "$ROOT_REAL_GC/lib/gap-probe.js" '{"id":"d-9","type":"descope","decision":"  Bỏ gap-probe — x"}')"
+' "$ROOT_REAL_GC/lib/gap-probe.cjs" '{"id":"d-9","type":"descope","decision":"  Bỏ gap-probe — x"}')"
 
 echo "TM1 term MỚI sau base -> khối Từ vựng nêu tên term"
 hasout TM1 "Refund" "$TMA"
@@ -1880,7 +1880,7 @@ node -e '
 const core = require(process.argv[1]);
 const v = core.resolveConfigKey(require("fs").readFileSync(process.argv[2], "utf8"), "feature_loop.suite_keys");
 process.exit(v && v.indexOf("executors.test.api") >= 0 ? 0 : 1);
-' "$HERE/../../lib/evidence-core.js" "$R/_acceptance/config.yaml"; check CP01-resolve 0 $?
+' "$HERE/../../lib/evidence-core.cjs" "$R/_acceptance/config.yaml"; check CP01-resolve 0 $?
 
 echo "CP02 key already exists -> abort exit 2, file unchanged"
 before="$(cat "$R/_acceptance/config.yaml")"
@@ -1905,7 +1905,7 @@ const ok = core.resolveConfigKey(t, "executors.script.smoke") === "./smoke.sh"
   && core.resolveConfigKey(t, "executors.script.cli") === "./s.sh"
   && String(core.resolveConfigKey(t, "signoff.required_for")).indexOf("T2") >= 0;
 process.exit(ok ? 0 : 1);
-' "$HERE/../../lib/evidence-core.js" "$R/_acceptance/config.yaml"; check CP04-resolve 0 $?
+' "$HERE/../../lib/evidence-core.cjs" "$R/_acceptance/config.yaml"; check CP04-resolve 0 $?
 
 echo "CP05 missing --key -> usage error exit 4"
 node "$CP" --config "$R/_acceptance/config.yaml" >/dev/null 2>&1; check CP05 4 $?
@@ -2364,7 +2364,7 @@ for s in "bỏ gap-probe — x" "Bỏ gap-probe — x" "BỎ gap-probe — x" " 
   printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"
   printf '%s\n' "{\"id\":\"d-9\",\"type\":\"descope\",\"decision\":\"$s\"}" > "$R/_acceptance/feat-p/decisions.jsonl"
   gp_commit "$R"
-  lib="$(node "$ROOT_REAL/lib/gap-probe.js" classify "$R/_acceptance/feat-p" | cut -f1)"
+  lib="$(node "$ROOT_REAL/lib/gap-probe.cjs" classify "$R/_acceptance/feat-p" | cut -f1)"
   pm=N; bash "$CHECK" "$R" --base "$GP_BASE" 2>&1 | grep -q "BỎ có chủ đích" && pm=Y
   want=Y; [ "$lib" = "descoped" ] || want=N
   if [ "$lib" != "descoped" ] || [ "$pm" != "Y" ]; then
@@ -2380,7 +2380,7 @@ check GPM16 0 "$GPM16_FAIL"
 GPFAKE="$T/nolib"; mkdir -p "$GPFAKE/scripts"
 cp "$ROOT_REAL/scripts/pre-merge-check.sh" "$GPFAKE/scripts/"
 
-echo "GPM18 thieu lib/gap-probe.js -> required CHAN, advisory chi NOTE"
+echo "GPM18 thieu lib/gap-probe.cjs -> required CHAN, advisory chi NOTE"
 mk_gp_repo gpm18r; R="$GPR/gpm18r"; gp_feature "$R" feat-n T3 implemented
 printf 'gap_probe: required\n' >> "$R/_acceptance/config.yaml"; gp_commit "$R"
 GP18="$(bash "$GPFAKE/scripts/pre-merge-check.sh" "$R" --base "$GP_BASE" 2>&1)"; GP18ST=$?
@@ -2453,10 +2453,10 @@ gp_pair "decision-khac" '{"id":"d-7","type":"descope","decision":"bỏ mockup"}'
 gp_pair "ledger-vang"   ''                                                             missing
 check GPM21 0 "$GPM21_FAIL"
 
-# ── GPM20: bảng đầu vào chạy thẳng vào lib/gap-probe.js ─────────────────────
+# ── GPM20: bảng đầu vào chạy thẳng vào lib/gap-probe.cjs ─────────────────────
 # Đo CHÍNH mã sản phẩm, không chép luật sang test. GPM16 của v2 xanh giả vì
 # chép regex; đây là cùng bài học, áp ở tầng lib.
-GPLIB="$ROOT_REAL/lib/gap-probe.js"
+GPLIB="$ROOT_REAL/lib/gap-probe.cjs"
 gp_classify() { # <probeText> <ledgerText> -> "outcome|id"
   node -e '
     const L = require(process.argv[1]);
@@ -2757,7 +2757,7 @@ hasout RL4f "pre-merge-check: clean" "$RL4"
 # y hệt bản gốc -> case expect exit 2 FAIL (got 0) — không có đường xanh giả.
 #
 # Bản sao PHẢI giữ nguyên layout `scripts/` cạnh `lib/`: script resolve
-# GP_LIB bằng `$(dirname $0)/../lib/gap-probe.js`, nên copy vào $T phẳng làm
+# GP_LIB bằng `$(dirname $0)/../lib/gap-probe.cjs`, nên copy vào $T phẳng làm
 # luật gap-probe rơi vào nhánh not-enforced — bản sao "nguyên vẹn" đã lệch
 # sẵn và mọi kết luận từ nó là kết luận về một script KHÁC. Đối chứng dương
 # RL2ctrl2 chính là thứ bắt được điều đó.
@@ -3016,7 +3016,7 @@ same RL13ctrl 1 "$(printf '%s\n' "$RL13OK" | grep -cx 'ran gap-probe')"
 same RL13ctrl2 0 "$(printf '%s\n' "$RL13OK" | grep -cx 'declared-off gap-probe')"
 RL13="$(env PATH="$RL13BIN" bash "$CHECK" "$R" --base "$RL13_B" 2>&1)"; RL13ST=$?
 # Chot fixture: node gia PHAI that su hong o feat-b, neu khong ca case vo nghia
-hasout RL13fix "GAP-PROBE: NOT ENFORCED reason=node lib/gap-probe.js classify thất bại trên feat-b" "$RL13"
+hasout RL13fix "GAP-PROBE: NOT ENFORCED reason=node lib/gap-probe.cjs classify thất bại trên feat-b" "$RL13"
 # DUNG MOT dong so cho gap-probe, va la declared-off (chay MOT PHAN = khai tat)
 same   RL13a 1 "$(printf '%s\n' "$RL13" | grep -cE '^(ran|declared-off) gap-probe$')"
 same   RL13b 1 "$(printf '%s\n' "$RL13" | grep -cx 'declared-off gap-probe')"

@@ -96,7 +96,7 @@ _Avoid_: demo, review meeting; dùng thang PASS/REJECT cho verdict của nó.
 View máy sinh `PRODUCT-MAP.md` ở gốc repo — vẽ từ hồ sơ xưởng bởi
 `product-map.mjs`, kiểm bằng `--check` (pattern P30: view == hồ sơ). Trạng
 thái vắng mặt phân biệt "đã xoá" với "chưa bật" theo bảng nhãn chung trong
-`lib/workspace-record.js`.
+`lib/workspace-record.cjs`.
 _Avoid_: roadmap, dashboard; sửa tay (nó là view, sửa hồ sơ rồi vẽ lại).
 
 **Verdict**:

@@ -70,7 +70,7 @@ check('JR11b recheck strict trên corpus thật == baseline viết-trước (0 f
   assert.ok(reports.length >= 10, `sanity: chỉ ${reports.length} report`);
   const bad = [];
   for (const r of reports) {
-    try { execFileSync('node', [path.join(ROOT, 'scripts/recheck-evidence.js'), r], { stdio: 'ignore' }); }
+    try { execFileSync('node', [path.join(ROOT, 'scripts/recheck-evidence.cjs'), r], { stdio: 'ignore' }); }
     catch (_) { bad.push(path.basename(path.dirname(r))); }
   }
   assert.deepEqual(bad, [], `baseline vỡ (viết trước: 0 fail): ${bad.join(', ')}`);
@@ -87,7 +87,7 @@ check('JR11c đối chứng dương: tiêm token cấm vào BẢN SAO 1 report �
   const rp = path.join(dir, 'evidence-report.md');
   writeFileSync(rp, readFileSync(rp, 'utf8') + '\nghi chu tiem: verdict: FAIL\n');
   let err = '';
-  try { execFileSync('node', [path.join(ROOT, 'scripts/recheck-evidence.js'), rp], { stdio: ['ignore', 'ignore', 'pipe'] }); }
+  try { execFileSync('node', [path.join(ROOT, 'scripts/recheck-evidence.cjs'), rp], { stdio: ['ignore', 'ignore', 'pipe'] }); }
   catch (e) { err = String(e.stderr || ''); }
   assert.ok(err, 'bản tiêm vẫn xanh — lưới không chạy thật');
   assert.match(err, /CONSISTENCY/, `đỏ nhưng sai thông điệp: ${err.slice(0, 120)}`);

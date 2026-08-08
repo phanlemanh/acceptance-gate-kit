@@ -107,11 +107,18 @@ Create `_acceptance/README.md` with three facts: this folder contains
 per-feature acceptance artifacts, contract status is the state source, and the
 Acceptance skill runs the gate.
 
-Offer to copy the merge backstop as one coherent set:
+Offer to copy the merge backstop as one coherent set — ALL SEVEN files (the
+`.cjs` extension is deliberate: a consumer `package.json` with
+`"type": "module"` makes Node read a copied `.js` as ESM and its `require()`
+throws, silently killing the layer; `.cjs` is CommonJS under every `type`):
 
 - Acceptance package `scripts/pre-merge-check.sh` → consumer `scripts/`;
-- Acceptance package `scripts/recheck-evidence.js` → consumer `scripts/`;
-- Acceptance package `lib/evidence-core.js` → consumer `lib/`.
+- Acceptance package `scripts/recheck-evidence.cjs` → consumer `scripts/`;
+- Acceptance package `lib/evidence-core.cjs` → consumer `lib/`;
+- Acceptance package `lib/gap-probe.cjs` → consumer `lib/` (missing → "GAP-PROBE: NOT ENFORCED");
+- Acceptance package `lib/workspace-record.cjs` → consumer `lib/`;
+- Acceptance package `lib/ac-line.cjs` → consumer `lib/`;
+- Acceptance package `lib/md-section.cjs` → consumer `lib/`.
 
 Locate package files through the installed Codex cache or this source checkout;
 do not hardcode a version. Explain that CI must pass the PR base, for example:

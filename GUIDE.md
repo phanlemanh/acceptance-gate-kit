@@ -50,7 +50,7 @@ AI không đến từ "AI ngoan" — nó đến từ bằng chứng đối chi�
 | 2 | **0** defect nghiệp vụ lọt qua gate | Đếm defect phát hiện sau signoff |
 | 3 | Đúng **2 điểm dừng người**, 5–10 phút/cổng (T3: +1 duyệt plan) | Vòng đời chuẩn — mọi tính năng T2/T3 |
 | 4 | **100%** verdict PASS có bằng chứng máy đối chiếu được | `run_id` khớp `run-log.jsonl`, `exit_code 0`, verifier thật, SHA thật |
-| 5 | **1** chuẩn gate cho mọi runtime (Claude/Codex) và mọi thành viên | `lib/evidence-core.js` dùng chung + kỷ luật update plugin |
+| 5 | **1** chuẩn gate cho mọi runtime (Claude/Codex) và mọi thành viên | `lib/evidence-core.cjs` dùng chung + kỷ luật update plugin |
 
 ### Lợi ích khi sử dụng
 
@@ -122,7 +122,7 @@ Ba nguyên tắc không thương lượng:
 ## 2. Kiến trúc tổng thể
 
 Kit gồm **3 plugin** (cài trên máy dev) + **artifacts trong repo** + **1 chốt chặn CI**.
-Mọi luật evidence nằm trong **một file duy nhất** (`lib/evidence-core.js`) được cả hook
+Mọi luật evidence nằm trong **một file duy nhất** (`lib/evidence-core.cjs`) được cả hook
 lẫn CI re-check dùng chung — hai lớp không bao giờ lệch luật nhau.
 
 ```mermaid
@@ -132,14 +132,14 @@ flowchart TB
     AC["<b>acceptance</b><br/>skill 3 phase<br/>contract / evals / verify"]
     WF["<b>Orchestration</b><br/>Claude Workflow scripts<br/>hoặc Codex shell/browser/multi-agent"]
     HOOK["<b>Runtime hook khi có</b><br/>acceptance-evidence-gate.js<br/>chặn lúc ghi"]
-    CORE["<b>lib/evidence-core.js</b><br/>một nguồn luật duy nhất"]
+    CORE["<b>lib/evidence-core.cjs</b><br/>một nguồn luật duy nhất"]
     DL["<b>design-loop</b> (tùy chọn)<br/>mockup → port → fidelity"]
   end
 
   subgraph REPO["📁 Repo của đội"]
     CFG["_acceptance/config.yaml<br/>executors · tiers · signoff · models"]
     ART["_acceptance/&lt;slug&gt;/<br/>contract.md · evals.yaml<br/>evidence-report.md · run-log.jsonl<br/>evidence/*.png"]
-    VEND["scripts/pre-merge-check.sh<br/>scripts/recheck-evidence.js<br/>lib/evidence-core.js<br/>(copy từ plugin, chạy trong CI)"]
+    VEND["scripts/pre-merge-check.sh<br/>scripts/recheck-evidence.cjs<br/>lib/evidence-core.cjs<br/>(copy từ plugin, chạy trong CI)"]
   end
 
   subgraph CI["🤖 CI — mỗi PR"]
@@ -164,7 +164,7 @@ flowchart TB
 | `feature-loop` / `feature-loop-codex` | "Cả con đường": brainstorm → contract → plan → code → verify đa-agent → PR |
 | `design-loop` | Làn design cho web UI: mockup/reference chuẩn → so pixel khi verify (tùy chọn) |
 | Hook `acceptance-evidence-gate.js` | Chặn PASS thiếu bằng chứng + contract nhảy cóc Cổng 1 khi runtime hook đang active |
-| `lib/evidence-core.js` | Toàn bộ luật L1/L2/L3 — hook và CI re-check cùng require file này |
+| `lib/evidence-core.cjs` | Toàn bộ luật L1/L2/L3 — hook và CI re-check cùng require file này |
 | `scripts/pre-merge-check.sh` | Chốt chặn CI độc lập: kiểm cả những gì hook không thấy (người sửa tay, git history) |
 | `_acceptance/` trong repo | Nguồn sự thật: config + hồ sơ nghiệm thu từng tính năng |
 
@@ -608,16 +608,24 @@ Tham chiếu đầy đủ `config.yaml` — mục 8 có phần tinh chỉnh:
 
 ### 5.3 Wire CI (bắt buộc để gate có răng ở PR)
 
-Copy **đủ 3 file** từ plugin vào repo, giữ đúng layout (re-check `require ../lib`):
+Copy **đủ 7 file** từ plugin vào repo, giữ đúng layout (re-check `require
+../lib`; đuôi `.cjs` là cố ý — repo khai `"type": "module"` sẽ đọc file `.js`
+chép sang thành ESM và `require()` bên trong nổ ReferenceError, lớp cưỡng chế
+chết câm):
 
 ```
 scripts/pre-merge-check.sh
-scripts/recheck-evidence.js
-lib/evidence-core.js
+scripts/recheck-evidence.cjs
+lib/evidence-core.cjs
+lib/gap-probe.cjs
+lib/workspace-record.cjs
+lib/ac-line.cjs
+lib/md-section.cjs
 ```
 
 > Chỉ copy mỗi `pre-merge-check.sh` là repo âm thầm **mất lớp re-check** evidence đã
-> commit — nó chỉ còn in NOTE.
+> commit — nó chỉ còn in NOTE. Thiếu `lib/gap-probe.cjs` thì luật phản biện
+> context sạch in `GAP-PROBE: NOT ENFORCED` trên mọi lần chạy.
 
 GitHub Actions mẫu:
 
@@ -664,7 +672,7 @@ nhóm nguyên nhân — nhóm thứ hai là nhóm hay bị đọc nhầm:
   `t1-escape` và `gap-probe`, vì không luật nào xác định được phạm vi diff.
 - **Môi trường không cho cưỡng chế** (danh sách MỞ — mọi đường đi qua
   `gap_probe_not_enforced`): runner không có `node`; repo tiêu thụ chép
-  `scripts/` mà quên `lib/gap-probe.js`; `node lib/gap-probe.js classify` lỗi
+  `scripts/` mà quên `lib/gap-probe.cjs`; `node lib/gap-probe.cjs classify` lỗi
   trên một slug; `git diff <base>...HEAD` thất bại dù ĐÃ truyền `--base` (clone
   shallow/grafted, lịch sử rời nhau, base bị force-push).
 
@@ -941,7 +949,7 @@ for t in hooks scripts plugins design-loop design-eval workflows codex skills; d
 bash scripts/sync-plugin-packages.sh
 ```
 
-- Luật gate mới → thêm vào `lib/evidence-core.js` (hook + CI tự hưởng), kèm case trong
+- Luật gate mới → thêm vào `lib/evidence-core.cjs` (hook + CI tự hưởng), kèm case trong
   `tests/hooks` hoặc `tests/scripts`, và cập nhật prompt synthesize trong
   `feature-loop/workflows/acceptance-verify.js` nếu luật ảnh hưởng report.
 - 2 file workflow **không** parse được bằng `node --check` (top-level return) — suite

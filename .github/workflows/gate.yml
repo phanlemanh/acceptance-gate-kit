@@ -70,7 +70,7 @@ jobs:
       - name: pre-merge check (evidence + signoff + stale + run-log)
         run: bash scripts/pre-merge-check.sh . $T1_ESCAPE_FLAG
       # ── Răng T1-escape — chỉ trên pull_request ───────────────────────────
-      # Mọi PR chạm path T3 (hooks/ lib/ pre-merge-check.sh recheck-evidence.js)
+      # Mọi PR chạm path T3 (hooks/ lib/ pre-merge-check.sh recheck-evidence.cjs)
       # phải kèm artifact `_acceptance/<slug>/`. Lý do chỉ chạy trên
       # pull_request KHÔNG phải "push không có base" — push CÓ base (xem bước
       # Resolve PR base ở trên). Lý do thật: tiền đề "thay đổi này là một PR nên

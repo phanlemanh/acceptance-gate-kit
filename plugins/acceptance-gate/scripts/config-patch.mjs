@@ -3,7 +3,7 @@
 // _acceptance/config.yaml (e.g. feature-loop S4 auto-writing
 // feature_loop.suite_keys).
 //
-// The kit's parsers (lib/evidence-core.js resolveConfigKey + the sed/awk in
+// The kit's parsers (lib/evidence-core.cjs resolveConfigKey + the sed/awk in
 // pre-merge-check.sh) are line/2-space-indent based — a YAML-lib round-trip
 // would reformat and break them, and a free-hand agent edit can corrupt live
 // keys. So: TEXT splice, append-only into the right block, ABORT when the key
@@ -24,7 +24,7 @@ import { createRequire } from 'node:module';
 
 const requireCjs = createRequire(import.meta.url);
 let core = null;
-try { core = requireCjs('../lib/evidence-core.js'); } catch (_) { /* standalone copy — self-check degrades to a warning */ }
+try { core = requireCjs('../lib/evidence-core.cjs'); } catch (_) { /* standalone copy — self-check degrades to a warning */ }
 
 function parseArgs(argv) {
   const a = { config: '_acceptance/config.yaml', key: '', value: undefined, write: false };
@@ -117,7 +117,7 @@ function main() {
       process.exit(4);
     }
   } else {
-    console.error('[config-patch] warning: lib/evidence-core.js not found next to scripts/ — resolve self-check skipped');
+    console.error('[config-patch] warning: lib/evidence-core.cjs not found next to scripts/ — resolve self-check skipped');
   }
 
   console.log('── config-patch plan ──────────────────────────────');

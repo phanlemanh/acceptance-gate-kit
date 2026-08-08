@@ -89,8 +89,9 @@ codex plugin marketplace upgrade
 > Write-time hook behavior depends on the active agent runtime and hook trust,
 > so do not rely on it as the only guard. The authoritative cross-runtime
 > backstop is still the vendored CI set:
-> `scripts/pre-merge-check.sh`, `scripts/recheck-evidence.js`, and
-> `lib/evidence-core.js`.
+> `scripts/pre-merge-check.sh`, `scripts/recheck-evidence.cjs`, and the five
+> `lib/*.cjs` files (`evidence-core`, `gap-probe`, `workspace-record`,
+> `ac-line`, `md-section`).
 
 For local development, replace `phanlemanh/acceptance-gate-kit` with the
 absolute path to this checkout. After changing acceptance-gate source files,
@@ -156,9 +157,11 @@ In Claude Code, run `/acceptance-init`. In Codex, invoke the
 `acceptance-init` skill (or ask "run acceptance init"). Both write the same
 `_acceptance/config.yaml` artifact.
 
-Copy `scripts/pre-merge-check.sh`, `scripts/recheck-evidence.js`, and
-`lib/evidence-core.js` into the repo (keep the `scripts/` + `lib/` layout so the
-re-check can `require ../lib`), and run the gate in CI:
+Copy `scripts/pre-merge-check.sh`, `scripts/recheck-evidence.cjs`, and the five
+`lib/*.cjs` files (`evidence-core`, `gap-probe`, `workspace-record`, `ac-line`,
+`md-section`) into the repo (keep the `scripts/` + `lib/` layout so the
+re-check can `require ../lib`; the `.cjs` extension keeps them CommonJS even
+when the repo declares `"type": "module"`), and run the gate in CI:
 
 ```yaml
 # e.g. GitHub Actions job steps — same two-step form as GUIDE §5.3
@@ -174,7 +177,7 @@ the default shallow checkout the base ref does not resolve and the gate exits 2.
 A job that runs on `push` (not a PR) additionally needs `--no-t1-escape` — see
 GUIDE §5.3 for that variant and the rules ledger.
 
-`pre-merge-check.sh` finds `recheck-evidence.js` next to itself; if it (or
+`pre-merge-check.sh` finds `recheck-evidence.cjs` next to itself; if it (or
 `node`) is absent the pre-merge check still runs, minus the committed-evidence
 re-check. `/acceptance-init` scaffolds `recheck: strict` — the right setting
 for a fresh repo. When the key is absent the code falls back to `warn` (NOTEs
@@ -255,10 +258,10 @@ committed reports meet the current evidence shape.
 | `skills/ux-ui-craft/` | Design-engineer skill: 7-step UI process, hard gates (contrast, type/alignment budgets, structure–space coherence, states), Layout Contract + layout meter (`measure_layout.js`), System+Prototype+Audit modes, 10 craft references |
 | `skills/morphological-scan/` | CT-S coverage skill: Zwicky-box AC-space scan (MECE axes + CE evidence + Pareto Core/Later/Never) feeding the contract's Coverage section on the Gate-1 card |
 | `hooks/` | PreToolUse evidence hook (write time) |
-| `lib/evidence-core.js` | Shared L1/L2/L3 evidence validation (hook + CI re-check) |
+| `lib/evidence-core.cjs` | Shared L1/L2/L3 evidence validation (hook + CI re-check) |
 | `commands/` | `/acceptance-init`, `/acceptance-status`, `/acceptance-card`, `/approve`, `/signoff`, `/acceptance-report` |
 | `scripts/pre-merge-check.sh` | CI gate (copy into consumer repos) |
-| `scripts/recheck-evidence.js` | CI re-verify a committed report's evidence |
+| `scripts/recheck-evidence.cjs` | CI re-verify a committed report's evidence |
 | `scripts/gate-card.js` | Render the Gate 1 / Gate 2 human decision card |
 | `scripts/config-patch.mjs` | THE splice path for programmatic config.yaml writes (dry-run, .bak, abort-on-existing) |
 | `scripts/evidence-page.js` | Render the full Gate-2 evidence page (screenshots/output/slideshow) |
@@ -278,7 +281,7 @@ Ba điểm khác một repo tiêu thụ bình thường, mỗi điểm là một
   là tài liệu; ở đây 23 file `SKILL.md`/command LÀ hành vi thật. Chỉ docs được
   liệt đích danh mới bỏ qua cổng — nếu không, sửa hành vi của cổng lại lọt cổng.
 - **`t3_paths` là lõi cưỡng chế** (`hooks/`, `lib/`, `pre-merge-check.sh`,
-  `recheck-evidence.js`): bug ở đây thành false-green im lặng trên MỌI repo dùng kit.
+  `recheck-evidence.cjs`): bug ở đây thành false-green im lặng trên MỌI repo dùng kit.
 
 CI ở [`.github/workflows/gate.yml`](.github/workflows/gate.yml): 3 test suite +
 `pre-merge-check.sh` + **răng T1-escape (ĐANG BẬT)** — mọi PR chạm `t3_paths`
@@ -341,8 +344,8 @@ downstream, and revisited after the pilot:
 - **The hook only sees agent edits** (PreToolUse). A human editing
   evidence-report.md in their editor bypasses it; `scripts/pre-merge-check.sh`
   in CI is the backstop for exactly that path — it re-runs the gate's own
-  L1/L2/L3 evidence bar on the COMMITTED report via `scripts/recheck-evidence.js`
-  (the same `lib/evidence-core.js` the hook uses), so a report hand-edited to
+  L1/L2/L3 evidence bar on the COMMITTED report via `scripts/recheck-evidence.cjs`
+  (the same `lib/evidence-core.cjs` the hook uses), so a report hand-edited to
   PASS with a nonzero exit, a manual verifier, or an unresolved UNCERTAIN is
   caught at merge regardless of whether the write-time hook ran. The re-check
   defaults to `recheck: warn` (advise only — so adopting it never blocks merges

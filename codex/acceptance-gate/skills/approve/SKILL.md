@@ -69,7 +69,7 @@ agent-editable), re-render the card, ask again.
   `PRODUCT-MAP.md` ONLY if you regenerated it above — a repo that has not opted
   in has no such file, and naming it in `git add` fails the whole command.
 - Where write-time hooks are not active in the Codex session, run the
-  consumer's `scripts/recheck-evidence.js` path later at Gate 2 as usual; the
+  consumer's `scripts/recheck-evidence.cjs` path later at Gate 2 as usual; the
   contract transition itself is re-checked by CI `pre-merge-check.sh`.
 
 ## 6. Preserve ownership

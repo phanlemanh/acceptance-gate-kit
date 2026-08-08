@@ -13,7 +13,7 @@ const require0 = (rel) => createRequire(import.meta.url)(path.join(ROOT_FOR_REQ,
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
 const ROOT_FOR_REQ = ROOT;
-const LIB = path.join(ROOT, 'lib', 'md-section.js');
+const LIB = path.join(ROOT, 'lib', 'md-section.cjs');
 const GATE_CARD = path.join(ROOT, 'scripts', 'gate-card.js');
 const EVIDENCE_PAGE = path.join(ROOT, 'scripts', 'evidence-page.js');
 let passed = 0, failed = 0;
@@ -163,7 +163,7 @@ const runCard = (root, slug, script = GATE_CARD, extra = []) =>
   mkWs(ws, 'ghost', { contract: contractWithSubheading(2), probe: gapProbe({ tail: GHOST_TAIL }) });
   const copyCard = path.join(tree, 'scripts', 'gate-card.js');
   const intact = JSON.parse(runCard(ws, 'ghost', copyCard, ['--extract']).stdout);
-  const libCopy = path.join(tree, 'lib', 'md-section.js');
+  const libCopy = path.join(tree, 'lib', 'md-section.cjs');
   writeFileSync(libCopy, readFileSync(libCopy, 'utf8').replace('Findings -> any-heading', 'Findings -> same-or-higher'));
   const mutated = JSON.parse(runCard(ws, 'ghost', copyCard, ['--extract']).stdout);
   check('FSB8 đối chứng dương: bản sao NGUYÊN VẸN cho 1 hàng (0 hàng ma)', () =>
@@ -204,7 +204,7 @@ const runCard = (root, slug, script = GATE_CARD, extra = []) =>
   check('FSB9 cờ variance (pass_rate) cũng còn', () =>
     assert.ok(out.includes('pass_rate 3/5'), 'mất nội dung Variance'));
   check('FSB9 đối chứng đột biến: coi h1 là ranh giới → nội dung Analyst biến mất', () => {
-    const { section } = require0('lib/md-section.js');
+    const { section } = require0('lib/md-section.cjs');
     const rep = readFileSync(path.join(root, '_acceptance', 'fx', 'evidence-report.md'), 'utf8');
     assert.ok(section(rep, 'Analyst').join('\n').includes('green-on-both'));
     // luật any-heading (dành cho Findings) áp nhầm sẽ cắt ngay tại dòng `#`

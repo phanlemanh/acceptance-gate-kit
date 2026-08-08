@@ -7,7 +7,7 @@
 // mỗi bước máy chạy xong lại làm `--check` đỏ giữa vòng, và cái đỏ-oan đó dạy
 // người ta bỏ qua màu đỏ. Bản đồ đổi ở đúng chỗ người ký.
 //
-// Reader duy nhất là frontmatterField của lib/evidence-core.js: không parser
+// Reader duy nhất là frontmatterField của lib/evidence-core.cjs: không parser
 // fence thứ hai (tiền lệ start-command S4-r1 — parser riêng chặt hơn reader
 // chuẩn thì báo hỏng oan những hồ sơ mọi cổng khác đọc được).
 import { readFileSync, readdirSync, existsSync, writeFileSync, realpathSync, statSync } from 'node:fs';
@@ -19,14 +19,14 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence-core.js'));
+const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence-core.cjs'));
 // Luật "hồ sơ này có hỏng không" sống một chỗ và được CẢ bộ quét vào phiên
-// dùng chung — xem lib/workspace-record.js để biết vì sao (S4-r1: hai bên đọc
+// dùng chung — xem lib/workspace-record.cjs để biết vì sao (S4-r1: hai bên đọc
 // cùng hồ sơ cho hai kết luận trái nhau).
 const { recordProblem, navValues, consumedTexts, usesUat, usesOpportunity, usesEvidence,
         missingArtifact, readRecord, ioReason, configList, NAV_RULES, mapState, MAP_LABELS,
         mapTracked } =
-  require(path.join(__dirname, '..', 'lib', 'workspace-record.js'));
+  require(path.join(__dirname, '..', 'lib', 'workspace-record.cjs'));
 
 export { NAV_RULES };
 
@@ -317,7 +317,7 @@ if (isMain) {
     // Ba tín hiệu (config daBat · git index · git history) nay sống MỘT chỗ
     // trong lib.mapTracked — bộ quét vào phiên hỏi cùng hàm đó, hết cảnh hai
     // bên suy tracked từ hai tín hiệu khác nhau (S4-r1 vòng này). Toàn bộ
-    // rationale từng dòng tín hiệu ghi tại lib/workspace-record.js.
+    // rationale từng dòng tín hiệu ghi tại lib/workspace-record.cjs.
     const cfgTxt = (() => { try { return readFileSync(path.join(root, '_acceptance', 'config.yaml'), 'utf8'); } catch { return ''; } })();
     const daTheoDoi = mapTracked(root, cfgTxt);
     // Nhãn rút từ BẢNG NHÃN CHUNG (lib) — cùng chữ với thẻ /start (AC-3/AC-7).

@@ -41,7 +41,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Shared CONTEXT.md parser — vendored beside this script in the plugin package
-// (same arrangement as recheck-evidence.js + lib/evidence-core.js). Missing lib
+// (same arrangement as recheck-evidence.cjs + lib/evidence-core.cjs). Missing lib
 // => W6 simply never fires; the other warnings are unaffected.
 let glossaryLib = null;
 try { glossaryLib = require(path.join(__dirname, '..', 'lib', 'context-glossary.js')); } catch (_) {}
@@ -52,18 +52,18 @@ try { glossaryLib = require(path.join(__dirname, '..', 'lib', 'context-glossary.
 let evalYaml = null;
 try { evalYaml = require(path.join(__dirname, '..', 'lib', 'eval-yaml.js')); } catch (_) {}
 
-// Parser dòng criterion dùng chung với gate-card.js (lib/ac-line.js) — MỘT nơi
+// Parser dòng criterion dùng chung với gate-card.js (lib/ac-line.cjs) — MỘT nơi
 // quyết định "thế nào là một dòng criterion". Bản regex inline trước đây ở file
 // này là bản sao thứ hai của khuôn đó, và nó ĐÃ trôi: một nhãn chen giữa id và
 // dấu hai chấm (`- AC-14 **(cross-layer)**: Given …`, `- AC-6 *(amended …)*: …`)
 // không khớp, nên AC rơi khỏi W1/W4 mà KHÔNG một tiếng động — đúng điều kiện
-// sinh lỗi mà lib/ac-line.js được tách ra để chặn ("Ai cần bóc dòng criterion
+// sinh lỗi mà lib/ac-line.cjs được tách ra để chặn ("Ai cần bóc dòng criterion
 // thì require file này — không copy khuôn"). Đo trên một repo tiêu thụ (oneflow,
 // 07/08/2026): 7 dòng ở 5 hợp đồng ĐÃ KÝ vô hình, 3 trong đó gắn (cross-layer)
 // nên W4 chưa từng chạy cho chúng.
 // Thiếu lib thì quay về khuôn cũ (advisory, fail-open) — hẹp nhưng không lint sai.
 let acLine = null;
-try { acLine = require(path.join(__dirname, '..', 'lib', 'ac-line.js')); } catch (_) {}
+try { acLine = require(path.join(__dirname, '..', 'lib', 'ac-line.cjs')); } catch (_) {}
 
 // ─── Detectors (intentionally generous; advisory) ───────────────────────────
 
@@ -116,8 +116,8 @@ function fieldVal(raw) {
   return s.replace(/[ \t]+#.*$/, '').trim();
 }
 
-// Khuôn HẸP cũ, giữ lại CHỈ cho đường fail-open khi thiếu lib/ac-line.js.
-// Đừng sửa nó cho khớp nhà mới — sửa lib/ac-line.js, đó là nguồn duy nhất.
+// Khuôn HẸP cũ, giữ lại CHỈ cho đường fail-open khi thiếu lib/ac-line.cjs.
+// Đừng sửa nó cho khớp nhà mới — sửa lib/ac-line.cjs, đó là nguồn duy nhất.
 const AC_LINE_NARROW_FALLBACK = /^\s*[-*]\s*(AC-\d+)\s*[:.]\s*(.+)$/;
 
 function parseACs(contractText) {
@@ -166,7 +166,7 @@ function lintFeature(slug, contractText, evalsText, glossary) {
   // đều chạy trên `acs`, nên một dòng bị bỏ sót xoá luôn phần bảo vệ của chính
   // nó mà không để lại dấu vết. Đây chính là cách lỗi khuôn-hẹp sống sót qua 5
   // hợp đồng đã ký ở repo tiêu thụ: không ai đọc được cái mình không thấy.
-  // Bộ dò sống ở lib/ac-line.js (dùng chung với gate-card.js) — nó đã tự loại
+  // Bộ dò sống ở lib/ac-line.cjs (dùng chung với gate-card.js) — nó đã tự loại
   // cross-reference nên contract lành không bị cry-wolf.
   if (acLine) {
     const blind = acLine.acBlindSpot(contractText, acs.map(a => a.id));

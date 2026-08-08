@@ -1,7 +1,7 @@
 // DV12 — round-trip writer↔reader (AC-16, fix gap-probe P1-1, cite
 // [context-ladder#F1]): fixture dòng repin + section Re-pin RÚT TỪ khuôn giữa
 // marker REPIN-TEMPLATE trong SKILL (không chép tay) → parse bằng CHÍNH
-// recheck-evidence.js. Writer/reader không thể trôi mà test vẫn xanh.
+// recheck-evidence.cjs. Writer/reader không thể trôi mà test vẫn xanh.
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -12,7 +12,7 @@ import { execFileSync as ex2 } from 'node:child_process';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
-const RC = path.join(ROOT, 'scripts', 'recheck-evidence.js');
+const RC = path.join(ROOT, 'scripts', 'recheck-evidence.cjs');
 const SKILL = readFileSync(path.join(ROOT, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md'), 'utf8');
 let passed = 0, failed = 0;
 const check = (n, f) => { try { f(); passed++; console.log(`  PASS: ${n}`); } catch (e) { failed++; console.log(`  FAIL: ${n}\n    ${e.message}`); } };

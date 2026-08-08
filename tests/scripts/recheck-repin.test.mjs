@@ -1,4 +1,4 @@
-// DV2 (nửa recheck) — luật re-pin T1 trong recheck-evidence.js: 5 nhánh gian
+// DV2 (nửa recheck) — luật re-pin T1 trong recheck-evidence.cjs: 5 nhánh gian
 // lận/lương thiện + nhánh grandfather. Âm tính ghim ĐÚNG thông điệp; dương
 // tính cùng harness (luật kit: âm-tính-một-mình là assertion không sống).
 import { execFileSync } from 'node:child_process';
@@ -9,7 +9,7 @@ import { mkRepinFixture, SHA_A } from './repin-fixture.mjs';
 import * as fsx from 'node:fs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const RC = path.join(HERE, '..', '..', 'scripts', 'recheck-evidence.js');
+const RC = path.join(HERE, '..', '..', 'scripts', 'recheck-evidence.cjs');
 let passed = 0, failed = 0;
 const check = (n, f) => { try { f(); passed++; console.log(`  PASS: ${n}`); } catch (e) { failed++; console.log(`  FAIL: ${n}\n    ${e.message}`); } };
 const run = (report) => {

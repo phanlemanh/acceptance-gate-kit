@@ -10,7 +10,7 @@ const ACTIONS = Object.freeze({
     'design-scan': 'scripts/design-scan.js',
     'gate-card': 'scripts/gate-card.js',
     'evidence-page': 'scripts/evidence-page.js',
-    'recheck-evidence': 'scripts/recheck-evidence.js',
+    'recheck-evidence': 'scripts/recheck-evidence.cjs',
     'eval-coverage-lint': 'scripts/eval-coverage-lint.js',
     'config-patch': 'scripts/config-patch.mjs',
     'product-map': 'scripts/product-map.mjs',

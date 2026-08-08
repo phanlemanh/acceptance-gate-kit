@@ -76,7 +76,7 @@ Steps:
    run `bash scripts/pre-merge-check.sh . --slug <slug>` (add
    `--base origin/<default-branch>` when known); otherwise run the installed
    plugin's copy. In Codex sessions where write-time hooks are not active,
-   also run `recheck-evidence.js`. Report READY TO MERGE or the exact
+   also run `recheck-evidence.cjs`. Report READY TO MERGE or the exact
    violations.
 
 Never:

@@ -67,7 +67,7 @@ risk_tiers:
     - "hooks/**"
     - "lib/**"
     - "scripts/pre-merge-check.sh"
-    - "scripts/recheck-evidence.js"
+    - "scripts/recheck-evidence.cjs"
 signoff:
   required_for: [T2, T3]
   approvers: ["Manh Phan"]   # approvers: informational — KHÔNG được cổng cưỡng chế.

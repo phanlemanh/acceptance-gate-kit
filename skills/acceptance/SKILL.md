@@ -268,7 +268,7 @@ Entry: implementation complete, contract `status: implemented`.
    minutes spent →
    `time_human_minutes.gate2`, set contract `status: signed-off`. In Codex
    sessions where write-time hooks are not active, run
-   `scripts/recheck-evidence.js` or `scripts/pre-merge-check.sh` before calling
+   `scripts/recheck-evidence.cjs` or `scripts/pre-merge-check.sh` before calling
    the gate complete; CI remains the authoritative merge backstop.
 
 ## Degradation table

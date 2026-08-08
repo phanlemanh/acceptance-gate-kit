@@ -6,8 +6,8 @@
  *   _acceptance/<slug>/evidence-report.md  (evidence bar)
  *   _acceptance/<slug>/contract.md         (Gate-1 transition guard)
  *
- * The validation itself lives in lib/evidence-core.js — the SINGLE
- * source of truth shared with scripts/recheck-evidence.js (the CI re-check), so
+ * The validation itself lives in lib/evidence-core.cjs — the SINGLE
+ * source of truth shared with scripts/recheck-evidence.cjs (the CI re-check), so
  * the two can never drift. This file is the thin PreToolUse wrapper: stdin/stdout
  * passthrough, bypass + enforcement-mode policy, and the block/warn output.
  *
@@ -37,7 +37,7 @@ const path = require('path');
 // Load the shared validation core; if it is somehow unavailable, fail OPEN
 // (never block unrelated work) rather than crash the PreToolUse hook — but
 // NEVER silently when the write targets an evidence report (see below).
-const CORE_PATH = path.join(__dirname, '..', 'lib', 'evidence-core.js');
+const CORE_PATH = path.join(__dirname, '..', 'lib', 'evidence-core.cjs');
 let core = null;
 try { core = require(CORE_PATH); } catch (_) {}
 

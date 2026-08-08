@@ -83,7 +83,7 @@ and nothing more.
 
 Codex write-time hooks may be inactive, so always re-check: run the consumer's
 `bash scripts/pre-merge-check.sh . --slug <slug>` (add
-`--base origin/<default-branch>` when known) and `scripts/recheck-evidence.js`;
+`--base origin/<default-branch>` when known) and `scripts/recheck-evidence.cjs`;
 if the consumer copies are missing, run them from the installed Acceptance
 Gate cache via the consumer runner. Report READY TO MERGE or the exact
 violations.

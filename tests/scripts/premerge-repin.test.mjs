@@ -11,7 +11,7 @@ import { mkRepinFixture, SHA_A } from './repin-fixture.mjs';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
 const CHECK = path.join(ROOT, 'scripts', 'pre-merge-check.sh');
-const RC = path.join(ROOT, 'scripts', 'recheck-evidence.js');
+const RC = path.join(ROOT, 'scripts', 'recheck-evidence.cjs');
 let passed = 0, failed = 0;
 const check = (n, f) => { try { f(); passed++; console.log(`  PASS: ${n}`); } catch (e) { failed++; console.log(`  FAIL: ${n}\n    ${e.message}`); } };
 const runCheck = (script, root) => {

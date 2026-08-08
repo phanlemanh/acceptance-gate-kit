@@ -29,7 +29,7 @@
 #     changed since that commit (committed or in the working tree). A report
 #     without verified_commit (older template) only gets a NOTE.
 #   - (recheck: strict) the committed evidence still passes the gate's own
-#     L1/L2/L3 bar, re-checked via scripts/recheck-evidence.js + lib/evidence-core.js
+#     L1/L2/L3 bar, re-checked via scripts/recheck-evidence.cjs + lib/evidence-core.cjs
 #     (the same core the hook runs) — catches a report hand-edited after the
 #     write-time hook, or written under ACCEPTANCE_GATE_BYPASS. Default `warn`
 #     only advises (so legacy reports from older templates don't block adopters);
@@ -48,14 +48,14 @@ violations=0
 # về phạm vi hẹp của chính lưới đó ở cuối lần chạy.
 NARROW_NET_SEEN=""
 # Bật khi răng cross-layer phải chấm bằng khuôn awk nội bộ vì thiếu node hoặc
-# lib/ac-line.js. Răng VẪN chạy (awk rộng hơn nên không rụng dòng nào), nhưng đó
+# lib/ac-line.cjs. Răng VẪN chạy (awk rộng hơn nên không rụng dòng nào), nhưng đó
 # là một định nghĩa "dòng criterion" khác với ba consumer JS — in đúng một dòng ở
 # cuối lần chạy để chỗ lệch có tiếng, thay vì âm thầm như trước.
 AC_LINE_FALLBACK_SEEN=""
 
-# CI evidence re-checker shipped alongside this script (needs ../lib/evidence-core.js).
+# CI evidence re-checker shipped alongside this script (needs ../lib/evidence-core.cjs).
 HERE="$(cd "$(dirname "$0")" && pwd)"
-RECHECK="$HERE/recheck-evidence.js"
+RECHECK="$HERE/recheck-evidence.cjs"
 
 ROOT="."
 SLUGS=()
@@ -157,7 +157,7 @@ ledger_count() { # <tên> — số lần tên xuất hiện trong sổ. Thuần 
 # đọc config, xác định phạm vi diff, in ấn và đếm; LUẬT nằm trong lib. Bản awk
 # cũ đã lệch thật: một dòng JSON hỏng mở được van thoát ở bash trong khi thẻ
 # Cổng 1 loại nó (AC-13). Parity giữ bằng comment là parity không có răng.
-GP_LIB="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)/lib/gap-probe.js"
+GP_LIB="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)/lib/gap-probe.cjs"
 
 ACC="$ROOT/_acceptance"
 if [ ! -d "$ACC" ]; then
@@ -256,13 +256,13 @@ if [ -f "$ACC/config.yaml" ]; then
   fi
   cfg_rc="$(sed -n 's/^[[:space:]]*recheck:[[:space:]]*//p' "$ACC/config.yaml" | head -1 | sed 's/[[:space:]]*#.*$//')"
   case "$cfg_rc" in strict|warn|off) RECHECK_MODE="$cfg_rc" ;; esac
-  # Đọc danh sách config qua MỘT nguồn luật (lib/workspace-record.js
+  # Đọc danh sách config qua MỘT nguồn luật (lib/workspace-record.cjs
   # configList) khi có node — bản sed chỉ còn là fallback cho máy thiếu node.
   # Hai bản đọc từng lệch ở hình dạng key-line-comment (bug round 16
   # product-map-uat-session): bản sed đọc được, bản JS trả rỗng — giữ hai bản
   # ngang hàng là giữ chỗ cho lần lệch kế tiếp (AC-1 workspace-reader-unification;
   # quan hệ hai-bản-đồng-kết-luận vẫn do case P130 ghim).
-  WSREC_LIB="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)/lib/workspace-record.js"
+  WSREC_LIB="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)/lib/workspace-record.cjs"
   config_list() {
     if [ -f "$WSREC_LIB" ] && command -v node >/dev/null 2>&1; then
       _cl_out="$(node -e 'const l=require(process.argv[1]);const fs=require("fs");process.stdout.write(l.configList(fs.readFileSync(process.argv[2],"utf8"),process.argv[3]).join("\n"))' "$WSREC_LIB" "$ACC/config.yaml" "$1" 2>/dev/null)" && { printf '%s\n' "$_cl_out"; return; }
@@ -562,7 +562,7 @@ for dir in "$ACC"/*/; do
   # content, not a boundary. Exiting on any heading truncated the scan and every
   # AC after the first sub-heading went untagged (teeth silently off).
   xl_acs="$(awk '/^#/ && !/^###/ {insec=0} tolower($0) ~ /^##[[:space:]]+criteria/{insec=1; next} insec && tolower($0) ~ /^[[:space:]]*[-*].*\(cross-layer\)/ { if (match($0, /AC-[0-9]+/)) print substr($0, RSTART, RLENGTH) }' "$contract" | sort -u)"
-  # "Thế nào là một dòng criterion" có MỘT nguồn: lib/ac-line.js — cùng nơi
+  # "Thế nào là một dòng criterion" có MỘT nguồn: lib/ac-line.cjs — cùng nơi
   # gate-card.js, eval-coverage-lint.js và evidence-page.js đọc. Khi có node +
   # lib, kết quả của nó ĐÈ khuôn awk ở trên; khuôn awk ở lại làm đường lùi cho
   # máy thiếu node (cùng nếp fail-open có tiếng với gap-probe/recheck-evidence).
@@ -574,8 +574,8 @@ for dir in "$ACC"/*/; do
   # dòng THAM CHIẾU CHÉO (`- **AC-5, AC-9 chưa có gì** (cross-layer)` là văn xuôi
   # trong Notes) với một tiêu chí thật, nên nó chấm oan và chặn merge nhầm;
   # parseAC loại đúng dạng đó bằng AC_XREF. Nó cũng đóng section ở h1 trong khi
-  # lib/md-section.js coi h1 là nội dung.
-  AC_LINE_LIB="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)/lib/ac-line.js"
+  # lib/md-section.cjs coi h1 là nội dung.
+  AC_LINE_LIB="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)/lib/ac-line.cjs"
   if [ -f "$AC_LINE_LIB" ] && command -v node >/dev/null 2>&1; then
     if xl_from_lib="$(AGK_CONTRACT="$contract" node -e '
         const { parseAC } = require(process.argv[1]);
@@ -594,7 +594,7 @@ for dir in "$ACC"/*/; do
           if (a && a.crossLayer === false) out.delete(a.id);
         }
         process.stdout.write([...out].sort().join("\n"));
-      ' "$AC_LINE_LIB" "$(dirname "$AC_LINE_LIB")/md-section.js" 2>/dev/null)"; then
+      ' "$AC_LINE_LIB" "$(dirname "$AC_LINE_LIB")/md-section.cjs" 2>/dev/null)"; then
       xl_acs="$xl_from_lib"
     else
       AC_LINE_FALLBACK_SEEN=1
@@ -671,7 +671,7 @@ XLACS
       elif [ ! -f "$GP_LIB" ]; then
         gap_probe_not_enforced "thiếu $GP_LIB (mang cổng vào repo phải copy CẢ lib/)"
       else
-        gap_probe_not_enforced "node lib/gap-probe.js classify thất bại trên $slug"
+        gap_probe_not_enforced "node lib/gap-probe.cjs classify thất bại trên $slug"
       fi
     else
       GP_RAN=1
@@ -851,7 +851,7 @@ GLOBS2
   # ({"kind":"repin"} line), its sha must equal verified_commit, and every
   # suites_exit element must be 0 (a red lane cannot back a signature).
   # Old-form sections (no "run_id:" line) are grandfathered — no rule applies.
-  # Ngữ pháp ranh giới section THỐNG NHẤT với recheck-evidence.js (fix S4-r2):
+  # Ngữ pháp ranh giới section THỐNG NHẤT với recheck-evidence.cjs (fix S4-r2):
   # section chỉ kết thúc ở heading cấp 1-3 (# / ## / ### + khoảng trắng) —
   # #### sub-heading là NỘI DUNG của section; run_id bắt không phân biệt hoa
   # thường (recheck dùng flag i). Hai reader lệch ngữ pháp = một bên fail-open.
@@ -927,7 +927,7 @@ NETIDS
         echo "NOTE [$slug]: evidence re-check unavailable (exit $rc) — ${recheck_out:-skipped}"
       fi
     else
-      echo "NOTE [$slug]: evidence re-check not vendored (recheck-evidence.js/node missing) — committed-evidence bar NOT enforced"
+      echo "NOTE [$slug]: evidence re-check not vendored (recheck-evidence.cjs/node missing) — committed-evidence bar NOT enforced"
     fi
   fi
   echo "OK [$slug]: $verdict, signed off by $signoff"
@@ -1033,7 +1033,7 @@ if [ "$LEDGER_ENABLED" -eq 1 ]; then
 fi
 
 if [ -n "$AC_LINE_FALLBACK_SEEN" ]; then
-  echo "NOTE: cross-layer teeth graded with the built-in awk pattern, not lib/ac-line.js (node or the lib was unavailable). The teeth still fire — the awk form is WIDER than the shared parser, so it drops no criterion — but it does not reject cross-reference bullets and it closes the Criteria section at an H1, so a blocking finding reported above may be spurious. Install node / vendor lib/ac-line.js to grade on the same definition the rest of the kit uses."
+  echo "NOTE: cross-layer teeth graded with the built-in awk pattern, not lib/ac-line.cjs (node or the lib was unavailable). The teeth still fire — the awk form is WIDER than the shared parser, so it drops no criterion — but it does not reject cross-reference bullets and it closes the Criteria section at an H1, so a blocking finding reported above may be spurious. Install node / vendor lib/ac-line.cjs to grade on the same definition the rest of the kit uses."
 fi
 
 if [ -n "$NARROW_NET_SEEN" ]; then

@@ -1,0 +1,143 @@
+schema_version: 1
+feature_slug: consumer-copy-cjs
+# Bộ evals này CỐ Ý không có eval `judgment` nào: đề bài là bugfix cơ học
+# (đổi đuôi file + danh sách chép + 2 lint + bump số), mọi khẳng định đều
+# máy-chấm-được. T3 mà có judgment thì mỗi item đòi một human_override —
+# gate-fatigue của owner là ràng buộc số 1 (CLAUDE.md), nên chỗ nào máy chấm
+# được thì không đẩy sang người.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: "node tests/scripts/consumer-esm.test.mjs"
+    expected: >
+      exit 0; stdout có "PASS: CE3 recheck (.cjs) exit 0 trên evidence lành trong repo type:module".
+      Ca dựng repo nháp package.json {"type":"module"} bằng code TRONG lần chạy,
+      chép bộ cổng theo danh sách trích từ chỉ dẫn acceptance-init.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: "node tests/scripts/consumer-esm.test.mjs"
+    expected: >
+      exit 0; stdout có "PASS: CE5 pre-merge trong consumer type:module: exit 0, rules ran=3,
+      KHÔNG một dòng NOT ENFORCED/fallback". Ca assert cả 3 chiều tắt-tiếng:
+      NOT ENFORCED, "not vendored"/"re-check unavailable", "not lib/ac-line.cjs".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: "node tests/scripts/consumer-esm.test.mjs"
+    expected: >
+      exit 0; stdout có "PASS: CE4 đối chứng chấm-thật". Đây là vế should-FIRE của
+      recheck: tiêm exit_code: 2 vào bản sao hồ sơ → exit 1 + thông điệp
+      "fails the evidence bar". Không có vế này thì "exit 0" ở E1 không phân biệt
+      được "chấm và thấy lành" với "chết mà im".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: "node tests/scripts/consumer-esm.test.mjs"
+    expected: >
+      exit 0; stdout có "PASS: CE6" và "PASS: CE7" — chiều ĐỎ: cùng nội dung file
+      mang đuôi .js trong repo type:module phải nổ ReferenceError + "require is not
+      defined" (cả recheck lẫn lib/gap-probe), trong khi bản .cjs cùng repo cùng nội
+      dung xanh (đối chứng dương nằm trong chính case CE7).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: "node tests/scripts/consumer-esm.test.mjs"
+    expected: >
+      exit 0; stdout có "PASS: CE1" (round-trip danh sách chép từ marker
+      INIT-CI-COPY-LIST, sanity ≥ 7 mục, mọi src tồn tại) và "PASS: CE2"
+      (QUAN HỆ tập-dùng ⊆ tập-khai). Đối chứng phá-vật đã chạy tay 2026-08-08:
+      xoá dòng lib/gap-probe.cjs khỏi danh sách chép → CE1+CE2 ĐỎ, CE2 ghim đúng
+      "lib/gap-probe.cjs", và pre-merge trong sim in "GAP-PROBE: NOT ENFORCED".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: "bash _acceptance/consumer-copy-cjs/checks/refs-sweep.sh"
+    expected: >
+      exit 0; in "SWEEP OK" kèm sanity counter > 0 (số tham chiếu .cjs tìm thấy) và
+      0 tham chiếu .js còn sót, 0 require không-đuôi. Sanity counter là bắt buộc:
+      grep 0-hit thường là grep hỏng, không phải cây sạch.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: "bash _acceptance/consumer-copy-cjs/checks/inline-node-e.sh"
+    expected: >
+      exit 0; liệt kê MỌI đoạn `node -e` / `node <lib>` trong pre-merge-check.sh
+      (sanity counter ≥ 3) và khẳng định từng đoạn chỉ trỏ file .cjs; một đoạn
+      trỏ .js làm script ĐỎ ghim số dòng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: "bash _acceptance/consumer-copy-cjs/checks/recheck-lint.sh"
+    expected: >
+      exit 0; 0 khối `catch (_) {}` rỗng trong scripts/recheck-evidence.cjs, và
+      sanity counter xác nhận file có ≥ 2 khối catch (nếu file không còn catch nào
+      thì phép đo tự-khớp, phải ĐỎ).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: "bash _acceptance/consumer-copy-cjs/checks/manifest-bump.sh"
+    expected: >
+      exit 0; 4 manifest acceptance-gate = 1.39.1 (khác 1.39.0), 3 manifest
+      feature-loop = 1.27.1 (khác 1.27.0), và trong mỗi gói không manifest nào lệch.
+      "Đổi thật" đo bằng SO SÁNH với số cũ, không phải bằng "có một con số".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.mirror_sync
+    expected: "exit 0 — mirror plugins/ không trôi khỏi nguồn sau đợt đổi tên"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E11
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "exit 0; bao gồm DV5 additive-only + case CE mới (Results: … 0 failed)"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+
+  - id: E12
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "exit 0 — hook đọc lib/evidence-core.cjs sau đổi tên"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+
+  - id: E13
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0 — gồm P30 (mirror), P04/P22 (parity manifest), P181 (sàn version)"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+
+  - id: E14
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "exit 0"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+
+  - id: E15
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.product_map
+    expected: "exit 0 — bản đồ sản phẩm khớp hồ sơ xưởng sau khi thêm slug mới"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

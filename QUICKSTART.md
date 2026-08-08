@@ -69,12 +69,17 @@ Nếu repo đã có thư mục `_acceptance/` → bỏ qua mục này.
 Repo mới: chạy `/acceptance-init` hoặc nói với Codex "run acceptance init" rồi trả lời các câu hỏi
 (lệnh test, đường dẫn nhạy cảm...).
 
-**CI:** copy **đủ 3 file** từ plugin vào repo, giữ đúng layout `scripts/` + `lib/`
-(re-check cần `require ../lib`):
+**CI:** copy **đủ 7 file** từ plugin vào repo, giữ đúng layout `scripts/` + `lib/`
+(re-check cần `require ../lib`; đuôi `.cjs` giữ CommonJS kể cả khi repo khai
+`"type": "module"`):
 
 - `scripts/pre-merge-check.sh`
-- `scripts/recheck-evidence.js`
-- `lib/evidence-core.js`
+- `scripts/recheck-evidence.cjs`
+- `lib/evidence-core.cjs`
+- `lib/gap-probe.cjs`
+- `lib/workspace-record.cjs`
+- `lib/ac-line.cjs`
+- `lib/md-section.cjs`
 
 rồi thêm step chạy gate — **luôn truyền `--base`** (thiếu nó hai luật
 T1-escape + gap-probe chỉ in NOTE, không chặn gì) và cần `fetch-depth: 0` ở

@@ -64,10 +64,10 @@ assert pkg_codex == overlay_codex, "run scripts/sync-plugin-packages.sh"
 for rel in [
     "plugins/acceptance-gate/scripts/gate-card.js",
     "plugins/acceptance-gate/scripts/evidence-page.js",
-    "plugins/acceptance-gate/scripts/recheck-evidence.js",
+    "plugins/acceptance-gate/scripts/recheck-evidence.cjs",
     "plugins/acceptance-gate/scripts/eval-coverage-lint.js",
     "plugins/acceptance-gate/scripts/config-patch.mjs",
-    "plugins/acceptance-gate/lib/evidence-core.js",
+    "plugins/acceptance-gate/lib/evidence-core.cjs",
     "plugins/acceptance-gate/GUIDE.md",
     # design-quality gate (1.8.0) — a package missing these ships pre-design-gate rules
     "plugins/acceptance-gate/scripts/design-gate.mjs",
@@ -588,13 +588,13 @@ PY
 # ── P38: parity CẤU TRÚC — gate-card phải dùng lib, không giữ luật riêng ────
 # Contract v2 chết vì luật bị tách làm hai bản, parity giữ bằng comment. Đây là
 # răng máy cho lời hứa "một cài đặt" — comment không kiểm được, grep thì được.
-echo "P38 gate-card.js dung lib/gap-probe.js, khong con regex descope rieng"
+echo "P38 gate-card.js dung lib/gap-probe.cjs, khong con regex descope rieng"
 GC_SRC="$(cat "$ROOT/scripts/gate-card.js")"
 case "$GC_SRC" in
-  *"require('../lib/gap-probe.js')"*|*'require("../lib/gap-probe.js")'*)
-    pass "P38a gate-card require lib/gap-probe.js" ;;
+  *"require('../lib/gap-probe.cjs')"*|*'require("../lib/gap-probe.cjs")'*)
+    pass "P38a gate-card require lib/gap-probe.cjs" ;;
   *)
-    fail "P38a gate-card require lib/gap-probe.js" ;;
+    fail "P38a gate-card require lib/gap-probe.cjs" ;;
 esac
 if printf '%s' "$GC_SRC" | grep -qF 'bỏ gap-probe/i'; then
   fail "P38b gate-card khong con literal regex descope"
@@ -622,14 +622,14 @@ P41T="$(mktemp -d)"
 # KHONG nuot loi cua cp: fixture hong ma van "pass" vi sync tra exit 127 la
 # xanh-rong. Phai co doi chung duong (fixture dung) truoc khi tin doi chung am.
 cp -R "$ROOT/." "$P41T/"
-if [ ! -f "$P41T/scripts/sync-plugin-packages.sh" ] || [ ! -f "$P41T/plugins/acceptance-gate/lib/gap-probe.js" ]; then
+if [ ! -f "$P41T/scripts/sync-plugin-packages.sh" ] || [ ! -f "$P41T/plugins/acceptance-gate/lib/gap-probe.cjs" ]; then
   fail "P41 fixture hong (thieu file sau khi cp)"
 else
   # doi chung DUONG: ban sao nguyen ven phai XANH
   if bash "$P41T/scripts/sync-plugin-packages.sh" --check >/dev/null 2>&1; then
-    printf '\n// tiêm\n' >> "$P41T/plugins/acceptance-gate/lib/gap-probe.js"
+    printf '\n// tiêm\n' >> "$P41T/plugins/acceptance-gate/lib/gap-probe.cjs"
     P41OUT="$(bash "$P41T/scripts/sync-plugin-packages.sh" --check 2>&1)"; P41ST=$?
-    if [ "$P41ST" -ne 0 ] && printf '%s' "$P41OUT" | grep -q 'gap-probe.js'; then
+    if [ "$P41ST" -ne 0 ] && printf '%s' "$P41OUT" | grep -q 'gap-probe.cjs'; then
       pass "P41 mirror drift bi bat va NEU TEN file lech"
     else
       fail "P41 mirror drift bi bat va NEU TEN file lech (exit=$P41ST out=$P41OUT)"
@@ -772,13 +772,13 @@ P46T="$(mktemp -d)"; cp -R "$ROOT/." "$P46T/"
 if [ ! -f "$P46T/scripts/sync-plugin-packages.sh" ]; then
   fail "P46 fixture hong"
 else
-  printf '\n// tiêm P46\n' >> "$P46T/plugins/acceptance-gate/lib/gap-probe.js"
+  printf '\n// tiêm P46\n' >> "$P46T/plugins/acceptance-gate/lib/gap-probe.cjs"
   # DOI CHUNG DUONG: --check that su con song trong ban sao (phai DO vi vua tiem)
   if bash "$P46T/scripts/sync-plugin-packages.sh" --check >/dev/null 2>&1; then
     fail "P46 doi chung duong that bai — --check khong bat duoc drift vua tiem"
   else
     P46OUT="$(bash "$P46T/scripts/sync-plugin-packages.sh" --chek 2>&1)"; P46ST=$?
-    P46LEFT="$(grep -c 'tiêm P46' "$P46T/plugins/acceptance-gate/lib/gap-probe.js" 2>/dev/null || echo 0)"
+    P46LEFT="$(grep -c 'tiêm P46' "$P46T/plugins/acceptance-gate/lib/gap-probe.cjs" 2>/dev/null || echo 0)"
     if [ "$P46ST" -eq 2 ] && [ "$P46LEFT" = "1" ] && printf '%s' "$P46OUT" | grep -q 'unknown option'; then
       pass "P46 mode la: exit 2, ghim thong diep, KHONG ghi de"
     else
@@ -1236,12 +1236,12 @@ PY
 # ─── P65..P71 — gate-card doc dong criterion (slug gate-card-ac-visibility) ───
 # Corpus la BAT BUOC: contract cua chinh kit chi dung 2/5 khuon, nen chay eval
 # bao-tap tren _acceptance/ khong dung den 3 khuon da gay ra loi.
-AC_LIB="$ROOT/lib/ac-line.js"
+AC_LIB="$ROOT/lib/ac-line.cjs"
 AC_CORPUS="$ROOT/tests/plugins/fixtures/ac-line-corpus.md"
 
 echo "P65 corpus khuon dong criterion: id/gwt/judgment khop bang GHIM SAN"
 if [ ! -f "$AC_LIB" ] || [ ! -f "$AC_CORPUS" ]; then
-  fail "P65 thieu lib/ac-line.js hoac corpus fixture"
+  fail "P65 thieu lib/ac-line.cjs hoac corpus fixture"
 else
   P58OUT="$(node -e '
     const fs=require("fs"); const {parseAC}=require(process.argv[1]);
@@ -1783,7 +1783,7 @@ PY
 
 # ── P82: ROUND-TRIP frontmatter opportunity-template <-> reader that ─────────
 # Khuon rut tu CHINH template (marker OPP-FRONTMATTER-TEMPLATE), doc bang
-# frontmatterField cua lib/evidence-core.js — reader ma hook/CI dung.
+# frontmatterField cua lib/evidence-core.cjs — reader ma hook/CI dung.
 # Doi chung duong chay truoc, dot bien mat frontmatter chay sau.
 run "P82 opportunity-template round-trip frontmatter (marker -> frontmatterField)" \
   node - "$ROOT" <<'JS'
@@ -1792,7 +1792,7 @@ const path = require('path');
 const root = process.argv[2];
 const tplPath = path.join(root, 'skills/acceptance/references/opportunity-template.md');
 const tpl = fs.readFileSync(tplPath, 'utf8');
-const core = require(path.join(root, 'lib/evidence-core.js'));
+const core = require(path.join(root, 'lib/evidence-core.cjs'));
 const m = tpl.match(/<!-- <<<OPP-FRONTMATTER-TEMPLATE -->\n```yaml\n([\s\S]*?)```\n<!-- OPP-FRONTMATTER-TEMPLATE>>> -->/);
 if (!m) { console.error('KHONG rut duoc khuon OPP-FRONTMATTER-TEMPLATE tu template'); process.exit(1); }
 const SAMPLE = { slug: 'demo-coho', feature: 'Demo', owner: 'a@b.c', stage: 'decided',
@@ -3453,15 +3453,15 @@ const e0 = check(SCAN);
 if (e0.length) die('doi chung DUONG that bai: ' + JSON.stringify(e0));   // ban that XANH
 
 // 3. Dot bien: go MOT verdict khoi tu vung cua reader -> phai DO dung thong diep.
-// Ban sao can lib/evidence-core.js giai duoc, nen dung cay tam co ca hai thu muc.
+// Ban sao can lib/evidence-core.cjs giai duoc, nen dung cay tam co ca hai thu muc.
 const mut = fs.mkdtempSync(path.join(os.tmpdir(), 'p104m-'));
 fs.mkdirSync(path.join(mut, 'scripts'), { recursive: true });
 fs.mkdirSync(path.join(mut, 'lib'), { recursive: true });
-fs.copyFileSync(path.join(root, 'lib/evidence-core.js'), path.join(mut, 'lib/evidence-core.js'));
-// start-scan nay dung LUAT CHUNG cho field dieu huong (lib/workspace-record.js)
+fs.copyFileSync(path.join(root, 'lib/evidence-core.cjs'), path.join(mut, 'lib/evidence-core.cjs'));
+// start-scan nay dung LUAT CHUNG cho field dieu huong (lib/workspace-record.cjs)
 // — ban sao chay thu phai co no, khong thi ket luan "chay duoc/khong" chi noi
 // ve viec thieu file chu khong ve hanh vi dang do.
-fs.copyFileSync(path.join(root, 'lib/workspace-record.js'), path.join(mut, 'lib/workspace-record.js'));
+fs.copyFileSync(path.join(root, 'lib/workspace-record.cjs'), path.join(mut, 'lib/workspace-record.cjs'));
 const src = fs.readFileSync(SCAN, 'utf8');
 const gone = VOCAB[VOCAB.length - 1];                     // go phan tu cuoi khuon writer
 const mutSrc = src.replace(new RegExp(`^\\s*'${gone}':.*$`, 'm'), '');
@@ -3594,11 +3594,11 @@ if (e0.length) die(`ma tran ghim ${Object.keys(MATRIX).length} o — ${e0.length
 // con bug S4-r4) → ma tran phai DO tai cac o draft/approved/signed-off × loi-doc.
 const mut = fs.mkdtempSync(path.join(os.tmpdir(), 'p105m-'));
 fs.mkdirSync(path.join(mut, 'scripts')); fs.mkdirSync(path.join(mut, 'lib'));
-fs.copyFileSync(path.join(root, 'lib/evidence-core.js'), path.join(mut, 'lib/evidence-core.js'));
-// start-scan nay dung LUAT CHUNG cho field dieu huong (lib/workspace-record.js)
+fs.copyFileSync(path.join(root, 'lib/evidence-core.cjs'), path.join(mut, 'lib/evidence-core.cjs'));
+// start-scan nay dung LUAT CHUNG cho field dieu huong (lib/workspace-record.cjs)
 // — ban sao chay thu phai co no, khong thi ket luan "chay duoc/khong" chi noi
 // ve viec thieu file chu khong ve hanh vi dang do.
-fs.copyFileSync(path.join(root, 'lib/workspace-record.js'), path.join(mut, 'lib/workspace-record.js'));
+fs.copyFileSync(path.join(root, 'lib/workspace-record.cjs'), path.join(mut, 'lib/workspace-record.cjs'));
 const src = fs.readFileSync(SCAN, 'utf8');
 const anchor = "if (status === 'signed-off')";
 if (!src.includes(anchor)) die('mutant: khong tim thay anchor cho re trang thai');
@@ -3619,7 +3619,7 @@ const root = process.argv[2];  // dang stdin: argv[1] la "-"
 const path = await import("node:path");
 const { createRequire } = await import("node:module");
 const require = createRequire(import.meta.url);
-const { frontmatterField } = require(path.join(root, "lib/evidence-core.js"));
+const { frontmatterField } = require(path.join(root, "lib/evidence-core.cjs"));
 const { fileFromTemplate } = await import(path.join(root, "tests/fixtures/from-template.mjs"));
 const R = p => path.join(root, "skills/acceptance/references", p);
 const die = m => { console.error(m); process.exit(1); };
@@ -3743,7 +3743,7 @@ for (const slug of Object.keys(EXPECT)) {
 // Bang fixture duoi day chi tra loi "do cap nay o workspace nao"; bang luat no
 // ra ma bang nay khong no theo thi case DUNG AM I, khong lang le bo qua.
 const { NAV_FIELDS } = (await import("node:module")).createRequire(
-  path.join(root, "lib/workspace-record.js"))(path.join(root, "lib/workspace-record.js"));
+  path.join(root, "lib/workspace-record.cjs"))(path.join(root, "lib/workspace-record.cjs"));
 const FIXTURE = {
   "contract.md/status":      "d-dang-dung",
   "opportunity.md/stage":    "a-can-nhac",
@@ -4294,7 +4294,7 @@ const { renderProductMap } = await import(path.join(root, "scripts/product-map.m
 const die = m => { console.error(m); process.exit(1); };
 const SCAN = path.join(root, "scripts/start-scan.mjs");
 const { createRequire } = await import("node:module");
-const LIB = path.join(root, "lib/workspace-record.js");
+const LIB = path.join(root, "lib/workspace-record.cjs");
 const { NAV_RULES, consumedTexts } = createRequire(LIB)(LIB);
 
 // Ban do va bo quet vao phien la HAI READER cua cung mot bo ho so; loi hua la
@@ -4541,7 +4541,7 @@ const root = process.argv[2];  // dang stdin: argv[1] la "-"
 const path = await import("node:path");
 const { createRequire } = await import("node:module");
 const require = createRequire(import.meta.url);
-const core = require(path.join(root, "lib/evidence-core.js"));
+const core = require(path.join(root, "lib/evidence-core.cjs"));
 const die = m => { console.error(m); process.exit(1); };
 const F = core.frontmatterField;
 
@@ -4573,7 +4573,7 @@ if (F("khong co frontmatter\n", "key") !== null) die("khong co frontmatter phai 
 
 // 5. Ca DAU-DEN-CUOI: uat-session chua ky (verdict rong, khong comment) phai
 // la ho so LANH MANH voi ca hai reader — day la ca that ma nghi thuc sinh ra.
-const { recordProblem } = require(path.join(root, "lib/workspace-record.js"));
+const { recordProblem } = require(path.join(root, "lib/workspace-record.cjs"));
 const p = recordProblem({ "contract.md": "---\nstatus: signed-off\n---\n",
                           "opportunity.md": "---\nstage: decided\ndecision: build\n---\n",
                           "uat-session.md": uat });
@@ -5061,7 +5061,7 @@ with tempfile.TemporaryDirectory() as td:
     shf = Path(td, "r.sh"); shf.write_text(BASH)
     for i, h in enumerate(HINH):
         cfg = Path(td, "c%d.yaml" % i); cfg.write_text("schema_version: 1\n" + h)
-        js = json.loads(subprocess.run(["node", str(jsf), str(root / "lib/workspace-record.js"), str(cfg)],
+        js = json.loads(subprocess.run(["node", str(jsf), str(root / "lib/workspace-record.cjs"), str(cfg)],
                                        capture_output=True, text=True, check=True).stdout)
         sh = [l for l in subprocess.run(["bash", str(shf), str(cfg)],
                                         capture_output=True, text=True).stdout.split("\n") if l]
@@ -5083,7 +5083,7 @@ with tempfile.TemporaryDirectory() as td:
     for i, h in enumerate(HINH):
         cfg = ws / "_acceptance" / "config.yaml"; cfg.write_text("schema_version: 1\n" + h)
         mong = "PRODUCT-MAP.md" in json.loads(subprocess.run(
-            ["node", str(jsf), str(root / "lib/workspace-record.js"), str(cfg)],
+            ["node", str(jsf), str(root / "lib/workspace-record.cjs"), str(cfg)],
             capture_output=True, text=True, check=True).stdout)
         that = json.loads(subprocess.run(["node", str(root / "scripts/start-scan.mjs"), "--root", str(ws)],
                                          capture_output=True, text=True, check=True).stdout)["map"]["enabled"]
@@ -6124,7 +6124,7 @@ const verifier = path.join(root, 'verify.sh'); fs.writeFileSync(verifier, '#!/bi
 fs.writeFileSync(path.join(dir, 'run-log.jsonl'), JSON.stringify({ ts: 't', round: 1, evalId: 'E1', run_id: 'jr4-E1-001', exit_code: 0, cmd: 'x' }) + '\n');
 const report = `---\nschema_version: 1\nfeature_slug: feat-jr4\nverdict: PASS\nhuman_signoff: Manh 2026-08-05\n---\n\n## Evidence\n- eval: E1\n  run_id: jr4-E1-001\n  exit_code: 0\n  verifier: ${verifier}\n  verified_at: 2026-08-05\n${block}\n`;
 fs.writeFileSync(path.join(dir, 'evidence-report.md'), report);
-const run = (rp) => { try { cp.execFileSync('node', [path.join(ROOT, 'scripts/recheck-evidence.js'), rp], { stdio: 'ignore' }); return 0; } catch (e) { return e.status; } };
+const run = (rp) => { try { cp.execFileSync('node', [path.join(ROOT, 'scripts/recheck-evidence.cjs'), rp], { stdio: 'ignore' }); return 0; } catch (e) { return e.status; } };
 if (run(path.join(dir, 'evidence-report.md')) !== 0) { console.error('fixture sinh-tu-khuon bi evidence-core chan'); process.exit(1); }
 fs.writeFileSync(path.join(dir, 'evidence-report.md'), report + '\nghi chu: verdict: FAIL\n');
 if (run(path.join(dir, 'evidence-report.md')) !== 1) { console.error('mutant token cam khong bi chan'); process.exit(1); }
@@ -8366,7 +8366,7 @@ def run(cmd, cwd=None):
 # chuoi trong test: test chep chuoi la them mot ban sao thu tu).
 labels = json.loads(run(["node", "-e",
     "const l=require(process.argv[1]);console.log(JSON.stringify(l.MAP_LABELS))",
-    str(root / "lib/workspace-record.js")]).stdout)
+    str(root / "lib/workspace-record.cjs")]).stdout)
 for k in ("dang-co", "da-xoa", "chua-bat"):
     if k not in labels: errs.append(f"MAP_LABELS thieu state {k}")
 
@@ -8500,7 +8500,7 @@ if not errs:
             "const l=require(process.argv[1]);"
             "const p=l.recordProblem({'contract.md':'---\\nstatus: signed-off\\n---\\n','opportunity.md':null,'uat-session.md':process.argv[2],'evidence-report.md':null});"
             "console.log(JSON.stringify(p))",
-            str(root / "lib/workspace-record.js"), txt], capture_output=True, text=True)
+            str(root / "lib/workspace-record.cjs"), txt], capture_output=True, text=True)
         return json.loads(out.stdout)
 
     p_dung = reader_noi_gi(dung)
@@ -8581,7 +8581,7 @@ with tempfile.TemporaryDirectory() as td:
     if s0 or m0:
         errs.append(f"E3 doi chung duong: cay lanh ma quet={s0} bando={m0}")
     else:
-        lib = t / "lib" / "workspace-record.js"; src = lib.read_text()
+        lib = t / "lib" / "workspace-record.cjs"; src = lib.read_text()
         # Mutant THU HEP enum (bo 'blocked'): fixture verdict BLOCKED dang lanh
         # o ca hai ben, luat hep lai thi CA HAI phai doi sang hong — ben nao
         # khong doi la ben do giu ban sao luat rieng. (Khong dung mutant NOI
@@ -9051,7 +9051,7 @@ P182PY
 # `grep -qx` so mã "AC-1" với TOÀN BỘ chuỗi criterion. Repo nào viết
 # `criterion: AC-1 (mô tả cho người đọc)` thì không bao giờ khớp → bắn
 # dương-tính-giả cho MỌI tiêu chí có nhãn (cross-layer). 1.38.0 upstream nửa
-# PHÂN TÍCH (lib/ac-line.js) nhưng nửa SO KHỚP vẫn nguyên lỗi.
+# PHÂN TÍCH (lib/ac-line.cjs) nhưng nửa SO KHỚP vẫn nguyên lỗi.
 # Nhánh (c) canh biên: neo `^AC-1` mà THIẾU biên không-phải-số thì AC-1 khớp
 # nhầm mục "AC-16 (...)" và tự tạo xanh-giả — đúng thứ răng này sinh ra để chặn.
 echo "P183 cross-layer pairing: dong criterion co chu mo ta van ghep doi dung"

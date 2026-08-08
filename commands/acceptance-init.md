@@ -125,14 +125,25 @@ Omit the `capture` block if the repo has no UI evidence need.
 
 4. Write `_acceptance/README.md` (3 lines): what this folder is, link to the
    acceptance skill, "artifacts are per-feature in subfolders".
-5. Suggest copying the CI gate from the plugin into the repo — ALL THREE files,
+5. Suggest copying the CI gate from the plugin into the repo — ALL SEVEN files,
    keeping the `scripts/` + `lib/` layout (pre-merge finds the re-check next to
-   itself, and the re-check `require`s `../lib`):
-   - `${CLAUDE_PLUGIN_ROOT}/scripts/pre-merge-check.sh` → `scripts/`
-   - `${CLAUDE_PLUGIN_ROOT}/scripts/recheck-evidence.js` → `scripts/`
-   - `${CLAUDE_PLUGIN_ROOT}/lib/evidence-core.js` → `lib/`
+   itself, and the `.cjs` files `require` their siblings under `../lib`). The
+   kit ships these as `.cjs` ON PURPOSE: in a consumer repo declaring
+   `"type": "module"`, Node reads a copied `.js` file as ESM, its `require()`
+   throws ReferenceError, and the layer dies silently — `.cjs` stays CommonJS
+   under every `type`. Copy the WHOLE list; each missing file switches one
+   enforcement layer off:
+   <!-- <<<INIT-CI-COPY-LIST -->
+   - `${CLAUDE_PLUGIN_ROOT}/scripts/pre-merge-check.sh` → `scripts/` (the merge gate itself)
+   - `${CLAUDE_PLUGIN_ROOT}/scripts/recheck-evidence.cjs` → `scripts/` (committed-evidence re-check; missing → gate only NOTEs)
+   - `${CLAUDE_PLUGIN_ROOT}/lib/evidence-core.cjs` → `lib/` (the evidence bar shared with the hook; the re-check cannot load without it)
+   - `${CLAUDE_PLUGIN_ROOT}/lib/gap-probe.cjs` → `lib/` (clean-context critique rule; missing → "GAP-PROBE: NOT ENFORCED" on every run)
+   - `${CLAUDE_PLUGIN_ROOT}/lib/workspace-record.cjs` → `lib/` (shared config-list reader; missing → weaker sed fallback)
+   - `${CLAUDE_PLUGIN_ROOT}/lib/ac-line.cjs` → `lib/` (criterion-line parser for the cross-layer teeth; missing → wider awk fallback, possible spurious blocks)
+   - `${CLAUDE_PLUGIN_ROOT}/lib/md-section.cjs` → `lib/` (section boundary `require`d by ac-line)
+   <!-- INIT-CI-COPY-LIST>>> -->
    Copying only pre-merge-check.sh silently drops the committed-evidence
-   re-check layer (it degrades to a NOTE).
+   re-check layer (it degrades to a NOTE) and mutes the gap-probe rule.
    In the CI step, pass the PR base so the T1-escape backstop is armed
    (without it the backstop only NOTEs): on GitHub Actions
    `bash scripts/pre-merge-check.sh . --base "origin/$GITHUB_BASE_REF"`

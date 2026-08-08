@@ -15,12 +15,12 @@ SELF	acceptance-gate	skills/design-pass/SKILL.md	config-patch.mjs
 SELF	acceptance-gate	skills/uat-session/SKILL.md	product-map.mjs
 SELF	acceptance-gate	skills/acceptance/references/design-ui-check.md	design-scan.js
 SELF	acceptance-gate	skills/acceptance-init/SKILL.md	pre-merge-check.sh
-SELF	acceptance-gate	skills/acceptance-init/SKILL.md	recheck-evidence.js
+SELF	acceptance-gate	skills/acceptance-init/SKILL.md	recheck-evidence.cjs
 SELF	acceptance-gate	skills/acceptance/SKILL.md	pre-merge-check.sh
-SELF	acceptance-gate	skills/acceptance/SKILL.md	recheck-evidence.js
-SELF	acceptance-gate	skills/approve/SKILL.md	recheck-evidence.js
+SELF	acceptance-gate	skills/acceptance/SKILL.md	recheck-evidence.cjs
+SELF	acceptance-gate	skills/approve/SKILL.md	recheck-evidence.cjs
 SELF	acceptance-gate	skills/signoff/SKILL.md	pre-merge-check.sh
-SELF	acceptance-gate	skills/signoff/SKILL.md	recheck-evidence.js
+SELF	acceptance-gate	skills/signoff/SKILL.md	recheck-evidence.cjs
 SELF	design-loop-codex	skills/design-subtrack/references/design-command-map.md	design-detect-surface.mjs
 SELF	design-loop-codex	skills/design-subtrack/references/design-command-map.md	provenance.mjs
 SELF	feature-loop-codex	skills/feature-loop-codex/SKILL.md	carry-plan.mjs
@@ -71,6 +71,6 @@ KIT	sync-plugin-packages.sh
 # tên; chốt kiểm file tồn tại Ở GÓI ĐÓ, thiếu vẫn là con trỏ chết.
 OTHERPKG	resolve-plugin.mjs	feature-loop-codex
 OTHERPKG	pre-merge-check.sh	acceptance-gate
-OTHERPKG	recheck-evidence.js	acceptance-gate
+OTHERPKG	recheck-evidence.cjs	acceptance-gate
 OTHERPKG	gate-card.js	acceptance-gate
 OTHERPKG	design-gate.mjs	acceptance-gate

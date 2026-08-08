@@ -29,12 +29,12 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const gapProbe = require('../lib/gap-probe.js');
+const gapProbe = require('../lib/gap-probe.cjs');
 const outOfContract = require('../lib/out-of-contract.js');
-const evidenceCore = require('../lib/evidence-core.js');
-// Ranh giới section: luật PER-SECTION nằm ở bảng marker trong lib/md-section.js
+const evidenceCore = require('../lib/evidence-core.cjs');
+// Ranh giới section: luật PER-SECTION nằm ở bảng marker trong lib/md-section.cjs
 // (Findings=any-heading chặn hàng ma; văn xuôi=same-or-higher giữ AC sau sub-heading).
-const { section } = require('../lib/md-section.js');
+const { section } = require('../lib/md-section.cjs');
 // Parser evals.yaml dùng chung với eval-coverage-lint (lib/eval-yaml.js) — hiểu
 // block scalar: khuôn eval-gen viết `expected: >`, regex một-dòng cũ bắt được
 // ">" nên NEG_RE luôn false → covGaps bắn cảnh báo giả cho MỌI AC có số.
@@ -142,7 +142,7 @@ const stripMd = s => {
     .replace(/(?<![*/])\*(?=[^\s/])([^*]+?)(?<=[^\s/])\*(?!\*)/g, '$1');
   return t.replace(new RegExp(MASK + '(\\d+)' + MASK, 'g'), (_, i) => (code[+i] !== undefined ? code[+i] : ''));
 };
-const { parseAC, acBlindSpot, blindSpotText } = require('../lib/ac-line.js');
+const { parseAC, acBlindSpot, blindSpotText } = require('../lib/ac-line.cjs');
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
 const NEG_RE = /\bKHÔNG\b|\bkhông\b|\bkhong\b|\bNOT\b|reject|denied|\bdeny\b|từ chối|tu choi|\b0\s*(row|touch)\b|rỗng|\bn-a\b|\bbiên\b|\bbien\b|dưới ngưỡng|duoi nguong|just[- ]?below|should[- ]?not|không tăng|không ghi|không fire|không kích hoạt|suppress|absent|vắng/i;
@@ -246,7 +246,7 @@ if (gate === '1') {
     if (cells.length === 6) gpRows.push({ sev: cells[0], artifact: cells[1], summary: cells[2], scenario: cells[3], measure: cells[4], disposition: cells[5] });
     else gpDropped++; // cell chứa "|" → sai số cột (giới hạn v1, spec §4)
   }
-  // Luật van thoát nằm ở lib/gap-probe.js — CÙNG hàm mà pre-merge gọi. Không
+  // Luật van thoát nằm ở lib/gap-probe.cjs — CÙNG hàm mà pre-merge gọi. Không
   // viết lại ở đây: contract v2 chết đúng vì chỗ này bị tách làm hai bản, parity
   // giữ bằng comment (ledger d-125/d-126). P38 canh bằng máy.
   const gpDescopeId = gapProbe.descopeId(read(path.join(dir, 'decisions.jsonl')));

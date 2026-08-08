@@ -454,7 +454,7 @@ or the human confirms a descope entry.
    Do not guess and do not run every executor automatically.
 4. Resolve judgment inputs to absolute paths rooted at `_acceptance/<slug>/`.
 5. Locate `judge-personas.md`, `evidence-report-template.md`,
-   `gate-card.js`, `evidence-page.js`, and `recheck-evidence.js` from the
+   `gate-card.js`, `evidence-page.js`, and `recheck-evidence.cjs` from the
    Codex acceptance-gate cache.
 6. Detect `diffBase` from remote default branch, then `main`, `master`,
    `develop`, or `trunk`; ask the human if none exists.
@@ -685,8 +685,10 @@ append a Gate-2 `revisit` entry when the human leaves a follow-up condition.
 ## S5 - Handoff
 
 Prepare final handoff or PR according to repo policy. Run
-`scripts/pre-merge-check.sh` if present or copy it, `scripts/recheck-evidence.js`,
-and `lib/evidence-core.js` from the installed acceptance-gate plugin cache.
+`scripts/pre-merge-check.sh` if present or copy it, `scripts/recheck-evidence.cjs`,
+and the five `lib/*.cjs` files (`evidence-core`, `gap-probe`,
+`workspace-record`, `ac-line`, `md-section`) from the installed
+acceptance-gate plugin cache.
 Report whether CI enforces the same check before merge. If `recheck: strict` is
 enabled, committed PASS evidence must still satisfy the L1/L2/L3 evidence bar.
 

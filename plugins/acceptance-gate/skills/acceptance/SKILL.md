@@ -283,7 +283,7 @@ Entry: implementation complete, contract `status: implemented`.
    `time_human_minutes.gate2`, set contract `status: signed-off`. In Codex,
    trusted hooks use the native apply_patch adapter; when that adapter is not
    active, run
-   `scripts/recheck-evidence.js` or `scripts/pre-merge-check.sh` before calling
+   `scripts/recheck-evidence.cjs` or `scripts/pre-merge-check.sh` before calling
    the gate complete; CI remains the authoritative merge backstop.
 
 ## Degradation table

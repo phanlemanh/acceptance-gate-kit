@@ -16,14 +16,14 @@ import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const { frontmatterField, resolveConfigKey } = require(path.join(__dirname, '..', 'lib', 'evidence-core.js'));
+const { frontmatterField, resolveConfigKey } = require(path.join(__dirname, '..', 'lib', 'evidence-core.cjs'));
 // Luật "hồ sơ nào được tiêu thụ" VÀ luật "field điều hướng có hợp lệ không"
 // đều sống MỘT chỗ, bản đồ sản phẩm dùng chung — hai bên đọc cùng hồ sơ không
 // được cho hai kết luận trái nhau. Kiểm tay lại ở đây là cách hai bên đã trôi
 // khỏi nhau ở r12 và r13 dù bảng enum đã gom xong từ r3.
 const { recordProblem, navValues, consumedTexts, usesOpportunity, readRecord, ioReason,
         configList, fieldProblem, missingArtifact, mapState, MAP_LABELS, mapTracked } =
-  require(path.join(__dirname, '..', 'lib', 'workspace-record.js'));
+  require(path.join(__dirname, '..', 'lib', 'workspace-record.cjs'));
 
 // Argv hỏng CHẾT TO (exit 2), không âm thầm rơi về cwd: một cờ được KHAI mà
 // dùng không được lại đổi nghĩa lệnh thành "quét cây khác rồi báo thành công",
@@ -53,7 +53,7 @@ if (!existsSync(path.join(acc, 'config.yaml'))) { out({ schema_version: 1, confi
 // nuốt chung một rọ biến "mất quyền đọc" thành "không có file", và slug bị phân
 // ô theo artifact bên cạnh (Cổng 2 start-command, known-limit 1).
 // read/ioReason KHÔNG có bản sao ở đây: chúng là một phần của luật đọc hồ sơ
-// và sống ở lib/workspace-record.js. Hai bản y hệt nhau hôm nay vẫn là đúng
+// và sống ở lib/workspace-record.cjs. Hai bản y hệt nhau hôm nay vẫn là đúng
 // hình dạng đã sinh ra ba hồi quy liên tiếp — lần sửa ENOENT (hay sửa câu
 // "không đọc được (CODE)" mà broken[].reason bị assert theo) tiếp theo sẽ rơi
 // vào một bên (S4-r15).
