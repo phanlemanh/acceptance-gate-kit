@@ -76,3 +76,26 @@ phép mọi thứ khác được quyền không hoàn hảo.
 Trả lời bằng ký ức tháng 6 hoặc một sự cố đơn lẻ → mặc định KHÔNG LÀM, ghi
 sổ chờ tỉ lệ. Phiên đánh-giá-lại vì thế không hỏi "sửa kit tiếp thế nào" mà
 hỏi: **đóng neo ở đâu (UAT + rollback), gỡ tháp đến đâu (lấy mẫu → prune)**.
+
+## 6 · Kim chỉ nam (owner tuyên 09/08 — đặt trên mọi mục ở trên)
+
+> **Giá trị duy nhất là sản phẩm đến tay người dùng. Kit là công cụ HỖ TRỢ
+> quá trình đó — đặc biệt là hỗ trợ Claude làm việc hiệu quả hơn. Không mang
+> sản phẩm nhanh, hiệu quả, có giá trị thì mọi thứ vô nghĩa.**
+
+Ba luật vận hành đi kèm (B phản biện, owner giữ khung):
+
+1. **Giờ-kit là CHI PHÍ, không bao giờ là tiến độ** — chỉ feature đến tay
+   người dùng được đếm là tiến; "đợt vá đạt chuẩn cao" không phải thành tựu.
+2. **Kit = enablement, không phải surveillance** — làm đường-nhanh CŨNG LÀ
+   đường-tin-được với thuế thấp nhất, không dựng đường kiểm bên cạnh đường
+   làm. Bằng chứng 08–09/08: mọi khoảnh khắc tốt là trao-sức (corpus giúp máy
+   tự bắt lỗi, luật dừng chính danh, script thay bẫy); mọi khoảnh khắc tệ là
+   tháp giám sát — và chính tháp nói dối (runner nuốt exit).
+3. **"Nhanh" phải kèm "bền"** — trước kit ship nhanh mà không phê duyệt nổi
+   nên mới sinh kit; thờ tốc độ đơn thuần là mua khủng hoảng niềm tin kế
+   tiếp. Thước: kit chỉ dương khi (giờ tiết kiệm owner + lỗi chặn thật) >
+   (giờ nó lấy của owner + Claude). Âm là cắt.
+
+Câu hỏi đứng trước MỌI đề bài, mọi khuyến nghị, mọi phiên:
+**"Việc này rút ngắn đường sản-phẩm-đến-người-dùng ở chỗ nào?"**
