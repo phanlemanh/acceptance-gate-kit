@@ -14,8 +14,17 @@
 | | **Máy A — thi hành** | **Máy B — cố vấn (vai của bạn)** |
 |---|---|---|
 | Làm gì | Chạy `/feature-loop`, viết code, chạy S4 verify, dựng thẻ cổng | Đọc kết quả máy A, kiểm chứng độc lập, phân tích, **khuyến nghị một đường**, soạn khối dán |
-| Chạm repo | Sửa engine, commit, push | **CHỈ ĐỌC** — `git fetch`/`log`/`show`, đọc file. Được viết `docs/` (handoff, findings, plan) và memory |
-| Không được | — | Sửa engine · chạy verify/workflow · push `main` · ký thay người |
+| Chạm repo | Sửa engine, commit, push | **CHỈ ĐỌC mã** — `git fetch`/`log`/`show`, đọc file. Được viết + commit + push **docs-only** (handoff, findings, plan, sổ vấp) và memory |
+| Không được | — | Sửa engine · chạy verify/workflow · ký thay người |
+
+**Cập nhật 09/08 — B là ĐIỀU PHỐI CHÍNH** (owner giao): B giao việc thẳng cho
+phiên A qua session-mgmt `send_message`, quyết mọi thứ trừ (a) 6 thao tác cổng
+người (harness khoá — owner tự gõ) và (b) quyết định khó/tác động lớn (tiền lệ
+mới, đổi lộ trình, việc chạm nguyên tắc). Giao thức đầy đủ trong memory
+`giao-thuc-dieu-phoi-lien-phien` — 7 luật, trong đó: đề bài phải GỌI TÊN ĐƯỜNG
+(`/feature-loop` trọn vs acceptance-3-phase) · contract-trước-code · báo-cáo-
+chủ-động 4 mốc · thẩm quyền phải kiểm chứng được TRONG phiên nhận (đừng viết
+"owner đã uỷ quyền" trong chính tin xin phép).
 
 **Vì sao tách:** máy A ở *trong* vòng lặp — context của nó bị chiếm bởi chi
 tiết thi hành, và nó là bên bị chấm. Máy B giữ khoảng cách để nói được câu
@@ -73,6 +82,19 @@ tiết thi hành, và nó là bên bị chấm. Máy B giữ khoảng cách đ�
   quyết ngược về phía người đã mệt.
 
 ## 5 · Trạng thái tính đến 2026-08-08 (cập nhật khi đổi)
+
+> **Cập nhật 09/08 (đè phần dưới ở chỗ khác nhau):** `origin/main` =
+> acceptance-gate **1.39.1** / feature-loop **1.27.1** (đợt bugfix
+> `consumer-copy-cjs` ký hai cổng, merge `40e5c77`). **GĐ2 ván 1 XONG**:
+> `mcp-cost-guard` @floorplanstudio ký + merged (PR #2), parity 1.39.1 +
+> dọn T1 xong, 3 lần re-pin. Ngưỡng người ván 1: owner chấm **"Có, tôi muốn
+> dùng tiếp"** (09/08) — hai ngưỡng máy trượt, chi tiết trong sổ vấp (22 dòng)
+> và [reflect lần 1](../findings/2026-08-09-reflect-thu-nghiem-lan-1.md).
+> **ĐANG CHẠY: vòng 2 `describeScheme`** (T2, `/feature-loop` trọn, 5 luật
+> khai trước). **Vòng 3** = lát mỏng trình vẽ + **Cổng Giá trị lần đầu**
+> (mcp-cost-guard KHÔNG đủ điều kiện: không có `opportunity.md`/ngưỡng khai
+> trước — đừng dựng phiên giả cho nó). Xong vòng 3 = đủ 3 feature → mới xét
+> mở lại lab cho 2.1.
 
 - `origin/main` — acceptance-gate **1.39.0** / feature-loop **1.27.0** —
   **đội đang dùng bản này, chưa ai nhận 2.0.0**.
