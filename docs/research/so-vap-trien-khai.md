@@ -4,6 +4,12 @@ Ngưỡng khai trước (2026-08-08, trước ván đầu): 0 lỗi chặn-việ
 số-lần-bị-gọi ≤ 2/feature (Cổng 1 + ký) · owner tự chấm "muốn dùng tiếp" = có.
 Ván đầu khai trước là THÁM HIỂM — không chấm cuộc tái lập bằng ván đầu.
 
+**Chấm ngưỡng 3 sau ván 1 (2026-08-09) — owner trả lời nguyên văn: "Có, tôi
+muốn dùng tiếp".** Hai ngưỡng còn lại ván 1 đều trượt (2 lỗi chặn-việc; 7 sự
+kiện cần người, trong đó chỉ 3 là cổng theo thiết kế — 4 cái còn lại do bộ đồ
+nghề trục trặc). Ngưỡng người là ngưỡng duy nhất không suy được từ git, và nó
+ĐẠT — lộ trình vòng 2/vòng 3 tiếp tục.
+
 Mỗi dòng: ngày · repo · feature-slug · vấp gì (1 câu) · chặn-việc? (có/không)
 
 ---
@@ -26,4 +32,6 @@ Mỗi dòng: ngày · repo · feature-slug · vấp gì (1 câu) · chặn-việ
 2026-08-09 · kit (1.39.1) · consumer-copy-cjs · Phiên chip tự hành viết code TRƯỚC khi Cổng 1 duyệt (contract draft, code đã commit trên worktree) — cổng chặn-merge còn nguyên nhưng cổng định-hình-tiêu-chí mất; đã ghi thành quyết định có ý thức d-20260809T0100Z-ccc4 kèm chi phí đảo; đề bài chip từ nay phải khoá tường minh thứ tự contract-trước-code nếu muốn giữ viên ngọc số 1 trong chế độ tự hành · chặn-việc: không
 2026-08-09 · floorplanstudio · (parity 1.39.1) · Chép lại trọn bộ cổng từ kit làm bằng chứng đã ký đi cũ ngay lập tức — `scripts/` và `lib/` nằm ngoài `t1_skip_globs` nên lưới staleness tính chúng là "mã đổi sau khi chấm"; mọi consumer nâng kit đều sẽ dính, không riêng repo này. Hoặc acceptance-init phải dặn "chép xong re-pin", hoặc pre-merge nên bỏ qua chính đường công cụ của nó · chặn-việc: có (chặn commit parity cho tới khi re-pin)
 2026-08-09 · floorplanstudio · (parity 1.39.1 — tiếp dòng trên) · Cách gỡ chuẩn cho lớp này là RE-PIN SAU CHÉP (làn máy tại sha commit parity, verified_commit mới, không vòng chấm mới) — đã chạy thật: re-pin lần 2, run_id repin-20260809-mcp-cost-guard-lane2, pre-merge sau đó clean trọn cả staleness lẫn NOT-ENFORCED. Đề bài 2.1: `acceptance-init` phải NÓI RÕ "chép xong phải re-pin" ở đường docs; KHÔNG đi đường miễn trừ scripts/lib khỏi t1_skip_globs — miễn trừ đã bị bác vì fail-silent · chặn-việc: không (đã gỡ)
+2026-08-09 · kit (audit hậu-vòng) · consumer-copy-cjs · Đối chiếu với workflow chuẩn: vòng chip tự hành đi đường acceptance-3-phase trực tiếp thay vì /feature-loop nên MẤT chân review (không review-findings.md, không khối ngoài-hợp-đồng ở Cổng 2 — chân này ở vòng consumer bắt 13 finding/2 HIGH) và mất Gate 1.5 dù T3; gốc là đề bài B viết "workspace như mọi khi" mơ hồ — đề bài tự hành phải GỌI TÊN ĐƯỜNG và khai chân S4 trước khi mở · chặn-việc: không [luật đã vào memory giao-thức B]
+2026-08-09 · cả hai repo · (audit hậu-vòng) · usage-report.md vắng ở CẢ HAI vòng đã ký — wf-usage là bước khoan-dung (lỗi → WARN đi tiếp) nên chết câm, trục đo chi-phí-per-feature của charter mất dữ liệu 2 ván liền; đúng dạng "nghi thức chết âm thầm" điểm mù #6 · chặn-việc: không [đề bài 2.1: hoặc làm bước này kiểm-chứng-được, hoặc chấp nhận bỏ đo có khai]
 2026-08-09 · floorplanstudio · (dọn T1 chữ-trôi) · LỚP MỚI: sửa CHÚ THÍCH trong mã `t3_paths` cũng làm bằng chứng đã ký thành stale — 0 hành vi đổi, ba cổng xanh, vẫn bị chặn merge; hai lần re-pin trước chỉ là công cụ cổng nên tiền lệ không phủ. Owner đặt TIỀN LỆ HẸP 09/08: comment-only trên t3 được re-pin thay vì chấm lại, CHỈ KHI (a) diff lọc chú thích rỗng chứng bằng máy — phép chặt: xoá mọi dòng chú thích ở cả hai phiên bản rồi so, mã còn lại giống hệt từng byte — và (b) làn đầy đủ xanh · chặn-việc: không (đã gỡ, re-pin lần 3) [đề bài 2.1: staleness nên tự phân biệt diff-comment-only bằng máy, đừng bắt người quyết mỗi lần]
