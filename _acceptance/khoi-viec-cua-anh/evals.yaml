@@ -1,0 +1,126 @@
+schema_version: 1
+feature_slug: khoi-viec-cua-anh
+# Case P185–P189 SẼ được thêm vào tests/plugins/run-tests.sh; mỗi eval ghim
+# đích danh dòng PASS của case trong stdout suite, không chỉ exit 0 (luật
+# tổng-kết-phải-kèm-số-ca + ba-lớp-che-màu-xanh). Mọi case theo
+# MEASURE-BIRTH-CLAUSE: cặp hai-chiều cùng fixture + thông điệp ghim +
+# xác-nhận-đột-biến in ra; mutant đi qua chính gate-card.js thật (bản sao bị
+# phá, đường dẫn suy từ vị trí script, fixture code-sinh trong chính lần chạy).
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/gate-card.js, tests/plugins/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: P185" — fixture hồ sơ Cổng 1 code-sinh, render
+      bằng gate-card.js THẬT trên CẢ HAI nhánh Given (status draft VÀ
+      approved — gap-probe F2): mỗi bản HTML chứa chuỗi "👉 VIỆC CỦA ANH",
+      đúng MỘT mục quyết đủ 3 vế (ghim ba nhãn vế), dòng "Trả lời mẫu" nằm
+      trên MỘT dòng text sau khi strip tag inline (không thẻ block/br chen
+      giữa — F5), và QUAN HỆ vị trí: chuỗi khối đứng SAU thân thẻ và TRƯỚC
+      hàng nút .foot trong cùng HTML (assert offset, không chỉ chuỗi-có-mặt —
+      F4); CHIỀU ĐỎ cùng fixture: bản sao gate-card.js bị gỡ khối (case in
+      xác-nhận-đột-biến) → render mất chuỗi ghim, case phải bắt được.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/gate-card.js, tests/plugins/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: P186" — fixture Cổng 2 code-sinh verdict
+      PENDING-JUDGMENT đủ CẢ BỐN loại việc-người (ngoài-hợp-đồng qua
+      review-findings.md, judgment UNCERTAIN chưa override, Out of scope ≥1
+      bullet, quyết định treo sau seal) → khối liệt đủ từng mã/nhãn (ghim mã
+      eval judgment + nhãn Ngoài-1 + mục phê + mục cắt + mục ký) và dòng
+      "Trả lời mẫu" nằm trên MỘT dòng text sau strip tag inline chứa đủ các
+      mã đó (F5); mutant gỡ nhánh liệt kê trong bản sao (in
+      xác-nhận-đột-biến) → thiếu mã, case đỏ ghim.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/gate-card.js, tests/plugins/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: P187" — fixture Cổng 2 code-sinh trên CẢ BA
+      nhánh Given (verdict REJECT, BLOCKED, và verdict lạ — gap-probe F2):
+      khối chứa "không cần làm gì" + câu máy-đang-làm-gì-tiếp đúng từng
+      verdict, KHÔNG chứa mục đòi trả lời (không "Trả lời mẫu"); ĐỐI CHỨNG
+      DƯƠNG đổi-giá-trị trên CÙNG fixture: nâng verdict PASS → khối đổi sang
+      mục Ký, chuỗi "không cần làm gì" biến mất — hai chiều cùng một vật.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/gate-card.js, tests/plugins/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: P186b" — dòng PASS RIÊNG định danh nhánh
+      PASS-thuần-máy (gap-probe F1: không nấp sau pin của E2): fixture Cổng 2
+      verdict PASS, 0 việc-người → khối VẪN hiện, đúng MỘT mục ký-hay-trả đủ
+      3 vế — kèm mutant gỡ mục ký trên chính fixture rỗng (in
+      xác-nhận-đột-biến) → đỏ ghim, chống lớp khối-rỗng-thì-biến-mất.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - feature-loop/skills/feature-loop/SKILL.md
+      - codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md
+      - skills/acceptance/SKILL.md
+      - commands/acceptance-card.md
+      - tests/plugins/run-tests.sh
+    expected: >
+      exit 0; stdout có "PASS: P188" — round-trip: rút câu điều khoản qua cặp
+      marker GATE-INVITE-CLAUSE từ bản luật (reader = regex marker, đối chứng
+      dương: rút được và không rỗng), so KHỚP TỪNG KÝ TỰ với 4 bên chép
+      (feature-loop SKILL, codex feature-loop SKILL, acceptance SKILL,
+      commands/acceptance-card.md); đột biến bộ nhớ đổi 1 ký tự một bản chép
+      (in xác-nhận-đột-biến) → phép so phải đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - tests/plugins/run-tests.sh
+    expected: >
+      exit 0; stdout có "PASS: P189" — khối YOUR-MOVE-BLOCK-TEMPLATE rút qua
+      marker khai đủ 4 chuẩn (ghim: ba nhãn vế làm-gì/ở-đâu/trả-lời-dạng-gì ·
+      "Trả lời mẫu" một dòng · "không cần làm gì" · luật cấm câu tu từ mang
+      dấu hỏi); mutant bộ nhớ gỡ dòng chỉ-báo "không cần làm gì" (in
+      xác-nhận-đột-biến) → case đỏ ghim tên chuẩn thiếu.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: judgment
+    inputs:
+      - contract.md
+      - evidence/p185-card-gate1.html
+      - evidence/p186-card-gate2.html
+      - evidence/p187-card-gate2-reject.html
+      - ../../skills/acceptance/references/human-facing-language.md
+    question: >
+      Đọc khối "👉 VIỆC CỦA ANH" trên ba thẻ đính kèm (Cổng 1, Cổng 2 ký được,
+      Cổng 2 không ký được) VÀ hai khối khuôn lời-mời trong bản luật đính kèm
+      (YOUR-MOVE-BLOCK-TEMPLATE + GATE-INVITE-CLAUSE — gap-probe F3) bằng mắt
+      một người quyết KHÔNG đọc code: mỗi mục có nói rõ làm gì, ở đâu, trả lời
+      dạng gì không; câu mẫu trả-lời-gộp có nằm trên một dòng và
+      chép-được-ngay không; thẻ không-ký-được có nói rõ "không cần làm gì"
+      không; khuôn lời-mời tự nó có đủ dễ hiểu để một phiên khác viết đúng tin
+      mời không; có câu tu từ mang dấu hỏi nào lọt không (N1–N6)?
+    expected: >
+      PASS khi cả ba thẻ VÀ khuôn lời-mời đạt đủ năm ý của câu hỏi;
+      UNCERTAIN/FAIL nêu đích danh thẻ/khối + mục vi phạm + bằng-chứng-thiếu.
+    evidence_required: [judged_by, verdict, rationale]
