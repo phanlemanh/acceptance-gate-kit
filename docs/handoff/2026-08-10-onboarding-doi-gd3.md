@@ -1,0 +1,43 @@
+# Onboarding đội — dùng kit từ GĐ3 (đọc 5 phút)
+
+*2026-08-10 · Kèm thông báo #2. Kit acceptance-gate **1.39.1** / feature-loop
+**1.27.1** — bản đã qua 3 ván thật ở repo thí điểm. Mọi vấp của bạn ghi vào
+`docs/research/so-vap-trien-khai.md` (kho kit) — ĐỪNG tự vá kit.*
+
+## 1 · Cập nhật plugin cho ĐÚNG (hai bẫy đã có người dẫm)
+
+```bash
+# BẪY 1: clone marketplace cũ làm update câm. Luôn pull clone TRƯỚC:
+cd ~/.claude/plugins/marketplaces/acceptance-gate-kit 2>/dev/null && git pull
+claude plugin update acceptance-gate && claude plugin update feature-loop
+```
+- **Kiểm bằng NỘI DUNG, đừng tin số version**: cache phải có
+  `scripts/recheck-evidence.cjs` (đuôi `.cjs`). Số đúng mà ruột cũ → gỡ cài
+  lại (`uninstall` + `install`).
+- **BẪY 2: phiên đang mở giữ skill cũ** — update xong phải MỞ PHIÊN MỚI.
+
+## 2 · Sau khi chép bộ cổng vào repo (acceptance-init) — PHẢI RE-PIN
+
+Chép/cập nhật `scripts/` + `lib/` từ kit vào repo của bạn làm bằng chứng đã
+ký cũ đi (lưới staleness tính chúng là mã đổi). **Chép xong → chạy một làn
+suite tại commit đó → cập nhật `verified_commit` (nghi thức re-pin)** — có
+tiền lệ 4 lần, không cần vòng chấm mới. Không re-pin thì pre-merge đỏ oan.
+
+## 3 · Số kỳ vọng THẬT (đo từ 3 ván — không tô đẹp)
+
+| Đường | Bạn bị gọi | Ghi chú |
+|---|---|---|
+| C — kỹ thuật/backend | **2–3 lần/feature** (Cổng 1 · ký · +1 nếu T3) | ship thẳng sau ký |
+| A — có giá trị người dùng mới | **4 cổng** (Đáng · 1 · ký · UAT) **+ grill** (1–2 lượt hỏi đáp — đây là NỘI DUNG việc của bạn, không phải thuế) **+ phản ứng mắt** khi xem bản chạy | UAT cần ≥1 người chấm không phải bạn |
+
+Thẻ cổng luôn kết bằng khối **👉 VIỆC CỦA BẠN** — chỉ cần đọc khối đó và trả
+lời một câu gộp theo câu mẫu. Số phút KHÔNG phải điền (để 0 nếu bị hỏi).
+
+## 4 · Ba luật ngắn khi vấp
+
+1. **Vấp gì ghi sổ vấp kho kit, đừng tự vá engine** — kể cả lỗi chặn-việc:
+   ghi + báo, sẽ có người quyết. Kit đóng giữa các đợt có chủ đích.
+2. Máy nói **DỪNG** (REJECT lặp / BLOCKED / chờ người) là cơ chế, không phải
+   hỏng — đọc lý do nó in ra rồi quyết, đừng ép chạy tiếp.
+3. **KILL tại Cổng Giá trị là thành công quy trình** — câu trả lời "chưa đủ"
+   mua bằng giá một vòng dựng là món hời. Đội thí điểm vừa làm đúng như vậy.
