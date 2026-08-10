@@ -108,11 +108,13 @@ Quét 2 trục (morphological, thu gọn theo nghi-thức-tương-xứng):
   run-tests.sh` (ca mới VC07+) + bump version 1.39.2 + sync mirror `plugins/`
   (P30) — phạm vi phình quá mức này là điều kiện dừng theo đề bài.
 - Trần 2 vòng chấm; cùng lớp lỗi lần 2 → dừng hỏi owner (luật vòng).
-- Known-limit 1 (gap-probe P1, đã ký nhận): phát-hiện-chạm đọc diff committed
-  (`base...HEAD`) — tamper hồ sơ cũ CHƯA COMMIT không kích hoạt lại luật
-  staleness ở lần chạy local; thẩm quyền merge là CI trên cây committed, nơi
-  mọi thay đổi hoặc vào diff hoặc không tồn tại. Không mở rộng `slug_in_diff`
-  (hàm dùng chung với luật gap-probe).
+- Known-limit 1 (gap-probe P1, đã ký nhận; chữ hẹp lại theo B): phát-hiện-chạm
+  đọc diff committed (`base...HEAD`) — nhưng tamper evidence chưa-commit ở
+  local vẫn bị hook write-time chặn ngay tại chỗ ghi; lỗ chỉ còn là cửa sổ
+  file-đã-sửa-chưa-commit-chưa-ghi-qua-hook (sửa bằng công cụ ngoài agent),
+  và CI trên cây committed là thẩm quyền cuối — mọi thay đổi ở đó hoặc vào
+  diff hoặc không tồn tại. Không mở rộng `slug_in_diff` (hàm dùng chung với
+  luật gap-probe).
 - Known-limit 2 (gap-probe P2): fixture/thư mục `*/_acceptance/<trùng-tên>/`
   ở cây con kéo slug cùng tên vào phạm vi soi (fail-closed, có tiền lệ khai
   trong chính script) — chặn oan chứ không xanh oan; không nới glob.
