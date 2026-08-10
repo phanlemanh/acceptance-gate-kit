@@ -52,18 +52,39 @@ của spec, và dữ liệu ván 3 cho thấy nó CHẠY TỐT: chính vì owner
 giữa dòng mà 2 lỗi nặng bị bắt sớm (nếu xem mock thì overlay lệch không bao
 giờ lộ).
 
-**Nhưng owner đánh hơi đúng một lỗ thật — chỉ là lỗ ở chỗ khác:** khi proto
-== product, design-pass mất "khoảnh khắc kiểm độc lập trước bàn giao" như cái
-tên gợi ra, và trở thành *xem-liên-tục-trong-lúc-dựng*. Hệ quả đo được: câu
-hỏi ĐỦ-DÙNG (C2) không được hỏi ở bất kỳ khoảnh khắc design-pass nào — nó chờ
-tới UAT mới lộ, đắt hơn một nhịp. **Đề xuất (rẻ, không cơ chế mới):**
-design-pass mượn TRƯỚC một câu của UAT — *"anh có dám đưa màn này cho khách
-xem ngay bây giờ không? vì sao chưa?"* — hỏi ở cuối mỗi phiên design-pass.
-Câu đó ở ván 3 sẽ lôi "không rõ ô nào tính tường" + "thiếu cửa sổ/lô gia" ra
-sớm hơn UAT nhiều ngày-công. Kèm việc chữ: đổi cách gọi trong spec — không
-gọi "prototype" nữa khi bậc là real-components; gọi đúng: **phiên mắt-người
-trên vật thật**; và đặt lại tên các bậc thang vật liệu bằng tiếng người (vụ
-"mức 3" owner hiểu một đằng, spec đánh số một nẻo — lỗi đặt tên, ghi sổ).
+**Owner truy tiếp và trúng tâm (amend tại phiên tổng kết): "proto==product
+có nghĩa là đang bỏ qua giai đoạn design cả UX/UI?" — ĐÚNG, và sắc hơn phân
+tích ban đầu của B.** Tách ba thứ bị trộn: (a) THIẾT KẾ UX/UI = hoạt động tư
+duy có chủ đích, có so sánh phương án; (b) PROTOTYPE = phương tiện trò chuyện
+thiết kế; (c) DESIGN-PASS = nghi thức mắt người. Một-mặt-phẳng chỉ nói về
+(b) — vật liệu nên là đồ thật; nó KHÔNG BAO GIỜ nói bỏ (a).
+
+**Ván 3 đã bỏ (a) thật — và vi phạm chính spec S1-D mà không ai kêu:** spec
+đòi "Gate 1 duyệt trên bản bấm được, không duyệt UI bằng chữ"; thực tế UI vào
+phạm vi qua pivot Q4, Gate 1 duyệt trên chữ, UI dựng sau plan (Task 9–13),
+design-pass thoái hoá thành QA-bằng-mắt hậu-build. Mọi quyết định UX do agent
+code quyết NGẦM trong lúc gõ. **Hoá đơn nằm trong biên bản UAT: 3/4 lý do C2
+chết là lỗi THIẾT KẾ thuần — thông tin ("ô nào tính tường"), độ đủ mô hình
+("thiếu cửa sổ/lô gia"), phủ luồng ("không xoá được hallway"). Không lỗi nào
+là lỗi code.**
+
+**Vì sao bị bỏ mà không ai thấy: build rẻ quá** (95 phút cả UI) làm "dựng
+luôn" có vẻ rẻ hơn "thiết kế đã". Hệ luận North Star mới, owner + B cùng rút:
+**khi LÀM rẻ đi trăm lần, giá trị dồn về KHAI — thiết kế chiếm tỉ trọng LỚN
+hơn, vì sai-ở-tầng-ý-định thành loại sai duy nhất còn đắt.**
+
+**Đề xuất sửa (spec/2.1, không cơ chế mới — là UN-SKIP một bước spec đã có):**
+1. Feature chạm UI đường A/B: S1-D chạy ĐÚNG SPEC — khoảnh khắc thiết kế
+   TRƯỚC Gate 1, trên vật liệu thật (skeleton màn bằng component thật — rẻ,
+   95' đã chứng minh), trả lời các câu THIẾT KẾ: màn phải NÓI gì (information
+   design) · mô hình tinh thần đủ chưa · luồng thao tác nào có/không (ô
+   đã-loại-có-ý-thức) — một "grill thiết kế" song sinh với 4-câu-hỏi.
+   Gate 1 duyệt trên bản bấm được như spec vốn viết.
+2. Cuối mỗi phiên design-pass mượn trước câu UAT: "anh có dám đưa màn này cho
+   khách xem NGAY BÂY GIỜ không? vì sao chưa?" — diễn tập C2 sớm.
+3. Việc chữ: bỏ từ "prototype" khi bậc real-components (gọi: phiên mắt-người
+   trên vật thật); đặt tên thang vật liệu bằng tiếng người (vụ "mức 3" hiểu
+   lệch — lỗi đặt tên, đã ghi sổ).
 
 ## 4 · Số tổng GĐ2 (đã kiểm từng con số)
 
