@@ -9260,6 +9260,38 @@ else
   fail "P184 pin phantom bi chan trong clone day du, pin that van sach"
 fi
 
+# ── P189: khuon YOUR-MOVE-BLOCK-TEMPLATE khai du 4 chuan (chip (2) kit 2.1) ──
+# Khoi "VIEC CUA ANH" la thanh phan CUNG cua khuon trinh-nguoi; khuon song MOT
+# cho giua marker trong ban luat. 4 chuan: 3 ve lam-gi/o-dau/tra-loi-dang-gi ·
+# mau gop MOT dong · chi-bao "khong can lam gi" · cam cau tu tu mang dau hoi.
+run "P189 khuon VIEC-CUA-ANH: 3 ve + mau gop 1 dong + chi-bao + cam-dau-hoi (E6)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+law = (Path(sys.argv[1]) / "skills/acceptance/references/human-facing-language.md").read_text(encoding="utf-8")
+RX = re.compile(r"<!-- <<<YOUR-MOVE-BLOCK-TEMPLATE -->\n([\s\S]*?)<!-- YOUR-MOVE-BLOCK-TEMPLATE>>> -->")
+m = RX.search(law)
+assert m, "KHONG rut duoc khoi YOUR-MOVE-BLOCK-TEMPLATE qua marker"
+tpl = m.group(1)
+assert "👉 VIỆC CỦA ANH" in tpl, "khuon thieu nhan khoi 👉 VIỆC CỦA ANH"
+for ve in ("làm gì", "ở đâu", "trả lời dạng"):
+    assert ve in tpl, "khuon thieu ve: " + ve
+mau = [l for l in tpl.splitlines() if "Trả lời mẫu" in l]
+assert len(mau) == 1, "khuon phai co dung 1 dong 'Trả lời mẫu' (gop, MOT dong)"
+assert "một dòng" in mau[0], "dong mau phai tuyen bo 'một dòng'"
+# 2 luat di kem nam trong CUNG section (tu khoi den heading ke tiep)
+sec_end = law.find("\n## ", m.end())
+sec = law[m.start():sec_end if sec_end > 0 else len(law)]
+assert "không cần làm gì" in sec, "thieu luat chi-bao 'không cần làm gì'"
+assert "câu tu từ" in sec and "dấu hỏi" in sec, "thieu luat cam cau tu tu mang dau hoi"
+# chieu do: mutant bo nho go SACH chuoi chi-bao -> phep do phai do
+mut = sec.replace("không cần làm gì", "")
+assert mut != sec, "dot bien khong tac dung — chuoi neo da doi"
+print("MUTANT: da go sach chuoi chi-bao trong ban sao bo nho")
+assert "không cần làm gì" not in mut, "phep do khong phan biet duoc mutant"
+print("P189 OK (khuon du 4 chuan; mutant bi bat)")
+PY
+
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
   echo "ONLY_BLOCK=$ONLY_BLOCK khong khop khoi nao — go sai ten? (fail de khong xanh gia)"

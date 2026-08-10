@@ -119,6 +119,37 @@ Hai harness chép nguyên văn, không tự diễn đạt.
 Điểm quyết định vượt ngưỡng N5 thì kèm hình; chọn cách vẽ bằng bảng tra `DECISION-DIAGRAM-SURFACES` theo mặt phẳng đang trình, và kiểm lại bằng phép thử nhìn-thấy-hình.
 <!-- LOOP-PICTURE-CLAUSE>>> -->
 
+## Khối "👉 VIỆC CỦA ANH" — lời-gọi-hành-động chuẩn
+
+Đề bài gốc: sổ vấp 2026-08-10 (hành vi owner #8) — việc-cần-làm rải giữa thân
+bài, câu tu từ lẫn câu hỏi thật, không nói trả-lời-dạng-gì. Chuẩn dưới đây áp
+cho MỌI tin trình cho người tại điểm quyết định: thẻ cổng render khối bằng máy
+(`scripts/gate-card.js`, cả ba mode), tin nhắn do phiên viết theo khuôn:
+
+<!-- <<<YOUR-MOVE-BLOCK-TEMPLATE -->
+👉 VIỆC CỦA ANH
+1. <làm gì — một hành động, chủ ngữ là người> — ở đâu: <phiên/thẻ/file cần mở> — trả lời dạng: «<khuôn câu trả lời>»
+2. <mục kế, cùng ba vế; mỗi việc một dòng, đúng thứ tự cần trả lời>
+Trả lời mẫu (một dòng, gộp đủ mọi mục): «<câu chép được một phát>»
+<!-- YOUR-MOVE-BLOCK-TEMPLATE>>> -->
+
+Luật đi kèm khuôn:
+
+- Ba vế là bắt buộc từng mục: làm gì · ở đâu · trả lời dạng gì. Câu mẫu
+  trả-lời-gộp nằm trên MỘT dòng.
+- Tin CHỈ-BÁO — không có việc cho người — vẫn kết bằng khối, đúng một dòng:
+  `👉 VIỆC CỦA ANH: không cần làm gì — <máy đang làm gì tiếp>`.
+- CẤM câu tu từ mang dấu hỏi: mọi dấu hỏi trong tin phải thuộc một mục việc
+  có "trả lời dạng" khai sẵn.
+
+Câu dưới đây là bản gốc DUY NHẤT của điều khoản mời-cổng. Bốn bên dùng (vòng
+lặp tính năng hai harness, skill acceptance, lệnh thẻ) chép nguyên văn, không
+tự diễn đạt.
+
+<!-- <<<GATE-INVITE-CLAUSE -->
+Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng; tin chỉ-báo ghi rõ "không cần làm gì"; cấm câu tu từ mang dấu hỏi.
+<!-- GATE-INVITE-CLAUSE>>> -->
+
 ## Từ mới feature này đưa vào từ điển
 
 Mỗi từ dưới đây phải có mục trong `CONTEXT.md` — nếu không, chính kit vi phạm
