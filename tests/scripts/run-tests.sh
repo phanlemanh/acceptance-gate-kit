@@ -1787,7 +1787,10 @@ same VC10-note-count 1 "$(printf '%s\n' "$out10" | grep -cF "$STALE_NOTE")"
 
 echo "VC10b base là orphan (diff KHÔNG dựng được dù --base có mặt) -> cùng màu fallback, không tắt im"
 R="$T/vc10b"; mk_mixed_repo "$R" clean 0 real
-OB="$(git -C "$R" commit-tree "$(git -C "$R" mktree </dev/null)" -m orphan </dev/null)"
+# $GIT_ID bắt buộc: commit-tree đòi ident; CI không có user.email global nên
+# thiếu nó là "empty ident name" → OB rỗng → base không resolve → exit 2 oan
+# (đã cắn thật ở run 31383617449 — local xanh vì máy dev có identity).
+OB="$(git $GIT_ID -C "$R" commit-tree "$(git -C "$R" mktree </dev/null)" -m orphan </dev/null)"
 git -C "$R" branch orphanbase "$OB"
 out10b="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base orphanbase 2>&1)"; check VC10b 1 $?
 same VC10b-stale-count 2 "$(printf '%s\n' "$out10b" | grep -c 'evidence is stale')"
