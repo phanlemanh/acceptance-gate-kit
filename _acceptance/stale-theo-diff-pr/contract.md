@@ -97,7 +97,7 @@ Quét 2 trục (morphological, thu gọn theo nghi-thức-tương-xứng):
 ## Notes
 
 - Vì sao KHÔNG có code mới ở tầng parse (cite theo yêu cầu B): tái dùng
-  `slug_in_diff()` + khối diff-scope hoisted sẵn có — bài học ĐỢT 1 W-spec
+  `slug_in_diff()` + khối diff-scope hoisted sẵn có — bài học ĐỢT 1 `W-spec`
   "khuôn-giải-sai là tự viết parser thứ ba thay vì dùng hàm chuẩn"; một nguồn
   ngữ nghĩa slug↔diff cho cả gap-probe lẫn staleness, lệch nhau là hết đường.
 - Lưới an toàn giữ nguyên sau đổi: PR đổi code mà KHÔNG mang hồ sơ nào →
