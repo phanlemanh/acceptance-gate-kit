@@ -5,7 +5,7 @@ slug: khoi-viec-cua-anh
 owner: phanlemanh@gmail.com
 risk_tier: T2      # đụng scripts/gate-card.js + SKILL/references — không khớp t1_skip_globs, không khớp t3_paths
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-08-10
 time_human_minutes: {gate1: 0}   # owner tuyên không đo phút — 0 có chủ đích
