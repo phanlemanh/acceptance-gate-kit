@@ -1,13 +1,19 @@
-# Provenance — 3 thẻ bằng chứng cho E7 (AC-7 judgment)
+# Xuất xứ ba thẻ bằng chứng (đầu vào của E7)
 
-Cả ba file HTML dưới đây do CHÍNH `scripts/gate-card.js` của cây đang kiểm
-render từ fixture code-sinh (cùng khuôn case P185/P186/P187 trong
-tests/plugins/run-tests.sh), KHÔNG viết tay — luật thước-gắn-vào-vật-được-giao,
-điểm B cài ở mốc 3.
+Ba file `p185-card-gate1.html`, `p186-card-gate2.html`,
+`p187-card-gate2-reject.html` KHÔNG viết tay: chúng là bản render của chính
+`scripts/gate-card.js` trong cây này, sinh bằng
 
-- sinh tại sha: fc470f70856142bbf9cdb149f1766fe399cc30bd
-- ngày: 2026-08-10T15:49:25Z
-- lệnh: `node scripts/gate-card.js --root <fixture-ws> --slug fx` (fixture dựng bằng printf trong cùng lần chạy)
-- p185-card-gate1.html — mode Cổng 1 (status draft)
-- p186-card-gate2.html — mode Cổng 2 ký được (PENDING-JUDGMENT, đủ 4 loại việc-người)
-- p187-card-gate2-reject.html — mode Cổng 2 không ký được (REJECT)
+```
+bash tests/plugins/fixtures/render-viec-cua-anh-cards.sh _acceptance/khoi-viec-cua-anh/evidence
+```
+
+Kịch bản fixture nằm ở `tests/plugins/fixtures/viec-cua-anh-scenarios.sh` —
+CÙNG file mà case P185/P186/P186b/P187 source, nên máy đo và hội đồng chấm
+không thể trôi khỏi nhau.
+
+Quan hệ này có RĂNG, không chỉ là lời văn: case **P190** sinh lại ba file trong
+chính lần chạy suite rồi so **byte-đối-byte** với ba file check-in; lệch là đỏ,
+kèm chiều đỏ đổi-một-byte để chứng minh phép so phân biệt được.
+
+Sinh lần cuối tại: 9b595d5e5888c9b192bcd359d22e021ded190d74 (2026-08-10T22:45:40Z)

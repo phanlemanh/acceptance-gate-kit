@@ -13,15 +13,16 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/gate-card.js, tests/plugins/run-tests.sh]
     expected: >
-      exit 0; stdout có "PASS: P185" — fixture hồ sơ Cổng 1 code-sinh, render
-      bằng gate-card.js THẬT trên CẢ HAI nhánh Given (status draft VÀ
-      approved — gap-probe F2): mỗi bản HTML chứa chuỗi "👉 VIỆC CỦA ANH",
-      đúng MỘT mục quyết đủ 3 vế (ghim ba nhãn vế), dòng "Trả lời mẫu" nằm
-      trên MỘT dòng text sau khi strip tag inline (không thẻ block/br chen
-      giữa — F5), và QUAN HỆ vị trí: chuỗi khối đứng SAU thân thẻ và TRƯỚC
-      hàng nút .foot trong cùng HTML (assert offset, không chỉ chuỗi-có-mặt —
-      F4); CHIỀU ĐỎ cùng fixture: bản sao gate-card.js bị gỡ khối (case in
-      xác-nhận-đột-biến) → render mất chuỗi ghim, case phải bắt được.
+      exit 0; stdout có "PASS: P185" — fixture hồ sơ Cổng 1 dựng bằng KỊCH BẢN
+      DÙNG CHUNG với bộ sinh thẻ bằng chứng (kèm đối chứng fixture-mang-đúng-status),
+      render bằng gate-card.js THẬT trên CẢ HAI nhánh Given (draft VÀ approved): mỗi
+      bản HTML chứa "👉 VIỆC CỦA ANH", MA TRẬN mục × vế — đúng MỘT mục và mục đó đủ
+      cả ba nhãn vế (đếm trên TỪNG mục, không phải cả khối), dòng "Trả lời mẫu" nằm
+      trên MỘT dòng text sau strip tag inline Ở DẠNG KHUÔN CÓ CHỖ TRỐNG (có "___",
+      CẤM chuỗi điền-sẵn kiểu «Duyệt»/Đạt/Ký), và QUAN HỆ vị trí: khối đứng SAU thân
+      thẻ, TRƯỚC hàng nút .foot trong cùng HTML; CHIỀU ĐỎ cùng fixture: bản sao
+      gate-card.js bị gỡ khối (in xác-nhận-đột-biến, kèm chốt mutant-phải-chạy-được:
+      exit 0 + thẻ vẫn render) → case phải bắt được.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E2
@@ -30,14 +31,16 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/gate-card.js, tests/plugins/run-tests.sh]
     expected: >
-      exit 0; stdout có "PASS: P186" — fixture Cổng 2 code-sinh verdict
-      PENDING-JUDGMENT đủ CẢ BỐN loại việc-người (ngoài-hợp-đồng qua
-      review-findings.md, judgment UNCERTAIN chưa override, Out of scope ≥1
-      bullet, quyết định treo sau seal) → khối liệt đủ từng mã/nhãn (ghim mã
-      eval judgment + nhãn Ngoài-1 + mục phê + mục cắt + mục ký) và dòng
-      "Trả lời mẫu" nằm trên MỘT dòng text sau strip tag inline chứa đủ các
-      mã đó (F5); mutant gỡ nhánh liệt kê trong bản sao (in
-      xác-nhận-đột-biến) → thiếu mã, case đỏ ghim.
+      exit 0; stdout có "PASS: P186" — fixture Cổng 2 PENDING-JUDGMENT đủ CẢ BỐN
+      loại việc-người, dựng bằng kịch bản DÙNG CHUNG: PHẦN MỤC của khối (không tính
+      dòng mẫu) liệt đủ mã eval judgment + Ngoài-1 + Treo-1 + cắt/hoãn + ký, MA TRẬN
+      mục × vế (mỗi mục đủ 3 vế), dòng "Trả lời mẫu" MỘT dòng ở dạng khuôn có ≥5 chỗ
+      trống và CẤM chuỗi điền-sẵn (Đạt · ghi Known limits · mở hợp đồng mới · đồng ý
+      cắt · phê hết · "; Ký»"), cộng QUAN HỆ: mỗi mã mà khối trỏ tới phải HIỆN trong
+      chính khối được trỏ (E9 trong "Việc chỉ mình bạn quyết được", Treo-1 trong
+      "Quyết định CHƯA duyệt", Ngoài-1 trong "Ngoài hợp đồng"); HAI mutant (gỡ nhánh
+      liệt kê; gỡ mã eval khỏi item thân thẻ) đều in xác-nhận-đột-biến, đều phải bị
+      bắt, đều qua chốt mutant-phải-chạy-được.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E3
@@ -46,12 +49,15 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/gate-card.js, tests/plugins/run-tests.sh]
     expected: >
-      exit 0; stdout có "PASS: P187" — fixture Cổng 2 code-sinh trên CẢ BA
-      nhánh Given (verdict REJECT, BLOCKED, và verdict lạ — gap-probe F2):
-      khối chứa "không cần làm gì" + câu máy-đang-làm-gì-tiếp đúng từng
-      verdict, KHÔNG chứa mục đòi trả lời (không "Trả lời mẫu"); ĐỐI CHỨNG
-      DƯƠNG đổi-giá-trị trên CÙNG fixture: nâng verdict PASS → khối đổi sang
-      mục Ký, chuỗi "không cần làm gì" biến mất — hai chiều cùng một vật.
+      exit 0; stdout có "PASS: P187" — fixture Cổng 2 dựng bằng kịch bản DÙNG CHUNG
+      trên CẢ BA nhánh Given (REJECT, BLOCKED, verdict lạ) kèm đối chứng
+      fixture-mang-đúng-verdict: khối chứa "không cần làm gì" + câu
+      máy-đang-làm-gì-tiếp ĐÚNG của verdict đó VÀ vắng câu của hai verdict kia (quan
+      hệ verdict→câu, không phải ba nhánh assert y hệt), KHÔNG chứa mục đòi trả lời;
+      mutant gộp ba câu thành một (in xác-nhận-đột-biến, có chốt
+      mutant-phải-chạy-được) phải bị bắt; ĐỐI CHỨNG DƯƠNG đổi-giá-trị trên CÙNG
+      fixture: nâng verdict PASS → khối đổi sang mục Ký, chuỗi chỉ-báo biến mất khỏi
+      khối.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E4
@@ -61,10 +67,11 @@ evals:
     paths: [scripts/gate-card.js, tests/plugins/run-tests.sh]
     expected: >
       exit 0; stdout có "PASS: P186b" — dòng PASS RIÊNG định danh nhánh
-      PASS-thuần-máy (gap-probe F1: không nấp sau pin của E2): fixture Cổng 2
-      verdict PASS, 0 việc-người → khối VẪN hiện, đúng MỘT mục ký-hay-trả đủ
-      3 vế — kèm mutant gỡ mục ký trên chính fixture rỗng (in
-      xác-nhận-đột-biến) → đỏ ghim, chống lớp khối-rỗng-thì-biến-mất.
+      PASS-thuần-máy (không nấp sau pin của E2): fixture Cổng 2 verdict PASS, 0
+      việc-người (kịch bản dùng chung, có đối chứng không còn hồ sơ việc-người) →
+      khối VẪN hiện, đúng MỘT mục ký-hay-trả và mục đó đủ cả ba nhãn vế — kèm mutant
+      gỡ mục ký trên chính fixture rỗng (in xác-nhận-đột-biến, có chốt
+      mutant-phải-chạy-được) → đỏ ghim, chống lớp khối-rỗng-thì-biến-mất.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E5
@@ -77,16 +84,20 @@ evals:
       - codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md
       - skills/acceptance/SKILL.md
       - commands/acceptance-card.md
+      - codex/acceptance-gate/skills/acceptance/SKILL.md
+      - codex/acceptance-gate/skills/acceptance-card/SKILL.md
       - tests/plugins/run-tests.sh
     expected: >
-      exit 0; stdout có "PASS: P188" — round-trip: rút câu điều khoản qua cặp
-      marker GATE-INVITE-CLAUSE từ bản luật (reader = regex marker, đối chứng
-      dương: rút được và không rỗng), so KHỚP TỪNG KÝ TỰ với 4 bên chép
-      (feature-loop SKILL, codex feature-loop SKILL, acceptance SKILL,
-      commands/acceptance-card.md) — lệch BẤT KỲ bản nào là đỏ; đột biến bộ
-      nhớ đổi 1 ký tự ít nhất 1 trong 4 bản chép (in xác-nhận-đột-biến) →
-      phép so phải đỏ ĐÍCH DANH đường dẫn bản lệch trong thông điệp assert
-      (yêu cầu B mốc 1).
+      exit 0; stdout có "PASS: P188" — rút câu điều khoản qua marker
+      GATE-INVITE-CLAUSE và danh sách site nguồn qua GATE-INVITE-SITES (đối chứng
+      dương: rút được, không rỗng, một dòng, ≥4 site), rồi SUY tập bản chép TỪ MẶT
+      PHẲNG — mọi bản dựng dưới plugins/ và overlay cùng đuôi đường dẫn dưới codex/
+      (sanity: ≥3 bản suy ra) — so KHỚP TỪNG KÝ TỰ ở MỌI lần xuất hiện, cộng luật
+      đếm "bản dựng không ít bản chép hơn nguồn của nó"; BA chiều đỏ đều in
+      xác-nhận-đột-biến và phải đỏ ĐÍCH DANH: (1) lệch đúng bản chép thứ 2 trong một
+      file, (2) gỡ sạch clause khỏi một bản suy ra — đúng lỗ overlay Codex của
+      S4-r2, (3) gỡ đúng một trong nhiều bản chép của một bản dựng → luật đếm phải
+      kêu dù phép so từng-lần im.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E6
@@ -97,11 +108,12 @@ evals:
       - skills/acceptance/references/human-facing-language.md
       - tests/plugins/run-tests.sh
     expected: >
-      exit 0; stdout có "PASS: P189" — khối YOUR-MOVE-BLOCK-TEMPLATE rút qua
-      marker khai đủ 4 chuẩn (ghim: ba nhãn vế làm-gì/ở-đâu/trả-lời-dạng-gì ·
-      "Trả lời mẫu" một dòng · "không cần làm gì" · luật cấm câu tu từ mang
-      dấu hỏi); mutant bộ nhớ gỡ dòng chỉ-báo "không cần làm gì" (in
-      xác-nhận-đột-biến) → case đỏ ghim tên chuẩn thiếu.
+      exit 0; stdout có "PASS: P189" — checker THẬT dạng hàm check(text): chạy trên
+      bản luật (đối chứng dương: 0 lỗi) rồi CHẠY LẠI trên 5 bản đột biến, mỗi bản
+      phá đúng một chuẩn trong NĂM (ba nhãn vế · "Trả lời mẫu" một dòng · khuôn có
+      chỗ trống + cấm-điền-sẵn · "không cần làm gì" · cấm câu tu từ mang dấu hỏi);
+      mỗi mutant in xác-nhận-đột-biến và check() phải đỏ ghim đúng tên chuẩn thiếu —
+      không còn tautology str.replace của round 1.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E7
@@ -123,11 +135,13 @@ evals:
       Cổng 2 không ký được) VÀ hai khối khuôn lời-mời trong bản luật đính kèm
       (YOUR-MOVE-BLOCK-TEMPLATE + GATE-INVITE-CLAUSE — gap-probe F3) bằng mắt
       một người quyết KHÔNG đọc code: mỗi mục có nói rõ làm gì, ở đâu, trả lời
-      dạng gì không; câu mẫu trả-lời-gộp có nằm trên một dòng và
-      chép-được-ngay không; thẻ không-ký-được có nói rõ "không cần làm gì"
-      không; khuôn lời-mời tự nó có đủ dễ hiểu để một phiên khác viết đúng tin
-      mời không; có câu tu từ mang dấu hỏi nào lọt không (N1–N6)?
+      dạng gì không; mã tra cứu mà khối trỏ tới (mã eval, Ngoài-n, Treo-n) có
+      hiện ngay tại khối được trỏ để tìm được không; câu mẫu trả-lời-gộp có
+      nằm trên một dòng, ở dạng KHUÔN CÓ CHỖ TRỐNG và KHÔNG điền sẵn lựa chọn
+      thay người không; thẻ không-ký-được có nói rõ "không cần làm gì" không;
+      khuôn lời-mời tự nó có đủ dễ hiểu để một phiên khác viết đúng tin mời
+      không; có câu tu từ mang dấu hỏi nào lọt không (N1–N6)?
     expected: >
-      PASS khi cả ba thẻ VÀ khuôn lời-mời đạt đủ năm ý của câu hỏi;
+      PASS khi cả ba thẻ VÀ khuôn lời-mời đạt đủ sáu ý của câu hỏi;
       UNCERTAIN/FAIL nêu đích danh thẻ/khối + mục vi phạm + bằng-chứng-thiếu.
     evidence_required: [judged_by, verdict, rationale]

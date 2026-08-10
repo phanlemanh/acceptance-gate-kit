@@ -130,13 +130,23 @@ cho MỌI tin trình cho người tại điểm quyết định: thẻ cổng re
 👉 VIỆC CỦA ANH
 1. <làm gì — một hành động, chủ ngữ là người> — ở đâu: <phiên/thẻ/file cần mở> — trả lời dạng: «<khuôn câu trả lời>»
 2. <mục kế, cùng ba vế; mỗi việc một dòng, đúng thứ tự cần trả lời>
-Trả lời mẫu (một dòng, gộp đủ mọi mục): «<câu chép được một phát>»
+Trả lời mẫu (một dòng, điền vào chỗ trống): «<mã mục 1>: ___; <mã mục 2>: ___»
 <!-- YOUR-MOVE-BLOCK-TEMPLATE>>> -->
 
 Luật đi kèm khuôn:
 
 - Ba vế là bắt buộc từng mục: làm gì · ở đâu · trả lời dạng gì. Câu mẫu
   trả-lời-gộp nằm trên MỘT dòng.
+- **Câu mẫu là KHUÔN DẠNG có chỗ trống, KHÔNG phải câu trả lời điền sẵn.** Máy
+  nêu mã mục và các ngả chọn được; máy KHÔNG BAO GIỜ điền sẵn lựa chọn, verdict
+  hay chữ "đồng ý/Đạt/Ký" thay người — kể cả khi chính máy đã đề xuất một ngả ở
+  chỗ khác trên cùng trang. Vì sao đặt bất biến ở đây thay vì sửa từng bộ dựng:
+  kit khoá không cho máy GỌI thao tác cổng (ADR 0002), nên để máy viết sẵn câu
+  TRẢ LỜI của người tại cổng là vòng qua chính khoá đó — đường rẻ nhất cho một
+  người đang mệt vòng lặp là dán nguyên dòng, và dòng đó có nghĩa "đồng ý mọi
+  thứ + ký". Ca thật: thẻ Cổng 2 của chip khối-việc-của-anh từng render
+  «Ngoài-1 ghi Known limits; E9 Đạt; đồng ý cắt; phê hết quyết định treo; Ký»
+  trong khi E9 là mục máy vừa tự khai "chưa chắc, cần mắt người" (S4-r2).
 - Tin CHỈ-BÁO — không có việc cho người — vẫn kết bằng khối, đúng một dòng:
   `👉 VIỆC CỦA ANH: không cần làm gì — <máy đang làm gì tiếp>`.
 - CẤM câu tu từ mang dấu hỏi: mọi dấu hỏi trong tin phải thuộc một mục việc
@@ -147,8 +157,25 @@ lặp tính năng hai harness, skill acceptance, lệnh thẻ) chép nguyên vă
 tự diễn đạt.
 
 <!-- <<<GATE-INVITE-CLAUSE -->
-Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng; tin chỉ-báo ghi rõ "không cần làm gì"; cấm câu tu từ mang dấu hỏi.
+Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người); tin chỉ-báo ghi rõ "không cần làm gì"; cấm câu tu từ mang dấu hỏi.
 <!-- GATE-INVITE-CLAUSE>>> -->
+
+Danh sách dưới đây là các mặt mời-cổng NGUỒN — phạm vi do người quyết, nên nó
+được khai tay. Phần dễ trôi thì KHÔNG khai tay: phép đo tự suy mọi bản dựng
+dưới `plugins/` và mọi overlay cùng đuôi đường dẫn dưới `codex/` của từng mục,
+rồi đòi bản nào cũng chứa điều khoản. Lỗ đã dẫm (S4-r2): bốn bản Claude được
+sửa, hai overlay Codex tương ứng thì không — mà overlay GHI ĐÈ bản Claude
+trong gói Codex, nên gói phát hành mời cổng không chịu luật, còn phép đo dùng
+danh sách tay thì mù vĩnh viễn với khoảng trống đó.
+
+<!-- <<<GATE-INVITE-SITES -->
+skills/acceptance/SKILL.md
+commands/acceptance-card.md
+feature-loop/skills/feature-loop/SKILL.md
+codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md
+codex/acceptance-gate/skills/acceptance/SKILL.md
+codex/acceptance-gate/skills/acceptance-card/SKILL.md
+<!-- GATE-INVITE-SITES>>> -->
 
 ## Từ mới feature này đưa vào từ điển
 

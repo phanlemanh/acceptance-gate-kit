@@ -6161,8 +6161,9 @@ run "P150 required_evidence tren the + report cu render y het ban base" \
     #   (1) khoi "👉 VIỆC CỦA ANH"            -> P185/P186/P186b/P187
     #   (2) ma tra cuu truoc cau hoi judgment -> P186 (assert QUAN HE ma-hien-trong-khoi-duoc-tro)
     #   (3) nhan "Treo-<n> · " truoc quyet dinh treo -> P186
+    #   (4) nhan "Ngoài-<n> · " truoc finding ngoai hop dong -> P186
     # Khi base vuot qua chip (2), cac phep loc thanh no-op vo hai.
-    norm() { grep -v "VIỆC CỦA ANH" | sed -E "s/E[A-Za-z0-9]+ \(câu hỏi cần mắt người\) · //g; s/Treo-[0-9]+ · //g"; }
+    norm() { grep -v "VIỆC CỦA ANH" | sed -E "s/E[A-Za-z0-9]+ \(câu hỏi cần mắt người\) · //g; s/Treo-[0-9]+ · //g; s/Ngoài-[0-9]+ · //g"; }
     A_CMP=$(printf "%s" "$A" | norm)
     B_CMP=$(printf "%s" "$B" | norm)
     [ "$A_CMP" = "$B_CMP" ] || { echo "report cu render KHAC ban base (ngoai 3 thay doi da khai) — duong doc-cu vo"; exit 1; }
@@ -9289,17 +9290,46 @@ for ve in ("làm gì", "ở đâu", "trả lời dạng"):
 mau = [l for l in tpl.splitlines() if "Trả lời mẫu" in l]
 assert len(mau) == 1, "khuon phai co dung 1 dong 'Trả lời mẫu' (gop, MOT dong)"
 assert "một dòng" in mau[0], "dong mau phai tuyen bo 'một dòng'"
-# 2 luat di kem nam trong CUNG section (tu khoi den heading ke tiep)
-sec_end = law.find("\n## ", m.end())
-sec = law[m.start():sec_end if sec_end > 0 else len(law)]
-assert "không cần làm gì" in sec, "thieu luat chi-bao 'không cần làm gì'"
-assert "câu tu từ" in sec and "dấu hỏi" in sec, "thieu luat cam cau tu tu mang dau hoi"
-# chieu do: mutant bo nho go SACH chuoi chi-bao -> phep do phai do
-mut = sec.replace("không cần làm gì", "")
-assert mut != sec, "dot bien khong tac dung — chuoi neo da doi"
-print("MUTANT: da go sach chuoi chi-bao trong ban sao bo nho")
-assert "không cần làm gì" not in mut, "phep do khong phan biet duoc mutant"
-print("P189 OK (khuon du 4 chuan; mutant bi bat)")
+# CHECKER THAT, goi lai duoc (S4-r2): chieu do cu la `sec.replace(...)` roi
+# assert chuoi vang — mot tautology cua str.replace, khong chay lai phep kiem.
+# Nay dinh nghia check(text) roi goi voi ban that VA voi tung ban dot bien.
+def check(text):
+    errs = []
+    mm = RX.search(text)
+    if not mm:
+        return ["KHONG rut duoc khoi YOUR-MOVE-BLOCK-TEMPLATE qua marker"]
+    body = mm.group(1)
+    if "👉 VIỆC CỦA ANH" not in body: errs.append("khuon thieu nhan khoi 👉 VIỆC CỦA ANH")
+    for ve in ("làm gì", "ở đâu", "trả lời dạng"):
+        if ve not in body: errs.append("khuon thieu ve: " + ve)
+    mau_lines = [l for l in body.splitlines() if "Trả lời mẫu" in l]
+    if len(mau_lines) != 1: errs.append("khuon phai co dung 1 dong 'Trả lời mẫu' (gop, MOT dong)")
+    elif "một dòng" not in mau_lines[0]: errs.append("dong mau phai tuyen bo 'một dòng'")
+    if "___" not in body: errs.append("khuon mau khong co cho trong ___")
+    e = text.find("\n## ", mm.end())
+    s = text[mm.start():e if e > 0 else len(text)]
+    if "không cần làm gì" not in s: errs.append("thieu luat chi-bao 'không cần làm gì'")
+    if not ("câu tu từ" in s and "dấu hỏi" in s): errs.append("thieu luat cam cau tu tu mang dau hoi")
+    if "KHÔNG BAO GIỜ điền sẵn" not in s: errs.append("thieu luat cam may dien san lua chon thay nguoi")
+    return errs
+assert check(law) == [], "ban that do oan: " + repr(check(law))   # doi chung DUONG
+print("P189 DUONG-OK (khuon du 5 chuan tren cay that)")
+# MA TRAN dot bien: moi chuan mot ban sao hong, moi ban CHAY LAI check() that.
+MUTANTS = [
+    ("chi-bao", lambda s: s.replace("không cần làm gì", "vẫn cần xử lý"), "thieu luat chi-bao"),
+    ("cam-dau-hoi", lambda s: s.replace("câu tu từ", "câu trần thuật"), "cam cau tu tu"),
+    ("cam-dien-san", lambda s: s.replace("KHÔNG BAO GIỜ điền sẵn", "có thể điền sẵn"), "cam may dien san"),
+    ("cho-trong", lambda s: s.replace("___", "Duyệt"), "cho trong ___"),
+    ("ve-o-dau", lambda s: s.replace("ở đâu:", "chỗ:"), "thieu ve: ở đâu"),
+]
+for name, f, needle in MUTANTS:
+    mutated = f(law)
+    assert mutated != law, "dot bien '" + name + "' khong tac dung — chuoi neo da doi"
+    got = check(mutated)
+    assert any(needle in x for x in got), \
+        "MUTANT '" + name + "' khong bi bat (cho '" + needle + "'), checker tra: " + repr(got)
+    print("MUTANT-" + name + ": ban luat hong -> check() DO ghim '" + needle + "'")
+print("P189 OK (5 chuan, 5 mutant deu chay lai checker that va deu bi bat)")
 PY
 
 # ── P185: khoi VIEC-CUA-ANH tren the Cong 1 (2 nhanh status: draft + approved) ──
@@ -9309,36 +9339,15 @@ PY
 echo "P185 khoi VIEC-CUA-ANH the Cong 1: 3 ve + mau 1 dong + vi tri truoc foot (E1)"
 P185OK=1
 P185WS="$(mktemp -d)"
-mkdir -p "$P185WS/_acceptance/fx"
-cat > "$P185WS/_acceptance/fx/contract.md" <<'EOF'
----
-schema_version: 1
-feature: fx demo
-slug: fx
-risk_tier: T2
-status: draft
----
-
-## Criteria
-
-- AC-1: Given a, When b, Then c.
-
-## Coverage
-
-- Trục duy nhất: đủ.
-
-## Out of scope
-
-- Hoãn x.
-EOF
+# Kich ban fixture doc CHUNG voi bo sinh the bang chung (S4-r2: hai ban heredoc
+# chep tay tung troi khoi nhau ma ca hai phep do van xanh).
+. "$ROOT/tests/plugins/fixtures/viec-cua-anh-scenarios.sh"
 for P185ST_CASE in draft approved; do
-  python3 - "$P185WS/_acceptance/fx/contract.md" "$P185ST_CASE" <<'PYX'
-import sys, re
-p, st = sys.argv[1], sys.argv[2]
-t = open(p, encoding="utf-8").read()
-t = re.sub(r"^status: .*$", "status: " + st, t, count=1, flags=re.M)
-open(p, "w", encoding="utf-8").write(t)
-PYX
+  vca_scenario "gate1-$P185ST_CASE" "$P185WS" || { echo "     dung fixture that bai ($P185ST_CASE)"; P185OK=0; }
+  # doi chung: buoc dung fixture co HIEU LUC (status dung nhanh dang do), khong
+  # thi ca hai vong lap chi do lai mot trang thai ma khong ai biet.
+  grep -q "^status: $P185ST_CASE\$" "$P185WS/_acceptance/fx/contract.md" \
+    || { echo "     fixture KHONG mang status=$P185ST_CASE — nhanh nay chua bao gio duoc do"; P185OK=0; }
   P185OUT="$(node "$ROOT/scripts/gate-card.js" --root "$P185WS" --slug fx 2>&1)" || { echo "     exit khac 0 (status=$P185ST_CASE)"; P185OK=0; }
   printf '%s' "$P185OUT" | node -e '
 const html = require("fs").readFileSync(0, "utf8");
@@ -9350,11 +9359,18 @@ const iBody = html.indexOf("Cổng 1");
 const iFoot = html.indexOf("class=\"foot\"");
 if (!(iBody >= 0 && iBody < iYm && iYm < iFoot)) die("khoi sai vi tri (phai sau than the, truoc foot)");
 const seg = html.slice(iYm, iFoot);
-for (const ve of ["làm gì:", "ở đâu:", "trả lời dạng:"]) if (!seg.includes(ve)) die("thieu ve: " + ve);
-if ((seg.match(/làm gì:/g) || []).length !== 1) die("Cong 1 phai co dung MOT muc quyet");
+// MA TRAN muc x ve (S4-r2): dem tren TUNG muc, khong phai "3 chuoi co mat o dau
+// do trong khoi" — mot muc du 3 ve va mot muc rong van thoa phep dem cu.
+const items = [...seg.matchAll(/<p class="li">([\s\S]*?)<\/p>/g)].map(m => m[1])
+  .filter(x => !x.includes("Trả lời mẫu"));
+if (items.length !== 1) die("Cong 1 phai co dung MOT muc quyet, thay " + items.length);
+items.forEach((it, k) => {
+  for (const ve of ["làm gì:", "ở đâu:", "trả lời dạng:"]) if (!it.includes(ve)) die("muc " + (k + 1) + " thieu ve: " + ve);
+});
 const mau = seg.match(/<p class="li">Trả lời mẫu[^<]*<\/p>/);
 if (!mau) die("dong Tra loi mau khong phai MOT dong text tron (tag chen giua hoac thieu)");
-if (!/«Duyệt»/.test(mau[0])) die("mau thieu dang tra loi «Duyệt»");
+if (!/___/.test(mau[0])) die("mau KHONG phai khuon dang co cho trong (thieu ___)");
+if (/«Duyệt»|Đạt|«Ký»|đồng ý/.test(mau[0])) die("mau DIEN SAN lua chon thay nguoi — vi pham bat bien YOUR-MOVE-BLOCK-TEMPLATE");
 console.error("     [" + st + "] khoi OK");
 ' "$P185ST_CASE" || P185OK=0
 done
@@ -9387,51 +9403,10 @@ if [ "$P185OK" -eq 1 ]; then pass "P185 khoi VIEC-CUA-ANH Cong 1 (2 nhanh status
 echo "P186 khoi VIEC-CUA-ANH Cong 2: du 4 loai viec + mau gop 1 dong (E2)"
 P186OK=1; P186BOK=1
 P186WS="$(mktemp -d)"
-mkdir -p "$P186WS/_acceptance/fx"
-cat > "$P186WS/_acceptance/fx/contract.md" <<'EOF'
----
-schema_version: 1
-feature: fx demo
-slug: fx
-risk_tier: T2
-status: verified
----
-
-## Criteria
-
-- AC-1: Given a, When b, Then c. (judgment)
-
-## Out of scope
-
-- Hoãn x.
-EOF
-printf '%s\n' '{"id":"d-s","type":"seal","gate":1}' '{"id":"d-p1","type":"fix","stage":"S4-r1","decision":"đổi hướng X","impact":"nhanh hơn"}' > "$P186WS/_acceptance/fx/decisions.jsonl"
-cat > "$P186WS/_acceptance/fx/evidence-report.md" <<'EOF'
----
-verdict: PENDING-JUDGMENT
----
-
-## Per-eval
-
-| Eval | Criterion | Executor | Verdict |
-|---|---|---|---|
-| E9 | AC-1 | judgment | UNCERTAIN |
-
-## Evidence
-
-- eval: E9
-  judged_by: panel
-  rationale: máy chưa chắc
-EOF
-cat > "$P186WS/_acceptance/fx/review-findings.md" <<'EOF'
-## Ngoài hợp đồng
-
-- **globToRe unescaped**
-  file: lib/x.js
-  severity: P1
-  proposal: known-limits
-  Người dùng thấy gì: Lỗi hiếm khi tên file có dấu hỏi
-EOF
+. "$ROOT/tests/plugins/fixtures/viec-cua-anh-scenarios.sh"
+vca_scenario gate2-4loai "$P186WS" || { echo "     dung fixture that bai"; P186OK=0; }
+grep -q "PENDING-JUDGMENT" "$P186WS/_acceptance/fx/evidence-report.md" \
+  || { echo "     fixture 4-loai hong (thieu verdict PENDING-JUDGMENT)"; P186OK=0; }
 P186OUT="$(node "$ROOT/scripts/gate-card.js" --root "$P186WS" --slug fx 2>&1)" || { echo "     exit khac 0"; P186OK=0; }
 printf '%s' "$P186OUT" | node -e '
 const html = require("fs").readFileSync(0, "utf8");
@@ -9440,11 +9415,27 @@ const iYm = html.indexOf("👉 VIỆC CỦA ANH");
 const iFoot = html.indexOf("class=\"foot\"");
 if (iYm < 0 || iFoot < iYm) die("khoi thieu hoac sai vi tri");
 const seg = html.slice(iYm, iFoot);
-for (const need of ["E9", "Ngoài-1", "Treo-1", "cắt/hoãn", "Ký hay trả"]) if (!seg.includes(need)) die("khoi thieu muc: " + need);
-for (const ve of ["làm gì:", "ở đâu:", "trả lời dạng:"]) if (!seg.includes(ve)) die("thieu ve: " + ve);
+// MA TRAN muc x ve + ma phai nam o phan MUC (S4-r2): assert cu duoc thoa boi
+// CHINH dong Tra-loi-mau, nen mot khoi chi co dong mau van xanh.
+const items = [...seg.matchAll(/<p class="li">([\s\S]*?)<\/p>/g)].map(m => m[1])
+  .filter(x => !x.includes("Trả lời mẫu"));
+if (items.length < 5) die("khoi thieu muc: chi co " + items.length + " muc (can >=5: Ngoai-1, E9, cat, Treo, ky)");
+const mucText = items.join("\n");
+for (const need of ["E9", "Ngoài-1", "Treo-1", "cắt/hoãn", "Ký hay trả"])
+  if (!mucText.includes(need)) die("phan MUC thieu: " + need + " (chi hien o dong mau la khong du)");
+items.forEach((it, k) => {
+  for (const ve of ["làm gì:", "ở đâu:", "trả lời dạng:"]) if (!it.includes(ve)) die("muc " + (k + 1) + " thieu ve: " + ve);
+});
 const mau = seg.match(/<p class="li">Trả lời mẫu[^<]*<\/p>/);
 if (!mau) die("mau khong phai MOT dong text tron");
-for (const need of ["E9", "Ngoài-1", "Ký"]) if (!mau[0].includes(need)) die("mau gop thieu ma: " + need);
+for (const need of ["E9", "Ngoài-1", "Treo", "ký hay trả"]) if (!mau[0].includes(need)) die("mau gop thieu muc: " + need);
+// BAT BIEN (S4-r2): mau la KHUON DANG. May KHONG dien san verdict/dong-y thay
+// nguoi — ban round-2 tung in «Ngoài-1 ghi Known limits; E9 Đạt; …; Ký», tuc
+// viet san cau TRA LOI cua nguoi tai cong, vong qua chinh khoa ADR 0002.
+const slots = (mau[0].match(/___/g) || []).length;
+if (slots < 5) die("mau thieu cho trong: chi co " + slots + " (moi muc phai co mot ___)");
+for (const banned of ["Đạt", "ghi Known limits", "mở hợp đồng mới", "đồng ý cắt", "phê hết", "; Ký»"])
+  if (mau[0].includes(banned)) die("mau DIEN SAN lua chon thay nguoi: \"" + banned + "\" — vi pham bat bien cam-dien-san");
 // QUAN HE (S4-r1): moi ma khoi 👉 tro toi phai HIEN trong chinh khoi duoc tro —
 // khong thi loi chi duong chi dung bang loai tru (do tu vung thay vi quan he).
 const body = html.slice(0, iYm);
@@ -9515,38 +9506,11 @@ rm -rf "$P186MUT2"
 if [ "$P186OK" -eq 1 ]; then pass "P186 khoi Cong 2 du 4 loai + mau gop (mutant bi bat)"; else fail "P186 khoi Cong 2 du 4 loai + mau gop (mutant bi bat)"; fi
 
 echo "P186b khoi Cong 2 PASS-thuan-may: khoi van hien, dung 1 muc ky (E4)"
-cat > "$P186WS/_acceptance/fx/contract.md" <<'EOF'
----
-schema_version: 1
-feature: fx demo
-slug: fx
-risk_tier: T2
-status: verified
----
-
-## Criteria
-
-- AC-1: Given a, When b, Then c.
-EOF
-rm -f "$P186WS/_acceptance/fx/review-findings.md" "$P186WS/_acceptance/fx/decisions.jsonl"
-cat > "$P186WS/_acceptance/fx/evidence-report.md" <<'EOF'
----
-verdict: PASS
----
-
-## Per-eval
-
-| Eval | Criterion | Executor | Verdict |
-|---|---|---|---|
-| E1 | AC-1 | test | PASS |
-
-## Evidence
-
-- eval: E1
-  run_id: abcd1234
-  exit_code: 0
-  verifier: bash tests/x.sh
-EOF
+vca_scenario gate2-pass-thuan-may "$P186WS" || { echo "     dung fixture that bai"; P186BOK=0; }
+grep -q "^verdict: PASS" "$P186WS/_acceptance/fx/evidence-report.md" \
+  || { echo "     fixture PASS-thuan-may hong"; P186BOK=0; }
+[ ! -f "$P186WS/_acceptance/fx/review-findings.md" ] && [ ! -f "$P186WS/_acceptance/fx/decisions.jsonl" ] \
+  || { echo "     fixture PASS-thuan-may van con viec-nguoi — kich ban sai"; P186BOK=0; }
 P186BOUT="$(node "$ROOT/scripts/gate-card.js" --root "$P186WS" --slug fx 2>&1)" || { echo "     exit khac 0"; P186BOK=0; }
 printf '%s' "$P186BOUT" | node -e '
 const html = require("fs").readFileSync(0, "utf8");
@@ -9554,8 +9518,11 @@ const die = m => { console.error("     " + m); process.exit(1); };
 const iYm = html.indexOf("👉 VIỆC CỦA ANH");
 if (iYm < 0) die("khoi BIEN MAT tren the 0 viec-nguoi");
 const seg = html.slice(iYm, html.indexOf("class=\"foot\""));
-if ((seg.match(/làm gì:/g) || []).length !== 1) die("phai co dung MOT muc ky-hay-tra");
-if (!seg.includes("Ký hay trả")) die("muc ky thieu");
+const items = [...seg.matchAll(/<p class="li">([\s\S]*?)<\/p>/g)].map(m => m[1])
+  .filter(x => !x.includes("Trả lời mẫu"));
+if (items.length !== 1) die("phai co dung MOT muc ky-hay-tra, thay " + items.length);
+for (const ve of ["làm gì:", "ở đâu:", "trả lời dạng:"]) if (!items[0].includes(ve)) die("muc ky thieu ve: " + ve);
+if (!items[0].includes("Ký hay trả")) die("muc ky thieu");
 ' || P186BOK=0
 # mutant rieng cua nhanh rong: go muc Ky-hay-tra tren chinh fixture nay
 P186BMUT="$(mktemp -d)"
@@ -9583,21 +9550,17 @@ if [ "$P186BOK" -eq 1 ]; then pass "P186b khoi khong bien mat khi 0 viec-nguoi (
 echo "P187 khoi Cong 2 khong-ky-duoc: 'khong can lam gi' + 3 nhanh verdict (E3)"
 P187OK=1
 P187WS="$(mktemp -d)"
-mkdir -p "$P187WS/_acceptance/fx"
-cat > "$P187WS/_acceptance/fx/contract.md" <<'EOF'
----
-schema_version: 1
-feature: fx demo
-slug: fx
-risk_tier: T2
-status: implemented
----
-
-## Criteria
-
-- AC-1: Given a, When b, Then c.
-EOF
-p187_rep() { printf -- '---\nverdict: %s\n---\n\n## Per-eval\n\n| Eval | Criterion | Executor | Verdict |\n|---|---|---|---|\n| E1 | AC-1 | test | %s |\n' "$1" "$2" > "$P187WS/_acceptance/fx/evidence-report.md"; }
+. "$ROOT/tests/plugins/fixtures/viec-cua-anh-scenarios.sh"
+p187_rep() { # $1 = verdict; dung kich ban CHUNG, khong heredoc rieng
+  case "$1" in
+    REJECT)  vca_scenario gate2-reject "$P187WS" ;;
+    BLOCKED) vca_scenario gate2-blocked "$P187WS" ;;
+    PASS)    vca_scenario gate2-pass-thuan-may "$P187WS" ;;
+    *)       vca_scenario gate2-weird "$P187WS" ;;
+  esac
+  grep -q "^verdict: $1\$" "$P187WS/_acceptance/fx/evidence-report.md" \
+    || { echo "     fixture KHONG mang verdict=$1 — nhanh nay chua bao gio duoc do"; P187OK=0; }
+}
 # QUAN HE verdict -> cau may-dang-lam-gi-tiep (S4-r1): moi nhanh ghim cau RIENG
 # cua no VA doi hai cau kia VANG — vong 3 nhanh assert y het nhau thi gop
 # ternary thanh mot cau van xanh (do tu vung thay vi quan he).
@@ -9607,7 +9570,7 @@ p187_expect() { case "$1" in
   *)       echo "máy phải chạy lại vòng chấm để có kết luận đọc được" ;;
 esac; }
 for P187V in REJECT BLOCKED WEIRD; do
-  if [ "$P187V" = REJECT ]; then p187_rep "$P187V" FAIL; else p187_rep "$P187V" PASS; fi
+  p187_rep "$P187V"
   P187OUT="$(node "$ROOT/scripts/gate-card.js" --root "$P187WS" --slug fx 2>&1)" || { echo "     exit khac 0 ($P187V)"; P187OK=0; }
   printf '%s' "$P187OUT" | P187_MINE="$(p187_expect "$P187V")" \
     P187_OTHER1="$(p187_expect REJECT)" P187_OTHER2="$(p187_expect BLOCKED)" P187_OTHER3="$(p187_expect WEIRD)" node -e '
@@ -9641,7 +9604,7 @@ mut = src.replace(a, "máy đang quay lại sửa code rồi tự chấm vòng m
 open(p, "w", encoding="utf-8").write(mut)
 print("MUTANT: da gop ba cau may-dang-lam-gi-tiep thanh MOT")
 PYX
-p187_rep BLOCKED PASS
+p187_rep BLOCKED
 P187MOUT="$(node "$P187MUT/scripts/gate-card.js" --root "$P187WS" --slug fx 2>&1)"; P187MST=$?
 [ "$P187MST" -eq 0 ] || { echo "     PHEP DO MU: mutant khong chay duoc (exit $P187MST)"; P187OK=0; }
 printf '%s' "$P187MOUT" | grep -qF 'class="foot"' || { echo "     PHEP DO MU: mutant khong render duoc the"; P187OK=0; }
@@ -9651,7 +9614,7 @@ rm -rf "$P187MUT"
 # doi chung duong doi-gia-tri tren CUNG fixture — scope vao KHOI (nhan
 # "Máy đã lo (liếc qua, không cần làm gì)" co san tren the ky-duoc, grep toan
 # trang se trung oan)
-p187_rep PASS PASS
+p187_rep PASS
 P187OUT="$(node "$ROOT/scripts/gate-card.js" --root "$P187WS" --slug fx 2>&1)"
 printf '%s' "$P187OUT" | node -e '
 const html = require("fs").readFileSync(0, "utf8");
@@ -9669,60 +9632,129 @@ if [ "$P187OK" -eq 1 ]; then pass "P187 chi-bao khong-can-lam-gi (3 nhanh + doi 
 # Pattern LOOP-PICTURE-CLAUSE/P85: "chep nguyen van" la cho troi kinh dien
 # (bai hoc s4-scope-triage) — phep do phai rut tu NGUON qua marker roi so voi
 # TUNG ban chep; do dot bien phai DICH DANH ban lech.
-run "P188 round-trip dieu khoan moi-cong: nguon + 4 ban chep khop tung ky tu (E5)" \
-  python3 - "$ROOT" <<'PY'
+run "P188 round-trip dieu khoan moi-cong: nguon + MOI ban chep (ke ca goi dung + overlay) khop tung ky tu (E5)" \
+  python3 - "$ROOT" <<'P188PY'
 import re, sys
 from pathlib import Path
 root = Path(sys.argv[1])
 law_p = "skills/acceptance/references/human-facing-language.md"
+law = (root / law_p).read_text(encoding="utf-8")
 RX = re.compile(r"<!-- <<<GATE-INVITE-CLAUSE -->\n([\s\S]*?)\n<!-- GATE-INVITE-CLAUSE>>> -->")
-m = RX.search((root / law_p).read_text(encoding="utf-8"))
+m = RX.search(law)
 assert m, law_p + ": KHONG rut duoc GATE-INVITE-CLAUSE qua marker"
 clause = m.group(1).strip()
 assert clause and "\n" not in clause, "clause phai la MOT dong khong rong"  # doi chung duong
-COPIES = [
-    "feature-loop/skills/feature-loop/SKILL.md",
-    "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md",
-    "skills/acceptance/SKILL.md",
-    "commands/acceptance-card.md",
-]
-texts = {rel: (root / rel).read_text(encoding="utf-8") for rel in COPIES}
-# QUAN HE (S4-r1): loi hua la MOI ban chep khop tung ky tu. `clause in t` chi
-# thay MOT ban nguyen ven — 3/4 file chua clause HAI lan, nen mot ban troi nam
-# canh mot ban con nguyen van xanh (do tu vung thay vi quan he). Duyet TUNG lan
-# xuat hien qua neo dau cau, roi so tron cau tai moi vi tri.
-ANCHOR = clause.split(" ")[0] + " " + clause.split(" ")[1] + " " + clause.split(" ")[2]  # "Mọi tin mời"
+# PHAM VI SUY TU MAT PHANG (S4-r2) thay cho danh sach go tay: manifest chi khai
+# cac site NGUON (pham vi la quyet dinh nguoi); moi BAN DUNG duoi plugins/ va
+# moi overlay cung duoi-duong-dan duoi codex/ deu duoc SUY ra roi bi doi y het.
+# Lo da dam: 4 ban Claude duoc sua, 2 overlay Codex thi khong — ma overlay GHI
+# DE ban Claude trong goi Codex, nen goi phat hanh moi cong khong chiu luat,
+# con phep do danh-sach-tay thi mu vinh vien voi cho do.
+ms = re.search(r"<!-- <<<GATE-INVITE-SITES -->\n([\s\S]*?)<!-- GATE-INVITE-SITES>>> -->", law)
+assert ms, law_p + ": KHONG rut duoc manifest GATE-INVITE-SITES qua marker"
+SITES = [s for s in ms.group(1).split() if s.endswith(".md")]
+assert len(SITES) >= 4, "manifest qua it site (grep hong?): " + repr(SITES)
+def tail_of(site):
+    # duoi-duong-dan dinh danh MOT skill/lenh, chuan hoa ca khi site bat dau
+    # bang "skills/" (khong co dau / dan). Bug da dam: nhanh else tra ve
+    # "SKILL.md" tron nen tap suy ra om TRON moi skill cua ca hai goi.
+    if "/skills/" in site:
+        return site.split("/skills/", 1)[1]
+    if site.startswith("skills/"):
+        return site[len("skills/"):]
+    return Path(site).name
+def derived(site):
+    tail = tail_of(site)
+    in_skills = "/skills/" in site or site.startswith("skills/")
+    hits = []
+    for base in ("plugins", "codex"):
+        b = root / base
+        if not b.is_dir():
+            continue
+        for f in sorted(b.rglob("*.md")):
+            rel = str(f.relative_to(root))
+            if rel == site:
+                continue
+            if (in_skills and rel.endswith("/skills/" + tail)) or (not in_skills and f.name == tail):
+                hits.append(rel)
+    return hits
+ALL = list(SITES)
+for s in SITES:
+    for d in derived(s):
+        if d not in ALL:
+            ALL.append(d)
+extra = [r for r in ALL if r not in SITES]
+assert len(extra) >= 3, "khong suy duoc ban dung/overlay nao dang ke (grep hong?): " + repr(extra)
+texts = {rel: (root / rel).read_text(encoding="utf-8") for rel in ALL}
+ANCHOR = " ".join(clause.split(" ")[:3])   # "Moi tin moi"
 def occurrences(t):
     out, i = [], t.find(ANCHOR)
     while i >= 0:
-        out.append(i); i = t.find(ANCHOR, i + 1)
+        out.append(i)
+        i = t.find(ANCHOR, i + 1)
     return out
-for rel, t in texts.items():
-    occ = occurrences(t)
-    assert occ, rel + ": LECH nguon — khong co lan xuat hien nao cua dieu khoan moi-cong"
-    for i in occ:
-        assert t[i:i + len(clause)] == clause, \
-            rel + ": ban chep tai offset " + str(i) + " LECH nguon (khong khop tung ky tu)"
-# chieu do MANH NHAT cua lop nay (S4-r1): lam lech DUNG MOT trong hai ban chep
-# trong cung mot file. Phep do cu ("clause in t") xanh oan o day; phep do quan
-# he phai DO va neu DICH DANH file + offset.
-victim = COPIES[0]
+def lech(mapping):
+    bad = []
+    for rel, t in mapping.items():
+        occ = occurrences(t)
+        if not occ:
+            bad.append(rel + " (khong co lan xuat hien nao)")
+            continue
+        for i in occ:
+            if t[i:i + len(clause)] != clause:
+                bad.append(rel + " @" + str(i))
+                break
+    return bad
+assert lech(texts) == [], "ban that do oan: " + repr(lech(texts))   # doi chung DUONG
+# Ban dung/overlay phai chep DU so lan cua site nguon sinh ra no — chi kiem
+# "moi lan xuat hien deu khop" thi go bot MOT ban trong hai van xanh (mat ban
+# chep khac voi ban chep sai).
+def count_of(mapping, rel):
+    return len(occurrences(mapping[rel]))
+PAIR = {}
+for s in SITES:
+    for d in derived(s):
+        if d in texts:
+            PAIR[d] = s
+def thieu_ban(mapping):
+    return [d + " (" + str(count_of(mapping, d)) + " ban) < nguon " + s + " (" + str(count_of(mapping, s)) + " ban)"
+            for d, s in PAIR.items() if count_of(mapping, d) < count_of(mapping, s)]
+assert thieu_ban(texts) == [], "ban that do oan: " + repr(thieu_ban(texts))   # doi chung DUONG
+print("P188 DUONG-OK (" + str(len(SITES)) + " site nguon + " + str(len(extra)) + " ban dung/overlay suy ra, " + str(len(PAIR)) + " cap nguon-ban-dung)")
+# chieu do 1: lam lech DUNG ban chep thu 2 trong mot file (ban thu 1 con nguyen)
+victim = next(r for r in ALL if len(occurrences(texts[r])) >= 2)
 occ_v = occurrences(texts[victim])
-assert len(occ_v) >= 2, victim + ": can >=2 ban chep de dung chieu do nay, thay " + str(len(occ_v))
 i2 = occ_v[1]
-mut = texts[victim][:i2] + clause.replace("MỘT khối", "MOT khoi") + texts[victim][i2 + len(clause):]
-assert mut != texts[victim], "dot bien khong tac dung"
-print("MUTANT: da lam lech DUNG ban chep thu 2 trong " + victim + " (offset " + str(i2) + "), ban thu 1 giu nguyen")
-assert clause in mut, "sanity: ban thu 1 phai con nguyen — neu khong, chieu do nay khong chung minh dieu can chung minh"
-bad = []
-for rel, t in {**texts, victim: mut}.items():
-    for i in occurrences(t):
-        if t[i:i + len(clause)] != clause:
-            bad.append(rel)
-            break
-assert bad == [victim], "phep so phai do DICH DANH " + victim + ", thay: " + repr(bad)
-print("P188 OK (nguon + moi ban chep khop; mutant lech-mot-ban-trong-hai do dich danh " + victim + ")")
-PY
+mut = dict(texts)
+mut[victim] = texts[victim][:i2] + clause.replace("MOT khoi", "M0T khoi") + texts[victim][i2 + len(clause):]
+if mut[victim] == texts[victim]:
+    mut[victim] = texts[victim][:i2] + clause[:-1] + "!" + texts[victim][i2 + len(clause):]
+assert mut[victim] != texts[victim], "dot bien khong tac dung"
+print("MUTANT-1: lam lech ban chep thu 2 trong " + victim + " (offset " + str(i2) + "), ban thu 1 giu nguyen")
+assert clause in mut[victim], "sanity: ban thu 1 phai con nguyen"
+b1 = lech(mut)
+assert len(b1) == 1 and b1[0].startswith(victim), "phep so phai do DICH DANH " + victim + ", thay: " + repr(b1)
+# chieu do 2 (dung lo S4-r2): go clause khoi mot OVERLAY/BAN DUNG suy ra -> phai
+# do dich danh chinh file do. Phep do danh-sach-tay se xanh oan o buoc nay.
+vic2 = extra[0]
+mut2 = dict(texts)
+mut2[vic2] = texts[vic2].replace(clause, "")          # go SACH moi ban trong file do
+assert mut2[vic2] != texts[vic2], "dot bien overlay khong tac dung"
+print("MUTANT-2: go SACH clause khoi ban suy ra " + vic2)
+b2 = lech(mut2)
+assert any(x.startswith(vic2) for x in b2), "phep do MU voi ban dung/overlay — dung lo S4-r2: " + repr(b2)
+# chieu do 3: go DUNG MOT trong nhieu ban trong cung file suy ra -> mat ban chep,
+# moi lan con lai van khop nen lech() im; luat dem phai keu.
+vic3 = next((d for d in PAIR if len(occurrences(texts[d])) >= 2), None)
+assert vic3, "khong co ban dung nao chua >=2 clause de dung chieu do dem"
+mut3 = dict(texts)
+mut3[vic3] = texts[vic3].replace(clause, "", 1)
+print("MUTANT-3: go DUNG MOT ban chep trong " + vic3 + " (con lai van khop)")
+assert lech(mut3) == [], "sanity: chieu do nay phai vuot qua lech() — neu khong no khong do dieu can do"
+b3 = thieu_ban(mut3)
+assert any(x.startswith(vic3) for x in b3), "luat dem MU voi ca mat-mot-ban-chep: " + repr(b3)
+print("P188 OK (moi ban chep khop; mutant lech-1-trong-2 va mutant go-overlay deu do dich danh)")
+P188PY
 
 # ── P190: 3 the bang chung cua E7 phai la VAT SONG, khong phai anh chup ─────
 # Cung khuon P53/TE17: sinh LAI trong chinh lan chay nay bang gate-card.js that

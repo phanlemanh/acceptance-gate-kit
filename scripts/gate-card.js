@@ -347,7 +347,7 @@ if (gate === '1') {
   // mỗi mục đủ 3 vế làm-gì/ở-đâu/trả-lời-dạng-gì + câu mẫu trả-lời-gộp MỘT
   // dòng (một <p> duy nhất, không tag chen giữa — P185 canh). Nguồn khuôn:
   // YOUR-MOVE-BLOCK-TEMPLATE trong human-facing-language.md.
-  P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo"><p class="li"><b>Duyệt hay trả hồ sơ này</b> — làm gì: đọc hai khối SẼ làm / KHÔNG làm và các cờ chú ý ở trên; ở đâu: trả lời ngay trong phiên đang trình thẻ; trả lời dạng: «Duyệt» hoặc «Sửa: nêu điều cần đổi».</p><p class="li">Trả lời mẫu (một dòng): «Duyệt» — hoặc «Sửa: nêu điều cần đổi»</p></div>`);
+  P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo"><p class="li"><b>Duyệt hay trả hồ sơ này</b> — làm gì: đọc hai khối SẼ làm / KHÔNG làm và các cờ chú ý ở trên; ở đâu: trả lời ngay trong phiên đang trình thẻ; trả lời dạng: «Duyệt» hoặc «Sửa: nêu điều cần đổi».</p><p class="li">Trả lời mẫu (một dòng, điền vào chỗ trống): «duyệt hay sửa: ___»</p></div>`);
   P.push(`<div class="foot"><span class="rev">↻ Sửa 1 dòng tiêu chí GIỜ rẻ hơn 10× phát hiện sai sau khi code.</span><div class="btns"><button class="b no">Sửa lại</button><button class="b yes">Duyệt, cho code</button></div></div>
 </div></div>`);
   process.stdout.write(P.join('\n'));
@@ -500,23 +500,31 @@ else P.push(`<div class="flag fred" style="margin-top:8px"><b>${machinePass}/${m
 P.push(`</details>`);
 // ---- 👉 VIỆC CỦA ANH (khối cứng máy-sinh — liệt TỪNG việc máy đã đếm, đúng
 // thứ tự thẻ; mẫu gộp build động từ đúng các mã đang hiện, MỘT dòng — P186
-// canh đủ mã, P186b canh khối-không-biến-mất khi 0 việc-người). ----
+// canh đủ mã, P186b canh khối-không-biến-mất khi 0 việc-người).
+//
+// BẤT BIẾN (luật YOUR-MOVE-BLOCK-TEMPLATE trong human-facing-language.md, đặt
+// sau S4-r2): câu mẫu là KHUÔN DẠNG CÓ CHỖ TRỐNG. Máy nêu mã mục + các ngả
+// chọn được, KHÔNG điền sẵn lựa chọn/verdict thay người. Bản round-2 từng in
+// «Ngoài-1 ghi Known limits; E9 Đạt; đồng ý cắt; phê hết quyết định treo; Ký»
+// — tức viết sẵn câu TRẢ LỜI của người tại cổng, vòng qua chính khoá ADR 0002.
+// Mã trong câu mẫu phải là mã THÔ (esc một lần lúc render, không esc hai lần),
+// nếu không người dán lại một chuỗi entity HTML không khớp mã họ thấy. ----
 {
-  const ymItems = []; const ymParts = [];
+  const ymItems = []; const ymSlots = [];
   ooc.findings.forEach((f, fi) => {
     const lbl = 'Ngoài-' + (fi + 1);
     ymItems.push(`<b>Chọn hướng cho ${lbl}</b> — làm gì: đọc mục ${lbl} ở khối "Ngoài hợp đồng"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «${lbl}: ghi Known limits» hoặc «${lbl}: mở hợp đồng mới» hoặc «${lbl}: nâng phạm vi sửa ngay».`);
-    ymParts.push(lbl + (f.proposal === 'new-contract' ? ' mở hợp đồng mới' : ' ghi Known limits'));
+    ymSlots.push(lbl + ': ___');
   });
   for (const d of decisions) {
     ymItems.push(`<b>Chấm ${esc(d.id)} (câu hỏi cần mắt người)</b> — làm gì: đọc câu hỏi mở đầu bằng "${esc(d.id)}" ở khối "Việc chỉ mình bạn quyết được"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «${esc(d.id)} Đạt» hoặc «${esc(d.id)} Chưa đạt vì nêu lý do».`);
-    ymParts.push(esc(d.id) + ' Đạt');
+    ymSlots.push(d.id + ': ___');
   }
-  if (oos.length) { ymItems.push(`<b>Xác nhận phần cắt/hoãn</b> — làm gì: đọc mục xác nhận phạm vi ở trên; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «đồng ý cắt» hoặc «kéo vào: nêu mục».`); ymParts.push('đồng ý cắt'); }
-  if (decsProvisional.length) { ymItems.push(`<b>Phê ${decsProvisional.length} quyết định ghi sau Cổng 1 (Treo-1…Treo-${decsProvisional.length})</b> — làm gì: đọc khối "Quyết định CHƯA duyệt"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «phê hết» hoặc «không phê: Treo-số».`); ymParts.push('phê hết quyết định treo'); }
+  if (oos.length) { ymItems.push(`<b>Xác nhận phần cắt/hoãn</b> — làm gì: đọc mục xác nhận phạm vi ở trên; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «đồng ý cắt» hoặc «kéo vào: nêu mục».`); ymSlots.push('cắt/hoãn: ___'); }
+  if (decsProvisional.length) { ymItems.push(`<b>Phê ${decsProvisional.length} quyết định ghi sau Cổng 1 (Treo-1…Treo-${decsProvisional.length})</b> — làm gì: đọc khối "Quyết định CHƯA duyệt"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «phê hết» hoặc «không phê: Treo-số».`); ymSlots.push('Treo: ___'); }
   ymItems.push(`<b>Ký hay trả</b> — làm gì: sau khi trả lời các mục trên, chốt hồ sơ; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «Ký» hoặc «Trả lại: nêu lý do».`);
-  ymParts.push('Ký');
-  P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo">${ymItems.map(t => `<p class="li">${t}</p>`).join('')}<p class="li">Trả lời mẫu (một dòng): «${ymParts.join('; ')}»</p></div>`);
+  ymSlots.push('ký hay trả: ___');
+  P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo">${ymItems.map(t => `<p class="li">${t}</p>`).join('')}<p class="li">Trả lời mẫu (một dòng, điền vào chỗ trống): «${esc(ymSlots.join('; '))}»</p></div>`);
 }
 P.push(`<div class="foot"><span class="rev">↻ Đảo ngược dễ: trả lại → quay về code, không mất gì.</span><div class="btns"><button class="b no">Trả lại</button><button class="b yes">Ký duyệt</button></div></div>
 </div></div>`);
