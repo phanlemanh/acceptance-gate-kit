@@ -83,8 +83,10 @@ evals:
       marker GATE-INVITE-CLAUSE từ bản luật (reader = regex marker, đối chứng
       dương: rút được và không rỗng), so KHỚP TỪNG KÝ TỰ với 4 bên chép
       (feature-loop SKILL, codex feature-loop SKILL, acceptance SKILL,
-      commands/acceptance-card.md); đột biến bộ nhớ đổi 1 ký tự một bản chép
-      (in xác-nhận-đột-biến) → phép so phải đỏ.
+      commands/acceptance-card.md) — lệch BẤT KỲ bản nào là đỏ; đột biến bộ
+      nhớ đổi 1 ký tự ít nhất 1 trong 4 bản chép (in xác-nhận-đột-biến) →
+      phép so phải đỏ ĐÍCH DANH đường dẫn bản lệch trong thông điệp assert
+      (yêu cầu B mốc 1).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E6
@@ -105,6 +107,11 @@ evals:
   - id: E7
     criterion: AC-7
     executor: judgment
+    # judgment = judge MÁY context tươi của S4 (không phải human_override);
+    # ba file evidence/*.html dưới đây là VẬT ĐƯỢC GIAO: do chính
+    # gate-card.js render từ fixture code-sinh của P185–P187 trong lần chuẩn
+    # bị S4 (thước gắn vào vật được giao — không chấm văn viết tay; yêu cầu B
+    # mốc 1).
     inputs:
       - contract.md
       - evidence/p185-card-gate1.html

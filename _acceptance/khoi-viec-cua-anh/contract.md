@@ -81,6 +81,11 @@ có AC và mỗi thành phần có chỗ cưỡng chế (script render hoặc kh
 - Key overlay mới trong `card-plain.json` (`CARD-PLAIN-KEYS` là danh sách
   đóng, P147 canh) — khối là máy-sinh thuần, không qua lớp dịch.
 - KPI số đo "owner trả lời nhanh hơn" — không đo trong chip này.
+- Thẻ không-ký-được KHÔNG gánh việc hỏi người khi máy bất lực (BLOCKED mà
+  khắc phục cần người): thẻ là tin chỉ-báo tĩnh, ghi "không cần làm gì" + máy
+  đang làm gì tiếp; khi máy cần người quyết, lời-gọi đi qua TIN NHẮN của
+  phiên — tin đó chịu chuẩn khối qua khuôn lời-mời (AC-5/AC-6), không qua
+  thẻ. Khai có ý thức theo soi mốc 1 của B.
 
 ## Notes
 
