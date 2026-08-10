@@ -1,5 +1,17 @@
 # Kit maintainer invariants
 
+- **⭐ NORTH STAR (owner tuyên 09/08/2026 — đứng trên mọi bất biến dưới):**
+  Giá trị duy nhất là **sản phẩm đến tay người dùng**. Kit là công cụ **HỖ TRỢ
+  Claude** làm việc hiệu quả hơn (enablement, không phải surveillance).
+  **Giờ-kit là CHI PHÍ, không phải tiến độ.** Luật quyết định: *rẻ-và-nhanh
+  thì làm, không thì bỏ* — trừ lõi bất khả nhượng nhỏ (chữ ký người ·
+  không-bịa-bằng-chứng · đường-đảo-rẻ). Mọi đề xuất việc-kit phải trả lời
+  được: *"việc này rút ngắn đường sản-phẩm-đến-người-dùng ở chỗ nào?"* và
+  *"failure mode nó chặn có tỉ lệ ĐO ĐƯỢC trên model hiện tại không?"* —
+  chi tiết + bảng rà soát luật:
+  [docs/findings/2026-08-09-ban-chat-that-vong-lap-kit.md](docs/findings/2026-08-09-ban-chat-that-vong-lap-kit.md)
+  · [docs/findings/2026-08-10-ra-soat-luat-theo-north-star.md](docs/findings/2026-08-10-ra-soat-luat-theo-north-star.md).
+
 - **ĐÓNG BĂNG LAB (tái lập 2026-08-07):** engine (`skills/`, `feature-loop/`,
   `design-loop/`, `codex/`, `commands/`, `scripts/`, `lib/`, `hooks/`) chỉ
   nhận (a) **bugfix**, (b) **đóng nốt vòng đang dở lúc ra quyết định**
