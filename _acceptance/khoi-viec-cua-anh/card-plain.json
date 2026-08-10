@@ -1,0 +1,32 @@
+{
+  "feature_plain": "Mọi thẻ cổng và tin mời duyệt/ký kết bằng khối \"👉 VIỆC CỦA ANH\" máy tự sinh — anh liếc một khối là biết phải làm gì, ở đâu, trả lời thế nào",
+  "will_do": [
+    { "id": "AC-1", "p": "Sẽ in cuối thẻ Cổng 1 một khối 👉 VIỆC CỦA ANH: đúng một việc duyệt-hay-trả, đủ ba vế làm gì / ở đâu / trả lời dạng gì, kèm câu trả lời mẫu chép được một phát (AC-1, đo trên cả hồ sơ chưa duyệt lẫn đã duyệt)" },
+    { "id": "AC-2", "p": "Sẽ liệt kê trên thẻ Cổng 2 đủ TỪNG việc chỉ anh quyết được — chấm từng mục máy chưa chắc, chọn hướng cho lỗi ngoài phạm vi, xác nhận phần cắt, phê quyết định treo, rồi ký — không việc nào rơi ra ngoài khối, câu mẫu gộp nêu đủ mã (AC-2)" },
+    { "id": "AC-5", "p": "Sẽ giữ khuôn lời-mời-cổng ở đúng MỘT chỗ trong bản luật ngôn ngữ mặt người; bốn nơi dùng nó (hai vòng lặp, skill nghiệm thu, lệnh thẻ) chép nguyên văn từng ký tự — không bản nào tự diễn đạt lại (AC-5)" },
+    { "id": "AC-6", "p": "Sẽ khai trong khuôn đủ bốn chuẩn: ba vế mỗi mục · câu mẫu gộp một dòng · tin chỉ-báo nói rõ \"không cần làm gì\" · cấm câu hỏi tu từ (AC-6)" }
+  ],
+  "wont_do": [
+    { "id": "AC-3", "p": "Thẻ báo-trạng-thái (máy còn đang sửa / bị kẹt) sẽ nói thẳng \"không cần làm gì\" và KHÔNG bày ra việc nào bắt anh trả lời (AC-3)" },
+    { "id": "AC-4", "p": "Khối sẽ KHÔNG bao giờ biến mất kể cả khi máy đã lo hết — khi đó nó chỉ còn đúng một việc: ký hay trả (AC-4)" }
+  ],
+  "scope_plain": "Không sửa 6 lệnh cổng người (gõ-một-lượt là chip ③) · chưa làm thẻ cho Cổng 0/Cổng Giá trị (chip ⑦) · không thêm lớp dịch mới cho khối (máy sinh thuần) · không đo KPI tốc-độ-trả-lời trong chip này",
+  "coverage_plain": [
+    { "i": 0, "p": "Đủ mặt trình: cả ba dạng thẻ (Cổng 1 · Cổng 2 ký được · Cổng 2 báo trạng thái) và tin mời-cổng ở bốn nơi viết tin đều có AC riêng" },
+    { "i": 1, "p": "Đủ thành phần chuẩn: ba vế · câu mẫu gộp một dòng · dòng \"không cần làm gì\" · cấm câu hỏi tu từ — mỗi thành phần có AC đo" },
+    { "i": 2, "p": "Thước \"đủ\": mọi ô của bảng mặt-trình × thành-phần có phép đo máy, trừ cấm-câu-hỏi-tu-từ trên thẻ do mắt người chấm (AC-7); bỏ máy-quét-độ-phủ vì đề bài owner đã chốt trọn phạm vi (có ghi sổ quyết định)" }
+  ],
+  "gap_probe_plain": [
+    { "i": 0, "p": "Phép đo cho ca \"máy đã lo hết\" nấp sau tên chung với ca khác — đã tách thành dòng kết quả riêng kèm lượt phá-thử riêng" },
+    { "i": 1, "p": "Lời hứa phủ nhiều nhánh nhưng phép đo chỉ dựng một nhánh (hồ sơ đã-duyệt và kết luận lạ bị bỏ trống) — đã thêm lượt đo cho từng nhánh còn thiếu" },
+    { "i": 2, "p": "Tiêu chí mắt-người phán cả khuôn lời-mời nhưng giám khảo chỉ được đưa ba thẻ — đã đưa thêm bản luật chứa khuôn vào tay giám khảo" },
+    { "i": 3, "p": "Hứa khối nằm cuối thẻ nhưng phép đo chỉ hỏi \"chuỗi có mặt\" — đã thêm phép đo quan hệ vị trí: sau thân thẻ, trước hàng nút" },
+    { "i": 4, "p": "Hứa câu mẫu nằm trên một dòng nhưng phép đo không bắt được kiểu xuống-dòng lén — đã thêm phép đo một-dòng sau khi bóc thẻ trang trí" }
+  ],
+  "decisions_plain": [
+    { "id": "d-20260810T150433Z-32389", "p": "KHÔNG chạy máy-quét-độ-phủ tiêu chí — đề bài owner đã liệt đủ phạm vi; đổi lại không có bằng chứng quét máy, chỉ có bảng phủ viết tay" },
+    { "id": "d-20260810T150433Z-22406", "p": "Khối trên thẻ do máy render thẳng từ dữ liệu thẻ, không thêm lớp dịch — không thể quên hay điền sai; đổi lại chữ trong khối không tuỳ biến theo từng repo" },
+    { "id": "d-20260810T150433Z-18857", "p": "Khuôn lời-mời đặt một chỗ, bốn nơi chép nguyên văn có máy canh khớp — một nguồn sự thật; đổi lại thêm bốn chỗ phải giữ đồng bộ (có phép đo canh)" },
+    { "id": "d-20260810T150433Z-2792", "p": "KHÔNG mở thẻ mới cho Cổng 0/Cổng Giá trị — giữ chip gọn; xem lại ở chip ⑦" }
+  ]
+}
