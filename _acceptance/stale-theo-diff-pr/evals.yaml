@@ -80,7 +80,8 @@ evals:
       exit 0; stdout có "PASS: VC11-control" (đối chứng dương: chép TRỌN
       scripts/ + lib/ sang vị trí mutant — gap-probe P2-2, để đường chạy giống
       bản thật, không xanh nhờ fallback-NOTE thiếu lib — chạy trên fixture hỗn
-      hợp VC08 → cùng kết cục với bản thật: slug cũ im lặng) và
+      hợp VC07 bản sạch (review r1 P2-1 sửa chữ-khớp-vật: test dùng fixture
+      VC07, không phải VC08) → cùng kết cục với bản thật: slug cũ im lặng) và
       "PASS: VC11-mutant" (bản chép bị đột biến gỡ điều kiện slug-trong-diff,
       XÁC NHẬN đột biến đã áp bằng grep -c mẫu đã sửa TRƯỚC khi chạy → cùng
       fixture đổi màu: stale VIOLATION nổ thêm trên slug cũ ngoài diff).
