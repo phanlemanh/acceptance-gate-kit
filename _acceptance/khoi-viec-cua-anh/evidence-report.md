@@ -1,19 +1,19 @@
 ---
 schema_version: 2
 feature_slug: khoi-viec-cua-anh
-verdict: REJECT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 45dc912de82a92375110424653f2dd9c24956dcf
+verified_commit: a87671687f63cfb48224a325f91d5e032551c287
 human_signoff:
 ---
 
 # Evidence Report: khoi-viec-cua-anh
 
-⚠ Verdict REJECT dù bảng eval bên dưới toàn PASS: máy (6 suite regression-guard + product-map) xanh, E1–E6 xanh, judge panel E7 đồng thuận 3/3 PASS — nhưng review tìm 3 finding severity=high map thẳng vào AC-2 (`scripts/gate-card.js:509,519`): dòng "Trả lời mẫu" ở thẻ Cổng 2 tự điền sẵn "Đạt"/"Ký"/"ghi Known limits" cho TỪNG mục việc-người, kể cả khi judgment đã FAIL hoặc máy chưa đề xuất hướng nào — người ký chỉ cần copy-paste một dòng là duyệt hết. Đây là vi phạm AC-2 thật trên code đang chạy (không phải lỗ đo), va thẳng lõi bất khả nhượng "chữ ký người" — nên round này REJECT, quay lại implementation. Xem `## Trong hợp đồng` trong review-findings.md để sửa trước khi tái verify. `failed_evals` để trống vì không machine eval nào exit khác 0 — lý do reject nằm ở review tìm bug thật, không nằm ở kết quả chạy lệnh.
+Round 3 chạy trên `a87671687f63cfb48224a325f91d5e032551c287` (commit `fix(chip2 r2)` — câu mẫu đổi thành khuôn có chỗ trống, phủ 2 overlay Codex, suy tập bản chép từ mặt phẳng — theo Đường A owner duyệt sau round 2 REJECT). Cả sáu suite máy + product-map đều xanh, E1–E6 xanh, judge panel E7 đồng thuận 3/3 PASS. Review round này tìm 4 finding thật nhưng cả bốn đều rơi ngoài phạm vi các AC đã ký (xem `review-findings.md` mục "Ngoài hợp đồng") — không finding nào map vào AC nào, nên không có gì trả lại implementation. Verdict: PASS.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -28,66 +28,66 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-khoi-viec-cua-anh-E1-r2
+  run_id: minted-khoi-viec-cua-anh-E1-r3
   exit_code: 0
-  baseline: n-a
+  baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-10T16:40:00Z
+  verified_at: 2026-08-11T06:20:00Z
   output: |
     PASS: P190 the bang chung E7 == ban render that (sinh lai + so byte + mutant)
 
     Results: all plugin tests passed
 
 - eval: E2
-  run_id: minted-khoi-viec-cua-anh-E2-r2
+  run_id: minted-khoi-viec-cua-anh-E2-r3
   exit_code: 0
-  baseline: n-a
+  baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-10T16:40:05Z
+  verified_at: 2026-08-11T06:20:05Z
   output: |
     PASS: P190 the bang chung E7 == ban render that (sinh lai + so byte + mutant)
 
     Results: all plugin tests passed
 
 - eval: E3
-  run_id: minted-khoi-viec-cua-anh-E3-r2
+  run_id: minted-khoi-viec-cua-anh-E3-r3
   exit_code: 0
-  baseline: n-a
+  baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-10T16:40:10Z
+  verified_at: 2026-08-11T06:20:10Z
   output: |
     PASS: P190 the bang chung E7 == ban render that (sinh lai + so byte + mutant)
 
     Results: all plugin tests passed
 
 - eval: E4
-  run_id: minted-khoi-viec-cua-anh-E4-r2
+  run_id: minted-khoi-viec-cua-anh-E4-r3
   exit_code: 0
-  baseline: n-a
+  baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-10T16:40:15Z
+  verified_at: 2026-08-11T06:20:15Z
   output: |
     PASS: P190 the bang chung E7 == ban render that (sinh lai + so byte + mutant)
 
     Results: all plugin tests passed
 
 - eval: E5
-  run_id: minted-khoi-viec-cua-anh-E5-r2
+  run_id: minted-khoi-viec-cua-anh-E5-r3
   exit_code: 0
-  baseline: n-a
+  baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-10T16:40:20Z
+  verified_at: 2026-08-11T06:20:20Z
   output: |
     PASS: P190 the bang chung E7 == ban render that (sinh lai + so byte + mutant)
 
     Results: all plugin tests passed
 
 - eval: E6
-  run_id: minted-khoi-viec-cua-anh-E6-r2
+  run_id: minted-khoi-viec-cua-anh-E6-r3
   exit_code: 0
-  baseline: n-a
+  baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-10T16:40:25Z
+  verified_at: 2026-08-11T06:20:25Z
   output: |
     PASS: P190 the bang chung E7 == ban render that (sinh lai + so byte + mutant)
 
@@ -97,10 +97,10 @@ human_signoff:
   judged_by: judge panel (fresh context) — 3 lenses: domain-correctness, operational-feasibility, spec-alignment
   verdict: PASS
   votes:
-    - domain-correctness: PASS — Cả ba thẻ đều có khối "👉 VIỆC CỦA ANH" đủ 3 vế (làm gì/ở đâu/trả lời dạng) cho từng mục, mã tra cứu (Ngoài-1, E9, Treo-1) đều xuất hiện kèm gloss 3-5 chữ ngay tại khối được trỏ tới trên cùng thẻ, và câu "Trả lời mẫu" nằm gọn một dòng chép được ngay ở cả thẻ Cổng 1 và Cổng 2 ký được. Thẻ Cổng 2 không ký được nói rõ "không cần làm gì" đúng khuôn chỉ-báo, và rà toàn bộ text ba thẻ + hai khối YOUR-MOVE-BLOCK-TEMPLATE/GATE-INVITE-CLAUSE trong human-facing-language.md không thấy dấu hỏi nào (không câu tu từ mang dấu hỏi lọt qua N1-N6).
-    - operational-feasibility: PASS — Cả ba thẻ (p185/p186/p187) đều kết bằng đúng khối "👉 VIỆC CỦA ANH" đủ 3 vế làm-gì/ở-đâu/trả-lời-dạng-gì cho mỗi mục, câu "Trả lời mẫu" nằm trên một dòng chép-được-ngay, thẻ không-ký-được (p187) nói rõ "không cần làm gì" và không chứa mục đòi trả lời; grep cả ba file xác nhận không có ký tự "?" nào. Mọi mã tra cứu (Ngoài-1, E9, Treo-1) đều hiện đúng tại khối được trỏ, và hai khối khuôn YOUR-MOVE-BLOCK-TEMPLATE + GATE-INVITE-CLAUSE tự đủ để một phiên khác viết đúng tin mời. Một điểm nhỏ không đủ sức đổi verdict: mục "Phê 1 quyết định ghi sau Cổng 1 (Treo-1…Treo-1)" trên p186 hiển thị mã lặp dạng khoảng dù chỉ có một mục — hơi gợn mắt nhưng câu "Phê 1 quyết định" đứng ngay trước đã disambiguate, không chặn hiểu-ngay.
-    - spec-alignment: PASS — Cả ba thẻ đều có khối "👉 VIỆC CỦA ANH" đúng vị trí (trước hàng nút), mỗi mục đủ 3 vế làm-gì/ở-đâu/trả-lời-dạng-gì, và mã tra cứu (Ngoài-1, E9, Treo-1) đều hiện sẵn ngay tại khối mà mục việc trỏ tới. Thẻ p186 có dòng "Trả lời mẫu" gộp một dòng chép-được-ngay nêu đủ mọi mã đang hiện; thẻ p187 (không ký được) ghi rõ "không cần làm gì" kèm máy đang làm gì tiếp và không có mục đòi trả lời. Rà cả ba khối thẻ lẫn hai khối khuôn không thấy dấu "?" nào.
-  rationale: Đề xuất hội đồng (proposal) là PASS, đồng thuận 3/3 lens, không có dissent. LƯU Ý: verdict PASS của E7 là về khuôn lời-mời/thẻ tự nó (đủ 6 ý câu hỏi), KHÔNG kiểm tra nội dung "Trả lời mẫu" có thiên lệch hay không — đúng lỗ mà review tìm ra ở AC-2 (xem review-findings.md).
+    - domain-correctness: PASS — Cả ba thẻ (P185 Cổng 1, P186 Cổng 2 ký được, P187 Cổng 2 không ký được) render khối "👉 VIỆC CỦA ANH" với đủ 3 vế (làm gì / ở đâu / trả lời dạng) cho từng mục, dòng "Trả lời mẫu" nằm một dòng dạng khuôn-có-chỗ-trống (dùng "___", không điền sẵn lựa chọn — vd P186: «Ngoài-1: ___; E9: ___; cắt/hoãn: ___; Treo: ___; ký hay trả: ___»), thẻ P187 nói rõ "không cần làm gì" kèm hành động tiếp theo đúng verdict, và mọi mã tra cứu (Ngoài-1, E9, Treo-1) đều xuất hiện kèm 3-5 chữ giải nghĩa ngay tại khối được trỏ trong cùng thẻ (vd "E9 (câu hỏi cần mắt người)"). Rà cả hai khối marker YOUR-MOVE-BLOCK-TEMPLATE và GATE-INVITE-CLAUSE trong human-facing-language.md: khuôn tự mô tả đủ 3 vế + câu mẫu gộp một dòng + quy tắc "không điền sẵn" + chỉ-báo "không cần làm gì" + cấm câu hỏi tu từ, đủ rõ để một phiên khác chép đúng. Không thấy dấu "?" (câu hỏi tu từ) nào trong cả ba khối lẫn hai đoạn khuôn.
+    - operational-feasibility: PASS — Cả ba thẻ đều có khối 👉 VIỆC CỦA ANH đúng khuôn YOUR-MOVE-BLOCK-TEMPLATE: mỗi mục đủ 3 vế làm-gì/ở-đâu/trả-lời-dạng (vd P186 "Chọn hướng cho Ngoài-1 — làm gì:... ở đâu:... trả lời dạng: «Ngoài-1: ghi Known limits» hoặc..."), dòng Trả lời mẫu nằm một dòng ở dạng khuôn-có-chỗ-trống không điền sẵn lựa chọn (không còn lặp lại vụ "E9 Đạt" điền sẵn từng bị nêu trong bản luật); mã tra cứu Ngoài-1/E9/Treo-1 đều xuất hiện kèm mô tả ngắn ngay tại khối được trỏ tới phía trên trong cùng thẻ, tìm được không cần đọc code. Thẻ P187 (không ký được) nói rõ một dòng "không cần làm gì — máy đang quay lại sửa code..." và không có mục nào đòi trả lời. Quét cả ba file HTML và hai khối khuôn trong human-facing-language.md không thấy dấu hỏi tu từ nào lọt (N6 giữ vững), và khuôn GATE-INVITE-CLAUSE/YOUR-MOVE-BLOCK-TEMPLATE đủ tự giải thích cho một phiên khác viết đúng tin mời. Có một điểm cosmetic nhỏ ở P186 — nhãn "(Treo-1…Treo-1)" trông như lỗi lặp khi range chỉ có một phần tử — nhưng không che mất 3 vế hay mã tra cứu nên không đủ để hạ verdict.
+    - spec-alignment: PASS — Cả ba thẻ (P185 Cổng 1, P186 Cổng 2 ký được, P187 Cổng 2 không ký được) đều có khối "👉 VIỆC CỦA ANH" với mỗi mục đủ 3 vế làm-gì/ở-đâu/trả-lời-dạng-gì, câu "Trả lời mẫu" nằm đúng một dòng ở dạng khuôn-có-chỗ-trống (không điền sẵn lựa chọn — vd P186 "«Ngoài-1: ___; E9: ___; cắt/hoãn: ___; Treo: ___; ký hay trả: ___»"), mã tra cứu Ngoài-1/E9/Treo-1 hiện ngay tại khối được trỏ và khớp với item nguồn phía trên; thẻ P187 ghi rõ "không cần làm gì" kèm hành động máy đang làm tiếp; grep cả ba file không có ký tự "?" nào (không câu tu từ mang dấu hỏi). Hai khối khuôn lời-mời (YOUR-MOVE-BLOCK-TEMPLATE, GATE-INVITE-CLAUSE) trong human-facing-language.md khai đủ cả 5 chuẩn kèm luật đi kèm và ví dụ vi phạm cụ thể (dòng 147-149), đủ tự-đủ để một phiên khác chép đúng; các dấu "?" duy nhất trong file nằm ngoài hai khối marker này (dòng 46, 96, 109) nên không vi phạm.
+  rationale: Đề xuất hội đồng (proposal) là PASS, đồng thuận 3/3 lens, không có dissent.
   human_override:
 
 ### Suite khác (regression-guard, không gắn eval cụ thể)
@@ -115,9 +115,7 @@ Các lệnh trên là regression-guard xanh-cả-hai-phía thông thường, kh�
 
 ## Analyst
 
-carried từ round 1 — baseline không đo lại round này.
-
-E1, E2, E3, E4, E5, E6 (bash tests/plugins/run-tests.sh) — non-discriminating theo dữ liệu carried từ round 1 (pass trên cả HEAD lẫn baseline diffBase); nên viết lại để assert hành vi mới (không chỉ chuỗi cấu trúc) hoặc xác nhận là regression-guard có chủ ý. Xem thêm review-findings.md phần "Hình dạng 3/5" cho lỗ đo cụ thể trong chính các case P186/P186b — cùng nguyên nhân khiến AC-2 bị vi phạm mà eval vẫn xanh.
+E1, E2, E3, E4, E5, E6 (bash tests/plugins/run-tests.sh) — non-discriminating: xanh trên CẢ HEAD lẫn baseline diffBase round này. Nên viết lại các case này để assert hành vi mới (không chỉ chuỗi cấu trúc) hoặc xác nhận là regression-guard có chủ ý. Xem thêm review-findings.md — hai finding "Hình dạng 4/5" chỉ ra chỗ P189/P188 chưa cô lập lớp và chưa có sàn số-bản-chép ở site nguồn, cùng dòng nguyên nhân khiến các eval này chưa phân biệt được mọi cách feature có thể vỡ.
 
 ## Variance
 
@@ -126,7 +124,8 @@ none — không có eval nào mang `runs > 1` trong round này (tất cả deter
 ## Iterations
 
 Round 1: review tìm lỗi trong `scripts/gate-card.js` (khối 👉 VIỆC CỦA ANH) — sửa bằng commit `45dc912` ("fix(chip2 r1)"), đưa sang round 2.
-Round 2: máy (E1–E6 + 5 suite regression-guard + product-map) xanh toàn bộ, judge panel E7 đồng thuận PASS 3/3, nhưng review tìm 3 finding severity=high map AC-2 (`scripts/gate-card.js:509,519` — dòng "Trả lời mẫu" tự điền "Đạt"/"Ký" kể cả khi judgment FAIL hoặc máy chưa đề xuất hướng nào) — verdict REJECT, trả lại implementation để sửa AC-2 trước khi tái verify.
+Round 2: máy (E1–E6 + 5 suite regression-guard + product-map) xanh toàn bộ, judge panel E7 đồng thuận PASS 3/3, nhưng review tìm 3 finding severity=high map AC-2 (`scripts/gate-card.js:509,519` — dòng "Trả lời mẫu" tự điền "Đạt"/"Ký" kể cả khi judgment chưa đạt hoặc máy chưa đề xuất hướng nào) — trả lại implementation để sửa AC-2 trước khi tái verify.
+Round 3: sửa bằng commit `a876716` ("fix(chip2 r2)" — câu mẫu đổi thành khuôn có chỗ trống «<mã>: ___», phủ 2 overlay Codex, suy tập bản chép từ mặt phẳng, thước AC-1/2/5/6 đổi có khai ở `ruler-change.md`). Máy (E1–E6 + 5 suite regression-guard + product-map) xanh toàn bộ, judge panel E7 đồng thuận PASS 3/3, review tìm 4 finding thật nhưng cả bốn ngoài phạm vi AC đã ký (2 lỗ đo trong chính P188/P189, 1 lỗi nội dung trong overlay Codex Gate 2, 1 lỗ trong định dạng evidence-report — xem review-findings.md) — verdict PASS.
 
 ## Gate 2 checklist (human)
 
