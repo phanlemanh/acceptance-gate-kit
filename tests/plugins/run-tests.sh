@@ -6155,7 +6155,14 @@ run "P150 required_evidence tren the + report cu render y het ban base" \
     A=$(cd "$T/ws" && node "'"$ROOT"'/scripts/gate-card.js" --slug feat-jr5 2>/dev/null)
     B=$(cd "$T/ws" && node "$T/base/scripts/gate-card.js" --slug feat-jr5 2>/dev/null)
     [ -n "$A" ] || { echo "stdout moi rong"; exit 1; }
-    [ "$A" = "$B" ] || { echo "report cu render KHAC ban base — duong doc-cu vo"; exit 1; }
+    # DOI-THUOC-CO-KHAI (chip (2) khoi-viec-cua-anh): khoi "👉 VIỆC CỦA ANH" la
+    # thay doi render CO CHU DICH cho MOI the (P185-P187 canh no truc tiep), nen
+    # loc dung MOT dong khoi do truoc khi so — phan con lai cua duong doc-cu van
+    # phai byte-identical voi ban base. Khi base vuot qua chip (2), dong loc
+    # thanh no-op vo hai.
+    A_CMP=$(printf "%s" "$A" | grep -v "VIỆC CỦA ANH")
+    B_CMP=$(printf "%s" "$B" | grep -v "VIỆC CỦA ANH")
+    [ "$A_CMP" = "$B_CMP" ] || { echo "report cu render KHAC ban base (ngoai khoi viec-cua-anh) — duong doc-cu vo"; exit 1; }
   '
 
 echo "P151 (JR7) persona co required_evidence + luat actionable + chong evidence-shopping"
@@ -9291,6 +9298,280 @@ print("MUTANT: da go sach chuoi chi-bao trong ban sao bo nho")
 assert "không cần làm gì" not in mut, "phep do khong phan biet duoc mutant"
 print("P189 OK (khuon du 4 chuan; mutant bi bat)")
 PY
+
+# ── P185: khoi VIEC-CUA-ANH tren the Cong 1 (2 nhanh status: draft + approved) ──
+# Chuan khoi (chip (2) kit 2.1): 3 ve lam-gi/o-dau/tra-loi-dang-gi + mau gop
+# MOT dong; vi tri la QUAN HE (sau than the, truoc hang nut) chu khong phai
+# chuoi-co-mat (gap-probe F4); mau la MOT dong text tron sau strip tag (F5).
+echo "P185 khoi VIEC-CUA-ANH the Cong 1: 3 ve + mau 1 dong + vi tri truoc foot (E1)"
+P185OK=1
+P185WS="$(mktemp -d)"
+mkdir -p "$P185WS/_acceptance/fx"
+cat > "$P185WS/_acceptance/fx/contract.md" <<'EOF'
+---
+schema_version: 1
+feature: fx demo
+slug: fx
+risk_tier: T2
+status: draft
+---
+
+## Criteria
+
+- AC-1: Given a, When b, Then c.
+
+## Coverage
+
+- Trục duy nhất: đủ.
+
+## Out of scope
+
+- Hoãn x.
+EOF
+for P185ST_CASE in draft approved; do
+  python3 - "$P185WS/_acceptance/fx/contract.md" "$P185ST_CASE" <<'PYX'
+import sys, re
+p, st = sys.argv[1], sys.argv[2]
+t = open(p, encoding="utf-8").read()
+t = re.sub(r"^status: .*$", "status: " + st, t, count=1, flags=re.M)
+open(p, "w", encoding="utf-8").write(t)
+PYX
+  P185OUT="$(node "$ROOT/scripts/gate-card.js" --root "$P185WS" --slug fx 2>&1)" || { echo "     exit khac 0 (status=$P185ST_CASE)"; P185OK=0; }
+  printf '%s' "$P185OUT" | node -e '
+const html = require("fs").readFileSync(0, "utf8");
+const st = process.argv[1];
+const die = m => { console.error("     [" + st + "] " + m); process.exit(1); };
+const iYm = html.indexOf("👉 VIỆC CỦA ANH");
+if (iYm < 0) die("thieu nhan khoi");
+const iBody = html.indexOf("Cổng 1");
+const iFoot = html.indexOf("class=\"foot\"");
+if (!(iBody >= 0 && iBody < iYm && iYm < iFoot)) die("khoi sai vi tri (phai sau than the, truoc foot)");
+const seg = html.slice(iYm, iFoot);
+for (const ve of ["làm gì:", "ở đâu:", "trả lời dạng:"]) if (!seg.includes(ve)) die("thieu ve: " + ve);
+if ((seg.match(/làm gì:/g) || []).length !== 1) die("Cong 1 phai co dung MOT muc quyet");
+const mau = seg.match(/<p class="li">Trả lời mẫu[^<]*<\/p>/);
+if (!mau) die("dong Tra loi mau khong phai MOT dong text tron (tag chen giua hoac thieu)");
+if (!/«Duyệt»/.test(mau[0])) die("mau thieu dang tra loi «Duyệt»");
+console.error("     [" + st + "] khoi OK");
+' "$P185ST_CASE" || P185OK=0
+done
+# chieu do: mutant go khoi trong BAN SAO tron scripts/ + lib/ (khong loc duoi)
+P185MUT="$(mktemp -d)"
+cp -R "$ROOT/scripts" "$P185MUT/scripts"; cp -R "$ROOT/lib" "$P185MUT/lib"
+python3 - "$P185MUT/scripts/gate-card.js" <<'PYX' || P185OK=0
+import sys
+p = sys.argv[1]
+src = open(p, encoding="utf-8").read()
+n = sum(1 for l in src.splitlines() if "VIỆC CỦA ANH" in l)
+mut = "\n".join(l for l in src.splitlines() if "VIỆC CỦA ANH" not in l)
+assert mut != src, "mutant khong tac dung — script chua co khoi?"
+open(p, "w", encoding="utf-8").write(mut)
+print(f"MUTANT: da go {n} dong mang khoi khoi ban sao gate-card.js")
+PYX
+P185MOUT="$(node "$P185MUT/scripts/gate-card.js" --root "$P185WS" --slug fx 2>&1)"
+if printf '%s' "$P185MOUT" | grep -qF '👉 VIỆC CỦA ANH'; then echo "     mutant van in khoi — phep do chet"; P185OK=0; fi
+rm -rf "$P185WS" "$P185MUT"
+if [ "$P185OK" -eq 1 ]; then pass "P185 khoi VIEC-CUA-ANH Cong 1 (2 nhanh status + mutant)"; else fail "P185 khoi VIEC-CUA-ANH Cong 1 (2 nhanh status + mutant)"; fi
+
+# ── P186/P186b: khoi VIEC-CUA-ANH the Cong 2 ky duoc ─────────────────────────
+# P186: du 4 loai viec-nguoi (ngoai-hop-dong, judgment UNCERTAIN, oos, quyet
+# dinh treo) -> khoi liet du tung ma + mau gop 1 dong. P186b: PASS-thuan-may
+# 0 viec-nguoi -> khoi VAN hien voi dung 1 muc ky (pin RIENG — gap-probe F1).
+echo "P186 khoi VIEC-CUA-ANH Cong 2: du 4 loai viec + mau gop 1 dong (E2)"
+P186OK=1; P186BOK=1
+P186WS="$(mktemp -d)"
+mkdir -p "$P186WS/_acceptance/fx"
+cat > "$P186WS/_acceptance/fx/contract.md" <<'EOF'
+---
+schema_version: 1
+feature: fx demo
+slug: fx
+risk_tier: T2
+status: verified
+---
+
+## Criteria
+
+- AC-1: Given a, When b, Then c. (judgment)
+
+## Out of scope
+
+- Hoãn x.
+EOF
+printf '%s\n' '{"id":"d-s","type":"seal","gate":1}' '{"id":"d-p1","type":"fix","stage":"S4-r1","decision":"đổi hướng X","impact":"nhanh hơn"}' > "$P186WS/_acceptance/fx/decisions.jsonl"
+cat > "$P186WS/_acceptance/fx/evidence-report.md" <<'EOF'
+---
+verdict: PENDING-JUDGMENT
+---
+
+## Per-eval
+
+| Eval | Criterion | Executor | Verdict |
+|---|---|---|---|
+| E9 | AC-1 | judgment | UNCERTAIN |
+
+## Evidence
+
+- eval: E9
+  judged_by: panel
+  rationale: máy chưa chắc
+EOF
+cat > "$P186WS/_acceptance/fx/review-findings.md" <<'EOF'
+## Ngoài hợp đồng
+
+- **globToRe unescaped**
+  file: lib/x.js
+  severity: P1
+  proposal: known-limits
+  Người dùng thấy gì: Lỗi hiếm khi tên file có dấu hỏi
+EOF
+P186OUT="$(node "$ROOT/scripts/gate-card.js" --root "$P186WS" --slug fx 2>&1)" || { echo "     exit khac 0"; P186OK=0; }
+printf '%s' "$P186OUT" | node -e '
+const html = require("fs").readFileSync(0, "utf8");
+const die = m => { console.error("     " + m); process.exit(1); };
+const iYm = html.indexOf("👉 VIỆC CỦA ANH");
+const iFoot = html.indexOf("class=\"foot\"");
+if (iYm < 0 || iFoot < iYm) die("khoi thieu hoac sai vi tri");
+const seg = html.slice(iYm, iFoot);
+for (const need of ["E9", "Ngoài-1", "quyết định", "cắt/hoãn", "Ký hay trả"]) if (!seg.includes(need)) die("khoi thieu muc: " + need);
+for (const ve of ["làm gì:", "ở đâu:", "trả lời dạng:"]) if (!seg.includes(ve)) die("thieu ve: " + ve);
+const mau = seg.match(/<p class="li">Trả lời mẫu[^<]*<\/p>/);
+if (!mau) die("mau khong phai MOT dong text tron");
+for (const need of ["E9", "Ngoài-1", "Ký"]) if (!mau[0].includes(need)) die("mau gop thieu ma: " + need);
+' || P186OK=0
+# mutant: go nhanh liet ke judgment -> khoi phai thieu E9 (di qua chinh script that)
+P186MUT="$(mktemp -d)"
+cp -R "$ROOT/scripts" "$P186MUT/scripts"; cp -R "$ROOT/lib" "$P186MUT/lib"
+python3 - "$P186MUT/scripts/gate-card.js" <<'PYX' || P186OK=0
+import sys
+p = sys.argv[1]
+src = open(p, encoding="utf-8").read()
+mut = "\n".join(l for l in src.splitlines() if not ("Chấm" in l and "làm gì" in l))
+assert mut != src, "mutant khong tac dung — script chua co nhanh liet ke judgment?"
+open(p, "w", encoding="utf-8").write(mut)
+print("MUTANT: da go nhanh liet ke judgment khoi ban sao gate-card.js")
+PYX
+P186MOUT="$(node "$P186MUT/scripts/gate-card.js" --root "$P186WS" --slug fx 2>&1)"
+if printf '%s' "$P186MOUT" | node -e '
+const html = require("fs").readFileSync(0, "utf8");
+const iYm = html.indexOf("👉 VIỆC CỦA ANH");
+if (iYm < 0) process.exit(1);
+const seg = html.slice(iYm, html.indexOf("class=\"foot\""));
+process.exit(/Chấm E9/.test(seg) ? 0 : 1);'; then echo "     mutant van liet muc Cham E9 — phep do chet"; P186OK=0; fi
+if [ "$P186OK" -eq 1 ]; then pass "P186 khoi Cong 2 du 4 loai + mau gop (mutant bi bat)"; else fail "P186 khoi Cong 2 du 4 loai + mau gop (mutant bi bat)"; fi
+
+echo "P186b khoi Cong 2 PASS-thuan-may: khoi van hien, dung 1 muc ky (E4)"
+cat > "$P186WS/_acceptance/fx/contract.md" <<'EOF'
+---
+schema_version: 1
+feature: fx demo
+slug: fx
+risk_tier: T2
+status: verified
+---
+
+## Criteria
+
+- AC-1: Given a, When b, Then c.
+EOF
+rm -f "$P186WS/_acceptance/fx/review-findings.md" "$P186WS/_acceptance/fx/decisions.jsonl"
+cat > "$P186WS/_acceptance/fx/evidence-report.md" <<'EOF'
+---
+verdict: PASS
+---
+
+## Per-eval
+
+| Eval | Criterion | Executor | Verdict |
+|---|---|---|---|
+| E1 | AC-1 | test | PASS |
+
+## Evidence
+
+- eval: E1
+  run_id: abcd1234
+  exit_code: 0
+  verifier: bash tests/x.sh
+EOF
+P186BOUT="$(node "$ROOT/scripts/gate-card.js" --root "$P186WS" --slug fx 2>&1)" || { echo "     exit khac 0"; P186BOK=0; }
+printf '%s' "$P186BOUT" | node -e '
+const html = require("fs").readFileSync(0, "utf8");
+const die = m => { console.error("     " + m); process.exit(1); };
+const iYm = html.indexOf("👉 VIỆC CỦA ANH");
+if (iYm < 0) die("khoi BIEN MAT tren the 0 viec-nguoi");
+const seg = html.slice(iYm, html.indexOf("class=\"foot\""));
+if ((seg.match(/làm gì:/g) || []).length !== 1) die("phai co dung MOT muc ky-hay-tra");
+if (!seg.includes("Ký hay trả")) die("muc ky thieu");
+' || P186BOK=0
+# mutant rieng cua nhanh rong: go muc Ky-hay-tra tren chinh fixture nay
+P186BMUT="$(mktemp -d)"
+cp -R "$ROOT/scripts" "$P186BMUT/scripts"; cp -R "$ROOT/lib" "$P186BMUT/lib"
+python3 - "$P186BMUT/scripts/gate-card.js" <<'PYX' || P186BOK=0
+import sys
+p = sys.argv[1]
+src = open(p, encoding="utf-8").read()
+mut = "\n".join(l for l in src.splitlines() if "Ký hay trả" not in l)
+assert mut != src, "mutant khong tac dung — script chua co muc Ky-hay-tra?"
+open(p, "w", encoding="utf-8").write(mut)
+print("MUTANT: da go muc Ky-hay-tra khoi ban sao gate-card.js")
+PYX
+P186BMOUT="$(node "$P186BMUT/scripts/gate-card.js" --root "$P186WS" --slug fx 2>&1)"
+if printf '%s' "$P186BMOUT" | grep -qF 'Ký hay trả'; then echo "     mutant van in muc ky — phep do chet"; P186BOK=0; fi
+rm -rf "$P186WS" "$P186MUT" "$P186BMUT"
+if [ "$P186BOK" -eq 1 ]; then pass "P186b khoi khong bien mat khi 0 viec-nguoi (mutant bi bat)"; else fail "P186b khoi khong bien mat khi 0 viec-nguoi (mutant bi bat)"; fi
+
+# ── P187: khoi VIEC-CUA-ANH the Cong 2 khong ky duoc = tin chi-bao ───────────
+# 3 nhanh verdict (REJECT / BLOCKED / la) deu ghi "không cần làm gì" + cau
+# may-dang-lam-gi-tiep, KHONG doi tra loi; doi chung duong doi-gia-tri: CUNG
+# fixture nang PASS -> khoi doi sang muc Ky, chuoi chi-bao bien mat.
+echo "P187 khoi Cong 2 khong-ky-duoc: 'khong can lam gi' + 3 nhanh verdict (E3)"
+P187OK=1
+P187WS="$(mktemp -d)"
+mkdir -p "$P187WS/_acceptance/fx"
+cat > "$P187WS/_acceptance/fx/contract.md" <<'EOF'
+---
+schema_version: 1
+feature: fx demo
+slug: fx
+risk_tier: T2
+status: implemented
+---
+
+## Criteria
+
+- AC-1: Given a, When b, Then c.
+EOF
+p187_rep() { printf -- '---\nverdict: %s\n---\n\n## Per-eval\n\n| Eval | Criterion | Executor | Verdict |\n|---|---|---|---|\n| E1 | AC-1 | test | %s |\n' "$1" "$2" > "$P187WS/_acceptance/fx/evidence-report.md"; }
+for P187V in REJECT BLOCKED WEIRD; do
+  if [ "$P187V" = REJECT ]; then p187_rep "$P187V" FAIL; else p187_rep "$P187V" PASS; fi
+  P187OUT="$(node "$ROOT/scripts/gate-card.js" --root "$P187WS" --slug fx 2>&1)" || { echo "     exit khac 0 ($P187V)"; P187OK=0; }
+  printf '%s' "$P187OUT" | node -e '
+const html = require("fs").readFileSync(0, "utf8");
+const v = process.argv[1];
+const die = m => { console.error("     [" + v + "] " + m); process.exit(1); };
+const iYm = html.indexOf("👉 VIỆC CỦA ANH");
+if (iYm < 0) die("thieu khoi tren the chi-bao");
+const seg = html.slice(iYm, html.indexOf("class=\"foot\""));
+if (!seg.includes("không cần làm gì")) die("thieu chuoi chi-bao");
+if (seg.includes("trả lời dạng:") || seg.includes("Trả lời mẫu")) die("the chi-bao lai doi tra loi");
+' "$P187V" || P187OK=0
+done
+# doi chung duong doi-gia-tri tren CUNG fixture — scope vao KHOI (nhan
+# "Máy đã lo (liếc qua, không cần làm gì)" co san tren the ky-duoc, grep toan
+# trang se trung oan)
+p187_rep PASS PASS
+P187OUT="$(node "$ROOT/scripts/gate-card.js" --root "$P187WS" --slug fx 2>&1)"
+printf '%s' "$P187OUT" | node -e '
+const html = require("fs").readFileSync(0, "utf8");
+const die = m => { console.error("     " + m); process.exit(1); };
+const iYm = html.indexOf("👉 VIỆC CỦA ANH");
+if (iYm < 0) die("PASS thieu khoi");
+const seg = html.slice(iYm, html.indexOf("class=\"foot\""));
+if (seg.includes("không cần làm gì")) die("PASS van in chi-bao trong KHOI — khong phan biet trang thai");
+if (!seg.includes("Ký hay trả")) die("PASS thieu muc Ky trong khoi");
+' || P187OK=0
+rm -rf "$P187WS"
+if [ "$P187OK" -eq 1 ]; then pass "P187 chi-bao khong-can-lam-gi (3 nhanh + doi chung PASS)"; else fail "P187 chi-bao khong-can-lam-gi (3 nhanh + doi chung PASS)"; fi
 
 # ── P188: GATE-INVITE-CLAUSE round-trip nguon -> 4 ban chep, khop tung ky tu ──
 # Pattern LOOP-PICTURE-CLAUSE/P85: "chep nguyen van" la cho troi kinh dien

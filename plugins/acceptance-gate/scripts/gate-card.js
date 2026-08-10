@@ -343,6 +343,11 @@ if (gate === '1') {
   for (const j of judgmentACs) flags.push(['finfo', `${j.id} cần MẮT bạn chấm sau khi code (việc người, máy không chấm được).`]);
   if (tier === 'T3') flags.push(['finfo', 'Đụng phần nhạy cảm → tier T3, duyệt kỹ phần "sẽ KHÔNG làm".']);
   if (flags.length) P.push(`<div class="lab">Cần chú ý trước khi duyệt</div>${flags.map(([c, t]) => `<div class="flag ${c}">${t}</div>`).join('')}`);
+  // ---- 👉 VIỆC CỦA ANH (khối cứng máy-sinh — chip ② kit 2.1). Chuẩn khối:
+  // mỗi mục đủ 3 vế làm-gì/ở-đâu/trả-lời-dạng-gì + câu mẫu trả-lời-gộp MỘT
+  // dòng (một <p> duy nhất, không tag chen giữa — P185 canh). Nguồn khuôn:
+  // YOUR-MOVE-BLOCK-TEMPLATE trong human-facing-language.md.
+  P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo"><p class="li"><b>Duyệt hay trả hồ sơ này</b> — làm gì: đọc hai khối SẼ làm / KHÔNG làm và các cờ chú ý ở trên; ở đâu: trả lời ngay trong phiên đang trình thẻ; trả lời dạng: «Duyệt» hoặc «Sửa: nêu điều cần đổi».</p><p class="li">Trả lời mẫu (một dòng): «Duyệt» — hoặc «Sửa: nêu điều cần đổi»</p></div>`);
   P.push(`<div class="foot"><span class="rev">↻ Sửa 1 dòng tiêu chí GIỜ rẻ hơn 10× phát hiện sai sau khi code.</span><div class="btns"><button class="b no">Sửa lại</button><button class="b yes">Duyệt, cho code</button></div></div>
 </div></div>`);
   process.stdout.write(P.join('\n'));
@@ -422,6 +427,7 @@ if (!approvable) {
   P.push(`<div class="gc"><div class="card">
 <div class="h"><div><div class="ft">${esc(featurePlain)}</div><div class="sub">Cổng 2 · ${tier === 'T3' ? 'tier T3 · ' : ''}CHƯA ký được</div></div><span class="chip ${ch.c}">${esc(ch.t)}</span></div>
 <div class="lab">Vì sao chưa ký được</div>${notes.map(([c, t]) => `<div class="flag ${c}">${t}</div>`).join('')}
+<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gnot"><p class="li">không cần làm gì — ${verdict === 'REJECT' ? 'máy đang quay lại sửa code rồi tự chấm vòng mới' : verdict === 'BLOCKED' ? 'máy đang khắc phục nguyên nhân kẹt rồi chạy lại vòng chấm' : 'máy phải chạy lại vòng chấm để có kết luận đọc được'}; thẻ này chỉ báo trạng thái. Khi máy cần bạn quyết, nó hỏi bằng tin nhắn riêng.</p></div>
 <div class="foot"><span class="rev">↻ Trả lại → quay về code; trạng thái này không có nút ký.</span><div class="btns"><button class="b no">Quay về code</button></div></div>
 </div></div>`);
   process.stdout.write(P.join('\n'));
@@ -443,16 +449,17 @@ if (ooc.unclassified) {
 if (ooc.findings.length) {
   P.push(`<div class="lab">Ngoài hợp đồng — bạn quyết (${ooc.findings.length})</div>`);
   P.push(`<div class="flag fwarn">Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — máy cố ý không tự sửa.</div>`);
-  for (const f of ooc.findings) {
+  ooc.findings.forEach((f, fi) => {
     const rec = f.proposal === 'new-contract' ? 'Máy đề xuất: tách thành một việc riêng.'
       : f.proposal === 'known-limits' ? 'Máy đề xuất: ghi vào hạn chế đã biết rồi ship.'
       : 'Máy chưa đề xuất hướng nào.';
     // In câu ngôn ngữ sản phẩm do bước triage viết. Thiếu nó thì nói thẳng là
     // thiếu — TUYỆT ĐỐI không rơi về title kỹ thuật của reviewer, vì đó là thứ
     // người quyết kinh doanh không đọc được (và judge sẽ chấm nhầm tài liệu).
+    // Nhãn Ngoài-<n> là mã tra cứu (N3) — khối 👉 VIỆC CỦA ANH trỏ về nó.
     const q = f.plain ? f.plain : '(chưa có mô tả cho người đọc — xem review-findings.md)';
-    P.push(`<div class="item"><p class="q">${esc(q)}</p><p class="ai">${esc(rec)}</p><div class="btns"><button class="b bn">ghi Known limits</button><button class="b bn">mở hợp đồng mới</button><button class="b no">nâng phạm vi sửa ngay</button></div></div>`);
-  }
+    P.push(`<div class="item"><p class="q">Ngoài-${fi + 1} · ${esc(q)}</p><p class="ai">${esc(rec)}</p><div class="btns"><button class="b bn">ghi Known limits</button><button class="b bn">mở hợp đồng mới</button><button class="b no">nâng phạm vi sửa ngay</button></div></div>`);
+  });
 }
 const yourCount = decisions.length + (oos.length ? 1 : 0);
 if (yourCount) {
@@ -486,6 +493,26 @@ if (machineRows.length === 0) P.push(`<div class="mach" style="margin-top:8px">K
 else if (allPass) P.push(`<div class="mach" style="margin-top:8px"><b>${machinePass}/${machineRows.length} phép kiểm máy đều đạt</b>${red ? ` · ${red} thật sự mới (chạy code cũ là hỏng → đúng là test feature)` : ''}${green ? ` · ${green} canh hồi quy` : ''}${evComplete ? ' · bằng chứng đủ, không lỗi.' : '.'}</div>`);
 else P.push(`<div class="flag fred" style="margin-top:8px"><b>${machinePass}/${machineRows.length} phép kiểm máy đạt · ${machineRows.length - machinePass} CHƯA đạt</b> — xem lại trước khi ký.</div>`);
 P.push(`</details>`);
+// ---- 👉 VIỆC CỦA ANH (khối cứng máy-sinh — liệt TỪNG việc máy đã đếm, đúng
+// thứ tự thẻ; mẫu gộp build động từ đúng các mã đang hiện, MỘT dòng — P186
+// canh đủ mã, P186b canh khối-không-biến-mất khi 0 việc-người). ----
+{
+  const ymItems = []; const ymParts = [];
+  ooc.findings.forEach((f, fi) => {
+    const lbl = 'Ngoài-' + (fi + 1);
+    ymItems.push(`<b>Chọn hướng cho ${lbl}</b> — làm gì: đọc mục ${lbl} ở khối "Ngoài hợp đồng"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «${lbl}: ghi Known limits» hoặc «${lbl}: mở hợp đồng mới» hoặc «${lbl}: nâng phạm vi sửa ngay».`);
+    ymParts.push(lbl + (f.proposal === 'new-contract' ? ' mở hợp đồng mới' : ' ghi Known limits'));
+  });
+  for (const d of decisions) {
+    ymItems.push(`<b>Chấm ${esc(d.id)}</b> — làm gì: đọc câu hỏi ${esc(d.id)} ở khối "Việc chỉ mình bạn quyết được"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «${esc(d.id)} Đạt» hoặc «${esc(d.id)} Chưa đạt vì nêu lý do».`);
+    ymParts.push(esc(d.id) + ' Đạt');
+  }
+  if (oos.length) { ymItems.push(`<b>Xác nhận phần cắt/hoãn</b> — làm gì: đọc mục xác nhận phạm vi ở trên; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «đồng ý cắt» hoặc «kéo vào: nêu mục».`); ymParts.push('đồng ý cắt'); }
+  if (decsProvisional.length) { ymItems.push(`<b>Phê ${decsProvisional.length} quyết định ghi sau Cổng 1</b> — làm gì: đọc khối "Quyết định CHƯA duyệt"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «phê hết» hoặc «không phê: nêu mã».`); ymParts.push('phê hết quyết định treo'); }
+  ymItems.push(`<b>Ký hay trả</b> — làm gì: sau khi trả lời các mục trên, chốt hồ sơ; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «Ký» hoặc «Trả lại: nêu lý do».`);
+  ymParts.push('Ký');
+  P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo">${ymItems.map(t => `<p class="li">${t}</p>`).join('')}<p class="li">Trả lời mẫu (một dòng): «${ymParts.join('; ')}»</p></div>`);
+}
 P.push(`<div class="foot"><span class="rev">↻ Đảo ngược dễ: trả lại → quay về code, không mất gì.</span><div class="btns"><button class="b no">Trả lại</button><button class="b yes">Ký duyệt</button></div></div>
 </div></div>`);
 process.stdout.write(P.join('\n'));
