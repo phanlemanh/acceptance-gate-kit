@@ -5,7 +5,7 @@ slug: stale-theo-diff-pr
 owner: manh.phan@onemount.com
 risk_tier: T3      # chạm scripts/pre-merge-check.sh (t3_paths) — tier máy-derive; nghi thức giữ gọn theo phê duyệt đề bài (contract 5 AC, trần 2 vòng chấm)
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-08-10
 time_human_minutes: {gate1: 0, gate2: 0}   # owner tuyên không đo phút — 0 có chủ đích, đừng đọc thành "0 phút thật"
