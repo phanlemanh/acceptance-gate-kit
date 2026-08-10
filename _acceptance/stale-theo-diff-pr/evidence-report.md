@@ -5,7 +5,7 @@ verdict: PASS
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 21553f60c68097761c8692a2a9c8bb78f45fd876
+verified_commit: 99d1ea5e93c0731eac7f6a6d7a93be364b8bb7de
 human_signoff: Manh Phan 2026-08-10
 ---
 
@@ -173,6 +173,18 @@ none — mọi eval đều deterministic, không eval nào khai runs > 1.
 ## Iterations
 
 Round 1: 12/12 eval PASS — mọi dòng PASS đích danh mà expected đòi đều có mặt trong stdout (VC07/VC07-fire/VC08/VC09/VC10/VC10b/VC11-control/VC11-mut-applied/VC11-mutant/VC12, DV5, P30/P41/P181), tổng suite scripts 671 passed 0 failed.
+
+### Re-pin lần 1 — 2026-08-10, sau chữ ký, do 2 sửa hậu-CI
+run_id: repin-20260810-stale-theo-diff-pr-lane1
+sha: 99d1ea5e93c0731eac7f6a6d7a93be364b8bb7de · suites: 6 lệnh exit 0
+Lý do: (1) fix ca VC10b — `commit-tree` trong fixture thiếu `$GIT_ID` nên CI
+không-identity tạo orphan base thất bại, exit 2 oan (run 31383617449; local
+xanh vì máy dev có identity — đúng lớp test-phụ-thuộc-môi-trường); (2) vẽ lại
+PRODUCT-MAP.md sau khi contract sang signed-off (map là view máy sinh, ADR
+0007 — lớp cổng-tự-làm-mình-đỏ-bằng-vật-vòng-này-đẻ-ra, sổ vấp mcp-cost-guard).
+Cả hai KHÔNG chạm hành vi engine đã ký; làn chạy lại TRỌN 6 suite tại sha
+trên, suite scripts chạy dưới `GIT_CONFIG_GLOBAL=/dev/null` giả lập đúng điều
+kiện CI đã cắn — VC10b xanh cả 3 assert.
 
 ## Gate 2 checklist (human)
 
