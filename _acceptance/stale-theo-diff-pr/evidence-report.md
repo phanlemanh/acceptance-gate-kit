@@ -6,7 +6,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 21553f60c68097761c8692a2a9c8bb78f45fd876
-human_signoff:
+human_signoff: Manh Phan 2026-08-10
 ---
 
 # Evidence Report: stale-theo-diff-pr
