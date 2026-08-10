@@ -9316,11 +9316,14 @@ COPIES = [
 texts = {rel: (root / rel).read_text(encoding="utf-8") for rel in COPIES}
 for rel, t in texts.items():
     assert clause in t, rel + ": LECH nguon — khong chua GATE-INVITE-CLAUSE khop tung ky tu"
-# chieu do: dot bien bo nho 1 ky tu tren 1 ban chep -> phep so do DICH DANH ban do
+# chieu do: dot bien bo nho tren 1 ban chep -> phep so do DICH DANH ban do.
+# Mot file co the chep clause NHIEU lan (feature-loop: Gate 1 + Gate 2) nen
+# phai dot bien MOI lan xuat hien — lech 1 trong 2 ban trong file van la lech,
+# nhung phep-do-chua "clause in t" chi thay ban con nguyen (da dam luc thi cong).
 victim = COPIES[0]
-mut = texts[victim].replace(clause, clause.replace("MỘT khối", "MOT khoi"), 1)
+mut = texts[victim].replace(clause, clause.replace("MỘT khối", "MOT khoi"))
 assert mut != texts[victim], "dot bien khong tac dung"
-print("MUTANT: da lam lech 1 ky tu ban chep " + victim + " (bo nho)")
+print("MUTANT: da lam lech moi ban chep clause trong " + victim + " (bo nho)")
 bad = [rel for rel, t in {**texts, victim: mut}.items() if clause not in t]
 assert bad == [victim], "phep so phai do DICH DANH " + victim + ", thay: " + repr(bad)
 print("P188 OK (nguon + 4 ban khop; mutant do dich danh " + victim + ")")
