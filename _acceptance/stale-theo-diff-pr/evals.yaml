@@ -33,6 +33,11 @@ evals:
       hồ sơ KHÔNG trong diff + PR mới sạch chạy với --base → exit 0, stdout
       pre-merge KHÔNG chứa "evidence is stale" cho 2 slug cũ VÀ không NOTE
       staleness nào cho chúng; dòng "OK [slug-cũ]" vẫn in — luật khác vẫn chạy)
+      VÀ "PASS: VC07-fire" (đối chứng dương should-FIRE theo yêu cầu B mốc 1:
+      trong CÙNG fixture, một slug cũ ngoài diff mang human_signoff TRỐNG →
+      VIOLATION "human_signoff is empty" VẪN nổ đích danh slug đó và exit 1 —
+      chứng minh chỉ luật staleness bị thu phạm vi, không phải miễn kiểm toàn
+      bộ slug ngoài diff)
       VÀ "PASS: VC12" (gap-probe P1-1, im lặng TRỌN khối: slug cũ ngoài diff
       mang verified_commit MA — SHA không tồn tại, clone đầy đủ — với --base →
       KHÔNG "is a phantom" VIOLATION, exit 0; đối chứng cùng ca: chính slug đó

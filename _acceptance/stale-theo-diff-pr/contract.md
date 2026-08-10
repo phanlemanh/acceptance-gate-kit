@@ -42,7 +42,10 @@ Source input: docs/research/so-vap-trien-khai.md dòng 68 + đề bài ① kit 2
   VIOLATION stale, không VIOLATION phantom-pin (kể cả khi pin là SHA mà
   squash-merge đã vứt — chính ca floorplanstudio), không NOTE shallow /
   no-verified_commit — sử liệu là sử liệu trọn gói; mọi luật khác trên S
-  (verdict, chữ ký, recheck, re-pin) chạy y như trước.
+  (verdict, chữ ký, recheck, re-pin) chạy y như trước — và vế "vẫn chạy" phải
+  được chứng minh bằng ĐỐI CHỨNG DƯƠNG trong cùng ca: một slug ngoài diff mang
+  lỗi KHÁC staleness (chữ ký trống) vẫn bị VIOLATION đúng luật đó (yêu cầu B
+  mốc 1 — "im lặng về stale" phải phân biệt được với "miễn kiểm toàn bộ").
 - AC-3: Given slug cũ S đã signed-off từ trước, When PR CHẠM vào hồ sơ của nó
   (bất kỳ file nào dưới `_acceptance/S/` nằm trong diff) trong lúc code đã
   đổi sau `verified_commit`, Then luật staleness áp như thường → VIOLATION
@@ -93,6 +96,10 @@ Quét 2 trục (morphological, thu gọn theo nghi-thức-tương-xứng):
 
 ## Notes
 
+- Vì sao KHÔNG có code mới ở tầng parse (cite theo yêu cầu B): tái dùng
+  `slug_in_diff()` + khối diff-scope hoisted sẵn có — bài học ĐỢT 1 W-spec
+  "khuôn-giải-sai là tự viết parser thứ ba thay vì dùng hàm chuẩn"; một nguồn
+  ngữ nghĩa slug↔diff cho cả gap-probe lẫn staleness, lệch nhau là hết đường.
 - Lưới an toàn giữ nguyên sau đổi: PR đổi code mà KHÔNG mang hồ sơ nào →
   T1-escape chặn như cũ; PR mang hồ sơ nào thì hồ sơ đó vào diff → bị
   soi staleness. Không có đường đi nào cho code lọt qua mà không bị một trong
