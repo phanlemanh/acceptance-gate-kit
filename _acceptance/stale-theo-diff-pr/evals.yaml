@@ -1,0 +1,144 @@
+schema_version: 1
+feature_slug: stale-theo-diff-pr
+# CỐ Ý không có eval `judgment`: đề bài là sửa-một-hành-vi cơ học trong một
+# file engine (thu hẹp phạm vi một luật theo quan hệ slug↔diff đã có sẵn hàm),
+# mọi khẳng định đều máy-chấm-được. T3 + judgment = human_override mỗi item,
+# trong khi gate-fatigue là ràng buộc số 1 (CLAUDE.md North Star).
+#
+# Các ca VC07+ dưới đây SẼ được thêm vào tests/scripts/run-tests.sh (mục V1 —
+# verified_commit staleness, cùng khuôn mk_git_repo code-sinh); eval ghim đích
+# danh dòng PASS của từng ca trong stdout của suite, không chỉ exit 0 (luật
+# tổng-kết-phải-kèm-số-ca + ba-lớp-che-màu-xanh).
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      exit 0; stdout có "PASS: VC08" — fixture git code-sinh HỖN HỢP đúng AC-5
+      (gap-probe P0-2): 2 slug cũ signed-off tên xếp TRƯỚC theo alphabet + 1
+      slug mới có hồ sơ trong diff (--base tường minh) + code ngoài t1 đổi sau
+      verified_commit của slug mới → MỘT lần chạy ghim ĐỦ cả "OK [slug-cũ]" ×2
+      lẫn VIOLATION "evidence is stale" ĐÍCH DANH slug mới kèm tên file đổi
+      (khuôn thông điệp cũ giữ nguyên) — chặn lớp rò-trạng-thái giữa hai lượt
+      vòng lặp per-slug.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      exit 0; stdout có "PASS: VC07" (2 slug cũ signed-off, verified_commit cũ,
+      hồ sơ KHÔNG trong diff + PR mới sạch chạy với --base → exit 0, stdout
+      pre-merge KHÔNG chứa "evidence is stale" cho 2 slug cũ VÀ không NOTE
+      staleness nào cho chúng; dòng "OK [slug-cũ]" vẫn in — luật khác vẫn chạy)
+      VÀ "PASS: VC07-fire" (đối chứng dương should-FIRE theo yêu cầu B mốc 1:
+      trong CÙNG fixture, một slug cũ ngoài diff mang human_signoff TRỐNG →
+      VIOLATION "human_signoff is empty" VẪN nổ đích danh slug đó và exit 1 —
+      chứng minh chỉ luật staleness bị thu phạm vi, không phải miễn kiểm toàn
+      bộ slug ngoài diff)
+      VÀ "PASS: VC12" (gap-probe P1-1, im lặng TRỌN khối: slug cũ ngoài diff
+      mang verified_commit MA — SHA không tồn tại, clone đầy đủ — với --base →
+      KHÔNG "is a phantom" VIOLATION, exit 0; đối chứng cùng ca: chính slug đó
+      khi hồ sơ VÀO diff → "is a phantom" VIOLATION nổ lại y cũ, exit 1 —
+      chứng minh phạm vi guard bọc cả nhánh phantom-pin chứ không riêng
+      stale_files, đúng ca squash-merge floorplanstudio).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      exit 0; stdout có "PASS: VC09" — cùng fixture VC07 nhưng nhánh PR CHẠM một
+      file dưới _acceptance/<slug-cũ>/ → slug cũ mất quyền im lặng: exit 1 +
+      VIOLATION "evidence is stale" đích danh slug cũ (chống giả-dạng-sử-liệu).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      exit 0; stdout có "PASS: VC10" (fixture VC07 chạy KHÔNG --base qua
+      `env -u PRE_MERGE_BASE` → fallback kiểm TẤT: exit 1 với stale VIOLATION
+      cho slug cũ y hành vi trước bản vá, và số dòng NOTE hằng khai
+      staleness-toàn-cục đếm bằng grep -cF ĐÚNG == 1 dù fixture có 2 slug mang
+      verified_commit — gap-probe P2-1) VÀ "PASS: VC10b" (gap-probe P0-1: base
+      là nhánh orphan cùng repo → diff KHÔNG dựng được dù --base có mặt,
+      DIFF_READY=0 → cùng màu fallback với VC10: stale VIOLATION + NOTE ==1 —
+      chặn lớp guard-sai-biến kiểm $BASE thay vì DIFF_READY trên shallow clone
+      CI). Đồng thời VC01–VC06 có sẵn trong cùng suite giữ nguyên màu.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      exit 0; stdout có "PASS: VC11-control" (đối chứng dương: chép TRỌN
+      scripts/ + lib/ sang vị trí mutant — gap-probe P2-2, để đường chạy giống
+      bản thật, không xanh nhờ fallback-NOTE thiếu lib — chạy trên fixture hỗn
+      hợp VC07 bản sạch (review r1 P2-1 sửa chữ-khớp-vật: test dùng fixture
+      VC07, không phải VC08) → cùng kết cục với bản thật: slug cũ im lặng) và
+      "PASS: VC11-mutant" (bản chép bị đột biến gỡ điều kiện slug-trong-diff,
+      XÁC NHẬN đột biến đã áp bằng grep -c mẫu đã sửa TRƯỚC khi chạy → cùng
+      fixture đổi màu: stale VIOLATION nổ thêm trên slug cũ ngoài diff).
+      Thiếu một trong hai vế thì ca không phân biệt được "bắt đúng" với
+      "chưa bao giờ chạy".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: "bash _acceptance/stale-theo-diff-pr/checks/version-bump.sh"
+    expected: >
+      exit 0; mọi manifest đang mang version acceptance-gate đều = 1.39.2 và
+      KHÔNG còn file manifest nào 1.39.1 (đổi thật đo bằng so với số cũ, sanity
+      counter số manifest tìm thấy ≥ 4 — 0 hit là grep hỏng, không phải sạch).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.mirror_sync
+    expected: "exit 0 — mirror plugins/ không trôi khỏi nguồn sau bản vá (P30)"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      exit 0; stdout có "PASS: DV5 scripts/pre-merge-check.sh" — diff so với base
+      CHỈ THÊM, 0 dòng luật cũ bị xoá/sửa (bản vá là guard-wrapper thêm dòng).
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+
+  - id: E9
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "exit 0 — hook không đọc pre-merge-check.sh nhưng suite là lưới hồi quy khai trong suite_keys"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+
+  - id: E10
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0 — gồm P30/P41 (mirror), P181 (sàn version) trên số 1.39.2"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+
+  - id: E11
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "exit 0"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+
+  - id: E12
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.product_map
+    expected: "exit 0 — bản đồ sản phẩm khớp hồ sơ xưởng sau khi thêm slug stale-theo-diff-pr"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

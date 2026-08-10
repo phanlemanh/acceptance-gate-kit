@@ -489,6 +489,17 @@ if [ "$GAP_PROBE_MODE" != "off" ] && [ "$DIFF_READY" -eq 0 ]; then
   gap_probe_not_enforced "$DIFF_SKIP_NOTE (luật chỉ xét slug có file trong diff PR)"
 fi
 
+# ─── stale-theo-diff-pr (1.39.2): phạm vi luật staleness ────────────────────
+# Không có phạm vi diff (không --base, hoặc base có mà diff không dựng được —
+# shallow/orphan/force-push) thì luật staleness chạy trên TOÀN BỘ slug như
+# trước bản 1.39.2 (fail-safe, hành vi cũ). Tắt-phạm-vi phải THẤY ĐƯỢC (AC-4):
+# đúng MỘT dòng hằng cho cả lần chạy — chuỗi cố định để CI grep được, cố ý
+# không chứa chữ "skipped" (guard fail-closed của gate.yml grep chuỗi đó cho
+# răng T1-escape, dòng này không được lẫn vào).
+if [ "$DIFF_READY" -eq 0 ]; then
+  echo "NOTE: staleness scope — no PR diff scope; the stale-evidence rule checks ALL slugs (pass --base <ref> to scope it to slugs whose _acceptance/<slug>/ files are in the PR diff)"
+fi
+
 # per-slug: hai đường dẫn độc lập về lexical — vòng đếm dưới đây dùng biến
 # _sd, vòng luật thật dùng dir. Tiêm hỏng một vòng thì con số lệch và điểm
 # nghẽn từ chối kết luận (AC-9: bắt cả biến thể CHƯA nghĩ ra).
@@ -810,6 +821,24 @@ GLOBS2
   # evidence. Reports without the field (older template) and clones where the
   # commit is unreachable (rebase/squash/shallow fetch) only get a NOTE.
   vc="$(front_field "$report" verified_commit)"
+  # ─── stale-theo-diff-pr (1.39.2): sử liệu ngoài diff im lặng TRỌN khối ────
+  # Ngữ nghĩa: staleness bảo vệ "bằng chứng mô tả cây ĐANG merge". Hồ sơ đã
+  # merge là sử liệu bất biến qua git — một nhánh mới ĐƯƠNG NHIÊN đổi code sau
+  # verified_commit của mọi feature cũ, nên soi chúng là chặn-mọi-PR-vì-lịch-sử
+  # (2 lần cắn + 4 lần re-pin bắc cầu ở repo tiêu thụ, sổ vấp dòng 68). Phạm
+  # vi dùng ĐÚNG hàm slug_in_diff mà luật gap-probe dùng (ledger d-116) — một
+  # nguồn ngữ nghĩa slug↔diff, không parser thứ ba. Bọc TRỌN khối (cả
+  # phantom-pin/shallow/no-vc NOTE): pin của sử liệu sau squash-merge thành
+  # SHA-ma là số phận tự nhiên của lịch sử, không phải lỗi của PR đang merge;
+  # đánh đổi (pin ma ngoài diff vô hình — chạm hồ sơ là nổ lại) owner ký có
+  # mắt tại Cổng 1 hồ sơ stale-theo-diff-pr. Dòng vc= ở TRÊN cố ý nằm NGOÀI
+  # guard: khối re-pin phía dưới so lane với vc của CHÍNH slug này — skip phép
+  # gán là rò vc slug trước sang (đúng lớp rò-trạng-thái gap-probe P0-2).
+  # Guard kiểm DIFF_READY chứ KHÔNG kiểm $BASE: base-có-mà-diff-không-dựng-được
+  # (clone shallow CI) phải rơi về kiểm-tất, không phải tắt im (gap-probe P0-1).
+  if [ "$DIFF_READY" -eq 1 ] && ! slug_in_diff "$slug"; then # STALE-DIFF-SCOPE-GUARD
+    : # sử liệu ngoài diff — không soi verified_commit (AC-2); chạm hồ sơ là nó vào diff và bị soi lại như thường (AC-3)
+  else
   if [ -z "$vc" ]; then
     echo "NOTE [$slug]: report has no verified_commit (older template) — evidence is not pinned to a commit; code drift since verify is NOT machine-checked. Re-verify to pin."
   elif ! command -v git >/dev/null 2>&1 || ! git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
@@ -840,6 +869,7 @@ GLOBS2
       violations=$((violations+1)); continue
     fi
   fi
+  fi # đóng STALE-DIFF-SCOPE-GUARD — từ đây trở đi mọi luật chạy cho CẢ slug ngoài diff (AC-2 vế "vẫn chạy")
   # run-log presence: the re-check below reconciles report run_ids against
   # _acceptance/<slug>/run-log.jsonl (machine-written at verify). A missing log
   # (older verify flow) is tolerated but must be visible.

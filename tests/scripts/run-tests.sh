@@ -1705,6 +1705,123 @@ printf 'code v2 uncommitted\n' > "$R/src/app.js"
 bash "$CHECK" "$R" >/dev/null 2>&1; check VC06 1 $?
 
 echo ""
+echo "--- staleness theo diff PR (stale-theo-diff-pr: phạm vi theo slug_in_diff) ---"
+# Fixture HỖN HỢP code-sinh tái hiện floorplanstudio (AC-5): 2 slug cũ
+# signed-off tên xếp TRƯỚC theo alphabet + 1 slug mới trong diff PR. Mọi lần
+# chạy đều qua `env -u PRE_MERGE_BASE` (gap-probe P2-3: env lọt làm ca no-base
+# đổi nghĩa). Tham số: <newpin> clean|stale (pin của slug mới tại HEAD hay tại
+# base), <fire> 0|1 (thêm feat-old-c chữ-ký-trống — đối chứng dương should-FIRE
+# của B: slug ngoài diff mang lỗi KHÁC staleness vẫn phải nổ), <oldpin>
+# real|phantom (feat-old-a ghim SHA ma — ca squash-merge floorplanstudio).
+mk_mixed_repo() { # <root> <newpin> <fire> <oldpin>
+  local R="$1" newpin="$2" fire="$3" oldpin="$4" olds s
+  rm -rf "$R"; mkdir -p "$R/src" "$R/_acceptance"
+  git init -q "$R"
+  printf 'schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "docs/**"\n    - "*.md"\n' > "$R/_acceptance/config.yaml"
+  printf 'code v1\n' > "$R/src/app.js"
+  printf '#!/bin/sh\nexit 0\n' > "$R/verify.sh"
+  olds="feat-old-a feat-old-b"; [ "$fire" = 1 ] && olds="$olds feat-old-c"
+  for s in $olds; do
+    mkdir -p "$R/_acceptance/$s"
+    printf -- '---\nschema_version: 1\nfeature: %s\nslug: %s\nrisk_tier: T2\nsurfaces: [api]\nstatus: signed-off\napproved_by: Manh Phan\napproved_at: 2026-06-10\n---\n' "$s" "$s" > "$R/_acceptance/$s/contract.md"
+  done
+  git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm c1-impl
+  MIX_C1="$(git -C "$R" rev-parse HEAD)"
+  for s in $olds; do
+    local pin="$MIX_C1" sign="Manh 2026-08-01"
+    [ "$s" = feat-old-a ] && [ "$oldpin" = phantom ] && pin="deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+    [ "$s" = feat-old-c ] && sign=""   # chữ ký TRỐNG — luật khác staleness phải nổ (VC07-fire)
+    printf -- '---\nschema_version: 1\nfeature_slug: %s\nverdict: PASS\nverified_commit: %s\nhuman_signoff: %s\n---\n\n## Evidence\n- eval: E1\n  run_id: %s-E1-001\n  exit_code: 0\n  verifier: verify.sh\n  verified_at: 2026-08-01\n' "$s" "$pin" "$sign" "$s" > "$R/_acceptance/$s/evidence-report.md"
+  done
+  git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm c2-evidence
+  git -C "$R" branch basepoint
+  MIX_BASE="$(git -C "$R" rev-parse HEAD)"
+  mkdir -p "$R/_acceptance/feat-zz-new"
+  printf -- '---\nschema_version: 1\nfeature: feat-zz-new\nslug: feat-zz-new\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\napproved_by: Manh Phan\napproved_at: 2026-08-10\n---\n' > "$R/_acceptance/feat-zz-new/contract.md"
+  printf 'code v2\n' > "$R/src/app.js"
+  git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm c3-pr
+  MIX_C3="$(git -C "$R" rev-parse HEAD)"
+  local newvc="$MIX_C3"; [ "$newpin" = stale ] && newvc="$MIX_BASE"
+  printf -- '---\nschema_version: 1\nfeature_slug: feat-zz-new\nverdict: PASS\nverified_commit: %s\nhuman_signoff: Manh 2026-08-10\n---\n\n## Evidence\n- eval: E1\n  run_id: feat-zz-new-E1-001\n  exit_code: 0\n  verifier: verify.sh\n  verified_at: 2026-08-10\n' "$newvc" > "$R/_acceptance/feat-zz-new/evidence-report.md"
+  git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm c4-evidence
+}
+STALE_NOTE="NOTE: staleness scope"
+
+echo "VC07 hỗn hợp 2-cũ-ngoài-diff + 1-mới-sạch, --base -> exit 0, sử liệu im lặng, luật khác vẫn chạy"
+R="$T/vc07"; mk_mixed_repo "$R" clean 0 real
+out7="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base basepoint 2>&1)"; check VC07 0 $?
+hasout VC07-oka "OK [feat-old-a]" "$out7"
+hasout VC07-okb "OK [feat-old-b]" "$out7"
+hasout VC07-oknew "OK [feat-zz-new]" "$out7"
+nothas VC07-nostale "evidence is stale" "$out7"
+nothas VC07-nonote "$STALE_NOTE" "$out7"
+
+echo "VC07-fire đối chứng dương: slug ngoài diff chữ-ký-trống -> luật signoff VẪN nổ (chỉ staleness bị thu phạm vi)"
+R="$T/vc07f"; mk_mixed_repo "$R" clean 1 real
+out7f="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base basepoint 2>&1)"; check VC07-fire 1 $?
+hasout VC07-fire-msg "human_signoff is empty" "$out7f"
+hasout VC07-fire-slug "VIOLATION [feat-old-c]" "$out7f"
+nothas VC07-fire-nostale "evidence is stale" "$out7f"
+
+echo "VC08 slug MỚI trong diff bị stale -> đỏ đích danh slug mới, slug cũ vẫn OK trong CÙNG lần chạy"
+R="$T/vc08"; mk_mixed_repo "$R" stale 0 real
+out8="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base basepoint 2>&1)"; check VC08 1 $?
+hasout VC08-oka "OK [feat-old-a]" "$out8"
+hasout VC08-okb "OK [feat-old-b]" "$out8"
+case "$out8" in *"VIOLATION [feat-zz-new]: evidence is stale"*src/app.js*) echo "  PASS: VC08-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: VC08-msg (expected stale VIOLATION đích danh feat-zz-new + src/app.js)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+same VC08-stale-count 1 "$(printf '%s\n' "$out8" | grep -c 'evidence is stale')"
+
+echo "VC09 hồ sơ CŨ bị chạm (vào diff) -> mất quyền im lặng, stale nổ lại"
+R="$T/vc09"; mk_mixed_repo "$R" clean 0 real
+printf 'ghi chú hậu kiểm\n' > "$R/_acceptance/feat-old-a/note.md"
+git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm c5-touch-old
+out9="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base basepoint 2>&1)"; check VC09 1 $?
+case "$out9" in *"VIOLATION [feat-old-a]: evidence is stale"*) echo "  PASS: VC09-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: VC09-msg (expected stale VIOLATION trên feat-old-a bị chạm)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+hasout VC09-okb "OK [feat-old-b]" "$out9"
+
+echo "VC10 không --base -> fallback kiểm TẤT như cũ + đúng MỘT dòng NOTE hằng"
+R="$T/vc10"; mk_mixed_repo "$R" clean 0 real
+out10="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" 2>&1)"; check VC10 1 $?
+same VC10-stale-count 2 "$(printf '%s\n' "$out10" | grep -c 'evidence is stale')"
+same VC10-note-count 1 "$(printf '%s\n' "$out10" | grep -cF "$STALE_NOTE")"
+
+echo "VC10b base là orphan (diff KHÔNG dựng được dù --base có mặt) -> cùng màu fallback, không tắt im"
+R="$T/vc10b"; mk_mixed_repo "$R" clean 0 real
+# $GIT_ID bắt buộc: commit-tree đòi ident; CI không có user.email global nên
+# thiếu nó là "empty ident name" → OB rỗng → base không resolve → exit 2 oan
+# (đã cắn thật ở run 31383617449 — local xanh vì máy dev có identity).
+OB="$(git $GIT_ID -C "$R" commit-tree "$(git -C "$R" mktree </dev/null)" -m orphan </dev/null)"
+git -C "$R" branch orphanbase "$OB"
+out10b="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base orphanbase 2>&1)"; check VC10b 1 $?
+same VC10b-stale-count 2 "$(printf '%s\n' "$out10b" | grep -c 'evidence is stale')"
+same VC10b-note-count 1 "$(printf '%s\n' "$out10b" | grep -cF "$STALE_NOTE")"
+
+echo "VC11 mutant gỡ guard: control chép trọn scripts/+lib/ phải XANH trước, mutant xác-nhận-đột-biến rồi phải ĐỎ"
+MUTD="$T/vc11-tool"; rm -rf "$MUTD"; mkdir -p "$MUTD"
+cp -R "$HERE/../../scripts" "$MUTD/scripts"
+cp -R "$HERE/../../lib" "$MUTD/lib"
+R="$T/vc07"   # dùng lại fixture VC07 (clean) — control phải cùng kết cục với bản thật
+outc="$(env -u PRE_MERGE_BASE bash "$MUTD/scripts/pre-merge-check.sh" "$R" --base basepoint 2>&1)"; check VC11-control 0 $?
+nothas VC11-control-nofallback "not vendored" "$outc"
+nothas VC11-control-nostale "evidence is stale" "$outc"
+sed '/# STALE-DIFF-SCOPE-GUARD$/ s/.*/  if false; then # STALE-DIFF-SCOPE-GUARD/' "$MUTD/scripts/pre-merge-check.sh" > "$MUTD/scripts/pre-merge-check.mut" \
+  && mv "$MUTD/scripts/pre-merge-check.mut" "$MUTD/scripts/pre-merge-check.sh"
+# XÁC NHẬN đột biến đã áp TRƯỚC khi đọc kết quả (luật sổ vấp: mọi lượt phá vật
+# phải in dấu hiệu xác nhận, không tin lệnh chạy trót lọt):
+same VC11-mut-applied 1 "$(grep -c '^  if false; then # STALE-DIFF-SCOPE-GUARD$' "$MUTD/scripts/pre-merge-check.sh")"
+outm="$(env -u PRE_MERGE_BASE bash "$MUTD/scripts/pre-merge-check.sh" "$R" --base basepoint 2>&1)"; check VC11-mutant 1 $?
+case "$outm" in *"VIOLATION [feat-old-a]: evidence is stale"*) echo "  PASS: VC11-mutant-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: VC11-mutant-msg (mutant gỡ guard mà slug cũ không stale — ca không phân biệt được)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo "VC12 pin MA trên sử liệu ngoài diff -> im lặng TRỌN khối; chạm hồ sơ -> phantom VIOLATION nổ lại"
+R="$T/vc12"; mk_mixed_repo "$R" clean 0 phantom
+out12="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base basepoint 2>&1)"; check VC12 0 $?
+nothas VC12-nophantom "is a phantom" "$out12"
+printf 'ghi chú hậu kiểm\n' > "$R/_acceptance/feat-old-a/note.md"
+git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm c5-touch-phantom
+out12b="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base basepoint 2>&1)"; check VC12-touched 1 $?
+case "$out12b" in *"VIOLATION [feat-old-a]"*"is a phantom"*|*"is a phantom"*"feat-old-a"*) echo "  PASS: VC12-touched-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: VC12-touched-msg (expected phantom VIOLATION đích danh feat-old-a khi hồ sơ vào diff)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo ""
 echo "--- run-log reconciliation (run_id must exist in machine-written log) ---"
 mk_rl() { # <root> <slug> <report run_id> — implemented+approved feature, signed PASS report with <run_id>
   local d="$1/_acceptance/$2"; mkdir -p "$d"
@@ -2659,8 +2776,15 @@ TE16_OFF="$(bash "$CHECK" "$TE16R" --base "$TE16_BASE" 2>&1)"
 TE16_ON="$(bash "$CHECK" "$TE16R" --base "$TE16_BASE" --no-t1-escape 2>&1)"
 hasout TE16a "VIOLATION [PR]" "$TE16_OFF"
 nothas TE16b "VIOLATION [PR]" "$TE16_ON"
-# AC-17: violation con lai phai duoc NEU TEN, va fixture PHAI con verified_commit
-hasout TE16c "evidence is stale" "$TE16_ON"
+# TE16c ĐẢO CHIỀU theo hợp đồng stale-theo-diff-pr (1.39.2, Cổng 1 ký
+# 2026-08-10): fixture này CHÍNH LÀ ca chặn-vì-lịch-sử — feat-done đã
+# signed-off, commit hạ tầng không chạm hồ sơ nó, nên trước 1.39.2 dòng stale
+# của nó là "violation còn lại được nêu tên" (AC-17 hồ sơ t1-escape-event-scope)
+# nhưng nay sử liệu ngoài diff im lặng THEO THIẾT KẾ (AC-2 hồ sơ mới; VC07/VC12
+# ghim chiều im lặng, VC09 ghim chiều chạm-là-nổ-lại). Vế "tắt răng phải kêu
+# to" của AC-17 vẫn được giữ nguyên bằng assert declared-off ngay dưới.
+nothas TE16c "evidence is stale" "$TE16_ON"
+hasout TE16c2 "T1-ESCAPE: NOT ENFORCED" "$TE16_ON"
 hasout TE16d "verified_commit" "$(cat "$TE16R/_acceptance/feat-done/evidence-report.md")"
 
 echo "TE18 co la = loi cung, KHONG duoc nuot thanh ROOT"
