@@ -374,6 +374,32 @@ t1_escape_not_enforced() {
   echo "NOTE: rủi ro khi tắt — nếu một thay đổi chạm code quan trọng lọt vào lần chạy này, nó sẽ KHÔNG bị chặn vì thiếu hồ sơ nghiệm thu. Các luật khác vẫn chạy đủ (phản biện context sạch, chữ ký người, bằng chứng hết hạn). Muốn bật lại: bỏ cờ --no-t1-escape."
 }
 
+# ─── Quan hệ của MỘT path với hồ sơ nghiệm thu — BA lớp, không phải hai ──────
+# Gộp hai lớp đầu là fail-open đã đo SỐNG ở repo tiêu thụ (2026-08-04, kit
+# 1.31.0): răng T1-escape coi MỌI path dưới `_acceptance/` là "PR có kèm hồ sơ",
+# nên một commit mà thay đổi `_acceptance/` DUY NHẤT là `_acceptance/config.yaml`
+# — file CẤU HÌNH của chính cái cổng, không phải hồ sơ của feature nào, không
+# contract, không bằng chứng — làm biến mất VIOLATION "T3 đổi mà không có hồ sơ",
+# trong khi code T3 vẫn y nguyên không ai nghiệm thu. Cấu hình cổng KHÔNG BAO GIỜ
+# được đứng ra bảo lãnh cho code sản phẩm.
+#
+#   is_slug_artifact  `_acceptance/<slug>/<...>` — hồ sơ THẬT của một feature
+#   is_gate_path      mọi path dưới `_acceptance/` — KỂ CẢ config.yaml, README.md
+#
+# Khuôn của is_slug_artifact là đúng khuôn slug_in_diff() bên dưới, bỏ neo tên
+# slug: "ít nhất một đoạn SAU thư mục slug". Cả hai chấp `*/_acceptance/...` vì
+# path của `git diff` tương đối với git top-level chứ không phải $ROOT (monorepo
+# có `pkg/_acceptance/`). Hai hàm này là chỗ DUY NHẤT trong file phân biệt lớp —
+# thêm luật mới thì gọi hàm, đừng viết lại `case` tại chỗ.
+is_slug_artifact() { # <path> — 0 iff path nằm TRONG một thư mục slug
+  case "$1" in _acceptance/*/*|*/_acceptance/*/*) return 0 ;; esac
+  return 1
+}
+is_gate_path() { # <path> — 0 iff path thuộc workspace cổng, ở bất kỳ độ sâu nào
+  case "$1" in _acceptance/*|*/_acceptance/*) return 0 ;; esac
+  return 1
+}
+
 match_globs() { # <path> <newline-separated globs> — 0 iff any glob matches
   while IFS= read -r g; do
     [ -n "$g" ] || continue
@@ -390,7 +416,14 @@ stale_files() { # <root> <commit> — files changed since <commit> (incl. workin
   # i.e. code the pinned evidence no longer covers. Untracked files are
   # invisible to git diff — CI runs on a committed tree, so that is moot there.
   git -C "$1" diff --name-only "$2" -- 2>/dev/null | while IFS= read -r f; do
-    case "$f" in _acceptance/*|*/_acceptance/*) continue ;; esac
+    # Bản RỘNG (is_gate_path) là CÓ CHỦ ĐÍCH ở đây — khác lớp với răng T1-escape.
+    # Câu hỏi của staleness là "path này có phải CODE mà bằng chứng đã ghim còn
+    # phủ không", và `_acceptance/config.yaml` thì không phải code. Đừng "sửa cho
+    # đồng bộ" sang is_slug_artifact: một lần sửa config sẽ làm bằng chứng của
+    # MỌI slug đã ký stale cùng lúc, chặn cả repo tới khi re-verify hàng loạt —
+    # đúng thứ CLAUDE.md cấm. (Hệ quả còn lại — sửa config sau khi ghim không
+    # làm stale — là hạn chế đã biết, không phải lớp lỗi vừa vá.)
+    is_gate_path "$f" && continue
     match_globs "$f" "$T1_GLOBS" || printf '%s\n' "$f"
   done
 }
@@ -963,8 +996,14 @@ fi
 # matching t3_paths — or falling outside t1_skip_globs — require the PR to
 # carry _acceptance/<slug>/ artifacts. (Under the stale-evidence rule every
 # gated PR re-verifies, so its diff always includes gate artifacts.) There is
-# no path→slug mapping, so "carries artifacts" means any _acceptance/ change;
-# the per-slug checks above judge their quality.
+# no path→slug mapping, so "carries artifacts" means a change under SOME
+# `_acceptance/<slug>/` (is_slug_artifact) — the per-slug checks above judge
+# their quality. What it does NOT mean, since 2026-08-04: a change to a
+# gate-level file such as `_acceptance/config.yaml`. That vouched for nothing
+# and was a live fail-open — a config bump made a real T3 violation vanish.
+# Remaining, documented limit: ANY slug's artifacts satisfy the backstop, so an
+# unrelated slug's evidence re-pin still vouches for this PR's code. Closing
+# that needs a path→slug mapping the kit does not have.
 if [ "$T1_ESCAPE" -eq 0 ]; then
   t1_escape_not_enforced
 elif [ "$DIFF_READY" -eq 0 ]; then
@@ -976,7 +1015,13 @@ else
   gate_touched=0; t3_hits=""; nont1_hits=""
   while IFS= read -r f; do
     [ -n "$f" ] || continue
-    case "$f" in _acceptance/*|*/_acceptance/*) gate_touched=1; continue ;; esac
+    # Chỉ hồ sơ THẬT của một slug mới bảo lãnh (xem is_slug_artifact).
+    if is_slug_artifact "$f"; then gate_touched=1; continue; fi
+    # File cổng cấp cao nhất (`_acceptance/config.yaml`, `_acceptance/README.md`):
+    # KHÔNG bảo lãnh cho ai, nhưng cũng KHÔNG phải code cần nghiệm thu — bỏ ra
+    # ngoài cả hai vế. Để nó rơi xuống nhánh non-T1 bên dưới sẽ biến một PR chỉ
+    # chỉnh cấu hình cổng thành vi phạm, tức đổi fail-open lấy false-positive.
+    if is_gate_path "$f"; then continue; fi
     if [ -n "$T3_PATHS" ] && match_globs "$f" "$T3_PATHS"; then
       t3_hits="${t3_hits}${f}"$'\n'
     elif ! match_globs "$f" "$T1_GLOBS"; then
