@@ -1,0 +1,18 @@
+{
+  "feature_plain": "Mọi thẻ cổng và tin mời duyệt/ký kết bằng khối \"👉 VIỆC CỦA ANH\" máy tự sinh — anh liếc một khối là biết phải làm gì, ở đâu, trả lời thế nào",
+  "scope_plain": "Không sửa 6 lệnh cổng người (gõ-một-lượt là chip ③) · chưa làm thẻ cho Cổng 0/Cổng Giá trị (chip ⑦) · không thêm lớp dịch mới cho khối · không đo KPI tốc-độ-trả-lời · thẻ báo-trạng-thái không gánh việc hỏi anh khi máy bất lực",
+  "analyst_plain": "Bộ kiểm chạy trên bản mới và bản cũ đều xanh nên tự nó không phân biệt được tính năng mới với code cũ — chỗ phân biệt nằm ở sáu dòng kết quả riêng của từng phép đo (đã trích đúng trong báo cáo) và ở các lượt phá-thử có in xác nhận.",
+  "decisions_plain": [
+    { "id": "d-20260810T150433Z-32389", "p": "KHÔNG chạy máy-quét-độ-phủ tiêu chí — đề bài đã liệt đủ phạm vi; đổi lại không có bằng chứng quét máy" },
+    { "id": "d-20260810T150433Z-22406", "p": "Khối trên thẻ do máy render thẳng, không thêm lớp dịch — không thể quên hay điền sai; đổi lại chữ trong khối không tuỳ biến theo repo" },
+    { "id": "d-20260810T150433Z-18857", "p": "Khuôn lời-mời đặt một chỗ, các nơi khác chép nguyên văn có máy canh — một nguồn sự thật; đổi lại nhiều chỗ phải giữ đồng bộ" },
+    { "id": "d-20260810T150433Z-2792", "p": "KHÔNG mở thẻ mới cho Cổng 0/Cổng Giá trị — giữ chip gọn; xem lại ở chip ⑦" },
+    { "id": "d-20260810T151233Z-10379", "p": "Thẻ báo-trạng-thái giữ vai chỉ-báo thuần; khi máy kẹt cần anh quyết thì hỏi bằng tin nhắn có khối 👉 riêng" },
+    { "id": "d-20260810T161635Z-8363", "p": "Vòng sửa 1 chữa cả năm lỗ thước mà máy phân là ngoài phạm vi, thay vì đẩy lên anh — lý do: sửa thước cho khớp điều đã hứa không phải mở rộng việc" },
+    { "id": "d-20260810T161635Z-27140", "p": "Mã tra cứu (mã mục cần chấm, số quyết định treo) hiện ngay tại chỗ được trỏ, để lời chỉ đường của khối tìm được thật" },
+    { "id": "d-20260810T164159Z-25388", "p": "Dừng ở vòng sửa 2 theo luật dừng-vá vì lỗi cùng lớp lặp lại, và trình anh ba đường thay vì tự vá tiếp" },
+    { "id": "d-20260810T224900Z-18107", "p": "Đường A anh chọn: câu trả lời mẫu thành khuôn có chỗ trống, đặt bất biến ở nguồn — máy không còn viết sẵn câu trả lời của anh tại cổng" },
+    { "id": "d-20260810T224900Z-22624", "p": "Danh sách nơi phải mang lời mời-cổng nay suy từ gói thật thay vì gõ tay, nên bản Codex phát hành không thể lọt ra ngoài luật" },
+    { "id": "d-20260810T224900Z-8290", "p": "Một kịch bản thử dùng chung cho cả phép đo lẫn bằng chứng, và phép kiểm khuôn chạy lại thật thay vì tự khẳng định" }
+  ]
+}

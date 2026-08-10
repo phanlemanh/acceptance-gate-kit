@@ -14,6 +14,7 @@ SELF	acceptance-gate	skills/start/SKILL.md	start-scan.mjs
 SELF	acceptance-gate	skills/design-pass/SKILL.md	config-patch.mjs
 SELF	acceptance-gate	skills/uat-session/SKILL.md	product-map.mjs
 SELF	acceptance-gate	skills/acceptance/references/design-ui-check.md	design-scan.js
+SELF	acceptance-gate	skills/acceptance/references/human-facing-language.md	gate-card.js
 SELF	acceptance-gate	skills/acceptance-init/SKILL.md	pre-merge-check.sh
 SELF	acceptance-gate	skills/acceptance-init/SKILL.md	recheck-evidence.cjs
 SELF	acceptance-gate	skills/acceptance/SKILL.md	pre-merge-check.sh

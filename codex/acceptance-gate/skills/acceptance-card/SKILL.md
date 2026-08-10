@@ -93,6 +93,8 @@ When a browser tool is available, open the local card there. Otherwise provide
 the absolute clickable file path. Do not report a gate decision from rendering
 alone.
 
+Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người); tin chỉ-báo ghi rõ "không cần làm gì"; cấm câu tu từ mang dấu hỏi.
+
 ## 5. Gate 2 evidence page
 
 When `evidence-report.md` exists, run:

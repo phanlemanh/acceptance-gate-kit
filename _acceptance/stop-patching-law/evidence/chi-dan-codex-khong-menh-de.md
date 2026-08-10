@@ -359,7 +359,10 @@ Do not enter Gate 1 in D2 without the state matrix and provenance. D1 proceeds
 without mockup ceremony only after its visible descope ledger entry.
 
 At the end of S1, append every qualifying approach/descope decision to the
-ledger. Gate 1 default presentation invokes the `acceptance-card` skill. The Gate 1
+ledger. Gate 1 default presentation invokes the `acceptance-card` skill. The
+gate-invite clause below is the single source (copied verbatim, one line):
+Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người); tin chỉ-báo ghi rõ "không cần làm gì"; cấm câu tu từ mang dấu hỏi.
+The Gate 1
 card now includes the "Phản biện context sạch" block (findings + dispositions
 from gap-probe.md; absent file / probe-failed → yellow flag, non-blocking).
 The card is presentation only; contract and evals remain the source of truth.
@@ -644,7 +647,9 @@ Before each REJECT→fix transition, append a `fix` decision with
 ## Gate 2
 
 Invoke the `acceptance-card` skill first. It also generates the full evidence
-page at `_acceptance/<slug>/evidence-page.html`.
+page at `_acceptance/<slug>/evidence-page.html`. The same verbatim gate-invite
+clause applies here:
+Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người); tin chỉ-báo ghi rõ "không cần làm gì"; cấm câu tu từ mang dấu hỏi.
 
 Present one package: verdict, per-eval table, judgment proposals, variance,
 baseline analyst notes, what this round carried forward (P1 evals, P3 panels,

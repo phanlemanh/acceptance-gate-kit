@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict   # the `enforcement` value from _acceptance/config.yaml (default strict). CI pre-merge BLOCKS off; warn only warns.
 bypass_used: false              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
-verified_commit: 5f38521fae43348f8bad029a52a48cf302be3ee9
+verified_commit: 1e852ac0edad60f71083666f0ab3c83da023ad56
 # bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -599,3 +599,7 @@ sha: d55a836d454685cc1ab820ddada9e90b1a7ace95 · suites: 6 lệnh exit 0
 ### Re-pin lần 36 — 2026-08-08, do bugfix engine 1.39.1 (bộ file chép sang consumer đổi .cjs + danh sách chép đủ 7 file — hooks/lib/scripts/tests đổi)
 run_id: repin-20260809-consumer-copy-cjs-lane1
 sha: 5f38521fae43348f8bad029a52a48cf302be3ee9 · suites: 6 lệnh exit 0
+
+### Re-pin lần 27 — 2026-08-11, do hồ sơ của vòng này vào diff PR chip ② (bằng chứng code-sinh của chính nó được sinh lại từ cây mới)
+run_id: repin-chip2-merge-20260810T233824Z
+sha: 1e852ac0edad60f71083666f0ab3c83da023ad56 · suites: 6 lệnh exit 0
