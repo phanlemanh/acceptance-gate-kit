@@ -9292,6 +9292,40 @@ assert "không cần làm gì" not in mut, "phep do khong phan biet duoc mutant"
 print("P189 OK (khuon du 4 chuan; mutant bi bat)")
 PY
 
+# ── P188: GATE-INVITE-CLAUSE round-trip nguon -> 4 ban chep, khop tung ky tu ──
+# Pattern LOOP-PICTURE-CLAUSE/P85: "chep nguyen van" la cho troi kinh dien
+# (bai hoc s4-scope-triage) — phep do phai rut tu NGUON qua marker roi so voi
+# TUNG ban chep; do dot bien phai DICH DANH ban lech.
+run "P188 round-trip dieu khoan moi-cong: nguon + 4 ban chep khop tung ky tu (E5)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+law_p = "skills/acceptance/references/human-facing-language.md"
+RX = re.compile(r"<!-- <<<GATE-INVITE-CLAUSE -->\n([\s\S]*?)\n<!-- GATE-INVITE-CLAUSE>>> -->")
+m = RX.search((root / law_p).read_text(encoding="utf-8"))
+assert m, law_p + ": KHONG rut duoc GATE-INVITE-CLAUSE qua marker"
+clause = m.group(1).strip()
+assert clause and "\n" not in clause, "clause phai la MOT dong khong rong"  # doi chung duong
+COPIES = [
+    "feature-loop/skills/feature-loop/SKILL.md",
+    "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md",
+    "skills/acceptance/SKILL.md",
+    "commands/acceptance-card.md",
+]
+texts = {rel: (root / rel).read_text(encoding="utf-8") for rel in COPIES}
+for rel, t in texts.items():
+    assert clause in t, rel + ": LECH nguon — khong chua GATE-INVITE-CLAUSE khop tung ky tu"
+# chieu do: dot bien bo nho 1 ky tu tren 1 ban chep -> phep so do DICH DANH ban do
+victim = COPIES[0]
+mut = texts[victim].replace(clause, clause.replace("MỘT khối", "MOT khoi"), 1)
+assert mut != texts[victim], "dot bien khong tac dung"
+print("MUTANT: da lam lech 1 ky tu ban chep " + victim + " (bo nho)")
+bad = [rel for rel, t in {**texts, victim: mut}.items() if clause not in t]
+assert bad == [victim], "phep so phai do DICH DANH " + victim + ", thay: " + repr(bad)
+print("P188 OK (nguon + 4 ban khop; mutant do dich danh " + victim + ")")
+PY
+
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
   echo "ONLY_BLOCK=$ONLY_BLOCK khong khop khoi nao — go sai ten? (fail de khong xanh gia)"

@@ -154,6 +154,7 @@ Run immediately after the user reviews the contract (same gate, one sitting).
    review time, render the plain-language decision card (`/acceptance-card
    <slug>`): the human reviews "sẽ làm / sẽ KHÔNG làm" + coverage flags instead of
    raw YAML (presentation only; the contract/evals stay the source of truth).
+   Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng; tin chỉ-báo ghi rõ "không cần làm gì"; cấm câu tu từ mang dấu hỏi.
    The `/approve <slug>` command walks this stop end-to-end (card → one
    question → recorded decision). On approval:
    set contract `status: approved`, `approved_by`, `approved_at`, and ask the
@@ -257,7 +258,9 @@ Entry: implementation complete, contract `status: implemented`.
    check (T3: ALL judgment items). To cut review time, render the decision card
    (`/acceptance-card <slug>`) — judgment items + deferred scope (việc-của-người)
    surface FIRST in plain language, machine evidence collapsed; the verdict + hook
-   are unchanged. The `/signoff <slug>` command walks this stop end-to-end
+   are unchanged.
+   Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng; tin chỉ-báo ghi rõ "không cần làm gì"; cấm câu tu từ mang dấu hỏi.
+   The `/signoff <slug>` command walks this stop end-to-end
    (preconditions → overrides → human-fields-only signature commit → pre-merge
    re-check). The user resolves each pending item by
    filling its `human_override: <name> <date>` line; if the verdict was
