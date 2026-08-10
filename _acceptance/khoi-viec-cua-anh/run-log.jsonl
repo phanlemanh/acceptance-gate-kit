@@ -1,0 +1,7 @@
+{"ts":"2026-08-10T15:51:18Z","sha":"94d4ba741d111a0f3cce811c03c68675683781cb","round":1,"evalId":"E1","run_id":"minted-khoi-viec-cua-anh-E1-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-10T15:51:18Z","sha":"94d4ba741d111a0f3cce811c03c68675683781cb","round":1,"evalId":"E2","run_id":"minted-khoi-viec-cua-anh-E2-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-10T15:51:18Z","sha":"94d4ba741d111a0f3cce811c03c68675683781cb","round":1,"evalId":"E3","run_id":"minted-khoi-viec-cua-anh-E3-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-10T15:51:18Z","sha":"94d4ba741d111a0f3cce811c03c68675683781cb","round":1,"evalId":"E4","run_id":"minted-khoi-viec-cua-anh-E4-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-10T15:51:18Z","sha":"94d4ba741d111a0f3cce811c03c68675683781cb","round":1,"evalId":"E5","run_id":"minted-khoi-viec-cua-anh-E5-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-10T15:51:18Z","sha":"94d4ba741d111a0f3cce811c03c68675683781cb","round":1,"evalId":"E6","run_id":"minted-khoi-viec-cua-anh-E6-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-10T15:51:18Z","sha":"94d4ba741d111a0f3cce811c03c68675683781cb","round":1,"kind":"baseline","evals_hash":"f48854dd4b16f074fd76595db0b387819a703c5a467c0a472f205a54110c58a8","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6"]}]}

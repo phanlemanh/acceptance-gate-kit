@@ -467,14 +467,19 @@ if (yourCount) {
   for (const d of decisions) {
     const reList = (evid[d.id] && evid[d.id].required_evidence_list) || [];
     const reHtml = reList.length ? `<p class="ai"><b>Muốn máy đổi ý, cần:</b> ${reList.map(x => esc(stripMd(x))).join(' · ')}</p>` : '';
-    P.push(`<div class="item"><p class="q">${esc(plainDec(d.id) || stripMd(d.q))}</p><p class="ai">Máy: chưa chắc${d.why ? ' — ' + esc(stripMd(d.why)) : ' (cần mắt người).'}</p>${reHtml}<div class="btns"><button class="b bn">Đạt</button><button class="b no">Chưa đạt</button></div></div>`);
+    // Mã eval là mã TRA CỨU (N3): khối 👉 VIỆC CỦA ANH bảo "đọc câu hỏi <mã> ở
+    // khối này", nên mã PHẢI hiện ngay tại câu hỏi — không thì lời chỉ đường
+    // chỉ đúng bằng loại trừ (S4-r1, finding trong hợp đồng + judge E7).
+    P.push(`<div class="item"><p class="q">${esc(d.id)} (câu hỏi cần mắt người) · ${esc(plainDec(d.id) || stripMd(d.q))}</p><p class="ai">Máy: chưa chắc${d.why ? ' — ' + esc(stripMd(d.why)) : ' (cần mắt người).'}</p>${reHtml}<div class="btns"><button class="b bn">Đạt</button><button class="b no">Chưa đạt</button></div></div>`);
   }
   if (oos.length) P.push(`<div class="item"><p class="q">Xác nhận các phần đã cắt/hoãn ngoài phạm vi:</p><p class="ai">${esc(scopePlain)}</p><div class="btns"><button class="b bn">Đồng ý cắt</button><button class="b no">Không, kéo vào</button></div></div>`);
 }
 const plDec2 = id => (((pl.decisions_plain || []).find(x => x.id === id)) || {}).p;
 if (decsProvisional.length) {
   P.push(`<div class="lab">Quyết định CHƯA duyệt — cần phê (ghi sau Gate 1)</div>`);
-  for (const e of decSort(decsProvisional)) P.push(`<div class="item"><p class="q">${esc(plDec2(e.id)) || decLine(e)}</p><p class="ai">${esc(e.stage || '')} · ${e.type === 'descope' ? 'đề nghị KHÔNG làm' : esc(e.type)}${e.revisit ? ' · xem lại khi: ' + esc(e.revisit) : ''}</p><div class="btns"><button class="b bn">Phê</button><button class="b no">Không phê</button></div></div>`);
+  // Nhãn Treo-<n> là mã tra cứu ngắn (N3) — khối 👉 VIỆC CỦA ANH trỏ về nó khi
+  // bảo "không phê: nêu mã". Id đầy đủ của sổ quyết định quá dài cho mặt người.
+  decSort(decsProvisional).forEach((e, ti) => P.push(`<div class="item"><p class="q">Treo-${ti + 1} · ${esc(plDec2(e.id)) || decLine(e)}</p><p class="ai">${esc(e.stage || '')} · ${e.type === 'descope' ? 'đề nghị KHÔNG làm' : esc(e.type)}${e.revisit ? ' · xem lại khi: ' + esc(e.revisit) : ''}</p><div class="btns"><button class="b bn">Phê</button><button class="b no">Không phê</button></div></div>`));
 }
 if (decsApproved.length) P.push(`<div class="lab">Đã duyệt từ Gate 1</div><div class="grp gnot">${decSort(decsApproved).map(e => `<p class="li">${decLine(e)}</p>`).join('')}</div>`);
 if (ledger.broken) P.push(`<div class="flag fwarn">⚠ ${ledger.broken} dòng ledger hỏng, đã bỏ qua.</div>`);
@@ -504,11 +509,11 @@ P.push(`</details>`);
     ymParts.push(lbl + (f.proposal === 'new-contract' ? ' mở hợp đồng mới' : ' ghi Known limits'));
   });
   for (const d of decisions) {
-    ymItems.push(`<b>Chấm ${esc(d.id)}</b> — làm gì: đọc câu hỏi ${esc(d.id)} ở khối "Việc chỉ mình bạn quyết được"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «${esc(d.id)} Đạt» hoặc «${esc(d.id)} Chưa đạt vì nêu lý do».`);
+    ymItems.push(`<b>Chấm ${esc(d.id)} (câu hỏi cần mắt người)</b> — làm gì: đọc câu hỏi mở đầu bằng "${esc(d.id)}" ở khối "Việc chỉ mình bạn quyết được"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «${esc(d.id)} Đạt» hoặc «${esc(d.id)} Chưa đạt vì nêu lý do».`);
     ymParts.push(esc(d.id) + ' Đạt');
   }
   if (oos.length) { ymItems.push(`<b>Xác nhận phần cắt/hoãn</b> — làm gì: đọc mục xác nhận phạm vi ở trên; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «đồng ý cắt» hoặc «kéo vào: nêu mục».`); ymParts.push('đồng ý cắt'); }
-  if (decsProvisional.length) { ymItems.push(`<b>Phê ${decsProvisional.length} quyết định ghi sau Cổng 1</b> — làm gì: đọc khối "Quyết định CHƯA duyệt"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «phê hết» hoặc «không phê: nêu mã».`); ymParts.push('phê hết quyết định treo'); }
+  if (decsProvisional.length) { ymItems.push(`<b>Phê ${decsProvisional.length} quyết định ghi sau Cổng 1 (Treo-1…Treo-${decsProvisional.length})</b> — làm gì: đọc khối "Quyết định CHƯA duyệt"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «phê hết» hoặc «không phê: Treo-số».`); ymParts.push('phê hết quyết định treo'); }
   ymItems.push(`<b>Ký hay trả</b> — làm gì: sau khi trả lời các mục trên, chốt hồ sơ; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «Ký» hoặc «Trả lại: nêu lý do».`);
   ymParts.push('Ký');
   P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo">${ymItems.map(t => `<p class="li">${t}</p>`).join('')}<p class="li">Trả lời mẫu (một dòng): «${ymParts.join('; ')}»</p></div>`);
