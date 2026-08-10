@@ -5,10 +5,10 @@ slug: khoi-viec-cua-anh
 owner: phanlemanh@gmail.com
 risk_tier: T2      # đụng scripts/gate-card.js + SKILL/references — không khớp t1_skip_globs, không khớp t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-10
-time_human_minutes: {gate1: 0}   # owner tuyên không đo phút — 0 có chủ đích
+time_human_minutes: {gate1: 0, gate2: 0}   # owner tuyên không đo phút — 0 có chủ đích
 ---
 
 # Acceptance Contract: khoi-viec-cua-anh
@@ -100,3 +100,10 @@ có AC và mỗi thành phần có chỗ cưỡng chế (script render hoặc kh
 ## Notes
 
 - Mobile backend target: n/a (kit CLI, không surface mobile).
+- Bốn phát hiện ngoài phạm vi ở vòng chấm 3 KHÔNG ghi thành giới hạn đã biết:
+  người ký chọn mở hồ sơ riêng **②b** ngay sau chip ② (11/08). Hai trong bốn
+  (câu chỉ dẫn bị cắt đôi ở bản Codex · sáu khối bằng chứng dán trùng dòng) đã
+  sửa TRƯỚC chữ ký; ②b lo phần GỐC chưa chặn: phép đo khuôn thiếu ca cô-lập-lớp
+  (nặng nhất — luật bị xoá mà phép đo vẫn xanh), phép đo bản-chép thiếu sàn đếm
+  cho site nguồn, và nó mù với việc điều khoản được thả vào đâu trong câu chủ.
+  Spec của ②b = chính `review-findings.md` của vòng 3.
