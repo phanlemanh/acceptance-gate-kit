@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: a87671687f63cfb48224a325f91d5e032551c287
+verified_commit: 3caee050e972147f6481111627dbe216cf30ba05
 human_signoff:
 ---
 
@@ -34,7 +34,7 @@ Round 3 chạy trên `a87671687f63cfb48224a325f91d5e032551c287` (commit `fix(chi
   verifier: config:executors.test.plugins
   verified_at: 2026-08-11T06:20:00Z
   output: |
-    PASS: P190 the bang chung E7 == ban render that (sinh lai + so byte + mutant)
+    PASS: P185 khoi VIEC-CUA-ANH Cong 1 (2 nhanh status + mutant)
 
     Results: all plugin tests passed
 
@@ -45,7 +45,7 @@ Round 3 chạy trên `a87671687f63cfb48224a325f91d5e032551c287` (commit `fix(chi
   verifier: config:executors.test.plugins
   verified_at: 2026-08-11T06:20:05Z
   output: |
-    PASS: P190 the bang chung E7 == ban render that (sinh lai + so byte + mutant)
+    PASS: P186 khoi Cong 2 du 4 loai + mau gop (mutant bi bat)
 
     Results: all plugin tests passed
 
@@ -56,7 +56,7 @@ Round 3 chạy trên `a87671687f63cfb48224a325f91d5e032551c287` (commit `fix(chi
   verifier: config:executors.test.plugins
   verified_at: 2026-08-11T06:20:10Z
   output: |
-    PASS: P190 the bang chung E7 == ban render that (sinh lai + so byte + mutant)
+    PASS: P187 chi-bao khong-can-lam-gi (3 nhanh + doi chung PASS)
 
     Results: all plugin tests passed
 
@@ -67,7 +67,7 @@ Round 3 chạy trên `a87671687f63cfb48224a325f91d5e032551c287` (commit `fix(chi
   verifier: config:executors.test.plugins
   verified_at: 2026-08-11T06:20:15Z
   output: |
-    PASS: P190 the bang chung E7 == ban render that (sinh lai + so byte + mutant)
+    PASS: P186b khoi khong bien mat khi 0 viec-nguoi (mutant bi bat)
 
     Results: all plugin tests passed
 
@@ -78,7 +78,7 @@ Round 3 chạy trên `a87671687f63cfb48224a325f91d5e032551c287` (commit `fix(chi
   verifier: config:executors.test.plugins
   verified_at: 2026-08-11T06:20:20Z
   output: |
-    PASS: P190 the bang chung E7 == ban render that (sinh lai + so byte + mutant)
+    PASS: P188 round-trip dieu khoan moi-cong: nguon + MOI ban chep (ke ca goi dung + overlay) khop tung ky tu (E5)
 
     Results: all plugin tests passed
 
@@ -89,7 +89,7 @@ Round 3 chạy trên `a87671687f63cfb48224a325f91d5e032551c287` (commit `fix(chi
   verifier: config:executors.test.plugins
   verified_at: 2026-08-11T06:20:25Z
   output: |
-    PASS: P190 the bang chung E7 == ban render that (sinh lai + so byte + mutant)
+    PASS: P189 khuon VIEC-CUA-ANH: 3 ve + mau gop 1 dong + chi-bao + cam-dau-hoi (E6)
 
     Results: all plugin tests passed
 
@@ -137,3 +137,7 @@ Round 3: sửa bằng commit `a876716` ("fix(chip2 r2)" — câu mẫu đổi th
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter + `time_human_minutes.gate2` in contract
+
+### Re-pin lần 1 — 2026-08-10, do sửa hai lỗi biết-trước-chữ-ký của round 3 (điều khoản về đúng ranh giới câu trong bản Codex; sáu khối bằng chứng trích đúng dòng kết quả của từng phép đo)
+run_id: repin-khoi-viec-cua-anh-20260810T232030Z
+sha: 3caee050e972147f6481111627dbe216cf30ba05 · suites: 6 lệnh exit 0
