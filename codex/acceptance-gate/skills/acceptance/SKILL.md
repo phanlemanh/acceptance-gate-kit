@@ -272,8 +272,9 @@ Entry: implementation complete, contract `status: implemented`.
    check (T3: ALL judgment items). To cut review time, render the decision card
    (invoke the `acceptance-card` skill for `<slug>`) — judgment items + deferred scope (việc-của-người)
    surface FIRST in plain language, machine evidence collapsed; the verdict + hook
+   are unchanged.
    Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người); tin chỉ-báo ghi rõ "không cần làm gì"; cấm câu tu từ mang dấu hỏi.
-   are unchanged. The `signoff` skill walks this stop end-to-end (preconditions
+   The `signoff` skill walks this stop end-to-end (preconditions
    → overrides → human-fields-only signature commit → pre-merge re-check).
    The user resolves each pending item by
    filling its `human_override: <name> <date>` line; if the verdict was
