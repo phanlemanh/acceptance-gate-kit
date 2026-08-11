@@ -8,6 +8,14 @@ description: Show the Acceptance Gate status and next action for every feature w
 Scan `_acceptance/*/contract.md`. If `_acceptance/` is missing, direct the user
 to the `acceptance-init` skill.
 
+One-shot answer + `--repo` (shared clause, copied verbatim from the law):
+
+Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; còn việc kế thì kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE.
+
+This skill is NOT one of the three one-shot commands (a read-only status
+table has no gate question to fold); what applies here is the `--repo
+<path>` flag: scan `<path>/_acceptance/` instead of the current directory.
+
 For each feature, parse contract frontmatter fields `slug`, `risk_tier`, and
 `status`. When `evidence-report.md` exists, also parse `verdict`,
 `human_signoff`, and `reason`.

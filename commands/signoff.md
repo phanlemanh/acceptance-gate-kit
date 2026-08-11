@@ -16,6 +16,44 @@ empty `human_signoff` (one → use; several → table + ask; none →
 `/acceptance-status`). Verdict `REJECT`/`BLOCKED` → not signable: show
 `failed_evals`/`reason` and stop.
 
+Một-lượt-gõ + `--repo` (điều khoản chung, chép nguyên văn từ bản luật):
+
+Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; còn việc kế thì kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE.
+
+Ví dụ một lượt gõ đầy đủ:
+`/signoff abc-xyz --repo /duong/dan/repo Ngoài-1: ghi Known limits; E9: Đạt; cắt/hoãn: đồng ý cắt; Treo: phê hết; Ký: Manh Phan 2026-08-11, phút 0`
+
+Câu gộp của lệnh này ghép các chỗ trống dòng «Trả lời mẫu» của thẻ Cổng 2,
+phân cách bằng `;` — ngữ pháp đầy đủ ở khối `GATE-ONESHOT-GRAMMAR`:
+- «Ngoài-<số>: ghi Known limits / mở hợp đồng mới / nâng phạm vi sửa ngay»
+  → định đoạt từng mục ngoài hợp đồng (bước 3-4).
+- «<mã eval>: Đạt» hoặc «<mã eval>: Chưa đạt vì <lý do>» → dòng
+  `human_override` của đúng mục judgment đó (khuôn mã: `E\w+`).
+- «cắt/hoãn: đồng ý cắt» hoặc «cắt/hoãn: kéo vào <mục>» → xác nhận phạm vi.
+- «Treo: phê hết» hoặc «Treo: không phê Treo-<số>» → các quyết định ghi sau
+  Gate 1.
+- Chỗ trống «ký hay trả»: `Ký: <tên> <ngày>[, phút <số>]` → `human_signoff`
+  + verdict upgrade (chỉ khi mọi override đã điền) + contract
+  `status: signed-off` + `time_human_minutes.gate2`; hoặc
+  `Trả lại: <lý do>` → bước 5, không ghi trường ký nào.
+- Nhãn nào thẻ đang đòi mà câu gộp vắng → hỏi đúng nhãn đó; đuôi tự do sau
+  các nhãn nhận ra được → GIỮ NGUYÊN VĂN vào sổ quyết định; tên/phút vắng →
+  follow-up duy nhất. Nghi thức commit chữ-ký-riêng (bước 1 và bước 7,
+  `require_human_commit`) không đổi một li.
+«Ngoài-<số>», «cắt/hoãn», «Treo» không có trường frontmatter riêng: định
+đoạt của chúng ghi thành entry trong sổ quyết định `decisions.jsonl` (và
+«ghi Known limits» thêm một gạch known-limits vào `## Notes` của hợp đồng)
+— đúng như đường hỏi-từng-bước vẫn làm.
+Với `--repo <path>`: render thẻ bằng `--root <path>`, mọi sửa file dưới
+`<path>/_acceptance/…`, commit chữ ký và pre-merge re-check chạy bằng
+`git -C <path>` / trên gốc `<path>`. Mọi đoạn lệnh in ở các bước dưới viết
+gốc là `.` (thư mục hiện tại) — có `--repo` thì mọi đoạn lệnh đổi gốc sang
+`<path>`: đối số `.` thành `<path>` (`pre-merge-check.sh <path>`), `--root .`
+thành `--root <path>`, đường dẫn tương đối tới script thành
+`<path>/scripts/pre-merge-check.sh`, và cặp lệnh chữ ký ở bước 7 thành
+`git -C <path> add _acceptance/<slug>/…` + `git -C <path> commit -m …`
+(đường dẫn sau `-C` vẫn tương đối với `<path>`).
+
 Steps:
 
 1. **Machine-evidence commit first.** If `evidence-report.md`, `run-log.jsonl`,

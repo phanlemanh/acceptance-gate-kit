@@ -17,6 +17,30 @@ Arg: optional `<slug>`. Without it, scan `_acceptance/*/contract.md` for
   (Plan approval — Gate 1.5 — and design-mockup approval live in their own
   loops: feature-loop / design-loop. Do not fake them here.)
 
+Một-lượt-gõ + `--repo` (điều khoản chung, chép nguyên văn từ bản luật):
+
+Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; còn việc kế thì kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE.
+
+Ví dụ một lượt gõ đầy đủ:
+`/approve abc-xyz --repo /duong/dan/repo duyệt: Manh Phan, phút 0`
+
+Câu gộp của lệnh này trả lời chỗ trống «duyệt hay sửa: ___» mà thẻ Cổng 1
+dạy — ngữ pháp đầy đủ ở khối `GATE-ONESHOT-GRAMMAR`:
+- `duyệt[: <tên>][, phút <số>]` → chính là câu YES tường minh của bước 5:
+  `<tên>` → `approved_by` (vắng → luật chọn tên ở bước 5 như cũ);
+  `phút <số>` → `time_human_minutes.gate1` (vắng → hỏi; tên/phút là
+  follow-up DUY NHẤT được phép hỏi thêm khi câu gộp vắng đuôi).
+- `sửa: <điều cần đổi>` → bước 4 với đúng nội dung đó (vẫn là Gate 1).
+- Đuôi tự do sau các nhãn nhận ra được → GIỮ NGUYÊN VĂN, ghi vào sổ quyết
+  định; phần không nhận ra được → hỏi lại đúng phần đó, không đoán.
+Với `--repo <path>`: render thẻ bằng `--root <path>`, sửa file dưới
+`<path>/_acceptance/…` (hook write-time vẫn cắn theo mẫu đường dẫn), và
+commit Cổng 1 bằng `git -C <path>`. Mọi đoạn lệnh in ở các bước dưới viết
+gốc là `.` (thư mục hiện tại) — có `--repo` thì mọi đoạn lệnh đổi gốc sang
+`<path>`: đối số `.` thành `<path>`, `--root .` thành `--root <path>`,
+đường dẫn tương đối tới script thành `<path>/scripts/…`, và mọi lệnh git
+thành `git -C <path> …` (giữ nguyên đường dẫn tương đối SAU `-C`).
+
 Steps:
 
 1. **Preconditions.** `contract.md` + `evals.yaml` exist (missing → run the

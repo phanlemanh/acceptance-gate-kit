@@ -12,6 +12,46 @@ commit touching only human-owned report lines — pre-merge blocks a signature
 that ships inside the machine-written body, so signing for the user cannot
 merge.
 
+One-shot answer + `--repo` (shared clause, copied verbatim from the law):
+
+Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; còn việc kế thì kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE.
+
+Full one-shot example:
+`signoff abc-xyz --repo /duong/dan/repo Ngoài-1: ghi Known limits; E9: Đạt; cắt/hoãn: đồng ý cắt; Treo: phê hết; Ký: Manh Phan 2026-08-11, phút 0`
+
+This skill's one-shot answer joins the Gate-2 card's «Trả lời mẫu» blanks,
+separated by `;` — full grammar in `GATE-ONESHOT-GRAMMAR`:
+- «Ngoài-<số>: ghi Known limits / mở hợp đồng mới / nâng phạm vi sửa ngay»
+  → the disposition of that out-of-contract item.
+- «<mã eval>: Đạt» or «<mã eval>: Chưa đạt vì <lý do>» → that judgment
+  item's `human_override` line (id shape: `E\w+`).
+- «cắt/hoãn: đồng ý cắt» or «cắt/hoãn: kéo vào <mục>» → the scope
+  confirmation.
+- «Treo: phê hết» or «Treo: không phê Treo-<số>» → the post-Gate-1
+  provisional decisions.
+- The «ký hay trả» blank: `Ký: <tên> <ngày>[, phút <số>]` → `human_signoff`
+  + the verdict upgrade (only when every override line is filled) + contract
+  `status: signed-off` + `time_human_minutes.gate2`; or `Trả lại: <lý do>` →
+  the not-signable path, no signature field written.
+- A label the card demands but the answer lacks → ask about exactly that
+  label; a free tail after recognised labels → keep it VERBATIM in the
+  decisions ledger; name/minutes are the only follow-ups when the tail is
+  missing. The separate-signature-commit ritual (`require_human_commit`)
+  does not change one bit.
+«Ngoài-<số>», «cắt/hoãn» and «Treo» have no frontmatter field of their own:
+their dispositions land as entries in the decisions ledger `decisions.jsonl`
+(and «ghi Known limits» adds a known-limits bullet to the contract's
+`## Notes`) — exactly as the step-by-step path already does.
+With `--repo <path>`: render the card with `--root <path>`, edit files under
+`<path>/_acceptance/…`, land the signature commit and re-check merge
+readiness via `git -C <path>` / against root `<path>`. Every command printed
+in the steps below is written with `.` as the root — under `--repo` move every
+one of them to `<path>`: a bare `.` argument becomes `<path>`
+(`pre-merge-check.sh <path>`), `--root .` becomes `--root <path>`, a relative
+script path resolves against `<path>` instead of the current directory, and the signature
+commands become `git -C <path> add _acceptance/<slug>/…` +
+`git -C <path> commit -m …` (paths after `-C` stay relative to `<path>`).
+
 ## 1. Resolve the feature
 
 Accept an optional slug. Without one, scan for an `evidence-report.md` whose

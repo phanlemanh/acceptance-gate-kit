@@ -8,6 +8,16 @@ description: Initialize Acceptance Gate in a consumer repository on Codex. Use w
 Initialize the current repository once. Never overwrite an existing
 `_acceptance/config.yaml` without explicit approval.
 
+One-shot answer + `--repo` (shared clause, copied verbatim from the law):
+
+Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; còn việc kế thì kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE.
+
+This skill is NOT one of the three one-shot commands (no card teaches a
+sample answer for the seven setup questions — they stay step-by-step,
+once-per-repo); what applies here is the `--repo <path>` flag: scaffold
+`_acceptance/` and copy the CI file set into root `<path>` instead of the
+current directory.
+
 ## 1. Preflight
 
 1. Treat the current git root as the consumer repository.

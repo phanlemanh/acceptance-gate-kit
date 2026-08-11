@@ -18,14 +18,14 @@ evals:
       - tests/plugins/run-tests.sh
       - skills/acceptance/references/human-facing-language.md
     expected: >
-      exit 0; stdout có dòng "PASS: P190" — case P190 rút khối
+      exit 0; stdout có dòng "PASS: P191" — case P191 rút khối
       GATE-ONESHOT-GRAMMAR + GATE-ONESHOT-SLOTS qua marker từ bản luật thật
       và assert QUAN HỆ cấu trúc: (a) SLOTS có đủ hai cổng g1/g2 và mọi nhãn
       cố định thẻ đang dạy; (b) nhãn biến thiên khai đúng khuôn «Ngoài-<số>»
       và «<mã eval>»; (c) GRAMMAR chứa đủ bốn gạch luật đi kèm — nhận diện
       bằng chuỗi neo: «không bao giờ điền sẵn», «hỏi từng bước như cũ»,
       «GIỮ NGUYÊN VĂN», «hỏi lại đúng phần đó»; thiếu bất kỳ mảnh nào →
-      P190 đỏ đích danh mảnh thiếu. Needle "PASS: P190" và bốn chuỗi neo
+      P191 đỏ đích danh mảnh thiếu. Needle "PASS: P191" và bốn chuỗi neo
       trong khối grammar là re-usable: baseline origin/main phải 0-hit.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
@@ -38,7 +38,7 @@ evals:
       - skills/acceptance/references/human-facing-language.md
       - scripts/gate-card.js
     expected: >
-      exit 0; stdout có "PASS: P191" và các dòng của case P191: (1) fixture
+      exit 0; stdout có "PASS: P192" và các dòng của case P192: (1) fixture
       workspace DO CODE SINH trong lần chạy (ooc finding + judgment decision
       + oos + decision treo) → chạy scripts/gate-card.js THẬT --gate 1 và
       --gate 2, rút dòng «Trả lời mẫu» từ HTML, in
@@ -79,7 +79,7 @@ evals:
       - codex/acceptance-gate/skills/acceptance-report/SKILL.md
       - codex/acceptance-gate/skills/start/SKILL.md
     expected: >
-      exit 0; stdout có "PASS: P192" và các dòng của case P192: (1) parse
+      exit 0; stdout có "PASS: P193" và các dòng của case P193: (1) parse
       manifest GATE-ONESHOT-SITES — mỗi dòng `<path> <số>`; dòng thiếu số →
       đỏ ghim «site thieu so ban» (MUTANT-D chứng minh trên bản sao manifest);
       (2) với TỪNG site: đếm số bản GATE-ONESHOT-CLAUSE nguyên văn từng ký
@@ -109,7 +109,7 @@ evals:
     expected: >
       exit 0; stdout có "PASS: P31" và "PASS: P32" NGUYÊN TRẠNG (khoá
       disable-model-invocation / allow_implicit_invocation còn đủ 6/6 cả
-      hai harness, acceptance-card vẫn mở); và P192 assert thêm: clause
+      hai harness, acceptance-card vẫn mở); và P193 assert thêm: clause
       chứa nguyên văn CẢ HAI câu neo — «câu gộp là câu NGƯỜI gõ» (điều
       khoản không-mở-đường-máy) VÀ «kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH»
       (deliverable kết-khối không bốc hơi — gap-probe P1). Về răng khoá:
