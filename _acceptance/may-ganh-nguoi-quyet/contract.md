@@ -5,9 +5,9 @@ slug: may-ganh-nguoi-quyet
 owner: phanlemanh@gmail.com
 risk_tier: T2      # đụng commands/*.md + codex/acceptance-gate/skills/*/SKILL.md + skills/acceptance/references/ + tests/plugins/run-tests.sh — không khớp t1_skip_globs, không khớp t3_paths (không đụng hooks/lib/pre-merge)
 surfaces: [cli]
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: Manh Phan
+approved_at: 2026-08-11
 time_human_minutes: {gate1: 0, gate2: 0}   # owner tuyên không đo phút — 0 có chủ đích; chính chip này bỏ hẳn câu hỏi phút
 ---
 
