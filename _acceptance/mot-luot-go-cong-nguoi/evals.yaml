@@ -1,0 +1,175 @@
+schema_version: 1
+feature_slug: mot-luot-go-cong-nguoi
+# Vật được giao là VĂN CHỈ DẪN (12 thân lệnh) + khối ngữ pháp single-source +
+# các case đo mới trong tests/plugins/run-tests.sh. Mỗi eval ghim ĐÍCH DANH
+# dòng PASS/MUTANT/SANITY trong stdout suite, không chỉ exit 0 (luật
+# tổng-kết-phải-kèm-số-ca + ba-lớp-che-màu-xanh). Mọi chiều đỏ theo
+# MEASURE-BIRTH: đối-chứng-dương + phá-vật-thật + thông-điệp-ghim trên CÙNG
+# fixture; mutant đi qua chính checker thật và in xác-nhận-đột-biến.
+# NẾP chip ②b: mỗi eval chạy BASELINE A/B trên worktree origin/main — needle
+# mới phải 0-hit trên baseline; trường baseline: red/green ghi trong evidence.
+# Không có làn design/ui-check: kit không có web UI (executors.design vắng).
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - tests/plugins/run-tests.sh
+      - skills/acceptance/references/human-facing-language.md
+    expected: >
+      exit 0; stdout có dòng "PASS: P190" — case P190 rút khối
+      GATE-ONESHOT-GRAMMAR + GATE-ONESHOT-SLOTS qua marker từ bản luật thật
+      và assert QUAN HỆ cấu trúc: (a) SLOTS có đủ hai cổng g1/g2 và mọi nhãn
+      cố định thẻ đang dạy; (b) nhãn biến thiên khai đúng khuôn «Ngoài-<số>»
+      và «<mã eval>»; (c) GRAMMAR chứa đủ bốn gạch luật đi kèm — nhận diện
+      bằng chuỗi neo: «không bao giờ điền sẵn», «hỏi từng bước như cũ»,
+      «GIỮ NGUYÊN VĂN», «hỏi lại đúng phần đó»; thiếu bất kỳ mảnh nào →
+      P190 đỏ đích danh mảnh thiếu. Needle "PASS: P190" và bốn chuỗi neo
+      trong khối grammar là re-usable: baseline origin/main phải 0-hit.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - tests/plugins/run-tests.sh
+      - skills/acceptance/references/human-facing-language.md
+      - scripts/gate-card.js
+    expected: >
+      exit 0; stdout có "PASS: P191" và các dòng của case P191: (1) fixture
+      workspace DO CODE SINH trong lần chạy (ooc finding + judgment decision
+      + oos + decision treo) → chạy scripts/gate-card.js THẬT --gate 1 và
+      --gate 2, rút dòng «Trả lời mẫu» từ HTML, in
+      "ONESHOT-RT: g1=<n> g2=<n> nhan khop du" với số nhãn ĐẾM ĐƯỢC; (2)
+      đối chứng dương XANH trước đột biến; (3) MUTANT-A gỡ nhãn cố định
+      «Treo» khỏi bản sao SLOTS → checker đỏ ghim «nhan the day ma ngu phap
+      khong khai: Treo»; (4) MUTANT-B tiêm nhãn lạ «lạ-oneshot» vào đúng
+      dòng «Trả lời mẫu» của HTML đã render → đỏ ghim «nhan la ngoai ngu
+      phap: lạ-oneshot»; (5) SANITY hai-lớp-không-nuốt-nhau: trong MUTANT-C
+      gỡ dòng «Ngoài-<số>» khỏi bản sao SLOTS, nhãn Ngoài-1 của fixture
+      KHÔNG được khớp chui qua lớp «<mã eval>» (checker đối chiếu mã eval
+      bằng danh sách id THẬT của fixture, không bằng regex rộng) → đỏ ghim
+      «Ngoài-1» mồ côi + in "SANITY-KHONG-NUOT: Ngoai-1 khong chui qua lop
+      ma-eval"; (6) leg NGƯỢC (gap-probe P2): mỗi dòng SLOTS không mang cờ
+      `extra` phải được render bởi >=1 fixture trong chính lần chạy — in
+      "ONESHOT-RT-NGUOC: moi dong SLOTS co fixture render"; MUTANT-H thêm
+      một dòng nhãn chết vào bản sao SLOTS → đỏ ghim «nhan SLOTS khong
+      fixture nao render». Mọi chuỗi mới 0-hit trên baseline origin/main.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - tests/plugins/run-tests.sh
+      - skills/acceptance/references/human-facing-language.md
+      - commands/approve.md
+      - commands/signoff.md
+      - commands/acceptance-init.md
+      - commands/acceptance-status.md
+      - commands/acceptance-report.md
+      - commands/start.md
+      - codex/acceptance-gate/skills/approve/SKILL.md
+      - codex/acceptance-gate/skills/signoff/SKILL.md
+      - codex/acceptance-gate/skills/acceptance-init/SKILL.md
+      - codex/acceptance-gate/skills/acceptance-status/SKILL.md
+      - codex/acceptance-gate/skills/acceptance-report/SKILL.md
+      - codex/acceptance-gate/skills/start/SKILL.md
+    expected: >
+      exit 0; stdout có "PASS: P192" và các dòng của case P192: (1) parse
+      manifest GATE-ONESHOT-SITES — mỗi dòng `<path> <số>`; dòng thiếu số →
+      đỏ ghim «site thieu so ban» (MUTANT-D chứng minh trên bản sao manifest);
+      (2) với TỪNG site: đếm số bản GATE-ONESHOT-CLAUSE nguyên văn từng ký
+      tự == số khai; bản suy ra dưới plugins/ (tự suy theo đuôi đường dẫn
+      cho 6 SKILL Codex; commands/ không có bản suy ra — quan hệ này in
+      thành dòng "ONESHOT-SITES: 12 nguon (+6 suy ra)"); (3) ba quan hệ
+      per-site (gap-probe P0 + cờ phiên B): needle `--repo` + con trỏ
+      `GATE-ONESHOT-GRAMMAR` có mặt trong TỪNG site, và round-trip
+      SLOTS→thân-lệnh — thân approve (cả hai harness) liệt đủ nhãn g1, thân
+      signoff đủ nhãn g2, thân start chứa dạng chọn-trước `slug`; in
+      "ONESHOT-BODY: approve g1 du, signoff g2 du, start slug OK"; (4)
+      MUTANT-E mangle MỘT ký tự của clause trong một bản chép → đỏ đích
+      danh file; (5) MUTANT-F gỡ needle `--repo` khỏi MỘT bản sao thân lệnh
+      → đỏ đích danh file; (6) MUTANT-G xoá nhãn «Treo» khỏi bản sao thân
+      signoff → đỏ ghim «than signoff thieu nhan: Treo»; (7) đối chứng
+      dương xanh trước mọi đột biến. Chuỗi mới 0-hit trên baseline.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - tests/plugins/run-tests.sh
+      - commands/approve.md
+      - codex/acceptance-gate/skills/approve/agents/openai.yaml
+    expected: >
+      exit 0; stdout có "PASS: P31" và "PASS: P32" NGUYÊN TRẠNG (khoá
+      disable-model-invocation / allow_implicit_invocation còn đủ 6/6 cả
+      hai harness, acceptance-card vẫn mở); và P192 assert thêm: clause
+      chứa nguyên văn CẢ HAI câu neo — «câu gộp là câu NGƯỜI gõ» (điều
+      khoản không-mở-đường-máy) VÀ «kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH»
+      (deliverable kết-khối không bốc hơi — gap-probe P1). Về răng khoá:
+      P31/P32 là assert-TRỰC-TIẾP trên cây thật (phá vật thật → đỏ với
+      message ĐÃ ghim «lacks policy lock»/«lacks lock»), KHÔNG phải mutant
+      — eval này không nhận vơ chiều đỏ không tồn tại (gap-probe P1), chỉ
+      ghim quan hệ «chip không suy suyển lớp đã có chủ» bằng đối chứng
+      dương nguyên trạng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.no_oneshot_drift
+    paths:
+      - _acceptance/mot-luot-go-cong-nguoi/no-ben-viet-drift.sh
+    expected: >
+      exit 0; script so với BASE TƯỜNG MINH origin/main: (a) diff name-only
+      KHÔNG chứa scripts/gate-card.js (bên VIẾT câu mẫu không đổi byte nào);
+      (b) khối YOUR-MOVE-BLOCK-TEMPLATE + câu GATE-INVITE-CLAUSE + manifest
+      GATE-INVITE-SITES rút qua marker từ origin/main byte-equal bản HEAD
+      (vật chip ②/②b không bị chip này chạm); in từng dòng "NO-DRIFT: <vật>
+      OK". Khai sinh phép đo: phá-thử một lần trên bản sao (đổi 1 byte
+      gate-card.js trong worktree tạm) → script đỏ ghim đích danh; đối
+      chứng dương xanh trên cây thật. Baseline: n-a (script là vật của
+      chính hồ sơ này, so origin/main làm base tường minh).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.mirror_sync
+    paths:
+      - scripts/sync-plugin-packages.sh
+      - plugins/acceptance-gate/skills/acceptance/references/human-facing-language.md
+    expected: >
+      exit 0 (P30 xanh): mirror khớp nguồn sau sync — bản luật trong mirror
+      mang cùng khối GATE-ONESHOT-* và 6 SKILL Codex trong mirror mang cùng
+      điều khoản. Baseline: green có chủ đích (guard vĩnh viễn hai phía).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: judgment
+    paths:
+      - commands/approve.md
+      - commands/signoff.md
+    question: >
+      Một agent context SẠCH (không được đưa contract, không grammar rời —
+      CHỈ thân lệnh) đóng vai owner cầm câu «Trả lời mẫu» của thẻ: (ca 1)
+      đọc commands/approve.md, cho câu gộp «duyệt: Manh Phan, phút 0» —
+      agent phải nói đúng lệnh điền gì vào approved_by / approved_at /
+      time_human_minutes.gate1 và KHÔNG hỏi thêm câu nào; rồi cho câu
+      «duyệt» trần — agent phải nói lệnh chỉ được hỏi thêm tên/phút, không
+      hỏi lại điều đã trả lời. (ca 2) đọc commands/signoff.md, cho câu gộp
+      «E9: Đạt; cắt/hoãn: đồng ý cắt; Treo: phê hết; Ký: Manh Phan
+      2026-08-11, phút 0» — agent phải nói đúng lệnh điền human_override /
+      verdict upgrade / human_signoff / status / time_human_minutes.gate2
+      và thứ tự commit chữ-ký-riêng (require_human_commit) không đổi.
+      Trả lời lệch bảng đáp án → REJECT, sửa THÂN LỆNH chứ không sửa đáp án.
+    expected: >
+      Cả hai ca khớp bảng đáp án; verdict judgment PASS kèm trích lời agent.
+    evidence_required: [run_id, verifier, verified_at, output]
