@@ -166,15 +166,18 @@ dưới `plugins/` và mọi overlay cùng đuôi đường dẫn dưới `codex
 rồi đòi bản nào cũng chứa điều khoản. Lỗ đã dẫm (S4-r2): bốn bản Claude được
 sửa, hai overlay Codex tương ứng thì không — mà overlay GHI ĐÈ bản Claude
 trong gói Codex, nên gói phát hành mời cổng không chịu luật, còn phép đo dùng
-danh sách tay thì mù vĩnh viễn với khoảng trống đó.
+danh sách tay thì mù vĩnh viễn với khoảng trống đó. Số sau mỗi đường dẫn là
+SỐ BẢN CHÉP PHẢI CÓ trong site đó (chip ②b): ít hơn hay nhiều hơn đều đỏ —
+thêm/bớt một chỗ mời-cổng là quyết định người, phải sửa số này cùng lượt;
+dòng thiếu số là lỗi kêu to, phép đo không tự đoán.
 
 <!-- <<<GATE-INVITE-SITES -->
-skills/acceptance/SKILL.md
-commands/acceptance-card.md
-feature-loop/skills/feature-loop/SKILL.md
-codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md
-codex/acceptance-gate/skills/acceptance/SKILL.md
-codex/acceptance-gate/skills/acceptance-card/SKILL.md
+skills/acceptance/SKILL.md 2
+commands/acceptance-card.md 1
+feature-loop/skills/feature-loop/SKILL.md 2
+codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md 2
+codex/acceptance-gate/skills/acceptance/SKILL.md 2
+codex/acceptance-gate/skills/acceptance-card/SKILL.md 1
 <!-- GATE-INVITE-SITES>>> -->
 
 ## Từ mới feature này đưa vào từ điển
