@@ -45,13 +45,19 @@ finding gốc) + dòng chữ ký Cổng 2 chip ② («②b: mở ngay sau ②»)
   Then checker vẫn XANH và in xác nhận cô lập nêu rõ marker clause ĐÃ VẮNG
   trong bản đột biến — chứng minh vùng đo của P189 không còn ăn dữ liệu của
   lớp kia (canh clause là việc của P188, không phải của P189).
-- AC-3 (sàn đếm nguồn): Given manifest `GATE-INVITE-SITES` khai kèm SỐ BẢN
-  PHẢI CÓ cho từng site nguồn, và một bản sao dữ liệu trong đó một site nguồn
-  bị gỡ 1 trong N bản clause ĐỒNG THỜI mọi bản dựng/overlay của nó mất theo
-  (mô phỏng đúng cảnh gỡ-ở-nguồn-rồi-sync), When chạy P188, Then luật
-  sàn-đếm-nguồn ĐỎ đích danh site nguồn đó — kèm sanity in ra: hai luật cũ
+- AC-3 (đếm nguồn đúng số khai): Given manifest `GATE-INVITE-SITES` khai kèm
+  SỐ BẢN PHẢI CÓ cho từng site nguồn, When chạy P188, Then luật đếm-nguồn
+  cưỡng chế ĐÚNG số khai theo CẢ HAI hướng và fail-loud với format của chính
+  nó: (a) bản thật ÍT hơn số khai — gỡ 1 trong N bản ở nguồn ĐỒNG THỜI mọi
+  bản dựng/overlay của nó mất theo (mô phỏng gỡ-ở-nguồn-rồi-sync) → ĐỎ đích
+  danh site + số-thấy/số-khai, kèm sanity in ra: hai luật cũ
   (so-khớp-từng-lần + đếm bản-dựng-so-nguồn) đều IM trên chính đột biến này,
-  chứng minh lỗ là thật chứ không phải luật cũ đã phủ.
+  chứng minh lỗ round 3 là thật; (b) bản thật NHIỀU hơn số khai — một bản
+  lạc trôi thêm vào nguồn mà manifest chưa được người cập nhật → cũng ĐỎ
+  đích danh (điều kiện B, ack mốc 1); (c) dòng site trong manifest THIẾU SỐ
+  → parser ĐỎ ngay với thông điệp đích danh «site thieu so ban», KHÔNG
+  default lặng lẽ về 1/0 — format `<path> <số>` do hồ sơ này đẻ ra thì lỗ
+  của nó hồ sơ này tự đóng (bài allowlist-biến-fail-loud-thành-fail-silent).
 - AC-4 (ranh-giới-câu): Given một bản sao trong đó clause bị chèn vào GIỮA
   một câu đang dở, When chạy P188, Then luật ranh-giới-câu ĐỎ đích danh
   file + vị trí. Luật ranh giới định nghĩa thao-tác-được: TRƯỚC mỗi lần xuất

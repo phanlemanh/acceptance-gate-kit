@@ -58,22 +58,28 @@ evals:
       - tests/plugins/run-tests.sh
       - skills/acceptance/references/human-facing-language.md
     expected: >
-      exit 0; stdout có "PASS: P188" và dòng xác-nhận-đột-biến sàn-đếm-nguồn:
-      bản sao dữ liệu gỡ 1 trong N bản clause ở MỘT site nguồn ĐỒNG THỜI gỡ
-      bản tương ứng ở mọi bản dựng/overlay suy ra của site đó (mô phỏng đúng
-      cảnh gỡ-ở-nguồn-rồi-sync) → luật sàn-đếm-nguồn ĐỎ ĐÍCH DANH site nguồn,
-      ghim số thấy/số khai; kèm sanity IN RA: trên chính đột biến này hai
-      luật cũ (lech so-khớp-từng-lần + thieu_ban đếm bản-dựng-so-nguồn) đều
-      IM — chứng minh lỗ round 3 là thật, luật mới không thừa. NẠN NHÂN ghim
-      sẵn để né bẫy PAIR-hai-cha (soi gap-probe P2:
+      exit 0; stdout có "PASS: P188" và BA chiều đỏ đếm-nguồn, mỗi chiều in
+      xác-nhận-đột-biến: (a) ÍT-HƠN-SỐ-KHAI — bản sao gỡ 1 trong N bản
+      clause ở MỘT site nguồn ĐỒNG THỜI gỡ bản tương ứng ở mọi bản dựng/
+      overlay suy ra của site đó (mô phỏng gỡ-ở-nguồn-rồi-sync) → ĐỎ ĐÍCH
+      DANH site, ghim số-thấy/số-khai, kèm sanity IN RA: trên chính đột biến
+      này hai luật cũ (lech so-khớp-từng-lần + thieu_ban đếm
+      bản-dựng-so-nguồn) đều IM — chứng minh lỗ round 3 là thật, luật mới
+      không thừa; (b) NHIỀU-HƠN-SỐ-KHAI (điều kiện B, ack mốc 1) — bản sao
+      THÊM một bản clause lạc vào cùng site nguồn, manifest giữ nguyên → ĐỎ
+      ĐÍCH DANH ghim nhieu-hon-so-khai; (c) FAIL-LOUD THIẾU SỐ (điều kiện B)
+      — bản sao manifest có dòng site KHÔNG mang số → parser ĐỎ ngay với
+      thông điệp đích danh "site thieu so ban" nêu path, KHÔNG default lặng
+      lẽ về 1/0; parser đi qua chính hàm đọc-manifest thật của P188. NẠN
+      NHÂN của (a)/(b) ghim sẵn để né bẫy PAIR-hai-cha (soi gap-probe P2:
       plugins/acceptance-gate/skills/acceptance/SKILL.md là bản suy ra của
       CẢ skills/acceptance/SKILL.md LẪN codex/.../acceptance/SKILL.md nên gỡ
       ở cặp skills/acceptance sẽ làm thieu_ban kêu, hỏng sanity): nạn nhân
       là `feature-loop/skills/feature-loop/SKILL.md` — site nguồn 2 bản,
       KHÔNG có bản suy ra nào dưới plugins/ (không có gói feature-loop
       Claude trong mirror); CẤM nới sanity "luật cũ im" để đổi lấy nạn nhân
-      khác. Đối chứng dương: cây thật qua sàn đếm với số khai trong manifest
-      (6 site, tổng 10 bản).
+      khác. Đối chứng dương: cây thật qua luật đếm với số khai trong
+      manifest (6 site, tổng 10 bản).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E4
