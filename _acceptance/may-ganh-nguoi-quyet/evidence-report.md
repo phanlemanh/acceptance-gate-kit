@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: a81ade3210d771f4bc14f046f680fddebfbd0824
+verified_commit: 1d7b0d4695e09a76d5aa583b31295618ef0c3fb6
 human_signoff: Manh Phan 2026-08-11
 ---
 
@@ -243,3 +243,11 @@ Ba known-limits người ký cần đọc trước khi quyết:
   mới:** cùng repo, cùng cây, cùng người; chữ ký gốc của owner còn nguyên
   trong lịch sử PR #42. Lời giải cấu trúc là TẮT squash-merge ở cài đặt repo,
   không nới luật.
+
+### Re-pin lần 1 — 2026-08-11, sau chữ ký, do bump acceptance-gate 1.40.0 (3 manifest nguồn đổi) + gỡ vết squash-merge PR #42
+run_id: repin-may-ganh-nguoi-quyet-20260811T153124Z
+sha: 1d7b0d4695e09a76d5aa583b31295618ef0c3fb6 · suites: 6 lệnh exit 0
+Lý do: hồ sơ này vào diện diff của PR #43 (commit repair + chữ ký), nên luật
+staleness theo-diff soi nó và thấy 3 manifest đổi sau verified_commit cũ. Bump
+là số + chữ, không chạm vật nào E1–E7 đo; lane 6 lệnh xanh tại sha trên xác
+nhận. Chữ ký người KHÔNG bị đụng trong lượt re-pin này.
