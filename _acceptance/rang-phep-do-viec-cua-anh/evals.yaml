@@ -1,0 +1,150 @@
+schema_version: 1
+feature_slug: rang-phep-do-viec-cua-anh
+# Hồ sơ sửa-phép-đo thuần: vật được giao là chính hai case P188/P189 trong
+# tests/plugins/run-tests.sh (+ manifest số-đếm trong bản luật). Mỗi eval ghim
+# ĐÍCH DANH dòng PASS/MUTANT trong stdout suite, không chỉ exit 0 (luật
+# tổng-kết-phải-kèm-số-ca + ba-lớp-che-màu-xanh). Mọi chiều đỏ theo
+# MEASURE-BIRTH: đối-chứng-dương + phá-vật-thật + thông-điệp-ghim trên CÙNG
+# fixture; mutant đi qua chính checker thật và in xác-nhận-đột-biến.
+# Không có làn design/ui-check: kit không có web UI (executors.design vắng).
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - tests/plugins/run-tests.sh
+      - skills/acceptance/references/human-facing-language.md
+    expected: >
+      exit 0; stdout có "PASS: P189" và HAI lượt đột biến cô-lập-lớp chiều
+      luật: (a) XOÁ gạch luật chỉ-báo «không cần làm gì» khỏi phần "Luật đi
+      kèm khuôn" mà GIỮ nguyên khối GATE-INVITE-CLAUSE, (b) XOÁ gạch luật
+      cấm-câu-tu-từ mà GIỮ clause — cả hai đi qua chính check() thật và ĐỎ
+      ghim đúng thông điệp thiếu-luật ("thieu luat chi-bao" / "cam cau tu
+      tu"). RĂNG PHÂN BIỆT (soi gap-probe P0 — mọi chuỗi cũ đã có sẵn trong
+      stdout hôm nay vì mutant replace-toàn-cục cũng đỏ trên checker cũ):
+      mỗi lượt PHẢI in dòng sanity QUAN HỆ đích danh
+      "SANITY-CO-LAP-LUAT-<tên>: clause con nguyen trong ban dot bien" —
+      dòng này chỉ in được khi assert rút-clause-qua-marker trên chính bản
+      đột biến còn sống. E1 ghim dòng sanity này (chuỗi KHÔNG tồn tại trong
+      stdout suite trước khi vá — verifier đối chiếu bằng grep trên log lần
+      chạy), không chỉ ghim thông điệp lỗi.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - tests/plugins/run-tests.sh
+      - skills/acceptance/references/human-facing-language.md
+    expected: >
+      exit 0; stdout có dòng xác nhận CÔ LẬP chiều ngược của P189: bản đột
+      biến GỠ TRỌN khối GATE-INVITE-CLAUSE mà giữ đủ gạch luật → check()
+      thật trả 0 lỗi (XANH) và in đúng dòng
+      "CO-LAP-CLAUSE-OK: marker GATE-INVITE-CLAUSE da vang trong ban dot
+      bien, check() van 0 loi — vung do P189 khong an clause" — dòng này chỉ
+      in được sau khi assert marker ĐÃ VẮNG trên bản đột biến (chuỗi không
+      tồn tại trong stdout suite trước khi vá); ca should-NOT-fire chứng
+      minh hai lớp đã tách hẳn (canh clause là việc của P188); kèm đối chứng
+      dương: check(law) trên bản thật = 0 lỗi trước mọi đột biến.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - tests/plugins/run-tests.sh
+      - skills/acceptance/references/human-facing-language.md
+    expected: >
+      exit 0; stdout có "PASS: P188" và dòng xác-nhận-đột-biến sàn-đếm-nguồn:
+      bản sao dữ liệu gỡ 1 trong N bản clause ở MỘT site nguồn ĐỒNG THỜI gỡ
+      bản tương ứng ở mọi bản dựng/overlay suy ra của site đó (mô phỏng đúng
+      cảnh gỡ-ở-nguồn-rồi-sync) → luật sàn-đếm-nguồn ĐỎ ĐÍCH DANH site nguồn,
+      ghim số thấy/số khai; kèm sanity IN RA: trên chính đột biến này hai
+      luật cũ (lech so-khớp-từng-lần + thieu_ban đếm bản-dựng-so-nguồn) đều
+      IM — chứng minh lỗ round 3 là thật, luật mới không thừa. NẠN NHÂN ghim
+      sẵn để né bẫy PAIR-hai-cha (soi gap-probe P2:
+      plugins/acceptance-gate/skills/acceptance/SKILL.md là bản suy ra của
+      CẢ skills/acceptance/SKILL.md LẪN codex/.../acceptance/SKILL.md nên gỡ
+      ở cặp skills/acceptance sẽ làm thieu_ban kêu, hỏng sanity): nạn nhân
+      là `feature-loop/skills/feature-loop/SKILL.md` — site nguồn 2 bản,
+      KHÔNG có bản suy ra nào dưới plugins/ (không có gói feature-loop
+      Claude trong mirror); CẤM nới sanity "luật cũ im" để đổi lấy nạn nhân
+      khác. Đối chứng dương: cây thật qua sàn đếm với số khai trong manifest
+      (6 site, tổng 10 bản).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - tests/plugins/run-tests.sh
+      - skills/acceptance/references/human-facing-language.md
+    expected: >
+      exit 0; stdout có dòng xác-nhận-đột-biến ranh-giới-câu của P188: bản
+      sao trong đó clause bị chèn TÁI TẠO ĐÍCH DANH layout pre-3caee05 —
+      clause nằm DÒNG RIÊNG chen giữa hai nửa của một câu đang dở, dòng
+      trước kết bằng «the verdict + hook» (không terminator), dòng sau mở
+      bằng «are unchanged.» (soi gap-probe P1: mutant chèn-giữa-dòng rẻ hơn
+      sẽ không chứng minh lỗ lịch sử đã vá) → luật ranh-giới-câu ĐỎ ĐÍCH
+      DANH file + vị trí, ghim lý do. Định nghĩa đầu-khối thao-tác-được:
+      đầu file hoặc dòng liền trước là dòng TRẮNG — clause dòng-riêng sau
+      một dòng văn dở KHÔNG được tính đầu-khối (nếu tính, hình dạng 3caee05
+      xanh vĩnh viễn). Kèm đối chứng dương IN RA: toàn bộ 10 lần xuất hiện
+      thật ở 6 site nguồn + 5 bản suy ra dưới plugins/ (15 lượt kiểm) đều
+      qua luật ranh giới — kể cả 2 lần nằm giữa-dòng trong feature-loop
+      SKILL.md (trước kết «.», sau mở chữ hoa «Đính»).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - tests/plugins/run-tests.sh
+      - skills/acceptance/references/human-facing-language.md
+    expected: >
+      exit 0 TRỌN suite plugins (không chỉ hai case); dòng tổng kết của P188
+      và P189 mỗi dòng KÈM SỐ chiều đỏ đã chạy trong lần chạy đó (vd "P189 OK
+      (… mutant …)", "P188 OK (… chiều đỏ …)") — chống lớp
+      tổng-kết-không-kèm-số-ca. Phần không-trôi-vật-thật tách sang E7 (soi
+      gap-probe P1: `git diff` không base sau commit thi công luôn rỗng —
+      xanh chân không).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-5
+    executor: script
+    # Phép kiểm riêng của hồ sơ này (không vào suite vĩnh viễn — nó so với
+    # origin/main là base CỦA PR NÀY; lệnh git là generic, không repo-specific
+    # nên không cần ổ cắm config:).
+    cmd: "bash _acceptance/rang-phep-do-viec-cua-anh/no-vat-that-drift.sh origin/main"
+    paths:
+      - scripts/gate-card.js
+      - skills/acceptance/references/human-facing-language.md
+    expected: >
+      exit 0 với các dòng ghim: "YOUR-MOVE-BLOCK-TEMPLATE: byte-equal",
+      "GATE-INVITE-CLAUSE: byte-equal", mỗi site nguồn một dòng "cho dat
+      clause giu nguyen", và "NO-DRIFT OK" — chứng minh so với BASE TƯỜNG
+      MINH origin/main: scripts/gate-card.js vắng trong diff name-only,
+      khuôn + clause byte-equal, chỗ đặt clause (số dòng từng lần xuất hiện
+      trong 6 site nguồn) không đổi; chỉ manifest GATE-INVITE-SITES được
+      phép thêm số đếm.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.mirror_sync
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - plugins/acceptance-gate/skills/acceptance/references/human-facing-language.md
+    expected: >
+      exit 0 — sau khi sửa manifest ở nguồn và chạy sync-plugin-packages.sh,
+      bản kiểm --check xác nhận mirror == nguồn (P30), tức bản luật trong
+      plugins/ mang cùng manifest số-đếm; commit mirror đi cùng lượt với
+      commit nguồn.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
