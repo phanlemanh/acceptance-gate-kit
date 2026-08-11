@@ -211,6 +211,18 @@ A/B chạy trên worktree `origin/main` (d6d648b) trước khi tin màu xanh.
   vòng E7 tìm ra lỗ chỉ-dẫn thật (thứ tự gõ · `.` đá `--repo`); (4) P162 bắt
   tham chiếu script giả trong SKILL Codex.
 
+- Sau chữ ký — CI bắt một lỗ HỒ SƠ (không phải lỗ vật, phán quyết không đổi):
+  `tests/workflows` case W-G8 ĐỎ vì E7 là eval `judgment` mà thiếu khoá
+  `inputs:` — engine coi eval judgment không có chân đế là ca phải HẠ xuống
+  UNCERTAIN, và danh sách miễn trừ khai sẵn chỉ có 2 mục cũ. Nguyên nhân gốc
+  ở phía máy chấm: vòng S4 chỉ chạy suite `plugins` (mọi eval máy của hồ sơ
+  này trỏ `config:executors.test.plugins`), nên ba suite còn lại không ai
+  chạy — đúng lớp "phép đo không phủ chỗ mình vừa chạm". Xử: khai `inputs:`
+  đúng hai file thân lệnh mà hội đồng ĐÃ đọc (sự thật của lần chạy judge),
+  KHÔNG nới danh sách miễn trừ (nới là hạ thước). Sau sửa: cả BỐN suite chạy
+  local — scripts 671, hooks 54, plugins toàn bộ, workflows 324+11+42+16+33+62
+  — đều exit 0.
+
 ## Analyst
 
 Không có eval ngẫu nhiên. Hai known-limits đã khai CÓ Ý THỨC trong hợp đồng,

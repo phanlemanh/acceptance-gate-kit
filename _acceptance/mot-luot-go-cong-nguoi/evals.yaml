@@ -154,6 +154,9 @@ evals:
   - id: E7
     criterion: AC-7
     executor: judgment
+    inputs:
+      - commands/approve.md
+      - commands/signoff.md
     paths:
       - commands/approve.md
       - commands/signoff.md
