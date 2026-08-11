@@ -9991,11 +9991,14 @@ const block = name => {
 const grammar = block("GATE-ONESHOT-GRAMMAR");
 const slotsRaw = block("GATE-ONESHOT-SLOTS");
 const anchors = [
+  // 2 neo đổi bởi chip ③b (đổi-thước-có-hợp-đồng, AC-1g may-ganh-nguoi-quyet):
+  // hoi-lai-phan-la («hỏi lại đúng phần đó») → khuyen-nghi-truoc;
+  // ten-phut-ngoai-the («follow-up DUY NHẤT») → enter-xac-nhan.
   ["khong-dien-san", "không bao giờ điền sẵn"],
   ["vang-gop-nhu-cu", "hỏi từng bước như cũ"],
   ["giu-nguyen-van", "GIỮ NGUYÊN VĂN"],
-  ["hoi-lai-phan-la", "hỏi lại đúng phần đó"],
-  ["ten-phut-ngoai-the", "follow-up DUY NHẤT"],
+  ["khuyen-nghi-truoc", "cách hiểu khả dĩ nhất"],
+  ["enter-xac-nhan", "Enter xác nhận"],
   ["start-slug", "không thấy slug trong nhóm nào"],
   ["khuon-ma-eval", "E\\w+"],
   ["cu-phap-go", "TOÀN BỘ phần còn lại của dòng"],
@@ -10281,6 +10284,134 @@ assert any(b.startswith("than signoff thieu nhan: Treo") for b in badsG), "MUTAN
 print("     MUTANT-G DO dung: than signoff thieu nhan: Treo")
 print("P193 OK (12 nguon + 6 suy ra khop tung ky tu; quan he per-site --repo + con tro grammar + SLOTS->than-lenh; 4 chieu do: manifest-thieu-so, clause-lech-1-ky-tu, thieu---repo, than-thieu-nhan — tat ca in xac-nhan-dot-bien va di qua chinh checker that)")
 P193PY
+
+# ── P194: may-ganh-nguoi-quyet (chip 3b kit 2.1) — hai nguyen tac
+# «nguoi chi khai dieu chi nguoi biet» + «khuyen nghi truoc, hoi mo la duong
+# cung». Vat: khoi GRAMMAR (neo moi) + 6 than lenh co-cau-hoi (2 harness).
+# Mirror KHONG do o day — P30 canh byte-equal doc lap. 5 chieu do, moi mutant
+# la ban sao in-memory di qua CHINH cac ham check that + in xac-nhan-dot-bien.
+run "P194 hai nguyen tac may-ganh-nguoi-quyet: neo grammar + 6 than lenh + truong ghi (E1/E2/E3 may-ganh-nguoi-quyet)" \
+  python3 - "$ROOT" <<'P194PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+law_p = "skills/acceptance/references/human-facing-language.md"
+law = (root / law_p).read_text(encoding="utf-8")
+def grammar_of(law_text):
+    m = re.search(r"<!-- <<<GATE-ONESHOT-GRAMMAR -->\n([\s\S]*?)\n<!-- GATE-ONESHOT-GRAMMAR>>> -->", law_text)
+    assert m, law_p + ": KHONG rut duoc GATE-ONESHOT-GRAMMAR qua marker"
+    return m.group(1)
+NEO = [
+    ("voi-danh-tinh", "với danh tính:"),
+    ("enter-xac-nhan", "Enter xác nhận"),
+    ("bac-git-config", "git config user.name"),
+    ("khong-hoi-phut", "không hỏi phút"),
+    ("phut-ghi-0", "ghi 0"),
+    ("ho-so-mot-ung-vien", "đúng MỘT ứng viên"),
+    ("cach-hieu-kha-di", "cách hiểu khả dĩ nhất"),
+    ("hoi-mo-duong-cung", "hỏi mở"),
+    ("ca-mau-khong-cat", "không cắt"),
+    ("phat-ngon-cuoi", "PHÁT NGÔN CUỐI"),
+    ("tuong-thich-cu", "vẫn chạy nguyên"),
+]
+def check_grammar(law_text):
+    g = grammar_of(law_text)
+    errs = []
+    for tag, s in NEO:
+        if s not in g:
+            errs.append("GRAMMAR thieu neo " + tag + " (neo: " + s + ")")
+    return errs
+# ---- 6 than lenh co-cau-hoi (nguon hai harness; mirror do P30 canh rieng)
+SITES = {
+    "approve": ["commands/approve.md", "codex/acceptance-gate/skills/approve/SKILL.md"],
+    "signoff": ["commands/signoff.md", "codex/acceptance-gate/skills/signoff/SKILL.md"],
+    "start": ["commands/start.md", "codex/acceptance-gate/skills/start/SKILL.md"],
+}
+texts = {rel: (root / rel).read_text(encoding="utf-8") for rels in SITES.values() for rel in rels}
+GATE_NEEDLES = [
+    ("khuon voi-danh-tinh", "với danh tính:"),
+    ("khuon Enter-xac-nhan", "Enter xác nhận"),
+    ("phut-ghi-0", "ghi 0"),
+    ("needle --as", "--as"),
+    ("ho-so-mot-ung-vien", "đúng MỘT ứng viên"),
+]
+FIELDS = {
+    "approve": ["approved_by", "approved_at", "time_human_minutes.gate1"],
+    "signoff": ["human_override", "human_signoff", "status: signed-off", "time_human_minutes.gate2"],
+}
+def check_bodies(mapping):
+    errs = []
+    for role, rels in SITES.items():
+        for rel in rels:
+            t = mapping[rel]
+            if "GATE-ONESHOT-GRAMMAR" not in t:
+                errs.append("site thieu con tro GATE-ONESHOT-GRAMMAR: " + rel)
+            if role in ("approve", "signoff"):
+                for tag, s in GATE_NEEDLES:
+                    if s not in t:
+                        errs.append("site thieu " + tag + ": " + rel)
+            if role == "signoff":
+                if "không cắt" not in t:
+                    errs.append("than signoff thieu ca mau khong-cat: " + rel)
+                if "require_human_commit" not in t:
+                    errs.append("than signoff thieu require_human_commit: " + rel)
+            if role == "start":
+                if "chọn-trước bằng slug" not in t:
+                    errs.append("than start thieu dang chon-truoc slug: " + rel)
+                if "nhóm đã khớp" not in t:
+                    errs.append("than start thieu hien-thi-lai nhom khop: " + rel)
+            for f in FIELDS.get(role, []):
+                if f not in t:
+                    errs.append("than " + role + " thieu truong ghi: " + f + " (" + rel + ")")
+    return errs
+# ---- doi chung DUONG tren cay that, TRUOC moi dot bien
+assert check_grammar(law) == [], "grammar do oan tren cay that: " + repr(check_grammar(law))
+print("MAY-GANH-GRAMMAR: " + str(len(NEO)) + " neo du")
+assert check_bodies(texts) == [], "than lenh do oan tren cay that: " + repr(check_bodies(texts))
+print("MAY-GANH-BODY: approve du, signoff du, start du")
+print("MAY-GANH-COMPAT: truong ghi du, require_human_commit nguyen")
+# ---- 5 chieu do, moi chieu qua CHINH cac ham that o tren
+# MUT-1 (E1): go neo PHAT NGON CUOI khoi ban sao ban luat -> do dich danh
+law_m1 = law.replace("PHÁT NGÔN CUỐI", "PHAT-NGON-CUOI-DA-GO")
+assert law_m1 != law, "MUT-1 khong tac dung"
+print("MUT-1: da go neo PHAT NGON CUOI khoi ban sao ban luat")
+e1 = check_grammar(law_m1)
+assert any("GRAMMAR thieu neo phat-ngon-cuoi" in x for x in e1), "MUT-1 khong bi bat: " + repr(e1)
+print("     MUT-1 DO dung: GRAMMAR thieu neo phat-ngon-cuoi")
+# MUT-2 (E2): go khuon «voi danh tinh:» khoi ban sao commands/approve.md
+m2 = dict(texts); v2 = "commands/approve.md"
+m2[v2] = m2[v2].replace("với danh tính:", "voi danh tinh:")
+assert m2[v2] != texts[v2], "MUT-2 khong tac dung"
+print("MUT-2: da go khuon voi-danh-tinh khoi ban sao " + v2)
+e2 = check_bodies(m2)
+assert ("site thieu khuon voi-danh-tinh: " + v2) in e2, "MUT-2 khong bi bat dich danh: " + repr(e2)
+print("     MUT-2 DO dich danh: site thieu khuon voi-danh-tinh: " + v2)
+# MUT-3 (E2): go needle --as khoi ban sao codex signoff
+m3 = dict(texts); v3 = "codex/acceptance-gate/skills/signoff/SKILL.md"
+m3[v3] = m3[v3].replace("--as", "--a_s")
+assert m3[v3] != texts[v3], "MUT-3 khong tac dung"
+print("MUT-3: da go needle --as khoi ban sao " + v3)
+e3 = check_bodies(m3)
+assert ("site thieu needle --as: " + v3) in e3, "MUT-3 khong bi bat dich danh: " + repr(e3)
+print("     MUT-3 DO dich danh: site thieu needle --as: " + v3)
+# MUT-4 (E2): go ca mau «khong cat» khoi ban sao commands/signoff.md
+m4 = dict(texts); v4 = "commands/signoff.md"
+m4[v4] = m4[v4].replace("không cắt", "khong-cat-da-go")
+assert m4[v4] != texts[v4], "MUT-4 khong tac dung"
+print("MUT-4: da go ca mau khong-cat khoi ban sao " + v4)
+e4 = check_bodies(m4)
+assert ("than signoff thieu ca mau khong-cat: " + v4) in e4, "MUT-4 khong bi bat dich danh: " + repr(e4)
+print("     MUT-4 DO dich danh: than signoff thieu ca mau khong-cat: " + v4)
+# MUT-5 (E3): doi human_signoff -> human_sign0ff trong ban sao commands/signoff.md
+m5 = dict(texts); v5 = "commands/signoff.md"
+m5[v5] = m5[v5].replace("human_signoff", "human_sign0ff")
+assert m5[v5] != texts[v5], "MUT-5 khong tac dung"
+print("MUT-5: da doi human_signoff -> human_sign0ff trong ban sao " + v5)
+e5 = check_bodies(m5)
+assert any(x.startswith("than signoff thieu truong ghi: human_signoff") for x in e5), "MUT-5 khong bi bat: " + repr(e5)
+print("     MUT-5 DO dung: than signoff thieu truong ghi: human_signoff")
+print("P194 OK (" + str(len(NEO)) + " neo grammar + 6 than lenh per-site + truong ghi; 5 chieu do: neo-grammar, khuon-danh-tinh, needle--as, ca-mau-khong-cat, truong-ghi — tat ca in xac-nhan-dot-bien va di qua chinh checker that)")
+P194PY
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then

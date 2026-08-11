@@ -192,37 +192,57 @@ nguyên văn và trỏ về khối này, không tự diễn đạt.
 
 <!-- <<<GATE-ONESHOT-GRAMMAR -->
 Cú pháp gõ (một dòng, đúng thứ tự này): `<lệnh> [<slug>] [--repo <path>]
-<câu gộp>` — câu gộp là TOÀN BỘ phần còn lại của dòng, không cần dấu nháy;
-`;` chỉ ngăn các nhãn bên trong câu gộp. Ngày ghi vào `approved_at` là ngày
-lệnh chạy (Cổng 1 không có chỗ trống cho ngày; Cổng 2 lấy ngày từ chỗ trống
-«Ký»).
+[--as "<tên>"] <câu gộp>` — câu gộp là TOÀN BỘ phần còn lại của dòng, không
+cần dấu nháy; `;` chỉ ngăn các nhãn bên trong câu gộp. Ngày là điều máy
+biết: `approved_at` ghi ngày lệnh chạy; «Ký» vắng ngày → ngày lệnh chạy.
 
 Câu gộp theo lệnh:
 
-- `/approve <slug> <câu gộp>` — trả lời chỗ trống «duyệt hay sửa: ___» của
-  thẻ Cổng 1: `duyệt[: <tên>][, phút <số>]` hoặc `sửa: <điều cần đổi>`.
-- `/signoff <slug> <câu gộp>` — chuỗi `nhãn: giá trị` phân cách bằng `;`,
+- `/approve [<slug>] <câu gộp>` — trả lời chỗ trống «duyệt hay sửa: ___»
+  của thẻ Cổng 1: `duyệt[: <tên>][, phút <số>]` hoặc `sửa: <điều cần đổi>`.
+- `/signoff [<slug>] <câu gộp>` — chuỗi `nhãn: giá trị` phân cách bằng `;`,
   đúng các nhãn dòng «Trả lời mẫu» của thẻ Cổng 2 («Ngoài-<số>» ·
-  «<mã eval>» · «cắt/hoãn» · «Treo»), kết bằng `Ký: <tên> <ngày>[, phút
+  «<mã eval>» · «cắt/hoãn» · «Treo»), kết bằng `Ký[: <tên> [<ngày>]][, phút
   <số>]` (chỗ trống «ký hay trả») hoặc `Trả lại: <lý do>`.
 - `/start [<slug>]` — chọn-trước bằng slug: slug nằm trong nhóm nào của lần
-  quét thì bàn giao thẳng theo lối nhóm đó; không thấy slug trong nhóm nào
-  → trình thẻ như cũ.
+  quét thì bàn giao thẳng theo lối nhóm đó và hiển thị lại nhóm đã khớp;
+  không thấy slug trong nhóm nào → trình thẻ như cũ.
 
-Sáu luật đi kèm:
+Luật đi kèm — hai nguyên tắc gốc (owner 11/08): MÁY GÁNH NHẬN THỨC, NGƯỜI
+GIỮ QUYẾT ĐỊNH — người chỉ khai điều chỉ người biết; máy khuyến nghị
+trước, hỏi mở là đường cùng:
 
 - Câu gộp là câu NGƯỜI gõ — máy chỉ dạy khuôn có chỗ trống,
   không bao giờ điền sẵn lựa chọn, verdict hay chữ ký thay người
   (cùng bất biến với khuôn YOUR-MOVE ở trên, cùng gốc ADR 0002).
-- Vắng câu gộp → lệnh hỏi từng bước như cũ; không trường ghi nào đổi tên,
-  không trường nào thêm bắt buộc.
+- Vắng câu gộp → lệnh hỏi từng bước như cũ (các câu hỏi còn lại đều là câu
+  hỏi QUYẾT ĐỊNH); không trường ghi nào đổi tên, không trường nào thêm bắt
+  buộc. Hai luật danh-tính và phút dưới đây áp cho CẢ đường từng-bước.
 - Đuôi tự do người viết thêm sau các nhãn nhận ra được → GIỮ NGUYÊN VĂN và
   ghi lại (sổ quyết định hoặc Notes của hợp đồng), cấm nuốt lặng lẽ.
-- Phần câu KHÔNG nhận ra được giữa các nhãn → hỏi lại đúng phần đó, không
-  đoán.
-- Tên người duyệt/ký và số phút là nhãn NGOÀI-THẺ (thẻ không dạy — thân
-  lệnh dạy); tên/phút là follow-up DUY NHẤT được phép hỏi thêm khi câu gộp
-  vắng đuôi.
+- Phần câu mơ hồ hoặc không nhận ra được → máy NÊU cách hiểu khả dĩ nhất
+  kèm CĂN CỨ trích từ hồ sơ (khối Out of scope đã duyệt, sổ quyết định,
+  trạng thái hồ sơ) và xin xác nhận một chạm; CHỈ hỏi mở khi thật sự không
+  có cách hiểu trội hơn hoặc hiểu-sai-thì-đắt-khó-đảo. Ca mẫu (sự cố thật
+  11/08): cụm «không cắt» đọc được hai chiều → đề xuất «đồng ý phạm vi đã
+  khai» kèm căn cứ từ khối Out of scope, không hỏi mở.
+- Tên người duyệt/ký, ngày và số phút là ĐIỀU MÁY BIẾT — người khai thì
+  nhận nguyên nghĩa (câu kiểu cũ đầy đủ «duyệt: <tên>, phút <số>» ·
+  «Ký: <tên> <ngày>, phút <số>» vẫn chạy nguyên); vắng thì máy TỰ SUY,
+  không hỏi: tên theo bậc câu-người-gõ → cờ `--as` → `signoff.approvers`
+  khi đúng một tên → `git config user.name`; suy xong HIỂN THỊ LẠI theo
+  khuôn «với danh tính: <tên> <ngày> — Enter xác nhận» TRƯỚC khi ghi (trả
+  lời ngắn khẳng định là xác nhận, trả lời khác là sửa danh tính; người đã
+  khai tường minh tên+ngày → ghi thẳng, không hỏi); máy không hỏi phút —
+  vắng thì `time_human_minutes` ghi 0, trường giữ nguyên cho schema cũ.
+- Hồ-sơ cũng là điều máy biết: vắng slug mà đúng MỘT ứng viên đang chờ
+  đúng cổng đó → dùng nó và hiển thị lại tên hồ sơ trong cùng lượt trả
+  lời; nhiều ứng viên → bảng chọn như cũ.
+- Ranh giới với bất biến không-điền-sẵn: máy ĐƯỢC đề xuất cách hiểu + căn
+  cứ + xin một cái gật rẻ; lời chấp thuận là PHÁT NGÔN CUỐI của người —
+  Enter xác nhận chỉ xác nhận DANH TÍNH sau khi người đã tự gõ quyết định;
+  chữ ký vẫn là hành vi người (khoá ADR 0002 + commit chỉ-trường-người,
+  git tự ghi author/date).
 - «<mã eval>» nhận dạng theo khuôn `E\w+` — đúng khuôn mã mà thẻ đưa lên
   dòng «Trả lời mẫu».
 <!-- GATE-ONESHOT-GRAMMAR>>> -->

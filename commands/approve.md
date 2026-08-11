@@ -11,7 +11,8 @@ every transition it writes.
 
 Arg: optional `<slug>`. Without it, scan `_acceptance/*/contract.md` for
 `status: draft`:
-- exactly one → use it;
+- exactly one → use it — hồ-sơ là điều máy biết: đúng MỘT ứng viên thì
+  KHÔNG hỏi, chỉ hiển thị lại tên hồ sơ trong cùng lượt trả lời;
 - several → print a slug table and ask which;
 - none → nothing awaits Gate 1 — say so and point to `/acceptance-status`.
   (Plan approval — Gate 1.5 — and design-mockup approval live in their own
@@ -21,18 +22,28 @@ Một-lượt-gõ + `--repo` (điều khoản chung, chép nguyên văn từ b�
 
 Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; còn việc kế thì kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE.
 
-Ví dụ một lượt gõ đầy đủ:
+Ví dụ một lượt gõ — trần (máy gánh phần còn lại) và đầy đủ (kiểu cũ,
+vẫn chạy nguyên):
+`/approve duyệt`
 `/approve abc-xyz --repo /duong/dan/repo duyệt: Manh Phan, phút 0`
 
 Câu gộp của lệnh này trả lời chỗ trống «duyệt hay sửa: ___» mà thẻ Cổng 1
-dạy — ngữ pháp đầy đủ ở khối `GATE-ONESHOT-GRAMMAR`:
+dạy — ngữ pháp đầy đủ ở khối `GATE-ONESHOT-GRAMMAR`. Người chỉ khai QUYẾT
+ĐỊNH; danh tính, ngày, phút là điều máy biết:
 - `duyệt[: <tên>][, phút <số>]` → chính là câu YES tường minh của bước 5:
-  `<tên>` → `approved_by` (vắng → luật chọn tên ở bước 5 như cũ);
-  `phút <số>` → `time_human_minutes.gate1` (vắng → hỏi; tên/phút là
-  follow-up DUY NHẤT được phép hỏi thêm khi câu gộp vắng đuôi).
+  `<tên>` → `approved_by`; vắng tên → máy TỰ SUY theo bậc: cờ `--as "<tên>"`
+  → `signoff.approvers` trong `_acceptance/config.yaml` khi đúng một tên →
+  `git config user.name` (của gốc lệnh đang chạy) — suy xong HIỂN THỊ LẠI
+  «với danh tính: <tên> <ngày> — Enter xác nhận» TRƯỚC khi ghi (trả lời
+  ngắn khẳng định là xác nhận, trả lời khác là sửa danh tính); người khai
+  tường minh tên → ghi thẳng, không hỏi. KHÔNG hỏi phút: `phút <số>` người
+  khai thì ghi đúng số đó vào `time_human_minutes.gate1`, vắng thì ghi 0.
 - `sửa: <điều cần đổi>` → bước 4 với đúng nội dung đó (vẫn là Gate 1).
 - Đuôi tự do sau các nhãn nhận ra được → GIỮ NGUYÊN VĂN, ghi vào sổ quyết
-  định; phần không nhận ra được → hỏi lại đúng phần đó, không đoán.
+  định; phần mơ hồ → luật khuyến-nghị-trước của `GATE-ONESHOT-GRAMMAR`:
+  nêu cách hiểu khả dĩ nhất kèm căn cứ trích từ hồ sơ + xin xác nhận một
+  chạm; chỉ hỏi mở khi không có cách hiểu trội hơn hoặc
+  hiểu-sai-thì-đắt-khó-đảo.
 Với `--repo <path>`: render thẻ bằng `--root <path>`, sửa file dưới
 `<path>/_acceptance/…` (hook write-time vẫn cắn theo mẫu đường dẫn), và
 commit Cổng 1 bằng `git -C <path>`. Mọi đoạn lệnh in ở các bước dưới viết
@@ -59,13 +70,18 @@ Steps:
    artifacts are agent-editable), re-render the card, ask again. Still Gate 1.
 5. **On an explicit YES only:**
    - `approved_by` = the reviewer's name: take it from their approval message;
-     if absent and `signoff.approvers` in `_acceptance/config.yaml` holds
-     exactly one name, confirm that name; otherwise ask. Never guess; never
-     write an agent's name.
+     if absent, infer down the ladder — `--as "<tên>"` → `signoff.approvers`
+     in `_acceptance/config.yaml` when it holds exactly one name → `git
+     config user.name` — then echo «với danh tính: <tên> <ngày> — Enter xác
+     nhận» and wait for the one-touch confirm BEFORE writing (an explicit
+     name typed by the human needs no confirm). Never guess beyond the
+     ladder; never write an agent's name. The confirm covers IDENTITY only —
+     the decision was the human's explicit YES above.
    - Edit the contract frontmatter — `status: approved`, `approved_by`,
-     `approved_at` (ISO date) — via your file-edit tool so the write-time hook
-     validates the transition.
-   - Ask how many minutes Gate 1 took → `time_human_minutes.gate1`.
+     `approved_at` (ISO date, ngày lệnh chạy — máy ghi, không hỏi) — via
+     your file-edit tool so the write-time hook validates the transition.
+   - `time_human_minutes.gate1`: KHÔNG hỏi — người khai `phút <số>` thì ghi
+     đúng số đó, vắng thì ghi 0 (trường giữ nguyên cho schema cũ).
    - If `_acceptance/<slug>/decisions.jsonl` exists (feature-loop), append the
      seal entry `{"id":"d-<next>","type":"seal","gate":1,"at":"<ISO>"}` in the
      same write-batch as `approved_by`.
