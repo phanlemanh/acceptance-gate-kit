@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: a81ade3210d771f4bc14f046f680fddebfbd0824
-human_signoff: Manh Phan 2026-08-11
+human_signoff:
 ---
 
 # Evidence Report: may-ganh-nguoi-quyet
@@ -233,3 +233,13 @@ Ba known-limits người ký cần đọc trước khi quyết:
   Cổng 1 → trình owner xác nhận (mục Ngoài hợp đồng).
 - Cả bốn suite local chạy trọn sau vòng chót (nếp chip ③): scripts 671 ·
   hooks 54 · plugins toàn bộ · workflows — đều exit 0.
+- **Khôi phục nghi thức hai-commit (2026-08-11, máy làm, sau khi đã ký):** PR
+  #42 merge kiểu **squash** nên `e943f96` chỉ có MỘT cha và gộp cả hồ sơ vào
+  một commit — chữ ký và thân báo cáo nằm chung, làm
+  `signoff.require_human_commit` đỏ VĨNH VIỄN và chặn mọi PR về main (đối
+  chứng: #38–#41 merge-commit hai cha, đều sạch; nghi thức tách-commit sống
+  nhờ HẠT commit, squash xoá hạt đó). Máy xoá giá trị `human_signoff` để owner
+  ký lại trên một commit human-fields-only. **Không phải ký lại nội dung
+  mới:** cùng repo, cùng cây, cùng người; chữ ký gốc của owner còn nguyên
+  trong lịch sử PR #42. Lời giải cấu trúc là TẮT squash-merge ở cài đặt repo,
+  không nới luật.
