@@ -11,9 +11,15 @@
 cd ~/.claude/plugins/marketplaces/acceptance-gate-kit 2>/dev/null && git pull
 claude plugin update acceptance-gate && claude plugin update feature-loop
 ```
-- **Kiểm bằng NỘI DUNG, đừng tin số version**: cache phải có
-  `scripts/recheck-evidence.cjs` (đuôi `.cjs`). Số đúng mà ruột cũ → gỡ cài
-  lại (`uninstall` + `install`).
+- **Kiểm bằng NỘI DUNG, đừng tin số version** — số `1.39.2` KHÔNG đổi suốt 4
+  chip (② ②b ③ ③b không bump), nên "đã mới nhất" có thể là ruột cũ. Ba câu
+  kiểm, phải đủ cả ba:
+  ```bash
+  grep -c "VIỆC CỦA ANH" ~/.claude/plugins/*/acceptance-gate/scripts/gate-card.js       # ≥1 (chip ②)
+  grep -c "GATE-ONESHOT-GRAMMAR" ~/.claude/plugins/*/acceptance-gate/skills/acceptance/references/human-facing-language.md   # ≥1 (chip ③/③b)
+  ls ~/.claude/plugins/*/acceptance-gate/scripts/recheck-evidence.cjs                    # phải có, đuôi .cjs
+  ```
+  Thiếu bất kỳ câu nào → gỡ cài lại (`uninstall` + `install`), đừng `update`.
 - **BẪY 2: phiên đang mở giữ skill cũ** — update xong phải MỞ PHIÊN MỚI.
 
 ## 2 · Sau khi chép bộ cổng vào repo (acceptance-init) — PHẢI RE-PIN
