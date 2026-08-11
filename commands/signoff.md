@@ -42,7 +42,7 @@ chỉ khai QUYẾT ĐỊNH; danh tính, ngày, phút là điều máy biết:
   `Trả lại: <lý do>` → bước 5, không ghi trường ký nào. Vắng tên → máy TỰ
   SUY theo bậc: cờ `--as "<tên>"` → `signoff.approvers` khi đúng một tên →
   `git config user.name`; vắng ngày → ngày lệnh chạy; suy xong HIỂN THỊ
-  LẠI «với danh tính: <tên> <ngày> — Enter xác nhận» TRƯỚC khi ghi (trả
+  LẠI «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi (trả
   lời ngắn khẳng định là xác nhận, trả lời khác là sửa danh tính; người
   khai tường minh tên+ngày → ghi thẳng, không hỏi). KHÔNG hỏi phút: người
   khai `phút <số>` thì ghi đúng, vắng thì ghi 0 vào

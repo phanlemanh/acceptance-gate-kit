@@ -61,10 +61,13 @@ văn) + memory `nguoi-chi-khai-dieu-chi-nguoi-biet`.
     vắng trong câu gộp thì máy suy theo bậc: câu người gõ → cờ `--as "<tên>"`
     → `signoff.approvers` khi danh sách đúng một tên → `git config
     user.name`; suy xong HIỂN THỊ LẠI theo khuôn «với danh tính: <tên>
-    <ngày> — Enter xác nhận» TRƯỚC khi ghi; trả lời ngắn khẳng định
-    (Enter/ok/đúng) là xác nhận, trả lời khác là sửa danh tính. Người đã
-    khai tường minh tên+ngày trong câu gộp → ghi thẳng, không hỏi xác nhận.
-    Neo: «với danh tính:» · «Enter xác nhận» · «git config user.name».
+    <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi — khuôn PHẢI in
+    cả NGUỒN SUY (nấc nào của bậc thang đã bắn), vì hiển thị tên mà giấu
+    xuất xứ là sai-tên-âm-thầm trên máy dùng chung không ai thấy (yêu cầu
+    phiên B tại MỐC 1); trả lời ngắn khẳng định (Enter/ok/đúng) là xác
+    nhận, trả lời khác là sửa danh tính. Người đã khai tường minh tên+ngày
+    trong câu gộp → ghi thẳng, không hỏi xác nhận. Neo: «với danh tính:» ·
+    «(từ <nguồn suy>)» · «Enter xác nhận» · «git config user.name».
   - (b) **ngày máy ghi**: ngày là ngày lệnh chạy ở cả hai cổng («Ký» vắng
     ngày → hôm nay); đã có cho Cổng 1 từ chip ③, nay phủ cả «Ký».
   - (c) **thôi hỏi phút**: lệnh KHÔNG hỏi số phút; người tự khai `phút
@@ -92,7 +95,11 @@ văn) + memory `nguoi-chi-khai-dieu-chi-nguoi-biet`.
     nhận» (luật e thay thế); các neo còn lại + số neo (8) + chiều đỏ của
     P191 giữ nguyên và vẫn CHẠY THẬT trên checker sau đổi. Toàn bộ neo MỚI
     của chip này (khối grammar, liệt ở a–f và AC-3i) đo ở case P194 riêng
-    — không nhét vào thước của chip ③.
+    — không nhét vào thước của chip ③. Vì đây là đổi-thước BIẾT TRƯỚC,
+    bảng diff nguyên văn hai neo phải nằm trong hồ sơ Cổng 1 (bảng ở Notes
+    + một entry sổ quyết định để card Cổng 1 render) cho owner duyệt thước
+    mới có mắt ngay từ đầu — lỗi-biết-trước xử tại Cổng 1, không đợi
+    Cổng 2 (yêu cầu phiên B tại MỐC 1, khuôn ruler-change chip ②b).
   - (h) **tầng máy-đọc đứng nguyên**: `GATE-ONESHOT-SLOTS`, `-CLAUSE`,
     `-SITES` byte-equal `origin/main` (đo ở AC-5) — nhãn tên/phút vẫn nằm
     trong SLOTS với cờ `extra`, tương thích câu kiểu cũ.
@@ -113,7 +120,9 @@ văn) + memory `nguoi-chi-khai-dieu-chi-nguoi-biet`.
   Chiều đỏ CHẠY THẬT: (đỏ-a) gỡ khuôn «với danh tính:» khỏi MỘT bản sao →
   P194 đỏ đích danh file; (đỏ-b) gỡ needle `--as` khỏi bản sao → đỏ đích
   danh; (đỏ-c) gỡ ca mẫu «không cắt» khỏi bản sao thân signoff → đỏ đích
-  danh; đối chứng dương: cây thật XANH trước mọi đột biến, mutant in
+  danh; (đỏ-d) gỡ phần nguồn-suy «(từ <nguồn suy>)» khỏi bản sao một thân
+  lệnh → đỏ đích danh file (khuôn thiếu xuất xứ = sai-tên-âm-thầm); đối
+  chứng dương: cây thật XANH trước mọi đột biến, mutant in
   xác-nhận-đột-biến và đi qua chính checker thật.
 - AC-3 (tương thích cũ + đổi-AI-ĐIỀN-không-đổi-GHI-GÌ): Given cùng bản
   luật + 6 thân lệnh, When đọc đường câu-kiểu-cũ, Then: (i) câu gộp đầy đủ
@@ -205,6 +214,14 @@ hạ thước. Lỗ nhìn-thấy-mà-không-đo-được khai CÓ Ý THỨC ở 
 ## Notes
 
 - Mobile backend target: n/a (kit CLI, không surface mobile).
+- **Bảng đổi-thước P191 (AC-1g — trình tại Cổng 1, nguyên văn từng ký tự):**
+
+  | Neo P191 cũ (chip ③) | Neo P191 mới (chip ③b) | Vì sao |
+  |---|---|---|
+  | `hỏi lại đúng phần đó` | `cách hiểu khả dĩ nhất` | luật (d) nâng: hỏi-mở → khuyến-nghị-kèm-căn-cứ |
+  | `follow-up DUY NHẤT` | `Enter xác nhận` | luật (e) thay: hỏi tên/phút → tự suy + xác nhận một chạm |
+
+  Sáu neo còn lại + số neo (8) + mutant GIỮ-NGUYÊN-VĂN của P191 không đổi.
 - **known-limits (khai CÓ Ý THỨC, người ký đọc trước khi duyệt):** hành vi
   LLM THẬT khi thi hành — model suy danh tính đúng bậc, đề xuất cách hiểu
   đúng căn cứ — KHÔNG máy-đo được trong chip này: AC-1..6 đo tài-liệu-dạy

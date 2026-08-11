@@ -38,7 +38,7 @@ only DECISIONS; identity, date and minutes are things the machine knows:
   `Trả lại: <lý do>` → the not-signable path, no signature field written.
   Name absent → infer down the ladder `--as "<tên>"` → `signoff.approvers`
   when it holds exactly one name → `git config user.name`; date absent →
-  ngày lệnh chạy; then echo «với danh tính: <tên> <ngày> — Enter xác nhận»
+  ngày lệnh chạy; then echo «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận»
   BEFORE writing (a short affirmative confirms; anything else corrects the
   identity; an explicitly typed name+date needs no confirm). Do NOT ask for
   minutes: the human's `phút <số>` if typed, otherwise ghi 0 into

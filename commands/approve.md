@@ -34,7 +34,7 @@ dạy — ngữ pháp đầy đủ ở khối `GATE-ONESHOT-GRAMMAR`. Người c
   `<tên>` → `approved_by`; vắng tên → máy TỰ SUY theo bậc: cờ `--as "<tên>"`
   → `signoff.approvers` trong `_acceptance/config.yaml` khi đúng một tên →
   `git config user.name` (của gốc lệnh đang chạy) — suy xong HIỂN THỊ LẠI
-  «với danh tính: <tên> <ngày> — Enter xác nhận» TRƯỚC khi ghi (trả lời
+  «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi (trả lời
   ngắn khẳng định là xác nhận, trả lời khác là sửa danh tính); người khai
   tường minh tên → ghi thẳng, không hỏi. KHÔNG hỏi phút: `phút <số>` người
   khai thì ghi đúng số đó vào `time_human_minutes.gate1`, vắng thì ghi 0.
@@ -71,9 +71,10 @@ Steps:
 5. **On an explicit YES only:**
    - `approved_by` = the reviewer's name: take it from their approval message;
      if absent, infer down the ladder — `--as "<tên>"` → `signoff.approvers`
-     in `_acceptance/config.yaml` when it holds exactly one name → `git
-     config user.name` — then echo «với danh tính: <tên> <ngày> — Enter xác
-     nhận» and wait for the one-touch confirm BEFORE writing (an explicit
+     in `_acceptance/config.yaml` when it holds exactly one name →
+     `git config user.name` — then echo
+     «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận»
+     and wait for the one-touch confirm BEFORE writing (an explicit
      name typed by the human needs no confirm). Never guess beyond the
      ladder; never write an agent's name. The confirm covers IDENTITY only —
      the decision was the human's explicit YES above.

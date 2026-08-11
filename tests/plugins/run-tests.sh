@@ -10303,6 +10303,7 @@ def grammar_of(law_text):
     return m.group(1)
 NEO = [
     ("voi-danh-tinh", "với danh tính:"),
+    ("nguon-suy", "(từ <nguồn suy>)"),
     ("enter-xac-nhan", "Enter xác nhận"),
     ("bac-git-config", "git config user.name"),
     ("khong-hoi-phut", "không hỏi phút"),
@@ -10330,6 +10331,7 @@ SITES = {
 texts = {rel: (root / rel).read_text(encoding="utf-8") for rels in SITES.values() for rel in rels}
 GATE_NEEDLES = [
     ("khuon voi-danh-tinh", "với danh tính:"),
+    ("khuon nguon-suy", "(từ <nguồn suy>)"),
     ("khuon Enter-xac-nhan", "Enter xác nhận"),
     ("phut-ghi-0", "ghi 0"),
     ("needle --as", "--as"),
@@ -10410,7 +10412,16 @@ print("MUT-5: da doi human_signoff -> human_sign0ff trong ban sao " + v5)
 e5 = check_bodies(m5)
 assert any(x.startswith("than signoff thieu truong ghi: human_signoff") for x in e5), "MUT-5 khong bi bat: " + repr(e5)
 print("     MUT-5 DO dung: than signoff thieu truong ghi: human_signoff")
-print("P194 OK (" + str(len(NEO)) + " neo grammar + 6 than lenh per-site + truong ghi; 5 chieu do: neo-grammar, khuon-danh-tinh, needle--as, ca-mau-khong-cat, truong-ghi — tat ca in xac-nhan-dot-bien va di qua chinh checker that)")
+# MUT-6 (E2 do-d): go phan nguon-suy khoi ban sao codex approve -> do dich danh
+# (khuon thieu xuat xu = sai-ten-am-tham tren may dung chung — yeu cau phien B)
+m6 = dict(texts); v6 = "codex/acceptance-gate/skills/approve/SKILL.md"
+m6[v6] = m6[v6].replace("(từ <nguồn suy>)", "")
+assert m6[v6] != texts[v6], "MUT-6 khong tac dung"
+print("MUT-6: da go phan nguon-suy (tu <nguon suy>) khoi ban sao " + v6)
+e6 = check_bodies(m6)
+assert ("site thieu khuon nguon-suy: " + v6) in e6, "MUT-6 khong bi bat dich danh: " + repr(e6)
+print("     MUT-6 DO dich danh: site thieu khuon nguon-suy: " + v6)
+print("P194 OK (" + str(len(NEO)) + " neo grammar + 6 than lenh per-site + truong ghi; 6 chieu do: neo-grammar, khuon-danh-tinh, needle--as, ca-mau-khong-cat, truong-ghi, khuon-nguon-suy — tat ca in xac-nhan-dot-bien va di qua chinh checker that)")
 P194PY
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)

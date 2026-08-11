@@ -24,10 +24,11 @@ evals:
       «follow-up DUY NHẤT» → «Enter xác nhận»; số neo giữ 8, mutant
       GIỮ-NGUYÊN-VĂN của P191 vẫn chạy thật) VÀ "PASS: P194" phần grammar:
       checker P194 rút khối GATE-ONESHOT-GRAMMAR qua marker và assert đủ
-      danh sách neo MỚI của hai nguyên tắc — «với danh tính:» · «Enter xác
-      nhận» · «git config user.name» · «không hỏi phút» · «ghi 0» · «đúng
-      MỘT ứng viên» · «cách hiểu khả dĩ nhất» · «hỏi mở» · «không cắt» ·
-      «PHÁT NGÔN CUỐI» · «vẫn chạy nguyên» — thiếu neo nào → đỏ đích danh
+      danh sách neo MỚI của hai nguyên tắc — «với danh tính:» ·
+      «(từ <nguồn suy>)» · «Enter xác nhận» · «git config user.name» ·
+      «không hỏi phút» · «ghi 0» · «đúng MỘT ứng viên» · «cách hiểu khả dĩ
+      nhất» · «hỏi mở» · «không cắt» · «PHÁT NGÔN CUỐI» · «vẫn chạy
+      nguyên» — thiếu neo nào → đỏ đích danh
       neo đó. Chiều đỏ CHẠY THẬT: gỡ neo «PHÁT NGÔN CUỐI» khỏi bản sao bản
       luật → P194 đỏ ghim «GRAMMAR thieu neo phat-ngon-cuoi»; đối chứng
       dương xanh trước đột biến. Needle "PASS: P194" và các neo mới 0-hit
@@ -49,18 +50,20 @@ evals:
     expected: >
       exit 0; stdout có "PASS: P194" phần per-site: trên TỪNG bản trong 6
       thân lệnh có-câu-hỏi (3 Claude + 3 Codex): approve+signoff (4 bản)
-      chứa «với danh tính:» + «Enter xác nhận» + «ghi 0» + needle `--as` +
-      «đúng MỘT ứng viên»; signoff (2 bản) chứa ca mẫu «không cắt»; start
-      (2 bản) còn «chọn-trước bằng slug» + hiển-thị-lại nhóm khớp; cả 6
-      còn con trỏ GATE-ONESHOT-GRAMMAR; in dòng đếm
-      "MAY-GANH-BODY: approve du, signoff du, start du". Ba chiều đỏ CHẠY
-      THẬT trên bản sao, mutant in xác-nhận-đột-biến và đi qua CHÍNH
-      checker thật: (đỏ-a) gỡ «với danh tính:» khỏi bản sao
+      chứa «với danh tính:» + «(từ <nguồn suy>)» + «Enter xác nhận» +
+      «ghi 0» + needle `--as` + «đúng MỘT ứng viên»; signoff (2 bản) chứa
+      ca mẫu «không cắt»; start (2 bản) còn «chọn-trước bằng slug» +
+      hiển-thị-lại nhóm khớp; cả 6 còn con trỏ GATE-ONESHOT-GRAMMAR; in
+      dòng đếm "MAY-GANH-BODY: approve du, signoff du, start du". Bốn
+      chiều đỏ CHẠY THẬT trên bản sao, mutant in xác-nhận-đột-biến và đi
+      qua CHÍNH checker thật: (đỏ-a) gỡ «với danh tính:» khỏi bản sao
       commands/approve.md → đỏ đích danh file; (đỏ-b) gỡ needle `--as`
       khỏi bản sao codex signoff → đỏ đích danh file; (đỏ-c) gỡ ca mẫu
-      «không cắt» khỏi bản sao commands/signoff.md → đỏ đích danh file.
-      Đối chứng dương: cây thật xanh trước mọi đột biến. Needle mới 0-hit
-      trên baseline origin/main.
+      «không cắt» khỏi bản sao commands/signoff.md → đỏ đích danh file;
+      (đỏ-d) gỡ phần nguồn-suy «(từ <nguồn suy>)» khỏi bản sao codex
+      approve → đỏ đích danh file (khuôn thiếu xuất xứ = sai-tên-âm-thầm,
+      yêu cầu phiên B). Đối chứng dương: cây thật xanh trước mọi đột biến.
+      Needle mới 0-hit trên baseline origin/main.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E3

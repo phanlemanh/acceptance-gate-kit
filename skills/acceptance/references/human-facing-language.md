@@ -231,7 +231,10 @@ trước, hỏi mở là đường cùng:
   «Ký: <tên> <ngày>, phút <số>» vẫn chạy nguyên); vắng thì máy TỰ SUY,
   không hỏi: tên theo bậc câu-người-gõ → cờ `--as` → `signoff.approvers`
   khi đúng một tên → `git config user.name`; suy xong HIỂN THỊ LẠI theo
-  khuôn «với danh tính: <tên> <ngày> — Enter xác nhận» TRƯỚC khi ghi (trả
+  khuôn «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận»
+  TRƯỚC khi ghi — khuôn PHẢI in cả nguồn suy (nấc nào của bậc thang đã
+  bắn: câu anh gõ / cờ `--as` / `signoff.approvers` / `git config`), vì
+  hiển thị tên mà giấu xuất xứ là sai-tên-âm-thầm trên máy dùng chung (trả
   lời ngắn khẳng định là xác nhận, trả lời khác là sửa danh tính; người đã
   khai tường minh tên+ngày → ghi thẳng, không hỏi); máy không hỏi phút —
   vắng thì `time_human_minutes` ghi 0, trường giữ nguyên cho schema cũ.
