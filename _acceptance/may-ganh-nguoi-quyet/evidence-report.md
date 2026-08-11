@@ -24,7 +24,7 @@ verify trước ĐỎ và đã sửa VẬT chứ không sửa đáp án; xem `##
 | E4 | AC-4 | test | PASS |
 | E5 | AC-5 | script | PASS |
 | E6 | AC-6 | script | PASS |
-| E7 | AC-7 | judgment | UNCERTAIN |
+| E7 | AC-7 | judgment | UNCERTAIN (người override → Đạt) |
 
 ## Evidence
 
@@ -161,6 +161,28 @@ verify trước ĐỎ và đã sửa VẬT chứ không sửa đáp án; xem `##
     - Owner gõ THẬT một câu gộp trần ở cổng kế («duyệt» hoặc «…; Ký» không
       tên/ngày/phút) và nói máy có suy đúng danh tính, có hiển thị lại kèm
       nguồn suy, có thôi hỏi phút không — đây là răng thật của lớp này.
+  human_evidence: |
+    LẦN GÕ THẬT của owner bằng ngữ pháp mới — chính là required_evidence mà
+    E7 chờ, và là lượt dogfood đầy đủ nhất từ trước tới nay của cả hai
+    nguyên tắc. Lời owner nguyên văn, MỘT dòng duy nhất: «Ngoài-1: nâng
+    phạm vi sửa ngay; E7: Đạt; cắt/hoãn: đồng ý cắt; Treo: phê hết; ký hay
+    trả: Ký». Lượt hai, xác nhận danh tính: «Ok».
+    Bốn vết đáng ghi:
+    (a) một dòng của owner định đoạt NĂM mục — kể cả mục vượt-phạm-vi mà
+        máy tự khai ra — và lệnh nhận đúng cả năm nhãn, không hỏi lại mục
+        nào; đây là điều chip ③ hứa và chip ③b giữ nguyên;
+    (b) máy KHÔNG hỏi phút, KHÔNG hỏi hồ sơ, KHÔNG hỏi ngày — chỉ hỏi đúng
+        MỘT thứ: xác nhận danh tính, và owner trả lời bằng hai ký tự;
+    (c) luật CẢNH BÁO bắn đúng lần thứ hai trong ngày: `git config` = «Manh»
+        vs `signoff.approvers` = «Manh Phan». Lần này máy không chỉ nêu hai
+        tên mà còn dẫn thêm căn cứ mạnh hơn — chữ ký Cổng 1 của CHÍNH hồ sơ
+        này (4efd1a0) — rồi khuyến nghị «Manh Phan» để owner gật một chạm
+        thay vì phải gõ lại tên. Đó là nguyên tắc 2 chạy trên chính nó;
+    (d) FINDING cho chip sau (owner chưa quyết, ghi để reflect): ca «cùng
+        một người, hai cách viết tên» khiến bậc thang chọn bản ngắn dù hồ
+        sơ đã có bằng chứng bản dài. Lưới cảnh-báo cứu được nhưng vẫn tốn
+        một cái gật MỖI cổng. Hướng vá rẻ: khi tên suy được khác tên trong
+        chữ ký gần nhất của chính hồ sơ đó, ưu tiên tên đã ký.
   human_override:
 
 ## Analyst
