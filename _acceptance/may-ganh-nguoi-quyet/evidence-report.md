@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: may-ganh-nguoi-quyet
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: cf9ef6427a0d03296e2b89f57d2ee21ce38caa43
-human_signoff:
+human_signoff: Manh Phan 2026-08-11
 ---
 
 # Evidence Report: may-ganh-nguoi-quyet
@@ -183,7 +183,7 @@ verify trước ĐỎ và đã sửa VẬT chứ không sửa đáp án; xem `##
         sơ đã có bằng chứng bản dài. Lưới cảnh-báo cứu được nhưng vẫn tốn
         một cái gật MỖI cổng. Hướng vá rẻ: khi tên suy được khác tên trong
         chữ ký gần nhất của chính hồ sơ đó, ưu tiên tên đã ký.
-  human_override:
+  human_override: Manh Phan 2026-08-11 — Đạt (lời nguyên văn ở human_evidence trên)
 
 ## Analyst
 

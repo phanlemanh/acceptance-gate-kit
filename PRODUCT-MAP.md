@@ -10,8 +10,8 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>chưa có"]
   GD --> DB["Đã bác từ khám phá<br/>chưa có"]
   B --> CD["Chờ duyệt phạm vi<br/>2 việc"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>1 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>35 việc"]
+  GP --> DL["Đang làm<br/>chưa có"] --> GB{"Cổng Bằng chứng"}
+  GB --> DG["Đã giao<br/>36 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>chưa có"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>chưa có"]
 ```
@@ -25,10 +25,6 @@ flowchart TD
 
 - Dấu cross-layer đọc theo cùng luật với judgment — trích dẫn Dấu hết bị chấm như mang Dấu (`crosslayer-uncoded`)
 - Răng cross-layer chấm bằng nguồn dùng chung — Nhãn hết làm trượt, tham chiếu chéo hết bị chấm oan (`premerge-ac-line`)
-
-## Đang làm
-
-- Máy gánh nhận thức, người giữ quyết định — lệnh cổng người tự suy danh tính/ngày/hồ-sơ (hiển thị lại + xác nhận một chạm), thôi hỏi phút, và khi câu người mơ hồ thì khuyến nghị kèm căn cứ thay vì hỏi mở (`may-ganh-nguoi-quyet`)
 
 ## Đã giao
 
@@ -51,6 +47,7 @@ flowchart TD
 - acceptance-verify.js DỪNG fail-closed khi eval thiếu field mà prompt fan-out phụ thuộc (question/expected/steps/cmd/id/criterion/executor); judgment thiếu inputs hạ về UNCERTAIN cơ học thay vì chấm mù (`judgment-question-guard`)
 - Khối "👉 VIỆC CỦA ANH" — thành phần cứng máy-sinh của khuôn trình-người (thẻ cổng + lời-mời-cổng) (`khoi-viec-cua-anh`)
 - lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (7 câu đối chiếu chéo) + review lens measurement S4 (6 hình dạng, một chỗ, mutation-covered); không nới finder cũ (`matrix-measure-law`)
+- Máy gánh nhận thức, người giữ quyết định — lệnh cổng người tự suy danh tính/ngày/hồ-sơ (hiển thị lại + xác nhận một chạm), thôi hỏi phút, và khi câu người mơ hồ thì khuyến nghị kèm căn cứ thay vì hỏi mở (`may-ganh-nguoi-quyet`)
 - Khuôn khai sinh phép đo — mọi phép đo mới phải tự chứng minh biết báo đỏ (đối chứng dương xanh + phá-vật-thật đổi kết luận + thông điệp ghim) ngay lúc viết, trước khi được tính là xong (`measure-birth-certificate`)
 - Trả răng cho năm phép đo đã bị ghi là mất răng — chúng phải phân biệt được bản đúng với bản hỏng, và có một chốt canh để lần sau không lặp lại (`measure-teeth-cleanup`)
 - Một-lượt-gõ + --repo cho 6 lệnh cổng người — người gõ MỘT câu gộp đúng dạng câu mẫu thẻ đã dạy, từ phiên/cwd bất kỳ (`mot-luot-go-cong-nguoi`)
