@@ -178,6 +178,17 @@ verify trước ĐỎ và đã sửa VẬT chứ không sửa đáp án; xem `##
         tên mà còn dẫn thêm căn cứ mạnh hơn — chữ ký Cổng 1 của CHÍNH hồ sơ
         này (4efd1a0) — rồi khuyến nghị «Manh Phan» để owner gật một chạm
         thay vì phải gõ lại tên. Đó là nguyên tắc 2 chạy trên chính nó;
+    (e) FINDING NẶNG NHẤT ván này, nguồn THỨ CẤP — owner phát tín hiệu
+        trong phiên B (không phải phiên ký này), nguyên văn ghi tại sổ vấp
+        ebb1c01 trên main: «Đây là điển hình của quá tải nhận thức đối với
+        tôi. Kit trở thành một chi phí lớn» — nói về chính khuôn 5-slot
+        kèm khuyến nghị từng mục mà lời mời ký của hồ sơ này dùng. Đọc
+        đúng: khuôn ĐẠT độ-rõ (owner định đoạt được cả 5 mục trong một
+        dòng) nhưng TRƯỢT độ-nhẹ — quá tải nằm ở TẦN SUẤT gọi người của cả
+        dây chip, không ở từng cổng. Lớp sửa thật (veto-default: mục
+        máy-chắc-chắn-và-đảo-rẻ thì nêu mặc-định-kèm-căn-cứ rồi LÀM trừ
+        khi bị bác, KHÔNG bày slot) thuộc reflect/2.1 sau — KHÔNG sửa
+        trong ván này, và không làm suy suyển phán quyết E7 đã ký.
     (d) FINDING cho chip sau (owner chưa quyết, ghi để reflect): ca «cùng
         một người, hai cách viết tên» khiến bậc thang chọn bản ngắn dù hồ
         sơ đã có bằng chứng bản dài. Lưới cảnh-báo cứu được nhưng vẫn tốn
