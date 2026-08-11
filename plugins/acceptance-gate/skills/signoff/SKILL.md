@@ -36,8 +36,10 @@ only DECISIONS; identity, date and minutes are things the machine knows:
   `human_signoff` + the verdict upgrade (only when every override line is
   filled) + contract `status: signed-off` + `time_human_minutes.gate2`; or
   `Trả lại: <lý do>` → the not-signable path, no signature field written.
-  Name absent → infer down the ladder `--as "<tên>"` → `signoff.approvers`
-  when it holds exactly one name → `git config user.name`; date absent →
+  Name absent → infer down the ladder `--as "<tên>"` →
+  `git config user.name` (the signature belongs to the person TYPING) →
+  `signoff.approvers` when git config is empty and it holds exactly one
+  name; two sources disagree → gentle warning naming both; date absent →
   ngày lệnh chạy; then echo «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận»
   BEFORE writing (a short affirmative confirms; anything else corrects the
   identity; an explicitly typed name+date needs no confirm). Do NOT ask for

@@ -59,8 +59,10 @@ văn) + memory `nguoi-chi-khai-dieu-chi-nguoi-biet`.
   bằng chuỗi neo máy-đo:
   - (a) **tự-suy danh tính**: tên người duyệt/ký và ngày là điều máy biết —
     vắng trong câu gộp thì máy suy theo bậc: câu người gõ → cờ `--as "<tên>"`
-    → `signoff.approvers` khi danh sách đúng một tên → `git config
-    user.name`; suy xong HIỂN THỊ LẠI theo khuôn «với danh tính: <tên>
+    → `git config user.name` (chữ ký thuộc NGƯỜI ĐANG GÕ — thực-tại-máy
+    trước kỳ-vọng-hồ-sơ) → `signoff.approvers` khi config trống và danh
+    sách đúng một tên; hai nguồn lệch nhau → dòng xác nhận kèm cảnh báo
+    nhẹ nêu cả hai tên; suy xong HIỂN THỊ LẠI theo khuôn «với danh tính: <tên>
     <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi — khuôn PHẢI in
     cả NGUỒN SUY (nấc nào của bậc thang đã bắn), vì hiển thị tên mà giấu
     xuất xứ là sai-tên-âm-thầm trên máy dùng chung không ai thấy (yêu cầu
@@ -160,7 +162,8 @@ văn) + memory `nguoi-chi-khai-dieu-chi-nguoi-biet`.
   `commands/signoff.md` — đúng vật hội đồng đọc, luật W-G8), When đóng vai
   owner, Then trả lời khớp bảng đáp án viết trước cho BỐN ca:
   - (ca 1 — trần) `/approve` với câu gộp «duyệt» trần: máy suy tên theo
-    bậc (approvers duy nhất → «Manh Phan»), hiển thị «với danh tính: …—
+    bậc (`--as` vắng → `git config user.name`; config trống →
+    approvers-duy-nhất), hiển thị «với danh tính: … (từ <nguồn suy>) —
     Enter xác nhận», `approved_at` = hôm nay, `time_human_minutes.gate1`
     = 0, KHÔNG hỏi thêm câu nào khác;
   - (ca 2 — trần) `/signoff` với «…; Ký» không tên/ngày/phút: suy tên+ngày
@@ -233,10 +236,14 @@ hạ thước. Lỗ nhìn-thấy-mà-không-đo-được khai CÓ Ý THỨC ở 
   chỉ ghim VĂN dạy nó; không phép đo nào đếm được số chạm thật của owner.
   Cùng lớp known-limits 1.
 - **Quyết định thiết kế cần owner thấy ở Cổng 1** (mỗi mục chọn A, loại B):
-  - Bậc nguồn suy tên: (A — chọn) câu gõ → `--as` → `signoff.approvers`
-    duy nhất → `git config user.name`; (B — loại) chỉ git config — máy
-    dùng chung ghi tên sai âm thầm; approvers là nguồn sự thật repo tự
-    khai, git config chỉ là bậc chót và đã có `--as` chữa ca máy chung.
+  - Bậc nguồn suy tên (đã đổi theo soát phiên B, d-20008): (A — chọn) câu
+    gõ → `--as` → `git config user.name` → `signoff.approvers` khi config
+    trống; lệch nhau → cảnh báo nhẹ nêu cả hai. Căn cứ: chữ ký thuộc
+    NGƯỜI ĐANG GÕ — git config là thực-tại-máy, approvers là
+    kỳ-vọng-hồ-sơ; đội dùng chung mà approvers-trước thì máy mặc định ký
+    tên lead trong khi người gõ là teammate. (B — loại) approvers trước
+    git config — sai đúng ca phổ biến nhất khi kit xuống đội. (C — loại)
+    chỉ git config — mất lưới khi config trống; `--as` chữa ca máy chung.
   - Xác nhận: (A — chọn) chỉ khi MÁY SUY mới hiển thị lại + Enter; người
     khai tường minh → ghi thẳng; (B — loại) luôn bắt xác nhận — phạt
     người đã gõ đủ, đi ngược một-lượt-gõ.

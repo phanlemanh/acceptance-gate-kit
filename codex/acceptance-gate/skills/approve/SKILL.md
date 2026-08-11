@@ -24,8 +24,10 @@ human states only the DECISION; identity, date and minutes are things the
 machine knows:
 - `duyệt[: <tên>][, phút <số>]` → the explicit YES of step 5: `<tên>` →
   `approved_by`; absent → infer down the ladder `--as "<tên>"` →
-  `signoff.approvers` when it holds exactly one name →
-  `git config user.name`, then echo «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận»
+  `git config user.name` (the signature belongs to the person TYPING) →
+  `signoff.approvers` when git config is empty and it holds exactly one
+  name; when the two sources disagree, add a gentle warning naming both —
+  then echo «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận»
   BEFORE writing (a short affirmative confirms; anything else corrects the
   identity; an explicitly typed name needs no confirm). Do NOT ask for
   minutes: `phút <số>` typed by the human → write that number to
@@ -87,9 +89,11 @@ agent-editable), re-render the card, ask again.
 ## 5. Record on an explicit YES only
 
 - `approved_by` = the reviewer's name: from their approval message; absent →
-  infer down the ladder — `--as "<tên>"` → `signoff.approvers` in
-  `_acceptance/config.yaml` when it holds exactly one name →
-  `git config user.name` — then echo «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» and
+  infer down the ladder — `--as "<tên>"` → `git config user.name` (the
+  signature belongs to the person TYPING) → `signoff.approvers` in
+  `_acceptance/config.yaml` when git config is empty and it holds exactly
+  one name; two sources disagree → gentle warning naming both — then echo
+  «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» and
   wait for the one-touch confirm BEFORE writing (an explicitly typed name
   needs no confirm). Never guess beyond the ladder; never write an agent's
   name. The confirm covers IDENTITY only — the decision was the human's

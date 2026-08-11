@@ -229,11 +229,15 @@ trước, hỏi mở là đường cùng:
 - Tên người duyệt/ký, ngày và số phút là ĐIỀU MÁY BIẾT — người khai thì
   nhận nguyên nghĩa (câu kiểu cũ đầy đủ «duyệt: <tên>, phút <số>» ·
   «Ký: <tên> <ngày>, phút <số>» vẫn chạy nguyên); vắng thì máy TỰ SUY,
-  không hỏi: tên theo bậc câu-người-gõ → cờ `--as` → `signoff.approvers`
-  khi đúng một tên → `git config user.name`; suy xong HIỂN THỊ LẠI theo
+  không hỏi: tên theo bậc câu-người-gõ → cờ `--as` →
+  `git config user.name` → `signoff.approvers` khi config trống và danh
+  sách đúng một tên (chữ ký thuộc NGƯỜI ĐANG GÕ: git config là
+  thực-tại-máy, approvers
+  chỉ là kỳ-vọng-hồ-sơ; hai nguồn lệch nhau → dòng xác nhận kèm một cảnh
+  báo nhẹ nêu cả hai tên); suy xong HIỂN THỊ LẠI theo
   khuôn «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận»
   TRƯỚC khi ghi — khuôn PHẢI in cả nguồn suy (nấc nào của bậc thang đã
-  bắn: câu anh gõ / cờ `--as` / `signoff.approvers` / `git config`), vì
+  bắn: câu anh gõ / cờ `--as` / `git config` / `signoff.approvers`), vì
   hiển thị tên mà giấu xuất xứ là sai-tên-âm-thầm trên máy dùng chung (trả
   lời ngắn khẳng định là xác nhận, trả lời khác là sửa danh tính; người đã
   khai tường minh tên+ngày → ghi thẳng, không hỏi); máy không hỏi phút —

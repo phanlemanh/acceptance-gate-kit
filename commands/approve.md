@@ -32,8 +32,10 @@ dạy — ngữ pháp đầy đủ ở khối `GATE-ONESHOT-GRAMMAR`. Người c
 ĐỊNH; danh tính, ngày, phút là điều máy biết:
 - `duyệt[: <tên>][, phút <số>]` → chính là câu YES tường minh của bước 5:
   `<tên>` → `approved_by`; vắng tên → máy TỰ SUY theo bậc: cờ `--as "<tên>"`
-  → `signoff.approvers` trong `_acceptance/config.yaml` khi đúng một tên →
-  `git config user.name` (của gốc lệnh đang chạy) — suy xong HIỂN THỊ LẠI
+  → `git config user.name` (của gốc lệnh đang chạy — chữ ký thuộc NGƯỜI
+  ĐANG GÕ) → `signoff.approvers` trong `_acceptance/config.yaml` khi config
+  trống và danh sách đúng một tên; hai nguồn lệch nhau → dòng xác nhận kèm
+  cảnh báo nhẹ nêu cả hai tên — suy xong HIỂN THỊ LẠI
   «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi (trả lời
   ngắn khẳng định là xác nhận, trả lời khác là sửa danh tính); người khai
   tường minh tên → ghi thẳng, không hỏi. KHÔNG hỏi phút: `phút <số>` người
@@ -70,9 +72,11 @@ Steps:
    artifacts are agent-editable), re-render the card, ask again. Still Gate 1.
 5. **On an explicit YES only:**
    - `approved_by` = the reviewer's name: take it from their approval message;
-     if absent, infer down the ladder — `--as "<tên>"` → `signoff.approvers`
-     in `_acceptance/config.yaml` when it holds exactly one name →
-     `git config user.name` — then echo
+     if absent, infer down the ladder — `--as "<tên>"` → `git config
+     user.name` (the signature belongs to the person TYPING) →
+     `signoff.approvers` in `_acceptance/config.yaml` when git config is
+     empty and it holds exactly one name; when the two sources disagree,
+     add a gentle warning naming both — then echo
      «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận»
      and wait for the one-touch confirm BEFORE writing (an explicit
      name typed by the human needs no confirm). Never guess beyond the

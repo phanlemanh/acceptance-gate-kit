@@ -40,8 +40,10 @@ chỉ khai QUYẾT ĐỊNH; danh tính, ngày, phút là điều máy biết:
   `human_signoff` + verdict upgrade (chỉ khi mọi override đã điền) +
   contract `status: signed-off` + `time_human_minutes.gate2`; hoặc
   `Trả lại: <lý do>` → bước 5, không ghi trường ký nào. Vắng tên → máy TỰ
-  SUY theo bậc: cờ `--as "<tên>"` → `signoff.approvers` khi đúng một tên →
-  `git config user.name`; vắng ngày → ngày lệnh chạy; suy xong HIỂN THỊ
+  SUY theo bậc: cờ `--as "<tên>"` → `git config user.name` (chữ ký thuộc
+  NGƯỜI ĐANG GÕ) → `signoff.approvers` khi config trống và danh sách đúng
+  một tên; hai nguồn lệch nhau → dòng xác nhận kèm cảnh báo nhẹ nêu cả
+  hai tên; vắng ngày → ngày lệnh chạy; suy xong HIỂN THỊ
   LẠI «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi (trả
   lời ngắn khẳng định là xác nhận, trả lời khác là sửa danh tính; người
   khai tường minh tên+ngày → ghi thẳng, không hỏi). KHÔNG hỏi phút: người

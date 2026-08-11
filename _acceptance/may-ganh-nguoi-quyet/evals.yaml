@@ -152,10 +152,11 @@ evals:
       Một agent context SẠCH (không contract, không grammar rời — CHỈ hai
       thân lệnh ở inputs) đóng vai owner, bốn ca chấm theo bảng đáp án
       viết trước: (ca 1) /approve với câu gộp «duyệt» trần — agent phải
-      nói: máy suy tên theo bậc (signoff.approvers duy nhất → tên đó),
-      hiển thị «với danh tính: <tên> <ngày> — Enter xác nhận» TRƯỚC khi
-      ghi, approved_at = ngày chạy, time_human_minutes.gate1 = 0, và
-      KHÔNG hỏi thêm câu nào khác. (ca 2) /signoff với «…; Ký» không
+      nói: máy suy tên theo bậc (--as vắng → git config user.name; config
+      trống → signoff.approvers duy nhất), hiển thị «với danh tính: <tên>
+      <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi,
+      approved_at = ngày chạy, time_human_minutes.gate1 = 0, và KHÔNG
+      hỏi thêm câu nào khác. (ca 2) /signoff với «…; Ký» không
       tên/ngày/phút — agent phải nói: suy tên+ngày hôm nay, hiển thị xác
       nhận danh tính một chạm, phút ghi 0, nghi thức commit chữ-ký-riêng
       (require_human_commit) không đổi. (ca 3) câu gộp chứa «không cắt»
