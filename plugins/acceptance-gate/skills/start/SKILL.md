@@ -9,6 +9,19 @@ Session entry ritual. This skill ONLY orients and hands off — it never reads o
 writes product files, never edits anything, never does the work of the target
 ritual itself.
 
+One-shot answer + `--repo` (shared clause, copied verbatim from the law):
+
+Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; còn việc kế thì kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE.
+
+Full one-shot example: `start abc-xyz --repo /duong/dan/repo`
+
+This skill's one-shot answer is chọn-trước bằng slug: `start <slug>` — still
+run the machine scan first, then if the slug sits in any group, hand off
+straight down that group's path (no pick question); no group holds the slug
+→ present the card as before. The skill still ONLY orients and hands off.
+With `--repo <path>`: run the scan with `--root <path>` and read the
+worktree/branch reminders from `<path>`'s git.
+
 1. **Scan by machine, ask nothing:** run
    `node ${PLUGIN_ROOT}/scripts/start-scan.mjs --root .` → one-line JSON.
    When `config` is `false` → print exactly one line: "Repo này chưa dựng cổng

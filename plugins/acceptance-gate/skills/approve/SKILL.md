@@ -9,6 +9,30 @@ Record the human's Gate 1 decision for one `_acceptance/<slug>/` workspace.
 The card presents; this skill records. It never decides: an explicit human
 YES in the conversation is the only trigger.
 
+One-shot answer + `--repo` (shared clause, copied verbatim from the law):
+
+Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; còn việc kế thì kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE.
+
+Full one-shot example:
+`approve abc-xyz --repo /duong/dan/repo duyệt: Manh Phan, phút 0`
+
+This skill's one-shot answer fills the card's «duyệt hay sửa: ___» blank —
+full grammar in the `GATE-ONESHOT-GRAMMAR` block of the language law:
+- `duyệt[: <tên>][, phút <số>]` → the explicit YES of step 6: `<tên>` →
+  `approved_by` (absent → step-6 name rule unchanged); `phút <số>` →
+  `time_human_minutes.gate1` (absent → ask; name/minutes are the ONLY
+  follow-ups allowed when the tail is missing).
+- `sửa: <điều cần đổi>` → the edit path with exactly that content.
+- A free tail after recognised labels → keep it VERBATIM in the decisions
+  ledger; an unrecognised middle part → ask back about exactly that part.
+With `--repo <path>`: render the card with `--root <path>`, edit files under
+`<path>/_acceptance/…`, and commit the Gate-1 record via `git -C <path>`.
+Every command printed in the steps below is written with `.` as the root —
+under `--repo` move every one of them to `<path>`: a bare `.` argument becomes
+`<path>`, `--root .` becomes `--root <path>`, a relative script path resolves
+against `<path>` instead of the current directory, and every git call becomes `git -C <path> …` (paths after
+`-C` stay relative to `<path>`).
+
 ## 1. Resolve the feature
 
 Accept an optional kebab-case slug (reject traversal). Without one, scan

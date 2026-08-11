@@ -9966,6 +9966,322 @@ else
 fi
 if [ "$P190OK" -eq 1 ]; then pass "P190 the bang chung E7 == ban render that (sinh lai + so byte + mutant)"; else fail "P190 the bang chung E7 == ban render that (sinh lai + so byte + mutant)"; fi
 
+# ── P191/P192/P193: mot-luot-go + --repo cho 6 lenh cong nguoi (chip 3 kit 2.1)
+# Vat: khoi ngu phap GATE-ONESHOT-* trong ban luat ngon ngu mat nguoi + 12 than
+# lenh chep dieu khoan. Ba lop do: P191 cau truc khoi luat; P192 round-trip
+# the->SLOTS hai huong (fixture code-sinh, gate-card.js THAT); P193 manifest
+# site + ban chep nguyen van + quan he per-site (--repo, con tro grammar,
+# SLOTS->than-lenh). Moi mutant di qua chinh checker that + in xac-nhan.
+echo "P191 khoi ngu phap cau gop GATE-ONESHOT: cau truc + 8 neo luat (E1 mot-luot-go)"
+P191OK=1
+ONESHOT_LAW="$ROOT/skills/acceptance/references/human-facing-language.md"
+P191TMP="$(mktemp -d)"
+cat > "$P191TMP/check-law.js" <<'P191JS'
+// checker P191: rut GRAMMAR + SLOTS qua marker tu file luat, assert cau truc.
+const fs = require("fs");
+const p = process.argv[2];
+const die = m => { console.error("P191 LOI: " + m); process.exit(1); };
+const src = fs.readFileSync(p, "utf8");
+const block = name => {
+  const rx = new RegExp("<!-- <<<" + name + " -->\\n([\\s\\S]*?)\\n<!-- " + name + ">>> -->");
+  const m = src.match(rx);
+  if (!m) die("thieu khoi marker: " + name);
+  return m[1];
+};
+const grammar = block("GATE-ONESHOT-GRAMMAR");
+const slotsRaw = block("GATE-ONESHOT-SLOTS");
+const anchors = [
+  ["khong-dien-san", "không bao giờ điền sẵn"],
+  ["vang-gop-nhu-cu", "hỏi từng bước như cũ"],
+  ["giu-nguyen-van", "GIỮ NGUYÊN VĂN"],
+  ["hoi-lai-phan-la", "hỏi lại đúng phần đó"],
+  ["ten-phut-ngoai-the", "follow-up DUY NHẤT"],
+  ["start-slug", "không thấy slug trong nhóm nào"],
+  ["khuon-ma-eval", "E\\w+"],
+  ["cu-phap-go", "TOÀN BỘ phần còn lại của dòng"],
+];
+for (const [tag, s] of anchors) if (!grammar.includes(s)) die("GRAMMAR thieu luat " + tag + " (neo: " + s + ")");
+const rows = slotsRaw.split("\n").map(l => l.trim()).filter(l => /^(g1|g2|extra) /.test(l));
+if (!rows.length) die("SLOTS rong hoac sai khuon dong");
+const gates = new Set(rows.map(r => r.split(" ")[0]));
+if (!gates.has("g1") || !gates.has("g2")) die("SLOTS thieu cong g1 hoac g2");
+if (!rows.some(r => r !== null && r.startsWith("g2 ") && r.includes("Ngoài-<số>"))) die("SLOTS thieu khuon nhan bien thien Ngoài-<số>");
+if (!rows.some(r => r.startsWith("g2 ") && r.includes("<mã eval>"))) die("SLOTS thieu khuon nhan bien thien <mã eval>");
+if (!rows.some(r => r.startsWith("extra "))) die("SLOTS thieu nhan extra (ten/phut ngoai-the)");
+// So neo SUY tu chinh mang anchors — ghim literal thi them luat moi ma dong
+// tong ket van in so cu (lop tong-ket-khong-kem-so-ca).
+console.log("P191-CHECK OK: " + rows.length + " dong SLOTS, " + anchors.length + " neo luat du");
+P191JS
+if node "$P191TMP/check-law.js" "$ONESHOT_LAW"; then :; else P191OK=0; fi
+# chieu do CHAY THAT: go MOT neo luat khoi ban sao -> checker do dich danh
+sed 's/GIỮ NGUYÊN VĂN/GIU-NGUYEN-VAN-DA-GO/' "$ONESHOT_LAW" > "$P191TMP/law-mut.md"
+if grep -q "GIU-NGUYEN-VAN-DA-GO" "$P191TMP/law-mut.md"; then
+  echo "     MUTANT-P191: da go neo GIU NGUYEN VAN khoi ban sao ban luat"
+else
+  echo "     mutant P191 khong tac dung (neo chua ton tai trong ban luat?)"; P191OK=0
+fi
+P191MERR="$(node "$P191TMP/check-law.js" "$P191TMP/law-mut.md" 2>&1)"; P191MST=$?
+if [ "$P191MST" -ne 0 ] && printf '%s' "$P191MERR" | grep -q "thieu luat giu-nguyen-van"; then
+  echo "     mutant P191 DO dung thong diep (thieu luat giu-nguyen-van)"
+else
+  echo "     PHEP DO MU: mutant P191 khong do hoac sai thong diep: $P191MERR"; P191OK=0
+fi
+rm -rf "$P191TMP"
+if [ "$P191OK" -eq 1 ]; then pass "P191 ngu phap cau gop GATE-ONESHOT (8 neo, 1 chieu do chay that)"; else fail "P191 ngu phap cau gop GATE-ONESHOT (8 neo, 1 chieu do chay that)"; fi
+
+echo "P192 round-trip the->ngu phap: nhan Tra-loi-mau khop SLOTS hai huong (E2 mot-luot-go)"
+P192OK=1
+P192TMP="$(mktemp -d)"
+. "$ROOT/tests/plugins/fixtures/viec-cua-anh-scenarios.sh"
+cat > "$P192TMP/check-rt.js" <<'P192JS'
+// checker P192: <lawFile> <evalIdsCsv> <cardHtml...>
+// Rut nhan tu dong «Trả lời mẫu» cua tung the, doi chieu SLOTS (2 huong).
+// Nhan bien thien: Ngoài-<số> theo khuon so; <mã eval> doi chieu id THAT cua
+// fixture (KHONG regex rong — Ngoài-1 khong duoc chui qua lop ma-eval).
+const fs = require("fs");
+const die = m => { console.error("P192 LOI: " + m); process.exit(1); };
+const [law, idsCsv, ...cards] = process.argv.slice(2);
+const evalIds = idsCsv.split(",").filter(Boolean);
+const src = fs.readFileSync(law, "utf8");
+const m0 = src.match(/<!-- <<<GATE-ONESHOT-SLOTS -->\n([\s\S]*?)\n<!-- GATE-ONESHOT-SLOTS>>> -->/);
+if (!m0) die("thieu khoi GATE-ONESHOT-SLOTS");
+const rows = m0[1].split("\n").map(l => l.trim()).filter(l => /^(g1|g2|extra) /.test(l))
+  .map(l => ({ gate: l.split(" ")[0], label: l.slice(l.indexOf(" ") + 1) }));
+const fixed = rows.filter(r => r.gate !== "extra" && !r.label.includes("<"));
+const hasNgoai = rows.some(r => r.gate !== "extra" && r.label === "Ngoài-<số>");
+const hasEval = rows.some(r => r.gate !== "extra" && r.label === "<mã eval>");
+const seen = { fixed: new Set(), ngoai: 0, evalid: 0 };
+let g1n = 0, g2n = 0;
+for (const c of cards) {
+  const html = fs.readFileSync(c, "utf8");
+  const m = html.match(/Trả lời mẫu \(một dòng, điền vào chỗ trống\): «([^»]*)»/);
+  if (!m) die("the khong co dong Tra-loi-mau: " + c);
+  const labels = m[1].split(";").map(s => s.trim()).map(s => s.replace(/:\s*___\s*$/, "")).filter(Boolean);
+  for (const lb of labels) {
+    if (fixed.some(r => r.label === lb)) seen.fixed.add(lb);
+    else if (hasNgoai && /^Ngoài-\d+$/.test(lb)) seen.ngoai++;
+    else if (hasEval && evalIds.includes(lb)) seen.evalid++;
+    else die("nhan khong khop SLOTS: " + lb + " (the " + c + ")");
+    if (c.includes("g1")) g1n++; else g2n++;
+  }
+}
+for (const r of rows.filter(r => r.gate !== "extra")) {
+  const ok = r.label === "Ngoài-<số>" ? seen.ngoai > 0
+    : r.label === "<mã eval>" ? seen.evalid > 0
+    : seen.fixed.has(r.label);
+  if (!ok) die("nhan SLOTS khong fixture nao render: " + r.gate + " " + r.label);
+}
+console.log("ONESHOT-RT: g1=" + g1n + " g2=" + g2n + " nhan khop du");
+console.log("ONESHOT-RT-NGUOC: moi dong SLOTS co fixture render");
+P192JS
+P192WS1="$(mktemp -d)"; vca_scenario gate1-draft "$P192WS1" || { echo "     dung fixture g1 that bai"; P192OK=0; }
+P192WS2="$(mktemp -d)"; vca_scenario gate2-4loai "$P192WS2" || { echo "     dung fixture g2 that bai"; P192OK=0; }
+node "$ROOT/scripts/gate-card.js" --root "$P192WS1" --slug fx --gate 1 > "$P192TMP/card-g1.html" 2>/dev/null \
+  || { echo "     render the g1 that bai"; P192OK=0; }
+node "$ROOT/scripts/gate-card.js" --root "$P192WS2" --slug fx --gate 2 > "$P192TMP/card-g2.html" 2>/dev/null \
+  || { echo "     render the g2 that bai"; P192OK=0; }
+grep -qF 'Trả lời mẫu' "$P192TMP/card-g1.html" && grep -qF 'Trả lời mẫu' "$P192TMP/card-g2.html" \
+  || { echo "     the render thieu dong Tra-loi-mau — fixture/renderer hong"; P192OK=0; }
+# doi chung DUONG truoc moi dot bien
+if node "$P192TMP/check-rt.js" "$ONESHOT_LAW" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2.html"; then :; else { echo "     doi chung duong DO oan"; P192OK=0; }; fi
+# MUTANT-A: go nhan co dinh «Treo» khoi ban sao SLOTS -> do dich danh
+grep -v '^g2 Treo$' "$ONESHOT_LAW" > "$P192TMP/law-mutA.md"
+if cmp -s "$ONESHOT_LAW" "$P192TMP/law-mutA.md"; then echo "     MUTANT-A khong tac dung (SLOTS chua co dong g2 Treo?)"; P192OK=0; else echo "     MUTANT-A: da go dong 'g2 Treo' khoi ban sao SLOTS"; fi
+P192AERR="$(node "$P192TMP/check-rt.js" "$P192TMP/law-mutA.md" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2.html" 2>&1)"; P192AST=$?
+if [ "$P192AST" -ne 0 ] && printf '%s' "$P192AERR" | grep -q "nhan khong khop SLOTS: Treo"; then
+  echo "     MUTANT-A DO dung — nhan the day ma ngu phap khong khai: Treo"
+else
+  echo "     PHEP DO MU: MUTANT-A khong do hoac sai nhan: $P192AERR"; P192OK=0
+fi
+# MUTANT-B: tiem nhan la vao dung dong Tra-loi-mau cua HTML da render -> do
+sed 's/điền vào chỗ trống): «/điền vào chỗ trống): «lạ-oneshot: ___; /' "$P192TMP/card-g2.html" > "$P192TMP/card-g2-mutB.html"
+if cmp -s "$P192TMP/card-g2.html" "$P192TMP/card-g2-mutB.html"; then echo "     MUTANT-B khong tac dung"; P192OK=0; else echo "     MUTANT-B: da tiem nhan 'lạ-oneshot' vao dong Tra-loi-mau cua the g2"; fi
+P192BERR="$(node "$P192TMP/check-rt.js" "$ONESHOT_LAW" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2-mutB.html" 2>&1)"; P192BST=$?
+if [ "$P192BST" -ne 0 ] && printf '%s' "$P192BERR" | grep -q "nhan khong khop SLOTS: lạ-oneshot"; then
+  echo "     MUTANT-B DO dung — nhan la ngoai ngu phap: lạ-oneshot"
+else
+  echo "     PHEP DO MU: MUTANT-B khong do hoac sai nhan: $P192BERR"; P192OK=0
+fi
+# MUTANT-C: go dong Ngoài-<số> khoi ban sao SLOTS -> Ngoài-1 KHONG duoc chui
+# qua lop <mã eval> (checker doi chieu id that, khong regex rong)
+grep -v '^g2 Ngoài-<số>$' "$ONESHOT_LAW" > "$P192TMP/law-mutC.md"
+if cmp -s "$ONESHOT_LAW" "$P192TMP/law-mutC.md"; then echo "     MUTANT-C khong tac dung"; P192OK=0; else echo "     MUTANT-C: da go dong 'g2 Ngoài-<số>' khoi ban sao SLOTS"; fi
+P192CERR="$(node "$P192TMP/check-rt.js" "$P192TMP/law-mutC.md" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2.html" 2>&1)"; P192CST=$?
+if [ "$P192CST" -ne 0 ] && printf '%s' "$P192CERR" | grep -q "nhan khong khop SLOTS: Ngoài-1"; then
+  echo "     SANITY-KHONG-NUOT: Ngoai-1 khong chui qua lop ma-eval"
+else
+  echo "     PHEP DO MU: MUTANT-C — Ngoai-1 chui lot hoac sai nhan: $P192CERR"; P192OK=0
+fi
+# MUTANT-H (leg NGUOC): them dong nhan chet vao ban sao SLOTS -> do dich danh
+sed 's/^g2 ký hay trả$/g2 ký hay trả\ng2 nhãn-chết-oneshot/' "$ONESHOT_LAW" > "$P192TMP/law-mutH.md"
+if grep -q '^g2 nhãn-chết-oneshot$' "$P192TMP/law-mutH.md"; then echo "     MUTANT-H: da them dong nhan chet vao ban sao SLOTS"; else echo "     MUTANT-H khong tac dung"; P192OK=0; fi
+P192HERR="$(node "$P192TMP/check-rt.js" "$P192TMP/law-mutH.md" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2.html" 2>&1)"; P192HST=$?
+if [ "$P192HST" -ne 0 ] && printf '%s' "$P192HERR" | grep -q "nhan SLOTS khong fixture nao render: g2 nhãn-chết-oneshot"; then
+  echo "     MUTANT-H DO dung — nhan SLOTS khong fixture nao render"
+else
+  echo "     PHEP DO MU: MUTANT-H khong do hoac sai nhan: $P192HERR"; P192OK=0
+fi
+rm -rf "$P192TMP" "$P192WS1" "$P192WS2"
+if [ "$P192OK" -eq 1 ]; then pass "P192 round-trip the->SLOTS hai huong (4 chieu do: go-nhan, tiem-nhan-la, khong-nuot-lop, nhan-chet)"; else fail "P192 round-trip the->SLOTS hai huong (4 chieu do: go-nhan, tiem-nhan-la, khong-nuot-lop, nhan-chet)"; fi
+
+run "P193 dieu khoan mot-luot-go: 12 site + ban suy ra khop tung ky tu + quan he per-site (E3/E4 mot-luot-go)" \
+  python3 - "$ROOT" <<'P193PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+law_p = "skills/acceptance/references/human-facing-language.md"
+law = (root / law_p).read_text(encoding="utf-8")
+def block(name, text):
+    m = re.search(r"<!-- <<<" + name + r" -->\n([\s\S]*?)\n<!-- " + name + r">>> -->", text)
+    assert m, law_p + ": KHONG rut duoc " + name + " qua marker"
+    return m.group(1)
+clause = block("GATE-ONESHOT-CLAUSE", law).strip()
+assert clause and "\n" not in clause, "clause phai la MOT dong khong rong"
+# AC-4: hai cau neo phai nam TRONG dieu khoan (khong-mo-duong-may + ket-khoi)
+assert "câu gộp là câu NGƯỜI gõ" in clause, "clause thieu cau neo khong-mo-duong-may"
+assert "kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE" in clause, "clause thieu cau neo ket-khoi VIEC CUA ANH"
+def doc_manifest(law_text):
+    decl = {}
+    for line in block("GATE-ONESHOT-SITES", law_text).splitlines():
+        toks = line.split()
+        if not toks:
+            continue
+        assert toks[0].endswith(".md"), "dong manifest la: " + repr(line)
+        assert len(toks) == 2 and toks[1].isdigit(), "site thieu so ban: " + toks[0]
+        decl[toks[0]] = int(toks[1])
+    return decl
+DECL = doc_manifest(law)
+SITES = list(DECL)
+assert len(SITES) == 12, "manifest phai khai dung 12 site nguon, thay " + str(len(SITES))
+def tail_of(site):
+    if "/skills/" in site:
+        return site.split("/skills/", 1)[1]
+    return Path(site).name
+def derived(site):
+    tail = tail_of(site)
+    in_skills = "/skills/" in site
+    hits = []
+    for base in ("plugins", "codex"):
+        b = root / base
+        if not b.is_dir():
+            continue
+        for f in sorted(b.rglob("*.md")):
+            rel = str(f.relative_to(root))
+            if rel == site:
+                continue
+            if (in_skills and rel.endswith("/skills/" + tail)) or (not in_skills and f.name == tail):
+                hits.append(rel)
+    return hits
+ALL = list(SITES)
+for s in SITES:
+    for d in derived(s):
+        if d not in ALL:
+            ALL.append(d)
+extra = [r for r in ALL if r not in SITES]
+assert len(extra) == 6, "phai suy ra dung 6 ban duoi plugins/ (6 SKILL Codex; commands/ khong co ban suy ra), thay: " + repr(extra)
+assert all(r.startswith("plugins/") for r in extra), "ban suy ra ngoai plugins/: " + repr(extra)
+assert not (root / "plugins/acceptance-gate/commands").exists(), "plugins/acceptance-gate/commands xuat hien — gia dinh commands-khong-vao-mirror da vo, sua manifest + phep do cung luot"
+texts = {rel: (root / rel).read_text(encoding="utf-8") for rel in ALL}
+# ---- quan he per-site (chay TRUOC phep so clause de mutant --repo do dich danh)
+rows = [l.strip() for l in block("GATE-ONESHOT-SLOTS", law).splitlines() if re.match(r"^(g1|g2|extra) ", l.strip())]
+g1_labels = [r[3:] for r in rows if r.startswith("g1 ")]
+g2_labels = [r[3:] for r in rows if r.startswith("g2 ")]
+assert g1_labels and g2_labels, "SLOTS rong — P191 phai do truoc, day la doi chung"
+def check_bodies(mapping):
+    errs = []
+    for rel, t in mapping.items():
+        if "--repo" not in t:
+            errs.append("site thieu needle --repo: " + rel)
+        if "GATE-ONESHOT-GRAMMAR" not in t:
+            errs.append("site thieu con tro GATE-ONESHOT-GRAMMAR: " + rel)
+        name = rel.replace("SKILL.md", "").replace(".md", "")
+        if "approve" in name:
+            for lb in g1_labels:
+                if lb not in t:
+                    errs.append("than approve thieu nhan: " + lb + " (" + rel + ")")
+        if "signoff" in name:
+            for lb in g2_labels:
+                if lb not in t:
+                    errs.append("than signoff thieu nhan: " + lb + " (" + rel + ")")
+        if name.rstrip("/").endswith("start"):
+            if "chọn-trước bằng slug" not in t:
+                errs.append("than start thieu dang chon-truoc slug: " + rel)
+    return errs
+assert check_bodies(texts) == [], "quan he per-site do oan tren cay that: " + repr(check_bodies(texts))
+print("ONESHOT-BODY: approve g1 du, signoff g2 du, start slug OK")
+# ---- so clause nguyen van tung ky tu + dem dung so khai
+ANCHOR = " ".join(clause.split(" ")[:3])
+def occurrences(t):
+    out, i = [], t.find(ANCHOR)
+    while i >= 0:
+        out.append(i)
+        i = t.find(ANCHOR, i + 1)
+    return out
+def lech(mapping):
+    bad = []
+    for rel, t in mapping.items():
+        for i in occurrences(t):
+            if t[i:i + len(clause)] != clause:
+                bad.append(rel + " @" + str(i))
+                break
+    return bad
+def sai_so(mapping):
+    bad = []
+    for s in SITES:
+        n = len(occurrences(mapping[s]))
+        if n != DECL[s]:
+            bad.append("clause lech tai " + s + ": thay " + str(n) + " ban, khai " + str(DECL[s]))
+    for d in extra:
+        srcs = [s for s in SITES if d in derived(s)]
+        want = len(occurrences(mapping[srcs[0]])) if srcs else 0
+        n = len(occurrences(mapping[d]))
+        if n != want:
+            bad.append("ban suy ra lech: " + d + " (" + str(n) + " != " + str(want) + ")")
+    return bad
+assert lech(texts) == [], "ban that lech nguyen van: " + repr(lech(texts))
+assert sai_so(texts) == [], "ban that sai so ban: " + repr(sai_so(texts))
+print("ONESHOT-SITES: 12 nguon (+6 suy ra)")
+# ---- 4 chieu do, moi chieu qua CHINH cac ham that o tren
+# MUTANT-D: dong manifest thieu so -> parser fail-loud dich danh
+law_mutD = law.replace("commands/approve.md 1", "commands/approve.md", 1)
+assert law_mutD != law, "MUTANT-D khong tac dung"
+print("MUTANT-D: da xoa so ban khoi dong manifest commands/approve.md")
+try:
+    doc_manifest(law_mutD)
+    raise SystemExit("MUTANT-D khong bi bat — manifest thieu so ma parser im")
+except AssertionError as e:
+    assert "site thieu so ban" in str(e), "MUTANT-D sai thong diep: " + str(e)
+print("     MUTANT-D DO dung: site thieu so ban (fail-loud, khong default)")
+# MUTANT-E: mangle MOT ky tu cua clause trong MOT ban chep -> lech dich danh
+mutE = dict(texts)
+victimE = "commands/signoff.md"
+mutE[victimE] = mutE[victimE].replace("câu NGƯỜI gõ", "câu NGUOI gõ", 1)
+assert mutE[victimE] != texts[victimE], "MUTANT-E khong tac dung"
+print("MUTANT-E: da mangle 1 ky tu clause trong ban sao " + victimE)
+bads = lech(mutE)
+assert bads and any(victimE in b for b in bads), "MUTANT-E khong bi bat dich danh: " + repr(bads)
+print("     MUTANT-E DO dich danh file: " + bads[0])
+# MUTANT-F: go needle --repo khoi MOT ban sao -> quan he per-site do dich danh
+mutF = dict(texts)
+victimF = "commands/acceptance-status.md"
+mutF[victimF] = mutF[victimF].replace("--repo", "--rep0")
+assert mutF[victimF] != texts[victimF], "MUTANT-F khong tac dung"
+print("MUTANT-F: da go needle --repo khoi ban sao " + victimF)
+badsF = check_bodies(mutF)
+assert any(("site thieu needle --repo: " + victimF) == b for b in badsF), "MUTANT-F khong bi bat dich danh: " + repr(badsF)
+print("     MUTANT-F DO dich danh: site thieu needle --repo: " + victimF)
+# MUTANT-G: xoa nhan «Treo» khoi ban sao than signoff -> do dich danh nhan
+mutG = dict(texts)
+victimG = "commands/signoff.md"
+mutG[victimG] = mutG[victimG].replace("Treo", "Txeo")
+assert mutG[victimG] != texts[victimG], "MUTANT-G khong tac dung"
+print("MUTANT-G: da xoa nhan Treo khoi ban sao " + victimG)
+badsG = check_bodies(mutG)
+assert any(b.startswith("than signoff thieu nhan: Treo") for b in badsG), "MUTANT-G khong bi bat: " + repr(badsG)
+print("     MUTANT-G DO dung: than signoff thieu nhan: Treo")
+print("P193 OK (12 nguon + 6 suy ra khop tung ky tu; quan he per-site --repo + con tro grammar + SLOTS->than-lenh; 4 chieu do: manifest-thieu-so, clause-lech-1-ky-tu, thieu---repo, than-thieu-nhan — tat ca in xac-nhan-dot-bien va di qua chinh checker that)")
+P193PY
+
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
   echo "ONLY_BLOCK=$ONLY_BLOCK khong khop khoi nao — go sai ten? (fail de khong xanh gia)"

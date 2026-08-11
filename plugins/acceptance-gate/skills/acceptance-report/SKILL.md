@@ -13,6 +13,15 @@ this skill reads them. Read-only: modify nothing while reporting.
 Optional arg `--since YYYY-MM-DD`: include only features whose `approved_at`
 or `verified_at` is on/after that date.
 
+One-shot answer + `--repo` (shared clause, copied verbatim from the law):
+
+Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; còn việc kế thì kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE.
+
+This skill is NOT one of the three one-shot commands (a read-only report has
+no gate question to fold); what applies here is the `--repo <path>` flag:
+scan `<path>/_acceptance/`, run the gold-set script with `--root <path>`,
+and count evidence age via `git -C <path>`.
+
 ## 1. Scan
 
 Scan `_acceptance/*/` (skip `config.yaml`, `README.md`). Parse:

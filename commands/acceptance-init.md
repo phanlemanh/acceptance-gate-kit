@@ -5,6 +5,15 @@ disable-model-invocation: true
 
 Initialize the Acceptance-Gate Kit in the current repository.
 
+Một-lượt-gõ + `--repo` (điều khoản chung, chép nguyên văn từ bản luật):
+
+Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; còn việc kế thì kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE.
+
+Lệnh này KHÔNG nằm trong ba lệnh có-câu-gộp (không thẻ nào dạy câu mẫu cho
+bảy câu hỏi setup — chúng vẫn hỏi từng bước, một-lần-mỗi-repo); phần áp dụng
+ở đây là cờ `--repo <path>`: scaffold `_acceptance/` và chép bộ file CI vào
+gốc `<path>` thay vì thư mục hiện tại.
+
 1. If `_acceptance/config.yaml` already exists → show it and STOP (never overwrite).
 2. Ask the user, one question at a time:
    a. Test commands per surface they have (api/backend/sdk) — e.g. `pnpm --filter backend test`

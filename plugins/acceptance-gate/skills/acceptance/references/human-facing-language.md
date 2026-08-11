@@ -180,6 +180,91 @@ codex/acceptance-gate/skills/acceptance/SKILL.md 2
 codex/acceptance-gate/skills/acceptance-card/SKILL.md 1
 <!-- GATE-INVITE-SITES>>> -->
 
+## Câu gộp tại cổng — một-lượt-gõ cho lệnh cổng người
+
+Đề bài gốc: sổ vấp 2026-08-10 — thẻ dạy owner một câu «Trả lời mẫu», nhưng
+lệnh cổng lại hỏi từng bước (người phải trả lời lại thứ đã trả lời), và
+người phải nhảy đúng phiên đúng repo mới gõ được lệnh. Ba lệnh có-câu-hỏi
+nhận CHÍNH câu «Trả lời mẫu» đó làm MỘT CÂU GỘP — người gõ một lượt, lệnh
+tự điền các trường. Ngữ pháp sống DUY NHẤT ở đây; mười hai thân lệnh cổng
+người (sáu bản Claude, sáu bản Codex) chép điều khoản `GATE-ONESHOT-CLAUSE`
+nguyên văn và trỏ về khối này, không tự diễn đạt.
+
+<!-- <<<GATE-ONESHOT-GRAMMAR -->
+Cú pháp gõ (một dòng, đúng thứ tự này): `<lệnh> [<slug>] [--repo <path>]
+<câu gộp>` — câu gộp là TOÀN BỘ phần còn lại của dòng, không cần dấu nháy;
+`;` chỉ ngăn các nhãn bên trong câu gộp. Ngày ghi vào `approved_at` là ngày
+lệnh chạy (Cổng 1 không có chỗ trống cho ngày; Cổng 2 lấy ngày từ chỗ trống
+«Ký»).
+
+Câu gộp theo lệnh:
+
+- `/approve <slug> <câu gộp>` — trả lời chỗ trống «duyệt hay sửa: ___» của
+  thẻ Cổng 1: `duyệt[: <tên>][, phút <số>]` hoặc `sửa: <điều cần đổi>`.
+- `/signoff <slug> <câu gộp>` — chuỗi `nhãn: giá trị` phân cách bằng `;`,
+  đúng các nhãn dòng «Trả lời mẫu» của thẻ Cổng 2 («Ngoài-<số>» ·
+  «<mã eval>» · «cắt/hoãn» · «Treo»), kết bằng `Ký: <tên> <ngày>[, phút
+  <số>]` (chỗ trống «ký hay trả») hoặc `Trả lại: <lý do>`.
+- `/start [<slug>]` — chọn-trước bằng slug: slug nằm trong nhóm nào của lần
+  quét thì bàn giao thẳng theo lối nhóm đó; không thấy slug trong nhóm nào
+  → trình thẻ như cũ.
+
+Sáu luật đi kèm:
+
+- Câu gộp là câu NGƯỜI gõ — máy chỉ dạy khuôn có chỗ trống,
+  không bao giờ điền sẵn lựa chọn, verdict hay chữ ký thay người
+  (cùng bất biến với khuôn YOUR-MOVE ở trên, cùng gốc ADR 0002).
+- Vắng câu gộp → lệnh hỏi từng bước như cũ; không trường ghi nào đổi tên,
+  không trường nào thêm bắt buộc.
+- Đuôi tự do người viết thêm sau các nhãn nhận ra được → GIỮ NGUYÊN VĂN và
+  ghi lại (sổ quyết định hoặc Notes của hợp đồng), cấm nuốt lặng lẽ.
+- Phần câu KHÔNG nhận ra được giữa các nhãn → hỏi lại đúng phần đó, không
+  đoán.
+- Tên người duyệt/ký và số phút là nhãn NGOÀI-THẺ (thẻ không dạy — thân
+  lệnh dạy); tên/phút là follow-up DUY NHẤT được phép hỏi thêm khi câu gộp
+  vắng đuôi.
+- «<mã eval>» nhận dạng theo khuôn `E\w+` — đúng khuôn mã mà thẻ đưa lên
+  dòng «Trả lời mẫu».
+<!-- GATE-ONESHOT-GRAMMAR>>> -->
+
+Danh sách nhãn chỗ trống máy-đọc — cột một là cổng (`g1`/`g2`) hoặc `extra`
+(nhãn ngoài-thẻ: thân lệnh dạy, thẻ không render nên round-trip không đòi):
+
+<!-- <<<GATE-ONESHOT-SLOTS -->
+g1 duyệt hay sửa
+g2 Ngoài-<số>
+g2 <mã eval>
+g2 cắt/hoãn
+g2 Treo
+g2 ký hay trả
+extra tên
+extra phút
+<!-- GATE-ONESHOT-SLOTS>>> -->
+
+Câu dưới đây là bản gốc DUY NHẤT của điều khoản một-lượt-gõ. Mười hai thân
+lệnh cổng người chép nguyên văn, không tự diễn đạt; số bản phải có của từng
+site khai ở manifest ngay dưới — thêm/bớt site hay bản chép là quyết định
+người, sửa manifest cùng lượt; dòng thiếu số là lỗi kêu to.
+
+<!-- <<<GATE-ONESHOT-CLAUSE -->
+Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; còn việc kế thì kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE.
+<!-- GATE-ONESHOT-CLAUSE>>> -->
+
+<!-- <<<GATE-ONESHOT-SITES -->
+commands/approve.md 1
+commands/signoff.md 1
+commands/acceptance-init.md 1
+commands/acceptance-status.md 1
+commands/acceptance-report.md 1
+commands/start.md 1
+codex/acceptance-gate/skills/approve/SKILL.md 1
+codex/acceptance-gate/skills/signoff/SKILL.md 1
+codex/acceptance-gate/skills/acceptance-init/SKILL.md 1
+codex/acceptance-gate/skills/acceptance-status/SKILL.md 1
+codex/acceptance-gate/skills/acceptance-report/SKILL.md 1
+codex/acceptance-gate/skills/start/SKILL.md 1
+<!-- GATE-ONESHOT-SITES>>> -->
+
 ## Từ mới feature này đưa vào từ điển
 
 Mỗi từ dưới đây phải có mục trong `CONTEXT.md` — nếu không, chính kit vi phạm

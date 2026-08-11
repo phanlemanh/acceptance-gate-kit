@@ -6,6 +6,19 @@ disable-model-invocation: true
 Nghi thức vào phiên. Lệnh CHỈ định hướng + bàn giao — không đọc/ghi file sản
 phẩm, không sửa gì, không tự làm nội dung thay nghi thức đích.
 
+Một-lượt-gõ + `--repo` (điều khoản chung, chép nguyên văn từ bản luật):
+
+Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; còn việc kế thì kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE.
+
+Ví dụ một lượt gõ đầy đủ: `/start abc-xyz --repo /duong/dan/repo`
+
+Câu gộp của lệnh này là chọn-trước bằng slug: `/start <slug>` — vẫn quét máy
+ở bước 1 như thường, rồi slug nằm trong nhóm nào thì bàn giao thẳng theo lối
+nhóm đó ở bước 4 (không hỏi câu chọn); không thấy slug trong nhóm nào →
+trình thẻ như cũ. Lệnh vẫn CHỈ định hướng + bàn giao, không sửa gì. Với
+`--repo <path>`: chạy quét bằng `--root <path>` và mọi nhắc nhở
+worktree/nhánh đọc từ git của `<path>`.
+
 1. **Quét máy, không hỏi người:** chạy
    `node ${CLAUDE_PLUGIN_ROOT}/scripts/start-scan.mjs --root .` → JSON một dòng.
    `config` là `false` → in đúng một dòng: "Repo này chưa dựng cổng nghiệm thu —
