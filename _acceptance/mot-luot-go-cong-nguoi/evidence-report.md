@@ -28,7 +28,7 @@ A/B chạy trên worktree `origin/main` (d6d648b) trước khi tin màu xanh.
 | E4 | AC-4 | test | PASS |
 | E5 | AC-5 | script | PASS |
 | E6 | AC-6 | script | PASS |
-| E7 | AC-7 | judgment | UNCERTAIN |
+| E7 | AC-7 | judgment | UNCERTAIN (người override → Đạt) |
 
 ## Evidence
 
@@ -186,6 +186,20 @@ A/B chạy trên worktree `origin/main` (d6d648b) trước khi tin màu xanh.
   required_evidence:
     - Owner gõ THẬT một câu gộp ở cổng kế (vd «Duyệt Cổng 1, phút 0» dạng mới)
       và nói lệnh có hiểu đúng không — đây là răng thật của lớp này.
+  human_evidence: |
+    LẦN GÕ THẬT ĐẦU TIÊN của owner bằng ngữ pháp mới — chính là
+    required_evidence mà E7 chờ. Lời owner nguyên văn, lượt 1: «E7: Đạt, kèm
+    finding: danh tính+ngày là dư — máy phải tự suy; không cắt; Ký: Manh Phan
+    2026-08-11». Lượt 2 (sau khi máy hỏi lại đúng một mục): «Cắt/hoãn: đồng ý
+    phạm vi đã khai; ③b: xác nhận; Ký: Manh Phan 2026-08-11».
+    Ba vết đáng ghi:
+    (a) một dòng của owner làm ba việc — thử sản phẩm · phán E7 · ký — và
+        lệnh nhận đúng các nhãn «E7» / «cắt/hoãn» / «Ký»;
+    (b) cụm «không cắt» đọc được CẢ HAI chiều (đồng ý phần đã cắt / kéo vào),
+        nên máy HỎI LẠI ĐÚNG PHẦN ĐÓ thay vì đoán — luật (d) của chính chip
+        này chạy đúng ngay tại cổng của nó, không phải trên fixture;
+    (c) owner nêu một finding thật về ngữ pháp (tên+ngày dư) → tách hồ sơ ③b,
+        KHÔNG sửa trong chip này (sửa-sau-ký bị cấm).
   human_override:
 
 ## Iterations
