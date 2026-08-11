@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: mot-luot-go-cong-nguoi
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 23a04f5be74cbdc6235ad14ae67d4ce16b404cf1
 verified_at: 2026-08-11
-human_signoff:
+human_signoff: Manh Phan 2026-08-11
 ---
 
 # Evidence Report: mot-luot-go-cong-nguoi
@@ -200,7 +200,7 @@ A/B chạy trên worktree `origin/main` (d6d648b) trước khi tin màu xanh.
         này chạy đúng ngay tại cổng của nó, không phải trên fixture;
     (c) owner nêu một finding thật về ngữ pháp (tên+ngày dư) → tách hồ sơ ③b,
         KHÔNG sửa trong chip này (sửa-sau-ký bị cấm).
-  human_override:
+  human_override: Manh Phan 2026-08-11 — Đạt (lời nguyên văn ở human_evidence trên)
 
 ## Iterations
 
