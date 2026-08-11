@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 44bfc5a548c0f2aac5b8ec15831f68cf97c204b8
-human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER review
+human_signoff: Manh Phan 2026-08-11
 ---
 
 # Evidence Report: rang-phep-do-viec-cua-anh
