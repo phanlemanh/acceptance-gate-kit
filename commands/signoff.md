@@ -10,21 +10,26 @@ signature to land in a SEPARATE commit touching only human-owned report lines
 — pre-merge blocks a signature that ships inside the machine-written body, so
 "sign for the user" is not merely forbidden, it cannot merge.
 
-Arg: optional `<slug>`. Without it, scan `_acceptance/*/` for an
+Cờ: `--repo <path>` (gốc kho) và `--as "<tên>"` (khai danh tính thay cho
+suy máy — ca máy dùng chung). Arg: optional `<slug>`. Without it, scan `_acceptance/*/` for an
 `evidence-report.md` whose `verdict` is `PASS` or `PENDING-JUDGMENT` with an
-empty `human_signoff` (one → use; several → table + ask; none →
-`/acceptance-status`). Verdict `REJECT`/`BLOCKED` → not signable: show
+empty `human_signoff` (one → use — hồ-sơ là điều máy biết:
+đúng MỘT ứng viên thì KHÔNG hỏi, chỉ hiển thị lại tên hồ sơ trong cùng
+lượt trả lời; several → table + ask; none → `/acceptance-status`). Verdict `REJECT`/`BLOCKED` → not signable: show
 `failed_evals`/`reason` and stop.
 
 Một-lượt-gõ + `--repo` (điều khoản chung, chép nguyên văn từ bản luật):
 
 Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; còn việc kế thì kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE.
 
-Ví dụ một lượt gõ đầy đủ:
+Ví dụ một lượt gõ — trần (máy gánh danh tính/ngày/phút) và đầy đủ (kiểu
+cũ, vẫn chạy nguyên):
+`/signoff E9: Đạt; cắt/hoãn: đồng ý cắt; Ký`
 `/signoff abc-xyz --repo /duong/dan/repo Ngoài-1: ghi Known limits; E9: Đạt; cắt/hoãn: đồng ý cắt; Treo: phê hết; Ký: Manh Phan 2026-08-11, phút 0`
 
 Câu gộp của lệnh này ghép các chỗ trống dòng «Trả lời mẫu» của thẻ Cổng 2,
-phân cách bằng `;` — ngữ pháp đầy đủ ở khối `GATE-ONESHOT-GRAMMAR`:
+phân cách bằng `;` — ngữ pháp đầy đủ ở khối `GATE-ONESHOT-GRAMMAR`. Người
+chỉ khai QUYẾT ĐỊNH; danh tính, ngày, phút là điều máy biết:
 - «Ngoài-<số>: ghi Known limits / mở hợp đồng mới / nâng phạm vi sửa ngay»
   → định đoạt từng mục ngoài hợp đồng (bước 3-4).
 - «<mã eval>: Đạt» hoặc «<mã eval>: Chưa đạt vì <lý do>» → dòng
@@ -32,14 +37,43 @@ phân cách bằng `;` — ngữ pháp đầy đủ ở khối `GATE-ONESHOT-GRA
 - «cắt/hoãn: đồng ý cắt» hoặc «cắt/hoãn: kéo vào <mục>» → xác nhận phạm vi.
 - «Treo: phê hết» hoặc «Treo: không phê Treo-<số>» → các quyết định ghi sau
   Gate 1.
-- Chỗ trống «ký hay trả»: `Ký: <tên> <ngày>[, phút <số>]` → `human_signoff`
-  + verdict upgrade (chỉ khi mọi override đã điền) + contract
-  `status: signed-off` + `time_human_minutes.gate2`; hoặc
-  `Trả lại: <lý do>` → bước 5, không ghi trường ký nào.
-- Nhãn nào thẻ đang đòi mà câu gộp vắng → hỏi đúng nhãn đó; đuôi tự do sau
-  các nhãn nhận ra được → GIỮ NGUYÊN VĂN vào sổ quyết định; tên/phút vắng →
-  follow-up duy nhất. Nghi thức commit chữ-ký-riêng (bước 1 và bước 7,
-  `require_human_commit`) không đổi một li.
+- Chỗ trống «ký hay trả»: `Ký[: <tên> [<ngày>]][, phút <số>]` →
+  `human_signoff` + verdict upgrade (chỉ khi mọi override đã điền) +
+  contract `status: signed-off` + `time_human_minutes.gate2`; hoặc
+  `Trả lại: <lý do>` → bước 5, không ghi trường ký nào. Vắng tên → máy TỰ
+  SUY, bốn luật tách bạch của `GATE-ONESHOT-GRAMMAR`: **ĐỌC** cả
+  `git config user.name` lẫn `signoff.approvers`
+  (không điều kiện nào chặn việc đọc — hai nguồn đối chiếu; bậc thang chọn
+  GIÁ TRỊ, không chọn thứ được ĐỌC);
+  **CHỌN** giá trị ở nấc cao nhất
+  còn tên: `--as "<tên>"` → `git config user.name` (chữ ký thuộc NGƯỜI
+  ĐANG GÕ) → `signoff.approvers` khi danh sách đúng một tên; **CẢNH BÁO**
+  khi tên sắp ghi không có trong `signoff.approvers` — nêu cảnh báo nhẹ
+  (tên đang dùng kèm nguồn và (các) tên trong danh sách), áp cả khi tên
+  do người tự gõ (khi đó in thành một dòng riêng); không chặn ghi, không
+  đẻ thêm lượt hỏi; **CẠN** (mọi nấc trống, hoặc chỉ còn danh sách nhiều
+  tên) → hỏi tên đúng một câu, có danh sách thì LIỆT ra để người chọn một
+  chạm. Vắng ngày → ngày
+  lệnh chạy; suy xong HIỂN THỊ
+  LẠI «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi.
+  Mọi trả lời MANG NGHĨA KHẲNG ĐỊNH là xác nhận, dài hay ngắn, kể cả tin
+  nhắn trống; chỉ trả lời nêu tên hoặc ngày khác mới là sửa danh tính
+  (sửa được cả tên lẫn ngày ở cùng dòng đó); người tự khai phần nào thì phần đó ghi
+  thẳng; phần máy suy vẫn hiện trong dòng xác nhận, khai đủ thì không hỏi. KHÔNG hỏi phút: người
+  khai `phút <số>` thì ghi đúng, vắng thì ghi 0 vào
+  `time_human_minutes.gate2`. Ngày người nêu — trong câu gộp hoặc ở dòng xác
+  nhận — LUÔN thắng ngày máy suy. Chữ «Ký» vẫn phải do NGƯỜI gõ — Enter xác
+  nhận chỉ xác nhận danh tính, không phải chữ ký.
+- Nhãn nào thẻ đang đòi mà câu gộp vắng hẳn → hỏi đúng nhãn đó (đó là câu
+  hỏi QUYẾT ĐỊNH — máy không đề xuất thay); giá trị NGƯỜI ĐÃ GÕ nhưng mơ
+  hồ → luật khuyến-nghị-trước của `GATE-ONESHOT-GRAMMAR`: nêu
+  cách hiểu khả dĩ nhất kèm căn cứ trích từ hồ sơ (khối Out of scope đã
+  duyệt, sổ quyết định, trạng thái hồ sơ) + xin xác nhận một chạm, chỉ hỏi
+  mở khi không có cách hiểu trội hơn HOẶC hiểu-sai-thì-đắt-khó-đảo. Ca mẫu (sự cố thật 11/08):
+  «không cắt» đọc được hai chiều → đề xuất «đồng ý phạm vi đã khai» kèm căn cứ từ
+  khối Out of scope đã duyệt ở Cổng 1, không hỏi mở. Đuôi tự do sau các
+  nhãn nhận ra được → GIỮ NGUYÊN VĂN vào sổ quyết định. Nghi thức commit
+  chữ-ký-riêng (bước 1 và bước 7, `require_human_commit`) không đổi một li.
 «Ngoài-<số>», «cắt/hoãn», «Treo» không có trường frontmatter riêng: định
 đoạt của chúng ghi thành entry trong sổ quyết định `decisions.jsonl` (và
 «ghi Known limits» thêm một gạch known-limits vào `## Notes` của hợp đồng)
@@ -62,18 +96,24 @@ Steps:
    the required split, and committing early also dodges the stale-guard.
 2. **Render Gate 2.** `/acceptance-card <slug>` — decision card + auto-opened
    `evidence-page.html`.
-3. **List what only the human decides:**
+3. **List what only the human decides** — quyết định, không phải danh tính:
    - every UNCERTAIN judgment item — T3: EVERY judgment item — needs a real
-     `human_override: <name> <date>`;
+     `human_override`;
    - the verdict upgrade `PENDING-JUDGMENT → PASS`, legal only after ALL those
      lines are filled;
-   - `human_signoff: <name> <date>`;
-   - minutes → `time_human_minutes.gate2`; contract `status: signed-off`.
-4. **Collect decisions in chat, item by item** (accept / reject, plus
-   name+date once). Apply the human's dictated values VERBATIM via your
-   file-edit tool so the write-time hook re-validates each write (a human
-   editing outside the agent bypasses PreToolUse; CI re-check is the
-   backstop). You contribute no values of your own.
+   - chữ «Ký» hay «Trả lại» → `human_signoff` + contract `status: signed-off`.
+   Danh tính, ngày, phút KHÔNG nằm trong danh sách này: tên/ngày máy suy
+   theo bậc ở trên rồi hiển thị lại chờ xác nhận một chạm khi người chưa
+   khai; `time_human_minutes.gate2` máy ghi (số người khai, vắng thì ghi 0).
+4. **Collect decisions in chat, item by item** — SKIP every item the
+   one-shot sentence already answered; only a label the card demands and the
+   sentence lacks entirely gets asked (asking again what the human just typed
+   is the two-turn gate this grammar exists to remove). Apply the
+   human's dictated values VERBATIM via your file-edit tool so the
+   write-time hook re-validates each write (a human editing outside the
+   agent bypasses PreToolUse; CI re-check is the backstop). You contribute
+   no decision values of your own — identity/date/minutes follow the
+   inference ladder above, decisions never do.
 5. **Any item the human rejects** → the feature is NOT signable: leave every
    signoff field empty, stop, and route back to the verify/fix loop.
 6. **Regenerate the product map — only if this repo opted in.** Read
@@ -118,7 +158,9 @@ Steps:
    violations.
 
 Never:
-- invent or assume a name, date, or verdict;
+- invent a verdict, or guess a name/date beyond the identity ladder
+  declared above (that ladder is the ONLY legal inference, and it always
+  echoes what it inferred for a one-touch confirm before writing);
 - upgrade a verdict while any override line is empty;
 - fold signature lines into the machine-evidence commit;
 - treat an unresolved PENDING-JUDGMENT as PASS.

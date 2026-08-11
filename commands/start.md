@@ -14,7 +14,9 @@ Ví dụ một lượt gõ đầy đủ: `/start abc-xyz --repo /duong/dan/repo`
 
 Câu gộp của lệnh này là chọn-trước bằng slug: `/start <slug>` — vẫn quét máy
 ở bước 1 như thường, rồi slug nằm trong nhóm nào thì bàn giao thẳng theo lối
-nhóm đó ở bước 4 (không hỏi câu chọn); không thấy slug trong nhóm nào →
+nhóm đó ở bước 4 (không hỏi câu chọn) và HIỂN THỊ LẠI nhóm đã khớp một dòng
+(hồ sơ nào, nhóm nào, đi lối nào) trong cùng lượt trả lời — máy gánh phần
+đối chiếu, người không phải tự dò thẻ; không thấy slug trong nhóm nào →
 trình thẻ như cũ. Lệnh vẫn CHỈ định hướng + bàn giao, không sửa gì. Với
 `--repo <path>`: chạy quét bằng `--root <path>` và mọi nhắc nhở
 worktree/nhánh đọc từ git của `<path>`.

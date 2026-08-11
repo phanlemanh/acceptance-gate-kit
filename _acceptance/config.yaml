@@ -39,6 +39,12 @@ executors:
     # KHÔNG vào suite vĩnh viễn (PR tương lai đổi bên-viết hợp lệ sẽ đỏ oan).
     # Cùng nếp E7 no-vat-that-drift.sh của chip ②b.
     no_oneshot_drift: "bash _acceptance/mot-luot-go-cong-nguoi/no-ben-viet-drift.sh"
+    # Vật của hồ sơ chip ③b — cùng nếp: base tường minh origin/main, không
+    # vào suite vĩnh viễn.
+    no_vat_cam_drift_3b: "bash _acceptance/may-ganh-nguoi-quyet/no-vat-cam-drift.sh"
+    # Răng của P194: ghim ĐÚNG dòng của case trong stdout thay vì tin mã thoát
+    # của trọn suite (suite xanh cả trên origin/main → không phân biệt được).
+    p194_rang: "bash _acceptance/may-ganh-nguoi-quyet/p194-rang.sh"
     product_map: "node scripts/product-map.mjs --root . --check"
 risk_tiers:
   t1_skip_globs:

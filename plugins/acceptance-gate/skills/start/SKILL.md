@@ -17,8 +17,11 @@ Full one-shot example: `start abc-xyz --repo /duong/dan/repo`
 
 This skill's one-shot answer is chọn-trước bằng slug: `start <slug>` — still
 run the machine scan first, then if the slug sits in any group, hand off
-straight down that group's path (no pick question); no group holds the slug
-→ present the card as before. The skill still ONLY orients and hands off.
+straight down that group's path (no pick question) and ECHO BACK — hiển thị
+lại nhóm đã khớp — in one line (which workspace, which group, which path
+taken) in the same reply; the machine carries the cross-checking, the human
+never has to scan the card themselves; no group holds the slug → present
+the card as before. The skill still ONLY orients and hands off.
 With `--repo <path>`: run the scan with `--root <path>` and read the
 worktree/branch reminders from `<path>`'s git.
 
