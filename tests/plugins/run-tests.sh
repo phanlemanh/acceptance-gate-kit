@@ -10314,6 +10314,13 @@ NEO = [
     ("ca-mau-khong-cat", "không cắt"),
     ("phat-ngon-cuoi", "PHÁT NGÔN CUỐI"),
     ("tuong-thich-cu", "vẫn chạy nguyên"),
+    # Lo do hoi dong E7 bat (4 vong doc lap, S4-r1+r2): bac thang mo ta bang
+    # "khi config trong" khien nhanh canh-bao-lech thanh BAT KHA THI. Chua
+    # bang cach TACH BON LUAT — doc / chon / canh-bao / can — de menh de dieu
+    # kien khong con doc luot duoc thanh guard cho ca viec DOC.
+    ("doc-khong-bi-chan", "không có điều kiện nào chặn việc đọc"),
+    ("canh-bao-ngoai-danh-sach", "KHÔNG có trong `signoff.approvers`"),
+    ("bac-thang-can", "**CẠN**"),
 ]
 def check_grammar(law_text):
     g = grammar_of(law_text)
@@ -10341,6 +10348,12 @@ FIELDS = {
     "approve": ["approved_by", "approved_at", "time_human_minutes.gate1"],
     "signoff": ["human_override", "human_signoff", "status: signed-off", "time_human_minutes.gate2"],
 }
+# Luat DOC-khong-bi-chan + nhanh CAN phai co trong CA HAI harness — cau chu
+# khac nhau (than Claude tieng Viet, SKILL Codex tieng Anh) nen needle theo
+# harness. Hai needle mot luat: doc-khong-bi-chan (lo hoi dong bat) va nhanh
+# can (lo "bac thang het nac thi lam gi" — file cu khong noi).
+CROSSCHECK = {"commands/": ["không điều kiện nào chặn việc đọc", "**CẠN**"],
+              "codex/": ["nothing gates the reading", "**EXHAUSTED**"]}
 def check_bodies(mapping):
     errs = []
     for role, rels in SITES.items():
@@ -10352,6 +10365,11 @@ def check_bodies(mapping):
                 for tag, s in GATE_NEEDLES:
                     if s not in t:
                         errs.append("site thieu " + tag + ": " + rel)
+                needs = next(v for k, v in CROSSCHECK.items() if rel.startswith(k))
+                if needs[0] not in t:
+                    errs.append("site thieu luat doc-khong-bi-chan: " + rel)
+                if needs[1] not in t:
+                    errs.append("site thieu nhanh bac-thang-can: " + rel)
             if role == "signoff":
                 if "không cắt" not in t:
                     errs.append("than signoff thieu ca mau khong-cat: " + rel)
@@ -10421,7 +10439,26 @@ print("MUT-6: da go phan nguon-suy (tu <nguon suy>) khoi ban sao " + v6)
 e6 = check_bodies(m6)
 assert ("site thieu khuon nguon-suy: " + v6) in e6, "MUT-6 khong bi bat dich danh: " + repr(e6)
 print("     MUT-6 DO dich danh: site thieu khuon nguon-suy: " + v6)
-print("P194 OK (" + str(len(NEO)) + " neo grammar + 6 than lenh per-site + truong ghi; 6 chieu do: neo-grammar, khuon-danh-tinh, needle--as, ca-mau-khong-cat, truong-ghi, khuon-nguon-suy — tat ca in xac-nhan-dot-bien va di qua chinh checker that)")
+# MUT-7 (lo hoi dong E7 bat o S4-r1): go luat doc-de-doi-chieu khoi ban sao
+# than signoff Claude -> do dich danh (bac thang mo ta chan-doc lam nhanh
+# canh-bao-lech thanh bat kha thi — hai vong judge doc lap cung neu)
+m7 = dict(texts); v7 = "commands/signoff.md"
+m7[v7] = m7[v7].replace("không điều kiện nào chặn việc đọc", "doc-co-dieu-kien-chan")
+assert m7[v7] != texts[v7], "MUT-7 khong tac dung"
+print("MUT-7: da go luat doc-khong-bi-chan khoi ban sao " + v7)
+e7 = check_bodies(m7)
+assert ("site thieu luat doc-khong-bi-chan: " + v7) in e7, "MUT-7 khong bi bat dich danh: " + repr(e7)
+print("     MUT-7 DO dich danh: site thieu luat doc-khong-bi-chan: " + v7)
+# MUT-8: go nhanh CAN khoi ban sao than approve Codex -> do dich danh
+# (lo "bac thang het nac thi lam gi" — hoi dong E7 vong 3 neu, file cu im)
+m8 = dict(texts); v8 = "codex/acceptance-gate/skills/approve/SKILL.md"
+m8[v8] = m8[v8].replace("**EXHAUSTED**", "EXHAUSTED-da-go")
+assert m8[v8] != texts[v8], "MUT-8 khong tac dung"
+print("MUT-8: da go nhanh bac-thang-can khoi ban sao " + v8)
+e8 = check_bodies(m8)
+assert ("site thieu nhanh bac-thang-can: " + v8) in e8, "MUT-8 khong bi bat dich danh: " + repr(e8)
+print("     MUT-8 DO dich danh: site thieu nhanh bac-thang-can: " + v8)
+print("P194 OK (" + str(len(NEO)) + " neo grammar + 6 than lenh per-site + truong ghi + luat doc-khong-bi-chan/bac-thang-can 2 harness; 8 chieu do: neo-grammar, khuon-danh-tinh, needle--as, ca-mau-khong-cat, truong-ghi, khuon-nguon-suy, doc-khong-bi-chan, bac-thang-can — tat ca in xac-nhan-dot-bien va di qua chinh checker that)")
 P194PY
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)

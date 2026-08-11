@@ -228,20 +228,40 @@ trước, hỏi mở là đường cùng:
   khai» kèm căn cứ từ khối Out of scope, không hỏi mở.
 - Tên người duyệt/ký, ngày và số phút là ĐIỀU MÁY BIẾT — người khai thì
   nhận nguyên nghĩa (câu kiểu cũ đầy đủ «duyệt: <tên>, phút <số>» ·
-  «Ký: <tên> <ngày>, phút <số>» vẫn chạy nguyên); vắng thì máy TỰ SUY,
-  không hỏi: tên theo bậc câu-người-gõ → cờ `--as` →
-  `git config user.name` → `signoff.approvers` khi config trống và danh
-  sách đúng một tên (chữ ký thuộc NGƯỜI ĐANG GÕ: git config là
-  thực-tại-máy, approvers
-  chỉ là kỳ-vọng-hồ-sơ; hai nguồn lệch nhau → dòng xác nhận kèm một cảnh
-  báo nhẹ nêu cả hai tên); suy xong HIỂN THỊ LẠI theo
-  khuôn «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận»
-  TRƯỚC khi ghi — khuôn PHẢI in cả nguồn suy (nấc nào của bậc thang đã
-  bắn: câu anh gõ / cờ `--as` / `git config` / `signoff.approvers`), vì
-  hiển thị tên mà giấu xuất xứ là sai-tên-âm-thầm trên máy dùng chung (trả
-  lời ngắn khẳng định là xác nhận, trả lời khác là sửa danh tính; người đã
-  khai tường minh tên+ngày → ghi thẳng, không hỏi); máy không hỏi phút —
-  vắng thì `time_human_minutes` ghi 0, trường giữ nguyên cho schema cũ.
+  «Ký: <tên> <ngày>, phút <số>» vẫn chạy nguyên; khai tường minh thì ghi
+  thẳng, không hỏi xác nhận). Vắng thì máy TỰ SUY, không hỏi — bốn luật
+  TÁCH BẠCH, đọc hết rồi mới làm:
+  - **ĐỌC**: luôn đọc CẢ `git config user.name` LẪN `signoff.approvers`,
+    không có điều kiện nào chặn việc đọc. Đây là hai nguồn đối chiếu.
+  - **CHỌN**: giá trị lấy ở nấc CAO NHẤT còn tên, theo bậc câu-người-gõ →
+    cờ `--as` → `git config user.name` → `signoff.approvers` khi danh
+    sách đúng một tên. Chữ ký thuộc NGƯỜI ĐANG GÕ: git config là
+    thực-tại-máy, approvers chỉ là kỳ-vọng-hồ-sơ.
+  - **CẢNH BÁO**: tên sắp ghi KHÔNG có trong `signoff.approvers` (danh
+    sách dài bao nhiêu cũng vậy) → nêu một cảnh báo nhẹ: tên đang dùng kèm
+    nguồn VÀ (các) tên trong danh sách, để người sửa một chạm khi máy đang
+    đứng tên người khác. Luật này áp cho CẢ tên người tự gõ (khi đó in
+    cảnh báo thành một dòng riêng, vì không có dòng xác nhận nào để kèm).
+    Cảnh báo KHÔNG chặn ghi và KHÔNG đẻ thêm lượt hỏi — người im lặng thì
+    máy vẫn ghi tên đã chọn.
+  - **CẠN**: mọi nấc đều trống (hoặc chỉ còn approvers mà danh sách nhiều
+    tên) → đây là ca đường-cùng hợp lệ: HỎI tên, đúng một câu — nhưng vẫn
+    theo luật khuyến-nghị-trước: có danh sách thì LIỆT nó ra để người chọn
+    một chạm, chỉ hỏi trắng khi không còn ứng viên nào.
+  Suy xong HIỂN THỊ LẠI theo khuôn
+  «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC
+  khi ghi — khuôn PHẢI in cả nguồn suy (nấc nào của bậc thang đã bắn: câu
+  anh gõ / cờ `--as` / `git config` / `signoff.approvers`), vì hiển thị
+  tên mà giấu xuất xứ là sai-tên-âm-thầm trên máy dùng chung. Mọi trả lời
+  MANG NGHĨA KHẲNG ĐỊNH đều là xác nhận, dài hay ngắn, kể cả tin nhắn
+  trống (Enter) — chỉ trả lời nêu một tên hoặc ngày khác mới là sửa danh
+  tính, và người sửa được cả tên lẫn ngày ở cùng dòng đó, kể cả ngày ở
+  cổng không có ô ngày trong câu gộp: giá trị người nêu ở dòng xác nhận
+  LUÔN thắng ngày máy suy. Người tự khai phần nào thì phần đó ghi thẳng;
+  còn phần máy suy vẫn hiện trong dòng xác nhận (khai tên mà thiếu ngày →
+  vẫn hiện để xác nhận ngày, và ngược lại), khai đủ cả hai → không hỏi.
+  Máy không hỏi phút — vắng thì `time_human_minutes` ghi 0, trường giữ
+  nguyên schema cũ.
 - Hồ-sơ cũng là điều máy biết: vắng slug mà đúng MỘT ứng viên đang chờ
   đúng cổng đó → dùng nó và hiển thị lại tên hồ sơ trong cùng lượt trả
   lời; nhiều ứng viên → bảng chọn như cũ.

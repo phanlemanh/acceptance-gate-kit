@@ -1,0 +1,7 @@
+{"ts":"2026-08-11T08:42:26Z","round":2,"evalId":"E1","run_id":"may-ganh-nguoi-quyet-E1-1786437746","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-11T08:42:26Z","round":2,"evalId":"E2","run_id":"may-ganh-nguoi-quyet-E2-1786437746","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-11T08:42:26Z","round":2,"evalId":"E3","run_id":"may-ganh-nguoi-quyet-E3-1786437746","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-11T08:42:26Z","round":2,"evalId":"E4","run_id":"may-ganh-nguoi-quyet-E4-1786437746","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-11T08:42:26Z","round":2,"evalId":"E5","run_id":"may-ganh-nguoi-quyet-E5-1786437746","exit_code":0,"cmd":"bash _acceptance/may-ganh-nguoi-quyet/no-vat-cam-drift.sh"}
+{"ts":"2026-08-11T08:42:26Z","round":2,"evalId":"E6","run_id":"may-ganh-nguoi-quyet-E6-1786437746","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
+{"ts":"2026-08-11T08:42:26Z","round":2,"kind":"panel","evalId":"E7","verdict":"UNCERTAIN","lenses":["nguoi-go-than-Claude","nguoi-go-than-Codex","ca-danh-tinh-lech","ca-bac-thang-can","do-ro-chi-dan"]}

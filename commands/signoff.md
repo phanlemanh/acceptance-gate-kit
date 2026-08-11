@@ -40,13 +40,24 @@ chỉ khai QUYẾT ĐỊNH; danh tính, ngày, phút là điều máy biết:
   `human_signoff` + verdict upgrade (chỉ khi mọi override đã điền) +
   contract `status: signed-off` + `time_human_minutes.gate2`; hoặc
   `Trả lại: <lý do>` → bước 5, không ghi trường ký nào. Vắng tên → máy TỰ
-  SUY theo bậc: cờ `--as "<tên>"` → `git config user.name` (chữ ký thuộc
-  NGƯỜI ĐANG GÕ) → `signoff.approvers` khi config trống và danh sách đúng
-  một tên; hai nguồn lệch nhau → dòng xác nhận kèm cảnh báo nhẹ nêu cả
-  hai tên; vắng ngày → ngày lệnh chạy; suy xong HIỂN THỊ
-  LẠI «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi (trả
-  lời ngắn khẳng định là xác nhận, trả lời khác là sửa danh tính; người
-  khai tường minh tên+ngày → ghi thẳng, không hỏi). KHÔNG hỏi phút: người
+  SUY, bốn luật tách bạch của `GATE-ONESHOT-GRAMMAR`: **ĐỌC** cả
+  `git config user.name` lẫn `signoff.approvers`
+  (không điều kiện nào chặn việc đọc — hai nguồn đối chiếu);
+  **CHỌN** giá trị ở nấc cao nhất
+  còn tên: `--as "<tên>"` → `git config user.name` (chữ ký thuộc NGƯỜI
+  ĐANG GÕ) → `signoff.approvers` khi danh sách đúng một tên; **CẢNH BÁO**
+  khi tên sắp ghi không có trong `signoff.approvers` — nêu cảnh báo nhẹ
+  (tên đang dùng kèm nguồn và (các) tên trong danh sách), áp cả khi tên
+  do người tự gõ (khi đó in thành một dòng riêng); không chặn ghi, không
+  đẻ thêm lượt hỏi; **CẠN** (mọi nấc trống, hoặc chỉ còn danh sách nhiều
+  tên) → hỏi tên đúng một câu, có danh sách thì LIỆT ra để người chọn một
+  chạm. Vắng ngày → ngày
+  lệnh chạy; suy xong HIỂN THỊ
+  LẠI «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi.
+  Mọi trả lời MANG NGHĨA KHẲNG ĐỊNH là xác nhận, dài hay ngắn, kể cả tin
+  nhắn trống; chỉ trả lời nêu tên hoặc ngày khác mới là sửa danh tính
+  (sửa được cả tên lẫn ngày ở cùng dòng đó); người khai tường minh
+  tên+ngày → ghi thẳng, không hỏi. KHÔNG hỏi phút: người
   khai `phút <số>` thì ghi đúng, vắng thì ghi 0 vào
   `time_human_minutes.gate2`. Chữ «Ký» vẫn phải do NGƯỜI gõ — Enter xác
   nhận chỉ xác nhận danh tính, không phải chữ ký.
@@ -54,7 +65,7 @@ chỉ khai QUYẾT ĐỊNH; danh tính, ngày, phút là điều máy biết:
   hỏi QUYẾT ĐỊNH — máy không đề xuất thay); giá trị NGƯỜI ĐÃ GÕ nhưng mơ
   hồ → luật khuyến-nghị-trước của `GATE-ONESHOT-GRAMMAR`: nêu
   cách hiểu khả dĩ nhất kèm căn cứ trích từ hồ sơ + xin xác nhận một chạm, chỉ hỏi
-  mở khi không có cách hiểu trội hơn. Ca mẫu (sự cố thật 11/08):
+  mở khi không có cách hiểu trội hơn HOẶC hiểu-sai-thì-đắt-khó-đảo. Ca mẫu (sự cố thật 11/08):
   «không cắt» đọc được hai chiều → đề xuất «đồng ý phạm vi đã khai» kèm căn cứ từ
   khối Out of scope đã duyệt ở Cổng 1, không hỏi mở. Đuôi tự do sau các
   nhãn nhận ra được → GIỮ NGUYÊN VĂN vào sổ quyết định. Nghi thức commit

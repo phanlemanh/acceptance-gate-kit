@@ -36,13 +36,23 @@ only DECISIONS; identity, date and minutes are things the machine knows:
   `human_signoff` + the verdict upgrade (only when every override line is
   filled) + contract `status: signed-off` + `time_human_minutes.gate2`; or
   `Trả lại: <lý do>` → the not-signable path, no signature field written.
-  Name absent → infer down the ladder `--as "<tên>"` →
-  `git config user.name` (the signature belongs to the person TYPING) →
-  `signoff.approvers` when git config is empty and it holds exactly one
-  name; two sources disagree → gentle warning naming both; date absent →
+  Name absent → the four separate rules of `GATE-ONESHOT-GRAMMAR`:
+  **READ** both `git config user.name` and `signoff.approvers`
+  (nothing gates the reading — two cross-check sources); **PICK** the highest rung
+  that still has a name: `--as "<tên>"` → `git config user.name` (the
+  signature belongs to the person TYPING) → `signoff.approvers` when it
+  holds exactly one name; **WARN** when the name about to be written is not
+  on that list — gentle warning naming it with its source and the name(s)
+  on the list, applying to a human-typed name too (own line), never
+  blocking the write or adding a turn; **EXHAUSTED** (every rung empty, or
+  only a multi-name list) → ask in one question, LISTING the candidates
+  when a list exists so the human picks in one touch. The ladder picks the VALUE, not what gets READ.
+  Date absent →
   ngày lệnh chạy; then echo «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận»
-  BEFORE writing (a short affirmative confirms; anything else corrects the
-  identity; an explicitly typed name+date needs no confirm). Do NOT ask for
+  BEFORE writing (any affirmative reply confirms, long or short, including
+  an empty message; only a reply naming a different name or date corrects
+  the identity — and it may correct both at once; an explicitly typed
+  name+date needs no confirm). Do NOT ask for
   minutes: the human's `phút <số>` if typed, otherwise ghi 0 into
   `time_human_minutes.gate2`. The word «Ký» itself must still be typed by
   the HUMAN — the confirm covers identity only, it is not the signature.
@@ -52,7 +62,8 @@ only DECISIONS; identity, date and minutes are things the machine knows:
   recommend-first rule of `GATE-ONESHOT-GRAMMAR`: state the most plausible
   reading with its evidence from the records (the approved Out-of-scope
   block, the decisions ledger, the workspace state) + ask a one-touch
-  confirm; an open question is the last resort. Worked case (real incident
+  confirm; an open question is the last resort — only when no reading
+  dominates OR a wrong guess is costly to undo. Worked case (real incident
   11/08): «không cắt» reads both ways → propose «đồng ý phạm vi đã khai»
   citing the Out-of-scope block approved at Gate 1, do not ask open-ended.
   A free tail after recognised labels → keep it VERBATIM in the decisions

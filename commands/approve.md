@@ -31,15 +31,25 @@ Câu gộp của lệnh này trả lời chỗ trống «duyệt hay sửa: ___�
 dạy — ngữ pháp đầy đủ ở khối `GATE-ONESHOT-GRAMMAR`. Người chỉ khai QUYẾT
 ĐỊNH; danh tính, ngày, phút là điều máy biết:
 - `duyệt[: <tên>][, phút <số>]` → chính là câu YES tường minh của bước 5:
-  `<tên>` → `approved_by`; vắng tên → máy TỰ SUY theo bậc: cờ `--as "<tên>"`
-  → `git config user.name` (của gốc lệnh đang chạy — chữ ký thuộc NGƯỜI
-  ĐANG GÕ) → `signoff.approvers` trong `_acceptance/config.yaml` khi config
-  trống và danh sách đúng một tên; hai nguồn lệch nhau → dòng xác nhận kèm
-  cảnh báo nhẹ nêu cả hai tên — suy xong HIỂN THỊ LẠI
-  «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi (trả lời
-  ngắn khẳng định là xác nhận, trả lời khác là sửa danh tính); người khai
-  tường minh tên → ghi thẳng, không hỏi. KHÔNG hỏi phút: `phút <số>` người
-  khai thì ghi đúng số đó vào `time_human_minutes.gate1`, vắng thì ghi 0.
+  `<tên>` → `approved_by`; vắng tên → máy TỰ SUY, bốn luật tách bạch của
+  `GATE-ONESHOT-GRAMMAR`: **ĐỌC** cả `git config user.name` lẫn
+  `signoff.approvers`
+  (không điều kiện nào chặn việc đọc — đây là hai nguồn đối chiếu);
+  **CHỌN** giá trị ở nấc cao nhất còn tên: `--as "<tên>"`
+  → `git config user.name` (gốc lệnh đang chạy — chữ ký thuộc NGƯỜI ĐANG
+  GÕ) → `signoff.approvers` khi danh sách đúng một tên; **CẢNH BÁO** khi
+  tên sắp ghi không có trong `signoff.approvers` — nêu cảnh báo nhẹ (tên
+  đang dùng kèm nguồn và (các) tên trong danh sách), áp cả khi tên do
+  người tự gõ (khi đó in thành một dòng riêng); không chặn ghi, không đẻ
+  thêm lượt hỏi; **CẠN** (mọi nấc trống, hoặc chỉ còn danh sách nhiều
+  tên) → hỏi tên đúng một câu, có danh sách thì LIỆT ra để người chọn một
+  chạm. Suy xong HIỂN THỊ LẠI
+  «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi.
+  Mọi trả lời MANG NGHĨA KHẲNG ĐỊNH là xác nhận, dài hay ngắn, kể cả tin
+  nhắn trống; chỉ trả lời nêu tên hoặc ngày khác mới là sửa danh tính (sửa
+  được cả tên lẫn ngày ở cùng dòng đó). Người khai tường minh tên → ghi
+  thẳng, không hỏi. KHÔNG hỏi phút: `phút <số>` người khai thì ghi đúng số
+  đó vào `time_human_minutes.gate1`, vắng thì ghi 0.
 - `sửa: <điều cần đổi>` → bước 4 với đúng nội dung đó (vẫn là Gate 1).
 - Đuôi tự do sau các nhãn nhận ra được → GIỮ NGUYÊN VĂN, ghi vào sổ quyết
   định; phần mơ hồ → luật khuyến-nghị-trước của `GATE-ONESHOT-GRAMMAR`:
@@ -67,16 +77,28 @@ Steps:
    advisory coverage lint (`${CLAUDE_PLUGIN_ROOT}/scripts/eval-coverage-lint.js`
    — same plugin as this command, no cache glob)
    and surface its W1/W3 warnings — advisory only, the human decides.
-3. **Ask EXACTLY ONE question:** approve, or what should change?
+3. **Ask EXACTLY ONE question:** approve, or what should change? — SKIP this
+   step entirely when the human already typed a one-shot answer (`duyệt…` /
+   `sửa: …`): that sentence IS the answer to this question, and asking it
+   again is the two-turn gate this grammar exists to remove. The identity
+   echo «với danh tính: … — Enter xác nhận» is NOT a second question: it is
+   a one-touch confirm of a value the MACHINE inferred, not a decision asked
+   of the human.
 4. **Edits requested** → apply them to `contract.md`/`evals.yaml` (pre-approval
    artifacts are agent-editable), re-render the card, ask again. Still Gate 1.
 5. **On an explicit YES only:**
    - `approved_by` = the reviewer's name: take it from their approval message;
-     if absent, infer down the ladder — `--as "<tên>"` → `git config
-     user.name` (the signature belongs to the person TYPING) →
-     `signoff.approvers` in `_acceptance/config.yaml` when git config is
-     empty and it holds exactly one name; when the two sources disagree,
-     add a gentle warning naming both — then echo
+     if absent, follow the four separate rules of `GATE-ONESHOT-GRAMMAR`:
+     **READ** both `git config user.name` and `signoff.approvers`
+     (nothing gates the reading — the two cross-check sources); **PICK**
+     the value from the highest rung that still has a name: `--as "<tên>"`
+     → `git config user.name` (the signature belongs to the person TYPING)
+     → `signoff.approvers` when it holds exactly one name; **WARN** when
+     the picked name is not in `signoff.approvers` — the confirm line
+     carries a gentle warning naming the picked name with its source and
+     the name(s) on the list, without blocking the write or adding a turn;
+     **EXHAUSTED** (every rung empty, or only a multi-name list left) →
+     ask for the name, one question. Then echo
      «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận»
      and wait for the one-touch confirm BEFORE writing (an explicit
      name typed by the human needs no confirm). Never guess beyond the

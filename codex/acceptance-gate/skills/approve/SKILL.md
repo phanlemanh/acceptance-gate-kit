@@ -23,13 +23,23 @@ full grammar in the `GATE-ONESHOT-GRAMMAR` block of the language law. The
 human states only the DECISION; identity, date and minutes are things the
 machine knows:
 - `duyệt[: <tên>][, phút <số>]` → the explicit YES of step 5: `<tên>` →
-  `approved_by`; absent → infer down the ladder `--as "<tên>"` →
-  `git config user.name` (the signature belongs to the person TYPING) →
-  `signoff.approvers` when git config is empty and it holds exactly one
-  name; when the two sources disagree, add a gentle warning naming both —
-  then echo «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận»
-  BEFORE writing (a short affirmative confirms; anything else corrects the
-  identity; an explicitly typed name needs no confirm). Do NOT ask for
+  `approved_by`; absent → the four separate rules of
+  `GATE-ONESHOT-GRAMMAR`: **READ** both `git config user.name` and
+  `signoff.approvers` (nothing gates the reading — two cross-check
+  sources); **PICK** the value from the highest rung that still has a
+  name: `--as "<tên>"` → `git config user.name` (the signature belongs to
+  the person TYPING) → `signoff.approvers` when it holds exactly one name;
+  **WARN** when the name about to be written is not in `signoff.approvers`
+  — a gentle warning naming it with its source and the name(s) on the
+  list; this applies to a name the human typed too (print it as its own
+  line then), and never blocks the write or adds a turn; **EXHAUSTED**
+  (every rung empty, or only a multi-name list left) → ask for the name in
+  one question, LISTING the candidates when a list exists so the human
+  picks in one touch.
+  Then echo «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận»
+  BEFORE writing (any affirmative reply confirms, long or short, including
+  an empty message; only a reply naming a different name or date corrects
+  the identity; an explicitly typed name needs no confirm). Do NOT ask for
   minutes: `phút <số>` typed by the human → write that number to
   `time_human_minutes.gate1`, absent → ghi 0 (field kept for the old
   schema).
@@ -82,17 +92,28 @@ failure never blocks the question.
 
 ## 4. Ask exactly one question
 
-Approve, or what should change? Edits requested → apply them to
-`contract.md`/`evals.yaml` with `apply_patch` (pre-approval artifacts are
-agent-editable), re-render the card, ask again.
+Approve, or what should change? — SKIP this step entirely when the human
+already typed a one-shot answer (`duyệt…` / `sửa: …`): that sentence IS the
+answer to this question, and asking it again is the two-turn gate this
+grammar exists to remove. The identity echo «với danh tính: … — Enter xác
+nhận» is NOT a second question: it is a one-touch confirm of a value the
+MACHINE inferred, not a decision asked of the human. Edits requested →
+apply them to `contract.md`/`evals.yaml` with `apply_patch` (pre-approval
+artifacts are agent-editable), re-render the card, ask again.
 
 ## 5. Record on an explicit YES only
 
 - `approved_by` = the reviewer's name: from their approval message; absent →
-  infer down the ladder — `--as "<tên>"` → `git config user.name` (the
-  signature belongs to the person TYPING) → `signoff.approvers` in
-  `_acceptance/config.yaml` when git config is empty and it holds exactly
-  one name; two sources disagree → gentle warning naming both — then echo
+  follow the four separate rules: **READ** both `git config user.name` and
+  `signoff.approvers` in `_acceptance/config.yaml` (nothing gates the
+  reading); **PICK** the highest rung that still has a name — `--as
+  "<tên>"` → `git config user.name` (the signature belongs to the person
+  TYPING) → `signoff.approvers` when it holds exactly one name; **WARN**
+  when the name about to be written is not on that list — gentle warning
+  naming it with its source and the name(s) on the list, applying to a
+  human-typed name too (own line), no extra turn; **EXHAUSTED** (every rung
+  empty, or only a multi-name list) → ask in one question, LISTING the
+  candidates when a list exists. The ladder picks the VALUE, not what gets READ — then echo
   «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» and
   wait for the one-touch confirm BEFORE writing (an explicitly typed name
   needs no confirm). Never guess beyond the ladder; never write an agent's
