@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: a81ade3210d771f4bc14f046f680fddebfbd0824
+verified_commit: 1d7b0d4695e09a76d5aa583b31295618ef0c3fb6
 human_signoff: Manh Phan 2026-08-11
 ---
 
@@ -233,3 +233,21 @@ Ba known-limits người ký cần đọc trước khi quyết:
   Cổng 1 → trình owner xác nhận (mục Ngoài hợp đồng).
 - Cả bốn suite local chạy trọn sau vòng chót (nếp chip ③): scripts 671 ·
   hooks 54 · plugins toàn bộ · workflows — đều exit 0.
+- **Khôi phục nghi thức hai-commit (2026-08-11, máy làm, sau khi đã ký):** PR
+  #42 merge kiểu **squash** nên `e943f96` chỉ có MỘT cha và gộp cả hồ sơ vào
+  một commit — chữ ký và thân báo cáo nằm chung, làm
+  `signoff.require_human_commit` đỏ VĨNH VIỄN và chặn mọi PR về main (đối
+  chứng: #38–#41 merge-commit hai cha, đều sạch; nghi thức tách-commit sống
+  nhờ HẠT commit, squash xoá hạt đó). Máy xoá giá trị `human_signoff` để owner
+  ký lại trên một commit human-fields-only. **Không phải ký lại nội dung
+  mới:** cùng repo, cùng cây, cùng người; chữ ký gốc của owner còn nguyên
+  trong lịch sử PR #42. Lời giải cấu trúc là TẮT squash-merge ở cài đặt repo,
+  không nới luật.
+
+### Re-pin lần 1 — 2026-08-11, sau chữ ký, do bump acceptance-gate 1.40.0 (3 manifest nguồn đổi) + gỡ vết squash-merge PR #42
+run_id: repin-may-ganh-nguoi-quyet-20260811T153124Z
+sha: 1d7b0d4695e09a76d5aa583b31295618ef0c3fb6 · suites: 6 lệnh exit 0
+Lý do: hồ sơ này vào diện diff của PR #43 (commit repair + chữ ký), nên luật
+staleness theo-diff soi nó và thấy 3 manifest đổi sau verified_commit cũ. Bump
+là số + chữ, không chạm vật nào E1–E7 đo; lane 6 lệnh xanh tại sha trên xác
+nhận. Chữ ký người KHÔNG bị đụng trong lượt re-pin này.

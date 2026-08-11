@@ -1,8 +1,11 @@
 # Onboarding đội — dùng kit từ GĐ3 (đọc 5 phút)
 
-*2026-08-10 · Kèm thông báo #2. Kit acceptance-gate **1.39.1** / feature-loop
+*2026-08-10 · Kèm thông báo #2. Kit acceptance-gate **1.40.0** / feature-loop
 **1.27.1** — bản đã qua 3 ván thật ở repo thí điểm. Mọi vấp của bạn ghi vào
 `docs/research/so-vap-trien-khai.md` (kho kit) — ĐỪNG tự vá kit.*
+
+> Nói cho gọn: **"kit 2.1" là tên lô việc, không phải số bản.** Số thật để
+> đối chiếu khi cài là **acceptance-gate 1.40.0 / feature-loop 1.27.1**.
 
 ## 1 · Cập nhật plugin cho ĐÚNG (hai bẫy đã có người dẫm)
 
@@ -11,9 +14,10 @@
 cd ~/.claude/plugins/marketplaces/acceptance-gate-kit 2>/dev/null && git pull
 claude plugin update acceptance-gate && claude plugin update feature-loop
 ```
-- **Kiểm bằng NỘI DUNG, đừng tin số version** — số `1.39.2` KHÔNG đổi suốt 4
-  chip (② ②b ③ ③b không bump), nên "đã mới nhất" có thể là ruột cũ. Ba câu
-  kiểm, phải đủ cả ba:
+- **Kiểm bằng NỘI DUNG, đừng tin số version** — số `1.39.2` từng đứng yên suốt
+  4 chip (② ②b ③ ③b không bump), nên **ai đang ở `1.39.2` có thể mang ruột cũ
+  mà `update` vẫn báo "đã mới nhất"**. Bản `1.40.0` gom đủ cả 4 chip đó — nhưng
+  số chỉ là gợi ý, ba câu dưới mới là lời cuối:
   ```bash
   grep -c "VIỆC CỦA ANH" ~/.claude/plugins/*/acceptance-gate/scripts/gate-card.js       # ≥1 (chip ②)
   grep -c "GATE-ONESHOT-GRAMMAR" ~/.claude/plugins/*/acceptance-gate/skills/acceptance/references/human-facing-language.md   # ≥1 (chip ③/③b)
