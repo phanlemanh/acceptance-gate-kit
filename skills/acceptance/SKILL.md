@@ -157,8 +157,11 @@ Run immediately after the user reviews the contract (same gate, one sitting).
    Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người); tin chỉ-báo ghi rõ "không cần làm gì"; cấm câu tu từ mang dấu hỏi.
    The `/approve <slug>` command walks this stop end-to-end (card → one
    question → recorded decision). On approval:
-   set contract `status: approved`, `approved_by`, `approved_at`, and ask the
-   user how many minutes Gate 1 took → write `time_human_minutes.gate1`.
+   set contract `status: approved`, `approved_by`, `approved_at` (identity and
+   date follow the ladder in `GATE-ONESHOT-GRAMMAR` — inferred, echoed once
+   for a one-touch confirm, never asked as a question), and write
+   `time_human_minutes.gate1` WITHOUT asking: the human's `phút <số>` if they
+   typed one, otherwise 0.
 6. Hand off to implementation (normal agent coding flow — the implementing
    agent reads contract + evals and codes until it believes evals will pass).
    The implementing agent's FINAL act is setting the contract's

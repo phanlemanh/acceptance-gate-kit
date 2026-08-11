@@ -58,11 +58,19 @@ văn) + memory `nguoi-chi-khai-dieu-chi-nguoi-biet`.
   `GATE-ONESHOT-GRAMMAR`, Then nó chứa các luật mới sau, mỗi luật nhận diện
   bằng chuỗi neo máy-đo:
   - (a) **tự-suy danh tính**: tên người duyệt/ký và ngày là điều máy biết —
-    vắng trong câu gộp thì máy suy theo bậc: câu người gõ → cờ `--as "<tên>"`
-    → `git config user.name` (chữ ký thuộc NGƯỜI ĐANG GÕ — thực-tại-máy
-    trước kỳ-vọng-hồ-sơ) → `signoff.approvers` khi config trống và danh
-    sách đúng một tên; hai nguồn lệch nhau → dòng xác nhận kèm cảnh báo
-    nhẹ nêu cả hai tên; suy xong HIỂN THỊ LẠI theo khuôn «với danh tính: <tên>
+    vắng trong câu gộp thì máy suy theo BỐN LUẬT TÁCH BẠCH (viết rời nhau,
+    vì gộp một câu là cách hai mệnh đề đối lập lọt qua — hội đồng E7 bắt ở
+    S4-r1): **ĐỌC** luôn đọc CẢ `git config user.name` LẪN
+    `signoff.approvers`, không điều kiện nào chặn việc đọc; **CHỌN** giá trị
+    ở nấc cao nhất còn tên (câu người gõ → cờ `--as "<tên>"` → `git config
+    user.name` → `signoff.approvers` khi danh sách đúng một tên) — chữ ký
+    thuộc NGƯỜI ĐANG GÕ, thực-tại-máy trước kỳ-vọng-hồ-sơ; **CẢNH BÁO** khi
+    tên sắp ghi không có trong `signoff.approvers` (áp cả tên người tự gõ),
+    không chặn ghi và không đẻ lượt hỏi; **CẠN** khi hết nấc (mọi nấc trống,
+    hoặc chỉ còn danh sách nhiều tên) → HỎI tên đúng một câu, có danh sách
+    thì liệt ra để chọn một chạm — đây là nhánh DUY NHẤT trong chip này
+    THÊM một lượt hỏi, và nó chỉ chạy khi máy thật sự không biết.
+    Suy xong HIỂN THỊ LẠI theo khuôn «với danh tính: <tên>
     <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi — khuôn PHẢI in
     cả NGUỒN SUY (nấc nào của bậc thang đã bắn), vì hiển thị tên mà giấu
     xuất xứ là sai-tên-âm-thầm trên máy dùng chung không ai thấy (yêu cầu
@@ -119,13 +127,21 @@ văn) + memory `nguoi-chi-khai-dieu-chi-nguoi-biet`.
     `GATE-ONESHOT-CLAUSE` nguyên văn;
   - start (2 bản): còn nguyên dạng chọn-trước `slug`; thêm hiển-thị-lại
     nhóm đã khớp khi bàn giao thẳng.
-  Chiều đỏ CHẠY THẬT: (đỏ-a) gỡ khuôn «với danh tính:» khỏi MỘT bản sao →
-  P194 đỏ đích danh file; (đỏ-b) gỡ needle `--as` khỏi bản sao → đỏ đích
-  danh; (đỏ-c) gỡ ca mẫu «không cắt» khỏi bản sao thân signoff → đỏ đích
-  danh; (đỏ-d) gỡ phần nguồn-suy «(từ <nguồn suy>)» khỏi bản sao một thân
-  lệnh → đỏ đích danh file (khuôn thiếu xuất xứ = sai-tên-âm-thầm); đối
-  chứng dương: cây thật XANH trước mọi đột biến, mutant in
-  xác-nhận-đột-biến và đi qua chính checker thật.
+  Chiều đỏ CHẠY THẬT — 14 chiều, số in ra SUY từ danh sách mutant (in
+  literal thì thêm/bớt mutant mà dòng tổng kết vẫn khai số cũ): gỡ khuôn
+  «với danh tính:» · gỡ needle `--as` · gỡ ca mẫu «không cắt» · gỡ phần
+  nguồn-suy «(từ <nguồn suy>)» · gỡ neo grammar · gỡ trường ghi · gỡ luật
+  ĐỌC · gỡ nhánh CẠN · CHÉP bậc thang lần hai (lớp hai-bản-chép-trôi-khỏi-
+  nhau) · CHÈN LẠI câu hỏi phút cũ (neo ÂM) · HOÁN VỊ bậc thang về phương
+  án đã loại · gỡ nhánh CẢNH BÁO · gỡ hiển-thị-lại của thân start · gỡ neo
+  ngày-ở-Ký — mỗi chiều đỏ đích danh file/neo, mutant in xác-nhận-đột-biến
+  và đi qua chính checker thật; đối chứng dương: cây thật XANH trước mọi
+  đột biến.
+  Ràng buộc executor (gap-probe P0): E1–E3 KHÔNG được trỏ thẳng mã thoát
+  của suite — suite xanh cả trên `origin/main`, nên mã thoát không phân
+  biệt được cây cũ với cây mới. Chúng chạy qua script RĂNG ghim đúng dòng
+  của case (vắng «PASS: P194», thiếu dòng đếm, số chiều đỏ < 9, hay tổng
+  kết khai lệch số mutant → ĐỎ).
 - AC-3 (tương thích cũ + đổi-AI-ĐIỀN-không-đổi-GHI-GÌ): Given cùng bản
   luật + 6 thân lệnh, When đọc đường câu-kiểu-cũ, Then: (i) câu gộp đầy đủ
   kiểu chip ③ («duyệt: <tên>, phút <số>» · «Ký: <tên> <ngày>, phút <số>»)
@@ -147,8 +163,11 @@ văn) + memory `nguoi-chi-khai-dieu-chi-nguoi-biet`.
 - AC-5 (không-trôi-vật-cấm + đối chứng dương toàn cục): Given cây thật,
   When chạy script `no-vat-cam-drift.sh` của hồ sơ này so BASE TƯỜNG MINH
   `origin/main` và chạy trọn suite plugins, Then: (a) diff name-only KHÔNG
-  chứa `scripts/gate-card.js`; (b) SÁU khối rút qua marker byte-equal
-  base: `YOUR-MOVE-BLOCK-TEMPLATE`, `GATE-INVITE-CLAUSE`,
+  chứa `scripts/gate-card.js` — chân này hợp nhất BA hộp (commit trên
+  nhánh · sửa chưa commit · file chưa theo dõi), vì `BASE...HEAD` một mình
+  mù với cây làm việc; (a2) SÁU lệnh không-câu-hỏi (init/status/report hai
+  harness) byte-equal base — phạm vi khai KHÔNG đụng chúng mà P193 chỉ
+  canh đoạn điều khoản; (b) SÁU khối rút qua marker byte-equal base: `YOUR-MOVE-BLOCK-TEMPLATE`, `GATE-INVITE-CLAUSE`,
   `GATE-INVITE-SITES` (vật chip ②/②b) + `GATE-ONESHOT-SLOTS`,
   `GATE-ONESHOT-CLAUSE`, `GATE-ONESHOT-SITES` (tầng máy-đọc chip ③); (c)
   suite plugins exit 0, dòng tổng kết case mới KÈM SỐ chiều đỏ đã chạy;

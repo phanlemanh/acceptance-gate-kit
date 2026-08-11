@@ -10321,6 +10321,16 @@ NEO = [
     ("doc-khong-bi-chan", "không có điều kiện nào chặn việc đọc"),
     ("canh-bao-ngoai-danh-sach", "KHÔNG có trong `signoff.approvers`"),
     ("bac-thang-can", "**CẠN**"),
+    ("ngay-o-ky", "«Ký» vắng ngày → ngày lệnh chạy"),
+]
+# Neo ÂM: chuoi PHAI VANG. Loi hua loi cua chip la GO mot cau hoi — assert
+# "chuoi phai co mat" khong bao gio bat duoc viec cau hoi cu quay lai
+# (gap-probe P0, S4 r3: chen lai dong "Ask how many minutes" thi moi neo duong
+# van du). Cap doi: neo duong ("khong hoi phut") + neo am duoi day.
+NEO_AM = [
+    ("hoi-phut-quay-lai", "how many minutes"),
+    ("hoi-lai-phan-la-cu", "hỏi lại đúng phần đó"),
+    ("follow-up-cu", "follow-up DUY NHẤT"),
 ]
 def check_grammar(law_text):
     g = grammar_of(law_text)
@@ -10328,6 +10338,9 @@ def check_grammar(law_text):
     for tag, s in NEO:
         if s not in g:
             errs.append("GRAMMAR thieu neo " + tag + " (neo: " + s + ")")
+    for tag, s in NEO_AM:
+        if s in g:
+            errs.append("GRAMMAR mang lai luat cu " + tag + " (neo am: " + s + ")")
     return errs
 # ---- 6 than lenh co-cau-hoi (nguon hai harness; mirror do P30 canh rieng)
 SITES = {
@@ -10352,8 +10365,14 @@ FIELDS = {
 # khac nhau (than Claude tieng Viet, SKILL Codex tieng Anh) nen needle theo
 # harness. Hai needle mot luat: doc-khong-bi-chan (lo hoi dong bat) va nhanh
 # can (lo "bac thang het nac thi lam gi" — file cu khong noi).
-CROSSCHECK = {"commands/": ["không điều kiện nào chặn việc đọc", "**CẠN**"],
-              "codex/": ["nothing gates the reading", "**EXHAUSTED**"]}
+CROSSCHECK = {"commands/": ["không điều kiện nào chặn việc đọc", "**CẠN**", "**CHỌN**",
+                            "không có trong `signoff.approvers`"],
+              "codex/": ["nothing gates the reading", "**EXHAUSTED**", "**PICK**",
+                         "not in `signoff.approvers`"]}
+# Neo AM per-site: cau hoi cu KHONG duoc quay lai trong bat ky than lenh nao.
+BODY_AM = [("hoi-phut-quay-lai", "how many minutes"),
+           ("hoi-phut-viet", "Ask how many minutes"),
+           ("follow-up-cu", "follow-up DUY NHẤT")]
 def check_bodies(mapping):
     errs = []
     for role, rels in SITES.items():
@@ -10370,6 +10389,25 @@ def check_bodies(mapping):
                     errs.append("site thieu luat doc-khong-bi-chan: " + rel)
                 if needs[1] not in t:
                     errs.append("site thieu nhanh bac-thang-can: " + rel)
+                # MOT-BAN-CHEP: bac thang chi duoc khai DUNG MOT lan trong moi
+                # than lenh. Lo that (hoi dong E7 vong 6): than co HAI ban chep
+                # (dau file + buoc ghi) nen moi lan va chi trung mot ban, hai
+                # ban troi khoi nhau — ca 5 finding vong 6 deu cung lop nay.
+                n = t.count(needs[2])
+                if n != 1:
+                    errs.append("bac thang khai " + str(n) + " lan (phai dung 1): " + rel)
+                if needs[3] not in t:
+                    errs.append("site thieu nhanh canh-bao-ngoai-danh-sach: " + rel)
+                # THU TU bac thang: git config PHAI dung TRUOC signoff.approvers
+                # (d-20008 loai phuong an nguoc — doi vi tri thi may ky ten lead
+                # trong khi nguoi go la teammate; khong ghim thu tu thi hoan vi
+                # ve dung phuong an DA LOAI ma thuoc van xanh — gap-probe P1)
+                ig, ia = t.find("git config user.name"), t.find("signoff.approvers")
+                if ig < 0 or ia < 0 or ig > ia:
+                    errs.append("thu tu bac thang sai (git config phai truoc approvers): " + rel)
+            for tag, s in BODY_AM:
+                if s in t:
+                    errs.append("than mang lai luat cu " + tag + ": " + rel)
             if role == "signoff":
                 if "không cắt" not in t:
                     errs.append("than signoff thieu ca mau khong-cat: " + rel)
@@ -10383,6 +10421,19 @@ def check_bodies(mapping):
             for f in FIELDS.get(role, []):
                 if f not in t:
                     errs.append("than " + role + " thieu truong ghi: " + f + " (" + rel + ")")
+    # MOI LOI qua chot: cau hoi phut khong duoc song o BAT KY duong nao dan
+    # toi cung truong ghi. Ngoai 6 than lenh, skill acceptance (2 harness) cung
+    # day buoc Cong 1 — no van hoi phut trong khi 6 lenh da thoi (bat boi
+    # baseline 2 chieu, S4-r3). Ca init la NGOAI pham vi va khac nghia
+    # (baseline_minutes cua repo, khong phai phut cua mot cong) — khong dinh.
+    for rel in ("skills/acceptance/SKILL.md", "codex/acceptance-gate/skills/acceptance/SKILL.md"):
+        p = root / rel
+        if not p.is_file():
+            errs.append("thieu file duong-khac: " + rel)
+            continue
+        s = p.read_text(encoding="utf-8")
+        if "how many minutes" in s:
+            errs.append("duong khac van hoi phut: " + rel)
     return errs
 # ---- doi chung DUONG tren cay that, TRUOC moi dot bien
 assert check_grammar(law) == [], "grammar do oan tren cay that: " + repr(check_grammar(law))
@@ -10458,7 +10509,85 @@ print("MUT-8: da go nhanh bac-thang-can khoi ban sao " + v8)
 e8 = check_bodies(m8)
 assert ("site thieu nhanh bac-thang-can: " + v8) in e8, "MUT-8 khong bi bat dich danh: " + repr(e8)
 print("     MUT-8 DO dich danh: site thieu nhanh bac-thang-can: " + v8)
-print("P194 OK (" + str(len(NEO)) + " neo grammar + 6 than lenh per-site + truong ghi + luat doc-khong-bi-chan/bac-thang-can 2 harness; 8 chieu do: neo-grammar, khuon-danh-tinh, needle--as, ca-mau-khong-cat, truong-ghi, khuon-nguon-suy, doc-khong-bi-chan, bac-thang-can — tat ca in xac-nhan-dot-bien va di qua chinh checker that)")
+# MUT-9: chep bac thang lan HAI vao ban sao than approve -> do dich danh
+# (chinh lop da de ra ca 5 finding cua hoi dong E7 vong 6: hai ban chep troi
+# khoi nhau, moi lan va chi trung mot ban)
+m9 = dict(texts); v9 = "commands/approve.md"
+i9 = m9[v9].index("**CHỌN**")
+m9[v9] = m9[v9][:i9] + "**CHỌN** (bản chép thừa)\n" + m9[v9][i9:]
+assert m9[v9].count("**CHỌN**") == 2, "MUT-9 khong tac dung"
+print("MUT-9: da chep bac thang lan HAI vao ban sao " + v9)
+e9 = check_bodies(m9)
+assert ("bac thang khai 2 lan (phai dung 1): " + v9) in e9, "MUT-9 khong bi bat: " + repr(e9)
+print("     MUT-9 DO dich danh: bac thang khai 2 lan (phai dung 1): " + v9)
+# MUT-10 (gap-probe P0 — NEO AM): chen LAI cau hoi phut cu vao ban sao than
+# approve. Moi neo duong van du -> khong neo am thi thuoc im, lenh lai hoi phut
+m10 = dict(texts); v10 = "commands/approve.md"
+m10[v10] = m10[v10].replace("- `sửa: <điều cần đổi>`", "- Ask how many minutes Gate 1 took.\n- `sửa: <điều cần đổi>`", 1)
+assert m10[v10] != texts[v10], "MUT-10 khong tac dung"
+print("MUT-10: da chen LAI cau hoi phut cu vao ban sao " + v10)
+e10 = check_bodies(m10)
+assert any(x.startswith("than mang lai luat cu hoi-phut-quay-lai") for x in e10), "MUT-10 khong bi bat: " + repr(e10)
+print("     MUT-10 DO dung: than mang lai luat cu hoi-phut-quay-lai")
+# MUT-11 (gap-probe P1): hoan vi bac thang ve PHUONG AN DA LOAI (approvers
+# truoc git config) -> thu tu khong ghim thi mutant nay xanh
+m11 = dict(texts); v11 = "commands/signoff.md"
+i_g = m11[v11].find("git config user.name"); i_a = m11[v11].find("signoff.approvers")
+assert 0 <= i_a < i_g or i_g < i_a, "MUT-11 fixture bat thuong"
+m11[v11] = m11[v11][:i_g] + "signoff.approvers" + m11[v11][i_g + len("git config user.name"):]
+m11[v11] = "signoff.approvers\n" + m11[v11].replace("signoff.approvers", "git config user.name", 1)
+print("MUT-11: da hoan vi bac thang (approvers truoc git config) trong ban sao " + v11)
+e11 = check_bodies(m11)
+assert any(x.startswith("thu tu bac thang sai") and v11 in x for x in e11), "MUT-11 khong bi bat: " + repr(e11)
+print("     MUT-11 DO dung: thu tu bac thang sai (git config phai truoc approvers)")
+# MUT-12 (gap-probe P1): go nhanh CANH BAO khoi ban sao than approve Codex
+m12 = dict(texts); v12 = "codex/acceptance-gate/skills/approve/SKILL.md"
+m12[v12] = m12[v12].replace("not in `signoff.approvers`", "not in the list")
+assert m12[v12] != texts[v12], "MUT-12 khong tac dung"
+print("MUT-12: da go nhanh canh-bao-ngoai-danh-sach khoi ban sao " + v12)
+e12 = check_bodies(m12)
+assert ("site thieu nhanh canh-bao-ngoai-danh-sach: " + v12) in e12, "MUT-12 khong bi bat: " + repr(e12)
+print("     MUT-12 DO dich danh: site thieu nhanh canh-bao-ngoai-danh-sach: " + v12)
+# MUT-13 (gap-probe P2): role start chua co mutant nao -> chung minh nhanh
+# `if role == "start"` that su chay
+m13 = dict(texts); v13 = "codex/acceptance-gate/skills/start/SKILL.md"
+m13[v13] = m13[v13].replace("nhóm đã khớp", "nhom-da-khop-da-go")
+assert m13[v13] != texts[v13], "MUT-13 khong tac dung"
+print("MUT-13: da go hien-thi-lai nhom khop khoi ban sao " + v13)
+e13 = check_bodies(m13)
+assert ("than start thieu hien-thi-lai nhom khop: " + v13) in e13, "MUT-13 khong bi bat: " + repr(e13)
+print("     MUT-13 DO dich danh: than start thieu hien-thi-lai nhom khop: " + v13)
+# MUT-14 (gap-probe P1): go neo NGAY o Ky khoi ban sao ban luat
+law_m14 = law.replace("«Ký» vắng ngày → ngày lệnh chạy", "«Ký» vang ngay thi tuy")
+assert law_m14 != law, "MUT-14 khong tac dung"
+print("MUT-14: da go neo ngay-o-ky khoi ban sao ban luat")
+e14 = check_grammar(law_m14)
+assert any("GRAMMAR thieu neo ngay-o-ky" in x for x in e14), "MUT-14 khong bi bat: " + repr(e14)
+print("     MUT-14 DO dung: GRAMMAR thieu neo ngay-o-ky")
+# MUT-15 (lop MOI-LOI-QUA-CHOT): duong khac (skill acceptance) hoi lai phut.
+# Mutant nay khong sua duoc bang dict `texts` — no doc file that, nen dung
+# monkeypatch chinh ham doc de chung minh nhanh do co chay.
+import builtins as _b
+_orig_read = type(root).read_text
+def _fake_read(self, *a, **k):
+    s = _orig_read(self, *a, **k)
+    if self.name == "SKILL.md" and "skills/acceptance/SKILL.md" in str(self):
+        s = s + "\n   ask the user how many minutes Gate 1 took.\n"
+    return s
+type(root).read_text = _fake_read
+print("MUT-15: da chen LAI cau hoi phut vao duong khac (skills/acceptance/SKILL.md, ban doc gia lap)")
+e15 = check_bodies(texts)
+type(root).read_text = _orig_read
+assert any(x == "duong khac van hoi phut: skills/acceptance/SKILL.md" for x in e15), "MUT-15 khong bi bat: " + repr(e15)
+print("     MUT-15 DO dich danh: duong khac van hoi phut: skills/acceptance/SKILL.md")
+# So chieu do SUY tu chinh danh sach mutant da chay (lop tong-ket-khong-kem-
+# so-ca: in literal thi them/bot mutant ma dong tong ket van in so cu).
+MUTS = ["neo-grammar", "khuon-danh-tinh", "needle--as", "ca-mau-khong-cat",
+        "truong-ghi", "khuon-nguon-suy", "doc-khong-bi-chan", "bac-thang-can",
+        "bac-thang-2-ban-chep", "neo-am-hoi-phut", "thu-tu-bac-thang",
+        "canh-bao-ngoai-danh-sach", "than-start", "neo-ngay-o-ky",
+        "duong-khac-hoi-phut"]
+print("P194 OK (" + str(len(NEO)) + " neo duong + " + str(len(NEO_AM)) + " neo am grammar + 6 than lenh per-site + truong ghi + doc/can/mot-ban-chep/canh-bao/thu-tu 2 harness; " + str(len(MUTS)) + " chieu do: " + ", ".join(MUTS) + " — tat ca in xac-nhan-dot-bien va di qua chinh checker that)")
 P194PY
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)

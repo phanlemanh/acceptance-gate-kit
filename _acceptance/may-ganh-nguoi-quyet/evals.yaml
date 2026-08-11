@@ -13,13 +13,19 @@ feature_slug: may-ganh-nguoi-quyet
 evals:
   - id: E1
     criterion: AC-1
-    executor: test
-    cmd: config:executors.test.plugins
+    executor: script
+    cmd: config:executors.script.p194_rang
     paths:
       - tests/plugins/run-tests.sh
       - skills/acceptance/references/human-facing-language.md
     expected: >
-      exit 0; stdout có "PASS: P191" (thước chip ③ sau khi thay ĐÚNG HAI
+      exit 0 — executor là script RĂNG (`p194-rang.sh`): nó chạy suite
+      plugins rồi GHIM ĐÚNG dòng của case P194 trong stdout, thay vì tin mã
+      thoát của trọn suite (suite xanh cả trên origin/main → mã thoát không
+      phân biệt được cây cũ với cây mới; gap-probe P0 S4-r3). Script đỏ khi:
+      vắng dòng «PASS: P194», thiếu một trong ba dòng đếm, số chiều đỏ đếm
+      được < 9, hoặc dòng tổng kết khai số khác số mutant đã in. Trong cùng
+      lần chạy đó, stdout có "PASS: P191" (thước chip ③ sau khi thay ĐÚNG HAI
       neo theo AC-1g: «hỏi lại đúng phần đó» → «cách hiểu khả dĩ nhất»,
       «follow-up DUY NHẤT» → «Enter xác nhận»; số neo giữ 8, mutant
       GIỮ-NGUYÊN-VĂN của P191 vẫn chạy thật) VÀ "PASS: P194" phần grammar:
@@ -27,9 +33,13 @@ evals:
       danh sách neo MỚI của hai nguyên tắc — «với danh tính:» ·
       «(từ <nguồn suy>)» · «Enter xác nhận» · «git config user.name» ·
       «không hỏi phút» · «ghi 0» · «đúng MỘT ứng viên» · «cách hiểu khả dĩ
-      nhất» · «hỏi mở» · «không cắt» · «PHÁT NGÔN CUỐI» · «vẫn chạy
-      nguyên» — thiếu neo nào → đỏ đích danh
-      neo đó. Chiều đỏ CHẠY THẬT: gỡ neo «PHÁT NGÔN CUỐI» khỏi bản sao bản
+      nhất» · «hỏi mở» · «không cắt» · «PHÁT NGÔN CUỐI» · «vẫn chạy nguyên» ·
+      «không có điều kiện nào chặn việc đọc» · «CẠN» · «Ký vắng ngày → ngày
+      lệnh chạy» (16 neo dương, số suy từ mảng) — thiếu neo nào → đỏ đích
+      danh neo đó; VÀ ba NEO ÂM phải VẮNG: «how many minutes», «hỏi lại đúng
+      phần đó», «follow-up DUY NHẤT» — lời hứa lõi của chip là GỠ một câu
+      hỏi, mà assert chuỗi-phải-có-mặt không bao giờ bắt được câu hỏi cũ
+      quay lại (gap-probe P0). Chiều đỏ CHẠY THẬT: gỡ neo «PHÁT NGÔN CUỐI» khỏi bản sao bản
       luật → P194 đỏ ghim «GRAMMAR thieu neo phat-ngon-cuoi»; đối chứng
       dương xanh trước đột biến. Needle "PASS: P194" và các neo mới 0-hit
       trên baseline origin/main.
@@ -37,8 +47,8 @@ evals:
 
   - id: E2
     criterion: AC-2
-    executor: test
-    cmd: config:executors.test.plugins
+    executor: script
+    cmd: config:executors.script.p194_rang
     paths:
       - tests/plugins/run-tests.sh
       - commands/approve.md
@@ -62,14 +72,22 @@ evals:
       «không cắt» khỏi bản sao commands/signoff.md → đỏ đích danh file;
       (đỏ-d) gỡ phần nguồn-suy «(từ <nguồn suy>)» khỏi bản sao codex
       approve → đỏ đích danh file (khuôn thiếu xuất xứ = sai-tên-âm-thầm,
-      yêu cầu phiên B). Đối chứng dương: cây thật xanh trước mọi đột biến.
-      Needle mới 0-hit trên baseline origin/main.
+      yêu cầu phiên B); (đỏ-e) chép bậc thang lần HAI vào bản sao → đỏ «bac
+      thang khai 2 lan» (lớp hai-bản-chép-trôi-khỏi-nhau mà hội đồng E7 vòng
+      6 phát hiện); (đỏ-f) chèn LẠI câu hỏi phút cũ → đỏ «than mang lai luat
+      cu»; (đỏ-g) hoán vị bậc thang về phương án ĐÃ LOẠI (approvers trước git
+      config) → đỏ «thu tu bac thang sai»; (đỏ-h) gỡ nhánh CẢNH BÁO khỏi bản
+      sao → đỏ đích danh; (đỏ-i) gỡ hiển-thị-lại nhóm khớp khỏi thân start →
+      đỏ đích danh (chứng minh nhánh start thật sự chạy). Tổng 14 chiều đỏ,
+      số in ra SUY từ danh sách mutant chứ không phải literal. Đối chứng
+      dương: cây thật xanh trước mọi đột biến. Needle mới 0-hit trên baseline
+      origin/main.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E3
     criterion: AC-3
-    executor: test
-    cmd: config:executors.test.plugins
+    executor: script
+    cmd: config:executors.script.p194_rang
     paths:
       - tests/plugins/run-tests.sh
       - skills/acceptance/references/human-facing-language.md
@@ -118,9 +136,17 @@ evals:
       name-only KHÔNG chứa scripts/gate-card.js; (b) SÁU khối rút qua
       marker byte-equal base: YOUR-MOVE-BLOCK-TEMPLATE, GATE-INVITE-CLAUSE,
       GATE-INVITE-SITES, GATE-ONESHOT-SLOTS, GATE-ONESHOT-CLAUSE,
-      GATE-ONESHOT-SITES; in từng dòng "NO-DRIFT: <vật> OK". Khai sinh
-      phép đo: phá-thử trên bản sao (sửa 1 dòng SLOTS trong worktree tạm)
-      → script đỏ ghim đích danh; đối chứng dương xanh trên cây thật.
+      GATE-ONESHOT-SITES; (c) SÁU lệnh không-câu-hỏi (init/status/report, hai
+      harness) byte-equal base — phạm vi hợp đồng khai KHÔNG đụng chúng, mà
+      P193 chỉ canh đoạn điều khoản nên phần còn lại của file vốn tự do
+      (gap-probe P2); in từng dòng "NO-DRIFT: <vật> OK". Chân (a) hợp nhất
+      BA hộp — commit trên nhánh, sửa chưa commit, file chưa theo dõi — vì
+      `git diff BASE...HEAD` một mình MÙ với cây làm việc (gap-probe P1: sửa
+      gate-card.js chưa commit thì chốt vẫn in OK trong khi P192 render thẻ
+      bằng đúng bản đã sửa). Khai sinh phép đo: ba lần phá-thử trên bản sao
+      (sửa 1 dòng SLOTS · sửa gate-card.js CHƯA commit · sửa một lệnh
+      không-câu-hỏi) → script đỏ ghim đích danh cả ba; đối chứng dương xanh
+      trên cây thật.
       Baseline: n-a (script là vật của chính hồ sơ này, base origin/main
       tường minh trong lệnh).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -145,9 +171,13 @@ evals:
     inputs:
       - commands/approve.md
       - commands/signoff.md
+      - codex/acceptance-gate/skills/approve/SKILL.md
+      - codex/acceptance-gate/skills/signoff/SKILL.md
     paths:
       - commands/approve.md
       - commands/signoff.md
+      - codex/acceptance-gate/skills/approve/SKILL.md
+      - codex/acceptance-gate/skills/signoff/SKILL.md
     question: >
       Một agent context SẠCH (không contract, không grammar rời — CHỈ hai
       thân lệnh ở inputs) đóng vai owner, bốn ca chấm theo bảng đáp án

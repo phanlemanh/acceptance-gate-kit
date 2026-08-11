@@ -22,7 +22,7 @@ This skill's one-shot answer fills the card's «duyệt hay sửa: ___» blank �
 full grammar in the `GATE-ONESHOT-GRAMMAR` block of the language law. The
 human states only the DECISION; identity, date and minutes are things the
 machine knows:
-- `duyệt[: <tên>][, phút <số>]` → the explicit YES of step 5: `<tên>` →
+- `duyệt[: <tên> [<ngày>]][, phút <số>]` → the explicit YES of step 5: `<tên>` →
   `approved_by`; absent → the four separate rules of
   `GATE-ONESHOT-GRAMMAR`: **READ** both `git config user.name` and
   `signoff.approvers` (nothing gates the reading — two cross-check
@@ -39,11 +39,15 @@ machine knows:
   Then echo «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận»
   BEFORE writing (any affirmative reply confirms, long or short, including
   an empty message; only a reply naming a different name or date corrects
-  the identity; an explicitly typed name needs no confirm). Do NOT ask for
+  the identity — and it may correct both at once; whatever the human typed is written as-is; whatever the machine inferred still shows on the confirm line, and a fully typed identity needs no confirm). Do NOT ask for
   minutes: `phút <số>` typed by the human → write that number to
   `time_human_minutes.gate1`, absent → ghi 0 (field kept for the old
   schema).
 - `sửa: <điều cần đổi>` → the edit path with exactly that content.
+  The ladder picks the VALUE, not what gets READ.
+- A date the human states — in the one-shot sentence or on the confirm line
+  — ALWAYS beats the date the machine inferred, and is what lands in
+  `approved_at`.
 - A free tail after recognised labels → keep it VERBATIM in the decisions
   ledger; an ambiguous part → the recommend-first rule of
   `GATE-ONESHOT-GRAMMAR`: state the most plausible reading with its
@@ -60,6 +64,8 @@ against `<path>` instead of the current directory, and every git call becomes `g
 
 ## 1. Resolve the feature
 
+Flags: `--repo <path>` (repo root) and `--as "<tên>"` (state the identity
+instead of letting the machine infer it — the shared-machine case).
 Accept an optional kebab-case slug (reject traversal). Without one, scan
 `_acceptance/*/contract.md` for `status: draft`: exactly one → use it — hồ-sơ
 là điều máy biết: đúng MỘT ứng viên thì KHÔNG hỏi, chỉ hiển thị lại tên hồ
@@ -103,24 +109,15 @@ artifacts are agent-editable), re-render the card, ask again.
 
 ## 5. Record on an explicit YES only
 
-- `approved_by` = the reviewer's name: from their approval message; absent →
-  follow the four separate rules: **READ** both `git config user.name` and
-  `signoff.approvers` in `_acceptance/config.yaml` (nothing gates the
-  reading); **PICK** the highest rung that still has a name — `--as
-  "<tên>"` → `git config user.name` (the signature belongs to the person
-  TYPING) → `signoff.approvers` when it holds exactly one name; **WARN**
-  when the name about to be written is not on that list — gentle warning
-  naming it with its source and the name(s) on the list, applying to a
-  human-typed name too (own line), no extra turn; **EXHAUSTED** (every rung
-  empty, or only a multi-name list) → ask in one question, LISTING the
-  candidates when a list exists. The ladder picks the VALUE, not what gets READ — then echo
-  «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» and
-  wait for the one-touch confirm BEFORE writing (an explicitly typed name
-  needs no confirm). Never guess beyond the ladder; never write an agent's
-  name. The confirm covers IDENTITY only — the decision was the human's
-  explicit YES above.
+- `approved_by` and the date: apply the identity rules declared ONCE at the
+  top of this skill (READ / PICK / WARN / EXHAUSTED + the confirm echo) — do
+  not restate or re-derive them here, that duplicate is exactly how the two
+  copies drifted apart before. Never guess beyond the ladder; never write an
+  agent's name. The confirm covers IDENTITY only — the decision was the
+  human's explicit YES above.
 - Patch the contract frontmatter: `status: approved`, `approved_by`,
-  `approved_at` (ISO date, ngày lệnh chạy — máy ghi, không hỏi).
+  `approved_at` — the run date the machine wrote, unless the human named a
+  different date on the confirm line: a date the human states there WINS.
 - `time_human_minutes.gate1`: do NOT ask — the human's `phút <số>` if
   typed, otherwise ghi 0 (field kept for the old schema).
 - If `_acceptance/<slug>/decisions.jsonl` exists, append the seal entry
@@ -146,7 +143,7 @@ artifacts are agent-editable), re-render the card, ask again.
 
 - "Not now" / rejected → the contract stays `draft`; capture the reason in
   chat; write nothing to gate fields.
-- Never approve from silence or your own judgment.
+- Never approve from silence, a timeout, or your own judgment.
 - Never offer gate-skipping here — `gate1_skipped: true` stays a
   chat-explicit, audited escape hatch outside this skill.
 - Never touch `human_signoff` or any Gate-2 field (that is the `signoff`

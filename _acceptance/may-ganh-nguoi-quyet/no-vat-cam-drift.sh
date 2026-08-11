@@ -18,14 +18,37 @@ kêu() { echo "NO-DRIFT LOI: $*"; ERR=1; }
 
 git rev-parse --verify "$BASE" >/dev/null 2>&1 || { echo "NO-DRIFT LOI: khong giai duoc base $BASE"; exit 2; }
 
-# (a) diff name-only KHONG duoc chua ben VIET cau mau
-DIFF="$(git diff --name-only "$BASE"...HEAD)" || { echo "NO-DRIFT LOI: git diff that bai"; exit 2; }
+# (a) diff name-only KHONG duoc chua ben VIET cau mau.
+# BA hop nhat lai: commit tren nhanh (BASE...HEAD), sua da stage va sua CHUA
+# commit (git diff BASE — hai cham, phu ca cay lam viec) + untracked. Dung
+# rieng ba-cham la MU voi cay lam viec: sua gate-card.js ma chua commit thi
+# chot in OK trong khi P192 lai render the bang dung ban da sua do (gap-probe
+# P1, S4 r3 — da thu that: `echo y >> scripts/gate-card.js` van xanh).
+DIFF="$(git diff --name-only "$BASE"...HEAD; git diff --name-only "$BASE"; git ls-files --others --exclude-standard)" \
+  || { echo "NO-DRIFT LOI: git diff that bai"; exit 2; }
 [ -n "$DIFF" ] || kêu "diff rong so voi $BASE — phep do khong the ket luan (chay tren nhanh chua commit gi?)"
 if printf '%s\n' "$DIFF" | grep -qx "scripts/gate-card.js"; then
   kêu "scripts/gate-card.js NAM TRONG diff — ben VIET cau mau da bi cham (pham vi hop dong cam)"
 else
-  echo "NO-DRIFT: scripts/gate-card.js OK (khong nam trong diff so $BASE)"
+  echo "NO-DRIFT: scripts/gate-card.js OK (khong trong commit, khong trong cay lam viec)"
 fi
+
+# (a2) SAU lenh khong-cau-hoi + 6 than co-cau-hoi cua chip (3): pham vi hop
+# dong ③b noi KHONG dung 3 lenh init/status/report, va tang may-doc chip (3)
+# dung nguyen — nhung chi khoi CLAUSE duoc P193 canh, phan con lai cua file thi
+# tu do (gap-probe P2). Ba lenh khong-cau-hoi phai byte-equal $BASE.
+for F in commands/acceptance-init.md commands/acceptance-status.md commands/acceptance-report.md \
+         codex/acceptance-gate/skills/acceptance-init/SKILL.md \
+         codex/acceptance-gate/skills/acceptance-status/SKILL.md \
+         codex/acceptance-gate/skills/acceptance-report/SKILL.md; do
+  A="$(git show "$BASE:$F" 2>/dev/null)" || { kêu "khong doc duoc $F tai $BASE"; continue; }
+  B="$(cat "$F" 2>/dev/null)" || { kêu "khong doc duoc $F tren cay"; continue; }
+  if [ "$A" = "$B" ]; then
+    echo "NO-DRIFT: $F OK (lenh khong-cau-hoi, byte-equal $BASE)"
+  else
+    kêu "$F DA DOI — hop dong khai KHONG dung 3 lenh khong-cau-hoi"
+  fi
+done
 
 # (b) SAU khoi rut qua marker phai byte-equal giua base va HEAD:
 #     3 vat chip (2)/(2)b + 3 khoi tang may-doc chip (3)

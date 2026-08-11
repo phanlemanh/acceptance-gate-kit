@@ -199,7 +199,8 @@ biết: `approved_at` ghi ngày lệnh chạy; «Ký» vắng ngày → ngày l�
 Câu gộp theo lệnh:
 
 - `/approve [<slug>] <câu gộp>` — trả lời chỗ trống «duyệt hay sửa: ___»
-  của thẻ Cổng 1: `duyệt[: <tên>][, phút <số>]` hoặc `sửa: <điều cần đổi>`.
+  của thẻ Cổng 1: `duyệt[: <tên> [<ngày>]][, phút <số>]` hoặc
+  `sửa: <điều cần đổi>`.
 - `/signoff [<slug>] <câu gộp>` — chuỗi `nhãn: giá trị` phân cách bằng `;`,
   đúng các nhãn dòng «Trả lời mẫu» của thẻ Cổng 2 («Ngoài-<số>» ·
   «<mã eval>» · «cắt/hoãn» · «Treo»), kết bằng `Ký[: <tên> [<ngày>]][, phút

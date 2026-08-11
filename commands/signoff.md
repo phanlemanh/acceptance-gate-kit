@@ -10,7 +10,8 @@ signature to land in a SEPARATE commit touching only human-owned report lines
 — pre-merge blocks a signature that ships inside the machine-written body, so
 "sign for the user" is not merely forbidden, it cannot merge.
 
-Arg: optional `<slug>`. Without it, scan `_acceptance/*/` for an
+Cờ: `--repo <path>` (gốc kho) và `--as "<tên>"` (khai danh tính thay cho
+suy máy — ca máy dùng chung). Arg: optional `<slug>`. Without it, scan `_acceptance/*/` for an
 `evidence-report.md` whose `verdict` is `PASS` or `PENDING-JUDGMENT` with an
 empty `human_signoff` (one → use — hồ-sơ là điều máy biết:
 đúng MỘT ứng viên thì KHÔNG hỏi, chỉ hiển thị lại tên hồ sơ trong cùng
@@ -42,7 +43,8 @@ chỉ khai QUYẾT ĐỊNH; danh tính, ngày, phút là điều máy biết:
   `Trả lại: <lý do>` → bước 5, không ghi trường ký nào. Vắng tên → máy TỰ
   SUY, bốn luật tách bạch của `GATE-ONESHOT-GRAMMAR`: **ĐỌC** cả
   `git config user.name` lẫn `signoff.approvers`
-  (không điều kiện nào chặn việc đọc — hai nguồn đối chiếu);
+  (không điều kiện nào chặn việc đọc — hai nguồn đối chiếu; bậc thang chọn
+  GIÁ TRỊ, không chọn thứ được ĐỌC);
   **CHỌN** giá trị ở nấc cao nhất
   còn tên: `--as "<tên>"` → `git config user.name` (chữ ký thuộc NGƯỜI
   ĐANG GÕ) → `signoff.approvers` khi danh sách đúng một tên; **CẢNH BÁO**
@@ -56,15 +58,17 @@ chỉ khai QUYẾT ĐỊNH; danh tính, ngày, phút là điều máy biết:
   LẠI «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi.
   Mọi trả lời MANG NGHĨA KHẲNG ĐỊNH là xác nhận, dài hay ngắn, kể cả tin
   nhắn trống; chỉ trả lời nêu tên hoặc ngày khác mới là sửa danh tính
-  (sửa được cả tên lẫn ngày ở cùng dòng đó); người khai tường minh
-  tên+ngày → ghi thẳng, không hỏi. KHÔNG hỏi phút: người
+  (sửa được cả tên lẫn ngày ở cùng dòng đó); người tự khai phần nào thì phần đó ghi
+  thẳng; phần máy suy vẫn hiện trong dòng xác nhận, khai đủ thì không hỏi. KHÔNG hỏi phút: người
   khai `phút <số>` thì ghi đúng, vắng thì ghi 0 vào
-  `time_human_minutes.gate2`. Chữ «Ký» vẫn phải do NGƯỜI gõ — Enter xác
+  `time_human_minutes.gate2`. Ngày người nêu — trong câu gộp hoặc ở dòng xác
+  nhận — LUÔN thắng ngày máy suy. Chữ «Ký» vẫn phải do NGƯỜI gõ — Enter xác
   nhận chỉ xác nhận danh tính, không phải chữ ký.
 - Nhãn nào thẻ đang đòi mà câu gộp vắng hẳn → hỏi đúng nhãn đó (đó là câu
   hỏi QUYẾT ĐỊNH — máy không đề xuất thay); giá trị NGƯỜI ĐÃ GÕ nhưng mơ
   hồ → luật khuyến-nghị-trước của `GATE-ONESHOT-GRAMMAR`: nêu
-  cách hiểu khả dĩ nhất kèm căn cứ trích từ hồ sơ + xin xác nhận một chạm, chỉ hỏi
+  cách hiểu khả dĩ nhất kèm căn cứ trích từ hồ sơ (khối Out of scope đã
+  duyệt, sổ quyết định, trạng thái hồ sơ) + xin xác nhận một chạm, chỉ hỏi
   mở khi không có cách hiểu trội hơn HOẶC hiểu-sai-thì-đắt-khó-đảo. Ca mẫu (sự cố thật 11/08):
   «không cắt» đọc được hai chiều → đề xuất «đồng ý phạm vi đã khai» kèm căn cứ từ
   khối Out of scope đã duyệt ở Cổng 1, không hỏi mở. Đuôi tự do sau các
@@ -101,7 +105,10 @@ Steps:
    Danh tính, ngày, phút KHÔNG nằm trong danh sách này: tên/ngày máy suy
    theo bậc ở trên rồi hiển thị lại chờ xác nhận một chạm khi người chưa
    khai; `time_human_minutes.gate2` máy ghi (số người khai, vắng thì ghi 0).
-4. **Collect decisions in chat, item by item** (accept / reject). Apply the
+4. **Collect decisions in chat, item by item** — SKIP every item the
+   one-shot sentence already answered; only a label the card demands and the
+   sentence lacks entirely gets asked (asking again what the human just typed
+   is the two-turn gate this grammar exists to remove). Apply the
    human's dictated values VERBATIM via your file-edit tool so the
    write-time hook re-validates each write (a human editing outside the
    agent bypasses PreToolUse; CI re-check is the backstop). You contribute
@@ -151,7 +158,9 @@ Steps:
    violations.
 
 Never:
-- invent or assume a name, date, or verdict;
+- invent a verdict, or guess a name/date beyond the identity ladder
+  declared above (that ladder is the ONLY legal inference, and it always
+  echoes what it inferred for a one-touch confirm before writing);
 - upgrade a verdict while any override line is empty;
 - fold signature lines into the machine-evidence commit;
 - treat an unresolved PENDING-JUDGMENT as PASS.

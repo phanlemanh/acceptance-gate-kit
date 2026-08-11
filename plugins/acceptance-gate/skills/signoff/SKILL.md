@@ -41,8 +41,9 @@ only DECISIONS; identity, date and minutes are things the machine knows:
   (nothing gates the reading — two cross-check sources); **PICK** the highest rung
   that still has a name: `--as "<tên>"` → `git config user.name` (the
   signature belongs to the person TYPING) → `signoff.approvers` when it
-  holds exactly one name; **WARN** when the name about to be written is not
-  on that list — gentle warning naming it with its source and the name(s)
+  holds exactly one name;
+  **WARN** when the name about to be written is not in `signoff.approvers`
+  — gentle warning naming it with its source and the name(s)
   on the list, applying to a human-typed name too (own line), never
   blocking the write or adding a turn; **EXHAUSTED** (every rung empty, or
   only a multi-name list) → ask in one question, LISTING the candidates
@@ -51,11 +52,14 @@ only DECISIONS; identity, date and minutes are things the machine knows:
   ngày lệnh chạy; then echo «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận»
   BEFORE writing (any affirmative reply confirms, long or short, including
   an empty message; only a reply naming a different name or date corrects
-  the identity — and it may correct both at once; an explicitly typed
-  name+date needs no confirm). Do NOT ask for
+  the identity — and it may correct both at once; whatever the human typed is
+  written as-is; whatever the machine inferred still shows on the confirm
+  line, and a fully typed identity needs no confirm). Do NOT ask for
   minutes: the human's `phút <số>` if typed, otherwise ghi 0 into
-  `time_human_minutes.gate2`. The word «Ký» itself must still be typed by
-  the HUMAN — the confirm covers identity only, it is not the signature.
+  `time_human_minutes.gate2`. A date the human states — in the one-shot
+  sentence or on the confirm line — ALWAYS beats the inferred date. The word
+  «Ký» itself must still be typed by the HUMAN — the confirm covers identity
+  only, it is not the signature.
 - A label the card demands and the answer lacks entirely → ask about exactly
   that label (that is a DECISION question — the machine never proposes an
   answer for it); a value the human DID type but ambiguous → the
@@ -85,6 +89,8 @@ commands become `git -C <path> add _acceptance/<slug>/…` +
 
 ## 1. Resolve the feature
 
+Flags: `--repo <path>` (repo root) and `--as "<tên>"` (state the identity
+instead of letting the machine infer it — the shared-machine case).
 Accept an optional slug. Without one, scan for an `evidence-report.md` whose
 `verdict` is `PASS` or `PENDING-JUDGMENT` with empty `human_signoff` (one →
 use — hồ-sơ là điều máy biết: đúng MỘT ứng viên thì KHÔNG hỏi, chỉ hiển thị
@@ -120,7 +126,9 @@ typed, otherwise ghi 0).
 
 ## 5. Collect and apply
 
-Collect decisions in chat, item by item (accept / reject). Apply the
+Collect decisions in chat, item by item — SKIP every item the one-shot
+sentence already answered; only a label the card demands and the sentence
+lacks entirely gets asked. Apply the
 human's dictated values VERBATIM with `apply_patch`. You contribute no
 decision values of your own — identity/date/minutes follow the inference
 ladder, decisions never do. Any item the human rejects → the feature is
@@ -169,7 +177,9 @@ violations.
 
 ## 9. Preserve ownership
 
-- Never invent or assume a name, date, or verdict.
+- Never invent a verdict, or guess a name/date beyond the identity ladder
+  declared above (that ladder is the ONLY legal inference, and it always
+  echoes what it inferred for a one-touch confirm before writing).
 - Never upgrade a verdict while any override line is empty.
 - Never fold signature lines into the machine-evidence commit.
 - Never treat an unresolved PENDING-JUDGMENT as PASS.

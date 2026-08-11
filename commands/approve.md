@@ -9,7 +9,8 @@ moment and writes the real gate fields. It decides nothing itself: an explicit
 human YES in chat is the only trigger, and the PreToolUse hook re-validates
 every transition it writes.
 
-Arg: optional `<slug>`. Without it, scan `_acceptance/*/contract.md` for
+Cờ: `--repo <path>` (gốc kho) và `--as "<tên>"` (khai danh tính thay cho
+suy máy — ca máy dùng chung). Arg: optional `<slug>`. Without it, scan `_acceptance/*/contract.md` for
 `status: draft`:
 - exactly one → use it — hồ-sơ là điều máy biết: đúng MỘT ứng viên thì
   KHÔNG hỏi, chỉ hiển thị lại tên hồ sơ trong cùng lượt trả lời;
@@ -30,11 +31,12 @@ vẫn chạy nguyên):
 Câu gộp của lệnh này trả lời chỗ trống «duyệt hay sửa: ___» mà thẻ Cổng 1
 dạy — ngữ pháp đầy đủ ở khối `GATE-ONESHOT-GRAMMAR`. Người chỉ khai QUYẾT
 ĐỊNH; danh tính, ngày, phút là điều máy biết:
-- `duyệt[: <tên>][, phút <số>]` → chính là câu YES tường minh của bước 5:
+- `duyệt[: <tên> [<ngày>]][, phút <số>]` → chính là câu YES tường minh của bước 5:
   `<tên>` → `approved_by`; vắng tên → máy TỰ SUY, bốn luật tách bạch của
   `GATE-ONESHOT-GRAMMAR`: **ĐỌC** cả `git config user.name` lẫn
   `signoff.approvers`
-  (không điều kiện nào chặn việc đọc — đây là hai nguồn đối chiếu);
+  (không điều kiện nào chặn việc đọc — đây là hai nguồn đối chiếu; bậc
+  thang chọn GIÁ TRỊ, không chọn thứ được ĐỌC);
   **CHỌN** giá trị ở nấc cao nhất còn tên: `--as "<tên>"`
   → `git config user.name` (gốc lệnh đang chạy — chữ ký thuộc NGƯỜI ĐANG
   GÕ) → `signoff.approvers` khi danh sách đúng một tên; **CẢNH BÁO** khi
@@ -47,10 +49,12 @@ dạy — ngữ pháp đầy đủ ở khối `GATE-ONESHOT-GRAMMAR`. Người c
   «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi.
   Mọi trả lời MANG NGHĨA KHẲNG ĐỊNH là xác nhận, dài hay ngắn, kể cả tin
   nhắn trống; chỉ trả lời nêu tên hoặc ngày khác mới là sửa danh tính (sửa
-  được cả tên lẫn ngày ở cùng dòng đó). Người khai tường minh tên → ghi
-  thẳng, không hỏi. KHÔNG hỏi phút: `phút <số>` người khai thì ghi đúng số
+  được cả tên lẫn ngày ở cùng dòng đó). Người tự khai phần nào thì phần đó ghi thẳng; phần máy suy vẫn hiện
+  trong dòng xác nhận, khai đủ thì không hỏi. KHÔNG hỏi phút: `phút <số>` người khai thì ghi đúng số
   đó vào `time_human_minutes.gate1`, vắng thì ghi 0.
 - `sửa: <điều cần đổi>` → bước 4 với đúng nội dung đó (vẫn là Gate 1).
+- Ngày người nêu — trong câu gộp hoặc ở dòng xác nhận — LUÔN thắng ngày máy
+  suy, và đó là giá trị ghi vào `approved_at`.
 - Đuôi tự do sau các nhãn nhận ra được → GIỮ NGUYÊN VĂN, ghi vào sổ quyết
   định; phần mơ hồ → luật khuyến-nghị-trước của `GATE-ONESHOT-GRAMMAR`:
   nêu cách hiểu khả dĩ nhất kèm căn cứ trích từ hồ sơ + xin xác nhận một
@@ -87,26 +91,17 @@ Steps:
 4. **Edits requested** → apply them to `contract.md`/`evals.yaml` (pre-approval
    artifacts are agent-editable), re-render the card, ask again. Still Gate 1.
 5. **On an explicit YES only:**
-   - `approved_by` = the reviewer's name: take it from their approval message;
-     if absent, follow the four separate rules of `GATE-ONESHOT-GRAMMAR`:
-     **READ** both `git config user.name` and `signoff.approvers`
-     (nothing gates the reading — the two cross-check sources); **PICK**
-     the value from the highest rung that still has a name: `--as "<tên>"`
-     → `git config user.name` (the signature belongs to the person TYPING)
-     → `signoff.approvers` when it holds exactly one name; **WARN** when
-     the picked name is not in `signoff.approvers` — the confirm line
-     carries a gentle warning naming the picked name with its source and
-     the name(s) on the list, without blocking the write or adding a turn;
-     **EXHAUSTED** (every rung empty, or only a multi-name list left) →
-     ask for the name, one question. Then echo
-     «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận»
-     and wait for the one-touch confirm BEFORE writing (an explicit
-     name typed by the human needs no confirm). Never guess beyond the
-     ladder; never write an agent's name. The confirm covers IDENTITY only —
-     the decision was the human's explicit YES above.
+   - `approved_by` and the date: apply the identity rules declared ONCE at
+     the top of this file (ĐỌC / CHỌN / CẢNH BÁO / CẠN + the confirm echo)
+     — do not restate or re-derive them here, that duplicate is exactly how
+     the two copies drifted apart before. Never guess beyond the ladder;
+     never write an agent's name. The confirm covers IDENTITY only — the
+     decision was the human's explicit YES above.
    - Edit the contract frontmatter — `status: approved`, `approved_by`,
-     `approved_at` (ISO date, ngày lệnh chạy — máy ghi, không hỏi) — via
-     your file-edit tool so the write-time hook validates the transition.
+     `approved_at` — via your file-edit tool so the write-time hook
+     validates the transition. `approved_at` is the run date the machine
+     wrote, unless the human named a different date on the confirm line —
+     a date the human states there WINS and is what gets written.
    - `time_human_minutes.gate1`: KHÔNG hỏi — người khai `phút <số>` thì ghi
      đúng số đó, vắng thì ghi 0 (trường giữ nguyên cho schema cũ).
    - If `_acceptance/<slug>/decisions.jsonl` exists (feature-loop), append the
