@@ -1,0 +1,7 @@
+{"ts":"2026-08-11T04:20:51Z","round":1,"evalId":"E1","run_id":"mot-luot-go-cong-nguoi-E1-1786421926","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-11T04:20:51Z","round":1,"evalId":"E2","run_id":"mot-luot-go-cong-nguoi-E2-1786421926","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-11T04:20:51Z","round":1,"evalId":"E3","run_id":"mot-luot-go-cong-nguoi-E3-1786421926","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-11T04:20:51Z","round":1,"evalId":"E4","run_id":"mot-luot-go-cong-nguoi-E4-1786421926","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-11T04:20:51Z","round":1,"evalId":"E5","run_id":"mot-luot-go-cong-nguoi-E5-1786421926","exit_code":0,"cmd":"bash _acceptance/mot-luot-go-cong-nguoi/no-ben-viet-drift.sh"}
+{"ts":"2026-08-11T04:20:51Z","round":1,"evalId":"E6","run_id":"mot-luot-go-cong-nguoi-E6-1786421926","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
+{"ts":"2026-08-11T04:20:51Z","round":1,"kind":"panel","evalId":"E7","verdict":"UNCERTAIN","lenses":["nguoi-go-ca-approve","nguoi-go-ca-signoff","ro-rang-chi-dan"]}
