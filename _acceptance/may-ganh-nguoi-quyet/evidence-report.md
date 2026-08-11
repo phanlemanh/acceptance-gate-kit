@@ -24,7 +24,7 @@ verify trước ĐỎ và đã sửa VẬT chứ không sửa đáp án; xem `##
 | E4 | AC-4 | test | PASS |
 | E5 | AC-5 | script | PASS |
 | E6 | AC-6 | script | PASS |
-| E7 | AC-7 | judgment | UNCERTAIN (chờ mắt người) |
+| E7 | AC-7 | judgment | UNCERTAIN |
 
 ## Evidence
 
