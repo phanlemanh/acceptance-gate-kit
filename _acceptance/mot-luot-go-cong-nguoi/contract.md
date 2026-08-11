@@ -180,6 +180,12 @@ khai CÓ Ý THỨC ở known-limits trong Notes.
   ĐẦU của owner sau khi ship — nếu lệnh hiểu sai câu gộp, ghi sổ vấp và mở
   chip vá theo lớp (đường revisit đã khai ở sổ quyết định d-10004: cân
   parser bằng code khi có vấp thật).
+- **Finding tại Cổng 2 → hồ sơ ③b (KHÔNG sửa trong chip này):** owner gõ
+  thật câu ký và nêu «danh tính + ngày là dư — máy phải tự suy» (tên suy từ
+  `signoff.approvers` khi duy nhất, ngày = hôm nay; chữ «Ký» vẫn là hành vi
+  người, bất biến máy-không-ký-thay không suy suyển). Owner xác nhận tách
+  thành hồ sơ ③b riêng, điều kiện vào: PR chip ③ merged. Lời nguyên văn ghi
+  ở khối bằng chứng E7.
 - **known-limits 2:** đường gộp của `/start` (chọn-trước bằng slug) không
   có dòng «Trả lời mẫu» máy-render để round-trip — AC-2 không phủ nó; chỉ
   có needle-pin trong grammar (AC-1f) + bản chép (AC-3). Hành vi model của
