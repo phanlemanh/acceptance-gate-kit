@@ -79,6 +79,67 @@ dung). Với |A| = 26 → kỳ vọng **147**. Con số này khai ở đây TRƯ
 thuật; nếu đo ra khác 147 thì có ca bị gỡ nhầm hoặc gỡ sót, và phải đi tìm chứ
 không sửa số.
 
+## ⚠ SỐ ĐO LỆCH THỨ TƯ — «56 ca đỏ» là con số của một phép đo BỊ CẮT CỤT; thật ra 73
+
+*Ghi bởi Phiên C, 12/08, trước khi phẫu thuật.*
+
+Ba nhóm A/B/C ở trên cộng lại ra **59 tên**, trong khi tiêu đề ghi «đỏ 56 ca».
+Đi tìm nguyên nhân thay vì chọn một số, và lôi ra hai thứ:
+
+**(a) Vì sao 59 tên mà chỉ 56 dòng đỏ.** `P39` sinh **hai** dòng đỏ (hai phân
+ca), còn `P162` `P173` `P175` `P181` **không hề chạy** — không đỏ, không xanh,
+vắng mặt. `59 − 4 + 1 = 56`. Bốn ca ấy được Phiên A phân loại bằng cách ĐỌC
+tệp, nên phân loại đúng; chỉ có phép đo là không nhìn thấy chúng.
+
+**(b) Vì sao chúng vắng mặt — một khối thoát-sớm lạc giữa tệp.**
+`tests/plugins/run-tests.sh` có một bản sao của khối tổng kết đuôi nằm ở giữa
+tệp (ngay sau P148): *hễ đã có ca đỏ nào, in `Results: N failed` rồi `exit 1`*.
+Mọi ca từ P149 tới P194 — **46 ca** — không bao giờ chạy khi có ca đỏ phía
+trước. Suite in ra một dòng tổng kết trông hoàn toàn bình thường, nên không có
+tín hiệu nào cho biết một phần ba bộ kiểm vừa bị nuốt. Đúng lớp
+**runner-nuốt-mã-thoát** đã ghi sổ (ba-lop-che-mau-xanh).
+
+Khối này **có sẵn từ trước**, không do đợt này sinh ra: `git log -S` chỉ về
+`044968e` (judge-required-evidence, 05/08) — khối đuôi bị chép kèm lúc nối thêm
+P149+. Tại mốc `truoc-luu-kho-2026-08` cây xanh trọn nên nó chưa bao giờ lộ.
+
+**Đã gỡ khối đó** (bugfix phép đo, tách commit riêng). Vì AC-11 là một ĐẲNG
+THỨC số ca, phép đo của chính nó không được phép cắt cụt đầu vào — không gỡ thì
+tiêu chí trung tâm của hồ sơ này không đo được điều nó nói.
+
+### Số đo THẬT sau khi chữa phép đo
+
+| Cây | Ca chạy | Xanh | Đỏ |
+|---|---|---|---|
+| Mốc `truoc-luu-kho-2026-08` | **173** | 173 | 0 |
+| Cây hiện tại (đã gỡ 197 file) | **173** | 100 | **73** |
+
+Baseline 173 nay là số **đo được**, không phải số chép lại từ hợp đồng. Tổng ca
+hai bên bằng nhau xác nhận: tới lúc này chưa ca nào bị gỡ, cả 73 ca đều đang
+chờ mổ.
+
+**13 ca đỏ mà phân loại cũ chưa hề biết** (bị khối thoát-sớm che): `P156`
+`P164` `P165` `P166` `P167` `P168` `P169` `P170` `P176` `P178` `P188` `P193`
+`P194`. Đã đọc từng ca: **không ca nào thuộc nhóm A**. Mười hai ca đọc bản
+Codex/mirror song song với nguồn (nhóm **B** — trim về nửa Claude); riêng
+`P164` trỏ `plugins/feature-loop-codex/scripts/carry-plan.mjs` trong khi nguồn
+`feature-loop/scripts/carry-plan.mjs` vẫn sống (nhóm **C** — trỏ lại nguồn).
+
+**Hệ quả cho con số kỳ vọng: `147` KHÔNG ĐỔI.** Nhóm B và C giữ nguyên số ca,
+nên 13 ca mới lộ không dịch chuyển đẳng thức: `173 − |A|=26 = 147`. Khác biệt
+là bây giờ nó dựa trên baseline đo được và một tập đỏ đầy đủ, chứ không dựa
+trên một phép đo bị cắt cụt — con số cũ đúng vì may, không phải vì kín.
+
+**Phân loại chốt lại (72 mã, 73 dòng đỏ):**
+- **A — xoá hẳn (26):** như trên, không đổi.
+- **B — trim về một harness (26):** 14 cũ + 12 mới.
+- **C — trỏ lại nguồn, CẤM XOÁ (20):** 19 cũ + `P164`.
+
+### Gỡ sót đã tìm thấy cùng lượt
+
+`.codex-plugin/plugin.json` ở gốc repo **vẫn còn trên cây** — đề bài 1b.1 gọi
+đích danh nó («`.codex-plugin/` nếu có»). Gỡ nốt trong đợt phẫu thuật này.
+
 ## Còn lại (chưa làm)
 
 1. Phẫu thuật `tests/plugins/run-tests.sh` theo ba nhóm A/B/C ở trên — 56 ca,

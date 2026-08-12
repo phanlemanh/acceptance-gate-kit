@@ -49,8 +49,13 @@ eval ĐỎ, không phải bỏ qua.
   verify đỏ vĩnh viễn theo đúng luật fail-closed.
 - AC-2: Given cây đã gỡ, When liệt kê đường dẫn, Then `codex/`, `tests/codex/`,
   `scripts/codex-self-script-refs.tsv`, `.agents/`, `design-loop/`,
-  `tests/design-loop/` **không còn trên cây**; đối chứng dương: cả sáu đều tồn
-  tại ở cây của mốc `truoc-luu-kho-2026-08`.
+  `tests/design-loop/`, **`.codex-plugin/`** **không còn trên cây**; đối chứng
+  dương: cả bảy đều tồn tại ở cây của mốc `truoc-luu-kho-2026-08`.
+  **[SỬA SAU CỔNG 1 — 12/08, Phiên C]** Thêm `.codex-plugin/`: đề bài 1b.1 gọi
+  đích danh nó («`.codex-plugin/` nếu có») nhưng bản trước của AC-2 không liệt
+  kê, và đợt gỡ 197 file bỏ sót nó thật — manifest Codex ở gốc repo còn nguyên
+  trên cây. Thiếu vế này thì hồ sơ tuyên «đã lưu kho Codex» xong vẫn để lại
+  đúng cái tệp khai báo gói Codex.
 - AC-3: Given hai marketplace, When đọc `.claude-plugin/marketplace.json`, Then
   entry `design-loop` đã gỡ và hai entry còn lại (`acceptance-gate`,
   `feature-loop`) trỏ nguyên vẹn; `.agents/plugins/marketplace.json` không còn
@@ -72,6 +77,15 @@ eval ĐỎ, không phải bỏ qua.
   chung** ("một vòng lặp thiết kế đối chiếu bản dựng với bản thiết kế gốc"),
   không trỏ plugin. Miễn trừ này phải kèm chân ĐỎ-NGOÀI-DANH-SÁCH (xem AC-12),
   vì một allowlist không có chân đó biến lưới fail-loud thành fail-silent.
+  **[SỬA SAU CỔNG 1 — 12/08, Phiên C] Miễn trừ thứ hai: NHẬT KÝ PHIÊN BẢN trong
+  `.claude-plugin/plugin.json` và `feature-loop/.claude-plugin/plugin.json`.**
+  Trường `description` của hai manifest này là một dải sử liệu phát hành nối dài
+  nhiều bản ("v1.7 adds design-loop-aware guards…", "pairing with design-loop's
+  layout-token-only blocking rule"). Đó là **lịch sử**, không phải con trỏ sống:
+  không dòng nào trong đó bảo máy hay người đi tìm một vật đã lưu kho. Viết lại
+  changelog cho lint xanh là **xoá lịch sử để lấy màu** — sai đổi, và trùng
+  đúng lớp «hạ thước cho vừa vật». Miễn trừ giới hạn ở **trường `description`
+  của đúng hai tệp đã nêu**, kèm chân ĐỎ-NGOÀI-DANH-SÁCH ở AC-14.
 - AC-12: Given danh sách miễn trừ của AC-4, When tiêm một tham chiếu
   `design-loop` MỚI vào một file khác trong `skills/ux-ui-craft/`, Then lưới
   vẫn ĐỎ và ghim đúng file vừa tiêm — miễn trừ chỉ che đúng một dòng đã khai,
@@ -129,11 +143,42 @@ eval ĐỎ, không phải bỏ qua.
   xanh **và số ca khớp ĐẲNG THỨC khai trước**, không phải khớp một cái sàn:
   `scripts` **671 → 664** (gỡ 7 assert `DSC01–03` + `SG1–4` trong
   `tests/scripts/run-tests.sh:1390-1406` gọi thẳng script của design-loop) ·
-  `plugins` **173 → 173 trừ số ca của P30** · `hooks` **54 → 54** ·
+  `plugins` **173 → 147** · `hooks` **54 → 54** ·
   `workflows` **62 → 62**. Đỏ ghim "so ca lech ky vong: <truoc> -> <sau>".
   **Sàn `≥` không dùng được cho một suite bị chủ ý làm teo** — nó chỉ đúng cho
   suite không đụng tới; dùng sàn ở đây thì lúc S4 đỏ, đường thoát tự nhiên là
   hạ con số xuống mức vừa đo, và phép đo mất hẳn khả năng bắt gỡ-nhầm.
+  **[SỬA SAU CỔNG 1 — 12/08, Phiên C] Con số `plugins` thay «173 trừ số ca của
+  P30» bằng `147`, khai TRƯỚC khi mổ.** Bản duyệt giả định thiệt hại gói gọn
+  trong một ca; đo trên vật cho thấy **73 ca đỏ**, và chúng chia ba nhóm có
+  hệ quả số học khác nhau: **A — xoá hẳn (26 ca** chỉ tồn tại vì Codex/mirror**)**,
+  **B — trim về nửa Claude (26 ca**, giữ nguyên số ca**)**, **C — trỏ lại nguồn
+  (20 ca**, giữ nguyên số ca; gói Claude nay CHÍNH LÀ cây nguồn nên câu hỏi
+  «gói có ship đủ file không?» vẫn còn nghĩa, chỉ đổi chỗ hỏi**)**. Vậy
+  `173 − 26 = 147`. **Xoá nhóm C là cách rẻ nhất để suite xanh lại và cũng
+  chính là «gỡ quá tay» mà đẳng thức này sinh ra để bắt** — nếu đo ra 127 thì
+  nhóm C đã bị xoá, không phải đẳng thức sai. Đo ra khác 147 ⇒ đi tìm ca gỡ
+  nhầm/gỡ sót, KHÔNG sửa số. Baseline `173` là số **đo được** trên cây của mốc
+  (173/173 xanh), không phải số chép từ bản duyệt.
+- AC-14: Given miễn trừ nhật-ký-phiên-bản của AC-4, When tiêm một tham chiếu
+  `design-loop` MỚI vào một **trường khác** của cùng `plugin.json` (ví dụ
+  `interface.longDescription`) và vào `description` của một manifest thứ ba,
+  Then lưới vẫn ĐỎ và ghim đúng tệp + trường vừa tiêm — miễn trừ chỉ che đúng
+  một trường của hai tệp đã khai, không che cả tệp và không che cả họ
+  `*/plugin.json`. Không có chân này thì miễn trừ vừa thêm biến lưới fail-loud
+  thành fail-silent trên đúng loại tệp mà mọi lần bump phiên bản đều chạm.
+- AC-15: Given `tests/plugins/run-tests.sh` và một ca đỏ được tiêm ở **đầu**
+  tệp, When chạy trọn suite, Then suite vẫn chạy tới ca **cuối cùng** và tổng
+  số ca in ra bằng đúng tổng lúc xanh — không có khối `exit` nào giữa tệp cắt
+  cụt phép đo; đối chứng dương: cùng phép tiêm chạy trên cây của mốc cho tổng
+  ca **nhỏ hơn hẳn** (bằng chứng lỗi có thật, không phải tiêu chí trang trí).
+  **Vì sao đây là tiêu chí chứ không phải bugfix lặng lẽ:** một bản sao của
+  khối tổng kết đuôi nằm lạc ở giữa tệp (lọt vào từ `044968e`, 05/08) khiến
+  **46 ca cuối không bao giờ chạy khi có ca đỏ phía trước**, mà dòng tổng kết
+  in ra vẫn trông bình thường. AC-11 là một ĐẲNG THỨC SỐ CA, nên nó không thể
+  đo cái nó nói khi đầu vào bị cắt cụt — chữa phép đo là điều kiện cần để AC-11
+  có nghĩa, và nếu không ghim thành tiêu chí thì lần nối ca kế tiếp lại chép
+  khối ấy vào lần nữa.
 
 ## Coverage
 
