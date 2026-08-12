@@ -6096,12 +6096,6 @@ else
   fail "P148 lot dau may o moi fallback tho (gwt, oos wrap, decLine x3, critText)"
 fi
 
-if [ "$failures" -gt 0 ]; then
-  echo
-  echo "Results: $failures failed"
-  exit 1
-fi
-
 
 # ── P149-P154: judge-required-evidence ───────────────────────────────────────
 echo "P149 (JR4) khuon JUDGMENT-BLOCK-TEMPLATE round-trip qua evidence-core that"
