@@ -1,5 +1,12 @@
 # Báo cáo kết quả — đợt tái lập kit (08 → 11/08/2026)
 
+> **[THAY THẾ 12/08]** Bản này đúng về hướng nhưng **sai 5 chỗ đếm được** (100
+> commit → thật 121 · 72 dòng sổ vấp → 73 · "main clean" trong khi main đang ĐỎ ·
+> "mọi phiên đã nghỉ" trong khi main còn nhận 5 commit + 1 chữ ký mới · số lượt
+> gọi người ở chip ③b). Dùng bản tổng kết lớn thay cho bản này:
+> [2026-08-12-tong-ket-lon-dot-tai-lap.md](2026-08-12-tong-ket-lon-dot-tai-lap.md)
+> — 31 lượt agent khai quật + phản biện từng con số trên vật.
+
 *Soạn: phiên B theo yêu cầu owner ("tổng kết lớn như báo cáo kết quả dự án").
 Mọi con số dưới đây kiểm từ git tại thời điểm soạn; chỗ nào không đo được thì
 nói rõ là không đo được. Chốt trạng thái: kit main `e943f96`, acceptance-gate
