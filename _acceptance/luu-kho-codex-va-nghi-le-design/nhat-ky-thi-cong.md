@@ -225,6 +225,38 @@ Ba đường, đã cân:
 **Cần owner/B veto nếu không đồng ý** — đây là chỗ duy nhất trong đợt này mà
 tôi chọn mất một mẩu độ phủ thay vì chạm vào sử liệu đã ký.
 
+## ✅ SUITE `plugins`: ĐẲNG THỨC GIỮ ĐƯỢC — 145/145 xanh
+
+Đo sau khi mổ xong: **145 ca, 145 xanh, 0 đỏ.** Đúng bằng `173 − 26 − 2` đã
+khai TRƯỚC. Số này đi qua ba lần chỉnh (147 → 146 → 145), **mỗi lần đều trước
+một phép đo**, mỗi lần vì đọc ra một ca không có đích để trỏ về — không lần
+nào vì thấy số đo rồi mới sửa.
+
+### Bốn thứ lộ ra trong lúc chữa 8 ca đỏ cuối
+
+1. **Bánh cóc chống hạ-thước làm đúng việc của nó.** `P161`/E11 so bộ kiểm với
+   mốc so-bản-cũ và bắt được **106 assert biến mất**. Đường đúng không phải nới
+   chốt mà là **khai ra**: thêm `tests/plugins/asserts-da-go.txt` liệt kê từng
+   dòng đã gỡ, và chốt chạy HAI CHIỀU — assert mất mà không khai thì đỏ, dòng
+   khai mà assert vẫn còn cũng đỏ (chặn thói đổ sẵn danh sách dài cho khỏi
+   nghĩ). Đã phá thử cả hai chiều, cả hai đều đỏ đúng thông điệp.
+2. **Danh sách site sống trong BẢN LUẬT, không trong bộ kiểm.** `P188`/`P193`
+   vẫn đọc đường dẫn Codex sau khi tệp suite đã sạch, vì khuôn
+   `GATE-INVITE-SITES` / `GATE-ONESHOT-SITES` nằm trong
+   `human-facing-language.md`. Bài học: quét tham chiếu chết phải quét cả **dữ
+   liệu bên ĐỌC**, không chỉ mã bên chạy.
+3. **Đột biến neo vào vật đã chết là đột biến chết.** Sau khi trỏ nạn nhân về
+   bản Claude, ba đột biến (`MUT-8`, `MUT-12`, `P194`) vẫn dùng needle tiếng
+   Anh của bản Codex nên "không tác dụng" — ca xanh mà chẳng chứng minh gì nếu
+   không có chốt `assert mut != goc`.
+4. **Bộ sinh nằm trong hồ sơ đã ký** (`stop-patching-law/make-record.mjs`) ghim
+   cứng harness Codex. Không xoá ca, không viết lại bằng chứng đã ký: cho bộ
+   sinh **bỏ qua harness vắng và NÓI RA** (một dòng stderr). Nhánh còn lại sinh
+   ra y nguyên byte như bản đã commit ⇒ không dòng bằng chứng nào bị viết lại.
+   `P168` cũng vậy: bảng đột biến trong hợp đồng cũ giữ nguyên (vẫn khai 16 ca,
+   vẫn đối chiếu với con số khai bằng chữ), phần chạy được lọc còn 8 và **in ra
+   số ca bỏ qua** — cắt im lặng đọc y hệt "đã phủ hết".
+
 ## TRẠNG THÁI BÀN GIAO (Phiên C, 12/08 — nối tiếp chính xác từ đây)
 
 **Đã xong ở lượt này:** bugfix khối thoát-sớm (`feab99b`) · sửa-sau-Cổng-1 có

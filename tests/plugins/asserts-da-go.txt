@@ -1,0 +1,121 @@
+# ASSERT ĐÃ GỠ — khai tường minh, không gỡ lặng lẽ
+#
+# Chốt E11 của P161 là bánh cóc chống hạ-thước: assert cũ chỉ được THÊM. Khi
+# một đợt lưu kho làm chết cả một vùng đo, bánh cóc phải mở bằng một lời KHAI,
+# không phải bằng cách nới chốt. Mỗi dòng dưới đây là một assert từng có ở mốc
+# so-bản-cũ và nay KHÔNG còn trên cây.
+#
+# Chốt chạy HAI CHIỀU: (a) assert biến mất mà KHÔNG có trong file này → ĐỎ;
+# (b) dòng khai ở đây mà assert VẪN còn trên cây → cũng ĐỎ. Vế (b) chặn thói
+# quen đổ sẵn một danh sách dài cho khỏi phải nghĩ.
+#
+# Đợt khai: 2026-08-12 — hồ sơ luu-kho-codex-va-nghi-le-design. Toàn bộ 105 dòng
+# dưới đây thuộc các ca chỉ tồn tại vì harness Codex, bản mirror plugins/, hoặc
+# nghi lễ design-loop; lý do từng ca ghi trong nhật ký thi công của hồ sơ đó.
+# Dòng bắt đầu bằng # là chú thích.
+
+assert plugins["acceptance-gate"]["source"]["path"] == "./plugins/acceptance-gate"
+assert plugins["feature-loop-codex"]["source"]["path"] == "./plugins/feature-loop-codex"
+assert plugins["design-loop"]["source"]["path"] == "./plugins/design-loop-codex"
+assert "feature-loop" not in plugins
+assert len(versions) == 1, f"ba manifest lệch nhau: {versions}"
+assert root_claude["version"], "version rỗng"
+assert pkg_codex == overlay_codex, "run scripts/sync-plugin-packages.sh"
+assert (root / rel).is_file(), rel
+assert data["name"] == "feature-loop-codex"
+assert data["skills"] == "./skills/"
+assert data["description"]
+assert len(versions) == 1, f"ba manifest feature-loop lech nhau: {versions}"
+assert data["version"], "version rong"
+assert src.read_bytes() == pkg.read_bytes(), "run scripts/sync-plugin-packages.sh"
+assert "name: feature-loop-codex" in text
+assert "version: 1.14.0" in text
+assert "Codex" in text
+assert "acceptance-gate" in text
+assert "spawn_agent" in text
+assert "feature_loop.suite_keys" in text
+assert "design-loop" in text
+assert "provenance.json" in text
+assert "fidelity pixel-diff" in text
+assert "review-findings.md" in text
+assert "PENDING-JUDGMENT" in text
+assert "time_human_minutes.gate1" in text
+assert "doer" in text and "grader" in text
+assert "runs" in text and "pass_rate" in text
+assert "baseline" in text
+assert "should-NOT-fire" in text
+assert "enforcement_mode" in text and "bypass_used" in text
+assert "acceptance-card" in text and "evidence-page.html" in text
+assert re.search(r"Never create or suggest a goal that reaches\s+`signed-off`", text)
+assert "Workflow(" not in text
+assert "feature-loop/workflows" not in text
+assert ".claude/plugins/cache" not in text
+assert (source / rel).is_file(), rel
+assert (package / rel).is_file(), f"run scripts/sync-plugin-packages.sh: {rel}"
+assert (source / rel).read_bytes() == (package / rel).read_bytes(), rel
+assert src.read_bytes() == pkg.read_bytes(), f"run scripts/sync-plugin-packages.sh: {rel}"
+assert manifest["name"] == "design-loop"
+assert manifest["skills"] == "./skills/"
+assert "commands" not in manifest
+assert manifest["version"] == "0.3.0"
+assert manifest == overlay_manifest
+assert needle in skill or needle in readme, needle
+assert "design_tier" not in fl and "design_tier" not in ds, "không được lưu field tier"
+assert "CT2" in ds and "CT1" in ds, "design-subtrack phải tham chiếu công tắc"
+assert "--require-html" in fl and "--require-html" in ds, "lane nhẹ phải khai flag require-html"
+assert "decisions.jsonl" in (root / "plugins/acceptance-gate/scripts/gate-card.js").read_text(), "chạy scripts/sync-plugin-packages.sh"
+assert json.loads((root / "codex/design-loop/.codex-plugin/plugin.json").read_text())["version"] == "0.3.0"
+assert _fl_c and _fl_c == _fl_x, f"feature-loop lệch giữa bản Claude ({_fl_c}) và Codex ({_fl_x})"
+assert (root / "plugins/design-loop-codex/.codex-plugin/plugin.json").is_file()
+assert not (package / ".claude-plugin").exists(), rel
+assert not (package / "commands").exists(), rel
+assert "CLAUDE_PLUGIN_ROOT" not in text
+assert "${PLUGIN_ROOT}" in codex_hooks
+assert "acceptance-evidence-gate-codex.js" in codex_hooks
+assert (skills / name / "SKILL.md").is_file(), name
+assert "acceptance-init" in main
+assert "acceptance-card" in main
+assert "apply_patch adapter" in main
+assert needle in main, needle
+assert "card-plain.json" in card and "evidence-page.html" in card
+assert "PENDING-JUDGMENT" in status and "Gate 2" in status
+assert "approved_by" in appr and "decisions.jsonl" in appr and "gate1_skipped" in appr
+assert "require_human_commit" in sign and "human_override" in sign and "pre-merge-check.sh" in sign
+assert "baseline_minutes" in rep and "time_human_minutes" in rep and "Read-only" in rep
+assert not (root / "commands").exists()
+assert not (root / ".claude-plugin").exists()
+assert (root / "skills" / name / "SKILL.md").is_file(), name
+assert "invoke `/design-sync`" not in text
+assert "invoke `/design-login`" not in text
+assert (root / "plugins/acceptance-gate/scripts/gate-card.js").read_text() == gc, "chạy scripts/sync-plugin-packages.sh"
+assert "gap-probe" in flc and "bỏ gap-probe" in flc
+assert "gap_probe" in (root / "codex/acceptance-gate/skills/acceptance-card/SKILL.md").read_text()
+assert y.exists(), f"{y} missing"
+assert "allow_implicit_invocation: false" in t, f"{y} lacks policy lock"
+assert not card.exists() or "allow_implicit_invocation: false" not in card.read_text(), \
+assert pkg.exists(), "Codex package missing resolve-plugin.mjs — run scripts/sync-plugin-packages.sh"
+assert pkg.read_text() == src, "Codex copy drifted from feature-loop/scripts/resolve-plugin.mjs"
+assert d != claude, f"{rel}: description la ban sao NGUYEN VAN cua goi Claude"
+assert "Codex" in d, f"{rel}: description khong nhac Codex — mat ban sac goi"
+assert claude_only not in d, f"{rel}: quang cao be mat chi-co-Claude {claude_only!r}"
+assert len(present) == 2, f"thieu ban acceptance-init: {[str(p) for p in targets if not p.exists()]}"
+assert len(texts) == 3 and all(len(x) > 200 for x in texts.values()), "sanity: vung quet rong/thieu"
+assert p.exists(), "mirror thieu skills/design-pass — chay scripts/sync-plugin-packages.sh"
+assert "name: design-pass" in t, "mirror SKILL.md khong doc duoc frontmatter name"
+assert "DESIGN-PASS-NOTE-TEMPLATE" in t, "mirror SKILL.md thieu khuon marker"
+assert "suggest the native Codex `/goal` command" in codex_t, "codex SKILL mat dong goi y /goal native"
+assert "Never create or suggest a goal that reaches" in codex_t, "codex SKILL mat rao chan signed-off"
+assert "câu hỏi lane" not in ds, "design-subtrack van tro ve 'câu hỏi lane' da xoa — chi dan lech giua 2 plugin"
+assert ver("codex/feature-loop-codex/.codex-plugin/plugin.json") >= (1, 22, 0), "feature-loop-codex chua bump toi 1.22.0"
+assert "platform-fit" in desc("codex/feature-loop-codex/.codex-plugin/plugin.json"), "desc codex thieu platform-fit"
+assert len(SITES) == 8, "danh sach cho tro khong du 8"
+assert check_codex(PKG) == [], check_codex(PKG)          # doi chung DUONG goi Codex
+assert check_codex(c2) == [], f"ban sao goi NGUYEN VEN phai XANH truoc: {check_codex(c2)}"
+assert any("khong rut duoc con tro ban luat" in x for x in e2), \
+assert m, "khuon Codex khong khai product_map"
+assert lenh[0] == "node", f"lenh la: {lenh}"
+assert runner.is_file(), "khong tim thay codex-plugin-runner.mjs"
+assert "unsupported plugin/action" in ba, \
+assert bia.returncode == 2, f"action bia phai exit 2, duoc {bia.returncode}"
+assert "unsupported plugin/action" not in ra, \
+assert len(THAN) >= 5, f"quet ra {len(THAN)} than cong co buoc regen — mong >=5, nghi buoc quet hong: {THAN}"

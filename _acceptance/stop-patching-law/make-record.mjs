@@ -82,7 +82,15 @@ const HARNESS = {
   codex: 'codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md',
 };
 
+// Harness đã lưu kho thì BỎ QUA và NÓI RA (2026-08-12, lưu kho Codex): bộ sinh
+// này là CÔNG CỤ mà bộ kiểm sống còn chạy, không phải bằng chứng đã ký. Nhánh
+// còn lại sinh ra y nguyên byte như bản đã commit, nên không có dòng bằng chứng
+// nào bị viết lại; nhánh vắng chỉ đơn giản không được sinh lại.
 for (const [name, rel] of Object.entries(HARNESS)) {
+  if (!fs.existsSync(path.join(ROOT, rel))) {
+    process.stderr.write(`BỎ QUA harness ${name}: ${rel} không còn trên cây (đã lưu kho)\n`);
+    continue;
+  }
   const t = fs.readFileSync(path.join(ROOT, rel), 'utf8');
   const i = t.indexOf(OPEN);
   const j = t.indexOf(CLOSE);

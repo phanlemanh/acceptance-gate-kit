@@ -1757,7 +1757,7 @@ assert cited_marker_ok(LAW, _ctx_typo), \
 _typo = CLAUSE.replace("DECISION-DIAGRAM-SURFACES", "DECISION-DIAGRAM-SURFACE")
 assert cited_marker_ok(LAW.replace(CLAUSE, _typo, 1), _typo), \
     "danh sai ten bang tra trong khuon ma khong bi bat — con tro chet van xanh"
-lp2 = LOOPS[1]
+lp2 = LOOPS[0]
 m3 = lambda rel: live(rel).replace(CLAUSE, CLAUSE.replace("kèm hình", "kèm sơ đồ"), 1) if rel == lp2 else live(rel)
 assert f"{lp2}: cau ve hinh lech khuon mot-nguon" in check(m3), \
     "dot bien sua mot chu trong khuon khong do dung thong diep"
@@ -6567,7 +6567,21 @@ with tempfile.TemporaryDirectory() as d:
     old_asserts = [l.strip() for l in r.stdout.split("\n") if l.strip().startswith("assert ")]
     new_text = (root / "tests/plugins/run-tests.sh").read_text(encoding="utf-8")
     missing = [l for l in old_asserts if l not in new_text]
-    assert not missing, "assert CU bi doi/xoa (ha thuoc cho vua vat): %r" % missing[:3]
+    # Duong KHAI-DOI-THUOC: mot dot luu kho lam chet ca mot vung do thi banh coc
+    # phai mo bang LOI KHAI, khong phai bang cach noi chot. Hai chieu:
+    #   (a) assert bien mat ma KHONG khai -> DO (ha thuoc lang le);
+    #   (b) dong khai ma assert VAN con tren cay -> cung DO (danh sach do san,
+    #       khai cho co de khoi phai nghi).
+    decl_p = root / "tests/plugins/asserts-da-go.txt"
+    declared = []
+    if decl_p.exists():
+        declared = [l.strip() for l in decl_p.read_text(encoding="utf-8").split("\n")
+                    if l.strip() and not l.startswith("#")]
+    khong_khai = [l for l in missing if l not in declared]
+    assert not khong_khai, "assert CU bi doi/xoa ma KHONG khai trong tests/plugins/asserts-da-go.txt (ha thuoc cho vua vat): %r" % khong_khai[:3]
+    khai_thua = [l for l in declared if l in new_text]
+    assert not khai_thua, "dong khai trong asserts-da-go.txt ma assert VAN con tren cay — danh sach khai bi do san: %r" % khai_thua[:3]
+    print("     E11 banh coc: %d assert cu, %d da go va DEU duoc khai" % (len(old_asserts), len(missing)))
 
 # ══ E10: dem cho goi ham lot TU MA NGUON == con so khai o truc C ══
 calls = len(re.findall(r"stripMd\(", CARD.read_text(encoding="utf-8")))
@@ -7161,7 +7175,7 @@ for line in tbl.splitlines():
         errs.append(f'bảng STOP-PATCH-MUTANTS: dòng {line!r} không đủ 3 cột')
         continue
     ca, ban, phrase = parts
-    for h in (['claude'] if ban == 'cả hai' else [ban]):
+    for h in (['claude', 'codex'] if ban == 'cả hai' else [ban]):
         rows.append((ca, h, phrase))
 
 expected_n = 0
@@ -7172,6 +7186,14 @@ for line in tbl.splitlines():
 if len(rows) != expected_n:
     errs.append(f'ma trận đột biến: dựng {len(rows)} ca nhưng bảng khai {expected_n}')
 
+# Harness da luu kho: bang van khai DU (no la khai-truoc cua ho so cu, khong
+# duoc sua), nhung chi chay duoc hang cua harness CON SONG. Loc phai NOI RA so
+# hang bo qua — cat im lang doc y het "da phu het".
+LIVE = set(HARNESS)
+rows_all, rows = rows, [r for r in rows if r[1] in LIVE]
+bo_qua = len(rows_all) - len(rows)
+print(f'P168 pham vi: {len(rows)}/{len(rows_all)} ca chay duoc, bo qua {bo_qua} ca cua harness da luu kho ({sorted(set(r[1] for r in rows_all) - LIVE)})')
+
 # SAN TUYET DOI + NGUON DOC LAP (S4-r1: hai ve dem cu deu suy tu CUNG bang, nen
 # xoa sach than bang van in "P168 OK (0 ca)" — hang-dung). Nay ca so ca phai:
 #   (a) >= FLOOR ghim cung trong chinh phep do (xoa bang => 0 < 16 => DO)
@@ -7179,6 +7201,11 @@ if len(rows) != expected_n:
 FLOOR = 16
 if expected_n < FLOOR:
     errs.append(f'ma trận đột biến: bảng chỉ sinh {expected_n} ca, sàn tuyệt đối là {FLOOR} — bảng bị xoá/thu nhỏ?')
+# San rieng cho phan CHAY DUOC: mot harness bi luu kho lam nua ma tran ngung
+# chay, nhung khong duoc phep tut them nua.
+FLOOR_LIVE = FLOOR // 2
+if len(rows) < FLOOR_LIVE:
+    errs.append(f'ma trận đột biến: chỉ còn {len(rows)} ca chạy được, sàn là {FLOOR_LIVE}')
 m = re.search(r'Tổng số ca\s*=\s*[^=]*=\s*\*\*(\d+)\*\*', CONTRACT)
 if not m:
     errs.append('contract KHÔNG khai tổng số ca bằng chữ ("Tổng số ca = ... = **N**") — mất nguồn đối chứng độc lập')
@@ -7225,14 +7252,14 @@ for ca, h, phrase in rows:
     else:
         ran += 1
 
-if ran != expected_n and not errs:
-    errs.append(f'ma trận đột biến: chạy {ran}/{expected_n} ca')
-if ran < FLOOR and not errs:
-    errs.append(f'ma trận đột biến: chỉ chạy {ran} ca, dưới sàn {FLOOR}')
+if ran != len(rows) and not errs:
+    errs.append(f'ma trận đột biến: chạy {ran}/{len(rows)} ca chạy được')
+if ran < FLOOR_LIVE and not errs:
+    errs.append(f'ma trận đột biến: chỉ chạy {ran} ca, dưới sàn {FLOOR_LIVE}')
 
 if errs:
     print('\n'.join('  ' + x for x in errs)); sys.exit(1)
-print(f'P168 OK ({expected_n} ca đột biến + 2 đối chứng dời-khối, 2 bản chỉ dẫn)')
+print(f'P168 OK ({ran} ca đột biến chạy được / {expected_n} bảng khai + 2 đối chứng dời-khối)')
 P168PY
 
 echo "P169 (AC-6) bien ban cham hanh vi phai do CODE SINH, khong viet tay"
@@ -7747,7 +7774,7 @@ P173PY
 # "P<N> DUONG-OK" khi đối chứng dương xanh và "P<N> MUTANT-OK" khi mọi mutant
 # đỏ ghim thông điệp. P182 kiểm quan hệ tập-hợp trên chính các marker đó.
 # <<<MBC-CASE-IDS
-# P174 P175 P176 P177 P178 P179 P180 P181 P182
+# P174 P175 P176 P177 P179 P180 P181 P182
 # MBC-CASE-IDS>>>
 
 run "P174 [MBC] E1 menh de MEASURE-BIRTH-CLAUSE trong SKILL Claude: 3 thanh phan + 3 loai vat + neo" \
@@ -8011,9 +8038,9 @@ def measure(text):
 errs = measure(suite)
 assert not errs, 'ban that do oan: ' + '; '.join(errs)
 print('P182 DUONG-OK')
-m1 = suite.replace('# P174 P175 P176 P177 P178 P179 P180 P181 P182', '# P174 P175 P176 P177 P179 P180 P181 P182')
+m1 = suite.replace('# P174 P175 P176 P177 P179 P180 P181 P182', '# P174 P175 P176 P177 P180 P181 P182')
 e1 = measure(m1)
-assert e1 and any('P178' in x for x in e1), 'mutant go id khoi khoi khai khong do ghim id: ' + repr(e1)
+assert e1 and any('P179' in x for x in e1), 'mutant go id khoi khoi khai khong do ghim id: ' + repr(e1)
 m2 = suite.replace("print('P174 MUTANT-OK", "print('P174 XONG", 1)
 e2 = measure(m2)
 assert e2 and any('P174' in x and 'MUTANT-OK' in x for x in e2), 'mutant go nhanh pha-vat khong do neu ten case: ' + repr(e2)
@@ -8593,7 +8620,7 @@ if [ "$P187OK" -eq 1 ]; then pass "P187 chi-bao khong-can-lam-gi (3 nhanh + doi 
 # Pattern LOOP-PICTURE-CLAUSE/P85: "chep nguyen van" la cho troi kinh dien
 # (bai hoc s4-scope-triage) — phep do phai rut tu NGUON qua marker roi so voi
 # TUNG ban chep; do dot bien phai DICH DANH ban lech.
-run "P188 round-trip dieu khoan moi-cong: nguon + MOI ban chep (ke ca goi dung + overlay) khop tung ky tu (E5)" \
+run "P188 round-trip dieu khoan moi-cong: MOI site nguon khop tung ky tu (E5)" \
   python3 - "$ROOT" <<'P188PY'
 import re, sys
 from pathlib import Path
@@ -8628,7 +8655,9 @@ def doc_manifest(law_text):
     return decl
 DECL = doc_manifest(law)
 SITES = list(DECL)
-assert len(SITES) >= 4, "manifest qua it site (grep hong?): " + repr(SITES)
+# San ha tu 4 xuong 3 vi harness Codex da luu kho (12/08): ba mat moi-cong con
+# lai deu la ban Claude. San van la san — 0 hit gan nhu luon la grep hong.
+assert len(SITES) >= 3, "manifest qua it site (grep hong?): " + repr(SITES)
 # Ban dung/overlay da luu kho: khong con ban suy ra nao, nen phep so chi con
 # tren cac site NGUON. Rang that cua ca nay la LUAT DEM NGUON ben duoi (so
 # voi so khai trong manifest, dung hai huong) — no khong phu thuoc ban chep.
@@ -8656,10 +8685,10 @@ def lech(mapping):
 assert lech(texts) == [], "ban that do oan: " + repr(lech(texts))   # doi chung DUONG
 def count_of(mapping, rel):
     return len(occurrences(mapping[rel]))
-# LUAT DEM NGUON (chip (2)b, review-findings r3 hinh dang 5): thieu_ban chi so
-# ban-dung VOI nguon — go 1 ban o nguon roi sync (mirror mat theo) thi hai ve
-# cung giam, van xanh. Nay so nguon voi SO KHAI trong manifest, DUNG hai huong
-# (dieu kien B mac 1: ban lac troi VAO cung phai keu, khong chi ban bi go).
+# LUAT DEM NGUON (chip (2)b, review-findings r3 hinh dang 5): so nguon voi SO
+# KHAI trong manifest, DUNG hai huong (dieu kien B mac 1: ban lac troi VAO cung
+# phai keu, khong chi ban bi go). Day la rang CHINH cua ca nay tu khi ban
+# dung/overlay duoc luu kho — no khong phu thuoc ban chep nao.
 def dem_nguon(mapping, decl):
     bad = []
     for s2, want in decl.items():
@@ -8700,7 +8729,7 @@ def ranh_gioi(mapping):
     return bad
 assert ranh_gioi(texts) == [], "ban that do oan: " + repr(ranh_gioi(texts))   # doi chung DUONG
 TONG_LUOT = sum(len(occurrences(t)) for t in texts.values())
-print("P188 DUONG-OK (" + str(len(SITES)) + " site nguon + " + str(len(extra)) + " ban dung/overlay suy ra, " + str(len(PAIR)) + " cap nguon-ban-dung; dem nguon khop so khai " + str(sum(DECL.values())) + " ban; ranh gioi cau qua o " + str(TONG_LUOT) + " luot xuat hien)")
+print("P188 DUONG-OK (" + str(len(SITES)) + " site nguon, " + str(TONG_LUOT) + " luot clause)")
 # chieu do 1: lam lech DUNG ban chep thu 2 trong mot file (ban thu 1 con nguyen)
 victim = next(r for r in ALL if len(occurrences(texts[r])) >= 2)
 occ_v = occurrences(texts[victim])
@@ -8714,40 +8743,27 @@ print("MUTANT-1: lam lech ban chep thu 2 trong " + victim + " (offset " + str(i2
 assert clause in mut[victim], "sanity: ban thu 1 phai con nguyen"
 b1 = lech(mut)
 assert len(b1) == 1 and b1[0].startswith(victim), "phep so phai do DICH DANH " + victim + ", thay: " + repr(b1)
-# chieu do 2 (dung lo S4-r2): go clause khoi mot OVERLAY/BAN DUNG suy ra -> phai
-# do dich danh chinh file do. Phep do danh-sach-tay se xanh oan o buoc nay.
-vic2 = extra[0]
+# chieu do 2: go SACH clause khoi MOT site khac -> phai do dich danh file do
+# (khac chieu 1: chieu 1 lam LECH mot ban, chieu nay lam MAT ca file).
+vic2 = next(r for r in SITES if r != victim)
 mut2 = dict(texts)
 mut2[vic2] = texts[vic2].replace(clause, "")          # go SACH moi ban trong file do
 assert mut2[vic2] != texts[vic2], "dot bien overlay khong tac dung"
-print("MUTANT-2: go SACH clause khoi ban suy ra " + vic2)
+print("MUTANT-2: go SACH clause khoi site " + vic2)
 b2 = lech(mut2)
-assert any(x.startswith(vic2) for x in b2), "phep do MU voi ban dung/overlay — dung lo S4-r2: " + repr(b2)
-# chieu do 3: go DUNG MOT trong nhieu ban trong cung file suy ra -> mat ban chep,
-# moi lan con lai van khop nen lech() im; luat dem phai keu.
-vic3 = next((d for d in PAIR if len(occurrences(texts[d])) >= 2), None)
-assert vic3, "khong co ban dung nao chua >=2 clause de dung chieu do dem"
-mut3 = dict(texts)
-mut3[vic3] = texts[vic3].replace(clause, "", 1)
-print("MUTANT-3: go DUNG MOT ban chep trong " + vic3 + " (con lai van khop)")
-assert lech(mut3) == [], "sanity: chieu do nay phai vuot qua lech() — neu khong no khong do dieu can do"
-b3 = thieu_ban(mut3)
-assert any(x.startswith(vic3) for x in b3), "luat dem MU voi ca mat-mot-ban-chep: " + repr(b3)
-# chieu do 4 (chip (2)b — lo r3 hinh dang 5): go 1 trong 2 ban o site NGUON va
-# DONG THOI go o moi ban dung/overlay suy ra cua no (mo phong go-o-nguon-roi-
-# sync). Nan nhan ghim san ne bay PAIR-hai-cha (gap-probe P2): feature-loop
-# SKILL khong co ban suy ra nao duoi plugins/ (khong co goi feature-loop
-# Claude trong mirror) — CAM doi nan nhan de noi sanity "luat cu im".
+assert any(x.startswith(vic2) for x in b2), "phep do MU voi site mat sach clause: " + repr(b2)
+# chieu do 4 (chip (2)b — lo r3 hinh dang 5): go 1 trong 2 ban o site NGUON.
+# Truoc day chieu nay mo phong go-o-nguon-roi-sync (ban dung mat theo nen hai ve
+# cung giam); sau khi luu kho ban dung, no do thang quan he nguon-vs-manifest.
 vic4 = "feature-loop/skills/feature-loop/SKILL.md"
 assert vic4 in DECL and DECL[vic4] >= 2, "nan nhan chieu do 4 phai la site nguon khai >=2 ban: " + repr(DECL.get(vic4))
-assert derived(vic4) == [], "nan nhan chieu do 4 phai KHONG co ban suy ra (ne bay PAIR-hai-cha), thay: " + repr(derived(vic4))
 mut4 = dict(texts)
 mut4[vic4] = texts[vic4].replace(clause, "", 1)
 assert mut4[vic4] != texts[vic4], "dot bien nguon-it-hon khong tac dung"
 print("MUTANT-4: go 1 trong " + str(DECL[vic4]) + " ban o site NGUON " + vic4 + " (khong co ban dung de mat theo — mo phong sau-sync tron ven)")
-assert lech(mut4) == [] and thieu_ban(mut4) == [], \
-    "sanity: hai luat cu phai IM tren dot bien nay (lo r3 la that): lech=" + repr(lech(mut4)) + " thieu_ban=" + repr(thieu_ban(mut4))
-print("SANITY-LUAT-CU-IM: lech() va thieu_ban() deu im tren dot bien nguon-it-hon — lo r3 la that, luat moi khong thua")
+assert lech(mut4) == [], \
+    "sanity: luat khop-tung-ky-tu phai IM tren dot bien nay (lo r3 la that): lech=" + repr(lech(mut4))
+print("SANITY-LUAT-CU-IM: lech() im tren dot bien nguon-it-hon — lo r3 la that, luat dem nguon khong thua")
 b4 = dem_nguon(mut4, DECL)
 assert any(x.startswith(vic4) and "it-hon-so-khai" in x for x in b4), \
     "luat dem nguon MU voi go-o-nguon-roi-sync: " + repr(b4)
@@ -8759,8 +8775,8 @@ mut5 = dict(texts)
 mut5[vic4] = texts[vic4].rstrip("\n") + "\n\n" + clause + "\n"
 assert mut5[vic4] != texts[vic4], "dot bien nguon-nhieu-hon khong tac dung"
 print("MUTANT-5: them 1 ban clause lac (dung ranh gioi cau) vao site NGUON " + vic4 + ", manifest giu nguyen")
-assert lech(mut5) == [] and thieu_ban(mut5) == [] and ranh_gioi(mut5) == [], \
-    "sanity: ba luat kia phai IM tren dot bien nay: " + repr((lech(mut5), thieu_ban(mut5), ranh_gioi(mut5)))
+assert lech(mut5) == [] and ranh_gioi(mut5) == [], \
+    "sanity: hai luat kia phai IM tren dot bien nay: " + repr((lech(mut5), ranh_gioi(mut5)))
 b5 = dem_nguon(mut5, DECL)
 assert any(x.startswith(vic4) and "nhieu-hon-so-khai" in x for x in b5), \
     "luat dem nguon MU voi ban-lac-troi-vao: " + repr(b5)
@@ -8797,9 +8813,9 @@ mut7[vic7] = "".join(
 )
 assert mut7[vic7] != texts[vic7], "dot bien chen-giua-cau khong tac dung"
 print("MUTANT-7: tai tao layout pre-3caee05 trong " + vic7 + " (clause dong rieng chen giua 'the verdict + hook' / 'are unchanged.')")
-assert lech(mut7) == [] and thieu_ban(mut7) == [] and dem_nguon(mut7, DECL) == [], \
-    "sanity: cac luat khop/dem phai IM (clause chi DI CHO, khong doi byte/so ban): " + repr((lech(mut7), thieu_ban(mut7), dem_nguon(mut7, DECL)))
-print("SANITY-LUAT-KHOP-IM: lech/thieu_ban/dem_nguon deu im tren dot bien chen-giua-cau — chi ranh_gioi do duoc lo nay")
+assert lech(mut7) == [] and dem_nguon(mut7, DECL) == [], \
+    "sanity: cac luat khop/dem phai IM (clause chi DI CHO, khong doi byte/so ban): " + repr((lech(mut7), dem_nguon(mut7, DECL)))
+print("SANITY-LUAT-KHOP-IM: lech/dem_nguon deu im tren dot bien chen-giua-cau — chi ranh_gioi do duoc lo nay")
 b7 = ranh_gioi(mut7)
 assert any(x.startswith(vic7) and "truoc khong ket cau" in x for x in b7), \
     "luat ranh gioi MU voi hinh dang 3caee05: " + repr(b7)
@@ -9008,7 +9024,7 @@ fi
 rm -rf "$P192TMP" "$P192WS1" "$P192WS2"
 if [ "$P192OK" -eq 1 ]; then pass "P192 round-trip the->SLOTS hai huong (4 chieu do: go-nhan, tiem-nhan-la, khong-nuot-lop, nhan-chet)"; else fail "P192 round-trip the->SLOTS hai huong (4 chieu do: go-nhan, tiem-nhan-la, khong-nuot-lop, nhan-chet)"; fi
 
-run "P193 dieu khoan mot-luot-go: 12 site + ban suy ra khop tung ky tu + quan he per-site (E3/E4 mot-luot-go)" \
+run "P193 dieu khoan mot-luot-go: 6 site nguon khop tung ky tu + quan he per-site (E3/E4 mot-luot-go)" \
   python3 - "$ROOT" <<'P193PY'
 import re, sys
 from pathlib import Path
@@ -9036,7 +9052,10 @@ def doc_manifest(law_text):
     return decl
 DECL = doc_manifest(law)
 SITES = list(DECL)
-assert len(SITES) == 12, "manifest phai khai dung 12 site nguon, thay " + str(len(SITES))
+# 12 -> 6: sau khi luu kho harness Codex, sau than lenh chi con MOT ban moi.
+# Van la dang thuc (khong phai san): them/bot mot cho mot-luot-go la quyet dinh
+# nguoi, phai sua so nay cung luot.
+assert len(SITES) == 6, "manifest phai khai dung 6 site nguon, thay " + str(len(SITES))
 # Khong con ban suy ra (ban dung/overlay da luu kho): phep so chay tren SITE NGUON.
 ALL = list(SITES)
 texts = {rel: (root / rel).read_text(encoding="utf-8") for rel in ALL}
@@ -9089,12 +9108,6 @@ def sai_so(mapping):
         n = len(occurrences(mapping[s]))
         if n != DECL[s]:
             bad.append("clause lech tai " + s + ": thay " + str(n) + " ban, khai " + str(DECL[s]))
-    for d in extra:
-        srcs = [s for s in SITES if d in derived(s)]
-        want = len(occurrences(mapping[srcs[0]])) if srcs else 0
-        n = len(occurrences(mapping[d]))
-        if n != want:
-            bad.append("ban suy ra lech: " + d + " (" + str(n) + " != " + str(want) + ")")
     return bad
 assert lech(texts) == [], "ban that lech nguyen van: " + repr(lech(texts))
 assert sai_so(texts) == [], "ban that sai so ban: " + repr(sai_so(texts))
@@ -9352,10 +9365,10 @@ print("MUT-7: da go luat doc-khong-bi-chan khoi ban sao " + v7)
 e7 = check_bodies(m7)
 assert ("site thieu luat doc-khong-bi-chan: " + v7) in e7, "MUT-7 khong bi bat dich danh: " + repr(e7)
 print("     MUT-7 DO dich danh: site thieu luat doc-khong-bi-chan: " + v7)
-# MUT-8: go nhanh CAN khoi ban sao than approve Codex -> do dich danh
+# MUT-8: go nhanh CAN khoi ban sao than approve -> do dich danh
 # (lo "bac thang het nac thi lam gi" — hoi dong E7 vong 3 neu, file cu im)
 m8 = dict(texts); v8 = "commands/approve.md"
-m8[v8] = m8[v8].replace("**EXHAUSTED**", "EXHAUSTED-da-go")
+m8[v8] = m8[v8].replace("**CẠN**", "CAN-da-go")
 assert m8[v8] != texts[v8], "MUT-8 khong tac dung"
 print("MUT-8: da go nhanh bac-thang-can khoi ban sao " + v8)
 e8 = check_bodies(m8)
@@ -9392,9 +9405,9 @@ print("MUT-11: da hoan vi bac thang (approvers truoc git config) trong ban sao "
 e11 = check_bodies(m11)
 assert any(x.startswith("thu tu bac thang sai") and v11 in x for x in e11), "MUT-11 khong bi bat: " + repr(e11)
 print("     MUT-11 DO dung: thu tu bac thang sai (git config phai truoc approvers)")
-# MUT-12 (gap-probe P1): go nhanh CANH BAO khoi ban sao than approve Codex
+# MUT-12 (gap-probe P1): go nhanh CANH BAO khoi ban sao than approve
 m12 = dict(texts); v12 = "commands/approve.md"
-m12[v12] = m12[v12].replace("not in `signoff.approvers`", "not in the list")
+m12[v12] = m12[v12].replace("không có trong `signoff.approvers`", "khong co trong danh sach")
 assert m12[v12] != texts[v12], "MUT-12 khong tac dung"
 print("MUT-12: da go nhanh canh-bao-ngoai-danh-sach khoi ban sao " + v12)
 e12 = check_bodies(m12)

@@ -161,12 +161,7 @@ Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 V
 <!-- GATE-INVITE-CLAUSE>>> -->
 
 Danh sách dưới đây là các mặt mời-cổng NGUỒN — phạm vi do người quyết, nên nó
-được khai tay. Phần dễ trôi thì KHÔNG khai tay: phép đo tự suy mọi bản dựng
-dưới `plugins/` và mọi overlay cùng đuôi đường dẫn dưới `codex/` của từng mục,
-rồi đòi bản nào cũng chứa điều khoản. Lỗ đã dẫm (S4-r2): bốn bản Claude được
-sửa, hai overlay Codex tương ứng thì không — mà overlay GHI ĐÈ bản Claude
-trong gói Codex, nên gói phát hành mời cổng không chịu luật, còn phép đo dùng
-danh sách tay thì mù vĩnh viễn với khoảng trống đó. Số sau mỗi đường dẫn là
+được khai tay. Số sau mỗi đường dẫn là
 SỐ BẢN CHÉP PHẢI CÓ trong site đó (chip ②b): ít hơn hay nhiều hơn đều đỏ —
 thêm/bớt một chỗ mời-cổng là quyết định người, phải sửa số này cùng lượt;
 dòng thiếu số là lỗi kêu to, phép đo không tự đoán.
@@ -175,9 +170,6 @@ dòng thiếu số là lỗi kêu to, phép đo không tự đoán.
 skills/acceptance/SKILL.md 2
 commands/acceptance-card.md 1
 feature-loop/skills/feature-loop/SKILL.md 2
-codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md 2
-codex/acceptance-gate/skills/acceptance/SKILL.md 2
-codex/acceptance-gate/skills/acceptance-card/SKILL.md 1
 <!-- GATE-INVITE-SITES>>> -->
 
 ## Câu gộp tại cổng — một-lượt-gõ cho lệnh cổng người
@@ -305,12 +297,6 @@ commands/acceptance-init.md 1
 commands/acceptance-status.md 1
 commands/acceptance-report.md 1
 commands/start.md 1
-codex/acceptance-gate/skills/approve/SKILL.md 1
-codex/acceptance-gate/skills/signoff/SKILL.md 1
-codex/acceptance-gate/skills/acceptance-init/SKILL.md 1
-codex/acceptance-gate/skills/acceptance-status/SKILL.md 1
-codex/acceptance-gate/skills/acceptance-report/SKILL.md 1
-codex/acceptance-gate/skills/start/SKILL.md 1
 <!-- GATE-ONESHOT-SITES>>> -->
 
 ## Từ mới feature này đưa vào từ điển
