@@ -257,6 +257,19 @@ nào vì thấy số đo rồi mới sửa.
    vẫn đối chiếu với con số khai bằng chữ), phần chạy được lọc còn 8 và **in ra
    số ca bỏ qua** — cắt im lặng đọc y hệt "đã phủ hết".
 
+## ✅ SUITE `workflows`: 463/463 xanh — và một phép ĐẾM SAI bị lộ
+
+Hợp đồng khai `workflows 62 → 62`. Đo trên cây của mốc: **488**. Suite này gồm
+**sáu tệp**, mỗi tệp tự in dòng tổng kết riêng, và `62` là số của **đúng một
+tệp** (`skill-claims`) — dòng cuối cùng in ra nên dễ đọc nhầm thành tổng. Giữ
+nguyên «62 → 62» thì tiêu chí mù với 426 ca còn lại: đúng lớp
+**tổng-kết-không-kèm-số-ca** đã ghi sổ, lần này nằm ngay trong hợp đồng.
+
+Khai lại `488 → 463` kèm dẫn xuất **từng tệp**, rồi đo: cả sáu tệp khớp từng
+con số. Lần khai đầu ghi `467` vì đếm sót `JRE_CLAUSES`; nó lộ ra vì tệp
+`skill-claims` **dừng giữa chừng, không in nổi dòng tổng kết** — nếu tiêu chí
+là một cái SÀN thì lần đó đã xanh.
+
 ## TRẠNG THÁI BÀN GIAO (Phiên C, 12/08 — nối tiếp chính xác từ đây)
 
 **Đã xong ở lượt này:** bugfix khối thoát-sớm (`feab99b`) · sửa-sau-Cổng-1 có
@@ -281,18 +294,32 @@ cache` và dòng gợi ý cài Codex).
 `P99` `P101` `P122` `P128` `P133` `P147` `P156` `P164` `P167` + khối 3-thân-lệnh
 `SITES` (approve/signoff/start).
 
-**Sau đó mới tới** (theo thứ tự): `tests/workflows/` 3 file còn trỏ Codex ·
-~15 tệp văn bản còn tham chiếu sống (`CLAUDE.md` 4 chỗ · `GUIDE.md` ·
-`QUICKSTART.md` · `README.md` (gồm hàng `.codex-plugin/plugin.json` và đường
-cài Codex mà `P28` đang canh) · `CONTEXT.md` · `commands/approve.md` ·
-`commands/signoff.md` · `skills/acceptance/SKILL.md` + 3 reference ·
-`skills/uat-session/SKILL.md` · `skills/ux-ui-craft/references/layout-craft.md:121`
-(tham chiếu SỐNG, PHẢI sửa) · `feature-loop/skills/feature-loop/SKILL.md` nhánh
-CT2 · `.github/workflows/gate.yml` (tên bước còn nhắc P30 + comment) ·
-`.claude-plugin/plugin.json`/`feature-loop/.claude-plugin/plugin.json` **KHÔNG
-sửa** — đã khai miễn trừ sử-liệu ở AC-4) · gỡ `.codex-plugin/` · `P28` trim về
-đường cài Claude · bộ răng `luu-kho-rang.sh` (10 chân + chiều đỏ, gồm chân
-AC-14 và AC-15) · chạy trọn 4 suite · S4.
+**ĐÃ XONG thêm ở lượt này:** `tests/workflows/` (3 tệp, suite xanh 463/463) ·
+`CLAUDE.md` (AC-13) · `CONTEXT.md` · `commands/approve.md` · `commands/signoff.md` ·
+`skills/uat-session/SKILL.md` · `skills/ux-ui-craft/references/layout-craft.md:121` ·
+`.github/workflows/gate.yml` · gỡ `.codex-plugin/` · `QUICKSTART.md` (sạch 0 hit) ·
+`P28` trỏ về đường cài Claude · **`feature-loop/skills/feature-loop/SKILL.md`
+nhánh CT2 (AC-5)** — bảng làn design nay chỉ còn CT1 (điều kiện là khoá
+`executors.design.*` wire tay, không còn dò bằng script của design-loop), nghi lễ
+design-of-record khai tử, resume-guard thôi đòi mockup provenance; `P20`/`P87`
+sửa cùng lượt và nay đòi **CT2 VẮNG MẶT** (neo ÂM, chống mọc lại).
+
+**CÒN LẠI của 1b:**
+1. `GUIDE.md` — 47 hit rải 17 mục, có cả mục ghi-chú-phát-hành lẫn hướng dẫn
+   sống. **Cần quyết một điều:** sửa hết, hay mở miễn trừ sử-liệu cho phần
+   ghi-chú-phát-hành như đã làm cho `plugin.json`? Nguyên tắc đã đặt ở AC-4 là
+   *changelog là lịch sử, viết lại cho lint xanh là xoá lịch sử lấy màu* — nếu
+   theo nguyên tắc đó thì phải mở miễn trừ có phạm vi + chân ĐỎ-NGOÀI-DANH-SÁCH.
+2. `GUIDE.md` phải THÊM đoạn hướng dẫn **wire `executors.design` bằng tay** —
+   AC-5 đòi tường minh, chưa viết.
+3. `README.md` — 35 hit (gồm hàng mô tả `.codex-plugin/plugin.json` và đường cài
+   Codex; `P28` nay canh đường cài Claude nên README phải giữ đủ 4 needle đó).
+4. `skills/acceptance/SKILL.md` (4 chỗ nhắc Codex trong chỉ dẫn chạy) + 3
+   reference (`eval-executors.md`, `design-ui-check.md`, `human-facing-language.md`
+   — mỗi tệp 1 hit).
+5. Bộ răng `luu-kho-rang.sh` (10 chân đo + chiều đỏ, gồm chân AC-14 và AC-15).
+6. Suite `scripts` + `hooks` + `product-map --check` (chưa chạy lần nào ở lượt này).
+7. S4.
 
 **Số kỳ vọng phải chỉnh trước khi đo:** hiện hợp đồng ghi `147` với dẫn xuất
 `173 − 24 − 2`. Sau khi `P26` vào danh sách xoá, dẫn xuất đúng là

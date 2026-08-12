@@ -119,3 +119,8 @@ assert "unsupported plugin/action" in ba, \
 assert bia.returncode == 2, f"action bia phai exit 2, duoc {bia.returncode}"
 assert "unsupported plugin/action" not in ra, \
 assert len(THAN) >= 5, f"quet ra {len(THAN)} than cong co buoc regen — mong >=5, nghi buoc quet hong: {THAN}"
+# — bổ sung khi sửa bảng làn design (AC-5): CT2 khai tử nên hai assert
+#   đòi bảng CT2 có mặt không còn nghĩa; bản mới đòi CT2 VẮNG MẶT.
+assert fl.count("| **CT1") == 1 and fl.count("| **CT2") == 1, "bảng tra CT1/CT2 phải có đúng 1 lần"
+assert "provenance.json" in fl and "design.fidelity" in fl, "điều kiện CT2 phải máy-đọc"
+assert text.count("| **CT1") == 1 and text.count("| **CT2") == 1, "bang tra CT1/CT2 bi pha"

@@ -81,14 +81,15 @@ _skills = sorted((root / "skills").rglob("*.md"))
 assert len(_skills) >= 5, f"bo dem tinh tao: quet ra {len(_skills)} file trong skills/ — nghi buoc quet hong"
 PY
 
-run "P20 lane lookup table CT1/CT2 nhat quan trong feature-loop SKILL" \
+run "P20 lane lookup table CT1 nhat quan trong feature-loop SKILL" \
   python3 - "$ROOT" <<'PY'
 import sys, pathlib
 root = pathlib.Path(sys.argv[1])
 fl = (root / "feature-loop/skills/feature-loop/SKILL.md").read_text()
-assert fl.count("| **CT1") == 1 and fl.count("| **CT2") == 1, "bảng tra CT1/CT2 phải có đúng 1 lần"
+assert fl.count("| **CT1") == 1, "bảng tra CT1 phải có đúng 1 lần"
+assert fl.count("| **CT2") == 0, "CT2 (nghi lễ design-of-record) đã khai tử — bảng tra không được mọc lại"
 assert "design_tier" not in fl, "không được lưu field tier"
-assert "provenance.json" in fl and "design.fidelity" in fl, "điều kiện CT2 phải máy-đọc"
+assert "executors.design." in fl, "điều kiện làn design phải máy-đọc (khoá config, không phải văn xuôi)"
 assert "--require-html" in fl, "lane nhẹ phải khai flag require-html"
 PY
 
@@ -1370,7 +1371,7 @@ PY
 
 # ── P87: S1-D — lane cua feature cham UI la design-pass TRUOC Gate 1 ─────────
 # S1-D visual-first (quyet 30/07): Gate 1 duyet UI tren ban bam duoc. Descope
-# phai co ten trong so quyet dinh. Bang CT1/CT2 cu GIU NGUYEN (duong doc-cu,
+# phai co ten trong so quyet dinh. Bang CT1 cu GIU NGUYEN (duong doc-cu,
 # P20 canh) — case nay chi ghim lane moi + cau Gate 1.
 run "P87 lane S1-D tro design-pass + Gate 1 ban bam duoc (kem doi chung am)" \
   python3 - "$ROOT" <<'PY'
@@ -1402,8 +1403,8 @@ assert "ui_standards_skill" in g1ctx, "muc GATE 1 thieu dong ghi chu vang ui_sta
 # cho ma sot tham chieu cung-hinh-dang la lop loi CLAUDE.md goi ten).
 assert "Surface mới/redesign → vẽ mockup" not in text, "cau hoi lane cu van con — chua wire S1-D"
 assert "câu hỏi lane" not in text, "van con tham chieu mo coi 'câu hỏi lane' — chi dan S1 tu mau thuan"
-# Duong doc-cu con nguyen: bang tra CT1/CT2 dung 1 lan moi cong tac (nhu P20).
-assert text.count("| **CT1") == 1 and text.count("| **CT2") == 1, "bang tra CT1/CT2 bi pha"
+# Duong doc-cu con nguyen: bang tra CT1 dung 1 lan (nhu P20); CT2 da khai tu.
+assert text.count("| **CT1") == 1 and text.count("| **CT2") == 0, "bang tra CT1 bi pha (hoac CT2 moc lai)"
 # Doi chung am: go MOI lan xuat hien trong ban sao (cum nay co mat >1 cho:
 # bang tra CT1, doan chinh, S1#6) -> pin phai truot.
 mutated = text.replace("Nghi thức S1-D", "Nghi thuc da go")

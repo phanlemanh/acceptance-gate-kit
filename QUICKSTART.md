@@ -22,41 +22,25 @@ report chưa ký.
 
 ## Cài 1 lần mỗi máy
 
-Codex — trọn bộ:
-
-```bash
-codex plugin marketplace add phanlemanh/acceptance-gate-kit
-codex plugin add acceptance-gate@acceptance-gate-kit
-codex plugin add feature-loop-codex@acceptance-gate-kit
-codex plugin add design-loop@acceptance-gate-kit        # tùy chọn — repo có web UI
-codex plugin add superpowers@openai-curated             # nếu dùng brainstorm/plan
-```
-
-Sau khi cài, mở phiên Codex mới để runtime nạp skill/plugin. Trong Codex, dùng
-`feature-loop-codex` thay cho `feature-loop`; nó không gọi Workflow scripts của
-Claude.
-
-Claude Code — trọn bộ (khuyến nghị, copy-paste một lần):
+Trọn bộ (copy-paste một lần):
 
 ```bash
 claude plugin marketplace add phanlemanh/acceptance-gate-kit
 claude plugin install acceptance-gate@acceptance-gate-kit
 claude plugin install feature-loop@acceptance-gate-kit      # vòng lặp trọn gói
 claude plugin install superpowers@claude-plugins-official   # dependency của feature-loop
-claude plugin install design-loop@acceptance-gate-kit       # tùy chọn — repo có web UI
 ```
 
 Tối thiểu (chỉ gate, không vòng lặp): cài marketplace + `acceptance-gate` là đủ.
 
 > Cần quyền đọc repo GitHub `phanlemanh/acceptance-gate-kit` (hỏi Mạnh nếu chưa có).
-> Sau khi cài, mở phiên Claude Code/Codex mới để runtime nạp plugin.
+> Sau khi cài, mở phiên Claude Code mới để runtime nạp plugin.
 
 ## Cập nhật plugin (quan trọng với cả đội)
 
 ```bash
 claude plugin update acceptance-gate@acceptance-gate-kit
 claude plugin update feature-loop@acceptance-gate-kit    # nếu đã cài
-codex plugin marketplace upgrade                         # Codex: refresh marketplace snapshot
 ```
 
 Chạy khi có thông báo release, hoặc đầu mỗi sprint. Hai dev chạy 2 version
@@ -66,7 +50,7 @@ feature lọt eval...) — cập nhật là một phần của kỷ luật gate,
 ## Setup 1 lần mỗi repo (thường đã có sẵn)
 
 Nếu repo đã có thư mục `_acceptance/` → bỏ qua mục này.
-Repo mới: chạy `/acceptance-init` hoặc nói với Codex "run acceptance init" rồi trả lời các câu hỏi
+Repo mới: chạy `/acceptance-init` rồi trả lời các câu hỏi
 (lệnh test, đường dẫn nhạy cảm...).
 
 **CI:** copy **đủ 7 file** từ plugin vào repo, giữ đúng layout `scripts/` + `lib/`
@@ -235,11 +219,7 @@ verify đa-agent → evidence → PR. Bạn vẫn chỉ dừng tay đúng 2 lầ
 ```bash
 claude plugin install feature-loop@acceptance-gate-kit
 claude plugin install superpowers@claude-plugins-official   # dependency (brainstorm/plan)
-codex plugin add feature-loop-codex@acceptance-gate-kit     # Codex edition
 ```
-
-`feature-loop` dùng Claude workflow scripts. `feature-loop-codex` dùng Codex
-main-agent, shell/browser tooling, và multi-agent tools khi runtime có.
 
 **Setup mỗi repo:** đã chạy `/acceptance-init` rồi thì chỉ cần thêm vào
 `_acceptance/config.yaml` các lệnh verify chạy mỗi vòng (chọn từ `executors.*`
