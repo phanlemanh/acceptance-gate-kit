@@ -2,8 +2,11 @@
 
 *2026-08-12 · Soạn: Phiên B (cố vấn) từ đối thoại First-Principles owner ↔ Phiên A
 cùng ngày + trang audit ~60 điểm-gọi-người / ~70 bộ phận máy do B thực hiện.
-Trạng thái: **draft — chờ owner gạch**. Đây là BẢN NEO: mọi PR của đợt này phải
-trỏ về file này; mọi lệch khỏi nó ghi vào «Nhật ký lệch» cuối file.*
+Trạng thái: **owner duyệt 12/08** (nguyên văn: «neo chuẩn, viết đề bài»). Đây là
+BẢN NEO: mọi PR của đợt này phải trỏ về file này; mọi lệch khỏi nó ghi vào
+«Nhật ký lệch» cuối file. Đề bài thi hành:
+[đợt 1](2026-08-12-de-bai-dot1-cat-va-luu-kho.md) ·
+[đợt 2](2026-08-12-de-bai-dot2-nguoi-ve-bien.md).*
 
 ---
 
