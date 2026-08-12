@@ -256,5 +256,5 @@ evidence class where hallucinated completion lives (screenshots).
 
 - CLOSED questions only ("is X visible?", "does the page show Y?"). OPEN
   quality questions ("does it look good / on-brand?") stay `judgment` /
-  design-loop — No blind VLM judge.
+  design-pass — No blind VLM judge.
 - Opt-in per eval: Phase 2 EVAL-GEN never adds these automatically.

@@ -25,22 +25,20 @@
   buộc số 1; chi tiết trong kế hoạch trên.
 
 - **MỘT cây nguồn, KHÔNG có bản sao nào phải giữ đồng bộ (từ 2026-08-12).**
-  Kit từng nuôi hai harness song sinh: mọi thay đổi lõi phải sửa hai lần rồi
-  dựng lại một bản sao phẳng và commit nó cùng lượt. Harness Codex và bản sao
+  Kit từng nuôi hai bản dựng song sinh: mọi thay đổi lõi phải sửa hai lần rồi
+  dựng lại một bản sao phẳng và commit nó cùng lượt. Bản song sinh và bản sao
   đó **đã lưu kho**, nên luật «sửa hai lần» hết hiệu lực — sửa ở
   `skills/`, `feature-loop/`, `commands/`, `scripts/`, `lib/`, `hooks/`,
-  `vendor/` là xong, không còn bước dựng lại nào. Đường lấy về:
-  [ADR 0008](docs/adr/0008-luu-kho-harness-codex.md) ·
-  [ADR 0009](docs/adr/0009-khai-tu-nghi-le-design-loop.md).
+  `vendor/` là xong, không còn bước dựng lại nào. Đường lấy về: **ADR 0008** và **ADR 0009** trong `docs/adr/`.
 
 - **[CONTEXT.md](CONTEXT.md) là glossary phát triển của kit** (authoring-time).
   Khi viết/sửa SKILL.md, docs, message của script: dùng đúng term chuẩn và
   tránh mọi từ nằm trong `_Avoid_`. Term mới chỉ thêm khi kit thật sự cần nó.
 
 - **6 thao tác cổng người** (`approve`, `signoff`, `acceptance-init`,
-  `acceptance-status`, `acceptance-report`, `start`) bị khoá model-invocation ở CẢ HAI
-  harness; `acceptance-card` cố tình để mở (feature-loop và approve/signoff
-  model-invoke nó). Đừng "sửa" sự bất đối xứng này — test P31/P32 giữ nó,
+  `acceptance-status`, `acceptance-report`, `start`) bị khoá model-invocation;
+  `acceptance-card` cố tình để mở (feature-loop và approve/signoff
+  model-invoke nó). Đừng "sửa" sự bất đối xứng này — test P32 giữ nó,
   lý do ở [docs/adr/0002](docs/adr/0002-human-gate-invocation-lock.md).
 
 - **Assertion âm-tính-một-mình là assertion không sống.** Mọi case dựng bản

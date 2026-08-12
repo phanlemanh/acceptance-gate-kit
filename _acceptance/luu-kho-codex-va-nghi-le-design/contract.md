@@ -68,6 +68,15 @@ eval ĐỎ, không phải bỏ qua.
   · `sync-plugin-packages` · `mirror_sync` · `plugins/` · `P30` — Then 0 hit
   (trừ danh sách miễn trừ dưới); `docs/` và `_acceptance/` ngoài phạm vi. Đối
   chứng dương ở cây của mốc: >0 hit cho TỪNG needle.
+  **[SỬA SAU CỔNG 1 — 12/08, Phiên C] Needle `plugins/` phải neo vào GỐC KHO,
+  không phải bất kỳ đường dẫn nào chứa chuỗi đó.** Bản duyệt viết trần
+  `plugins/`, mà chuỗi ấy khớp luôn `tests/plugins/run-tests.sh` — bộ kiểm CÒN
+  SỐNG và là thứ hồ sơ này vừa mổ xong. Đọc needle theo nghĩa đen thì tiêu chí
+  đòi xoá mọi lời nhắc tới chính bộ kiểm của mình: đó là phép đo bắt nhầm vật,
+  không phải cây bẩn. Needle đúng là bản sao ở gốc kho — `plugins/acceptance-gate`,
+  `plugins/feature-loop`, `plugins/design-loop`, và glob `plugins/**` trong
+  config — cộng chân ĐỎ-NGOÀI-DANH-SÁCH: tiêm lại một đường dẫn `plugins/<gói>`
+  vào bất kỳ tệp nào trong phạm vi thì lưới phải ĐỎ.
   **Vì sao thêm `CLAUDE.md` + `.github/` + từ vựng mirror:** thiếu chúng thì gỡ
   `plugins/` và script sync xong, đoạn bất biến trong `CLAUDE.md` vẫn bắt "chạy
   sync và commit mirror cùng lượt" và CI vẫn gọi script đã xoá — 14/14 eval

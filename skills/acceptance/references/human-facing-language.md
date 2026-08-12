@@ -178,9 +178,9 @@ feature-loop/skills/feature-loop/SKILL.md 2
 lệnh cổng lại hỏi từng bước (người phải trả lời lại thứ đã trả lời), và
 người phải nhảy đúng phiên đúng repo mới gõ được lệnh. Ba lệnh có-câu-hỏi
 nhận CHÍNH câu «Trả lời mẫu» đó làm MỘT CÂU GỘP — người gõ một lượt, lệnh
-tự điền các trường. Ngữ pháp sống DUY NHẤT ở đây; mười hai thân lệnh cổng
-người (sáu bản Claude, sáu bản Codex) chép điều khoản `GATE-ONESHOT-CLAUSE`
-nguyên văn và trỏ về khối này, không tự diễn đạt.
+tự điền các trường. Ngữ pháp sống DUY NHẤT ở đây; sáu thân lệnh cổng người
+chép điều khoản `GATE-ONESHOT-CLAUSE` nguyên văn và trỏ về khối này, không tự
+diễn đạt.
 
 <!-- <<<GATE-ONESHOT-GRAMMAR -->
 Cú pháp gõ (một dòng, đúng thứ tự này): `<lệnh> [<slug>] [--repo <path>]
