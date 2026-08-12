@@ -215,12 +215,15 @@ cache` và dòng gợi ý cài Codex).
 | Ca | Việc |
 |---|---|
 | `P95` | Trỏ `AG,FL` về `root` + `root/"feature-loop"`; `IN_PKG` đổi sang `commands/*.md`; `fl` → `skills/feature-loop/SKILL.md`. **Bẫy:** `copytree(AG,…)` với AG=root sẽ chép cả `.git` — phải thêm `ignore_patterns('.git','node_modules','_acceptance','docs','.worktrees')`. Bộ dò dòng 2028 khớp cả `${CLAUDE_PLUGIN_ROOT}` nên mutant giữ nguyên được. |
-| `P99` `P100` `P101` `P122` `P128` `P133` `P147` `P156` `P173`(E14) `P188` `P193` `P194` | Bỏ phần tử Codex/mirror khỏi danh sách site; sửa hằng số đếm đi kèm; với ca có `gone = X[i]` phải dời neo đột biến sang phần tử CÒN SỐNG |
+| `P100` | Bỏ trọn nửa `check_codex` + `PKG = plugins/acceptance-gate`; giữ nguyên nửa `check_claude` và ba đột biến của nó |
 | `P127` | Bỏ nhánh `codex_init` + `codex-plugin-runner.mjs`; `for d in ("commands","codex","skills")` → bỏ `codex`; ngưỡng `len(THAN)>=5` phải hạ theo số thân thật |
-| `P164` | Trỏ `TOOL` về `feature-loop/scripts/carry-plan.mjs` |
-| `P165`–`P170` `P176` `P178` `P181` | Bỏ vế Codex/mirror, giữ vế Claude + đột biến neo vào vế Claude |
-| `P167` | `TREES` bỏ `codex`, `design-loop` — ca này ĐANG ghim đúng thông điệp «cây khai trong TREES mà không đọc được file nào», nên sửa TREES là đủ |
-| ca đọc `codex/**.toml` (≈ dòng 6960) | Fixture quét `.toml` dưới `codex/` — không còn cây nào; xoá ca hoặc đổi sang cây `.toml` thật còn lại |
+| `P165`–`P170` `P176` `P178` `P181` `P188` `P193` `P194` | Bỏ vế Codex/mirror khỏi bảng site; **đột biến phải neo lại vào vế Claude** (`m3/m6/m8/m12/m13` ở ≈9553–9645 đang neo vào tệp Codex — để nguyên là ca xanh mà không chứng minh gì) |
+| `P173` (chỉ vế E14) | Bỏ đoạn «biên Codex» đọc `codex/acceptance-gate/skills`; bốn vế E3/E13/E15/E19 giữ nguyên |
+| ca đọc `codex/**.toml` (≈ dòng 6916) | Fixture đòi có `.toml` dưới `codex/` — không còn cây nào. Đây là ca **thuộc nhóm xoá thứ 26** nếu không tìm được cây `.toml` thật khác; quyết bằng cách ĐỌC, và nếu xoá thì AC-11 xuống `145` TRƯỚC khi đo |
+
+**Đã xong ở lượt 2 (commit `f6f7976` + lượt kế):** `P90` `P91` `P93` `P94`
+`P99` `P101` `P122` `P128` `P133` `P147` `P156` `P164` `P167` + khối 3-thân-lệnh
+`SITES` (approve/signoff/start).
 
 **Sau đó mới tới** (theo thứ tự): `tests/workflows/` 3 file còn trỏ Codex ·
 ~15 tệp văn bản còn tham chiếu sống (`CLAUDE.md` 4 chỗ · `GUIDE.md` ·
