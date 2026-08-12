@@ -17,12 +17,9 @@ verified_commit: b82650af5ab0
 > sửa-sau-Cổng-1 chưa khai. Làn máy 19/19 xanh vẫn đúng — nó xanh vì đo cái dễ
 > hơn cái đã hứa.
 
-Toàn bộ **19/19 phép đo máy XANH**, sổ chạy ghim đúng commit đang kiểm. Nhưng
-verdict chưa được phép là ĐẠT: hợp đồng này đi qua S4 theo luật cũ, mà chặng
-**rà soát đối kháng** (một context sạch đọc lại toàn bộ diff để tìm lỗi ngoài
-tầm phép đo) chưa chạy. Ghi PENDING-JUDGMENT thay vì ĐẠT là có chủ ý — một
-trang bằng chứng tuyên ĐẠT khi mới chạy nửa chặng chính là hình dạng
-xanh-giả mà bộ kit này sinh ra để chặn.
+Toàn bộ **19/19 phép đo máy XANH** và cả bốn đẳng thức số ca đều khớp con số
+khai trước. Rà soát đối kháng đã chạy và cho thấy **màu xanh đó không đủ**: một
+phần đáng kể các chân đo không phân biệt được cây lành với cây hỏng.
 
 **Hội đồng ba giám khảo KHÔNG ÁP DỤNG cho hồ sơ này — không phải bỏ quên.**
 Hợp đồng có **0 phép đo loại phán-xét**: mọi lời hứa ở đây đều đo được bằng máy
@@ -54,13 +51,17 @@ tổ-tiên không được chấp nhận: nó cho phép chèn commit khác vào 
 ghim đúng sha đó kèm điều kiện mở lại. Đây là chân duy nhất biện minh cho việc
 gỡ ~194 file, nên nó được đo bằng bốn vế riêng biệt.
 
-## Sáu chiều đỏ đã chạy thật
+## Chiều đỏ — sửa lại theo rà soát
 
-Mỗi chiều dựng một bản sao có vật đã lưu kho chép ngược về, chạy lại **chính**
-hàm kiểm, và đòi nó đỏ đúng thông điệp: tên mốc bịa · chép thư mục đã gỡ về ·
-thêm lại một mục vào bản khai báo gói · tiêm tham chiếu ngoài vùng miễn trừ
-(hai kiểu) · đổi một ký tự sha trong ADR · xoá một dòng của vật cấm-đụng · chép
-lại một khoá cấu hình đã chết.
+Bản trước của trang này viết «Sáu chiều đỏ đã chạy thật» rồi liệt kê **tám**
+món. Rà soát đối kháng đếm lại: script in **chín** dòng đột-biến, số thật sự đi
+qua một hàm kiểm là **6–7**, và ít nhất hai món (`E5`, `E10`) **không chạy** —
+chúng chỉ in một câu ở thì tương lai («lưới trên *sẽ* ĐỎ»). Một chiều khác
+(`E10`) còn là hằng-đúng: nó `grep` tìm chính chuỗi vừa tự ghi ra, và chuỗi ấy
+vốn đã có sẵn trong một dòng chú thích.
+
+Danh sách chiều đỏ **thật sự** đi qua hàm kiểm, cùng những chỗ phải dựng lại,
+nằm ở mục B của `review-findings.md`.
 
 ## Ngoài hợp đồng — việc của người quyết
 
@@ -71,9 +72,12 @@ lại một khoá cấu hình đã chết.
 2. **Phạm vi quét văn bản không gồm thư mục kiểm.** Ở đó «không còn con trỏ
    chết» được cưỡng chế bằng thứ mạnh hơn tìm-kiếm-chuỗi: bộ kiểm phải xanh và
    số ca phải khớp. Lập luận đầy đủ nằm trong chính bộ răng.
-3. **Sửa-sau-Cổng-1 có dấu vết: sáu lần.** Ba lần chỉnh con số kỳ vọng (mỗi lần
-   TRƯỚC một phép đo), một lần thêm vật bị gỡ sót, hai lần sửa định nghĩa phép
-   đo bắt nhầm vật. Toàn bộ ghi trong nhật ký thi công kèm lý do.
+3. **Sửa-sau-Cổng-1: sáu lần ĐÃ khai, và rà soát tìm thêm HAI lần CHƯA khai.**
+   Sáu lần đã khai gồm ba lần chỉnh con số kỳ vọng (mỗi lần TRƯỚC một phép đo),
+   một lần thêm vật bị gỡ sót, hai lần sửa định nghĩa phép đo bắt nhầm vật.
+   Hai lần chưa khai — mảng từ khoá co từ 11 xuống 8, và phạm vi quét bỏ thư
+   mục kiểm — lý do chỉ nằm trong chú thích của script, đúng cái tội mà chính
+   hồ sơ này đang đi tuần. Xem mục C của `review-findings.md`.
 
 ## Giới hạn đã biết
 
@@ -88,5 +92,10 @@ lại một khoá cấu hình đã chết.
 
 ## Việc còn lại trước khi mời ký
 
-Chạy chặng rà soát đối kháng trên diff, rồi cập nhật verdict. Sau chữ ký: chạy
-lại trọn bốn bộ kiểm trước khi đẩy.
+Vòng sửa 1: chữa hai **khẳng định sai trong vật phát đi** (mục A) trước tiên —
+đó là thứ duy nhất đã rời khỏi kho và tới tay người đọc khác. Rồi dựng lại các
+chân đo không sống (mục B), khai hai lần sửa-sau-cổng còn thiếu (mục C), và
+quyết bốn mục ngoài-hợp-đồng (mục E) — trong đó **bump phiên bản** là mục có
+hậu quả ngay với đội đang cài.
+
+Sau khi sửa: chạy lại trọn bốn bộ kiểm + bộ răng, rồi rà soát đối kháng vòng 2.
