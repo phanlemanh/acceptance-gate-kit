@@ -1385,25 +1385,12 @@ hasout D10b "Chọn SQLite thay Postgres" "$G2N"
 hasout D10c "KHÔNG làm multi-tenant" "$G2N"
 case "$G2N" in *"Đã duyệt từ Gate 1"*) echo "  FAIL: D10d (approved block should be absent without seal)"; FAIL_COUNT=$((FAIL_COUNT+1));; *) echo "  PASS: D10d"; PASS_COUNT=$((PASS_COUNT+1));; esac
 
-echo ""
-echo "DSC01-03 design-static-check --require-html"
-DSC="$HERE/../../design-loop/scripts/design-static-check.mjs"
-mkdir -p "$T/dsc/src"; printf '.x{color:var(--color-text)}\n' > "$T/dsc/src/a.css"
-node "$DSC" "$T/dsc/src" --require-html >/dev/null 2>&1; check DSC01 3 $?
-ROUT="$(node "$DSC" "$T/dsc/src" --require-html 2>&1)"
-hasout DSC02 "require-html" "$ROUT"
-node "$DSC" "$T/dsc/src" >/dev/null 2>&1; check DSC03 0 $?   # không flag → hành vi cũ giữ nguyên
-
-echo ""
-echo "SG1-4 design-config-patch --surface-globs"
-DCP="$HERE/../../design-loop/scripts/design-config-patch.mjs"
-mkdir -p "$T/sg"; printf 'executors:\n  test:\n    api: "npm test"\n  script:\n    smoke_sv_design: "npm run smoke:sv-design"\n' > "$T/sg/config.yaml"
-node "$DCP" --config "$T/sg/config.yaml" --surface-globs "apps/web/**,packages/ui/**" --write >/dev/null 2>&1
-grep -q '^design:$' "$T/sg/config.yaml"; check SG1 0 $?
-grep -q 'surface_globs: \[apps/web/\*\*, packages/ui/\*\*\]' "$T/sg/config.yaml"; check SG2 0 $?
-node "$DCP" --config "$T/sg/config.yaml" --surface-globs "khac/**" --write >/dev/null 2>&1
-grep -c '^design:$' "$T/sg/config.yaml" | grep -qx '1'; check SG3 0 $?   # idempotent — không nhân đôi
-grep -qx '    smoke_sv_design: "npm run smoke:sv-design"' "$T/sg/config.yaml"; check SG4 0 $?   # key bảo vệ sống sót byte-y-nguyên sau 2 lần --write
+# DSC01-03 (design-static-check --require-html) và SG1-4 (design-config-patch
+# --surface-globs) đã ĐI THEO design-loop khi lưu kho (hồ sơ
+# luu-kho-codex-va-nghi-le-design, Cổng 1 duyệt 2026-08-12). Bảy assert đó gọi
+# THẲNG hai script trong design-loop/scripts/, nên chúng chết cùng thư mục ấy.
+# Đây là lý do bộ đếm của suite đi từ 671 xuống 664 — con số khai TRƯỚC trong
+# hợp đồng, không phải con số điền sau khi đo.
 
 # '### nhóm phụ' trong ## Criteria KHÔNG được cắt cụt decision card — human duyệt Gate 1
 # trên card thiếu AC là false-green ở tầng con người, nặng hơn răng CI im lặng.
