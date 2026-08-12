@@ -94,7 +94,7 @@ _Avoid_: demo, review meeting; dùng thang PASS/REJECT cho verdict của nó.
 
 **Product map (bản đồ sản phẩm)**:
 View máy sinh `PRODUCT-MAP.md` ở gốc repo — vẽ từ hồ sơ xưởng bởi
-`product-map.mjs`, kiểm bằng `--check` (pattern P30: view == hồ sơ). Trạng
+`product-map.mjs`, kiểm bằng `--check` (view phải khớp hồ sơ). Trạng
 thái vắng mặt phân biệt "đã xoá" với "chưa bật" theo bảng nhãn chung trong
 `lib/workspace-record.cjs`.
 _Avoid_: roadmap, dashboard; sửa tay (nó là view, sửa hồ sơ rồi vẽ lại).
@@ -121,8 +121,8 @@ ghi-thời-điểm gọi là **the hook**, CI gọi là **pre-merge check** (tê
 _Avoid_: evidence gate, merge gate, quality gate (khi chỉ hook/CI).
 
 *Ngoại lệ có chủ đích — **P0 design gate***: là máy móc nhưng GIỮ chữ "gate",
-vì đây là **tên riêng của một tính năng** đã lộ ra ngoài (mô tả plugin
-design-loop trên marketplace), không phải văn xuôi mô tả máy móc — cùng lý do
+vì đây là **tên riêng của một tính năng** đã lộ ra ngoài (mô tả plugin trên
+marketplace), không phải văn xuôi mô tả máy móc — cùng lý do
 tên file được miễn. Viết thường, luôn kèm định tố (`P0 design gate`,
 `design-quality gate`); không bao giờ viết trơ "the Gate". Lint W6 (Đợt 2)
 phải allowlist cụm này. Muốn bỏ ngoại lệ thì đó là một lần đổi tên tính năng

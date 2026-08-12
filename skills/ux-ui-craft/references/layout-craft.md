@@ -118,9 +118,9 @@ Spending rules: margins, paddings, gaps, and positional offsets spend only
 `var(--container-*)`. A raw number in a layout property is the same defect
 as a raw hex — with one exception, the optical adjustment that carries a
 comment naming its reason. A lone component inherits the contract of the
-page that hosts it; only new surfaces write contracts. Where design-loop is
-wired, the spending rule is machine-enforced (`design-static-check`'s
-layout-token-only BLOCK); on a bare repo it is discipline plus the meter.
+page that hosts it; only new surfaces write contracts. Where the design gate is
+wired, the spending rule is machine-enforced (`design-gate.mjs` runs the
+layout-token-only check); on a bare repo it is discipline plus the meter.
 
 ## Running the meter (Steps 6–7)
 

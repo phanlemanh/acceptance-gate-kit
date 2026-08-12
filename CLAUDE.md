@@ -13,7 +13,7 @@
   · [docs/findings/2026-08-10-ra-soat-luat-theo-north-star.md](docs/findings/2026-08-10-ra-soat-luat-theo-north-star.md).
 
 - **ĐÓNG BĂNG LAB (tái lập 2026-08-07):** engine (`skills/`, `feature-loop/`,
-  `design-loop/`, `codex/`, `commands/`, `scripts/`, `lib/`, `hooks/`) chỉ
+  `commands/`, `scripts/`, `lib/`, `hooks/`) chỉ
   nhận (a) **bugfix**, (b) **đóng nốt vòng đang dở lúc ra quyết định**
   (`measure-birth-certificate` — giữa S4, ký hoặc owner chủ động huỷ; KHÔNG
   mở rộng phạm vi nó), và (c) **đợt phẫu thuật GĐ1** khai trong
@@ -24,14 +24,14 @@
   việc đã giao đến 07/08 là kit-sửa-kit, gate-fatigue của owner là ràng
   buộc số 1; chi tiết trong kế hoạch trên.
 
-- **Nguồn sự thật** là `skills/`, `feature-loop/`, `design-loop/`, `codex/`,
-  `commands/`, **và cả `scripts/`, `lib/`, `hooks/`, `vendor/`** — bốn cái sau
-  cũng bị `rsync` vào mirror (xem `scripts/sync-plugin-packages.sh:27-31`), nên
-  sửa ở `plugins/.../lib/` hay `plugins/.../scripts/` là mất việc ở lần sync kế.
-  `plugins/` là **build mirror** sinh bởi
-  `scripts/sync-plugin-packages.sh` — sửa nguồn xong PHẢI chạy sync và commit
-  mirror cùng lượt; test P30 (`sync-plugin-packages.sh --check`) chặn drift.
-  Vì sao commit mirror: [docs/adr/0001](docs/adr/0001-commit-plugins-mirror.md).
+- **MỘT cây nguồn, KHÔNG có bản sao nào phải giữ đồng bộ (từ 2026-08-12).**
+  Kit từng nuôi hai harness song sinh: mọi thay đổi lõi phải sửa hai lần rồi
+  dựng lại một bản sao phẳng và commit nó cùng lượt. Harness Codex và bản sao
+  đó **đã lưu kho**, nên luật «sửa hai lần» hết hiệu lực — sửa ở
+  `skills/`, `feature-loop/`, `commands/`, `scripts/`, `lib/`, `hooks/`,
+  `vendor/` là xong, không còn bước dựng lại nào. Đường lấy về:
+  [ADR 0008](docs/adr/0008-luu-kho-harness-codex.md) ·
+  [ADR 0009](docs/adr/0009-khai-tu-nghi-le-design-loop.md).
 
 - **[CONTEXT.md](CONTEXT.md) là glossary phát triển của kit** (authoring-time).
   Khi viết/sửa SKILL.md, docs, message của script: dùng đúng term chuẩn và

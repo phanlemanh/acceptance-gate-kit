@@ -144,7 +144,26 @@ eval ĐỎ, không phải bỏ qua.
   `scripts` **671 → 664** (gỡ 7 assert `DSC01–03` + `SG1–4` trong
   `tests/scripts/run-tests.sh:1390-1406` gọi thẳng script của design-loop) ·
   `plugins` **173 → 145** · `hooks` **54 → 54** ·
-  `workflows` **62 → 62**. Đỏ ghim "so ca lech ky vong: <truoc> -> <sau>".
+  `workflows` **488 → 463**. Đỏ ghim "so ca lech ky vong: <truoc> -> <sau>".
+  **[SỬA SAU CỔNG 1 — 12/08, Phiên C] Con số `workflows` đổi từ «62 → 62» sang
+  «488 → 467», và đây là sửa một PHÉP ĐẾM SAI chứ không phải nới số.** Suite
+  `workflows` gồm **sáu tệp**, mỗi tệp tự in dòng tổng kết riêng; `62` là số
+  của **đúng một tệp** (`skill-claims.test.mjs`) — dòng cuối cùng in ra, nên
+  dễ bị đọc nhầm thành tổng. Tổng thật đo trên cây của mốc là **488**
+  (`acceptance-verify` 324 · `claim-scan` 42 · `measure-law-mutants` 33 ·
+  `execute-parallel` 16 · `carry-plan` 11 · `skill-claims` 62). Giữ nguyên
+  «62 → 62» thì tiêu chí này mù với 426 ca còn lại — đúng lớp
+  «tổng-kết-không-kèm-số-ca» đã ghi sổ.
+  **Dẫn xuất 463, khai trước khi sửa:** mất **25 ca**, đều là ca chỉ đo được
+  trên bản chỉ dẫn tiếng Anh của harness Codex — `skill-claims` **62 → 44**
+  (hai vòng `MM2`/`MM2m` × 7 câu, cộng hai vế Codex của `JRE_CLAUSES` chạy qua
+  hai vòng `JR6`/`JR6m` = 4 ca) · `measure-law-mutants` **33 → 26** (vòng
+  `MM7e` × 7 câu) · `claim-scan` **42 → 42** (chỉ bớt một vế assert BÊN TRONG
+  một ca đang có, số ca không đổi) · ba tệp còn lại không đụng.
+  **Vì sao con số này phải khai lại một lần nữa (467 → 463):** bản khai trước
+  đếm sót `JRE_CLAUSES`. Nó lộ ra vì tệp `skill-claims` **dừng giữa chừng** và
+  không in nổi dòng tổng kết — đúng thứ đẳng thức số-ca sinh ra để bắt, và là
+  lý do không được thay đẳng thức bằng một cái sàn.
   **Sàn `≥` không dùng được cho một suite bị chủ ý làm teo** — nó chỉ đúng cho
   suite không đụng tới; dùng sàn ở đây thì lúc S4 đỏ, đường thoát tự nhiên là
   hạ con số xuống mức vừa đo, và phép đo mất hẳn khả năng bắt gỡ-nhầm.
