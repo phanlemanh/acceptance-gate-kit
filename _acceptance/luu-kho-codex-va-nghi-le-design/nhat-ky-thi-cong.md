@@ -201,6 +201,46 @@ cắt cả cụm · các hằng số đếm sẽ vỡ: `P90` (`len(SITES)==8`, `
 · `P91` (`found/8`) · `P57` (`len(present)==2`) · `P80` (`len(texts)==3`) ·
 `P127` (`len(THAN)>=5`) · `P93` (`EXPECT_DIRS`).
 
+## TRẠNG THÁI BÀN GIAO (Phiên C, 12/08 — nối tiếp chính xác từ đây)
+
+**Đã xong ở lượt này:** bugfix khối thoát-sớm (`feab99b`) · sửa-sau-Cổng-1 có
+dấu vết (`67b2720`) · 2 ADR + 0001 superseded (`6a26b6f`) · phẫu thuật suite
+đợt 1 (`410cbf1`): **xoá 25 ca**, **trim 20 ca**, dọn tham chiếu chết trong
+comment của 5 script + `resolve-plugin.mjs` (gỡ thật nhánh `.codex/plugins/
+cache` và dòng gợi ý cài Codex).
+
+**Suite hiện ĐỎ có chủ đích** — chưa mổ xong. Còn đúng những ca sau (đã đọc,
+đã biết phải làm gì, chưa làm):
+
+| Ca | Việc |
+|---|---|
+| `P95` | Trỏ `AG,FL` về `root` + `root/"feature-loop"`; `IN_PKG` đổi sang `commands/*.md`; `fl` → `skills/feature-loop/SKILL.md`. **Bẫy:** `copytree(AG,…)` với AG=root sẽ chép cả `.git` — phải thêm `ignore_patterns('.git','node_modules','_acceptance','docs','.worktrees')`. Bộ dò dòng 2028 khớp cả `${CLAUDE_PLUGIN_ROOT}` nên mutant giữ nguyên được. |
+| `P99` `P100` `P101` `P122` `P128` `P133` `P147` `P156` `P173`(E14) `P188` `P193` `P194` | Bỏ phần tử Codex/mirror khỏi danh sách site; sửa hằng số đếm đi kèm; với ca có `gone = X[i]` phải dời neo đột biến sang phần tử CÒN SỐNG |
+| `P127` | Bỏ nhánh `codex_init` + `codex-plugin-runner.mjs`; `for d in ("commands","codex","skills")` → bỏ `codex`; ngưỡng `len(THAN)>=5` phải hạ theo số thân thật |
+| `P164` | Trỏ `TOOL` về `feature-loop/scripts/carry-plan.mjs` |
+| `P165`–`P170` `P176` `P178` `P181` | Bỏ vế Codex/mirror, giữ vế Claude + đột biến neo vào vế Claude |
+| `P167` | `TREES` bỏ `codex`, `design-loop` — ca này ĐANG ghim đúng thông điệp «cây khai trong TREES mà không đọc được file nào», nên sửa TREES là đủ |
+| ca đọc `codex/**.toml` (≈ dòng 6960) | Fixture quét `.toml` dưới `codex/` — không còn cây nào; xoá ca hoặc đổi sang cây `.toml` thật còn lại |
+
+**Sau đó mới tới** (theo thứ tự): `tests/workflows/` 3 file còn trỏ Codex ·
+~15 tệp văn bản còn tham chiếu sống (`CLAUDE.md` 4 chỗ · `GUIDE.md` ·
+`QUICKSTART.md` · `README.md` (gồm hàng `.codex-plugin/plugin.json` và đường
+cài Codex mà `P28` đang canh) · `CONTEXT.md` · `commands/approve.md` ·
+`commands/signoff.md` · `skills/acceptance/SKILL.md` + 3 reference ·
+`skills/uat-session/SKILL.md` · `skills/ux-ui-craft/references/layout-craft.md:121`
+(tham chiếu SỐNG, PHẢI sửa) · `feature-loop/skills/feature-loop/SKILL.md` nhánh
+CT2 · `.github/workflows/gate.yml` (tên bước còn nhắc P30 + comment) ·
+`.claude-plugin/plugin.json`/`feature-loop/.claude-plugin/plugin.json` **KHÔNG
+sửa** — đã khai miễn trừ sử-liệu ở AC-4) · gỡ `.codex-plugin/` · `P28` trim về
+đường cài Claude · bộ răng `luu-kho-rang.sh` (10 chân + chiều đỏ, gồm chân
+AC-14 và AC-15) · chạy trọn 4 suite · S4.
+
+**Số kỳ vọng phải chỉnh trước khi đo:** hiện hợp đồng ghi `147` với dẫn xuất
+`173 − 24 − 2`. Sau khi `P26` vào danh sách xoá, dẫn xuất đúng là
+**`173 − 25 − 2 = 146`**. Sửa AC-11 lần nữa (có dấu vết) TRƯỚC khi chạy đo —
+và nếu phần trim còn lại lộ thêm ca không có đích để trỏ về thì lại chỉnh
+tiếp, mỗi lần đều PHẢI trước phép đo, không bao giờ sau.
+
 ## Còn lại (chưa làm)
 
 1. Phẫu thuật `tests/plugins/run-tests.sh` theo ba nhóm A/B/C ở trên — 56 ca,

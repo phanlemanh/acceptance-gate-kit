@@ -1686,13 +1686,9 @@ root = Path(sys.argv[1])
 REF = "skills/acceptance/references/human-facing-language.md"
 SITES = ["commands/acceptance-card.md", "commands/acceptance-report.md",
          "commands/acceptance-status.md",
-         "feature-loop/skills/feature-loop/SKILL.md",
-         "codex/acceptance-gate/skills/acceptance-card/SKILL.md",
-         "codex/acceptance-gate/skills/acceptance-report/SKILL.md",
-         "codex/acceptance-gate/skills/acceptance-status/SKILL.md",
-         "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md"]
-LOOPS = (SITES[3], SITES[7])
-assert len(SITES) == 8, "danh sach cho tro khong du 8"
+         "feature-loop/skills/feature-loop/SKILL.md"]
+LOOPS = (SITES[3],)
+assert len(SITES) == 4, "danh sach cho tro khong du 4"
 
 # Khuon cau-ve-hinh: rut tu BAN LUAT (ben viet), tim trong hai ban vong lap
 # (ben doc). Phep do DUONG thay cho ve phu dinh "khong ghim mot dinh dang nao" —
@@ -1724,7 +1720,7 @@ def check(read):
 live = lambda rel: (root / rel).read_text(encoding="utf-8")
 assert check(live) == [], check(live)                            # doi chung DUONG
 
-gone = SITES[5]
+gone = SITES[2]
 m1 = lambda rel: live(rel).replace(REF, "xxx") if rel == gone else live(rel)
 assert f"{gone}: thieu duong dan ban luat" in check(m1), \
     "dot bien go pointer khoi 1 file khong do dung thong diep"
@@ -1779,11 +1775,7 @@ from pathlib import Path
 root = Path(sys.argv[1])
 SITES = ["commands/acceptance-card.md", "commands/acceptance-report.md",
          "commands/acceptance-status.md",
-         "feature-loop/skills/feature-loop/SKILL.md",
-         "codex/acceptance-gate/skills/acceptance-card/SKILL.md",
-         "codex/acceptance-gate/skills/acceptance-report/SKILL.md",
-         "codex/acceptance-gate/skills/acceptance-status/SKILL.md",
-         "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md"]
+         "feature-loop/skills/feature-loop/SKILL.md"]
 RX = re.compile(r"skills/acceptance/references/[\w.-]+\.md")
 
 def check(base):
@@ -1797,8 +1789,8 @@ def check(base):
         for h in hits:
             if not (base / h).is_file():
                 errs.append(f"{rel}: con tro tro file khong ton tai — {h}")
-    if found != 8:
-        errs.append(f"chi rut duoc con tro tu {found}/8 file — grep hong, khong phai sach")
+    if found != 4:
+        errs.append(f"chi rut duoc con tro tu {found}/4 file — grep hong, khong phai sach")
     return errs
 
 assert check(root) == [], check(root)                            # doi chung DUONG (cay that)
@@ -1855,7 +1847,7 @@ assert errs and "bang luat lech" in errs[0] and REF_REL in errs[0] and SPEC_REL 
 # ── Vung quet ───────────────────────────────────────────────────────────────
 # Loai DUNG ba muc AC-10 khai, cong ba muc ha tang KHONG phai cay nguon, moi muc
 # ghi ly do. Ba vong truoc deu chet vi vung quet hep hon loi hua:
-#   r1 danh-sach-cho-phep 8 thu muc  -> bo lot design-loop/ va vendor/
+#   r1 danh-sach-cho-phep vai thu muc -> bo lot vendor/
 #   r2 khoet them docs/superpowers/  -> vung do dang chua ban sao that
 #   r3 bo moi path co dau cham + loc duoi file -> bo lot .out-of-scope/ (nguon
 #      that, CLAUDE.md goi dich danh) va moi ban sao nam trong .yaml/.txt/.py
@@ -1877,8 +1869,8 @@ def scan(base):
         out.append(p)
     return out
 
-EXPECT_DIRS = ["skills", "commands", "feature-loop", "codex", "lib", "scripts",
-               "hooks", "docs", "design-loop", "vendor"]
+EXPECT_DIRS = ["skills", "commands", "feature-loop", "lib", "scripts",
+               "hooks", "docs", "vendor"]
 
 files = scan(root)
 dc = {d: 0 for d in EXPECT_DIRS}
@@ -1952,7 +1944,7 @@ try:
                     f"{root}/", f"{dst}/"], check=True)
     assert verdict(dst) == [], f"ban sao NGUYEN VEN phai XANH truoc: {verdict(dst)}"
     src = (dst / REF_REL).read_text(encoding="utf-8")
-    for rel in ("design-loop/skills/design-subtrack/BAN-SAO-THU.md",   # r1 bo lot
+    for rel in ("vendor/impeccable/BAN-SAO-THU.md",                   # r1 bo lot
                 "docs/superpowers/plans/BAN-SAO-THU.md",               # r2 khoet ra
                 ".out-of-scope/BAN-SAO-THU.md"):                       # r3 bo lot
         plant = dst / rel
@@ -1978,13 +1970,12 @@ finally:
     shutil.rmtree(tmp)
 PY
 
-run "P94 quyen tra lai tai cong + tien to so, ca hai ban lenh dung the (E13)" \
+run "P94 quyen tra lai tai cong + tien to so tren the (E13)" \
   python3 - "$ROOT" <<'PY'
 import sys
 from pathlib import Path
 root = Path(sys.argv[1])
-CARDS = ["commands/acceptance-card.md",
-         "codex/acceptance-gate/skills/acceptance-card/SKILL.md"]
+CARDS = ["commands/acceptance-card.md"]
 PREFIX = "lỗ-kit — ngôn ngữ mặt người"
 
 def check(read):
@@ -2001,7 +1992,7 @@ def check(read):
 
 live = lambda rel: (root / rel).read_text(encoding="utf-8")
 assert check(live) == [], check(live)                            # doi chung DUONG
-gone = CARDS[1]
+gone = CARDS[0]
 mut = lambda rel: live(rel).replace(PREFIX, "xxx") if rel == gone else live(rel)
 assert f"{gone}: thieu tien to so quyet dinh" in check(mut), \
     "dot bien go quyen tra lai khoi 1 harness khong do dung thong diep"
