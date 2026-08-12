@@ -4,7 +4,7 @@ LUU-KHO-TAG: truoc-luu-kho-2026-08 -> 1df86adb7da1a013adad9a4c2f14cd62a4ac9c39
   OK   LUU-KHO-TAG: cây của mốc có design-loop/
   OK   LUU-KHO-TAG: cây của mốc có plugins/
   OK   LUU-KHO-TAG: la cha cua commit go dau tien OK
-  ĐỎ   LUU-KHO-TAG: chua day len remote
+  OK   LUU-KHO-TAG: co tren remote OK
        [đột biến] tên mốc bịa → hàm kiểm ĐỎ đúng như mong đợi
 == E2 · sáu vật đã lưu kho ==
   OK   LUU-KHO-PATH: 6/6 vang o HEAD, co o tag OK
@@ -71,4 +71,4 @@ LUU-KHO-MIRROR: 5/5
 == E15 · bộ kiểm không có khối thoát-sớm giữa tệp ==
   OK   LUU-KHO-SUITE: chi 1 khoi thoat, nam o duoi tep OK
 
-LUU-KHO-RANG: 1 phép đo ĐỎ
+LUU-KHO-RANG: tất cả phép đo xanh

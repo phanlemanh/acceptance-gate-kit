@@ -270,6 +270,35 @@ con số. Lần khai đầu ghi `467` vì đếm sót `JRE_CLAUSES`; nó lộ ra
 `skill-claims` **dừng giữa chừng, không in nổi dòng tổng kết** — nếu tiêu chí
 là một cái SÀN thì lần đó đã xanh.
 
+## ⚠ VẤP THỨ BẢY — phép đo chập chờn, và màu đỏ nói SAI nguyên nhân
+
+Làn máy S4 lượt đầu: **2/19 lượt ĐỎ trên cùng một script, cùng một cây.** Cùng
+một `luu-kho-rang.sh` chạy 14 lần cho 12 xanh 2 đỏ — đó không phải kết quả, đó
+là phép đo không ổn định.
+
+Nguyên nhân: chân «mốc đã lên remote» gọi **mạng**. Mạng chập một nhịp thì cây
+xanh cũng thành đỏ. Nhưng cái tệ hơn con số là **thông điệp**: nó in
+«chua day len remote» trong khi mốc đã đẩy từ lâu — tức màu đỏ chỉ sai chỗ.
+
+Hai kiểu hỏng này khác hẳn nhau và không được gộp:
+
+| Kiểu hỏng | Nghĩa | Việc phải làm |
+|---|---|---|
+| mốc chưa đẩy | **vật hỏng** — hồ sơ không có đường đảo | chặn merge |
+| không hỏi được remote | **đường truyền hỏng** | chạy lại |
+
+Gộp chúng vào một câu là dạy người đọc phớt lờ đúng cái chân sống-còn nhất của
+hồ sơ này — chân duy nhất chứng minh ~194 file gỡ đi có đường lấy lại.
+
+**Chữa:** thử 3 lượt để nuốt cú chập ngắn; hết 3 lượt vẫn không hỏi được thì
+**vẫn ĐỎ** (fail-closed — không chứng minh được là đã đẩy thì không được coi
+như đã đẩy) nhưng ghim rõ «lỗi đường truyền, KHÔNG phải lỗi hồ sơ». Chạy lại 5
+lượt liên tiếp: 5/5 xanh.
+
+**Bài học cho lớp:** một phép đo phụ thuộc mạng phải trả lời được câu «đỏ này
+là do vật hay do đường?» — nếu không, nó vừa gây báo động giả vừa che được lỗi
+thật ở đúng cùng một câu chữ.
+
 ## TRẠNG THÁI BÀN GIAO (Phiên C, 12/08 — nối tiếp chính xác từ đây)
 
 **Đã xong ở lượt này:** bugfix khối thoát-sớm (`feab99b`) · sửa-sau-Cổng-1 có
