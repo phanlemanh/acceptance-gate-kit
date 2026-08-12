@@ -63,9 +63,12 @@ lập, không như mô tả bản vá.
   sửa `scripts/pre-merge-check.sh`, Then bản mirror phải đồng bộ byte-đối-byte
   (`sync-plugin-packages.sh --check` xanh) — nếu không, consumer cài plugin vẫn
   dính lỗ.
-- AC-9: Given bản vá đổi hành vi cưỡng chế, When đọc diff, Then version plugin
-  đã bump (1.40.0 → 1.40.1) ở cả 4 manifest — consumer không có cách nào biết
-  mình đang chạy bản thủng hay bản vá nếu version đứng yên. (judgment)
+- AC-9: Given bản vá thêm LUẬT GATE MỚI (config.yaml tự nó cần cổng) chứ không
+  chỉ vá lỗ, When đọc `GUIDE.md §10` ("minor cho luật gate mới") và tiền lệ
+  1.20.0/1.21.0/1.39.0, Then version phải bump **minor** (1.40.0 → 1.41.0) ở cả
+  4 manifest VÀ `description` phải mang dòng cảnh báo nêu đích danh hai lớp PR
+  nay bị chặn — `main` không có `CHANGELOG.md` nên description là kênh báo hiệu
+  văn xuôi duy nhất. (judgment)
 - AC-10: Given người vá có thể siết quá tay, When đọc phạm vi thay đổi, Then
   bản vá KHÔNG đổi bất kỳ luật nào khác của `pre-merge-check.sh` (gap-probe,
   per-slug, staleness, cờ `--no-t1-escape`). (judgment)
@@ -79,6 +82,15 @@ lập, không như mô tả bản vá.
   `_acceptance/<slug>/` — tức được chính răng T1-escape miễn trừ, When ai đó
   sửa nó, Then phải có một phép đo NGOÀI slug đỏ lên; và sửa cả phép đo đó thì
   phải chạm một file non-T1 của kit, tức người duyệt nhìn thấy.
+- AC-15: Given repo tiêu thụ đặt `_acceptance/` KHÔNG ở gốc git (monorepo, gọi
+  `pre-merge-check.sh pkg --base ref`), When một PR mang hồ sơ THẬT
+  (`pkg/_acceptance/<slug>/contract.md` có trên đĩa), Then luật KHÔNG được nổ —
+  và khi cùng repo đó chỉ có thư mục rác thì VẪN phải nổ. Path của `git diff`
+  tương đối với GỐC CÂY GIT, không phải với `$ROOT`.
+- AC-16: Given `_acceptance/config.yaml` không thể miễn qua `t1_skip_globs`
+  (`case` chặn trước `match_globs`, có chủ ý), When luật nổ vì file này, Then
+  phải in một dòng `NOTE [PR]` nêu lối đi khả thi — không để thông điệp chung
+  dẫn người đọc vào đường cụt.
 - AC-13: Given eval ghim chuỗi vào stdout của `rang.sh`, When `rang.sh` chạy
   và xanh, Then chính stdout đó phải chứa các dòng `CO-MAT PASS: TE…` và dòng
   đếm `CO-MAT tong: 12/12` — thước đo phải tự nó đo được, không để chuỗi kỳ
@@ -117,8 +129,11 @@ chính là hành vi cần chấm dứt.
   "hướng: vá tiếp".)
 - **Không** tự động cập nhật bản vendored trong các repo tiêu thụ
   (floorplanstudio, artifact-platform…) — đó là việc rollout riêng, có PR riêng.
-- **Không** đổi thông điệp violation đang có (nó vốn đã hứa đúng điều kiện
-  `_acceptance/<slug>/`; bản vá làm mã khớp lời hứa, không sửa lời hứa).
+- ~~Không đổi thông điệp violation~~ — **đã nới theo quyết định owner
+  2026-08-12 ("msg: sửa")**: judge độc lập đo được rằng thông điệp chung khuyên
+  dùng `t1_skip_globs`, lối đã chứng minh là vô hiệu cho `_acceptance/config.yaml`.
+  Một cổng khuyên điều bất khả thi thì tệ hơn cổng im lặng. AC-16 phủ việc này;
+  thông điệp VIOLATION gốc vẫn giữ nguyên, chỉ THÊM một dòng `NOTE [PR]`.
 
 ## Notes
 

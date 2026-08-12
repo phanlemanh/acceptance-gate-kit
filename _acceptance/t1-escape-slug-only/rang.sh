@@ -73,6 +73,15 @@ printf '%s\n' "$VA" | grep -q "VIOLATION \[PR\]" \
   || keu "ban VA khong chan fixture (le ra phai nо) — rang mu"
 printf '%s\n' "$VA" | grep -q "src/app.js" \
   || keu "ban VA chan nhung khong liet dung file ma vi pham"
+# Fixture nay sua _acceptance/config.yaml, nen phai co dong NOTE rieng: thong
+# diep chung khuyen dung t1_skip_globs, loi da do duoc la VO HIEU cho file nay
+# (case chan truoc match_globs). Mot cong khuyen dieu bat kha thi te hon cong
+# im lang. In dau vet ra stdout thay vi chi kiem tham — cung bai hoc P0-1.
+if printf '%s\n' "$VA" | grep -q "NOTE \[PR\]: _acceptance/config.yaml la CAU HINH CONG"; then
+  echo "CO-MAT NOTE-CONFIG: thong diep neu loi di kha thi cho config.yaml"
+else
+  keu "thieu dong NOTE [PR] rieng cho _acceptance/config.yaml — nguoi doc bi day vao duong cut"
+fi
 
 # dot bien: dung lai dong `case` cu (mot nhanh, gate_touched=1 cho MOI duong dan)
 MUT="$T/pre-merge-check-mutant.sh"
@@ -111,7 +120,7 @@ B="$(shasum plugins/acceptance-gate/scripts/pre-merge-check.sh | cut -d' ' -f1)"
 for M in .claude-plugin/plugin.json .codex-plugin/plugin.json \
          plugins/acceptance-gate/.codex-plugin/plugin.json \
          codex/acceptance-gate/.codex-plugin/plugin.json; do
-  grep -q '"version": "1.40.1"' "$M" || keu "$M chua bump len 1.40.1"
+  grep -q '"version": "1.41.0"' "$M" || keu "$M chua bump len 1.41.0"
 done
 
 [ "$ERR" -eq 0 ] && echo "RANG OK (12 dong case + DV5 + dot bien + mirror + 4 manifest)"

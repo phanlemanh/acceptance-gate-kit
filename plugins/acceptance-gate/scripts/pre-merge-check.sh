@@ -454,6 +454,13 @@ else
     # "skipped") bị vượt luôn. Mù thì phải KHAI là mù.
     if DIFF_FILES="$(git -C "$ROOT" diff --name-only "$BASE_SHA...HEAD" -- 2>/dev/null)"; then
       DIFF_READY=1
+      # Goc de ghep voi path cua `git diff` — chung tuong doi voi GIT TOP-LEVEL,
+      # khong phai voi $ROOT (xem slug_in_diff). Chi khoi T1-escape dung, va chi
+      # de tra su ton tai cua contract.md. Fallback ve $ROOT neu rev-parse hong:
+      # thieu tien to dung thi tra file that bai -> gate_touched=0 -> luat nghiem
+      # hon, khong bao gio long hon.
+      GIT_TOP="$(git -C "$ROOT" rev-parse --show-toplevel 2>/dev/null)" || GIT_TOP=""
+      [ -n "$GIT_TOP" ] || GIT_TOP="$ROOT"
     else
       DIFF_FILES=""
       DIFF_SKIP_NOTE="git diff \"$BASE\"...HEAD failed (no merge base? shallow/grafted clone, unrelated history, force-pushed base)"
@@ -1039,8 +1046,15 @@ else
       _acceptance/config.yaml|*/_acceptance/config.yaml)
         nont1_hits="${nont1_hits}${f}"$'\n'; continue ;;
       _acceptance/*/*|*/_acceptance/*/*)
-        if [ -f "$ROOT/${f%/*}/contract.md" ] \
-           || [ -f "$ROOT/$(printf '%s' "$f" | sed 's|\(.*_acceptance/[^/]*\)/.*|\1|')/contract.md" ]; then
+        # Tien to GIT_TOP, KHONG phai $ROOT. Path cua `git diff` LUON tuong doi
+        # voi git top-level — chinh file nay ghi dieu do o slug_in_diff(). Ban
+        # dau ghep "$ROOT/$f" va do duoc: repo monorepo (`pre-merge-check.sh pkg
+        # --base main`) tra `pkg/pkg/_acceptance/<slug>/contract.md` -> khong
+        # thay -> gate_touched=0, nen mot PR MANG HO SO THAT bi chan. Fail-CLOSED
+        # va consumer khong co loi thoat ngoai doi cau truc repo: do dung la
+        # "siet qua tay" ma AC-10 sinh ra de bat.
+        _sd="$(printf '%s' "$f" | sed 's|\(.*_acceptance/[^/]*\)/.*|\1|')"
+        if [ -f "$GIT_TOP/$_sd/contract.md" ]; then
           gate_touched=1
         fi
         continue ;;
@@ -1060,6 +1074,16 @@ CHANGED
       printf '%s' "$t3_hits" | head -10 | sed 's/^/    /'
       violations=$((violations+1))
     elif [ -n "$nont1_hits" ]; then
+      # `_acceptance/config.yaml` KHONG the mien qua t1_skip_globs: `case` o
+      # tren chan no truoc khi toi `match_globs`, co chu y (cau hinh cong sua
+      # duoc thi rang tu tat duoc). Nen thong diep chung — "declare T1 honestly
+      # (t1_skip_globs)" — la LOI KHUYEN BAT KHA THI cho rieng file nay; judge
+      # doc lap do duoc: them `- "_acceptance/config.yaml"` vao t1_skip_globs
+      # van do. In them mot dong rieng thay vi de nguoi doc di duong cut.
+      case "$nont1_hits" in
+        *_acceptance/config.yaml*)
+          echo "NOTE [PR]: _acceptance/config.yaml la CAU HINH CONG — no khong the mien qua t1_skip_globs (case chan truoc match_globs, co chu y). Loi di dung: kem mot _acceptance/<slug>/ that cho chinh thay doi cau hinh nay, hoac chay voi --no-t1-escape neu day la commit bootstrap chua co slug nao." ;;
+      esac
       echo "VIOLATION [PR]: non-T1 files changed (outside t1_skip_globs) but the PR carries NO _acceptance/<slug>/ artifacts — declare T1 honestly (t1_skip_globs) or run the gate. Changed:"
       printf '%s' "$nont1_hits" | head -10 | sed 's/^/    /'
       violations=$((violations+1))

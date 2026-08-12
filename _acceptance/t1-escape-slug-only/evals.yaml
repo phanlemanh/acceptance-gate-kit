@@ -120,10 +120,24 @@ evals:
     expected: "exit 0; stdout có 'PASS: TE26a' và 'PASS: TE26b' — hash rang.sh khớp ghim, và ghim thật sự đọc file"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
+  - id: E17
+    criterion: AC-15
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "exit 0; stdout có 'PASS: TE27a', 'PASS: TE27a2' (monorepo + hồ sơ thật KHÔNG bị chặn) và 'PASS: TE27b', 'PASS: TE27b2' (monorepo + thư mục rác VẪN bị chặn)"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E18
+    criterion: AC-16
+    executor: script
+    cmd: config:executors.script.t1_escape_rang
+    expected: "exit 0; stdout có 'CO-MAT NOTE-CONFIG' — cổng nêu lối đi khả thi cho config.yaml thay vì đường cụt"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
   - id: E11
     criterion: AC-9
     executor: judgment
-    question: "Version đã bump 1.40.0 -> 1.40.1 ở cả 4 manifest. Với một bản vá ĐỔI HÀNH VI CƯỠNG CHẾ (PR từng pass nay sẽ bị chặn), patch-bump có đủ báo hiệu cho repo tiêu thụ không, hay phải là minor (1.41.0)? Cân nhắc: consumer ghim version trong config/CI và đọc số này để biết mình đang chạy bản thủng hay bản vá."
+    question: "Version nay bump 1.40.0 -> 1.41.0 (minor) o ca 4 manifest, va description mang dong canh bao neu dich danh hai lop PR nay bi chan. Voi mot ban va vua va lo vua THEM LUAT GATE MOI (config.yaml tu no can cong), muc bao hieu nay da du chua? Doi chieu GUIDE.md §10 va tien le 1.20.0/1.21.0/1.39.0. main khong co CHANGELOG.md."
     inputs: [contract.md, _acceptance/t1-escape-slug-only/rang.sh]
     evidence_required: [judged_by, verdict, rationale]
 

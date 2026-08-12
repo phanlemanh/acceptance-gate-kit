@@ -2770,6 +2770,40 @@ TE25="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"; check TE25a 1 $?
 hasout TE25b "VIOLATION [PR]" "$TE25"
 hasout TE25c "_acceptance/config.yaml" "$TE25"
 
+# ── TE27: hinh dang LONG (monorepo) — `_acceptance/` khong o goc git ───────
+# Judge doc lap do duoc lo nay tren ban va dau: dieu kien "co contract.md" ghep
+# tien to "$ROOT/$f", trong khi path cua `git diff` LUON tuong doi voi GIT
+# TOP-LEVEL (chinh file nay ghi dieu do o slug_in_diff). Goi
+# `pre-merge-check.sh pkg --base ref` -> tra `pkg/pkg/_acceptance/slugA/
+# contract.md` -> khong thay -> mot PR MANG HO SO THAT bi chan. Fail-CLOSED,
+# consumer khong co loi thoat ngoai doi cau truc repo.
+#
+# TE27a: monorepo + ho so THAT -> KHONG duoc no (chong siet qua tay)
+# TE27b: monorepo + thu muc RAC -> VAN phai no (khong duoc noi tay khi sua)
+echo "TE27 _acceptance/ nam sau (monorepo): ho so that KHONG bi chan, rac VAN bi chan"
+te27_repo() { # <case> <ten thu muc duoi _acceptance/> <co contract.md: yes|no>
+  local d="$GPR/$1"; rm -rf "$d"; mkdir -p "$d/pkg/_acceptance/$2" "$d/pkg/src"
+  printf 'schema_version: 1\nenforcement: strict\nrisk_tiers:\n  t1_skip_globs:\n    - "docs/**"\nsignoff:\n  required_for: [T2, T3]\n' \
+    > "$d/pkg/_acceptance/config.yaml"
+  [ "$3" = yes ] && printf -- '---\nschema_version: 1\nslug: %s\nrisk_tier: T2\nstatus: draft\n---\n' "$2" \
+    > "$d/pkg/_acceptance/$2/contract.md"
+  printf 'v1\n' > "$d/pkg/src/app.js"
+  git -C "$d" init -q 2>/dev/null
+  git -C "$d" add -A >/dev/null
+  git -c user.email=t@t -c user.name=t -C "$d" commit -qm base >/dev/null
+  TE27_B="$(git -C "$d" rev-parse HEAD)"; TE27_R="$d"
+  printf 'v2\n' >> "$d/pkg/src/app.js"
+  mkdir -p "$d/pkg/_acceptance/$2/evidence"; printf 'e\n' > "$d/pkg/_acceptance/$2/evidence/e1.txt"
+  git -C "$d" add -A >/dev/null
+  git -c user.email=t@t -c user.name=t -C "$d" commit -qm feat >/dev/null
+}
+te27_repo te27a slugA yes
+TE27A="$(bash "$CHECK" "$TE27_R/pkg" --base "$TE27_B" 2>&1)"; check TE27a 0 $?
+nothas TE27a2 "VIOLATION [PR]" "$TE27A"
+te27_repo te27b tmpjunk no
+TE27B="$(bash "$CHECK" "$TE27_R/pkg" --base "$TE27_B" 2>&1)"; check TE27b 1 $?
+hasout TE27b2 "VIOLATION [PR]" "$TE27B"
+
 # ── TE26: ghim hash rang.sh — vi no TU MIEN TRU chinh rang no phuc vu ──────
 # Lo P0-4 cua phan bien context sach: toan bo suc phan biet cua ho so
 # t1-escape-slug-only nam trong mot file do CHINH NGUOI VA viet, dat duoi
@@ -2784,7 +2818,7 @@ hasout TE25c "_acceptance/config.yaml" "$TE25"
 # NHIN THAY. Khong con duong nao neutralise thuoc do ma khong ai hay.
 echo "TE26 rang.sh cua ho so t1-escape-slug-only phai khop hash ghim"
 TE26_F="$ROOT_REAL/_acceptance/t1-escape-slug-only/rang.sh"
-TE26_PIN="22300442f472ef522c1b5fffab15d45322c4230a988dd5f58ae87b3070ab25cd"
+TE26_PIN="94c2f39184b44c1badec5a42fe30b90ee411b88d35fee31a2de6beb761c6a175"
 if [ -f "$TE26_F" ]; then
   TE26_NOW="$(shasum -a 256 "$TE26_F" | cut -d' ' -f1)"
   same TE26a "$TE26_PIN" "$TE26_NOW"
