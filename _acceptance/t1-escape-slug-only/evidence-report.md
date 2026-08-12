@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: t1-escape-slug-only
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason: "Vòng 4 chạy lại toàn bộ trên cây sau commit vá a938623 (lỗi $ROOT fail-closed trên monorepo + minor bump + thông điệp khả thi). Mười sáu eval máy E1–E10, E13–E18 xanh hết, mã thoát 0, mọi chuỗi ghim đọc được trực tiếp trong stdout thật của đúng cmd đã khai. Hai mục judgment E11, E12 để UNCERTAIN — KHÔNG merge verdict PASS của judge vòng 2, vì hai judge chạy lại sau vòng 3 đã LẬT chính hai verdict đó (E12 tìm ra lỗi $ROOT trên monorepo, E11 đòi minor bump); judge mới đang chấm song song trên cây a938623 và orchestrator sẽ merge sau. Hợp đồng là T3 (scripts/pre-merge-check.sh nằm trong t3_paths của chính kit), nên theo luật T3 mọi mục judgment vẫn cần NGƯỜI phán trực tiếp ở Cổng 2 — verdict máy cao nhất có thể đạt là PENDING-JUDGMENT, không phải PASS."
 verified_by: fresh-context verification subagent (round 4)
 enforcement_mode: strict
 bypass_used: false
 verified_commit: a93862386959bd3e9da605c1020a3ef53897f16b
-human_signoff:
+human_signoff: Manh Phan 2026-08-12
 ---
 
 # Evidence Report: t1-escape-slug-only
@@ -177,7 +177,7 @@ human_signoff:
   rationale: GUIDE.md dòng 958 ghi thành văn lệ của kit — "Bump version khi ship (minor cho luật gate mới)" — và tiền lệ v1.20 (thêm răng chặn mới ở pre-merge) cũng đi minor, nên 1.40.0 -> 1.41.0 là đúng lệ. Kiểm thật tại HEAD a938623: cả 4 manifest đều "version": "1.41.0" và cả 4 đều mang đoạn cảnh báo "SIET RANG T1-escape (BREAKING FOR CONSUMERS)" nêu đích danh hai lớp PR bị chặn, kèm lối thoát khả thi và cảnh báo config.yaml không miễn được qua t1_skip_globs. `git ls-tree -r main | grep -i changelog` trả về RỖNG, xác nhận description đúng là kênh văn xuôi duy nhất.
   required_evidence:
     - n/a (verdict PASS)
-  human_override:
+  human_override: Manh Phan 2026-08-12
 
 - eval: E12
   judged_by: judge-subagent (fresh context, cây a938623)
@@ -185,7 +185,7 @@ human_signoff:
   rationale: Phạm vi đúng bằng khối T1-escape cộng một biến mới — hunk ở 457 (GIT_TOP), 1003/1027 (tách case), 1077 (NOTE); gap-probe, per-slug, stale_files(), slug_in_diff(), phân loại t3_paths, --no-t1-escape, nhánh DIFF_READY, re-pin, bypass_ack, enforcement_mode đều byte-identical, mirror giống hệt, và tập gate_touched mới là tập con chặt của main cộng config.yaml nên không chỗ nào lỏng đi. Fixture đã đo bốn nhóm - (1) monorepo hồ sơ thật exit 0 / thư mục rác exit 1 (cùng fixture dưới main là clean, tức lỗ đóng đúng chiều); (2) fallback GIT_TOP chỉ với tới trên bare clone và ở đó nó CHẶN cả PR mang hồ sơ thật, fail-closed không bao giờ lỏng hơn; (3) cả hai lối thoát trong NOTE chạy thật, và lời phủ định của NOTE cũng đúng - thêm config.yaml vào t1_skip_globs dưới mọi hình dạng vẫn chặn; (4) đổi tên slug + sửa mã clean, xoá thuần clean, xoá + sửa mã chặn.
   required_evidence:
     - n/a (verdict PASS). Bốn quan sát KHÔNG chặn verdict, chuyển tiếp cho người ký - (a) PR chỉ sửa config.yaml có lối thoát duy nhất trong tầm contributor là viết một slug thật, vì --no-t1-escape nằm ở dây CI; ma sát thật cho commit bootstrap một-lần-mỗi-repo; (b) config.yaml không còn được phân loại T3 kể cả khi consumer khai trong t3_paths (vẫn chặn, chỉ khác nhãn); (c) stale_files() vẫn bỏ qua toàn bộ _acceptance/, nên config.yaml chặn T1-escape nhưng không làm bằng chứng stale - bất đối xứng CÓ SẴN nghiêng phía lỏng, bản vá không đụng; (d) đường dẫn fixture kiểu tests/**/_acceptance/<slug>/contract.md tồn tại trên đĩa vẫn bật gate_touched, vì kỷ luật neo ^ của slug_in_diff() chưa áp ở đây - hẹp hơn main nên là lỗ tồn dư, không phải lỗ mới.
-  human_override:
+  human_override: Manh Phan 2026-08-12
 
 - eval: E13
   run_id: t1-escape-slug-only-E13-20260812120800
