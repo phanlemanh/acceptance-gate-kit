@@ -2365,8 +2365,7 @@ const fs = require('fs'), path = require('path'), os = require('os');
 const { execFileSync } = require('child_process');
 const root = process.argv[2];
 const die = m => { console.error(m); process.exit(1); };
-const SOURCES = ['commands/start.md', 'codex/acceptance-gate/skills/start/SKILL.md',
-                 'plugins/acceptance-gate/skills/start/SKILL.md'];
+const SOURCES = ['commands/start.md'];
 
 const extractKeys = txt => {
   const m = txt.match(/<<<START-SCAN-KEYS\n([\s\S]*?)START-SCAN-KEYS>>>/);
@@ -2542,9 +2541,8 @@ import sys
 from pathlib import Path
 root = Path(sys.argv[1])
 LAW = "human-facing-language.md"
-# Moi harness: (file, anchor cua khoi render) — buoc nap phai dung TRUOC anchor.
-RENDER = {"commands/start.md": "Trình MỘT thẻ",
-          "codex/acceptance-gate/skills/start/SKILL.md": "Present ONE card"}
+# (file, anchor cua khoi render) — buoc nap phai dung TRUOC anchor.
+RENDER = {"commands/start.md": "Trình MỘT thẻ"}
 
 def check_load(files):
     errs = []
@@ -3630,8 +3628,6 @@ root = Path(sys.argv[1])
 BODIES = [
     ("commands/approve.md", "approved_by"),
     ("commands/signoff.md", "human_signoff"),
-    ("codex/acceptance-gate/skills/approve/SKILL.md", "approved_by"),
-    ("codex/acceptance-gate/skills/signoff/SKILL.md", "human_signoff"),
     ("skills/uat-session/SKILL.md", "decided_by"),
 ]
 for rel, anchor_field in BODIES:
@@ -3639,7 +3635,7 @@ for rel, anchor_field in BODIES:
     assert "product-map.mjs" in t, f"{rel}: thieu buoc lam moi ban do"
     assert t.find("product-map.mjs") > t.find(anchor_field), \
         f"{rel}: buoc lam moi ban do nam TRUOC {anchor_field} — sai diem regen"
-    if rel.startswith(("commands/", "codex/")):
+    if rel.startswith("commands/"):
         # Dan script qua PLUGIN_ROOT, khong hardcode 'scripts/' kieu self-host:
         # ghim duong self-host la consumer khong bao gio regen (gap-probe F3).
         seg = t[max(0, t.find("product-map.mjs") - 240): t.find("product-map.mjs")]
@@ -4341,8 +4337,7 @@ out = json.loads(subprocess.run(["node", str(root / "scripts/start-scan.mjs"), "
                                 capture_output=True, text=True, check=True).stdout)
 khoa_that = set(out.keys()) | set(out.get("groups", {}).keys())
 assert "broken" in khoa_that and "map" in khoa_that, f"bo dem tinh tao: dau ra scan la {sorted(khoa_that)} — nghi buoc chay hong"
-BODIES = DOCS + ["scripts/start-scan.mjs", "commands/start.md",
-                 "codex/acceptance-gate/skills/start/SKILL.md"]
+BODIES = DOCS + ["scripts/start-scan.mjs", "commands/start.md"]
 for rel in BODIES:
     t = (root / rel).read_text(encoding="utf-8")
     for m in re.finditer(r"(?<![A-Za-z_])(\w+)\[\]", t):
@@ -4590,9 +4585,7 @@ if "advisory by default" in readme:
     errs.append("README: cau cu 'advisory by default' quay lai — nguoc voi scaffold cua init")
 # 2. jsdom phải có mặt ở CẢ 3 điểm init (Claude acceptance-init, design-init 2 harness) —
 #    thiếu nó mọi design eval BLOCKED (design-gate.mjs DOM mode).
-for rel in ["commands/acceptance-init.md",
-            "design-loop/commands/design-init.md",
-            "codex/design-loop/skills/design-init/SKILL.md"]:
+for rel in ["commands/acceptance-init.md"]:
     if "jsdom" not in (root / rel).read_text(encoding="utf-8"):
         errs.append(f"{rel}: mat loi nhac jsdom")
 # 3. Manifest Claude: /start thuộc v1.30 (ship 3187b6e), không được trôi về entry khác.
@@ -5378,9 +5371,6 @@ const gc = fs.readFileSync(path.join(root, 'scripts/gate-card.js'), 'utf8');
 const used = [...new Set([...gc.matchAll(/\bpl\.([a-z_]+)/g)].map(x => x[1]))];
 for (const k of keys) if (!used.includes(k)) { console.error('     key trong khuon ma reader KHONG doc: ' + k); process.exit(1); }
 for (const k of used) if (!keys.includes(k)) { console.error('     reader doc key NGOAI khuon (writer khong duoc bao viet): ' + k); process.exit(1); }
-const cx = fs.readFileSync(path.join(root, 'codex/acceptance-gate/skills/acceptance-card/SKILL.md'), 'utf8');
-for (const k of ['coverage_plain', 'gap_probe_plain'])
-  if (!cx.includes(k)) { console.error('     codex SKILL thieu key ' + k + ' (parity 2 harness)'); process.exit(1); }
 JS
 # overlay sinh bằng code từ extract: phủ TOÀN BỘ coverage, CHỈ row 0 của probe
 P147EX="$(node "$ROOT/scripts/gate-card.js" --root "$P147WS" --slug demo --gate 1 --extract 2>/dev/null)"
@@ -5801,13 +5791,6 @@ with tempfile.TemporaryDirectory() as d:
     # doi chung DUONG: o vi tri that thi KHONG co dong ghi chu
     out_real = run_gold(ws_base)
     assert NOTE not in out_real, "vi tri that ma van bao khong nap duoc tu dien"
-    # ban MIRROR (plugins/) cung phai tra duoc tu dien — day la ban repo tieu
-    # thu that su chay; duong dan suy tu vi tri script nen no phai dung ca hai noi
-    mirror = root / "plugins/acceptance-gate/scripts/acceptance-gold.mjs"
-    assert mirror.exists(), "khong thay ban mirror de kiem"
-    out_mirror = run_gold(ws_base, script=mirror)
-    assert NOTE not in out_mirror, "ban mirror khong tra duoc tu dien — duong dan hong o repo tieu thu"
-    assert T_HUMAN in dict_block(out_mirror), "ban mirror khong in khoi Tu dien"
 P156PY
 
 echo "P157 (E2,E4,E5) ba luat ngon ngu co hoc: enum ma tran, moi goc nhin mot dong, cau trung tinh"
@@ -6870,7 +6853,7 @@ import shutil, sys, tempfile
 from pathlib import Path
 root = Path(sys.argv[1])
 BAD = ["product-management:", "pm-execution:"]
-TREES = ["commands", "codex", "skills", "feature-loop", "design-loop", "scripts", "lib", "hooks"]
+TREES = ["commands", "skills", "feature-loop", "scripts", "lib", "hooks"]
 # R4-1 (r5): DANH SÁCH LOẠI TRỪ, không phải danh sách cho phép. Bản cũ liệt 7
 # đuôi được quét và bỏ lọt 6 thân prompt agent .toml + .py + .tsv — đúng loại
 # file mà một tên plugin bên-thứ-ba sẽ bị nhét vào (kiểm tay: tiêm vào
@@ -6987,7 +6970,7 @@ import json, pathlib, re, subprocess, sys, tempfile
 root = pathlib.Path(sys.argv[1])
 
 # ══ E3+E4: ma tran thong diep — CHUOI ghim, khac nhau doi mot ══
-TOOL = root / "plugins/feature-loop-codex/scripts/carry-plan.mjs"
+TOOL = root / "feature-loop/scripts/carry-plan.mjs"
 W = root / "_acceptance/card-text-fidelity"
 _lines = [json.loads(l) for l in (W / "run-log.jsonl").read_text(encoding="utf-8").split("\n") if l.strip()]
 _last = max(e.get("round", 0) for e in _lines if e.get("kind") is None and e.get("evalId"))
@@ -9451,11 +9434,11 @@ def check_grammar(law_text):
         if s in g:
             errs.append("GRAMMAR mang lai luat cu " + tag + " (neo am: " + s + ")")
     return errs
-# ---- 6 than lenh co-cau-hoi (nguon hai harness; mirror do P30 canh rieng)
+# ---- 3 than lenh co-cau-hoi
 SITES = {
-    "approve": ["commands/approve.md", "codex/acceptance-gate/skills/approve/SKILL.md"],
-    "signoff": ["commands/signoff.md", "codex/acceptance-gate/skills/signoff/SKILL.md"],
-    "start": ["commands/start.md", "codex/acceptance-gate/skills/start/SKILL.md"],
+    "approve": ["commands/approve.md"],
+    "signoff": ["commands/signoff.md"],
+    "start": ["commands/start.md"],
 }
 texts = {rel: (root / rel).read_text(encoding="utf-8") for rels in SITES.values() for rel in rels}
 GATE_NEEDLES = [
