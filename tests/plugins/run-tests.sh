@@ -350,8 +350,8 @@ P44PY
 
 # ── P48: chu ky ledger_mark — them khoi luat moi ma quen khai so -> suite DO ─
 # AC-7c cua premerge-rules-ledger: dem ten duy nhat o call-site ledger_mark va
-# so BANG voi EXPECTED, tren ca nguon (scripts/) lan mirror (plugins/). P30 canh
-# mirror==nguon; day la chieu KHAC — "them khoi luat ma quen khai so" — ma P30
+# so BANG voi EXPECTED tren nguon (scripts/). Day la chieu "them khoi luat ma
+# quen khai so" — mot chieu ma phep so ban-chep truoc day
 # khong thay vi hai ban van y het nhau.
 echo "P48 ledger_mark call-site == EXPECTED tren nguon"
 p48_names() {
@@ -3343,7 +3343,7 @@ if (saiThuTu.code !== 2) die(`--root khong gia tri phai exit 2, duoc ${saiThuTu.
 // 8. XOA ban do: file DA duoc git theo doi ma bien mat la mot lan XOA, khong
 // phai "chua tung dung". Ban do nam trong t1_skip_globs nen mot PR chi xoa no
 // vua bo qua cong nghiem thu vua xanh o CI neu day cung exit 0. Mirror bi xoa
-// thi P30 do — ban do phai xu nhu vay.
+// thi cong DO — ban do phai xu nhu vay.
 const gitTmp = fs.mkdtempSync(path.join(os.tmpdir(), "p106-git-"));
 fs.mkdirSync(path.join(gitTmp, "_acceptance/x"), { recursive: true });
 // Repo NAY dung ban do, nen no KHAI mien tru — dung thu `acceptance-init`
@@ -3654,7 +3654,7 @@ assert "executors.script.product_map" in mut, "buoc tiem chua bao gio chay"
 assert "executors.script.product_map" not in suite_keys(mut), \
     "doi khoa ra khoi suite_keys ma phep do van xanh — dang do tu vung, khong do quan he"
 
-# Ban do cua CHINH kit: doi chung song cua P30 la CHAY --check, khong phai
+# Ban do cua CHINH kit: doi chung song la CHAY --check, khong phai
 # kiem file ton tai.
 assert (root / "PRODUCT-MAP.md").is_file(), "kit chua commit PRODUCT-MAP.md cua chinh no"
 import subprocess
@@ -9157,7 +9157,7 @@ P193PY
 # ── P194: may-ganh-nguoi-quyet (chip 3b kit 2.1) — hai nguyen tac
 # «nguoi chi khai dieu chi nguoi biet» + «khuyen nghi truoc, hoi mo la duong
 # cung». Vat: khoi GRAMMAR (neo moi) + 6 than lenh co-cau-hoi (2 harness).
-# Mirror KHONG do o day — P30 canh byte-equal doc lap. 5 chieu do, moi mutant
+# 5 chieu do, moi mutant
 # la ban sao in-memory di qua CHINH cac ham check that + in xac-nhan-dot-bien.
 run "P194 hai nguyen tac may-ganh-nguoi-quyet: neo grammar + 6 than lenh + truong ghi (E1/E2/E3 may-ganh-nguoi-quyet)" \
   python3 - "$ROOT" <<'P194PY'

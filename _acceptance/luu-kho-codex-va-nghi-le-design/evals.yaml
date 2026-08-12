@@ -342,7 +342,11 @@ evals:
       - tests/plugins/run-tests.sh
     expected: >
       exit 0; stdout có "Results: all plugin tests passed" VÀ số dòng `PASS:`
-      đếm được khớp ĐẲNG THỨC `sau = 173 − <số assert của P30>`, với **173** là
+      đếm được **bằng đúng 145** — `145 = 173 − 26 − 2`: 26 ca xoá hẳn (chỉ tồn
+      tại vì bản song sinh/bản sao/nghi lễ) cộng 2 phân ca của `P39` chết theo
+      tệp không còn. Con số đi qua ba lần khai lại (147 → 146 → 145), MỖI LẦN
+      trước một phép đo, mỗi lần vì đọc ra thêm một ca không có đích để trỏ về.
+      Bản trước viết `173 − <số assert của P30>`, với **173** là
       số ca đo tại `daa9b3d` (suite này KHÔNG tự in số — nó chỉ nói "all plugin
       tests passed" — nên số ca phải đếm bằng dòng `PASS:`; chính vì thế nó là
       suite dễ teo mà không ai thấy). In "LUU-KHO-SUITE: plugins 173 -> <n> OK";
@@ -371,6 +375,50 @@ evals:
     paths:
       - tests/workflows
     expected: >
-      exit 0; "Results: 62 passed, 0 failed" — số 62 là baseline tại `daa9b3d`.
-      Cùng lý do E13: hồ sơ không chạm workflow, số đổi là tín hiệu lan.
+      exit 0; "Results: all workflow tests passed" VÀ tổng dòng `PASS:` bằng
+      đúng **463**. Bản trước ghi "62 passed" — đó là số của RIÊNG MỘT tệp
+      (`skill-claims.test.mjs`), dòng tổng kết cuối cùng in ra nên dễ đọc nhầm
+      thành tổng cả suite; tổng thật ở mốc là **488** trên sáu tệp. Giữ số cũ
+      thì tiêu chí mù với 426 ca còn lại (lớp tổng-kết-không-kèm-số-ca).
+      `463 = 488 − 25`: 25 ca chỉ đo được trên bản chỉ dẫn tiếng Anh của harness
+      đã lưu kho — `skill-claims` 62→44, `measure-law-mutants` 33→26, bốn tệp
+      còn lại không đổi. Kiểm TỪNG TỆP, không chỉ tổng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4c
+    criterion: AC-14
+    executor: script
+    cmd: config:executors.script.luu_kho_rang
+    paths:
+      - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+      - .claude-plugin/plugin.json
+      - feature-loop/.claude-plugin/plugin.json
+    expected: >
+      exit 0 — **ĐỎ-NGOÀI-DANH-SÁCH** cho miễn trừ nhật-ký-phiên-bản. Miễn trừ
+      chỉ che TRƯỜNG `description` của đúng hai manifest đã khai. Script tiêm
+      một tham chiếu `design-loop` vào một trường KHÁC (`interface.longDescription`)
+      của bản sao và assert lưới ĐỎ ghim đúng tên trường; đối chứng dương: trên
+      bản THẬT, ngoài `description` không trường nào dính. In "LUU-KHO-REF: hai
+      manifest chi dinh o truong description OK". Không có chân này thì miễn trừ
+      trượt từ một-trường thành cả-tệp, rồi thành cả họ `*/plugin.json` — mà đó
+      đúng là loại tệp mọi lần bump phiên bản đều chạm.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E15
+    criterion: AC-15
+    executor: script
+    cmd: config:executors.script.luu_kho_rang
+    paths:
+      - tests/plugins/run-tests.sh
+      - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+    expected: >
+      exit 0; stdout có "LUU-KHO-SUITE: chi 1 khoi thoat, nam o duoi tep OK".
+      Script đếm khối `exit 1` ở mức thụt lề của khối tổng kết và đòi ĐÚNG MỘT,
+      nằm trong 10 dòng cuối tệp. Một bản sao của khối tổng kết đuôi lạc vào
+      giữa tệp (lọt từ `044968e`, 05/08) từng nuốt **46 ca cuối** mỗi khi có ca
+      đỏ phía trước, trong khi dòng tổng kết in ra vẫn trông bình thường — nên
+      «56 ca đỏ» của bản đo đầu là con số của một phép đo BỊ CẮT CỤT, số thật
+      là 73. AC-11 là một ĐẲNG THỨC số ca nên nó không thể đo điều nó nói khi
+      đầu vào bị cắt cụt; ghim thành tiêu chí để lần nối ca kế tiếp không chép
+      lại khối ấy lần nữa.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
