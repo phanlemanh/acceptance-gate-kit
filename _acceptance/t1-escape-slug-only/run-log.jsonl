@@ -19,3 +19,17 @@
 {"ts":"2026-08-12T09:34:57Z","round":2,"evalId":"E5","run_id":"t1-escape-slug-only-E5-20260812093457","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
 {"ts":"2026-08-12T09:34:57Z","round":2,"evalId":"E7","run_id":"t1-escape-slug-only-E7-20260812093457","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
 {"ts":"2026-08-12T09:34:57Z","round":2,"evalId":"E9","run_id":"t1-escape-slug-only-E9-20260812093457","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-12T10:24:58Z","round":3,"evalId":"E1","run_id":"t1-escape-slug-only-E1-20260812102458","exit_code":0,"cmd":"bash _acceptance/t1-escape-slug-only/rang.sh"}
+{"ts":"2026-08-12T10:24:58Z","round":3,"evalId":"E2","run_id":"t1-escape-slug-only-E2-20260812102458","exit_code":0,"cmd":"bash _acceptance/t1-escape-slug-only/rang.sh"}
+{"ts":"2026-08-12T10:24:58Z","round":3,"evalId":"E3","run_id":"t1-escape-slug-only-E3-20260812102458","exit_code":0,"cmd":"bash _acceptance/t1-escape-slug-only/rang.sh"}
+{"ts":"2026-08-12T10:24:58Z","round":3,"evalId":"E4","run_id":"t1-escape-slug-only-E4-20260812102458","exit_code":0,"cmd":"bash _acceptance/t1-escape-slug-only/rang.sh"}
+{"ts":"2026-08-12T10:24:58Z","round":3,"evalId":"E6","run_id":"t1-escape-slug-only-E6-20260812102458","exit_code":0,"cmd":"bash _acceptance/t1-escape-slug-only/rang.sh"}
+{"ts":"2026-08-12T10:24:58Z","round":3,"evalId":"E13","run_id":"t1-escape-slug-only-E13-20260812102458","exit_code":0,"cmd":"bash _acceptance/t1-escape-slug-only/rang.sh"}
+{"ts":"2026-08-12T10:24:58Z","round":3,"evalId":"E14","run_id":"t1-escape-slug-only-E14-20260812102458","exit_code":0,"cmd":"bash _acceptance/t1-escape-slug-only/rang.sh"}
+{"ts":"2026-08-12T10:24:58Z","round":3,"evalId":"E15","run_id":"t1-escape-slug-only-E15-20260812102458","exit_code":0,"cmd":"bash _acceptance/t1-escape-slug-only/rang.sh"}
+{"ts":"2026-08-12T10:26:39Z","round":3,"evalId":"E5","run_id":"t1-escape-slug-only-E5-20260812102639","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-12T10:26:39Z","round":3,"evalId":"E7","run_id":"t1-escape-slug-only-E7-20260812102639","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-12T10:26:39Z","round":3,"evalId":"E9","run_id":"t1-escape-slug-only-E9-20260812102639","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-12T10:26:39Z","round":3,"evalId":"E16","run_id":"t1-escape-slug-only-E16-20260812102639","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-12T10:28:19Z","round":3,"evalId":"E8","run_id":"t1-escape-slug-only-E8-20260812102819","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-12T10:37:42Z","round":3,"evalId":"E10","run_id":"t1-escape-slug-only-E10-20260812103742","exit_code":0,"cmd":"bash scripts/sync-plugin-packages.sh --check"}
