@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-feature: Lưu kho harness Codex và khai tử nghi lễ design-loop — chỉ TRỪ, có tag đảo và 2 ADR
+feature: Lưu kho harness Codex và khai tử nghi lễ design-loop — chỉ TRỪ, có mốc git để đảo và 2 ADR
 slug: luu-kho-codex-va-nghi-le-design
 owner: phanlemanh@gmail.com
 risk_tier: T2
@@ -15,13 +15,13 @@ time_human_minutes: {gate1: 0, gate2: 0}
 
 ## Context
 
-Kit đang nuôi hai harness song sinh. Mọi thay đổi engine phải sửa hai lần: một
+Kit đang nuôi hai harness song sinh. Mọi thay đổi trong lõi kit phải sửa hai lần: một
 lần ở cây nguồn cho Claude, một lần ở lớp phủ Codex — rồi build lại một bản
 mirror phẳng và commit nó. Owner tuyên 12/08: đội chủ yếu dùng Claude. Nhánh
 nghi lễ của design-loop (mockup → evidence → push) cũng đã tự ghi khai tử trong
-bản đồ sản phẩm: ba bước của nó không tự động được, và repo tiêu thụ chưa có UI.
+bản đồ sản phẩm: ba bước của nó không tự động được, và repo tiêu thụ chưa có mặt người nào để thiết kế.
 
-Hồ sơ này **chỉ TRỪ**, và mọi thứ gỡ đều lấy lại được bằng một tag git đặt ngay
+Hồ sơ này **chỉ TRỪ**, và mọi thứ gỡ đều lấy lại được bằng một mốc git đặt ngay
 trước commit gỡ đầu tiên. Máy đo design của kit **ở lại** — nó là kit, không
 phải design-loop.
 
@@ -31,15 +31,19 @@ Source input: [docs/plans/2026-08-12-de-bai-dot1-cat-va-luu-kho.md](../../docs/p
 ## Criteria
 
 Mọi tiêu chí âm tính ("không còn X") PHẢI kèm đối chứng dương: cùng câu quét
-chạy trên worktree `origin/main` cho **>0 hit**, eval in cả hai con số.
+chạy trên cây của mốc `truoc-luu-kho-2026-08` cho **>0 hit**, eval in cả hai con
+số. Cố ý neo vào mốc chứ không vào `origin/main`: mốc bất biến, `origin/main`
+còn di chuyển — và một needle gõ sai cho 0 hit ở CẢ HAI đầu, nên vế "mốc >0" là
+chân duy nhất phân biệt "đã gỡ" với "phép đo chưa bao giờ chạy". Mốc VẮNG →
+eval ĐỎ, không phải bỏ qua.
 
-- AC-1: Given commit ngay trước commit gỡ đầu tiên, When đọc `git tag`, Then tồn
-  tại tag `truoc-luu-kho-2026-08` trỏ đúng commit đó, và `git checkout` tag đó
+- AC-1: Given commit ngay trước commit gỡ đầu tiên, When đọc danh sách mốc git, Then tồn
+  tại mốc `truoc-luu-kho-2026-08` trỏ đúng commit đó, và `git checkout` mốc đó
   cho lại cây có đủ `codex/`, `design-loop/`, `plugins/`.
 - AC-2: Given cây đã gỡ, When liệt kê đường dẫn, Then `codex/`, `tests/codex/`,
   `scripts/codex-self-script-refs.tsv`, `.agents/`, `design-loop/`,
   `tests/design-loop/` **không còn trên cây**; đối chứng dương: cả sáu đều tồn
-  tại trên `origin/main`.
+  tại ở cây của mốc `truoc-luu-kho-2026-08`.
 - AC-3: Given hai marketplace, When đọc `.claude-plugin/marketplace.json`, Then
   entry `design-loop` đã gỡ và hai entry còn lại (`acceptance-gate`,
   `feature-loop`) trỏ nguyên vẹn; `.agents/plugins/marketplace.json` không còn
@@ -48,9 +52,9 @@ chạy trên worktree `origin/main` cho **>0 hit**, eval in cả hai con số.
   `SKILL.md` và `commands/*.md`, When quét tham chiếu SỐNG tới đồ đã lưu kho
   (`codex`, `In Codex…`, `design-loop`, `/design-init`, `/design-mockup`,
   `/design-push`), Then 0 hit; `docs/` (sử liệu) và `_acceptance/` (hồ sơ cũ)
-  ngoài phạm vi. Đối chứng dương trên `origin/main` >0 hit cho từng từ khoá.
+  ngoài phạm vi. Đối chứng dương ở cây của mốc: >0 hit cho TỪNG từ khoá.
 - AC-5: Given nhánh CT2 trong `feature-loop/skills/feature-loop/SKILL.md`, When
-  một feature chạm UI mà config chưa wire design, Then máy hướng sang
+  một feature chạm mặt người mà config chưa wire design, Then máy hướng sang
   **design-pass + eval `ui-check`/`design-gate`**, KHÔNG còn cảnh báo
   "cài design-loop" và KHÔNG còn DỪNG đòi `/design-mockup`; `GUIDE.md` có một
   đoạn ngắn hướng dẫn wire `executors.design` bằng tay.
@@ -58,11 +62,11 @@ chạy trên worktree `origin/main` cho **>0 hit**, eval in cả hai con số.
   `scripts/design-scan.js`, `scripts/build-design-scan.mjs`, `lib/design-detect.mjs`,
   `lib/p-tiers.json`, `vendor/impeccable/`, `tests/design-eval/`, `tests/skills/`,
   và skill `design-pass` + `ux-ui-craft` **còn nguyên**, suite liên quan xanh
-  (đối chứng giữ-gân). `design-loop/scripts/design-static-check.mjs` đi theo tag
+  (đối chứng giữ-gân). `design-loop/scripts/design-static-check.mjs` đi theo mốc git
   vì nó thuộc design-loop, không thuộc kit.
 - AC-7: Given `docs/adr/`, When đọc sau khi gỡ, Then có 2 ADR một-đoạn mới —
   (a) lưu kho Codex, (b) khai tử nghi lễ design-loop — mỗi ADR ghi **đúng sha**
-  của tag và nêu trigger mở lại.
+  của mốc git và nêu trigger mở lại.
 - AC-8: Given ADR 0001 (commit `plugins/` như build mirror), When đọc sau khi
   gỡ, Then nó được đánh dấu **superseded** kèm trỏ tới ADR mới — không xoá sử
   liệu, vì lý do tồn tại của nó (manifest Codex không đọc được cây đa-edition)
@@ -131,9 +135,9 @@ không tham chiếu `design-loop`.
   giữ nguyên chỗ sửa-hai-lần. Nếu owner bác, đường lùi là giữ mirror nguyên
   trạng và chấp nhận M4 chỉ đạt một nửa.
 - Tổng vật gỡ nếu duyệt khuyến nghị: **~194 file** (125 mirror + 36 codex +
-  17 test + 16 design-loop) + 1 sync script + 2 khoá config + 2 manifest.
-- Thứ tự bắt buộc: đặt tag TRƯỚC commit gỡ đầu tiên (AC-1), và ADR ghi sha của
-  tag nên ADR viết SAU khi có tag.
+  17 case đo + 16 design-loop) + 1 sync script + 2 khoá config + 2 manifest.
+- Thứ tự bắt buộc: đặt mốc git TRƯỚC commit gỡ đầu tiên (AC-1), và ADR ghi sha của
+  mốc nên ADR viết SAU khi có mốc.
 - Hồ sơ này và hồ sơ `cat-hinh-thuc` là hai nhánh độc lập từ `daa9b3d`; tiêu chí
   âm tính của `cat-hinh-thuc` cố ý loại trừ `codex/` vì hồ sơ này xoá nó.
   **AC-11 của `cat-hinh-thuc` đòi `sync-plugin-packages.sh --check` xanh — tiêu

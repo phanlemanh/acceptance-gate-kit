@@ -24,7 +24,7 @@ flowchart TD
 ## Chờ duyệt phạm vi
 
 - Dấu cross-layer đọc theo cùng luật với judgment — trích dẫn Dấu hết bị chấm như mang Dấu (`crosslayer-uncoded`)
-- Lưu kho harness Codex và khai tử nghi lễ design-loop — chỉ TRỪ, có tag đảo và 2 ADR (`luu-kho-codex-va-nghi-le-design`)
+- Lưu kho harness Codex và khai tử nghi lễ design-loop — chỉ TRỪ, có mốc git để đảo và 2 ADR (`luu-kho-codex-va-nghi-le-design`)
 - Răng cross-layer chấm bằng nguồn dùng chung — Nhãn hết làm trượt, tham chiếu chéo hết bị chấm oan (`premerge-ac-line`)
 
 ## Đã giao
