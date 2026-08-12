@@ -6624,8 +6624,6 @@ root = Path(sys.argv[1])
 BODIES = [
     ("commands/start.md", "Bắt đầu việc mới", "Dưới thẻ",
      "KHÔNG dùng `superpowers:brainstorming`"),
-    ("codex/acceptance-gate/skills/start/SKILL.md", "Bắt đầu việc mới", "Below the card",
-     "do NOT use `superpowers:brainstorming`"),
 ]
 def segment(rel, txt, a, b):
     i = txt.find(a)
@@ -6670,7 +6668,7 @@ const die = m => { console.error(m); process.exit(1); };
 // chuỗi đó. Thân lệnh đổi tên khoá mà reader không đổi ⇒ fixture khai khoá mới
 // ⇒ reader trả null ⇒ case ĐỎ. Bản cũ gõ tay 'brainstorm_skill' đúng khuôn bên
 // ĐỌC nên hai đầu không bao giờ được nối (bài "đo ở phía consumer").
-const BODIES = ['commands/start.md', 'codex/acceptance-gate/skills/start/SKILL.md'];
+const BODIES = ['commands/start.md'];
 const declared = BODIES.map(rel => {
   const txt = fs.readFileSync(path.join(root, rel), 'utf8');
   const m = txt.match(/`discovery\.([a-z0-9_]+)`/);
@@ -6778,10 +6776,6 @@ const SEG = [
     // Thêm ở r1 mà quên thước (r2 bắt): xoá cả mệnh đề thì mọi case vẫn xanh,
     // trong khi đây là nhánh duy nhất mà vắng nó gây đúng cái hại đã ghi.
     third: /nằm trong danh sách skill[\s\S]{0,40}?khả dụng[\s\S]{0,60}?→[\s\S]{0,40}?NÓI THẲNG[\s\S]{0,260}?grill của kit/i },
-  { rel: 'codex/acceptance-gate/skills/start/SKILL.md', a: 'Bắt đầu việc mới', b: 'Below the card',
-    pos: /a value\s*→\s*open the session with exactly\s+that skill/,
-    neg: /`null`\s*→\s*run the kit's own grill ritual/, tail: 'never block',
-    third: /NOT in this session's available-skill list[\s\S]{0,60}?→[\s\S]{0,40}?say so in one line[\s\S]{0,260}?grill ritual/i },
 ];
 const segOf = (txt, s) => {
   const i = txt.indexOf(s.a), j = i < 0 ? -1 : txt.indexOf(s.b, i);
@@ -6893,16 +6887,25 @@ for area in TREES:
 # ── R4-1: đối chứng ĐÍCH DANH loại file từng lọt (thân prompt agent .toml) ──
 # Không gộp vào vòng tiêm chung ở trên: vòng đó lấy file ĐẦU TIÊN của mỗi cây,
 # nên nếu bộ lọc lại thu hẹp thì .toml vẫn có thể lặng lẽ ra ngoài vùng quét.
-tomls = sorted((root / "codex").rglob("*.toml"))
-assert tomls, "khong tim thay file .toml nao trong codex/ — fixture hong hoac cay da doi"
+# Fixture do CODE SINH trong chính lần chạy: cây hiện không còn file .toml nào,
+# và một đối chứng phụ thuộc "cây phải sẵn có loại file đó" sẽ chết lặng ngay
+# lần dọn thư mục kế tiếp — đúng lớp lỗi mà chính nó sinh ra để chặn.
 tmp = Path(tempfile.mkdtemp(prefix="p167toml-"))
 try:
-    shutil.copytree(root / "codex", tmp / "codex")
-    v = sorted((tmp / "codex").rglob("*.toml"))[0]
-    v.write_text(v.read_text(encoding="utf-8") + "\nproduct-management:brainstorm\n", encoding="utf-8")
-    off3, _ = sweep(tmp)
-    assert any(v.name in o for o in off3), \
-        f"doi chung .toml FAIL: tiem ten plugin vao {v.name} ma phep quet van xanh — {off3[:3]}"
+    shutil.copytree(root / "commands", tmp / "commands")
+    v = tmp / "commands" / "agent-prompt-thu.toml"
+    v.write_text("[prompt]\nbody = \"\"\"\nproduct-management:brainstorm\n\"\"\"\n", encoding="utf-8")
+    off_pos, counts_pos = sweep(tmp)
+    assert any(v.name in o for o in off_pos), \
+        f"doi chung .toml FAIL: tiem ten plugin vao {v.name} ma phep quet van xanh — {off_pos[:3]}"
+    # Chieu nguoc: go dung dong tiem thi ca file .toml VAN duoc doc (khong phai
+    # xanh vi bi loc ra) — phan biet "bat dung" voi "chua bao gio quet".
+    v.write_text("[prompt]\nbody = \"\"\"\nkhong co ten plugin nao\n\"\"\"\n", encoding="utf-8")
+    off_neg, counts_neg = sweep(tmp)
+    assert not any(v.name in o for o in off_neg), \
+        f"doi chung am .toml FAIL: file sach ma van bi neu ten — {off_neg[:3]}"
+    assert counts_neg.get("commands", 0) == counts_pos.get("commands", 0), \
+        "so file doc duoc doi giua hai lan — buoc quet khong on dinh"
 finally:
     shutil.rmtree(tmp)
 
@@ -7068,27 +7071,6 @@ HARNESS = {
         },
         'examples': ['đo-chuỗi-thay-quan-hệ', 'hạ-thước', 'fail-open'],
     },
-    'codex': {
-        'path': ROOT / 'codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md',
-        'cap': 'Cap at three rounds',
-        'ideas': {
-            'so-lop':   (r"compare this round's error class with the previous round's",
-                         "compare this round's error class with the\nprevious round's"),
-            'ket-luan': (r'second fix round still produces errors of the same\s*class.*?solution shape is wrong',
-                         'If the SECOND fix round still produces errors of the SAME\nCLASS as round one, the **solution shape is wrong**, not the details.'),
-            'dung':     (r'stop\s*—\s*do\s*not dispatch round three on your own',
-                         'STOP — do\nNOT dispatch round three on your own.'),
-            'ba-duong': (r'three options to the human.*?change the shape.*?narrow the scope.*?ship with known limits',
-                         'Present three options to the human:\n**change the shape** · **narrow the scope** · **ship with known limits**;'),
-        },
-        'ves': {
-            'khang-dinh': (r'"same class" means the same error-class name',
-                           '"Same class" means the same ERROR-CLASS NAME from the error-class ledger'),
-            'phu-dinh':   (r'not the same line of\s*code or the same measurement',
-                           'NOT the same line of\ncode or the same measurement'),
-        },
-        'examples': ['string-presence-instead-of-relation', 'lowering-the-ruler', 'fail-open'],
-    },
 }
 
 OPEN = '<!-- <<<STOP-PATCHING-CLAUSE -->'
@@ -7213,7 +7195,7 @@ for line in tbl.splitlines():
         errs.append(f'bảng STOP-PATCH-MUTANTS: dòng {line!r} không đủ 3 cột')
         continue
     ca, ban, phrase = parts
-    for h in (['claude', 'codex'] if ban == 'cả hai' else [ban]):
+    for h in (['claude'] if ban == 'cả hai' else [ban]):
         rows.append((ca, h, phrase))
 
 expected_n = 0
@@ -7307,10 +7289,9 @@ NEEDED = [
     SLUG + '/make-record.mjs',
     SRC_REPORT,
     'feature-loop/skills/feature-loop/SKILL.md',
-    'codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md',
 ]
 GENERATED = ['bien-ban-vong-2.md'] + [
-    f'chi-dan-{h}-{a}-menh-de.md' for h in ('claude', 'codex') for a in ('co', 'khong')]
+    f'chi-dan-{h}-{a}-menh-de.md' for h in ('claude',) for a in ('co', 'khong')]
 MARK_OPEN = '<!-- <<<STOP-PATCHING-CLAUSE -->'
 errs = []
 
@@ -7362,7 +7343,7 @@ if not errs:
         errs.append('đối chứng dương: đổi hồ sơ nguồn mà biên bản KHÔNG đổi theo — bộ sinh không đọc nguồn')
 
 # Hai nhanh phai KHAC nhau, neu khong doi chung am vo nghia
-for h in ('claude', 'codex'):
+for h in ('claude',):
     co, khong = f'chi-dan-{h}-co-menh-de.md', f'chi-dan-{h}-khong-menh-de.md'
     if co in live and MARK_OPEN not in live[co]:
         errs.append(f'[{h}] nhánh CÓ mệnh đề lại KHÔNG chứa mốc')
@@ -7402,10 +7383,9 @@ EV = ROOT / '_acceptance/stop-patching-law/evidence'
 OPEN, CLOSE = '<!-- <<<STOP-PATCHING-CLAUSE -->', '<!-- STOP-PATCHING-CLAUSE>>> -->'
 SKILL = {
     'claude': 'feature-loop/skills/feature-loop/SKILL.md',
-    'codex': 'codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md',
 }
-ARMS = [('A1', 'claude', 'co'), ('A2', 'codex', 'co'),
-        ('B1', 'claude', 'khong'), ('B2', 'codex', 'khong')]
+ARMS = [('A1', 'claude', 'co'),
+        ('B1', 'claude', 'khong')]
 errs = []
 
 
@@ -7765,17 +7745,6 @@ if not ("release/iterate/kill" in muc_verdict and "uat-session.md" in muc_verdic
 for art in ("**UAT session**:", "**Product map"):
     if art not in ctx: errs.append(f"E13: Artifacts thieu muc {art}")
 
-# ── E14: bien Codex — start Codex KHONG duoc tro toi skill uat-session nhu
-# mot dich giai duoc trong an ban (danh sach skill Codex khong co no) ─────────
-codex_skills = {d.name for d in (root / "codex/acceptance-gate/skills").iterdir() if d.is_dir()}
-if "uat-session" in codex_skills:
-    errs.append("E14: an ban Codex NAY co skill uat-session roi — go case nay va mo lai loi hua")
-start_codex = (root / "codex/acceptance-gate/skills/start/SKILL.md").read_text()
-if re.search(r"`uat-session` skill", start_codex):
-    errs.append("E14: start Codex van tro `uat-session` skill — con tro chet trong an ban khong mang skill do")
-if "UAT-COPY-PROCEDURE" not in start_codex:
-    errs.append("E14: start Codex khong chi duong chep khuon (UAT-COPY-PROCEDURE)")
-
 # ── E15: since rong — cho-Cong-Gia-tri thieu decided_at thi de trong, khong
 # bia moc tu mtime ───────────────────────────────────────────────────────────
 with tempfile.TemporaryDirectory() as td:
@@ -7846,21 +7815,13 @@ assert e2 and any('thanh phan' in x for x in e2), 'mutant tach-khoi-moc khong do
 print('P174 MUTANT-OK (xoa khoi + tach khoi moc deu do ghim thong diep)')
 P174PY
 
-run "P175 [MBC] E2 khoi giua moc hai ban: neo TRONG khoi khop khuon + than Codex du thanh phan" \
+run "P175 [MBC] E2 khoi giua moc: neo TRONG khoi khop khuon chuan" \
   python3 - "$ROOT" <<'P175PY'
 import re, sys, pathlib
 root = pathlib.Path(sys.argv[1])
 OPEN = '<!-- <<<MEASURE-BIRTH-CLAUSE -->'; CLOSE = '<!-- MEASURE-BIRTH-CLAUSE>>> -->'
 CANON = re.compile(r'<!-- MBC-CORE: pair-same-fixture \+ pinned-message \+ not-done-without-pair; objects: suite-case, eval, rule-script -->')
-SIDES = {'claude': 'feature-loop/skills/feature-loop/SKILL.md',
-         'codex': 'codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md'}
-# Than menh de phia Codex (EN) — P174 da kiem than phia Claude (VN); thieu ve
-# nay thi ruot khoi Codex co the bi moi rong ma moi phep do van xanh (S4-r1
-# hinh dang 3: do dong neo tom tat thay vi menh de that).
-CODEX_KEYS = [('cap hai-chieu cung fixture', 'two-direction case pair on the SAME'),
-              ('thong diep ghim', 'PINNED MESSAGE'),
-              ('thieu cap = chua xong', 'the task is\nNOT done'),
-              ('3 loai vat', 'suite case, eval in evals.yaml, rule/check')]
+SIDES = {'claude': 'feature-loop/skills/feature-loop/SKILL.md'}
 def measure(texts):
     errs, anchors, blocks = [], {}, {}
     for side, text in texts.items():
@@ -7871,30 +7832,23 @@ def measure(texts):
         if not m: errs.append(f'ben {side}: dong neo MBC-CORE khong nam TRONG khoi giua moc'); continue
         anchors[side] = m.group(0)
         if not CANON.fullmatch(m.group(0)): errs.append(f'ben {side}: neo MBC-CORE lech khoi khuon chuan')
-    if 'codex' in blocks:
-        for name, needle in CODEX_KEYS:
-            if needle not in blocks['codex']: errs.append(f'ben codex: than menh de thieu thanh phan: {name}')
-    if len(anchors) == 2 and anchors['claude'] != anchors['codex']:
-        errs.append('neo hai ben khac nhau (claude vs codex)')
     return errs
 texts = {s: (root/p).read_text() for s, p in SIDES.items()}
 errs = measure(texts)
 assert not errs, 'ban that do oan: ' + '; '.join(errs)
 print('P175 DUONG-OK')
-mut = dict(texts); mut['codex'] = re.sub(r'not-done-without-pair', 'optional-pair', mut['codex'])
-e1 = measure(mut)
-assert e1 and any('codex' in x for x in e1), 'mutant lech neo ben codex khong do neu ten ben: ' + repr(e1)
-mut2 = dict(texts); mut2['codex'] = mut2['codex'].replace('PINNED MESSAGE', 'ANY MESSAGE')
-e2 = measure(mut2)
-assert e2 and any('than menh de thieu thanh phan: thong diep ghim' in x for x in e2), \
-    'mutant moi ruot than Codex khong do ghim ten thanh phan: ' + repr(e2)
+mut1 = dict(texts)
+mut1['claude'] = mut1['claude'].replace(OPEN, '<!-- (moc mo da xoa) -->', 1)
+e1 = measure(mut1)
+assert e1 and any('khong co khoi giua moc' in x for x in e1), \
+    'mutant xoa moc mo ben claude khong do dung thong diep: ' + repr(e1)
 mut3 = dict(texts)
 i, j = mut3['claude'].find(OPEN), mut3['claude'].find(CLOSE)
 anchor_line = re.search(r'[ \t]*<!-- MBC-CORE:.*?-->\n', mut3['claude'][i:j]).group(0)
 mut3['claude'] = mut3['claude'][:i] + mut3['claude'][i:j].replace(anchor_line, '') + mut3['claude'][j:] + '\n' + anchor_line
 e3 = measure(mut3)
 assert e3 and any('khong nam TRONG khoi' in x for x in e3), 'mutant doi neo ra ngoai khoi khong do: ' + repr(e3)
-print('P175 MUTANT-OK (lech neo ghim ten ben; moi ruot than Codex ghim thanh phan; neo ngoai khoi bi bat)')
+print('P175 MUTANT-OK (xoa moc mo bi bat; neo ngoai khoi bi bat)')
 P175PY
 
 run "P176 [MBC] E3 con tro S1 ve khuon o CA HAI ban chi dan" \
