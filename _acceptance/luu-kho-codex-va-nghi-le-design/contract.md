@@ -5,9 +5,9 @@ slug: luu-kho-codex-va-nghi-le-design
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: Manh
+approved_at: 2026-08-12
 time_human_minutes: {gate1: 0, gate2: 0}
 ---
 
@@ -184,6 +184,8 @@ không tham chiếu `design-loop`.
   nhất đạt mục tiêu M4 của bản neo ("nơi phải sửa-hai-lần = 0") — giữ mirror là
   giữ nguyên chỗ sửa-hai-lần. Nếu owner bác, đường lùi là giữ mirror nguyên
   trạng và chấp nhận M4 chỉ đạt một nửa.
+  **→ OWNER GẠCH TẠI CỔNG 1 (12/08): «mirror gỡ».** Lệch đề bài được duyệt tường
+  minh; AC-9 + AC-13 là phạm vi chính thức, không còn là đề xuất.
 - Tổng vật gỡ nếu duyệt khuyến nghị: **~194 file** (125 mirror + 36 codex +
   17 case đo + 16 design-loop) + 1 sync script + 2 khoá config + 2 manifest.
 - Thứ tự bắt buộc: đặt mốc git TRƯỚC commit gỡ đầu tiên (AC-1), và ADR ghi sha của
