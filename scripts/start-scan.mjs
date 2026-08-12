@@ -28,7 +28,7 @@ const { recordProblem, navValues, consumedTexts, usesOpportunity, readRecord, io
 // Argv hỏng CHẾT TO (exit 2), không âm thầm rơi về cwd: một cờ được KHAI mà
 // dùng không được lại đổi nghĩa lệnh thành "quét cây khác rồi báo thành công",
 // và `--root` sai biến lỗi gõ lệnh thành chẩn đoán "repo chưa dựng cổng".
-// Cùng doctrine với pre-merge-check v1.22.1 + sync-plugin-packages (mode lạ).
+// Cùng doctrine với pre-merge-check v1.22.1 (mode lạ là lỗi cứng, không đoán).
 // MỖI lối một thông điệp riêng — dùng chung một câu thì đột biến chỉ chứng
 // minh được một nhánh (bài học P95).
 const args = process.argv.slice(2);

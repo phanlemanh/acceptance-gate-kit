@@ -31,202 +31,19 @@ run() {
   fi
 }
 
-run "P01 feature-loop-codex package exists" \
-  test -f "$ROOT/plugins/feature-loop-codex/.codex-plugin/plugin.json"
 
-run "P02 Codex marketplace lists only generated Codex packages" \
-  python3 - "$ROOT/.agents/plugins/marketplace.json" <<'PY'
-import json, sys
-data = json.load(open(sys.argv[1]))
-plugins = {p["name"]: p for p in data["plugins"]}
-assert plugins["acceptance-gate"]["source"]["path"] == "./plugins/acceptance-gate"
-assert plugins["feature-loop-codex"]["source"]["path"] == "./plugins/feature-loop-codex"
-assert plugins["design-loop"]["source"]["path"] == "./plugins/design-loop-codex"
-assert "feature-loop" not in plugins
-PY
 
-run "P03 packaged acceptance-gate uses independent Codex version" \
-  python3 - "$ROOT" <<'PY'
-import json, sys
-from pathlib import Path
-root = Path(sys.argv[1])
-root_claude = json.loads((root / ".claude-plugin/plugin.json").read_text())
-overlay_codex = json.loads((root / "codex/acceptance-gate/.codex-plugin/plugin.json").read_text())
-pkg_codex = json.loads((root / "plugins/acceptance-gate/.codex-plugin/plugin.json").read_text())
-root_codex = json.loads((root / ".codex-plugin/plugin.json").read_text())
-# Ba manifest phải KHỚP NHAU. KHÔNG ghim literal: ghim literal khiến mỗi lần
-# bump đều sửa suite, mà suite đổi là code đổi thật nên evidence stale — vòng
-# lặp "ký -> bump -> stale -> verify lại -> ký lại" (đã dẫm 2026-07-26).
-versions = {root_claude["version"], root_codex["version"], overlay_codex["version"]}
-assert len(versions) == 1, f"ba manifest lệch nhau: {versions}"
-assert root_claude["version"], "version rỗng"
-assert pkg_codex == overlay_codex, "run scripts/sync-plugin-packages.sh"
-for rel in [
-    "plugins/acceptance-gate/scripts/gate-card.js",
-    "plugins/acceptance-gate/scripts/evidence-page.js",
-    "plugins/acceptance-gate/scripts/recheck-evidence.cjs",
-    "plugins/acceptance-gate/scripts/eval-coverage-lint.js",
-    "plugins/acceptance-gate/scripts/config-patch.mjs",
-    "plugins/acceptance-gate/lib/evidence-core.cjs",
-    "plugins/acceptance-gate/GUIDE.md",
-    # design-quality gate (1.8.0) — a package missing these ships pre-design-gate rules
-    "plugins/acceptance-gate/scripts/design-gate.mjs",
-    "plugins/acceptance-gate/scripts/design-scan.js",
-    "plugins/acceptance-gate/lib/design-detect.mjs",
-    "plugins/acceptance-gate/lib/p-tiers.json",
-    "plugins/acceptance-gate/skills/acceptance/references/design-ui-check.md",
-    "plugins/acceptance-gate/vendor/impeccable/engine/engines/static-html/detect-html.mjs",
-    # coverage scan CT-S (1.13.0) — a package missing these ships pre-coverage rules
-    "plugins/acceptance-gate/skills/morphological-scan/SKILL.md",
-    "plugins/acceptance-gate/skills/morphological-scan/references/product-context-template.md",
-]:
-    assert (root / rel).is_file(), rel
-PY
 
-run "P04 feature-loop-codex manifest is version-aligned" \
-  python3 - "$ROOT" <<'PY'
-import json, sys
-from pathlib import Path
-root = Path(sys.argv[1])
-load = lambda rel: json.loads((root / rel).read_text(encoding="utf-8"))
-data = load("plugins/feature-loop-codex/.codex-plugin/plugin.json")
-assert data["name"] == "feature-loop-codex"
-assert data["skills"] == "./skills/"
-assert data["description"]
-# KHONG ghim literal version: ghim literal bat moi lan bump phai sua suite, ma
-# suite doi la code doi that nen evidence stale — vong "ky -> bump -> stale ->
-# verify lai -> ky lai" da dam o P03/P22. Doc tu manifest va bat BA ban khop
-# nhau; lech mot ban la DO, dung lop loi ma phep do nay sinh ra de bat.
-overlay = load("codex/feature-loop-codex/.codex-plugin/plugin.json")
-claude = load("feature-loop/.claude-plugin/plugin.json")
-versions = {data["version"], overlay["version"], claude["version"]}
-assert len(versions) == 1, f"ba manifest feature-loop lech nhau: {versions}"
-assert data["version"], "version rong"
-PY
 
-run "P05 feature-loop-codex source and generated skill match" \
-  python3 - "$ROOT" <<'PY'
-import sys
-from pathlib import Path
-root = Path(sys.argv[1])
-src = root / "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md"
-pkg = root / "plugins/feature-loop-codex/skills/feature-loop-codex/SKILL.md"
-assert src.read_bytes() == pkg.read_bytes(), "run scripts/sync-plugin-packages.sh"
-PY
 
-run "P05b feature-loop-codex skill is Codex-native" \
-  python3 - "$ROOT/plugins/feature-loop-codex/skills/feature-loop-codex/SKILL.md" <<'PY'
-from pathlib import Path
-import re, sys
-text = Path(sys.argv[1]).read_text()
-assert "name: feature-loop-codex" in text
-assert "version: 1.14.0" in text
-assert "Codex" in text
-assert "acceptance-gate" in text
-assert "spawn_agent" in text
-assert "feature_loop.suite_keys" in text
-assert "design-loop" in text
-assert "provenance.json" in text
-assert "fidelity pixel-diff" in text
-assert "review-findings.md" in text
-assert "PENDING-JUDGMENT" in text
-assert "time_human_minutes.gate1" in text
-assert "doer" in text and "grader" in text
-assert "runs" in text and "pass_rate" in text
-assert "baseline" in text
-assert "should-NOT-fire" in text
-assert "enforcement_mode" in text and "bypass_used" in text
-assert "acceptance-card" in text and "evidence-page.html" in text
-for needle in [
-    "decisions.jsonl",
-    '"type":"seal"',
-    "supersedes",
-    "CT1",
-    "CT2",
-    "D0",
-    "D1",
-    "D2",
-    "design.surface_globs",
-    "/goal",
-    "/model",
-    "feature_loop.models",
-    "feature-loop-model-init",
-    ".codex/agents",
-    "feature_loop_explorer",
-    "feature_loop_executor",
-    "acceptance_ui_verifier",
-    "acceptance_judge",
-    "acceptance_reviewer",
-    "acceptance_refuter",
-    "custom-agent",
-    "session-inherited",
-    "sequential-fallback",
-    "## Codex routing",
-    "requested_model",
-    "requested_reasoning_effort",
-]:
-    assert needle in text, needle
-assert re.search(r"Never create or suggest a goal that reaches\s+`signed-off`", text)
-assert "Workflow(" not in text
-assert "feature-loop/workflows" not in text
-assert ".claude/plugins/cache" not in text
-PY
 
-run "P05c feature-loop-codex model policy package matches source" \
-  python3 - "$ROOT" <<'PY'
-import sys
-from pathlib import Path
-root = Path(sys.argv[1])
-source = root / "codex/feature-loop-codex"
-package = root / "plugins/feature-loop-codex"
-files = [
-    "scripts/install-model-policy.mjs",
-    "skills/feature-loop-model-init/SKILL.md",
-    "agent-templates/feature_loop_explorer.toml",
-    "agent-templates/feature_loop_executor.toml",
-    "agent-templates/acceptance_ui_verifier.toml",
-    "agent-templates/acceptance_judge.toml",
-    "agent-templates/acceptance_reviewer.toml",
-    "agent-templates/acceptance_refuter.toml",
-]
-for rel in files:
-    assert (source / rel).is_file(), rel
-    assert (package / rel).is_file(), f"run scripts/sync-plugin-packages.sh: {rel}"
-    assert (source / rel).read_bytes() == (package / rel).read_bytes(), rel
-for rel in [
-    "skills/acceptance/SKILL.md",
-    "skills/acceptance-init/references/codex-plugin-runner.mjs",
-]:
-    src = root / "codex/acceptance-gate" / rel
-    pkg = root / "plugins/acceptance-gate" / rel
-    assert src.read_bytes() == pkg.read_bytes(), f"run scripts/sync-plugin-packages.sh: {rel}"
-PY
 
-run "P06 generated design-loop has independent Codex manifest" \
-  python3 - "$ROOT" <<'PY'
-import json, sys
-from pathlib import Path
-root = Path(sys.argv[1])
-overlay = root / "codex/design-loop"
-package = root / "plugins/design-loop-codex"
-manifest = json.loads((package / ".codex-plugin/plugin.json").read_text())
-overlay_manifest = json.loads((overlay / ".codex-plugin/plugin.json").read_text())
-skill = (package / "skills/design-subtrack/SKILL.md").read_text()
-readme = (package / "README.md").read_text()
-assert manifest["name"] == "design-loop"
-assert manifest["skills"] == "./skills/"
-assert "commands" not in manifest
-assert manifest["version"] == "0.3.0"
-assert manifest == overlay_manifest
-for needle in ["Codex", "feature-loop-codex", "portable reference", "provenance.json"]:
-    assert needle in skill or needle in readme, needle
-PY
 
-run "P07 packaged vendor engine import graph resolves (vendor/ shipped)" \
+run "P07 vendor engine import graph resolves (vendor/ shipped)" \
   node --input-type=module -e "
 const m = await import(process.argv[1]);
 if (typeof m.detectHtml !== 'function') throw new Error('detectHtml missing');
-" "file://$ROOT/plugins/acceptance-gate/vendor/impeccable/engine/engines/static-html/detect-html.mjs"
+" "file://$ROOT/vendor/impeccable/engine/engines/static-html/detect-html.mjs"
 
 run "P08 every \${CLAUDE_PLUGIN_ROOT} path in commands/skills exists in ITS plugin root" \
   python3 - "$ROOT" <<'PY'
@@ -239,10 +56,6 @@ root = Path(sys.argv[1])
 plugin_roots = [
     root,                                   # acceptance-gate (source ./)
     root / "feature-loop",
-    root / "design-loop",
-    root / "codex/acceptance-gate",
-    root / "codex/feature-loop-codex",
-    root / "codex/design-loop",
 ]
 pat = re.compile(r"\$\{CLAUDE_PLUGIN_ROOT\}/([A-Za-z0-9._/-]+)")
 bad = []
@@ -262,153 +75,69 @@ for proot in plugin_roots:
                     bad.append(f"{md.relative_to(root)} -> {rel}")
 assert not bad, "unresolvable ${CLAUDE_PLUGIN_ROOT} paths:\n" + "\n".join(bad)
 
-# LOP: `skills/` duoc rsync vao CA HAI goi (goc repo = goi Claude, plugins/
-# acceptance-gate = goi Codex) va chi mot so skill co ban de trong codex/. File
-# nao KHONG co ban de ma ghim `${CLAUDE_PLUGIN_ROOT}` mot minh thi ra goi Codex
-# voi con tro chet — Codex dat `${PLUGIN_ROOT}`. Dung dang hai-harness
-# `${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}` (S4-r15; design-pass dinh cung lop).
+# Bo dem tinh tao: vung quet phai thuc su co file, khong thi "0 vi pham" chi la
+# buoc quet hong (grep-sanity-counter).
 _skills = sorted((root / "skills").rglob("*.md"))
 assert len(_skills) >= 5, f"bo dem tinh tao: quet ra {len(_skills)} file trong skills/ — nghi buoc quet hong"
-_de = {d.name for d in (root / "codex/acceptance-gate/skills").iterdir() if d.is_dir()}
-for f in _skills:
-    if f.relative_to(root / "skills").parts[0] in _de: continue
-    txt = f.read_text(encoding="utf-8")
-    for mm in re.finditer(r"\$\{CLAUDE_PLUGIN_ROOT\}", txt):
-        raise AssertionError(
-            f"{f.relative_to(root)}: ghim ${{CLAUDE_PLUGIN_ROOT}} mot minh nhung khong co ban de codex/ — "
-            "file nay ship vao ca goi Codex voi con tro chet; dung ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}")
 PY
 
-run "P20 lane lookup table consistent across skills" \
+run "P20 lane lookup table CT1/CT2 nhat quan trong feature-loop SKILL" \
   python3 - "$ROOT" <<'PY'
 import sys, pathlib
 root = pathlib.Path(sys.argv[1])
 fl = (root / "feature-loop/skills/feature-loop/SKILL.md").read_text()
-ds = (root / "design-loop/skills/design-subtrack/SKILL.md").read_text()
 assert fl.count("| **CT1") == 1 and fl.count("| **CT2") == 1, "bảng tra CT1/CT2 phải có đúng 1 lần"
-assert "design_tier" not in fl and "design_tier" not in ds, "không được lưu field tier"
+assert "design_tier" not in fl, "không được lưu field tier"
 assert "provenance.json" in fl and "design.fidelity" in fl, "điều kiện CT2 phải máy-đọc"
-assert "CT2" in ds and "CT1" in ds, "design-subtrack phải tham chiếu công tắc"
-assert "--require-html" in fl and "--require-html" in ds, "lane nhẹ phải khai flag require-html"
+assert "--require-html" in fl, "lane nhẹ phải khai flag require-html"
 PY
 
-run "P21 decisions.jsonl plumbing shipped in package" \
+run "P21 decisions.jsonl plumbing noi du 3 diem (script + command + SKILL)" \
   python3 - "$ROOT" <<'PY'
 import sys, pathlib
 root = pathlib.Path(sys.argv[1])
 assert "decisions.jsonl" in (root / "scripts/gate-card.js").read_text()
-assert "decisions.jsonl" in (root / "plugins/acceptance-gate/scripts/gate-card.js").read_text(), "chạy scripts/sync-plugin-packages.sh"
 assert "decisions_plain" in (root / "commands/acceptance-card.md").read_text()
 assert "decisions.jsonl" in (root / "feature-loop/skills/feature-loop/SKILL.md").read_text()
 PY
 
-run "P22 Codex overlay manifests and generated outputs exist" \
+run "P22 dinh tuyen model trong workflows + version feature-loop khong rong" \
   python3 - "$ROOT" <<'PY'
 import json, sys
 from pathlib import Path
 root = Path(sys.argv[1])
 
-assert json.loads((root / "codex/design-loop/.codex-plugin/plugin.json").read_text())["version"] == "0.3.0"
-# version của acceptance-gate và feature-loop KHÔNG ghim literal (xem P03/P04):
-# ghim literal bắt mỗi lần bump phải sửa suite, mà suite đổi là code đổi thật
-# nên evidence stale. Ở đây chỉ bắt hai bản feature-loop khớp nhau — lệch là ĐỎ.
+# version KHONG ghim literal: ghim literal bat moi lan bump phai sua suite, ma
+# suite doi la code doi that nen evidence stale.
 _fl_c = json.loads((root / "feature-loop/.claude-plugin/plugin.json").read_text())["version"]
-_fl_x = json.loads((root / "codex/feature-loop-codex/.codex-plugin/plugin.json").read_text())["version"]
-assert _fl_c and _fl_c == _fl_x, f"feature-loop lệch giữa bản Claude ({_fl_c}) và Codex ({_fl_x})"
+assert _fl_c, "feature-loop: version rong"
 assert "machine: 'haiku'" in (root / "feature-loop/workflows/acceptance-verify.js").read_text()
 assert "judge: 'sonnet'" in (root / "feature-loop/workflows/acceptance-verify.js").read_text()
 assert "executor: null" in (root / "feature-loop/workflows/execute-parallel.js").read_text()
-assert (root / "plugins/design-loop-codex/.codex-plugin/plugin.json").is_file()
 PY
 
-run "P23 generated Codex packages contain no Claude package surfaces" \
-  python3 - "$ROOT" <<'PY'
-import sys
-from pathlib import Path
-root = Path(sys.argv[1])
-for rel in ["plugins/acceptance-gate", "plugins/feature-loop-codex", "plugins/design-loop-codex"]:
-    package = root / rel
-    assert not (package / ".claude-plugin").exists(), rel
-    assert not (package / "commands").exists(), rel
-PY
 
-run "P24 acceptance-init ships runner-backed strict defaults" \
-  python3 - "$ROOT/plugins/acceptance-gate/skills/acceptance-init/SKILL.md" <<'PY'
+run "P24 acceptance-init phat mac dinh nghiem (recheck strict + require_human_commit)" \
+  python3 - "$ROOT/commands/acceptance-init.md" <<'PY'
 import sys
 from pathlib import Path
 text = Path(sys.argv[1]).read_text()
-for needle in ["codex-plugin-runner.mjs", "recheck: strict", "require_human_commit: true"]:
+for needle in ["recheck: strict", "require_human_commit: true"]:
     assert needle in text, needle
-assert "CLAUDE_PLUGIN_ROOT" not in text
 PY
 
-run "P25 Codex hook manifest uses native plugin root without changing Claude hook" \
+run "P25 hook manifest Claude giu goc plugin dung bien Claude" \
   python3 - "$ROOT" <<'PY'
 import sys
 from pathlib import Path
 root = Path(sys.argv[1])
-codex_hooks = (root / "plugins/acceptance-gate/hooks/hooks.json").read_text()
 claude_hooks = (root / "hooks/hooks.json").read_text()
-assert "${PLUGIN_ROOT}" in codex_hooks
-assert "acceptance-evidence-gate-codex.js" in codex_hooks
 assert "${CLAUDE_PLUGIN_ROOT}" in claude_hooks
 assert "acceptance-evidence-gate.js" in claude_hooks
 PY
 
-run "P26 Acceptance Gate exposes native helper skills" \
-  python3 - "$ROOT/plugins/acceptance-gate/skills" <<'PY'
-import sys
-from pathlib import Path
-skills = Path(sys.argv[1])
-for name in ["acceptance-init", "acceptance-card", "acceptance-status", "acceptance", "approve", "signoff", "acceptance-report"]:
-    assert (skills / name / "SKILL.md").is_file(), name
-main = (skills / "acceptance/SKILL.md").read_text()
-assert "acceptance-init" in main
-assert "acceptance-card" in main
-assert "apply_patch adapter" in main
-for needle in [
-    "acceptance_ui_verifier",
-    "acceptance_judge",
-    "acceptance_reviewer",
-    "acceptance_refuter",
-    "## Codex routing",
-]:
-    assert needle in main, needle
-card = (skills / "acceptance-card/SKILL.md").read_text()
-assert "card-plain.json" in card and "evidence-page.html" in card
-status = (skills / "acceptance-status/SKILL.md").read_text()
-assert "PENDING-JUDGMENT" in status and "Gate 2" in status
-appr = (skills / "approve/SKILL.md").read_text()
-assert "approved_by" in appr and "decisions.jsonl" in appr and "gate1_skipped" in appr
-sign = (skills / "signoff/SKILL.md").read_text()
-assert "require_human_commit" in sign and "human_override" in sign and "pre-merge-check.sh" in sign
-rep = (skills / "acceptance-report/SKILL.md").read_text()
-assert "baseline_minutes" in rep and "time_human_minutes" in rep and "Read-only" in rep
-PY
 
 
-echo "P58 smoke ban MIRROR: gate-card cua plugin chay that (khong chi khong-drift)"
-P58T="$(mktemp -d)"; mkdir -p "$P58T/_acceptance/fx"
-python3 - "$P58T" <<'P58PY'
-import sys, pathlib
-d = pathlib.Path(sys.argv[1]) / "_acceptance" / "fx"
-acs = []
-for i in range(1, 6):
-    if i == 3: acs.append("### nhom phu\n")
-    acs.append(f"- AC-{i}: Given dk {i}, When act {i}, Then kq {i}.")
-(d / "contract.md").write_text('---\nschema_version: 2\nfeature: "fx"\nslug: fx\nrisk_tier: T2\nsurfaces: [cli]\nstatus: draft\n---\n\n# c\n\n## Criteria\n\n' + "\n".join(acs) + '\n\n## Coverage\n\n- x\n\n## Out of scope\n\n- y\n- z\n')
-P58PY
-P58_OUT="$(node "$ROOT/plugins/acceptance-gate/scripts/gate-card.js" --root "$P58T" --slug fx --extract 2>&1)"; P58_RC=$?
-P58_N="$(printf '%s' "$P58_OUT" | python3 -c "import json,sys
-try:
-    d=json.load(sys.stdin); print(len(d.get('will_do',[]))+len(d.get('wont_do',[])))
-except Exception: print(-1)")"
-if [ "$P58_RC" -eq 0 ] && [ "$P58_N" = "5" ]; then
-  pass "P58 ban mirror chay that: exit 0 + doc du 5 AC"
-else
-  fail "P58 ban mirror: rc=$P58_RC ac=$P58_N (mong rc=0 ac=5)"
-fi
-rm -rf "$P58T"
 
 run "P30 Claude decision commands ship and keep their invariants" \
   python3 - "$ROOT/commands" <<'PY'
@@ -428,23 +157,6 @@ for needle in ["baseline_minutes", "time_human_minutes", "gate1_skipped", "Read-
     assert needle in rep, needle
 PY
 
-run "P27 Design Loop exposes native portable-reference skills" \
-  python3 - "$ROOT/plugins/design-loop-codex" <<'PY'
-import json, sys
-from pathlib import Path
-root = Path(sys.argv[1])
-manifest = json.loads((root / ".codex-plugin/plugin.json").read_text())
-assert manifest["version"] == "0.3.0"
-assert not (root / "commands").exists()
-assert not (root / ".claude-plugin").exists()
-for name in ["design-subtrack", "design-init", "design-mockup", "design-evidence", "design-push-status"]:
-    assert (root / "skills" / name / "SKILL.md").is_file(), name
-text = "\n".join(path.read_text() for path in (root / "skills").glob("*/SKILL.md"))
-for needle in ["portable reference", "provenance.json", "BLOCKED", "No blind VLM judge"]:
-    assert needle in text, needle
-assert "invoke `/design-sync`" not in text
-assert "invoke `/design-login`" not in text
-PY
 
 run "P28 README and GUIDE document the verified Codex install path" \
   python3 - "$ROOT" <<'PY'
@@ -466,42 +178,20 @@ for needle in [
     assert needle in text, needle
 PY
 
-run "P29 gap-probe S1 wired across mirrors (1.18)" \
+run "P29 gap-probe S1 noi du 4 diem (card script, feature-loop SKILL, command, GUIDE)" \
   python3 - "$ROOT" <<'PY'
 import sys
 from pathlib import Path
 root = Path(sys.argv[1])
 gc = (root / "scripts/gate-card.js").read_text()
 assert "gap-probe" in gc and "Phản biện context sạch" in gc and "gap_probe" in gc
-assert (root / "plugins/acceptance-gate/scripts/gate-card.js").read_text() == gc, "chạy scripts/sync-plugin-packages.sh"
 fl = (root / "feature-loop/skills/feature-loop/SKILL.md").read_text()
 assert "gap-probe" in fl and "bỏ gap-probe" in fl and "models.critic" in fl.replace("`", "")
-flc = (root / "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md").read_text()
-assert "gap-probe" in flc and "bỏ gap-probe" in flc
 assert "gap_probe" in (root / "commands/acceptance-card.md").read_text()
-assert "gap_probe" in (root / "codex/acceptance-gate/skills/acceptance-card/SKILL.md").read_text()
 assert "Gap-probe S1" in (root / "GUIDE.md").read_text()
 PY
 
-run "P30 plugins/ mirror in sync with sources (sync --check)" \
-  bash "$ROOT/scripts/sync-plugin-packages.sh" --check
 
-run "P31 Codex human-gate skills locked from implicit invocation; card stays open" \
-  python3 - "$ROOT" <<'PY'
-import sys
-from pathlib import Path
-root = Path(sys.argv[1])
-LOCKED = ["approve", "signoff", "acceptance-init", "acceptance-status", "acceptance-report", "start"]
-for base in ["codex/acceptance-gate/skills", "plugins/acceptance-gate/skills"]:
-    for name in LOCKED:
-        y = root / base / name / "agents/openai.yaml"
-        assert y.exists(), f"{y} missing"
-        t = y.read_text()
-        assert "allow_implicit_invocation: false" in t, f"{y} lacks policy lock"
-    card = root / base / "acceptance-card/agents/openai.yaml"
-    assert not card.exists() or "allow_implicit_invocation: false" not in card.read_text(), \
-        "acceptance-card must stay model-invocable (approve/signoff invoke it)"
-PY
 
 run "P32 Claude gate commands locked from model invocation; card stays open" \
   python3 - "$ROOT" <<'PY'
@@ -522,8 +212,7 @@ run "P33 no source file globs the plugin cache (resolve-plugin.mjs is the only p
 import sys, re
 from pathlib import Path
 root = Path(sys.argv[1])
-# The mirror under plugins/ is generated; check the SOURCES only.
-areas = ["skills", "feature-loop", "design-loop", "codex", "commands", "hooks", "lib", "scripts"]
+areas = ["skills", "feature-loop", "commands", "hooks", "lib", "scripts"]
 files = [p for a in areas for p in (root / a).rglob("*")
          if p.is_file() and p.suffix in {".md", ".js", ".cjs", ".mjs", ".sh", ".json"}]
 files += [root / f for f in ("README.md", "GUIDE.md", "QUICKSTART.md")]
@@ -546,16 +235,6 @@ assert not offenders, (
     "it ranks 1.9.2 above 1.20.1). See docs/adr/0003.")
 PY
 
-run "P34 resolve-plugin.mjs ships in BOTH editions from one source" \
-  python3 - "$ROOT" <<'PY'
-import sys
-from pathlib import Path
-root = Path(sys.argv[1])
-src = (root / "feature-loop/scripts/resolve-plugin.mjs").read_text()
-pkg = root / "plugins/feature-loop-codex/scripts/resolve-plugin.mjs"
-assert pkg.exists(), "Codex package missing resolve-plugin.mjs — run scripts/sync-plugin-packages.sh"
-assert pkg.read_text() == src, "Codex copy drifted from feature-loop/scripts/resolve-plugin.mjs"
-PY
 
 run "P35 CI T1-escape backstop is ON, PR-guarded, and fails loud when skipped" \
   python3 - "$ROOT" <<'PY'
@@ -602,112 +281,18 @@ else
   pass "P38b gate-card khong con literal regex descope"
 fi
 
-# ── P39: acceptance-init parity 2 harness ──────────────────────────────────
-# CLAUDE.md coi parity Claude↔Codex là bất biến. Repo khởi tạo bằng Codex mà
-# config không có khoá `gap_probe` thì luật im lặng ở đúng những repo đó.
-echo "P39 acceptance-init parity 2 harness: khoa gap_probe + 3 mode"
-for f in "$ROOT/commands/acceptance-init.md" \
-         "$ROOT/codex/acceptance-gate/skills/acceptance-init/SKILL.md"; do
+# ── P39: acceptance-init phat du khoa gap_probe ────────────────────────────
+# Repo khoi tao ma config khong co khoa `gap_probe` thi luat im lang o dung
+# nhung repo do.
+echo "P39 acceptance-init: khoa gap_probe + 3 mode"
+for f in "$ROOT/commands/acceptance-init.md"; do
   n="$(basename "$(dirname "$f")")/$(basename "$f")"
   if grep -q 'gap_probe:' "$f"; then pass "P39[$n:key]"; else fail "P39[$n:key]"; fi
   if grep -q 'required | advisory | off' "$f"; then pass "P39[$n:modes]"; else fail "P39[$n:modes]"; fi
 done
 
-# ── P41: miễn trừ plugins/** trong t1_skip_globs KHÔNG được là lỗ ───────────
-# Allowlist mà không có ca NGOÀI danh sách là allowlist biến fail-loud thành
-# fail-silent. Răng T1-escape bỏ qua plugins/ được CHỈ VÌ P30 canh mirror==nguồn
-# ở luật khác — case này chứng minh luật khác đó thật sự sống.
-echo "P41 sua tay mirror -> sync --check VAN do"
-P41T="$(mktemp -d)"
-# KHONG nuot loi cua cp: fixture hong ma van "pass" vi sync tra exit 127 la
-# xanh-rong. Phai co doi chung duong (fixture dung) truoc khi tin doi chung am.
-cp -R "$ROOT/." "$P41T/"
-if [ ! -f "$P41T/scripts/sync-plugin-packages.sh" ] || [ ! -f "$P41T/plugins/acceptance-gate/lib/gap-probe.cjs" ]; then
-  fail "P41 fixture hong (thieu file sau khi cp)"
-else
-  # doi chung DUONG: ban sao nguyen ven phai XANH
-  if bash "$P41T/scripts/sync-plugin-packages.sh" --check >/dev/null 2>&1; then
-    printf '\n// tiêm\n' >> "$P41T/plugins/acceptance-gate/lib/gap-probe.cjs"
-    P41OUT="$(bash "$P41T/scripts/sync-plugin-packages.sh" --check 2>&1)"; P41ST=$?
-    if [ "$P41ST" -ne 0 ] && printf '%s' "$P41OUT" | grep -q 'gap-probe.cjs'; then
-      pass "P41 mirror drift bi bat va NEU TEN file lech"
-    else
-      fail "P41 mirror drift bi bat va NEU TEN file lech (exit=$P41ST out=$P41OUT)"
-    fi
-  else
-    fail "P41 doi chung duong that bai — ban sao nguyen ven da lech san"
-  fi
-fi
-rm -rf "$P41T"
 
-# ── P42/P45: ghim version bằng literal khiến mỗi lần bump đều sửa suite ─────
-# Hai case dưới chạy CẢ suite này trong một bản sao — mà bản sao cũng chứa
-# chúng, nên không có chốt thì đệ quy vô hạn (đã dẫm). Cờ dưới đây do lần gọi
-# LỒNG đặt; ở lần lồng, hai case tự bỏ qua.
-if [ "${PLUGINS_SUITE_NESTED:-0}" = "1" ]; then
-  echo "P42/P45 bo qua (dang chay long ben trong ban sao)"
-else
-echo "P42 mot manifest lech so -> suite phai DO"
-# Assert AM tinh mot minh la xanh-rong: cp hong / python loi / suite khong ton
-# tai deu cho exit khac 0 y het "da bat duoc drift". Phai co DOI CHUNG DUONG,
-# giong P41. (Round 1 sua P41 dung cach roi khong ap cho P42 ngay ben duoi.)
-P42T="$(mktemp -d)"; cp -R "$ROOT/." "$P42T/"
-if [ ! -f "$P42T/tests/plugins/run-tests.sh" ] || [ ! -f "$P42T/.codex-plugin/plugin.json" ]; then
-  fail "P42 fixture hong (thieu file sau khi cp)"
-elif ! ONLY_BLOCK= TEETH= PLUGINS_SUITE_NESTED=1 bash "$P42T/tests/plugins/run-tests.sh" >/dev/null 2>&1; then
-  fail "P42 doi chung duong that bai — ban sao nguyen ven da do san"
-else
-  if python3 - "$P42T" <<'PYX'
-import json,sys,pathlib
-p=pathlib.Path(sys.argv[1])/".codex-plugin/plugin.json"
-d=json.loads(p.read_text()); d["version"]="9.9.9"; p.write_text(json.dumps(d,indent=2)+"\n")
-PYX
-  then
-    P42OUT="$(ONLY_BLOCK= TEETH= PLUGINS_SUITE_NESTED=1 bash "$P42T/tests/plugins/run-tests.sh" 2>&1)"; P42ST=$?
-    # Ghim ĐÚNG assertion nao ban: "exit khac 0" mot minh van xanh neu P03 hong
-    # va mot regression khac lam do suite — test canh khong gi ca.
-    if [ "$P42ST" -ne 0 ] && printf '%s' "$P42OUT" | grep -q 'ba manifest lệch nhau'; then
-      pass "P42 manifest lech bi bat DUNG boi assertion cua P03"
-    else
-      fail "P42 manifest lech bi bat DUNG boi assertion cua P03 (exit=$P42ST)"
-    fi
-  else
-    fail "P42 buoc tiem drift that bai"
-  fi
-fi
-rm -rf "$P42T"
 
-echo "P45 bump CA BA manifest + sync -> khong file nao duoi tests/ phai sua"
-P45T="$(mktemp -d)"; cp -R "$ROOT/." "$P45T/"
-# Buoc tiem KHONG duoc nuot loi: hong o file dau tien thi khong bump gi ca,
-# sync thanh no-op, shasum truoc == sau, suite xanh — PASS ma khong kiem gi.
-P45_MUT_OK=1
-python3 - "$P45T" <<'PYX' || P45_MUT_OK=0
-import json,sys,pathlib
-root=pathlib.Path(sys.argv[1])
-for rel in [".claude-plugin/plugin.json",".codex-plugin/plugin.json","codex/acceptance-gate/.codex-plugin/plugin.json"]:
-    p=root/rel; d=json.loads(p.read_text()); d["version"]="9.9.9"; p.write_text(json.dumps(d,indent=2)+"\n")
-PYX
-# doi chung: ca ba manifest PHAI thuc su mang so moi
-P45_BUMPED="$(grep -l '9\.9\.9' "$P45T/.claude-plugin/plugin.json" "$P45T/.codex-plugin/plugin.json" "$P45T/codex/acceptance-gate/.codex-plugin/plugin.json" 2>/dev/null | wc -l | tr -d ' ')"
-# Đo bằng CHỤP TRƯỚC/SAU chứ không bằng `git diff` với HEAD: bản sao mang theo
-# mọi thay đổi chưa commit của cây làm việc, nên git diff sẽ báo bẩn vì lý do
-# không liên quan tới bump (đã dẫm).
-# KHONG so shasum tests/ truoc-sau sync: `--write` chi ghi vao $ROOT/plugins nen
-# phep so do HANG DUNG — mot assertion khong bao gio do duoc, gay hieu nham ve
-# muc bao ve. Rang THAT cua P45 la lan chay suite long ben duoi (da kiem bang
-# dot bien: khoi phuc literal "1.21.0" o P03 -> P45 do).
-if ! bash "$P45T/scripts/sync-plugin-packages.sh" --write >/dev/null 2>&1; then
-  P45_MUT_OK=0
-fi
-if [ "$P45_MUT_OK" -eq 1 ] && [ "$P45_BUMPED" = "3" ] \
-   && ONLY_BLOCK= TEETH= PLUGINS_SUITE_NESTED=1 bash "$P45T/tests/plugins/run-tests.sh" >/dev/null 2>&1; then
-  pass "P45 bump ba manifest khong cham suite"
-else
-  fail "P45 bump ba manifest khong cham suite (mut_ok=$P45_MUT_OK bumped=$P45_BUMPED)"
-fi
-rm -rf "$P45T"
-fi
 
 run "P40 gate.yml: push tat rang T1-escape, PR khong, khong nhanh nao thieu base" \
   python3 - "$ROOT" <<'P40PY'
@@ -748,13 +333,12 @@ assert "huỷ chính chữ ký" in g, \
     "GUIDE phai neu HE QUA: bump sau Cong 2 huy chinh chu ky vua lay"
 P43PY
 
-run "P44 acceptance-init CA HAI harness nhac co cho job push" \
+run "P44 acceptance-init nhac co cho job push (khop GUIDE)" \
   python3 - "$ROOT" <<'P44PY'
 import sys
 from pathlib import Path
 root = Path(sys.argv[1])
-for rel in ["commands/acceptance-init.md",
-            "codex/acceptance-gate/skills/acceptance-init/SKILL.md"]:
+for rel in ["commands/acceptance-init.md"]:
     t = (root / rel).read_text()
     assert "--no-t1-escape" in t, f"{rel} chua nhac co cho job push"
 # Parity GUIDE <-> acceptance-init: consumer chep snippet tu GUIDE §Wire CI, nen
@@ -763,65 +347,21 @@ g = (root / "GUIDE.md").read_text()
 assert "--no-t1-escape" in g, "GUIDE (muc wire CI) chua nhac co cho job push"
 P44PY
 
-# ── P46: sync mode la = loi cung, KHONG duoc am tham chuyen sang GHI ────────
-# `--chek` tung in "Synced …", thoat 0, VA xoa luon drift — mot loi go bien
-# lenh KIEM thanh lenh GHI. Day la chot duy nhat bien minh cho mien tru
-# plugins/** khoi cong, nen no fail-open la ca mien tru do mat can cu.
-echo "P46 sync-plugin-packages: mode la = exit 2, KHONG ghi de"
-P46T="$(mktemp -d)"; cp -R "$ROOT/." "$P46T/"
-if [ ! -f "$P46T/scripts/sync-plugin-packages.sh" ]; then
-  fail "P46 fixture hong"
-else
-  printf '\n// tiêm P46\n' >> "$P46T/plugins/acceptance-gate/lib/gap-probe.cjs"
-  # DOI CHUNG DUONG: --check that su con song trong ban sao (phai DO vi vua tiem)
-  if bash "$P46T/scripts/sync-plugin-packages.sh" --check >/dev/null 2>&1; then
-    fail "P46 doi chung duong that bai — --check khong bat duoc drift vua tiem"
-  else
-    P46OUT="$(bash "$P46T/scripts/sync-plugin-packages.sh" --chek 2>&1)"; P46ST=$?
-    P46LEFT="$(grep -c 'tiêm P46' "$P46T/plugins/acceptance-gate/lib/gap-probe.cjs" 2>/dev/null || echo 0)"
-    if [ "$P46ST" -eq 2 ] && [ "$P46LEFT" = "1" ] && printf '%s' "$P46OUT" | grep -q 'unknown option'; then
-      pass "P46 mode la: exit 2, ghim thong diep, KHONG ghi de"
-    else
-      fail "P46 mode la: exit 2, ghim thong diep, KHONG ghi de (exit=$P46ST con_lai=$P46LEFT out=$P46OUT)"
-    fi
-  fi
-fi
-rm -rf "$P46T"
 
-# ── P47: chốt --check phải thấy cả entry ẨN dưới plugins/ ───────────────────
-# Glob bỏ qua dotfile, còn `match_globs` của pre-merge-check dùng `case` nên
-# `plugins/**` VẪN khớp `plugins/.x/y.js` — chốt hẹp hơn miễn trừ đúng ở chỗ
-# khó thấy nhất.
-echo "P47 entry AN duoi plugins/ phai lam --check no"
-P47T="$(mktemp -d)"; cp -R "$ROOT/." "$P47T/"
-if [ ! -f "$P47T/scripts/sync-plugin-packages.sh" ]; then
-  fail "P47 fixture hong"
-elif ! bash "$P47T/scripts/sync-plugin-packages.sh" --check >/dev/null 2>&1; then
-  fail "P47 doi chung duong that bai — ban sao nguyen ven da lech san"
-else
-  mkdir -p "$P47T/plugins/.rogue"; printf 'x\n' > "$P47T/plugins/.rogue/evil.js"
-  P47OUT="$(bash "$P47T/scripts/sync-plugin-packages.sh" --check 2>&1)"; P47ST=$?
-  if [ "$P47ST" -ne 0 ] && printf '%s' "$P47OUT" | grep -q 'rogue'; then
-    pass "P47 entry an bi bat va NEU TEN"
-  else
-    fail "P47 entry an bi bat va NEU TEN (exit=$P47ST out=$P47OUT)"
-  fi
-fi
-rm -rf "$P47T"
 
 # ── P48: chu ky ledger_mark — them khoi luat moi ma quen khai so -> suite DO ─
 # AC-7c cua premerge-rules-ledger: dem ten duy nhat o call-site ledger_mark va
 # so BANG voi EXPECTED, tren ca nguon (scripts/) lan mirror (plugins/). P30 canh
 # mirror==nguon; day la chieu KHAC — "them khoi luat ma quen khai so" — ma P30
 # khong thay vi hai ban van y het nhau.
-echo "P48 ledger_mark call-site == EXPECTED, nguon lan mirror"
+echo "P48 ledger_mark call-site == EXPECTED tren nguon"
 p48_names() {
   grep -E 'ledger_mark (ran|declared-off) ' "$1" | grep -v 'ledger_mark()' \
     | sed -E 's/.*ledger_mark (ran|declared-off) ([a-z0-9-]+).*/\2/' | sort -u | tr '\n' ' '
 }
 p48_exp() { sed -n 's/^LEDGER_EXPECTED="\(.*\)"$/\1/p' "$1" | tr ' ' '\n' | sort -u | tr '\n' ' '; }
 P48OK=1
-for f in "$ROOT/scripts/pre-merge-check.sh" "$ROOT/plugins/acceptance-gate/scripts/pre-merge-check.sh"; do
+for f in "$ROOT/scripts/pre-merge-check.sh"; do
   if [ ! -f "$f" ]; then echo "     thieu $f"; P48OK=0; continue; fi
   if [ -z "$(p48_exp "$f")" ]; then echo "     EXPECTED rong/khong parse duoc: $f"; P48OK=0; continue; fi
   if [ "$(p48_names "$f")" != "$(p48_exp "$f")" ]; then
@@ -846,55 +386,7 @@ else
   fail "P48 chu ky ledger_mark khop EXPECTED (nguon + mirror + dot bien)"
 fi
 
-# ── P49: description cua goi Codex khong duoc la ban sao cua goi Claude ─────
-# Release 1.22.0 da dan: bump chep NGUYEN VAN description Claude de len manifest
-# Codex, nen goi Codex quang cao /approve, /signoff, /acceptance-report (ben
-# Codex la SKILL, khong phai command — CLAUDE.md bat bien 3) va ca lan design
-# ux-ui-craft. Khong test nao phu noi dung description nen no troi im lang.
-run "P49 description goi Codex giu ban sac Codex, khong phai ban sao Claude" \
-  python3 - "$ROOT" <<'PY'
-import json, sys
-from pathlib import Path
-root = Path(sys.argv[1])
-claude = json.loads((root / ".claude-plugin/plugin.json").read_text())["description"]
-# Overlay + mirror cua no la goi Codex-native: PHAI tu nhan la Codex. Root
-# .codex-plugin doc mot ban mo ta trung tinh (giu nguyen qua 4 release truoc),
-# nen chi doi hai dieu kien con lai — dung noi long ca cum vi mot file.
-NATIVE = {"codex/acceptance-gate/.codex-plugin/plugin.json",
-          "plugins/acceptance-gate/.codex-plugin/plugin.json"}
-for rel in sorted(NATIVE | {".codex-plugin/plugin.json"}):
-    d = json.loads((root / rel).read_text())["description"]
-    assert d != claude, f"{rel}: description la ban sao NGUYEN VAN cua goi Claude"
-    if rel in NATIVE:
-        assert "Codex" in d, f"{rel}: description khong nhac Codex — mat ban sac goi"
-    # Cac be mat CHI co ben Claude khong duoc quang cao trong goi Codex. Ghim
-    # CUM DAC TRUNG, khong ghim manh vun: ban Codex hop le co quyen noi "gate
-    # decision skills (approve/signoff)" — do la SKILL, dung theo bat bien 3
-    # CLAUDE.md; chinh chuoi "/signoff" trong do tung lam bo loc nay bao dong
-    # gia o vong sua dau.
-    for claude_only in ["gate decision commands", "ux-ui-craft",
-                        "Layout Contract", "design-quality gate", "measure_layout"]:
-        assert claude_only not in d, f"{rel}: quang cao be mat chi-co-Claude {claude_only!r}"
-PY
 
-# ── P50: sync khong nhan THUA argv — thu tu tham so go nham khong doi nghia ─
-# `--write --check` tung chay duong GHI (chi $1 duoc soi): xoa drift dang can
-# bat roi bao thanh cong — cung lop fail-open voi P46, cua thu hai. Chot argv
-# no TRUOC moi hanh dong nen chay truc tiep tren script that la an toan.
-echo "P50 sync tu choi argv thua, khong am tham chay mode dau"
-P50A="$(bash "$ROOT/scripts/sync-plugin-packages.sh" --write --check 2>&1)"; P50AST=$?
-P50B="$(bash "$ROOT/scripts/sync-plugin-packages.sh" --check --write 2>&1)"; P50BST=$?
-if [ "$P50AST" -eq 2 ] && printf '%s' "$P50A" | grep -q 'unexpected argument --check' \
-   && [ "$P50BST" -eq 2 ] && printf '%s' "$P50B" | grep -q 'unexpected argument --write'; then
-  # doi chung duong: mot mode don van chay binh thuong
-  if bash "$ROOT/scripts/sync-plugin-packages.sh" --check >/dev/null 2>&1; then
-    pass "P50 argv thua exit 2 + neu ten tham so; mode don van xanh"
-  else
-    fail "P50 doi chung duong that bai — --check don le do (mirror drift?)"
-  fi
-else
-  fail "P50 argv thua khong bi chan (a=$P50AST b=$P50BST)"
-fi
 
 # ── P51: suite tests/workflows phai duoc wire vao CI + config ───────────────
 # AC-13 cua s4-scope-triage: suite ton tai tu Dot 5 nhung mo coi — khong config
@@ -1087,39 +579,6 @@ else
   fail "P53 fixture judge E11 == ban render that + khong jargon"
 fi
 
-# ── P54: codex parity cho scope-triage ──────────────────────────────────────
-# AC-9. Hai harness phai cung ngu nghia: 3 ngan, quyen REJECT chi cho
-# in-contract high, va fail-toward-human khi buoc phan loai hong. Lech ngu
-# nghia giua hai harness la loi thau — nguoi dung Codex nhan mot cong khac.
-echo "P54 codex feature-loop S4 co buoc scope-triage tuong duong"
-P54F="$ROOT/codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md"
-P54OK=1
-if [ ! -f "$P54F" ]; then
-  echo "     thieu $P54F"; P54OK=0
-else
-  # Ba ngan + quyen REJECT + fail-toward-human, moi thu mot chuoi ghim.
-  for s in 'scope-triage' 'in-contract' 'out-of-contract' 'unclassified' 'Never fix out-of-contract' 'fail toward the human'; do
-    grep -qi "$s" "$P54F" || { echo "     THIEU chuoi khoa: $s"; P54OK=0; }
-  done
-  # Vai tro model phai duoc khai, khong thi bang routing noi doi ve fan-out that.
-  grep -q 'acceptance_triage' "$P54F" || { echo "     THIEU vai tro acceptance_triage trong bang routing"; P54OK=0; }
-fi
-# Doi chung dot bien: ban sao xoa luat -> phep kiem phai DO.
-P54CP="$(mktemp)"
-grep -vi 'Never fix out-of-contract' "$P54F" > "$P54CP" 2>/dev/null
-if cmp -s "$P54F" "$P54CP"; then
-  echo "     dot bien KHONG cham duoc file (ban sao y het ban goc) — phep kiem da chet"
-  P54OK=0
-elif grep -qi 'Never fix out-of-contract' "$P54CP"; then
-  echo "     dot bien KHONG hieu luc — phep kiem da chet"
-  P54OK=0
-fi
-rm -f "$P54CP"
-if [ "$P54OK" -eq 1 ]; then
-  pass "P54 codex parity scope-triage (6 chuoi khoa + vai tro + dot bien)"
-else
-  fail "P54 codex parity scope-triage (6 chuoi khoa + vai tro + dot bien)"
-fi
 
 # ── P55: ROUND-TRIP writer <-> reader cho review-findings.md ────────────────
 # Lop loi da tai dien BA round lien tiep ma khong eval nao do: ben VIET (prompt
@@ -1176,52 +635,16 @@ if (bad.findings.length > 0 && bad.findings[0].plain) {
 console.log('round-trip OK; dot bien dao dong bi bat');
 JS
 
-# ── P56: codex writer phai duoc bao ghi DUNG khuon (AC-15) ─────────────────
-# Hai harness render qua CUNG scripts/gate-card.js, von chi in truong plain.
-# Codex khong duoc bao viet dong do -> moi muc ra placeholder, va "parity" cua
-# AC-9 chi la chu. P54 ghim tu khoa nghiep vu; P56 ghim KHUON tai lieu.
-echo "P56 codex SKILL chi dan dung khuon review-findings (plain + cau truc)"
-P56F="$ROOT/codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md"
-P56OK=1
-if [ ! -f "$P56F" ]; then
-  echo "     thieu $P56F"; P56OK=0
-else
-  grep -q 'Người dùng thấy gì' "$P56F" || { echo "     THIEU chi dan dong 'Người dùng thấy gì' (truong plain)"; P56OK=0; }
-  grep -q -- '- \*\*<title>\*\*' "$P56F" || { echo "     THIEU cau truc '- **<title>**'"; P56OK=0; }
-  grep -q 'Đề xuất:' "$P56F" || { echo "     THIEU dong 'Đề xuất:'"; P56OK=0; }
-  # Dong co cum + dong n-a phai la CHUOI NGUYEN VAN (CLUSTER_RE cua reader ghim
-  # dung khuon) — prose tu do lam co lang im khong bao gio toi Gate 2.
-  grep -q '⚠ Cụm ngoài vùng phủ:' "$P56F" || { echo "     THIEU chuoi nguyen van co cum '⚠ Cụm ngoài vùng phủ:'"; P56OK=0; }
-  grep -q 'cluster: n-a' "$P56F" || { echo "     THIEU dong nguyen van 'cluster: n-a'"; P56OK=0; }
-  grep -q '## Chưa adversarial-verify (refuter chết)' "$P56F" || { echo "     THIEU heading nguyen van '## Chưa adversarial-verify (refuter chết)'"; P56OK=0; }
-fi
-# Doi chung dot bien: ban sao bo dong plain phai KHAC ban goc VA lam phep kiem do.
-P56CP="$(mktemp)"
-grep -v 'Người dùng thấy gì' "$P56F" > "$P56CP" 2>/dev/null
-if cmp -s "$P56F" "$P56CP"; then
-  echo "     dot bien KHONG cham duoc file (ban sao y het ban goc) — phep kiem da chet"
-  P56OK=0
-elif grep -q 'Người dùng thấy gì' "$P56CP"; then
-  echo "     dot bien KHONG hieu luc — phep kiem da chet"
-  P56OK=0
-fi
-rm -f "$P56CP"
-if [ "$P56OK" -eq 1 ]; then
-  pass "P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)"
-else
-  fail "P56 codex chi dan khuon review-findings (plain + cau truc + dot bien)"
-fi
 
-run "P57 acceptance-init noi DUNG muc cuong che cua approvers (CA HAI harness)" \
+run "P57 acceptance-init noi DUNG muc cuong che cua approvers" \
   python3 - "$ROOT" <<'PY'
 import sys, pathlib
 root = pathlib.Path(sys.argv[1])
 targets = [
     root / "commands" / "acceptance-init.md",
-    root / "codex" / "acceptance-gate" / "skills" / "acceptance-init" / "SKILL.md",
 ]
 present = [p for p in targets if p.exists()]
-assert len(present) == 2, f"thieu ban acceptance-init: {[str(p) for p in targets if not p.exists()]}"
+assert len(present) == 1, f"thieu ban acceptance-init: {[str(p) for p in targets if not p.exists()]}"
 for p in present:
     t = p.read_text(encoding="utf-8")
     # Ghim MARKER chu khong chi do vang-mat: xoa dong cu ma khong viet gi thay
@@ -1733,8 +1156,7 @@ run "P80 design-pass engine-clean + mot mat phang (E9)" \
 import sys
 from pathlib import Path
 root = Path(sys.argv[1])
-files = [root / "skills/design-pass/SKILL.md",
-         root / "plugins/acceptance-gate/skills/design-pass/SKILL.md"]
+files = [root / "skills/design-pass/SKILL.md"]
 texts = {str(p.relative_to(root)): p.read_text(encoding="utf-8") for p in files}
 rt = (root / "tests/plugins/run-tests.sh").read_text(encoding="utf-8")
 # Marker GHÉP MẢNH — nếu để nguyên chuỗi, find() khớp chính literal trong
@@ -1758,7 +1180,7 @@ def check(text):
     low = text.lower()
     hits = [pat for pat in CONSUMER + SURFACE if pat.lower() in low]
     return [f"vat lieu consumer/surface ngoai trong design-pass: {h}" for h in hits]
-assert len(texts) == 3 and all(len(x) > 200 for x in texts.values()), "sanity: vung quet rong/thieu"
+assert len(texts) == 2 and all(len(x) > 200 for x in texts.values()), "sanity: vung quet rong/thieu"
 for name, text in texts.items():
     assert check(text) == [], f"{name}: {check(text)}"
 skill = texts["skills/design-pass/SKILL.md"]
@@ -1768,16 +1190,16 @@ m2 = skill + "\n/design" + "-sync"
 assert any("vat lieu consumer/surface ngoai trong design-pass" in x for x in check(m2)), "tiem chuoi surface ngoai khong do"
 PY
 
-run "P81 design-pass smoke DUONG ban mirror (E11)" \
+run "P81 design-pass smoke DUONG ban nguon (E11)" \
   python3 - "$ROOT" <<'PY'
 import sys
 from pathlib import Path
 root = Path(sys.argv[1])
-p = root / "plugins/acceptance-gate/skills/design-pass/SKILL.md"
-assert p.exists(), "mirror thieu skills/design-pass — chay scripts/sync-plugin-packages.sh"
+p = root / "skills/design-pass/SKILL.md"
+assert p.exists(), "cay nguon thieu skills/design-pass"
 t = p.read_text(encoding="utf-8")
-assert "name: design-pass" in t, "mirror SKILL.md khong doc duoc frontmatter name"
-assert "DESIGN-PASS-NOTE-TEMPLATE" in t, "mirror SKILL.md thieu khuon marker"
+assert "name: design-pass" in t, "SKILL.md khong doc duoc frontmatter name"
+assert "DESIGN-PASS-NOTE-TEMPLATE" in t, "SKILL.md thieu khuon marker"
 PY
 # --- design-pass cases end ---
 
@@ -1859,7 +1281,7 @@ PY
 # ── P84: gap-probe platform-fit cross-check o CA HAI harness ────────────────
 # Luoi B1 (retro V1): khong tang nao hoi platform-fit. Ve nay phai nam TRONG
 # danh sach cross-check bat buoc cua gap-probe, khong phai cho khac trong file.
-run "P84 gap-probe co ve platform-fit (Claude + Codex, kem doi chung am)" \
+run "P84 gap-probe co ve platform-fit (kem doi chung am)" \
   python3 - "$ROOT" <<'PY'
 import sys
 from pathlib import Path
@@ -1867,8 +1289,6 @@ root = Path(sys.argv[1])
 PINS = {
     "feature-loop/skills/feature-loop/SKILL.md":
         "artifact có tuân chuẩn UI/plugin sẵn có của repo tiêu thụ không; skill/quy định nào của repo LẼ RA phải nạp mà chưa nạp",
-    "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md":
-        "platform-fit: does the artifact set follow the consuming repo's existing",
 }
 for rel, needle in PINS.items():
     text = (root / rel).read_text(encoding="utf-8")
@@ -1914,17 +1334,12 @@ assert "template mục /goal trong GUIDE, điền sẵn slug" not in skill_t, "S
 mutated = skill_t.replace("sau 15 turns", "sau 16 turns", 1)
 assert mutated != skill_t, "dot bien khong tac dung — chuoi neo da doi"
 assert block(skill_p, mutated) != gb, f"dot bien khoi trong {skill_p} ma van khop {guide_p} — phep so GOAL-TEMPLATE da chet"
-# Doi chung khong-pha: dong /goal native cua codex SKILL con nguyen (AC-9) —
-# chinh feature nay sua cung file codex, khong duoc cat mat no.
-codex_t = (root / "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md").read_text(encoding="utf-8")
-assert "suggest the native Codex `/goal` command" in codex_t, "codex SKILL mat dong goi y /goal native"
-assert "Never create or suggest a goal that reaches" in codex_t, "codex SKILL mat rao chan signed-off"
 PY
 
-# ── P86: S1 bat nap skill chuan-plugin/DS cua repo tieu thu (2 harness) ──────
+# ── P86: S1 bat nap skill chuan-plugin/DS cua repo tieu thu ─────────────────
 # Luoi B1: doi trong chuan noi phai len ban can TRUOC khi sinh artifact.
 # Key vang -> ghi chu 1 dong, KHONG chan (khong phai hard-gate).
-run "P86 S1 doc feature_loop.ui_standards_skill (Claude + Codex, kem doi chung am)" \
+run "P86 S1 doc feature_loop.ui_standards_skill (kem doi chung am)" \
   python3 - "$ROOT" <<'PY'
 import sys
 from pathlib import Path
@@ -1934,11 +1349,6 @@ CASES = {
         "feature_loop.ui_standards_skill",
         "BẮT BUỘC invoke skill đó ngay",
         "KHÔNG chặn",
-    ],
-    "codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md": [
-        "feature_loop.ui_standards_skill",
-        "you MUST invoke that skill",
-        "do not block",
     ],
 }
 for rel, pins in CASES.items():
@@ -2000,10 +1410,6 @@ assert text.count("| **CT1") == 1 and text.count("| **CT2") == 1, "bang tra CT1/
 # bang tra CT1, doan chinh, S1#6) -> pin phai truot.
 mutated = text.replace("Nghi thức S1-D", "Nghi thuc da go")
 assert "Nghi thức S1-D" not in mutated, "dot bien khong hieu luc"
-# Quet LOP ra ngoai mot file: design-subtrack (nguon design-loop, cung tieng
-# Viet) khong duoc con tro ve cau hoi lane da xoa (finding S4-r2 #1).
-ds = (root / "design-loop/skills/design-subtrack/SKILL.md").read_text(encoding="utf-8")
-assert "câu hỏi lane" not in ds, "design-subtrack van tro ve 'câu hỏi lane' da xoa — chi dan lech giua 2 plugin"
 PY
 
 # ── P88: release co chu dich — version floor + description khop hanh vi ─────
@@ -2020,14 +1426,12 @@ def desc(rel):
     return json.loads((root / rel).read_text())["description"]
 assert ver(".claude-plugin/plugin.json") >= (1, 29, 0), "acceptance-gate chua bump toi 1.29.0"
 assert ver("feature-loop/.claude-plugin/plugin.json") >= (1, 22, 0), "feature-loop chua bump toi 1.22.0"
-assert ver("codex/feature-loop-codex/.codex-plugin/plugin.json") >= (1, 22, 0), "feature-loop-codex chua bump toi 1.22.0"
 # Description phai nhac hanh vi moi (keyword chuc nang, on dinh qua cac ban sau):
 for kw in ("opportunity-template", "DECISION-DIAGRAM-SURFACES", "MAP_LABELS", "UAT-COPY-PROCEDURE"):
     assert kw in desc(".claude-plugin/plugin.json"), f"desc acceptance-gate thieu {kw}"
 d = desc("feature-loop/.claude-plugin/plugin.json")
 for kw in ("ui_standards_skill", "design-pass", "GOAL-TEMPLATE", "LOOP-PICTURE-CLAUSE", "REPIN-TEMPLATE", "carry-plan.mjs"):
     assert kw in d, f"desc feature-loop thieu {kw}"
-assert "platform-fit" in desc("codex/feature-loop-codex/.codex-plugin/plugin.json"), "desc codex thieu platform-fit"
 # Doi chung am cua phep so semver: version thap hon floor phai truot.
 assert not ((1, 20, 1) >= (1, 21, 0)), "phep so semver chet — tuple compare khong con dung"
 PY
@@ -7254,286 +6658,6 @@ print("P161 OK: %d hinh dang · %d slug · %d cum sao corpus · %d phan loai · 
     len(CASES), len(slugs), cum_count, classified, calls, len(old_asserts)))
 P161PY
 
-# ── P162 (codex-script-packaging, E1-E6): goi Codex phai MANG DU cong cu ma
-#     chi dan cua no bao chay. Nguon su that: scripts/codex-self-script-refs.tsv
-#     (canh ham dung, KHONG trong _acceptance — chot chay moi PR khong duoc lay
-#     tham quyen tu ho so mot viec da dong, S4-r2). Do tren GOI DA DUNG. Moi
-#     dang tien to duoc PHAN LOAI; dang la → ĐỎ, khong im lang bo qua. ──
-echo "P162 (E1-E6) goi Codex mang du cong cu chi dan goi chay"
-run "P162 chi-dan ⇔ goi: phan loai toan phan + mutant dung-lai-goi" \
-  python3 - "$ROOT" <<'P162PY'
-import json, pathlib, re, shutil, subprocess, sys, tempfile
-root = pathlib.Path(sys.argv[1])
-PLUGINS = root / "plugins"
-
-# ── nguon su that canh ham dung ──
-tsv = (root / "scripts/codex-self-script-refs.tsv").read_text(encoding="utf-8")
-DECLARED, NOTSELF, MUST_PKGS, SAMPLES, CONSUMER = set(), set(), set(), [], set()
-KITNAMES, OTHERPKG = set(), {}
-for line in tsv.split("\n"):
-    if not line.strip() or line.lstrip().startswith("#"): continue
-    f = line.split("\t")
-    if f[0] == "SELF" and len(f) >= 4: DECLARED.add((f[1], f[2], f[3]))
-    elif f[0] == "NOTSELF" and len(f) >= 2: NOTSELF.add(f[1])
-    elif f[0] == "PKG" and len(f) >= 2: MUST_PKGS.add(f[1])
-    elif f[0] == "SAMPLE" and len(f) >= 2: SAMPLES.append(f[1])
-    elif f[0] == "CONSUMER" and len(f) >= 2: CONSUMER.add(f[1])
-    elif f[0] == "KIT" and len(f) >= 2: KITNAMES.add(f[1])
-    elif f[0] == "OTHERPKG" and len(f) >= 3: OTHERPKG[f[1]] = f[2]
-assert len(DECLARED) >= 10, "bang SELF chi co %d hang — sanity chong file hong" % len(DECLARED)
-assert NOTSELF, "bang NOTSELF rong — moi tien to la se do, chot se ket"
-
-# ── rut MOI dang <tien to>/scripts/<ten> roi PHAN LOAI (khong blacklist) ──
-DOC_EXT = {".md", ".toml", ".yaml", ".yml"}
-# Bat MOI dang: co tien to HOAC khong (dau dong/sau khoang trang/nhay), va ten
-# file voi moi ky tu chu-so-gach (ke ca gach duoi, chu hoa) + moi duoi ngan —
-# gioi han [a-z0-9-]+.(mjs|js|sh) cu la blacklist tren khong gian mo: ten co
-# gach duoi/chu hoa/duoi .py lot khong dau vet (measure-teeth-cleanup AC-1).
-ANY_REF = re.compile(r"([^\s`\"'()\[\]]{0,60}?)\bscripts/([A-Za-z0-9_.-]+\.[a-z]{1,4})\b")
-def classify(prefix, name):
-    if "PLUGIN_ROOT" in prefix or prefix == "<plugin>/": return "self"
-    if prefix.rstrip("/") in NOTSELF or prefix in NOTSELF: return "notself"
-    # the HTML (<br/>, </td>...) ngay truoc duong dan chi la ranh gioi trinh
-    # bay, khong phai tien to duong dan
-    if prefix in ("", "./") or prefix.endswith(">"):
-        return "consumer" if name in CONSUMER else "self"
-    return "unknown"
-
-def extract(plugins_dir):
-    """tra (self_refs, unknown, so file doc, so file ngoai SKILL.md, tap goi DA QUET)"""
-    refs, unknown, nfile, nnon, seen = set(), [], 0, 0, set()
-    for pkg_dir in sorted(pathlib.Path(plugins_dir).iterdir()):
-        if not pkg_dir.is_dir(): continue
-        seen.add(pkg_dir.name)
-        for f in sorted(pkg_dir.rglob("*")):
-            if not f.is_file() or f.suffix not in DOC_EXT: continue
-            nfile += 1
-            if f.name != "SKILL.md": nnon += 1
-            rel = str(f.relative_to(pkg_dir))
-            for prefix, name in ANY_REF.findall(f.read_text(encoding="utf-8", errors="replace")):
-                k = classify(prefix, name)
-                noprefix = prefix in ("", "./") or prefix.endswith(">")
-                if k == "self" and noprefix:
-                    # thu tu phan giai cho dang KHONG tien to:
-                    if name in KITNAMES: continue                     # script noi bo kho nguon
-                    if name in OTHERPKG and OTHERPKG[name] != pkg_dir.name:  # goi ban co ten (trung goi minh thi la self)
-                        od = pathlib.Path(plugins_dir) / OTHERPKG[name] / "scripts"
-                        if not (od / name).is_file():
-                            unknown.append((pkg_dir.name, rel, "OTHERPKG:" + OTHERPKG[name], name + " (THIEU)"))
-                        continue
-                    if (f.parent / "scripts" / name).is_file(): continue        # scripts/ canh tai lieu
-                    if (f.parent.parent / "scripts" / name).is_file(): continue # tai lieu trong references/, scripts/ canh thu muc cha
-                if k == "unknown" and (pkg_dir / prefix / "scripts").is_dir():
-                    # thu muc scripts/ PHU trong goi (vd skills/<x>/scripts/):
-                    # kiem thang file ton tai — thieu la con tro chet, du thi
-                    # khong vao bang SELF (bang chi quan ly scripts/ goc)
-                    if not (pkg_dir / prefix / "scripts" / name).is_file():
-                        unknown.append((pkg_dir.name, rel, prefix + "scripts/", name + " (THIEU)"))
-                    continue
-                if k == "self": refs.add((pkg_dir.name, rel, name))
-                elif k == "unknown": unknown.append((pkg_dir.name, rel, prefix, name))
-    return refs, unknown, nfile, nnon, seen
-
-found, unknown, nfiles, nnon_read, seen_pkgs = extract(PLUGINS)
-# fail-LOUD: dang viet moi chua phan loai duoc phai ĐỎ (S4-r2: dang
-# ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT} tung vo hinh voi chot)
-assert not unknown, "tien to CHUA PHAN LOAI (khai vao scripts/codex-self-script-refs.tsv): %r" % unknown[:5]
-
-# ══ E2: tap self BANG DUNG bang ghim ══
-missing, extra = sorted(DECLARED - found), sorted(found - DECLARED)
-assert not missing, "bang khai %d tham chieu ma goi da dung KHONG con nhac: %r" % (len(missing), missing)
-assert not extra, "goi da dung co tham chieu KHONG khai trong bang: %r" % extra
-# sanity do NHANH DOC (khong do he tep, S4-r2): so file da THUC SU doc
-# Pham vi quet do bang QUAN HE tap hop voi danh sach viet truoc (S4-r3: nguong
-# dem cu de roi tron mot goi ma van xanh — da chung minh bang mutant).
-assert MUST_PKGS, "bang thieu phan PKG — khong co danh sach goi phai quet"
-assert seen_pkgs == MUST_PKGS, \
-    "tap goi da quet LECH danh sach: thieu %r, thua %r" % (sorted(MUST_PKGS - seen_pkgs), sorted(seen_pkgs - MUST_PKGS))
-assert nnon_read > 0, "nhanh doc file NGOAI SKILL.md chua bao gio chay"
-pkgs_with_ref = {p for p, _, _ in found}
-
-def files_in(pkg):
-    d = PLUGINS / pkg / "scripts"
-    return {f.name for f in d.iterdir()} if d.is_dir() else set()
-def dead_pointers(refs, base=PLUGINS):
-    out = []
-    for pkg, doc, name in sorted(refs):
-        d = base / pkg / "scripts"
-        have = {f.name for f in d.iterdir()} if d.is_dir() else set()
-        if name not in have: out.append("goi %s thieu %s (chi dan %s nhac)" % (pkg, name, doc))
-    return out
-
-# ══ E1 ══
-assert not dead_pointers(found), "CON TRO CHET: %s" % "; ".join(dead_pointers(found))
-assert "carry-plan.mjs" in files_in("feature-loop-codex"), "goi Codex van thieu carry-plan.mjs"
-
-# ══ E3: mutant 3 duong (2 hinh dang + 1 file ngoai SKILL.md) + 1 am ══
-def probe(inject_line, target_rel):
-    with tempfile.TemporaryDirectory() as d:
-        dst = pathlib.Path(d) / "plugins"
-        shutil.copytree(PLUGINS, dst)
-        target = dst / target_rel
-        assert target.exists(), "muc tieu tiem khong ton tai: %s" % target_rel
-        before = target.read_text(encoding="utf-8")
-        target.write_text(before + "\n" + inject_line + "\n", encoding="utf-8")
-        assert target.read_text(encoding="utf-8") != before, "tiem that bai"
-        refs2, unk2, _, _, _ = extract(dst)
-        return dead_pointers(refs2, dst), unk2
-
-SKILL_REL = "feature-loop-codex/skills/feature-loop-codex/SKILL.md"
-NONSKILL_REL = "feature-loop-codex/README.md"
-assert (PLUGINS / NONSKILL_REL).exists(), "khong co file chi dan ngoai SKILL.md de tiem"
-clean_dead, clean_unk = probe("(dong khong chua tham chieu nao)", SKILL_REL)
-assert not clean_dead and not clean_unk, "ban nguyen ven da do san: %r %r" % (clean_dead, clean_unk)
-# ma tran DAY DU: 3 hinh dang TIEN TO x 4 hinh dang TEN FILE (S4-r1: ban truoc
-# chi 3 tien to voi cung mot ten chu-thuong-.mjs, nen thu regex ve [a-z0-9-]+
-# van xanh — dung lo AC-1 mo lai)
-for shape, fake, rel in [("${PLUGIN_ROOT}", "khong-ton-tai-a.mjs", SKILL_REL),
-                         ("<plugin>", "khong-ton-tai-b.mjs", SKILL_REL),
-                         ("${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}", "khong-ton-tai-c.mjs", NONSKILL_REL),
-                         ("${PLUGIN_ROOT}", "khong_ton_tai_d.mjs", SKILL_REL),
-                         ("${PLUGIN_ROOT}", "KhongTonTaiE.mjs", SKILL_REL),
-                         ("${PLUGIN_ROOT}", "khong-ton-tai-f.py", SKILL_REL)]:
-    bad, _ = probe("Run `node %s/scripts/%s --x`." % (shape, fake), rel)
-    assert any(fake in b for b in bad), "mutant %s tai %s KHONG ĐỎ dich danh %s: %r" % (shape, rel, fake, bad)
-# am 1: tro sang goi ban qua bo giai → khong duoc coi la self
-bad_neg, unk_neg = probe('Run `node "$AG/scripts/gate-card.js" --root .`.', SKILL_REL)
-assert not bad_neg and not unk_neg, "tham chieu sang goi ban bi rut nham: %r %r" % (bad_neg, unk_neg)
-# am 2: tien to LA phai vao nhanh unknown (fail-loud), khong im lang
-_, unk_new = probe('Run `node ${MOT_BIEN_LA}/scripts/gate-card.js`.', SKILL_REL)
-assert unk_new, "tien to LA khong roi vao nhanh unknown — chot se im lang voi dang viet moi"
-
-# ══ E4: cong cu CHAY DUOC tren HO SO THAT ══
-TOOL = PLUGINS / "feature-loop-codex/scripts/carry-plan.mjs"
-r = subprocess.run(["node", str(TOOL)], capture_output=True, text=True)
-assert r.returncode == 2, "thieu tham so phai tra ma thoat 2, got %d" % r.returncode
-assert "usage" in (r.stdout + r.stderr).lower(), "thieu tham so phai in huong dan"
-# Ho so mau GHIM DICH DANH trong bang (S4-r3: first-match lam phep do phu thuoc
-# viec nao tinh co dung dau bang chu cai, va mot lan ghim-lai co the lam do oan)
-assert SAMPLES, "bang thieu phan SAMPLE — khong biet chay thu tren ho so nao"
-d = root / "_acceptance" / SAMPLES[0]
-rl, ev, ct = d / "run-log.jsonl", d / "evals.yaml", d / "contract.md"
-assert rl.exists() and ev.exists() and ct.exists(), \
-    "ho so mau %s da khai trong bang nhung THIEU file — sua bang hoac phuc hoi ho so" % SAMPLES[0]
-lines = [json.loads(l) for l in rl.read_text(encoding="utf-8").split("\n") if l.strip()]
-ok_all = [e for e in lines if e.get("kind") is None and e.get("sha") and e.get("exit_code") == 0 and e.get("evalId")]
-assert len(ok_all) >= 5, "ho so mau %s chi co %d dong eval mang sha" % (SAMPLES[0], len(ok_all))
-last = max(e.get("round", 0) for e in ok_all)
-real = (d, [e for e in ok_all if e.get("round") == last], last + 1)
-
-# ── LO AN TOAN S4-r3: thieu/go sai/rong deu tung cho "khong cham gi" = mang
-#    sang TOAN BO voi ma thoat 0. Nay phai NO. Ma tran 3 ca do + 2 ca duong. ──
-WS_S = real[0]
-BASE_ARGS = ["--run-log", str(WS_S / "run-log.jsonl"), "--evals", str(WS_S / "evals.yaml"),
-             "--contract", str(WS_S / "contract.md"), "--round", str(real[2])]
-for name, extra in [("bo han co", []),
-                    ("go sai ten co", ["--delta_files", "src/a.js"]),
-                    ("chuoi rong", ["--delta-files", ""])]:
-    rr = subprocess.run(["node", str(TOOL)] + BASE_ARGS + extra, capture_output=True, text=True)
-    assert rr.returncode == 2, \
-        "ca %r phai NO (ma thoat 2), got %d — fail-open: mang sang toan bo ma van bao thanh cong" % (name, rr.returncode)
-for name, extra in [("hop le", ["--delta-files", "docs/khong-cham-gi.md"]),
-                    ("khai tuong minh khong doi gi", ["--no-delta"])]:
-    rr = subprocess.run(["node", str(TOOL)] + BASE_ARGS + extra, capture_output=True, text=True)
-    assert rr.returncode == 0, "ca %r phai chay duoc, got %d: %s" % (name, rr.returncode, rr.stderr[-160:])
-    json.loads(rr.stdout)
-ws_dir, ok_lines, next_round = real
-r2 = subprocess.run(["node", str(TOOL), "--run-log", str(ws_dir / "run-log.jsonl"),
-                     "--evals", str(ws_dir / "evals.yaml"), "--contract", str(ws_dir / "contract.md"),
-                     "--delta-files", "docs/khong-cham-gi.md", "--round", str(next_round)],
-                    capture_output=True, text=True)
-assert r2.returncode == 0, "chay tren ho so that phai exit 0, got %d: %s" % (r2.returncode, r2.stderr[-200:])
-plan = json.loads(r2.stdout)
-blocks = re.split(r"\n(?=  - id: )", (ws_dir / "evals.yaml").read_text(encoding="utf-8"))
-with_paths = {re.search(r"- id: (\S+)", b).group(1) for b in blocks
-              if re.search(r"- id: (\S+)", b) and "paths:" in b}
-expect = with_paths & {e["evalId"] for e in ok_lines}
-got = {c["id"] for c in plan.get("carriedEvals", [])}
-assert expect and got == expect, "tap mang-sang LECH: %r vs %r" % (sorted(got), sorted(expect))
-
-# ══ E5: ham dung khong duoc lam ROI goi khac — mutant tren CAY DANG KIEM ══
-def build_into(workdir):
-    """chay ham dung trong workdir; tra (ma thoat, {goi: {file}})"""
-    r = subprocess.run(["bash", "scripts/sync-plugin-packages.sh"], cwd=str(workdir),
-                       capture_output=True, text=True)
-    out = {}
-    pdir = pathlib.Path(workdir) / "plugins"
-    if pdir.is_dir():
-        for d in pdir.iterdir():
-            if d.is_dir():
-                out[d.name] = {str(f.relative_to(d)) for f in d.rglob("*") if f.is_file() and f.name != ".DS_Store"}
-    return r.returncode, out
-
-with tempfile.TemporaryDirectory() as d:
-    work = pathlib.Path(d) / "kit"
-    # CHEP CAY DANG KIEM (S4-r2: worktree tai HEAD do ban da commit, khong do
-    # cay tac gia dang sua)
-    shutil.copytree(root, work, symlinks=True,
-                    ignore=shutil.ignore_patterns(".git", "node_modules", ".worktrees", "_acceptance"))
-    rc0, base_pkgs = build_into(work)
-    assert rc0 == 0, "dung lai ban NGUYEN VEN that bai (ma thoat %d) — khong the tin ket qua mutant" % rc0
-    assert len(base_pkgs) == 3, "ban nguyen ven phai ra 3 goi, got %r" % sorted(base_pkgs)
-    for pkg, fs in base_pkgs.items(): assert fs, "goi %s rong o ban nguyen ven" % pkg
-
-    sh = work / "scripts/sync-plugin-packages.sh"
-    src = sh.read_text(encoding="utf-8")
-    cut = re.sub(r'\n\s*rsync -a "\$ROOT/feature-loop/scripts/resolve-plugin\.mjs" "\$out/scripts/"', "", src, count=1)
-    assert cut != src, "tiem mutant that bai — anchor dong chep doi"
-    sh.write_text(cut, encoding="utf-8")
-    rc1, mut_pkgs = build_into(work)
-    # (a) ma thoat PHAI 0: mot luot dung hong cung de lai goi rong va cho cung
-    #     mau do vi ly do KHAC (S4-r2 chung minh bang mutant khac)
-    assert rc1 == 0, "lan dung mutant that bai (ma thoat %d) — khong phan biet duoc voi 'go dung dong chep'" % rc1
-    lost = {pkg: sorted(fs - mut_pkgs.get(pkg, set())) for pkg, fs in base_pkgs.items() if fs - mut_pkgs.get(pkg, set())}
-    # (b) ghim DICH DANH goi + cong cu, khong chap nhan "goi nao do mat file nao do"
-    assert lost == {"feature-loop-codex": ["scripts/resolve-plugin.mjs"]}, \
-        "mutant phai lam MAT dung scripts/resolve-plugin.mjs cua feature-loop-codex, got %r" % lost
-
-# ══ E6: chot MOI phai nam trong luoi thuong truc — ca AM di qua duong THAT ══
-cfg = (root / "_acceptance/config.yaml").read_text(encoding="utf-8")
-keys = re.findall(r"^\s+-\s+(executors\.[\w.]+)\s*$", cfg, re.M)
-assert keys, "khong doc duoc feature_loop.suite_keys tu config"
-def walk(text, dotted):
-    lines = text.split("\n"); depth = -1; idx = 0; val = None
-    for part in dotted.split("."):
-        found = None
-        for i in range(idx, len(lines)):
-            m = re.match(r"^(\s*)%s:\s*(.*)$" % re.escape(part), lines[i])
-            if not m: continue
-            ind = len(m.group(1))
-            if depth >= 0 and ind <= depth: break
-            found, depth, idx = i, ind, i + 1
-            val = m.group(2).strip().strip('"\'')
-            break
-        if found is None: return None
-    return val
-resolved = [walk(cfg, k) for k in keys]
-assert all(resolved), "co suite_key khong resolve duoc: %r" % [k for k, v in zip(keys, resolved) if not v]
-assert len(resolved) == len(keys), "so lenh resolve != so key khai"
-MARK = "P162 chi-dan"
-def holder_in(tree):
-    return [str(f.relative_to(tree)) for f in (pathlib.Path(tree) / "tests").rglob("*")
-            if f.is_file() and MARK in f.read_text(encoding="utf-8", errors="replace")]
-def chot_trong_luoi(tree, cmds):
-    hs = holder_in(tree)
-    if len(hs) != 1: return None, hs
-    return any(hs[0] in c for c in cmds), hs
-ok_now, hs_now = chot_trong_luoi(root, resolved)
-assert ok_now is True, "chot nam o %r nhung khong file nao trong danh sach lenh luoi: %r" % (hs_now, resolved)
-# ca AM THAT (S4-r2: ban truoc chi assert mot chuoi bia khong co trong danh sach
-# — menh de dung vo dieu kien): DOI CHO chot sang file luoi khong goi, phai phat hien
-with tempfile.TemporaryDirectory() as d:
-    tw = pathlib.Path(d) / "t"
-    shutil.copytree(root / "tests", tw / "tests")
-    src_f = tw / hs_now[0]
-    moved = tw / "tests/plugins/khong-nam-trong-luoi.sh"
-    src_f.rename(moved)
-    ok_moved, hs_moved = chot_trong_luoi(tw, resolved)
-    assert ok_moved is False, "ca am hong: chot doi sang %r ma van bao la nam trong luoi (hs=%r)" % (str(moved), hs_moved)
-
-print("P162 OK: %d self-ref khai · %d rut duoc · %d file chi dan (%d ngoai SKILL.md) · %d goi co ref · ho so that %s (%d mang sang) · chot tai %s" % (
-    len(DECLARED), len(found), nfiles, nnon_read, len(pkgs_with_ref), ws_dir.name, len(got), hs_now[0]))
-P162PY
 # ── P165: F-K vế ÂM — câu phủ định superpowers:brainstorming nằm TRONG đoạn
 # lối (a) của CẢ HAI thân /start; mutant code-sinh per-file (E1). Đo trong
 # ĐOẠN chứ không grep toàn file — chống "đo từ vựng thay vì quan hệ".

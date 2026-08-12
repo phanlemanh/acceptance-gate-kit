@@ -4,7 +4,7 @@
  * A CROSS-FAMILY second opinion on a saved UI frame: a different model family
  * (default: Gemini) re-reads the screenshot and answers ONE closed YES/NO
  * question. This is an ASSERTION, not a judge — open quality questions
- * ("does it look good?") are judgment/design-loop territory (No blind VLM
+ * ("does it look good?") are judgment/design-pass territory (No blind VLM
  * judge). Same-family graders share "looks done" bias; a second family cuts
  * correlated error on exactly the evidence class where hallucinated
  * completion lives (screenshots).

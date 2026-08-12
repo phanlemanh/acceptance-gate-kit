@@ -140,6 +140,67 @@ trên một phép đo bị cắt cụt — con số cũ đúng vì may, không p
 `.codex-plugin/plugin.json` ở gốc repo **vẫn còn trên cây** — đề bài 1b.1 gọi
 đích danh nó («`.codex-plugin/` nếu có»). Gỡ nốt trong đợt phẫu thuật này.
 
+## ⚠ SỐ ĐO LỆCH THỨ NĂM — phân loại A/B/C sai ở 10 ca; tổng vẫn 147 nhưng vì lý do khác
+
+*Ghi bởi Phiên C, 12/08, sau khi lập bản đồ từng khối ca, TRƯỚC khi cắt.*
+
+Phân loại cũ dựng trên tập đỏ **tại một thời điểm**. Hai lỗ của cách đó:
+
+**(a) Ca đang XANH mà chỉ tồn tại vì đồ đã lưu kho.** `P23` («gói Codex sinh ra
+không được chứa bề mặt Claude») đang xanh **rỗng**: nó lặp trên ba thư mục dưới
+`plugins/`, thư mục không còn nên mọi assert đúng một cách vô nghĩa. `P28`
+(«README và GUIDE dẫn đúng đường cài Codex») xanh chỉ vì tài liệu CHƯA được
+dọn — dọn xong nó đỏ. Tập đỏ không thể lộ hai ca này.
+
+**(b) «Đỏ» không nói ca chết hay ca còn nửa sống.** Sáu ca bị xếp XOÁ trong khi
+chúng có nửa Claude thật:
+
+| Ca | Nửa còn sống bị bỏ quên nếu xoá |
+|---|---|
+| `P22` | định tuyến model trong `feature-loop/workflows/` (`machine: 'haiku'`, `judge: 'sonnet'`, `executor: null`) |
+| `P25` | `hooks.json` bản Claude: `${CLAUDE_PLUGIN_ROOT}` + `acceptance-evidence-gate.js` |
+| `P29` | gap-probe nối ở `scripts/gate-card.js`, `commands/acceptance-card.md`, `GUIDE.md` |
+| `P48` | chữ ký `ledger_mark` == EXPECTED trên `scripts/pre-merge-check.sh` + đột biến |
+| `P175` | vế `claude` của khối MEASURE-BIRTH-CLAUSE + đột biến neo-ngoài-khối |
+| `P181` | hai hàng gói Claude của bảng version-floor |
+
+Và bốn ca bị xếp GIỮ trong khi tiền đề của chúng chết hẳn: `P27` (skill của gói
+`design-loop-codex` — design-loop đi trọn), `P31` (khoá `agents/openai.yaml`
+chỉ có bên Codex; nửa Claude đã có `P32` canh riêng), `P34` («ship ở CẢ HAI ấn
+bản từ một nguồn» — còn một ấn bản thì mệnh đề không còn nội dung), `P95` thì
+NGƯỢC LẠI phải giữ (bất biến «gói này không được thò tay vào gốc gói kia, phải
+đi qua bộ giải» vẫn đúng nguyên khi gói Claude chính là cây nguồn).
+
+**(c) Một ca sinh NHIỀU dòng đo.** `P39` lặp trên hai tệp × hai assert = **4
+dòng**; tệp Codex chết ⇒ mất **2 dòng**, không phải 0. Không ca nào khác có
+hình dạng này (chỉ P39 in nhãn `[...]`).
+
+### Phân loại CHỐT (đọc từng ca, không suy từ màu)
+
+- **XOÁ — 24 ca:** `P01` `P02` `P03` `P04` `P05` `P05b` `P05c` `P06` `P23`
+  `P27` `P30`(mirror sync) `P31` `P34` `P41` `P42` `P45` `P46` `P47` `P49`
+  `P50` `P54` `P56` `P58` `P162`
+- **TRIM / TRỎ LẠI NGUỒN — phần còn lại**, giữ nguyên số dòng đo.
+
+### Đẳng thức chốt lại
+
+```
+173 (baseline đo được)  −  24 (ca xoá, mỗi ca 1 dòng)  −  2 (2 phân ca P39 chết)  =  147
+```
+
+**147 không đổi so với lần khai trước, nhưng lý do thì đổi hẳn.** Lần trước nó
+ra từ `173 − 26` với một tập A sai 10 ca và bỏ sót chuyện P39 sinh 4 dòng; hai
+sai số triệt tiêu nhau. Con số cũ đúng vì **may**, không vì kín — nên vẫn phải
+ghi lại đây, kẻo lần sau ai đó dựa vào cách suy cũ.
+
+**Neo chéo phải giữ khi cắt** (gỡ mà quên là đỏ oan, không phải gỡ quá tay):
+`P80` assert tiêu đề của `P81` có mặt trong vùng design-pass ⇒ P81 phải TRIM,
+cấm xoá · `P182` đọc khuôn `MBC-CASE-IDS` liệt kê P174–P182 ⇒ đụng P175/P181
+phải sửa khuôn cùng lượt · guard `PLUGINS_SUITE_NESTED` bọc CHUNG P42+P45 ⇒
+cắt cả cụm · các hằng số đếm sẽ vỡ: `P90` (`len(SITES)==8`, `SITES[3],SITES[7]`)
+· `P91` (`found/8`) · `P57` (`len(present)==2`) · `P80` (`len(texts)==3`) ·
+`P127` (`len(THAN)>=5`) · `P93` (`EXPECT_DIRS`).
+
 ## Còn lại (chưa làm)
 
 1. Phẫu thuật `tests/plugins/run-tests.sh` theo ba nhóm A/B/C ở trên — 56 ca,
