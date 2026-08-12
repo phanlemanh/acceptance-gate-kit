@@ -54,6 +54,19 @@ const ALLOWED_REMOVALS = [
   // optional catch binding kèm ghi chú, cùng đợt 1.39.1:
   `        try { const e = JSON.parse(l); if (e && e.kind === 'repin' && typeof e.run_id === 'string') repins.set(e.run_id, e); } catch (_) {}`,
   `  try { configText = fs.readFileSync(configPath, 'utf8'); } catch (_) {}`,
+  // Bugfix 1.40.1 (2026-08-12) — lỗ MIỄN TRỪ của răng T1-escape. Điều kiện
+  // "PR có mang bằng chứng" tính CẢ file nằm ngay trong _acceptance/
+  // (config.yaml, README.md), nên sửa một dòng CẤU HÌNH cổng là đủ dập toàn
+  // bộ răng cho phần còn lại của PR. Đo thật ở floorplanstudio PR #6: PR đổi
+  // 30+ file mã non-T1 bị chặn ĐÚNG; commit kế tiếp sửa _acceptance/config.yaml
+  // và CÙNG bộ mã đó pass, cả local lẫn CI. Đây là NỚI LUẬT ngoài ý muốn, nên
+  // bản vá SIẾT lại đúng điều thông điệp violation đã hứa ("carries NO
+  // _acceptance/<slug>/ artifacts"): phải có thư mục slug thật.
+  // Không luật nào bị nới. Đối chứng: TE21/TE22 (đỏ trước khi vá, xanh sau) và
+  // TE23 canh chiều ngược — miễn trừ THẬT phải còn nguyên.
+  `# no path→slug mapping, so "carries artifacts" means any _acceptance/ change;`,
+  `# the per-slug checks above judge their quality.`,
+  `    case "$f" in _acceptance/*|*/_acceptance/*) gate_touched=1; continue ;; esac`,
 ];
 let passed = 0, failed = 0;
 const check = (n, f) => { try { f(); passed++; console.log(`  PASS: ${n}`); } catch (e) { failed++; console.log(`  FAIL: ${n}\n    ${e.message}`); } };

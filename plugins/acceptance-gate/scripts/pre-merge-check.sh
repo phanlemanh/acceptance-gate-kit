@@ -993,8 +993,19 @@ fi
 # matching t3_paths — or falling outside t1_skip_globs — require the PR to
 # carry _acceptance/<slug>/ artifacts. (Under the stale-evidence rule every
 # gated PR re-verifies, so its diff always includes gate artifacts.) There is
-# no path→slug mapping, so "carries artifacts" means any _acceptance/ change;
-# the per-slug checks above judge their quality.
+# no path→slug mapping, so "carries artifacts" means a change under SOME
+# _acceptance/<slug>/ directory; the per-slug checks above judge their quality.
+#
+# "SOME <slug>/" chứ không phải "bất kỳ đường dẫn nào dưới _acceptance/" —
+# phân biệt này là load-bearing và đã được trả giá. Bản trước tính cả file
+# NGAY TRONG _acceptance/ (config.yaml, README.md) là "mang bằng chứng", nên
+# sửa một dòng CẤU HÌNH cổng là đủ dập toàn bộ răng cho phần còn lại của PR.
+# Đo thật ở floorplanstudio PR #6 (2026-08-12): PR đổi 30+ file mã non-T1 bị
+# chặn ĐÚNG; commit kế tiếp sửa `_acceptance/config.yaml` để trỏ executor sang
+# CLI mới, và CÙNG bộ mã đó pass — cả local lẫn CI. Cấu hình cổng không phải
+# bằng chứng, và chính thông điệp violation đã hứa đúng điều kiện này
+# ("carries NO _acceptance/<slug>/ artifacts"). Guard: TE21/TE22 (đỏ trước khi
+# vá), TE23 canh chiều ngược lại — miễn trừ THẬT phải còn nguyên.
 if [ "$T1_ESCAPE" -eq 0 ]; then
   t1_escape_not_enforced
 elif [ "$DIFF_READY" -eq 0 ]; then
@@ -1006,7 +1017,14 @@ else
   gate_touched=0; t3_hits=""; nont1_hits=""
   while IFS= read -r f; do
     [ -n "$f" ] || continue
-    case "$f" in _acceptance/*|*/_acceptance/*) gate_touched=1; continue ;; esac
+    # `_acceptance/<slug>/…` cần ÍT NHẤT một dấu `/` sau tên slug — nên
+    # `_acceptance/config.yaml` không khớp, còn `_acceptance/x/contract.md` thì
+    # có. `continue` vẫn chạy cho MỌI file dưới _acceptance/ (kể cả config):
+    # chúng không phải mã sản phẩm, không được tính vào nont1_hits.
+    case "$f" in
+      _acceptance/*/*|*/_acceptance/*/*) gate_touched=1; continue ;;
+      _acceptance/*|*/_acceptance/*) continue ;;
+    esac
     if [ -n "$T3_PATHS" ] && match_globs "$f" "$T3_PATHS"; then
       t3_hits="${t3_hits}${f}"$'\n'
     elif ! match_globs "$f" "$T1_GLOBS"; then

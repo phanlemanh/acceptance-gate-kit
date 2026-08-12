@@ -2712,6 +2712,45 @@ te_repo te15 docs/note.md
 TE15="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"; check TE15 0 $?
 nothas TE15b "VIOLATION [PR]" "$TE15"
 
+# ── TE21: "mang bang chung" phai la SLUG, khong phai cham vao _acceptance/ ──
+# Lo do ngoai thuc te (floorplanstudio PR #6, 2026-08-12): mot PR doi 30+ file
+# ma non-T1 bi luat CHAN dung. Commit ke tiep sua _acceptance/config.yaml de
+# tro executor sang CLI moi -> CUNG bo ma do PASS. gate_touched=1 bat cho MOI
+# duong dan duoi _acceptance/, ke ca config.yaml va README.md, roi dap toan bo
+# violation.
+#
+# config.yaml la CAU HINH cong, khong phai BANG CHUNG. Thong diep violation
+# hua "carries NO _acceptance/<slug>/ artifacts" -- vay dieu kien mien tru
+# phai dung la CO <slug>/, chu khong phai cham vao thu muc.
+echo "TE21 sua _acceptance/config.yaml KHONG duoc mien tru rang T1-escape"
+te_repo te21 src/app.js
+printf '\n# cham vao config, khong phai bang chung\n' >> "$TE_R/_acceptance/config.yaml"
+git -C "$TE_R" add -A >/dev/null
+git -c user.email=t@t -c user.name=t -C "$TE_R" commit -qm cfg
+TE21="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"; TE21ST=$?
+check  TE21a 1 "$TE21ST"
+hasout TE21b "VIOLATION [PR]" "$TE21"
+hasout TE21c "src/app.js" "$TE21"
+
+echo "TE22 README.md cua _acceptance cung khong mien tru"
+te_repo te22 src/app.js
+printf '\nghi chu\n' >> "$TE_R/_acceptance/README.md"
+git -C "$TE_R" add -A >/dev/null
+git -c user.email=t@t -c user.name=t -C "$TE_R" commit -qm readme
+TE22="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"; check TE22a 1 $?
+hasout TE22b "VIOLATION [PR]" "$TE22"
+
+# Doi trong: mien tru THAT phai con nguyen, neu khong ban va nay bien moi PR
+# co gate thanh do vinh vien.
+echo "TE23 co _acceptance/<slug>/ that -> VAN mien tru (chong va qua tay)"
+te_repo te23 src/app.js
+mkdir -p "$TE_R/_acceptance/mot-slug-that"
+printf 'contract\n' > "$TE_R/_acceptance/mot-slug-that/contract.md"
+git -C "$TE_R" add -A >/dev/null
+git -c user.email=t@t -c user.name=t -C "$TE_R" commit -qm slug
+TE23="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"
+nothas TE23a "VIOLATION [PR]: non-T1" "$TE23"
+
 # ── TE17: bằng chứng cho judge phải SINH LẠI rồi diff byte-đối-byte ─────────
 # Cùng khuôn GPM12: đếm nhãn chỉ đo sự ĐẦY ĐỦ, không đo tính XÁC THỰC. Thông
 # điệp đổi mà file evidence không đổi thì judge chấm một bản chụp lỗi thời.
