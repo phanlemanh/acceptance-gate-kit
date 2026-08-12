@@ -37,9 +37,16 @@ còn di chuyển — và một needle gõ sai cho 0 hit ở CẢ HAI đầu, nê
 chân duy nhất phân biệt "đã gỡ" với "phép đo chưa bao giờ chạy". Mốc VẮNG →
 eval ĐỎ, không phải bỏ qua.
 
-- AC-1: Given commit ngay trước commit gỡ đầu tiên, When đọc danh sách mốc git, Then tồn
-  tại mốc `truoc-luu-kho-2026-08` trỏ đúng commit đó, và `git checkout` mốc đó
-  cho lại cây có đủ `codex/`, `design-loop/`, `plugins/`.
+- AC-1: Given commit ngay trước commit gỡ đầu tiên, When đọc danh sách mốc git,
+  Then tồn tại mốc `truoc-luu-kho-2026-08` trỏ đúng commit đó, cây của mốc có đủ
+  `codex/`, `design-loop/`, `plugins/`, **mốc là CHA TRỰC TIẾP của commit gỡ đầu
+  tiên** (không chấp nhận quan hệ tổ-tiên: `git rev-list` giữa mốc và commit đầu
+  tiên chạm một trong sáu đường dẫn AC-2 phải RỖNG), **và mốc đã có mặt trên
+  remote** với đúng sha (`git ls-remote --tags origin`). Hai vế sau là bắt buộc
+  vì mốc này là chân duy nhất của CẢ đường-đảo-rẻ LẪN mọi đối chứng dương của
+  E1–E10: mốc chỉ nằm local thì sau merge không ai ngoài máy tác giả hoàn tác
+  được ~194 file, hai ADR ghim một sha không ai resolve nổi, và mọi lần chạy lại
+  verify đỏ vĩnh viễn theo đúng luật fail-closed.
 - AC-2: Given cây đã gỡ, When liệt kê đường dẫn, Then `codex/`, `tests/codex/`,
   `scripts/codex-self-script-refs.tsv`, `.agents/`, `design-loop/`,
   `tests/design-loop/` **không còn trên cây**; đối chứng dương: cả sáu đều tồn
@@ -48,11 +55,27 @@ eval ĐỎ, không phải bỏ qua.
   entry `design-loop` đã gỡ và hai entry còn lại (`acceptance-gate`,
   `feature-loop`) trỏ nguyên vẹn; `.agents/plugins/marketplace.json` không còn
   tồn tại.
-- AC-4: Given `GUIDE.md`, `QUICKSTART.md`, `README.md`, `CONTEXT.md`, các
-  `SKILL.md` và `commands/*.md`, When quét tham chiếu SỐNG tới đồ đã lưu kho
-  (`codex`, `In Codex…`, `design-loop`, `/design-init`, `/design-mockup`,
-  `/design-push`), Then 0 hit; `docs/` (sử liệu) và `_acceptance/` (hồ sơ cũ)
-  ngoài phạm vi. Đối chứng dương ở cây của mốc: >0 hit cho TỪNG từ khoá.
+- AC-4: Given phạm vi quét = `commands/`, `skills/`, `feature-loop/`, `scripts/`,
+  `lib/`, `hooks/`, `tests/`, `GUIDE.md`, `QUICKSTART.md`, `README.md`,
+  `CONTEXT.md`, **`CLAUDE.md`**, **`.github/`**, và hai manifest, When quét tham
+  chiếu SỐNG tới đồ đã lưu kho — mảng **11 needle**: `codex` · `In Codex` ·
+  `.agents` · `design-loop` · `/design-init` · `/design-mockup` · `/design-push`
+  · `sync-plugin-packages` · `mirror_sync` · `plugins/` · `P30` — Then 0 hit
+  (trừ danh sách miễn trừ dưới); `docs/` và `_acceptance/` ngoài phạm vi. Đối
+  chứng dương ở cây của mốc: >0 hit cho TỪNG needle.
+  **Vì sao thêm `CLAUDE.md` + `.github/` + từ vựng mirror:** thiếu chúng thì gỡ
+  `plugins/` và script sync xong, đoạn bất biến trong `CLAUDE.md` vẫn bắt "chạy
+  sync và commit mirror cùng lượt" và CI vẫn gọi script đã xoá — 14/14 eval
+  xanh, hai cổng duyệt, rồi CI đỏ sau merge.
+  **Miễn trừ tường minh, quyết TRƯỚC khi đo, đúng MỘT dòng:**
+  `skills/ux-ui-craft/SKILL.md:289` dùng cụm "a design-loop" làm **danh từ
+  chung** ("một vòng lặp thiết kế đối chiếu bản dựng với bản thiết kế gốc"),
+  không trỏ plugin. Miễn trừ này phải kèm chân ĐỎ-NGOÀI-DANH-SÁCH (xem AC-4b),
+  vì một allowlist không có chân đó biến lưới fail-loud thành fail-silent.
+- AC-4b: Given danh sách miễn trừ của AC-4, When tiêm một tham chiếu
+  `design-loop` MỚI vào một file khác trong `skills/ux-ui-craft/`, Then lưới
+  vẫn ĐỎ và ghim đúng file vừa tiêm — miễn trừ chỉ che đúng một dòng đã khai,
+  không che cả thư mục.
 - AC-5: Given nhánh CT2 trong `feature-loop/skills/feature-loop/SKILL.md`, When
   một feature chạm mặt người mà config chưa wire design, Then máy hướng sang
   **design-pass + eval `ui-check`/`design-gate`**, KHÔNG còn cảnh báo
@@ -61,9 +84,21 @@ eval ĐỎ, không phải bỏ qua.
 - AC-6: Given danh sách CẤM ĐỤNG, When kiểm sau khi gỡ, Then `scripts/design-gate.mjs`,
   `scripts/design-scan.js`, `scripts/build-design-scan.mjs`, `lib/design-detect.mjs`,
   `lib/p-tiers.json`, `vendor/impeccable/`, `tests/design-eval/`, `tests/skills/`,
-  và skill `design-pass` + `ux-ui-craft` **còn nguyên**, suite liên quan xanh
-  (đối chứng giữ-gân). `design-loop/scripts/design-static-check.mjs` đi theo mốc git
-  vì nó thuộc design-loop, không thuộc kit.
+  và skill `design-pass` **còn nguyên** (so bằng BĂM NỘI DUNG với mốc, không
+  chỉ `test -e` — tồn-tại-mà-bị-sửa là đúng kiểu cắt nhầm gân mà `test -e` mù),
+  suite liên quan xanh. `design-loop/scripts/design-static-check.mjs` đi theo
+  mốc git vì nó thuộc design-loop, không thuộc kit.
+  **NGOẠI LỆ DUY NHẤT được khác mốc — `skills/ux-ui-craft/`.** Bản trước viết
+  "ngoại lệ được phép khác mốc: không có"; kiểm tại chỗ chứng minh câu đó SAI và
+  nếu giữ thì AC-4 và AC-6 mâu thuẫn nhau, **không tồn tại trạng thái cây nào
+  cho cả bộ xanh** — sửa file cho AC-4 xanh thì AC-6 đỏ, giữ nguyên cho AC-6
+  xanh thì AC-4 đỏ, và lối thoát rẻ nhất lúc đó là nới một trong hai sau khi đã
+  thấy số, tức hạ thước. Sự thật trên vật: `skills/ux-ui-craft/references/layout-craft.md:121`
+  chứa **tham chiếu SỐNG** — "Where design-loop is wired… (`design-static-check`'s
+  layout-token-only BLOCK)" — trỏ đúng plugin và đúng script sắp chết, nên nó
+  là PHẠM VI PHẢI SỬA, không phải miễn trừ. Câu đó viết lại thành nói về
+  `design-pass` + `design-gate` (máy đo ở lại). Dòng `SKILL.md:289` là danh từ
+  chung, giữ nguyên (miễn trừ của AC-4).
 - AC-7: Given `docs/adr/`, When đọc sau khi gỡ, Then có 2 ADR một-đoạn mới —
   (a) lưu kho Codex, (b) khai tử nghi lễ design-loop — mỗi ADR ghi **đúng sha**
   của mốc git và nêu trigger mở lại.
@@ -75,15 +110,30 @@ eval ĐỎ, không phải bỏ qua.
   `plugins/` (125 file), `scripts/sync-plugin-packages.sh`, case P30, khoá
   `executors.script.mirror_sync` và suite-key tương ứng trong
   `_acceptance/config.yaml`, và mục `plugins/**` trong `t1_skip_globs`
-  **đều không còn**; `CLAUDE.md` không còn tuyên bố bất biến về mirror.
-  (Xem Notes — đây là chỗ lệch đề bài.)
+  **đều không còn**. (Xem Notes — đây là chỗ lệch đề bài.)
+- AC-9b: Given `CLAUDE.md`, When đọc sau khi gỡ, Then nó **không còn tuyên bố
+  bất biến về build mirror** (4 chỗ nhắc `sync-plugin-packages` / "build
+  mirror" hiện tại), đối chứng dương ở cây của mốc >0. Tách khỏi AC-9 vì mệnh
+  đề này nằm trong một file KHÔNG có lưới máy nào canh (`CLAUDE.md` thuộc
+  `t1_skip_globs`) — gộp chung thì nó chìm trong một tiêu chí có 5 vế khác đều
+  do script đo, và không ai nhận ra nó chưa được đo.
 - AC-10: Given `scripts/product-map.mjs` và `scripts/start-scan.mjs` (hai script
-  có nhánh đọc Codex), When chạy sau khi gỡ, Then chúng chạy sạch, không nhánh
-  chết, `product-map --check` xanh.
-- AC-11: Given cây đã gỡ, When chạy 4 suite (`scripts`, `hooks`, `plugins`,
-  `workflows`) + `product-map --check`, Then tất cả xanh. Suite `plugins` phải
-  còn **>0 case** sau khi gỡ P30 — suite rỗng cũng xanh, nên eval ghim SỐ CASE,
-  không chỉ mã thoát.
+  có nhánh đọc Codex), When **CHẠY THẬT cả hai** trên cây đã gỡ, Then mỗi script
+  in đúng câu thành công của nó và không lỗi đọc file. Bản trước chỉ chạy
+  `product-map`; `start-scan.mjs` chỉ nằm trong `paths`, mà `paths` không phải
+  một thao tác. Kịch bản lọt: nhánh đọc Codex trong `start-scan.mjs` gỡ nửa
+  chừng, còn một lượt đọc `.agents/plugins/marketplace.json` — đường dẫn đó
+  KHÔNG chứa chuỗi `codex` nên needle cũ mù với nó — cả bộ xanh, lỗi chỉ nổ khi
+  một người thật gõ lệnh khởi động ở repo tiêu thụ.
+- AC-11: Given cây đã gỡ, When chạy 4 suite + `product-map --check`, Then tất cả
+  xanh **và số ca khớp ĐẲNG THỨC khai trước**, không phải khớp một cái sàn:
+  `scripts` **671 → 664** (gỡ 7 assert `DSC01–03` + `SG1–4` trong
+  `tests/scripts/run-tests.sh:1390-1406` gọi thẳng script của design-loop) ·
+  `plugins` **173 → 173 trừ số ca của P30** · `hooks` **54 → 54** ·
+  `workflows` **62 → 62**. Đỏ ghim "so ca lech ky vong: <truoc> -> <sau>".
+  **Sàn `≥` không dùng được cho một suite bị chủ ý làm teo** — nó chỉ đúng cho
+  suite không đụng tới; dùng sàn ở đây thì lúc S4 đỏ, đường thoát tự nhiên là
+  hạ con số xuống mức vừa đo, và phép đo mất hẳn khả năng bắt gỡ-nhầm.
 
 ## Coverage
 
