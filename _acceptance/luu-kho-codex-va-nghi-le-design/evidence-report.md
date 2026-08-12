@@ -2,13 +2,20 @@
 schema_version: 1
 slug: luu-kho-codex-va-nghi-le-design
 round: 1
-verdict: PENDING-JUDGMENT
+verdict: REJECT
 verified_commit: b82650af5ab0
 ---
 
 # Trang bằng chứng — lưu kho harness song sinh và nghi lễ design
 
-## Verdict: **CHƯA KẾT LUẬN** — làn máy xong, làn người-đọc-code chưa chạy
+## Verdict: **REJECT** (vòng 1) — làn máy xanh, rà soát đối kháng ĐỎ
+
+> **Đọc `review-findings.md` trước trang này.** Ba phiên chấm độc lập tìm ra:
+> nhiều chân đo trong hồ sơ này **không sống** (chiều đỏ hằng-đúng, đối chứng
+> dương chưa từng chạy, thông điệp xanh nói dối là đã có đối chứng), hai
+> **khẳng định SAI** nằm trong vật phát đi cho repo tiêu thụ, và hai lần
+> sửa-sau-Cổng-1 chưa khai. Làn máy 19/19 xanh vẫn đúng — nó xanh vì đo cái dễ
+> hơn cái đã hứa.
 
 Toàn bộ **19/19 phép đo máy XANH**, sổ chạy ghim đúng commit đang kiểm. Nhưng
 verdict chưa được phép là ĐẠT: hợp đồng này đi qua S4 theo luật cũ, mà chặng
