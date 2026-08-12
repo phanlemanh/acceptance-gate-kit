@@ -158,22 +158,20 @@ for needle in ["baseline_minutes", "time_human_minutes", "gate1_skipped", "Read-
 PY
 
 
-run "P28 README and GUIDE document the verified Codex install path" \
+run "P28 README and GUIDE document the verified install path" \
   python3 - "$ROOT" <<'PY'
 import sys
 from pathlib import Path
 root = Path(sys.argv[1])
+# Cau hoi cua ca nay khong chet cung harness Codex: tai lieu van phai dan MOT
+# duong cai chay duoc, va ca hai goi con song deu phai duoc goi ten. Doi dich
+# hoi chu khong bo cau hoi (go luon la mat that do phu).
 text = (root / "README.md").read_text() + "\n" + (root / "GUIDE.md").read_text()
 for needle in [
-    "codex plugin marketplace add",
+    "claude plugin marketplace add",
+    "claude plugin install",
     "acceptance-gate@acceptance-gate-kit",
-    "feature-loop-codex@acceptance-gate-kit",
-    "design-loop@acceptance-gate-kit",
-    "fresh task",
-    "hook trust",
-    "0.139.0",
-    "Claude Design is unavailable in Codex",
-    "feature-loop-model-init",
+    "feature-loop@acceptance-gate-kit",
 ]:
     assert needle in text, needle
 PY
@@ -7851,12 +7849,11 @@ assert e3 and any('khong nam TRONG khoi' in x for x in e3), 'mutant doi neo ra n
 print('P175 MUTANT-OK (xoa moc mo bi bat; neo ngoai khoi bi bat)')
 P175PY
 
-run "P176 [MBC] E3 con tro S1 ve khuon o CA HAI ban chi dan" \
+run "P176 [MBC] E3 con tro S1 ve khuon trong ban chi dan" \
   python3 - "$ROOT" <<'P176PY'
 import sys, pathlib
 root = pathlib.Path(sys.argv[1])
-PTR = {'claude': ('feature-loop/skills/feature-loop/SKILL.md', 'Kế hoạch đo theo khuôn `MEASURE-BIRTH-CLAUSE`'),
-       'codex': ('codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md', 'per the `MEASURE-BIRTH-CLAUSE` mold')}
+PTR = {'claude': ('feature-loop/skills/feature-loop/SKILL.md', 'Kế hoạch đo theo khuôn `MEASURE-BIRTH-CLAUSE`')}
 def measure(texts):
     return [f'ben {s}: doan viet evals.yaml THIEU con tro toi MEASURE-BIRTH-CLAUSE'
             for s, (p, needle) in PTR.items() if needle not in texts[s]]
@@ -8061,19 +8058,14 @@ assert any('revisit' in x for x in e2), 'mutant xoa entry revisit khong do: ' + 
 print('P180 MUTANT-OK (xoa baseline / xoa revisit deu do ghim thong diep)')
 P180PY
 
-run "P181 [MBC] E9 kenh giao: menh de ton tai -> version goi >= moc (ca twin + mirror)" \
+run "P181 [MBC] E9 kenh giao: menh de ton tai -> version goi >= moc" \
   python3 - "$ROOT" <<'P181PY'
 import json, sys, pathlib
 root = pathlib.Path(sys.argv[1])
 ver = lambda s: tuple(int(x) for x in s.split('.'))
 GATES = [
     ('feature-loop (Claude)', 'feature-loop/.claude-plugin/plugin.json', '1.27.0'),
-    ('feature-loop-codex (nguon)', 'codex/feature-loop-codex/.codex-plugin/plugin.json', '1.27.0'),
-    ('feature-loop-codex (mirror)', 'plugins/feature-loop-codex/.codex-plugin/plugin.json', '1.27.0'),
     ('acceptance-gate (Claude)', '.claude-plugin/plugin.json', '1.39.0'),
-    ('acceptance-gate (Codex)', '.codex-plugin/plugin.json', '1.39.0'),
-    ('acceptance-gate (codex nguon)', 'codex/acceptance-gate/.codex-plugin/plugin.json', '1.39.0'),
-    ('acceptance-gate (mirror)', 'plugins/acceptance-gate/.codex-plugin/plugin.json', '1.39.0'),
 ]
 clause = 'MEASURE-BIRTH-CLAUSE' in (root/'feature-loop/skills/feature-loop/SKILL.md').read_text()
 refs = (root/'skills/acceptance/references/measure-birth.md').exists()
@@ -8085,9 +8077,9 @@ versions = {name: json.loads((root/p).read_text())['version'] for name, p, _ in 
 errs = measure(versions)
 assert not errs, 'ban that do oan: ' + '; '.join(errs)
 print('P181 DUONG-OK')
-mut = dict(versions); mut['feature-loop-codex (mirror)'] = '1.26.0'
+mut = dict(versions); mut['feature-loop (Claude)'] = '1.26.0'
 e1 = measure(mut)
-assert e1 and any('mirror' in x for x in e1), 'mutant ha version mirror khong do ghim ten goi: ' + repr(e1)
+assert e1 and any('feature-loop (Claude)' in x for x in e1), 'mutant ha version feature-loop khong do ghim ten goi: ' + repr(e1)
 mut2 = dict(versions); mut2['acceptance-gate (Claude)'] = '1.38.0'
 e2 = measure(mut2)
 assert e2 and any('acceptance-gate (Claude)' in x for x in e2), 'mutant ha acceptance-gate khong do: ' + repr(e2)
@@ -8735,37 +8727,10 @@ def doc_manifest(law_text):
 DECL = doc_manifest(law)
 SITES = list(DECL)
 assert len(SITES) >= 4, "manifest qua it site (grep hong?): " + repr(SITES)
-def tail_of(site):
-    # duoi-duong-dan dinh danh MOT skill/lenh, chuan hoa ca khi site bat dau
-    # bang "skills/" (khong co dau / dan). Bug da dam: nhanh else tra ve
-    # "SKILL.md" tron nen tap suy ra om TRON moi skill cua ca hai goi.
-    if "/skills/" in site:
-        return site.split("/skills/", 1)[1]
-    if site.startswith("skills/"):
-        return site[len("skills/"):]
-    return Path(site).name
-def derived(site):
-    tail = tail_of(site)
-    in_skills = "/skills/" in site or site.startswith("skills/")
-    hits = []
-    for base in ("plugins", "codex"):
-        b = root / base
-        if not b.is_dir():
-            continue
-        for f in sorted(b.rglob("*.md")):
-            rel = str(f.relative_to(root))
-            if rel == site:
-                continue
-            if (in_skills and rel.endswith("/skills/" + tail)) or (not in_skills and f.name == tail):
-                hits.append(rel)
-    return hits
+# Ban dung/overlay da luu kho: khong con ban suy ra nao, nen phep so chi con
+# tren cac site NGUON. Rang that cua ca nay la LUAT DEM NGUON ben duoi (so
+# voi so khai trong manifest, dung hai huong) — no khong phu thuoc ban chep.
 ALL = list(SITES)
-for s in SITES:
-    for d in derived(s):
-        if d not in ALL:
-            ALL.append(d)
-extra = [r for r in ALL if r not in SITES]
-assert len(extra) >= 3, "khong suy duoc ban dung/overlay nao dang ke (grep hong?): " + repr(extra)
 texts = {rel: (root / rel).read_text(encoding="utf-8") for rel in ALL}
 ANCHOR = " ".join(clause.split(" ")[:3])   # "Moi tin moi"
 def occurrences(t):
@@ -8787,20 +8752,8 @@ def lech(mapping):
                 break
     return bad
 assert lech(texts) == [], "ban that do oan: " + repr(lech(texts))   # doi chung DUONG
-# Ban dung/overlay phai chep DU so lan cua site nguon sinh ra no — chi kiem
-# "moi lan xuat hien deu khop" thi go bot MOT ban trong hai van xanh (mat ban
-# chep khac voi ban chep sai).
 def count_of(mapping, rel):
     return len(occurrences(mapping[rel]))
-PAIR = {}
-for s in SITES:
-    for d in derived(s):
-        if d in texts:
-            PAIR[d] = s
-def thieu_ban(mapping):
-    return [d + " (" + str(count_of(mapping, d)) + " ban) < nguon " + s + " (" + str(count_of(mapping, s)) + " ban)"
-            for d, s in PAIR.items() if count_of(mapping, d) < count_of(mapping, s)]
-assert thieu_ban(texts) == [], "ban that do oan: " + repr(thieu_ban(texts))   # doi chung DUONG
 # LUAT DEM NGUON (chip (2)b, review-findings r3 hinh dang 5): thieu_ban chi so
 # ban-dung VOI nguon — go 1 ban o nguon roi sync (mirror mat theo) thi hai ve
 # cung giam, van xanh. Nay so nguon voi SO KHAI trong manifest, DUNG hai huong
@@ -9182,34 +9135,8 @@ def doc_manifest(law_text):
 DECL = doc_manifest(law)
 SITES = list(DECL)
 assert len(SITES) == 12, "manifest phai khai dung 12 site nguon, thay " + str(len(SITES))
-def tail_of(site):
-    if "/skills/" in site:
-        return site.split("/skills/", 1)[1]
-    return Path(site).name
-def derived(site):
-    tail = tail_of(site)
-    in_skills = "/skills/" in site
-    hits = []
-    for base in ("plugins", "codex"):
-        b = root / base
-        if not b.is_dir():
-            continue
-        for f in sorted(b.rglob("*.md")):
-            rel = str(f.relative_to(root))
-            if rel == site:
-                continue
-            if (in_skills and rel.endswith("/skills/" + tail)) or (not in_skills and f.name == tail):
-                hits.append(rel)
-    return hits
+# Khong con ban suy ra (ban dung/overlay da luu kho): phep so chay tren SITE NGUON.
 ALL = list(SITES)
-for s in SITES:
-    for d in derived(s):
-        if d not in ALL:
-            ALL.append(d)
-extra = [r for r in ALL if r not in SITES]
-assert len(extra) == 6, "phai suy ra dung 6 ban duoi plugins/ (6 SKILL Codex; commands/ khong co ban suy ra), thay: " + repr(extra)
-assert all(r.startswith("plugins/") for r in extra), "ban suy ra ngoai plugins/: " + repr(extra)
-assert not (root / "plugins/acceptance-gate/commands").exists(), "plugins/acceptance-gate/commands xuat hien — gia dinh commands-khong-vao-mirror da vo, sua manifest + phep do cung luot"
 texts = {rel: (root / rel).read_text(encoding="utf-8") for rel in ALL}
 # ---- quan he per-site (chay TRUOC phep so clause de mutant --repo do dich danh)
 rows = [l.strip() for l in block("GATE-ONESHOT-SLOTS", law).splitlines() if re.match(r"^(g1|g2|extra) ", l.strip())]
