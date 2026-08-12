@@ -70,9 +70,9 @@ eval ĐỎ, không phải bỏ qua.
   **Miễn trừ tường minh, quyết TRƯỚC khi đo, đúng MỘT dòng:**
   `skills/ux-ui-craft/SKILL.md:289` dùng cụm "a design-loop" làm **danh từ
   chung** ("một vòng lặp thiết kế đối chiếu bản dựng với bản thiết kế gốc"),
-  không trỏ plugin. Miễn trừ này phải kèm chân ĐỎ-NGOÀI-DANH-SÁCH (xem AC-4b),
+  không trỏ plugin. Miễn trừ này phải kèm chân ĐỎ-NGOÀI-DANH-SÁCH (xem AC-12),
   vì một allowlist không có chân đó biến lưới fail-loud thành fail-silent.
-- AC-4b: Given danh sách miễn trừ của AC-4, When tiêm một tham chiếu
+- AC-12: Given danh sách miễn trừ của AC-4, When tiêm một tham chiếu
   `design-loop` MỚI vào một file khác trong `skills/ux-ui-craft/`, Then lưới
   vẫn ĐỎ và ghim đúng file vừa tiêm — miễn trừ chỉ che đúng một dòng đã khai,
   không che cả thư mục.
@@ -111,12 +111,12 @@ eval ĐỎ, không phải bỏ qua.
   `executors.script.mirror_sync` và suite-key tương ứng trong
   `_acceptance/config.yaml`, và mục `plugins/**` trong `t1_skip_globs`
   **đều không còn**. (Xem Notes — đây là chỗ lệch đề bài.)
-- AC-9b: Given `CLAUDE.md`, When đọc sau khi gỡ, Then nó **không còn tuyên bố
+- AC-13: Given `CLAUDE.md`, When đọc sau khi gỡ, Then nó **không còn tuyên bố
   bất biến về build mirror** (4 chỗ nhắc `sync-plugin-packages` / "build
-  mirror" hiện tại), đối chứng dương ở cây của mốc >0. Tách khỏi AC-9 vì mệnh
+  mirror" hiện tại), đối chứng dương ở cây của mốc >0. Tách khỏi AC-9 (mệnh
   đề này nằm trong một file KHÔNG có lưới máy nào canh (`CLAUDE.md` thuộc
   `t1_skip_globs`) — gộp chung thì nó chìm trong một tiêu chí có 5 vế khác đều
-  do script đo, và không ai nhận ra nó chưa được đo.
+  do script đo, và không ai nhận ra nó chưa được đo).
 - AC-10: Given `scripts/product-map.mjs` và `scripts/start-scan.mjs` (hai script
   có nhánh đọc Codex), When **CHẠY THẬT cả hai** trên cây đã gỡ, Then mỗi script
   in đúng câu thành công của nó và không lỗi đọc file. Bản trước chỉ chạy

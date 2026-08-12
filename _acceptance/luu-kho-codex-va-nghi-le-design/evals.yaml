@@ -124,7 +124,7 @@ evals:
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E4b
-    criterion: AC-4b
+    criterion: AC-12
     executor: script
     cmd: config:executors.script.luu_kho_rang
     paths:
@@ -282,7 +282,7 @@ evals:
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E10b
-    criterion: AC-9b
+    criterion: AC-13
     executor: script
     cmd: config:executors.script.luu_kho_rang
     paths:
