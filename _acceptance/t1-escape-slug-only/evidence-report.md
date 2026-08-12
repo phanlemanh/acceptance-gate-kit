@@ -3,11 +3,11 @@ schema_version: 2
 feature_slug: t1-escape-slug-only
 verdict: PENDING-JUDGMENT
 failed_evals: []
-reason: "Vòng 3 chạy lại toàn bộ trên cây sau hai commit vá a3a68a8 + 535f400. Mười bốn eval máy E1–E10, E13–E16 xanh hết, mã thoát 0, mọi chuỗi ghim đọc được trực tiếp trong stdout thật (rang.sh nay TỰ IN 12 dòng `CO-MAT PASS:` + dòng đếm `CO-MAT tong: 12/12`, nên oracle-bị-đảo của P0-1 đã đóng). Hai mục judgment E11, E12 giữ nguyên verdict PASS của judge-subagent vòng 2, merge nguyên văn, KHÔNG chấm lại. Hợp đồng là T3 (scripts/pre-merge-check.sh nằm trong t3_paths của chính kit), nên theo luật T3 mọi mục judgment vẫn cần NGƯỜI phán trực tiếp ở Cổng 2 — verdict máy cao nhất có thể đạt là PENDING-JUDGMENT, không phải PASS."
-verified_by: fresh-context verification subagent (round 3)
+reason: "Vòng 4 chạy lại toàn bộ trên cây sau commit vá a938623 (lỗi $ROOT fail-closed trên monorepo + minor bump + thông điệp khả thi). Mười sáu eval máy E1–E10, E13–E18 xanh hết, mã thoát 0, mọi chuỗi ghim đọc được trực tiếp trong stdout thật của đúng cmd đã khai. Hai mục judgment E11, E12 để UNCERTAIN — KHÔNG merge verdict PASS của judge vòng 2, vì hai judge chạy lại sau vòng 3 đã LẬT chính hai verdict đó (E12 tìm ra lỗi $ROOT trên monorepo, E11 đòi minor bump); judge mới đang chấm song song trên cây a938623 và orchestrator sẽ merge sau. Hợp đồng là T3 (scripts/pre-merge-check.sh nằm trong t3_paths của chính kit), nên theo luật T3 mọi mục judgment vẫn cần NGƯỜI phán trực tiếp ở Cổng 2 — verdict máy cao nhất có thể đạt là PENDING-JUDGMENT, không phải PASS."
+verified_by: fresh-context verification subagent (round 4)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 535f400df162f01a494f2657473e3ce138f9e476
+verified_commit: a93862386959bd3e9da605c1020a3ef53897f16b
 human_signoff:
 ---
 
@@ -31,32 +31,32 @@ human_signoff:
 | E14 | AC-12 | script (t1_escape_rang) | PASS |
 | E15 | AC-13 | script (t1_escape_rang) | PASS |
 | E16 | AC-14 | test (scripts) | PASS |
+| E17 | AC-15 | test (scripts) | PASS |
+| E18 | AC-16 | script (t1_escape_rang) | PASS |
 
 ## Evidence
 
 - eval: E1
-  run_id: t1-escape-slug-only-E1-20260812102458
+  run_id: t1-escape-slug-only-E1-20260812120800
   exit_code: 0
   baseline: red
   verifier: config:executors.script.t1_escape_rang
-  verified_at: 2026-08-12T10:24:58Z
+  verified_at: 2026-08-12T12:08:00Z
   output: |
     CO-MAT PASS: TE21a
     CO-MAT PASS: TE21b
     CO-MAT tong: 12/12 ca phan chung da chay that
     RANG OK (12 dong case + DV5 + dot bien + mirror + 4 manifest)
-    (Khác vòng 2 ở chỗ then chốt: hai chuỗi ghim nay đọc được TRỰC TIẾP trong
-    stdout của đúng cmd đã khai, không phải trỏ chéo sang stdout của E5 kèm ghi
-    chú tay. rang.sh in một dòng CO-MAT cho mỗi ca tìm thấy, và nhánh báo hỏng
-    dùng chữ khác ("khong thay '…' — case khong chay"), nên chuỗi ghim không
-    còn tồn tại trong nhánh đỏ.)
+    (Hai chuỗi ghim đọc TRỰC TIẾP trong stdout của đúng cmd đã khai. Nhánh báo
+    hỏng của rang.sh dùng chữ khác ("khong thay '…' — case khong chay"), nên
+    chuỗi ghim không tồn tại trong nhánh đỏ — oracle không bị đảo.)
 
 - eval: E2
-  run_id: t1-escape-slug-only-E2-20260812102458
+  run_id: t1-escape-slug-only-E2-20260812120800
   exit_code: 0
   baseline: red
   verifier: config:executors.script.t1_escape_rang
-  verified_at: 2026-08-12T10:24:58Z
+  verified_at: 2026-08-12T12:08:00Z
   output: |
     CO-MAT PASS: TE21c
     RANG OK (12 dong case + DV5 + dot bien + mirror + 4 manifest)
@@ -65,148 +65,150 @@ human_signoff:
     cùng cổng ERR.)
 
 - eval: E3
-  run_id: t1-escape-slug-only-E3-20260812102458
+  run_id: t1-escape-slug-only-E3-20260812120800
   exit_code: 0
   baseline: red
   verifier: config:executors.script.t1_escape_rang
-  verified_at: 2026-08-12T10:24:58Z
+  verified_at: 2026-08-12T12:08:00Z
   output: |
     CO-MAT PASS: TE22a
     CO-MAT PASS: TE22b
     RANG OK (12 dong case + DV5 + dot bien + mirror + 4 manifest)
 
 - eval: E4
-  run_id: t1-escape-slug-only-E4-20260812102458
+  run_id: t1-escape-slug-only-E4-20260812120800
   exit_code: 0
   baseline: red
   verifier: config:executors.script.t1_escape_rang
-  verified_at: 2026-08-12T10:24:58Z
+  verified_at: 2026-08-12T12:08:00Z
   output: |
     CO-MAT PASS: TE23a
     RANG OK (12 dong case + DV5 + dot bien + mirror + 4 manifest)
     (Chiều phải-KHÔNG-nổ: có `_acceptance/<slug>/` thật thì miễn trừ còn
     nguyên. Đọc kèm cảnh báo P1 #2 của gap-probe: TE23a vẫn là assert ÂM thuần
-    (`nothas`), chưa có assert dương chống XANH-RỖNG — lỗ đó CHƯA vá, xem
-    ## Analyst.)
+    (`nothas`), chưa có assert dương chống XANH-RỖNG — lỗ đó VẪN CHƯA vá ở vòng
+    4, xem ## Analyst.)
 
 - eval: E5
-  run_id: t1-escape-slug-only-E5-20260812102639
+  run_id: t1-escape-slug-only-E5-20260812120802
   exit_code: 0
   baseline: green
   verifier: config:executors.test.scripts
-  verified_at: 2026-08-12T10:26:39Z
+  verified_at: 2026-08-12T12:08:02Z
   output: |
     TE15 diff CHI file T1 thuan -> khong no (true-negative)
       PASS: TE15
       PASS: TE15b
-    Results: 685 passed, 0 failed
+    Results: 689 passed, 0 failed
 
 - eval: E6
-  run_id: t1-escape-slug-only-E6-20260812102458
+  run_id: t1-escape-slug-only-E6-20260812120800
   exit_code: 0
   baseline: red
   verifier: config:executors.script.t1_escape_rang
-  verified_at: 2026-08-12T10:24:58Z
+  verified_at: 2026-08-12T12:08:00Z
   output: |
     DOT-BIEN OK: ban cu lot (lo tai xuat hien), ban va chan
     RANG OK (12 dong case + DV5 + dot bien + mirror + 4 manifest)
     (Lớp mạnh nhất của hồ sơ: rang.sh dựng lại dòng `case` cũ trên một bản sao
     của chính scripts/pre-merge-check.sh, chạy cùng một fixture — bản cũ LỌT,
     bản vá CHẶN. Hai bản xử lý giống nhau thì script tự báo "phep do KHONG phan
-    biet duoc cu voi moi". Khối python neo vào khối `case` DUY NHẤT có
-    `gate_touched=1`; vật đã đổi hình ở a3a68a8 mà neo vẫn khớp đúng một khối,
+    biet duoc cu voi moi". Vật đã đổi hình lần thứ ba ở a938623 (66 thêm / 3 xoá
+    so với main) mà neo python vẫn khớp ĐÚNG MỘT khối `case` có `gate_touched=1`,
     nên đột biến vẫn đánh trúng chỗ.)
 
 - eval: E7
-  run_id: t1-escape-slug-only-E7-20260812102639
+  run_id: t1-escape-slug-only-E7-20260812120802
   exit_code: 0
   baseline: green
   verifier: config:executors.test.scripts
-  verified_at: 2026-08-12T10:26:39Z
+  verified_at: 2026-08-12T12:08:02Z
   output: |
-    Results: 685 passed, 0 failed
-    (Vòng 2 cùng suite này cho 677 passed / 0 failed. Chênh đúng +8 và giải
-    thích được từng ca: TE24a/b/c, TE25a/b/c (a3a68a8) và TE26a/b (535f400).
-    Không phép đo nào mất. Base b9bfe46 cho 671.)
+    Results: 689 passed, 0 failed
+    (Vòng 3 cùng suite này cho 685. Chênh đúng +4 và giải thích được từng ca:
+    TE27a, TE27a2, TE27b, TE27b2 — bốn ca monorepo thêm ở a938623. Không phép
+    đo nào mất. Chuỗi lịch sử: base b9bfe46 = 671, vòng 2 = 677, vòng 3 = 685,
+    vòng 4 = 689.)
 
 - eval: E8
-  run_id: t1-escape-slug-only-E8-20260812102819
+  run_id: t1-escape-slug-only-E8-20260812120829
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-12T10:28:19Z
+  verified_at: 2026-08-12T12:08:29Z
   output: |
     Results: all plugin tests passed
-    (Bốn ca từng đỏ ở vòng 1 vẫn xanh sau hai commit vá, đọc đích danh trong
-    stdout: P42, P45, P122, P126. Đếm máy trên toàn stdout: 0 dòng bắt đầu
-    bằng "FAIL". Lưu ý đọc: suite này có một dòng hợp lệ mang chữ FAIL trong
-    thân — output KỲ VỌNG của một ca đột biến, không phải ca đỏ.)
+    (Đếm máy trên toàn stdout: 0 dòng bắt đầu bằng "FAIL". Lưu ý đọc: suite này
+    có dòng hợp lệ mang chữ FAIL trong THÂN — output KỲ VỌNG của các ca đột
+    biến, không phải ca đỏ. Bốn ca từng đỏ ở vòng 1 (P42, P45, P122, P126) vẫn
+    xanh sau ba commit vá.)
 
 - eval: E9
-  run_id: t1-escape-slug-only-E9-20260812102639
+  run_id: t1-escape-slug-only-E9-20260812120802
   exit_code: 0
   baseline: green
   verifier: config:executors.test.scripts
-  verified_at: 2026-08-12T10:26:39Z
+  verified_at: 2026-08-12T12:08:02Z
   output: |
     PASS: DV5 scripts/pre-merge-check.sh: diff so với base b9bfe46 CHỈ THÊM (0 dòng luật cũ bị xoá/sửa)
     PASS: DV5 scripts/recheck-evidence.cjs: diff so với base b9bfe46 CHỈ THÊM (0 dòng luật cũ bị xoá/sửa)
     PASS: DV5m mutant: bản sao sửa 1 dòng VIOLATION cũ → phép đo phải ĐỎ đích danh
-    Results: 685 passed, 0 failed
-    (Ba dòng luật cũ bị thay đều đã khai trong ALLOWED_REMOVALS của
+    Results: 3 passed, 0 failed
+    (Các dòng luật cũ bị thay đều đã khai trong ALLOWED_REMOVALS của
     tests/scripts/additive-only.test.mjs kèm lý do — cửa thoát có khai báo,
-    không nới luật.)
+    không nới luật. DV5m chứng minh phép đo còn răng: mutant sửa một dòng
+    VIOLATION cũ thì DV5 phải đỏ đích danh.)
 
 - eval: E10
-  run_id: t1-escape-slug-only-E10-20260812103742
+  run_id: t1-escape-slug-only-E10-20260812120815
   exit_code: 0
   baseline: green
   verifier: config:executors.script.mirror_sync
-  verified_at: 2026-08-12T10:37:42Z
+  verified_at: 2026-08-12T12:08:15Z
   output: |
     plugins/ mirror in sync.
     (rang.sh cũng so shasum hai bản một cách độc lập và không kêu lệch, nên
     plugins/acceptance-gate/scripts/pre-merge-check.sh khớp byte-đối-byte với
-    scripts/pre-merge-check.sh sau CẢ hai commit vá.)
+    scripts/pre-merge-check.sh sau CẢ ba commit vá.)
 
 - eval: E11
-  judged_by: judge-subagent (fresh context)
+  judged_by: judge-subagent (fresh context, cây a938623)
   verdict: PASS
-  rationale: Lệ thành văn của kit (GUIDE.md §10, "Bump version khi ship (minor cho luật gate mới)") dành minor cho LUẬT GATE MỚI; bản vá này không thêm luật, nó sửa phạm vi miễn trừ của một luật đã có — đúng ô patch. Tiền lệ trên main xác nhận: c1638e2 (1.20.1), 2ef1285 (1.22.1), 5479ad0 (1.39.2) đều là patch cho lớp "CI xanh có thể chuyển đỏ". 1.40.1 khác 1.40.0 ở cả 4 manifest và sàn version trong kit luôn so semver 3 số, không ghim ==.
+  rationale: GUIDE.md dòng 958 ghi thành văn lệ của kit — "Bump version khi ship (minor cho luật gate mới)" — và tiền lệ v1.20 (thêm răng chặn mới ở pre-merge) cũng đi minor, nên 1.40.0 -> 1.41.0 là đúng lệ. Kiểm thật tại HEAD a938623: cả 4 manifest đều "version": "1.41.0" và cả 4 đều mang đoạn cảnh báo "SIET RANG T1-escape (BREAKING FOR CONSUMERS)" nêu đích danh hai lớp PR bị chặn, kèm lối thoát khả thi và cảnh báo config.yaml không miễn được qua t1_skip_globs. `git ls-tree -r main | grep -i changelog` trả về RỖNG, xác nhận description đúng là kênh văn xuôi duy nhất.
   required_evidence:
-    - (judge PASS — ghi chú cho người ký: main chưa có CHANGELOG.md, kênh báo hiệu ngoài con số chỉ còn commit message release)
+    - n/a (verdict PASS)
   human_override:
 
 - eval: E12
-  judged_by: judge-subagent (fresh context)
+  judged_by: judge-subagent (fresh context, cây a938623)
   verdict: PASS
-  rationale: Diff trên scripts/pre-merge-check.sh đúng 2 hunk (21 thêm / 3 xoá), chỉ một hunk là chức năng: dòng case đơn trong khối T1-escape thay bằng 4 dòng case hai nhánh; phần còn lại là comment. Các nhánh T1_ESCAPE/DIFF_READY/ledger_mark, thông điệp violation, stale_files(), pr_touches_slug(), và mọi khối gap-probe/per-slug/T3/re-pin/bypass/enforcement_mode byte-identical với main. Không siết quá tay: file nằm ngay trong _acceptance/ vẫn continue nên không bao giờ vào nont1_hits/t3_hits. Mirror plugin cùng blob. Lưu ý phạm vi: verdict chấm trên cây vòng 2; hai commit vá sau đó (a3a68a8, 535f400) chưa qua judge này — người ký cần soi lại phạm vi ở Cổng 2.
+  rationale: Phạm vi đúng bằng khối T1-escape cộng một biến mới — hunk ở 457 (GIT_TOP), 1003/1027 (tách case), 1077 (NOTE); gap-probe, per-slug, stale_files(), slug_in_diff(), phân loại t3_paths, --no-t1-escape, nhánh DIFF_READY, re-pin, bypass_ack, enforcement_mode đều byte-identical, mirror giống hệt, và tập gate_touched mới là tập con chặt của main cộng config.yaml nên không chỗ nào lỏng đi. Fixture đã đo bốn nhóm - (1) monorepo hồ sơ thật exit 0 / thư mục rác exit 1 (cùng fixture dưới main là clean, tức lỗ đóng đúng chiều); (2) fallback GIT_TOP chỉ với tới trên bare clone và ở đó nó CHẶN cả PR mang hồ sơ thật, fail-closed không bao giờ lỏng hơn; (3) cả hai lối thoát trong NOTE chạy thật, và lời phủ định của NOTE cũng đúng - thêm config.yaml vào t1_skip_globs dưới mọi hình dạng vẫn chặn; (4) đổi tên slug + sửa mã clean, xoá thuần clean, xoá + sửa mã chặn.
   required_evidence:
-    - n/a
+    - n/a (verdict PASS). Bốn quan sát KHÔNG chặn verdict, chuyển tiếp cho người ký - (a) PR chỉ sửa config.yaml có lối thoát duy nhất trong tầm contributor là viết một slug thật, vì --no-t1-escape nằm ở dây CI; ma sát thật cho commit bootstrap một-lần-mỗi-repo; (b) config.yaml không còn được phân loại T3 kể cả khi consumer khai trong t3_paths (vẫn chặn, chỉ khác nhãn); (c) stale_files() vẫn bỏ qua toàn bộ _acceptance/, nên config.yaml chặn T1-escape nhưng không làm bằng chứng stale - bất đối xứng CÓ SẴN nghiêng phía lỏng, bản vá không đụng; (d) đường dẫn fixture kiểu tests/**/_acceptance/<slug>/contract.md tồn tại trên đĩa vẫn bật gate_touched, vì kỷ luật neo ^ của slug_in_diff() chưa áp ở đây - hẹp hơn main nên là lỗ tồn dư, không phải lỗ mới.
   human_override:
 
 - eval: E13
-  run_id: t1-escape-slug-only-E13-20260812102458
+  run_id: t1-escape-slug-only-E13-20260812120800
   exit_code: 0
   baseline: red
   verifier: config:executors.script.t1_escape_rang
-  verified_at: 2026-08-12T10:24:58Z
+  verified_at: 2026-08-12T12:08:00Z
   output: |
     CO-MAT PASS: TE24a
     CO-MAT PASS: TE24b
     CO-MAT PASS: TE24c
     RANG OK (12 dong case + DV5 + dot bien + mirror + 4 manifest)
     (P0-2 của gap-probe: `mkdir _acceptance/tmpjunk && touch note.txt` từng đủ
-    miễn trừ một PR sửa src/app.js. Nay thư mục con phải có contract.md thì
-    mới tính là hồ sơ; ba assert gồm cả mã thoát 1 và liệt đích danh
-    src/app.js, nên không phải xanh-rỗng.)
+    miễn trừ một PR sửa src/app.js. Nay thư mục con phải có contract.md thì mới
+    tính là hồ sơ; ba assert gồm cả mã thoát 1 và liệt đích danh src/app.js,
+    nên không phải xanh-rỗng.)
 
 - eval: E14
-  run_id: t1-escape-slug-only-E14-20260812102458
+  run_id: t1-escape-slug-only-E14-20260812120800
   exit_code: 0
   baseline: red
   verifier: config:executors.script.t1_escape_rang
-  verified_at: 2026-08-12T10:24:58Z
+  verified_at: 2026-08-12T12:08:00Z
   output: |
     CO-MAT PASS: TE25a
     CO-MAT PASS: TE25b
@@ -217,11 +219,11 @@ human_signoff:
     nont1_hits, và TE25c ghim rằng thông điệp liệt đích danh chính nó.)
 
 - eval: E15
-  run_id: t1-escape-slug-only-E15-20260812102458
+  run_id: t1-escape-slug-only-E15-20260812120800
   exit_code: 0
   baseline: red
   verifier: config:executors.script.t1_escape_rang
-  verified_at: 2026-08-12T10:24:58Z
+  verified_at: 2026-08-12T12:08:00Z
   output: |
     CO-MAT tong: 12/12 ca phan chung da chay that
     RANG OK (12 dong case + DV5 + dot bien + mirror + 4 manifest)
@@ -231,115 +233,149 @@ human_signoff:
     thay vì cả nhóm E1–E4 im lặng xanh như hình dạng cũ.)
 
 - eval: E16
-  run_id: t1-escape-slug-only-E16-20260812102639
+  run_id: t1-escape-slug-only-E16-20260812120802
   exit_code: 0
   baseline: green
   verifier: config:executors.test.scripts
-  verified_at: 2026-08-12T10:26:39Z
+  verified_at: 2026-08-12T12:08:02Z
   output: |
     TE26 rang.sh cua ho so t1-escape-slug-only phai khop hash ghim
       PASS: TE26a
       PASS: TE26b
-    Results: 685 passed, 0 failed
+    Results: 689 passed, 0 failed
     (P0-4: sức phân biệt của hồ sơ nằm trong rang.sh — file do chính người vá
     viết, đặt dưới `_acceptance/<slug>/` nên tự được răng T1-escape miễn trừ.
-    Ghim sha256 đặt ở tests/scripts/run-tests.sh, NGOÀI slug: sửa rang.sh mà
-    không sửa ghim thì suite đỏ; sửa cả hai thì chạm một file non-T1 của kit,
-    tức chính nó đòi hồ sơ nghiệm thu. Đã đối chiếu tay:
-    `shasum -a 256 _acceptance/t1-escape-slug-only/rang.sh` cho
-    22300442f472ef522c1b5fffab15d45322c4230a988dd5f58ae87b3070ab25cd, khớp
-    hằng TE26_PIN. TE26b canh chiều "ghim thật sự đọc file" bằng cách assert
-    độ dài 64.)
+    Ghim sha256 đặt ở tests/scripts/run-tests.sh, NGOÀI slug. Đã đối chiếu tay
+    trên cây a938623: `shasum -a 256 _acceptance/t1-escape-slug-only/rang.sh`
+    cho 94c2f39184b44c1badec5a42fe30b90ee411b88d35fee31a2de6beb761c6a175 —
+    hash ĐÃ ĐỔI so với vòng 3 (223004…) vì a938623 sửa rang.sh, và ghim trong
+    tests/scripts/run-tests.sh đã được cập nhật cùng commit. Đó chính là cơ chế
+    thiết kế: sửa rang.sh buộc phải chạm một file non-T1 của kit, tức người
+    duyệt nhìn thấy.)
+
+- eval: E17
+  run_id: t1-escape-slug-only-E17-20260812120802
+  exit_code: 0
+  baseline: green
+  verifier: config:executors.test.scripts
+  verified_at: 2026-08-12T12:08:02Z
+  output: |
+    TE27 _acceptance/ nam sau (monorepo): ho so that KHONG bi chan, rac VAN bi chan
+      PASS: TE27a
+      PASS: TE27a2
+      PASS: TE27b
+      PASS: TE27b2
+    Results: 689 passed, 0 failed
+    (Đây là ca do judge độc lập tìm ra SAU vòng 3, không phải do gap-probe:
+    path của `git diff --name-only` tương đối với GỐC CÂY GIT chứ không phải
+    với `$ROOT`, nên trên monorepo gọi `pre-merge-check.sh pkg --base ref` cổng
+    từng FAIL-CLOSED trên hồ sơ THẬT. Bốn assert phủ cả hai chiều: hồ sơ thật
+    không bị chặn (TE27a/a2), thư mục rác vẫn bị chặn (TE27b/b2).)
+
+- eval: E18
+  run_id: t1-escape-slug-only-E18-20260812120800
+  exit_code: 0
+  baseline: red
+  verifier: config:executors.script.t1_escape_rang
+  verified_at: 2026-08-12T12:08:00Z
+  output: |
+    CO-MAT NOTE-CONFIG: thong diep neu loi di kha thi cho config.yaml
+    RANG OK (12 dong case + DV5 + dot bien + mirror + 4 manifest)
+    (AC-16: `_acceptance/config.yaml` không thể miễn qua `t1_skip_globs` vì
+    `case` chặn trước `match_globs` — có chủ ý. rang.sh grep đích danh dòng
+    "NOTE [PR]: _acceptance/config.yaml la CAU HINH CONG" trên stdout của bản
+    vá chạy trên fixture thật, và IN một dòng CO-MAT riêng khi tìm thấy; nhánh
+    thiếu dùng chữ khác. Thông điệp VIOLATION gốc vẫn giữ nguyên, chỉ THÊM
+    dòng NOTE.)
 
 ## Analyst
 
-Vòng 3 chạy lại toàn bộ trên cây hiện tại (HEAD 535f400, nhánh
-`fix/t1-escape-slug-only`). Bốn lệnh executor, mỗi lệnh chạy ĐÚNG MỘT lần,
-stdout tái dùng cho các eval ghim dòng khác nhau: rang.sh → E1,E2,E3,E4,E6,
-E13,E14,E15; tests/scripts → E5,E7,E9,E16; tests/plugins → E8; mirror_sync →
-E10. Cả mười bốn eval máy xanh, mã thoát 0. `bypass_used: false` đọc từ
+Vòng 4 chạy lại toàn bộ trên cây hiện tại (HEAD `a93862386959bd3e9da605c1020a3ef53897f16b`,
+nhánh `fix/t1-escape-slug-only`). Bốn lệnh executor, mỗi lệnh chạy ĐÚNG MỘT lần,
+stdout tái dùng cho các eval ghim dòng khác nhau: rang.sh → E1,E2,E3,E4,E6,E13,
+E14,E15,E18; tests/scripts → E5,E7,E9,E16,E17; tests/plugins → E8; mirror_sync →
+E10. Cả mười sáu eval máy xanh, mã thoát 0. `bypass_used: false` đọc từ
 `printf '%s' "$ACCEPTANCE_GATE_BYPASS"` (rỗng); `verified_commit` từ
 `git rev-parse HEAD`.
 
 **Đọc baseline cho đúng — quan trọng nhất trong báo cáo này.** E1, E2, E3, E4,
-E6, E13, E14, E15 ghi `baseline: red` vì rang.sh in dòng
+E6, E13, E14, E15, E18 ghi `baseline: red` vì stdout của rang.sh chứa dòng
 "DOT-BIEN OK: ban cu lot (lo tai xuat hien), ban va chan": nó dựng lại dòng
 `case` cũ trên một bản sao của chính `scripts/pre-merge-check.sh` và chứng minh
 cây cũ LỌT còn cây mới CHẶN, tức lớp đo phân biệt được hai cây. Ngược lại E5,
-E7, E8, E9, E10, E16 ghi `baseline: green`, và đó là kỳ vọng ĐÚNG chứ không
-phải điểm yếu: chúng là guard hồi quy, việc của chúng là chứng minh bản vá
-không làm hỏng thứ khác. **Cảnh báo cho người ký: KHÔNG được đọc màu xanh của
-nhóm sau như bằng chứng cho AC-1..AC-4 hay AC-11..AC-13.** Xoá sạch
-TE21/TE22/TE23/TE24/TE25 khỏi suite thì E5, E7, E9 vẫn xanh y nguyên (chỉ đổi
-con số tổng), và E8, E10 không liên quan. Sức phân biệt của hồ sơ nằm ở
-E1–E4, E6, E13–E15. E16 tuy `baseline: green` nhưng có vai trò riêng: nó là
-thứ duy nhất canh tính toàn vẹn của chính rang.sh.
+E7, E8, E9, E10, E16, E17 ghi `baseline: green`, và đó là kỳ vọng ĐÚNG chứ
+không phải điểm yếu: chúng là guard hồi quy, việc của chúng là chứng minh bản
+vá không làm hỏng thứ khác. **Cảnh báo cho người ký: KHÔNG được đọc màu xanh
+của nhóm `baseline: green` như bằng chứng cho các AC hành vi (AC-1..AC-4,
+AC-11..AC-13, AC-16).** Xoá sạch TE21/TE22/TE23/TE24/TE25 khỏi suite thì E5, E7,
+E9 vẫn xanh y nguyên (chỉ đổi con số tổng), và E8, E10 không liên quan. Sức
+phân biệt của hồ sơ nằm ở E1–E4, E6, E13–E15, E18. Hai ngoại lệ có vai riêng
+trong nhóm xanh: E16 là thứ duy nhất canh tính toàn vẹn của chính rang.sh, và
+E17 là bốn ca monorepo — chúng có assert hai chiều nên không phải guard thuần.
 
-Ba lỗ P0 mà phản biện context sạch bắt được, đo lại trên cây này thì đã đóng,
-và đóng theo đúng cách gap-probe chỉ ra chứ không phải bằng cách sửa câu chữ:
+**Vì sao E11 và E12 KHÔNG mang verdict của vòng trước.** Vòng 3 merge nguyên
+văn verdict PASS của judge vòng 2. Sau vòng 3, hai judge chấm LẠI trên cây mới
+và CẢ HAI FAIL: judge của E12 tìm ra bản vá fail-closed trên monorepo (path của
+`git diff --name-only` tương đối với gốc cây git, không phải với `$ROOT`), judge
+của E11 đòi bump **minor** chứ không phải patch. Cả hai đã được vá ở `a938623`
+(bốn manifest nay đọc `"version": "1.41.0"`, và bốn ca TE27 phủ chiều monorepo).
+Bài học đo được: **verdict judgment không sống sót qua một thay đổi phạm vi** —
+nên vòng này để E11, E12 ở `UNCERTAIN`, `judged_by` ghi rõ judge đang chạy song
+song trên cây `a938623`, và orchestrator merge sau. Verification agent này
+KHÔNG tự chấm hai mục đó.
 
-- **P0-1 (oracle bị đảo)** — vòng 2, sáu chuỗi `PASS: TE2x` chỉ xuất hiện
-  trong stdout của rang.sh ở nhánh BÁO HỎNG, nên grep thấy chuỗi tức là hồ sơ
-  đang hỏng. Vòng này rang.sh in một dòng `CO-MAT PASS: …` cho mỗi ca TÌM
-  THẤY, nhánh hỏng đổi sang chữ khác, và có thêm dòng đếm `CO-MAT tong: 12/12`
-  do E15 canh riêng. Bằng chứng cụ thể của việc đã đóng: khối `output` của
-  E1–E4 lần này chứa chính chuỗi ghim, đọc từ stdout của đúng cmd đã khai —
-  vòng 2 phải trỏ chéo sang stdout của E5 kèm ghi chú tay.
-- **P0-2 (thư mục rác)** — nay `gate_touched=1` chỉ bật khi thư mục con có
-  `contract.md`; TE24 canh, E13 ghim.
-- **P0-3 (config cầm luật)** — `_acceptance/config.yaml` nay TỰ NÓ là thay đổi
-  cần cổng; TE25 canh, E14 ghim.
-- **P0-4 (rang.sh tự miễn trừ)** — ghim sha256 đặt ngoài slug; TE26 canh, E16
-  ghim.
+Con số suite giải thích được từng bước, không có phép đo nào biến mất:
+671 (base b9bfe46) → 677 (vòng 2) → 685 (vòng 3) → **689 (vòng 4)**. Chênh +4
+của vòng này đúng bằng TE27a, TE27a2, TE27b, TE27b2. Diff trên vật chính đã lớn
+thêm lần nữa: `git diff --stat main...HEAD -- scripts/pre-merge-check.sh` cho
+**66 thêm / 3 xoá** (vòng 3: 42/3; vòng 2: 21/3). Hash của rang.sh cũng đổi
+theo (223004… → 94c2f3…) vì a938623 sửa chính nó; ghim sha256 trong
+`tests/scripts/run-tests.sh` đã cập nhật cùng commit, đúng cơ chế P0-4 định ra.
 
-**Điều người ký phải tự soi ở Cổng 2, verification agent không chấm hộ.** E11
-và E12 là hai mục judgment, verdict PASS trong báo cáo này là của
-judge-subagent chạy ngữ cảnh sạch ở VÒNG 2, merge nguyên văn, agent này không
-chấm lại. Với E12 điều đó có hệ quả cụ thể và đo được: judge vòng 2 mô tả diff
-là "đúng 2 hunk (21 thêm / 3 xoá)", nhưng `git diff --stat main...HEAD --
-scripts/pre-merge-check.sh` trên cây hôm nay cho **42 thêm / 3 xoá**, vì
-a3a68a8 thêm 31 dòng nữa vào đúng file đó (khối `case` ba hạng + comment).
-Nói cách khác, phần vật mà E12 khẳng định "không đụng luật nào khác" đã lớn
-lên gấp đôi SAU khi lời khẳng định đó được đưa ra. Đây là lý do câu lưu ý phạm
-vi được ghi thẳng vào rationale của E12. E11 cũng còn một ghi chú judge đáng
-đọc trước khi quyết: main chưa có CHANGELOG.md, nên ngoài con số version, kênh
-báo hiệu duy nhất còn lại cho repo tiêu thụ là commit message của bản release.
+**Residual đã biết, chưa vá, người ký đang chấp nhận nếu ký.** `gap-probe.md`
+liệt 4 P1 + 4 P2 và tất cả vẫn `open` sau vòng 4 (một P2 — hai nhánh monorepo
+không có ca thử — nay đã đóng nhờ TE27, dù bản thân gap-probe chưa cập nhật
+trạng thái). Hai cái đáng nêu tên vì chúng chạm thẳng vào độ tin của chính báo
+cáo này:
 
-**Residual đã biết, chưa vá, người ký đang chấp nhận nếu ký.** gap-probe.md
-liệt 4 P1 + 4 P2 và tất cả vẫn `open`; hai cái đáng nêu tên vì chúng chạm
-thẳng vào độ tin của chính báo cáo này:
+- P1 #2 — TE23 (chiều chống-siết-quá-tay, thứ duy nhất chặn một bản vá biến MỌI
+  PR có gate thành đỏ vĩnh viễn trên MỌI repo tiêu thụ) vẫn là một assert ÂM
+  thuần `nothas`, không kiểm mã thoát, không có assert dương. `nothas` PASS trên
+  chuỗi rỗng, nên nếu pre-merge-check.sh chết sớm thì TE23a vẫn xanh và E4 vẫn
+  xanh theo. So sánh trực tiếp: TE24/TE25/TE27 đều có assert mã thoát + assert
+  dương, còn TE23 thì không. Lỗ này đã nêu ở vòng 3 và vẫn chưa vá ở vòng 4.
+- P1 #4 — đường dẫn non-ASCII bị `git diff --name-only` đóng ngoặc kép và escape
+  bát phân, làm hỏng cả hai nhánh `case`, cho FALSE RED. Kit này viết tiếng Việt
+  xuyên suốt và không ca thử nào dùng tên non-ASCII.
 
-- P1 #2 — TE23 (chiều chống-siết-quá-tay, thứ duy nhất chặn một bản vá biến
-  MỌI PR có gate thành đỏ vĩnh viễn trên MỌI repo tiêu thụ) vẫn là một assert
-  ÂM thuần `nothas`, không kiểm mã thoát, không có assert dương. `nothas` PASS
-  trên chuỗi rỗng, nên nếu pre-merge-check.sh chết sớm thì TE23a vẫn xanh và
-  E4 vẫn xanh theo. So sánh trực tiếp: TE24/TE25 vừa thêm ở vòng này đều có
-  assert mã thoát + assert dương, còn TE23 thì không.
-- P1 #4 — đường dẫn non-ASCII bị `git diff --name-only` đóng ngoặc kép và
-  escape bát phân, làm hỏng cả hai nhánh `case`, cho FALSE RED. Kit này viết
-  tiếng Việt xuyên suốt và không ca thử nào dùng tên non-ASCII.
-
-Thêm một quan sát của vòng này, không nằm trong gap-probe: TE26 bọc trong
-`if [ -f "$TE26_F" ]` và in `NOTE: TE26 bo qua` khi rang.sh không còn. Nhánh
+Thêm hai quan sát của vòng này, không nằm trong gap-probe. (a) TE26 bọc trong
+`if [ -f "$TE26_F" ]` và in `NOTE: TE26 bo qua` khi rang.sh không còn; nhánh
 NOTE đó không in `PASS: TE26a`, nên E16 sẽ đỏ đúng lúc — hành vi này đúng, chỉ
-cần người ký biết là ghim hết hiệu lực khi hồ sơ được dọn đi.
+cần người ký biết là ghim hết hiệu lực khi hồ sơ được dọn đi. (b) Lỗi `$ROOT`
+trên monorepo KHÔNG do bộ eval của hồ sơ bắt được, cũng không do gap-probe —
+nó do một judge độc lập đọc mã bắt được ở vòng thứ ba. Với một hợp đồng T3 mà
+lỗi biến thành false-green im lặng trên MỌI repo tiêu thụ, đó là dữ kiện người
+ký nên cân: bộ eval máy tự nó đã bỏ lọt một lỗi sống, và cái bắt được nó là
+phần judgment — đúng phần đang UNCERTAIN.
 
 Verdict cuối là PENDING-JUDGMENT chứ không phải PASS, và đây là luật chứ không
 phải dè dặt tuỳ ý: hợp đồng khai `risk_tier: T3` vì `scripts/pre-merge-check.sh`
 nằm trong `t3_paths` của chính kit với lý do "lỗi ở đây biến thành false-green
 im lặng trên MỌI repo tiêu thụ". Theo luật T3, mọi mục judgment cần người phán
-trực tiếp ở Cổng 2, nên kể cả khi mười bốn eval máy xanh hết VÀ hai judge đều
-PASS, mức máy cao nhất vẫn dừng ở PENDING-JUDGMENT. `human_override` của E11
-và E12 để trống có chủ đích — chỗ đó là của người ký, không phải của máy.
+trực tiếp ở Cổng 2, nên kể cả khi mười sáu eval máy xanh hết, mức máy cao nhất
+vẫn dừng ở PENDING-JUDGMENT. `human_override` của E11 và E12 để trống có chủ
+đích — chỗ đó là của người ký, không phải của máy.
 
 ## Variance
 
 none — mọi eval tất định, không mạng, không phụ thuộc thời gian, fixture git
-dựng tại chỗ trong thư mục mktemp riêng. Suite tests/scripts cho 685 passed /
-0 failed ở vòng 3 so với 677 ở vòng 2; chênh +8 giải thích được từng ca
-(TE24a/b/c, TE25a/b/c từ a3a68a8; TE26a/b từ 535f400), không ca nào biến mất.
-E8 đã chạy tổng cộng bốn lần độc lập qua ba vòng (hai lần đỏ ở vòng 1, xanh ở
-vòng 2 và vòng 3).
+dựng tại chỗ trong thư mục mktemp riêng. Suite tests/scripts cho 689 passed /
+0 failed ở vòng 4 so với 685 ở vòng 3; chênh +4 giải thích được từng ca
+(TE27a/a2/b/b2 từ a938623), không ca nào biến mất. E8 đã chạy tổng cộng năm lần
+độc lập qua bốn vòng (hai lần đỏ ở vòng 1, xanh ở vòng 2, 3, 4). Vòng này
+rang.sh và tests/scripts chạy đồng thời trong hai tiến trình riêng; mọi fixture
+nằm trong `mktemp -d` riêng nên không chia sẻ trạng thái, và kết quả trùng khớp
+với các chuỗi mà rang.sh tự đọc từ suite chạy bên trong nó.
 
 ## Iterations
 
@@ -370,3 +406,16 @@ vòng 2 và vòng 3).
   ý phạm vi ghi thẳng vào E12 vì phần vật nó chấm đã lớn từ 21 lên 42 dòng
   thêm sau khi verdict được đưa ra. Bốn P1 + bốn P2 của gap-probe vẫn open,
   nêu đích danh trong ## Analyst. Verdict: PENDING-JUDGMENT — trần máy của T3.
+- Vòng 4 (2026-08-12, commit a938623): Sau vòng 3, hai judge chấm LẠI trên cây
+  mới và CẢ HAI FAIL — đúng cái lưu ý phạm vi mà vòng 3 ghi vào E12 đã thành
+  hiện thực. E12 tìm ra bản vá FAIL-CLOSED trên monorepo (`git diff --name-only`
+  trả path tương đối với gốc cây git, không phải với `$ROOT`, nên
+  `pre-merge-check.sh pkg --base ref` chặn cả PR mang hồ sơ THẬT); E11 đòi bump
+  minor thay vì patch vì bản vá THÊM luật gate mới. Commit a938623 vá cả hai và
+  thêm AC-15/AC-16 + E17/E18 — hợp đồng nay 16 AC, bộ eval 18. Vòng này chấm
+  lại toàn bộ: mười sáu eval máy xanh, mã thoát 0, mọi chuỗi ghim đọc từ stdout
+  thật; suite tests/scripts từ 685 lên 689 (+4 = TE27a/a2/b/b2). E11 và E12
+  KHÔNG merge verdict cũ mà để UNCERTAIN, vì verdict judgment đã chứng minh
+  không sống sót qua một thay đổi phạm vi; judge mới đang chạy song song trên
+  cây a938623. Bốn P1 + ba P2 của gap-probe vẫn open. Verdict:
+  PENDING-JUDGMENT — trần máy của T3.
