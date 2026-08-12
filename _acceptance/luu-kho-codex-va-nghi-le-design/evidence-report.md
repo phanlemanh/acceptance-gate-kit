@@ -147,6 +147,38 @@ Hai giới hạn đã khai từ trước, giữ nguyên:
 
 - **Chạy lại nghiệm thu một hồ sơ cũ sẽ hỏng** ở những hồ sơ có phép đo trỏ khoá
   cấu hình đã chết. Đã khai từ Cổng 1, không migrate hàng loạt.
+  **⚠ HẬU QUẢ ĐO ĐƯỢC, NẶNG HƠN CÂU ĐÃ KHAI — cần owner quyết trước khi merge.**
+  Câu khai ở Cổng 1 nói "chạy lại verify một hồ sơ cũ sẽ hỏng", nghe như một
+  bất tiện khi ai đó chủ động chạy lại. Đo trên CI của chính PR này:
+  **cổng CHẶN MERGE với 22 vi phạm**, và chúng không đợi ai chạy lại cái gì —
+  luật `recheck: strict` soi MỌI hồ sơ đã commit ở mỗi lượt CI, không theo phạm
+  vi diff. Hai lớp:
+  · **21 hồ sơ đã ký** đỏ vì `config key not found: "executors.script.mirror_sync"`
+    (`claim-scan-parser-hardening`, `consumer-copy-cjs`, `context-ladder`,
+    `cross-feature-claim-index`, `delta-verify-repin`, `design-pass-skill`,
+    `discovery-brainstorm-socket`, `docs-first-run-audit`,
+    `findings-section-boundary`, `gate-card-ac-visibility`,
+    `hinh-theo-mat-phang`, `judgment-question-guard`, `may-ganh-nguoi-quyet`,
+    `mot-luot-go-cong-nguoi`, `ngon-ngu-mat-nguoi`, `pha3-goi-luoi`,
+    `product-map-uat-session`, `rang-phep-do-viec-cua-anh`, `stale-theo-diff-pr`,
+    `start-command`, `start-scan-hardening`).
+  · **1 hồ sơ** (`stop-patching-law`) đỏ vì **stale**: đợt gỡ chạm
+    `.agents/`, `codex/`, `.codex-plugin/`, `.github/workflows/gate.yml` — tất cả
+    NGOÀI `_acceptance/` nên luật staleness tính đúng.
+  Cả 22 vi phạm **có sẵn từ đợt phẫu thuật** (commit gỡ + commit khoá config),
+  KHÔNG do vòng sửa này sinh ra: chạy `pre-merge-check.sh` với cùng base ở commit
+  của nhánh 1b và ở HEAD của vòng sửa cho **tập vi phạm y hệt nhau**.
+  **Vòng sửa này cố ý KHÔNG tự xử.** Ba đường đều là quyết-định-của-người và hai
+  trong ba đụng vật đã ký:
+  1. **Trả lại khoá `mirror_sync`** dưới dạng bia mộ — mâu thuẫn thẳng AC-9
+     («khoá đó KHÔNG còn»), tức phải mở lại một tiêu chí đã duyệt.
+  2. **Sửa `evals.yaml` của 21 hồ sơ đã ký** — mâu thuẫn thẳng mục *Out of scope*
+     («hồ sơ `_acceptance/` cũ là sử liệu bất biến»), và là viết vào vật đã ký.
+  3. **Nới luật `recheck`** cho hồ sơ ngoài phạm vi diff — đây là đổi ENGINE, mà
+     lab đang ĐÓNG BĂNG; và nó là hạ-thước nếu làm chỉ để lấy màu xanh.
+  Riêng `stop-patching-law` có đường thứ tư rẻ hơn: **re-pin** theo nghi thức
+  một-lượt-lane (chỉ chạm field máy, không chạm chữ ký) — nhưng đó vẫn là chạm
+  một hồ sơ đã ký ngoài phạm vi được duyệt, nên cũng chờ owner gạch.
 - **Một chân đo phụ thuộc mạng.** Chân «mốc đã lên remote» hỏi remote thật; hết
   ba lượt không hỏi được thì vẫn đỏ (không chứng minh được là đã đẩy thì không
   coi như đã đẩy) nhưng ghim rõ đó là lỗi đường truyền, không phải lỗi hồ sơ.
