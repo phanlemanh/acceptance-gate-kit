@@ -75,6 +75,10 @@ lập, không như mô tả bản vá.
 - AC-12: Given một PR đổi file mã non-T1 và đồng thời nới `t1_skip_globs`
   trong `_acceptance/config.yaml`, When chạy `pre-merge-check`, Then luật nổ VÀ liệt đích
   danh `_acceptance/config.yaml` — sửa luật của cổng phải qua cổng.
+- AC-14: Given `rang.sh` giữ toàn bộ sức phân biệt của hồ sơ nhưng nằm dưới
+  `_acceptance/<slug>/` — tức được chính răng T1-escape miễn trừ, When ai đó
+  sửa nó, Then phải có một phép đo NGOÀI slug đỏ lên; và sửa cả phép đo đó thì
+  phải chạm một file non-T1 của kit, tức người duyệt nhìn thấy.
 - AC-13: Given eval ghim chuỗi vào stdout của `rang.sh`, When `rang.sh` chạy
   và xanh, Then chính stdout đó phải chứa các dòng `CO-MAT PASS: TE…` và dòng
   đếm `CO-MAT tong: 12/12` — thước đo phải tự nó đo được, không để chuỗi kỳ
@@ -128,6 +132,7 @@ chính là hành vi cần chấm dứt.
   quyết 2026-08-12: **hồ sơ RIÊNG**, không gộp vào đây.
 - Vòng vá thứ hai (2026-08-12, sau phản biện context sạch): AC-11/12/13 sinh
   từ P0-2, P0-3, P0-1 của `gap-probe.md`. Ba lỗ P0 còn lại chưa xử: P0-4
-  (`rang.sh` tự miễn trừ, không ghim hash) — xem quyết định của owner.
+  (`rang.sh` tự miễn trừ, không ghim hash) đã vá ở AC-14/E16 theo quyết định
+  owner 2026-08-12 "P0-4: vá luôn". Còn 4 P1 + 4 P2 chưa xử — xem gap-probe.md.
 - Ca phản chứng: TE21 (config.yaml không miễn trừ), TE22 (README.md không miễn
   trừ), TE23 (slug thật VẪN miễn trừ) trong `tests/scripts/run-tests.sh`.

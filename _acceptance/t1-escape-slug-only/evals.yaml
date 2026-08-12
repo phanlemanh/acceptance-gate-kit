@@ -109,6 +109,17 @@ evals:
     expected: "exit 0; stdout có dòng đếm 'CO-MAT tong: 12/12 ca phan chung da chay that' — thước đo tự nó đo được"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
+  # Vá P0-4: hash của rang.sh ghim trong tests/ (NGOÀI _acceptance/). Sửa
+  # rang.sh mà không sửa ghim -> suite đỏ; sửa cả hai -> chạm
+  # tests/scripts/run-tests.sh là file non-T1 của kit, nên chính nó đòi hồ sơ
+  # nghiệm thu. Hết đường neutralise thước đo mà không ai hay.
+  - id: E16
+    criterion: AC-14
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "exit 0; stdout có 'PASS: TE26a' và 'PASS: TE26b' — hash rang.sh khớp ghim, và ghim thật sự đọc file"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
   - id: E11
     criterion: AC-9
     executor: judgment

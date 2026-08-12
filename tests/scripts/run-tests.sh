@@ -2770,6 +2770,31 @@ TE25="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"; check TE25a 1 $?
 hasout TE25b "VIOLATION [PR]" "$TE25"
 hasout TE25c "_acceptance/config.yaml" "$TE25"
 
+# ── TE26: ghim hash rang.sh — vi no TU MIEN TRU chinh rang no phuc vu ──────
+# Lo P0-4 cua phan bien context sach: toan bo suc phan biet cua ho so
+# t1-escape-slug-only nam trong mot file do CHINH NGUOI VA viet, dat duoi
+# `_acceptance/<slug>/` — tuc no duoc rang T1-escape mien tru, khong nam trong
+# DV5 ALLOWED_REMOVALS, va verdict cua E6 dung bang mot chuoi no tu `echo`.
+# Sua no thanh hai lenh `echo` la moi eval xanh het ma khong phep do nao cham
+# `pre-merge-check.sh`.
+#
+# Ghim hash o DAY (tests/, ngoai _acceptance/) dong lo im lang: sua rang.sh ma
+# khong sua ghim -> suite do; sua ca hai -> cham tests/scripts/run-tests.sh,
+# la file non-T1 cua kit, nen chinh no doi ho so nghiem thu va nguoi duyet
+# NHIN THAY. Khong con duong nao neutralise thuoc do ma khong ai hay.
+echo "TE26 rang.sh cua ho so t1-escape-slug-only phai khop hash ghim"
+TE26_F="$ROOT_REAL/_acceptance/t1-escape-slug-only/rang.sh"
+TE26_PIN="22300442f472ef522c1b5fffab15d45322c4230a988dd5f58ae87b3070ab25cd"
+if [ -f "$TE26_F" ]; then
+  TE26_NOW="$(shasum -a 256 "$TE26_F" | cut -d' ' -f1)"
+  same TE26a "$TE26_PIN" "$TE26_NOW"
+  # doi chung duong: ghim phai that su doc file, khong phai so hai hang so
+  same TE26b 64 "${#TE26_NOW}"
+else
+  # Ho so da ky va don di thi ghim het viec — bao ro, khong im lang xanh.
+  echo "  NOTE: TE26 bo qua — $TE26_F khong con (ho so da don?)"
+fi
+
 echo "TE23 co _acceptance/<slug>/ that -> VAN mien tru (chong va qua tay)"
 te_repo te23 src/app.js
 mkdir -p "$TE_R/_acceptance/mot-slug-that"
