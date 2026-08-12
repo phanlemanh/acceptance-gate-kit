@@ -1017,12 +1017,33 @@ else
   gate_touched=0; t3_hits=""; nont1_hits=""
   while IFS= read -r f; do
     [ -n "$f" ] || continue
-    # `_acceptance/<slug>/…` cần ÍT NHẤT một dấu `/` sau tên slug — nên
-    # `_acceptance/config.yaml` không khớp, còn `_acceptance/x/contract.md` thì
-    # có. `continue` vẫn chạy cho MỌI file dưới _acceptance/ (kể cả config):
-    # chúng không phải mã sản phẩm, không được tính vào nont1_hits.
+    # Ba hạng khác nhau, đừng gộp:
+    #
+    # (a) `_acceptance/<slug>/…` với <slug> là HỒ SƠ THẬT (có contract.md trên
+    #     đĩa) — đây mới là "mang bằng chứng". Bản vá đầu chỉ đòi có một dấu
+    #     `/` sau tên slug, và phản biện context sạch đo được ngay: `mkdir
+    #     _acceptance/tmpjunk && touch note.txt` là đủ miễn trừ một PR sửa
+    #     src/app.js. Lỗ cũ tái sinh sâu hơn một cấp với giá một lệnh `touch`.
+    #     contract.md là thứ per-slug đọc để chấm, nên "có contract.md" đúng
+    #     bằng "cổng nhìn thấy hồ sơ này".
+    #
+    # (b) `_acceptance/config.yaml` — CẤU HÌNH CỔNG. Không phải bằng chứng, và
+    #     cũng KHÔNG được miễn: nó là thứ quyết định t1_skip_globs/t3_paths,
+    #     nên một PR nới `- "**"` cùng lúc sửa mã sẽ tự làm mọi thứ thành T1.
+    #     Đo thật: trước dòng này, PR đó không sinh violation nào. Sửa luật của
+    #     cổng phải qua cổng — cùng lý lẽ với t3_paths.
+    #
+    # (c) mọi file khác dưới `_acceptance/` (README, thư mục rác) — không phải
+    #     mã sản phẩm, không phải bằng chứng: bỏ qua im lặng như cũ.
     case "$f" in
-      _acceptance/*/*|*/_acceptance/*/*) gate_touched=1; continue ;;
+      _acceptance/config.yaml|*/_acceptance/config.yaml)
+        nont1_hits="${nont1_hits}${f}"$'\n'; continue ;;
+      _acceptance/*/*|*/_acceptance/*/*)
+        if [ -f "$ROOT/${f%/*}/contract.md" ] \
+           || [ -f "$ROOT/$(printf '%s' "$f" | sed 's|\(.*_acceptance/[^/]*\)/.*|\1|')/contract.md" ]; then
+          gate_touched=1
+        fi
+        continue ;;
       _acceptance/*|*/_acceptance/*) continue ;;
     esac
     if [ -n "$T3_PATHS" ] && match_globs "$f" "$T3_PATHS"; then

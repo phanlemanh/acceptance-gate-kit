@@ -68,7 +68,17 @@ lập, không như mô tả bản vá.
   mình đang chạy bản thủng hay bản vá nếu version đứng yên. (judgment)
 - AC-10: Given người vá có thể siết quá tay, When đọc phạm vi thay đổi, Then
   bản vá KHÔNG đổi bất kỳ luật nào khác của `pre-merge-check.sh` (gap-probe,
-  per-slug, staleness, T3, cờ `--no-t1-escape`). (judgment)
+  per-slug, staleness, cờ `--no-t1-escape`). (judgment)
+- AC-11: Given một PR đổi file mã non-T1 và tạo một thư mục dưới `_acceptance/`
+  KHÔNG có `contract.md` (thư mục rác), When chạy `pre-merge-check --base`,
+  Then luật VẪN nổ — "có thư mục" không bằng "có hồ sơ".
+- AC-12: Given một PR đổi file mã non-T1 và đồng thời nới `t1_skip_globs`
+  trong `_acceptance/config.yaml`, When chạy `pre-merge-check`, Then luật nổ VÀ liệt đích
+  danh `_acceptance/config.yaml` — sửa luật của cổng phải qua cổng.
+- AC-13: Given eval ghim chuỗi vào stdout của `rang.sh`, When `rang.sh` chạy
+  và xanh, Then chính stdout đó phải chứa các dòng `CO-MAT PASS: TE…` và dòng
+  đếm `CO-MAT tong: 12/12` — thước đo phải tự nó đo được, không để chuỗi kỳ
+  vọng chỉ tồn tại trong nhánh báo hỏng.
 
 ## Coverage
 
@@ -96,7 +106,11 @@ chính là hành vi cần chấm dứt.
 - **Không** thêm ánh xạ path→slug ("file mã này phải thuộc slug nào"). Comment
   trong mã đã ghi là kit cố ý không có ánh xạ đó; bản vá giữ nguyên giới hạn,
   chỉ siết đúng nghĩa "có slug".
-- **Không** đụng luật gap-probe, per-slug, staleness, T3 hay cờ `--no-t1-escape`.
+- **Không** đụng luật gap-probe, per-slug, staleness hay cờ `--no-t1-escape`.
+  (Luật T3 KHÔNG còn nằm ngoài phạm vi: AC-12 cố ý làm `_acceptance/config.yaml`
+  trở thành thay đổi cần cổng, và điều đó chạm cách file này tương tác với cả
+  hai răng non-T1 lẫn T3 — mở phạm vi theo quyết định owner 2026-08-12
+  "hướng: vá tiếp".)
 - **Không** tự động cập nhật bản vendored trong các repo tiêu thụ
   (floorplanstudio, artifact-platform…) — đó là việc rollout riêng, có PR riêng.
 - **Không** đổi thông điệp violation đang có (nó vốn đã hứa đúng điều kiện
@@ -112,5 +126,8 @@ chính là hành vi cần chấm dứt.
 - Lỗ THỨ HAI phát hiện khi chạy cổng (hợp đồng `status: draft` cũng đủ
   miễn trừ T1-escape, vì luật per-slug bỏ qua slug draft — dòng 549). Owner
   quyết 2026-08-12: **hồ sơ RIÊNG**, không gộp vào đây.
+- Vòng vá thứ hai (2026-08-12, sau phản biện context sạch): AC-11/12/13 sinh
+  từ P0-2, P0-3, P0-1 của `gap-probe.md`. Ba lỗ P0 còn lại chưa xử: P0-4
+  (`rang.sh` tự miễn trừ, không ghim hash) — xem quyết định của owner.
 - Ca phản chứng: TE21 (config.yaml không miễn trừ), TE22 (README.md không miễn
   trừ), TE23 (slug thật VẪN miễn trừ) trong `tests/scripts/run-tests.sh`.

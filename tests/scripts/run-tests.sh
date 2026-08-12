@@ -2742,6 +2742,34 @@ hasout TE22b "VIOLATION [PR]" "$TE22"
 
 # Doi trong: mien tru THAT phai con nguyen, neu khong ban va nay bien moi PR
 # co gate thanh do vinh vien.
+# ── TE24/TE25: hai lo do phan bien context sach (gap-probe) do duoc ────────
+# TE24 — "co thu muc" KHONG bang "co ho so". Ban va dau chi doi mot dau `/`
+# sau ten slug, nen `mkdir _acceptance/tmpjunk && touch note.txt` la du mien
+# tru mot PR sua src/app.js: lo cu tai sinh sau hon mot cap voi gia mot lenh
+# `touch`. contract.md la thu per-slug doc de cham, nen "co contract.md" dung
+# bang "cong nhin thay ho so nay".
+echo "TE24 thu muc rac duoi _acceptance/ KHONG duoc mien tru (phai co contract.md)"
+te_repo te24 src/app.js
+mkdir -p "$TE_R/_acceptance/tmpjunk"
+printf 'rac\n' > "$TE_R/_acceptance/tmpjunk/note.txt"
+git -C "$TE_R" add -A >/dev/null
+git -c user.email=t@t -c user.name=t -C "$TE_R" commit -qm junk
+TE24="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"; check TE24a 1 $?
+hasout TE24b "VIOLATION [PR]" "$TE24"
+hasout TE24c "src/app.js" "$TE24"
+
+# TE25 — cau hinh cong khong duoc tu mien. Mot PR noi t1_skip_globs thanh
+# `- "**"` cung luc sua ma se tu bien moi thu thanh T1; truoc luat nay no
+# khong sinh violation nao. Sua luat cua cong phai qua cong.
+echo "TE25 sua _acceptance/config.yaml phai TU NO la thay doi can cong"
+te_repo te25 src/app.js
+printf '    - "**"\n' >> "$TE_R/_acceptance/config.yaml"
+git -C "$TE_R" add -A >/dev/null
+git -c user.email=t@t -c user.name=t -C "$TE_R" commit -qm widen
+TE25="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"; check TE25a 1 $?
+hasout TE25b "VIOLATION [PR]" "$TE25"
+hasout TE25c "_acceptance/config.yaml" "$TE25"
+
 echo "TE23 co _acceptance/<slug>/ that -> VAN mien tru (chong va qua tay)"
 te_repo te23 src/app.js
 mkdir -p "$TE_R/_acceptance/mot-slug-that"
@@ -2897,8 +2925,13 @@ hasout RL3a4 "pre-merge-check: rules ran=2 declared-off=1 expected=3" "$RL3A"
 hasout RL3a5 "pre-merge-check: clean" "$RL3A"
 
 echo "RL3b gap_probe: off trong config -> 'declared-off gap-probe'"
+# PR nay sua CAU HINH CONG (_acceptance/config.yaml). Tu luat "config khong
+# tu mien" (TE25), sua cau hinh cong la thay doi CAN CONG — nen fixture phai
+# mang vat ho so trong chinh diff PR, khong phai chi co san o base. Chu de cua
+# ca nay (co gap_probe) khong doi.
 rl_repo rl3b
 printf 'gap_probe: off\n' >> "$TE_R/_acceptance/config.yaml"
+printf '\n# cham vat ho so trong chinh PR nay\n' >> "$TE_R/_acceptance/feat-rl/contract.md"
 git -C "$TE_R" add -A >/dev/null
 git -c user.email=t@t -c user.name=t -C "$TE_R" commit -qm cfg
 RL3B="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"; check RL3b1 0 $?
@@ -3079,8 +3112,13 @@ nothas RL5a4 'LEDGER_RAN_N' "$RL5K"
 nothas RL5a5 'LEDGER_OFF_N' "$RL5K"
 
 echo "RL11a enforcement off -> so tat theo, KHONG dong ledger nao (AC-11)"
+# PR nay sua CAU HINH CONG (_acceptance/config.yaml). Tu luat "config khong
+# tu mien" (TE25), sua cau hinh cong la thay doi CAN CONG — nen fixture phai
+# mang vat ho so trong chinh diff PR, khong phai chi co san o base. Chu de cua
+# ca nay (co enforcement) khong doi.
 rl_repo rl11a
 printf 'enforcement: off\n' >> "$TE_R/_acceptance/config.yaml"
+printf '\n# cham vat ho so trong chinh PR nay\n' >> "$TE_R/_acceptance/feat-rl/contract.md"
 git -C "$TE_R" add -A >/dev/null
 git -c user.email=t@t -c user.name=t -C "$TE_R" commit -qm enf
 RL11A="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"; check RL11a1 0 $?

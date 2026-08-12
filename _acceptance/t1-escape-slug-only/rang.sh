@@ -21,9 +21,24 @@ keu() { echo "RANG LOI: $*"; ERR=1; }
 # ── 1) case moi phai chay that ───────────────────────────────────────────────
 OUT="$(bash tests/scripts/run-tests.sh 2>&1)"; ST=$?
 [ "$ST" -eq 0 ] || keu "suite scripts khong xanh"
-for L in "PASS: TE21a" "PASS: TE21b" "PASS: TE21c" "PASS: TE22a" "PASS: TE22b" "PASS: TE23a"; do
-  printf '%s\n' "$OUT" | grep -q "$L" || keu "khong thay '$L' — case khong chay (bi xoa/doi ten?)"
+# In DAU VET ra stdout, khong chi kiem tham. Ban dau ham nay chi grep roi goi
+# keu() khi thieu, nen sau chuoi "PASS: TE21a..." CHI xuat hien trong dong BAO
+# HONG — eval ghim chung vao stdout thanh mot oracle BI DAO: xoa TE21-TE23 khoi
+# suite thi eval van grep-PASS trong khi khong ca phan chung nao con chay.
+# Phan bien context sach bat dung lop nay (P0-1). Nay moi ca kiem duoc in mot
+# dong CO-MAT rieng, va dong tong ket dem lai — thuoc do phai tu no do duoc.
+CO=0
+for L in "PASS: TE21a" "PASS: TE21b" "PASS: TE21c" "PASS: TE22a" "PASS: TE22b" \
+         "PASS: TE23a" "PASS: TE24a" "PASS: TE24b" "PASS: TE24c" \
+         "PASS: TE25a" "PASS: TE25b" "PASS: TE25c"; do
+  if printf '%s\n' "$OUT" | grep -q "$L"; then
+    echo "CO-MAT $L"; CO=$((CO+1))
+  else
+    keu "khong thay '$L' — case khong chay (bi xoa/doi ten?)"
+  fi
 done
+echo "CO-MAT tong: $CO/12 ca phan chung da chay that"
+[ "$CO" -eq 12 ] || keu "chi $CO/12 ca phan chung chay that"
 printf '%s\n' "$OUT" | grep -q "PASS: DV5 scripts/pre-merge-check.sh" \
   || keu "DV5 additive-only khong PASS tren pre-merge-check.sh"
 
@@ -65,14 +80,19 @@ python3 - "$ROOT/scripts/pre-merge-check.sh" "$MUT" <<'PY'
 import sys
 src, dst = sys.argv[1], sys.argv[2]
 s = open(src, encoding='utf-8').read()
-new = ('    case "$f" in\n'
-       '      _acceptance/*/*|*/_acceptance/*/*) gate_touched=1; continue ;;\n'
-       '      _acceptance/*|*/_acceptance/*) continue ;;\n'
-       '    esac\n')
+import re
+# NEO vao dung khoi cua rang T1-escape, khong phai khoi `case "$f" in` dau
+# tien: file co BA khoi (stale_files dong 393, pr_touches_slug dong 477, va
+# khoi nay). Ban dau regex bat khoi 477 va dot bien sua nham cho — rang tu bao
+# "khong phan biet duoc", tuc no bat duoc chinh no hong. Dieu kien nhan dang:
+# khoi duy nhat co `gate_touched=1`.
+cands = [m.group(0) for m in re.finditer(r'\n    case "\$f" in\n(?:.*\n)*?    esac\n', s)
+         if 'gate_touched=1' in m.group(0)]
+if len(cands) != 1:
+    print(f'MUTANT-LOI: thay {len(cands)} khoi case co gate_touched=1 (phai dung 1) '
+          f'— vat da doi hinh, sua rang.sh'); sys.exit(3)
+new = cands[0][1:]
 old = '    case "$f" in _acceptance/*|*/_acceptance/*) gate_touched=1; continue ;; esac\n'
-if new not in s:
-    print('MUTANT-LOI: khong thay khoi case da va — vat da doi hinh, sua rang.sh')
-    sys.exit(3)
 open(dst, 'w', encoding='utf-8').write(s.replace(new, old, 1))
 PY
 if [ $? -ne 0 ]; then keu "khong dung duoc dot bien"; else
@@ -94,5 +114,5 @@ for M in .claude-plugin/plugin.json .codex-plugin/plugin.json \
   grep -q '"version": "1.40.1"' "$M" || keu "$M chua bump len 1.40.1"
 done
 
-[ "$ERR" -eq 0 ] && echo "RANG OK (6 dong case + DV5 + dot bien + mirror + 4 manifest)"
+[ "$ERR" -eq 0 ] && echo "RANG OK (12 dong case + DV5 + dot bien + mirror + 4 manifest)"
 exit "$ERR"
