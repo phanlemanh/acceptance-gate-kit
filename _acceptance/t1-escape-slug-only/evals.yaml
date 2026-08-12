@@ -1,0 +1,100 @@
+schema_version: 1
+feature_slug: t1-escape-slug-only
+
+# Vì sao KHÔNG dùng thẳng `config:executors.test.scripts` cho AC-1..AC-5:
+# executor đó trả verdict bằng mã thoát của CẢ suite, mà suite trên main cũng
+# exit 0 — nên nó là eval KHÔNG PHÂN BIỆT được cây cũ với cây mới. Xoá TE21 đi
+# thì suite vẫn xanh và eval vẫn PASS trong khi không phép đo nào chạy. Bài học
+# này repo đã trả giá một lần và ghi ở p194-rang.sh; `rang.sh` của hồ sơ này
+# ghim đúng dòng case trong stdout VÀ chạy một đột biến trên chính vật.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.t1_escape_rang
+    expected: "exit 0; stdout có 'PASS: TE21a' và 'PASS: TE21b' — sửa config.yaml + mã non-T1 VẪN nổ"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.t1_escape_rang
+    expected: "stdout có 'PASS: TE21c' — thông điệp liệt đúng src/app.js, không liệt _acceptance/config.yaml"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.t1_escape_rang
+    expected: "stdout có 'PASS: TE22a' và 'PASS: TE22b' — README.md của _acceptance cũng không miễn trừ"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  # AC-4 và AC-5 là chiều PHẢI-KHÔNG-NỔ. Không có hai eval này thì một bản vá
+  # siết quá tay sẽ xanh hết E1..E3 và biến mọi PR có gate thành đỏ vĩnh viễn.
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.t1_escape_rang
+    expected: "stdout có 'PASS: TE23a' — có _acceptance/<slug>/ thật thì VẪN miễn trừ"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "exit 0; TE15 xanh — PR chỉ đổi docs/** không nổ, không báo động giả"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  # Lớp mạnh nhất: chứng minh phép đo ĐỌC ĐÚNG thứ nó tưởng. Dựng lại dòng
+  # `case` cũ trên một bản sao của chính vật, chạy cùng fixture: bản cũ phải
+  # LỌT (lỗ tái xuất hiện), bản vá phải CHẶN. Hai bản xử lý giống nhau = phép
+  # đo mù, và rang.sh báo lỗi đích danh.
+  - id: E6
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.t1_escape_rang
+    expected: "stdout có 'DOT-BIEN OK: ban cu lot (lo tai xuat hien), ban va chan'"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "exit 0; dòng tổng kết 'Results: N passed, 0 failed'"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0; 'all plugin tests passed'"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E9
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "stdout có 'PASS: DV5 scripts/pre-merge-check.sh' — dòng luật bị thay đã khai trong ALLOWED_REMOVALS, và 'PASS: DV5m' (mutant vẫn đỏ đích danh)"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E10
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.mirror_sync
+    expected: "exit 0 — plugins/acceptance-gate/scripts/pre-merge-check.sh byte-đối-byte với nguồn"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E11
+    criterion: AC-9
+    executor: judgment
+    question: "Version đã bump 1.40.0 -> 1.40.1 ở cả 4 manifest. Với một bản vá ĐỔI HÀNH VI CƯỠNG CHẾ (PR từng pass nay sẽ bị chặn), patch-bump có đủ báo hiệu cho repo tiêu thụ không, hay phải là minor (1.41.0)? Cân nhắc: consumer ghim version trong config/CI và đọc số này để biết mình đang chạy bản thủng hay bản vá."
+    inputs: [contract.md, _acceptance/t1-escape-slug-only/rang.sh]
+    evidence_required: [judged_by, verdict, rationale]
+
+  - id: E12
+    criterion: AC-10
+    executor: judgment
+    question: "Đọc `git diff main...HEAD -- scripts/pre-merge-check.sh`. Bản vá có đụng luật nào KHÁC ngoài điều kiện miễn trừ của T1-escape không (gap-probe, per-slug, staleness, T3, cờ --no-t1-escape)? Một bản vá siết quá tay ở đây làm mọi PR có gate đỏ vĩnh viễn trên MỌI repo tiêu thụ."
+    inputs: [contract.md]
+    evidence_required: [judged_by, verdict, rationale]

@@ -5,9 +5,9 @@ slug: t1-escape-slug-only
 owner: phanlemanh@gmail.com
 risk_tier: T3
 surfaces: [cli]
-status: draft
-approved_by:
-approved_at:
+status: implemented
+approved_by: Manh Phan
+approved_at: 2026-08-12
 time_human_minutes: {gate1: 0, gate2: 0}
 ---
 
@@ -32,7 +32,7 @@ Source input: prompt (phiên 2026-08-12) + bằng chứng tại
 https://github.com/phanlemanh/floorplanstudio/pull/6#issuecomment-5264066060
 
 **Ghi chú trung thực về thứ tự làm** (người duyệt cần biết để chấm đúng): bản
-vá và counter-test đã viết TRƯỚC hồ sơ này, theo lệnh trực tiếp của owner ("vá
+vá và ca phản chứng (counter-case) đã viết TRƯỚC hồ sơ này, theo lệnh trực tiếp của owner ("vá
 lỗ T1-escape trước, rồi chạy acceptance gate"). Rủi ro thường trực của thứ tự
 đó là tiêu chí uốn theo thứ đã xây. Ở đây rủi ro thấp hơn thường lệ vì tiêu
 chí neo vào một **khiếm khuyết quan sát được độc lập, trước khi có bản vá**
@@ -52,10 +52,10 @@ lập, không như mô tả bản vá.
 - AC-4: Given một PR đổi file mã non-T1, When PR đó mang một thư mục
   `_acceptance/<slug>/` thật (có ít nhất một file bên trong), Then luật KHÔNG
   nổ — miễn trừ hợp lệ còn nguyên vẹn.
-- AC-5: Given một PR chỉ đổi file T1 thuần (`docs/**`), When chạy check,
+- AC-5: Given một PR chỉ đổi file T1 thuần (`docs/**`), When chạy `pre-merge-check`,
   Then không có `VIOLATION [PR]` và exit 0 (true-negative, không báo động giả).
 - AC-6: Given bản vá đụng một file trong `t3_paths` của chính kit, When chạy
-  toàn bộ suite `tests/scripts` và `tests/plugins`, Then 0 test đỏ.
+  toàn bộ suite `tests/scripts` và `tests/plugins`, Then 0 ca đỏ.
 - AC-7: Given kit có luật additive-only (DV5) canh hai file cưỡng chế, When bản
   vá sửa dòng luật cũ, Then dòng bị thay phải nằm trong `ALLOWED_REMOVALS` kèm
   lý do, và DV5 xanh trở lại — dùng cửa thoát có khai báo, không nới luật.
@@ -105,9 +105,12 @@ chính là hành vi cần chấm dứt.
 ## Notes
 
 - Đây là T3 vì `scripts/pre-merge-check.sh` nằm trong `t3_paths` của chính kit,
-  với lý do đã ghi sẵn trong config: "bug ở đây biến thành false-green im lặng
+  với lý do đã ghi sẵn trong config: "lỗi ở đây biến thành false-green im lặng
   trên MỌI repo tiêu thụ". Theo luật T3, mọi mục judgment cần người phán trực
   tiếp ở Cổng 2 — verdict máy cao nhất có thể đạt là PENDING-JUDGMENT.
 - Nhánh: `fix/t1-escape-slug-only`, commit `f34c01d`.
-- Counter-test: TE21 (config.yaml không miễn trừ), TE22 (README.md không miễn
+- Lỗ THỨ HAI phát hiện khi chạy cổng (hợp đồng `status: draft` cũng đủ
+  miễn trừ T1-escape, vì luật per-slug bỏ qua slug draft — dòng 549). Owner
+  quyết 2026-08-12: **hồ sơ RIÊNG**, không gộp vào đây.
+- Ca phản chứng: TE21 (config.yaml không miễn trừ), TE22 (README.md không miễn
   trừ), TE23 (slug thật VẪN miễn trừ) trong `tests/scripts/run-tests.sh`.

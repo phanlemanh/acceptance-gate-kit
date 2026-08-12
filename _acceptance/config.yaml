@@ -46,6 +46,11 @@ executors:
     # của trọn suite (suite xanh cả trên origin/main → không phân biệt được).
     p194_rang: "bash _acceptance/may-ganh-nguoi-quyet/p194-rang.sh"
     product_map: "node scripts/product-map.mjs --root . --check"
+    # Răng của hồ sơ t1-escape-slug-only: ghim ĐÚNG dòng case TE21/22/23 trong
+    # stdout + chạy một ĐỘT BIẾN trên chính vật (dựng lại dòng `case` cũ, lỗ
+    # phải tái xuất hiện). Suite xanh cả trên main nên mã thoát của trọn suite
+    # không phân biệt được — cùng bài học p194_rang.
+    t1_escape_rang: "bash _acceptance/t1-escape-slug-only/rang.sh"
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
