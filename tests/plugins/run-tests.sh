@@ -1996,14 +1996,14 @@ assert f"{gone}: thieu tien to so quyet dinh" in check(mut), \
     "dot bien go quyen tra lai khoi 1 harness khong do dung thong diep"
 PY
 
-run "P95 con tro giai duoc TRONG GOI da dong — goi khac goi phai qua bo giai (E7)" \
+run "P95 con tro giai duoc TRONG GOI — goi khac goi phai qua bo giai (E7)" \
   python3 - "$ROOT" <<'PY'
 import re, shutil, sys, tempfile
 from pathlib import Path
 root = Path(sys.argv[1])
 REF = "skills/acceptance/references/human-facing-language.md"
-IN_PKG = ["skills/acceptance-card/SKILL.md", "skills/acceptance-report/SKILL.md",
-          "skills/acceptance-status/SKILL.md"]
+IN_PKG = ["commands/acceptance-card.md", "commands/acceptance-report.md",
+          "commands/acceptance-status.md"]
 RX = re.compile(r"skills/acceptance/references/[\w.-]+\.md")
 
 def check(pkg_ag, pkg_fl):
@@ -2016,17 +2016,17 @@ def check(pkg_ag, pkg_fl):
         for h in hits:
             if not (pkg_ag / h).is_file():
                 errs.append(f"pointer trong goi acceptance-gate tro file khong ton tai — {h}")
-    fl = pkg_fl / "skills/feature-loop-codex/SKILL.md"
+    fl = pkg_fl / "skills/feature-loop/SKILL.md"
     t = fl.read_text(encoding="utf-8")
     # HAI dieu kien khac nhau, HAI thong diep khac nhau. Round 3 bat: dung chung
     # mot thong diep thi dot bien chi chung minh duoc dieu kien thu nhat, nhanh
     # con lai khong bao gio bi da RED rieng.
     if f"--plugin acceptance-gate --require {REF}" not in t:
-        errs.append("goi feature-loop-codex thieu loi goi bo giai plugin")
+        errs.append("goi feature-loop thieu loi goi bo giai plugin")
     if "PLUGIN_ROOT}/" + REF in t:
-        errs.append("goi feature-loop-codex ghep thang goc goi — goi nay khong chua ban luat")
+        errs.append("goi feature-loop ghep thang goc goi — goi nay khong chua ban luat")
     if not (pkg_fl / "scripts/resolve-plugin.mjs").is_file():
-        errs.append("bo giai plugin vang trong goi feature-loop-codex")
+        errs.append("bo giai plugin vang trong goi feature-loop")
     # Con tro phai giai toi tan VAT, khong chi toi FILE: tu trong goi phai rut
     # duoc khoi bang tra ma ban vong lap goi ten.
     # KHONG boc trong `if law.is_file()`: nhanh tu-gac khong co duong do rieng,
@@ -2039,22 +2039,32 @@ def check(pkg_ag, pkg_fl):
         errs.append("con tro giai duoc file nhung khong co bang tra trong goi")
     return errs
 
-AG, FL = root / "plugins/acceptance-gate", root / "plugins/feature-loop-codex"
+# Hai goi Claude: acceptance-gate = goc repo (marketplace tro thang ./),
+# feature-loop = thu muc feature-loop/. Bat bien khong doi: goi nay khong duoc
+# ghep thang goc goi kia, phai di qua bo giai.
+AG, FL = root, root / "feature-loop"
 assert check(AG, FL) == [], check(AG, FL)                        # doi chung DUONG (goi that)
 tmp = Path(tempfile.mkdtemp())
 try:
     a2, f2 = tmp / "ag", tmp / "fl"
-    shutil.copytree(AG, a2); shutil.copytree(FL, f2)
+    # Ban sao do CODE sinh va CHI mang phan check() cham toi: AG nay la goc repo,
+    # copytree ca goc se cuon theo .git va toan bo kho.
+    for rel in IN_PKG + [REF]:
+        (a2 / rel).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(AG / rel, a2 / rel)
+    for rel in ("skills/feature-loop/SKILL.md", "scripts/resolve-plugin.mjs"):
+        (f2 / rel).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(FL / rel, f2 / rel)
     assert check(a2, f2) == [], f"ban sao goi NGUYEN VEN phai XANH truoc: {check(a2, f2)}"
     (a2 / REF).rename((a2 / REF).with_name("doi-cho.md"))
     e1 = check(a2, f2)
     assert any("tro file khong ton tai" in x for x in e1), \
         f"dot bien di chuyen ban luat trong goi khong do dung thong diep: {e1}"
-    shutil.rmtree(a2); shutil.copytree(AG, a2)
-    fl2 = f2 / "skills/feature-loop-codex/SKILL.md"
+    (a2 / REF).with_name("doi-cho.md").rename(a2 / REF)
+    fl2 = f2 / "skills/feature-loop/SKILL.md"
     orig = fl2.read_text(encoding="utf-8")
     fl2.write_text(orig.replace(
-        f"--plugin acceptance-gate --require {REF}", "${PLUGIN_ROOT}/" + REF),
+        f"--plugin acceptance-gate --require {REF}", "${CLAUDE_PLUGIN_ROOT}/" + REF),
         encoding="utf-8")
     lawp = a2 / REF
     lawt = lawp.read_text(encoding="utf-8")
@@ -2071,7 +2081,7 @@ try:
         f"dot bien ghep thang goc goi khong do dung thong diep: {e2}"
     # Nhanh THU HAI mot minh: GIU nguyen loi goi bo giai, chi THEM dang ghep
     # thang goc goi. Hai dieu kien dung chung thong diep thi case nay im lang.
-    fl2.write_text(orig + "\n${PLUGIN_ROOT}/" + REF + "\n", encoding="utf-8")
+    fl2.write_text(orig + "\n${CLAUDE_PLUGIN_ROOT}/" + REF + "\n", encoding="utf-8")
     e3 = check(a2, f2)
     assert any("ghep thang goc goi" in x for x in e3), \
         f"nhanh ghep-thang-goc-goi mot minh khong bi bat: {e3}"
@@ -4152,9 +4162,7 @@ from pathlib import Path
 root = Path(sys.argv[1])
 
 # Than lenh cong NAO bat repo tieu thu commit ban do?
-BODIES = ["commands/approve.md", "commands/signoff.md",
-          "codex/acceptance-gate/skills/approve/SKILL.md",
-          "codex/acceptance-gate/skills/signoff/SKILL.md"]
+BODIES = ["commands/approve.md", "commands/signoff.md"]
 bat_commit = [b for b in BODIES if "PRODUCT-MAP.md" in (root / b).read_text(encoding="utf-8")]
 assert bat_commit, "doi chung duong hong: khong than lenh nao nhac PRODUCT-MAP.md"
 
@@ -4164,8 +4172,7 @@ assert bat_commit, "doi chung duong hong: khong than lenh nao nhac PRODUCT-MAP.m
 #   (b) executor canh — ADR 0007 noi mien tru CHI an toan khi con cong doc lap.
 # Thieu mot trong hai la kit phat cho consumer mot cai bay ma chinh kit da
 # dam phai o S4-r4 va da ghi ADR de khoi ai dam lai.
-INITS = ["commands/acceptance-init.md",
-         "codex/acceptance-gate/skills/acceptance-init/SKILL.md"]
+INITS = ["commands/acceptance-init.md"]
 for rel in INITS:
     txt = (root / rel).read_text(encoding="utf-8")
     assert re.search(r'^\s*-\s*"PRODUCT-MAP\.md"\s*$', txt, re.M), \
@@ -4181,47 +4188,6 @@ assert not re.search(r'^\s*-\s*"PRODUCT-MAP\.md"\s*$', mut, re.M), "buoc tiem ch
 adr = (root / "docs/adr/0007-product-map-t1-exemption.md").read_text(encoding="utf-8")
 assert "--check" in adr, "ADR 0007 khong neu cong canh"
 
-# (c) Lenh ma khuon Codex PHAT ra phai CHAY DUOC — do QUAN HE, khong do chuoi.
-#     S4-r10: khuon phat `codex-plugin-runner.mjs ... product-map` trong khi
-#     action do khong co trong allowlist cua runner -> BLOCKED ngay lan chay
-#     dau, tuc consumer Codex nhan mien tru t1 MA KHONG co cong canh nao. Phep
-#     do cu chi assert chuoi `product_map:` co mat — dung bay "do tu vung thay
-#     vi quan he" ma chinh vong nay vua ghi memory.
-import subprocess as sp
-codex_init = (root / "codex/acceptance-gate/skills/acceptance-init/SKILL.md").read_text(encoding="utf-8")
-m = re.search(r'^\s*product_map:\s*"([^"]+)"', codex_init, re.M)
-assert m, "khuon Codex khong khai product_map"
-lenh = m.group(1).split()
-assert lenh[0] == "node", f"lenh la: {lenh}"
-runner = root / "codex/acceptance-gate/skills/acceptance-init/references/codex-plugin-runner.mjs"
-assert runner.is_file(), "khong tim thay codex-plugin-runner.mjs"
-#     DOI CHUNG DUONG truoc: mot action BIA phai bi tu choi DUNG thong diep va
-#     DUNG ma thoat. Khong co ve nay thi assert am-tinh ben duoi la xanh-rong —
-#     doi wording cua blocked(), hay lam runner chet truoc khi toi allowlist,
-#     deu cho "khong thay chuoi do" va phep do van xanh (mutation M2/M3 cua
-#     review S4-r10 da chung minh dung hai duong do).
-bia = sp.run(["node", str(runner), "acceptance-gate", "khong-he-ton-tai", "--root", "."],
-             cwd=root, capture_output=True, text=True)
-ba = (bia.stdout + bia.stderr)
-assert "unsupported plugin/action" in ba, \
-    f"doi chung duong hong: action BIA phai bi tu choi dung thong diep, duoc: {ba.strip()[:160]}"
-assert bia.returncode == 2, f"action bia phai exit 2, duoc {bia.returncode}"
-
-rc = sp.run(["node", str(runner)] + lenh[2:], cwd=root, capture_output=True, text=True)
-ra = (rc.stdout + rc.stderr)
-assert "unsupported plugin/action" not in ra, \
-    f"lenh khuon Codex PHAT ra bi runner tu choi: {ra.strip()[:120]} — consumer Codex se co mien tru ma khong co cong canh"
-
-# (d) Duong DOC-CU: MOI than cong co buoc regen deu phai co nhanh bo qua cho
-#     repo init truoc 1.31.0. CLAUDE.md: doi schema artifact phai co duong
-#     doc-cu, KHONG bat consumer migrate hang loat. Thieu nhanh nay thi moi
-#     repo cu ket merge ngay lan ky dau tien.
-#
-#     Danh sach than lay bang QUET, khong go tay: ban go tay cu liet 4 than va
-#     bo sot `skills/uat-session/SKILL.md` — chinh nghi thuc Cong Gia tri dung
-#     ra cai bay ma ADR 0007 viet ra de chan (S4-r13). Dinh nghia lop la "than
-#     nao RA LENH regen thi than do phai co duong doc-cu", nen than thu sau
-#     them sau nay tu dong bi do.
 #     Dau hieu cua THAN CONG (khac khuon init): no RA LENH ve lai ban do —
 #     `--root .` KHONG kem `--check`. Khuon acceptance-init cung nhac script
 #     nhung chi de phat mot dong config dang `--check`, no khong ky gi ca nen
@@ -4229,12 +4195,14 @@ assert "unsupported plugin/action" not in ra, \
 RE_REGEN = re.compile(r"product-map\.mjs --root \.(?!\s*--check)")
 THAN = sorted(
     p.relative_to(root).as_posix()
-    for d in ("commands", "codex", "skills")
+    for d in ("commands", "skills")
     for p in (root / d).rglob("*.md")
     if RE_REGEN.search(p.read_text(encoding="utf-8"))
 )
 # Bo dem tinh tao: 0 hit gan nhu luon la grep hong, khong phai "khong co than".
-assert len(THAN) >= 5, f"quet ra {len(THAN)} than cong co buoc regen — mong >=5, nghi buoc quet hong: {THAN}"
+# San dat theo hai than cong (approve/signoff) + nghi thuc nghiem thu; ha san
+# ma khong noi ly do la cach re nhat de "0 hit" doc thanh sach.
+assert len(THAN) >= 3, f"quet ra {len(THAN)} than cong co buoc regen — mong >=3, nghi buoc quet hong: {THAN}"
 for rel in THAN:
     body = (root / rel).read_text(encoding="utf-8")
     assert "t1_skip_globs" in body, f"{rel}: khong doc t1_skip_globs — khong co duong doc-cu"
@@ -7911,72 +7879,6 @@ with tempfile.TemporaryDirectory() as d:
 print('P177 MUTANT-OK (xoa muc do ghim ten muc; cay thieu file -> resolver fail ghim does-not-carry)')
 P177PY
 
-run "P178 [MBC] E5 round-trip make-record (writer duy nhat) + record may sinh tu 4 artifact" \
-  python3 - "$ROOT" <<'P178PY'
-import json, shutil, subprocess, sys, tempfile, pathlib
-root = pathlib.Path(sys.argv[1])
-WS = root/'_acceptance/measure-birth-certificate'
-EV = WS/'evidence'
-SKILLS = ['feature-loop/skills/feature-loop/SKILL.md',
-          'codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md']
-ARTIFACTS = ['hanh-vi-A1-claude-co.md', 'hanh-vi-A2-codex-co.md',
-             'hanh-vi-B1-claude-khong.md', 'hanh-vi-B2-codex-khong.md']
-GEN = ['chi-dan-claude-co-mbc.md', 'chi-dan-claude-khong-mbc.md',
-       'chi-dan-codex-co-mbc.md', 'chi-dan-codex-khong-mbc.md',
-       'de-bai.md', 'hanh-vi-record.json']
-# make-record la WRITER DUY NHAT cua record (S4-r1 hinh dang 2): moi tin hieu
-# may-doc suy tu artifact trong lan chay — suite KHONG giu ban sao scanner nao,
-# chi round-trip: chay lai writer trong ban sao roi diff voi evidence da commit.
-def run_makerecord(skill_texts, artifact_overrides=None):
-    d = pathlib.Path(tempfile.mkdtemp())
-    for rel, text in zip(SKILLS, skill_texts):
-        p = d/rel; p.parent.mkdir(parents=True, exist_ok=True); p.write_text(text)
-    ws = d/'_acceptance/measure-birth-certificate'
-    (ws/'evidence').mkdir(parents=True, exist_ok=True)
-    shutil.copy(WS/'make-record.mjs', ws/'make-record.mjs')
-    for a in ARTIFACTS:
-        text = (artifact_overrides or {}).get(a) or (EV/a).read_text()
-        (ws/'evidence'/a).write_text(text)
-    r = subprocess.run(['node', str(ws/'make-record.mjs')], capture_output=True, text=True)
-    return d, r
-# Phep so round-trip — MOT ham, dung cho ca DUONG lan mutant (S4-r2: mutant
-# phai chay CHINH phep do nay tren vat bi pha, khong so hai ban trong RAM).
-def diff_check(writer_dir, committed_dir):
-    return [g for g in GEN
-            if (writer_dir/'_acceptance/measure-birth-certificate/evidence'/g).read_text()
-               != (committed_dir/g).read_text()]
-# DUONG: round-trip nguon+artifact -> writer -> khop evidence da commit
-d, r = run_makerecord([(root/s).read_text() for s in SKILLS])
-assert r.returncode == 0, 'make-record fail tren nguon that: ' + r.stderr[:200]
-mism = diff_check(d, EV)
-assert not mism, f'evidence {mism} LECH writer hien tai — chay lai make-record.mjs va commit lai'
-record = json.loads((EV/'hanh-vi-record.json').read_text())
-assert [x['pair_per_mold'] for x in record['runs']] == [True, True, False, False], 'verdict 2/2-0/2 lech record'
-assert record['verdict']['completed'] == '4/4', 'record khai completed khac 4/4'
-print('P178 DUONG-OK')
-# MUTANT 1: SKILL doi chu trong khoi -> chi-dan sinh ra phai LECH evidence
-mut_texts = [(root/SKILLS[0]).read_text().replace('THÔNG ĐIỆP GHIM', 'THONG DIEP TUY Y'), (root/SKILLS[1]).read_text()]
-d2, r2 = run_makerecord(mut_texts)
-assert r2.returncode == 0, 'make-record fail tren mutant nguon (phai van sinh duoc): ' + r2.stderr[:200]
-diff_found = any(((d2/'_acceptance/measure-birth-certificate/evidence'/g).read_text() != (EV/g).read_text()) for g in GEN)
-assert diff_found, 'mutant doi nguon ma round-trip van khop — phep do khong gan vao nguon'
-# MUTANT 2: lam RONG khoi bash cua mot artifact -> writer NO TO ghim ten luot
-empty = (EV/'hanh-vi-A1-claude-co.md').read_text().split('```bash')[0] + '```bash\n```\n'
-d3, r3 = run_makerecord([(root/s).read_text() for s in SKILLS], {'hanh-vi-A1-claude-co.md': empty})
-assert r3.returncode == 2 and 'A1' in r3.stderr and 'RỖNG' in r3.stderr, \
-    f'mutant artifact rong: writer phai exit 2 ghim ten luot (exit={r3.returncode}, stderr={r3.stderr[:120]})'
-# MUTANT 3 (S4-r2 viet lai — ban cu so hai ban trong RAM la hang-dung): lat
-# verdict B1 trong BAN SAO evidence da commit roi chay CHINH diff_check tren
-# ban sao do — phep do that chay tren vat bi pha, ky vong vach dung record.
-d4 = pathlib.Path(tempfile.mkdtemp()); shutil.copytree(EV, d4/'evidence')
-rec3 = json.loads((d4/'evidence/hanh-vi-record.json').read_text())
-[x for x in rec3['runs'] if x['id'] == 'B1'][0]['pair_per_mold'] = True
-(d4/'evidence/hanh-vi-record.json').write_text(json.dumps(rec3, indent=2, ensure_ascii=False) + '\n')
-mism3 = diff_check(d, d4/'evidence')
-assert mism3 == ['hanh-vi-record.json'], \
-    'mutant lat verdict trong ban sao evidence khong bi round-trip vach ra: ' + repr(mism3)
-print('P178 MUTANT-OK (doi nguon lech round-trip, artifact rong writer exit 2 ghim ten luot, lat record trong ban sao bi diff_check vach dung hanh-vi-record.json)')
-P178PY
 
 run "P179 [MBC] E6 ledger known-limits: dem tu corpus + bat bien hang + quan he >=" \
   python3 - "$ROOT" <<'P179PY'
@@ -8705,7 +8607,7 @@ clause = m.group(1).strip()
 assert clause and "\n" not in clause, "clause phai la MOT dong khong rong"  # doi chung duong
 # PHAM VI SUY TU MAT PHANG (S4-r2) thay cho danh sach go tay: manifest chi khai
 # cac site NGUON (pham vi la quyet dinh nguoi); moi BAN DUNG duoi plugins/ va
-# moi overlay cung duoi-duong-dan duoi codex/ deu duoc SUY ra roi bi doi y het.
+# moi ban cung duoi-duong-dan deu duoc SUY ra roi bi doi y het.
 # Lo da dam: 4 ban Claude duoc sua, 2 overlay Codex thi khong — ma overlay GHI
 # DE ban Claude trong goi Codex, nen goi phat hanh moi cong khong chiu luat,
 # con phep do danh-sach-tay thi mu vinh vien voi cho do.
@@ -9407,7 +9309,7 @@ print("MUT-2: da go khuon voi-danh-tinh khoi ban sao " + v2)
 e2 = check_bodies(m2)
 assert ("site thieu khuon voi-danh-tinh: " + v2) in e2, "MUT-2 khong bi bat dich danh: " + repr(e2)
 print("     MUT-2 DO dich danh: site thieu khuon voi-danh-tinh: " + v2)
-# MUT-3 (E2): go needle --as khoi ban sao codex signoff
+# MUT-3 (E2): go needle --as khoi ban sao signoff
 m3 = dict(texts); v3 = "commands/signoff.md"
 m3[v3] = m3[v3].replace("--as", "--a_s")
 assert m3[v3] != texts[v3], "MUT-3 khong tac dung"
@@ -9431,7 +9333,7 @@ print("MUT-5: da doi human_signoff -> human_sign0ff trong ban sao " + v5)
 e5 = check_bodies(m5)
 assert any(x.startswith("than signoff thieu truong ghi: human_signoff") for x in e5), "MUT-5 khong bi bat: " + repr(e5)
 print("     MUT-5 DO dung: than signoff thieu truong ghi: human_signoff")
-# MUT-6 (E2 do-d): go phan nguon-suy khoi ban sao codex approve -> do dich danh
+# MUT-6 (E2 do-d): go phan nguon-suy khoi ban sao approve -> do dich danh
 # (khuon thieu xuat xu = sai-ten-am-tham tren may dung chung — yeu cau phien B)
 m6 = dict(texts); v6 = "commands/approve.md"
 m6[v6] = m6[v6].replace("(từ <nguồn suy>)", "")

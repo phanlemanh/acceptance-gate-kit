@@ -143,22 +143,22 @@ eval ĐỎ, không phải bỏ qua.
   xanh **và số ca khớp ĐẲNG THỨC khai trước**, không phải khớp một cái sàn:
   `scripts` **671 → 664** (gỡ 7 assert `DSC01–03` + `SG1–4` trong
   `tests/scripts/run-tests.sh:1390-1406` gọi thẳng script của design-loop) ·
-  `plugins` **173 → 146** · `hooks` **54 → 54** ·
+  `plugins` **173 → 145** · `hooks` **54 → 54** ·
   `workflows` **62 → 62**. Đỏ ghim "so ca lech ky vong: <truoc> -> <sau>".
   **Sàn `≥` không dùng được cho một suite bị chủ ý làm teo** — nó chỉ đúng cho
   suite không đụng tới; dùng sàn ở đây thì lúc S4 đỏ, đường thoát tự nhiên là
   hạ con số xuống mức vừa đo, và phép đo mất hẳn khả năng bắt gỡ-nhầm.
   **[SỬA SAU CỔNG 1 — 12/08, Phiên C] Con số `plugins` thay «173 trừ số ca của
-  P30» bằng `146`, khai TRƯỚC khi mổ.** Bản duyệt giả định thiệt hại gói gọn
+  P30» bằng `145`, khai TRƯỚC khi mổ.** Bản duyệt giả định thiệt hại gói gọn
   trong một ca; đo trên vật cho thấy **73 ca đỏ**, và chúng chia ba nhóm có
-  hệ quả số học khác nhau: **XOÁ HẲN — 25 ca** chỉ tồn tại vì Codex/mirror/
+  hệ quả số học khác nhau: **XOÁ HẲN — 26 ca** chỉ tồn tại vì Codex/mirror/
   design-loop; **TRIM hoặc TRỎ LẠI NGUỒN — phần còn lại**, giữ nguyên số dòng
   đo (gói Claude nay CHÍNH LÀ cây nguồn, nên câu hỏi «gói có ship đủ file
   không?» vẫn còn nghĩa, chỉ đổi chỗ hỏi). Cộng thêm **`P39` sinh 4 dòng đo**
   (2 tệp × 2 assert) và tệp Codex chết ⇒ mất 2 dòng. Vậy
-  `173 − 25 − 2 = 146`. **Xoá nhóm trỏ-lại-nguồn là cách rẻ nhất để suite xanh lại và cũng
+  `173 − 26 − 2 = 145`. **Xoá nhóm trỏ-lại-nguồn là cách rẻ nhất để suite xanh lại và cũng
   chính là «gỡ quá tay» mà đẳng thức này sinh ra để bắt** — nếu đo ra 127 thì
-  nhóm C đã bị xoá, không phải đẳng thức sai. Đo ra khác 146 ⇒ đi tìm ca gỡ
+  nhóm C đã bị xoá, không phải đẳng thức sai. Đo ra khác 145 ⇒ đi tìm ca gỡ
   nhầm/gỡ sót, KHÔNG sửa số. Baseline `173` là số **đo được** trên cây của mốc
   (173/173 xanh), không phải số chép từ bản duyệt.
 - AC-14: Given miễn trừ nhật-ký-phiên-bản của AC-4, When tiêm một tham chiếu

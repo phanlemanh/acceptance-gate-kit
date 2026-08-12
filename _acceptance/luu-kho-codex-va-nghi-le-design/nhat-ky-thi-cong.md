@@ -201,6 +201,30 @@ cắt cả cụm · các hằng số đếm sẽ vỡ: `P90` (`len(SITES)==8`, `
 · `P91` (`found/8`) · `P57` (`len(present)==2`) · `P80` (`len(texts)==3`) ·
 `P127` (`len(THAN)>=5`) · `P93` (`EXPECT_DIRS`).
 
+## ⚠ SỐ ĐO LỆCH THỨ SÁU — `P178` thành ca xoá thứ 26; kỳ vọng 146 → **145**
+
+*Ghi TRƯỚC khi chạy đo.* `P178` round-trip bộ sinh biên bản
+`_acceptance/measure-birth-certificate/make-record.mjs`. Script đó **ghim cứng**
+đường dẫn SKILL bên Codex (dòng 28) và bốn nhánh A1/A2/B1/B2 theo hai harness.
+
+Ba đường, đã cân:
+
+1. **Sửa `make-record.mjs`** → nhưng nó nằm trong `_acceptance/`, mà mục
+   *Out of scope* của chính hợp đồng này khai «hồ sơ `_acceptance/` cũ là sử
+   liệu bất biến». Nặng hơn: bỏ hai nhánh Codex làm đổi `hanh-vi-record.json`,
+   tức **phải sinh lại bằng chứng của một hồ sơ ĐÃ KÝ**. Viết lại bằng chứng đã
+   ký để một phép đo xanh là đúng thứ kit sinh ra để chặn.
+2. **Để nguyên** → `P178` đỏ vĩnh viễn, mà AC-11 đòi 4 suite xanh. Không tồn
+   tại trạng thái cây nào cho cả bộ xanh — cùng hình dạng mâu thuẫn AC-4↔AC-6
+   mà bản duyệt đã phải xử một lần.
+3. **Xoá `P178`** ← chọn đường này. Độ phủ mất là round-trip của một bộ sinh
+   phục vụ ĐÚNG một feature đã đóng; các vế còn lại của cùng lời hứa
+   (MEASURE-BIRTH-CLAUSE) vẫn có `P174`–`P177`, `P179`–`P182` canh.
+
+**Đẳng thức chốt: `173 − 26 − 2 = 145`.** Đã sửa AC-11 trước khi đo.
+**Cần owner/B veto nếu không đồng ý** — đây là chỗ duy nhất trong đợt này mà
+tôi chọn mất một mẩu độ phủ thay vì chạm vào sử liệu đã ký.
+
 ## TRẠNG THÁI BÀN GIAO (Phiên C, 12/08 — nối tiếp chính xác từ đây)
 
 **Đã xong ở lượt này:** bugfix khối thoát-sớm (`feab99b`) · sửa-sau-Cổng-1 có
