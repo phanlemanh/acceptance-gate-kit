@@ -381,3 +381,106 @@ liệu ("v1.7 adds design-loop-aware guards…"). Đó không phải con trỏ s
 lại changelog để lint xanh là xoá lịch sử để lấy màu — sai đổi. Đề nghị: miễn
 trừ mô-tả-phiên-bản trong `plugin.json`, kèm chân ĐỎ-NGOÀI-DANH-SÁCH như đã làm
 cho `ux-ui-craft`.
+
+## VÒNG SỬA 1 (13/08) — sáu mục của rà soát đối kháng, và bốn mục cố ý không sửa
+
+*Ghi bởi phiên chạy trên cloud, sau khi đọc `review-findings.md` (verdict
+REJECT) và bản bàn giao 13/08.*
+
+**Không tiêu chí nào bị nới.** Mọi thay đổi hoặc (a) chữa một khẳng định SAI,
+hoặc (b) dựng một cái lưới đã KHAI mà chưa tồn tại, hoặc (c) khai ra một lần
+sửa-sau-Cổng-1 trước đây chỉ nằm trong chú thích script. Ba hạng mục đầu là
+những thứ vòng 1 tuyên đã có mà thật ra chưa có.
+
+### Vấp thứ tám — phép đếm số ca ĐẦU TIÊN viết ra đã sai, và nó tự lộ
+
+Chân máy cho AC-11 (`so-ca.sh`) bản đầu cộng dồn MỌI dòng `Results:` cho cả ba
+suite có dòng đó. Suite `scripts` đếm ra **730** thay vì 664. Đi tìm nguyên nhân
+thay vì chỉnh số: nhiều ca của suite ấy **dựng runner con rồi CHẠY nó**, nên đầu
+ra có **bảy dòng `Results:` của FIXTURE** — kể cả một dòng `2 passed, 1 failed`
+cố ý đỏ — trộn lẫn với dòng tổng kết thật ở cuối. Cộng dồn ở đó là đọc đầu ra
+của đồ chơi thành số ca của bộ kiểm.
+
+Chữa theo LỚP chứ không vá một suite: phương pháp đếm ghim riêng cho từng suite
+và ghi thành bảng có chú thích —
+`plugins` = đếm dòng ca (suite này KHÔNG tự in tổng) ·
+`scripts`/`hooks` = dòng `Results:` CUỐI và nó phải nằm ở ĐUÔI log (fixture in ở
+giữa) · `workflows` = cộng ĐÚNG SÁU dòng (suite gồm sáu tệp; ghim số dòng để một
+tệp chết giữa chừng thì ĐỎ vì thiếu dòng, chứ không âm thầm cộng ra tổng nhỏ
+hơn — đúng chuyện đã xảy ra thật với `skill-claims`).
+
+Bài học cho lớp: **một suite in dòng tổng kết không có nghĩa dòng đó là của
+suite.** Trước khi tin một con số tổng, hỏi "ai in dòng này ra".
+
+### Số ca: đẳng thức GIỮ ĐƯỢC, và lần này do MÁY so
+
+| Bộ kiểm | Đo được | Đẳng thức khai trước |
+|---|---|---|
+| `plugins` | 145 ca, 145 xanh | `173 − 26 − 2` ✔ |
+| `workflows` | 463 ca, 463 xanh | `488 − 25` ✔ |
+| `scripts` | 664 ca, 664 xanh | `671 − 7` ✔ |
+| `hooks` | 54 ca, 54 xanh | `54 → 54` ✔ |
+
+Bản khai bốn con số nay sống ở **một chỗ máy đọc được** — khối `SO-CA-KY-VONG`
+trong `contract.md` — và `so-ca.sh` đọc chính khối đó, không giữ bản chép thứ
+hai. Bộ răng kiểm ngược: bốn dòng của khối phải khớp câu chữ của AC-11, và bốn
+eval phải thật sự trỏ vào bốn khoá so-ca (script không ai gọi là mã chết, không
+phải lưới).
+
+### ⚠ MÔI TRƯỜNG: chạy bằng root làm 2 ca ĐỎ oan — vật hay đường?
+
+Container của phiên này chạy bằng `root`, và `chmod 000` không chặn được root.
+Hai ca `P123`/`P129` **fail-closed đúng thiết kế** trong tình huống đó, và chúng
+nói thẳng lý do ("chay bang root?"). Đo lại dưới một user thường sở hữu cây:
+**145/145 xanh, exit 0.**
+
+Ghi vào đây vì đúng lớp đã học ở vấp thứ bảy — *"đỏ này do vật hay do đường?"*.
+Và vì nó cho thấy bộ đếm mới làm đúng việc: nó in
+«plugins đủ 145 ca nhưng 2 ca ĐỎ — đây là ca hỏng, KHÔNG phải số ca lệch»,
+tách hẳn khỏi câu «so ca lech ky vong». Gộp hai kiểu hỏng vào một câu thì một
+lỗi môi trường đọc y hệt một đợt gỡ quá tay.
+
+### Bằng chứng của một lượt ĐÃ KÝ nay là ghi-một-lần
+
+Hai tệp `chi-dan-claude-*` của hồ sơ `stop-patching-law` đã trả về **đúng byte**
+nội dung lúc ký. Bộ sinh nay không đụng vào nhánh đã có bằng chứng, và nói ra
+một dòng khi bỏ qua.
+
+Ca `P169` phải sửa theo, và chỗ sửa mới là điều đáng ghi: nó từng đòi hai tệp ấy
+**bằng y bản sinh lại từ SKILL.md HIỆN TẠI**. Đó là một bất biến SAI — bản ghi
+là sử liệu, còn SKILL.md thì đổi hợp lệ theo thời gian; buộc chúng bằng nhau
+nghĩa là mỗi lần SKILL.md đổi thì bằng chứng đã ký phải bị VIẾT LẠI cho phép đo
+xanh. Nay ca đó chia hai loại và đo bằng hai luật khác nhau: bản DẪN XUẤT
+round-trip như cũ; cặp sử liệu đo **quan hệ nội bộ** (bản-đã-xoá == bản-có trừ
+đúng khối mệnh đề, với mốc RÚT TỪ CHÍNH BỘ SINH), cộng một chiều đỏ chạy thật —
+gieo hai tệp bằng một chuỗi không SKILL.md nào sinh ra được, chạy lại bộ sinh,
+đòi chuỗi ấy SỐNG SÓT.
+
+### Sổ chạy nay do PHÉP ĐO sinh
+
+`ghi-so-chay.mjs`: append-only, mốc giờ và mã thoát đo tại chỗ, danh sách eval
+**suy từ `evals.yaml` + `config.yaml`** (một `cmd:` trỏ khoá đã chết thì script
+chết to thay vì ghi một dòng trông bình thường). Nhiều eval dùng chung một lệnh
+thì chia nhau MỘT `run_id` — đó là sự thật của một lượt chạy vật lý; bịa nhiều
+run_id cho một lượt là bịa ra nhiều phép đo. Vòng 1 có cả 19 dòng mang cùng một
+mốc giờ, tức mốc giờ là thứ được viết ra chứ không phải thứ được đo.
+
+### Mở rộng phạm vi — cần owner gạch ở Cổng 2
+
+**AC-16 (bump phiên bản + đường phát hành) là tiêu chí THÊM MỚI.** Nó không có
+trong bản duyệt Cổng 1. Lý do làm ngay thay vì để sau: sau merge, `design-loop`
+không còn entry nào nên bản đã cài trên máy đội treo lơ lửng và lệnh cập nhật
+không gỡ hộ được — đây là việc tay của người, và nó có hậu quả ngay ở lượt cài
+kế tiếp. Nếu owner bác: gỡ AC-16 + E16, ghi vào «Giới hạn đã biết» rằng đội phải
+được báo bằng đường khác.
+
+### Bốn mục CỐ Ý không sửa
+
+Đã ghi vào mục «Giới hạn đã biết» của trang bằng chứng kèm căn cứ: đây là răng
+**dùng một lần** cho một đợt lưu kho, chết theo hồ sơ khi merge — không phải
+lưới engine vĩnh viễn. Owner có thể gạt bất kỳ mục nào.
+
+### Luật dừng-vá đang có hiệu lực
+
+Vòng 2 mà vẫn sinh lỗi CÙNG LỚP với vòng 1 thì khuôn giải sai — DỪNG, trình
+owner ba đường, không tự phát vòng ba.

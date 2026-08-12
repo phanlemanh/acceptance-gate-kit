@@ -38,6 +38,15 @@ executors:
     # `truoc-luu-kho-2026-08` (bất biến) chứ không vào origin/main (còn di
     # chuyển). Cùng nếp không-vào-suite-vĩnh-viễn với hai script dưới.
     luu_kho_rang: "bash _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh"
+    # AC-11 là một ĐẲNG THỨC số ca, và bốn eval của nó hứa đỏ ghim
+    # "so ca lech ky vong: <truoc> -> <sau>". Bốn khoá dưới là chỗ lời hứa đó
+    # thành mã: mỗi khoá chạy ĐÚNG MỘT suite (không thêm lượt chạy nào so với
+    # trước) rồi đếm và so với bản khai máy-đọc trong contract.md. Chúng chết
+    # theo hồ sơ khi merge, cùng nếp không-vào-suite-vĩnh-viễn với luu_kho_rang.
+    luu_kho_so_ca_plugins: "bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite plugins"
+    luu_kho_so_ca_workflows: "bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite workflows"
+    luu_kho_so_ca_scripts: "bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite scripts"
+    luu_kho_so_ca_hooks: "bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite hooks"
     # Vật của MỘT hồ sơ (chip ③), so với base tường minh origin/main — cố ý
     # KHÔNG vào suite vĩnh viễn (PR tương lai đổi bên-viết hợp lệ sẽ đỏ oan).
     # Cùng nếp E7 no-vat-that-drift.sh của chip ②b.

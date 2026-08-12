@@ -95,6 +95,59 @@ eval ĐỎ, không phải bỏ qua.
   changelog cho lint xanh là **xoá lịch sử để lấy màu** — sai đổi, và trùng
   đúng lớp «hạ thước cho vừa vật». Miễn trừ giới hạn ở **trường `description`
   của đúng hai tệp đã nêu**, kèm chân ĐỎ-NGOÀI-DANH-SÁCH ở AC-14.
+  **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Mảng needle co từ 11 xuống 8, và lý do
+  phải nằm ở ĐÂY chứ không phải trong chú thích script.** Đây là lần sửa thứ
+  BẢY; rà soát đối kháng vòng 1 bắt được nó chỉ được giải thích trong comment
+  của `luu-kho-rang.sh` — đúng cái tội mà chính hồ sơ này đang đi tuần. Ba
+  needle bỏ, mỗi cái một lý do khác nhau:
+  · **`mirror_sync`** — khoá ấy sống trong `_acceptance/config.yaml`, mà
+  `_acceptance/` cố ý NGOÀI phạm vi quét. Để nó trong mảng thì đối chứng dương ở
+  mốc cho **0 hit**, và chính lưới này sẽ tuyên "needle chưa bao giờ tồn tại,
+  phép đo không sống" — đỏ vì thước chứ không vì vật. Nó KHÔNG mất lưới: AC-9 /
+  E10 đo nó bằng **trình đọc khoá YAML thật**, mạnh hơn grep văn bản.
+  · **`P30`** — chuỗi trần khớp luôn ca `P30 Claude decision commands` đang
+  SỐNG, tức needle bắt nhầm vật. Ca đã chết (`P30 plugins/ mirror`) được E10 đo
+  bằng một chân riêng ghim ĐÚNG tiêu đề ca đó.
+  · **`/design-push`** — đo trên cây của mốc cho 0 hit trong phạm vi sống: lệnh
+  đó chưa bao giờ được nhắc ở đây. Cùng lý do với `mirror_sync`.
+  Hai needle nữa đổi HÌNH DẠNG chứ không mất: `.agents` → `\.agents/` (dạng
+  đường dẫn — chuỗi trần khớp `t.agents` trong bộ đếm token của `wf-usage.mjs`)
+  và `plugins/` → `plugins/acceptance-gate` (neo vào gốc kho, xem đoạn trên).
+  **Ràng buộc thay thế, để việc co mảng không thành đường nới lỏng:** mỗi needle
+  còn lại PHẢI có đối chứng dương >0 ở mốc, và chân đỏ-ngoài-danh-sách
+  (AC-12) phủ **cả tám**, không phải một.
+  **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Miễn trừ là cặp `(tệp, từ khoá)`, không
+  phải `(tệp, *)` — và cặp thứ ba được khai ra.** Bản thi công neo miễn trừ theo
+  TIỀN TỐ TỆP, nên bốn tệp được che TRỌN cho cả tám needle trong khi hợp đồng
+  chỉ khai che `design-loop`. Rà soát vòng 1 tìm ra vật lọt thật: needle
+  `sync-plugin-packages` còn **1 hit sống** ở `.claude-plugin/plugin.json`, xanh
+  CHỈ NHỜ miễn trừ. Hit đó thuộc cùng dải nhật ký phiên bản (AC-14 chứng minh nó
+  nằm trong `description`) nên nó được GIỮ, nhưng phải khai thành một dòng riêng
+  chứ không nấp sau một tiền tố. Mỗi dòng miễn trừ nay kèm **số dòng mong đợi**,
+  kiểm hai chiều: khai thiếu → đỏ, khai thừa (dòng khai mà tệp không còn hit) →
+  cũng đỏ. Dòng miễn trừ cho `tests/plugins/asserts-da-go.txt` bị **gỡ**: `tests/`
+  vốn ngoài phạm vi quét nên nó chưa bao giờ với tới cái gì — một mục allowlist
+  trang trí. Sổ khai ấy do bánh cóc hai chiều của `P161`/E11 canh.
+  **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Phạm vi quét văn bản BỎ `tests/`, và
+  đây là lần sửa thứ TÁM — cũng chỉ được giải thích trong chú thích script cho
+  tới giờ.** Quan hệ nhân quả với lần sửa thứ bảy: cắt `tests/` khiến hai needle
+  cho 0 hit ở mốc nên phải bỏ chúng; hai lần sửa này là MỘT quyết định, không
+  phải hai. Lý do bỏ: trong `tests/`, "không còn con trỏ sống" được cưỡng chế
+  bằng thứ MẠNH HƠN GREP — đẳng thức số ca của AC-11 cộng bộ kiểm phải XANH; một
+  con trỏ sống sót trong bộ kiểm thì bộ kiểm ĐỎ, không cần grep mới biết. Cái mà grep còn
+  bắt được ở đó chỉ còn hai loại, và cả hai đều là sử liệu: chú thích ghi VÌ SAO
+  một vật bị lưu kho, và chuỗi fixture cố ý mang tên đường dẫn đã chết để chứng
+  minh luật không còn khớp nó nữa. **Đây là chỗ phải đọc kèm hoài nghi:** cắt
+  phạm vi là hình dạng điển hình của hạ-thước, và nó chỉ hợp lệ vì thứ thay thế
+  MẠNH HƠN chứ không phải vì rẻ hơn. Nếu đẳng thức số ca của AC-11 mà không có
+  chân máy thì lập luận này rỗng — đó chính là lý do vòng sửa 1 dựng `so-ca.sh`
+  cùng lượt, không tách ra để sau.
+  **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Thêm một vế cho AC-4: mục phạm vi
+  KHÔNG tồn tại trên cây thì lưới ĐỎ TRƯỚC khi in bất kỳ con số 0 nào.** Hàm
+  quét có `2>/dev/null` và `|| true`: gõ nhầm một mục phạm vi → `grep` im lặng →
+  lưới in `HEAD=0 … OK` cho cả tám needle và tuyên cây sạch trong khi nó chưa
+  quét gì. Đây là hình dạng «âm-tính-một-mình» ở cấp PHẠM VI thay vì cấp needle,
+  nên đối chứng dương ở mốc không bắt được (nó chạy bằng `git grep`, đường khác).
 - AC-12: Given danh sách miễn trừ của AC-4, When tiêm một tham chiếu
   `design-loop` MỚI vào một file khác trong `skills/ux-ui-craft/`, Then lưới
   vẫn ĐỎ và ghim đúng file vừa tiêm — miễn trừ chỉ che đúng một dòng đã khai,
@@ -154,6 +207,22 @@ eval ĐỎ, không phải bỏ qua.
   `tests/scripts/run-tests.sh:1390-1406` gọi thẳng script của design-loop) ·
   `plugins` **173 → 145** · `hooks` **54 → 54** ·
   `workflows` **488 → 463**. Đỏ ghim "so ca lech ky vong: <truoc> -> <sau>".
+  **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Bốn con số trên nay có MỘT bản
+  máy-đọc, và một script assert chúng.** Rà soát đối kháng vòng 1 chỉ ra thông
+  điệp đỏ đã hứa ở trên **không tồn tại trong bất kỳ mã nào**: cả bốn đẳng thức
+  đang do NGƯỜI đếm dòng `PASS:`, nên tiêu chí trung tâm của hồ sơ này là một
+  lời hứa chứ không phải một lưới. Không phải nới hay siết tiêu chí — là dựng
+  cái lưới đã khai. Bản khai máy-đọc nằm ngay dưới; `so-ca.sh` đọc CHÍNH khối
+  này (không giữ bản chép thứ hai) và đỏ đúng thông điệp trên.
+
+<!-- <<<SO-CA-KY-VONG -->
+| suite | truoc | sau |
+|---|---|---|
+| plugins | 173 | 145 |
+| workflows | 488 | 463 |
+| scripts | 671 | 664 |
+| hooks | 54 | 54 |
+<!-- SO-CA-KY-VONG>>> -->
   **[SỬA SAU CỔNG 1 — 12/08, Phiên C] Con số `workflows` đổi từ «62 → 62» sang
   «488 → 467», và đây là sửa một PHÉP ĐẾM SAI chứ không phải nới số.** Suite
   `workflows` gồm **sáu tệp**, mỗi tệp tự in dòng tổng kết riêng; `62` là số
@@ -208,6 +277,21 @@ eval ĐỎ, không phải bỏ qua.
   đo cái nó nói khi đầu vào bị cắt cụt — chữa phép đo là điều kiện cần để AC-11
   có nghĩa, và nếu không ghim thành tiêu chí thì lần nối ca kế tiếp lại chép
   khối ấy vào lần nữa.
+
+- AC-16: Given hai manifest `plugin.json`, When so với cây của mốc
+  `truoc-luu-kho-2026-08`, Then cả hai đã **bump ít nhất một nấc minor**, và
+  trang bằng chứng có mục «Đường phát hành» nói rõ đội phải làm gì sau merge.
+  **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Tiêu chí THÊM MỚI, mở rộng phạm vi so
+  với bản duyệt — cần owner gạch ở Cổng 2.** Lý do không để đến sau: sổ nhớ của
+  kho ghi đúng lớp lỗi này — **lệnh cập nhật bỏ qua khi số trùng mà nội dung
+  đổi** — và hồ sơ này gỡ ~194 tệp cộng một gói biến khỏi marketplace. Giữ
+  nguyên số là để đúng đợt đổi lớn nhất trượt qua đội im lặng. Nặng hơn: sau
+  merge, `design-loop` không còn entry nào nên bản đã cài trên máy đội **treo lơ
+  lửng** và `claude plugin update` không gỡ hộ được — đây là việc tay, phải nói
+  ra chứ không nằm trong changelog. Phép so neo vào mốc, KHÔNG ghim số cứng (số
+  cứng thì lần bump sau tiêu chí này đỏ oan).
+  Nếu owner bác: gỡ AC-16 + E16 và ghi vào «Giới hạn đã biết» rằng đội phải được
+  báo bằng đường khác.
 
 ## Coverage
 

@@ -110,10 +110,23 @@ evals:
       bộ eval xanh, hai cổng duyệt, CI đỏ sau merge. `.agents` vào mảng vì
       đường dẫn `.agents/plugins/marketplace.json` KHÔNG chứa chuỗi `codex`,
       nên needle theo tên thương hiệu mù với nó.
-      **MIỄN TRỪ đúng MỘT dòng, khai trước khi đo:**
-      `skills/ux-ui-craft/SKILL.md:289` ("a design-loop" — danh từ chung). Script
-      in "LUU-KHO-REF: mien tru 1/1 dong da khai OK" và ĐỎ nếu số dòng miễn trừ
-      khác 1 — allowlist phình ra là cách lưới fail-loud hoá fail-silent.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Mảng còn TÁM needle và phạm vi bỏ
+      `tests/`** — lý do đầy đủ (từng needle một) nay nằm trong AC-4 của
+      `contract.md`, không còn chỉ trong chú thích script. Dòng đếm là
+      "LUU-KHO-REF: 8/8".
+      **MIỄN TRỪ theo CẶP `(tệp, từ khoá)`, khai trước khi đo, mỗi cặp kèm số
+      dòng:** `skills/ux-ui-craft/SKILL.md × design-loop` (1) ·
+      `.claude-plugin/plugin.json × design-loop` (1) ·
+      `.claude-plugin/plugin.json × sync-plugin-packages` (1) ·
+      `feature-loop/.claude-plugin/plugin.json × design-loop` (1). Script in
+      "LUU-KHO-REF: mien tru 4/4 cap dung so dong da khai OK" và ĐỎ hai chiều —
+      khai thiếu, hoặc khai thừa (dòng khai mà tệp không còn hit). Bản trước neo
+      theo TIỀN TỐ TỆP nên che trọn bốn tệp cho cả tám needle: allowlist
+      fail-loud hoá fail-silent, và đã có vật lọt thật.
+      **Thêm một chân TRƯỚC mọi con số 0:** mỗi mục trong danh sách phạm vi phải
+      TỒN TẠI trên cây ("LUU-KHO-REF: 13/13 muc pham vi ton tai OK"). Không có
+      chân này thì một mục gõ sai làm `grep` im lặng và cả tám needle in
+      "HEAD=0 … OK" trong khi phép quét chưa quét gì.
       Hai chân bắt buộc mỗi needle: HEAD phải 0 VÀ tag phải >0 — needle nào tag=0 thì đỏ
       "LUU-KHO-REF: <needle> tag=0 — needle nay chua bao gio ton tai, phep do
       khong song" (lớp needle-đã-tồn-tại: một từ khoá gõ sai cho 0-hit hai đầu
@@ -204,13 +217,14 @@ evals:
 
   - id: E7
     criterion: AC-6
-    executor: test
-    cmd: config:executors.test.scripts
+    executor: script
+    cmd: config:executors.script.luu_kho_so_ca_scripts
     paths:
       - tests/design-eval
       - tests/skills
     expected: >
-      exit 0; stdout có tổng kết "Results: **664** passed, 0 failed" — ĐẲNG
+      exit 0; stdout có "LUU-KHO-SUITE: scripts 671 -> 664 OK" và dòng tổng kết
+      NGUYÊN VĂN của suite "Results: **664** passed, 0 failed" — ĐẲNG
       THỨC, không phải sàn. Suite `scripts` tại `daa9b3d` có **671** ca; hồ sơ
       này gỡ `design-loop/`, mà `tests/scripts/run-tests.sh:1390-1406` gọi
       THẲNG hai script của nó (`design-static-check.mjs`, `design-config-patch.mjs`)
@@ -221,6 +235,12 @@ evals:
       nhiên lúc đó là hạ sàn xuống con số vừa đo — sau khi hạ, phép đo mất hẳn
       khả năng bắt "gỡ nhầm một thư mục test", tức mất đúng lý do nó tồn tại.
       Sàn `≥` chỉ hợp lệ cho suite hồ sơ KHÔNG đụng tới (E13, E14).
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1]** `cmd` đổi từ
+      `config:executors.test.scripts` sang `config:executors.script.luu_kho_so_ca_scripts`.
+      Không nới cũng không siết: suite vẫn chạy đúng MỘT lượt như cũ, chỉ khác
+      là đầu ra nay đi qua `so-ca.sh` — thứ THẬT SỰ so con số với bản khai và
+      đỏ đúng thông điệp đã hứa ở dòng trên. Bản trước để `expected` mô tả một
+      phép so mà không mã nào làm, tức người đọc log phải tự đếm.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E8
@@ -336,10 +356,11 @@ evals:
 
   - id: E12
     criterion: AC-11
-    executor: test
-    cmd: config:executors.test.plugins
+    executor: script
+    cmd: config:executors.script.luu_kho_so_ca_plugins
     paths:
       - tests/plugins/run-tests.sh
+      - _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh
     expected: >
       exit 0; stdout có "Results: all plugin tests passed" VÀ số dòng `PASS:`
       đếm được **bằng đúng 145** — `145 = 173 − 26 − 2`: 26 ca xoá hẳn (chỉ tồn
@@ -354,24 +375,36 @@ evals:
       P30 phải ĐẾM TRÊN VẬT ở mốc rồi khai vào evidence trước khi gỡ, không ước
       lượng. Đây là chân chống gỡ-quá-tay, và cũng là chân chống suite-rỗng
       (một suite bị gỡ sạch case vẫn in "all tests passed" và trả 0).
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Thông điệp đỏ trên nay CÓ MÃ.**
+      Rà soát vòng 1: chuỗi "so ca lech ky vong" không tồn tại trong bất kỳ
+      script nào, nên 145 chỉ suy được bằng ĐẾM TAY và AC-11 — trụ cột chống
+      gỡ-quá-tay của cả hồ sơ — là phép đo do người đếm. `cmd` đổi sang
+      `config:executors.script.luu_kho_so_ca_plugins`: cùng một lượt chạy suite,
+      nhưng đầu ra đi qua `so-ca.sh`, đếm dòng `PASS:`+`FAIL:`, so với bản khai
+      máy-đọc trong khối `SO-CA-KY-VONG` của `contract.md` (một bản duy nhất,
+      không bản chép thứ hai), và tách HAI kiểu hỏng bằng hai câu khác nhau:
+      "so ca lech ky vong" (gỡ quá tay / gỡ sót) khác hẳn "$n ca DO" (ca hỏng).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E13
     criterion: AC-11
-    executor: test
-    cmd: config:executors.test.hooks
+    executor: script
+    cmd: config:executors.script.luu_kho_so_ca_hooks
     paths:
       - hooks
     expected: >
-      exit 0; "Results: 54 passed, 0 failed" — số 54 là baseline đo tại
+      exit 0; "LUU-KHO-SUITE: hooks 54 -> 54 OK" kèm dòng nguyên văn của suite
+      "Results: 54 passed, 0 failed" — số 54 là baseline đo tại
       `daa9b3d`. Hồ sơ này KHÔNG chạm `hooks/`, nên bất kỳ thay đổi số nào là
       tín hiệu gỡ lan sang lõi cưỡng chế (t3_paths). Ghim số, không ghim mã thoát.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1]** `cmd` đi qua `so-ca.sh` như E12 —
+      cùng lý do, cùng một lượt chạy suite.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E14
     criterion: AC-11
-    executor: test
-    cmd: config:executors.test.workflows
+    executor: script
+    cmd: config:executors.script.luu_kho_so_ca_workflows
     paths:
       - tests/workflows
     expected: >
@@ -383,6 +416,10 @@ evals:
       `463 = 488 − 25`: 25 ca chỉ đo được trên bản chỉ dẫn tiếng Anh của harness
       đã lưu kho — `skill-claims` 62→44, `measure-law-mutants` 33→26, bốn tệp
       còn lại không đổi. Kiểm TỪNG TỆP, không chỉ tổng.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1]** `cmd` đi qua `so-ca.sh` như E12.
+      Suite này in SÁU dòng `Results:` (mỗi tệp một dòng) nên `so-ca.sh` CỘNG cả
+      sáu thay vì đọc dòng cuối — chính lớp lỗi «đọc dòng tổng kết cuối cùng
+      thành tổng cả suite» đã làm bản duyệt ghi nhầm `62`.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E4c
@@ -421,4 +458,27 @@ evals:
       là 73. AC-11 là một ĐẲNG THỨC số ca nên nó không thể đo điều nó nói khi
       đầu vào bị cắt cụt; ghim thành tiêu chí để lần nối ca kế tiếp không chép
       lại khối ấy lần nữa.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E16
+    criterion: AC-16
+    executor: script
+    cmd: config:executors.script.luu_kho_rang
+    paths:
+      - .claude-plugin/plugin.json
+      - feature-loop/.claude-plugin/plugin.json
+      - _acceptance/luu-kho-codex-va-nghi-le-design/evidence-report.md
+      - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+    expected: >
+      exit 0; stdout có "LUU-KHO-BUMP: <manifest> <cũ> -> <mới> (bump >= minor)
+      OK" cho CẢ HAI manifest, "LUU-KHO-BUMP: 2/2 manifest da bump OK", và
+      "LUU-KHO-BUMP: trang bang chung co muc Duong phat hanh OK". Phép so neo
+      vào cây của mốc `truoc-luu-kho-2026-08` chứ KHÔNG ghim số cứng — ghim số
+      thì lần bump kế tiếp làm tiêu chí này đỏ oan, và đường thoát lúc đó là
+      sửa số trong eval, tức phép đo mất răng. So theo cặp `(major, minor)`:
+      một patch bump cho đợt gỡ ~194 tệp là nói dối bằng số.
+      Chiều đỏ CHẠY THẬT, hai đột biến hai mã lỗi khác nhau: (a) bản sao
+      manifest mang ĐÚNG số của mốc — tức "quên bump" — cho `chua-bump-minor`;
+      (b) bản hạ về `1.0.0` cho `tut-so`. Gộp hai mã thành một câu thì quên-bump
+      đọc y hệt tụt-số, và người sửa không biết phải làm gì.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

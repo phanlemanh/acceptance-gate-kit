@@ -1,32 +1,30 @@
 ---
 schema_version: 1
 slug: luu-kho-codex-va-nghi-le-design
-round: 1
-verdict: REJECT
-verified_commit: b82650af5ab0
+round: 2
+verdict: PENDING-REVIEW
+verified_commit: PENDING
 ---
 
 # Trang bằng chứng — lưu kho harness song sinh và nghi lễ design
 
-## Verdict: **REJECT** (vòng 1) — làn máy xanh, rà soát đối kháng ĐỎ
+## Verdict: **chờ rà soát đối kháng vòng 2**
 
-> **Đọc `review-findings.md` trước trang này.** Ba phiên chấm độc lập tìm ra:
-> nhiều chân đo trong hồ sơ này **không sống** (chiều đỏ hằng-đúng, đối chứng
-> dương chưa từng chạy, thông điệp xanh nói dối là đã có đối chứng), hai
-> **khẳng định SAI** nằm trong vật phát đi cho repo tiêu thụ, và hai lần
-> sửa-sau-Cổng-1 chưa khai. Làn máy 19/19 xanh vẫn đúng — nó xanh vì đo cái dễ
-> hơn cái đã hứa.
+> Vòng 1 bị **REJECT**. `review-findings.md` là đề bài của vòng sửa này; mục
+> «Vòng sửa 1 đã làm gì» dưới đây trả lời từng mục, kèm cả những mục **cố ý
+> không sửa** và lý do.
 
-Toàn bộ **19/19 phép đo máy XANH** và cả bốn đẳng thức số ca đều khớp con số
-khai trước. Rà soát đối kháng đã chạy và cho thấy **màu xanh đó không đủ**: một
-phần đáng kể các chân đo không phân biệt được cây lành với cây hỏng.
+Vòng 1 xanh 19/19 nhưng **xanh vì đo cái dễ hơn cái đã hứa**: nhiều chân đo có
+chiều đỏ hằng-đúng, đối chứng dương chưa từng chạy, thông điệp xanh nói dối là
+đã có đối chứng; hai **khẳng định SAI** nằm trong vật phát đi; và tiêu chí trung
+tâm (đẳng thức số ca) chưa có một dòng mã nào assert nó. Vòng sửa 1 không nới
+một tiêu chí nào — nó dựng những cái lưới đã khai mà chưa tồn tại.
 
 **Hội đồng ba giám khảo KHÔNG ÁP DỤNG cho hồ sơ này — không phải bỏ quên.**
 Hợp đồng có **0 phép đo loại phán-xét**: mọi lời hứa ở đây đều đo được bằng máy
 (vật còn hay mất, băm nội dung có khớp mốc không, số ca có đúng đẳng thức
 không). Hội đồng sinh ra để chấm những câu hỏi không có đáp án máy; ở đây không
-có câu nào như thế. Ghi thẳng ra để người đọc sau không tưởng là chặng ấy bị
-lược đi cho nhanh.
+có câu nào như thế.
 
 ## Số đo
 
@@ -37,11 +35,23 @@ lược đi cho nhanh.
 | Bộ kiểm script | **664/664 xanh** | `671 − 7` ✔ |
 | Bộ kiểm hook | **54/54 xanh** | `54 → 54` (không chạm) ✔ |
 | Bản đồ sản phẩm | khớp hồ sơ xưởng | — |
-| Bộ răng đo sự-vắng-mặt | 13 chân + 6 chiều-đỏ, xanh trọn | — |
+| Bộ răng đo sự-vắng-mặt | 16 nhóm chân, **10 chiều đỏ chạy thật** | — |
 
-Cả bốn đẳng thức đều là **đẳng thức**, không phải sàn: một bộ kiểm bị chủ ý làm
-teo mà đặt sàn `≥` thì lúc đỏ, đường thoát rẻ nhất là hạ sàn xuống mức vừa đo —
-và phép đo mất đúng lý do nó tồn tại.
+**Bốn đẳng thức nay do MÁY so, không do người đếm.** Đây là thay đổi nặng nhất
+của vòng sửa: `so-ca.sh` chạy từng bộ kiểm, đếm theo phương pháp ghim riêng cho
+từng bộ, và so với **bản khai máy-đọc trong chính `contract.md`** (khối
+`SO-CA-KY-VONG`) — một bản duy nhất, không bản chép thứ hai để trôi. Bốn eval
+E12/E7/E13/E14 trỏ vào nó, nên **không thêm một lượt chạy bộ kiểm nào** so với
+trước.
+
+Cả bốn vẫn là **đẳng thức**, không phải sàn: một bộ kiểm bị chủ ý làm teo mà đặt
+sàn `≥` thì lúc đỏ, đường thoát rẻ nhất là hạ sàn xuống mức vừa đo — và phép đo
+mất đúng lý do nó tồn tại.
+
+**Hai kiểu hỏng, hai câu khác nhau.** Bộ đếm tách «số ca lệch» (gỡ quá tay / gỡ
+sót — đi tìm ca, KHÔNG sửa số) khỏi «đủ số ca nhưng N ca ĐỎ» (ca hỏng). Gộp
+chúng thì một ca đỏ đọc y hệt một đợt gỡ quá tay, và người đọc log học cách phớt
+lờ cả hai — cùng bài học với chân phụ-thuộc-mạng ở vấp thứ bảy.
 
 ## Đường đảo
 
@@ -51,51 +61,94 @@ tổ-tiên không được chấp nhận: nó cho phép chèn commit khác vào 
 ghim đúng sha đó kèm điều kiện mở lại. Đây là chân duy nhất biện minh cho việc
 gỡ ~194 file, nên nó được đo bằng bốn vế riêng biệt.
 
-## Chiều đỏ — sửa lại theo rà soát
+Vòng sửa 1 chữa một lỗ ở chính chân này: phép kiểm «đã đẩy lên remote» trước đây
+tìm sha trong **cả khối trả về**, nên một mốc KHÁC trỏ cùng commit — chuyện
+thường khi ai đó gắn thêm nhãn phát hành — làm nó xanh trong khi mốc này chưa hề
+được đẩy. Nay phép so là quan hệ: sha NÀY phải nằm dưới ĐÚNG `refs/tags/<tên
+mốc>`, và chiều đỏ dựng đúng tình huống «cùng sha, ref khác» rồi đòi hàm so ĐỎ.
 
-Bản trước của trang này viết «Sáu chiều đỏ đã chạy thật» rồi liệt kê **tám**
-món. Rà soát đối kháng đếm lại: script in **chín** dòng đột-biến, số thật sự đi
-qua một hàm kiểm là **6–7**, và ít nhất hai món (`E5`, `E10`) **không chạy** —
-chúng chỉ in một câu ở thì tương lai («lưới trên *sẽ* ĐỎ»). Một chiều khác
-(`E10`) còn là hằng-đúng: nó `grep` tìm chính chuỗi vừa tự ghi ra, và chuỗi ấy
-vốn đã có sẵn trong một dòng chú thích.
+## Đường phát hành
 
-Danh sách chiều đỏ **thật sự** đi qua hàm kiểm, cùng những chỗ phải dựng lại,
-nằm ở mục B của `review-findings.md`.
+**Đội phải làm ba việc tay sau khi merge — `claude plugin update` không làm hộ
+được.**
 
-## Ngoài hợp đồng — việc của người quyết
+1. **Gỡ `design-loop` đã cài.** Sau merge, gói này không còn entry nào trong
+   marketplace, nên bản đã cài trên máy **treo lơ lửng**: lệnh cập nhật không
+   thấy nó để gỡ. Phải gỡ tường minh.
+2. **Cập nhật hai gói còn lại:** `acceptance-gate` 1.40.0 → **1.41.0**,
+   `feature-loop` 1.27.1 → **1.28.0**. Hai manifest đã bump ít nhất một nấc
+   minor, và đây không phải hình thức — sổ nhớ của kho ghi lớp lỗi **lệnh cập
+   nhật bỏ qua khi số trùng mà nội dung đổi**; giữ nguyên số là để đúng đợt đổi
+   lớn nhất trượt qua đội im lặng.
+3. **Ai đã wire `executors.design.*` trỏ vào script của làn nghi lễ cũ thì phải
+   trỏ lại.** `GUIDE.md` có mục «Wire `executors.design`» hướng dẫn wire tay.
 
-1. **Một mẩu độ phủ bị bỏ.** Một ca kiểm chạy bộ sinh nằm trong hồ sơ đã ký;
-   bộ sinh ấy ghim cứng bản chỉ dẫn của harness đã lưu kho. Ba đường đã cân, và
-   đường được chọn là **xoá ca đó** thay vì viết lại bằng chứng của một hồ sơ đã
-   có chữ ký. Lời hứa mà ca đó canh vẫn còn bảy ca khác canh.
-2. **Phạm vi quét văn bản không gồm thư mục kiểm.** Ở đó «không còn con trỏ
-   chết» được cưỡng chế bằng thứ mạnh hơn tìm-kiếm-chuỗi: bộ kiểm phải xanh và
-   số ca phải khớp. Lập luận đầy đủ nằm trong chính bộ răng.
-3. **Sửa-sau-Cổng-1: sáu lần ĐÃ khai, và rà soát tìm thêm HAI lần CHƯA khai.**
-   Sáu lần đã khai gồm ba lần chỉnh con số kỳ vọng (mỗi lần TRƯỚC một phép đo),
-   một lần thêm vật bị gỡ sót, hai lần sửa định nghĩa phép đo bắt nhầm vật.
-   Hai lần chưa khai — mảng từ khoá co từ 11 xuống 8, và phạm vi quét bỏ thư
-   mục kiểm — lý do chỉ nằm trong chú thích của script, đúng cái tội mà chính
-   hồ sơ này đang đi tuần. Xem mục C của `review-findings.md`.
+Phép đo của mục này neo vào MỐC chứ không ghim số cứng: ghim số thì lần bump kế
+tiếp làm tiêu chí đỏ oan, và đường thoát lúc đó là sửa số trong eval — tức phép
+đo mất răng.
+
+## Vòng sửa 1 đã làm gì
+
+| Mục rà soát | Đã làm |
+|---|---|
+| **A1** `layout-craft.md` khai một luật là máy-cưỡng-chế | Câu đó nay nói đúng sự thật: **không checker nào** cưỡng chế luật khoảng-cách; `design-gate.mjs` chạy bộ dò Impeccable trên bản dựng, là phép kiểm KHÁC và không đọc layout token. Luật là kỷ luật lúc viết, và cái máy duy nhất có thể cãi lại là **thước** — nó đo trang đã dựng và bắt khoảng cách rơi khỏi thang đã khai. Đây là skill **phát cho repo tiêu thụ** nên sai ở đây là sai ngoài kho. |
+| **A2** chú thích SAI trong bộ sinh của một hồ sơ ĐÃ KÝ | Hai tệp bằng chứng đã trả về **đúng byte** nội dung lúc ký. Bộ sinh nay **ghi-một-lần** cho nhánh đã có bằng chứng: đã có trên đĩa thì không đụng vào, và **nói ra** một dòng. Chú thích cũ khẳng định «nhánh còn lại sinh ra y nguyên byte» — câu đó SAI ngay lúc viết; nay nó ghi đúng vì sao bằng chứng của một lượt đã chạy là sử liệu. |
+| **B1/B2** chiều đỏ E10 hằng-đúng, thông điệp xanh nói dối | Chiều đỏ nay đi qua **chính trình đọc khoá**, kèm đối chứng dương (bản sao chưa tiêm phải cho ÂM). Năm chân của E10 nay kiểm **cả hai đầu** — vắng ở HEAD **và** có ở mốc — nên câu «có ở tag OK» là điều đã đo chứ không phải điều được in. |
+| **B3** chiều đỏ E5/E11b ở thì tương lai | Ba chiều đỏ từng chỉ in một câu («lưới trên *sẽ* ĐỎ») nay **chạy thật**: E5 đè mục «Làn design» của mốc lên bản sao rồi chạy lại chính hàm kiểm; ADR đổi một ký tự sha rồi chạy lại chính hàm kiểm; E10b chép đúng các dòng bất biến của mốc vào bản sao. Thêm chiều đỏ cho E11b (chưa từng có): tiêm lại một lượt đọc `.agents/` vào bản sao `start-scan.mjs` rồi đòi phép kiểm ĐỎ. |
+| **B5** miễn trừ che TRỌN TỆP cho cả 8 từ khoá | Miễn trừ nay là cặp `(tệp, từ khoá)` kèm **số dòng mong đợi**, kiểm hai chiều (khai thiếu → đỏ; khai thừa → cũng đỏ). Vật lọt thật được khai ra thành một dòng riêng thay vì nấp sau tiền tố tệp. Chân đỏ-ngoài-danh-sách nay phủ **8/8 từ khoá** và chạy qua **chính hàm quét**, tiêm vào tệp đang được miễn trừ cho từ khoá KHÁC — đúng cái lỗ mà miễn trừ-theo-tệp để lại. |
+| **B6** chân «mốc đã đẩy» đo từ vựng | Ghim `refs/tags/<tên mốc>`; chiều đỏ dựng khối «cùng sha, ref khác». |
+| **B9** chiều đỏ E2 thoả bằng `mkdir` | Bỏ `mkdir` sớm và hai lần nuốt lỗi; giải nén hỏng hoặc bản chép rỗng nay làm chiều đỏ ĐỎ, và số tệp chép được in ra. |
+| **B10** thông điệp ghim của E12/E7/E14 không tồn tại trong mã | `so-ca.sh` — xem mục «Số đo». |
+| **C1** hai lần sửa-sau-Cổng-1 chưa khai | Đã khai vào `contract.md` đúng khuôn sáu lần trước, **từng từ khoá một** kèm lý do riêng, và nêu thẳng ràng buộc thay thế để việc co mảng không thành đường nới lỏng. Lần cắt phạm vi `tests/` được khai kèm câu tự-hoài-nghi: nó chỉ hợp lệ vì thứ thay thế MẠNH HƠN, và thứ đó phải có chân máy — nên `so-ca.sh` dựng cùng lượt, không tách để sau. |
+| **E2** chưa bump, gói biến khỏi marketplace | Xem mục «Đường phát hành». Thêm AC-16 + E16 — **mở rộng phạm vi, cần owner gạch ở Cổng 2**. |
+| **B4** thêm (ngoài đề bài, rẻ) | Phạm vi quét nay được kiểm **tồn tại** trước khi tin bất kỳ con số 0 nào: một mục gõ sai từng làm `grep` im lặng và cả tám từ khoá in «HEAD=0 … OK» trong khi phép quét chưa quét gì. |
 
 ## Giới hạn đã biết
 
-- **Chạy lại nghiệm thu một hồ sơ cũ sẽ hỏng** ở những hồ sơ có phép đo trỏ
-  khoá cấu hình đã chết. Đã khai từ Cổng 1, không migrate hàng loạt.
+Bốn mục dưới đây **cố ý không sửa**. Căn cứ chung: đây là răng **dùng một lần**
+cho một đợt lưu kho, chết theo hồ sơ khi merge — không phải lưới engine vĩnh
+viễn. Chi phí siết chúng lớn hơn rủi ro chúng che, và bản neo nói *giờ-kit là
+chi phí, không phải tiến độ*. **Owner có thể gạt bất kỳ mục nào.**
+
+1. **Phép quét tham chiếu (E4) vẫn không có chiều đỏ đi qua đúng đường hàm quét
+   THẬT dùng để đọc phạm vi.** Chân đỏ-ngoài-danh-sách nay chạy qua chính hàm
+   quét (đã sửa ở vòng này), nhưng đối chứng dương ở mốc vẫn chạy bằng
+   `git grep` với một danh sách đường dẫn viết riêng — hai danh sách có thể trôi
+   khỏi nhau. Đã hạ rủi ro bằng chân kiểm-phạm-vi-tồn-tại; phần còn lại để mở.
+2. **E15 canh khối thoát-sớm bằng một hình dạng thụt lề duy nhất.** Khối
+   nuốt-ca quay lại dưới dạng `    exit 1`, `exit "$failures"` hay `return 1`
+   thì lưới mù — đúng lớp lỗi nó sinh ra để chặn.
+3. **Bánh cóc chống hạ-thước chỉ đếm dòng Python `assert `**, mù với `grep -q`,
+   `fail`, `die` của 26 ca đã xoá. Nên «105 dòng đã khai» là bản kiểm kê phần
+   Python của đợt gỡ, không phải của cả đợt.
+4. **Mất một mẩu độ phủ ở cụm MBC** (`P178` bị xoá thay vì trim), và bộ sinh của
+   workspace ấy còn một con trỏ chết không ai canh. Ba đường đã cân ở nhật ký
+   thi công; đường được chọn là mất một mẩu độ phủ thay vì **viết lại bằng chứng
+   của một hồ sơ đã ký**.
+
+Hai giới hạn đã khai từ trước, giữ nguyên:
+
+- **Chạy lại nghiệm thu một hồ sơ cũ sẽ hỏng** ở những hồ sơ có phép đo trỏ khoá
+  cấu hình đã chết. Đã khai từ Cổng 1, không migrate hàng loạt.
 - **Một chân đo phụ thuộc mạng.** Chân «mốc đã lên remote» hỏi remote thật; hết
   ba lượt không hỏi được thì vẫn đỏ (không chứng minh được là đã đẩy thì không
-  coi như đã đẩy) nhưng ghim rõ đó là lỗi đường truyền.
+  coi như đã đẩy) nhưng ghim rõ đó là lỗi đường truyền, không phải lỗi hồ sơ.
 - **Bộ kiểm gói mất chiều đo hai-bản-chép.** Không còn bản dựng nào để so, nên
   luật «mọi bản chép phải khớp nguồn từng ký tự» thu về luật «đếm nguồn so với
-  số khai trong bản luật, đúng hai hướng» — vốn là chân mạnh hơn.
+  số khai trong bản luật, đúng hai hướng».
+
+## Xung đột với hồ sơ anh em
+
+`AC-11` của hồ sơ `cat-hinh-thuc` đòi một script mà hồ sơ này đã xoá — **tiêu
+chí đó chết khi hồ sơ này merge.** Bên nào merge sau phải rebase và bỏ tiêu chí
+đó. Ghi ở đây (chứ không chỉ trong Notes của hợp đồng) vì **người ký đọc trang
+bằng chứng**.
 
 ## Việc còn lại trước khi mời ký
 
-Vòng sửa 1: chữa hai **khẳng định sai trong vật phát đi** (mục A) trước tiên —
-đó là thứ duy nhất đã rời khỏi kho và tới tay người đọc khác. Rồi dựng lại các
-chân đo không sống (mục B), khai hai lần sửa-sau-cổng còn thiếu (mục C), và
-quyết bốn mục ngoài-hợp-đồng (mục E) — trong đó **bump phiên bản** là mục có
-hậu quả ngay với đội đang cài.
+**Rà soát đối kháng vòng 2**: ba phiên sạch, ba lăng kính (phép đo · gỡ-quá-tay
+· hợp đồng-đối-vật). Người sửa KHÔNG chấm bản sửa của mình.
 
-Sau khi sửa: chạy lại trọn bốn bộ kiểm + bộ răng, rồi rà soát đối kháng vòng 2.
+**Luật dừng-vá đang có hiệu lực:** nếu vòng 2 vẫn sinh lỗi CÙNG LỚP với vòng 1
+thì khuôn giải sai — DỪNG, trình owner ba đường (đổi hình · thu phạm vi · ship
+kèm known-limits), không tự phát vòng ba.

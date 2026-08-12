@@ -7263,10 +7263,10 @@ if errs:
 print(f'P168 OK ({ran} ca đột biến chạy được / {expected_n} bảng khai + 2 đối chứng dời-khối)')
 P168PY
 
-echo "P169 (AC-6) bien ban cham hanh vi phai do CODE SINH, khong viet tay"
-run "P169 dau vao cham hanh vi: sinh trong BAN SAO, khong dung cay that" \
+echo "P169 (AC-6) bien ban cham hanh vi phai do CODE SINH; ban ghi DA KY thi ghi-mot-lan"
+run "P169 dau vao cham hanh vi: sinh trong BAN SAO, ban ghi da ky khong bi sinh de" \
   python3 - "$ROOT" <<'P169PY'
-import shutil, subprocess, sys, tempfile
+import re, shutil, subprocess, sys, tempfile
 from pathlib import Path
 
 # S4-r1 sua theo LOP: ban truoc chay bo sinh THANG tren cay lam viec, nen
@@ -7274,23 +7274,52 @@ from pathlib import Path
 #       xanh, mot lan retry trong CI bien DO thanh XANH;
 #   (b) no ghi de ho so evidence DA KY cua feature khac de lam doi chung.
 # Nay: dung mot ROOT tam, sinh o do, so voi cay that. Cay that KHONG bi cham.
+#
+# Vong sua 1 cua ho so luu-kho (2026-08-13) sua tiep MOT LOP KHAC: ban truoc doi
+# hai tep `chi-dan-*` phai bang y het ban sinh lai tu SKILL.md HIEN TAI. Do la
+# mot bat bien SAI — hai tep do la ban ghi CHI DAN THAT DA DUA CHO AGENT trong
+# mot luot da ky, con SKILL.md thi doi hop le theo thoi gian. Buoc chung bang
+# nhau nghia la moi lan SKILL.md doi thi bang chung da ky phai bi VIET LAI cho
+# phep do xanh — dung thu kit sinh ra de chan (da xay ra that: +11/-12 dong moi
+# tep). Nay chia lam hai loai va do bang hai luat khac nhau:
+#   · DERIVED  (`bien-ban-vong-2.md`) — dan xuat tu ho so nguon: round-trip nhu cu.
+#   · FROZEN   (`chi-dan-claude-*`)  — su lieu ghi-mot-lan: do QUAN HE noi bo
+#     (ban DA XOA == ban CO tru dung khoi menh de) voi moc RUT TU CHINH BO SINH,
+#     cong mot chieu do that: bo sinh chay tren cay da co hai tep do KHONG duoc
+#     dung vao chung.
 
 ROOT = Path(sys.argv[1])
 SLUG = '_acceptance/stop-patching-law'
 EV = ROOT / SLUG / 'evidence'
 SRC_REPORT = '_acceptance/card-text-fidelity/evidence-report.md'
+GEN_REL = SLUG + '/make-record.mjs'
 NEEDED = [
-    SLUG + '/make-record.mjs',
+    GEN_REL,
     SRC_REPORT,
     'feature-loop/skills/feature-loop/SKILL.md',
 ]
-GENERATED = ['bien-ban-vong-2.md'] + [
-    f'chi-dan-{h}-{a}-menh-de.md' for h in ('claude',) for a in ('co', 'khong')]
-MARK_OPEN = '<!-- <<<STOP-PATCHING-CLAUSE -->'
+DERIVED = ['bien-ban-vong-2.md']
+FROZEN = [f'chi-dan-{h}-{a}-menh-de.md' for h in ('claude',) for a in ('co', 'khong')]
+ALL = DERIVED + FROZEN
 errs = []
 
+# Moc menh de RUT TU CHINH BO SINH (writer), khong go lai o day (reader) — seam
+# LLM/may viet -> may doc phai co MOT cho dat khuon, khong hai ban chep.
+gen_src = (ROOT / GEN_REL).read_text()
+
+
+def const_of(name):
+    m = re.search(r"const %s = '([^']*)';" % name, gen_src)
+    return m.group(1) if m else None
+
+
+MARK_OPEN, MARK_CLOSE = const_of('OPEN'), const_of('CLOSE')
+if not MARK_OPEN or not MARK_CLOSE:
+    errs.append('không rút được mốc mệnh đề từ make-record.mjs — reader tự dựng khuôn '
+                'là fixture viết tay, hai bên sẽ trôi khỏi nhau')
+
 live = {}
-for f in GENERATED:
+for f in ALL:
     q = EV / f
     if not q.exists():
         errs.append(f'thiếu đầu vào cho phép chấm hành vi: {f}')
@@ -7298,8 +7327,8 @@ for f in GENERATED:
         live[f] = q.read_text()
 
 
-def build(mutate_report=None):
-    """Dung mot ROOT tam du file, chay bo sinh o do, tra {ten: noi dung}."""
+def build(mutate_report=None, seed=None):
+    """Dung mot ROOT tam du file, chay bo sinh o do, tra (proc, {ten: noi dung})."""
     tmp = Path(tempfile.mkdtemp())
     try:
         for rel in NEEDED:
@@ -7309,10 +7338,14 @@ def build(mutate_report=None):
             if rel == SRC_REPORT and mutate_report:
                 text = mutate_report(text)
             dst.write_text(text)
+        out = tmp / SLUG / 'evidence'
+        if seed:
+            out.mkdir(parents=True, exist_ok=True)
+            for name, text in seed.items():
+                (out / name).write_text(text)
         r = subprocess.run(['node', str(tmp / SLUG / 'make-record.mjs')],
                            capture_output=True, text=True)
-        out = tmp / SLUG / 'evidence'
-        got = {f: (out / f).read_text() for f in GENERATED if (out / f).exists()}
+        got = {f: (out / f).read_text() for f in ALL if (out / f).exists()}
         return r, got
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
@@ -7323,10 +7356,13 @@ if not errs:
     if r.returncode != 0:
         errs.append(f'bộ sinh exit {r.returncode}: {r.stderr.strip()[:200]}')
     else:
-        missing = [f for f in GENERATED if f not in got]
+        # Cay tam KHONG co san evidence => bo sinh phai tao ra ĐỦ CA BA. Chan nay
+        # la doi chung duong cho nhanh ghi-mot-lan: thieu no thi "khong sinh de"
+        # khong phan biet duoc voi "khong bao gio sinh noi".
+        missing = [f for f in ALL if f not in got]
         if missing:
             errs.append(f'bộ sinh KHÔNG tạo ra: {missing}')
-        drift = [f for f in GENERATED if f in got and got[f] != live[f]]
+        drift = [f for f in DERIVED if f in got and got[f] != live.get(f)]
         if drift:
             errs.append(f'đầu vào trên đĩa KHÁC bản sinh lại {drift} — có bàn tay người sửa fixture')
 
@@ -7336,13 +7372,35 @@ if not errs:
     if r2.returncode != 0 or 'DAU-VET-DOI-CHUNG' not in got2.get('bien-ban-vong-2.md', ''):
         errs.append('đối chứng dương: đổi hồ sơ nguồn mà biên bản KHÔNG đổi theo — bộ sinh không đọc nguồn')
 
-# Hai nhanh phai KHAC nhau, neu khong doi chung am vo nghia
-for h in ('claude',):
-    co, khong = f'chi-dan-{h}-co-menh-de.md', f'chi-dan-{h}-khong-menh-de.md'
-    if co in live and MARK_OPEN not in live[co]:
-        errs.append(f'[{h}] nhánh CÓ mệnh đề lại KHÔNG chứa mốc')
-    if khong in live and MARK_OPEN in live[khong]:
-        errs.append(f'[{h}] nhánh ĐÃ XOÁ mệnh đề vẫn còn mốc — hai nhánh không khác nhau')
+# CHIEU DO CHAY THAT cho luat ghi-mot-lan: gieo hai tep FROZEN bang mot chuoi
+# khong the sinh ra tu bat ky SKILL.md nao, chay lai bo sinh, doi chung SONG SOT.
+if not errs:
+    SENTINEL = 'SU-LIEU-DA-KY-KHONG-DUOC-SINH-DE\n'
+    r3, got3 = build(seed={f: SENTINEL for f in FROZEN})
+    overwritten = [f for f in FROZEN if got3.get(f) != SENTINEL]
+    if overwritten:
+        errs.append(f'bộ sinh GHI ĐÈ bản ghi đã ký {overwritten} — bằng chứng của một lượt '
+                    f'đã chạy bị viết lại theo cây hiện tại')
+    if 'GIỮ NGUYÊN' not in r3.stderr:
+        errs.append('bộ sinh bỏ qua nhánh đã ký mà KHÔNG NÓI RA — cắt im lặng đọc y hệt "đã sinh đủ"')
+    if got3.get('bien-ban-vong-2.md') != live.get('bien-ban-vong-2.md'):
+        errs.append('luật ghi-một-lần lan sang cả bản DẪN XUẤT — biên bản phải vẫn sinh lại mỗi lượt')
+
+# Quan he noi bo cua cap FROZEN: ban DA XOA == ban CO tru dung khoi menh de.
+# Day moi la round-trip that cua cap nay — no khong phu thuoc SKILL.md hien tai.
+if not errs:
+    co, khong = FROZEN[0], FROZEN[1]
+    t = live[co]
+    i, j = t.find(MARK_OPEN), t.find(MARK_CLOSE)
+    if i < 0 or j < 0:
+        errs.append('nhánh CÓ mệnh đề lại KHÔNG chứa mốc')
+    else:
+        stripped = t[:i] + t[j + len(MARK_CLOSE):]
+        if stripped != live[khong]:
+            errs.append('nhánh ĐÃ XOÁ mệnh đề KHÔNG bằng nhánh CÓ trừ đúng khối mệnh đề — '
+                        'hai bản khác nhau ở chỗ khác, đối chứng âm không còn cô lập được mệnh đề')
+    if MARK_OPEN in live[khong]:
+        errs.append('nhánh ĐÃ XOÁ mệnh đề vẫn còn mốc — hai nhánh không khác nhau')
 
 # Cay that phai NGUYEN VEN sau khi phep do chay xong
 for f, before in live.items():
@@ -7353,7 +7411,7 @@ if (ROOT / SRC_REPORT).read_text().find('DAU-VET-DOI-CHUNG') >= 0:
 
 if errs:
     print('\n'.join('  ' + x for x in errs)); sys.exit(1)
-print('P169 OK (sinh trong bản sao, so với cây thật; cây thật không bị chạm)')
+print('P169 OK (dẫn xuất round-trip; bản ghi đã ký ghi-một-lần, chiều đỏ chạy thật)')
 P169PY
 
 echo "P170 (AC-6) doi chung hanh vi: cau tra loi CO menh de phai TRICH duoc menh de, ban DA XOA thi khong"
