@@ -2459,7 +2459,7 @@ console.log(`P99 OK (2 chieu: marker ⊆ dau ra + dau ra ⊆ marker, ${produced.
 JS
 
 # ── P100: con tro cua /start giai duoc TRONG GOI moi harness (E14, ho P95) ──
-run "P100 con tro /start giai duoc trong goi Claude (repo root) + goi Codex (E14)" \
+run "P100 con tro /start giai duoc trong goi Claude (repo root) (E14)" \
   python3 - "$ROOT" <<'PY'
 import re, shutil, sys, tempfile
 from pathlib import Path
@@ -2484,49 +2484,29 @@ def check_claude(pkg):
             errs.append(f"con tro {ref} tro file khong ton tai trong goi Claude")
     return errs
 
-def check_codex(pkg):
-    errs = []
-    sk = pkg / "skills/start/SKILL.md"
-    if not sk.is_file():
-        return [f"goi codex thieu {sk}"]
-    t = sk.read_text(encoding="utf-8")
-    if "${PLUGIN_ROOT}/" + SCAN not in t:
-        errs.append("SKILL start: khong rut duoc con tro bo quet qua goc goi")
-    elif not (pkg / SCAN).is_file():
-        errs.append(f"con tro {SCAN} tro file khong ton tai trong goi codex")
-    if "${PLUGIN_ROOT}/" + LAW not in t:
-        errs.append("SKILL start: khong rut duoc con tro ban luat qua goc goi")
-    elif not (pkg / LAW).is_file():
-        errs.append(f"con tro {LAW} tro file khong ton tai trong goi codex")
-    if "${PLUGIN_ROOT}/" + OPP not in t:
-        errs.append("SKILL start: khong rut duoc con tro khuon grill qua goc goi")
-    elif not (pkg / OPP).is_file():
-        errs.append(f"con tro {OPP} tro file khong ton tai trong goi codex")
-    return errs
-
-PKG = root / "plugins/acceptance-gate"
+PKG_FILES = ["commands/start.md", SCAN, LAW, OPP]
 assert check_claude(root) == [], check_claude(root)      # doi chung DUONG goi Claude
-assert check_codex(PKG) == [], check_codex(PKG)          # doi chung DUONG goi Codex
 tmp = Path(tempfile.mkdtemp())
 try:
     c2 = tmp / "ag"
-    shutil.copytree(PKG, c2)
-    assert check_codex(c2) == [], f"ban sao goi NGUYEN VEN phai XANH truoc: {check_codex(c2)}"
+    for rel in PKG_FILES:            # ban sao do CODE sinh trong chinh lan chay
+        (c2 / rel).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(root / rel, c2 / rel)
+    assert check_claude(c2) == [], f"ban sao goi NGUYEN VEN phai XANH truoc: {check_claude(c2)}"
     (c2 / SCAN).rename(c2 / "scripts/doi-cho.mjs")       # dot bien 1: bo quet bien mat
-    e1 = check_codex(c2)
-    assert any("tro file khong ton tai" in x for x in e1), \
+    e1 = check_claude(c2)
+    assert any(SCAN in x and "tro file khong ton tai" in x for x in e1), \
         f"dot bien doi cho bo quet khong do dung thong diep: {e1}"
     (c2 / "scripts/doi-cho.mjs").rename(c2 / SCAN)
-    sk = c2 / "skills/start/SKILL.md"
-    sk.write_text(sk.read_text(encoding="utf-8").replace("${PLUGIN_ROOT}/" + LAW, "(da xoa)"),
+    sk = c2 / "commands/start.md"
+    sk.write_text(sk.read_text(encoding="utf-8").replace(LAW, "(da xoa)"),
                   encoding="utf-8")                       # dot bien 2: mat con tro ban luat
-    e2 = check_codex(c2)
-    assert any("khong rut duoc con tro ban luat" in x for x in e2), \
+    e2 = check_claude(c2)
+    assert any("khong rut duoc con tro " + LAW in x for x in e2), \
         f"dot bien xoa con tro ban luat khong do dung thong diep: {e2}"
-    sk.write_text(sk.read_text(encoding="utf-8").replace("(da xoa)", "${PLUGIN_ROOT}/" + LAW),
-                  encoding="utf-8")
+    sk.write_text(sk.read_text(encoding="utf-8").replace("(da xoa)", LAW), encoding="utf-8")
     (c2 / OPP).rename(c2 / "skills/acceptance/references/doi-cho.md")  # dot bien 3: khuon grill bien mat
-    e3 = check_codex(c2)
+    e3 = check_claude(c2)
     assert any(OPP in x and "tro file khong ton tai" in x for x in e3), \
         f"dot bien doi cho khuon grill khong do dung thong diep: {e3}"
     (c2 / "skills/acceptance/references/doi-cho.md").rename(c2 / OPP)
@@ -9453,14 +9433,11 @@ FIELDS = {
     "approve": ["approved_by", "approved_at", "time_human_minutes.gate1"],
     "signoff": ["human_override", "human_signoff", "status: signed-off", "time_human_minutes.gate2"],
 }
-# Luat DOC-khong-bi-chan + nhanh CAN phai co trong CA HAI harness — cau chu
-# khac nhau (than Claude tieng Viet, SKILL Codex tieng Anh) nen needle theo
-# harness. Hai needle mot luat: doc-khong-bi-chan (lo hoi dong bat) va nhanh
-# can (lo "bac thang het nac thi lam gi" — file cu khong noi).
+# Luat DOC-khong-bi-chan + nhanh CAN phai co trong than lenh. Hai needle mot
+# luat: doc-khong-bi-chan (lo hoi dong bat) va nhanh can (lo "bac thang het nac
+# thi lam gi" — file cu khong noi).
 CROSSCHECK = {"commands/": ["không điều kiện nào chặn việc đọc", "**CẠN**", "**CHỌN**",
-                            "không có trong `signoff.approvers`"],
-              "codex/": ["nothing gates the reading", "**EXHAUSTED**", "**PICK**",
-                         "not in `signoff.approvers`"]}
+                            "không có trong `signoff.approvers`"]}
 # Neo AM per-site: cau hoi cu KHONG duoc quay lai trong bat ky than lenh nao.
 BODY_AM = [("hoi-phut-quay-lai", "how many minutes"),
            ("hoi-phut-viet", "Ask how many minutes"),
@@ -9518,7 +9495,7 @@ def check_bodies(mapping):
     # day buoc Cong 1 — no van hoi phut trong khi 6 lenh da thoi (bat boi
     # baseline 2 chieu, S4-r3). Ca init la NGOAI pham vi va khac nghia
     # (baseline_minutes cua repo, khong phai phut cua mot cong) — khong dinh.
-    for rel in ("skills/acceptance/SKILL.md", "codex/acceptance-gate/skills/acceptance/SKILL.md"):
+    for rel in ("skills/acceptance/SKILL.md",):
         p = root / rel
         if not p.is_file():
             errs.append("thieu file duong-khac: " + rel)
@@ -9550,7 +9527,7 @@ e2 = check_bodies(m2)
 assert ("site thieu khuon voi-danh-tinh: " + v2) in e2, "MUT-2 khong bi bat dich danh: " + repr(e2)
 print("     MUT-2 DO dich danh: site thieu khuon voi-danh-tinh: " + v2)
 # MUT-3 (E2): go needle --as khoi ban sao codex signoff
-m3 = dict(texts); v3 = "codex/acceptance-gate/skills/signoff/SKILL.md"
+m3 = dict(texts); v3 = "commands/signoff.md"
 m3[v3] = m3[v3].replace("--as", "--a_s")
 assert m3[v3] != texts[v3], "MUT-3 khong tac dung"
 print("MUT-3: da go needle --as khoi ban sao " + v3)
@@ -9575,7 +9552,7 @@ assert any(x.startswith("than signoff thieu truong ghi: human_signoff") for x in
 print("     MUT-5 DO dung: than signoff thieu truong ghi: human_signoff")
 # MUT-6 (E2 do-d): go phan nguon-suy khoi ban sao codex approve -> do dich danh
 # (khuon thieu xuat xu = sai-ten-am-tham tren may dung chung — yeu cau phien B)
-m6 = dict(texts); v6 = "codex/acceptance-gate/skills/approve/SKILL.md"
+m6 = dict(texts); v6 = "commands/approve.md"
 m6[v6] = m6[v6].replace("(từ <nguồn suy>)", "")
 assert m6[v6] != texts[v6], "MUT-6 khong tac dung"
 print("MUT-6: da go phan nguon-suy (tu <nguon suy>) khoi ban sao " + v6)
@@ -9594,7 +9571,7 @@ assert ("site thieu luat doc-khong-bi-chan: " + v7) in e7, "MUT-7 khong bi bat d
 print("     MUT-7 DO dich danh: site thieu luat doc-khong-bi-chan: " + v7)
 # MUT-8: go nhanh CAN khoi ban sao than approve Codex -> do dich danh
 # (lo "bac thang het nac thi lam gi" — hoi dong E7 vong 3 neu, file cu im)
-m8 = dict(texts); v8 = "codex/acceptance-gate/skills/approve/SKILL.md"
+m8 = dict(texts); v8 = "commands/approve.md"
 m8[v8] = m8[v8].replace("**EXHAUSTED**", "EXHAUSTED-da-go")
 assert m8[v8] != texts[v8], "MUT-8 khong tac dung"
 print("MUT-8: da go nhanh bac-thang-can khoi ban sao " + v8)
@@ -9633,7 +9610,7 @@ e11 = check_bodies(m11)
 assert any(x.startswith("thu tu bac thang sai") and v11 in x for x in e11), "MUT-11 khong bi bat: " + repr(e11)
 print("     MUT-11 DO dung: thu tu bac thang sai (git config phai truoc approvers)")
 # MUT-12 (gap-probe P1): go nhanh CANH BAO khoi ban sao than approve Codex
-m12 = dict(texts); v12 = "codex/acceptance-gate/skills/approve/SKILL.md"
+m12 = dict(texts); v12 = "commands/approve.md"
 m12[v12] = m12[v12].replace("not in `signoff.approvers`", "not in the list")
 assert m12[v12] != texts[v12], "MUT-12 khong tac dung"
 print("MUT-12: da go nhanh canh-bao-ngoai-danh-sach khoi ban sao " + v12)
@@ -9642,7 +9619,7 @@ assert ("site thieu nhanh canh-bao-ngoai-danh-sach: " + v12) in e12, "MUT-12 kho
 print("     MUT-12 DO dich danh: site thieu nhanh canh-bao-ngoai-danh-sach: " + v12)
 # MUT-13 (gap-probe P2): role start chua co mutant nao -> chung minh nhanh
 # `if role == "start"` that su chay
-m13 = dict(texts); v13 = "codex/acceptance-gate/skills/start/SKILL.md"
+m13 = dict(texts); v13 = "commands/start.md"
 m13[v13] = m13[v13].replace("nhóm đã khớp", "nhom-da-khop-da-go")
 assert m13[v13] != texts[v13], "MUT-13 khong tac dung"
 print("MUT-13: da go hien-thi-lai nhom khop khoi ban sao " + v13)
