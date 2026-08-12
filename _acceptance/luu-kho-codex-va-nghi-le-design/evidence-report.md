@@ -17,8 +17,12 @@ tầm phép đo) chưa chạy. Ghi PENDING-JUDGMENT thay vì ĐẠT là có ch�
 trang bằng chứng tuyên ĐẠT khi mới chạy nửa chặng chính là hình dạng
 xanh-giả mà bộ kit này sinh ra để chặn.
 
-**Không có phép đo loại phán-xét trong hợp đồng này** (0 eval `judgment`), nên
-hội đồng ba giám khảo không áp dụng — mọi lời hứa ở đây đều đo được bằng máy.
+**Hội đồng ba giám khảo KHÔNG ÁP DỤNG cho hồ sơ này — không phải bỏ quên.**
+Hợp đồng có **0 phép đo loại phán-xét**: mọi lời hứa ở đây đều đo được bằng máy
+(vật còn hay mất, băm nội dung có khớp mốc không, số ca có đúng đẳng thức
+không). Hội đồng sinh ra để chấm những câu hỏi không có đáp án máy; ở đây không
+có câu nào như thế. Ghi thẳng ra để người đọc sau không tưởng là chặng ấy bị
+lược đi cho nhanh.
 
 ## Số đo
 
