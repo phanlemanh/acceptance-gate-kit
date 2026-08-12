@@ -2,8 +2,8 @@
 schema_version: 1
 slug: luu-kho-codex-va-nghi-le-design
 round: 2
-verdict: PENDING-REVIEW
-verified_commit: PENDING
+verdict: PENDING-JUDGMENT
+verified_commit: b69c90dc3160
 ---
 
 # Trang bằng chứng — lưu kho harness song sinh và nghi lễ design
@@ -35,7 +35,13 @@ có câu nào như thế.
 | Bộ kiểm script | **664/664 xanh** | `671 − 7` ✔ |
 | Bộ kiểm hook | **54/54 xanh** | `54 → 54` (không chạm) ✔ |
 | Bản đồ sản phẩm | khớp hồ sơ xưởng | — |
-| Bộ răng đo sự-vắng-mặt | 16 nhóm chân, **10 chiều đỏ chạy thật** | — |
+| Bộ răng đo sự-vắng-mặt | 16 nhóm chân, **14 chiều đỏ chạy thật** | — |
+
+Vòng 1 in **chín** dòng đột-biến, trong đó chỉ 6–7 dòng thật sự đi qua một hàm
+kiểm và ít nhất hai dòng chưa từng chạy (chúng in một câu ở **thì tương lai**).
+Vòng này in **14** dòng, và mỗi dòng là kết quả của việc chạy lại **chính hàm
+kiểm** trên một bản sao bị tiêm — không dòng nào là lời hứa. Con số 14 đếm được
+từ đầu ra (`grep -c '[đột biến]'`), không phải chép tay.
 
 **Bốn đẳng thức nay do MÁY so, không do người đếm.** Đây là thay đổi nặng nhất
 của vòng sửa: `so-ca.sh` chạy từng bộ kiểm, đếm theo phương pháp ghim riêng cho
@@ -125,6 +131,17 @@ chi phí, không phải tiến độ*. **Owner có thể gạt bất kỳ mục 
    workspace ấy còn một con trỏ chết không ai canh. Ba đường đã cân ở nhật ký
    thi công; đường được chọn là mất một mẩu độ phủ thay vì **viết lại bằng chứng
    của một hồ sơ đã ký**.
+
+5. **Đẳng thức số CA mù với xói mòn ở mức ASSERT**, theo đúng cấu tạo: một ca
+   giữ nguyên dòng `PASS:` trong khi mất phần lớn assert bên trong. Bộ kiểm gói
+   mất ~106 assert trong đợt này. Thứ canh chiều đó là bánh cóc `P161`/E11 (hai
+   chiều, có sổ khai) chứ không phải `so-ca.sh` — hai phép đo khác trục, và
+   không nên đọc cái này thay cái kia.
+6. **Đẳng thức của bộ kiểm `scripts` đứng trên bộ đếm NỘI BỘ của suite** (664),
+   không phải số dòng `PASS:` thô (737). Cả hai con số đều đúng và chúng KHÁC
+   nhau; ai đổi phương pháp đếm phải đổi cả mẫu số. Phương pháp nay ghim tường
+   minh theo từng suite trong `so-ca.sh` kèm lý do — nhưng nó vẫn là một quy ước
+   phải đọc trước khi diễn giải con số.
 
 Hai giới hạn đã khai từ trước, giữ nguyên:
 
