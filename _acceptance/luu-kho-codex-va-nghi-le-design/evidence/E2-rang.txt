@@ -1,0 +1,74 @@
+== E1 · mốc đảo ==
+LUU-KHO-TAG: truoc-luu-kho-2026-08 -> 1df86adb7da1a013adad9a4c2f14cd62a4ac9c39
+  OK   LUU-KHO-TAG: cây của mốc có codex/
+  OK   LUU-KHO-TAG: cây của mốc có design-loop/
+  OK   LUU-KHO-TAG: cây của mốc có plugins/
+  OK   LUU-KHO-TAG: la cha cua commit go dau tien OK
+  ĐỎ   LUU-KHO-TAG: chua day len remote
+       [đột biến] tên mốc bịa → hàm kiểm ĐỎ đúng như mong đợi
+== E2 · sáu vật đã lưu kho ==
+  OK   LUU-KHO-PATH: 6/6 vang o HEAD, co o tag OK
+       [đột biến] chép codex/ từ mốc về bản sao → ĐỎ đúng thông điệp
+== E3 · marketplace ==
+  OK   LUU-KHO-MKT: claude 2 plugin (acceptance-gate, feature-loop) OK
+  OK   LUU-KHO-MKT: .agents/plugins/marketplace.json vang OK
+  OK   LUU-KHO-MKT: tag co 3 entry OK
+       [đột biến] thêm lại entry design-loop vào bản sao → phép đọc thấy 'con entry design-loop'
+== E4 · tham chiếu sống ==
+  OK   LUU-KHO-REF: codex HEAD=0 tag=81(>0) OK
+  OK   LUU-KHO-REF: In Codex HEAD=0 tag=3(>0) OK
+  OK   LUU-KHO-REF: \.agents/ HEAD=0 tag=1(>0) OK
+  OK   LUU-KHO-REF: design-loop HEAD=0 tag=58(>0) OK
+  OK   LUU-KHO-REF: /design-init HEAD=0 tag=5(>0) OK
+  OK   LUU-KHO-REF: /design-mockup HEAD=0 tag=5(>0) OK
+  OK   LUU-KHO-REF: sync-plugin-packages HEAD=0 tag=16(>0) OK
+  OK   LUU-KHO-REF: plugins/acceptance-gate HEAD=0 tag=1(>0) OK
+LUU-KHO-REF: 8/8
+  OK   LUU-KHO-REF: mien tru 1/1 dong da khai OK
+== E4b · ĐỎ-NGOÀI-DANH-SÁCH (miễn trừ ux-ui-craft) ==
+  OK   LUU-KHO-REF: ban sao ux-ui-craft chua tiem XANH truoc (doi chung duong)
+       [đột biến] tiêm design-loop vào references/layout-craft.md → ĐỎ ghim đúng file vừa tiêm
+== E4c · ĐỎ-NGOÀI-DANH-SÁCH (miễn trừ nhật ký phiên bản) ==
+       [đột biến] tiêm design-loop vào interface.longDescription → ĐỎ ghim đúng trường ngoài miễn trừ
+  OK   LUU-KHO-REF: hai manifest chi dinh o truong description OK
+== E5 · nhánh UI trỏ design-pass ==
+  OK   LUU-KHO-CT2: nhanh UI tro design-pass OK
+  OK   LUU-KHO-CT2: GUIDE co muc wire executors.design OK
+  OK   LUU-KHO-CT2: tag co ca hai cum am OK
+       [đột biến] đè đoạn của mốc lên bản sao → hai cụm âm quay lại, lưới trên sẽ ĐỎ
+== E6 · đối chứng GIỮ-GÂN ==
+  OK   LUU-KHO-GIU: scripts/design-gate.mjs con nguyen (byte-equal moc) OK
+  OK   LUU-KHO-GIU: scripts/design-scan.js con nguyen (byte-equal moc) OK
+  OK   LUU-KHO-GIU: scripts/build-design-scan.mjs con nguyen (byte-equal moc) OK
+  OK   LUU-KHO-GIU: lib/design-detect.mjs con nguyen (byte-equal moc) OK
+  OK   LUU-KHO-GIU: lib/p-tiers.json con nguyen (byte-equal moc) OK
+  OK   LUU-KHO-GIU: vendor/impeccable con nguyen (byte-equal moc) OK
+  OK   LUU-KHO-GIU: tests/design-eval con nguyen (byte-equal moc) OK
+  OK   LUU-KHO-GIU: tests/skills con nguyen (byte-equal moc) OK
+  OK   LUU-KHO-GIU: skills/design-pass con nguyen (byte-equal moc) OK
+LUU-KHO-GIU: 9/9
+  OK   LUU-KHO-GIU: ux-ui-craft 1 file doi co khai, con lai byte-equal OK
+       [đột biến] xoá 1 dòng trong bản sao lib/design-detect.mjs → băm LỆCH mốc đúng như mong đợi
+== E8/E9 · ADR ==
+  OK   LUU-KHO-ADR: docs/adr/0008-luu-kho-harness-codex.md ghim sha 1df86adb7da1a013adad9a4c2f14cd62a4ac9c39 = tag OK
+  OK   LUU-KHO-ADR: docs/adr/0009-khai-tu-nghi-le-design-loop.md ghim sha 1df86adb7da1a013adad9a4c2f14cd62a4ac9c39 = tag OK
+  OK   LUU-KHO-ADR: 2 ADR moi OK
+       [đột biến] đổi 1 ký tự sha trong bản sao ADR → không còn khớp mốc, lưới sẽ ĐỎ
+  OK   LUU-KHO-ADR0001: superseded + tro ADR moi OK
+== E10 · bộ máy mirror ==
+  OK   LUU-KHO-MIRROR: plugins/ vang o HEAD, co o tag OK
+  OK   LUU-KHO-MIRROR: scripts/sync-plugin-packages.sh vang o HEAD, co o tag OK
+  OK   LUU-KHO-MIRROR: case P30 vang o HEAD, co o tag OK
+  OK   LUU-KHO-MIRROR: khoa executors.script.mirror_sync vang o HEAD, co o tag OK
+  OK   LUU-KHO-MIRROR: muc plugins/** trong t1_skip_globs vang o HEAD, co o tag OK
+LUU-KHO-MIRROR: 5/5
+  OK   LUU-KHO-MIRROR: suite_keys khong tro khoa da chet OK
+       [đột biến] chép lại khoá mirror_sync vào bản sao config → lưới sẽ ĐỎ đích danh
+== E10b · CLAUDE.md ==
+  OK   LUU-KHO-MIRROR: CLAUDE.md khong con bat bien mirror OK (tag=4)
+== E11b · start-scan CHẠY THẬT ==
+  OK   LUU-KHO-START-SCAN: chay sach OK
+== E15 · bộ kiểm không có khối thoát-sớm giữa tệp ==
+  OK   LUU-KHO-SUITE: chi 1 khoi thoat, nam o duoi tep OK
+
+LUU-KHO-RANG: 1 phép đo ĐỎ

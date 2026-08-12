@@ -59,7 +59,22 @@ else
     bad "LUU-KHO-TAG: khong phai cha truc tiep cua commit go dau tien ($PARENT != $TAG_SHA)"
   fi
 fi
-if g ls-remote --tags origin 2>/dev/null | grep -q "$TAG_SHA"; then
+# Chân này gọi MẠNG, nên nó có hai kiểu hỏng khác hẳn nhau và màu đỏ phải nói
+# được là kiểu nào: "mốc chưa đẩy lên" (vật hỏng — chặn merge) khác hẳn "không
+# hỏi được remote" (đường truyền hỏng — chạy lại là xong). Gộp hai thứ vào một
+# thông điệp thì một lần mạng chập đọc y như một hồ sơ thiếu đường đảo, và
+# người đọc sẽ học cách phớt lờ đúng cái chân sống-còn nhất. Thử 3 lượt để nuốt
+# cú chập ngắn; hết 3 lượt vẫn không hỏi được thì vẫn ĐỎ (fail-closed: không
+# chứng minh được là đã đẩy thì không được coi như đã đẩy).
+LS_OUT=""; LS_RC=1
+for _try in 1 2 3; do
+  LS_OUT="$(g ls-remote --tags origin 2>/dev/null)"; LS_RC=$?
+  [ "$LS_RC" -eq 0 ] && [ -n "$LS_OUT" ] && break
+  sleep 2
+done
+if [ "$LS_RC" -ne 0 ] || [ -z "$LS_OUT" ]; then
+  bad "LUU-KHO-TAG: khong hoi duoc remote sau 3 luot — chua chung minh duoc moc da day (loi duong truyen, KHONG phai loi ho so)"
+elif printf '%s' "$LS_OUT" | grep -q "$TAG_SHA"; then
   ok "LUU-KHO-TAG: co tren remote OK"
 else
   bad "LUU-KHO-TAG: chua day len remote"
