@@ -300,6 +300,51 @@ eval ĐỎ, không phải bỏ qua.
   Nếu owner bác: gỡ AC-16 + E16 và ghi vào «Giới hạn đã biết» rằng đội phải được
   báo bằng đường khác.
 
+- AC-17: Given `scripts/pre-merge-check.sh` và một PR có phạm vi diff dựng được,
+  When chạy cổng, Then luật soi-lại bằng chứng đã commit **chỉ xét hồ sơ có file
+  trong diff PR**; hồ sơ ngoài diff im lặng nhưng **số hồ sơ bị bỏ qua phải in
+  ra**; hồ sơ ngoài diff mang lỗi thuộc luật KHÁC vẫn nổ; chạm một hồ sơ cũ là
+  nó vào diff và bị soi lại như thường; không dựng được phạm vi diff → kiểm TẤT
+  như cũ kèm một dòng NOTE hằng; cờ `--recheck-all` ép quét toàn bộ.
+  **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1 · owner gạch «đường 3» 13/08] Tiêu chí
+  THÊM MỚI, và nó đổi LÕI KIT trong lúc lab đóng băng — ngoại lệ do owner gạch
+  tường minh, ghi ở ADR 0010.** Vì sao buộc phải có: hồ sơ này gỡ khoá
+  `executors.script.mirror_sync` (AC-9), và **21 hồ sơ ĐÃ KÝ** có eval trỏ khoá
+  ấy lập tức chặn MỌI PR sau đó — không hồ sơ nào trong 21 nằm trong diff, không
+  hồ sơ nào sửa được mà không viết vào vật đã ký. Đo trên CI: cổng đi từ **22 vi
+  phạm xuống 1**.
+  **Ngữ nghĩa mượn nguyên của luật staleness** (`stale-theo-diff-pr`, owner ký
+  1.39.2): bar này bảo vệ «bằng chứng đi kèm cây ĐANG merge», còn hồ sơ đã merge
+  là sử liệu. Phạm vi dùng ĐÚNG hàm `slug_in_diff` mà gap-probe và staleness
+  dùng — một nguồn ngữ nghĩa slug↔diff, không parser thứ ba.
+  **ĐÁNH ĐỔI, khai thẳng: thước thôi HỒI TỐ.** Siết bar trong
+  `lib/evidence-core.cjs` về sau sẽ không tự đo lại hồ sơ cũ. Đường cứu là cờ
+  `--recheck-all`; không có cờ đó thì cái mất này vĩnh viễn chứ không phải tạm.
+- AC-18: Given hai baseline «recheck trên corpus thật = 0 fail» (`JR11b`,
+  `DV4a`), When khoá `executors.script.mirror_sync` chết theo AC-9, Then hai
+  baseline ấy chuyển từ **ngưỡng trần** sang **allowlist CÓ TÊN**, và allowlist
+  bị ba ràng buộc: chỉ che hồ sơ có tên; chỉ che đúng MỘT lý do (thông điệp phải
+  nhắc khoá đã chết — cùng hồ sơ hỏng vì lý do khác thì vẫn ĐỎ); và kiểm HAI
+  CHIỀU (tên khai mà hồ sơ đã hết đỏ thì cũng ĐỎ, đòi rút tên).
+  **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1 · owner gạch «đường (c)» 13/08]** Tiêu
+  chí THÊM MỚI. Hai baseline đó gọi `recheck` THẲNG trên corpus, không qua
+  `pre-merge-check.sh`, nên AC-17 theo thiết kế không chạm tới chúng — không có
+  tiêu chí này thì bộ kiểm `scripts` đỏ vĩnh viễn và **không lane nào xanh để ký**.
+  Danh sách sống ở MỘT bản (`tests/scripts/mirror-sync-grandfather.mjs`), hai
+  bên đọc chung; hai bản chép là đúng lớp bên-viết-và-bên-đọc-trôi-khỏi-nhau.
+- AC-19: Given `tests/scripts/run-tests.sh`, When một tệp `*.test.mjs` con thoát
+  khác 0, Then suite phải ghi FAIL cho tệp đó và thoát khác 0.
+  **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Tiêu chí THÊM MỚI cho một BUGFIX phát
+  hiện trong lúc đo.** Bản cũ viết `check "$(basename "$_f")" 0 $?` — bash khai
+  triển đối số TRƯỚC khi gọi `check`, nên `$(basename …)` chạy trước và **ghi đè
+  `$?`** bằng mã thoát của `basename` (luôn 0). Hệ quả: **mọi** `*.test.mjs` đỏ
+  vẫn được ghi PASS, suite in "0 failed" và thoát 0. Đo tại commit nền
+  `d6044a4`: `core-untouched.test.mjs` ĐÃ đỏ mà suite vẫn in
+  `664 passed, 0 failed`. Đúng lớp **bộ-chạy-nuốt-mã-thoát** đã ghi sổ — lần
+  trước ở `tests/plugins` (khối thoát-sớm giữa tệp, AC-15), lần này ở
+  `tests/scripts`. Ghi thành tiêu chí chứ không sửa lặng vì cùng lý do AC-15:
+  đẳng thức số ca của AC-11 không đo được điều nó nói khi bộ đếm mù.
+
 ## Coverage
 
 Quét trên trục **vật bị gỡ × loại tham chiếu × lưới canh nó**.

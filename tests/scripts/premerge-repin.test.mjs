@@ -7,6 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import { mkRepinFixture, SHA_A } from './repin-fixture.mjs';
+import { assertCorpus } from './mirror-sync-grandfather.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
@@ -126,15 +127,10 @@ check('DV3 fraud: commit code MỚI sau khi ký -> luật stale hiện hành b�
 });
 
 // ── DV4: grandfather trên corpus THẬT + mutant retro-enforce ─────────────────
-check('DV4a recheck MỚI trên MỌI evidence-report thật của repo -> 0 fail (sanity: ≥10 report)', () => {
-  const accDir = path.join(ROOT, '_acceptance');
-  const reports = readdirSync(accDir).map(s => path.join(accDir, s, 'evidence-report.md')).filter(existsSync);
-  assert.ok(reports.length >= 10, `sanity counter: chỉ thấy ${reports.length} report — glob hỏng?`);
-  const bad = [];
-  for (const r of reports) {
-    try { execFileSync('node', [RC, r], { stdio: 'ignore' }); } catch (_) { bad.push(path.basename(path.dirname(r))); }
-  }
-  assert.deepEqual(bad, [], `grandfather thủng: recheck đỏ trên ${bad.join(', ')}`);
+check('DV4a recheck MỚI trên MỌI evidence-report thật của repo -> 0 fail NGOÀI grandfather', () => {
+  // Cùng danh sách với JR11b, đọc từ MỘT bản (`mirror-sync-grandfather.mjs`).
+  // Hai bên tự giữ hai bản chép là đúng lớp bên-viết-và-bên-đọc-trôi-khỏi-nhau.
+  assertCorpus(assert, ROOT, 'DV4a');
 });
 check('DV4b sanity: detector NHÌN THẤY section Re-pin cũ trên corpus thật (>0)', () => {
   const accDir = path.join(ROOT, '_acceptance');

@@ -482,3 +482,69 @@ evals:
       (b) bản hạ về `1.0.0` cho `tut-so`. Gộp hai mã thành một câu thì quên-bump
       đọc y hệt tụt-số, và người sửa không biết phải làm gì.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E17
+    criterion: AC-17
+    executor: script
+    cmd: config:executors.script.luu_kho_so_ca_scripts
+    paths:
+      - scripts/pre-merge-check.sh
+      - tests/scripts/run-tests.sh
+    expected: >
+      exit 0; bộ kiểm `scripts` in các dòng `PASS: RS01…RS06`. Sáu ca phủ SÁU
+      mệnh đề khác nhau của AC-17, mỗi ca một fixture code-sinh trong git repo
+      thật: `RS01` hai hồ sơ hỏng-recheck NGOÀI diff + một hồ sơ mới sạch →
+      exit 0, không dòng "fails re-check" nào, VÀ có dòng đếm số hồ sơ bị bỏ
+      qua (cắt im lặng đọc y hệt "đã phủ hết") · `RS02` không `--base` → kiểm
+      TẤT như cũ, đúng 2 dòng đỏ + đúng MỘT dòng NOTE hằng · `RS03`
+      `--recheck-all` ép quét toàn bộ dù có phạm vi diff · `RS04` chạm hồ sơ cũ
+      → nó vào diff và bị soi lại, đỏ ĐÍCH DANH slug · `RS05` **đối chứng
+      dương should-FIRE**: hồ sơ ngoài diff mang lỗi KHÁC (chữ ký trống) vẫn
+      nổ, chứng minh chỉ luật re-check bị thu phạm vi chứ không phải cả vòng
+      lặp im · `RS06` **chiều đỏ CHẠY THẬT**: chép trọn `scripts/`+`lib/` sang
+      bản sao, control phải XANH trước, rồi gỡ guard bằng `sed`, **xác nhận đột
+      biến đã áp** (đếm dòng = 1) trước khi đọc kết quả, và đòi bản sao ĐỎ đích
+      danh — không có bước xác nhận thì một `sed` trượt cho ca xanh oan.
+      Fixture CỐ Ý không đụng file nào ngoài `_acceptance/`: đụng thì hồ sơ cũ
+      thành stale, luật staleness nổ TRƯỚC và `continue` trước khi tới luật
+      đang đo — bản đầu mắc đúng lỗi này và hai ca đỏ vì đo nhầm luật.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E18
+    criterion: AC-18
+    executor: script
+    cmd: config:executors.script.luu_kho_so_ca_scripts
+    paths:
+      - tests/scripts/mirror-sync-grandfather.mjs
+      - tests/scripts/core-untouched.test.mjs
+      - tests/scripts/premerge-repin.test.mjs
+    expected: >
+      exit 0; `JR11b` và `DV4a` XANH, cả hai gọi CÙNG một hàm `assertCorpus`
+      trong `mirror-sync-grandfather.mjs` (một bản khai, không hai bản chép).
+      Danh sách 21 slug đo TẠI CHỖ 2026-08-13 bằng cách chạy `recheck` trên
+      corpus, KHÔNG chép tay từ log. Ba ràng buộc, mỗi ràng buộc một thông điệp
+      riêng: hồ sơ đỏ NGOÀI danh sách → "đây là lỗi mới, không phải nợ cũ";
+      hồ sơ trong danh sách đỏ vì lý do KHÁC `executors.script.mirror_sync` →
+      "grandfather chỉ che đúng một lý do"; tên khai mà hồ sơ ĐÃ HẾT đỏ →
+      "rút tên ra, đừng để danh sách phình". Vế thứ ba là chiều chống
+      đổ-sẵn-danh-sách-dài-cho-khỏi-nghĩ, cùng khuôn `asserts-da-go.txt`.
+      Hai chiều đỏ đã chạy thật khi dựng: bỏ `context-ladder` khỏi danh sách →
+      đỏ đúng câu "NGOÀI danh sách"; thêm một tên không hề đỏ → đỏ đúng câu
+      "ĐÃ HẾT đỏ".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E19
+    criterion: AC-19
+    executor: script
+    cmd: config:executors.script.luu_kho_so_ca_scripts
+    paths:
+      - tests/scripts/run-tests.sh
+    expected: >
+      exit 0 và dòng tổng kết `Results: 686 passed, 0 failed` phản ánh ĐÚNG
+      trạng thái mọi tệp `*.test.mjs` con. Bằng chứng bugfix có thật, đo tại
+      commit nền `d6044a4`: `core-untouched.test.mjs` thoát 1 trong khi suite
+      in `664 passed, 0 failed` và thoát 0. Sau bugfix, cùng cây ấy cho
+      `684 passed, 2 failed`. Chiều đỏ KHÔNG dựng thêm fixture: chính hai ca
+      `JR11b`/`DV4a` đang đỏ lúc đó là bản-thật-bị-hỏng, và chúng chuyển từ vô
+      hình sang hiện — mạnh hơn một bản sao tự tiêm.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
