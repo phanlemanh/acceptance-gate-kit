@@ -191,8 +191,9 @@ token `exit=1`/`exit_code: 1` (sanitize trước khi dán).
   legacy. Lần bypass được GHI vào report (`bypass_used: true`) và CI
   `pre-merge-check.sh` CHẶN merge — trừ khi 1 người ghi `bypass_ack: <tên>
   <ngày>` để chủ động chịu trách nhiệm (để lại dấu vết audit).
-- **Đo hiệu quả?** `time_human_minutes` trong contract.md — điền số phút thật ở
-  mỗi cổng; baseline nằm ở `_acceptance/config.yaml::baseline_minutes`.
+- **Đo hiệu quả?** `/acceptance-report` — verdict mix, số vòng verify, vệ sinh
+  cổng. Kit **thôi đo phút người**: con số ấy do người điền cho qua cổng nên nó
+  vừa tốn người vừa sinh dữ liệu giả.
 
 ---
 

@@ -178,9 +178,8 @@ committed reports meet the current evidence shape.
   walk Gate 2: preconditions → `human_override`/`human_signoff` → signature in
   its own human-fields-only commit → pre-merge re-check. The decision verbs
   never decide on their own.
-- `/acceptance-report` → is the gate paying off? Human minutes vs
-  `baseline_minutes` (KPI ≥50% reduction), verdict mix, gate hygiene
-  (skips/bypasses/stale evidence). Read-only.
+- `/acceptance-report` → is the gate healthy? Verdict mix, verify rounds,
+  gate hygiene (skips/bypasses/stale evidence). Read-only.
 - Risk tiers: T1 skips the kit; T3 requires direct human verdicts on all
   judgment items. Tiers/globs are per-repo in `_acceptance/config.yaml`.
 - Current test surface (6 suites, all fixture-driven): hook cases
@@ -249,12 +248,15 @@ contract cẩu thả; chất lượng contract là việc của Gate 1 và các 
 
 ## Pilot metrics
 
-`time_human_minutes` (gate1/gate2) lives in each contract's frontmatter.
-Capture the pre-kit baseline ONCE during `/acceptance-init` (optional
-question): estimated acceptance minutes for the last 3 features →
-`baseline_minutes` in `_acceptance/config.yaml`.
-Success bar for the pilot: ≥50% less human time than that baseline,
-zero business-logic defects slipping past the gate.
+The kit does **not** measure human minutes. That number was self-reported at
+the gate to get past it, so it cost a human interruption and produced fictional
+data at the same time; the baseline it was divided by was deliberately left
+empty, so the "≥50% less human time" bar was never computable. What the gates
+actually record — verdict mix, verify rounds, and gate hygiene (skipped gates,
+un-acked bypasses, stale evidence) — is what `/acceptance-report` prints.
+Success bar for the pilot: zero business-logic defects slipping past the gate,
+and acceptance that is *possible at all* rather than *faster* — before the kit
+it mostly did not happen.
 
 ## Known limitations (v1)
 

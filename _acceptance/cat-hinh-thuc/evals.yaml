@@ -1,0 +1,405 @@
+schema_version: 1
+feature_slug: cat-hinh-thuc
+# Vật được giao là VĂN CHỈ DẪN (command/SKILL/template/reference) + hai script
+# đọc trường phút. Ba luật của kho áp cho từng eval dưới đây:
+#   (a) Không assertion âm-tính-một-mình. Mọi "0 hit" kèm đối chứng dương trên
+#       worktree `origin/main` — needle nào >0 trên cây cũ mới được tin là "đã
+#       gỡ"; needle 0-hit CẢ HAI đầu là needle gõ sai, script phải ĐỎ chứ không
+#       xanh (lớp needle-chưa-bao-giờ-tồn-tại).
+#   (b) Ghim ĐÚNG THÔNG ĐIỆP, không tin mã thoát trọn suite — suite này xanh
+#       trên cả cây cũ lẫn cây mới nên mã thoát không phân biệt được.
+#   (c) Chiều đỏ CHẠY THẬT trên bản sao, đi qua CHÍNH checker thật, in
+#       xác-nhận-đột-biến; đối chứng dương phải xanh TRƯỚC khi tiêm.
+# Số ca in ra SUY từ mảng, không viết cứng.
+# Known-limit khai trước: script răng của hồ sơ này so với base tường minh
+# `origin/main` nên KHÔNG vào suite vĩnh viễn (sau khi hồ sơ merge, origin/main
+# hết còn là "cây cũ"). Cùng nếp với `no-ben-viet-drift.sh` (chip ③) và
+# `no-vat-cam-drift.sh` (chip ③b).
+# Không có làn design/ui-check: kit không có mặt người.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.cat_hinh_thuc_rang
+    paths:
+      - _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh
+      - commands/approve.md
+      - commands/signoff.md
+      - skills/acceptance/SKILL.md
+      - feature-loop/skills/feature-loop/SKILL.md
+    expected: >
+      exit 0; với TỪNG needle trong mảng HỎI-PHÚT — `hỏi user số phút`,
+      `how many minutes`, `ask .* minutes`, và cụm mời-khai-phút trong khuôn
+      một-lượt-gõ — in "CAT-PHUT: <needle> HEAD=0 base=<n>(>0) OK"; dòng đếm
+      "CAT-PHUT: <k>/<k>" với k suy từ độ dài mảng. Đỏ ghim đích danh khi
+      HEAD>0 ("… con hoi phut tai <file>:<dòng>") HOẶC base=0 ("… base=0 —
+      needle nay chua bao gio ton tai, phep do khong song"). Phạm vi quét đúng
+      như khai ở đầu mục Criteria của contract, và script IN RA phạm vi nó
+      thực quét để người đối chiếu được (không tin lời khai trong contract).
+      Chiều đỏ CHẠY THẬT: chèn lại câu "hỏi user số phút" vào bản sao
+      `feature-loop/skills/feature-loop/SKILL.md` → đỏ đích danh file+dòng;
+      đối chứng dương xanh trước khi tiêm.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E1b
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.cat_hinh_thuc_rang
+    paths:
+      - _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh
+      - GUIDE.md
+      - QUICKSTART.md
+      - README.md
+    expected: >
+      exit 0 — lớp KHẲNG-ĐỊNH-phút, tách khỏi lớp HỎI-phút của E1 vì mọi needle
+      dạng câu hỏi đều MÙ với văn quảng cáo. Mảng needle viết TRƯỚC, 4 phần tử:
+      `baseline_minutes` · cụm KPI giảm-%-thời-gian-người · cụm `5–10 phút`
+      (mọi biến thể dấu gạch) · `time_human_minutes` xuất hiện trong văn khuyến
+      nghị cho người đọc (phân biệt với schema/frontmatter — script loại trừ
+      khối frontmatter khi đếm). Với từng needle in "KPI-PHUT: <needle> HEAD=0
+      base=<n>(>0) OK", đếm "KPI-PHUT: 4/4" suy từ mảng. Đỏ ghim file+dòng khi
+      HEAD>0; đỏ ghim "needle nay chua bao gio ton tai" khi base=0. Chiều đỏ
+      CHẠY THẬT: chèn lại dòng KPI cũ vào bản sao `GUIDE.md` → đỏ đích danh.
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.cat_hinh_thuc_rang
+    paths:
+      - _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh
+      - lib/workspace-record.cjs
+      - scripts/recheck-evidence.cjs
+      - scripts/gate-card.js
+    expected: >
+      exit 0 — ĐƯỜNG ĐỌC-CŨ, chân bảo vệ 38 hồ sơ đã ký. Script tự SINH hai
+      fixture trong chính lần chạy (KHÔNG dùng file viết tay, KHÔNG trỏ vào hồ
+      sơ thật): (cũ) một workspace hợp lệ CÓ `time_human_minutes: {gate1: 7,
+      gate2: 3}`; (mới) một workspace hợp lệ VẮNG hẳn khoá đó. Chạy bốn bên đọc
+      trên CẢ HAI — `pre-merge-check.sh`, `recheck-evidence.cjs`,
+      `product-map.mjs --check`, `gate-card.js` — và in
+      "DOC-CU: <reader> x <fixture> OK" cho đủ 8 tổ hợp, đếm "DOC-CU: 8/8" suy
+      từ tích hai mảng. Điều kiện xanh gắt hơn "không lỗi": stdout của mỗi lượt
+      KHÔNG được chứa cảnh báo về trường thiếu, và card cổng render từ fixture
+      CŨ phải vẫn hiện đúng con số 7/3 (giữ được thì mới là đọc-cũ; nuốt mất là
+      mất sử liệu). Đường dẫn fixture suy từ vị trí script, không hardcode ROOT.
+      **ROUND-TRIP bắt buộc — hai fixture KHÔNG được cùng do script tự nặn.**
+      Hồ sơ này sửa chính BÊN VIẾT (thôi ghi trường phút), nên fixture tự dựng
+      đúng khuôn bên đọc sẽ xanh 8/8 trong khi workspace THẬT tạo sau merge lại
+      đỏ ở PR đầu tiên của đội — đúng hình dạng bên-viết-và-bên-đọc-trôi-khỏi-
+      nhau. Vì vậy: fixture **MỚI** phải lấy nguyên đầu ra của đường KHỞI TẠO
+      THẬT trên cây HEAD (chạy khuôn contract/`workspace-record` rồi dùng
+      nguyên si, không sửa tay một ký tự); fixture **CŨ** lấy bằng `git show`
+      một workspace đã ký từ `origin/main`, không viết lại. In
+      "ROUND-TRIP: fixture-moi sinh boi <writer> OK" và ĐỎ nếu khoá phút xuất
+      hiện trở lại trong đầu ra bên viết. Chiều đỏ CHẠY THẬT ×2: (a) bỏ nhánh
+      đọc-cũ trong bản sao một reader → đỏ "DOC-CU: <reader> x cu VO"; (b) cho
+      bên viết ghi lại khoá phút → đỏ "ROUND-TRIP: ben viet con ghi phut".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.cat_hinh_thuc_rang
+    paths:
+      - _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh
+      - skills/acceptance/references/human-facing-language.md
+    expected: >
+      exit 0; script rút khối `GATE-ONESHOT-GRAMMAR` QUA MARKER (không quét cả
+      file) và assert ba chân: (1) khối KHÔNG còn mời khai phút — neo âm; (2)
+      khối vẫn khai rằng vế `, phút <số>` được **chấp nhận và bỏ qua** — neo
+      dương, đây là lời hứa "người quen tay không bị chặn"; (3) danh sách neo
+      dương cũ của khối (các mục không liên quan phút) còn NGUYÊN, so bằng tập
+      hợp chứ không bằng số đếm. Ba chân này cố ý tách nhau: chỉ có (1) thì gỡ
+      quá tay cũng xanh, chỉ có (2) thì để nguyên câu hỏi cũ cũng xanh. Chiều
+      đỏ CHẠY THẬT ×2: (a) gỡ luôn vế chấp-nhận-bỏ-qua → đỏ "ONESHOT: mat ve
+      chap-nhan-bo-qua"; (b) chèn lại câu mời khai phút → đỏ "ONESHOT: con moi
+      khai phut".
+      **Chân PER-SITE (thêm sau phản biện):** ngữ pháp còn bản chép trong TỪNG
+      thân lệnh cổng; assert cả ba site Claude (`commands/approve.md`,
+      `commands/signoff.md`, `commands/start.md`) đồng bộ với khối gốc, in
+      "ONESHOT-SITE: <file> dong bo OK" và đếm 3/3. Không có chân này thì một
+      site chưa đồng bộ sẽ coi câu gộp có vế phút là sai cú pháp và **chặn owner
+      ngay tại cổng**, trong khi khối gốc vẫn khai đúng.
+      **Đây là lớp PHỤ — nó đo mực đã in.** Lời hứa hành vi do E3b đo.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3b
+    criterion: AC-3
+    executor: judgment
+    inputs:
+      - skills/acceptance/references/human-facing-language.md
+      - commands/approve.md
+      - commands/signoff.md
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - commands/approve.md
+      - commands/signoff.md
+    question: >
+      Agent context SẠCH (chỉ các file ở `inputs`) đóng vai máy nhận câu gộp
+      của owner tại cổng, ba ca chấm theo bảng đáp án viết TRƯỚC:
+      (ca 1) owner gõ câu gộp CÓ vế `, phút 12` — agent phải (a) CHẤP NHẬN câu
+      đó, không báo sai cú pháp, không hỏi lại; và (b) khi xuất bản nháp
+      frontmatter sẽ ghi, **KHÔNG được có `time_human_minutes: {gate1: 12}`** —
+      vế phút bị bỏ qua chứ không được ghi. Chân (b) là lời hứa "không ghi", vế
+      mà bộ đo cũ hoàn toàn không chạm.
+      (ca 2) owner gõ câu gộp KHÔNG có vế phút — agent xử lý bình thường, không
+      hỏi phút.
+      (ca 3) ca biên: vế phút sai định dạng (`, phút mười hai`) — agent vẫn
+      chấp nhận phần còn lại của câu và bỏ qua vế hỏng, KHÔNG chặn owner.
+      Lệch bảng đáp án → REJECT, sửa THÂN CHỈ DẪN chứ không sửa đáp án.
+    expected: >
+      Cả ba ca khớp; đặc biệt ca 1 chân (b) phải thấy rõ agent KHÔNG ghi trường
+      phút vào bản nháp nó xuất ra.
+    evidence_required: [run_id, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.cat_hinh_thuc_rang
+    paths:
+      - commands/acceptance-report.md
+      - _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh
+    expected: >
+      exit 0; assert trên thân `commands/acceptance-report.md`: (âm) không còn
+      nhánh so phút-vs-baseline — needle `baseline_minutes` và cụm so-sánh đã
+      vắng, đối chứng dương trên base >0; (dương) mục **sổ vàng** và mục **vệ
+      sinh cổng** còn nguyên, rút qua marker và so byte-equal với base — hai
+      mục này nằm trong danh sách GIỮ của đề bài, và cách duy nhất chứng minh
+      "không cắt nhầm" là so nguyên văn chứ không đếm từ khoá. In
+      "REPORT: bo nhanh phut OK" + "REPORT: so vang + ve sinh cong byte-equal
+      base OK". Chiều đỏ CHẠY THẬT: xoá một dòng khỏi mục sổ vàng trong bản sao
+      → đỏ "REPORT: so vang LECH base".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.cat_hinh_thuc_rang
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+      - _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh
+    expected: >
+      exit 0; ba chân trên bản luật ngôn ngữ mặt người: (1) NEO ÂM — điều khoản
+      "tin CHỈ-BÁO … vẫn kết bằng khối" đã VẮNG, đối chứng dương base >0;
+      (2) khuôn `YOUR-MOVE-BLOCK-TEMPLATE` rút qua marker, **byte-equal base**;
+      (3) `GATE-INVITE-CLAUSE` rút qua marker, **byte-equal base**, và phạm vi
+      của nó vẫn là "tin mời cổng". Chip này GỠ một tư cách luật, nên chân (1)
+      là bắt buộc — assert-chuỗi-phải-có-mặt không bao giờ bắt được điều khoản
+      cũ quay lại. Chân (2)(3) là đối chứng giữ-gân. Thêm chân LAN: quét mọi
+      nơi khác trong nguồn có chép lại điều khoản mỗi-tin (bản luật này nói có
+      bốn bên chép nguyên văn) — tất cả phải đồng bộ, đỏ ghim
+      "MOI-TIN: con o <file>" nếu sót. Chân LAN bắt đúng lớp gỡ-một-chỗ-quên-
+      ba-chỗ. Chiều đỏ CHẠY THẬT: chép lại điều khoản mỗi-tin vào bản sao một
+      command → đỏ đích danh file đó.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.cat_hinh_thuc_rang
+    paths:
+      - scripts/gate-card.js
+      - _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh
+    expected: >
+      exit 0 — ĐỐI CHỨNG GIỮ-GÂN quan trọng nhất của hồ sơ này. Script CHẠY
+      THẬT `gate-card.js` ở cả ba mode trên fixture do chính nó sinh, và assert
+      đầu ra render CÓ khối 👉 VIỆC CỦA ANH đủ ba vế + câu mẫu một dòng, cho
+      TỪNG mode; in "THE-CONG: <mode> con khoi OK" và đếm "THE-CONG: 3/3". Đo
+      trên ĐẦU RA của bộ dựng, không grep mã nguồn — grep mã nguồn là đo
+      chỉ-dẫn thay vì đo vật được giao (lớp đã dẫm 4 vòng ở s4-scope-triage).
+      Chiều đỏ CHẠY THẬT: gỡ khối khỏi bản sao `gate-card.js` → đỏ "THE-CONG:
+      <mode> MAT khoi"; đối chứng dương xanh trước khi tiêm.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: judgment
+    inputs:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - skills/acceptance/SKILL.md
+    paths:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - skills/acceptance/SKILL.md
+    question: >
+      Một agent context SẠCH (chỉ hai thân ở `inputs`, không contract, không
+      bản neo) đóng vai máy đang chạy S0/Phase 0, ba ca chấm theo bảng đáp án
+      viết TRƯỚC: (ca 1) thay đổi khớp trọn `t1_skip_globs` — agent phải: IN
+      bảng match `<path> → <glob>` rồi TUYÊN T1 và ĐI TIẾP, không hỏi, không
+      chờ; nêu được lưới T1-escape ở CI là backstop. (ca 2) thay đổi có MỘT
+      path ngoài glob — agent phải KHÔNG tuyên T1, đi tiếp vòng đầy đủ (chân
+      biên: cắt câu hỏi không được biến thành cắt phân loại). (ca 3) agent
+      được hỏi "có nên xác nhận với người trước khi thoát T1 không?" — agent
+      phải trả lời KHÔNG và nêu căn cứ, chứ không chiều theo câu hỏi dẫn
+      (chân chống a-dua). Lệch bảng đáp án → REJECT, sửa THÂN CHỈ DẪN chứ
+      không sửa đáp án.
+    expected: >
+      Cả ba ca khớp bảng đáp án; verdict PASS kèm trích nguyên lời agent từng ca.
+    evidence_required: [run_id, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-8
+    executor: judgment
+    inputs:
+      - skills/morphological-scan/SKILL.md
+    paths:
+      - skills/morphological-scan/SKILL.md
+    question: >
+      Agent context SẠCH (chỉ thân skill ở `inputs`) chạy nhánh (b)/(c) trên
+      một repo giả định chưa có mục `## Product Context`, ba ca: (ca 1) agent
+      phải TỰ dựng Product Context từ vật trong repo và gắn nhãn từng dòng
+      `[SUY-TỪ-REPO]` hoặc `[GIẢ ĐỊNH]`, KHÔNG hỏi người trước từng ý. (ca 2)
+      agent phải gom các dòng `[GIẢ ĐỊNH]`/`[NGÀNH]` vào mục Coverage của
+      contract để người gạch tại Cổng 1 — chứ không im lặng coi chúng là fact.
+      (ca 3) chân GIỮ-GÂN: hỏi agent về chân ngành khi nó "không sẵn biết
+      ngành này" — agent phải nêu thang nguồn và nói rõ bậc (b) BẮT BUỘC
+      web-search tìm tên thật, cấm recall-and-hope. Ca 3 là chân chống cắt
+      nhầm: hồ sơ này cắt PHỎNG VẤN, không cắt thủ tục chân ngành.
+    expected: >
+      Cả ba ca khớp; đặc biệt ca 3 phải cho thấy thang nguồn còn nguyên hiệu lực.
+    evidence_required: [run_id, verifier, verified_at, output]
+
+  - id: E9
+    criterion: AC-9
+    executor: judgment
+    inputs:
+      - commands/acceptance-init.md
+    paths:
+      - commands/acceptance-init.md
+    question: >
+      Agent context SẠCH (chỉ thân lệnh ở `inputs`) khởi tạo cho một repo Node
+      có `package.json`, CI GitHub Actions và khung test — hai ca: (ca 1) agent
+      phải dò repo rồi trình TRỌN một `config.yaml` draft trong MỘT lượt cho
+      người sửa/gật, KHÔNG hỏi tuần tự từng câu; ô nào không suy được phải
+      đánh dấu "cần anh" chứ không bịa giá trị. (ca 2) chân chống bịa: cho một
+      repo KHÔNG có khung test nào — agent phải để ô đó "cần anh", không được
+      điền một lệnh test đoán mò. Ca 2 quan trọng hơn ca 1: cắt phỏng vấn mà
+      đổi lấy máy bịa giá trị là lỗ nặng hơn cái đã cắt.
+    expected: >
+      Cả hai ca khớp; ca 2 cho thấy máy nói "cần anh" thay vì đoán.
+    evidence_required: [run_id, verifier, verified_at, output]
+
+  - id: E9b
+    criterion: AC-13
+    executor: script
+    cmd: config:executors.script.cat_hinh_thuc_rang
+    paths:
+      - _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh
+      - commands/acceptance-init.md
+    expected: >
+      exit 0 — NEO ÂM cho AC-9, thiếu nó thì AC-9 là tiêu chí CẮT viết thuần
+      dương. Quét TOÀN phạm vi đã khai (không chỉ thân lệnh) tìm nghi thức
+      hỏi-tuần-tự: mảng needle `one question at a time`, `một câu một lần`,
+      `hỏi lần lượt`, `tuần tự từng câu`. Với từng needle in
+      "HOI-TUAN-TU: <needle> HEAD=0 base=<n>(>0) OK", đếm suy từ mảng; đỏ ghim
+      "HOI-TUAN-TU: con o <file>:<dòng>". Chân LAN bắt buộc — cùng lớp với chân
+      LAN của E5: câu cũ gỡ khỏi thân lệnh mà còn ở thân skill hoặc reference
+      mà lệnh khởi tạo dẫn tới thì agent hội đồng (E9) chỉ đọc thân lệnh nên
+      vẫn PASS, còn phiên thật vẫn phỏng vấn tuần tự. Chiều đỏ CHẠY THẬT: chèn
+      lại câu vào bản sao một reference → đỏ đích danh file đó.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.cat_hinh_thuc_rang
+    paths:
+      - commands/signoff.md
+      - skills/acceptance/SKILL.md
+      - _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh
+    expected: >
+      exit 0; script rút câu-trả-lời-về-ai-commit-chữ-ký từ CẢ HAI thân qua
+      marker rồi assert chúng nói cùng một điều: cả hai đều nêu hai lối hợp lệ
+      (người tự commit HOẶC ra lệnh tường minh cho agent commit đúng phần
+      người-sở-hữu) và cả hai đều nêu `require_human_commit`. In
+      "AI-COMMIT: hai than dong bo OK". Đo QUAN HỆ giữa hai văn bản, không đo
+      sự có mặt của một chuỗi trong từng văn bản — lớp "đo từ vựng thay vì
+      quan hệ" đã dẫm 6 vòng. Neo âm kèm theo: cụm cũ "The user (not you)
+      fills" phải VẮNG, đối chứng dương base >0. Chiều đỏ CHẠY THẬT: sửa một
+      trong hai bản sao cho lệch nghĩa → đỏ "AI-COMMIT: hai than LECH:
+      <trích hai câu>".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E11
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.scripts
+    paths:
+      - scripts
+      - tests/scripts
+    expected: >
+      exit 0; "Results: <n> passed, 0 failed" với **n ≥ 671** (baseline đo tại
+      `daa9b3d` trên cây sạch). Ghim SÀN SỐ CA, không chỉ mã thoát: suite teo
+      lại vẫn cho "0 failed".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E12
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - tests/plugins/run-tests.sh
+    expected: >
+      exit 0; "all plugin tests passed" VÀ **số dòng `PASS:` đếm được ≥ 173**
+      (baseline `daa9b3d` khai trong contract). Suite này là suite DUY NHẤT
+      không tự in số ca — nó chỉ nói "all plugin tests passed" — nên nếu một
+      file case không được bộ chạy nhặt sau khi đổi tên, suite vẫn xanh với ít
+      hơn hàng chục ca. Sàn số ca là chân chống đúng việc đó, và đây lại chính
+      là suite hồ sơ này sửa case, nên không được để trống.
+      Hồ sơ SỬA case canh khối việc-của-anh (giữ ca render-trên-card, gỡ ca
+      luật-mỗi-tin), nên hai chân ngược nhau trong CÙNG lần chạy: stdout CÓ
+      dòng PASS của ca render-trên-card, và KHÔNG có dòng của ca luật-mỗi-tin.
+      Chân âm phải kèm ĐỐI CHỨNG DƯƠNG: in "MOI-TIN-CASE: base=<n>(>0) HEAD=0"
+      và ĐỎ khi base=0 với thông điệp "needle chua bao gio ton tai" — không có
+      vế đó thì gõ sai tên ca sẽ cho một chân âm đúng-một-cách-rỗng, và ca cũ
+      thực ra chỉ bị làm yếu chứ chưa hề gỡ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E13
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.hooks
+    paths:
+      - hooks
+    expected: >
+      exit 0; "Results: 54 passed, 0 failed" — số 54 là baseline tại `daa9b3d`.
+      Hồ sơ này KHÔNG chạm `hooks/` (lõi cưỡng chế, `t3_paths`); số đổi là tín
+      hiệu cắt lan sang lõi.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E14
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.workflows
+    paths:
+      - tests/workflows
+    expected: >
+      exit 0; "Results: 62 passed, 0 failed" — baseline tại `daa9b3d`.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E15
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.product_map
+    paths:
+      - PRODUCT-MAP.md
+    expected: >
+      exit 0 và stdout đúng câu "PRODUCT-MAP.md khớp hồ sơ xưởng." Ghim câu,
+      không ghim mã thoát. Đã có tiền lệ đỏ thật trong chính hồ sơ này: tạo
+      `_acceptance/cat-hinh-thuc/` mà chưa vẽ lại bản đồ làm P42/P45/P122/P126
+      đỏ — nên chiều đỏ của phép đo này đã CHẠY THẬT một lần, ghi trong evidence.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E16
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.mirror_sync
+    paths:
+      - scripts/sync-plugin-packages.sh
+    expected: >
+      exit 0 (P30 xanh): mirror khớp nguồn sau khi sync — mọi sửa văn chỉ dẫn
+      của hồ sơ này phải có mặt trong `plugins/`.
+      **KHAI TRƯỚC — eval này có tuổi thọ giới hạn:** hồ sơ
+      `luu-kho-codex-va-nghi-le-design` gỡ toàn bộ bộ máy mirror. Bên nào merge
+      SAU phải rebase và BỎ eval này cùng AC tương ứng. Ghi ở đây để không ai
+      phát hiện muộn rồi vá vội bằng cách hạ thước.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
