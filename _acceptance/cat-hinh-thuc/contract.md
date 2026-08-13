@@ -118,16 +118,23 @@ chí âm tính PHẢI kèm đối chứng dương: cùng câu quét chạy trên
 <!-- <<<SO-CA-KY-VONG-1A -->
 | suite | truoc | sau |
 |---|---|---|
-| plugins | 145 | CHUA-KHAI |
+| plugins | 145 | 145 |
 | workflows | 463 | 463 |
-| scripts | 686 | CHUA-KHAI |
+| scripts | 686 | 686 |
 | hooks | 54 | 54 |
 <!-- SO-CA-KY-VONG-1A>>> -->
 
-  **`CHUA-KHAI` là trạng thái hợp lệ và CỐ Ý** cho tới lúc đếm xong danh sách
-  case bị cắt: điền một con số bây giờ là đoán, và một con số đoán rồi sửa cho
-  vừa kết quả đo chính là hạ-thước. Hai suite không đụng (`workflows`, `hooks`)
-  khai ngay vì chúng là đẳng thức không-đổi.
+  **Bốn số khai đầy đủ 13/08, TRƯỚC khi đo, sau khi đọc từng ca đỏ.** Hai suite
+  không đụng (`workflows`, `hooks`) là đẳng thức không-đổi. Hai suite còn lại
+  cũng KHÔNG ĐỔI, và lý do đáng ghi vì nó ngược với dự kiến ban đầu: hạng mục
+  1a.2 làm chết một số **assertion**, nhưng **không ca nào mất đích để trỏ về**.
+  Mỗi ca đỏ (`P30` `P189` `P193` `P194`) còn nhiều vế khác vẫn đúng nguyên —
+  xoá trọn ca là vứt luôn những vế ấy. Nên đường đúng là **TRIM, không XOÁ**,
+  đúng nguyên tắc nhóm B/C mà hồ sơ 1b đã đặt: *xoá cho suite xanh lại là cách
+  rẻ nhất, và cũng chính là «gỡ quá tay» mà đẳng thức này sinh ra để bắt.*
+  Assertion bị gỡ phải khai từng dòng vào `tests/plugins/asserts-da-go.txt` —
+  bánh cóc `P161`/E11 kiểm HAI CHIỀU nên khai thiếu hay khai thừa đều đỏ.
+  `scripts` = 686 vì hồ sơ này không chạm `tests/scripts/`.
 
 ## Coverage
 
@@ -221,7 +228,7 @@ worktree này (KHÔNG tin số dòng trong đề bài — đã tìm lại từng
   cùng tệp thì (a) xung đột chắc chắn ở 5+ tệp, và (b) mọi phép đo chạy trên
   một cây không bao giờ tồn tại thật. Hệ quả phải khai: **1a chỉ merge được sau
   1b**, và nếu vòng rà soát đối kháng của 1b làm đổi vật thì 1a phải rebase lại.
-- **Mục *Out of scope* «toàn bộ `codex/`» nay TỰ THOẢ.** Nó viết cho cây còn
+- **Mục Out of scope «toàn bộ `codex/`» nay TỰ THOẢ.** Nó viết cho cây còn
   Codex; trên cây này `codex/` đã đi theo 1b, nên các tiêu chí âm tính của 1a
   không cần loại trừ gì nữa. Câu «1b phải merge thì mới có 0 hit toàn cây» vẫn
   đúng nguyên văn — chỉ là điều kiện ấy đã thoả sẵn ở base của nhánh này.

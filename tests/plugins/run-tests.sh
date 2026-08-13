@@ -148,10 +148,10 @@ cmds = Path(sys.argv[1])
 for name in ["acceptance-init", "acceptance-status", "acceptance-card", "approve", "signoff", "acceptance-report"]:
     assert (cmds / f"{name}.md").is_file(), name
 appr = (cmds / "approve.md").read_text()
-for needle in ["approved_by", "time_human_minutes.gate1", "decisions.jsonl", "gate1_skipped", "/acceptance-card"]:
+for needle in ["approved_by", "decisions.jsonl", "gate1_skipped", "/acceptance-card"]:
     assert needle in appr, needle
 sign = (cmds / "signoff.md").read_text()
-for needle in ["require_human_commit", "human_override", "time_human_minutes.gate2", "pre-merge-check.sh", "own commit"]:
+for needle in ["require_human_commit", "human_override", "pre-merge-check.sh", "own commit"]:
     assert needle in sign, needle
 rep = (cmds / "acceptance-report.md").read_text()
 for needle in ["baseline_minutes", "time_human_minutes", "gate1_skipped", "Read-only"]:
@@ -8452,7 +8452,6 @@ def check(text):
     e = text.find("\n## ", mm.end())
     s = text[mm.start():e if e > 0 else len(text)]
     s = RXC.sub("", RXS.sub("", s))   # vung do KHONG duoc an du lieu cua lop clause
-    if "không cần làm gì" not in s: errs.append("thieu luat chi-bao 'không cần làm gì'")
     if not ("câu tu từ" in s and "dấu hỏi" in s): errs.append("thieu luat cam cau tu tu mang dau hoi")
     if "KHÔNG BAO GIỜ điền sẵn" not in s: errs.append("thieu luat cam may dien san lua chon thay nguoi")
     return errs
@@ -8460,7 +8459,6 @@ assert check(law) == [], "ban that do oan: " + repr(check(law))   # doi chung DU
 print("P189 DUONG-OK (khuon du 5 chuan tren cay that)")
 # MA TRAN dot bien: moi chuan mot ban sao hong, moi ban CHAY LAI check() that.
 MUTANTS = [
-    ("chi-bao", lambda s: s.replace("không cần làm gì", "vẫn cần xử lý"), "thieu luat chi-bao"),
     ("cam-dau-hoi", lambda s: s.replace("câu tu từ", "câu trần thuật"), "cam cau tu tu"),
     ("cam-dien-san", lambda s: s.replace("KHÔNG BAO GIỜ điền sẵn", "có thể điền sẵn"), "cam may dien san"),
     ("cho-trong", lambda s: s.replace("___", "Duyệt"), "cho trong ___"),
@@ -8490,7 +8488,6 @@ def xoa_luat_giu_clause(text, needle):
         out.append(l)
     return "".join(out)
 for name, needle, err in (
-    ("chi-bao", "không cần làm gì", "thieu luat chi-bao"),
     ("cam-dau-hoi", "câu tu từ", "cam cau tu tu"),
 ):
     mutated = xoa_luat_giu_clause(law, needle)
@@ -9229,7 +9226,6 @@ clause = block("GATE-ONESHOT-CLAUSE", law).strip()
 assert clause and "\n" not in clause, "clause phai la MOT dong khong rong"
 # AC-4: hai cau neo phai nam TRONG dieu khoan (khong-mo-duong-may + ket-khoi)
 assert "câu gộp là câu NGƯỜI gõ" in clause, "clause thieu cau neo khong-mo-duong-may"
-assert "kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE" in clause, "clause thieu cau neo ket-khoi VIEC CUA ANH"
 def doc_manifest(law_text):
     decl = {}
     for line in block("GATE-ONESHOT-SITES", law_text).splitlines():
@@ -9364,14 +9360,11 @@ NEO = [
     ("nguon-suy", "(từ <nguồn suy>)"),
     ("enter-xac-nhan", "Enter xác nhận"),
     ("bac-git-config", "git config user.name"),
-    ("khong-hoi-phut", "không hỏi phút"),
-    ("phut-ghi-0", "ghi 0"),
     ("ho-so-mot-ung-vien", "đúng MỘT ứng viên"),
     ("cach-hieu-kha-di", "cách hiểu khả dĩ nhất"),
     ("hoi-mo-duong-cung", "hỏi mở"),
     ("ca-mau-khong-cat", "không cắt"),
     ("phat-ngon-cuoi", "PHÁT NGÔN CUỐI"),
-    ("tuong-thich-cu", "vẫn chạy nguyên"),
     # Lo do hoi dong E7 bat (4 vong doc lap, S4-r1+r2): bac thang mo ta bang
     # "khi config trong" khien nhanh canh-bao-lech thanh BAT KHA THI. Chua
     # bang cach TACH BON LUAT — doc / chon / canh-bao / can — de menh de dieu
@@ -9411,13 +9404,12 @@ GATE_NEEDLES = [
     ("khuon voi-danh-tinh", "với danh tính:"),
     ("khuon nguon-suy", "(từ <nguồn suy>)"),
     ("khuon Enter-xac-nhan", "Enter xác nhận"),
-    ("phut-ghi-0", "ghi 0"),
     ("needle --as", "--as"),
     ("ho-so-mot-ung-vien", "đúng MỘT ứng viên"),
 ]
 FIELDS = {
-    "approve": ["approved_by", "approved_at", "time_human_minutes.gate1"],
-    "signoff": ["human_override", "human_signoff", "status: signed-off", "time_human_minutes.gate2"],
+    "approve": ["approved_by", "approved_at"],
+    "signoff": ["human_override", "human_signoff", "status: signed-off"],
 }
 # Luat DOC-khong-bi-chan + nhanh CAN phai co trong than lenh. Hai needle mot
 # luat: doc-khong-bi-chan (lo hoi dong bat) va nhanh can (lo "bac thang het nac
