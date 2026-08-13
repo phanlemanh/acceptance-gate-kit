@@ -326,8 +326,14 @@ g = (Path(sys.argv[1]) / "GUIDE.md").read_text()
 # Ghim CAU chu the, khong dung cua so ky tu quanh tu khoa: cua so ±600 bat phai
 # chu "S3"/"stale" cua doan KHAC nen no khong phan biet duoc (da do: go han
 # "thuoc S3" van xanh). Assertion khong phan biet duoc la assertion khong song.
-assert "Bump version + sync mirror thuộc S3" in g, \
+# [SỬA 13/08, vòng thu gọn 1b — G11] Câu ghim cũ «Bump version + sync mirror
+# thuộc S3» tự nó là một CON TRỎ SỐNG tới mirror đã lưu kho: ca thường trực ghim
+# một chỉ dẫn đã chết, và giữ pin là giữ GUIDE nói dối. Assert cũ khai trong
+# asserts-da-go.txt theo đúng nghi thức bánh cóc.
+assert "Bump version thuộc S3" in g, \
     "GUIDE phai gan bump version vao S3 bang mot cau ro rang"
+assert "sync mirror" not in g, \
+    "GUIDE con chi dan song tro mirror da luu kho (G11)"
 assert "huỷ chính chữ ký" in g, \
     "GUIDE phai neu HE QUA: bump sau Cong 2 huy chinh chu ky vua lay"
 P43PY

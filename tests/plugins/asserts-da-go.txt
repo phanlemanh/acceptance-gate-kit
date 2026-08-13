@@ -143,3 +143,7 @@ assert len(THAN) >= 5, f"quet ra {len(THAN)} than cong co buoc regen — mong >=
 assert fl.count("| **CT1") == 1 and fl.count("| **CT2") == 1, "bảng tra CT1/CT2 phải có đúng 1 lần"
 assert "provenance.json" in fl and "design.fidelity" in fl, "điều kiện CT2 phải máy-đọc"
 assert text.count("| **CT1") == 1 and text.count("| **CT2") == 1, "bang tra CT1/CT2 bi pha"
+
+# ── Khai bổ sung 13/08 (vòng thu gọn 1b, G11): pin của P43 đổi vì câu cũ chứa
+# từ vựng mirror — chính nó là con trỏ sống tới vật đã lưu kho.
+assert "Bump version + sync mirror thuộc S3" in g, \
