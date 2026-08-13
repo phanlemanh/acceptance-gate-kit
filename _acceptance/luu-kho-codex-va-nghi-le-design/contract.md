@@ -5,7 +5,7 @@ slug: luu-kho-codex-va-nghi-le-design
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: approved → status: signed-off
+status: signed-off
 approved_by: Manh
 approved_at: 2026-08-12
 time_human_minutes: {gate1: 0, gate2: 0}
