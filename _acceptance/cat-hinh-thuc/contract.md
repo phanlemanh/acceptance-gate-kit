@@ -118,8 +118,9 @@ chí âm tính PHẢI kèm đối chứng dương: cùng câu quét chạy trên
   là khối `SO-CA-KY-VONG` của 1b, và ba eval dưới ghim đúng thông điệp sinh ra
   từ nó.
   · **Vì sao vẫn đủ chứng cho tiêu chí của hồ sơ NÀY.** Điều 1a cần chứng là
-  *«1a không làm xê dịch số ca»*. Vế `sau` trong khối của 1b (145 · 463 · 686 ·
-  54) được đo tại ngọn 1b, tức TRƯỚC mọi commit của 1a. Cây 1a khớp đúng vế ấy
+  *«1a không làm xê dịch số ca»*. Vế `sau` trong khối của 1b (146 · 463 · 686 ·
+  54 — `plugins` đi từ 145 lên 146 ở vòng sửa 2 của 1b, khi lưới `suite_key`
+  phải-resolve được trả lại thành ca `P195`; xem eval E12) được đo tại ngọn 1b, tức TRƯỚC mọi commit của 1a. Cây 1a khớp đúng vế ấy
   nghĩa là bốn con số không nhúc nhích qua toàn bộ 1a — đúng mệnh đề cần, đo
   bằng một bản khai có sẵn thay vì bịa thêm một mẫu số thứ hai để tự so với
   mình.
@@ -129,7 +130,7 @@ chí âm tính PHẢI kèm đối chứng dương: cùng câu quét chạy trên
   xuống mức vừa đo. Số ca kỳ vọng phải khai **trước** khi cắt, đếm a-priori từ
   danh sách case gọi tên.
 
-  **Bốn số kỳ vọng — `plugins` 145 · `workflows` 463 · `scripts` 686 ·
+  **Bốn số kỳ vọng — `plugins` 146 · `workflows` 463 · `scripts` 686 ·
   `hooks` 54 — khai đầy đủ 13/08, TRƯỚC khi đo, sau khi đọc từng ca đỏ.** Bốn
   con số này KHÔNG lặp lại thành khối máy-đọc ở đây; chúng in ra từ bản khai duy
   nhất của 1b (xem gạch đầu dòng «MỘT bản khai» trên). Hai suite

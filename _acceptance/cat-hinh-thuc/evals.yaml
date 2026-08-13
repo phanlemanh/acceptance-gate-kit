@@ -345,10 +345,18 @@ evals:
     paths:
       - tests/plugins/run-tests.sh
     expected: >
-      exit 0; "LUU-KHO-SUITE: plugins 173 -> 145 OK".
+      exit 0; "LUU-KHO-SUITE: plugins 173 -> 146 OK".
       **[SỬA SAU CỔNG 1 — 13/08, thi công] Đổi từ SÀN `≥ 173` sang ĐẲNG THỨC
-      145** — cùng lý do E11, và ở đây gắt hơn vì hồ sơ này SỬA case của chính
-      suite ấy. Số ca KHÔNG đổi (145) dù bốn ca mất assertion: mỗi ca còn nhiều
+      146** — cùng lý do E11, và ở đây gắt hơn vì hồ sơ này SỬA case của chính
+      suite ấy.
+      **[SỬA SAU CỔNG 1 — 13/08, rebase lượt hai] Vế `sau` đi từ 145 lên 146 và
+      con số ấy KHÔNG phải của 1a.** Vòng sửa 2 «một-nguồn» của hồ sơ 1b trả lại
+      lưới «mọi `suite_key` phải resolve» thành ca `P195` trong bộ kiểm thường
+      trực (nó bị gỡ kèm ca `P162` lúc lưu kho — finding F6 của rà soát vòng 2).
+      Bản khai duy nhất là khối của 1b, và nó nay ghi `plugins | 173 | 146`.
+      Mệnh đề của 1a không đổi một chữ: khớp vế `sau` — đo tại ngọn 1b, tức
+      TRƯỚC mọi commit của 1a — vẫn đúng là *«1a không xê dịch số ca»*.
+      Số ca của riêng 1a KHÔNG đổi dù bốn ca mất assertion: mỗi ca còn nhiều
       vế đúng nguyên nên đường đúng là TRIM chứ không XOÁ; xoá trọn ca là vứt
       luôn những vế ấy, đúng thứ «gỡ quá tay» mà đẳng thức sinh ra để bắt.
       Suite này là suite DUY NHẤT

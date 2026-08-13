@@ -1,7 +1,7 @@
 ---
 schema_version: 1
 slug: cat-hinh-thuc
-round: 1
+round: 2
 verdict: PENDING-JUDGMENT
 verified_commit: de040a417951
 ---
@@ -20,6 +20,28 @@ vì thế không phải "làm hỏng tính năng" mà là **cắt lan sang lư�
 **phép đo âm tính không sống** (thứ gì cũng "0 hit" nếu chưa bao giờ chạy).
 Cả hai rủi ro được dựng lưới trước khi cắt, không phải sau.
 
+## Rebase lượt hai — lên vòng sửa 2 của 1b (13/08)
+
+Hồ sơ 1b bị rà soát đối kháng vòng 2 **REJECT**, và vòng sửa 2 «một-nguồn» của
+nó **đổi vật mà 1a mượn**. Hợp đồng 1a đã khai trước đúng tình huống này
+(*«nếu vòng rà soát đối kháng của 1b làm đổi vật thì 1a phải rebase lại rồi đo
+lại»*), nên đây là thi hành một lời khai chứ không phải một quyết định mới.
+
+Ba thứ đổi theo, không thứ nào là nới tiêu chí:
+
+1. **Nền**: `3dcd57f` → `cdf0a1de`.
+2. **Vế `sau` của `plugins`: 145 → 146.** 1b trả lại lưới «mọi `suite_key` phải
+   resolve» thành ca `P195` trong bộ kiểm thường trực (nó bị gỡ kèm ca `P162`
+   lúc lưu kho — F6 của rà soát vòng 2). Bản khai duy nhất vẫn là khối của 1b;
+   1a chỉ đi theo. **Mệnh đề của 1a không đổi một chữ**: vế `sau` đo tại ngọn
+   1b, tức TRƯỚC mọi commit của 1a, nên khớp nó vẫn đúng là *«1a không xê dịch
+   số ca»*.
+3. **Re-pin `stop-patching-law`**: commit re-pin cũ của 1a (lần 11, sha
+   `3612a61`) bị **bỏ trong lúc rebase** — 1b đã ghi lần 11 của riêng nó bằng
+   một lượt lane khác. Giữ cả hai là hai dòng cùng số thứ tự trỏ hai sha khác
+   nhau. 1a ghi lại thành **lần 12** bằng một lượt lane MỚI tại sha mới; nghi
+   thức cấm tái dùng lane cũ.
+
 ## Số đo
 
 Tất cả đo tại `de040a4`, sổ chạy `run-log.jsonl` do **phép đo sinh** (không gõ
@@ -27,7 +49,7 @@ tay): 15 dòng · 7 lượt chạy vật lý · **0 lượt ĐỎ** · 4 eval ch
 
 | Phép đo | Kết quả | Đẳng thức khai TRƯỚC |
 |---|---|---|
-| Bộ kiểm gói | **145/145 xanh** | `173 → 145` ✔ |
+| Bộ kiểm gói | **146/146 xanh** | `173 → 146` ✔ |
 | Bộ kiểm luồng | **463/463 xanh**, đúng 6 dòng tổng kết | `488 → 463` ✔ |
 | Bộ kiểm script | **686/686 xanh** | `671 → 686` ✔ |
 | Bộ kiểm hook | **54/54 xanh** | `54 → 54` (không chạm lõi) ✔ |
@@ -43,7 +65,7 @@ sửa này) E13 đều so **đẳng thức** với bản khai máy-đọc, khôn
 trước mọi commit của 1a. Cây 1a khớp đúng chúng nghĩa là **1a không xê dịch một
 ca nào**, đúng thứ cần chứng. Đối chứng độc lập, KHÔNG đi qua bộ đếm: rút danh
 sách **tên** từng ca ở ngọn 1b (`3dcd57f`, dựng worktree riêng) và ở ngọn 1a, đo
-cùng một môi trường — **145 tên mỗi bên, `diff` bằng 0**. Đẳng thức số ca chỉ
+cùng một môi trường — **146 tên mỗi bên, `diff` bằng 0**. Đẳng thức số ca chỉ
 nói *bằng nhau về SỐ*; phép so tên nói *bằng nhau về TẬP* — một ca mất và một ca
 mới thêm sẽ lọt phép trước nhưng không lọt phép sau.
 
