@@ -322,25 +322,34 @@ evals:
   - id: E11
     criterion: AC-11
     executor: test
-    cmd: config:executors.test.scripts
+    cmd: config:executors.script.luu_kho_so_ca_scripts
     paths:
       - scripts
       - tests/scripts
     expected: >
-      exit 0; "Results: <n> passed, 0 failed" với **n ≥ 671** (baseline đo tại
-      `daa9b3d` trên cây sạch). Ghim SÀN SỐ CA, không chỉ mã thoát: suite teo
-      lại vẫn cho "0 failed".
+      exit 0; "LUU-KHO-SUITE: scripts 671 -> 686 OK".
+      **[SỬA SAU CỔNG 1 — 13/08, thi công] Đổi từ SÀN `≥ 671` sang ĐẲNG THỨC.**
+      Sàn mất răng đúng lúc cần nhất: hồ sơ này CỐ Ý làm chết một số assertion,
+      nên lúc suite đỏ thì đường thoát rẻ nhất là hạ sàn xuống mức vừa đo. Số
+      686 khai trong khối `SO-CA-KY-VONG-1A` của contract và do `so-ca.sh` (vật
+      của hồ sơ 1b) đọc chính khối đó — không dựng bộ đếm thứ hai. Baseline
+      `daa9b3d` trong bản duyệt lỗi thời vì nhánh này đứng trên cây đã có 1b.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E12
     criterion: AC-11
     executor: test
-    cmd: config:executors.test.plugins
+    cmd: config:executors.script.luu_kho_so_ca_plugins
     paths:
       - tests/plugins/run-tests.sh
     expected: >
-      exit 0; "all plugin tests passed" VÀ **số dòng `PASS:` đếm được ≥ 173**
-      (baseline `daa9b3d` khai trong contract). Suite này là suite DUY NHẤT
+      exit 0; "LUU-KHO-SUITE: plugins 173 -> 145 OK".
+      **[SỬA SAU CỔNG 1 — 13/08, thi công] Đổi từ SÀN `≥ 173` sang ĐẲNG THỨC
+      145** — cùng lý do E11, và ở đây gắt hơn vì hồ sơ này SỬA case của chính
+      suite ấy. Số ca KHÔNG đổi (145) dù bốn ca mất assertion: mỗi ca còn nhiều
+      vế đúng nguyên nên đường đúng là TRIM chứ không XOÁ; xoá trọn ca là vứt
+      luôn những vế ấy, đúng thứ «gỡ quá tay» mà đẳng thức sinh ra để bắt.
+      Suite này là suite DUY NHẤT
       không tự in số ca — nó chỉ nói "all plugin tests passed" — nên nếu một
       file case không được bộ chạy nhặt sau khi đổi tên, suite vẫn xanh với ít
       hơn hàng chục ca. Sàn số ca là chân chống đúng việc đó, và đây lại chính

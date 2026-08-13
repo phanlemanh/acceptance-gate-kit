@@ -60,8 +60,9 @@ chỉ khai QUYẾT ĐỊNH; danh tính và ngày là điều máy biết:
   nhắn trống; chỉ trả lời nêu tên hoặc ngày khác mới là sửa danh tính
   (sửa được cả tên lẫn ngày ở cùng dòng đó); người tự khai phần nào thì phần đó ghi
   thẳng; phần máy suy vẫn hiện trong dòng xác nhận, khai đủ thì không hỏi.
-  **Máy KHÔNG hỏi và KHÔNG ghi số phút.** Vế `, phút <số>` ở cuối vẫn ĐƯỢC CHẤP
-  NHẬN và BỎ QUA lặng — không lỗi, không ghi, không hỏi lại; người quen tay gõ
+  **Máy KHÔNG hỏi và KHÔNG ghi số phút.**
+  Vế `, phút <số>` ở cuối vẫn ĐƯỢC CHẤP NHẬN và BỎ QUA lặng
+  — không lỗi, không ghi, không hỏi lại; người quen tay gõ
   nó theo phản xạ thì câu vẫn chạy trọn. Ngày người nêu — trong câu gộp hoặc ở dòng xác
   nhận — LUÔN thắng ngày máy suy. Chữ «Ký» vẫn phải do NGƯỜI gõ — Enter xác
   nhận chỉ xác nhận danh tính, không phải chữ ký.

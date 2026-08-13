@@ -154,7 +154,7 @@ sign = (cmds / "signoff.md").read_text()
 for needle in ["require_human_commit", "human_override", "pre-merge-check.sh", "own commit"]:
     assert needle in sign, needle
 rep = (cmds / "acceptance-report.md").read_text()
-for needle in ["baseline_minutes", "time_human_minutes", "gate1_skipped", "Read-only"]:
+for needle in ["gate1_skipped", "Read-only"]:
     assert needle in rep, needle
 PY
 

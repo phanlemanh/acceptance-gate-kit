@@ -194,7 +194,7 @@ worktree này (KHÔNG tin số dòng trong đề bài — đã tìm lại từng
   bản neo. Đổi chữ cho lint xanh sẽ làm hợp đồng lệch khỏi văn bản nó phải
   trace về — cái giá lớn hơn cái được. Các cờ W6 khác đã sửa về từ chuẩn
   (`card` thay `thẻ`, `case đo` thay `test`).
-- **LỖ ENGINE phát hiện lúc dựng thẻ Cổng 1 — ngoài phạm vi hồ sơ này, nhưng
+- **LỖ LÕI KIT phát hiện lúc dựng card Cổng 1 — ngoài phạm vi hồ sơ này, nhưng
   phải ghi vì nó im lặng.** Sau phản biện tôi đặt hai tiêu chí mới tên `AC-1b`
   và `AC-9b`. Thẻ Cổng 1 render **11/13** tiêu chí, và lint **không hề kêu**.
   Nguyên nhân: cả `lib/ac-line.cjs` lẫn `scripts/eval-coverage-lint.js` dùng

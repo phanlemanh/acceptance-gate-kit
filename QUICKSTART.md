@@ -5,7 +5,7 @@
 
 Gate nghiệm thu cho code do AI viết. Thay vì bạn click tay 1-2 giờ kiểm tra
 một tính năng, máy tự chạy bộ evals và nộp **evidence report**; bạn chỉ làm
-2 việc, mỗi việc 5-10 phút:
+2 việc:
 
 ```
 yêu cầu (prompt/ticket/PRD)

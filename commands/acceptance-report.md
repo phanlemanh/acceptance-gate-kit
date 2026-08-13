@@ -9,9 +9,9 @@ slipping. It is read-only: modify nothing while reporting.
 
 **Không còn nhánh phút-vs-baseline.** Kit thôi hỏi và thôi ghi số phút của
 người (hồ sơ `cat-hinh-thuc`): con số ấy do người điền cho qua cổng nên nó vừa
-tốn người vừa sinh dữ liệu giả, và mẫu số `baseline_minutes` cố ý để trống nên
-tỉ lệ "giảm ≥50%" chưa bao giờ tính được. Trường `time_human_minutes` VẪN đọc
-được ở 38 hồ sơ cũ — báo cáo này chỉ thôi tính KPI trên nó, không vỡ khi gặp.
+tốn người vừa sinh dữ liệu giả, và cái mốc-trước-khi-có-cổng để chia thì cố ý
+để trống nên tỉ lệ "giảm một nửa" chưa bao giờ tính được. Trường phút của hồ sơ
+cũ VẪN đọc được — báo cáo chỉ thôi tính chỉ tiêu trên nó, không vỡ khi gặp.
 
 Optional arg `--since YYYY-MM-DD`: include only features whose `approved_at`
 or `verified_at` is on/after that date.

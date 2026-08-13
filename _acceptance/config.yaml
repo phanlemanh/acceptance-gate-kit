@@ -47,6 +47,9 @@ executors:
     luu_kho_so_ca_workflows: "bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite workflows"
     luu_kho_so_ca_scripts: "bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite scripts"
     luu_kho_so_ca_hooks: "bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite hooks"
+    # Vật của hồ sơ cat-hinh-thuc — răng đo sự VẮNG MẶT của một luật hành xử,
+    # đối chứng dương neo vào `origin/main`. Cùng nếp không-vào-suite-vĩnh-viễn.
+    cat_hinh_thuc_rang: "bash _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh"
     # Vật của MỘT hồ sơ (chip ③), so với base tường minh origin/main — cố ý
     # KHÔNG vào suite vĩnh viễn (PR tương lai đổi bên-viết hợp lệ sẽ đỏ oan).
     # Cùng nếp E7 no-vat-that-drift.sh của chip ②b.
