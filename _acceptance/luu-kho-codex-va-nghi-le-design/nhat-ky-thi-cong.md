@@ -563,7 +563,8 @@ Danh sách «Phân loại CHỐT» ở trên kể **24** ca xoá, trong khi hợ
   `commands/`, và `P30`/`P32` canh nửa đó. Xoá là ĐÚNG; tội là chuyển nhóm mà
   không sửa danh sách CHỐT.
 
-Bản liệt kê ĐỦ, do máy sinh (diff TÊN ca mốc → ngọn), nằm ở
-`review-findings.md` mục «Rà soát đối kháng — vòng 2 › DIFF TÊN CA» và được
-vòng 3 đo lại khớp. Danh sách CHỐT ở trên giữ nguyên làm sử liệu — sửa nó là
+Bản liệt kê ĐỦ chưa được commit ở đâu (con trỏ cũ của đoạn này sai — vòng 4
+bắt); cách tái sinh nó là phép máy: chạy `tests/plugins/run-tests.sh` ở mốc
+`truoc-luu-kho-2026-08` và ở ngọn, rút danh sách tên ca hai bên rồi `diff` —
+vòng 2 và vòng 3 đều đã chạy phép này và số tổng khớp bản khai. Danh sách CHỐT ở trên giữ nguyên làm sử liệu — sửa nó là
 xoá dấu vết một lần phân loại sai.

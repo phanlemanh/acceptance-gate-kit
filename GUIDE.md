@@ -196,7 +196,7 @@ flowchart LR
 > 2026-07-26: ký ở `827f549`, bump ở `834eae8`, staleness guard nổ ngay sau đó.
 > Nếu repo có suite ghim số version bằng literal thì bump còn SỬA cả suite —
 > tức code đổi thật, stale là đúng luật. Cách chữa gốc: suite kiểm các manifest
-> **khớp nhau** thay vì ghim một con số (xem case P22 của kit).
+> **khớp nhau** thay vì ghim một con số.
 
 | `status` hiện tại | Ai set | Resume vào |
 |---|---|---|

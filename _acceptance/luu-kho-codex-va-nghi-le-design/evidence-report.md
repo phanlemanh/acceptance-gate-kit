@@ -2,13 +2,13 @@
 schema_version: 1
 slug: luu-kho-codex-va-nghi-le-design
 round: 5
-verdict: PENDING-JUDGMENT
+verdict: PASS
 verified_commit: 185474232914
 ---
 
 # Trang bằng chứng — lưu kho harness song sinh và nghi lễ design
 
-## Verdict: **chờ rà soát đối kháng vòng 4**
+## Verdict: **PASS (vòng 4, 2026-08-13 — cả hai lăng kính) · chờ owner gạch Cổng 2**
 
 > **Vòng thu gọn «chỉ TRỪ» — 13/08, owner gạch sau phân tích từ nguyên lý gốc.**
 > Chẩn đoán: hồ sơ 1b mắc đúng căn bệnh nó sinh ra để chữa — bộ đo của nó nuôi
@@ -251,6 +251,10 @@ eval loại đó và thêm một cái là mở một làn mới giữa vòng s�
 tôi làm** — đường rẻ nhất là cấm needle đứng chung dòng với động từ mệnh lệnh
 (`run`/`chạy`/`install`/`uninstall`), và lưu ý nó sẽ ĐỎ ngay với `NOTE FOR
 UPGRADERS` hiện tại, tức lần chạy đầu là một quyết định về câu chữ ấy.
+
+**[13/08, vòng 4] Round-trip chỉ có cho `VAT-LUU-KHO`.** `NEEDLE-CHET` và
+`SO-CA-KY-VONG` được bộ răng đọc thẳng nhưng KHÔNG có chân đột biến chứng minh
+bên-đọc-theo-bên-viết — nằm dưới ĐÁY (dụng cụ), khai ở đây cho đúng lời E20.
 
 Sáu mục dưới đây **cố ý không sửa** (bản trước mở bằng «bốn» rồi liệt kê sáu — F14). Căn cứ chung: đây là răng **dùng một lần**
 cho một đợt lưu kho, chết theo hồ sơ khi merge — không phải lưới engine vĩnh

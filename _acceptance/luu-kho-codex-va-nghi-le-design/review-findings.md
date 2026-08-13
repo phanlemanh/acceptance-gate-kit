@@ -523,3 +523,30 @@ workflows **463** (324+11+42+16+26+44) · scripts **686** · hooks **54** — kh
 bản khai cả bốn; mốc cho 173 · 488 · 671 · 54, khớp cột `truoc`. Diff tên ca
 `d6044a4`→ngọn: plugins 0 mất / 1 thêm (`P195`), scripts 0 mất / 22 thêm
 (`RS01–RS06`), hooks và workflows 0/0.
+
+---
+
+# Rà soát đối kháng — vòng 4
+
+*Hai phiên chấm độc lập (lăng kính phép-đo+gỡ-quá-tay và hợp-đồng-đối-vật),
+context sạch, chấm theo LUẬT MỚI của AC-20 bản thu: đáy chứng minh đã tuyên,
+dụng cụ phía trên đáy không phải lời hứa.*
+
+## Verdict vòng 4: **PASS — cả hai lăng kính**
+
+Đáy đứng vững toàn bộ khi đo độc lập không qua dụng cụ của hồ sơ: bốn đẳng
+thức khớp từng con số ở cả hai đầu (146/463/686/54, mốc 173/488/664-nội-bộ/54);
+diff TÊN ca chỉ +`P195`, 0 mất; mốc trên remote đúng sha và là cha trực tiếp
+của commit gỡ đầu; 7/7 vật `VAT-LUU-KHO` vắng-ở-HEAD/có-ở-mốc; 9/9 vật CẤM
+ĐỤNG byte-equal; vật phát đi 0 hit con trỏ mirror/codex; P195 đỏ đích danh cả
+ba chiều phá; 15 nhóm/16 chiều đỏ đếm ra đúng; 9/9 chuỗi ghim có mặt; chuyện
+«lượt đỏ P43» khớp sổ từng chi tiết; re-pin 12 trọn bốn vế; 15/15 bản xử G1–G15
+đúng với cây ở phần máy.
+
+**6 finding (2 P1 · 4 P2), đều lớp con-trỏ/lời-khai, KHÔNG chặn vật — đã xử
+ngay trong vòng (commit này):** GUIDE bỏ con trỏ chết «case P22» (vế
+manifest-khớp-nhau của P22 chết cùng Codex) · known-limit round-trip-một-khối
+khai vào evidence cho đúng lời E20 · đính chính G15 sửa con trỏ sai (mục «DIFF
+TÊN CA» chưa từng được commit) · E4/E7 gỡ nốt bản chép giá trị chỉ-người-đọc
+(«13/13», «4/4», dẫn xuất 686) · `acceptance-init.md` bỏ khái niệm «mirror-sync
+commits» đã chết · `script_paths` của P195 hết mù với executor mang cờ.
