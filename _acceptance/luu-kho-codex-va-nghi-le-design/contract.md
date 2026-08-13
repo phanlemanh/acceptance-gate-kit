@@ -203,10 +203,17 @@ eval ĐỎ, không phải bỏ qua.
   một người thật gõ lệnh khởi động ở repo tiêu thụ.
 - AC-11: Given cây đã gỡ, When chạy 4 suite + `product-map --check`, Then tất cả
   xanh **và số ca khớp ĐẲNG THỨC khai trước**, không phải khớp một cái sàn:
-  `scripts` **671 → 664** (gỡ 7 assert `DSC01–03` + `SG1–4` trong
-  `tests/scripts/run-tests.sh:1390-1406` gọi thẳng script của design-loop) ·
-  `plugins` **173 → 145** · `hooks` **54 → 54** ·
+  `scripts` **671 → 686** (gỡ 7 assert `DSC01–03` + `SG1–4` trong
+  `tests/scripts/run-tests.sh:1390-1406` gọi thẳng script của design-loop, rồi
+  THÊM 22 assert cho AC-17) · `plugins` **173 → 145** · `hooks` **54 → 54** ·
   `workflows` **488 → 463**. Đỏ ghim "so ca lech ky vong: <truoc> -> <sau>".
+  **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1 · owner gạch đường 3] Đẳng thức
+  `scripts` đổi từ `671 − 7 = 664` sang `671 − 7 + 22 = 686`.** Đây là lần đầu
+  con số đi LÊN, và lý do phải đọc kỹ hơn mọi lần trước: AC-17 thêm một guard
+  vào `scripts/pre-merge-check.sh` — tệp nằm trong `t3_paths` (lõi cưỡng chế),
+  nên nó KHÔNG được vào cây mà không có răng. 22 assert là đếm A-PRIORI từ mã
+  vừa viết, TRƯỚC khi chạy suite: `RS01` 5 · `RS02` 3 · `RS03` 3 · `RS04` 3 ·
+  `RS05` 3 · `RS06` 5. Đo ra khác 686 ⇒ đi tìm ca, KHÔNG sửa số.
   **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Bốn con số trên nay có MỘT bản
   máy-đọc, và một script assert chúng.** Rà soát đối kháng vòng 1 chỉ ra thông
   điệp đỏ đã hứa ở trên **không tồn tại trong bất kỳ mã nào**: cả bốn đẳng thức
@@ -220,7 +227,7 @@ eval ĐỎ, không phải bỏ qua.
 |---|---|---|
 | plugins | 173 | 145 |
 | workflows | 488 | 463 |
-| scripts | 671 | 664 |
+| scripts | 671 | 686 |
 | hooks | 54 | 54 |
 <!-- SO-CA-KY-VONG>>> -->
   **[SỬA SAU CỔNG 1 — 12/08, Phiên C] Con số `workflows` đổi từ «62 → 62» sang

@@ -2,6 +2,12 @@
 # pre-merge-check.sh — CI gate for the Acceptance-Gate Kit.
 #
 # Usage: pre-merge-check.sh [repo_root] [--slug <slug>]... [--base <ref>] [--no-t1-escape]
+#        pre-merge-check.sh ... [--recheck-all]
+#
+# --recheck-all: re-check the committed evidence of EVERY slug, including those
+# outside the PR diff. Without it the re-check rule is scoped to slugs the PR
+# touches (see RECHECK-DIFF-SCOPE-GUARD below). Use it after raising the bar in
+# lib/evidence-core.cjs, to re-measure the whole archive against the new bar.
 #
 # --no-t1-escape: turn off ONLY the T1-escape backstop for push-event runs
 # (commits landing directly on the main branch have no PR premise); every other
@@ -75,6 +81,7 @@ BASE="${PRE_MERGE_BASE:-}"
 # đang dạy consumer truyền đúng `--base`, nên opt-in sẽ làm răng tắt IM LẶNG trên
 # mọi repo tiêu thụ đang chạy — biến một sửa lỗi thành lỗ fail-open hàng loạt.
 T1_ESCAPE=1
+RECHECK_ALL=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --slug)
@@ -102,6 +109,13 @@ while [ $# -gt 0 ]; do
     --no-t1-escape)
       # Không nhận tham số — `reason` là hằng, giữ ranh giới "không thêm cờ nào khác".
       T1_ESCAPE=0; shift ;;
+    --recheck-all)
+      # Ép re-check TOÀN BỘ hồ sơ, kể cả ngoài phạm vi diff. Đây là đường CỨU
+      # cho cái mà việc thu phạm vi làm mất: thước thôi hồi tố. Siết bar trong
+      # `lib/evidence-core.cjs` xong thì chạy một lượt có cờ này để đo lại cả
+      # kho theo thước mới — không có nó, "hồ sơ cũ không bao giờ bị đo lại"
+      # là mất vĩnh viễn, không phải mất tạm.
+      RECHECK_ALL=1; shift ;;
     -*)
       # `-*` chứ không phải `--*`: một gạch cũng là lỗi gõ, và bản chỉ bắt hai
       # gạch để lọt `-no-t1-escape` y nguyên. Nuốt cờ lạ vào ROOT là fail-open
@@ -498,6 +512,19 @@ fi
 # răng T1-escape, dòng này không được lẫn vào).
 if [ "$DIFF_READY" -eq 0 ]; then
   echo "NOTE: staleness scope — no PR diff scope; the stale-evidence rule checks ALL slugs (pass --base <ref> to scope it to slugs whose _acceptance/<slug>/ files are in the PR diff)"
+fi
+
+# ─── RECHECK-DIFF-SCOPE (1.41.0): phạm vi luật re-check ─────────────────────
+# Cùng fail-safe với staleness: không dựng được phạm vi diff thì kiểm TẤT như
+# trước. Tắt-phạm-vi phải THẤY ĐƯỢC — đúng MỘT dòng hằng cho cả lần chạy, cố ý
+# không chứa chữ "skipped" (guard fail-closed của gate.yml grep chuỗi đó cho
+# răng T1-escape, dòng này không được lẫn vào).
+RECHECK_SKIPPED=0
+if [ "$RECHECK_MODE" != off ] && [ "$RECHECK_ALL" -eq 0 ] && [ "$DIFF_READY" -eq 0 ]; then
+  echo "NOTE: recheck scope — no PR diff scope; the committed-evidence re-check runs on ALL slugs (pass --base <ref> to scope it, or --recheck-all to force the full sweep)"
+fi
+if [ "$RECHECK_MODE" != off ] && [ "$RECHECK_ALL" -eq 1 ]; then
+  echo "NOTE: recheck scope — --recheck-all: the committed-evidence re-check runs on ALL slugs, ignoring the PR diff scope"
 fi
 
 # per-slug: hai đường dẫn độc lập về lexical — vòng đếm dưới đây dùng biến
@@ -945,9 +972,34 @@ NETIDS
   fi
   # Re-verify the COMMITTED evidence with the same core the hook runs — catches a
   # report hand-edited after the write-time hook, or written under bypass.
+  # ─── RECHECK-DIFF-SCOPE (1.41.0): sử liệu ngoài diff không bị re-check ────
+  # Ngữ nghĩa GIỐNG luật staleness: bar này bảo vệ "bằng chứng đi kèm cây ĐANG
+  # merge". Hồ sơ đã merge là sử liệu; soi lại chúng ở MỌI lượt CI biến một
+  # quyết định đã duyệt trong quá khứ thành cái chặn mọi PR tương lai vì lý do
+  # không liên quan gì tới PR đó. Đã cắn thật: hồ sơ lưu-kho gỡ khoá
+  # `executors.script.mirror_sync` (tiêu chí AC-9 của nó), và 21 hồ sơ ĐÃ KÝ có
+  # eval trỏ khoá ấy lập tức chặn merge — không hồ sơ nào trong 21 nằm trong
+  # diff, không hồ sơ nào sửa được mà không viết vào vật đã ký.
+  # Phạm vi dùng ĐÚNG hàm `slug_in_diff` mà gap-probe và staleness dùng — một
+  # nguồn ngữ nghĩa slug↔diff, không parser thứ ba.
+  # Guard kiểm DIFF_READY chứ KHÔNG kiểm $BASE: base-có-mà-diff-không-dựng-được
+  # (clone shallow CI) phải rơi về kiểm-tất, không phải tắt im.
+  # ĐÁNH ĐỔI, khai thẳng: thước thôi HỒI TỐ. Siết bar trong evidence-core.cjs
+  # về sau sẽ không tự đo lại hồ sơ cũ. Đường cứu là cờ `--recheck-all`; không
+  # có cờ đó thì cái mất này là vĩnh viễn chứ không phải tạm.
   if [ "$RECHECK_MODE" != off ]; then
     if [ -f "$RECHECK" ] && command -v node >/dev/null 2>&1; then
+      # Guard đặt Ở ĐÂY, ôm đúng MỘT dòng gọi node, và dòng ấy giữ NGUYÊN VĂN cả
+      # thụt lề — kể cả khi trông lệch mắt. Lý do: răng `additive-only` (DV5)
+      # đòi diff của tệp này so với base CHỈ ĐƯỢC THÊM, không dòng luật cũ nào
+      # bị xoá/sửa. Bản đầu của tôi viết lại `if [ "$RECHECK_MODE" != off ]`
+      # thành `elif` và DV5 đỏ đúng như nó phải đỏ. Nắn thụt lề cho đẹp ở đây
+      # là xoá một dòng luật cũ — đúng thứ răng ấy sinh ra để chặn.
+      if [ "$RECHECK_ALL" -eq 0 ] && [ "$DIFF_READY" -eq 1 ] && ! slug_in_diff "$slug"; then # RECHECK-DIFF-SCOPE-GUARD
+        RECHECK_SKIPPED=$((RECHECK_SKIPPED+1)); recheck_out=""; rc=0
+      else
       recheck_out="$(node "$RECHECK" "$report" 2>&1)"; rc=$?
+      fi
       if [ "$rc" -eq 1 ]; then
         if [ "$RECHECK_MODE" = strict ]; then label="VIOLATION"; else label="NOTE"; fi
         echo "$label [$slug]: committed evidence fails re-check (recheck: $RECHECK_MODE):"
@@ -962,6 +1014,13 @@ NETIDS
   fi
   echo "OK [$slug]: $verdict, signed off by $signoff"
 done
+
+# Cắt im lặng đọc y hệt "đã phủ hết" — nên số hồ sơ KHÔNG được re-check phải in
+# ra. Chỉ in khi có cắt thật: lần chạy không cắt gì thì thêm một dòng hằng là
+# rác, và một dòng rác lặp lại là dòng người đọc học cách bỏ qua.
+if [ "$RECHECK_SKIPPED" -gt 0 ]; then
+  echo "NOTE: recheck scope — $RECHECK_SKIPPED slug ngoài diff PR không được re-check (sử liệu; dùng --recheck-all để quét toàn bộ)"
+fi
 
 # per-slug chỉ được ghi `ran` khi vòng lặp nhìn thấy ĐÚNG số thư mục mà phép
 # đếm độc lập nhìn thấy.
