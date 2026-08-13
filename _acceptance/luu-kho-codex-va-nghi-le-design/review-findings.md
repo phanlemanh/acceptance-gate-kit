@@ -175,3 +175,169 @@ làm bằng chứng thì nên biết nó đo cái gì.
 - **Một hằng số hạ có lý do tốt nhất đợt**: nửa ma trận chết theo một harness,
   sàn gốc giữ nguyên để canh bảng khai, và dòng in nêu rõ bao nhiêu ca bị bỏ
   qua — fail-closed.
+
+---
+
+# Rà soát đối kháng — vòng 2
+
+*Ba phiên chấm độc lập, cùng ba lăng kính vòng 1 (phép đo · gỡ-quá-tay ·
+hợp đồng-đối-vật), context sạch, chấm trên worktree riêng tại đúng ngọn
+`3dcd57f`. Người viết vòng sửa KHÔNG chấm — chỉ dựng môi trường và tổng hợp.*
+
+## Verdict vòng 2: **REJECT**
+
+Luật tổng: bất kỳ P0 ở bất kỳ lăng kính nào → REJECT. **Cả ba lăng kính đều
+REJECT**, tổng **4 P0 · 7 P1 · 3 P2** sau khi gộp trùng.
+
+Vòng sửa 1 **đã chữa đúng** lớp lỗi nặng nhất của vòng 1 — cả ba phiên chấm
+độc lập xác nhận điều này, và hai phiên còn ghi riêng một mục «cố bác mà không
+bác được»:
+
+- 14 dòng `[đột biến]` là **thật**: mỗi dòng chạy lại chính hàm kiểm trên bản
+  sao bị tiêm, có đối chứng dương chạy trước. Lớp B1/B2/B3/B6/B9 đóng.
+- Bốn đẳng thức số ca có chân máy thật và **khớp từng con số khi đo độc lập,
+  không qua `so-ca.sh`** — kể cả `diff` danh sách TÊN ca hai đầu (không có ca
+  nào biến mất được che bởi một ca mới thêm).
+- A1 (`layout-craft.md`) nay nói đúng với vật; 9/9 vật CẤM ĐỤNG băm y hệt mốc;
+  không khoá `config:executors.*` nào chết; re-pin lần 10 hợp nghi thức.
+- AC-19 đo lại tại `d6044a4`: `FAIL: JR11b` thật sự nằm trong
+  `core-untouched.test.mjs` trong khi suite in `664 passed, 0 failed`. Bug có
+  thật, bản vá đúng, 21 slug allowlist khớp đúng 21 slug đỏ đo được.
+
+Nhưng vòng 2 đỏ ở **lớp khác**, và đó là chỗ đáng lo: **phạm vi phép đo hẹp hơn
+lời hứa**, cộng hai lần **tái phạm nguyên văn** lớp lỗi vòng 1 vừa bắt.
+
+---
+
+## P0 · Bốn lỗ chặn
+
+### F1 — `.codex-plugin/` là vế thứ BẢY của AC-2 và không có một dòng mã nào canh
+*Cả **BA** lăng kính tìm ra độc lập.*
+
+`contract.md:50-58` khai **bảy** đường dẫn phải vắng, kèm đối chứng dương «cả
+bảy đều tồn tại ở mốc». `evals.yaml:53-58` khai *«mảng SÁU vật lưu kho»*.
+`luu-kho-rang.sh:113` `GONE=(codex tests/codex scripts/codex-self-script-refs.tsv
+.agents design-loop tests/design-loop)` — **sáu**. Đầu ra in `LUU-KHO-PATH: 6/6`.
+
+Phép đo **âm thầm co về sáu** mà KHÔNG có dòng `[SỬA SAU CỔNG 1]` nào — trong
+khi hợp đồng ghi chú tỉ mỉ mọi lần co phạm vi khác (needle 11→8, bỏ `tests/`).
+
+Nặng nhất vì vế thứ bảy chính là vế **được thêm sau Cổng 1 để chữa một cái sót
+có thật**: `contract.md:54-58` viết *«đợt gỡ 197 file bỏ sót nó thật — manifest
+Codex ở gốc repo còn nguyên trên cây»*. Vế sinh ra từ một lần sót lại là vế duy
+nhất không ai đo.
+
+**Kịch bản fail** (đã chạy thật): `git archive truoc-luu-kho-2026-08 .codex-plugin
+| tar -x` vào bản sao → `LUU-KHO-PATH: 6/6 vang o HEAD, co o tag OK`,
+`LUU-KHO-RANG: tất cả phép đo xanh`, RC=0. AC-4 không với tới vì `.codex-plugin/`
+không nằm trong `SCOPE` (`luu-kho-rang.sh:207-208`). Đường vào có thật: hồ sơ
+anh em `cat-hinh-thuc` tách từ `daa9b3d` (`contract.md:403`), **nơi tệp đó còn
+nguyên** — một lượt merge/rebase là đủ.
+
+### F2 — `if so_ca_run … | sed` nuốt mã thoát: ĐỎ được in ra thành `OK`
+`luu-kho-rang.sh:767`. Trạng thái pipeline là trạng thái của `sed`, luôn 0 →
+nhánh `else bad "so-ca.sh --suite hooks DO"` (`:789-791`) là **mã chết**.
+
+Chân (b) của E12 là bằng chứng DUY NHẤT rằng bộ đếm AC-11 còn sống. Mọi kiểu đỏ
+của `so-ca.sh` — số ca lệch, có ca đỏ, suite trả rc≠0 — đều đi qua như xanh, và
+câu chẩn đoán bị dán nhãn `OK` ngay trong trang bằng chứng.
+
+**Kịch bản fail** (đã chạy): tiêm `exit 7` vào `tests/hooks/run-tests.sh` →
+```
+  OK   LUU-KHO-SUITE: hooks du 54 ca, 0 ca do, nhung suite tra rc=7 — ha tang hong
+  OK   LUU-KHO-SUITE: 1 dang thuc so ca DO
+LUU-KHO-RANG: tất cả phép đo xanh          RC=0
+```
+**Cùng LỚP** với `check "$(basename "$_f")" 0 $?` mà chính vòng sửa này ghim
+thành **AC-19**. Lớp lỗi được ghim ở một tệp và tái sinh ở tệp bên cạnh, trong
+cùng một lượt.
+
+### F3 — AC-4 khai BỐN needle `plugins/…`, mã có đúng MỘT
+`luu-kho-rang.sh:223-224` vs `contract.md:71-79`. Hợp đồng: *«`plugins/acceptance-gate`,
+`plugins/feature-loop`, `plugins/design-loop`, và glob `plugins/**`»*. `NEEDLES`
+chỉ mang `plugins/acceptance-gate`.
+
+**Đây là finding C2 của vòng 1, tái phạm NGUYÊN VĂN** — không đổi da, không đổi
+số. Cả ba needle thiếu đều có `>0` hit ở mốc (`plugins/feature-loop`=1,
+`plugins/design-loop`=1, `plugins/**`=4), nên đối chứng dương mà chính script
+đòi là sẵn có; không có lý do kỹ thuật nào để bỏ.
+
+**Kịch bản fail** (đã chạy): thêm một dòng trỏ `plugins/feature-loop/skills/…`
+vào `GUIDE.md` → `LUU-KHO-REF: 8/8`, RC=0. 125 tệp mirror vừa xoá vẫn có thể
+được trỏ tới từ tài liệu phát đi mà không lưới nào kêu.
+
+### F4 — E7 ghim một thông điệp cây KHÔNG BAO GIỜ in, và chuỗi đó được VIẾT MỚI trong chính vòng sửa này
+`evals.yaml:226-232` đòi `"LUU-KHO-SUITE: scripts 671 -> 664 OK"` và
+`Results: 664 passed`. Cây in `671 -> 686` / `686 passed`. Khối máy-đọc
+`SO-CA-KY-VONG` (`contract.md:230`) ghi `scripts | 671 | 686`; AC-11, E19 và
+bảng «Số đo» đều ghi 686 — **chỉ E7 còn 664**.
+
+Chuỗi `671 -> 664` KHÔNG có ở vòng 1; nó được **thêm mới ở commit `b69c90dc`**
+(vòng sửa 1), cùng commit đổi đẳng thức sang 686. Và mục `[SỬA SAU CỔNG 1]` của
+E7 (`evals.yaml:238-243`) còn tự chứng nhận rằng `so-ca.sh` *«đỏ đúng thông điệp
+đã hứa ở dòng trên»*.
+
+Nó không đỏ được vì `ghi-so-chay.mjs:115` chỉ ghi
+`{ts, sha, round, evalId, run_id, exit_code, cmd}` — **không có trường `output`**,
+dù mọi eval khai `evidence_required: [… , output]`. Hệ quả tổng quát: lời hứa
+thông-điệp của **23 eval** hiện chỉ được kiểm bằng mã thoát.
+
+---
+
+## P1 · Bảy lỗ phải xử trước khi ký
+
+| # | Lỗ | Vị trí | Kịch bản fail |
+|---|---|---|---|
+| F5 | Chân "wire" chỉ grep TÊN khoá, không kiểm khoá CHẠY gì | `luu-kho-rang.sh:754-762` | Đổi giá trị `luu_kho_so_ca_plugins` thành `bash tests/plugins/run-tests.sh` → bộ đếm biến mất khỏi làn, chân vẫn in `4/4 dang thuc duoc wire OK` |
+| F6 | `P162` bị XOÁ TRỌN dù còn vế sống; sổ thi công xếp nhầm vào «không mất độ phủ» | `nhat-ky-thi-cong.md:57-60` | Lưới «mọi `suite_key` phải resolve» rời bộ kiểm thường trực. Tiêm khoá ma → 4 suite + `product-map` + `pre-merge-check` xanh trọn, 0 VIOLATION |
+| F7 | 69 assert bị gỡ nằm NGOÀI cửa sổ bánh cóc và không khai ở đâu | `tests/plugins/asserts-da-go.txt`, mốc `044968e` | Bánh cóc so với mốc 06/08; mọi assert sinh sau đó gỡ được lặng lẽ. **Đã xảy ra thật**: 36/69 dòng thuộc `P162`, gồm chính assert của F6 |
+| F8 | Sổ chạy thiếu trường `output` | `ghi-so-chay.mjs:115` | 23 eval khai `evidence_required: [output]`; không eval nào được so bằng thông điệp. Là nguyên nhân F4 sống sót |
+| F9 | «Hai tệp bằng chứng trả về **đúng byte** lúc ký» — sai | `evidence-report.md:101` | Chữ ký ở `8a53ab6a`; blob lúc ký ≠ blob tại HEAD, `git diff` 20 dòng mỗi tệp. Bản phục hồi trỏ trạng thái *ngay trước hồ sơ này*, cách lúc ký bốn lượt tái sinh |
+| F10 | `GUIDE.md:5` khai khớp `1.18.0/1.14.0` | `GUIDE.md:5` | Chính hồ sơ bump lên `1.41.0/1.28.0` và viết lại đúng dòng đó. Người ở repo tiêu thụ đọc dòng thứ năm rồi không cập nhật — vô hiệu hoá đường phát hành AC-16 vừa dựng |
+| F11 | Miễn trừ đo SỐ DÒNG + TÊN TRƯỜNG, không đo dòng đó còn là sử liệu hay đã thành chỉ dẫn sống | `luu-kho-rang.sh:256-259`, `:384-395` | `description` là JSON một-dòng nên `grep -c` = 1 bất kể chứa gì. Biến nó thành chỉ dẫn cài đặt trỏ `sync-plugin-packages.sh` đã xoá → cả lưới im. Tiền lệ có sẵn: chính commit này viết `NOTE FOR UPGRADERS` — chỉ dẫn thì hiện tại — vào trường được miễn trừ với tư cách «lịch sử» |
+
+## P2 · Ba chỗ nói mạnh hơn vật
+
+- **F12** `evidence-report.md:44` mời kiểm chứng bằng `grep -c '[đột biến]'` —
+  trong BRE đó là **lớp ký tự**, chạy ra **90** chứ không phải 14 (`grep -cF`
+  mới ra 14). Cùng bảng, `:38` ghi «16 nhóm chân» trong khi bộ răng in **15**.
+  Câu này tồn tại để người ký khỏi phải tin số, và nó chạy không ra số đã khai.
+- **F13** `tests/scripts/run-tests.sh:1392-1393` — chú thích ngay tại vết mổ nói
+  *«bộ đếm đi từ 671 xuống 664»*, trong khi số chốt của **cùng commit** là 686.
+  Bản chép thứ hai của mẫu số, nằm trong comment.
+- **F14** `evidence-report.md:118` mở bằng «**Bốn mục** cố ý không sửa» rồi liệt
+  kê **sáu**.
+
+---
+
+## Luật dừng-vá ÁP VÀO ĐÂY
+
+`evidence-report.md:185-187` của chính hồ sơ này khai luật đó. Vòng 2 thoả điều
+kiện kích hoạt, và thoả **ba lần**:
+
+1. **F3 tái phạm NGUYÊN VĂN** finding C2 vòng 1 (4 needle khai / 1 có).
+2. **F2 cùng LỚP** với bug được ghim thành AC-19 trong chính vòng sửa này —
+   runner nuốt mã thoát, chữa ở `tests/scripts/run-tests.sh` rồi tái sinh ở
+   `luu-kho-rang.sh` cùng lượt.
+3. **F4 + F9 + F10 cùng LỚP** với A2/A3/B10 vòng 1 — khẳng định trong vật phát
+   đi mạnh hơn vật, và thông điệp ghim không tồn tại.
+
+Hình dạng chung của cả ba: **không phải phép đo chết, mà phép đo có phạm vi hẹp
+hơn lời hứa** — hợp đồng nói bảy, mã đo sáu; hợp đồng nói bốn, mã đo một; eval
+hứa một chuỗi, sổ chạy chỉ ghi mã thoát. Vá từng chỗ sẽ lại đẻ hình dạng thứ N+1,
+đúng như luật dự đoán.
+
+**Vì thế biên bản này DỪNG ở mô tả, không kèm bản vá.** Ba đường ra là việc của
+owner, ghi ở gói trình Cổng 2.
+
+## Phụ lục — phép đo của phiên chấm
+
+Cả ba phiên chạy qua `su - tester` với `NODE_EXTRA_CA_CERTS=/opt/ccr-ca.crt`,
+trên worktree riêng, dọn sạch sau khi đo. Ba bẫy môi trường được cảnh báo trước
+và cả ba phiên đều tránh được: chạy bằng `root` cho `P123`/`P129`/`P161` đỏ giả;
+CA không đọc được làm số ca đếm ra 146 thay vì 145; clone shallow làm
+`pre-merge-check` báo 31 vi phạm giả.
+
+Số ca đo độc lập tại `3dcd57f`: plugins **145** · workflows **463** (6 tệp cộng
+lại) · scripts **686** · hooks **54** — khớp bản khai từng con số, và cả bốn vế
+`truoc` (173/488/671/54) cũng đo lại đúng tại mốc.

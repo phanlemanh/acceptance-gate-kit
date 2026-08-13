@@ -2,15 +2,27 @@
 schema_version: 1
 slug: luu-kho-codex-va-nghi-le-design
 round: 3
-verdict: PENDING-JUDGMENT
+verdict: REJECT
 verified_commit: a69cb309c94e
 ---
 
 # Trang bằng chứng — lưu kho harness song sinh và nghi lễ design
 
-## Verdict: **chờ rà soát đối kháng vòng 2**
+## Verdict: **REJECT (vòng 2, 2026-08-13)**
 
-> Vòng 1 bị **REJECT**. `review-findings.md` là đề bài của vòng sửa này; mục
+> **Rà soát đối kháng vòng 2 đã chạy: cả BA lăng kính REJECT** — 4 P0 · 7 P1 ·
+> 3 P2. Biên bản ở `review-findings.md` mục «Rà soát đối kháng — vòng 2».
+> Làn máy 23/23 xanh vẫn đúng như đã báo, và ba phiên chấm xác nhận vòng sửa 1
+> **đã chữa đúng** lớp lỗi nặng nhất của vòng 1 (14 chiều đỏ là thật, bốn đẳng
+> thức số ca khớp khi đo độc lập). Vòng 2 đỏ ở lớp KHÁC: **phạm vi phép đo hẹp
+> hơn lời hứa** — hợp đồng nói bảy vật, mã đo sáu; hợp đồng nói bốn needle, mã
+> đo một; eval hứa một chuỗi, sổ chạy chỉ ghi mã thoát.
+>
+> **LUẬT DỪNG-VÁ ĐÃ KÍCH HOẠT** (điều kiện ở mục cuối trang này, thoả ba lần).
+> Biên bản vòng 2 cố ý DỪNG ở mô tả, không kèm bản vá. Ba đường ra là việc của
+> owner.
+
+> Vòng 1 bị **REJECT**. `review-findings.md` là đề bài của vòng sửa 1; mục
 > «Vòng sửa 1 đã làm gì» dưới đây trả lời từng mục, kèm cả những mục **cố ý
 > không sửa** và lý do.
 
