@@ -2,13 +2,29 @@
 schema_version: 1
 slug: luu-kho-codex-va-nghi-le-design
 round: 4
-verdict: PENDING-JUDGMENT
+verdict: REJECT
 verified_commit: 7030fdd8fbb9
 ---
 
 # Trang bằng chứng — lưu kho harness song sinh và nghi lễ design
 
-## Verdict: **chờ rà soát đối kháng vòng 3**
+## Verdict: **REJECT (vòng 3, 2026-08-13)**
+
+> **Rà soát đối kháng vòng 3 đã chạy: cả BA lăng kính REJECT** — 7 P0 · 5 P1 ·
+> 3 P2. Biên bản ở `review-findings.md` mục «Rà soát đối kháng — vòng 3».
+>
+> Vòng sửa 2 **đóng thật** những gì nó nhắm (bốn đẳng thức khớp khi đo độc lập,
+> diff tên ca 0-mất, F2 đóng trọn lớp, hai blob đã ký byte-equal, không có lưới
+> thứ hai bị gỡ kèm ca đo nó). Nhưng vòng 3 đỏ theo **một hình dạng duy nhất,
+> lặp ở ba tầng**: *bản vá đóng đúng nửa nó nhìn thấy, nửa kia thành lỗ của
+> vòng sau* — máy sửa/văn xuôi không sửa · `pinned:` bắt trường VẮNG không bắt
+> trường RỖNG-HOÁ · khối có chiều đỏ cho THÊM không có cho XOÁ · `P195` trả lại
+> cái TÊN của lưới chưa trả lại cái RĂNG.
+>
+> **LUẬT DỪNG-VÁ KÍCH HOẠT LẦN THỨ HAI**, và lần này ba lỗ P0 sinh ra từ chính
+> bản vá của vòng trước. Biên bản vòng 3 cố ý DỪNG ở mô tả, không kèm bản vá.
+
+## Verdict vòng 2 (sử liệu): **chờ rà soát đối kháng vòng 3**
 
 > **Vòng sửa 2 «một-nguồn» — 2026-08-13.** Rà soát vòng 2 REJECT với 4 P0 · 7 P1
 > · 3 P2, và **luật dừng-vá đã kích hoạt** (ba lần: F3 tái phạm nguyên văn C2

@@ -341,3 +341,185 @@ CA không đọc được làm số ca đếm ra 146 thay vì 145; clone shallow
 Số ca đo độc lập tại `3dcd57f`: plugins **145** · workflows **463** (6 tệp cộng
 lại) · scripts **686** · hooks **54** — khớp bản khai từng con số, và cả bốn vế
 `truoc` (173/488/671/54) cũng đo lại đúng tại mốc.
+
+---
+
+# Rà soát đối kháng — vòng 3
+
+*Ba phiên chấm độc lập, cùng ba lăng kính, context sạch, chấm trên worktree
+riêng tại ngọn nhánh 1b sau vòng sửa 2 «một-nguồn». Người viết vòng sửa KHÔNG
+chấm — chỉ dựng môi trường và tổng hợp.*
+
+## Verdict vòng 3: **REJECT**
+
+**Cả ba lăng kính REJECT**, tổng **7 P0 · 5 P1 · 3 P2** sau khi gộp trùng.
+
+Vòng sửa 2 **đã đóng thật** những gì nó nhắm, và cả ba phiên xác nhận độc lập:
+bốn đẳng thức số ca khớp từng con số khi đo không qua `so-ca.sh` (146 · 463 ·
+686 · 54, và cả cột `truoc`); diff tên ca `d6044a4`→ngọn cho **0 mất, 1 thêm**
+(`P195`) ở `plugins` và **0 mất** ở ba suite còn lại; F2 đóng và **không còn một
+pipeline nào khác** nuốt mã thoát; hai tệp bằng chứng đã ký **byte-equal**
+`a8767168`; re-pin lần 11 hợp nghi thức trọn bốn vế; 9/9 vật CẤM ĐỤNG byte-equal
+mốc; **không có lưới thứ hai bị gỡ kèm ca đo nó** — một phiên đọc từng ca trong
+27 mã bị xoá, rút mọi đường dẫn trong thân ca rồi kiểm tồn tại tại ngọn.
+
+Nhưng vòng 3 đỏ, và nó đỏ theo **một hình dạng duy nhất, lặp lại ở ba tầng**:
+
+> **Bản vá đóng được nửa mà nó chạm tới, và để nguyên nửa kia.**
+> · Vòng sửa 2 đổi bất biến ở phía **MÁY** (khối máy-đọc, `pinned:`) và để
+>   nguyên phía **VĂN XUÔI** → hợp đồng/eval nay có hai bản khai chỏi nhau ở
+>   **đúng bốn chỗ vòng 2 đã chỉ mặt**.
+> · `pinned:` cưỡng chế được trường **VẮNG** và không cưỡng chế được trường bị
+>   **RỖNG-HOÁ**.
+> · Khối liệt kê có chiều đỏ cho **THÊM** và không có cho **XOÁ**.
+> · `P195` trả lại **cái tên** của lưới và chưa trả lại **cái răng**.
+
+---
+
+## P0 · Bảy lỗ chặn
+
+### Nhóm A — văn xuôi không đổi theo máy (G1–G4)
+Bốn chỗ, cùng một cơ chế: vòng sửa 2 sửa khối máy-đọc và `pinned:`, để nguyên
+bản văn mà người đọc gặp trước.
+
+| | Vật | Khai | Cây thật |
+|---|---|---|---|
+| **G1** | `evals.yaml:56-60` (E2) | «mảng **SÁU** vật», dòng đếm `6/6` | in một dòng `7/7 … (danh sach doc tu khoi VAT-LUU-KHO)` |
+| **G2** | `evals.yaml:105-107,119-122` (E4) | dòng đếm `8/8`, và một mảng «MƯỜI MỘT» **khác tập** (còn `mirror_sync`, `/design-push`, `P30`, `plugins/` trần) | `11/11`, tập trong khối `NEEDLE-CHET` |
+| **G3** | `evals.yaml:404-407` (E12) | «số dòng `PASS:` bằng đúng **145**, `145 = 173 − 26 − 2`» | **146**; `pinned:` của chính E12 ghi `146` |
+| **G4** | `evidence-report.md:97-99` | «vòng này in **14** dòng… con số 14 đếm được từ đầu ra (`grep -cF`)» | **17**; dòng `:93` cùng file đã ghi 17 |
+
+**G1 và G2 nằm ở đúng dòng mà biên bản vòng 2 cite làm bằng chứng cho F1 và F3.**
+**G4 là F12 tái phạm trên chính câu vừa sửa vì F12.**
+
+*Kịch bản fail chung, đo được:* người bảo trì đọc `expected` — nơi hợp đồng bảo
+họ tìm lý do «từng needle một» — thấy hai bản khai chỏi nhau. Đường sửa rẻ nhất
+lúc đó là đồng bộ **khối theo bản văn**: co `VAT-LUU-KHO` về sáu (mở lại F1
+nguyên văn) hoặc chép tập cũ vào `NEEDLE-CHET` (làm cả lưới đỏ vì thước). Với
+G3 còn gắt hơn: hợp đồng viết *«đo ra khác 146 ⇒ đi tìm ca gỡ nhầm, KHÔNG sửa
+số»*, mà bản văn duy nhất giải thích đẳng thức lại chỉ về phía ngược lại — đi
+xoá `P195`, tức gỡ đúng cái lưới vừa được trả lại vì F6.
+
+### G5 — vế `pinned:` của AC-20 fail-OPEN, và chiều đỏ nó tự khai KHÔNG TỒN TẠI trong mã
+`ghi-so-chay.mjs:63-68` · `evals.yaml:624-626`
+
+Regex `/^\s*-\s+"(.*)"\s*$/`. Viết chuỗi **không nháy** — YAML hợp lệ, và chính
+tệp này dùng scalar trần ở chỗ khác — thì `pinned` thành `[]` **im lặng**,
+recorder exit 0 **dù lệnh thoát 1**. Fail-closed chỉ bắt trường VẮNG.
+
+Nặng hơn: `evals.yaml:624-626` khai *«chiều đỏ của nó chạy trên một workspace
+thử dựng bằng CODE trong chính lượt kiểm»*. Không có mã nào như thế —
+`grep -rn "LOI HUA THONG DIEP"` toàn cây cho đúng **2 hit**: `ghi-so-chay.mjs:173`
+và chính câu khai này. Chiều đỏ ấy được chạy TAY một lần rồi khai như thể có
+trong cây. Đây là lớp **B3 của vòng 1** («khai CHẠY THẬT nhưng chưa từng chạy»).
+
+Cũng không lưới nào canh: `luu-kho-rang.sh` **không có dòng nào** chạm
+`ghi-so-chay.mjs` (grep 0 hit), không eval nào chạy nó (`cmd` của E20 là
+`luu_kho_rang`), và kit không đọc `pinned_missing`.
+
+*Bằng chứng:* recorder trên bản sao có `pinned` không nháy → `rc=0`, dòng log
+`"exit_code":1 … "pinned":[],"pinned_missing":[]`. Đối chứng dương cùng bản sao
+với chuỗi CÓ nháy → `rc=1` đúng câu.
+
+### G6 — chuỗi ghim không đo điều eval hứa (4/24 eval); một cái có mặt trong CẢ đầu ra ĐỎ
+`evals.yaml:393` (E11) · `:563` `:588` `:606` (E17/E18/E19)
+
+· **E11**: `expected` hứa *«stdout "PRODUCT-MAP.md khớp hồ sơ xưởng." … không tin
+mã thoát»*; `pinned` chỉ ghim `"PRODUCT-MAP.md"`. Đo thật: bản xanh in
+`PRODUCT-MAP.md khớp hồ sơ xưởng.`, bản lệch in `PRODUCT-MAP.md lệch với hồ sơ
+xưởng…` — **cả hai đều chứa chuỗi ghim**. Ghim hằng-đúng: nó phân biệt được
+«script chạy» với «script không chạy», không phân biệt XANH với ĐỎ.
+· **E17/E18/E19**: cả ba ghim **lại đúng chuỗi của E7**. Lời hứa thật của E17
+(«suite in các dòng `PASS: RS01…RS06`») **không thể** vào tầm máy: bộ đếm chỉ in
+4 dòng tổng kết — bản ghi vòng 4 của E17 dài **197 byte**, `'RS01' in output`
+= False. Đổi tên `RS01`→`ZZ01` ở 8 chỗ → `scripts 671 -> 686 OK`, mọi phép đo
+xanh, `grep -c RS01` = 0.
+
+**Đẳng thức số ca buộc được SỐ LƯỢNG, không buộc DANH TÍNH.** Một lượt tráo
+assert-đổi-assert giữ nguyên 686 thì AC-17/18/19 mất lưới mà cả bộ vẫn xanh.
+
+### G7 — `P195` không đo cái tên nó và cái hợp đồng nói
+`tests/plugins/run-tests.sh:3683-3733` · `contract.md:315-316`
+
+`walk()` trả về chuỗi lệnh và **không hề kiểm tệp tồn tại**. «Lệnh CÓ THẬT»
+trong thực tế chỉ là «khoá YAML có giá trị khác rỗng».
+
+*Kịch bản fail — đúng hình dạng hồ sơ này vừa làm:* gỡ một script mà để lại khoá
+`executors.*` trỏ nó. Mốc có `executors.script.mirror_sync:
+"bash scripts/sync-plugin-packages.sh --check"` trong `suite_keys`, và script ấy
+bị xoá trong đợt. Lưới xanh, rồi mọi vòng verify sau chết vì hạ tầng giữa vòng
+lặp — **đúng cái F6 nói lưới sinh ra để chặn**.
+
+*Bằng chứng (đột biến trên bản sao trọn cây, có đối chứng dương):* base
+146/146 xanh → đổi `product_map` thành `node scripts/DA-BI-XOA-KHONG-TON-TAI.mjs
+--root . --check` → **vẫn 146/146 xanh**, và ca in `PASS: P195 moi
+feature_loop.suite_key resolve ve mot lenh co that`.
+
+`contract.md:316` là văn bản **sắp được ký**: *«lưới mọi `suite_key` phải resolve
+về một lệnh có thật»*.
+
+---
+
+## P1 · Năm lỗ
+
+| # | Lỗ | Vị trí | Kịch bản fail |
+|---|---|---|---|
+| **G8** | Khối liệt kê có chiều đỏ khi **THÊM**, không có khi **XOÁ** | `luu-kho-rang.sh:187-205` | Xoá `\| .codex-plugin \|` khỏi hợp đồng → `LUU-KHO-PATH: 6/6 OK`, RC=0, trong khi văn AC-2 vẫn khai bảy. **Trạng thái cuối y hệt F1**, đạt bằng một dòng sửa. Xoá một needle → `10/10` xanh, mồi mồ côi không ai kêu. Đáng chú ý: `SO-CA-KY-VONG` — khối duy nhất vòng 2 không đục thủng — CÓ buộc khối↔văn xuôi bằng máy (`:972`); hai khối MỚI không có |
+| **G9** | Chân wire vẫn nửa là grep TÊN, và `gia_tri_khoa` đọc sai nhánh YAML | `luu-kho-rang.sh:858-884` | (a) đổi `cmd:` của E12 sang khoá khác → bộ đếm rời làn, nhưng `:878` grep chuỗi khoá trong `evals.yaml` mà chuỗi ấy còn trong **văn xuôi** `expected` → `4/4 OK`. (b) `index(line,k)==1` đọc dòng đầu mang tên khoá ở **bất kỳ nhánh nào**; đặt khoá trùng tên dưới `executors.test` → bộ răng `4/4 OK` trong khi recorder resolve ra lệnh hỏng. Hai trình đọc, hai kết luận |
+| **G10** | `P195` chỉ trả lại **vế một** của `P162`/E6 | `run-tests.sh:3683` vs `daa9b3d:…L7519-7537` | E6 gốc có 5 vế; `P195` có (1)(2)(3), thiếu (4) «chốt phải nằm TRONG lưới» và (5) ca âm thật. Sau merge, dời `P195` sang tệp không khoá nào gọi → không gì đỏ. **Đây là finding D4 của vòng 1**, chưa sửa, chưa khai known-limit |
+| **G11** | `GUIDE.md` còn **chỉ dẫn sống** trỏ vật đã lưu kho | `GUIDE.md:193`, `:199` | `:193` «Bump version + sync mirror thuộc S3» — không còn mirror, không còn script sync. `:199` «xem case P03/P22 của kit» — `P03` bị xoá trong CHÍNH đợt này. Lọt vì từ vựng mirror đã rời khối `NEEDLE-CHET`, nên lý do mở rộng phạm vi mà `contract.md:104-107` viện dẫn **nay không còn một dòng mã nào**. Tệp này đã bị sửa ở vòng 2 (F10), 188 dòng phía trên chỗ hỏng |
+| **G12** | `E20` tự khai hai con số về chính nó, cả hai sai | `evals.yaml:618-623` | «round-trip **cả hai khối**» — chỉ `VAT-LUU-KHO` có; `NEEDLE-CHET` và `SO-CA-KY-VONG` đọc thẳng nhưng không có đột biến. AC-20 đòi round-trip cho cả ba. «vòng 4 (**23** eval)» — sổ có **24**. E20 là eval của tiêu chí owner phải gạch ở Cổng 2 |
+
+## P2 · Ba chỗ
+
+- **G13** Recorder không lấy mã thoát của lệnh làm phán quyết (`ghi-so-chay.mjs:135`
+  đếm `anyRed` rồi không dùng), và `appendFileSync` chạy TRƯỚC `exit(1)` — lượt
+  ĐỎ vẫn để lại `run_id` trích dẫn được, mà cổng không đọc `exit_code` hay
+  `pinned_missing`.
+- **G14** Bản khai phạm vi mới của `asserts-da-go.txt` sai ở nửa NGOÀI cửa sổ:
+  khai gỡ **178**/ngoài **69**/`P162` **36**; đo độc lập ra **176**/**67**/**34**.
+  Nửa TRONG cửa sổ khai đúng từng con số. Kèm hai số tồn dư ở
+  `evidence-report.md:209,216` («105 dòng», «~106 assert») trong khi sổ khai 108/109.
+- **G15** Tập 26 ca XOÁ không có ở đâu một bản liệt kê đủ: `contract.md:305` nói
+  «26 ca», danh sách CHỐT ở `nhat-ky-thi-cong.md:180-182` kể **24**, cộng `P178`
+  là 25. Ca thứ 26 là **`P26`** — nằm trong danh sách «Nhóm C — KHÔNG ĐƯỢC XOÁ»,
+  việc nó chuyển sang nhóm xoá chỉ xuất hiện trong một mệnh đề phụ
+  (`nhat-ky:354`) **không kèm lý do**. Đã kiểm bằng vật: **không** phải lỗ độ
+  phủ (7 skill `P26` đòi chỉ tồn tại trong bản mirror), nên đây là lỗi **sổ
+  sách**, không phải gỡ nhầm.
+
+---
+
+## Luật dừng-vá kích hoạt LẦN THỨ HAI
+
+Vòng 2 đã kích hoạt nó ba lần. Vòng 3 kích hoạt lại, và lần này bằng chứng nặng
+hơn vì **lỗi sinh ra từ chính bản vá**:
+
+1. **G5** = lớp B3 vòng 1 (khai CHẠY THẬT mà chưa từng chạy) — nằm trong câu
+   khai của AC-20, tiêu chí do vòng sửa 2 dựng ra.
+2. **G6** = lớp F4/F8 vòng 2 (ghim không đo điều đã hứa) — sống sót qua chính
+   vòng sửa dựng ra để đóng nó.
+3. **G7** = lớp F1/F3 vòng 2 (phạm vi phép đo hẹp hơn lời hứa) — nằm trong bản
+   vá cho F6.
+4. **G1–G4** = F1/F3/F4/F12 tái sinh ở phía văn xuôi; hai trong bốn ở **đúng
+   dòng vòng 2 đã cite**.
+5. **G10** = D4 vòng 1, chưa từng được xử.
+
+Hình dạng chung của cả ba vòng, nói gọn: **mỗi bản vá đóng đúng nửa mà nó nhìn
+thấy, và nửa kia trở thành lỗ của vòng sau.** Vá tiếp sẽ đẻ hình dạng thứ N+1 —
+đó là điều luật dừng-vá dự đoán, và nay nó đã dự đoán đúng hai lần liên tiếp.
+
+**Biên bản này DỪNG ở mô tả, không kèm bản vá.** Ba đường ra là việc của owner,
+ghi ở gói trình Cổng 2.
+
+## Phụ lục — phép đo của phiên chấm
+
+Ba phiên chạy qua `su - tester` với `NODE_EXTRA_CA_CERTS=/opt/ccr-ca.crt`, trên
+worktree rời dựng bằng `git worktree add --detach`, dọn sạch sau khi đo; cây
+`/home/user/wt1b` không bị chạm (`git status --porcelain` rỗng).
+
+Số ca đo độc lập, **không qua `so-ca.sh`**, tại ngọn: plugins **146** ·
+workflows **463** (324+11+42+16+26+44) · scripts **686** · hooks **54** — khớp
+bản khai cả bốn; mốc cho 173 · 488 · 671 · 54, khớp cột `truoc`. Diff tên ca
+`d6044a4`→ngọn: plugins 0 mất / 1 thêm (`P195`), scripts 0 mất / 22 thêm
+(`RS01–RS06`), hooks và workflows 0/0.
