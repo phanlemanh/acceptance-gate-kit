@@ -198,3 +198,49 @@ con số: **số vấp CHẶN/LẠC mà 4 suite S4 xanh không bắt được.**
 
 **Cấm leo thang trước số liệu:** không viết skill, không sửa engine, không
 thêm cổng, không đòi chạy mọi feature — chừng nào thước trên chưa nói.
+
+## 6 · CÔNG CỤ (research 13/08 — verify trên tài liệu gốc, không từ trí nhớ)
+
+**Bộ đôi khuyến nghị cho phiên lái** (mỗi cái một lệnh cài, không cần code thêm):
+
+1. **Playwright MCP** (`@playwright/mcp`, Microsoft) — xương sống cả bậc 1 lẫn
+   bậc 2. Khớp từng yêu cầu đề bài: chụp frame **ra file** (rail slideshow cần
+   file, không phải ảnh inline) · `--isolated` = profile trắng thật (hạng #2
+   first-run) · **`--caps=vision`** = bộ tool bấm-theo-toạ-độ-trên-ảnh
+   (`browser_mouse_click_xy`…) — công cụ duy nhất có chế độ pixel chính danh
+   cho chế-độ-người-lạ · `browser_network_requests` + `browser_console_messages`
+   cho rail đường-dây · `--device`/`--viewport-size` cho #8 ·
+   `--caps=network` offline cho Later.
+   ```
+   claude mcp add playwright -- npx @playwright/mcp@latest --isolated --caps=vision
+   ```
+   **Răng cho luật cấm-DOM (bậc 2):** thêm deny-rule trong settings phiên lái
+   chặn `mcp__playwright__browser_snapshot` (+ `read_page` của browser pane) —
+   kỷ luật mượn tri-giác thành cấu hình, không phải lời hứa.
+
+2. **Chrome DevTools MCP** (`chrome-devtools-mcp`, đội Chrome) — chuyên cho
+   sự-thật-đường-dây và hai hạng Later: network/console có source-map,
+   `emulate` **CPU/network throttling + offline** (hạng mạng-chậm), performance
+   trace (hạng #15 độ-trễ so budget). Cũng có `--isolated`. Chrome-only.
+   ```
+   claude mcp add chrome-devtools -- npx chrome-devtools-mcp@latest --isolated
+   ```
+
+**Đã có sẵn, không cài thêm:** browser pane built-in của Claude Code (đủ cho
+design-pass/dev loop nhưng ảnh trả inline không ra file và không có profile
+trắng — không đạt chuẩn phiên lái) · iOS Simulator MCP (khi sản phẩm mobile) ·
+`vlm-assert.mjs` của kit cho bậc 3 (VLM khác họ, câu đóng).
+
+**Cân nhắc token:** phiên lái dài; Microsoft ghi nhận MCP tốn ~4× so với
+`@playwright/cli` (~114k vs ~27k token/tác vụ). Nếu chi phí thành vấn đề đo
+được sau ván 1: chuyển BẬC 1 (quét chạy-được — vốn script-hoá được) sang
+playwright-cli, giữ bậc 2 ở MCP vision (lượt người-lạ không script-hoá được).
+
+**Loại có chủ đích (ghi để khỏi bàn lại):**
+- **Claude in Chrome / Chrome thật của owner** — phá yêu cầu profile trắng
+  (session đăng nhập sẵn = người quen, không phải người lạ). Never cho phiên lái.
+- **Stagehand / Browser Use** (framework agent tự lành) — "self-healing
+  actions" là PHẢN-thước ở đây: công cụ tự vượt chỗ khó hiểu sẽ che đúng tín
+  hiệu vấp mà phiên này tồn tại để đo. Never cho bậc 2; không cần cho bậc 1.
+- **Dịch vụ AI-QA thuê ngoài** (QA Wolf, Meticulous, Expect…) — cloud, trả
+  phí, thay cả vòng; ngược tinh thần pilot rẻ-đảo-rẻ. Later nếu đội mở rộng.
