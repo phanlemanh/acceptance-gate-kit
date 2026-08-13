@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 523d172896a04bb59ba3bbcff55486bfaeb6c598
+verified_commit: a52a2b5a3bb68feafd1c7b6c823a17c90f89b0b0
 # bypass_ack:
 human_signoff: Manh Phan 2026-08-07 — ký (a) known-limits: fixture hành vi thiếu provenance máy-kiểm (trong hợp đồng) + 6 mục ngoài hợp đồng
 ---
@@ -179,3 +179,7 @@ sha: 1e852ac0edad60f71083666f0ab3c83da023ad56 · suites: 6 lệnh exit 0
 ### Re-pin lần 10 — 2026-08-13, do hồ sơ này vào diff PR vòng sửa 1 của luu-kho (hai tệp bằng chứng đã ký được trả về nguyên trạng + bộ sinh chuyển sang ghi-một-lần)
 run_id: repin-luu-kho-vong-sua-1-20260813T023532Z
 sha: 523d172896a04bb59ba3bbcff55486bfaeb6c598 · suites: 4 lệnh exit 0
+
+### Re-pin lần 11 — 2026-08-13, do vòng sửa 2 «một-nguồn» của luu-kho chạm tests/plugins + tests/scripts (trả lại lưới suite_key-resolve thành P195, sửa chú thích mẫu số chết)
+run_id: repin-luu-kho-vong-sua-2-20260813T093357Z
+sha: a52a2b5a3bb68feafd1c7b6c823a17c90f89b0b0 · suites: 5 lệnh exit 0
