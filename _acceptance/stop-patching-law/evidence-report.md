@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c86aff6eca40f742f5e5a01f5ca0643e061adcfa
+verified_commit: c62f0330f253fd92f553547f09a7afcdb102c3c3
 # bypass_ack:
 human_signoff: Manh Phan 2026-08-07 — ký (a) known-limits: fixture hành vi thiếu provenance máy-kiểm (trong hợp đồng) + 6 mục ngoài hợp đồng
 ---
@@ -187,3 +187,7 @@ sha: a52a2b5a3bb68feafd1c7b6c823a17c90f89b0b0 · suites: 5 lệnh exit 0
 ### Re-pin lần 12 — 2026-08-13, do vòng thu gọn «chỉ TRỪ» của luu-kho chạm tests/plugins (pin P43 đổi vì chứa từ vựng mirror, P195 thêm hai vế, sổ bánh cóc khai bổ sung) + tests/scripts (chú thích)
 run_id: repin-luu-kho-thu-gon-20260813T113214Z
 sha: c86aff6eca40f742f5e5a01f5ca0643e061adcfa · suites: 5 lệnh exit 0
+
+### Re-pin lần 13 — 2026-08-13, do vòng 4 của luu-kho xử 6 finding con-trỏ (P195 sửa script_paths, acceptance-init bỏ mirror-sync commits)
+run_id: repin-luu-kho-vong4-20260813T123018Z
+sha: c62f0330f253fd92f553547f09a7afcdb102c3c3 · suites: 5 lệnh exit 0

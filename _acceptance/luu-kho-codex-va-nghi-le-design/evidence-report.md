@@ -3,7 +3,7 @@ schema_version: 1
 slug: luu-kho-codex-va-nghi-le-design
 round: 5
 verdict: PENDING-JUDGMENT
-verified_commit: 185474232914
+verified_commit: c62f0330f253
 ---
 
 # Trang bằng chứng — lưu kho harness song sinh và nghi lễ design
