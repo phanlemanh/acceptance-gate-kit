@@ -36,12 +36,18 @@ Core principles (non-negotiable):
    from the paths the feature is EXPECTED to touch (inferred from the
    request/ticket; confirm the guess with the user at Gate 1):
    - Expected paths all match `risk_tiers.t1_skip_globs` → do NOT skip
-     silently: print the per-path match table (`<expected path> → <glob>`),
-     say "T1 — acceptance gate skipped", and ask the user to CONFIRM the T1
-     call before stopping. Warn that the CI backstop
-     (`pre-merge-check.sh --base <ref>`) blocks the merge if the actual PR
-     ends up touching gated paths with no `_acceptance/` artifacts. Do not
-     create artifacts.
+     silently, and do NOT stop to ask: print the per-path match table
+     (`<expected path> → <glob>`) as the GROUNDS, state "T1 — acceptance gate
+     skipped", note that the CI backstop (`pre-merge-check.sh --base <ref>`)
+     blocks the merge if the actual PR ends up touching gated paths with no
+     `_acceptance/` artifacts, and then just carry on. Do not create
+     artifacts. **Asking here buys nothing:** the machine already matched
+     every path against a glob list the repo itself declared, the table shows
+     its work, and CI re-decides the same question on the real diff. A
+     confirmation prompt on a conclusion the machine is sure of spends a human
+     interruption to change nothing — if the human disagrees, they say so
+     after reading the table, exactly as they would after any other statement
+     the machine makes.
    - Any expected path matches `risk_tiers.t3_paths` → T3.
    - Else → T2.
    At Phase 3 entry, re-check the ACTUAL `git diff` file list against
