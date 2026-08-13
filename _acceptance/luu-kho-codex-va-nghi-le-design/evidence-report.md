@@ -2,7 +2,8 @@
 schema_version: 1
 slug: luu-kho-codex-va-nghi-le-design
 round: 5
-verdict: PENDING-JUDGMENT
+verdict: PASS
+human_signoff: Manh Phan 2026-08-13 — ký; gạch AC-16/17/18/19 + AC-20 bản thu + plugins 146; known-limits như đã khai
 verified_commit: c62f0330f253
 ---
 
