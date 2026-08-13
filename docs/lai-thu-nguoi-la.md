@@ -101,7 +101,50 @@ do loại ở đề bài §6):
 **Kiểm thử** gần trọn · chạm **mép Dùng thử** qua đúng hai proxy có kỷ luật ·
 **không tiệm cận Đáng-giá** — ranh thiết kế, không phải ranh công nghệ.
 
-## 4 · Tham chiếu
+## 4 · Vị trí trong Workflow v2 — dùng khi nào, không dùng khi nào
+
+Sơ đồ định vị: [diagrams/lai-thu-nguoi-la-vi-tri.html](diagrams/lai-thu-nguoi-la-vi-tri.html)
+
+**Định vị một câu:** lái-thử **không phải một stage và không phải một cổng** —
+nó là nghi thức trinh sát **ngoài vòng lặp** `S0→S1→Gate1→S2→S3→S4→Gate2→S5`,
+cắm vào pipeline ở đúng **hai ổ**:
+
+| Ổ cắm | Khi | Vai của kết quả |
+|---|---|---|
+| **Mặc định — tiền trạm Cổng Giá trị** | vòng có `opportunity.md` + ngưỡng UAT, sau S5 (bản thật sau flag), TRƯỚC khi mời người dự | biến điều kiện vào "sản phẩm bấm được" của `uat-session` thành bằng chứng; nhật-ký-vấp bàn giao để phút của người chỉ tiêu vào phán giá trị |
+| **Tuỳ chọn — sau S4 xanh** | vòng mở bề mặt người-dùng mới hoặc đổi UX lớn | tài liệu ĐỌC KÈM cho người ký Gate 2 — KHÔNG chèn vào `evidence-report.md` (schema có hook giữ), không thay eval nào |
+
+Trong **kit** nó nằm ở tầng **docs/nghi thức tay** (tài liệu này + đề bài),
+không nằm trong `skills/`/engine — cố tình, theo thước codify của đề bài §5.
+Phát hiện của một ván là **input mở việc mới** (chip/vòng mới ở repo sản
+phẩm), không bao giờ là bản vá lén vào vòng đã ký.
+
+**DÙNG khi** (một điều kiện là đủ):
+
+1. Vòng có opportunity sắp vào `uat-session` → chạy mặc định, như tiền trạm.
+2. Feature mở **bề mặt mới** cho người hoặc agent (UI mới, MCP tool mới,
+   onboarding) — first-run trên ngữ-cảnh-trắng là điểm mạnh độc nhất của nó.
+3. Đổi UX/flow lớn trên bề mặt sẵn có (redesign, đổi điều hướng).
+4. Chuỗi suite xanh nhưng owner muốn một cặp mắt không-ngữ-cảnh rẻ hơn việc
+   tự ngồi bấm.
+
+**KHÔNG DÙNG khi:**
+
+1. **T1 / vòng không có bề mặt người-dùng** (docs, config, refactor nội bộ,
+   thư viện thuần) — không tồn tại "người lạ" tương ứng để đóng vai.
+2. **Thay cho S4/evals** — lái-thử không chứng minh AC, không có răng hợp
+   đồng; nó bắt lớp lỗi *giữa* các AC, là phần bù của S4 chứ không phải bản
+   thay.
+3. **Thay cho `uat-session` / để phán đáng-giá** — cấm by design; máy chỉ
+   được ghi «Chuyển phiên người».
+4. **Lặp mỗi round S3↔S4** — một ván mỗi vòng tại điểm chốt; chen vào giữa
+   3-round vừa đắt vừa nhiễu hội tụ.
+5. **Khi suite máy còn đỏ** — lái bản hỏng chỉ chép lại điều suite đã biết;
+   luật dừng 3-CHẶN của đề bài tồn tại vì thế.
+6. Flow đòi **danh tính/dữ liệu thật của một người cụ thể** — profile trắng
+   chỉ đo được đoạn trước đó; ghi giới hạn vào nhật ký thay vì giả vờ đo được.
+
+## 5 · Tham chiếu
 
 - **Đề bài thi hành** (nghi thức từng bước, khuôn nhật-ký-vấp, bản đồ 21 hạng
   mục, thước codify): [plans/2026-08-13-de-bai-lai-thu-nguoi-la.md](plans/2026-08-13-de-bai-lai-thu-nguoi-la.md)
