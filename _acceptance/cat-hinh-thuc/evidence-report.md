@@ -2,16 +2,33 @@
 schema_version: 1
 slug: cat-hinh-thuc
 round: 4
-verdict: PENDING-JUDGMENT
+verdict: REJECT
 verified_commit: 62c6935107e2
 ---
 
 # Trang bằng chứng — cắt hình thức khỏi bốn cổng người
 
-## Verdict: **chờ rà soát đối kháng vòng 1**
+## Verdict: **REJECT (rà soát đối kháng vòng 1, 2026-08-13)**
 
-> Tôi thi công hồ sơ này, nên tôi **không tự chấm nó**. Trang này khai cái đã
-> đo và cái CHƯA đo; ai rà soát đối kháng đọc mục «Chỗ nên soi trước» dưới cùng.
+> **Cả BA lăng kính REJECT** — 5 P0 · 5 P1 · 4 P2. Biên bản đầy đủ ở
+> `review-findings.md`. Phần lõi được xác nhận SẠCH khi đo độc lập (bốn đẳng
+> thức khớp, diff tên ca 0-mất/0-thêm, khối VIỆC CỦA ANH còn trên thẻ, không
+> lưới cưỡng chế nào bị gỡ); các lỗ nằm ở BỘ ĐO và ở hai template: **eval hứa
+> một phép đo mạnh, script cài một phép đo yếu hơn** (≥5 eval cùng hình dạng,
+> nặng nhất là E2 không có một dòng mã nào mà sổ vẫn đóng dấu xanh — lỗ cấu
+> trúc của bộ ghi sổ nhóm-theo-lệnh), cộng một lỗi SẢN PHẨM thật: cắt để lại
+> khoá YAML mồ côi trong hai template CHÉP-NGUYÊN-VĂN, và bốn tệp
+> template/reference có độ phủ bằng không.
+>
+> Trang dưới đây giữ nguyên làm SỬ LIỆU của lời khai trước vòng chấm — trong đó
+> câu «146 tên mỗi bên, diff bằng 0» tại `3dcd57f` đã bị vòng chấm chứng minh là
+> SAI (H5: số 146 không thể đo tại mốc ấy; phép so tên trên cặp đúng
+> `origin/main`→1a cho 0-mất/0-thêm). KHÔNG sửa lời khai cũ — sửa là xoá dấu
+> vết một lần khai sai.
+
+> (Sử liệu — lời khai lúc trình vòng chấm:) Tôi thi công hồ sơ này, nên tôi
+> **không tự chấm nó**. Trang này khai cái đã đo và cái CHƯA đo; ai rà soát đối
+> kháng đọc mục «Chỗ nên soi trước» dưới cùng.
 
 Hồ sơ **chỉ TRỪ**: gỡ những chỗ hỏi/khẳng định số phút người, gỡ tư cách
 luật-mỗi-tin của khối VIỆC CỦA ANH, thôi phỏng vấn tuần tự ở quét độ phủ, thôi
