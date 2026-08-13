@@ -1,4 +1,15 @@
-# ĐỀ BÀI — Phiên lái-thử người-lạ (tiền trạm Cổng Giá trị)
+# ĐỀ BÀI — VÒNG NGƯỜI LẠ (tiền trạm Cổng Giá trị)
+
+> **Tên chốt 13/08: «Vòng Người Lạ».** Bỏ mọi biến thể cũ («giả lập UAT»,
+> «phiên lái-thử»). Lý do: chữ *UAT* kéo vòng về phía máy-phán-giá-trị — đúng
+> thứ phải cấm; chữ *lái thử* tả thao tác chứ không tả cái làm nên giá trị.
+> Cái làm nên giá trị là **sự không-biết**: một phiên chưa từng thấy sản phẩm.
+> Vật nó đẻ ra giữ tên **nhật ký vấp**. Cách gọi trong câu: *«chạy Vòng Người
+> Lạ trước Cổng Giá trị»*.
+>
+> Kiến trúc một trang: [assets/vong-nguoi-la.html](assets/vong-nguoi-la.html)
+> — 4 làn (điều phối · người lạ · trọng tài khác họ · người ký) × 7 bậc, công
+> cụ ghi trên từng nút, ranh máy/người là nét đứt trước làn cuối.
 
 *2026-08-13 · Nguồn: hội thoại owner ↔ phiên phân tích cùng ngày. Owner đã gật
 chủ trương («Đồng ý») và yêu cầu làm giàu hai thứ: (1) hạng mục nào lái thử
