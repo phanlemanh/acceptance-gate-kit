@@ -484,3 +484,63 @@ lưới engine vĩnh viễn. Owner có thể gạt bất kỳ mục nào.
 
 Vòng 2 mà vẫn sinh lỗi CÙNG LỚP với vòng 1 thì khuôn giải sai — DỪNG, trình
 owner ba đường, không tự phát vòng ba.
+
+## VÒNG SỬA 1, LƯỢT 2 (13/08) — owner gạch đường 3 + (c); và một bộ đếm mù lộ ra
+
+*Ghi sau khi CI vòng 1 của bản sửa cho thấy known-limit đã khai NHẸ HƠN vật.*
+
+### ⚠ VẤP THỨ CHÍN — bộ kiểm `scripts` chưa bao giờ đỏ được vì `*.test.mjs`
+
+```bash
+node "$_f"; check "$(basename "$_f")" 0 $?
+```
+
+Bash khai triển đối số **TRƯỚC** khi gọi `check`, nên `$(basename …)` chạy trước
+và **ghi đè `$?`** bằng mã thoát của `basename` — luôn 0. Hệ quả: mọi tệp
+`*.test.mjs` đỏ vẫn được ghi `PASS`, suite in `0 failed` và thoát 0.
+
+Đo tại commit nền `d6044a4`: `core-untouched.test.mjs` **đã đỏ sẵn** trong khi
+suite in `664 passed, 0 failed`. Nghĩa là đẳng thức `scripts` của AC-11 — con số
+664 mà cả hồ sơ dựa vào — được đo bằng **một dụng cụ mù**. Đúng lớp
+**bộ-chạy-nuốt-mã-thoát** đã ghi sổ; lần trước ở `tests/plugins` (khối thoát-sớm
+giữa tệp), lần này ở `tests/scripts`, hình dạng khác hẳn.
+
+Bài học cho lớp: **`$?` phải bắt vào biến NGAY dòng sau lệnh.** Mọi lần `$?` đi
+qua một command substitution là một lần nó bị thay. Và tổng quát hơn: hai lần
+liên tiếp lớp này xuất hiện ở hai bộ kiểm khác nhau với hai hình dạng khác nhau
+— nên phép thử đúng không phải "tìm khối exit lạc" mà là *"bộ đếm này có đường
+nào để nhận một ca đỏ không?"*, hỏi cho từng đường vào.
+
+### Vì sao đường 3 một mình không đủ
+
+`JR11b` và `DV4a` gọi `recheck` **thẳng trên corpus**, không qua
+`pre-merge-check.sh`, nên phép thu phạm vi theo thiết kế không chạm tới chúng.
+Không xử chúng thì bộ kiểm `scripts` đỏ vĩnh viễn, và **không lane nào xanh để
+ký** — mà nghi thức re-pin cấm append dòng repin khi có suite exit khác 0.
+Ba việc owner gạch vì thế bị **khoá vào nhau theo đúng một thứ tự**:
+(c) → lane xanh → re-pin.
+
+### Số ca `scripts`: lần đầu con số đi LÊN
+
+`671 − 7 + 22 = 686`. 22 assert của AC-17 đếm **a-priori từ mã vừa viết**, khai
+vào hợp đồng TRƯỚC khi chạy suite; đo ra đúng 686. Đây là lần đầu đẳng thức tăng
+— và lý do phải đọc kỹ hơn mọi lần trước: `scripts/pre-merge-check.sh` nằm trong
+`t3_paths` (lõi cưỡng chế), nên nó KHÔNG được vào cây mà không có răng.
+
+### Hai lỗi của lượt này, cả hai là bài học lớp
+
+1. **Fixture đo nhầm luật.** PR giả trong fixture đổi một file ngoài
+   `_acceptance/`, làm hồ sơ cũ thành *stale*; luật staleness nổ TRƯỚC và
+   `continue` trước khi tới luật đang đo. Hai ca đỏ vì đo nhầm luật chứ không vì
+   vật hỏng. Chữa: fixture cố ý không đụng gì ngoài `_acceptance/`, và ghi chú
+   ngay tại chỗ để lần sau không ai thêm lại.
+2. **Răng `additive-only` (DV5) đỏ ĐÚNG.** Bản đầu viết lại một dòng luật cũ
+   trong `pre-merge-check.sh`, mà tệp ấy có luật "diff chỉ được THÊM". Nắn lại
+   thành thêm-thuần: guard ôm đúng MỘT dòng gọi `node`, và dòng ấy giữ nguyên
+   văn cả thụt lề — trông lệch mắt, nhưng nắn cho đẹp là xoá một dòng luật cũ.
+
+### Mở rộng phạm vi — ba tiêu chí mới, owner đã gạch, cần gạch LẠI ở Cổng 2
+
+AC-17 (thu phạm vi + cờ cứu) · AC-18 (allowlist có tên) · AC-19 (bugfix bộ đếm).
+Cả ba nằm ngoài bản duyệt Cổng 1. ADR 0010 ghi ngoại lệ đóng băng lõi kit, đánh
+đổi **thước-thôi-hồi-tố**, và trigger đảo.

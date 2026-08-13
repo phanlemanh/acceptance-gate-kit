@@ -32,7 +32,7 @@ có câu nào như thế.
 |---|---|---|
 | Bộ kiểm gói | **145/145 xanh** | `173 − 26 − 2` ✔ |
 | Bộ kiểm luồng | **463/463 xanh** | `488 − 25` ✔ |
-| Bộ kiểm script | **664/664 xanh** | `671 − 7` ✔ |
+| Bộ kiểm script | **686/686 xanh** | `671 − 7 + 22` ✔ |
 | Bộ kiểm hook | **54/54 xanh** | `54 → 54` (không chạm) ✔ |
 | Bản đồ sản phẩm | khớp hồ sơ xưởng | — |
 | Bộ răng đo sự-vắng-mặt | 16 nhóm chân, **14 chiều đỏ chạy thật** | — |
@@ -108,6 +108,10 @@ tiếp làm tiêu chí đỏ oan, và đường thoát lúc đó là sửa số 
 | **C1** hai lần sửa-sau-Cổng-1 chưa khai | Đã khai vào `contract.md` đúng khuôn sáu lần trước, **từng từ khoá một** kèm lý do riêng, và nêu thẳng ràng buộc thay thế để việc co mảng không thành đường nới lỏng. Lần cắt phạm vi `tests/` được khai kèm câu tự-hoài-nghi: nó chỉ hợp lệ vì thứ thay thế MẠNH HƠN, và thứ đó phải có chân máy — nên `so-ca.sh` dựng cùng lượt, không tách để sau. |
 | **E2** chưa bump, gói biến khỏi marketplace | Xem mục «Đường phát hành». Thêm AC-16 + E16 — **mở rộng phạm vi, cần owner gạch ở Cổng 2**. |
 | **B4** thêm (ngoài đề bài, rẻ) | Phạm vi quét nay được kiểm **tồn tại** trước khi tin bất kỳ con số 0 nào: một mục gõ sai từng làm `grep` im lặng và cả tám từ khoá in «HEAD=0 … OK» trong khi phép quét chưa quét gì. |
+| **(đường 3)** owner gạch 13/08 | Luật soi-lại-bằng-chứng thu phạm vi theo diff PR (AC-17), dùng LẠI đúng hàm `slug_in_diff` mà gap-probe và staleness dùng. Cổng đo trên CI: **22 → 1 vi phạm**. Cắt **thấy được**: một dòng NOTE hằng + một dòng đếm đích danh số hồ sơ bị bỏ qua. Cờ `--recheck-all` là đường cứu cho việc thước-thôi-hồi-tố. ADR 0010. |
+| **(đường c)** owner gạch 13/08 | Hai baseline gọi `recheck` THẲNG trên corpus (`JR11b`, `DV4a`) không đi qua cổng nên AC-17 không chạm tới. Chúng chuyển từ ngưỡng trần "0 fail" sang **allowlist CÓ TÊN** (AC-18), một bản khai hai bên đọc chung, kèm ba ràng buộc: chỉ che hồ sơ có tên · chỉ che đúng MỘT lý do · kiểm hai chiều (tên khai mà hết đỏ thì cũng ĐỎ). |
+| **(bugfix)** bộ-chạy nuốt mã thoát | `tests/scripts` viết `check "$(basename "$_f")" 0 $?` — bash khai triển đối số TRƯỚC khi gọi `check`, nên `$(basename …)` chạy trước và **ghi đè `$?`** bằng mã thoát của `basename` (luôn 0). Hệ quả: **mọi** `*.test.mjs` đỏ vẫn ghi PASS. Đo tại commit nền: `core-untouched.test.mjs` ĐÃ đỏ mà suite in `664 passed, 0 failed`. Ghim thành AC-19 vì cùng lý do AC-15 — đẳng thức số ca không đo được điều nó nói khi bộ đếm mù. |
+| **(re-pin)** owner gạch 13/08 | `stop-patching-law` vào diff vì phần sửa A1b chạm ba tệp của nó, nên mất quyền im lặng của guard staleness — luật tính ĐÚNG. Xử bằng **re-pin lần 10** theo nghi thức một-lượt-lane, sau khi lane đã xanh trọn (nghi thức cấm ký mù trên lane đỏ). |
 
 ## Giới hạn đã biết
 
@@ -147,38 +151,18 @@ Hai giới hạn đã khai từ trước, giữ nguyên:
 
 - **Chạy lại nghiệm thu một hồ sơ cũ sẽ hỏng** ở những hồ sơ có phép đo trỏ khoá
   cấu hình đã chết. Đã khai từ Cổng 1, không migrate hàng loạt.
-  **⚠ HẬU QUẢ ĐO ĐƯỢC, NẶNG HƠN CÂU ĐÃ KHAI — cần owner quyết trước khi merge.**
-  Câu khai ở Cổng 1 nói "chạy lại verify một hồ sơ cũ sẽ hỏng", nghe như một
-  bất tiện khi ai đó chủ động chạy lại. Đo trên CI của chính PR này:
-  **cổng CHẶN MERGE với 22 vi phạm**, và chúng không đợi ai chạy lại cái gì —
-  luật `recheck: strict` soi MỌI hồ sơ đã commit ở mỗi lượt CI, không theo phạm
-  vi diff. Hai lớp:
-  · **21 hồ sơ đã ký** đỏ vì `config key not found: "executors.script.mirror_sync"`
-    (`claim-scan-parser-hardening`, `consumer-copy-cjs`, `context-ladder`,
-    `cross-feature-claim-index`, `delta-verify-repin`, `design-pass-skill`,
-    `discovery-brainstorm-socket`, `docs-first-run-audit`,
-    `findings-section-boundary`, `gate-card-ac-visibility`,
-    `hinh-theo-mat-phang`, `judgment-question-guard`, `may-ganh-nguoi-quyet`,
-    `mot-luot-go-cong-nguoi`, `ngon-ngu-mat-nguoi`, `pha3-goi-luoi`,
-    `product-map-uat-session`, `rang-phep-do-viec-cua-anh`, `stale-theo-diff-pr`,
-    `start-command`, `start-scan-hardening`).
-  · **1 hồ sơ** (`stop-patching-law`) đỏ vì **stale**: đợt gỡ chạm
-    `.agents/`, `codex/`, `.codex-plugin/`, `.github/workflows/gate.yml` — tất cả
-    NGOÀI `_acceptance/` nên luật staleness tính đúng.
-  Cả 22 vi phạm **có sẵn từ đợt phẫu thuật** (commit gỡ + commit khoá config),
-  KHÔNG do vòng sửa này sinh ra: chạy `pre-merge-check.sh` với cùng base ở commit
-  của nhánh 1b và ở HEAD của vòng sửa cho **tập vi phạm y hệt nhau**.
-  **Vòng sửa này cố ý KHÔNG tự xử.** Ba đường đều là quyết-định-của-người và hai
-  trong ba đụng vật đã ký:
-  1. **Trả lại khoá `mirror_sync`** dưới dạng bia mộ — mâu thuẫn thẳng AC-9
-     («khoá đó KHÔNG còn»), tức phải mở lại một tiêu chí đã duyệt.
-  2. **Sửa `evals.yaml` của 21 hồ sơ đã ký** — mâu thuẫn thẳng mục *Out of scope*
-     («hồ sơ `_acceptance/` cũ là sử liệu bất biến»), và là viết vào vật đã ký.
-  3. **Nới luật `recheck`** cho hồ sơ ngoài phạm vi diff — đây là đổi ENGINE, mà
-     lab đang ĐÓNG BĂNG; và nó là hạ-thước nếu làm chỉ để lấy màu xanh.
-  Riêng `stop-patching-law` có đường thứ tư rẻ hơn: **re-pin** theo nghi thức
-  một-lượt-lane (chỉ chạm field máy, không chạm chữ ký) — nhưng đó vẫn là chạm
-  một hồ sơ đã ký ngoài phạm vi được duyệt, nên cũng chờ owner gạch.
+  **HẬU QUẢ ĐO ĐƯỢC — ĐÃ XỬ, owner gạch 13/08.** Câu khai ở Cổng 1 nói "chạy lại
+  verify một hồ sơ cũ sẽ hỏng", nghe như bất tiện khi ai đó chủ động chạy lại. Đo
+  trên CI: luật `recheck: strict` soi MỌI hồ sơ đã commit ở MỌI lượt CI, không
+  theo phạm vi diff — nên nó **chặn merge với 22 vi phạm**, không đợi ai chạy lại
+  cái gì. Owner cân ba đường và gạch **thu phạm vi luật theo diff PR** (AC-17,
+  ADR 0010) cộng **allowlist có tên** cho hai baseline gọi recheck thẳng trên
+  corpus (AC-18). Đo lại trên CI sau khi ship: **22 → 1**, và vi phạm cuối cùng
+  (`stop-patching-law` stale) đã xử bằng **re-pin lần 10** theo nghi thức
+  một-lượt-lane. Đánh đổi phải đọc kèm: **thước thôi hồi tố** — siết bar về sau
+  không tự đo lại hồ sơ cũ; đường cứu là cờ `--recheck-all`, chạy sau mỗi lần
+  nâng bar.
+
 - **Một chân đo phụ thuộc mạng.** Chân «mốc đã lên remote» hỏi remote thật; hết
   ba lượt không hỏi được thì vẫn đỏ (không chứng minh được là đã đẩy thì không
   coi như đã đẩy) nhưng ghim rõ đó là lỗi đường truyền, không phải lỗi hồ sơ.
