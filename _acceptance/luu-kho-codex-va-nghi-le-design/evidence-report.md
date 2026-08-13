@@ -3,7 +3,7 @@ schema_version: 1
 slug: luu-kho-codex-va-nghi-le-design
 round: 5
 verdict: PENDING-JUDGMENT
-verified_commit: 7030fdd8fbb9
+verified_commit: 185474232914
 ---
 
 # Trang bằng chứng — lưu kho harness song sinh và nghi lễ design
@@ -38,6 +38,15 @@ verified_commit: 7030fdd8fbb9
 > (known-limit) · **G9** xoá chân wire · **G11** sửa GUIDE · **G12** E20 thu
 > lời hứa về vật · **G13** recorder thoát theo phán quyết · **G14, G15** sổ
 > sách đo lại, danh sách CHỐT được đính chính kèm lý do của `P26`.
+>
+> **Sổ chạy vòng 5 là một đối chứng dương SỐNG cho bộ dụng cụ vừa hạ cấp:** lượt
+> sửa GUIDE (G11) làm ca thường trực `P43` đỏ — pin của nó ghim nguyên văn câu
+> «Bump version + sync mirror thuộc S3», tức chính pin là một con trỏ sống tới
+> mirror mà phép quét AC-4 không thấy (`tests/` ngoài phạm vi, có lý do). Recorder
+> mới chặn đúng chỗ: exit 1, sổ ghi lượt đỏ append-only, và vòng 6 xanh sau khi
+> pin được sửa + assert cũ khai vào bánh cóc. Dụng cụ không còn là lời hứa,
+> nhưng nó vừa chứng minh nó CÓ RĂNG — bằng một lượt đỏ thật, không phải một
+> câu khai.
 >
 > Thước đo VẬT không đổi một ly: đủ đẳng thức, đối chứng dương, chiều đỏ. Cái
 > bị trừ là thước-tự-soi-thước. Cần owner gạch ở Cổng 2: **AC-20 bản thu**
