@@ -9,12 +9,13 @@ verified_commit: c62f0330f253
 
 # Trang bằng chứng — lưu kho harness song sinh và nghi lễ design
 
-## Verdict: **PENDING-JUDGMENT — vòng 4 PASS cả hai lăng kính, chờ owner nâng ở Cổng 2**
+## Verdict: **PASS — owner ký Cổng 2 ngày 2026-08-13**
 
-> Frontmatter giữ PENDING-JUDGMENT có chủ ý: nâng lên PASS là BƯỚC CỦA NGƯỜI ở
-> Cổng 2 (checklist chuẩn của kit), và lưới JR11b cưỡng chế đúng điều đó — phiên
-> thi công đặt PASS hộ owner thì recheck đòi khối bằng chứng L1 và ĐỎ ngay.
-> Vòng 4 tự dẫm thử và xác nhận lưới sống.
+> Vòng 4 PASS cả hai lăng kính; owner nâng verdict và ký (xem `human_signoff`
+> frontmatter — commit qua GitHub web, đúng nghi thức human-fields-only).
+> Sử liệu: trước khi ký, frontmatter giữ PENDING-JUDGMENT có chủ ý — nâng lên
+> PASS là bước CỦA NGƯỜI, và lưới JR11b đã chứng minh điều đó bằng một lượt đỏ
+> thật khi phiên thi công thử đặt PASS hộ.
 
 > **Vòng thu gọn «chỉ TRỪ» — 13/08, owner gạch sau phân tích từ nguyên lý gốc.**
 > Chẩn đoán: hồ sơ 1b mắc đúng căn bệnh nó sinh ra để chữa — bộ đo của nó nuôi
