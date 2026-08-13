@@ -42,6 +42,8 @@ evals:
       bộ: thiếu tag thì E2/E4/E9 mất đối chứng dương nên KHÔNG được phép xanh.
       Baseline: n-a (script là vật của chính hồ sơ này; đối chứng neo vào tag
       tường minh trong lệnh).
+    pinned:
+      - "LUU-KHO-TAG: la cha cua commit go dau tien OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E2
@@ -63,6 +65,8 @@ evals:
       chép `codex/` từ tag về một bản sao tạm rồi chạy lại checker trên bản sao
       → đỏ "LUU-KHO-PATH: codex/ con tren HEAD"; đối chứng dương (cây thật)
       xanh trước đột biến.
+    pinned:
+      - "LUU-KHO-PATH: 7/7 vang o HEAD, co o tag OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E3
@@ -83,6 +87,8 @@ evals:
       OK", nên "2 entry" là kết quả của việc GỠ chứ không phải của file hỏng.
       Chiều đỏ CHẠY THẬT: thêm lại entry design-loop vào bản sao manifest →
       đỏ "LUU-KHO-MKT: con entry design-loop".
+    pinned:
+      - "LUU-KHO-MKT: claude 2 plugin (acceptance-gate, feature-loop) OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E4
@@ -134,6 +140,9 @@ evals:
       dùng lớp ký tự cho ký tự đặc biệt (GNU coi ` là anchor). Chiều đỏ CHẠY
       THẬT: chèn lại một dòng "In Codex…" vào bản sao `commands/signoff.md` →
       đỏ "LUU-KHO-REF: In Codex HEAD=1".
+    pinned:
+      - "LUU-KHO-REF: 13/13 muc pham vi ton tai OK"
+      - "LUU-KHO-REF: 11/11"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E4b
@@ -151,6 +160,8 @@ evals:
       Không có eval này thì miễn trừ một dòng dễ trượt thành miễn trừ cả thư
       mục, và lưới im lặng ở đúng chỗ nó phải kêu. Đối chứng dương: bản sao
       chưa tiêm phải XANH trước.
+    pinned:
+      - "LUU-KHO-REF: mien tru 4/4 cap dung so dong da khai OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E5
@@ -174,6 +185,8 @@ evals:
       cum am OK") — chứng minh phép rút thật sự đọc được đoạn, không phải
       marker gõ sai. Chiều đỏ CHẠY THẬT: chép đoạn CT2 của tag đè lên bản sao →
       đỏ ghim đích danh cụm còn sót.
+    pinned:
+      - "LUU-KHO-CT2: nhanh UI tro design-pass OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E6
@@ -213,6 +226,8 @@ evals:
       Chiều đỏ CHẠY THẬT: xoá một dòng
       trong bản sao `lib/design-detect.mjs` → đỏ "LUU-KHO-GIU:
       lib/design-detect.mjs LECH tag".
+    pinned:
+      - "LUU-KHO-GIU: ux-ui-craft 1 file doi co khai, con lai byte-equal OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E7
@@ -223,13 +238,23 @@ evals:
       - tests/design-eval
       - tests/skills
     expected: >
-      exit 0; stdout có "LUU-KHO-SUITE: scripts 671 -> 664 OK" và dòng tổng kết
-      NGUYÊN VĂN của suite "Results: **664** passed, 0 failed" — ĐẲNG
+      exit 0; stdout có "LUU-KHO-SUITE: scripts 671 -> 686 OK" và dòng tổng kết
+      NGUYÊN VĂN của suite `Results: 686 passed, 0 failed` — ĐẲNG
       THỨC, không phải sàn. Suite `scripts` tại `daa9b3d` có **671** ca; hồ sơ
       này gỡ `design-loop/`, mà `tests/scripts/run-tests.sh:1390-1406` gọi
       THẲNG hai script của nó (`design-static-check.mjs`, `design-config-patch.mjs`)
-      qua **7 assert**: `DSC01` `DSC02` `DSC03` `SG1` `SG2` `SG3` `SG4`. Vậy
-      `664 = 671 − 7`, và eval đỏ ghim "so ca lech ky vong: 671 -> <thuc te>".
+      qua **7 assert**: `DSC01` `DSC02` `DSC03` `SG1` `SG2` `SG3` `SG4`; rồi
+      AC-17/AC-19 thêm **22 assert** `RS01`–`RS06`. Vậy `686 = 671 − 7 + 22`, và
+      eval đỏ ghim "so ca lech ky vong: 671 -> <thuc te>".
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 2] Hai chuỗi ghim ở trên trước đây
+      viết `664`, và cây KHÔNG BAO GIỜ in được chúng.** Rà soát vòng 2 (F4):
+      chuỗi `671 -> 664` được VIẾT MỚI trong vòng sửa 1, ở đúng commit đổi đẳng
+      thức sang 686 — mọi chỗ khác (AC-11, khối `SO-CA-KY-VONG`, E19, bảng Số
+      đo) đều ghi 686, riêng eval này còn 664. Nó sống sót được vì sổ chạy chỉ
+      ghi `exit_code`: lời hứa thông-điệp của cả 23 eval chưa từng được đối
+      chiếu với đầu ra thật. Nay trường `pinned:` dưới đây là bản MÁY-ĐỌC của
+      lời hứa ấy, và `ghi-so-chay.mjs` fail-closed nếu đầu ra không chứa nó
+      (xem AC-20).
       **Vì sao KHÔNG dùng sàn `≥` ở đây:** đây là suite bị CHỦ Ý làm teo. Đặt
       sàn 671 thì S4 đỏ vì thước sai chứ không vì vật hỏng, và đường thoát tự
       nhiên lúc đó là hạ sàn xuống con số vừa đo — sau khi hạ, phép đo mất hẳn
@@ -241,6 +266,8 @@ evals:
       là đầu ra nay đi qua `so-ca.sh` — thứ THẬT SỰ so con số với bản khai và
       đỏ đúng thông điệp đã hứa ở dòng trên. Bản trước để `expected` mô tả một
       phép so mà không mã nào làm, tức người đọc log phải tự đếm.
+    pinned:
+      - "LUU-KHO-SUITE: scripts 671 -> 686 OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E8
@@ -259,6 +286,8 @@ evals:
       đo chỉ-dẫn thay vì đo đầu ra); mỗi file có một dòng trigger mở lại. Chiều
       đỏ CHẠY THẬT: đổi một ký tự trong sha ở bản sao ADR → đỏ "LUU-KHO-ADR:
       <file> sha khong khop tag".
+    pinned:
+      - "LUU-KHO-ADR: 2 ADR moi OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E9
@@ -274,6 +303,8 @@ evals:
       superseded VÀ trỏ tới ADR lưu-kho-Codex. Ba chân, thiếu chân nào đỏ đích
       danh chân đó. Chiều đỏ CHẠY THẬT: gỡ dấu superseded khỏi bản sao → đỏ
       "LUU-KHO-ADR0001: thieu dau superseded".
+    pinned:
+      - "LUU-KHO-ADR0001: superseded + tro ADR moi OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E10
@@ -299,6 +330,8 @@ evals:
       "LUU-KHO-MIRROR: suite_keys tro khoa da chet: <key>". Chân này bắt đúng
       lớp gỡ-một-nửa (gỡ định nghĩa mà để lại tham chiếu). Chiều đỏ CHẠY THẬT:
       chép lại khoá `mirror_sync` vào bản sao config → đỏ đích danh.
+    pinned:
+      - "LUU-KHO-MIRROR: suite_keys khong tro khoa da chet OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E10b
@@ -316,6 +349,8 @@ evals:
       nào khác canh nó**; gộp vào E10 thì mệnh đề này chìm giữa 5 vế đều do
       script đo và không ai nhận ra nó chưa được đo. Chiều đỏ CHẠY THẬT: chép
       lại đoạn bất biến mirror vào bản sao `CLAUDE.md` → đỏ đích danh.
+    pinned:
+      - "LUU-KHO-MIRROR: CLAUDE.md khong con bat bien mirror OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E11b
@@ -336,6 +371,8 @@ evals:
       đúng lớp đo-chỉ-dẫn-thay-vì-đo-đầu-ra vì phép đo dừng ở việc LIỆT KÊ TÊN
       script. Chiều đỏ CHẠY THẬT: tiêm lại một lượt đọc `.agents/` vào bản sao
       → đỏ ghim lỗi đọc file.
+    pinned:
+      - "LUU-KHO-START-SCAN: chay sach OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E11
@@ -352,6 +389,8 @@ evals:
       script chết nửa chừng cũng có thể trả 0 ở vài shell. Đối chứng dương:
       cùng lệnh đỏ khi PRODUCT-MAP cố tình lệch (đã có tiền lệ P126). Baseline:
       green có chủ đích (guard vĩnh viễn).
+    pinned:
+      - "PRODUCT-MAP.md"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E12
@@ -384,6 +423,8 @@ evals:
       máy-đọc trong khối `SO-CA-KY-VONG` của `contract.md` (một bản duy nhất,
       không bản chép thứ hai), và tách HAI kiểu hỏng bằng hai câu khác nhau:
       "so ca lech ky vong" (gỡ quá tay / gỡ sót) khác hẳn "$n ca DO" (ca hỏng).
+    pinned:
+      - "LUU-KHO-SUITE: plugins 173 -> 146 OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E13
@@ -399,6 +440,8 @@ evals:
       tín hiệu gỡ lan sang lõi cưỡng chế (t3_paths). Ghim số, không ghim mã thoát.
       **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1]** `cmd` đi qua `so-ca.sh` như E12 —
       cùng lý do, cùng một lượt chạy suite.
+    pinned:
+      - "LUU-KHO-SUITE: hooks 54 -> 54 OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E14
@@ -420,6 +463,8 @@ evals:
       Suite này in SÁU dòng `Results:` (mỗi tệp một dòng) nên `so-ca.sh` CỘNG cả
       sáu thay vì đọc dòng cuối — chính lớp lỗi «đọc dòng tổng kết cuối cùng
       thành tổng cả suite» đã làm bản duyệt ghi nhầm `62`.
+    pinned:
+      - "LUU-KHO-SUITE: workflows 488 -> 463 OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E4c
@@ -439,6 +484,8 @@ evals:
       manifest chi dinh o truong description OK". Không có chân này thì miễn trừ
       trượt từ một-trường thành cả-tệp, rồi thành cả họ `*/plugin.json` — mà đó
       đúng là loại tệp mọi lần bump phiên bản đều chạm.
+    pinned:
+      - "LUU-KHO-REF: hai manifest chi dinh o truong description OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E15
@@ -458,6 +505,8 @@ evals:
       là 73. AC-11 là một ĐẲNG THỨC số ca nên nó không thể đo điều nó nói khi
       đầu vào bị cắt cụt; ghim thành tiêu chí để lần nối ca kế tiếp không chép
       lại khối ấy lần nữa.
+    pinned:
+      - "LUU-KHO-SUITE: chi 1 khoi thoat, nam o duoi tep OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E16
@@ -481,6 +530,8 @@ evals:
       manifest mang ĐÚNG số của mốc — tức "quên bump" — cho `chua-bump-minor`;
       (b) bản hạ về `1.0.0` cho `tut-so`. Gộp hai mã thành một câu thì quên-bump
       đọc y hệt tụt-số, và người sửa không biết phải làm gì.
+    pinned:
+      - "LUU-KHO-BUMP: 2/2 manifest da bump OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E17
@@ -508,6 +559,8 @@ evals:
       Fixture CỐ Ý không đụng file nào ngoài `_acceptance/`: đụng thì hồ sơ cũ
       thành stale, luật staleness nổ TRƯỚC và `continue` trước khi tới luật
       đang đo — bản đầu mắc đúng lỗi này và hai ca đỏ vì đo nhầm luật.
+    pinned:
+      - "LUU-KHO-SUITE: scripts 671 -> 686 OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E18
@@ -531,6 +584,8 @@ evals:
       Hai chiều đỏ đã chạy thật khi dựng: bỏ `context-ladder` khỏi danh sách →
       đỏ đúng câu "NGOÀI danh sách"; thêm một tên không hề đỏ → đỏ đúng câu
       "ĐÃ HẾT đỏ".
+    pinned:
+      - "LUU-KHO-SUITE: scripts 671 -> 686 OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E19
@@ -547,4 +602,29 @@ evals:
       `684 passed, 2 failed`. Chiều đỏ KHÔNG dựng thêm fixture: chính hai ca
       `JR11b`/`DV4a` đang đỏ lúc đó là bản-thật-bị-hỏng, và chúng chuyển từ vô
       hình sang hiện — mạnh hơn một bản sao tự tiêm.
+    pinned:
+      - "LUU-KHO-SUITE: scripts 671 -> 686 OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E20
+    criterion: AC-20
+    executor: script
+    cmd: config:executors.script.luu_kho_rang
+    paths:
+      - _acceptance/luu-kho-codex-va-nghi-le-design/contract.md
+      - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+      - _acceptance/luu-kho-codex-va-nghi-le-design/ghi-so-chay.mjs
+    expected: >
+      exit 0; bộ răng in chân round-trip của cả hai khối liệt kê — thêm một dòng
+      vào khối trong BẢN SAO `contract.md` thì phép đo phải ĐỔI THEO và đỏ đích
+      danh dòng vừa thêm. Đây là chân duy nhất phân biệt "đọc từ hợp đồng" với
+      "một câu trong chú thích": mảng chép tay vẫn xanh y hệt trên cây sạch.
+      Vế `pinned:` của AC-20 do chính `ghi-so-chay.mjs` cưỡng chế và được chứng
+      bằng lượt chạy sinh `run-log.jsonl` vòng 4 (23 eval, 0 chuỗi ghim lệch);
+      chiều đỏ của nó chạy trên một workspace thử dựng bằng CODE trong chính
+      lượt kiểm: một eval khai `pinned:` một chuỗi không bao giờ có → recorder
+      exit 1 ghim "LOI HUA THONG DIEP KHONG KHOP", dù lệnh thoát 0.
+    pinned:
+      - "LUU-KHO-PATH: 7/7 vang o HEAD, co o tag OK"
+      - "LUU-KHO-REF: 11/11"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

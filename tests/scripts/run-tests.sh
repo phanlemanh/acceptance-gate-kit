@@ -1389,8 +1389,13 @@ case "$G2N" in *"Đã duyệt từ Gate 1"*) echo "  FAIL: D10d (approved block 
 # --surface-globs) đã ĐI THEO design-loop khi lưu kho (hồ sơ
 # luu-kho-codex-va-nghi-le-design, Cổng 1 duyệt 2026-08-12). Bảy assert đó gọi
 # THẲNG hai script trong design-loop/scripts/, nên chúng chết cùng thư mục ấy.
-# Đây là lý do bộ đếm của suite đi từ 671 xuống 664 — con số khai TRƯỚC trong
-# hợp đồng, không phải con số điền sau khi đo.
+# Đây là lý do bảy assert rời khỏi bộ đếm của suite. Số CHỐT của cùng lượt sửa
+# là 686 = 671 − 7 + 22 (AC-17/AC-19 thêm RS01–RS06 trong chính commit này) —
+# con số khai TRƯỚC trong hợp đồng, ở khối máy-đọc `SO-CA-KY-VONG`.
+# [SỬA SAU CỔNG 1 — 13/08, vòng sửa 2] Câu cũ ở đây ghi "671 xuống 664" và
+# dừng lại ở đó, tức để một mẫu số CHẾT nằm ngay cạnh vết mổ (F13). Ai đọc chú
+# thích này để tra đẳng thức sẽ lấy 664 rồi 'chữa' bản khai cho khớp — đúng lớp
+# bên-viết-và-bên-đọc-trôi-khỏi-nhau mà bản khai máy-đọc sinh ra để chặn.
 
 # '### nhóm phụ' trong ## Criteria KHÔNG được cắt cụt decision card — human duyệt Gate 1
 # trên card thiếu AC là false-green ở tầng con người, nặng hơn răng CI im lặng.

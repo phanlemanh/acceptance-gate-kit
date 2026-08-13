@@ -1,14 +1,57 @@
 ---
 schema_version: 1
 slug: luu-kho-codex-va-nghi-le-design
-round: 3
-verdict: REJECT
+round: 4
+verdict: PENDING-JUDGMENT
 verified_commit: a69cb309c94e
 ---
 
 # Trang bằng chứng — lưu kho harness song sinh và nghi lễ design
 
-## Verdict: **REJECT (vòng 2, 2026-08-13)**
+## Verdict: **chờ rà soát đối kháng vòng 3**
+
+> **Vòng sửa 2 «một-nguồn» — 2026-08-13.** Rà soát vòng 2 REJECT với 4 P0 · 7 P1
+> · 3 P2, và **luật dừng-vá đã kích hoạt** (ba lần: F3 tái phạm nguyên văn C2
+> của vòng 1; F2 cùng lớp với chính bugfix AC-19 của vòng 1; F4+F9+F10 cùng lớp
+> A2/A3/B10). Owner cân ba đường và gạch **«vòng sửa một-nguồn»**: giữ phạm vi
+> hẹp của đường vá, nhưng lấy BẤT BIẾN của đường đổi-luật.
+>
+> **Định nghĩa-xong của vòng này là một câu máy-kiểm được:** sau vòng này,
+> không danh sách nào trong bộ răng còn là bản chép tay của hợp đồng, và không
+> lời hứa thông-điệp nào của eval còn nằm ngoài tầm máy. Ghim thành **AC-20**.
+>
+> Vì sao KHÔNG vá từng chỗ: chép thêm một dòng vào mảng là **nới phép khớp** —
+> mảng chép tay vẫn là mảng chép tay, và lần sửa hợp đồng thứ tám lại đẻ ra lỗ y
+> hệt. Ba lỗ F1/F3/F4 là cùng MỘT hình dạng, không phải ba sự cố.
+>
+> Vì sao KHÔNG nâng thành luật toàn kit ngay: đó là **CỘNG**, và nó đụng engine
+> dưới chân hai hồ sơ đang giữa vòng. Hạt giống nằm ở
+> `docs/plans/2026-08-13-hat-giong-liet-ke-may-doc.md`, **chờ Cổng 0**.
+
+### Vòng sửa 2 đã làm gì với 14 finding
+
+| # | Finding vòng 2 | Đã làm |
+|---|---|---|
+| **F1** P0 · AC-2 khai 7 đường dẫn, mã đo 6 (cả ba lăng kính) | Danh sách chuyển vào khối `VAT-LUU-KHO` của `contract.md`; bộ răng đọc thẳng. Đo lại: **7/7**. Chân **round-trip**: thêm một dòng vào khối trong bản sao hợp đồng → phép đo đổi theo và ĐỎ đích danh dòng vừa thêm. |
+| **F2** P0 · `if so_ca_run … \| sed` nuốt mã thoát | Bắt mã thoát vào biến TRƯỚC khi trang trí. Chiều đỏ **không grep hình dạng câu lệnh** (đó là đo chỉ-dẫn): cho `so-ca.sh` THẬT thoát 1, rồi so hai cách đọc trên CÙNG lượt chạy — cách cũ đọc ra 0, cách mới đọc đúng 1. |
+| **F3** P0 · AC-4 khai 4 needle `plugins/…`, mã có 1 | Mảng chuyển vào khối `NEEDLE-CHET`; ba needle thiếu được trả lại (đối chứng dương ở mốc: 1 · 1 · 4 hit). Mảng 8 → **11**, đo lại **11/11**. Needle có trong khối mà chưa khai mồi → ĐỎ đích danh. |
+| **F4** P0 · E7 ghim `671 -> 664`, cây in `686` | Sửa về `686` ở cả văn `expected` lẫn trường `pinned:` mới. |
+| **F5** P1 · chân wire chỉ grep TÊN khoá | Nay đọc **GIÁ TRỊ** khoá và đòi nó vừa trỏ `so-ca.sh` vừa mang đúng `--suite <s>`. Chiều đỏ: đổi giá trị khoá trong bản sao config → ĐỎ "bo dem da roi khoi lan". |
+| **F6** P1 · lưới `suite_key` phải resolve bị gỡ kèm ca `P162` | **Un-remove**: trả lại bộ kiểm THƯỜNG TRỰC dưới tên `P195` (nó phải sống sau merge, khác bộ răng của hồ sơ). Chiều đỏ nêu đích danh khoá ma. Số ca `plugins` **145 → 146**, khai TRƯỚC khi đo. |
+| **F7** P1 · 69 assert ngoài cửa sổ bánh cóc, không khai ở đâu | Khai phạm vi THẬT vào đầu `asserts-da-go.txt`, kèm phân bổ từng ca. Nói thẳng đây là giới hạn của **bánh cóc** (mốc ghim `044968e`), và chữa nó thuộc hồ sơ `card-text-fidelity`. |
+| **F8** P1 · sổ chạy thiếu `output` | Ghi `output` (đuôi 4000 ký tự) + `output_bytes` + `output_sha256` + `pinned` + `pinned_missing`. |
+| **F9** P1 · «đúng byte lúc ký» sai | Sửa câu về đúng vật đo được: byte của `a8767168`, trạng thái ngay TRƯỚC hồ sơ này. Vế đúng, và cũng là vế hồ sơ này chịu trách nhiệm, là **hồ sơ này không viết lại chúng**. |
+| **F10** P1 · `GUIDE.md:5` khai `1.18.0/1.14.0` | Sửa về `1.41.0/1.28.0`. |
+| **F11** P1 · miễn trừ đo SỐ DÒNG trên trường JSON một-dòng | **CHƯA SỬA** — xem «Giới hạn đã biết», mục mới. |
+| **F12** P2 · `grep -c '[đột biến]'` cho 90, không phải số đã khai | Sửa thành `grep -cF`; số nhóm và số chiều đỏ đo lại. |
+| **F13** P2 · chú thích `671 xuống 664` ngay tại vết mổ | Sửa về `686 = 671 − 7 + 22`, kèm lý do vì sao một mẫu số chết nằm cạnh vết mổ là nguy hiểm. |
+| **F14** P2 · «Bốn mục» rồi liệt kê sáu | Sửa thành «Sáu mục». |
+
+**Cần owner gạch ở Cổng 2 — hai mục mở rộng phạm vi:** **AC-20** (luật một-nguồn
++ `pinned:` fail-closed) và **số ca `plugins` 145 → 146** (trả lại một lưới, tức
+CỘNG một ca vào một hồ sơ chỉ-TRỪ — phải giải trình chứ không được lặng lẽ).
+
+## Verdict vòng 2 (sử liệu): **REJECT (2026-08-13)**
 
 > **Rà soát đối kháng vòng 2 đã chạy: cả BA lăng kính REJECT** — 4 P0 · 7 P1 ·
 > 3 P2. Biên bản ở `review-findings.md` mục «Rà soát đối kháng — vòng 2».
@@ -42,18 +85,22 @@ có câu nào như thế.
 
 | Phép đo | Kết quả | Đẳng thức khai TRƯỚC |
 |---|---|---|
-| Bộ kiểm gói | **145/145 xanh** | `173 − 26 − 2` ✔ |
+| Bộ kiểm gói | **146/146 xanh** | `173 − 26 − 2 + 1` ✔ |
 | Bộ kiểm luồng | **463/463 xanh** | `488 − 25` ✔ |
 | Bộ kiểm script | **686/686 xanh** | `671 − 7 + 22` ✔ |
 | Bộ kiểm hook | **54/54 xanh** | `54 → 54` (không chạm) ✔ |
 | Bản đồ sản phẩm | khớp hồ sơ xưởng | — |
-| Bộ răng đo sự-vắng-mặt | 16 nhóm chân, **14 chiều đỏ chạy thật** | — |
+| Bộ răng đo sự-vắng-mặt | **15 nhóm chân**, **17 chiều đỏ chạy thật** | — |
 
 Vòng 1 in **chín** dòng đột-biến, trong đó chỉ 6–7 dòng thật sự đi qua một hàm
 kiểm và ít nhất hai dòng chưa từng chạy (chúng in một câu ở **thì tương lai**).
 Vòng này in **14** dòng, và mỗi dòng là kết quả của việc chạy lại **chính hàm
 kiểm** trên một bản sao bị tiêm — không dòng nào là lời hứa. Con số 14 đếm được
-từ đầu ra (`grep -c '[đột biến]'`), không phải chép tay.
+từ đầu ra (`grep -cF '[đột biến]'`), không phải chép tay.
+**[SỬA SAU CỔNG 1 — 13/08, vòng sửa 2]** Câu này trước đây mời kiểm chứng bằng
+`grep -c '[đột biến]'` — trong BRE đó là **lớp ký tự**, chạy ra **90** chứ không
+phải con số đã khai (F12). Một lời mời kiểm chứng mà chạy không ra số đã khai
+thì nó lấy đi đúng thứ nó định mua. `-F` (chuỗi cố định) là phép đúng.
 
 **Bốn đẳng thức nay do MÁY so, không do người đếm.** Đây là thay đổi nặng nhất
 của vòng sửa: `so-ca.sh` chạy từng bộ kiểm, đếm theo phương pháp ghim riêng cho
@@ -110,7 +157,7 @@ tiếp làm tiêu chí đỏ oan, và đường thoát lúc đó là sửa số 
 | Mục rà soát | Đã làm |
 |---|---|
 | **A1** `layout-craft.md` khai một luật là máy-cưỡng-chế | Câu đó nay nói đúng sự thật: **không checker nào** cưỡng chế luật khoảng-cách; `design-gate.mjs` chạy bộ dò Impeccable trên bản dựng, là phép kiểm KHÁC và không đọc layout token. Luật là kỷ luật lúc viết, và cái máy duy nhất có thể cãi lại là **thước** — nó đo trang đã dựng và bắt khoảng cách rơi khỏi thang đã khai. Đây là skill **phát cho repo tiêu thụ** nên sai ở đây là sai ngoài kho. |
-| **A2** chú thích SAI trong bộ sinh của một hồ sơ ĐÃ KÝ | Hai tệp bằng chứng đã trả về **đúng byte** nội dung lúc ký. Bộ sinh nay **ghi-một-lần** cho nhánh đã có bằng chứng: đã có trên đĩa thì không đụng vào, và **nói ra** một dòng. Chú thích cũ khẳng định «nhánh còn lại sinh ra y nguyên byte» — câu đó SAI ngay lúc viết; nay nó ghi đúng vì sao bằng chứng của một lượt đã chạy là sử liệu. |
+| **A2** chú thích SAI trong bộ sinh của một hồ sơ ĐÃ KÝ | Hai tệp bằng chứng đã trả về **đúng byte** nội dung ở `a8767168` (2026-08-11), trạng thái ngay TRƯỚC hồ sơ này. **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 2]** Câu cũ viết «đúng byte nội dung **lúc ký**», và rà soát vòng 2 (F9) đo ra nó SAI: chữ ký ở `8a53ab6a` (2026-08-07), blob lúc ký khác blob tại HEAD — `git diff` 20 dòng mỗi tệp, vì bản ghi còn được tái sinh bốn lượt HỢP LỆ giữa lúc ký và hồ sơ này. Vế đúng, và cũng là vế hồ sơ này chịu trách nhiệm, là **hồ sơ này không viết lại chúng**. Bộ sinh nay **ghi-một-lần** cho nhánh đã có bằng chứng: đã có trên đĩa thì không đụng vào, và **nói ra** một dòng. Chú thích cũ khẳng định «nhánh còn lại sinh ra y nguyên byte» — câu đó SAI ngay lúc viết; nay nó ghi đúng vì sao bằng chứng của một lượt đã chạy là sử liệu. |
 | **B1/B2** chiều đỏ E10 hằng-đúng, thông điệp xanh nói dối | Chiều đỏ nay đi qua **chính trình đọc khoá**, kèm đối chứng dương (bản sao chưa tiêm phải cho ÂM). Năm chân của E10 nay kiểm **cả hai đầu** — vắng ở HEAD **và** có ở mốc — nên câu «có ở tag OK» là điều đã đo chứ không phải điều được in. |
 | **B3** chiều đỏ E5/E11b ở thì tương lai | Ba chiều đỏ từng chỉ in một câu («lưới trên *sẽ* ĐỎ») nay **chạy thật**: E5 đè mục «Làn design» của mốc lên bản sao rồi chạy lại chính hàm kiểm; ADR đổi một ký tự sha rồi chạy lại chính hàm kiểm; E10b chép đúng các dòng bất biến của mốc vào bản sao. Thêm chiều đỏ cho E11b (chưa từng có): tiêm lại một lượt đọc `.agents/` vào bản sao `start-scan.mjs` rồi đòi phép kiểm ĐỎ. |
 | **B5** miễn trừ che TRỌN TỆP cho cả 8 từ khoá | Miễn trừ nay là cặp `(tệp, từ khoá)` kèm **số dòng mong đợi**, kiểm hai chiều (khai thiếu → đỏ; khai thừa → cũng đỏ). Vật lọt thật được khai ra thành một dòng riêng thay vì nấp sau tiền tố tệp. Chân đỏ-ngoài-danh-sách nay phủ **8/8 từ khoá** và chạy qua **chính hàm quét**, tiêm vào tệp đang được miễn trừ cho từ khoá KHÁC — đúng cái lỗ mà miễn trừ-theo-tệp để lại. |
@@ -127,7 +174,26 @@ tiếp làm tiêu chí đỏ oan, và đường thoát lúc đó là sửa số 
 
 ## Giới hạn đã biết
 
-Bốn mục dưới đây **cố ý không sửa**. Căn cứ chung: đây là răng **dùng một lần**
+**[13/08, vòng sửa 2] Một mục MỚI: F11 — miễn trừ nhật-ký-phiên-bản đo SỐ DÒNG
+và TÊN TRƯỜNG, không đo dòng ấy còn là sử liệu hay đã thành chỉ dẫn sống.**
+Nói thẳng hai điều. (a) Nó **không nằm trong đề xuất tôi trình owner** cho vòng
+này — bảng đề xuất liệt F1/F3/F5, F2/F8/F4, F6/F7, F9/F10/F12/F13/F14, và F11 bị
+tôi bỏ sót khỏi bảng chứ không phải bị owner gạt. (b) Rà soát vòng 2 chỉ ra
+`description` là JSON **một dòng**, nên `grep -c` cho 1 bất kể trong đó có gì —
+"số dòng mong đợi, kiểm hai chiều" không thêm được độ phân giải nào ở chỗ này.
+Và tiền lệ đã có thật: chính hồ sơ này viết `NOTE FOR UPGRADERS: … uninstall it
+explicitly` vào đúng trường được miễn trừ — đó là **chỉ dẫn thì hiện tại**, không
+phải sử liệu, tức miễn trừ đang che rộng hơn lý do đã khai ở AC-4.
+Vì sao vẫn để lại: mệnh đề cần đo là *«dòng này là lịch sử hay con trỏ sống»* —
+một **phán xét**, không phải vị từ máy. Hai đường chữa đều đổi phạm vi: bỏ hẳn
+miễn trừ thì phải viết lại changelog cho lint xanh (**xoá lịch sử để lấy màu** —
+chính điều AC-4 từ chối), còn dựng một eval phán-xét thì hồ sơ này đang có **0**
+eval loại đó và thêm một cái là mở một làn mới giữa vòng sửa. **Owner gạt thì
+tôi làm** — đường rẻ nhất là cấm needle đứng chung dòng với động từ mệnh lệnh
+(`run`/`chạy`/`install`/`uninstall`), và lưu ý nó sẽ ĐỎ ngay với `NOTE FOR
+UPGRADERS` hiện tại, tức lần chạy đầu là một quyết định về câu chữ ấy.
+
+Sáu mục dưới đây **cố ý không sửa** (bản trước mở bằng «bốn» rồi liệt kê sáu — F14). Căn cứ chung: đây là răng **dùng một lần**
 cho một đợt lưu kho, chết theo hồ sơ khi merge — không phải lưới engine vĩnh
 viễn. Chi phí siết chúng lớn hơn rủi ro chúng che, và bản neo nói *giờ-kit là
 chi phí, không phải tiến độ*. **Owner có thể gạt bất kỳ mục nào.**

@@ -3663,6 +3663,76 @@ rc = subprocess.run(["node", "scripts/product-map.mjs", "--root", ".", "--check"
 assert rc.returncode == 0, f"PRODUCT-MAP.md cua kit lech voi ho so xuong: {rc.stderr.strip()}"
 PY109
 
+# ── P195: MOI suite_key phai resolve ve mot lenh co that ───────────────────
+# Luoi nay TUNG song trong `P162` (E6) va bi go CUNG voi ca do khi luu kho
+# harness Codex. So thi cong xep `P162` vao "Nhom A — XOA HAN (ca chi ton tai
+# vi Codex/mirror; go la dung, khong mat do phu)"; ra soat doi khang vong 2
+# (F6) do ra cau do SAI: E6 khong doc `plugins/` va khong doc `codex/` — no doc
+# `_acceptance/config.yaml`, vat DANG SONG, va la dung vat ho so nay vua mo (go
+# `executors.script.mirror_sync` khoi ca `executors` lan `suite_keys`). Chinh
+# chu thich cua ho so nay trong config noi: "de lai mot suite_key tro executor
+# khong con dinh nghia la go-mot-nua". Luat thi giu, luoi thuong truc canh luat
+# thi go cung ca do.
+#
+# Lop loi: "luoi bi go KEM ca do no" — moi bo kiem van xanh, loi chi no o vong
+# verify sau, tuc do vi ha tang giua mot vong lap feature.
+#
+# Bo rang cua ho so CO mot chan bat dung viec nay, nhung chan ay chet theo ho so
+# khi merge (`_acceptance/config.yaml` khai ro nhom khoa `luu_kho_*` la
+# "khong-vao-suite-vinh-vien"). Chan o day la ban THUONG TRUC: no song sau merge.
+run "P195 moi feature_loop.suite_key resolve ve mot lenh co that (F6, un-remove tu P162/E6)" \
+  python3 - "$ROOT" <<'PY195'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+cfg = (root / "_acceptance/config.yaml").read_text(encoding="utf-8")
+
+def suite_keys(txt):
+    out, inside = [], False
+    for ln in txt.splitlines():
+        if ln.strip() == "suite_keys:": inside = True; continue
+        if inside:
+            s = ln.strip()
+            if s.startswith("- "): out.append(s[2:].strip())
+            elif s and not s.startswith("#") and not ln.startswith("    "): break
+    return out
+
+def walk(text, dotted):
+    lines = text.split("\n"); depth = -1; idx = 0; val = None
+    for part in dotted.split("."):
+        found = None
+        for i in range(idx, len(lines)):
+            m = re.match(r"^(\s*)%s:\s*(.*)$" % re.escape(part), lines[i])
+            if not m: continue
+            ind = len(m.group(1))
+            if depth >= 0 and ind <= depth: break
+            found, depth, idx = i, ind, i + 1
+            val = m.group(2).strip().strip('"\'')
+            break
+        if found is None: return None
+    return val
+
+keys = suite_keys(cfg)
+assert keys, "khong doc duoc feature_loop.suite_keys tu config"
+resolved = [walk(cfg, k) for k in keys]
+assert all(resolved), \
+    "co suite_key khong resolve duoc: %r" % [k for k, v in zip(keys, resolved) if not v]
+assert len(resolved) == len(keys), "so lenh resolve != so key khai"
+
+# CHIEU DO CHAY THAT tren CHINH hai ham tren: tiem mot khoa ma vao suite_keys
+# cua BAN SAO config roi doi ket luan doi. Khong co buoc nay thi ca tren la
+# assertion am-tinh-mot-minh — cay sach thi no xanh du hai ham co hong.
+MA = "executors.script.khong_he_ton_tai_p195"
+mut = cfg.replace("  suite_keys:\n", "  suite_keys:\n    - %s\n" % MA, 1)
+assert MA in suite_keys(mut), "buoc tiem chua bao gio chay — khoa ma khong vao duoc suite_keys"
+mut_resolved = [walk(mut, k) for k in suite_keys(mut)]
+assert not all(mut_resolved), \
+    "tiem mot suite_key tro khoa KHONG TON TAI ma phep do van xanh — luoi khong song"
+missing = [k for k, v in zip(suite_keys(mut), mut_resolved) if not v]
+assert missing == [MA], "chieu do phai neu DICH DANH khoa ma, got %r" % missing
+print("P195 OK (%d suite_key deu resolve; chieu do neu dich danh khoa ma)" % len(keys))
+PY195
+
 # ── P123: HAI READER cua cung bo ho so phai dong y cai gi HONG ─────────────
 run "P123 hai reader dong ket luan tren TICH DESCARTES contract x opportunity x uat (E1,E10)" \
   node --input-type=module - "$ROOT" <<'P123JS'

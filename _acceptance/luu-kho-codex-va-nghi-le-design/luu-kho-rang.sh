@@ -25,6 +25,45 @@ mut()  { echo "       [đột biến] $*"; }
 
 g() { git -C "$ROOT" "$@"; }
 
+CONTRACT="$WS/contract.md"
+
+# ── MỘT NGUỒN: mọi DANH SÁCH mà hợp đồng hứa đều ĐỌC TỪ hợp đồng ─────────────
+# Rà soát đối kháng vòng 2 (F1, F3) bắt đúng MỘT hình dạng, hai lần: hợp đồng
+# khai BẢY đường dẫn thì mảng bash chép SÁU; hợp đồng khai BỐN needle
+# `plugins/…` thì mảng chép MỘT. Không phải người làm ẩu — là cấu trúc: hợp
+# đồng bị sửa hợp lệ nhiều lần sau Cổng 1, và mỗi lần sửa là một cơ hội cho bản
+# chép tay bị bỏ quên. Đúng lớp «bên VIẾT và bên ĐỌC trôi khỏi nhau» (CLAUDE.md).
+#
+# Chữa bằng ĐỔI BẤT BIẾN, không nới phép khớp: bên viết và bên đọc dùng CHUNG
+# một bản — đúng nếp `SO-CA-KY-VONG`, bản duy nhất mà cả ba phiên chấm vòng 2
+# tấn công trực diện và KHÔNG thủng.
+#
+# `khoi_khai <tệp> <marker> <tên-cột>` → in từng mục, mỗi dòng một. Bảng
+# markdown một cột; bỏ dòng tiêu đề và dòng gạch ngang. Khối vắng/rỗng thì bên
+# GỌI phải fail-closed — KHÔNG mặc định về mảng nào: phép đo mất bản khai là
+# phép đo không còn đo gì.
+khoi_khai() {
+  awk -v o="<!-- <<<$2 -->" -v c="<!-- $2>>> -->" -v hdr="$3" '
+    index($0, o) { f = 1; next }
+    index($0, c) { f = 0 }
+    f && /^\|/ {
+      line = $0
+      sub(/^\|[ \t]*/, "", line)
+      sub(/[ \t]*\|[ \t]*$/, "", line)
+      if (line == hdr || line ~ /^-+$/ || line == "") next
+      print line
+    }
+  ' "$1"
+}
+# Đọc một khối vào mảng, fail-closed nếu rỗng. Dùng cho CẢ đường chính lẫn
+# đường chiều-đỏ (chiều đỏ trỏ vào bản sao hợp đồng đã bị tiêm).
+doc_khoi() {   # $1 = tệp hợp đồng, $2 = marker, $3 = tên cột → in ra, rc≠0 nếu rỗng
+  local out
+  out="$(khoi_khai "$1" "$2" "$3")"
+  [ -n "$out" ] || return 1
+  printf '%s\n' "$out"
+}
+
 # ── Chân sống-còn: mốc phải tồn tại. Thiếu mốc thì MỌI đối chứng dương bên dưới
 #    vô nghĩa, nên fail-closed ngay, không chạy tiếp cho có màu. ───────────────
 check_tag_exists() {
@@ -109,11 +148,22 @@ else
   bad "LUU-KHO-TAG: ham so do ca voi ref dung — khoi dung thu khong hop le, chieu do khong chay"
 fi
 
-echo "== E2 · sáu vật đã lưu kho =="
-GONE=(codex tests/codex scripts/codex-self-script-refs.tsv .agents design-loop tests/design-loop)
-path_check() {   # $1 = cây làm việc cần soi
+echo "== E2 · vật đã lưu kho (danh sách ĐỌC TỪ hợp đồng) =="
+# Danh sách KHÔNG gõ ở đây. Bản duyệt gõ tay sáu mục trong khi AC-2 khai bảy, và
+# vế thứ bảy (`.codex-plugin/`) — vế được THÊM sau Cổng 1 chính vì đợt gỡ 197
+# tệp đã bỏ sót nó thật — là vế duy nhất không ai đo (F1, cả ba lăng kính vòng 2
+# tìm ra độc lập). Nay mảng rút từ khối `VAT-LUU-KHO` trong `contract.md`.
+if ! GONE_RAW="$(doc_khoi "$CONTRACT" VAT-LUU-KHO duong-dan)"; then
+  bad "LUU-KHO-PATH: khoi VAT-LUU-KHO trong contract.md VANG hoac RONG — phep do khong co ban khai de doc"
+  GONE=()
+else
+  mapfile -t GONE <<< "$GONE_RAW"
+fi
+path_check() {   # $1 = cây làm việc cần soi, $2 = (tuỳ chọn) mảng thay thế qua biến GONE_OVR
   local base="$1" n=0 bad_local=0 p
-  for p in "${GONE[@]}"; do
+  local -a list=("${GONE[@]}")
+  [ -n "${GONE_OVR:-}" ] && mapfile -t list <<< "$GONE_OVR"
+  for p in "${list[@]}"; do
     local at_head=1 at_tag=0
     [ -e "$base/$p" ] || at_head=0
     g ls-tree --name-only "$TAG" -- "$p" | grep -q . && at_tag=1
@@ -125,15 +175,34 @@ path_check() {   # $1 = cây làm việc cần soi
       n=$((n + 1))
     fi
   done
-  echo "LUU-KHO-PATH: $n/${#GONE[@]}"
+  echo "LUU-KHO-PATH: $n/${#list[@]}"
   return $bad_local
 }
 if OUT="$(path_check "$ROOT")" && printf '%s' "$OUT" | grep -q "LUU-KHO-PATH: ${#GONE[@]}/${#GONE[@]}"; then
-  ok "LUU-KHO-PATH: ${#GONE[@]}/${#GONE[@]} vang o HEAD, co o tag OK"
+  ok "LUU-KHO-PATH: ${#GONE[@]}/${#GONE[@]} vang o HEAD, co o tag OK (danh sach doc tu khoi VAT-LUU-KHO)"
 else
   printf '%s\n' "$OUT" | sed 's/^/       /'
   bad "LUU-KHO-PATH: có vật lệch (xem trên)"
 fi
+# ROUND-TRIP: chứng minh phép đo THẬT SỰ đọc khối, chứ không tình cờ trùng một
+# mảng chép tay. Sửa khối trong BẢN SAO hợp đồng → phép đo phải ĐỔI THEO. Không
+# có chân này thì "đọc từ hợp đồng" mới là một câu trong chú thích.
+MUTCT="$(mktemp)"
+sed 's|^<!-- VAT-LUU-KHO>>> -->$|\| vat-khong-he-ton-tai-round-trip \|\n<!-- VAT-LUU-KHO>>> -->|' \
+  "$CONTRACT" > "$MUTCT"
+if ! MUT_RAW="$(doc_khoi "$MUTCT" VAT-LUU-KHO duong-dan)"; then
+  bad "LUU-KHO-PATH: ban sao hop dong doc ra RONG — buoc tiem hong, round-trip KHONG chay"
+elif [ "$(printf '%s\n' "$MUT_RAW" | grep -c .)" -ne "$(( ${#GONE[@]} + 1 ))" ]; then
+  bad "LUU-KHO-PATH: tiem 1 dong ma so muc khong tang dung 1 — round-trip KHONG chay"
+else
+  OUT_RT="$(GONE_OVR="$MUT_RAW" path_check "$ROOT")"; RT_RC=$?
+  if [ "$RT_RC" -ne 0 ] && printf '%s' "$OUT_RT" | grep -q 'vat-khong-he-ton-tai-round-trip khong co o tag'; then
+    mut "thêm 1 dòng vào khối VAT-LUU-KHO của bản sao hợp đồng → phép đo ĐỔI THEO và ĐỎ đích danh mục vừa thêm"
+  else
+    bad "LUU-KHO-PATH: sua khoi hop dong ma phep do KHONG doi (rc=$RT_RC) — mang van la ban chep tay"
+  fi
+fi
+rm -f "$MUTCT"
 # chiều đỏ: chép `codex/` từ mốc về một bản sao rồi chạy lại CHÍNH hàm trên.
 # KHÔNG `mkdir -p "$MUTDIR/codex"` trước: một thư mục RỖNG tạo sẵn cũng thoả
 # `[ -e ]`, nên bản trước cho chiều đỏ ĐỎ kể cả khi giải nén hỏng hoàn toàn —
@@ -220,15 +289,38 @@ SCOPE=(commands skills feature-loop scripts lib hooks GUIDE.md QUICKSTART.md
 # "needle chua bao gio ton tai".
 # Ca `P30 plugins/ mirror` sống trong `tests/` nên KHÔNG thuộc phép quét văn bản
 # này — E10 đo nó trực tiếp bằng một chân riêng trên chính tệp bộ kiểm.
-NEEDLES=(codex 'In Codex' '\.agents/' design-loop '/design-init' '/design-mockup'
-         sync-plugin-packages 'plugins/acceptance-gate')
+# [SỬA SAU CỔNG 1 — 13/08, vòng sửa 2 «một-nguồn»] Mảng needle KHÔNG gõ ở đây
+# nữa. Rà soát vòng 2 (F3) bắt được nó tái phạm NGUYÊN VĂN finding C2 của vòng
+# 1: hợp đồng khai bốn needle `plugins/…`, mảng chép đúng MỘT — và chân đối
+# chứng dương mà chính script này đòi (tag>0) vốn sẵn có cho cả ba needle bị
+# thiếu, nên không có lý do kỹ thuật nào để bỏ. Nay rút từ khối `NEEDLE-CHET`
+# trong `contract.md`, cùng một nếp với `VAT-LUU-KHO` và `SO-CA-KY-VONG`.
+if ! NEEDLE_RAW="$(doc_khoi "$CONTRACT" NEEDLE-CHET needle)"; then
+  bad "LUU-KHO-REF: khoi NEEDLE-CHET trong contract.md VANG hoac RONG — phep quet khong co ban khai de doc"
+  NEEDLES=()
+else
+  mapfile -t NEEDLES <<< "$NEEDLE_RAW"
+fi
 # Mồi cho chiều đỏ: chuỗi VĂN BẢN khớp needle tương ứng (needle là biểu thức,
-# mồi phải là thứ gõ được vào tệp). Cùng chỉ số với NEEDLES; chân dưới kiểm
-# từng cặp thật sự khớp nhau — mồi không khớp needle là đột biến chết, ca xanh
-# mà chẳng chứng minh gì.
-MOI=('codex/feature-loop-codex/SKILL.md' 'In Codex' '.agents/plugins/marketplace.json'
-     'design-loop' '/design-init' '/design-mockup'
-     'sync-plugin-packages.sh' 'plugins/acceptance-gate')
+# mồi phải là thứ gõ được vào tệp). Tra theo TÊN NEEDLE, không theo chỉ số —
+# chỉ số là bản chép tay thứ hai của thứ tự khối, và nó lệch âm thầm ngay lần
+# đầu ai đó chèn một dòng vào giữa khối. Needle không có mồi → ĐỎ, không bỏ qua:
+# đó là needle không có chiều đỏ.
+MOI_KHAI='codex|codex/feature-loop-codex/SKILL.md
+In Codex|In Codex
+\.agents/|.agents/plugins/marketplace.json
+design-loop|design-loop
+/design-init|/design-init
+/design-mockup|/design-mockup
+sync-plugin-packages|sync-plugin-packages.sh
+plugins/acceptance-gate|plugins/acceptance-gate
+plugins/feature-loop|plugins/feature-loop/skills/feature-loop/SKILL.md
+plugins/design-loop|plugins/design-loop/commands/design-init.md
+plugins/\*\*|plugins/**'
+moi_of() {   # $1 = needle → in mồi; rc≠0 nếu chưa khai
+  printf '%s\n' "$MOI_KHAI" | awk -v n="$1" \
+    'index($0, n "|") == 1 { print substr($0, length(n) + 2); h = 1; exit } END { exit !h }'
+}
 # ── Miễn trừ là CẶP (tệp, từ khoá), không phải (tệp, *) ──────────────────────
 # Bản trước neo theo TIỀN TỐ TỆP, nên bốn tệp được che TRỌN cho cả tám needle —
 # và đã có vật lọt thật: đặt một con trỏ sống tới bất kỳ đồ đã lưu kho nào vào
@@ -329,8 +421,15 @@ if ! g archive HEAD "${SCOPE[@]}" | tar -x -C "$REFDIR"; then
 else
   r4=0
   for i in "${!NEEDLES[@]}"; do
-    nd="${NEEDLES[$i]}"; moi="${MOI[$i]}"
-    # (0) mồi phải THẬT SỰ khớp needle, nếu không đây là đột biến chết
+    nd="${NEEDLES[$i]}"
+    # (0a) mồi phải ĐƯỢC KHAI cho needle này. Needle rút từ hợp đồng nên ai thêm
+    #      một dòng vào khối mà quên khai mồi thì needle ấy sẽ không có chiều đỏ
+    #      — im lặng ở đây là cách «một nguồn» tự đẻ ra lỗ mới.
+    if ! moi="$(moi_of "$nd")"; then
+      bad "LUU-KHO-REF: needle '$nd' co trong khoi NEEDLE-CHET nhung CHUA KHAI MOI — needle nay khong co chieu do"
+      continue
+    fi
+    # (0b) mồi phải THẬT SỰ khớp needle, nếu không đây là đột biến chết
     if ! printf '%s\n' "$moi" | grep -q -- "$nd"; then
       bad "LUU-KHO-REF: moi '$moi' KHONG khop needle '$nd' — dot bien chet"
       continue
@@ -748,23 +847,72 @@ echo "== E12/E7/E13/E14 · đẳng thức số ca có chân MÁY (AC-11) =="
 # của cả hồ sơ là phép đo DO NGƯỜI ĐẾM. `so-ca.sh` là chỗ lời hứa thành mã;
 # chân dưới đây giữ cho nó (a) thật sự được WIRE vào làn, (b) còn SỐNG.
 so_ca_run() { bash "$WS/so-ca.sh" "$@"; }
-# (a) WIRE: bốn eval phải trỏ bốn khoá so-ca, và config phải định nghĩa chúng.
-#     Script tồn tại mà không eval nào gọi thì nó là mã chết, không phải lưới.
+# (a) WIRE: bốn eval phải trỏ bốn khoá so-ca, và config phải định nghĩa chúng
+#     TRỎ ĐÚNG BỘ ĐẾM. Script tồn tại mà không eval nào gọi thì nó là mã chết.
+#     [SỬA SAU CỔNG 1 — 13/08, vòng sửa 2] Bản trước chỉ grep TÊN khoá, không
+#     đọc GIÁ TRỊ (F5). Rà soát vòng 2 đổi giá trị khoá thành
+#     `bash tests/plugins/run-tests.sh`: bộ đếm rời khỏi làn, đẳng thức số ca
+#     biến mất — đúng kịch bản `so-ca.sh` sinh ra để chặn — mà chân này vẫn in
+#     "4/4 dang thuc duoc wire OK". Nay nó đọc giá trị và đòi giá trị ấy vừa trỏ
+#     `so-ca.sh` vừa mang đúng `--suite <s>`.
+gia_tri_khoa() {   # $1 = tên khoá → in giá trị (đã bóc nháy), rỗng nếu không có
+  awk -v k="$1:" '
+    { line = $0; sub(/^[ \t]+/, "", line) }
+    index(line, k) == 1 {
+      v = substr(line, length(k) + 1)
+      sub(/^[ \t]+/, "", v); sub(/[ \t]+$/, "", v)
+      gsub(/^"|"$/, "", v); gsub(/^'"'"'|'"'"'$/, "", v)
+      print v; exit
+    }
+  ' "$ROOT/_acceptance/config.yaml"
+}
 w=0
 for s in plugins workflows scripts hooks; do
-  if grep -q "luu_kho_so_ca_$s:" "$ROOT/_acceptance/config.yaml" \
-     && grep -q "config:executors.script.luu_kho_so_ca_$s" "$WS/evals.yaml"; then
-    w=$((w + 1))
+  kv="$(gia_tri_khoa "luu_kho_so_ca_$s")"
+  if [ -z "$kv" ]; then
+    bad "LUU-KHO-SUITE: dang thuc $s KHONG co khoa config luu_kho_so_ca_$s"
+  elif ! printf '%s' "$kv" | grep -q 'so-ca\.sh'; then
+    bad "LUU-KHO-SUITE: khoa luu_kho_so_ca_$s KHONG tro so-ca.sh (chay: $kv) — bo dem da roi khoi lan"
+  elif ! printf '%s' "$kv" | grep -q -- "--suite $s"; then
+    bad "LUU-KHO-SUITE: khoa luu_kho_so_ca_$s tro so-ca.sh nhung KHONG dung --suite $s (chay: $kv)"
+  elif ! grep -q "config:executors.script.luu_kho_so_ca_$s" "$WS/evals.yaml"; then
+    bad "LUU-KHO-SUITE: khoa luu_kho_so_ca_$s co dinh nghia nhung KHONG eval nao goi — ma chet"
   else
-    bad "LUU-KHO-SUITE: dang thuc $s KHONG duoc wire (thieu khoa config hoac khong eval nao goi)"
+    w=$((w + 1))
   fi
 done
-[ "$w" -eq 4 ] && ok "LUU-KHO-SUITE: 4/4 dang thuc duoc wire vao lan OK"
+[ "$w" -eq 4 ] && ok "LUU-KHO-SUITE: 4/4 dang thuc duoc wire vao lan OK (doc GIA TRI khoa, khong grep ten)"
+# chiều đỏ CHẠY THẬT cho chính chân vừa siết: đổi giá trị khoá trong một bản sao
+# config rồi cho đi qua CHÍNH `gia_tri_khoa` + cùng ba phép so.
+MCFG="$(mktemp)"
+sed 's|^\( *luu_kho_so_ca_plugins: \).*|\1"bash tests/plugins/run-tests.sh"|' \
+  "$ROOT/_acceptance/config.yaml" > "$MCFG"
+kv_mut="$(awk -v k="luu_kho_so_ca_plugins:" '
+    { line = $0; sub(/^[ \t]+/, "", line) }
+    index(line, k) == 1 { v = substr(line, length(k) + 1)
+      sub(/^[ \t]+/, "", v); gsub(/^"|"$/, "", v); print v; exit }' "$MCFG")"
+if [ -n "$kv_mut" ] && ! printf '%s' "$kv_mut" | grep -q 'so-ca\.sh'; then
+  mut "đổi giá trị khoá luu_kho_so_ca_plugins sang chạy suite trần → phép so ĐỎ 'bo dem da roi khoi lan'"
+else
+  bad "LUU-KHO-SUITE: buoc tiem config KHONG doi duoc gia tri khoa (doc ra: ${kv_mut:-rong}) — chieu do khong chay"
+fi
+rm -f "$MCFG"
 # (b) SỐNG: chạy thật hai suite RẺ qua chính bộ đếm, rồi lấy log CODE VỪA SINH
 #     ra làm đầu vào cho chiều đỏ. Log do lần chạy này sinh, không phải fixture
 #     viết tay đúng khuôn bên đọc.
 SOCALOG="$(mktemp)"
-if so_ca_run --suite hooks --keep-log "$SOCALOG" | sed 's/^/  OK   /'; then
+# [SỬA SAU CỔNG 1 — 13/08, vòng sửa 2] Bản trước viết
+# `if so_ca_run … | sed 's/^/  OK   /'; then` — trạng thái của một pipeline là
+# trạng thái của lệnh CUỐI, tức của `sed`, tức LUÔN 0. Nhánh `bad` bên dưới là
+# mã chết: rà soát vòng 2 (F2) tiêm `exit 7` vào `tests/hooks/run-tests.sh` và
+# bộ răng in nguyên văn dòng chẩn đoán ĐỎ **dưới nhãn `OK`** rồi kết luận "tất
+# cả phép đo xanh", RC=0. Đây CÙNG LỚP với `check "$(basename "$_f")" 0 $?` mà
+# chính vòng sửa 1 vừa ghim thành AC-19 — lớp lỗi chữa ở một tệp rồi tái sinh ở
+# tệp bên cạnh trong cùng một lượt.
+# Luật: mã thoát mang phán quyết thì BẮT nó vào biến TRƯỚC, rồi mới trang trí.
+SOCA_OUT="$(so_ca_run --suite hooks --keep-log "$SOCALOG" 2>&1)"; SOCA_RC=$?
+printf '%s\n' "$SOCA_OUT" | sed "s/^/  $([ "$SOCA_RC" -eq 0 ] && echo 'OK  ' || echo 'ĐỎ  ') /"
+if [ "$SOCA_RC" -eq 0 ]; then
   HOOK_LINES="$(grep -cE '^Results: [0-9]+ passed' "$SOCALOG" || true)"
   if [ "$HOOK_LINES" -eq 0 ]; then
     bad "LUU-KHO-SUITE: log vua sinh khong co dong Results — chieu do se do vao khoang khong"
@@ -790,6 +938,22 @@ else
   bad "LUU-KHO-SUITE: so-ca.sh --suite hooks DO — xem dong tren"
 fi
 rm -f "$SOCALOG"
+# chiều đỏ CHO CHÍNH CÁCH BẮT MÃ THOÁT (F2). Không đo bằng cách grep hình dạng
+# câu lệnh — đó là đo CHỈ DẪN thay vì đo ĐẦU RA. Đo bằng cách cho `so-ca.sh`
+# THẬT thoát khác 0 (suite không tồn tại → nó in "khong biet suite" và exit 1),
+# rồi so hai cách đọc trên CÙNG một lượt chạy: cách cũ (qua pipeline) phải cho
+# 0, cách mới phải cho đúng mã thật. Cách cũ còn cho 0 nghĩa là bug có thật;
+# cách mới cho khác 0 nghĩa là bản vá thật sự bắt được nó.
+BAD_OUT="$(so_ca_run --suite khong-he-ton-tai 2>&1)"; BAD_RC=$?
+so_ca_run --suite khong-he-ton-tai 2>/dev/null | sed 's/^/x/' >/dev/null; OLD_RC=$?
+if [ "$BAD_RC" -ne 0 ] && [ "$OLD_RC" -eq 0 ] \
+   && printf '%s' "$BAD_OUT" | grep -q 'khong biet suite'; then
+  mut "so-ca.sh thoát $BAD_RC → cách cũ (qua pipeline) đọc ra $OLD_RC tức NUỐT mã thoát; cách mới đọc đúng $BAD_RC"
+elif [ "$BAD_RC" -eq 0 ]; then
+  bad "LUU-KHO-SUITE: so-ca.sh voi suite khong ton tai van thoat 0 — khong dung duoc chieu do cho F2"
+else
+  bad "LUU-KHO-SUITE: chieu do F2 khong chay (moi=$BAD_RC cu=$OLD_RC)"
+fi
 # (c) Bản khai máy-đọc và câu chữ của AC-11 phải là MỘT. Số đọc TỪ khối (gõ lại
 #     ở đây là dựng bản chép thứ ba, đúng lớp lỗi hai-bên-trôi-khỏi-nhau), rồi
 #     đòi câu chữ của hợp đồng nêu đúng cặp đó.

@@ -56,6 +56,28 @@ eval ĐỎ, không phải bỏ qua.
   kê, và đợt gỡ 197 file bỏ sót nó thật — manifest Codex ở gốc repo còn nguyên
   trên cây. Thiếu vế này thì hồ sơ tuyên «đã lưu kho Codex» xong vẫn để lại
   đúng cái tệp khai báo gói Codex.
+  **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 2 «một-nguồn»] Danh sách nay là khối
+  máy-đọc dưới đây, và `luu-kho-rang.sh` ĐỌC THẲNG nó.** Rà soát vòng 2 (F1 —
+  cả ba lăng kính tìm ra độc lập): hợp đồng khai bảy, mảng bash trong bộ răng
+  chép **sáu**, đầu ra in `6/6 OK`; vế thứ bảy — đúng vế thêm vào để chữa một
+  cái sót có thật — là vế duy nhất không ai đo. Không chữa bằng cách chép thêm
+  một dòng vào mảng (đó là nới phép khớp, và lần sửa hợp đồng kế tiếp lại đẻ ra
+  lỗ y hệt) mà bằng cách **bỏ hẳn bản chép tay**. Chân round-trip chứng minh bên
+  ĐỌC thật sự đọc bên VIẾT: thêm một dòng vào khối trong bản sao hợp đồng thì
+  phép đo phải đổi theo và ĐỎ đích danh dòng vừa thêm.
+
+<!-- <<<VAT-LUU-KHO -->
+| duong-dan |
+|---|
+| codex |
+| tests/codex |
+| scripts/codex-self-script-refs.tsv |
+| .agents |
+| design-loop |
+| tests/design-loop |
+| .codex-plugin |
+<!-- VAT-LUU-KHO>>> -->
+
 - AC-3: Given hai marketplace, When đọc `.claude-plugin/marketplace.json`, Then
   entry `design-loop` đã gỡ và hai entry còn lại (`acceptance-gate`,
   `feature-loop`) trỏ nguyên vẹn; `.agents/plugins/marketplace.json` không còn
@@ -115,7 +137,33 @@ eval ĐỎ, không phải bỏ qua.
   và `plugins/` → `plugins/acceptance-gate` (neo vào gốc kho, xem đoạn trên).
   **Ràng buộc thay thế, để việc co mảng không thành đường nới lỏng:** mỗi needle
   còn lại PHẢI có đối chứng dương >0 ở mốc, và chân đỏ-ngoài-danh-sách
-  (AC-12) phủ **cả tám**, không phải một.
+  (AC-12) phủ **cả mảng**, không phải một.
+  **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 2 «một-nguồn»] Mảng needle nay là khối
+  máy-đọc dưới đây, và ba needle `plugins/…` bị thiếu được TRẢ LẠI.** Rà soát
+  vòng 2 (F3) bắt được mảng trong script chép đúng MỘT needle `plugins/…` trong
+  khi đoạn trên khai bốn — **tái phạm nguyên văn finding C2 của vòng 1**, không
+  đổi da, không đổi số. Đo lại ở mốc: `plugins/feature-loop` 1 hit ·
+  `plugins/design-loop` 1 hit · `plugins/**` 4 hit, tức đối chứng dương mà chính
+  lưới này đòi vốn sẵn có cho cả ba — không có lý do kỹ thuật nào để bỏ. Mảng
+  đi từ 8 lên **11 needle**. Mỗi needle phải có **mồi** khai trong `MOI_KHAI`
+  của bộ răng; needle có trong khối mà chưa khai mồi → ĐỎ đích danh, vì đó là
+  needle không có chiều đỏ (nếu không, «một nguồn» tự đẻ ra lỗ mới ở chỗ khác).
+
+<!-- <<<NEEDLE-CHET -->
+| needle |
+|---|
+| codex |
+| In Codex |
+| \.agents/ |
+| design-loop |
+| /design-init |
+| /design-mockup |
+| sync-plugin-packages |
+| plugins/acceptance-gate |
+| plugins/feature-loop |
+| plugins/design-loop |
+| plugins/\*\* |
+<!-- NEEDLE-CHET>>> -->
   **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Miễn trừ là cặp `(tệp, từ khoá)`, không
   phải `(tệp, *)` — và cặp thứ ba được khai ra.** Bản thi công neo miễn trừ theo
   TIỀN TỐ TỆP, nên bốn tệp được che TRỌN cho cả tám needle trong khi hợp đồng
@@ -205,7 +253,7 @@ eval ĐỎ, không phải bỏ qua.
   xanh **và số ca khớp ĐẲNG THỨC khai trước**, không phải khớp một cái sàn:
   `scripts` **671 → 686** (gỡ 7 assert `DSC01–03` + `SG1–4` trong
   `tests/scripts/run-tests.sh:1390-1406` gọi thẳng script của design-loop, rồi
-  THÊM 22 assert cho AC-17) · `plugins` **173 → 145** · `hooks` **54 → 54** ·
+  THÊM 22 assert cho AC-17) · `plugins` **173 → 146** · `hooks` **54 → 54** ·
   `workflows` **488 → 463**. Đỏ ghim "so ca lech ky vong: <truoc> -> <sau>".
   **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1 · owner gạch đường 3] Đẳng thức
   `scripts` đổi từ `671 − 7 = 664` sang `671 − 7 + 22 = 686`.** Đây là lần đầu
@@ -225,7 +273,7 @@ eval ĐỎ, không phải bỏ qua.
 <!-- <<<SO-CA-KY-VONG -->
 | suite | truoc | sau |
 |---|---|---|
-| plugins | 173 | 145 |
+| plugins | 173 | 146 |
 | workflows | 488 | 463 |
 | scripts | 671 | 686 |
 | hooks | 54 | 54 |
@@ -262,7 +310,16 @@ eval ĐỎ, không phải bỏ qua.
   (2 tệp × 2 assert) và tệp Codex chết ⇒ mất 2 dòng. Vậy
   `173 − 26 − 2 = 145`. **Xoá nhóm trỏ-lại-nguồn là cách rẻ nhất để suite xanh lại và cũng
   chính là «gỡ quá tay» mà đẳng thức này sinh ra để bắt** — nếu đo ra 127 thì
-  nhóm C đã bị xoá, không phải đẳng thức sai. Đo ra khác 145 ⇒ đi tìm ca gỡ
+  nhóm C đã bị xoá, không phải đẳng thức sai.
+  **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 2 «một-nguồn»] Vế `sau` của `plugins` đi
+  từ 145 lên 146, khai TRƯỚC khi đo.** Rà soát vòng 2 (F6) chứng minh lưới «mọi
+  `suite_key` phải resolve về một lệnh có thật» bị gỡ CÙNG ca đo nó (`P162`/E6)
+  — mà lưới ấy đọc `_acceptance/config.yaml`, vật đang sống, và là đúng vật hồ
+  sơ này vừa mổ. Sổ thi công xếp nhầm nó vào «không mất độ phủ». Nay lưới được
+  **trả lại bộ kiểm thường trực** dưới tên `P195`, có chiều đỏ chạy thật nêu
+  đích danh khoá ma. Vậy `146 = 145 + 1`. Đây là CỘNG một ca, tức đúng chiều mà
+  một hồ sơ chỉ-TRỪ phải giải trình: nó không nới tiêu chí nào, nó trả lại một
+  lưới mà hồ sơ này đã lỡ gỡ. Đo ra khác 146 ⇒ đi tìm ca gỡ
   nhầm/gỡ sót, KHÔNG sửa số. Baseline `173` là số **đo được** trên cây của mốc
   (173/173 xanh), không phải số chép từ bản duyệt.
 - AC-14: Given miễn trừ nhật-ký-phiên-bản của AC-4, When tiêm một tham chiếu
@@ -344,6 +401,28 @@ eval ĐỎ, không phải bỏ qua.
   trước ở `tests/plugins` (khối thoát-sớm giữa tệp, AC-15), lần này ở
   `tests/scripts`. Ghi thành tiêu chí chứ không sửa lặng vì cùng lý do AC-15:
   đẳng thức số ca của AC-11 không đo được điều nó nói khi bộ đếm mù.
+- AC-20: Given hợp đồng này và bộ răng của nó, When chạy `luu-kho-rang.sh` và
+  `ghi-so-chay.mjs`, Then **không danh sách nào và không lời hứa thông-điệp nào
+  còn tồn tại ở hai bản**:
+  · mọi liệt kê mà tiêu chí dựa vào (`VAT-LUU-KHO`, `NEEDLE-CHET`,
+  `SO-CA-KY-VONG`) nằm trong ĐÚNG MỘT khối marker của `contract.md`, và bộ răng
+  đọc thẳng khối ấy — có chân **round-trip** chứng minh (sửa khối trong bản sao
+  hợp đồng → phép đo đổi theo và đỏ đích danh mục vừa sửa);
+  · mọi eval có `cmd` khai trường máy-đọc **`pinned:`** — chuỗi phải có trong
+  đầu ra của lượt XANH — và `ghi-so-chay.mjs` **fail-closed**: eval thiếu
+  `pinned:` → chết to (exit 2); chuỗi ghim không có trong đầu ra thật → exit 1
+  **kể cả khi lệnh thoát 0**. Sổ chạy ghi thêm `output` (đuôi có giới hạn),
+  `output_bytes`, `output_sha256`, `pinned`, `pinned_missing`.
+  **[TIÊU CHÍ THÊM MỚI — 13/08, vòng sửa 2 «một-nguồn». MỞ RỘNG PHẠM VI so với
+  bản duyệt Cổng 1, cần owner gạch ở Cổng 2.]** Nó không sinh từ một lỗ đơn lẻ
+  mà từ **lớp** mà rà soát vòng 2 bắt được ba lần trong một hồ sơ: hợp đồng khai
+  bảy đường dẫn / mã đo sáu (F1) · hợp đồng khai bốn needle / mã đo một (F3) ·
+  eval ghim một chuỗi cây không bao giờ in (F4, sống sót vì sổ chạy chỉ ghi mã
+  thoát — F8). Luật dừng-vá đòi **đổi bất biến chứ không nới phép khớp**: chép
+  thêm một dòng vào mảng thì lần sửa hợp đồng thứ tám lại đẻ ra lỗ y hệt.
+  Phạm vi cố ý giới hạn **trong hồ sơ này**; đề xuất nâng thành luật toàn kit
+  nằm ở `docs/plans/2026-08-13-hat-giong-liet-ke-may-doc.md`, **chờ Cổng 0** —
+  nó là CỘNG và nó đụng engine, nên không được đi ké một vòng sửa.
 
 ## Coverage
 
