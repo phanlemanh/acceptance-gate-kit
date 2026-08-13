@@ -3,7 +3,7 @@ schema_version: 1
 slug: cat-hinh-thuc
 round: 2
 verdict: PENDING-JUDGMENT
-verified_commit: de040a417951
+verified_commit: 7508cc1ca0ff
 ---
 
 # Trang bằng chứng — cắt hình thức khỏi bốn cổng người
@@ -44,7 +44,7 @@ Ba thứ đổi theo, không thứ nào là nới tiêu chí:
 
 ## Số đo
 
-Tất cả đo tại `de040a4`, sổ chạy `run-log.jsonl` do **phép đo sinh** (không gõ
+Tất cả đo tại `7508cc1`, sổ chạy `run-log.jsonl` do **phép đo sinh** (không gõ
 tay): 15 dòng · 7 lượt chạy vật lý · **0 lượt ĐỎ** · 4 eval chờ người chấm.
 
 | Phép đo | Kết quả | Đẳng thức khai TRƯỚC |
