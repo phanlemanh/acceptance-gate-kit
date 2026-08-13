@@ -2,13 +2,18 @@
 schema_version: 1
 slug: luu-kho-codex-va-nghi-le-design
 round: 5
-verdict: PASS
+verdict: PENDING-JUDGMENT
 verified_commit: 185474232914
 ---
 
 # Trang bằng chứng — lưu kho harness song sinh và nghi lễ design
 
-## Verdict: **PASS (vòng 4, 2026-08-13 — cả hai lăng kính) · chờ owner gạch Cổng 2**
+## Verdict: **PENDING-JUDGMENT — vòng 4 PASS cả hai lăng kính, chờ owner nâng ở Cổng 2**
+
+> Frontmatter giữ PENDING-JUDGMENT có chủ ý: nâng lên PASS là BƯỚC CỦA NGƯỜI ở
+> Cổng 2 (checklist chuẩn của kit), và lưới JR11b cưỡng chế đúng điều đó — phiên
+> thi công đặt PASS hộ owner thì recheck đòi khối bằng chứng L1 và ĐỎ ngay.
+> Vòng 4 tự dẫm thử và xác nhận lưới sống.
 
 > **Vòng thu gọn «chỉ TRỪ» — 13/08, owner gạch sau phân tích từ nguyên lý gốc.**
 > Chẩn đoán: hồ sơ 1b mắc đúng căn bệnh nó sinh ra để chữa — bộ đo của nó nuôi
