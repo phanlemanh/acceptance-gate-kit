@@ -219,11 +219,10 @@ trước, hỏi mở là đường cùng:
   có cách hiểu trội hơn hoặc hiểu-sai-thì-đắt-khó-đảo. Ca mẫu (sự cố thật
   11/08): cụm «không cắt» đọc được hai chiều → đề xuất «đồng ý phạm vi đã
   khai» kèm căn cứ từ khối Out of scope, không hỏi mở.
-- Tên người duyệt/ký, ngày và số phút là ĐIỀU MÁY BIẾT — người khai thì
-  nhận nguyên nghĩa (câu kiểu cũ đầy đủ «duyệt: <tên>, phút <số>» ·
-  «Ký: <tên> <ngày>, phút <số>» vẫn chạy nguyên; khai tường minh thì ghi
-  thẳng, không hỏi xác nhận). Vắng thì máy TỰ SUY, không hỏi — bốn luật
-  TÁCH BẠCH, đọc hết rồi mới làm:
+- Tên người duyệt/ký và ngày là ĐIỀU MÁY BIẾT — người khai thì nhận nguyên
+  nghĩa (câu kiểu cũ đầy đủ «duyệt: <tên>» · «Ký: <tên> <ngày>» vẫn chạy
+  nguyên; khai tường minh thì ghi thẳng, không hỏi xác nhận). Vắng thì máy TỰ
+  SUY, không hỏi — bốn luật TÁCH BẠCH, đọc hết rồi mới làm:
   - **ĐỌC**: luôn đọc CẢ `git config user.name` LẪN `signoff.approvers`,
     không có điều kiện nào chặn việc đọc. Đây là hai nguồn đối chiếu.
   - **CHỌN**: giá trị lấy ở nấc CAO NHẤT còn tên, theo bậc câu-người-gõ →
@@ -253,8 +252,10 @@ trước, hỏi mở là đường cùng:
   LUÔN thắng ngày máy suy. Người tự khai phần nào thì phần đó ghi thẳng;
   còn phần máy suy vẫn hiện trong dòng xác nhận (khai tên mà thiếu ngày →
   vẫn hiện để xác nhận ngày, và ngược lại), khai đủ cả hai → không hỏi.
-  Máy không hỏi phút — vắng thì `time_human_minutes` ghi 0, trường giữ
-  nguyên schema cũ.
+  Máy KHÔNG hỏi và KHÔNG ghi số phút. Vế `, phút <số>` ở cuối câu gộp vẫn
+  ĐƯỢC CHẤP NHẬN và BỎ QUA lặng — không lỗi, không hỏi lại; người quen tay gõ
+  nó theo phản xạ thì câu vẫn chạy trọn. Trường `time_human_minutes` ở lại
+  trong schema để hồ sơ cũ đọc được, chỉ thôi được ghi mới.
 - Hồ-sơ cũng là điều máy biết: vắng slug mà đúng MỘT ứng viên đang chờ
   đúng cổng đó → dùng nó và hiển thị lại tên hồ sơ trong cùng lượt trả
   lời; nhiều ứng viên → bảng chọn như cũ.

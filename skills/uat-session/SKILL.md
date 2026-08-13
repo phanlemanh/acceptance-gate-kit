@@ -65,8 +65,7 @@ không đo mà im lặng là gian.
 Trình gọn bốn thứ: ngưỡng, số, chấm kín, câu ràng buộc. Rồi hỏi ĐÚNG MỘT câu:
 giao rộng, lặp thêm, hay dừng?
 
-Người ký điền `verdict`, `decided_by`, `decided_at`,
-`time_human_minutes.gateUAT`, và `stage: held`. **Agent KHÔNG điền verdict
+Người ký điền `verdict`, `decided_by`, `decided_at`, và `stage: held`. **Agent KHÔNG điền verdict
 thay người**, kể cả khi số đã rõ tới mức chỉ còn một lựa chọn hợp lý — chữ ký
 là thứ duy nhất phiên này sinh ra mà máy không thay được.
 
