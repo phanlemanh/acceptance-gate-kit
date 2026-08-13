@@ -253,6 +253,11 @@ plugin/DS của repo · handbook đội · 2 key consumer:
 
 ### 2.3 Vòng TRAO — chứng minh → tay người dùng + số quay về
 
+- **Lái-thử Người-lạ** (tiền trạm, MÁY — trước khi mời người, thêm 13/08):
+  phiên ngữ-cảnh-trắng lái sản phẩm sau flag theo mục tiêu tiếng-sản-phẩm,
+  giao nhật-ký-vấp (CHẶN/LẠC/KHÓ-CHỊU/VẶT) + câu hỏi «Chuyển phiên người»;
+  máy không phán đáng-giá. Nghi thức, 2 ổ cắm, luật dùng/không-dùng:
+  [docs/lai-thu-nguoi-la.md](../lai-thu-nguoi-la.md).
 - **Phiên UAT** (sản phẩm THẬT sau flag): mời stakeholder/người dùng đại
   diện; **chấm kín trước thảo luận** (chống social-desirability) +
   **commitment device** ("anh gửi cho khách nào, khi nào?"); đo bằng
