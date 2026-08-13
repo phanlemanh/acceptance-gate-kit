@@ -331,3 +331,244 @@ bằng chứng**.
 **Luật dừng-vá đang có hiệu lực:** nếu vòng 2 vẫn sinh lỗi CÙNG LỚP với vòng 1
 thì khuôn giải sai — DỪNG, trình owner ba đường (đổi hình · thu phạm vi · ship
 kèm known-limits), không tự phát vòng ba.
+
+## Evidence (per eval — sổ chạy vòng 8, máy sinh từ run-log.jsonl)
+
+- eval: E1
+  run_id: luu-kho-r8-cec5ae72
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+  verified_at: 2026-08-13T12:23:25.510Z
+  output: |
+      OK   LUU-KHO-SUITE: 4/4 dong khai may-doc khop cau chu AC-11 OK
+    LUU-KHO-RANG: tất cả phép đo xanh
+
+- eval: E2
+  run_id: luu-kho-r8-cec5ae72
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+  verified_at: 2026-08-13T12:23:25.510Z
+  output: |
+      OK   LUU-KHO-SUITE: 4/4 dong khai may-doc khop cau chu AC-11 OK
+    LUU-KHO-RANG: tất cả phép đo xanh
+
+- eval: E3
+  run_id: luu-kho-r8-cec5ae72
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+  verified_at: 2026-08-13T12:23:25.510Z
+  output: |
+      OK   LUU-KHO-SUITE: 4/4 dong khai may-doc khop cau chu AC-11 OK
+    LUU-KHO-RANG: tất cả phép đo xanh
+
+- eval: E4
+  run_id: luu-kho-r8-cec5ae72
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+  verified_at: 2026-08-13T12:23:25.510Z
+  output: |
+      OK   LUU-KHO-SUITE: 4/4 dong khai may-doc khop cau chu AC-11 OK
+    LUU-KHO-RANG: tất cả phép đo xanh
+
+- eval: E4b
+  run_id: luu-kho-r8-cec5ae72
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+  verified_at: 2026-08-13T12:23:25.510Z
+  output: |
+      OK   LUU-KHO-SUITE: 4/4 dong khai may-doc khop cau chu AC-11 OK
+    LUU-KHO-RANG: tất cả phép đo xanh
+
+- eval: E5
+  run_id: luu-kho-r8-cec5ae72
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+  verified_at: 2026-08-13T12:23:25.510Z
+  output: |
+      OK   LUU-KHO-SUITE: 4/4 dong khai may-doc khop cau chu AC-11 OK
+    LUU-KHO-RANG: tất cả phép đo xanh
+
+- eval: E6
+  run_id: luu-kho-r8-cec5ae72
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+  verified_at: 2026-08-13T12:23:25.510Z
+  output: |
+      OK   LUU-KHO-SUITE: 4/4 dong khai may-doc khop cau chu AC-11 OK
+    LUU-KHO-RANG: tất cả phép đo xanh
+
+- eval: E7
+  run_id: luu-kho-r8-9134197c
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite scripts
+  verified_at: 2026-08-13T12:24:37.618Z
+  output: |
+                   (dem theo phuong phap 'results-last': 686 xanh + 0 do)
+    LUU-KHO-SUITE: dang thuc so ca khop ban khai
+
+- eval: E8
+  run_id: luu-kho-r8-cec5ae72
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+  verified_at: 2026-08-13T12:23:25.510Z
+  output: |
+      OK   LUU-KHO-SUITE: 4/4 dong khai may-doc khop cau chu AC-11 OK
+    LUU-KHO-RANG: tất cả phép đo xanh
+
+- eval: E9
+  run_id: luu-kho-r8-cec5ae72
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+  verified_at: 2026-08-13T12:23:25.510Z
+  output: |
+      OK   LUU-KHO-SUITE: 4/4 dong khai may-doc khop cau chu AC-11 OK
+    LUU-KHO-RANG: tất cả phép đo xanh
+
+- eval: E10
+  run_id: luu-kho-r8-cec5ae72
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+  verified_at: 2026-08-13T12:23:25.510Z
+  output: |
+      OK   LUU-KHO-SUITE: 4/4 dong khai may-doc khop cau chu AC-11 OK
+    LUU-KHO-RANG: tất cả phép đo xanh
+
+- eval: E10b
+  run_id: luu-kho-r8-cec5ae72
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+  verified_at: 2026-08-13T12:23:25.510Z
+  output: |
+      OK   LUU-KHO-SUITE: 4/4 dong khai may-doc khop cau chu AC-11 OK
+    LUU-KHO-RANG: tất cả phép đo xanh
+
+- eval: E11b
+  run_id: luu-kho-r8-cec5ae72
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+  verified_at: 2026-08-13T12:23:25.510Z
+  output: |
+      OK   LUU-KHO-SUITE: 4/4 dong khai may-doc khop cau chu AC-11 OK
+    LUU-KHO-RANG: tất cả phép đo xanh
+
+- eval: E11
+  run_id: luu-kho-r8-7908e794
+  exit_code: 0
+  baseline: green
+  verifier: node scripts/product-map.mjs --root . --check
+  verified_at: 2026-08-13T12:24:37.680Z
+  output: |
+    PRODUCT-MAP.md khớp hồ sơ xưởng.
+
+- eval: E12
+  run_id: luu-kho-r8-798a702a
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite plugins
+  verified_at: 2026-08-13T12:26:22.163Z
+  output: |
+                   (dem theo phuong phap 'case-lines': 146 xanh + 0 do)
+    LUU-KHO-SUITE: dang thuc so ca khop ban khai
+
+- eval: E13
+  run_id: luu-kho-r8-5aa06831
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite hooks
+  verified_at: 2026-08-13T12:26:24.277Z
+  output: |
+                   (dem theo phuong phap 'results-last': 54 xanh + 0 do)
+    LUU-KHO-SUITE: dang thuc so ca khop ban khai
+
+- eval: E14
+  run_id: luu-kho-r8-e688eb21
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite workflows
+  verified_at: 2026-08-13T12:26:26.579Z
+  output: |
+                   (dem theo phuong phap 'results-sum:6': 463 xanh + 0 do)
+    LUU-KHO-SUITE: dang thuc so ca khop ban khai
+
+- eval: E4c
+  run_id: luu-kho-r8-cec5ae72
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+  verified_at: 2026-08-13T12:23:25.510Z
+  output: |
+      OK   LUU-KHO-SUITE: 4/4 dong khai may-doc khop cau chu AC-11 OK
+    LUU-KHO-RANG: tất cả phép đo xanh
+
+- eval: E15
+  run_id: luu-kho-r8-cec5ae72
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+  verified_at: 2026-08-13T12:23:25.510Z
+  output: |
+      OK   LUU-KHO-SUITE: 4/4 dong khai may-doc khop cau chu AC-11 OK
+    LUU-KHO-RANG: tất cả phép đo xanh
+
+- eval: E16
+  run_id: luu-kho-r8-cec5ae72
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+  verified_at: 2026-08-13T12:23:25.510Z
+  output: |
+      OK   LUU-KHO-SUITE: 4/4 dong khai may-doc khop cau chu AC-11 OK
+    LUU-KHO-RANG: tất cả phép đo xanh
+
+- eval: E17
+  run_id: luu-kho-r8-9134197c
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite scripts
+  verified_at: 2026-08-13T12:24:37.618Z
+  output: |
+                   (dem theo phuong phap 'results-last': 686 xanh + 0 do)
+    LUU-KHO-SUITE: dang thuc so ca khop ban khai
+
+- eval: E18
+  run_id: luu-kho-r8-9134197c
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite scripts
+  verified_at: 2026-08-13T12:24:37.618Z
+  output: |
+                   (dem theo phuong phap 'results-last': 686 xanh + 0 do)
+    LUU-KHO-SUITE: dang thuc so ca khop ban khai
+
+- eval: E19
+  run_id: luu-kho-r8-9134197c
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite scripts
+  verified_at: 2026-08-13T12:24:37.618Z
+  output: |
+                   (dem theo phuong phap 'results-last': 686 xanh + 0 do)
+    LUU-KHO-SUITE: dang thuc so ca khop ban khai
+
+- eval: E20
+  run_id: luu-kho-r8-cec5ae72
+  exit_code: 0
+  baseline: green
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+  verified_at: 2026-08-13T12:23:25.510Z
+  output: |
+      OK   LUU-KHO-SUITE: 4/4 dong khai may-doc khop cau chu AC-11 OK
+    LUU-KHO-RANG: tất cả phép đo xanh
