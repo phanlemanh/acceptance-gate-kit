@@ -544,3 +544,26 @@ vào hợp đồng TRƯỚC khi chạy suite; đo ra đúng 686. Đây là lần
 AC-17 (thu phạm vi + cờ cứu) · AC-18 (allowlist có tên) · AC-19 (bugfix bộ đếm).
 Cả ba nằm ngoài bản duyệt Cổng 1. ADR 0010 ghi ngoại lệ đóng băng lõi kit, đánh
 đổi **thước-thôi-hồi-tố**, và trigger đảo.
+
+
+---
+
+## Đính chính sổ sách (13/08, vòng thu gọn — G15 vòng 3)
+
+Danh sách «Phân loại CHỐT» ở trên kể **24** ca xoá, trong khi hợp đồng nói
+**26**. Hai ca vắng mặt:
+
+- **`P178`** — có khai, nhưng ở mục «SỐ ĐO LỆCH THỨ SÁU» chứ không trong danh
+  sách CHỐT (known-limit #4 của trang bằng chứng mô tả nó kỹ).
+- **`P26`** — nằm trong danh sách «Nhóm C — KHÔNG ĐƯỢC XOÁ» ở trên, rồi bị
+  chuyển sang nhóm xoá chỉ bằng một mệnh đề phụ («Sau khi `P26` vào danh sách
+  xoá…») **không kèm lý do**. Lý do thật, kiểm bằng vật: bảy skill mà `P26` đòi
+  (`acceptance-card`, `acceptance-status`, `approve`, `signoff`…) chỉ tồn tại
+  trong bản mirror `plugins/acceptance-gate/skills/` — cây nguồn để chúng ở
+  `commands/`, và `P30`/`P32` canh nửa đó. Xoá là ĐÚNG; tội là chuyển nhóm mà
+  không sửa danh sách CHỐT.
+
+Bản liệt kê ĐỦ, do máy sinh (diff TÊN ca mốc → ngọn), nằm ở
+`review-findings.md` mục «Rà soát đối kháng — vòng 2 › DIFF TÊN CA» và được
+vòng 3 đo lại khớp. Danh sách CHỐT ở trên giữ nguyên làm sử liệu — sửa nó là
+xoá dấu vết một lần phân loại sai.

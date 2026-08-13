@@ -53,11 +53,17 @@ evals:
     paths:
       - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
     expected: >
-      exit 0; với TỪNG đường dẫn trong mảng SÁU vật lưu kho — `codex/`,
-      `tests/codex/`, `scripts/codex-self-script-refs.tsv`, `.agents/`,
-      `design-loop/`, `tests/design-loop/` — stdout có đúng một dòng
-      "LUU-KHO-PATH: <path> vang o HEAD, co o tag OK", và dòng đếm
-      "LUU-KHO-PATH: 6/6" với số 6 SUY từ độ dài mảng chứ không viết cứng.
+      exit 0; danh sách vật lưu kho KHÔNG nêu lại ở đây — nó sống ở đúng MỘT
+      chỗ: khối máy-đọc `VAT-LUU-KHO` trong `contract.md`, và `luu-kho-rang.sh`
+      đọc thẳng khối ấy. Stdout có dòng đếm "LUU-KHO-PATH: <n>/<n> vang o HEAD,
+      co o tag OK (danh sach doc tu khoi VAT-LUU-KHO)" với n = số dòng của
+      khối, suy lúc chạy chứ không viết cứng ở đâu.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng thu gọn «chỉ TRỪ»]** Bản trước liệt kê
+      lại sáu đường dẫn và ghim "6/6" ngay tại đây — một bản chép chỉ-người-đọc
+      của khối, và nó đã trôi thật (G1 vòng 3: khối lên bảy, câu này còn sáu,
+      nằm ở đúng dòng vòng 2 cite cho F1). Luật rút ra, khai ở AC-20: văn xuôi
+      nêu QUAN HỆ và LÝ DO; GIÁ TRỊ chỉ sống ở khối máy-đọc hoặc ở bản chép
+      được máy so mỗi vòng (`pinned:` — trôi là recorder đỏ, trôi thành TIẾNG).
       Script đỏ ghim đích danh khi: path còn trên HEAD ("… con tren HEAD") HOẶC
       path KHÔNG có ở tag ("… khong co o tag — doi chung duong hong, assertion
       nay khong song"). Vế sau là chân chống chính lớp lỗi đã ghi sổ: gõ sai
@@ -102,24 +108,25 @@ evals:
       - README.md
       - CONTEXT.md
     expected: >
-      exit 0; với TỪNG needle trong mảng **MƯỜI MỘT** từ khoá — `codex`,
-      `In Codex`, `.agents`, `design-loop`, `/design-init`, `/design-mockup`,
-      `/design-push`, `sync-plugin-packages`, `mirror_sync`, `plugins/`, `P30`
-      — quét phạm vi SỐNG (`commands/`, `skills/`, `feature-loop/`, `scripts/`,
-      `lib/`, `hooks/`, `tests/`, `GUIDE.md`, `QUICKSTART.md`, `README.md`,
-      `CONTEXT.md`, **`CLAUDE.md`**, **`.github/`**, hai manifest) và in
-      "LUU-KHO-REF: <needle> HEAD=0 tag=<n>(>0) OK"; dòng đếm
-      "LUU-KHO-REF: 11/11" suy từ mảng.
+      exit 0; mảng needle KHÔNG nêu lại ở đây — nó sống ở khối máy-đọc
+      `NEEDLE-CHET` trong `contract.md` (lý do vào/ra của từng needle cũng nằm
+      ở AC-4 của contract, một chỗ), và `luu-kho-rang.sh` đọc thẳng khối ấy.
+      Với TỪNG needle của khối, quét phạm vi SỐNG (mảng `SCOPE` in ở đầu nhóm
+      E4) và in "LUU-KHO-REF: <needle> HEAD=0 tag=<n>(>0) OK"; dòng đếm
+      "LUU-KHO-REF: <n>/<n>" suy từ khối lúc chạy.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng thu gọn «chỉ TRỪ»]** Bản trước mang HAI
+      bản chép của mảng ngay trong eval này (một mảng 11 lỗi thời từ bản duyệt
+      + một ghi chú "còn TÁM" của vòng sửa 1) — cả hai trôi khỏi khối thật
+      (G2 vòng 3). Xử như E2: giá trị về khối, văn xuôi giữ lý do.
       Bốn needle mirror + `.agents` + hai đích quét là bổ sung sau phản biện:
       thiếu chúng thì gỡ `plugins/` và script sync xong, `CLAUDE.md` vẫn bắt
       "chạy sync và commit mirror cùng lượt" còn CI vẫn gọi script đã xoá — cả
       bộ eval xanh, hai cổng duyệt, CI đỏ sau merge. `.agents` vào mảng vì
       đường dẫn `.agents/plugins/marketplace.json` KHÔNG chứa chuỗi `codex`,
       nên needle theo tên thương hiệu mù với nó.
-      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Mảng còn TÁM needle và phạm vi bỏ
-      `tests/`** — lý do đầy đủ (từng needle một) nay nằm trong AC-4 của
-      `contract.md`, không còn chỉ trong chú thích script. Dòng đếm là
-      "LUU-KHO-REF: 8/8".
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Phạm vi bỏ `tests/`** — lý do
+      đầy đủ nằm trong AC-4 của `contract.md`, không còn chỉ trong chú thích
+      script.
       **MIỄN TRỪ theo CẶP `(tệp, từ khoá)`, khai trước khi đo, mỗi cặp kèm số
       dòng:** `skills/ux-ui-craft/SKILL.md × design-loop` (1) ·
       `.claude-plugin/plugin.json × design-loop` (1) ·
@@ -390,7 +397,7 @@ evals:
       cùng lệnh đỏ khi PRODUCT-MAP cố tình lệch (đã có tiền lệ P126). Baseline:
       green có chủ đích (guard vĩnh viễn).
     pinned:
-      - "PRODUCT-MAP.md"
+      - "PRODUCT-MAP.md khớp hồ sơ xưởng."
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E12
@@ -402,10 +409,13 @@ evals:
       - _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh
     expected: >
       exit 0; stdout có "Results: all plugin tests passed" VÀ số dòng `PASS:`
-      đếm được **bằng đúng 145** — `145 = 173 − 26 − 2`: 26 ca xoá hẳn (chỉ tồn
-      tại vì bản song sinh/bản sao/nghi lễ) cộng 2 phân ca của `P39` chết theo
-      tệp không còn. Con số đi qua ba lần khai lại (147 → 146 → 145), MỖI LẦN
-      trước một phép đo, mỗi lần vì đọc ra thêm một ca không có đích để trỏ về.
+      đếm được bằng đúng vế `sau` của `plugins` trong khối `SO-CA-KY-VONG` —
+      con số và dẫn xuất đầy đủ của nó KHAI Ở MỘT CHỖ: AC-11 của `contract.md`
+      (nơi mọi lần khai lại đều ghi ngày và lý do), KHÔNG nêu lại ở đây.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng thu gọn «chỉ TRỪ»]** Bản trước chép mẫu
+      số cũ (`145 = 173 − 26 − 2`) vào đây và nó trôi khi khối lên 146 (G3
+      vòng 3) — người đọc bản văn này sẽ đi «sửa» đúng cái lưới P195 vừa được
+      trả lại. Giá trị về khối; `pinned:` dưới là bản chép được máy so mỗi vòng.
       Bản trước viết `173 − <số assert của P30>`, với **173** là
       số ca đo tại `daa9b3d` (suite này KHÔNG tự in số — nó chỉ nói "all plugin
       tests passed" — nên số ca phải đếm bằng dòng `PASS:`; chính vì thế nó là
@@ -559,6 +569,14 @@ evals:
       Fixture CỐ Ý không đụng file nào ngoài `_acceptance/`: đụng thì hồ sơ cũ
       thành stale, luật staleness nổ TRƯỚC và `continue` trước khi tới luật
       đang đo — bản đầu mắc đúng lỗi này và hai ca đỏ vì đo nhầm luật.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng thu gọn «chỉ TRỪ» — khai giới hạn]**
+      Chuỗi ghim của eval này là dòng tổng kết của bộ đếm, nên nó buộc được
+      **SỐ LƯỢNG** (đẳng thức 686) chứ KHÔNG buộc **DANH TÍNH** của các assert
+      RS01–RS06 (G6 vòng 3: đổi tên RS01→ZZ01 thì mọi phép đo vẫn xanh) — bộ
+      đếm chỉ in 4 dòng tổng kết, danh tính không đi vào tầm máy của nó.
+      Lưới danh-tính đúng chỗ là bánh cóc `P161`/E11, mà cửa sổ của nó neo mốc
+      `044968e` nên assert sinh sau 06/08 nằm ngoài — dời mốc ghim thuộc hồ sơ
+      `card-text-fidelity`, không phải hồ sơ này (cùng kết luận với F7).
     pinned:
       - "LUU-KHO-SUITE: scripts 671 -> 686 OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -584,6 +602,14 @@ evals:
       Hai chiều đỏ đã chạy thật khi dựng: bỏ `context-ladder` khỏi danh sách →
       đỏ đúng câu "NGOÀI danh sách"; thêm một tên không hề đỏ → đỏ đúng câu
       "ĐÃ HẾT đỏ".
+      **[SỬA SAU CỔNG 1 — 13/08, vòng thu gọn «chỉ TRỪ» — khai giới hạn]**
+      Chuỗi ghim của eval này là dòng tổng kết của bộ đếm, nên nó buộc được
+      **SỐ LƯỢNG** (đẳng thức 686) chứ KHÔNG buộc **DANH TÍNH** của các assert
+      RS01–RS06 (G6 vòng 3: đổi tên RS01→ZZ01 thì mọi phép đo vẫn xanh) — bộ
+      đếm chỉ in 4 dòng tổng kết, danh tính không đi vào tầm máy của nó.
+      Lưới danh-tính đúng chỗ là bánh cóc `P161`/E11, mà cửa sổ của nó neo mốc
+      `044968e` nên assert sinh sau 06/08 nằm ngoài — dời mốc ghim thuộc hồ sơ
+      `card-text-fidelity`, không phải hồ sơ này (cùng kết luận với F7).
     pinned:
       - "LUU-KHO-SUITE: scripts 671 -> 686 OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -602,6 +628,14 @@ evals:
       `684 passed, 2 failed`. Chiều đỏ KHÔNG dựng thêm fixture: chính hai ca
       `JR11b`/`DV4a` đang đỏ lúc đó là bản-thật-bị-hỏng, và chúng chuyển từ vô
       hình sang hiện — mạnh hơn một bản sao tự tiêm.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng thu gọn «chỉ TRỪ» — khai giới hạn]**
+      Chuỗi ghim của eval này là dòng tổng kết của bộ đếm, nên nó buộc được
+      **SỐ LƯỢNG** (đẳng thức 686) chứ KHÔNG buộc **DANH TÍNH** của các assert
+      RS01–RS06 (G6 vòng 3: đổi tên RS01→ZZ01 thì mọi phép đo vẫn xanh) — bộ
+      đếm chỉ in 4 dòng tổng kết, danh tính không đi vào tầm máy của nó.
+      Lưới danh-tính đúng chỗ là bánh cóc `P161`/E11, mà cửa sổ của nó neo mốc
+      `044968e` nên assert sinh sau 06/08 nằm ngoài — dời mốc ghim thuộc hồ sơ
+      `card-text-fidelity`, không phải hồ sơ này (cùng kết luận với F7).
     pinned:
       - "LUU-KHO-SUITE: scripts 671 -> 686 OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -615,15 +649,21 @@ evals:
       - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
       - _acceptance/luu-kho-codex-va-nghi-le-design/ghi-so-chay.mjs
     expected: >
-      exit 0; bộ răng in chân round-trip của cả hai khối liệt kê — thêm một dòng
-      vào khối trong BẢN SAO `contract.md` thì phép đo phải ĐỔI THEO và đỏ đích
-      danh dòng vừa thêm. Đây là chân duy nhất phân biệt "đọc từ hợp đồng" với
-      "một câu trong chú thích": mảng chép tay vẫn xanh y hệt trên cây sạch.
-      Vế `pinned:` của AC-20 do chính `ghi-so-chay.mjs` cưỡng chế và được chứng
-      bằng lượt chạy sinh `run-log.jsonl` vòng 4 (23 eval, 0 chuỗi ghim lệch);
-      chiều đỏ của nó chạy trên một workspace thử dựng bằng CODE trong chính
-      lượt kiểm: một eval khai `pinned:` một chuỗi không bao giờ có → recorder
-      exit 1 ghim "LOI HUA THONG DIEP KHONG KHOP", dù lệnh thoát 0.
+      exit 0; bộ răng in MỘT chân round-trip cho khối `VAT-LUU-KHO` — thêm một
+      dòng vào khối trong BẢN SAO `contract.md` thì phép đo đổi theo và đỏ đích
+      danh dòng vừa thêm.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng thu gọn «chỉ TRỪ»] Eval này bị THU LỜI
+      HỨA về đúng cái có thật, sau khi vòng 3 bắt nó khai mạnh hơn vật ở ba
+      chỗ (G5, G12):** bản trước viết «cả hai khối» (chỉ một khối có round-trip),
+      «23 eval» (sổ có số khác), và tuyên một chiều đỏ «dựng bằng CODE trong
+      chính lượt kiểm» KHÔNG tồn tại trong mã — nó từng được chạy tay một lần
+      rồi khai như thể có trong cây, đúng lớp B3 của vòng 1 do chính vòng sửa
+      tái phạm. Nay: (a) round-trip là lời hứa CHỈ cho `VAT-LUU-KHO`;
+      `NEEDLE-CHET` và `SO-CA-KY-VONG` được đọc thẳng nhưng chiều round-trip
+      của chúng là KNOWN-LIMIT khai ở evidence, không phải lời hứa; (b) mọi
+      mệnh đề về `pinned:`/recorder là mô tả DỤNG CỤ, đứng dưới ĐÁY chứng minh
+      khai ở AC-20 — không phải lời hứa của hồ sơ; (c) không nêu con số sổ
+      chạy ở đây — sổ tự mang số của nó.
     pinned:
       - "LUU-KHO-PATH: 7/7 vang o HEAD, co o tag OK"
       - "LUU-KHO-REF: 11/11"

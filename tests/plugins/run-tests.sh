@@ -3682,7 +3682,7 @@ PY109
 # "khong-vao-suite-vinh-vien"). Chan o day la ban THUONG TRUC: no song sau merge.
 run "P195 moi feature_loop.suite_key resolve ve mot lenh co that (F6, un-remove tu P162/E6)" \
   python3 - "$ROOT" <<'PY195'
-import re, sys
+import re, sys, pathlib
 from pathlib import Path
 root = Path(sys.argv[1])
 cfg = (root / "_acceptance/config.yaml").read_text(encoding="utf-8")
@@ -3730,7 +3730,62 @@ assert not all(mut_resolved), \
     "tiem mot suite_key tro khoa KHONG TON TAI ma phep do van xanh — luoi khong song"
 missing = [k for k, v in zip(suite_keys(mut), mut_resolved) if not v]
 assert missing == [MA], "chieu do phai neu DICH DANH khoa ma, got %r" % missing
-print("P195 OK (%d suite_key deu resolve; chieu do neu dich danh khoa ma)" % len(keys))
+
+# ── Vế 2 [vòng thu gọn, G7]: «lệnh CÓ THẬT» phải nghĩa là TỆP TỒN TẠI ────────
+# Bản đầu của ca này chỉ kiểm "khoá YAML có giá trị khác rỗng" — gỡ script mà
+# để lại khoá trỏ nó (đúng hình dạng mirror_sync vừa xảy ra) thì lưới vẫn xanh.
+def script_paths(cmd):
+    toks = cmd.split()
+    out = []
+    for i, t in enumerate(toks):
+        if i > 0 and toks[i-1] in ("bash", "node", "python3") and "/" in t and not t.startswith("-"):
+            out.append(t)
+    return out
+thieu = []
+for k, cmd in zip(keys, resolved):
+    for sp in script_paths(cmd):
+        if not (root / sp).is_file():
+            thieu.append("%s -> %s" % (k, sp))
+assert not thieu, "suite_key tro script KHONG TON TAI tren cay: %r" % thieu
+# chiều đỏ: trỏ một khoá sang script không tồn tại → phải đỏ NÊU ĐÍCH DANH tệp
+mut2 = cfg.replace('product_map: "node scripts/product-map.mjs',
+                   'product_map: "node scripts/KHONG-TON-TAI-P195.mjs', 1)
+assert mut2 != cfg, "buoc tiem file-khong-ton-tai chua bao gio chay"
+thieu2 = []
+for k, cmd in zip(suite_keys(mut2), [walk(mut2, kk) for kk in suite_keys(mut2)]):
+    for sp in script_paths(cmd or ""):
+        if not (root / sp).is_file():
+            thieu2.append(sp)
+assert thieu2 == ["scripts/KHONG-TON-TAI-P195.mjs"], \
+    "chieu do file-ton-tai phai neu dich danh tep ma, got %r" % thieu2
+
+# ── Vế 3 [vòng thu gọn, G10 = D4 vòng 1]: CHỐT phải nằm TRONG lưới ───────────
+# Un-remove nốt vế (4)+(5) của P162/E6 gốc: tệp giữ chốt này phải nằm trong
+# danh sách lệnh của lưới — nếu ca bị dời sang một tệp không khoá nào gọi thì
+# nó chết im lặng, suite vẫn xanh trọn.
+MARK = "P195 chi-dan"
+import tempfile, shutil
+def holder_in(tree):
+    return [str(f.relative_to(tree)) for f in (pathlib.Path(tree) / "tests").rglob("*")
+            if f.is_file() and MARK in f.read_text(encoding="utf-8", errors="replace")]
+hs_now = holder_in(root)
+assert len(hs_now) == 1, "chot P195 phai nam o DUNG MOT tep, thay %r" % hs_now
+assert any(hs_now[0] in c for c in resolved), \
+    "chot nam o %r nhung khong lenh luoi nao goi tep do: %r" % (hs_now, resolved)
+# ca âm THẬT: dời chốt sang tệp không được gọi, chạy lại CHÍNH hai hàm trên
+with tempfile.TemporaryDirectory() as d:
+    tw = pathlib.Path(d) / "t"
+    tw.mkdir()
+    shutil.copytree(root / "tests", tw / "tests")
+    src_f = tw / hs_now[0]
+    src_f.write_text(src_f.read_text(encoding="utf-8").replace(MARK, "P195 da-doi"), encoding="utf-8")
+    orphan = tw / "tests/plugins/asserts-da-go.txt"
+    orphan.write_text(orphan.read_text(encoding="utf-8") + "\n# " + MARK + "\n", encoding="utf-8")
+    hs_mut = holder_in(tw)
+    assert len(hs_mut) == 1, "buoc doi chot hong: %r" % hs_mut
+    assert not any(hs_mut[0] in c for c in resolved), \
+        "doi chot sang tep khong duoc goi ma phep do van xanh — ve chot-trong-luoi khong song"
+print("P195 OK (%d suite_key resolve + tep ton tai; chieu do khoa-ma/tep-ma/chot-ngoai-luoi deu dich danh)" % len(keys))
 PY195
 
 # ── P123: HAI READER cua cung bo ho so phai dong y cai gi HONG ─────────────

@@ -1,14 +1,49 @@
 ---
 schema_version: 1
 slug: luu-kho-codex-va-nghi-le-design
-round: 4
-verdict: REJECT
+round: 5
+verdict: PENDING-JUDGMENT
 verified_commit: 7030fdd8fbb9
 ---
 
 # Trang bằng chứng — lưu kho harness song sinh và nghi lễ design
 
-## Verdict: **REJECT (vòng 3, 2026-08-13)**
+## Verdict: **chờ rà soát đối kháng vòng 4**
+
+> **Vòng thu gọn «chỉ TRỪ» — 13/08, owner gạch sau phân tích từ nguyên lý gốc.**
+> Chẩn đoán: hồ sơ 1b mắc đúng căn bệnh nó sinh ra để chữa — bộ đo của nó nuôi
+> N bản khai phải giữ đồng bộ, y hệt hai harness song sinh mà nó lưu kho. Ba
+> vòng rà soát: **0 finding về VẬT từ vòng 2; 100% P0 vòng 3 ở tầng thước.**
+> Luật dừng-vá đã đúng hai lần liên tiếp, nên vòng này KHÔNG vá — nó TRỪ:
+>
+> 1. **Cắt lời hứa meta không trace được.** AC-20 thu về hai luật viết + một
+>    cái ĐÁY chứng minh tuyên tường minh; chân wire XOÁ HẲN (việc nó canh đã có
+>    recorder phủ mỗi vòng — một cơ chế thay hai); `pinned:`/round-trip hạ từ
+>    LỜI HỨA xuống DỤNG CỤ, kèm hai fix thật (parser fail-loud, mã thoát mang
+>    phán quyết).
+> 2. **Văn xuôi phi giá trị.** Bốn bản chép chỉ-người-đọc (G1–G4) xoá bằng quy
+>    chiếu về khối máy-đọc — chết cả lớp bằng phép TRỪ, không thêm phép đo nào.
+> 3. **Sửa vật thật, nhỏ:** GUIDE.md hết chỉ dẫn sống trỏ mirror/case đã xoá
+>    (G11); `P195` thêm vế tệp-tồn-tại (G7) và vế chốt-trong-lưới (G10 = D4
+>    vòng 1, un-remove nốt); ghim E11 thành nguyên câu (G6a); sổ sách về số đo
+>    được (G14, G15).
+>
+> Xử lý từng finding vòng 3: **G1–G4** xoá bản chép (①②) · **G5** parser
+> fail-loud + xoá câu khai chiều-đỏ-không-tồn-tại · **G6a** ghim nguyên câu ·
+> **G6b** khai giới hạn số-lượng-không-danh-tính vào E17/E18/E19 (lưới danh
+> tính thuộc bánh cóc `card-text-fidelity`) · **G7, G10** hai vế mới của P195,
+> chiều đỏ đích danh · **G8** một nửa xử bằng văn-phi-giá-trị (hết bản văn chỏi
+> để «đồng bộ ngược»), nửa còn lại — xoá dòng khỏi khối trước merge — nằm dưới
+> ĐÁY: hợp đồng là vật NGƯỜI KÝ đọc diff, và bộ răng chết theo hồ sơ khi merge
+> (known-limit) · **G9** xoá chân wire · **G11** sửa GUIDE · **G12** E20 thu
+> lời hứa về vật · **G13** recorder thoát theo phán quyết · **G14, G15** sổ
+> sách đo lại, danh sách CHỐT được đính chính kèm lý do của `P26`.
+>
+> Thước đo VẬT không đổi một ly: đủ đẳng thức, đối chứng dương, chiều đỏ. Cái
+> bị trừ là thước-tự-soi-thước. Cần owner gạch ở Cổng 2: **AC-20 bản thu**
+> (hai luật viết + đáy) — các mục cũ (AC-16..19, 146) giữ nguyên như đã khai.
+
+## Verdict vòng 3 (sử liệu): **REJECT (2026-08-13)**
 
 > **Rà soát đối kháng vòng 3 đã chạy: cả BA lăng kính REJECT** — 7 P0 · 5 P1 ·
 > 3 P2. Biên bản ở `review-findings.md` mục «Rà soát đối kháng — vòng 3».
@@ -106,17 +141,16 @@ có câu nào như thế.
 | Bộ kiểm script | **686/686 xanh** | `671 − 7 + 22` ✔ |
 | Bộ kiểm hook | **54/54 xanh** | `54 → 54` (không chạm) ✔ |
 | Bản đồ sản phẩm | khớp hồ sơ xưởng | — |
-| Bộ răng đo sự-vắng-mặt | **15 nhóm chân**, **17 chiều đỏ chạy thật** | — |
+| Bộ răng đo sự-vắng-mặt | **15 nhóm chân**, **16 chiều đỏ chạy thật** | — |
 
 Vòng 1 in **chín** dòng đột-biến, trong đó chỉ 6–7 dòng thật sự đi qua một hàm
 kiểm và ít nhất hai dòng chưa từng chạy (chúng in một câu ở **thì tương lai**).
-Vòng này in **14** dòng, và mỗi dòng là kết quả của việc chạy lại **chính hàm
-kiểm** trên một bản sao bị tiêm — không dòng nào là lời hứa. Con số 14 đếm được
-từ đầu ra (`grep -cF '[đột biến]'`), không phải chép tay.
-**[SỬA SAU CỔNG 1 — 13/08, vòng sửa 2]** Câu này trước đây mời kiểm chứng bằng
-`grep -c '[đột biến]'` — trong BRE đó là **lớp ký tự**, chạy ra **90** chứ không
-phải con số đã khai (F12). Một lời mời kiểm chứng mà chạy không ra số đã khai
-thì nó lấy đi đúng thứ nó định mua. `-F` (chuỗi cố định) là phép đúng.
+Mỗi dòng `[đột biến]` là kết quả của việc chạy lại **chính hàm kiểm** trên một
+bản sao bị tiêm — không dòng nào là lời hứa. Số dòng KHÔNG chép vào câu này
+nữa: nó đếm từ đầu ra bằng `grep -cF '[đột biến]'` và ghi ĐÚNG MỘT chỗ — bảng
+«Số đo» trên. Hai lần chép là hai lần sai: bản «14» của câu này trôi ngay trong
+vòng sửa viết ra nó (G4 vòng 3 — F12 tái phạm trên chính câu vừa sửa vì F12).
+
 
 **Bốn đẳng thức nay do MÁY so, không do người đếm.** Đây là thay đổi nặng nhất
 của vòng sửa: `so-ca.sh` chạy từng bộ kiểm, đếm theo phương pháp ghim riêng cho
@@ -223,7 +257,7 @@ chi phí, không phải tiến độ*. **Owner có thể gạt bất kỳ mục 
    nuốt-ca quay lại dưới dạng `    exit 1`, `exit "$failures"` hay `return 1`
    thì lưới mù — đúng lớp lỗi nó sinh ra để chặn.
 3. **Bánh cóc chống hạ-thước chỉ đếm dòng Python `assert `**, mù với `grep -q`,
-   `fail`, `die` của 26 ca đã xoá. Nên «105 dòng đã khai» là bản kiểm kê phần
+   `fail`, `die` của 26 ca đã xoá. Nên «108 dòng đã khai» là bản kiểm kê phần
    Python của đợt gỡ, không phải của cả đợt.
 4. **Mất một mẩu độ phủ ở cụm MBC** (`P178` bị xoá thay vì trim), và bộ sinh của
    workspace ấy còn một con trỏ chết không ai canh. Ba đường đã cân ở nhật ký
@@ -232,7 +266,7 @@ chi phí, không phải tiến độ*. **Owner có thể gạt bất kỳ mục 
 
 5. **Đẳng thức số CA mù với xói mòn ở mức ASSERT**, theo đúng cấu tạo: một ca
    giữ nguyên dòng `PASS:` trong khi mất phần lớn assert bên trong. Bộ kiểm gói
-   mất ~106 assert trong đợt này. Thứ canh chiều đó là bánh cóc `P161`/E11 (hai
+   mất ~109 assert trong đợt này. Thứ canh chiều đó là bánh cóc `P161`/E11 (hai
    chiều, có sổ khai) chứ không phải `so-ca.sh` — hai phép đo khác trục, và
    không nên đọc cái này thay cái kia.
 6. **Đẳng thức của bộ kiểm `scripts` đứng trên bộ đếm NỘI BỘ của suite** (664),

@@ -16,16 +16,18 @@
 # ── PHẠM VI THẬT CỦA SỔ NÀY (khai 13/08, vòng sửa 2 — F7) ────────────────────
 # Bánh cóc so với MỘT MỐC GHIM (`044968e`, 2026-08-06 — xem
 # `_acceptance/card-text-fidelity/decisions.jsonl`), nên cửa sổ của nó là "assert
-# đã tồn tại tại mốc ấy". Rà soát đối kháng vòng 2 đo lại, và con số thật là:
+# đã tồn tại tại mốc ấy". Số dưới đây do rà soát vòng 2 đo, vòng 3 đo LẠI độc
+# lập và chỉnh (178→176, 69→67, P162 36→34 — G14); nửa TRONG cửa sổ hai vòng
+# đo ra trùng nhau từng con số:
 #   · TRONG cửa sổ — 109 assert mất / 108 dòng khai; khai thiếu 0, khai thừa 0.
 #   · NGOÀI cửa sổ — cây nền của nhánh (`daa9b3d`) có 742 assert, đợt này gỡ
-#     178, tức **69 assert sinh SAU 2026-08-06 bị gỡ mà bánh cóc không thấy và
-#     sổ này không đòi**. Phân bổ: P162 36 · P188 11 · P178 8 · P193 4 · P156 3 ·
+#     176, tức **67 assert sinh SAU 2026-08-06 bị gỡ mà bánh cóc không thấy và
+#     sổ này không đòi**. Phân bổ: P162 34 · P188 11 · P178 8 · P193 4 · P156 3 ·
 #     P175 2 · P167 2 · P181/P182/P161 mỗi ca 1.
 # Câu "toàn bộ 105 dòng dưới đây" ở bản trước đọc như một bản kiểm kê ĐỦ của đợt
 # gỡ. Nó không phải; nó là bản kiểm kê phần **cũ hơn mốc ghim** của đợt gỡ.
 # Hệ quả phải nói thẳng: assert sinh sau 2026-08-06 vẫn có thể bị gỡ lặng lẽ —
-# và điều đó ĐÃ XẢY RA ngay trong đợt này (36/69 dòng thuộc `P162`, trong đó có
+# và điều đó ĐÃ XẢY RA ngay trong đợt này (34/67 dòng thuộc `P162`, trong đó có
 # assert "moi suite_key phai resolve", nay được trả lại dưới tên `P195`).
 # Đây là giới hạn của BÁNH CÓC, không phải của sổ khai: chữa nó là dời mốc ghim,
 # việc ấy thuộc hồ sơ `card-text-fidelity` chứ không phải hồ sơ này.

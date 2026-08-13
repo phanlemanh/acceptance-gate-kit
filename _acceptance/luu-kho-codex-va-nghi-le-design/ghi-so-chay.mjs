@@ -64,6 +64,13 @@ const pairs = [];
     if (inPinned) {
       const mItem = raw.match(/^\s*-\s+"(.*)"\s*$/);
       if (mItem && cur) { cur.pinned.push(mItem[1]); continue; }
+      // [Vòng thu gọn — đóng G5] Dòng danh-sách dưới `pinned:` mà không khớp
+      // khuôn có-nháy trước đây bị bỏ qua IM LẶNG → pinned=[] và eval mất lời
+      // hứa mà không ai thấy (fail-OPEN với YAML hợp lệ). Nay: chết to.
+      if (/^\s*-\s+/.test(raw)) {
+        console.error(`ghi-so-chay: dong pinned KHONG dung khuon (phai la - "chuoi"): ${raw.trim()} (eval ${cur ? cur.id : '?'})`);
+        process.exit(2);
+      }
       inPinned = false;
     }
   }
@@ -172,6 +179,13 @@ if (DRY) {
 if (thieuGhim.length) {
   process.stderr.write('ghi-so-chay: LOI HUA THONG DIEP KHONG KHOP (eval DO du lenh thoat 0):\n');
   for (const t of thieuGhim) process.stderr.write(`  ${t.evalId}: khong tim thay "${t.chuoi}" trong dau ra\n`);
+  process.exit(1);
+}
+// [Vòng thu gọn — đóng G13] Lượt ĐỎ vẫn được GHI (append-only là chủ ý — lượt
+// đỏ bị xoá là mất đúng thứ người rà soát cần đọc) nhưng mã thoát của recorder
+// phải MANG phán quyết: có lượt đỏ mà thoát 0 là bộ-chạy-nuốt-mã-thoát tái sinh.
+if (anyRed > 0) {
+  process.stderr.write(`ghi-so-chay: ${anyRed} luot chay DO — so da ghi, recorder thoat 1\n`);
   process.exit(1);
 }
 process.exit(0);

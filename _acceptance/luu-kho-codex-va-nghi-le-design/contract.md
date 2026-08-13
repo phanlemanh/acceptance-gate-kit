@@ -401,28 +401,38 @@ eval ĐỎ, không phải bỏ qua.
   trước ở `tests/plugins` (khối thoát-sớm giữa tệp, AC-15), lần này ở
   `tests/scripts`. Ghi thành tiêu chí chứ không sửa lặng vì cùng lý do AC-15:
   đẳng thức số ca của AC-11 không đo được điều nó nói khi bộ đếm mù.
-- AC-20: Given hợp đồng này và bộ răng của nó, When chạy `luu-kho-rang.sh` và
-  `ghi-so-chay.mjs`, Then **không danh sách nào và không lời hứa thông-điệp nào
-  còn tồn tại ở hai bản**:
-  · mọi liệt kê mà tiêu chí dựa vào (`VAT-LUU-KHO`, `NEEDLE-CHET`,
-  `SO-CA-KY-VONG`) nằm trong ĐÚNG MỘT khối marker của `contract.md`, và bộ răng
-  đọc thẳng khối ấy — có chân **round-trip** chứng minh (sửa khối trong bản sao
-  hợp đồng → phép đo đổi theo và đỏ đích danh mục vừa sửa);
-  · mọi eval có `cmd` khai trường máy-đọc **`pinned:`** — chuỗi phải có trong
-  đầu ra của lượt XANH — và `ghi-so-chay.mjs` **fail-closed**: eval thiếu
-  `pinned:` → chết to (exit 2); chuỗi ghim không có trong đầu ra thật → exit 1
-  **kể cả khi lệnh thoát 0**. Sổ chạy ghi thêm `output` (đuôi có giới hạn),
-  `output_bytes`, `output_sha256`, `pinned`, `pinned_missing`.
-  **[TIÊU CHÍ THÊM MỚI — 13/08, vòng sửa 2 «một-nguồn». MỞ RỘNG PHẠM VI so với
-  bản duyệt Cổng 1, cần owner gạch ở Cổng 2.]** Nó không sinh từ một lỗ đơn lẻ
-  mà từ **lớp** mà rà soát vòng 2 bắt được ba lần trong một hồ sơ: hợp đồng khai
-  bảy đường dẫn / mã đo sáu (F1) · hợp đồng khai bốn needle / mã đo một (F3) ·
-  eval ghim một chuỗi cây không bao giờ in (F4, sống sót vì sổ chạy chỉ ghi mã
-  thoát — F8). Luật dừng-vá đòi **đổi bất biến chứ không nới phép khớp**: chép
-  thêm một dòng vào mảng thì lần sửa hợp đồng thứ tám lại đẻ ra lỗ y hệt.
-  Phạm vi cố ý giới hạn **trong hồ sơ này**; đề xuất nâng thành luật toàn kit
-  nằm ở `docs/plans/2026-08-13-hat-giong-liet-ke-may-doc.md`, **chờ Cổng 0** —
-  nó là CỘNG và nó đụng engine, nên không được đi ké một vòng sửa.
+- AC-20: Given hợp đồng này và bộ răng của nó, When đọc bất kỳ liệt kê hay lời
+  hứa thông-điệp nào, Then chúng tuân **hai luật viết** sau:
+  · **Giá trị sống ở đúng MỘT chỗ.** Mọi liệt kê mà tiêu chí dựa vào
+  (`VAT-LUU-KHO`, `NEEDLE-CHET`, `SO-CA-KY-VONG`) nằm trong một khối marker
+  của `contract.md` và bộ răng đọc thẳng khối ấy. Khối `VAT-LUU-KHO` có chân
+  round-trip (sửa khối trong bản sao → phép đo đổi theo, đỏ đích danh).
+  · **Văn xuôi nêu QUAN HỆ và LÝ DO, không nêu lại GIÁ TRỊ.** Một giá trị chỉ
+  được xuất hiện ở (a) nơi khai gốc của nó, hoặc (b) một bản chép **được máy so
+  mỗi vòng** (`pinned:` — trôi là recorder đỏ, trôi thành TIẾNG). Bản chép
+  chỉ-người-đọc là lỗi — vòng 3 bắt bốn bản như thế trôi ở đúng bốn chỗ vòng 2
+  đã chỉ mặt (G1–G4).
+
+  **ĐÁY CỦA CHỨNG MINH — khai một lần, cho cả hồ sơ.** «Bằng chứng không tự
+  dối» áp dụng đệ quy thì không có điểm dừng: phép đo cần chiều đỏ, chiều đỏ là
+  mã nên cần chứng sống, chứng sống cần ghim, ghim cần trình kiểm… Ba vòng rà
+  soát đã đào ba tầng và tầng đáy LUÔN chưa được chứng — vì phải TUYÊN một cái
+  đáy, và hồ sơ này tuyên: **(a)** đếm độc lập bởi phiên tươi không dùng dụng cụ
+  của hồ sơ (đã làm ba vòng: số ca + diff TÊN ca, khớp từng con số); **(b)** mốc
+  bất biến `truoc-luu-kho-2026-08` làm đối chứng dương; **(c)** các suite
+  thường trực. Mọi chân phía TRÊN đáy — round-trip, `pinned:`, recorder — là
+  **dụng cụ hỗ trợ**, không phải lời hứa của hồ sơ: chúng được mô tả đúng với
+  vật, nhưng hồ sơ không tuyên chúng tự-chứng-minh-được, và finding về chúng
+  không chặn vật.
+  **[TIÊU CHÍ THÊM MỚI 13/08 vòng sửa 2; THU LỜI HỨA 13/08 vòng thu gọn «chỉ
+  TRỪ» — cần owner gạch cả hai ở Cổng 2.]** Bản vòng-sửa-2 của tiêu chí này hứa
+  «không lời hứa nào nằm ngoài tầm máy» — một lời hứa đệ quy không đáy, và vòng
+  3 bắt chính nó khai mạnh hơn vật ở ba chỗ (G5: chiều đỏ không tồn tại trong
+  mã; G6: ghim hằng-đúng; G12: hai con số sai). Đường ra owner gạch: áp «chỉ
+  TRỪ» vào chính hồ sơ — thước đo VẬT giữ nguyên từng đẳng thức, phần
+  thước-tự-soi-thước thu về dụng cụ + hai luật viết + một cái đáy tuyên tường
+  minh. Tham vọng luật toàn-kit vẫn ở
+  `docs/plans/2026-08-13-hat-giong-liet-ke-may-doc.md`, chờ Cổng 0.
 
 ## Coverage
 

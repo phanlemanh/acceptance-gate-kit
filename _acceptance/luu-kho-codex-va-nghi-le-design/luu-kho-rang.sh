@@ -847,56 +847,14 @@ echo "== E12/E7/E13/E14 · đẳng thức số ca có chân MÁY (AC-11) =="
 # của cả hồ sơ là phép đo DO NGƯỜI ĐẾM. `so-ca.sh` là chỗ lời hứa thành mã;
 # chân dưới đây giữ cho nó (a) thật sự được WIRE vào làn, (b) còn SỐNG.
 so_ca_run() { bash "$WS/so-ca.sh" "$@"; }
-# (a) WIRE: bốn eval phải trỏ bốn khoá so-ca, và config phải định nghĩa chúng
-#     TRỎ ĐÚNG BỘ ĐẾM. Script tồn tại mà không eval nào gọi thì nó là mã chết.
-#     [SỬA SAU CỔNG 1 — 13/08, vòng sửa 2] Bản trước chỉ grep TÊN khoá, không
-#     đọc GIÁ TRỊ (F5). Rà soát vòng 2 đổi giá trị khoá thành
-#     `bash tests/plugins/run-tests.sh`: bộ đếm rời khỏi làn, đẳng thức số ca
-#     biến mất — đúng kịch bản `so-ca.sh` sinh ra để chặn — mà chân này vẫn in
-#     "4/4 dang thuc duoc wire OK". Nay nó đọc giá trị và đòi giá trị ấy vừa trỏ
-#     `so-ca.sh` vừa mang đúng `--suite <s>`.
-gia_tri_khoa() {   # $1 = tên khoá → in giá trị (đã bóc nháy), rỗng nếu không có
-  awk -v k="$1:" '
-    { line = $0; sub(/^[ \t]+/, "", line) }
-    index(line, k) == 1 {
-      v = substr(line, length(k) + 1)
-      sub(/^[ \t]+/, "", v); sub(/[ \t]+$/, "", v)
-      gsub(/^"|"$/, "", v); gsub(/^'"'"'|'"'"'$/, "", v)
-      print v; exit
-    }
-  ' "$ROOT/_acceptance/config.yaml"
-}
-w=0
-for s in plugins workflows scripts hooks; do
-  kv="$(gia_tri_khoa "luu_kho_so_ca_$s")"
-  if [ -z "$kv" ]; then
-    bad "LUU-KHO-SUITE: dang thuc $s KHONG co khoa config luu_kho_so_ca_$s"
-  elif ! printf '%s' "$kv" | grep -q 'so-ca\.sh'; then
-    bad "LUU-KHO-SUITE: khoa luu_kho_so_ca_$s KHONG tro so-ca.sh (chay: $kv) — bo dem da roi khoi lan"
-  elif ! printf '%s' "$kv" | grep -q -- "--suite $s"; then
-    bad "LUU-KHO-SUITE: khoa luu_kho_so_ca_$s tro so-ca.sh nhung KHONG dung --suite $s (chay: $kv)"
-  elif ! grep -q "config:executors.script.luu_kho_so_ca_$s" "$WS/evals.yaml"; then
-    bad "LUU-KHO-SUITE: khoa luu_kho_so_ca_$s co dinh nghia nhung KHONG eval nao goi — ma chet"
-  else
-    w=$((w + 1))
-  fi
-done
-[ "$w" -eq 4 ] && ok "LUU-KHO-SUITE: 4/4 dang thuc duoc wire vao lan OK (doc GIA TRI khoa, khong grep ten)"
-# chiều đỏ CHẠY THẬT cho chính chân vừa siết: đổi giá trị khoá trong một bản sao
-# config rồi cho đi qua CHÍNH `gia_tri_khoa` + cùng ba phép so.
-MCFG="$(mktemp)"
-sed 's|^\( *luu_kho_so_ca_plugins: \).*|\1"bash tests/plugins/run-tests.sh"|' \
-  "$ROOT/_acceptance/config.yaml" > "$MCFG"
-kv_mut="$(awk -v k="luu_kho_so_ca_plugins:" '
-    { line = $0; sub(/^[ \t]+/, "", line) }
-    index(line, k) == 1 { v = substr(line, length(k) + 1)
-      sub(/^[ \t]+/, "", v); gsub(/^"|"$/, "", v); print v; exit }' "$MCFG")"
-if [ -n "$kv_mut" ] && ! printf '%s' "$kv_mut" | grep -q 'so-ca\.sh'; then
-  mut "đổi giá trị khoá luu_kho_so_ca_plugins sang chạy suite trần → phép so ĐỎ 'bo dem da roi khoi lan'"
-else
-  bad "LUU-KHO-SUITE: buoc tiem config KHONG doi duoc gia tri khoa (doc ra: ${kv_mut:-rong}) — chieu do khong chay"
-fi
-rm -f "$MCFG"
+# (a) WIRE — [SỬA SAU CỔNG 1 — 13/08, vòng thu gọn «chỉ TRỪ»] Chân này ĐÃ XOÁ.
+#     Hai bản của nó đều thủng (F5 vòng 2: grep TÊN khoá; G9 vòng 3: nửa vẫn
+#     grep tên trong evals.yaml — chuỗi khoá nằm cả trong văn xuôi `expected` —
+#     và `gia_tri_khoa` đọc dòng đầu mang tên khoá ở BẤT KỲ nhánh YAML nào).
+#     Việc nó canh đã có một cơ chế khác phủ MỖI VÒNG: `ghi-so-chay.mjs`
+#     resolve khoá theo đường-dẫn + thụt-lề rồi CHẠY lệnh; khoá trỏ sai chỗ thì
+#     đầu ra không có chuỗi ghim "LUU-KHO-SUITE:" và recorder ĐỎ. Một cơ chế
+#     thay hai — bớt một bản chép, đúng liều thuốc hồ sơ này kê cho kit.
 # (b) SỐNG: chạy thật hai suite RẺ qua chính bộ đếm, rồi lấy log CODE VỪA SINH
 #     ra làm đầu vào cho chiều đỏ. Log do lần chạy này sinh, không phải fixture
 #     viết tay đúng khuôn bên đọc.

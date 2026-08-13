@@ -63,3 +63,21 @@ round-trip chứng minh (sửa khối trong bản sao → phép đo đổi theo)
 hợp đồng đang có liệt kê kiểu này, bao nhiêu cần chuyển), và khai known-limit
 cho hồ sơ cũ — **không** bắt hồ sơ đã ký migrate hàng loạt (đường đọc-cũ, đúng
 nếp Coverage 1.13.0 và gap-probe 1.14.0).
+
+
+## Bài học bổ sung từ vòng 3 (13/08)
+
+Vòng sửa «một-nguồn» hợp nhất phía MÁY và bị vòng 3 REJECT vì phía VĂN XUÔI
+vẫn nêu lại giá trị — bốn bản chép chỉ-người-đọc trôi ở đúng bốn chỗ vòng 2 đã
+chỉ mặt. Ba mệnh đề rút ra, thuộc về đề xuất này chứ không thuộc hồ sơ nào:
+
+1. **Một-nguồn phải phủ cả văn xuôi.** Luật viết đi kèm luật đọc: văn xuôi nêu
+   QUAN HỆ và LÝ DO; giá trị chỉ sống ở (a) nơi khai gốc hoặc (b) bản chép được
+   máy so mỗi vòng. Bản chép chỉ-người-đọc là lỗi.
+2. **Phải tuyên ĐÁY của chứng minh.** «Bằng chứng không tự dối» đệ quy không có
+   điểm dừng — mỗi tầng đo cần tầng chứng dưới nó. Hồ sơ phải tuyên đáy (đếm
+   độc lập + mốc bất biến + suite thường trực); chân phía trên đáy là dụng cụ,
+   không phải lời hứa.
+3. **Thước cân xứng vật.** Hồ sơ chỉ-TRỪ với mốc đảo bất biến là loại rủi ro
+   thấp nhất — cần bộ đo MỎNG nhất, không phải dày nhất. Ba vòng rà soát của
+   luu-kho: 0 finding về vật từ vòng 2, 100% P0 vòng 3 ở tầng thước.
