@@ -22,3 +22,4 @@
 {"ts":"2026-08-10T23:38:24Z","kind":"repin","run_id":"repin-chip2-merge-20260810T233824Z","sha":"1e852ac0edad60f71083666f0ab3c83da023ad56","suites_exit":[0,0,0,0,0,0]}
 {"ts":"2026-08-13T02:35:32Z","kind":"repin","run_id":"repin-luu-kho-vong-sua-1-20260813T023532Z","sha":"523d172896a04bb59ba3bbcff55486bfaeb6c598","suites_exit":[0,0,0,0]}
 {"ts":"2026-08-13T09:33:57Z","kind":"repin","run_id":"repin-luu-kho-vong-sua-2-20260813T093357Z","sha":"a52a2b5a3bb68feafd1c7b6c823a17c90f89b0b0","suites_exit":[0,0,0,0,0]}
+{"ts":"2026-08-13T11:32:14Z","kind":"repin","run_id":"repin-luu-kho-thu-gon-20260813T113214Z","sha":"c86aff6eca40f742f5e5a01f5ca0643e061adcfa","suites_exit":[0,0,0,0,0]}
