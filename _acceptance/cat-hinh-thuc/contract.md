@@ -95,7 +95,9 @@ chí âm tính PHẢI kèm đối chứng dương: cùng câu quét chạy trên
   người-sở-hữu; lưới `require_human_commit` + `agent_authors` không đổi.
 - AC-11: Given cây đã sửa, When chạy 4 suite (`scripts`, `hooks`, `plugins`,
   `workflows`) + `product-map --check`, Then tất cả xanh **và số ca khớp ĐẲNG
-  THỨC khai trước** (khối `SO-CA-KY-VONG-1A` dưới), không phải khớp một cái sàn.
+  THỨC khai trước** — khối `SO-CA-KY-VONG` trong hợp đồng của hồ sơ
+  `luu-kho-codex-va-nghi-le-design`, xem «một bản khai» dưới — không phải khớp
+  một cái sàn.
   **[SỬA SAU CỔNG 1 — 13/08, thi công · rebase lên 1b] Hai vế của tiêu chí này
   CHẾT theo hồ sơ 1b, và mẫu số phải khai lại.**
   · Vế **`sync-plugin-packages.sh --check`** và vế **«mirror `plugins/` đã sync
@@ -106,25 +108,31 @@ chí âm tính PHẢI kèm đối chứng dương: cùng câu quét chạy trên
   đòi một script đã bị 1b xoá — bên merge sau phải rebase và bỏ tiêu chí đó»*.
   · **Baseline khai trong Notes lỗi thời.** Bốn con số ở đó đo tại `daa9b3d`,
   TRƯỚC 1b. Hồ sơ này nay đứng trên cây đã có 1b, nên mẫu số đúng là số sau-1b.
-  Khai lại, kèm dẫn xuất, trong khối máy-đọc dưới đây; `so-ca.sh` của 1b đọc
-  chính khối tương ứng nên hồ sơ này dùng lại đúng dụng cụ ấy thay vì dựng bộ
-  đếm thứ hai.
+  · **MỘT bản khai, không hai — [SỬA SAU CỔNG 1 — 13/08, lượt hai].** Bản 13/08
+  đầu tiên chép bốn con số vào một khối `SO-CA-KY-VONG-1A` **ngay trong tệp
+  này**, rồi để eval chạy `so-ca.sh` của 1b. Đó là một cái bẫy: `so-ca.sh` đọc
+  `$HERE/contract.md`, tức hợp đồng của **1b**, nên khối vừa chép ở đây
+  **không code path nào đọc** — hai bản khai cùng tuyên về một tiêu chí, và bản
+  người-đọc-thấy-trước lại là bản máy KHÔNG đọc. Đúng lớp «bên viết và bên đọc
+  trôi khỏi nhau» mà CLAUDE.md gọi tên. Khối trùng đã **gỡ**; bản khai DUY NHẤT
+  là khối `SO-CA-KY-VONG` của 1b, và ba eval dưới ghim đúng thông điệp sinh ra
+  từ nó.
+  · **Vì sao vẫn đủ chứng cho tiêu chí của hồ sơ NÀY.** Điều 1a cần chứng là
+  *«1a không làm xê dịch số ca»*. Vế `sau` trong khối của 1b (145 · 463 · 686 ·
+  54) được đo tại ngọn 1b, tức TRƯỚC mọi commit của 1a. Cây 1a khớp đúng vế ấy
+  nghĩa là bốn con số không nhúc nhích qua toàn bộ 1a — đúng mệnh đề cần, đo
+  bằng một bản khai có sẵn thay vì bịa thêm một mẫu số thứ hai để tự so với
+  mình.
   · **Vì sao KHÔNG hạ thành «cứ xanh là được»:** hạng mục 1a.2 CỐ Ý gỡ một số
   ca trong `tests/plugins` (case luật-mỗi-tin). Đó là một bộ kiểm bị chủ ý làm
   teo — đúng loại mà sàn `≥` mất răng: lúc đỏ, đường thoát rẻ nhất là hạ số
   xuống mức vừa đo. Số ca kỳ vọng phải khai **trước** khi cắt, đếm a-priori từ
   danh sách case gọi tên.
 
-<!-- <<<SO-CA-KY-VONG-1A -->
-| suite | truoc | sau |
-|---|---|---|
-| plugins | 145 | 145 |
-| workflows | 463 | 463 |
-| scripts | 686 | 686 |
-| hooks | 54 | 54 |
-<!-- SO-CA-KY-VONG-1A>>> -->
-
-  **Bốn số khai đầy đủ 13/08, TRƯỚC khi đo, sau khi đọc từng ca đỏ.** Hai suite
+  **Bốn số kỳ vọng — `plugins` 145 · `workflows` 463 · `scripts` 686 ·
+  `hooks` 54 — khai đầy đủ 13/08, TRƯỚC khi đo, sau khi đọc từng ca đỏ.** Bốn
+  con số này KHÔNG lặp lại thành khối máy-đọc ở đây; chúng in ra từ bản khai duy
+  nhất của 1b (xem gạch đầu dòng «MỘT bản khai» trên). Hai suite
   không đụng (`workflows`, `hooks`) là đẳng thức không-đổi. Hai suite còn lại
   cũng KHÔNG ĐỔI, và lý do đáng ghi vì nó ngược với dự kiến ban đầu: hạng mục
   1a.2 làm chết một số **assertion**, nhưng **không ca nào mất đích để trỏ về**.
@@ -194,6 +202,15 @@ worktree này (KHÔNG tin số dòng trong đề bài — đã tìm lại từng
   bản neo. Đổi chữ cho lint xanh sẽ làm hợp đồng lệch khỏi văn bản nó phải
   trace về — cái giá lớn hơn cái được. Các cờ W6 khác đã sửa về từ chuẩn
   (`card` thay `thẻ`, `case đo` thay `test`).
+  **[SỬA SAU CỔNG 1 — 13/08, thi công] Câu cuối trên KHÔNG đúng — còn HAI cờ
+  nữa, và cả hai đã có từ bản duyệt Cổng 1:** dòng "Thẻ Cổng 1 render 11/13"
+  (W6 «thẻ») và dòng "KHÔNG tự sửa engine ở đây" (W6 «engine») trong chính mục
+  LỖ LÕI KIT dưới. Cả hai là **dương tính giả của lint**: nó quét từ khoá không
+  xét nghĩa, mà "thẻ Cổng 1" ở đây đúng là *card*, còn "engine" là *engine của
+  kit* chứ không phải *executor*. Không sửa (sửa là làm câu sai nghĩa để lint
+  xanh); ghi ra vì một hợp đồng tuyên "các cờ khác đã sửa" trong khi còn cờ là
+  một khẳng định sai nằm trong vật được giao — đúng lớp lỗi hồ sơ 1b vừa bị
+  bắt ở `layout-craft.md`. Tổng: **4 cờ W6, cả 4 cố ý, 0 vi phạm.**
 - **LỖ LÕI KIT phát hiện lúc dựng card Cổng 1 — ngoài phạm vi hồ sơ này, nhưng
   phải ghi vì nó im lặng.** Sau phản biện tôi đặt hai tiêu chí mới tên `AC-1b`
   và `AC-9b`. Thẻ Cổng 1 render **11/13** tiêu chí, và lint **không hề kêu**.
@@ -214,8 +231,8 @@ worktree này (KHÔNG tin số dòng trong đề bài — đã tìm lại từng
   nên số ca phải đếm bằng số dòng `PASS:` — chính vì thế nó là suite dễ teo mà
   không ai thấy). Tất cả 0 fail.
   **[SỬA SAU CỔNG 1 — 13/08, thi công] Bốn con số trên KHÔNG còn là mẫu số của
-  hồ sơ này** — chúng đo tại `daa9b3d`, trước 1b. Mẫu số đúng nằm ở khối
-  `SO-CA-KY-VONG-1A` trong AC-11. Giữ đoạn này nguyên văn làm **sử liệu**: nó
+  hồ sơ này** — chúng đo tại `daa9b3d`, trước 1b. Mẫu số đúng là bốn số nêu ở
+  AC-11, đọc từ bản khai của 1b. Giữ đoạn này nguyên văn làm **sử liệu**: nó
   ghi cái đã khai tại Cổng 1, và xoá nó đi là xoá dấu vết một lần khai.
   Riêng con số `workflows` **62** ở đây từng SAI ngay lúc khai (nó là số của
   đúng một tệp trong sáu tệp của suite; tổng thật tại `daa9b3d` là **488**) —
@@ -228,6 +245,19 @@ worktree này (KHÔNG tin số dòng trong đề bài — đã tìm lại từng
   cùng tệp thì (a) xung đột chắc chắn ở 5+ tệp, và (b) mọi phép đo chạy trên
   một cây không bao giờ tồn tại thật. Hệ quả phải khai: **1a chỉ merge được sau
   1b**, và nếu vòng rà soát đối kháng của 1b làm đổi vật thì 1a phải rebase lại.
+- **KHAI GIỚI HẠN — ba eval của 1a mượn dụng cụ của 1b.** E11/E12/E16 chạy
+  `so-ca.sh` và ba khoá `executors.script.luu_kho_so_ca_*`, đều là vật của hồ sơ
+  1b, đều mang nhãn *«chết theo hồ sơ khi merge»*. Nếu ai đó thi hành nhãn ấy
+  đúng nghĩa đen lúc merge 1b, **ba eval này mất vật đo** và AC-11 mất chân
+  đẳng thức — đúng hình dạng E16 vừa dẫm một lần (nó trỏ `mirror_sync`, khoá
+  chết, và không lưới nào kêu cho đến khi soi tay). Vì sao vẫn chọn mượn:
+  ba hồ sơ đã merge trước đó (`mot-luot-go-cong-nguoi`, `may-ganh-nguoi-quyet`)
+  còn nguyên script + khoá sau merge, nên nhãn kia trên thực tế chưa từng được
+  thi hành; dựng bản sao thứ hai của bộ đếm 200 dòng để phòng một việc chưa
+  xảy ra là giờ-kit đắt hơn phần nó chặn. **Nếu 1b bị gỡ khoá lúc merge:**
+  chép `so-ca.sh` vào workspace này, đổi marker sang `SO-CA-KY-VONG-1A`, khai
+  lại bốn số trong hợp đồng NÀY, và trỏ ba eval sang bản sao — không được hạ
+  đẳng thức thành sàn hay bỏ eval.
 - **Mục Out of scope «toàn bộ `codex/`» nay TỰ THOẢ.** Nó viết cho cây còn
   Codex; trên cây này `codex/` đã đi theo 1b, nên các tiêu chí âm tính của 1a
   không cần loại trừ gì nữa. Câu «1b phải merge thì mới có 0 hit toàn cây» vẫn

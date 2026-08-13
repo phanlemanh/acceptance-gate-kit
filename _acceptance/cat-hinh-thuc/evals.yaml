@@ -331,9 +331,11 @@ evals:
       **[SỬA SAU CỔNG 1 — 13/08, thi công] Đổi từ SÀN `≥ 671` sang ĐẲNG THỨC.**
       Sàn mất răng đúng lúc cần nhất: hồ sơ này CỐ Ý làm chết một số assertion,
       nên lúc suite đỏ thì đường thoát rẻ nhất là hạ sàn xuống mức vừa đo. Số
-      686 khai trong khối `SO-CA-KY-VONG-1A` của contract và do `so-ca.sh` (vật
-      của hồ sơ 1b) đọc chính khối đó — không dựng bộ đếm thứ hai. Baseline
-      `daa9b3d` trong bản duyệt lỗi thời vì nhánh này đứng trên cây đã có 1b.
+      686 khai trong khối `SO-CA-KY-VONG` của hợp đồng 1b — bản khai DUY NHẤT,
+      và `so-ca.sh` đọc đúng nó (`$HERE/contract.md`). Lượt sửa đầu 13/08 còn
+      chép một khối `-1A` song song vào hợp đồng 1a; khối ấy KHÔNG code path nào
+      đọc nên đã gỡ. Baseline `daa9b3d` trong bản duyệt lỗi thời vì nhánh này
+      đứng trên cây đã có 1b.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E12
@@ -366,13 +368,19 @@ evals:
   - id: E13
     criterion: AC-11
     executor: test
-    cmd: config:executors.test.hooks
+    cmd: config:executors.script.luu_kho_so_ca_hooks
     paths:
       - hooks
     expected: >
-      exit 0; "Results: 54 passed, 0 failed" — số 54 là baseline tại `daa9b3d`.
-      Hồ sơ này KHÔNG chạm `hooks/` (lõi cưỡng chế, `t3_paths`); số đổi là tín
-      hiệu cắt lan sang lõi.
+      exit 0; "LUU-KHO-SUITE: hooks 54 -> 54 OK", và ngay dưới nó dòng gốc của
+      chính suite "Results: 54 passed, 0 failed".
+      **[SỬA SAU CỔNG 1 — 13/08, thi công] Đổi từ chạy trần sang chạy qua bộ
+      đếm** — cùng lý do E11/E12: bản duyệt chỉ ghim một CHUỖI trong stdout, mà
+      con số trong chuỗi ấy không được đối chiếu với bản khai nào; nó đỏ khi số
+      đổi chỉ vì người đọc tình cờ so bằng mắt. Bộ đếm biến nó thành đẳng thức
+      máy-kiểm. Không thêm lượt chạy: bộ đếm CHẠY chính suite ấy rồi in lại dòng
+      tổng kết gốc. Hồ sơ này KHÔNG chạm `hooks/` (lõi cưỡng chế, `t3_paths`);
+      số đổi là tín hiệu cắt lan sang lõi.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E14
@@ -382,8 +390,19 @@ evals:
     paths:
       - tests/workflows
     expected: >
-      exit 0; "Results: 62 passed, 0 failed" — baseline tại `daa9b3d`.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+      exit 0, và stdout có ĐÚNG SÁU dòng `Results: <n> passed, 0 failed` — mỗi
+      tệp con một dòng.
+      **[SỬA SAU CỔNG 1 — 13/08, thi công] Chuỗi ghim của bản duyệt SAI, và
+      sai theo kiểu không bao giờ đỏ được.** Nó ghim "Results: 62 passed" như
+      thể đó là tổng của suite; 62 là tổng của MỘT trong sáu tệp con. Suite này
+      không in dòng tổng nào, nên chuỗi ấy vừa khớp (một dòng trong sáu) vừa
+      vô nghĩa (nó không nói gì về năm tệp kia — bốn tệp có chết cũng không
+      động đến nó). Hồ sơ 1b tìm ra tổng thật là 488 tại `daa9b3d`.
+      Nay E14 giữ đúng vai CÒN LẠI của nó — *suite xanh và không tệp con nào
+      chết giữa chừng* — còn đẳng thức số ca (463) là việc của E16.
+      Ghim SỐ DÒNG chính là chân chống cái chết-giữa-chừng: thiếu một dòng
+      nghĩa là một tệp con không in nổi tổng kết, và tổng cộng ra sẽ NHỎ HƠN
+      thật mà vẫn "xanh".
 
   - id: E15
     criterion: AC-11
@@ -401,14 +420,18 @@ evals:
   - id: E16
     criterion: AC-11
     executor: script
-    cmd: config:executors.script.mirror_sync
+    cmd: config:executors.script.luu_kho_so_ca_workflows
     paths:
-      - scripts/sync-plugin-packages.sh
+      - tests/workflows
     expected: >
-      exit 0 (P30 xanh): mirror khớp nguồn sau khi sync — mọi sửa văn chỉ dẫn
-      của hồ sơ này phải có mặt trong `plugins/`.
-      **KHAI TRƯỚC — eval này có tuổi thọ giới hạn:** hồ sơ
-      `luu-kho-codex-va-nghi-le-design` gỡ toàn bộ bộ máy mirror. Bên nào merge
-      SAU phải rebase và BỎ eval này cùng AC tương ứng. Ghi ở đây để không ai
-      phát hiện muộn rồi vá vội bằng cách hạ thước.
+      exit 0; "LUU-KHO-SUITE: workflows 488 -> 463 OK".
+      **[SỬA SAU CỔNG 1 — 13/08, thi công] Eval này ĐÃ ĐỔI HẲN VẬT ĐO.** Bản
+      duyệt trỏ `config:executors.script.mirror_sync` và đo `sync-plugin-packages.sh`
+      — cả khoá lẫn script đều bị hồ sơ `luu-kho-codex-va-nghi-le-design` xoá
+      (AC-9 của nó, owner gạch «mirror gỡ» 12/08). Chính eval này đã KHAI TRƯỚC
+      cái chết đó: *«eval này có tuổi thọ giới hạn — bên nào merge SAU phải
+      rebase và BỎ eval này»*. Lời khai ấy nay được thi hành.
+      Không bỏ trống chỗ: eval chuyển sang gánh đẳng thức suite `workflows`,
+      vế duy nhất của AC-11 chưa có eval riêng sau khi hai vế mirror chết.
+      Bỏ trống là để AC-11 mất một chân mà bảng eval vẫn trông đủ.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
