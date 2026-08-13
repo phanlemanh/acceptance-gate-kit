@@ -153,9 +153,8 @@ Steps:
 8. **Re-check merge readiness.** If the repo ships `scripts/pre-merge-check.sh`
    run `bash scripts/pre-merge-check.sh . --slug <slug>` (add
    `--base origin/<default-branch>` when known); otherwise run the installed
-   plugin's copy. In Codex sessions where write-time hooks are not active,
-   also run `recheck-evidence.cjs`. Report READY TO MERGE or the exact
-   violations.
+   plugin's copy. Where write-time hooks are not active, also run
+   `recheck-evidence.cjs`. Report READY TO MERGE or the exact violations.
 
 Never:
 - invent a verdict, or guess a name/date beyond the identity ladder

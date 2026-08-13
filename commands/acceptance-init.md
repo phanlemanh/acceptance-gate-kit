@@ -161,7 +161,7 @@ Omit the `capture` block if the repo has no UI evidence need.
    artifacts.
    A job that runs on `push` (not a PR) must ALSO pass `--no-t1-escape`. The
    T1-escape backstop assumes "this change is a PR, so it must carry
-   `_acceptance/<slug>/`" — false for release and mirror-sync commits landing
+   `_acceptance/<slug>/`" — false for release commits landing
    straight on the main branch, so leaving it armed there makes the job
    permanently red for structural reasons. Keep `--base` either way: the
    gap-probe rule needs the diff scope, and running without a base is a

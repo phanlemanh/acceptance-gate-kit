@@ -249,8 +249,8 @@ const isMain = (() => {
 })();
 if (isMain) {
   const args = process.argv.slice(2);
-  // Chốt mode + thứ tự tham số, theo đúng khuôn scripts/sync-plugin-packages.sh
-  // đã dựng cho chính lớp lỗi này: một lỗi gõ (`--chek`) không được biến lệnh
+  // Chốt mode + thứ tự tham số, theo đúng khuôn kit đã dựng cho chính lớp lỗi
+  // này (pre-merge-check v1.22.1): một lỗi gõ (`--chek`) không được biến lệnh
   // KIỂM thành lệnh GHI rồi báo thành công — nó xoá luôn cái drift vừa tiêm.
   // Và `--root` không có giá trị thì `--check` bị nuốt làm đường dẫn, script
   // soi một thư mục không tồn tại rồi exit 0 mà chẳng kiểm gì. ADR 0007 lấy
@@ -306,8 +306,8 @@ if (isMain) {
     // Phân biệt "repo CHƯA TỪNG dựng bản đồ" (đường đọc-cũ, hợp lệ) với "đã có
     // rồi MẤT". File được git theo dõi mà biến khỏi cây làm việc là một lần
     // XOÁ — và vì bản đồ nằm trong t1_skip_globs, một PR chỉ xoá nó vừa bỏ qua
-    // cổng nghiệm thu vừa xanh ở CI nếu đây cũng exit 0. Mirror bị xoá thì P30
-    // đỏ; bản đồ phải xử như vậy.
+    // cổng nghiệm thu vừa xanh ở CI nếu đây cũng exit 0. Một vật máy sinh biến
+    // mất phải làm cổng ĐỎ, không phải làm cổng im.
     // Hỏi INDEX thôi là fail-OPEN ở đúng hình dạng CI gặp: một PR đã COMMIT
     // việc xoá thì `actions/checkout` ra cây không còn file trong index,
     // `ls-files` thất bại, và cổng in "repo chưa dựng bản đồ" rồi exit 0 —

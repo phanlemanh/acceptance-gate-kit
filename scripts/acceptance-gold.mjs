@@ -197,8 +197,8 @@ const firstSentence = (t) => {
 // nguyên văn — N4 CẤM viết lại. Đường ra là CHÚ GIẢI: term nào xuất hiện trong
 // thứ trình cho người thì kèm một dòng nghĩa ở cuối. Nguồn duy nhất là khối
 // marker trong human-facing-language.md (ship cùng plugin, nên repo tiêu thụ
-// cũng có); đường dẫn SUY TỪ VỊ TRÍ SCRIPT, không hardcode ROOT — bản mirror
-// plugins/ và bản kit đều tra được. Không tra được → sổ vẫn in, kèm đúng 1
+// cũng có); đường dẫn SUY TỪ VỊ TRÍ SCRIPT, không hardcode ROOT — bản cài ở
+// repo tiêu thụ và bản kit đều tra được. Không tra được → sổ vẫn in, kèm đúng 1
 // dòng ghi chú (vắng nổ to, không im lặng).
 const GLOSS_NOTE = 'từ điển biệt ngữ không nạp được';
 export function loadGloss(scriptUrl) {

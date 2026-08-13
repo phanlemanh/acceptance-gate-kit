@@ -1385,25 +1385,17 @@ hasout D10b "Chọn SQLite thay Postgres" "$G2N"
 hasout D10c "KHÔNG làm multi-tenant" "$G2N"
 case "$G2N" in *"Đã duyệt từ Gate 1"*) echo "  FAIL: D10d (approved block should be absent without seal)"; FAIL_COUNT=$((FAIL_COUNT+1));; *) echo "  PASS: D10d"; PASS_COUNT=$((PASS_COUNT+1));; esac
 
-echo ""
-echo "DSC01-03 design-static-check --require-html"
-DSC="$HERE/../../design-loop/scripts/design-static-check.mjs"
-mkdir -p "$T/dsc/src"; printf '.x{color:var(--color-text)}\n' > "$T/dsc/src/a.css"
-node "$DSC" "$T/dsc/src" --require-html >/dev/null 2>&1; check DSC01 3 $?
-ROUT="$(node "$DSC" "$T/dsc/src" --require-html 2>&1)"
-hasout DSC02 "require-html" "$ROUT"
-node "$DSC" "$T/dsc/src" >/dev/null 2>&1; check DSC03 0 $?   # không flag → hành vi cũ giữ nguyên
-
-echo ""
-echo "SG1-4 design-config-patch --surface-globs"
-DCP="$HERE/../../design-loop/scripts/design-config-patch.mjs"
-mkdir -p "$T/sg"; printf 'executors:\n  test:\n    api: "npm test"\n  script:\n    smoke_sv_design: "npm run smoke:sv-design"\n' > "$T/sg/config.yaml"
-node "$DCP" --config "$T/sg/config.yaml" --surface-globs "apps/web/**,packages/ui/**" --write >/dev/null 2>&1
-grep -q '^design:$' "$T/sg/config.yaml"; check SG1 0 $?
-grep -q 'surface_globs: \[apps/web/\*\*, packages/ui/\*\*\]' "$T/sg/config.yaml"; check SG2 0 $?
-node "$DCP" --config "$T/sg/config.yaml" --surface-globs "khac/**" --write >/dev/null 2>&1
-grep -c '^design:$' "$T/sg/config.yaml" | grep -qx '1'; check SG3 0 $?   # idempotent — không nhân đôi
-grep -qx '    smoke_sv_design: "npm run smoke:sv-design"' "$T/sg/config.yaml"; check SG4 0 $?   # key bảo vệ sống sót byte-y-nguyên sau 2 lần --write
+# DSC01-03 (design-static-check --require-html) và SG1-4 (design-config-patch
+# --surface-globs) đã ĐI THEO design-loop khi lưu kho (hồ sơ
+# luu-kho-codex-va-nghi-le-design, Cổng 1 duyệt 2026-08-12). Bảy assert đó gọi
+# THẲNG hai script trong design-loop/scripts/, nên chúng chết cùng thư mục ấy.
+# Đây là lý do bảy assert rời khỏi bộ đếm của suite. Số CHỐT của cùng lượt sửa
+# là 686 = 671 − 7 + 22 (AC-17/AC-19 thêm RS01–RS06 trong chính commit này) —
+# con số khai TRƯỚC trong hợp đồng, ở khối máy-đọc `SO-CA-KY-VONG`.
+# [SỬA SAU CỔNG 1 — 13/08, vòng sửa 2] Câu cũ ở đây ghi "671 xuống 664" và
+# dừng lại ở đó, tức để một mẫu số CHẾT nằm ngay cạnh vết mổ (F13). Ai đọc chú
+# thích này để tra đẳng thức sẽ lấy 664 rồi 'chữa' bản khai cho khớp — đúng lớp
+# bên-viết-và-bên-đọc-trôi-khỏi-nhau mà bản khai máy-đọc sinh ra để chặn.
 
 # '### nhóm phụ' trong ## Criteria KHÔNG được cắt cụt decision card — human duyệt Gate 1
 # trên card thiếu AC là false-green ở tầng con người, nặng hơn răng CI im lặng.
@@ -1822,6 +1814,100 @@ out12b="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base basepoint 2>&1)"; chec
 case "$out12b" in *"VIOLATION [feat-old-a]"*"is a phantom"*|*"is a phantom"*"feat-old-a"*) echo "  PASS: VC12-touched-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: VC12-touched-msg (expected phantom VIOLATION đích danh feat-old-a khi hồ sơ vào diff)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
 echo ""
+echo "--- recheck theo diff PR (1.41.0: phạm vi theo slug_in_diff + cờ --recheck-all) ---"
+# Fixture CODE-SINH tái hiện đúng ca đã cắn: một đợt đã merge gỡ một khoá
+# `executors.script.*` khỏi config, và MỌI hồ sơ đã ký có eval trỏ khoá đó lập
+# tức chặn mọi PR sau — dù không hồ sơ nào trong số đó nằm trong diff, và không
+# hồ sơ nào sửa được mà không viết vào vật đã ký.
+# Verifier của hai hồ sơ cũ là `config:executors.script.gone_key` — khoá KHÔNG
+# có trong config, nên `recheck-evidence.cjs` đỏ đúng thông điệp thật
+# ("config key not found or empty"), không phải một lỗi bịa cho dễ.
+# Mọi lần chạy đều qua `env -u PRE_MERGE_BASE` (env lọt làm ca no-base đổi nghĩa).
+mk_recheck_scope_repo() { # <root> <fire> — fire=1 thêm hồ sơ ngoài diff mang lỗi KHÁC
+  local R="$1" fire="$2" olds s
+  rm -rf "$R"; mkdir -p "$R/src" "$R/_acceptance"
+  git init -q "$R"
+  printf 'schema_version: 1\nrecheck: strict\nrisk_tiers:\n  t1_skip_globs:\n    - "docs/**"\n' > "$R/_acceptance/config.yaml"
+  printf 'code v1\n' > "$R/src/app.js"
+  printf '#!/bin/sh\nexit 0\n' > "$R/verify.sh"
+  olds="feat-old-a feat-old-b"; [ "$fire" = 1 ] && olds="$olds feat-old-c"
+  for s in $olds; do
+    mkdir -p "$R/_acceptance/$s"
+    printf -- '---\nschema_version: 1\nfeature: %s\nslug: %s\nrisk_tier: T2\nsurfaces: [api]\nstatus: signed-off\napproved_by: Manh Phan\napproved_at: 2026-06-10\n---\n' "$s" "$s" > "$R/_acceptance/$s/contract.md"
+  done
+  git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm c1-impl
+  local C1; C1="$(git -C "$R" rev-parse HEAD)"
+  for s in $olds; do
+    local sign="Manh 2026-08-01"
+    [ "$s" = feat-old-c ] && sign=""   # lỗi KHÁC recheck — đối chứng dương should-FIRE
+    printf -- '---\nschema_version: 1\nfeature_slug: %s\nverdict: PASS\nverified_commit: %s\nhuman_signoff: %s\n---\n\n## Evidence\n- eval: E1\n  run_id: %s-E1-001\n  exit_code: 0\n  verifier: config:executors.script.gone_key\n  verified_at: 2026-08-01\n' "$s" "$C1" "$sign" "$s" > "$R/_acceptance/$s/evidence-report.md"
+  done
+  git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm c2-evidence
+  git -C "$R" branch basepoint
+  mkdir -p "$R/_acceptance/feat-zz-new"
+  printf -- '---\nschema_version: 1\nfeature: feat-zz-new\nslug: feat-zz-new\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\napproved_by: Manh Phan\napproved_at: 2026-08-10\n---\n' > "$R/_acceptance/feat-zz-new/contract.md"
+  # PR này CỐ Ý không đụng file nào ngoài `_acceptance/` — đụng thì hai hồ sơ cũ
+  # (pin ở C1) thành STALE, luật staleness nổ TRƯỚC và `continue` trước khi tới
+  # luật re-check, nên ca đo nhầm luật khác. Bản đầu của fixture này có
+  # `code v2` và RS02/RS04 đỏ đúng vì lý do đó — giữ ghi chú để không ai thêm lại.
+  git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm c3-pr
+  local C3; C3="$(git -C "$R" rev-parse HEAD)"
+  printf -- '---\nschema_version: 1\nfeature_slug: feat-zz-new\nverdict: PASS\nverified_commit: %s\nhuman_signoff: Manh 2026-08-10\n---\n\n## Evidence\n- eval: E1\n  run_id: feat-zz-new-E1-001\n  exit_code: 0\n  verifier: %s/verify.sh\n  verified_at: 2026-08-10\n' "$C3" "$R" > "$R/_acceptance/feat-zz-new/evidence-report.md"
+  git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm c4-evidence
+}
+RS_SKIP_NOTE="slug ngoài diff PR không được re-check"
+RS_FAIL_MSG="fails re-check"
+
+echo "RS01 hai hồ sơ cũ hỏng-recheck NGOÀI diff + 1 hồ sơ mới sạch, --base -> exit 0"
+R="$T/rs01"; mk_recheck_scope_repo "$R" 0
+rs1="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base basepoint 2>&1)"; check RS01 0 $?
+hasout RS01-ok-a "OK [feat-old-a]" "$rs1"
+hasout RS01-ok-new "OK [feat-zz-new]" "$rs1"
+nothas RS01-norecheck "$RS_FAIL_MSG" "$rs1"
+hasout RS01-note "$RS_SKIP_NOTE" "$rs1"
+
+echo "RS02 KHÔNG --base -> fallback kiểm TẤT như cũ + đúng MỘT dòng NOTE hằng"
+R="$T/rs02"; mk_recheck_scope_repo "$R" 0
+rs2="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" 2>&1)"; check RS02 1 $?
+same RS02-count 2 "$(printf '%s\n' "$rs2" | grep -c "$RS_FAIL_MSG")"
+same RS02-note 1 "$(printf '%s\n' "$rs2" | grep -c 'recheck scope — no PR diff scope')"
+
+echo "RS03 --recheck-all ép quét TOÀN BỘ dù có phạm vi diff (đường cứu cho thước-thôi-hồi-tố)"
+R="$T/rs03"; mk_recheck_scope_repo "$R" 0
+rs3="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base basepoint --recheck-all 2>&1)"; check RS03 1 $?
+same RS03-count 2 "$(printf '%s\n' "$rs3" | grep -c "$RS_FAIL_MSG")"
+hasout RS03-note "recheck scope — --recheck-all" "$rs3"
+
+echo "RS04 hồ sơ CŨ bị chạm (vào diff) -> mất quyền im lặng, recheck nổ lại"
+R="$T/rs04"; mk_recheck_scope_repo "$R" 0
+printf 'ghi chú hậu kiểm\n' > "$R/_acceptance/feat-old-a/note.md"
+git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm c5-touch-old
+rs4="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base basepoint 2>&1)"; check RS04 1 $?
+case "$rs4" in *"VIOLATION [feat-old-a]: committed evidence $RS_FAIL_MSG"*) echo "  PASS: RS04-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: RS04-msg (expected recheck VIOLATION đích danh feat-old-a khi hồ sơ vào diff)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+hasout RS04-ok-b "OK [feat-old-b]" "$rs4"
+
+echo "RS05-fire đối chứng dương: hồ sơ ngoài diff mang lỗi KHÁC -> luật khác VẪN nổ (chỉ recheck bị thu)"
+R="$T/rs05"; mk_recheck_scope_repo "$R" 1
+rs5="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base basepoint 2>&1)"; check RS05-fire 1 $?
+hasout RS05-fire-msg "human_signoff is empty" "$rs5"
+nothas RS05-fire-norecheck "$RS_FAIL_MSG" "$rs5"
+
+echo "RS06 mutant gỡ guard: control chép trọn scripts/+lib/ phải XANH trước, mutant xác-nhận rồi phải ĐỎ"
+MUTR="$T/rs06-tool"; rm -rf "$MUTR"; mkdir -p "$MUTR"
+cp -R "$HERE/../../scripts" "$MUTR/scripts"
+cp -R "$HERE/../../lib" "$MUTR/lib"
+R="$T/rs01"   # dùng lại fixture RS01 (sạch) — control phải cùng kết cục với bản thật
+rsc="$(env -u PRE_MERGE_BASE bash "$MUTR/scripts/pre-merge-check.sh" "$R" --base basepoint 2>&1)"; check RS06-control 0 $?
+nothas RS06-control-norecheck "$RS_FAIL_MSG" "$rsc"
+sed '/# RECHECK-DIFF-SCOPE-GUARD$/ s/.*/  if false; then # RECHECK-DIFF-SCOPE-GUARD/' "$MUTR/scripts/pre-merge-check.sh" > "$MUTR/scripts/pre-merge-check.mut" \
+  && mv "$MUTR/scripts/pre-merge-check.mut" "$MUTR/scripts/pre-merge-check.sh"
+# XÁC NHẬN đột biến đã áp TRƯỚC khi đọc kết quả (luật sổ vấp: mọi lượt phá vật
+# phải in dấu hiệu xác nhận, không tin lệnh chạy trót lọt):
+same RS06-mut-applied 1 "$(grep -c '^  if false; then # RECHECK-DIFF-SCOPE-GUARD$' "$MUTR/scripts/pre-merge-check.sh")"
+rsm="$(env -u PRE_MERGE_BASE bash "$MUTR/scripts/pre-merge-check.sh" "$R" --base basepoint 2>&1)"; check RS06-mutant 1 $?
+case "$rsm" in *"VIOLATION [feat-old-a]: committed evidence $RS_FAIL_MSG"*) echo "  PASS: RS06-mutant-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: RS06-mutant-msg (mutant gỡ guard mà hồ sơ cũ không đỏ — ca không phân biệt được)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo ""
 echo "--- run-log reconciliation (run_id must exist in machine-written log) ---"
 mk_rl() { # <root> <slug> <report run_id> — implemented+approved feature, signed PASS report with <run_id>
   local d="$1/_acceptance/$2"; mkdir -p "$d"
@@ -2133,7 +2219,15 @@ for _f in "$HERE"/*.test.mjs; do
   case "$_f" in */wf-usage.test.mjs) continue;; esac
   _MJS_SEEN=$((_MJS_SEEN+1))
   echo "=== $(basename "$_f") ==="
-  node "$_f"; check "$(basename "$_f")" 0 $?
+  # BẮT rc VÀO BIẾN TRƯỚC. Bản cũ viết `node "$_f"; check "$(basename "$_f")" 0 $?`
+  # — bash khai triển đối số TRƯỚC khi gọi `check`, nên `$(basename ...)` chạy
+  # trước và GHI ĐÈ `$?` bằng mã thoát của `basename` (luôn 0). Hệ quả: MỌI
+  # *.test.mjs đỏ vẫn được ghi PASS, suite in "0 failed" và thoát 0. Đo tại chỗ
+  # 2026-08-13: `core-untouched.test.mjs` đỏ từ trước mà suite vẫn xanh trọn.
+  # Đúng lớp runner-nuốt-mã-thoát đã ghi sổ, lần này ở tests/scripts.
+  node "$_f"; _mjs_rc=$?
+  _mjs_name="$(basename "$_f")"
+  check "$_mjs_name" 0 "$_mjs_rc"
 done
 # 0 hit chính là chế độ hỏng đã xảy ra một lần — phải ĐỎ, không im lặng.
 check "co it nhat mot *.test.mjs duoc chay" 1 "$([ "$_MJS_SEEN" -ge 1 ] && echo 1 || echo 0)"

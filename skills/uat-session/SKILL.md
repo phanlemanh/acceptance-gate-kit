@@ -13,10 +13,8 @@ là chữ của người ký.
 một vòng dựng, không phải thất bại của người làm. Nói câu đó ra khi trình
 quyết định; đừng để người ký cảm thấy họ phải bảo vệ code đã viết.
 
-> Đường dẫn plugin dưới đây viết `${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}`: Claude
-> Code đặt biến thứ nhất, Codex đặt biến thứ hai. Skill này ship vào CẢ HAI
-> gói (`skills/` được rsync sang gói Codex, không có bản đè riêng), nên ghim
-> một biến là để lại con trỏ chết ở harness kia.
+> Đường dẫn plugin dưới đây giữ dạng `${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}` —
+> vế sau là đường lùi cho môi trường không đặt biến thứ nhất.
 
 ## 0. Điều kiện vào — kiểm trước, không hỏi
 

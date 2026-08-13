@@ -1,6 +1,6 @@
 // MM6 — 2 finder cũ nguyên vẹn TỪNG CHỮ, pin neo git (không tin chép tay);
 // MM7 — ma trận mutation toàn phần viết-trước 20 phần tử (6 shape + 7 câu
-// SKILL feature-loop + 7 câu SKILL codex). Chính là hình dạng 5 áp cho bản
+// SKILL feature-loop). Chính là hình dạng 5 áp cho bản
 // thân feature (số mutant = số phần tử, không mutant gộp).
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -13,7 +13,6 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
 const WF = path.join(ROOT, 'feature-loop', 'workflows', 'acceptance-verify.js');
 const SKILL_P = path.join(ROOT, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md');
-const CODEX_P = path.join(ROOT, 'codex', 'feature-loop-codex', 'skills', 'feature-loop-codex', 'SKILL.md');
 // sha TRƯỚC feature (commit Cổng 1 duyệt matrix-measure-law nằm ngay sau sha này)
 const PRE_SHA = 'dc49fe7cae2e525b352b0cd85ebd501c652b8bad';
 let passed = 0, failed = 0;
@@ -27,7 +26,6 @@ const check = (n, f, detail = '') => {
 
 const SRC = readFileSync(WF, 'utf8');
 const SKILL = readFileSync(SKILL_P, 'utf8');
-const CODEX = readFileSync(CODEX_P, 'utf8');
 
 console.log('MM6 finder cũ nguyên vẹn từng chữ — pin neo git show ' + PRE_SHA.slice(0, 7));
 {
@@ -83,7 +81,7 @@ console.log('MM7 ma trận 20 mutant viết-trước (6 shape + 7 câu VI + 7 c�
     const pinHead = (line.match(/'((?:[^'\\]|\\.)*)'/) || [, ''])[1].replace(/\\'/g, "'").slice(0, 40);
     check(`MM7s${i + 1} xoá shape ${i + 1} → đỏ ĐÍCH DANH phần tử đó`, !r.ok && (r.why || '').includes(pinHead), `why=${r.why || 'vẫn xanh'} · cần chứa: ${pinHead}`);
   });
-  // 4 mutant SKILL feature-loop + 4 mutant codex: xoá từng câu → regex MM1/MM2 đỏ
+  // mutant SKILL feature-loop: xoá từng câu → regex MM1 đỏ
   const VI = [
     /mỗi eval tuyên quét LỚP có ma trận toàn phần viết-trước không \(số assert = số phần tử\)/,
     /assertion âm tính nào thiếu đối chứng dương hoặc không ghim thông điệp/,
@@ -93,22 +91,9 @@ console.log('MM7 ma trận 20 mutant viết-trước (6 shape + 7 câu VI + 7 c�
     /eval nào đo CHỈ DẪN\/tài liệu hướng dẫn thay vì ĐẦU RA thật của code/,
     /đường dẫn nào trong phép đo\/script sinh fixture hardcode ROOT thay vì suy từ vị trí script/,
   ];
-  const EN = [
-    /every[\s\S]{0,20}eval that claims to sweep a CLASS[\s\S]{0,60}full matrix written in advance[\s\S]{0,20}\(assert count = element count\)/i,
-    /negative assertion lacks a positive[\s\S]{0,10}control or a pinned message/i,
-    /fixture is hand-written to the reader'?s[\s\S]{0,10}shape/i,
-    /fixture \(even a code-generated one\) builds itself to the[\s\S]{0,10}reader'?s shape without a round-trip pulled from the real writer/i,
-    /measures[\s\S]{0,10}string-presence while the promise is a relationship/i,
-    /measures INSTRUCTIONS\/docs instead of the code'?s real OUTPUT/i,
-    /hardcodes ROOT instead of[\s\S]{0,10}deriving it from the script location/i,
-  ];
   VI.forEach((re, i) => {
     const hit = SKILL.match(re);
     check(`MM7v${i + 1} xoá câu VI ${i + 1} → đỏ đích danh`, !!hit && !re.test(SKILL.replace(hit[0], '')), hit ? 'detector không phân biệt' : 'câu không tồn tại');
-  });
-  EN.forEach((re, i) => {
-    const hit = CODEX.match(re);
-    check(`MM7e${i + 1} xoá câu EN ${i + 1} → đỏ đích danh`, !!hit && !re.test(CODEX.replace(hit[0], '')), hit ? 'detector không phân biệt' : 'câu không tồn tại');
   });
 }
 

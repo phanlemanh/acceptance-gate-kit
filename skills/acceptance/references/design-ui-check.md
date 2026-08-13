@@ -38,7 +38,7 @@ contrast as advisory.
    surface URL.
    - **Claude Preview path:** `preview_start` (per `.claude/launch.json`) → keep the
      returned `serverId` for every later `preview_eval` / `preview_screenshot`.
-   - **Codex/browser path:** ensure the dev server is up, then use Chrome MCP,
+   - **Generic browser path:** ensure the dev server is up, then use Chrome MCP,
      Playwright/Puppeteer, or the repo's browser harness to navigate and
      evaluate JavaScript.
 2. **Navigate** the browser to the surface. Screenshot →

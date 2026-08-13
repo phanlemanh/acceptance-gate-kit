@@ -19,8 +19,8 @@
  *      exact install command — never a silent fallback to a stale version.
  *
  * A plugin locating ITSELF must not use this — the harness already provides
- * `${CLAUDE_PLUGIN_ROOT}` (Claude) / `${PLUGIN_ROOT}` (Codex). This is only for
- * reaching a DIFFERENT plugin, where no such variable exists.
+ * `${CLAUDE_PLUGIN_ROOT}`. This is only for reaching a DIFFERENT plugin, where
+ * no such variable exists.
  *
  * Usage:
  *   resolve-plugin.mjs --plugin <name> [--require <relpath>]...
@@ -41,8 +41,7 @@ const explicitRoot = one('--root');
 const asJson = argv.includes('--json');
 const cacheRoots = many('--cache-root').length
   ? many('--cache-root')
-  : [path.join(os.homedir(), '.claude', 'plugins', 'cache'),
-     path.join(os.homedir(), '.codex', 'plugins', 'cache')];
+  : [path.join(os.homedir(), '.claude', 'plugins', 'cache')];
 
 if (!plugin) {
   process.stderr.write('resolve-plugin: --plugin <name> is required\n');
@@ -105,8 +104,7 @@ if (!found.length) {
     (skipped.length
       ? `  found but UNUSABLE (missing the files above): ${skipped.map(s => s.version).join(', ')}\n`
       : '') +
-    `  fix: claude plugin install ${plugin}@acceptance-gate-kit` +
-    `  (Codex: codex plugin install ${plugin})\n`);
+    `  fix: claude plugin install ${plugin}@acceptance-gate-kit\n`);
   process.exit(1);
 }
 

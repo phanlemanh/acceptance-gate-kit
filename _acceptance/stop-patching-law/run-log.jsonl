@@ -20,3 +20,7 @@
 {"ts":"2026-08-07T16:01:33Z","kind":"repin","run_id":"repin-20260807-merge-mbc-uncoded-lane1","sha":"d55a836d454685cc1ab820ddada9e90b1a7ace95","suites_exit":[0,0,0,0,0,0]}
 {"ts":"2026-08-08T23:35:36Z","kind":"repin","run_id":"repin-20260809-consumer-copy-cjs-lane1","sha":"5f38521fae43348f8bad029a52a48cf302be3ee9","suites_exit":[0,0,0,0,0,0]}
 {"ts":"2026-08-10T23:38:24Z","kind":"repin","run_id":"repin-chip2-merge-20260810T233824Z","sha":"1e852ac0edad60f71083666f0ab3c83da023ad56","suites_exit":[0,0,0,0,0,0]}
+{"ts":"2026-08-13T02:35:32Z","kind":"repin","run_id":"repin-luu-kho-vong-sua-1-20260813T023532Z","sha":"523d172896a04bb59ba3bbcff55486bfaeb6c598","suites_exit":[0,0,0,0]}
+{"ts":"2026-08-13T09:33:57Z","kind":"repin","run_id":"repin-luu-kho-vong-sua-2-20260813T093357Z","sha":"a52a2b5a3bb68feafd1c7b6c823a17c90f89b0b0","suites_exit":[0,0,0,0,0]}
+{"ts":"2026-08-13T11:32:14Z","kind":"repin","run_id":"repin-luu-kho-thu-gon-20260813T113214Z","sha":"c86aff6eca40f742f5e5a01f5ca0643e061adcfa","suites_exit":[0,0,0,0,0]}
+{"ts":"2026-08-13T12:30:18Z","kind":"repin","run_id":"repin-luu-kho-vong4-20260813T123018Z","sha":"c62f0330f253fd92f553547f09a7afcdb102c3c3","suites_exit":[0,0,0,0,0]}

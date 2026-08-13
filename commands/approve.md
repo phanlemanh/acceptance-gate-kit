@@ -16,8 +16,7 @@ suy máy — ca máy dùng chung). Arg: optional `<slug>`. Without it, scan `_ac
   KHÔNG hỏi, chỉ hiển thị lại tên hồ sơ trong cùng lượt trả lời;
 - several → print a slug table and ask which;
 - none → nothing awaits Gate 1 — say so and point to `/acceptance-status`.
-  (Plan approval — Gate 1.5 — and design-mockup approval live in their own
-  loops: feature-loop / design-loop. Do not fake them here.)
+  (Plan approval — Gate 1.5 — lives in the feature-loop. Do not fake it here.)
 
 Một-lượt-gõ + `--repo` (điều khoản chung, chép nguyên văn từ bản luật):
 

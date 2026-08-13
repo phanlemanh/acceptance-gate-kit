@@ -118,9 +118,12 @@ Spending rules: margins, paddings, gaps, and positional offsets spend only
 `var(--container-*)`. A raw number in a layout property is the same defect
 as a raw hex — with one exception, the optical adjustment that carries a
 comment naming its reason. A lone component inherits the contract of the
-page that hosts it; only new surfaces write contracts. Where design-loop is
-wired, the spending rule is machine-enforced (`design-static-check`'s
-layout-token-only BLOCK); on a bare repo it is discipline plus the meter.
+page that hosts it; only new surfaces write contracts. **No checker enforces
+the spending rule statically** — `design-gate.mjs` runs the vendored Impeccable
+detector over a rendered surface, which is a different check and does not read
+layout tokens. So the spending rule is authoring discipline, and the only
+machine that can contradict you is the meter below: it measures the rendered
+page and flags spacing that falls off the declared scale.
 
 ## Running the meter (Steps 6–7)
 

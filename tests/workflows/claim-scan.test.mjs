@@ -352,10 +352,8 @@ const row = (sev, tag) => ({ sev, artifact: 'evals', gap: `gap-${tag}`, fail: `f
 // ---- PH8: description 2 manifest phải khai "v1.18 adds" (trả known-limit) ----
 {
   const fl = JSON.parse(readFileSync(path.join(HERE, '..', '..', 'feature-loop', '.claude-plugin', 'plugin.json'), 'utf8'));
-  const flc = JSON.parse(readFileSync(path.join(HERE, '..', '..', 'codex', 'feature-loop-codex', '.codex-plugin', 'plugin.json'), 'utf8'));
-  check('PH8 description CẢ HAI manifest chứa "v1.18 adds"', () => {
-    assert.match(fl.description, /v1\.18 adds/);
-    assert.match(flc.description, /v1\.18 adds/); });
+  check('PH8 description manifest chứa "v1.18 adds"', () => {
+    assert.match(fl.description, /v1\.18 adds/); });
   // Control THẬT (vá known-limit vòng trước): nửa ÂM trên văn bản tiền-1.18 do
   // code sinh — không phải "xoá chuỗi rồi tìm chuỗi" (phép kiểm không-thể-đỏ).
   const OLD_DESC = 'Feature loop for AI-coded features. v1.17 adds S4 scope-triage.';

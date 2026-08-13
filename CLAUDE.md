@@ -13,7 +13,7 @@
   · [docs/findings/2026-08-10-ra-soat-luat-theo-north-star.md](docs/findings/2026-08-10-ra-soat-luat-theo-north-star.md).
 
 - **ĐÓNG BĂNG LAB (tái lập 2026-08-07):** engine (`skills/`, `feature-loop/`,
-  `design-loop/`, `codex/`, `commands/`, `scripts/`, `lib/`, `hooks/`) chỉ
+  `commands/`, `scripts/`, `lib/`, `hooks/`) chỉ
   nhận (a) **bugfix**, (b) **đóng nốt vòng đang dở lúc ra quyết định**
   (`measure-birth-certificate` — giữa S4, ký hoặc owner chủ động huỷ; KHÔNG
   mở rộng phạm vi nó), và (c) **đợt phẫu thuật GĐ1** khai trong
@@ -24,23 +24,21 @@
   việc đã giao đến 07/08 là kit-sửa-kit, gate-fatigue của owner là ràng
   buộc số 1; chi tiết trong kế hoạch trên.
 
-- **Nguồn sự thật** là `skills/`, `feature-loop/`, `design-loop/`, `codex/`,
-  `commands/`, **và cả `scripts/`, `lib/`, `hooks/`, `vendor/`** — bốn cái sau
-  cũng bị `rsync` vào mirror (xem `scripts/sync-plugin-packages.sh:27-31`), nên
-  sửa ở `plugins/.../lib/` hay `plugins/.../scripts/` là mất việc ở lần sync kế.
-  `plugins/` là **build mirror** sinh bởi
-  `scripts/sync-plugin-packages.sh` — sửa nguồn xong PHẢI chạy sync và commit
-  mirror cùng lượt; test P30 (`sync-plugin-packages.sh --check`) chặn drift.
-  Vì sao commit mirror: [docs/adr/0001](docs/adr/0001-commit-plugins-mirror.md).
+- **MỘT cây nguồn, KHÔNG có bản sao nào phải giữ đồng bộ (từ 2026-08-12).**
+  Kit từng nuôi hai bản dựng song sinh: mọi thay đổi lõi phải sửa hai lần rồi
+  dựng lại một bản sao phẳng và commit nó cùng lượt. Bản song sinh và bản sao
+  đó **đã lưu kho**, nên luật «sửa hai lần» hết hiệu lực — sửa ở
+  `skills/`, `feature-loop/`, `commands/`, `scripts/`, `lib/`, `hooks/`,
+  `vendor/` là xong, không còn bước dựng lại nào. Đường lấy về: **ADR 0008** và **ADR 0009** trong `docs/adr/`.
 
 - **[CONTEXT.md](CONTEXT.md) là glossary phát triển của kit** (authoring-time).
   Khi viết/sửa SKILL.md, docs, message của script: dùng đúng term chuẩn và
   tránh mọi từ nằm trong `_Avoid_`. Term mới chỉ thêm khi kit thật sự cần nó.
 
 - **6 thao tác cổng người** (`approve`, `signoff`, `acceptance-init`,
-  `acceptance-status`, `acceptance-report`, `start`) bị khoá model-invocation ở CẢ HAI
-  harness; `acceptance-card` cố tình để mở (feature-loop và approve/signoff
-  model-invoke nó). Đừng "sửa" sự bất đối xứng này — test P31/P32 giữ nó,
+  `acceptance-status`, `acceptance-report`, `start`) bị khoá model-invocation;
+  `acceptance-card` cố tình để mở (feature-loop và approve/signoff
+  model-invoke nó). Đừng "sửa" sự bất đối xứng này — test P32 giữ nó,
   lý do ở [docs/adr/0002](docs/adr/0002-human-gate-invocation-lock.md).
 
 - **Assertion âm-tính-một-mình là assertion không sống.** Mọi case dựng bản

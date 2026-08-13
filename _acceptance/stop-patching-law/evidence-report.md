@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 1e852ac0edad60f71083666f0ab3c83da023ad56
+verified_commit: c62f0330f253fd92f553547f09a7afcdb102c3c3
 # bypass_ack:
 human_signoff: Manh Phan 2026-08-07 — ký (a) known-limits: fixture hành vi thiếu provenance máy-kiểm (trong hợp đồng) + 6 mục ngoài hợp đồng
 ---
@@ -175,3 +175,19 @@ sha: 5f38521fae43348f8bad029a52a48cf302be3ee9 · suites: 6 lệnh exit 0
 ### Re-pin lần 9 — 2026-08-11, do hồ sơ của vòng này vào diff PR chip ② (bằng chứng code-sinh của chính nó được sinh lại từ cây mới)
 run_id: repin-chip2-merge-20260810T233824Z
 sha: 1e852ac0edad60f71083666f0ab3c83da023ad56 · suites: 6 lệnh exit 0
+
+### Re-pin lần 10 — 2026-08-13, do hồ sơ này vào diff PR vòng sửa 1 của luu-kho (hai tệp bằng chứng đã ký được trả về nguyên trạng + bộ sinh chuyển sang ghi-một-lần)
+run_id: repin-luu-kho-vong-sua-1-20260813T023532Z
+sha: 523d172896a04bb59ba3bbcff55486bfaeb6c598 · suites: 4 lệnh exit 0
+
+### Re-pin lần 11 — 2026-08-13, do vòng sửa 2 «một-nguồn» của luu-kho chạm tests/plugins + tests/scripts (trả lại lưới suite_key-resolve thành P195, sửa chú thích mẫu số chết)
+run_id: repin-luu-kho-vong-sua-2-20260813T093357Z
+sha: a52a2b5a3bb68feafd1c7b6c823a17c90f89b0b0 · suites: 5 lệnh exit 0
+
+### Re-pin lần 12 — 2026-08-13, do vòng thu gọn «chỉ TRỪ» của luu-kho chạm tests/plugins (pin P43 đổi vì chứa từ vựng mirror, P195 thêm hai vế, sổ bánh cóc khai bổ sung) + tests/scripts (chú thích)
+run_id: repin-luu-kho-thu-gon-20260813T113214Z
+sha: c86aff6eca40f742f5e5a01f5ca0643e061adcfa · suites: 5 lệnh exit 0
+
+### Re-pin lần 13 — 2026-08-13, do vòng 4 của luu-kho xử 6 finding con-trỏ (P195 sửa script_paths, acceptance-init bỏ mirror-sync commits)
+run_id: repin-luu-kho-vong4-20260813T123018Z
+sha: c62f0330f253fd92f553547f09a7afcdb102c3c3 · suites: 5 lệnh exit 0

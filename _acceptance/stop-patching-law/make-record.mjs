@@ -82,14 +82,35 @@ const HARNESS = {
   codex: 'codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md',
 };
 
+// Hai tệp `chi-dan-*` là bản ghi CHỈ DẪN THẬT ĐÃ ĐƯA CHO AGENT trong một thí
+// nghiệm đã chạy và đã ký — không phải một artifact dẫn xuất sinh lại được. Nên
+// chúng GHI MỘT LẦN: đã có trên đĩa thì bộ sinh KHÔNG đụng vào, và nói ra.
+//
+// Vì sao (2026-08-12, vòng sửa 1 của hồ sơ lưu-kho): bản trước sinh đè mỗi lần
+// chạy từ SKILL.md HIỆN TẠI. SKILL.md đổi hợp lệ (khai tử nhánh CT2) ⇒ hai tệp
+// bằng chứng bị viết lại +11/−12 dòng, và bản ghi thôi nói cái đã chạy — nó
+// mang văn bản mà agent trong thí nghiệm chưa bao giờ đọc. Chú thích cũ ở đây
+// khẳng định "nhánh còn lại sinh ra y nguyên byte, không dòng bằng chứng nào bị
+// viết lại"; câu đó SAI ngay tại lúc viết. Bằng chứng của một lượt đã chạy là
+// sử liệu: sinh lại nó cho một phép đo xanh đúng là thứ kit sinh ra để chặn.
+//
+// Harness đã lưu kho thì cũng BỎ QUA và NÓI RA — nhánh vắng không được sinh lại.
 for (const [name, rel] of Object.entries(HARNESS)) {
+  const a = path.join(HERE, 'evidence', `chi-dan-${name}-co-menh-de.md`);
+  const b = path.join(HERE, 'evidence', `chi-dan-${name}-khong-menh-de.md`);
+  if (fs.existsSync(a) && fs.existsSync(b)) {
+    process.stderr.write(`GIỮ NGUYÊN chi-dan-${name}-*: bằng chứng của lượt đã ký, ghi-một-lần\n`);
+    continue;
+  }
+  if (!fs.existsSync(path.join(ROOT, rel))) {
+    process.stderr.write(`BỎ QUA harness ${name}: ${rel} không còn trên cây (đã lưu kho)\n`);
+    continue;
+  }
   const t = fs.readFileSync(path.join(ROOT, rel), 'utf8');
   const i = t.indexOf(OPEN);
   const j = t.indexOf(CLOSE);
   if (i < 0 || j < 0) { console.error(`KHÔNG tìm thấy mốc mệnh đề trong ${rel}`); process.exit(2); }
   const stripped = t.slice(0, i) + t.slice(j + CLOSE.length);
-  const a = path.join(HERE, 'evidence', `chi-dan-${name}-co-menh-de.md`);
-  const b = path.join(HERE, 'evidence', `chi-dan-${name}-khong-menh-de.md`);
   fs.writeFileSync(a, t);
   fs.writeFileSync(b, stripped);
   process.stdout.write(a + '\n' + b + '\n');

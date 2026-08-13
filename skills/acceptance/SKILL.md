@@ -15,7 +15,7 @@ of hand-testing for an hour.
 
 Core principles (non-negotiable):
 1. **Doer ≠ grader** — the verify phase runs in a fresh agent/context when the
-   runtime supports it, or a clearly separated grader pass in Codex; never let
+   runtime supports it, or a clearly separated grader pass when it does not; never let
    the same implementation reasoning self-grade the feature.
 2. **Evidence over assertion** — PASS requires `run_id + exit_code: 0 +
    verifier + verified_at`. The acceptance-evidence-gate hook blocks
@@ -174,7 +174,7 @@ Run immediately after the user reviews the contract (same gate, one sitting).
 Entry: implementation complete, contract `status: implemented`.
 
 1. **Dispatch a fresh verification context**. Prefer a fresh subagent when the
-   runtime exposes one; in Codex without multi-agent tools, run a separated
+   runtime exposes one; without multi-agent tools, run a separated
    grader pass after implementation and record that fallback in the report. It
    executes resolved commands and fills an evidence template; no large-model
    self-assertion is accepted because the hook and the pre-merge check are the
@@ -218,7 +218,7 @@ Entry: implementation complete, contract `status: implemented`.
      copy `network_observed:` verbatim into the block (missing → `n-a (driver)`).
      No capture/browser → save HTML / downgrade to judgment + note (see eval-executors.md).
    - `judgment`: dispatch the judge per `references/judge-personas.md`
-     (separate fresh subagent when available, or three separated Codex passes
+     (separate fresh subagent when available, or three separated grader passes
      with hidden implementer reasoning). The verdict is scoped on resolved
      inputs; blind: no diff, no implementer reasoning. If the verify context
      cannot spawn nested agents, it returns judgment evals unscored; the
@@ -272,8 +272,8 @@ Entry: implementation complete, contract `status: implemented`.
    human editing outside the agent bypasses PreToolUse (CI pre-merge-check
    is the backstop). The user (not you) fills `human_signoff`; then ask
    minutes spent →
-   `time_human_minutes.gate2`, set contract `status: signed-off`. In Codex
-   sessions where write-time hooks are not active, run
+   `time_human_minutes.gate2`, set contract `status: signed-off`. Where
+   write-time hooks are not active, run
    `scripts/recheck-evidence.cjs` or `scripts/pre-merge-check.sh` before calling
    the gate complete; CI remains the authoritative merge backstop.
 
