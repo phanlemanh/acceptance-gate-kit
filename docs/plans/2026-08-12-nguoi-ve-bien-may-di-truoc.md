@@ -193,3 +193,13 @@ trace. Chỉ sau đợt này mới bàn tiếp bất kỳ chip mới nào.
 ## Nhật ký lệch
 
 *(append-only — mọi quyết định lệch khỏi bản neo ghi vào đây kèm ngày + lý do)*
+
+- **15/08 — Đợt 2 XONG, không lệch cơ chế, một lệch nhịp.** Hồ sơ
+  `veto-co-dau-vet` (T3) ký + merge PR #51: trạng thái V ở ba tầng đồng bộ,
+  sáu điều kiện sạch, danh sách khó-đảo, NOTE đếm cửa veto. Đúng MỘT cơ chế
+  (M5 giữ). **Lệch nhịp so với §7:** owner ngồi 4 lượt quyết thật thay vì
+  1–2 (Cổng 1 · chốt E6/E7 · ký · merge) — vì hồ sơ là T3 nên 3 điểm dừng
+  đầu là THIẾT KẾ, không phải lệch; lượt merge tách riêng do CI đỏ một vòng
+  (bản đồ sau chữ ký — lỗi lặp, có hạt giống). M1 thật chưa đo được trên
+  vòng T2 nào — đợt 3 đo. Tổng kết đầy đủ:
+  docs/findings/2026-08-15-tong-ket-dot-2-veto-co-dau-vet.md
