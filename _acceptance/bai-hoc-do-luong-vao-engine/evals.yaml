@@ -132,10 +132,16 @@ evals:
       - scripts
       - tests/scripts
     expected: >
-      exit 0; suite in dòng tổng kết "Results: <n> passed, 0 failed". Hồ sơ này
+      exit 0; suite in dòng tổng kết "Results: 686 passed, 0 failed". Hồ sơ này
       KHÔNG chạm `scripts/`; số đổi là tín hiệu cắt lan.
+      [SỬA SAU CỔNG 1, lần 2] Pin cũ là `"0 failed"` — chuỗi ấy khớp cả những
+      dòng tổng kết CON giữa suite (`Results: 3 passed, 0 failed`), nên nó không
+      phân biệt được "cả suite xanh" với "một khối con xanh": đúng lớp
+      `chuoi-thay-quan-he`. Suite `scripts` CÓ in số ca của nó, nên ghim được
+      đẳng thức thật; 686 là con số đã chốt từ hồ sơ `luu-kho-codex-va-nghi-le-design`
+      (671 − 7 + 22), không phải số bịa ra sau khi nhìn kết quả.
     pinned:
-      - "0 failed"
+      - "Results: 686 passed, 0 failed"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E6

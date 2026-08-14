@@ -75,7 +75,10 @@ Source input:
   đỏ tên mục; gỡ một neo nội dung → đỏ tên neo.
 - AC-4: Given toàn bộ lưới hiện hành, When chạy sau thay đổi, Then bốn suite
   xanh với **các con số đang thật sự ghim được**: `hooks` = `54 passed,
-  0 failed` (đẳng thức thật), ba suite còn lại ghim câu tổng kết + `0 failed`.
+  0 failed` và `scripts` = `686 passed, 0 failed` (hai đẳng thức thật);
+  `plugins` và `workflows` không tự in số ca nên chỉ ghim câu tổng kết, và
+  đẳng thức 146 của `plugins` khai là **số người-đối-chiếu kèm lệnh tái lập**,
+  không phải răng máy.
   Răng mới đi vào THÂN ca sẵn có (TRIM/EXTEND), không mọc ca mới — cùng nếp hồ
   sơ 1a. **Tiền đề môi trường:** chạy dưới người dùng KHÔNG-root; dưới root,
   `P123`/`P129` (dùng `chmod 000`) đỏ giả vì root đọc xuyên quyền.
