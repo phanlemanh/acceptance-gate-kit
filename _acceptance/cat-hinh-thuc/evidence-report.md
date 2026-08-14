@@ -3,7 +3,7 @@ schema_version: 1
 slug: cat-hinh-thuc
 round: 7
 verdict: PENDING-JUDGMENT
-verified_commit: 233119881379
+verified_commit: 9ecf494abcc1
 ---
 
 # Trang bằng chứng — cắt hình thức khỏi bốn cổng người
@@ -257,7 +257,36 @@ Chân E6 chạy `gate-card.js`
 ở cả ba mode rồi soi thẻ render ra — vì lớp lỗi đã trả giá ở vòng khác là *đo
 chỉ dẫn thay vì đo đầu ra*.
 
-## Bảng eval — vòng 6, mỗi eval một chứng nhân RIÊNG
+## Bảng eval — vòng 7 (phạm vi đã thu), mỗi eval một chứng nhân RIÊNG
+
+*Sinh từ `run-log.jsonl` (round 7, sha `9ecf494abcc1`). Cột «chuỗi ghim» là `pinned:` của
+chính eval ấy: mỗi eval máy phải có ≥1 chuỗi KHÔNG eval nào khác trong cùng
+nhóm-lệnh khai, và `ghi-so-chay-1a.mjs` thoát 1 nếu chuỗi ấy vắng trong đầu ra
+thật — kể cả khi lệnh thoát 0.*
+
+
+| Eval | Tiêu chí | exit | run_id | Chuỗi ghim (đều KHỚP) |
+|---|---|---|---|---|
+| E1 | AC-1 | 0 | `cat-hinh-thuc-r7-8b3d611a` | `CAT-PHUT: 4/4` · `CAT-SCOPE: khop ban khai PHAM-VI-RANG` |
+| E1b | AC-12 | 0 | `cat-hinh-thuc-r7-8b3d611a` | `KPI-PHUT: 4/4` · `KPI-PHUT: bang muc tieu GUIDE` · `KPI-PHUT-RENDER: dau ra the cong` |
+| E2 | AC-2 | 0 | `cat-hinh-thuc-r7-8b3d611a` | `DOC-CU: 8/8` · `ROUND-TRIP: fixture-moi sinh boi CONTRACT-FRONTMATTER-TEMPLATE` |
+| E3 | AC-3 | 0 | `cat-hinh-thuc-r7-8b3d611a` | `ONESHOT: 2/2 neo am` · `ONESHOT-SITE: 6/6` |
+| E4 | AC-4 | 0 | `cat-hinh-thuc-r7-8b3d611a` | `REPORT: bo nhanh phut OK` · `dong so vang + ve sinh cong con NGUYEN VAN o HEAD OK` |
+| E6 | AC-6 | 0 | `cat-hinh-thuc-r7-8b3d611a` | `THE-CONG: 3/3 mode` |
+| E10 | AC-10 | 0 | `cat-hinh-thuc-r7-8b3d611a` | `AI-COMMIT: hai than dong bo OK` · `AI-COMMIT: dieu khoan du 4 ve` |
+| E17 | AC-14 | 0 | `cat-hinh-thuc-r7-8b3d611a` | `YAML-KHUON: 3/3` · `YAML-KHUON: frontmatter evidence-report-template parse duoc OK` |
+| E11 | AC-11 | 0 | `cat-hinh-thuc-r7-7cffbe92` | `LUU-KHO-SUITE: scripts 671 -> 686 OK` |
+| E12 | AC-11 | 0 | `cat-hinh-thuc-r7-2088c9cf` | `LUU-KHO-SUITE: plugins 173 -> 146 OK` |
+| E13 | AC-11 | 0 | `cat-hinh-thuc-r7-02d08d80` | `LUU-KHO-SUITE: hooks 54 -> 54 OK` · `Results: 54 passed, 0 failed` |
+| E14 | AC-11 | 0 | `cat-hinh-thuc-r7-73d65d6a` | `Results: all workflow tests passed` |
+| E15 | AC-11 | 0 | `cat-hinh-thuc-r7-e3967aa9` | `PRODUCT-MAP.md khớp hồ sơ xưởng.` |
+| E16 | AC-11 | 0 | `cat-hinh-thuc-r7-8ee04ccf` | `LUU-KHO-SUITE: workflows 488 -> 463 OK` |
+
+**14/14 eval máy xanh · 0 lời hứa thông điệp không khớp · 1 eval judgment (`E3b`) CHƯA AI CHẤM.**
+Sổ append-only: vòng 5 còn nguyên lượt ĐỎ của H15, vòng 6 là bộ răng trước khi
+thu phạm vi.
+
+## (Sử liệu) Bảng eval — vòng 6, trước khi thu phạm vi
 
 *Sinh từ `run-log.jsonl` (round 6, sha `233119881379`). Cột «chuỗi ghim» là
 `pinned:` của chính eval ấy trong `evals.yaml`: từ vòng sửa 1, mỗi eval máy phải
