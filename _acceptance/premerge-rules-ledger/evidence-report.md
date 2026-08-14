@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: a2fe86b2d26481f0064ec1fecf6ddd100415ea8c
+verified_commit: 72599f8c598e577f12f7a95f750aff7a3797c03c
 # bypass_ack:
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -829,3 +829,11 @@ sha: a2fe86b2d26481f0064ec1fecf6ddd100415ea8c · suites: 4 lệnh exit 0
 Nguyên nhân stale: hồ sơ này ghim thông điệp sổ luật, mà đợt 2 nâng số luật từ
 ba lên bốn — `evidence/ledger-messages.txt` được suite SINH LẠI (RL10_WRITE=1),
 không sửa tay. Chỉ dòng máy; không chạm dòng của người.
+
+### Re-pin lần 38 — 2026-08-14, do đợt 2 cộng 6 ca cửa V vào suite hooks
+run_id: veto-repin2-20260814T142437Z
+sha: 72599f8c598e577f12f7a95f750aff7a3797c03c · suites: 4 lệnh exit 0
+
+Nguyên nhân stale: cùng chuỗi với lần 37 — vòng chấm 1 chỉ ra cơ chế V không
+có lưới thường trực, nên 6 ca V01–V06 được cộng vào `tests/hooks` (54 → 60)
+theo ADR 0011. Chỉ dòng máy; không chạm dòng của người.

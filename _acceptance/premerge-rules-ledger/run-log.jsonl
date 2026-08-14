@@ -172,3 +172,4 @@
 {"ts":"2026-08-07T16:01:33Z","kind":"repin","run_id":"repin-20260807-merge-mbc-uncoded-lane1","sha":"d55a836d454685cc1ab820ddada9e90b1a7ace95","suites_exit":[0,0,0,0,0,0]}
 {"ts":"2026-08-08T23:35:36Z","kind":"repin","run_id":"repin-20260809-consumer-copy-cjs-lane1","sha":"5f38521fae43348f8bad029a52a48cf302be3ee9","suites_exit":[0,0,0,0,0,0]}
 {"ts":"2026-08-14T13:43:19Z","kind":"repin","run_id":"veto-repin-20260814T134319Z","sha":"a2fe86b2d26481f0064ec1fecf6ddd100415ea8c","suites_exit":[0,0,0,0]}
+{"ts":"2026-08-14T14:24:37Z","kind":"repin","run_id":"veto-repin2-20260814T142437Z","sha":"72599f8c598e577f12f7a95f750aff7a3797c03c","suites_exit":[0,0,0,0]}
