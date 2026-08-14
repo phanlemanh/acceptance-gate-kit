@@ -219,9 +219,9 @@ trước, hỏi mở là đường cùng:
   có cách hiểu trội hơn hoặc hiểu-sai-thì-đắt-khó-đảo. Ca mẫu (sự cố thật
   11/08): cụm «không cắt» đọc được hai chiều → đề xuất «đồng ý phạm vi đã
   khai» kèm căn cứ từ khối Out of scope, không hỏi mở.
-- Tên người duyệt/ký và ngày là ĐIỀU MÁY BIẾT — người khai thì nhận nguyên
-  nghĩa (câu kiểu cũ đầy đủ «duyệt: <tên>» · «Ký: <tên> <ngày>» vẫn chạy
-  nguyên; khai tường minh thì ghi thẳng, không hỏi xác nhận). Vắng thì máy TỰ
+- Tên người duyệt/ký và ngày là ĐIỀU MÁY BIẾT — người khai thì nhận
+  nguyên nghĩa (câu kiểu cũ «duyệt: <tên>» · «Ký: <tên> <ngày>» vẫn chạy nguyên;
+  khai tường minh thì ghi thẳng, không hỏi xác nhận). Vắng thì máy TỰ
   SUY, không hỏi — bốn luật TÁCH BẠCH, đọc hết rồi mới làm:
   - **ĐỌC**: luôn đọc CẢ `git config user.name` LẪN `signoff.approvers`,
     không có điều kiện nào chặn việc đọc. Đây là hai nguồn đối chiếu.

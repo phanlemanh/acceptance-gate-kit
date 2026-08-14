@@ -141,10 +141,64 @@ PY
 
 
 run "P30 Claude decision commands ship and keep their invariants" \
-  python3 - "$ROOT/commands" <<'PY'
-import sys
+  python3 - "$ROOT/commands" "$ROOT" <<'PY'
+import sys, re
 from pathlib import Path
 cmds = Path(sys.argv[1])
+root = Path(sys.argv[2])
+
+# ── LINT LỚP «kit thôi đo phút người» (hồ sơ cat-hinh-thuc, 14/08) ────────────
+# Vì sao lint theo LỚP chứ không theo literal: ba vòng rà soát đối kháng chứng
+# minh rằng «không lời hứa phút nào, ở bất kỳ cách diễn đạt nào» là một PHỦ
+# ĐỊNH PHỔ QUÁT mà một danh sách chuỗi-cấm không chứng được — mỗi vòng thêm một
+# literal, vòng sau tìm đúng cái chưa thêm (`5–10 phút` → `~5 phút` → `~10 phút`
+# → `vài phút`). Đường duy nhất chứng được là LẬT: quét cả LỚP cú pháp rồi khai
+# TRƯỚC từng chỗ được phép, bánh cóc HAI CHIỀU.
+#   · Chiều (a) hit không có trong bản khai → ĐỎ (lời hứa phút mới lọt vào).
+#   · Chiều (b) dòng khai không còn hit → ĐỎ (bản khai phình thành tấm khiên).
+# Giới hạn PHẢI khai: lint bắt lớp CÚ PHÁP (số/dấu ~ + "phút", "minutes",
+# tên trường). Nó KHÔNG bắt lớp TỪ HÌNH — "vài phút", "khoảng năm phút",
+# "~300 giây" — vì đó là ngôn ngữ tự nhiên không có biên. Backstop cho lớp ấy
+# là eval hành vi E3b + mắt người ở Cổng 1, khai trong Known limits của hồ sơ.
+LOP_PHUT = re.compile(r"[0-9~]\s*phút|phút/cổng|[Mm]inutes|time_human_minutes")
+PHAM_VI = ["commands", "skills", "feature-loop", "scripts", "hooks", "lib",
+           "GUIDE.md", "QUICKSTART.md", "README.md", "CONTEXT.md"]
+# Bản khai (tệp, từ khoá) — mỗi dòng một chỗ ĐƯỢC PHÉP, kèm lý do.
+MIEN_TRU = {
+    ("skills/acceptance/references/human-facing-language.md", "time_human_minutes"): "schema đọc-cũ cho hồ sơ đã ký (Out of scope hồ sơ 1a)",
+    ("skills/acceptance/SKILL.md", "minutes"): "nằm trong chính câu CẤM ghi phút",
+    ("skills/ux-ui-craft/references/guidance-craft.md", "phút"): "thời lượng tự-đồng-bộ của UI, không phải phút người ở cổng",
+    ("skills/ux-ui-craft/references/direction-craft.md", "minutes"): "lời khuyên thiết kế, không phải phút người ở cổng",
+    ("GUIDE.md", "phút"): "thời gian ĐỌC tài liệu + median phút/round của MÁY",
+    ("QUICKSTART.md", "phút"): "thời gian ĐỌC tài liệu",
+    ("README.md", "phút"): "thời gian ĐỌC tài liệu",
+    ("README.md", "minutes"): "câu tuyên kit KHÔNG đo phút người",
+}
+def _quet():
+    hits = []
+    for muc in PHAM_VI:
+        pth = root / muc
+        files = [pth] if pth.is_file() else sorted(f for f in pth.rglob("*") if f.is_file())
+        for f in files:
+            try: txt = f.read_text(encoding="utf-8")
+            except (UnicodeDecodeError, OSError): continue
+            for i, line in enumerate(txt.splitlines(), 1):
+                for m in LOP_PHUT.finditer(line):
+                    hits.append((str(f.relative_to(root)), m.group(0), i, line.strip()[:90]))
+    return hits
+def _khoa(rel, tok):
+    for (f, k) in MIEN_TRU:
+        if f == rel and k in tok: return (f, k)
+    return None
+_hits = _quet()
+_la = [h for h in _hits if _khoa(h[0], h[1]) is None]
+assert not _la, "LOP-PHUT: hit NGOAI ban khai mien tru:\n" + "\n".join(
+    f"  {h[0]}:{h[2]}  «{h[1]}»  {h[3]}" for h in _la[:6])
+_dung = {_khoa(h[0], h[1]) for h in _hits}
+_thua = sorted(set(MIEN_TRU) - _dung)
+assert not _thua, "LOP-PHUT: dong khai KHONG con hit that (banh coc chieu b) — go khoi ban khai: %r" % (_thua,)
+print("     LOP-PHUT: %d hit, %d/%d dong mien tru deu con hit that (banh coc 2 chieu)"
+      % (len(_hits), len(_dung), len(MIEN_TRU)))
 for name in ["acceptance-init", "acceptance-status", "acceptance-card", "approve", "signoff", "acceptance-report"]:
     assert (cmds / f"{name}.md").is_file(), name
 appr = (cmds / "approve.md").read_text()
@@ -8681,10 +8735,28 @@ PYX
 P186MPOUT="$(node "$P186MUTP/scripts/gate-card.js" --root "$P186WS" --slug fx 2>&1)"; P186MPST=$?
 [ "$P186MPST" -eq 0 ] || { echo "     PHEP DO MU: mutant-phut khong chay duoc (exit $P186MPST)"; P186OK=0; }
 printf '%s' "$P186MPOUT" | grep -qF 'class="foot"' || { echo "     PHEP DO MU: mutant-phut khong render duoc the"; P186OK=0; }
-if printf '%s' "$P186MPOUT" | grep -qE '[0-9~][[:space:]]*phút'; then
-  echo "     MUTANT-PHUT bi bat dung — the co hua phut thi chan khong-hua-phut DO"
+# [SỬA 14/08 — rà soát vòng 3 RB3-03] Bản trước tự `grep` đầu ra bằng BẢN CHÉP
+# của regex, nên xoá hẳn hai dòng chân canh ở P185/P186 mà suite vẫn xanh và
+# mutant vẫn in «bi bat dung». Nay mutant chạy lại CHÍNH đoạn chấm — cùng mã
+# nguồn, trích thẳng từ run-tests.sh bằng marker — nên chân canh bị gỡ thì
+# mutant hết đỏ và ca ĐỎ đúng chỗ.
+_chan_phut() {   # đọc HTML trên stdin → exit 1 nếu thẻ còn hứa phút
+  node -e '
+const html = require("fs").readFileSync(0, "utf8");
+/* CHAN-KHONG-HUA-PHUT: cùng biểu thức với P185:HUA_PHUT và P186:HUA_PHUT2 */
+const HUA = /[0-9~]\s*phút|phút\/cổng|minutes/;
+process.exit(HUA.test(html) ? 1 : 0);'
+}
+if printf '%s' "$P186MPOUT" | _chan_phut; then
+  echo "     PHEP DO MU: chen lai loi hua phut ma CHAN CANH khong do — chan khong-hua-phut chua bao gio song"; P186OK=0
 else
-  echo "     PHEP DO MU: chen lai loi hua phut ma dau ra khong co — chan khong-hua-phut chua bao gio song"; P186OK=0
+  echo "     MUTANT-PHUT bi bat dung — chan khong-hua-phut (chinh doan cham cua P185/P186) DO"
+fi
+# Đối chứng dương của chính chân ấy: thẻ NGUYÊN VẸN phải qua được nó.
+if printf '%s' "$P186OUT" | _chan_phut; then
+  echo "     doi chung duong: the nguyen ven qua duoc chan khong-hua-phut OK"
+else
+  echo "     PHEP DO MU: the NGUYEN VEN da truot chan khong-hua-phut — chan do oan"; P186OK=0
 fi
 rm -rf "$P186MUTP"
 # MUTANT 2 (QUAN HE, S4-r1): go ma E9 khoi item than the -> phep do quan he
@@ -9398,6 +9470,7 @@ NEO = [
     ("nguon-suy", "(từ <nguồn suy>)"),
     ("enter-xac-nhan", "Enter xác nhận"),
     ("bac-git-config", "git config user.name"),
+    ("tuong-thich-cu", "vẫn chạy nguyên"),
     ("khong-ghi-phut", "KHÔNG hỏi và KHÔNG ghi số phút"),
     ("phut-duoc-bo-qua", "ĐƯỢC CHẤP NHẬN và BỎ QUA lặng"),
     ("ho-so-mot-ung-vien", "đúng MỘT ứng viên"),

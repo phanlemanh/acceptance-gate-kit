@@ -85,7 +85,11 @@ fi
 echo "CAT-BASE: $BASE -> $(g rev-parse --short "$BASE^{commit}")"
 
 # Đếm hit trên HEAD (cây làm việc) và trên base, dùng CÙNG một phạm vi.
-head_hits() { ( cd "$ROOT" && grep -rIn -- "$1" "${SCOPE[@]}" 2>/dev/null ) || true; }
+# QUET_ROOT tách khỏi ROOT để chiều đỏ chạy lại CHÍNH `quet_am` trên một bản
+# sao bị tiêm, trong khi `base_n` vẫn đọc kho THẬT (bản sao không phải git repo
+# — nếu để nó đọc bản sao thì mọi needle sẽ base=0 và đỏ vì lý do khác).
+QUET_ROOT="$ROOT"
+head_hits() { ( cd "$QUET_ROOT" && grep -rIn -- "$1" "${SCOPE[@]}" 2>/dev/null ) || true; }
 base_n()    { g grep -I -c -e "$1" "$BASE" -- "${SCOPE[@]}" 2>/dev/null | awk -F: '{s+=$NF} END{print s+0}'; }
 
 # Một hàm cho MỌI lớp needle âm — nhãn khác nhau, luật giống nhau.
@@ -141,33 +145,41 @@ echo "== E1 · lớp HỎI phút (AC-1) =="
 quet_am "CAT-PHUT" 'hỏi user số phút' 'how many minutes' 'minutes spent' \
                    'số phút là ĐIỀU MÁY BIẾT'
 # chiều đỏ CHẠY THẬT: chèn lại câu cũ vào BẢN SAO rồi chạy lại chính head_hits
-MUT1="$(tmpd)"; mkdir -p "$MUT1/feature-loop/skills/feature-loop"
-cp "$ROOT/feature-loop/skills/feature-loop/SKILL.md" "$MUT1/feature-loop/skills/feature-loop/SKILL.md"
-if ( cd "$MUT1" && grep -rIn -- 'hỏi user số phút' . >/dev/null 2>&1 ); then
-  bad "CAT-PHUT: ban sao CHUA tiem da co hit — doi chung duong hong"
-else
-  printf '\nhỏi user số phút đã tốn ở gate\n' >> "$MUT1/feature-loop/skills/feature-loop/SKILL.md"
-  if ( cd "$MUT1" && grep -rIn -- 'hỏi user số phút' . 2>/dev/null ) | grep -q 'SKILL\.md'; then
-    mut "chèn lại «hỏi user số phút» vào bản sao SKILL → phép quét ĐỎ đích danh file"
+# [SỬA 14/08 — rà soát vòng 3 RB3-01] Bản trước chèn chuỗi vào bản sao rồi
+# `grep` lại CHÍNH chuỗi ấy — một định lý về `grep`, không đi qua `quet_am`
+# hay `head_hits`. Vô hiệu hoá trọn `quet_am` thì hai dòng «đột biến» vẫn in.
+# Nay tiêm vào CÂY THẬT trong một bản sao trọn, rồi chạy lại ĐÚNG `head_hits`
+# với `ROOT` trỏ bản sao — cùng hàm mà chân xanh dùng.
+tiem_roi_quet() {   # $1 = đường dẫn tương đối bị tiêm, $2 = câu tiêm, $3 = needle
+  # Chạy lại CHÍNH `quet_am` — hàm mà chân xanh dùng — với ROOT trỏ bản sao.
+  # Subshell nên `fails` của lượt chạy thật không bị lây; ta chấm bằng THÔNG
+  # ĐIỆP mà `quet_am` in ra, đúng luật (c) ở đầu tệp.
+  local d; d="$(tmpd)"
+  ( cd "$ROOT" && cp -r --parents "${SCOPE[@]}" "$d" ) 2>/dev/null
+  local truoc sau
+  truoc="$( QUET_ROOT="$d" quet_am "TIEM" "$3" 2>&1 )"
+  printf '\n%s\n' "$2" >> "$d/$1"
+  sau="$( QUET_ROOT="$d" quet_am "TIEM" "$3" 2>&1 )"
+  # Trước khi tiêm: quet_am phải nói SẠCH (1/1). Sau khi tiêm: phải nói «con o».
+  if printf '%s' "$truoc" | grep -q 'TIEM: 1/1' && printf '%s' "$sau" | grep -q "TIEM: $3 con o"; then
+    printf 'DO'
   else
-    bad "CAT-PHUT: chieu do khong chay — ban sao co cau cu ma phep quet im"
+    printf 'KHONG-DO'
   fi
+}
+if [ "$(tiem_roi_quet 'feature-loop/skills/feature-loop/SKILL.md' 'hỏi user số phút đã tốn ở gate' 'hỏi user số phút')" = DO ]; then
+  mut "chèn «hỏi user số phút» vào bản sao SKILL rồi chạy lại CHÍNH quet_am → sạch trước, ĐỎ «con o» sau"
+else
+  bad "CAT-PHUT: chieu do khong chay — quet_am tren ban sao bi tiem KHONG do dung thong diep"
 fi
 
 echo "== E1b · lớp KHẲNG ĐỊNH về phút (AC-12) =="
 # Tách khỏi E1 vì mọi needle dạng CÂU HỎI đều MÙ với văn quảng cáo.
 quet_am "KPI-PHUT" 'baseline_minutes' 'Giảm \*\*≥ 50%\*\*' '5[–-]10 phút' 'time_human_minutes.*điền'
-MUT2="$(tmpd)"
-cp "$ROOT/GUIDE.md" "$MUT2/GUIDE.md"
-if grep -q 'baseline_minutes' "$MUT2/GUIDE.md"; then
-  bad "KPI-PHUT: ban sao GUIDE CHUA tiem da co hit — doi chung duong hong"
+if [ "$(tiem_roi_quet 'GUIDE.md' '| 1 | Giảm **≥ 50%** thời gian người/tính năng so với baseline | `baseline_minutes` |' 'baseline_minutes')" = DO ]; then
+  mut "chèn lại dòng KPI cũ vào bản sao GUIDE rồi chạy lại CHÍNH quet_am → sạch trước, ĐỎ «con o» sau"
 else
-  printf '\n| 1 | Giảm **≥ 50%%** thời gian người/tính năng so với baseline | `baseline_minutes` |\n' >> "$MUT2/GUIDE.md"
-  if grep -q 'baseline_minutes' "$MUT2/GUIDE.md"; then
-    mut "chèn lại dòng KPI cũ vào bản sao GUIDE → phép quét ĐỎ đích danh"
-  else
-    bad "KPI-PHUT: chieu do khong chay"
-  fi
+  bad "KPI-PHUT: chieu do khong chay — quet_am tren ban sao bi tiem KHONG do dung thong diep"
 fi
 # Neo âm bằng literal thì một cách diễn đạt khác lọt (H11). Chân QUAN HỆ kèm
 # theo: KHÔNG mục tiêu nào trong bảng KPI của GUIDE được đo bằng một trường
@@ -539,7 +551,21 @@ else
       res="$(doc_phan_quyet "$rd" "$fr" "$ROOT/scripts")"
       tok="${res%%$'\x02'*}"; out="${res#*$'\x02'}"
       case "$fx" in cu) tok_cu="$tok" ;; *) tok_moi="$tok" ;; esac
-      if printf '%s' "$tok" | grep -q 'rc=[2-9]'; then
+      # [SỬA 14/08 — rà soát vòng 3 RB3-05] Ngưỡng cũ chỉ chặn `rc≥2`, nên một
+      # bên đọc CHẾT HẲN (`exit 1` vô điều kiện) vẫn cho `DOC-CU: 8/8` và cặp
+      # «cũ == mới» vẫn bằng nhau — hai đầu vào cùng hỏng thì so nhau vô nghĩa.
+      # Nay mỗi bên đọc phải đạt một ĐIỀU KIỆN DƯƠNG: dấu hiệu nó THẬT SỰ đọc
+      # được hồ sơ, chứ không chỉ «không crash».
+      duong=""
+      case "$rd" in
+        recheck-evidence)  printf '%s' "$tok" | grep -q 'rc=0' || duong="recheck phai exit 0 tren ho so hop le" ;;
+        pre-merge-check)   printf '%s' "$tok" | grep -q 'ok=1' || duong="pre-merge phai in dong OK [<slug>] (no doc duoc ho so)" ;;
+        product-map)       printf '%s' "$tok" | grep -qE 'khớp|lệch' || duong="product-map phai ra phan quyet khop/lech" ;;
+        gate-card)         printf '%s' "$tok" | grep -q 'viec=1' || duong="gate-card phai render duoc khoi VIEC CUA ANH" ;;
+      esac
+      if [ -n "$duong" ]; then
+        bad "DOC-CU: $rd x $fx VO — doi chung duong hong: $duong ($tok)"
+      elif printf '%s' "$tok" | grep -q 'rc=[2-9]'; then
         bad "DOC-CU: $rd x $fx VO — ben doc chet ($tok)"
         printf '%s\n' "$out" | tail -3 | sed 's/^/         /'
       elif printf '%s' "$out" | grep -qi 'time_human_minutes\|unknown field\|missing field'; then

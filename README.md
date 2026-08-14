@@ -1,8 +1,8 @@
 # Acceptance-Gate Kit
 
-Evidence-backed acceptance gate for AI-generated features. Cuts human
-acceptance time from hours of hand-testing to ~15-20 minutes at two
-high-leverage gates.
+Evidence-backed acceptance gate for AI-generated features. Replaces hours of
+hand-testing with machine evidence, and puts the human at two high-leverage
+decision points instead of inside the loop.
 
 ## How it works
 

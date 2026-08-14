@@ -50,7 +50,7 @@ worktree/nhánh đọc từ git của `<path>`.
      Đáng: quyết có làm việc này không · `pham-vi` = Cổng Phạm vi: duyệt bộ tiêu
      chí trước khi code · `bang-chung` = Cổng Bằng chứng: đọc bằng chứng rồi ký
      · `gia-tri` = Cổng Giá trị: xem số thật từ phiên nghiệm thu rồi quyết giao
-     rộng / lặp thêm / dừng), của việc nào, ước ~10 phút.
+     rộng / lặp thêm / dừng), của việc nào.
    - **Đang dở** (`groups.inProgress`): mỗi vòng một dòng — *người dùng sẽ được
      gì* (một câu từ tên việc, KHÔNG mở file sản phẩm ra đọc) + bước kế viết
      BẰNG CHỮ, mã máy trong ngoặc — tra bảng: chốt thiết kế và tiêu chí (`S1`)
