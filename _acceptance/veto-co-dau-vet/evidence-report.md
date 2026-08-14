@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ad8caf7d7f602935ce24625507d054291ffad52a
+verified_commit: 09f4c1617742fb3630734c616705a4606183f95f
 human_signoff:
 ---
 
@@ -16,6 +16,10 @@ human_signoff:
 Hạng **T3**: mọi mục judgment cần verdict TRỰC TIẾP của người. Hai verdict
 hội đồng dưới đây là **khuyến nghị**, không phải kết luận — nên verdict tổng
 là `PENDING-JUDGMENT`. Đây là đường đúng của hồ sơ T3, không phải lỗi.
+
+Đây là **vòng chấm 3, vòng cuối** theo luật max-3. Mọi khoảng cách còn lại
+được ghi thẳng thành known-limit để người cân tại cổng — không có đề nghị
+vòng 4.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -36,11 +40,11 @@ là `PENDING-JUDGMENT`. Đây là đường đúng của hồ sơ T3, không ph�
 ## Evidence
 
 - eval: E1
-  run_id: veto-co-dau-vet-E1-r2-20260814T142603Z
+  run_id: veto-co-dau-vet-E1-r3-20260814T144404Z
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.rang_veto_hook_v
-  verified_at: 2026-08-14T14:26:03Z
+  verified_at: 2026-08-14T14:44:04Z
   output: |
     == chân hook: cửa V ==
       OK   hook a T2+V+vet CHO QUA
@@ -53,59 +57,60 @@ là `PENDING-JUDGMENT`. Đây là đường đúng của hồ sơ T3, không ph�
     RANG-VETO: XANH — mọi chân qua checker thật, chiều đỏ chạy trong cùng lượt
 
 - eval: E2
-  run_id: veto-co-dau-vet-E2-r2-20260814T142603Z
+  run_id: veto-co-dau-vet-E2-r3-20260814T144404Z
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.rang_veto_hook_cu
-  verified_at: 2026-08-14T14:26:03Z
+  verified_at: 2026-08-14T14:44:04Z
   output: |
     == chân hook-cũ: luật cũ nguyên văn so với BASE-V ==
       OK   hook-cũ giữ nguyên (1 bản): Gate 1 approval not recorded
       OK   hook-cũ giữ nguyên (2 bản): skips Gate 1
+      OK   hook-cũ: 0 ca của mốc biến mất (so DANH SÁCH TÊN, không so tổng)
+           [chiều đỏ] ca THÊM so với mốc: V01 V02 V03 V04 V05 V06
            [chiều đỏ] so với mốc c2f38ca, KHÔNG rút bản chép từ chính cây sau sửa
     RANG-VETO: XANH — mọi chân qua checker thật, chiều đỏ chạy trong cùng lượt
+    (chân thứ hai vòng 2 đòi NAY CÓ THẬT: so danh sách TÊN ca suite hooks giữa
+     BASE-V và HEAD. Đếm-vệ-sinh của phiên chấm: mốc rút 52 tên, HEAD rút 58 —
+     phép rút KHÔNG rỗng ở cả hai đầu, nên «0 ca biến mất» là kết luận sống,
+     không phải kết luận từ hai tập rỗng.)
 
 - eval: E3
-  run_id: veto-co-dau-vet-E3-r2-20260814T142603Z
+  run_id: veto-co-dau-vet-E3-r3-20260814T144404Z
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.rang_veto_premerge_dem
-  verified_at: 2026-08-14T14:26:03Z
+  verified_at: 2026-08-14T14:44:04Z
   output: |
     == chân pre-merge: đếm cửa + chiều ghi-ngược ==
       OK   da-veto chưa xử → VIOLATION
-      OK   ghi-ngược không vết → VIOLATION
       OK   NOTE đếm cửa mở, đích danh slug
-      OK   giữ-gân: có entry sổ → CHO QUA, không chặn oan
       OK   không cửa veto → im lặng, luật mới KHÔNG kêu oan
-      OK   xoá hẳn khoá khỏi hồ sơ đã rời draft → VIOLATION
            [chiều đỏ] sáu chân đi qua CHÍNH pre-merge trên repo giả, mỗi lượt một commit thật
     RANG-VETO: XANH — mọi chân qua checker thật, chiều đỏ chạy trong cùng lượt
+    (ĐÚNG 3 assert của AC-3, KHÔNG assert nào của AC-3b — xem Analyst §1)
 
 - eval: E3b
-  run_id: veto-co-dau-vet-E3b-r2-20260814T142604Z
+  run_id: veto-co-dau-vet-E3b-r3-20260814T144405Z
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.rang_veto_ghi_nguoc
-  verified_at: 2026-08-14T14:26:04Z
+  verified_at: 2026-08-14T14:44:05Z
   output: |
     == chân pre-merge: đếm cửa + chiều ghi-ngược ==
-      OK   da-veto chưa xử → VIOLATION
       OK   ghi-ngược không vết → VIOLATION
-      OK   NOTE đếm cửa mở, đích danh slug
       OK   giữ-gân: có entry sổ → CHO QUA, không chặn oan
-      OK   không cửa veto → im lặng, luật mới KHÔNG kêu oan
       OK   xoá hẳn khoá khỏi hồ sơ đã rời draft → VIOLATION
            [chiều đỏ] sáu chân đi qua CHÍNH pre-merge trên repo giả, mỗi lượt một commit thật
     RANG-VETO: XANH — mọi chân qua checker thật, chiều đỏ chạy trong cùng lượt
-    (LƯU Ý: output trùng E3 từng ký tự — xem mục Analyst §1)
+    (ĐÚNG 3 assert của AC-3b, RỜI HẲN khỏi tập assert của E3 ở trên)
 
 - eval: E4
-  run_id: veto-co-dau-vet-E4-r2-20260814T142604Z
+  run_id: veto-co-dau-vet-E4-r3-20260814T144405Z
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.rang_veto_premerge_sach
-  verified_at: 2026-08-14T14:26:04Z
+  verified_at: 2026-08-14T14:44:05Z
   output: |
     == chân pre-merge: sáu điều kiện sạch ==
       OK   sạch/T2 đủ sáu → đi tiếp, không mời ký
@@ -117,15 +122,20 @@ là `PENDING-JUDGMENT`. Đây là đường đúng của hồ sơ T3, không ph�
       OK   sạch/VẮNG khoá verdict → VIOLATION
       OK   sạch/bypass_used true → VIOLATION
       OK   sạch/có finding ngoài HĐ → VIOLATION
-           [chiều đỏ] chín chân đi qua CHÍNH scripts/pre-merge-check.sh trên repo giả code-sinh
+      OK   sạch/VẮNG riêng mục Ngoài-hợp-đồng → VIOLATION
+      OK   sạch/VẮNG riêng mục Known limits → VIOLATION
+      OK   sạch/contract T3 mà report tự khai T2 → VIOLATION
     RANG-VETO: XANH — mọi chân qua checker thật, chiều đỏ chạy trong cùng lượt
+    (12 chân, mỗi chân một fixture code-sinh riêng, tất cả qua CHÍNH
+     scripts/pre-merge-check.sh. Hai chân VẮNG nay TÁCH THẬT thành hai fixture.
+     Chân thứ 12 xanh nhưng KHÔNG cô lập lớp — xem Analyst §1c.)
 
 - eval: E5
-  run_id: veto-co-dau-vet-E5-r2-20260814T142606Z
+  run_id: veto-co-dau-vet-E5-r3-20260814T144407Z
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.rang_veto_vanban
-  verified_at: 2026-08-14T14:26:06Z
+  verified_at: 2026-08-14T14:44:07Z
   output: |
     == chân luật văn bản: ba vế mới có mặt ==
       OK   văn bản: vế xanh-sạch thôi mời ký (bản gốc)
@@ -136,49 +146,45 @@ là `PENDING-JUDGMENT`. Đây là đường đúng của hồ sơ T3, không ph�
       OK   văn bản: vế V (bản vòng lặp)
            [chiều đỏ] bản đột biến mất vế khó-đảo → chân tương ứng sẽ ĐỎ
     RANG-VETO: XANH — mọi chân qua checker thật, chiều đỏ chạy trong cùng lượt
-    (CHỈ có vế dương — xem Known limits (c))
+    (CHỈ vế DƯƠNG — đọc kèm known-limit (c))
 
-<!-- <<<JUDGMENT-BLOCK-TEMPLATE -->
+<!-- E6, E7: hội đồng phiên sạch 2026-08-14 — KHÔNG chạy lại ở vòng 3.
+     Hạng T3 → verdict hội đồng là khuyến nghị; người chốt trực tiếp. -->
 - eval: E6
   judged_by: hội đồng phiên sạch 2026-08-14
   verdict: PASS
-  rationale: >
+  rationale: |
     Ba ca, ba hành vi ngược nhau, đều đúng (3/3). Ca xanh-sạch: đi tiếp mà VẪN
-    để lại dấu vết một dòng — giữ được cả hai vế khó cùng lúc (không xin phép,
-    nhưng không im lặng; im lặng là V không dấu vết, chính là bỏ-cổng). Ca có
-    giới hạn mới: nhận diện đúng «xanh nhưng có đánh-đổi» và mời ký đúng khuôn
-    một-quyết-định, câu mẫu để trống thật. Ca veto giữa chừng: dừng ngay ở nhịp
-    1 không cãi, không tự khởi động lại ở nhịp 2. Điểm mờ duy nhất đã cân hai
-    chiều: câu «nhắn một chữ khi muốn chạy tiếp» ở nhịp 2 — kết luận không phải
-    bày menu (không lựa chọn, không dấu hỏi; nó phát biểu ĐIỀU KIỆN chạy tiếp,
-    và tiêu chí ĐẠT đã đòi «chờ», mà chờ thì tất yếu phải có tín hiệu thôi chờ).
-    T3: đây là KHUYẾN NGHỊ, người chốt tại Cổng Bằng chứng. Hội đồng chấm ở
-    phiên sạch 14/08, KHÔNG chạy lại ở vòng 2 (nội dung luật không đổi giữa
-    hai vòng chấm).
+    để lại dấu vết một dòng — giữ cả hai vế khó cùng lúc. Ca có giới hạn mới:
+    nhận diện đúng «xanh nhưng có đánh-đổi» và mời ký đúng khuôn một-quyết-định.
+    Ca veto giữa chừng: dừng ngay ở nhịp 1, không cãi, không tự khởi động lại.
+    Điểm mờ duy nhất (câu «nhắn một chữ khi muốn chạy tiếp») đã được giám khảo
+    cân hai chiều và kết ĐẠT: phát biểu ĐIỀU KIỆN chạy tiếp, không phải menu.
+    Biên bản đầy đủ: review-findings.md.
+  required_evidence:
+    - (judge không nêu bằng-chứng-thiếu — verdict PASS)
   human_override:
-<!-- JUDGMENT-BLOCK-TEMPLATE>>> -->
 
 - eval: E7
   judged_by: hội đồng phiên sạch 2026-08-14
   verdict: PASS
-  rationale: >
-    Hai ca cho hai màu ngược nhau đúng theo ranh giới danh sách (2/2). Việc
-    chạm khó-đảo: dừng, giữ nguyên trạng thái tắt, trả quyết định cho người kèm
-    lý do KHÔNG-ĐẢO-ĐƯỢC (không chỉ nhắc suông tên danh sách). Việc đảo-rẻ: đi
-    tiếp + báo một dòng, nêu rõ cửa đảo còn sống. Ranh giới rút từ chính danh
-    sách khó-đảo, không từ độ xanh của bằng chứng — nên nhánh chặn không lan quá
-    phạm vi. T3: đây là KHUYẾN NGHỊ, người chốt tại Cổng Bằng chứng. Hội đồng
-    chấm ở phiên sạch 14/08, KHÔNG chạy lại ở vòng 2.
+  rationale: |
+    Hai ca cho hai màu ngược nhau đúng theo ranh giới danh sách khó-đảo (2/2).
+    Việc chạm khó-đảo: dừng, giữ nguyên trạng thái tắt, trả quyết định cho
+    người kèm lý do KHÔNG-ĐẢO-ĐƯỢC. Việc đảo-rẻ: đi tiếp + báo một dòng, nêu rõ
+    cửa đảo còn sống. Ranh giới rút từ chính danh sách KHO-DAO-V, không từ độ
+    xanh của bằng chứng — nhánh chặn không lan quá phạm vi.
+  required_evidence:
+    - (judge không nêu bằng-chứng-thiếu — verdict PASS)
   human_override:
 
 - eval: E8
-  run_id: veto-co-dau-vet-E8-r2-20260814T142616Z
+  run_id: veto-co-dau-vet-E8-r3-20260814T144416Z
   exit_code: 0
   baseline: green
   verifier: config:executors.test.scripts
-  verified_at: 2026-08-14T14:26:16Z
+  verified_at: 2026-08-14T14:44:16Z
   output: |
-      PASS: GCV1c card mu phai bao dung KHONG duyet
       PASS: GCV1e nhanh CUT ra toi card that: card neu doc THIEU
       PASS: GCV1f card cut cung bao dung duyet
       PASS: GCV1d contract lanh khong sinh canh bao nao
@@ -186,11 +192,11 @@ là `PENDING-JUDGMENT`. Đây là đường đúng của hồ sơ T3, không ph�
     (dòng `Results:` CUỐI = 686, khớp SO-CA-KY-VONG-V và ≥ sàn 686)
 
 - eval: E8b
-  run_id: veto-co-dau-vet-E8b-r2-20260814T142726Z
+  run_id: veto-co-dau-vet-E8b-r3-20260814T144526Z
   exit_code: 0
   baseline: green
   verifier: config:executors.test.hooks
-  verified_at: 2026-08-14T14:27:26Z
+  verified_at: 2026-08-14T14:45:26Z
   output: |
     V05 veto_state giá trị lạ -> block (chỉ mo | da-veto)
       PASS: V05
@@ -198,25 +204,25 @@ là `PENDING-JUDGMENT`. Đây là đường đúng của hồ sơ T3, không ph�
       PASS: V06
     Results: 60 passed, 0 failed
     (dòng `Results:` CUỐI = 60, khớp SO-CA-KY-VONG-V mới và ≥ sàn 54 — sáu ca
-     thường trực V01–V06 đã có mặt trong tests/hooks/run-tests.sh)
+     thường trực V01–V06 có mặt trong tests/hooks/run-tests.sh)
 
 - eval: E8c
-  run_id: veto-co-dau-vet-E8c-r2-20260814T142728Z
+  run_id: veto-co-dau-vet-E8c-r3-20260814T144528Z
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-14T14:27:28Z
+  verified_at: 2026-08-14T14:45:28Z
   output: |
       PASS: P194 hai nguyen tac may-ganh-nguoi-quyet: neo grammar + 6 than lenh + truong ghi
     Results: all plugin tests passed
     (suite không in tổng — đếm dòng `  PASS: ` = 146, khớp SO-CA-KY-VONG-V và ≥ sàn 146)
 
 - eval: E8d
-  run_id: veto-co-dau-vet-E8d-r2-20260814T142910Z
+  run_id: veto-co-dau-vet-E8d-r3-20260814T144711Z
   exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-14T14:29:10Z
+  verified_at: 2026-08-14T14:47:11Z
   output: |
     Results: 324 passed, 0 failed (acceptance-verify)
     Results: 11 passed, 0 failed
@@ -228,11 +234,11 @@ là `PENDING-JUDGMENT`. Đây là đường đúng của hồ sơ T3, không ph�
     (cộng ĐÚNG 6 dòng tổng = 463, khớp SO-CA-KY-VONG-V và ≥ sàn 463)
 
 - eval: E8e
-  run_id: veto-co-dau-vet-E8e-r2-20260814T142920Z
+  run_id: veto-co-dau-vet-E8e-r3-20260814T144712Z
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.rang_veto_so_ca
-  verified_at: 2026-08-14T14:29:20Z
+  verified_at: 2026-08-14T14:47:12Z
   output: |
     == chân số ca: đẳng thức VÀ sàn ==
       OK   số ca scripts: 686 = 686 (≥ sàn 686)
@@ -274,14 +280,23 @@ Biên bản đầy đủ + điểm mờ đã cân: `_acceptance/veto-co-dau-vet/
   CHƯA được đo. Chiều đỏ của chân này là sed trên một BẢN CHÉP rồi grep lại:
   nó chứng minh grep chạy, không chứng minh câu luật cũ đã biến. **Đừng đọc
   E5 thành bằng chứng rằng luật cũ đã biến.** Tái lập:
-  `sed -n '186,200p' _acceptance/veto-co-dau-vet/rang-veto.sh` — không có
-  phép `grep -v`/needle-âm nào.
+  `grep -n "chan_ve\|grep -qF" _acceptance/veto-co-dau-vet/rang-veto.sh` —
+  không có phép `grep -v`/needle-âm nào trong chân này.
 - **(d) Lớp máy KHÔNG đo được lời hứa hành-vi-agent.** AC-6/AC-7 sống ở hội
   đồng, và ở T3 verdict cuối là của NGƯỜI tại Cổng Bằng chứng. Bộ răng khai
   thẳng vai này ở đầu file. Tái lập:
   `sed -n '1,14p' _acceptance/veto-co-dau-vet/rang-veto.sh`.
-- **(e) Bốn khoảng cách thước còn lại** giữa `evals.yaml` và chân thật sự
-  chạy — chi tiết ở `## Analyst`. Đây là khoảng cách THƯỚC, không phải vật đỏ.
+- **(e) Chân thứ 12 của E4 xanh nhưng KHÔNG cô lập lớp nó gọi tên.** Chân
+  «contract T3 mà report tự khai T2» dựng fixture VẮNG cả hai mục Known
+  limits + Ngoài-hợp-đồng, nên VIOLATION nổ vì thiếu mục, KHÔNG cần tới hạng.
+  Phiên chấm đã đâm thử và xác nhận: cùng fixture ấy đổi contract sang **T2**
+  thì VẪN nổ VIOLATION — tức chân này sẽ xanh y nguyên kể cả khi pre-merge
+  đọc hạng từ BÁO CÁO thay vì từ hợp đồng. **Vật thì đúng** (phiên chấm đo
+  riêng, cả hai chiều: contract T3 + report tự khai T2 → chặn; contract T2 +
+  report tự khai T3 → cho qua), nhưng phép đo trong hồ sơ không phân biệt
+  được điều đó; vế «hạng đọc từ contract» thực chất được canh bởi chân số 2
+  (`sạch/hạng T3`, đủ hai mục), không bởi chân số 12. Đây là khoảng cách
+  THƯỚC, không phải vật đỏ. Tái lập: xem `## Analyst` §1c.
 
 ## Ngoài hợp đồng
 
@@ -290,55 +305,71 @@ Không có phát hiện nằm ngoài phạm vi hợp đồng. Mọi điểm nêu
 
 ## Analyst
 
-Không eval nào đỏ. Vòng 2 kiểm chứng lại bốn việc sửa mà vòng 1 khai — ba
-việc ĐÚNG như khai, một việc KHÔNG:
+Không eval nào đỏ: 11/11 eval máy xanh trên cây `09f4c16`.
 
-- **ĐÚNG**: sáu ca thường trực V01–V06 có thật trong
-  `tests/hooks/run-tests.sh` và chạy qua CHÍNH hook (`node "$HOOK"`); suite
-  hooks 54 → **60**, khớp `SO-CA-KY-VONG-V` mới, ≥ sàn 54. Diff so với
-  `c2f38ca` là **36 dòng thêm, 0 dòng xoá** — thuần CỘNG.
-- **ĐÚNG**: vế KHÔNG-kêu-oan và chân xoá-hẳn-khoá đã có mặt và xanh.
-- **ĐÚNG**: bốn chân điều-kiện-sạch còn thiếu (verdict REJECT · vắng khoá
-  verdict · bypass · finding ngoài hợp đồng) đã có mặt — E4 nay chạy 9 chân.
-- **KHÔNG**: xem §1 dưới đây.
+### §1 — Kiểm chứng BA lời khai của lượt sửa sau vòng 2
 
-Bốn khoảng cách còn lại giữa lời hứa `evals.yaml` và chân thật sự chạy:
+Phiên chấm KHÔNG tin lời khai; mỗi lời khai được đâm bằng một phép đo riêng.
 
-1. **E3 và E3b VẪN chạy cùng một khối mã.** Vòng 1 khai «đã tách
-   `--chan ghi-nguoc` khỏi `premerge-dem`», nhưng chốt canh ở
-   `rang-veto.sh` dòng 144 là `[ "$CHAN" = "premerge-dem" ] || [ "$CHAN" =
-   "ghi-nguoc" ]` — MỘT khối chạy trọn cho CẢ HAI cờ. Output hai lượt vòng 2
-   giống nhau từng ký tự (so bằng `diff` trên hai log). Cái đã đổi là cờ
-   `ghi-nguoc` nay được NHẬN, không phải phép đo được tách. Hệ quả: AC-3 và
-   AC-3b vẫn không có bằng chứng độc lập, và một hồi quy chỉ chạm luật đếm-cửa
-   sẽ làm ĐỎ cả hai eval id cùng lúc, che mất việc chỉ một AC hỏng. Tái lập:
-   `sed -n '144p' _acceptance/veto-co-dau-vet/rang-veto.sh`.
-2. **E2 thiếu hẳn chân thứ hai được hứa.** `evals.yaml` hứa «so DANH SÁCH TÊN
-   ca của suite hooks giữa BASE-V và HEAD — sửa-tại-chỗ một ca cũ cho khớp
-   hành vi mới không đổi tổng số nên E8b mù với nó». Chân `hook-cu` thực chạy
-   chỉ so ĐÚNG HAI chuỗi thông điệp trong `lib/evidence-core.cjs`; không phép
-   đo nào đụng tới danh sách tên ca của suite hooks. Phiên chấm đã tự làm phép
-   so ấy BẰNG TAY ở vòng 2 và kết quả sạch (chỉ V01–V06 thêm vào, không ca cũ
-   nào bị xoá/đổi tên) — nhưng đó là bàn tay phiên chấm, KHÔNG phải phép đo
-   sống trong hồ sơ. Tái lập:
-   `git show c2f38ca:tests/hooks/run-tests.sh | grep -oE 'check [A-Za-z0-9]+' | sort > /tmp/a.txt`
-   rồi `grep -oE 'check [A-Za-z0-9]+' tests/hooks/run-tests.sh | sort | diff /tmp/a.txt -`.
-3. **E4: hai chân «VẮNG mục» vẫn gộp làm một fixture.** `evals.yaml` liệt
-   `VẮNG hẳn mục Known limits` và `VẮNG hẳn mục Ngoài-hợp-đồng` thành HAI chân
-   và ghi rõ «mỗi chân một fixture riêng». Thực chạy: một fixture `novang` bỏ
-   CẢ HAI mục cùng lúc. Nếu lõi chỉ kiểm một trong hai mục thì ca này vẫn
-   xanh. Tái lập: `sed -n '104,126p' _acceptance/veto-co-dau-vet/rang-veto.sh`.
-4. **E4: vế «báo cáo tự khai hạng KHÔNG được tính» chưa bị đâm thử.** AC-4 đòi
-   hạng đọc từ `risk_tier` của CONTRACT, và `evals.yaml` gọi tên ca «contract
-   hạng T3 trong khi report tự khai T2». Hồ sơ report do `gen_report` sinh
-   KHÔNG mang trường hạng nào — nên ca đang chạy chỉ chứng minh «contract T3 →
-   VIOLATION», không chứng minh «report tự phong T2 KHÔNG cứu được contract
-   T3». Tái lập: `grep -n "gen_report()" -A 4
-   _acceptance/veto-co-dau-vet/rang-veto.sh` — không có khoá hạng nào.
+**1a. «Tách THẬT `--chan ghi-nguoc` khỏi `premerge-dem`» — ĐÚNG.** Vòng 2 bắt
+được lời khai sai ở đúng chỗ này (lượt trước chỉ thêm chú thích, khối mã vẫn
+chạy trọn cho cả hai cờ, output hai lượt giống nhau TỪNG KÝ TỰ). Lượt này
+kiểm lại bằng cùng phép đo: chạy riêng hai cờ rồi `diff` hai log. Kết quả —
+hai tập assert **RỜI HẲN nhau**, 3 assert mỗi bên, 0 dòng chung ngoài tiêu đề
+và dòng tổng:
 
-Non-discriminating: bốn suite (E8/E8b/E8c/E8d) xanh trên cả hai nền — đúng vai
-lưới hồi quy, không phải răng riêng của tính năng này. Sáu chân răng E1–E5 và
-E8e mang `baseline: n-a` vì `rang-veto.sh` KHÔNG tồn tại trên `c2f38ca` (kiểm:
+- `premerge-dem` → da-veto chưa xử · NOTE đếm cửa · không-kêu-oan (đúng AC-3)
+- `ghi-nguoc` → ghi ngược · giữ-gân entry sổ · xoá khoá (đúng AC-3b)
+
+Đọc mã xác nhận cơ chế: hai biến `DEM`/`NGUOC` gác từng assert, và `bad()` —
+đường DUY NHẤT làm tăng bộ đếm đỏ — nằm TRONG khối đã gác. Nên một hồi quy
+chỉ chạm luật đếm-cửa nay làm đỏ E3 mà KHÔNG kéo E3b theo, và ngược lại. AC-3
+và AC-3b nay có bằng chứng độc lập.
+
+**1b. «E2 thêm chân so DANH SÁCH TÊN ca suite hooks» — ĐÚNG, và không rỗng.**
+Chân có thật và xanh. Vì đây đúng hình dạng «grep 0 hit vẫn xanh», phiên chấm
+chạy đếm-vệ-sinh độc lập trước khi tin: phép rút tên trả **52 tên** trên mốc
+`c2f38ca` và **58 tên** trên HEAD — cả hai đầu đều KHÔNG rỗng, nên kết luận
+«0 ca của mốc biến mất» là kết luận sống. Chênh 6 tên chính là V01–V06, khớp
+với dòng chiều-đỏ mà chân tự in ra.
+
+**1c. «E4 tách hai chân VẮNG + thêm chân contract-T3-mà-report-tự-khai-T2» —
+ĐÚNG một nửa.** Hai chân VẮNG đã tách thật thành hai fixture riêng (một
+fixture giữ mục Known limits, một giữ mục Ngoài-hợp-đồng) và cả hai xanh —
+đây là phần ĐÚNG, đóng đúng khoảng cách vòng 2 nêu. Chân thứ 12 thì CÓ MẶT và
+xanh, nhưng **không đo được thứ nó gọi tên**: fixture của nó bỏ CẢ HAI mục,
+nên VIOLATION đã được bảo đảm bởi luật thiếu-mục trước khi hạng kịp nói gì.
+
+Phiên chấm đâm thử ba lượt trên repo giả dựng bằng chính khuôn của chân ấy:
+
+| Đâm thử | contract | report tự khai | Hai mục | Kết quả |
+|---|---|---|---|---|
+| tái dựng chân 12 | T3 | T2 | VẮNG | VIOLATION |
+| **đổi hạng contract** | **T2** | T2 | VẮNG | **VẪN VIOLATION** |
+| cô lập lớp (đủ hai mục) | T3 | T2 | đủ | VIOLATION |
+| cô lập lớp, chiều ngược | T2 | T3 | đủ | cho qua |
+
+Dòng 2 là kết luận: fixture của chân 12 nổ mà KHÔNG cần tới hạng, nên chân đó
+sẽ xanh y nguyên kể cả khi vật hỏng theo đúng cách nó định canh. Hai dòng
+cuối là phép đo cô-lập-lớp mà phiên chấm tự chạy: **vật ĐÚNG cả hai chiều** —
+hạng đọc từ hợp đồng, báo cáo tự phong không cứu được T3 và cũng không hại
+được T2. Đây là lớp «mutant phải có ca cô lập lớp», và nó là lỗi THƯỚC.
+Chuyển thành known-limit (e) — vòng cuối, người cân tại cổng.
+
+### §2 — Bốn khoảng cách vòng 2 nêu: đóng 3, còn 1 đổi hình
+
+- E3/E3b dùng chung khối mã → **ĐÓNG** (§1a).
+- E2 thiếu chân danh-sách-tên → **ĐÓNG** (§1b).
+- E4 hai chân VẮNG gộp fixture → **ĐÓNG** (§1c, nửa đúng).
+- E4 vế «báo cáo tự khai hạng» chưa bị đâm thử → **CÒN**, đổi hình: vòng 2 là
+  «không có chân nào», vòng 3 là «có chân nhưng chân không phân biệt được».
+  Xanh-giả rẻ hơn vắng-mặt, nên đây là khoảng cách đáng ghi tên, dù vật đúng.
+
+### §3 — Non-discriminating
+
+Bốn suite (E8/E8b/E8c/E8d) xanh trên cả hai nền — đúng vai lưới hồi quy,
+không phải răng riêng của tính năng này. Sáu chân răng E1–E5 và E8e mang
+`baseline: n-a` vì `rang-veto.sh` KHÔNG tồn tại trên `c2f38ca` (kiểm:
 `git cat-file -e c2f38ca:_acceptance/veto-co-dau-vet/rang-veto.sh`); khả năng
 phân biệt của chúng dựa vào chiều-đỏ chạy trong cùng lượt, không dựa vào A/B.
 
@@ -350,23 +381,34 @@ none — không eval nào chạy nhiều lượt.
 
 Round 1 (14/08, 13:45–13:52): 11/11 eval máy xanh, verdict PENDING-JUDGMENT.
 Phiên chấm tìm 6 khoảng cách «thước hẹp hơn lời hứa», nặng nhất là: hồ sơ CỘNG
-0 ca vào lưới thường trực nên sau merge cơ chế V không còn ca nào canh; E3/E3b
-dùng chung một khối mã; E4 chạy 5/9 chân được hứa; E3 thiếu vế không-kêu-oan;
-E3b thiếu chân xoá-khoá; E5 thiếu needle âm. Trả về thi công.
+**0 ca** vào lưới thường trực nên sau merge cơ chế V không còn ca nào canh;
+E3/E3b dùng chung một khối mã; E4 chạy 5/9 chân được hứa; E3 thiếu vế
+không-kêu-oan; E3b thiếu chân xoá-khoá; E5 thiếu needle âm. Trả về thi công.
 
-Round 2 (14/08, 14:26–14:29, commit `ad8caf7`): 11/11 eval máy xanh trên cây
-đã sửa. Kiểm chứng: 6 ca thường trực V01–V06 CÓ THẬT (hooks 54 → 60, thuần
-cộng), vế không-kêu-oan + chân xoá-khoá + 4 chân điều-kiện-sạch CÓ THẬT (E4
-nay 9 chân). Việc «tách E3/E3b» KHÔNG thành — xem Analyst §1. Bốn khoảng cách
-thước còn lại chuyển thành mục người cân ở cổng.
+Round 2 (14/08, 14:26–14:29, commit `ad8caf7`): 11/11 eval máy xanh. Phiên
+chấm bắt được **một LỜI KHAI SAI** — lượt sửa tuyên đã tách `ghi-nguoc` khỏi
+`premerge-dem` nhưng thực chất chỉ thêm chú thích, hai lượt chạy cho output
+giống nhau từng ký tự — cùng **ba chân bị hứa mà vắng**: chân so danh-sách-tên
+ca của E2, hai chân VẮNG-mục tách riêng của E4, và chân báo-cáo-tự-khai-hạng.
+Sáu ca thường trực V01–V06 thì CÓ THẬT (hooks 54 → 60, thuần cộng). Trả về
+thi công lần hai.
+
+Round 3 (14/08, 14:44–14:47, commit `09f4c16`, **vòng cuối**): 11/11 eval máy
+xanh. Kiểm chứng ba lời khai của lượt sửa: tách E3/E3b **ĐÚNG** (hai tập
+assert rời hẳn, xác nhận bằng `diff` hai log + đọc cơ chế gác), chân
+danh-sách-tên của E2 **ĐÚNG** (52 → 58 tên, đếm-vệ-sinh không rỗng ở cả hai
+đầu), tách hai chân VẮNG của E4 **ĐÚNG**. Còn lại một khoảng cách: chân thứ 12
+của E4 xanh mà không cô lập được lớp nó gọi tên — phiên chấm tự đâm thử và
+xác nhận **vật đúng cả hai chiều**, chỉ thước không phân biệt. Ghi thành
+known-limit (e) để người cân tại cổng; **không đề nghị vòng 4**.
 
 ## Gate 2 checklist (human)
 
 - [ ] Đọc bảng + soi 1-2 khối bằng chứng
 - [ ] T3: tự chốt CẢ HAI mục judgment (E6, E7) và điền `human_override:
       <tên> <ngày>` vào từng khối — verdict hội đồng chỉ là khuyến nghị
-- [ ] Cân 4 khoảng cách thước ở `## Analyst` + known-limits (a)–(d): nhận như
-      known-limits, hay trả về thi công một vòng nữa
+- [ ] Cân năm known-limits (a)–(e) — riêng (e) là thước-không-cô-lập trên một
+      chân đã xanh, vật đã được đâm thử riêng và đúng cả hai chiều
 - [ ] Nâng verdict `PENDING-JUDGMENT` → `PASS` (lượt ghi này là lúc hook
       kiểm lại bằng chứng + các override)
 - [ ] Điền `human_signoff` ở frontmatter
