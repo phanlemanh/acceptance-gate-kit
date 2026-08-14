@@ -1,7 +1,7 @@
 ---
 schema_version: 2
 feature_slug: veto-co-dau-vet
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
@@ -163,7 +163,7 @@ vòng 4.
     Biên bản đầy đủ: review-findings.md.
   required_evidence:
     - (judge không nêu bằng-chứng-thiếu — verdict PASS)
-  human_override:
+  human_override: Mạnh Phan 2026-08-15
 
 - eval: E7
   judged_by: hội đồng phiên sạch 2026-08-14
@@ -176,7 +176,7 @@ vòng 4.
     xanh của bằng chứng — nhánh chặn không lan quá phạm vi.
   required_evidence:
     - (judge không nêu bằng-chứng-thiếu — verdict PASS)
-  human_override:
+  human_override: Mạnh Phan 2026-08-15
 
 - eval: E8
   run_id: veto-co-dau-vet-E8-r3-20260814T144416Z
