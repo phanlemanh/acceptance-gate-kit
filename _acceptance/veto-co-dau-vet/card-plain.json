@@ -1,0 +1,37 @@
+{
+  "feature_plain": "Máy được đi trước ở những chỗ không có gì để quyết — nhưng để lại vết đếm được, và anh veto lúc nào cũng được.",
+  "will_do": [
+    { "id": "AC-1", "p": "Sẽ cho máy chốt phạm vi rồi đi tiếp ở trạng thái «chưa bị veto» — nhưng chỉ khi việc thuộc hạng thường và có ghi mốc thời gian mở cửa; thiếu mốc là chặn" },
+    { "id": "AC-2", "p": "Sẽ giữ nguyên từng chữ mọi luật chặn cũ cho hồ sơ không dùng cửa mới — bản cũ không đổi hành vi" },
+    { "id": "AC-3", "p": "Sẽ báo anh đích danh còn bao nhiêu cửa đang mở mỗi lần kiểm; anh đã veto mà chưa xử thì chặn merge" },
+    { "id": "AC-3b", "p": "Sẽ chặn đường xoá dấu vết: máy sửa ngược veto của anh hoặc bỏ hẳn khoá đều bị bắt, trừ khi có ghi chép việc xử" },
+    { "id": "AC-4", "p": "Sẽ thôi đòi chữ ký khi bằng chứng sạch tuyệt đối — đủ sáu điều kiện máy đọc được, thiếu một là đòi ký như cũ" },
+    { "id": "AC-5", "p": "Sẽ nói rõ trong luật: xanh-sạch thì đi tiếp báo một dòng, chữ ký chỉ còn ở chỗ có đánh đổi hoặc khó đảo" },
+    { "id": "AC-6", "p": "Sẽ được hội đồng phiên sạch xác nhận máy hành xử đúng ba tình huống: xanh-sạch đi tiếp, có giới hạn mới thì mời ký, anh veto giữa chừng thì dừng ngay" },
+    { "id": "AC-7", "p": "Sẽ luôn dừng hỏi anh ở việc khó đảo — ra người dùng thật, xoá dữ liệu, cam kết ra ngoài — dù bằng chứng sạch đến đâu" },
+    { "id": "AC-8", "p": "Sẽ giữ bốn bộ kiểm xanh và không cho số ca teo đi: có sàn chặn, xoá ca cũ phải khai tên" }
+  ],
+  "wont_do": [
+    { "id": "OOS-1", "p": "Sẽ KHÔNG đụng luật hạng cao nhất — việc chạm lõi cưỡng chế vẫn luôn cần anh, kể cả chính hồ sơ này" },
+    { "id": "OOS-2", "p": "Sẽ KHÔNG hạ bất kỳ tiêu chuẩn bằng chứng nào — chỉ đổi ngưỡng gọi người, không đổi ngưỡng chứng minh" },
+    { "id": "OOS-3", "p": "Sẽ KHÔNG lẫn cửa mới với đường bỏ cổng cũ — hai vật, hai nghĩa, không thay nhau" }
+  ],
+  "scope_plain": "Bề mặt hỏi (nút bấm thay khuôn chữ) để hạt giống riêng, xếp sau",
+  "coverage_plain": [
+    { "i": 0, "p": "Đủ ba tầng chặn: lúc máy ghi, lúc kiểm trước merge, và trong lời văn — thiếu tầng nào thì tầng đó chặn theo luật cũ và cơ chế chết non" },
+    { "i": 1, "p": "Mỗi nhánh của cơ chế có cả chiều CHO và chiều CHẶN — mở đường mới, giữ nguyên luật cũ, và veto đã bắn thì phải chặn" },
+    { "i": 2, "p": "Hai loại lời hứa đo bằng hai thước: phần mã tiền định đo bằng bản dựng thật, phần hành vi đo bằng hội đồng" },
+    { "i": 3, "p": "Ba chốt an toàn không được lay: hạng cao nhất luôn chặn, việc khó đảo luôn chặn, và chủ quyền đặt ranh giới vẫn của anh" }
+  ],
+  "gap_probe_plain": [
+    { "i": 0, "p": "Cửa mới suýt có đường xoá dấu vết: anh veto xong, máy sửa ngược lại là veto bốc hơi mà không lưới nào thấy — đã thêm chốt canh chiều đổi, kèm đường xử hợp lệ không bị chặn oan" },
+    { "i": 1, "p": "Danh sách «thế nào là sạch» thiếu đúng điều kiện quan trọng nhất là verdict phải đạt — một báo cáo TRƯỢT mà các mục kia sạch sẽ tự merge được; đã thêm" },
+    { "i": 2, "p": "Bỏ hẳn một mục khỏi báo cáo suýt được tính là mục rỗng — đường sạch-giả rẻ nhất; nay mục phải có mặt và rỗng, và hạng rủi ro đọc từ hợp đồng chứ báo cáo không tự phong" },
+    { "i": 3, "p": "Phép so luật-cũ-còn-nguyên suýt so với chính bản vừa sửa; nay so với mốc cũ, và so cả danh sách tên ca chứ không chỉ đếm tổng" },
+    { "i": 4, "p": "Một phiên hội đồng suýt chấm mà không được đọc file chứa chính luật cần đo — đã nối vào" },
+    { "i": 5, "p": "Số ca suýt teo được mà vẫn xanh vì bản khai và bộ kiểm sửa cùng lượt — đã thêm sàn chặn" },
+    { "i": 6, "p": "Đáp án suýt lộ sang phiên đi thi qua một trường mô tả dùng chung — đã rút ra" },
+    { "i": 7, "p": "Mốc thời gian mở cửa suýt nhận giá trị rác — nay không đọc được thì chặn" }
+  ],
+  "decisions_plain": []
+}
