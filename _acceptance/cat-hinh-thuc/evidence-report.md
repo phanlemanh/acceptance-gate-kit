@@ -1,9 +1,9 @@
 ---
 schema_version: 1
 slug: cat-hinh-thuc
-round: 5
+round: 6
 verdict: PENDING-JUDGMENT
-verified_commit: 62c6935107e2
+verified_commit: 233119881379
 ---
 
 # Trang bằng chứng — cắt hình thức khỏi bốn cổng người
@@ -148,6 +148,38 @@ một fixture cố định.]**
 Chân E6 chạy `gate-card.js`
 ở cả ba mode rồi soi thẻ render ra — vì lớp lỗi đã trả giá ở vòng khác là *đo
 chỉ dẫn thay vì đo đầu ra*.
+
+## Bảng eval — vòng 6, mỗi eval một chứng nhân RIÊNG
+
+*Sinh từ `run-log.jsonl` (round 6, sha `233119881379`). Cột «chuỗi ghim» là
+`pinned:` của chính eval ấy trong `evals.yaml`: từ vòng sửa 1, mỗi eval máy phải
+có ≥1 chuỗi KHÔNG eval nào khác trong cùng nhóm-lệnh khai, và `ghi-so-chay-1a.mjs`
+thoát 1 nếu chuỗi ấy vắng trong đầu ra thật — kể cả khi lệnh thoát 0. Chín eval
+chia chung một lượt chạy vật lý là SỰ THẬT (một `run_id`); cái phân biệt chúng là
+chuỗi ghim, không phải mã thoát.*
+
+
+| Eval | Tiêu chí | exit | run_id | Chuỗi ghim (đều KHỚP) |
+|---|---|---|---|---|
+| E1 | AC-1 | 0 | `cat-hinh-thuc-r6-412e9ee6` | `CAT-PHUT: 4/4` · `CAT-SCOPE: khop ban khai PHAM-VI-RANG` |
+| E1b | AC-12 | 0 | `cat-hinh-thuc-r6-412e9ee6` | `KPI-PHUT: 4/4` · `KPI-PHUT: bang muc tieu GUIDE` |
+| E2 | AC-2 | 0 | `cat-hinh-thuc-r6-412e9ee6` | `DOC-CU: 8/8` · `ROUND-TRIP: fixture-moi sinh boi CONTRACT-FRONTMATTER-TEMPLATE` |
+| E3 | AC-3 | 0 | `cat-hinh-thuc-r6-412e9ee6` | `ONESHOT-SET:` · `ONESHOT-SITE: 6/6` |
+| E4 | AC-4 | 0 | `cat-hinh-thuc-r6-412e9ee6` | `REPORT: bo nhanh phut OK` · `REPORT: so vang + ve sinh cong byte-equal base OK` |
+| E5 | AC-5 | 0 | `cat-hinh-thuc-r6-412e9ee6` | `MOI-TIN: 2/2 khuon giu-gan OK` · `MOI-TIN-SITE: 3/3` · `MOI-TIN-CASE: base=` |
+| E6 | AC-6 | 0 | `cat-hinh-thuc-r6-412e9ee6` | `THE-CONG: 3/3 mode` |
+| E9b | AC-13 | 0 | `cat-hinh-thuc-r6-412e9ee6` | `HOI-TUAN-TU: 4/4` · `HOI-TUAN-TU-DC: 4/4` |
+| E10 | AC-10 | 0 | `cat-hinh-thuc-r6-412e9ee6` | `AI-COMMIT: hai than dong bo OK` · `AI-COMMIT: dieu khoan du 4 ve` |
+| E17 | AC-14 | 0 | `cat-hinh-thuc-r6-412e9ee6` | `YAML-KHUON: 3/3` · `YAML-KHUON: frontmatter evidence-report-template parse duoc OK` |
+| E11 | AC-11 | 0 | `cat-hinh-thuc-r6-ca3ddbac` | `LUU-KHO-SUITE: scripts 671 -> 686 OK` |
+| E12 | AC-11 | 0 | `cat-hinh-thuc-r6-62479450` | `LUU-KHO-SUITE: plugins 173 -> 146 OK` |
+| E13 | AC-11 | 0 | `cat-hinh-thuc-r6-bfe9d84a` | `LUU-KHO-SUITE: hooks 54 -> 54 OK` · `Results: 54 passed, 0 failed` |
+| E14 | AC-11 | 0 | `cat-hinh-thuc-r6-a41d6a9e` | `Results: all workflow tests passed` |
+| E15 | AC-11 | 0 | `cat-hinh-thuc-r6-64b2de3b` | `PRODUCT-MAP.md khớp hồ sơ xưởng.` |
+| E16 | AC-11 | 0 | `cat-hinh-thuc-r6-35128449` | `LUU-KHO-SUITE: workflows 488 -> 463 OK` |
+
+**0 lượt ĐỎ · 0 lời hứa thông điệp không khớp · 4 eval judgment chưa ai chấm.**
+Vòng 5 (cùng sổ, ngay trên) có **1 lời hứa không khớp** — `E12` / `MOI-TIN-CASE:` — và recorder thoát 1. Lượt ấy giữ nguyên: sổ append-only, và nó là đối chứng dương của chính luật chứng-nhân-riêng (xem H15 trong `review-findings.md`).
 
 ## Bốn eval CHƯA có kết quả — cố ý, không phải bỏ quên
 
