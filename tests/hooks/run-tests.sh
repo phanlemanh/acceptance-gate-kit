@@ -608,6 +608,42 @@ payload Write "$REPORT_PATH" "$OBS_V2
   observed: ok
   notes: sibling field text long enough that counting it would fake a pass" | node "$HOOK" >/dev/null 2>/dev/null; check T42 2 $?
 
+echo "--- cửa V (veto có dấu vết, đợt 2) — LƯỚI THƯỜNG TRỰC ---"
+# ADR 0011: bảo đảm DÀI HẠN vào lưới thường trực NGAY TỪ LƯỢT ĐẦU; răng-hồ-sơ
+# là lớp rẻ chết theo merge. Sáu ca dưới canh nhánh V trong lib/evidence-core
+# sau khi bộ răng của hồ sơ veto-co-dau-vet biến mất.
+V_DIR="$REPO/_acceptance/v-lane"; mkdir -p "$V_DIR"
+v_contract() { # <hạng> <dòng V thêm>
+  printf -- '---\nschema_version: 1\nrisk_tier: %s\nstatus: approved\napproved_by:\napproved_at:\n%s---\n' "$1" "$2"
+}
+
+echo "V01 T2 + veto_state mo + veto_opened_at hợp lệ -> allow (cửa V mở)"
+payload Write "$V_DIR/contract.md" "$(v_contract T2 'veto_state: mo
+veto_opened_at: 2026-08-14T10:00:00Z
+')" | node "$HOOK" >/dev/null; check V01 0 $?
+
+echo "V02 T3 cùng hình dạng -> block (V là T2-only, T3 luôn cần người)"
+payload Write "$V_DIR/contract.md" "$(v_contract T3 'veto_state: mo
+veto_opened_at: 2026-08-14T10:00:00Z
+')" | node "$HOOK" >/dev/null 2>/dev/null; check V02 2 $?
+
+echo "V03 veto_state mo THIẾU veto_opened_at -> block (V không vết = bỏ cổng lặng lẽ)"
+payload Write "$V_DIR/contract.md" "$(v_contract T2 'veto_state: mo
+')" | node "$HOOK" >/dev/null 2>/dev/null; check V03 2 $?
+
+echo "V04 veto_opened_at giá trị RÁC -> block (vết phải đọc được, không chỉ khác rỗng)"
+payload Write "$V_DIR/contract.md" "$(v_contract T2 'veto_state: mo
+veto_opened_at: khong-phai-ngay
+')" | node "$HOOK" >/dev/null 2>/dev/null; check V04 2 $?
+
+echo "V05 veto_state giá trị lạ -> block (chỉ mo | da-veto)"
+payload Write "$V_DIR/contract.md" "$(v_contract T2 'veto_state: xanh
+veto_opened_at: 2026-08-14T10:00:00Z
+')" | node "$HOOK" >/dev/null 2>/dev/null; check V05 2 $?
+
+echo "V06 KHÔNG có khoá veto_state -> luật cũ nguyên vẹn (block vì approved_by rỗng)"
+payload Write "$V_DIR/contract.md" "$(v_contract T2 '')" | node "$HOOK" >/dev/null 2>/dev/null; check V06 2 $?
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1

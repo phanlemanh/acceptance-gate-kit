@@ -149,11 +149,29 @@ hứa hành-vi-agent, trừ AC-6/AC-7.
   146 · workflows 463 — số «sau» sẽ TĂNG theo ca mới, chốt bằng sửa-có-dấu-
   vết khi thi công xong.
 
+  **[SỬA SAU CỔNG 1 — 14/08, ghi TRƯỚC khi sửa vật]** Phiên chấm vòng 1 tìm
+  ra hồ sơ này CỘNG 0 ca vào lưới thường trực: sau merge, bộ răng chết theo
+  hồ sơ và nhánh V ở `lib/evidence-core.cjs` cùng luật veto ở
+  `scripts/pre-merge-check.sh` **không còn ca nào canh**. ADR 0011 nói thẳng
+  răng-hồ-sơ là lớp RẺ, bảo đảm DÀI HẠN phải vào lưới thường trực NGAY TỪ
+  LƯỢT ĐẦU. Nên thêm **6 ca thường trực** cho cửa V vào suite `hooks`
+  (V01–V06: T2-có-vết cho qua · T3 chặn · thiếu vết chặn · vết rác chặn ·
+  giá trị lạ chặn · không-khoá-thì-luật-cũ-nguyên-vẹn).
+  Hệ quả: `hooks` **54 → 60**, khai lại ở `SO-CA-KY-VONG-V`; sàn giữ nguyên
+  (chỉ CỘNG, không trừ). Ba suite kia không đổi.
+
+  Cùng lượt, bộ răng nới cho khớp lời hứa `evals.yaml` (phiên chấm chỉ ra 5
+  chỗ thước hẹp hơn hứa): tách `--chan ghi-nguoc` khỏi `premerge-dem` (trước
+  đó hai eval id dùng CHUNG một khối mã) · thêm vế KHÔNG-kêu-oan · thêm chân
+  xoá-hẳn-khoá · thêm 4 chân điều-kiện-sạch còn thiếu (verdict REJECT · vắng
+  khoá verdict · bypass · finding ngoài hợp đồng). Chân `vanban` vẫn CHỈ có
+  vế dương — needle âm ghi vào Known limits, không tự nhận là đã đo.
+
 ### Bản khai máy-đọc
 
 <!-- <<<SO-CA-KY-VONG-V
 scripts 686
-hooks 54
+hooks 60
 plugins 146
 workflows 463
 SO-CA-KY-VONG-V>>> -->

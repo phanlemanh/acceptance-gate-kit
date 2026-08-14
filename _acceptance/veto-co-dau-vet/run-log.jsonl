@@ -1,0 +1,11 @@
+{"ts":"2026-08-14T13:45:41Z","round":1,"evalId":"E1","run_id":"veto-co-dau-vet-E1-20260814T134541Z","exit_code":0,"cmd":"bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan hook"}
+{"ts":"2026-08-14T13:45:47Z","round":1,"evalId":"E2","run_id":"veto-co-dau-vet-E2-20260814T134547Z","exit_code":0,"cmd":"bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan hook-cu"}
+{"ts":"2026-08-14T13:45:57Z","round":1,"evalId":"E3","run_id":"veto-co-dau-vet-E3-20260814T134557Z","exit_code":0,"cmd":"bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan premerge-dem"}
+{"ts":"2026-08-14T13:46:06Z","round":1,"evalId":"E3b","run_id":"veto-co-dau-vet-E3b-20260814T134606Z","exit_code":0,"cmd":"bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan ghi-nguoc"}
+{"ts":"2026-08-14T13:46:14Z","round":1,"evalId":"E4","run_id":"veto-co-dau-vet-E4-20260814T134614Z","exit_code":0,"cmd":"bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan premerge-sach"}
+{"ts":"2026-08-14T13:46:20Z","round":1,"evalId":"E5","run_id":"veto-co-dau-vet-E5-20260814T134620Z","exit_code":0,"cmd":"bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan vanban"}
+{"ts":"2026-08-14T13:47:35Z","round":1,"evalId":"E8","run_id":"veto-co-dau-vet-E8-20260814T134735Z","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-14T13:47:42Z","round":1,"evalId":"E8b","run_id":"veto-co-dau-vet-E8b-20260814T134742Z","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-08-14T13:49:29Z","round":1,"evalId":"E8c","run_id":"veto-co-dau-vet-E8c-20260814T134929Z","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-14T13:49:46Z","round":1,"evalId":"E8d","run_id":"veto-co-dau-vet-E8d-20260814T134946Z","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-14T13:52:50Z","round":1,"evalId":"E8e","run_id":"veto-co-dau-vet-E8e-20260814T135250Z","exit_code":0,"cmd":"bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan so-ca"}
