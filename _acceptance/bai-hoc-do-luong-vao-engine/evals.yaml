@@ -1,0 +1,150 @@
+schema_version: 1
+feature_slug: bai-hoc-do-luong-vao-engine
+# Hồ sơ này CỘNG vào engine, nên mọi phép đo của nó phải sống ở LƯỚI THƯỜNG
+# TRỰC — không một răng-chết-theo-hồ-sơ nào. Đó vừa là ràng buộc thi công vừa
+# là chính bài học đang được ghi (vùng trắng của MEASURE-BIRTH-CLAUSE).
+# Hệ quả: bảng eval dưới đây KHÔNG có khoá `executors.script.<slug>_rang` nào;
+# mọi chân đi vào thân ca sẵn có của `tests/plugins` để đẳng thức số ca không
+# xê dịch (TRIM/EXTEND, không ADD — nếp hồ sơ 1a).
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - docs/research/known-limits-ledger.tsv
+      - _acceptance/cat-hinh-thuc/review-findings.md
+    expected: >
+      exit 0; chân trong thân ca `P177` assert: với TỪNG lớp trong mảng bốn tên
+      (`tap-so-rong`, `doi-chung-tu-sinh`, `mut-khong-qua-chan-that`,
+      `pinned-khong-dem-duoc`) — sổ `known-limits-ledger.tsv` có ≥1 dòng mang
+      đúng `class` ấy, `slug` = `cat-hinh-thuc`, và `note` chứa một mã finding
+      TÌM THẤY ĐƯỢC trong `_acceptance/cat-hinh-thuc/review-findings.md`.
+      In "LOP-MOI: <k>/<k> lop co dong trong so + ma finding truy duoc".
+      Đối chứng dương: đọc được sổ và đếm >0 dòng TRƯỚC khi assert — sổ rỗng
+      hoặc đường dẫn hỏng phải ĐỎ «khong doc duoc so nguon», không xanh-rỗng.
+      Chiều đỏ CHẠY THẬT: đổi `note` của một lớp sang một mã finding KHÔNG tồn
+      tại trong bản sao → đỏ đích danh lớp ấy.
+    pinned:
+      - "LOP-MOI:"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - skills/acceptance/references/measure-birth.md
+      - docs/research/known-limits-ledger.tsv
+      - tests/plugins/run-tests.sh
+    expected: >
+      exit 0 — **chân chính của hồ sơ**. Trong thân ca `P177`: rút cột `class`
+      của sổ nguồn (chỉ dòng SỐNG — `status` chưa đóng) và cột lớp của bảng
+      trong `measure-birth.md`, rồi so **HAI CHIỀU**:
+      (a) lớp có trong sổ mà VẮNG trên bảng → đỏ «LOP-BANG: so co <lop> ma bang
+      thieu»; (b) hàng trên bảng mà lớp KHÔNG có trong sổ → đỏ «LOP-BANG: bang
+      co <lop> ma so khong». In "LOP-BANG: <k>/<k> khop hai chieu".
+      Vì sao đây là chân chính: bảng tự tuyên *«Nguồn: docs/research/
+      known-limits-ledger.tsv (cột class)»* mà **không phép đo nào giữ lời tuyên
+      ấy** — đúng lớp `doc-drift` mà chính bảng ấy dạy. Hai lớp trung tâm của ba
+      vòng chấm 1a đã nằm sẵn trên bảng và vẫn bị dẫm; bảng không răng thì nó là
+      trang trí.
+      **Phép rút phải fail-loud:** rút được 0 hàng bảng hoặc 0 lớp sổ → ĐỎ «phep
+      rut hong», KHÔNG xanh-rỗng (tập-so-rỗng là hằng đúng — chính lớp
+      `tap-so-rong` hồ sơ này vừa đặt tên).
+      Chiều đỏ CHẠY THẬT ×2 trên bản sao, cả hai đi qua CHÍNH phép so:
+      (a) xoá một hàng khỏi bảng → đỏ chiều (a); (b) thêm một hàng lớp bịa vào
+      bảng → đỏ chiều (b).
+    pinned:
+      - "LOP-BANG:"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - skills/acceptance/references/measure-birth.md
+      - tests/plugins/run-tests.sh
+    expected: >
+      exit 0; `P177` ghim mục thứ tư **«Phủ-định-phổ-quát»** trong khối
+      `MEASURE-BIRTH-SECTIONS` y như nó đang ghim ba mục cũ, và mục ấy phải
+      chứa cả ba neo nội dung: cụm **lật sang liệt cái ĐƯỢC PHÉP** · **miễn trừ
+      khai trước** · **lệnh tái lập**. Ghim tên mục một mình là đo cái nhãn, không
+      đo cái luật.
+      Chiều đỏ CHẠY THẬT: bản sao xoá mục thứ tư → hàm `measure()` phải ĐỎ ghim
+      đúng tên mục (cùng khuôn mutant mà `P177` đã dùng cho mục
+      «Phá-vật-thật»); bản sao giữ tên mục mà gỡ một neo nội dung → cũng ĐỎ.
+    pinned:
+      - "P177 DUONG-OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.product_map
+    paths:
+      - PRODUCT-MAP.md
+    expected: >
+      exit 0 và stdout đúng câu "PRODUCT-MAP.md khớp hồ sơ xưởng." Ghim câu,
+      không ghim mã thoát.
+    pinned:
+      - "PRODUCT-MAP.md khớp hồ sơ xưởng."
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.scripts
+    paths:
+      - scripts
+      - tests/scripts
+    expected: >
+      exit 0; suite in dòng tổng kết "Results: <n> passed, 0 failed". Hồ sơ này
+      KHÔNG chạm `scripts/`; số đổi là tín hiệu cắt lan.
+    pinned:
+      - "0 failed"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.hooks
+    paths:
+      - hooks
+    expected: >
+      exit 0; "Results: 54 passed, 0 failed". Hồ sơ này KHÔNG chạm `hooks/`
+      (lõi cưỡng chế, `t3_paths`); số đổi là tín hiệu cắt lan sang lõi.
+    pinned:
+      - "Results: 54 passed, 0 failed"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.workflows
+    paths:
+      - tests/workflows
+    expected: >
+      exit 0; stdout kết bằng "Results: all workflow tests passed" — câu suite
+      chỉ in khi cả sáu tệp con chạy xong. Hồ sơ này KHÔNG chạm `tests/workflows`.
+    pinned:
+      - "Results: all workflow tests passed"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - tests/plugins/run-tests.sh
+    expected: >
+      exit 0; "Results: all plugin tests passed" **và đúng 146 dòng `PASS:`** —
+      đẳng thức số ca khai TRƯỚC khi thi công, không phải sàn. Hồ sơ này thêm
+      chân vào THÂN ca `P177` sẵn có (TRIM/EXTEND), nên số ca KHÔNG được đổi;
+      146 đổi thành 147 nghĩa là răng mới mọc thành ca mới, tức đã đi ngược
+      chính bài học đang ghi. Suite này không tự in số ca nên phép đếm là số
+      dòng `PASS:`.
+    pinned:
+      - "Results: all plugin tests passed"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
