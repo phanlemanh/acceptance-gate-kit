@@ -3,7 +3,7 @@ schema_version: 1
 slug: cat-hinh-thuc
 round: 8
 verdict: PENDING-JUDGMENT
-verified_commit: 9ecf494abcc1
+verified_commit: ac72ce79acb7
 ---
 
 # Trang bằng chứng — cắt hình thức khỏi bốn cổng người
@@ -313,7 +313,33 @@ Chân E6 chạy `gate-card.js`
 ở cả ba mode rồi soi thẻ render ra — vì lớp lỗi đã trả giá ở vòng khác là *đo
 chỉ dẫn thay vì đo đầu ra*.
 
-## Bảng eval — vòng 7 (phạm vi đã thu), mỗi eval một chứng nhân RIÊNG
+## Bảng eval — vòng 8 (vòng về đích)
+
+*Sinh từ `run-log.jsonl` (round 8, sha `ac72ce79acb7`). Mỗi eval máy có ≥1 chuỗi ghim
+RIÊNG trong nhóm-lệnh; recorder thoát 1 nếu chuỗi vắng trong đầu ra thật.*
+
+
+| Eval | Tiêu chí | exit | Chuỗi ghim (đều KHỚP) |
+|---|---|---|---|
+| E1 | AC-1 | 0 | `CAT-PHUT: 4/4` · `CAT-SCOPE: khop ban khai PHAM-VI-RANG` |
+| E1b | AC-12 | 0 | `KPI-PHUT: 4/4` · `KPI-PHUT: bang muc tieu GUIDE` · `KPI-PHUT-RENDER: dau ra the cong` |
+| E2 | AC-2 | 0 | `DOC-CU: 8/8` · `ROUND-TRIP: fixture-moi sinh boi CONTRACT-FRONTMATTER-TEMPLATE` |
+| E3 | AC-3 | 0 | `ONESHOT: 2/2 neo am` · `ONESHOT-SITE: 6/6` |
+| E4 | AC-4 | 0 | `REPORT: bo nhanh phut OK` · `dong so vang + ve sinh cong con NGUYEN VAN o HEAD OK` |
+| E6 | AC-6 | 0 | `THE-CONG: 3/3 mode` |
+| E10 | AC-10 | 0 | `AI-COMMIT: hai than dong bo OK` · `AI-COMMIT: dieu khoan du 4 ve` |
+| E17 | AC-14 | 0 | `YAML-KHUON: 3/3` · `YAML-KHUON: frontmatter evidence-report-template parse duoc OK` |
+| E11 | AC-11 | 0 | `LUU-KHO-SUITE: scripts 671 -> 686 OK` |
+| E12 | AC-11 | 0 | `LUU-KHO-SUITE: plugins 173 -> 146 OK` |
+| E13 | AC-11 | 0 | `LUU-KHO-SUITE: hooks 54 -> 54 OK` · `Results: 54 passed, 0 failed` |
+| E14 | AC-11 | 0 | `Results: all workflow tests passed` |
+| E15 | AC-11 | 0 | `PRODUCT-MAP.md khớp hồ sơ xưởng.` |
+| E16 | AC-11 | 0 | `LUU-KHO-SUITE: workflows 488 -> 463 OK` |
+| **E3b** | AC-3 | — | **judgment — ĐÃ CHẤM 14/08, verdict PASS** (3 ca đóng vai context sạch + judge độc lập, bảng đáp án viết trước, `required_evidence` rỗng) |
+
+**14/14 eval máy xanh · 0 lời hứa thông điệp không khớp · eval judgment duy nhất đã PASS.**
+
+## (Sử liệu) Bảng eval — vòng 7 (phạm vi đã thu), mỗi eval một chứng nhân RIÊNG
 
 *Sinh từ `run-log.jsonl` (round 7, sha `9ecf494abcc1`). Cột «chuỗi ghim» là `pinned:` của
 chính eval ấy: mỗi eval máy phải có ≥1 chuỗi KHÔNG eval nào khác trong cùng
