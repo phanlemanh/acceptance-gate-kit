@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 5f38521fae43348f8bad029a52a48cf302be3ee9
+verified_commit: a2fe86b2d26481f0064ec1fecf6ddd100415ea8c
 # bypass_ack:
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -821,3 +821,11 @@ sha: d55a836d454685cc1ab820ddada9e90b1a7ace95 · suites: 6 lệnh exit 0
 ### Re-pin lần 36 — 2026-08-08, do bugfix engine 1.39.1 (bộ file chép sang consumer đổi .cjs + danh sách chép đủ 7 file — hooks/lib/scripts/tests đổi)
 run_id: repin-20260809-consumer-copy-cjs-lane1
 sha: 5f38521fae43348f8bad029a52a48cf302be3ee9 · suites: 6 lệnh exit 0
+
+### Re-pin lần 37 — 2026-08-14, do đợt 2 «veto có dấu vết» thêm luật `veto-trace` vào sổ luật-đã-chạy
+run_id: veto-repin-20260814T134319Z
+sha: a2fe86b2d26481f0064ec1fecf6ddd100415ea8c · suites: 4 lệnh exit 0
+
+Nguyên nhân stale: hồ sơ này ghim thông điệp sổ luật, mà đợt 2 nâng số luật từ
+ba lên bốn — `evidence/ledger-messages.txt` được suite SINH LẠI (RL10_WRITE=1),
+không sửa tay. Chỉ dòng máy; không chạm dòng của người.
