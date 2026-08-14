@@ -339,6 +339,197 @@ RIÊNG trong nhóm-lệnh; recorder thoát 1 nếu chuỗi vắng trong đầu r
 
 **14/14 eval máy xanh · 0 lời hứa thông điệp không khớp · eval judgment duy nhất đã PASS.**
 
+## Evidence (per eval — sổ chạy vòng 8, MÁY SINH từ run-log.jsonl)
+
+*Chỉ 14 eval MÁY ở đây. `E3b` là `executor: judgment` — bằng chứng của nó là
+khối Judgment ngay dưới, không phải một lượt chạy có `verifier` là script.*
+
+
+- eval: E1
+  run_id: cat-hinh-thuc-r8-4f661fb2
+  exit_code: 0
+  verifier: bash _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh
+  verified_at: 2026-08-14T03:39:17.899Z
+  pinned_missing: []
+  output: |
+      OK   YAML-KHUON: OPP-FRONTMATTER-TEMPLATE parse duoc bang yaml.safe_load OK
+      OK   YAML-KHUON: UAT-FRONTMATTER-TEMPLATE parse duoc bang yaml.safe_load OK
+    YAML-KHUON: 3/3
+      OK   YAML-KHUON: frontmatter evidence-report-template parse duoc OK
+           [đột biến] xoá dòng cha giữ dòng con (đúng hình dạng lỗi đã bắt) → yaml.safe_load ĐỎ
+    CAT-HINH-THUC-RANG: tất cả phép đo xanh
+
+- eval: E1b
+  run_id: cat-hinh-thuc-r8-4f661fb2
+  exit_code: 0
+  verifier: bash _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh
+  verified_at: 2026-08-14T03:39:17.899Z
+  pinned_missing: []
+  output: |
+      OK   YAML-KHUON: OPP-FRONTMATTER-TEMPLATE parse duoc bang yaml.safe_load OK
+      OK   YAML-KHUON: UAT-FRONTMATTER-TEMPLATE parse duoc bang yaml.safe_load OK
+    YAML-KHUON: 3/3
+      OK   YAML-KHUON: frontmatter evidence-report-template parse duoc OK
+           [đột biến] xoá dòng cha giữ dòng con (đúng hình dạng lỗi đã bắt) → yaml.safe_load ĐỎ
+    CAT-HINH-THUC-RANG: tất cả phép đo xanh
+
+- eval: E2
+  run_id: cat-hinh-thuc-r8-4f661fb2
+  exit_code: 0
+  verifier: bash _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh
+  verified_at: 2026-08-14T03:39:17.899Z
+  pinned_missing: []
+  output: |
+      OK   YAML-KHUON: OPP-FRONTMATTER-TEMPLATE parse duoc bang yaml.safe_load OK
+      OK   YAML-KHUON: UAT-FRONTMATTER-TEMPLATE parse duoc bang yaml.safe_load OK
+    YAML-KHUON: 3/3
+      OK   YAML-KHUON: frontmatter evidence-report-template parse duoc OK
+           [đột biến] xoá dòng cha giữ dòng con (đúng hình dạng lỗi đã bắt) → yaml.safe_load ĐỎ
+    CAT-HINH-THUC-RANG: tất cả phép đo xanh
+
+- eval: E3
+  run_id: cat-hinh-thuc-r8-4f661fb2
+  exit_code: 0
+  verifier: bash _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh
+  verified_at: 2026-08-14T03:39:17.899Z
+  pinned_missing: []
+  output: |
+      OK   YAML-KHUON: OPP-FRONTMATTER-TEMPLATE parse duoc bang yaml.safe_load OK
+      OK   YAML-KHUON: UAT-FRONTMATTER-TEMPLATE parse duoc bang yaml.safe_load OK
+    YAML-KHUON: 3/3
+      OK   YAML-KHUON: frontmatter evidence-report-template parse duoc OK
+           [đột biến] xoá dòng cha giữ dòng con (đúng hình dạng lỗi đã bắt) → yaml.safe_load ĐỎ
+    CAT-HINH-THUC-RANG: tất cả phép đo xanh
+
+- eval: E4
+  run_id: cat-hinh-thuc-r8-4f661fb2
+  exit_code: 0
+  verifier: bash _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh
+  verified_at: 2026-08-14T03:39:17.899Z
+  pinned_missing: []
+  output: |
+      OK   YAML-KHUON: OPP-FRONTMATTER-TEMPLATE parse duoc bang yaml.safe_load OK
+      OK   YAML-KHUON: UAT-FRONTMATTER-TEMPLATE parse duoc bang yaml.safe_load OK
+    YAML-KHUON: 3/3
+      OK   YAML-KHUON: frontmatter evidence-report-template parse duoc OK
+           [đột biến] xoá dòng cha giữ dòng con (đúng hình dạng lỗi đã bắt) → yaml.safe_load ĐỎ
+    CAT-HINH-THUC-RANG: tất cả phép đo xanh
+
+- eval: E6
+  run_id: cat-hinh-thuc-r8-4f661fb2
+  exit_code: 0
+  verifier: bash _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh
+  verified_at: 2026-08-14T03:39:17.899Z
+  pinned_missing: []
+  output: |
+      OK   YAML-KHUON: OPP-FRONTMATTER-TEMPLATE parse duoc bang yaml.safe_load OK
+      OK   YAML-KHUON: UAT-FRONTMATTER-TEMPLATE parse duoc bang yaml.safe_load OK
+    YAML-KHUON: 3/3
+      OK   YAML-KHUON: frontmatter evidence-report-template parse duoc OK
+           [đột biến] xoá dòng cha giữ dòng con (đúng hình dạng lỗi đã bắt) → yaml.safe_load ĐỎ
+    CAT-HINH-THUC-RANG: tất cả phép đo xanh
+
+- eval: E10
+  run_id: cat-hinh-thuc-r8-4f661fb2
+  exit_code: 0
+  verifier: bash _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh
+  verified_at: 2026-08-14T03:39:17.899Z
+  pinned_missing: []
+  output: |
+      OK   YAML-KHUON: OPP-FRONTMATTER-TEMPLATE parse duoc bang yaml.safe_load OK
+      OK   YAML-KHUON: UAT-FRONTMATTER-TEMPLATE parse duoc bang yaml.safe_load OK
+    YAML-KHUON: 3/3
+      OK   YAML-KHUON: frontmatter evidence-report-template parse duoc OK
+           [đột biến] xoá dòng cha giữ dòng con (đúng hình dạng lỗi đã bắt) → yaml.safe_load ĐỎ
+    CAT-HINH-THUC-RANG: tất cả phép đo xanh
+
+- eval: E17
+  run_id: cat-hinh-thuc-r8-4f661fb2
+  exit_code: 0
+  verifier: bash _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh
+  verified_at: 2026-08-14T03:39:17.899Z
+  pinned_missing: []
+  output: |
+      OK   YAML-KHUON: OPP-FRONTMATTER-TEMPLATE parse duoc bang yaml.safe_load OK
+      OK   YAML-KHUON: UAT-FRONTMATTER-TEMPLATE parse duoc bang yaml.safe_load OK
+    YAML-KHUON: 3/3
+      OK   YAML-KHUON: frontmatter evidence-report-template parse duoc OK
+           [đột biến] xoá dòng cha giữ dòng con (đúng hình dạng lỗi đã bắt) → yaml.safe_load ĐỎ
+    CAT-HINH-THUC-RANG: tất cả phép đo xanh
+
+- eval: E11
+  run_id: cat-hinh-thuc-r8-3d4f5c77
+  exit_code: 0
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite scripts
+  verified_at: 2026-08-14T03:40:46.312Z
+  pinned_missing: []
+  output: |
+    LUU-KHO-SUITE: scripts 671 -> 686 OK
+                   Results: 686 passed, 0 failed
+                   (dem theo phuong phap 'results-last': 686 xanh + 0 do)
+    LUU-KHO-SUITE: dang thuc so ca khop ban khai
+
+- eval: E12
+  run_id: cat-hinh-thuc-r8-7fc6f04a
+  exit_code: 0
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite plugins
+  verified_at: 2026-08-14T03:43:24.344Z
+  pinned_missing: []
+  output: |
+    LUU-KHO-SUITE: plugins 173 -> 146 OK
+                   Results: all plugin tests passed
+                   (dem theo phuong phap 'case-lines': 146 xanh + 0 do)
+    LUU-KHO-SUITE: dang thuc so ca khop ban khai
+
+- eval: E13
+  run_id: cat-hinh-thuc-r8-d62c2cb0
+  exit_code: 0
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite hooks
+  verified_at: 2026-08-14T03:43:27.280Z
+  pinned_missing: []
+  output: |
+    LUU-KHO-SUITE: hooks 54 -> 54 OK
+                   Results: 54 passed, 0 failed
+                   (dem theo phuong phap 'results-last': 54 xanh + 0 do)
+    LUU-KHO-SUITE: dang thuc so ca khop ban khai
+
+- eval: E14
+  run_id: cat-hinh-thuc-r8-78ef09b9
+  exit_code: 0
+  verifier: bash tests/workflows/run-tests.sh
+  verified_at: 2026-08-14T03:43:30.589Z
+  pinned_missing: []
+  output: |
+      PASS: JR6 SKILL có mệnh đề: JR6-VI: đọc required_evidence trước
+      PASS: JR6 SKILL có mệnh đề: JR6-VI: cấm đoán mò
+      PASS: JR6m mutant xoá → đỏ: JR6-VI: đọc required_evidence trước
+      PASS: JR6m mutant xoá → đỏ: JR6-VI: cấm đoán mò
+    Results: 44 passed, 0 failed
+    Results: all workflow tests passed
+
+- eval: E15
+  run_id: cat-hinh-thuc-r8-bb528b4f
+  exit_code: 0
+  verifier: node scripts/product-map.mjs --root . --check
+  verified_at: 2026-08-14T03:43:30.670Z
+  pinned_missing: []
+  output: |
+    PRODUCT-MAP.md khớp hồ sơ xưởng.
+
+- eval: E16
+  run_id: cat-hinh-thuc-r8-278ffea5
+  exit_code: 0
+  verifier: bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite workflows
+  verified_at: 2026-08-14T03:43:33.671Z
+  pinned_missing: []
+  output: |
+                   Results: 42 passed, 0 failed
+                   Results: 16 passed, 0 failed (execute-parallel)
+                   Results: 26 passed, 0 failed
+                   Results: 44 passed, 0 failed
+                   (dem theo phuong phap 'results-sum:6': 463 xanh + 0 do)
+    LUU-KHO-SUITE: dang thuc so ca khop ban khai
+
 ## Judgment — `E3b` (AC-3)
 
 - eval: E3b
