@@ -28,7 +28,18 @@ neo ("bằng chứng không tự dối"), là lý do máy được chạy nhanh 
 kiểm lại.
 
 **[THU PHẠM VI — 14/08, owner chọn đường ② sau rà soát đối kháng vòng 2]**
-Hồ sơ này nay chỉ còn **một** hạng mục: **thôi đo phút người**. Bốn hạng mục
+Hồ sơ này nay còn **ba** hạng mục, và phải kể đủ ba vì Cổng 2 xin chữ ký trên
+bản khai phạm vi này: (1) **thôi đo phút người** — hạng mục chính; (2) **bản
+viết lại `CLAUDE.md`** (1a.7 — owner gạch thẳng 12/08, ghi ở
+`de-xuat-claude-md.md`; `CLAUDE.md` nằm trong `t1_skip_globs` nên không lưới máy
+nào canh, chữ duyệt là điều khiển duy nhất); (3) **AC-10 đồng bộ ai-commit-chữ-ký**
+qua `SIGNATURE-OWNER-CLAUSE`. **[SỬA 14/08 — rà soát vòng 3 RB2-05]** Bản trước
+viết «chỉ còn MỘT hạng mục» — sai, và sai theo kiểu tự tháo điều khiển: chính
+`KHAI GIỚI HẠN` của AC-10 tuyên thứ duy nhất đóng được lỗ của nó là *mắt người
+đọc điều khoản một lần*, nên khai thiếu là cách rẻ nhất để đảm bảo con mắt ấy
+không đọc. Kèm theo, AC-10 **xoá** câu chuẩn tắc của base
+*«The user (not you) fills `human_signoff`»* và thay bằng điều khoản nói về ai
+COMMIT — vế «ai ĐIỀN» nay chỉ còn ở `commands/signoff.md`. Bốn hạng mục
 đổi-hành-vi (gỡ tư cách luật-mỗi-tin của khối 👉, T1 tuyên-kèm-căn-cứ, quét độ
 phủ thôi phỏng vấn, khởi tạo một-lần-gạch) đã **hoàn nguyên khỏi nhánh này** và
 đi sang một hồ sơ riêng, gate bằng hội đồng thật.
@@ -44,9 +55,13 @@ vòng sửa 1 viết ra và khai nhầm là «mạnh hơn đối chứng dương
 (`STOP-PATCHING-CLAUSE`) bật đúng ở đó: cùng TÊN LỚP LỖI qua hai vòng ⇒ khuôn
 giải sai, không phải chi tiết sai.
 
-Bốn eval judgment (`E3b` `E7` `E8` `E9`) sinh ra để chấm đúng nửa ấy — và
-**chưa lượt nào chạy**. Thu phạm vi là trả nửa đổi-hành-vi về đúng bộ đo của
-nó, thay vì tiếp tục nuôi một bộ thước grep cho một lời hứa grep không đo được.
+**BA** eval judgment (`E7` `E8` `E9`) sinh ra để chấm nửa đổi-hành-vi và đi
+theo nó sang 1c; `E3b` ở lại vì AC-3 thuộc nửa cắt-phút. **[SỬA 14/08 —
+RA3-P1-4]** Bản trước viết «bốn eval judgment … chưa lượt nào chạy» — sai hai
+lần: đếm sai (ba, không bốn) và nay `E3b` **ĐÃ CHẠY và PASS** (14/08, ba ca
+đóng vai context sạch + judge độc lập chấm theo bảng đáp án viết trước). Thu
+phạm vi là trả nửa đổi-hành-vi về đúng bộ đo của nó, thay vì nuôi một bộ thước
+grep cho một lời hứa grep không đo được.
 
 Source input: [docs/plans/2026-08-12-de-bai-dot1-cat-va-luu-kho.md](../../docs/plans/2026-08-12-de-bai-dot1-cat-va-luu-kho.md)
 · bản neo [docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md](../../docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md)
@@ -131,7 +146,7 @@ khai lý do tại chỗ, không âm thầm thu.)
   được. Chân «so TẬP CÂU» đã **gỡ** thay vì vá: nó lọc `grep -v 'phút'` nên
   miễn trừ vĩnh viễn đúng 5 câu chịu lực. Hệ quả phải khai thẳng: **AC-3 chỉ
   được coi là đạt khi E3b đã chấm**, và E3b hiện chưa ai chạy — Cổng 2 không ký
-  được nếu nó vẫn trống. Đây là known-limit, ghi lại ở mục Notes.
+  được nếu nó vẫn trống. Đây là known-limit, ghi ở mục **Known limits** trong Notes.
 - AC-4: Given `/acceptance-report`, When chạy trên workspace hiện tại, Then báo
   cáo **không còn** nhánh so phút-vs-baseline, **vẫn còn** sổ vàng và mục vệ
   sinh cổng, và chạy được trên workspace có lẫn hồ sơ cũ-có-phút.
@@ -277,7 +292,7 @@ worktree này (KHÔNG tin số dòng trong đề bài — đã tìm lại từng
   | Gỡ tư cách luật-mỗi-tin của khối 👉 VIỆC CỦA ANH | AC-5 (+E5) | vế chỉ-báo trong `GATE-INVITE-CLAUSE`; vế 👉 trong `GATE-ONESHOT-CLAUSE` + **6 thân lệnh cổng**; bullet tin-CHỈ-BÁO; assert của `P193`, ba mục của `P189` |
   | Xác-nhận T1 → tuyên-kèm-căn-cứ | AC-7 (judgment E7) | nhánh T1 trong `skills/acceptance/SKILL.md` và `feature-loop/.../SKILL.md` |
   | Quét độ phủ thôi phỏng vấn | AC-8 (judgment E8) | `skills/morphological-scan/SKILL.md` |
-  | Khởi tạo một-lần-gạch | AC-9 + AC-13 (judgment E9 + E9b) | `commands/acceptance-init.md` (giữ lại đúng phần cắt-phút: bỏ câu hỏi `2g` và khoá `baseline_minutes`) |
+  | Khởi tạo một-lần-gạch | AC-9 + AC-13 (judgment E9 + neo âm E9b — E9b là `executor: script`, không phải judgment) | `commands/acceptance-init.md` (giữ lại đúng phần cắt-phút: bỏ câu hỏi `2g` và khoá `baseline_minutes`) |
 
   **Vì sao ra, nói bằng cái đo được.** Rà soát đối kháng vòng 2 phá thật **8
   lượt trên bộ răng và cả 8 vẫn XANH**; bảy trong tám thuộc đúng bốn hạng mục
@@ -314,6 +329,39 @@ worktree này (KHÔNG tin số dòng trong đề bài — đã tìm lại từng
   đợt 2, không phải hồ sơ này.
 
 ## Notes
+
+### Known limits — khai kèm LỆNH TÁI LẬP, không kèm tính từ
+
+*Mỗi giới hạn dưới đây đã được một phiên chấm độc lập chạy thật; lệnh kèm theo
+là để người sau tái lập trong một phút, không phải để tin lời.*
+
+1. **Lint LỚP bắt cú pháp, KHÔNG bắt từ hình.** `LOP-PHUT` (thân ca `P30`) quét
+   `[0-9~]\s*phút | phút/cổng | minutes | time_human_minutes`. Một lời hứa phút
+   viết bằng CHỮ lọt: `vài phút`, `khoảng năm phút`, `~300 giây`, `takes about
+   5 min`. Tái lập:
+   `sed -i 's|Cổng 2 · ký duyệt|Cổng 2 · ký duyệt · vài phút|' scripts/gate-card.js`
+   → suite vẫn xanh. **Backstop:** `E3b` (hành vi, đã PASS) + mắt owner ở Cổng 1.
+   Vì sao KHÔNG dựng thước cho lớp này: đó là phủ định phổ quát trên ngôn ngữ tự
+   nhiên — ba vòng chấm đã chứng minh mỗi literal thêm vào chỉ đẩy lỗ sang chỗ
+   chưa liệt.
+2. **E4 mù với dòng THÊM.** Phép so tập-dòng chỉ thấy dòng MẤT. Tái lập:
+   `printf '\n**BỎ QUA**: từ nay KHÔNG chạy bước sổ vàng nữa.\n' >> commands/acceptance-report.md`
+   → bộ răng xanh. Cùng lớp với chân đã GỠ khỏi E3 (không phép so-với-base nào
+   bắt được thứ được THÊM). Backstop: mắt người đọc diff.
+3. **AC-10: một-nguồn chứng NHẤT QUÁN, không chứng ĐÚNG.** Sửa CẢ HAI thân
+   giống hệt nhau thì byte-equal vẫn đúng và bốn vế literal vẫn đủ. Tái lập:
+   nối cùng một câu «since 14/08 this is ADVISORY…» vào cả `commands/signoff.md`
+   lẫn `skills/acceptance/SKILL.md` → xanh. Backstop: hai lưới cưỡng chế THẬT
+   (`require_human_commit` + `agent_authors`) chặn ở tầng commit, và **mắt owner
+   đọc điều khoản một lần tại Cổng 2** — xem mục ba-hạng-mục ở Context.
+4. **Bánh cóc `P161` không phủ neo/needle sinh sau mốc ghim `044968e`
+   (06/08).** Bảy dòng khai trong `asserts-da-go.txt` là dấu vết bằng TAY. Chiều
+   (b) của bánh cóc vẫn sống trên chính các dòng ấy — đó là cách neo
+   `tuong-thich-cu` được phát hiện đã gỡ nhầm và được trả về.
+5. **`E3b` đo HÀNH VI qua bản chép cô đọng, không qua transcript thô.** Judge đã
+   truy nguồn từng neo về đúng bốn tệp được phép và không thấy dấu đọc ngoài;
+   nâng chuẩn lên transcript thô là yêu cầu cho lần chạy sau.
+
 
 - **Hạng mục 1a.7 (sửa `CLAUDE.md`) có ràng buộc riêng.** `CLAUDE.md` nằm trong
   `t1_skip_globs` nên KHÔNG có lưới máy nào canh nó — chữ duyệt của owner là

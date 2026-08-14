@@ -392,3 +392,91 @@ Ba con số đếm bằng máy từ chính đầu ra.
   trạng không, và số ca bốn suite có còn khớp đẳng thức không.
 - **`E3b` vẫn chưa ai chấm** — và nay nó là eval judgment DUY NHẤT của hồ sơ,
   gánh trọn lời hứa hành vi của AC-3.
+
+---
+
+# Rà soát đối kháng vòng 3 (14/08) — **cả ba lăng kính REJECT** → vòng VỀ ĐÍCH
+
+*Ba phiên độc lập tại ngọn `1f3a4ba1`. **21 lượt phá thật, 12 lượt vẫn XANH.***
+Người thi công kiểm lại từng P0 chịu lực trên cây — không loại được cái nào.
+
+## Luật dừng-vá bật LẦN THỨ HAI
+
+Sáu lớp đã bị gọi tên ở vòng 2 dựng lại ở chi khác: chèn-rồi-grep-lại-chính-nó
+(E9b → E1/E1b/E3b/E2b) · so-với-base mù dòng THÊM (E3 set-leg → **dựng lại ở
+E4**) · needle literal mù cách nói khác (`~5 phút` → `~10 phút`/`vài phút`) ·
+cặp so hai đầu vào giống hệt (E2/recheck) · chiều đỏ không qua chân canh (E6 →
+`MUTANT-PHUT`) · gỡ neo cho vừa cái đo được (E9b → `tuong-thich-cu`).
+
+Owner được trình ba đường và chọn **Ⓐ rút gọn rồi Ⓑ**, kèm hai quyết định tốc độ:
+chạy `E3b` TRƯỚC, và **bỏ vòng chấm 4 ba-lăng-kính** thay bằng lượt tái lập các
+lượt phá đã ghi lệnh.
+
+## Ⓐ rút gọn — LẬT từ «liệt cái CẤM» sang «liệt cái ĐƯỢC PHÉP»
+
+Gốc của lớp tái phát: *«không lời hứa phút nào, ở bất kỳ cách diễn đạt nào»* là
+**phủ định phổ quát trên văn tự nhiên** — grep chứng được sự vắng của chuỗi cụ
+thể, không chứng được mệnh đề phổ quát. Đường duy nhất chứng được là lật:
+
+**`LOP-PHUT` trong thân ca `P30` (lưới THƯỜNG TRỰC, không phải răng-hồ-sơ):**
+quét cả lớp cú pháp `[0-9~]\s*phút | phút/cổng | minutes | time_human_minutes`
+trên phạm vi khai, đối chiếu **bản khai miễn trừ theo cặp (tệp, từ khoá)**,
+bánh cóc HAI CHIỀU. Số ca không đổi (146) — lint vào THÂN ca sẵn có.
+
+Kiểm cả hai chiều, đã chạy:
+
+| Lượt phá | Kết quả |
+|---|---|
+| `· ~5 phút` vào phụ đề thẻ Cổng 2 | **ĐỎ** `gate-card.js:441 «5 phút»` |
+| `· 10 phút` | **ĐỎ** `«0 phút»` |
+| `· 5 minutes` | **ĐỎ** `«minutes»` |
+| `ước ~10 phút` vào `start.md` (đúng lỗ P0-2 vòng 3) | **ĐỎ** `commands/start.md:53` |
+| thêm một dòng khai khống vào bản khai miễn trừ | **ĐỎ** `dong khai KHONG con hit that (banh coc chieu b)` |
+
+## Năm lỗi SẢN PHẨM — lỗi thứ năm do chính lint mới tìm ra
+
+| Vật | Sửa |
+|---|---|
+| `commands/start.md:53` | «ước ~10 phút» cho mỗi cổng đang chờ (P0 vòng 3) |
+| `.claude-plugin/plugin.json` | tagline «Cuts human acceptance time from hours to minutes» + mục v1.18 quảng cáo «minutes vs baseline» → sửa tagline, entry `v1.42.0`, bump version |
+| **`README.md:4`** | «~15-20 minutes at two gates» — **cả ba vòng chấm đều bỏ sót**, lint lớp bắt ngay lượt chạy đầu |
+| `human-facing-language.md:222` + `P194` | gói lại dòng để «vẫn chạy nguyên» liền một dòng, **TRẢ neo `tuong-thich-cu` về cây** — nó bị gỡ nhầm vì câu chỉ bị gói dòng chứ không chết |
+| `asserts-da-go.txt` | khai 7 dòng neo/needle đã gỡ, kèm lời nói thẳng rằng `P161` không phủ được chúng |
+
+## Thước gian dối — sửa tại chỗ, đã tái lập
+
+- **E1/E1b**: chiều đỏ nay chạy lại **CHÍNH `quet_am`** trên bản sao bị tiêm
+  (tách `QUET_ROOT` khỏi `ROOT` để `base_n` vẫn đọc kho thật). Hết «định lý về
+  `grep`».
+- **E2**: mỗi bên đọc phải đạt **ĐIỀU KIỆN DƯƠNG** (recheck `rc=0` · pre-merge
+  in `OK [slug]` · product-map ra phán quyết · gate-card render được khối).
+  Tái lập RB3-05: `recheck-evidence` luôn `exit 1` → **ĐỎ** *doi chung duong
+  hong*; `pre-merge-check` thành stub → **ĐỎ**. Trước đó cả hai cho `DOC-CU: 8/8`.
+- **`MUTANT-PHUT`**: chạy lại chính đoạn chấm của `P185`/`P186` + đối chứng
+  dương (thẻ nguyên vẹn phải QUA được chân ấy).
+
+## `E3b` — CHẠY và **PASS**
+
+Eval judgment duy nhất còn lại, gánh trọn lời hứa hành vi của AC-3. Ba ca đóng
+vai context sạch (chỉ 4 thân chỉ dẫn, có `commands/start.md` như vòng 1 dặn),
+judge độc lập chấm theo bảng đáp án viết TRƯỚC: **cả ba ca ĐẠT**, `required_evidence`
+rỗng. Ca 3 còn tự bịt đường ghi vòng mà đáp án không nêu tên: *«ghi "phút mười
+hai" vào sổ chính là ghi số phút bằng đường vòng»*. Judge truy nguồn từng neo
+đáng ngờ về đúng bốn tệp được phép — không dấu hiệu đọc ngoài.
+
+## Ⓑ — cái KHÔNG xây, khai thẳng kèm lệnh tái lập
+
+Năm known-limit ghi ở `contract.md` mục **Known limits**, mỗi cái kèm **lệnh
+tái lập trong một phút**: lint mù lớp TỪ HÌNH (`vài phút`) · E4 mù dòng THÊM ·
+AC-10 một-nguồn chứng nhất-quán-không-chứng-đúng · `P161` không phủ neo sinh sau
+mốc ghim · `E3b` đo qua bản chép cô đọng. Không dựng thước mới cho chúng — ba
+vòng đã chứng minh đó là đường không có đáy.
+
+## Lời khai khớp vật
+
+«**Ba** hạng mục» (không phải một): cắt-phút · `CLAUDE.md` (1a.7, owner gạch
+12/08) · AC-10. **Điều này nặng vì `KHAI GIỚI HẠN` của AC-10 tuyên thứ duy nhất
+đóng được lỗ của nó là «mắt người đọc điều khoản một lần» — khai thiếu là cách
+rẻ nhất để đảm bảo con mắt ấy không đọc.** Kèm: đếm eval judgment (ba sang 1c,
+`E3b` ở lại) · nhãn `(Sử liệu)` cho ba mục nói ngược · `gap-probe` hàng AC-9b ·
+lời khai trong `ghi-so-chay-1a.mjs`.

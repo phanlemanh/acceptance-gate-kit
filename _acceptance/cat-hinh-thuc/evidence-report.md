@@ -1,14 +1,67 @@
 ---
 schema_version: 1
 slug: cat-hinh-thuc
-round: 7
+round: 8
 verdict: PENDING-JUDGMENT
 verified_commit: 9ecf494abcc1
 ---
 
 # Trang bằng chứng — cắt hình thức khỏi bốn cổng người
 
-## Verdict: **PENDING-JUDGMENT — phạm vi ĐÃ THU, chờ rà soát đối kháng vòng 3**
+## Verdict: **PENDING-JUDGMENT — vòng VỀ ĐÍCH đã thi công, chờ chữ ký Cổng 2**
+
+> **Rà soát vòng 3: cả BA lăng kính REJECT** (21 lượt phá thật, 12 lượt vẫn
+> xanh). Luật dừng-vá bật **lần thứ hai**. Owner chọn **Ⓐ rút gọn rồi Ⓑ**, kèm
+> hai quyết định tốc độ: chạy `E3b` TRƯỚC, và **bỏ vòng chấm 4** thay bằng lượt
+> tái lập các lượt phá đã ghi lệnh. Biên bản đầy đủ ở `review-findings.md`.
+>
+> ### `E3b` ĐÃ CHẠY — verdict **PASS**
+>
+> Eval judgment DUY NHẤT của hồ sơ, gánh trọn lời hứa hành vi của AC-3
+> («người quen tay gõ `, phút 12` không bị chặn, và máy KHÔNG ghi trường phút»).
+> Ba ca đóng vai context sạch + judge độc lập chấm theo bảng đáp án viết TRƯỚC →
+> **cả ba ca ĐẠT**, `required_evidence` rỗng. Điều kiện ký mà chính hợp đồng tự
+> trói (*«Cổng 2 không ký được khi E3b còn trống»*) nay **đã thoả**.
+>
+> ### Ⓐ rút gọn — LẬT sang «liệt cái ĐƯỢC PHÉP»
+>
+> Gốc lớp tái phát: «không lời hứa phút nào, ở bất kỳ cách diễn đạt nào» là
+> **phủ định phổ quát trên văn tự nhiên**. `LOP-PHUT` (thân ca `P30`, lưới
+> THƯỜNG TRỰC) quét cả **lớp cú pháp** rồi đối chiếu **bản khai miễn trừ theo
+> cặp (tệp, từ khoá)**, bánh cóc HAI CHIỀU. Đã kiểm cả hai chiều: bốn cách hứa
+> phút (`~5 phút` · `10 phút` · `5 minutes` · `ước ~10 phút` ở `start.md`) đều
+> **ĐỎ đích danh**; một dòng khai khống cũng **ĐỎ**. Số ca không đổi — lint vào
+> THÂN ca sẵn có.
+>
+> ### Năm lỗi SẢN PHẨM — lỗi thứ năm do chính lint mới tìm ra
+>
+> `commands/start.md:53` · `.claude-plugin/plugin.json` (tagline + entry
+> v1.42.0 + bump) · **`README.md:4`** («~15-20 minutes at two gates» — cả ba
+> vòng chấm đều bỏ sót) · trả neo `tuong-thich-cu` về `P194` (nó bị gỡ nhầm vì
+> câu chỉ bị GÓI LẠI DÒNG chứ không chết) · khai 7 dòng vào `asserts-da-go.txt`.
+>
+> ### Ba thước gian dối, sửa tại chỗ và đã tái lập
+>
+> E1/E1b chiều đỏ chạy lại **CHÍNH `quet_am`** · E2 mỗi bên đọc phải đạt
+> **điều kiện dương** (bên đọc chết hẳn nay ĐỎ thay vì `DOC-CU: 8/8`) ·
+> `MUTANT-PHUT` chạy lại chính đoạn chấm + đối chứng dương.
+>
+> ### Ⓑ — năm known-limit, mỗi cái kèm LỆNH TÁI LẬP
+>
+> Ở `contract.md` mục **Known limits**. Không dựng thước mới cho chúng: lint mù
+> lớp TỪ HÌNH (`vài phút`) là ranh giới thật của grep, backstop là `E3b` (đã
+> PASS) + mắt owner.
+>
+> ### Phạm vi: **BA** hạng mục, không phải một
+>
+> cắt-phút · `CLAUDE.md` (1a.7, owner gạch 12/08) · AC-10. Bản trước khai «chỉ
+> còn MỘT» — sai, và sai theo kiểu **tự tháo điều khiển**: `KHAI GIỚI HẠN` của
+> AC-10 tuyên thứ duy nhất đóng được lỗ của nó là *mắt người đọc điều khoản một
+> lần*. Anh nên đọc `SIGNATURE-OWNER-CLAUSE` một lượt trước khi ký.
+
+---
+
+## (Sử liệu) PENDING-JUDGMENT — phạm vi ĐÃ THU (vòng trước)**
 
 > **Rà soát vòng 2: cả BA lăng kính REJECT — 8 P0 · 11 P1 sau khi gộp trùng.**
 > Luật dừng-vá (`STOP-PATCHING-CLAUSE`) bật: cùng TÊN LỚP LỖI qua hai vòng ⇒
@@ -205,7 +258,10 @@ Ba thứ đổi theo, không thứ nào là nới tiêu chí:
    nhau. 1a ghi lại thành **lần 12** bằng một lượt lane MỚI tại sha mới; nghi
    thức cấm tái dùng lane cũ.
 
-## Số đo
+## (Sử liệu — vòng 4) Số đo
+
+> **[SỬA 14/08]** Mọi con số dưới đây đo tại `62c69351` (ngọn vòng 4). Số hiện
+> hành ở mục Verdict đầu trang và bảng eval vòng 8.
 
 Tất cả đo tại `62c69351`, sổ chạy `run-log.jsonl` do **phép đo sinh** (không gõ
 tay): 15 dòng · 7 lượt chạy vật lý · **0 lượt ĐỎ** · 4 eval chờ người chấm.
@@ -318,7 +374,12 @@ chuỗi ghim, không phải mã thoát.*
 **0 lượt ĐỎ · 0 lời hứa thông điệp không khớp · 4 eval judgment chưa ai chấm.**
 Vòng 5 (cùng sổ, ngay trên) có **1 lời hứa không khớp** — `E12` / `MOI-TIN-CASE:` — và recorder thoát 1. Lượt ấy giữ nguyên: sổ append-only, và nó là đối chứng dương của chính luật chứng-nhân-riêng (xem H15 trong `review-findings.md`).
 
-## Bốn eval CHƯA có kết quả — cố ý, không phải bỏ quên
+## (Sử liệu — vòng 4, LỖI THỜI) Bốn eval CHƯA có kết quả
+
+> **[SỬA 14/08]** Mục này viết cho phạm vi CŨ. Nay: `E7` `E8` `E9` + neo âm
+> `E9b` đã ra khỏi hồ sơ cùng `AC-7`/`AC-8`/`AC-9`/`AC-13` (sang 1c); `E3b` là
+> eval judgment DUY NHẤT còn lại và **đã CHẠY, verdict PASS** (14/08). Giữ
+> nguyên văn làm sử liệu.
 
 `E3b` `E7` `E8` `E9` là `executor: judgment`: chúng hỏi một agent context sạch
 xử sự thế nào khi đọc thân lệnh/thân skill đã sửa (bỏ qua vế phút · nhận diện
@@ -373,7 +434,7 @@ lệch kỳ vọng: 173 → 146»*. Gộp hai câu ấy làm một thì cả hai
 
 ## Khai giới hạn
 
-- **Ba eval mượn dụng cụ của 1b.** E11/E12/E13/E16 chạy `so-ca.sh` và bốn khoá
+- **[SỬA 14/08: BỐN, không ba]** Bốn eval mượn dụng cụ của 1b. E11/E12/E13/E16 chạy `so-ca.sh` và bốn khoá
   `executors.script.luu_kho_so_ca_*` — vật của hồ sơ 1b, mang nhãn *«chết theo
   hồ sơ khi merge»*. Ai thi hành nhãn ấy đúng nghĩa đen lúc merge 1b thì AC-11
   mất chân đẳng thức. Chọn mượn vì hai hồ sơ đã merge trước còn nguyên script +

@@ -8,14 +8,15 @@
 //   (c) Danh sách eval SUY TỪ `evals.yaml` + `config.yaml`, không gõ lại.
 //
 // KHÁC bản 1b ở đúng một chỗ, và đó là lý do tệp này tồn tại chứ không phải
-// gọi lại tệp kia: **hồ sơ này có 4 eval `executor: judgment`** (E3b, E7, E8,
-// E9) — chúng do NGƯỜI/JUDGE chấm, không có `cmd:` nào để chạy. Bản 1b
+// gọi lại tệp kia: **hồ sơ này có eval `executor: judgment`** — chúng do
+// NGƯỜI/JUDGE chấm, không có `cmd:` nào để chạy. (Vòng thu phạm vi 14/08 đưa
+// E7/E8/E9 sang hồ sơ 1c; còn lại đúng một: E3b.) Bản 1b
 // fail-closed khi gặp eval thiếu `cmd` (đúng cho 1b: mọi eval của nó là máy).
 // Ở đây thì luật đúng phải là:
 //   · `judgment` → KHÔNG ghi dòng nào. Ghi một dòng `exit_code: 0` cho phép đo
 //     chưa ai chấm là bịa bằng chứng — sổ chạy sẽ tuyên "đã đo" cho thứ mới chỉ
 //     được liệt kê. Chúng được in ra stderr và đếm vào dòng tổng kết để việc
-//     "còn 4 eval chờ người" là thứ ĐỌC THẤY, không phải thứ im lặng.
+//     "còn <n> eval chờ người" là thứ ĐỌC THẤY, không phải thứ im lặng.
 //   · eval không `cmd` mà cũng không `judgment` → CHẾT TO (exit 2). Đó là hồ sơ
 //     hỏng, không phải trường hợp hợp lệ.
 //
