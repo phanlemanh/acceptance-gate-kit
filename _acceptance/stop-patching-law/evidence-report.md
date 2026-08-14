@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 8e1f240e2b3914467502a4ba0dfacc72d85b77b3
+verified_commit: 5a9dce68ffc77b1faf2c2af419e2e9ed8e053e37
 # bypass_ack:
 human_signoff: Manh Phan 2026-08-07 — ký (a) known-limits: fixture hành vi thiếu provenance máy-kiểm (trong hợp đồng) + 6 mục ngoài hợp đồng
 ---
@@ -203,3 +203,7 @@ sha: 1f6c381184ddf54676957d1d7214b60802a5f38e · suites: 5 lệnh exit 0
 ### Re-pin lần 16 — 2026-08-14, do vòng thu phạm vi của 1a hoàn nguyên bốn hạng mục đổi-hành-vi (human-facing-language, 6 thân lệnh, morphological-scan, acceptance-init) và thêm răng không-hứa-phút vào tests/plugins
 run_id: repin-cat-hinh-thuc-thu-pham-vi-20260814T050218Z
 sha: 8e1f240e2b3914467502a4ba0dfacc72d85b77b3 · suites: 5 lệnh exit 0
+
+### Re-pin lần 17 — 2026-08-14, do vòng về đích của 1a: lint LOP-PHUT vào thân ca P30, trả neo tuong-thich-cu về P194, MUTANT-PHUT qua chân thật, sửa start.md/README/plugin.json
+run_id: repin-stop-patching-law-ve-dich-20260814T073711Z
+sha: 5a9dce68ffc77b1faf2c2af419e2e9ed8e053e37 · suites: 5 lệnh exit 0
