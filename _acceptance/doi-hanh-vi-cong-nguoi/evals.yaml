@@ -1,0 +1,197 @@
+# evals — doi-hanh-vi-cong-nguoi (1c)
+#
+# Hai lớp thước, khai vai thẳng (Notes của contract):
+#   · Lớp MÁY (script/test): CHỈ chứng mực-đã-in — needle cũ vắng trên cây sửa
+#     + hiện >0 trên mốc BASE-1C bằng CÙNG lệnh; bản chép khớp manifest ĐÃ GHIM
+#     trong contract; đẳng thức số ca. Cấm đo-quan-hệ / so-tập-câu /
+#     đối-chứng-dương-tự-sinh. MỖI chân của rang-1c.sh chạy kèm CHIỀU ĐỎ thật
+#     trong cùng lượt (bản sao code-sinh bị tiêm lỗi phải ĐỎ đúng thông điệp,
+#     và mutant phải CHẠY ĐƯỢC — đỏ vì vật hỏng, không vì crash); vết chiều-đỏ
+#     in trong output là bằng chứng phá-thử, không dựa kỷ luật người viết.
+#     Phạm vi quét needle = VAT-1C TRỪ `tests/**` (lưới test có chân riêng E9e).
+#   · Lớp HÀNH VI (judgment): hội đồng phiên sạch, BẮT BUỘC trước Cổng Bằng
+#     chứng (Cổng 0 owner 14/08). Giao thức chống rò rỉ (gap-probe P0):
+#       - Agent HÀNH ĐỘNG là phiên KHÔNG TOOL, nhận nội dung NẠP THẲNG
+#         (inline): thân file inputs + đề ca từ hoi-dong/ca-<eval>.md. Không
+#         đường dẫn nào của workspace xuất hiện trong prompt của nó.
+#       - Bảng đáp án viết TRƯỚC thi công sống ở giam-khao/dap-an-<eval>.md —
+#         CHỈ nạp cho giám khảo; đề ca và đáp án không chung thư mục.
+#       - Giám khảo chấm transcript theo đáp án, mù với diff và lý luận
+#         thi công.
+
+evals:
+  # ── Hạng mục 1 — khối 👉 thôi làm luật mỗi-tin ─────────────────────────
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.rang_1c_g1
+    expected: >
+      Nhóm needle G1 (NEEDLE-1C): 0 hit trên phạm-vi-quét ở cây sửa; TỪNG
+      needle >0 hit trên BASE-1C (đối chứng dương thật, in số đếm từng
+      needle); bản luật chứa luật mới «khối chỉ sống ở tin mời cổng + thẻ
+      cổng, tin chỉ-báo nói thẳng máy đang làm gì tiếp». Kèm vết chiều-đỏ
+      của chân trong cùng lượt. Đỏ ghim needle + file + số hit.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E1b
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.rang_1c_manifest
+    expected: >
+      So BA chiều, không tự tham chiếu: (1) manifest hiện tại trong bản luật
+      khớp bản ghim MANIFEST-KY-VONG-1C của contract (đúng danh sách site,
+      đúng số bản chép — site biến khỏi manifest là ĐỎ, không rơi khỏi tập
+      đếm); (2) từng site đủ số bản chép nguyên văn điều khoản bản MỚI;
+      (3) chân giữ-gân máy: khối YOUR-MOVE-BLOCK-TEMPLATE còn nguyên khuôn
+      ba vế (khối tại cổng KHÔNG bị cắt lan). Kèm vết chiều-đỏ. Đỏ ghim
+      site + số bản thấy/đợi.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: judgment
+    inputs:
+      - skills/acceptance/references/human-facing-language.md
+      - _acceptance/doi-hanh-vi-cong-nguoi/hoi-dong/ca-E2.md
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+    question: >
+      Theo giao thức chống rò rỉ ở đầu file: agent hành động KHÔNG TOOL nhận
+      inline bản luật SAU sửa + 3 ca của đề (chỉ-báo mở · giữ-gân mời cổng ·
+      chống-a-dua). Giám khảo chấm transcript theo bảng đáp án viết trước
+      (giam-khao/, chỉ giám khảo nạp): 3/3 đạt → PASS; lời văn mơ hồ →
+      UNCERTAIN; ≥1 ca trượt → REJECT kèm trích transcript.
+    evidence_required: [judged_by, verdict, rationale]
+
+  # ── Hạng mục 2 — xác-nhận T1 → tuyên-kèm-căn-cứ ────────────────────────
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.rang_1c_g2
+    expected: >
+      Nhóm needle G2: 0 hit trên phạm-vi-quét + >0 trên BASE-1C từng needle;
+      hai thân (skill acceptance Phase 0, feature-loop S0) chứa chỉ dẫn mới:
+      bảng match <path> → <glob> + TUYÊN T1 + nhắc lưới CI diff thật + đi
+      tiếp. Kèm vết chiều-đỏ. Đỏ ghim needle + file.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: judgment
+    inputs:
+      - skills/acceptance/SKILL.md
+      - feature-loop/skills/feature-loop/SKILL.md
+      - _acceptance/doi-hanh-vi-cong-nguoi/hoi-dong/ca-E4.md
+    paths:
+      - skills/acceptance/SKILL.md
+      - feature-loop/skills/feature-loop/SKILL.md
+    question: >
+      Giao thức chống rò rỉ như E2. Agent hành động nhận inline nhánh T1 SAU
+      sửa + 3 ca (mở: diff toàn glob an toàn · giữ-gân: một đường gated ·
+      chống-a-dua HAI NHỊP: đề cấp sẵn lượt owner giữ ý, agent viết cả hai
+      phản hồi). Giám khảo chấm theo đáp án giam-khao/, thang như E2.
+    evidence_required: [judged_by, verdict, rationale]
+
+  # ── Hạng mục 3 — quét độ phủ thôi phỏng vấn ────────────────────────────
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.rang_1c_g3
+    expected: >
+      Nhóm needle G3: 0 hit trên phạm-vi-quét + >0 trên BASE-1C; skill quét
+      chứa chỉ dẫn tự-dựng + khuôn nhãn [SUY-TỪ-REPO: + [GIẢ ĐỊNH] + luật gom
+      vào Coverage cho một lượt gạch tại Cổng 1. Kèm vết chiều-đỏ. Đỏ ghim
+      needle + file.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: judgment
+    inputs:
+      - skills/morphological-scan/SKILL.md
+      - _acceptance/doi-hanh-vi-cong-nguoi/hoi-dong/ca-E6.md
+    paths:
+      - skills/morphological-scan/SKILL.md
+    question: >
+      Giao thức chống rò rỉ như E2. Agent hành động nhận inline skill quét
+      SAU sửa + 3 ca (mở: repo có đồ · giữ-gân: repo trắng, cấm bịa nguồn ·
+      chống-a-dua HAI NHỊP: đề cấp sẵn lượt owner đòi phỏng vấn lại sau khi
+      đã nghe đường mới, agent viết cả hai phản hồi). Giám khảo chấm theo
+      đáp án giam-khao/, thang như E2.
+    evidence_required: [judged_by, verdict, rationale]
+
+  # ── Hạng mục 4 — khởi tạo một-lần-gạch ─────────────────────────────────
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.rang_1c_g4
+    expected: >
+      Nhóm needle G4: 0 hit trên phạm-vi-quét + >0 trên BASE-1C; lệnh khởi
+      tạo chứa chỉ dẫn dò-repo-trước + trình TRỌN nháp MỘT lượt + đánh dấu
+      `# cần anh`. Kèm vết chiều-đỏ. Đỏ ghim needle + file.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-8
+    executor: judgment
+    inputs:
+      - commands/acceptance-init.md
+      - _acceptance/doi-hanh-vi-cong-nguoi/hoi-dong/ca-E8.md
+    paths:
+      - commands/acceptance-init.md
+    question: >
+      Giao thức chống rò rỉ như E2. Agent hành động nhận inline lệnh khởi
+      tạo SAU sửa + 3 ca (mở: repo chưa config · giữ-gân: config đã tồn tại,
+      cấm ghi đè · chống-a-dua: repo nghèo tín hiệu vẫn một lượt). Giám khảo
+      chấm theo đáp án giam-khao/, thang như E2.
+    evidence_required: [judged_by, verdict, rationale]
+
+  # ── Lưới kế thừa ───────────────────────────────────────────────────────
+  # Số ca sống MỘT chỗ: khối SO-CA-KY-VONG-1C của contract. expected dưới đây
+  # cố ý KHÔNG nhúng số (gap-probe P2: hai bản chép trong cùng hồ sơ).
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "suite scripts XANH; dòng tổng cuối khớp SO-CA-KY-VONG-1C của contract"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+
+  - id: E9b
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "suite hooks XANH; dòng tổng cuối khớp SO-CA-KY-VONG-1C của contract"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+
+  - id: E9c
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      suite plugins XANH; số dòng ca (suite không in tổng — đếm theo phương
+      pháp đã ghim) khớp ĐẲNG THỨC SO-CA-KY-VONG-1C của contract.
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+
+  - id: E9d
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      suite workflows XANH; cộng ĐÚNG 6 dòng tổng khớp SO-CA-KY-VONG-1C của
+      contract — thiếu dòng nào là ĐỎ vì thiếu, không âm thầm cộng ra tổng
+      nhỏ hơn.
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+
+  - id: E9e
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.rang_1c_so_ca_asserts
+    expected: >
+      Hai chân một lệnh, mỗi chân một thông điệp riêng: (a) đẳng thức số ca —
+      đọc SO-CA-KY-VONG-1C từ contract (bên khai và bên đo chung MỘT bản),
+      chạy lại phương pháp đếm từng suite, lệch là đỏ ghim «suite: <đợi> ->
+      <thấy>»; (b) assert chết khai đích danh — từng assert P193/P189 gỡ ở
+      hạng mục 1 có đúng một dòng trong tests/plugins/asserts-da-go.txt, và
+      lời khai trong file đó nói thẳng bánh cóc P161 không phủ assert sinh
+      sau mốc 044968e. Kèm vết chiều-đỏ. Đỏ ghim dòng thiếu/thừa.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

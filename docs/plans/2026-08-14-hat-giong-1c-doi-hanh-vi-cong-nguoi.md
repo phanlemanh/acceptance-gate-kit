@@ -1,8 +1,10 @@
 # Hạt giống 1c — bốn lượt đổi HÀNH VI ở cổng người, gate bằng hội đồng
 
-*Trạng thái: **HẠT GIỐNG, chờ Cổng 1**. Chưa thi công một dòng nào. Sinh ngày
-14/08 khi owner chọn đường ② (thu phạm vi) sau rà soát đối kháng vòng 2 của hồ
-sơ `cat-hinh-thuc`.*
+*Trạng thái: **CỔNG 0 ĐÃ GẬT — 14/08, owner trả lời «hội đồng: bắt buộc», giữ
+đủ bốn hạng mục.** Hội đồng chấm loại B là điều kiện BẮT BUỘC trước Cổng 2,
+không phải khuyến nghị. Hồ sơ mở tại `_acceptance/doi-hanh-vi-cong-nguoi/`,
+chờ Cổng 1. Sinh ngày 14/08 khi owner chọn đường ② (thu phạm vi) sau rà soát
+đối kháng vòng 2 của hồ sơ `cat-hinh-thuc`.*
 
 ## Vì sao có tệp này
 
