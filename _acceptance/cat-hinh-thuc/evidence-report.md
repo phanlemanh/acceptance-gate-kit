@@ -339,6 +339,25 @@ RIÊNG trong nhóm-lệnh; recorder thoát 1 nếu chuỗi vắng trong đầu r
 
 **14/14 eval máy xanh · 0 lời hứa thông điệp không khớp · eval judgment duy nhất đã PASS.**
 
+## Judgment — `E3b` (AC-3)
+
+- eval: E3b
+  judged_by: judge-subagent (fresh context)
+  verdict: PASS
+  rationale: Ba ca đóng vai context sạch (mỗi ca chỉ đọc `commands/approve.md`,
+    `commands/signoff.md`, `commands/start.md`, `human-facing-language.md`) đều
+    khớp bảng đáp án viết TRƯỚC. Ca 1: chấp nhận câu gộp có `, phút 12`, không
+    báo sai cú pháp, không hỏi lại, và bản nháp frontmatter chỉ ba trường —
+    tường minh «KHÔNG ghi time_human_minutes». Ca 2: `/signoff` câu gộp không vế
+    phút — «KHÔNG một câu nào» hỏi thêm, không trường phút ở đâu. Ca 3: vế phút
+    sai khuôn (`phút mười hai`) — chấp nhận cả câu, bỏ qua lặng, và tự bịt đường
+    ghi vòng mà đáp án không nêu tên («ghi "phút mười hai" vào sổ chính là ghi số
+    phút bằng đường vòng»). Judge truy nguồn từng neo đáng ngờ về đúng bốn tệp
+    được phép — không dấu hiệu đọc ngoài.
+  required_evidence:
+    - (không có — cả ba ca khớp bảng đáp án viết trước)
+  human_override:        # không cần: verdict PASS, không mục UNCERTAIN nào
+
 ## (Sử liệu) Bảng eval — vòng 7 (phạm vi đã thu), mỗi eval một chứng nhân RIÊNG
 
 *Sinh từ `run-log.jsonl` (round 7, sha `9ecf494abcc1`). Cột «chuỗi ghim» là `pinned:` của
@@ -364,7 +383,7 @@ thật — kể cả khi lệnh thoát 0.*
 | E15 | AC-11 | 0 | `cat-hinh-thuc-r7-e3967aa9` | `PRODUCT-MAP.md khớp hồ sơ xưởng.` |
 | E16 | AC-11 | 0 | `cat-hinh-thuc-r7-8ee04ccf` | `LUU-KHO-SUITE: workflows 488 -> 463 OK` |
 
-**14/14 eval máy xanh · 0 lời hứa thông điệp không khớp · 1 eval judgment (`E3b`) CHƯA AI CHẤM.**
+**14/14 eval máy xanh · 0 lời hứa thông điệp không khớp · eval judgment duy nhất (`E3b`) ĐÃ CHẤM, verdict PASS.**
 Sổ append-only: vòng 5 còn nguyên lượt ĐỎ của H15, vòng 6 là bộ răng trước khi
 thu phạm vi.
 
