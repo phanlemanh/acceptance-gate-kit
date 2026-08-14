@@ -24,3 +24,7 @@
 {"ts":"2026-08-13T09:33:57Z","kind":"repin","run_id":"repin-luu-kho-vong-sua-2-20260813T093357Z","sha":"a52a2b5a3bb68feafd1c7b6c823a17c90f89b0b0","suites_exit":[0,0,0,0,0]}
 {"ts":"2026-08-13T11:32:14Z","kind":"repin","run_id":"repin-luu-kho-thu-gon-20260813T113214Z","sha":"c86aff6eca40f742f5e5a01f5ca0643e061adcfa","suites_exit":[0,0,0,0,0]}
 {"ts":"2026-08-13T12:30:18Z","kind":"repin","run_id":"repin-luu-kho-vong4-20260813T123018Z","sha":"c62f0330f253fd92f553547f09a7afcdb102c3c3","suites_exit":[0,0,0,0,0]}
+{"ts":"2026-08-13T17:03:23Z","kind":"repin","run_id":"repin-cat-hinh-thuc-tren-main-20260813T170323Z","sha":"62c6935107e24371ca5a416ce8f567c804fd8b40","suites_exit":[0,0,0,0,0]}
+{"ts":"2026-08-14T02:15:41Z","kind":"repin","run_id":"repin-cat-hinh-thuc-vong-sua-1-20260814T021541Z","sha":"1f6c381184ddf54676957d1d7214b60802a5f38e","suites_exit":[0,0,0,0,0]}
+{"ts":"2026-08-14T05:02:18Z","kind":"repin","run_id":"repin-cat-hinh-thuc-thu-pham-vi-20260814T050218Z","sha":"8e1f240e2b3914467502a4ba0dfacc72d85b77b3","suites_exit":[0,0,0,0,0]}
+{"ts":"2026-08-14T07:37:11Z","kind":"repin","run_id":"repin-stop-patching-law-ve-dich-20260814T073711Z","sha":"5a9dce68ffc77b1faf2c2af419e2e9ed8e053e37","suites_exit":[0,0,0,0,0]}

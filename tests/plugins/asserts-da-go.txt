@@ -147,3 +147,24 @@ assert text.count("| **CT1") == 1 and text.count("| **CT2") == 1, "bang tra CT1/
 # ── Khai bổ sung 13/08 (vòng thu gọn 1b, G11): pin của P43 đổi vì câu cũ chứa
 # từ vựng mirror — chính nó là con trỏ sống tới vật đã lưu kho.
 assert "Bump version + sync mirror thuộc S3" in g, \
+
+# ── Khai bổ sung 14/08 (hồ sơ cat-hinh-thuc, vòng về đích — RB2-03/P0-1 vòng 3) ──
+# Kit thôi đo phút người, nên các neo/needle dưới đây MẤT ĐÍCH và bị TRIM khỏi
+# thân ca (P30-lớp kiểm thân lệnh, P194 NEO/GATE_NEEDLES/FIELDS). Số ca không
+# đổi — TRIM, không XOÁ ca.
+#
+# PHẢI NÓI THẲNG, lần thứ hai trong sổ này: bánh cóc `P161` KHÔNG bắt được các
+# dòng này (chúng là needle-tuple/list-line sinh sau mốc ghim `044968e` 06/08,
+# ngoài cửa sổ). Khai ở đây là dấu vết bằng TAY theo đòi hỏi của AC-11 hồ sơ
+# cat-hinh-thuc, không phải sự cưỡng chế. Chiều (b) của bánh cóc VẪN sống trên
+# chính các dòng này: neo nào quay lại cây mà dòng khai còn ở đây thì đỏ —
+# đúng điều đã xảy ra với neo `tuong-thich-cu`: nó bị gỡ nhầm ở vòng thu phạm
+# vi (câu nó neo chỉ bị GÓI LẠI DÒNG chứ không chết — finding RB2-03), nên nó
+# đã được TRẢ VỀ cây và cố ý KHÔNG khai ở đây.
+for needle in ["approved_by", "time_human_minutes.gate1", "decisions.jsonl", "gate1_skipped", "/acceptance-card"]:
+for needle in ["require_human_commit", "human_override", "time_human_minutes.gate2", "pre-merge-check.sh", "own commit"]:
+for needle in ["baseline_minutes", "time_human_minutes", "gate1_skipped", "Read-only"]:
+    ("khong-hoi-phut", "không hỏi phút"),
+    ("phut-ghi-0", "ghi 0"),
+    "approve": ["approved_by", "approved_at", "time_human_minutes.gate1"],
+    "signoff": ["human_override", "human_signoff", "status: signed-off", "time_human_minutes.gate2"],

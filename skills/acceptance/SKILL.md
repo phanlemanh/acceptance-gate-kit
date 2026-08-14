@@ -159,9 +159,9 @@ Run immediately after the user reviews the contract (same gate, one sitting).
    question → recorded decision). On approval:
    set contract `status: approved`, `approved_by`, `approved_at` (identity and
    date follow the ladder in `GATE-ONESHOT-GRAMMAR` — inferred, echoed once
-   for a one-touch confirm, never asked as a question), and write
-   `time_human_minutes.gate1` WITHOUT asking: the human's `phút <số>` if they
-   typed one, otherwise 0.
+   for a one-touch confirm, never asked as a question). Do NOT ask for or
+   write human minutes; a trailing `, phút <số>` is accepted and silently
+   ignored so a human who types it out of habit is never blocked.
 6. Hand off to implementation (normal agent coding flow — the implementing
    agent reads contract + evals and codes until it believes evals will pass).
    The implementing agent's FINAL act is setting the contract's
@@ -270,9 +270,14 @@ Entry: implementation complete, contract `status: implemented`.
    PENDING-JUDGMENT they then upgrade it to PASS (the hook re-validates that
    write) — have the agent apply that edit so the hook actually sees it; a
    human editing outside the agent bypasses PreToolUse (CI pre-merge-check
-   is the backstop). The user (not you) fills `human_signoff`; then ask
-   minutes spent →
-   `time_human_minutes.gate2`, set contract `status: signed-off`. Where
+   is the backstop).
+
+   <!-- <<<SIGNATURE-OWNER-CLAUSE -->
+   The signature is the HUMAN's. Exactly two legal routes: the human commits it themselves, OR the human explicitly instructs the agent to commit exactly the human-owned lines and nothing more. There is no third route; `signoff.require_human_commit` + `agent_authors` enforce this boundary.
+   <!-- SIGNATURE-OWNER-CLAUSE>>> -->
+
+   (Bản gốc ở `commands/signoff.md` bước 7; khối trên là bản chép nguyên văn.)
+   Then set contract `status: signed-off`. Where
    write-time hooks are not active, run
    `scripts/recheck-evidence.cjs` or `scripts/pre-merge-check.sh` before calling
    the gate complete; CI remains the authoritative merge backstop.

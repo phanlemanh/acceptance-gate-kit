@@ -20,3 +20,5 @@
 {"ts":"2026-08-10T22:50:00Z","sha":"a87671687f63cfb48224a325f91d5e032551c287","round":3,"evalId":"E6","run_id":"minted-khoi-viec-cua-anh-E6-r3","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-10T22:50:00Z","sha":"a87671687f63cfb48224a325f91d5e032551c287","round":3,"kind":"baseline","evals_hash":"666360d5713196474ea76d93d1415ddddc7c7a5d06ed94dd79bde3fad90f5b8c","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6"]}]}
 {"ts":"2026-08-10T23:20:30Z","kind":"repin","run_id":"repin-khoi-viec-cua-anh-20260810T232030Z","sha":"3caee050e972147f6481111627dbe216cf30ba05","suites_exit":[0,0,0,0,0,0]}
+{"ts":"2026-08-14T05:14:07Z","kind":"repin","run_id":"repin-khoi-viec-cua-anh-20260814T051407Z","sha":"2a75e618305849620308fe16c185af75a14ae1c6","suites_exit":[0,0,0,0,0]}
+{"ts":"2026-08-14T07:23:11Z","kind":"repin","run_id":"repin-khoi-viec-cua-anh-ve-dich-20260814T072311Z","sha":"5a9dce68ffc77b1faf2c2af419e2e9ed8e053e37","suites_exit":[0,0,0,0,0]}

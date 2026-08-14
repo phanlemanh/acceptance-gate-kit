@@ -5,7 +5,7 @@
 
 Gate nghiệm thu cho code do AI viết. Thay vì bạn click tay 1-2 giờ kiểm tra
 một tính năng, máy tự chạy bộ evals và nộp **evidence report**; bạn chỉ làm
-2 việc, mỗi việc 5-10 phút:
+2 việc:
 
 ```
 yêu cầu (prompt/ticket/PRD)
@@ -122,7 +122,7 @@ feature-loop): không chặn gì cả — muốn có thì chạy qua feature-loo
 động thì ghi entry descope bắt đầu `"bỏ gap-probe"`, cờ chuyển thành dấu vết
 trung tính.
 
-Sửa trực tiếp nếu cần → approve (máy ghi `approved_by`). **Đây là 10 phút
+Sửa trực tiếp nếu cần → approve (máy ghi `approved_by`). **Đây là điểm dừng
 đáng giá nhất**: sửa 1 dòng tiêu chí ở đây rẻ hơn 10 lần phát hiện sai sau khi code xong.
 
 **Sau khi AI code xong** — máy tự verify và viết `evidence-report.md`.
@@ -147,7 +147,7 @@ và cấm sửa sau khi thấy số; chấm kín trước khi thảo luận; **n
 trả lời mua bằng giá một vòng dựng, không phải thất bại của người làm.
 
 **Duyệt Cổng 1 nhanh:** `/approve <slug>` · **Ký Cổng 2:** `/signoff <slug>` ·
-**Đo hiệu quả kit:** `/acceptance-report` (phút người vs baseline, vệ sinh gate)
+**Đo sức khoẻ cổng:** `/acceptance-report` (verdict mix, số vòng verify, vệ sinh gate)
 
 ---
 
@@ -191,8 +191,9 @@ token `exit=1`/`exit_code: 1` (sanitize trước khi dán).
   legacy. Lần bypass được GHI vào report (`bypass_used: true`) và CI
   `pre-merge-check.sh` CHẶN merge — trừ khi 1 người ghi `bypass_ack: <tên>
   <ngày>` để chủ động chịu trách nhiệm (để lại dấu vết audit).
-- **Đo hiệu quả?** `time_human_minutes` trong contract.md — điền số phút thật ở
-  mỗi cổng; baseline nằm ở `_acceptance/config.yaml::baseline_minutes`.
+- **Đo hiệu quả?** `/acceptance-report` — verdict mix, số vòng verify, vệ sinh
+  cổng. Kit **thôi đo phút người**: con số ấy do người điền cho qua cổng nên nó
+  vừa tốn người vừa sinh dữ liệu giả.
 
 ---
 

@@ -39,8 +39,6 @@ gốc `<path>` thay vì thư mục hiện tại.
       repo owner to run `executors.script.product_map` in their CI, because
       that check is what makes the exemption safe (ADR 0007).
    f. Who can sign off (names) → `signoff.approvers`
-   g. (optional, pilot metric) Roughly how many minutes did acceptance take
-      for each of the last 3 features? → `baseline_minutes`
 3. Write `_acceptance/config.yaml`:
 
 ```yaml
@@ -54,7 +52,6 @@ recheck: strict              # CI re-check of COMMITTED evidence: strict | warn 
                              # strict is safe for a fresh repo (no legacy reports);
                              # `warn` only exists so repos ADOPTING the kit with older
                              # reports aren't blocked — do not start there.
-baseline_minutes: []         # pre-kit acceptance estimates from 2g, e.g. [90, 120, 60]
 executors:
   test:
     api: "<from 2a>"

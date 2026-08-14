@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 3caee050e972147f6481111627dbe216cf30ba05
+verified_commit: 5a9dce68ffc77b1faf2c2af419e2e9ed8e053e37
 human_signoff: Manh Phan 2026-08-11
 ---
 
@@ -141,3 +141,11 @@ Round 3: sửa bằng commit `a876716` ("fix(chip2 r2)" — câu mẫu đổi th
 ### Re-pin lần 1 — 2026-08-10, do sửa hai lỗi biết-trước-chữ-ký của round 3 (điều khoản về đúng ranh giới câu trong bản Codex; sáu khối bằng chứng trích đúng dòng kết quả của từng phép đo)
 run_id: repin-khoi-viec-cua-anh-20260810T232030Z
 sha: 3caee050e972147f6481111627dbe216cf30ba05 · suites: 6 lệnh exit 0
+
+### Re-pin lần 2 — 2026-08-14, do hồ sơ `cat-hinh-thuc` gỡ lời hứa `· ~5 phút` khỏi phụ đề thẻ ở cả hai cổng, nên hai tệp bằng chứng `p185-card-gate1.html` / `p186-card-gate2.html` phải SINH LẠI bằng bộ sinh của chúng (P190 so byte với bản render của cây hiện tại — đóng băng chúng là để hội đồng chấm một cái thẻ không còn tồn tại). Diff đúng hai dòng phụ đề; không dòng nào khác.
+run_id: repin-khoi-viec-cua-anh-20260814T051407Z
+sha: 2a75e618305849620308fe16c185af75a14ae1c6 · suites: 5 lệnh exit 0
+
+### Re-pin lần 3 — 2026-08-14, do vòng về đích của 1a chạm tests/plugins (P30/P185/P186/P194) và scripts/gate-card.js không đổi đầu ra — hai thẻ bằng chứng KHÔNG phải sinh lại, chỉ re-pin theo staleness
+run_id: repin-khoi-viec-cua-anh-ve-dich-20260814T072311Z
+sha: 5a9dce68ffc77b1faf2c2af419e2e9ed8e053e37 · suites: 5 lệnh exit 0

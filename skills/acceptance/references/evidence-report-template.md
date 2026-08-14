@@ -204,4 +204,4 @@ Returned to implementation." After round 3 → escalate to user, verdict REJECT.
       on each (judge verdicts are advisory; the hook blocks PASS without them)
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
-- [ ] Fill `human_signoff` in frontmatter + `time_human_minutes.gate2` in contract
+- [ ] Fill `human_signoff` in frontmatter

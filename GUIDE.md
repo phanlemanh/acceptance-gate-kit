@@ -46,17 +46,16 @@ AI không đến từ "AI ngoan" — nó đến từ bằng chứng đối chi�
 
 | # | Mục tiêu | Thước đo |
 |---|---|---|
-| 1 | Giảm **≥ 50%** thời gian người/tính năng so với baseline | `time_human_minutes` (mỗi contract) vs `baseline_minutes` (config) |
-| 2 | **0** defect nghiệp vụ lọt qua gate | Đếm defect phát hiện sau signoff |
-| 3 | Đúng **2 điểm dừng người**, 5–10 phút/cổng (T3: +1 duyệt plan) | Vòng đời chuẩn — mọi tính năng T2/T3 |
-| 4 | **100%** verdict PASS có bằng chứng máy đối chiếu được | `run_id` khớp `run-log.jsonl`, `exit_code 0`, verifier thật, SHA thật |
-| 5 | **1** chuẩn gate cho mọi thành viên | `lib/evidence-core.cjs` dùng chung + kỷ luật update plugin |
+| 1 | **0** defect nghiệp vụ lọt qua gate | Đếm defect phát hiện sau signoff |
+| 2 | Đúng **2 điểm dừng người** (T3: +1 duyệt plan) | Vòng đời chuẩn — mọi tính năng T2/T3 |
+| 3 | **100%** verdict PASS có bằng chứng máy đối chiếu được | `run_id` khớp `run-log.jsonl`, `exit_code 0`, verifier thật, SHA thật |
+| 4 | **1** chuẩn gate cho mọi thành viên | `lib/evidence-core.cjs` dùng chung + kỷ luật update plugin |
 
 ### Lợi ích khi sử dụng
 
 | Ai | Được gì |
 |---|---|
-| **Người duyệt** | 1–2 giờ click tay → 15–20 phút đọc 2 card quyết định; máy đẩy lên đúng những item nó *không dám chắc* (UNCERTAIN) thay vì giấu chúng |
+| **Người duyệt** | 1–2 giờ click tay → đọc 2 card quyết định; máy đẩy lên đúng những item nó *không dám chắc* (UNCERTAIN) thay vì giấu chúng |
 | **Cả đội** | Một chuẩn nghiệm thu đếm được thay vì khẩu vị từng người; audit trail đầy đủ (`approved_by`, `human_signoff`, `bypass_used`) — ai duyệt gì, khi nào, có né gate không |
 | **AI agent** | Tiêu chí chốt *trước* khi code (sửa 1 dòng ở Cổng 1 rẻ hơn 10 lần sửa sau); mỗi vòng verify nhận phản hồi tất định (file:line, exit code) thay vì nhận xét mơ hồ |
 | **Sản phẩm** | Defect bị chặn ở điểm rẻ nhất; sàn chất lượng UI được ép bằng máy (contrast, layout, coverage AC) chứ không bằng lời dặn |
@@ -66,7 +65,7 @@ AI không đến từ "AI ngoan" — nó đến từ bằng chứng đối chi�
 | Tính năng | Một dòng | Chi tiết |
 |---|---|---|
 | **Gate 3-phase** (acceptance-gate) | Yêu cầu → contract + evals → evidence report; hook chặn PASS giả lúc ghi, CI chặn lúc merge | §3, §7 |
-| **Decision card + evidence page** | Cổng 1/Cổng 2 trình bày để quyết trong 5–10 phút; screenshot + output thật, mở bằng `file://` | §6.3 |
+| **Decision card + evidence page** | Cổng 1/Cổng 2 trình bày để quyết trong một lượt đọc; screenshot + output thật, mở bằng `file://` | §6.3 |
 | **feature-loop** | Một lệnh từ ý tưởng → PR: brainstorm, contract, plan, code song song, verify đa-agent (3 AI-judge + adversarial review), tự sửa ≤ 3 vòng | §3, §4 |
 | **Skill ux-ui-craft** | Kỷ luật design-engineer tự kích hoạt: token, Layout Contract "bản vẽ", gate đo được (contrast/type/alignment) | §4.9 |
 | **Skill morphological-scan (CT-S)** | Quét không gian tiêu chí theo trục chống sót AC; mục Coverage hiện trên card Cổng 1 | §4.10 |
@@ -77,11 +76,11 @@ AI không đến từ "AI ngoan" — nó đến từ bằng chứng đối chi�
 ```mermaid
 flowchart TB
   IN["Ý tưởng / ticket / PRD"] --> S1["Máy: contract + evals + coverage"]
-  S1 --> G1{"🚪 CỔNG 1 — người DUYỆT TIÊU CHÍ<br/>(5–10 phút)"}
+  S1 --> G1{"🚪 CỔNG 1 — người DUYỆT TIÊU CHÍ"}
   G1 --> CODE["Máy: plan + code<br/>(agent thường hoặc feature-loop)"]
   CODE --> V["Máy: verify mỗi vòng<br/>evals + design gates + AI-judge + review"]
   V -- "REJECT → tự sửa (≤ 3 vòng)" --> CODE
-  V -- "PASS + evidence" --> G2{"🚪 CỔNG 2 — người kiểm UNCERTAIN + KÝ<br/>(5–10 phút)"}
+  V -- "PASS + evidence" --> G2{"🚪 CỔNG 2 — người kiểm UNCERTAIN + KÝ"}
   G2 --> CI2["CI pre-merge<br/>chặn report chưa ký / evidence giả / cũ"]
   CI2 --> MERGE["Merge"]
   HK["Hook write-time<br/>chặn PASS không bằng chứng"] -. giám sát .-> V
@@ -106,7 +105,7 @@ tin lời AI tự khai "done". Kit thay thế cả hai bằng một hợp đồn
 - **Máy chứng minh** — mỗi tiêu chí nghiệm thu có eval chạy được; PASS bắt buộc kèm
   bằng chứng máy (`run_id`, `exit_code: 0`, verifier thật, commit đã verify).
 - **Người quyết** — đúng **2 điểm dừng**: Cổng 1 duyệt *tiêu chí* trước khi code,
-  Cổng 2 ký *bằng chứng* sau khi verify. Mỗi cổng 5–10 phút.
+  Cổng 2 ký *bằng chứng* sau khi verify. Mỗi cổng đúng một lượt đọc rồi quyết.
 - **Enforcement tất định** — không dựa "AI ngoan": hook chặn ngay lúc ghi file,
   CI chặn lại lúc merge. Nói dối phải thắng được cả hai lớp máy.
 
@@ -179,7 +178,7 @@ Mọi resume (`/feature-loop <slug>`) đọc status và vào đúng chỗ.
 ```mermaid
 flowchart LR
   START(("💡 ý tưởng")) --> S1["<b>S1 DESIGN</b><br/>brainstorm → design-doc<br/>+ contract (status: draft)<br/>+ evals.yaml"]
-  S1 --> G1{"🚪 <b>CỔNG 1</b><br/>người duyệt tiêu chí<br/>5–10 phút"}
+  S1 --> G1{"🚪 <b>CỔNG 1</b><br/>người duyệt tiêu chí"}
   G1 -->|"status: approved<br/>+ approved_by"| S2["<b>S2 PLAN</b><br/>task list + verify per-task"]
   S2 -->|"T3: 🚪 Cổng 1.5 duyệt plan"| S3["<b>S3 EXECUTE</b><br/>code; task độc lập →<br/>song song, mỗi task 1 worktree"]
   S3 -->|"status: implemented"| S4["<b>S4 VERIFY</b><br/>workflow đa-agent<br/>(xem mục 4)"]
@@ -480,7 +479,7 @@ Thẻ trình đúng ba nhóm, theo thứ tự ưu tiên:
 
 | Nhóm | Nghĩa |
 |---|---|
-| Chờ chữ ký của anh | Các cổng đang đợi người quyết — cổng chờ lâu nhất lên đầu, mỗi cổng ~10 phút |
+| Chờ chữ ký của anh | Các cổng đang đợi người quyết — cổng chờ lâu nhất lên đầu |
 | Đang dở | Các vòng đang giữa chừng — mỗi vòng một dòng: người dùng sẽ được gì + bước kế |
 | Bắt đầu việc mới | Đúng ba lối: ý mơ hồ → buổi khai thác; việc rõ → `/feature-loop`; việc vặt miễn T1 → sửa thẳng |
 
@@ -733,7 +732,7 @@ Lý do và trade-off: [ADR 0006](docs/adr/0006-rules-ledger-fail-closed-at-outpu
 
 Máy tự chạy S1→S5; bạn chỉ làm việc ở các điểm dừng:
 
-**🚪 Cổng 1 — duyệt tiêu chí (5–10 phút, đáng giá nhất).** Máy trình thẻ quyết định
+**🚪 Cổng 1 — duyệt tiêu chí (điểm dừng đáng giá nhất).** Máy trình thẻ quyết định
 (`/acceptance-card <slug>`) bằng ngôn ngữ sản phẩm: "sẽ làm / sẽ KHÔNG làm" + cờ phủ
 biên. Bạn kiểm:
 
@@ -746,14 +745,14 @@ bước này). Muốn bỏ cổng? Nói rõ — máy ghi `gate1_skipped: true` l
 
 **🚪 Cổng 1.5 (chỉ T3)** — duyệt plan: task list + files + thứ tự.
 
-**🚪 Cổng 2 — ký nghiệm thu (5–10 phút).** Evidence máy-viết đã được **commit trước đó**
+**🚪 Cổng 2 — ký nghiệm thu.** Evidence máy-viết đã được **commit trước đó**
 (cuối S4). Bạn:
 
 1. Đọc thẻ quyết định / trang `evidence-page` (bảng per-eval, screenshot slideshow).
 2. Tự tay kiểm **chỉ** các item `UNCERTAIN` (T3: **mọi** judgment item) → nhờ agent điền
    `human_override: <Tên> <ngày>` (agent ghi thì hook mới re-validate được).
 3. Verdict `PENDING-JUDGMENT` → nhờ agent nâng thành `PASS`.
-4. Điền `human_signoff: <Tên> <ngày>` + số phút vào `time_human_minutes.gate2`.
+4. Điền `human_signoff: <Tên> <ngày>`.
 5. **Commit các sửa đổi Cổng-2 thành commit RIÊNG** — chỉ chạm các dòng human-owned
    (`human_signoff` / `human_override` / `verdict` / `bypass_ack`). Chính bạn commit
    (hoặc ra lệnh agent commit đúng phần đó). Repo bật `require_human_commit` thì CI
@@ -783,7 +782,7 @@ template, cùng evidence rules, cùng CI** — mức bằng chứng không đổ
 | `/acceptance-card <slug>` | Render thẻ quyết định Cổng 1/Cổng 2 (tự nhận cổng theo trạng thái) |
 | `/approve [slug]` | Ghi quyết định Cổng 1: card → 1 câu hỏi → máy ghi `approved_by`/`approved_at` sau YES tường minh (không bao giờ tự duyệt) |
 | `/signoff [slug]` | Trợ lý Cổng 2: precondition → `human_override`/`human_signoff` → commit chữ ký riêng (human-fields-only) → re-check pre-merge |
-| `/acceptance-report` | Đo hiệu quả kit: phút người vs `baseline_minutes` (mục tiêu ≥50%), verdict mix, vệ sinh gate (skip/bypass/stale) — read-only |
+| `/acceptance-report` | Sức khoẻ cổng: verdict mix, số vòng verify, vệ sinh gate (skip/bypass/stale) — read-only |
 | `node scripts/evidence-page.js --root . --slug <slug>` | Trang HTML evidence đầy đủ: output, screenshot slideshow, checklist Cổng 2 |
 | `node scripts/eval-coverage-lint.js . --slug <slug>` | Lint phủ biên: tiêu chí ngưỡng thiếu ca *không-được-bắn*, out-of-scope thiếu eval âm |
 | `node scripts/config-patch.mjs --key <a.b.c> --value <v> --write` | Ghi key mới vào config.yaml an toàn (dry-run mặc định, `.bak`, từ chối đè key sống) |

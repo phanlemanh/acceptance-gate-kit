@@ -22,14 +22,14 @@ Một-lượt-gõ + `--repo` (điều khoản chung, chép nguyên văn từ b�
 
 Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; còn việc kế thì kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE.
 
-Ví dụ một lượt gõ — trần (máy gánh danh tính/ngày/phút) và đầy đủ (kiểu
+Ví dụ một lượt gõ — trần (máy gánh danh tính/ngày) và đầy đủ (kiểu
 cũ, vẫn chạy nguyên):
 `/signoff E9: Đạt; cắt/hoãn: đồng ý cắt; Ký`
-`/signoff abc-xyz --repo /duong/dan/repo Ngoài-1: ghi Known limits; E9: Đạt; cắt/hoãn: đồng ý cắt; Treo: phê hết; Ký: Manh Phan 2026-08-11, phút 0`
+`/signoff abc-xyz --repo /duong/dan/repo Ngoài-1: ghi Known limits; E9: Đạt; cắt/hoãn: đồng ý cắt; Treo: phê hết; Ký: Manh Phan 2026-08-11`
 
 Câu gộp của lệnh này ghép các chỗ trống dòng «Trả lời mẫu» của thẻ Cổng 2,
 phân cách bằng `;` — ngữ pháp đầy đủ ở khối `GATE-ONESHOT-GRAMMAR`. Người
-chỉ khai QUYẾT ĐỊNH; danh tính, ngày, phút là điều máy biết:
+chỉ khai QUYẾT ĐỊNH; danh tính và ngày là điều máy biết:
 - «Ngoài-<số>: ghi Known limits / mở hợp đồng mới / nâng phạm vi sửa ngay»
   → định đoạt từng mục ngoài hợp đồng (bước 3-4).
 - «<mã eval>: Đạt» hoặc «<mã eval>: Chưa đạt vì <lý do>» → dòng
@@ -37,9 +37,9 @@ chỉ khai QUYẾT ĐỊNH; danh tính, ngày, phút là điều máy biết:
 - «cắt/hoãn: đồng ý cắt» hoặc «cắt/hoãn: kéo vào <mục>» → xác nhận phạm vi.
 - «Treo: phê hết» hoặc «Treo: không phê Treo-<số>» → các quyết định ghi sau
   Gate 1.
-- Chỗ trống «ký hay trả»: `Ký[: <tên> [<ngày>]][, phút <số>]` →
+- Chỗ trống «ký hay trả»: `Ký[: <tên> [<ngày>]]` →
   `human_signoff` + verdict upgrade (chỉ khi mọi override đã điền) +
-  contract `status: signed-off` + `time_human_minutes.gate2`; hoặc
+  contract `status: signed-off`; hoặc
   `Trả lại: <lý do>` → bước 5, không ghi trường ký nào. Vắng tên → máy TỰ
   SUY, bốn luật tách bạch của `GATE-ONESHOT-GRAMMAR`: **ĐỌC** cả
   `git config user.name` lẫn `signoff.approvers`
@@ -59,9 +59,11 @@ chỉ khai QUYẾT ĐỊNH; danh tính, ngày, phút là điều máy biết:
   Mọi trả lời MANG NGHĨA KHẲNG ĐỊNH là xác nhận, dài hay ngắn, kể cả tin
   nhắn trống; chỉ trả lời nêu tên hoặc ngày khác mới là sửa danh tính
   (sửa được cả tên lẫn ngày ở cùng dòng đó); người tự khai phần nào thì phần đó ghi
-  thẳng; phần máy suy vẫn hiện trong dòng xác nhận, khai đủ thì không hỏi. KHÔNG hỏi phút: người
-  khai `phút <số>` thì ghi đúng, vắng thì ghi 0 vào
-  `time_human_minutes.gate2`. Ngày người nêu — trong câu gộp hoặc ở dòng xác
+  thẳng; phần máy suy vẫn hiện trong dòng xác nhận, khai đủ thì không hỏi.
+  **Máy KHÔNG hỏi và KHÔNG ghi số phút.**
+  Vế `, phút <số>` ở cuối vẫn ĐƯỢC CHẤP NHẬN và BỎ QUA lặng
+  — không lỗi, không ghi, không hỏi lại; người quen tay gõ
+  nó theo phản xạ thì câu vẫn chạy trọn. Ngày người nêu — trong câu gộp hoặc ở dòng xác
   nhận — LUÔN thắng ngày máy suy. Chữ «Ký» vẫn phải do NGƯỜI gõ — Enter xác
   nhận chỉ xác nhận danh tính, không phải chữ ký.
 - Nhãn nào thẻ đang đòi mà câu gộp vắng hẳn → hỏi đúng nhãn đó (đó là câu
@@ -102,9 +104,8 @@ Steps:
    - the verdict upgrade `PENDING-JUDGMENT → PASS`, legal only after ALL those
      lines are filled;
    - chữ «Ký» hay «Trả lại» → `human_signoff` + contract `status: signed-off`.
-   Danh tính, ngày, phút KHÔNG nằm trong danh sách này: tên/ngày máy suy
-   theo bậc ở trên rồi hiển thị lại chờ xác nhận một chạm khi người chưa
-   khai; `time_human_minutes.gate2` máy ghi (số người khai, vắng thì ghi 0).
+   Danh tính và ngày KHÔNG nằm trong danh sách này: máy suy theo bậc ở trên
+   rồi hiển thị lại chờ xác nhận một chạm khi người chưa khai.
 4. **Collect decisions in chat, item by item** — SKIP every item the
    one-shot sentence already answered; only a label the card demands and the
    sentence lacks entirely gets asked (asking again what the human just typed
@@ -112,7 +113,7 @@ Steps:
    human's dictated values VERBATIM via your file-edit tool so the
    write-time hook re-validates each write (a human editing outside the
    agent bypasses PreToolUse; CI re-check is the backstop). You contribute
-   no decision values of your own — identity/date/minutes follow the
+   no decision values of your own — identity and date follow the
    inference ladder above, decisions never do.
 5. **Any item the human rejects** → the feature is NOT signable: leave every
    signoff field empty, stop, and route back to the verify/fix loop.
@@ -135,8 +136,8 @@ Steps:
 
 7. **Land the signature as its own commit** touching only the human-owned
    lines in `evidence-report.md` (`human_signoff`, `human_override`, the
-   verdict upgrade, `bypass_ack`) plus the contract's `status` +
-   `time_human_minutes.gate2` — plus the regenerated `PRODUCT-MAP.md` ONLY if
+   verdict upgrade, `bypass_ack`) plus the contract's `status` — plus the
+   regenerated `PRODUCT-MAP.md` ONLY if
    step 6 actually regenerated it. Print the exact sequence:
 
    ```bash
@@ -148,8 +149,12 @@ Steps:
    `git add`. Repo NOT opted in → leave it out: the file does not exist there and
    naming it makes `git add` fail with a pathspec error mid-signature.
 
-   The reviewer runs it themselves, or explicitly orders you to run exactly
-   that and nothing more.
+   Câu dưới đây là bản gốc DUY NHẤT của điều khoản ai-sở-hữu-chữ-ký.
+   `skills/acceptance/SKILL.md` chép nguyên văn, không tự diễn đạt.
+
+   <!-- <<<SIGNATURE-OWNER-CLAUSE -->
+   The signature is the HUMAN's. Exactly two legal routes: the human commits it themselves, OR the human explicitly instructs the agent to commit exactly the human-owned lines and nothing more. There is no third route; `signoff.require_human_commit` + `agent_authors` enforce this boundary.
+   <!-- SIGNATURE-OWNER-CLAUSE>>> -->
 8. **Re-check merge readiness.** If the repo ships `scripts/pre-merge-check.sh`
    run `bash scripts/pre-merge-check.sh . --slug <slug>` (add
    `--base origin/<default-branch>` when known); otherwise run the installed

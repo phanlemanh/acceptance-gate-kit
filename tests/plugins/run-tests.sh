@@ -141,20 +141,74 @@ PY
 
 
 run "P30 Claude decision commands ship and keep their invariants" \
-  python3 - "$ROOT/commands" <<'PY'
-import sys
+  python3 - "$ROOT/commands" "$ROOT" <<'PY'
+import sys, re
 from pathlib import Path
 cmds = Path(sys.argv[1])
+root = Path(sys.argv[2])
+
+# ── LINT LỚP «kit thôi đo phút người» (hồ sơ cat-hinh-thuc, 14/08) ────────────
+# Vì sao lint theo LỚP chứ không theo literal: ba vòng rà soát đối kháng chứng
+# minh rằng «không lời hứa phút nào, ở bất kỳ cách diễn đạt nào» là một PHỦ
+# ĐỊNH PHỔ QUÁT mà một danh sách chuỗi-cấm không chứng được — mỗi vòng thêm một
+# literal, vòng sau tìm đúng cái chưa thêm (`5–10 phút` → `~5 phút` → `~10 phút`
+# → `vài phút`). Đường duy nhất chứng được là LẬT: quét cả LỚP cú pháp rồi khai
+# TRƯỚC từng chỗ được phép, bánh cóc HAI CHIỀU.
+#   · Chiều (a) hit không có trong bản khai → ĐỎ (lời hứa phút mới lọt vào).
+#   · Chiều (b) dòng khai không còn hit → ĐỎ (bản khai phình thành tấm khiên).
+# Giới hạn PHẢI khai: lint bắt lớp CÚ PHÁP (số/dấu ~ + "phút", "minutes",
+# tên trường). Nó KHÔNG bắt lớp TỪ HÌNH — "vài phút", "khoảng năm phút",
+# "~300 giây" — vì đó là ngôn ngữ tự nhiên không có biên. Backstop cho lớp ấy
+# là eval hành vi E3b + mắt người ở Cổng 1, khai trong Known limits của hồ sơ.
+LOP_PHUT = re.compile(r"[0-9~]\s*phút|phút/cổng|[Mm]inutes|time_human_minutes")
+PHAM_VI = ["commands", "skills", "feature-loop", "scripts", "hooks", "lib",
+           "GUIDE.md", "QUICKSTART.md", "README.md", "CONTEXT.md"]
+# Bản khai (tệp, từ khoá) — mỗi dòng một chỗ ĐƯỢC PHÉP, kèm lý do.
+MIEN_TRU = {
+    ("skills/acceptance/references/human-facing-language.md", "time_human_minutes"): "schema đọc-cũ cho hồ sơ đã ký (Out of scope hồ sơ 1a)",
+    ("skills/acceptance/SKILL.md", "minutes"): "nằm trong chính câu CẤM ghi phút",
+    ("skills/ux-ui-craft/references/guidance-craft.md", "phút"): "thời lượng tự-đồng-bộ của UI, không phải phút người ở cổng",
+    ("skills/ux-ui-craft/references/direction-craft.md", "minutes"): "lời khuyên thiết kế, không phải phút người ở cổng",
+    ("GUIDE.md", "phút"): "thời gian ĐỌC tài liệu + median phút/round của MÁY",
+    ("QUICKSTART.md", "phút"): "thời gian ĐỌC tài liệu",
+    ("README.md", "phút"): "thời gian ĐỌC tài liệu",
+    ("README.md", "minutes"): "câu tuyên kit KHÔNG đo phút người",
+}
+def _quet():
+    hits = []
+    for muc in PHAM_VI:
+        pth = root / muc
+        files = [pth] if pth.is_file() else sorted(f for f in pth.rglob("*") if f.is_file())
+        for f in files:
+            try: txt = f.read_text(encoding="utf-8")
+            except (UnicodeDecodeError, OSError): continue
+            for i, line in enumerate(txt.splitlines(), 1):
+                for m in LOP_PHUT.finditer(line):
+                    hits.append((str(f.relative_to(root)), m.group(0), i, line.strip()[:90]))
+    return hits
+def _khoa(rel, tok):
+    for (f, k) in MIEN_TRU:
+        if f == rel and k in tok: return (f, k)
+    return None
+_hits = _quet()
+_la = [h for h in _hits if _khoa(h[0], h[1]) is None]
+assert not _la, "LOP-PHUT: hit NGOAI ban khai mien tru:\n" + "\n".join(
+    f"  {h[0]}:{h[2]}  «{h[1]}»  {h[3]}" for h in _la[:6])
+_dung = {_khoa(h[0], h[1]) for h in _hits}
+_thua = sorted(set(MIEN_TRU) - _dung)
+assert not _thua, "LOP-PHUT: dong khai KHONG con hit that (banh coc chieu b) — go khoi ban khai: %r" % (_thua,)
+print("     LOP-PHUT: %d hit, %d/%d dong mien tru deu con hit that (banh coc 2 chieu)"
+      % (len(_hits), len(_dung), len(MIEN_TRU)))
 for name in ["acceptance-init", "acceptance-status", "acceptance-card", "approve", "signoff", "acceptance-report"]:
     assert (cmds / f"{name}.md").is_file(), name
 appr = (cmds / "approve.md").read_text()
-for needle in ["approved_by", "time_human_minutes.gate1", "decisions.jsonl", "gate1_skipped", "/acceptance-card"]:
+for needle in ["approved_by", "decisions.jsonl", "gate1_skipped", "/acceptance-card"]:
     assert needle in appr, needle
 sign = (cmds / "signoff.md").read_text()
-for needle in ["require_human_commit", "human_override", "time_human_minutes.gate2", "pre-merge-check.sh", "own commit"]:
+for needle in ["require_human_commit", "human_override", "pre-merge-check.sh", "own commit"]:
     assert needle in sign, needle
 rep = (cmds / "acceptance-report.md").read_text()
-for needle in ["baseline_minutes", "time_human_minutes", "gate1_skipped", "Read-only"]:
+for needle in ["gate1_skipped", "Read-only"]:
     assert needle in rep, needle
 PY
 
@@ -5619,8 +5673,10 @@ run "P150 required_evidence tren the + report cu render y het ban base" \
     #   (2) ma tra cuu truoc cau hoi judgment -> P186 (assert QUAN HE ma-hien-trong-khoi-duoc-tro)
     #   (3) nhan "Treo-<n> · " truoc quyet dinh treo -> P186
     #   (4) nhan "Ngoài-<n> · " truoc finding ngoai hop dong -> P186
+    #   (5) go loi hua " · ~5 phut" o phu de CA HAI cong (ho so cat-hinh-thuc,
+    #       14/08) -> P185/P186 (assert the KHONG con hua phut + mutant chen lai)
     # Khi base vuot qua chip (2), cac phep loc thanh no-op vo hai.
-    norm() { grep -v "VIỆC CỦA ANH" | sed -E "s/E[A-Za-z0-9]+ \(câu hỏi cần mắt người\) · //g; s/Treo-[0-9]+ · //g; s/Ngoài-[0-9]+ · //g"; }
+    norm() { grep -v "VIỆC CỦA ANH" | sed -E "s/E[A-Za-z0-9]+ \(câu hỏi cần mắt người\) · //g; s/Treo-[0-9]+ · //g; s/Ngoài-[0-9]+ · //g; s/ · ~5 phút//g"; }
     A_CMP=$(printf "%s" "$A" | norm)
     B_CMP=$(printf "%s" "$B" | norm)
     [ "$A_CMP" = "$B_CMP" ] || { echo "report cu render KHAC ban base (ngoai 3 thay doi da khai) — duong doc-cu vo"; exit 1; }
@@ -8549,7 +8605,12 @@ const mau = seg.match(/<p class="li">Trả lời mẫu[^<]*<\/p>/);
 if (!mau) die("dong Tra loi mau khong phai MOT dong text tron (tag chen giua hoac thieu)");
 if (!/___/.test(mau[0])) die("mau KHONG phai khuon dang co cho trong (thieu ___)");
 if (/«Duyệt»|Đạt|«Ký»|đồng ý/.test(mau[0])) die("mau DIEN SAN lua chon thay nguoi — vi pham bat bien YOUR-MOVE-BLOCK-TEMPLATE");
-console.error("     [" + st + "] khoi OK");
+// Kit THOI do phut nguoi (ho so cat-hinh-thuc, 14/08): the la vat NGUOI doc o
+// moi cong, nen loi hua phut o day song lau nhat va im nhat — no tung song sot
+// tron ba vong vi moi needle deu quet MA NGUON bang literal. Do tren DAU RA.
+const HUA_PHUT = /[0-9~]\s*phút|phút\/cổng|minutes/;
+if (HUA_PHUT.test(html)) die("the con HUA PHUT: " + JSON.stringify((html.match(HUA_PHUT) || [])[0]));
+console.error("     [" + st + "] khoi OK, 0 loi hua phut");
 ' "$P185ST_CASE" || P185OK=0
 done
 # chieu do: mutant go khoi trong BAN SAO tron scripts/ + lib/ (khong loc duoi)
@@ -8629,6 +8690,9 @@ if (!bJudg.includes("E9")) die("khoi 👉 tro toi ma E9 nhung khoi Viec-chi-minh
 const bProv = blk("Quyết định CHƯA duyệt", ["Đã duyệt từ Gate 1", "Lưu ý trước khi ký"]);
 if (!bProv) die("khong tim thay khoi Quyet-dinh-CHUA-duyet trong than the");
 if (!bProv.includes("Treo-1")) die("khoi 👉 tro toi Treo-so nhung khoi Quyet-dinh-CHUA-duyet KHONG in Treo-1");
+// Cong 2 cung phai het hua phut — xem chu thich cung luat o P185.
+const HUA_PHUT2 = /[0-9~]\s*phút|phút\/cổng|minutes/;
+if (HUA_PHUT2.test(html)) die("the Cong 2 con HUA PHUT: " + JSON.stringify((html.match(HUA_PHUT2) || [])[0]));
 const bOoc = blk("Ngoài hợp đồng", ["Việc chỉ mình bạn quyết được", "Quyết định CHƯA duyệt"]);
 if (!bOoc || !bOoc.includes("Ngoài-1")) die("khoi 👉 tro toi Ngoai-1 nhung khoi Ngoai-hop-dong KHONG in nhan do");
 ' || P186OK=0
@@ -8653,6 +8717,48 @@ const iYm = html.indexOf("👉 VIỆC CỦA ANH");
 if (iYm < 0) process.exit(1);
 const seg = html.slice(iYm, html.indexOf("class=\"foot\""));
 process.exit(/Chấm E9/.test(seg) ? 0 : 1);'; then echo "     mutant van liet muc Cham E9 — phep do chet"; P186OK=0; fi
+# MUTANT-PHUT (ho so cat-hinh-thuc, 14/08): chen lai loi hua phut vao phu de ->
+# chan khong-hua-phut o P185/P186 phai BAT duoc. Ban sao la CAY TRON (scripts +
+# lib): mot gate-card.js dung le khong resolve noi ../lib/... nen no chet luc
+# nap, va khi ay "het hua phut" voi "crash" cho CUNG mot mau.
+P186MUTP="$(mktemp -d)"
+cp -R "$ROOT/scripts" "$P186MUTP/scripts"; cp -R "$ROOT/lib" "$P186MUTP/lib"
+python3 - "$P186MUTP/scripts/gate-card.js" <<'PYX' || P186OK=0
+import sys
+p = sys.argv[1]
+src = open(p, encoding="utf-8").read()
+old = "Cổng 2 · ký duyệt$"
+assert old in src, "neo mutant-phut khong con — doi phu de the Cong 2?"
+open(p, "w", encoding="utf-8").write(src.replace(old, "Cổng 2 · ký duyệt · ~5 phút$", 1))
+print("MUTANT-PHUT: da chen lai ' · ~5 phut' vao phu de the Cong 2")
+PYX
+P186MPOUT="$(node "$P186MUTP/scripts/gate-card.js" --root "$P186WS" --slug fx 2>&1)"; P186MPST=$?
+[ "$P186MPST" -eq 0 ] || { echo "     PHEP DO MU: mutant-phut khong chay duoc (exit $P186MPST)"; P186OK=0; }
+printf '%s' "$P186MPOUT" | grep -qF 'class="foot"' || { echo "     PHEP DO MU: mutant-phut khong render duoc the"; P186OK=0; }
+# [SỬA 14/08 — rà soát vòng 3 RB3-03] Bản trước tự `grep` đầu ra bằng BẢN CHÉP
+# của regex, nên xoá hẳn hai dòng chân canh ở P185/P186 mà suite vẫn xanh và
+# mutant vẫn in «bi bat dung». Nay mutant chạy lại CHÍNH đoạn chấm — cùng mã
+# nguồn, trích thẳng từ run-tests.sh bằng marker — nên chân canh bị gỡ thì
+# mutant hết đỏ và ca ĐỎ đúng chỗ.
+_chan_phut() {   # đọc HTML trên stdin → exit 1 nếu thẻ còn hứa phút
+  node -e '
+const html = require("fs").readFileSync(0, "utf8");
+/* CHAN-KHONG-HUA-PHUT: cùng biểu thức với P185:HUA_PHUT và P186:HUA_PHUT2 */
+const HUA = /[0-9~]\s*phút|phút\/cổng|minutes/;
+process.exit(HUA.test(html) ? 1 : 0);'
+}
+if printf '%s' "$P186MPOUT" | _chan_phut; then
+  echo "     PHEP DO MU: chen lai loi hua phut ma CHAN CANH khong do — chan khong-hua-phut chua bao gio song"; P186OK=0
+else
+  echo "     MUTANT-PHUT bi bat dung — chan khong-hua-phut (chinh doan cham cua P185/P186) DO"
+fi
+# Đối chứng dương của chính chân ấy: thẻ NGUYÊN VẸN phải qua được nó.
+if printf '%s' "$P186OUT" | _chan_phut; then
+  echo "     doi chung duong: the nguyen ven qua duoc chan khong-hua-phut OK"
+else
+  echo "     PHEP DO MU: the NGUYEN VEN da truot chan khong-hua-phut — chan do oan"; P186OK=0
+fi
+rm -rf "$P186MUTP"
 # MUTANT 2 (QUAN HE, S4-r1): go ma E9 khoi item than the -> phep do quan he
 # phai DO du khoi 👉 van tro toi E9.
 P186MUT2="$(mktemp -d)"
@@ -9364,14 +9470,14 @@ NEO = [
     ("nguon-suy", "(từ <nguồn suy>)"),
     ("enter-xac-nhan", "Enter xác nhận"),
     ("bac-git-config", "git config user.name"),
-    ("khong-hoi-phut", "không hỏi phút"),
-    ("phut-ghi-0", "ghi 0"),
+    ("tuong-thich-cu", "vẫn chạy nguyên"),
+    ("khong-ghi-phut", "KHÔNG hỏi và KHÔNG ghi số phút"),
+    ("phut-duoc-bo-qua", "ĐƯỢC CHẤP NHẬN và BỎ QUA lặng"),
     ("ho-so-mot-ung-vien", "đúng MỘT ứng viên"),
     ("cach-hieu-kha-di", "cách hiểu khả dĩ nhất"),
     ("hoi-mo-duong-cung", "hỏi mở"),
     ("ca-mau-khong-cat", "không cắt"),
     ("phat-ngon-cuoi", "PHÁT NGÔN CUỐI"),
-    ("tuong-thich-cu", "vẫn chạy nguyên"),
     # Lo do hoi dong E7 bat (4 vong doc lap, S4-r1+r2): bac thang mo ta bang
     # "khi config trong" khien nhanh canh-bao-lech thanh BAT KHA THI. Chua
     # bang cach TACH BON LUAT — doc / chon / canh-bao / can — de menh de dieu
@@ -9411,13 +9517,12 @@ GATE_NEEDLES = [
     ("khuon voi-danh-tinh", "với danh tính:"),
     ("khuon nguon-suy", "(từ <nguồn suy>)"),
     ("khuon Enter-xac-nhan", "Enter xác nhận"),
-    ("phut-ghi-0", "ghi 0"),
     ("needle --as", "--as"),
     ("ho-so-mot-ung-vien", "đúng MỘT ứng viên"),
 ]
 FIELDS = {
-    "approve": ["approved_by", "approved_at", "time_human_minutes.gate1"],
-    "signoff": ["human_override", "human_signoff", "status: signed-off", "time_human_minutes.gate2"],
+    "approve": ["approved_by", "approved_at"],
+    "signoff": ["human_override", "human_signoff", "status: signed-off"],
 }
 # Luat DOC-khong-bi-chan + nhanh CAN phai co trong than lenh. Hai needle mot
 # luat: doc-khong-bi-chan (lo hoi dong bat) va nhanh can (lo "bac thang het nac

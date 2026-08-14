@@ -17,3 +17,9 @@ chính lần chạy suite rồi so **byte-đối-byte** với ba file check-in; 
 kèm chiều đỏ đổi-một-byte để chứng minh phép so phân biệt được.
 
 Sinh lần cuối tại: 9b595d5e5888c9b192bcd359d22e021ded190d74 (2026-08-10T22:45:40Z)
+
+Sinh lại 2026-08-14 trên nền 0b1e61945c73 — hồ sơ `cat-hinh-thuc` gỡ lời hứa
+`· ~5 phút` khỏi phụ đề thẻ ở CẢ HAI cổng (kit thôi đo phút người). Đây đúng
+là lý do ba tệp này KHÔNG được đóng băng: renderer đổi thì bản hội đồng chấm
+phải đổi theo, nếu không judge chấm một cái thẻ không còn tồn tại. Diff đúng
+hai dòng phụ đề, không dòng nào khác.

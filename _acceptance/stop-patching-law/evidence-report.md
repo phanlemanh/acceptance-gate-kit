@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c62f0330f253fd92f553547f09a7afcdb102c3c3
+verified_commit: 5a9dce68ffc77b1faf2c2af419e2e9ed8e053e37
 # bypass_ack:
 human_signoff: Manh Phan 2026-08-07 — ký (a) known-limits: fixture hành vi thiếu provenance máy-kiểm (trong hợp đồng) + 6 mục ngoài hợp đồng
 ---
@@ -191,3 +191,19 @@ sha: c86aff6eca40f742f5e5a01f5ca0643e061adcfa · suites: 5 lệnh exit 0
 ### Re-pin lần 13 — 2026-08-13, do vòng 4 của luu-kho xử 6 finding con-trỏ (P195 sửa script_paths, acceptance-init bỏ mirror-sync commits)
 run_id: repin-luu-kho-vong4-20260813T123018Z
 sha: c62f0330f253fd92f553547f09a7afcdb102c3c3 · suites: 5 lệnh exit 0
+
+### Re-pin lần 14 — 2026-08-13, do 1a rebase lên main đã có chữ ký 1b; lần trước của 1a bỏ trong rebase
+run_id: repin-cat-hinh-thuc-tren-main-20260813T170323Z
+sha: 62c6935107e24371ca5a416ce8f567c804fd8b40 · suites: 5 lệnh exit 0
+
+### Re-pin lần 15 — 2026-08-14, do vòng sửa 1 của 1a chạm tests/plugins/asserts-da-go.txt (khai assert đã gỡ), skills/acceptance/, commands/signoff.md, GUIDE.md và scripts/gate-card.js
+run_id: repin-cat-hinh-thuc-vong-sua-1-20260814T021541Z
+sha: 1f6c381184ddf54676957d1d7214b60802a5f38e · suites: 5 lệnh exit 0
+
+### Re-pin lần 16 — 2026-08-14, do vòng thu phạm vi của 1a hoàn nguyên bốn hạng mục đổi-hành-vi (human-facing-language, 6 thân lệnh, morphological-scan, acceptance-init) và thêm răng không-hứa-phút vào tests/plugins
+run_id: repin-cat-hinh-thuc-thu-pham-vi-20260814T050218Z
+sha: 8e1f240e2b3914467502a4ba0dfacc72d85b77b3 · suites: 5 lệnh exit 0
+
+### Re-pin lần 17 — 2026-08-14, do vòng về đích của 1a: lint LOP-PHUT vào thân ca P30, trả neo tuong-thich-cu về P194, MUTANT-PHUT qua chân thật, sửa start.md/README/plugin.json
+run_id: repin-stop-patching-law-ve-dich-20260814T073711Z
+sha: 5a9dce68ffc77b1faf2c2af419e2e9ed8e053e37 · suites: 5 lệnh exit 0

@@ -1,28 +1,34 @@
 # Kit maintainer invariants
 
-- **⭐ NORTH STAR (owner tuyên 09/08/2026 — đứng trên mọi bất biến dưới):**
-  Giá trị duy nhất là **sản phẩm đến tay người dùng**. Kit là công cụ **HỖ TRỢ
-  Claude** làm việc hiệu quả hơn (enablement, không phải surveillance).
-  **Giờ-kit là CHI PHÍ, không phải tiến độ.** Luật quyết định: *rẻ-và-nhanh
-  thì làm, không thì bỏ* — trừ lõi bất khả nhượng nhỏ (chữ ký người ·
-  không-bịa-bằng-chứng · đường-đảo-rẻ). Mọi đề xuất việc-kit phải trả lời
-  được: *"việc này rút ngắn đường sản-phẩm-đến-người-dùng ở chỗ nào?"* và
-  *"failure mode nó chặn có tỉ lệ ĐO ĐƯỢC trên model hiện tại không?"* —
-  chi tiết + bảng rà soát luật:
-  [docs/findings/2026-08-09-ban-chat-that-vong-lap-kit.md](docs/findings/2026-08-09-ban-chat-that-vong-lap-kit.md)
-  · [docs/findings/2026-08-10-ra-soat-luat-theo-north-star.md](docs/findings/2026-08-10-ra-soat-luat-theo-north-star.md).
+- **⭐ NORTH STAR (owner tuyên 09/08, phát biểu lại 12/08):** Kit tồn tại vì một
+  điều duy nhất — **sản phẩm đến tay người dùng nhanh hơn mà vẫn tin được.** Nó
+  làm điều đó bằng cách chia lại đúng việc: **máy làm và tự chứng minh** (bằng
+  chứng không tự dối — màu xanh phải từng chạy chiều đỏ), **người chỉ ra quyết
+  định** tại ít khoảnh khắc thật, trên bằng chứng đọc được trong một phút, với
+  đường đảo rẻ cho mọi thứ còn lại. Người đứng ở **biên** của vòng, không đứng
+  giữa.
 
-- **ĐÓNG BĂNG LAB (tái lập 2026-08-07):** engine (`skills/`, `feature-loop/`,
-  `commands/`, `scripts/`, `lib/`, `hooks/`) chỉ
-  nhận (a) **bugfix**, (b) **đóng nốt vòng đang dở lúc ra quyết định**
-  (`measure-birth-certificate` — giữa S4, ký hoặc owner chủ động huỷ; KHÔNG
-  mở rộng phạm vi nó), và (c) **đợt phẫu thuật GĐ1** khai trong
-  [docs/plans/2026-08-07-tai-lap-don-gian-va-trien-khai-doi.md](docs/plans/2026-08-07-tai-lap-don-gian-va-trien-khai-doi.md).
-  KHÔNG mở vòng meta MỚI nào (hồ sơ draft `premerge-ac-line` đứng ở Cổng 1
-  chờ owner quyết duyệt-hay-xếp-lại theo tinh thần này) cho đến khi **≥3
-  feature thật ở repo tiêu thụ** đi trọn vòng trên bản mới. Lý do: toàn bộ
-  việc đã giao đến 07/08 là kit-sửa-kit, gate-fatigue của owner là ràng
-  buộc số 1; chi tiết trong kế hoạch trên.
+  **Thước đo của kit:** thời gian từ *làm-xong* đến *quyết-được*, và số lần
+  phải gọi người trên mỗi kết quả ship. **Giờ-kit là chi phí.** Cổng mà câu trả
+  lời hợp lý duy nhất là «ừ» là **trạm thu phí, không phải điểm quyết định**.
+
+  Bản neo: [docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md](docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md)
+  · nền: [2026-08-09](docs/findings/2026-08-09-ban-chat-that-vong-lap-kit.md)
+  · [2026-08-10](docs/findings/2026-08-10-ra-soat-luat-theo-north-star.md).
+
+- **Ba nguyên tố (hiến pháp trace).** Mọi bộ phận hiện có và mọi đề xuất mới
+  phải trace về **một** trong ba, và nêu được **người hưởng cụ thể**:
+  1. **Ý định chốt trước khi làm.** Chỉ owner biết "tốt" nghĩa là gì; chốt
+     sau khi làm xong thì mọi kết quả tự biện minh được.
+  2. **Bằng chứng không tự dối.** Món này cho **MÁY**: "máy tin nhầm chính
+     nó" là lớp lỗi có tỉ lệ đo được cao nhất; nhờ nó máy mới được chạy nhanh
+     mà người khỏi kiểm lại.
+  3. **Khoảnh khắc quyết thật.** Người xuất hiện đúng nơi có **đánh-đổi** hoặc
+     **khó-đảo**; cổng phải có ≥2 lối ra sống. **Đảo-rẻ là mặt sau của nguyên
+     tố này**: máy giữ đường đảo thì máy được đi trước; hành động không có
+     đường đảo tự động rơi về khoảnh khắc quyết thật.
+
+  **Không trace được = hình thức = cắt. Chỉ TRỪ, không CỘNG.**
 
 - **MỘT cây nguồn, KHÔNG có bản sao nào phải giữ đồng bộ (từ 2026-08-12).**
   Kit từng nuôi hai bản dựng song sinh: mọi thay đổi lõi phải sửa hai lần rồi
