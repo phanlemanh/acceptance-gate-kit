@@ -7,7 +7,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 9745743f61e503abcd7e5c56c3604df0288f1e68
-human_signoff:
+human_signoff: Manh Phan 2026-08-14
 ---
 
 # Trang bằng chứng — bài học đo lường của tuần vào engine

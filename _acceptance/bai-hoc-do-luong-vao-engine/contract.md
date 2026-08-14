@@ -5,7 +5,7 @@ slug: bai-hoc-do-luong-vao-engine
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-14
 ---
