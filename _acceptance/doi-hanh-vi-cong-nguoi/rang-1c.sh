@@ -282,6 +282,63 @@ fi
 # ── Chân 6: đẳng thức số ca + assert-đã-gỡ ──────────────────────────────────
 if [ -z "$CHAN" ] || [ "$CHAN" = "so-ca-asserts" ]; then
   echo "== chân số-ca + assert-đã-gỡ =="
+  # (a) ĐẲNG THỨC SỐ CA — chân này SINH RA TỪ MỘT LỖ THẬT (phiên chấm vòng 1,
+  # 14/08): `expected` của E9e hứa "đọc SO-CA-KY-VONG-1C rồi chạy lại phương
+  # pháp đếm từng suite", nhưng bộ răng KHÔNG có một dòng mã nào cho vế đó —
+  # số ca khi ấy do người chấm đếm tay từ đầu ra. Eval xanh mà lời hứa không
+  # có răng: đúng lớp "bên viết và bên đọc trôi khỏi nhau". Nay đo thật.
+  #
+  # Phương pháp đếm KHÁC NHAU theo suite, ghim theo nếp so-ca.sh của hồ sơ 1b:
+  #   plugins   → đếm dòng ca (suite KHÔNG in tổng)
+  #   workflows → cộng ĐÚNG 6 dòng `Results:` (6 tệp con; thiếu dòng là ĐỎ vì
+  #               thiếu, không âm thầm cộng ra tổng nhỏ hơn)
+  #   scripts/hooks → dòng `Results:` CUỐI (fixture in dòng Results ở giữa)
+  dem_suite() {   # $1 = tên suite, $2 = file log
+    case "$1" in
+      plugins)   grep -cE '^  PASS: ' "$2" ;;
+      workflows) awk '/^Results: [0-9]+ passed/{n++; s+=$2} END{if(n!=6) print "DONG-THIEU:" n; else print s+0}' "$2" ;;
+      *)         grep -E '^Results: [0-9]+ passed' "$2" | tail -1 | awk '{print $2+0}' ;;
+    esac
+  }
+  lenh_suite() {
+    case "$1" in
+      plugins)   echo "bash tests/plugins/run-tests.sh" ;;
+      workflows) echo "bash tests/workflows/run-tests.sh" ;;
+      scripts)   echo "bash tests/scripts/run-tests.sh" ;;
+      hooks)     echo "bash tests/hooks/run-tests.sh" ;;
+    esac
+  }
+  dlog="$(tmpd)"
+  while read -r suite mong; do
+    [ -n "${suite:-}" ] || continue
+    ( cd "$ROOT" && $(lenh_suite "$suite") ) > "$dlog/$suite.log" 2>&1
+    rc=$?
+    thay="$(dem_suite "$suite" "$dlog/$suite.log")"
+    case "$thay" in
+      DONG-THIEU:*) bad "so-ca $suite: thieu dong tong ket (${thay#DONG-THIEU:}/6) — DO vi THIEU, khong cong ra tong nho hon"; continue ;;
+    esac
+    if [ "$rc" -ne 0 ]; then
+      bad "so-ca $suite: suite DO (exit $rc) — day la kieu hong KHAC voi lech so ca, doc rieng"
+    elif [ "$thay" = "$mong" ]; then
+      ok "so-ca $suite: $thay = $mong (dang thuc, doc tu SO-CA-KY-VONG-1C)"
+    else
+      bad "so-ca $suite: so ca lech ky vong: $mong -> $thay"
+    fi
+  done < <(khoi SO-CA-KY-VONG-1C | sed '/^[[:space:]]*$/d' | awk 'NF==2')
+  # chiều đỏ cho chân đẳng thức: log bản sao bị tiêm thêm một dòng ca → phép
+  # đếm THẬT (dem_suite) phải ra số khác
+  if [ -f "$dlog/plugins.log" ]; then
+    truoc="$(dem_suite plugins "$dlog/plugins.log")"
+    cp "$dlog/plugins.log" "$dlog/plugins-mut.log"
+    printf '  PASS: ca tiem\n' >> "$dlog/plugins-mut.log"
+    sau="$(dem_suite plugins "$dlog/plugins-mut.log")"
+    if [ "$sau" -ne "$truoc" ]; then
+      mut "so-ca log tiem them 1 ca: $truoc -> $sau → phep dem THAT bat duoc lech"
+    else
+      bad "so-ca CHIEU DO KHONG CHAY: them ca vao log ma phep dem khong doi"
+    fi
+  fi
+
   ADG="tests/plugins/asserts-da-go.txt"
   # (b) ĐẲNG THỨC 0 dòng mới so với BASE-1C (bản khai [SỬA SAU CỔNG 1 — 14/08])
   base_dong=$(g show "$BASE:$ADG" 2>/dev/null | wc -l | tr -d ' ')

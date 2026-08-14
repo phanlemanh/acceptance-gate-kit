@@ -28,7 +28,7 @@ flowchart TD
 
 ## Đang làm
 
-- Bốn lượt đổi hành vi ở cổng người — khối 👉 thôi làm luật mỗi-tin, T1 tuyên-kèm-căn-cứ, quét độ phủ thôi phỏng vấn, khởi tạo một-lần-gạch; lời hứa hành vi chấm bằng hội đồng bắt buộc (`doi-hanh-vi-cong-nguoi`)
+- Ba lượt đổi hành vi ở cổng người — khối 👉 thôi làm luật mỗi-tin, quét độ phủ thôi phỏng vấn, khởi tạo một-lần-gạch; lời hứa hành vi chấm bằng hội đồng bắt buộc (hạng mục T1 đã thu phạm vi 14/08) (`doi-hanh-vi-cong-nguoi`)
 
 ## Đã giao
 

@@ -1,11 +1,11 @@
 ---
 schema_version: 1
-feature: Bốn lượt đổi hành vi ở cổng người — khối 👉 thôi làm luật mỗi-tin, T1 tuyên-kèm-căn-cứ, quét độ phủ thôi phỏng vấn, khởi tạo một-lần-gạch; lời hứa hành vi chấm bằng hội đồng bắt buộc
+feature: Ba lượt đổi hành vi ở cổng người — khối 👉 thôi làm luật mỗi-tin, quét độ phủ thôi phỏng vấn, khởi tạo một-lần-gạch; lời hứa hành vi chấm bằng hội đồng bắt buộc (hạng mục T1 đã thu phạm vi 14/08)
 slug: doi-hanh-vi-cong-nguoi
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: skills/ · commands/ · feature-loop/ · tests/plugins/ — không dính t3_paths
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-08-14
 ---
@@ -17,7 +17,8 @@ approved_at: 2026-08-14
 Kit hiện chặn owner ở bốn chỗ không có gì để quyết: mọi tin — kể cả tin
 chỉ-báo — phải đeo khối 👉 VIỆC CỦA ANH; kết luận T1 máy đã tự suy chắc chắn
 vẫn dừng chờ một cái gật; quét độ phủ mở bằng một lượt phỏng vấn; khởi tạo hỏi
-tuần tự từng câu. Bốn hạng mục này owner gạch từ 12/08, từng nằm trong đề bài
+tuần tự từng câu. Hồ sơ này nhận BA trong bốn chỗ đó (chỗ T1 đã thu phạm vi
+14/08 — xem Notes). Bốn hạng mục owner gạch từ 12/08, từng nằm trong đề bài
 1a, và được **hoàn nguyên có chủ đích** khỏi nhánh đó sau ba vòng rà soát đối
 kháng: lời hứa của chúng là *hành vi của một agent đọc văn chỉ dẫn*, và thước
 chữ (grep) đã chứng minh không đo nổi thứ đó — 8 lượt phá thật đều xanh oan,
@@ -32,7 +33,7 @@ Source input: docs/plans/2026-08-14-hat-giong-1c-doi-hanh-vi-cong-nguoi.md
 
 ## Criteria
 
-Bốn hạng mục × hai lớp thước (mực-đã-in / hành-vi), cộng một tiêu chí lưới kế
+Ba hạng mục × hai lớp thước (mực-đã-in / hành-vi), cộng một tiêu chí lưới kế
 thừa. Lớp máy của mọi AC lẻ dưới đây dùng CHUNG bộ needle khai ở khối
 `NEEDLE-1C` và mốc đối chứng ở `BASE-1C` cuối file — needle vắng trên cây đã
 sửa **và** hiện >0 lần trên mốc base, đo bằng cùng một lệnh; cấm mọi phép «đo
@@ -131,8 +132,9 @@ Quét theo ma trận hạng-mục × lớp-thước (nguồn: bảng loại-vi�
   nghĩa vụ mỗi-tin/chỉ-báo; khối tại cổng giữ nguyên khuôn ba vế.
 - KHÔNG đổi ngữ pháp câu gộp (`GATE-ONESHOT-GRAMMAR`) và bậc thang suy danh
   tính ĐỌC/CHỌN/CẢNH BÁO/CẠN của hồ sơ may-ganh-nguoi-quyet.
-- KHÔNG chạm lưới CI T1 trên diff thật (`pre-merge-check.sh`) — nó là đường
-  đảo khiến AC-3/AC-4 an toàn, gỡ nó là đổi bản chất hạng mục 2.
+- KHÔNG chạm lưới CI T1 trên diff thật (`pre-merge-check.sh`) — giữ nguyên
+  ngay cả khi hạng mục T1 đã ra khỏi hồ sơ: nó là đường đảo của nhánh ấy và
+  là điều kiện để hạt giống T1 mở lại được.
 - KHÔNG sửa hồ sơ `_acceptance/` đã ký — sử liệu bất biến, kể cả khi lời
   văn cũ của chúng còn nhắc luật mỗi-tin.
 - KHÔNG thêm cơ chế cưỡng chế mới — hồ sơ chỉ TRỪ nghĩa vụ gọi người; nhãn
