@@ -15,18 +15,27 @@ evals:
       - docs/research/known-limits-ledger.tsv
       - _acceptance/cat-hinh-thuc/review-findings.md
     expected: >
-      exit 0; chân trong thân ca `P177` assert: với TỪNG lớp trong mảng bốn tên
+      exit 0; chân trong thân ca `P179` (ca của SỔ — không nhét vào `P177` vốn
+      là ca của `measure-birth.md`) assert: với TỪNG lớp trong mảng bốn tên
       (`tap-so-rong`, `doi-chung-tu-sinh`, `mut-khong-qua-chan-that`,
       `pinned-khong-dem-duoc`) — sổ `known-limits-ledger.tsv` có ≥1 dòng mang
-      đúng `class` ấy, `slug` = `cat-hinh-thuc`, và `note` chứa một mã finding
-      TÌM THẤY ĐƯỢC trong `_acceptance/cat-hinh-thuc/review-findings.md`.
-      In "LOP-MOI: <k>/<k> lop co dong trong so + ma finding truy duoc".
-      Đối chứng dương: đọc được sổ và đếm >0 dòng TRƯỚC khi assert — sổ rỗng
-      hoặc đường dẫn hỏng phải ĐỎ «khong doc duoc so nguon», không xanh-rỗng.
-      Chiều đỏ CHẠY THẬT: đổi `note` của một lớp sang một mã finding KHÔNG tồn
-      tại trong bản sao → đỏ đích danh lớp ấy.
+      đúng `class` ấy, `slug` = `cat-hinh-thuc`, và `note` chứa `[neo: <chuỗi>]`
+      với `<chuỗi>` tìm thấy NGUYÊN VĂN trong
+      `_acceptance/cat-hinh-thuc/review-findings.md`. Bốn neo đôi một khác nhau.
+      In "LOP-MOI: 4/4 lop co dong SONG trong so + neo truy duoc".
+      Đối chứng dương: đọc được cả sổ lẫn tệp findings và đếm >0 dòng TRƯỚC khi
+      assert — rỗng hoặc đường dẫn hỏng phải ĐỎ «khong doc duoc so nguon» /
+      «khong doc duoc findings», không xanh-rỗng.
+      Chiều đỏ CHẠY THẬT ×2 trên bản sao, cả hai đi qua CHÍNH hàm assert:
+      (a) đổi neo của một lớp sang chuỗi KHÔNG có trong findings → đỏ đích danh
+      lớp ấy; (b) đặt hai lớp dùng CHUNG một neo → đỏ «neo trung».
+      [SỬA SAU CỔNG 1] Bản gốc ghim bốn *mã finding* `Hb`·`He`·`RB3-03`·`RA3-01`
+      — ba mã đầu KHÔNG tồn tại trong tệp ấy, nên chân viết đúng như khai sẽ đỏ
+      lượt đầu vì hợp đồng sai. Bốn neo thật, mỗi chuỗi đúng 1 hit, đã tra:
+      `E5 giữ-gân là HẰNG ĐÚNG` · `E9b «đối chứng dương tự sinh» là HẰNG ĐÚNG` ·
+      `chiều đỏ không qua chân canh` · `RA3-01`.
     pinned:
-      - "LOP-MOI:"
+      - "LOP-MOI: 4/4"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E2
@@ -39,24 +48,37 @@ evals:
       - tests/plugins/run-tests.sh
     expected: >
       exit 0 — **chân chính của hồ sơ**. Trong thân ca `P177`: rút cột `class`
-      của sổ nguồn (chỉ dòng SỐNG — `status` chưa đóng) và cột lớp của bảng
-      trong `measure-birth.md`, rồi so **HAI CHIỀU**:
-      (a) lớp có trong sổ mà VẮNG trên bảng → đỏ «LOP-BANG: so co <lop> ma bang
-      thieu»; (b) hàng trên bảng mà lớp KHÔNG có trong sổ → đỏ «LOP-BANG: bang
-      co <lop> ma so khong». In "LOP-BANG: <k>/<k> khop hai chieu".
+      của sổ nguồn (**chỉ dòng `status == 'song'`** — đúng chuỗi ấy; enum thật
+      là `song/chet/trung` và `trung` KHÔNG tính) và cột lớp của bảng trong
+      `measure-birth.md`, rồi so **HAI CHIỀU + bản khai miễn trừ**:
+      (a) lớp SỐNG trong sổ mà VẮNG trên bảng và KHÔNG được miễn trừ → đỏ
+      «LOP-BANG: so co <lop> ma bang thieu»; (b) hàng trên bảng mà lớp không có
+      dòng SỐNG trong sổ → đỏ «LOP-BANG: bang co <lop> ma so khong»;
+      (c) dòng miễn trừ trỏ một lớp không còn dòng SỐNG → đỏ «LOP-BANG: mien tru
+      <lop> khong con dong song» (bánh cóc chiều b của bản khai — cùng nếp
+      `LOP-PHUT`). In "LOP-BANG: 13/13 khop hai chieu (1 mien tru)".
       Vì sao đây là chân chính: bảng tự tuyên *«Nguồn: docs/research/
       known-limits-ledger.tsv (cột class)»* mà **không phép đo nào giữ lời tuyên
       ấy** — đúng lớp `doc-drift` mà chính bảng ấy dạy. Hai lớp trung tâm của ba
       vòng chấm 1a đã nằm sẵn trên bảng và vẫn bị dẫm; bảng không răng thì nó là
       trang trí.
+      **Seam VIẾT→ĐỌC phải có mốc:** bảng + bản khai miễn trừ nằm trong cặp mốc
+      `MEASURE-BIRTH-CLASS-TABLE`, và khuôn ô lớp khai một chỗ (token đầu ô, cắt
+      trước dấu ngoặc). Không mốc thì đổi format bảng → rút 0 hàng, đúng hình
+      dạng 3 của bài học S4 (bên viết và bên đọc trôi khỏi nhau).
       **Phép rút phải fail-loud:** rút được 0 hàng bảng hoặc 0 lớp sổ → ĐỎ «phep
       rut hong», KHÔNG xanh-rỗng (tập-so-rỗng là hằng đúng — chính lớp
       `tap-so-rong` hồ sơ này vừa đặt tên).
-      Chiều đỏ CHẠY THẬT ×2 trên bản sao, cả hai đi qua CHÍNH phép so:
+      Chiều đỏ CHẠY THẬT ×4 trên bản sao, tất cả đi qua CHÍNH phép so:
       (a) xoá một hàng khỏi bảng → đỏ chiều (a); (b) thêm một hàng lớp bịa vào
-      bảng → đỏ chiều (b).
+      bảng → đỏ chiều (b); (c) đổi lớp được miễn trừ sang tên không có dòng sống
+      → đỏ chiều (c); (d) xoá cặp mốc → đỏ «phep rut hong».
+      [SỬA SAU CỔNG 1] Bản gốc ngụ ý hai bên đã khớp. Đo lại: sổ **10** lớp sống,
+      bảng **8** hàng — thiếu `do-thuoc` và `khac`. `do-thuoc` lên bảng; `khac`
+      là ô rác bắt-hết, không có «khuôn chặn bằng mục nào» trung thực → vào bản
+      khai miễn trừ, và chiều (c) sinh ra để bản khai ấy không thành cửa sau.
     pinned:
-      - "LOP-BANG:"
+      - "LOP-BANG: 13/13"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E3
@@ -72,11 +94,21 @@ evals:
       chứa cả ba neo nội dung: cụm **lật sang liệt cái ĐƯỢC PHÉP** · **miễn trừ
       khai trước** · **lệnh tái lập**. Ghim tên mục một mình là đo cái nhãn, không
       đo cái luật.
-      Chiều đỏ CHẠY THẬT: bản sao xoá mục thứ tư → hàm `measure()` phải ĐỎ ghim
-      đúng tên mục (cùng khuôn mutant mà `P177` đã dùng cho mục
-      «Phá-vật-thật»); bản sao giữ tên mục mà gỡ một neo nội dung → cũng ĐỎ.
+      **Buộc số:** đếm `### ` trong khối mốc được N; văn dẫn và tiêu đề `##`
+      ngay trên khối phải viết đúng chữ số của N (`BỐN`/`Bốn`). Lệch → đỏ
+      «so muc trong khoi la <N> ma van dan ghi <chu>». Không có chân này thì
+      thêm mục thứ tư mà quên sửa «đủ BA mục» là giao ra bản chỉ dẫn tự mâu
+      thuẫn — đúng lớp `doc-drift` mà chính trang ấy dạy.
+      Chiều đỏ CHẠY THẬT ×3 trên bản sao, tất cả qua CHÍNH hàm `measure()`, và
+      **ba thông điệp phải KHÁC NHAU** (cùng một màu cho ba nguyên nhân là
+      assertion không phân biệt được): xoá mục thứ tư → đỏ ghim TÊN MỤC; giữ tên
+      mục mà gỡ một neo nội dung → đỏ ghim TÊN NEO; đổi «Bốn» thành «Ba» ở văn
+      dẫn → đỏ ghim lệch số.
+      [SỬA SAU CỔNG 1] Bản gốc ghim `"P177 DUONG-OK"` — chuỗi ĐÃ in ra trên cây
+      hiện tại khi chưa có mục thứ tư nào, tức eval xanh trước khi viết một dòng
+      nào. Marker mới `P177 4MUC-OK` do chính chân mới in.
     pinned:
-      - "P177 DUONG-OK"
+      - "P177 4MUC-OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E4
@@ -139,12 +171,17 @@ evals:
     paths:
       - tests/plugins/run-tests.sh
     expected: >
-      exit 0; "Results: all plugin tests passed" **và đúng 146 dòng `PASS:`** —
-      đẳng thức số ca khai TRƯỚC khi thi công, không phải sàn. Hồ sơ này thêm
-      chân vào THÂN ca `P177` sẵn có (TRIM/EXTEND), nên số ca KHÔNG được đổi;
-      146 đổi thành 147 nghĩa là răng mới mọc thành ca mới, tức đã đi ngược
-      chính bài học đang ghi. Suite này không tự in số ca nên phép đếm là số
-      dòng `PASS:`.
+      exit 0; "Results: all plugin tests passed". Đẳng thức khai TRƯỚC khi thi
+      công: **146 dòng `PASS:`** — hồ sơ này thêm chân vào THÂN ca `P177`/`P179`
+      sẵn có (TRIM/EXTEND), nên 146 đổi thành 147 nghĩa là răng mới mọc thành ca
+      mới, tức đã đi ngược chính bài học đang ghi.
+      **KHAI GIỚI HẠN (sửa sau Cổng 1):** `pinned` KHÔNG giữ được con số ấy —
+      suite không tự in số ca, và `pinned` là phép so chuỗi, không đếm được
+      (đúng lớp `pinned-khong-dem-duoc` mà hồ sơ này vừa đặt tên). 146 ở đây là
+      **số người vận hành đối chiếu**, không phải răng máy. Lệnh tái lập:
+      `su - tester -c 'bash /home/user/acceptance-gate-kit/tests/plugins/run-tests.sh' | grep -c '  PASS:'`.
+      **Tiền đề:** phải chạy dưới người dùng KHÔNG-root — dưới root, `P123` và
+      `P129` (dùng `chmod 000`) đỏ giả vì root đọc xuyên quyền.
     pinned:
       - "Results: all plugin tests passed"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
