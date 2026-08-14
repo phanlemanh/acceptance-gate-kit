@@ -12,7 +12,7 @@
 //      một lib mới vào pre-merge mà quên khai chép là ĐỎ ngay tại đây.
 //   3. Chiều XANH: recheck exit 0 trên evidence lành + exit 1 ĐÚNG THÔNG ĐIỆP
 //      trên bản tiêm (chứng minh nó CHẤM thật, không phải chết-mà-im); pre-merge
-//      chạy trọn `rules ran=3`, không một dòng NOT ENFORCED / fallback nào.
+//      chạy trọn `rules ran=4`, không một dòng NOT ENFORCED / fallback nào.
 //   4. Chiều ĐỎ: cùng NỘI DUNG file nhưng mang đuôi .js (đúng layout trước vá)
 //      phải nổ ReferenceError "require is not defined" — đối chứng dương là
 //      chính bản .cjs cùng nội dung, cùng repo, đã xanh ở (3).
@@ -122,12 +122,12 @@ check('CE4 đối chứng chấm-thật: bản tiêm exit_code: 2 → recheck ex
   assert.match(r.stderr, /fails the evidence bar/, `đỏ nhưng sai thông điệp: ${r.stderr.slice(0, 300)}`);
 });
 
-check('CE5 pre-merge trong consumer type:module: exit 0, rules ran=3, KHÔNG một dòng NOT ENFORCED/fallback', () => {
+check('CE5 pre-merge trong consumer type:module: exit 0, rules ran=4, KHÔNG một dòng NOT ENFORCED/fallback', () => {
   const r = run('bash', [path.join(SIM, 'scripts', 'pre-merge-check.sh'), SIM, '--base', BASE_SHA]);
   const out = r.stdout + r.stderr;
   assert.equal(r.status, 0, `pre-merge exit ${r.status}:\n${out.slice(0, 1500)}`);
   assert.match(out, /OK \[featx\]: PASS/, `thiếu dòng OK per-slug:\n${out.slice(0, 800)}`);
-  assert.match(out, /rules ran=3 declared-off=0/, `sổ luật không trọn:\n${out.slice(0, 800)}`);
+  assert.match(out, /rules ran=4 declared-off=0/, `sổ luật không trọn:\n${out.slice(0, 800)}`);
   assert.ok(!/NOT ENFORCED/.test(out), `còn lớp tắt tiếng:\n${out}`);
   assert.ok(!/not vendored|re-check unavailable/.test(out), `lớp recheck không sống:\n${out}`);
   assert.ok(!/not lib\/ac-line\.cjs/.test(out), `ac-line rơi về awk fallback trong repo ESM:\n${out}`);

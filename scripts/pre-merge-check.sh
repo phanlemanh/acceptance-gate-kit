@@ -145,7 +145,7 @@ fi
 # lỗi NỘI TẠI của cổng -> exit 2, không phải violation của feature. EXPECTED
 # là danh sách ĐÓNG, CỐ ĐỊNH, không phụ thuộc config — thêm khối luật mới
 # PHẢI thêm tên vào đây (suite P48 + RL7a canh hai chiều bằng máy).
-LEDGER_EXPECTED="per-slug gap-probe t1-escape"
+LEDGER_EXPECTED="per-slug gap-probe t1-escape veto-trace"
 # set -- xoá positional params — hợp lệ vì đứng SAU vòng parse args ở trên.
 set -- $LEDGER_EXPECTED
 LEDGER_K=$#
@@ -763,6 +763,50 @@ XLACS
     warn) echo "WARNING [$slug]: enforcement_mode=warn — gate only warned (not blocked) when this PASS was written; evidence present but not hard-enforced" ;;
   esac
   if [ -z "$signoff" ]; then
+    # ── Cổng Bằng chứng xanh-sạch thôi mời ký (hồ sơ veto-co-dau-vet, đợt 2)
+    # Chữ ký lui về đúng nơi có ĐÁNH-ĐỔI. Ở đây «sạch» là một danh sách ĐÓNG,
+    # và MỌI điều kiện phải HIỆN DIỆN-và-rỗng chứ không phải vắng — bỏ hẳn một
+    # mục khỏi báo cáo là đường sạch-giả rẻ nhất (gap-probe P1). Hạng đọc từ
+    # CONTRACT (owner đặt), báo cáo không tự phong hạng cho mình.
+    # Bản khai người-đọc của danh sách này sống ở khối DIEU-KIEN-SACH-V trong
+    # hợp đồng; bộ răng của hồ sơ đối chiếu hành vi dưới đây với khối đó.
+    # verdict=PASS đã được chốt ở trên (nhánh verdict != PASS đã continue).
+    clean_ok=1; clean_why=""
+    _cdir="$(dirname "$report")"
+    _tier="$(front_field "$_cdir/contract.md" risk_tier | tr '[:lower:]' '[:upper:]')"
+    [ "$_tier" = "T2" ] || { clean_ok=0; clean_why="hạng $_tier (chỉ T2 được đi tiếp không ký)"; }
+    if [ "$clean_ok" -eq 1 ] && grep -qiE '(^|[^a-z])UNCERTAIN([^a-z]|$)' "$report"; then
+      clean_ok=0; clean_why="có mục UNCERTAIN"
+    fi
+    if [ "$clean_ok" -eq 1 ]; then
+      for _sec in "Known limits" "Ngoài hợp đồng"; do
+        # section() trả MẢNG RỖNG cho cả «tiêu đề vắng» lẫn «tiêu đề có mà
+        # thân rỗng» — hai ca này phải khác nhau (vắng ≠ rỗng), nên sự hiện
+        # diện của tiêu đề phải hỏi RIÊNG. Chân đỏ (4) bắt đúng chỗ này.
+        _body="$(node -e '
+          const {section}=require(process.argv[1]);
+          const fs=require("fs");
+          const t=fs.readFileSync(process.argv[2],"utf8");
+          const h=process.argv[3];
+          const has=t.split("\n").some(l=>/^#{1,6}\s+/.test(l)
+            && l.replace(/^#{1,6}\s+/,"").trim().toLowerCase()===h.toLowerCase());
+          if(!has){process.stdout.write("__VANG__");process.exit(0);}
+          process.stdout.write(section(t,h).join("\n").trim()?"__CO__":"");
+        ' "$ROOT/lib/md-section.cjs" "$report" "$_sec" 2>/dev/null || printf '__LOI__')"
+        case "$_body" in
+          __VANG__) clean_ok=0; clean_why="mục «$_sec» VẮNG khỏi báo cáo (vắng ≠ rỗng)"; break ;;
+          __CO__)   clean_ok=0; clean_why="mục «$_sec» có nội dung"; break ;;
+          __LOI__)  clean_ok=0; clean_why="không đọc được mục «$_sec» (fail-closed)"; break ;;
+        esac
+      done
+    fi
+    if [ "$clean_ok" -eq 1 ]; then
+      # Đường xanh-sạch KHÔNG có chữ ký để kiểm tiếp — các chốt dưới (giữ-chỗ,
+      # provenance commit chữ ký) đều nói về một chuỗi không tồn tại ở đây.
+      echo "NOTE [$slug]: xanh-sạch — máy đi tiếp, KHÔNG mời ký (verdict PASS · 0 UNCERTAIN · không bypass · Known limits rỗng · Ngoài hợp đồng rỗng · hạng T2). Cửa veto vẫn mở."
+      continue
+    fi
+    echo "NOTE [$slug]: không đủ điều kiện xanh-sạch để đi tiếp không ký — $clean_why"
     echo "VIOLATION [$slug]: verdict PASS but human_signoff is empty (Gate 2 pending)"
     violations=$((violations+1)); continue
   fi
@@ -1025,6 +1069,60 @@ fi
 # per-slug chỉ được ghi `ran` khi vòng lặp nhìn thấy ĐÚNG số thư mục mà phép
 # đếm độc lập nhìn thấy.
 [ "$SLUG_SEEN" -eq "$SLUG_EXPECTED_N" ] && ledger_mark ran per-slug
+
+# ─── veto-có-dấu-vết (đợt 2) ────────────────────────────────────────────────
+# Hai luật, hai kiểu hỏng khác nhau nên hai thông điệp:
+#   (1) ĐẾM cửa đang mở — cắt im lặng đọc y hệt «đã phủ hết», nên phải in
+#       đích danh slug, không chỉ tổng.
+#   (2) CHIỀU ĐỔI, không phải trạng thái cuối. Đây là lỗ P0 của gap-probe:
+#       owner gõ `da-veto`, máy sửa ngược về `mo` (hoặc xoá hẳn khoá) thì
+#       trạng thái cuối trông sạch và veto của người bốc hơi không dấu vết.
+#       So với BASE của diff; đường xử hợp lệ (có entry sổ quyết định khớp
+#       slug) KHÔNG bị chặn oan.
+VETO_OPEN_N=0; VETO_OPEN_SLUGS=""
+if [ -d "$ACC" ]; then
+  for dir in "$ACC"/*/; do
+    [ -d "$dir" ] || continue
+    slug="$(basename "$dir")"
+    contract="$dir/contract.md"
+    [ -f "$contract" ] || continue
+    vstate="$(front_field "$contract" veto_state | tr '[:upper:]' '[:lower:]')"
+    case "$vstate" in
+      mo)
+        VETO_OPEN_N=$((VETO_OPEN_N+1))
+        VETO_OPEN_SLUGS="$VETO_OPEN_SLUGS $slug" ;;
+      da-veto)
+        echo "VIOLATION [$slug]: veto_state=da-veto chưa xử — owner đã veto, hồ sơ không được merge ở trạng thái này. Xử bằng một trong hai đường rồi ghi entry sổ quyết định: quay hồ sơ về status draft để làm lại phạm vi, hoặc owner duyệt tay (approved_by)."
+        violations=$((violations+1)) ;;
+    esac
+    # chiều ghi-ngược — chỉ xét được khi dựng nổi phạm vi diff
+    if [ "$DIFF_READY" -eq 1 ] && slug_in_diff "$slug"; then
+      base_c="$(git -C "$ROOT" show "$BASE_SHA:_acceptance/$slug/contract.md" 2>/dev/null || true)"
+      if [ -n "$base_c" ]; then
+        base_v="$(printf '%s\n' "$base_c" | sed -n '/^---[[:space:]]*$/,/^---[[:space:]]*$/p' \
+                  | sed -n 's/^veto_state[[:space:]]*:[[:space:]]*//p' | head -1 \
+                  | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')"
+        base_status="$(printf '%s\n' "$base_c" | sed -n '/^---[[:space:]]*$/,/^---[[:space:]]*$/p' \
+                  | sed -n 's/^status[[:space:]]*:[[:space:]]*//p' | head -1 | tr -d '[:space:]')"
+        if [ "$base_v" = "da-veto" ] && [ "$vstate" != "da-veto" ]; then
+          if [ -s "$dir/decisions.jsonl" ] && grep -q "veto" "$dir/decisions.jsonl" 2>/dev/null; then
+            echo "NOTE [$slug]: veto đã xử — veto_state da-veto -> ${vstate:-(gỡ khoá)} kèm entry sổ quyết định"
+          else
+            echo "VIOLATION [$slug]: veto_state da-veto -> ${vstate:-(gỡ khoá)} mà KHÔNG có entry sổ quyết định ghi việc xử — veto là quyết định của người, không được xoá bằng một lượt ghi của máy. Ghi entry vào decisions.jsonl rồi chạy lại."
+            violations=$((violations+1))
+          fi
+        elif [ -n "$base_v" ] && [ -z "$vstate" ] && [ "$base_status" != "draft" ]; then
+          echo "VIOLATION [$slug]: khoá veto_state biến mất khỏi một hồ sơ đã rời draft (base: $base_v) — gỡ khoá là xoá dấu vết cửa veto. Giữ khoá, hoặc ghi entry sổ quyết định cho việc xử."
+          violations=$((violations+1))
+        fi
+      fi
+    fi
+  done
+fi
+if [ "$VETO_OPEN_N" -gt 0 ]; then
+  echo "NOTE: cửa veto đang mở — $VETO_OPEN_N hồ sơ máy đã đi trước mà owner chưa veto:$VETO_OPEN_SLUGS"
+fi
+ledger_mark ran veto-trace
 
 # gap-probe ghi sổ ở ĐÚNG MỘT chỗ, sau khi đã biết trọn lịch sử lần chạy. Bản
 # trước mark từ HAI nơi độc lập — `declared-off` trong gap_probe_not_enforced()

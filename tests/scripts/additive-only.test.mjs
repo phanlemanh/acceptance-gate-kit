@@ -54,6 +54,12 @@ const ALLOWED_REMOVALS = [
   // optional catch binding kèm ghi chú, cùng đợt 1.39.1:
   `        try { const e = JSON.parse(l); if (e && e.kind === 'repin' && typeof e.run_id === 'string') repins.set(e.run_id, e); } catch (_) {}`,
   `  try { configText = fs.readFileSync(configPath, 'utf8'); } catch (_) {}`,
+  // đợt 2 «veto có dấu vết»: thêm luật `veto-trace` vào sổ luật. Dòng khai
+  // LEDGER_EXPECTED buộc phải sửa — RL7a1 đòi tập tên trong sổ KHỚP tập
+  // ledger_mark trong script, nên không có đường thêm luật mà không chạm dòng
+  // này. Miễn trừ đích danh đúng chuỗi cũ (không phải mẫu), nên mọi sửa khác
+  // trên dòng ấy vẫn ĐỎ.
+  `LEDGER_EXPECTED="per-slug gap-probe t1-escape"`,
 ];
 let passed = 0, failed = 0;
 const check = (n, f) => { try { f(); passed++; console.log(`  PASS: ${n}`); } catch (e) { failed++; console.log(`  FAIL: ${n}\n    ${e.message}`); } };
