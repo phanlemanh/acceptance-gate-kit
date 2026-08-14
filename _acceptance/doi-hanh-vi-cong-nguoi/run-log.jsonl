@@ -1,0 +1,18 @@
+{"ts":"2026-08-14T09:03:18Z","round":1,"evalId":"E1","run_id":"doi-hanh-vi-cong-nguoi-E1-20260814T090318Z","exit_code":0,"cmd":"bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan g1"}
+{"ts":"2026-08-14T09:03:18Z","round":1,"evalId":"E1b","run_id":"doi-hanh-vi-cong-nguoi-E1b-20260814T090318Z","exit_code":0,"cmd":"bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan manifest"}
+{"ts":"2026-08-14T09:03:18Z","round":1,"evalId":"E5","run_id":"doi-hanh-vi-cong-nguoi-E5-20260814T090318Z","exit_code":0,"cmd":"bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan g3"}
+{"ts":"2026-08-14T09:03:19Z","round":1,"evalId":"E7","run_id":"doi-hanh-vi-cong-nguoi-E7-20260814T090319Z","exit_code":0,"cmd":"bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan g4"}
+{"ts":"2026-08-14T09:04:39Z","round":1,"evalId":"E9","run_id":"doi-hanh-vi-cong-nguoi-E9-20260814T090439Z","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-14T09:04:41Z","round":1,"evalId":"E9b","run_id":"doi-hanh-vi-cong-nguoi-E9b-20260814T090441Z","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-08-14T09:06:30Z","round":1,"evalId":"E9c","run_id":"doi-hanh-vi-cong-nguoi-E9c-20260814T090630Z","exit_code":1,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-14T09:06:32Z","round":1,"evalId":"E9d","run_id":"doi-hanh-vi-cong-nguoi-E9d-20260814T090632Z","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-14T09:06:32Z","round":1,"evalId":"E9e","run_id":"doi-hanh-vi-cong-nguoi-E9e-20260814T090632Z","exit_code":0,"cmd":"bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan so-ca-asserts"}
+{"ts":"2026-08-14T09:16:07Z","round":2,"evalId":"E1","run_id":"doi-hanh-vi-cong-nguoi-E1-r2-20260814T091607Z","exit_code":0,"cmd":"bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan g1"}
+{"ts":"2026-08-14T09:16:08Z","round":2,"evalId":"E1b","run_id":"doi-hanh-vi-cong-nguoi-E1b-r2-20260814T091608Z","exit_code":0,"cmd":"bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan manifest"}
+{"ts":"2026-08-14T09:16:08Z","round":2,"evalId":"E5","run_id":"doi-hanh-vi-cong-nguoi-E5-r2-20260814T091608Z","exit_code":0,"cmd":"bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan g3"}
+{"ts":"2026-08-14T09:16:08Z","round":2,"evalId":"E7","run_id":"doi-hanh-vi-cong-nguoi-E7-r2-20260814T091608Z","exit_code":0,"cmd":"bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan g4"}
+{"ts":"2026-08-14T09:16:26Z","round":2,"evalId":"E9","run_id":"doi-hanh-vi-cong-nguoi-E9-r2-20260814T091626Z","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-14T09:17:33Z","round":2,"evalId":"E9b","run_id":"doi-hanh-vi-cong-nguoi-E9b-r2-20260814T091733Z","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-08-14T09:17:34Z","round":2,"evalId":"E9c","run_id":"doi-hanh-vi-cong-nguoi-E9c-r2-20260814T091734Z","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-14T09:19:18Z","round":2,"evalId":"E9d","run_id":"doi-hanh-vi-cong-nguoi-E9d-r2-20260814T091918Z","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-14T09:19:40Z","round":2,"evalId":"E9e","run_id":"doi-hanh-vi-cong-nguoi-E9e-r2-20260814T091940Z","exit_code":0,"cmd":"bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan so-ca-asserts"}

@@ -88,7 +88,7 @@ Steps:
    fragment inline if a visual tool is available). Thẻ đã render sẵn khối
    👉 VIỆC CỦA ANH; TIN NHẮN trình thẻ cũng phải kết bằng khối đó — điều khoản
    single-source (chép nguyên văn, một dòng):
-   Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người); tin chỉ-báo ghi rõ "không cần làm gì"; cấm câu tu từ mang dấu hỏi.
+   Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người). Khối chỉ sống ở tin mời cổng và trên thẻ cổng — tin chỉ-báo KHÔNG đeo khối, kết bằng một câu nói thẳng máy đang làm gì tiếp; cấm câu tu từ mang dấu hỏi.
 
 5. **(Gate 2 only — `evidence-report.md` present) Full evidence page + AUTO-OPEN.**
    The card is intentionally link-only; the human SEES the real artifacts here. Run
