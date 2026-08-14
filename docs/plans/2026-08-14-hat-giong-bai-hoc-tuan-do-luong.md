@@ -69,9 +69,30 @@ Kèm ba bẫy môi trường phải dặn trước (root làm `chmod 000` FAIL g
 
 ## Đường promote (SAU 1a/1c, một hồ sơ nhỏ)
 
-- 4 hàng mới vào bảng `measure-birth.md` + cập nhật case `MM1` (TRIM/EXTEND,
-  giữ đẳng thức số ca).
-- Nguyên tắc allow-list thành một mục trong `measure-birth.md`.
-- Khuôn ba-lăng-kính thành `skills/acceptance/references/` (hoặc nhập vào
-  judge-personas).
-- Quyết (a)/(b) cho vùng trắng răng-hồ-sơ.
+- ~~4 hàng mới vào bảng `measure-birth.md`~~ · ~~nguyên tắc allow-list thành một
+  mục~~ · ~~quyết (a)/(b)~~ — **ĐÃ LÀM 14/08** trong hồ sơ
+  `_acceptance/bai-hoc-do-luong-vao-engine`. Thành 5 hàng chứ không 4 (bảng và
+  sổ đã lệch sẵn: thiếu `do-thuoc`), cộng một **bản khai miễn trừ** cho ô rác
+  `khac`, và bánh cóc bảng↔sổ trong thân `P177`/`P179`. Owner gạch **(b)**.
+- **Khuôn ba-lăng-kính** thành `skills/acceptance/references/` (hoặc nhập vào
+  judge-personas) — **CÒN NỢ**, cố ý để ngoài phạm vi hồ sơ promote vì nó là
+  *quy trình chấm*, không phải *luật đo*.
+
+## Còn nợ sau vòng promote 14/08 — ba món, đã khai chứ không im
+
+1. **Lời tuyên (b) chưa vào `measure-birth.md`.** Quyết định là: *răng-hồ-sơ là
+   lớp RẺ; mọi bảo đảm DÀI HẠN phải vào lưới thường trực ngay từ đầu.* Nó nên
+   thành một câu của khuôn khai sinh, nhưng vòng promote đã cộng ba thứ vào
+   cùng một bản chỉ dẫn (mục 4 + cặp mốc bảng + 5 hàng) nên món thứ tư bị hoãn
+   để hồ sơ khỏi nong. Vòng sau gánh.
+2. **Kênh `findings → sổ` chưa từng chạy.** `_acceptance/cat-hinh-thuc/review-findings.md`
+   có **0** dòng `Đề xuất: known-limits` — bộ đếm của `P179` đọc đúng kênh ấy.
+   Bánh cóc bảng↔sổ **không** chạm chỗ này: lần sau ba vòng đối kháng lại sinh
+   lớp mới, findings vẫn không ghi `Đề xuất:`, sổ vẫn thiếu, bảng vẫn khớp sổ →
+   **lưới xanh trên một cái hố**. Vá được nhưng phải sửa `review-findings.md`
+   của một hồ sơ ĐÃ KÝ — viết lại sử liệu sau chữ ký, nên nó thuộc hồ sơ riêng.
+3. **Bốn đẳng thức số ca không còn phép đo thường trực nào.** Bản khai từng
+   sống trong khối `SO-CA-KY-VONG` của `luu-kho-codex-va-nghi-le-design` — tức
+   răng-hồ-sơ, và **đã chết khi merge**. Đây đúng là hình dạng mà quyết định (b)
+   vừa gọi tên, và nó vẫn đang hở. Đã ghi known-limit kèm lệnh tái lập
+   (`bai-hoc-do-luong-vao-engine#1`); dựng lưới cho nó là một hồ sơ khác.

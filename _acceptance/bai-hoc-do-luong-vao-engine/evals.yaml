@@ -1,0 +1,193 @@
+schema_version: 1
+feature_slug: bai-hoc-do-luong-vao-engine
+# Hồ sơ này CỘNG vào engine, nên mọi phép đo của nó phải sống ở LƯỚI THƯỜNG
+# TRỰC — không một răng-chết-theo-hồ-sơ nào. Đó vừa là ràng buộc thi công vừa
+# là chính bài học đang được ghi (vùng trắng của MEASURE-BIRTH-CLAUSE).
+# Hệ quả: bảng eval dưới đây KHÔNG có khoá `executors.script.<slug>_rang` nào;
+# mọi chân đi vào thân ca sẵn có của `tests/plugins` để đẳng thức số ca không
+# xê dịch (TRIM/EXTEND, không ADD — nếp hồ sơ 1a).
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - docs/research/known-limits-ledger.tsv
+      - _acceptance/cat-hinh-thuc/review-findings.md
+    expected: >
+      exit 0; chân trong thân ca `P179` (ca của SỔ — không nhét vào `P177` vốn
+      là ca của `measure-birth.md`) assert: với TỪNG lớp trong mảng bốn tên
+      (`tap-so-rong`, `doi-chung-tu-sinh`, `mut-khong-qua-chan-that`,
+      `pinned-khong-dem-duoc`) — sổ `known-limits-ledger.tsv` có ≥1 dòng mang
+      đúng `class` ấy, `slug` = `cat-hinh-thuc`, và `note` chứa `[neo: <chuỗi>]`
+      với `<chuỗi>` tìm thấy NGUYÊN VĂN trong
+      `_acceptance/cat-hinh-thuc/review-findings.md`. Bốn neo đôi một khác nhau.
+      In "LOP-MOI: 4/4 lop co dong SONG trong so + neo truy duoc".
+      Đối chứng dương: đọc được cả sổ lẫn tệp findings và đếm >0 dòng TRƯỚC khi
+      assert — rỗng hoặc đường dẫn hỏng phải ĐỎ «khong doc duoc so nguon» /
+      «khong doc duoc findings», không xanh-rỗng.
+      Chiều đỏ CHẠY THẬT ×2 trên bản sao, cả hai đi qua CHÍNH hàm assert:
+      (a) đổi neo của một lớp sang chuỗi KHÔNG có trong findings → đỏ đích danh
+      lớp ấy; (b) đặt hai lớp dùng CHUNG một neo → đỏ «neo trung».
+      [SỬA SAU CỔNG 1] Bản gốc ghim bốn *mã finding* `Hb`·`He`·`RB3-03`·`RA3-01`
+      — ba mã đầu KHÔNG tồn tại trong tệp ấy, nên chân viết đúng như khai sẽ đỏ
+      lượt đầu vì hợp đồng sai. Bốn neo thật, mỗi chuỗi đúng 1 hit, đã tra:
+      `E5 giữ-gân là HẰNG ĐÚNG` · `E9b «đối chứng dương tự sinh» là HẰNG ĐÚNG` ·
+      `chiều đỏ không qua chân canh` · `RA3-01`.
+    pinned:
+      - "LOP-MOI: 4/4"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - skills/acceptance/references/measure-birth.md
+      - docs/research/known-limits-ledger.tsv
+      - tests/plugins/run-tests.sh
+    expected: >
+      exit 0 — **chân chính của hồ sơ**. Trong thân ca `P177`: rút cột `class`
+      của sổ nguồn (**chỉ dòng `status == 'song'`** — đúng chuỗi ấy; enum thật
+      là `song/chet/trung` và `trung` KHÔNG tính) và cột lớp của bảng trong
+      `measure-birth.md`, rồi so **HAI CHIỀU + bản khai miễn trừ**:
+      (a) lớp SỐNG trong sổ mà VẮNG trên bảng và KHÔNG được miễn trừ → đỏ
+      «LOP-BANG: so co <lop> ma bang thieu»; (b) hàng trên bảng mà lớp không có
+      dòng SỐNG trong sổ → đỏ «LOP-BANG: bang co <lop> ma so khong»;
+      (c) dòng miễn trừ trỏ một lớp không còn dòng SỐNG → đỏ «LOP-BANG: mien tru
+      <lop> khong con dong song» (bánh cóc chiều b của bản khai — cùng nếp
+      `LOP-PHUT`). In "LOP-BANG: 13/13 khop hai chieu (1 mien tru)".
+      Vì sao đây là chân chính: bảng tự tuyên *«Nguồn: docs/research/
+      known-limits-ledger.tsv (cột class)»* mà **không phép đo nào giữ lời tuyên
+      ấy** — đúng lớp `doc-drift` mà chính bảng ấy dạy. Hai lớp trung tâm của ba
+      vòng chấm 1a đã nằm sẵn trên bảng và vẫn bị dẫm; bảng không răng thì nó là
+      trang trí.
+      **Seam VIẾT→ĐỌC phải có mốc:** bảng + bản khai miễn trừ nằm trong cặp mốc
+      `MEASURE-BIRTH-CLASS-TABLE`, và khuôn ô lớp khai một chỗ (token đầu ô, cắt
+      trước dấu ngoặc). Không mốc thì đổi format bảng → rút 0 hàng, đúng hình
+      dạng 3 của bài học S4 (bên viết và bên đọc trôi khỏi nhau).
+      **Phép rút phải fail-loud:** rút được 0 hàng bảng hoặc 0 lớp sổ → ĐỎ «phep
+      rut hong», KHÔNG xanh-rỗng (tập-so-rỗng là hằng đúng — chính lớp
+      `tap-so-rong` hồ sơ này vừa đặt tên).
+      Chiều đỏ CHẠY THẬT ×4 trên bản sao, tất cả đi qua CHÍNH phép so:
+      (a) xoá một hàng khỏi bảng → đỏ chiều (a); (b) thêm một hàng lớp bịa vào
+      bảng → đỏ chiều (b); (c) đổi lớp được miễn trừ sang tên không có dòng sống
+      → đỏ chiều (c); (d) xoá cặp mốc → đỏ «phep rut hong».
+      [SỬA SAU CỔNG 1] Bản gốc ngụ ý hai bên đã khớp. Đo lại: sổ **10** lớp sống,
+      bảng **8** hàng — thiếu `do-thuoc` và `khac`. `do-thuoc` lên bảng; `khac`
+      là ô rác bắt-hết, không có «khuôn chặn bằng mục nào» trung thực → vào bản
+      khai miễn trừ, và chiều (c) sinh ra để bản khai ấy không thành cửa sau.
+    pinned:
+      - "LOP-BANG: 13/13"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - skills/acceptance/references/measure-birth.md
+      - tests/plugins/run-tests.sh
+    expected: >
+      exit 0; `P177` ghim mục thứ tư **«Phủ-định-phổ-quát»** trong khối
+      `MEASURE-BIRTH-SECTIONS` y như nó đang ghim ba mục cũ, và mục ấy phải
+      chứa cả ba neo nội dung: cụm **lật sang liệt cái ĐƯỢC PHÉP** · **miễn trừ
+      khai trước** · **lệnh tái lập**. Ghim tên mục một mình là đo cái nhãn, không
+      đo cái luật.
+      **Buộc số:** đếm `### ` trong khối mốc được N; văn dẫn và tiêu đề `##`
+      ngay trên khối phải viết đúng chữ số của N (`BỐN`/`Bốn`). Lệch → đỏ
+      «so muc trong khoi la <N> ma van dan ghi <chu>». Không có chân này thì
+      thêm mục thứ tư mà quên sửa «đủ BA mục» là giao ra bản chỉ dẫn tự mâu
+      thuẫn — đúng lớp `doc-drift` mà chính trang ấy dạy.
+      Chiều đỏ CHẠY THẬT ×3 trên bản sao, tất cả qua CHÍNH hàm `measure()`, và
+      **ba thông điệp phải KHÁC NHAU** (cùng một màu cho ba nguyên nhân là
+      assertion không phân biệt được): xoá mục thứ tư → đỏ ghim TÊN MỤC; giữ tên
+      mục mà gỡ một neo nội dung → đỏ ghim TÊN NEO; đổi «Bốn» thành «Ba» ở văn
+      dẫn → đỏ ghim lệch số.
+      [SỬA SAU CỔNG 1] Bản gốc ghim `"P177 DUONG-OK"` — chuỗi ĐÃ in ra trên cây
+      hiện tại khi chưa có mục thứ tư nào, tức eval xanh trước khi viết một dòng
+      nào. Marker mới `P177 4MUC-OK` do chính chân mới in.
+    pinned:
+      - "P177 4MUC-OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.product_map
+    paths:
+      - PRODUCT-MAP.md
+    expected: >
+      exit 0 và stdout đúng câu "PRODUCT-MAP.md khớp hồ sơ xưởng." Ghim câu,
+      không ghim mã thoát.
+    pinned:
+      - "PRODUCT-MAP.md khớp hồ sơ xưởng."
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.scripts
+    paths:
+      - scripts
+      - tests/scripts
+    expected: >
+      exit 0; suite in dòng tổng kết "Results: 686 passed, 0 failed". Hồ sơ này
+      KHÔNG chạm `scripts/`; số đổi là tín hiệu cắt lan.
+      [SỬA SAU CỔNG 1, lần 2] Pin cũ là `"0 failed"` — chuỗi ấy khớp cả những
+      dòng tổng kết CON giữa suite (`Results: 3 passed, 0 failed`), nên nó không
+      phân biệt được "cả suite xanh" với "một khối con xanh": đúng lớp
+      `chuoi-thay-quan-he`. Suite `scripts` CÓ in số ca của nó, nên ghim được
+      đẳng thức thật; 686 là con số đã chốt từ hồ sơ `luu-kho-codex-va-nghi-le-design`
+      (671 − 7 + 22), không phải số bịa ra sau khi nhìn kết quả.
+    pinned:
+      - "Results: 686 passed, 0 failed"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.hooks
+    paths:
+      - hooks
+    expected: >
+      exit 0; "Results: 54 passed, 0 failed". Hồ sơ này KHÔNG chạm `hooks/`
+      (lõi cưỡng chế, `t3_paths`); số đổi là tín hiệu cắt lan sang lõi.
+    pinned:
+      - "Results: 54 passed, 0 failed"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.workflows
+    paths:
+      - tests/workflows
+    expected: >
+      exit 0; stdout kết bằng "Results: all workflow tests passed" — câu suite
+      chỉ in khi cả sáu tệp con chạy xong. Hồ sơ này KHÔNG chạm `tests/workflows`.
+    pinned:
+      - "Results: all workflow tests passed"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - tests/plugins/run-tests.sh
+    expected: >
+      exit 0; "Results: all plugin tests passed". Đẳng thức khai TRƯỚC khi thi
+      công: **146 dòng `PASS:`** — hồ sơ này thêm chân vào THÂN ca `P177`/`P179`
+      sẵn có (TRIM/EXTEND), nên 146 đổi thành 147 nghĩa là răng mới mọc thành ca
+      mới, tức đã đi ngược chính bài học đang ghi.
+      **KHAI GIỚI HẠN (sửa sau Cổng 1):** `pinned` KHÔNG giữ được con số ấy —
+      suite không tự in số ca, và `pinned` là phép so chuỗi, không đếm được
+      (đúng lớp `pinned-khong-dem-duoc` mà hồ sơ này vừa đặt tên). 146 ở đây là
+      **số người vận hành đối chiếu**, không phải răng máy. Lệnh tái lập:
+      `su - tester -c 'bash /home/user/acceptance-gate-kit/tests/plugins/run-tests.sh' | grep -c '  PASS:'`.
+      **Tiền đề:** phải chạy dưới người dùng KHÔNG-root — dưới root, `P123` và
+      `P129` (dùng `chmod 000`) đỏ giả vì root đọc xuyên quyền.
+    pinned:
+      - "Results: all plugin tests passed"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
