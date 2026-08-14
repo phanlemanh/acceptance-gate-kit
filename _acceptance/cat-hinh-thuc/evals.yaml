@@ -249,6 +249,13 @@ evals:
       ("MOI-TIN-SITE: <file> <k>/<k> ban chep OK", đếm 3/3) và **0 site ngoài
       bản khai** mang điều khoản, trừ chính bản gốc. Chiều đỏ CHẠY THẬT: chép
       điều khoản vào bản sao một command NGOÀI bản khai → đỏ đích danh file đó.
+      **Chân MOI-TIN-CASE (nhận từ E12 ở vòng sửa 1 — H15):** cái 1a thật sự gỡ
+      là câu neo `kết bằng đúng MỘT khối` trong `GATE-ONESHOT-CLAUSE`
+      (base=1 → HEAD=0), kéo theo một assert của ca `P193` mất đích. Ba vế:
+      đối chứng dương trên base, HEAD=0, và assert mất đích PHẢI có tên trong
+      `tests/plugins/asserts-da-go.txt` — cộng một vế ngược: ca `P193` còn
+      nguyên ở CẢ HAI cây (hợp đồng chọn TRIM assert chứ không XOÁ ca, nên
+      «ca biến mất» là hỏng chứ không phải thành công).
       **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Hai chỗ khai lại (H7, H9).**
       (a) Chân (3) KHÔNG còn là byte-equal: hạng mục 1a.2 gỡ đúng một vế CỦA
       CHÍNH `GATE-INVITE-CLAUSE`, nên byte-equal không có trạng thái cây nào
@@ -263,6 +270,7 @@ evals:
     pinned:
       - "MOI-TIN: 2/2 khuon giu-gan OK"
       - "MOI-TIN-SITE: 3/3"
+      - "MOI-TIN-CASE: base="
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E6
@@ -480,16 +488,25 @@ evals:
       file case không được bộ chạy nhặt sau khi đổi tên, suite vẫn xanh với ít
       hơn hàng chục ca. Sàn số ca là chân chống đúng việc đó, và đây lại chính
       là suite hồ sơ này sửa case, nên không được để trống.
-      Hồ sơ SỬA case canh khối việc-của-anh (giữ ca render-trên-card, gỡ ca
-      luật-mỗi-tin), nên hai chân ngược nhau trong CÙNG lần chạy: stdout CÓ
-      dòng PASS của ca render-trên-card, và KHÔNG có dòng của ca luật-mỗi-tin.
-      Chân âm phải kèm ĐỐI CHỨNG DƯƠNG: in "MOI-TIN-CASE: base=<n>(>0) HEAD=0"
-      và ĐỎ khi base=0 với thông điệp "needle chua bao gio ton tai" — không có
-      vế đó thì gõ sai tên ca sẽ cho một chân âm đúng-một-cách-rỗng, và ca cũ
-      thực ra chỉ bị làm yếu chứ chưa hề gỡ.
+      **[SỬA SAU CỔNG 1 — 14/08, vòng sửa 1] Vế cuối của bản duyệt dựa trên một
+      TIỀN ĐỀ SAI, và nó chưa bao giờ được cài (H15).** Bản duyệt viết *«hồ sơ
+      SỬA case canh khối việc-của-anh (giữ ca render-trên-card, gỡ ca
+      luật-mỗi-tin) … in "MOI-TIN-CASE: base=<n>(>0) HEAD=0"»*. Hai chỗ hỏng:
+      (a) **1a KHÔNG gỡ ca nào** — hợp đồng chọn TRIM assert chứ không XOÁ ca,
+      và diff xác nhận `P193` còn nguyên ở cả hai cây; «gỡ ca luật-mỗi-tin» là
+      một mệnh đề sai. (b) Chuỗi `MOI-TIN-CASE:` được giao cho eval NÀY, nhưng
+      lệnh của nó là **bộ đếm số ca của hồ sơ 1b** — một script không thể in
+      chuỗi của 1a, nên lời hứa ấy không có đường nào thành thật.
+      Ai bắt được: **luật chứng-nhân-riêng mới của `ghi-so-chay-1a.mjs`**, ngay
+      lượt chạy đầu của vòng sửa — đúng lớp lỗi H1, và lần này lưới kêu thay vì
+      người phải soi tay.
+      Chân ấy nay ở đúng chỗ nó thuộc về: khối E5 của bộ răng 1a, đo cái 1a
+      THẬT SỰ gỡ — câu neo `kết bằng đúng MỘT khối` biến khỏi
+      `GATE-ONESHOT-CLAUSE` (base=1 → HEAD=0), assert mất đích được khai trong
+      `tests/plugins/asserts-da-go.txt`, và ca `P193` còn nguyên ở CẢ HAI cây.
+      Eval này giữ đúng vai còn lại: **đẳng thức số ca**.
     pinned:
       - "LUU-KHO-SUITE: plugins 173 -> 146 OK"
-      - "MOI-TIN-CASE:"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E13

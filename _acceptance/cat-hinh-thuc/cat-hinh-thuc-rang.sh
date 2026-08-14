@@ -327,6 +327,33 @@ if [ -n "$ngoai" ]; then
 else
   ok "MOI-TIN-SITE: 0 site ngoai ban khai (tru ban goc $LAW) OK"
 fi
+# Chân MOI-TIN-CASE — [SỬA SAU CỔNG 1 — vòng sửa 1, H15]. Lời hứa này trước ở
+# `expected` của E12 và **chưa bao giờ được cài**; luật chứng-nhân-riêng của bộ
+# ghi sổ bắt được nó ngay lượt chạy đầu (E12 pin "MOI-TIN-CASE:" mà bộ đếm số
+# ca không in chuỗi ấy — mà nó cũng KHÔNG THỂ in: bộ đếm là vật của 1b). Nó về
+# đây vì đây mới là chỗ nó thuộc về: cái 1a gỡ là câu neo trong
+# `GATE-ONESHOT-CLAUSE`, và assert của `P193` mất đích theo. Đo hai vế:
+oc_b="$(rut_marker "$LAW_BASE" 'GATE-ONESHOT-CLAUSE' | grep -c -- "$CLAUSE_NEEDLE" || true)"
+oc_h="$(rut_marker "$LAW_HEAD" 'GATE-ONESHOT-CLAUSE' | grep -c -- "$CLAUSE_NEEDLE" || true)"
+LEDGER="tests/plugins/asserts-da-go.txt"
+ASSERT_GO='assert "kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE" in clause'
+if [ "$oc_b" -eq 0 ]; then
+  bad "MOI-TIN-CASE: base=0 — cau neo chua bao gio o trong GATE-ONESHOT-CLAUSE, phep do khong song"
+elif [ "$oc_h" -ne 0 ]; then
+  bad "MOI-TIN-CASE: cau neo VAN con trong GATE-ONESHOT-CLAUSE tren HEAD"
+elif ! grep -Fq -- "$ASSERT_GO" "$ROOT/$LEDGER"; then
+  bad "MOI-TIN-CASE: assert mat dich KHONG duoc khai trong $LEDGER — go lang le"
+else
+  ok "MOI-TIN-CASE: base=$oc_b(>0) HEAD=0, assert mat dich da khai trong $LEDGER OK"
+fi
+# … và ca `P193` KHÔNG bị xoá, chỉ bị TRIM: hợp đồng chọn TRIM chứ không XOÁ,
+# nên «gỡ ca» là một mệnh đề SAI phải bị bắt chứ không được đo cho có.
+if git -C "$ROOT" show "$BASE:tests/plugins/run-tests.sh" | grep -q 'P193' \
+   && grep -q 'P193' "$ROOT/tests/plugins/run-tests.sh"; then
+  ok "MOI-TIN-CASE: ca P193 con nguyen o CA HAI cay (TRIM assert, KHONG xoa ca) OK"
+else
+  bad "MOI-TIN-CASE: ca P193 vang o mot trong hai cay — 1a da XOA ca thay vi TRIM assert"
+fi
 # chiều đỏ CHẠY THẬT: chép lại điều khoản vào một site ngoài bản khai
 MUT5="$(tmpd)"; mkdir -p "$MUT5/commands"
 cp "$ROOT/commands/acceptance-status.md" "$MUT5/commands/acceptance-status.md"

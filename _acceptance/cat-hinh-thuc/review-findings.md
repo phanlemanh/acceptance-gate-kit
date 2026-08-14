@@ -254,3 +254,38 @@ tất cả — cách rẻ nhất để lách — cũng chết to.
   chiều ngược phải đỏ.
 - **Bốn eval judgment (`E3b` `E7` `E8` `E9`) VẪN CHƯA AI CHẤM** — nguyên trạng
   từ vòng 1, khai lại ở đây để nó không chìm dưới 14 dòng đã sửa.
+
+## H15 — lỗ thứ mười lăm, do CHÍNH lưới mới bắt, không do người soi
+
+*Phát hiện 14/08, ở **lượt chạy đầu tiên** sau khi luật chứng-nhân-riêng vào bộ
+ghi sổ. Ba phiên chấm của vòng 1 đều bỏ sót nó.*
+
+`ghi-so-chay-1a.mjs` thoát **1** với đúng một dòng:
+
+```
+E12: khong tim thay "MOI-TIN-CASE:" trong dau ra
+```
+
+`expected` của E12 hứa in `MOI-TIN-CASE: base=<n>(>0) HEAD=0`. Hai chỗ hỏng, và
+cả hai là **cùng lớp với H1** — lời hứa và bản thi công trôi khỏi nhau:
+
+1. **Lời hứa không có đường nào thành thật.** `cmd:` của E12 là bộ đếm số ca
+   **của hồ sơ 1b**; một script của 1b không thể in một chuỗi của 1a. Lời hứa
+   ấy sai địa chỉ ngay từ lúc viết.
+2. **Tiền đề của nó SAI.** Nó nói *«giữ ca render-trên-card, gỡ ca
+   luật-mỗi-tin»*. 1a **không gỡ ca nào** — hợp đồng chọn TRIM assert chứ không
+   XOÁ ca, và diff xác nhận `P193` còn nguyên ở cả hai cây. Một chân đo dựng
+   trên tiền đề sai thì lúc nó đỏ, đường thoát rẻ nhất là xoá chân.
+
+**Xử:** chân về khối E5 của bộ răng 1a — đúng chỗ nó thuộc về — và đo cái 1a
+THẬT SỰ gỡ: câu neo `kết bằng đúng MỘT khối` biến khỏi `GATE-ONESHOT-CLAUSE`
+(base=1 → HEAD=0), assert mất đích được khai trong `asserts-da-go.txt`, **cộng
+một vế ngược**: `P193` phải còn nguyên ở cả hai cây, vì ở hồ sơ này «ca biến
+mất» là hỏng chứ không phải thành công. E12 giữ đúng vai còn lại — đẳng thức số
+ca.
+
+**Vì sao ghi H15 ra thay vì lặng lẽ sửa.** Nó là bằng chứng sống rằng lượt sửa
+H1 đổi đúng chỗ: lỗ thứ mười lăm cùng lớp bị bắt bởi **lưới**, ở lượt chạy đầu,
+chứ không bởi một phiên chấm thứ tư. Lượt chạy đỏ ấy còn nguyên trong
+`run-log.jsonl` (round 5, `pinned_missing: ["MOI-TIN-CASE:"]`) — sổ append-only,
+lượt đỏ không bị xoá. Đọc dòng ấy là đọc đối chứng dương của chính luật mới.
