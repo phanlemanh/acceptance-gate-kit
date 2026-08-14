@@ -8109,7 +8109,7 @@ for side in PTR:
 print('P176 MUTANT-OK (xoa con tro tung ben -> do neu dung ben thieu)')
 P176PY
 
-run "P177 [MBC] E4 references measure-birth.md: resolver goc-trong-cay-kiem + 3 muc + 2 mau + bang lop" \
+run "P177 [MBC] E4 references measure-birth.md: resolver goc-trong-cay-kiem + 4 muc + 2 mau + banh coc bang<->so" \
   python3 - "$ROOT" <<'P177PY'
 import re, subprocess, sys, tempfile, pathlib
 root = pathlib.Path(sys.argv[1])
@@ -8120,13 +8120,38 @@ r = subprocess.run(['node', str(root/'feature-loop/scripts/resolve-plugin.mjs'),
 assert r.returncode == 0, 'resolver fail tren cay that: ' + r.stderr[:200]
 got = pathlib.Path(r.stdout.strip()).resolve()
 assert str(got).startswith(str(root.resolve())), f'goc resolver NGOAI cay kiem: {got}'
+SO_CHU = {3: ('BA', 'Ba'), 4: ('BỐN', 'Bốn'), 5: ('NĂM', 'Năm')}
+# Neo NOI DUNG cua muc 4 — ghim ten muc mot minh la do cai NHAN, khong do cai
+# LUAT. So khong phan biet hoa/thuong: van ban viet hoa de nhan manh.
+NEO_MUC4 = ['lật sang liệt cái ĐƯỢC PHÉP', 'miễn trừ khai TRƯỚC', 'lệnh tái lập']
 def measure(text):
     errs = []
     m = re.search(r'<!-- <<<MEASURE-BIRTH-SECTIONS -->([\s\S]*?)<!-- MEASURE-BIRTH-SECTIONS>>> -->', text)
     if not m: return ['references: KHONG co cap moc MEASURE-BIRTH-SECTIONS']
     body = m.group(1)
-    for name in ['Đối-chứng-dương', 'Phá-vật-thật', 'Thông-điệp-ghim']:
+    for name in ['Đối-chứng-dương', 'Phá-vật-thật', 'Thông-điệp-ghim', 'Phủ-định-phổ-quát']:
         if ('### ' not in body) or (name not in body): errs.append('references thieu muc: ' + name)
+    # Muc 4 phai mang du ba neo NOI DUNG, moi neo mot thong diep RIENG — de
+    # "go mot neo" va "xoa ca muc" khong ra cung mot mau.
+    if 'Phủ-định-phổ-quát' in body:
+        m4 = body.split('### 4.', 1)[1]
+        for neo in NEO_MUC4:
+            if neo.casefold() not in m4.casefold():
+                errs.append('references thieu neo noi dung muc 4: ' + neo)
+    # BUOC SO: so muc trong khoi moc phai khop chu so viet o van dan va tieu de
+    # `##` ngay tren khoi. Thieu chan nay thi them muc thu tu ma quen sua "du BA
+    # muc" la giao ra ban chi dan tu mau thuan — dung lop doc-drift ma chinh
+    # trang nay day.
+    n = len(re.findall(r'^### \d+\.', body, re.M))
+    hoa, thuong = SO_CHU.get(n, (None, None))
+    dan = text.split('<!-- <<<MEASURE-BIRTH-SECTIONS', 1)[0]
+    if hoa is None:
+        errs.append(f'so muc trong khoi la {n} — ngoai bang chu so da khai')
+    else:
+        if f'đủ {hoa} mục' not in dan:
+            errs.append(f'so muc trong khoi la {n} ma van dan khong ghi "đủ {hoa} mục"')
+        if f'## {thuong} mục bắt buộc' not in dan:
+            errs.append(f'so muc trong khoi la {n} ma tieu de khong ghi "## {thuong} mục bắt buộc"')
     for sample in ['L35', 'PM13']:
         if sample not in text: errs.append('references thieu mau song: ' + sample)
     if 'known-limits-ledger.tsv' not in text or '| Lớp |' not in text:
@@ -8136,9 +8161,27 @@ text = (got/REL).read_text()
 errs = measure(text)
 assert not errs, 'ban that do oan: ' + '; '.join(errs)
 print('P177 DUONG-OK')
+print('P177 4MUC-OK (4 muc + 3 neo noi dung muc 4 + buoc so van-dan<->khoi-moc)')
 m1 = text.replace('### 2. Phá-vật-thật', '### 2. (da xoa)')
 e1 = measure(m1)
 assert e1 and any('Phá-vật-thật' in x for x in e1), 'mutant xoa muc khong do ghim ten muc: ' + repr(e1)
+# --- AC-3: ba chieu do cua muc 4, BA THONG DIEP KHAC NHAU ---
+m4a = text.replace('### 4. Phủ-định-phổ-quát', '### 4. (da xoa)')
+e4a = measure(m4a)
+assert e4a and any('thieu muc: Phủ-định-phổ-quát' in x for x in e4a), \
+    'mutant xoa muc 4 khong do ghim ten muc: ' + repr(e4a)
+m4b = text.replace('lật sang liệt cái ĐƯỢC PHÉP', 'lat sang liet cai (da go)')
+assert m4b != text, 'mutant go neo noi dung khong tiem duoc — neo doi ten?'
+e4b = measure(m4b)
+assert e4b and any('thieu neo noi dung muc 4' in x for x in e4b), \
+    'mutant go neo noi dung khong do ghim ten neo: ' + repr(e4b)
+assert not any('thieu muc: Phủ-định-phổ-quát' in x for x in e4b), \
+    'go neo va xoa muc ra CUNG mot thong diep — chan khong phan biet duoc hai nguyen nhan'
+m4c = text.replace('đủ BỐN mục', 'đủ BA mục')
+assert m4c != text, 'mutant lech so khong tiem duoc — van dan doi cau chu?'
+e4c = measure(m4c)
+assert e4c and any('van dan khong ghi' in x for x in e4c), \
+    'mutant lech so van dan khong do: ' + repr(e4c)
 with tempfile.TemporaryDirectory() as d:
     r2 = subprocess.run(['node', str(root/'feature-loop/scripts/resolve-plugin.mjs'),
                          '--plugin', 'acceptance-gate', '--root', d, '--require', REL],
@@ -8150,6 +8193,74 @@ with tempfile.TemporaryDirectory() as d:
     assert r2.returncode != 0 and 'does not carry' in msg and 'measure-birth.md' in msg, \
         f'resolver tren cay thieu file phai fail GHIM dung thong diep does-not-carry (exit={r2.returncode}, msg={msg[:150]})'
 print('P177 MUTANT-OK (xoa muc do ghim ten muc; cay thieu file -> resolver fail ghim does-not-carry)')
+
+# ── AC-2: banh coc HAI CHIEU bang lop loi <-> cot `class` cua so nguon ──────
+# Bang tu tuyen «Nguon: known-limits-ledger.tsv (cot class)» ma truoc hom nay
+# KHONG phep do nao giu loi tuyen ay — dung lop doc-drift ma chinh bang ay day.
+# Hai lop trung tam cua ba vong cham ho so cat-hinh-thuc da nam san tren bang
+# va van bi dam: bang khong rang thi no la trang tri.
+LEDGER177 = root/'docs/research/known-limits-ledger.tsv'   # goc REPO, khong phai goc plugin
+def lop_song(ledger_text):
+    out = set()
+    for line in ledger_text.strip().split('\n')[1:]:
+        c = line.split('\t')
+        if len(c) >= 5 and c[4] == 'song' and c[3].strip():   # enum that: song|chet|trung
+            out.add(c[3].strip())
+    return out
+def rut_bang(text):
+    """Ben DOC cua seam: khuon o lop khai o mot cho — token dau o, cat truoc
+    dau cach hoac dau ngoac. Doi format bang ma quen sua day -> rut 0 hang ->
+    fail-loud, khong xanh-rong."""
+    m = re.search(r'<!-- <<<MEASURE-BIRTH-CLASS-TABLE -->([\s\S]*?)<!-- MEASURE-BIRTH-CLASS-TABLE>>> -->', text)
+    if not m: return None, None
+    blk = m.group(1)
+    bang = []
+    for line in blk.split('\n'):
+        line = line.strip()
+        if not line.startswith('|') or set(line) <= set('|-: '): continue
+        o = line.strip('|').split('|')[0].strip()
+        if o in ('Lớp',) or not o: continue
+        bang.append(re.split(r'[\s(]', o, 1)[0])
+    mien = re.findall(r'^- `([a-z0-9-]+)` — ', blk, re.M)
+    return bang, mien
+def bang_vs_so(text, song):
+    bang, mien = rut_bang(text)
+    # FAIL-LOUD: tap-so-rong la hang dung — chinh lop ho so nay vua dat ten.
+    if bang is None: return ['LOP-BANG: phep rut hong — khong co cap moc MEASURE-BIRTH-CLASS-TABLE']
+    if not bang or not song: return ['LOP-BANG: phep rut hong — rut duoc 0 hang bang hoac 0 lop so']
+    errs = []
+    for lop in sorted(song - set(bang) - set(mien)):
+        errs.append(f'LOP-BANG: so co {lop} ma bang thieu')
+    for lop in sorted(set(bang) - song):
+        errs.append(f'LOP-BANG: bang co {lop} ma so khong')
+    for lop in sorted(set(mien) - song):     # banh coc chieu (b) cua ban khai
+        errs.append(f'LOP-BANG: mien tru {lop} khong con dong song')
+    return errs
+ltext = LEDGER177.read_text()
+song177 = lop_song(ltext)
+assert len(song177) > 1, f'bo rut lop SONG tra {len(song177)} — bo rut hong, khong phai so rong'
+bang177, mien177 = rut_bang(text)
+assert bang177, 'bo rut BANG tra rong tren ban that — seam viet<->doc da troi'
+e177 = bang_vs_so(text, song177)
+assert not e177, 'ban that do oan: ' + '; '.join(e177)
+print(f'LOP-BANG: {len(bang177)}/{len(song177 - set(mien177))} khop hai chieu ({len(mien177)} mien tru)')
+# Bon chieu do CHAY THAT, tat ca di qua CHINH `bang_vs_so`.
+bo_hang = re.sub(r'^\| do-thuoc .*\n', '', text, count=1, flags=re.M)
+assert bo_hang != text, 'mutant xoa hang khong tiem duoc — o lop doi khuon?'
+ea = bang_vs_so(bo_hang, song177)
+assert any('so co do-thuoc ma bang thieu' in x for x in ea), 'mutant xoa hang khong do chieu (a): ' + repr(ea)
+them = text.replace('| do-thuoc ', '| lop-bia-dat (khong co trong so) | x | y |\n| do-thuoc ', 1)
+eb = bang_vs_so(them, song177)
+assert any('bang co lop-bia-dat ma so khong' in x for x in eb), 'mutant them hang bia khong do chieu (b): ' + repr(eb)
+doi_mien = text.replace('- `khac` — ', '- `mien-tru-chet` — ', 1)
+assert doi_mien != text, 'mutant doi ban khai mien tru khong tiem duoc'
+ec = bang_vs_so(doi_mien, song177)
+assert any('mien tru mien-tru-chet khong con dong song' in x for x in ec), \
+    'mutant mien tru chet khong do chieu (c) — ban khai la cua sau: ' + repr(ec)
+assert any('so co khac ma bang thieu' in x for x in ec), 'go mien tru cho `khac` ma chieu (a) khong bat: ' + repr(ec)
+ed = bang_vs_so(text.replace('<!-- <<<MEASURE-BIRTH-CLASS-TABLE -->', '<!-- (moc da xoa) -->', 1), song177)
+assert any('phep rut hong' in x for x in ed), 'mutant xoa moc khong fail-loud: ' + repr(ed)
+print('P177 LOP-BANG-MUTANT-OK (xoa hang / them hang bia / mien tru chet / xoa moc — bon thong diep rieng)')
 P177PY
 
 
@@ -8206,6 +8317,52 @@ assert any('ngoai enum' in x for x in e3), 'mutant status la khong do: ' + repr(
 e4 = measure('\n'.join(lines[:known]), known)
 assert any('quan he >=' in x for x in e4), 'mutant xoa xuong duoi so dem khong do quan he >=: ' + repr(e4)
 print('P179 MUTANT-OK (closed_by, dup_of ma, enum, quan he >= deu do ghim ten bat bien)')
+
+# ── AC-1: bon lop loi moi phai co dong SONG trong so + NEO truy duoc ────────
+# Chan nay khong tu dung: no la ve NGUON de banh coc LOP-BANG (P177) co cai ma
+# so. Doc roi P177 thi no chi la mot danh sach bon ten cung.
+LOP_MOI = ['tap-so-rong', 'doi-chung-tu-sinh', 'mut-khong-qua-chan-that', 'pinned-khong-dem-duoc']
+FIND179 = root/'_acceptance/cat-hinh-thuc/review-findings.md'
+def neo_truy(ledger_text, find_text):
+    """Neo dang `[neo: <chuoi>]` trong cot note; <chuoi> phai tim thay NGUYEN
+    VAN trong review-findings.md, va bon neo doi mot khac nhau."""
+    errs, thay = [], {}
+    rows = [l.split('\t') for l in ledger_text.strip().split('\n')[1:]]
+    for lop in LOP_MOI:
+        hit = [r for r in rows if len(r) >= 8 and r[3] == lop and r[4] == 'song' and r[1] == 'cat-hinh-thuc']
+        if not hit:
+            errs.append(f'LOP-MOI: {lop} khong co dong SONG slug=cat-hinh-thuc trong so'); continue
+        neo = None
+        for r in hit:
+            m = re.search(r'\[neo: (.+?)\]', r[7])
+            if m: neo = m.group(1); break
+        if neo is None:
+            errs.append(f'LOP-MOI: {lop} thieu neo dang [neo: ...] trong note'); continue
+        if neo not in find_text:
+            errs.append(f'LOP-MOI: neo cua {lop} KHONG tim thay trong review-findings: {neo!r}')
+        elif neo in thay:
+            errs.append(f'LOP-MOI: neo trung — {lop} va {thay[neo]} cung tro {neo!r}')
+        else:
+            thay[neo] = lop
+    return errs
+# DOI CHUNG DUONG cho ca hai ben doc: rong / duong dan hong phai DO to, khong
+# xanh-rong (tap-so-rong — chinh lop dang duoc ghi vao so o ngay day).
+assert len(text.strip().split('\n')) > 1, 'LOP-MOI: khong doc duoc so nguon'
+find_text = FIND179.read_text()
+assert 'REJECT' in find_text and len(find_text) > 2000, 'LOP-MOI: khong doc duoc findings (ban rong/cut?)'
+e179 = neo_truy(text, find_text)
+assert not e179, 'ban that do oan: ' + '; '.join(e179)
+print(f'LOP-MOI: {len(LOP_MOI)}/{len(LOP_MOI)} lop co dong SONG trong so + neo truy duoc')
+# Hai chieu do CHAY THAT, ca hai di qua CHINH `neo_truy`.
+mA = text.replace('[neo: RA3-01]', '[neo: MA-KHONG-CO-THAT-RA9-99]', 1)
+assert mA != text, 'mutant doi neo khong tiem duoc'
+eA = neo_truy(mA, find_text)
+assert any('neo cua pinned-khong-dem-duoc KHONG tim thay' in x for x in eA), \
+    'mutant neo ma khong do dich danh lop: ' + repr(eA)
+mB = text.replace('[neo: RA3-01]', '[neo: chiều đỏ không qua chân canh]', 1)
+eB = neo_truy(mB, find_text)
+assert any('neo trung' in x for x in eB), 'hai lop dung chung mot neo ma khong do: ' + repr(eB)
+print('P179 LOP-MOI-MUTANT-OK (neo ma / neo trung deu do ghim dich danh lop)')
 P179PY
 
 run "P180 [MBC] E7 baseline 4/6 trong Notes + entry revisit dieu kien dung" \
