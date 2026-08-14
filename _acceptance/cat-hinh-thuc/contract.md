@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-feature: Cắt hình thức trong luật hành xử của kit — thôi đo phút người, thôi bắt xác nhận T1, thôi phỏng vấn tuần tự; giữ nguyên mọi răng bằng chứng
+feature: Kit thôi đo phút người ở mọi cổng — gỡ cả lớp HỎI lẫn lớp KHẲNG ĐỊNH về phút, giữ đường đọc-cũ cho hồ sơ đã ký và giữ nguyên mọi răng bằng chứng
 slug: cat-hinh-thuc
 owner: phanlemanh@gmail.com
 risk_tier: T2
@@ -8,7 +8,6 @@ surfaces: [cli]
 status: approved
 approved_by: Manh
 approved_at: 2026-08-12
-time_human_minutes: {gate1: 0, gate2: 0}
 ---
 
 # Acceptance Contract: cat-hinh-thuc
@@ -28,6 +27,27 @@ biên merge, các điểm máy-cạn) giữ nguyên — chúng phục vụ nguy�
 neo ("bằng chứng không tự dối"), là lý do máy được chạy nhanh mà người khỏi
 kiểm lại.
 
+**[THU PHẠM VI — 14/08, owner chọn đường ② sau rà soát đối kháng vòng 2]**
+Hồ sơ này nay chỉ còn **một** hạng mục: **thôi đo phút người**. Bốn hạng mục
+đổi-hành-vi (gỡ tư cách luật-mỗi-tin của khối 👉, T1 tuyên-kèm-căn-cứ, quét độ
+phủ thôi phỏng vấn, khởi tạo một-lần-gạch) đã **hoàn nguyên khỏi nhánh này** và
+đi sang một hồ sơ riêng, gate bằng hội đồng thật.
+
+**Vì sao thu, nói bằng bằng chứng chứ không bằng cảm giác.** Ba vòng chấm liên
+tiếp cho cùng một kết quả: nửa cắt-phút **đo được** — needle có đối chứng dương
+thật, đường đọc-cũ chạy được trên fixture thật, khuôn YAML nạp được bằng parser
+thật; nửa đổi-hành-vi thì **không**. Lời hứa của nó là hành vi của một agent
+đọc văn chỉ dẫn, và ba lượt dựng thước cho nó đều chết cùng một kiểu: rà soát
+vòng 2 phá thật **8 lượt và cả 8 vẫn XANH**, trong đó có hai chân là **hằng
+đúng** (tập so sánh rỗng · chèn-rồi-grep-lại chính chuỗi vừa chèn) do chính
+vòng sửa 1 viết ra và khai nhầm là «mạnh hơn đối chứng dương». Luật dừng-vá
+(`STOP-PATCHING-CLAUSE`) bật đúng ở đó: cùng TÊN LỚP LỖI qua hai vòng ⇒ khuôn
+giải sai, không phải chi tiết sai.
+
+Bốn eval judgment (`E3b` `E7` `E8` `E9`) sinh ra để chấm đúng nửa ấy — và
+**chưa lượt nào chạy**. Thu phạm vi là trả nửa đổi-hành-vi về đúng bộ đo của
+nó, thay vì tiếp tục nuôi một bộ thước grep cho một lời hứa grep không đo được.
+
 Source input: [docs/plans/2026-08-12-de-bai-dot1-cat-va-luu-kho.md](../../docs/plans/2026-08-12-de-bai-dot1-cat-va-luu-kho.md)
 · bản neo [docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md](../../docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md)
 
@@ -40,7 +60,8 @@ liệu), `_acceptance/` (hồ sơ cũ), `codex/` (lưu kho ở hồ sơ 1b — x
 scope), `plugins/` (mirror máy sinh, canh riêng ở tiêu chí cuối), và `tests/`
 (lý do ngay dưới). Mọi tiêu chí âm tính PHẢI kèm đối chứng dương: cùng câu quét
 chạy trên worktree `origin/main` phải cho **>0 hit**, và eval in ra cả hai con
-số — trừ AC-13, nơi đối chứng dương là bản sao tự sinh (lý do ở AC-13).
+số. **Không tiêu chí nào được miễn luật này** — vòng thu phạm vi 14/08 gỡ hẳn
+hai tiêu chí thay vì nới luật cho chúng (xem Out of scope).
 
 <!-- <<<PHAM-VI-RANG -->
 | duong-dan |
@@ -101,72 +122,22 @@ khai lý do tại chỗ, không âm thầm thu.)
 - AC-3: Given ngữ pháp một-lượt-gõ, When người gõ câu gộp **có** vế `, phút 12`,
   Then máy chấp nhận câu đó và bỏ qua vế phút (không lỗi, không ghi) — người
   quen tay không bị chặn.
+  **[SỬA SAU CỔNG 1 — 14/08, vòng thu phạm vi] Lời hứa này do E3b (judgment)
+  chấm, KHÔNG do E3 (máy).** E3 chỉ chứng **MỰC ĐÃ IN**: cụm cũ đã vắng (đối
+  chứng dương trên base), cụm mới có mặt ở dạng CỤM LIỀN, và điều khoản
+  `GATE-ONESHOT-CLAUSE` còn đủ bản chép ở 6 site. Rà soát vòng 2 (Ha) đảo nghĩa
+  khối ngữ pháp **180° theo ba cách** mà E3 vẫn xanh — trong đó cách rẻ nhất là
+  **nối thêm một câu huỷ** vào cuối khối, thứ không phép so-với-base nào bắt
+  được. Chân «so TẬP CÂU» đã **gỡ** thay vì vá: nó lọc `grep -v 'phút'` nên
+  miễn trừ vĩnh viễn đúng 5 câu chịu lực. Hệ quả phải khai thẳng: **AC-3 chỉ
+  được coi là đạt khi E3b đã chấm**, và E3b hiện chưa ai chạy — Cổng 2 không ký
+  được nếu nó vẫn trống. Đây là known-limit, ghi lại ở mục Notes.
 - AC-4: Given `/acceptance-report`, When chạy trên workspace hiện tại, Then báo
   cáo **không còn** nhánh so phút-vs-baseline, **vẫn còn** sổ vàng và mục vệ
   sinh cổng, và chạy được trên workspace có lẫn hồ sơ cũ-có-phút.
-- AC-5: Given luật ngôn ngữ mặt người, When đọc `human-facing-language.md`,
-  Then điều khoản "tin CHỈ-BÁO vẫn kết bằng khối" **đã gỡ**, còn khuôn
-  `YOUR-MOVE-BLOCK-TEMPLATE` **giữ nguyên nguyên văn** và `GATE-INVITE-CLAUSE`
-  giữ nguyên **mọi câu không nói về chỉ-báo**.
-  **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Bản duyệt tự mâu thuẫn, và chỗ mâu
-  thuẫn ấy đã bị chữa bằng cách nới thước thay vì khai (H7).** Nó đòi
-  `GATE-INVITE-CLAUSE` "giữ nguyên nguyên văn" trong khi hạng mục 1a.2 GỠ đúng
-  một vế CỦA CHÍNH điều khoản ấy (cụm `tin chỉ-báo ghi rõ "không cần làm gì";`)
-  — không tồn tại trạng thái cây nào cho cả hai vế cùng đúng. Bản thi công đặc
-  cách khối này khỏi phép byte-equal, kèm ghi chú «byte-equal là sai kỳ vọng»,
-  **cùng một commit với lượt sửa vật** và không mục `[SỬA SAU CỔNG 1]` nào.
-  Cái đổi là ĐÚNG (owner gạch «gỡ luật mỗi-tin» tại Cổng 1); cái sai là thước
-  đổi lặng. Nay khai thẳng, và thước không quay về byte-equal (nó không thoả
-  được) mà lên **phép so TẬP CÂU**: mọi câu của base không chứa chữ «chỉ-báo»
-  phải còn nguyên ở HEAD — chặt hơn đếm từ khoá, và miễn nhiễm với việc gói lại
-  dòng. Điều khoản này có ba site chép nguyên văn, số bản khai trong
-  `GATE-INVITE-SITES`; chân LAN đọc đúng bản khai đó.
 - AC-6: Given `scripts/gate-card.js`, When render card cổng ở cả ba mode, Then
   card **vẫn có** khối 👉 VIỆC CỦA ANH (đối chứng giữ-gân — chip GỠ không được
   gỡ nhầm sang card cổng).
-- AC-7: Given một thay đổi khớp trọn `t1_skip_globs`, When chạy S0 của
-  feature-loop hoặc Phase 0 của skill acceptance, Then máy **in bảng match**
-  `<path> → <glob>` kèm căn cứ rồi **đi tiếp ngay**, không dừng chờ người xác
-  nhận; lưới T1-escape ở CI giữ nguyên là backstop.
-- AC-8: Given repo chưa có `## Product Context`, When chạy morphological-scan
-  nhánh (b)/(c), Then máy **tự dựng** Product Context từ repo, mỗi dòng gắn
-  `[SUY-TỪ-REPO]` hoặc `[GIẢ ĐỊNH]`, và **không hỏi trước từng cái** — các dòng
-  `[GIẢ ĐỊNH]`/`[NGÀNH]` gom vào mục Coverage của contract để người gạch tại
-  Cổng 1. Thang nguồn chân ngành (bậc b bắt buộc web-search) **giữ nguyên**.
-- AC-9: Given một repo chưa khởi tạo, When chạy chỉ dẫn `acceptance-init`, Then
-  máy dò repo và trình **TRỌN** `config.yaml` draft trong MỘT lần cho người
-  sửa/gật, ô không suy được đánh dấu "cần anh". (judgment)
-- AC-13: Given cây đã sửa, When quét TOÀN phạm vi (không chỉ thân lệnh) tìm
-  nghi thức hỏi-tuần-tự — `one question at a time` và biến thể — Then 0 hit
-  **ngoài danh sách miễn trừ khai trước**, và MỖI needle có đối chứng dương
-  **tự sinh**. Neo âm bắt buộc cho AC-9 (viết thuần dương): câu cũ có thể còn
-  nguyên ở thân skill hoặc reference mà lệnh khởi tạo dẫn tới, agent hội đồng
-  chỉ đọc thân lệnh nên vẫn diễn đúng bài và PASS, còn phiên thật vẫn phỏng vấn
-  tuần tự.
-  **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1, owner gật] Hình dạng đối chứng đổi
-  hẳn, và đây là lần duy nhất trong hồ sơ luật `base>0` bị thay.** Đo lại bốn
-  needle của bản duyệt: ba cái có **base=0** — chúng chưa bao giờ tồn tại ở
-  dạng ấy — còn cái thứ tư (`tuần tự từng câu`) có hit trên HEAD nằm trong một
-  câu CẤM do chính hồ sơ này viết ra. Giữ nguyên luật cũ thì chỉ còn một needle
-  sống, và bản thi công đã co mảng xuống đúng cái không đỏ (H10). Luật thay
-  thế, hai vế: (a) **miễn trừ khai trước** — hit hợp lệ phải có tên trong khối
-  `HOI-TUAN-TU-MIEN-TRU` dưới đây, bánh cóc kiểm HAI CHIỀU (dòng khai mà không
-  còn hit thật cũng đỏ, để danh sách không phình thành tấm khiên); (b) **đối
-  chứng dương TỰ SINH** — với TỪNG needle, bộ răng chèn nó vào một bản sao rồi
-  chạy lại chính hàm quét và đòi số hit tăng đúng 1. Vế (b) mạnh hơn `base>0`:
-  nó chứng minh phép đo sống **hôm nay** thay vì chứng minh câu cũ **từng** tồn
-  tại.
-
-<!-- <<<HOI-TUAN-TU-MIEN-TRU -->
-| duong-dan |
-|---|
-| commands/acceptance-init.md:20 |
-<!-- HOI-TUAN-TU-MIEN-TRU>>> -->
-
-  Dòng duy nhất trong bản khai: `commands/acceptance-init.md:20` mang cụm
-  «Hỏi tuần tự từng câu là bắt người trả lời những thứ máy đọc được từ chính
-  repo đang mở» — một câu CẤM, tức đúng thứ AC-9 hứa. Không có bản khai này thì
-  đường thoát rẻ nhất là gỡ needle ấy khỏi mảng, và mảng lại co về cái không đỏ.
 - AC-14: Given ba khuôn frontmatter máy-đọc mà hồ sơ này chạm
   (`CONTRACT-FRONTMATTER-TEMPLATE`, `OPP-FRONTMATTER-TEMPLATE`,
   `UAT-FRONTMATTER-TEMPLATE`) và khuôn frontmatter của
@@ -196,6 +167,15 @@ khai lý do tại chỗ, không âm thầm thu.)
   phép đo là **byte-equal giữa hai bản chép** cộng bốn vế nội dung bắt buộc
   (hai lối hợp lệ + hai lưới cưỡng chế) — byte-equal một mình thì hai câu rỗng
   nghĩa cũng bằng nhau.
+  **[KHAI GIỚI HẠN — 14/08, rà soát vòng 2 (Hg)] Một-nguồn chứng NHẤT QUÁN,
+  không chứng ĐÚNG.** Sửa CẢ HAI thân giống hệt nhau — ví dụ nối «since 14/08
+  this is ADVISORY: the agent commits the signature itself when the human is
+  away» — thì byte-equal vẫn đúng và cả bốn vế literal vẫn có mặt. Không lưới
+  máy nào đóng được lỗ ấy; cái đóng nó là **mắt người đọc điều khoản một lần**,
+  cộng hai lưới cưỡng chế THẬT (`require_human_commit` + `agent_authors`) vốn
+  chặn ở tầng commit chứ không ở tầng chữ. Khai ra vì một hồ sơ tuyên «đo QUAN
+  HỆ» mà không nói giới hạn của phép đo quan hệ là đang bán một sự bảo đảm nó
+  không có.
 - AC-11: Given cây đã sửa, When chạy 4 suite (`scripts`, `hooks`, `plugins`,
   `workflows`) + `product-map --check`, Then tất cả xanh **và số ca khớp ĐẲNG
   THỨC khai trước** — khối `SO-CA-KY-VONG` trong hợp đồng của hồ sơ
@@ -288,6 +268,36 @@ worktree này (KHÔNG tin số dòng trong đề bài — đã tìm lại từng
 
 ## Out of scope
 
+- **[THU PHẠM VI — 14/08, owner chọn đường ②] BỐN HẠNG MỤC ĐỔI-HÀNH-VI ra khỏi
+  hồ sơ này, và mã của chúng đã HOÀN NGUYÊN khỏi nhánh** (không phải «để lại
+  chờ», mà là `origin/main` trở lại nguyên trạng ở đúng những chỗ ấy):
+
+  | Hạng mục | Tiêu chí cũ | Vật đã trả về nguyên trạng |
+  |---|---|---|
+  | Gỡ tư cách luật-mỗi-tin của khối 👉 VIỆC CỦA ANH | AC-5 (+E5) | vế chỉ-báo trong `GATE-INVITE-CLAUSE`; vế 👉 trong `GATE-ONESHOT-CLAUSE` + **6 thân lệnh cổng**; bullet tin-CHỈ-BÁO; assert của `P193`, ba mục của `P189` |
+  | Xác-nhận T1 → tuyên-kèm-căn-cứ | AC-7 (judgment E7) | nhánh T1 trong `skills/acceptance/SKILL.md` và `feature-loop/.../SKILL.md` |
+  | Quét độ phủ thôi phỏng vấn | AC-8 (judgment E8) | `skills/morphological-scan/SKILL.md` |
+  | Khởi tạo một-lần-gạch | AC-9 + AC-13 (judgment E9 + E9b) | `commands/acceptance-init.md` (giữ lại đúng phần cắt-phút: bỏ câu hỏi `2g` và khoá `baseline_minutes`) |
+
+  **Vì sao ra, nói bằng cái đo được.** Rà soát đối kháng vòng 2 phá thật **8
+  lượt trên bộ răng và cả 8 vẫn XANH**; bảy trong tám thuộc đúng bốn hạng mục
+  trên. Hai chân là **hằng đúng** — `GATE-INVITE-CLAUSE` trên base là ĐÚNG MỘT
+  câu và câu ấy chứa chữ «chỉ-báo», nên tập so sánh **rỗng** và chân xanh bất kể
+  HEAD viết gì; còn «đối chứng dương tự sinh» của AC-13 là chèn một chuỗi vào
+  bản sao rồi `grep` lại chính nó, tức một định lý về `grep`. Cả hai do vòng sửa
+  1 viết, và cả hai được khai trong hợp đồng là **mạnh hơn** đối chứng dương —
+  đó là hồ sơ tự dối, đúng thứ kit tồn tại để chặn.
+  Lời hứa của bốn hạng mục này là **hành vi của agent đọc văn chỉ dẫn**. Bốn
+  eval judgment sinh ra để chấm đúng nó — và chưa lượt nào chạy. Giữ chúng ở
+  đây là tiếp tục nuôi thước grep cho thứ grep không đo được; `giờ-kit là chi
+  phí`, và ba vòng vừa qua là hoá đơn.
+
+  **Điều KHÔNG được suy ra từ mục này:** bốn hạng mục ấy vẫn ĐÁNG làm — owner
+  gạch chúng ở Cổng 1 ngày 12/08 và lý do vẫn nguyên. Chúng đi sang hồ sơ
+  [1c](../../docs/plans/2026-08-14-hat-giong-1c-doi-hanh-vi-cong-nguoi.md), và
+  điều kiện vào là **hội đồng chấm thật**, không phải một bộ răng grep dày hơn.
+
+
 - **Toàn bộ `codex/`** — 5 file Codex cũng mang `time_human_minutes`, nhưng
   chúng chết ở hồ sơ 1b. Sửa ở đây là sửa đôi rồi xoá; đề bài cấm tường minh.
   Hệ quả: mọi tiêu chí âm tính của hồ sơ này loại trừ `codex/`, và **1b phải
@@ -359,10 +369,10 @@ worktree này (KHÔNG tin số dòng trong đề bài — đã tìm lại từng
   cùng tệp thì (a) xung đột chắc chắn ở 5+ tệp, và (b) mọi phép đo chạy trên
   một cây không bao giờ tồn tại thật. Hệ quả phải khai: **1a chỉ merge được sau
   1b**, và nếu vòng rà soát đối kháng của 1b làm đổi vật thì 1a phải rebase lại.
-- **KHAI GIỚI HẠN — ba eval của 1a mượn dụng cụ của 1b.** E11/E12/E16 chạy
-  `so-ca.sh` và ba khoá `executors.script.luu_kho_so_ca_*`, đều là vật của hồ sơ
+- **KHAI GIỚI HẠN — BỐN eval của 1a mượn dụng cụ của 1b.** E11/E12/E13/E16 chạy
+  `so-ca.sh` và bốn khoá `executors.script.luu_kho_so_ca_*`, đều là vật của hồ sơ
   1b, đều mang nhãn *«chết theo hồ sơ khi merge»*. Nếu ai đó thi hành nhãn ấy
-  đúng nghĩa đen lúc merge 1b, **ba eval này mất vật đo** và AC-11 mất chân
+  đúng nghĩa đen lúc merge 1b, **bốn eval này mất vật đo** và AC-11 mất chân
   đẳng thức — đúng hình dạng E16 vừa dẫm một lần (nó trỏ `mirror_sync`, khoá
   chết, và không lưới nào kêu cho đến khi soi tay). Vì sao vẫn chọn mượn:
   ba hồ sơ đã merge trước đó (`mot-luot-go-cong-nguoi`, `may-ganh-nguoi-quyet`)
@@ -370,7 +380,7 @@ worktree này (KHÔNG tin số dòng trong đề bài — đã tìm lại từng
   thi hành; dựng bản sao thứ hai của bộ đếm 200 dòng để phòng một việc chưa
   xảy ra là giờ-kit đắt hơn phần nó chặn. **Nếu 1b bị gỡ khoá lúc merge:**
   chép `so-ca.sh` vào workspace này, đổi marker sang `SO-CA-KY-VONG-1A`, khai
-  lại bốn số trong hợp đồng NÀY, và trỏ ba eval sang bản sao — không được hạ
+  lại bốn số trong hợp đồng NÀY, và trỏ BỐN eval sang bản sao — không được hạ
   đẳng thức thành sàn hay bỏ eval.
 - **Mục Out of scope «toàn bộ `codex/`» nay TỰ THOẢ.** Nó viết cho cây còn
   Codex; trên cây này `codex/` đã đi theo 1b, nên các tiêu chí âm tính của 1a

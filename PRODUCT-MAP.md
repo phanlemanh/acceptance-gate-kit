@@ -28,7 +28,7 @@ flowchart TD
 
 ## Đang làm
 
-- Cắt hình thức trong luật hành xử của kit — thôi đo phút người, thôi bắt xác nhận T1, thôi phỏng vấn tuần tự; giữ nguyên mọi răng bằng chứng (`cat-hinh-thuc`)
+- Kit thôi đo phút người ở mọi cổng — gỡ cả lớp HỎI lẫn lớp KHẲNG ĐỊNH về phút, giữ đường đọc-cũ cho hồ sơ đã ký và giữ nguyên mọi răng bằng chứng (`cat-hinh-thuc`)
 
 ## Đã giao
 

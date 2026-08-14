@@ -36,18 +36,12 @@ Core principles (non-negotiable):
    from the paths the feature is EXPECTED to touch (inferred from the
    request/ticket; confirm the guess with the user at Gate 1):
    - Expected paths all match `risk_tiers.t1_skip_globs` → do NOT skip
-     silently, and do NOT stop to ask: print the per-path match table
-     (`<expected path> → <glob>`) as the GROUNDS, state "T1 — acceptance gate
-     skipped", note that the CI backstop (`pre-merge-check.sh --base <ref>`)
-     blocks the merge if the actual PR ends up touching gated paths with no
-     `_acceptance/` artifacts, and then just carry on. Do not create
-     artifacts. **Asking here buys nothing:** the machine already matched
-     every path against a glob list the repo itself declared, the table shows
-     its work, and CI re-decides the same question on the real diff. A
-     confirmation prompt on a conclusion the machine is sure of spends a human
-     interruption to change nothing — if the human disagrees, they say so
-     after reading the table, exactly as they would after any other statement
-     the machine makes.
+     silently: print the per-path match table (`<expected path> → <glob>`),
+     say "T1 — acceptance gate skipped", and ask the user to CONFIRM the T1
+     call before stopping. Warn that the CI backstop
+     (`pre-merge-check.sh --base <ref>`) blocks the merge if the actual PR
+     ends up touching gated paths with no `_acceptance/` artifacts. Do not
+     create artifacts.
    - Any expected path matches `risk_tiers.t3_paths` → T3.
    - Else → T2.
    At Phase 3 entry, re-check the ACTUAL `git diff` file list against
@@ -160,7 +154,7 @@ Run immediately after the user reviews the contract (same gate, one sitting).
    review time, render the plain-language decision card (`/acceptance-card
    <slug>`): the human reviews "sẽ làm / sẽ KHÔNG làm" + coverage flags instead of
    raw YAML (presentation only; the contract/evals stay the source of truth).
-   Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người); cấm câu tu từ mang dấu hỏi.
+   Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người); tin chỉ-báo ghi rõ "không cần làm gì"; cấm câu tu từ mang dấu hỏi.
    The `/approve <slug>` command walks this stop end-to-end (card → one
    question → recorded decision). On approval:
    set contract `status: approved`, `approved_by`, `approved_at` (identity and
@@ -268,7 +262,7 @@ Entry: implementation complete, contract `status: implemented`.
    (`/acceptance-card <slug>`) — judgment items + deferred scope (việc-của-người)
    surface FIRST in plain language, machine evidence collapsed; the verdict + hook
    are unchanged.
-   Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người); cấm câu tu từ mang dấu hỏi.
+   Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người); tin chỉ-báo ghi rõ "không cần làm gì"; cấm câu tu từ mang dấu hỏi.
    The `/signoff <slug>` command walks this stop end-to-end
    (preconditions → overrides → human-fields-only signature commit → pre-merge
    re-check). The user resolves each pending item by

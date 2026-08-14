@@ -7,26 +7,15 @@ Initialize the Acceptance-Gate Kit in the current repository.
 
 Một-lượt-gõ + `--repo` (điều khoản chung, chép nguyên văn từ bản luật):
 
-Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người.
+Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; còn việc kế thì kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE.
 
-Lệnh này KHÔNG nằm trong ba lệnh có-câu-gộp; phần áp dụng ở đây là cờ
-`--repo <path>`: scaffold `_acceptance/` và chép bộ file CI vào gốc `<path>`
-thay vì thư mục hiện tại.
-
-**Khởi tạo là MỘT LẦN GẠCH, không phải một cuộc phỏng vấn.** Máy DÒ repo trước,
-tự điền được gì thì điền, rồi trình **TRỌN** bản nháp `config.yaml` trong MỘT
-lượt cho người sửa hoặc gật. Ô nào không suy được thì để nguyên chỗ trống và
-đánh dấu `# cần anh` ngay trên dòng đó — người đọc một lần, sửa mấy dòng, gật
-một lần. Hỏi tuần tự từng câu là bắt người trả lời những thứ máy đọc được từ
-chính repo đang mở.
+Lệnh này KHÔNG nằm trong ba lệnh có-câu-gộp (không thẻ nào dạy câu mẫu cho
+bảy câu hỏi setup — chúng vẫn hỏi từng bước, một-lần-mỗi-repo); phần áp dụng
+ở đây là cờ `--repo <path>`: scaffold `_acceptance/` và chép bộ file CI vào
+gốc `<path>` thay vì thư mục hiện tại.
 
 1. If `_acceptance/config.yaml` already exists → show it and STOP (never overwrite).
-2. **Dò repo trước, đừng hỏi.** Đọc những gì có: `package.json` (scripts
-   `test`/`dev`/`start`, workspaces), khung test đang dùng, cấu hình CI trong
-   `.github/workflows/`, `Makefile`/`justfile`, khai báo cổng dev. Mỗi giá trị
-   suy được ghi kèm căn cứ một dòng (`# suy từ package.json scripts.test`).
-   Những mục dưới đây là thứ CẦN có; suy được thì điền sẵn, không suy được thì
-   để trống + `# cần anh`:
+2. Ask the user, one question at a time:
    a. Test commands per surface they have (api/backend/sdk) — e.g. `pnpm --filter backend test`
    b. CLI smoke command if a CLI surface exists
    c. Dev server start command + URL (for ui-check evals). If the app calls
@@ -50,11 +39,7 @@ chính repo đang mở.
       repo owner to run `executors.script.product_map` in their CI, because
       that check is what makes the exemption safe (ADR 0007).
    f. Who can sign off (names) → `signoff.approvers`
-3. **Trình TRỌN bản nháp một lần** — in nguyên văn `config.yaml` đề xuất kèm
-   các dòng căn cứ và các dòng `# cần anh`, rồi hỏi đúng MỘT câu: sửa gì, hay
-   gật. Người gật → ghi. Người sửa → nhận nguyên văn phần sửa rồi ghi, không
-   hỏi lại vòng hai cho những ô đã rõ.
-4. Write `_acceptance/config.yaml`:
+3. Write `_acceptance/config.yaml`:
 
 ```yaml
 # 2-space indentation REQUIRED — the kit's hook parses this file line-by-line.

@@ -147,12 +147,8 @@ Luật đi kèm khuôn:
   thứ + ký". Ca thật: thẻ Cổng 2 của chip khối-việc-của-anh từng render
   «Ngoài-1 ghi Known limits; E9 Đạt; đồng ý cắt; phê hết quyết định treo; Ký»
   trong khi E9 là mục máy vừa tự khai "chưa chắc, cần mắt người" (S4-r2).
-- Tin CHỈ-BÁO — không có việc cho người — **KHÔNG kết bằng khối.** Bắt mọi tin
-  đeo một khối 👉 VIỆC CỦA ANH biến cái khối ấy thành nhiễu nền: khi nó xuất
-  hiện cả ở tin không có việc gì để làm, người đọc thôi phân biệt được lúc nào
-  thật sự tới lượt mình. Khối này CHỈ sống ở tin mời cổng (xem
-  `GATE-INVITE-CLAUSE` ngay dưới) và trên thẻ cổng do `gate-card.js` render.
-  Tin chỉ-báo nói thẳng máy đang làm gì tiếp, hết.
+- Tin CHỈ-BÁO — không có việc cho người — vẫn kết bằng khối, đúng một dòng:
+  `👉 VIỆC CỦA ANH: không cần làm gì — <máy đang làm gì tiếp>`.
 - CẤM câu tu từ mang dấu hỏi: mọi dấu hỏi trong tin phải thuộc một mục việc
   có "trả lời dạng" khai sẵn.
 
@@ -161,7 +157,7 @@ lặp tính năng hai harness, skill acceptance, lệnh thẻ) chép nguyên vă
 tự diễn đạt.
 
 <!-- <<<GATE-INVITE-CLAUSE -->
-Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người); cấm câu tu từ mang dấu hỏi.
+Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người); tin chỉ-báo ghi rõ "không cần làm gì"; cấm câu tu từ mang dấu hỏi.
 <!-- GATE-INVITE-CLAUSE>>> -->
 
 Danh sách dưới đây là các mặt mời-cổng NGUỒN — phạm vi do người quyết, nên nó
@@ -292,7 +288,7 @@ site khai ở manifest ngay dưới — thêm/bớt site hay bản chép là quy
 người, sửa manifest cùng lượt; dòng thiếu số là lỗi kêu to.
 
 <!-- <<<GATE-ONESHOT-CLAUSE -->
-Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người.
+Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; còn việc kế thì kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE.
 <!-- GATE-ONESHOT-CLAUSE>>> -->
 
 <!-- <<<GATE-ONESHOT-SITES -->

@@ -1,14 +1,122 @@
 ---
 schema_version: 1
 slug: cat-hinh-thuc
-round: 6
+round: 7
 verdict: PENDING-JUDGMENT
 verified_commit: 233119881379
 ---
 
 # Trang bằng chứng — cắt hình thức khỏi bốn cổng người
 
-## Verdict: **PENDING-JUDGMENT — vòng sửa 1 đã thi công, chờ rà soát đối kháng vòng 2**
+## Verdict: **PENDING-JUDGMENT — phạm vi ĐÃ THU, chờ rà soát đối kháng vòng 3**
+
+> **Rà soát vòng 2: cả BA lăng kính REJECT — 8 P0 · 11 P1 sau khi gộp trùng.**
+> Luật dừng-vá (`STOP-PATCHING-CLAUSE`) bật: cùng TÊN LỚP LỖI qua hai vòng ⇒
+> **khuôn giải sai, không phải chi tiết sai**. Owner được trình ba đường và
+> chọn **đường ② — THU PHẠM VI**. Trang này khai cái đã thu, cái đã sửa, và
+> cái vẫn chưa ai chấm. Người thi công KHÔNG tự chấm bản này.
+>
+> ### Hồ sơ nay chỉ còn MỘT hạng mục: **kit thôi đo phút người**
+>
+> Bốn hạng mục đổi-hành-vi đã **hoàn nguyên khỏi nhánh** — `origin/main` trở
+> lại nguyên trạng ở đúng những chỗ ấy — và đi sang hồ sơ 1c, gate bằng hội
+> đồng thật. Bảng đối chiếu ở mục Out of scope của `contract.md`.
+> Tiêu chí `AC-5` `AC-7` `AC-8` `AC-9` `AC-13` và eval `E5` `E7` `E8` `E9`
+> `E9b` ra theo. **Còn 9 tiêu chí · 15 eval** (14 máy + 1 judgment).
+>
+> ### Vì sao thu — bằng cái đo được, không bằng cảm giác
+>
+> Lăng kính phép đo phá thật **8 lượt, cả 8 vẫn XANH**, một lượt đi qua trọn bộ
+> ghi sổ (`RECORDER_RC=0`, `pinned_missing: []`). **Bảy trong tám** thuộc bốn
+> hạng mục vừa thu. Hai chân là **hằng đúng**, và cả hai do vòng sửa 1 viết:
+> · `GATE-INVITE-CLAUSE` trên base là ĐÚNG MỘT câu, và câu ấy chứa chữ
+>   «chỉ-báo» → tập so sánh **rỗng** → chân xanh bất kể HEAD viết gì. Thay trọn
+>   điều khoản bằng câu đảo thẳng ADR 0002 vẫn `OK`.
+> · «Đối chứng dương tự sinh» của AC-13 là chèn một chuỗi vào bản sao rồi
+>   `grep` lại chính nó — một định lý về `grep`. Thay 3/4 needle bằng chuỗi rác
+>   → `HOI-TUAN-TU-DC: 4/4`.
+> Cả hai được khai trong hợp đồng là **mạnh hơn** đối chứng dương. Đó là hồ sơ
+> tự dối, viết bởi phiên thi công, trong dòng owner sẽ đọc — và nó là lý do
+> chính đáng nhất để thu phạm vi thay vì vá vòng ba.
+>
+> ### Ba lỗ SẢN PHẨM đã sửa (đúng-sai độc lập với mọi tranh luận về thước)
+>
+> | Vật | Đã sửa |
+> |---|---|
+> | `scripts/gate-card.js:311,441` | thẻ Cổng 1 và Cổng 2 **vẫn in `~5 phút`** — trên chính thẻ owner mở mỗi cổng. Vòng sửa 1 có chạm file này và chỉ sửa **câu comment mục đích**, để nguyên đầu ra: đúng hình dạng ① *đo chỉ dẫn thay vì đo đầu ra* |
+> | `QUICKSTART.md:150` | quảng cáo `/acceptance-report` có nhánh «phút người vs baseline» — nhánh AC-4 đã gỡ |
+> | `QUICKSTART.md:125` | «**10 phút** đáng giá nhất» — cùng câu mà `GUIDE.md` bị cắt, cắt một bên để nguyên bên kia |
+>
+> ### Bốn thước đã sửa hoặc gỡ, không cái nào được vá cho qua
+>
+> · **E1b nhận chân ĐẦU RA** (mới): render thẻ ở cả ba mode rồi soi đầu ra —
+>   đây là chân lẽ ra phải bắt `~5 phút` ngay vòng đầu. Chiều đỏ chèn lại
+>   `~5 phút` **đã chạy trên cây thật và ĐỎ**.
+> · **E4 thôi nói dối**: dòng ghim cũ in `byte-equal base OK` trong khi phép đo
+>   là `grep -c` hai từ khoá. Nay so **TẬP DÒNG**, và có hai chiều đỏ — trong đó
+>   một là đúng đột biến Hd của vòng chấm (thay dòng bằng dòng cùng từ khoá
+>   nghĩa ngược).
+> · **E3 gỡ chân «so TẬP CÂU»**, không thay bằng chân khác: nó lọc
+>   `grep -v 'phút'` nên miễn trừ vĩnh viễn 5 câu chịu lực, và không bắt được
+>   một câu-huỷ nối thêm. AC-3 nay khai thẳng rằng **chỉ E3b (judgment) chấm
+>   được lời hứa hành vi**, và Cổng 2 không ký được khi E3b còn trống.
+> · **E6 chiều đỏ dựng lại trên CÂY CHẠY ĐƯỢC**: bản sao đứng lẻ không resolve
+>   nổi `../lib/…` nên nó chết lúc nạp, và "MẤT khối" với "crash" cho cùng một
+>   màu. Nay bản sao mang cả `lib/` lẫn `scripts/`, và script đòi nó VẪN RENDER
+>   có dấu tiêm trước khi tin màu đỏ.
+>
+> ### Lưới THƯỜNG TRỰC nhận răng mới — đây mới là chỗ nó thuộc về
+>
+> Bộ răng của hồ sơ chết theo hồ sơ khi merge, nên một chân chỉ sống ở đó là
+> một chân có hạn dùng. Ba thứ vào thẳng `tests/plugins`:
+> · **`P185`/`P186` assert thẻ cổng KHÔNG hứa phút** ở CẢ HAI cổng, đo trên
+>   ĐẦU RA, kèm `MUTANT-PHUT` chèn lại `· ~5 phút` vào một **cây chạy được** và
+>   đòi chân ấy bắt được. Đây là lưới lẽ ra phải bắt P0-1 ngay vòng đầu.
+> · **`P194` nhận hai neo DƯƠNG mới** — `KHÔNG hỏi và KHÔNG ghi số phút` và
+>   `ĐƯỢC CHẤP NHẬN và BỎ QUA lặng`. Rà soát vòng 2 (RA3-09) chỉ ra hai neo cũ
+>   (`khong-hoi-phut`, `phut-ghi-0`) chết cùng luật cũ mà không ai thay, nên
+>   viết lại câu mời khai phút **bằng tiếng Việt** thì `P194` vẫn xanh. Nay không.
+> · **`P150` khai thay-đổi-render thứ (5)** — gỡ `· ~5 phút` — vào danh sách
+>   ĐÓNG của đường đọc-cũ, trỏ về case canh nó. Đúng nghi thức sẵn có, không
+>   phải một miễn trừ mới.
+>
+> **Số ca bốn suite KHÔNG xê dịch** (`plugins` 146 · `workflows` 463 ·
+> `scripts` 686 · `hooks` 54): răng mới đi vào THÂN của `P185`/`P186`/`P194`
+> chứ không mọc thành ca mới — TRIM/EXTEND, không ADD, đúng nguyên tắc mà chính
+> đẳng thức này sinh ra để ép.
+>
+> Hai tệp `_acceptance/khoi-viec-cua-anh/evidence/p18{5,6}-card-gate*.html`
+> **sinh lại** bằng bộ sinh của chúng: `P190` so byte-đối-byte với bản render
+> của cây hiện tại, và `PROVENANCE.md` khai thẳng vì sao chúng KHÔNG được đóng
+> băng — renderer đổi mà thẻ hội đồng chấm không đổi thì judge chấm một cái thẻ
+> không còn tồn tại. Diff đúng hai dòng phụ đề.
+>
+> ### Sổ sách khai lại cho khớp vật
+>
+> `KHAI GIỚI HẠN` ba→**bốn** eval mượn dụng cụ của 1b (E13 cũng mượn, và mượn vì
+> chính một lượt sửa-sau-Cổng-1) · ô P2 của `gap-probe.md` chú thích ba chi tiết
+> nay đã sai · E14 thôi hứa «ghim đúng SÁU dòng» — `pinned` đối chiếu SỰ CÓ MẶT
+> của chuỗi, một **số đếm** không diễn đạt được thành chuỗi ghim, và lưới
+> đếm-sáu-dòng thật nằm ở **E16** · hợp đồng bỏ trường `time_human_minutes`
+> trong frontmatter của chính nó.
+>
+> ### Bộ răng vòng này: **8 khối eval · 39 chân xanh · 12 lượt tiêm-thật**
+>
+> Ba con số đếm bằng máy từ chính đầu ra (`grep -c '^  OK '`,
+> `grep -c '\[đột biến\]'`, `grep -c '^== E'`). Vòng trước trang này khai «53»
+> trong khi máy đếm 55 — câu ấy viết ở một commit rồi không đo lại sau commit
+> kế, đúng lớp lỗi H5 mà chính hồ sơ này từng bị bắt.
+>
+> ### Còn nợ, khai to để không chìm
+>
+> **`E3b` là eval judgment DUY NHẤT còn lại, và chưa ai chấm.** Nó gánh trọn
+> lời hứa hành vi của AC-3 («người quen tay gõ `, phút 12` không bị chặn, và
+> máy KHÔNG ghi trường phút vào bản nháp nó xuất ra»). Không có nó thì AC-3
+> chỉ có lớp mực-đã-in. **Cổng 2 không ký được khi nó còn trống.**
+
+---
+
+## (Sử liệu) Verdict vòng 5-6 — vòng sửa 1, trước khi thu phạm vi
 
 > **Vòng sửa 1 (13–14/08) đóng cả 14 finding của vòng chấm.** Người thi công
 > KHÔNG tự chấm bản sửa của mình; hồ sơ ở trạng thái chờ vòng rà soát đối kháng

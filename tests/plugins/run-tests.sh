@@ -5619,8 +5619,10 @@ run "P150 required_evidence tren the + report cu render y het ban base" \
     #   (2) ma tra cuu truoc cau hoi judgment -> P186 (assert QUAN HE ma-hien-trong-khoi-duoc-tro)
     #   (3) nhan "Treo-<n> · " truoc quyet dinh treo -> P186
     #   (4) nhan "Ngoài-<n> · " truoc finding ngoai hop dong -> P186
+    #   (5) go loi hua " · ~5 phut" o phu de CA HAI cong (ho so cat-hinh-thuc,
+    #       14/08) -> P185/P186 (assert the KHONG con hua phut + mutant chen lai)
     # Khi base vuot qua chip (2), cac phep loc thanh no-op vo hai.
-    norm() { grep -v "VIỆC CỦA ANH" | sed -E "s/E[A-Za-z0-9]+ \(câu hỏi cần mắt người\) · //g; s/Treo-[0-9]+ · //g; s/Ngoài-[0-9]+ · //g"; }
+    norm() { grep -v "VIỆC CỦA ANH" | sed -E "s/E[A-Za-z0-9]+ \(câu hỏi cần mắt người\) · //g; s/Treo-[0-9]+ · //g; s/Ngoài-[0-9]+ · //g; s/ · ~5 phút//g"; }
     A_CMP=$(printf "%s" "$A" | norm)
     B_CMP=$(printf "%s" "$B" | norm)
     [ "$A_CMP" = "$B_CMP" ] || { echo "report cu render KHAC ban base (ngoai 3 thay doi da khai) — duong doc-cu vo"; exit 1; }
@@ -8452,6 +8454,7 @@ def check(text):
     e = text.find("\n## ", mm.end())
     s = text[mm.start():e if e > 0 else len(text)]
     s = RXC.sub("", RXS.sub("", s))   # vung do KHONG duoc an du lieu cua lop clause
+    if "không cần làm gì" not in s: errs.append("thieu luat chi-bao 'không cần làm gì'")
     if not ("câu tu từ" in s and "dấu hỏi" in s): errs.append("thieu luat cam cau tu tu mang dau hoi")
     if "KHÔNG BAO GIỜ điền sẵn" not in s: errs.append("thieu luat cam may dien san lua chon thay nguoi")
     return errs
@@ -8459,6 +8462,7 @@ assert check(law) == [], "ban that do oan: " + repr(check(law))   # doi chung DU
 print("P189 DUONG-OK (khuon du 5 chuan tren cay that)")
 # MA TRAN dot bien: moi chuan mot ban sao hong, moi ban CHAY LAI check() that.
 MUTANTS = [
+    ("chi-bao", lambda s: s.replace("không cần làm gì", "vẫn cần xử lý"), "thieu luat chi-bao"),
     ("cam-dau-hoi", lambda s: s.replace("câu tu từ", "câu trần thuật"), "cam cau tu tu"),
     ("cam-dien-san", lambda s: s.replace("KHÔNG BAO GIỜ điền sẵn", "có thể điền sẵn"), "cam may dien san"),
     ("cho-trong", lambda s: s.replace("___", "Duyệt"), "cho trong ___"),
@@ -8488,6 +8492,7 @@ def xoa_luat_giu_clause(text, needle):
         out.append(l)
     return "".join(out)
 for name, needle, err in (
+    ("chi-bao", "không cần làm gì", "thieu luat chi-bao"),
     ("cam-dau-hoi", "câu tu từ", "cam cau tu tu"),
 ):
     mutated = xoa_luat_giu_clause(law, needle)
@@ -8546,7 +8551,12 @@ const mau = seg.match(/<p class="li">Trả lời mẫu[^<]*<\/p>/);
 if (!mau) die("dong Tra loi mau khong phai MOT dong text tron (tag chen giua hoac thieu)");
 if (!/___/.test(mau[0])) die("mau KHONG phai khuon dang co cho trong (thieu ___)");
 if (/«Duyệt»|Đạt|«Ký»|đồng ý/.test(mau[0])) die("mau DIEN SAN lua chon thay nguoi — vi pham bat bien YOUR-MOVE-BLOCK-TEMPLATE");
-console.error("     [" + st + "] khoi OK");
+// Kit THOI do phut nguoi (ho so cat-hinh-thuc, 14/08): the la vat NGUOI doc o
+// moi cong, nen loi hua phut o day song lau nhat va im nhat — no tung song sot
+// tron ba vong vi moi needle deu quet MA NGUON bang literal. Do tren DAU RA.
+const HUA_PHUT = /[0-9~]\s*phút|phút\/cổng|minutes/;
+if (HUA_PHUT.test(html)) die("the con HUA PHUT: " + JSON.stringify((html.match(HUA_PHUT) || [])[0]));
+console.error("     [" + st + "] khoi OK, 0 loi hua phut");
 ' "$P185ST_CASE" || P185OK=0
 done
 # chieu do: mutant go khoi trong BAN SAO tron scripts/ + lib/ (khong loc duoi)
@@ -8626,6 +8636,9 @@ if (!bJudg.includes("E9")) die("khoi 👉 tro toi ma E9 nhung khoi Viec-chi-minh
 const bProv = blk("Quyết định CHƯA duyệt", ["Đã duyệt từ Gate 1", "Lưu ý trước khi ký"]);
 if (!bProv) die("khong tim thay khoi Quyet-dinh-CHUA-duyet trong than the");
 if (!bProv.includes("Treo-1")) die("khoi 👉 tro toi Treo-so nhung khoi Quyet-dinh-CHUA-duyet KHONG in Treo-1");
+// Cong 2 cung phai het hua phut — xem chu thich cung luat o P185.
+const HUA_PHUT2 = /[0-9~]\s*phút|phút\/cổng|minutes/;
+if (HUA_PHUT2.test(html)) die("the Cong 2 con HUA PHUT: " + JSON.stringify((html.match(HUA_PHUT2) || [])[0]));
 const bOoc = blk("Ngoài hợp đồng", ["Việc chỉ mình bạn quyết được", "Quyết định CHƯA duyệt"]);
 if (!bOoc || !bOoc.includes("Ngoài-1")) die("khoi 👉 tro toi Ngoai-1 nhung khoi Ngoai-hop-dong KHONG in nhan do");
 ' || P186OK=0
@@ -8650,6 +8663,30 @@ const iYm = html.indexOf("👉 VIỆC CỦA ANH");
 if (iYm < 0) process.exit(1);
 const seg = html.slice(iYm, html.indexOf("class=\"foot\""));
 process.exit(/Chấm E9/.test(seg) ? 0 : 1);'; then echo "     mutant van liet muc Cham E9 — phep do chet"; P186OK=0; fi
+# MUTANT-PHUT (ho so cat-hinh-thuc, 14/08): chen lai loi hua phut vao phu de ->
+# chan khong-hua-phut o P185/P186 phai BAT duoc. Ban sao la CAY TRON (scripts +
+# lib): mot gate-card.js dung le khong resolve noi ../lib/... nen no chet luc
+# nap, va khi ay "het hua phut" voi "crash" cho CUNG mot mau.
+P186MUTP="$(mktemp -d)"
+cp -R "$ROOT/scripts" "$P186MUTP/scripts"; cp -R "$ROOT/lib" "$P186MUTP/lib"
+python3 - "$P186MUTP/scripts/gate-card.js" <<'PYX' || P186OK=0
+import sys
+p = sys.argv[1]
+src = open(p, encoding="utf-8").read()
+old = "Cổng 2 · ký duyệt$"
+assert old in src, "neo mutant-phut khong con — doi phu de the Cong 2?"
+open(p, "w", encoding="utf-8").write(src.replace(old, "Cổng 2 · ký duyệt · ~5 phút$", 1))
+print("MUTANT-PHUT: da chen lai ' · ~5 phut' vao phu de the Cong 2")
+PYX
+P186MPOUT="$(node "$P186MUTP/scripts/gate-card.js" --root "$P186WS" --slug fx 2>&1)"; P186MPST=$?
+[ "$P186MPST" -eq 0 ] || { echo "     PHEP DO MU: mutant-phut khong chay duoc (exit $P186MPST)"; P186OK=0; }
+printf '%s' "$P186MPOUT" | grep -qF 'class="foot"' || { echo "     PHEP DO MU: mutant-phut khong render duoc the"; P186OK=0; }
+if printf '%s' "$P186MPOUT" | grep -qE '[0-9~][[:space:]]*phút'; then
+  echo "     MUTANT-PHUT bi bat dung — the co hua phut thi chan khong-hua-phut DO"
+else
+  echo "     PHEP DO MU: chen lai loi hua phut ma dau ra khong co — chan khong-hua-phut chua bao gio song"; P186OK=0
+fi
+rm -rf "$P186MUTP"
 # MUTANT 2 (QUAN HE, S4-r1): go ma E9 khoi item than the -> phep do quan he
 # phai DO du khoi 👉 van tro toi E9.
 P186MUT2="$(mktemp -d)"
@@ -9226,6 +9263,7 @@ clause = block("GATE-ONESHOT-CLAUSE", law).strip()
 assert clause and "\n" not in clause, "clause phai la MOT dong khong rong"
 # AC-4: hai cau neo phai nam TRONG dieu khoan (khong-mo-duong-may + ket-khoi)
 assert "câu gộp là câu NGƯỜI gõ" in clause, "clause thieu cau neo khong-mo-duong-may"
+assert "kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE" in clause, "clause thieu cau neo ket-khoi VIEC CUA ANH"
 def doc_manifest(law_text):
     decl = {}
     for line in block("GATE-ONESHOT-SITES", law_text).splitlines():
@@ -9360,6 +9398,8 @@ NEO = [
     ("nguon-suy", "(từ <nguồn suy>)"),
     ("enter-xac-nhan", "Enter xác nhận"),
     ("bac-git-config", "git config user.name"),
+    ("khong-ghi-phut", "KHÔNG hỏi và KHÔNG ghi số phút"),
+    ("phut-duoc-bo-qua", "ĐƯỢC CHẤP NHẬN và BỎ QUA lặng"),
     ("ho-so-mot-ung-vien", "đúng MỘT ứng viên"),
     ("cach-hieu-kha-di", "cách hiểu khả dĩ nhất"),
     ("hoi-mo-duong-cung", "hỏi mở"),

@@ -289,3 +289,106 @@ H1 đổi đúng chỗ: lỗ thứ mười lăm cùng lớp bị bắt bởi **l
 chứ không bởi một phiên chấm thứ tư. Lượt chạy đỏ ấy còn nguyên trong
 `run-log.jsonl` (round 5, `pinned_missing: ["MOI-TIN-CASE:"]`) — sổ append-only,
 lượt đỏ không bị xoá. Đọc dòng ấy là đọc đối chứng dương của chính luật mới.
+
+---
+
+# Rà soát đối kháng vòng 2 (14/08) — **cả ba lăng kính REJECT**
+
+*Ba phiên độc lập, ba lăng kính (phép đo · cắt-quá-tay · hợp-đồng-đối-vật),
+context sạch, worktree riêng tại ngọn `0b1e6194`. Người thi công không chấm —
+chỉ dựng môi trường, kiểm chứng lại từng P0 trên cây, và tổng hợp.*
+
+## Verdict: **REJECT** — 8 P0 · 11 P1 sau khi gộp trùng
+
+Tôi đã tự chạy lại mọi P0 chịu lực. **Không loại được cái nào.**
+
+## Luật dừng-vá đã bật
+
+`STOP-PATCHING-CLAUSE` định nghĩa «cùng lớp» = **cùng TÊN LỚP LỖI**, không phải
+cùng dòng mã. Vòng 2 gọi tên đúng những lớp vòng 1 đã gọi — `hằng-đúng`,
+`đo-chuỗi-thay-quan-hệ`, `hạ-thước`, `assertion-âm-tính-một-mình`. Và **hai lỗ
+nặng nhất do chính vòng sửa 1 đẻ ra**, không phải sót lại. Owner được trình ba
+đường (đổi khuôn · thu phạm vi · ship với giới hạn đã biết) và chọn **đường ②**.
+
+## Hai đống, khác bản chất
+
+### Đống A — SẢN PHẨM SAI (độc lập với mọi tranh luận về thước)
+
+| Vật | Sự thật đo được |
+|---|---|
+| `scripts/gate-card.js:311,441` | thẻ Cổng 1 và Cổng 2 **vẫn in `~5 phút`** — trên chính thẻ owner mở mỗi cổng. Vòng sửa 1 có chạm file này và chỉ sửa **câu comment mục đích** |
+| `QUICKSTART.md:150` | quảng cáo `/acceptance-report` có nhánh «phút người vs baseline» — nhánh AC-4 đã gỡ |
+| `QUICKSTART.md:125` | «10 phút đáng giá nhất» — cùng câu mà `GUIDE.md` bị cắt |
+| **6 thân lệnh cổng** | khối 👉 VIỆC CỦA ANH **base=1 → HEAD=0 ở cả sáu**, và **không AC nào cho phép** |
+| `commands/acceptance-init.md` | hai bước cùng số `4.`; `step 3b`/`3c` trỏ hụt |
+
+### Đống B — BỘ ĐO KHÔNG SỐNG (8 lượt phá, 8 lượt xanh)
+
+Ba cái là **của tôi, viết trong vòng sửa 1**:
+
+- **E5 giữ-gân là HẰNG ĐÚNG.** `GATE-INVITE-CLAUSE` trên base là **đúng 1 câu**
+  và câu ấy chứa chữ «chỉ-báo» → tập bên trái phép so **rỗng** → xanh bất kể
+  HEAD viết gì. Đã tự kiểm: `cau_tap | wc -l` = 1, `grep -vc 'chỉ-báo'` = **0**.
+  Tôi khai trong hợp đồng là «chặt hơn đếm từ khoá»; nó **lỏng hơn cả không đo**.
+- **E9b «đối chứng dương tự sinh» là HẰNG ĐÚNG.** Chèn chuỗi vào bản sao rồi
+  grep thấy nó là định lý về `grep`. Tôi khai «mạnh hơn `base>0`» — ngược.
+- **Số base=0 trong hợp đồng SAI.** Ba needle base=0 là `một câu một lần` ·
+  `hỏi lần lượt` · `tuần tự từng câu`; cái đứng riêng base=1 là
+  `one question at a time`. Tôi viết ngược — và đó là câu số liệu chống lưng
+  cho lượt DUY NHẤT owner gật bỏ luật `base>0`.
+
+Còn lại: E3/AC-3 đảo được 180° theo **ba** cách · chân LAN chỉ so **sáu chữ** ·
+E4 in `byte-equal base OK` trong khi phép đo là `grep -c` · E14 hứa «đúng SÁU
+dòng» mà `pinned` không đếm được · trang bằng chứng khai «53 chân» trong khi máy
+đếm **55** · `KHAI GIỚI HẠN` nói ba eval mượn dụng cụ, thật ra **bốn**.
+
+**Cái luật chứng-nhân-riêng LÀM ĐƯỢC** (ba phiên đều kiểm và xác nhận): gỡ một
+khối `== E… ==` → recorder chết to đích danh; hai eval khai chung chuỗi →
+exit 2; đột biến H2/H3/H4 chạy lại trên cây thật → ĐỎ. Nó trả lời *«khối này có
+chạy không»*. Câu cần trả lời là *«khối này có ĐỎ khi vật hỏng không»*.
+
+## Vòng thu phạm vi (đường ②) — đã thi công 14/08
+
+**Ra khỏi hồ sơ, mã đã HOÀN NGUYÊN khỏi nhánh:** `AC-5` `AC-7` `AC-8` `AC-9`
+`AC-13` + `E5` `E7` `E8` `E9` `E9b`. Bốn hạng mục đổi-hành-vi đi sang hạt giống
+[1c](../../docs/plans/2026-08-14-hat-giong-1c-doi-hanh-vi-cong-nguoi.md).
+Ba lỗ hằng-đúng và chân LAN sáu-chữ **biến mất theo tiêu chí của chúng** —
+không cái nào được vá cho qua.
+
+**Ở lại và đã sửa:**
+
+| # | Xử |
+|---|---|
+| P0-1 | `gate-card.js` gỡ `~5 phút` ×2, **và E1b nhận chân ĐẦU RA**: render thẻ 3 mode rồi soi đầu ra. Chiều đỏ chèn lại `~5 phút` đã chạy trên cây thật → ĐỎ |
+| P0-2 | `QUICKSTART.md:125,150` |
+| P1-3 | biến mất cùng hạng mục 4 (init hoàn nguyên) |
+| P1-4 | khối 👉 trả về **6/6 thân lệnh**; vế chỉ-báo trả về `GATE-INVITE-CLAUSE`; assert `P193` và ba mục `P189` trả về lưới thường trực; dòng khai trong `asserts-da-go.txt` **gỡ** (assert đã về cây → khai là khai thừa, bánh cóc chiều (b) sẽ đỏ) |
+| Ha | E3 **gỡ** chân «so TẬP CÂU», không thay bằng chân khác; AC-3 khai thẳng rằng chỉ **E3b (judgment)** chấm được lời hứa hành vi, và Cổng 2 không ký được khi E3b còn trống |
+| Hd | E4 so **TẬP DÒNG** + hai chiều đỏ, một là đúng đột biến Hd |
+| Hg | AC-10 khai giới hạn: một-nguồn chứng **NHẤT QUÁN**, không chứng **ĐÚNG** |
+| Hj | E6 chiều đỏ dựng lại trên **cây chạy được**, và đòi bản sao VẪN RENDER có dấu tiêm trước khi tin màu đỏ |
+| RA3-01 | E14 thôi hứa «ghim SÁU dòng»; lưới ấy nằm ở **E16** |
+| RA3-02/03/04/05 | 53→**39** (đếm máy); base=0 khai lại đúng needle; ô P2 `gap-probe` chú thích ba chi tiết đã sai; KHAI GIỚI HẠN ba→**bốn** eval |
+
+**Thêm vào lưới THƯỜNG TRỰC** (không phải bộ răng chết-theo-hồ-sơ): hai neo
+dương mới trong `P194` — `KHÔNG hỏi và KHÔNG ghi số phút` và
+`ĐƯỢC CHẤP NHẬN và BỎ QUA lặng`. Rà soát vòng 2 (RA3-09) chỉ ra hai neo cũ
+(`khong-hoi-phut`, `phut-ghi-0`) chết cùng luật cũ mà không ai thay, nên viết
+lại câu mời khai phút **bằng tiếng Việt** thì `P194` vẫn xanh. Nay không.
+
+## Bộ răng sau khi thu: **8 khối · 39 chân xanh · 12 lượt tiêm-thật**
+
+Ba con số đếm bằng máy từ chính đầu ra.
+
+## Chỗ nên soi trước ở vòng chấm 3
+
+- **Chân ĐẦU RA mới của E1b** — nó là chân lẽ ra bắt được P0-1 ngay vòng đầu.
+  Thử chèn lời hứa phút vào thẻ bằng một cách diễn đạt KHÁC (`vài phút`,
+  `~300 giây`, tiếng Anh) — regex `[0-9~] phút|phút/cổng|minutes` có bắt không?
+- **E3 sau khi gỡ chân**: nó nay khai mình chỉ đo mực-đã-in. Kiểm rằng hợp đồng,
+  evals và trang bằng chứng **không chỗ nào** còn ngụ ý nó chứng được hành vi.
+- **Hoàn nguyên có sạch không**: `git diff origin/main` phải KHÔNG còn một dòng
+  nào thuộc bốn hạng mục đã thu. Đặc biệt: `P189`/`P193` có về đúng nguyên
+  trạng không, và số ca bốn suite có còn khớp đẳng thức không.
+- **`E3b` vẫn chưa ai chấm** — và nay nó là eval judgment DUY NHẤT của hồ sơ,
+  gánh trọn lời hứa hành vi của AC-3.

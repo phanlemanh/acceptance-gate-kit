@@ -122,7 +122,7 @@ feature-loop): không chặn gì cả — muốn có thì chạy qua feature-loo
 động thì ghi entry descope bắt đầu `"bỏ gap-probe"`, cờ chuyển thành dấu vết
 trung tính.
 
-Sửa trực tiếp nếu cần → approve (máy ghi `approved_by`). **Đây là 10 phút
+Sửa trực tiếp nếu cần → approve (máy ghi `approved_by`). **Đây là điểm dừng
 đáng giá nhất**: sửa 1 dòng tiêu chí ở đây rẻ hơn 10 lần phát hiện sai sau khi code xong.
 
 **Sau khi AI code xong** — máy tự verify và viết `evidence-report.md`.
@@ -147,7 +147,7 @@ và cấm sửa sau khi thấy số; chấm kín trước khi thảo luận; **n
 trả lời mua bằng giá một vòng dựng, không phải thất bại của người làm.
 
 **Duyệt Cổng 1 nhanh:** `/approve <slug>` · **Ký Cổng 2:** `/signoff <slug>` ·
-**Đo hiệu quả kit:** `/acceptance-report` (phút người vs baseline, vệ sinh gate)
+**Đo sức khoẻ cổng:** `/acceptance-report` (verdict mix, số vòng verify, vệ sinh gate)
 
 ---
 

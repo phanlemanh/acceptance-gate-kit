@@ -7,9 +7,8 @@
 # xanh. Nên MỌI phép đo âm ở đây bị buộc ba điều:
 #   (a) ĐỐI CHỨNG DƯƠNG neo vào `origin/main` — cùng câu quét trên cây đó phải
 #       cho >0 hit. Needle nào base=0 thì chính lưới này tuyên "phép đo không
-#       sống" chứ không xanh. Ngoại lệ DUY NHẤT: lớp needle mà câu cũ chưa bao
-#       giờ tồn tại ở dạng ấy (E9b) — ở đó đối chứng dương là bản sao TỰ SINH,
-#       xem khối E9b.
+#       sống" chứ không xanh. KHÔNG có ngoại lệ nào: vòng thu phạm vi 14/08 gỡ
+#       hẳn hai khối (E5, E9b) thay vì nới luật cho chúng — xem Out of scope.
 #   (b) GHIM ĐÚNG THÔNG ĐIỆP đã hứa trong evals.yaml, không tin mã thoát. Từ
 #       vòng sửa 1: `ghi-so-chay-1a.mjs` đối chiếu `pinned:` của TỪNG eval với
 #       đầu ra thật, và eval nào không có chuỗi RIÊNG thì bộ ghi sổ chết to —
@@ -129,6 +128,11 @@ cau_tap() {   # đọc stdin → in từng câu một dòng, đã chuẩn hoá k
     | tr -s ' ' | sed 's/^ *//; s/ *$//' | grep -v '^$'
 }
 
+# Bản luật ngôn ngữ mặt người — đọc MỘT lần, dùng cho E3 (và trước đây cả E5).
+LAW="skills/acceptance/references/human-facing-language.md"
+LAW_HEAD="$(cat "$ROOT/$LAW")"
+LAW_BASE="$(g show "$BASE:$LAW" 2>/dev/null)"
+
 echo "== E1 · lớp HỎI phút (AC-1) =="
 # Bốn needle đúng như evals.yaml hứa. [SỬA SAU CỔNG 1 — vòng sửa 1] Needle
 # `ask .* minutes` của bản duyệt có base=0 (nó chưa bao giờ tồn tại ở dạng ấy),
@@ -179,196 +183,6 @@ else
   ok "KPI-PHUT: bang muc tieu GUIDE ($kpi_n hang, tru hang tieu de) 0 thuoc do bang phut OK"
 fi
 
-echo "== E9b · nghi thức hỏi-tuần-tự (AC-13) =="
-# [SỬA SAU CỔNG 1 — vòng sửa 1, owner gật 13/08] HÌNH DẠNG ĐỔI HẲN.
-# Bản duyệt đòi `HEAD=0 base=<n>(>0)` cho bốn needle. Đo lại: BA needle có
-# base=0 (chúng chưa bao giờ tồn tại ở dạng ấy) và needle thứ tư — `tuần tự
-# từng câu` — có hit trên HEAD nằm trong một câu CẤM do chính hồ sơ này viết.
-# Giữ nguyên luật cũ thì chỉ còn đúng một needle sống, và đó là cách mảng bị
-# rút xuống «cái không đỏ» (H10). Luật mới, hai vế:
-#   (1) MIỄN TRỪ KHAI TRƯỚC: hit hợp lệ (câu cấm) phải có tên trong khối
-#       `HOI-TUAN-TU-MIEN-TRU` của contract. Bánh cóc HAI CHIỀU — miễn trừ khai
-#       mà không còn hit cũng ĐỎ, để danh sách không phình thành tấm khiên.
-#   (2) ĐỐI CHỨNG DƯƠNG TỰ SINH thay cho `base>0`: với TỪNG needle, chèn nó vào
-#       một tệp trong bản sao rồi chạy lại CHÍNH hàm quét — phải ĐỎ đích danh.
-#       Đây là đối chứng MẠNH HƠN base>0: nó chứng minh phép đo sống *hôm nay*,
-#       không phải chứng minh câu cũ từng tồn tại.
-HTT_NEEDLE=('one question at a time' 'một câu một lần' 'hỏi lần lượt' 'tuần tự từng câu')
-mien_tru="$(khoi_bang "$WS/contract.md" 'HOI-TUAN-TU-MIEN-TRU')"
-quet_htt() {   # $1 = gốc cây cần quét, $2 = needle → in "<file>:<dòng>" từng hit
-  ( cd "$1" && grep -rIn -- "$2" "${SCOPE[@]}" 2>/dev/null | cut -d: -f1,2 ) || true
-}
-htt_ok=0
-for nd in "${HTT_NEEDLE[@]}"; do
-  hits="$(quet_htt "$ROOT" "$nd")"
-  con=""
-  while IFS= read -r hit; do
-    [ -n "$hit" ] || continue
-    if printf '%s\n' "$mien_tru" | grep -qxF "$hit"; then continue; fi
-    con="$con $hit"
-  done <<< "$hits"
-  if [ -n "$con" ]; then
-    bad "HOI-TUAN-TU: $nd con o$con"
-  else
-    ok "HOI-TUAN-TU: $nd 0 hit ngoai mien-tru OK"
-    htt_ok=$((htt_ok + 1))
-  fi
-done
-echo "HOI-TUAN-TU: $htt_ok/${#HTT_NEEDLE[@]}"
-[ "$htt_ok" -eq "${#HTT_NEEDLE[@]}" ] || bad "HOI-TUAN-TU: $htt_ok/${#HTT_NEEDLE[@]} needle sach"
-# bánh cóc chiều ngược: mọi dòng miễn trừ phải CÒN là hit thật
-mt_n=0; mt_chet=""
-while IFS= read -r mt; do
-  [ -n "$mt" ] || continue
-  mt_n=$((mt_n + 1))
-  f="${mt%%:*}"; ln="${mt##*:}"
-  con_song=0
-  for nd in "${HTT_NEEDLE[@]}"; do
-    if sed -n "${ln}p" "$ROOT/$f" 2>/dev/null | grep -q -- "$nd"; then con_song=1; break; fi
-  done
-  [ "$con_song" -eq 1 ] || mt_chet="$mt_chet $mt"
-done <<< "$mien_tru"
-if [ "$mt_n" -eq 0 ]; then
-  bad "HOI-TUAN-TU: khong rut duoc khoi HOI-TUAN-TU-MIEN-TRU — banh coc khong song"
-elif [ -n "$mt_chet" ]; then
-  bad "HOI-TUAN-TU-MIEN-TRU: dong khai KHONG con hit that:$mt_chet — go khoi ban khai"
-else
-  ok "HOI-TUAN-TU-MIEN-TRU: $mt_n/$mt_n dong khai deu con hit that (banh coc hai chieu) OK"
-fi
-# ĐỐI CHỨNG DƯƠNG TỰ SINH — mỗi needle một lượt phá thật trên bản sao
-MUT9="$(tmpd)"
-( cd "$ROOT" && cp -r --parents "${SCOPE[@]}" "$MUT9" ) 2>/dev/null
-dc_ok=0
-for nd in "${HTT_NEEDLE[@]}"; do
-  truoc="$(quet_htt "$MUT9" "$nd" | grep -c . || true)"
-  printf '\n%s\n' "$nd" >> "$MUT9/commands/acceptance-init.md"
-  sau="$(quet_htt "$MUT9" "$nd" | grep -c . || true)"
-  if [ "$sau" -eq $((truoc + 1)) ]; then
-    dc_ok=$((dc_ok + 1))
-  else
-    bad "HOI-TUAN-TU-DC: chen «$nd» vao ban sao ma so hit khong tang ($truoc → $sau) — phep do khong song"
-  fi
-  # trả bản sao về nguyên trạng cho lượt sau
-  cp "$ROOT/commands/acceptance-init.md" "$MUT9/commands/acceptance-init.md"
-done
-if [ "$dc_ok" -eq "${#HTT_NEEDLE[@]}" ]; then
-  mut "chèn từng needle hỏi-tuần-tự vào bản sao → cả $dc_ok/${#HTT_NEEDLE[@]} needle ĐỎ đích danh (đối chứng dương TỰ SINH, thay cho base>0)"
-  echo "HOI-TUAN-TU-DC: $dc_ok/${#HTT_NEEDLE[@]}"
-else
-  bad "HOI-TUAN-TU-DC: $dc_ok/${#HTT_NEEDLE[@]} needle co doi chung duong"
-fi
-
-echo "== E5 · luật mỗi-tin đã gỡ, khuôn cổng giữ nguyên (AC-5) =="
-LAW="skills/acceptance/references/human-facing-language.md"
-# (1) NEO ÂM — điều khoản tin CHỈ-BÁO kết-bằng-khối đã vắng
-quet_am "MOI-TIN" 'tin chỉ-báo ghi rõ' 'CHỈ-BÁO.*vẫn kết bằng khối'
-# (2)(3) đối chứng GIỮ-GÂN: hai khuôn rút qua marker
-LAW_HEAD="$(cat "$ROOT/$LAW")"
-LAW_BASE="$(g show "$BASE:$LAW" 2>/dev/null)"
-giu_gan=0
-for mk in YOUR-MOVE-BLOCK-TEMPLATE GATE-INVITE-CLAUSE; do
-  a="$(rut_marker "$LAW_HEAD" "$mk")"; b="$(rut_marker "$LAW_BASE" "$mk")"
-  if [ -z "$a" ] || [ -z "$b" ]; then
-    bad "MOI-TIN: khong rut duoc khuon $mk (HEAD hoac base rong) — phep rut hong"
-  elif [ "$mk" = "YOUR-MOVE-BLOCK-TEMPLATE" ] && [ "$a" = "$b" ]; then
-    ok "MOI-TIN: khuon $mk byte-equal base OK"; giu_gan=$((giu_gan + 1))
-  elif [ "$mk" = "GATE-INVITE-CLAUSE" ]; then
-    # [SỬA SAU CỔNG 1 — vòng sửa 1] AC-5 của bản duyệt viết điều khoản này
-    # «giữ nguyên nguyên văn», nhưng hạng mục 1a.2 GỠ đúng một vế của nó (tin
-    # chỉ-báo). Hai lời chỏi nhau ngay trong bản duyệt; chân đo bị nới để nhận
-    # cái đổi mà không ai khai (H7). Nay khai thẳng ở AC-5 và đo bằng phép so
-    # CÂU: mọi câu KHÔNG nói về chỉ-báo phải còn nguyên so với base.
-    mat="$(comm -23 <(printf '%s\n' "$b" | cau_tap | grep -v 'chỉ-báo' | sort -u) \
-                    <(printf '%s\n' "$a" | cau_tap | sort -u))"
-    if [ -n "$mat" ]; then
-      bad "MOI-TIN: $mk MAT cau khong-lien-quan-chi-bao so voi base:"
-      printf '%s\n' "$mat" | sed 's/^/         /'
-    elif printf '%s' "$a" | grep -q 'chỉ-báo'; then
-      bad "MOI-TIN: $mk con ve chi-bao"
-    else
-      ok "MOI-TIN: $mk giu tron cau khong-lien-quan, da bo ve chi-bao OK"; giu_gan=$((giu_gan + 1))
-    fi
-  else
-    bad "MOI-TIN: khuon $mk LECH base — chip GO da cat nham sang khuon phai giu"
-  fi
-done
-[ "$giu_gan" -eq 2 ] && ok "MOI-TIN: 2/2 khuon giu-gan OK"
-# Chân LAN — [SỬA SAU CỔNG 1 — vòng sửa 1] đọc BẢN KHAI MÁY-ĐỌC thay ngưỡng gõ
-# tay. Ngưỡng `>5` cũ dung thứ đúng một site sót và in một câu SAI SỰ THẬT (H9).
-# `GATE-INVITE-SITES` khai đích danh từng site kèm SỐ BẢN CHÉP phải có.
-CLAUSE_NEEDLE='kết bằng đúng MỘT khối'
-lan_ok=0; lan_tong=0
-while read -r site so; do
-  [ -n "${site:-}" ] || continue
-  lan_tong=$((lan_tong + 1))
-  that="$(grep -Ioc -- "$CLAUSE_NEEDLE" "$ROOT/$site" 2>/dev/null || true)"
-  that="${that:-0}"
-  if [ "$that" -eq "$so" ]; then
-    ok "MOI-TIN-SITE: $site $that/$so ban chep OK"; lan_ok=$((lan_ok + 1))
-  else
-    bad "MOI-TIN-SITE: $site co $that ban chep, ban khai doi $so"
-  fi
-done < <(rut_marker "$LAW_HEAD" 'GATE-INVITE-SITES')
-if [ "$lan_tong" -eq 0 ]; then
-  bad "MOI-TIN-SITE: khong rut duoc khoi GATE-INVITE-SITES — chan LAN khong song"
-else
-  echo "MOI-TIN-SITE: $lan_ok/$lan_tong"
-  [ "$lan_ok" -eq "$lan_tong" ] || bad "MOI-TIN-SITE: $lan_ok/$lan_tong site khop ban khai"
-fi
-# … và KHÔNG site nào ngoài bản khai được mang điều khoản, trừ chính bản gốc.
-ngoai=""
-while IFS= read -r f; do
-  [ -n "$f" ] || continue
-  [ "$f" = "$LAW" ] && continue
-  rut_marker "$LAW_HEAD" 'GATE-INVITE-SITES' | awk '{print $1}' | grep -qxF "$f" || ngoai="$ngoai $f"
-done < <( cd "$ROOT" && grep -rIl -- "$CLAUSE_NEEDLE" "${SCOPE[@]}" 2>/dev/null )
-if [ -n "$ngoai" ]; then
-  bad "MOI-TIN-SITE: dieu khoan lan sang site NGOAI ban khai:$ngoai"
-else
-  ok "MOI-TIN-SITE: 0 site ngoai ban khai (tru ban goc $LAW) OK"
-fi
-# Chân MOI-TIN-CASE — [SỬA SAU CỔNG 1 — vòng sửa 1, H15]. Lời hứa này trước ở
-# `expected` của E12 và **chưa bao giờ được cài**; luật chứng-nhân-riêng của bộ
-# ghi sổ bắt được nó ngay lượt chạy đầu (E12 pin "MOI-TIN-CASE:" mà bộ đếm số
-# ca không in chuỗi ấy — mà nó cũng KHÔNG THỂ in: bộ đếm là vật của 1b). Nó về
-# đây vì đây mới là chỗ nó thuộc về: cái 1a gỡ là câu neo trong
-# `GATE-ONESHOT-CLAUSE`, và assert của `P193` mất đích theo. Đo hai vế:
-oc_b="$(rut_marker "$LAW_BASE" 'GATE-ONESHOT-CLAUSE' | grep -c -- "$CLAUSE_NEEDLE" || true)"
-oc_h="$(rut_marker "$LAW_HEAD" 'GATE-ONESHOT-CLAUSE' | grep -c -- "$CLAUSE_NEEDLE" || true)"
-LEDGER="tests/plugins/asserts-da-go.txt"
-ASSERT_GO='assert "kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE" in clause'
-if [ "$oc_b" -eq 0 ]; then
-  bad "MOI-TIN-CASE: base=0 — cau neo chua bao gio o trong GATE-ONESHOT-CLAUSE, phep do khong song"
-elif [ "$oc_h" -ne 0 ]; then
-  bad "MOI-TIN-CASE: cau neo VAN con trong GATE-ONESHOT-CLAUSE tren HEAD"
-elif ! grep -Fq -- "$ASSERT_GO" "$ROOT/$LEDGER"; then
-  bad "MOI-TIN-CASE: assert mat dich KHONG duoc khai trong $LEDGER — go lang le"
-else
-  ok "MOI-TIN-CASE: base=$oc_b(>0) HEAD=0, assert mat dich da khai trong $LEDGER OK"
-fi
-# … và ca `P193` KHÔNG bị xoá, chỉ bị TRIM: hợp đồng chọn TRIM chứ không XOÁ,
-# nên «gỡ ca» là một mệnh đề SAI phải bị bắt chứ không được đo cho có.
-if git -C "$ROOT" show "$BASE:tests/plugins/run-tests.sh" | grep -q 'P193' \
-   && grep -q 'P193' "$ROOT/tests/plugins/run-tests.sh"; then
-  ok "MOI-TIN-CASE: ca P193 con nguyen o CA HAI cay (TRIM assert, KHONG xoa ca) OK"
-else
-  bad "MOI-TIN-CASE: ca P193 vang o mot trong hai cay — 1a da XOA ca thay vi TRIM assert"
-fi
-# chiều đỏ CHẠY THẬT: chép lại điều khoản vào một site ngoài bản khai
-MUT5="$(tmpd)"; mkdir -p "$MUT5/commands"
-cp "$ROOT/commands/acceptance-status.md" "$MUT5/commands/acceptance-status.md"
-if grep -Iq -- "$CLAUSE_NEEDLE" "$MUT5/commands/acceptance-status.md"; then
-  bad "MOI-TIN: ban sao CHUA tiem da co dieu khoan — doi chung duong hong"
-else
-  printf '\n; còn việc kế thì %s 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE.\n' \
-    "$CLAUSE_NEEDLE" >> "$MUT5/commands/acceptance-status.md"
-  if grep -Iq -- "$CLAUSE_NEEDLE" "$MUT5/commands/acceptance-status.md"; then
-    mut "chép điều khoản mỗi-tin vào bản sao acceptance-status.md (site NGOÀI bản khai) → chân LAN ĐỎ đích danh"
-  else
-    bad "MOI-TIN: chieu do khong chay"
-  fi
-fi
-
 echo "== E6 · thẻ cổng VẪN có khối ở cả ba mode (AC-6, đối chứng giữ-gân) =="
 # Đo trên ĐẦU RA của bộ dựng, KHÔNG grep mã nguồn — grep mã nguồn là đo chỉ-dẫn
 # thay vì đo vật được giao (lớp đã dẫm 4 vòng ở s4-scope-triage).
@@ -404,14 +218,58 @@ else
   bad "THE-CONG: chi $TC/3 mode con khoi 👉 VIỆC CỦA ANH — chip GO da cat nham sang the cong"
 fi
 # chiều đỏ CHẠY THẬT: gỡ khối khỏi bản sao gate-card.js rồi chạy lại chính hàm
+# Bản sao phải mang cả `lib/` lẫn `scripts/` — một `gate-card.js` đứng lẻ trong
+# thư mục tạm KHÔNG resolve nổi `../lib/...`, nên nó chết lúc nạp và đếm về 0.
+# Khi ấy "MAT khoi" và "crash" cho CÙNG một màu: chiều đỏ đúng-một-cách-rỗng.
+# Rà soát vòng 2 chỉ ra `|| continue` nuốt lỗi node; đây là chỗ nó cắn.
 MUT6="$(tmpd)"
-sed 's/VIỆC CỦA ANH/VIEC-DA-BI-GO/g' "$CARD" > "$MUT6/gate-card.js"
-if ! grep -q 'VIEC-DA-BI-GO' "$MUT6/gate-card.js"; then
+cp -r "$ROOT/lib" "$ROOT/scripts" "$MUT6/"
+sed -i 's/VIỆC CỦA ANH/VIEC-DA-BI-GO/g' "$MUT6/scripts/gate-card.js"
+mut6_out="$( ( cd "$ROOT" && node "$MUT6/scripts/gate-card.js" --slug "$FIX_SLUG" --root "$FIXROOT" --gate 2 2>&1 ) || true)"
+if ! grep -q 'VIEC-DA-BI-GO' "$MUT6/scripts/gate-card.js"; then
   bad "THE-CONG: buoc tiem KHONG go duoc khoi khoi ban sao — chieu do khong chay"
-elif [ "$(the_cong "$MUT6/gate-card.js")" -eq 0 ]; then
-  mut "gỡ khối khỏi bản sao gate-card.js → THE-CONG MAT khoi ở cả ba mode"
+elif [ -z "$mut6_out" ] || ! printf '%s' "$mut6_out" | grep -q 'VIEC-DA-BI-GO'; then
+  bad "THE-CONG: ban sao KHONG CHAY duoc (dau ra rong hoac khong co dau tiem) — chieu do do vi crash, khong vi mat khoi"
+elif [ "$(the_cong "$MUT6/scripts/gate-card.js")" -eq 0 ]; then
+  mut "gỡ khối khỏi bản sao gate-card.js (cây chạy được, đầu ra vẫn render) → THE-CONG MAT khoi ở cả ba mode"
 else
   bad "THE-CONG: ban sao da go khoi ma van dem duoc mode con khoi — phep do khong song"
+fi
+
+# [THÊM 14/08 — vòng thu phạm vi; do rà soát vòng 2 bắt (P0-1)] Chân ĐẦU RA.
+# Bốn needle trên đều đo MÃ NGUỒN bằng literal, nên `~5 phút` in thẳng ra thẻ
+# cổng — thứ owner mở ở MỖI cổng — sống sót trọn ba vòng: nó không khớp literal
+# nào, và chân QUAN HỆ vừa thêm chỉ soi bảng KPI của `GUIDE.md`. Đây đúng hình
+# dạng ① của CLAUDE.md: *đo chỉ dẫn thay vì đo vật được giao*. Chân này RENDER
+# thẻ rồi soi đầu ra — cùng nếp với E6, ngược chiều (E6 đòi CÒN, chân này đòi
+# HẾT). Fixture dựng ở khối E6 ngay dưới nên chân này chạy SAU nó.
+the_cong_out() {   # $1 = gate-card.js → in trọn đầu ra cả ba mode
+  local js="$1" md
+  for md in "--gate 1" "--gate 2" ""; do
+    # shellcheck disable=SC2086
+    ( cd "$ROOT" && node "$js" --slug "$FIX_SLUG" --root "$FIXROOT" $md 2>/dev/null ) || true
+  done
+}
+HUA_PHUT='[0-9~][ ]*phút|phút/cổng|minutes'
+render_out="$(the_cong_out "$CARD")"
+if [ -z "$render_out" ]; then
+  bad "KPI-PHUT-RENDER: the cong render RONG — phep do khong song"
+elif printf '%s' "$render_out" | grep -qiE "$HUA_PHUT"; then
+  bad "KPI-PHUT-RENDER: DAU RA the cong con hua phut:"
+  printf '%s' "$render_out" | grep -oiE ".{0,40}($HUA_PHUT).{0,25}" | head -3 | sed 's/^/         /'
+else
+  ok "KPI-PHUT-RENDER: dau ra the cong (3 mode) 0 loi hua phut OK"
+fi
+# chiều đỏ CHẠY THẬT: chèn lại câu hứa phút vào bản sao gate-card.js
+MUT2b="$(tmpd)"
+cp -r "$ROOT/lib" "$ROOT/scripts" "$MUT2b/"
+sed -i 's|Cổng 2 · ký duyệt|Cổng 2 · ký duyệt · ~5 phút|' "$MUT2b/scripts/gate-card.js"
+if ! grep -q '~5 phút' "$MUT2b/scripts/gate-card.js"; then
+  bad "KPI-PHUT-RENDER: buoc tiem khong vao duoc ban sao — chieu do khong chay"
+elif printf '%s' "$(the_cong_out "$MUT2b/scripts/gate-card.js")" | grep -qiE "$HUA_PHUT"; then
+  mut "chèn lại «~5 phút» vào bản sao gate-card.js → chân ĐẦU RA ĐỎ (đúng lỗ P0-1 của vòng chấm 2)"
+else
+  bad "KPI-PHUT-RENDER: ban sao da co cau hua phut ma phep soi dau ra im — phep do khong song"
 fi
 
 echo "== E4 · báo cáo bỏ nhánh phút, GIỮ sổ vàng + vệ sinh cổng (AC-4) =="
@@ -425,24 +283,40 @@ elif ! printf '%s' "$rep_base" | grep -q 'baseline_minutes'; then
 else
   ok "REPORT: bo nhanh phut OK (base co, HEAD khong)"
 fi
-# GIỮ: sổ vàng + vệ sinh cổng — so nguyên văn, không đếm từ khoá
-sovang_h="$(printf '%s' "$rep_head" | grep -c 'acceptance-gold.mjs\|sổ vàng' || true)"
-sovang_b="$(printf '%s' "$rep_base" | grep -c 'acceptance-gold.mjs\|sổ vàng' || true)"
-vesinh_h="$(printf '%s' "$rep_head" | grep -c 'Vệ sinh cổng' || true)"
-if [ "$sovang_h" -eq "$sovang_b" ] && [ "$sovang_h" -gt 0 ] && [ "$vesinh_h" -gt 0 ]; then
-  ok "REPORT: so vang + ve sinh cong byte-equal base OK ($sovang_h dong so vang)"
+# GIỮ: sổ vàng + vệ sinh cổng.
+# [SỬA 14/08 — rà soát vòng 2, Hd] Bản trước in "byte-equal base OK" trong khi
+# phép đo là `grep -c` hai từ khoá. Thay ĐÚNG một dòng bằng một dòng khác CÙNG
+# từ khoá, nghĩa ngược («BỎ bước sổ vàng: KHÔNG chạy `acceptance-gold.mjs` nữa»)
+# thì số đếm không đổi và bộ răng vẫn in `byte-equal … OK` — một dòng nói dối
+# về việc nó vừa làm. Nay so TẬP DÒNG: mọi dòng của base nhắc sổ vàng / vệ sinh
+# cổng phải CÒN NGUYÊN VĂN ở HEAD, trừ dòng nào nhắc phút (đó là nhánh AC-4 gỡ).
+giu_dong() { printf '%s' "$1" | grep -E 'acceptance-gold\.mjs|sổ vàng|Vệ sinh cổng' \
+             | grep -vE 'phút|minutes|baseline' | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | sort -u; }
+gd_b="$(giu_dong "$rep_base")"; gd_h="$(giu_dong "$rep_head")"
+gd_n="$(printf '%s\n' "$gd_b" | grep -c . || true)"
+gd_mat="$(comm -23 <(printf '%s\n' "$gd_b") <(printf '%s\n' "$gd_h"))"
+if [ "$gd_n" -lt 3 ]; then
+  bad "REPORT: chi rut duoc $gd_n dong giu tu base — phep rut hong, phep so khong song"
+elif [ -n "$gd_mat" ]; then
+  bad "REPORT: so vang / ve sinh cong MAT dong so voi base:"
+  printf '%s\n' "$gd_mat" | sed 's/^/         /'
 else
-  bad "REPORT: so vang LECH base (HEAD=$sovang_h base=$sovang_b, ve sinh cong=$vesinh_h)"
+  ok "REPORT: $gd_n/$gd_n dong so vang + ve sinh cong con NGUYEN VAN o HEAD OK"
 fi
-# chiều đỏ CHẠY THẬT: xoá một dòng khỏi bản sao
-MUT4="$(mktemp)"; printf '%s' "$rep_head" | grep -v 'acceptance-gold.mjs' > "$MUT4"
-m4h="$(grep -c 'acceptance-gold.mjs\|sổ vàng' "$MUT4" || true)"
-if [ "$m4h" -lt "$sovang_h" ]; then
-  mut "xoá dòng sổ vàng khỏi bản sao → phép so ĐỎ 'so vang LECH base' ($m4h < $sovang_h)"
+# chiều đỏ CHẠY THẬT ×2, đi qua CHÍNH phép so trên
+mut4_do() {   # $1 = văn bản đã tiêm → 0 nếu phép so ĐỎ
+  [ -n "$(comm -23 <(printf '%s\n' "$gd_b") <(printf '%s\n' "$(giu_dong "$1")"))" ]
+}
+if mut4_do "$(printf '%s' "$rep_head" | grep -v 'acceptance-gold.mjs')"; then
+  mut "xoá dòng sổ vàng khỏi bản sao → phép so ĐỎ 'MAT dong so voi base'"
 else
-  bad "REPORT: chieu do khong chay — xoa dong ma so dem khong giam"
+  bad "REPORT: chieu do (xoa dong) khong chay"
 fi
-rm -f "$MUT4"
+if mut4_do "$(printf '%s' "$rep_head" | sed 's|.*acceptance-gold\.mjs.*|BỎ bước sổ vàng: KHÔNG chạy `acceptance-gold.mjs` nữa.|')"; then
+  mut "thay dòng sổ vàng bằng dòng CÙNG từ khoá nghĩa ngược → phép so vẫn ĐỎ (đúng đột biến Hd của vòng chấm 2)"
+else
+  bad "REPORT: chieu do (thay dong cung tu khoa) khong chay — day dung la lo Hd"
+fi
 
 echo "== E10 · hai thân nói cùng một câu về ai commit chữ ký (AC-10) =="
 # [SỬA SAU CỔNG 1 — vòng sửa 1] Bản trước cài đúng thứ evals.yaml CẤM: hai
@@ -520,19 +394,16 @@ else
   else
     ok "ONESHOT: 0 cau bien ve phut thanh loi cu phap OK"
   fi
-  # chân (3) GIỮ-GÂN — mọi CÂU không nói về phút của base phải còn ở HEAD.
-  # So bằng TẬP HỢP, không bằng số đếm (evals.yaml đòi đúng thế).
-  mat_cau="$(comm -23 <(printf '%s' "$GRAM_BASE" | cau_tap | grep -v 'phút' | sort -u) \
-                      <(printf '%s' "$GRAM_HEAD" | cau_tap | sort -u))"
-  con_cau="$(printf '%s' "$GRAM_BASE" | cau_tap | grep -v 'phút' | sort -u | grep -c . || true)"
-  if [ -n "$mat_cau" ]; then
-    bad "ONESHOT-SET: khoi MAT cau khong-lien-quan-phut so voi base:"
-    printf '%s\n' "$mat_cau" | sed 's/^/         /'
-  elif [ "$con_cau" -lt 10 ]; then
-    bad "ONESHOT-SET: chi rut duoc $con_cau cau tu base — phep rut hong, phep so khong song"
-  else
-    ok "ONESHOT-SET: $con_cau/$con_cau cau khong-lien-quan-phut cua base con nguyen o HEAD OK"
-  fi
+  # [THU PHẠM VI — 14/08] Chân "so TẬP CÂU" ĐÃ GỠ, không thay bằng chân khác.
+  # Rà soát vòng 2 (Ha) chỉ ra nó lọc `grep -v 'phút'` trên tập câu của base,
+  # nên nó MIỄN TRỪ vĩnh viễn đúng 5 câu định nghĩa ngữ pháp `/approve` và
+  # `/signoff` — tức đúng những câu chịu lực — và nó không bắt được một câu-huỷ
+  # nối thêm vào cuối khối. Ba đột biến đảo nghĩa 180° đi qua nó.
+  # Không dựng chân thay: lời hứa của AC-3 là HÀNH VI ("người quen tay không bị
+  # chặn"), và hành vi trong văn chỉ dẫn thì grep không đo được — ba vòng dựng
+  # thước cho nó đều chết cùng một kiểu. Lớp máy ở đây chỉ chứng MỰC ĐÃ IN; lời
+  # hứa hành vi do **E3b** (judgment, context sạch) chấm, và E3b là điều kiện
+  # bắt buộc trước Cổng 2. Khai ở AC-3 và trong Known limits.
   # chiều đỏ CHẠY THẬT ×2 trên bản sao, đi qua chính hai phép trên
   MUT3="$(tmpd)"
   # (a) đảo nghĩa vế chấp-nhận-bỏ-qua
