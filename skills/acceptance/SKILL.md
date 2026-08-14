@@ -276,11 +276,14 @@ Entry: implementation complete, contract `status: implemented`.
    PENDING-JUDGMENT they then upgrade it to PASS (the hook re-validates that
    write) — have the agent apply that edit so the hook actually sees it; a
    human editing outside the agent bypasses PreToolUse (CI pre-merge-check
-   is the backstop). The signature is the human's: either they commit it
-   themselves, or they explicitly instruct you to commit exactly the
-   human-owned lines — same rule as `commands/signoff.md`, and the
-   `require_human_commit` + `agent_authors` nets already police it. Then set
-   contract `status: signed-off`. Where
+   is the backstop).
+
+   <!-- <<<SIGNATURE-OWNER-CLAUSE -->
+   The signature is the HUMAN's. Exactly two legal routes: the human commits it themselves, OR the human explicitly instructs the agent to commit exactly the human-owned lines and nothing more. There is no third route; `signoff.require_human_commit` + `agent_authors` enforce this boundary.
+   <!-- SIGNATURE-OWNER-CLAUSE>>> -->
+
+   (Bản gốc ở `commands/signoff.md` bước 7; khối trên là bản chép nguyên văn.)
+   Then set contract `status: signed-off`. Where
    write-time hooks are not active, run
    `scripts/recheck-evidence.cjs` or `scripts/pre-merge-check.sh` before calling
    the gate complete; CI remains the authoritative merge backstop.

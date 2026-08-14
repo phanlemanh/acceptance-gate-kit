@@ -29,16 +29,28 @@ evals:
       - feature-loop/skills/feature-loop/SKILL.md
     expected: >
       exit 0; với TỪNG needle trong mảng HỎI-PHÚT — `hỏi user số phút`,
-      `how many minutes`, `ask .* minutes`, và cụm mời-khai-phút trong khuôn
-      một-lượt-gõ — in "CAT-PHUT: <needle> HEAD=0 base=<n>(>0) OK"; dòng đếm
-      "CAT-PHUT: <k>/<k>" với k suy từ độ dài mảng. Đỏ ghim đích danh khi
-      HEAD>0 ("… con hoi phut tai <file>:<dòng>") HOẶC base=0 ("… base=0 —
-      needle nay chua bao gio ton tai, phep do khong song"). Phạm vi quét đúng
-      như khai ở đầu mục Criteria của contract, và script IN RA phạm vi nó
-      thực quét để người đối chiếu được (không tin lời khai trong contract).
+      `how many minutes`, `minutes spent`, và cụm mời-khai-phút của khuôn
+      một-lượt-gõ (`số phút là ĐIỀU MÁY BIẾT`) — in "CAT-PHUT: <needle> HEAD=0
+      base=<n>(>0) OK"; dòng đếm "CAT-PHUT: <k>/<k>" với k suy từ độ dài mảng.
+      Đỏ ghim đích danh khi HEAD>0 ("… con o <file>:<dòng>") HOẶC base=0 ("…
+      base=0 — needle nay chua bao gio ton tai, phep do khong song"). Phạm vi
+      quét khai ở khối máy-đọc `PHAM-VI-RANG` của contract, và script SO phạm vi
+      nó thực quét với chính khối ấy rồi in kết quả so (`CAT-SCOPE`).
       Chiều đỏ CHẠY THẬT: chèn lại câu "hỏi user số phút" vào bản sao
       `feature-loop/skills/feature-loop/SKILL.md` → đỏ đích danh file+dòng;
       đối chứng dương xanh trước khi tiêm.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Hai chỗ khai lại.** (a) Needle
+      `ask .* minutes` của bản duyệt có **base=0** — nó chưa bao giờ tồn tại ở
+      dạng ấy, tức một chân âm-tính-một-mình đội lốt chân có đối chứng. Nó bị
+      **thay** bằng `minutes spent` (cụm tiếng Anh THẬT của thân skill cũ,
+      base=1), không bị bỏ: bỏ là co mảng cho vừa cái đo được. Bản thi công
+      trước chạy 2 needle trong khi eval hứa 4 và vẫn in "2/2" — «k suy từ
+      mảng» nên nó luôn khớp chính nó (H11). (b) Câu «script in phạm vi để
+      người đối chiếu» nay là **phép so máy** với khối `PHAM-VI-RANG`; in ra
+      cho người đọc mà không so là đúng chỗ H6 sống.
+    pinned:
+      - "CAT-PHUT: 4/4"
+      - "CAT-SCOPE: khop ban khai PHAM-VI-RANG"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E1b
@@ -60,6 +72,15 @@ evals:
       base=<n>(>0) OK", đếm "KPI-PHUT: 4/4" suy từ mảng. Đỏ ghim file+dòng khi
       HEAD>0; đỏ ghim "needle nay chua bao gio ton tai" khi base=0. Chiều đỏ
       CHẠY THẬT: chèn lại dòng KPI cũ vào bản sao `GUIDE.md` → đỏ đích danh.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Thêm một chân QUAN HỆ.** Bốn needle
+      trên đều là literal, nên một cách diễn đạt khác lọt hết (H11). Chân thêm
+      đo **cột THƯỚC ĐO** của bảng mục tiêu trong `GUIDE.md`: không mục tiêu nào
+      được đo bằng một trường phút, bất kể câu chữ ở cột mục tiêu. In
+      "KPI-PHUT: bang muc tieu GUIDE (<k> hang…) 0 thuoc do bang phut OK", đỏ
+      khi rút được dưới 3 hàng (phép rút hỏng) hoặc khi còn thước phút.
+    pinned:
+      - "KPI-PHUT: 4/4"
+      - "KPI-PHUT: bang muc tieu GUIDE"
 
   - id: E2
     criterion: AC-2
@@ -72,28 +93,44 @@ evals:
       - scripts/gate-card.js
     expected: >
       exit 0 — ĐƯỜNG ĐỌC-CŨ, chân bảo vệ 38 hồ sơ đã ký. Script tự SINH hai
-      fixture trong chính lần chạy (KHÔNG dùng file viết tay, KHÔNG trỏ vào hồ
-      sơ thật): (cũ) một workspace hợp lệ CÓ `time_human_minutes: {gate1: 7,
-      gate2: 3}`; (mới) một workspace hợp lệ VẮNG hẳn khoá đó. Chạy bốn bên đọc
-      trên CẢ HAI — `pre-merge-check.sh`, `recheck-evidence.cjs`,
-      `product-map.mjs --check`, `gate-card.js` — và in
-      "DOC-CU: <reader> x <fixture> OK" cho đủ 8 tổ hợp, đếm "DOC-CU: 8/8" suy
-      từ tích hai mảng. Điều kiện xanh gắt hơn "không lỗi": stdout của mỗi lượt
-      KHÔNG được chứa cảnh báo về trường thiếu, và card cổng render từ fixture
-      CŨ phải vẫn hiện đúng con số 7/3 (giữ được thì mới là đọc-cũ; nuốt mất là
-      mất sử liệu). Đường dẫn fixture suy từ vị trí script, không hardcode ROOT.
+      fixture trong chính lần chạy, đường dẫn suy từ vị trí script:
+      (cũ) một workspace đã ký lấy bằng `git show <base>:_acceptance/<slug>/…`,
+      CÓ `time_human_minutes`, không viết lại một ký tự; (mới) cùng workspace ấy
+      nhưng frontmatter hợp đồng lấy NGUYÊN từ BÊN VIẾT — khối máy-đọc
+      `CONTRACT-FRONTMATTER-TEMPLATE` trên cây HEAD, chỉ thay chỗ trống. Chạy
+      bốn bên đọc trên CẢ HAI — `pre-merge-check.sh`, `recheck-evidence.cjs`,
+      `product-map.mjs --check`, `gate-card.js` — in "DOC-CU: <reader> x
+      <fixture> OK" cho đủ 8 tổ hợp và đếm "DOC-CU: 8/8" suy từ tích hai mảng.
+      **Điều kiện xanh của từng CẶP: phán quyết trên hai fixture BẰNG NHAU** —
+      "DOC-CU: <reader> phan quyet cu == moi OK". Đó mới là mệnh đề AC-2 cần:
+      có hay không có trường phút, bên đọc xử y hệt. Thêm: đầu ra không nhắc
+      trường phút / trường lạ, và sau khi cả bốn bên đọc chạy, trường phút của
+      hồ sơ CŨ còn NGUYÊN BYTE trên đĩa.
       **ROUND-TRIP bắt buộc — hai fixture KHÔNG được cùng do script tự nặn.**
       Hồ sơ này sửa chính BÊN VIẾT (thôi ghi trường phút), nên fixture tự dựng
       đúng khuôn bên đọc sẽ xanh 8/8 trong khi workspace THẬT tạo sau merge lại
       đỏ ở PR đầu tiên của đội — đúng hình dạng bên-viết-và-bên-đọc-trôi-khỏi-
-      nhau. Vì vậy: fixture **MỚI** phải lấy nguyên đầu ra của đường KHỞI TẠO
-      THẬT trên cây HEAD (chạy khuôn contract/`workspace-record` rồi dùng
-      nguyên si, không sửa tay một ký tự); fixture **CŨ** lấy bằng `git show`
-      một workspace đã ký từ `origin/main`, không viết lại. In
-      "ROUND-TRIP: fixture-moi sinh boi <writer> OK" và ĐỎ nếu khoá phút xuất
-      hiện trở lại trong đầu ra bên viết. Chiều đỏ CHẠY THẬT ×2: (a) bỏ nhánh
-      đọc-cũ trong bản sao một reader → đỏ "DOC-CU: <reader> x cu VO"; (b) cho
-      bên viết ghi lại khoá phút → đỏ "ROUND-TRIP: ben viet con ghi phut".
+      nhau. In "ROUND-TRIP: fixture-moi sinh boi CONTRACT-FRONTMATTER-TEMPLATE
+      (ben viet that) OK" và ĐỎ "ROUND-TRIP: ben viet con ghi phut" nếu khoá
+      phút xuất hiện trở lại trong đầu ra bên viết. Chiều đỏ CHẠY THẬT ×2:
+      (a) cho một bên đọc THÔI dung thứ trường lạ trong bản sao mang cả `lib/`
+      lẫn `scripts/` (cây chạy được, khác đúng một chỗ tiêm) → hai phán quyết
+      LỆCH nhau; (b) cho bên viết ghi lại khoá phút → ROUND-TRIP đỏ.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Eval này TRƯỚC ĐÓ KHÔNG CÓ MỘT
+      DÒNG MÃ NÀO, và sổ chạy đóng dấu xanh cho nó ba vòng (H1).** Chín eval
+      chia chung một `cmd:`, và bộ ghi sổ gán rc của một lượt chạy vật lý cho
+      MỌI eval-id trong nhóm — eval không có chân nào vẫn hưởng màu xanh của
+      tám eval kia. Lỗ ấy đóng ở đúng chỗ nó sống: `ghi-so-chay-1a.mjs` nay đòi
+      mỗi eval máy khai `pinned:` với ≥1 chuỗi RIÊNG trong nhóm-lệnh, và chết to
+      khi chuỗi khai vắng trong đầu ra.
+      **Một vế của bản duyệt phải khai lại: «card cổng render từ fixture CŨ
+      phải vẫn hiện đúng con số 7/3» KHÔNG THOẢ ĐƯỢC.** Đo lại: không bên đọc
+      nào — kể cả trên `origin/main` — từng đọc `time_human_minutes`. Card chưa
+      bao giờ hiện số phút. Vế thay thế (còn-nguyên-byte) đo đúng lời hứa gốc
+      «giữ được sử liệu» bằng thứ quan sát được.
+    pinned:
+      - "DOC-CU: 8/8"
+      - "ROUND-TRIP: fixture-moi sinh boi CONTRACT-FRONTMATTER-TEMPLATE"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E3
@@ -114,13 +151,31 @@ evals:
       đỏ CHẠY THẬT ×2: (a) gỡ luôn vế chấp-nhận-bỏ-qua → đỏ "ONESHOT: mat ve
       chap-nhan-bo-qua"; (b) chèn lại câu mời khai phút → đỏ "ONESHOT: con moi
       khai phut".
-      **Chân PER-SITE (thêm sau phản biện):** ngữ pháp còn bản chép trong TỪNG
-      thân lệnh cổng; assert cả ba site Claude (`commands/approve.md`,
-      `commands/signoff.md`, `commands/start.md`) đồng bộ với khối gốc, in
-      "ONESHOT-SITE: <file> dong bo OK" và đếm 3/3. Không có chân này thì một
-      site chưa đồng bộ sẽ coi câu gộp có vế phút là sai cú pháp và **chặn owner
-      ngay tại cổng**, trong khi khối gốc vẫn khai đúng.
+      **Chân PER-SITE:** điều khoản `GATE-ONESHOT-CLAUSE` chép NGUYÊN VĂN ở
+      từng thân lệnh cổng, số bản chép phải có khai trong khối máy-đọc
+      `GATE-ONESHOT-SITES`; assert từng site khớp bản khai và đếm
+      "ONESHOT-SITE: <k>/<k>". Không có chân này thì một site chưa đồng bộ sẽ
+      coi câu gộp có vế phút là sai cú pháp và **chặn owner ngay tại cổng**,
+      trong khi khối gốc vẫn khai đúng.
       **Đây là lớp PHỤ — nó đo mực đã in.** Lời hứa hành vi do E3b đo.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Ba chỗ khai lại, cả ba do rà soát
+      vòng 1 chỉ ra (H2).** (a) Bản thi công quét CẢ FILE bằng hai `grep -q`
+      chuỗi rời; câu «Vế `, phút <số>` ở cuối câu KHÔNG còn ĐƯỢC CHẤP NHẬN. Máy
+      báo lỗi cú pháp và hỏi lại người.» giữ nguyên CẢ HAI chuỗi trong khi nghĩa
+      đảo 180°, và bộ răng vẫn in 3/3 OK. Neo dương nay đo **cụm LIỀN** «vẫn
+      ĐƯỢC CHẤP NHẬN và BỎ QUA lặng» — phép phủ định phá vỡ cụm liền — cộng một
+      chân cấm: không CÂU nào trong khối được ghép `phút <số>` với «báo lỗi» /
+      «sai cú pháp» / «KHÔNG còn». (b) Chân (3) so **TẬP CÂU**: mọi câu của base
+      không chứa chữ «phút» phải còn nguyên ở HEAD, in "ONESHOT-SET: <k>/<k>".
+      So theo dòng thì hai hunk hợp lệ có gói lại dòng sẽ đỏ oan; so theo số đếm
+      thì số khớp chính nó. (c) Chân PER-SITE của bản duyệt viết «ba site
+      Claude … đồng bộ với khối gốc» nhưng cái các site chép là **CLAUSE** chứ
+      không phải GRAMMAR, và `commands/start.md` không mang cụm «ĐƯỢC CHẤP NHẬN»
+      nào — bản thi công thay vật đo bằng chính bản luật (file dễ hơn). Nay đọc
+      đúng bản khai `GATE-ONESHOT-SITES` (6 site, kèm số bản chép).
+    pinned:
+      - "ONESHOT-SET:"
+      - "ONESHOT-SITE: 6/6"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E3b
@@ -169,6 +224,9 @@ evals:
       "REPORT: bo nhanh phut OK" + "REPORT: so vang + ve sinh cong byte-equal
       base OK". Chiều đỏ CHẠY THẬT: xoá một dòng khỏi mục sổ vàng trong bản sao
       → đỏ "REPORT: so vang LECH base".
+    pinned:
+      - "REPORT: bo nhanh phut OK"
+      - "REPORT: so vang + ve sinh cong byte-equal base OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E5
@@ -185,12 +243,26 @@ evals:
       (3) `GATE-INVITE-CLAUSE` rút qua marker, **byte-equal base**, và phạm vi
       của nó vẫn là "tin mời cổng". Chip này GỠ một tư cách luật, nên chân (1)
       là bắt buộc — assert-chuỗi-phải-có-mặt không bao giờ bắt được điều khoản
-      cũ quay lại. Chân (2)(3) là đối chứng giữ-gân. Thêm chân LAN: quét mọi
-      nơi khác trong nguồn có chép lại điều khoản mỗi-tin (bản luật này nói có
-      bốn bên chép nguyên văn) — tất cả phải đồng bộ, đỏ ghim
-      "MOI-TIN: con o <file>" nếu sót. Chân LAN bắt đúng lớp gỡ-một-chỗ-quên-
-      ba-chỗ. Chiều đỏ CHẠY THẬT: chép lại điều khoản mỗi-tin vào bản sao một
-      command → đỏ đích danh file đó.
+      cũ quay lại. Chân (2)(3) là đối chứng giữ-gân. Thêm chân LAN: điều khoản
+      chép nguyên văn ở ba site, **số bản chép của từng site khai trong khối
+      máy-đọc `GATE-INVITE-SITES`**; assert từng site khớp bản khai
+      ("MOI-TIN-SITE: <file> <k>/<k> ban chep OK", đếm 3/3) và **0 site ngoài
+      bản khai** mang điều khoản, trừ chính bản gốc. Chiều đỏ CHẠY THẬT: chép
+      điều khoản vào bản sao một command NGOÀI bản khai → đỏ đích danh file đó.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Hai chỗ khai lại (H7, H9).**
+      (a) Chân (3) KHÔNG còn là byte-equal: hạng mục 1a.2 gỡ đúng một vế CỦA
+      CHÍNH `GATE-INVITE-CLAUSE`, nên byte-equal không có trạng thái cây nào
+      thoả — bản thi công đặc cách khối này khỏi phép so, cùng một commit với
+      lượt sửa vật và không khai ở đâu. Thước mới là **phép so TẬP CÂU**: mọi
+      câu của base không chứa chữ «chỉ-báo» phải còn nguyên ở HEAD. Chặt hơn
+      đếm từ khoá, và miễn nhiễm với việc gói lại dòng.
+      (b) Chân LAN cũ dùng **ngưỡng gõ tay `>5`** trong khi kho có sẵn bản khai
+      máy-đọc: HEAD=4 / base=10, chỉ đỏ khi `>5`, nên chép nguyên văn điều khoản
+      về ĐÚNG MỘT command vẫn xanh — và nó còn in một câu **sai sự thật**
+      «(chi con site tin-moi-cong)». Nay đọc `GATE-INVITE-SITES`.
+    pinned:
+      - "MOI-TIN: 2/2 khuon giu-gan OK"
+      - "MOI-TIN-SITE: 3/3"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E6
@@ -202,13 +274,23 @@ evals:
       - _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh
     expected: >
       exit 0 — ĐỐI CHỨNG GIỮ-GÂN quan trọng nhất của hồ sơ này. Script CHẠY
-      THẬT `gate-card.js` ở cả ba mode trên fixture do chính nó sinh, và assert
-      đầu ra render CÓ khối 👉 VIỆC CỦA ANH đủ ba vế + câu mẫu một dòng, cho
-      TỪNG mode; in "THE-CONG: <mode> con khoi OK" và đếm "THE-CONG: 3/3". Đo
-      trên ĐẦU RA của bộ dựng, không grep mã nguồn — grep mã nguồn là đo
-      chỉ-dẫn thay vì đo vật được giao (lớp đã dẫm 4 vòng ở s4-scope-triage).
-      Chiều đỏ CHẠY THẬT: gỡ khối khỏi bản sao `gate-card.js` → đỏ "THE-CONG:
-      <mode> MAT khoi"; đối chứng dương xanh trước khi tiêm.
+      THẬT `gate-card.js` ở cả ba mode — `--gate 1` · `--gate 2` · auto-detect
+      (không cờ) — trên fixture do chính nó sinh từ một hồ sơ đã ký có thật
+      (`git show <base>:…`), và assert đầu ra render CÓ khối 👉 VIỆC CỦA ANH cho
+      TỪNG mode; in "THE-CONG: 3/3 mode … con khoi OK". Đo trên ĐẦU RA của bộ
+      dựng, không grep mã nguồn — grep mã nguồn là đo chỉ-dẫn thay vì đo vật
+      được giao (lớp đã dẫm 4 vòng ở s4-scope-triage).
+      Chiều đỏ CHẠY THẬT: gỡ khối khỏi bản sao `gate-card.js` → đếm về 0; đối
+      chứng dương xanh trước khi tiêm.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Bản thi công KHÔNG chạy ba mode
+      (H12).** Nó lặp `for slug in $(ls -d */ | head -3)` — tức **ba SLUG của
+      workspace sống**, gọi **không cờ `--gate` nào**, tức một mode ba lần — rồi
+      trang bằng chứng khai là «cả ba mode». `|| continue` còn nuốt lỗi node,
+      nên một mode chết cũng chỉ làm số đếm tụt. Nay ba mode là ba mode thật,
+      trên một fixture cố định thay vì trỏ vào workspace sống (workspace đổi thì
+      phép đo đổi theo mà không ai khai).
+    pinned:
+      - "THE-CONG: 3/3 mode"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E7
@@ -290,12 +372,30 @@ evals:
       dương. Quét TOÀN phạm vi đã khai (không chỉ thân lệnh) tìm nghi thức
       hỏi-tuần-tự: mảng needle `one question at a time`, `một câu một lần`,
       `hỏi lần lượt`, `tuần tự từng câu`. Với từng needle in
-      "HOI-TUAN-TU: <needle> HEAD=0 base=<n>(>0) OK", đếm suy từ mảng; đỏ ghim
-      "HOI-TUAN-TU: con o <file>:<dòng>". Chân LAN bắt buộc — cùng lớp với chân
-      LAN của E5: câu cũ gỡ khỏi thân lệnh mà còn ở thân skill hoặc reference
-      mà lệnh khởi tạo dẫn tới thì agent hội đồng (E9) chỉ đọc thân lệnh nên
-      vẫn PASS, còn phiên thật vẫn phỏng vấn tuần tự. Chiều đỏ CHẠY THẬT: chèn
-      lại câu vào bản sao một reference → đỏ đích danh file đó.
+      "HOI-TUAN-TU: <needle> 0 hit ngoai mien-tru OK", đếm suy từ mảng
+      ("HOI-TUAN-TU: 4/4"); đỏ ghim "HOI-TUAN-TU: <needle> con o <file>:<dòng>".
+      Chân này bắt cùng lớp với chân LAN của E5: câu cũ gỡ khỏi thân lệnh mà còn
+      ở thân skill hoặc reference mà lệnh khởi tạo dẫn tới thì agent hội đồng
+      (E9) chỉ đọc thân lệnh nên vẫn PASS, còn phiên thật vẫn phỏng vấn tuần tự.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1, owner gật] HÌNH DẠNG ĐỐI CHỨNG ĐỔI
+      HẲN — đây là chỗ DUY NHẤT trong hồ sơ luật `base>0` bị thay (H10).**
+      Bản duyệt đòi `HEAD=0 base=<n>(>0)` cho cả bốn needle. Đo lại: BA needle
+      có **base=0** (chúng chưa bao giờ tồn tại ở dạng ấy — needle gõ theo trí
+      nhớ, không theo vật), và needle thứ tư (`tuần tự từng câu`) có hit trên
+      HEAD nằm trong một câu **CẤM** do chính hồ sơ này viết
+      (`commands/acceptance-init.md:20`). Giữ luật cũ thì chỉ còn một needle
+      sống, và bản thi công đã co mảng xuống đúng cái không đỏ — 1/4. Luật thay
+      thế, hai vế: (a) **MIỄN TRỪ KHAI TRƯỚC** — hit hợp lệ phải có tên trong
+      khối máy-đọc `HOI-TUAN-TU-MIEN-TRU` của contract; bánh cóc HAI CHIỀU, dòng
+      khai mà không còn hit thật cũng đỏ ("HOI-TUAN-TU-MIEN-TRU: dong khai KHONG
+      con hit that"), để danh sách không phình thành tấm khiên. (b) **ĐỐI CHỨNG
+      DƯƠNG TỰ SINH** thay cho `base>0` — với TỪNG needle, chèn nó vào một bản
+      sao rồi chạy lại CHÍNH hàm quét và đòi số hit tăng đúng 1, in
+      "HOI-TUAN-TU-DC: 4/4". Vế (b) MẠNH HƠN `base>0`: nó chứng minh phép đo
+      sống **hôm nay**, không phải chứng minh câu cũ **từng** tồn tại.
+    pinned:
+      - "HOI-TUAN-TU: 4/4"
+      - "HOI-TUAN-TU-DC: 4/4"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E10
@@ -307,16 +407,30 @@ evals:
       - skills/acceptance/SKILL.md
       - _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh
     expected: >
-      exit 0; script rút câu-trả-lời-về-ai-commit-chữ-ký từ CẢ HAI thân qua
-      marker rồi assert chúng nói cùng một điều: cả hai đều nêu hai lối hợp lệ
-      (người tự commit HOẶC ra lệnh tường minh cho agent commit đúng phần
-      người-sở-hữu) và cả hai đều nêu `require_human_commit`. In
-      "AI-COMMIT: hai than dong bo OK". Đo QUAN HỆ giữa hai văn bản, không đo
-      sự có mặt của một chuỗi trong từng văn bản — lớp "đo từ vựng thay vì
-      quan hệ" đã dẫm 6 vòng. Neo âm kèm theo: cụm cũ "The user (not you)
-      fills" phải VẮNG, đối chứng dương base >0. Chiều đỏ CHẠY THẬT: sửa một
-      trong hai bản sao cho lệch nghĩa → đỏ "AI-COMMIT: hai than LECH:
-      <trích hai câu>".
+      exit 0; script rút điều khoản `SIGNATURE-OWNER-CLAUSE` từ CẢ HAI thân qua
+      marker rồi assert chúng **byte-equal** — bản gốc DUY NHẤT ở
+      `commands/signoff.md` bước 7, `skills/acceptance/SKILL.md` chép nguyên
+      văn. In "AI-COMMIT: hai than dong bo OK". Byte-equal một mình thì hai câu
+      rỗng nghĩa cũng bằng nhau, nên kèm chân NỘI DUNG: điều khoản phải nêu đủ
+      **bốn vế** — hai lối hợp lệ (`commits it themselves` ·
+      `explicitly instructs the agent`) và hai lưới cưỡng chế
+      (`require_human_commit` · `agent_authors`) — in "AI-COMMIT: dieu khoan du
+      4 ve … OK". Đo QUAN HỆ giữa hai văn bản, không đo sự có mặt của một chuỗi
+      trong từng văn bản — lớp "đo từ vựng thay vì quan hệ" đã dẫm 6 vòng. Neo
+      âm kèm theo: cụm cũ "The user (not you) fills" phải VẮNG, đối chứng dương
+      base >0. Chiều đỏ CHẠY THẬT: sửa bản sao `SKILL.md` thành «một lối hợp lệ»
+      → đỏ "AI-COMMIT: hai than LECH" kèm diff hai bản.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Bản thi công cài ĐÚNG THỨ EVAL NÀY
+      CẤM (H3).** Nó dùng hai `grep -q` chuỗi rời, không marker, không
+      `require_human_commit`; và dòng «đột biến» của nó **không tiêm gì** — chỉ
+      đọc `origin/main` rồi in một câu suy luận. Chạy đúng đột biến eval đã hứa
+      (sửa `SKILL.md` thành *«NEVER commit signature lines yourself, even if
+      they explicitly instruct you…»*, chỏi thẳng `signoff.md`) thì bộ răng
+      **vẫn xanh**. Điều khoản nay có bản gốc duy nhất trong marker; đột biến ấy
+      đã được chạy lại trên cây thật và **đỏ**.
+    pinned:
+      - "AI-COMMIT: hai than dong bo OK"
+      - "AI-COMMIT: dieu khoan du 4 ve"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E11
@@ -336,6 +450,8 @@ evals:
       chép một khối `-1A` song song vào hợp đồng 1a; khối ấy KHÔNG code path nào
       đọc nên đã gỡ. Baseline `daa9b3d` trong bản duyệt lỗi thời vì nhánh này
       đứng trên cây đã có 1b.
+    pinned:
+      - "LUU-KHO-SUITE: scripts 671 -> 686 OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E12
@@ -371,6 +487,9 @@ evals:
       và ĐỎ khi base=0 với thông điệp "needle chua bao gio ton tai" — không có
       vế đó thì gõ sai tên ca sẽ cho một chân âm đúng-một-cách-rỗng, và ca cũ
       thực ra chỉ bị làm yếu chứ chưa hề gỡ.
+    pinned:
+      - "LUU-KHO-SUITE: plugins 173 -> 146 OK"
+      - "MOI-TIN-CASE:"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E13
@@ -389,6 +508,9 @@ evals:
       máy-kiểm. Không thêm lượt chạy: bộ đếm CHẠY chính suite ấy rồi in lại dòng
       tổng kết gốc. Hồ sơ này KHÔNG chạm `hooks/` (lõi cưỡng chế, `t3_paths`);
       số đổi là tín hiệu cắt lan sang lõi.
+    pinned:
+      - "LUU-KHO-SUITE: hooks 54 -> 54 OK"
+      - "Results: 54 passed, 0 failed"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E14
@@ -411,7 +533,8 @@ evals:
       Ghim SỐ DÒNG chính là chân chống cái chết-giữa-chừng: thiếu một dòng
       nghĩa là một tệp con không in nổi tổng kết, và tổng cộng ra sẽ NHỎ HƠN
       thật mà vẫn "xanh".
-
+    pinned:
+      - "Results: all workflow tests passed"
   - id: E15
     criterion: AC-11
     executor: script
@@ -423,6 +546,8 @@ evals:
       không ghim mã thoát. Đã có tiền lệ đỏ thật trong chính hồ sơ này: tạo
       `_acceptance/cat-hinh-thuc/` mà chưa vẽ lại bản đồ làm P42/P45/P122/P126
       đỏ — nên chiều đỏ của phép đo này đã CHẠY THẬT một lần, ghi trong evidence.
+    pinned:
+      - "PRODUCT-MAP.md khớp hồ sơ xưởng."
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E16
@@ -442,4 +567,40 @@ evals:
       Không bỏ trống chỗ: eval chuyển sang gánh đẳng thức suite `workflows`,
       vế duy nhất của AC-11 chưa có eval riêng sau khi hai vế mirror chết.
       Bỏ trống là để AC-11 mất một chân mà bảng eval vẫn trông đủ.
+    pinned:
+      - "LUU-KHO-SUITE: workflows 488 -> 463 OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E17
+    criterion: AC-14
+    executor: script
+    cmd: config:executors.script.cat_hinh_thuc_rang
+    paths:
+      - skills/acceptance/references/contract-template.md
+      - skills/acceptance/references/opportunity-template.md
+      - skills/acceptance/references/uat-session-template.md
+      - skills/acceptance/references/evidence-report-template.md
+      - _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh
+    expected: >
+      exit 0 — **[THÊM SAU CỔNG 1 — 13/08, vòng sửa 1; do rà soát đối kháng
+      vòng 1 tìm ra (H4)].** Rút bốn khối frontmatter mà hồ sơ này chạm — ba
+      khối có marker (`CONTRACT-FRONTMATTER-TEMPLATE`, `OPP-FRONTMATTER-TEMPLATE`,
+      `UAT-FRONTMATTER-TEMPLATE`) và khối của `evidence-report-template.md` rút
+      qua hàng rào `---8<---` — điền chỗ trống bằng một scalar trơ (phép thay
+      KHÔNG đụng thụt đầu dòng, nên lỗi khoá-mồ-côi vẫn bị bắt) rồi nạp bằng
+      **`yaml.safe_load`**. In "YAML-KHUON: <marker> parse duoc bang yaml.safe_load
+      OK" cho từng khối, đếm "YAML-KHUON: 3/3" suy từ mảng, cộng một dòng riêng
+      cho khối thứ tư. Đỏ ghim thông điệp của chính parser.
+      Vì sao phải là parser THẬT: hạng mục 1a.1 xoá dòng CHA
+      `time_human_minutes:` mà để lại dòng CON thụt vào (`gate0:` · `gateUAT:`),
+      và ca thường trực `P82` đọc khoá top-level bằng parser theo dòng nên bỏ
+      qua dòng thụt — bên viết và bên đọc trôi khỏi nhau, khối YAML giao ra hỏng
+      mà mọi lưới vẫn xanh. Regex là đúng thứ đã để lỗ sống.
+      Chiều đỏ CHẠY THẬT: dựng lại ĐÚNG hình dạng lỗi đã bắt — một khối
+      `a/b/c` xoá dòng cha `b:` giữ dòng con `  c:` — và đòi `yaml.safe_load` đỏ.
+      Không có chiều đỏ này thì một `yaml_parse` gọi nhầm sang parser dễ dãi
+      cũng cho ba dòng OK.
+    pinned:
+      - "YAML-KHUON: 3/3"
+      - "YAML-KHUON: frontmatter evidence-report-template parse duoc OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

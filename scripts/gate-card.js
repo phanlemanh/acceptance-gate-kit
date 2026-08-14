@@ -2,8 +2,9 @@
 /* gate-card.js — render a human DECISION CARD for Gate 1 or Gate 2 from the
  * acceptance artifacts (contract.md / evals.yaml / evidence-report.md).
  *
- * Purpose (acceptance-gate goal: cut human acceptance time >=50% WITHOUT cutting
- * quality): the two human gates are where the time is spent. This puts the few
+ * Purpose (acceptance-gate goal: let the human decide at the few real decision
+ * moments WITHOUT cutting quality): the two human gates are where the decisions
+ * live. This puts the few
  * things only a human can decide FIRST, in plain product language, collapses what
  * the machine already proved, and always shows reversibility — so the fast
  * decision is also a good one (anti-rubber-stamp). Presentation layer ONLY; it

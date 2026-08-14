@@ -180,3 +180,77 @@ Vật lành; câu khai sai cặp và sai số.)
 Ba phiên chạy qua `su - tester` với `NODE_EXTRA_CA_CERTS=/opt/ccr-ca.crt`, trên
 worktree/bản sao rời, dọn sạch sau khi đo. Ba bẫy môi trường được cảnh báo trước
 và cả ba đều tránh được. Tổng **8 lượt phá thật**; **5 lượt phá vẫn XANH**.
+
+---
+
+# Vòng sửa 1 (14/08) — thi công theo 14 finding của vòng chấm
+
+*Owner gật ba điểm quyết trước khi thi công: **1(a)** dựng E2 cho thật ·
+**2(a)** khai `tests/` ra khỏi phạm vi kèm lý do · **3** hình dạng đối chứng mới
+cho E9b. Người thi công KHÔNG chấm bản sửa này — hồ sơ về `PENDING-JUDGMENT`
+chờ rà soát đối kháng vòng 2.*
+
+## Gốc chung đã đổi, không phải 14 miếng vá
+
+Vòng chấm gọi tên một hình dạng: **eval hứa một phép đo MẠNH, script cài một
+phép đo YẾU hơn, và không gì so hai bên.** Vá từng chân thì lần sau nó mọc ở
+chân thứ sáu. Nên vòng sửa đổi **bất biến ở đúng chỗ hai bên gặp nhau — bộ ghi
+sổ**:
+
+> `ghi-so-chay-1a.mjs` nay có ba luật fail-closed: (1) eval máy phải khai
+> `pinned:` với ≥1 chuỗi; (2) trong cùng nhóm-lệnh, mỗi eval phải có ≥1 chuỗi
+> **RIÊNG** — không eval nào khác trong nhóm khai; (3) chuỗi khai mà vắng trong
+> đầu ra thật → eval ĐỎ dù lệnh thoát 0, recorder thoát 1.
+
+Luật (2) là chỗ H1 không tái sinh được: trước đây chín eval chia một `cmd:` và
+rc chung đóng dấu cho cả chín, nên eval không có chân nào vẫn xanh. Nay chứng
+nhân của mỗi eval phải là chuỗi của riêng nó. Khai chung một câu tổng kết cho
+tất cả — cách rẻ nhất để lách — cũng chết to.
+
+## Bảng đối chiếu
+
+| # | Đã làm gì | Đo lại bằng gì |
+|---|---|---|
+| **H1** | Luật chứng-nhân-riêng ở bộ ghi sổ (trên) **+** E2 dựng thật: 8 tổ hợp bên-đọc × fixture, chân *phán quyết cũ == mới* theo cặp, round-trip từ `CONTRACT-FRONTMATTER-TEMPLATE`, 2 chiều đỏ | `DOC-CU: 8/8` · `ROUND-TRIP: …` là `pinned` của riêng E2 — gỡ chân đo thì recorder chết to |
+| **H2** | E3 rút `GATE-ONESHOT-GRAMMAR` qua marker; neo dương đo **CỤM LIỀN** «vẫn ĐƯỢC CHẤP NHẬN và BỎ QUA lặng» + chân cấm ghép `phút <số>` với «báo lỗi»; chân giữ-gân so **TẬP CÂU**; per-site đọc `GATE-ONESHOT-SITES` (6 site) | Đột biến của vòng chấm (đảo nghĩa, giữ cả hai chuỗi) **chạy lại trên cây thật → ĐỎ** |
+| **H3** | Bản gốc DUY NHẤT `SIGNATURE-OWNER-CLAUSE` ở `commands/signoff.md` bước 7, `SKILL.md` chép nguyên văn; đo byte-equal + 4 vế nội dung | Đột biến của vòng chấm («một lối hợp lệ») **chạy lại trên cây thật → ĐỎ** |
+| **H4** | Gỡ hai khoá mồ côi (`gate0:` · `gateUAT:`); **AC-14 + E17** mới nạp 4 khối frontmatter bằng `yaml.safe_load` | `YAML-KHUON: 3/3` + dòng riêng cho khối thứ tư; chiều đỏ dựng lại đúng hình dạng lỗi (xoá cha, giữ con) |
+| **H5** | Câu «146 tên mỗi bên tại `3dcd57f`» giữ nguyên làm sử liệu, đã chú thích SAI ở đầu trang từ lượt trước | — (vật lành; câu khai sai cặp, đã đánh dấu) |
+| **H6** | Phạm vi bộ răng thành khối máy-đọc `PHAM-VI-RANG`; `tests/` khai RA kèm lý do (lưới thường trực BẮT BUỘC chứa câu cũ trong fixture tiêm của nó) | `CAT-SCOPE: khop ban khai PHAM-VI-RANG` — `pinned` của E1 |
+| **H7** | AC-5 khai lượt nới thước; `GATE-INVITE-CLAUSE` đo bằng **so TẬP CÂU** (mọi câu không nói chỉ-báo còn nguyên) thay byte-equal không thoả được | `MOI-TIN: 2/2 khuon giu-gan OK` |
+| **H8** | Khai assert đã gỡ vào `asserts-da-go.txt`, **kèm lời nói thẳng rằng `P161` KHÔNG phủ được nó** (assert sinh 11/08, mốc ghim 06/08); hợp đồng sửa lại câu tuyên ngược | — (dấu vết khai tay, không phải cưỡng chế; nói rõ trong cả hai vật) |
+| **H9** | Chân LAN đọc `GATE-INVITE-SITES` (3 site + số bản chép) và cấm site ngoài bản khai | `MOI-TIN-SITE: 3/3` + `0 site ngoai ban khai` |
+| **H10** | E9b đổi hình dạng: miễn trừ khai trước (`HOI-TUAN-TU-MIEN-TRU`, bánh cóc hai chiều) + **đối chứng dương TỰ SINH** từng needle | `HOI-TUAN-TU: 4/4` · `HOI-TUAN-TU-DC: 4/4` |
+| **H11** | E1 đủ 4 needle (`ask .* minutes` base=0 → **thay** bằng `minutes spent`); E1b thêm chân QUAN HỆ đo cột THƯỚC ĐO của bảng KPI | `CAT-PHUT: 4/4` · `KPI-PHUT: bang muc tieu GUIDE` |
+| **H12** | E6 chạy ba mode THẬT (`--gate 1` · `--gate 2` · auto) trên fixture cố định; hai câu sai trong trang bằng chứng chú thích tại chỗ | `THE-CONG: 3/3 mode` · số tiêm đếm bằng máy = **12** |
+| **H13** | `gate-card.js:5` thôi khai mục tiêu là KPI phút | trong diff |
+| **H14** | Gỡ hàng KPI trùng nghĩa khỏi `GUIDE.md` — **bằng phép TRỪ**, 5 mục tiêu → 4 | chân QUAN HỆ của E1b (H11) canh cột thước đo |
+
+## Hai chỗ phải nói thẳng, không giấu trong bảng
+
+1. **Một vế của bản duyệt KHÔNG THOẢ ĐƯỢC và đã bị thay, không phải bị hạ.**
+   E2 hứa *«card cổng render từ fixture CŨ phải vẫn hiện đúng con số 7/3»*. Đo
+   lại: **không bên đọc nào — kể cả trên `origin/main` — từng đọc
+   `time_human_minutes`**. Card chưa bao giờ hiện số phút. Một chân không thoả
+   được là một chân sẽ bị nới lúc nó đỏ, nên nó bị thay bằng thứ đo đúng lời hứa
+   gốc «giữ được sử liệu» và quan sát được: trường phút của hồ sơ cũ còn NGUYÊN
+   BYTE sau khi cả bốn bên đọc chạy.
+2. **`P161` không phải lưới của H8, và hợp đồng đã tuyên sai điều đó.** Vòng sửa
+   này KHÔNG dựng lưới mới để tự chữa: dời mốc ghim của bánh cóc là quyết định
+   của hồ sơ khác, và một hồ sơ chỉ-TRỪ không phải chỗ mọc thêm cơ chế. Cái đổi
+   là **lời khai** — cả trong `asserts-da-go.txt` lẫn trong AC-11.
+
+## Chỗ nên soi trước ở vòng chấm 2
+
+- **Luật chứng-nhân-riêng có thật sự đóng lớp không?** Thử gỡ một khối
+  `== E… ==` khỏi bộ răng rồi chạy `ghi-so-chay-1a.mjs` — nó phải chết to, chứ
+  không ghi một dòng trông bình thường.
+- **`pinned` có bị chọn cho dễ không?** Mỗi chuỗi ghim phải là thứ chỉ in ra khi
+  chân đo THẬT SỰ chạy, không phải một tiêu đề khối.
+- **Phép so TẬP CÂU** (E3 chân 3, E5 chân 3) — nó miễn nhiễm với gói lại dòng,
+  nhưng có miễn nhiễm luôn với việc **xoá một câu rồi viết lại nó khác đi**
+  không? Đó là ca biên chưa ai thử.
+- **E9b miễn trừ**: danh sách một dòng. Thử thêm một dòng khai khống → bánh cóc
+  chiều ngược phải đỏ.
+- **Bốn eval judgment (`E3b` `E7` `E8` `E9`) VẪN CHƯA AI CHẤM** — nguyên trạng
+  từ vòng 1, khai lại ở đây để nó không chìm dưới 14 dòng đã sửa.

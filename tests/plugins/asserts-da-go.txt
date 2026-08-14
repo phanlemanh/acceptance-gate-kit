@@ -147,3 +147,19 @@ assert text.count("| **CT1") == 1 and text.count("| **CT2") == 1, "bang tra CT1/
 # ── Khai bổ sung 13/08 (vòng thu gọn 1b, G11): pin của P43 đổi vì câu cũ chứa
 # từ vựng mirror — chính nó là con trỏ sống tới vật đã lưu kho.
 assert "Bump version + sync mirror thuộc S3" in g, \
+
+# ── Khai bổ sung 13/08 (vòng sửa 1 của hồ sơ cat-hinh-thuc, H8) ──────────────
+# Hạng mục 1a.2 GỠ điều khoản «mỗi tin kết bằng khối» khỏi phạm vi tin chỉ-báo,
+# nên assert dưới đây — vốn đòi câu neo ấy nằm TRONG `GATE-ONESHOT-CLAUSE` —
+# mất đích để trỏ về. Nó bị TRIM khỏi ca `P193`, ca vẫn còn nhiều vế đúng
+# nguyên (đường đúng là TRIM chứ không XOÁ; xoá trọn ca là vứt luôn những vế
+# ấy — đúng thứ «gỡ quá tay» mà đẳng thức số ca sinh ra để bắt).
+#
+# PHẢI NÓI THẲNG: bánh cóc `P161` KHÔNG bắt được dòng này, và nó khai ở đây
+# KHÔNG phải vì bị bắt. Assert này sinh 2026-08-11, còn mốc ghim của bánh cóc
+# là `044968e` (2026-08-06) — nó nằm NGOÀI cửa sổ, đúng lớp «67 assert sinh sau
+# mốc bị gỡ mà bánh cóc không thấy» mà chính header này khai ở trên. Hợp đồng
+# của hồ sơ 1a lại tuyên «assertion bị gỡ phải khai từng dòng — bánh cóc kiểm
+# HAI CHIỀU» như thể lưới ấy phủ được; nó không. Khai ở đây là khai bằng TAY,
+# và giá trị của dòng này là dấu vết, không phải sự cưỡng chế.
+assert "kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE" in clause, "clause thieu cau neo ket-khoi VIEC CUA ANH"

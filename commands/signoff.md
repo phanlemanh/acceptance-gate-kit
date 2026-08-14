@@ -149,8 +149,12 @@ Steps:
    `git add`. Repo NOT opted in → leave it out: the file does not exist there and
    naming it makes `git add` fail with a pathspec error mid-signature.
 
-   The reviewer runs it themselves, or explicitly orders you to run exactly
-   that and nothing more.
+   Câu dưới đây là bản gốc DUY NHẤT của điều khoản ai-sở-hữu-chữ-ký.
+   `skills/acceptance/SKILL.md` chép nguyên văn, không tự diễn đạt.
+
+   <!-- <<<SIGNATURE-OWNER-CLAUSE -->
+   The signature is the HUMAN's. Exactly two legal routes: the human commits it themselves, OR the human explicitly instructs the agent to commit exactly the human-owned lines and nothing more. There is no third route; `signoff.require_human_commit` + `agent_authors` enforce this boundary.
+   <!-- SIGNATURE-OWNER-CLAUSE>>> -->
 8. **Re-check merge readiness.** If the repo ships `scripts/pre-merge-check.sh`
    run `bash scripts/pre-merge-check.sh . --slug <slug>` (add
    `--base origin/<default-branch>` when known); otherwise run the installed

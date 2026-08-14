@@ -46,11 +46,10 @@ AI không đến từ "AI ngoan" — nó đến từ bằng chứng đối chi�
 
 | # | Mục tiêu | Thước đo |
 |---|---|---|
-| 1 | **0 lỗi nghiệp vụ lọt cổng** | Sổ vàng + verdict mix của `/acceptance-report` |
-| 2 | **0** defect nghiệp vụ lọt qua gate | Đếm defect phát hiện sau signoff |
-| 3 | Đúng **2 điểm dừng người** (T3: +1 duyệt plan) | Vòng đời chuẩn — mọi tính năng T2/T3 |
-| 4 | **100%** verdict PASS có bằng chứng máy đối chiếu được | `run_id` khớp `run-log.jsonl`, `exit_code 0`, verifier thật, SHA thật |
-| 5 | **1** chuẩn gate cho mọi thành viên | `lib/evidence-core.cjs` dùng chung + kỷ luật update plugin |
+| 1 | **0** defect nghiệp vụ lọt qua gate | Đếm defect phát hiện sau signoff |
+| 2 | Đúng **2 điểm dừng người** (T3: +1 duyệt plan) | Vòng đời chuẩn — mọi tính năng T2/T3 |
+| 3 | **100%** verdict PASS có bằng chứng máy đối chiếu được | `run_id` khớp `run-log.jsonl`, `exit_code 0`, verifier thật, SHA thật |
+| 4 | **1** chuẩn gate cho mọi thành viên | `lib/evidence-core.cjs` dùng chung + kỷ luật update plugin |
 
 ### Lợi ích khi sử dụng
 

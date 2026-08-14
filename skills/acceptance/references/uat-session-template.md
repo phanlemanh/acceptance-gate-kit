@@ -31,7 +31,6 @@ verdict: {verdict}          # release | iterate | kill — người ký Cổng G
                             # điền; để TRỐNG cho tới lúc ký
 decided_by: {decided_by}
 decided_at: {decided_at}    # ISO UTC
-  gateUAT: {gateUAT_minutes}
 ---
 ```
 <!-- UAT-FRONTMATTER-TEMPLATE>>> -->

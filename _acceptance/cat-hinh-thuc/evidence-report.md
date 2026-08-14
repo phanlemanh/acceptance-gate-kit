@@ -1,14 +1,52 @@
 ---
 schema_version: 1
 slug: cat-hinh-thuc
-round: 4
-verdict: REJECT
+round: 5
+verdict: PENDING-JUDGMENT
 verified_commit: 62c6935107e2
 ---
 
 # Trang bằng chứng — cắt hình thức khỏi bốn cổng người
 
-## Verdict: **REJECT (rà soát đối kháng vòng 1, 2026-08-13)**
+## Verdict: **PENDING-JUDGMENT — vòng sửa 1 đã thi công, chờ rà soát đối kháng vòng 2**
+
+> **Vòng sửa 1 (13–14/08) đóng cả 14 finding của vòng chấm.** Người thi công
+> KHÔNG tự chấm bản sửa của mình; hồ sơ ở trạng thái chờ vòng rà soát đối kháng
+> thứ hai. Tóm tắt cái ĐÃ đổi — chi tiết từng finding ở `review-findings.md`,
+> lý do từng lượt khai lại ở mục `[SỬA SAU CỔNG 1 — vòng sửa 1]` trong
+> `contract.md` và `evals.yaml`:
+>
+> · **Lỗ CẤU TRÚC (H1) đóng ở đúng chỗ nó sống.** `ghi-so-chay-1a.mjs` nay đòi
+>   mỗi eval máy khai `pinned:` với **≥1 chuỗi RIÊNG trong nhóm-lệnh**, và chết
+>   to khi chuỗi khai vắng trong đầu ra thật. Một eval không có chân đo không
+>   còn hưởng được màu xanh của tám eval dùng chung lệnh. Đây là lý do E2 tự lộ
+>   ngay lượt chạy đầu nếu ai gỡ chân của nó.
+> · **Ba chân đo lại đúng lời hứa của eval**: E3 rút `GATE-ONESHOT-GRAMMAR` qua
+>   marker (neo dương đo CỤM LIỀN + chân giữ-gân so TẬP CÂU + per-site đọc
+>   `GATE-ONESHOT-SITES`); E10 đo QUAN HỆ qua bản gốc duy nhất
+>   `SIGNATURE-OWNER-CLAUSE`; chân LAN của E5 đọc `GATE-INVITE-SITES` thay
+>   ngưỡng gõ tay `>5`. **Cả hai đột biến từng sống sót vòng 1 (H2, H3) đã được
+>   chạy lại trên cây thật và ĐỎ.**
+> · **E2 dựng thật**: 8 tổ hợp bên-đọc × fixture, chân *phán quyết cũ == mới*
+>   theo cặp, round-trip từ `CONTRACT-FRONTMATTER-TEMPLATE`, hai chiều đỏ tiêm
+>   qua cây chạy được.
+> · **Lỗi SẢN PHẨM (H4) sửa + có lưới**: hai khoá YAML mồ côi gỡ khỏi
+>   `opportunity-template.md` / `uat-session-template.md`; **AC-14 + E17** mới
+>   nạp bốn khối frontmatter bằng `yaml.safe_load` thật (độ phủ 0 → 4).
+> · **Ba lượt TRỪ trong sản phẩm**: hàng KPI trùng nghĩa ở `GUIDE.md` (một phép
+>   CỘNG lọt vào hồ sơ chỉ-TRỪ), KPI phút bản tiếng Anh ở `gate-card.js:5`.
+> · **Bốn chỗ sổ sách khai lại cho khớp vật**: `tests/` ra khỏi phạm vi bộ răng
+>   kèm lý do (H6), AC-5 khai lượt nới thước (H7), assert đã gỡ vào
+>   `asserts-da-go.txt` kèm ghi chú bánh cóc KHÔNG phủ được nó (H8), E6 chạy ba
+>   mode thật (H12).
+>
+> **Bộ răng vòng này: 10 khối eval · 53 chân xanh · 12 lượt tiêm-thật.**
+> Số chiều đỏ vòng trước khai «sáu» — đo lại lúc ấy là **năm** (dòng của E10
+> không tiêm gì). Con số 12 ở trên đếm bằng máy từ chính đầu ra.
+
+---
+
+## (Sử liệu) Verdict vòng 4: **REJECT (rà soát đối kháng vòng 1, 2026-08-13)**
 
 > **Cả BA lăng kính REJECT** — 5 P0 · 5 P1 · 4 P2. Biên bản đầy đủ ở
 > `review-findings.md`. Phần lõi được xác nhận SẠCH khi đo độc lập (bốn đẳng
@@ -86,6 +124,9 @@ cùng một môi trường — **146 tên mỗi bên, `diff` bằng 0**. Đẳng
 nói *bằng nhau về SỐ*; phép so tên nói *bằng nhau về TẬP* — một ca mất và một ca
 mới thêm sẽ lọt phép trước nhưng không lọt phép sau.
 
+**[SỬA 14/08 — con số SAI, giữ nguyên làm sử liệu: đo lại là NĂM, không phải
+sáu; dòng của E10 chỉ in một câu suy luận chứ không tiêm gì (H12). Bộ răng vòng
+sửa 1 có 12 lượt tiêm thật, đếm bằng máy.]**
 **Sáu chiều đỏ là chạy thật, không phải lời hứa.** Mỗi chiều tiêm hỏng một bản
 sao rồi chạy lại **chính hàm kiểm** trên bản sao ấy và đòi ĐỎ — ví dụ chép lại
 điều khoản mỗi-tin vào bản sao `acceptance-status.md` (chân lan phải đỏ đích
@@ -99,7 +140,12 @@ bao giờ tồn tại — lưới tự tuyên *«needle nay chua bao gio ton tai
 song»* và ĐỎ, chứ không xanh. Vài chân dựng hụt kiểu ấy đã bị **gỡ bỏ** lúc dựng
 bộ răng thay vì giữ lại cho đẹp bảng.
 
-**Thẻ cổng đo trên ĐẦU RA, không grep mã nguồn.** Chân E6 chạy `gate-card.js`
+**Thẻ cổng đo trên ĐẦU RA, không grep mã nguồn.**
+**[SỬA 14/08 — «cả ba mode» SAI, giữ nguyên làm sử liệu (H12): bản ấy lặp ba
+SLUG và gọi KHÔNG cờ `--gate` nào, tức một mode ba lần, `|| continue` còn nuốt
+lỗi node. Vòng sửa 1 chạy ba mode thật — `--gate 1` · `--gate 2` · auto — trên
+một fixture cố định.]**
+Chân E6 chạy `gate-card.js`
 ở cả ba mode rồi soi thẻ render ra — vì lớp lỗi đã trả giá ở vòng khác là *đo
 chỉ dẫn thay vì đo đầu ra*.
 
