@@ -88,6 +88,16 @@ if [ -z "$CHAN" ] || [ "$CHAN" = "hook-cu" ]; then
       elif [ "$a" -eq "$b" ]; then ok "hook-cũ giữ nguyên ($b bản): $msg"
       else bad "hook-cũ LỆCH: '$msg' mốc=$a nay=$b"; fi
     done
+    # chân thứ hai evals.yaml hứa mà vòng 1 KHÔNG có (vòng chấm 2 bắt): so
+    # DANH SÁCH TÊN ca suite hooks giữa mốc và HEAD. Sửa-tại-chỗ một ca cũ
+    # không đổi TỔNG số nên chân đếm mù với nó.
+    ten_ca(){ sed -n 's/^echo "\([A-Z][A-Z0-9]*\) .*/\1/p' "$1" | sort -u; }
+    git -C "$ROOT" show "$BASE:tests/hooks/run-tests.sh" > "$d/base-hooks.sh" 2>/dev/null
+    mat="$(comm -23 <(ten_ca "$d/base-hooks.sh") <(ten_ca "$ROOT/tests/hooks/run-tests.sh") | tr '\n' ' ')"
+    if [ -n "${mat// /}" ]; then bad "hook-cũ: ca của mốc BIẾN MẤT khỏi HEAD: $mat"
+    else ok "hook-cũ: 0 ca của mốc biến mất (so DANH SÁCH TÊN, không so tổng)"; fi
+    them="$(comm -13 <(ten_ca "$d/base-hooks.sh") <(ten_ca "$ROOT/tests/hooks/run-tests.sh") | tr '\n' ' ')"
+    [ -n "${them// /}" ] && mut "ca THÊM so với mốc: $them" || mut "không ca nào thêm"
     mut "so với mốc $BASE, KHÔNG rút bản chép từ chính cây sau sửa"
   fi
 fi
@@ -138,12 +148,31 @@ if [ -z "$CHAN" ] || [ "$CHAN" = "premerge-sach" ]; then
   chan_verdict "VẮNG khoá verdict"  ""                  VIOLATION
   chan_verdict "bypass_used true"   "verdict: PASS\n"   VIOLATION true
   chan_verdict "có finding ngoài HĐ" "verdict: PASS\n"  VIOLATION false "- một lỗi ngoài hợp đồng"
+  # tách hai chân VẮNG (trước gộp một fixture) + chân báo-cáo-tự-phong-hạng
+  chan_muc(){ # <nhãn> <mục giữ lại: known|ngoai|none> <hạng contract> <hạng report tự khai>
+    rm -rf "$d"/_acceptance/*/; gen_contract "$d" s "$3" verified ""
+    { printf -- "---\nschema_version: 1\nslug: s\nverdict: PASS\n%senforcement_mode: strict\nbypass_used: false\nverified_commit: %s\nhuman_signoff:\n---\n\n## Evidence\n\nok\n" "${4:+risk_tier: $4\n}" "$(git -C "$d" rev-parse HEAD)"
+      [ "$2" = "known" ] && printf -- "\n## Known limits\n\n"
+      [ "$2" = "ngoai" ] && printf -- "\n## Ngoài hợp đồng\n\n"
+    } > "$d/_acceptance/s/evidence-report.md"
+    local vio; vio=$(pm "$d" | grep -cE "^VIOLATION \[s\]" || true)
+    [ "$vio" -gt 0 ] && ok "sạch/$1 → VIOLATION" || bad "sạch/$1 → KHÔNG nổ (thấy 0 VIOLATION)"; }
+  chan_muc "VẮNG riêng mục Ngoài-hợp-đồng" known T2
+  chan_muc "VẮNG riêng mục Known limits"   ngoai T2
+  chan_muc "contract T3 mà report tự khai T2" none T3 T2
   mut "chín chân đi qua CHÍNH scripts/pre-merge-check.sh trên repo giả code-sinh"
 fi
 
 if [ -z "$CHAN" ] || [ "$CHAN" = "premerge-dem" ] || [ "$CHAN" = "ghi-nguoc" ]; then
-  # E3 và E3b từng dùng CHUNG khối này — hai eval id, một phép đo (phiên chấm
-  # vòng 1 gọi tên). Nay mỗi cờ chạy đúng phần của mình.
+  # E3 (đếm cửa + da-veto chưa xử) và E3b (chiều GHI-NGƯỢC) là HAI phép đo.
+  # Vòng chấm 1 gọi tên «hai eval id, một phép đo»; lượt sửa đầu chỉ thêm chú
+  # thích chứ KHÔNG tách — vòng chấm 2 bắt lại đúng chỗ đó. Nay tách thật:
+  # mỗi assert gắn vào đúng cờ, chạy `--chan premerge-dem` không đụng assert
+  # của E3b và ngược lại.
+  DEM=0; NGUOC=0
+  [ -z "$CHAN" ] && { DEM=1; NGUOC=1; }
+  [ "$CHAN" = "premerge-dem" ] && DEM=1
+  [ "$CHAN" = "ghi-nguoc" ] && NGUOC=1
   echo "== chân pre-merge: đếm cửa + chiều ghi-ngược =="
   d="$(pm_fixture)"
   gen_contract "$d" v1 T2 approved "veto_state: da-veto
@@ -151,22 +180,22 @@ veto_opened_at: 2026-08-14T10:00:00Z" ""
   ( cd "$d" && git add -A >/dev/null && git -c user.email=t@t -c user.name=T commit -qm v >/dev/null )
   B="$(git -C "$d" rev-parse HEAD)"
   o="$( cd "$d" && bash scripts/pre-merge-check.sh --base "$B" 2>&1 )"
-  case "$o" in *"veto_state=da-veto chưa xử"*) ok "da-veto chưa xử → VIOLATION" ;; *) bad "da-veto chưa xử KHÔNG nổ" ;; esac
+  [ "$DEM" -eq 1 ] && case "$o" in *"veto_state=da-veto chưa xử"*) ok "da-veto chưa xử → VIOLATION" ;; *) bad "da-veto chưa xử KHÔNG nổ" ;; esac
   gen_contract "$d" v1 T2 approved "veto_state: mo
 veto_opened_at: 2026-08-14T10:00:00Z" ""
   ( cd "$d" && git add -A >/dev/null && git -c user.email=t@t -c user.name=T commit -qm flip >/dev/null )
   o="$( cd "$d" && bash scripts/pre-merge-check.sh --base "$B" 2>&1 )"
-  case "$o" in *"da-veto -> mo mà KHÔNG có entry sổ"*) ok "ghi-ngược không vết → VIOLATION" ;; *) bad "ghi-ngược KHÔNG bị bắt" ;; esac
-  case "$o" in *"cửa veto đang mở — 1 hồ sơ"*) ok "NOTE đếm cửa mở, đích danh slug" ;; *) bad "NOTE đếm cửa KHÔNG in" ;; esac
+  [ "$NGUOC" -eq 1 ] && case "$o" in *"da-veto -> mo mà KHÔNG có entry sổ"*) ok "ghi-ngược không vết → VIOLATION" ;; *) bad "ghi-ngược KHÔNG bị bắt" ;; esac
+  [ "$DEM" -eq 1 ] && case "$o" in *"cửa veto đang mở — 1 hồ sơ"*) ok "NOTE đếm cửa mở, đích danh slug" ;; *) bad "NOTE đếm cửa KHÔNG in" ;; esac
   printf '{"id":"d1","type":"fix","decision":"xử veto: quay lại phạm vi"}\n' > "$d/_acceptance/v1/decisions.jsonl"
   ( cd "$d" && git add -A >/dev/null && git -c user.email=t@t -c user.name=T commit -qm led >/dev/null )
   o="$( cd "$d" && bash scripts/pre-merge-check.sh --base "$B" 2>&1 )"
-  case "$o" in *"veto đã xử"*) ok "giữ-gân: có entry sổ → CHO QUA, không chặn oan" ;; *) bad "giữ-gân ĐỎ: đường xử hợp lệ vẫn bị chặn" ;; esac
+  [ "$NGUOC" -eq 1 ] && case "$o" in *"veto đã xử"*) ok "giữ-gân: có entry sổ → CHO QUA, không chặn oan" ;; *) bad "giữ-gân ĐỎ: đường xử hợp lệ vẫn bị chặn" ;; esac
   # vế KHÔNG-ĐƯỢC-KÊU-OAN: không hồ sơ nào có cửa veto → im lặng hoàn toàn
   rm -rf "$d"/_acceptance/*/; gen_contract "$d" q T2 verified ""
   ( cd "$d" && git add -A >/dev/null && git -c user.email=t@t -c user.name=T commit -qm q >/dev/null )
   o="$( cd "$d" && bash scripts/pre-merge-check.sh --base "$B" 2>&1 )"
-  if printf '%s' "$o" | grep -q "cửa veto đang mở"; then bad "kêu oan: không cửa nào mở mà vẫn in NOTE đếm"
+  [ "$DEM" -eq 1 ] && if printf '%s' "$o" | grep -q "cửa veto đang mở"; then bad "kêu oan: không cửa nào mở mà vẫn in NOTE đếm"
   elif printf '%s' "$o" | grep -q "veto_state"; then bad "kêu oan: luật veto nổ trên hồ sơ không có khoá"
   else ok "không cửa veto → im lặng, luật mới KHÔNG kêu oan"; fi
   # chân XOÁ HẲN khoá khỏi hồ sơ đã rời draft
@@ -177,7 +206,7 @@ veto_opened_at: 2026-08-14T10:00:00Z" ""
   gen_contract "$d" v2 T2 approved "" ""
   ( cd "$d" && git add -A >/dev/null && git -c user.email=t@t -c user.name=T commit -qm gone >/dev/null )
   o="$( cd "$d" && bash scripts/pre-merge-check.sh --base "$B2" 2>&1 )"
-  case "$o" in *"khoá veto_state biến mất"*) ok "xoá hẳn khoá khỏi hồ sơ đã rời draft → VIOLATION" ;;
+  [ "$NGUOC" -eq 1 ] && case "$o" in *"khoá veto_state biến mất"*) ok "xoá hẳn khoá khỏi hồ sơ đã rời draft → VIOLATION" ;;
     *) bad "xoá khoá KHÔNG bị bắt" ;; esac
   mut "sáu chân đi qua CHÍNH pre-merge trên repo giả, mỗi lượt một commit thật"
 fi

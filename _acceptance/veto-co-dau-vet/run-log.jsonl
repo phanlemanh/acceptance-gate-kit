@@ -9,3 +9,14 @@
 {"ts":"2026-08-14T13:49:29Z","round":1,"evalId":"E8c","run_id":"veto-co-dau-vet-E8c-20260814T134929Z","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-14T13:49:46Z","round":1,"evalId":"E8d","run_id":"veto-co-dau-vet-E8d-20260814T134946Z","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
 {"ts":"2026-08-14T13:52:50Z","round":1,"evalId":"E8e","run_id":"veto-co-dau-vet-E8e-20260814T135250Z","exit_code":0,"cmd":"bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan so-ca"}
+{"ts":"2026-08-14T14:26:03Z","round":2,"evalId":"E1","run_id":"veto-co-dau-vet-E1-r2-20260814T142603Z","exit_code":0,"cmd":"bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan hook"}
+{"ts":"2026-08-14T14:26:03Z","round":2,"evalId":"E2","run_id":"veto-co-dau-vet-E2-r2-20260814T142603Z","exit_code":0,"cmd":"bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan hook-cu"}
+{"ts":"2026-08-14T14:26:03Z","round":2,"evalId":"E3","run_id":"veto-co-dau-vet-E3-r2-20260814T142603Z","exit_code":0,"cmd":"bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan premerge-dem"}
+{"ts":"2026-08-14T14:26:04Z","round":2,"evalId":"E3b","run_id":"veto-co-dau-vet-E3b-r2-20260814T142604Z","exit_code":0,"cmd":"bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan ghi-nguoc"}
+{"ts":"2026-08-14T14:26:04Z","round":2,"evalId":"E4","run_id":"veto-co-dau-vet-E4-r2-20260814T142604Z","exit_code":0,"cmd":"bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan premerge-sach"}
+{"ts":"2026-08-14T14:26:06Z","round":2,"evalId":"E5","run_id":"veto-co-dau-vet-E5-r2-20260814T142606Z","exit_code":0,"cmd":"bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan vanban"}
+{"ts":"2026-08-14T14:26:16Z","round":2,"evalId":"E8","run_id":"veto-co-dau-vet-E8-r2-20260814T142616Z","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-14T14:27:26Z","round":2,"evalId":"E8b","run_id":"veto-co-dau-vet-E8b-r2-20260814T142726Z","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-08-14T14:27:28Z","round":2,"evalId":"E8c","run_id":"veto-co-dau-vet-E8c-r2-20260814T142728Z","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-14T14:29:10Z","round":2,"evalId":"E8d","run_id":"veto-co-dau-vet-E8d-r2-20260814T142910Z","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-14T14:29:20Z","round":2,"evalId":"E8e","run_id":"veto-co-dau-vet-E8e-r2-20260814T142920Z","exit_code":0,"cmd":"bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan so-ca"}

@@ -160,9 +160,21 @@ hứa hành-vi-agent, trừ AC-6/AC-7.
   Hệ quả: `hooks` **54 → 60**, khai lại ở `SO-CA-KY-VONG-V`; sàn giữ nguyên
   (chỉ CỘNG, không trừ). Ba suite kia không đổi.
 
+  **[SỬA LẦN HAI — 14/08, vòng chấm 2 bắt một LỜI KHAI SAI của phiên thi
+  công]** Lượt sửa đầu tuyên «đã tách `--chan ghi-nguoc` khỏi `premerge-dem`»
+  — SAI: nó chỉ thêm chú thích, khối mã vẫn chạy trọn cho cả hai cờ và output
+  hai lượt giống nhau từng ký tự. Đúng lớp «lời khai không khớp vật». Nay
+  tách THẬT bằng hai biến điều kiện, mỗi assert gắn đúng cờ: `premerge-dem`
+  cho 3 assert của AC-3 (đếm cửa · da-veto chưa xử · không-kêu-oan),
+  `ghi-nguoc` cho 3 assert của AC-3b (ghi ngược · giữ-gân entry sổ · xoá
+  khoá) — hai eval nay có bằng chứng ĐỘC LẬP. Kèm theo, ba chân nữa vòng 2
+  chỉ ra: E2 thêm chân so DANH SÁCH TÊN ca suite hooks giữa mốc và HEAD (chân
+  này `evals.yaml` hứa mà vòng 1 KHÔNG hề có); E4 tách hai chân VẮNG thành
+  hai fixture riêng và thêm chân «contract T3 mà báo cáo tự khai T2». Chân
+  điều-kiện-sạch nay 12.
+
   Cùng lượt, bộ răng nới cho khớp lời hứa `evals.yaml` (phiên chấm chỉ ra 5
-  chỗ thước hẹp hơn hứa): tách `--chan ghi-nguoc` khỏi `premerge-dem` (trước
-  đó hai eval id dùng CHUNG một khối mã) · thêm vế KHÔNG-kêu-oan · thêm chân
+  chỗ thước hẹp hơn hứa) · thêm vế KHÔNG-kêu-oan · thêm chân
   xoá-hẳn-khoá · thêm 4 chân điều-kiện-sạch còn thiếu (verdict REJECT · vắng
   khoá verdict · bypass · finding ngoài hợp đồng). Chân `vanban` vẫn CHỈ có
   vế dương — needle âm ghi vào Known limits, không tự nhận là đã đo.
