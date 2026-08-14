@@ -1,30 +1,12 @@
 {
-  "feature_plain": "Kit thôi chặn anh ở bốn chỗ không có gì để quyết — và lời hứa hành vi ấy được hội đồng phiên sạch bảo chứng bắt buộc trước khi mời ký.",
-  "will_do": [
-    { "id": "AC-1", "p": "Sẽ để tin báo tiến độ nói thẳng máy đang làm gì tiếp — dấu vết luật cũ (mọi tin phải đeo khối 👉) sạch khỏi bản luật và mọi bản chép, có đối chứng trên mốc cũ" },
-    { "id": "AC-2", "p": "Sẽ được hội đồng phiên sạch xác nhận: tin thường không đeo khối, tin mời cổng vẫn kết đúng một khối đủ ba vế" },
-    { "id": "AC-3", "p": "Sẽ tự tuyên việc-nhỏ-an-toàn kèm bảng căn cứ rồi đi tiếp — chỗ dừng chờ xác nhận biến khỏi cả hai thân chỉ dẫn, lưới CI trên diff thật vẫn canh" },
-    { "id": "AC-4", "p": "Sẽ được hội đồng xác nhận: gặp diff an toàn thì tuyên và đi tiếp; gặp một đường có cổng thì vẫn dựng hồ sơ như thường" },
-    { "id": "AC-5", "p": "Sẽ tự dựng bối cảnh sản phẩm khi quét độ phủ, từng dòng ghi nguồn (suy-từ-repo hay giả-định), gom cho anh gạch một lượt tại cổng duyệt" },
-    { "id": "AC-6", "p": "Sẽ được hội đồng xác nhận: repo có đồ thì tự dựng không phỏng vấn; repo trắng thì nhận là giả định, không bịa nguồn" },
-    { "id": "AC-7", "p": "Sẽ trình trọn bản nháp cấu hình khởi tạo trong một lượt, ô không suy được đánh dấu chờ anh — hết hỏi tuần tự từng câu" },
-    { "id": "AC-8", "p": "Sẽ được hội đồng xác nhận: một lượt trình trọn nháp; cấu hình đã có thì hiện ra và dừng, không ghi đè" },
-    { "id": "AC-9", "p": "Sẽ giữ nguyên lưới kiểm thừa kế: bốn suite xanh, số ca khớp đẳng thức đã khai, assert nào gỡ đều có tên từng dòng" }
-  ],
-  "wont_do": [],
+  "feature_plain": "Kit thôi chặn anh ở ba chỗ không có gì để quyết — và ba lời hứa ấy đã được hội đồng phiên sạch bảo chứng, không phải chỉ được máy dò chữ.",
+  "decisions": [],
+  "analyst_plain": "",
   "scope_plain": "Giữ nguyên khối 👉 tại cổng, ngữ pháp câu gộp, lưới CI, hồ sơ đã ký; không thêm cơ chế cưỡng chế mới",
-  "coverage_plain": [
-    { "i": 0, "p": "Bốn hạng mục đúng bằng bốn việc anh đã gạch 12/08 — không thêm, không bớt" },
-    { "i": 1, "p": "Mỗi việc đo bằng cả hai lớp: máy chứng chữ-đã-đổi, hội đồng chứng máy-hành-xử-đúng — bốn nhân hai là đủ tám tiêu chí" },
-    { "i": 2, "p": "Lưới kiểm cũ không bị cắt lén: assert gỡ có tên từng dòng, số ca khai đẳng thức, giới hạn của bánh cóc P161 (lưới chống mất assert) nói thẳng" },
-    { "i": 3, "p": "Mỗi phiên hội đồng ba ca: một ca thường, một ca chứng cắt-không-lan, một ca thử a-dua — đáp án viết trước, đề không mớm" }
-  ],
-  "gap_probe_plain": [
-    { "i": 0, "p": "Suýt để agent đi thi đọc được đáp án — đã bịt bằng cấu trúc: phiên thi không có công cụ đọc file, đáp án dời sang thư mục riêng chỉ giám khảo nạp" },
-    { "i": 1, "p": "Hai ca thử-a-dua từng chấm một lượt hội thoại không tồn tại trong bài — đã nâng thành ca hai nhịp, chấm đúng những gì có thật" },
-    { "i": 2, "p": "Phép so bản chép từng tin vào chính danh sách đang bị sửa — đã ghim bản kỳ vọng chín chỗ vào hợp đồng, xoá lén một chỗ là đỏ" },
-    { "i": 3, "p": "Lời hứa phá-thử-trước-khi-tin từng không có chỗ ghi bằng chứng — nay mỗi chân đo tự chạy chiều đỏ trong cùng lượt, vết in ra sổ" },
-    { "i": 4, "p": "Bốn con số suite từng chép ở hai nơi dễ lệch nhau — nay số sống một chỗ trong hợp đồng, mọi bên đọc về đó" },
-    { "i": 5, "p": "Một nghi vấn về mốc so sánh hoá ra sai tiền đề (file có thật trên mốc, bác bằng bằng chứng) — nhưng nhân đó siết phạm vi quét: chuỗi trong bộ kiểm để chân riêng lo, không trộn vào phép quét chính" }
+  "decisions_plain": [
+    {
+      "id": "d-20260814T060000Z-1c02",
+      "p": "KHÔNG làm hạng mục «máy tự tuyên việc-nhỏ-an-toàn» trong vòng này — hai lần sửa liên tiếp đều để hành vi cũ chảy sang chỗ khác, nên dừng thay vì vá lần ba; đổi lại, một lần hỏi thừa ở nhánh đó vẫn còn, và đề bài được giữ lại kèm điều kiện mở lại"
+    }
   ]
 }
