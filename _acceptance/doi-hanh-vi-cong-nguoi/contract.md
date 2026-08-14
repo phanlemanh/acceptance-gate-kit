@@ -97,10 +97,27 @@ hằng đúng hoặc miễn trừ mất câu chịu lực ở hồ sơ 1a).
 - AC-9: Given cây đã sửa, When chạy đủ bốn suite (`scripts` · `hooks` ·
   `plugins` · `workflows`), Then cả bốn XANH; số ca khớp ĐẲNG THỨC bản khai
   máy-đọc `SO-CA-KY-VONG-1C` (không khai sàn); mọi assert chết vì hạng mục 1
-  (assert của P193, ba mục của P189) khai đích danh từng dòng trong
-  `tests/plugins/asserts-da-go.txt`; và lời khai nói thẳng: bánh cóc P161
-  KHÔNG phủ được assert sinh sau mốc ghim `044968e` (06/08) — hợp đồng 1a
-  từng tuyên ngược, đó là finding H8.
+  khai đích danh từng dòng trong `tests/plugins/asserts-da-go.txt`; và lời
+  khai nói thẳng: bánh cóc P161 KHÔNG phủ được assert sinh sau mốc ghim
+  `044968e` (06/08) — hợp đồng 1a từng tuyên ngược, đó là finding H8.
+
+  **[SỬA SAU CỔNG 1 — 14/08, ghi TRƯỚC khi sửa vật, số đo lệch khỏi lời khai]**
+  Bản duyệt tiên đoán «assert của P193, ba mục của P189» sẽ chết. Đo thật trên
+  cây sửa: **0 assert chết**, nên `asserts-da-go.txt` KHÔNG có dòng mới và số
+  ca giữ nguyên 146. Hai lý do, kiểm được:
+  · P193 ghim chuỗi con `kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn
+    YOUR-MOVE-BLOCK-TEMPLATE` — điều khoản một-lượt-gõ bản mới vẫn chứa nguyên
+    chuỗi ấy (chỉ thêm chủ ngữ «tin mời cổng» phía trước), nên assert còn đúng.
+  · P189 có ĐÚNG MỘT chân ghim lời cũ (`không cần làm gì`) chứ không phải ba;
+    và lời hứa nó đo là *«bản luật CÓ luật cho tin chỉ-báo»*, lời hứa đó KHÔNG
+    chết — chỉ nội dung luật đổi. Nên xử theo **đổi-thước-có-hợp-đồng** (nếp
+    TE16c của hồ sơ stale-theo-diff-pr): needle chuyển sang `KHÔNG đeo khối`,
+    giữ nguyên cả ba lớp phòng thủ (5 mutant chuẩn · 2 mutant cô-lập-lớp ·
+    1 đối chứng cô-lập-clause). Điều khoản mời-cổng dùng CÙNG chữ hoa
+    `KHÔNG đeo khối` để chân cô-lập-lớp còn nghĩa — chuỗi neo phải có mặt ở
+    cả hai lớp thì phép tắt-từng-lớp mới phân biệt được chúng.
+  Hệ quả cho eval: E9e chân (b) đổi từ «phải có dòng mới» sang **đẳng thức
+  đúng-bằng-0 dòng mới** kèm lý do khai ở đây; giữ nguyên chân bánh cóc P161.
 
 ## Coverage
 

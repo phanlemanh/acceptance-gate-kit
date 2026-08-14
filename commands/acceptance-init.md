@@ -7,39 +7,37 @@ Initialize the Acceptance-Gate Kit in the current repository.
 
 Một-lượt-gõ + `--repo` (điều khoản chung, chép nguyên văn từ bản luật):
 
-Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; còn việc kế thì kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE.
+Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; tin mời cổng kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE, tin chỉ-báo không đeo khối mà nói thẳng máy đang làm gì tiếp.
 
-Lệnh này KHÔNG nằm trong ba lệnh có-câu-gộp (không thẻ nào dạy câu mẫu cho
-bảy câu hỏi setup — chúng vẫn hỏi từng bước, một-lần-mỗi-repo); phần áp dụng
-ở đây là cờ `--repo <path>`: scaffold `_acceptance/` và chép bộ file CI vào
-gốc `<path>` thay vì thư mục hiện tại.
+Lệnh này KHÔNG nằm trong ba lệnh có-câu-gộp; phần áp dụng ở đây là cờ
+`--repo <path>`: scaffold `_acceptance/` và chép bộ file CI vào gốc `<path>`
+thay vì thư mục hiện tại. Khởi tạo là MỘT-LẦN-GẠCH, không phỏng vấn: máy dò
+repo trước, trình TRỌN bản nháp trong một lượt, người gạch/sửa một lần rồi
+máy ghi (hồ sơ doi-hanh-vi-cong-nguoi, owner gạch 12/08).
 
 1. If `_acceptance/config.yaml` already exists → show it and STOP (never overwrite).
-2. Ask the user, one question at a time:
-   a. Test commands per surface they have (api/backend/sdk) — e.g. `pnpm --filter backend test`
-   b. CLI smoke command if a CLI surface exists
-   c. Dev server start command + URL (for ui-check evals). If the app calls
-      APIs on OTHER origins (auth service, data API…), also collect their URL
-      prefixes → `dev_server.api_base` (a LIST — scopes the ui-check network
-      rail; missing → scope defaults to the url's origin)
-   c2. (optional, for UI slideshow evidence) A command that saves a screenshot of
-       a URL to a FILE — `<cmd> <url> <out.png>` (e.g. `npm run ui:capture`).
-       preview_screenshot is inline-only, so this is what writes the slideshow
-       frames. None yet → offer to scaffold a reference (step 3b).
-   c3. Mobile surface? The native E2E runner command →
-       `executors.test.e2e_mobile` (XCUITest: `xcodebuild test -project
-       App.xcodeproj -scheme AppUITests -destination 'platform=iOS
-       Simulator,name=iPhone 16'`; Espresso: `./gradlew connectedAndroidTest`).
-       Remind: each mobile feature's contract carries a `Mobile backend
-       target: local|staging|mock` line in ## Notes (lint W5 checks presence;
-       the Gate-1 human eyeballs the value).
-   d. Paths that are critical (auth/data/payments) → `t3_paths`
-   e. Globs safe to skip entirely (docs, pure-config) → `t1_skip_globs`.
-      Always keep the `PRODUCT-MAP.md` line the template ships — and tell the
-      repo owner to run `executors.script.product_map` in their CI, because
-      that check is what makes the exemption safe (ADR 0007).
-   f. Who can sign off (names) → `signoff.approvers`
-3. Write `_acceptance/config.yaml`:
+2. PROBE the repo first — no questions yet. Infer every field a machine can
+   read from the tree: test commands per surface (package.json scripts,
+   Makefile, CI workflows — api/backend/sdk), CLI smoke command, dev server
+   start + URL (+ `dev_server.api_base` prefixes when the code calls other
+   origins), a screenshot-to-FILE capture command if one exists, the native
+   mobile E2E runner (`executors.test.e2e_mobile` — XCUITest / Espresso) when
+   a mobile surface shows, candidate `t3_paths` (auth/data/payments), candidate
+   `t1_skip_globs` (docs, pure-config), and `signoff.approvers` seeded from
+   `git config user.name`.
+2b. Present ONE complete draft `config.yaml` in a single turn: every inferred
+   field filled in WITH its origin shown (`# suy từ: <đường dẫn>`), every
+   field the probe could not infer marked `# cần anh`. The human strikes or
+   edits the draft once; their reply is the only round-trip. Never ask the
+   questions one at a time; a poor-signal repo just yields a draft with more
+   `# cần anh` marks, not an interview. While drafting, remind: keep the
+   `PRODUCT-MAP.md` line in `t1_skip_globs` the template ships — and tell the
+   repo owner to run `executors.script.product_map` in their CI, because that
+   check is what makes the exemption safe (ADR 0007). Mobile surface → each
+   mobile feature's contract carries a `Mobile backend target:
+   local|staging|mock` line in ## Notes (lint W5 checks presence; the Gate-1
+   human eyeballs the value).
+3. Write `_acceptance/config.yaml` (after the human's single pass):
 
 ```yaml
 # 2-space indentation REQUIRED — the kit's hook parses this file line-by-line.

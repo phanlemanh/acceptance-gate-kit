@@ -36,12 +36,16 @@ Core principles (non-negotiable):
    from the paths the feature is EXPECTED to touch (inferred from the
    request/ticket; confirm the guess with the user at Gate 1):
    - Expected paths all match `risk_tiers.t1_skip_globs` → do NOT skip
-     silently: print the per-path match table (`<expected path> → <glob>`),
-     say "T1 — acceptance gate skipped", and ask the user to CONFIRM the T1
-     call before stopping. Warn that the CI backstop
-     (`pre-merge-check.sh --base <ref>`) blocks the merge if the actual PR
-     ends up touching gated paths with no `_acceptance/` artifacts. Do not
-     create artifacts.
+     silently, and do NOT stop to ask either: print the per-path match table
+     (`<expected path> → <glob>`) as the stated grounds, DECLARE "T1 —
+     acceptance gate skipped" citing that table, remind that the CI backstop
+     (`pre-merge-check.sh --base <ref>`) re-decides this same question on the
+     REAL diff and blocks the merge if the PR ends up touching gated paths
+     with no `_acceptance/` artifacts (that backstop is the cheap-reversal
+     path making this declaration safe), and move on. The machine just
+     compared paths against a list the repo itself declared — a confirmation
+     stop here spends a human call to change nothing (hồ sơ
+     doi-hanh-vi-cong-nguoi, owner gạch 12/08). Do not create artifacts.
    - Any expected path matches `risk_tiers.t3_paths` → T3.
    - Else → T2.
    At Phase 3 entry, re-check the ACTUAL `git diff` file list against
@@ -154,7 +158,7 @@ Run immediately after the user reviews the contract (same gate, one sitting).
    review time, render the plain-language decision card (`/acceptance-card
    <slug>`): the human reviews "sẽ làm / sẽ KHÔNG làm" + coverage flags instead of
    raw YAML (presentation only; the contract/evals stay the source of truth).
-   Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người); tin chỉ-báo ghi rõ "không cần làm gì"; cấm câu tu từ mang dấu hỏi.
+   Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người). Khối chỉ sống ở tin mời cổng và trên thẻ cổng — tin chỉ-báo KHÔNG đeo khối, kết bằng một câu nói thẳng máy đang làm gì tiếp; cấm câu tu từ mang dấu hỏi.
    The `/approve <slug>` command walks this stop end-to-end (card → one
    question → recorded decision). On approval:
    set contract `status: approved`, `approved_by`, `approved_at` (identity and
@@ -262,7 +266,7 @@ Entry: implementation complete, contract `status: implemented`.
    (`/acceptance-card <slug>`) — judgment items + deferred scope (việc-của-người)
    surface FIRST in plain language, machine evidence collapsed; the verdict + hook
    are unchanged.
-   Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người); tin chỉ-báo ghi rõ "không cần làm gì"; cấm câu tu từ mang dấu hỏi.
+   Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người). Khối chỉ sống ở tin mời cổng và trên thẻ cổng — tin chỉ-báo KHÔNG đeo khối, kết bằng một câu nói thẳng máy đang làm gì tiếp; cấm câu tu từ mang dấu hỏi.
    The `/signoff <slug>` command walks this stop end-to-end
    (preconditions → overrides → human-fields-only signature commit → pre-merge
    re-check). The user resolves each pending item by

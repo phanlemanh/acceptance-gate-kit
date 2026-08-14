@@ -8624,7 +8624,9 @@ fi
 # ── P189: khuon YOUR-MOVE-BLOCK-TEMPLATE khai du 4 chuan (chip (2) kit 2.1) ──
 # Khoi "VIEC CUA ANH" la thanh phan CUNG cua khuon trinh-nguoi; khuon song MOT
 # cho giua marker trong ban luat. 4 chuan: 3 ve lam-gi/o-dau/tra-loi-dang-gi ·
-# mau gop MOT dong · chi-bao "khong can lam gi" · cam cau tu tu mang dau hoi.
+# mau gop MOT dong · chi-bao "KHONG deo khoi" (luat 1c, doi tu "khong can lam
+# gi" — loi hua do van la CO luat cho tin chi-bao, chi noi dung luat doi) ·
+# cam cau tu tu mang dau hoi.
 run "P189 khuon VIEC-CUA-ANH: 3 ve + mau gop 1 dong + chi-bao + cam-dau-hoi (E6)" \
   python3 - "$ROOT" <<'PY'
 import re, sys
@@ -8645,7 +8647,7 @@ assert "một dòng" in mau[0], "dong mau phai tuyen bo 'một dòng'"
 # Nay dinh nghia check(text) roi goi voi ban that VA voi tung ban dot bien.
 # CO-LAP-LOP (chip (2)b, review-findings r3): vung do PHAI loai bo khoi
 # GATE-INVITE-CLAUSE (va SITES) truoc khi tim chuoi luat — clause chua nguyen
-# van "không cần làm gì" + "câu tu từ mang dấu hỏi", nen vung do trum clause
+# van "KHÔNG đeo khối"-tuong-duong + "câu tu từ mang dấu hỏi", nen vung do trum clause
 # lam viec xoa gach luat van XANH oan (reviewer r3 da thuc nghiem).
 RXC = re.compile(r"<!-- <<<GATE-INVITE-CLAUSE -->\n([\s\S]*?)\n<!-- GATE-INVITE-CLAUSE>>> -->")
 RXS = re.compile(r"<!-- <<<GATE-INVITE-SITES -->\n([\s\S]*?)<!-- GATE-INVITE-SITES>>> -->")
@@ -8665,7 +8667,7 @@ def check(text):
     e = text.find("\n## ", mm.end())
     s = text[mm.start():e if e > 0 else len(text)]
     s = RXC.sub("", RXS.sub("", s))   # vung do KHONG duoc an du lieu cua lop clause
-    if "không cần làm gì" not in s: errs.append("thieu luat chi-bao 'không cần làm gì'")
+    if "KHÔNG đeo khối" not in s: errs.append("thieu luat chi-bao 'KHÔNG đeo khối'")
     if not ("câu tu từ" in s and "dấu hỏi" in s): errs.append("thieu luat cam cau tu tu mang dau hoi")
     if "KHÔNG BAO GIỜ điền sẵn" not in s: errs.append("thieu luat cam may dien san lua chon thay nguoi")
     return errs
@@ -8673,7 +8675,7 @@ assert check(law) == [], "ban that do oan: " + repr(check(law))   # doi chung DU
 print("P189 DUONG-OK (khuon du 5 chuan tren cay that)")
 # MA TRAN dot bien: moi chuan mot ban sao hong, moi ban CHAY LAI check() that.
 MUTANTS = [
-    ("chi-bao", lambda s: s.replace("không cần làm gì", "vẫn cần xử lý"), "thieu luat chi-bao"),
+    ("chi-bao", lambda s: s.replace("KHÔNG đeo khối", "vẫn đeo khối"), "thieu luat chi-bao"),
     ("cam-dau-hoi", lambda s: s.replace("câu tu từ", "câu trần thuật"), "cam cau tu tu"),
     ("cam-dien-san", lambda s: s.replace("KHÔNG BAO GIỜ điền sẵn", "có thể điền sẵn"), "cam may dien san"),
     ("cho-trong", lambda s: s.replace("___", "Duyệt"), "cho trong ___"),
@@ -8703,7 +8705,7 @@ def xoa_luat_giu_clause(text, needle):
         out.append(l)
     return "".join(out)
 for name, needle, err in (
-    ("chi-bao", "không cần làm gì", "thieu luat chi-bao"),
+    ("chi-bao", "KHÔNG đeo khối", "thieu luat chi-bao"),
     ("cam-dau-hoi", "câu tu từ", "cam cau tu tu"),
 ):
     mutated = xoa_luat_giu_clause(law, needle)

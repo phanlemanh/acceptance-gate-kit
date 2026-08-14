@@ -190,8 +190,11 @@ evals:
       Hai chân một lệnh, mỗi chân một thông điệp riêng: (a) đẳng thức số ca —
       đọc SO-CA-KY-VONG-1C từ contract (bên khai và bên đo chung MỘT bản),
       chạy lại phương pháp đếm từng suite, lệch là đỏ ghim «suite: <đợi> ->
-      <thấy>»; (b) assert chết khai đích danh — từng assert P193/P189 gỡ ở
-      hạng mục 1 có đúng một dòng trong tests/plugins/asserts-da-go.txt, và
-      lời khai trong file đó nói thẳng bánh cóc P161 không phủ assert sinh
-      sau mốc 044968e. Kèm vết chiều-đỏ. Đỏ ghim dòng thiếu/thừa.
+      <thấy>»; (b) assert chết khai đích danh — ĐẲNG THỨC theo bản khai
+      [SỬA SAU CỔNG 1 — 14/08] của contract: hạng mục 1 giết 0 assert (P193
+      còn đúng nguyên văn; P189 đổi-thước-có-hợp-đồng), nên
+      tests/plugins/asserts-da-go.txt phải có ĐÚNG 0 dòng mới so với
+      BASE-1C — thừa MỘT dòng cũng đỏ (khai thừa = che một assert còn sống),
+      thiếu cũng đỏ; và lời khai trong file đó nói thẳng bánh cóc P161 không
+      phủ assert sinh sau mốc 044968e. Kèm vết chiều-đỏ. Đỏ ghim dòng lệch.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
