@@ -2,8 +2,9 @@
 schema_version: 1
 slug: cat-hinh-thuc
 round: 8
-verdict: PENDING-JUDGMENT
+verdict: PASS
 verified_commit: ac72ce79acb7
+human_signoff: Manh Phan 2026-08-14
 ---
 
 # Trang bằng chứng — cắt hình thức khỏi bốn cổng người
