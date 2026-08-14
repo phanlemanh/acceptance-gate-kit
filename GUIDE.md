@@ -869,6 +869,29 @@ flowchart LR
 | Entry `decisions.jsonl` mở đầu `"bỏ gap-probe"` | NOTE nêu `id` entry ở mỗi lần pre-merge; thẻ Cổng 1 cũng nhận cùng luật |
 | `gap_probe: advisory/off` | `advisory` in NOTE mỗi lần chạy; `off` thì im — dùng khi repo cố ý không theo nghi thức này |
 
+### 7.1 Re-pin theo bản phát hành, không theo từng lần merge
+
+Mỗi lần một thay đổi **chạm engine** vào nhánh chính, mọi hồ sơ đã ký trước đó
+hoá cũ — đó là ĐẶC TÍNH của luật staleness, không phải lỗi. Cái phải quản là
+**nhịp trả giá**, vì nó nhân thẳng theo số vòng chạy đồng thời: N vòng × mỗi
+lần merge = N−1 hồ sơ phải ghim lại, mỗi lần một lượt gọi người.
+
+Chính sách (owner duyệt trong charter 07/08, mục 1d):
+
+- Thay đổi chạm engine **gom về một mốc phát hành**, không rải lẻ.
+- Ghim lại chạy **một chiến dịch cho mỗi bản phát hành**, không phải mỗi lần
+  merge. Trong một bản phát hành, hồ sơ cũ hoá cũ là trạng thái **chấp nhận
+  được** — không ai phải đuổi theo.
+- Repo tiêu thụ nhận engine mới **theo bản phát hành có chủ đích**; không đổi
+  engine dưới chân một tính năng đang giữa vòng lặp.
+- Một vòng đang chạy bị chặn thật vì hồ sơ hoá cũ giữa hai bản phát hành thì
+  đó là **vấp thật** — ghi sổ và ghim lại riêng làn đó, đừng nâng thành chiến
+  dịch ngoài lịch.
+
+Máy đã có sẵn hai đường rẻ để chiến dịch không phình: ghim lại **theo diff**
+(chỉ làn nào thật sự bị diff chạm mới phải chạy lại) và **một làn máy — nhiều
+chữ ký** (đo một lần, ký gộp).
+
 ## 8. Tinh chỉnh cho repo của đội
 
 **Model routing** (`feature_loop.models.<role>`) — chỉnh chi phí/chất lượng đội verify

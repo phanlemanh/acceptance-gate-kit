@@ -88,6 +88,15 @@
   1.14.0). Consumer nhận engine mới theo release có chủ đích — không đổi
   engine dưới chân một feature đang giữa vòng lặp.
 
+- **Re-pin theo RELEASE, không theo từng merge (charter 07/08 mục 1d).** Merge
+  chạm engine gom về mốc release; re-pin chạy **một chiến dịch mỗi release**.
+  Giữa hai release, hồ sơ cũ hoá stale là trạng thái CHẤP NHẬN ĐƯỢC — đừng đuổi
+  theo. Lý do: chi phí re-pin nhân theo số vòng chạy song song (N vòng × mỗi
+  merge = N−1 hồ sơ phải ghim lại), nên nhịp merge chính là trần của N. Vòng
+  đang chạy bị chặn thật giữa hai release = vấp thật: ghi sổ, ghim lại RIÊNG
+  làn đó. Chi tiết + hai đường rẻ (re-pin theo diff · một-làn-máy-nhiều-chữ-ký)
+  ở [GUIDE §7.1](GUIDE.md).
+
 - **Quyết định khó đảo / gây bất ngờ / có trade-off thật** → ghi ADR 1-đoạn-văn
   vào `docs/adr/` (đủ cả 3 điều kiện mới ghi, thiếu 1 thì bỏ). Đề xuất đã
   TỪ CHỐI mà có nguy cơ quay lại → 1 file trong `.out-of-scope/` kèm mục
