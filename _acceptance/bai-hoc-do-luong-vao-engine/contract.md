@@ -14,8 +14,8 @@ approved_at: 2026-08-14
 
 ## Context
 
-Ba vòng rà soát đối kháng của hồ sơ `cat-hinh-thuc` (9 phiên, 41 lượt phá ghi
-lệnh) sinh ra bốn lớp lỗi chưa có tên trong kho, một nguyên tắc đo lường mới,
+Ba vòng rà soát đối kháng của hồ sơ `cat-hinh-thuc` (9 phiên, ~~41~~ **37** lượt
+phá ghi lệnh) sinh ra bốn lớp lỗi chưa có tên trong kho, một nguyên tắc đo mới,
 và một phát hiện cấu trúc về vùng phủ của `MEASURE-BIRTH-CLAUSE`. Tất cả hiện
 chỉ nằm trong **sử liệu hồ sơ** (`review-findings.md`) và một hạt giống
 (`docs/plans/2026-08-14-hat-giong-bai-hoc-tuan-do-luong.md`) — tức chúng chết
@@ -35,6 +35,17 @@ known-limits` — kênh capture mà `P179` đếm chưa hề chạy cho hồ sơ
 **hai** chỗ hở, không một: kênh `findings → sổ` (chưa chạy) và mối `sổ → bảng`
 (không răng). Hồ sơ này đóng mối thứ hai; mối thứ nhất đi vào Out of scope kèm
 lý do, chứ không im.
+
+**[SỬA SAU CỔNG 2 — 14/08, đếm lại] «41 lượt phá» ở đoạn trên là số BỊA.**
+Đếm lại từ chính `review-findings.md`: vòng 1 = **8** (dòng 182) · vòng 2 = **8**
+(dòng 325) · vòng 3 = **21** (dòng 400) → **37**, không phải 41. Không nguồn nào
+trong kho cho ra 41; người thi công viết nó một lần rồi không đo lại, và nó đi
+qua Cổng 1, gap-probe, ba lăng kính lẫn Cổng 2 mà không ai chạm.
+Giữ số sai gạch ngang thay vì ghi đè lặng, vì đây là **ca đại diện sống** của
+đúng lớp mà hồ sơ này vừa đưa lên bảng — lời tuyên định lượng không có phép đo
+nào canh. Nó cũng là bằng chứng cho giới hạn đã khai của `AC-1`: bốn lớp mới có
+tên trên bảng **không** khiến một con số trong văn xuôi tự được đo.
+Lệnh tái lập: `grep -nE 'lượt phá' _acceptance/cat-hinh-thuc/review-findings.md`.
 
 Hồ sơ này làm đúng ba việc, không hơn: (1) ghi bốn lớp mới vào **sổ nguồn**
 (`known-limits-ledger.tsv`), (2) đưa chúng lên **bảng dẫn** trong
