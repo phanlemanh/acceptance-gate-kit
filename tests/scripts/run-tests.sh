@@ -2939,7 +2939,7 @@ same RL1b 1 "$(printf '%s\n' "$RL1" | grep -cx 'ran per-slug')"
 same RL1c 1 "$(printf '%s\n' "$RL1" | grep -cx 'ran gap-probe')"
 same RL1d 1 "$(printf '%s\n' "$RL1" | grep -cx 'ran t1-escape')"
 same RL1e 1 "$(printf '%s\n' "$RL1" | grep -c '^pre-merge-check: rules ran=')"
-hasout RL1f "pre-merge-check: rules ran=3 declared-off=0 expected=3" "$RL1"
+hasout RL1f "pre-merge-check: rules ran=4 declared-off=0 expected=4" "$RL1"
 # RL3c (âm, AC-3): luật KHÔNG tắt thì KHÔNG được có dòng declared-off nào
 same RL3c 0 "$(printf '%s\n' "$RL1" | grep -c '^declared-off ')"
 
@@ -2948,7 +2948,7 @@ rl_repo rl3a
 RL3A="$(bash "$CHECK" "$TE_R" --base "$TE_B" --no-t1-escape 2>&1)"; check RL3a1 0 $?
 same RL3a2 1 "$(printf '%s\n' "$RL3A" | grep -cx 'declared-off t1-escape')"
 same RL3a3 0 "$(printf '%s\n' "$RL3A" | grep -cx 'ran t1-escape')"
-hasout RL3a4 "pre-merge-check: rules ran=2 declared-off=1 expected=3" "$RL3A"
+hasout RL3a4 "pre-merge-check: rules ran=3 declared-off=1 expected=4" "$RL3A"
 hasout RL3a5 "pre-merge-check: clean" "$RL3A"
 
 echo "RL3b gap_probe: off trong config -> 'declared-off gap-probe'"
@@ -2959,7 +2959,7 @@ git -c user.email=t@t -c user.name=t -C "$TE_R" commit -qm cfg
 RL3B="$(bash "$CHECK" "$TE_R" --base "$TE_B" 2>&1)"; check RL3b1 0 $?
 same RL3b2 1 "$(printf '%s\n' "$RL3B" | grep -cx 'declared-off gap-probe')"
 same RL3b3 0 "$(printf '%s\n' "$RL3B" | grep -cx 'ran gap-probe')"
-hasout RL3b4 "pre-merge-check: rules ran=2 declared-off=1 expected=3" "$RL3B"
+hasout RL3b4 "pre-merge-check: rules ran=3 declared-off=1 expected=4" "$RL3B"
 hasout RL3b5 "pre-merge-check: clean" "$RL3B"
 
 echo "RL4 khong --base + advisory -> exit Y HET TE18k, so khop qua marker"
@@ -2968,7 +2968,7 @@ RL4="$(bash "$CHECK" "$TE_R" 2>&1)"; check RL4a 0 $?
 same RL4b 1 "$(printf '%s\n' "$RL4" | grep -cx 'declared-off gap-probe')"
 same RL4c 1 "$(printf '%s\n' "$RL4" | grep -cx 'declared-off t1-escape')"
 same RL4d 1 "$(printf '%s\n' "$RL4" | grep -cx 'ran per-slug')"
-hasout RL4e "pre-merge-check: rules ran=1 declared-off=2 expected=3" "$RL4"
+hasout RL4e "pre-merge-check: rules ran=2 declared-off=2 expected=4" "$RL4"
 hasout RL4f "pre-merge-check: clean" "$RL4"
 
 # Ghi chú tiêm tự-tố-cáo: nếu pattern awk/sed không khớp (nguồn trôi), bản sao
@@ -2998,7 +2998,7 @@ nothas RL2b "pre-merge-check: clean" "$RL2OUT"
 hasout RL2c "VIOLATION [ledger]: luật gap-probe không chạy và không khai tắt" "$RL2OUT"
 hasout RL2d "lỗi NỘI TẠI của cổng pre-merge" "$RL2OUT"
 # RL5c: lan VIOLATION [ledger] VAN in dong tong ket, va n+m != k la bang chung
-hasout RL5c "pre-merge-check: rules ran=2 declared-off=0 expected=3" "$RL2OUT"
+hasout RL5c "pre-merge-check: rules ran=3 declared-off=0 expected=4" "$RL2OUT"
 
 echo "RL9 tiem pha vong per-slug (bien the CHUA TUNG va) -> diem nghen bat"
 mk_gp_repo rl9; R="$GPR/rl9"; gp_feature "$R" feat-rl9 T3 implemented; gp_commit "$R"
@@ -3018,7 +3018,7 @@ sed 's|^REQUIRED_FOR="T2 T3"$|REQUIRED_FOR="T2 T3"\nledger_mark ran khoi-la|' "$
 RL7OUT="$(bash "$RL7CP" "$TE_R" --base "$TE_B" 2>&1)"; RL7ST=$?
 check  RL7b1 2 "$RL7ST"
 hasout RL7b2 "VIOLATION [ledger]: tên lạ khoi-la — cập nhật EXPECTED" "$RL7OUT"
-hasout RL7b3 "pre-merge-check: rules ran=4 declared-off=0 expected=3" "$RL7OUT"
+hasout RL7b3 "pre-merge-check: rules ran=5 declared-off=0 expected=4" "$RL7OUT"
 nothas RL7b4 "pre-merge-check: clean" "$RL7OUT"
 
 echo "RL5b exit 2 o parse -> KHONG in dong tong ket so"
@@ -3120,7 +3120,7 @@ rl_names() { # <file> — ten duy nhat o call-site (loai dong dinh nghia ham)
 rl_exp() { sed -n 's/^LEDGER_EXPECTED="\(.*\)"$/\1/p' "$1" | tr ' ' '\n' | sort -u; }
 RL7NAMES="$(rl_names "$CHECK")"; RL7EXP="$(rl_exp "$CHECK")"
 same RL7a1 "$RL7EXP" "$RL7NAMES"
-same RL7a2 3 "$(printf '%s\n' "$RL7EXP" | grep -c .)"
+same RL7a2 4 "$(printf '%s\n' "$RL7EXP" | grep -c .)"
 RL7CP2="$RLCP/scripts/rl7a-check.sh"; { cat "$CHECK"; printf '\nledger_mark ran khoi-moi\n'; } > "$RL7CP2"
 [ "$(rl_names "$RL7CP2")" != "$(rl_exp "$RL7CP2")" ]; check RL7a3 0 $?
 
@@ -3310,7 +3310,7 @@ RL10M="$(cat "$RL10NEW")"
 hasout RL10a "VIOLATION [ledger]: luật gap-probe không chạy và không khai tắt" "$RL10M"
 hasout RL10b "lỗi NỘI TẠI của cổng pre-merge" "$RL10M"
 hasout RL10c "declared-off t1-escape" "$RL10M"
-hasout RL10d "pre-merge-check: rules ran=3 declared-off=0 expected=3" "$RL10M"
+hasout RL10d "pre-merge-check: rules ran=4 declared-off=0 expected=4" "$RL10M"
 
 # ── UJ: PASS chưa ai phán (premerge-unjudged-pass) ─────────────────────────
 UJR="$T/uj"; mkdir -p "$UJR"
@@ -3516,9 +3516,9 @@ UJ12A="$(bash "$CHECK" "$R" --base "$UJ12B" 2>/dev/null)"
 hasout UJ12a "is a placeholder, not a signature" "$UJ12A"
 # (b) so luat KHONG doi o CA HAI che do — luat moi nam TRONG luat per-slug da
 # co so, khong phai luat thu tu.
-hasout UJ12b1 "pre-merge-check: rules ran=3 declared-off=0 expected=3" "$UJ12A"
+hasout UJ12b1 "pre-merge-check: rules ran=4 declared-off=0 expected=4" "$UJ12A"
 UJ12C="$(bash "$CHECK" "$R" 2>&1)"
-hasout UJ12b2 "pre-merge-check: rules ran=1 declared-off=2 expected=3" "$UJ12C"
+hasout UJ12b2 "pre-merge-check: rules ran=2 declared-off=2 expected=4" "$UJ12C"
 # (c) idempotent
 UJ12D="$(bash "$CHECK" "$R" --base "$UJ12B" 2>&1)"
 UJ12E="$(bash "$CHECK" "$R" --base "$UJ12B" 2>&1)"

@@ -3,18 +3,20 @@
 
 == lần chạy sạch (mọi luật chạy) ==
 ran per-slug
+ran veto-trace
 ran gap-probe
 ran t1-escape
-pre-merge-check: rules ran=3 declared-off=0 expected=3
+pre-merge-check: rules ran=4 declared-off=0 expected=4
 pre-merge-check: clean
 
 == tắt có khai báo (--no-t1-escape) ==
 ran per-slug
+ran veto-trace
 ran gap-probe
 declared-off t1-escape
-pre-merge-check: rules ran=2 declared-off=1 expected=3
+pre-merge-check: rules ran=3 declared-off=1 expected=4
 
 == sổ lệch (khối gap-probe bị vô hiệu trong bản sao) ==
 VIOLATION [ledger]: luật gap-probe không chạy và không khai tắt
-pre-merge-check: rules ran=2 declared-off=0 expected=3
+pre-merge-check: rules ran=3 declared-off=0 expected=4
 NOTE: VIOLATION [ledger] là lỗi NỘI TẠI của cổng pre-merge (một khối luật bị trượt qua hoặc sổ lệch) — KHÔNG phải lỗi trong thay đổi của bạn. Bước kế tiếp: báo maintainer của kit kèm TOÀN BỘ output lần chạy này; đừng sửa feature của bạn để né nó.

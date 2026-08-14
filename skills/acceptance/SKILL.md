@@ -150,7 +150,25 @@ Run immediately after the user reviews the contract (same gate, one sitting).
    <repo_root> --slug <slug>` — flags threshold criteria whose evals never assert a
    should-NOT-fire case (W1), out-of-scope items with zero negative evals (W3),
    and `(cross-layer)` criteria with no `layer: backend-effect` eval (W4).
-5. **STOP — Gate 1 part B.** Present evals.yaml + mapping table — or, to cut
+4c. **Cổng Phạm vi T2 — máy chốt hợp đồng rồi ĐI TIẾP ở trạng thái V** (đợt
+   2). Bộ tiêu chí do máy dựng từ đề bài đã có; hỏi lại «đúng chưa?» khi
+   không có gì để cân là tiêu một lần chặn người để không đổi gì. Máy ghi vào
+   frontmatter contract `veto_state: mo` + `veto_opened_at: <ISO>`,
+   để `approved_by` RỖNG (trường tên người CHỈ chứa tên người — không bao giờ
+   điền chuỗi giả), rồi đi tiếp sang thi công.
+   **Chặn-chờ vẫn giữ nguyên ở đâu có đánh-đổi thật:** hạng T3 (và Gate 1.5)
+   · gap-probe còn finding P0 · danh từ mờ / đề bài mơ hồ (chủ quyền ý định
+   thuộc người — đề bài mơ hồ thì VẪN HỎI) · coverage cluster chưa gạch.
+   Vắng `veto_opened_at` hoặc hạng T3 thì hook chặn-lúc-ghi CHẶN: V không có
+   vết là bỏ-cổng lặng lẽ, và V khác hẳn `gate1_skipped` (bỏ-cổng là người
+   chủ động miễn; V là cổng VẪN MỞ, người veto lúc nào cũng được).
+   Người veto → đổi `veto_state: da-veto` + một entry sổ quyết định; lưới
+   trước-merge chặn tới khi xử, và chặn cả chiều ghi-ngược `da-veto → mo`
+   hay gỡ khoá không có vết.
+   Ranh giới cuối: **nghi thức bắt-người-gõ-lệnh-nối tự tan** — không có
+   việc riêng nào cho nó khi cổng hết chặn.
+
+5. **STOP — Gate 1 part B** (chỉ khi 4c KHÔNG đủ điều kiện đi tiếp). Present evals.yaml + mapping table — or, to cut
    review time, render the plain-language decision card (`/acceptance-card
    <slug>`): the human reviews "sẽ làm / sẽ KHÔNG làm" + coverage flags instead of
    raw YAML (presentation only; the contract/evals stay the source of truth).
@@ -248,7 +266,29 @@ Entry: implementation complete, contract `status: implemented`.
      the implementing context. Max 3 verify rounds; log each in the report's
      Iterations section. After round 3 → STOP, escalate to user.
    - Executor cannot run → verdict BLOCKED + reason. STOP, escalate.
-5. **STOP — Gate 2.** FIRST commit the machine-written verify output
+4b. **Cổng Bằng chứng xanh-sạch — máy đi tiếp, KHÔNG mời ký** (đợt 2 «người
+   về biên», hồ sơ veto-co-dau-vet). Chữ ký lui về đúng nơi có ĐÁNH-ĐỔI hoặc
+   KHÓ-ĐẢO; một cổng mà câu trả lời hợp lý duy nhất là «ừ» là trạm thu phí,
+   không phải điểm quyết định. Điều kiện sạch là danh sách ĐÓNG, đủ SÁU thì
+   đi tiếp, thiếu MỘT là mời ký như cũ:
+   `verdict: PASS` (khoá phải tồn tại) · 0 mục UNCERTAIN · `bypass_used:
+   false` · mục **Known limits** hiện diện và rỗng · mục **Ngoài hợp đồng**
+   hiện diện và rỗng · hạng **T2** đọc từ `risk_tier` của contract (báo cáo
+   KHÔNG tự phong hạng). Mục VẮNG ≠ mục rỗng: bỏ hẳn một mục khỏi báo cáo là
+   đường sạch-giả rẻ nhất, và nó tính là KHÔNG sạch.
+   Đủ sáu → commit phần máy viết, báo người ĐÚNG MỘT DÒNG (đã qua với bằng
+   chứng sạch · cửa veto vẫn mở · việc kế là gì), rồi đi tiếp. Không khối
+   👉, không câu hỏi. `pre-merge-check.sh` áp đúng sáu điều kiện này ở biên
+   merge — luật văn bản và lưới máy nói cùng một câu.
+   **KHÓ-ĐẢO luôn thắng xanh-sạch:** việc chạm `KHO-DAO-V` (ship ra người
+   dùng thật · xoá dữ liệu · cam kết ra ngoài repo) LUÔN rơi về khoảnh khắc
+   quyết thật, bất kể bằng chứng sạch tới đâu — vì thứ hỏng ở đó không đảo
+   được bằng một lệnh revert.
+   **Người veto giữa chừng → DỪNG NGAY**, nêu hiện trạng và đường hoàn tác,
+   KHÔNG tranh luận lại căn cứ đã trình, KHÔNG bày menu buộc người quyết lần
+   nữa. Veto là quyết định của người; máy chỉ thi hành và để lại vết.
+
+5. **STOP — Gate 2** (chỉ khi 4b KHÔNG đủ điều kiện đi tiếp). FIRST commit the machine-written verify output
    (evidence-report.md + run-log.jsonl + contract + evidence/) as its own
    commit containing NO human signature — the Gate-2 edits below must land
    in a SEPARATE commit touching only human-owned report lines
