@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent (vòng 2)
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 522167b1c052fbb47b7e39aab9fba31917f19a78
-human_signoff:
+human_signoff: Mạnh Phan 2026-08-14
 ---
 
 # Evidence Report: doi-hanh-vi-cong-nguoi
