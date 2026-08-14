@@ -67,6 +67,16 @@ executors:
     rang_1c_g4: "bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan g4"
     rang_1c_manifest: "bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan manifest"
     rang_1c_so_ca_asserts: "bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan so-ca-asserts"
+    # Vật của hồ sơ veto-co-dau-vet (đợt 2, T3) — răng lớp mã-tiền-định: chạy
+    # CHÍNH hook/pre-merge/lõi kiểm trên fixture code-sinh, chiều đỏ cùng lượt.
+    # Cùng nếp không-vào-suite-vĩnh-viễn với các bộ răng hồ sơ trên.
+    rang_veto_hook_v: "bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan hook"
+    rang_veto_hook_cu: "bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan hook-cu"
+    rang_veto_premerge_dem: "bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan premerge-dem"
+    rang_veto_premerge_sach: "bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan premerge-sach"
+    rang_veto_ghi_nguoc: "bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan ghi-nguoc"
+    rang_veto_vanban: "bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan vanban"
+    rang_veto_so_ca: "bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan so-ca"
     # Răng của P194: ghim ĐÚNG dòng của case trong stdout thay vì tin mã thoát
     # của trọn suite (suite xanh cả trên origin/main → không phân biệt được).
     p194_rang: "bash _acceptance/may-ganh-nguoi-quyet/p194-rang.sh"
