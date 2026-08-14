@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 62c6935107e24371ca5a416ce8f567c804fd8b40
+verified_commit: 1f6c381184ddf54676957d1d7214b60802a5f38e
 # bypass_ack:
 human_signoff: Manh Phan 2026-08-07 — ký (a) known-limits: fixture hành vi thiếu provenance máy-kiểm (trong hợp đồng) + 6 mục ngoài hợp đồng
 ---
@@ -195,3 +195,7 @@ sha: c62f0330f253fd92f553547f09a7afcdb102c3c3 · suites: 5 lệnh exit 0
 ### Re-pin lần 14 — 2026-08-13, do 1a rebase lên main đã có chữ ký 1b; lần trước của 1a bỏ trong rebase
 run_id: repin-cat-hinh-thuc-tren-main-20260813T170323Z
 sha: 62c6935107e24371ca5a416ce8f567c804fd8b40 · suites: 5 lệnh exit 0
+
+### Re-pin lần 15 — 2026-08-14, do vòng sửa 1 của 1a chạm tests/plugins/asserts-da-go.txt (khai assert đã gỡ), skills/acceptance/, commands/signoff.md, GUIDE.md và scripts/gate-card.js
+run_id: repin-cat-hinh-thuc-vong-sua-1-20260814T021541Z
+sha: 1f6c381184ddf54676957d1d7214b60802a5f38e · suites: 5 lệnh exit 0
