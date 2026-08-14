@@ -1,8 +1,13 @@
 # ADR 0011 — Răng-hồ-sơ là lớp RẺ; bảo đảm dài hạn phải vào lưới thường trực ngay từ đầu
 
 *2026-08-14 · Owner gạch **(b)** tại Cổng 1 hồ sơ `bai-hoc-do-luong-vao-engine`,
-sau ba vòng rà soát đối kháng của `cat-hinh-thuc` (9 phiên, 41 lượt phá ghi lệnh,
+sau ba vòng rà soát đối kháng của `cat-hinh-thuc` (9 phiên, 37 lượt phá ghi lệnh,
 luật dừng-vá bật hai lần).*
+
+> **[Sửa 14/08]** Bản gốc ADR này ghi «41 lượt phá». Đếm lại từ
+> `review-findings.md` (8 + 8 + 21) ra **37**; 41 không có nguồn. Chi tiết và
+> lệnh tái lập ở mục *Sửa sau Cổng 2* trong
+> `_acceptance/bai-hoc-do-luong-vao-engine/contract.md`.
 
 Mệnh đề `MEASURE-BIRTH-CLAUSE` cưỡng chế khuôn khai sinh phép đo cho case trong
 **suite thường trực**, nhưng **răng-chết-theo-hồ-sơ** (`_acceptance/<slug>/<slug>-rang.sh`)
