@@ -36,21 +36,12 @@ Core principles (non-negotiable):
    from the paths the feature is EXPECTED to touch (inferred from the
    request/ticket; confirm the guess with the user at Gate 1):
    - Expected paths all match `risk_tiers.t1_skip_globs` → do NOT skip
-     silently, and do NOT stop to ask either: print the per-path match table
-     (`<expected path> → <glob>`) as the stated grounds, DECLARE "T1 —
-     acceptance gate skipped" citing that table, remind that the CI backstop
-     (`pre-merge-check.sh --base <ref>`) re-decides this same question on the
-     REAL diff and blocks the merge if the PR ends up touching gated paths
-     with no `_acceptance/` artifacts (that backstop is the cheap-reversal
-     path making this declaration safe), and move on. The machine just
-     compared paths against a list the repo itself declared — a confirmation
-     stop here spends a human call to change nothing (hồ sơ
-     doi-hanh-vi-cong-nguoi, owner gạch 12/08). Do not create artifacts.
-     **If the human overrides the call and asks for the full gate: run it.**
-     Record the trace in one line (machine derived T1; human raised it), then
-     proceed. Do NOT re-argue the cost, and do NOT hand back a menu of
-     options — the grounds were already stated once and heard; repeating them
-     spends a second human call on a decision that is already made.
+     silently: print the per-path match table (`<expected path> → <glob>`),
+     say "T1 — acceptance gate skipped", and ask the user to CONFIRM the T1
+     call before stopping. Warn that the CI backstop
+     (`pre-merge-check.sh --base <ref>`) blocks the merge if the actual PR
+     ends up touching gated paths with no `_acceptance/` artifacts. Do not
+     create artifacts.
    - Any expected path matches `risk_tiers.t3_paths` → T3.
    - Else → T2.
    At Phase 3 entry, re-check the ACTUAL `git diff` file list against

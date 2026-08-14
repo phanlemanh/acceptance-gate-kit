@@ -21,7 +21,11 @@
 #
 # Mọi đường dẫn SUY TỪ VỊ TRÍ SCRIPT — không hardcode ROOT.
 #
-# Dùng: rang-1c.sh --chan g1|manifest|g2|g3|g4|so-ca-asserts   (vắng cờ: chạy hết)
+# Dùng: rang-1c.sh --chan g1|manifest|g3|g4|so-ca-asserts   (vắng cờ: chạy hết)
+#
+# Chân g2 (hạng mục T1) ĐÃ RA khỏi hồ sơ ở vòng thu phạm vi 14/08 — xem
+# [THU PHẠM VI] trong contract. Không để lại chân chết ở đây: một chân quét
+# nhóm needle rỗng sẽ XANH vĩnh viễn mà không đo gì.
 set -u
 
 WS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -166,20 +170,6 @@ if [ -z "$CHAN" ] || [ "$CHAN" = "g1" ]; then
   else
     bad "G1 ban luat THIEU luat moi cho tin chi-bao — cat ma khong dat lai"
   fi
-fi
-
-if [ -z "$CHAN" ] || [ "$CHAN" = "g2" ]; then
-  echo "== chân G2: T1 tuyên-kèm-căn-cứ =="
-  chan_needle G2 "T1 xac nhan"
-  n_ok=0
-  for f in skills/acceptance/SKILL.md feature-loop/skills/feature-loop/SKILL.md; do
-    if grep -qiE "DECLARE|TUYÊN" "$ROOT/$f" && grep -qF "pre-merge-check.sh --base" "$ROOT/$f"; then
-      n_ok=$((n_ok + 1))
-    else
-      bad "G2 $f thieu ve TUYEN hoac ve nhac backstop CI"
-    fi
-  done
-  [ "$n_ok" -eq 2 ] && ok "G2 ca hai than deu TUYEN + nhac backstop CI"
 fi
 
 if [ -z "$CHAN" ] || [ "$CHAN" = "g3" ]; then

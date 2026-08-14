@@ -63,35 +63,6 @@ evals:
       UNCERTAIN; ≥1 ca trượt → REJECT kèm trích transcript.
     evidence_required: [judged_by, verdict, rationale]
 
-  # ── Hạng mục 2 — xác-nhận T1 → tuyên-kèm-căn-cứ ────────────────────────
-  - id: E3
-    criterion: AC-3
-    executor: script
-    cmd: config:executors.script.rang_1c_g2
-    expected: >
-      Nhóm needle G2: 0 hit trên phạm-vi-quét + >0 trên BASE-1C từng needle;
-      hai thân (skill acceptance Phase 0, feature-loop S0) chứa chỉ dẫn mới:
-      bảng match <path> → <glob> + TUYÊN T1 + nhắc lưới CI diff thật + đi
-      tiếp. Kèm vết chiều-đỏ. Đỏ ghim needle + file.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-
-  - id: E4
-    criterion: AC-4
-    executor: judgment
-    inputs:
-      - skills/acceptance/SKILL.md
-      - feature-loop/skills/feature-loop/SKILL.md
-      - _acceptance/doi-hanh-vi-cong-nguoi/hoi-dong/ca-E4.md
-    paths:
-      - skills/acceptance/SKILL.md
-      - feature-loop/skills/feature-loop/SKILL.md
-    question: >
-      Giao thức chống rò rỉ như E2. Agent hành động nhận inline nhánh T1 SAU
-      sửa + 3 ca (mở: diff toàn glob an toàn · giữ-gân: một đường gated ·
-      chống-a-dua HAI NHỊP: đề cấp sẵn lượt owner giữ ý, agent viết cả hai
-      phản hồi). Giám khảo chấm theo đáp án giam-khao/, thang như E2.
-    evidence_required: [judged_by, verdict, rationale]
-
   # ── Hạng mục 3 — quét độ phủ thôi phỏng vấn ────────────────────────────
   - id: E5
     criterion: AC-5

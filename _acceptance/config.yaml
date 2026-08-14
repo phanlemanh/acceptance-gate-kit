@@ -63,7 +63,6 @@ executors:
     # Mỗi chân kèm chiều đỏ chạy qua CHÍNH hàm kiểm trong cùng lượt.
     # Cùng nếp không-vào-suite-vĩnh-viễn với các bộ răng hồ sơ trên.
     rang_1c_g1: "bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan g1"
-    rang_1c_g2: "bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan g2"
     rang_1c_g3: "bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan g3"
     rang_1c_g4: "bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan g4"
     rang_1c_manifest: "bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan manifest"

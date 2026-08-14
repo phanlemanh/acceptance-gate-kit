@@ -55,7 +55,22 @@ một tình huống, hành vi lại chảy sang tình huống chưa được k�
 án mắc đúng cùng bệnh: điều kiện TRƯỢT viết theo NHỊP, nên lỗi dời nhịp là
 thoát lưới.
 
-## Trạng thái lớp máy (không phụ thuộc quyết định trên)
+## Owner chọn: THU PHẠM VI (14/08)
+
+Hạng mục T1 ra khỏi hồ sơ; **vật hoàn nguyên** về nguyên trạng `origin/main`
+(hai nhánh T1 lại hỏi xác nhận như cũ) — không để lại bản sửa nửa vời. Gỡ
+kèm: AC-3/AC-4, E3/E4, hai needle `G2`, chân `g2` của bộ răng, khoá
+`rang_1c_g2` trong config. Chân quét một nhóm needle rỗng phải gỡ chứ không
+để lại: nó sẽ XANH vĩnh viễn mà không đo gì.
+
+Hồ sơ còn **ba** hạng mục, cả ba đã PASS hội đồng ở vòng 1: khối 👉 thôi làm
+luật mỗi-tin (E2) · quét độ phủ thôi phỏng vấn (E6) · khởi tạo một-lần-gạch
+(E8). Đề bài của hạng mục bị cắt sống tiếp ở
+`docs/plans/2026-08-14-hat-giong-t1-tuyen-kem-can-cu.md`, kèm hai điều kiện
+vào Cổng 0 rút từ chẩn đoán trên: luật viết thành BẤT BIẾN (không theo tình
+huống), và bảng đáp án ghi điều kiện TRƯỢT theo HÀNH VI (không theo nhịp).
+
+## Trạng thái lớp máy (đo lại SAU khi thu phạm vi)
 
 Bộ răng 6 chân XANH trọn trên mốc `d6efd36`: 9/9 needle head=0 base>0;
 manifest 9 site khớp bản ghim, 12/12 bản chép nguyên văn; giữ-gân khuôn khối

@@ -54,19 +54,6 @@ hằng đúng hoặc miễn trừ mất câu chịu lực ở hồ sơ 1a).
   không kết bằng khối 👉; ca giữ-gân: cùng phiên nhận tình huống **tin mời
   cổng** thì tin PHẢI kết bằng đúng MỘT khối đủ ba vế. (judgment)
 
-**Hạng mục 2 — xác-nhận T1 → tuyên-kèm-căn-cứ.**
-
-- AC-3: Given cây đã sửa, When quét nhóm needle `G2`, Then 0 hit, và nhánh T1
-  của cả hai thân (skill acceptance Phase 0 · feature-loop S0) chỉ dẫn: in
-  bảng match `<path> → <glob>` làm căn cứ, TUYÊN kết luận T1, nhắc lưới CI
-  trên diff thật (đường đảo), rồi đi tiếp — không còn bước dừng chờ người
-  xác nhận.
-- AC-4: Given một phiên sạch chỉ được đọc nhánh T1 SAU sửa cùng một đề bài
-  mà mọi đường dự kiến đều khớp `t1_skip_globs`, When phiên xử lý, Then phiên
-  tuyên T1 kèm bảng căn cứ và đi tiếp, không dừng hỏi; ca giữ-gân: đề bài có
-  một đường KHÔNG khớp glob nào thì phiên dựng hồ sơ cổng như thường.
-  (judgment)
-
 **Hạng mục 3 — quét độ phủ thôi phỏng vấn.**
 
 - AC-5: Given cây đã sửa, When quét nhóm needle `G3`, Then 0 hit, và thang
@@ -124,12 +111,13 @@ hằng đúng hoặc miễn trừ mất câu chịu lực ở hồ sơ 1a).
 Quét theo ma trận hạng-mục × lớp-thước (nguồn: bảng loại-việc A/B của đề bài
 1c, do ba vòng rà soát đối kháng của 1a lập):
 
-- Trục hạng mục: khối-mỗi-tin | T1-xác-nhận | scan-phỏng-vấn | init-tuần-tự
-  [thước CE: bốn hạng mục owner gạch 12/08, chốt lại tại Cổng 0 14/08 — đủ,
-  không thêm không bớt]
-- Trục lớp thước: mực-đã-in (AC-1/3/5/7, máy) | hành-vi-agent (AC-2/4/6/8,
-  hội đồng bắt buộc) [thước CE: bảng «Đo bằng gì» của đề bài — mỗi hạng mục
-  phủ đủ CẢ HAI lớp, 4×2=8 ô = 8 AC]
+- Trục hạng mục: khối-mỗi-tin | scan-phỏng-vấn | init-tuần-tự
+  [thước CE: bốn hạng mục owner gạch 12/08; hạng mục T1-xác-nhận ĐÃ RA khỏi
+  hồ sơ tại vòng thu phạm vi 14/08 — xem [THU PHẠM VI] ở Notes. Ba hạng mục
+  còn lại đủ, không thêm không bớt]
+- Trục lớp thước: mực-đã-in (AC-1/5/7, máy) | hành-vi-agent (AC-2/6/8, hội
+  đồng bắt buộc) [thước CE: bảng «Đo bằng gì» của đề bài — mỗi hạng mục phủ
+  đủ CẢ HAI lớp, 3×2=6 ô = 6 AC]
 - Trục lưới kế thừa: assert chết khai đích danh | đẳng thức số ca | giới hạn
   bánh cóc P161 nói thẳng (AC-9) [thước CE: mục «Ràng buộc kế thừa» của đề
   bài, học từ finding H8 của 1a]
@@ -153,7 +141,23 @@ Quét theo ma trận hạng-mục × lớp-thước (nguồn: bảng loại-vi�
 
 ## Notes
 
-- **Cổng 0 (14/08, owner):** «hội đồng: bắt buộc», giữ đủ bốn hạng mục. Hệ
+- **[THU PHẠM VI — 14/08, owner chọn đường ② sau hội đồng vòng 2]** Hồ sơ này
+  nay còn **BA** hạng mục: khối 👉 thôi làm luật mỗi-tin · quét độ phủ thôi
+  phỏng vấn · khởi tạo một-lần-gạch. Hạng mục **T1 tuyên-kèm-căn-cứ** đã ra
+  khỏi hồ sơ, và vật của nó **hoàn nguyên** về đúng nguyên trạng `origin/main`
+  (hai nhánh T1 lại hỏi xác nhận như cũ) — không để lại bản sửa nửa vời.
+  Kèm theo: AC-3/AC-4 gỡ, E3/E4 gỡ, hai needle nhóm `G2` gỡ khỏi `NEEDLE-1C`,
+  chân `g2` gỡ khỏi bộ răng và khoá `rang_1c_g2` gỡ khỏi config (chân quét một
+  nhóm needle rỗng sẽ XANH vĩnh viễn mà không đo gì — đó là cách một phép đo
+  chết mà vẫn có màu).
+  **Vì sao cắt, nói bằng bằng chứng:** hai vòng hội đồng liên tiếp cho CÙNG
+  TÊN LỚP LỖI — *máy đẩy quyết định ngược về người sau khi người đã nêu ý
+  (bày menu)*. Vòng 1 lỗi ở nhịp 2; vá; vòng 2 lỗi **dời lên nhịp 1**.
+  `STOP-PATCHING-CLAUSE` kích hoạt: khuôn giải sai, không phải chi tiết sai.
+  Chi tiết + chẩn đoán khuôn sai: `review-findings.md`.
+  Hạng mục bị cắt KHÔNG chết im lặng — đề bài lại ở
+  `docs/plans/2026-08-14-hat-giong-t1-tuyen-kem-can-cu.md`.
+- **Cổng 0 (14/08, owner):** «hội đồng: bắt buộc». Hệ
   quả thi hành: bốn eval judgment (AC-2/4/6/8) là điều kiện BẮT BUỘC trước
   Cổng Bằng chứng — báo cáo còn hạng mục judgment chưa có lượt hội đồng thì
   KHÔNG đủ điều kiện mời ký, bất kể lớp máy xanh bao nhiêu.
@@ -187,8 +191,6 @@ của suite là việc của chân E9e/asserts-da-go, không phải của needle
 G1|vẫn kết bằng khối, đúng một dòng
 G1|ghi rõ "không cần làm gì"
 G1|còn việc kế thì kết bằng đúng MỘT khối
-G2|ask the user to CONFIRM the T1
-G2|hỏi user XÁC NHẬN kết luận T1
 G3|tóm tắt cho user xác nhận 1 lần
 G3|hỏi user 5 ý
 G4|Ask the user, one question at a time
