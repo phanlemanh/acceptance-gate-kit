@@ -5,9 +5,9 @@ slug: veto-co-dau-vet
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lõi cưỡng chế: hooks/** + scripts/pre-merge-check.sh — bug ở đây thành false-green im lặng trên MỌI repo tiêu thụ
 surfaces: [cli]
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: Mạnh Phan
+approved_at: 2026-08-14
 ---
 
 # Acceptance Contract: veto-co-dau-vet
