@@ -5,7 +5,7 @@ slug: release-2-0-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 2 manifest + GUIDE + workspace — không dính t3_paths
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-08-15
 veto_state: mo
