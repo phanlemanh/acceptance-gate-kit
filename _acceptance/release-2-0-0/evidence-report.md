@@ -114,11 +114,9 @@ human_signoff:
 
 ## Known limits
 
-(rỗng — không giới hạn mới nào thuộc lượt bump này; các giới hạn của cơ chế V thuộc hồ sơ veto-co-dau-vet đã ký)
 
 ## Ngoài hợp đồng
 
-(rỗng)
 
 ## Analyst
 
