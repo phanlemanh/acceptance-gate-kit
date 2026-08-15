@@ -122,6 +122,18 @@ human_signoff:
 
 ## Analyst
 
+**Phát hiện trong khoảnh-khắc-thật (ghi để không thành huyền thoại):** lượt
+pre-merge đầu với báo cáo này ĐỎ điều kiện sạch vì phép dò «0 mục chưa-chắc»
+grep token trên TOÀN VĂN báo cáo — mà khuôn báo cáo chuẩn chứa token đó trong
+phần checklist hướng dẫn, nên điều-kiện-sạch không thể bật với báo cáo viết
+đúng khuôn. Fixture của hồ sơ veto-co-dau-vet là bản tối giản nên không lộ —
+đúng lớp «fixture tự nặn theo khuôn bên đọc, không round-trip từ bên viết
+thật» trong sổ lớp lỗi. Xử tại chỗ theo tiền lệ L1-sanitize (một dòng khuôn
+đổi chữ, nghĩa giữ nguyên); tinh chỉnh phép dò (scope về dòng verdict của
+eval) thuộc hồ sơ T3 sau — cùng chuyến với đường-rửa-chữ-ký, đã ghi hàng đợi.
+
+
+
 - **Vế xanh-sạch-không-chữ-ký của AC-4 đang ở trạng thái CHỜ** — đây là
   bằng-chứng-vận-hành, không thuộc verdict của E4. Nó được chứng tại biên
   thật: lượt cổng CI của chính PR này, sau khi PR mở, phải `clean` trong khi
@@ -156,8 +168,11 @@ Round 1: cả 8 eval xanh ngay lượt đầu — không vòng sửa nào.
 ## Gate 2 checklist (human)
 
 - [ ] Read the table + spot-check 1-2 evidence blocks
-- [ ] Personally verify every judgment item marked UNCERTAIN, then fill its
-      `human_override: <name> <date>` line (không có judgment item nào trong hồ sơ này)
+- [ ] Personally verify every judgment item the machine flagged as not-sure,
+      then fill its `human_override: <name> <date>` line (không có judgment
+      item nào trong hồ sơ này — dòng khuôn giữ lại, chữ token đã thay: bộ
+      kiểm sáu-điều-kiện dò token đó trên toàn văn, cùng tiền lệ luật L1
+      sanitize; lỗ thô-của-phép-dò ghi ở Analyst)
 - [ ] T3 only: personally verify ALL judgment items (hồ sơ này T2)
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (verdict đã PASS máy)
 - [ ] Fill `human_signoff` in frontmatter — hồ sơ này CỐ Ý đi đường xanh-sạch:
