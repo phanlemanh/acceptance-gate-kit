@@ -67,6 +67,12 @@ const ALLOWED_REMOVALS = [
   `# no path→slug mapping, so "carries artifacts" means any _acceptance/ change;`,
   `# the per-slug checks above judge their quality.`,
   `    case "$f" in _acceptance/*|*/_acceptance/*) gate_touched=1; continue ;; esac`,
+  // đợt 2 «veto có dấu vết»: thêm luật `veto-trace` vào sổ luật. Dòng khai
+  // LEDGER_EXPECTED buộc phải sửa — RL7a1 đòi tập tên trong sổ KHỚP tập
+  // ledger_mark trong script, nên không có đường thêm luật mà không chạm dòng
+  // này. Miễn trừ đích danh đúng chuỗi cũ (không phải mẫu), nên mọi sửa khác
+  // trên dòng ấy vẫn ĐỎ.
+  `LEDGER_EXPECTED="per-slug gap-probe t1-escape"`,
 ];
 let passed = 0, failed = 0;
 const check = (n, f) => { try { f(); passed++; console.log(`  PASS: ${n}`); } catch (e) { failed++; console.log(`  FAIL: ${n}\n    ${e.message}`); } };

@@ -34,7 +34,22 @@ executors:
     workflows: "bash tests/workflows/run-tests.sh"
   script:
     coverage_lint: "node scripts/eval-coverage-lint.js ."
-    mirror_sync: "bash scripts/sync-plugin-packages.sh --check"
+    # Vật của hồ sơ luu-kho — răng đo sự VẮNG MẶT, đối chứng dương neo vào mốc
+    # `truoc-luu-kho-2026-08` (bất biến) chứ không vào origin/main (còn di
+    # chuyển). Cùng nếp không-vào-suite-vĩnh-viễn với hai script dưới.
+    luu_kho_rang: "bash _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh"
+    # AC-11 là một ĐẲNG THỨC số ca, và bốn eval của nó hứa đỏ ghim
+    # "so ca lech ky vong: <truoc> -> <sau>". Bốn khoá dưới là chỗ lời hứa đó
+    # thành mã: mỗi khoá chạy ĐÚNG MỘT suite (không thêm lượt chạy nào so với
+    # trước) rồi đếm và so với bản khai máy-đọc trong contract.md. Chúng chết
+    # theo hồ sơ khi merge, cùng nếp không-vào-suite-vĩnh-viễn với luu_kho_rang.
+    luu_kho_so_ca_plugins: "bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite plugins"
+    luu_kho_so_ca_workflows: "bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite workflows"
+    luu_kho_so_ca_scripts: "bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite scripts"
+    luu_kho_so_ca_hooks: "bash _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh --suite hooks"
+    # Vật của hồ sơ cat-hinh-thuc — răng đo sự VẮNG MẶT của một luật hành xử,
+    # đối chứng dương neo vào `origin/main`. Cùng nếp không-vào-suite-vĩnh-viễn.
+    cat_hinh_thuc_rang: "bash _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh"
     # Vật của MỘT hồ sơ (chip ③), so với base tường minh origin/main — cố ý
     # KHÔNG vào suite vĩnh viễn (PR tương lai đổi bên-viết hợp lệ sẽ đỏ oan).
     # Cùng nếp E7 no-vat-that-drift.sh của chip ②b.
@@ -42,6 +57,31 @@ executors:
     # Vật của hồ sơ chip ③b — cùng nếp: base tường minh origin/main, không
     # vào suite vĩnh viễn.
     no_vat_cam_drift_3b: "bash _acceptance/may-ganh-nguoi-quyet/no-vat-cam-drift.sh"
+    # Vật của hồ sơ doi-hanh-vi-cong-nguoi (1c) — răng lớp MÁY, neo đối chứng
+    # dương vào MỐC BẤT BIẾN `BASE-1C` đọc từ contract (không origin/main: sau
+    # khi hồ sơ này merge thì needle về 0 ở cả hai đầu và phép đo tự chết).
+    # Mỗi chân kèm chiều đỏ chạy qua CHÍNH hàm kiểm trong cùng lượt.
+    # Cùng nếp không-vào-suite-vĩnh-viễn với các bộ răng hồ sơ trên.
+    rang_1c_g1: "bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan g1"
+    rang_1c_g3: "bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan g3"
+    rang_1c_g4: "bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan g4"
+    rang_1c_manifest: "bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan manifest"
+    rang_1c_so_ca_asserts: "bash _acceptance/doi-hanh-vi-cong-nguoi/rang-1c.sh --chan so-ca-asserts"
+    # Vật của hồ sơ veto-co-dau-vet (đợt 2, T3) — răng lớp mã-tiền-định: chạy
+    # CHÍNH hook/pre-merge/lõi kiểm trên fixture code-sinh, chiều đỏ cùng lượt.
+    # Cùng nếp không-vào-suite-vĩnh-viễn với các bộ răng hồ sơ trên.
+    rang_veto_hook_v: "bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan hook"
+    rang_veto_hook_cu: "bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan hook-cu"
+    rang_veto_premerge_dem: "bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan premerge-dem"
+    rang_veto_premerge_sach: "bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan premerge-sach"
+    rang_veto_ghi_nguoc: "bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan ghi-nguoc"
+    rang_veto_vanban: "bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan vanban"
+    rang_veto_so_ca: "bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan so-ca"
+    # Vật của hồ sơ release-2-0-0 — cùng nếp không-vào-suite-vĩnh-viễn.
+    rang_release_manifest: "bash _acceptance/release-2-0-0/rang-release.sh --chan manifest"
+    rang_release_docs: "bash _acceptance/release-2-0-0/rang-release.sh --chan docs"
+    rang_release_lan_v: "bash _acceptance/release-2-0-0/rang-release.sh --chan lan-v"
+    rang_release_diff: "bash _acceptance/release-2-0-0/rang-release.sh --chan diff-allowlist"
     # Răng của P194: ghim ĐÚNG dòng của case trong stdout thay vì tin mã thoát
     # của trọn suite (suite xanh cả trên origin/main → không phân biệt được).
     p194_rang: "bash _acceptance/may-ganh-nguoi-quyet/p194-rang.sh"
@@ -65,12 +105,6 @@ risk_tiers:
     # để ngoài danh sách này thì mỗi lần ghi một quyết định-không-làm lại làm
     # evidence stale và tốn một vòng S4.
     - ".out-of-scope/**"
-    # Build mirror sinh máy (ADR 0001). An toàn để miễn trừ: P30
-    # (sync-plugin-packages.sh --check) canh `mirror == nguồn` độc lập, nên sửa
-    # tay ở đây bị chặn bởi luật khác — case P41 là RED bắt buộc chứng minh
-    # điều đó. Miễn trừ này KHÔNG mở rộng sang .github/** (đổi CI có thể tắt
-    # cổng) hay .claude-plugin/plugin.json (manifest khai được hooks).
-    - "plugins/**"
     # Bản đồ sản phẩm — view máy sinh, cùng vai với mirror (ADR 0007). Không
     # miễn trừ thì chính commit chữ ký Cổng 2 (nó kèm bản đồ vừa vẽ lại) tự làm
     # bằng chứng stale và chặn merge, thành vòng không thoát. An toàn vì
@@ -93,11 +127,16 @@ signoff:
   require_human_commit: true
 feature_loop:
   suite_keys:
-    # Chạy mỗi vòng verify. Ba suite + hai cổng chống trôi (mirror, từ vựng).
+    # Chạy mỗi vòng verify. Ba suite + cổng chống trôi từ vựng.
+    # Khoá `mirror_sync` đã CHẾT cùng mirror (hồ sơ luu-kho, Cổng 1 duyệt
+    # 12/08): `plugins/` chỉ tồn tại cho harness Codex, gỡ Codex thì mirror
+    # thành 125 file máy sinh không ai đọc, và P30 thành lưới canh sự khớp của
+    # thứ vô dụng. Xoá khoá ở ĐÂY là bắt buộc: để lại một suite_key trỏ executor
+    # không còn định nghĩa là gỡ-một-nửa, và runner sẽ đỏ vì hạ tầng chứ không
+    # vì vật.
     - executors.test.scripts
     - executors.test.hooks
     - executors.test.plugins
-    - executors.script.mirror_sync
     # Lớp thuần của 2 workflow script (verdict routing, dedupe, carry-forward,
     # scope-triage) — harness vm-realm, không sinh agent nào.
     - executors.test.workflows

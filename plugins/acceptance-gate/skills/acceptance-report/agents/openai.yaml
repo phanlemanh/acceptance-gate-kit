@@ -1,5 +1,0 @@
-interface:
-  display_name: "Acceptance Report"
-  short_description: "Aggregate acceptance metrics across all features (read-only)"
-policy:
-  allow_implicit_invocation: false

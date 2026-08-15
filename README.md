@@ -1,8 +1,8 @@
 # Acceptance-Gate Kit
 
-Evidence-backed acceptance gate for AI-generated features. Cuts human
-acceptance time from hours of hand-testing to ~15-20 minutes at two
-high-leverage gates.
+Evidence-backed acceptance gate for AI-generated features. Replaces hours of
+hand-testing with machine evidence, and puts the human at two high-leverage
+decision points instead of inside the loop.
 
 ## How it works
 
@@ -45,36 +45,16 @@ Enforcement is deterministic, not aspirational:
 
 ## Install
 
-Claude Code:
-
 ```bash
 claude plugin marketplace add phanlemanh/acceptance-gate-kit
 claude plugin install acceptance-gate@acceptance-gate-kit
-claude plugin install feature-loop@acceptance-gate-kit    # Claude Code edition
+claude plugin install feature-loop@acceptance-gate-kit    # full loop
 claude plugin install superpowers@claude-plugins-official # required by feature-loop
-claude plugin install design-loop@acceptance-gate-kit     # optional for web UI
 ```
 
-Codex:
-
-```bash
-codex plugin marketplace add phanlemanh/acceptance-gate-kit
-codex plugin add acceptance-gate@acceptance-gate-kit
-codex plugin add feature-loop-codex@acceptance-gate-kit   # Codex-native edition
-codex plugin add design-loop@acceptance-gate-kit          # optional for web UI
-codex plugin add superpowers@openai-curated               # optional brainstorm/plan helpers
-```
-
-Codex requires CLI **0.139.0 or newer** for the native plugin, hook, goal, and
-multi-agent surfaces used by these editions. Open a **fresh task** after
-installing or upgrading so the task discovers the new skills and hooks. Review
-the plugin in `/hooks` and grant **hook trust** before relying on its write-time
-gate; CI remains authoritative if a local hook is untrusted or disabled.
-
-`design-loop` on Codex uses portable mockup/evidence skills and repository
-executors. **Claude Design is unavailable in Codex**; the Codex edition never
-pretends to invoke that Claude-only surface and never treats an unverified VLM
-assertion as design evidence.
+Open a **fresh session** after installing or upgrading so the runtime discovers
+the new skills and hooks. CI remains authoritative if the write-time hook is
+untrusted or disabled.
 
 Stay current — two devs on different kit versions in one repo run two different
 gate rule-sets:
@@ -82,43 +62,25 @@ gate rule-sets:
 ```bash
 claude plugin update acceptance-gate@acceptance-gate-kit
 claude plugin update feature-loop@acceptance-gate-kit
-codex plugin marketplace upgrade
 ```
 
-> **Codex enforcement note.** The same artifacts, scripts, and CI gate are used.
-> Write-time hook behavior depends on the active agent runtime and hook trust,
-> so do not rely on it as the only guard. The authoritative cross-runtime
-> backstop is still the vendored CI set:
+> **Enforcement note.** Write-time hook behavior depends on the active agent
+> runtime and hook trust, so do not rely on it as the only guard. The
+> authoritative backstop is still the vendored CI set:
 > `scripts/pre-merge-check.sh`, `scripts/recheck-evidence.cjs`, and the five
 > `lib/*.cjs` files (`evidence-core`, `gap-probe`, `workspace-record`,
 > `ac-line`, `md-section`).
 
 For local development, replace `phanlemanh/acceptance-gate-kit` with the
-absolute path to this checkout. After changing acceptance-gate source files,
-run:
+absolute path to this checkout. Source files are used directly — there is no
+packaged copy to regenerate.
 
-```bash
-scripts/sync-plugin-packages.sh
-```
+> **feature-loop** runs the gate discipline end to end: brainstorm →
+> contract+evals (Gate 1) → plan → execute → verify → evidence + signoff
+> (Gate 2).
 
-> **feature-loop** has two runtime-specific editions:
-> - `feature-loop` is the Claude Code edition and uses Claude workflow scripts.
-> - `feature-loop-codex` is the Codex edition using Codex-native agent
->   orchestration and shell/browser evidence.
->
-> Both preserve the same gate discipline: brainstorm → contract+evals
-> (Gate 1) → plan → execute → verify → evidence + signoff (Gate 2).
-
-Installing the Claude plugin registers the skill, slash commands, and
-PreToolUse hook. Installing the Codex plugins registers native skills and
-hooks, including helper skills for acceptance init/status/card and portable
-design operations; CI remains the runtime-independent enforcement layer.
-
-For Codex role-level budget routing, invoke `feature-loop-model-init` inside the
-consumer repository after `acceptance-init`. It installs project-scoped agents
-under `.codex/agents/`; a fresh task loads the policy. Claude
-`feature_loop.models` remains unchanged and continues to control only the
-Claude Workflow edition.
+Installing the plugin registers the skill, slash commands, and the PreToolUse
+hook; CI remains the runtime-independent enforcement layer.
 
 Pilot mode (iterate on the kit while using it) — symlink ALL THREE pieces
 into the consumer repo; the skill alone is not enough (commands and the hook
@@ -141,21 +103,11 @@ ln -s <kit>/commands/start.md             .claude/commands/start.md
 
 Restart the Claude Code session afterwards — skills/commands/hooks are
 discovered at session start. Keep the symlinks and settings.local.json
-uncommitted (absolute machine paths). For Codex pilot mode, prefer adding this
-checkout as a local marketplace:
-
-```bash
-codex plugin marketplace add /absolute/path/to/acceptance-gate-kit
-codex plugin add acceptance-gate@acceptance-gate-kit
-codex plugin add feature-loop-codex@acceptance-gate-kit
-codex plugin add design-loop@acceptance-gate-kit
-```
+uncommitted (absolute machine paths).
 
 ## Per-repo setup (once)
 
-In Claude Code, run `/acceptance-init`. In Codex, invoke the
-`acceptance-init` skill (or ask "run acceptance init"). Both write the same
-`_acceptance/config.yaml` artifact.
+Run `/acceptance-init`; it writes the `_acceptance/config.yaml` artifact.
 
 Copy `scripts/pre-merge-check.sh`, `scripts/recheck-evidence.cjs`, and the five
 `lib/*.cjs` files (`evidence-core`, `gap-probe`, `workspace-record`, `ac-line`,
@@ -226,34 +178,24 @@ committed reports meet the current evidence shape.
   walk Gate 2: preconditions → `human_override`/`human_signoff` → signature in
   its own human-fields-only commit → pre-merge re-check. The decision verbs
   never decide on their own.
-- `/acceptance-report` → is the gate paying off? Human minutes vs
-  `baseline_minutes` (KPI ≥50% reduction), verdict mix, gate hygiene
-  (skips/bypasses/stale evidence). Read-only.
+- `/acceptance-report` → is the gate healthy? Verdict mix, verify rounds,
+  gate hygiene (skips/bypasses/stale evidence). Read-only.
 - Risk tiers: T1 skips the kit; T3 requires direct human verdicts on all
   judgment items. Tiers/globs are per-repo in `_acceptance/config.yaml`.
-- Current test surface (8 suites, all fixture-driven): 51 hook cases
-  (`tests/hooks/run-tests.sh`) + 155 script cases
+- Current test surface (6 suites, all fixture-driven): hook cases
+  (`tests/hooks/run-tests.sh`) + script cases
   (`tests/scripts/run-tests.sh`: pre-merge check + provenance + evidence
   re-check, eval-coverage lint, gate-card, evidence-page) + packaging checks
   (`tests/plugins/run-tests.sh`: version alignment, vendored engine import
-  graph, `${CLAUDE_PLUGIN_ROOT}` path resolution) + design-loop fixtures
-  (`tests/design-loop/run-tests.sh`: token-only + layout-token-only +
-  contrast-AA regressions) + layout-meter suite (`tests/skills/run-tests.sh`:
-  analyze() geometry + browser-verified fixtures) + design-eval, workflow,
-  and Codex suites.
+  graph, `${CLAUDE_PLUGIN_ROOT}` path resolution) + layout-meter suite
+  (`tests/skills/run-tests.sh`: analyze() geometry + browser-verified
+  fixtures) + design-eval and workflow suites.
 
 ## Layout
 
 | Path | What |
 |---|---|
 | `.claude-plugin/marketplace.json` | Claude Code marketplace entry |
-| `.agents/plugins/marketplace.json` | Codex marketplace entry |
-| `.codex-plugin/plugin.json` | Codex manifest for the acceptance-gate plugin |
-| `codex/` | Codex-only source overlays; never loaded by Claude Code |
-| `plugins/acceptance-gate/` | Packaged acceptance-gate plugin for the Codex marketplace (regenerate with `scripts/sync-plugin-packages.sh`) |
-| `plugins/feature-loop-codex/` | Codex-native feature-loop edition |
-| `plugins/design-loop-codex/` | Portable Codex design-loop package |
-| `design-loop/` | Shared design engine plus the Claude Code design-loop source |
 | `skills/acceptance/` | The 3-phase skill + templates |
 | `skills/ux-ui-craft/` | Design-engineer skill: 7-step UI process, hard gates (contrast, type/alignment budgets, structure–space coherence, states), Layout Contract + layout meter (`measure_layout.js`), System+Prototype+Audit modes, 10 craft references |
 | `skills/morphological-scan/` | CT-S coverage skill: Zwicky-box AC-space scan (MECE axes + CE evidence + Pareto Core/Later/Never) feeding the contract's Coverage section on the Gate-1 card |
@@ -265,7 +207,7 @@ committed reports meet the current evidence shape.
 | `scripts/gate-card.js` | Render the Gate 1 / Gate 2 human decision card |
 | `scripts/config-patch.mjs` | THE splice path for programmatic config.yaml writes (dry-run, .bak, abort-on-existing) |
 | `scripts/evidence-page.js` | Render the full Gate-2 evidence page (screenshots/output/slideshow) |
-| `tests/` | Fixture tests: `for t in hooks scripts plugins design-loop design-eval workflows codex skills; do bash tests/$t/run-tests.sh; done` |
+| `tests/` | Fixture tests: `for t in hooks scripts plugins design-eval workflows skills; do bash tests/$t/run-tests.sh; done` |
 
 ## Kit chạy cổng của chính nó (self-hosting)
 
@@ -306,12 +248,15 @@ contract cẩu thả; chất lượng contract là việc của Gate 1 và các 
 
 ## Pilot metrics
 
-`time_human_minutes` (gate1/gate2) lives in each contract's frontmatter.
-Capture the pre-kit baseline ONCE during `/acceptance-init` (optional
-question): estimated acceptance minutes for the last 3 features →
-`baseline_minutes` in `_acceptance/config.yaml`.
-Success bar for the pilot: ≥50% less human time than that baseline,
-zero business-logic defects slipping past the gate.
+The kit does **not** measure human minutes. That number was self-reported at
+the gate to get past it, so it cost a human interruption and produced fictional
+data at the same time; the baseline it was divided by was deliberately left
+empty, so the "≥50% less human time" bar was never computable. What the gates
+actually record — verdict mix, verify rounds, and gate hygiene (skipped gates,
+un-acked bypasses, stale evidence) — is what `/acceptance-report` prints.
+Success bar for the pilot: zero business-logic defects slipping past the gate,
+and acceptance that is *possible at all* rather than *faster* — before the kit
+it mostly did not happen.
 
 ## Known limitations (v1)
 

@@ -7,8 +7,8 @@
 // pre-merge-check.sh) are line/2-space-indent based — a YAML-lib round-trip
 // would reformat and break them, and a free-hand agent edit can corrupt live
 // keys. So: TEXT splice, append-only into the right block, ABORT when the key
-// already exists (never overwrite a live value). Same discipline as
-// design-loop/scripts/design-config-patch.mjs, generalized to one dotted key.
+// already exists (never overwrite a live value). Generalized to one dotted key
+// from an earlier single-purpose config patcher.
 //
 // Default: DRY-RUN (print the plan, write nothing). Pass --write to apply —
 // backs up to <config>.bak first, and self-checks the result with the SAME

@@ -1,0 +1,670 @@
+schema_version: 1
+feature_slug: luu-kho-codex-va-nghi-le-design
+# Vật được giao ở hồ sơ này phần lớn là SỰ VẮNG MẶT. Đó là hình dạng nguy hiểm
+# nhất trong sổ vấp của kho: "assertion âm-tính-một-mình là assertion không
+# sống" — grep hỏng, đường dẫn gõ sai, script chưa chạy đều cho cùng một màu
+# xanh. Nên MỌI eval âm ở đây bị buộc ba điều:
+#   (a) ĐỐI CHỨNG DƯƠNG neo vào tag `truoc-luu-kho-2026-08` — cùng câu quét
+#       chạy trên cây của tag phải cho >0 hit. Cố ý KHÔNG dùng origin/main:
+#       origin/main còn di chuyển, tag thì bất biến, và chính AC-1 bảo đảm tag
+#       tồn tại. Tag VẮNG → script ĐỎ (fail-closed), không phải bỏ qua.
+#   (b) GHIM ĐÚNG THÔNG ĐIỆP, không tin mã thoát trọn suite (lớp
+#       runner-nuốt-mã-thoát + suite-xanh-cả-hai-cây).
+#   (c) CHIỀU ĐỎ CHẠY THẬT: script tự dựng bản sao có vật bị lưu kho chép
+#       ngược về, chạy lại CHÍNH checker thật, in xác-nhận-đột-biến.
+# Số ca in ra SUY từ mảng, không phải literal (lớp tổng-kết-không-kèm-số-ca).
+# Không có làn design/ui-check: kit không có web UI.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.luu_kho_rang
+    paths:
+      - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+    expected: >
+      exit 0; stdout có "LUU-KHO-TAG: truoc-luu-kho-2026-08 -> <sha>" và
+      "LUU-KHO-TAG: la cha cua commit go dau tien OK". Script assert: (1) tag
+      tồn tại (`git rev-parse -q --verify`); (2) cây của tag CÓ đủ ba đường
+      dẫn `codex/`, `design-loop/`, `plugins/` (`git ls-tree` — không checkout,
+      không đụng cây làm việc); (3) mốc là **CHA TRỰC TIẾP** của commit gỡ đầu
+      tiên — `git rev-list <mốc>..<commit gỡ đầu>` trừ chính nó phải RỖNG; quan
+      hệ tổ-tiên KHÔNG đủ vì nó cho phép chèn commit khác vào giữa, tức cây của
+      mốc không còn là "ngay trước khi gỡ"; (4) **mốc có trên remote** —
+      `git ls-remote --tags origin` trả đúng sha local, đỏ ghim "LUU-KHO-TAG:
+      chua day len remote". Chân (4) là chân sống-còn của cả hồ sơ: mốc chỉ nằm
+      local thì đường-đảo-rẻ (thứ duy nhất biện minh cho việc xoá ~194 file)
+      không tồn tại với bất kỳ ai khác, hai ADR ghim một sha không ai resolve
+      nổi, và mọi lần verify lại đỏ vĩnh viễn theo chính luật fail-closed dưới
+      đây. Chiều đỏ CHẠY
+      THẬT: gọi lại chính hàm kiểm với tên tag bịa `truoc-luu-kho-KHONG-CO` →
+      đỏ ghim "LUU-KHO-TAG: thieu tag doi chung — khong the chay bat ky
+      assertion am nao", in xác-nhận-đột-biến. Đây là chân fail-closed của cả
+      bộ: thiếu tag thì E2/E4/E9 mất đối chứng dương nên KHÔNG được phép xanh.
+      Baseline: n-a (script là vật của chính hồ sơ này; đối chứng neo vào tag
+      tường minh trong lệnh).
+    pinned:
+      - "LUU-KHO-TAG: la cha cua commit go dau tien OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.luu_kho_rang
+    paths:
+      - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+    expected: >
+      exit 0; danh sách vật lưu kho KHÔNG nêu lại ở đây — nó sống ở đúng MỘT
+      chỗ: khối máy-đọc `VAT-LUU-KHO` trong `contract.md`, và `luu-kho-rang.sh`
+      đọc thẳng khối ấy. Stdout có dòng đếm "LUU-KHO-PATH: <n>/<n> vang o HEAD,
+      co o tag OK (danh sach doc tu khoi VAT-LUU-KHO)" với n = số dòng của
+      khối, suy lúc chạy chứ không viết cứng ở đâu.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng thu gọn «chỉ TRỪ»]** Bản trước liệt kê
+      lại sáu đường dẫn và ghim "6/6" ngay tại đây — một bản chép chỉ-người-đọc
+      của khối, và nó đã trôi thật (G1 vòng 3: khối lên bảy, câu này còn sáu,
+      nằm ở đúng dòng vòng 2 cite cho F1). Luật rút ra, khai ở AC-20: văn xuôi
+      nêu QUAN HỆ và LÝ DO; GIÁ TRỊ chỉ sống ở khối máy-đọc hoặc ở bản chép
+      được máy so mỗi vòng (`pinned:` — trôi là recorder đỏ, trôi thành TIẾNG).
+      Script đỏ ghim đích danh khi: path còn trên HEAD ("… con tren HEAD") HOẶC
+      path KHÔNG có ở tag ("… khong co o tag — doi chung duong hong, assertion
+      nay khong song"). Vế sau là chân chống chính lớp lỗi đã ghi sổ: gõ sai
+      đường dẫn thì cả hai đầu đều 0-hit và eval xanh oan. Chiều đỏ CHẠY THẬT:
+      chép `codex/` từ tag về một bản sao tạm rồi chạy lại checker trên bản sao
+      → đỏ "LUU-KHO-PATH: codex/ con tren HEAD"; đối chứng dương (cây thật)
+      xanh trước đột biến.
+    pinned:
+      - "LUU-KHO-PATH: 7/7 vang o HEAD, co o tag OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.luu_kho_rang
+    paths:
+      - .claude-plugin/marketplace.json
+      - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+    expected: >
+      exit 0; stdout có "LUU-KHO-MKT: claude 2 plugin (acceptance-gate,
+      feature-loop) OK" và "LUU-KHO-MKT: .agents/plugins/marketplace.json vang
+      OK". Script đọc manifest bằng `node -e` + JSON.parse (KHÔNG grep — manifest
+      là JSON, grep mù với định dạng: một entry bị comment hay đổi thụt lề vẫn
+      khớp chuỗi), assert tập tên plugin đúng bằng {acceptance-gate,
+      feature-loop} và entry `design-loop` vắng. Đối chứng dương: cùng phép đọc
+      trên manifest lấy từ tag cho 3 entry — in "LUU-KHO-MKT: tag co 3 entry
+      OK", nên "2 entry" là kết quả của việc GỠ chứ không phải của file hỏng.
+      Chiều đỏ CHẠY THẬT: thêm lại entry design-loop vào bản sao manifest →
+      đỏ "LUU-KHO-MKT: con entry design-loop".
+    pinned:
+      - "LUU-KHO-MKT: claude 2 plugin (acceptance-gate, feature-loop) OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.luu_kho_rang
+    paths:
+      - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+      - GUIDE.md
+      - QUICKSTART.md
+      - README.md
+      - CONTEXT.md
+    expected: >
+      exit 0; mảng needle KHÔNG nêu lại ở đây — nó sống ở khối máy-đọc
+      `NEEDLE-CHET` trong `contract.md` (lý do vào/ra của từng needle cũng nằm
+      ở AC-4 của contract, một chỗ), và `luu-kho-rang.sh` đọc thẳng khối ấy.
+      Với TỪNG needle của khối, quét phạm vi SỐNG (mảng `SCOPE` in ở đầu nhóm
+      E4) và in "LUU-KHO-REF: <needle> HEAD=0 tag=<n>(>0) OK"; dòng đếm
+      "LUU-KHO-REF: <n>/<n>" suy từ khối lúc chạy.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng thu gọn «chỉ TRỪ»]** Bản trước mang HAI
+      bản chép của mảng ngay trong eval này (một mảng 11 lỗi thời từ bản duyệt
+      + một ghi chú "còn TÁM" của vòng sửa 1) — cả hai trôi khỏi khối thật
+      (G2 vòng 3). Xử như E2: giá trị về khối, văn xuôi giữ lý do.
+      Bốn needle mirror + `.agents` + hai đích quét là bổ sung sau phản biện:
+      thiếu chúng thì gỡ `plugins/` và script sync xong, `CLAUDE.md` vẫn bắt
+      "chạy sync và commit mirror cùng lượt" còn CI vẫn gọi script đã xoá — cả
+      bộ eval xanh, hai cổng duyệt, CI đỏ sau merge. `.agents` vào mảng vì
+      đường dẫn `.agents/plugins/marketplace.json` KHÔNG chứa chuỗi `codex`,
+      nên needle theo tên thương hiệu mù với nó.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Phạm vi bỏ `tests/`** — lý do
+      đầy đủ nằm trong AC-4 của `contract.md`, không còn chỉ trong chú thích
+      script.
+      **MIỄN TRỪ theo CẶP `(tệp, từ khoá)`, khai trước khi đo, mỗi cặp kèm số
+      dòng:** `skills/ux-ui-craft/SKILL.md × design-loop` (1) ·
+      `.claude-plugin/plugin.json × design-loop` (1) ·
+      `.claude-plugin/plugin.json × sync-plugin-packages` (1) ·
+      `feature-loop/.claude-plugin/plugin.json × design-loop` (1). Script in
+      "LUU-KHO-REF: mien tru 4/4 cap dung so dong da khai OK" và ĐỎ hai chiều —
+      khai thiếu, hoặc khai thừa (dòng khai mà tệp không còn hit). Bản trước neo
+      theo TIỀN TỐ TỆP nên che trọn bốn tệp cho cả tám needle: allowlist
+      fail-loud hoá fail-silent, và đã có vật lọt thật.
+      **Thêm một chân TRƯỚC mọi con số 0:** mỗi mục trong danh sách phạm vi phải
+      TỒN TẠI trên cây ("LUU-KHO-REF: 13/13 muc pham vi ton tai OK"). Không có
+      chân này thì một mục gõ sai làm `grep` im lặng và cả tám needle in
+      "HEAD=0 … OK" trong khi phép quét chưa quét gì.
+      Hai chân bắt buộc mỗi needle: HEAD phải 0 VÀ tag phải >0 — needle nào tag=0 thì đỏ
+      "LUU-KHO-REF: <needle> tag=0 — needle nay chua bao gio ton tai, phep do
+      khong song" (lớp needle-đã-tồn-tại: một từ khoá gõ sai cho 0-hit hai đầu
+      và xanh oan). `docs/` và `_acceptance/` ngoài phạm vi (sử liệu). Grep
+      dùng lớp ký tự cho ký tự đặc biệt (GNU coi ` là anchor). Chiều đỏ CHẠY
+      THẬT: chèn lại một dòng "In Codex…" vào bản sao `commands/signoff.md` →
+      đỏ "LUU-KHO-REF: In Codex HEAD=1".
+    pinned:
+      - "LUU-KHO-REF: 13/13 muc pham vi ton tai OK"
+      - "LUU-KHO-REF: 11/11"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4b
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.luu_kho_rang
+    paths:
+      - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+      - skills/ux-ui-craft
+    expected: >
+      exit 0 — **ĐỎ-NGOÀI-DANH-SÁCH**, chân bắt buộc của mọi miễn trừ. Script
+      chép `skills/ux-ui-craft/` ra bản sao, tiêm một tham chiếu `design-loop`
+      MỚI vào một file KHÁC file đã miễn trừ, chạy lại CHÍNH lưới của E4 trên
+      bản sao, và assert lưới ĐỎ ghim đúng file vừa tiêm; in xác-nhận-đột-biến.
+      Không có eval này thì miễn trừ một dòng dễ trượt thành miễn trừ cả thư
+      mục, và lưới im lặng ở đúng chỗ nó phải kêu. Đối chứng dương: bản sao
+      chưa tiêm phải XANH trước.
+    pinned:
+      - "LUU-KHO-REF: mien tru 4/4 cap dung so dong da khai OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.luu_kho_rang
+    paths:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - GUIDE.md
+      - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+    expected: >
+      exit 0; stdout có "LUU-KHO-CT2: nhanh UI tro design-pass OK". Script rút
+      đoạn CT2 của `feature-loop/skills/feature-loop/SKILL.md` qua marker (KHÔNG
+      quét cả file — quét cả file thì một câu trùng ở chỗ khác cũng làm xanh) và
+      assert ĐỒNG THỜI hai chiều: (dương) đoạn đó nêu `design-pass` và eval
+      `ui-check`/`design-gate`; (âm) đoạn đó KHÔNG còn cụm đề nghị cài
+      design-loop và KHÔNG còn bước DỪNG đòi `/design-mockup`. Thêm:
+      `GUIDE.md` có đoạn hướng dẫn wire `executors.design` bằng tay — assert
+      bằng marker, không bằng câu văn. Đối chứng dương ở tag: cùng phép rút
+      cho ra đoạn CT2 CÓ hai cụm âm nói trên (in "LUU-KHO-CT2: tag co ca hai
+      cum am OK") — chứng minh phép rút thật sự đọc được đoạn, không phải
+      marker gõ sai. Chiều đỏ CHẠY THẬT: chép đoạn CT2 của tag đè lên bản sao →
+      đỏ ghim đích danh cụm còn sót.
+    pinned:
+      - "LUU-KHO-CT2: nhanh UI tro design-pass OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.luu_kho_rang
+    paths:
+      - scripts/design-gate.mjs
+      - scripts/design-scan.js
+      - scripts/build-design-scan.mjs
+      - lib/design-detect.mjs
+      - lib/p-tiers.json
+      - skills/design-pass/SKILL.md
+      - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+    expected: >
+      exit 0 — ĐỐI CHỨNG GIỮ-GÂN, chân quan trọng nhất của một chip GỠ. Với
+      TỪNG vật trong mảng CẤM ĐỤNG (`scripts/design-gate.mjs`,
+      `scripts/design-scan.js`, `scripts/build-design-scan.mjs`,
+      `lib/design-detect.mjs`, `lib/p-tiers.json`, `vendor/impeccable/`,
+      `tests/design-eval/`, `tests/skills/`, `skills/design-pass/`)
+      stdout in "LUU-KHO-GIU: <path> con nguyen
+      (byte-equal moc) OK" và dòng đếm "LUU-KHO-GIU: 9/9" suy từ mảng.
+      "Còn nguyên" đo bằng **băm nội dung so với mốc**, không chỉ `test -e`:
+      tồn-tại-mà-bị-sửa là đúng kiểu cắt-nhầm-gân mà `test -e` mù.
+      **`skills/ux-ui-craft/` RA KHỎI mảng byte-equal — ngoại lệ khai TRƯỚC khi
+      đo.** Bản đầu viết "ngoại lệ được phép khác tag: không có"; kiểm trên vật
+      chứng minh câu đó SAI: `references/layout-craft.md:121` chứa tham chiếu
+      SỐNG ("Where design-loop is wired… `design-static-check`'s
+      layout-token-only BLOCK") trỏ đúng plugin và đúng script sắp chết, nên nó
+      PHẢI đổi. Giữ câu "không có ngoại lệ" thì AC-4 và AC-6 mâu thuẫn và
+      **không tồn tại trạng thái cây nào cho cả bộ xanh** — S4 kẹt vòng, lối
+      thoát rẻ nhất lúc đó là nới một trong hai sau khi đã thấy số, tức hạ
+      thước. Thay bằng chân riêng: `layout-craft.md` KHÔNG còn trỏ
+      `design-static-check`, CÓ trỏ `design-gate`, và mọi file khác trong
+      `skills/ux-ui-craft/` byte-equal mốc — in "LUU-KHO-GIU: ux-ui-craft 1 file
+      doi co khai, con lai byte-equal OK".
+      Chiều đỏ CHẠY THẬT: xoá một dòng
+      trong bản sao `lib/design-detect.mjs` → đỏ "LUU-KHO-GIU:
+      lib/design-detect.mjs LECH tag".
+    pinned:
+      - "LUU-KHO-GIU: ux-ui-craft 1 file doi co khai, con lai byte-equal OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.luu_kho_so_ca_scripts
+    paths:
+      - tests/design-eval
+      - tests/skills
+    expected: >
+      exit 0; stdout có "LUU-KHO-SUITE: scripts 671 -> 686 OK" và dòng tổng kết
+      NGUYÊN VĂN của suite `Results: 686 passed, 0 failed` — ĐẲNG
+      THỨC, không phải sàn. Suite `scripts` tại `daa9b3d` có **671** ca; hồ sơ
+      này gỡ `design-loop/`, mà `tests/scripts/run-tests.sh:1390-1406` gọi
+      THẲNG hai script của nó (`design-static-check.mjs`, `design-config-patch.mjs`)
+      qua **7 assert**: `DSC01` `DSC02` `DSC03` `SG1` `SG2` `SG3` `SG4`; rồi
+      AC-17/AC-19 thêm **22 assert** `RS01`–`RS06`. Vậy `686 = 671 − 7 + 22`, và
+      eval đỏ ghim "so ca lech ky vong: 671 -> <thuc te>".
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 2] Hai chuỗi ghim ở trên trước đây
+      viết `664`, và cây KHÔNG BAO GIỜ in được chúng.** Rà soát vòng 2 (F4):
+      chuỗi `671 -> 664` được VIẾT MỚI trong vòng sửa 1, ở đúng commit đổi đẳng
+      thức sang 686 — mọi chỗ khác (AC-11, khối `SO-CA-KY-VONG`, E19, bảng Số
+      đo) đều ghi 686, riêng eval này còn 664. Nó sống sót được vì sổ chạy chỉ
+      ghi `exit_code`: lời hứa thông-điệp của cả 23 eval chưa từng được đối
+      chiếu với đầu ra thật. Nay trường `pinned:` dưới đây là bản MÁY-ĐỌC của
+      lời hứa ấy, và `ghi-so-chay.mjs` fail-closed nếu đầu ra không chứa nó
+      (xem AC-20).
+      **Vì sao KHÔNG dùng sàn `≥` ở đây:** đây là suite bị CHỦ Ý làm teo. Đặt
+      sàn 671 thì S4 đỏ vì thước sai chứ không vì vật hỏng, và đường thoát tự
+      nhiên lúc đó là hạ sàn xuống con số vừa đo — sau khi hạ, phép đo mất hẳn
+      khả năng bắt "gỡ nhầm một thư mục test", tức mất đúng lý do nó tồn tại.
+      Sàn `≥` chỉ hợp lệ cho suite hồ sơ KHÔNG đụng tới (E13, E14).
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1]** `cmd` đổi từ
+      `config:executors.test.scripts` sang `config:executors.script.luu_kho_so_ca_scripts`.
+      Không nới cũng không siết: suite vẫn chạy đúng MỘT lượt như cũ, chỉ khác
+      là đầu ra nay đi qua `so-ca.sh` — thứ THẬT SỰ so con số với bản khai và
+      đỏ đúng thông điệp đã hứa ở dòng trên. Bản trước để `expected` mô tả một
+      phép so mà không mã nào làm, tức người đọc log phải tự đếm.
+    pinned:
+      - "LUU-KHO-SUITE: scripts 671 -> 686 OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.luu_kho_rang
+    paths:
+      - docs/adr
+      - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+    expected: >
+      exit 0; stdout có "LUU-KHO-ADR: 2 ADR moi OK" và, cho từng ADR, một dòng
+      "LUU-KHO-ADR: <file> ghim sha <sha> = tag OK". Script assert: đúng hai
+      file ADR mới trong `docs/adr/`; mỗi file chứa sha của tag
+      `truoc-luu-kho-2026-08` **so bằng `git rev-parse`**, không so bằng chuỗi
+      viết cứng trong eval (sha chỉ biết sau khi đặt tag — viết cứng ở đây là
+      đo chỉ-dẫn thay vì đo đầu ra); mỗi file có một dòng trigger mở lại. Chiều
+      đỏ CHẠY THẬT: đổi một ký tự trong sha ở bản sao ADR → đỏ "LUU-KHO-ADR:
+      <file> sha khong khop tag".
+    pinned:
+      - "LUU-KHO-ADR: 2 ADR moi OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E9
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.luu_kho_rang
+    paths:
+      - docs/adr/0001-commit-plugins-mirror.md
+      - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+    expected: >
+      exit 0; stdout có "LUU-KHO-ADR0001: superseded + tro ADR moi OK". Script
+      assert ADR 0001 **vẫn tồn tại** (sử liệu không xoá) VÀ mang dấu
+      superseded VÀ trỏ tới ADR lưu-kho-Codex. Ba chân, thiếu chân nào đỏ đích
+      danh chân đó. Chiều đỏ CHẠY THẬT: gỡ dấu superseded khỏi bản sao → đỏ
+      "LUU-KHO-ADR0001: thieu dau superseded".
+    pinned:
+      - "LUU-KHO-ADR0001: superseded + tro ADR moi OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E10
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.luu_kho_rang
+    paths:
+      - _acceptance/config.yaml
+      - tests/plugins/run-tests.sh
+      - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+    expected: >
+      exit 0 — chân của LỆCH đề bài (gỡ luôn bộ máy mirror). Với TỪNG vật trong
+      mảng NĂM: `plugins/`, `scripts/sync-plugin-packages.sh`, case `P30` trong
+      `tests/plugins/run-tests.sh`, khoá `executors.script.mirror_sync` +
+      suite-key tương ứng trong `_acceptance/config.yaml`, mục `plugins/**`
+      trong `t1_skip_globs` — in "LUU-KHO-MIRROR: <vat> vang o HEAD, co o tag
+      OK"; đếm "LUU-KHO-MIRROR: 5/5" suy từ mảng. Hai khoá config đọc bằng
+      trình đọc YAML thật (`lib/workspace-record.cjs` / `node`), KHÔNG bằng
+      `grep` — grep mù với khoá bị thụt lề khác hoặc nằm trong comment. Đối
+      chứng dương ở tag cho từng vật. Thêm một chân quan hệ: sau khi gỡ,
+      **không executor nào trong config trỏ tới khoá đã chết** — quét toàn bộ
+      `suite_keys` và đối chiếu với tập khoá `executors.*` thật, đỏ ghim
+      "LUU-KHO-MIRROR: suite_keys tro khoa da chet: <key>". Chân này bắt đúng
+      lớp gỡ-một-nửa (gỡ định nghĩa mà để lại tham chiếu). Chiều đỏ CHẠY THẬT:
+      chép lại khoá `mirror_sync` vào bản sao config → đỏ đích danh.
+    pinned:
+      - "LUU-KHO-MIRROR: suite_keys khong tro khoa da chet OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E10b
+    criterion: AC-13
+    executor: script
+    cmd: config:executors.script.luu_kho_rang
+    paths:
+      - CLAUDE.md
+      - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+    expected: >
+      exit 0; stdout có "LUU-KHO-MIRROR: CLAUDE.md khong con bat bien mirror
+      OK". Script assert `CLAUDE.md` HEAD=0 hit cho `sync-plugin-packages` và
+      "build mirror", đối chứng dương ở mốc = **4 hit** (số đo tại chỗ). Tách
+      thành eval riêng vì `CLAUDE.md` thuộc `t1_skip_globs` — **không lưới máy
+      nào khác canh nó**; gộp vào E10 thì mệnh đề này chìm giữa 5 vế đều do
+      script đo và không ai nhận ra nó chưa được đo. Chiều đỏ CHẠY THẬT: chép
+      lại đoạn bất biến mirror vào bản sao `CLAUDE.md` → đỏ đích danh.
+    pinned:
+      - "LUU-KHO-MIRROR: CLAUDE.md khong con bat bien mirror OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E11b
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.luu_kho_rang
+    paths:
+      - scripts/start-scan.mjs
+      - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+    expected: >
+      exit 0 — **CHẠY THẬT** `scripts/start-scan.mjs` trên cây đã gỡ và ghim
+      đúng câu đầu ra thành công của nó; in "LUU-KHO-START-SCAN: chay sach OK".
+      Bản trước chỉ để `start-scan.mjs` trong `paths` của E11 — mà `paths`
+      không phải một thao tác, nên script này chưa từng được chạy. Kịch bản
+      lọt: nhánh đọc Codex gỡ nửa chừng, còn một lượt đọc
+      `.agents/plugins/marketplace.json` trên đường dẫn giờ đã vắng; cả bộ
+      xanh, lỗi chỉ nổ khi một người thật gõ lệnh khởi động ở repo tiêu thụ —
+      đúng lớp đo-chỉ-dẫn-thay-vì-đo-đầu-ra vì phép đo dừng ở việc LIỆT KÊ TÊN
+      script. Chiều đỏ CHẠY THẬT: tiêm lại một lượt đọc `.agents/` vào bản sao
+      → đỏ ghim lỗi đọc file.
+    pinned:
+      - "LUU-KHO-START-SCAN: chay sach OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E11
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.product_map
+    paths:
+      - scripts/product-map.mjs
+      - scripts/start-scan.mjs
+    expected: >
+      exit 0 và stdout "PRODUCT-MAP.md khớp hồ sơ xưởng." — hai script này có
+      nhánh đọc Codex; sau khi gỡ chúng phải chạy sạch, không nhánh chết. Ghim
+      ĐÚNG CÂU trên, không tin mã thoát: `--check` in câu khác khi lệch, và một
+      script chết nửa chừng cũng có thể trả 0 ở vài shell. Đối chứng dương:
+      cùng lệnh đỏ khi PRODUCT-MAP cố tình lệch (đã có tiền lệ P126). Baseline:
+      green có chủ đích (guard vĩnh viễn).
+    pinned:
+      - "PRODUCT-MAP.md khớp hồ sơ xưởng."
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E12
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.luu_kho_so_ca_plugins
+    paths:
+      - tests/plugins/run-tests.sh
+      - _acceptance/luu-kho-codex-va-nghi-le-design/so-ca.sh
+    expected: >
+      exit 0; stdout có "Results: all plugin tests passed" VÀ số dòng `PASS:`
+      đếm được bằng đúng vế `sau` của `plugins` trong khối `SO-CA-KY-VONG` —
+      con số và dẫn xuất đầy đủ của nó KHAI Ở MỘT CHỖ: AC-11 của `contract.md`
+      (nơi mọi lần khai lại đều ghi ngày và lý do), KHÔNG nêu lại ở đây.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng thu gọn «chỉ TRỪ»]** Bản trước chép mẫu
+      số cũ (`145 = 173 − 26 − 2`) vào đây và nó trôi khi khối lên 146 (G3
+      vòng 3) — người đọc bản văn này sẽ đi «sửa» đúng cái lưới P195 vừa được
+      trả lại. Giá trị về khối; `pinned:` dưới là bản chép được máy so mỗi vòng.
+      Bản trước viết `173 − <số assert của P30>`, với **173** là
+      số ca đo tại `daa9b3d` (suite này KHÔNG tự in số — nó chỉ nói "all plugin
+      tests passed" — nên số ca phải đếm bằng dòng `PASS:`; chính vì thế nó là
+      suite dễ teo mà không ai thấy). In "LUU-KHO-SUITE: plugins 173 -> <n> OK";
+      đỏ ghim "LUU-KHO-SUITE: so ca lech ky vong: 173 -> <n>". Số assert của
+      P30 phải ĐẾM TRÊN VẬT ở mốc rồi khai vào evidence trước khi gỡ, không ước
+      lượng. Đây là chân chống gỡ-quá-tay, và cũng là chân chống suite-rỗng
+      (một suite bị gỡ sạch case vẫn in "all tests passed" và trả 0).
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1] Thông điệp đỏ trên nay CÓ MÃ.**
+      Rà soát vòng 1: chuỗi "so ca lech ky vong" không tồn tại trong bất kỳ
+      script nào, nên 145 chỉ suy được bằng ĐẾM TAY và AC-11 — trụ cột chống
+      gỡ-quá-tay của cả hồ sơ — là phép đo do người đếm. `cmd` đổi sang
+      `config:executors.script.luu_kho_so_ca_plugins`: cùng một lượt chạy suite,
+      nhưng đầu ra đi qua `so-ca.sh`, đếm dòng `PASS:`+`FAIL:`, so với bản khai
+      máy-đọc trong khối `SO-CA-KY-VONG` của `contract.md` (một bản duy nhất,
+      không bản chép thứ hai), và tách HAI kiểu hỏng bằng hai câu khác nhau:
+      "so ca lech ky vong" (gỡ quá tay / gỡ sót) khác hẳn "$n ca DO" (ca hỏng).
+    pinned:
+      - "LUU-KHO-SUITE: plugins 173 -> 146 OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E13
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.luu_kho_so_ca_hooks
+    paths:
+      - hooks
+    expected: >
+      exit 0; "LUU-KHO-SUITE: hooks 54 -> 54 OK" kèm dòng nguyên văn của suite
+      "Results: 54 passed, 0 failed" — số 54 là baseline đo tại
+      `daa9b3d`. Hồ sơ này KHÔNG chạm `hooks/`, nên bất kỳ thay đổi số nào là
+      tín hiệu gỡ lan sang lõi cưỡng chế (t3_paths). Ghim số, không ghim mã thoát.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1]** `cmd` đi qua `so-ca.sh` như E12 —
+      cùng lý do, cùng một lượt chạy suite.
+    pinned:
+      - "LUU-KHO-SUITE: hooks 54 -> 54 OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E14
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.luu_kho_so_ca_workflows
+    paths:
+      - tests/workflows
+    expected: >
+      exit 0; "Results: all workflow tests passed" VÀ tổng dòng `PASS:` bằng
+      đúng **463**. Bản trước ghi "62 passed" — đó là số của RIÊNG MỘT tệp
+      (`skill-claims.test.mjs`), dòng tổng kết cuối cùng in ra nên dễ đọc nhầm
+      thành tổng cả suite; tổng thật ở mốc là **488** trên sáu tệp. Giữ số cũ
+      thì tiêu chí mù với 426 ca còn lại (lớp tổng-kết-không-kèm-số-ca).
+      `463 = 488 − 25`: 25 ca chỉ đo được trên bản chỉ dẫn tiếng Anh của harness
+      đã lưu kho — `skill-claims` 62→44, `measure-law-mutants` 33→26, bốn tệp
+      còn lại không đổi. Kiểm TỪNG TỆP, không chỉ tổng.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng sửa 1]** `cmd` đi qua `so-ca.sh` như E12.
+      Suite này in SÁU dòng `Results:` (mỗi tệp một dòng) nên `so-ca.sh` CỘNG cả
+      sáu thay vì đọc dòng cuối — chính lớp lỗi «đọc dòng tổng kết cuối cùng
+      thành tổng cả suite» đã làm bản duyệt ghi nhầm `62`.
+    pinned:
+      - "LUU-KHO-SUITE: workflows 488 -> 463 OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4c
+    criterion: AC-14
+    executor: script
+    cmd: config:executors.script.luu_kho_rang
+    paths:
+      - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+      - .claude-plugin/plugin.json
+      - feature-loop/.claude-plugin/plugin.json
+    expected: >
+      exit 0 — **ĐỎ-NGOÀI-DANH-SÁCH** cho miễn trừ nhật-ký-phiên-bản. Miễn trừ
+      chỉ che TRƯỜNG `description` của đúng hai manifest đã khai. Script tiêm
+      một tham chiếu `design-loop` vào một trường KHÁC (`interface.longDescription`)
+      của bản sao và assert lưới ĐỎ ghim đúng tên trường; đối chứng dương: trên
+      bản THẬT, ngoài `description` không trường nào dính. In "LUU-KHO-REF: hai
+      manifest chi dinh o truong description OK". Không có chân này thì miễn trừ
+      trượt từ một-trường thành cả-tệp, rồi thành cả họ `*/plugin.json` — mà đó
+      đúng là loại tệp mọi lần bump phiên bản đều chạm.
+    pinned:
+      - "LUU-KHO-REF: hai manifest chi dinh o truong description OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E15
+    criterion: AC-15
+    executor: script
+    cmd: config:executors.script.luu_kho_rang
+    paths:
+      - tests/plugins/run-tests.sh
+      - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+    expected: >
+      exit 0; stdout có "LUU-KHO-SUITE: chi 1 khoi thoat, nam o duoi tep OK".
+      Script đếm khối `exit 1` ở mức thụt lề của khối tổng kết và đòi ĐÚNG MỘT,
+      nằm trong 10 dòng cuối tệp. Một bản sao của khối tổng kết đuôi lạc vào
+      giữa tệp (lọt từ `044968e`, 05/08) từng nuốt **46 ca cuối** mỗi khi có ca
+      đỏ phía trước, trong khi dòng tổng kết in ra vẫn trông bình thường — nên
+      «56 ca đỏ» của bản đo đầu là con số của một phép đo BỊ CẮT CỤT, số thật
+      là 73. AC-11 là một ĐẲNG THỨC số ca nên nó không thể đo điều nó nói khi
+      đầu vào bị cắt cụt; ghim thành tiêu chí để lần nối ca kế tiếp không chép
+      lại khối ấy lần nữa.
+    pinned:
+      - "LUU-KHO-SUITE: chi 1 khoi thoat, nam o duoi tep OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E16
+    criterion: AC-16
+    executor: script
+    cmd: config:executors.script.luu_kho_rang
+    paths:
+      - .claude-plugin/plugin.json
+      - feature-loop/.claude-plugin/plugin.json
+      - _acceptance/luu-kho-codex-va-nghi-le-design/evidence-report.md
+      - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+    expected: >
+      exit 0; stdout có "LUU-KHO-BUMP: <manifest> <cũ> -> <mới> (bump >= minor)
+      OK" cho CẢ HAI manifest, "LUU-KHO-BUMP: 2/2 manifest da bump OK", và
+      "LUU-KHO-BUMP: trang bang chung co muc Duong phat hanh OK". Phép so neo
+      vào cây của mốc `truoc-luu-kho-2026-08` chứ KHÔNG ghim số cứng — ghim số
+      thì lần bump kế tiếp làm tiêu chí này đỏ oan, và đường thoát lúc đó là
+      sửa số trong eval, tức phép đo mất răng. So theo cặp `(major, minor)`:
+      một patch bump cho đợt gỡ ~194 tệp là nói dối bằng số.
+      Chiều đỏ CHẠY THẬT, hai đột biến hai mã lỗi khác nhau: (a) bản sao
+      manifest mang ĐÚNG số của mốc — tức "quên bump" — cho `chua-bump-minor`;
+      (b) bản hạ về `1.0.0` cho `tut-so`. Gộp hai mã thành một câu thì quên-bump
+      đọc y hệt tụt-số, và người sửa không biết phải làm gì.
+    pinned:
+      - "LUU-KHO-BUMP: 2/2 manifest da bump OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E17
+    criterion: AC-17
+    executor: script
+    cmd: config:executors.script.luu_kho_so_ca_scripts
+    paths:
+      - scripts/pre-merge-check.sh
+      - tests/scripts/run-tests.sh
+    expected: >
+      exit 0; bộ kiểm `scripts` in các dòng `PASS: RS01…RS06`. Sáu ca phủ SÁU
+      mệnh đề khác nhau của AC-17, mỗi ca một fixture code-sinh trong git repo
+      thật: `RS01` hai hồ sơ hỏng-recheck NGOÀI diff + một hồ sơ mới sạch →
+      exit 0, không dòng "fails re-check" nào, VÀ có dòng đếm số hồ sơ bị bỏ
+      qua (cắt im lặng đọc y hệt "đã phủ hết") · `RS02` không `--base` → kiểm
+      TẤT như cũ, đúng 2 dòng đỏ + đúng MỘT dòng NOTE hằng · `RS03`
+      `--recheck-all` ép quét toàn bộ dù có phạm vi diff · `RS04` chạm hồ sơ cũ
+      → nó vào diff và bị soi lại, đỏ ĐÍCH DANH slug · `RS05` **đối chứng
+      dương should-FIRE**: hồ sơ ngoài diff mang lỗi KHÁC (chữ ký trống) vẫn
+      nổ, chứng minh chỉ luật re-check bị thu phạm vi chứ không phải cả vòng
+      lặp im · `RS06` **chiều đỏ CHẠY THẬT**: chép trọn `scripts/`+`lib/` sang
+      bản sao, control phải XANH trước, rồi gỡ guard bằng `sed`, **xác nhận đột
+      biến đã áp** (đếm dòng = 1) trước khi đọc kết quả, và đòi bản sao ĐỎ đích
+      danh — không có bước xác nhận thì một `sed` trượt cho ca xanh oan.
+      Fixture CỐ Ý không đụng file nào ngoài `_acceptance/`: đụng thì hồ sơ cũ
+      thành stale, luật staleness nổ TRƯỚC và `continue` trước khi tới luật
+      đang đo — bản đầu mắc đúng lỗi này và hai ca đỏ vì đo nhầm luật.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng thu gọn «chỉ TRỪ» — khai giới hạn]**
+      Chuỗi ghim của eval này là dòng tổng kết của bộ đếm, nên nó buộc được
+      **SỐ LƯỢNG** (đẳng thức 686) chứ KHÔNG buộc **DANH TÍNH** của các assert
+      RS01–RS06 (G6 vòng 3: đổi tên RS01→ZZ01 thì mọi phép đo vẫn xanh) — bộ
+      đếm chỉ in 4 dòng tổng kết, danh tính không đi vào tầm máy của nó.
+      Lưới danh-tính đúng chỗ là bánh cóc `P161`/E11, mà cửa sổ của nó neo mốc
+      `044968e` nên assert sinh sau 06/08 nằm ngoài — dời mốc ghim thuộc hồ sơ
+      `card-text-fidelity`, không phải hồ sơ này (cùng kết luận với F7).
+    pinned:
+      - "LUU-KHO-SUITE: scripts 671 -> 686 OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E18
+    criterion: AC-18
+    executor: script
+    cmd: config:executors.script.luu_kho_so_ca_scripts
+    paths:
+      - tests/scripts/mirror-sync-grandfather.mjs
+      - tests/scripts/core-untouched.test.mjs
+      - tests/scripts/premerge-repin.test.mjs
+    expected: >
+      exit 0; `JR11b` và `DV4a` XANH, cả hai gọi CÙNG một hàm `assertCorpus`
+      trong `mirror-sync-grandfather.mjs` (một bản khai, không hai bản chép).
+      Danh sách 21 slug đo TẠI CHỖ 2026-08-13 bằng cách chạy `recheck` trên
+      corpus, KHÔNG chép tay từ log. Ba ràng buộc, mỗi ràng buộc một thông điệp
+      riêng: hồ sơ đỏ NGOÀI danh sách → "đây là lỗi mới, không phải nợ cũ";
+      hồ sơ trong danh sách đỏ vì lý do KHÁC `executors.script.mirror_sync` →
+      "grandfather chỉ che đúng một lý do"; tên khai mà hồ sơ ĐÃ HẾT đỏ →
+      "rút tên ra, đừng để danh sách phình". Vế thứ ba là chiều chống
+      đổ-sẵn-danh-sách-dài-cho-khỏi-nghĩ, cùng khuôn `asserts-da-go.txt`.
+      Hai chiều đỏ đã chạy thật khi dựng: bỏ `context-ladder` khỏi danh sách →
+      đỏ đúng câu "NGOÀI danh sách"; thêm một tên không hề đỏ → đỏ đúng câu
+      "ĐÃ HẾT đỏ".
+      **[SỬA SAU CỔNG 1 — 13/08, vòng thu gọn «chỉ TRỪ» — khai giới hạn]**
+      Chuỗi ghim của eval này là dòng tổng kết của bộ đếm, nên nó buộc được
+      **SỐ LƯỢNG** (đẳng thức 686) chứ KHÔNG buộc **DANH TÍNH** của các assert
+      RS01–RS06 (G6 vòng 3: đổi tên RS01→ZZ01 thì mọi phép đo vẫn xanh) — bộ
+      đếm chỉ in 4 dòng tổng kết, danh tính không đi vào tầm máy của nó.
+      Lưới danh-tính đúng chỗ là bánh cóc `P161`/E11, mà cửa sổ của nó neo mốc
+      `044968e` nên assert sinh sau 06/08 nằm ngoài — dời mốc ghim thuộc hồ sơ
+      `card-text-fidelity`, không phải hồ sơ này (cùng kết luận với F7).
+    pinned:
+      - "LUU-KHO-SUITE: scripts 671 -> 686 OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E19
+    criterion: AC-19
+    executor: script
+    cmd: config:executors.script.luu_kho_so_ca_scripts
+    paths:
+      - tests/scripts/run-tests.sh
+    expected: >
+      exit 0 và dòng tổng kết `Results: 686 passed, 0 failed` phản ánh ĐÚNG
+      trạng thái mọi tệp `*.test.mjs` con. Bằng chứng bugfix có thật, đo tại
+      commit nền `d6044a4`: `core-untouched.test.mjs` thoát 1 trong khi suite
+      in `664 passed, 0 failed` và thoát 0. Sau bugfix, cùng cây ấy cho
+      `684 passed, 2 failed`. Chiều đỏ KHÔNG dựng thêm fixture: chính hai ca
+      `JR11b`/`DV4a` đang đỏ lúc đó là bản-thật-bị-hỏng, và chúng chuyển từ vô
+      hình sang hiện — mạnh hơn một bản sao tự tiêm.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng thu gọn «chỉ TRỪ» — khai giới hạn]**
+      Chuỗi ghim của eval này là dòng tổng kết của bộ đếm, nên nó buộc được
+      **SỐ LƯỢNG** (đẳng thức 686) chứ KHÔNG buộc **DANH TÍNH** của các assert
+      RS01–RS06 (G6 vòng 3: đổi tên RS01→ZZ01 thì mọi phép đo vẫn xanh) — bộ
+      đếm chỉ in 4 dòng tổng kết, danh tính không đi vào tầm máy của nó.
+      Lưới danh-tính đúng chỗ là bánh cóc `P161`/E11, mà cửa sổ của nó neo mốc
+      `044968e` nên assert sinh sau 06/08 nằm ngoài — dời mốc ghim thuộc hồ sơ
+      `card-text-fidelity`, không phải hồ sơ này (cùng kết luận với F7).
+    pinned:
+      - "LUU-KHO-SUITE: scripts 671 -> 686 OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E20
+    criterion: AC-20
+    executor: script
+    cmd: config:executors.script.luu_kho_rang
+    paths:
+      - _acceptance/luu-kho-codex-va-nghi-le-design/contract.md
+      - _acceptance/luu-kho-codex-va-nghi-le-design/luu-kho-rang.sh
+      - _acceptance/luu-kho-codex-va-nghi-le-design/ghi-so-chay.mjs
+    expected: >
+      exit 0; bộ răng in MỘT chân round-trip cho khối `VAT-LUU-KHO` — thêm một
+      dòng vào khối trong BẢN SAO `contract.md` thì phép đo đổi theo và đỏ đích
+      danh dòng vừa thêm.
+      **[SỬA SAU CỔNG 1 — 13/08, vòng thu gọn «chỉ TRỪ»] Eval này bị THU LỜI
+      HỨA về đúng cái có thật, sau khi vòng 3 bắt nó khai mạnh hơn vật ở ba
+      chỗ (G5, G12):** bản trước viết «cả hai khối» (chỉ một khối có round-trip),
+      «23 eval» (sổ có số khác), và tuyên một chiều đỏ «dựng bằng CODE trong
+      chính lượt kiểm» KHÔNG tồn tại trong mã — nó từng được chạy tay một lần
+      rồi khai như thể có trong cây, đúng lớp B3 của vòng 1 do chính vòng sửa
+      tái phạm. Nay: (a) round-trip là lời hứa CHỈ cho `VAT-LUU-KHO`;
+      `NEEDLE-CHET` và `SO-CA-KY-VONG` được đọc thẳng nhưng chiều round-trip
+      của chúng là KNOWN-LIMIT khai ở evidence, không phải lời hứa; (b) mọi
+      mệnh đề về `pinned:`/recorder là mô tả DỤNG CỤ, đứng dưới ĐÁY chứng minh
+      khai ở AC-20 — không phải lời hứa của hồ sơ; (c) không nêu con số sổ
+      chạy ở đây — sổ tự mang số của nó.
+    pinned:
+      - "LUU-KHO-PATH: 7/7 vang o HEAD, co o tag OK"
+      - "LUU-KHO-REF: 11/11"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

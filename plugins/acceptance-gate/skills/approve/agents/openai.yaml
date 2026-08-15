@@ -1,5 +1,0 @@
-interface:
-  display_name: "Approve (Gate 1)"
-  short_description: "Record the human's Gate 1 decision"
-policy:
-  allow_implicit_invocation: false

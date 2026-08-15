@@ -1,0 +1,160 @@
+# evals — veto-co-dau-vet (đợt 2, T3)
+#
+# Lớp MÃ TIỀN ĐỊNH (E1–E5, E8*): hook/pre-merge chạy trên fixture CODE-SINH
+# trong cùng lượt, mutant đi qua CHÍNH checker thật, chiều đỏ in vết ra
+# output (nếp rang-1c). Khoá config:executors.script.rang_veto_* wire ở S3.
+# Lớp HÀNH VI (E6, E7): hội đồng phiên sạch theo giao thức 1c — agent hành
+# động KHÔNG TOOL nạp thẳng nội dung, đề ca ở hoi-dong/, đáp án viết TRƯỚC
+# ở giam-khao/ chỉ giám khảo nạp; điều kiện trượt viết theo HÀNH VI, không
+# theo vị trí lượt. T3: verdict judgment cuối cùng do NGƯỜI chốt tại Cổng
+# Bằng chứng (PENDING-JUDGMENT là đường đúng, không phải lỗi).
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.rang_veto_hook_v
+    expected: >
+      Fixture workspace code-sinh, chạy CHÍNH hooks/acceptance-evidence-gate.js:
+      (a) T2 + veto_state mo + veto_opened_at → transition draft→approved với
+      approved_by RỖNG được CHO QUA, thông điệp ghi nhận đường V; (b) T3 cùng
+      hình → CHẶN ghim thông điệp T3-cần-người; (c) thiếu veto_opened_at →
+      CHẶN; (d) veto_opened_at giá trị RÁC (không parse được ISO) → CHẶN cùng
+      thông điệp thiếu-vết — vết thời gian phải đọc được thì NOTE đếm cửa-veto
+      mới nói được «mở bao lâu». Kèm vết chiều-đỏ trong cùng lượt.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.rang_veto_hook_cu
+    expected: >
+      Fixture KHÔNG có khoá veto_state → hook giữ nguyên luật cũ TỪNG CHỮ
+      thông điệp, so với bản chép rút từ MỐC `BASE-V` (KHÔNG rút từ cây sau
+      sửa — rút từ chính nó là đo-quan-hệ-tự-tham-chiếu, luật cũ đổi vẫn
+      xanh). Chân thứ hai: so DANH SÁCH TÊN ca của suite hooks giữa BASE-V và
+      HEAD — sửa-tại-chỗ một ca cũ cho khớp hành vi mới không đổi tổng số nên
+      E8b mù với nó. Kèm vết chiều-đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.rang_veto_premerge_dem
+    expected: >
+      Chạy CHÍNH scripts/pre-merge-check.sh trên fixture: (a) 1 hồ sơ
+      veto_state mo → NOTE đếm đích danh slug; (b) veto_state da-veto →
+      VIOLATION ghim slug + hướng xử; (c) vế KHÔNG-được-kêu-oan: fixture
+      không có cửa-veto nào → KHÔNG in NOTE, KHÔNG VIOLATION nào từ luật
+      mới. Kèm vết chiều-đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3b
+    criterion: AC-3b
+    executor: script
+    cmd: config:executors.script.rang_veto_ghi_nguoc
+    expected: >
+      So với BASE của diff, không so trạng thái cuối: (a) `da-veto → mo` →
+      VIOLATION ghim slug + chiều; (b) XOÁ khoá veto_state khỏi hồ sơ đã rời
+      draft → VIOLATION; (c) cùng chiều đó NHƯNG có entry sổ quyết định khớp
+      slug ghi việc xử veto → CHO QUA (giữ-gân: đường xử hợp lệ không bị chặn
+      oan). Kèm vết chiều-đỏ từng chân.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.rang_veto_premerge_sach
+    expected: >
+      Điều kiện sạch đọc từ DIEU-KIEN-SACH-V của contract (một bản, hai bên
+      đọc chung): đủ 6 điều kiện + human_signoff rỗng → KHÔNG VIOLATION;
+      giữ-gân TỪNG chân một, mỗi chân một fixture riêng — verdict≠PASS ·
+      VẮNG khoá verdict · có UNCERTAIN · bypass · known-limit · ngoài-hợp-đồng
+      · **VẮNG hẳn mục Known limits** · **VẮNG hẳn mục Ngoài-hợp-đồng** (vắng
+      ≠ rỗng: bỏ mục là đường sạch-giả rẻ nhất) · contract hạng T3 trong khi
+      report tự khai T2 (hạng đọc từ contract, báo cáo không tự phong) → mọi
+      chân đều VIOLATION «Gate 2 pending» giữ nguyên từng chữ. Kèm vết
+      chiều-đỏ từng chân.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.rang_veto_vanban
+    expected: >
+      Tầng luật văn bản có đủ ba vế mới (V ở Cổng Phạm vi T2 · xanh-sạch
+      thôi mời ký · lệnh-nối tự tan) — grep DƯƠNG cụm mới trên các vật khai;
+      needle ÂM pin ở thi công kèm đối chứng dương trên BASE-V (sửa-có-dấu-
+      vết). Kèm vết chiều-đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: judgment
+    inputs:
+      - skills/acceptance/SKILL.md
+      - feature-loop/skills/feature-loop/SKILL.md
+      - _acceptance/veto-co-dau-vet/hoi-dong/ca-E6.md
+    paths:
+      - skills/acceptance/SKILL.md
+      - feature-loop/skills/feature-loop/SKILL.md
+    question: >
+      Giao thức hội đồng 1c. Agent hành động CHỈ được nạp đúng các file ở
+      `inputs` (cấm nạp evals.yaml, contract, giam-khao/) và xử 3 ca của
+      hoi-dong/ca-E6.md. Trường này KHÔNG mô tả hành vi ĐẠT — mô tả ấy sống
+      duy nhất ở bảng đáp án viết trước; nêu lại ở đây là mớm qua seam
+      question→prompt. Giám khảo chấm theo giam-khao/dap-an-E6.md. T3:
+      verdict cuối do người chốt tại Cổng Bằng chứng.
+    evidence_required: [judged_by, verdict, rationale]
+
+  - id: E7
+    criterion: AC-7
+    executor: judgment
+    inputs:
+      - skills/acceptance/SKILL.md
+      - _acceptance/veto-co-dau-vet/hoi-dong/ca-E7.md
+    paths:
+      - skills/acceptance/SKILL.md
+    question: >
+      Giao thức hội đồng 1c. Agent hành động CHỈ được nạp đúng các file ở
+      `inputs` + danh sách KHO-DAO-V, xử 2 ca của hoi-dong/ca-E7.md. Trường
+      này KHÔNG mô tả hành vi ĐẠT (lý do như E6). Chấm theo
+      giam-khao/dap-an-E7.md.
+    evidence_required: [judged_by, verdict, rationale]
+
+  # ── Lưới kế thừa (số sống MỘT chỗ: SO-CA-KY-VONG-V của contract) ─────────
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "suite scripts XANH; dòng tổng cuối khớp SO-CA-KY-VONG-V"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E8b
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "suite hooks XANH; dòng tổng cuối khớp SO-CA-KY-VONG-V"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E8c
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "suite plugins XANH; đếm dòng ca khớp SO-CA-KY-VONG-V"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E8d
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "suite workflows XANH; cộng ĐÚNG 6 dòng tổng khớp SO-CA-KY-VONG-V"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E8e
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.rang_veto_so_ca
+    expected: >
+      Chân đẳng thức tự chạy 4 suite và so với SO-CA-KY-VONG-V (nếp rang-1c
+      sau vá lỗ E9e: bên hứa và bên đo cùng một mã) **VÀ so SÀN
+      SO-CA-SAN-V** — block-sau < sàn là đỏ dù block và suite cùng sửa một
+      lượt (chống teo-suite-mà-vẫn-xanh); ca mới VÀ ca cũ bị xoá/đổi đều khai
+      đích danh trong bản sửa-có-dấu-vết. Kèm vết chiều-đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

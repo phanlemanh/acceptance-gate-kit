@@ -2,6 +2,12 @@
 # pre-merge-check.sh — CI gate for the Acceptance-Gate Kit.
 #
 # Usage: pre-merge-check.sh [repo_root] [--slug <slug>]... [--base <ref>] [--no-t1-escape]
+#        pre-merge-check.sh ... [--recheck-all]
+#
+# --recheck-all: re-check the committed evidence of EVERY slug, including those
+# outside the PR diff. Without it the re-check rule is scoped to slugs the PR
+# touches (see RECHECK-DIFF-SCOPE-GUARD below). Use it after raising the bar in
+# lib/evidence-core.cjs, to re-measure the whole archive against the new bar.
 #
 # --no-t1-escape: turn off ONLY the T1-escape backstop for push-event runs
 # (commits landing directly on the main branch have no PR premise); every other
@@ -75,6 +81,7 @@ BASE="${PRE_MERGE_BASE:-}"
 # đang dạy consumer truyền đúng `--base`, nên opt-in sẽ làm răng tắt IM LẶNG trên
 # mọi repo tiêu thụ đang chạy — biến một sửa lỗi thành lỗ fail-open hàng loạt.
 T1_ESCAPE=1
+RECHECK_ALL=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --slug)
@@ -102,6 +109,13 @@ while [ $# -gt 0 ]; do
     --no-t1-escape)
       # Không nhận tham số — `reason` là hằng, giữ ranh giới "không thêm cờ nào khác".
       T1_ESCAPE=0; shift ;;
+    --recheck-all)
+      # Ép re-check TOÀN BỘ hồ sơ, kể cả ngoài phạm vi diff. Đây là đường CỨU
+      # cho cái mà việc thu phạm vi làm mất: thước thôi hồi tố. Siết bar trong
+      # `lib/evidence-core.cjs` xong thì chạy một lượt có cờ này để đo lại cả
+      # kho theo thước mới — không có nó, "hồ sơ cũ không bao giờ bị đo lại"
+      # là mất vĩnh viễn, không phải mất tạm.
+      RECHECK_ALL=1; shift ;;
     -*)
       # `-*` chứ không phải `--*`: một gạch cũng là lỗi gõ, và bản chỉ bắt hai
       # gạch để lọt `-no-t1-escape` y nguyên. Nuốt cờ lạ vào ROOT là fail-open
@@ -131,7 +145,7 @@ fi
 # lỗi NỘI TẠI của cổng -> exit 2, không phải violation của feature. EXPECTED
 # là danh sách ĐÓNG, CỐ ĐỊNH, không phụ thuộc config — thêm khối luật mới
 # PHẢI thêm tên vào đây (suite P48 + RL7a canh hai chiều bằng máy).
-LEDGER_EXPECTED="per-slug gap-probe t1-escape"
+LEDGER_EXPECTED="per-slug gap-probe t1-escape veto-trace"
 # set -- xoá positional params — hợp lệ vì đứng SAU vòng parse args ở trên.
 set -- $LEDGER_EXPECTED
 LEDGER_K=$#
@@ -507,6 +521,19 @@ if [ "$DIFF_READY" -eq 0 ]; then
   echo "NOTE: staleness scope — no PR diff scope; the stale-evidence rule checks ALL slugs (pass --base <ref> to scope it to slugs whose _acceptance/<slug>/ files are in the PR diff)"
 fi
 
+# ─── RECHECK-DIFF-SCOPE (1.41.0): phạm vi luật re-check ─────────────────────
+# Cùng fail-safe với staleness: không dựng được phạm vi diff thì kiểm TẤT như
+# trước. Tắt-phạm-vi phải THẤY ĐƯỢC — đúng MỘT dòng hằng cho cả lần chạy, cố ý
+# không chứa chữ "skipped" (guard fail-closed của gate.yml grep chuỗi đó cho
+# răng T1-escape, dòng này không được lẫn vào).
+RECHECK_SKIPPED=0
+if [ "$RECHECK_MODE" != off ] && [ "$RECHECK_ALL" -eq 0 ] && [ "$DIFF_READY" -eq 0 ]; then
+  echo "NOTE: recheck scope — no PR diff scope; the committed-evidence re-check runs on ALL slugs (pass --base <ref> to scope it, or --recheck-all to force the full sweep)"
+fi
+if [ "$RECHECK_MODE" != off ] && [ "$RECHECK_ALL" -eq 1 ]; then
+  echo "NOTE: recheck scope — --recheck-all: the committed-evidence re-check runs on ALL slugs, ignoring the PR diff scope"
+fi
+
 # per-slug: hai đường dẫn độc lập về lexical — vòng đếm dưới đây dùng biến
 # _sd, vòng luật thật dùng dir. Tiêm hỏng một vòng thì con số lệch và điểm
 # nghẽn từ chối kết luận (AC-9: bắt cả biến thể CHƯA nghĩ ra).
@@ -743,6 +770,50 @@ XLACS
     warn) echo "WARNING [$slug]: enforcement_mode=warn — gate only warned (not blocked) when this PASS was written; evidence present but not hard-enforced" ;;
   esac
   if [ -z "$signoff" ]; then
+    # ── Cổng Bằng chứng xanh-sạch thôi mời ký (hồ sơ veto-co-dau-vet, đợt 2)
+    # Chữ ký lui về đúng nơi có ĐÁNH-ĐỔI. Ở đây «sạch» là một danh sách ĐÓNG,
+    # và MỌI điều kiện phải HIỆN DIỆN-và-rỗng chứ không phải vắng — bỏ hẳn một
+    # mục khỏi báo cáo là đường sạch-giả rẻ nhất (gap-probe P1). Hạng đọc từ
+    # CONTRACT (owner đặt), báo cáo không tự phong hạng cho mình.
+    # Bản khai người-đọc của danh sách này sống ở khối DIEU-KIEN-SACH-V trong
+    # hợp đồng; bộ răng của hồ sơ đối chiếu hành vi dưới đây với khối đó.
+    # verdict=PASS đã được chốt ở trên (nhánh verdict != PASS đã continue).
+    clean_ok=1; clean_why=""
+    _cdir="$(dirname "$report")"
+    _tier="$(front_field "$_cdir/contract.md" risk_tier | tr '[:lower:]' '[:upper:]')"
+    [ "$_tier" = "T2" ] || { clean_ok=0; clean_why="hạng $_tier (chỉ T2 được đi tiếp không ký)"; }
+    if [ "$clean_ok" -eq 1 ] && grep -qiE '(^|[^a-z])UNCERTAIN([^a-z]|$)' "$report"; then
+      clean_ok=0; clean_why="có mục UNCERTAIN"
+    fi
+    if [ "$clean_ok" -eq 1 ]; then
+      for _sec in "Known limits" "Ngoài hợp đồng"; do
+        # section() trả MẢNG RỖNG cho cả «tiêu đề vắng» lẫn «tiêu đề có mà
+        # thân rỗng» — hai ca này phải khác nhau (vắng ≠ rỗng), nên sự hiện
+        # diện của tiêu đề phải hỏi RIÊNG. Chân đỏ (4) bắt đúng chỗ này.
+        _body="$(node -e '
+          const {section}=require(process.argv[1]);
+          const fs=require("fs");
+          const t=fs.readFileSync(process.argv[2],"utf8");
+          const h=process.argv[3];
+          const has=t.split("\n").some(l=>/^#{1,6}\s+/.test(l)
+            && l.replace(/^#{1,6}\s+/,"").trim().toLowerCase()===h.toLowerCase());
+          if(!has){process.stdout.write("__VANG__");process.exit(0);}
+          process.stdout.write(section(t,h).join("\n").trim()?"__CO__":"");
+        ' "$ROOT/lib/md-section.cjs" "$report" "$_sec" 2>/dev/null || printf '__LOI__')"
+        case "$_body" in
+          __VANG__) clean_ok=0; clean_why="mục «$_sec» VẮNG khỏi báo cáo (vắng ≠ rỗng)"; break ;;
+          __CO__)   clean_ok=0; clean_why="mục «$_sec» có nội dung"; break ;;
+          __LOI__)  clean_ok=0; clean_why="không đọc được mục «$_sec» (fail-closed)"; break ;;
+        esac
+      done
+    fi
+    if [ "$clean_ok" -eq 1 ]; then
+      # Đường xanh-sạch KHÔNG có chữ ký để kiểm tiếp — các chốt dưới (giữ-chỗ,
+      # provenance commit chữ ký) đều nói về một chuỗi không tồn tại ở đây.
+      echo "NOTE [$slug]: xanh-sạch — máy đi tiếp, KHÔNG mời ký (verdict PASS · 0 UNCERTAIN · không bypass · Known limits rỗng · Ngoài hợp đồng rỗng · hạng T2). Cửa veto vẫn mở."
+      continue
+    fi
+    echo "NOTE [$slug]: không đủ điều kiện xanh-sạch để đi tiếp không ký — $clean_why"
     echo "VIOLATION [$slug]: verdict PASS but human_signoff is empty (Gate 2 pending)"
     violations=$((violations+1)); continue
   fi
@@ -952,9 +1023,34 @@ NETIDS
   fi
   # Re-verify the COMMITTED evidence with the same core the hook runs — catches a
   # report hand-edited after the write-time hook, or written under bypass.
+  # ─── RECHECK-DIFF-SCOPE (1.41.0): sử liệu ngoài diff không bị re-check ────
+  # Ngữ nghĩa GIỐNG luật staleness: bar này bảo vệ "bằng chứng đi kèm cây ĐANG
+  # merge". Hồ sơ đã merge là sử liệu; soi lại chúng ở MỌI lượt CI biến một
+  # quyết định đã duyệt trong quá khứ thành cái chặn mọi PR tương lai vì lý do
+  # không liên quan gì tới PR đó. Đã cắn thật: hồ sơ lưu-kho gỡ khoá
+  # `executors.script.mirror_sync` (tiêu chí AC-9 của nó), và 21 hồ sơ ĐÃ KÝ có
+  # eval trỏ khoá ấy lập tức chặn merge — không hồ sơ nào trong 21 nằm trong
+  # diff, không hồ sơ nào sửa được mà không viết vào vật đã ký.
+  # Phạm vi dùng ĐÚNG hàm `slug_in_diff` mà gap-probe và staleness dùng — một
+  # nguồn ngữ nghĩa slug↔diff, không parser thứ ba.
+  # Guard kiểm DIFF_READY chứ KHÔNG kiểm $BASE: base-có-mà-diff-không-dựng-được
+  # (clone shallow CI) phải rơi về kiểm-tất, không phải tắt im.
+  # ĐÁNH ĐỔI, khai thẳng: thước thôi HỒI TỐ. Siết bar trong evidence-core.cjs
+  # về sau sẽ không tự đo lại hồ sơ cũ. Đường cứu là cờ `--recheck-all`; không
+  # có cờ đó thì cái mất này là vĩnh viễn chứ không phải tạm.
   if [ "$RECHECK_MODE" != off ]; then
     if [ -f "$RECHECK" ] && command -v node >/dev/null 2>&1; then
+      # Guard đặt Ở ĐÂY, ôm đúng MỘT dòng gọi node, và dòng ấy giữ NGUYÊN VĂN cả
+      # thụt lề — kể cả khi trông lệch mắt. Lý do: răng `additive-only` (DV5)
+      # đòi diff của tệp này so với base CHỈ ĐƯỢC THÊM, không dòng luật cũ nào
+      # bị xoá/sửa. Bản đầu của tôi viết lại `if [ "$RECHECK_MODE" != off ]`
+      # thành `elif` và DV5 đỏ đúng như nó phải đỏ. Nắn thụt lề cho đẹp ở đây
+      # là xoá một dòng luật cũ — đúng thứ răng ấy sinh ra để chặn.
+      if [ "$RECHECK_ALL" -eq 0 ] && [ "$DIFF_READY" -eq 1 ] && ! slug_in_diff "$slug"; then # RECHECK-DIFF-SCOPE-GUARD
+        RECHECK_SKIPPED=$((RECHECK_SKIPPED+1)); recheck_out=""; rc=0
+      else
       recheck_out="$(node "$RECHECK" "$report" 2>&1)"; rc=$?
+      fi
       if [ "$rc" -eq 1 ]; then
         if [ "$RECHECK_MODE" = strict ]; then label="VIOLATION"; else label="NOTE"; fi
         echo "$label [$slug]: committed evidence fails re-check (recheck: $RECHECK_MODE):"
@@ -970,9 +1066,70 @@ NETIDS
   echo "OK [$slug]: $verdict, signed off by $signoff"
 done
 
+# Cắt im lặng đọc y hệt "đã phủ hết" — nên số hồ sơ KHÔNG được re-check phải in
+# ra. Chỉ in khi có cắt thật: lần chạy không cắt gì thì thêm một dòng hằng là
+# rác, và một dòng rác lặp lại là dòng người đọc học cách bỏ qua.
+if [ "$RECHECK_SKIPPED" -gt 0 ]; then
+  echo "NOTE: recheck scope — $RECHECK_SKIPPED slug ngoài diff PR không được re-check (sử liệu; dùng --recheck-all để quét toàn bộ)"
+fi
+
 # per-slug chỉ được ghi `ran` khi vòng lặp nhìn thấy ĐÚNG số thư mục mà phép
 # đếm độc lập nhìn thấy.
 [ "$SLUG_SEEN" -eq "$SLUG_EXPECTED_N" ] && ledger_mark ran per-slug
+
+# ─── veto-có-dấu-vết (đợt 2) ────────────────────────────────────────────────
+# Hai luật, hai kiểu hỏng khác nhau nên hai thông điệp:
+#   (1) ĐẾM cửa đang mở — cắt im lặng đọc y hệt «đã phủ hết», nên phải in
+#       đích danh slug, không chỉ tổng.
+#   (2) CHIỀU ĐỔI, không phải trạng thái cuối. Đây là lỗ P0 của gap-probe:
+#       owner gõ `da-veto`, máy sửa ngược về `mo` (hoặc xoá hẳn khoá) thì
+#       trạng thái cuối trông sạch và veto của người bốc hơi không dấu vết.
+#       So với BASE của diff; đường xử hợp lệ (có entry sổ quyết định khớp
+#       slug) KHÔNG bị chặn oan.
+VETO_OPEN_N=0; VETO_OPEN_SLUGS=""
+if [ -d "$ACC" ]; then
+  for dir in "$ACC"/*/; do
+    [ -d "$dir" ] || continue
+    slug="$(basename "$dir")"
+    contract="$dir/contract.md"
+    [ -f "$contract" ] || continue
+    vstate="$(front_field "$contract" veto_state | tr '[:upper:]' '[:lower:]')"
+    case "$vstate" in
+      mo)
+        VETO_OPEN_N=$((VETO_OPEN_N+1))
+        VETO_OPEN_SLUGS="$VETO_OPEN_SLUGS $slug" ;;
+      da-veto)
+        echo "VIOLATION [$slug]: veto_state=da-veto chưa xử — owner đã veto, hồ sơ không được merge ở trạng thái này. Xử bằng một trong hai đường rồi ghi entry sổ quyết định: quay hồ sơ về status draft để làm lại phạm vi, hoặc owner duyệt tay (approved_by)."
+        violations=$((violations+1)) ;;
+    esac
+    # chiều ghi-ngược — chỉ xét được khi dựng nổi phạm vi diff
+    if [ "$DIFF_READY" -eq 1 ] && slug_in_diff "$slug"; then
+      base_c="$(git -C "$ROOT" show "$BASE_SHA:_acceptance/$slug/contract.md" 2>/dev/null || true)"
+      if [ -n "$base_c" ]; then
+        base_v="$(printf '%s\n' "$base_c" | sed -n '/^---[[:space:]]*$/,/^---[[:space:]]*$/p' \
+                  | sed -n 's/^veto_state[[:space:]]*:[[:space:]]*//p' | head -1 \
+                  | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')"
+        base_status="$(printf '%s\n' "$base_c" | sed -n '/^---[[:space:]]*$/,/^---[[:space:]]*$/p' \
+                  | sed -n 's/^status[[:space:]]*:[[:space:]]*//p' | head -1 | tr -d '[:space:]')"
+        if [ "$base_v" = "da-veto" ] && [ "$vstate" != "da-veto" ]; then
+          if [ -s "$dir/decisions.jsonl" ] && grep -q "veto" "$dir/decisions.jsonl" 2>/dev/null; then
+            echo "NOTE [$slug]: veto đã xử — veto_state da-veto -> ${vstate:-(gỡ khoá)} kèm entry sổ quyết định"
+          else
+            echo "VIOLATION [$slug]: veto_state da-veto -> ${vstate:-(gỡ khoá)} mà KHÔNG có entry sổ quyết định ghi việc xử — veto là quyết định của người, không được xoá bằng một lượt ghi của máy. Ghi entry vào decisions.jsonl rồi chạy lại."
+            violations=$((violations+1))
+          fi
+        elif [ -n "$base_v" ] && [ -z "$vstate" ] && [ "$base_status" != "draft" ]; then
+          echo "VIOLATION [$slug]: khoá veto_state biến mất khỏi một hồ sơ đã rời draft (base: $base_v) — gỡ khoá là xoá dấu vết cửa veto. Giữ khoá, hoặc ghi entry sổ quyết định cho việc xử."
+          violations=$((violations+1))
+        fi
+      fi
+    fi
+  done
+fi
+if [ "$VETO_OPEN_N" -gt 0 ]; then
+  echo "NOTE: cửa veto đang mở — $VETO_OPEN_N hồ sơ máy đã đi trước mà owner chưa veto:$VETO_OPEN_SLUGS"
+fi
+ledger_mark ran veto-trace
 
 # gap-probe ghi sổ ở ĐÚNG MỘT chỗ, sau khi đã biết trọn lịch sử lần chạy. Bản
 # trước mark từ HAI nơi độc lập — `declared-off` trong gap_probe_not_enforced()

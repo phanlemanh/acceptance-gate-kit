@@ -8,6 +8,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
+import { assertCorpus } from './mirror-sync-grandfather.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
@@ -64,16 +65,13 @@ check('JR11a lib/** + hooks/** KHÔNG đổi TRONG PHẠM VI của judge-require
   }
 });
 
-check('JR11b recheck strict trên corpus thật == baseline viết-trước (0 fail)', () => {
-  const acc = path.join(ROOT, '_acceptance');
-  const reports = readdirSync(acc).map(s => path.join(acc, s, 'evidence-report.md')).filter(existsSync);
-  assert.ok(reports.length >= 10, `sanity: chỉ ${reports.length} report`);
-  const bad = [];
-  for (const r of reports) {
-    try { execFileSync('node', [path.join(ROOT, 'scripts/recheck-evidence.cjs'), r], { stdio: 'ignore' }); }
-    catch (_) { bad.push(path.basename(path.dirname(r))); }
-  }
-  assert.deepEqual(bad, [], `baseline vỡ (viết trước: 0 fail): ${bad.join(', ')}`);
+check('JR11b recheck strict trên corpus thật == baseline viết-trước (0 fail NGOÀI grandfather)', () => {
+  // Baseline "0 fail" trần chết khi hồ sơ luu-kho gỡ khoá
+  // `executors.script.mirror_sync` (AC-9 của nó): 21 hồ sơ ĐÃ KÝ có eval trỏ
+  // khoá ấy nên đỏ vĩnh viễn, và không hồ sơ nào sửa được mà không viết vào vật
+  // đã ký. Thay ngưỡng trần bằng ALLOWLIST CÓ TÊN + đúng-một-lý-do + kiểm hai
+  // chiều — xem `mirror-sync-grandfather.mjs` (một bản, DV4a đọc chung).
+  assertCorpus(assert, ROOT, 'JR11b');
 });
 
 check('JR11c đối chứng dương: tiêm token cấm vào BẢN SAO 1 report → recheck ĐỎ đúng thông điệp', () => {

@@ -5,7 +5,7 @@
 
 Gate nghiệm thu cho code do AI viết. Thay vì bạn click tay 1-2 giờ kiểm tra
 một tính năng, máy tự chạy bộ evals và nộp **evidence report**; bạn chỉ làm
-2 việc, mỗi việc 5-10 phút:
+2 việc:
 
 ```
 yêu cầu (prompt/ticket/PRD)
@@ -22,41 +22,25 @@ report chưa ký.
 
 ## Cài 1 lần mỗi máy
 
-Codex — trọn bộ:
-
-```bash
-codex plugin marketplace add phanlemanh/acceptance-gate-kit
-codex plugin add acceptance-gate@acceptance-gate-kit
-codex plugin add feature-loop-codex@acceptance-gate-kit
-codex plugin add design-loop@acceptance-gate-kit        # tùy chọn — repo có web UI
-codex plugin add superpowers@openai-curated             # nếu dùng brainstorm/plan
-```
-
-Sau khi cài, mở phiên Codex mới để runtime nạp skill/plugin. Trong Codex, dùng
-`feature-loop-codex` thay cho `feature-loop`; nó không gọi Workflow scripts của
-Claude.
-
-Claude Code — trọn bộ (khuyến nghị, copy-paste một lần):
+Trọn bộ (copy-paste một lần):
 
 ```bash
 claude plugin marketplace add phanlemanh/acceptance-gate-kit
 claude plugin install acceptance-gate@acceptance-gate-kit
 claude plugin install feature-loop@acceptance-gate-kit      # vòng lặp trọn gói
 claude plugin install superpowers@claude-plugins-official   # dependency của feature-loop
-claude plugin install design-loop@acceptance-gate-kit       # tùy chọn — repo có web UI
 ```
 
 Tối thiểu (chỉ gate, không vòng lặp): cài marketplace + `acceptance-gate` là đủ.
 
 > Cần quyền đọc repo GitHub `phanlemanh/acceptance-gate-kit` (hỏi Mạnh nếu chưa có).
-> Sau khi cài, mở phiên Claude Code/Codex mới để runtime nạp plugin.
+> Sau khi cài, mở phiên Claude Code mới để runtime nạp plugin.
 
 ## Cập nhật plugin (quan trọng với cả đội)
 
 ```bash
 claude plugin update acceptance-gate@acceptance-gate-kit
 claude plugin update feature-loop@acceptance-gate-kit    # nếu đã cài
-codex plugin marketplace upgrade                         # Codex: refresh marketplace snapshot
 ```
 
 Chạy khi có thông báo release, hoặc đầu mỗi sprint. Hai dev chạy 2 version
@@ -66,7 +50,7 @@ feature lọt eval...) — cập nhật là một phần của kỷ luật gate,
 ## Setup 1 lần mỗi repo (thường đã có sẵn)
 
 Nếu repo đã có thư mục `_acceptance/` → bỏ qua mục này.
-Repo mới: chạy `/acceptance-init` hoặc nói với Codex "run acceptance init" rồi trả lời các câu hỏi
+Repo mới: chạy `/acceptance-init` rồi trả lời các câu hỏi
 (lệnh test, đường dẫn nhạy cảm...).
 
 **CI:** copy **đủ 7 file** từ plugin vào repo, giữ đúng layout `scripts/` + `lib/`
@@ -138,7 +122,7 @@ feature-loop): không chặn gì cả — muốn có thì chạy qua feature-loo
 động thì ghi entry descope bắt đầu `"bỏ gap-probe"`, cờ chuyển thành dấu vết
 trung tính.
 
-Sửa trực tiếp nếu cần → approve (máy ghi `approved_by`). **Đây là 10 phút
+Sửa trực tiếp nếu cần → approve (máy ghi `approved_by`). **Đây là điểm dừng
 đáng giá nhất**: sửa 1 dòng tiêu chí ở đây rẻ hơn 10 lần phát hiện sai sau khi code xong.
 
 **Sau khi AI code xong** — máy tự verify và viết `evidence-report.md`.
@@ -163,7 +147,7 @@ và cấm sửa sau khi thấy số; chấm kín trước khi thảo luận; **n
 trả lời mua bằng giá một vòng dựng, không phải thất bại của người làm.
 
 **Duyệt Cổng 1 nhanh:** `/approve <slug>` · **Ký Cổng 2:** `/signoff <slug>` ·
-**Đo hiệu quả kit:** `/acceptance-report` (phút người vs baseline, vệ sinh gate)
+**Đo sức khoẻ cổng:** `/acceptance-report` (verdict mix, số vòng verify, vệ sinh gate)
 
 ---
 
@@ -207,8 +191,9 @@ token `exit=1`/`exit_code: 1` (sanitize trước khi dán).
   legacy. Lần bypass được GHI vào report (`bypass_used: true`) và CI
   `pre-merge-check.sh` CHẶN merge — trừ khi 1 người ghi `bypass_ack: <tên>
   <ngày>` để chủ động chịu trách nhiệm (để lại dấu vết audit).
-- **Đo hiệu quả?** `time_human_minutes` trong contract.md — điền số phút thật ở
-  mỗi cổng; baseline nằm ở `_acceptance/config.yaml::baseline_minutes`.
+- **Đo hiệu quả?** `/acceptance-report` — verdict mix, số vòng verify, vệ sinh
+  cổng. Kit **thôi đo phút người**: con số ấy do người điền cho qua cổng nên nó
+  vừa tốn người vừa sinh dữ liệu giả.
 
 ---
 
@@ -235,11 +220,7 @@ verify đa-agent → evidence → PR. Bạn vẫn chỉ dừng tay đúng 2 lầ
 ```bash
 claude plugin install feature-loop@acceptance-gate-kit
 claude plugin install superpowers@claude-plugins-official   # dependency (brainstorm/plan)
-codex plugin add feature-loop-codex@acceptance-gate-kit     # Codex edition
 ```
-
-`feature-loop` dùng Claude workflow scripts. `feature-loop-codex` dùng Codex
-main-agent, shell/browser tooling, và multi-agent tools khi runtime có.
 
 **Setup mỗi repo:** đã chạy `/acceptance-init` rồi thì chỉ cần thêm vào
 `_acceptance/config.yaml` các lệnh verify chạy mỗi vòng (chọn từ `executors.*`

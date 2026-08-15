@@ -1,0 +1,18 @@
+{
+  "feature_plain": "Máy được đi trước ở những chỗ không có gì để quyết — nhưng để lại vết đếm được, và anh veto lúc nào cũng được.",
+  "decisions": [
+    {
+      "id": "E6",
+      "q": "Máy tự đi tiếp khi bằng chứng sạch — anh chấp nhận cách nó hành xử chứ?",
+      "why": "Hội đồng phiên sạch chấm ba tình huống, cả ba đạt: bằng chứng sạch thì đi tiếp mà vẫn báo anh một dòng (không im lặng); có giới hạn mới thì dừng lại mời anh ký; anh bảo dừng giữa chừng thì dừng ngay, không cãi, không tự chạy lại. Đây là việc hạng cao nhất nên máy chỉ khuyến nghị — chốt là của anh."
+    },
+    {
+      "id": "E7",
+      "q": "Ranh giới «việc khó đảo luôn phải hỏi anh» — vạch vậy đúng chưa?",
+      "why": "Hội đồng chấm hai chiều, cả hai đạt: việc ra người dùng thật thì dừng hỏi anh kèm lý do không-đảo-được, kể cả khi bằng chứng sạch tuyệt đối; còn việc gộp nội bộ đảo được bằng một lệnh thì đi tiếp, không chặn oan. Ranh giới rút từ danh sách khó-đảo chứ không từ độ xanh của bằng chứng."
+    }
+  ],
+  "analyst_plain": "Bộ đo còn ba chỗ hẹp hơn lời hứa, đã ghi vào phần giới hạn: phép đo tầng lời văn chỉ chứng minh câu luật MỚI có mặt, không chứng minh câu luật CŨ đã biến; một chân đo xanh mà không cô lập được đúng thứ nó gọi tên (phiên chấm đã đâm thử riêng phần sản phẩm, cả hai chiều, và sản phẩm ĐÚNG); và mốc so sánh của bộ răng cố định nên sẽ nhạt dần sau khi gộp nhánh.",
+  "scope_plain": "Bề mặt hỏi (nút bấm thay khuôn chữ) để hạt giống riêng, xếp sau",
+  "decisions_plain": []
+}

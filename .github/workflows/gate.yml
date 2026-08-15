@@ -25,15 +25,14 @@ jobs:
         run: bash tests/scripts/run-tests.sh
       - name: hooks suite
         run: bash tests/hooks/run-tests.sh
-      - name: plugins suite (gồm P30 sync-drift, P33 chống glob-vào-cache)
+      - name: plugins suite (gồm P33 chống glob-vào-cache)
         run: bash tests/plugins/run-tests.sh
       - name: workflows suite (lớp thuần của acceptance-verify + execute-parallel)
         run: bash tests/workflows/run-tests.sh
       # Bản đồ sản phẩm là view máy sinh: mọi PR đổi hồ sơ xưởng mà quên làm
       # mới nó là bản đồ nói dối. Bốn thân cổng người hứa với người ký rằng
-      # "CI bắt drift" — bước này là chỗ lời hứa đó có thật (cùng vai P30 với
-      # mirror). Thiếu nó thì bản đồ chỉ được kiểm khi tình cờ có ai chạy một
-      # vòng nghiệm thu.
+      # "CI bắt drift" — bước này là chỗ lời hứa đó có thật. Thiếu nó thì bản
+      # đồ chỉ được kiểm khi tình cờ có ai chạy một vòng nghiệm thu.
       - name: bản đồ sản phẩm khớp hồ sơ xưởng
         run: node scripts/product-map.mjs --root . --check
 

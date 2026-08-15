@@ -15,7 +15,7 @@ of hand-testing for an hour.
 
 Core principles (non-negotiable):
 1. **Doer ≠ grader** — the verify phase runs in a fresh agent/context when the
-   runtime supports it, or a clearly separated grader pass in Codex; never let
+   runtime supports it, or a clearly separated grader pass when it does not; never let
    the same implementation reasoning self-grade the feature.
 2. **Evidence over assertion** — PASS requires `run_id + exit_code: 0 +
    verifier + verified_at`. The acceptance-evidence-gate hook blocks
@@ -150,18 +150,36 @@ Run immediately after the user reviews the contract (same gate, one sitting).
    <repo_root> --slug <slug>` — flags threshold criteria whose evals never assert a
    should-NOT-fire case (W1), out-of-scope items with zero negative evals (W3),
    and `(cross-layer)` criteria with no `layer: backend-effect` eval (W4).
-5. **STOP — Gate 1 part B.** Present evals.yaml + mapping table — or, to cut
+4c. **Cổng Phạm vi T2 — máy chốt hợp đồng rồi ĐI TIẾP ở trạng thái V** (đợt
+   2). Bộ tiêu chí do máy dựng từ đề bài đã có; hỏi lại «đúng chưa?» khi
+   không có gì để cân là tiêu một lần chặn người để không đổi gì. Máy ghi vào
+   frontmatter contract `veto_state: mo` + `veto_opened_at: <ISO>`,
+   để `approved_by` RỖNG (trường tên người CHỈ chứa tên người — không bao giờ
+   điền chuỗi giả), rồi đi tiếp sang thi công.
+   **Chặn-chờ vẫn giữ nguyên ở đâu có đánh-đổi thật:** hạng T3 (và Gate 1.5)
+   · gap-probe còn finding P0 · danh từ mờ / đề bài mơ hồ (chủ quyền ý định
+   thuộc người — đề bài mơ hồ thì VẪN HỎI) · coverage cluster chưa gạch.
+   Vắng `veto_opened_at` hoặc hạng T3 thì hook chặn-lúc-ghi CHẶN: V không có
+   vết là bỏ-cổng lặng lẽ, và V khác hẳn `gate1_skipped` (bỏ-cổng là người
+   chủ động miễn; V là cổng VẪN MỞ, người veto lúc nào cũng được).
+   Người veto → đổi `veto_state: da-veto` + một entry sổ quyết định; lưới
+   trước-merge chặn tới khi xử, và chặn cả chiều ghi-ngược `da-veto → mo`
+   hay gỡ khoá không có vết.
+   Ranh giới cuối: **nghi thức bắt-người-gõ-lệnh-nối tự tan** — không có
+   việc riêng nào cho nó khi cổng hết chặn.
+
+5. **STOP — Gate 1 part B** (chỉ khi 4c KHÔNG đủ điều kiện đi tiếp). Present evals.yaml + mapping table — or, to cut
    review time, render the plain-language decision card (`/acceptance-card
    <slug>`): the human reviews "sẽ làm / sẽ KHÔNG làm" + coverage flags instead of
    raw YAML (presentation only; the contract/evals stay the source of truth).
-   Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người); tin chỉ-báo ghi rõ "không cần làm gì"; cấm câu tu từ mang dấu hỏi.
+   Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người). Khối chỉ sống ở tin mời cổng và trên thẻ cổng — tin chỉ-báo KHÔNG đeo khối, kết bằng một câu nói thẳng máy đang làm gì tiếp; cấm câu tu từ mang dấu hỏi.
    The `/approve <slug>` command walks this stop end-to-end (card → one
    question → recorded decision). On approval:
    set contract `status: approved`, `approved_by`, `approved_at` (identity and
    date follow the ladder in `GATE-ONESHOT-GRAMMAR` — inferred, echoed once
-   for a one-touch confirm, never asked as a question), and write
-   `time_human_minutes.gate1` WITHOUT asking: the human's `phút <số>` if they
-   typed one, otherwise 0.
+   for a one-touch confirm, never asked as a question). Do NOT ask for or
+   write human minutes; a trailing `, phút <số>` is accepted and silently
+   ignored so a human who types it out of habit is never blocked.
 6. Hand off to implementation (normal agent coding flow — the implementing
    agent reads contract + evals and codes until it believes evals will pass).
    The implementing agent's FINAL act is setting the contract's
@@ -174,7 +192,7 @@ Run immediately after the user reviews the contract (same gate, one sitting).
 Entry: implementation complete, contract `status: implemented`.
 
 1. **Dispatch a fresh verification context**. Prefer a fresh subagent when the
-   runtime exposes one; in Codex without multi-agent tools, run a separated
+   runtime exposes one; without multi-agent tools, run a separated
    grader pass after implementation and record that fallback in the report. It
    executes resolved commands and fills an evidence template; no large-model
    self-assertion is accepted because the hook and the pre-merge check are the
@@ -218,7 +236,7 @@ Entry: implementation complete, contract `status: implemented`.
      copy `network_observed:` verbatim into the block (missing → `n-a (driver)`).
      No capture/browser → save HTML / downgrade to judgment + note (see eval-executors.md).
    - `judgment`: dispatch the judge per `references/judge-personas.md`
-     (separate fresh subagent when available, or three separated Codex passes
+     (separate fresh subagent when available, or three separated grader passes
      with hidden implementer reasoning). The verdict is scoped on resolved
      inputs; blind: no diff, no implementer reasoning. If the verify context
      cannot spawn nested agents, it returns judgment evals unscored; the
@@ -248,7 +266,29 @@ Entry: implementation complete, contract `status: implemented`.
      the implementing context. Max 3 verify rounds; log each in the report's
      Iterations section. After round 3 → STOP, escalate to user.
    - Executor cannot run → verdict BLOCKED + reason. STOP, escalate.
-5. **STOP — Gate 2.** FIRST commit the machine-written verify output
+4b. **Cổng Bằng chứng xanh-sạch — máy đi tiếp, KHÔNG mời ký** (đợt 2 «người
+   về biên», hồ sơ veto-co-dau-vet). Chữ ký lui về đúng nơi có ĐÁNH-ĐỔI hoặc
+   KHÓ-ĐẢO; một cổng mà câu trả lời hợp lý duy nhất là «ừ» là trạm thu phí,
+   không phải điểm quyết định. Điều kiện sạch là danh sách ĐÓNG, đủ SÁU thì
+   đi tiếp, thiếu MỘT là mời ký như cũ:
+   `verdict: PASS` (khoá phải tồn tại) · 0 mục UNCERTAIN · `bypass_used:
+   false` · mục **Known limits** hiện diện và rỗng · mục **Ngoài hợp đồng**
+   hiện diện và rỗng · hạng **T2** đọc từ `risk_tier` của contract (báo cáo
+   KHÔNG tự phong hạng). Mục VẮNG ≠ mục rỗng: bỏ hẳn một mục khỏi báo cáo là
+   đường sạch-giả rẻ nhất, và nó tính là KHÔNG sạch.
+   Đủ sáu → commit phần máy viết, báo người ĐÚNG MỘT DÒNG (đã qua với bằng
+   chứng sạch · cửa veto vẫn mở · việc kế là gì), rồi đi tiếp. Không khối
+   👉, không câu hỏi. `pre-merge-check.sh` áp đúng sáu điều kiện này ở biên
+   merge — luật văn bản và lưới máy nói cùng một câu.
+   **KHÓ-ĐẢO luôn thắng xanh-sạch:** việc chạm `KHO-DAO-V` (ship ra người
+   dùng thật · xoá dữ liệu · cam kết ra ngoài repo) LUÔN rơi về khoảnh khắc
+   quyết thật, bất kể bằng chứng sạch tới đâu — vì thứ hỏng ở đó không đảo
+   được bằng một lệnh revert.
+   **Người veto giữa chừng → DỪNG NGAY**, nêu hiện trạng và đường hoàn tác,
+   KHÔNG tranh luận lại căn cứ đã trình, KHÔNG bày menu buộc người quyết lần
+   nữa. Veto là quyết định của người; máy chỉ thi hành và để lại vết.
+
+5. **STOP — Gate 2** (chỉ khi 4b KHÔNG đủ điều kiện đi tiếp). FIRST commit the machine-written verify output
    (evidence-report.md + run-log.jsonl + contract + evidence/) as its own
    commit containing NO human signature — the Gate-2 edits below must land
    in a SEPARATE commit touching only human-owned report lines
@@ -262,7 +302,7 @@ Entry: implementation complete, contract `status: implemented`.
    (`/acceptance-card <slug>`) — judgment items + deferred scope (việc-của-người)
    surface FIRST in plain language, machine evidence collapsed; the verdict + hook
    are unchanged.
-   Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người); tin chỉ-báo ghi rõ "không cần làm gì"; cấm câu tu từ mang dấu hỏi.
+   Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người). Khối chỉ sống ở tin mời cổng và trên thẻ cổng — tin chỉ-báo KHÔNG đeo khối, kết bằng một câu nói thẳng máy đang làm gì tiếp; cấm câu tu từ mang dấu hỏi.
    The `/signoff <slug>` command walks this stop end-to-end
    (preconditions → overrides → human-fields-only signature commit → pre-merge
    re-check). The user resolves each pending item by
@@ -270,10 +310,15 @@ Entry: implementation complete, contract `status: implemented`.
    PENDING-JUDGMENT they then upgrade it to PASS (the hook re-validates that
    write) — have the agent apply that edit so the hook actually sees it; a
    human editing outside the agent bypasses PreToolUse (CI pre-merge-check
-   is the backstop). The user (not you) fills `human_signoff`; then ask
-   minutes spent →
-   `time_human_minutes.gate2`, set contract `status: signed-off`. In Codex
-   sessions where write-time hooks are not active, run
+   is the backstop).
+
+   <!-- <<<SIGNATURE-OWNER-CLAUSE -->
+   The signature is the HUMAN's. Exactly two legal routes: the human commits it themselves, OR the human explicitly instructs the agent to commit exactly the human-owned lines and nothing more. There is no third route; `signoff.require_human_commit` + `agent_authors` enforce this boundary.
+   <!-- SIGNATURE-OWNER-CLAUSE>>> -->
+
+   (Bản gốc ở `commands/signoff.md` bước 7; khối trên là bản chép nguyên văn.)
+   Then set contract `status: signed-off`. Where
+   write-time hooks are not active, run
    `scripts/recheck-evidence.cjs` or `scripts/pre-merge-check.sh` before calling
    the gate complete; CI remains the authoritative merge backstop.
 

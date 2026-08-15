@@ -2,7 +2,7 @@
 
 > Đọc nhanh 5 phút → [QUICKSTART.md](QUICKSTART.md). Tài liệu này là **bản đầy đủ**:
 > kiến trúc, cài đặt, vận hành hằng ngày, tra cứu enforcement, xử lý sự cố và tinh chỉnh.
-> Khớp phiên bản: acceptance-gate 1.18.0 · feature-loop / feature-loop-codex 1.14.0 · design-loop 0.3.0. Bản Codex-native cần Codex CLI ≥ 0.139.0.
+> Khớp phiên bản: acceptance-gate 2.0.0 · feature-loop 2.0.0.
 
 ## Mục lục
 
@@ -46,17 +46,16 @@ AI không đến từ "AI ngoan" — nó đến từ bằng chứng đối chi�
 
 | # | Mục tiêu | Thước đo |
 |---|---|---|
-| 1 | Giảm **≥ 50%** thời gian người/tính năng so với baseline | `time_human_minutes` (mỗi contract) vs `baseline_minutes` (config) |
-| 2 | **0** defect nghiệp vụ lọt qua gate | Đếm defect phát hiện sau signoff |
-| 3 | Đúng **2 điểm dừng người**, 5–10 phút/cổng (T3: +1 duyệt plan) | Vòng đời chuẩn — mọi tính năng T2/T3 |
-| 4 | **100%** verdict PASS có bằng chứng máy đối chiếu được | `run_id` khớp `run-log.jsonl`, `exit_code 0`, verifier thật, SHA thật |
-| 5 | **1** chuẩn gate cho mọi runtime (Claude/Codex) và mọi thành viên | `lib/evidence-core.cjs` dùng chung + kỷ luật update plugin |
+| 1 | **0** defect nghiệp vụ lọt qua gate | Đếm defect phát hiện sau signoff |
+| 2 | Đúng **2 điểm dừng người** (T3: +1 duyệt plan) | Vòng đời chuẩn — mọi tính năng T2/T3 |
+| 3 | **100%** verdict PASS có bằng chứng máy đối chiếu được | `run_id` khớp `run-log.jsonl`, `exit_code 0`, verifier thật, SHA thật |
+| 4 | **1** chuẩn gate cho mọi thành viên | `lib/evidence-core.cjs` dùng chung + kỷ luật update plugin |
 
 ### Lợi ích khi sử dụng
 
 | Ai | Được gì |
 |---|---|
-| **Người duyệt** | 1–2 giờ click tay → 15–20 phút đọc 2 card quyết định; máy đẩy lên đúng những item nó *không dám chắc* (UNCERTAIN) thay vì giấu chúng |
+| **Người duyệt** | 1–2 giờ click tay → đọc 2 card quyết định; máy đẩy lên đúng những item nó *không dám chắc* (UNCERTAIN) thay vì giấu chúng |
 | **Cả đội** | Một chuẩn nghiệm thu đếm được thay vì khẩu vị từng người; audit trail đầy đủ (`approved_by`, `human_signoff`, `bypass_used`) — ai duyệt gì, khi nào, có né gate không |
 | **AI agent** | Tiêu chí chốt *trước* khi code (sửa 1 dòng ở Cổng 1 rẻ hơn 10 lần sửa sau); mỗi vòng verify nhận phản hồi tất định (file:line, exit code) thay vì nhận xét mơ hồ |
 | **Sản phẩm** | Defect bị chặn ở điểm rẻ nhất; sàn chất lượng UI được ép bằng máy (contrast, layout, coverage AC) chứ không bằng lời dặn |
@@ -66,9 +65,8 @@ AI không đến từ "AI ngoan" — nó đến từ bằng chứng đối chi�
 | Tính năng | Một dòng | Chi tiết |
 |---|---|---|
 | **Gate 3-phase** (acceptance-gate) | Yêu cầu → contract + evals → evidence report; hook chặn PASS giả lúc ghi, CI chặn lúc merge | §3, §7 |
-| **Decision card + evidence page** | Cổng 1/Cổng 2 trình bày để quyết trong 5–10 phút; screenshot + output thật, mở bằng `file://` | §6.3 |
+| **Decision card + evidence page** | Cổng 1/Cổng 2 trình bày để quyết trong một lượt đọc; screenshot + output thật, mở bằng `file://` | §6.3 |
 | **feature-loop** | Một lệnh từ ý tưởng → PR: brainstorm, contract, plan, code song song, verify đa-agent (3 AI-judge + adversarial review), tự sửa ≤ 3 vòng | §3, §4 |
-| **design-loop** (tùy chọn) | Làn design web-UI: design-of-record → port → fidelity 3 lớp (static BLOCK · P0 floor · pixel-diff advisory) | §4.5 |
 | **Skill ux-ui-craft** | Kỷ luật design-engineer tự kích hoạt: token, Layout Contract "bản vẽ", gate đo được (contrast/type/alignment) | §4.9 |
 | **Skill morphological-scan (CT-S)** | Quét không gian tiêu chí theo trục chống sót AC; mục Coverage hiện trên card Cổng 1 | §4.10 |
 | **Risk tiers T1/T2/T3** | Đơn giản bỏ qua gate, mặc định flow đủ, nhạy cảm ép người kiểm mọi judgment | §6 |
@@ -78,11 +76,11 @@ AI không đến từ "AI ngoan" — nó đến từ bằng chứng đối chi�
 ```mermaid
 flowchart TB
   IN["Ý tưởng / ticket / PRD"] --> S1["Máy: contract + evals + coverage"]
-  S1 --> G1{"🚪 CỔNG 1 — người DUYỆT TIÊU CHÍ<br/>(5–10 phút)"}
+  S1 --> G1{"🚪 CỔNG 1 — người DUYỆT TIÊU CHÍ"}
   G1 --> CODE["Máy: plan + code<br/>(agent thường hoặc feature-loop)"]
   CODE --> V["Máy: verify mỗi vòng<br/>evals + design gates + AI-judge + review"]
   V -- "REJECT → tự sửa (≤ 3 vòng)" --> CODE
-  V -- "PASS + evidence" --> G2{"🚪 CỔNG 2 — người kiểm UNCERTAIN + KÝ<br/>(5–10 phút)"}
+  V -- "PASS + evidence" --> G2{"🚪 CỔNG 2 — người kiểm UNCERTAIN + KÝ"}
   G2 --> CI2["CI pre-merge<br/>chặn report chưa ký / evidence giả / cũ"]
   CI2 --> MERGE["Merge"]
   HK["Hook write-time<br/>chặn PASS không bằng chứng"] -. giám sát .-> V
@@ -107,7 +105,7 @@ tin lời AI tự khai "done". Kit thay thế cả hai bằng một hợp đồn
 - **Máy chứng minh** — mỗi tiêu chí nghiệm thu có eval chạy được; PASS bắt buộc kèm
   bằng chứng máy (`run_id`, `exit_code: 0`, verifier thật, commit đã verify).
 - **Người quyết** — đúng **2 điểm dừng**: Cổng 1 duyệt *tiêu chí* trước khi code,
-  Cổng 2 ký *bằng chứng* sau khi verify. Mỗi cổng 5–10 phút.
+  Cổng 2 ký *bằng chứng* sau khi verify. Mỗi cổng đúng một lượt đọc rồi quyết.
 - **Enforcement tất định** — không dựa "AI ngoan": hook chặn ngay lúc ghi file,
   CI chặn lại lúc merge. Nói dối phải thắng được cả hai lớp máy.
 
@@ -127,13 +125,12 @@ lẫn CI re-check dùng chung — hai lớp không bao giờ lệch luật nhau.
 
 ```mermaid
 flowchart TB
-  subgraph DEV["🖥️ Máy dev — Claude Code/Codex + plugins"]
-    FL["<b>feature-loop / feature-loop-codex</b><br/>skill điều phối S0→S5"]
+  subgraph DEV["🖥️ Máy dev — Claude Code + plugins"]
+    FL["<b>feature-loop</b><br/>skill điều phối S0→S5"]
     AC["<b>acceptance</b><br/>skill 3 phase<br/>contract / evals / verify"]
-    WF["<b>Orchestration</b><br/>Claude Workflow scripts<br/>hoặc Codex shell/browser/multi-agent"]
+    WF["<b>Orchestration</b><br/>Claude Workflow scripts"]
     HOOK["<b>Runtime hook khi có</b><br/>acceptance-evidence-gate.js<br/>chặn lúc ghi"]
     CORE["<b>lib/evidence-core.cjs</b><br/>một nguồn luật duy nhất"]
-    DL["<b>design-loop</b> (tùy chọn)<br/>mockup → port → fidelity"]
   end
 
   subgraph REPO["📁 Repo của đội"]
@@ -161,8 +158,7 @@ flowchart TB
 | Thành phần | Vai trò một dòng |
 |---|---|
 | `acceptance` (plugin acceptance-gate) | Biến yêu cầu → contract + evals; verify → evidence report |
-| `feature-loop` / `feature-loop-codex` | "Cả con đường": brainstorm → contract → plan → code → verify đa-agent → PR |
-| `design-loop` | Làn design cho web UI: mockup/reference chuẩn → so pixel khi verify (tùy chọn) |
+| `feature-loop` | "Cả con đường": brainstorm → contract → plan → code → verify đa-agent → PR |
 | Hook `acceptance-evidence-gate.js` | Chặn PASS thiếu bằng chứng + contract nhảy cóc Cổng 1 khi runtime hook đang active |
 | `lib/evidence-core.cjs` | Toàn bộ luật L1/L2/L3 — hook và CI re-check cùng require file này |
 | `scripts/pre-merge-check.sh` | Chốt chặn CI độc lập: kiểm cả những gì hook không thấy (người sửa tay, git history) |
@@ -172,7 +168,7 @@ flowchart TB
 Người mở editor sửa tay evidence, hoặc một runtime không bật hook, thì hook mù — CI
 re-check chạy đúng bộ luật đó trên file **đã commit**, cộng thêm các kiểm tra chỉ làm
 được bằng git history (evidence có bị cũ so với code không, ai đưa chữ ký vào, PR có né
-gate không). Vì vậy CI là lớp enforce chung cho cả Claude Code và Codex.
+gate không). Vì vậy CI là lớp enforce chung, không phụ thuộc phiên nào.
 
 ## 3. Vòng đời một tính năng
 
@@ -182,7 +178,7 @@ Mọi resume (`/feature-loop <slug>`) đọc status và vào đúng chỗ.
 ```mermaid
 flowchart LR
   START(("💡 ý tưởng")) --> S1["<b>S1 DESIGN</b><br/>brainstorm → design-doc<br/>+ contract (status: draft)<br/>+ evals.yaml"]
-  S1 --> G1{"🚪 <b>CỔNG 1</b><br/>người duyệt tiêu chí<br/>5–10 phút"}
+  S1 --> G1{"🚪 <b>CỔNG 1</b><br/>người duyệt tiêu chí"}
   G1 -->|"status: approved<br/>+ approved_by"| S2["<b>S2 PLAN</b><br/>task list + verify per-task"]
   S2 -->|"T3: 🚪 Cổng 1.5 duyệt plan"| S3["<b>S3 EXECUTE</b><br/>code; task độc lập →<br/>song song, mỗi task 1 worktree"]
   S3 -->|"status: implemented"| S4["<b>S4 VERIFY</b><br/>workflow đa-agent<br/>(xem mục 4)"]
@@ -193,13 +189,13 @@ flowchart LR
   CI --> DONE(("✅ merge"))
 ```
 
-> **Bump version + sync mirror thuộc S3, KHÔNG phải S5.** Bump sau Cổng 2 làm
+> **Bump version thuộc S3, KHÔNG phải S5.** Bump sau Cổng 2 làm
 > evidence stale — report pin commit TRƯỚC bump — nên nó huỷ chính chữ ký vừa
 > lấy, và bạn phải chạy thêm một vòng verify rồi xin chữ ký lần hai. Đã dẫm
 > 2026-07-26: ký ở `827f549`, bump ở `834eae8`, staleness guard nổ ngay sau đó.
 > Nếu repo có suite ghim số version bằng literal thì bump còn SỬA cả suite —
 > tức code đổi thật, stale là đúng luật. Cách chữa gốc: suite kiểm các manifest
-> **khớp nhau** thay vì ghim một con số (xem case P03/P22 của kit).
+> **khớp nhau** thay vì ghim một con số.
 
 | `status` hiện tại | Ai set | Resume vào |
 |---|---|---|
@@ -277,13 +273,18 @@ descope một AC vẫn phải sửa contract + re-approve. Card 2 gate tự rend
 "Quyết định & trade-off" (descope lên đầu); chưa ghi gì → in "(chưa ghi quyết định
 nào)" để bạn đòi khi cần.
 
-**Làn design 2 công tắc** — CT1 (chạm UI, tự động): static checks (token/contrast/
-tap, thiếu capture là BLOCKED) + screenshot như thường. CT2 (ceremony đắt, bạn bật
-bằng 1 câu cuối S1 hoặc chạy `/design-mockup`): mockup + state-matrix + fidelity +
-panel Gate 2. Không có field tier nào — trạng thái nhận từ artifact (provenance /
-eval fidelity); D0/D1/D2 chỉ là cách gọi. Bỏ ceremony = 1 entry `descope` hiện trên
-card. `/design-init` hỏi thêm `design.surface_globs` để S4 bắt "diff chạm surface
-mà lane không có design eval".
+**Làn design — một công tắc** — CT1 (chạm UI): static checks (token/contrast/tap,
+thiếu capture là BLOCKED) + screenshot như thường. Không có field tier nào —
+trạng thái nhận từ artifact; D0/D1 chỉ là cách gọi. Điều kiện bật là khoá
+`executors.design.*` trong `_acceptance/config.yaml`, wire bằng tay — xem mục
+"Wire `executors.design`" ở §5.2. Khoá `design.surface_globs` cho S4 bắt "diff
+chạm surface mà lane không có design eval".
+
+Nghi lễ design-of-record (mockup → evidence → push) **đã lưu kho 2026-08-12**:
+ba bước của nó không tự động được, và vai "khoảnh khắc visual trước Cổng 1" nay
+do nghi thức S1-D (skill `design-pass`, chạy trên bản bấm được) đảm nhiệm, chấm
+bằng eval `ui-check`/`design-gate`. Lý do + đường lấy lại:
+**ADR 0009** trong `docs/adr/`.
 
 ## Chạy không-người-trông đoạn máy với /goal (1.11.1 · Claude Code ≥ 2.1.139)
 
@@ -327,11 +328,11 @@ lấp lửng; vế escalate và "15 turns" là hai lối thoát để không đ�
   (fresh agents + evals máy + hook) mới là chấm thật — doer≠grader giữ nguyên.
 - Đạt `verified` → goal tự thỏa và tắt; quay lại duyệt Gate 2 bằng mắt người như thường.
 
-**Phạm vi runtime:** Claude Code ≥ 2.1.139 và Codex ≥ 0.139.0 đều có `/goal` native.
-Trong Codex, chỉ đặt goal tới transcript xác nhận `verified` hoặc trạng thái
-escalate; **không bao giờ** đặt goal tới `signed-off`. `/goal` là bộ kiểm tra tiếp
-tục/dừng, không thay grader và không tự cấp chữ ký Gate 2. Kit không phụ thuộc:
-không dùng `/goal` thì mọi thứ chạy y nguyên.
+**Phạm vi runtime:** Claude Code ≥ 2.1.139 có `/goal` native. Chỉ đặt goal tới
+transcript xác nhận `verified` hoặc trạng thái escalate; **không bao giờ** đặt
+goal tới `signed-off`. `/goal` là bộ kiểm tra tiếp tục/dừng, không thay grader và
+không tự cấp chữ ký Gate 2. Kit không phụ thuộc: không dùng `/goal` thì mọi thứ
+chạy y nguyên.
 
 ## Model theo giai đoạn (feature_loop.models) (1.11.2)
 
@@ -395,7 +396,7 @@ gate **Alignment budget** cho bố cục, cùng nguyên tắc: đếm trên bả
 
 | Trong kit | Skill làm gì |
 |---|---|
-| S1-D mockup / design-loop | **System mode**: bám token của design system repo (không hex/webfont mới); **Prototype mode**: quyết định nằm trong control bấm được, done = ma trận state × theme × viewport được capture — khớp chuẩn design-of-record; khai nấc ngữ cảnh (`context:` 3 nấc — `standalone` cần cảnh ngữ-cảnh hoặc descope có tên trước Cổng 1) |
+| S1-D (nghi thức design-pass) | **System mode**: bám token của design system repo (không hex/webfont mới); **Prototype mode**: quyết định nằm trong control bấm được, done = ma trận state × theme × viewport được capture — khớp chuẩn design-of-record; khai nấc ngữ cảnh (`context:` 3 nấc — `standalone` cần cảnh ngữ-cảnh hoặc descope có tên trước Cổng 1) |
 | Review UI có sẵn | **Audit mode** (1.13.0): đo trước phán sau — chạy gate table trên bản render, findings chia 3 sổ (defect đo được / drift đếm được / taste dán nhãn), kèm "cái gì phải giữ lại" |
 | Form / wizard / connector | **guidance-craft** (1.14.0): helper-text chỉ đường cho giá trị ngoài hệ thống (API key lấy ở đâu, shape mẫu), error = what + why + nút bấm kế tiếp; **Access-per-contract**: mỗi noun quen (player, table, wizard…) kèm ARIA pattern chuẩn, walk present/descoped như control thường |
 | Màn nhiều vùng / "bố cục loạn" | **layout-craft** (1.15.0): khai grid cùng token (≤3-4 container width, MỘT hệ gutter, indent 1 bước) + chọn archetype theo job (focus flow · two-seat split · master–detail · dashboard grid · full-bleed · prose spine) + phép thử tận-dụng-desktop; kèm **gate Alignment budget** đếm được — mép trái các block dùng lại ≈≤8-10 đường đã khai/màn desktop, mép lẻ không khai báo = lệch hàng. Đo trên bản render (getBoundingClientRect, cụm ±3px). Hiệu chuẩn trên bề mặt thật: trang bị chê "loạn" đo 37 đường/23 mép lẻ, shell kỷ luật 6/1 |
@@ -405,17 +406,16 @@ trang khách; với micro-edit (đổi 1 label) cứ nói "bỏ qua ux-ui-craft"
 trong frontmatter `SKILL.md` (`version:`); nguồn phát triển + eval harness bảo trì ngoài
 kit, đổ về qua release có test đầy đủ.
 
-**1.17 — Layout Contract + máy đo layout (skill 1.4.0 · design-loop 0.3.0).** Skill buộc
+**1.17 — Layout Contract + máy đo layout (skill 1.4.0).** Skill buộc
 viết "bản vẽ" trước màn hình đầu tiên: khối `:root` (`--container-*` / `--gutter` /
 `--space-*` 3 cấp tăng dần) + named grid lines + sitemap ≤10 dòng; code chỉ được tiêu
 `var()`. Máy đo `skills/ux-ui-craft/scripts/measure_layout.js` chạy trong browser thật
 (Playwright / console — jsdom không có layout) đếm đường canh lề, singleton, container
 widths, gap lệch scale — trả evidence JSON (`run_id`/`verdict`/`exit_code`, chuẩn
-design-loop). Gate mới **Structure–space coherence**: khoảng cách giữa 2 block phải đúng
-cấp với khoảng cách trong sitemap, ngân sách lệch = 0. design-loop 0.3.0 thêm rule
+evidence của kit). Gate mới **Structure–space coherence**: khoảng cách giữa 2 block phải
+đúng cấp với khoảng cách trong sitemap, ngân sách lệch = 0. Cùng đợt đó, rule
 **layout-token-only** (BLOCK raw px/rem trong margin/padding/gap/inset/top/right/bottom/
-left + Tailwind `mt-[13px]` ngoài tầng token) — trả đúng lời hứa "(enforced by
-design-static-check)" trong port-translation.md.
+left + Tailwind `mt-[13px]` ngoài tầng token) được đưa vào máy đo design của kit.
 
 ## Công tắc coverage CT-S — chống sót AC (feature-loop 1.13.0 · acceptance-gate 1.16.0)
 
@@ -479,7 +479,7 @@ Thẻ trình đúng ba nhóm, theo thứ tự ưu tiên:
 
 | Nhóm | Nghĩa |
 |---|---|
-| Chờ chữ ký của anh | Các cổng đang đợi người quyết — cổng chờ lâu nhất lên đầu, mỗi cổng ~10 phút |
+| Chờ chữ ký của anh | Các cổng đang đợi người quyết — cổng chờ lâu nhất lên đầu |
 | Đang dở | Các vòng đang giữa chừng — mỗi vòng một dòng: người dùng sẽ được gì + bước kế |
 | Bắt đầu việc mới | Đúng ba lối: ý mơ hồ → buổi khai thác; việc rõ → `/feature-loop`; việc vặt miễn T1 → sửa thẳng |
 
@@ -527,44 +527,25 @@ quy trình**: câu trả lời mua bằng giá một vòng dựng.
 Kết quả phiên ghi vào `_acceptance/<slug>/uat-session.md`; `/start` và bản đồ
 đọc nó để biết việc đã nghiệm thu hay còn chờ.
 
+**Lái-thử Người-lạ (tiền trạm của phiên nghiệm thu)** — trước khi mời người
+dự, một phiên máy ngữ-cảnh-trắng lái thử sản phẩm như người lạ và bàn giao
+nhật-ký-vấp, để phiên nghiệm thu không cháy vì build vấp và phút của người chỉ
+tiêu vào việc của người: phán giá trị. Nghi thức, hai ổ cắm vào vòng, và luật
+dùng/không-dùng: [docs/lai-thu-nguoi-la.md](docs/lai-thu-nguoi-la.md).
+
 ## 5. Cài đặt
 
 ### 5.1 Mỗi máy dev (một lần)
-
-Codex:
-
-```bash
-codex plugin marketplace add phanlemanh/acceptance-gate-kit
-codex plugin add acceptance-gate@acceptance-gate-kit
-codex plugin add feature-loop-codex@acceptance-gate-kit
-codex plugin add design-loop@acceptance-gate-kit          # tùy chọn — repo có web UI
-codex plugin add superpowers@openai-curated               # nếu dùng brainstorm/plan
-```
-
-Claude Code:
 
 ```bash
 claude plugin marketplace add phanlemanh/acceptance-gate-kit
 claude plugin install acceptance-gate@acceptance-gate-kit
 claude plugin install feature-loop@acceptance-gate-kit      # vòng lặp trọn gói
 claude plugin install superpowers@claude-plugins-official   # dependency của feature-loop
-claude plugin install design-loop@acceptance-gate-kit       # tùy chọn — repo có web UI
 ```
 
-Sau khi cài, **mở phiên Claude Code/Codex mới** để runtime nạp plugin.
-
-Riêng Codex: dùng CLI **0.139.0 trở lên**, mở một **fresh task** sau khi cài hoặc
-nâng cấp, rồi vào `/hooks` để xem diff và cấp **hook trust** cho hook của
-acceptance-gate. Khi hook chưa được trust hoặc bị tắt, CI vendored vẫn là lớp
-enforce chung và có thẩm quyền. `design-loop` dùng skill + executor portable:
-**Claude Design is unavailable in Codex**, nên bản Codex không giả lập lời gọi
-Claude Design và không nhận VLM assertion chưa kiểm chứng làm evidence.
-
-Sau `acceptance-init`, invoke skill `feature-loop-model-init` để cài policy
-Codex-native vào `.codex/agents/`, rồi mở fresh task. Policy cân bằng dùng
-`gpt-5.6-terra` medium cho explorer/refuter và `gpt-5.6-sol` medium/high cho
-executor, UI verifier, judge và reviewer. Nếu runtime không có named-agent
-selector, evidence ghi `session-inherited`; không tuyên bố model đã được pin.
+Sau khi cài, **mở phiên Claude Code mới** để runtime nạp plugin. Khi runtime hook
+chưa bật hoặc bị tắt, CI vendored vẫn là lớp enforce chung và có thẩm quyền.
 
 **Kỷ luật cập nhật** — hai dev chạy 2 version kit trên cùng repo = 2 chuẩn gate khác
 nhau (verifier bị chặn "oan", feature lọt eval). Chạy khi có release hoặc đầu sprint:
@@ -572,18 +553,32 @@ nhau (verifier bị chặn "oan", feature lọt eval). Chạy khi có release ho
 ```bash
 claude plugin update acceptance-gate@acceptance-gate-kit
 claude plugin update feature-loop@acceptance-gate-kit
-codex plugin marketplace upgrade
 ```
 
 ### 5.2 Mỗi repo (một lần)
 
-1. Trong Claude Code chạy **`/acceptance-init`**. Trong Codex gọi skill
-   **`acceptance-init`** hoặc yêu cầu agent "run acceptance init" — trả lời lệnh test/smoke của repo,
-   path nhạy cảm (`t3_paths`), glob bỏ qua (`t1_skip_globs`), người ký. Kết quả:
+1. Chạy **`/acceptance-init`** — trả lời lệnh test/smoke của repo, path nhạy cảm
+   (`t3_paths`), glob bỏ qua (`t1_skip_globs`), người ký. Kết quả:
    `_acceptance/config.yaml` (indent **2-space bắt buộc** — parser của kit đọc theo dòng).
 2. Repo có web UI: `npm i -D jsdom` (design gate chạy chế độ DOM; thiếu → eval design BLOCKED).
-3. (Tùy chọn) design-loop: Claude Code chạy `/design-init`; Codex gọi skill
-   `design-init` để wire khối `executors.design.*`.
+
+#### Wire `executors.design` (repo có web UI)
+
+Không còn lệnh khởi tạo riêng cho làn design — thêm tay vào `_acceptance/config.yaml`:
+
+```yaml
+executors:
+  design:
+    static: "node scripts/design-scan.js --slug {slug}"   # lệnh THẬT của repo bạn
+    gate:   "node scripts/design-gate.mjs --slug {slug}"
+design:
+  surface_globs:                    # để S4 bắt "diff chạm surface mà lane không có design eval"
+    - "src/app/**"
+    - "src/components/**"
+```
+
+Thiếu khối này thì làn design tắt: feature chạm UI vẫn chạy được, chỉ mất eval
+design và kit sẽ cảnh báo một dòng ở Cổng 1 (không chặn).
 
 Tham chiếu đầy đủ `config.yaml` — mục 8 có phần tinh chỉnh:
 
@@ -593,7 +588,7 @@ Tham chiếu đầy đủ `config.yaml` — mục 8 có phần tinh chỉnh:
 | `recheck` | CI re-check evidence đã commit: `strict`/`warn`/`off` | `warn` (repo mới nên để `strict`) |
 | `gap_probe` | Luật phản biện context sạch ở pre-merge check: `required` (chặn) / `advisory` (NOTE) / `off` (im) | `advisory` — bỏ qua vẫn thấy được, nhưng không chặn merge của repo chưa quen |
 | `executors.test.*` `executors.script.*` | Lệnh thật của repo; evals chỉ tham chiếu `config:executors...` | — |
-| `executors.design.*` | Design gate (do `/design-init` ghi) | design eval bị skip |
+| `executors.design.*` | Design gate (wire tay — xem §5.2) | design eval bị skip |
 | `risk_tiers.t1_skip_globs` | Glob an toàn bỏ qua gate (docs, *.md). Từ 1.31.0 `/acceptance-init` phát sẵn `PRODUCT-MAP.md` — bản đồ là view máy sinh lại ở mỗi lần đóng cổng, không phải thứ để nghiệm thu | `PRODUCT-MAP.md` |
 | `risk_tiers.t3_paths` | Path critical → T3 | không gì bị nâng T3 |
 | `signoff.required_for` | Tier nào bắt buộc ký trước merge | `[T2, T3]` |
@@ -734,17 +729,16 @@ Lý do và trade-off: [ADR 0006](docs/adr/0006-rules-ledger-fail-closed-at-outpu
 
 ## 6. Vận hành hằng ngày
 
-### 6.1 Luồng khuyến nghị — `/feature-loop` hoặc `feature-loop-codex`
+### 6.1 Luồng khuyến nghị — `/feature-loop`
 
 ```
 /feature-loop <mô tả tính năng>     # bắt đầu
 /feature-loop <slug>                # resume — đọc status, vào đúng stage
-Run feature-loop-codex for <mô tả>  # Codex edition
 ```
 
 Máy tự chạy S1→S5; bạn chỉ làm việc ở các điểm dừng:
 
-**🚪 Cổng 1 — duyệt tiêu chí (5–10 phút, đáng giá nhất).** Máy trình thẻ quyết định
+**🚪 Cổng 1 — duyệt tiêu chí (điểm dừng đáng giá nhất).** Máy trình thẻ quyết định
 (`/acceptance-card <slug>`) bằng ngôn ngữ sản phẩm: "sẽ làm / sẽ KHÔNG làm" + cờ phủ
 biên. Bạn kiểm:
 
@@ -757,14 +751,14 @@ bước này). Muốn bỏ cổng? Nói rõ — máy ghi `gate1_skipped: true` l
 
 **🚪 Cổng 1.5 (chỉ T3)** — duyệt plan: task list + files + thứ tự.
 
-**🚪 Cổng 2 — ký nghiệm thu (5–10 phút).** Evidence máy-viết đã được **commit trước đó**
+**🚪 Cổng 2 — ký nghiệm thu.** Evidence máy-viết đã được **commit trước đó**
 (cuối S4). Bạn:
 
 1. Đọc thẻ quyết định / trang `evidence-page` (bảng per-eval, screenshot slideshow).
 2. Tự tay kiểm **chỉ** các item `UNCERTAIN` (T3: **mọi** judgment item) → nhờ agent điền
    `human_override: <Tên> <ngày>` (agent ghi thì hook mới re-validate được).
 3. Verdict `PENDING-JUDGMENT` → nhờ agent nâng thành `PASS`.
-4. Điền `human_signoff: <Tên> <ngày>` + số phút vào `time_human_minutes.gate2`.
+4. Điền `human_signoff: <Tên> <ngày>`.
 5. **Commit các sửa đổi Cổng-2 thành commit RIÊNG** — chỉ chạm các dòng human-owned
    (`human_signoff` / `human_override` / `verdict` / `bypass_ack`). Chính bạn commit
    (hoặc ra lệnh agent commit đúng phần đó). Repo bật `require_human_commit` thì CI
@@ -783,7 +777,7 @@ Không dùng feature-loop (không cài superpowers, muốn tự code tay):
 ```
 
 Khác biệt: verify chạy bằng một fresh context/subagent khi runtime có, hoặc một
-grader pass tách biệt trong Codex (không fan-out đa agent như S4), nhưng **cùng
+grader pass tách biệt khi không (không fan-out đa agent như S4), nhưng **cùng
 template, cùng evidence rules, cùng CI** — mức bằng chứng không đổi.
 
 ### 6.3 Lệnh tiện ích
@@ -794,7 +788,7 @@ template, cùng evidence rules, cùng CI** — mức bằng chứng không đổ
 | `/acceptance-card <slug>` | Render thẻ quyết định Cổng 1/Cổng 2 (tự nhận cổng theo trạng thái) |
 | `/approve [slug]` | Ghi quyết định Cổng 1: card → 1 câu hỏi → máy ghi `approved_by`/`approved_at` sau YES tường minh (không bao giờ tự duyệt) |
 | `/signoff [slug]` | Trợ lý Cổng 2: precondition → `human_override`/`human_signoff` → commit chữ ký riêng (human-fields-only) → re-check pre-merge |
-| `/acceptance-report` | Đo hiệu quả kit: phút người vs `baseline_minutes` (mục tiêu ≥50%), verdict mix, vệ sinh gate (skip/bypass/stale) — read-only |
+| `/acceptance-report` | Sức khoẻ cổng: verdict mix, số vòng verify, vệ sinh gate (skip/bypass/stale) — read-only |
 | `node scripts/evidence-page.js --root . --slug <slug>` | Trang HTML evidence đầy đủ: output, screenshot slideshow, checklist Cổng 2 |
 | `node scripts/eval-coverage-lint.js . --slug <slug>` | Lint phủ biên: tiêu chí ngưỡng thiếu ca *không-được-bắn*, out-of-scope thiếu eval âm |
 | `node scripts/config-patch.mjs --key <a.b.c> --value <v> --write` | Ghi key mới vào config.yaml an toàn (dry-run mặc định, `.bak`, từ chối đè key sống) |
@@ -875,14 +869,33 @@ flowchart LR
 | Entry `decisions.jsonl` mở đầu `"bỏ gap-probe"` | NOTE nêu `id` entry ở mỗi lần pre-merge; thẻ Cổng 1 cũng nhận cùng luật |
 | `gap_probe: advisory/off` | `advisory` in NOTE mỗi lần chạy; `off` thì im — dùng khi repo cố ý không theo nghi thức này |
 
+### 7.1 Re-pin theo bản phát hành, không theo từng lần merge
+
+Mỗi lần một thay đổi **chạm engine** vào nhánh chính, mọi hồ sơ đã ký trước đó
+hoá cũ — đó là ĐẶC TÍNH của luật staleness, không phải lỗi. Cái phải quản là
+**nhịp trả giá**, vì nó nhân thẳng theo số vòng chạy đồng thời: N vòng × mỗi
+lần merge = N−1 hồ sơ phải ghim lại, mỗi lần một lượt gọi người.
+
+Chính sách (owner duyệt trong charter 07/08, mục 1d):
+
+- Thay đổi chạm engine **gom về một mốc phát hành**, không rải lẻ.
+- Ghim lại chạy **một chiến dịch cho mỗi bản phát hành**, không phải mỗi lần
+  merge. Trong một bản phát hành, hồ sơ cũ hoá cũ là trạng thái **chấp nhận
+  được** — không ai phải đuổi theo.
+- Repo tiêu thụ nhận engine mới **theo bản phát hành có chủ đích**; không đổi
+  engine dưới chân một tính năng đang giữa vòng lặp.
+- Một vòng đang chạy bị chặn thật vì hồ sơ hoá cũ giữa hai bản phát hành thì
+  đó là **vấp thật** — ghi sổ và ghim lại riêng làn đó, đừng nâng thành chiến
+  dịch ngoài lịch.
+
+Máy đã có sẵn hai đường rẻ để chiến dịch không phình: ghim lại **theo diff**
+(chỉ làn nào thật sự bị diff chạm mới phải chạy lại) và **một làn máy — nhiều
+chữ ký** (đo một lần, ký gộp).
+
 ## 8. Tinh chỉnh cho repo của đội
 
 **Model routing** (`feature_loop.models.<role>`) — chỉnh chi phí/chất lượng đội verify
 mà không sửa plugin. Không khai gì = default (đã cân nhắc):
-
-Block này thuộc Claude Workflow edition. Codex không dịch alias
-`opus|sonnet|haiku`; Codex dùng `feature-loop-model-init` và project custom
-agents riêng, nên hai runtime không ghi đè cấu hình của nhau.
 
 ```yaml
 feature_loop:
@@ -919,7 +932,7 @@ MỘT câu hỏi đóng YES/NO — là assertion, không phải judge:
   trỏ tới; exit 0=YES, 1=NO, 2=không-chạy-được → BLOCKED, không bao giờ
   xanh-giả.
 - CHỈ câu hỏi đóng ("có thấy video player không?"); câu hỏi mở về thẩm mỹ
-  thuộc judgment/design-loop — No blind VLM judge. Opt-in từng eval, EVAL-GEN
+  thuộc judgment/design-pass — No blind VLM judge. Opt-in từng eval, EVAL-GEN
   không tự thêm.
 
 ## 9. Xử lý sự cố
@@ -934,19 +947,16 @@ MỘT câu hỏi đóng YES/NO — là assertion, không phải judge:
 | `signoff ... also edits the report body` | Chữ ký commit chung với body report | Tách: commit evidence trước, chữ ký là commit riêng (mục 6.1 bước 5) |
 | `T3 paths changed but the PR carries NO _acceptance/...` | Khai T1 nhưng PR đụng code gated | Chạy gate cho phần code đó, hoặc sửa khai báo tier |
 | Design eval `BLOCKED` hàng loạt | Thiếu `jsdom` trong repo web UI | `npm i -D jsdom` |
-| Verifier bị chặn "oan" khác nhau giữa 2 máy | 2 dev chạy 2 version plugin | `claude plugin update ...` / `codex plugin marketplace upgrade` cả đội |
-| Workflow/Codex S4 đứt giữa chừng | Crash/cancel | Resume cùng round nếu chưa sửa code; đã sửa code → chạy round mới |
+| Verifier bị chặn "oan" khác nhau giữa 2 máy | 2 dev chạy 2 version plugin | `claude plugin update ...` cả đội |
+| Workflow S4 đứt giữa chừng | Crash/cancel | Resume cùng round nếu chưa sửa code; đã sửa code → chạy round mới |
 | `config.yaml breaks the 2-space line schema` | Tab / indent lẻ sau khi sửa tay | Sửa indent; lần sau ghi qua `config-patch.mjs` |
 | Slug bị "chiếm" (`_acceptance/<slug>/` của feature khác) | Trùng tên tính năng | Kit bắt đổi slug (suffix) — không im lặng ghi đè |
 
 ## 10. Dành cho người bảo trì kit
 
 ```bash
-# chạy toàn bộ 8 suite test của kit (fixture-driven, không cần framework)
-for t in hooks scripts plugins design-loop design-eval workflows codex skills; do bash tests/$t/run-tests.sh; done
-
-# sau khi sửa source ở root: đồng bộ bản đóng gói (4 manifest cùng version)
-bash scripts/sync-plugin-packages.sh
+# chạy toàn bộ 6 suite test của kit (fixture-driven, không cần framework)
+for t in hooks scripts plugins design-eval workflows skills; do bash tests/$t/run-tests.sh; done
 ```
 
 - Luật gate mới → thêm vào `lib/evidence-core.cjs` (hook + CI tự hưởng), kèm case trong
@@ -955,10 +965,10 @@ bash scripts/sync-plugin-packages.sh
 - 2 file workflow **không** parse được bằng `node --check` (top-level return) — suite
   `tests/workflows` nạp chúng qua `vm` với harness giả lập; bảng routing bị pin bởi test
   W10/E05.
-- Bump version khi ship (minor cho luật gate mới) → sync → 8 suite xanh → commit theo
-  nhóm logic. Lưu ý: suite codex/plugins PIN version release (P03/P06/P22/P27,
-  skill-routing) — bump release là phải chạy CẢ 8 suite, không chỉ suite của phần vừa sửa
-  (đợt 1.16 từng để codex đỏ 1 ngày vì chỉ chạy 3 suite).
+- Bump version khi ship (minor cho luật gate mới) → 6 suite xanh → commit theo
+  nhóm logic. Lưu ý: suite `plugins` PIN version release (skill-routing) — bump
+  release là phải chạy CẢ 6 suite, không chỉ suite của phần vừa sửa (đợt 1.16 từng
+  để một suite đỏ 1 ngày vì chỉ chạy 3 suite).
 
 ### Chuẩn tự phản biện trước push (áp dụng từ 1.17)
 
@@ -970,8 +980,8 @@ không có bằng chứng là một ô FAIL, không phải "chắc ổn":
 | **A. Đúng hướng** | Đợt phục vụ mục tiêu số mấy (§0)? Có thêm điểm dừng người? Enforcement mới có tất định? | Trả lời 3 câu §0 thành văn |
 | **B. Đúng lời** | Mọi con số/khẳng định trong docs và commit message đối chiếu được với artifact thật? | Lệnh đếm + output thật |
 | **C. Code** | Review bởi context sạch (doer ≠ grader)? File <800 dòng, function tập trung, không secret/debug sót? | Báo cáo reviewer độc lập + grep |
-| **D. Kiểm chứng** | Mỗi behavior mới có test? TDD có RED thật trước GREEN? 8 suite xanh? | Output 8 suite, log RED |
-| **E. Nhất quán** | Version topology khớp 4 tầng (manifest × overlay Codex × pin test × docs)? Mirror sync sạch? | `sync` + `git status` rỗng |
+| **D. Kiểm chứng** | Mỗi behavior mới có test? TDD có RED thật trước GREEN? 6 suite xanh? | Output 6 suite, log RED |
+| **E. Nhất quán** | Version khớp 3 tầng (manifest × pin test × docs)? | `git status` rỗng |
 | **F. Giới hạn** | Giới hạn v1 và rủi ro đã ghi thành văn (spec/report), không im lặng? | Trỏ tới mục known-limits | Backward-tolerant là mặc định: luật mới trên artifact cũ ra NOTE,
   chỉ enforce cứng khi artifact có field mới.
 

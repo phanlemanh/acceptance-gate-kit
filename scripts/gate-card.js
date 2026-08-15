@@ -2,8 +2,9 @@
 /* gate-card.js — render a human DECISION CARD for Gate 1 or Gate 2 from the
  * acceptance artifacts (contract.md / evals.yaml / evidence-report.md).
  *
- * Purpose (acceptance-gate goal: cut human acceptance time >=50% WITHOUT cutting
- * quality): the two human gates are where the time is spent. This puts the few
+ * Purpose (acceptance-gate goal: let the human decide at the few real decision
+ * moments WITHOUT cutting quality): the two human gates are where the decisions
+ * live. This puts the few
  * things only a human can decide FIRST, in plain product language, collapses what
  * the machine already proved, and always shows reversibility — so the fast
  * decision is also a good one (anti-rubber-stamp). Presentation layer ONLY; it
@@ -307,7 +308,7 @@ if (gate === '1') {
   const pIdx = (arr, i) => (((arr || []).find(x => x.i === i)) || {}).p;
 
   const P = [STYLE, `<div class="gc"><div class="card">
-<div class="h"><div><div class="ft">${esc(featurePlain)}</div><div class="sub">Cổng 1 · duyệt tiêu chí TRƯỚC khi code · ~5 phút${tier === 'T3' ? ' · tier T3 (đụng critical)' : ''}</div></div><span class="chip amber">duyệt tiêu chí</span></div>`];
+<div class="h"><div><div class="ft">${esc(featurePlain)}</div><div class="sub">Cổng 1 · duyệt tiêu chí TRƯỚC khi code${tier === 'T3' ? ' · tier T3 (đụng critical)' : ''}</div></div><span class="chip amber">duyệt tiêu chí</span></div>`];
   // First thing on the card, before any criterion list: if the card cannot be trusted,
   // the reviewer must learn that BEFORE reading a list that looks complete.
   if (blindSpot) P.push(`<div class="flag fred">⚠ ${esc(blindSpotText(blindSpot))}</div>`);
@@ -437,7 +438,7 @@ if (!approvable) {
 // --- approvable: PASS / PENDING-JUDGMENT ---
 const chip = verdict === 'PASS' ? { t: 'máy đã xong — ký nhanh', c: 'teal' } : { t: 'cần bạn quyết', c: 'amber' };
 P.push(`<div class="gc"><div class="card">
-<div class="h"><div><div class="ft">${esc(featurePlain)}</div><div class="sub">Cổng 2 · ký duyệt · ~5 phút${tier === 'T3' ? ' · tier T3 (đụng critical)' : ''}</div></div><span class="chip ${chip.c}">${esc(chip.t)}</span></div>`);
+<div class="h"><div><div class="ft">${esc(featurePlain)}</div><div class="sub">Cổng 2 · ký duyệt${tier === 'T3' ? ' · tier T3 (đụng critical)' : ''}</div></div><span class="chip ${chip.c}">${esc(chip.t)}</span></div>`);
 P.push(`<a href="evidence-page.html" style="display:flex;justify-content:space-between;align-items:center;gap:10px;background:#E6F1FB;border:1px solid #B5D4F4;border-radius:10px;padding:9px 13px;margin:11px 0 2px;text-decoration:none;color:#0C447C;font-size:13px"><b>Bằng chứng đầy đủ — ảnh chụp + chạy thật</b><span style="font-size:12px;color:#185FA5;white-space:nowrap">đã mở trong trình duyệt</span></a>`);
 // Khối "Ngoài hợp đồng" đứng TRƯỚC mọi việc-của-người khác: đây là thứ máy cố ý
 // KHÔNG tự sửa, nên nếu người duyệt bỏ qua thì không ai bắt lại.

@@ -122,9 +122,11 @@ Hai harness chép nguyên văn, không tự diễn đạt.
 ## Khối "👉 VIỆC CỦA ANH" — lời-gọi-hành-động chuẩn
 
 Đề bài gốc: sổ vấp 2026-08-10 (hành vi owner #8) — việc-cần-làm rải giữa thân
-bài, câu tu từ lẫn câu hỏi thật, không nói trả-lời-dạng-gì. Chuẩn dưới đây áp
-cho MỌI tin trình cho người tại điểm quyết định: thẻ cổng render khối bằng máy
-(`scripts/gate-card.js`, cả ba mode), tin nhắn do phiên viết theo khuôn:
+bài, câu tu từ lẫn câu hỏi thật, không nói trả-lời-dạng-gì. Khối sống ở đúng
+HAI chỗ: tin mời cổng và thẻ cổng (thẻ render khối bằng máy —
+`scripts/gate-card.js`, cả ba mode; tin do phiên viết theo khuôn). Bắt mọi tin
+đeo khối biến nó thành nhiễu nền — người thôi phân biệt được lúc nào thật sự
+tới lượt mình (hồ sơ doi-hanh-vi-cong-nguoi, owner gạch 12/08):
 
 <!-- <<<YOUR-MOVE-BLOCK-TEMPLATE -->
 👉 VIỆC CỦA ANH
@@ -147,8 +149,8 @@ Luật đi kèm khuôn:
   thứ + ký". Ca thật: thẻ Cổng 2 của chip khối-việc-của-anh từng render
   «Ngoài-1 ghi Known limits; E9 Đạt; đồng ý cắt; phê hết quyết định treo; Ký»
   trong khi E9 là mục máy vừa tự khai "chưa chắc, cần mắt người" (S4-r2).
-- Tin CHỈ-BÁO — không có việc cho người — vẫn kết bằng khối, đúng một dòng:
-  `👉 VIỆC CỦA ANH: không cần làm gì — <máy đang làm gì tiếp>`.
+- Tin CHỈ-BÁO — không có việc cho người — KHÔNG đeo khối: kết tin bằng một
+  câu nói thẳng máy đang làm gì tiếp.
 - CẤM câu tu từ mang dấu hỏi: mọi dấu hỏi trong tin phải thuộc một mục việc
   có "trả lời dạng" khai sẵn.
 
@@ -157,16 +159,11 @@ lặp tính năng hai harness, skill acceptance, lệnh thẻ) chép nguyên vă
 tự diễn đạt.
 
 <!-- <<<GATE-INVITE-CLAUSE -->
-Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người); tin chỉ-báo ghi rõ "không cần làm gì"; cấm câu tu từ mang dấu hỏi.
+Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người). Khối chỉ sống ở tin mời cổng và trên thẻ cổng — tin chỉ-báo KHÔNG đeo khối, kết bằng một câu nói thẳng máy đang làm gì tiếp; cấm câu tu từ mang dấu hỏi.
 <!-- GATE-INVITE-CLAUSE>>> -->
 
 Danh sách dưới đây là các mặt mời-cổng NGUỒN — phạm vi do người quyết, nên nó
-được khai tay. Phần dễ trôi thì KHÔNG khai tay: phép đo tự suy mọi bản dựng
-dưới `plugins/` và mọi overlay cùng đuôi đường dẫn dưới `codex/` của từng mục,
-rồi đòi bản nào cũng chứa điều khoản. Lỗ đã dẫm (S4-r2): bốn bản Claude được
-sửa, hai overlay Codex tương ứng thì không — mà overlay GHI ĐÈ bản Claude
-trong gói Codex, nên gói phát hành mời cổng không chịu luật, còn phép đo dùng
-danh sách tay thì mù vĩnh viễn với khoảng trống đó. Số sau mỗi đường dẫn là
+được khai tay. Số sau mỗi đường dẫn là
 SỐ BẢN CHÉP PHẢI CÓ trong site đó (chip ②b): ít hơn hay nhiều hơn đều đỏ —
 thêm/bớt một chỗ mời-cổng là quyết định người, phải sửa số này cùng lượt;
 dòng thiếu số là lỗi kêu to, phép đo không tự đoán.
@@ -175,9 +172,6 @@ dòng thiếu số là lỗi kêu to, phép đo không tự đoán.
 skills/acceptance/SKILL.md 2
 commands/acceptance-card.md 1
 feature-loop/skills/feature-loop/SKILL.md 2
-codex/feature-loop-codex/skills/feature-loop-codex/SKILL.md 2
-codex/acceptance-gate/skills/acceptance/SKILL.md 2
-codex/acceptance-gate/skills/acceptance-card/SKILL.md 1
 <!-- GATE-INVITE-SITES>>> -->
 
 ## Câu gộp tại cổng — một-lượt-gõ cho lệnh cổng người
@@ -186,9 +180,9 @@ codex/acceptance-gate/skills/acceptance-card/SKILL.md 1
 lệnh cổng lại hỏi từng bước (người phải trả lời lại thứ đã trả lời), và
 người phải nhảy đúng phiên đúng repo mới gõ được lệnh. Ba lệnh có-câu-hỏi
 nhận CHÍNH câu «Trả lời mẫu» đó làm MỘT CÂU GỘP — người gõ một lượt, lệnh
-tự điền các trường. Ngữ pháp sống DUY NHẤT ở đây; mười hai thân lệnh cổng
-người (sáu bản Claude, sáu bản Codex) chép điều khoản `GATE-ONESHOT-CLAUSE`
-nguyên văn và trỏ về khối này, không tự diễn đạt.
+tự điền các trường. Ngữ pháp sống DUY NHẤT ở đây; sáu thân lệnh cổng người
+chép điều khoản `GATE-ONESHOT-CLAUSE` nguyên văn và trỏ về khối này, không tự
+diễn đạt.
 
 <!-- <<<GATE-ONESHOT-GRAMMAR -->
 Cú pháp gõ (một dòng, đúng thứ tự này): `<lệnh> [<slug>] [--repo <path>]
@@ -227,11 +221,10 @@ trước, hỏi mở là đường cùng:
   có cách hiểu trội hơn hoặc hiểu-sai-thì-đắt-khó-đảo. Ca mẫu (sự cố thật
   11/08): cụm «không cắt» đọc được hai chiều → đề xuất «đồng ý phạm vi đã
   khai» kèm căn cứ từ khối Out of scope, không hỏi mở.
-- Tên người duyệt/ký, ngày và số phút là ĐIỀU MÁY BIẾT — người khai thì
-  nhận nguyên nghĩa (câu kiểu cũ đầy đủ «duyệt: <tên>, phút <số>» ·
-  «Ký: <tên> <ngày>, phút <số>» vẫn chạy nguyên; khai tường minh thì ghi
-  thẳng, không hỏi xác nhận). Vắng thì máy TỰ SUY, không hỏi — bốn luật
-  TÁCH BẠCH, đọc hết rồi mới làm:
+- Tên người duyệt/ký và ngày là ĐIỀU MÁY BIẾT — người khai thì nhận
+  nguyên nghĩa (câu kiểu cũ «duyệt: <tên>» · «Ký: <tên> <ngày>» vẫn chạy nguyên;
+  khai tường minh thì ghi thẳng, không hỏi xác nhận). Vắng thì máy TỰ
+  SUY, không hỏi — bốn luật TÁCH BẠCH, đọc hết rồi mới làm:
   - **ĐỌC**: luôn đọc CẢ `git config user.name` LẪN `signoff.approvers`,
     không có điều kiện nào chặn việc đọc. Đây là hai nguồn đối chiếu.
   - **CHỌN**: giá trị lấy ở nấc CAO NHẤT còn tên, theo bậc câu-người-gõ →
@@ -261,8 +254,10 @@ trước, hỏi mở là đường cùng:
   LUÔN thắng ngày máy suy. Người tự khai phần nào thì phần đó ghi thẳng;
   còn phần máy suy vẫn hiện trong dòng xác nhận (khai tên mà thiếu ngày →
   vẫn hiện để xác nhận ngày, và ngược lại), khai đủ cả hai → không hỏi.
-  Máy không hỏi phút — vắng thì `time_human_minutes` ghi 0, trường giữ
-  nguyên schema cũ.
+  Máy KHÔNG hỏi và KHÔNG ghi số phút. Vế `, phút <số>` ở cuối câu gộp vẫn
+  ĐƯỢC CHẤP NHẬN và BỎ QUA lặng — không lỗi, không hỏi lại; người quen tay gõ
+  nó theo phản xạ thì câu vẫn chạy trọn. Trường `time_human_minutes` ở lại
+  trong schema để hồ sơ cũ đọc được, chỉ thôi được ghi mới.
 - Hồ-sơ cũng là điều máy biết: vắng slug mà đúng MỘT ứng viên đang chờ
   đúng cổng đó → dùng nó và hiển thị lại tên hồ sơ trong cùng lượt trả
   lời; nhiều ứng viên → bảng chọn như cũ.
@@ -295,7 +290,7 @@ site khai ở manifest ngay dưới — thêm/bớt site hay bản chép là quy
 người, sửa manifest cùng lượt; dòng thiếu số là lỗi kêu to.
 
 <!-- <<<GATE-ONESHOT-CLAUSE -->
-Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; còn việc kế thì kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE.
+Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; tin mời cổng kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE, tin chỉ-báo không đeo khối mà nói thẳng máy đang làm gì tiếp.
 <!-- GATE-ONESHOT-CLAUSE>>> -->
 
 <!-- <<<GATE-ONESHOT-SITES -->
@@ -305,12 +300,6 @@ commands/acceptance-init.md 1
 commands/acceptance-status.md 1
 commands/acceptance-report.md 1
 commands/start.md 1
-codex/acceptance-gate/skills/approve/SKILL.md 1
-codex/acceptance-gate/skills/signoff/SKILL.md 1
-codex/acceptance-gate/skills/acceptance-init/SKILL.md 1
-codex/acceptance-gate/skills/acceptance-status/SKILL.md 1
-codex/acceptance-gate/skills/acceptance-report/SKILL.md 1
-codex/acceptance-gate/skills/start/SKILL.md 1
 <!-- GATE-ONESHOT-SITES>>> -->
 
 ## Từ mới feature này đưa vào từ điển

@@ -16,22 +16,21 @@ suy máy — ca máy dùng chung). Arg: optional `<slug>`. Without it, scan `_ac
   KHÔNG hỏi, chỉ hiển thị lại tên hồ sơ trong cùng lượt trả lời;
 - several → print a slug table and ask which;
 - none → nothing awaits Gate 1 — say so and point to `/acceptance-status`.
-  (Plan approval — Gate 1.5 — and design-mockup approval live in their own
-  loops: feature-loop / design-loop. Do not fake them here.)
+  (Plan approval — Gate 1.5 — lives in the feature-loop. Do not fake it here.)
 
 Một-lượt-gõ + `--repo` (điều khoản chung, chép nguyên văn từ bản luật):
 
-Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; còn việc kế thì kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE.
+Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; tin mời cổng kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE, tin chỉ-báo không đeo khối mà nói thẳng máy đang làm gì tiếp.
 
 Ví dụ một lượt gõ — trần (máy gánh phần còn lại) và đầy đủ (kiểu cũ,
 vẫn chạy nguyên):
 `/approve duyệt`
-`/approve abc-xyz --repo /duong/dan/repo duyệt: Manh Phan, phút 0`
+`/approve abc-xyz --repo /duong/dan/repo duyệt: Manh Phan`
 
 Câu gộp của lệnh này trả lời chỗ trống «duyệt hay sửa: ___» mà thẻ Cổng 1
 dạy — ngữ pháp đầy đủ ở khối `GATE-ONESHOT-GRAMMAR`. Người chỉ khai QUYẾT
-ĐỊNH; danh tính, ngày, phút là điều máy biết:
-- `duyệt[: <tên> [<ngày>]][, phút <số>]` → chính là câu YES tường minh của bước 5:
+ĐỊNH; danh tính và ngày là điều máy biết:
+- `duyệt[: <tên> [<ngày>]]` → chính là câu YES tường minh của bước 5:
   `<tên>` → `approved_by`; vắng tên → máy TỰ SUY, bốn luật tách bạch của
   `GATE-ONESHOT-GRAMMAR`: **ĐỌC** cả `git config user.name` lẫn
   `signoff.approvers`
@@ -50,8 +49,11 @@ dạy — ngữ pháp đầy đủ ở khối `GATE-ONESHOT-GRAMMAR`. Người c
   Mọi trả lời MANG NGHĨA KHẲNG ĐỊNH là xác nhận, dài hay ngắn, kể cả tin
   nhắn trống; chỉ trả lời nêu tên hoặc ngày khác mới là sửa danh tính (sửa
   được cả tên lẫn ngày ở cùng dòng đó). Người tự khai phần nào thì phần đó ghi thẳng; phần máy suy vẫn hiện
-  trong dòng xác nhận, khai đủ thì không hỏi. KHÔNG hỏi phút: `phút <số>` người khai thì ghi đúng số
-  đó vào `time_human_minutes.gate1`, vắng thì ghi 0.
+  trong dòng xác nhận, khai đủ thì không hỏi. **Máy KHÔNG hỏi và KHÔNG ghi số
+  phút.** Vế `, phút <số>` ở cuối câu vẫn ĐƯỢC CHẤP NHẬN và BỎ QUA lặng — không
+  lỗi, không ghi, không hỏi lại: người quen tay gõ nó theo phản xạ thì câu vẫn
+  chạy trọn. Đừng biến nó thành lỗi cú pháp; cắt một thói quen không được phép
+  chặn đúng cái người đang làm.
 - `sửa: <điều cần đổi>` → bước 4 với đúng nội dung đó (vẫn là Gate 1).
 - Ngày người nêu — trong câu gộp hoặc ở dòng xác nhận — LUÔN thắng ngày máy
   suy, và đó là giá trị ghi vào `approved_at`.
@@ -102,8 +104,6 @@ Steps:
      validates the transition. `approved_at` is the run date the machine
      wrote, unless the human named a different date on the confirm line —
      a date the human states there WINS and is what gets written.
-   - `time_human_minutes.gate1`: KHÔNG hỏi — người khai `phút <số>` thì ghi
-     đúng số đó, vắng thì ghi 0 (trường giữ nguyên cho schema cũ).
    - If `_acceptance/<slug>/decisions.jsonl` exists (feature-loop), append the
      seal entry `{"id":"d-<next>","type":"seal","gate":1,"at":"<ISO>"}` in the
      same write-batch as `approved_by`.

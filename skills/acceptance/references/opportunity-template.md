@@ -23,8 +23,6 @@ stage: {stage}              # discovery | decided | archived
 decision: {decision}        # build | iterate | park | kill — người ký Cổng 0 điền
 decided_by: {decided_by}
 decided_at: {decided_at}    # ISO UTC
-time_human_minutes:
-  gate0: {gate0_minutes}
 prototype:
   base_commit: {base_commit}    # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition: {disposition}    # keep | archive
@@ -85,7 +83,7 @@ prototype:
 
 > Hai câu hỏi, hai key frontmatter: số phận CƠ HỘI → `decision`
 > (build/iterate/park/kill) · số phận CODE prototype → `prototype.disposition`
-> (keep/archive). Ký = điền `decided_by`/`decided_at` + `time_human_minutes.gate0`.
+> (keep/archive). Ký = điền `decided_by`/`decided_at`.
 > Ngưỡng UAT chốt CÙNG LÚC ký (chép từ section Ngưỡng, tinh chỉnh lần cuối).
 > `disposition: keep` → BẮT BUỘC điền Bảng nợ kế thừa + 3 guard (diffBase =
 > `prototype.base_commit` · baseline bắt buộc · branch cắt từ nhánh chính).
