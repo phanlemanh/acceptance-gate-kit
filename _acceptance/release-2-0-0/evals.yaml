@@ -1,0 +1,72 @@
+# evals — release-2-0-0. Toàn mực-đã-in + mã tiền định; không judgment.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.rang_release_manifest
+    expected: >
+      Hai manifest version đúng 2.0.0 (đọc bằng JSON parse, không grep chuỗi
+      thô); mô tả mỗi gói chứa đoạn v2.0.0 với đủ ba vế ngữ-nghĩa-cổng; vế
+      tương thích feature-loop trỏ >= 2.0.0. Chiều đỏ: bản sao hạ số →
+      chân phải đỏ ghim tên manifest.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.rang_release_docs
+    expected: >
+      Dòng «Khớp phiên bản» của GUIDE ghi đúng 2.0.0 · 2.0.0 và khớp version
+      ĐỌC TỪ chính hai manifest (một nguồn — đổi manifest mà quên GUIDE là
+      đỏ). Chiều đỏ trên bản sao.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "suite scripts XANH; 686 = dòng «Results:» CUỐI của chính suite (nguồn số: lệnh in nó, verifier so máy-với-máy)"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3b
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "suite hooks XANH; 60 = dòng «Results:» CUỐI của chính suite"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3c
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "suite plugins XANH; 146 = grep -cE '"'"'^  PASS: '"'"' trên log suite (suite không in tổng); sàn version động >=1.29.0 thoả với 2.0.0"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3d
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "suite workflows XANH; 463 = tổng 6 dòng «Results: N passed» (đúng 6 dòng — thiếu là đỏ vì thiếu)"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.rang_release_lan_v
+    expected: >
+      Chạy CHÍNH scripts/pre-merge-check.sh trên cây thật, base = SHA
+      origin/main sau fetch (in vào output để evidence tái lập): (a) NOTE
+      cửa-veto có tên release-2-0-0; (b) KHÔNG VIOLATION nhóm veto mang tên
+      hồ sơ này — VÀ (c) đối chứng dương cho assert âm: fixture code-sinh có
+      vi phạm da-veto thật phải bị CHÍNH pre-merge in đúng định dạng mà
+      pattern grep bắt được. Vế xanh-sạch-không-chữ-ký KHÔNG thuộc verdict
+      eval này — nó là bằng-chứng-vận-hành trạng thái CHỜ, ghi ở mục Analyst
+      của báo cáo và xác nhận bằng lượt cổng CI của chính PR (clean khi
+      human_signoff rỗng) sau khi PR mở.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.rang_release_diff
+    expected: >
+      Lời hứa «không đổi một dòng engine» CÓ THƯỚC (gap-probe P0): mọi file
+      trong diff base...HEAD thuộc allowlist đóng {2 manifest · GUIDE.md ·
+      PRODUCT-MAP.md · _acceptance/config.yaml · _acceptance/release-2-0-0/**};
+      diff RỖNG cũng đỏ (chân chạy trước commit là chân vô nghĩa). Chiều đỏ:
+      danh sách tiêm lib/evidence-core.cjs đi qua CHÍNH hàm lọc phải bị bắt.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+

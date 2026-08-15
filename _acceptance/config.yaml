@@ -77,6 +77,11 @@ executors:
     rang_veto_ghi_nguoc: "bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan ghi-nguoc"
     rang_veto_vanban: "bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan vanban"
     rang_veto_so_ca: "bash _acceptance/veto-co-dau-vet/rang-veto.sh --chan so-ca"
+    # Vật của hồ sơ release-2-0-0 — cùng nếp không-vào-suite-vĩnh-viễn.
+    rang_release_manifest: "bash _acceptance/release-2-0-0/rang-release.sh --chan manifest"
+    rang_release_docs: "bash _acceptance/release-2-0-0/rang-release.sh --chan docs"
+    rang_release_lan_v: "bash _acceptance/release-2-0-0/rang-release.sh --chan lan-v"
+    rang_release_diff: "bash _acceptance/release-2-0-0/rang-release.sh --chan diff-allowlist"
     # Răng của P194: ghim ĐÚNG dòng của case trong stdout thay vì tin mã thoát
     # của trọn suite (suite xanh cả trên origin/main → không phân biệt được).
     p194_rang: "bash _acceptance/may-ganh-nguoi-quyet/p194-rang.sh"
