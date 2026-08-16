@@ -5,7 +5,7 @@ slug: release-2-1-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 3 manifest + marketplace + GUIDE/README + gói vendor + P196 + docs — không dính t3_paths
 surfaces: [cli]
-status: approved
+status: verified
 approved_by: ""
 approved_at: ""
 veto_state: mo
