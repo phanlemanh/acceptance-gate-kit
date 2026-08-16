@@ -41,6 +41,13 @@
   Khi viết/sửa SKILL.md, docs, message của script: dùng đúng term chuẩn và
   tránh mọi từ nằm trong `_Avoid_`. Term mới chỉ thêm khi kit thật sự cần nó.
 
+- **Trình cho owner bằng hình + chữ theo
+  [docs/reference/DIAGRAM-RULE.md](docs/reference/DIAGRAM-RULE.md)** (chốt
+  16/08): hình là chiếu của nguồn chữ, không bao giờ là nguồn; ba tầng theo
+  tuổi thọ (phác · hồ sơ `figures/` · bản in); bổ sung không thay thế. Phần
+  engine cho consumer vẫn là N5 + `DECISION-DIAGRAM-SURFACES` trong bản luật
+  ngôn ngữ mặt người — file kia không phải nguồn thứ hai.
+
 - **6 thao tác cổng người** (`approve`, `signoff`, `acceptance-init`,
   `acceptance-status`, `acceptance-report`, `start`) bị khoá model-invocation;
   `acceptance-card` cố tình để mở (feature-loop và approve/signoff
