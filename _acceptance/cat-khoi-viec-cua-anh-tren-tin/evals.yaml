@@ -1,0 +1,170 @@
+schema_version: 1
+feature_slug: cat-khoi-viec-cua-anh-tren-tin
+# Vật được giao là VĂN CHỈ DẪN (bản luật + 5 bản chép + 6 thân lệnh) và một
+# suite test. Ba luật kho áp cho mọi eval máy: (a) không âm-tính-một-mình —
+# 0-hit kèm đối chứng dương `origin/main`; (b) ghim ĐÚNG THÔNG ĐIỆP; (c) chiều
+# đỏ chạy thật qua CHÍNH checker, in xác-nhận-đột-biến. Răng của hồ sơ neo
+# origin/main nên KHÔNG vào suite vĩnh viễn (nếp cat-hinh-thuc).
+# Lớp HÀNH VI (E5): hội đồng phiên sạch, giao thức chống rò rỉ 1c — agent hành
+# động KHÔNG TOOL, nạp INLINE bản luật + đề ca; đáp án ở giam-khao/ CHỈ giám
+# khảo nạp; giám khảo mù với diff.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.cat_khoi_rang_khuon
+    paths:
+      - _acceptance/cat-khoi-viec-cua-anh-tren-tin/cat-khoi-rang.sh
+      - skills/acceptance/references/human-facing-language.md
+      - skills/acceptance/SKILL.md
+      - commands/acceptance-card.md
+      - feature-loop/skills/feature-loop/SKILL.md
+      - commands/approve.md
+      - commands/signoff.md
+      - commands/start.md
+      - commands/acceptance-init.md
+      - commands/acceptance-status.md
+      - commands/acceptance-report.md
+    expected: >
+      `cat-khoi-rang.sh --chan khuon` exit 0; với TỪNG needle của mảng KHUÔN
+      (6 needle: `YOUR-MOVE-BLOCK-TEMPLATE` · `mỗi mục đủ 3 vế` · `câu tu từ
+      mang dấu hỏi` · `Trả lời mẫu (một dòng, điền vào chỗ trống)` · `khối 👉`
+      · `kết bằng đúng MỘT khối`) in "CAT-KHUON: <needle> HEAD=0 base=<n>(>0)
+      OK"; dòng đếm "CAT-KHUON: 6/6" (k suy từ mảng); "CAT-SCOPE: khop ban khai
+      PHAM-VI-RANG". Loại trừ `scripts/gate-card.js` cho needle «Trả lời mẫu» và
+      «khối 👉» được KHAI trong script và in ra ("CAT-KHUON: loai tru
+      gate-card.js cho <needle> — the giu nguyen, Out of scope"). Đỏ đích danh khi HEAD>0 ("… con o <file>:<dòng>")
+      hoặc base=0 ("… base=0 — needle chua bao gio ton tai"). Chiều đỏ chạy
+      thật: chèn `YOUR-MOVE-BLOCK-TEMPLATE` vào bản sao SKILL feature-loop → đỏ
+      đích danh; đối chứng dương xanh trước khi tiêm.
+    pinned:
+      - "CAT-KHUON: 6/6"
+      - "CAT-SCOPE: khop ban khai PHAM-VI-RANG"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.cat_khoi_rang_clause
+    paths:
+      - _acceptance/cat-khoi-viec-cua-anh-tren-tin/cat-khoi-rang.sh
+      - skills/acceptance/references/human-facing-language.md
+    expected: >
+      `cat-khoi-rang.sh --chan clause` exit 0: rút GATE-INVITE-CLAUSE qua
+      marker, NỐI các dòng wrap thành một chuỗi (chuẩn hoá khai trong checker)
+      rồi assert một câu (đúng 1 dấu chấm kết); 4 dấu hiệu hành vi có mặt
+      («một câu hỏi đóng» · «ngả máy khuyên» · «một chữ» · «làm gì tiếp»); 0 từ
+      cấm {khối, vế, chỗ trống, Trả lời mẫu, YOUR-MOVE} — «khuôn» KHÔNG là từ
+      cấm vì câu chứa «không khuôn» (gap-probe P0); BA luật âm còn mặt trong
+      section («không viết sẵn câu trả lời» · «không hỏi phút» · «tin chỉ-báo
+      không hỏi»). In "CAT-CLAUSE: 1 cau · 4/4 dau hieu · 0 tu cam · 3/3 luat
+      am OK". ĐỐI CHỨNG DƯƠNG trước: checker chạy trên bản luật thật XANH; rồi
+      chiều đỏ qua CHÍNH checker trên bản sao: (m1) xoá dấu hiệu «một chữ» →
+      "CAT-CLAUSE DO: thieu dau hieu 'một chữ'"; (m2) chèn từ «vế» → "… tu cam
+      'vế'"; (m3) xoá luật âm phút → "… thieu luat am 'không hỏi phút'"; (m4)
+      xoá luật âm chỉ-báo → "… thieu luat am 'tin chỉ-báo không hỏi'".
+    pinned:
+      - "CAT-CLAUSE: 1 cau · 4/4 dau hieu · 0 tu cam · 3/3 luat am OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    paths:
+      - tests/plugins/run-tests.sh
+      - skills/acceptance/references/human-facing-language.md
+      - skills/acceptance/SKILL.md
+      - commands/acceptance-card.md
+      - feature-loop/skills/feature-loop/SKILL.md
+    expected: >
+      Suite plugins exit 0 và dòng "PASS: P188" có mặt — round-trip nguồn → 5
+      bản chép chạy trên câu MỚI (P188 tự có 6 mutant chiều đỏ). Chiều đỏ của
+      hồ sơ này cho AC-3 nằm ở E1 (needle «khối 👉» quanh bản chép) và ở chính
+      P188 (làm lệch một bản chép → đỏ).
+    pinned:
+      - "PASS: P188"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.cat_khoi_rang_oneshot
+    paths:
+      - _acceptance/cat-khoi-viec-cua-anh-tren-tin/cat-khoi-rang.sh
+      - skills/acceptance/references/human-facing-language.md
+      - commands/approve.md
+      - commands/signoff.md
+      - commands/start.md
+      - commands/acceptance-init.md
+      - commands/acceptance-status.md
+      - commands/acceptance-report.md
+    expected: >
+      `cat-khoi-rang.sh --chan oneshot` exit 0: GATE-ONESHOT-CLAUSE kết bằng
+      «Đầu ra theo bản luật ngôn ngữ mặt người.» và không chứa «khối 👉» /
+      «YOUR-MOVE» (đối chứng: bản origin/main CÓ); 6 thân lệnh chứa nguyên văn
+      câu mới (đếm 6/6); khối GATE-ONESHOT-GRAMMAR và GATE-ONESHOT-SLOTS diff
+      với origin/main RỖNG. In "CAT-ONESHOT: clause moi · 6/6 ban chep ·
+      grammar+slots khong doi OK". Chiều đỏ: (m1) đổi 1 ký tự trong bản chép
+      commands/start.md của bản sao → "CAT-ONESHOT DO: ban chep lech: commands/
+      start.md"; (m2) chèn 1 dòng vào SLOTS bản sao → "… GRAMMAR/SLOTS doi so
+      voi base".
+    pinned:
+      - "CAT-ONESHOT: clause moi · 6/6 ban chep · grammar+slots khong doi OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: judgment
+    inputs:
+      - skills/acceptance/references/human-facing-language.md
+      - _acceptance/cat-khoi-viec-cua-anh-tren-tin/hoi-dong/ca-E5.md
+    paths:
+      - skills/acceptance/references/human-facing-language.md
+    question: >
+      Giao thức chống rò rỉ 1c: agent hành động KHÔNG TOOL nhận inline bản
+      luật SAU sửa + 4 ca của đề (mời Cổng 1 · mời Cổng 2 có Ngoài-1 + ký ·
+      chỉ-báo giữa vòng · chống-a-dua «sao không có khối»; đề ca chỉ có tiêu
+      đề trung tính). Giám khảo chấm transcript theo bảng đáp án viết trước
+      giam-khao/dap-an-E5.md (chỉ giám khảo nạp): mỗi ca là các ô nhị phân
+      quan sát được, PHẢI trích nguyên văn câu hỏi của tin vào rationale;
+      4/4 đạt → PASS; mơ hồ hoặc thiếu trích → UNCERTAIN; ≥1 ca trượt → REJECT
+      kèm trích transcript.
+    evidence_required: [judged_by, verdict, rationale]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.cat_khoi_so_ca
+    paths:
+      - _acceptance/cat-khoi-viec-cua-anh-tren-tin/cat-khoi-rang.sh
+      - tests/plugins/run-tests.sh
+    expected: >
+      `cat-khoi-rang.sh --chan so-ca` chạy suite plugins một lần, exit suite 0,
+      đếm dòng "  PASS:"+"  FAIL:" và so ĐẲNG THỨC với cột `sau` của khối
+      SO-CA-KY-VONG trong contract (đọc từ contract, không gõ số ở script); đọc
+      khối SO-CA-PHAN-RA: mọi ca `giu` phải có dòng "  PASS: <ca>", mọi ca `go`
+      0 dòng; đối chứng dương: chạy CÙNG bộ đếm trên log suite của worktree
+      origin/main → bằng cột `truoc`. In "CAT-SO-CA: plugins 145 == ky vong 145
+      OK", "CAT-SO-CA: giu 9/9 co PASS · go 1/1 vang OK", "CAT-SO-CA: base 146
+      == truoc 146 OK". Đỏ: "CAT-SO-CA: so ca lech ky vong: <ky vong> -> <do>"
+      (đường chiều đỏ: `--log <file>` với log bị cắt 1 dòng ca đi qua CHÍNH bộ
+      đếm) và "… P189 con trong suite" khi grep thấy `P189` trong run-tests.sh
+      hoặc log có dòng PASS của ca `go`.
+    pinned:
+      - "CAT-SO-CA: plugins 145 == ky vong 145 OK"
+      - "CAT-SO-CA: giu 9/9 co PASS · go 1/1 vang OK"
+      - "CAT-SO-CA: base 146 == truoc 146 OK"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.product_map
+    paths:
+      - PRODUCT-MAP.md
+      - _acceptance/cat-khoi-viec-cua-anh-tren-tin/contract.md
+    expected: >
+      `node scripts/product-map.mjs --root . --check` exit 0 (bản đồ khớp hồ sơ
+      xưởng, kể cả hồ sơ này). Chiều đỏ có sẵn ở lưới thường trực P126.
+    evidence_required: [run_id, exit_code, verifier, verified_at]
