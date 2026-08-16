@@ -593,8 +593,8 @@ Tham chiếu đầy đủ `config.yaml` — mục 8 có phần tinh chỉnh:
 | `risk_tiers.t3_paths` | Path critical → T3 | không gì bị nâng T3 |
 | `signoff.required_for` | Tier nào bắt buộc ký trước merge | `[T2, T3]` |
 | `signoff.approvers` | Danh sách người được ký — **thông tin, KHÔNG được cổng cưỡng chế** (1.24.0: bốn bản vá cố đọc khoá này từ YAML bằng công cụ text của shell đều hỏng theo một hình dạng hợp lệ mới, nên cả lớp bị gỡ). Chữ ký vẫn bị kiểm bằng chốt rỗng + lưới giữ-chỗ | — |
-| `signoff.require_human_commit` | Chữ ký Cổng 2 phải nằm trong commit riêng (mục 7) | `false` (scaffold mới: `true`) |
-| `signoff.agent_authors` | Blocklist email-glob cho commit chữ ký (bot CI) | tắt |
+| `signoff.require_human_commit` | ĐÃ HẾT HIỆU LỰC từ 2.1 (ADR 0012) — còn khai thì pre-merge nhắc một dòng, không chặn | — |
+| `signoff.agent_authors` | ĐÃ HẾT HIỆU LỰC từ 2.1 (ADR 0012) — như trên | — |
 | `dev_server.start` / `url` | Cho eval `ui-check` | ui-check bị hạ cấp |
 | `capture.ui` | Lệnh chụp `<cmd> <url> <out.png>` → slideshow Cổng 2 | evidence UI = HTML |
 | `feature_loop.suite_keys` | Lệnh chạy MỌI vòng verify (build/typecheck...) — S4 tự hỏi rồi tự ghi | S4 hỏi một lần |
@@ -759,10 +759,10 @@ bước này). Muốn bỏ cổng? Nói rõ — máy ghi `gate1_skipped: true` l
    `human_override: <Tên> <ngày>` (agent ghi thì hook mới re-validate được).
 3. Verdict `PENDING-JUDGMENT` → nhờ agent nâng thành `PASS`.
 4. Điền `human_signoff: <Tên> <ngày>`.
-5. **Commit các sửa đổi Cổng-2 thành commit RIÊNG** — chỉ chạm các dòng human-owned
-   (`human_signoff` / `human_override` / `verdict` / `bypass_ack`). Chính bạn commit
-   (hoặc ra lệnh agent commit đúng phần đó). Repo bật `require_human_commit` thì CI
-   chặn chữ ký sinh cùng commit với body report — commit chữ ký là dấu vết "người đã duyệt".
+5. **Commit các sửa đổi Cổng-2** — một lượt, không phải tách riêng (ADR 0012).
+   Dấu vết "người đã duyệt" nằm ở forge: bạn approve / bấm merge PR. Lưới
+   trước-merge in một dòng «chữ ký mới trong diff — <tên> <ngày>» khi chữ ký
+   xuất hiện lần đầu trong PR, để chỗ đó không vô hình với người merge.
 
 Sau đó máy set `status: signed-off` và S5 tạo PR theo quy trình repo.
 
@@ -787,7 +787,7 @@ template, cùng evidence rules, cùng CI** — mức bằng chứng không đổ
 | `/acceptance-status` | Xem trạng thái mọi tính năng trong `_acceptance/` |
 | `/acceptance-card <slug>` | Render thẻ quyết định Cổng 1/Cổng 2 (tự nhận cổng theo trạng thái) |
 | `/approve [slug]` | Ghi quyết định Cổng 1: card → 1 câu hỏi → máy ghi `approved_by`/`approved_at` sau YES tường minh (không bao giờ tự duyệt) |
-| `/signoff [slug]` | Trợ lý Cổng 2: precondition → `human_override`/`human_signoff` → commit chữ ký riêng (human-fields-only) → re-check pre-merge |
+| `/signoff [slug]` | Trợ lý Cổng 2: precondition → `human_override`/`human_signoff` → ghi và commit một lượt → re-check pre-merge |
 | `/acceptance-report` | Sức khoẻ cổng: verdict mix, số vòng verify, vệ sinh gate (skip/bypass/stale) — read-only |
 | `node scripts/evidence-page.js --root . --slug <slug>` | Trang HTML evidence đầy đủ: output, screenshot slideshow, checklist Cổng 2 |
 | `node scripts/eval-coverage-lint.js . --slug <slug>` | Lint phủ biên: tiêu chí ngưỡng thiếu ca *không-được-bắn*, out-of-scope thiếu eval âm |
@@ -817,7 +817,7 @@ flowchart LR
     C1["Gate 1 có thật: approved_by / gate1_skipped"]
     C2["Report PASS + human_signoff"]
     C3["Provenance: bypass_used / enforcement_mode"]
-    C4["Chữ ký người: commit riêng, đúng author<br/>(require_human_commit / agent_authors)"]
+    C4["Chữ ký người: quyết định ghi trong hồ sơ<br/>(trách nhiệm đọc ở forge)"]
     C5["Evidence không STALE (verified_commit vs diff)"]
     C6["Re-check L1/L2/L3 trên file đã commit (recheck)"]
     C7["Backstop T1: code gated đổi mà PR không có artifact"]
@@ -852,7 +852,7 @@ flowchart LR
 | Thư mục tự khai đã phát hành nhưng contract **thiếu `risk_tier` hoặc `status`** — cùng lớp tàng hình (1.24.0) | Scaffold bỏ hoang (chưa khai gì) vẫn im lặng — đúng thiết kế, không phải lỗ |
 | `gap_probe: required` + slug trong diff PR thiếu `gap-probe.md` hợp lệ và thiếu entry descope | `gap_probe: advisory` (mặc định) cùng tình huống · `verdict: probe-failed` · đã bỏ có chủ đích theo entry ledger · không có `--base` nên luật bỏ qua |
 | `gap_probe` khai giá trị không hợp lệ (sai chính tả) | |
-| Chữ ký chưa commit / commit chữ ký chạm body report / author khớp `agent_authors` | Không phải git repo — staleness/chữ ký không kiểm được |
+| Chữ ký là chuỗi giữ-chỗ (không nêu tên người) | Chữ ký sinh cùng commit với thân báo cáo — từ 2.1 KHÔNG còn là vi phạm (ADR 0012) |
 | Evidence STALE — file ngoài `_acceptance/` + ngoài `t1_skip_globs` đổi sau `verified_commit` | |
 | `recheck: strict` + evidence đã commit rớt luật L1/L2/L3 | |
 | Backstop T1 (`--base`): đổi `t3_paths`/file non-T1 mà PR không có `_acceptance/` | |
@@ -915,7 +915,7 @@ feature_loop:
 của hook). Sửa tay thì được — nhưng CI lint sẽ chặn tab/indent lẻ.
 
 **Siết dần theo mức trưởng thành của repo:** repo mới scaffold sẵn mức chặt
-(`recheck: strict`, `require_human_commit: true`); repo cũ nâng cấp kit thì các luật mới
+(`recheck: strict`); repo cũ nâng cấp kit thì các luật mới
 chỉ NOTE cho artifact cũ (presence-based) — bật chặt khi đội sẵn sàng.
 
 ### 8.1 Second-opinion khác nhà cho frame UI (tùy chọn)

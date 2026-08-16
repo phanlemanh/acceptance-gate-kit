@@ -36,9 +36,9 @@ Enforcement is deterministic, not aspirational:
   approval, with STALE evidence (non-gate files changed after the report's
   `verified_commit`), or — via the committed-evidence re-check — with run_ids
   that were never machine-logged in `run-log.jsonl`. With
-  `signoff.require_human_commit: true`, the Gate-2 signature must also land in
-  its own human-fields-only commit (git history is the attribution — an AI
-  auto-filling `human_signoff` alongside the report body is blocked).
+  the Gate-2 signature is a DECISION the human speaks and the machine records
+  (attribution lives on the forge — whoever approves / merges the PR); the grid
+  prints one line naming a signature that first appears in the PR diff.
 
 > **Thành viên mới: đọc [QUICKSTART.md](QUICKSTART.md) (tiếng Việt, 5 phút) — cài 2 lệnh là dùng được.**
 > **Bản đầy đủ — kiến trúc, cài đặt, vận hành, tra cứu enforcement: [GUIDE.md](GUIDE.md).**
@@ -175,9 +175,9 @@ committed reports meet the current evidence shape.
   you SEE the artifacts on the page. Self-contained, `file://`-openable, zero-dep.
 - `/approve <slug>` → record the Gate 1 decision: card → one question → machine
   writes `approved_by`/`approved_at` on your explicit YES. `/signoff <slug>` →
-  walk Gate 2: preconditions → `human_override`/`human_signoff` → signature in
-  its own human-fields-only commit → pre-merge re-check. The decision verbs
-  never decide on their own.
+  walk Gate 2: preconditions → `human_override`/`human_signoff` → record and
+  commit in one pass → pre-merge re-check. The decision verbs never decide on
+  their own.
 - `/acceptance-report` → is the gate healthy? Verdict mix, verify rounds,
   gate hygiene (skips/bypasses/stale evidence). Read-only.
 - Risk tiers: T1 skips the kit; T3 requires direct human verdicts on all

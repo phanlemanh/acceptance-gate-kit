@@ -85,11 +85,10 @@ signoff:
                              # be empty and must not be an English placeholder
                              # (PENDING/TBD/TODO/n/a/none/unsigned/waiting/<name>).
                              # A holding note in another language still passes.
-  require_human_commit: true # Gate-2 signature must land in its own human-fields-only
-                             # commit (pre-merge checks git history; the reviewer commits
-                             # the signoff line themselves). Safe default for a fresh repo.
-  # agent_authors:           # OPTIONAL email-glob blocklist for the signoff commit's author
-  #   - "*[bot]*"            # (useful when CI/agents commit under a dedicated identity)
+                             # Chữ ký Cổng 2: người phát ngôn, máy ghi hộ và commit một
+                             # lượt; trách nhiệm đọc ở forge (người approve/merge PR).
+                             # Không phát khoá require_human_commit/agent_authors nữa —
+                             # đã hết hiệu lực từ 2.1 (ADR 0012).
 dev_server:
   start: "<from 2c>"
   url: "<from 2c>"

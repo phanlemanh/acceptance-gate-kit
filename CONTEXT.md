@@ -82,7 +82,7 @@ _Avoid_: proof, log (log là nguồn thô; evidence là vết đã đối chiế
 
 **Evidence report**:
 Tài liệu Gate 2 (`evidence-report.md`): verdict + bảng per-eval + các trường
-human-owned.
+người-khai (`human_signoff`, `human_override`).
 _Avoid_: test report, báo cáo QA.
 
 **UAT session**:
@@ -161,8 +161,8 @@ YES tường minh trong chat.
 _Avoid_: sign (đó là Gate 2), duyệt tự động.
 
 **Signoff**:
-Động từ của Gate 2 + trường `human_signoff`; khi `require_human_commit`, chữ
-ký nằm trong commit human-fields-only riêng. Viết liền.
+Động từ của Gate 2 + trường `human_signoff`: người phát ngôn, máy ghi hộ rồi
+commit một lượt; trách nhiệm đọc ở forge. Viết liền.
 _Avoid_: sign-off, approval (đó là Gate 1).
 
 ### Classification

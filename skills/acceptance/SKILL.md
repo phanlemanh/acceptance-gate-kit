@@ -288,14 +288,11 @@ Entry: implementation complete, contract `status: implemented`.
    KHÔNG tranh luận lại căn cứ đã trình, KHÔNG bày menu buộc người quyết lần
    nữa. Veto là quyết định của người; máy chỉ thi hành và để lại vết.
 
-5. **STOP — Gate 2** (chỉ khi 4b KHÔNG đủ điều kiện đi tiếp). FIRST commit the machine-written verify output
-   (evidence-report.md + run-log.jsonl + contract + evidence/) as its own
-   commit containing NO human signature — the Gate-2 edits below must land
-   in a SEPARATE commit touching only human-owned report lines
-   (`human_signoff` / `human_override` / `verdict` upgrade / `bypass_ack`);
-   with `signoff.require_human_commit: true` pre-merge enforces this split,
-   and the reviewer commits the signature themselves (or explicitly orders
-   the agent to commit exactly those lines).
+5. **STOP — Gate 2** (chỉ khi 4b KHÔNG đủ điều kiện đi tiếp). Commit the
+   machine-written verify output (evidence-report.md + run-log.jsonl +
+   contract + evidence/) as soon as it exists — sớm thì tránh stale-guard.
+   Không còn nghi thức tách chữ ký khỏi thân báo cáo (ADR 0012): sau khi người
+   phát ngôn, máy ghi các dòng thuộc về người rồi commit một lượt.
    Then present to the user: verdict, the per-eval table, links
    to evidence, and the list of UNCERTAIN judgment items they must personally
    check (T3: ALL judgment items). To cut review time, render the decision card
@@ -304,8 +301,7 @@ Entry: implementation complete, contract `status: implemented`.
    are unchanged.
    Mời cổng như đồng nghiệp hỏi: một câu hỏi đóng, nói ngả máy khuyên và vì sao, người trả lời một chữ là đủ, rồi nói máy làm gì tiếp; không khuôn, không ô trống, không mã bắt buộc — máy không viết sẵn câu trả lời của người và không hỏi phút.
    The `/signoff <slug>` command walks this stop end-to-end
-   (preconditions → overrides → human-fields-only signature commit → pre-merge
-   re-check). The user resolves each pending item by
+   (preconditions → overrides → ghi và commit một lượt → pre-merge re-check). The user resolves each pending item by
    filling its `human_override: <name> <date>` line; if the verdict was
    PENDING-JUDGMENT they then upgrade it to PASS (the hook re-validates that
    write) — have the agent apply that edit so the hook actually sees it; a
@@ -313,7 +309,7 @@ Entry: implementation complete, contract `status: implemented`.
    is the backstop).
 
    <!-- <<<SIGNATURE-OWNER-CLAUSE -->
-   The signature is the HUMAN's. Exactly two legal routes: the human commits it themselves, OR the human explicitly instructs the agent to commit exactly the human-owned lines and nothing more. There is no third route; `signoff.require_human_commit` + `agent_authors` enforce this boundary.
+   Chữ ký là QUYẾT ĐỊNH của người: người phát ngôn «Ký» hay «Trả lại», máy ghi hộ vào hồ sơ rồi commit như mọi commit khác — máy KHÔNG BAO GIỜ tự phát ngôn Ký (ADR 0002). Ai chịu trách nhiệm thì đọc ở forge: người approve / bấm merge PR, không phải ở lịch sử commit.
    <!-- SIGNATURE-OWNER-CLAUSE>>> -->
 
    (Bản gốc ở `commands/signoff.md` bước 7; khối trên là bản chép nguyên văn.)

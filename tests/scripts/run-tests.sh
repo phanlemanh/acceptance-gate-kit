@@ -1951,10 +1951,13 @@ node "$RC" "$T/rl01/_acceptance/feat-rl1/evidence-report.md" >/dev/null 2>&1; ch
 node "$RC" "$T/rl02/_acceptance/feat-rl2/evidence-report.md" >/dev/null 2>&1; check RL06b 1 $?
 
 echo ""
-echo "--- human-signoff provenance (signoff.require_human_commit / agent_authors) ---"
+echo "--- chữ ký Cổng 2: khoá cũ hết hiệu lực + làn V ở luật Gate-1 (ADR 0012) ---"
+# Từ hồ sơ cong-chan-nham-cho (16/08): lớp CHỨNG-MINH-chữ-ký-bằng-commit đã gỡ.
+# H01–H07 giữ nguyên FIXTURE nhưng đổi KỲ VỌNG: mọi hình dạng commit đều clean,
+# và khoá cũ trong config chỉ đổi lấy MỘT dòng NOTE hết-hiệu-lực. Răng NỘI DUNG
+# chữ ký (giữ-chỗ) không nằm ở đây — nó ở UJ3, và vẫn đỏ.
+LEGACY_NOTE="hết hiệu lực từ 2.1"
 mk_hs() { # <root> <config signoff block (may be empty)> [signoff value in FIRST commit]
-  # git repo: implemented+approved feature, PASS report committed at "verify time";
-  # 3rd arg non-empty = report is born ALREADY signed (the self-sign smell).
   local R="$1"; local d="$R/_acceptance/feat-hs"; mkdir -p "$d"
   { printf 'schema_version: 1\n'; [ -n "$2" ] && printf '%s\n' "$2"; } > "$R/_acceptance/config.yaml"
   git -C "$R" init -q
@@ -1968,27 +1971,35 @@ hs_sign() { # <root> [author email] — signoff-only edit, committed separately
   sed -i.bak 's/^human_signoff:$/human_signoff: Manh 2026-07-02/' "$rep" && rm -f "$rep.bak"
   git -C "$R" add -A >/dev/null && git -c user.email="${2:-manh@test.local}" -c user.name=t -c commit.gpgsign=false -C "$R" commit -qm signoff
 }
+hs_note() { # <nhãn> <output> <expect-note: 1|0>
+  case "$2" in
+    *"$LEGACY_NOTE"*) if [ "$3" = 1 ]; then echo "  PASS: $1"; PASS_COUNT=$((PASS_COUNT+1)); else echo "  FAIL: $1 (NOTE hết-hiệu-lực in ra dù config KHÔNG khai khoá cũ)"; FAIL_COUNT=$((FAIL_COUNT+1)); fi ;;
+    *) if [ "$3" = 0 ]; then echo "  PASS: $1"; PASS_COUNT=$((PASS_COUNT+1)); else echo "  FAIL: $1 (thiếu NOTE hết-hiệu-lực cho config còn khai khoá cũ)"; FAIL_COUNT=$((FAIL_COUNT+1)); fi ;;
+  esac
+}
 
-echo "H01 flag OFF + signoff born with the report (same commit) -> clean (no new enforcement)"
+echo "H01 không khai khoá + chữ ký sinh cùng commit với báo cáo -> clean, KHÔNG NOTE"
 R="$T/h01"; mk_hs "$R" "" "Manh 2026-07-02"
-bash "$CHECK" "$R" >/dev/null; check H01 0 $?
+outH="$(bash "$CHECK" "$R" 2>&1)"; check H01 0 $?
+hs_note H01-note "$outH" 0
 
-echo "H02 flag ON + signoff in its own human-fields-only commit -> clean"
+echo "H02 khoá cũ ON + chữ ký ở commit riêng -> clean + NOTE hết-hiệu-lực"
 R="$T/h02"; mk_hs "$R" "$(printf 'signoff:\n  require_human_commit: true')"
 hs_sign "$R"
-bash "$CHECK" "$R" >/dev/null; check H02 0 $?
+outH="$(bash "$CHECK" "$R" 2>&1)"; check H02 0 $?
+hs_note H02-note "$outH" 1
 
-echo "H03 flag ON + signoff in the SAME commit as the report body -> fail"
+echo "H03 khoá cũ ON + chữ ký CÙNG commit với thân báo cáo -> clean (trước 2.1: VIOLATION)"
 R="$T/h03"; mk_hs "$R" "$(printf 'signoff:\n  require_human_commit: true')" "Manh 2026-07-02"
-outH="$(bash "$CHECK" "$R" 2>&1)"; check H03 1 $?
-case "$outH" in *signoff*) echo "  PASS: H03-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: H03-msg (expected signoff violation)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+outH="$(bash "$CHECK" "$R" 2>&1)"; check H03 0 $?
+hs_note H03-note "$outH" 1
 
-echo "H04 flag ON + signoff only in the working tree (uncommitted) -> fail"
+echo "H04 khoá cũ ON + chữ ký chỉ có ở cây làm việc (chưa commit) -> clean"
 R="$T/h04"; mk_hs "$R" "$(printf 'signoff:\n  require_human_commit: true')"
 sed -i.bak 's/^human_signoff:$/human_signoff: Manh 2026-07-02/' "$R/_acceptance/feat-hs/evidence-report.md" && rm -f "$R/_acceptance/feat-hs/evidence-report.md.bak"
-bash "$CHECK" "$R" >/dev/null 2>&1; check H04 1 $?
+bash "$CHECK" "$R" >/dev/null 2>&1; check H04 0 $?
 
-echo "H05 flag ON + Gate-2 commit also fills human_override and upgrades verdict -> clean (human fields allowlisted)"
+echo "H05 commit Gate-2 điền cả human_override và nâng verdict -> clean"
 R="$T/h05"; d5="$R/_acceptance/feat-hs"; mkdir -p "$d5"
 printf 'schema_version: 1\nsignoff:\n  require_human_commit: true\n' > "$R/_acceptance/config.yaml"
 git -C "$R" init -q
@@ -2000,11 +2011,98 @@ sed -i.bak -e 's/^verdict: PENDING-JUDGMENT$/verdict: PASS/' -e 's/^human_signof
 git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm gate2
 bash "$CHECK" "$R" >/dev/null; check H05 0 $?
 
-echo "H06 agent_authors blocklist matches the signoff-commit author -> fail (independent knob)"
+echo "H06 agent_authors khớp author của commit chữ ký -> clean + NOTE (khoá đã chết)"
 R="$T/h06"; mk_hs "$R" "$(printf 'signoff:\n  agent_authors:\n    - "*bot*"')"
 hs_sign "$R" "claude-bot@agents.local"
-outH="$(bash "$CHECK" "$R" 2>&1)"; check H06 1 $?
-case "$outH" in *agent_authors*|*author*) echo "  PASS: H06-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: H06-msg (expected author violation)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+outH="$(bash "$CHECK" "$R" 2>&1)"; check H06 0 $?
+hs_note H06-note "$outH" 1
+
+echo "H07 khoá cũ ON nhưng không phải git repo -> clean + NOTE hết-hiệu-lực (thôi nói 'unverifiable')"
+R="$T/h07"; d7="$R/_acceptance/feat-hs"; mkdir -p "$d7"
+printf 'schema_version: 1\nsignoff:\n  require_human_commit: true\n' > "$R/_acceptance/config.yaml"
+printf -- '---\nschema_version: 1\nfeature: feat-hs\nslug: feat-hs\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\napproved_by: Manh Phan\n---\n' > "$d7/contract.md"
+v7="$R/verify.sh"; printf '#!/bin/sh\nexit 0\n' > "$v7"
+printf -- '---\nschema_version: 1\nfeature_slug: feat-hs\nverdict: PASS\nhuman_signoff: Manh 2026-07-02\n---\n\n## Evidence\n- eval: E1\n  run_id: feat-hs-E1-001\n  exit_code: 0\n  verifier: %s\n  verified_at: 2026-07-02\n' "$v7" > "$d7/evidence-report.md"
+outH="$(bash "$CHECK" "$R" 2>&1)"; check H07 0 $?
+hs_note H07-note "$outH" 1
+
+echo ""
+echo "--- làn V ở luật Gate-1 của lưới trước-merge (V01–V05) ---"
+# Hook ghi-lúc-viết cho làn V đi từ đợt 2; lưới biên merge phải hiểu ĐÚNG như
+# thế. Cửa mở khi ĐỦ: veto_state=mo · vết giờ parse được · T2 · VÀ (xanh-sạch
+# HOẶC đã ký). Vế cuối là QUAN HỆ — `mo` gõ tay lên hồ sơ không sạch mà chưa ai
+# ký thì vẫn chặn (gap-probe P0 của hồ sơ cong-chan-nham-cho).
+mk_v() { # <root> <tier> <veto_opened_at> <có khoá veto_state? 1|0> <sạch? 1|0> <chữ ký>
+  local R="$1" tier="$2" vat="$3" hasv="$4" clean="$5" sig="$6"
+  local d="$R/_acceptance/feat-v"; mkdir -p "$d" "$R/lib"
+  printf 'schema_version: 1\nsignoff:\n  required_for: [T2, T3]\n' > "$R/_acceptance/config.yaml"
+  cp "$HERE/../../lib/md-section.cjs" "$R/lib/" 2>/dev/null || true
+  git -C "$R" init -q
+  { printf -- '---\nschema_version: 1\nfeature: feat-v\nslug: feat-v\nrisk_tier: %s\nsurfaces: [api]\nstatus: verified\napproved_by:\n' "$tier"
+    [ "$hasv" = 1 ] && printf 'veto_state: mo\nveto_opened_at:%s\n' "${vat:+ $vat}"
+    printf -- '---\n'; } > "$d/contract.md"
+  printf '#!/bin/sh\nexit 0\n' > "$R/verify.sh"
+  { printf -- '---\nschema_version: 1\nfeature_slug: feat-v\nverdict: PASS\nhuman_signoff:%s\n---\n\n## Evidence\n- eval: E1\n  run_id: feat-v-E1-001\n  exit_code: 0\n  verifier: verify.sh\n  verified_at: 2026-08-16\n\n## Known limits\n' "${sig:+ $sig}"
+    [ "$clean" = 1 ] || printf '\n- một giới hạn thật, nên hồ sơ này KHÔNG xanh-sạch\n'
+    printf '\n## Ngoài hợp đồng\n'; } > "$d/evidence-report.md"
+  git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm base
+}
+v_msg() { # <nhãn> <output> <chuỗi phải có>
+  case "$2" in *"$3"*) echo "  PASS: $1"; PASS_COUNT=$((PASS_COUNT+1)) ;;
+    *) echo "  FAIL: $1 (thiếu thông điệp: $3)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+}
+
+echo "V01 T2 + mo + vết hợp lệ + bằng chứng xanh-sạch -> NOTE làn V, clean"
+R="$T/v01"; mk_v "$R" T2 "2026-08-16T09:00:00Z" 1 1 ""
+outV="$(bash "$CHECK" "$R" 2>&1)"; check V01 0 $?
+v_msg V01-note "$outV" "làn V — máy đi trước"
+
+echo "V02 T3 + mo -> VIOLATION (làn V chỉ T2)"
+R="$T/v02"; mk_v "$R" T3 "2026-08-16T09:00:00Z" 1 1 ""
+outV="$(bash "$CHECK" "$R" 2>&1)"; check V02 1 $?
+v_msg V02-msg "$outV" "làn V chỉ T2"
+
+echo "V03 mo + veto_opened_at rỗng -> VIOLATION (vết không đọc được)"
+R="$T/v03"; mk_v "$R" T2 "" 1 1 ""
+outV="$(bash "$CHECK" "$R" 2>&1)"; check V03 1 $?
+v_msg V03-msg "$outV" "veto_opened_at"
+
+echo "V04 mo + T2 + vết OK nhưng KHÔNG xanh-sạch và chưa ký -> VIOLATION (quan hệ, không phải nhãn)"
+R="$T/v04"; mk_v "$R" T2 "2026-08-16T09:00:00Z" 1 0 ""
+outV="$(bash "$CHECK" "$R" 2>&1)"; check V04 1 $?
+v_msg V04-msg "$outV" "làn V đòi xanh-sạch hoặc chữ ký"
+
+echo "V04b giữ-gân: cùng hồ sơ KHÔNG sạch nhưng ĐÃ ký -> NOTE làn V, clean"
+R="$T/v04b"; mk_v "$R" T2 "2026-08-16T09:00:00Z" 1 0 "Manh Phan 2026-08-16"
+outV="$(bash "$CHECK" "$R" 2>&1)"; check V04b 0 $?
+v_msg V04b-note "$outV" "làn V — máy đi trước"
+
+echo "V05 vắng khoá veto_state -> VIOLATION nguyên văn luật cũ (đối chứng)"
+R="$T/v05"; mk_v "$R" T2 "" 0 1 ""
+outV="$(bash "$CHECK" "$R" 2>&1)"; check V05 1 $?
+v_msg V05-msg "$outV" "gate1_skipped is not true"
+
+echo "V06 chữ ký mới xuất hiện trong diff PR -> NOTE chiều-ghi (lưới thay lớp 2)"
+R="$T/v06"; mk_v "$R" T2 "2026-08-16T09:00:00Z" 1 1 ""
+sed -i.bak 's/^approved_by:$/approved_by: Manh Phan/' "$R/_acceptance/feat-v/contract.md" && rm -f "$R/_acceptance/feat-v/contract.md.bak"
+git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm approve
+VBASE="$(git -C "$R" rev-parse HEAD)"
+sed -i.bak 's/^human_signoff:$/human_signoff: Manh Phan 2026-08-16/' "$R/_acceptance/feat-v/evidence-report.md" && rm -f "$R/_acceptance/feat-v/evidence-report.md.bak"
+printf -- '\n(thân báo cáo đổi CÙNG commit với chữ ký — nghi thức cũ sẽ chặn)\n' >> "$R/_acceptance/feat-v/evidence-report.md"
+git -C "$R" add -A >/dev/null && git -c user.email=bot@x -c user.name=bot -c commit.gpgsign=false -C "$R" commit -qm "sign+body"
+outV="$(bash "$CHECK" "$R" --base "$VBASE" 2>&1)"; check V06 0 $?
+v_msg V06-note "$outV" "chữ ký mới trong diff"
+
+echo "V07 hồ sơ đã ký từ BASE -> KHÔNG in NOTE chiều-ghi (chỉ nói khi chữ ký MỚI)"
+R="$T/v07"; mk_v "$R" T2 "2026-08-16T09:00:00Z" 1 1 "Manh Phan 2026-08-16"
+sed -i.bak 's/^approved_by:$/approved_by: Manh Phan/' "$R/_acceptance/feat-v/contract.md" && rm -f "$R/_acceptance/feat-v/contract.md.bak"
+git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm approve
+VBASE="$(git -C "$R" rev-parse HEAD)"
+printf 'x\n' > "$R/_acceptance/feat-v/notes.txt"
+git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm noise
+outV="$(bash "$CHECK" "$R" --base "$VBASE" 2>&1)"; check V07 0 $?
+case "$outV" in *"chữ ký mới trong diff"*) echo "  FAIL: V07-quiet (in NOTE chiều-ghi cho chữ ký đã có từ BASE)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;;
+  *) echo "  PASS: V07-quiet"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
 
 echo ""
 echo "--- T1-escape backstop (PR base: --base / PRE_MERGE_BASE) ---"
@@ -2050,15 +2148,6 @@ echo "B06 PRE_MERGE_BASE env works like --base"
 R="$T/b06"; mk_pr "$R"; BASE="$(git -C "$R" rev-parse HEAD)"
 printf 'charge()\n' > "$R/src/billing/charge.js"; git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm pr
 PRE_MERGE_BASE="$BASE" bash "$CHECK" "$R" >/dev/null 2>&1; check B06 1 $?
-
-echo "H07 flag ON but not a git repo -> NOTE, clean (unverifiable)"
-R="$T/h07"; d7="$R/_acceptance/feat-hs"; mkdir -p "$d7"
-printf 'schema_version: 1\nsignoff:\n  require_human_commit: true\n' > "$R/_acceptance/config.yaml"
-printf -- '---\nschema_version: 1\nfeature: feat-hs\nslug: feat-hs\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\napproved_by: Manh Phan\n---\n' > "$d7/contract.md"
-v7="$R/verify.sh"; printf '#!/bin/sh\nexit 0\n' > "$v7"
-printf -- '---\nschema_version: 1\nfeature_slug: feat-hs\nverdict: PASS\nhuman_signoff: Manh 2026-07-02\n---\n\n## Evidence\n- eval: E1\n  run_id: feat-hs-E1-001\n  exit_code: 0\n  verifier: %s\n  verified_at: 2026-07-02\n' "$v7" > "$d7/evidence-report.md"
-outH="$(bash "$CHECK" "$R" 2>&1)"; check H07 0 $?
-case "$outH" in *"signoff provenance"*) echo "  PASS: H07-note"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: H07-note (expected unverifiable NOTE)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
 echo ""
 echo "--- config.yaml 2-space lint + config-patch.mjs (single splice path) ---"

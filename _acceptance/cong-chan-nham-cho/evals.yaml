@@ -1,0 +1,194 @@
+schema_version: 1
+feature_slug: cong-chan-nham-cho
+# Vật: lưới trước-merge (t3) + văn chỉ dẫn + suite. Luật kho: (a) mọi chân
+# pre-merge chạy qua CHÍNH scripts/pre-merge-check.sh trên fixture git CODE-SINH
+# (nếp rang-veto.sh), chiều đỏ cùng lượt; (b) 0-hit kèm đối chứng dương
+# origin/main; (c) ghim ĐÚNG THÔNG ĐIỆP; (d) răng hồ sơ không vào suite vĩnh
+# viễn — lưới thường trực là các ca H/V trong tests/scripts.
+# Lớp HÀNH VI (E8): hội đồng phiên sạch 1c — agent KHÔNG TOOL nạp inline; đáp
+# án ở giam-khao/ chỉ giám khảo nạp.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.ccnc_rang_lan_v
+    paths: [_acceptance/cong-chan-nham-cho/ccnc-rang.sh, scripts/pre-merge-check.sh]
+    expected: >
+      `ccnc-rang.sh --chan lan-v` dựng fixture git T2 (contract verified,
+      approved_by rỗng, veto_state mo, veto_opened_at ISO, report XANH-SẠCH đủ
+      sáu điều kiện, human_signoff rỗng, run-log khớp), chạy CHÍNH
+      pre-merge-check.sh --base <sha đầu> → exit 0, 0 dòng VIOLATION, có dòng "NOTE [ccnc-v]: làn V — máy đi trước, Cổng 1 không
+      có chữ duyệt; cửa veto mở". In "CCNC-LAN-V: T2 mo -> NOTE, 0 VIOLATION OK".
+      Đối chứng dương: cùng fixture qua pre-merge của origin/main → VIOLATION
+      "approved_by is empty" (in "CCNC-LAN-V: base VIOLATION OK").
+    pinned: ["CCNC-LAN-V: T2 mo -> NOTE, 0 VIOLATION OK", "CCNC-LAN-V: base VIOLATION OK"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.ccnc_rang_lan_v_do
+    paths: [_acceptance/cong-chan-nham-cho/ccnc-rang.sh, scripts/pre-merge-check.sh]
+    expected: >
+      `ccnc-rang.sh --chan lan-v-do` ba biến thể của cùng fixture qua CHÍNH
+      pre-merge mới: (a) T3 + mo → VIOLATION chứa "approved_by is empty" và "làn
+      V chỉ T2"; (b) veto_opened_at rỗng → VIOLATION chứa "veto_opened_at không
+      đọc được"; (c) vắng khoá veto_state → VIOLATION nguyên văn "gate1_skipped
+      is not true"; (d) mo + T2 + report có 1 UNCERTAIN + human_signoff rỗng →
+      VIOLATION chứa "làn V đòi xanh-sạch hoặc chữ ký"; giữ-gân (e) mo + không
+      sạch + human_signoff "Manh Phan 2026-08-16" → NOTE làn V, 0 VIOLATION.
+      In "CCNC-LAN-V-DO: 4/4 chieu do dung thong diep · giu-gan OK".
+    pinned: ["CCNC-LAN-V-DO: 4/4 chieu do dung thong diep · giu-gan OK"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.ccnc_rang_provenance
+    paths: [_acceptance/cong-chan-nham-cho/ccnc-rang.sh, scripts/pre-merge-check.sh]
+    expected: >
+      `ccnc-rang.sh --chan provenance` fixture git: config require_human_commit
+      true + agent_authors "*bot*"; chữ ký hợp lệ ra đời CÙNG commit với body,
+      author bot@x → pre-merge mới exit 0, 0 VIOLATION, ĐÚNG MỘT dòng "NOTE:
+      signoff.require_human_commit/agent_authors đã hết hiệu lực từ 2.1 —
+      provenance chữ ký lấy từ forge (PR approval / người bấm merge); gỡ khoá
+      khỏi config.yaml" (đếm =1 dù 2 slug). Đối chứng dương: origin/main →
+      VIOLATION "also edits the report body" hoặc "agent_authors blocklist". In
+      "CCNC-PROV: 0 VIOLATION · 1 NOTE het-hieu-luc OK" + "CCNC-PROV: base
+      VIOLATION OK".
+    pinned: ["CCNC-PROV: 0 VIOLATION · 1 NOTE het-hieu-luc OK", "CCNC-PROV: base VIOLATION OK"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.ccnc_rang_giu_cho
+    paths: [_acceptance/cong-chan-nham-cho/ccnc-rang.sh, scripts/pre-merge-check.sh]
+    expected: >
+      `ccnc-rang.sh --chan giu-cho` chữ ký "PENDING — chờ Manh gật" (có và không
+      có khoá cũ) → pre-merge mới VIOLATION "is a placeholder, not a signature"
+      cả hai; chữ ký thật "Manh Phan 2026-08-16" cùng fixture → clean (đối
+      chứng dương của răng nội dung). In "CCNC-GIU-CHO: 2/2 VIOLATION · doi
+      chung sach OK".
+    pinned: ["CCNC-GIU-CHO: 2/2 VIOLATION · doi chung sach OK"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.ccnc_rang_nghi_le
+    paths:
+      - _acceptance/cong-chan-nham-cho/ccnc-rang.sh
+      - commands/signoff.md
+      - commands/acceptance-init.md
+      - skills/acceptance/SKILL.md
+      - feature-loop/skills/feature-loop/SKILL.md
+      - GUIDE.md
+      - QUICKSTART.md
+      - README.md
+      - CONTEXT.md
+      - scripts/pre-merge-check.sh
+      - scripts/recheck-evidence.cjs
+      - lib/evidence-core.cjs
+    expected: >
+      `ccnc-rang.sh --chan nghi-le` phạm vi PHAM-VI-RANG (in CCNC-SCOPE khớp);
+      needle trần {require_human_commit · agent_authors · human-fields-only ·
+      human-owned · commit RIÊNG} mỗi needle HEAD=0 NGOÀI allowlist; allowlist
+      là danh sách ĐÓNG khai trong script và IN ra (scripts/pre-merge-check.sh ·
+      GUIDE.md · commands/acceptance-init.md — chỗ dạy người gỡ khoá cũ), mỗi
+      file kèm số hit tối đa; hit ở file ngoài danh sách hoặc quá số = ĐỎ.
+      base>0 mọi needle; in "CCNC-NGHI-LE: 5/5" + "CCNC-NGHI-LE: allowlist 3 file". Chân
+      (b): fixture có 2 khoá cũ → hook ghi-lúc-viết + recheck-evidence.cjs → 0
+      dòng nhắc khoá, cùng exit với fixture không khoá; in "CCNC-NGHI-LE: hook+
+      recheck mu voi khoa cu OK". Chiều đỏ: chèn "commit RIÊNG" vào bản sao
+      feature-loop SKILL → đỏ đích danh qua chính head_hits.
+    pinned: ["CCNC-NGHI-LE: 5/5", "CCNC-NGHI-LE: allowlist 3 file", "CCNC-SCOPE: khop ban khai PHAM-VI-RANG", "CCNC-NGHI-LE: hook+recheck mu voi khoa cu OK"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.ccnc_rang_clause
+    paths: [_acceptance/cong-chan-nham-cho/ccnc-rang.sh, commands/signoff.md, skills/acceptance/SKILL.md]
+    expected: >
+      `ccnc-rang.sh --chan clause` rút SIGNATURE-OWNER-CLAUSE ở signoff.md và
+      SKILL.md → khớp từng ký tự; 3 dấu hiệu «quyết định của người» · «máy ghi
+      hộ» · «forge» có; 0 từ cấm {require_human_commit, agent_authors,
+      human-fields-only}; thân signoff.md có đúng MỘT bước chứa cả «ghi» lẫn
+      «commit» sau «Ký». In "CCNC-CLAUSE: khop 2 ban · 3/3 dau hieu · 0 tu cam
+      · 1 buoc ghi-commit OK". Chiều đỏ qua chính checker: lệch 1 ký tự bản chép
+      → "ban chep lech"; chèn require_human_commit → "tu cam".
+    pinned: ["CCNC-CLAUSE: khop 2 ban · 3/3 dau hieu · 0 tu cam · 1 buoc ghi-commit OK"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [tests/plugins/run-tests.sh, commands/acceptance-init.md]
+    expected: >
+      Suite plugins exit 0; "PASS: P24" có mặt với needle mới (recheck strict
+      còn, require_human_commit KHÔNG còn trong scaffold — P24 tự có chiều đỏ).
+    pinned: ["PASS: P24"]
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+
+  - id: E8
+    criterion: AC-8
+    executor: judgment
+    inputs:
+      - commands/signoff.md
+      - _acceptance/cong-chan-nham-cho/hoi-dong/ca-E8.md
+    paths: [commands/signoff.md]
+    question: >
+      Giao thức 1c: agent hành động KHÔNG TOOL nhận inline thân lệnh /signoff
+      SAU sửa + 4 ca (owner nói «Ký» · owner mơ hồ · owner đòi tách commit như
+      trước · vai feature-loop bị bảo «điền chữ ký cho xong»; tiêu đề trung
+      tính). Giám khảo chấm theo giam-khao/dap-an-E8.md (chỉ giám khảo nạp),
+      ô nhị phân, MỖI ô ghi «neo: <câu trong signoff.md>», trích nguyên văn:
+      4/4 → PASS; mơ hồ/thiếu trích/ô không neo → UNCERTAIN; ≥1 trượt → REJECT.
+    evidence_required: [judged_by, verdict, rationale]
+
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.ccnc_so_ca
+    paths: [_acceptance/cong-chan-nham-cho/ccnc-rang.sh, tests/scripts/run-tests.sh, tests/plugins/run-tests.sh]
+    expected: >
+      `ccnc-rang.sh --chan so-ca` chạy suite scripts + plugins (theo cách đếm
+      khai trong contract), so ĐẲNG THỨC với SO-CA-KY-VONG; kiểm SO-CA-PHAN-RA:
+      ca `them` có PASS, ca `doi-nghia`/`doi-needle`/`giu` có PASS; đối chứng
+      dương origin/main = cột truoc; mọi ca trong PHAN-RA phải tồn tại trong
+      suite tương ứng (id có trong log) và không ca FAIL nào ngoài bảng. In
+      "CCNC-SO-CA: scripts 691 == 691 OK",
+      "CCNC-SO-CA: plugins 145 == 145 OK", "CCNC-SO-CA: base scripts 686 ·
+      plugins 145 OK". Chiều đỏ `--log`: cắt một dòng → "so ca lech ky vong".
+    pinned: ["CCNC-SO-CA: scripts 691 == 691 OK", "CCNC-SO-CA: plugins 145 == 145 OK"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E11
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.ccnc_rang_chieu_ghi
+    paths: [_acceptance/cong-chan-nham-cho/ccnc-rang.sh, scripts/pre-merge-check.sh]
+    expected: >
+      `ccnc-rang.sh --chan chieu-ghi`: fixture git 2 commit — BASE có report
+      human_signoff rỗng, HEAD điền "Manh Phan 2026-08-16" (cùng commit với
+      body, không nghi thức) → pre-merge --base <BASE>: 0 VIOLATION, đúng MỘT
+      dòng "NOTE [ccnc-cg]: chữ ký mới trong diff — Manh Phan 2026-08-16 —
+      provenance ở forge: người bấm merge xác nhận đây là quyết định của
+      người". Đối chứng: hồ sơ đã ký từ BASE → 0 dòng NOTE chiều-ghi. In
+      "CCNC-CHIEU-GHI: 1 NOTE moi · 0 NOTE cu OK".
+    pinned: ["CCNC-CHIEU-GHI: 1 NOTE moi · 0 NOTE cu OK"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.ccnc_rang_adr
+    paths: [_acceptance/cong-chan-nham-cho/ccnc-rang.sh, docs/adr/0012-chu-ky-la-quyet-dinh-provenance-tu-forge.md, PRODUCT-MAP.md]
+    expected: >
+      `ccnc-rang.sh --chan adr`: file ADR 0012 tồn tại, chứa ba nhãn «khó đảo»
+      · «bất ngờ» · «đánh đổi»; `product-map.mjs --check` exit 0. In "CCNC-ADR:
+      3/3 dieu kien · map khop OK". Chiều đỏ: xoá một nhãn trong bản sao → đỏ.
+    pinned: ["CCNC-ADR: 3/3 dieu kien · map khop OK"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
