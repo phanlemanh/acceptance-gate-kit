@@ -3,7 +3,7 @@ schema_version: 1
 slug: cong-chan-nham-cho
 round: 1
 verdict: PASS
-verified_commit: 2f8de63ab4868608b7572e3d711e198af3669325
+verified_commit: d1dd3c53778c5fd32ce2b3cb5c5da8e9a28606f8
 verified_at: 2026-08-16T11:08:38Z
 human_signoff: Manh Phan 2026-08-16
 ---
@@ -235,6 +235,14 @@ không phải sàn.
   thường trực là H01–H07 + V01–V07 trong `tests/scripts`.
 - Lớp HÀNH VI chấm trên 4 ca của một phiên sạch, không phải trên một vòng ký
   thật.
+
+### Re-pin lần 1 — 2026-08-16, do sửa thân lệnh /signoff sau mốc verify (câu cụt + dòng «Never» mâu thuẫn ADR 0012)
+
+run_id: r-20260816T124328Z-10587
+sha: d1dd3c53778c5fd32ce2b3cb5c5da8e9a28606f8 · suites: 4 lệnh exit 0
+
+Hai chân răng đọc `commands/signoff.md` (nghi-le · clause) chạy lại tại mốc
+này, cả hai xanh; số ca không đổi (704 · 145).
 
 ## Variance
 
