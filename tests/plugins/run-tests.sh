@@ -5669,7 +5669,7 @@ run "P150 required_evidence tren the + report cu render y het ban base" \
     # DOI-THUOC-CO-KHAI (chip (2) khoi-viec-cua-anh) — danh sach DONG cac thay
     # doi render co chu dich, moi thu co case canh rieng; phan CON LAI cua duong
     # doc-cu van phai byte-identical voi ban base:
-    #   (1) khoi "👉 VIỆC CỦA ANH"            -> P185/P186/P186b/P187
+    #   (1) khoi "👉 VIỆC CỦA ANH" tren THE     -> P185/P186/P186b/P187
     #   (2) ma tra cuu truoc cau hoi judgment -> P186 (assert QUAN HE ma-hien-trong-khoi-duoc-tro)
     #   (3) nhan "Treo-<n> · " truoc quyet dinh treo -> P186
     #   (4) nhan "Ngoài-<n> · " truoc finding ngoai hop dong -> P186
@@ -8621,110 +8621,6 @@ else
   fail "P184 pin phantom bi chan trong clone day du, pin that van sach"
 fi
 
-# ── P189: khuon YOUR-MOVE-BLOCK-TEMPLATE khai du 4 chuan (chip (2) kit 2.1) ──
-# Khoi "VIEC CUA ANH" la thanh phan CUNG cua khuon trinh-nguoi; khuon song MOT
-# cho giua marker trong ban luat. 4 chuan: 3 ve lam-gi/o-dau/tra-loi-dang-gi ·
-# mau gop MOT dong · chi-bao "KHONG deo khoi" (luat 1c, doi tu "khong can lam
-# gi" — loi hua do van la CO luat cho tin chi-bao, chi noi dung luat doi) ·
-# cam cau tu tu mang dau hoi.
-run "P189 khuon VIEC-CUA-ANH: 3 ve + mau gop 1 dong + chi-bao + cam-dau-hoi (E6)" \
-  python3 - "$ROOT" <<'PY'
-import re, sys
-from pathlib import Path
-law = (Path(sys.argv[1]) / "skills/acceptance/references/human-facing-language.md").read_text(encoding="utf-8")
-RX = re.compile(r"<!-- <<<YOUR-MOVE-BLOCK-TEMPLATE -->\n([\s\S]*?)<!-- YOUR-MOVE-BLOCK-TEMPLATE>>> -->")
-m = RX.search(law)
-assert m, "KHONG rut duoc khoi YOUR-MOVE-BLOCK-TEMPLATE qua marker"
-tpl = m.group(1)
-assert "👉 VIỆC CỦA ANH" in tpl, "khuon thieu nhan khoi 👉 VIỆC CỦA ANH"
-for ve in ("làm gì", "ở đâu", "trả lời dạng"):
-    assert ve in tpl, "khuon thieu ve: " + ve
-mau = [l for l in tpl.splitlines() if "Trả lời mẫu" in l]
-assert len(mau) == 1, "khuon phai co dung 1 dong 'Trả lời mẫu' (gop, MOT dong)"
-assert "một dòng" in mau[0], "dong mau phai tuyen bo 'một dòng'"
-# CHECKER THAT, goi lai duoc (S4-r2): chieu do cu la `sec.replace(...)` roi
-# assert chuoi vang — mot tautology cua str.replace, khong chay lai phep kiem.
-# Nay dinh nghia check(text) roi goi voi ban that VA voi tung ban dot bien.
-# CO-LAP-LOP (chip (2)b, review-findings r3): vung do PHAI loai bo khoi
-# GATE-INVITE-CLAUSE (va SITES) truoc khi tim chuoi luat — clause chua nguyen
-# van "KHÔNG đeo khối"-tuong-duong + "câu tu từ mang dấu hỏi", nen vung do trum clause
-# lam viec xoa gach luat van XANH oan (reviewer r3 da thuc nghiem).
-RXC = re.compile(r"<!-- <<<GATE-INVITE-CLAUSE -->\n([\s\S]*?)\n<!-- GATE-INVITE-CLAUSE>>> -->")
-RXS = re.compile(r"<!-- <<<GATE-INVITE-SITES -->\n([\s\S]*?)<!-- GATE-INVITE-SITES>>> -->")
-def check(text):
-    errs = []
-    mm = RX.search(text)
-    if not mm:
-        return ["KHONG rut duoc khoi YOUR-MOVE-BLOCK-TEMPLATE qua marker"]
-    body = mm.group(1)
-    if "👉 VIỆC CỦA ANH" not in body: errs.append("khuon thieu nhan khoi 👉 VIỆC CỦA ANH")
-    for ve in ("làm gì", "ở đâu", "trả lời dạng"):
-        if ve not in body: errs.append("khuon thieu ve: " + ve)
-    mau_lines = [l for l in body.splitlines() if "Trả lời mẫu" in l]
-    if len(mau_lines) != 1: errs.append("khuon phai co dung 1 dong 'Trả lời mẫu' (gop, MOT dong)")
-    elif "một dòng" not in mau_lines[0]: errs.append("dong mau phai tuyen bo 'một dòng'")
-    if "___" not in body: errs.append("khuon mau khong co cho trong ___")
-    e = text.find("\n## ", mm.end())
-    s = text[mm.start():e if e > 0 else len(text)]
-    s = RXC.sub("", RXS.sub("", s))   # vung do KHONG duoc an du lieu cua lop clause
-    if "KHÔNG đeo khối" not in s: errs.append("thieu luat chi-bao 'KHÔNG đeo khối'")
-    if not ("câu tu từ" in s and "dấu hỏi" in s): errs.append("thieu luat cam cau tu tu mang dau hoi")
-    if "KHÔNG BAO GIỜ điền sẵn" not in s: errs.append("thieu luat cam may dien san lua chon thay nguoi")
-    return errs
-assert check(law) == [], "ban that do oan: " + repr(check(law))   # doi chung DUONG
-print("P189 DUONG-OK (khuon du 5 chuan tren cay that)")
-# MA TRAN dot bien: moi chuan mot ban sao hong, moi ban CHAY LAI check() that.
-MUTANTS = [
-    ("chi-bao", lambda s: s.replace("KHÔNG đeo khối", "vẫn đeo khối"), "thieu luat chi-bao"),
-    ("cam-dau-hoi", lambda s: s.replace("câu tu từ", "câu trần thuật"), "cam cau tu tu"),
-    ("cam-dien-san", lambda s: s.replace("KHÔNG BAO GIỜ điền sẵn", "có thể điền sẵn"), "cam may dien san"),
-    ("cho-trong", lambda s: s.replace("___", "Duyệt"), "cho trong ___"),
-    ("ve-o-dau", lambda s: s.replace("ở đâu:", "chỗ:"), "thieu ve: ở đâu"),
-]
-for name, f, needle in MUTANTS:
-    mutated = f(law)
-    assert mutated != law, "dot bien '" + name + "' khong tac dung — chuoi neo da doi"
-    got = check(mutated)
-    assert any(needle in x for x in got), \
-        "MUTANT '" + name + "' khong bi bat (cho '" + needle + "'), checker tra: " + repr(got)
-    print("MUTANT-" + name + ": ban luat hong -> check() DO ghim '" + needle + "'")
-# CA CO-LAP-LOP (chip (2)b): hai lop phong thu — gach luat va GATE-INVITE-CLAUSE
-# — chua cung chuoi neo; mutant o tren replace TOAN-CUC nen dot bien ca hai lop
-# mot luc, khong chung minh duoc vung do da tach. Nay tat TUNG lop bang du lieu:
-# (A) xoa dong LUAT ma GIU clause -> phai DO; (B) go TRON clause ma giu luat ->
-# phai XANH (canh clause la viec cua P188).
-def xoa_luat_giu_clause(text, needle):
-    out, inside = [], False
-    for l in text.splitlines(keepends=True):
-        if "<<<GATE-INVITE-CLAUSE" in l: inside = True
-        if "GATE-INVITE-CLAUSE>>>" in l:
-            inside = False
-            out.append(l)
-            continue
-        if not inside and needle in l: continue
-        out.append(l)
-    return "".join(out)
-for name, needle, err in (
-    ("chi-bao", "KHÔNG đeo khối", "thieu luat chi-bao"),
-    ("cam-dau-hoi", "câu tu từ", "cam cau tu tu"),
-):
-    mutated = xoa_luat_giu_clause(law, needle)
-    assert mutated != law, "dot bien lop-luat '" + name + "' khong tac dung"
-    mc = RXC.search(mutated)
-    assert mc and needle in mc.group(1), "sanity hong: clause phai con nguyen va con mang chuoi neo"
-    print("SANITY-CO-LAP-LUAT-" + name + ": clause con nguyen trong ban dot bien")
-    got = check(mutated)
-    assert any(err in x for x in got), \
-        "MUTANT-lop-luat-" + name + " khong bi bat — vung do van an clause (lo r3), checker tra: " + repr(got)
-    print("MUTANT-lop-luat-" + name + ": xoa luat GIU clause -> check() DO ghim '" + err + "'")
-mut_clause = RXC.sub("", law)
-assert mut_clause != law and not RXC.search(mut_clause), "dot bien lop-clause khong tac dung"
-got = check(mut_clause)
-assert got == [], "check() DO khi clause vang — vung do van dinh vao lop kia: " + repr(got)
-print("CO-LAP-CLAUSE-OK: marker GATE-INVITE-CLAUSE da vang trong ban dot bien, check() van 0 loi — vung do P189 khong an clause")
-print("P189 OK (5 chuan; 5 mutant chuan + 2 mutant co-lap-lop DO dung thong diep + 1 doi chung co-lap XANH, tat ca qua checker that)")
-PY
-
 # ── P185: khoi VIEC-CUA-ANH tren the Cong 1 (2 nhanh status: draft + approved) ──
 # Chuan khoi (chip (2) kit 2.1): 3 ve lam-gi/o-dau/tra-loi-dang-gi + mau gop
 # MOT dong; vi tri la QUAN HE (sau than the, truoc hang nut) chu khong phai
@@ -9494,7 +9390,7 @@ clause = block("GATE-ONESHOT-CLAUSE", law).strip()
 assert clause and "\n" not in clause, "clause phai la MOT dong khong rong"
 # AC-4: hai cau neo phai nam TRONG dieu khoan (khong-mo-duong-may + ket-khoi)
 assert "câu gộp là câu NGƯỜI gõ" in clause, "clause thieu cau neo khong-mo-duong-may"
-assert "kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE" in clause, "clause thieu cau neo ket-khoi VIEC CUA ANH"
+assert "Đầu ra theo bản luật ngôn ngữ mặt người." in clause, "clause thieu cau neo dau-ra-theo-ban-luat"
 def doc_manifest(law_text):
     decl = {}
     for line in block("GATE-ONESHOT-SITES", law_text).splitlines():

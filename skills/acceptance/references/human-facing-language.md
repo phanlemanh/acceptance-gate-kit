@@ -119,54 +119,37 @@ Hai harness chép nguyên văn, không tự diễn đạt.
 Điểm quyết định vượt ngưỡng N5 thì kèm hình; chọn cách vẽ bằng bảng tra `DECISION-DIAGRAM-SURFACES` theo mặt phẳng đang trình, và kiểm lại bằng phép thử nhìn-thấy-hình.
 <!-- LOOP-PICTURE-CLAUSE>>> -->
 
-## Khối "👉 VIỆC CỦA ANH" — lời-gọi-hành-động chuẩn
+## Mời cổng — hỏi như đồng nghiệp
 
 Đề bài gốc: sổ vấp 2026-08-10 (hành vi owner #8) — việc-cần-làm rải giữa thân
-bài, câu tu từ lẫn câu hỏi thật, không nói trả-lời-dạng-gì. Khối sống ở đúng
-HAI chỗ: tin mời cổng và thẻ cổng (thẻ render khối bằng máy —
-`scripts/gate-card.js`, cả ba mode; tin do phiên viết theo khuôn). Bắt mọi tin
-đeo khối biến nó thành nhiễu nền — người thôi phân biệt được lúc nào thật sự
-tới lượt mình (hồ sơ doi-hanh-vi-cong-nguoi, owner gạch 12/08):
-
-<!-- <<<YOUR-MOVE-BLOCK-TEMPLATE -->
-👉 VIỆC CỦA ANH
-1. <làm gì — một hành động, chủ ngữ là người> — ở đâu: <phiên/thẻ/file cần mở> — trả lời dạng: «<khuôn câu trả lời>»
-2. <mục kế, cùng ba vế; mỗi việc một dòng, đúng thứ tự cần trả lời>
-Trả lời mẫu (một dòng, điền vào chỗ trống): «<mã mục 1>: ___; <mã mục 2>: ___»
-<!-- YOUR-MOVE-BLOCK-TEMPLATE>>> -->
-
-Luật đi kèm khuôn:
-
-- Ba vế là bắt buộc từng mục: làm gì · ở đâu · trả lời dạng gì. Câu mẫu
-  trả-lời-gộp nằm trên MỘT dòng.
-- **Câu mẫu là KHUÔN DẠNG có chỗ trống, KHÔNG phải câu trả lời điền sẵn.** Máy
-  nêu mã mục và các ngả chọn được; máy KHÔNG BAO GIỜ điền sẵn lựa chọn, verdict
-  hay chữ "đồng ý/Đạt/Ký" thay người — kể cả khi chính máy đã đề xuất một ngả ở
-  chỗ khác trên cùng trang. Vì sao đặt bất biến ở đây thay vì sửa từng bộ dựng:
-  kit khoá không cho máy GỌI thao tác cổng (ADR 0002), nên để máy viết sẵn câu
-  TRẢ LỜI của người tại cổng là vòng qua chính khoá đó — đường rẻ nhất cho một
-  người đang mệt vòng lặp là dán nguyên dòng, và dòng đó có nghĩa "đồng ý mọi
-  thứ + ký". Ca thật: thẻ Cổng 2 của chip khối-việc-của-anh từng render
-  «Ngoài-1 ghi Known limits; E9 Đạt; đồng ý cắt; phê hết quyết định treo; Ký»
-  trong khi E9 là mục máy vừa tự khai "chưa chắc, cần mắt người" (S4-r2).
-- Tin CHỈ-BÁO — không có việc cho người — KHÔNG đeo khối: kết tin bằng một
-  câu nói thẳng máy đang làm gì tiếp.
-- CẤM câu tu từ mang dấu hỏi: mọi dấu hỏi trong tin phải thuộc một mục việc
-  có "trả lời dạng" khai sẵn.
-
-Câu dưới đây là bản gốc DUY NHẤT của điều khoản mời-cổng. Bốn bên dùng (vòng
-lặp tính năng hai harness, skill acceptance, lệnh thẻ) chép nguyên văn, không
-tự diễn đạt.
+bài. Chip ② (11/08) chữa bằng một khối cứng N-mục-ba-vế + «Trả lời mẫu» ở cuối
+mọi tin mời cổng; owner 16/08 gọi tên hệ quả: tin thành form, người điền hộ
+máy, «ok» hết là câu trả lời, ví dụ thật 5 quyết định lồng nhau + hỏi phút dù
+đã bỏ phút. Chẩn đoán: bảo hiểm cho một tin viết dở, trả phí ở mọi tin — nên
+BỎ khuôn, không thay khuôn (hồ sơ cat-khoi-viec-cua-anh-tren-tin). Câu dưới
+đây là bản gốc DUY NHẤT của điều khoản mời-cổng; các bên chép nguyên văn:
 
 <!-- <<<GATE-INVITE-CLAUSE -->
-Mọi tin mời cổng (duyệt hay ký) kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn `YOUR-MOVE-BLOCK-TEMPLATE` trong bản luật ngôn ngữ mặt người: mỗi mục đủ 3 vế làm-gì / ở-đâu / trả-lời-dạng-gì, kèm câu mẫu trả-lời-gộp MỘT dòng ở dạng khuôn có chỗ trống (máy không điền sẵn lựa chọn thay người). Khối chỉ sống ở tin mời cổng và trên thẻ cổng — tin chỉ-báo KHÔNG đeo khối, kết bằng một câu nói thẳng máy đang làm gì tiếp; cấm câu tu từ mang dấu hỏi.
+Mời cổng như đồng nghiệp hỏi: một câu hỏi đóng, nói ngả máy khuyên và vì sao, người trả lời một chữ là đủ, rồi nói máy làm gì tiếp; không khuôn, không ô trống, không mã bắt buộc — máy không viết sẵn câu trả lời của người và không hỏi phút.
 <!-- GATE-INVITE-CLAUSE>>> -->
 
+Ba luật âm đi kèm — không tốn một chữ nào trong tin, chỉ cấm:
+
+- **Máy không viết sẵn câu trả lời của người.** Máy được nêu ngả mình khuyên
+  kèm căn cứ; máy KHÔNG BAO GIỜ soạn hộ lời chấp thuận, verdict hay chữ ký
+  («đồng ý hết; Ký») để người dán lại — kit khoá không cho máy GỌI thao tác
+  cổng (ADR 0002), viết sẵn câu trả lời của người là vòng qua chính khoá đó (ca
+  thật: thẻ Cổng 2 vòng 2 chip ② từng in sẵn «E9 Đạt» cho mục máy vừa khai
+  «chưa chắc»).
+- **Máy không hỏi phút.** Kit thôi đo phút người (hồ sơ cat-hinh-thuc); vế
+  «phút» người quen tay gõ thì bỏ qua lặng.
+- **Tin chỉ-báo không hỏi.** Tin không có việc cho người thì kết bằng một câu
+  nói thẳng máy đang làm gì tiếp — không câu hỏi, không nhãn việc-của-anh.
+
 Danh sách dưới đây là các mặt mời-cổng NGUỒN — phạm vi do người quyết, nên nó
-được khai tay. Số sau mỗi đường dẫn là
-SỐ BẢN CHÉP PHẢI CÓ trong site đó (chip ②b): ít hơn hay nhiều hơn đều đỏ —
-thêm/bớt một chỗ mời-cổng là quyết định người, phải sửa số này cùng lượt;
-dòng thiếu số là lỗi kêu to, phép đo không tự đoán.
+được khai tay. Số sau mỗi đường dẫn là SỐ BẢN CHÉP PHẢI CÓ trong site đó: ít
+hơn hay nhiều hơn đều đỏ — thêm/bớt một chỗ mời-cổng là quyết định người, phải
+sửa số này cùng lượt; dòng thiếu số là lỗi kêu to, phép đo không tự đoán.
 
 <!-- <<<GATE-INVITE-SITES -->
 skills/acceptance/SKILL.md 2
@@ -209,7 +192,7 @@ trước, hỏi mở là đường cùng:
 
 - Câu gộp là câu NGƯỜI gõ — máy chỉ dạy khuôn có chỗ trống,
   không bao giờ điền sẵn lựa chọn, verdict hay chữ ký thay người
-  (cùng bất biến với khuôn YOUR-MOVE ở trên, cùng gốc ADR 0002).
+  (cùng bất biến với luật âm mời-cổng ở trên, cùng gốc ADR 0002).
 - Vắng câu gộp → lệnh hỏi từng bước như cũ (các câu hỏi còn lại đều là câu
   hỏi QUYẾT ĐỊNH); không trường ghi nào đổi tên, không trường nào thêm bắt
   buộc. Hai luật danh-tính và phút dưới đây áp cho CẢ đường từng-bước.
@@ -290,7 +273,7 @@ site khai ở manifest ngay dưới — thêm/bớt site hay bản chép là quy
 người, sửa manifest cùng lượt; dòng thiếu số là lỗi kêu to.
 
 <!-- <<<GATE-ONESHOT-CLAUSE -->
-Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người; tin mời cổng kết bằng đúng MỘT khối 👉 VIỆC CỦA ANH theo khuôn YOUR-MOVE-BLOCK-TEMPLATE, tin chỉ-báo không đeo khối mà nói thẳng máy đang làm gì tiếp.
+Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người.
 <!-- GATE-ONESHOT-CLAUSE>>> -->
 
 <!-- <<<GATE-ONESHOT-SITES -->

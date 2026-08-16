@@ -86,6 +86,10 @@ executors:
     # của trọn suite (suite xanh cả trên origin/main → không phân biệt được).
     p194_rang: "bash _acceptance/may-ganh-nguoi-quyet/p194-rang.sh"
     product_map: "node scripts/product-map.mjs --root . --check"
+    cat_khoi_rang_khuon: bash _acceptance/cat-khoi-viec-cua-anh-tren-tin/cat-khoi-rang.sh --chan khuon
+    cat_khoi_rang_clause: bash _acceptance/cat-khoi-viec-cua-anh-tren-tin/cat-khoi-rang.sh --chan clause
+    cat_khoi_rang_oneshot: bash _acceptance/cat-khoi-viec-cua-anh-tren-tin/cat-khoi-rang.sh --chan oneshot
+    cat_khoi_so_ca: bash _acceptance/cat-khoi-viec-cua-anh-tren-tin/cat-khoi-rang.sh --chan so-ca
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

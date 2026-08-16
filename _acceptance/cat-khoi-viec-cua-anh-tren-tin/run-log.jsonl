@@ -1,0 +1,7 @@
+{"ts":"2026-08-16T08:46:59Z","kind":"eval","run_id":"r-20260816T084213Z-16478","sha":"d3f59b0e3d79063c748914dabe9f49c974dc64f0","eval":"E1","cmd":"cat-khoi-rang.sh --chan khuon","exit_code":0}
+{"ts":"2026-08-16T08:46:59Z","kind":"eval","run_id":"r-20260816T084213Z-16478","sha":"d3f59b0e3d79063c748914dabe9f49c974dc64f0","eval":"E2","cmd":"cat-khoi-rang.sh --chan clause","exit_code":0}
+{"ts":"2026-08-16T08:46:59Z","kind":"eval","run_id":"r-20260816T084213Z-16478","sha":"d3f59b0e3d79063c748914dabe9f49c974dc64f0","eval":"E4","cmd":"cat-khoi-rang.sh --chan oneshot","exit_code":0}
+{"ts":"2026-08-16T08:46:59Z","kind":"eval","run_id":"r-20260816T084213Z-16478","sha":"d3f59b0e3d79063c748914dabe9f49c974dc64f0","eval":"E6","cmd":"cat-khoi-rang.sh --chan so-ca","exit_code":0}
+{"ts":"2026-08-16T08:46:59Z","kind":"eval","run_id":"r-20260816T084213Z-16478","sha":"d3f59b0e3d79063c748914dabe9f49c974dc64f0","eval":"E3","cmd":"bash tests/plugins/run-tests.sh","exit_code":0}
+{"ts":"2026-08-16T08:46:59Z","kind":"eval","run_id":"r-20260816T084213Z-16478","sha":"d3f59b0e3d79063c748914dabe9f49c974dc64f0","eval":"E7","cmd":"node scripts/product-map.mjs --root . --check","exit_code":0}
+{"ts":"2026-08-16T08:46:59Z","kind":"panel","run_id":"r-20260816T084213Z-16478","sha":"d3f59b0e3d79063c748914dabe9f49c974dc64f0","eval":"E5","verdict":"PASS","judged_by":"giam khao phien sach (subagent)"}
