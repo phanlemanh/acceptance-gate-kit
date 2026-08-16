@@ -63,3 +63,20 @@ file rồi commit riêng.
 
 Gật/cắt ranh giới lớp 1 / lớp 2 ở bảng trên; nếu gật, hồ sơ mở ngay sau khi
 `cat-khoi-viec-cua-anh-tren-tin` merge.
+
+## Bổ sung 16/08 (từ Ngoài-1 của hồ sơ cat-khoi-viec-cua-anh-tren-tin) — gộp thành vòng «cổng chặn nhầm chỗ»
+
+**Phát hiện thật trên vật thật:** làn V (máy đi trước, `veto_state: mo`,
+`approved_by` rỗng) được HOOK cho qua (`lib/evidence-core.cjs`
+`evaluateContractWrite`) nhưng **`scripts/pre-merge-check.sh` (~dòng 578–590,
+luật Gate-1 approval) vẫn VIOLATION** khi `status ∈ {implemented, verified,
+signed-off}` mà `approved_by` rỗng và không `gate1_skipped`. Nghĩa là mọi hồ
+sơ T2 đi đúng đường đợt 2 đều bị chặn ở biên merge và phải xin owner «duyệt
+tay» — chính là trạm thu phí mà đợt 2 dựng để gỡ. Hồ sơ cat-khoi đã qua bằng
+đường xử «owner duyệt tay approved_by» (khai trong luật veto-trace).
+
+**Việc của vòng gộp:** (1) pre-merge Gate-1 rule đọc `vetoGateState` như hook —
+`mo` + vết parse được + T2 ⇒ NOTE, không VIOLATION; (2) gỡ lớp 2 chữ ký như
+trên; (3) một cặp fixture code-sinh qua CHÍNH pre-merge cho cả hai (chiều đỏ:
+T3 + `mo` vẫn phải VIOLATION; `da-veto` chưa xử vẫn VIOLATION). Đây là hồ sơ
+T3 (đụng `scripts/pre-merge-check.sh` + `hooks/`), một vòng, đảo bằng git.
