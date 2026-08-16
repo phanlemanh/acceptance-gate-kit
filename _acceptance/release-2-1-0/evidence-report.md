@@ -165,6 +165,11 @@ human_signoff:
 
 - Round 1: 11/11 eval đạt (10 máy + 1 hội đồng PASS). Một lượt sửa cơ học giữa vòng: W-G8 (parser evals) đọc dòng `inputs:   # chú thích` thành scalar → chuyển chú thích lên dòng riêng, nội dung eval không đổi.
 
+### Re-pin lần 1 — 2026-08-16, do bổ sung dòng cài diagram-design vào QUICKSTART/GUIDE/README sau mốc verify (kiểm tra tự-cài lần đầu)
+
+run_id: r-20260816T153623Z-9340
+sha: 0a1f8ef84c744ed57dd5fa8c71643579b501038a · suites: 4 lệnh exit 0 (+ 4 chân răng release chạy lại XANH)
+
 ## Analyst
 
 Phản biện sạch bắt 4 P1 + 1 P2 trước Cổng 1, tất cả sửa trong artifact: vế
@@ -184,11 +189,6 @@ nên cache có thêm 2,8 MB; (3) đường đọc-cũ symlink cá nhân + plugin
 đôi, §5 dặn gỡ symlink, không phép đo nào canh máy đồng đội.
 
 ## Known limits
-
-### Re-pin lần 1 — 2026-08-16, do bổ sung dòng cài diagram-design vào QUICKSTART/GUIDE/README sau mốc verify (kiểm tra tự-cài lần đầu)
-
-run_id: r-20260816T153623Z-9340
-sha: 0a1f8ef84c744ed57dd5fa8c71643579b501038a · suites: 4 lệnh exit 0 (+ 4 chân răng release chạy lại XANH)
 
 ## Variance
 
