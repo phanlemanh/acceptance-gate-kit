@@ -10,7 +10,11 @@ nào — trong hay ngoài hợp đồng.
 
 ## Ngoài hợp đồng
 
-(rỗng)
+- **Làn V không qua nổi lưới trước-merge: hook cho đi, pre-merge chặn**
+  file: `scripts/pre-merge-check.sh`
+  severity: P1
+  Đề xuất: new-contract
+  Người dùng thấy gì: Đường «máy đi trước, người giữ quyền phủ quyết» mở ở một chỗ nhưng khoá ở chỗ khác, nên hồ sơ nào thật sự đi đường đó đều bị chặn ở biên merge và vẫn phải xin một chữ duyệt.
 
 ## Biên bản hội đồng (E5)
 
