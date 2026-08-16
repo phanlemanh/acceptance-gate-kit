@@ -5,7 +5,7 @@ round: 1
 verdict: PASS
 verified_commit: d3f59b0e3d79063c748914dabe9f49c974dc64f0
 verified_at: 2026-08-16T08:46:59Z
-human_signoff:
+human_signoff: Manh Phan 2026-08-16
 ---
 
 # Evidence Report — cat-khoi-viec-cua-anh-tren-tin (round 1)

@@ -5,9 +5,9 @@ slug: cat-khoi-viec-cua-anh-tren-tin
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
-approved_by: ""
-approved_at: ""
+status: signed-off
+approved_by: Manh Phan
+approved_at: 2026-08-16
 veto_state: mo
 veto_opened_at: 2026-08-16T08:25:40Z
 ---
