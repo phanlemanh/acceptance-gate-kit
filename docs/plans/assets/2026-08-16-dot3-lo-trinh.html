@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đợt 3 — lộ trình nghiệm trên vật thật</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --paper:#f5f5f5; --ink:#2d3142; --muted:#4f5d75; --soft:#636b80; --rule:rgba(45,49,66,0.12); --accent:#eb6c36; --accent-text:#ba4513;
+      --sans:'Geist',system-ui,sans-serif; --serif:'Instrument Serif',serif; --mono:'Geist Mono',ui-monospace,monospace; }
+    body { font-family:var(--sans); background:var(--paper); color:var(--ink); padding:2rem; display:flex; justify-content:center; }
+    .frame { max-width:1000px; width:100%; }
+    .eyebrow { font-family:var(--mono); font-size:0.66rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); margin-bottom:0.5rem; }
+    h1 { font-family:var(--serif); font-weight:400; font-size:1.75rem; letter-spacing:-0.02em; line-height:1.15; margin-bottom:1rem; }
+    svg { width:100%; min-width:720px; display:block; }
+    .read { margin-top:1rem; font-size:0.9rem; line-height:1.5; }
+    .read li { margin-left:1.2rem; margin-bottom:0.25rem; }
+    .colophon { margin-top:1rem; padding-top:0.5rem; border-top:1px solid var(--rule); font-family:var(--mono); font-size:0.66rem; color:var(--soft); }
+  </style>
+</head>
+<body>
+<div class="frame">
+  <p class="eyebrow">Flowchart · Đề bài đợt 3 · bản neo 12/08</p>
+  <h1>Đợt 3: không lắp gì thêm — chỉ chạy luật mới trên việc thật và đếm</h1>
+
+  <svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+      <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+    </defs>
+    <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+    <!-- arrows first (all axis-aligned or elbowed r=8) -->
+    <!-- row 1: release -> update -> vòng 1 -> vòng 2 -->
+    <line x1="220" y1="100" x2="256" y2="100" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+    <line x1="440" y1="100" x2="476" y2="100" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+    <line x1="660" y1="100" x2="696" y2="100" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+    <!-- vòng 2 -> retro (down) -->
+    <line x1="790" y1="120" x2="790" y2="184" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+    <!-- retro -> diamond (down) -->
+    <line x1="790" y1="224" x2="790" y2="276" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+    <!-- diamond yes -> left (mở hàng đợi), accent -->
+    <line x1="680" y1="320" x2="596" y2="320" stroke="#eb6c36" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+    <rect x="620" y="300" width="24" height="12" rx="2" fill="#f5f5f5"/>
+    <text x="632" y="309" fill="#ba4513" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+    <!-- diamond no -> down (một hồ sơ sửa) -->
+    <line x1="790" y1="364" x2="790" y2="416" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+    <rect x="802" y="376" width="40" height="12" rx="2" fill="#f5f5f5"/>
+    <text x="822" y="385" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+    <!-- sửa -> vòng 3 (loop back to vòng 2 box, elbow: left then up), dashed -->
+    <path d="M 880 436 H 932 a8 8 0 0 0 8 -8 V 108 a8 8 0 0 0 -8 -8 H 884" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+    <rect x="908" y="236" width="76" height="12" rx="2" fill="#f5f5f5"/>
+    <text x="946" y="245" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐO LẠI · VÒNG 3</text>
+
+    <!-- nodes -->
+    <!-- 1 release -->
+    <rect x="40" y="80" width="180" height="40" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+    <text x="130" y="97" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Phát hành 2.1.0</text>
+    <text x="130" y="111" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">làn V · 0 lượt owner ngoài merge</text>
+    <!-- 2 update -->
+    <rect x="260" y="80" width="180" height="40" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+    <text x="350" y="97" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Repo tiêu thụ nhận bản mới</text>
+    <text x="350" y="111" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">gỡ + cài lại · phiên mới</text>
+    <!-- 3 vòng 1 -->
+    <rect x="480" y="80" width="180" height="40" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+    <text x="570" y="97" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Vòng thật 1 (T2)</text>
+    <text x="570" y="111" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">owner chọn việc · máy ghi sổ</text>
+    <!-- 4 vòng 2 -->
+    <rect x="700" y="80" width="180" height="40" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+    <text x="790" y="97" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Vòng thật 2 (T2)</text>
+    <text x="790" y="111" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">cùng cách đếm</text>
+    <!-- 5 retro -->
+    <rect x="700" y="184" width="180" height="40" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+    <text x="790" y="201" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Retro bằng dao trace</text>
+    <text x="790" y="215" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">mỗi lượt gọi → nguyên tố nào?</text>
+    <!-- 6 diamond -->
+    <polygon points="790,276 900,320 790,364 680,320" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+    <text x="790" y="316" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">M1 ≤ 1 và M2 sạch?</text>
+    <text x="790" y="332" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">0 vấp S4-sót</text>
+    <!-- 7 mở hàng đợi (accent) -->
+    <rect x="392" y="296" width="200" height="48" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.2"/>
+    <text x="492" y="316" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Đợt 3 xong — mở lại hàng đợi</text>
+    <text x="492" y="332" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">ô nuốt luật · reflect 2.1 · chip ④–⑦</text>
+    <!-- 8 một hồ sơ sửa -->
+    <rect x="700" y="416" width="180" height="40" rx="6" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+    <text x="790" y="433" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">MỘT hồ sơ sửa chỗ chặn</text>
+    <text x="790" y="447" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">không phải chip · không thêm cơ chế</text>
+
+    <!-- legend -->
+    <line x1="30" y1="500" x2="970" y2="500" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+    <text x="30" y="520" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+    <rect x="120" y="512" width="20" height="10" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="0.8"/>
+    <text x="148" y="520" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">bước máy làm, owner chỉ nhìn</text>
+    <polygon points="332,512 344,517 332,522 320,517" fill="#ffffff" stroke="#2d3142" stroke-width="0.8"/>
+    <text x="352" y="520" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">điều kiện ra, đọc từ số</text>
+    <rect x="500" y="512" width="20" height="10" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="0.8"/>
+    <text x="528" y="520" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">chỉ mở SAU khi có số</text>
+    <line x1="700" y1="517" x2="740" y2="517" stroke="#4f5d75" stroke-width="1" stroke-dasharray="5,4"/>
+    <text x="748" y="520" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">vòng đo lại nếu không đạt</text>
+  </svg>
+
+  <ul class="read">
+    <li>Hàng trên là bốn bước nối tiếp; bước đầu — phát hành 2.1.0 — vừa là điều kiện vào vừa là <em>phép đo M1 đầu tiên</em>: một hồ sơ T2 xanh-sạch phải qua biên merge mà không gọi owner lượt nào ngoài bấm merge.</li>
+    <li>Hai vòng thật do owner tự chọn việc như bình thường; máy chỉ ghi sổ và đếm. Sau vòng hai, retro bằng dao trace: mỗi lượt gọi phải trace về một trong ba nguyên tố, không trace được là hình thức.</li>
+    <li>Ô cam bên trái là cửa duy nhất mở hàng đợi chip mới; nét đứt bên phải là đường đo lại nếu số không đạt — sửa đúng một chỗ chặn rồi đo vòng ba, không lắp thêm cơ chế.</li>
+  </ul>
+  <p class="colophon">Nguồn chữ: docs/plans/2026-08-16-de-bai-dot3-nghiem-tren-vat-that.md §1–§4 · bản neo docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md §3 · nhánh docs/tong-ket-va-de-bai-dot3. Hình là chiếu của nguồn chữ; sửa ở nguồn rồi vẽ lại.</p>
+</div>
+</body>
+</html>
