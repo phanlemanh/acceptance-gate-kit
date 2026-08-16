@@ -542,6 +542,7 @@ claude plugin marketplace add phanlemanh/acceptance-gate-kit
 claude plugin install acceptance-gate@acceptance-gate-kit
 claude plugin install feature-loop@acceptance-gate-kit      # vòng lặp trọn gói
 claude plugin install superpowers@claude-plugins-official   # dependency của feature-loop
+claude plugin install diagram-design@acceptance-gate-kit    # bộ vẽ hình cho thẻ/kế hoạch (tuỳ chọn, cài riêng được)
 ```
 
 Sau khi cài, **mở phiên Claude Code mới** để runtime nạp plugin. Khi runtime hook
@@ -553,6 +554,7 @@ nhau (verifier bị chặn "oan", feature lọt eval). Chạy khi có release ho
 ```bash
 claude plugin update acceptance-gate@acceptance-gate-kit
 claude plugin update feature-loop@acceptance-gate-kit
+claude plugin update diagram-design@acceptance-gate-kit     # nếu đã cài
 ```
 
 ### 5.2 Mỗi repo (một lần)

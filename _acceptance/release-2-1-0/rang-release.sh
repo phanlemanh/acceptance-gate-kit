@@ -92,7 +92,7 @@ if [ -z "$CHAN" ] || [ "$CHAN" = "diff-allowlist" ]; then
   kiem_diff(){ # <danh sách file, mỗi dòng một> → in từng file lạ
     while IFS= read -r f2; do [ -n "$f2" ] || continue
       case "$f2" in
-        .claude-plugin/plugin.json|feature-loop/.claude-plugin/plugin.json|.claude-plugin/marketplace.json|GUIDE.md|README.md|PRODUCT-MAP.md|_acceptance/config.yaml|_acceptance/release-2-1-0/*|diagram-design/*|docs/reference/DIAGRAM-RULE.md|docs/reference/diagram-skin.md|tests/plugins/run-tests.sh|docs/plans/*|docs/findings/*) ;;
+        .claude-plugin/plugin.json|feature-loop/.claude-plugin/plugin.json|.claude-plugin/marketplace.json|GUIDE.md|README.md|QUICKSTART.md|PRODUCT-MAP.md|_acceptance/config.yaml|_acceptance/release-2-1-0/*|diagram-design/*|docs/reference/DIAGRAM-RULE.md|docs/reference/diagram-skin.md|tests/plugins/run-tests.sh|docs/plans/*|docs/findings/*) ;;
         *) printf 'LA|%s\n' "$f2" ;;
       esac
     done; }

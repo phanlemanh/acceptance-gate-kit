@@ -71,7 +71,7 @@ evals:
     expected: >
       Mọi file trong diff origin/main...HEAD thuộc allowlist ĐÓNG khai trong
       rang-release.sh (contract trỏ về đây): 3 manifest · marketplace · GUIDE ·
-      README · PRODUCT-MAP · _acceptance/config.yaml · _acceptance/release-2-1-0/* ·
+      README · QUICKSTART · PRODUCT-MAP · _acceptance/config.yaml · _acceptance/release-2-1-0/* ·
       diagram-design/* · docs/reference/DIAGRAM-RULE.md · docs/reference/diagram-skin.md
       · tests/plugins/run-tests.sh · docs/plans/* · docs/findings/*; diff rỗng đỏ.
       Hai chân âm: run-tests.sh diff chỉ dòng '+' (0 dòng '-' thật) → in

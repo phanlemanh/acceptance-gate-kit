@@ -63,6 +63,7 @@ gate rule-sets:
 ```bash
 claude plugin update acceptance-gate@acceptance-gate-kit
 claude plugin update feature-loop@acceptance-gate-kit
+claude plugin update diagram-design@acceptance-gate-kit   # if installed
 ```
 
 > **Enforcement note.** Write-time hook behavior depends on the active agent

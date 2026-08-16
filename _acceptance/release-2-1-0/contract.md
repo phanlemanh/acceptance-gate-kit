@@ -55,7 +55,7 @@ Source input: đề bài đợt 3 `docs/plans/2026-08-16-de-bai-dot3-nghiem-tren
   đường đi khi E7 trả UNCERTAIN khai ở AC-7; gap-probe P1.)
 - AC-5: Given diff của nhánh release so với base, When lọc qua allowlist ĐÓNG
   khai MỘT chỗ trong bộ răng (contract trỏ eval, không khai lại): 3 manifest ·
-  marketplace · GUIDE · README · PRODUCT-MAP · `_acceptance/config.yaml` ·
+  marketplace · GUIDE · README · QUICKSTART · PRODUCT-MAP · `_acceptance/config.yaml` ·
   `_acceptance/release-2-1-0/*` · `diagram-design/*` ·
   `docs/reference/DIAGRAM-RULE.md` · `docs/reference/diagram-skin.md` ·
   `tests/plugins/run-tests.sh` · `docs/plans/*` · `docs/findings/*` — Then
