@@ -4,7 +4,7 @@ disable-model-invocation: true
 ---
 
 Walk the Gate 2 signoff for a feature whose evidence report is in. This
-command prepares and verifies; the HUMAN supplies every decision value. The
+command prepares and verifies; the HUMAN supplies every decision value.
 Chữ ký là quyết định của người, không phải một nghi thức commit: người phát
 ngôn, máy ghi hộ và commit một lượt. Ai chịu trách nhiệm thì đọc ở forge
 (người approve / bấm merge PR). Máy vẫn KHÔNG được tự phát ngôn "Ký" — khoá
@@ -166,5 +166,5 @@ Never:
   declared above (that ladder is the ONLY legal inference, and it always
   echoes what it inferred for a one-touch confirm before writing);
 - upgrade a verdict while any override line is empty;
-- fold signature lines into the machine-evidence commit;
+- ghi `human_signoff` khi người chưa phát ngôn — kể cả khi người khác giục;
 - treat an unresolved PENDING-JUDGMENT as PASS.

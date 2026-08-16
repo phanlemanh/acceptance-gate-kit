@@ -1,0 +1,11 @@
+{"ts":"2026-08-16T11:08:38Z","kind":"eval","run_id":"r-20260816T110004Z-22587","sha":"2f8de63ab4868608b7572e3d711e198af3669325","eval":"E1","cmd":"ccnc-rang.sh --chan lan-v","exit_code":0}
+{"ts":"2026-08-16T11:08:38Z","kind":"eval","run_id":"r-20260816T110004Z-22587","sha":"2f8de63ab4868608b7572e3d711e198af3669325","eval":"E2","cmd":"ccnc-rang.sh --chan lan-v-do","exit_code":0}
+{"ts":"2026-08-16T11:08:38Z","kind":"eval","run_id":"r-20260816T110004Z-22587","sha":"2f8de63ab4868608b7572e3d711e198af3669325","eval":"E3","cmd":"ccnc-rang.sh --chan provenance","exit_code":0}
+{"ts":"2026-08-16T11:08:38Z","kind":"eval","run_id":"r-20260816T110004Z-22587","sha":"2f8de63ab4868608b7572e3d711e198af3669325","eval":"E4","cmd":"ccnc-rang.sh --chan giu-cho","exit_code":0}
+{"ts":"2026-08-16T11:08:38Z","kind":"eval","run_id":"r-20260816T110004Z-22587","sha":"2f8de63ab4868608b7572e3d711e198af3669325","eval":"E5","cmd":"ccnc-rang.sh --chan nghi-le","exit_code":0}
+{"ts":"2026-08-16T11:08:38Z","kind":"eval","run_id":"r-20260816T110004Z-22587","sha":"2f8de63ab4868608b7572e3d711e198af3669325","eval":"E6","cmd":"ccnc-rang.sh --chan clause","exit_code":0}
+{"ts":"2026-08-16T11:08:38Z","kind":"eval","run_id":"r-20260816T110004Z-22587","sha":"2f8de63ab4868608b7572e3d711e198af3669325","eval":"E9","cmd":"ccnc-rang.sh --chan so-ca","exit_code":0}
+{"ts":"2026-08-16T11:08:38Z","kind":"eval","run_id":"r-20260816T110004Z-22587","sha":"2f8de63ab4868608b7572e3d711e198af3669325","eval":"E11","cmd":"ccnc-rang.sh --chan chieu-ghi","exit_code":0}
+{"ts":"2026-08-16T11:08:38Z","kind":"eval","run_id":"r-20260816T110004Z-22587","sha":"2f8de63ab4868608b7572e3d711e198af3669325","eval":"E10","cmd":"ccnc-rang.sh --chan adr","exit_code":0}
+{"ts":"2026-08-16T11:08:38Z","kind":"eval","run_id":"r-20260816T110004Z-22587","sha":"2f8de63ab4868608b7572e3d711e198af3669325","eval":"E7","cmd":"bash tests/plugins/run-tests.sh","exit_code":0}
+{"ts":"2026-08-16T11:08:38Z","kind":"panel","run_id":"r-20260816T110004Z-22587","sha":"2f8de63ab4868608b7572e3d711e198af3669325","eval":"E8","verdict":"PASS","judged_by":"giam khao phien sach (subagent)"}
