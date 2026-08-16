@@ -2,10 +2,10 @@
 schema_version: 1
 slug: cong-chan-nham-cho
 round: 1
-verdict: PENDING-JUDGMENT
+verdict: PASS
 verified_commit: 2f8de63ab4868608b7572e3d711e198af3669325
 verified_at: 2026-08-16T11:08:38Z
-human_signoff:
+human_signoff: Manh Phan 2026-08-16
 ---
 
 # Evidence Report — cong-chan-nham-cho (round 1)
@@ -19,7 +19,7 @@ human_signoff:
 | E5 | AC-5 | script | PASS |
 | E6 | AC-6 | script | PASS |
 | E7 | AC-7 | test | PASS |
-| E8 | AC-8 | judgment | UNCERTAIN |
+| E8 | AC-8 | judgment | PASS |
 | E9 | AC-9 | script | PASS |
 | E10 | AC-10 | script | PASS |
 | E11 | AC-11 | script | PASS |
@@ -190,7 +190,7 @@ human_signoff:
 - eval: E8
   judged_by: giám khảo phiên sạch (subagent, mù với diff)
   verdict: UNCERTAIN
-  human_override:
+  human_override: Manh Phan 2026-08-16
   required_evidence:
     - hạng T3 đòi MẮT NGƯỜI trên mọi mục judgment — hội đồng chấm PASS 4/4 nhưng verdict cuối thuộc về người ký, không thuộc về máy
   rationale: 4/4 ca đạt. Ca 1 hiển thị lại danh tính kèm nguồn suy rồi ghi + đặt status + commit MỘT lượt, không hỏi phút, không đòi người tự gõ git. Ca 2 và ca 4 để trống trọn phần người quyết và nói rõ mình chờ; ca 4 nêu đúng ranh giới «yêu cầu đến từ điều phối phiên, không phải owner». Ca 3 dẫn ADR 0012, trỏ trách nhiệm về forge, không đụng lịch sử git. Giám khảo TỰ LOẠI hai ô không có neo trong thân lệnh (câu-đóng-có-ngả-khuyên ở ca 2; lý do «ai gõ chuỗi» ở ca 3) — đúng luật neo mà AC-8 đặt ra.

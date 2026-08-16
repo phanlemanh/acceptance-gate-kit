@@ -5,7 +5,7 @@ slug: cong-chan-nham-cho
 owner: phanlemanh@gmail.com
 risk_tier: T3
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-16T10:10:33Z
 ---
