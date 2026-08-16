@@ -1,9 +1,27 @@
 # Hạt giống — hình sống TRONG hồ sơ, vẽ bằng ổ cắm skill của repo
 
-*Trạng thái: **HẠT GIỐNG, chờ Cổng 0**. Sinh 15/08 khi mở phiên theo dõi vòng
-`trang-tu-van-v2-r4` (artifact-platform), owner giao hai việc: chạy thật bước 0
-trên Kit 2.0 và tích hợp skill `diagram-design` vào vòng lặp. File này gom
-phần THỨ HAI; phần thứ nhất ghi ở sổ vấp + memory.*
+*Trạng thái: **ỨNG VIÊN CHO LẦN NÂNG CẤP KIT KẾ — owner tuyên 15/08** («tôi
+muốn đưa phần này vào kit trong lần nâng cấp kit sắp tới»). Sinh 15/08 khi mở
+phiên theo dõi vòng `trang-tu-van-v2-r4` (artifact-platform). Nguồn luật ở
+phía repo tiêu thụ: `artifact-platform/docs/reference/DIAGRAM-RULE.md`
+(commit `55649288c`, Manh chốt 15/08) — file này chỉ nói phần nào của luật ấy
+thuộc KIT và cắm vào đâu; không chép lại luật.*
+
+## Nguồn luật và ranh giới kit / repo
+
+`DIAGRAM-RULE.md` có 6 mục. Phép thử kit-là-engine («thứ phải chép sang repo
+thứ hai, hoặc vô nghĩa với công ty khác dùng kit, thì không thuộc kit») chia
+chúng làm hai:
+
+| Mục của DIAGRAM-RULE | Vào KIT? | Vì sao |
+|---|---|---|
+| §1 hình là CHIẾU, chữ là NGUỒN; bảng «hình làm được / chữ làm được» | **Có** — vào `human-facing-language.md`, mục «Hình tại điểm quyết định» | bất biến kiến trúc, đúng với mọi repo; nó là lý do hình không bao giờ thành nguồn sự thật |
+| §2 ba tầng theo tuổi thọ + luật một chiều (tầng 3 sinh từ tầng 2, sửa ở nguồn rồi in lại) | **Có** — thay cho bảng tra hiện tại chỉ biết «mặt phẳng» mà chưa biết «tuổi thọ» | tuổi thọ mới là thứ quyết định hình có phải qua PR + cổng hay không |
+| §3 kết hợp: chữ đủ đứng một mình · 3–5 dòng «cách đọc» · colophon nguồn + commit · danh sách MIỄN VẼ | **Có** (trừ ràng buộc kỹ thuật ≤9 node… — đó là luật của bộ vẽ, ở lại trong skill) | miễn-vẽ là chốt chống loãng, đúng tinh thần «chỉ TRỪ»; colophon là đường truy về nguồn |
+| §4 bổ sung, không thay thế | **Có, dưới dạng ràng buộc của chính hồ sơ này** | không đổi khuôn hồ sơ xưởng, không thêm bước vào 4 cổng — chỉ thêm chỗ đứng cho hình |
+| §5 kho skill cá nhân, symlink, lệnh clone | **Không** — kit chỉ có **ổ cắm** `feature_loop.diagram_skill` | đường dẫn máy của một người; công ty khác cắm bộ vẽ khác |
+| §6 luật phải sống trong repo, không trong trí nhớ | **Có, làm luật cho chính kit**: bản gốc trong `references/`, trí nhớ chỉ là con trỏ | cùng lớp lỗi kit đã ghi (sổ quyết định trên nhánh chết) |
+| Câu trích lời owner («tôi tư duy bằng đồ hoạ») | **Không** | thuộc handbook người/đội, không thuộc engine |
 
 ## Thiếu gì
 
@@ -68,34 +86,42 @@ thật mà hồ sơ chữ không có (luật §1 của `figures/README.md`).
   được mở, phải khai TRƯỚC câu này hoặc trả lời nó bằng mặc định (repo có
   design token thì skill tự tìm).
 
-## Thiết kế nhỏ nhất (đề xuất, chọn tại Cổng 0)
+## Thiết kế nhỏ nhất (chốt chi tiết tại Cổng 0 của hồ sơ nâng cấp)
 
-**Chỉ hai chỗ chạm, cùng một file + một dòng GUIDE:**
+**Một file luật + một dòng GUIDE + không bước mới:**
 
-1. `DECISION-DIAGRAM-SURFACES` thêm **một hàng**: mặt phẳng «Hồ sơ xưởng
-   (`_acceptance/<slug>/figures/`)» → vẽ bằng «trang HTML tự chứa, qua bộ vẽ
-   repo khai» → mặc định «khi hình phải sống qua PR + cổng: chiếu một mục của
-   opportunity/contract, kèm `README` khai *chiếu từ đâu*». Danh sách đóng
-   `DECISION-DRAW-MECHANISMS` thêm đúng cụm ấy. Kèm ba luật tầng-2 chép từ
-   `figures/README.md` (sửa ở nguồn · chữ đủ đứng một mình · bản in không phải
-   bản chính) — nhưng chỉ nếu ba luật ấy trace được: luật 2 là bất biến thật
-   (hình rơi rụng không được làm mất nghĩa), luật 1 và 3 là hệ quả — có thể gộp
-   thành một câu.
+1. `human-facing-language.md`, mục «Hình tại điểm quyết định»: (a) một câu
+   bất biến «hình là chiếu của nguồn chữ, không bao giờ là nguồn sự thật» kèm
+   bảng hình-làm-được / chữ-làm-được (§1); (b) bảng tra
+   `DECISION-DIAGRAM-SURFACES` đổi trục từ *mặt phẳng* sang **mặt phẳng ×
+   tuổi thọ** — thêm hàng «Hồ sơ xưởng (`_acceptance/<slug>/figures/`) · sống
+   cùng commit · qua PR + cổng · CHÍNH THỨC» và hàng «Bản in (Artifact) · sinh
+   từ hồ sơ, mang link + commit ngược, không sửa thẳng»; danh sách đóng
+   `DECISION-DRAW-MECHANISMS` thêm «trang HTML tự chứa trong hồ sơ, qua bộ vẽ
+   repo khai»; (c) ba luật kết hợp (§3): chữ đủ đứng một mình · mỗi hình 3–5
+   dòng cách đọc + colophon nguồn+commit · **danh sách miễn vẽ** (tin trạng thái
+   một dòng · trả lời sự-kiện · xác nhận việc nhỏ). `LOOP-PICTURE-CLAUSE`
+   giữ nguyên chữ — nó đã trỏ về bảng tra.
 2. Ổ cắm `feature_loop.diagram_skill` (GUIDE bảng config, cạnh
-   `ui_standards_skill`): key CÓ → khi vẽ cho mặt phẳng hồ sơ xưởng thì gọi
-   skill ấy, KHÔNG tự chế HTML; key VẮNG → các cơ chế còn lại như cũ, không
-   chặn, không ghi chú (khác `ui_standards_skill`: vắng bộ vẽ không phải lỗ
-   chuẩn — hình vẫn vẽ được bằng mermaid/inline).
+   `ui_standards_skill`): key CÓ → khi vẽ cho hàng hồ sơ xưởng thì gọi skill
+   ấy, KHÔNG tự chế HTML; key VẮNG → các cơ chế còn lại như cũ, không chặn,
+   không ghi chú (khác `ui_standards_skill`: vắng bộ vẽ không phải lỗ chuẩn —
+   hình vẫn vẽ được bằng mermaid/inline). GUIDE dặn repo chốt skin của bộ vẽ
+   MỘT LẦN khi khai key.
+3. Bản mẫu opportunity/contract: **không đổi ô nào** (§4); chỉ cho phép một
+   dòng trỏ «phụ lục hình: `figures/`» ở đầu hồ sơ nếu thư mục có.
 
 **Không làm:** không bắt buộc `figures/` cho mọi hồ sơ (N5 vẫn là ngưỡng
-kích hoạt, và ngưỡng đó đã có); không thêm bước vào feature-loop; không vendor
-skill; không đo «hình đẹp» — kit chỉ giữ chỗ đứng cho hình và cách chọn.
+kích hoạt); không thêm bước vào feature-loop; không vendor skill; không chép
+ngân sách ≤9 node/≤2 điểm nhấn (luật của bộ vẽ, ở lại trong skill); không đo
+«hình đẹp» — kit chỉ giữ chỗ đứng cho hình, cách chọn, và đường truy về nguồn.
 
-## Phép đo trước khi cộng — chạy trong chính vòng r4 (đang chạy)
+## Nghiệm trong chính vòng r4 (đang chạy) — để hồ sơ nâng cấp có ca thật
 
-Kit chỉ TRỪ không CỘNG, nên hạt giống này chỉ được mở nếu vòng r4 chứng được
-hình-trong-hồ-sơ **rút ngắn khoảnh khắc quyết**. Phiên theo dõi ghi tại mỗi
-cổng của bước 0 và bước 1:
+Owner đã quyết đưa vào kit; bảng này không còn là điều kiện mở mà là **ca
+thật để viết đáp án hội đồng** và để bắt lỗ (vd hình vẽ mà không ai mở, hoặc
+câu hỏi tại cổng vẫn trả lời bằng chữ dày). Phiên theo dõi ghi tại mỗi cổng
+của bước 0 và bước 1:
 
 | Cổng | Có hình trong hồ sơ? | Owner có tham chiếu hình khi trả lời? | Số lượt hỏi-đáp đến quyết | Có câu hỏi nào chỉ trả lời được nhờ hình? |
 |---|---|---|---|---|
@@ -104,10 +130,9 @@ cổng của bước 0 và bước 1:
 | Cổng 2 bước 0 | | | | |
 | Cổng 1 bước 1 | | | | |
 
-Điều kiện mở hồ sơ: ≥1 cổng có cột 5 = «có» **hoặc** owner nói thẳng hình
-giúp quyết; nếu qua cả bước 0 lẫn bước 1 mà không cột nào bật → hạt giống nằm
-yên, `figures/` vẫn hợp lệ như nếp riêng của repo tiêu thụ (không cần kit
-biết).
+Cột 5 bật ở cổng nào thì cổng đó là ca dương của đáp án hội đồng; cổng nào
+hình vẽ mà không ai mở là ca cho danh sách **miễn vẽ** (chốt chống loãng —
+phần TRỪ của hồ sơ này, không kém quan trọng hơn phần thêm).
 
 ## Ràng buộc
 
