@@ -189,6 +189,5 @@ nên cache có thêm 2,8 MB; (3) đường đọc-cũ symlink cá nhân + plugin
 
 none
 
-## Out of contract
+## Ngoài hợp đồng
 
-(rỗng)
