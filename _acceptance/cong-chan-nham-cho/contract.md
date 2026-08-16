@@ -198,6 +198,9 @@ hình thái (entry `descope`): danh sách bề mặt là máy-liệt (grep hai t
 
 ## Notes
 
+- Hình (tầng 2, DIAGRAM-RULE): `figures/01-lan-v-luoi-truoc-merge.html` (luật
+  Gate-1 sau sửa) · `figures/02-chu-ky-hai-lop.html` (năm lớp chữ ký, gỡ L4
+  thay L5). Hình là chiếu của contract/design — sửa ở đây rồi vẽ lại.
 - Răng hồ sơ neo `origin/main` cho đối chứng dương → không vào suite vĩnh
   viễn; các ca V01–V03/H01–H06 mới là lưới thường trực (răng-hồ-sơ chết theo
   merge, ADR 0011).

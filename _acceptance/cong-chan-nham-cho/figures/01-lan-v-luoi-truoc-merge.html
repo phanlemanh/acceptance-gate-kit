@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Làn V ở lưới trước-merge — sau sửa</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --paper:#f5f5f5; --ink:#2d3142; --muted:#4f5d75; --soft:#636b80; --rule:rgba(45,49,66,0.12); --accent:#eb6c36; --accent-text:#ba4513;
+      --sans:'Geist',system-ui,sans-serif; --serif:'Instrument Serif',serif; --mono:'Geist Mono',ui-monospace,monospace; }
+    body { font-family:var(--sans); background:var(--paper); color:var(--ink); padding:2rem 2rem; display:flex; justify-content:center; }
+    .frame { max-width:1000px; width:100%; }
+    .eyebrow { font-family:var(--mono); font-size:0.66rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); margin-bottom:0.5rem; }
+    h1 { font-family:var(--serif); font-weight:400; font-size:1.75rem; letter-spacing:-0.02em; line-height:1.15; margin-bottom:1rem; }
+    svg { width:100%; min-width:720px; display:block; }
+    .read { margin-top:1rem; font-size:0.9rem; line-height:1.5; color:var(--ink); }
+    .read li { margin-left:1.2rem; margin-bottom:0.25rem; }
+    .colophon { margin-top:1rem; padding-top:0.5rem; border-top:1px solid var(--rule); font-family:var(--mono); font-size:0.66rem; color:var(--soft); }
+  </style>
+</head>
+<body>
+<div class="frame">
+  <p class="eyebrow">Flowchart · Hồ sơ cong-chan-nham-cho · Cổng 1</p>
+  <h1>Luật «đã có chữ duyệt Cổng 1?» ở lưới trước-merge — sau khi sửa</h1>
+
+  <svg viewBox="0 0 1000 620" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+      <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+    </defs>
+    <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+    <!-- arrows first -->
+    <!-- start -> A -->
+    <line x1="500" y1="72" x2="500" y2="100" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+    <!-- A yes -> right (Đi tiếp) -->
+    <line x1="620" y1="140" x2="756" y2="140" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+    <rect x="672" y="120" width="24" height="12" rx="2" fill="#f5f5f5"/>
+    <text x="684" y="129" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+    <!-- A no -> B -->
+    <line x1="500" y1="180" x2="500" y2="216" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+    <rect x="512" y="188" width="40" height="12" rx="2" fill="#f5f5f5"/>
+    <text x="532" y="197" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+    <!-- B no -> left (chặn luật cũ) -->
+    <line x1="360" y1="260" x2="284" y2="260" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+    <rect x="300" y="240" width="40" height="12" rx="2" fill="#f5f5f5"/>
+    <text x="320" y="249" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+    <!-- B yes -> C -->
+    <line x1="500" y1="304" x2="500" y2="344" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+    <rect x="512" y="314" width="24" height="12" rx="2" fill="#f5f5f5"/>
+    <text x="524" y="323" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+    <!-- C yes -> right (NOTE, accent) -->
+    <line x1="660" y1="392" x2="756" y2="392" stroke="#eb6c36" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+    <rect x="692" y="372" width="24" height="12" rx="2" fill="#f5f5f5"/>
+    <text x="704" y="381" fill="#ba4513" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+    <!-- C no -> down (chặn làn V) -->
+    <line x1="500" y1="440" x2="500" y2="484" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+    <rect x="512" y="452" width="40" height="12" rx="2" fill="#f5f5f5"/>
+    <text x="532" y="461" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+
+    <!-- nodes -->
+    <!-- start oval -->
+    <rect x="400" y="32" width="200" height="40" rx="20" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+    <text x="500" y="56" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Hồ sơ tới biên merge</text>
+
+    <!-- A diamond -->
+    <polygon points="500,100 620,140 500,180 380,140" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+    <text x="500" y="144" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Đã có chữ duyệt Cổng 1?</text>
+
+    <!-- Đi tiếp (plain) -->
+    <rect x="760" y="120" width="160" height="40" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+    <text x="840" y="144" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Đi tiếp như cũ</text>
+
+    <!-- B diamond -->
+    <polygon points="500,216 640,260 500,304 360,260" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+    <text x="500" y="256" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Máy đi trước hợp lệ?</text>
+    <text x="500" y="272" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">veto_state: mo · có vết giờ · hạng T2</text>
+
+    <!-- chặn luật cũ -->
+    <rect x="80" y="240" width="200" height="40" rx="6" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+    <text x="180" y="257" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Chặn — thiếu chữ duyệt</text>
+    <text x="180" y="271" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">luật cũ, nguyên văn</text>
+
+    <!-- C diamond -->
+    <polygon points="500,344 660,392 500,440 340,392" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+    <text x="500" y="388" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Bằng chứng xanh-sạch (6 điều kiện)</text>
+    <text x="500" y="404" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">hoặc đã ký Cổng 2?</text>
+
+    <!-- NOTE (accent) -->
+    <rect x="760" y="368" width="200" height="48" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.2"/>
+    <text x="860" y="388" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Đi tiếp + một dòng ghi chú</text>
+    <text x="860" y="404" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">«làn V — cửa veto mở»</text>
+
+    <!-- chặn làn V -->
+    <rect x="380" y="488" width="240" height="40" rx="6" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+    <text x="500" y="505" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Chặn — đi trước mà chưa sạch, chưa ký</text>
+    <text x="500" y="519" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">luật mới, đóng lỗ P0 của phản biện</text>
+
+    <!-- legend -->
+    <line x1="30" y1="560" x2="970" y2="560" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+    <text x="30" y="580" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+    <rect x="120" y="572" width="20" height="10" rx="5" fill="#ffffff" stroke="#2d3142" stroke-width="0.8"/>
+    <text x="148" y="580" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">bắt đầu</text>
+    <polygon points="232,572 244,577 232,582 220,577" fill="#ffffff" stroke="#2d3142" stroke-width="0.8"/>
+    <text x="252" y="580" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">câu hỏi lưới đặt</text>
+    <rect x="360" y="572" width="20" height="10" rx="2" fill="#ffffff" stroke="#4f5d75" stroke-width="0.8"/>
+    <text x="388" y="580" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">kết cục</text>
+    <rect x="460" y="572" width="20" height="10" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="0.8"/>
+    <text x="488" y="580" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">đường mới hồ sơ này mở — trước đây bị chặn</text>
+  </svg>
+
+  <ul class="read">
+    <li>Đọc từ trên xuống. Câu hỏi thứ nhất là luật cũ, không đổi: có chữ duyệt thì đi tiếp bên phải.</li>
+    <li>Câu hỏi thứ hai chỉ mở khi hồ sơ tự khai «máy đi trước» đủ ba dấu (làn mở, vết giờ, hạng T2); thiếu → rẽ trái, chặn y như luật cũ.</li>
+    <li>Câu hỏi thứ ba là chỗ phản biện bắt lỗ P0: máy đi trước nhưng bằng chứng không sạch và chưa ai ký thì vẫn chặn (ô dưới cùng). Chỉ ô cam bên phải là đường mới — hồ sơ cat-khoi hôm 16/08 kẹt đúng ở đây.</li>
+  </ul>
+  <p class="colophon">Nguồn chữ: _acceptance/cong-chan-nham-cho/contract.md AC-1/AC-2 · docs/superpowers/specs/2026-08-16-cong-chan-nham-cho-design.md mục 1 · nhánh feat/cong-chan-nham-cho @ 0a7a505. Hình là chiếu của nguồn chữ; sửa ở nguồn rồi vẽ lại.</p>
+</div>
+</body>
+</html>

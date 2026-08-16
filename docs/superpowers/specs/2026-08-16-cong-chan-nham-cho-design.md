@@ -5,6 +5,10 @@
 [2026-08-16-hat-giong-go-lop-chung-minh-chu-ky.md](../../plans/2026-08-16-hat-giong-go-lop-chung-minh-chu-ky.md)
 + Ngoài-1 của hồ sơ cat-khoi. Owner «Mở» sau khi tra soát chữ ký (16/08).*
 
+Hình đi kèm (chiếu của tài liệu này, không phải nguồn):
+[`figures/01-lan-v-luoi-truoc-merge.html`](../../../_acceptance/cong-chan-nham-cho/figures/01-lan-v-luoi-truoc-merge.html)
+· [`figures/02-chu-ky-hai-lop.html`](../../../_acceptance/cong-chan-nham-cho/figures/02-chu-ky-hai-lop.html).
+
 ## Đề bài (tiếng người)
 
 Hai chỗ kit đang **chặn nhầm**: chặn máy thay vì chặn lỗi, và bắt người ký một
