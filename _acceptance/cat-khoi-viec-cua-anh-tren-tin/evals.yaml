@@ -61,8 +61,10 @@ evals:
       am OK". ĐỐI CHỨNG DƯƠNG trước: checker chạy trên bản luật thật XANH; rồi
       chiều đỏ qua CHÍNH checker trên bản sao: (m1) xoá dấu hiệu «một chữ» →
       "CAT-CLAUSE DO: thieu dau hieu 'một chữ'"; (m2) chèn từ «vế» → "… tu cam
-      'vế'"; (m3) xoá luật âm phút → "… thieu luat am 'không hỏi phút'"; (m4)
-      xoá luật âm chỉ-báo → "… thieu luat am 'tin chỉ-báo không hỏi'".
+      'vế'"; (m3) xoá luật âm phút → "… thieu luat am 'Máy không hỏi phút'"; (m4)
+      xoá luật âm chỉ-báo → "… thieu luat am 'Tin chỉ-báo không hỏi'". Luật âm
+      đo ở dạng bullet đậm mở đầu dòng (không đo chuỗi trôi nổi — clause cũng
+      chứa «không hỏi phút», mutant m3 lượt đầu bắt được lỗ này).
     pinned:
       - "CAT-CLAUSE: 1 cau · 4/4 dau hieu · 0 tu cam · 3/3 luat am OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -103,14 +105,14 @@ evals:
       `cat-khoi-rang.sh --chan oneshot` exit 0: GATE-ONESHOT-CLAUSE kết bằng
       «Đầu ra theo bản luật ngôn ngữ mặt người.» và không chứa «khối 👉» /
       «YOUR-MOVE» (đối chứng: bản origin/main CÓ); 6 thân lệnh chứa nguyên văn
-      câu mới (đếm 6/6); khối GATE-ONESHOT-GRAMMAR và GATE-ONESHOT-SLOTS diff
-      với origin/main RỖNG. In "CAT-ONESHOT: clause moi · 6/6 ban chep ·
-      grammar+slots khong doi OK". Chiều đỏ: (m1) đổi 1 ký tự trong bản chép
+      câu mới (đếm 6/6); khối GATE-ONESHOT-GRAMMAR + GATE-ONESHOT-SLOTS diff với
+      origin/main CHỈ là cặp dòng con-trỏ («khuôn YOUR-MOVE ở trên» → «luật âm
+      mời-cổng ở trên»), không dòng nào khác. In "CAT-ONESHOT: clause moi · 6/6
+      ban chep · grammar+slots chi doi 1 con tro OK". Chiều đỏ: (m1) đổi 1 ký tự trong bản chép
       commands/start.md của bản sao → "CAT-ONESHOT DO: ban chep lech: commands/
-      start.md"; (m2) chèn 1 dòng vào SLOTS bản sao → "… GRAMMAR/SLOTS doi so
-      voi base".
+      start.md"; (m2) chèn 1 dòng vào SLOTS bản sao → "… GRAMMAR/SLOTS doi ngoai con tro cho phep".
     pinned:
-      - "CAT-ONESHOT: clause moi · 6/6 ban chep · grammar+slots khong doi OK"
+      - "CAT-ONESHOT: clause moi · 6/6 ban chep · grammar+slots chi doi 1 con tro OK"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E5

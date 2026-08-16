@@ -5,7 +5,7 @@ slug: cat-khoi-viec-cua-anh-tren-tin
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: ""
 approved_at: ""
 veto_state: mo
@@ -87,8 +87,9 @@ ngoài phạm vi (sử liệu / hồ sơ cũ / view máy sinh).
   thân lệnh cổng người, Then vế «tin mời cổng kết bằng đúng MỘT khối 👉…» đã
   thay bằng «Đầu ra theo bản luật ngôn ngữ mặt người.», 6 bản chép khớp từng ký
   tự (P193 giữ, neo test đổi theo câu mới), và ngữ pháp `GATE-ONESHOT-GRAMMAR`
-  + `GATE-ONESHOT-SLOTS` KHÔNG đổi một ký tự (đối chứng: diff hai khối đó với
-  `origin/main` rỗng).
+  + `GATE-ONESHOT-SLOTS` KHÔNG đổi ngoài ĐÚNG MỘT con trỏ chết «khuôn YOUR-MOVE
+  ở trên» → «luật âm mời-cổng ở trên» (đối chứng: diff hai khối đó với
+  `origin/main` là đúng cặp dòng ấy, không gì khác — khai để không im lặng).
 - AC-5 (judgment): Given một agent phiên sạch KHÔNG TOOL nạp inline bản luật
   ngôn ngữ mặt người SAU sửa + đề ca `hoi-dong/ca-E5.md` (4 ca: mời Cổng 1 ·
   mời Cổng 2 có một mục ngoài hợp đồng + ký · tin chỉ-báo giữa vòng · owner hỏi

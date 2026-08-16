@@ -344,10 +344,11 @@ if (gate === '1') {
   for (const j of judgmentACs) flags.push(['finfo', `${j.id} cần MẮT bạn chấm sau khi code (việc người, máy không chấm được).`]);
   if (tier === 'T3') flags.push(['finfo', 'Đụng phần nhạy cảm → tier T3, duyệt kỹ phần "sẽ KHÔNG làm".']);
   if (flags.length) P.push(`<div class="lab">Cần chú ý trước khi duyệt</div>${flags.map(([c, t]) => `<div class="flag ${c}">${t}</div>`).join('')}`);
-  // ---- 👉 VIỆC CỦA ANH (khối cứng máy-sinh — chip ② kit 2.1). Chuẩn khối:
-  // mỗi mục đủ 3 vế làm-gì/ở-đâu/trả-lời-dạng-gì + câu mẫu trả-lời-gộp MỘT
-  // dòng (một <p> duy nhất, không tag chen giữa — P185 canh). Nguồn khuôn:
-  // YOUR-MOVE-BLOCK-TEMPLATE trong human-facing-language.md.
+  // ---- 👉 VIỆC CỦA ANH trên THẺ (danh sách máy-đếm — chip ② kit 2.1): mỗi
+  // mục làm-gì/ở-đâu/trả-lời-dạng-gì + câu mẫu gộp MỘT dòng (một <p> duy nhất,
+  // không tag chen giữa — P185 canh). Khuôn này sống CHỈ trên thẻ; tin nhắn
+  // mời cổng KHÔNG dùng nó (hồ sơ cat-khoi-viec-cua-anh-tren-tin, 16/08 —
+  // điều khoản GATE-INVITE-CLAUSE trong human-facing-language.md).
   P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo"><p class="li"><b>Duyệt hay trả hồ sơ này</b> — làm gì: đọc hai khối SẼ làm / KHÔNG làm và các cờ chú ý ở trên; ở đâu: trả lời ngay trong phiên đang trình thẻ; trả lời dạng: «Duyệt» hoặc «Sửa: nêu điều cần đổi».</p><p class="li">Trả lời mẫu (một dòng, điền vào chỗ trống): «duyệt hay sửa: ___»</p></div>`);
   P.push(`<div class="foot"><span class="rev">↻ Sửa 1 dòng tiêu chí GIỜ rẻ hơn 10× phát hiện sai sau khi code.</span><div class="btns"><button class="b no">Sửa lại</button><button class="b yes">Duyệt, cho code</button></div></div>
 </div></div>`);
@@ -503,8 +504,8 @@ P.push(`</details>`);
 // thứ tự thẻ; mẫu gộp build động từ đúng các mã đang hiện, MỘT dòng — P186
 // canh đủ mã, P186b canh khối-không-biến-mất khi 0 việc-người).
 //
-// BẤT BIẾN (luật YOUR-MOVE-BLOCK-TEMPLATE trong human-facing-language.md, đặt
-// sau S4-r2): câu mẫu là KHUÔN DẠNG CÓ CHỖ TRỐNG. Máy nêu mã mục + các ngả
+// BẤT BIẾN (luật âm «máy không viết sẵn câu trả lời của người» trong
+// human-facing-language.md, đặt sau S4-r2): câu mẫu là KHUÔN DẠNG CÓ CHỖ TRỐNG. Máy nêu mã mục + các ngả
 // chọn được, KHÔNG điền sẵn lựa chọn/verdict thay người. Bản round-2 từng in
 // «Ngoài-1 ghi Known limits; E9 Đạt; đồng ý cắt; phê hết quyết định treo; Ký»
 // — tức viết sẵn câu TRẢ LỜI của người tại cổng, vòng qua chính khoá ADR 0002.
