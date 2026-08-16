@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Production · Deployment</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #2d3142;
+      --color-ink:     #f5f5f5;
+      --color-muted:   #bfc0c0;
+      --color-accent:  #f08a59;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Lora', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .frame { max-width: 1200px; width: 100%; }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+
+    svg { width: 100%; min-width: 900px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Deployment · Diagram Design</p>
+    <h1>Production — web platform</h1>
+
+    <svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#bfc0c0"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#f08a59"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#6a95d8"/></marker>
+      </defs>
+
+      <rect width="100%" height="100%" fill="#2d3142"/>
+
+      <!-- Level 1 — cloud region -->
+      <rect x="272" y="56" width="704" height="368" rx="8" fill="#393e53" stroke="rgba(245,245,245,0.12)" stroke-width="1"/>
+      <text x="288" y="76" fill="#a1aaba" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.16em">AWS · AP-SOUTHEAST-1</text>
+
+      <!-- Level 2 — cluster (dashed, transparent) -->
+      <rect x="440" y="96" width="240" height="304" rx="8" fill="transparent" stroke="rgba(245,245,245,0.25)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="456" y="116" fill="#a1aaba" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.16em">EKS CLUSTER</text>
+
+      <!-- Arrows first (behind boxes) — public path in link blue -->
+      <line x1="96" y1="168" x2="128" y2="168" stroke="#6a95d8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+      <line x1="232" y1="168" x2="296" y2="168" stroke="#6a95d8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+      <line x1="408" y1="168" x2="464" y2="168" stroke="#6a95d8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+
+      <!-- Internal traffic in muted -->
+      <line x1="560" y1="200" x2="560" y2="224" stroke="#bfc0c0" stroke-width="1" marker-end="url(#arrow)"/>
+      <line x1="560" y1="288" x2="560" y2="312" stroke="#bfc0c0" stroke-width="1" marker-end="url(#arrow)"/>
+      <path d="M 656,240 H 696 Q 704,240 704,232 V 160 Q 704,152 712,152 H 776" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#arrow)"/>
+      <line x1="656" y1="256" x2="776" y2="256" stroke="#bfc0c0" stroke-width="1" marker-end="url(#arrow)"/>
+      <!-- Async / out-of-band write to object storage -->
+      <path d="M 656,272 H 720 Q 728,272 728,280 V 352 Q 728,360 736,360 H 776" fill="none" stroke="#bfc0c0" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+      <!-- Arrow labels — masked, 8px gap above / beside the stroke -->
+      <rect x="236" y="144" width="32" height="16" rx="2" fill="#2d3142"/>
+      <text x="252" y="157" fill="#6a95d8" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">HTTPS</text>
+
+      <rect x="568" y="200" width="36" height="16" rx="2" fill="#393e53"/>
+      <text x="586" y="213" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GRPC</text>
+
+      <rect x="716" y="128" width="36" height="16" rx="2" fill="#393e53"/>
+      <text x="734" y="141" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">SQL</text>
+
+      <rect x="724" y="232" width="40" height="16" rx="2" fill="#393e53"/>
+      <text x="744" y="245" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CACHE</text>
+
+      <rect x="736" y="300" width="40" height="16" rx="2" fill="#393e53"/>
+      <text x="756" y="313" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ASSETS</text>
+
+      <!-- Outside the region — traffic source -->
+      <rect x="24" y="144" width="72" height="48" rx="6" fill="#2d3142"/>
+      <rect x="24" y="144" width="72" height="48" rx="6" fill="rgba(245,245,245,0.03)" stroke="rgba(245,245,245,0.30)" stroke-width="1"/>
+      <text x="60" y="172" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Users</text>
+
+      <rect x="128" y="136" width="104" height="64" rx="6" fill="#2d3142"/>
+      <rect x="128" y="136" width="104" height="64" rx="6" fill="rgba(245,245,245,0.03)" stroke="rgba(245,245,245,0.30)" stroke-width="1"/>
+      <text x="180" y="172" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">CDN</text>
+      <text x="180" y="188" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">cloudfront · edge</text>
+
+      <!-- Region edge — load balancer (managed) -->
+      <rect x="296" y="136" width="112" height="64" rx="6" fill="#393e53"/>
+      <rect x="296" y="136" width="112" height="64" rx="6" fill="rgba(245,245,245,0.05)" stroke="#bfc0c0" stroke-width="1"/>
+      <text x="352" y="172" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">ALB</text>
+      <text x="352" y="188" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">alb · :443</text>
+
+      <!-- Deployed units inside the cluster — lifted a step above the container -->
+      <rect x="464" y="136" width="192" height="64" rx="6" fill="#393e53"/>
+      <rect x="464" y="136" width="192" height="64" rx="6" fill="#454b63" stroke="rgba(245,245,245,0.30)" stroke-width="1"/>
+      <rect x="620" y="140" width="28" height="16" rx="2" fill="transparent" stroke="rgba(245,245,245,0.40)" stroke-width="0.8"/>
+      <text x="634" y="153" fill="#f5f5f5" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">×2</text>
+      <text x="560" y="172" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">ingress</text>
+      <text x="560" y="188" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">nginx 1.25 · :443</text>
+
+      <!-- Focal deployed unit (coral 1 of 2) -->
+      <rect x="464" y="224" width="192" height="64" rx="6" fill="#454b63"/>
+      <rect x="464" y="224" width="192" height="64" rx="6" fill="rgba(240,138,89,0.10)" stroke="#f08a59" stroke-width="1"/>
+      <rect x="620" y="228" width="28" height="16" rx="2" fill="transparent" stroke="rgba(240,138,89,0.50)" stroke-width="0.8"/>
+      <text x="634" y="241" fill="#f19162" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">×3</text>
+      <text x="560" y="260" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">api</text>
+      <text x="560" y="276" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">api 4.2.1 · :8080</text>
+
+      <rect x="464" y="312" width="192" height="64" rx="6" fill="#393e53"/>
+      <rect x="464" y="312" width="192" height="64" rx="6" fill="#454b63" stroke="rgba(245,245,245,0.30)" stroke-width="1"/>
+      <rect x="620" y="316" width="28" height="16" rx="2" fill="transparent" stroke="rgba(245,245,245,0.40)" stroke-width="0.8"/>
+      <text x="634" y="329" fill="#f5f5f5" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">×2</text>
+      <text x="560" y="348" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">worker</text>
+      <text x="560" y="364" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">api 4.2.1 · sqs</text>
+
+      <!-- Managed services — in the region, outside the cluster -->
+      <rect x="776" y="120" width="176" height="64" rx="6" fill="#393e53"/>
+      <rect x="776" y="120" width="176" height="64" rx="6" fill="rgba(245,245,245,0.05)" stroke="#bfc0c0" stroke-width="1"/>
+      <text x="864" y="156" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">RDS postgres</text>
+      <text x="864" y="172" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">postgres 15 · multi-az</text>
+
+      <rect x="776" y="224" width="176" height="64" rx="6" fill="#393e53"/>
+      <rect x="776" y="224" width="176" height="64" rx="6" fill="rgba(245,245,245,0.05)" stroke="#bfc0c0" stroke-width="1"/>
+      <text x="864" y="260" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Redis</text>
+      <text x="864" y="276" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">elasticache · t4g</text>
+
+      <rect x="776" y="328" width="176" height="64" rx="6" fill="#393e53"/>
+      <rect x="776" y="328" width="176" height="64" rx="6" fill="rgba(245,245,245,0.05)" stroke="#bfc0c0" stroke-width="1"/>
+      <text x="864" y="364" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">S3</text>
+      <text x="864" y="380" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">assets · versioned</text>
+
+      <!-- Annotation callout (coral 2 of 2) -->
+      <path d="M 400,444 Q 408,360 464,272" fill="none" stroke="rgba(240,138,89,0.50)" stroke-width="1" stroke-dasharray="4,3"/>
+      <circle cx="464" cy="272" r="2" fill="#f08a59"/>
+      <text x="392" y="452" fill="#f19162" font-size="14" font-style="italic" font-family="'Instrument Serif', 'Lora', serif" text-anchor="end">api ×3 — the scaling ceiling this diagram exists to discuss</text>
+
+      <!-- Legend strip -->
+      <line x1="24" y1="488" x2="976" y2="488" stroke="rgba(245,245,245,0.12)" stroke-width="0.8"/>
+      <text x="24" y="504" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND</text>
+
+      <rect x="24" y="520" width="16" height="8" rx="2" fill="#454b63" stroke="rgba(245,245,245,0.30)" stroke-width="1"/>
+      <text x="48" y="528" fill="#bfc0c0" font-size="9" font-family="'Geist', sans-serif">Deployed unit</text>
+
+      <rect x="200" y="520" width="16" height="8" rx="2" fill="rgba(245,245,245,0.05)" stroke="#bfc0c0" stroke-width="1"/>
+      <text x="224" y="528" fill="#bfc0c0" font-size="9" font-family="'Geist', sans-serif">Managed service</text>
+
+      <rect x="392" y="520" width="16" height="8" rx="2" fill="transparent" stroke="rgba(245,245,245,0.25)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="416" y="528" fill="#bfc0c0" font-size="9" font-family="'Geist', sans-serif">Cluster boundary</text>
+
+      <rect x="576" y="520" width="16" height="8" rx="2" fill="#393e53" stroke="rgba(245,245,245,0.12)" stroke-width="1"/>
+      <text x="600" y="528" fill="#bfc0c0" font-size="9" font-family="'Geist', sans-serif">Region</text>
+
+      <line x1="712" y1="524" x2="744" y2="524" stroke="#6a95d8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+      <text x="752" y="528" fill="#bfc0c0" font-size="9" font-family="'Geist', sans-serif">Public path</text>
+    </svg>
+  </div>
+</body>
+</html>

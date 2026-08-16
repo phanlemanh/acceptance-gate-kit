@@ -1,0 +1,4 @@
+source: https://github.com/cathrynlavery/diagram-design
+version: 2.1.0 (plugin manifest)
+commit: da45d4a79a76dc0742c8554b7eabe551db100701
+installed: 2026-08-12

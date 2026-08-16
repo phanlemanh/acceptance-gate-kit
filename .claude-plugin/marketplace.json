@@ -15,6 +15,11 @@
       "name": "feature-loop",
       "source": "./feature-loop",
       "description": "Feature development loop on top of acceptance-gate: brainstorm → contract+evals (Gate 1) → plan → execute → multi-agent verify workflow → evidence + human signoff (Gate 2). Requires acceptance-gate + superpowers."
+    },
+    {
+      "name": "diagram-design",
+      "source": "./diagram-design",
+      "description": "Editorial diagram skill (43 types, HTML+inline SVG) + /export-diagram + /import-drawio, vendored with pin from the private skill repo (upstream cathrynlavery/diagram-design, MIT). Skin state lives in the consuming repo, so one install serves every repo and teammate. Installable on its own; pairs with the kit's DIAGRAM-RULE."
     }
   ]
 }

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trial-to-paid flow · where the visitors go</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-accent:  #eb6c36;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Lora', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .frame { max-width: 1200px; width: 100%; }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+
+    svg { width: 100%; min-width: 900px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Sankey · Diagram Design</p>
+    <h1>Trial-to-paid flow · where the visitors go</h1>
+
+    <svg viewBox="0 0 1000 540" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="0.9" fill="rgba(45,49,66,0.10)"/>
+          </pattern>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+        <rect width="100%" height="100%" fill="url(#dots)" opacity="0.55"/>
+
+        <!-- ============ RIBBONS (drawn first, behind the nodes) ============
+             Thickness is strictly 0.075px per person. Bézier control points sit on
+             the horizontal midpoint of the span, so every ribbon is a data curve —
+             the one place in this design system where a smooth path is correct. -->
+
+        <!-- Visitors → Signed up · 1,920 -->
+        <path d="M116,72 C238,72 238,72 360,72 L360,216 C238,216 238,216 116,216 Z"
+              fill="rgba(79,93,117,0.18)"/>
+        <!-- Visitors → Bounced · 2,080 (leak, peels downward) -->
+        <path d="M116,216 C238,216 238,264 360,264 L360,420 C238,420 238,372 116,372 Z"
+              fill="rgba(79,93,117,0.18)"/>
+        <!-- Signed up → Activated · 1,120 (surviving path, level along the top) -->
+        <path d="M376,72 C498,72 498,72 620,72 L620,156 C498,156 498,156 376,156 Z"
+              fill="rgba(79,93,117,0.18)"/>
+        <!-- Signed up → Stalled · 800 — THE ONE CORAL RIBBON -->
+        <path d="M376,156 C498,156 498,204 620,204 L620,264 C498,264 498,216 376,216 Z"
+              fill="rgba(235,108,54,0.28)"/>
+        <!-- Activated → Paid · 480 -->
+        <path d="M636,72 C758,72 758,72 880,72 L880,108 C758,108 758,108 636,108 Z"
+              fill="rgba(79,93,117,0.18)"/>
+        <!-- Activated → Stayed free · 640 -->
+        <path d="M636,108 C758,108 758,156 880,156 L880,204 C758,204 758,156 636,156 Z"
+              fill="rgba(79,93,117,0.18)"/>
+
+        <!-- ============ STAGE NODES ============ -->
+        <!-- Surviving path: ink. Exit nodes: muted. -->
+        <rect x="100" y="72"  width="16" height="300" fill="#2d3142"/>
+        <rect x="360" y="72"  width="16" height="144" fill="#2d3142"/>
+        <rect x="360" y="264" width="16" height="156" fill="#4f5d75"/>
+        <rect x="620" y="72"  width="16" height="84"  fill="#2d3142"/>
+        <rect x="620" y="204" width="16" height="60"  fill="#4f5d75"/>
+        <rect x="880" y="72"  width="16" height="36"  fill="#2d3142"/>
+        <rect x="880" y="156" width="16" height="48"  fill="#4f5d75"/>
+
+        <!-- ============ NODE LABELS ============ -->
+        <!-- Column heads: name above, count · percent beneath -->
+        <text x="100" y="48" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Visitors</text>
+        <text x="100" y="64" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">4,000 · 100%</text>
+
+        <text x="360" y="48" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Signed up</text>
+        <text x="360" y="64" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">1,920 · 48%</text>
+
+        <text x="620" y="48" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Activated</text>
+        <text x="620" y="64" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">1,120 · 28%</text>
+
+        <text x="880" y="48" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Paid</text>
+        <text x="880" y="64" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">480 · 12%</text>
+
+        <!-- Exit nodes: name beside the bar -->
+        <text x="384" y="338" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Bounced</text>
+        <text x="384" y="354" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">2,080 · 52%</text>
+
+        <text x="644" y="230" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Stalled</text>
+        <text x="644" y="246" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">800 · 20%</text>
+
+        <text x="904" y="176" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Stayed free</text>
+        <text x="904" y="192" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">640 · 16%</text>
+
+        <!-- ============ RIBBON COUNTS (every ribbon is labelled) ============ -->
+        <rect x="216" y="136" width="48" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="240" y="147" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">1,920</text>
+
+        <rect x="216" y="312" width="48" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="240" y="323" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">2,080</text>
+
+        <rect x="472" y="104" width="48" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="496" y="115" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">1,120</text>
+
+        <!-- Focal ribbon label — coral, the second and last coral element -->
+        <rect x="448" y="200" width="96" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="496" y="211" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.04em">−800 · the leak</text>
+
+        <rect x="736" y="80" width="44" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="758" y="91" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">480</text>
+
+        <rect x="736" y="148" width="44" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="758" y="159" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">640</text>
+
+        <!-- Honesty line -->
+        <text x="500" y="448" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" font-style="italic" text-anchor="middle">Every ribbon is drawn to scale; at each node, out equals in.</text>
+
+        <!-- ============ LEGEND — bottom strip, never inside the diagram ============ -->
+        <line x1="40" y1="476" x2="960" y2="476" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <text x="40" y="492" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND</text>
+
+        <rect x="40" y="504" width="16" height="12" fill="rgba(235,108,54,0.28)" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+        <text x="64" y="514" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Focal leak — signed up but never activated</text>
+
+        <rect x="320" y="504" width="16" height="12" fill="rgba(79,93,117,0.18)" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+        <text x="344" y="514" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Flow — thickness ∝ people</text>
+
+        <rect x="536" y="504" width="6" height="12" fill="#2d3142"/>
+        <text x="552" y="514" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Stage node</text>
+
+        <text x="700" y="514" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" font-style="italic">Counts reconcile: 4,000 in, 4,000 accounted for.</text>
+      </svg>
+  </div>
+</body>
+</html>

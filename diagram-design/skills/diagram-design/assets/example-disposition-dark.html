@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lớp token · Bản đồ chỗ-sống · Dark</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Lora:ital,wght@0,400;1,400&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--paper:#2d3142;--paper-2:#393e53;--ink:#f5f5f5;--muted:#bfc0c0;--soft:#a1aaba;--rule:rgba(245,245,245,.12);--accent:#f08a59;--sans:'Geist',system-ui,sans-serif;--serif:'Instrument Serif','Lora',serif;--mono:'Geist Mono',ui-monospace,monospace}
+    body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:3rem 2rem;background:var(--paper);color:var(--ink);font-family:var(--sans)}
+    .frame{width:100%;max-width:1100px}.eyebrow{margin-bottom:.5rem;color:var(--muted);font:500 .66rem/1 var(--mono);letter-spacing:.18em;text-transform:uppercase}
+    h1{margin-bottom:.35rem;font:400 clamp(1.5rem,2.4vw + .75rem,2rem)/1.15 var(--serif);letter-spacing:-.02em}.subtitle{margin-bottom:1.5rem;color:var(--muted);font-size:.9rem;line-height:1.5}
+    .diagram{overflow-x:auto}svg{display:block;width:100%;min-width:900px}
+    svg .rule{stroke:rgba(245,245,245,.12);stroke-width:.8}
+    svg .col-head{font-family:'Geist Mono',monospace;font-size:9px;font-weight:500;fill:#a1aaba;letter-spacing:.18em}svg .col-head.strong{fill:#bfc0c0}
+    svg .box-old{fill:#454b63;stroke:#bfc0c0;stroke-width:1}
+    svg .box-new{fill:#454b63;stroke:#f5f5f5;stroke-width:1.2}
+    svg .name{font-family:'Geist',sans-serif;font-size:12px;font-weight:600;fill:#f5f5f5}svg .name.old{font-weight:500}
+    svg .path{font-family:'Geist Mono',monospace;font-size:9px;fill:#bfc0c0}
+    svg .rel{fill:none;stroke:#bfc0c0;stroke-width:1}
+    svg .rel.replace{stroke:#f5f5f5;stroke-width:1.2}
+    svg .rel.parallel{stroke-dasharray:5 4}
+    svg .rel-mask{fill:#2d3142}
+    svg .rel-label{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.06em;fill:#bfc0c0}svg .rel-label.replace{fill:#f5f5f5}
+    svg .glyph{font-family:'Geist Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.08em}
+    svg .chip-kill{fill:#f5f5f5}svg .g-kill{fill:#2d3142}
+    svg .chip-keep{fill:none;stroke:#f5f5f5;stroke-width:1}svg .g-keep{fill:#f5f5f5}
+    svg .fate-sub{font-family:'Geist Mono',monospace;font-size:9px;fill:#a1aaba}
+    svg .slot-missing{fill:none;stroke:#f08a59;stroke-width:1;stroke-dasharray:4 3}
+    svg .tier{fill:none;stroke:#a1aaba;stroke-width:.8}
+    svg .tier-text{font-family:'Geist Mono',monospace;font-size:9px;font-weight:500;fill:#a1aaba;letter-spacing:.08em}
+    svg .warn-dot{fill:none;stroke:#bfc0c0;stroke-width:1}
+    svg .note{font-family:'Instrument Serif','Lora',serif;font-style:italic;font-size:14px;fill:#f08a59}
+    svg .legend-text{font-family:'Geist Mono',monospace;font-size:9px;fill:#bfc0c0}
+    svg .legend-eyebrow{font-family:'Geist Mono',monospace;font-size:9px;fill:#a1aaba;letter-spacing:.14em}
+  </style>
+</head>
+<body>
+  <main class="frame">
+    <p class="eyebrow">Bản đồ chỗ-sống · Diagram Design</p><h1>Chỗ sống của lớp token cũ</h1><p class="subtitle">Bốn hiện vật cũ cùng một lớp — quan hệ với vật mới và số phận đã cam kết. Một hàng chưa có số phận: đó chính là phát hiện.</p>
+    <div class="diagram">
+      <svg viewBox="0 0 1000 520" role="img" aria-labelledby="dpd-title dpd-desc" xmlns="http://www.w3.org/2000/svg">
+        <title id="dpd-title">Bản đồ chỗ-sống của lớp design token</title><desc id="dpd-desc">Bốn hiện vật cũ trong lớp design token, mỗi hàng có một quan hệ với vật mới (thay, kế thừa, song song), một số phận đã cam kết kèm mốc đo, và một nấc bằng chứng. Hàng theme-old.json chạy song song nhưng chưa có số phận và được đánh dấu coral.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#bfc0c0"/></marker>
+          <marker id="arrow-ink" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#f5f5f5"/></marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#f08a59"/></marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#6a95d8"/></marker>
+        </defs>
+        <rect width="1000" height="520" fill="#2d3142"/>
+
+        <!-- Column headers + header rule -->
+        <text class="col-head" x="32" y="92">VẬT CŨ</text>
+        <text class="col-head" x="340" y="92" text-anchor="middle">QUAN HỆ</text>
+        <text class="col-head strong" x="456" y="92">VẬT MỚI</text>
+        <text class="col-head strong" x="744" y="92">SỐ PHẬN</text>
+        <line class="rule" x1="32" y1="108" x2="976" y2="108"/>
+
+        <!-- Relationships drawn before boxes. Rows 1 and 2 converge on the same new box; attach points fanned 24px apart on its left edge (176 / 200). -->
+        <path class="rel replace" d="M 256,148 H 424 Q 432,148 432,156 V 168 Q 432,176 440,176 H 456" marker-end="url(#arrow-ink)"/>
+        <path class="rel parallel" d="M 256,228 H 424 Q 432,228 432,220 V 208 Q 432,200 440,200 H 456" marker-end="url(#arrow)"/>
+        <line class="rel" x1="256" y1="308" x2="456" y2="308" marker-end="url(#arrow)"/>
+        <line class="rel replace" x1="256" y1="388" x2="456" y2="388" marker-end="url(#arrow-ink)"/>
+
+        <!-- Relationship labels — masked, 8px gap above the stroke -->
+        <rect class="rel-mask" x="320" y="120" width="40" height="20" rx="2"/><text class="rel-label replace" x="340" y="136" text-anchor="middle">THAY</text>
+        <rect class="rel-mask" x="308" y="200" width="64" height="20" rx="2"/><text class="rel-label" x="340" y="216" text-anchor="middle">SONG SONG</text>
+        <rect class="rel-mask" x="312" y="280" width="56" height="20" rx="2"/><text class="rel-label" x="340" y="296" text-anchor="middle">KẾ THỪA</text>
+        <rect class="rel-mask" x="320" y="360" width="40" height="20" rx="2"/><text class="rel-label replace" x="340" y="376" text-anchor="middle">THAY</text>
+
+        <!-- Vật cũ -->
+        <rect class="box-old" x="32" y="120" width="224" height="56" rx="6"/>
+        <text class="name old" x="48" y="144">Lớp khung cũ</text><text class="path" x="48" y="160">src/legacy/frames.css</text>
+        <rect class="box-old" x="32" y="200" width="224" height="56" rx="6"/>
+        <text class="name old" x="48" y="224">Theme JSON cũ</text><text class="path" x="48" y="240">config/theme-old.json</text>
+        <rect class="box-old" x="32" y="280" width="224" height="56" rx="6"/>
+        <text class="name old" x="48" y="304">Bộ nút cũ</text><text class="path" x="48" y="320">src/legacy/legacy-buttons.tsx</text>
+        <rect class="box-old" x="32" y="360" width="224" height="56" rx="6"/>
+        <text class="name old" x="48" y="384">Sprite biểu tượng</text><text class="path" x="48" y="400">assets/icons-sprite.svg</text>
+
+        <!-- Vật mới -->
+        <rect class="box-new" x="456" y="160" width="224" height="56" rx="6"/>
+        <text class="name" x="472" y="184">Lớp token</text><text class="path" x="472" y="200">src/styles/tokens.css</text>
+        <rect class="box-new" x="456" y="280" width="224" height="56" rx="6"/>
+        <text class="name" x="472" y="304">Button chuẩn</text><text class="path" x="472" y="320">src/ui/Button.tsx</text>
+        <rect class="box-new" x="456" y="360" width="224" height="56" rx="6"/>
+        <text class="name" x="472" y="384">Icon chuẩn</text><text class="path" x="472" y="400">src/ui/Icon.tsx</text>
+
+        <!-- Số phận -->
+        <rect class="chip-kill" x="744" y="128" width="72" height="20" rx="4"/><text class="glyph g-kill" x="780" y="144" text-anchor="middle">KHAI TỬ</text>
+        <text class="fate-sub" x="744" y="164">sau 2 sprint</text>
+        <rect class="slot-missing" x="744" y="208" width="72" height="20" rx="4"/>
+        <rect class="chip-keep" x="744" y="288" width="48" height="20" rx="4"/><text class="glyph g-keep" x="768" y="304" text-anchor="middle">GIỮ</text>
+        <text class="fate-sub" x="744" y="324">hạn Q4</text>
+        <rect class="chip-kill" x="744" y="368" width="72" height="20" rx="4"/><text class="glyph g-kill" x="780" y="384" text-anchor="middle">KHAI TỬ</text>
+        <text class="fate-sub" x="744" y="404">khi hết ref</text>
+
+        <!-- Bằng chứng — margin badges -->
+        <rect class="tier" x="932" y="128" width="32" height="20" rx="4"/><text class="tier-text" x="948" y="144" text-anchor="middle">N2</text>
+        <circle class="warn-dot" cx="920" cy="220" r="4"/><rect class="tier" x="932" y="208" width="32" height="20" rx="4"/><text class="tier-text" x="948" y="224" text-anchor="middle">N3</text>
+        <rect class="tier" x="932" y="288" width="32" height="20" rx="4"/><text class="tier-text" x="948" y="304" text-anchor="middle">N1</text>
+        <rect class="tier" x="932" y="368" width="32" height="20" rx="4"/><text class="tier-text" x="948" y="384" text-anchor="middle">N2</text>
+
+        <!-- The finding -->
+        <text class="note" x="976" y="256" text-anchor="end">Cổng chưa mở khi một hàng còn vô chủ.</text>
+
+        <!-- Legend strip -->
+        <line class="rule" x1="32" y1="452" x2="976" y2="452"/>
+        <text class="legend-eyebrow" x="32" y="476">CHÚ GIẢI</text>
+        <rect class="box-old" x="112" y="460" width="24" height="20" rx="4"/><text class="legend-text" x="144" y="476">Vật cũ</text>
+        <rect class="box-new" x="192" y="460" width="24" height="20" rx="4"/><text class="legend-text" x="224" y="476">Vật mới</text>
+        <line class="rel replace" x1="280" y1="472" x2="304" y2="472"/><text class="legend-text" x="312" y="476">Thay</text>
+        <line class="rel" x1="352" y1="472" x2="376" y2="472"/><text class="legend-text" x="384" y="476">Kế thừa</text>
+        <line class="rel parallel" x1="440" y1="472" x2="464" y2="472"/><text class="legend-text" x="472" y="476">Song song</text>
+        <rect class="chip-kill" x="540" y="460" width="24" height="20" rx="4"/><rect class="chip-keep" x="572" y="460" width="24" height="20" rx="4"/><text class="legend-text" x="604" y="476">Số phận</text>
+        <rect class="tier" x="664" y="460" width="32" height="20" rx="4"/><text class="tier-text" x="680" y="476" text-anchor="middle">N1</text><text class="legend-text" x="704" y="476">Nấc bằng chứng</text>
+      </svg>
+    </div>
+  </main>
+</body>
+</html>

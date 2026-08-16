@@ -9820,6 +9820,68 @@ MUTS = ["neo-grammar", "khuon-danh-tinh", "needle--as", "ca-mau-khong-cat",
 print("P194 OK (" + str(len(NEO)) + " neo duong + " + str(len(NEO_AM)) + " neo am grammar + 6 than lenh per-site + truong ghi + doc/can/mot-ban-chep/canh-bao/thu-tu 2 harness; " + str(len(MUTS)) + " chieu do: " + ", ".join(MUTS) + " — tat ca in xac-nhan-dot-bien va di qua chinh checker that)")
 P194PY
 
+# ── P196: plugin diagram-design — goi vendor co pin, khong sua tay, skin KHONG nam trong goi ──
+# Ho so release-2-1-0. Ba lop: (a) layout + manifest plugin (MIT, semver, skill
+# dung cho, 2 lenh, marketplace co entry); (b) tree-hash tinh lai == NOTICE, va
+# hash doi ma version plugin khong doi so voi origin/main la DO; (c) marker
+# skin trong goi phai la `default` (skin song trong REPO), khong symlink trong
+# goi. Chieu do chay qua CHINH tree-hash.sh + chinh doan kiem tren ban sao.
+P196TMP="$(mktemp -d)"
+cat > "$P196TMP/p196.sh" <<'P196SH'
+set -u
+ROOT="$1"; PD="$ROOT/diagram-design"; e=0
+bad(){ echo "     DO: $*"; e=1; }
+[ -f "$PD/.claude-plugin/plugin.json" ] || bad "thieu .claude-plugin/plugin.json"
+[ -f "$PD/skills/diagram-design/SKILL.md" ] || bad "thieu skills/diagram-design/SKILL.md"
+{ [ -f "$PD/commands/export-diagram.md" ] && [ -f "$PD/commands/import-drawio.md" ]; } || bad "thieu 2 lenh export/import"
+{ [ -f "$PD/NOTICE" ] && [ -x "$PD/vendor-sync.sh" ] && [ -x "$PD/tree-hash.sh" ]; } || bad "thieu NOTICE/vendor-sync/tree-hash"
+node -e '
+const fs=require("fs"); const p=JSON.parse(fs.readFileSync(process.argv[1]+"/.claude-plugin/plugin.json","utf8"));
+const m=JSON.parse(fs.readFileSync(process.argv[2],"utf8"));
+const errs=[];
+if(p.name!=="diagram-design") errs.push("name");
+if(!/^\d+\.\d+\.\d+$/.test(p.version)) errs.push("version khong semver: "+p.version);
+if(p.license!=="MIT") errs.push("license phai MIT (upstream MIT), dang: "+p.license);
+if(!(m.plugins||[]).some(x=>x.name==="diagram-design"&&x.source==="./diagram-design")) errs.push("marketplace thieu entry diagram-design");
+const sk=fs.readFileSync(process.argv[1]+"/skills/diagram-design/SKILL.md","utf8");
+if(!/^name: diagram-design$/m.test(sk)) errs.push("SKILL.md name != diagram-design");
+if(errs.length){console.log(errs.join("; "));process.exit(1)}
+' "$PD" "$ROOT/.claude-plugin/marketplace.json" || bad "manifest/marketplace"
+H="$(bash "$PD/tree-hash.sh")"; NH="$(sed -n 's/^Tree-hash.*: \([0-9a-f]\{64\}\)$/\1/p' "$PD/NOTICE" | head -1)"
+[ -n "$NH" ] || bad "NOTICE khong co dong Tree-hash"
+[ "$H" = "$NH" ] || bad "tree-hash tinh lai ($H) != NOTICE ($NH) — DRIFT giua cay va NOTICE; sua o kho skill roi chay vendor-sync.sh"
+# MOT ham so version-theo-hash: dung cho ca base that lan mutant cap base gia
+so_ver_hash(){ # <baseHash> <baseVer> <curHash> <curVer> -> 0 ok / 1 do
+  [ "$1" != "$3" ] && [ "$2" = "$4" ] && return 1; return 0; }
+CV="$(node -e 'console.log(require(process.argv[1]).version)' "$PD/.claude-plugin/plugin.json")"
+if git -C "$ROOT" cat-file -e origin/main:diagram-design/NOTICE 2>/dev/null; then
+  BH="$(git -C "$ROOT" show origin/main:diagram-design/NOTICE | sed -n 's/^Tree-hash.*: \([0-9a-f]\{64\}\)$/\1/p' | head -1)"
+  BV="$(git -C "$ROOT" show origin/main:diagram-design/.claude-plugin/plugin.json | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>console.log(JSON.parse(d).version))')"
+  so_ver_hash "$BH" "$BV" "$H" "$CV" || bad "tree-hash doi so voi origin/main ma version plugin van $CV — bump version"
+  echo "     P196: so voi origin/main: hash $( [ "$BH" = "$H" ] && echo giu || echo doi ) · version $BV -> $CV"
+else echo "     P196: origin/main chua co goi — chan version-theo-hash chay tren cap base GIA duoi day (lan dau)"; fi
+if so_ver_hash "0000" "$CV" "$H" "$CV"; then bad "MUTANT-VERSION KHONG bi bat (hash doi, version giu ma xanh)"; else echo "     MUTANT-VERSION bi bat: hash doi + version giu -> do (qua CHINH so_ver_hash)"; fi
+# chan am: goi khong duoc mang hook/mcp/thu muc la vao may dong doi
+[ -e "$PD/hooks" ] && bad "goi co hooks/ — plugin ve khong duoc cai hook len may nguoi khac"
+[ -e "$PD/.mcp.json" ] && bad "goi co .mcp.json"
+for f in "$PD"/* "$PD"/.[!.]*; do b="$(basename "$f")"; case "$b" in .claude-plugin|skills|commands|NOTICE|vendor-sync.sh|tree-hash.sh) ;; *) bad "top-level la trong goi: $b";; esac; done
+MK="$(head -1 "$PD/skills/diagram-design/references/style-guide.md")"
+[ "$MK" = "<!-- skin: default -->" ] || bad "marker skin trong goi phai la default, dang: $MK (skin song trong REPO, khong trong goi)"
+NL="$(find "$PD" -type l | wc -l | tr -d ' ')"; [ "$NL" = "0" ] || bad "co $NL symlink trong goi"
+grep -q "DIAGRAM-SKIN-TEMPLATE" "$PD/skills/diagram-design/references/style-guide.md" || bad "goi thieu khuon DIAGRAM-SKIN-TEMPLATE"
+grep -q "docs/reference/diagram-skin.md" "$PD/skills/diagram-design/SKILL.md" || bad "SKILL.md §0 khong tro toi docs/reference/diagram-skin.md"
+T="$(mktemp -d)"; cp -R "$PD" "$T/dd"; printf 'x' >> "$T/dd/skills/diagram-design/SKILL.md"
+MH="$(bash "$T/dd/tree-hash.sh")"; if [ "$MH" != "$NH" ]; then echo "     MUTANT-HASH bi bat: doi 1 byte -> hash khac NOTICE"; else bad "MUTANT-HASH KHONG bi bat"; fi
+sed -i.bak '1s/.*/<!-- skin: default-confirmed -->/' "$T/dd/skills/diagram-design/references/style-guide.md"
+if [ "$(head -1 "$T/dd/skills/diagram-design/references/style-guide.md")" != "<!-- skin: default -->" ]; then echo "     MUTANT-MARKER bi bat: marker ro ri trang thai ca nhan"; else bad "MUTANT-MARKER KHONG bi bat"; fi
+rm -rf "$T"
+[ $e -eq 0 ] && echo "P196 OK (layout+manifest MIT · hash==NOTICE · version-theo-hash · marker default · 0 symlink · 0 hook/mcp/thu-muc-la · 3 mutant bi bat)"
+exit $e
+P196SH
+run "P196 plugin diagram-design: layout+manifest · tree-hash==NOTICE · marker default · khong symlink (release-2-1-0 E6)" \
+  bash "$P196TMP/p196.sh" "$ROOT"
+rm -rf "$P196TMP"
+
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
   echo "ONLY_BLOCK=$ONLY_BLOCK khong khop khoi nao — go sai ten? (fail de khong xanh gia)"

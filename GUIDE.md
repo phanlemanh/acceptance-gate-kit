@@ -2,7 +2,7 @@
 
 > Đọc nhanh 5 phút → [QUICKSTART.md](QUICKSTART.md). Tài liệu này là **bản đầy đủ**:
 > kiến trúc, cài đặt, vận hành hằng ngày, tra cứu enforcement, xử lý sự cố và tinh chỉnh.
-> Khớp phiên bản: acceptance-gate 2.0.0 · feature-loop 2.0.0.
+> Khớp phiên bản: acceptance-gate 2.1.0 · feature-loop 2.1.0 · diagram-design 2.5.0.
 
 ## Mục lục
 
@@ -542,6 +542,7 @@ claude plugin marketplace add phanlemanh/acceptance-gate-kit
 claude plugin install acceptance-gate@acceptance-gate-kit
 claude plugin install feature-loop@acceptance-gate-kit      # vòng lặp trọn gói
 claude plugin install superpowers@claude-plugins-official   # dependency của feature-loop
+claude plugin install diagram-design@acceptance-gate-kit    # bộ vẽ hình cho thẻ/kế hoạch (tuỳ chọn, cài riêng được)
 ```
 
 Sau khi cài, **mở phiên Claude Code mới** để runtime nạp plugin. Khi runtime hook
@@ -553,6 +554,7 @@ nhau (verifier bị chặn "oan", feature lọt eval). Chạy khi có release ho
 ```bash
 claude plugin update acceptance-gate@acceptance-gate-kit
 claude plugin update feature-loop@acceptance-gate-kit
+claude plugin update diagram-design@acceptance-gate-kit     # nếu đã cài
 ```
 
 ### 5.2 Mỗi repo (một lần)

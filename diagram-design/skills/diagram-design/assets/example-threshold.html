@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phiên nghiệm thu · Threshold chart</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:  #f5f5f5;
+      --color-ink:    #2d3142;
+      --color-muted:  #4f5d75;
+      --color-accent: #eb6c36;
+      --font-sans:    'Geist', system-ui, sans-serif;
+      --font-serif:   'Instrument Serif', 'Lora', serif;
+      --font-mono:    'Geist Mono', ui-monospace, monospace;
+    }
+    body { font-family: var(--font-sans); background: var(--color-paper); color: var(--color-ink); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; }
+    .frame { max-width: 1200px; width: 100%; }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.5rem; }
+    h1 { font-family: var(--font-serif); font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem); font-weight: 400; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 1.5rem; }
+    svg { width: 100%; min-width: 760px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Threshold · Diagram Design</p>
+    <h1>Phiên nghiệm thu · số đo đặt cạnh ngưỡng đã khai</h1>
+
+    <svg viewBox="0 0 1000 480" xmlns="http://www.w3.org/2000/svg">
+      <rect width="1000" height="480" fill="#f5f5f5"/>
+
+      <!-- ─── AXIS: shared scale, % so ngưỡng (0–150) ─── -->
+      <text x="40" y="48" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">% SO NGƯỠNG ĐÃ KHAI</text>
+      <text x="320" y="48" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em" text-anchor="middle">0%</text>
+      <text x="480" y="48" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em" text-anchor="middle">50%</text>
+      <text x="640" y="48" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em" text-anchor="middle">NGƯỠNG = 100%</text>
+      <text x="800" y="48" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em" text-anchor="middle">150%</text>
+      <line x1="320" y1="56" x2="800" y2="56" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+      <!-- Scale verticals; the 100% promise line one step stronger -->
+      <line x1="400" y1="56" x2="400" y2="380" stroke="rgba(45,49,66,0.05)" stroke-width="0.8"/>
+      <line x1="480" y1="56" x2="480" y2="380" stroke="rgba(45,49,66,0.05)" stroke-width="0.8"/>
+      <line x1="560" y1="56" x2="560" y2="380" stroke="rgba(45,49,66,0.05)" stroke-width="0.8"/>
+      <line x1="720" y1="56" x2="720" y2="380" stroke="rgba(45,49,66,0.05)" stroke-width="0.8"/>
+      <line x1="640" y1="56" x2="640" y2="380" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+
+      <!-- ─── ROW 1 · Tỷ lệ hoàn tất · ngưỡng 80% · đo 86% · ĐẠT ─── -->
+      <text x="40" y="88" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Tỷ lệ hoàn tất</text>
+      <text x="40" y="104" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">khai 12/07 · Cổng Đáng</text>
+      <rect x="320" y="84" width="480" height="16" rx="2" fill="rgba(45,49,66,0.12)"/>
+      <rect x="320" y="84" width="344" height="16" rx="2" fill="#2d3142"/>
+      <rect x="616" y="60" width="48" height="16" fill="#f5f5f5"/>
+      <text x="640" y="72" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">80%</text>
+      <rect x="637" y="80" width="6" height="24" fill="#f5f5f5"/>
+      <rect x="639" y="80" width="2" height="24" fill="#2d3142"/>
+      <text x="856" y="96" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="end">86%</text>
+      <rect x="880" y="80" width="64" height="24" rx="4" fill="rgba(45,49,66,0.03)" stroke="#2d3142" stroke-width="1"/>
+      <text x="912" y="96" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.06em" text-anchor="middle">ĐẠT</text>
+
+      <!-- ─── ROW 2 · Thời gian tạo bản nháp · ngưỡng ≤4 phút · đo 3,2 phút · ĐẠT ─── -->
+      <text x="40" y="176" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Thời gian tạo bản nháp</text>
+      <text x="40" y="192" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">khai 12/07 · Cổng Đáng</text>
+      <rect x="320" y="172" width="480" height="16" rx="2" fill="rgba(45,49,66,0.12)"/>
+      <rect x="320" y="172" width="400" height="16" rx="2" fill="#2d3142"/>
+      <text x="320" y="204" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">đơn vị phút · quy đổi ngưỡng ÷ đo · thấp hơn là tốt</text>
+      <rect x="616" y="148" width="48" height="16" fill="#f5f5f5"/>
+      <text x="640" y="160" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">≤4 phút</text>
+      <rect x="637" y="168" width="6" height="24" fill="#f5f5f5"/>
+      <rect x="639" y="168" width="2" height="24" fill="#2d3142"/>
+      <text x="856" y="184" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="end">3,2 phút</text>
+      <rect x="880" y="168" width="64" height="24" rx="4" fill="rgba(45,49,66,0.03)" stroke="#2d3142" stroke-width="1"/>
+      <text x="912" y="184" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.06em" text-anchor="middle">ĐẠT</text>
+
+      <!-- ─── ROW 3 · Người quay lại tuần 2 · ngưỡng 40% · đo 28% · TRƯỢT (coral ×2) ─── -->
+      <text x="40" y="264" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Người quay lại tuần 2</text>
+      <text x="40" y="280" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">khai 12/07 · Cổng Đáng</text>
+      <rect x="320" y="260" width="480" height="16" rx="2" fill="rgba(45,49,66,0.12)"/>
+      <rect x="320" y="260" width="224" height="16" rx="2" fill="#2d3142"/>
+      <text x="320" y="292" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">−12% so ngưỡng</text>
+      <rect x="616" y="236" width="48" height="16" fill="#f5f5f5"/>
+      <text x="640" y="248" fill="#ba4513" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">40%</text>
+      <rect x="637" y="256" width="6" height="24" fill="#f5f5f5"/>
+      <rect x="639" y="256" width="2" height="24" fill="#eb6c36"/>
+      <text x="856" y="272" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="end">28%</text>
+      <rect x="880" y="256" width="64" height="24" rx="4" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.2"/>
+      <text x="912" y="272" fill="#ba4513" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.06em" text-anchor="middle">TRƯỢT</text>
+
+      <!-- ─── ROW 4 · Lỗi người dùng tự sửa được · ngưỡng 90% · đo 93% · ĐẠT ─── -->
+      <text x="40" y="352" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Lỗi người dùng tự sửa được</text>
+      <text x="40" y="368" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">khai 19/07 · Cổng Duyệt</text>
+      <rect x="320" y="348" width="480" height="16" rx="2" fill="rgba(45,49,66,0.12)"/>
+      <rect x="320" y="348" width="330.7" height="16" rx="2" fill="#2d3142"/>
+      <rect x="616" y="324" width="48" height="16" fill="#f5f5f5"/>
+      <text x="640" y="336" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">90%</text>
+      <rect x="637" y="344" width="6" height="24" fill="#f5f5f5"/>
+      <rect x="639" y="344" width="2" height="24" fill="#2d3142"/>
+      <text x="856" y="360" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="end">93%</text>
+      <rect x="880" y="344" width="64" height="24" rx="4" fill="rgba(45,49,66,0.03)" stroke="#2d3142" stroke-width="1"/>
+      <text x="912" y="360" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.06em" text-anchor="middle">ĐẠT</text>
+
+      <!-- ─── LEGEND (bottom strip, outside the diagram area) ─── -->
+      <line x1="40" y1="428" x2="960" y2="428" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+      <rect x="40" y="436" width="2" height="16" fill="#2d3142"/>
+      <text x="52" y="448" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Ngưỡng đã khai</text>
+      <rect x="180" y="440" width="24" height="8" rx="2" fill="#2d3142"/>
+      <text x="212" y="448" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Số đo thật</text>
+      <rect x="320" y="436" width="32" height="16" rx="4" fill="rgba(45,49,66,0.03)" stroke="#2d3142" stroke-width="1"/>
+      <text x="360" y="448" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Đạt</text>
+      <rect x="436" y="436" width="32" height="16" rx="4" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+      <text x="476" y="448" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Trượt</text>
+    </svg>
+  </div>
+</body>
+</html>

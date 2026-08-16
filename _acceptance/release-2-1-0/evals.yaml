@@ -1,0 +1,128 @@
+schema_version: 1
+feature_slug: release-2-1-0
+# evals — release-2-1-0. Mực-đã-in + mã tiền định + MỘT judgment (hành vi §0
+# skin-trong-repo, hội đồng phiên sạch 1c). Răng hồ sơ neo origin/main cho đối
+# chứng dương → không vào suite vĩnh viễn; lưới thường trực cho gói là P196.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.rang_release21_manifest
+    paths: [_acceptance/release-2-1-0/rang-release.sh, .claude-plugin/plugin.json, feature-loop/.claude-plugin/plugin.json, diagram-design/.claude-plugin/plugin.json]
+    expected: >
+      Ba manifest đọc bằng JSON parse: ag/fl = 2.1.0, dd semver + MIT; mô tả ag
+      v2.1.0 chứa «ADR 0012», «one closed question», «V lane exactly like the
+      hook», «diagram-design»; fl v2.1.0 + «acceptance-gate >= 2.1.0». In
+      "RANG-RELEASE: XANH". Chiều đỏ: bản sao hạ số → đỏ ghim ag-version.
+    pinned: ["OK   ag-version 2.1.0", "OK   fl-version 2.1.0", "OK   dd license MIT", "RANG-RELEASE: XANH"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.rang_release21_docs
+    paths: [_acceptance/release-2-1-0/rang-release.sh, GUIDE.md]
+    expected: >
+      Dòng «Khớp phiên bản» của GUIDE khớp ba version ĐỌC TỪ ba manifest
+      (một nguồn); chiều đỏ trên bản sao GUIDE ghi số cũ.
+    pinned: ["OK   GUIDE khớp 2.1.0 · 2.1.0", "RANG-RELEASE: XANH"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "suite scripts XANH; số ca = dòng «Results:» CUỐI của chính suite (704 sau #59)."
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3b
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "suite hooks XANH; 60 = dòng «Results:» CUỐI."
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3c
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "suite plugins XANH; 146 dòng PASS (145 + P196 mới); 'PASS: P196' có mặt."
+    pinned: ["PASS: P196"]
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3d
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "suite workflows XANH."
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.rang_release21_lan_v
+    paths: [_acceptance/release-2-1-0/rang-release.sh, _acceptance/release-2-1-0/contract.md]
+    expected: >
+      pre-merge --base origin/main: NOTE cửa-veto có tên release-2-1-0; 0
+      VIOLATION nhóm veto mang tên hồ sơ; đối chứng dương fixture da-veto thật
+      → pattern bắt được. Vế biên thật (CI clean với human_signoff rỗng) chứng
+      trên PR.
+    pinned: ["OK   NOTE cửa-veto có tên release-2-1-0", "RANG-RELEASE: XANH"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.rang_release21_diff
+    paths: [_acceptance/release-2-1-0/rang-release.sh]
+    expected: >
+      Mọi file trong diff origin/main...HEAD thuộc allowlist ĐÓNG khai trong
+      rang-release.sh (contract trỏ về đây): 3 manifest · marketplace · GUIDE ·
+      README · QUICKSTART · PRODUCT-MAP · _acceptance/config.yaml · _acceptance/release-2-1-0/* ·
+      diagram-design/* · docs/reference/DIAGRAM-RULE.md · docs/reference/diagram-skin.md
+      · tests/plugins/run-tests.sh · docs/plans/* · docs/findings/*; diff rỗng đỏ.
+      Hai chân âm: run-tests.sh diff chỉ dòng '+' (0 dòng '-' thật) → in
+      "OK   run-tests chi THEM"; config.yaml diff '+' chỉ dòng `    <key>: ...`
+      dưới executors.script (0 dòng '-', 0 dòng chạm risk_tiers/signoff/
+      enforcement/recheck) → "OK   config chi them khoa executor". Chiều đỏ:
+      tiêm lib/evidence-core.cjs → kiem_diff bắt; danh sách diff giả có dòng
+      '-' trong run-tests → chân đỏ.
+    pinned: ["RANG-RELEASE: XANH"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [tests/plugins/run-tests.sh, diagram-design/NOTICE, diagram-design/tree-hash.sh, diagram-design/skills/diagram-design/references/style-guide.md]
+    expected: >
+      "PASS: P196" — layout+manifest MIT · tree-hash==NOTICE (drift) · version
+      phải bump khi hash đổi (so origin/main + mutant cặp base giả qua CHÍNH
+      hàm so) · marker default · 0 symlink · không hooks/.mcp.json/thư mục lạ ·
+      DIAGRAM-SKIN-TEMPLATE + §0 trỏ file repo · mutant (đổi 1 byte · marker
+      default-confirmed · hash-đổi-version-giữ) bị bắt.
+    pinned: ["PASS: P196", "MUTANT-HASH bi bat", "MUTANT-MARKER bi bat", "MUTANT-VERSION bi bat"]
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E7
+    criterion: AC-7
+    executor: judgment
+    # agent hành động nạp: §0 của SKILL.md + khối DIAGRAM-SKIN-TEMPLATE của
+    # style-guide + đề ca; giám khảo nạp: đáp án + đề ca
+    inputs:
+      - diagram-design/skills/diagram-design/SKILL.md
+      - diagram-design/skills/diagram-design/references/style-guide.md
+      - _acceptance/release-2-1-0/hoi-dong/ca-E7.md
+    paths: [diagram-design/skills/diagram-design/SKILL.md]
+    question: >
+      Giao thức 1c: agent hành động KHÔNG TOOL nhận inline §0 + khối
+      DIAGRAM-SKIN-TEMPLATE + 3 ca (có file skin ở toplevel, cwd sâu · không có
+      file + có tokens.css · người chọn default). Giám khảo chấm theo
+      giam-khao/dap-an-E7.md (chỉ giám khảo nạp), ô có neo, trích nguyên văn:
+      3/3 → PASS; mơ hồ/thiếu trích/ô không neo → UNCERTAIN; ≥1 trượt → REJECT.
+      UNCERTAIN → chạy lại hội đồng ĐÚNG MỘT lần; còn UNCERTAIN → hồ sơ rời làn
+      xanh-sạch, mời ký, M1 ghi 1 (dữ liệu, không FAIL).
+    evidence_required: [judged_by, verdict, rationale]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.rang_release21_docs
+    paths: [docs/reference/DIAGRAM-RULE.md, README.md, docs/reference/diagram-skin.md]
+    expected: >
+      Cùng chân docs: ngoài dòng version, kiểm DIAGRAM-RULE §5 chứa
+      «plugin install diagram-design@acceptance-gate-kit», README chứa dòng cài
+      đó, file docs/reference/diagram-skin.md tồn tại với marker
+      default-confirmed. In "OK   huong dan cai + skin mau".
+    pinned: ["OK   huong dan cai + skin mau"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

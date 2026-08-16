@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vòng nghiệm thu · Chuỗi bằng chứng · Dark</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Lora:ital,wght@0,400;1,400&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--paper:#2d3142;--paper-2:#393e53;--ink:#f5f5f5;--muted:#bfc0c0;--soft:#a1aaba;--rule:rgba(245,245,245,.12);--accent:#f08a59;--sans:'Geist',system-ui,sans-serif;--serif:'Instrument Serif','Lora',serif;--mono:'Geist Mono',ui-monospace,monospace}
+    body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:3rem 2rem;background:var(--paper);color:var(--ink);font-family:var(--sans)}
+    .frame{width:100%;max-width:1100px}
+    .eyebrow{margin-bottom:.5rem;color:var(--muted);font:500 .66rem/1 var(--mono);letter-spacing:.18em;text-transform:uppercase}
+    h1{margin-bottom:.35rem;font:400 clamp(1.5rem,2.4vw + .75rem,2rem)/1.15 var(--serif);letter-spacing:-.02em}
+    .subtitle{margin-bottom:1.5rem;color:var(--muted);font-size:.9rem;line-height:1.5}
+    .diagram{overflow-x:auto}svg{display:block;width:100%;min-width:900px}
+    svg .rule{stroke:rgba(245,245,245,.12);stroke-width:.8}
+    svg .boundary{stroke:rgba(245,245,245,.60);stroke-width:1.2;stroke-dasharray:6 4}
+    svg .box{fill:#454b63;stroke:#f5f5f5;stroke-width:1}
+    svg .box.flagged{stroke:#f08a59;stroke-width:1.2}
+    svg .name{font-family:'Geist',sans-serif;font-size:12px;font-weight:600;fill:#f5f5f5}
+    svg .id{font-family:'Geist Mono',monospace;font-size:9px;fill:#bfc0c0}
+    svg .badge{fill:none;stroke:rgba(245,245,245,.35);stroke-width:.8}
+    svg .badge.checker{fill:rgba(245,245,245,.06)}
+    svg .badge-text{font-family:'Geist Mono',monospace;font-size:9px;font-weight:500;fill:#bfc0c0;letter-spacing:.08em}
+    svg .tag{fill:rgba(240,138,89,.10);stroke:#f08a59;stroke-width:.8}
+    svg .tag-text{font-family:'Geist Mono',monospace;font-size:9px;font-weight:500;fill:#f08a59;letter-spacing:.08em}
+    svg .custody{fill:none;stroke:#bfc0c0;stroke-width:1}
+    svg .mask{fill:#2d3142}
+    svg .act{font-family:'Geist Mono',monospace;font-size:9px;fill:#bfc0c0;letter-spacing:.06em}
+    svg .boundary-label{font-family:'Geist Mono',monospace;font-size:9px;fill:#a1aaba;letter-spacing:.06em}
+    svg .note{font-family:'Instrument Serif','Lora',serif;font-style:italic;font-size:14px;fill:#f08a59}
+    svg .leader{fill:none;stroke:rgba(240,138,89,.50);stroke-width:1;stroke-dasharray:4 3}
+    svg .dot{fill:#f08a59}
+    svg .legend-text{font-family:'Geist Mono',monospace;font-size:9px;fill:#bfc0c0}
+    svg .legend-eyebrow{font-family:'Geist Mono',monospace;font-size:9px;fill:#a1aaba;letter-spacing:.14em}
+  </style>
+</head>
+<body>
+  <main class="frame">
+    <p class="eyebrow">Chuỗi bằng chứng · Diagram Design</p>
+    <h1>Ai làm, ai kiểm — và mắt xích tự khai</h1>
+    <p class="subtitle">Năm hiện vật của một vòng nghiệm thu, xếp theo chuỗi giám sát. Một ranh giới duy nhất cắt ngang: trên là bên làm, dưới là bên kiểm. Mắt xích nào bên làm tự viết bằng chứng cho chính mình thì được đánh dấu.</p>
+    <div class="diagram">
+      <svg viewBox="0 0 1000 520" role="img" aria-labelledby="ec-title ec-desc" xmlns="http://www.w3.org/2000/svg">
+        <title id="ec-title">Chuỗi bằng chứng của một vòng nghiệm thu</title>
+        <desc id="ec-desc">Năm hiện vật xếp thành chuỗi giám sát từ trái sang phải. Ba hiện vật đầu — mã đã sửa, log chạy test, exit code trong báo cáo — do bên làm sinh ra và nằm trên ranh giới độc lập. Hai hiện vật cuối — log gốc CI và chữ ký nghiệm thu — do bên kiểm sinh ra và nằm dưới ranh giới. Mắt xích exit code vừa do bên làm sinh ra vừa do bên làm tự khai, được đánh dấu coral.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#bfc0c0"/></marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#f08a59"/></marker>
+        </defs>
+        <rect width="1000" height="520" fill="#2d3142"/>
+
+        <!-- The one independence boundary — heavier than any hairline, named on the stroke -->
+        <line class="boundary" x1="32" y1="248" x2="968" y2="248"/>
+
+        <!-- Custody arrows, drawn before the artifact boxes -->
+        <line class="custody" x1="192" y1="148" x2="248" y2="148" marker-end="url(#arrow)"/>
+        <line class="custody" x1="408" y1="148" x2="464" y2="148" marker-end="url(#arrow)"/>
+        <path class="custody" d="M 624 148 H 672 Q 680 148 680 156 V 320" marker-end="url(#arrow)"/>
+        <line class="custody" x1="760" y1="348" x2="808" y2="348" marker-end="url(#arrow)"/>
+
+        <!-- Act labels — masked, 8px clear of every stroke -->
+        <rect class="mask" x="196" y="124" width="48" height="16" rx="2"/><text class="act" x="220" y="136" text-anchor="middle">SINH RA</text>
+        <rect class="mask" x="412" y="124" width="48" height="16" rx="2"/><text class="act" x="436" y="136" text-anchor="middle">GHI LẠI</text>
+        <rect class="mask" x="688" y="208" width="64" height="16" rx="2"/><text class="act" x="720" y="220" text-anchor="middle">ĐỐI CHIẾU</text>
+        <rect class="mask" x="768" y="324" width="32" height="16" rx="2"/><text class="act" x="784" y="336" text-anchor="middle">KÝ</text>
+
+        <!-- Boundary name — right-aligned, masked, sitting on the line -->
+        <rect class="mask" x="712" y="240" width="256" height="16"/>
+        <text class="boundary-label" x="964" y="252" text-anchor="end">RANH GIỚI ĐỘC LẬP · doer ↑ · người kiểm ↓</text>
+
+        <!-- Bên làm — above the boundary -->
+        <rect class="box" x="32" y="120" width="160" height="56" rx="6"/>
+        <rect class="badge" x="40" y="124" width="40" height="16" rx="2"/><text class="badge-text" x="60" y="136" text-anchor="middle">DOER</text>
+        <text class="name" x="40" y="156">Mã đã sửa</text><text class="id" x="40" y="168">commit a91f</text>
+
+        <rect class="box" x="248" y="120" width="160" height="56" rx="6"/>
+        <rect class="badge" x="256" y="124" width="40" height="16" rx="2"/><text class="badge-text" x="276" y="136" text-anchor="middle">DOER</text>
+        <text class="name" x="256" y="156">Log chạy test</text><text class="id" x="256" y="168">run-log #12</text>
+
+        <!-- The self-attested link — coral 1 of 2 -->
+        <rect class="box flagged" x="464" y="120" width="160" height="56" rx="6"/>
+        <rect class="badge" x="472" y="124" width="40" height="16" rx="2"/><text class="badge-text" x="492" y="136" text-anchor="middle">DOER</text>
+        <rect class="tag" x="560" y="124" width="56" height="16" rx="2"/><text class="tag-text" x="588" y="136" text-anchor="middle">TỰ KHAI</text>
+        <text class="name" x="472" y="156">Exit code trong báo cáo</text><text class="id" x="472" y="168">exit_code 0</text>
+
+        <!-- Bên kiểm — below the boundary -->
+        <rect class="box" x="600" y="320" width="160" height="56" rx="6"/>
+        <rect class="badge checker" x="608" y="324" width="72" height="16" rx="2"/><text class="badge-text" x="644" y="336" text-anchor="middle">NGƯỜI KIỂM</text>
+        <text class="name" x="608" y="356">Log gốc CI</text><text class="id" x="608" y="368">pipeline #4471</text>
+
+        <rect class="box" x="808" y="320" width="160" height="56" rx="6"/>
+        <rect class="badge checker" x="816" y="324" width="72" height="16" rx="2"/><text class="badge-text" x="852" y="336" text-anchor="middle">NGƯỜI KIỂM</text>
+        <text class="name" x="816" y="356">Chữ ký nghiệm thu</text><text class="id" x="816" y="368">signoff.md</text>
+
+        <!-- The finding — coral 2 of 2 -->
+        <text class="note" x="968" y="96" text-anchor="end">Số 0 ở mắt xích này không chứng minh điều gì.</text>
+        <path class="leader" d="M 696 88 Q 644 96 596 116"/>
+        <circle class="dot" cx="596" cy="120" r="2"/>
+
+        <!-- Legend strip -->
+        <line class="rule" x1="32" y1="452" x2="968" y2="452"/>
+        <text class="legend-eyebrow" x="32" y="476">CHÚ GIẢI</text>
+        <rect class="box" x="112" y="464" width="24" height="16" rx="4"/><text class="legend-text" x="144" y="476">Hiện vật</text>
+        <rect class="badge" x="216" y="464" width="24" height="16" rx="2"/><text class="legend-text" x="248" y="476">Bên làm</text>
+        <rect class="badge checker" x="320" y="464" width="24" height="16" rx="2"/><text class="legend-text" x="352" y="476">Bên kiểm</text>
+        <line class="boundary" x1="424" y1="472" x2="456" y2="472"/><text class="legend-text" x="464" y="476">Ranh giới độc lập</text>
+        <rect class="box flagged" x="608" y="464" width="24" height="16" rx="4"/><text class="legend-text" x="640" y="476">Mắt xích tự khai</text>
+      </svg>
+    </div>
+  </main>
+</body>
+</html>

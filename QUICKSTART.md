@@ -29,6 +29,7 @@ claude plugin marketplace add phanlemanh/acceptance-gate-kit
 claude plugin install acceptance-gate@acceptance-gate-kit
 claude plugin install feature-loop@acceptance-gate-kit      # vòng lặp trọn gói
 claude plugin install superpowers@claude-plugins-official   # dependency của feature-loop
+claude plugin install diagram-design@acceptance-gate-kit    # bộ vẽ hình cho thẻ/kế hoạch (tuỳ chọn, cài riêng được)
 ```
 
 Tối thiểu (chỉ gate, không vòng lặp): cài marketplace + `acceptance-gate` là đủ.
@@ -220,6 +221,7 @@ verify đa-agent → evidence → PR. Bạn vẫn chỉ dừng tay đúng 2 lầ
 ```bash
 claude plugin install feature-loop@acceptance-gate-kit
 claude plugin install superpowers@claude-plugins-official   # dependency (brainstorm/plan)
+claude plugin install diagram-design@acceptance-gate-kit    # bộ vẽ hình (tuỳ chọn)
 ```
 
 **Setup mỗi repo:** đã chạy `/acceptance-init` rồi thì chỉ cần thêm vào

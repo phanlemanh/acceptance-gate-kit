@@ -1,0 +1,11 @@
+{
+  "name": "diagram-design",
+  "version": "2.5.0",
+  "description": "Editorial diagram skill (43 types: architecture, flowchart, sequence, layer stack, morphological box, evidence chain, …) as self-contained HTML + inline SVG, plus /export-diagram (svg/png) and /import-drawio (redraw draw.io). Vendored from the private skill repo phanlemanh/skill (upstream cathrynlavery/diagram-design, MIT) with local patches listed in skills/diagram-design/LOCAL-PATCHES.md — see NOTICE for the pinned commit and tree-hash. Skin state lives in the CONSUMING REPO (docs/reference/diagram-skin.md, closed schema DIAGRAM-SKIN-TEMPLATE), never inside this package, so one install serves every repo and every teammate. Version follows the skill's metadata.version and bumps only when the vendored tree-hash changes. Companion to acceptance-gate's human-facing-language law (N5 + DECISION-DIAGRAM-SURFACES) and the DIAGRAM-RULE presentation law; installable on its own.",
+  "author": {
+    "name": "Manh Phan",
+    "email": "phanlemanh@gmail.com"
+  },
+  "keywords": ["diagram", "svg", "architecture-diagram", "flowchart", "editorial", "drawio"],
+  "license": "MIT"
+}
