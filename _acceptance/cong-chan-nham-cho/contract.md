@@ -5,7 +5,9 @@ slug: cong-chan-nham-cho
 owner: phanlemanh@gmail.com
 risk_tier: T3
 surfaces: [cli]
-status: draft
+status: approved
+approved_by: Manh Phan
+approved_at: 2026-08-16T10:10:33Z
 ---
 
 # Acceptance Contract: cong-chan-nham-cho
