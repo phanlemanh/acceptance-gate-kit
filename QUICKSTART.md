@@ -133,7 +133,7 @@ Sửa trực tiếp nếu cần → approve (máy ghi `approved_by`). **Đây l�
 3. Điền `human_override: <Tên> <ngày>` cho từng item đã kiểm
 4. Nếu verdict là `PENDING-JUDGMENT` → sửa thành `PASS` (nhờ agent sửa để hook re-validate)
 5. Điền `human_signoff: <Tên> <ngày>` trong frontmatter → xong, merge được
-6. **Commit các sửa đổi Cổng-2 thành commit RIÊNG** (chỉ chạm override/verdict/signoff — report máy-viết đã được commit trước đó). Repo bật `signoff.require_human_commit` thì CI chặn chữ ký sinh cùng commit với body report — chính bạn commit dòng ký, đó là dấu vết "người đã duyệt"
+6. **Commit các sửa đổi Cổng-2** (một lượt là đủ — không phải tách riêng). Dấu vết "người đã duyệt" nằm ở forge: bạn approve / bấm merge PR; lưới trước-merge in một dòng «chữ ký mới trong diff» cho người merge thấy
 
 **Xem trạng thái mọi tính năng:** `/acceptance-status` · **Xem cả xưởng trên
 một trang:** mở `PRODUCT-MAP.md` ở gốc repo (sơ đồ các chặng + từng việc đang

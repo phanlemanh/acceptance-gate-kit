@@ -5,7 +5,7 @@ slug: cong-chan-nham-cho
 owner: phanlemanh@gmail.com
 risk_tier: T3
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-08-16T10:10:33Z
 ---
@@ -91,9 +91,15 @@ tiêm); `docs/`, `_acceptance/`, `PRODUCT-MAP.md` ngoài phạm vi.
 - AC-5: Given cây đã sửa, When quét phạm vi trên tìm nghi lễ hạt commit —
   needle dạng identifier trần `require_human_commit` · `agent_authors` ·
   `human-fields-only` · `human-owned` · `commit RIÊNG` — Then 0 hit từng needle
-  (đối chứng dương origin/main >0), TRỪ đúng hai chỗ KHAI-VÀ-IN-RA trong
-  `scripts/pre-merge-check.sh`: khối đọc khoá cũ + dòng NOTE hết-hiệu-lực (đếm
-  hit còn lại ở file đó phải ≤ số dòng allowlist khai trong script). Script in
+  (đối chứng dương origin/main >0), TRỪ các chỗ KHAI-VÀ-IN-RA — script tự khai
+  danh sách allowlist (file + số hit tối đa) và IN nó ra.
+  **[SỬA SAU CỔNG 1 — 16/08, lúc thi công]** Bản duyệt viết «đúng hai chỗ trong
+  `scripts/pre-merge-check.sh`»; thi công cho thấy đường đọc-cũ cần nhắc tên
+  khoá ở BA nơi để người vận hành gỡ được nó: lưới (khối đọc + dòng NOTE),
+  `GUIDE.md` (bảng khoá ghi «đã hết hiệu lực»), `commands/acceptance-init.md`
+  (chú thích scaffold nói vì sao không phát nữa). Thu allowlist về hai chỗ sẽ
+  buộc xoá đúng những dòng dạy người gỡ khoá — hạ giá trị để vừa cái thước.
+  Allowlist là danh sách ĐÓNG khai trong script, thêm nơi khác là ĐỎ. Script in
   `CCNC-NGHI-LE: <k>/<k>` (k suy từ mảng) + `CCNC-SCOPE` (gap-probe P1: phạm vi
   thêm `lib`/`hooks`; needle trần bắt cả prose). Chân (b): fixture có 2 khoá cũ
   → chạy hook ghi-lúc-viết + `recheck-evidence.cjs` → 0 dòng nhắc khoá, hành vi
@@ -137,12 +143,22 @@ tiêm); `docs/`, `_acceptance/`, `PRODUCT-MAP.md` ngoài phạm vi.
 <!-- <<<SO-CA-KY-VONG -->
 | suite | truoc | sau |
 |---|---|---|
-| scripts | 686 | 691 |
+| scripts | 686 | 704 |
 | plugins | 145 | 145 |
 <!-- SO-CA-KY-VONG>>> -->
 
 Cách đếm theo suite (nếp so-ca.sh): `scripts` = số trong dòng `Results: N
 passed` cuối; `plugins` = số dòng `  PASS:`+`  FAIL:`.
+
+**[SỬA SAU CỔNG 1 — 16/08, lúc thi công] `scripts` 691 → 704.** Bản duyệt đoán
++5 (V01–V05 mỗi ca một dòng). Thi công cho ra +18 vì hai lẽ, cả hai đều là
+GHIM THÔNG ĐIỆP chứ không phải nở phạm vi: (a) mỗi ca làn V có thêm một dòng
+kiểm ĐÚNG THÔNG ĐIỆP (`làn V chỉ T2` · `veto_opened_at` · `làn V đòi xanh-sạch
+hoặc chữ ký` · …) — mã thoát một mình không phân biệt được «chặn đúng lý do»
+với «chặn vì lý do khác»; (b) danh sách ca thật là V01–V07 (thêm giữ-gân
+V04b, NOTE chiều-ghi V06, và V07 canh chiều IM — chữ ký có sẵn từ BASE thì
+KHÔNG in NOTE), cộng bốn dòng NOTE hết-hiệu-lực của H01/H02/H03/H06/H07.
+Số này là ĐẲNG THỨC đo được, không phải sàn.
 
 <!-- <<<SO-CA-PHAN-RA -->
 | ca | viec | vat-do |
@@ -153,16 +169,19 @@ passed` cuối; `plugins` = số dòng `  PASS:`+`  FAIL:`.
 | H04 | doi-nghia | scripts: khoa ON + commit rieng -> clean, NOTE van in (khong thuong) |
 | H05 | doi-nghia | scripts: khong git repo + khoa ON -> NOTE het-hieu-luc, khong NOTE unverifiable |
 | H06 | doi-nghia | scripts: agent_authors khop author -> clean + NOTE (truoc: VIOLATION) |
-| V01 | them | scripts: T2 mo + stamped + approved_by rong -> NOTE lan V, exit 0 |
+| V01 | them | scripts: T2 mo + stamped + xanh-sach -> NOTE lan V, exit 0 |
 | V02 | them | scripts: T3 mo -> VIOLATION lan V chi T2 |
 | V03 | them | scripts: mo + veto_opened_at rong -> VIOLATION khong doc duoc |
-| V04 | them | scripts: mo + T2 + report co UNCERTAIN + chua ky -> VIOLATION lan V doi xanh-sach |
-| V05 | them | scripts: chu ky moi trong diff -> NOTE chieu ghi, 0 VIOLATION |
+| V04 | them | scripts: mo + T2 + khong xanh-sach + chua ky -> VIOLATION doi xanh-sach-hoac-chu-ky |
+| V04b | them | scripts: giu-gan — khong sach nhung DA ky -> NOTE lan V, exit 0 |
+| V05 | them | scripts: vang khoa veto_state -> VIOLATION nguyen van luat cu |
+| V06 | them | scripts: chu ky moi trong diff -> NOTE chieu ghi, 0 VIOLATION |
+| V07 | them | scripts: chu ky co tu BASE -> KHONG in NOTE chieu ghi (chieu im) |
 | UJ3 | giu | scripts: chu ky giu-cho -> VIOLATION (bo nghi thuc hai commit trong fixture) |
 | P24 | doi-needle | plugins: init mac dinh: recheck strict con, require_human_commit KHONG con |
-| P30 | doi-needle | plugins: needle than signoff.md (require_human_commit/own commit -> ghi-hộ/forge) |
-| S-README-GUIDE | giu | scripts/plugins: khong ca nao doc README~39/GUIDE 6.1 — kiem bang E5 needle |
-| P194 | doi-needle | plugins: go chan 'than signoff phai chua require_human_commit' |
+| P30 | doi-needle | plugins: needle than signoff.md (require_human_commit/own commit -> forge/commit) + 4 tu CAM |
+| DV5 | doi-nghia | scripts: 73 dong go/di-chuyen mien tru DICH DANH trong additive-only.test.mjs |
+| P194 | doi-needle | plugins: chan 'than signoff phai chua require_human_commit' -> doi thanh 'phai chua forge' |
 <!-- SO-CA-PHAN-RA>>> -->
 
 ## Coverage
@@ -199,6 +218,11 @@ hình thái (entry `descope`): danh sách bề mặt là máy-liệt (grep hai t
   không re-sign; re-pin 1 làn chỉ cho hồ sơ có `paths` chạm pre-merge.
 
 ## Notes
+
+- **Kit tự-host áp luật lên chính mình:** `_acceptance/config.yaml` của kit đã
+  gỡ `signoff.require_human_commit` trong cùng lượt — đúng việc dòng NOTE
+  hết-hiệu-lực bảo người vận hành làm. Không gỡ thì kit vừa phát cảnh báo vừa
+  tự phớt lờ nó.
 
 - Hình (tầng 2, DIAGRAM-RULE): `figures/01-lan-v-luoi-truoc-merge.html` (luật
   Gate-1 sau sửa) · `figures/02-chu-ky-hai-lop.html` (năm lớp chữ ký, gỡ L4

@@ -1,14 +1,14 @@
 ---
-description: Gate 2 signoff assistant (nghiệm thu Cổng 2) — verify preconditions, walk the human through human_override + human_signoff, land the signature in its own human-fields-only commit, then re-check merge readiness. Never signs by itself.
+description: Gate 2 signoff assistant (nghiệm thu Cổng 2) — verify preconditions, walk the human through human_override + human_signoff, ghi và commit một lượt sau khi người phát ngôn, then re-check merge readiness. Never signs by itself.
 disable-model-invocation: true
 ---
 
 Walk the Gate 2 signoff for a feature whose evidence report is in. This
 command prepares and verifies; the HUMAN supplies every decision value. The
-kit's attribution model (`signoff.require_human_commit: true`) requires the
-signature to land in a SEPARATE commit touching only human-owned report lines
-— pre-merge blocks a signature that ships inside the machine-written body, so
-"sign for the user" is not merely forbidden, it cannot merge.
+Chữ ký là quyết định của người, không phải một nghi thức commit: người phát
+ngôn, máy ghi hộ và commit một lượt. Ai chịu trách nhiệm thì đọc ở forge
+(người approve / bấm merge PR). Máy vẫn KHÔNG được tự phát ngôn "Ký" — khoá
+model-invocation của lệnh này (ADR 0002) là chốt cứng cho điều đó.
 
 Cờ: `--repo <path>` (gốc kho) và `--as "<tên>"` (khai danh tính thay cho
 suy máy — ca máy dùng chung). Arg: optional `<slug>`. Without it, scan `_acceptance/*/` for an
@@ -75,7 +75,7 @@ chỉ khai QUYẾT ĐỊNH; danh tính và ngày là điều máy biết:
   «không cắt» đọc được hai chiều → đề xuất «đồng ý phạm vi đã khai» kèm căn cứ từ
   khối Out of scope đã duyệt ở Cổng 1, không hỏi mở. Đuôi tự do sau các
   nhãn nhận ra được → GIỮ NGUYÊN VĂN vào sổ quyết định. Nghi thức commit
-  chữ-ký-riêng (bước 1 và bước 7, `require_human_commit`) không đổi một li.
+  ghi-và-commit-một-lượt (bước 1 và bước 7) không đổi một li.
 «Ngoài-<số>», «cắt/hoãn», «Treo» không có trường frontmatter riêng: định
 đoạt của chúng ghi thành entry trong sổ quyết định `decisions.jsonl` (và
 «ghi Known limits» thêm một gạch known-limits vào `## Notes` của hợp đồng)
@@ -92,10 +92,10 @@ thành `--root <path>`, đường dẫn tương đối tới script thành
 
 Steps:
 
-1. **Machine-evidence commit first.** If `evidence-report.md`, `run-log.jsonl`,
-   the contract, or `evidence/` carry uncommitted machine-written changes,
-   commit them NOW as their own commit containing NO human-signature lines —
-   the required split, and committing early also dodges the stale-guard.
+1. **Gói bằng chứng máy đã commit chưa?** If `evidence-report.md`,
+   `run-log.jsonl`, the contract, or `evidence/` carry uncommitted
+   machine-written changes, commit them NOW — committing early dodges the
+   stale-guard. Không còn bắt tách khỏi chữ ký: nghi thức ấy đã gỡ (ADR 0012).
 2. **Render Gate 2.** `/acceptance-card <slug>` — decision card + auto-opened
    `evidence-page.html`.
 3. **List what only the human decides** — quyết định, không phải danh tính:
@@ -134,11 +134,11 @@ Steps:
    after `human_signoff` is written; the map is machine-generated from records
    this gate just changed, so it belongs in the signature commit below.
 
-7. **Land the signature as its own commit** touching only the human-owned
-   lines in `evidence-report.md` (`human_signoff`, `human_override`, the
-   verdict upgrade, `bypass_ack`) plus the contract's `status` — plus the
-   regenerated `PRODUCT-MAP.md` ONLY if
-   step 6 actually regenerated it. Print the exact sequence:
+7. **Ghi và commit — một lượt.** Sau khi người phát ngôn, ghi các dòng thuộc
+   về người trong `evidence-report.md` (`human_signoff`, `human_override`, the
+   verdict upgrade, `bypass_ack`) + contract `status: signed-off`, và
+   `PRODUCT-MAP.md` ONLY if step 6 actually regenerated it. Rồi commit MỘT
+   lượt — không tách, không đòi người tự gõ git. Print the exact sequence:
 
    ```bash
    git add _acceptance/<slug>/evidence-report.md _acceptance/<slug>/contract.md
@@ -153,7 +153,7 @@ Steps:
    `skills/acceptance/SKILL.md` chép nguyên văn, không tự diễn đạt.
 
    <!-- <<<SIGNATURE-OWNER-CLAUSE -->
-   The signature is the HUMAN's. Exactly two legal routes: the human commits it themselves, OR the human explicitly instructs the agent to commit exactly the human-owned lines and nothing more. There is no third route; `signoff.require_human_commit` + `agent_authors` enforce this boundary.
+   Chữ ký là QUYẾT ĐỊNH của người: người phát ngôn «Ký» hay «Trả lại», máy ghi hộ vào hồ sơ rồi commit như mọi commit khác — máy KHÔNG BAO GIỜ tự phát ngôn Ký (ADR 0002). Ai chịu trách nhiệm thì đọc ở forge: người approve / bấm merge PR, không phải ở lịch sử commit.
    <!-- SIGNATURE-OWNER-CLAUSE>>> -->
 8. **Re-check merge readiness.** If the repo ships `scripts/pre-merge-check.sh`
    run `bash scripts/pre-merge-check.sh . --slug <slug>` (add

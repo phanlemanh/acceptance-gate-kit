@@ -10,7 +10,7 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>chưa có"]
   GD --> DB["Đã bác từ khám phá<br/>chưa có"]
   B --> CD["Chờ duyệt phạm vi<br/>2 việc"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>1 việc"] --> GB{"Cổng Bằng chứng"}
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>42 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>chưa có"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>chưa có"]
@@ -28,6 +28,7 @@ flowchart TD
 
 ## Đang làm
 
+- Cổng chặn nhầm chỗ — lưới trước-merge cho làn V qua đúng như hook; gỡ lớp chứng-minh-chữ-ký-bằng-commit (require_human_commit · agent_authors · hạt commit riêng), chữ ký = quyết định ghi trong hồ sơ, provenance lấy từ forge (`cong-chan-nham-cho`)
 - Phát hành kit 2.0.0 — gom 1c + đợt 2 «người về biên» về một mốc release để repo tiêu thụ nhận engine mới có chủ đích trước đợt 3 (`release-2-0-0`)
 
 ## Đã giao

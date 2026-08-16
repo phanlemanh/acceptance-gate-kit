@@ -90,6 +90,15 @@ executors:
     cat_khoi_rang_clause: bash _acceptance/cat-khoi-viec-cua-anh-tren-tin/cat-khoi-rang.sh --chan clause
     cat_khoi_rang_oneshot: bash _acceptance/cat-khoi-viec-cua-anh-tren-tin/cat-khoi-rang.sh --chan oneshot
     cat_khoi_so_ca: bash _acceptance/cat-khoi-viec-cua-anh-tren-tin/cat-khoi-rang.sh --chan so-ca
+    ccnc_rang_lan_v: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan lan-v
+    ccnc_rang_lan_v_do: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan lan-v-do
+    ccnc_rang_provenance: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan provenance
+    ccnc_rang_giu_cho: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan giu-cho
+    ccnc_rang_nghi_le: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan nghi-le
+    ccnc_rang_clause: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan clause
+    ccnc_so_ca: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan so-ca
+    ccnc_rang_chieu_ghi: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan chieu-ghi
+    ccnc_rang_adr: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan adr
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
@@ -132,7 +141,8 @@ signoff:
                              # công cụ text của shell đều hỏng theo một hình dạng hợp
                              # lệ mới, nên cả lớp bị gỡ. Chữ ký VẪN bị kiểm: không
                              # được rỗng và không được khớp bảng tiền tố giữ-chỗ.
-  require_human_commit: true
+  # require_human_commit ĐÃ GỠ 16/08 (ADR 0012): chữ ký là quyết định người
+  # phát ngôn, máy ghi hộ và commit một lượt; trách nhiệm đọc ở forge.
 feature_loop:
   suite_keys:
     # Chạy mỗi vòng verify. Ba suite + cổng chống trôi từ vựng.

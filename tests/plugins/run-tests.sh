@@ -118,13 +118,22 @@ assert "executor: null" in (root / "feature-loop/workflows/execute-parallel.js")
 PY
 
 
-run "P24 acceptance-init phat mac dinh nghiem (recheck strict + require_human_commit)" \
+run "P24 acceptance-init phat mac dinh nghiem (recheck strict; KHONG con khoa chu-ky cu)" \
   python3 - "$ROOT/commands/acceptance-init.md" <<'PY'
-import sys
+import sys, re
 from pathlib import Path
 text = Path(sys.argv[1]).read_text()
-for needle in ["recheck: strict", "require_human_commit: true"]:
-    assert needle in text, needle
+assert "recheck: strict" in text, "recheck: strict"
+# ADR 0012: scaffold thoi phat require_human_commit/agent_authors. Do o DONG
+# SCAFFOLD (dong YAML mau, khong ke chu thich giai thich vi sao thoi phat) —
+# neu khong thi chinh cau day nguoi go khoa cu lai lam case nay do.
+scaffold = [l for l in text.splitlines() if re.match(r"^\s{2,}#?\s*(require_human_commit|agent_authors)\s*:", l)]
+assert not scaffold, "scaffold van phat khoa chu-ky cu: " + repr(scaffold[:2])
+# chieu do: ban sao co lai dong scaffold -> phai bat duoc
+mut = text + "\n  require_human_commit: true # Gate-2 signature ...\n"
+mut_hit = [l for l in mut.splitlines() if re.match(r"^\s{2,}#?\s*(require_human_commit|agent_authors)\s*:", l)]
+assert mut_hit, "MUTANT khong bi bat — phep do chet"
+print("P24 OK (recheck strict con; 0 dong scaffold khoa cu; mutant chen lai BI BAT)")
 PY
 
 run "P25 hook manifest Claude giu goc plugin dung bien Claude" \
@@ -205,8 +214,11 @@ appr = (cmds / "approve.md").read_text()
 for needle in ["approved_by", "decisions.jsonl", "gate1_skipped", "/acceptance-card"]:
     assert needle in appr, needle
 sign = (cmds / "signoff.md").read_text()
-for needle in ["require_human_commit", "human_override", "pre-merge-check.sh", "own commit"]:
+for needle in ["human_override", "pre-merge-check.sh", "forge", "commit"]:
     assert needle in sign, needle
+# ADR 0012: than /signoff KHONG duoc day lai nghi thuc hat-commit
+for cam in ["require_human_commit", "agent_authors", "human-fields-only", "own commit"]:
+    assert cam not in sign, "than signoff mang lai nghi le cu: " + cam
 rep = (cmds / "acceptance-report.md").read_text()
 for needle in ["gate1_skipped", "Read-only"]:
     assert needle in rep, needle
@@ -9626,8 +9638,11 @@ def check_bodies(mapping):
             if role == "signoff":
                 if "không cắt" not in t:
                     errs.append("than signoff thieu ca mau khong-cat: " + rel)
-                if "require_human_commit" not in t:
-                    errs.append("than signoff thieu require_human_commit: " + rel)
+                # ADR 0012 (16/08): chan "than signoff phai chua require_human_commit"
+                # DA GO — khoa do het hieu luc. Thay bang chan noi ve vat con
+                # song: provenance lay tu forge.
+                if "forge" not in t:
+                    errs.append("than signoff thieu cau provenance-o-forge: " + rel)
             if role == "start":
                 if "chọn-trước bằng slug" not in t:
                     errs.append("than start thieu dang chon-truoc slug: " + rel)

@@ -93,14 +93,16 @@ evals:
     expected: >
       `ccnc-rang.sh --chan nghi-le` phạm vi PHAM-VI-RANG (in CCNC-SCOPE khớp);
       needle trần {require_human_commit · agent_authors · human-fields-only ·
-      human-owned · commit RIÊNG} mỗi needle HEAD=0 (allowlist KHAI-VÀ-IN-RA:
-      hit trong scripts/pre-merge-check.sh cho hai needle đầu ≤ số dòng
-      allowlist script tự khai; in số) và base>0; in "CCNC-NGHI-LE: 5/5". Chân
+      human-owned · commit RIÊNG} mỗi needle HEAD=0 NGOÀI allowlist; allowlist
+      là danh sách ĐÓNG khai trong script và IN ra (scripts/pre-merge-check.sh ·
+      GUIDE.md · commands/acceptance-init.md — chỗ dạy người gỡ khoá cũ), mỗi
+      file kèm số hit tối đa; hit ở file ngoài danh sách hoặc quá số = ĐỎ.
+      base>0 mọi needle; in "CCNC-NGHI-LE: 5/5" + "CCNC-NGHI-LE: allowlist 3 file". Chân
       (b): fixture có 2 khoá cũ → hook ghi-lúc-viết + recheck-evidence.cjs → 0
       dòng nhắc khoá, cùng exit với fixture không khoá; in "CCNC-NGHI-LE: hook+
       recheck mu voi khoa cu OK". Chiều đỏ: chèn "commit RIÊNG" vào bản sao
       feature-loop SKILL → đỏ đích danh qua chính head_hits.
-    pinned: ["CCNC-NGHI-LE: 5/5", "CCNC-SCOPE: khop ban khai PHAM-VI-RANG", "CCNC-NGHI-LE: hook+recheck mu voi khoa cu OK"]
+    pinned: ["CCNC-NGHI-LE: 5/5", "CCNC-NGHI-LE: allowlist 3 file", "CCNC-SCOPE: khop ban khai PHAM-VI-RANG", "CCNC-NGHI-LE: hook+recheck mu voi khoa cu OK"]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E6
