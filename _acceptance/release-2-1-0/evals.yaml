@@ -98,7 +98,9 @@ evals:
   - id: E7
     criterion: AC-7
     executor: judgment
-    inputs:   # agent hành động nạp: §0 của SKILL.md + khối DIAGRAM-SKIN-TEMPLATE của style-guide + đề ca; giám khảo nạp: đáp án + đề ca
+    # agent hành động nạp: §0 của SKILL.md + khối DIAGRAM-SKIN-TEMPLATE của
+    # style-guide + đề ca; giám khảo nạp: đáp án + đề ca
+    inputs:
       - diagram-design/skills/diagram-design/SKILL.md
       - diagram-design/skills/diagram-design/references/style-guide.md
       - _acceptance/release-2-1-0/hoi-dong/ca-E7.md
