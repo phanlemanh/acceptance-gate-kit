@@ -99,6 +99,10 @@ executors:
     ccnc_so_ca: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan so-ca
     ccnc_rang_chieu_ghi: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan chieu-ghi
     ccnc_rang_adr: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan adr
+    rang_release21_manifest: bash _acceptance/release-2-1-0/rang-release.sh --chan manifest
+    rang_release21_docs: bash _acceptance/release-2-1-0/rang-release.sh --chan docs
+    rang_release21_lan_v: bash _acceptance/release-2-1-0/rang-release.sh --chan lan-v
+    rang_release21_diff: bash _acceptance/release-2-1-0/rang-release.sh --chan diff-allowlist
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

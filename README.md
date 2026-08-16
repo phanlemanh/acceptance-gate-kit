@@ -50,6 +50,7 @@ claude plugin marketplace add phanlemanh/acceptance-gate-kit
 claude plugin install acceptance-gate@acceptance-gate-kit
 claude plugin install feature-loop@acceptance-gate-kit    # full loop
 claude plugin install superpowers@claude-plugins-official # required by feature-loop
+claude plugin install diagram-design@acceptance-gate-kit  # diagrams for cards/plans (optional, standalone)
 ```
 
 Open a **fresh session** after installing or upgrading so the runtime discovers

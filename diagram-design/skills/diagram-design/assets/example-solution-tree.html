@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giữ chân người dùng mới · Cây cơ hội – giải pháp</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-accent:  #eb6c36;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Lora', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .frame { max-width: 1200px; width: 100%; }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+
+    svg { width: 100%; min-width: 900px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Opportunity solution tree · Diagram Design</p>
+    <h1>Giữ chân người dùng mới — cây cơ hội &amp; giải pháp</h1>
+
+    <svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="0.9" fill="rgba(45,49,66,0.10)"/>
+          </pattern>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+        <rect width="100%" height="100%" fill="url(#dots)" opacity="0.55"/>
+
+        <!-- Level tags (left margin) -->
+        <text x="32" y="84" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">KẾT QUẢ</text>
+        <text x="32" y="204" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">CƠ HỘI</text>
+        <text x="32" y="324" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">GIẢI PHÁP</text>
+        <text x="32" y="408" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">PHÉP THỬ</text>
+
+        <!-- Connectors drawn first (behind nodes) -->
+        <!-- Outcome → opportunity bus -->
+        <path d="M 536 112 L 536 140" fill="none" stroke="#4f5d75" stroke-width="1"/>
+        <path d="M 328 168 L 328 148 Q 328 140 336 140 L 864 140 Q 872 140 872 148 L 872 168" fill="none" stroke="#4f5d75" stroke-width="1"/>
+        <path d="M 664 140 L 664 168" fill="none" stroke="#4f5d75" stroke-width="1"/>
+
+        <!-- Attacked opportunity → competing solutions -->
+        <path d="M 328 240 L 328 268" fill="none" stroke="#4f5d75" stroke-width="1"/>
+        <path d="M 216 296 L 216 276 Q 216 268 224 268 L 432 268 Q 440 268 440 276 L 440 296" fill="none" stroke="#4f5d75" stroke-width="1"/>
+
+        <!-- Solution 1 → tests -->
+        <path d="M 216 344 L 216 368" fill="none" stroke="#4f5d75" stroke-width="1"/>
+        <path d="M 164 392 L 164 376 Q 164 368 172 368 L 260 368 Q 268 368 268 376 L 268 392" fill="none" stroke="#4f5d75" stroke-width="1"/>
+
+        <!-- Solution 2 → tests -->
+        <path d="M 440 344 L 440 368" fill="none" stroke="#4f5d75" stroke-width="1"/>
+        <path d="M 388 392 L 388 376 Q 388 368 396 368 L 484 368 Q 492 368 492 376 L 492 392" fill="none" stroke="#4f5d75" stroke-width="1"/>
+
+        <!-- Collapsed opportunities → stubs (dashed drop) -->
+        <line x1="664" y1="240" x2="664" y2="296" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="872" y1="240" x2="872" y2="296" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3"/>
+
+        <!-- L1 · Outcome -->
+        <rect x="416" y="40" width="240" height="72" rx="6" fill="#ffffff"/>
+        <rect x="416" y="40" width="240" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+        <rect x="424" y="48" width="64" height="16" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+        <text x="456" y="59" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">KẾT QUẢ</text>
+        <text x="536" y="82" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Giữ chân tuần 2</text>
+        <text x="536" y="100" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">hiện 28% → mục tiêu 40%</text>
+
+        <!-- L2 · Opportunity 1 — attacked (focal) -->
+        <rect x="240" y="168" width="176" height="72" rx="6" fill="#ffffff"/>
+        <rect x="240" y="168" width="176" height="72" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.2"/>
+        <rect x="248" y="176" width="88" height="16" rx="2" fill="transparent" stroke="rgba(235,108,54,0.40)" stroke-width="0.8"/>
+        <text x="292" y="187" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">nghe 7/12 buổi</text>
+        <rect x="344" y="176" width="64" height="16" rx="2" fill="transparent" stroke="rgba(235,108,54,0.40)" stroke-width="0.8"/>
+        <text x="376" y="187" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">TẤN CÔNG</text>
+        <text x="328" y="212" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">“Tôi không biết</text>
+        <text x="328" y="228" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">bắt đầu từ đâu”</text>
+
+        <!-- L2 · Opportunity 2 — collapsed -->
+        <rect x="576" y="168" width="176" height="72" rx="6" fill="#ffffff"/>
+        <rect x="576" y="168" width="176" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="584" y="176" width="88" height="16" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+        <text x="628" y="187" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">nghe 4/12 buổi</text>
+        <text x="664" y="212" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">“Tôi mất công nhập</text>
+        <text x="664" y="228" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">lại dữ liệu cũ”</text>
+
+        <!-- L2 · Opportunity 3 — collapsed -->
+        <rect x="784" y="168" width="176" height="72" rx="6" fill="#ffffff"/>
+        <rect x="784" y="168" width="176" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="792" y="176" width="88" height="16" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+        <text x="836" y="187" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">nghe 3/12 buổi</text>
+        <text x="872" y="212" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">“Tôi không rủ được</text>
+        <text x="872" y="228" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">đồng đội vào”</text>
+
+        <!-- L3 · Competing solutions under the attacked opportunity -->
+        <rect x="128" y="296" width="176" height="48" rx="6" fill="#ffffff"/>
+        <rect x="128" y="296" width="176" height="48" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <text x="216" y="316" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Mẫu dựng sẵn</text>
+        <text x="216" y="332" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">theo ngành</text>
+
+        <rect x="352" y="296" width="176" height="48" rx="6" fill="#ffffff"/>
+        <rect x="352" y="296" width="176" height="48" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <text x="440" y="316" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Bản hướng dẫn 3 bước</text>
+        <text x="440" y="332" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">trong ứng dụng</text>
+
+        <!-- L3 · Collapsed subtree stubs -->
+        <rect x="636" y="296" width="56" height="24" rx="4" fill="#ffffff"/>
+        <rect x="636" y="296" width="56" height="24" rx="4" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.20)" stroke-width="0.8" stroke-dasharray="4,3"/>
+        <text x="664" y="312" fill="#4f5d75" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle">…</text>
+        <text x="664" y="336" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">3 giải pháp · thu gọn</text>
+
+        <rect x="844" y="296" width="56" height="24" rx="4" fill="#ffffff"/>
+        <rect x="844" y="296" width="56" height="24" rx="4" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.20)" stroke-width="0.8" stroke-dasharray="4,3"/>
+        <text x="872" y="312" fill="#4f5d75" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle">…</text>
+        <text x="872" y="336" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">2 giải pháp · thu gọn</text>
+
+        <!-- L4 · Tests, cheapest first (left → right) -->
+        <rect x="116" y="392" width="96" height="24" rx="4" fill="#ffffff"/>
+        <rect x="116" y="392" width="96" height="24" rx="4" fill="#ffffff" stroke="#636b80" stroke-width="0.8"/>
+        <text x="164" y="408" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">đọc log · 0đ</text>
+
+        <rect x="220" y="392" width="96" height="24" rx="4" fill="#ffffff"/>
+        <rect x="220" y="392" width="96" height="24" rx="4" fill="#ffffff" stroke="#636b80" stroke-width="0.8"/>
+        <text x="268" y="408" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">5 buổi · 1 ngày</text>
+
+        <rect x="340" y="392" width="96" height="24" rx="4" fill="#ffffff"/>
+        <rect x="340" y="392" width="96" height="24" rx="4" fill="#ffffff" stroke="#636b80" stroke-width="0.8"/>
+        <text x="388" y="408" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">vẽ giấy · 0đ</text>
+
+        <rect x="444" y="392" width="96" height="24" rx="4" fill="#ffffff"/>
+        <rect x="444" y="392" width="96" height="24" rx="4" fill="#ffffff" stroke="#636b80" stroke-width="0.8"/>
+        <text x="492" y="408" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">thử A/B · 2 ngày</text>
+
+        <!-- The one annotation — why this need, now -->
+        <text x="116" y="448" fill="#ba4513" font-size="14" font-family="'Instrument Serif', 'Lora', serif" font-style="italic">Tấn công nhánh này trước: nghe ở quá nửa số buổi, và chặn ngay ở màn hình trắng.</text>
+
+        <!-- Legend strip -->
+        <line x1="32" y1="480" x2="968" y2="480" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <text x="32" y="496" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">CHÚ GIẢI</text>
+
+        <rect x="32" y="508" width="20" height="8" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+        <text x="56" y="516" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Kết quả</text>
+
+        <rect x="204" y="508" width="16" height="8" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="224" y="516" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Cơ hội</text>
+
+        <rect x="356" y="508" width="16" height="8" rx="2" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <text x="376" y="516" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Giải pháp</text>
+
+        <rect x="512" y="508" width="16" height="8" rx="4" fill="#ffffff" stroke="#636b80" stroke-width="0.8"/>
+        <text x="532" y="516" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Phép thử</text>
+
+        <rect x="664" y="508" width="16" height="8" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.2"/>
+        <text x="684" y="516" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Đang tấn công</text>
+      </svg>
+  </div>
+</body>
+</html>

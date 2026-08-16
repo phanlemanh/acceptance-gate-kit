@@ -118,29 +118,38 @@ không đỏ được, không phải chỗ đặt răng.
 
 ---
 
-## 5. Máy mới / tài khoản mới — bộ khuôn vẽ nằm ở đâu
+## 5. Máy mới / đồng đội mới — bộ khuôn vẽ cài như một plugin
 
-Skill `diagram-design` sống ở **kho skill cá nhân**, không nằm trong repo này:
-
-```
-~/.claude/skills/diagram-design  →  ~/dev/skill/skills/diagram-design
-```
-
-`~/dev/skill` là git repo, remote **`phanlemanh/skill`** (riêng tư). Máy mới thì
-clone rồi symlink:
+Từ kit 2.1.0, skill `diagram-design` được **đóng gói thành plugin thứ ba** của
+marketplace `acceptance-gate-kit` — không còn clone kho riêng, không symlink:
 
 ```bash
-git clone git@github.com:phanlemanh/skill.git ~/dev/skill
-mkdir -p ~/.claude/skills
-ln -s ~/dev/skill/skills/diagram-design ~/.claude/skills/diagram-design
+claude plugin marketplace add phanlemanh/acceptance-gate-kit   # nếu chưa có
+claude plugin install diagram-design@acceptance-gate-kit
 ```
+
+Mở phiên mới để skill nạp. Ai đang giữ symlink `~/.claude/skills/diagram-design`
+từ đời trước thì **gỡ symlink** khi cài plugin — hai bản cùng mô tả sẽ trigger
+đôi.
+
+**Nguồn và bản pin.** Kho skill cá nhân (`phanlemanh/skill`, riêng tư) là
+NGUỒN — nó theo dõi upstream `cathrynlavery/diagram-design` (MIT) và giữ các
+bản vá cục bộ. Thư mục `diagram-design/` trong kit là **bản pin** — `NOTICE`
+ghi commit kho skill + tree-hash; CI tính lại hash và so, nên bản trong kit
+không sửa tay được: sửa ở kho skill → `diagram-design/vendor-sync.sh
+<checkout>` → bump version plugin. Đây là vendor có tên + version gốc, đúng
+bất biến «kit là engine» — không phải bản sao phải giữ đồng bộ theo merge.
+
+**Skin sống trong REPO, không trong skill.** Skill dùng chung cho mọi repo và
+mọi máy, nên trạng thái brand không được nằm trong gói. Lần vẽ đầu ở một repo,
+skill đọc `docs/reference/diagram-skin.md` (khuôn đóng `DIAGRAM-SKIN-TEMPLATE`:
+marker + 8 role + 2 font stack); chưa có thì hỏi một lần rồi ghi file ấy vào
+repo — quyết định đi theo repo tới máy đồng đội, không phải làm lại. Repo này
+đã có file đó (skin mặc định, đã chốt).
 
 **Luật của kho skill (global CLAUDE.md):** sửa hay thêm skill xong → **commit
 ngay**. *Chưa commit là chưa tồn tại* — 15/08/2026 đã mất 28 file vì untracked,
-git không cứu được. Cần bản sao để so sánh thì dùng `cp -RL` / `rsync -aL`;
-`cp -R` trên symlink chỉ tạo alias, xoá «trong bản sao» là xoá thẳng bản gốc.
-
----
+git không cứu được. Cần bản sao để so sánh thì dùng `cp -RL` / `rsync -aL`.
 
 ## 6. Vì sao luật này nằm trong repo chứ không nằm trong trí nhớ
 

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lớp token · Bản đồ chỗ-sống · Editorial</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Lora:ital,wght@0,400;1,400&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}:root{--paper:#f5f5f5;--paper-2:#ececec;--ink:#2d3142;--muted:#4f5d75;--soft:#636b80;--rule:rgba(45,49,66,.12);--accent:#eb6c36;--sans:'Geist',system-ui,sans-serif;--serif:'Instrument Serif','Lora',serif;--mono:'Geist Mono',ui-monospace,monospace}
+    body{min-height:100vh;padding:3rem 2rem;background:var(--paper);color:var(--ink);font-family:var(--sans)}.container{max-width:1100px;margin:0 auto}.header{margin-bottom:2.5rem}.header-eyebrow,.card .eyebrow{color:var(--muted);font-family:var(--mono);font-weight:500;letter-spacing:.18em;text-transform:uppercase}.header-eyebrow{margin-bottom:.75rem;font-size:.66rem}h1{margin-bottom:.5rem;font:400 clamp(1.75rem,3vw + 1rem,2.5rem)/1.1 var(--serif);letter-spacing:-.02em}.subtitle{max-width:68ch;color:var(--muted);font-size:1rem;line-height:1.55}
+    .diagram-container{overflow-x:auto;padding:1.5rem;background:var(--paper-2);border:1px solid var(--rule);border-radius:8px}svg{display:block;width:100%;min-width:900px}
+    svg .rule{stroke:rgba(45,49,66,.12);stroke-width:.8}
+    svg .col-head{font-family:'Geist Mono',monospace;font-size:9px;font-weight:500;fill:#636b80;letter-spacing:.18em}svg .col-head.strong{fill:#4f5d75}
+    svg .box-old{fill:#ffffff;stroke:#4f5d75;stroke-width:1}
+    svg .box-new{fill:#ffffff;stroke:#2d3142;stroke-width:1.2}
+    svg .name{font-family:'Geist',sans-serif;font-size:12px;font-weight:600;fill:#2d3142}svg .name.old{font-weight:500}
+    svg .path{font-family:'Geist Mono',monospace;font-size:9px;fill:#4f5d75}
+    svg .rel{fill:none;stroke:#4f5d75;stroke-width:1}
+    svg .rel.replace{stroke:#2d3142;stroke-width:1.2}
+    svg .rel.parallel{stroke-dasharray:5 4}
+    svg .rel-mask{fill:#f5f5f5}
+    svg .rel-label{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.06em;fill:#4f5d75}svg .rel-label.replace{fill:#2d3142}
+    svg .glyph{font-family:'Geist Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.08em}
+    svg .chip-kill{fill:#2d3142}svg .g-kill{fill:#f5f5f5}
+    svg .chip-keep{fill:none;stroke:#2d3142;stroke-width:1}svg .g-keep{fill:#2d3142}
+    svg .fate-sub{font-family:'Geist Mono',monospace;font-size:9px;fill:#636b80}
+    svg .slot-missing{fill:none;stroke:#eb6c36;stroke-width:1;stroke-dasharray:4 3}
+    svg .tier{fill:none;stroke:#636b80;stroke-width:.8}
+    svg .tier-text{font-family:'Geist Mono',monospace;font-size:9px;font-weight:500;fill:#636b80;letter-spacing:.08em}
+    svg .warn-dot{fill:none;stroke:#4f5d75;stroke-width:1}
+    svg .note{font-family:'Instrument Serif','Lora',serif;font-style:italic;font-size:14px;fill:#eb6c36}
+    svg .legend-text{font-family:'Geist Mono',monospace;font-size:9px;fill:#4f5d75}
+    svg .legend-eyebrow{font-family:'Geist Mono',monospace;font-size:9px;fill:#636b80;letter-spacing:.14em}
+    .cards{display:grid;grid-template-columns:1.1fr 1fr .9fr;gap:1rem;margin-top:1.5rem}@media(max-width:820px){.cards{grid-template-columns:1fr}}.card{padding:1.25rem;background:#fff;border:1px solid var(--rule);border-radius:6px}.card .eyebrow{margin-bottom:.5rem;font-size:.5rem}.card-header{display:flex;align-items:center;gap:.6rem;margin-bottom:.875rem;padding-bottom:.875rem;border-bottom:1px solid rgba(45,49,66,.08)}.card-dot{width:7px;height:7px;flex:0 0 auto;border-radius:50%}.card-dot.coral{background:var(--accent)}.card-dot.ink{background:var(--ink)}.card-dot.muted{background:var(--muted)}.card h2{font-size:.875rem;font-weight:600}.card p,.card ul{color:var(--muted);font-size:.8125rem;line-height:1.55;list-style:none}.card li{position:relative;margin-bottom:.3rem;padding-left:.875rem}.card li::before{content:'\2014';position:absolute;left:0;color:rgba(45,49,66,.25)}.card code{font-family:var(--mono);font-size:.75rem;color:var(--ink)}.footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-top:2rem;padding-top:1.5rem;color:var(--soft);border-top:1px solid rgba(45,49,66,.10);font:400 .72rem/1.4 var(--mono);letter-spacing:.06em}
+  </style>
+</head>
+<body><main class="container"><header class="header"><p class="header-eyebrow">Bản đồ chỗ-sống · Diagram Design</p><h1>Chỗ sống của lớp token cũ</h1><p class="subtitle">Lớp design token mới không tự làm biến mất lớp cũ. Bản đồ này liệt kê từng hiện vật cũ còn sống trong cùng một lớp, quan hệ của nó với vật mới, và số phận đã cam kết kèm mốc đo. Hàng nào chưa có số phận thì hàng đó là phát hiện — không phải chỗ trống vô hại.</p></header><div class="diagram-container">
+      <svg viewBox="0 0 1000 520" role="img" aria-labelledby="dpf-title dpf-desc" xmlns="http://www.w3.org/2000/svg">
+        <title id="dpf-title">Bản đồ chỗ-sống của lớp design token</title><desc id="dpf-desc">Bốn hiện vật cũ trong lớp design token, mỗi hàng có một quan hệ với vật mới (thay, kế thừa, song song), một số phận đã cam kết kèm mốc đo, và một nấc bằng chứng. Hàng theme-old.json chạy song song nhưng chưa có số phận và được đánh dấu coral.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+          <marker id="arrow-ink" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2d3142"/></marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+        </defs>
+        <rect width="1000" height="520" fill="#f5f5f5"/>
+
+        <!-- Column headers + header rule -->
+        <text class="col-head" x="32" y="92">VẬT CŨ</text>
+        <text class="col-head" x="340" y="92" text-anchor="middle">QUAN HỆ</text>
+        <text class="col-head strong" x="456" y="92">VẬT MỚI</text>
+        <text class="col-head strong" x="744" y="92">SỐ PHẬN</text>
+        <line class="rule" x1="32" y1="108" x2="976" y2="108"/>
+
+        <!-- Relationships drawn before boxes. Rows 1 and 2 converge on the same new box; attach points fanned 24px apart on its left edge (176 / 200). -->
+        <path class="rel replace" d="M 256,148 H 424 Q 432,148 432,156 V 168 Q 432,176 440,176 H 456" marker-end="url(#arrow-ink)"/>
+        <path class="rel parallel" d="M 256,228 H 424 Q 432,228 432,220 V 208 Q 432,200 440,200 H 456" marker-end="url(#arrow)"/>
+        <line class="rel" x1="256" y1="308" x2="456" y2="308" marker-end="url(#arrow)"/>
+        <line class="rel replace" x1="256" y1="388" x2="456" y2="388" marker-end="url(#arrow-ink)"/>
+
+        <!-- Relationship labels — masked, 8px gap above the stroke -->
+        <rect class="rel-mask" x="320" y="120" width="40" height="20" rx="2"/><text class="rel-label replace" x="340" y="136" text-anchor="middle">THAY</text>
+        <rect class="rel-mask" x="308" y="200" width="64" height="20" rx="2"/><text class="rel-label" x="340" y="216" text-anchor="middle">SONG SONG</text>
+        <rect class="rel-mask" x="312" y="280" width="56" height="20" rx="2"/><text class="rel-label" x="340" y="296" text-anchor="middle">KẾ THỪA</text>
+        <rect class="rel-mask" x="320" y="360" width="40" height="20" rx="2"/><text class="rel-label replace" x="340" y="376" text-anchor="middle">THAY</text>
+
+        <!-- Vật cũ -->
+        <rect class="box-old" x="32" y="120" width="224" height="56" rx="6"/>
+        <text class="name old" x="48" y="144">Lớp khung cũ</text><text class="path" x="48" y="160">src/legacy/frames.css</text>
+        <rect class="box-old" x="32" y="200" width="224" height="56" rx="6"/>
+        <text class="name old" x="48" y="224">Theme JSON cũ</text><text class="path" x="48" y="240">config/theme-old.json</text>
+        <rect class="box-old" x="32" y="280" width="224" height="56" rx="6"/>
+        <text class="name old" x="48" y="304">Bộ nút cũ</text><text class="path" x="48" y="320">src/legacy/legacy-buttons.tsx</text>
+        <rect class="box-old" x="32" y="360" width="224" height="56" rx="6"/>
+        <text class="name old" x="48" y="384">Sprite biểu tượng</text><text class="path" x="48" y="400">assets/icons-sprite.svg</text>
+
+        <!-- Vật mới -->
+        <rect class="box-new" x="456" y="160" width="224" height="56" rx="6"/>
+        <text class="name" x="472" y="184">Lớp token</text><text class="path" x="472" y="200">src/styles/tokens.css</text>
+        <rect class="box-new" x="456" y="280" width="224" height="56" rx="6"/>
+        <text class="name" x="472" y="304">Button chuẩn</text><text class="path" x="472" y="320">src/ui/Button.tsx</text>
+        <rect class="box-new" x="456" y="360" width="224" height="56" rx="6"/>
+        <text class="name" x="472" y="384">Icon chuẩn</text><text class="path" x="472" y="400">src/ui/Icon.tsx</text>
+
+        <!-- Số phận -->
+        <rect class="chip-kill" x="744" y="128" width="72" height="20" rx="4"/><text class="glyph g-kill" x="780" y="144" text-anchor="middle">KHAI TỬ</text>
+        <text class="fate-sub" x="744" y="164">sau 2 sprint</text>
+        <rect class="slot-missing" x="744" y="208" width="72" height="20" rx="4"/>
+        <rect class="chip-keep" x="744" y="288" width="48" height="20" rx="4"/><text class="glyph g-keep" x="768" y="304" text-anchor="middle">GIỮ</text>
+        <text class="fate-sub" x="744" y="324">hạn Q4</text>
+        <rect class="chip-kill" x="744" y="368" width="72" height="20" rx="4"/><text class="glyph g-kill" x="780" y="384" text-anchor="middle">KHAI TỬ</text>
+        <text class="fate-sub" x="744" y="404">khi hết ref</text>
+
+        <!-- Bằng chứng — margin badges -->
+        <rect class="tier" x="932" y="128" width="32" height="20" rx="4"/><text class="tier-text" x="948" y="144" text-anchor="middle">N2</text>
+        <circle class="warn-dot" cx="920" cy="220" r="4"/><rect class="tier" x="932" y="208" width="32" height="20" rx="4"/><text class="tier-text" x="948" y="224" text-anchor="middle">N3</text>
+        <rect class="tier" x="932" y="288" width="32" height="20" rx="4"/><text class="tier-text" x="948" y="304" text-anchor="middle">N1</text>
+        <rect class="tier" x="932" y="368" width="32" height="20" rx="4"/><text class="tier-text" x="948" y="384" text-anchor="middle">N2</text>
+
+        <!-- The finding -->
+        <text class="note" x="976" y="256" text-anchor="end">Cổng chưa mở khi một hàng còn vô chủ.</text>
+
+        <!-- Legend strip -->
+        <line class="rule" x1="32" y1="452" x2="976" y2="452"/>
+        <text class="legend-eyebrow" x="32" y="476">CHÚ GIẢI</text>
+        <rect class="box-old" x="112" y="460" width="24" height="20" rx="4"/><text class="legend-text" x="144" y="476">Vật cũ</text>
+        <rect class="box-new" x="192" y="460" width="24" height="20" rx="4"/><text class="legend-text" x="224" y="476">Vật mới</text>
+        <line class="rel replace" x1="280" y1="472" x2="304" y2="472"/><text class="legend-text" x="312" y="476">Thay</text>
+        <line class="rel" x1="352" y1="472" x2="376" y2="472"/><text class="legend-text" x="384" y="476">Kế thừa</text>
+        <line class="rel parallel" x1="440" y1="472" x2="464" y2="472"/><text class="legend-text" x="472" y="476">Song song</text>
+        <rect class="chip-kill" x="540" y="460" width="24" height="20" rx="4"/><rect class="chip-keep" x="572" y="460" width="24" height="20" rx="4"/><text class="legend-text" x="604" y="476">Số phận</text>
+        <rect class="tier" x="664" y="460" width="32" height="20" rx="4"/><text class="tier-text" x="680" y="476" text-anchor="middle">N1</text><text class="legend-text" x="704" y="476">Nấc bằng chứng</text>
+      </svg>
+  </div>
+  <section class="cards" aria-label="Tóm tắt chỗ-sống"><article class="card"><p class="eyebrow">PHÁT HIỆN</p><div class="card-header"><span class="card-dot coral"></span><h2>Một hàng chạy song song mà không ai nhận</h2></div><p><code>config/theme-old.json</code> vẫn được đọc song song với lớp token mới, nhưng không có ngày khai tử, không có hạn giữ, không có người nhận. Song song mà không có hạn chính là cách hai hệ thống trở thành vĩnh viễn. Cổng chưa mở khi hàng này còn trống.</p></article><article class="card"><div class="card-header"><span class="card-dot ink"></span><h2>Ba hàng còn lại đã cam kết</h2></div><ul><li><code>frames.css</code> — khai tử sau 2 sprint.</li><li><code>legacy-buttons.tsx</code> — giữ, kế thừa, hạn Q4.</li><li><code>icons-sprite.svg</code> — khai tử khi hết tham chiếu.</li></ul></article><article class="card"><div class="card-header"><span class="card-dot muted"></span><h2>Bằng chứng, không phải trí nhớ</h2></div><p>Mỗi hàng mang một nấc: N1 repo tự khai qua config, N2 liệt kê bằng máy, N3 khai tay. Hàng vô chủ cũng đúng là hàng N3 duy nhất — nó được nhớ ra chứ không được tìm thấy. Một bản đồ toàn N3 là ý kiến, không phải kiểm kê.</p></article></section>
+  <footer class="footer"><span>lớp design token · bản đồ chỗ-sống</span><span>ví dụ · diagram design</span></footer>
+  </main></body>
+</html>
