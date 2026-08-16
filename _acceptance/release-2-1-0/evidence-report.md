@@ -169,25 +169,21 @@ human_signoff:
 
 Phản biện sạch bắt 4 P1 + 1 P2 trước Cổng 1, tất cả sửa trong artifact: vế
 «CI clean với chữ ký rỗng» rời khỏi Then (thành số đo M1 ở Notes) và khai đường
-đi khi hội đồng UNCERTAIN; P196 canh DRIFT chứ không canh sửa-tay (known-limit
+đi khi hội đồng trả «chưa chắc»; P196 canh DRIFT chứ không canh sửa-tay (known-limit
 kho skill riêng tư), thêm chân version-theo-hash với mutant ngay lượt này và
 chân âm hooks/.mcp/thư mục lạ; allowlist E5 khai một chỗ + hai ràng buộc âm
 cho run-tests (chỉ THÊM) và config (chỉ thêm khoá executor); đề ca hội đồng bỏ
 mớm nội dung skill, inputs tách agent/giám khảo.
 
+Ba giới hạn ĐÃ KHAI TRƯỚC trong contract (AC-6 / Out of scope) — nhắc lại ở
+đây theo tiền lệ release-2-0-0 (mục Known limits phải RỖNG THẬT, lời giải thích
+sống ở Analyst): (1) kho skill nguồn là repo riêng tư, CI không fetch được →
+«sửa tay gói rồi chạy lại tree-hash» là ca răng không canh, chốt còn lại là luật
+văn NOTICE + review PR; (2) gói `acceptance-gate` (source `./`) chép trọn repo
+nên cache có thêm 2,8 MB; (3) đường đọc-cũ symlink cá nhân + plugin → trigger
+đôi, §5 dặn gỡ symlink, không phép đo nào canh máy đồng đội.
+
 ## Known limits
-
-(rỗng — ba giới hạn dưới đã KHAI TRƯỚC trong contract AC-6 / Out of scope, không phải giới hạn mới của bằng chứng; ghi ở đây để người đọc report thấy, nhưng chúng không phải mục cần quyết)
-
-<!--
-- Kho skill nguồn là repo riêng tư; CI kit không fetch được nên «sửa tay gói
-  rồi chạy lại tree-hash để cập nhật NOTICE» là ca răng không canh — chốt còn
-  lại là luật văn trong NOTICE + review PR. Khai trước ở AC-6.
-- Gói `acceptance-gate` (source `./`) chép trọn repo nên cache của nó nay có
-  thêm 2,8 MB — known-limit của cách marketplace hoạt động.
-- Đường đọc-cũ symlink cá nhân + plugin → trigger đôi: §5 dặn gỡ symlink; không
-  phép đo nào canh được máy đồng đội.
--->
 
 ## Variance
 
