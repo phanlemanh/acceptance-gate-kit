@@ -3,7 +3,7 @@ schema_version: 1
 slug: release-2-1-0
 round: 1
 verdict: PASS
-verified_commit: 51d287117b67d506a862be2b35eb67bc9f427e9b
+verified_commit: 0a1f8ef84c744ed57dd5fa8c71643579b501038a
 verified_at: 2026-08-16T14:42:30Z
 human_signoff:
 ---
@@ -184,6 +184,11 @@ nên cache có thêm 2,8 MB; (3) đường đọc-cũ symlink cá nhân + plugin
 đôi, §5 dặn gỡ symlink, không phép đo nào canh máy đồng đội.
 
 ## Known limits
+
+### Re-pin lần 1 — 2026-08-16, do bổ sung dòng cài diagram-design vào QUICKSTART/GUIDE/README sau mốc verify (kiểm tra tự-cài lần đầu)
+
+run_id: r-20260816T153623Z-9340
+sha: 0a1f8ef84c744ed57dd5fa8c71643579b501038a · suites: 4 lệnh exit 0 (+ 4 chân răng release chạy lại XANH)
 
 ## Variance
 
