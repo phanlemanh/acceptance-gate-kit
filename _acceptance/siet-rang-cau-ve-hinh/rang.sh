@@ -56,6 +56,21 @@ OUTN="$(ONLY_BLOCK=P197 bash "$CP" 2>&1)"; rm -f "$CP"
 has "$OUTN" "ma tran chua toan phan" "bo dot bien nhan ma P197 khong do 'ma tran chua toan phan'"
 has "$OUTN" "thieu nhan buoc [5] Đính" "P197 do ma tran nhung khong ghim dung nhan thieu [5] Đính"
 
+# AC-7 — P198 tu canh minh khong doc thu muc ho so: chen mot dong co chuoi do vao ban sao khoi P198 → P198 DO
+python3 - "$ROOT" "$CP" <<'PYX'
+import sys, re
+from pathlib import Path
+src = (Path(sys.argv[1]) / "tests/plugins/run-tests.sh").read_text(encoding="utf-8")
+i = src.index('run "P198 hfl_clause'); j = src.index("\nPY\n", i)
+mut = src[:j] + "\nHOSO = '_accep' 'tance/'   # dong chen thu\n" + src[j:]
+# chuoi ghep 2 literal ke nhau trong python thanh '_acceptance/' khi khoi duoc THUC THI? khong —
+# assert cua P198 soi VAN BAN khoi; nen chen chuoi day du:
+mut = src[:j] + "\n# thu: _acceptance/ban-sao\n" + src[j:]
+Path(sys.argv[2]).write_text(mut, encoding="utf-8")
+PYX
+OUT7="$(ONLY_BLOCK=P198 bash "$CP" 2>&1)"; rm -f "$CP"
+has "$OUT7" "P198 khong duoc doc thu muc ho so" "chen '_acceptance/' vao khoi P198 ma P198 khong do"
+
 # AC-8 — tinh phan biet: rang cua hinh-tai-cong-1 phai DO tren moc diffBase (khoi GATE 1 chua co)
 BASE=8d1e135682633ba22c44d253e90b0f404043722b   # moc PR #62 tach nhanh — song trong ho so, khong trong suite
 # Doi chung DUONG truoc (khoi da chay), roi ghim DUNG thong diep — khong tin exit code mot minh
@@ -77,5 +92,5 @@ else
 fi
 
 if [ "$ERR" -ne 0 ]; then echo "SIET-RANG DO"; exit 1; fi
-echo "SIET-RANG OK: P90 3 ban chep · P197 $NM msg + 5 tach + 5 nhan · P198 6 ca · rang cu 2 chieu do + phan biet diffBase"
+echo "SIET-RANG OK: P90 3 ban chep · P197 $NM msg + 5 tach + 5 nhan · P198 6 ca + tu-canh · rang cu 2 chieu do + phan biet diffBase"
 exit 0

@@ -2,6 +2,9 @@
 set -u
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# Duong dan CHINH file dang chay — case tu-soi (P198) doc ban nay, khong doc ban goc,
+# de rang cua ho so chay duoc BAN SAO da dot bien (siet-rang-cau-ve-hinh AC-7).
+export RUN_TESTS_SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
 failures=0
 
 pass() { echo "  PASS: $1"; }
@@ -10124,7 +10127,7 @@ PY
 # thu gan ho so do bang rang cua ho so).
 run "P198 hfl_clause mot nguon: 6 ca fixture code-sinh + hai khoi (P90 va khoi Gate 1) cung import, khong chep tay (siet-rang-cau-ve-hinh E1 E2 E6 E7)" \
   python3 - "$ROOT" <<'PY'
-import re, sys, tempfile
+import re, sys, tempfile, shutil, atexit
 from pathlib import Path
 root = Path(sys.argv[1])
 sys.path.insert(0, str(root / "tests/plugins"))
@@ -10133,7 +10136,7 @@ from hfl_clause import clause_copies_ok, clause_copies
 # (1) fixture code-sinh trong chinh lan chay — clause GIA (khong phai clause that,
 # de phep do khong phu thuoc ban luat), file hai ban chep, sau ca theo AC-1.
 clause = "Alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu."
-tmp = Path(tempfile.mkdtemp(prefix="p198-"))
+tmp = Path(tempfile.mkdtemp(prefix="p198-")); atexit.register(shutil.rmtree, tmp, True)
 def mk(name, body):
     f = tmp / name; f.write_text(body, encoding="utf-8"); return f.read_text(encoding="utf-8")
 two = mk("two.md", f"# doc\n\n{clause}\n\nsome text\n\n- bullet: {clause} tail\n")
@@ -10155,7 +10158,8 @@ for name, text, want in CASES:
 assert clause_copies(two, clause) == (2, 2), clause_copies(two, clause)
 
 # (2) kiem cau truc: rut khoi P90 va P197 tu chinh suite (duong suy tu ROOT)
-suite = (root / "tests/plugins/run-tests.sh").read_text(encoding="utf-8")
+import os
+suite = Path(os.environ.get("RUN_TESTS_SELF") or (root / "tests/plugins/run-tests.sh")).read_text(encoding="utf-8")
 def block_of(prefix):
     m = re.search(r'run "' + re.escape(prefix) + r'[^\n]*\\\n  python3 - "\$ROOT" <<\'PY\'\n([\s\S]*?)\nPY\n', suite)
     assert m, f"khong rut duoc khoi {prefix}"
