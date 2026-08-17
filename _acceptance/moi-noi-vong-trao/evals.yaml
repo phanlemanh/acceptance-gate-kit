@@ -54,14 +54,16 @@ evals:
     paths: [_acceptance/moi-noi-vong-trao/rang-mnvt.sh, skills/acceptance/references/stranger-drive-template.md, skills/uat-session/SKILL.md, docs/lai-thu-nguoi-la.md, docs/plans/2026-08-13-de-bai-lai-thu-nguoi-la.md]
     expected: >
       QUAN HỆ writer→reader, hai phía đều bằng máy: KHUÔN = tập khoá parse
-      từ YAML giữa mốc STRANGER-FRONTMATTER-TEMPLATE; ĐỌC = tập khoá backtick
-      mà §0–§1 của uat-session gọi khi đọc nhật-ký-vấp (rút bằng regex trên
-      đúng hai section, không chép tay). Assert: ĐỌC ⊆ KHUÔN; ĐỌC ⊇ {chan, slug,
-      ran_at}; §0 nhắc đúng tên file stranger-drive.md; docs/lai-thu-nguoi-la.md
-      chứa đường dẫn khuôn. Chiều đỏ HAI PHÍA trên bản sao: (a) khuôn đổi
-      `chan`→`blocked` → ĐỎ ghim «§0 doc khoa ngoai khuon: chan»; (b) SKILL §0
-      đổi `chan`→`blocked` → ĐỎ ghim «§0 doc khoa ngoai khuon: blocked». Đỏ
-      ghim khoá / file.
+      từ YAML giữa mốc STRANGER-FRONTMATTER-TEMPLATE; ĐỌC = khoá khai trong
+      marker máy-đọc STRANGER-KEYS-READ của §0 uat-session (không allowlist
+      trong script), đối chiếu HAI CHIỀU với backtick §0–§1. Assert: ĐỌC ⊆
+      KHUÔN; ĐỌC ⊇ {chan, slug, ran_at}; §0 nhắc đúng tên file
+      stranger-drive.md; docs/lai-thu-nguoi-la.md chứa đường dẫn khuôn; đề bài
+      §4 trỏ khuôn mới và KHÔNG còn khuôn cũ cạnh tranh (một khuôn). Chiều đỏ
+      BA PHÍA qua chính check(): (a) khuôn đổi `chan`→`blocked` → «§0 doc khoa
+      ngoai khuon: chan»; (b) marker đổi `chan`→`blocked` → «§0 doc khoa ngoai
+      khuon: blocked»; (c) §0 dùng backtick `lac` không khai marker → «§0 doc
+      khoa khong khai trong marker: lac». Đỏ ghim khoá / file.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   # ── uat-session §0 — hành vi ──────────────────────────────────────────
