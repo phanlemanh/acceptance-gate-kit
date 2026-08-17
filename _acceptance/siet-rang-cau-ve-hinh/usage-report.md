@@ -83,3 +83,28 @@
 - **claude-sonnet-5**: 9 agent · 89 calls · out 83,567 · in 7,401 · cache_read 4,698,548 · cache_create 481,332
 - **claude-haiku-4-5-20251001**: 6 agent · 17 calls · out 5,201 · in 148 · cache_read 402,575 · cache_create 116,619
 
+### S4 round 4 — wf_785c4a3e-adc (16 agent, 121,826 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| refute:rang.sh | claude-sonnet-5 | 30 | 20,242 | 60 | 2,111,760 | 322 |
+| refute:run-tests.sh | claude-sonnet-5 | 18 | 18,683 | 36 | 1,104,775 | 283 |
+| review:measurement | claude-fable-5 | 10 | 18,602 | 20 | 605,150 | 259 |
+| synthesize:report | claude-sonnet-5 | 8 | 16,098 | 16 | 457,837 | 211 |
+| refute:rang.sh | claude-sonnet-5 | 13 | 10,411 | 26 | 741,007 | 154 |
+| review:bugs | claude-fable-5 | 7 | 10,034 | 14 | 343,323 | 129 |
+| refute:run-tests.sh | claude-sonnet-5 | 9 | 9,653 | 18 | 476,127 | 131 |
+| review:conventions | claude-fable-5 | 9 | 7,436 | 18 | 467,219 | 131 |
+| triage | claude-sonnet-5 | 2 | 3,003 | 4 | 44,058 | 38 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 6 | 1,596 | 50 | 171,183 | 140 |
+| machine:bash tests/plugins/run-tests.sh | claude-haiku-4-5-20251001 | 6 | 1,567 | 50 | 170,480 | 123 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 3 | 1,378 | 26 | 75,299 | 18 |
+| capture:provenance | claude-sonnet-5 | 2 | 1,053 | 4 | 41,962 | 17 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 2 | 731 | 18 | 45,553 | 10 |
+| machine:bash _acceptance/siet-rang-cau-ve-hinh/r | claude-haiku-4-5-20251001 | 2 | 686 | 18 | 26,670 | 37 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 653 | 18 | 45,546 | 15 |
+
+- **claude-sonnet-5**: 7 agent · 82 calls · out 79,143 · in 164 · cache_read 4,977,526 · cache_create 428,779
+- **claude-fable-5**: 3 agent · 26 calls · out 36,072 · in 52 · cache_read 1,415,692 · cache_create 193,460
+- **claude-haiku-4-5-20251001**: 6 agent · 21 calls · out 6,611 · in 180 · cache_read 534,731 · cache_create 104,229
+
