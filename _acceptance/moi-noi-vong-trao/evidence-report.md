@@ -7,7 +7,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 36bed766ca996210bcba6c1afcec222fecccad71
-human_signoff:
+human_signoff: Manh Phan 2026-08-18
 ---
 
 # Evidence Report: moi-noi-vong-trao
@@ -153,6 +153,36 @@ none — every multi-run eval is uniform
 Round 1: 8 machine eval (E1, E2, E3, E4b, E5b, E6, E7, E8) đều PASS ngay lần chạy đầu, 7/8 phân biệt được trên baseline (baseline: red), riêng E8 baseline: green (xem Analyst); 2 judgment item (E4, E5) panel trả UNCERTAIN — thiếu artifact bài làm thực tế của agent-dưới-khảo trong danh sách Input để đối chiếu — chuyển Gate 2 cho người quyết, không lặp vòng.
 Round 2: bổ sung transcript-E4.md/transcript-E5.md (bài làm agent phiên sạch, tool_uses: 0) + đáp án dap-an-E4.md/dap-an-E5.md vào Input cho judge; panel 3 lens chấm lại E4 (6/6 ca khớp cột ĐẠT) và E5 (3/3 ca khớp cột ĐẠT), cả hai UNCERTAIN → PASS, không dissent; 8 machine eval chạy lại cùng lệnh, giữ nguyên PASS; verdict tổng lên PASS.
 Round 3: thêm mutant m4-placeholder vào chân the-nguong (E1/E2 nay ghim 4 mutant thay vì 3) và chân hoi-dong mới (E4c/E5c) kiểm transcript-E4/E5 chưa lệch vùng SKILL hiện tại sau khi S5 đổi câu chỉ dẫn ngày 17/08; E3/E6/E7 carry-forward từ round 2 (delta không chạm paths của các eval này); panel E4/E5 giữ nguyên PASS; toàn bộ 12 eval PASS, verdict tổng PASS.
+
+## Ngoài hợp đồng
+
+Năm phát hiện của vòng 3 là lỗi THẬT nhưng nằm ngoài phạm vi đã duyệt ở Cổng
+Phạm vi; người quyết xếp cả năm vào Known limits (không cái nào đổi thứ người
+dùng thấy — đều là độ chặt của phép đo nội bộ). Chi tiết nguyên văn ở
+`review-findings.md`.
+
+## Known limits
+
+- **Khuôn nhật-ký-vấp còn một ô ghi kiểu khác nếp.** Ô «số câu chuyển phiên
+  người» dùng chỗ-trống `{n}` thay vì `{chuyen_phien_nguoi}` như mọi khuôn
+  khác; công cụ điền khuôn tự động sau này có thể bỏ sót ô đó mà không kêu.
+  Tái lập: `grep '{n}' skills/acceptance/references/stranger-drive-template.md`.
+- **Nhãn của một bài kiểm nội bộ ghi «3 phép thử phá» trong khi nó chạy 4.**
+  Số thật in ở dòng kết quả; không che lỗi nào, nhưng người đọc log có thể
+  hiểu nhầm mức đã kiểm. Tái lập: `grep -n '3 mutant' tests/plugins/run-tests.sh`.
+- **Bảng kiểm của thẻ thiếu một ô: hồ sơ cơ hội CÓ mà không đọc được.** Thẻ có
+  nhánh riêng cho ca này (cờ vàng «không đọc được»), nhưng không ô kiểm nào
+  bắt buộc nó xuất hiện — gỡ nhánh đó đi thì bài kiểm vẫn xanh.
+- **Hai phép kiểm «khuôn cũ không còn» chưa từng chạy chiều đỏ.** Chúng nằm
+  ngoài hàm kiểm nên ba phép thử phá không chạm tới; nếu chúng hỏng thì im
+  lặng. Tái lập: `bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan khuon`.
+- **Ô «có ngưỡng» chỉ đo một chiều.** Có kiểm «phải hiện khối ngưỡng», chưa
+  kiểm «và không được hiện cờ chưa-khai» — chiều ngược đã có phép thử phá.
+
+- **Điều kiện tự đặt trong Notes đã được owner miễn.** Hợp đồng ghi «ký sau
+  khi đọc mục lỗ-kit của vòng refine-editor (máy B)»; owner quyết merge trước
+  khi vòng đó tới mốc đó (18/08). Số liệu vòng refine-editor vẫn về sau và là
+  đầu vào cho hồ sơ kế, không mất; đường đảo: revert một commit merge.
 
 ## Gate 2 checklist (human)
 

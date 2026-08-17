@@ -5,7 +5,7 @@ slug: moi-noi-vong-trao
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -117,5 +117,8 @@ Quét bằng morphological-scan (preset test-matrix), 3 trục:
   đề ca ở `hoi-dong/`.
 - Chân răng `rang-mnvt.sh` không vào suite vĩnh viễn (nếp hồ sơ), riêng P197
   (thẻ ngưỡng) vào `tests/plugins` vĩnh viễn vì là hành vi sản phẩm.
-- Ký chỉ sau khi đọc mục «lỗ-kit» của phiên máy B (refine-editor) — nguồn số
-  liệu mà rà soát 17/08 đòi.
+- Điều kiện «ký sau khi đọc mục lỗ-kit của phiên máy B (refine-editor)» —
+  owner MIỄN ngày 18/08 khi quyết merge; số liệu vòng đó vẫn là đầu vào cho
+  hồ sơ kế. Ghi ở Known limits của báo cáo bằng chứng.
+- Known limits (5 mục) là năm phát hiện ngoài hợp đồng của vòng chấm 3, owner
+  xếp Known limits khi quyết merge.
