@@ -108,6 +108,13 @@ này* (hình vẽ guard chưa có — hình không được đi trước chữ; 
   đáp án viết trước ở `giam-khao/dap-an-E*.md`; giám khảo mù với diff.
 - Số liệu ván refine-editor (máy B, mục lỗ-kit) là đầu vào trước khi ký.
 
+## 4b. Hình của hồ sơ (tầng 2)
+
+`_acceptance/moi-noi-vong-trao/figures/truoc-sau.html` — cùng một vòng có
+ngưỡng nghiệm thu, hai hàng: trước (đoạn nối đứt, điều kiện «bấm được» là lời
+khai) và sau (một dòng bàn giao → lái-thử → phiên nghiệm thu, điều kiện thành
+bằng chứng). Hình là chiếu của contract AC-1/AC-2/AC-4/AC-5, không phải nguồn.
+
 ## 5. Đảo
 
 Một revert; không schema mới bắt consumer migrate; hồ sơ cũ không đổi cách đọc.
