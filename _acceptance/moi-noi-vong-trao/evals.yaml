@@ -51,7 +51,7 @@ evals:
     criterion: AC-3
     executor: script
     cmd: config:executors.script.rang_mnvt_khuon
-    paths: [_acceptance/moi-noi-vong-trao/rang-mnvt.sh, skills/acceptance/references/stranger-drive-template.md, skills/uat-session/SKILL.md, docs/lai-thu-nguoi-la.md]
+    paths: [_acceptance/moi-noi-vong-trao/rang-mnvt.sh, skills/acceptance/references/stranger-drive-template.md, skills/uat-session/SKILL.md, docs/lai-thu-nguoi-la.md, docs/plans/2026-08-13-de-bai-lai-thu-nguoi-la.md]
     expected: >
       QUAN HỆ writer→reader, hai phía đều bằng máy: KHUÔN = tập khoá parse
       từ YAML giữa mốc STRANGER-FRONTMATTER-TEMPLATE; ĐỌC = tập khoá backtick

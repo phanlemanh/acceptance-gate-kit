@@ -39,6 +39,12 @@ if(!fs.existsSync(tplP))die('khuon thieu khoi STRANGER-FRONTMATTER-TEMPLATE (fil
 const tpl=fs.readFileSync(tplP,'utf8'),sk=fs.readFileSync(skP,'utf8');
 const e=check(tpl,sk,'that');if(e)die(e);
 if(!fs.readFileSync(path.join(root,'docs/lai-thu-nguoi-la.md'),'utf8').includes('stranger-drive-template.md'))die('docs/lai-thu-nguoi-la.md khong tro toi khuon');
+// MỘT khuôn: đề bài §4 và bảng thành phần docs phải trỏ tới khuôn mới, không còn khuôn cũ cạnh tranh (S4-r2 finding)
+const db=fs.readFileSync(path.join(root,'docs/plans/2026-08-13-de-bai-lai-thu-nguoi-la.md'),'utf8');
+const s4=(db.split(/^## 4 · /m)[1]||'').split(/^## 5 · /m)[0]||'';
+if(!s4.includes('stranger-drive-template.md'))die('de bai §4 khong tro toi khuon moi');
+if(/^# Lái-thử người-lạ — <slug>/m.test(s4))die('de bai §4 con khuon cu canh tranh (khong frontmatter)');
+if(/khuôn ở đề bài §4/.test(fs.readFileSync(path.join(root,'docs/lai-thu-nguoi-la.md'),'utf8')))die('docs/lai-thu-nguoi-la.md con tro writer toi khuon cu §4');
 // chiều đỏ ba phía — mỗi mutant đi qua CHÍNH check() và phải trả đúng thông điệp ghim
 const muts=[
  ['khuon chan->blocked', tpl.replace(/^chan:/m,'blocked:'), sk, /ngoai khuon: chan/],
@@ -52,34 +58,48 @@ JS
 uat-needle)
   SK="$ROOT/skills/uat-session/SKILL.md"
   # checker nhận NỘI DUNG, trả thông điệp ghim hoặc rỗng — mutant đi qua chính hàm này
-  chk_uat() { local T="$1"; local S0; S0="$(printf '%s' "$T" | awk '/^## 0\./{f=1} /^## 2\./{f=0} f')"
+  chk_uat() { local T="$1"; local S0 B_CHAN B_VANG B_OK; S0="$(printf '%s' "$T" | awk '/^## 0\./{f=1} /^## 2\./{f=0} f')"
     [ -n "$S0" ] || { echo "khong rut duoc §0–§1"; return; }
-    printf '%s' "$S0" | grep -q 'chan' || { echo "thieu nhanh: khoa chan"; return; }
-    printf '%s' "$S0" | grep -q 'THOẢ BẰNG BẰNG CHỨNG' || { echo "thieu nhanh thoa bang bang chung"; return; }
-    printf '%s' "$S0" | grep -q 'cờ vàng' || { echo "thieu nhanh co vang"; return; }
-    printf '%s' "$S0" | grep -q 'lái-thử' || { echo "thieu chi duong lai-thu lai"; return; }
-    printf '%s' "$S0" | grep -q 'verified_at' || { echo "thieu nhanh ran_at cu hon lan cham"; return; }
+    # QUAN HỆ nhánh → kết cục: cắt TỪNG bullet nhánh rồi kiểm ngay trong bullet đó
+    B_OK="$(printf '%s' "$S0" | awk '/^  - `chan: 0`/{f=1;print;next} /^  - /{f=0} f')"
+    B_CHAN="$(printf '%s' "$S0" | awk '/^  - `chan` > 0/{f=1;print;next} /^  - /{f=0} f')"
+    B_VANG="$(printf '%s' "$S0" | awk '/^  - File vắng/{f=1;print;next} /^  - /{f=0} f')"
+    [ -n "$B_OK" ] || { echo "thieu nhanh chan 0"; return; }
+    printf '%s' "$B_OK" | grep -q '`slug`' || { echo "nhanh chan 0 khong doi slug khop"; return; }
+    printf '%s' "$B_OK" | grep -q 'verified_at' || { echo "nhanh chan 0 khong doi ran_at so voi verified_at"; return; }
+    printf '%s' "$B_OK" | grep -q 'THOẢ BẰNG BẰNG CHỨNG' || { echo "thieu nhanh thoa bang bang chung"; return; }
+    [ -n "$B_CHAN" ] || { echo "thieu nhanh chan > 0"; return; }
+    printf '%s' "$B_CHAN" | grep -q 'DỪNG' || { echo "nhanh chan > 0 khong dung"; return; }
+    printf '%s' "$B_CHAN" | grep -q 'lái-thử' || { echo "thieu chi duong lai-thu lai"; return; }
+    [ -n "$B_VANG" ] || { echo "thieu nhanh co vang"; return; }
+    printf '%s' "$B_VANG" | grep -q 'cờ vàng' || { echo "thieu nhanh co vang"; return; }
+    printf '%s' "$B_VANG" | grep -q '`slug` lệch' || { echo "nhanh co vang thieu ly do slug lech"; return; }
+    printf '%s' "$B_VANG" | grep -q 'không chặn' || { echo "nhanh co vang lai chan"; return; }
     printf '%s' "$S0" | grep -q 'Chuyển phiên người' || { echo "thieu chep Chuyen phien nguoi vao cham kin"; return; }
     echo ""; }
   R="$(chk_uat "$(cat "$SK")")"; [ -z "$R" ] || fail "$R"
-  M1="$(chk_uat "$(sed 's/cờ vàng//g' "$SK")")"; [ "$M1" = "thieu nhanh co vang" ] || fail "MUTANT xoa co vang KHONG bi bat dung thong diep (thay: $M1)"
-  M2="$(chk_uat "$(sed 's/lái-thử//g' "$SK")")"; [ "$M2" = "thieu chi duong lai-thu lai" ] || fail "MUTANT xoa chi duong KHONG bi bat dung thong diep (thay: $M2)"
-  ok "6 nhanh co ten; 2 mutant qua chinh checker, ghim dung thong diep (thieu nhanh co vang · thieu chi duong lai-thu lai)"
+  # mutant HẸP: chỉ đụng đúng bullet đang đo (không xoá toàn cục)
+  M1="$(chk_uat "$(sed 's/\*\*cờ vàng nêu lý do có tên\*\*/**nêu lý do có tên**/' "$SK")")"; [ "$M1" = "thieu nhanh co vang" ] || fail "MUTANT xoa co vang trong bullet vang KHONG bi bat dung thong diep (thay: $M1)"
+  M2="$(chk_uat "$(sed 's/    lái-thử cho CHẶN về 0/    cho CHẶN về 0/' "$SK")")"; [ "$M2" = "thieu chi duong lai-thu lai" ] || fail "MUTANT xoa chi duong trong bullet chan>0 KHONG bi bat dung thong diep (thay: $M2)"
+  M3="$(chk_uat "$(sed 's/`slug` lệch/slug lệch/' "$SK")")"; [ "$M3" = "nhanh co vang thieu ly do slug lech" ] || fail "MUTANT xoa ly do slug lech KHONG bi bat (thay: $M3)"
+  ok "3 bullet nhanh doc rieng, quan he nhanh→ket cuc; 3 mutant hep qua chinh checker, ghim dung thong diep"
   ;;
 s5-needle)
   SK="$ROOT/feature-loop/skills/feature-loop/SKILL.md"
-  chk_s5() { local T="$1"; local S5 S0; S5="$(printf '%s' "$T" | awk '/^## S5/{f=1} /^## Quy tắc/{f=0} f')"; S0="$(printf '%s' "$T" | awk '/^## S0/{f=1} /^## S1/{f=0} f')"
+  chk_s5() { local T="$1"; local S5 S0 KET; S5="$(printf '%s' "$T" | awk '/^## S5/{f=1} /^## Quy tắc/{f=0} f')"; S0="$(printf '%s' "$T" | awk '/^## S0/{f=1} /^## S1/{f=0} f')"
     [ -n "$S5" ] && [ -n "$S0" ] || { echo "khong rut duoc S0/S5"; return; }
-    printf '%s' "$S5" | grep -q 'opportunity.md' || { echo "thieu dong ban giao S5"; return; }
-    printf '%s' "$S5" | grep -q 'lái-thử' || { echo "thieu dong ban giao S5"; return; }
-    printf '%s' "$S5" | grep -q 'uat-session <slug>' || { echo "thieu dong ban giao S5"; return; }
-    printf '%s' "$S5" | grep -q 'ship thẳng' || { echo "thieu nhanh khong-co-hoi ship thang"; return; }
-    printf '%s' "$S0" | grep -q 'opportunity.md' || { echo "S0 khong doc opportunity.md"; return; }
+    KET="$(printf '%s' "$S5" | grep '^\*\*Kết S5')"; [ -n "$KET" ] || { echo "thieu doan Ket S5"; return; }
+    # QUAN HỆ trong CÙNG đoạn Kết S5: có opportunity → dòng bàn giao (lái-thử + uat-session <slug>); không → ship thẳng
+    printf '%s' "$KET" | grep -q 'Có `_acceptance/<slug>/opportunity.md`.*lái-thử.*`uat-session <slug>`' || { echo "thieu dong ban giao S5 (co opportunity → lai-thu + uat-session)"; return; }
+    printf '%s' "$KET" | grep -q 'Không có `opportunity.md`.*ship thẳng' || { echo "thieu nhanh khong-co-hoi ship thang"; return; }
+    printf '%s' "$KET" | grep -q 'không hỏi' || { echo "Ket S5 khong noi khong-hoi"; return; }
+    printf '%s' "$S0" | grep -q 'opportunity.md.*INPUT THỨ NHẤT' || { echo "S0 khong doc opportunity.md lam input thu nhat"; return; }
     echo ""; }
   R="$(chk_s5 "$(cat "$SK")")"; [ -z "$R" ] || fail "$R"
-  M="$(chk_s5 "$(sed 's/lái-thử//g' "$SK")")"; [ "$M" = "thieu dong ban giao S5" ] || fail "MUTANT xoa dong ban giao KHONG bi bat dung thong diep (thay: $M)"
-  M2="$(chk_s5 "$(sed 's/ship thẳng//g' "$SK")")"; [ "$M2" = "thieu nhanh khong-co-hoi ship thang" ] || fail "MUTANT xoa nhanh ship thang KHONG bi bat (thay: $M2)"
-  ok "S5 dong ban giao + nhanh ship thang; S0 doc opportunity; 2 mutant qua chinh checker, ghim dung thong diep"
+  M="$(chk_s5 "$(sed 's/bước kế: lái-thử người-lạ/bước kế: phiên nghiệm thu/' "$SK")")"; [ "$M" = "thieu dong ban giao S5 (co opportunity → lai-thu + uat-session)" ] || fail "MUTANT xoa lai-thu khoi dong ban giao KHONG bi bat dung thong diep (thay: $M)"
+  M2="$(chk_s5 "$(sed 's/→ một dòng «không hồ sơ cơ hội → ship thẳng/→ một dòng «không hồ sơ cơ hội → giao/' "$SK")")"; [ "$M2" = "thieu nhanh khong-co-hoi ship thang" ] || fail "MUTANT xoa ship thang KHONG bi bat (thay: $M2)"
+  M3="$(chk_s5 "$(sed 's/INPUT THỨ NHẤT/một input/' "$SK")")"; [ "$M3" = "S0 khong doc opportunity.md lam input thu nhat" ] || fail "MUTANT S0 KHONG bi bat (thay: $M3)"
+  ok "Ket S5: quan he co/khong opportunity → ban giao/ship thang trong cung doan; S0 input thu nhat; 3 mutant hep qua chinh checker"
   ;;
 spec)
   SP="$ROOT/docs/specs/workflow-v2-spec.md"; DB="$ROOT/docs/plans/2026-08-13-de-bai-lai-thu-nguoi-la.md"

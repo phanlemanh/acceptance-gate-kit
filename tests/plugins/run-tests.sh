@@ -9890,12 +9890,24 @@ from pathlib import Path
 root = Path(sys.argv[1]); errs = []
 def bad(m): errs.append(m); print("  P197 LOI: " + m)
 tpl = (root / "skills/acceptance/references/opportunity-template.md").read_text(encoding="utf-8")
-# round-trip writer->reader: heading lay tu KHUON, khong go tay
-m = re.search(r"^## (Ngưỡng chết / ngưỡng UAT)\s*$", tpl, re.M)
-if not m: bad("khuon opportunity-template thieu heading nguong"); print("\n".join(errs)); sys.exit(1)
-HEAD = m.group(1)
+# round-trip writer->reader: (1) heading = hang so gate-card doc, PHAI ton tai trong KHUON dang '## <heading>';
 gc_src = (root / "scripts/gate-card.js").read_text(encoding="utf-8")
-if "'" + HEAD + "'" not in gc_src: bad("gate-card.js khong dung hang so heading '%s' (round-trip khuon)" % HEAD)
+mh = re.search(r"UAT_THRESHOLD_HEADING = '([^']+)'", gc_src)
+if not mh: bad("gate-card.js khong khai hang so UAT_THRESHOLD_HEADING"); print("\n".join(errs)); sys.exit(1)
+HEAD = mh.group(1)
+if not re.search(r"^## " + re.escape(HEAD) + r"\s*$", tpl, re.M): bad("khuon opportunity-template khong co heading '%s' ma gate-card doc (round-trip khuon)" % HEAD)
+# (2) THAN opportunity.md dung tu CHINH KHUON: frontmatter giua moc OPP-FRONTMATTER-TEMPLATE + body sau moc,
+#     thay placeholder {..} — ben viet la khuon that, khong viet tay dung khuon ben doc.
+mfm = re.search(r"<!-- <<<OPP-FRONTMATTER-TEMPLATE -->\n```yaml\n(---\n[\s\S]*?\n---)\n```\n<!-- OPP-FRONTMATTER-TEMPLATE>>> -->\n", tpl)
+if not mfm: bad("khuon thieu khoi OPP-FRONTMATTER-TEMPLATE"); print("\n".join(errs)); sys.exit(1)
+FM = re.sub(r"\{[a-z_]+\}", "x", mfm.group(1))
+BODY = tpl[mfm.end():]
+def section_span(body, head):
+    m2 = re.search(r"^## " + re.escape(head) + r"[ \t]*\n", body, re.M)
+    if not m2: return None
+    m3 = re.search(r"^## ", body[m2.end():], re.M)
+    end = m2.end() + (m3.start() if m3 else len(body) - m2.end())
+    return m2.start(), m2.end(), end
 CONTRACT = """---
 schema_version: 1
 feature: P197 fixture
@@ -9919,11 +9931,16 @@ fixture P197.
 """
 LINES = ["- Câu hỏi phép đo trả lời: người dùng tự làm được việc X không?", "- Kết quả nào là SỐNG: ≥3/4 người tự hoàn thành", "- Timebox: 2 tuần"]
 def opp(kind):
-    head = "---\nschema_version: 1\nslug: p197\nfeature: P197\nowner: o\nstage: decided\ndecision: build\n---\n# Cơ hội p197\n## Vấn đề & ai gặp\nx\n"
-    if kind == "co":    return head + "## " + HEAD + "\n" + "\n".join(LINES) + "\n## Kết quả prototype\ny\n"
-    if kind == "rong":  return head + "## " + HEAD + "\n\n## Kết quả prototype\ny\n"
-    if kind == "thieu": return head + "## Kết quả prototype\ny\n"
-    raise SystemExit("kind?")
+    sp = section_span(BODY, HEAD)
+    if sp is None: raise SystemExit("khuon mat section nguong")
+    a, b, e = sp
+    sec = BODY[b:e]
+    guide = "".join(l + "\n" for l in sec.split("\n") if l.startswith(">"))   # khoi huong dan '>' cua khuon — gate-card phai loc
+    if kind == "co":    body = BODY[:b] + guide + "\n".join(LINES) + "\n\n" + BODY[e:]
+    elif kind == "rong": body = BODY[:b] + guide + "\n" + BODY[e:]            # chep khuon, chua dien: chi con dong '>' -> RONG
+    elif kind == "thieu": body = BODY[:a] + BODY[e:]
+    else: raise SystemExit("kind?")
+    return FM + "\n" + body
 def run(gc, ws, extract):
     a = ["node", str(gc), "--root", str(ws.parent.parent), "--slug", "p197"] + (["--extract"] if extract else [])
     r = subprocess.run(a, capture_output=True, text=True)
@@ -9947,7 +9964,7 @@ def matrix(gc, label):
         except Exception as e: out.append(kind + "/extract: json hong " + str(e)); shutil.rmtree(base, ignore_errors=True); continue
         if ut is None: out.append(kind + "/extract: thieu khoa uat_threshold"); shutil.rmtree(base, ignore_errors=True); continue
         has_block = "Ngưỡng nghiệm thu" in html and "sẽ có phiên nghiệm thu" in html
-        has_flag = ("chưa khai ngưỡng" in html) or ("không đọc được" in html)  # bat ky co vang nao cua khoi nguong
+        has_flag = ("Hồ sơ cơ hội chưa khai ngưỡng nghiệm thu" in html) or ("Hồ sơ cơ hội có nhưng thẻ không đọc được" in html)  # ghim DUNG cau co cua khoi nguong, khong dung manh chung
         has_fact = "ship thẳng, không phiên nghiệm thu" in html
         if kind == "co":
             if not has_block: out.append("co/html: thieu khoi nguong")
