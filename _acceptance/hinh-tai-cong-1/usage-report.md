@@ -23,3 +23,58 @@
 - **claude-fable-5**: 3 agent · 27 calls · out 23,693 · in 54 · cache_read 1,470,076 · cache_create 168,283
 - **claude-haiku-4-5-20251001**: 5 agent · 20 calls · out 5,227 · in 170 · cache_read 550,443 · cache_create 117,952
 
+### S4 round 2 — wf_b1097ab2-5ea (19 agent, 123,798 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| refute:evidence-report.md | claude-sonnet-5 | 31 | 23,102 | 62 | 2,155,030 | 355 |
+| refute:run-tests.sh | claude-sonnet-5 | 13 | 13,251 | 26 | 697,520 | 193 |
+| triage | claude-sonnet-5 | 2 | 12,973 | 4 | 45,250 | 155 |
+| refute:run-tests.sh | claude-sonnet-5 | 10 | 12,297 | 113 | 500,400 | 170 |
+| synthesize:report | claude-sonnet-5 | 4 | 11,261 | 8 | 179,167 | 129 |
+| review:conventions | claude-fable-5 | 12 | 9,462 | 24 | 698,815 | 151 |
+| refute:run-tests.sh | claude-sonnet-5 | 12 | 8,179 | 24 | 567,544 | 108 |
+| refute:evidence-report.md | claude-sonnet-5 | 6 | 6,239 | 1,419 | 292,181 | 81 |
+| review:measurement | claude-fable-5 | 7 | 5,845 | 14 | 333,439 | 90 |
+| refute:run-tests.sh | claude-sonnet-5 | 8 | 5,536 | 16 | 383,791 | 85 |
+| review:bugs | claude-fable-5 | 8 | 5,524 | 16 | 385,108 | 96 |
+| baseline:diffBase | claude-sonnet-5 | 7 | 2,366 | 14 | 277,949 | 140 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 5 | 2,122 | 42 | 165,703 | 30 |
+| machine:bash tests/plugins/run-tests.sh | claude-haiku-4-5-20251001 | 3 | 1,539 | 26 | 74,909 | 122 |
+| capture:provenance | claude-sonnet-5 | 2 | 1,134 | 4 | 41,887 | 12 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 943 | 18 | 45,480 | 15 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 4 | 844 | 34 | 123,899 | 136 |
+| machine:bash _acceptance/hinh-tai-cong-1/rang.sh | claude-haiku-4-5-20251001 | 2 | 650 | 18 | 26,600 | 13 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 2 | 531 | 18 | 45,487 | 8 |
+
+- **claude-sonnet-5**: 10 agent · 95 calls · out 96,338 · in 1,690 · cache_read 5,140,719 · cache_create 533,095
+- **claude-fable-5**: 3 agent · 27 calls · out 20,831 · in 54 · cache_read 1,417,362 · cache_create 163,665
+- **claude-haiku-4-5-20251001**: 6 agent · 18 calls · out 6,629 · in 156 · cache_read 482,078 · cache_create 141,238
+
+### S4 round 3 — wf_f6338141-7c5 (18 agent, 92,875 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| refute:run-tests.sh | claude-sonnet-5 | 13 | 12,234 | 26 | 678,683 | 172 |
+| refute:run-tests.sh | claude-sonnet-5 | 14 | 12,089 | 28 | 800,261 | 168 |
+| synthesize:report | claude-sonnet-5 | 6 | 11,485 | 12 | 319,492 | 147 |
+| triage | claude-sonnet-5 | 2 | 9,395 | 4 | 45,726 | 113 |
+| review:measurement | claude-fable-5 | 6 | 8,008 | 12 | 281,345 | 124 |
+| review:bugs | claude-fable-5 | 11 | 7,582 | 22 | 616,807 | 136 |
+| review:conventions | claude-fable-5 | 11 | 7,453 | 22 | 625,642 | 140 |
+| refute:run-tests.sh | claude-sonnet-5 | 12 | 6,044 | 24 | 625,272 | 128 |
+| refute:rang.sh | claude-sonnet-5 | 6 | 4,788 | 12 | 254,444 | 64 |
+| refute:SKILL.md | claude-sonnet-5 | 7 | 4,524 | 14 | 333,148 | 73 |
+| baseline:diffBase | claude-sonnet-5 | 8 | 2,389 | 16 | 330,249 | 147 |
+| capture:provenance | claude-sonnet-5 | 4 | 1,879 | 8 | 145,759 | 25 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 5 | 1,671 | 42 | 175,315 | 140 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 6 | 1,075 | 50 | 172,616 | 21 |
+| machine:bash tests/plugins/run-tests.sh | claude-haiku-4-5-20251001 | 5 | 856 | 42 | 168,334 | 319 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 2 | 548 | 18 | 45,487 | 7 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 527 | 18 | 45,480 | 10 |
+| machine:bash _acceptance/hinh-tai-cong-1/rang.sh | claude-haiku-4-5-20251001 | 2 | 328 | 18 | 26,600 | 13 |
+
+- **claude-sonnet-5**: 9 agent · 72 calls · out 64,827 · in 144 · cache_read 3,533,034 · cache_create 448,761
+- **claude-fable-5**: 3 agent · 28 calls · out 23,043 · in 56 · cache_read 1,523,794 · cache_create 175,975
+- **claude-haiku-4-5-20251001**: 6 agent · 22 calls · out 5,005 · in 188 · cache_read 633,832 · cache_create 125,533
+

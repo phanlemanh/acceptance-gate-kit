@@ -1,34 +1,41 @@
-# Review Findings: hinh-tai-cong-1 (round 2)
+# Review Findings: hinh-tai-cong-1 (round 3)
 
 ## Trong hợp đồng
 
-- **P197 «đối chứng P90-kiểu» chỉ lặp lại assertion đã có, không chạy check của P90**
-  file: `tests/plugins/run-tests.sh:10021`
-  severity: low
-  AC: AC-8
-  Dòng `assert CLAUSE in norm(m_clause), "P90-kieu phai van xanh..."` là bản sao đúng nguyên của assertion ở ngay sau `m_clause` (dòng ~9992). Không có hàm check nào của P90 được gọi trên đột biến; chỉ kiểm CLAUSE (đã norm) còn xuất hiện đâu đó trong file — trong khi P90 so CLAUSE.strip() nguyên văn, không norm. evals.yaml E1 khai «hàm check của P90 chạy trên đột biến 1 phải VẪN XANH» nên phép đo đang khai nhiều hơn thứ nó thật sự đo. Không làm suite xanh giả (m_clause vẫn đúng), nhưng là chỗ eval và test lệch nhau. Đã chạy `bash _acceptance/hinh-tai-cong-1/rang.sh` → OK, 18 đột biến, 12 thông điệp; không tìm thấy lỗi nuốt/fallback ẩn nào khác trong rang.sh (set -uo pipefail, mọi nhánh grep rỗng đều rơi vào kêu) hay trong khối P197/P90 sửa.
-  (source: bugs)
+(không có finding nào trong hợp đồng round này.)
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **Gói bằng chứng r1 commit cùng lượt với fix nhưng chưa từng chạy răng mới — evidence-report/run-log chứng nhận cây CŨ (c772fe3) với executor cũ, trong khi evals.yaml HEAD đã đổi E1–E8 sang rang_hinh_cong1**
-  Người dùng thấy gì: Báo cáo minh chứng đang ghi kết quả ĐẠT cho tính năng, nhưng thực chất được tạo ra từ một lần kiểm tra cũ, chạy trước khi các thay đổi mới nhất của tính năng tồn tại. Nếu người quyết duyệt dựa trên báo cáo này, họ đang duyệt một phiên bản chưa từng được kiểm tra thật.
-  file: `_acceptance/hinh-tai-cong-1/evidence-report.md`
-  severity: high
-  Đề xuất: new-contract
-
-- **Hình dạng 3 — assert «chuỗi có mặt» trong khi lời hứa là quan hệ «MỌI bản chép khớp khuôn một-nguồn» (P90 m3/m4 bị nới để qua)**
-  Người dùng thấy gì: Khi cùng một đoạn hướng dẫn tồn tại ở hai chỗ trong tài liệu, công cụ kiểm tra hiện chỉ chắc chắn ít nhất một bản đúng khuôn. Nếu sau này ai đó chỉnh sai riêng một bản mà không đụng bản kia, sự sai lệch đó có thể không bị phát hiện.
+- **P90 nới lỏng: bản chép câu-về-hình ở S2 (SKILL.md:142) nay trôi khuôn mà không test nào đỏ**
+  Người dùng thấy gì: Có một bài kiểm tra cũ (không thuộc lần vá lần này) sẽ không phát hiện khi câu mô tả về hình bị sửa lệch ở bản gốc nhưng phần hiển thị tại Cổng 1 vẫn giữ nguyên — một số thay đổi nội dung có thể lọt qua bài kiểm tra cũ đó. Bài kiểm tra mới của lần vá này vẫn bắt được lỗi loại đó, nên rủi ro chỉ nằm ở bài kiểm tra cũ.
   file: `tests/plugins/run-tests.sh`
   severity: high
   Đề xuất: known-limits
 
-- **Hình dạng 5 — nhánh check khai trong P197/E6 nhưng không có đột biến nào chứng minh chiều đỏ («MỘT lần», «0 điểm vượt», «thieu nhan buoc», «thieu khoi»)**
-  Người dùng thấy gì: Một số cảnh báo lỗi mà hệ thống hứa sẽ bật lên khi thiếu bước hay thiếu nhãn chưa từng được thử để chắc chắn chúng thực sự kích hoạt đúng lúc — nên chưa có gì đảm bảo các cảnh báo đó sẽ xuất hiện khi cần.
+- **rang.sh ghim 16/21 thông điệp — 5 nhánh check của P197 không có răng ngoài suite**
+  Người dùng thấy gì: Một danh sách kiểm tra nhanh hỗ trợ trong repo bị thiếu 5 trên 21 mục so với đầy đủ; nếu sau này ai đó xoá một nhánh kiểm tra cùng lúc với đột biến tương ứng, công cụ kiểm nhanh này sẽ không phát hiện ra, dù bài kiểm tra chính (bài quyết định xanh/đỏ) vẫn tự bắt được lỗi đó.
+  file: `_acceptance/hinh-tai-cong-1/rang.sh`
+  severity: low
+  Đề xuất: known-limits
+
+- **Dùng «ledger» trần trong văn bản mới của SKILL.md (CONTEXT.md _Avoid_)**
+  Người dùng thấy gì: Bước 'Kê' trong tài liệu vòng lặp dùng từ 'ledger' thay vì tên tiếng Việt chuẩn ('sổ quyết định') mà nội bộ muốn thống nhất dùng; đổi từ này kéo theo phải đổi cả hợp đồng nghiệm thu và bài kiểm tra đi kèm, nên cần người quyết có đổi hay giữ nguyên như hiện tại.
+  file: `feature-loop/skills/feature-loop/SKILL.md`
+  severity: low
+  Đề xuất: known-limits
+
+- **Assert 'chuỗi có mặt' trong khi lời hứa là QUAN HỆ — chiều đỏ của các check quan-hệ (has_unit) chỉ là xoá-needle, không phải phá-quan-hệ; đột biến 'tách xanh-sạch/bỏ qua' thực chất xoá needle**
+  Người dùng thấy gì: Một số bài kiểm tra được thiết kế để chứng minh hai cụm chữ phải nằm cùng một câu/đoạn thực chất chỉ đang kiểm tra chữ có mặt hay không, chứ chưa thực sự kiểm tra chúng có bị tách rời nhau hay không — nên nếu sau này ai đó vô tình tách hai cụm ra hai đoạn riêng mà không xoá chữ nào, khả năng cao lỗi đó sẽ không bị phát hiện.
   file: `tests/plugins/run-tests.sh`
   severity: medium
+  Đề xuất: known-limits
+
+- **Tuyên ma trận toàn phần nhưng phần tử template được liệt kê SAU theo đúng đột biến đã chạy — nhãn chỉ 1/5, không viết trước**
+  Người dùng thấy gì: Một ghi chú trong bài kiểm tra tự nhận là 'kiểm tra toàn bộ tổ hợp' nhưng thực tế chỉ kiểm đúng một tổ hợp đã chạy, không phải hết mọi tổ hợp có thể. Việc này không gây báo xanh giả cho bài kiểm tra chính, nhưng nếu tin theo ghi chú đó thì có thể yên tâm nhầm rằng phạm vi đã được kiểm đầy đủ hơn thực tế.
+  file: `tests/plugins/run-tests.sh`
+  severity: low
   Đề xuất: known-limits
 
 Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
