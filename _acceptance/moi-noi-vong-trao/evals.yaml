@@ -3,8 +3,8 @@
 # Hai lớp thước (Notes của contract):
 #   · Lớp MÁY: rang-mnvt.sh — mỗi chân chạy VẬT THẬT trên fixture code-sinh và
 #     kèm CHIỀU ĐỎ cùng lượt (bản sao bị tiêm lỗi phải ĐỎ đúng thông điệp ghim,
-#     mutant phải CHẠY ĐƯỢC). Chân thẻ ngưỡng chạy case P197 của suite plugins
-#     qua ONLY_BLOCK và ghim ĐÚNG dòng «P197 OK» (không tin mã thoát trọn suite).
+#     mutant phải CHẠY ĐƯỢC). Chân thẻ ngưỡng chạy case P198 của suite plugins
+#     qua ONLY_BLOCK và ghim ĐÚNG dòng «P198 OK» (không tin mã thoát trọn suite).
 #   · Lớp HÀNH VI (judgment): hội đồng phiên sạch, giao thức 1c — agent hành
 #     động KHÔNG TOOL, nhận inline thân SKILL sau sửa + đề ca hoi-dong/ca-<eval>.md;
 #     đáp án viết TRƯỚC ở giam-khao/dap-an-<eval>.md, CHỈ giám khảo nạp.
@@ -17,8 +17,8 @@ evals:
     cmd: config:executors.script.rang_mnvt_the_nguong
     paths: [_acceptance/moi-noi-vong-trao/rang-mnvt.sh, scripts/gate-card.js, tests/plugins/run-tests.sh, skills/acceptance/references/opportunity-template.md]
     expected: >
-      Chạy suite plugins ONLY_BLOCK=P197 và ghim dòng «P197 OK» trong stdout
-      (không tin mã thoát suite). P197 dựng workspace code-sinh từ khuôn
+      Chạy suite plugins ONLY_BLOCK=P198 và ghim dòng «P198 OK» trong stdout
+      (không tin mã thoát suite). P198 dựng workspace code-sinh từ khuôn
       opportunity-template (round-trip writer→reader), gọi gate-card.js THẬT
       trên MA TRẬN VIẾT TRƯỚC 4 trạng thái × 2 mặt (HTML thẻ · --extract), mỗi
       ô một assert ghim tên «<trạng thái>/<mặt>» (8 ô, không gộp): có-ngưỡng/
@@ -38,7 +38,7 @@ evals:
     cmd: config:executors.script.rang_mnvt_the_nguong
     paths: [_acceptance/moi-noi-vong-trao/rang-mnvt.sh, scripts/gate-card.js, tests/plugins/run-tests.sh]
     expected: >
-      Cùng lệnh với E1 (dedupe — một lượt P197 chấm cả hai AC), ghim các ô còn lại của ma trận: rỗng/html
+      Cùng lệnh với E1 (dedupe — một lượt P198 chấm cả hai AC), ghim các ô còn lại của ma trận: rỗng/html
       cờ vàng «chưa khai ngưỡng» + KHÔNG khối; rỗng/extract opportunity_present
       true, section_present true, lines rỗng; thiếu/html cờ vàng + KHÔNG khối;
       thiếu/extract section_present false, lines rỗng; không-cơ-hội/html dòng
@@ -209,5 +209,5 @@ evals:
     criterion: AC-1
     executor: test
     cmd: config:executors.test.plugins
-    expected: "suite plugins XANH (P197 nằm trong suite vĩnh viễn)"
+    expected: "suite plugins XANH (P198 nằm trong suite vĩnh viễn)"
     evidence_required: [run_id, exit_code, verifier, verified_at]

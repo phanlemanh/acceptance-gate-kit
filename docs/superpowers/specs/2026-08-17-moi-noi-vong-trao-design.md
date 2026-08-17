@@ -99,7 +99,7 @@ này* (hình vẽ guard chưa có — hình không được đi trước chữ; 
 
 - Lớp MÁY: `_acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan <tên>` — mỗi
   chân chạy vật thật + chiều đỏ cùng lượt trên bản sao code-sinh (measure-birth);
-  thẻ: case P197 trong `tests/plugins` (fixture code-sinh từ khuôn opportunity,
+  thẻ: case P198 trong `tests/plugins` (fixture code-sinh từ khuôn opportunity,
   gate-card.js THẬT, ma trận viết trước 4 trạng thái × 2 mặt HTML/extract = 8
   assert có tên + 3 mutant → đỏ ghim); khuôn nhật-ký: quan hệ ĐỌC ⊆ KHUÔN rút
   hai phía bằng máy, chiều đỏ hai phía.

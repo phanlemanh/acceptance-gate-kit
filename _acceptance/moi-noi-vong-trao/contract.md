@@ -115,7 +115,7 @@ Quét bằng morphological-scan (preset test-matrix), 3 trục:
 - Lớp HÀNH VI (AC-4, AC-5) chấm bằng hội đồng phiên sạch theo giao thức 1c:
   agent hành động không tool, nhận inline; đáp án viết trước ở `giam-khao/`;
   đề ca ở `hoi-dong/`.
-- Chân răng `rang-mnvt.sh` không vào suite vĩnh viễn (nếp hồ sơ), riêng P197
+- Chân răng `rang-mnvt.sh` không vào suite vĩnh viễn (nếp hồ sơ), riêng P198
   (thẻ ngưỡng) vào `tests/plugins` vĩnh viễn vì là hành vi sản phẩm.
 - Điều kiện «ký sau khi đọc mục lỗ-kit của phiên máy B (refine-editor)» —
   owner MIỄN ngày 18/08 khi quyết merge; số liệu vòng đó vẫn là đầu vào cho

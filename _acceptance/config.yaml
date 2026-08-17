@@ -112,6 +112,7 @@ executors:
     rang_mnvt_spec: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan spec
     rang_mnvt_hinh: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan hinh
     rang_mnvt_hoi_dong: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan hoi-dong
+    rang_hinh_cong1: bash _acceptance/hinh-tai-cong-1/rang.sh
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

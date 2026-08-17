@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # rang-mnvt.sh — răng hồ sơ moi-noi-vong-trao. Mỗi chân: vật thật + chiều đỏ cùng lượt
 # trên bản sao code-sinh; đường dẫn suy từ vị trí script. Không vào suite vĩnh viễn
-# (nếp hồ sơ); riêng P197 (thẻ ngưỡng) sống trong tests/plugins vĩnh viễn — hai chân
+# (nếp hồ sơ); riêng P198 (thẻ ngưỡng) sống trong tests/plugins vĩnh viễn — hai chân
 # the-nguong* chỉ BỌC nó và ghim đúng dòng, không tin mã thoát trọn suite.
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"; ROOT="$(cd "$HERE/../.." && pwd)"
@@ -11,13 +11,13 @@ ok()   { echo "  MNVT XANH [$CHAN]: $1"; }
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 case "$CHAN" in
 the-nguong)
-  OUT="$(ONLY_BLOCK=P197 bash "$ROOT/tests/plugins/run-tests.sh" 2>&1)"
-  printf '%s\n' "$OUT" | grep -q 'P197 OK (' || { printf '%s\n' "$OUT" | grep 'P197' | head -20; fail "khong thay dong P197 OK"; }
-  printf '%s\n' "$OUT" | grep -q 'MUTANT m1-go-khoi bi bat' || fail "P197 khong bao mutant m1 bi bat"
-  printf '%s\n' "$OUT" | grep -q 'MUTANT m2-khong-co-hoi-in-co-vang bi bat' || fail "P197 khong bao mutant m2 bi bat"
-  printf '%s\n' "$OUT" | grep -q 'MUTANT m3-rong-van-in-khoi bi bat' || fail "P197 khong bao mutant m3 bi bat"
-  printf '%s\n' "$OUT" | grep -q 'MUTANT m4-placeholder-la-da-khai bi bat' || fail "P197 khong bao mutant m4 bi bat"
-  ok "P197 OK + 4 mutant bi bat (ghim dong, khong tin ma thoat suite)"
+  OUT="$(ONLY_BLOCK=P198 bash "$ROOT/tests/plugins/run-tests.sh" 2>&1)"
+  printf '%s\n' "$OUT" | grep -q 'P198 OK (' || { printf '%s\n' "$OUT" | grep 'P198' | head -20; fail "khong thay dong P198 OK"; }
+  printf '%s\n' "$OUT" | grep -q 'MUTANT m1-go-khoi bi bat' || fail "P198 khong bao mutant m1 bi bat"
+  printf '%s\n' "$OUT" | grep -q 'MUTANT m2-khong-co-hoi-in-co-vang bi bat' || fail "P198 khong bao mutant m2 bi bat"
+  printf '%s\n' "$OUT" | grep -q 'MUTANT m3-rong-van-in-khoi bi bat' || fail "P198 khong bao mutant m3 bi bat"
+  printf '%s\n' "$OUT" | grep -q 'MUTANT m4-placeholder-la-da-khai bi bat' || fail "P198 khong bao mutant m4 bi bat"
+  ok "P198 OK + 4 mutant bi bat (ghim dong, khong tin ma thoat suite)"
   ;;
 khuon)
   node - "$ROOT" <<'JS' || exit 1

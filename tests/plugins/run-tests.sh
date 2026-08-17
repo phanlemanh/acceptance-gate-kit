@@ -1831,10 +1831,12 @@ _typo = CLAUSE.replace("DECISION-DIAGRAM-SURFACES", "DECISION-DIAGRAM-SURFACE")
 assert cited_marker_ok(LAW.replace(CLAUSE, _typo, 1), _typo), \
     "danh sai ten bang tra trong khuon ma khong bi bat — con tro chet van xanh"
 lp2 = LOOPS[0]
-m3 = lambda rel: live(rel).replace(CLAUSE, CLAUSE.replace("kèm hình", "kèm sơ đồ"), 1) if rel == lp2 else live(rel)
+# MOI ban chep (SKILL.md nay co hai: GATE 1 + S2) — mot chu lech o BAT KY ban nao la
+# lech khuon; giu count=1 thi ban con lai cuu dot bien va doi chung am tu do.
+m3 = lambda rel: live(rel).replace(CLAUSE, CLAUSE.replace("kèm hình", "kèm sơ đồ")) if rel == lp2 else live(rel)
 assert f"{lp2}: cau ve hinh lech khuon mot-nguon" in check(m3), \
     "dot bien sua mot chu trong khuon khong do dung thong diep"
-m4 = lambda rel: live(rel).replace(CLAUSE, "Điểm quyết định rắc rối thì vẽ bằng khối ký tự.", 1) if rel == lp2 else live(rel)
+m4 = lambda rel: live(rel).replace(CLAUSE, "Điểm quyết định rắc rối thì vẽ bằng khối ký tự.") if rel == lp2 else live(rel)
 assert f"{lp2}: cau ve hinh lech khuon mot-nguon" in check(m4), \
     "dot bien tu dien dat kem ghim mot dinh dang khac khong bi bat"
 PY
@@ -9882,13 +9884,211 @@ run "P196 plugin diagram-design: layout+manifest · tree-hash==NOTICE · marker 
   bash "$P196TMP/p196.sh" "$ROOT"
 rm -rf "$P196TMP"
 
-# ── P197: the Cong Pham vi in NGUONG NGHIEM THU tu opportunity.md — ma tran 4 trang thai x 2 mat + 3 mutant (moi-noi-vong-trao E1/E2)
-P197TMP="$(mktemp -d)"
-cat > "$P197TMP/p197.py" <<'P197PY'
+# ── P197: khoi «Hinh tai diem quyet dinh» trong GATE 1 (hinh-tai-cong-1 E1–E8) ──
+# Neo vao KHOI (heading con co dinh), khong vao file: P90 kiem clause co mat o
+# BAT KY DAU trong SKILL.md nen xoa clause khoi GATE 1 ma giu o S2 van XANH — case
+# nay phai DO dung cho do. Don vi «cau» = doan/bullet (tach truoc "- " hoac dong
+# trong). Moi needle mot luot go CHI trong khoi; chep needle ra ngoai khoi (con
+# trong muc GATE 1) KHONG cuu duoc.
+run "P197 GATE 1 khoi hinh: clause mot-nguon · 5 nhan thu tu · 4 nguon ke · dieu kien dung-nguoi · subagent+skill-vang · Read .png · dinh cung luot · dung lai figures (hinh-tai-cong-1 E1-E8)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+LOOP = "feature-loop/skills/feature-loop/SKILL.md"
+LAW  = (root / "skills/acceptance/references/human-facing-language.md").read_text(encoding="utf-8")
+_m = re.search(r"<!-- <<<LOOP-PICTURE-CLAUSE -->\n([\s\S]*?)<!-- LOOP-PICTURE-CLAUSE>>> -->", LAW)
+assert _m, "khong rut duoc LOOP-PICTURE-CLAUSE tu ban luat"
+norm = lambda s: re.sub(r"\s+", " ", s).strip()
+CLAUSE = norm(_m.group(1))
+HEAD = "### Hình tại điểm quyết định"
+
+def gate1(text):
+    m = re.search(r"^## GATE 1[^\n]*\n([\s\S]*?)(?=^## |\Z)", text, re.M)
+    return m.group(1) if m else None
+
+def block(text):
+    g = gate1(text)
+    if g is None: return None
+    m = re.search(rf"^{re.escape(HEAD)}\s*$\n([\s\S]*?)(?=^##|\Z)", g, re.M)
+    return m.group(1) if m else None
+
+def units(b):  # «cau» = doan/bullet
+    return [norm(u) for u in re.split(r"\n(?=- )|\n\s*\n", b) if norm(u)]
+
+def has_unit(b, *needles):
+    return any(all(n in u for n in needles) for u in units(b))
+
+SOURCES = ["entry sổ quyết định chờ seal", "lệch spec/plan gốc", "[GIẢ ĐỊNH]", "human-gate1"]
+LABELS  = ["[1] Kê", "[2] Đếm", "[3] Vẽ", "[4] Nhìn", "[5] Đính"]
+
+# Bang thong diep DUY NHAT: check() chi phat thong diep tu day, va phep dem
+# ma-tran ben duoi doi moi khoa phai tung DO it nhat mot lan (khong ghi so tay).
+M = {
+    "khoi":     "GATE 1: thieu khoi Hinh tai diem quyet dinh",
+    "clause":   "GATE 1: cau ve hinh lech khuon mot-nguon",
+    "nhan":     "GATE 1: thieu nhan buoc {}",
+    "thu_tu":   "GATE 1: nam buoc sai thu tu",
+    "dau_vet":  "GATE 1: thieu dau vet dem",
+    "nguon":    "GATE 1: thieu nguon {}",
+    "hoi":      "GATE 1: thieu menh de khong hoi nguoi",
+    "dieu_kien":"GATE 1: thieu dieu kien dung-nguoi",
+    "bo_qua":   "GATE 1: xanh-sach khong di kem bo qua",
+    "subagent": "GATE 1: thieu subagent ve",
+    "ten_skill":"GATE 1: thieu ten skill ve",
+    "skill_vang":"GATE 1: thieu duong skill vang",
+    "nhin":     "GATE 1: thieu buoc nhin",
+    "mot_lan":  "GATE 1: thieu gioi han ve lai mot lan",
+    "cung_luot":"GATE 1: the va hinh khong cung luot",
+    "duoi":     "GATE 1: thieu dong duoi-nguong",
+    "khong_diem":"GATE 1: thieu dong 0-diem-vuot",
+    "dung_lai": "GATE 1: thieu duong dung lai figures",
+}
+
+def check(text):
+    errs = []
+    b = block(text)
+    if b is None:
+        return [M["khoi"]]
+    if CLAUSE not in norm(b):
+        errs.append(M["clause"])
+    nb = "\n".join(u for u in b.split("\n") if norm(u) != CLAUSE)   # cat dong clause
+    idx = [nb.find(l) for l in LABELS]
+    if any(i < 0 for i in idx):
+        errs.append(M["nhan"].format(",".join(l for l, i in zip(LABELS, idx) if i < 0)))
+    elif idx != sorted(idx):
+        errs.append(M["thu_tu"])
+    # needle cua buoc phai nam TRONG bullet cua buoc do (AC-2 «o buoc dem», AC-3
+    # «trong buoc ke») — khong phai bat ky dau trong khoi (S4-r5 finding)
+    u1 = next((u for u in units(b) if "[1] Kê" in u), "")
+    u2 = next((u for u in units(b) if "[2] Đếm" in u), "")
+    if "_acceptance/<slug>/figures/index.md" not in u2:
+        errs.append(M["dau_vet"])
+    for s in SOURCES:
+        if s not in u1:
+            errs.append(M["nguon"].format(s))
+    if "không hỏi người" not in u1:
+        errs.append(M["hoi"])
+    if not has_unit(b, "T3", "T2 không đủ", "dừng chờ người"):
+        errs.append(M["dieu_kien"])
+    if not has_unit(b, "xanh-sạch", "bỏ qua"):
+        errs.append(M["bo_qua"])
+    if "subagent tươi" not in b:
+        errs.append(M["subagent"])
+    if "diagram-design" not in b:
+        errs.append(M["ten_skill"])
+    if not has_unit(b, "skill vắng", "mermaid", "không chặn"):
+        errs.append(M["skill_vang"])
+    if not has_unit(nb, "vòng chính", "Read", ".png"):
+        errs.append(M["nhin"])
+    if "MỘT lần" not in b:
+        errs.append(M["mot_lan"])
+    if "CÙNG một lượt" not in b:
+        errs.append(M["cung_luot"])
+    if "dưới ngưỡng" not in b:
+        errs.append(M["duoi"])
+    if "0 điểm vượt" not in b:
+        errs.append(M["khong_diem"])
+    if not has_unit(b, "draft", "figures/", "không vẽ lại"):
+        errs.append(M["dung_lai"])
+    return errs
+
+live = (root / LOOP).read_text(encoding="utf-8")
+assert check(live) == [], check(live)                     # DOI CHUNG DUONG
+
+# --- bo dot bien: chi sua TRONG khoi; phan con lai cua file giu nguyen ---
+def mutate(text, fn):
+    g = gate1(text); b = block(text)
+    nb = fn(b)
+    assert nb != b, "dot bien khong doi gi — needle khong co trong khoi?"
+    return text.replace(b, nb, 1)
+
+def move_out(text, needle):
+    """xoa needle trong khoi, chep no ra NGOAI khoi nhung con trong muc GATE 1"""
+    b = block(text)
+    assert needle in b
+    nb = b.replace(needle, "", )
+    t = text.replace(b, nb, 1)
+    return t.replace(HEAD, needle + "\n\n" + HEAD, 1)
+
+MUTS = 0
+FIRED = set()
+def expect(mut, msg, label):
+    global MUTS
+    errs = check(mut)
+    assert msg in errs, f"{label}: mong '{msg}', duoc {errs}"
+    MUTS += 1
+    FIRED.add(msg)
+    print(f"P197-MUT-{MUTS}: {label} DO dung ({msg})")
+
+# P90-kieu: clause co mat BAT KY DAU trong file -> van XANH khi xoa khoi khoi
+clause_line = next(u for u in block(live).split("\n") if norm(u) == CLAUSE)
+m_clause = mutate(live, lambda b: b.replace(clause_line, ""))
+expect(m_clause, "GATE 1: cau ve hinh lech khuon mot-nguon", "xoa clause khoi khoi")
+assert CLAUSE in norm(m_clause), "S2 phai van giu clause (dot bien chi dung vao khoi)"
+m_word = mutate(live, lambda b: b.replace(clause_line, clause_line.replace("kèm hình", "kèm sơ đồ")))
+expect(m_word, "GATE 1: cau ve hinh lech khuon mot-nguon", "doi mot tu trong clause")
+m_swap = mutate(live, lambda b: b.replace("[3] Vẽ", "@@").replace("[4] Nhìn", "[3] Vẽ").replace("@@", "[4] Nhìn"))
+expect(m_swap, "GATE 1: nam buoc sai thu tu", "hoan vi nhan 3/4")
+expect(move_out(live, "_acceptance/<slug>/figures/index.md"), "GATE 1: thieu dau vet dem", "chep figures/index.md ra ngoai khoi")
+# di chuyen needle sang bullet KHAC trong cung khoi -> van phai DO (needle thuoc buoc)
+def move_to_5(text, needle):
+    b = block(text); assert needle in b
+    nb = b.replace(needle, "", 1).replace("- **[5] Đính**", "- **[5] Đính** (" + needle + ")", 1)
+    return text.replace(b, nb, 1)
+expect(move_to_5(live, "_acceptance/<slug>/figures/index.md"), "GATE 1: thieu dau vet dem", "chuyen figures/index.md tu [2] sang [5]")
+expect(move_to_5(live, "human-gate1"), "GATE 1: thieu nguon human-gate1", "chuyen human-gate1 tu [1] sang [5]")
+for s in SOURCES:
+    expect(mutate(live, lambda b, s=s: b.replace(s, "")), f"GATE 1: thieu nguon {s}", f"go nguon {s}")
+expect(mutate(live, lambda b: b.replace("không hỏi người", "tự kê")), "GATE 1: thieu menh de khong hoi nguoi", "go khong-hoi-nguoi")
+cond = next(u for u in units(block(live)) if "dừng chờ người" in u and "T3" in u)
+m_cond = mutate(live, lambda b: "\n".join(x for x in re.split(r"\n(?=- )|\n\s*\n", b) if norm(x) != cond))
+expect(m_cond, "GATE 1: thieu dieu kien dung-nguoi", "xoa cau dieu kien (T3/T2 con o noi khac trong GATE 1)")
+m_split = mutate(live, lambda b: b.replace("thì bỏ qua", "thì dừng.\n\nBỏ qua"))
+expect(m_split, "GATE 1: xanh-sach khong di kem bo qua", "tach xanh-sach va bo qua")
+m_skill = mutate(live, lambda b: re.sub(r"Nếu skill vắng[^\n]*?\.\s*(?=- |\n|$)", "", b))
+expect(m_skill, "GATE 1: thieu duong skill vang", "xoa cau skill vang")
+expect(mutate(live, lambda b: b.replace("subagent tươi", "agent")), "GATE 1: thieu subagent ve", "go subagent tuoi")
+expect(mutate(live, lambda b: b.replace("diagram-design", "bộ vẽ")), "GATE 1: thieu ten skill ve", "go diagram-design")
+expect(mutate(live, lambda b: b.replace("Read bản `.png`", "kiểm bằng phép thử nhìn-thấy-hình")), "GATE 1: thieu buoc nhin", "bo Read .png")
+expect(mutate(live, lambda b: b.replace("dưới ngưỡng", "chưa tới")), "GATE 1: thieu dong duoi-nguong", "go duoi nguong")
+expect(mutate(live, lambda b: b.replace("CÙNG một lượt", "khi tiện")), "GATE 1: the va hinh khong cung luot", "go cung mot luot")
+expect(mutate(live, lambda b: b.replace("không vẽ lại", "vẽ lại")), "GATE 1: thieu duong dung lai figures", "go khong ve lai")
+
+# 4 nhanh do con lai cua check() — moi nhanh mot dot bien (khong de nhanh nao
+# chua tung do: bat bien CLAUDE.md «pha thu mot lan cho moi phep do moi»)
+expect(mutate(live, lambda b: b.replace("MỘT lần", "vài lần")), "GATE 1: thieu gioi han ve lai mot lan", "go MOT lan")
+expect(mutate(live, lambda b: b.replace("0 điểm vượt", "không có gì")), "GATE 1: thieu dong 0-diem-vuot", "go 0 diem vuot")
+expect(mutate(live, lambda b: b.replace("[2] Đếm", "[2] Đo")), M["nhan"].format("[2] Đếm"), "go nhan [2] Dem")
+m_head = live.replace(HEAD, "### Hình minh hoạ", 1)
+expect(m_head, "GATE 1: thieu khoi Hinh tai diem quyet dinh", "doi ten heading khoi")
+
+# Ma tran phai TOAN PHAN: MOI thong diep check() co the phat (bang M, khoa
+# template no ra theo SOURCES / nhan da go) phai tung DO it nhat mot lan.
+EXPECTED = {v for k, v in M.items() if k not in ("nguon", "nhan")}
+EXPECTED |= {M["nguon"].format(s) for s in SOURCES}
+EXPECTED |= {M["nhan"].format("[2] Đếm")}
+missing = EXPECTED - FIRED
+assert not missing, f"ma tran chua toan phan — thong diep chua tung do: {sorted(missing)}"
+
+# Doi chung: check THAT cua P90 (clause.strip() co mat bat ky dau trong file, khong
+# norm) van XANH tren dot bien xoa-clause-khoi-khoi — chung minh P197 neo vao khoi.
+CLAUSE_P90 = _m.group(1).strip()
+def p90_check(t):
+    return [] if CLAUSE_P90 in t else [f"{LOOP}: cau ve hinh lech khuon mot-nguon"]
+assert p90_check(live) == [], "P90 check phai xanh tren ban nguyen ven"
+assert p90_check(m_clause) == [], "P90-kieu phai van xanh tren dot bien xoa-clause-khoi-khoi — neu do thi P197 khong them gi moi"
+assert p90_check(live.replace(CLAUSE_P90, "x")) != [], "p90_check khong bao gio do — doi chung am chet"
+print(f"P197 OK: doi chung duong + {MUTS} dot bien chay that, moi cai ghim dung thong diep")
+PY
+
+# ── P198: the Cong Pham vi in NGUONG NGHIEM THU tu opportunity.md — ma tran 4 trang thai x 2 mat + 4 mutant (moi-noi-vong-trao E1/E2)
+P198TMP="$(mktemp -d)"
+cat > "$P198TMP/p197.py" <<'P198PY'
 import json, os, re, shutil, subprocess, sys, tempfile
 from pathlib import Path
 root = Path(sys.argv[1]); errs = []
-def bad(m): errs.append(m); print("  P197 LOI: " + m)
+def bad(m): errs.append(m); print("  P198 LOI: " + m)
 tpl = (root / "skills/acceptance/references/opportunity-template.md").read_text(encoding="utf-8")
 # round-trip writer->reader: (1) heading = hang so gate-card doc, PHAI ton tai trong KHUON dang '## <heading>';
 gc_src = (root / "scripts/gate-card.js").read_text(encoding="utf-8")
@@ -9910,7 +10110,7 @@ def section_span(body, head):
     return m2.start(), m2.end(), end
 CONTRACT = """---
 schema_version: 1
-feature: P197 fixture
+feature: P198 fixture
 slug: p197
 owner: p197@test
 risk_tier: T2
@@ -9921,7 +10121,7 @@ approved_at:
 ---
 # Acceptance Contract: p197
 ## Context
-fixture P197.
+fixture P198.
 ## Criteria
 - AC-1: Given a, When b, Then c.
 ## Coverage
@@ -10015,11 +10215,11 @@ mutant("m2-khong-co-hoi-in-co-vang", lambda s: s.replace("if (!ut.opportunity_pr
 mutant("m3-rong-van-in-khoi", lambda s: s.replace("ut.section_present && ut.lines.length", "ut.section_present"), "rong van in khoi")
 mutant("m4-placeholder-la-da-khai", lambda s: s.replace(" && !PLACEHOLDER_RE.test(l)", ""), "placeholder «…» bi coi la nguong da khai")
 if errs: print("\n".join(errs)); sys.exit(1)
-print("P197 OK (10 o ma tran + doi-cu xanh tren gate-card that, gom ca chep-nguyen-khuon; 4 mutant bi bat; fixture dung tu chinh khuon)")
-P197PY
-run "P197 the Cong Pham vi in nguong nghiem thu: ma tran 4x2 + doi-cu + 3 mutant (moi-noi-vong-trao E1/E2)" \
-  python3 "$P197TMP/p197.py" "$ROOT"
-rm -rf "$P197TMP"
+print("P198 OK (10 o ma tran + doi-cu xanh tren gate-card that, gom ca chep-nguyen-khuon; 4 mutant bi bat; fixture dung tu chinh khuon)")
+P198PY
+run "P198 the Cong Pham vi in nguong nghiem thu: ma tran 4x2 + doi-cu + 4 mutant (moi-noi-vong-trao E1/E2)" \
+  python3 "$P198TMP/p197.py" "$ROOT"
+rm -rf "$P198TMP"
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then

@@ -184,6 +184,12 @@ dùng thấy — đều là độ chặt của phép đo nội bộ). Chi tiết
   khi vòng đó tới mốc đó (18/08). Số liệu vòng refine-editor vẫn về sau và là
   đầu vào cho hồ sơ kế, không mất; đường đảo: revert một commit merge.
 
+- **Ca kiểm của hồ sơ này đổi số P197 → P198 lúc gộp nhánh.** Một nhánh khác
+  (`hinh-tai-cong-1`) merge trước và đã lấy số P197; ca của hồ sơ này giữ
+  nguyên nội dung, chỉ đổi số. Mọi chỗ nhắc «P197» trong báo cáo/sổ quyết định
+  trước dòng này là tên cũ của cùng một ca. Tái lập: `ONLY_BLOCK=P198 bash
+  tests/plugins/run-tests.sh`.
+
 ## Gate 2 checklist (human)
 
 - [ ] Read the table + spot-check 1-2 evidence blocks
