@@ -10082,6 +10082,145 @@ assert p90_check(live.replace(CLAUSE_P90, "x")) != [], "p90_check khong bao gio 
 print(f"P197 OK: doi chung duong + {MUTS} dot bien chay that, moi cai ghim dung thong diep")
 PY
 
+# ── P198: the Cong Pham vi in NGUONG NGHIEM THU tu opportunity.md — ma tran 4 trang thai x 2 mat + 4 mutant (moi-noi-vong-trao E1/E2)
+P198TMP="$(mktemp -d)"
+cat > "$P198TMP/p197.py" <<'P198PY'
+import json, os, re, shutil, subprocess, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1]); errs = []
+def bad(m): errs.append(m); print("  P198 LOI: " + m)
+tpl = (root / "skills/acceptance/references/opportunity-template.md").read_text(encoding="utf-8")
+# round-trip writer->reader: (1) heading = hang so gate-card doc, PHAI ton tai trong KHUON dang '## <heading>';
+gc_src = (root / "scripts/gate-card.js").read_text(encoding="utf-8")
+mh = re.search(r"UAT_THRESHOLD_HEADING = '([^']+)'", gc_src)
+if not mh: bad("gate-card.js khong khai hang so UAT_THRESHOLD_HEADING"); print("\n".join(errs)); sys.exit(1)
+HEAD = mh.group(1)
+if not re.search(r"^## " + re.escape(HEAD) + r"\s*$", tpl, re.M): bad("khuon opportunity-template khong co heading '%s' ma gate-card doc (round-trip khuon)" % HEAD)
+# (2) THAN opportunity.md dung tu CHINH KHUON: frontmatter giua moc OPP-FRONTMATTER-TEMPLATE + body sau moc,
+#     thay placeholder {..} — ben viet la khuon that, khong viet tay dung khuon ben doc.
+mfm = re.search(r"<!-- <<<OPP-FRONTMATTER-TEMPLATE -->\n```yaml\n(---\n[\s\S]*?\n---)\n```\n<!-- OPP-FRONTMATTER-TEMPLATE>>> -->\n", tpl)
+if not mfm: bad("khuon thieu khoi OPP-FRONTMATTER-TEMPLATE"); print("\n".join(errs)); sys.exit(1)
+FM = re.sub(r"\{[a-z_]+\}", "x", mfm.group(1))
+BODY = tpl[mfm.end():]
+def section_span(body, head):
+    m2 = re.search(r"^## " + re.escape(head) + r"[ \t]*\n", body, re.M)
+    if not m2: return None
+    m3 = re.search(r"^## ", body[m2.end():], re.M)
+    end = m2.end() + (m3.start() if m3 else len(body) - m2.end())
+    return m2.start(), m2.end(), end
+CONTRACT = """---
+schema_version: 1
+feature: P198 fixture
+slug: p197
+owner: p197@test
+risk_tier: T2
+surfaces: [cli]
+status: draft
+approved_by:
+approved_at:
+---
+# Acceptance Contract: p197
+## Context
+fixture P198.
+## Criteria
+- AC-1: Given a, When b, Then c.
+## Coverage
+- Trục: x | y [thước CE: fixture]
+## Out of scope
+- không gì
+"""
+LINES = ["- Câu hỏi phép đo trả lời: người dùng tự làm được việc X không?", "- Kết quả nào là SỐNG: ≥3/4 người tự hoàn thành", "- Timebox: 2 tuần"]
+def opp(kind):
+    sp = section_span(BODY, HEAD)
+    if sp is None: raise SystemExit("khuon mat section nguong")
+    a, b, e = sp
+    sec = BODY[b:e]
+    guide = "".join(l + "\n" for l in sec.split("\n") if l.startswith(">"))   # khoi huong dan '>' cua khuon — gate-card phai loc
+    if kind == "co":    body = BODY[:b] + guide + "\n".join(LINES) + "\n\n" + BODY[e:]
+    elif kind == "rong": body = BODY[:b] + guide + "\n" + BODY[e:]            # chep khuon, chua dien: chi con dong '>' -> RONG
+    elif kind == "chep-nguyen-khuon": body = BODY                                # chep NGUYEN khuon, bullet con placeholder «…» -> phai coi la CHUA KHAI
+    elif kind == "thieu": body = BODY[:a] + BODY[e:]
+    else: raise SystemExit("kind?")
+    return FM + "\n" + body
+def run(gc, ws, extract):
+    a = ["node", str(gc), "--root", str(ws.parent.parent), "--slug", "p197"] + (["--extract"] if extract else [])
+    r = subprocess.run(a, capture_output=True, text=True)
+    return r.returncode, r.stdout, r.stderr
+def make_ws(base, kind):
+    ws = base / "_acceptance" / "p197"; ws.mkdir(parents=True, exist_ok=True)
+    (ws / "contract.md").write_text(CONTRACT, encoding="utf-8")
+    (ws / "evals.yaml").write_text("evals:\n  - id: E1\n    criterion: AC-1\n    executor: script\n    cmd: config:executors.script.x\n    expected: ok\n", encoding="utf-8")
+    (base / "_acceptance" / "config.yaml").write_text("schema_version: 1\nexecutors:\n  script:\n    x: 'true'\n", encoding="utf-8")
+    if kind != "khong": (ws / "opportunity.md").write_text(opp(kind), encoding="utf-8")
+    return ws
+# ma tran viet truoc: (trang thai, mat) -> assert co ten. 8 o + doi-cu.
+def matrix(gc, label):
+    out = []
+    for kind in ["co", "rong", "chep-nguyen-khuon", "thieu", "khong"]:
+        base = Path(tempfile.mkdtemp()); ws = make_ws(base, kind)
+        rc, html, err = run(gc, ws, False)
+        rc2, js, err2 = run(gc, ws, True)
+        if rc != 0 or rc2 != 0: out.append(kind + "/exit: gate-card exit " + str((rc, rc2)) + " " + (err or err2)[:200]); shutil.rmtree(base, ignore_errors=True); continue
+        try: ut = json.loads(js).get("uat_threshold")
+        except Exception as e: out.append(kind + "/extract: json hong " + str(e)); shutil.rmtree(base, ignore_errors=True); continue
+        if ut is None: out.append(kind + "/extract: thieu khoa uat_threshold"); shutil.rmtree(base, ignore_errors=True); continue
+        has_block = "Ngưỡng nghiệm thu" in html and "sẽ có phiên nghiệm thu" in html
+        has_flag_chuakhai = "Hồ sơ cơ hội chưa khai ngưỡng nghiệm thu" in html
+        has_flag_khongdoc = "Hồ sơ cơ hội có nhưng thẻ không đọc được" in html
+        has_flag = has_flag_chuakhai or has_flag_khongdoc  # dung cho o khong-co-hoi: KHONG duoc co bat ky co nao cua khoi
+        has_fact = "ship thẳng, không phiên nghiệm thu" in html
+        if kind == "co":
+            if not has_block: out.append("co/html: thieu khoi nguong")
+            if not all(l.lstrip("- ") in html for l in LINES): out.append("co/html: thieu dong nguyen van")
+            if not (ut.get("opportunity_present") is True and ut.get("section_present") is True and ut.get("lines") == [l for l in LINES]): out.append("co/extract: lines/section_present sai: %r" % ut)
+        if kind == "chep-nguyen-khuon":
+            if has_block: out.append("chep-nguyen-khuon/html: placeholder «…» bi coi la nguong da khai")
+            if not has_flag_chuakhai: out.append("chep-nguyen-khuon/html: thieu co vang chua-khai-nguong")
+            if not (ut.get("section_present") is True and ut.get("lines") == []): out.append("chep-nguyen-khuon/extract: sai: %r" % ut)
+        if kind == "rong":
+            if has_block: out.append("rong/html: rong van in khoi")
+            if not has_flag_chuakhai: out.append("rong/html: thieu co vang chua-khai-nguong")
+            if not (ut.get("opportunity_present") is True and ut.get("section_present") is True and ut.get("lines") == []): out.append("rong/extract: sai: %r" % ut)
+        if kind == "thieu":
+            if has_block: out.append("thieu/html: thieu-section van in khoi")
+            if not has_flag_chuakhai: out.append("thieu/html: thieu co vang chua-khai-nguong")
+            if not (ut.get("opportunity_present") is True and ut.get("section_present") is False and ut.get("lines") == []): out.append("thieu/extract: sai: %r" % ut)
+        if kind == "khong":
+            if has_block or has_flag: out.append("khong-co-hoi/html: nhanh khong-co-hoi in co vang/khoi")
+            if not has_fact: out.append("khong-co-hoi/html: thieu dong su kien ship-thang")
+            if not (ut.get("opportunity_present") is False): out.append("khong-co-hoi/extract: opportunity_present phai false: %r" % ut)
+        shutil.rmtree(base, ignore_errors=True)
+    # doi-cu: contract DOI TRUOC (khong section Coverage, gate1_skipped) va khong opportunity — nhu khong-co-hoi, khong loi
+    base = Path(tempfile.mkdtemp()); ws = make_ws(base, "khong")
+    (ws / "contract.md").write_text(CONTRACT.replace("## Coverage\n- Trục: x | y [thước CE: fixture]\n", "").replace("approved_at:\n", "approved_at:\ngate1_skipped: true\n"), encoding="utf-8")
+    rc, html, err = run(gc, ws, False)
+    if rc != 0 or "ship thẳng, không phiên nghiệm thu" not in html: out.append("doi-cu/html: ho so doi cu loi hoac thieu dong su kien")
+    shutil.rmtree(base, ignore_errors=True)
+    return out
+# doi chung duong: gate-card that phai xanh ca 8 o
+e = matrix(root / "scripts" / "gate-card.js", "that")
+for x in e: bad(x)
+# 3 mutant tren BAN SAO gate-card (mutant phai CHAY DUOC: khong duoc crash)
+def mutant(name, fn, expect_substr):
+    tmp = Path(tempfile.mkdtemp()); shutil.copytree(root / "scripts", tmp / "scripts"); shutil.copytree(root / "lib", tmp / "lib")
+    p = tmp / "scripts" / "gate-card.js"; s = p.read_text(encoding="utf-8"); s2 = fn(s)
+    if s2 == s: bad("mutant %s khong ap duoc (neo doi?)" % name); shutil.rmtree(tmp, ignore_errors=True); return
+    p.write_text(s2, encoding="utf-8")
+    r = matrix(p, name)
+    if not any(expect_substr in x for x in r): bad("MUTANT %s KHONG bi bat (doi '%s', thay %r)" % (name, expect_substr, r[:3]))
+    else: print("     MUTANT %s bi bat: %s" % (name, [x for x in r if expect_substr in x][0]))
+    shutil.rmtree(tmp, ignore_errors=True)
+mutant("m1-go-khoi", lambda s: s.replace("if (ut.opportunity_present && ut.readable && ut.section_present && ut.lines.length) {", "if (false) {"), "thieu khoi nguong")
+mutant("m2-khong-co-hoi-in-co-vang", lambda s: s.replace("if (!ut.opportunity_present)", "if (ut.opportunity_present)"), "nhanh khong-co-hoi in co vang")
+mutant("m3-rong-van-in-khoi", lambda s: s.replace("ut.section_present && ut.lines.length", "ut.section_present"), "rong van in khoi")
+mutant("m4-placeholder-la-da-khai", lambda s: s.replace(" && !PLACEHOLDER_RE.test(l)", ""), "placeholder «…» bi coi la nguong da khai")
+if errs: print("\n".join(errs)); sys.exit(1)
+print("P198 OK (10 o ma tran + doi-cu xanh tren gate-card that, gom ca chep-nguyen-khuon; 4 mutant bi bat; fixture dung tu chinh khuon)")
+P198PY
+run "P198 the Cong Pham vi in nguong nghiem thu: ma tran 4x2 + doi-cu + 4 mutant (moi-noi-vong-trao E1/E2)" \
+  python3 "$P198TMP/p197.py" "$ROOT"
+rm -rf "$P198TMP"
+
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
   echo "ONLY_BLOCK=$ONLY_BLOCK khong khop khoi nao — go sai ten? (fail de khong xanh gia)"

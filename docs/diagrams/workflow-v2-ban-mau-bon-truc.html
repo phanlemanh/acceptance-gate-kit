@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workflow v2 bản mẫu bốn trục · Morphological box</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper: #f5f5f5; --color-ink: #2d3142; --color-muted: #4f5d75; --color-soft: #636b80;
+      --color-rule: rgba(45,49,66,0.12); --color-accent: #eb6c36;
+      --font-sans: 'Geist', system-ui, sans-serif; --font-serif: 'Instrument Serif', 'Lora', serif; --font-mono: 'Geist Mono', ui-monospace, monospace;
+    }
+    body { font-family: var(--font-sans); background: var(--color-paper); color: var(--color-ink); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; }
+    .frame { max-width: 1000px; width: 100%; }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.5rem; }
+    h1 { font-family: var(--font-serif); font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem); font-weight: 400; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 0.5rem; }
+    .sub { color: var(--color-muted); font-size: 0.875rem; line-height: 1.5; max-width: 62ch; margin-bottom: 1.5rem; }
+    svg { width: 100%; min-width: 800px; display: block; }
+    svg .rule{stroke:rgba(45,49,66,.12);stroke-width:.8}
+    svg .head{font-family:'Geist Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.18em;fill:#636b80}svg .head.val{fill:#4f5d75}
+    svg .axis{font-family:'Geist',sans-serif;font-size:12px;font-weight:600;fill:#2d3142}
+    svg .stick{font-family:'Geist Mono',monospace;font-size:9px;fill:#636b80;letter-spacing:.04em}
+    svg .cell{fill:#ffffff;stroke:rgba(45,49,66,.20);stroke-width:1}
+    svg .cell-chosen{fill:rgba(235,108,54,.08);stroke:#eb6c36;stroke-width:1.4}
+    svg .val{font-family:'Geist',sans-serif;font-size:11px;font-weight:500;fill:#2d3142}
+    svg .val.chosen{font-weight:600}
+    svg .tag{fill:none;stroke:rgba(45,49,66,.20);stroke-width:.8}
+    svg .tag-t{font-family:'Geist Mono',monospace;font-size:9px;fill:#636b80;letter-spacing:.08em}
+    svg .reason{font-family:'Geist Mono',monospace;font-size:9px;fill:#636b80;letter-spacing:.04em}
+    svg .thread{fill:none;stroke:#eb6c36;stroke-width:1.4}
+    svg .legend-t{font-family:'Geist Mono',monospace;font-size:9px;fill:#4f5d75}
+    svg .note{font-family:'Geist Mono',monospace;font-size:9px;fill:#636b80}
+    .reading { margin-top: 1.5rem; border-top: 1px solid var(--color-rule); padding-top: 1rem; font-size: 0.8125rem; line-height: 1.6; color: var(--color-muted); max-width: 72ch; }
+    .reading p { margin-bottom: 0.4rem; }
+    .colophon { margin-top: 1rem; font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.04em; color: var(--color-soft); }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Morphological box · Workflow v2 · Acceptance-Gate Kit</p>
+    <h1>Một bản mẫu là bốn lựa chọn — mỗi trục ba nấc, mặc định là nấc rẻ nhất đạt thị giác thật</h1>
+    <p class="sub">Đây là «ba loại bản mẫu» đặt cạnh ba lựa chọn còn lại luôn đi kèm nó. Sợi cam là tổ hợp mặc định; rời khỏi sợi cam thì hợp lệ, nhưng phải khai vào sổ phiên và thẻ Cổng Phạm vi phải hiện.</p>
+
+    <svg viewBox="0 0 1000 592" role="img" aria-labelledby="mb-title" xmlns="http://www.w3.org/2000/svg">
+      <title id="mb-title">Bốn trục lựa chọn của một bản mẫu UI</title>
+      <rect width="1000" height="592" fill="#f5f5f5"/>
+
+      <!-- Row rules -->
+      <line class="rule" x1="32" y1="108" x2="976" y2="108"/><line class="rule" x1="32" y1="196" x2="976" y2="196"/><line class="rule" x1="32" y1="284" x2="976" y2="284"/><line class="rule" x1="32" y1="372" x2="976" y2="372"/><line class="rule" x1="32" y1="460" x2="976" y2="460"/>
+
+      <!-- Header -->
+      <text class="head" x="32" y="92">TRỤC</text><text class="head val" x="224" y="92">GIÁ TRỊ · trái = mặc định · phải = nấc thấp hơn</text>
+
+      <!-- Thread: mặc định là cột trái ở cả 4 trục -->
+      <path class="thread" d="M 296 164 L 296 212"/>
+      <path class="thread" d="M 296 252 L 296 300"/>
+      <path class="thread" d="M 296 340 L 296 388"/>
+
+      <!-- Trục 1 — Vật liệu (material:) -->
+      <text class="axis" x="32" y="140">Vật liệu</text><text class="stick" x="32" y="156">thước: độ tin khi duyệt · công port</text>
+      <rect class="cell-chosen" x="224" y="124" width="144" height="40" rx="6"/><rect class="tag" x="232" y="128" width="36" height="16" rx="2"/><text class="tag-t" x="236" y="140">REPO</text><text class="val chosen" x="232" y="156">Component thật</text>
+      <rect class="cell" x="392" y="124" width="144" height="40" rx="6"/><rect class="tag" x="400" y="128" width="36" height="16" rx="2"/><text class="tag-t" x="404" y="140">REPO</text><text class="val" x="400" y="156">Khung + token repo</text><text class="reason" x="548" y="156">hình khối là nháp</text>
+      <rect class="cell" x="680" y="124" width="144" height="40" rx="6"/><rect class="tag" x="688" y="128" width="48" height="16" rx="2"/><text class="tag-t" x="692" y="140">G.ĐỊNH</text><text class="val" x="688" y="156">HTML tĩnh, chỉ token</text><text class="reason" x="836" y="156">chỉ ý định · port xa</text>
+
+      <!-- Trục 2 — Chỗ sống (context:) -->
+      <text class="axis" x="32" y="228">Chỗ sống</text><text class="stick" x="32" y="244">thước: thấy người dùng vào–ra không</text>
+      <rect class="cell-chosen" x="224" y="212" width="144" height="40" rx="6"/><rect class="tag" x="232" y="216" width="36" height="16" rx="2"/><text class="tag-t" x="236" y="228">REPO</text><text class="val chosen" x="232" y="244">Nhúng host thật</text>
+      <rect class="cell" x="392" y="212" width="144" height="40" rx="6"/><rect class="tag" x="400" y="216" width="36" height="16" rx="2"/><text class="tag-t" x="404" y="228">REPO</text><text class="val" x="400" y="244">Khung giả tĩnh</text><text class="reason" x="548" y="244">host chưa chạy</text>
+      <rect class="cell" x="680" y="212" width="144" height="40" rx="6"/><rect class="tag" x="688" y="216" width="48" height="16" rx="2"/><text class="tag-t" x="692" y="228">G.ĐỊNH</text><text class="val" x="688" y="244">Đứng một mình</text><text class="reason" x="836" y="244">+ cảnh, hoặc cờ vàng</text>
+
+      <!-- Trục 3 — Nguồn luật DS -->
+      <text class="axis" x="32" y="316">Nguồn luật DS</text><text class="stick" x="32" y="332">thước: từ vựng token có tên</text>
+      <rect class="cell-chosen" x="224" y="300" width="144" height="40" rx="6"/><rect class="tag" x="232" y="304" width="36" height="16" rx="2"/><text class="tag-t" x="236" y="316">REPO</text><text class="val chosen" x="232" y="332">Skill DS repo khai</text>
+      <rect class="cell" x="392" y="300" width="144" height="40" rx="6"/><rect class="tag" x="400" y="304" width="36" height="16" rx="2"/><text class="tag-t" x="404" y="316">REPO</text><text class="val" x="400" y="332">Token sẵn trong repo</text><text class="reason" x="548" y="332">finding nhóm 2</text>
+      <rect class="cell" x="680" y="300" width="144" height="40" rx="6"/><rect class="tag" x="688" y="304" width="40" height="16" rx="2"/><text class="tag-t" x="692" y="316">NGÀNH</text><text class="val" x="688" y="332">shadcn mặc định</text><text class="reason" x="836" y="332">repo 0 token</text>
+
+      <!-- Trục 4 — Mẫu thiếu → lối ra -->
+      <text class="axis" x="32" y="404">Mẫu hệ chưa có</text><text class="stick" x="32" y="420">thước: nợ có hạn trả không</text>
+      <rect class="cell-chosen" x="224" y="388" width="144" height="40" rx="6"/><rect class="tag" x="232" y="392" width="36" height="16" rx="2"/><text class="tag-t" x="236" y="404">REPO</text><text class="val chosen" x="232" y="420">Cắt về đồ có sẵn</text>
+      <rect class="cell" x="392" y="388" width="144" height="40" rx="6"/><rect class="tag" x="400" y="392" width="36" height="16" rx="2"/><text class="tag-t" x="404" y="404">REPO</text><text class="val" x="400" y="420">Sang làn hệ thiết kế</text><text class="reason" x="548" y="420">đường E, hồ sơ riêng</text>
+      <rect class="cell" x="680" y="388" width="144" height="40" rx="6"/><rect class="tag" x="688" y="392" width="48" height="16" rx="2"/><text class="tag-t" x="692" y="404">G.ĐỊNH</text><text class="val" x="688" y="420">Dựng riêng + nợ</text><text class="reason" x="836" y="420">hạn trả trên bản đồ</text>
+
+      <!-- Legend -->
+      <line class="rule" x1="32" y1="500" x2="976" y2="500"/>
+      <text class="legend-t" x="32" y="520" letter-spacing=".14em">CHÚ GIẢI</text>
+      <rect class="cell-chosen" x="120" y="508" width="24" height="16" rx="4"/><text class="legend-t" x="152" y="520">Mặc định (sợi cam)</text>
+      <rect class="cell" x="272" y="508" width="24" height="16" rx="4"/><text class="legend-t" x="304" y="520">Nấc thấp hơn — hợp lệ khi khai</text>
+      <text class="legend-t" x="496" y="520">Nguồn</text>
+      <rect class="tag" x="544" y="508" width="36" height="16" rx="2"/><text class="tag-t" x="548" y="520">REPO</text>
+      <rect class="tag" x="588" y="508" width="40" height="16" rx="2"/><text class="tag-t" x="592" y="520">NGÀNH</text>
+      <rect class="tag" x="636" y="508" width="48" height="16" rx="2"/><text class="tag-t" x="640" y="520">G.ĐỊNH</text>
+      <text class="note" x="976" y="520" text-anchor="end">chữ xám cạnh ô = cái giá của nấc đó</text>
+      <text class="note" x="32" y="556">Hạ nấc ở trục nào cũng phải khai vào sổ phiên (material: · context: · nấc DS · lối đã chọn) — thẻ Cổng Phạm vi in ra để người duyệt biết mình đang duyệt trên vật liệu gì. Không có hạ nấc ngầm.</text>
+    </svg>
+
+    <div class="reading">
+      <p><strong>Cách đọc.</strong> Mỗi hàng là một câu hỏi bắt buộc trả lời khi mở bản mẫu; ba ô là ba câu trả lời có tên. Cột trái là mặc định — rẻ nhất mà vẫn cho thị giác thật; đi sang phải là chấp nhận một cái giá, ghi bằng chữ xám cạnh ô.</p>
+      <p>«Ba loại bản mẫu» anh hay gặp là hàng đầu (vật liệu). Nó chưa bao giờ đứng một mình: chọn vật liệu mà không chọn chỗ sống thì được bản mẫu đẹp không thấy người dùng vào–ra (r3 đã dẫm); chọn hai hàng đầu mà không chọn nguồn luật thì phiên tự phát minh token; ba hàng đầu xong mà mẫu hệ chưa có thì phiên tự phát minh mẫu dưới sức ép — hàng cuối là chốt của việc đó.</p>
+      <p>Sợi cam thẳng đứng nói: tổ hợp mặc định không cần ai quyết. Người chỉ vào cuộc khi một trục rời sợi cam — và cách người biết là thẻ Cổng Phạm vi in ra ô đã chọn.</p>
+      <p>Hình này là bản đồ tĩnh của lựa chọn; hình «Làn UI trong vòng LÀM» kế bên cho biết bốn lựa chọn này rơi vào bước nào và bản mẫu chết ở đâu.</p>
+    </div>
+    <p class="colophon">Chiếu của skills/design-pass/SKILL.md (Giai đoạn 0 · mục 2 thang DS · mục 3 thang vật liệu) + workflow-v2-spec §2.2 S1-D mục 2 (ba lối ra) · vẽ 2026-08-17 tại 8d1e135 · hình là chiếu của chữ, không phải nguồn</p>
+  </div>
+</body>
+</html>

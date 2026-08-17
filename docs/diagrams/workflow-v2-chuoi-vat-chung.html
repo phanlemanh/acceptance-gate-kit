@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workflow v2 chuỗi vật chứng · Evidence chain</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper: #f5f5f5; --color-ink: #2d3142; --color-muted: #4f5d75; --color-soft: #636b80;
+      --color-rule: rgba(45,49,66,0.12); --color-accent: #eb6c36;
+      --font-sans: 'Geist', system-ui, sans-serif; --font-serif: 'Instrument Serif', 'Lora', serif; --font-mono: 'Geist Mono', ui-monospace, monospace;
+    }
+    body { font-family: var(--font-sans); background: var(--color-paper); color: var(--color-ink); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; }
+    .frame { max-width: 1000px; width: 100%; }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.5rem; }
+    h1 { font-family: var(--font-serif); font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem); font-weight: 400; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 0.5rem; }
+    .sub { color: var(--color-muted); font-size: 0.875rem; line-height: 1.5; max-width: 60ch; margin-bottom: 1.5rem; }
+    svg { width: 100%; min-width: 800px; display: block; }
+    svg .boundary{stroke:rgba(45,49,66,.60);stroke-width:1.2;stroke-dasharray:6 4}
+    svg .box{fill:#ffffff;stroke:#2d3142;stroke-width:1}
+    svg .box.flagged{stroke:#eb6c36;stroke-width:1.2}
+    svg .name{font-family:'Geist',sans-serif;font-size:12px;font-weight:600;fill:#2d3142}
+    svg .id{font-family:'Geist Mono',monospace;font-size:9px;fill:#4f5d75}
+    svg .badge{fill:none;stroke:rgba(45,49,66,.35);stroke-width:.8}
+    svg .badge.checker{fill:rgba(45,49,66,.06)}
+    svg .badge-text{font-family:'Geist Mono',monospace;font-size:9px;font-weight:500;fill:#4f5d75;letter-spacing:.08em}
+    svg .tag{fill:rgba(235,108,54,.08);stroke:#eb6c36;stroke-width:.8}
+    svg .tag-text{font-family:'Geist Mono',monospace;font-size:9px;font-weight:500;fill:#ba4513;letter-spacing:.08em}
+    svg .tag-new{fill:none;stroke:rgba(45,49,66,.35);stroke-width:.8}
+    svg .custody{fill:none;stroke:#4f5d75;stroke-width:1}
+    svg .custody.dashed{stroke-dasharray:5 4}
+    svg .mask{fill:#f5f5f5}
+    svg .act{font-family:'Geist Mono',monospace;font-size:9px;fill:#4f5d75;letter-spacing:.06em}
+    svg .boundary-label{font-family:'Geist Mono',monospace;font-size:9px;fill:#636b80;letter-spacing:.06em}
+    svg .note{font-family:'Instrument Serif','Lora',serif;font-style:italic;font-size:14px;fill:#ba4513}
+    svg .leader{fill:none;stroke:rgba(235,108,54,.50);stroke-width:1;stroke-dasharray:4 3}
+    svg .dot{fill:#eb6c36}
+    svg .legend-text{font-family:'Geist Mono',monospace;font-size:9px;fill:#4f5d75}
+    svg .legend-eyebrow{font-family:'Geist Mono',monospace;font-size:9px;fill:#636b80;letter-spacing:.14em}
+    svg .rule{stroke:rgba(45,49,66,.10);stroke-width:.8}
+    .reading { margin-top: 1.5rem; border-top: 1px solid var(--color-rule); padding-top: 1rem; font-size: 0.8125rem; line-height: 1.6; color: var(--color-muted); max-width: 72ch; }
+    .reading p { margin-bottom: 0.4rem; }
+    .colophon { margin-top: 1rem; font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.04em; color: var(--color-soft); }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Evidence chain · Workflow v2 · ĐỀ XUẤT — guard chưa có trong mã</p>
+    <h1>Chuỗi vật chứng của một tính năng — ai viết, ai kiểm</h1>
+    <p class="sub">Sáu hiện vật nối từ cơ hội tới sổ nghiệm thu. Trên ranh là bên làm; dưới ranh là bên kiểm độc lập — máy tươi không có ngữ cảnh, hoặc người.</p>
+
+    <svg viewBox="0 0 1000 536" role="img" aria-labelledby="ec-title" xmlns="http://www.w3.org/2000/svg">
+      <title id="ec-title">Chuỗi vật chứng của một tính năng qua workflow v2</title>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+      </defs>
+      <rect width="1000" height="536" fill="#f5f5f5"/>
+
+      <!-- Ranh giới độc lập -->
+      <line class="boundary" x1="32" y1="248" x2="968" y2="248"/>
+
+      <!-- Custody arrows (trước box) -->
+      <line class="custody" x1="192" y1="148" x2="248" y2="148" marker-end="url(#arrow)"/>
+      <line class="custody" x1="408" y1="148" x2="464" y2="148" marker-end="url(#arrow)"/>
+      <line class="custody" x1="520" y1="176" x2="520" y2="320" marker-end="url(#arrow)"/>
+      <line class="custody" x1="536" y1="348" x2="592" y2="348" marker-end="url(#arrow)"/>
+      <line class="custody" x1="752" y1="348" x2="808" y2="348" marker-end="url(#arrow)"/>
+      <!-- Ngưỡng: khai ở cơ hội, so ở sổ nghiệm thu -->
+      <path class="custody dashed" d="M 112 176 V 408 a8,8 0 0 0 8,8 H 880 a8,8 0 0 0 8,-8 V 376" marker-end="url(#arrow)"/>
+
+      <!-- Act labels -->
+      <rect class="mask" x="196" y="124" width="48" height="16" rx="2"/><text class="act" x="220" y="136" text-anchor="middle">KẾ THỪA</text>
+      <rect class="mask" x="412" y="124" width="48" height="16" rx="2"/><text class="act" x="436" y="136" text-anchor="middle">DỰNG</text>
+      <rect class="mask" x="532" y="232" width="128" height="16" rx="2"/><text class="act" x="536" y="244">ĐỐI CHIẾU · MÁY TƯƠI</text>
+      <rect class="mask" x="540" y="324" width="48" height="16" rx="2"/><text class="act" x="564" y="336" text-anchor="middle">SAU CỜ</text>
+      <rect class="mask" x="752" y="324" width="56" height="16" rx="2"/><text class="act" x="780" y="336" text-anchor="middle">BÀN GIAO</text>
+      <rect class="mask" x="124" y="392" width="200" height="16" rx="2"/><text class="act" x="128" y="404">NGƯỠNG · KHAI TRƯỚC, SO SAU</text>
+
+      <!-- Boundary name -->
+      <rect class="mask" x="700" y="240" width="268" height="16"/>
+      <text class="boundary-label" x="964" y="252" text-anchor="end">RANH GIỚI ĐỘC LẬP · bên làm ↑ · bên kiểm ↓</text>
+
+      <!-- Bên làm -->
+      <rect class="box" x="32" y="120" width="160" height="56" rx="6"/>
+      <rect class="badge" x="40" y="124" width="56" height="16" rx="2"/><text class="badge-text" x="68" y="136" text-anchor="middle">BÊN LÀM</text>
+      <text class="name" x="40" y="156">Hồ sơ cơ hội</text><text class="id" x="40" y="168">opportunity.md · decision</text>
+
+      <rect class="box" x="248" y="120" width="160" height="56" rx="6"/>
+      <rect class="badge" x="256" y="124" width="56" height="16" rx="2"/><text class="badge-text" x="284" y="136" text-anchor="middle">BÊN LÀM</text>
+            <text class="name" x="256" y="156">Hợp đồng + phép đo</text><text class="id" x="256" y="168">contract.md · evals.yaml</text>
+
+      <rect class="box" x="464" y="120" width="160" height="56" rx="6"/>
+      <rect class="badge" x="472" y="124" width="56" height="16" rx="2"/><text class="badge-text" x="500" y="136" text-anchor="middle">BÊN LÀM</text>
+      <text class="name" x="472" y="156">Mã + PR</text><text class="id" x="472" y="168">commit sha · PR #</text>
+
+      <!-- Bên kiểm -->
+      <rect class="box" x="376" y="320" width="160" height="56" rx="6"/>
+      <rect class="badge checker" x="384" y="324" width="60" height="16" rx="2"/><text class="badge-text" x="414" y="336" text-anchor="middle">BÊN KIỂM</text>
+      <text class="name" x="384" y="356">Báo cáo bằng chứng</text><text class="id" x="384" y="368">run_id · verified_commit</text>
+
+      <rect class="box flagged" x="592" y="320" width="160" height="56" rx="6"/>
+      <rect class="badge checker" x="600" y="324" width="60" height="16" rx="2"/><text class="badge-text" x="630" y="336" text-anchor="middle">BÊN KIỂM</text>
+      <rect class="tag" x="688" y="324" width="56" height="16" rx="2"/><text class="tag-text" x="716" y="336" text-anchor="middle">TỰ KHAI</text>
+      <text class="name" x="600" y="356">Nhật-ký-vấp</text><text class="id" x="600" y="368">stranger-drive.md · mới</text>
+
+      <rect class="box" x="808" y="320" width="160" height="56" rx="6"/>
+      <rect class="badge checker" x="816" y="324" width="60" height="16" rx="2"/><text class="badge-text" x="846" y="336" text-anchor="middle">BÊN KIỂM</text>
+      <text class="name" x="816" y="356">Sổ nghiệm thu</text><text class="id" x="816" y="368">uat-session.md · verdict</text>
+
+      <!-- Note — coral 2/2 -->
+      <text class="note" x="968" y="80" text-anchor="end">Số CHẶN ở đây phải do phiên trắng tự viết, hoặc máy đếm từ thân nhật ký.</text>
+      <text class="note" x="968" y="98" text-anchor="end">Phiên điều phối chép tay thì số 0 không chứng minh gì.</text>
+      <path class="leader" d="M 840 104 Q 800 200 724 316"/>
+      <circle class="dot" cx="724" cy="318" r="2"/>
+
+      <!-- Legend -->
+      <line class="rule" x1="32" y1="468" x2="968" y2="468"/>
+      <text class="legend-eyebrow" x="32" y="492">CHÚ GIẢI</text>
+      <rect class="box" x="112" y="480" width="24" height="16" rx="4"/><text class="legend-text" x="144" y="492">Hiện vật</text>
+      <rect class="badge" x="216" y="480" width="24" height="16" rx="2"/><text class="legend-text" x="248" y="492">Bên làm</text>
+      <rect class="badge checker" x="320" y="480" width="24" height="16" rx="2"/><text class="legend-text" x="352" y="492">Bên kiểm (máy tươi / người)</text>
+      <line class="boundary" x1="528" y1="488" x2="560" y2="488"/><text class="legend-text" x="568" y="492">Ranh giới độc lập</text>
+      <rect class="box flagged" x="696" y="480" width="24" height="16" rx="4"/><text class="legend-text" x="728" y="492">Mắt xích tự khai</text>
+      <line class="custody dashed" x1="840" y1="488" x2="872" y2="488"/><text class="legend-text" x="880" y="492">Thước khai trước</text>
+    </svg>
+
+    <div class="reading">
+      <p><strong>Cách đọc.</strong> Ba hiện vật trên ranh do phiên làm việc viết: hồ sơ cơ hội, hợp đồng kèm phép đo, mã và PR. Ba hiện vật dưới ranh do bên không có ngữ cảnh làm ra: báo cáo bằng chứng (máy tươi chấm mã của máy khác), nhật-ký-vấp (phiên trắng lái sản phẩm), sổ nghiệm thu (người chấm kín rồi ký).</p>
+      <p>Mũi tên đứt nối hồ sơ cơ hội với sổ nghiệm thu: ngưỡng khai một lần ở đầu, so ở cuối — không ai được sửa giữa đường.</p>
+      <p>Hồ sơ này thêm đúng một mắt xích: nhật-ký-vấp. Ranh bên làm / bên kiểm không dịch; hợp đồng không thêm trường nào — đường A đã được bộ đọc chung suy từ hồ sơ cơ hội.</p>
+      <p>Ô cam là chỗ yếu tự khai của chính mắt xích mới: phiên trắng ghi nhật ký, nhưng nếu con số CHẶN/LẠC mà sổ nghiệm thu đọc lại do phiên điều phối (có ngữ cảnh) chép, thì «0 CHẶN» là bên làm tự khai. Luật: số do phiên trắng viết trong dòng tổng kết của nó, hoặc máy đếm từ thân nhật ký — không đọc số ai chép lại.</p>
+    </div>
+    <p class="colophon">Chiếu của docs/specs/workflow-v2-spec.md §4–5 + đề xuất mối nối S0/S5 (phiên 17/08) · vẽ 2026-08-17 tại 8d1e135 · hình là chiếu của chữ, không phải nguồn · dấu ĐỀ XUẤT giữ cho tới khi guard có trong mã — hồ sơ thi hành guard gỡ dấu, không phải hồ sơ moi-noi-vong-trao</p>
+  </div>
+</body>
+</html>

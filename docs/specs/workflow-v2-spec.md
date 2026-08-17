@@ -253,11 +253,15 @@ plugin/DS của repo · handbook đội · 2 key consumer:
 
 ### 2.3 Vòng TRAO — chứng minh → tay người dùng + số quay về
 
-- **Lái-thử Người-lạ** (tiền trạm, MÁY — trước khi mời người, thêm 13/08):
-  phiên ngữ-cảnh-trắng lái sản phẩm sau flag theo mục tiêu tiếng-sản-phẩm,
-  giao nhật-ký-vấp (CHẶN/LẠC/KHÓ-CHỊU/VẶT) + câu hỏi «Chuyển phiên người»;
-  máy không phán đáng-giá. Nghi thức, 2 ổ cắm, luật dùng/không-dùng:
-  [docs/lai-thu-nguoi-la.md](../lai-thu-nguoi-la.md).
+- **Lái-thử Người-lạ** — **thì ĐO-máy của nhịp TRAO**, đứng trước thì ĐO-người
+  (phiên UAT); tiền trạm, MÁY, chạy trong lúc chờ mời người (thêm 13/08, định
+  vị 17/08): phiên ngữ-cảnh-trắng lái sản phẩm sau flag theo mục tiêu
+  tiếng-sản-phẩm, giao **nhật-ký-vấp** `stranger-drive.md` (khuôn
+  `skills/acceptance/references/stranger-drive-template.md`; CHẶN/LẠC/KHÓ-CHỊU/
+  VẶT) + câu hỏi «Chuyển phiên người»; máy không phán đáng-giá. `uat-session`
+  §0 đọc frontmatter nhật-ký (chan · slug · ran_at) làm bằng chứng điều kiện
+  «bấm được» — vắng thì cờ vàng, có CHẶN thì dừng. Nghi thức, 2 ổ cắm, luật
+  dùng/không-dùng: [docs/lai-thu-nguoi-la.md](../lai-thu-nguoi-la.md).
 - **Phiên UAT** (sản phẩm THẬT sau flag): mời stakeholder/người dùng đại
   diện; **chấm kín trước thảo luận** (chống social-desirability) +
   **commitment device** ("anh gửi cho khách nào, khi nào?"); đo bằng
@@ -279,8 +283,8 @@ plugin/DS của repo · handbook đội · 2 key consumer:
 
 | Đường | Dấu hiệu (máy-suy từ artifact) | HIỂU | S1-D | gap-probe đối chiếu | Sau Cổng Bằng-chứng |
 |---|---|---|---|---|---|
-| **A** value-bet | có opportunity + ngưỡng UAT | đầy đủ | theo UI | chuẩn plugin/DS | **UAT → Cổng Giá-trị** |
-| **B** UI-không-giả-định-mới | chạm UI, không opportunity | không (nguồn: lát-2/known-limits) | **BẬT** | chuẩn plugin/DS | ship thẳng (nghiệm thu trải nghiệm = Cổng Phạm-vi bản-bấm-được; đo qua tracking) |
+| **A** value-bet | có opportunity + ngưỡng UAT | đầy đủ | theo UI | chuẩn plugin/DS | **lái-thử → UAT → Cổng Giá-trị** |
+| **B** UI-không-giả-định-mới | chạm UI, không opportunity | không (nguồn: lát-2/known-limits) | **BẬT** | chuẩn plugin/DS | ship thẳng (nghiệm thu trải nghiệm = Cổng Phạm-vi bản-bấm-được; đo qua tracking) · lái-thử tuỳ chọn khi mở bề mặt mới, đọc kèm Cổng Bằng chứng |
 | **C** backend/kỹ thuật | không UI, không opportunity | không (nguồn: queue/plan/retro) | tắt | **invariant backend repo** | ship thẳng ("UAT" = itest trong evals; T3 → soak) |
 | **D** T1 | match `t1_skip_globs` | — | — | — | thoát S0 có xác nhận |
 | **E** hệ thiết kế | vật giao ra là LINH KIỆN vào hệ dùng chung (không phải màn hình) | không | **BẬT** — nhưng trên trang trưng bày linh kiện, không trên màn sản phẩm | chuẩn DS + kiểm đếm | ship thẳng; không phiên UAT |
@@ -315,7 +319,10 @@ nào lấy đâu).
 **Trạng thái máy-suy:** định tuyến hiện là **quy ước người/model đọc hồ sơ**,
 CHƯA có máy tự nhận đường; kiểm kê kho cho câu #4 cũng chưa có script. Hai
 việc này thuộc F-series — cho tới lúc đó, đường và kiểm kê do phiên khai
-tường minh trong hồ sơ, người duyệt soi tại cổng.
+tường minh trong hồ sơ, người duyệt soi tại cổng. **Từ hồ sơ moi-noi-vong-trao
+(08/2026):** thẻ Cổng Phạm vi in ngưỡng nghiệm thu (hoặc dòng «không hồ sơ cơ
+hội → ship thẳng») và S5 in dòng bàn giao sang Vòng TRAO — cả hai **suy khi
+đọc** từ có/không `opportunity.md`; đường đi vẫn KHÔNG lưu vào hợp đồng.
 
 ---
 
@@ -328,6 +335,10 @@ tường minh trong hồ sơ, người duyệt soi tại cổng.
 | Cổng KẾ HOẠCH | gate15 (T3) | Plan đúng đường? | chặn trước code |
 | Cổng BẰNG CHỨNG | gate2 | Bằng chứng tin được? Judgment items? | **từ chối có hồ sơ** |
 | Cổng GIÁ TRỊ | gateUAT | Người dùng nhận không? | **kill sau build = thành công** |
+
+*Chú ý: lái-thử không có hàng trong bảng này — nó không hỏi câu nào người
+phải trả lời; nó là thì ĐO-máy (§2.3), kết quả là nhật-ký-vấp cho người dự
+nghiệm thu.*
 
 Nguyên tắc cổng: card là MẶT NGƯỜI (contract/evidence vẫn nguồn sự thật);
 chữ ký khoá model-invocation (2 harness, ADR 0002); phút người ghi
@@ -388,6 +399,7 @@ Chuỗi & bảng dịch cho người mang từ vựng cũ:
 | PRD (mô tả) | **PRD-được-nuôi** xuyên vòng (docs sản phẩm) | không — cập nhật tại S5 | lens docs-drift |
 | Spec kiến trúc | design doc S1 + probe evidence | — | — |
 | Test plan/QA | `evals.yaml` + evidence-report | signoff | hook + CI |
+| Đợt test tay trước UAT | **nhật-ký-vấp** `stranger-drive.md` — song diện: frontmatter (chan/lac/kho_chiu/vat/slug/ran_at) máy đọc ở `uat-session` §0 + bảng vấp cho người | trước phiên nghiệm thu | uat-session §0 |
 | Roadmap | **PRODUCT-MAP** view SINH từ frontmatter (`epic:`/`supersedes:`/`relates:`) — KHÔNG graph DB; roadmap = truy vấn trên park/lát-2/out-of-scope đã ký | regenerate = hết drift | script |
 
 **Vận hành PRODUCT-MAP (quyết 30/07):** engine = `scripts/product-map.mjs`
