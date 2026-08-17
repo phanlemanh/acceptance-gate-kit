@@ -10122,7 +10122,7 @@ PY
 # hai khoi P90/P197 cung import module, khong con ban chep tay logic. Case suite
 # vinh vien: chi doc tests/** — KHONG doc _acceptance/**, KHONG worktree (nep p194:
 # thu gan ho so do bang rang cua ho so).
-run "P198 hfl_clause mot nguon: 6 ca fixture code-sinh + P90/P197 cung import, khong chep tay (siet-rang-cau-ve-hinh E1 E2 E6 E7)" \
+run "P198 hfl_clause mot nguon: 6 ca fixture code-sinh + hai khoi (P90 va khoi Gate 1) cung import, khong chep tay (siet-rang-cau-ve-hinh E1 E2 E6 E7)" \
   python3 - "$ROOT" <<'PY'
 import re, sys, tempfile
 from pathlib import Path
@@ -10163,19 +10163,22 @@ def block_of(prefix):
 p90 = block_of("P90 tam"); p197 = block_of("P197 GATE 1")
 CHEP_P90 = "CLAUSE not" + " in t"          # ghep de chinh dong nay khong tu khop
 CHEP_P197 = "CLAUSE_P90" + " in"
+SMSG = ["P90 khong import hfl_clause", "P90 con chep tay logic clause",
+        "P197 khong import hfl_clause", "P197 con chep tay p90_check"]
 def struct(p90b, p197b):
     errs = []
-    if "from hfl_clause import" not in p90b: errs.append("P90 khong import hfl_clause")
-    if CHEP_P90 in p90b: errs.append("P90 con chep tay logic clause")
-    if "from hfl_clause import" not in p197b: errs.append("P197 khong import hfl_clause")
-    if CHEP_P197 in p197b: errs.append("P197 con chep tay p90_check")
+    if "from hfl_clause import" not in p90b: errs.append(SMSG[0])
+    if CHEP_P90 in p90b: errs.append(SMSG[1])
+    if "from hfl_clause import" not in p197b: errs.append(SMSG[2])
+    if CHEP_P197 in p197b: errs.append(SMSG[3])
     return errs
 assert struct(p90, p197) == [], struct(p90, p197)                       # doi chung duong
-NKC = 4
+NKC = len(SMSG)      # so kiem cau truc = so thong diep struct() co the phat, khong khai tay
+FIRED = set()
 NMUT = 0
 def expect(errs, msg, label):
     global NMUT
-    assert msg in errs, f"{label}: mong '{msg}', duoc {errs}"; NMUT += 1
+    assert msg in errs, f"{label}: mong '{msg}', duoc {errs}"; NMUT += 1; FIRED.add(msg)
     print(f"P198-MUT-{NMUT}: {label} DO dung ({msg})")
 expect(struct(p90 + "\n        elif " + CHEP_P90 + ":\n            pass\n", p197), "P90 con chep tay logic clause", "chen lai chep tay vao P90")
 expect(struct(p90, p197 + "\np90_check = lambda t: [] if " + CHEP_P197 + " t else ['x']\n"), "P197 con chep tay p90_check", "chen lai chep tay vao P197")
@@ -10184,6 +10187,7 @@ expect(struct(p90, p197.replace("from hfl_clause import", "from nowhere import")
 # case nay khong duoc dung vao ho so — tu soi chinh no (ghep chuoi de dong nay khong tu khop)
 me = block_of("P198 hfl_clause")
 assert ("_accep" + "tance/") not in me, "P198 khong duoc doc thu muc ho so (" + "_accep" + "tance/)"
+assert set(SMSG) == FIRED, f"ma tran cau truc chua toan phan: {set(SMSG) - FIRED}"
 print(f"P198 OK: {NCA} ca fixture · {NKC} kiem cau truc · {NMUT} dot bien")
 PY
 

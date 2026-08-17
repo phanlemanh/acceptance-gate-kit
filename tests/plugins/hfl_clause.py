@@ -7,8 +7,11 @@ khong lam phep do nao do (Known limit 1 cua hinh-tai-cong-1).
 
 Neo HAI dau: n_anchor = max(so lan 4 chu DAU, so lan 4 chu CUOI cua clause);
 n_full = so ban NGUYEN VAN. Sua chu o giua / o dau / o cuoi mot ban deu lam
-n_full < n_anchor -> do. Diem mu con lai (ghi Known limits): sua CA HAI dau
-cung luc trong cung mot ban.
+n_full < n_anchor -> do. Hai diem mu CO CHU Y (ghi Known limits / descope
+d-1104 cua siet-rang-cau-ve-hinh): (1) sua CA HAI dau cung luc trong cung mot
+ban; (2) XOA HAN mot ban — n_anchor giam theo, cac ban con lai van khop nen
+xanh: ham nay hua «moi ban con lai khop khuon», khong hua «phai co o dau» (ve
+do la viec cua P197 canh khoi GATE 1).
 """
 import re
 

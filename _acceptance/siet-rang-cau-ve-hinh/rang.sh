@@ -8,7 +8,8 @@
 set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT" || exit 2
-TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
+TMP="$(mktemp -d)"; CP="tests/plugins/_rang-siet-copy.sh"
+trap 'rm -rf "$TMP" "$CP"; git worktree prune 2>/dev/null' EXIT
 ERR=0; keu() { echo "SIET-RANG LOI: $*"; ERR=1; }
 has() { printf '%s\n' "$1" | grep -qF -- "$2" || keu "$3"; }
 cnt() { printf '%s\n' "$1" | grep -cF -- "$2"; }
@@ -49,22 +50,30 @@ has "$OUTII" "so P197-M khong khop P197-M-COUNT" "rang khong ghim khong-khop-COU
 grep -q 'for M in "' "$R1" && keu "rang hinh-tai-cong-1 con danh sach tay"
 
 # AC-5 — ma tran nhan: ban sao suite bo mot dot bien nhan → P197 DO ghim 'ma tran chua toan phan'
-CP="tests/plugins/_rang-siet-copy.sh"
 sed 's/^for l in LABELS:$/for l in LABELS[:4]:/' tests/plugins/run-tests.sh > "$CP"   # bo dot bien nhan cuoi
 grep -q 'for l in LABELS\[:4\]:' "$CP" || keu "sed ban sao suite khong doi gi — dot bien nhan khong duoc bo"
 OUTN="$(ONLY_BLOCK=P197 bash "$CP" 2>&1)"; rm -f "$CP"
 has "$OUTN" "ma tran chua toan phan" "bo dot bien nhan ma P197 khong do 'ma tran chua toan phan'"
+has "$OUTN" "thieu nhan buoc [5] Đính" "P197 do ma tran nhung khong ghim dung nhan thieu [5] Đính"
 
 # AC-8 — tinh phan biet: rang cua hinh-tai-cong-1 phai DO tren moc diffBase (khoi GATE 1 chua co)
 BASE=8d1e135682633ba22c44d253e90b0f404043722b   # moc PR #62 tach nhanh — song trong ho so, khong trong suite
+# Doi chung DUONG truoc (khoi da chay), roi ghim DUNG thong diep — khong tin exit code mot minh
+# (bat bien CLAUDE.md «assertion am-tinh-mot-minh la assertion khong song»).
 if git cat-file -e "$BASE^{commit}" 2>/dev/null; then
-  git worktree add -q "$TMP/base" "$BASE" 2>/dev/null && {
-    mkdir -p "$TMP/base/_acceptance/hinh-tai-cong-1"; cp "$R1" "$TMP/base/_acceptance/hinh-tai-cong-1/rang.sh"
-    bash "$TMP/base/_acceptance/hinh-tai-cong-1/rang.sh" >/dev/null 2>&1 && keu "rang hinh-tai-cong-1 XANH tren diffBase — mat tinh phan biet"
-    git worktree remove --force "$TMP/base" 2>/dev/null
-  }
+  if git worktree add -q "$TMP/base" "$BASE" 2>"$TMP/wt.err"; then
+    mkdir -p "$TMP/base/_acceptance/hinh-tai-cong-1" && cp "$R1" "$TMP/base/_acceptance/hinh-tai-cong-1/rang.sh" \
+      || keu "khong chep duoc rang vao worktree base"
+    OUTB="$(bash "$TMP/base/_acceptance/hinh-tai-cong-1/rang.sh" 2>&1)"; STB=$?
+    [ "$STB" -ne 0 ] || keu "rang hinh-tai-cong-1 XANH tren diffBase — mat tinh phan biet"
+    has "$OUTB" "P197-RANG DO" "rang tren base khong in 'P197-RANG DO' (do vi ly do khac: exit $STB)"
+    has "$OUTB" "khong thay dong 'PASS: P197'" "rang tren base khong ghim 'khong thay dong PASS: P197' — khoi GATE 1 chua co la ly do phai thay"
+    git worktree remove --force "$TMP/base" 2>/dev/null || keu "khong go duoc worktree base"
+  else
+    keu "khong tao duoc worktree base: $(head -1 "$TMP/wt.err")"
+  fi
 else
-  echo "SIET-RANG NOTE: khong co commit $BASE (shallow clone?) — bo qua chan diffBase"
+  keu "khong co commit $BASE trong repo (shallow clone?) — chan diffBase khong chay duoc"
 fi
 
 if [ "$ERR" -ne 0 ]; then echo "SIET-RANG DO"; exit 1; fi
