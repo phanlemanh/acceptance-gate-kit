@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workflow v2 vòng đời một việc · State machine</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper: #f5f5f5; --color-ink: #2d3142; --color-muted: #4f5d75; --color-soft: #636b80;
+      --color-rule: rgba(45,49,66,0.12); --color-accent: #eb6c36;
+      --font-sans: 'Geist', system-ui, sans-serif; --font-serif: 'Instrument Serif', 'Lora', serif; --font-mono: 'Geist Mono', ui-monospace, monospace;
+    }
+    body { font-family: var(--font-sans); background: var(--color-paper); color: var(--color-ink); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; }
+    .frame { max-width: 1000px; width: 100%; }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.5rem; }
+    h1 { font-family: var(--font-serif); font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem); font-weight: 400; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 0.5rem; }
+    .sub { color: var(--color-muted); font-size: 0.875rem; line-height: 1.5; max-width: 60ch; margin-bottom: 1.5rem; }
+    svg { width: 100%; min-width: 800px; display: block; }
+    svg .st{fill:#ffffff;stroke:#2d3142;stroke-width:1}
+    svg .st.focal{fill:rgba(235,108,54,.08);stroke:#eb6c36;stroke-width:1.4}
+    svg .st.side{fill:rgba(45,49,66,.05);stroke:#4f5d75}
+    svg .name{font-family:'Geist',sans-serif;font-size:14px;font-weight:600;fill:#2d3142}
+    svg .sub{font-family:'Geist',sans-serif;font-size:9px;fill:#4f5d75}
+    svg .tr{fill:none;stroke:#4f5d75;stroke-width:1.2}
+    svg .tr.dashed{stroke-dasharray:5 4}
+    svg .tr.accent{stroke:#eb6c36;stroke-width:1.4}
+    svg .mask{fill:#f5f5f5}
+    svg .lbl{font-family:'Geist Mono',monospace;font-size:9px;fill:#4f5d75;letter-spacing:.06em}
+    svg .lbl.accent{fill:#ba4513}
+    svg .legend-text{font-family:'Geist',sans-serif;font-size:9px;fill:#4f5d75}
+    svg .legend-eyebrow{font-family:'Geist Mono',monospace;font-size:9px;fill:#636b80;letter-spacing:.14em}
+    svg .rule{stroke:rgba(45,49,66,.10);stroke-width:.8}
+    .reading { margin-top: 1.5rem; border-top: 1px solid var(--color-rule); padding-top: 1rem; font-size: 0.8125rem; line-height: 1.6; color: var(--color-muted); max-width: 72ch; }
+    .reading p { margin-bottom: 0.4rem; }
+    .colophon { margin-top: 1rem; font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.04em; color: var(--color-soft); }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">State machine · Workflow v2 · Acceptance-Gate Kit</p>
+    <h1>Vòng đời một việc — máy suy mỗi bước chuyển từ dấu hiệu nào trong hồ sơ</h1>
+    <p class="sub">Tám trạng thái của bản đồ sản phẩm. Nhãn trên mũi tên là <em>sự kiện · [dấu hiệu máy đọc được]</em>; không có dấu hiệu thì việc đứng yên.</p>
+
+    <svg viewBox="0 0 1000 928" role="img" aria-labelledby="sm-title" xmlns="http://www.w3.org/2000/svg">
+      <title id="sm-title">Vòng đời một việc qua workflow v2</title>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+      </defs>
+      <rect width="1000" height="928" fill="#f5f5f5"/>
+
+      <!-- ===== Transitions (trước box) — trục chính x=420 ===== -->
+      <line class="tr" x1="420" y1="30" x2="420" y2="64" marker-end="url(#arrow)"/>
+      <line class="tr" x1="420" y1="120" x2="420" y2="176" marker-end="url(#arrow)"/>
+      <line class="tr" x1="420" y1="232" x2="420" y2="288" marker-end="url(#arrow)"/>
+      <line class="tr" x1="420" y1="344" x2="420" y2="400" marker-end="url(#arrow)"/>
+      <line class="tr" x1="420" y1="456" x2="420" y2="512" marker-end="url(#arrow)"/>
+      <line class="tr accent" x1="420" y1="568" x2="420" y2="624" marker-end="url(#arrow-accent)"/>
+      <line class="tr" x1="420" y1="680" x2="420" y2="736" marker-end="url(#arrow)"/>
+      <line class="tr" x1="420" y1="792" x2="420" y2="832" marker-end="url(#arrow)"/>
+      <!-- Cân nhắc → Xếp lại · bác (phải) -->
+      <line class="tr" x1="520" y1="92" x2="640" y2="92" marker-end="url(#arrow)"/>
+      <!-- Đã giao → kết thúc (trái) — đường B/C/E -->
+      <line class="tr" x1="320" y1="540" x2="132" y2="540" marker-end="url(#arrow)"/>
+      <!-- Đã nghiệm thu → Sắp mở: iterate = vòng mới (đứt, vòng phải) -->
+      <path class="tr dashed" d="M 520 764 H 572 a8,8 0 0 0 8,-8 V 212 a8,8 0 0 0 -8,-8 H 522" marker-end="url(#arrow)"/>
+
+      <!-- ===== Labels (bên trái trục, mask cách nét ≥8px) ===== -->
+      <rect class="mask" x="220" y="140" width="188" height="16" rx="2"/><text class="lbl" x="404" y="152" text-anchor="end">CỔNG ĐÁNG · [DECISION = BUILD]</text>
+      <rect class="mask" x="208" y="252" width="200" height="16" rx="2"/><text class="lbl" x="404" y="264" text-anchor="end">S1 · [ĐỌC HỒ SƠ CƠ HỘI CÙNG SLUG]</text>
+      <rect class="mask" x="216" y="364" width="192" height="16" rx="2"/><text class="lbl" x="404" y="376" text-anchor="end">CỔNG PHẠM VI · [DUYỆT ∨ V MỞ]</text>
+      <rect class="mask" x="248" y="476" width="160" height="16" rx="2"/><text class="lbl" x="404" y="488" text-anchor="end">MERGE · [XANH-SẠCH ∨ KÝ]</text>
+      <rect class="mask" x="180" y="588" width="228" height="16" rx="2"/><text class="lbl accent" x="404" y="600" text-anchor="end">[CƠ HỘI BUILD/ITERATE ∧ CHƯA VERDICT]</text>
+      <rect class="mask" x="208" y="692" width="200" height="16" rx="2"/><text class="lbl" x="404" y="704" text-anchor="end">LÁI-THỬ → PHIÊN NGHIỆM THU</text>
+      <rect class="mask" x="240" y="712" width="168" height="16" rx="2"/><text class="lbl" x="404" y="724" text-anchor="end">CỔNG GIÁ TRỊ · [VERDICT]</text>
+      <!-- park/kill -->
+      <rect class="mask" x="536" y="68" width="88" height="16" rx="2"/><text class="lbl" x="580" y="80" text-anchor="middle">[PARK ∨ KILL]</text>
+      <!-- B/C/E -->
+      <rect class="mask" x="116" y="516" width="204" height="16" rx="2"/><text class="lbl" x="218" y="528" text-anchor="middle">B/C/E · [KHÔNG CÓ HỒ SƠ CƠ HỘI]</text>
+      <!-- iterate -->
+      <rect class="mask" x="592" y="480" width="128" height="16" rx="2"/><text class="lbl" x="596" y="492">[ITERATE] · VÒNG MỚI</text>
+
+      <!-- ===== Start / End ===== -->
+      <circle cx="420" cy="24" r="6" fill="#2d3142"/>
+      <circle cx="420" cy="840" r="8" fill="none" stroke="#2d3142" stroke-width="1"/><circle cx="420" cy="840" r="5" fill="#2d3142"/>
+      <circle cx="124" cy="540" r="8" fill="none" stroke="#2d3142" stroke-width="1"/><circle cx="124" cy="540" r="5" fill="#2d3142"/>
+
+      <!-- ===== States (200×56, x 320–520) ===== -->
+      <rect class="st" x="320" y="64" width="200" height="56" rx="8"/>
+      <text class="name" x="420" y="88" text-anchor="middle">Cân nhắc</text>
+      <text class="sub" x="420" y="106" text-anchor="middle">hồ sơ cơ hội · grill · phép thử rẻ</text>
+
+      <rect class="st side" x="640" y="64" width="200" height="56" rx="8"/>
+      <text class="name" x="740" y="88" text-anchor="middle">Xếp lại · Đã bác</text>
+      <text class="sub" x="740" y="106" text-anchor="middle">giết trước khi dựng = rẻ nhất</text>
+
+      <rect class="st" x="320" y="176" width="200" height="56" rx="8"/>
+      <text class="name" x="420" y="200" text-anchor="middle">Sắp mở</text>
+      <text class="sub" x="420" y="218" text-anchor="middle">decision = build · ngưỡng đã khai</text>
+
+      <rect class="st" x="320" y="288" width="200" height="56" rx="8"/>
+      <text class="name" x="420" y="312" text-anchor="middle">Chờ duyệt phạm vi</text>
+      <text class="sub" x="420" y="330" text-anchor="middle">hợp đồng draft · ngưỡng trỏ về cơ hội</text>
+
+      <rect class="st" x="320" y="400" width="200" height="56" rx="8"/>
+      <text class="name" x="420" y="424" text-anchor="middle">Đang làm</text>
+      <text class="sub" x="420" y="442" text-anchor="middle">kế hoạch · code · ≤ 3 vòng đo</text>
+
+      <rect class="st" x="320" y="512" width="200" height="56" rx="8"/>
+      <text class="name" x="420" y="536" text-anchor="middle">Đã giao</text>
+      <text class="sub" x="420" y="554" text-anchor="middle">signed-off · PR merged · sau cờ</text>
+
+      <rect class="st focal" x="320" y="624" width="200" height="56" rx="8"/>
+      <text class="name" x="420" y="648" text-anchor="middle">Chờ nghiệm thu</text>
+      <text class="sub" x="420" y="666" text-anchor="middle">có ngưỡng ∧ chưa có verdict</text>
+
+      <rect class="st" x="320" y="736" width="200" height="56" rx="8"/>
+      <text class="name" x="420" y="760" text-anchor="middle">Đã nghiệm thu</text>
+      <text class="sub" x="420" y="778" text-anchor="middle">release · kill — cả hai là kết cục hợp lệ</text>
+
+      <!-- Legend -->
+      <line class="rule" x1="32" y1="872" x2="968" y2="872"/>
+      <text class="legend-eyebrow" x="32" y="892">CHÚ GIẢI</text>
+      <rect class="st" x="112" y="900" width="24" height="16" rx="4"/><text class="legend-text" x="144" y="912">Trạng thái trên bản đồ</text>
+      <rect class="st focal" x="280" y="900" width="24" height="16" rx="4"/><text class="legend-text" x="312" y="912">Trạng thái hồ sơ này nối vào (bộ đọc chung đã suy được)</text>
+      <line class="tr" x1="536" y1="908" x2="568" y2="908" marker-end="url(#arrow)"/><text class="legend-text" x="576" y="912">Chuyển · [dấu hiệu trong hồ sơ]</text>
+      <line class="tr dashed" x1="768" y1="908" x2="800" y2="908" marker-end="url(#arrow)"/><text class="legend-text" x="808" y="912">Mở vòng mới</text>
+    </svg>
+
+    <div class="reading">
+      <p><strong>Cách đọc.</strong> Đi từ chấm đen trên xuống. Mỗi mũi tên ghi <em>ai/việc gì</em> rồi <em>[dấu hiệu máy đọc được trong hồ sơ]</em> — nếu dấu hiệu không có, việc đứng yên ở trạng thái đó và hiện trên thẻ mỗi lần mở phiên.</p>
+      <p>Hai mũi tên rẽ khỏi «Đã giao» đều do <em>một</em> dấu hiệu quyết: có hay không hồ sơ cơ hội đã quyết build/iterate cùng slug. Bộ đọc hồ sơ dùng chung đã suy được điều này cho `/start` và bản đồ; bản đồ ghi «chưa có» chỉ vì repo này chưa có việc đường A nào ký. Điều còn thiếu là feature-loop chưa nói với người bước kế ở S5, và S0 chưa đọc hồ sơ cơ hội làm input.</p>
+      <p>Từ «Chờ nghiệm thu» ra chỉ có một đường: lái-thử trước, phiên nghiệm thu sau, người ký verdict. «Iterate» không quay lại vòng cũ mà mở vòng mới từ «Sắp mở».</p>
+      <p>Hình này đồng thời là thước: bộ đọc hồ sơ dùng chung phải cho đúng các chuyển này trên hồ sơ code-sinh — hình và ca đo cùng một nguồn.</p>
+    </div>
+    <p class="colophon">Chiếu của PRODUCT-MAP (trạng thái) + bảng status feature-loop + đề xuất mối nối S0/S5 (phiên 17/08) · vẽ 2026-08-17 tại 8d1e135 · hình là chiếu của chữ, không phải nguồn</p>
+  </div>
+</body>
+</html>

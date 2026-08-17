@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workflow v2 toàn tuyến · Swimlane</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-paper-2: #ececec;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-soft:    #636b80;
+      --color-rule:    rgba(45,49,66,0.12);
+      --color-accent:  #eb6c36;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Lora', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1304px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 0.5rem;
+    }
+    .sub {
+      color: var(--color-muted);
+      font-size: 0.875rem;
+      line-height: 1.5;
+      max-width: 60ch;
+      margin-bottom: 1.5rem;
+    }
+    svg { width: 100%; min-width: 900px; display: block; }
+    .reading {
+      margin-top: 1.5rem;
+      border-top: 1px solid var(--color-rule);
+      padding-top: 1rem;
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      color: var(--color-muted);
+      max-width: 72ch;
+    }
+    .reading p { margin-bottom: 0.4rem; }
+    .colophon {
+      margin-top: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      letter-spacing: 0.04em;
+      color: var(--color-soft);
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Swimlane · Workflow v2 · Acceptance-Gate Kit</p>
+    <h1>Máy đi trước, người đứng ở biên — toàn tuyến một tính năng</h1>
+    <p class="sub">Ba vòng, bốn cổng người, một tiền trạm máy trước phiên nghiệm thu. Đường A đi trọn; B/C/E dừng ở «giao sau cờ».</p>
+
+    <svg viewBox="0 0 1304 448" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+      </defs>
+
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- Vòng bands (header) -->
+      <text x="32" y="44" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">VÒNG HIỂU · mơ hồ → đáng làm</text>
+      <line x1="32" y1="56" x2="292" y2="56" stroke="#2d3142" stroke-width="1" opacity="0.35"/>
+      <text x="312" y="44" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">VÒNG LÀM · quyết → sản phẩm chứng minh được</text>
+      <line x1="312" y1="56" x2="852" y2="56" stroke="#2d3142" stroke-width="1" opacity="0.35"/>
+      <text x="872" y="44" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">VÒNG TRAO · chứng minh → tay người dùng</text>
+      <line x1="872" y1="56" x2="1272" y2="56" stroke="#2d3142" stroke-width="1" opacity="0.35"/>
+
+      <!-- Lane dividers -->
+      <line x1="24" y1="80" x2="1280" y2="80" stroke="rgba(45,49,66,0.22)" stroke-width="1"/>
+      <line x1="24" y1="204" x2="1280" y2="204" stroke="rgba(45,49,66,0.10)" stroke-width="1"/>
+      <line x1="24" y1="340" x2="1280" y2="340" stroke="rgba(45,49,66,0.22)" stroke-width="1"/>
+
+      <!-- Lane labels -->
+      <text x="32" y="98" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">MÁY · làm và tự chứng minh</text>
+      <text x="32" y="222" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">NGƯỜI · quyết tại cổng</text>
+
+      <!-- ===== Arrows (drawn before boxes) ===== -->
+      <!-- 1. Khám phá → Cổng Đáng (xuống) -->
+      <path d="M152,148 h2 a8,8 0 0 1 8,8 V244 a8,8 0 0 1 8,8 h2" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- 2. Cổng Đáng → Khai (lên) -->
+      <path d="M292,268 h2 a8,8 0 0 0 8,-8 V148 a8,8 0 0 1 8,-8 h2" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- 3. Khai → Cổng Phạm vi (xuống) -->
+      <path d="M432,148 h2 a8,8 0 0 1 8,8 V244 a8,8 0 0 1 8,8 h2" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- 4. Cổng Phạm vi → Dựng & đo (lên) -->
+      <path d="M572,268 h2 a8,8 0 0 0 8,-8 V148 a8,8 0 0 1 8,-8 h2" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- 5. Dựng & đo → Cổng Bằng chứng (xuống) -->
+      <path d="M712,148 h2 a8,8 0 0 1 8,8 V244 a8,8 0 0 1 8,8 h2" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- 6. Cổng Bằng chứng → Giao sau cờ (lên) -->
+      <path d="M852,268 h2 a8,8 0 0 0 8,-8 V148 a8,8 0 0 1 8,-8 h2" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- 7. Dựng & đo ⇢ Giao sau cờ: làn xanh-sạch, không mời ký (nét đứt, cùng lane máy, qua ô trống của cột 6) -->
+      <line x1="712" y1="116" x2="872" y2="116" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+      <!-- 8. Giao sau cờ → Lái-thử (cùng lane, thẳng) -->
+      <line x1="992" y1="140" x2="1012" y2="140" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+      <!-- 9. Lái-thử → Cổng Giá trị (xuống) -->
+      <path d="M1132,148 h2 a8,8 0 0 1 8,8 V244 a8,8 0 0 1 8,8 h2" fill="none" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+      <!-- 10. Ngưỡng UAT: khai ở Cổng Đáng, so ở Cổng Giá trị (nét đứt, chạy dưới lane người) -->
+      <path d="M232,292 V316 a8,8 0 0 0 8,8 H1204 a8,8 0 0 0 8,-8 V296" fill="none" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+
+      <!-- Arrow labels (mask + 6–10px gap) -->
+      <!-- 7: xanh-sạch, phía trên nét y=116 → mask 92..108 -->
+      <rect x="728" y="92" width="128" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="792" y="104" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">XANH-SẠCH · KHÔNG KÝ</text>
+      <!-- 10: ngưỡng UAT, phía trên nét y=324 → mask 300..316 -->
+      <rect x="252" y="300" width="216" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="360" y="312" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">NGƯỠNG UAT · KHAI TRƯỚC, SO SAU</text>
+
+      <!-- ===== Lane MÁY (y 108–172) ===== -->
+      <!-- 1 Khám phá -->
+      <rect x="32" y="108" width="120" height="64" rx="6" fill="#f5f5f5"/>
+      <rect x="32" y="108" width="120" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="92" y="132" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Khám phá</text>
+      <text x="92" y="148" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">grill · phép thử rẻ</text>
+      <text x="92" y="160" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">bản mẫu hội tụ ý định</text>
+
+      <!-- 3 Khai phạm vi -->
+      <rect x="312" y="108" width="120" height="64" rx="6" fill="#f5f5f5"/>
+      <rect x="312" y="108" width="120" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="372" y="132" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Khai phạm vi</text>
+      <text x="372" y="148" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">tiêu chí · phép đo</text>
+      <text x="372" y="160" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">bản bấm được</text>
+
+      <!-- 5 Dựng & đo -->
+      <rect x="592" y="108" width="120" height="64" rx="6" fill="#f5f5f5"/>
+      <rect x="592" y="108" width="120" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="652" y="132" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Dựng &amp; đo</text>
+      <text x="652" y="148" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">kế hoạch · code · lái tay</text>
+      <text x="652" y="160" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">verify ≤ 3 vòng</text>
+
+      <!-- 7 Giao sau cờ -->
+      <rect x="872" y="108" width="120" height="64" rx="6" fill="#f5f5f5"/>
+      <rect x="872" y="108" width="120" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="932" y="132" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Giao sau cờ</text>
+      <text x="932" y="148" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">PR · merge · bật hẹp</text>
+      <text x="932" y="160" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">B / C / E dừng ở đây</text>
+
+      <!-- 8 Lái-thử Người-lạ (focal) -->
+      <rect x="1012" y="108" width="120" height="64" rx="6" fill="#f5f5f5"/>
+      <rect x="1012" y="108" width="120" height="64" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="1072" y="132" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Lái-thử Người-lạ</text>
+      <text x="1072" y="148" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">phiên trắng · nhật-ký-vấp</text>
+      <text x="1072" y="160" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">tường thuật, không phán</text>
+
+      <!-- ===== Lane NGƯỜI (y 228–292) ===== -->
+      <!-- 2 Cổng Đáng -->
+      <rect x="172" y="228" width="120" height="64" rx="6" fill="#f5f5f5"/>
+      <rect x="172" y="228" width="120" height="64" rx="6" fill="#ececec" stroke="#2d3142" stroke-width="1"/>
+      <text x="232" y="252" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Cổng Đáng</text>
+      <text x="232" y="268" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">có đáng làm không?</text>
+      <text x="232" y="280" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">build · park · kill</text>
+
+      <!-- 4 Cổng Phạm vi -->
+      <rect x="452" y="228" width="120" height="64" rx="6" fill="#f5f5f5"/>
+      <rect x="452" y="228" width="120" height="64" rx="6" fill="#ececec" stroke="#2d3142" stroke-width="1"/>
+      <text x="512" y="252" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Cổng Phạm vi</text>
+      <text x="512" y="268" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">tiêu chí đủ và đúng?</text>
+      <text x="512" y="280" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">duyệt trên bản bấm được</text>
+
+      <!-- 6 Cổng Bằng chứng -->
+      <rect x="732" y="228" width="120" height="64" rx="6" fill="#f5f5f5"/>
+      <rect x="732" y="228" width="120" height="64" rx="6" fill="#ececec" stroke="#2d3142" stroke-width="1"/>
+      <text x="792" y="252" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Cổng Bằng chứng</text>
+      <text x="792" y="268" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">làm đúng thứ đã hứa?</text>
+      <text x="792" y="280" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">ký · hoặc từ chối có hồ sơ</text>
+
+      <!-- 9 Cổng Giá trị -->
+      <rect x="1152" y="228" width="120" height="64" rx="6" fill="#f5f5f5"/>
+      <rect x="1152" y="228" width="120" height="64" rx="6" fill="#ececec" stroke="#2d3142" stroke-width="1"/>
+      <text x="1212" y="252" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Cổng Giá trị</text>
+      <text x="1212" y="268" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">phiên nghiệm thu · chấm kín</text>
+      <text x="1212" y="280" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">release · iterate · kill</text>
+
+      <!-- Legend -->
+      <line x1="24" y1="372" x2="1280" y2="372" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+      <text x="32" y="388" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">CHÚ GIẢI</text>
+
+      <rect x="32" y="404" width="14" height="10" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="52" y="412" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Bước máy làm</text>
+
+      <rect x="152" y="404" width="14" height="10" rx="2" fill="#ececec" stroke="#2d3142" stroke-width="1"/>
+      <text x="172" y="412" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Cổng người quyết</text>
+
+      <rect x="292" y="404" width="14" height="10" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="312" y="412" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Tiền trạm máy — đang tích hợp</text>
+
+      <line x1="492" y1="410" x2="520" y2="410" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <text x="528" y="412" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Đường chính</text>
+
+      <line x1="632" y1="410" x2="660" y2="410" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+      <text x="668" y="412" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Đường không qua người / thước khai trước</text>
+
+      <line x1="912" y1="410" x2="940" y2="410" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+      <text x="948" y="412" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Chỉ đường A — vòng có ngưỡng UAT</text>
+    </svg>
+
+    <div class="reading">
+      <p><strong>Cách đọc.</strong> Hàng trên là máy, hàng dưới là người: máy đi liên tục, người chỉ nhúng xuống bốn lần — mỗi lần một câu hỏi chỉ người trả lời được.</p>
+      <p>Mũi tên đứt phía trên «Dựng &amp; đo → Giao sau cờ» là làn xanh-sạch: đủ sáu điều kiện sạch thì vòng qua biên merge không mời ký; Cổng Bằng chứng chỉ mở khi thiếu một điều kiện hoặc chạm khó-đảo.</p>
+      <p>Mũi tên đứt chạy dưới hàng người nối Cổng Đáng với Cổng Giá trị: ngưỡng nghiệm thu khai từ lúc quyết «đáng làm», và không được sửa sau khi thấy số.</p>
+      <p>Ô cam «Lái-thử Người-lạ» là tiền trạm máy: phiên ngữ-cảnh-trắng lái sản phẩm thật, giao nhật-ký-vấp để phút của người dự nghiệm thu chỉ tiêu vào việc phán giá trị. Chỉ đường A đi qua đó; B/C/E dừng ở «Giao sau cờ».</p>
+    </div>
+    <p class="colophon">Chiếu của docs/specs/workflow-v2-spec.md §2–3 + docs/lai-thu-nguoi-la.md §4 · Cổng Kế hoạch (T3) lược · vẽ 2026-08-17 tại 8d1e135 · hình là chiếu của chữ, không phải nguồn</p>
+  </div>
+</body>
+</html>
