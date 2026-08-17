@@ -127,7 +127,7 @@ evals:
     criterion: AC-5
     executor: script
     cmd: config:executors.script.rang_mnvt_s5_needle
-    paths: [feature-loop/skills/feature-loop/SKILL.md]
+    paths: [_acceptance/moi-noi-vong-trao/rang-mnvt.sh, feature-loop/skills/feature-loop/SKILL.md]
     expected: >
       Mục S5 của feature-loop chứa nhánh «có opportunity.md → một dòng bàn giao»
       nhắc «lái-thử» + «uat-session <slug>» và nhánh «không → ship thẳng»; S0
