@@ -106,7 +106,6 @@ executors:
     # Vật của hồ sơ moi-noi-vong-trao — răng hồ sơ, không vào suite vĩnh viễn
     # (P197 thẻ ngưỡng đã vào suite plugins). Mỗi chân kèm chiều đỏ cùng lượt.
     rang_mnvt_the_nguong: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan the-nguong
-    rang_mnvt_the_nguong_do: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan the-nguong-do
     rang_mnvt_khuon: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan khuon
     rang_mnvt_uat_needle: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan uat-needle
     rang_mnvt_s5_needle: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan s5-needle

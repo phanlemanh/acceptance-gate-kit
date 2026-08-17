@@ -24,9 +24,12 @@ quyết định; đừng để người ký cảm thấy họ phải bảo vệ 
 - Sản phẩm thật đã chạy sau flag để người dự bấm được — điều kiện này đọc từ
   **nhật-ký-vấp** của Lái-thử Người-lạ, `_acceptance/<slug>/stranger-drive.md`
   (khuôn: `${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/acceptance/references/stranger-drive-template.md`;
-  nghi thức: `docs/lai-thu-nguoi-la.md` của kit), không từ lời khai:
+  nghi thức: `docs/lai-thu-nguoi-la.md` của kit), không từ lời khai. Khoá máy đọc
+  từ nhật-ký (khai một chỗ, răng đối chiếu với khuôn):
+  <!-- STRANGER-KEYS-READ: chan slug ran_at variant -->
   - `chan: 0` **và** `slug` khớp slug phiên **và** `ran_at` không cũ hơn
-    `verified_at` của `evidence-report.md` → điều kiện THOẢ BẰNG BẰNG CHỨNG;
+    `verified_at` MUỘN NHẤT trong `evidence-report.md` (lần chấm máy cuối)
+    → điều kiện THOẢ BẰNG BẰNG CHỨNG;
     nói một dòng (ván nào, biến thể nào — đọc `variant`) rồi đi tiếp.
   - `chan` > 0 → DỪNG, nêu từng vấp CHẶN, và chỉ đường quay lại: chạy lại
     lái-thử cho CHẶN về 0 — sửa là việc của vòng, không phải của phiên này.

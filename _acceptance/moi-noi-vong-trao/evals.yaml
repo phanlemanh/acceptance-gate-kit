@@ -31,10 +31,10 @@ evals:
   - id: E2
     criterion: AC-2
     executor: script
-    cmd: config:executors.script.rang_mnvt_the_nguong_do
+    cmd: config:executors.script.rang_mnvt_the_nguong
     paths: [scripts/gate-card.js, tests/plugins/run-tests.sh]
     expected: >
-      Cùng khối P197 (ONLY_BLOCK), ghim các ô còn lại của ma trận: rỗng/html
+      Cùng lệnh với E1 (dedupe — một lượt P197 chấm cả hai AC), ghim các ô còn lại của ma trận: rỗng/html
       cờ vàng «chưa khai ngưỡng» + KHÔNG khối; rỗng/extract opportunity_present
       true, section_present true, lines rỗng; thiếu/html cờ vàng + KHÔNG khối;
       thiếu/extract section_present false, lines rỗng; không-cơ-hội/html dòng
@@ -71,15 +71,20 @@ evals:
     inputs:
       - skills/uat-session/SKILL.md
       - _acceptance/moi-noi-vong-trao/hoi-dong/ca-E4.md
+      - _acceptance/moi-noi-vong-trao/hoi-dong/transcript-E4.md
+      - _acceptance/moi-noi-vong-trao/giam-khao/dap-an-E4.md
     paths:
       - skills/uat-session/SKILL.md
     question: >
-      Giao thức chống rò rỉ (đầu file): agent hành động KHÔNG TOOL nhận inline
-      thân skill uat-session SAU sửa + 6 ca của đề (chan=0 hợp lệ · chan=2 ·
-      vắng file · frontmatter hỏng · slug lệch · ran_at cũ hơn lần chấm). Với
-      từng ca, agent viết đúng đoạn nó nói với owner ở bước «Điều kiện vào».
-      Giám khảo chấm theo đáp án giam-khao/dap-an-E4.md: 6/6 đạt → PASS; lời
-      văn mơ hồ → UNCERTAIN; ≥1 ca trượt → REJECT kèm trích.
+      Giao thức chống rò rỉ (đầu file): agent hành động KHÔNG TOOL đã nhận
+      inline thân skill uat-session SAU sửa + 6 ca của đề (chan=0 hợp lệ ·
+      chan=2 · vắng file · frontmatter hỏng · slug lệch · ran_at cũ hơn lần
+      chấm) — bài làm của nó là hoi-dong/transcript-E4.md (đầu file ghi
+      tool_uses: 0). GIÁM KHẢO: chấm transcript đó theo đáp án
+      giam-khao/dap-an-E4.md từng ca (ĐẠT/TRƯỢT theo cột), đối chiếu với §0
+      của SKILL: 6/6 đạt → PASS; lời văn mơ hồ không xếp được → UNCERTAIN; ≥1
+      ca trượt → REJECT kèm trích transcript. Không tự đóng vai agent hành
+      động, không viết lại bài làm.
     evidence_required: [judged_by, verdict, rationale]
 
   - id: E4b
@@ -104,14 +109,18 @@ evals:
     inputs:
       - feature-loop/skills/feature-loop/SKILL.md
       - _acceptance/moi-noi-vong-trao/hoi-dong/ca-E5.md
+      - _acceptance/moi-noi-vong-trao/hoi-dong/transcript-E5.md
+      - _acceptance/moi-noi-vong-trao/giam-khao/dap-an-E5.md
     paths:
       - feature-loop/skills/feature-loop/SKILL.md
     question: >
-      Giao thức chống rò rỉ như E4. Agent hành động nhận inline thân
-      feature-loop SAU sửa + 3 ca (S5 có opportunity · S5 không opportunity ·
-      S0 mở vòng khi workspace đã có opportunity). Với từng ca, agent viết
-      đúng câu nó in cho owner / việc nó làm kế. Giám khảo chấm theo
-      giam-khao/dap-an-E5.md, thang như E4.
+      Giao thức như E4. Agent hành động KHÔNG TOOL đã nhận inline mục S0/S5
+      của feature-loop SAU sửa + 3 ca (S5 có opportunity · S5 không
+      opportunity · S0 mở vòng khi workspace đã có opportunity); bài làm ở
+      hoi-dong/transcript-E5.md. GIÁM KHẢO chấm transcript theo
+      giam-khao/dap-an-E5.md từng ca, đối chiếu S0/S5 của SKILL: 3/3 → PASS;
+      mơ hồ → UNCERTAIN; ≥1 trượt → REJECT kèm trích. Không tự đóng vai agent
+      hành động.
     evidence_required: [judged_by, verdict, rationale]
 
   - id: E5b
@@ -136,8 +145,9 @@ evals:
       Spec: §2.3 có «thì ĐO» gắn với lái-thử; hàng «**A**» của bảng định tuyến
       chứa «lái-thử»; Chương 3 có dòng «lái-thử không có hàng»; Chương 4 nhắc
       «nhật-ký-vấp» + «song diện». Đề bài §5 vẫn chứa nguyên câu «Cấm leo thang
-      trước số liệu». Chiều đỏ: bản sao spec bỏ «lái-thử» khỏi hàng A → ĐỎ ghim
-      «hang A thieu lai-thu». Đỏ ghim needle + file.
+      trước số liệu». Chiều đỏ qua CHÍNH checker: bỏ «lái-thử» khỏi hàng A → ĐỎ
+      ghim «hang A thieu lai-thu»; bỏ «song diện» → ĐỎ ghim «Chuong 4 nhat-ky-vap
+      khong noi song dien». Đỏ ghim needle + file.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   # ── Bộ hình ──────────────────────────────────────────────────────────

@@ -6,8 +6,11 @@ hồ sơ cơ hội có ngưỡng đã chốt. Với TỪNG ca dưới đây, vi�
 với owner ở bước «Điều kiện vào» và nói anh làm gì kế (mở phiên / dừng).
 
 ## Ca 1
-Thư mục hồ sơ có `stranger-drive.md`, frontmatter: `variant: agent`, `chan: 0`,
-`lac: 1`, `kho_chiu: 2`, `vat: 1`, `chuyen_phien_nguoi: 3`.
+Thư mục hồ sơ `_acceptance/refine-editor/` có `stranger-drive.md`, frontmatter:
+`slug: refine-editor`, `ran_at: 2026-08-17T02:00:00Z`, `variant: agent`,
+`chan: 0`, `lac: 1`, `kho_chiu: 2`, `vat: 1`, `chuyen_phien_nguoi: 3`.
+`evidence-report.md` của vòng có `verified_at` muộn nhất là
+`2026-08-16T11:08:38Z`. Phiên đang mở cho slug `refine-editor`.
 
 ## Ca 2
 Thư mục hồ sơ có `stranger-drive.md`, frontmatter: `variant: ui`, `chan: 2`,

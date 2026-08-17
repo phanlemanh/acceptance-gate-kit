@@ -9947,7 +9947,7 @@ def matrix(gc, label):
         except Exception as e: out.append(kind + "/extract: json hong " + str(e)); shutil.rmtree(base, ignore_errors=True); continue
         if ut is None: out.append(kind + "/extract: thieu khoa uat_threshold"); shutil.rmtree(base, ignore_errors=True); continue
         has_block = "Ngưỡng nghiệm thu" in html and "sẽ có phiên nghiệm thu" in html
-        has_flag = "chưa khai ngưỡng" in html
+        has_flag = ("chưa khai ngưỡng" in html) or ("không đọc được" in html)  # bat ky co vang nao cua khoi nguong
         has_fact = "ship thẳng, không phiên nghiệm thu" in html
         if kind == "co":
             if not has_block: out.append("co/html: thieu khoi nguong")
@@ -9966,8 +9966,9 @@ def matrix(gc, label):
             if not has_fact: out.append("khong-co-hoi/html: thieu dong su kien ship-thang")
             if not (ut.get("opportunity_present") is False): out.append("khong-co-hoi/extract: opportunity_present phai false: %r" % ut)
         shutil.rmtree(base, ignore_errors=True)
-    # doi-cu: contract khong co veto_state, khong opportunity — nhu khong-co-hoi, khong loi
+    # doi-cu: contract DOI TRUOC (khong section Coverage, gate1_skipped) va khong opportunity — nhu khong-co-hoi, khong loi
     base = Path(tempfile.mkdtemp()); ws = make_ws(base, "khong")
+    (ws / "contract.md").write_text(CONTRACT.replace("## Coverage\n- Trục: x | y [thước CE: fixture]\n", "").replace("approved_at:\n", "approved_at:\ngate1_skipped: true\n"), encoding="utf-8")
     rc, html, err = run(gc, ws, False)
     if rc != 0 or "ship thẳng, không phiên nghiệm thu" not in html: out.append("doi-cu/html: ho so doi cu loi hoac thieu dong su kien")
     shutil.rmtree(base, ignore_errors=True)
@@ -9985,7 +9986,7 @@ def mutant(name, fn, expect_substr):
     if not any(expect_substr in x for x in r): bad("MUTANT %s KHONG bi bat (doi '%s', thay %r)" % (name, expect_substr, r[:3]))
     else: print("     MUTANT %s bi bat: %s" % (name, [x for x in r if expect_substr in x][0]))
     shutil.rmtree(tmp, ignore_errors=True)
-mutant("m1-go-khoi", lambda s: s.replace("Ngưỡng nghiệm thu (đã khai ở Cổng Đáng)", "Ngưỡng nghiệm-thu"), "thieu khoi nguong")
+mutant("m1-go-khoi", lambda s: s.replace("if (ut.opportunity_present && ut.readable && ut.section_present && ut.lines.length) {", "if (false) {"), "thieu khoi nguong")
 mutant("m2-khong-co-hoi-in-co-vang", lambda s: s.replace("if (!ut.opportunity_present)", "if (ut.opportunity_present)"), "nhanh khong-co-hoi in co vang")
 mutant("m3-rong-van-in-khoi", lambda s: s.replace("ut.section_present && ut.lines.length", "ut.section_present"), "rong van in khoi")
 if errs: print("\n".join(errs)); sys.exit(1)
