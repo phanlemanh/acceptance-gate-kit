@@ -202,7 +202,7 @@ expect(mutate(live, lambda b: b.replace("không vẽ lại", "vẽ lại")), "GA
 # Doi chung: check KIEU P90 (clause co mat bat ky dau trong file) van XANH tren
 # dot bien xoa-clause-khoi-khoi — chung minh P197 neo vao khoi, khong vao file.
 assert CLAUSE in norm(m_clause), "P90-kieu phai van xanh — neu do thi P197 khong them gi moi"
-print("P197 OK: doi chung duong + 19 dot bien, moi cai ghim dung thong diep")
+print("P197 OK: doi chung duong + 18 dot bien, moi cai ghim dung thong diep")
 PY
 ```
 

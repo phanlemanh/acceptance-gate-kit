@@ -1831,10 +1831,12 @@ _typo = CLAUSE.replace("DECISION-DIAGRAM-SURFACES", "DECISION-DIAGRAM-SURFACE")
 assert cited_marker_ok(LAW.replace(CLAUSE, _typo, 1), _typo), \
     "danh sai ten bang tra trong khuon ma khong bi bat — con tro chet van xanh"
 lp2 = LOOPS[0]
-m3 = lambda rel: live(rel).replace(CLAUSE, CLAUSE.replace("kèm hình", "kèm sơ đồ"), 1) if rel == lp2 else live(rel)
+# MOI ban chep (SKILL.md nay co hai: GATE 1 + S2) — mot chu lech o BAT KY ban nao la
+# lech khuon; giu count=1 thi ban con lai cuu dot bien va doi chung am tu do.
+m3 = lambda rel: live(rel).replace(CLAUSE, CLAUSE.replace("kèm hình", "kèm sơ đồ")) if rel == lp2 else live(rel)
 assert f"{lp2}: cau ve hinh lech khuon mot-nguon" in check(m3), \
     "dot bien sua mot chu trong khuon khong do dung thong diep"
-m4 = lambda rel: live(rel).replace(CLAUSE, "Điểm quyết định rắc rối thì vẽ bằng khối ký tự.", 1) if rel == lp2 else live(rel)
+m4 = lambda rel: live(rel).replace(CLAUSE, "Điểm quyết định rắc rối thì vẽ bằng khối ký tự.") if rel == lp2 else live(rel)
 assert f"{lp2}: cau ve hinh lech khuon mot-nguon" in check(m4), \
     "dot bien tu dien dat kem ghim mot dinh dang khac khong bi bat"
 PY
@@ -9881,6 +9883,143 @@ P196SH
 run "P196 plugin diagram-design: layout+manifest · tree-hash==NOTICE · marker default · khong symlink (release-2-1-0 E6)" \
   bash "$P196TMP/p196.sh" "$ROOT"
 rm -rf "$P196TMP"
+
+# ── P197: khoi «Hinh tai diem quyet dinh» trong GATE 1 (hinh-tai-cong-1 E1–E8) ──
+# Neo vao KHOI (heading con co dinh), khong vao file: P90 kiem clause co mat o
+# BAT KY DAU trong SKILL.md nen xoa clause khoi GATE 1 ma giu o S2 van XANH — case
+# nay phai DO dung cho do. Don vi «cau» = doan/bullet (tach truoc "- " hoac dong
+# trong). Moi needle mot luot go CHI trong khoi; chep needle ra ngoai khoi (con
+# trong muc GATE 1) KHONG cuu duoc.
+run "P197 GATE 1 khoi hinh: clause mot-nguon · 5 nhan thu tu · 4 nguon ke · dieu kien dung-nguoi · subagent+skill-vang · Read .png · dinh cung luot · dung lai figures (hinh-tai-cong-1 E1-E8)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+LOOP = "feature-loop/skills/feature-loop/SKILL.md"
+LAW  = (root / "skills/acceptance/references/human-facing-language.md").read_text(encoding="utf-8")
+_m = re.search(r"<!-- <<<LOOP-PICTURE-CLAUSE -->\n([\s\S]*?)<!-- LOOP-PICTURE-CLAUSE>>> -->", LAW)
+assert _m, "khong rut duoc LOOP-PICTURE-CLAUSE tu ban luat"
+norm = lambda s: re.sub(r"\s+", " ", s).strip()
+CLAUSE = norm(_m.group(1))
+HEAD = "### Hình tại điểm quyết định"
+
+def gate1(text):
+    m = re.search(r"^## GATE 1[^\n]*\n([\s\S]*?)(?=^## |\Z)", text, re.M)
+    return m.group(1) if m else None
+
+def block(text):
+    g = gate1(text)
+    if g is None: return None
+    m = re.search(rf"^{re.escape(HEAD)}\s*$\n([\s\S]*?)(?=^##|\Z)", g, re.M)
+    return m.group(1) if m else None
+
+def units(b):  # «cau» = doan/bullet
+    return [norm(u) for u in re.split(r"\n(?=- )|\n\s*\n", b) if norm(u)]
+
+def has_unit(b, *needles):
+    return any(all(n in u for n in needles) for u in units(b))
+
+SOURCES = ["entry ledger chờ seal", "lệch spec/plan gốc", "[GIẢ ĐỊNH]", "human-gate1"]
+LABELS  = ["[1] Kê", "[2] Đếm", "[3] Vẽ", "[4] Nhìn", "[5] Đính"]
+
+def check(text):
+    errs = []
+    b = block(text)
+    if b is None:
+        return ["GATE 1: thieu khoi Hinh tai diem quyet dinh"]
+    if CLAUSE not in norm(b):
+        errs.append("GATE 1: cau ve hinh lech khuon mot-nguon")
+    nb = "\n".join(u for u in b.split("\n") if norm(u) != CLAUSE)   # cat dong clause
+    idx = [nb.find(l) for l in LABELS]
+    if any(i < 0 for i in idx):
+        errs.append("GATE 1: thieu nhan buoc " + ",".join(l for l, i in zip(LABELS, idx) if i < 0))
+    elif idx != sorted(idx):
+        errs.append("GATE 1: nam buoc sai thu tu")
+    if "_acceptance/<slug>/figures/index.md" not in b:
+        errs.append("GATE 1: thieu dau vet dem")
+    for s in SOURCES:
+        if s not in b:
+            errs.append(f"GATE 1: thieu nguon {s}")
+    if "không hỏi người" not in b:
+        errs.append("GATE 1: thieu menh de khong hoi nguoi")
+    if not has_unit(b, "T3", "T2 không đủ", "dừng chờ người"):
+        errs.append("GATE 1: thieu dieu kien dung-nguoi")
+    if not has_unit(b, "xanh-sạch", "bỏ qua"):
+        errs.append("GATE 1: xanh-sach khong di kem bo qua")
+    if "subagent tươi" not in b:
+        errs.append("GATE 1: thieu subagent ve")
+    if "diagram-design" not in b:
+        errs.append("GATE 1: thieu ten skill ve")
+    if not has_unit(b, "skill vắng", "mermaid", "không chặn"):
+        errs.append("GATE 1: thieu duong skill vang")
+    if not has_unit(nb, "vòng chính", "Read", ".png"):
+        errs.append("GATE 1: thieu buoc nhin")
+    if "MỘT lần" not in b:
+        errs.append("GATE 1: thieu gioi han ve lai mot lan")
+    if "CÙNG một lượt" not in b:
+        errs.append("GATE 1: the va hinh khong cung luot")
+    if "dưới ngưỡng" not in b:
+        errs.append("GATE 1: thieu dong duoi-nguong")
+    if "0 điểm vượt" not in b:
+        errs.append("GATE 1: thieu dong 0-diem-vuot")
+    if not has_unit(b, "draft", "figures/", "không vẽ lại"):
+        errs.append("GATE 1: thieu duong dung lai figures")
+    return errs
+
+live = (root / LOOP).read_text(encoding="utf-8")
+assert check(live) == [], check(live)                     # DOI CHUNG DUONG
+
+# --- bo dot bien: chi sua TRONG khoi; phan con lai cua file giu nguyen ---
+def mutate(text, fn):
+    g = gate1(text); b = block(text)
+    nb = fn(b)
+    assert nb != b, "dot bien khong doi gi — needle khong co trong khoi?"
+    return text.replace(b, nb, 1)
+
+def move_out(text, needle):
+    """xoa needle trong khoi, chep no ra NGOAI khoi nhung con trong muc GATE 1"""
+    b = block(text)
+    assert needle in b
+    nb = b.replace(needle, "", )
+    t = text.replace(b, nb, 1)
+    return t.replace(HEAD, needle + "\n\n" + HEAD, 1)
+
+def expect(mut, msg, label):
+    errs = check(mut)
+    assert msg in errs, f"{label}: mong '{msg}', duoc {errs}"
+
+# P90-kieu: clause co mat BAT KY DAU trong file -> van XANH khi xoa khoi khoi
+clause_line = next(u for u in block(live).split("\n") if norm(u) == CLAUSE)
+m_clause = mutate(live, lambda b: b.replace(clause_line, ""))
+expect(m_clause, "GATE 1: cau ve hinh lech khuon mot-nguon", "xoa clause khoi khoi")
+assert CLAUSE in norm(m_clause), "S2 phai van giu clause (dot bien chi dung vao khoi)"
+m_word = mutate(live, lambda b: b.replace(clause_line, clause_line.replace("kèm hình", "kèm sơ đồ")))
+expect(m_word, "GATE 1: cau ve hinh lech khuon mot-nguon", "doi mot tu trong clause")
+m_swap = mutate(live, lambda b: b.replace("[3] Vẽ", "@@").replace("[4] Nhìn", "[3] Vẽ").replace("@@", "[4] Nhìn"))
+expect(m_swap, "GATE 1: nam buoc sai thu tu", "hoan vi nhan 3/4")
+expect(move_out(live, "_acceptance/<slug>/figures/index.md"), "GATE 1: thieu dau vet dem", "chep figures/index.md ra ngoai khoi")
+for s in SOURCES:
+    expect(mutate(live, lambda b, s=s: b.replace(s, "")), f"GATE 1: thieu nguon {s}", f"go nguon {s}")
+expect(mutate(live, lambda b: b.replace("không hỏi người", "tự kê")), "GATE 1: thieu menh de khong hoi nguoi", "go khong-hoi-nguoi")
+cond = next(u for u in units(block(live)) if "dừng chờ người" in u and "T3" in u)
+m_cond = mutate(live, lambda b: "\n".join(x for x in re.split(r"\n(?=- )|\n\s*\n", b) if norm(x) != cond))
+expect(m_cond, "GATE 1: thieu dieu kien dung-nguoi", "xoa cau dieu kien (T3/T2 con o noi khac trong GATE 1)")
+m_split = mutate(live, lambda b: b.replace("thì bỏ qua", "thì dừng.\n\nBỏ qua"))
+expect(m_split, "GATE 1: xanh-sach khong di kem bo qua", "tach xanh-sach va bo qua")
+m_skill = mutate(live, lambda b: re.sub(r"Nếu skill vắng[^\n]*?\.\s*(?=- |\n|$)", "", b))
+expect(m_skill, "GATE 1: thieu duong skill vang", "xoa cau skill vang")
+expect(mutate(live, lambda b: b.replace("subagent tươi", "agent")), "GATE 1: thieu subagent ve", "go subagent tuoi")
+expect(mutate(live, lambda b: b.replace("diagram-design", "bộ vẽ")), "GATE 1: thieu ten skill ve", "go diagram-design")
+expect(mutate(live, lambda b: b.replace("Read bản `.png`", "kiểm bằng phép thử nhìn-thấy-hình")), "GATE 1: thieu buoc nhin", "bo Read .png")
+expect(mutate(live, lambda b: b.replace("dưới ngưỡng", "chưa tới")), "GATE 1: thieu dong duoi-nguong", "go duoi nguong")
+expect(mutate(live, lambda b: b.replace("CÙNG một lượt", "khi tiện")), "GATE 1: the va hinh khong cung luot", "go cung mot luot")
+expect(mutate(live, lambda b: b.replace("không vẽ lại", "vẽ lại")), "GATE 1: thieu duong dung lai figures", "go khong ve lai")
+
+# Doi chung: check KIEU P90 (clause co mat bat ky dau trong file) van XANH tren
+# dot bien xoa-clause-khoi-khoi — chung minh P197 neo vao khoi, khong vao file.
+assert CLAUSE in norm(m_clause), "P90-kieu phai van xanh — neu do thi P197 khong them gi moi"
+print("P197 OK: doi chung duong + 18 dot bien, moi cai ghim dung thong diep")
+PY
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
