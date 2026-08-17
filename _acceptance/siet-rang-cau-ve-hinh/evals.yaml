@@ -1,0 +1,54 @@
+# Evals — siet-rang-cau-ve-hinh
+# Một case mới P198 (fixture code-sinh + kiểm cấu trúc P90/P197/rang) và răng của
+# hồ sơ này ghim đúng dòng P198/P90/P197 trong stdout (nếp p194 — không tin exit
+# code trọn suite: bài học r1 của hinh-tai-cong-1). E9 = trọn suite cho AC-8.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.script.rang_siet_rang
+    expected: "răng ghim dòng 'PASS: P198' + sáu ca fixture code-sinh của clause_copies_ok in 'P198-CA-<x> OK' (a đúng · b sửa giữa · c sửa trong 4 chữ đầu · d sửa trong 4 chữ cuối · e xoá một · f xoá hai); đỏ trên diffBase vì hfl_clause.py chưa tồn tại → răng ĐỎ ghim 'khong thay dong PASS: P198'."
+    paths: [tests/plugins/hfl_clause.py, tests/plugins/run-tests.sh, _acceptance/siet-rang-cau-ve-hinh/rang.sh]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.script.rang_siet_rang
+    expected: "răng ghim 'PASS: P90' + ba dòng 'P90-COPIES: m3|m4|m3b do (1/2 ban chep)' (m3b = sửa bản CUỐI, tức bản S2); P198 kiểm khối P90 chứa 'from hfl_clause import' và không còn 'CLAUSE not in t' cho clause; đột biến (P198) chèn lại 'CLAUSE not in t' vào bản sao khối P90 → ĐỎ ghim 'P90 con chep tay logic clause'."
+    paths: [tests/plugins/hfl_clause.py, tests/plugins/run-tests.sh, _acceptance/siet-rang-cau-ve-hinh/rang.sh]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.script.rang_siet_rang
+    expected: "răng ghim 'PASS: P197' + ≥21 dòng 'P197-M:'; răng chạy rang.sh của hinh-tai-cong-1 với RANG_STDOUT_FILE trỏ stdout THẬT (ghi ra file trong cùng lượt) → OK; trên bản sao xoá MỘT dòng 'DO dung (<msg>)' → rang ĐỎ ghim đúng <msg>; trên bản sao xoá MỘT dòng 'P197-M:' → rang ĐỎ ghim 'so P197-M < san'; răng grep rang.sh không còn 'for M in \"' liệt kê tay."
+    paths: [_acceptance/hinh-tai-cong-1/rang.sh, tests/plugins/run-tests.sh, _acceptance/siet-rang-cau-ve-hinh/rang.sh]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.script.rang_siet_rang
+    expected: "răng ghim 5 dòng 'P197-MUT-n: tach doan <khoá> DO dung (...)' cho dieu_kien/bo_qua/skill_vang/nhin/dung_lai + 5 dòng 'P197-TACH-<khoá>: presence_only van xanh'; thiếu một → ĐỎ ghim khoá thiếu."
+    paths: [tests/plugins/run-tests.sh, _acceptance/siet-rang-cau-ve-hinh/rang.sh]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.script.rang_siet_rang
+    expected: "răng ghim 5 dòng 'DO dung (GATE 1: thieu nhan buoc [k] X)' cho đủ 5 nhãn; răng chạy bản sao suite bỏ một đột biến nhãn (sed trên bản sao run-tests.sh đặt cạnh bản gốc để ROOT suy đúng) → assert 'ma tran chua toan phan' ĐỎ ghim nhãn thiếu."
+    paths: [tests/plugins/run-tests.sh, _acceptance/siet-rang-cau-ve-hinh/rang.sh]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.script.rang_siet_rang
+    expected: "P198 kiểm khối P197 chứa 'from hfl_clause import' và không còn 'CLAUSE_P90 in'; răng ghim dòng 'P197-P90CHECK: xanh tren xoa-khoi, do tren sua-mot-chu' của P197 (p90_check chạy trên TOÀN VĂN). Đột biến (P198) chèn lại 'CLAUSE_P90 in' vào bản sao khối → ĐỎ ghim 'P197 con chep tay p90_check'."
+    paths: [tests/plugins/run-tests.sh, _acceptance/siet-rang-cau-ve-hinh/rang.sh]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.script.rang_siet_rang
+    expected: "răng ghim 'PASS: P198' + dòng tổng kết 'P198 OK: <n> ca fixture · <k> kiem cau truc · <m> dot bien' với số đếm từ biến; P198 KHÔNG grep _acceptance/** và KHÔNG dựng worktree (răng của hồ sơ này grep chính P198 để canh — đột biến chèn chuỗi '_acceptance/' vào bản sao khối P198 → ĐỎ)."
+    paths: [tests/plugins/run-tests.sh, _acceptance/siet-rang-cau-ve-hinh/rang.sh]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "Toàn suite tests/plugins exit 0 tại HEAD (P90 · P93 · P197 · P198 XANH). Tính phân biệt: răng của hồ sơ này dựng worktree bản sao mốc 8d1e135 (mốc ghi trong rang.sh của hồ sơ này) → rang.sh của hinh-tai-cong-1 ĐỎ ở đó."
+    paths: [tests/plugins/run-tests.sh, tests/plugins/hfl_clause.py, _acceptance/hinh-tai-cong-1/rang.sh]
