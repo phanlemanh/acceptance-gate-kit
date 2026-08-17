@@ -36,7 +36,7 @@ evals:
     criterion: AC-4
     executor: test
     cmd: config:executors.test.plugins
-    expected: "P197 pass: tách khối thành câu (theo dấu chấm/xuống dòng đôi); phải có MỘT câu chứa đồng thời 'T3', 'T2 không đủ' và 'dừng chờ người', và MỘT câu chứa đồng thời 'xanh-sạch' và 'bỏ qua'. Đột biến xoá câu điều kiện (chữ 'T3'/'T2' ở nơi khác trong mục GATE 1 KHÔNG cứu được) → ĐỎ ghim 'GATE 1: thieu dieu kien dung-nguoi'; đột biến tách 'xanh-sạch' và 'bỏ qua' ra hai câu → ĐỎ ghim 'GATE 1: xanh-sach khong di kem bo qua'."
+    expected: "P197 pass: tách khối thành đơn vị đoạn/bullet (xuống dòng trước `- ` hoặc dòng trống — quyết định S2 trong sổ); phải có MỘT câu chứa đồng thời 'T3', 'T2 không đủ' và 'dừng chờ người', và MỘT câu chứa đồng thời 'xanh-sạch' và 'bỏ qua'. Đột biến xoá đoạn điều kiện (chữ 'T3'/'T2' ở nơi khác trong mục GATE 1 KHÔNG cứu được) → ĐỎ ghim 'GATE 1: thieu dieu kien dung-nguoi'; đột biến tách 'xanh-sạch' và 'bỏ qua' ra hai đoạn → ĐỎ ghim 'GATE 1: xanh-sach khong di kem bo qua'."
     paths:
       - feature-loop/skills/feature-loop/SKILL.md
       - tests/plugins/run-tests.sh
@@ -54,7 +54,7 @@ evals:
     criterion: AC-6
     executor: test
     cmd: config:executors.test.plugins
-    expected: "P197 pass: sau khi CẮT dòng clause khỏi khối, phải có MỘT câu chứa đồng thời 'vòng chính', 'Read', '.png' (bước nhìn thật — needle 'phép thử nhìn-thấy-hình' KHÔNG được dùng vì clause đã chứa nó); và khối chứa 'MỘT lần', 'CÙNG một lượt', 'dưới ngưỡng', '0 điểm vượt'. Đột biến xoá câu Read → ĐỎ ghim 'GATE 1: thieu buoc nhin'; gỡ 'dưới ngưỡng' → ĐỎ ghim 'GATE 1: thieu dong duoi-nguong'; gỡ 'CÙNG một lượt' → ĐỎ ghim 'GATE 1: the va hinh khong cung luot'."
+    expected: "P197 pass: sau khi CẮT dòng clause khỏi khối, phải có MỘT đơn vị đoạn/bullet chứa đồng thời 'vòng chính', 'Read', '.png' (bước nhìn thật — needle 'phép thử nhìn-thấy-hình' KHÔNG được dùng vì clause đã chứa nó); và khối chứa 'MỘT lần', 'CÙNG một lượt', 'dưới ngưỡng', '0 điểm vượt'. Đột biến xoá câu Read → ĐỎ ghim 'GATE 1: thieu buoc nhin'; gỡ 'dưới ngưỡng' → ĐỎ ghim 'GATE 1: thieu dong duoi-nguong'; gỡ 'CÙNG một lượt' → ĐỎ ghim 'GATE 1: the va hinh khong cung luot'."
     paths:
       - feature-loop/skills/feature-loop/SKILL.md
       - tests/plugins/run-tests.sh
