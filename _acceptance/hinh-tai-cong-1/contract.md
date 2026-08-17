@@ -67,7 +67,7 @@ Quét bằng `morphological-scan` (5 trục, xem design §0 và tin quét trong 
 
 **Known limits chốt tại Cổng 2 (2026-08-17, Manh Phan) — chấp nhận và ship:**
 
-1. **P90 chỉ chắc *một* bản chép câu-về-hình còn khớp.** Sau vòng này SKILL.md có hai bản (GATE 1 + S2); P197 canh bản GATE 1, còn P90 (`CLAUSE in file`) xanh miễn một bản còn đúng — sửa lệch riêng bản S2 thì không phép đo nào đỏ. Sửa P90 thành đếm-mọi-bản-chép là việc riêng, ngoài «chỉ sửa GATE 1».
+1. **P90 chỉ chắc MỘT bản chép câu-về-hình còn khớp.** Sau vòng này SKILL.md có hai bản (GATE 1 + S2); P197 canh bản GATE 1, còn P90 (`CLAUSE in file`) xanh miễn một bản còn đúng — sửa lệch riêng bản S2 thì không phép đo nào đỏ. Sửa P90 thành đếm-mọi-bản-chép là việc riêng, ngoài «chỉ sửa GATE 1».
 2. **`rang.sh` ghim 16/21 thông điệp của bảng M** — danh sách tay, bản sao thứ hai của bảng M; P197 tự canh toàn phần bên trong nên răng chỉ là lớp ngoài.
 3. **Chiều đỏ của các check quan-hệ cùng-đoạn (has_unit) mới là xoá chữ, chưa phải tách đoạn giữ đủ chữ** — một phép đo trình-diện đơn thuần cũng đỏ y hệt; quan hệ chưa được chứng minh bằng chiều đỏ riêng.
 4. **Ma trận nhãn nở 1/5** (nguồn nở 4/4) — bốn nhãn còn lại và các cặp thứ-tự khác chưa có chiều đỏ.
