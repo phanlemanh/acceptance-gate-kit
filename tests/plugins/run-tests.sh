@@ -9938,6 +9938,7 @@ def opp(kind):
     guide = "".join(l + "\n" for l in sec.split("\n") if l.startswith(">"))   # khoi huong dan '>' cua khuon — gate-card phai loc
     if kind == "co":    body = BODY[:b] + guide + "\n".join(LINES) + "\n\n" + BODY[e:]
     elif kind == "rong": body = BODY[:b] + guide + "\n" + BODY[e:]            # chep khuon, chua dien: chi con dong '>' -> RONG
+    elif kind == "chep-nguyen-khuon": body = BODY                                # chep NGUYEN khuon, bullet con placeholder «…» -> phai coi la CHUA KHAI
     elif kind == "thieu": body = BODY[:a] + BODY[e:]
     else: raise SystemExit("kind?")
     return FM + "\n" + body
@@ -9955,7 +9956,7 @@ def make_ws(base, kind):
 # ma tran viet truoc: (trang thai, mat) -> assert co ten. 8 o + doi-cu.
 def matrix(gc, label):
     out = []
-    for kind in ["co", "rong", "thieu", "khong"]:
+    for kind in ["co", "rong", "chep-nguyen-khuon", "thieu", "khong"]:
         base = Path(tempfile.mkdtemp()); ws = make_ws(base, kind)
         rc, html, err = run(gc, ws, False)
         rc2, js, err2 = run(gc, ws, True)
@@ -9964,19 +9965,25 @@ def matrix(gc, label):
         except Exception as e: out.append(kind + "/extract: json hong " + str(e)); shutil.rmtree(base, ignore_errors=True); continue
         if ut is None: out.append(kind + "/extract: thieu khoa uat_threshold"); shutil.rmtree(base, ignore_errors=True); continue
         has_block = "Ngưỡng nghiệm thu" in html and "sẽ có phiên nghiệm thu" in html
-        has_flag = ("Hồ sơ cơ hội chưa khai ngưỡng nghiệm thu" in html) or ("Hồ sơ cơ hội có nhưng thẻ không đọc được" in html)  # ghim DUNG cau co cua khoi nguong, khong dung manh chung
+        has_flag_chuakhai = "Hồ sơ cơ hội chưa khai ngưỡng nghiệm thu" in html
+        has_flag_khongdoc = "Hồ sơ cơ hội có nhưng thẻ không đọc được" in html
+        has_flag = has_flag_chuakhai or has_flag_khongdoc  # dung cho o khong-co-hoi: KHONG duoc co bat ky co nao cua khoi
         has_fact = "ship thẳng, không phiên nghiệm thu" in html
         if kind == "co":
             if not has_block: out.append("co/html: thieu khoi nguong")
             if not all(l.lstrip("- ") in html for l in LINES): out.append("co/html: thieu dong nguyen van")
             if not (ut.get("opportunity_present") is True and ut.get("section_present") is True and ut.get("lines") == [l for l in LINES]): out.append("co/extract: lines/section_present sai: %r" % ut)
+        if kind == "chep-nguyen-khuon":
+            if has_block: out.append("chep-nguyen-khuon/html: placeholder «…» bi coi la nguong da khai")
+            if not has_flag_chuakhai: out.append("chep-nguyen-khuon/html: thieu co vang chua-khai-nguong")
+            if not (ut.get("section_present") is True and ut.get("lines") == []): out.append("chep-nguyen-khuon/extract: sai: %r" % ut)
         if kind == "rong":
             if has_block: out.append("rong/html: rong van in khoi")
-            if not has_flag: out.append("rong/html: thieu co vang chua-khai-nguong")
+            if not has_flag_chuakhai: out.append("rong/html: thieu co vang chua-khai-nguong")
             if not (ut.get("opportunity_present") is True and ut.get("section_present") is True and ut.get("lines") == []): out.append("rong/extract: sai: %r" % ut)
         if kind == "thieu":
             if has_block: out.append("thieu/html: thieu-section van in khoi")
-            if not has_flag: out.append("thieu/html: thieu co vang chua-khai-nguong")
+            if not has_flag_chuakhai: out.append("thieu/html: thieu co vang chua-khai-nguong")
             if not (ut.get("opportunity_present") is True and ut.get("section_present") is False and ut.get("lines") == []): out.append("thieu/extract: sai: %r" % ut)
         if kind == "khong":
             if has_block or has_flag: out.append("khong-co-hoi/html: nhanh khong-co-hoi in co vang/khoi")
@@ -10006,8 +10013,9 @@ def mutant(name, fn, expect_substr):
 mutant("m1-go-khoi", lambda s: s.replace("if (ut.opportunity_present && ut.readable && ut.section_present && ut.lines.length) {", "if (false) {"), "thieu khoi nguong")
 mutant("m2-khong-co-hoi-in-co-vang", lambda s: s.replace("if (!ut.opportunity_present)", "if (ut.opportunity_present)"), "nhanh khong-co-hoi in co vang")
 mutant("m3-rong-van-in-khoi", lambda s: s.replace("ut.section_present && ut.lines.length", "ut.section_present"), "rong van in khoi")
+mutant("m4-placeholder-la-da-khai", lambda s: s.replace(" && !PLACEHOLDER_RE.test(l)", ""), "placeholder «…» bi coi la nguong da khai")
 if errs: print("\n".join(errs)); sys.exit(1)
-print("P197 OK (8 o ma tran + doi-cu xanh tren gate-card that; 3 mutant bi bat; heading round-trip tu khuon)")
+print("P197 OK (10 o ma tran + doi-cu xanh tren gate-card that, gom ca chep-nguyen-khuon; 4 mutant bi bat; fixture dung tu chinh khuon)")
 P197PY
 run "P197 the Cong Pham vi in nguong nghiem thu: ma tran 4x2 + doi-cu + 3 mutant (moi-noi-vong-trao E1/E2)" \
   python3 "$P197TMP/p197.py" "$ROOT"

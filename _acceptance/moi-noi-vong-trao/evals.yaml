@@ -24,8 +24,12 @@ evals:
       ô một assert ghim tên «<trạng thái>/<mặt>» (8 ô, không gộp): có-ngưỡng/
       html có khối «Ngưỡng nghiệm thu» + từng dòng nguyên văn + câu «sẽ có phiên
       nghiệm thu»; có-ngưỡng/extract section_present true, lines đúng số dòng
-      TÍNH TỪ FIXTURE (không hardcode). Mutant m1 gỡ khối render trong bản sao
-      gate-card → P197 ĐỎ ghim «thieu khoi nguong». Đỏ ghim tên ô.
+      TÍNH TỪ FIXTURE (không hardcode); thân opportunity.md DỰNG TỪ CHÍNH KHUÔN
+      (frontmatter qua marker OPP-FRONTMATTER-TEMPLATE + body), heading lấy từ
+      hằng số gate-card và phải tồn tại trong khuôn. Thêm ô chép-nguyên-khuôn:
+      bullet còn placeholder «…» → CHƯA khai (cờ vàng, không khối). Mutant m1
+      gỡ khối render → «thieu khoi nguong»; m4 gỡ lọc placeholder → «placeholder
+      «…» bi coi la nguong da khai». Đỏ ghim tên ô.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E2
@@ -77,6 +81,9 @@ evals:
       - _acceptance/moi-noi-vong-trao/giam-khao/dap-an-E4.md
     paths:
       - skills/uat-session/SKILL.md
+      - _acceptance/moi-noi-vong-trao/hoi-dong/ca-E4.md
+      - _acceptance/moi-noi-vong-trao/hoi-dong/transcript-E4.md
+      - _acceptance/moi-noi-vong-trao/giam-khao/dap-an-E4.md
     question: >
       Giao thức chống rò rỉ (đầu file): agent hành động KHÔNG TOOL đã nhận
       inline thân skill uat-session SAU sửa + 6 ca của đề (chan=0 hợp lệ ·
@@ -104,6 +111,20 @@ evals:
       lai-thu lai». Đỏ ghim nhánh thiếu.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
+  - id: E4c
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.rang_mnvt_hoi_dong
+    paths: [_acceptance/moi-noi-vong-trao/rang-mnvt.sh, skills/uat-session/SKILL.md, feature-loop/skills/feature-loop/SKILL.md, _acceptance/moi-noi-vong-trao/hoi-dong/transcript-E4.md, _acceptance/moi-noi-vong-trao/hoi-dong/transcript-E5.md]
+    expected: >
+      Bài làm hội đồng KHÔNG đóng băng: transcript-E4/E5 ghi `nap_sha256` =
+      sha256 của ĐÚNG vùng SKILL đã nạp (E4: §0–§1 uat-session; E5: mục S0 +
+      S5 feature-loop, cắt bằng awk theo heading, hash stdout thô), kèm
+      `agent_id` và `tool_uses: 0`. SKILL đổi mà transcript chưa chạy lại → ĐỎ
+      ghim «transcript-<id> lech SKILL hien tai». Chiều đỏ qua chính chk_tr:
+      vùng SKILL thêm một dòng → ĐỎ đúng thông điệp. Đỏ ghim id + hai sha.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
   # ── feature-loop S5 — hành vi ─────────────────────────────────────────
   - id: E5
     criterion: AC-5
@@ -115,6 +136,9 @@ evals:
       - _acceptance/moi-noi-vong-trao/giam-khao/dap-an-E5.md
     paths:
       - feature-loop/skills/feature-loop/SKILL.md
+      - _acceptance/moi-noi-vong-trao/hoi-dong/ca-E5.md
+      - _acceptance/moi-noi-vong-trao/hoi-dong/transcript-E5.md
+      - _acceptance/moi-noi-vong-trao/giam-khao/dap-an-E5.md
     question: >
       Giao thức như E4. Agent hành động KHÔNG TOOL đã nhận inline mục S0/S5
       của feature-loop SAU sửa + 3 ca (S5 có opportunity · S5 không
@@ -135,6 +159,17 @@ evals:
       nhắc «lái-thử» + «uat-session <slug>» và nhánh «không → ship thẳng»; S0
       nhắc opportunity.md là input của brainstorm S1. Chiều đỏ: bản sao xoá
       dòng bàn giao → ĐỎ ghim «thieu dong ban giao S5». Đỏ ghim nhánh thiếu.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5c
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.rang_mnvt_hoi_dong
+    paths: [_acceptance/moi-noi-vong-trao/rang-mnvt.sh, skills/uat-session/SKILL.md, feature-loop/skills/feature-loop/SKILL.md, _acceptance/moi-noi-vong-trao/hoi-dong/transcript-E4.md, _acceptance/moi-noi-vong-trao/hoi-dong/transcript-E5.md]
+    expected: >
+      Như E4c (cùng lệnh, dedupe) — transcript-E5 khớp vùng S0+S5 hiện tại
+      của feature-loop; S5 đổi câu chỉ dẫn (17/08) đã buộc chạy lại hội đồng
+      E5 lần 2 — vết ở đầu transcript.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   # ── Spec chữ + §5 giữ nguyên ──────────────────────────────────────────

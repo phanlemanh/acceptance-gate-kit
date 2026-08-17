@@ -16,7 +16,8 @@ the-nguong)
   printf '%s\n' "$OUT" | grep -q 'MUTANT m1-go-khoi bi bat' || fail "P197 khong bao mutant m1 bi bat"
   printf '%s\n' "$OUT" | grep -q 'MUTANT m2-khong-co-hoi-in-co-vang bi bat' || fail "P197 khong bao mutant m2 bi bat"
   printf '%s\n' "$OUT" | grep -q 'MUTANT m3-rong-van-in-khoi bi bat' || fail "P197 khong bao mutant m3 bi bat"
-  ok "P197 OK + 3 mutant bi bat (ghim dong, khong tin ma thoat suite)"
+  printf '%s\n' "$OUT" | grep -q 'MUTANT m4-placeholder-la-da-khai bi bat' || fail "P197 khong bao mutant m4 bi bat"
+  ok "P197 OK + 4 mutant bi bat (ghim dong, khong tin ma thoat suite)"
   ;;
 khuon)
   node - "$ROOT" <<'JS' || exit 1
@@ -63,7 +64,7 @@ uat-needle)
     # QUAN HỆ nhánh → kết cục: cắt TỪNG bullet nhánh rồi kiểm ngay trong bullet đó
     B_OK="$(printf '%s' "$S0" | awk '/^  - `chan: 0`/{f=1;print;next} /^  - /{f=0} f')"
     B_CHAN="$(printf '%s' "$S0" | awk '/^  - `chan` > 0/{f=1;print;next} /^  - /{f=0} f')"
-    B_VANG="$(printf '%s' "$S0" | awk '/^  - File vắng/{f=1;print;next} /^  - /{f=0} f')"
+    B_VANG="$(printf '%s' "$S0" | awk '/^  - File vắng/{f=1;print;next} /^  - /{f=0} /^[^ ]/{f=0} /^$/{f=0} f')"
     [ -n "$B_OK" ] || { echo "thieu nhanh chan 0"; return; }
     printf '%s' "$B_OK" | grep -q '`slug`' || { echo "nhanh chan 0 khong doi slug khop"; return; }
     printf '%s' "$B_OK" | grep -q 'verified_at' || { echo "nhanh chan 0 khong doi ran_at so voi verified_at"; return; }
@@ -136,6 +137,25 @@ hinh)
   mkcopy; sed -i.bak 's/cho tới khi//g' "$TMP/d/workflow-v2-vong-doi-mot-viec.html"; M2="$(chk_hinh "$TMP/d")"; [ "$M2" = "colophon thieu dieu kien go dau: vong-doi-mot-viec" ] || fail "MUTANT go dieu kien KHONG bi bat (thay: $M2)"
   mkcopy; rm "$TMP/d/workflow-v2-lan-ui.html"; M3="$(chk_hinh "$TMP/d")"; [ "$M3" = "thieu file: workflow-v2-lan-ui.html" ] || fail "MUTANT xoa file KHONG bi bat (thay: $M3)"
   ok "6 file · muc luc · dau DE XUAT + dieu kien go; 3 mutant qua chinh checker, ghim dung thong diep"
+  ;;
+hoi-dong|hoi-dong-sha)
+  # Transcript hội đồng phải ghi nap_sha256 = sha256 (stdout thô, không qua $(...)) của ĐÚNG vùng SKILL đã nạp;
+  # SKILL đổi → lệch → ĐỎ: bài làm đóng băng không được chấm tiếp trên chỉ dẫn mới.
+  vung_E4() { awk '/^## 0\./{f=1} /^## 2\./{f=0} f' "$ROOT/skills/uat-session/SKILL.md"; }
+  vung_E5() { awk '/^## S0 — INTAKE/{f=1} /^## S1 — DESIGN/{f=0} f' "$ROOT/feature-loop/skills/feature-loop/SKILL.md"; awk '/^## S5 — SHIP/{f=1} /^## Quy tắc/{f=0} f' "$ROOT/feature-loop/skills/feature-loop/SKILL.md"; }
+  sha_of() { "$1" | shasum -a 256 | cut -d' ' -f1; }
+  if [ "$CHAN" = "hoi-dong-sha" ]; then echo "E4 $(sha_of vung_E4)"; echo "E5 $(sha_of vung_E5)"; exit 0; fi
+  chk_tr() { local FN="$1" ID="$2" SHA H; SHA="$(sha_of "$FN")"
+    H="$(grep -m1 '^nap_sha256: ' "$HERE/hoi-dong/transcript-$ID.md" | cut -d' ' -f2)"
+    [ -n "$H" ] || { echo "transcript-$ID thieu nap_sha256"; return; }
+    grep -q '^agent_id: ' "$HERE/hoi-dong/transcript-$ID.md" || { echo "transcript-$ID thieu agent_id"; return; }
+    grep -q '^tool_uses: 0' "$HERE/hoi-dong/transcript-$ID.md" || { echo "transcript-$ID khong khai tool_uses: 0"; return; }
+    [ "$H" = "$SHA" ] || { echo "transcript-$ID lech SKILL hien tai (nap $H != $SHA)"; return; }; echo ""; }
+  R4="$(chk_tr vung_E4 E4)"; [ -z "$R4" ] || fail "$R4"
+  R5="$(chk_tr vung_E5 E5)"; [ -z "$R5" ] || fail "$R5"
+  vung_E4_mut() { vung_E4; echo "x"; }
+  M="$(chk_tr vung_E4_mut E4)"; case "$M" in *"lech SKILL hien tai"*) ;; *) fail "MUTANT doi vung SKILL KHONG bi bat (thay: $M)";; esac
+  ok "transcript E4/E5 ghi nap_sha256 khop vung SKILL hien tai + agent_id + tool_uses 0; mutant doi SKILL bi bat"
   ;;
 *) fail "chan khong biet: $CHAN" ;;
 esac

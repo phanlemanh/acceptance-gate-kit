@@ -5,7 +5,7 @@ slug: moi-noi-vong-trao
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo

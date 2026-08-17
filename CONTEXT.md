@@ -92,6 +92,18 @@ release|iterate|kill`). Khuôn ở `uat-session-template.md`, thủ tục chép 
 trong khối mốc `UAT-COPY-PROCEDURE`.
 _Avoid_: demo, review meeting; dùng thang PASS/REJECT cho verdict của nó.
 
+**Nhật-ký-vấp (stranger drive log)**:
+Hồ sơ máy-đọc của **Lái-thử Người-lạ** (`_acceptance/<slug>/stranger-drive.md`)
+— thì ĐO-máy của Vòng TRAO, trước phiên nghiệm thu: phiên ngữ-cảnh-trắng lái
+sản phẩm thật, ghi vấp CHẶN/LẠC/KHÓ-CHỊU/VẶT, không phán đáng-giá. Frontmatter
+(`slug`, `ran_at`, `variant: ui|agent`, `chan`, `lac`, `kho_chiu`, `vat`,
+`chuyen_phien_nguoi`) là phần `uat-session` §0 đọc để coi điều kiện «bấm được»
+là bằng chứng hay lời khai. Khuôn MỘT chỗ: `stranger-drive-template.md`, khối
+mốc `STRANGER-FRONTMATTER-TEMPLATE`; khoá §0 đọc khai ở marker
+`STRANGER-KEYS-READ`. Nghi thức: `docs/lai-thu-nguoi-la.md`.
+_Avoid_: «giả lập UAT» (máy không phán giá trị), test log, hồ sơ mục tiêu
+(tên cũ của đề bài); coi nó là bằng chứng của vòng khác hay bản cũ hơn lần chấm.
+
 **Product map (bản đồ sản phẩm)**:
 View máy sinh `PRODUCT-MAP.md` ở gốc repo — vẽ từ hồ sơ xưởng bởi
 `product-map.mjs`, kiểm bằng `--check` (view phải khớp hồ sơ). Trạng
