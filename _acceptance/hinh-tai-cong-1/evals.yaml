@@ -1,0 +1,86 @@
+# Evals — hinh-tai-cong-1
+# Một case mới P197 trong suite tests/plugins; suite hiện có làm đối chứng cho AC-9.
+# LUẬT ÁP CHO CẢ FILE: mỗi eval máy khai CHIỀU ĐỎ trên cùng fixture kèm thông điệp
+# ghim (MEASURE-BIRTH-CLAUSE); phép đo neo vào MỤC GATE 1 rút bằng heading, không
+# tìm chuỗi toàn file.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P197 pass: rút KHỐI `### Hình tại điểm quyết định` bên trong mục `## GATE 1` bằng regex heading (tới heading `##`/`###` kế); khuôn LOOP-PICTURE-CLAUSE rút QUA MARKER từ bản luật, CẢ HAI bên gộp mọi chuỗi khoảng trắng/xuống dòng thành một dấu cách, rồi so nguyên văn trong khối. Đối chứng dương XANH; đột biến 1: xoá câu khỏi khối mà giữ ở S2 → ĐỎ ghim 'GATE 1: cau ve hinh lech khuon mot-nguon'; đột biến 2: đổi MỘT từ trong câu ở khối → cùng thông điệp; và hàm check của P90 chạy trên đột biến 1 phải VẪN XANH (neo vào khối, không vào file)."
+    paths:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P197 pass: trong khối (đã cắt dòng clause) có đủ năm nhãn `[1] Kê` `[2] Đếm` `[3] Vẽ` `[4] Nhìn` `[5] Đính` (case-sensitive) với chỉ số xuất hiện tăng dần, và chuỗi `figures/index.md`. Đột biến gỡ `figures/index.md` khỏi khối (chép nó ra ngoài khối, còn trong mục GATE 1) → vẫn ĐỎ ghim 'GATE 1: thieu dau vet dem'; đột biến hoán vị nhãn `[3] Vẽ` và `[4] Nhìn` → ĐỎ ghim 'GATE 1: nam buoc sai thu tu'."
+    paths:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P197 pass: khối chứa đủ bốn cụm nguồn đủ dài — 'entry ledger chờ seal', 'lệch spec/plan gốc', '[GIẢ ĐỊNH]', 'human-gate1' — và cụm 'không hỏi người'. Ma trận toàn phần: MỖI cụm một lượt gỡ khỏi khối → ĐỎ ghim 'GATE 1: thieu nguon <cụm>' (thông điệp mang tên cụm thiếu); gỡ 'không hỏi người' → ĐỎ ghim 'GATE 1: thieu menh de khong hoi nguoi'."
+    paths:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P197 pass: tách khối thành câu (theo dấu chấm/xuống dòng đôi); phải có MỘT câu chứa đồng thời 'T3', 'T2 không đủ' và 'dừng chờ người', và MỘT câu chứa đồng thời 'xanh-sạch' và 'bỏ qua'. Đột biến xoá câu điều kiện (chữ 'T3'/'T2' ở nơi khác trong mục GATE 1 KHÔNG cứu được) → ĐỎ ghim 'GATE 1: thieu dieu kien dung-nguoi'; đột biến tách 'xanh-sạch' và 'bỏ qua' ra hai câu → ĐỎ ghim 'GATE 1: xanh-sach khong di kem bo qua'."
+    paths:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P197 pass: khối chứa 'subagent tươi', 'diagram-design', 'figures/index.md', và MỘT câu chứa đồng thời 'skill vắng', 'mermaid', 'không chặn'. Đột biến xoá câu skill vắng → ĐỎ ghim 'GATE 1: thieu duong skill vang'; đột biến gỡ 'subagent tươi' → ĐỎ ghim 'GATE 1: thieu subagent ve'; gỡ 'diagram-design' → ĐỎ ghim 'GATE 1: thieu ten skill ve'."
+    paths:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P197 pass: sau khi CẮT dòng clause khỏi khối, phải có MỘT câu chứa đồng thời 'vòng chính', 'Read', '.png' (bước nhìn thật — needle 'phép thử nhìn-thấy-hình' KHÔNG được dùng vì clause đã chứa nó); và khối chứa 'MỘT lần', 'CÙNG một lượt', 'dưới ngưỡng', '0 điểm vượt'. Đột biến xoá câu Read → ĐỎ ghim 'GATE 1: thieu buoc nhin'; gỡ 'dưới ngưỡng' → ĐỎ ghim 'GATE 1: thieu dong duoi-nguong'; gỡ 'CÙNG một lượt' → ĐỎ ghim 'GATE 1: the va hinh khong cung luot'."
+    paths:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P197 pass: MỘT câu trong khối chứa đồng thời 'draft', 'figures/' và 'không vẽ lại'. Đột biến xoá câu đó → ĐỎ ghim 'GATE 1: thieu duong dung lai figures'."
+    paths:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - tests/plugins/run-tests.sh
+
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "P197 pass — case tự chứa đối chứng dương + TOÀN BỘ ma trận needle→đột biến của AC-8 (mỗi needle một lượt gỡ CHỈ trong khối, thông điệp mang tên needle), gồm cả đối chứng 'chép needle ra ngoài khối không cứu được'; và trong cùng case, hàm check kiểu P90 (clause có mặt bất kỳ đâu trong file) chạy trên đột biến xoá-clause-khỏi-khối phải VẪN XANH — chứng minh phép đo mới neo vào khối."
+    paths:
+      - tests/plugins/run-tests.sh
+
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "Toàn suite tests/plugins exit 0 tại HEAD sau sửa; đặc biệt P90 và P93 (đếm cặp marker: LOOP-PICTURE-CLAUSE đúng 1 cặp) XANH. Chiều đỏ của P93 đã có sẵn trong case đó (chèn cặp marker thứ hai → ĐỎ) — không dựng lại."
+    paths:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - tests/plugins/run-tests.sh

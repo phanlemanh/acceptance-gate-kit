@@ -1,0 +1,105 @@
+{
+  "feature_plain": "Tới Cổng 1, người ký mở thẻ là thấy hình cạnh mỗi quyết định có đánh-đổi — máy tự kê, tự đếm, tự vẽ, tự nhìn rồi đính; người không phải gõ thêm lượt nào để đòi hình.",
+  "will_do": [
+    {
+      "id": "AC-1",
+      "p": "Sẽ chép nguyên văn câu luật về hình vào đúng chỗ Cổng 1 của vòng lặp — vẫn một nguồn, không diễn đạt lại"
+    },
+    {
+      "id": "AC-2",
+      "p": "Sẽ đi năm bước có tên và số thứ tự — kê · đếm · vẽ · nhìn · đính — và ghi kết quả đếm xuống một file trong hồ sơ để không quên được"
+    },
+    {
+      "id": "AC-3",
+      "p": "Sẽ kê điểm quyết định từ bốn chỗ máy đã có sẵn cuối thiết kế (sổ quyết định · chỗ lệch bản gốc · giả định trong độ phủ · phản biện đẩy lên người) — không hỏi người để kê"
+    },
+    {
+      "id": "AC-4",
+      "p": "Sẽ chỉ chạy khi cổng thật sự dừng chờ người (T3, hoặc T2 chưa đủ điều kiện đi tiếp); T2 sạch đi tiếp thì bỏ qua — không vẽ hình không ai đọc"
+    },
+    {
+      "id": "AC-5",
+      "p": "Sẽ giao một agent tươi vẽ từ đề bài + nguồn trên đĩa bằng bộ khuôn vẽ của kit; thiếu bộ khuôn thì vẽ mermaid vào design doc và nói một dòng, không chặn cổng"
+    },
+    {
+      "id": "AC-6",
+      "p": "Sẽ tự mở ảnh của từng hình để nhìn trước khi đính (vẽ lại tối đa một lần), gửi thẻ và hình trong cùng một lượt; điểm chưa vẽ vẫn để lại số đếm, không có đường im lặng"
+    },
+    {
+      "id": "AC-7",
+      "p": "Sẽ dùng lại hình đã có khi quay lại một hồ sơ đang chờ duyệt — không vẽ lại"
+    },
+    {
+      "id": "AC-8",
+      "p": "Sẽ có một phép đo mới trong suite: bản đúng xanh, và mỗi cách gỡ một mảnh của khối (kể cả chép mảnh ra ngoài khối) đều đỏ với thông điệp nêu đúng mảnh thiếu; phép đo cũ vẫn xanh ở đúng ca đó để chứng minh phép đo mới neo vào khối"
+    },
+    {
+      "id": "AC-9",
+      "p": "Sẽ giữ toàn bộ suite hiện có xanh — không sinh marker mới, câu luật vẫn đúng một nguồn"
+    }
+  ],
+  "wont_do": [],
+  "scope_plain": "Hoãn: thẻ tự nhúng hình (đường 2, cần đổi bên đọc + đường đọc-cũ) · đo máy đếm đúng số bước không · vẽ cho Cổng 2 và Gate 1.5 · sửa lệnh duyệt / lệnh thẻ / bản luật",
+  "coverage_plain": [
+    {
+      "i": 0,
+      "p": "Trục thời điểm: chạy ở T3 và T2 chưa đủ điều kiện; T2 sạch đi tiếp thì không; quay lại hồ sơ cũ thì dùng lại — thước là bảng trạng thái của vòng lặp (AC-4, AC-7)"
+    },
+    {
+      "i": 1,
+      "p": "Trục nguồn điểm quyết định: bốn chỗ máy đã có cuối thiết kế — thước là danh sách artifact bước S1 (AC-3)"
+    },
+    {
+      "i": 2,
+      "p": "Trục kết quả đếm: vượt thì vẽ, dưới thì ghi số, không có điểm thì nói một dòng — thước là định nghĩa ngưỡng trong bản luật (AC-2, AC-6)"
+    },
+    {
+      "i": 3,
+      "p": "Trục hoàn cảnh vẽ: có bộ khuôn · thiếu bộ khuôn · hình hỏng một lần — thước là danh sách cơ chế vẽ trong bản luật (AC-5, AC-6)"
+    },
+    {
+      "i": 4,
+      "p": "Trục mặt phẳng đính: gửi cùng thẻ (làm) · chỉ nêu đường dẫn (không) · nhúng vào thẻ (để sau) — thước là bảng tra mặt phẳng (AC-6)"
+    },
+    {
+      "i": 5,
+      "p": "Xuyên trục: câu luật một nguồn (AC-1, AC-9) và phép đo neo vào khối kèm đột biến (AC-8)"
+    },
+    {
+      "i": 6,
+      "p": "Chân ngành làm ứng viên: mô hình C4 và nếp design-doc có sơ đồ trước văn xuôi — chỉ để đối chiếu, không phải sự thật"
+    }
+  ],
+  "gap_probe_plain": [
+    {
+      "i": 0,
+      "p": "Thiếu ranh giới máy-đọc cho khối về hình nên phép đo có thể quét cả mục và tự thoả — đã sửa: neo mọi tiêu chí vào một heading con cố định, đột biến chỉ áp trong khối"
+    },
+    {
+      "i": 1,
+      "p": "Một số mảnh đo bị chính câu luật chép vào tự thoả (câu luật đã chứa chữ nhìn-thấy-hình) — đã sửa: bước nhìn đo bằng câu 'mở ảnh .png' riêng, đếm thứ tự sau khi cắt câu luật"
+    },
+    {
+      "i": 2,
+      "p": "'Khớp từng ký tự' chưa nói cách xử lý xuống dòng — đã sửa: gộp khoảng trắng hai bên rồi so, thêm ca đổi một từ phải đỏ"
+    },
+    {
+      "i": 3,
+      "p": "Bảng mảnh-đo → cách-gỡ chưa đủ, mảnh quá ngắn dễ trùng chữ ở chỗ khác — đã sửa: mảnh dài đủ nghĩa, mỗi mảnh một lượt gỡ, thông điệp nêu tên mảnh"
+    }
+  ],
+  "decisions_plain": [
+    {
+      "id": "d-20260817T042317Z-1101",
+      "p": "KHÔNG làm thẻ tự nhúng hình ở vòng này — đổi lại: ai chỉ mở thẻ mà bỏ qua file đính kèm vẫn chưa thấy hình; xem lại sau một vòng thật ở T3"
+    },
+    {
+      "id": "d-20260817T042317Z-1102",
+      "p": "Máy đề bài + đếm vào file, agent tươi vẽ từ đĩa, máy nhìn ảnh rồi đính — đổi lại: thêm khoảng một agent mỗi hình ở cổng T3, bù bằng vòng chính nhẹ và hình bám nguồn chữ"
+    },
+    {
+      "id": "d-20260817T042317Z-1103",
+      "p": "KHÔNG vẽ ở cổng T2 sạch đi tiếp — đổi lại: hồ sơ T2 mở lại sau này không có hình, đã có design doc"
+    }
+  ]
+}
