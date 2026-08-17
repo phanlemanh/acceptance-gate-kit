@@ -10117,6 +10117,76 @@ print("P197-P90CHECK: xanh tren xoa-khoi, do tren sua-mot-chu")
 print(f"P197 OK: doi chung duong + {MUTS} dot bien chay that, moi cai ghim dung thong diep")
 PY
 
+# ── P198: mot nguon dem ban chep cau-ve-hinh (siet-rang-cau-ve-hinh E1/E2/E6/E7) ──
+# (1) fixture CODE-SINH sau ca cho hfl_clause.clause_copies_ok; (2) kiem cau truc:
+# hai khoi P90/P197 cung import module, khong con ban chep tay logic. Case suite
+# vinh vien: chi doc tests/** — KHONG doc _acceptance/**, KHONG worktree (nep p194:
+# thu gan ho so do bang rang cua ho so).
+run "P198 hfl_clause mot nguon: 6 ca fixture code-sinh + P90/P197 cung import, khong chep tay (siet-rang-cau-ve-hinh E1 E2 E6 E7)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys, tempfile
+from pathlib import Path
+root = Path(sys.argv[1])
+sys.path.insert(0, str(root / "tests/plugins"))
+from hfl_clause import clause_copies_ok, clause_copies
+
+# (1) fixture code-sinh trong chinh lan chay — clause GIA (khong phai clause that,
+# de phep do khong phu thuoc ban luat), file hai ban chep, sau ca theo AC-1.
+clause = "Alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu."
+tmp = Path(tempfile.mkdtemp(prefix="p198-"))
+def mk(name, body):
+    f = tmp / name; f.write_text(body, encoding="utf-8"); return f.read_text(encoding="utf-8")
+two = mk("two.md", f"# doc\n\n{clause}\n\nsome text\n\n- bullet: {clause} tail\n")
+LECH = "cau ve hinh lech khuon mot-nguon (1/2 ban chep)"
+CASES = [
+    ("a-hai-ban-dung",   two,                                                     []),
+    ("b-sua-giua",       two.replace("epsilon zeta", "epsilon ZETA", 1),           [LECH]),
+    ("c-sua-4-chu-dau",  two.replace("Alpha beta gamma", "Alpha BETA gamma", 1),   [LECH]),
+    ("d-sua-4-chu-cuoi", two.replace("lambda mu.", "LAMBDA mu.", 1),               [LECH]),
+    ("e-xoa-mot-ban",    two.replace(clause, "", 1),                              []),
+    ("f-xoa-ca-hai",     two.replace(clause, ""),                                 ["khong co ban chep nao"]),
+]
+NCA = 0
+for name, text, want in CASES:
+    got = clause_copies_ok(text, clause)
+    assert got == want, f"P198-CA-{name}: mong {want}, duoc {got}"
+    NCA += 1
+    print(f"P198-CA-{name} OK")
+assert clause_copies(two, clause) == (2, 2), clause_copies(two, clause)
+
+# (2) kiem cau truc: rut khoi P90 va P197 tu chinh suite (duong suy tu ROOT)
+suite = (root / "tests/plugins/run-tests.sh").read_text(encoding="utf-8")
+def block_of(prefix):
+    m = re.search(r'run "' + re.escape(prefix) + r'[^\n]*\\\n  python3 - "\$ROOT" <<\'PY\'\n([\s\S]*?)\nPY\n', suite)
+    assert m, f"khong rut duoc khoi {prefix}"
+    return m.group(1)
+p90 = block_of("P90 tam"); p197 = block_of("P197 GATE 1")
+CHEP_P90 = "CLAUSE not" + " in t"          # ghep de chinh dong nay khong tu khop
+CHEP_P197 = "CLAUSE_P90" + " in"
+def struct(p90b, p197b):
+    errs = []
+    if "from hfl_clause import" not in p90b: errs.append("P90 khong import hfl_clause")
+    if CHEP_P90 in p90b: errs.append("P90 con chep tay logic clause")
+    if "from hfl_clause import" not in p197b: errs.append("P197 khong import hfl_clause")
+    if CHEP_P197 in p197b: errs.append("P197 con chep tay p90_check")
+    return errs
+assert struct(p90, p197) == [], struct(p90, p197)                       # doi chung duong
+NKC = 4
+NMUT = 0
+def expect(errs, msg, label):
+    global NMUT
+    assert msg in errs, f"{label}: mong '{msg}', duoc {errs}"; NMUT += 1
+    print(f"P198-MUT-{NMUT}: {label} DO dung ({msg})")
+expect(struct(p90 + "\n        elif " + CHEP_P90 + ":\n            pass\n", p197), "P90 con chep tay logic clause", "chen lai chep tay vao P90")
+expect(struct(p90, p197 + "\np90_check = lambda t: [] if " + CHEP_P197 + " t else ['x']\n"), "P197 con chep tay p90_check", "chen lai chep tay vao P197")
+expect(struct(p90.replace("from hfl_clause import", "from nowhere import"), p197), "P90 khong import hfl_clause", "go import P90")
+expect(struct(p90, p197.replace("from hfl_clause import", "from nowhere import")), "P197 khong import hfl_clause", "go import P197")
+# case nay khong duoc dung vao ho so — tu soi chinh no (ghep chuoi de dong nay khong tu khop)
+me = block_of("P198 hfl_clause")
+assert ("_accep" + "tance/") not in me, "P198 khong duoc doc thu muc ho so (" + "_accep" + "tance/)"
+print(f"P198 OK: {NCA} ca fixture · {NKC} kiem cau truc · {NMUT} dot bien")
+PY
+
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
   echo "ONLY_BLOCK=$ONLY_BLOCK khong khop khoi nao — go sai ten? (fail de khong xanh gia)"

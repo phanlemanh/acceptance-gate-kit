@@ -168,3 +168,12 @@ for needle in ["baseline_minutes", "time_human_minutes", "gate1_skipped", "Read-
     ("phut-ghi-0", "ghi 0"),
     "approve": ["approved_by", "approved_at", "time_human_minutes.gate1"],
     "signoff": ["human_override", "human_signoff", "status: signed-off", "time_human_minutes.gate2"],
+
+# Đợt khai: 2026-08-17 — hồ sơ siet-rang-cau-ve-hinh (đóng Known limit 1 của
+# hinh-tai-cong-1). Hai assert m3/m4 của P90 «cau ve hinh lech khuon mot-nguon»
+# KHÔNG bị gỡ mà được NÂNG: cùng đột biến, thông điệp ghim chặt hơn «(1/2 ban
+# chep)», và chạy trong vòng for cùng m3b (bản chép cuối). Chuỗi cũ biến mất
+# khỏi cây vì dòng assert đổi hình — bánh cóc thấy «mất», sổ khai để rõ là thay
+# bằng thước chặt hơn, không phải hạ thước.
+assert f"{lp2}: cau ve hinh lech khuon mot-nguon" in check(m3), \
+assert f"{lp2}: cau ve hinh lech khuon mot-nguon" in check(m4), \
