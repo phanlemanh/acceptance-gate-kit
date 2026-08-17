@@ -9922,48 +9922,71 @@ def has_unit(b, *needles):
 SOURCES = ["entry ledger chờ seal", "lệch spec/plan gốc", "[GIẢ ĐỊNH]", "human-gate1"]
 LABELS  = ["[1] Kê", "[2] Đếm", "[3] Vẽ", "[4] Nhìn", "[5] Đính"]
 
+# Bang thong diep DUY NHAT: check() chi phat thong diep tu day, va phep dem
+# ma-tran ben duoi doi moi khoa phai tung DO it nhat mot lan (khong ghi so tay).
+M = {
+    "khoi":     "GATE 1: thieu khoi Hinh tai diem quyet dinh",
+    "clause":   "GATE 1: cau ve hinh lech khuon mot-nguon",
+    "nhan":     "GATE 1: thieu nhan buoc {}",
+    "thu_tu":   "GATE 1: nam buoc sai thu tu",
+    "dau_vet":  "GATE 1: thieu dau vet dem",
+    "nguon":    "GATE 1: thieu nguon {}",
+    "hoi":      "GATE 1: thieu menh de khong hoi nguoi",
+    "dieu_kien":"GATE 1: thieu dieu kien dung-nguoi",
+    "bo_qua":   "GATE 1: xanh-sach khong di kem bo qua",
+    "subagent": "GATE 1: thieu subagent ve",
+    "ten_skill":"GATE 1: thieu ten skill ve",
+    "skill_vang":"GATE 1: thieu duong skill vang",
+    "nhin":     "GATE 1: thieu buoc nhin",
+    "mot_lan":  "GATE 1: thieu gioi han ve lai mot lan",
+    "cung_luot":"GATE 1: the va hinh khong cung luot",
+    "duoi":     "GATE 1: thieu dong duoi-nguong",
+    "khong_diem":"GATE 1: thieu dong 0-diem-vuot",
+    "dung_lai": "GATE 1: thieu duong dung lai figures",
+}
+
 def check(text):
     errs = []
     b = block(text)
     if b is None:
-        return ["GATE 1: thieu khoi Hinh tai diem quyet dinh"]
+        return [M["khoi"]]
     if CLAUSE not in norm(b):
-        errs.append("GATE 1: cau ve hinh lech khuon mot-nguon")
+        errs.append(M["clause"])
     nb = "\n".join(u for u in b.split("\n") if norm(u) != CLAUSE)   # cat dong clause
     idx = [nb.find(l) for l in LABELS]
     if any(i < 0 for i in idx):
-        errs.append("GATE 1: thieu nhan buoc " + ",".join(l for l, i in zip(LABELS, idx) if i < 0))
+        errs.append(M["nhan"].format(",".join(l for l, i in zip(LABELS, idx) if i < 0)))
     elif idx != sorted(idx):
-        errs.append("GATE 1: nam buoc sai thu tu")
+        errs.append(M["thu_tu"])
     if "_acceptance/<slug>/figures/index.md" not in b:
-        errs.append("GATE 1: thieu dau vet dem")
+        errs.append(M["dau_vet"])
     for s in SOURCES:
         if s not in b:
-            errs.append(f"GATE 1: thieu nguon {s}")
+            errs.append(M["nguon"].format(s))
     if "không hỏi người" not in b:
-        errs.append("GATE 1: thieu menh de khong hoi nguoi")
+        errs.append(M["hoi"])
     if not has_unit(b, "T3", "T2 không đủ", "dừng chờ người"):
-        errs.append("GATE 1: thieu dieu kien dung-nguoi")
+        errs.append(M["dieu_kien"])
     if not has_unit(b, "xanh-sạch", "bỏ qua"):
-        errs.append("GATE 1: xanh-sach khong di kem bo qua")
+        errs.append(M["bo_qua"])
     if "subagent tươi" not in b:
-        errs.append("GATE 1: thieu subagent ve")
+        errs.append(M["subagent"])
     if "diagram-design" not in b:
-        errs.append("GATE 1: thieu ten skill ve")
+        errs.append(M["ten_skill"])
     if not has_unit(b, "skill vắng", "mermaid", "không chặn"):
-        errs.append("GATE 1: thieu duong skill vang")
+        errs.append(M["skill_vang"])
     if not has_unit(nb, "vòng chính", "Read", ".png"):
-        errs.append("GATE 1: thieu buoc nhin")
+        errs.append(M["nhin"])
     if "MỘT lần" not in b:
-        errs.append("GATE 1: thieu gioi han ve lai mot lan")
+        errs.append(M["mot_lan"])
     if "CÙNG một lượt" not in b:
-        errs.append("GATE 1: the va hinh khong cung luot")
+        errs.append(M["cung_luot"])
     if "dưới ngưỡng" not in b:
-        errs.append("GATE 1: thieu dong duoi-nguong")
+        errs.append(M["duoi"])
     if "0 điểm vượt" not in b:
-        errs.append("GATE 1: thieu dong 0-diem-vuot")
+        errs.append(M["khong_diem"])
     if not has_unit(b, "draft", "figures/", "không vẽ lại"):
-        errs.append("GATE 1: thieu duong dung lai figures")
+        errs.append(M["dung_lai"])
     return errs
 
 live = (root / LOOP).read_text(encoding="utf-8")
@@ -9985,11 +10008,13 @@ def move_out(text, needle):
     return t.replace(HEAD, needle + "\n\n" + HEAD, 1)
 
 MUTS = 0
+FIRED = set()
 def expect(mut, msg, label):
     global MUTS
     errs = check(mut)
     assert msg in errs, f"{label}: mong '{msg}', duoc {errs}"
     MUTS += 1
+    FIRED.add(msg)
     print(f"P197-MUT-{MUTS}: {label} DO dung ({msg})")
 
 # P90-kieu: clause co mat BAT KY DAU trong file -> van XANH khi xoa khoi khoi
@@ -10019,9 +10044,30 @@ expect(mutate(live, lambda b: b.replace("dưới ngưỡng", "chưa tới")), "G
 expect(mutate(live, lambda b: b.replace("CÙNG một lượt", "khi tiện")), "GATE 1: the va hinh khong cung luot", "go cung mot luot")
 expect(mutate(live, lambda b: b.replace("không vẽ lại", "vẽ lại")), "GATE 1: thieu duong dung lai figures", "go khong ve lai")
 
-# Doi chung: check KIEU P90 (clause co mat bat ky dau trong file) van XANH tren
-# dot bien xoa-clause-khoi-khoi — chung minh P197 neo vao khoi, khong vao file.
-assert CLAUSE in norm(m_clause), "P90-kieu phai van xanh — neu do thi P197 khong them gi moi"
+# 4 nhanh do con lai cua check() — moi nhanh mot dot bien (khong de nhanh nao
+# chua tung do: bat bien CLAUDE.md «pha thu mot lan cho moi phep do moi»)
+expect(mutate(live, lambda b: b.replace("MỘT lần", "vài lần")), "GATE 1: thieu gioi han ve lai mot lan", "go MOT lan")
+expect(mutate(live, lambda b: b.replace("0 điểm vượt", "không có gì")), "GATE 1: thieu dong 0-diem-vuot", "go 0 diem vuot")
+expect(mutate(live, lambda b: b.replace("[2] Đếm", "[2] Đo")), M["nhan"].format("[2] Đếm"), "go nhan [2] Dem")
+m_head = live.replace(HEAD, "### Hình minh hoạ", 1)
+expect(m_head, "GATE 1: thieu khoi Hinh tai diem quyet dinh", "doi ten heading khoi")
+
+# Ma tran phai TOAN PHAN: MOI thong diep check() co the phat (bang M, khoa
+# template no ra theo SOURCES / nhan da go) phai tung DO it nhat mot lan.
+EXPECTED = {v for k, v in M.items() if k not in ("nguon", "nhan")}
+EXPECTED |= {M["nguon"].format(s) for s in SOURCES}
+EXPECTED |= {M["nhan"].format("[2] Đếm")}
+missing = EXPECTED - FIRED
+assert not missing, f"ma tran chua toan phan — thong diep chua tung do: {sorted(missing)}"
+
+# Doi chung: check THAT cua P90 (clause.strip() co mat bat ky dau trong file, khong
+# norm) van XANH tren dot bien xoa-clause-khoi-khoi — chung minh P197 neo vao khoi.
+CLAUSE_P90 = _m.group(1).strip()
+def p90_check(t):
+    return [] if CLAUSE_P90 in t else [f"{LOOP}: cau ve hinh lech khuon mot-nguon"]
+assert p90_check(live) == [], "P90 check phai xanh tren ban nguyen ven"
+assert p90_check(m_clause) == [], "P90-kieu phai van xanh tren dot bien xoa-clause-khoi-khoi — neu do thi P197 khong them gi moi"
+assert p90_check(live.replace(CLAUSE_P90, "x")) != [], "p90_check khong bao gio do — doi chung am chet"
 print(f"P197 OK: doi chung duong + {MUTS} dot bien chay that, moi cai ghim dung thong diep")
 PY
 

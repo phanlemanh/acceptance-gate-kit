@@ -20,9 +20,9 @@ keu() { echo "P197-RANG LOI: $*"; ERR=1; }
 printf '%s\n' "$OUT" | grep -q "PASS: P197" \
   || keu "khong thay dong 'PASS: P197' — case khong chay (bi xoa/doi ten?)"
 
-# so dot bien CHAY THAT phai >= 18 va dong tong ket phai KHOP so dem duoc
+# so dot bien CHAY THAT phai >= 22 va dong tong ket phai KHOP so dem duoc
 MUTS="$(printf '%s\n' "$OUT" | grep -c "^P197-MUT-[0-9]*: .* DO dung")"
-[ "$MUTS" -ge 18 ] || keu "chi thay $MUTS dot bien chay that (phai >= 18)"
+[ "$MUTS" -ge 22 ] || keu "chi thay $MUTS dot bien chay that (phai >= 22)"
 SUM="$(printf '%s\n' "$OUT" | grep -o "P197 OK: doi chung duong + [0-9]* dot bien" | grep -o "[0-9]* dot bien" | grep -o "^[0-9]*")"
 [ -n "$SUM" ] || keu "dong tong ket P197 khong khai so dot bien"
 [ "$SUM" = "$MUTS" ] || keu "dong tong ket khai $SUM dot bien nhung dem duoc $MUTS"
@@ -31,10 +31,11 @@ SUM="$(printf '%s\n' "$OUT" | grep -o "P197 OK: doi chung duong + [0-9]* dot bie
 for M in "cau ve hinh lech khuon mot-nguon" "nam buoc sai thu tu" "thieu dau vet dem" \
          "thieu nguon entry ledger chờ seal" "thieu nguon lệch spec/plan gốc" \
          "thieu nguon \[GIẢ ĐỊNH\]" "thieu nguon human-gate1" "thieu dieu kien dung-nguoi" \
-         "thieu duong skill vang" "thieu buoc nhin" "thieu dong duoi-nguong" "thieu duong dung lai figures"; do
+         "thieu duong skill vang" "thieu buoc nhin" "thieu dong duoi-nguong" "thieu duong dung lai figures" \
+         "thieu gioi han ve lai mot lan" "thieu dong 0-diem-vuot" "thieu nhan buoc \[2\] Đếm" "thieu khoi Hinh tai diem quyet dinh"; do
   printf '%s\n' "$OUT" | grep -q "DO dung (GATE 1: $M)" || keu "thieu chieu do ghim '$M'"
 done
 
 if [ "$ERR" -ne 0 ]; then echo "P197-RANG DO"; exit 1; fi
-echo "P197-RANG OK: PASS P197 · $MUTS dot bien chay that · 12 thong diep AC-8 co mat"
+echo "P197-RANG OK: PASS P197 · $MUTS dot bien chay that · 16 thong diep ghim co mat"
 exit 0

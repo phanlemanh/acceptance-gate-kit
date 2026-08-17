@@ -11,7 +11,7 @@ evals:
     criterion: AC-1
     executor: test
     cmd: config:executors.script.rang_hinh_cong1
-    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật + 12 thông điệp AC-8; đỏ trên diffBase vì khối chưa tồn tại) —: rút KHỐI `### Hình tại điểm quyết định` bên trong mục `## GATE 1` bằng regex heading (tới heading `##`/`###` kế); khuôn LOOP-PICTURE-CLAUSE rút QUA MARKER từ bản luật, CẢ HAI bên gộp mọi chuỗi khoảng trắng/xuống dòng thành một dấu cách, rồi so nguyên văn trong khối. Đối chứng dương XANH; đột biến 1: xoá câu khỏi khối mà giữ ở S2 → ĐỎ ghim 'GATE 1: cau ve hinh lech khuon mot-nguon'; đột biến 2: đổi MỘT từ trong câu ở khối → cùng thông điệp; và hàm check của P90 chạy trên đột biến 1 phải VẪN XANH (neo vào khối, không vào file)."
+    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật khớp dòng tổng kết + 16 thông điệp ghim; đỏ trên diffBase vì khối chưa tồn tại) —: rút KHỐI `### Hình tại điểm quyết định` bên trong mục `## GATE 1` bằng regex heading (tới heading `##`/`###` kế); khuôn LOOP-PICTURE-CLAUSE rút QUA MARKER từ bản luật, CẢ HAI bên gộp mọi chuỗi khoảng trắng/xuống dòng thành một dấu cách, rồi so nguyên văn trong khối. Đối chứng dương XANH; đột biến 1: xoá câu khỏi khối mà giữ ở S2 → ĐỎ ghim 'GATE 1: cau ve hinh lech khuon mot-nguon'; đột biến 2: đổi MỘT từ trong câu ở khối → cùng thông điệp; và hàm check của P90 chạy trên đột biến 1 phải VẪN XANH (neo vào khối, không vào file)."
     paths:
       - feature-loop/skills/feature-loop/SKILL.md
       - tests/plugins/run-tests.sh
@@ -20,7 +20,7 @@ evals:
     criterion: AC-2
     executor: test
     cmd: config:executors.script.rang_hinh_cong1
-    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật + 12 thông điệp AC-8; đỏ trên diffBase vì khối chưa tồn tại) —: trong khối (đã cắt dòng clause) có đủ năm nhãn `[1] Kê` `[2] Đếm` `[3] Vẽ` `[4] Nhìn` `[5] Đính` (case-sensitive) với chỉ số xuất hiện tăng dần, và chuỗi `figures/index.md`. Đột biến gỡ `figures/index.md` khỏi khối (chép nó ra ngoài khối, còn trong mục GATE 1) → vẫn ĐỎ ghim 'GATE 1: thieu dau vet dem'; đột biến hoán vị nhãn `[3] Vẽ` và `[4] Nhìn` → ĐỎ ghim 'GATE 1: nam buoc sai thu tu'."
+    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật khớp dòng tổng kết + 16 thông điệp ghim; đỏ trên diffBase vì khối chưa tồn tại) —: trong khối (đã cắt dòng clause) có đủ năm nhãn `[1] Kê` `[2] Đếm` `[3] Vẽ` `[4] Nhìn` `[5] Đính` (case-sensitive) với chỉ số xuất hiện tăng dần, và chuỗi `figures/index.md`. Đột biến gỡ `figures/index.md` khỏi khối (chép nó ra ngoài khối, còn trong mục GATE 1) → vẫn ĐỎ ghim 'GATE 1: thieu dau vet dem'; đột biến hoán vị nhãn `[3] Vẽ` và `[4] Nhìn` → ĐỎ ghim 'GATE 1: nam buoc sai thu tu'."
     paths:
       - feature-loop/skills/feature-loop/SKILL.md
       - tests/plugins/run-tests.sh
@@ -29,7 +29,7 @@ evals:
     criterion: AC-3
     executor: test
     cmd: config:executors.script.rang_hinh_cong1
-    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật + 12 thông điệp AC-8; đỏ trên diffBase vì khối chưa tồn tại) —: khối chứa đủ bốn cụm nguồn đủ dài — 'entry ledger chờ seal', 'lệch spec/plan gốc', '[GIẢ ĐỊNH]', 'human-gate1' — và cụm 'không hỏi người'. Ma trận toàn phần: MỖI cụm một lượt gỡ khỏi khối → ĐỎ ghim 'GATE 1: thieu nguon <cụm>' (thông điệp mang tên cụm thiếu); gỡ 'không hỏi người' → ĐỎ ghim 'GATE 1: thieu menh de khong hoi nguoi'."
+    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật khớp dòng tổng kết + 16 thông điệp ghim; đỏ trên diffBase vì khối chưa tồn tại) —: khối chứa đủ bốn cụm nguồn đủ dài — 'entry ledger chờ seal', 'lệch spec/plan gốc', '[GIẢ ĐỊNH]', 'human-gate1' — và cụm 'không hỏi người'. Ma trận toàn phần: MỖI cụm một lượt gỡ khỏi khối → ĐỎ ghim 'GATE 1: thieu nguon <cụm>' (thông điệp mang tên cụm thiếu); gỡ 'không hỏi người' → ĐỎ ghim 'GATE 1: thieu menh de khong hoi nguoi'."
     paths:
       - feature-loop/skills/feature-loop/SKILL.md
       - tests/plugins/run-tests.sh
@@ -38,7 +38,7 @@ evals:
     criterion: AC-4
     executor: test
     cmd: config:executors.script.rang_hinh_cong1
-    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật + 12 thông điệp AC-8; đỏ trên diffBase vì khối chưa tồn tại) —: tách khối thành đơn vị đoạn/bullet (xuống dòng trước `- ` hoặc dòng trống — quyết định S2 trong sổ); phải có MỘT câu chứa đồng thời 'T3', 'T2 không đủ' và 'dừng chờ người', và MỘT câu chứa đồng thời 'xanh-sạch' và 'bỏ qua'. Đột biến xoá đoạn điều kiện (chữ 'T3'/'T2' ở nơi khác trong mục GATE 1 KHÔNG cứu được) → ĐỎ ghim 'GATE 1: thieu dieu kien dung-nguoi'; đột biến tách 'xanh-sạch' và 'bỏ qua' ra hai đoạn → ĐỎ ghim 'GATE 1: xanh-sach khong di kem bo qua'."
+    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật khớp dòng tổng kết + 16 thông điệp ghim; đỏ trên diffBase vì khối chưa tồn tại) —: tách khối thành đơn vị đoạn/bullet (xuống dòng trước `- ` hoặc dòng trống — quyết định S2 trong sổ); phải có MỘT câu chứa đồng thời 'T3', 'T2 không đủ' và 'dừng chờ người', và MỘT câu chứa đồng thời 'xanh-sạch' và 'bỏ qua'. Đột biến xoá đoạn điều kiện (chữ 'T3'/'T2' ở nơi khác trong mục GATE 1 KHÔNG cứu được) → ĐỎ ghim 'GATE 1: thieu dieu kien dung-nguoi'; đột biến tách 'xanh-sạch' và 'bỏ qua' ra hai đoạn → ĐỎ ghim 'GATE 1: xanh-sach khong di kem bo qua'."
     paths:
       - feature-loop/skills/feature-loop/SKILL.md
       - tests/plugins/run-tests.sh
@@ -47,7 +47,7 @@ evals:
     criterion: AC-5
     executor: test
     cmd: config:executors.script.rang_hinh_cong1
-    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật + 12 thông điệp AC-8; đỏ trên diffBase vì khối chưa tồn tại) —: khối chứa 'subagent tươi', 'diagram-design', 'figures/index.md', và MỘT câu chứa đồng thời 'skill vắng', 'mermaid', 'không chặn'. Đột biến xoá câu skill vắng → ĐỎ ghim 'GATE 1: thieu duong skill vang'; đột biến gỡ 'subagent tươi' → ĐỎ ghim 'GATE 1: thieu subagent ve'; gỡ 'diagram-design' → ĐỎ ghim 'GATE 1: thieu ten skill ve'."
+    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật khớp dòng tổng kết + 16 thông điệp ghim; đỏ trên diffBase vì khối chưa tồn tại) —: khối chứa 'subagent tươi', 'diagram-design', 'figures/index.md', và MỘT câu chứa đồng thời 'skill vắng', 'mermaid', 'không chặn'. Đột biến xoá câu skill vắng → ĐỎ ghim 'GATE 1: thieu duong skill vang'; đột biến gỡ 'subagent tươi' → ĐỎ ghim 'GATE 1: thieu subagent ve'; gỡ 'diagram-design' → ĐỎ ghim 'GATE 1: thieu ten skill ve'."
     paths:
       - feature-loop/skills/feature-loop/SKILL.md
       - tests/plugins/run-tests.sh
@@ -56,7 +56,7 @@ evals:
     criterion: AC-6
     executor: test
     cmd: config:executors.script.rang_hinh_cong1
-    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật + 12 thông điệp AC-8; đỏ trên diffBase vì khối chưa tồn tại) —: sau khi CẮT dòng clause khỏi khối, phải có MỘT đơn vị đoạn/bullet chứa đồng thời 'vòng chính', 'Read', '.png' (bước nhìn thật — needle 'phép thử nhìn-thấy-hình' KHÔNG được dùng vì clause đã chứa nó); và khối chứa 'MỘT lần', 'CÙNG một lượt', 'dưới ngưỡng', '0 điểm vượt'. Đột biến xoá câu Read → ĐỎ ghim 'GATE 1: thieu buoc nhin'; gỡ 'dưới ngưỡng' → ĐỎ ghim 'GATE 1: thieu dong duoi-nguong'; gỡ 'CÙNG một lượt' → ĐỎ ghim 'GATE 1: the va hinh khong cung luot'."
+    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật khớp dòng tổng kết + 16 thông điệp ghim; đỏ trên diffBase vì khối chưa tồn tại) —: sau khi CẮT dòng clause khỏi khối, phải có MỘT đơn vị đoạn/bullet chứa đồng thời 'vòng chính', 'Read', '.png' (bước nhìn thật — needle 'phép thử nhìn-thấy-hình' KHÔNG được dùng vì clause đã chứa nó); và khối chứa 'MỘT lần', 'CÙNG một lượt', 'dưới ngưỡng', '0 điểm vượt'. Đột biến xoá câu Read → ĐỎ ghim 'GATE 1: thieu buoc nhin'; gỡ 'dưới ngưỡng' → ĐỎ ghim 'GATE 1: thieu dong duoi-nguong'; gỡ 'CÙNG một lượt' → ĐỎ ghim 'GATE 1: the va hinh khong cung luot'."
     paths:
       - feature-loop/skills/feature-loop/SKILL.md
       - tests/plugins/run-tests.sh
@@ -65,7 +65,7 @@ evals:
     criterion: AC-7
     executor: test
     cmd: config:executors.script.rang_hinh_cong1
-    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật + 12 thông điệp AC-8; đỏ trên diffBase vì khối chưa tồn tại) —: MỘT câu trong khối chứa đồng thời 'draft', 'figures/' và 'không vẽ lại'. Đột biến xoá câu đó → ĐỎ ghim 'GATE 1: thieu duong dung lai figures'."
+    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật khớp dòng tổng kết + 16 thông điệp ghim; đỏ trên diffBase vì khối chưa tồn tại) —: MỘT câu trong khối chứa đồng thời 'draft', 'figures/' và 'không vẽ lại'. Đột biến xoá câu đó → ĐỎ ghim 'GATE 1: thieu duong dung lai figures'."
     paths:
       - feature-loop/skills/feature-loop/SKILL.md
       - tests/plugins/run-tests.sh
@@ -74,7 +74,7 @@ evals:
     criterion: AC-8
     executor: test
     cmd: config:executors.script.rang_hinh_cong1
-    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật + 12 thông điệp AC-8; đỏ trên diffBase vì khối chưa tồn tại) — — case tự chứa đối chứng dương + TOÀN BỘ ma trận needle→đột biến của AC-8 (mỗi needle một lượt gỡ CHỈ trong khối, thông điệp mang tên needle), gồm cả đối chứng 'chép needle ra ngoài khối không cứu được'; và trong cùng case, hàm check kiểu P90 (clause có mặt bất kỳ đâu trong file) chạy trên đột biến xoá-clause-khỏi-khối phải VẪN XANH — chứng minh phép đo mới neo vào khối."
+    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật khớp dòng tổng kết + 16 thông điệp ghim; đỏ trên diffBase vì khối chưa tồn tại) — — case tự chứa đối chứng dương + TOÀN BỘ ma trận needle→đột biến của AC-8 (mỗi needle một lượt gỡ CHỈ trong khối, thông điệp mang tên needle), gồm cả đối chứng 'chép needle ra ngoài khối không cứu được'; ma trận TOÀN PHẦN đo bằng máy: mọi thông điệp trong bảng M của check() (khoá template nở theo SOURCES/nhãn) phải từng ĐỎ ít nhất một lần, thiếu một → case đỏ ghim 'ma tran chua toan phan'; và trong cùng case, hàm p90_check THẬT (clause.strip() có mặt bất kỳ đâu trong file, không norm) chạy trên đột biến xoá-clause-khỏi-khối phải VẪN XANH, kèm đối chứng âm p90_check đỏ được — chứng minh phép đo mới neo vào khối."
     paths:
       - tests/plugins/run-tests.sh
 
