@@ -29,7 +29,7 @@ SUM="$(printf '%s\n' "$OUT" | grep -o "P197 OK: doi chung duong + [0-9]* dot bie
 
 # tung thong diep ghim cua AC-8 phai xuat hien trong mot dong DO
 for M in "cau ve hinh lech khuon mot-nguon" "nam buoc sai thu tu" "thieu dau vet dem" \
-         "thieu nguon entry ledger chờ seal" "thieu nguon lệch spec/plan gốc" \
+         "thieu nguon entry sổ quyết định chờ seal" "thieu nguon lệch spec/plan gốc" \
          "thieu nguon \[GIẢ ĐỊNH\]" "thieu nguon human-gate1" "thieu dieu kien dung-nguoi" \
          "thieu duong skill vang" "thieu buoc nhin" "thieu dong duoi-nguong" "thieu duong dung lai figures" \
          "thieu gioi han ve lai mot lan" "thieu dong 0-diem-vuot" "thieu nhan buoc \[2\] Đếm" "thieu khoi Hinh tai diem quyet dinh"; do

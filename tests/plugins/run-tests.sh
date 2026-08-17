@@ -9919,7 +9919,7 @@ def units(b):  # «cau» = doan/bullet
 def has_unit(b, *needles):
     return any(all(n in u for n in needles) for u in units(b))
 
-SOURCES = ["entry ledger chờ seal", "lệch spec/plan gốc", "[GIẢ ĐỊNH]", "human-gate1"]
+SOURCES = ["entry sổ quyết định chờ seal", "lệch spec/plan gốc", "[GIẢ ĐỊNH]", "human-gate1"]
 LABELS  = ["[1] Kê", "[2] Đếm", "[3] Vẽ", "[4] Nhìn", "[5] Đính"]
 
 # Bang thong diep DUY NHAT: check() chi phat thong diep tu day, va phep dem

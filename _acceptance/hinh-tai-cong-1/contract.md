@@ -5,7 +5,7 @@ slug: hinh-tai-cong-1
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: implemented
 approved_by: ""
 approved_at: ""
 veto_state: mo
@@ -34,7 +34,7 @@ Gate 1 phạm vi hàng 1») + transcript phiên `Acceptance gate start`.
 
 - AC-1: Given mục `## GATE 1` của bản vòng lặp và khối `### Hình tại điểm quyết định` bên trong nó (heading con cố định, rút từ nó tới heading `##`/`###` kế — không tìm chuỗi toàn file), When rút thân khối giữa cặp marker `LOOP-PICTURE-CLAUSE` trong bản luật rồi gộp mọi chuỗi khoảng trắng/xuống dòng thành một dấu cách ở CẢ hai bên, Then câu-về-hình xuất hiện NGUYÊN VĂN trong khối — câu về hình vẫn có đúng một nguồn, GATE 1 là chỗ chép thêm.
 - AC-2: Given khối `### Hình tại điểm quyết định`, When tìm năm nhãn có số cố định `[1] Kê` · `[2] Đếm` · `[3] Vẽ` · `[4] Nhìn` · `[5] Đính` (phân biệt hoa-thường) và chuỗi `figures/index.md`, Then đủ năm nhãn với chỉ số xuất hiện tăng dần, và đường `_acceptance/<slug>/figures/index.md` có mặt ở bước đếm.
-- AC-3: Given khối về hình, When tìm bốn cụm nguồn điểm quyết định `entry ledger chờ seal` · `lệch spec/plan gốc` · `[GIẢ ĐỊNH]` · `human-gate1` và cụm `không hỏi người`, Then cả năm cụm có mặt trong bước kê — máy kê từ artifact sẵn có.
+- AC-3: Given khối về hình, When tìm bốn cụm nguồn điểm quyết định `entry sổ quyết định chờ seal` · `lệch spec/plan gốc` · `[GIẢ ĐỊNH]` · `human-gate1` và cụm `không hỏi người`, Then cả năm cụm có mặt trong bước kê — máy kê từ artifact sẵn có.
 - AC-4: Given khối về hình tách thành câu, When tìm câu chứa đồng thời `T3`, `T2 không đủ` và `dừng chờ người`, và câu chứa đồng thời `xanh-sạch` và `bỏ qua`, Then cả hai câu có mặt — năm bước chỉ chạy khi cổng thật sự dừng chờ người.
 - AC-5: Given khối về hình, When tìm `subagent tươi`, `diagram-design`, `figures/index.md`, và câu chứa đồng thời `skill vắng`, `mermaid`, `không chặn`, Then cả bốn có mặt — vòng chính giao agent đọc đề bài + nguồn từ đĩa mà vẽ, và có đường đi tiếp khi thiếu bộ khuôn.
 - AC-6: Given khối về hình đã cắt dòng câu-về-hình, When tìm câu chứa đồng thời `vòng chính`, `Read`, `.png`, cùng các cụm `MỘT lần`, `CÙNG một lượt`, `dưới ngưỡng`, `0 điểm vượt`, Then tất cả có mặt — hình được nhìn thật trước khi đính, thẻ và hình đi cùng lượt, điểm chưa vẽ vẫn để lại số đếm.
@@ -65,4 +65,11 @@ Quét bằng `morphological-scan` (5 trục, xem design §0 và tin quét trong 
 
 ## Notes
 
-(Known limits — điền tại Cổng 2.)
+**Known limits chốt tại Cổng 2 (2026-08-17, Manh Phan) — chấp nhận và ship:**
+
+1. **P90 chỉ chắc *một* bản chép câu-về-hình còn khớp.** Sau vòng này SKILL.md có hai bản (GATE 1 + S2); P197 canh bản GATE 1, còn P90 (`CLAUSE in file`) xanh miễn một bản còn đúng — sửa lệch riêng bản S2 thì không phép đo nào đỏ. Sửa P90 thành đếm-mọi-bản-chép là việc riêng, ngoài «chỉ sửa GATE 1».
+2. **`rang.sh` ghim 16/21 thông điệp của bảng M** — danh sách tay, bản sao thứ hai của bảng M; P197 tự canh toàn phần bên trong nên răng chỉ là lớp ngoài.
+3. **Chiều đỏ của các check quan-hệ cùng-đoạn (has_unit) mới là xoá chữ, chưa phải tách đoạn giữ đủ chữ** — một phép đo trình-diện đơn thuần cũng đỏ y hệt; quan hệ chưa được chứng minh bằng chiều đỏ riêng.
+4. **Ma trận nhãn nở 1/5** (nguồn nở 4/4) — bốn nhãn còn lại và các cặp thứ-tự khác chưa có chiều đỏ.
+
+Cả bốn cùng một lớp «siết răng của phép đo câu-về-hình» — đáng một hợp đồng riêng (gộp 1·3·4), không kéo vòng này. Finding «gói r1 stale» của review r2 đã tự giải bằng r2/r3.

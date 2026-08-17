@@ -29,7 +29,7 @@ evals:
     criterion: AC-3
     executor: test
     cmd: config:executors.script.rang_hinh_cong1
-    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật khớp dòng tổng kết + 16 thông điệp ghim; đỏ trên diffBase vì khối chưa tồn tại) —: khối chứa đủ bốn cụm nguồn đủ dài — 'entry ledger chờ seal', 'lệch spec/plan gốc', '[GIẢ ĐỊNH]', 'human-gate1' — và cụm 'không hỏi người'. Ma trận toàn phần: MỖI cụm một lượt gỡ khỏi khối → ĐỎ ghim 'GATE 1: thieu nguon <cụm>' (thông điệp mang tên cụm thiếu); gỡ 'không hỏi người' → ĐỎ ghim 'GATE 1: thieu menh de khong hoi nguoi'."
+    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật khớp dòng tổng kết + 16 thông điệp ghim; đỏ trên diffBase vì khối chưa tồn tại) —: khối chứa đủ bốn cụm nguồn đủ dài — 'entry sổ quyết định chờ seal', 'lệch spec/plan gốc', '[GIẢ ĐỊNH]', 'human-gate1' — và cụm 'không hỏi người'. Ma trận toàn phần: MỖI cụm một lượt gỡ khỏi khối → ĐỎ ghim 'GATE 1: thieu nguon <cụm>' (thông điệp mang tên cụm thiếu); gỡ 'không hỏi người' → ĐỎ ghim 'GATE 1: thieu menh de khong hoi nguoi'."
     paths:
       - feature-loop/skills/feature-loop/SKILL.md
       - tests/plugins/run-tests.sh

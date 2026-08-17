@@ -44,7 +44,7 @@ T2 xanh-sạch đi tiếp thì bỏ qua cả năm bước — hình không ai đ
 
 Resume vào `draft` mà workspace đã có `figures/` → dùng lại, không vẽ lại.
 
-- **[1] Kê** điểm quyết định — máy kê từ artifact cuối S1, không hỏi người: mỗi entry ledger chờ seal · mỗi chỗ design lệch spec/plan gốc đã có · mỗi dòng `[GIẢ ĐỊNH]` trong Coverage · mỗi finding gap-probe xử lý `human-gate1`. Không kê AC/GWT từng dòng — AC là bằng chứng của quyết định, không phải quyết định.
+- **[1] Kê** điểm quyết định — máy kê từ artifact cuối S1, không hỏi người: mỗi entry sổ quyết định chờ seal · mỗi chỗ design lệch spec/plan gốc đã có · mỗi dòng `[GIẢ ĐỊNH]` trong Coverage · mỗi finding gap-probe xử lý `human-gate1`. Không kê AC/GWT từng dòng — AC là bằng chứng của quyết định, không phải quyết định.
 - **[2] Đếm** ngưỡng N5 từng điểm: từ ba bước nối tiếp hoặc từ hai nhánh rẽ → «cần hình» + đề bài ≤5 dòng (loại hình · nút · nhãn bằng chữ · AC liên quan); ngược lại → «dưới ngưỡng: <đếm>». Ghi kết quả xuống `_acceptance/<slug>/figures/index.md` (bảng `| Điểm | Đếm | Hình |` + đề bài từng hình) — chỗ máy hết đường quên, và là đầu vào của bước vẽ; file là vật docs của hồ sơ (tầng 2 của DIAGRAM-RULE), thẻ không đọc nó.
 - **[3] Vẽ** — vòng chính KHÔNG tự vẽ: dispatch subagent tươi (Agent tool; một agent một hình, hoặc một agent cả bộ khi ít hình) đọc `figures/index.md` + design doc + contract TỪ ĐĨA, dùng skill `diagram-design` (plugin thứ ba của marketplace, kit ≥ 2.1.0), đầu ra `_acceptance/<slug>/figures/<tên>.html` + `.png` cạnh nguồn (skill `export-diagram`). Nếu skill vắng → không chặn: vẽ khối mermaid vào design doc (mặt phẳng «tài liệu trong kho») + một dòng trong tin mời cổng «bộ khuôn vẽ chưa cài — hình ở dạng mermaid trong design doc».
 - **[4] Nhìn** — vòng chính Read bản `.png` của từng hình: đây là phép thử nhìn-thấy-hình đúng nghĩa, không phải đọc mã nguồn hình. Hình hỏng (chữ đè, nút thiếu, lệch nguồn) → trả về bước vẽ kèm ghi chú, tối đa MỘT lần; vẫn hỏng → đính kèm cờ «hình <tên> chưa đạt», không chặn cổng.
@@ -103,7 +103,7 @@ def units(b):  # «cau» = doan/bullet
 def has_unit(b, *needles):
     return any(all(n in u for n in needles) for u in units(b))
 
-SOURCES = ["entry ledger chờ seal", "lệch spec/plan gốc", "[GIẢ ĐỊNH]", "human-gate1"]
+SOURCES = ["entry sổ quyết định chờ seal", "lệch spec/plan gốc", "[GIẢ ĐỊNH]", "human-gate1"]
 LABELS  = ["[1] Kê", "[2] Đếm", "[3] Vẽ", "[4] Nhìn", "[5] Đính"]
 
 # Bang thong diep DUY NHAT: check() chi phat thong diep tu day, va phep dem

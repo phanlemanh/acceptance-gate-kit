@@ -43,7 +43,7 @@ S1 xong (3 artifact + ledger + gap-probe đã định đoạt)
    │
    ▼
 [1] KÊ điểm quyết định           máy, vòng chính
-    = entry ledger chờ seal
+    = entry sổ quyết định chờ seal
     + chỗ design lệch spec/plan gốc đã có
     + dòng [GIẢ ĐỊNH] trong Coverage
     + finding gap-probe xử lý `human-gate1`
