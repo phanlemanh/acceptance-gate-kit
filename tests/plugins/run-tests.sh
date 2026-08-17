@@ -9958,12 +9958,16 @@ def check(text):
         errs.append(M["nhan"].format(",".join(l for l, i in zip(LABELS, idx) if i < 0)))
     elif idx != sorted(idx):
         errs.append(M["thu_tu"])
-    if "_acceptance/<slug>/figures/index.md" not in b:
+    # needle cua buoc phai nam TRONG bullet cua buoc do (AC-2 «o buoc dem», AC-3
+    # «trong buoc ke») — khong phai bat ky dau trong khoi (S4-r5 finding)
+    u1 = next((u for u in units(b) if "[1] Kê" in u), "")
+    u2 = next((u for u in units(b) if "[2] Đếm" in u), "")
+    if "_acceptance/<slug>/figures/index.md" not in u2:
         errs.append(M["dau_vet"])
     for s in SOURCES:
-        if s not in b:
+        if s not in u1:
             errs.append(M["nguon"].format(s))
-    if "không hỏi người" not in b:
+    if "không hỏi người" not in u1:
         errs.append(M["hoi"])
     if not has_unit(b, "T3", "T2 không đủ", "dừng chờ người"):
         errs.append(M["dieu_kien"])
@@ -10027,6 +10031,13 @@ expect(m_word, "GATE 1: cau ve hinh lech khuon mot-nguon", "doi mot tu trong cla
 m_swap = mutate(live, lambda b: b.replace("[3] Vẽ", "@@").replace("[4] Nhìn", "[3] Vẽ").replace("@@", "[4] Nhìn"))
 expect(m_swap, "GATE 1: nam buoc sai thu tu", "hoan vi nhan 3/4")
 expect(move_out(live, "_acceptance/<slug>/figures/index.md"), "GATE 1: thieu dau vet dem", "chep figures/index.md ra ngoai khoi")
+# di chuyen needle sang bullet KHAC trong cung khoi -> van phai DO (needle thuoc buoc)
+def move_to_5(text, needle):
+    b = block(text); assert needle in b
+    nb = b.replace(needle, "", 1).replace("- **[5] Đính**", "- **[5] Đính** (" + needle + ")", 1)
+    return text.replace(b, nb, 1)
+expect(move_to_5(live, "_acceptance/<slug>/figures/index.md"), "GATE 1: thieu dau vet dem", "chuyen figures/index.md tu [2] sang [5]")
+expect(move_to_5(live, "human-gate1"), "GATE 1: thieu nguon human-gate1", "chuyen human-gate1 tu [1] sang [5]")
 for s in SOURCES:
     expect(mutate(live, lambda b, s=s: b.replace(s, "")), f"GATE 1: thieu nguon {s}", f"go nguon {s}")
 expect(mutate(live, lambda b: b.replace("không hỏi người", "tự kê")), "GATE 1: thieu menh de khong hoi nguoi", "go khong-hoi-nguoi")

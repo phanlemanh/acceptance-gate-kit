@@ -20,9 +20,9 @@ keu() { echo "P197-RANG LOI: $*"; ERR=1; }
 printf '%s\n' "$OUT" | grep -q "PASS: P197" \
   || keu "khong thay dong 'PASS: P197' — case khong chay (bi xoa/doi ten?)"
 
-# so dot bien CHAY THAT phai >= 22 va dong tong ket phai KHOP so dem duoc
+# so dot bien CHAY THAT phai >= 24 va dong tong ket phai KHOP so dem duoc
 MUTS="$(printf '%s\n' "$OUT" | grep -c "^P197-MUT-[0-9]*: .* DO dung")"
-[ "$MUTS" -ge 22 ] || keu "chi thay $MUTS dot bien chay that (phai >= 22)"
+[ "$MUTS" -ge 24 ] || keu "chi thay $MUTS dot bien chay that (phai >= 24)"
 SUM="$(printf '%s\n' "$OUT" | grep -o "P197 OK: doi chung duong + [0-9]* dot bien" | grep -o "[0-9]* dot bien" | grep -o "^[0-9]*")"
 [ -n "$SUM" ] || keu "dong tong ket P197 khong khai so dot bien"
 [ "$SUM" = "$MUTS" ] || keu "dong tong ket khai $SUM dot bien nhung dem duoc $MUTS"

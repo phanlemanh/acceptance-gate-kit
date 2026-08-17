@@ -18,14 +18,14 @@ evals:
     criterion: AC-2
     executor: test
     cmd: config:executors.script.rang_hinh_cong1
-    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật khớp dòng tổng kết + 16 thông điệp ghim; đỏ trên diffBase vì khối chưa tồn tại) —: trong khối (đã cắt dòng clause) có đủ năm nhãn `[1] Kê` `[2] Đếm` `[3] Vẽ` `[4] Nhìn` `[5] Đính` (case-sensitive) với chỉ số xuất hiện tăng dần, và chuỗi `figures/index.md`. Đột biến gỡ `figures/index.md` khỏi khối (chép nó ra ngoài khối, còn trong mục GATE 1) → vẫn ĐỎ ghim 'GATE 1: thieu dau vet dem'; đột biến hoán vị nhãn `[3] Vẽ` và `[4] Nhìn` → ĐỎ ghim 'GATE 1: nam buoc sai thu tu'."
+    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật khớp dòng tổng kết + 16 thông điệp ghim; đỏ trên diffBase vì khối chưa tồn tại) —: trong khối (đã cắt dòng clause) có đủ năm nhãn `[1] Kê` `[2] Đếm` `[3] Vẽ` `[4] Nhìn` `[5] Đính` (case-sensitive) với chỉ số xuất hiện tăng dần, và chuỗi `figures/index.md` nằm TRONG bullet [2] Đếm. Đột biến gỡ `figures/index.md` khỏi khối (chép ra ngoài khối) → ĐỎ ghim 'GATE 1: thieu dau vet dem'; chuyển nó sang bullet [5] (vẫn trong khối) → vẫn ĐỎ cùng thông điệp; đột biến hoán vị nhãn `[3] Vẽ` và `[4] Nhìn` → ĐỎ ghim 'GATE 1: nam buoc sai thu tu'."
     paths: [feature-loop/skills/feature-loop/SKILL.md, tests/plugins/run-tests.sh, _acceptance/hinh-tai-cong-1/rang.sh]
 
   - id: E3
     criterion: AC-3
     executor: test
     cmd: config:executors.script.rang_hinh_cong1
-    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật khớp dòng tổng kết + 16 thông điệp ghim; đỏ trên diffBase vì khối chưa tồn tại) —: khối chứa đủ bốn cụm nguồn đủ dài — 'entry sổ quyết định chờ seal', 'lệch spec/plan gốc', '[GIẢ ĐỊNH]', 'human-gate1' — và cụm 'không hỏi người'. Ma trận toàn phần: MỖI cụm một lượt gỡ khỏi khối → ĐỎ ghim 'GATE 1: thieu nguon <cụm>' (thông điệp mang tên cụm thiếu); gỡ 'không hỏi người' → ĐỎ ghim 'GATE 1: thieu menh de khong hoi nguoi'."
+    expected: "rang P197 xanh (ghim dòng PASS P197 + đếm đột biến chạy thật khớp dòng tổng kết + 16 thông điệp ghim; đỏ trên diffBase vì khối chưa tồn tại) —: bullet [1] Kê chứa đủ bốn cụm nguồn đủ dài — 'entry sổ quyết định chờ seal', 'lệch spec/plan gốc', '[GIẢ ĐỊNH]', 'human-gate1' — và cụm 'không hỏi người'; chuyển 'human-gate1' sang bullet [5] → ĐỎ ghim 'GATE 1: thieu nguon human-gate1'. Ma trận toàn phần: MỖI cụm một lượt gỡ khỏi khối → ĐỎ ghim 'GATE 1: thieu nguon <cụm>' (thông điệp mang tên cụm thiếu); gỡ 'không hỏi người' → ĐỎ ghim 'GATE 1: thieu menh de khong hoi nguoi'."
     paths: [feature-loop/skills/feature-loop/SKILL.md, tests/plugins/run-tests.sh, _acceptance/hinh-tai-cong-1/rang.sh]
 
   - id: E4
