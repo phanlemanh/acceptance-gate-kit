@@ -50,5 +50,5 @@ evals:
     criterion: AC-8
     executor: test
     cmd: config:executors.test.plugins
-    expected: "Toàn suite tests/plugins exit 0 tại HEAD (P90 · P93 · P197 · P198 XANH). Tính phân biệt: răng của hồ sơ này dựng worktree bản sao mốc 8d1e135 (mốc ghi trong rang.sh của hồ sơ này) → rang.sh của hinh-tai-cong-1 ĐỎ ở đó."
+    expected: "Toàn suite tests/plugins exit 0 tại HEAD (P90 · P93 · P197 · P198 XANH). Tính phân biệt: răng của hồ sơ này dựng worktree bản sao mốc 7d76384 = merge-base (mốc ghi trong rang.sh của hồ sơ này) → rang.sh của hinh-tai-cong-1 ĐỎ ở đó ghim 'so P197-M < san' + 'thieu dong P197-M-COUNT', và suite base báo 'ONLY_BLOCK=P198 khong khop khoi nao'."
     paths: [tests/plugins/run-tests.sh, tests/plugins/hfl_clause.py, _acceptance/hinh-tai-cong-1/rang.sh]

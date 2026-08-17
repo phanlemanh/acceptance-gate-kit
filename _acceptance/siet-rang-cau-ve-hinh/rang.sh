@@ -4,7 +4,7 @@
 # hinh-tai-cong-1 tren stdout THAT (RANG_STDOUT_FILE), pha thu ma tran nhan tren
 # ban sao suite, va giu tinh phan biet cua rang cu tren moc diffBase.
 # Nep p194: song-chet theo ho so, khong vao suite vinh vien. Moi thu gan ho so
-# (rang.sh cua hinh-tai-cong-1, moc 8d1e135) do O DAY, khong o P198.
+# (rang.sh cua hinh-tai-cong-1, moc diffBase 7d76384) do O DAY, khong o P198.
 set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT" || exit 2
@@ -58,21 +58,21 @@ has "$OUTN" "thieu nhan buoc [5] Đính" "P197 do ma tran nhung khong ghim dung 
 
 # AC-7 — P198 tu canh minh khong doc thu muc ho so: chen mot dong co chuoi do vao ban sao khoi P198 → P198 DO
 python3 - "$ROOT" "$CP" <<'PYX'
-import sys, re
+import sys
 from pathlib import Path
 src = (Path(sys.argv[1]) / "tests/plugins/run-tests.sh").read_text(encoding="utf-8")
 i = src.index('run "P198 hfl_clause'); j = src.index("\nPY\n", i)
-mut = src[:j] + "\nHOSO = '_accep' 'tance/'   # dong chen thu\n" + src[j:]
-# chuoi ghep 2 literal ke nhau trong python thanh '_acceptance/' khi khoi duoc THUC THI? khong —
-# assert cua P198 soi VAN BAN khoi; nen chen chuoi day du:
-mut = src[:j] + "\n# thu: _acceptance/ban-sao\n" + src[j:]
-Path(sys.argv[2]).write_text(mut, encoding="utf-8")
+# P198 tu soi VAN BAN khoi cua no: chen mot dong mang chuoi thu muc ho so -> phai DO
+Path(sys.argv[2]).write_text(src[:j] + "\n# thu: _acceptance/ban-sao\n" + src[j:], encoding="utf-8")
 PYX
 OUT7="$(ONLY_BLOCK=P198 bash "$CP" 2>&1)"; rm -f "$CP"
 has "$OUT7" "P198 khong duoc doc thu muc ho so" "chen '_acceptance/' vao khoi P198 ma P198 khong do"
 
-# AC-8 — tinh phan biet: rang cua hinh-tai-cong-1 phai DO tren moc diffBase (khoi GATE 1 chua co)
-BASE=8d1e135682633ba22c44d253e90b0f404043722b   # moc PR #62 tach nhanh — song trong ho so, khong trong suite
+# AC-8 — tinh phan biet TREN DIFFBASE THAT cua nhanh nay (merge-base voi main = 7d76384, tuc
+# ngay sau PR #62): o do P197 da co nhung CHUA in P197-M / P197-M-COUNT, va P198 chua ton tai —
+# rang cua hinh-tai-cong-1 phai DO vi hop dong P197-M (vat cua ho so NAY), khong phai vi khoi
+# GATE 1 vang; va suite base khong co khoi P198.
+BASE=7d76384920f15aca75c643023e587e8009a2f4db
 # Doi chung DUONG truoc (khoi da chay), roi ghim DUNG thong diep — khong tin exit code mot minh
 # (bat bien CLAUDE.md «assertion am-tinh-mot-minh la assertion khong song»).
 if git cat-file -e "$BASE^{commit}" 2>/dev/null; then
@@ -82,7 +82,10 @@ if git cat-file -e "$BASE^{commit}" 2>/dev/null; then
     OUTB="$(bash "$TMP/base/_acceptance/hinh-tai-cong-1/rang.sh" 2>&1)"; STB=$?
     [ "$STB" -ne 0 ] || keu "rang hinh-tai-cong-1 XANH tren diffBase — mat tinh phan biet"
     has "$OUTB" "P197-RANG DO" "rang tren base khong in 'P197-RANG DO' (do vi ly do khac: exit $STB)"
-    has "$OUTB" "khong thay dong 'PASS: P197'" "rang tren base khong ghim 'khong thay dong PASS: P197' — khoi GATE 1 chua co la ly do phai thay"
+    has "$OUTB" "so P197-M < san" "rang tren base khong ghim 'so P197-M < san' — P197 goc chua in P197-M la ly do phai thay"
+    has "$OUTB" "thieu dong P197-M-COUNT" "rang tren base khong ghim 'thieu dong P197-M-COUNT'"
+    OUT198B="$(ONLY_BLOCK=P198 bash "$TMP/base/tests/plugins/run-tests.sh" 2>&1)"
+    has "$OUT198B" "ONLY_BLOCK=P198 khong khop khoi nao" "suite base khong bao 'khong khop khoi nao' cho P198 — P198 da ton tai o base?"
     git worktree remove --force "$TMP/base" 2>/dev/null || keu "khong go duoc worktree base"
   else
     keu "khong tao duoc worktree base: $(head -1 "$TMP/wt.err")"

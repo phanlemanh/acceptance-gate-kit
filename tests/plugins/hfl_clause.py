@@ -11,7 +11,10 @@ n_full < n_anchor -> do. Hai diem mu CO CHU Y (ghi Known limits / descope
 d-1104 cua siet-rang-cau-ve-hinh): (1) sua CA HAI dau cung luc trong cung mot
 ban; (2) XOA HAN mot ban — n_anchor giam theo, cac ban con lai van khop nen
 xanh: ham nay hua «moi ban con lai khop khuon», khong hua «phai co o dau» (ve
-do la viec cua P197 canh khoi GATE 1).
+do la viec cua P197 canh khoi GATE 1). Chieu DO-GIA (khong phai xanh gia): mot cau
+van thuong bat dau bang dung 4 chu dau (hoac ket bang 4 chu cuoi) cua clause se day
+n_anchor len va bao «lech (n/n+1)» du moi ban chep dung — thong diep dan sai huong,
+nhung khong nuot loi.
 """
 import re
 
