@@ -20,7 +20,7 @@ evals:
     criterion: AC-3
     executor: test
     cmd: config:executors.script.rang_siet_rang
-    expected: "răng ghim 'PASS: P197' + ≥21 dòng 'P197-M:'; răng chạy rang.sh của hinh-tai-cong-1 với RANG_STDOUT_FILE trỏ stdout THẬT (ghi ra file trong cùng lượt) → OK; trên bản sao xoá MỘT dòng 'DO dung (<msg>)' → rang ĐỎ ghim đúng <msg>; trên bản sao xoá MỘT dòng 'P197-M:' → rang ĐỎ ghim 'so P197-M < san'; răng grep rang.sh không còn 'for M in \"' liệt kê tay."
+    expected: "răng ghim 'PASS: P197' + ≥21 dòng 'P197-M:'; răng chạy rang.sh của hinh-tai-cong-1 với RANG_STDOUT_FILE trỏ stdout THẬT (ghi ra file trong cùng lượt) → OK; trên bản sao xoá MỘT dòng 'DO dung (<msg>)' → rang ĐỎ ghim đúng <msg>; trên bản sao xoá MỘT dòng 'P197-M:' → rang ĐỎ ghim 'so P197-M khong khop P197-M-COUNT'; răng grep rang.sh không còn 'for M in \"' liệt kê tay."
     paths: [_acceptance/hinh-tai-cong-1/rang.sh, tests/plugins/run-tests.sh, _acceptance/siet-rang-cau-ve-hinh/rang.sh]
   - id: E4
     criterion: AC-4
