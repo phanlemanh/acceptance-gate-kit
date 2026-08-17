@@ -163,6 +163,8 @@ phẩm), không bao giờ là bản vá lén vào vòng đã ký.
 
 ## 5 · Tham chiếu
 
+- **Khuôn nhật-ký-vấp** (mặt máy — `uat-session` §0 đọc `chan`/`slug`/`ran_at`):
+  [skills/acceptance/references/stranger-drive-template.md](../skills/acceptance/references/stranger-drive-template.md)
 - **Đề bài thi hành** (nghi thức từng bước, khuôn nhật-ký-vấp, bản đồ 21 hạng
   mục, thước codify): [plans/2026-08-13-de-bai-lai-thu-nguoi-la.md](plans/2026-08-13-de-bai-lai-thu-nguoi-la.md)
 - **Ván 1 — bằng chứng sống** (biến thể agent, mcp-cost-guard):
