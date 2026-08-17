@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 5a9dce68ffc77b1faf2c2af419e2e9ed8e053e37
+verified_commit: 26b7fa5711af3df54925ac0038956c948f6e1225
 human_signoff: Manh Phan 2026-08-11
 ---
 
@@ -149,3 +149,7 @@ sha: 2a75e618305849620308fe16c185af75a14ae1c6 · suites: 5 lệnh exit 0
 ### Re-pin lần 3 — 2026-08-14, do vòng về đích của 1a chạm tests/plugins (P30/P185/P186/P194) và scripts/gate-card.js không đổi đầu ra — hai thẻ bằng chứng KHÔNG phải sinh lại, chỉ re-pin theo staleness
 run_id: repin-khoi-viec-cua-anh-ve-dich-20260814T072311Z
 sha: 5a9dce68ffc77b1faf2c2af419e2e9ed8e053e37 · suites: 5 lệnh exit 0
+
+### Re-pin lần 4 — 2026-08-18, do PR moi-noi-vong-trao sửa engine nên bản thẻ ghim của hồ sơ này phải vẽ lại (P190) và kéo slug vào diff
+run_id: repin-20260818-mnvt-1
+sha: 26b7fa5711af3df54925ac0038956c948f6e1225 · suites: 4 lệnh exit 0
