@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 36bed766ca996210bcba6c1afcec222fecccad71
+verified_commit: 62685a6bb0f4790af23ad6879e57d089c4fe2d72
 human_signoff: Manh Phan 2026-08-18
 ---
 
@@ -200,3 +200,7 @@ dùng thấy — đều là độ chặt của phép đo nội bộ). Chi tiết
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter
+
+### Re-pin lần 1 — 2026-08-18, do gộp main (PR #62) vào nhánh hồ sơ — engine đổi sau lần chấm, ca kiểm đổi số P197→P198
+run_id: repin-20260818-mnvt-2
+sha: 62685a6bb0f4790af23ad6879e57d089c4fe2d72 · suites: 4 lệnh exit 0
