@@ -1,0 +1,32 @@
+{
+  "feature_plain": "Tới Cổng 1 dừng-người, máy tự kê điểm quyết định, đếm ngưỡng, giao vẽ, tự nhìn ảnh rồi đính hình cùng thẻ — người không phải gõ thêm lượt nào để có hình.",
+  "decisions": [],
+  "analyst_plain": "Tám phép đo mới đỏ trên bản gốc và xanh trên bản sửa (phân biệt được); phép đo thứ chín là toàn suite nên xanh cả hai bên — đó là lưới hồi quy chung, không phải phép đo riêng của việc này.",
+  "scope_plain": "Hoãn: thẻ tự nhúng hình (đường 2) · đo máy có đếm đúng không · vẽ cho Cổng 2 / duyệt plan · sửa lệnh duyệt, lệnh thẻ, bản luật",
+  "decisions_plain": [
+    {
+      "id": "d-20260817T042317Z-1101",
+      "p": "KHÔNG làm thẻ tự nhúng hình ở vòng này — đổi lại: ai chỉ mở thẻ mà bỏ qua file đính kèm vẫn chưa thấy hình; xem lại sau một vòng thật ở T3"
+    },
+    {
+      "id": "d-20260817T042317Z-1102",
+      "p": "Máy đề bài + đếm vào file, agent tươi vẽ từ đĩa, máy nhìn ảnh rồi đính — đổi lại: thêm khoảng một agent mỗi hình ở cổng T3"
+    },
+    {
+      "id": "d-20260817T042317Z-1103",
+      "p": "KHÔNG vẽ ở cổng T2 sạch đi tiếp — đổi lại: hồ sơ T2 mở lại sau này không có hình, đã có design doc"
+    },
+    {
+      "id": "d-20260817T043416Z-2201",
+      "p": "Đơn vị 'câu' của phép đo là một đoạn/bullet, không cắt theo dấu chấm — đổi lại: một bullet dài tính là một câu"
+    },
+    {
+      "id": "d-20260817T045731Z-4101",
+      "p": "Tám phép đo đổi từ 'chạy trọn suite' sang răng ghim đúng dòng của case — vì bản trước xanh cả trên cây gốc; đổi lại thêm một script răng riêng của hồ sơ"
+    },
+    {
+      "id": "d-20260817T051557Z-4201",
+      "p": "Phép đo tự đếm ma trận: mọi thông điệp đỏ phải từng đỏ ít nhất một lần; sửa theo lớp cả bốn nhánh chưa từng đỏ — đổi lại thêm một vòng kiểm"
+    }
+  ]
+}
