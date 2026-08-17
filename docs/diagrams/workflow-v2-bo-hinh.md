@@ -11,8 +11,8 @@ lại (DIAGRAM-RULE §2). Tầng 2, `docs/diagrams/`.*
 | # | Hình | Câu hỏi nó trả lời | Loại | Vai khi duyệt |
 |---|---|---|---|---|
 | 1 | [Toàn tuyến máy–người](workflow-v2-toan-tuyen.html) | Ai làm gì, người nhúng xuống ở đâu, đường A/B/C/E rẽ chỗ nào | Swimlane | Bối cảnh |
-| 3 | [Vòng đời một việc](workflow-v2-vong-doi-mot-viec.html) | Việc đi qua trạng thái nào; máy suy mỗi bước chuyển từ dấu hiệu nào trong hồ sơ | State machine | **Quyết định** — hai guard rẽ khỏi «Đã giao» đều do một dấu hiệu (hồ sơ cơ hội) mà bộ đọc chung đã suy; hồ sơ chỉ nối feature-loop vào |
-| 2 | [Chuỗi vật chứng](workflow-v2-chuoi-vat-chung.html) | Vật nào sinh ở đâu, ai viết, ai kiểm; ranh bên làm / bên kiểm | Evidence chain | **Quyết định** — hồ sơ thêm đúng một mắt xích (nhật-ký-vấp); ranh không dịch; chỗ yếu tự khai của mắt xích mới được gọi tên (số CHẶN ai viết) |
+| 3 | [Vòng đời một việc](workflow-v2-vong-doi-mot-viec.html) | Việc đi qua trạng thái nào; máy suy mỗi bước chuyển từ dấu hiệu nào trong hồ sơ | State machine | **Quyết định · ĐỀ XUẤT** (chờ guard có trong mã) — hai guard rẽ khỏi «Đã giao» đều do một dấu hiệu (hồ sơ cơ hội) mà bộ đọc chung đã suy; hồ sơ chỉ nối feature-loop vào |
+| 2 | [Chuỗi vật chứng](workflow-v2-chuoi-vat-chung.html) | Vật nào sinh ở đâu, ai viết, ai kiểm; ranh bên làm / bên kiểm | Evidence chain | **Quyết định · ĐỀ XUẤT** (chờ guard có trong mã) — hồ sơ thêm đúng một mắt xích (nhật-ký-vấp); ranh không dịch; chỗ yếu tự khai của mắt xích mới được gọi tên (số CHẶN ai viết) |
 | 4 | [Kiến trúc bộ máy](workflow-v2-kien-truc-bo-may.html) | Kit đứng ở đâu so với Claude Code, repo tiêu thụ, forge/CI, công cụ ngoài, hai loại người | System context | Lưu trữ |
 
 ## Hai hình thêm — làn UI (owner yêu cầu 17/08: «UX/UI luôn là vấn đề phát sinh»)
