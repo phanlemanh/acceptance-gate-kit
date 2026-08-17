@@ -9984,9 +9984,13 @@ def move_out(text, needle):
     t = text.replace(b, nb, 1)
     return t.replace(HEAD, needle + "\n\n" + HEAD, 1)
 
+MUTS = 0
 def expect(mut, msg, label):
+    global MUTS
     errs = check(mut)
     assert msg in errs, f"{label}: mong '{msg}', duoc {errs}"
+    MUTS += 1
+    print(f"P197-MUT-{MUTS}: {label} DO dung ({msg})")
 
 # P90-kieu: clause co mat BAT KY DAU trong file -> van XANH khi xoa khoi khoi
 clause_line = next(u for u in block(live).split("\n") if norm(u) == CLAUSE)
@@ -10018,7 +10022,7 @@ expect(mutate(live, lambda b: b.replace("không vẽ lại", "vẽ lại")), "GA
 # Doi chung: check KIEU P90 (clause co mat bat ky dau trong file) van XANH tren
 # dot bien xoa-clause-khoi-khoi — chung minh P197 neo vao khoi, khong vao file.
 assert CLAUSE in norm(m_clause), "P90-kieu phai van xanh — neu do thi P197 khong them gi moi"
-print("P197 OK: doi chung duong + 18 dot bien, moi cai ghim dung thong diep")
+print(f"P197 OK: doi chung duong + {MUTS} dot bien chay that, moi cai ghim dung thong diep")
 PY
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)

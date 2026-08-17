@@ -1,0 +1,10 @@
+{"ts":"2026-08-17T04:42:09Z","sha":"c772fe307f09ab61a76369e538973a5786af0d78","round":1,"evalId":"E1","run_id":"minted-hinh-tai-cong-1-E1-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-17T04:42:09Z","sha":"c772fe307f09ab61a76369e538973a5786af0d78","round":1,"evalId":"E2","run_id":"minted-hinh-tai-cong-1-E2-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-17T04:42:09Z","sha":"c772fe307f09ab61a76369e538973a5786af0d78","round":1,"evalId":"E3","run_id":"minted-hinh-tai-cong-1-E3-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-17T04:42:09Z","sha":"c772fe307f09ab61a76369e538973a5786af0d78","round":1,"evalId":"E4","run_id":"minted-hinh-tai-cong-1-E4-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-17T04:42:09Z","sha":"c772fe307f09ab61a76369e538973a5786af0d78","round":1,"evalId":"E5","run_id":"minted-hinh-tai-cong-1-E5-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-17T04:42:09Z","sha":"c772fe307f09ab61a76369e538973a5786af0d78","round":1,"evalId":"E6","run_id":"minted-hinh-tai-cong-1-E6-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-17T04:42:09Z","sha":"c772fe307f09ab61a76369e538973a5786af0d78","round":1,"evalId":"E7","run_id":"minted-hinh-tai-cong-1-E7-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-17T04:42:09Z","sha":"c772fe307f09ab61a76369e538973a5786af0d78","round":1,"evalId":"E8","run_id":"minted-hinh-tai-cong-1-E8-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-17T04:42:09Z","sha":"c772fe307f09ab61a76369e538973a5786af0d78","round":1,"evalId":"E9","run_id":"minted-hinh-tai-cong-1-E9-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-17T04:42:09Z","sha":"c772fe307f09ab61a76369e538973a5786af0d78","round":1,"kind":"baseline","evals_hash":"7e87cc79a7728e1436e42131803b6fc61c2e2c1ccc225d81bf949116ec7a2f02","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E3","E4","E5","E6","E7","E8","E9"]}]}
