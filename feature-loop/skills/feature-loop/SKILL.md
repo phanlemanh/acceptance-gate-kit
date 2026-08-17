@@ -100,7 +100,7 @@ Workspace cũ (contract sinh trước 1.13.0, không có Coverage) → cờ vàn
 
 ## GATE 1 (human — điểm dừng 1)
 
-**BƯỚC MẶC ĐỊNH — render thẻ quyết định TRƯỚC:** invoke `/acceptance-card <slug>` (tự nhận Cổng 1 từ contract.status) — trình "sẽ làm / sẽ KHÔNG làm" + cờ phủ-biên bằng ngôn ngữ sản phẩm thay vì YAML thô — RỒI hỏi đúng 1 câu: duyệt / sửa gì. Mời cổng như đồng nghiệp hỏi: một câu hỏi đóng, nói ngả máy khuyên và vì sao, người trả lời một chữ là đủ, rồi nói máy làm gì tiếp; không khuôn, không ô trống, không mã bắt buộc — máy không viết sẵn câu trả lời của người và không hỏi phút. Đính kèm gói text đầy đủ để user soi sâu khi cần: tóm tắt design (≤10 dòng) + contract.md NGUYÊN VĂN + bảng mapping AC → eval → executor. Thẻ Cổng 1 nay gồm khối "Phản biện context sạch" (findings + xử lý từ gap-probe.md; vắng file / probe-failed → cờ vàng — không chặn, nhưng phải hiện). Thẻ chỉ là lớp trình bày — contract/evals vẫn là nguồn-sự-thật, quyết định vẫn vào `approved_by`. Feature chạm UI: trình kèm thẻ BẢN BẤM ĐƯỢC (URL/proto từ nghi thức S1-D design-pass) — không duyệt UI bằng chữ; nếu S1 có ghi chú vắng `feature_loop.ui_standards_skill` thì dòng đó phải nằm trong gói. (Lệnh/script `/acceptance-card` không có → cài/cập nhật plugin acceptance-gate, hoặc tạm trình gói text.)
+**BƯỚC MẶC ĐỊNH — render thẻ quyết định TRƯỚC:** invoke `/acceptance-card <slug>` (tự nhận Cổng 1 từ contract.status) — trình "sẽ làm / sẽ KHÔNG làm" + cờ phủ-biên bằng ngôn ngữ sản phẩm thay vì YAML thô — RỒI hỏi đúng 1 câu: duyệt / sửa gì. Mời cổng như đồng nghiệp hỏi: một câu hỏi đóng, nói ngả máy khuyên và vì sao, người trả lời một chữ là đủ, rồi nói máy làm gì tiếp; không khuôn, không ô trống, không mã bắt buộc — máy không viết sẵn câu trả lời của người và không hỏi phút. Đính kèm gói text đầy đủ để user soi sâu khi cần: tóm tắt design (≤10 dòng) + contract.md NGUYÊN VĂN + bảng mapping AC → eval → executor. Thẻ Cổng 1 nay gồm khối "Phản biện context sạch" (findings + xử lý từ gap-probe.md; vắng file / probe-failed → cờ vàng — không chặn, nhưng phải hiện). Thẻ chỉ là lớp trình bày — contract/evals vẫn là nguồn-sự-thật, quyết định vẫn vào `approved_by`. Feature chạm UI: trình kèm thẻ BẢN BẤM ĐƯỢC (URL/proto từ nghi thức S1-D design-pass) — không duyệt UI bằng chữ; nếu S1 có ghi chú vắng `feature_loop.ui_standards_skill` thì dòng đó phải nằm trong gói. (Lệnh/script `/acceptance-card` không có → cài/cập nhật plugin acceptance-gate, hoặc tạm trình gói text.) Cổng dừng chờ người: chạy khối «Hình tại điểm quyết định» ở cuối mục này TRƯỚC khi render thẻ — thẻ và hình đi cùng nhau.
 
 🎨 User chủ động bỏ design-pass ở nghi thức S1-D → entry `descope` trong sổ quyết định là dấu vết hiện (thay marker `design_subtrack: skipped-by-user` cũ — workspace cũ còn marker thì vẫn đọc được, không lỗi).
 
@@ -118,6 +118,22 @@ sau 15 turns.
 <!-- GOAL-TEMPLATE>>> -->
 
 (Khối trên là bản runtime — bản người-đọc kèm giải thích nằm ở GUIDE mục /goal, hai bản được test giữ khớp từng ký tự. Dán thành 1 dòng khi dùng; xuống dòng chỉ để dễ đọc.)
+
+### Hình tại điểm quyết định
+
+Điểm quyết định vượt ngưỡng N5 thì kèm hình; chọn cách vẽ bằng bảng tra `DECISION-DIAGRAM-SURFACES` theo mặt phẳng đang trình, và kiểm lại bằng phép thử nhìn-thấy-hình.
+
+Năm bước dưới đây chạy TRƯỚC `/acceptance-card`, và CHỈ khi cổng thật sự dừng chờ người — T3, hoặc T2 không đủ điều kiện đi tiếp ở trạng thái V.
+
+T2 xanh-sạch đi tiếp thì bỏ qua cả năm bước — hình không ai đọc là giờ-kit vứt đi.
+
+Resume vào `draft` mà workspace đã có `figures/` → dùng lại, không vẽ lại.
+
+- **[1] Kê** điểm quyết định — máy kê từ artifact cuối S1, không hỏi người: mỗi entry ledger chờ seal · mỗi chỗ design lệch spec/plan gốc đã có · mỗi dòng `[GIẢ ĐỊNH]` trong Coverage · mỗi finding gap-probe xử lý `human-gate1`. Không kê AC/GWT từng dòng — AC là bằng chứng của quyết định, không phải quyết định.
+- **[2] Đếm** ngưỡng N5 từng điểm: từ ba bước nối tiếp hoặc từ hai nhánh rẽ → «cần hình» + đề bài ≤5 dòng (loại hình · nút · nhãn bằng chữ · AC liên quan); ngược lại → «dưới ngưỡng: <đếm>». Ghi kết quả xuống `_acceptance/<slug>/figures/index.md` (bảng `| Điểm | Đếm | Hình |` + đề bài từng hình) — chỗ máy hết đường quên, và là đầu vào của bước vẽ; file là vật docs của hồ sơ (tầng 2 của DIAGRAM-RULE), thẻ không đọc nó.
+- **[3] Vẽ** — vòng chính KHÔNG tự vẽ: dispatch subagent tươi (Agent tool; một agent một hình, hoặc một agent cả bộ khi ít hình) đọc `figures/index.md` + design doc + contract TỪ ĐĨA, dùng skill `diagram-design` (plugin thứ ba của marketplace, kit ≥ 2.1.0), đầu ra `_acceptance/<slug>/figures/<tên>.html` + `.png` cạnh nguồn (skill `export-diagram`). Nếu skill vắng → không chặn: vẽ khối mermaid vào design doc (mặt phẳng «tài liệu trong kho») + một dòng trong tin mời cổng «bộ khuôn vẽ chưa cài — hình ở dạng mermaid trong design doc».
+- **[4] Nhìn** — vòng chính Read bản `.png` của từng hình: đây là phép thử nhìn-thấy-hình đúng nghĩa, không phải đọc mã nguồn hình. Hình hỏng (chữ đè, nút thiếu, lệch nguồn) → trả về bước vẽ kèm ghi chú, tối đa MỘT lần; vẫn hỏng → đính kèm cờ «hình <tên> chưa đạt», không chặn cổng.
+- **[5] Đính** — gửi `card.html` và các hình trong CÙNG một lượt (mặt phẳng panel → «trang HTML gửi kèm» theo bảng tra); tin mời cổng vẫn theo điều khoản mời-cổng (một câu hỏi đóng), mỗi hình 1–3 dòng chú thích gắn tên quyết định; điểm dưới ngưỡng hiện đúng số đếm; 0 điểm vượt → nói đúng một dòng. Không có đường im lặng.
 
 ## S2 — PLAN
 
