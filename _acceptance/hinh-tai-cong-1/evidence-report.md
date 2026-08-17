@@ -7,7 +7,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 7b183f988fc18a1e81cd449372732fd3a3d2e05f
-human_signoff:
+human_signoff: Manh Phan 2026-08-17
 ---
 
 # Evidence Report: hinh-tai-cong-1 (round 7)
@@ -127,11 +127,11 @@ Round 7 (hiện tại): E1-E9 chạy lại đầy đủ tại 7b183f9 — rang.s
 
 ## Gate 2 checklist (human)
 
-- [ ] Read the table + spot-check 1-2 evidence blocks
+- [x] Read the table + spot-check 1-2 evidence blocks
 - [ ] Personally verify every judgment item marked UNCERTAIN, then fill its
       `human_override: <name> <date>` line
 - [ ] T3 only: personally verify ALL judgment items and fill `human_override`
       on each (judge verdicts are advisory; the hook blocks PASS without them)
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
-- [ ] Fill `human_signoff` in frontmatter
+- [x] Fill `human_signoff` in frontmatter
