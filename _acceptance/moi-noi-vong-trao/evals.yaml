@@ -15,7 +15,7 @@ evals:
     criterion: AC-1
     executor: script
     cmd: config:executors.script.rang_mnvt_the_nguong
-    paths: [scripts/gate-card.js, tests/plugins/run-tests.sh, skills/acceptance/references/opportunity-template.md]
+    paths: [_acceptance/moi-noi-vong-trao/rang-mnvt.sh, scripts/gate-card.js, tests/plugins/run-tests.sh, skills/acceptance/references/opportunity-template.md]
     expected: >
       Chạy suite plugins ONLY_BLOCK=P197 và ghim dòng «P197 OK» trong stdout
       (không tin mã thoát suite). P197 dựng workspace code-sinh từ khuôn
@@ -32,7 +32,7 @@ evals:
     criterion: AC-2
     executor: script
     cmd: config:executors.script.rang_mnvt_the_nguong
-    paths: [scripts/gate-card.js, tests/plugins/run-tests.sh]
+    paths: [_acceptance/moi-noi-vong-trao/rang-mnvt.sh, scripts/gate-card.js, tests/plugins/run-tests.sh]
     expected: >
       Cùng lệnh với E1 (dedupe — một lượt P197 chấm cả hai AC), ghim các ô còn lại của ma trận: rỗng/html
       cờ vàng «chưa khai ngưỡng» + KHÔNG khối; rỗng/extract opportunity_present
@@ -51,7 +51,7 @@ evals:
     criterion: AC-3
     executor: script
     cmd: config:executors.script.rang_mnvt_khuon
-    paths: [skills/acceptance/references/stranger-drive-template.md, skills/uat-session/SKILL.md, docs/lai-thu-nguoi-la.md]
+    paths: [_acceptance/moi-noi-vong-trao/rang-mnvt.sh, skills/acceptance/references/stranger-drive-template.md, skills/uat-session/SKILL.md, docs/lai-thu-nguoi-la.md]
     expected: >
       QUAN HỆ writer→reader, hai phía đều bằng máy: KHUÔN = tập khoá parse
       từ YAML giữa mốc STRANGER-FRONTMATTER-TEMPLATE; ĐỌC = tập khoá backtick
@@ -91,7 +91,7 @@ evals:
     criterion: AC-4
     executor: script
     cmd: config:executors.script.rang_mnvt_uat_needle
-    paths: [skills/uat-session/SKILL.md]
+    paths: [_acceptance/moi-noi-vong-trao/rang-mnvt.sh, skills/uat-session/SKILL.md]
     expected: >
       §0 của uat-session chứa các nhánh có tên (chan 0 + slug khớp + ran_at
       không cũ hơn verified_at → thoả bằng bằng chứng · chan > 0 → dừng KÈM
@@ -140,7 +140,7 @@ evals:
     criterion: AC-6
     executor: script
     cmd: config:executors.script.rang_mnvt_spec
-    paths: [docs/specs/workflow-v2-spec.md, docs/plans/2026-08-13-de-bai-lai-thu-nguoi-la.md]
+    paths: [_acceptance/moi-noi-vong-trao/rang-mnvt.sh, docs/specs/workflow-v2-spec.md, docs/plans/2026-08-13-de-bai-lai-thu-nguoi-la.md]
     expected: >
       Spec: §2.3 có «thì ĐO» gắn với lái-thử; hàng «**A**» của bảng định tuyến
       chứa «lái-thử»; Chương 3 có dòng «lái-thử không có hàng»; Chương 4 nhắc
@@ -155,7 +155,7 @@ evals:
     criterion: AC-7
     executor: script
     cmd: config:executors.script.rang_mnvt_hinh
-    paths: [docs/diagrams/]
+    paths: [_acceptance/moi-noi-vong-trao/rang-mnvt.sh, docs/diagrams/]
     expected: >
       Đủ 6 file workflow-v2-*.html; workflow-v2-bo-hinh.md trỏ đủ 6 tên file;
       hai file chuoi-vat-chung và vong-doi-mot-viec chứa «ĐỀ XUẤT» trong eyebrow
