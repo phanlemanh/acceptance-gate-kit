@@ -54,7 +54,8 @@ sed 's/^for l in LABELS:$/for l in LABELS[:4]:/' tests/plugins/run-tests.sh > "$
 grep -q 'for l in LABELS\[:4\]:' "$CP" || keu "sed ban sao suite khong doi gi — dot bien nhan khong duoc bo"
 OUTN="$(ONLY_BLOCK=P197 bash "$CP" 2>&1)"; rm -f "$CP"
 has "$OUTN" "ma tran chua toan phan" "bo dot bien nhan ma P197 khong do 'ma tran chua toan phan'"
-has "$OUTN" "thieu nhan buoc [5] Đính" "P197 do ma tran nhung khong ghim dung nhan thieu [5] Đính"
+# ghim vao CHINH dong assert (dong P197-M in san moi luot nen 'thieu nhan buoc [5] Đính' co mat bat ke)
+has "$OUTN" "thong diep chua tung do: ['GATE 1: thieu nhan buoc [5] Đính']" "P197 do ma tran nhung dong assert khong neu dung nhan thieu [5] Đính"
 
 # AC-7 — P198 tu canh minh khong doc thu muc ho so: chen mot dong co chuoi do vao ban sao khoi P198 → P198 DO
 python3 - "$ROOT" "$CP" <<'PYX'

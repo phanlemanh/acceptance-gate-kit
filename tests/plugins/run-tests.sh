@@ -1848,6 +1848,10 @@ def _last(s, a, b):
 m3 = lambda rel: live(rel).replace(CLAUSE, CLAUSE.replace("kèm hình", "kèm sơ đồ"), 1) if rel == lp2 else live(rel)
 m4 = lambda rel: live(rel).replace(CLAUSE, "Điểm quyết định vượt ngưỡng N5 thì vẽ bằng khối ký tự.", 1) if rel == lp2 else live(rel)  # dien dat lai nua sau, ghim mot dinh dang
 m3b = lambda rel: _last(live(rel), CLAUSE, CLAUSE.replace("kèm hình", "kèm sơ đồ")) if rel == lp2 else live(rel)
+# m3b phai danh vao ban chep THU HAI (S2) — khong duoc suy bien thanh m3 khi raw text chi con mot ban khop
+assert live(lp2).count(CLAUSE) >= 2 and live(lp2).rfind(CLAUSE) != live(lp2).find(CLAUSE), \
+    "SKILL.md khong con hai ban chep RAW cua clause — m3b se trung m3, khong con danh vao ban S2"
+assert m3b(lp2) != m3(lp2), "m3b trung m3 — dot bien ban cuoi khong khac dot bien ban dau"
 for name, mm in (("m3", m3), ("m4", m4), ("m3b", m3b)):
     errs = check(mm)
     assert f"{lp2}: cau ve hinh lech khuon mot-nguon (1/2 ban chep)" in errs, \
