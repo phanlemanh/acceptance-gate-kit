@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 7b183f988fc18a1e81cd449372732fd3a3d2e05f
+verified_commit: 9ef38ac15d3dfa29874daff247774c16a7af1ba4
 human_signoff: Manh Phan 2026-08-17
 ---
 
@@ -135,3 +135,15 @@ Round 7 (hiện tại): E1-E9 chạy lại đầy đủ tại 7b183f9 — rang.s
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [x] Fill `human_signoff` in frontmatter
+
+### Re-pin lần 1 — 2026-08-17, do răng rang.sh của hồ sơ đổi sang đọc bảng thông điệp từ P197 (siet-rang-cau-ve-hinh AC-3; machine-only, không đụng chữ ký)
+run_id: repin-hinh-tai-cong-1-c02ef661
+sha: c02ef661b37078c4cc27d584b72639e5d72f0e92 · suites: 4 lệnh exit 0
+
+### Re-pin lần 2 — 2026-08-18, do suite plugins đổi sau lần ghim 1 (P90 ghi chú m4, P198 tự-soi; cùng lane với siet-rang-cau-ve-hinh, machine-only)
+run_id: repin-siet-rang-cau-ve-hinh-9925c91d
+sha: 9925c91d9c473df8413283817766af46fd8aaa85 · suites: 4 lệnh exit 0
+
+### Re-pin lần 3 — 2026-08-18, do gộp main (PR #63) — suite đổi (case của hồ sơ siet-rang đổi số P198→P199), machine-only
+run_id: repin-20260818-merge63-9ef38ac1
+sha: 9ef38ac15d3dfa29874daff247774c16a7af1ba4 · suites: 4 lệnh exit 0

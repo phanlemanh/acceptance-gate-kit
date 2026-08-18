@@ -2,6 +2,9 @@
 set -u
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# Duong dan CHINH file dang chay — case tu-soi (P198) doc ban nay, khong doc ban goc,
+# de rang cua ho so chay duoc BAN SAO da dot bien (siet-rang-cau-ve-hinh AC-7).
+export RUN_TESTS_SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
 failures=0
 
 pass() { echo "  PASS: $1"; }
@@ -1767,6 +1770,9 @@ assert len(SITES) == 4, "danh sach cho tro khong du 4"
 LAW = (root / REF).read_text(encoding="utf-8")
 _m = re.search(r"<!-- <<<LOOP-PICTURE-CLAUSE -->\n([\s\S]*?)<!-- LOOP-PICTURE-CLAUSE>>> -->", LAW)
 CLAUSE = _m.group(1).strip() if _m else None
+# Mot nguon dem ban chep — dung chung voi P197 (siet-rang-cau-ve-hinh AC-2/AC-6)
+sys.path.insert(0, str(root / "tests/plugins"))
+from hfl_clause import clause_copies_ok
 
 def check(read):
     errs = []
@@ -1782,8 +1788,10 @@ def check(read):
             errs.append(f"{rel}: thieu ten khuon bang")
         if CLAUSE is None:
             errs.append("khong rut duoc khuon LOOP-PICTURE-CLAUSE tu ban luat")
-        elif CLAUSE not in t:
-            errs.append(f"{rel}: cau ve hinh lech khuon mot-nguon")
+        else:
+            # MOI ban chep phai khop khuon (khong chi "co mat mot ban") — Known
+            # limit 1 cua hinh-tai-cong-1 dong o day.
+            errs += [f"{rel}: {e}" for e in clause_copies_ok(t, CLAUSE)]
         if "MỌI lần trình" not in t:
             errs.append(f"{rel}: pham vi khuon bi thu hep")
     return errs
@@ -1831,14 +1839,27 @@ _typo = CLAUSE.replace("DECISION-DIAGRAM-SURFACES", "DECISION-DIAGRAM-SURFACE")
 assert cited_marker_ok(LAW.replace(CLAUSE, _typo, 1), _typo), \
     "danh sai ten bang tra trong khuon ma khong bi bat — con tro chet van xanh"
 lp2 = LOOPS[0]
-# MOI ban chep (SKILL.md nay co hai: GATE 1 + S2) — mot chu lech o BAT KY ban nao la
-# lech khuon; giu count=1 thi ban con lai cuu dot bien va doi chung am tu do.
-m3 = lambda rel: live(rel).replace(CLAUSE, CLAUSE.replace("kèm hình", "kèm sơ đồ")) if rel == lp2 else live(rel)
-assert f"{lp2}: cau ve hinh lech khuon mot-nguon" in check(m3), \
-    "dot bien sua mot chu trong khuon khong do dung thong diep"
-m4 = lambda rel: live(rel).replace(CLAUSE, "Điểm quyết định rắc rối thì vẽ bằng khối ký tự.") if rel == lp2 else live(rel)
-assert f"{lp2}: cau ve hinh lech khuon mot-nguon" in check(m4), \
-    "dot bien tu dien dat kem ghim mot dinh dang khac khong bi bat"
+# SKILL.md co HAI ban chep (GATE 1 + S2). Sua dung MOT ban (count=1) — ban DAU
+# (m3/m4) va ban CUOI = ban S2, dung lo Known limit 1 (m3b) — deu phai DO ghim
+# "(1/2 ban chep)"; truoc day check chi hoi "co mat" nen phai noi dot bien sang
+# thay-moi-ban de khong tu do doi chung — dau vet cua phep do yeu.
+def _last(s, a, b):
+    i = s.rfind(a); return s if i < 0 else s[:i] + b + s[i+len(a):]
+m3 = lambda rel: live(rel).replace(CLAUSE, CLAUSE.replace("kèm hình", "kèm sơ đồ"), 1) if rel == lp2 else live(rel)
+# m4 = dien dat lai NUA SAU cua mot ban (giu 4 chu dau) va ghim mot dinh dang. Thay CA CAU bang cau
+# khong chung dau/cuoi thi voi hfl_clause do la «xoa han mot ban» — diem mu (2) da khai trong docstring,
+# P197 canh ban GATE 1; P90 khong hua bat ca do.
+m4 = lambda rel: live(rel).replace(CLAUSE, "Điểm quyết định vượt ngưỡng N5 thì vẽ bằng khối ký tự.", 1) if rel == lp2 else live(rel)
+m3b = lambda rel: _last(live(rel), CLAUSE, CLAUSE.replace("kèm hình", "kèm sơ đồ")) if rel == lp2 else live(rel)
+# m3b phai danh vao ban chep THU HAI (S2) — khong duoc suy bien thanh m3 khi raw text chi con mot ban khop
+assert live(lp2).count(CLAUSE) >= 2 and live(lp2).rfind(CLAUSE) != live(lp2).find(CLAUSE), \
+    "SKILL.md khong con hai ban chep RAW cua clause — m3b se trung m3, khong con danh vao ban S2"
+assert m3b(lp2) != m3(lp2), "m3b trung m3 — dot bien ban cuoi khong khac dot bien ban dau"
+for name, mm in (("m3", m3), ("m4", m4), ("m3b", m3b)):
+    errs = check(mm)
+    assert f"{lp2}: cau ve hinh lech khuon mot-nguon (1/2 ban chep)" in errs, \
+        f"dot bien {name} (sua MOT ban chep) khong do dung thong diep: {errs}"
+    print(f"P90-COPIES: {name} do (1/2 ban chep)")
 PY
 
 run "P91 con tro RUT TU file tro vao vat that tren cay nguon, kem dem sanity 8 (E6)" \
@@ -9902,6 +9923,8 @@ assert _m, "khong rut duoc LOOP-PICTURE-CLAUSE tu ban luat"
 norm = lambda s: re.sub(r"\s+", " ", s).strip()
 CLAUSE = norm(_m.group(1))
 HEAD = "### Hình tại điểm quyết định"
+sys.path.insert(0, str(root / "tests/plugins"))
+from hfl_clause import clause_copies_ok      # mot nguon voi P90 (siet-rang AC-6)
 
 def gate1(text):
     m = re.search(r"^## GATE 1[^\n]*\n([\s\S]*?)(?=^## |\Z)", text, re.M)
@@ -9918,6 +9941,9 @@ def units(b):  # «cau» = doan/bullet
 
 def has_unit(b, *needles):
     return any(all(n in u for n in needles) for u in units(b))
+
+def presence_only(b, *needles):   # doi chung: chi kiem CHU co mat, khong kiem cung-doan
+    return all(n in b for n in needles)
 
 SOURCES = ["entry sổ quyết định chờ seal", "lệch spec/plan gốc", "[GIẢ ĐỊNH]", "human-gate1"]
 LABELS  = ["[1] Kê", "[2] Đếm", "[3] Vẽ", "[4] Nhìn", "[5] Đính"]
@@ -9996,6 +10022,14 @@ def check(text):
 live = (root / LOOP).read_text(encoding="utf-8")
 assert check(live) == [], check(live)                     # DOI CHUNG DUONG
 
+# Tap thong diep co the phat — in ra de rang cua ho so doc (P197-M:), mot nguon.
+EXPECTED = {v for k, v in M.items() if k not in ("nguon", "nhan")}
+EXPECTED |= {M["nguon"].format(s) for s in SOURCES}
+EXPECTED |= {M["nhan"].format(l) for l in LABELS}
+for _msg in sorted(EXPECTED):
+    print("P197-M: " + _msg)
+print(f"P197-M-COUNT: {len(EXPECTED)}")
+
 # --- bo dot bien: chi sua TRONG khoi; phan con lai cua file giu nguyen ---
 def mutate(text, fn):
     g = gate1(text); b = block(text)
@@ -10042,10 +10076,23 @@ for s in SOURCES:
     expect(mutate(live, lambda b, s=s: b.replace(s, "")), f"GATE 1: thieu nguon {s}", f"go nguon {s}")
 expect(mutate(live, lambda b: b.replace("không hỏi người", "tự kê")), "GATE 1: thieu menh de khong hoi nguoi", "go khong-hoi-nguoi")
 cond = next(u for u in units(block(live)) if "dừng chờ người" in u and "T3" in u)
-m_cond = mutate(live, lambda b: "\n".join(x for x in re.split(r"\n(?=- )|\n\s*\n", b) if norm(x) != cond))
+m_cond = mutate(live, lambda b: "\n\n".join(x for x in re.split(r"\n(?=- )|\n\s*\n", b) if norm(x) != cond))
 expect(m_cond, "GATE 1: thieu dieu kien dung-nguoi", "xoa cau dieu kien (T3/T2 con o noi khac trong GATE 1)")
-m_split = mutate(live, lambda b: b.replace("thì bỏ qua", "thì dừng.\n\nBỏ qua"))
-expect(m_split, "GATE 1: xanh-sach khong di kem bo qua", "tach xanh-sach va bo qua")
+# TACH doan giu du chu (siet-rang AC-4): chen "\n\n" GIUA hai needle cua cung don vi,
+# khong doi mot chu -> has_unit DO; doi chung presence_only VAN XANH (do quan he,
+# khong do trinh dien).
+TACH = [
+    ("bo_qua",     "bỏ qua cả năm bước",         M["bo_qua"],     ("xanh-sạch", "bỏ qua")),
+    ("dieu_kien",  "T3, hoặc T2 không đủ",       M["dieu_kien"],  ("T3", "T2 không đủ", "dừng chờ người")),
+    ("skill_vang", "vẽ khối mermaid",            M["skill_vang"], ("skill vắng", "mermaid", "không chặn")),
+    ("nhin",       "Read bản",                   M["nhin"],       ("vòng chính", "Read", ".png")),
+    ("dung_lai",   "→ dùng lại, không vẽ lại",   M["dung_lai"],   ("draft", "figures/", "không vẽ lại")),
+]
+for key, at, msg, needles in TACH:
+    mut = mutate(live, lambda b, at=at: b.replace(at, "\n\n" + at, 1))
+    expect(mut, msg, f"tach doan {key}")
+    assert presence_only(block(mut), *needles), f"tach doan {key}: mat chu — dot bien khong con la TACH"
+    print(f"P197-TACH-{key}: presence_only van xanh")
 m_skill = mutate(live, lambda b: re.sub(r"Nếu skill vắng[^\n]*?\.\s*(?=- |\n|$)", "", b))
 expect(m_skill, "GATE 1: thieu duong skill vang", "xoa cau skill vang")
 expect(mutate(live, lambda b: b.replace("subagent tươi", "agent")), "GATE 1: thieu subagent ve", "go subagent tuoi")
@@ -10059,26 +10106,24 @@ expect(mutate(live, lambda b: b.replace("không vẽ lại", "vẽ lại")), "GA
 # chua tung do: bat bien CLAUDE.md «pha thu mot lan cho moi phep do moi»)
 expect(mutate(live, lambda b: b.replace("MỘT lần", "vài lần")), "GATE 1: thieu gioi han ve lai mot lan", "go MOT lan")
 expect(mutate(live, lambda b: b.replace("0 điểm vượt", "không có gì")), "GATE 1: thieu dong 0-diem-vuot", "go 0 diem vuot")
-expect(mutate(live, lambda b: b.replace("[2] Đếm", "[2] Đo")), M["nhan"].format("[2] Đếm"), "go nhan [2] Dem")
+for l in LABELS:
+    expect(mutate(live, lambda b, l=l: b.replace(l, l[:4] + "Đo", 1)), M["nhan"].format(l), f"go nhan {l}")
 m_head = live.replace(HEAD, "### Hình minh hoạ", 1)
 expect(m_head, "GATE 1: thieu khoi Hinh tai diem quyet dinh", "doi ten heading khoi")
 
 # Ma tran phai TOAN PHAN: MOI thong diep check() co the phat (bang M, khoa
-# template no ra theo SOURCES / nhan da go) phai tung DO it nhat mot lan.
-EXPECTED = {v for k, v in M.items() if k not in ("nguon", "nhan")}
-EXPECTED |= {M["nguon"].format(s) for s in SOURCES}
-EXPECTED |= {M["nhan"].format("[2] Đếm")}
+# template no ra theo SOURCES / LABELS) phai tung DO it nhat mot lan.
 missing = EXPECTED - FIRED
 assert not missing, f"ma tran chua toan phan — thong diep chua tung do: {sorted(missing)}"
 
 # Doi chung: check THAT cua P90 (clause.strip() co mat bat ky dau trong file, khong
 # norm) van XANH tren dot bien xoa-clause-khoi-khoi — chung minh P197 neo vao khoi.
 CLAUSE_P90 = _m.group(1).strip()
-def p90_check(t):
-    return [] if CLAUSE_P90 in t else [f"{LOOP}: cau ve hinh lech khuon mot-nguon"]
+p90_check = lambda t: clause_copies_ok(t, CLAUSE_P90)   # CUNG ham voi P90, chay tren TOAN VAN
 assert p90_check(live) == [], "P90 check phai xanh tren ban nguyen ven"
-assert p90_check(m_clause) == [], "P90-kieu phai van xanh tren dot bien xoa-clause-khoi-khoi — neu do thi P197 khong them gi moi"
-assert p90_check(live.replace(CLAUSE_P90, "x")) != [], "p90_check khong bao gio do — doi chung am chet"
+assert p90_check(m_clause) == [], "P90 phai van xanh tren dot bien xoa-clause-khoi-khoi (ban S2 con) — neu do thi P197 khong them gi moi"
+assert p90_check(m_word) != [], "P90 phai DO tren dot bien sua-mot-chu-o-khoi — doi chung am"
+print("P197-P90CHECK: xanh tren xoa-khoi, do tren sua-mot-chu")
 print(f"P197 OK: doi chung duong + {MUTS} dot bien chay that, moi cai ghim dung thong diep")
 PY
 
@@ -10220,6 +10265,81 @@ P198PY
 run "P198 the Cong Pham vi in nguong nghiem thu: ma tran 4x2 + doi-cu + 4 mutant (moi-noi-vong-trao E1/E2)" \
   python3 "$P198TMP/p197.py" "$ROOT"
 rm -rf "$P198TMP"
+
+# ── P199: mot nguon dem ban chep cau-ve-hinh (siet-rang-cau-ve-hinh E1/E2/E6/E7) ──
+# (1) fixture CODE-SINH sau ca cho hfl_clause.clause_copies_ok; (2) kiem cau truc:
+# hai khoi P90/P197 cung import module, khong con ban chep tay logic. Case suite
+# vinh vien: chi doc tests/** — KHONG doc _acceptance/**, KHONG worktree (nep p194:
+# thu gan ho so do bang rang cua ho so).
+run "P199 hfl_clause mot nguon: 6 ca fixture code-sinh + hai khoi (P90 va khoi Gate 1) cung import, khong chep tay (siet-rang-cau-ve-hinh E1 E2 E6 E7)" \
+  python3 - "$ROOT" <<'PY'
+import re, sys, tempfile, shutil, atexit
+from pathlib import Path
+root = Path(sys.argv[1])
+sys.path.insert(0, str(root / "tests/plugins"))
+from hfl_clause import clause_copies_ok, clause_copies
+
+# (1) fixture code-sinh trong chinh lan chay — clause GIA (khong phai clause that,
+# de phep do khong phu thuoc ban luat), file hai ban chep, sau ca theo AC-1.
+clause = "Alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu."
+tmp = Path(tempfile.mkdtemp(prefix="p198-")); atexit.register(shutil.rmtree, tmp, True)
+def mk(name, body):
+    f = tmp / name; f.write_text(body, encoding="utf-8"); return f.read_text(encoding="utf-8")
+two = mk("two.md", f"# doc\n\n{clause}\n\nsome text\n\n- bullet: {clause} tail\n")
+LECH = "cau ve hinh lech khuon mot-nguon (1/2 ban chep)"
+CASES = [
+    ("a-hai-ban-dung",   two,                                                     []),
+    ("b-sua-giua",       two.replace("epsilon zeta", "epsilon ZETA", 1),           [LECH]),
+    ("c-sua-4-chu-dau",  two.replace("Alpha beta gamma", "Alpha BETA gamma", 1),   [LECH]),
+    ("d-sua-4-chu-cuoi", two.replace("lambda mu.", "LAMBDA mu.", 1),               [LECH]),
+    ("e-xoa-mot-ban",    two.replace(clause, "", 1),                              []),
+    ("f-xoa-ca-hai",     two.replace(clause, ""),                                 ["khong co ban chep nao"]),
+]
+NCA = 0
+for name, text, want in CASES:
+    got = clause_copies_ok(text, clause)
+    assert got == want, f"P199-CA-{name}: mong {want}, duoc {got}"
+    NCA += 1
+    print(f"P199-CA-{name} OK")
+assert clause_copies(two, clause) == (2, 2), clause_copies(two, clause)
+
+# (2) kiem cau truc: rut khoi P90 va P197 tu chinh suite (duong suy tu ROOT)
+import os
+suite = Path(os.environ.get("RUN_TESTS_SELF") or (root / "tests/plugins/run-tests.sh")).read_text(encoding="utf-8")
+def block_of(prefix):
+    m = re.search(r'run "' + re.escape(prefix) + r'[^\n]*\\\n  python3 - "\$ROOT" <<\'PY\'\n([\s\S]*?)\nPY\n', suite)
+    assert m, f"khong rut duoc khoi {prefix}"
+    return m.group(1)
+p90 = block_of("P90 tam"); p197 = block_of("P197 GATE 1")
+CHEP_P90 = "CLAUSE not" + " in t"          # ghep de chinh dong nay khong tu khop
+CHEP_P197 = "CLAUSE_P90" + " in"
+SMSG = ["P90 khong import hfl_clause", "P90 con chep tay logic clause",
+        "P197 khong import hfl_clause", "P197 con chep tay p90_check"]
+def struct(p90b, p197b):
+    errs = []
+    if "from hfl_clause import" not in p90b: errs.append(SMSG[0])
+    if CHEP_P90 in p90b: errs.append(SMSG[1])
+    if "from hfl_clause import" not in p197b: errs.append(SMSG[2])
+    if CHEP_P197 in p197b: errs.append(SMSG[3])
+    return errs
+assert struct(p90, p197) == [], struct(p90, p197)                       # doi chung duong
+NKC = len(SMSG)      # so kiem cau truc = so thong diep struct() co the phat, khong khai tay
+FIRED = set()
+NMUT = 0
+def expect(errs, msg, label):
+    global NMUT
+    assert msg in errs, f"{label}: mong '{msg}', duoc {errs}"; NMUT += 1; FIRED.add(msg)
+    print(f"P199-MUT-{NMUT}: {label} DO dung ({msg})")
+expect(struct(p90 + "\n        elif " + CHEP_P90 + ":\n            pass\n", p197), "P90 con chep tay logic clause", "chen lai chep tay vao P90")
+expect(struct(p90, p197 + "\np90_check = lambda t: [] if " + CHEP_P197 + " t else ['x']\n"), "P197 con chep tay p90_check", "chen lai chep tay vao P197")
+expect(struct(p90.replace("from hfl_clause import", "from nowhere import"), p197), "P90 khong import hfl_clause", "go import P90")
+expect(struct(p90, p197.replace("from hfl_clause import", "from nowhere import")), "P197 khong import hfl_clause", "go import P197")
+# case nay khong duoc dung vao ho so — tu soi chinh no (ghep chuoi de dong nay khong tu khop)
+me = block_of("P199 hfl_clause")
+assert ("_accep" + "tance/") not in me, "P199 khong duoc doc thu muc ho so (" + "_accep" + "tance/)"
+assert set(SMSG) == FIRED, f"ma tran cau truc chua toan phan: {set(SMSG) - FIRED}"
+print(f"P199 OK: {NCA} ca fixture · {NKC} kiem cau truc · {NMUT} dot bien")
+PY
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then

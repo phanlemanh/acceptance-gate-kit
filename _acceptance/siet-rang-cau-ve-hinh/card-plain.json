@@ -1,0 +1,44 @@
+{
+  "feature_plain": "Bốn lỗ còn lại của phép đo câu-về-hình đã đóng: sửa lệch bất kỳ bản chép nào cũng đỏ, răng đọc thẳng bảng thông điệp, quan hệ cùng-đoạn có chiều đỏ riêng, cả năm nhãn bước đều từng đỏ.",
+  "decisions": [],
+  "analyst_plain": "Bảy phép đo qua răng của hồ sơ này đỏ trên cây gốc và xanh trên cây sửa (phân biệt được); phép đo thứ tám là toàn suite — lưới hồi quy chung, xanh cả hai bên như dự kiến.",
+  "scope_plain": "Hoãn/cắt: đổi khối GATE 1 hay câu luật · đưa răng vào suite vĩnh viễn · đếm bản chép cho các khuôn khác · đo hành vi thật của Cổng 1",
+  "decisions_plain": [
+    {
+      "id": "d-20260817T143444Z-1101",
+      "p": "KHÔNG quét độ phủ — bốn lỗ đã gọi tên; đổi lại lỗ thứ năm cùng lớp chưa gọi tên không lộ ở vòng này"
+    },
+    {
+      "id": "d-20260817T143444Z-1102",
+      "p": "Hàm đếm bản chép ở một module dùng chung, hai case cùng nạp — đổi lại thêm một file trong thư mục kiểm"
+    },
+    {
+      "id": "d-20260817T143444Z-1103",
+      "p": "Răng đọc bảng thông điệp từ đầu ra P197 — răng phụ thuộc định dạng dòng, ghim bằng răng của hồ sơ này"
+    },
+    {
+      "id": "d-20260817T143444Z-1104",
+      "p": "KHÔNG bắt P90 đỏ khi xoá hẳn một bản chép — P90 hứa «mọi bản còn lại khớp»; «phải có ở Cổng 1» do P197 canh"
+    },
+    {
+      "id": "d-20260817T151139Z-4101",
+      "p": "Vòng 1: răng chân diffBase thành đối chứng dương + ghim thông điệp; ghim nhãn thiếu; P199 tách khỏi P197; đếm từ bảng"
+    },
+    {
+      "id": "d-20260817T152650Z-4201",
+      "p": "Vòng 2: thêm đột biến tự-soi cho P199 (đọc đúng bản đang chạy); dọn thư mục tạm"
+    },
+    {
+      "id": "d-20260817T154517Z-4301",
+      "p": "Vòng 3: răng đo trên đúng mốc gốc của nhánh; dọn mã thừa; khai điểm mù đỏ-giả — vòng 3 đỏ vì tôi commit báo cáo cũ chung với code"
+    },
+    {
+      "id": "d-20260817T234355Z-4401",
+      "p": "Vòng 4: răng ghim vào chính dòng lỗi thay vì chuỗi có mặt; guard bản-cuối ≠ bản-đầu"
+    },
+    {
+      "id": "d-20260818T003225Z-4501",
+      "p": "Vòng 5: răng thêm đối chứng dương ở mốc gốc; bỏ một tuyên bố chưa có mã trong evals; xác nhận bằng lane máy thay vì vòng 6"
+    }
+  ]
+}

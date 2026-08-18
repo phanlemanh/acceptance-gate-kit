@@ -68,3 +68,6 @@
 {"ts":"2026-08-17T06:55:50Z","sha":"7b183f988fc18a1e81cd449372732fd3a3d2e05f","round":7,"evalId":"E8","run_id":"minted-hinh-tai-cong-1-E8-r7","exit_code":0,"cmd":"bash _acceptance/hinh-tai-cong-1/rang.sh"}
 {"ts":"2026-08-17T06:55:50Z","sha":"7b183f988fc18a1e81cd449372732fd3a3d2e05f","round":7,"evalId":"E9","run_id":"minted-hinh-tai-cong-1-E9-r7","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-17T06:55:50Z","sha":"7b183f988fc18a1e81cd449372732fd3a3d2e05f","round":7,"kind":"baseline","evals_hash":"82c0e20ed7d5abfed7fa98fa825058a0a8047877feb2035bd574ef0051e6d1ed","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E9"]}],"carried_from_round":6}
+{"ts":"2026-08-17T15:49:20Z","kind":"repin","run_id":"repin-hinh-tai-cong-1-c02ef661","sha":"c02ef661b37078c4cc27d584b72639e5d72f0e92","suites_exit":[0,0,0,0]}
+{"ts":"2026-08-18T00:39:42Z","kind":"repin","run_id":"repin-siet-rang-cau-ve-hinh-9925c91d","sha":"9925c91d9c473df8413283817766af46fd8aaa85","suites_exit":[0,0,0,0]}
+{"ts":"2026-08-18T01:33:08Z","kind":"repin","run_id":"repin-20260818-merge63-9ef38ac1","sha":"9ef38ac15d3dfa29874daff247774c16a7af1ba4","suites_exit":[0,0,0,0]}

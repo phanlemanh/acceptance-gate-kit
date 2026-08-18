@@ -1,0 +1,38 @@
+"""Dem ban chep cau-ve-hinh (LOOP-PICTURE-CLAUSE) trong mot van ban.
+
+Mot nguon cho P90 va P197 (tests/plugins/run-tests.sh) — truoc day hai khoi
+heredoc chep tay cung logic `CLAUSE in text`, chi chac duoc "it nhat MOT ban
+con khop"; SKILL.md nay co HAI ban chep (GATE 1 + S2) nen sua lech rieng mot ban
+khong lam phep do nao do (Known limit 1 cua hinh-tai-cong-1).
+
+Neo HAI dau: n_anchor = max(so lan 4 chu DAU, so lan 4 chu CUOI cua clause);
+n_full = so ban NGUYEN VAN. Sua chu o giua / o dau / o cuoi mot ban deu lam
+n_full < n_anchor -> do. Hai diem mu CO CHU Y (ghi Known limits / descope
+d-1104 cua siet-rang-cau-ve-hinh): (1) sua CA HAI dau cung luc trong cung mot
+ban; (2) XOA HAN mot ban — n_anchor giam theo, cac ban con lai van khop nen
+xanh: ham nay hua «moi ban con lai khop khuon», khong hua «phai co o dau» (ve
+do la viec cua P197 canh khoi GATE 1). Chieu DO-GIA (khong phai xanh gia): mot cau
+van thuong bat dau bang dung 4 chu dau (hoac ket bang 4 chu cuoi) cua clause se day
+n_anchor len va bao «lech (n/n+1)» du moi ban chep dung — thong diep dan sai huong,
+nhung khong nuot loi.
+"""
+import re
+
+def _norm(s):
+    return re.sub(r"\s+", " ", s).strip()
+
+def clause_copies(text, clause):
+    t = _norm(text); c = _norm(clause)
+    words = c.split(" ")
+    head = " ".join(words[:4]); tail = " ".join(words[-4:])
+    n_anchor = max(t.count(head), t.count(tail))
+    n_full = t.count(c)
+    return n_anchor, n_full
+
+def clause_copies_ok(text, clause):
+    n_anchor, n_full = clause_copies(text, clause)
+    if n_anchor == 0:
+        return ["khong co ban chep nao"]
+    if n_full < n_anchor:
+        return [f"cau ve hinh lech khuon mot-nguon ({n_full}/{n_anchor} ban chep)"]
+    return []
