@@ -86,3 +86,34 @@
 - **claude-sonnet-5**: 12 agent · 95 calls · out 95,055 · in 2,685 · cache_read 5,816,563 · cache_create 727,261
 - **claude-haiku-4-5-20251001**: 6 agent · 24 calls · out 8,499 · in 206 · cache_read 861,541 · cache_create 184,623
 
+### S4 round 4 — wf_2d0792fe-fe7 (22 agent, 143,793 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| review:conventions | claude-opus-5 | 16 | 20,838 | 1,532 | 1,406,956 | 328 |
+| review:measurement | claude-opus-5 | 13 | 18,494 | 25 | 1,013,162 | 293 |
+| review:bugs | claude-opus-5 | 28 | 17,799 | 54 | 2,530,143 | 309 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 9 | 15,052 | 67 | 580,949 | 198 |
+| synthesize:report | claude-sonnet-5 | 11 | 12,997 | 22 | 819,964 | 177 |
+| refute:acceptance-verify.test.mjs | claude-sonnet-5 | 11 | 10,835 | 22 | 703,195 | 140 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 4 | 7,453 | 8 | 219,467 | 99 |
+| triage | claude-sonnet-5 | 2 | 6,925 | 4 | 59,567 | 84 |
+| refute:evals.yaml | claude-sonnet-5 | 5 | 4,992 | 10 | 253,913 | 72 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 3 | 4,186 | 6 | 141,948 | 54 |
+| refute:SKILL.md | claude-sonnet-5 | 6 | 4,173 | 12 | 341,804 | 57 |
+| refute:acceptance-verify.test.mjs | claude-sonnet-5 | 11 | 4,051 | 22 | 697,094 | 98 |
+| refute:evidence-report.md | claude-sonnet-5 | 5 | 3,821 | 10 | 275,730 | 56 |
+| refute:gap-probe.md | claude-sonnet-5 | 4 | 2,219 | 8 | 203,179 | 31 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 6 | 2,086 | 50 | 234,579 | 57 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 3 | 1,775 | 26 | 101,802 | 110 |
+| baseline:diffBase | claude-sonnet-5 | 7 | 1,687 | 14 | 353,608 | 69 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 1,028 | 18 | 59,372 | 30 |
+| machine:bash tests/plugins/run-tests.sh | claude-haiku-4-5-20251001 | 4 | 979 | 34 | 147,611 | 151 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 4 | 964 | 34 | 142,967 | 37 |
+| machine:bash _acceptance/het-gio-khong-phai-truo | claude-haiku-4-5-20251001 | 3 | 820 | 26 | 81,120 | 30 |
+| capture:provenance | claude-sonnet-5 | 2 | 619 | 4 | 54,107 | 11 |
+
+- **claude-opus-5**: 3 agent · 57 calls · out 57,131 · in 1,611 · cache_read 4,950,261 · cache_create 314,622
+- **claude-sonnet-5**: 13 agent · 80 calls · out 79,010 · in 209 · cache_read 4,704,525 · cache_create 734,519
+- **claude-haiku-4-5-20251001**: 6 agent · 22 calls · out 7,652 · in 188 · cache_read 767,451 · cache_create 166,112
+
