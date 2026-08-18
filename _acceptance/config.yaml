@@ -31,6 +31,11 @@ executors:
     scripts: "bash tests/scripts/run-tests.sh"
     hooks: "bash tests/hooks/run-tests.sh"
     plugins: "bash tests/plugins/run-tests.sh"
+    # Cùng suite, thêm cờ siết cho MỐC PHÁT HÀNH: P200 khi đó bắt số phải TĂNG
+    # so với base, không chỉ «không tụt». Đây là chiều đỏ của chính việc cắt số —
+    # mất commit bump thì số bằng base và ca thường vẫn xanh. PR thường chạy
+    # khoá `plugins` (không cờ) nên không đỏ oan.
+    plugins_release: "P200_MUST_BUMP=1 bash tests/plugins/run-tests.sh"
     workflows: "bash tests/workflows/run-tests.sh"
   script:
     coverage_lint: "node scripts/eval-coverage-lint.js ."
@@ -112,10 +117,6 @@ executors:
     rang_mnvt_spec: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan spec
     rang_mnvt_hinh: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan hinh
     rang_mnvt_hoi_dong: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan hoi-dong
-    # Vật của hồ sơ release-2-2-0 — MỘT chân, viết bằng Node (owner chọn đổi
-    # khuôn rồi thu phạm vi, 18/08 — hai lần luật dừng-vá). Không vào suite
-    # vĩnh viễn: nó đo đúng một lần cắt số.
-    rang_release22: node _acceptance/release-2-2-0/rang-release.mjs
     rang_hinh_cong1: bash _acceptance/hinh-tai-cong-1/rang.sh
     rang_siet_rang: bash _acceptance/siet-rang-cau-ve-hinh/rang.sh
 risk_tiers:

@@ -1,41 +1,43 @@
 # evals — release-2-2-0
 #
-# MỘT chân răng (`rang-release.mjs`) phục vụ bốn tiêu chí của mốc: bốn eval dưới
-# dùng CHUNG một lệnh (S4 dedupe — chạy một lượt, chấm bốn AC). Mọi vế là giá
-# trị trong một tiến trình Node, mã thoát = số vế đỏ; cây thật và bản đột biến
-# cùng đi qua CHÍNH hàm `kiem()`; mỗi chiều đỏ ghim ĐÚNG câu.
+# KHÔNG có bộ răng riêng (owner chọn 18/08, luật dừng-vá lần ba). Ba mốc liên
+# tiếp mỗi lần tự dựng một dàn đo dùng-một-lần, và mỗi vòng soi lại tìm ra cách
+# nó không đo thật (fail-open · assertion âm-tính-một-mình · lời-khai-sai ·
+# thước rỗng). Thứ cần canh thì giống hệt nhau ở mọi lần cắt số, nên nó thành
+# **ca vĩnh viễn P200** trong `tests/plugins` — số đọc TỪ manifest, không ghim
+# một mốc, 7 đột biến + đối chứng dương bản-sao-nguyên-vẹn.
 #
-# Phạm vi thước đã THU (owner chọn 18/08, luật dừng-vá lần hai) — ba việc bỏ vì
-# đã có lưới khác đo, ghi ở Known limits của hợp đồng:
-#   · hành trình làn V → lưới trước-merge tự chạy ở biên merge, có bộ kiểm riêng;
-#   · ba ca P197/P198/P199 → suite plugins chạy như E3c, ba ca thuộc ba hồ sơ kia;
-#   · tự-kiểm bộ đếm → sinh ra để canh bộ đếm bash, mà bash đã chết.
+# P200 in MỖI vế một dòng riêng có tên (`P200 VE: …`) nên mỗi eval dưới ghim
+# được dòng của chính nó, không tin mã thoát trọn suite. E1/E2/E6 chạy khoá
+# `plugins_release` (cùng suite, thêm `P200_MUST_BUMP=1`) để bật vế «số phải
+# TĂNG so với base» — chiều đỏ của chính việc cắt số.
 
 evals:
   - id: E1
     criterion: AC-1
-    executor: script
-    cmd: config:executors.script.rang_release22
-    paths: [_acceptance/release-2-2-0/rang-release.mjs, .claude-plugin/plugin.json, feature-loop/.claude-plugin/plugin.json, diagram-design/.claude-plugin/plugin.json]
+    executor: test
+    cmd: config:executors.test.plugins_release
     expected: >
-      Ba vế số: `ag-version 2.2.0` · `fl-version 2.2.0` · `dd-version 2.5.0
-      khong doi so voi base` (QUAN HỆ với `git show <base>`, không phải hình
-      dạng semver). Chiều đỏ qua CHÍNH `kiem()`: hạ số ag → ĐỎ «ag-version
-      2.1.0»; nâng vendor pin 9.9.9 → ĐỎ «dd-version doi so voi base»; manifest
-      ag hỏng → ĐỎ «khong doc duoc manifest acceptance-gate» (không crash,
-      không im lặng). Kèm đối chứng dương của chính đường đột biến: bản sao
-      NGUYÊN VẸN phải 0 vế đỏ.
+      Suite in «PASS: P200 …» và «P200 OK (… base=origin/main BUOC-TANG; 7/7 dot
+      bien chay that …)». Các dòng vế phải có: «hai plugin cung so: 2.2.0»,
+      «acceptance-gate tang so so voi base: 2.1.0 -> 2.2.0», «feature-loop tang
+      so so voi base: 2.1.0 -> 2.2.0», ba dòng «hop semver». Ba chiều đỏ đi qua
+      CHÍNH hàm kiểm: feature-loop 0.0.1 → ĐỎ «hai plugin lech so»; hạ cả hai về
+      ĐÚNG số ở base → ĐỎ «khong tang so so voi base: van la 2.1.0 — moc phat
+      hanh buoc phai tang» (mất commit bump); hạ xuống dưới base → ĐỎ «tut so so
+      voi base»; manifest hỏng → ĐỎ «khong doc duoc manifest acceptance-gate»
+      (không crash).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E2
     criterion: AC-2
-    executor: script
-    cmd: config:executors.script.rang_release22
-    paths: [_acceptance/release-2-2-0/rang-release.mjs, GUIDE.md]
+    executor: test
+    cmd: config:executors.test.plugins_release
     expected: >
-      Vế `GUIDE khop so doc tu manifest`: câu mong đợi DỰNG TỪ ba số đọc trong
-      manifest, không so với hằng trong script. Chiều đỏ: bản sao GUIDE ghi số
-      cũ → ĐỎ ghim nguyên câu mong đợi.
+      Dòng vế «P200 VE: GUIDE khop so DOC TU manifest»: câu «Khớp phiên bản» của GUIDE được DỰNG TỪ ba
+      số đọc trong manifest rồi so, không so với hằng trong bộ kiểm. Chiều đỏ:
+      bản sao GUIDE giữ số cũ → ĐỎ ghim nguyên câu dẫn xuất. Mỗi đột biến còn
+      phải chứng minh bản sao THẬT SỰ đổi nội dung trước khi tin nó đỏ.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E3
@@ -56,7 +58,7 @@ evals:
     criterion: AC-3
     executor: test
     cmd: config:executors.test.plugins
-    expected: "suite plugins XANH (ba ca P197/P198/P199 của ba hồ sơ trong mốc chạy ở đây)"
+    expected: "suite plugins XANH (ba ca P197/P198/P199 của ba hồ sơ trong mốc, và ca vĩnh viễn P200, chạy ở đây)"
     evidence_required: [run_id, exit_code, verifier, verified_at]
 
   - id: E3d
@@ -66,30 +68,19 @@ evals:
     expected: "suite workflows XANH"
     evidence_required: [run_id, exit_code, verifier, verified_at]
 
-  - id: E5
-    criterion: AC-5
-    executor: script
-    cmd: config:executors.script.rang_release22
-    paths: [_acceptance/release-2-2-0/rang-release.mjs]
-    expected: >
-      Diff nhánh so với base KHÔNG rỗng (rỗng = chân mù → ĐỎ) và chứa đủ ba vật
-      lõi (2 manifest + GUIDE.md); mọi file trong diff nằm trong allowlist ĐÓNG;
-      `git status` kiểm cả MÃ THOÁT (git hỏng → ĐỎ, không thành «không có sửa
-      chưa commit»); sửa chưa commit ngoài allowlist cũng ĐỎ. Base không giải
-      được → ĐỎ fail-closed.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-
   - id: E6
     criterion: AC-6
-    executor: script
-    cmd: config:executors.script.rang_release22
-    paths: [_acceptance/release-2-2-0/rang-release.mjs, .claude-plugin/plugin.json, feature-loop/.claude-plugin/plugin.json]
+    executor: test
+    cmd: config:executors.test.plugins_release
     expected: >
-      Đo trên ĐÚNG MỤC `v2.2.0` (cắt đoạn, không quét cả chuỗi): năm vế người
-      dùng — hình tại Cổng 1 · ngưỡng nghiệm thu trên thẻ · nhật-ký-vấp
-      (stranger drive) · S5 bàn giao · KHÔNG phải migrate; và mục `v2.2.0` của
-      feature-loop TỰ khai cặp `acceptance-gate >= 2.2.0`. Hai chiều đỏ: xoá
-      tên nhật-ký-vấp → ĐỎ đúng vế; DỜI câu khai cặp sang mục lịch sử v2.1.0 →
-      ĐỎ «cau khai cap nam ngoai muc nay (sua muc lich su khong tinh)» — đúng
-      lỗi vòng chấm 18/08 bắt được trên vật thật.
+      Hai dòng vế «mo ta acceptance-gate co muc v2.2.0» và «muc v2.2.0 cua
+      feature-loop TU khai cap»: mô tả acceptance-gate CÓ mục của đúng số đang
+      phát hành, và mục đó của feature-loop TỰ khai cặp `acceptance-gate >= <số>`
+      — đo trên đoạn cắt từ «v<số>», không quét cả chuỗi. Hai chiều đỏ: xoá mục
+      của số hiện tại → ĐỎ «khong co muc v…»; dời câu khai cặp ra khỏi mục đó →
+      ĐỎ «cau khai cap nam ngoai muc nay (sua muc lich su khong tinh)» — đột biến
+      DỜI THẬT câu sang mục lịch sử, đúng lỗi vòng chấm 18/08 bắt trên vật thật.
+      Năm vế người dùng nhận gì (hình tại Cổng 1 · ngưỡng nghiệm thu trên thẻ ·
+      nhật-ký-vấp · S5 bàn giao · không phải migrate) là văn cho người, đọc trực
+      tiếp trong mục v2.2.0 của manifest trong diff — Known limits đã khai.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

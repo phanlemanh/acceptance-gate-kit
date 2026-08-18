@@ -42,24 +42,20 @@ Source input: `git log 8d1e135..main` (ba PR #62·#63·#64) · nếp phát hành
 ## Criteria
 
 - AC-1: Given cây đã sửa, When đọc ba manifest plugin, Then `acceptance-gate`
-  và `feature-loop` đều `2.2.0`, `diagram-design` giữ số hợp semver (`2.5.0` —
-  vendor pin KHÔNG ĐỔI so với base — đo bằng quan hệ với `git show <base>`,
-  không bằng hình dạng semver), mô tả `feature-loop` khai cặp
-  `acceptance-gate >= 2.2.0`, và mô tả `acceptance-gate` chứa mục `v2.2.0`.
+  và `feature-loop` mang CÙNG một số hợp semver, và số đó **TĂNG** so với số ở
+  base — đo bằng quan hệ với `git show <base>`, không bằng hằng: mất commit bump
+  thì số bằng base và phép đo phải ĐỎ, tụt số cũng ĐỎ. (Số cụ thể của mốc này là
+  `2.2.0`; `diagram-design` giữ `2.5.0` — xem Known limits.)
 - AC-2: Given cây đã sửa, When đọc dòng «Khớp phiên bản» của GUIDE, Then nó
   khớp ĐÚNG số đọc từ ba manifest (một nguồn — so với manifest, không so hằng).
 - AC-3: Given cây đã sửa, When chạy đủ bốn suite, Then cả bốn XANH (ba ca của
   ba hồ sơ trong mốc chạy bên trong suite plugins).
-- AC-5: Given diff nhánh release so với base, When lọc qua allowlist ĐÓNG
-  (2 manifest · GUIDE.md · `_acceptance/release-2-2-0/**` · `_acceptance/config.yaml`
-  · PRODUCT-MAP.md), Then không file nào ngoài danh sách — đặc biệt KHÔNG file
-  nào trong `skills/ lib/ scripts/ hooks/ feature-loop/skills/ diagram-design/`.
-- AC-6: Given mô tả `acceptance-gate`, When đọc mục `v2.2.0`, Then nó nói bằng
-  tiếng người dùng kit ba việc họ nhận (hình tại Cổng 1 · ngưỡng nghiệm thu
-  hiện trên thẻ Cổng Phạm vi + phiên nghiệm thu đọc nhật-ký-vấp + S5 bàn giao ·
-  phép đo câu-về-hình siết) và nói rõ **không phải migrate** (đường đọc-cũ);
-  và mục `v2.2.0` của `feature-loop` **TỰ khai cặp** `acceptance-gate >= 2.2.0`
-  — đo trên đúng mục đó, sửa mục lịch sử KHÔNG được tính (lỗi vòng chấm 18/08).
+- AC-6: Given mô tả hai plugin, When đọc mục của ĐÚNG số đang phát hành, Then
+  mô tả `acceptance-gate` CÓ mục đó (bản phát hành không được câm về việc người
+  dùng nhận gì), và mục cùng số của `feature-loop` **TỰ khai cặp**
+  `acceptance-gate >= <số>` — đo trên đoạn cắt từ `v<số>`, sửa hay dời câu sang
+  mục lịch sử KHÔNG được tính (lỗi vòng chấm 18/08). *Nội dung* năm vế người
+  dùng nhận gì đọc trực tiếp trong diff — xem Known limits.
 
 ## Coverage
 
@@ -68,8 +64,8 @@ Quét không gian phát hành theo hai trục (nếp release-2-1-0, không quét
   người-dùng-nhận-gì | phạm vi diff [thước CE: hồ sơ release-2-1-0 đã dùng thật]
 - Trục B · hành trình hồ sơ: làn V mở | bằng chứng xanh-sạch | biên merge
   [thước CE: pre-merge `xanh_sach_check` + ADR 0012]
-- Ô Core → AC-1·AC-2·AC-3·AC-5·AC-6 (AC-4 và AC-7 đã thu, xem Known limits). Không ô Later/Never mới: mốc này KHÔNG thêm plugin, KHÔNG
-  đổi vendor pin, KHÔNG đổi engine cổng.
+- Ô Core → AC-1 · AC-2 · AC-3 · AC-6 (AC-4 · AC-5 · AC-7 đã thu — xem Known limits). Không ô Later/Never mới: mốc này KHÔNG thêm plugin, KHÔNG
+  đổi vendor pin, KHÔNG đổi một dòng mã cổng nào.
 
 ## Out of scope
 
@@ -81,6 +77,27 @@ Quét không gian phát hành theo hai trục (nếp release-2-1-0, không quét
 
 ## Known limits
 
+- **Không có bộ răng riêng cho mốc này.** Ba mốc liên tiếp mỗi lần tự dựng một
+  dàn đo dùng-một-lần và mỗi vòng soi lại tìm ra cách nó không đo thật; owner
+  chọn đưa phép đo thành **ca vĩnh viễn P200** trong `tests/plugins` (số đọc từ
+  manifest, không ghim mốc; 7 đột biến + đối chứng dương bản-sao-nguyên-vẹn).
+  Tái lập: `ONLY_BLOCK=P200 bash tests/plugins/run-tests.sh`.
+- **Vế «số phải TĂNG» chỉ bật ở mốc phát hành, và neo vào `origin/main`.** PR
+  thường chạy khoá `plugins` (không cờ) nên chỉ canh chiều tụt — nếu bắt mọi PR
+  tăng số thì mỗi PR thường đều đỏ oan. Mốc phát hành chạy khoá `plugins_release`
+  (`P200_MUST_BUMP=1`). Hệ quả đã biết: SAU khi mốc này merge, `origin/main` đã
+  mang `2.2.0` nên chạy lại eval ở chế độ buộc-tăng sẽ đỏ — cùng tính chất với
+  mọi phép đo neo `origin/main` khác của kit; bằng chứng ghim ở thời điểm chạy.
+- **`diagram-design` giữ `2.5.0` không có răng máy riêng.** P200 chỉ ghim nó hợp
+  semver và có mặt trong câu «Khớp phiên bản»; quan hệ pin ↔ tree-hash đã do ca
+  P196 canh. Đọc trực tiếp: `git diff origin/main...HEAD -- diagram-design/`.
+- **Năm vế nội dung của mục `v2.2.0` không có răng máy.** P200 canh mục CÓ mặt
+  và tự khai cặp — chữ bên trong là văn cho người, thước máy sẽ thành đếm-từ.
+  Đọc trực tiếp: `git diff origin/main...HEAD -- .claude-plugin/plugin.json`.
+- **Phạm vi diff của nhánh phát hành (AC-5 cũ) không còn răng máy.** Người mở PR
+  đọc diff — mốc này chạm đúng: 2 manifest · GUIDE.md · PRODUCT-MAP.md ·
+  `_acceptance/config.yaml` · `_acceptance/release-2-2-0/**` · ca P200 trong
+  `tests/plugins/run-tests.sh`. Tái lập: `git diff --name-only origin/main...HEAD`.
 - **Hành trình làn V của chính hồ sơ này không có răng riêng.** Lưới trước-merge
   tự chạy ở biên merge (CI + lượt chạy tay) và đã có bộ kiểm vĩnh viễn của hồ sơ
   `veto-co-dau-vet` / `cong-chan-nham-cho`; dựng lại nó trong răng phát hành là
@@ -96,9 +113,10 @@ Quét không gian phát hành theo hai trục (nếp release-2-1-0, không quét
 
 - Nếp «bump đi kèm PR có hồ sơ» (bài học 1.40.0): PR chỉ-bump-manifest không
   phải T1 và không được đi một mình.
-- **Bộ răng viết bằng Node, không bash** (owner chọn đường A, 18/08 — luật
-  dừng-vá): bash đếm trong ống/shell con/trap đã ba lần nuốt vế đỏ trong chính
-  hồ sơ này. Node: mọi vế là giá trị trong một tiến trình, mã thoát = số vế đỏ,
-  và chân `tu-kiem` chứng minh bộ đếm biết đỏ.
+- **Phép đo viết bằng Node, không bash** (owner chọn đường A, 18/08 — luật
+  dừng-vá, ba lần): bash đếm trong ống/shell con/trap đã ba lần nuốt vế đỏ trong
+  chính hồ sơ này. P200: mọi vế là giá trị trong MỘT tiến trình, mỗi vế in một
+  dòng có tên, số đột biến chạy thật bị ghim (`7/7`), và bản sao NGUYÊN VẸN phải
+  0 vế đỏ trước khi tin bất kỳ bản bị tiêm nào là đỏ.
 - Làn V: hồ sơ mở `veto_state: mo`, `approved_by` để RỖNG — máy đi tiếp, cửa
   veto mở tới lúc merge.
