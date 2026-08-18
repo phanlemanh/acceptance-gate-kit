@@ -8,7 +8,7 @@ evals:
     criterion: AC-1
     executor: test
     cmd: config:executors.script.rang_siet_rang
-    expected: "răng ghim dòng 'PASS: P198' + sáu ca fixture code-sinh của clause_copies_ok in 'P198-CA-<x> OK' (a đúng · b sửa giữa · c sửa trong 4 chữ đầu · d sửa trong 4 chữ cuối · e xoá một · f xoá hai); đỏ trên diffBase vì hfl_clause.py chưa tồn tại → răng ĐỎ ghim 'khong thay dong PASS: P198'."
+    expected: "răng ghim dòng 'PASS: P198' + sáu ca fixture code-sinh của clause_copies_ok in 'P198-CA-<x> OK' (a đúng · b sửa giữa · c sửa trong 4 chữ đầu · d sửa trong 4 chữ cuối · e xoá một · f xoá hai). Chiều đỏ của P198 trên diffBase do chân AC-8 của răng đo: suite base báo 'ONLY_BLOCK=P198 khong khop khoi nao'."
     paths: [tests/plugins/hfl_clause.py, tests/plugins/run-tests.sh, _acceptance/siet-rang-cau-ve-hinh/rang.sh]
   - id: E2
     criterion: AC-2

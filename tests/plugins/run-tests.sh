@@ -1846,7 +1846,10 @@ lp2 = LOOPS[0]
 def _last(s, a, b):
     i = s.rfind(a); return s if i < 0 else s[:i] + b + s[i+len(a):]
 m3 = lambda rel: live(rel).replace(CLAUSE, CLAUSE.replace("kèm hình", "kèm sơ đồ"), 1) if rel == lp2 else live(rel)
-m4 = lambda rel: live(rel).replace(CLAUSE, "Điểm quyết định vượt ngưỡng N5 thì vẽ bằng khối ký tự.", 1) if rel == lp2 else live(rel)  # dien dat lai nua sau, ghim mot dinh dang
+# m4 = dien dat lai NUA SAU cua mot ban (giu 4 chu dau) va ghim mot dinh dang. Thay CA CAU bang cau
+# khong chung dau/cuoi thi voi hfl_clause do la «xoa han mot ban» — diem mu (2) da khai trong docstring,
+# P197 canh ban GATE 1; P90 khong hua bat ca do.
+m4 = lambda rel: live(rel).replace(CLAUSE, "Điểm quyết định vượt ngưỡng N5 thì vẽ bằng khối ký tự.", 1) if rel == lp2 else live(rel)
 m3b = lambda rel: _last(live(rel), CLAUSE, CLAUSE.replace("kèm hình", "kèm sơ đồ")) if rel == lp2 else live(rel)
 # m3b phai danh vao ban chep THU HAI (S2) — khong duoc suy bien thanh m3 khi raw text chi con mot ban khop
 assert live(lp2).count(CLAUSE) >= 2 and live(lp2).rfind(CLAUSE) != live(lp2).find(CLAUSE), \
