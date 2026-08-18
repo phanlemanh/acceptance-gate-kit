@@ -31,11 +31,6 @@ executors:
     scripts: "bash tests/scripts/run-tests.sh"
     hooks: "bash tests/hooks/run-tests.sh"
     plugins: "bash tests/plugins/run-tests.sh"
-    # Cùng suite, thêm cờ siết cho MỐC PHÁT HÀNH: P200 khi đó bắt số phải TĂNG
-    # so với base, không chỉ «không tụt». Đây là chiều đỏ của chính việc cắt số —
-    # mất commit bump thì số bằng base và ca thường vẫn xanh. PR thường chạy
-    # khoá `plugins` (không cờ) nên không đỏ oan.
-    plugins_release: "P200_MUST_BUMP=1 bash tests/plugins/run-tests.sh"
     workflows: "bash tests/workflows/run-tests.sh"
   script:
     coverage_lint: "node scripts/eval-coverage-lint.js ."

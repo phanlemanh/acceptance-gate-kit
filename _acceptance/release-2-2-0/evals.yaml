@@ -5,34 +5,33 @@
 # nó không đo thật (fail-open · assertion âm-tính-một-mình · lời-khai-sai ·
 # thước rỗng). Thứ cần canh thì giống hệt nhau ở mọi lần cắt số, nên nó thành
 # **ca vĩnh viễn P200** trong `tests/plugins` — số đọc TỪ manifest, không ghim
-# một mốc, 7 đột biến + đối chứng dương bản-sao-nguyên-vẹn.
+# một mốc, 5 đột biến + đối chứng dương bản-sao-nguyên-vẹn, MỘT lối thoát.
 #
 # P200 in MỖI vế một dòng riêng có tên (`P200 VE: …`) nên mỗi eval dưới ghim
-# được dòng của chính nó, không tin mã thoát trọn suite. E1/E2/E6 chạy khoá
-# `plugins_release` (cùng suite, thêm `P200_MUST_BUMP=1`) để bật vế «số phải
-# TĂNG so với base» — chiều đỏ của chính việc cắt số.
+# được dòng của chính nó, không tin mã thoát trọn suite. Bốn eval dùng chung
+# MỘT lệnh (S4 dedupe). Không có chế độ/cờ/khoá riêng cho mốc phát hành —
+# «số đã đổi» đọc trong diff, xem Known limits của contract.
 
 evals:
   - id: E1
     criterion: AC-1
     executor: test
-    cmd: config:executors.test.plugins_release
+    cmd: config:executors.test.plugins
     expected: >
-      Suite in «PASS: P200 …» và «P200 OK (… base=origin/main BUOC-TANG; 7/7 dot
-      bien chay that …)». Các dòng vế phải có: «hai plugin cung so: 2.2.0»,
-      «acceptance-gate tang so so voi base: 2.1.0 -> 2.2.0», «feature-loop tang
-      so so voi base: 2.1.0 -> 2.2.0», ba dòng «hop semver». Ba chiều đỏ đi qua
-      CHÍNH hàm kiểm: feature-loop 0.0.1 → ĐỎ «hai plugin lech so»; hạ cả hai về
-      ĐÚNG số ở base → ĐỎ «khong tang so so voi base: van la 2.1.0 — moc phat
-      hanh buoc phai tang» (mất commit bump); hạ xuống dưới base → ĐỎ «tut so so
-      voi base»; manifest hỏng → ĐỎ «khong doc duoc manifest acceptance-gate»
-      (không crash).
+      Suite in «PASS: P200 …» và «P200 OK (so doc tu manifest — khong ghim mot
+      moc; 5/5 dot bien chay that …)». Các dòng vế phải có: «hai plugin cung
+      so: 2.2.0» và ba dòng «hop semver» (2.2.0 · 2.2.0 · 2.5.0). Hai chiều đỏ
+      đi qua CHÍNH hàm kiểm và vào mảng `loi` quyết mã thoát: feature-loop
+      0.0.1 → ĐỎ «hai plugin lech so»; manifest hỏng → ĐỎ «khong doc duoc
+      manifest acceptance-gate» (không crash). Chiều đỏ trên CÂY THẬT đã chạy
+      tay 18/08: đặt feature-loop 9.9.9 → «P200 LOI: cay that: hai plugin lech
+      so» exit 1; cây nguyên vẹn exit 0.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E2
     criterion: AC-2
     executor: test
-    cmd: config:executors.test.plugins_release
+    cmd: config:executors.test.plugins
     expected: >
       Dòng vế «P200 VE: GUIDE khop so DOC TU manifest»: câu «Khớp phiên bản» của GUIDE được DỰNG TỪ ba
       số đọc trong manifest rồi so, không so với hằng trong bộ kiểm. Chiều đỏ:
@@ -71,7 +70,7 @@ evals:
   - id: E6
     criterion: AC-6
     executor: test
-    cmd: config:executors.test.plugins_release
+    cmd: config:executors.test.plugins
     expected: >
       Hai dòng vế «mo ta acceptance-gate co muc v2.2.0» và «muc v2.2.0 cua
       feature-loop TU khai cap»: mô tả acceptance-gate CÓ mục của đúng số đang

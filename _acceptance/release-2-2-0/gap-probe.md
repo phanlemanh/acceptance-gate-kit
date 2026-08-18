@@ -14,24 +14,24 @@ Vòng dò lỗ chạy sau khi owner chọn đường A lần ba (bỏ răng dùn
 phép đo thành ca vĩnh viễn **P200**). Phê bình trả 5 phát hiện; cả 5 đã xử
 TRƯỚC cổng, không cái nào mang sang Known limits dưới dạng «chấp nhận».
 
-## P0 — «số ĐÃ ĐỔI» không có chiều đỏ
+## P0 — «số ĐÃ ĐỔI» không có chiều đỏ → thử vá, rồi TRỪ có chủ đích
 
-**Lỗ.** P200 cố ý không ghim số của một mốc (đọc mọi thứ từ manifest) để sống
-được ở lần cắt sau. Hệ quả không ai để ý: nếu commit bump biến mất, cả bảy vế
-vẫn xanh — mọi thứ vẫn *nhất quán*, chỉ là nhất quán ở số cũ. Việc DUY NHẤT hồ
-sơ này làm — cắt số — là việc duy nhất không có chiều đỏ.
+**Lỗ.** P200 cố ý không ghim số của một mốc để sống được ở lần cắt sau. Hệ quả:
+nếu commit bump biến mất, cả năm vế vẫn xanh — nhất quán ở số cũ.
 
-**Vá.** Thêm vế QUAN HỆ với base (`git show <base>:<manifest>`), hai mức:
-- luôn bật: tụt số so với base → ĐỎ «tut so so voi base»;
-- bật ở mốc phát hành (`P200_MUST_BUMP=1`, khoá executor `plugins_release`):
-  số BẰNG base → ĐỎ «khong tang so so voi base: van la 2.1.0 — moc phat hanh
-  buoc phai tang».
+**Đã thử vá (vòng dò lỗ → vòng 3 → vòng 4):** vế quan hệ với `git show
+origin/main` + cờ buộc-tăng `P200_MUST_BUMP=1` qua khoá `plugins_release`.
+Vòng 3 bắt bản vá tự cắt mất lối thoát của phép đo (splice câm); vòng 4 bắt hai
+hệ quả cấu trúc: neo **mốc di động** làm mọi làn song song đỏ oan ngay sau khi
+mốc merge (trái charter re-pin-theo-release), và cổng thật nằm ở **một biến môi
+trường** không phép đo nào canh.
 
-Không giải được base → ĐỎ (fail-closed), vì «không đối chiếu được» không phải
-«đạt». PR thường chạy khoá `plugins` không cờ nên không đỏ oan.
-
-**Chiều đỏ đã chạy.** Hai đột biến mới: `tut so xuong duoi base` ·
-`mat commit bump (so bang base)` — cả hai đi qua CHÍNH hàm kiểm và ghim đúng câu.
+**Định đoạt (owner gật 18/08, sau phân tích từ North Star):** TRỪ. Điều cần biết
+là diff 3 dòng của PR phát hành — đọc 5 giây; thước máy ở đây to hơn vật được
+đo, và bốn lớp fail-open liên tiếp là bằng chứng. Khai thành Known limit của
+contract; đây là **khoảnh khắc quyết thật duy nhất** của hồ sơ — người ký chấp
+nhận nó ở Cổng 2. Bài học nếp phát hành («mốc phát hành không dựng răng») ghi
+ở Notes cho hồ sơ kế đưa vào GUIDE.
 
 ## P1 — AC-1 khai một phép đo không tồn tại (`diagram-design`)
 

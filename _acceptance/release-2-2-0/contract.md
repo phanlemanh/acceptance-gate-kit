@@ -5,7 +5,7 @@ slug: release-2-2-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 2 manifest + GUIDE + workspace hồ sơ + config key — không dính t3_paths
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
@@ -42,10 +42,9 @@ Source input: `git log 8d1e135..main` (ba PR #62·#63·#64) · nếp phát hành
 ## Criteria
 
 - AC-1: Given cây đã sửa, When đọc ba manifest plugin, Then `acceptance-gate`
-  và `feature-loop` mang CÙNG một số hợp semver, và số đó **TĂNG** so với số ở
-  base — đo bằng quan hệ với `git show <base>`, không bằng hằng: mất commit bump
-  thì số bằng base và phép đo phải ĐỎ, tụt số cũng ĐỎ. (Số cụ thể của mốc này là
-  `2.2.0`; `diagram-design` giữ `2.5.0` — xem Known limits.)
+  và `feature-loop` mang CÙNG một số hợp semver, `diagram-design` hợp semver.
+  (Số cụ thể của mốc này là `2.2.0`; `diagram-design` giữ `2.5.0`. Việc «số ĐÃ
+  đổi so với base» KHÔNG có răng máy — xem Known limits.)
 - AC-2: Given cây đã sửa, When đọc dòng «Khớp phiên bản» của GUIDE, Then nó
   khớp ĐÚNG số đọc từ ba manifest (một nguồn — so với manifest, không so hằng).
 - AC-3: Given cây đã sửa, When chạy đủ bốn suite, Then cả bốn XANH (ba ca của
@@ -80,14 +79,15 @@ Quét không gian phát hành theo hai trục (nếp release-2-1-0, không quét
 - **Không có bộ răng riêng cho mốc này.** Ba mốc liên tiếp mỗi lần tự dựng một
   dàn đo dùng-một-lần và mỗi vòng soi lại tìm ra cách nó không đo thật; owner
   chọn đưa phép đo thành **ca vĩnh viễn P200** trong `tests/plugins` (số đọc từ
-  manifest, không ghim mốc; 7 đột biến + đối chứng dương bản-sao-nguyên-vẹn).
-  Tái lập: `ONLY_BLOCK=P200 bash tests/plugins/run-tests.sh`.
-- **Vế «số phải TĂNG» chỉ bật ở mốc phát hành, và neo vào `origin/main`.** PR
-  thường chạy khoá `plugins` (không cờ) nên chỉ canh chiều tụt — nếu bắt mọi PR
-  tăng số thì mỗi PR thường đều đỏ oan. Mốc phát hành chạy khoá `plugins_release`
-  (`P200_MUST_BUMP=1`). Hệ quả đã biết: SAU khi mốc này merge, `origin/main` đã
-  mang `2.2.0` nên chạy lại eval ở chế độ buộc-tăng sẽ đỏ — cùng tính chất với
-  mọi phép đo neo `origin/main` khác của kit; bằng chứng ghim ở thời điểm chạy.
+  manifest, không ghim mốc; 5 đột biến + đối chứng dương bản-sao-nguyên-vẹn;
+  MỘT lối thoát duy nhất). Tái lập: `ONLY_BLOCK=P200 bash tests/plugins/run-tests.sh`.
+- **«Số ĐÃ đổi so với base» KHÔNG có răng máy — cố ý, sau khi đã thử và TRỪ.**
+  Bản 18/08 từng canh nó (vế quan hệ `git show origin/main` + cờ buộc-tăng) và
+  vòng chấm 4 chỉ ra hai hệ quả: (a) neo mốc DI ĐỘNG → mọi làn song song đỏ oan
+  ngay sau khi mốc phát hành merge, đúng chi phí mà charter re-pin-theo-release
+  loại bỏ; (b) cổng nằm ở một biến môi trường không phép đo nào canh. Điều cần
+  biết là **diff 3 dòng của PR phát hành** — đọc trong 5 giây, thước máy ở đây
+  to hơn vật được đo. Tái lập: `git diff origin/main...HEAD -- .claude-plugin/plugin.json feature-loop/.claude-plugin/plugin.json GUIDE.md`.
 - **`diagram-design` giữ `2.5.0` không có răng máy riêng.** P200 chỉ ghim nó hợp
   semver và có mặt trong câu «Khớp phiên bản»; quan hệ pin ↔ tree-hash đã do ca
   P196 canh. Đọc trực tiếp: `git diff origin/main...HEAD -- diagram-design/`.
@@ -116,7 +116,11 @@ Quét không gian phát hành theo hai trục (nếp release-2-1-0, không quét
 - **Phép đo viết bằng Node, không bash** (owner chọn đường A, 18/08 — luật
   dừng-vá, ba lần): bash đếm trong ống/shell con/trap đã ba lần nuốt vế đỏ trong
   chính hồ sơ này. P200: mọi vế là giá trị trong MỘT tiến trình, mỗi vế in một
-  dòng có tên, số đột biến chạy thật bị ghim (`7/7`), và bản sao NGUYÊN VẸN phải
-  0 vế đỏ trước khi tin bất kỳ bản bị tiêm nào là đỏ.
+  dòng có tên, số đột biến chạy thật bị ghim (`5/5`), bản sao NGUYÊN VẸN phải
+  0 vế đỏ trước khi tin bất kỳ bản bị tiêm nào là đỏ, và mọi thứ sai đổ vào MỘT
+  mảng quyết mã thoát (vòng 3 bắt bản trước mất lối thoát vì splice câm).
+- **Bài học cho nếp phát hành (không thuộc mốc này, ghi để hồ sơ kế đưa vào
+  GUIDE):** ba mốc liên tiếp tự dựng răng và đều thủng — **mốc phát hành KHÔNG
+  dựng răng**: P200 canh nhất quán, người đọc diff 3 dòng, hết.
 - Làn V: hồ sơ mở `veto_state: mo`, `approved_by` để RỖNG — máy đi tiếp, cửa
   veto mở tới lúc merge.
