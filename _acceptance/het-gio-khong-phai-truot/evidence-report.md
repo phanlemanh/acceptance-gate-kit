@@ -7,7 +7,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 8dfd58ccc6e1f930637143a0df598033fcd1e93d
-human_signoff:
+human_signoff: Manh Phan 2026-08-18
 ---
 
 # Evidence Report: het-gio-khong-phai-truot
@@ -114,4 +114,4 @@ Round 4 (vòng này): theo quyết định owner (decisions.jsonl d-20260818T141
       on each (judge verdicts are advisory; the hook blocks PASS without them)
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
-- [ ] Fill `human_signoff` in frontmatter
+- [x] Fill `human_signoff` in frontmatter

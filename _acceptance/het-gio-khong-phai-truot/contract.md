@@ -5,7 +5,7 @@ slug: het-gio-khong-phai-truot
 owner: manh.phan@onemount.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: ""
 approved_at: ""
 veto_state: mo
@@ -131,3 +131,19 @@ Known limits:
    vòng verify chạy `tests/plugins/run-tests.sh` dưới tải song song, không lần
    nào bị công cụ giết (trước đó vòng 5 của release-2-2-0 bị giết ở 118 s).
    Bộ đo hội đồng phiên sạch cho lời hứa hành vi là hồ sơ riêng nếu vấp lại.
+3. **Chuẩn hoá dấu-bị-ngắt nằm ở ba chỗ đọc, chưa gom về một biên.** Thêm một
+   nơi đọc kết quả kiểm mà quên xử lý dấu đó thì lỗi từ-chối-oan tái diễn ở nơi
+   mới, và bộ kiểm hiện tại không thấy (`normKill` gọi rời tại ba consumer trong
+   `feature-loop/workflows/acceptance-verify.js`).
+4. **Danh sách nhánh chạy lệnh dài là danh sách viết cứng trong bài kiểm.** Bài
+   kiểm đếm đúng ba lượt gắn luật; thêm nhánh thứ tư mà quên gắn thì không phép
+   đo nào kêu.
+5. **Phép rút luật từ mốc trong mã cắt tại ký tự backtick đầu tiên.** Hôm nay
+   luật không chứa ký tự đó nên phép đo đủ răng; ngày ai viết lại luật có
+   backtick, phần sau bị bỏ sót âm thầm.
+6. **Hai chỗ trong hồ sơ mô tả lệch cây hiện tại:** ô P1 của bản phản biện còn
+   khai biện pháp máy đã gỡ, và mô tả bài kiểm E1 còn nhắc một lượt tự-phá-thử
+   không còn chạy. Chữ trong hồ sơ, không phải hành vi sản phẩm — sửa ở vòng
+   chạm hồ sơ này lần tới.
+7. **Đường kiểm tra chạy độc lập chưa được vá cùng lượt** — đã tách thành việc
+   riêng, hạt giống ở `docs/plans/2026-08-18-hat-giong-tool-kill-duong-doc-lap.md`.
