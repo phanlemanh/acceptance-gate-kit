@@ -5,7 +5,7 @@ slug: het-gio-khong-phai-truot
 owner: manh.phan@onemount.com
 risk_tier: T2
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: ""
 approved_at: ""
 veto_state: mo
@@ -47,8 +47,8 @@ Then prompt chứa nguyên văn cùng khối luật.
 ### AC-3 — Prompt baseline chứa cùng luật
 Given cùng marker,
 When workflow build prompt cho agent baseline,
-Then prompt chứa nguyên văn cùng khối luật (baseline khai `cannotRun=true` khi
-bị giết — schema baseline không đổi).
+Then prompt chứa nguyên văn cùng khối luật (baseline khai `cannotRun=true` +
+`killedByTool=true` khi bị giết — xem AC-4).
 
 ### AC-4 — Schema khai killedByTool ở CẢ BA lane
 Given MACHINE_SCHEMA, UI_SCHEMA và item của BASELINE_SCHEMA.results,
@@ -78,9 +78,11 @@ Given kết quả verifier KHÔNG có field `killedByTool` (agent cũ / flow cũ
 When workflow xử lý,
 Then hành vi y nguyên: exit 1 thường → REJECT, cannotRun=true → BLOCKED, suite
 tồn kho `tests/workflows` xanh nguyên KHÔNG sửa case cũ nào — vế «không sửa»
-có phép đo riêng: chân tồn-kho của răng rút danh sách tên case từ bản diffBase
-(`git show`), assert từng tên còn nguyên văn + có dòng `PASS: <tên>` trong
-stdout (đếm nguồn, không hardcode số ca).
+có phép đo riêng phủ MỌI khuôn đặt tên của bản diffBase (`git show`, đếm nguồn,
+không hardcode): tên nháy đơn assert nguyên văn + dòng `PASS: <tên>` khớp trọn
+dòng; tên template literal assert thân template nguyên văn; và một đẳng thức
+đóng không gian «tổng callsite = nháy đơn + backtick» để khuôn thứ ba chưa phủ
+thì ĐỎ (kèm tự-phá-thử chạy cùng lượt).
 
 ## Coverage
 
