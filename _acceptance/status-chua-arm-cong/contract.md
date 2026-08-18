@@ -5,9 +5,9 @@ slug: status-chua-arm-cong
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm scripts/pre-merge-check.sh (t3_paths) — tier máy-derive; đề bài nói T2, tiền lệ stale-theo-diff-pr/veto-co-dau-vet cùng file đều T3, nghi thức giữ gọn theo đề bài (5 AC, không judgment)
 surfaces: [cli]
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: Manh Phan
+approved_at: 2026-08-18T08:05:11Z
 ---
 
 # Acceptance Contract: status-chua-arm-cong
