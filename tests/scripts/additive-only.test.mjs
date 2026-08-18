@@ -141,6 +141,33 @@ const ALLOWED_REMOVALS = [
   `          fi`,
   `        fi`,
   `      fi`,
+  // Hồ sơ `status-chua-arm-cong` (2026-08-18): (1) dòng `case "$status" …
+  // continue` là ĐÚNG lỗ đang bịt — hồ sơ draft/approved đã có evidence hoặc
+  // nằm trong PR đổi code chịu cổng không được `continue` im lặng nữa; dòng cũ
+  // thay bằng khối `case` có nhánh VIOLATION (răng ARM01–ARM12); ba dòng
+  // comment kèm theo nói «im lặng đúng thiết kế» nay SAI nên đổi. (2) khối
+  // phân loại diff của T1-escape HOIST lên trước vòng per-slug (luật mới cần
+  // nó sớm hơn) — T1-escape đọc lại biến, thông điệp nguyên văn, răng
+  // ARM08/ARM08b + B01/B03 canh không đổi hành vi. Cả hai đều là DI CHUYỂN /
+  // THAY dòng luật cũ, không nới luật nào — miễn trừ ĐÍCH DANH từng dòng
+  // nguyên văn (tiền lệ đợt 2 + cong-chan-nham-cho).
+  `  # Thiếu field ≠ khai báo → bị flag. Field CÓ mặt nhưng ngoài phạm vi (status`,
+  `  # draft/approved, tier ngoài required_for) LÀ khai báo → vẫn im lặng đúng`,
+  `  # thiết kế, xử ở hai \`case\` ngay dưới.`,
+  `  case "$status" in implemented|verified|signed-off) ;; *) continue ;; esac`,
+  `  changed="$DIFF_FILES"`,
+  `  gate_touched=0; t3_hits=""; nont1_hits=""`,
+  `  while IFS= read -r f; do`,
+  `    [ -n "$f" ] || continue`,
+  `    case "$f" in _acceptance/*|*/_acceptance/*) gate_touched=1; continue ;; esac`,
+  `    if [ -n "$T3_PATHS" ] && match_globs "$f" "$T3_PATHS"; then`,
+  `      t3_hits="\${t3_hits}\${f}"$'\\n'`,
+  `    elif ! match_globs "$f" "$T1_GLOBS"; then`,
+  `      nont1_hits="\${nont1_hits}\${f}"$'\\n'`,
+  `    fi`,
+  `  done <<CHANGED`,
+  `$changed`,
+  `CHANGED`,
 ];
 let passed = 0, failed = 0;
 const check = (n, f) => { try { f(); passed++; console.log(`  PASS: ${n}`); } catch (e) { failed++; console.log(`  FAIL: ${n}\n    ${e.message}`); } };
