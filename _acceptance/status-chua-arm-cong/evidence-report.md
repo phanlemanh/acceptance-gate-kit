@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: f8de779820fdc89276497f028736742cfef938c3
+verified_commit: 4bd6d4d5109c68d3a4bed3bf4d4d11003d70397a
 human_signoff: Manh Phan 2026-08-18
 ---
 
@@ -148,3 +148,7 @@ Round 1: toàn bộ 9 eval (E1–E5e) PASS ngay từ lượt đầu tiên; khôn
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter
+
+### Re-pin lần 1 — 2026-08-18, do gộp main (PR #65 release-2-2-0) sau khi ký
+run_id: repin-20260818-merge65-4bd6d4d5
+sha: 4bd6d4d5109c68d3a4bed3bf4d4d11003d70397a · suites: 6 lệnh exit 0
