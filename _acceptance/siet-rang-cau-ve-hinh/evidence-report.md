@@ -7,7 +7,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 9925c91d9c473df8413283817766af46fd8aaa85
-human_signoff:
+human_signoff: Manh Phan 2026-08-18
 ---
 
 # Evidence Report: siet-rang-cau-ve-hinh
@@ -121,14 +121,14 @@ Round 5: verdict PASS tai verified_commit ed7739ecdf37f2a75508018647ccf58ee303f9
 
 ## Gate 2 checklist (human)
 
-- [ ] Read the table + spot-check 1-2 evidence blocks
+- [x] Read the table + spot-check 1-2 evidence blocks
 - [ ] Personally verify every judgment item marked UNCERTAIN, then fill its
       `human_override: <name> <date>` line
 - [ ] T3 only: personally verify ALL judgment items and fill `human_override`
       on each (judge verdicts are advisory; the hook blocks PASS without them)
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
-- [ ] Fill `human_signoff` in frontmatter
+- [x] Fill `human_signoff` in frontmatter
 
 ### Re-pin lần 1 — 2026-08-18, do răng của hồ sơ thêm đối chứng dương chân diffBase (finding trong hợp đồng r5, AC-8; sửa 1 chân, machine-only, không đụng chữ ký)
 run_id: repin-siet-rang-cau-ve-hinh-9925c91d

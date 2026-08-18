@@ -5,7 +5,7 @@ slug: siet-rang-cau-ve-hinh
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: ""
 approved_at: ""
 veto_state: mo
@@ -56,4 +56,12 @@ không quét `morphological-scan` — xem entry `descope` trong `decisions.jsonl
 
 ## Notes
 
-(Known limits — điền tại Cổng 2.)
+**Known limits chốt tại Cổng 2 (2026-08-18, Manh Phan) — chấp nhận và ship:**
+
+1. **m4 của P90 chỉ đỏ khi câu thay giữ 4 chữ đầu** — thay cả câu bằng câu lạ thì với `hfl_clause` là «xoá một bản» (điểm mù đã khai trong docstring; P197 canh bản GATE 1).
+2. **E1 từng tuyên một chiều đỏ không có mã** — đã sửa lời; chiều đỏ của P198 ở gốc do răng đo qua «khối P198 chưa tồn tại» (`ONLY_BLOCK=P198 khong khop khoi nao`).
+3. **Răng ghi bản sao suite tạm vào `tests/plugins/_rang-siet-copy.sh`** (để ROOT suy đúng); trap dọn khi thoát thường, ngắt cứng có thể để sót file — không vào .gitignore.
+4. **`hfl_clause` neo hai đầu còn hai điểm mù xanh-giả** (sửa CẢ HAI đầu cùng lúc; xoá hẳn một bản — descope d-1104) và một chiều đỏ-giả (văn thường trùng 4 chữ đầu/cuối làm n_anchor tăng — báo lệch dù mọi bản đúng; thông điệp dẫn sai hướng, không nuốt lỗi).
+5. **Chân diffBase của răng dùng `git worktree`** (mutate .git, trap `worktree prune`) thay vì tar-copy như các răng khác.
+
+Vòng này 5 vòng máy; 3 vòng đỏ vì trình tự của người thi công (commit gói bằng chứng cũ chung với code ×2; răng tự mắc lớp «thước chưa gắn vật» ×2) — kit bắt đúng từng lần. Bản sửa chân đối chứng dương sau r5 xác nhận bằng lane máy re-pin `9925c91` (4 suite + răng), không phải một vòng review — owner biết và ký.
