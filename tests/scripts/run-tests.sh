@@ -233,12 +233,19 @@ mk_xl "$P/pm05" feat-xl5 '- AC-1: Given app, When submit order, Then order saved
     criterion: "AC-1"
     expected: "order row exists via API"'
 bash "$CHECK" "$P/pm05" >/dev/null; check PM05 0 $?
-echo "PM06 feature draft (chưa gated) -> ngoài scope, exit 0"
+# PM06 đổi thước có hợp đồng (hồ sơ status-chua-arm-cong, 18/08): fixture mk_xl
+# LUÔN viết một evidence-report PASS đã ký, nên «draft + có evidence» chính là
+# hồ sơ chưa arm cổng — nay VIOLATION đích danh thay vì im lặng. Lời hứa gốc
+# của ca (luật pairing cross-layer NGOÀI phạm vi cho draft) vẫn giữ: không dòng
+# cross-layer nào.
+echo "PM06 feature draft CÓ evidence -> chưa arm cổng (exit 1), luật pairing vẫn ngoài scope"
 mk_xl "$P/pm06" feat-xl6 '- AC-1: Given app, When submit order, Then order saved via API. (cross-layer)' '  - id: E1
     criterion: AC-1
     executor: test
     expected: "e2e mobile green"' draft
-bash "$CHECK" "$P/pm06" >/dev/null; check PM06 0 $?
+outPM6="$(bash "$CHECK" "$P/pm06" 2>&1)"; check PM06 1 $?
+case "$outPM6" in *"chưa arm cổng"*) echo "  PASS: PM06-arm"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: PM06-arm (expected VIOLATION chưa arm cổng)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+case "$outPM6" in *cross-layer*) echo "  FAIL: PM06-silent (pairing rule ran on draft)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: PM06-silent"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
 echo "PM07 eval block mở bằng criterion (không phải id) + comment trên criterion -> vẫn paired, clean"
 mk_xl "$P/pm07" feat-xl7 '- AC-1: Given app, When submit order, Then order saved via API. (cross-layer)' '  - criterion: AC-1  # main flow
     id: E2
@@ -2120,13 +2127,19 @@ printf 'charge()\n' > "$R/src/billing/charge.js"; git -C "$R" add -A >/dev/null 
 outB="$(bash "$CHECK" "$R" --base "$BASE" 2>&1)"; check B01 1 $?
 case "$outB" in *T3*src/billing/charge.js*|*src/billing/charge.js*) echo "  PASS: B01-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: B01-msg (expected t3 offender listed)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
-echo "B02 PR touches t3 path AND carries _acceptance/<slug>/ artifacts -> backstop satisfied"
+# B02 đổi thước có hợp đồng (hồ sơ status-chua-arm-cong, 18/08): PR đổi code
+# t3 kèm một hồ sơ DRAFT — răng T1-escape vẫn thoả (không VIOLATION [PR]),
+# nhưng hồ sơ ấy chưa arm nên không luật nào chấm code đó: đúng lỗ vòng 4
+# release-2-2-0. Nay per-slug nổ «chưa arm cổng», exit 1.
+echo "B02 PR touches t3 path AND carries a DRAFT _acceptance/<slug>/ -> T1-escape satisfied, but slug chưa arm cổng -> exit 1"
 R="$T/b02"; mk_pr "$R"; BASE="$(git -C "$R" rev-parse HEAD)"
 printf 'charge()\n' > "$R/src/billing/charge.js"
 mkdir -p "$R/_acceptance/billing-fix"
 printf -- '---\nschema_version: 1\nfeature: billing fix\nslug: billing-fix\nrisk_tier: T3\nsurfaces: [api]\nstatus: draft\napproved_by:\n---\n' > "$R/_acceptance/billing-fix/contract.md"
 git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm pr
-bash "$CHECK" "$R" --base "$BASE" >/dev/null; check B02 0 $?
+outB2="$(bash "$CHECK" "$R" --base "$BASE" 2>&1)"; check B02 1 $?
+case "$outB2" in *"VIOLATION [PR]"*) echo "  FAIL: B02-t1 (T1-escape phải vẫn thoả)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: B02-t1"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
+case "$outB2" in *"[billing-fix]: hồ sơ có bằng chứng nhưng status chưa arm cổng"*"src/billing/charge.js"*) echo "  PASS: B02-arm"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: B02-arm (expected chưa arm cổng nêu tên file t3)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
 echo "B03 PR touches only t1_skip_globs files -> clean"
 R="$T/b03"; mk_pr "$R"; BASE="$(git -C "$R" rev-parse HEAD)"
@@ -3782,6 +3795,134 @@ case "$GCV_OK" in
     echo "  FAIL: GCV1d contract lanh bi canh bao (cry-wolf)"; FAIL_COUNT=$((FAIL_COUNT+1));;
   *) echo "  PASS: GCV1d contract lanh khong sinh canh bao nao"; PASS_COUNT=$((PASS_COUNT+1));;
 esac
+
+echo ""
+echo "--- status-chua-arm-cong: hồ sơ chưa arm cổng không được tàng hình (ARM01–ARM12) ---"
+# Fixture CODE-SINH bằng git, hai commit: c1 = base (config t1/t3 + src/app.js
+# + core/k.js + docs/n.txt), c2 = nhánh PR (hồ sơ + thay đổi theo <pr>). Mọi
+# lượt chạy `env -u PRE_MERGE_BASE`. Ma trận toàn phần viết trước trong thiết
+# kế 2026-08-18-status-chua-arm-cong-design.md: mỗi ô ĐỎ ghim đúng câu, mỗi ô
+# XANH kèm DẤU DƯƠNG cổng-đã-chạy (dòng sổ luật expected=4, hoặc dòng verdict
+# nguyên văn) — không có ca âm-tính-một-mình.
+ARM_MSG="hồ sơ có bằng chứng nhưng status chưa arm cổng"
+mk_arm() { # <root> <status> <ev yes|no> <pr code|docs|t3|none> [<tier>] [<extra armed slug: yes>]
+  local R="$1" st="$2" ev="$3" pr="$4" tier="${5:-T2}" extra="${6:-no}"
+  rm -rf "$R"; mkdir -p "$R/src" "$R/core" "$R/docs" "$R/_acceptance/feat-arm"; git init -q "$R"
+  printf 'schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "docs/**"\n    - "*.md"\n  t3_paths:\n    - "core/**"\n' > "$R/_acceptance/config.yaml"
+  printf 'v1\n' > "$R/src/app.js"; printf 'c1\n' > "$R/core/k.js"; printf 'x\n' > "$R/docs/n.txt"
+  printf '#!/bin/sh\nexit 0\n' > "$R/verify.sh"
+  if [ "$extra" = yes ]; then
+    # slug cũ ĐÃ ở base: approved + REJECT, ngoài diff PR (sử liệu)
+    printf -- '---\nschema_version: 1\nfeature: old\nslug: feat-old\nrisk_tier: T2\nsurfaces: [api]\nstatus: approved\napproved_by: Manh Phan\napproved_at: 2026-06-10\n---\n' > "$R/_acceptance/feat-arm/contract.md"
+    mv "$R/_acceptance/feat-arm" "$R/_acceptance/feat-old"; mkdir -p "$R/_acceptance/feat-arm"
+    printf -- '---\nschema_version: 1\nfeature_slug: feat-old\nverdict: REJECT\nhuman_signoff:\n---\n' > "$R/_acceptance/feat-old/evidence-report.md"
+  fi
+  git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm base
+  if [ "$pr" != none ] || [ "$st" != none ]; then
+    if [ "$st" != none ]; then
+      printf -- '---\nschema_version: 1\nfeature: f\nslug: feat-arm\nrisk_tier: %s\nsurfaces: [api]\nstatus: %s\napproved_by: Manh Phan\napproved_at: 2026-06-10\n---\n' "$tier" "$st" > "$R/_acceptance/feat-arm/contract.md"
+      [ "$ev" = yes ] && printf -- '---\nschema_version: 1\nfeature_slug: feat-arm\nverdict: REJECT\nhuman_signoff:\n---\n' > "$R/_acceptance/feat-arm/evidence-report.md"
+    else
+      rmdir "$R/_acceptance/feat-arm" 2>/dev/null || true
+    fi
+    case "$pr" in code) printf 'v2\n' > "$R/src/app.js" ;; docs) printf 'y\n' > "$R/docs/n.txt" ;; t3) printf 'c2\n' > "$R/core/k.js" ;; esac
+    git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm pr
+  fi
+}
+arm_run() { # <root> [--base] → stdout vào ARM_OUT, exit vào ARM_RC
+  if [ "${2:-}" = "--base" ]; then ARM_OUT="$(env -u PRE_MERGE_BASE bash "$CHECK" "$1" --base HEAD~1 2>&1)"; ARM_RC=$?
+  else ARM_OUT="$(env -u PRE_MERGE_BASE bash "$CHECK" "$1" 2>&1)"; ARM_RC=$?; fi
+}
+
+echo "ARM01 đối chứng dương: implemented + REJECT + PR đổi code → cổng CHẠY (verdict nổ), KHÔNG dòng chưa-arm"
+mk_arm "$T/arm01" implemented yes code; arm_run "$T/arm01" --base
+check ARM01 1 $ARM_RC
+hasout "ARM01-verdict" "VIOLATION [feat-arm]: verdict=REJECT (must be PASS to merge)" "$ARM_OUT"
+nothas "ARM01-noarm" "$ARM_MSG" "$ARM_OUT"
+
+echo "ARM02 chiều đỏ (a) — tái hiện vòng 4: approved + REJECT + PR đổi code → chưa arm cổng"
+mk_arm "$T/arm02" approved yes code; arm_run "$T/arm02" --base
+check ARM02 1 $ARM_RC
+hasout "ARM02-msg" "VIOLATION [feat-arm]: $ARM_MSG" "$ARM_OUT"
+hasout "ARM02-verdict" "verdict=REJECT" "$ARM_OUT"
+
+echo "ARM03 chiều đỏ (b): draft, không evidence, PR đổi src/app.js → chưa arm cổng nêu tên file"
+mk_arm "$T/arm03" draft no code; arm_run "$T/arm03" --base
+check ARM03 1 $ARM_RC
+hasout "ARM03-msg" "VIOLATION [feat-arm]: $ARM_MSG" "$ARM_OUT"
+hasout "ARM03-file" "PR đổi code chịu cổng (src/app.js" "$ARM_OUT"
+
+echo "ARM04 đường đọc-cũ (hạt giống): draft, không evidence, PR chỉ đổi docs/ → clean + dấu dương"
+mk_arm "$T/arm04" draft no docs; arm_run "$T/arm04" --base
+check ARM04 0 $ARM_RC
+nothas "ARM04-noarm" "$ARM_MSG" "$ARM_OUT"
+hasout "ARM04-ran" "expected=4" "$ARM_OUT"
+
+echo "ARM05 đường đọc-cũ (sử liệu): slug cũ approved+REJECT ngoài diff, slug mới armed trong diff → không nổ cho slug cũ"
+mk_arm "$T/arm05" implemented yes code T2 yes; arm_run "$T/arm05" --base
+nothas "ARM05-old-quiet" "[feat-old]: $ARM_MSG" "$ARM_OUT"
+hasout "ARM05-new-judged" "VIOLATION [feat-arm]: verdict=REJECT (must be PASS to merge)" "$ARM_OUT"
+hasout "ARM05-ran" "expected=4" "$ARM_OUT"
+
+echo "ARM06 không --base (fail-safe a): approved + REJECT → nổ như xét mọi slug"
+mk_arm "$T/arm06" approved yes code; arm_run "$T/arm06"
+check ARM06 1 $ARM_RC
+hasout "ARM06-msg" "VIOLATION [feat-arm]: $ARM_MSG" "$ARM_OUT"
+
+echo "ARM07 không --base (đọc-cũ): draft không evidence → clean (S04 vẫn đúng) + dấu dương"
+mk_arm "$T/arm07" draft no code; arm_run "$T/arm07"
+check ARM07 0 $ARM_RC
+nothas "ARM07-noarm" "$ARM_MSG" "$ARM_OUT"
+hasout "ARM07-ran" "expected=4" "$ARM_OUT"
+
+echo "ARM08 T1-escape không đổi (nhánh non-T1): PR đổi src/app.js KHÔNG kèm _acceptance/ → thông điệp nguyên văn"
+mk_arm "$T/arm08" none no code; arm_run "$T/arm08" --base
+check ARM08 1 $ARM_RC
+hasout "ARM08-msg" "VIOLATION [PR]: non-T1 files changed (outside t1_skip_globs) but the PR carries NO _acceptance/<slug>/ artifacts" "$ARM_OUT"
+hasout "ARM08-ran" "expected=4" "$ARM_OUT"
+
+echo "ARM08b T1-escape không đổi (nhánh t3): PR đổi core/k.js KHÔNG kèm _acceptance/ → thông điệp nguyên văn"
+mk_arm "$T/arm08b" none no t3; arm_run "$T/arm08b" --base
+check ARM08b 1 $ARM_RC
+hasout "ARM08b-msg" "VIOLATION [PR]: T3 paths (t3_paths) changed but the PR carries NO _acceptance/<slug>/ artifacts" "$ARM_OUT"
+hasout "ARM08b-file" "core/k.js" "$ARM_OUT"
+hasout "ARM08b-ran" "expected=4" "$ARM_OUT"
+
+echo "ARM09 (b) độc lập với status: approved, không evidence, PR đổi code → chưa arm cổng"
+mk_arm "$T/arm09" approved no code; arm_run "$T/arm09" --base
+check ARM09 1 $ARM_RC
+hasout "ARM09-msg" "VIOLATION [feat-arm]: $ARM_MSG" "$ARM_OUT"
+hasout "ARM09-file" "PR đổi code chịu cổng (" "$ARM_OUT"
+
+echo "ARM10 (a) độc lập với (b): approved + REJECT, PR chỉ đổi docs/ → vẫn nổ theo evidence"
+mk_arm "$T/arm10" approved yes docs; arm_run "$T/arm10" --base
+check ARM10 1 $ARM_RC
+hasout "ARM10-msg" "VIOLATION [feat-arm]: $ARM_MSG" "$ARM_OUT"
+hasout "ARM10-verdict" "verdict=REJECT" "$ARM_OUT"
+
+echo "ARM11 (b) qua nhánh t3_paths: draft, không evidence, PR đổi core/k.js → chưa arm cổng nêu tên file t3"
+mk_arm "$T/arm11" draft no t3; arm_run "$T/arm11" --base
+check ARM11 1 $ARM_RC
+hasout "ARM11-msg" "VIOLATION [feat-arm]: $ARM_MSG" "$ARM_OUT"
+hasout "ARM11-file" "PR đổi code chịu cổng (core/k.js" "$ARM_OUT"
+
+echo "ARM12 tier ngoài required_for: T1 + approved + REJECT + PR đổi code → im như cũ + dấu dương"
+mk_arm "$T/arm12" approved yes code T1; arm_run "$T/arm12" --base
+check ARM12 0 $ARM_RC
+nothas "ARM12-noarm" "$ARM_MSG" "$ARM_OUT"
+hasout "ARM12-ran" "expected=4" "$ARM_OUT"
+
+# Lượt phá-thử (MEASURE-BIRTH-CLAUSE): bản sao script gỡ vế (a) → ARM02 phải
+# ĐỎ đích danh; đối chứng: bản sao nguyên vẹn vẫn xanh trên cùng fixture.
+echo "ARM13 mutant: bản sao pre-merge gỡ vế (a) → ARM02 mất dòng chưa-arm (phép đo phân biệt được)"
+ARM_MUT="$T/arm-mut.sh"; cp "$CHECK" "$ARM_MUT"
+ARM_MUT_OUT_OK="$(env -u PRE_MERGE_BASE bash "$ARM_MUT" "$T/arm02" --base HEAD~1 2>&1)"
+sed -i.bak 's/if \[ -f "\$dir\/evidence-report.md" \] \&\& { \[ "\$DIFF_READY" -eq 0 \] || slug_in_diff "\$slug"; }; then/if false; then/' "$ARM_MUT"
+ARM_MUT_OUT="$(env -u PRE_MERGE_BASE bash "$ARM_MUT" "$T/arm02" --base HEAD~1 2>&1)"
+if [ "$ARM_MUT_OUT_OK" = "$ARM_MUT_OUT" ]; then echo "  FAIL: ARM13 (mutant không đổi output — sed không trúng, phép đo không sống)"; FAIL_COUNT=$((FAIL_COUNT+1)); else echo "  PASS: ARM13"; PASS_COUNT=$((PASS_COUNT+1)); fi
+hasout "ARM13-ctrl" "verdict=REJECT đã có" "$ARM_MUT_OUT_OK"
+nothas "ARM13-mut" "verdict=REJECT đã có" "$ARM_MUT_OUT"
+rm -f "$ARM_MUT" "$ARM_MUT.bak"
 
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
