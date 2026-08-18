@@ -1,0 +1,56 @@
+# Evals — het-gio-khong-phai-truot
+# Phép đo thật sống trong tests/workflows/acceptance-verify.test.mjs (W25–W27,
+# mutant srcOverride chạy chiều đỏ trong CÙNG lượt). Răng hồ sơ ghim ĐÚNG dòng
+# case trong stdout suite (nếp p194 — không tin exit code trọn suite: trên
+# diffBase suite cũng xanh nên mã thoát không phân biệt cây cũ/mới). E7 = trọn
+# suite tồn kho cho AC-7 tương thích.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.script.rang_hgkpt
+    expected: "răng ghim dòng 'PASS: W25 machine prompt chua TOOL-KILL-RULE' + dòng 'PASS: W25 rule rut tu marker' (chuỗi luật rút từ marker trong source, không chép tay — răng tự phá thử: xoá dòng khỏi bản sao stdout → grep của chính nó ĐỎ ghim tên dòng thiếu). Chiều đỏ trên diffBase: case W25 chưa tồn tại → răng đỏ 'thieu dong PASS: W25'."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/het-gio-khong-phai-truot/rang.sh]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.script.rang_hgkpt
+    expected: "răng ghim dòng 'PASS: W25 ui prompt chua TOOL-KILL-RULE' + dòng mutant cô lập lane ui 'PASS: W25 mutant ui: xoa rule -> chi ui do' (srcOverride xoá ĐÚNG lượt nội suy của lane ui, hai lane kia phải còn rule)."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/het-gio-khong-phai-truot/rang.sh]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.script.rang_hgkpt
+    expected: "răng ghim dòng 'PASS: W25 baseline prompt chua TOOL-KILL-RULE' + dòng mutant cô lập lane baseline 'PASS: W25 mutant baseline: xoa rule -> chi baseline do'; lane machine có mutant riêng 'PASS: W25 mutant machine: xoa rule -> chi machine do' — số mutant = số lane (3), ma trận toàn phần."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/het-gio-khong-phai-truot/rang.sh]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.script.rang_hgkpt
+    expected: "răng ghim dòng 'PASS: W25 schema killedByTool' (MACHINE_SCHEMA + UI_SCHEMA + item BASELINE_SCHEMA.results đều có field boolean optional, cả ba KHÔNG vào required)."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/het-gio-khong-phai-truot/rang.sh]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.script.rang_hgkpt
+    expected: "răng ghim đủ BA dòng trên CÙNG fixture sự cố (exitCode=1, cannotRun=false, outputTail cắt không dòng tổng kết): 'PASS: W26 killedByTool -> BLOCKED' (eval KHÔNG trong failedEvals) · hai nhánh reason 'PASS: W26 reason agent giu nguyen van' và 'PASS: W26 reason trong -> khuon ghim bi cong cu giet' · đối chứng dương 'PASS: W26 doi chung: exit 1 that -> REJECT'. Thiếu một dòng → răng đỏ ghim tên dòng thiếu."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/het-gio-khong-phai-truot/rang.sh]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.script.rang_hgkpt
+    expected: "răng ghim cặp: 'PASS: W27 baseline killed -> n-a' (không red giả, không vào nonDiscriminating) VÀ 'PASS: W27 doi chung: baseline exit 1 that -> red'."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/het-gio-khong-phai-truot/rang.sh]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "trọn suite workflows tồn kho xanh (exit 0) — mọi field mới optional; chiều đỏ của tương thích là bất kỳ case W01–W24 nào đỏ."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, tests/workflows/harness.mjs]
+  - id: E8
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.script.rang_hgkpt
+    expected: "chân tồn-kho của răng: rút danh sách tên case check('W...') từ bản diffBase của test file bằng git show (đếm nguồn trong cùng lần chạy, không hardcode), assert TỪNG tên còn nguyên văn trong file hiện tại VÀ có dòng 'PASS: <tên>' trong stdout suite; răng in 'PASS: TON-KHO <n> case cu nguyen van'. Chiều đỏ: sửa/xoá một case cũ → răng đỏ ghim tên case bị lệch."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/het-gio-khong-phai-truot/rang.sh]
