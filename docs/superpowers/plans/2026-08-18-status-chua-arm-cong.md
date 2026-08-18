@@ -4,7 +4,7 @@ Thiết kế: `docs/superpowers/specs/2026-08-18-status-chua-arm-cong-design.md`
 Hồ sơ: `_acceptance/status-chua-arm-cong/`. Bốn task tuần tự (mỗi task một
 commit); task 1+2 phụ thuộc nhau (răng gắn vào luật) — không fan-out.
 
-| Người dùng thấy gì khác | Đụng đâu | Phục vụ tiêu chí |
+| Thay đổi thấy được | Chỗ đụng | Tiêu chí phục vụ |
 |---|---|---|
 | Hồ sơ đã có kết quả chấm mà status còn draft/approved không còn tàng hình ở biên merge — cổng nêu tên nó và hai lối ra | `scripts/pre-merge-check.sh` (vòng per-slug, hoist phân loại diff) | AC-1 · AC-2 · AC-3 (luật + đường đọc-cũ) |
 | Răng T1-escape in y như cũ dù phân loại diff được tính sớm hơn | `scripts/pre-merge-check.sh` (khối T1-escape) | AC-4 (hoist không đổi hành vi) |
