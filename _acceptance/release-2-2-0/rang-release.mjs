@@ -1,21 +1,22 @@
 #!/usr/bin/env node
-// Răng đo release-2-2-0 — MỘT tiến trình Node, không có bash đếm.
+// Răng đo release-2-2-0 — MỘT chân, một tiến trình Node.
 //
-// Vì sao viết lại bằng Node (owner chọn đường A, 18/08): bản bash trước đó dính
-// BA lỗi CÙNG MỘT LỚP «bộ đếm nằm trong ống/shell con/trap → fail-open»:
-//   1. `kiem_* | doc_kq` — vế cuối ống chạy trong shell con nên mọi vế ĐỎ của
-//      chiều dương bị nuốt, script in XANH exit 0 trên cây SAI số phiên bản.
-//   2. `trap ERR` gọi hàm có echo → chuỗi «ĐỎ» chui vào giá trị đang gán, chân
-//      manifest đỏ vô điều kiện với thông điệp SAI SỰ THẬT.
-//   3. `grep -c '^\(OK\||DO\)|'` (BRE) không bao giờ khớp dòng `DO|` → chỉ đếm vế xanh.
-// Vòng vá thứ hai vẫn sinh lỗi cùng lớp ⇒ khuôn giải sai, không phải chi tiết
-// sai (luật dừng-vá). Ở đây: mọi vế là GIÁ TRỊ trả về trong cùng một tiến trình,
-// đếm trong bộ nhớ, mã thoát = số vế đỏ. Không ống, không trap, không regex vỏ.
+// Lịch sử rút gọn (owner chọn «thu phạm vi thước» 18/08 — luật dừng-vá lần hai):
+//   · bản bash: bộ đếm trong ống/shell con/trap nuốt vế đỏ (3 lỗ cùng lớp);
+//   · bản Node 7 chân ~300 dòng để đo 2 con số + 1 dòng + 1 đoạn — mỗi vòng soi
+//     lại lộ một cách nó không đo thứ nó tuyên (thước lệch lời khai · chiều đỏ
+//     không cô lập · fail-open · chốt chết · đo-từ-vựng-thay-quan-hệ);
+//   · bản này giữ đúng thứ CHỈ mốc phát hành mới có. Ba việc bỏ hẳn vì đã có
+//     lưới khác đo: hành trình làn V (lưới trước-merge tự chạy ở biên merge và
+//     có bộ kiểm vĩnh viễn riêng) · ba ca P197/P198/P199 (suite plugins chạy
+//     như eval E3c; ba ca thuộc ba hồ sơ kia) · tự-kiểm bộ đếm (sinh ra để canh
+//     bộ đếm bash — bash đã chết).
 //
-// Nếp giữ nguyên: MỘT hàm kiểm nhận GỐC; cây thật và bản đột biến cùng đi qua
-// chính hàm đó; chiều đỏ in vết cùng lượt và ghim đúng thông điệp.
+// Nếp giữ: mọi vế là GIÁ TRỊ trong một tiến trình, mã thoát = số vế đỏ; cây
+// thật và bản đột biến cùng đi qua CHÍNH hàm kiểm, ghim ĐÚNG câu; ngoại lệ
+// thành vế ĐỎ có tên, không crash.
 //
-//   node rang-release.mjs --chan <manifest|docs|mo-ta|ba-ca|lan-v|diff-allowlist|tu-kiem> [--root <đường dẫn>]
+//   node rang-release.mjs [--root <đường dẫn đọc vật>]
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -27,112 +28,93 @@ const WS = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(WS, '..', '..');
 const VER = '2.2.0';
 const BASE_REF = process.env.DIFF_BASE || 'origin/main';
-
 const argv = process.argv.slice(2);
-const argOf = (k) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : null; };
-const CHAN = argOf('--chan');
-const ROOT = argOf('--root') || REPO;
+const ROOT = (argv.indexOf('--root') >= 0 ? argv[argv.indexOf('--root') + 1] : null) || REPO;
 
-// ── vế = giá trị, không phải dòng in ────────────────────────────────────────
 const ok = (m) => ({ ok: true, m });
 const red = (m) => ({ ok: false, m });
 const tmps = [];
 const tmpd = () => { const d = fs.mkdtempSync(path.join(os.tmpdir(), 'rang22-')); tmps.push(d); return d; };
 process.on('exit', () => { for (const d of tmps) { try { fs.rmSync(d, { recursive: true, force: true }); } catch {} } });
-
 const readJSON = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
-// git LUÔN chạy trong REPO thật; `--root` chỉ là nơi ĐỌC VẬT (manifest/GUIDE).
-// Trộn hai thứ này là lỗi đã bắt ở S4-r1 bản Node: bản sao không phải kho git
-// nên chân thoát sớm ở nhánh fail-closed và mọi đột biến «đỏ» mà không hề đo.
-const sh = (cmd, args, cwd) => spawnSync(cmd, args, { cwd: cwd || REPO, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+// git LUÔN chạy trong kho thật; `--root` chỉ là nơi ĐỌC VẬT.
+const git = (...a) => spawnSync('git', a, { cwd: REPO, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
+const muc = (mota, v) => { const i = mota.indexOf('v' + v); return i < 0 ? null : mota.slice(i); };
 
-// ── chân manifest: SÁU vế, mỗi nguồn hỏng thành MỘT vế đỏ (không im lặng) ──
-const VE_MANIFEST = 6;
-function chanManifest(root, ddBase) {
-  const load = (rel, ten) => { try { return { v: readJSON(path.join(root, rel)) }; } catch (e) { return { err: `${ten}: ${e.message.split('\n')[0]}` }; } };
+// ── PHÉP ĐO: nhận GỐC + số vendor pin ở base, trả danh sách vế ──────────────
+function kiem(root, ddBase) {
+  const out = [];
+  const load = (rel, ten) => { try { return { v: readJSON(path.join(root, rel)) }; } catch (e) { return { err: `${ten}: ${String(e.message).split('\n')[0]}` }; } };
   const A = load('.claude-plugin/plugin.json', 'manifest acceptance-gate');
   const F = load('feature-loop/.claude-plugin/plugin.json', 'manifest feature-loop');
   const D = load('diagram-design/.claude-plugin/plugin.json', 'manifest diagram-design');
-  const out = [];
+
+  // (1) Hai số lên mốc; vendor pin KHÔNG ĐỔI so với base — quan hệ, không hình dạng
   out.push(A.err ? red(`khong doc duoc ${A.err}`) : A.v.version === VER ? ok(`ag-version ${VER}`) : red(`ag-version ${A.v.version}`));
   out.push(F.err ? red(`khong doc duoc ${F.err}`) : F.v.version === VER ? ok(`fl-version ${VER}`) : red(`fl-version ${F.v.version}`));
-  // QUAN HỆ (không hình dạng): vendor pin KHÔNG ĐỔI so với base
   out.push(D.err ? red(`khong doc duoc ${D.err}`) : D.v.version === ddBase ? ok(`dd-version ${D.v.version} khong doi so voi base`) : red(`dd-version doi so voi base: ${ddBase} -> ${D.v.version}`));
-  out.push(D.err ? red('dd-version khong kiem duoc semver (manifest hong)') : /^\d+\.\d+\.\d+$/.test(D.v.version) ? ok('dd-version hop semver') : red(`dd-version khong hop semver: ${D.v.version}`));
-  out.push(A.err ? red('mo ta ag khong kiem duoc (manifest hong)') : A.v.description.includes('v' + VER) ? ok(`ag mo ta co muc v${VER}`) : red(`ag mo ta thieu muc v${VER}`));
-  out.push(F.err ? red('mo ta fl khong kiem duoc (manifest hong)') : F.v.description.includes(`acceptance-gate >= ${VER}`) ? ok(`fl khai cap ag >= ${VER}`) : red(`fl khong khai cap ag >= ${VER}`));
-  if (out.length !== VE_MANIFEST) out.push(red(`chân manifest trả ${out.length} vế, khai trước ${VE_MANIFEST} — chân câm không được tính xanh`));
+
+  // (2) Dòng khớp-phiên-bản của GUIDE DẪN XUẤT từ manifest (một nguồn)
+  if (A.err || F.err || D.err) out.push(red('GUIDE khong kiem duoc (manifest hong)'));
+  else {
+    const want = `Khớp phiên bản: acceptance-gate ${A.v.version} · feature-loop ${F.v.version} · diagram-design ${D.v.version}.`;
+    let g = null; try { g = fs.readFileSync(path.join(root, 'GUIDE.md'), 'utf8'); } catch (e) { g = null; }
+    out.push(g === null ? red('khong doc duoc GUIDE.md') : g.includes(want) ? ok('GUIDE khop so doc tu manifest') : red(`GUIDE khong chua: ${want}`));
+  }
+
+  // (3) Mục v2.2.0 nói người dùng nhận gì — và câu khai cặp phải NẰM TRONG mục
+  //     đó. Đo QUAN HỆ: sửa mục LỊCH SỬ để lấy màu xanh là đúng lỗi vòng chấm
+  //     18/08 bắt được (changelog nói sai về một bản đã phát hành).
+  if (A.err) out.push(red('mo ta ag khong kiem duoc (manifest hong)'));
+  else {
+    const seg = muc(A.v.description, VER);
+    if (!seg) out.push(red(`mo ta ag khong co muc v${VER}`));
+    else for (const [n, v] of [
+      ['muc v2.2.0 noi hinh tai Cong 1', /Gate 1/i.test(seg) && /(diagram|figure|picture)/i.test(seg)],
+      ['muc v2.2.0 noi nguong nghiem thu tren the', /threshold/i.test(seg)],
+      ['muc v2.2.0 noi nhat-ky-vap', /stranger[- ]drive/i.test(seg)],
+      ['muc v2.2.0 noi S5 ban giao', /hands? off|hand-off/i.test(seg)],
+      ['muc v2.2.0 noi khong phai migrate', /nothing to migrate|no migration/i.test(seg)],
+    ]) out.push(v ? ok(n) : red(`thieu ve: ${n}`));
+  }
+  if (F.err) out.push(red('mo ta fl khong kiem duoc (manifest hong)'));
+  else {
+    const seg = muc(F.v.description, VER);
+    out.push(!seg ? red(`mo ta fl khong co muc v${VER}`)
+      : new RegExp(`acceptance-gate >= ${VER.replace(/\./g, '\\.')}`).test(seg) ? ok(`muc v${VER} cua fl TU khai cap ag >= ${VER}`)
+        : red(`muc v${VER} cua fl khong khai cap — cau khai cap nam ngoai muc nay (sua muc lich su khong tinh)`));
+  }
   return out;
 }
 
-// ── chân docs: GUIDE khớp số ĐỌC TỪ manifest (một nguồn) ────────────────────
-function chanDocs(root) {
-  try {
-    const v = (rel) => readJSON(path.join(root, rel)).version;
-    const ag = v('.claude-plugin/plugin.json'), fl = v('feature-loop/.claude-plugin/plugin.json'), dd = v('diagram-design/.claude-plugin/plugin.json');
-    const want = `Khớp phiên bản: acceptance-gate ${ag} · feature-loop ${fl} · diagram-design ${dd}.`;
-    const g = fs.readFileSync(path.join(root, 'GUIDE.md'), 'utf8');
-    return [g.includes(want) ? ok(`GUIDE khop ${ag} · ${fl} · ${dd}`) : red(`GUIDE khong chua: ${want}`)];
-  } catch (e) { return [red(`chân docs không đọc được nguồn: ${e.message.split('\n')[0]}`)]; }
-}
-
-// ── chân mô tả: NĂM vế người dùng cần đọc được ở mục v2.2.0 ────────────────
-const VE_MOTA = 5;
-function chanMoTa(root) {
-  let d;
-  try { d = readJSON(path.join(root, '.claude-plugin/plugin.json')).description; }
-  catch (e) { return [red(`mo ta khong doc duoc: ${e.message.split('\n')[0]}`)]; }
-  const i = d.indexOf('v' + VER);
-  if (i < 0) return [red(`mo ta khong co muc v${VER}`)];
-  const seg = d.slice(i);
-  const need = [
-    ['noi hinh tai Cong 1', /Gate 1/i.test(seg) && /(diagram|figure|picture)/i.test(seg)],
-    ['noi nguong nghiem thu tren the', /threshold/i.test(seg)],
-    ['noi nhat-ky-vap', /stranger[- ]drive/i.test(seg)],
-    ['noi S5 ban giao', /hands? off|hand-off/i.test(seg)],
-    ['noi khong phai migrate', /nothing to migrate|no migration/i.test(seg)],
-  ];
-  const out = need.map(([n, v]) => (v ? ok(n) : red(`thieu ve: ${n}`)));
-  if (out.length !== VE_MOTA) out.push(red(`chân mô tả trả ${out.length} vế, khai trước ${VE_MOTA}`));
-  return out;
-}
-
-// ── chân ba-ca: ba ca kiểm của ba hồ sơ trong mốc ──────────────────────────
-function chanBaCaCauTruc(runTestsSrc) {
-  return ['P197', 'P198', 'P199'].map(c =>
-    new RegExp(`^run "${c} `, 'm').test(runTestsSrc) ? ok(`bo kiem co ca ${c}`) : red(`thieu ca ${c} trong bo kiem`));
-}
-
-// ── chân diff: allowlist ĐÓNG + đối chứng dương (diff rỗng = chân mù) ──────
+// ── PHẠM VI DIFF: một lần cắt số không mang theo dòng engine nào ───────────
 const trongAllowlist = (f) =>
   ['.claude-plugin/plugin.json', 'feature-loop/.claude-plugin/plugin.json', 'GUIDE.md', 'PRODUCT-MAP.md', '_acceptance/config.yaml'].includes(f)
   || f.startsWith('_acceptance/release-2-2-0/');
 
-function chanDiff() {
+function kiemDiff() {
   const out = [];
-  const probe = sh('git', ['rev-parse', '--verify', '-q', BASE_REF]);
-  if (probe.status !== 0) return [red(`không giải được base '${BASE_REF}' — chân fail-closed, KHÔNG bỏ qua`)];
-  const d = sh('git', ['diff', '--name-only', `${BASE_REF}...HEAD`]);
-  if (d.status !== 0) return [red(`git diff lỗi: ${(d.stderr || '').trim().split('\n')[0]}`)];
+  if (git('rev-parse', '--verify', '-q', BASE_REF).status !== 0) return [red(`khong giai duoc base '${BASE_REF}' — fail-closed`)];
+  const d = git('diff', '--name-only', `${BASE_REF}...HEAD`);
+  if (d.status !== 0) return [red(`git diff loi: ${(d.stderr || '').trim().split('\n')[0]}`)];
   const files = d.stdout.split('\n').map(s => s.trim()).filter(Boolean);
-  if (files.length === 0) out.push(red(`diff RỖNG so với ${BASE_REF} — chân không kết luận được gì (đối chứng dương hỏng)`));
+  if (files.length === 0) out.push(red(`diff RONG so voi ${BASE_REF} — chan mu, khong ket luan duoc`));
   else {
-    out.push(ok(`diff có ${files.length} file`));
     for (const loi of ['.claude-plugin/plugin.json', 'feature-loop/.claude-plugin/plugin.json', 'GUIDE.md'])
-      out.push(files.includes(loi) ? ok(`diff có vật lõi: ${loi}`) : red(`diff THIẾU vật lõi của một lần cắt số: ${loi}`));
+      out.push(files.includes(loi) ? ok(`diff co vat loi: ${loi}`) : red(`diff THIEU vat loi: ${loi}`));
     const ngoai = files.filter(f => !trongAllowlist(f));
-    out.push(ngoai.length === 0 ? ok('diff nằm trọn trong allowlist đóng') : red(`file NGOÀI allowlist: ${ngoai.join(' ')}`));
+    out.push(ngoai.length === 0 ? ok(`diff ${files.length} file, tron trong allowlist dong`) : red(`file NGOAI allowlist: ${ngoai.join(' ')}`));
   }
-  const st = sh('git', ['status', '--porcelain']);
-  const chua = st.stdout.split('\n').map(l => l.slice(3).trim()).filter(Boolean).filter(f => !trongAllowlist(f));
-  out.push(chua.length === 0 ? ok('không có sửa chưa commit nào ngoài allowlist') : red(`sửa CHƯA COMMIT ngoài allowlist: ${chua.join(' ')}`));
+  const st = git('status', '--porcelain');
+  if (st.status !== 0) out.push(red(`git status loi (${st.status}) — khong ket luan duoc ve sua chua commit`));
+  else {
+    const chua = st.stdout.split('\n').map(l => l.slice(3).trim()).filter(Boolean).filter(f => !trongAllowlist(f));
+    out.push(chua.length === 0 ? ok('khong co sua chua commit ngoai allowlist') : red(`sua CHUA COMMIT ngoai allowlist: ${chua.join(' ')}`));
+  }
   return out;
 }
 
-// ── tiện ích cho đột biến: bản sao manifest + GUIDE ────────────────────────
-// Bản sao cho đột biến LUÔN dựng từ REPO thật — không từ ROOT. Trộn hai vai là
-// lỗi S4-r1 bản Node: chạy `--root <bản sao hỏng>` thì chính bước dựng đột biến
-// ném ngoại lệ và chân chết trước khi đo được gì.
+// ── bản sao cho đột biến LUÔN dựng từ kho thật ────────────────────────────
 function banSao() {
   const d = tmpd();
   for (const rel of ['.claude-plugin/plugin.json', 'feature-loop/.claude-plugin/plugin.json', 'diagram-design/.claude-plugin/plugin.json']) {
@@ -143,160 +125,50 @@ function banSao() {
   return d;
 }
 const suaJSON = (p, fn) => { const j = readJSON(p); fn(j); fs.writeFileSync(p, JSON.stringify(j, null, 2) + '\n'); };
-const ddBaseVersion = () => {
-  const r = sh('git', ['show', `${BASE_REF}:diagram-design/.claude-plugin/plugin.json`]);
-  if (r.status !== 0) return null;
-  try { return JSON.parse(r.stdout).version; } catch { return null; }
-};
 
-// ── kho code-sinh cho đối chứng dương của lưới trước-merge ─────────────────
-function khoFixture(slug, contract, evidence) {
-  const d = tmpd();
-  for (const dir of ['lib', 'scripts']) {
-    const r = sh('cp', ['-R', path.join(REPO, dir), path.join(d, dir)], d);
-    if (r.status !== 0) return { err: `chép ${dir} thất bại: ${(r.stderr || '').trim()}` };
+let ves = [];
+const muts = [];
+try {
+  const ddBase = (() => {
+    const r = git('show', `${BASE_REF}:diagram-design/.claude-plugin/plugin.json`);
+    if (r.status !== 0) return null;
+    try { return JSON.parse(r.stdout).version; } catch { return null; }
+  })();
+  if (ddBase === null) ves = [red(`khong doc duoc so diagram-design o base ${BASE_REF} — fail-closed`)];
+  else {
+    ves = [ok(`base ${BASE_REF} co diagram-design ${ddBase}`), ...kiem(ROOT, ddBase), ...kiemDiff()];
+    // ĐỐI CHỨNG DƯƠNG của chính đường đột biến: bản sao NGUYÊN VẸN phải 0 vế đỏ.
+    // Thiếu vế này thì mọi đột biến dưới có thể «đỏ» vì lý do khác (S4-r1 bản Node).
+    const sach = kiem(banSao(), ddBase).filter(x => !x.ok);
+    ves.push(sach.length === 0 ? ok('ban sao NGUYEN VEN: 0 ve do (duong dot bien lanh)')
+      : red(`BAN SAO NGUYEN VEN DA DO (${sach.map(x => x.m).join(' | ')}) — moi dot bien duoi vo nghia`));
+
+    // ── SÁU chiều đỏ, mỗi cái qua CHÍNH kiem(), ghim ĐÚNG câu ─────────────
+    const dot = (ten, sua, mong) => {
+      const d = banSao(); sua(d);
+      const r = kiem(d, ddBase).filter(x => !x.ok);
+      const hit = r.find(x => x.m.includes(mong));
+      if (hit) muts.push(`${ten} → ĐỎ «${hit.m}»`);
+      else ves.push(red(`CHIEU DO KHONG CHAY [${ten}]: doi «${mong}», thay ${r.length ? r.map(x => `«${x.m}»`).join(' ') : '(khong ve nao do)'}`));
+    };
+    dot('ha so ag 2.1.0', d => suaJSON(path.join(d, '.claude-plugin/plugin.json'), j => { j.version = '2.1.0'; }), 'ag-version 2.1.0');
+    dot('nang vendor pin 9.9.9', d => suaJSON(path.join(d, 'diagram-design/.claude-plugin/plugin.json'), j => { j.version = '9.9.9'; }), 'doi so voi base');
+    dot('GUIDE ghi so cu', d => fs.writeFileSync(path.join(d, 'GUIDE.md'), fs.readFileSync(path.join(REPO, 'GUIDE.md'), 'utf8').replace(`acceptance-gate ${VER}`, 'acceptance-gate 2.1.0')), 'GUIDE khong chua');
+    dot('xoa ten nhat-ky-vap khoi muc v2.2.0', d => suaJSON(path.join(d, '.claude-plugin/plugin.json'), j => { j.description = j.description.replace(/stranger[- ]drive/gi, 'XXX'); }), 'noi nhat-ky-vap');
+    // Đột biến của ĐÚNG lỗi vòng chấm 18/08 bắt: dời câu khai cặp sang mục LỊCH SỬ.
+    dot('doi cau khai cap sang muc lich su v2.1.0', d => suaJSON(path.join(d, 'feature-loop/.claude-plugin/plugin.json'), j => {
+      j.description = j.description
+        .replace(` Pairs with acceptance-gate >= ${VER}.`, '')
+        .replace('v2.1.0: pairs with acceptance-gate >= 2.1.0', `v2.1.0: pairs with acceptance-gate >= ${VER}`);
+    }), 'khong khai cap');
+    dot('manifest ag hong', d => fs.writeFileSync(path.join(d, '.claude-plugin/plugin.json'), '{ hong'), 'khong doc duoc');
   }
-  // HAI commit: base = commit chưa có workspace. Luật per-slug của lưới chỉ áp
-  // cho slug CÓ TRONG DIFF (chip ①) — fixture một-commit chạy `--base HEAD` cho
-  // diff rỗng nên chỉ luật quét-toàn-kho (veto-trace) chạy, và vế hạng T3 im
-  // lặng (S4-r1 bản Node bắt: «VẾ AC-4 KHÔNG ĐƯỢC ĐO»).
-  fs.writeFileSync(path.join(d, 'README.md'), '# fixture\n');
-  const git = (...a) => spawnSync('git', ['-c', 'user.email=t@t', '-c', 'user.name=T', ...a], { cwd: d, encoding: 'utf8' });
-  if (git('init', '-q', '.').status !== 0) return { err: 'git init lỗi' };
-  if (git('add', '-A').status !== 0 || git('commit', '-qm', 'nen').status !== 0) return { err: 'git commit nền lỗi' };
-  const base = git('rev-parse', 'HEAD').stdout.trim();
-  const ws = path.join(d, '_acceptance', slug);
-  fs.mkdirSync(ws, { recursive: true });
-  fs.writeFileSync(path.join(ws, 'contract.md'), contract);
-  if (evidence) fs.writeFileSync(path.join(ws, 'evidence-report.md'), evidence);
-  if (git('add', '-A').status !== 0 || git('commit', '-qm', 'ho so').status !== 0) return { err: 'git commit hồ sơ lỗi' };
-  const run = spawnSync('bash', ['scripts/pre-merge-check.sh', '--base', base], { cwd: d, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
-  return { out: (run.stdout || '') + (run.stderr || ''), base };
+} catch (e) {
+  ves.push(red(`nem ngoai le (khong ket luan duoc): ${String((e && e.message) || e).split('\n')[0]}`));
 }
 
-const CT = (slug, extra) => `---\nschema_version: 1\nfeature: f\nslug: ${slug}\nowner: o\nrisk_tier: ${extra.tier || 'T2'}\nstatus: ${extra.status}\napproved_by:\napproved_at:\nveto_state: ${extra.veto}\nveto_opened_at: 2026-08-18T00:00:00Z\n---\n\n# c\n`;
-const EV_KHONGSACH = `---\nschema_version: 2\nfeature_slug: khongsach\nverdict: PASS\nfailed_evals: []\nverified_by: x\nenforcement_mode: strict\nbypass_used: false\nverified_commit: 0000000000000000000000000000000000000000\nhuman_signoff:\n---\n\n## Known limits\n\n- một giới hạn còn treo\n`;
-
-// ── chạy từng chân: trả {ves, muts} ────────────────────────────────────────
-function chay(chan) {
-  const ves = [], muts = [];
-  const dot = (m) => muts.push(m);
-
-  if (chan === 'manifest') {
-    const ddBase = ddBaseVersion();
-    if (ddBase === null) return { ves: [red(`không đọc được số diagram-design ở base ${BASE_REF} — chân fail-closed`)], muts };
-    ves.push(ok(`base ${BASE_REF} có diagram-design ${ddBase}`), ...chanManifest(ROOT, ddBase));
-    let d = banSao(); suaJSON(path.join(d, '.claude-plugin/plugin.json'), j => { j.version = '2.1.0'; });
-    chanManifest(d, ddBase).some(r => !r.ok && r.m.startsWith('ag-version'))
-      ? dot('hạ số 2.1.0 → ĐỎ ghim ag-version (qua CHÍNH chanManifest)') : ves.push(red('CHIỀU ĐỎ KHÔNG CHẠY: hạ số mà chân vẫn xanh'));
-    d = banSao(); suaJSON(path.join(d, 'feature-loop/.claude-plugin/plugin.json'), j => { j.description = j.description.replace(`acceptance-gate >= ${VER}`, 'acceptance-gate >= 2.1.0'); });
-    chanManifest(d, ddBase).some(r => !r.ok && r.m.includes('khong khai cap'))
-      ? dot('cặp cũ >= 2.1.0 → ĐỎ ghim cặp phiên bản') : ves.push(red('CHIỀU ĐỎ KHÔNG CHẠY: cặp lệch mà chân vẫn xanh'));
-    d = banSao(); suaJSON(path.join(d, 'diagram-design/.claude-plugin/plugin.json'), j => { j.version = '9.9.9'; });
-    chanManifest(d, ddBase).some(r => !r.ok && r.m.includes('doi so voi base'))
-      ? dot('nâng vendor pin 9.9.9 → ĐỎ ghim «đổi so với base» (quan hệ, không hình dạng)') : ves.push(red('CHIỀU ĐỎ KHÔNG CHẠY: pin đổi mà chân vẫn xanh'));
-    d = banSao(); fs.writeFileSync(path.join(d, '.claude-plugin/plugin.json'), '{ hong');
-    const r4 = chanManifest(d, ddBase);
-    (r4.length === VE_MANIFEST && r4.some(x => !x.ok && x.m.includes('khong doc duoc')))
-      ? dot('manifest JSON hỏng → vẫn đủ 6 vế và có vế ĐỎ «không đọc được» (không im lặng, không mất vế)') : ves.push(red('CHIỀU ĐỎ KHÔNG CHẠY: manifest hỏng mà chân không đỏ đúng vế'));
-  }
-
-  else if (chan === 'docs') {
-    ves.push(...chanDocs(ROOT));
-    const d = banSao();
-    fs.writeFileSync(path.join(d, 'GUIDE.md'), fs.readFileSync(path.join(ROOT, 'GUIDE.md'), 'utf8').replace(`acceptance-gate ${VER}`, 'acceptance-gate 2.1.0'));
-    chanDocs(d).some(r => !r.ok) ? dot('GUIDE ghi số cũ → ĐỎ (một nguồn: so với manifest, không so hằng)') : ves.push(red('CHIỀU ĐỎ KHÔNG CHẠY: GUIDE lệch mà chân vẫn xanh'));
-    const d2 = banSao(); fs.writeFileSync(path.join(d2, '.claude-plugin/plugin.json'), '{ hong');
-    chanDocs(d2).some(r => !r.ok) ? dot('manifest hỏng → chân docs ĐỎ, không im lặng') : ves.push(red('CHIỀU ĐỎ KHÔNG CHẠY: manifest hỏng mà chân docs vẫn xanh'));
-  }
-
-  else if (chan === 'mo-ta') {
-    ves.push(...chanMoTa(ROOT));
-    const d = banSao(); suaJSON(path.join(d, '.claude-plugin/plugin.json'), j => { j.description = j.description.replace(/stranger[- ]drive/gi, 'XXX'); });
-    chanMoTa(d).some(r => !r.ok && r.m.includes('nhat-ky-vap')) ? dot('xoá tên nhật-ký-vấp → ĐỎ ghim đúng vế') : ves.push(red('CHIỀU ĐỎ KHÔNG CHẠY: mô tả thiếu vế mà chân vẫn xanh'));
-  }
-
-  else if (chan === 'ba-ca') {
-    const src = fs.readFileSync(path.join(ROOT, 'tests/plugins/run-tests.sh'), 'utf8');
-    ves.push(...chanBaCaCauTruc(src));
-    chanBaCaCauTruc(src.split('\n').filter(l => !l.startsWith('run "P199 ')).join('\n')).some(r => !r.ok && r.m.includes('P199'))
-      ? dot('gỡ dòng chạy P199 → ĐỎ ghim đúng ca thiếu (qua CHÍNH chanBaCaCauTruc)') : ves.push(red('CHIỀU ĐỎ KHÔNG CHẠY: gỡ ca mà chân vẫn xanh'));
-    const r = spawnSync('bash', ['tests/plugins/run-tests.sh'], { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-    const out = (r.stdout || '') + (r.stderr || '');
-    ves.push(r.status === 0 ? ok('suite plugins exit 0') : red(`suite plugins exit ${r.status}`));
-    for (const c of ['P197', 'P198', 'P199'])
-      ves.push(out.includes(`PASS: ${c} `) ? ok(`suite in PASS: ${c}`) : red(`suite KHÔNG in PASS: ${c}`));
-  }
-
-  else if (chan === 'lan-v') {
-    const b = sh('git', ['rev-parse', BASE_REF]);
-    if (b.status !== 0) return { ves: [red(`không giải được base ${BASE_REF} — chân fail-closed`)], muts };
-    const bsha = b.stdout.trim();
-    const r = spawnSync('bash', ['scripts/pre-merge-check.sh', '--base', bsha], { cwd: ROOT, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
-    const out = (r.stdout || '') + (r.stderr || '');
-    ves.push(/cửa veto đang mở[^\n]*release-2-2-0/.test(out) ? ok('NOTE cửa-veto có tên release-2-2-0') : red('NOTE cửa-veto KHÔNG có tên hồ sơ này'));
-    ves.push(/^VIOLATION \[release-2-2-0\].*veto/m.test(out) ? red('luật veto nổ oan trên hồ sơ này') : ok('0 VIOLATION nhóm veto mang tên release-2-2-0'));
-    const f1 = khoFixture('vpham', CT('vpham', { status: 'implemented', veto: 'da-veto' }), null);
-    if (f1.err) ves.push(red(`fixture da-veto dựng lỗi: ${f1.err}`));
-    else /^VIOLATION \[vpham\].*veto/m.test(f1.out) ? dot('fixture da-veto thật → lưới ĐỎ đúng định dạng VIOLATION') : ves.push(red('ĐỐI CHỨNG DƯƠNG HỎNG: vi phạm veto thật mà lưới không nổ'));
-    // `status: implemented` — luật Cổng-1 của lưới chỉ áp từ trạng thái này trở
-    // đi (`approved` bị bỏ qua có chủ đích). Fixture dùng `approved` là fixture
-    // KHÔNG chạm luật: S4-r1 bản Node bắt đúng chỗ đó.
-    const f3 = khoFixture('hangt3', CT('hangt3', { status: 'implemented', veto: 'mo', tier: 'T3' }), null);
-    if (f3.err) ves.push(red(`fixture T3 dựng lỗi: ${f3.err}`));
-    else /^VIOLATION \[hangt3\].*làn V chỉ T2/m.test(f3.out) ? dot('fixture hạ hạng T3 + mo → lưới ĐỎ ghim «làn V chỉ T2»: vế hạng của AC-4 có răng') : ves.push(red(`VẾ AC-4 KHÔNG ĐƯỢC ĐO: hạng T3 mở làn V mà lưới không ĐỎ đúng câu — thấy: ${(f3.out.match(/^(VIOLATION|NOTE) \[hangt3\].*/m) || ['(không dòng nào mang tên hangt3)'])[0].slice(0, 120)}`));
-    const f2 = khoFixture('khongsach', CT('khongsach', { status: 'verified', veto: 'mo' }), EV_KHONGSACH);
-    if (f2.err) ves.push(red(`fixture mo+không-sạch dựng lỗi: ${f2.err}`));
-    else /^VIOLATION \[khongsach\]/m.test(f2.out) ? dot('fixture mo + Known limits KHÔNG rỗng → lưới ĐỎ: quan hệ mo ⇔ xanh-sạch có răng') : ves.push(red('QUAN HỆ KHÔNG ĐƯỢC ĐO: mo mà báo cáo không sạch vẫn lọt qua lưới'));
-  }
-
-  else if (chan === 'diff-allowlist') {
-    ves.push(...chanDiff());
-    trongAllowlist('skills/uat-session/SKILL.md')
-      ? ves.push(red('CHIỀU ĐỎ KHÔNG CHẠY: allowlist nuốt cả file engine')) : dot('đường dẫn engine giả lập bị CHÍNH hàm lọc loại');
-  }
-
-  // ── TỰ KIỂM: chính bộ đếm phải biết đỏ (lỗ đã cắn hai lần) ──────────────
-  else if (chan === 'tu-kiem') {
-    const self = fileURLToPath(import.meta.url);
-    const chay1 = (root) => spawnSync('node', [self, '--chan', 'manifest', '--root', root], { cwd: REPO, encoding: 'utf8' });
-    const good = chay1(ROOT);
-    ves.push(good.status === 0 ? ok('cây thật → mã thoát 0 (đối chứng dương của chính bộ đếm)') : red(`cây thật mà mã thoát ${good.status} — bộ đếm hoặc vật hỏng`));
-    // ĐỐI CHỨNG DƯƠNG THỨ HAI: bản sao NGUYÊN VẸN phải XANH. Thiếu vế này thì
-    // hai đột biến dưới «đỏ» kể cả khi chân thoát sớm vì lý do khác (S4-r1 Node).
-    const sach = chay1(banSao());
-    ves.push(sach.status === 0 ? ok('bản sao NGUYÊN VẸN → mã thoát 0 (đường đọc vật tách khỏi git)')
-      : red(`bản sao nguyên vẹn mà mã thoát ${sach.status} — chân thoát sớm, mọi đột biến sau đó vô nghĩa: ${(sach.stdout || '').trim().split('\n').filter(l => l.includes('ĐỎ')).join(' | ')}`));
-    const d = banSao(); suaJSON(path.join(d, '.claude-plugin/plugin.json'), j => { j.version = '2.1.0'; });
-    const bad = chay1(d);
-    (bad.status !== 0 && /ĐỎ +ag-version 2\.1\.0/.test(bad.stdout || ''))
-      ? dot(`bản sao sai số → mã thoát ${bad.status} kèm ĐÚNG dòng «ag-version 2.1.0»: bộ đếm không nuốt vế đỏ`)
-      : ves.push(red(`ĐỘT BIẾN KHÔNG ĐI QUA PHÉP ĐO: bản sao sai số cho mã thoát ${bad.status} mà không có dòng «ag-version 2.1.0»`));
-    const d2 = banSao(); fs.writeFileSync(path.join(d2, '.claude-plugin/plugin.json'), '{ hong');
-    const bad2 = chay1(d2);
-    (bad2.status !== 0 && /khong doc duoc/.test(bad2.stdout || ''))
-      ? dot(`manifest hỏng → mã thoát ${bad2.status} kèm ĐÚNG vế «khong doc duoc»: chân câm không lọt thành xanh`)
-      : ves.push(red(`ĐỘT BIẾN KHÔNG ĐI QUA PHÉP ĐO: manifest hỏng cho mã thoát ${bad2.status} mà không có vế «khong doc duoc»`));
-  }
-
-  else return { ves: [red(`chân không biết: ${chan}`)], muts };
-
-  return { ves, muts };
-}
-
-const DS = ['manifest', 'docs', 'mo-ta', 'ba-ca', 'lan-v', 'diff-allowlist', 'tu-kiem'];
-const chans = CHAN ? [CHAN] : DS;
-let tongDo = 0;
-for (const c of chans) {
-  console.log(`== chân ${c} ==`);
-  let ves, muts;
-  try { ({ ves, muts } = chay(c)); }
-  catch (e) { ves = [red(`chân ném ngoại lệ (không kết luận được): ${String(e && e.message || e).split('\n')[0]}`)]; muts = []; }
-  for (const v of ves) console.log(v.ok ? `  OK   ${v.m}` : `  ĐỎ   ${v.m}`);
-  for (const m of muts) console.log(`       [chiều đỏ] ${m}`);
-  const do_ = ves.filter(v => !v.ok).length;
-  console.log(`  -- chân ${c}: ${ves.length} vế, ${do_} đỏ, ${muts.length} chiều đỏ chạy thật`);
-  tongDo += do_;
-}
-console.log(tongDo === 0 ? 'RANG-RELEASE 2.2.0: XANH' : `RANG-RELEASE 2.2.0: ${tongDo} vế ĐỎ`);
-process.exit(tongDo === 0 ? 0 : 1);
+for (const v of ves) console.log(v.ok ? `  OK   ${v.m}` : `  ĐỎ   ${v.m}`);
+for (const m of muts) console.log(`       [chiều đỏ] ${m}`);
+const soDo = ves.filter(v => !v.ok).length;
+console.log(`-- release-2-2-0: ${ves.length} vế, ${soDo} đỏ, ${muts.length} chiều đỏ chạy thật`);
+process.exit(soDo === 0 ? 0 : 1);

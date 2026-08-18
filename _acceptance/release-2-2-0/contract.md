@@ -21,7 +21,7 @@ của 17–18/08. Ba hồ sơ đã ký và merge kể từ đó:
 
 - **`hinh-tai-cong-1`** (#62) — khối «Hình tại điểm quyết định» trong GATE 1 của
   feature-loop: kê · đếm · vẽ · nhìn · đính, câu luật một nguồn.
-- **`moi-noi-vong-trao`** (#63) — thẻ Cổng Phạm vi in ngưỡng nghiệm thu; phiên
+- **`moi-noi-vong-trao`** (#63) — card Cổng Phạm vi in ngưỡng nghiệm thu; phiên
   nghiệm thu §0 đọc nhật-ký-vấp làm bằng chứng «bấm được»; S5 bàn giao sang
   Vòng TRAO; khuôn `stranger-drive-template.md`.
 - **`siet-rang-cau-ve-hinh`** (#64) — siết răng phép đo câu-về-hình (một nguồn
@@ -33,7 +33,7 @@ Bề mặt tiêu thụ đổi đúng **bốn file**: `feature-loop/skills/featur
 mọi đường đọc-cũ giữ nguyên (hồ sơ không có cơ hội = «ship thẳng»; workspace
 không có nhật-ký-vấp = cờ vàng, không chặn) — consumer KHÔNG phải migrate.
 
-Hồ sơ **không đổi một dòng engine cổng** — chỉ đóng số và nói cho người dùng
+Hồ sơ **không đổi một dòng mã cổng** — chỉ đóng số và nói cho người dùng
 biết họ nhận được gì.
 
 Source input: `git log 8d1e135..main` (ba PR #62·#63·#64) · nếp phát hành
@@ -48,24 +48,18 @@ Source input: `git log 8d1e135..main` (ba PR #62·#63·#64) · nếp phát hành
   `acceptance-gate >= 2.2.0`, và mô tả `acceptance-gate` chứa mục `v2.2.0`.
 - AC-2: Given cây đã sửa, When đọc dòng «Khớp phiên bản» của GUIDE, Then nó
   khớp ĐÚNG số đọc từ ba manifest (một nguồn — so với manifest, không so hằng).
-- AC-3: Given cây đã sửa, When chạy đủ bốn suite, Then cả bốn XANH; và ba ca
-  kiểm của ba hồ sơ trong mốc (P197 · P198 · P199) đều CÓ trong bộ kiểm và đều
-  in dòng PASS — ghim dòng, không tin mã thoát suite một mình.
-- AC-4: Given hồ sơ này với `veto_state: mo`, When lưới trước-merge chạy, Then
-  nó cho NOTE làn V (không VIOLATION) vì T2 + bằng chứng xanh-sạch; và bản sao
-  hạ hạng T3 phải ĐỎ.
+- AC-3: Given cây đã sửa, When chạy đủ bốn suite, Then cả bốn XANH (ba ca của
+  ba hồ sơ trong mốc chạy bên trong suite plugins).
 - AC-5: Given diff nhánh release so với base, When lọc qua allowlist ĐÓNG
   (2 manifest · GUIDE.md · `_acceptance/release-2-2-0/**` · `_acceptance/config.yaml`
   · PRODUCT-MAP.md), Then không file nào ngoài danh sách — đặc biệt KHÔNG file
   nào trong `skills/ lib/ scripts/ hooks/ feature-loop/skills/ diagram-design/`.
-- AC-7: Given chính bộ răng của hồ sơ này, When chạy chân tự-kiểm, Then cây
-  thật cho mã thoát 0, bản sao hạ số phiên bản cho mã thoát KHÁC 0 kèm dòng ĐỎ,
-  và bản sao manifest hỏng cũng cho mã thoát khác 0 — bộ đếm không được nuốt vế
-  đỏ (lớp lỗi đã cắn hai lần ở bản bash: ống · shell con · trap).
 - AC-6: Given mô tả `acceptance-gate`, When đọc mục `v2.2.0`, Then nó nói bằng
   tiếng người dùng kit ba việc họ nhận (hình tại Cổng 1 · ngưỡng nghiệm thu
   hiện trên thẻ Cổng Phạm vi + phiên nghiệm thu đọc nhật-ký-vấp + S5 bàn giao ·
-  phép đo câu-về-hình siết) và nói rõ **không phải migrate** (đường đọc-cũ).
+  phép đo câu-về-hình siết) và nói rõ **không phải migrate** (đường đọc-cũ);
+  và mục `v2.2.0` của `feature-loop` **TỰ khai cặp** `acceptance-gate >= 2.2.0`
+  — đo trên đúng mục đó, sửa mục lịch sử KHÔNG được tính (lỗi vòng chấm 18/08).
 
 ## Coverage
 
@@ -74,16 +68,29 @@ Quét không gian phát hành theo hai trục (nếp release-2-1-0, không quét
   người-dùng-nhận-gì | phạm vi diff [thước CE: hồ sơ release-2-1-0 đã dùng thật]
 - Trục B · hành trình hồ sơ: làn V mở | bằng chứng xanh-sạch | biên merge
   [thước CE: pre-merge `xanh_sach_check` + ADR 0012]
-- Ô Core → AC-1..6. Không ô Later/Never mới: mốc này KHÔNG thêm plugin, KHÔNG
+- Ô Core → AC-1·AC-2·AC-3·AC-5·AC-6 (AC-4 và AC-7 đã thu, xem Known limits). Không ô Later/Never mới: mốc này KHÔNG thêm plugin, KHÔNG
   đổi vendor pin, KHÔNG đổi engine cổng.
 
 ## Out of scope
 
-- Đổi bất kỳ dòng engine cổng nào (`skills/ lib/ hooks/ scripts/ feature-loop/skills/`).
+- Đổi bất kỳ dòng mã cổng nào (`skills/ lib/ hooks/ scripts/ feature-loop/skills/`).
 - Nâng số `diagram-design` — vendor pin không đổi trong mốc này.
 - Sửa con trỏ `docs/lai-thu-nguoi-la.md` trong §0 uat-session (đường dẫn tương
   đối; gói ship cả `docs/` nên giải được từ gốc plugin) — Known limit, hồ sơ kế.
 - Cài bản mới lên repo tiêu thụ và mở vòng r4 bước 1 — việc sau khi mốc này merge.
+
+## Known limits
+
+- **Hành trình làn V của chính hồ sơ này không có răng riêng.** Lưới trước-merge
+  tự chạy ở biên merge (CI + lượt chạy tay) và đã có bộ kiểm vĩnh viễn của hồ sơ
+  `veto-co-dau-vet` / `cong-chan-nham-cho`; dựng lại nó trong răng phát hành là
+  bản sao thứ hai của cùng một luật. Tái lập: `bash scripts/pre-merge-check.sh --base origin/main`.
+- **Ba ca P197/P198/P199 không được ghim riêng.** Chúng chạy bên trong suite
+  plugins (E3c). Ghim riêng từng dòng PASS là việc của ba hồ sơ chủ, không phải
+  của mốc phát hành.
+- **Bộ đếm của răng không còn chân tự-kiểm.** Chân đó sinh ra để canh bộ đếm
+  bash; bản Node đếm trong bộ nhớ và có đối chứng dương «bản sao nguyên vẹn 0 vế
+  đỏ» ngay trong chân chính.
 
 ## Notes
 

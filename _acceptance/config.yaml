@@ -112,17 +112,10 @@ executors:
     rang_mnvt_spec: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan spec
     rang_mnvt_hinh: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan hinh
     rang_mnvt_hoi_dong: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan hoi-dong
-    # Vật của hồ sơ release-2-2-0 — răng phát hành, không vào suite vĩnh viễn.
-    # Viết bằng Node (owner chọn đường A 18/08): bash đếm trong ống/shell con/trap
-    # đã ba lần nuốt vế đỏ; ở đây mọi vế là giá trị trong MỘT tiến trình, mã thoát
-    # = số vế đỏ, và chân `tu-kiem` chứng minh chính bộ đếm biết đỏ.
-    rang_release22_manifest: node _acceptance/release-2-2-0/rang-release.mjs --chan manifest
-    rang_release22_docs: node _acceptance/release-2-2-0/rang-release.mjs --chan docs
-    rang_release22_mo_ta: node _acceptance/release-2-2-0/rang-release.mjs --chan mo-ta
-    rang_release22_ba_ca: node _acceptance/release-2-2-0/rang-release.mjs --chan ba-ca
-    rang_release22_lan_v: node _acceptance/release-2-2-0/rang-release.mjs --chan lan-v
-    rang_release22_diff: node _acceptance/release-2-2-0/rang-release.mjs --chan diff-allowlist
-    rang_release22_tu_kiem: node _acceptance/release-2-2-0/rang-release.mjs --chan tu-kiem
+    # Vật của hồ sơ release-2-2-0 — MỘT chân, viết bằng Node (owner chọn đổi
+    # khuôn rồi thu phạm vi, 18/08 — hai lần luật dừng-vá). Không vào suite
+    # vĩnh viễn: nó đo đúng một lần cắt số.
+    rang_release22: node _acceptance/release-2-2-0/rang-release.mjs
     rang_hinh_cong1: bash _acceptance/hinh-tai-cong-1/rang.sh
     rang_siet_rang: bash _acceptance/siet-rang-cau-ve-hinh/rang.sh
 risk_tiers:
