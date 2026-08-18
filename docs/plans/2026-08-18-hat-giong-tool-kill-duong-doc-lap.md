@@ -4,7 +4,7 @@
 **Sinh từ:** việc-của-người tại Cổng 2 của `het-gio-khong-phai-truot` (owner chốt
 18/08: tách thành việc riêng, không nâng phạm vi bản đang ký).
 
-## Người dùng thấy gì khác
+## Giá trị cho người dùng
 
 Khi chạy nghiệm thu bằng **đường độc lập** — bộ kỹ năng `acceptance` gọi thẳng,
 không qua vòng lặp tính năng — một lệnh kiểm chạy lâu bị hệ thống ngắt giữa
