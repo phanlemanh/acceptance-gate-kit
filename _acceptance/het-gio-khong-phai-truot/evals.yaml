@@ -2,15 +2,15 @@
 # Phép đo thật sống trong tests/workflows/acceptance-verify.test.mjs (W25–W27,
 # mutant srcOverride chạy chiều đỏ trong CÙNG lượt). Răng hồ sơ ghim ĐÚNG dòng
 # case trong stdout suite (nếp p194 — không tin exit code trọn suite: trên
-# diffBase suite cũng xanh nên mã thoát không phân biệt cây cũ/mới). E7 = trọn
-# suite tồn kho cho AC-7 tương thích.
+# diffBase suite cũng xanh nên mã thoát không phân biệt cây cũ/mới) VÀ đối chiếu
+# số ca với bản base chạy thật. E7 = trọn suite tồn kho cho AC-7 tương thích.
 
 evals:
   - id: E1
     criterion: AC-1
     executor: test
     cmd: config:executors.script.rang_hgkpt
-    expected: "răng ghim dòng 'PASS: W25 machine prompt chua TOOL-KILL-RULE' + dòng 'PASS: W25 rule rut tu marker' (chuỗi luật rút từ marker trong source, không chép tay — răng tự phá thử: xoá dòng khỏi bản sao stdout → grep của chính nó ĐỎ ghim tên dòng thiếu). Chiều đỏ trên diffBase: case W25 chưa tồn tại → răng đỏ 'thieu dong PASS: W25'."
+    expected: "răng ghim dòng 'PASS: W25 machine prompt chua TOOL-KILL-RULE' + dòng 'PASS: W25 rule rut tu marker' — chuỗi luật RÚT TỪ MARKER trong source, không chép tay, nên prompt và luật không trôi khỏi nhau. Chiều đỏ chạy cùng lượt qua chính hàm kiểm của răng (mũi đổi tên pin trong bản sao tiêm → 'thieu dong PASS: ...'); chiều đỏ của chính W25 nằm trong suite (3 mutant lane)."
     paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/het-gio-khong-phai-truot/rang.sh]
   - id: E2
     criterion: AC-2
@@ -34,7 +34,7 @@ evals:
     criterion: AC-5
     executor: test
     cmd: config:executors.script.rang_hgkpt
-    expected: "răng ghim đủ BA dòng trên CÙNG fixture sự cố (exitCode=1, cannotRun=false, outputTail cắt không dòng tổng kết): 'PASS: W26 killedByTool -> BLOCKED' (eval KHÔNG trong failedEvals) · hai nhánh reason 'PASS: W26 reason agent giu nguyen van' và 'PASS: W26 reason trong -> khuon ghim bi cong cu giet' · đối chứng dương 'PASS: W26 doi chung: exit 1 that -> REJECT'. Thiếu một dòng → răng đỏ ghim tên dòng thiếu."
+    expected: "răng ghim đủ NĂM dòng, hai lane, trên CÙNG fixture sự cố (exitCode=1, cannotRun=false, outputTail cắt không dòng tổng kết): 'PASS: W26 killedByTool -> BLOCKED' (eval KHÔNG trong failedEvals) · hai nhánh reason 'PASS: W26 reason agent giu nguyen van' và 'PASS: W26 reason trong -> khuon ghim bi cong cu giet' · đối chứng dương đổi ĐÚNG MỘT biến 'PASS: W26 doi chung: exit 1 that -> REJECT' · và LANE UI cùng luật: 'PASS: W26 ui killedByTool -> BLOCKED' (blocked mang cmd ui-check:E5) + 'PASS: W26 ui doi chung: exit 1 that -> REJECT'. Ma trận lane của routing = ma trận lane của prompt: thiếu lane nào thì xoá normKill lane đó vẫn xanh (finding r2). Thiếu một dòng → răng đỏ ghim tên dòng thiếu."
     paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/het-gio-khong-phai-truot/rang.sh]
   - id: E6
     criterion: AC-6
@@ -52,5 +52,5 @@ evals:
     criterion: AC-7
     executor: test
     cmd: config:executors.script.rang_hgkpt
-    expected: "chân tồn-kho của răng phủ MỌI khuôn đặt tên case của bản diffBase (git show, đếm nguồn trong cùng lần chạy, không hardcode): (a) tên nháy đơn → assert từng tên còn nguyên văn trong source VÀ có dòng 'PASS: <tên>' khớp TRỌN dòng trong stdout, in 'PASS: TON-KHO <n> case cu nguyen van'; (b) tên template literal (sinh lúc chạy, không có dòng PASS để ghim) → assert thân template còn nguyên văn, in 'PASS: TON-KHO-TPL <m> case ten dong nguyen van'; (c) đóng không gian bằng đẳng thức 'PASS: TON-KHO-MA-TRAN <tổng> callsite = <n> nhay-don + <m> backtick' — khuôn thứ ba chưa phủ thì ĐỎ, kèm tự-phá-thử chạy cùng lượt 'PASS: TON-KHO-MA-TRAN tu-pha-thu: khuon thu ba bi bat'. Chiều đỏ đã chạy thật: sửa/xoá case nháy đơn → 'TON-KHO: case cu bi sua/xoa'; sửa case backtick → 'TON-KHO-TPL: case cu (ten dong) bi sua/xoa'."
+    expected: "chân tồn-kho đặt bất biến ở ĐẦU RA (đổi khuôn ở r2 — cách liệt-kê-theo-cú-pháp bị bỏ): răng chạy CHÍNH bản base của test file (git show, đặt cùng thư mục để đường dẫn đúng) lấy mốc 'PASS: MOC-BASE ban base chay sach: <N> ca', rồi đòi lần chạy hiện tại (a) exit 0 và 'Results: <N+18> passed, 0 failed' — hết nuốt mã thoát, (b) ĐẲNG THỨC số ca = base + số pin hồ sơ khai (thiếu ⇒ xoá case cũ, thừa ⇒ ca chưa khai — đếm nguồn hai hướng, không phụ thuộc case viết bằng khuôn cú pháp nào), (c) mọi tên case ghi được nguyên văn còn nguyên + có dòng PASS. Chiều đỏ chạy CÙNG LƯỢT qua chính hàm kiểm: bản sao tiêm 3 mũi (vô hiệu 1 ca tên tĩnh · 1 ca tên động · đổi tên 1 pin) phải đỏ ĐỦ 3 lý do → 'PASS: TU-PHA-THU ban sao tiem 3 loi -> <k> loi, du 3 mui'."
     paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/het-gio-khong-phai-truot/rang.sh]

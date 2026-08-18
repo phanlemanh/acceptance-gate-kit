@@ -1,37 +1,103 @@
 ## Trong hợp đồng
 
-### 1. Chân tồn-kho mù với case đặt tên bằng template literal — vế «không sửa case cũ» của AC-7 có lớp bypass
-- file: `_acceptance/het-gio-khong-phai-truot/rang.sh:67`
+### 1. AC-5 hứa lane ui nhưng normKill ở lane ui không có chiều đỏ nào — xoá nó vẫn 340/0 xanh
+- file: `tests/workflows/acceptance-verify.test.mjs:1529`
+- severity: high
+- AC: AC-5
+- source: conventions
+
+AC-5 khai «kết quả machine HOẶC ui có killedByTool=true → BLOCKED», design table đánh ✅ routing cho cả 3 lane, nhưng W26 chỉ dựng fixture lane machine và W27 chỉ lane baseline. Không case nào đi qua nhánh ui.
+
+Đo thật (mutant trên bản sao, đã khôi phục cây):
+- xoá `.map(normKill)` ở lane ui — `feature-loop/workflows/acceptance-verify.js:542` `machine.push(...(uiRaw || []).filter(Boolean).map(normKill).map(...))` → `node tests/workflows/acceptance-verify.test.mjs` = «Results: 340 passed, 0 failed», và `bash _acceptance/het-gio-khong-phai-truot/rang.sh` vẫn in «RANG-HGKPT OK (16 pin + 273 ton kho)».
+- đối chứng dương: cùng phép xoá ở lane machine → 4 failed; ở lane baseline → 1 failed.
+
+Nghĩa là: thi công có thể bỏ hẳn phòng thủ tool-kill cho ui-check mà E1–E8 đều PASS — đúng lớp «REJECT giả» mà hồ sơ này sinh ra để chặn, chỉ đổi lane. Đây là bất biến CLAUDE.md «mutant phải có ca cô lập lớp» + «ma trận toàn phần viết-trước (số assert = số phần tử)»: gap-probe P1 của chính hồ sơ đã chữa đúng lớp này cho W25 (3 mutant = 3 lane) nhưng W26 vẫn 1/2 lane. Chữa theo lớp: thêm sub-case W26 dựng ui result {exitCode:1, cannotRun:false, killedByTool:true} → blocked chứa `ui-check:E5`, verdict BLOCKED, E5 không vào failedEvals; và ghim dòng đó vào rang.sh + expected của E5.
+
+*Vì sao tính là trong hợp đồng:* AC-5 khai routing killedByTool áp dụng cho cả machine LẪN ui, và Coverage hứa 3 mutant cô lập lớp (một mutant mỗi lane, W25); mutant thật trên lane ui không làm suite đỏ, tức nhánh ui của AC-5 chưa được xác nhận.
+
+### 2. Đẳng thức «đóng không gian» của chân tồn-kho trộn đơn vị: grep -c đếm DÒNG, grep -o đếm LƯỢT
+- file: `_acceptance/het-gio-khong-phai-truot/rang.sh:94`
 - severity: medium
 - AC: AC-7
 - source: conventions
 
-Phép rút tên case từ diffBase dùng `grep -o "check('[^']*'"` — chỉ bắt được tên viết bằng nháy đơn. Bản origin/main của tests/workflows/acceptance-verify.test.mjs có 11 call-site `check(\`...\`)` (template literal, tên sinh lúc chạy): họ WT-T19+ (chính là các mutation-probe — lớp phòng thủ giá trị nhất của suite), W-G1, W-G2, W-G7b/c... Kiểm đếm thực tế: suite in 340 dòng PASS, răng chỉ phủ 273 tồn-kho + 16 pin mới = 289; ~51 dòng runtime-named nằm ngoài lưới. Hệ quả: XOÁ hoặc ĐỔI TÊN một case cũ thuộc lớp này → suite vẫn exit 0 (E7 xanh), rang.sh vẫn xanh (E8 xanh) — trong khi contract AC-7 và expected của E8 tuyên «sửa/xoá một case cũ → răng đỏ ghim tên case bị lệch». Đây đúng lớp «thước không gắn vào vật được giao» / «lọc theo hình-dạng-cú-pháp là blacklist» mà CLAUDE.md ghim. Sanity counter hiện có (N_OLD ≥ 1) không bắt được vì 273 tên nháy-đơn vẫn rút được. Gợi ý thước (không tự fix): đối chiếu SỐ dòng PASS tổng của bản diffBase với bản hiện tại (chạy suite trên cả hai như nếp so-ca.sh của hồ sơ lưu-kho), hoặc rút thêm lớp tên literal-template tĩnh, và hạ lời hứa trong E8/AC-7 xuống đúng vùng phủ nếu chấp nhận known-limit.
+`N_CALL="$(... | grep -c "check(")"` đếm số DÒNG chứa `check(`, còn `N_SQ`/`N_BT` dùng `grep -o ... | wc -l` đếm số LƯỢT xuất hiện. Đẳng thức `N_CALL == N_SQ + N_BT` chỉ tình cờ đúng vì bản origin/main hiện không có dòng nào chứa 2 callsite (đo được: 284 dòng = 284 lượt = 273 + 11).
 
-*Vì sao tính là trong hợp đồng:* AC-7 đích danh mô tả đúng cơ chế này (chân tồn-kho rút tên case từ diffBase, assert từng tên còn nguyên văn, đếm nguồn) và Coverage section ghim rõ nó là phép đo của E8 cho AC-7; finding chỉ ra cơ chế đó không phủ hết «từng tên» như AC-7 tuyên.
+Hệ quả: tính chất được tuyên — «khuôn thứ ba chưa phủ thì ĐỎ» — không thành lập. Counterexample chạy thật: một dòng `check("x", 1); check('y', 2);` cho N_CALL=1, N_SQ=1, N_BT=0 → 1 == 1+0 vẫn xanh trong khi khuôn nháy-kép hoàn toàn không được phủ. Tự-phá-thử ở dòng 106 không chạm ca này vì nó nối `check("khuon thu ba", true);` thành MỘT DÒNG RIÊNG — mutation không đi qua chính lối thoát mà đẳng thức để hở (đúng lớp «phép đo chỉ được có MỘT lối thoát»). Chữa: đổi `grep -c` thành `grep -o "check(" | wc -l` cho cùng đơn vị, và thêm mutation tiêm callsite khuôn-thứ-ba vào CUỐI một dòng đã có `check('`.
 
-### 2. Chân tồn-kho của rang.sh bỏ sót âm thầm 11 case cũ đặt tên bằng template literal
-- file: `_acceptance/het-gio-khong-phai-truot/rang.sh:67`
+*Vì sao tính là trong hợp đồng:* AC-7 nêu đích danh yêu cầu «đẳng thức đóng không gian tổng callsite = nháy đơn + backtick... kèm tự-phá-thử chạy cùng lượt»; phép đếm lệch đơn vị khiến đẳng thức này không thật sự đóng không gian như AC-7 mô tả.
+
+### 3. rang.sh nuốt mã thoát của suite; chân tồn-kho không ghim dòng PASS cho case tên-động (mutation matrix đỏ vẫn xanh)
+- file: `_acceptance/het-gio-khong-phai-truot/rang.sh:14`
+- severity: high
+- AC: AC-7
+- source: bugs
+
+Dòng 14 `OUT="$(node "$TEST_FILE" 2>&1)"` bỏ hoàn toàn `$?` (script chỉ `set -u`, không `set -e`). Vòng lặp lớp-2 (dòng 81–90) chỉ assert thân template còn nguyên văn TRONG SOURCE, không hề grep dòng `  PASS: <tên>` trong stdout — nên 11 callsite `check(`...`)` không có phép ghim runtime nào. Trong số đó có ma trận mutation WT-T19+ (tests/workflows/acceptance-verify.test.mjs:972, 977, 978) — chính lớp mà comment của script gọi là «lớp phòng thủ đắt nhất của suite». RED-TEST ĐÃ CHẠY: tiêm `check(`${name}`, false, 'INJECTED RED')` vào dòng 978 → `node tests/workflows/acceptance-verify.test.mjs` exit 1, nhưng `bash _acceptance/het-gio-khong-phai-truot/rang.sh` in `RANG-HGKPT OK (16 pin + 273 ton kho)` và exit 0 (đã khôi phục file). Đây đúng lớp «runner nuốt mã thoát» đã ghi sổ. E7 (config:executors.test.workflows) có bắt ở tầng eval, nhưng bản thân răng báo xanh trên suite đỏ, và AC-7/E8 khai chân tồn-kho phủ «MỌI khuôn đặt tên case». Chữa: kiểm `$?` của node ngay sau dòng 14 (hoặc ghim dòng `Results: N passed, 0 failed`), và với case backtick thì ghim dòng PASS đã giải chuỗi thay vì chỉ kiểm source.
+
+*Vì sao tính là trong hợp đồng:* AC-7 yêu cầu rõ «suite tồn kho tests/workflows xanh nguyên» phải được đo, và Coverage gắn chân tồn-kho này trực tiếp với AC-7 (E8); việc rang.sh không đọc mã thoát của suite khiến lời hứa đó không thực sự được xác nhận — RED-TEST đã chứng minh suite đỏ vẫn báo OK.
+
+### 4. Đẳng thức «đóng không gian» trộn đếm-DÒNG với đếm-LƯỢT — khuôn tên thứ ba vẫn lọt
+- file: `_acceptance/het-gio-khong-phai-truot/rang.sh:94`
 - severity: medium
 - AC: AC-7
 - source: bugs
 
-Phép rút danh sách case cũ từ diffBase dùng `grep -o "check('[^']*'"` nên chỉ bắt các lời gọi check() dùng nháy đơn. Bản origin/main của tests/workflows/acceptance-verify.test.mjs có 273 case nháy đơn nhưng còn 11 lời gọi `check(\`...\`)` tên động (đã xác minh: các case WT-T19+ mutant matrix ~dòng 972–978, W-G1 ~1003–1006, W-G2 ~1019, W-G7b ~1178, W-G7c ~1190–1191 của bản base). 11 case này nằm ngoài pin: sửa hoặc xoá hẳn một case trong nhóm đó thì rang.sh vẫn xanh (sanity counter chỉ đòi N_OLD ≥ 1, và 273 case nháy đơn vẫn đủ) và E7 vẫn exit 0 — đúng kịch bản «thi công sửa case cũ cho khớp hành vi mới» mà AC-7/E8 tuyên là chặn được. Đây là under-coverage âm thầm của chính phép đo tương thích, không phải bug runtime của workflow; contract/E8 nên khai rõ giới hạn (chỉ phủ case tên tĩnh) hoặc thêm chân đếm số lời gọi check() template-literal giữa base và hiện tại để ít nhất phát hiện xoá.
+Dòng 94 dùng `grep -c "check("` (đếm số DÒNG có match) trong khi dòng 95–96 dùng `grep -o ... | wc -l` (đếm số LƯỢT xuất hiện). Hai ngữ nghĩa khác nhau nên đẳng thức N_CALL == N_SQ + N_BT không thật sự đóng không gian như comment dòng 92–93 tuyên bố. RED-TEST ĐÃ CHẠY: nối thêm vào BASE_SRC đúng MỘT dòng chứa hai callsite `  check('a', 1); check("khuon thu ba", 2);` → N_CALL=285, N_SQ=274, N_BT=11 → 285 == 285, đẳng thức VẪN XANH dù có callsite khuôn nháy-kép chưa ai phủ. Tự-phá-thử ở dòng 105 không bắt được vì nó tiêm khuôn thứ ba trên MỘT DÒNG RIÊNG, tức chỉ đi qua nhánh dễ. Chữa: đổi dòng 94 thành `grep -o "check(" | wc -l | tr -d ' '` cho cùng ngữ nghĩa, và thêm một lượt tự-phá-thử tiêm khuôn thứ ba CHUNG DÒNG với một callsite đã phủ.
 
-*Vì sao tính là trong hợp đồng:* Cùng cơ chế đếm-nguồn mà AC-7 định nghĩa cho vế «không sửa case cũ»; finding cho thấy phép đo không đạt lời hứa «assert từng tên còn nguyên văn» của chính AC-7.
+*Vì sao tính là trong hợp đồng:* Cùng cơ chế đẳng thức đóng không gian mà AC-7 nêu đích danh; đếm sai đơn vị làm khuôn đặt tên thứ ba có thể lọt qua mà không bị phát hiện, trái với «khuôn thứ ba chưa phủ thì ĐỎ» trong AC-7.
 
-### 3. Tuyên quét LỚP nhưng chỉ có điểm-case (hình dạng 5): chân tồn-kho của rang.sh mù với 11 callsite check(`...`) — xoá cả khối ma trận mutation vẫn xanh
-- file: `_acceptance/het-gio-khong-phai-truot/rang.sh:67`
-- severity: high
+### 5. Hình dạng 5 — tuyên «đóng không gian» nhưng đẳng thức đếm SAI ĐƠN VỊ (dòng vs lượt), lọt khuôn thứ ba
+- file: `_acceptance/het-gio-khong-phai-truot/rang.sh:94`
+- severity: medium
 - AC: AC-7
 - source: measurement
 
-Chân 2 (tồn-kho) rút tên case cũ từ origin/main bằng `grep -o "check('[^']*'"` (dòng 67) — pattern này CHỈ bắt check có tên là chuỗi nháy-đơn literal. Trên origin/main:tests/workflows/acceptance-verify.test.mjs có 284 callsite check() nhưng chỉ 273 dùng nháy đơn; 11 callsite dùng backtick với nội suy `${...}` (dòng 972, 977–978 — chính là vòng ma trận mutation WT-T19+ probe, 1003–1006 vòng W-G1 blocked-input, 1019 W-G2, 1178, 1190–1191 W-G7c) hoàn toàn vô hình với phép rút tên. Eval E8 (_acceptance/het-gio-khong-phai-truot/evals.yaml) tuyên chiều đỏ: «sửa/xoá một case cũ → răng đỏ ghim tên case bị lệch», nhưng xoá nguyên khối mutation-matrix hay vòng W-G1 khỏi file test hiện tại: suite vẫn exit 0 (E7 xanh), rang.sh vẫn in PASS TON-KHO (E8 xanh) — đúng lớp «tuyên quét toàn bộ case cũ, thực đo tập con». Sanity counter chỉ chặn N_OLD < 1, không đối chiếu N_OLD với tổng số callsite thật của bản base (số assert ≠ số phần tử, thiếu ma trận toàn phần viết-trước kiểu P105 — ví dụ đếm tổng `grep -c "check("` của base và đòi N_OLD + số-backtick-đã-khai = tổng, hoặc đỏ khi thấy bất kỳ `check(` nào ngoài hai khuôn đã bắt).
+Chân TON-KHO-MA-TRAN tự khai là phép đóng không gian cho «mọi khuôn đặt tên case» (comment dòng 88–92, và evals.yaml E8 hứa «khuôn thứ ba chưa phủ thì ĐỎ»). Nhưng ba bộ đếm không cùng đơn vị:
 
-*Vì sao tính là trong hợp đồng:* Cùng vị trí (rang.sh dòng 67) và cùng cơ chế đếm-nguồn mà AC-7/E8 đặt tên trực tiếp; finding chứng minh cơ chế đó không giữ đúng lời hứa «đếm nguồn, không hardcode số ca, assert từng tên» của AC-7.
+  N_CALL="$(printf '%s\n' "$BASE_SRC" | grep -c "check(")"      # grep -c đếm DÒNG có match
+  N_SQ="$(... | grep -o "check('" | wc -l ...)"                  # đếm LƯỢT xuất hiện
+  N_BT="$(... | grep -o 'check(`' | wc -l ...)"                  # đếm LƯỢT xuất hiện
+
+Đẳng thức N_CALL == N_SQ + N_BT chỉ đúng khi mỗi dòng có ĐÚNG một callsite — hiện base đúng như vậy (284 = 273 + 11) nên nó xanh do may, không do luật. Đã chạy thật để chứng: thêm vào bản sao base MỘT dòng chứa hai callsite `  check("khuon thu ba", true); check('ke ben', true);` → N_CALL=285, N_SQ=274, N_BT=11, tổng=285 ⇒ ĐẲNG THỨC VẪN CÂN, khuôn nháy-kép LỌT. Tức mọi callsite khuôn-thứ-ba nằm chung dòng với một callsite đã phủ đều vô hình với phép đo — đúng lớp lỗi mà chân này được sinh ra để chữa ở vòng r1 (lọc theo hình-dạng-cú-pháp là blacklist).
+
+Tự-phá-thử ở dòng 104–112 không bắt được lỗ này vì nó tiêm callsite thứ ba trên MỘT DÒNG RIÊNG (MUT_SRC = BASE_SRC + '\n  check("khuon thu ba", true);') — trường hợp duy nhất mà lệch đơn vị tình cờ không xảy ra. Nên nó là điểm-case, không phải ma trận: hai vế của không gian (khuôn-thứ-ba-riêng-dòng · khuôn-thứ-ba-chung-dòng) chỉ có một vế được viết ra, và vế còn lại là vế đỏ thật.
+
+*Vì sao tính là trong hợp đồng:* Trùng cơ chế đẳng thức đóng không gian mà AC-7 mô tả nguyên văn; RED-TEST chứng minh callsite khuôn nháy-kép chung dòng với callsite đã phủ vẫn lọt qua, vi phạm trực tiếp yêu cầu «khuôn thứ ba chưa phủ thì ĐỎ» của AC-7.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
-Không có finding nào ngoài hợp đồng ở vòng này.
+Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
+
+- **«Tự-phá-thử» của răng là hằng đúng — mutation là nghịch đảo chính xác của assertion, không bao giờ đỏ được**
+  Người dùng thấy gì: Một vòng tự-kiểm-tra trong quy trình duyệt tự động không bao giờ có thể phát hiện lỗi dù có, nên báo cáo vẫn ghi 'đã kiểm chứng' trong khi một lớp bảo vệ thực chất không hoạt động.
+  file: `_acceptance/het-gio-khong-phai-truot/rang.sh`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Plan của hồ sơ không được commit trong khi mọi hồ sơ trước đều commit**
+  Người dùng thấy gì: Tài liệu kế hoạch của tính năng này chưa được lưu vào lịch sử commit; nếu nhánh làm việc bị dọn hoặc gộp, nội dung kế hoạch có thể mất dấu mà không ai nhận ra.
+  file: `docs/superpowers/plans/2026-08-18-het-gio-khong-phai-truot.md`
+  severity: low
+  Đề xuất: known-limits
+
+- **Chú thích W26 nói «cùng fixture, chỉ field cấu trúc đổi» nhưng đối chứng đổi hai biến**
+  Người dùng thấy gì: Một dòng ghi chú giải thích trong bộ kiểm thử mô tả không đúng cách phép so sánh được thực hiện, có thể khiến người bảo trì sau này hiểu nhầm mức độ chặt chẽ của phép kiểm — kết quả kiểm thử hiện tại vẫn đáng tin.
+  file: `tests/workflows/acceptance-verify.test.mjs`
+  severity: low
+  Đề xuất: known-limits
+
+- **Hình dạng 4 — «tự-phá-thử» từng pin là tautology: nhánh do_fail không thể chạy, chiều đỏ được khai là giả**
+  Người dùng thấy gì: Một bước 'tự kiểm tra xem phép kiểm có hoạt động không' trong quy trình duyệt tự động về mặt toán học không bao giờ có thể phát hiện lỗi, dù báo cáo vẫn ghi là đã chạy thử chiều thất bại.
+  file: `_acceptance/het-gio-khong-phai-truot/rang.sh`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Hình dạng 1 — chân TON-KHO-TPL đo NGUỒN thay vì ĐẦU RA: 11 case tên-động chỉ được grep trong source, không có bằng chứng đã CHẠY**
+  Người dùng thấy gì: Với một nhóm trường hợp kiểm thử được đặt tên theo khuôn thứ hai, công cụ chỉ xác nhận đoạn mã có mặt trong nguồn chứ không xác nhận trường hợp đó thực sự đã chạy và pass — nếu một trong số đó ngừng chạy vì lỗi cấu hình, hệ thống có thể vẫn báo xanh.
+  file: `_acceptance/het-gio-khong-phai-truot/rang.sh`
+  severity: low
+  Đề xuất: known-limits
 
 Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).

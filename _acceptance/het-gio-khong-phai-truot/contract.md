@@ -78,11 +78,12 @@ Given kết quả verifier KHÔNG có field `killedByTool` (agent cũ / flow cũ
 When workflow xử lý,
 Then hành vi y nguyên: exit 1 thường → REJECT, cannotRun=true → BLOCKED, suite
 tồn kho `tests/workflows` xanh nguyên KHÔNG sửa case cũ nào — vế «không sửa»
-có phép đo riêng phủ MỌI khuôn đặt tên của bản diffBase (`git show`, đếm nguồn,
-không hardcode): tên nháy đơn assert nguyên văn + dòng `PASS: <tên>` khớp trọn
-dòng; tên template literal assert thân template nguyên văn; và một đẳng thức
-đóng không gian «tổng callsite = nháy đơn + backtick» để khuôn thứ ba chưa phủ
-thì ĐỎ (kèm tự-phá-thử chạy cùng lượt).
+có phép đo riêng đặt bất biến ở ĐẦU RA, không liệt kê theo hình dạng cú pháp:
+răng chạy chính bản base (`git show`) lấy mốc số ca, rồi đòi lần chạy hiện tại
+exit 0 + `Results: <base+pin> passed, 0 failed` và ĐẲNG THỨC số ca = base + số
+pin hồ sơ khai (thiếu ⇒ xoá case cũ, thừa ⇒ ca chưa khai), cộng assert tên
+nguyên văn cho case ghi được tên tĩnh. Chiều đỏ chạy cùng lượt qua chính hàm
+kiểm: bản sao tiêm 3 mũi phải đỏ đủ 3 lý do.
 
 ## Coverage
 
@@ -92,10 +93,13 @@ Bash trong prompt, 3/3 lane phủ bởi AC-1/2/3) × **phòng tuyến** (phòng 
 nhận diện · routing-JS — AC-1..4 phủ hai lớp đầu, AC-5/6 phủ lớp routing) ×
 **kết cục** (BLOCKED · REJECT · n-a — AC-5/6/7 ghim đủ ba). Lane judge/triage/
 refute/provenance/synthesize không chạy lệnh dài → ngoài không gian (thước:
-cùng grep). Ma trận đo trong test phải toàn phần: 3 lane × chứa-rule + 3 lane
-× schema + **3 mutant cô lập lớp (một mutant mỗi lane)** (W25) + routing 2
-chiều × 2 nhánh reason trên cùng fixture (W26) + 2 chiều baseline (W27) +
-chân tồn-kho đếm-nguồn cho AC-7 (E8).
+cùng grep). Ma trận đo trong test phải toàn phần và **ma trận lane của routing
+bằng ma trận lane của prompt**: 3 lane × chứa-rule + 3 lane × schema + 3 mutant
+cô lập lớp, một mutant mỗi lane (W25) · routing 2 lane (machine, ui) × 2 chiều
+(bị-giết, exit-thật) + 2 nhánh reason trên cùng fixture (W26) · lane baseline 2
+chiều (W27) · chân tồn-kho theo đẳng thức số ca base+pin, chiều đỏ 3 mũi chạy
+cùng lượt (E8). Bài học r2: thiếu một lane trong ma trận routing thì gỡ phòng
+thủ lane đó vẫn 100% xanh.
 
 ## Out of scope
 

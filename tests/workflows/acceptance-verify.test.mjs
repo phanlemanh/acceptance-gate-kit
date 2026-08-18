@@ -1526,10 +1526,13 @@ console.log('JR3 carry P3 giữ nguyên danh sách per-vote (AC-3)');
   }
 }
 
-// ── W26: routing killedByTool ⇒ BLOCKED (2 nhánh reason) + đối chứng REJECT ──
-// CÙNG một fixture sự cố (exit 1, output cắt, không dòng tổng kết) cho cả hai
-// chiều — chỉ field cấu trúc đổi. killedByTool=true mà cannotRun=false là ĐÚNG
-// hình dạng đã xảy ra: JS không được tin một lời khai đơn lẻ.
+// ── W26: routing killedByTool ⇒ BLOCKED (2 lane × 2 nhánh reason) + đối chứng ─
+// CÙNG một fixture sự cố (exit 1, output cắt, không dòng tổng kết) cho mọi
+// chiều — đối chứng dương đổi ĐÚNG MỘT biến (killedByTool), outputTail giữ
+// nguyên, để kết luận không lẫn hai nguyên nhân. killedByTool=true mà
+// cannotRun=false là ĐÚNG hình dạng đã xảy ra: JS không tin một lời khai đơn lẻ.
+// Ma trận lane cho routing = ma trận lane cho prompt (W25): machine · ui ·
+// baseline (baseline ở W27) — thiếu một lane thì xoá normKill lane đó vẫn xanh.
 {
   const mkArgs = () => ({
     slug: 'tk', round: 1, riskTier: 'T2',
@@ -1560,9 +1563,37 @@ console.log('JR3 carry P3 giữ nguyên danh sách per-vote (AC-3)');
   check('W26 reason trong -> khuon ghim bi cong cu giet',
     rB.result.verdict === 'BLOCKED' && /bi cong cu giet \(timeout tool\/output cat\)/.test((rB.result.blocked[0] || {}).reason),
     (rB.result.blocked[0] || {}).reason);
-  const rC = await runWorkflow(WF, mkArgs(), incident({ killedByTool: false, outputTail: 'FAIL: P188\nResults: 3 passed, 1 failed' }));
+  const rC = await runWorkflow(WF, mkArgs(), incident({ killedByTool: false }));
   check('W26 doi chung: exit 1 that -> REJECT',
     rC.result.verdict === 'REJECT' && rC.result.failedEvals.includes('E1'), rC.result.verdict);
+
+  // lane ui: cùng luật, cùng kết cục — không có ca này thì xoá normKill ở lane
+  // ui vẫn 100% xanh (finding r2, severity high).
+  const uiArgs = () => ({
+    slug: 'tk', round: 1, riskTier: 'T2',
+    evals: [{ id: 'E5', criterion: 'AC-5', executor: 'ui-check', expected: 'trang len', steps: ['mo trang'] }],
+    suiteCommands: [], diffBase: 'main', repoRoot: '/repo',
+    personasPath: '/p.md', templatePath: '/t.md', contractPath: '/c.md', invokedAt: '2026-08-18T00:00:00Z',
+  });
+  const uiIncident = (extra) => (call) => {
+    if (call.label.startsWith('ui:')) return {
+      exitCode: 1, outputTail: 'assert 1 ok\n[output bi cat o 10000 ky tu]', runId: '', cannotRun: false,
+      screenshotPath: 'evidence/E5-step1.png', observed: 'thay header dung expected truoc khi bi cat', networkObserved: 'n-a (driver)',
+      ...extra,
+    };
+    if (call.label.startsWith('review:')) return { findings: [] };
+    if (call.label === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: VC };
+    if (call.label === 'synthesize:report') return { report: 'r', findings: 'f' };
+    return null;
+  };
+  const rU = await runWorkflow(WF, uiArgs(), uiIncident({ killedByTool: true, reason: 'bi cong cu giet o 118 giay' }));
+  check('W26 ui killedByTool -> BLOCKED',
+    rU.result.verdict === 'BLOCKED' && rU.result.failedEvals.length === 0
+    && rU.result.blocked.some(b => b.cmd === 'ui-check:E5' && /bi cong cu giet/.test(b.reason)),
+    rU.result.verdict + ' ' + JSON.stringify(rU.result.blocked));
+  const rU2 = await runWorkflow(WF, uiArgs(), uiIncident({ killedByTool: false }));
+  check('W26 ui doi chung: exit 1 that -> REJECT',
+    rU2.result.verdict === 'REJECT' && rU2.result.failedEvals.includes('E5'), rU2.result.verdict);
 }
 
 // ── W27: baseline bị giết → n-a, không red giả (fixture đúng khuôn schema) ───
