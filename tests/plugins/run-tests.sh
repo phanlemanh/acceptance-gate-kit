@@ -10341,6 +10341,131 @@ assert set(SMSG) == FIRED, f"ma tran cau truc chua toan phan: {set(SMSG) - FIRED
 print(f"P199 OK: {NCA} ca fixture · {NKC} kiem cau truc · {NMUT} dot bien")
 PY
 
+# ── P200: mot lan cat so phai nhat quan o moi be mat nguoi dung doc ─────────
+# Ca VINH VIEN, khong ghim so cua mot moc (moi so doc tu manifest) — thay cho
+# rang dung-mot-lan cua tung ho so phat hanh (release-2-0-0/2-1-0/2-2-0 moi lan
+# tu dung mot dan do rieng, moi vong soi lai lo mot cach no khong do that).
+P200TMP="$(mktemp -d)"
+cat > "$P200TMP/p200.mjs" <<'P200JS'
+// P200 — MỘT lần cắt số phải NHẤT QUÁN ở mọi bề mặt người dùng đọc.
+// Ca VĨNH VIỄN (không ghim số của một mốc): mọi số đọc TỪ manifest, nên nó canh
+// được cả lần phát hành sau. Vì sao là ca suite chứ không phải răng của hồ sơ:
+// ba mốc liên tiếp (2.0.0 · 2.1.0 · 2.2.0) mỗi lần lại tự dựng một dàn đo
+// dùng-một-lần, và mỗi vòng soi lại tìm ra cách nó không đo thật (fail-open ·
+// assertion âm-tính-một-mình · lời-khai-sai · mất lối thoát). Thứ cần canh thì
+// giống hệt nhau mọi lần: hai plugin cùng số · GUIDE dẫn xuất từ manifest ·
+// mục mô tả của CHÍNH số đó nói người dùng nhận gì và tự khai cặp.
+//
+// CỐ Ý KHÔNG canh «số đã tăng so với base» (bản 18/08 từng có, đã TRỪ): nó kéo
+// theo một mốc di động (origin/main → mọi làn song song đỏ oan ngay sau khi mốc
+// phát hành merge) và một cổng nằm ở biến môi trường không ai canh. «Số đã
+// đổi» là điều người đọc trong diff 3 dòng của PR phát hành — thước máy ở đây
+// to hơn vật được đo.
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+
+const ROOT = process.argv[2];
+const ok = (m) => ({ ok: true, m });
+const red = (m) => ({ ok: false, m });
+const rd = (root, rel) => JSON.parse(fs.readFileSync(path.join(root, rel), 'utf8'));
+const AG = '.claude-plugin/plugin.json';
+const FL = 'feature-loop/.claude-plugin/plugin.json';
+const DD = 'diagram-design/.claude-plugin/plugin.json';
+// Mục của MỘT số trong mô tả = từ «v<số>» tới hết chuỗi (mô tả xếp theo thời gian).
+const muc = (mota, v) => { const i = mota.indexOf('v' + v); return i < 0 ? null : mota.slice(i); };
+
+// MỘT hàm kiểm nhận GỐC — cây thật và mọi bản đột biến cùng đi qua nó.
+function kiem(root) {
+  const out = [];
+  const load = (rel, ten) => { try { return { v: rd(root, rel) }; } catch (e) { return { err: `${ten}: ${String(e.message).split('\n')[0]}` }; } };
+  const A = load(AG, 'manifest acceptance-gate'), F = load(FL, 'manifest feature-loop'), D = load(DD, 'manifest diagram-design');
+  for (const X of [A, F, D]) if (X.err) out.push(red(`khong doc duoc ${X.err}`));
+  if (A.err || F.err || D.err) return out;   // nguồn hỏng: đã có vế đỏ có tên, không đoán tiếp
+
+  const V = A.v.version;
+  for (const [n, v] of [['acceptance-gate', V], ['feature-loop', F.v.version], ['diagram-design', D.v.version]])
+    out.push(/^\d+\.\d+\.\d+$/.test(v) ? ok(`${n} hop semver: ${v}`) : red(`${n} khong hop semver: ${v}`));
+  out.push(F.v.version === V ? ok(`hai plugin cung so: ${V}`) : red(`hai plugin lech so: acceptance-gate ${V} vs feature-loop ${F.v.version}`));
+
+  const want = `Khớp phiên bản: acceptance-gate ${V} · feature-loop ${F.v.version} · diagram-design ${D.v.version}.`;
+  let g = null; try { g = fs.readFileSync(path.join(root, 'GUIDE.md'), 'utf8'); } catch { g = null; }
+  out.push(g === null ? red('khong doc duoc GUIDE.md')
+    : g.includes(want) ? ok('GUIDE khop so DOC TU manifest') : red(`GUIDE khong chua cau dan xuat: ${want}`));
+
+  const segA = muc(A.v.description, V);
+  out.push(segA ? ok(`mo ta acceptance-gate co muc v${V}`) : red(`mo ta acceptance-gate khong co muc v${V} — ban phat hanh khong noi nguoi dung nhan gi`));
+  const segF = muc(F.v.description, V);
+  out.push(!segF ? red(`mo ta feature-loop khong co muc v${V}`)
+    : new RegExp(`acceptance-gate >= ${V.replace(/\./g, '\\.')}`).test(segF)
+      ? ok(`muc v${V} cua feature-loop TU khai cap`)
+      : red(`muc v${V} cua feature-loop khong khai cap acceptance-gate >= ${V} — cau khai cap nam ngoai muc nay (sua muc lich su khong tinh)`));
+  return out;
+}
+
+// ── bản sao code-sinh cho đột biến ────────────────────────────────────────
+const tmps = [];
+process.on('exit', () => { for (const d of tmps) { try { fs.rmSync(d, { recursive: true, force: true }); } catch {} } });
+function banSao() {
+  const d = fs.mkdtempSync(path.join(os.tmpdir(), 'p200-')); tmps.push(d);
+  for (const rel of [AG, FL, DD]) { fs.mkdirSync(path.join(d, path.dirname(rel)), { recursive: true }); fs.copyFileSync(path.join(ROOT, rel), path.join(d, rel)); }
+  fs.copyFileSync(path.join(ROOT, 'GUIDE.md'), path.join(d, 'GUIDE.md'));
+  return d;
+}
+const suaJSON = (p, fn) => { const j = JSON.parse(fs.readFileSync(p, 'utf8')); fn(j); fs.writeFileSync(p, JSON.stringify(j, null, 2) + '\n'); };
+
+// Mọi thứ sai đổ vào `loi` — và `loi` là thứ DUY NHẤT quyết mã thoát (xem cuối).
+const loi = [];
+const veThat = kiem(ROOT);
+for (const v of veThat) console.log(v.ok ? `     P200 VE: ${v.m}` : `     P200 VE DO: ${v.m}`);
+for (const x of veThat.filter(v => !v.ok)) loi.push(`cay that: ${x.m}`);
+// ĐỐI CHỨNG DƯƠNG của đường đột biến: bản sao NGUYÊN VẸN phải 0 vế đỏ.
+const sach = kiem(banSao()).filter(x => !x.ok);
+if (sach.length) loi.push(`ban sao NGUYEN VEN da do (${sach.map(x => x.m).join(' | ')}) — moi dot bien duoi vo nghia`);
+
+// Mỗi đột biến: (1) chứng minh bản sao THẬT SỰ đổi nội dung, (2) đi qua CHÍNH
+// kiem(), (3) ghim ĐÚNG câu — câu ghim phải NÊU TÊN plugin bị tiêm, để một vế
+// của plugin khác đỏ vì lý do khác không được tính thay.
+let nMut = 0;
+function dot(ten, sua, mong) {
+  const d = banSao();
+  const doc = () => [AG, FL, DD, 'GUIDE.md'].map(f => fs.readFileSync(path.join(d, f), 'utf8')).join(' ');
+  const truoc = doc(); sua(d);
+  if (truoc === doc()) { loi.push(`DOT BIEN KHONG AP DUOC [${ten}] — neo doi, phep do khong con chieu do`); return; }
+  const r = kiem(d).filter(x => !x.ok);
+  const hit = r.find(x => x.m.includes(mong));
+  if (hit) { nMut++; console.log(`     [chieu do] ${ten} -> DO «${hit.m}»`); }
+  else loi.push(`CHIEU DO KHONG CHAY [${ten}]: doi «${mong}», thay ${r.length ? r.map(x => `«${x.m}»`).join(' ') : '(khong ve nao do)'}`);
+}
+const V0 = rd(ROOT, AG).version;
+dot('hai plugin lech so', d => suaJSON(path.join(d, FL), j => { j.version = '0.0.1'; }), 'hai plugin lech so');
+dot('GUIDE giu so cu', d => fs.writeFileSync(path.join(d, 'GUIDE.md'), fs.readFileSync(path.join(ROOT, 'GUIDE.md'), 'utf8').replace(`acceptance-gate ${V0}`, 'acceptance-gate 0.0.1')), 'GUIDE khong chua cau dan xuat');
+dot('mo ta ag thieu muc cua so hien tai', d => suaJSON(path.join(d, AG), j => { j.description = j.description.split('v' + V0).join('vXXX'); }), `mo ta acceptance-gate khong co muc v${V0}`);
+// DỜI THẬT: gỡ câu khai cặp khỏi mục hiện tại rồi chèn vào một mục LỊCH SỬ
+// phía trước — nếu phép đo quay về lối quét cả chuỗi, đột biến này lọt.
+dot('cau khai cap doi sang muc lich su', d => suaJSON(path.join(d, FL), j => {
+  const cau = `Pairs with acceptance-gate >= ${V0}.`;
+  const seg = muc(j.description, V0) || '';
+  const segMoi = seg.split(cau).join('').replace(new RegExp(`acceptance-gate >= ${V0.replace(/\./g, '\\.')}`, 'g'), 'acceptance-gate cu');
+  j.description = j.description.replace(seg, segMoi);
+  const i = j.description.indexOf('v' + V0);
+  j.description = j.description.slice(0, i) + cau + ' ' + j.description.slice(i);   // câu nằm NGOÀI mục
+}), 'khong khai cap');
+dot('manifest ag hong', d => fs.writeFileSync(path.join(d, AG), '{ hong'), 'khong doc duoc manifest acceptance-gate');
+
+// ── MỘT lối thoát duy nhất ────────────────────────────────────────────────
+// S4-r3 (18/08) bắt bản trước: một khối chèn thêm đã cắt mất nhánh đọc `loi`,
+// nên P200 chỉ còn canh cỗ máy đột biến của CHÍNH NÓ và nuốt trọn vế đỏ của
+// cây thật. Đừng thêm `process.exit` thứ hai ở bất kỳ đâu trong file này.
+const MUT_KY_VONG = 5;
+if (nMut !== MUT_KY_VONG) loi.push(`so dot bien chay that ${nMut} != ${MUT_KY_VONG} khai truoc`);
+if (loi.length) { for (const l of loi) console.error(`  P200 LOI: ${l}`); process.exit(1); }
+console.log(`P200 OK (so doc tu manifest — khong ghim mot moc; ${nMut}/${MUT_KY_VONG} dot bien chay that, moi cai ghim dung cau; doi chung duong ban-sao-nguyen-ven)`);
+P200JS
+run "P200 mot lan cat so nhat quan: hai plugin cung so · GUIDE dan xuat · muc mo ta cua chinh so do (5 dot bien, mot loi thoat)" \
+  node "$P200TMP/p200.mjs" "$ROOT"
+rm -rf "$P200TMP"
+
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
   echo "ONLY_BLOCK=$ONLY_BLOCK khong khop khoi nao — go sai ten? (fail de khong xanh gia)"

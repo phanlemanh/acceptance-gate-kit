@@ -70,6 +70,7 @@ flowchart TD
 - Chặn PASS chưa ai phán ở biên merge (chữ ký giữ-chỗ + slug tự khai phát hành không được tàng hình) (`premerge-unjudged-pass`)
 - PRODUCT-MAP + phiên nghiệm thu — bộ sinh bản đồ sản phẩm từ hồ sơ xưởng, nghi thức Cổng Giá trị, start-scan đọc 2 nguồn mới (`product-map-uat-session`)
 - Răng cho phép đo khối "👉 VIỆC CỦA ANH" — vá 3 lỗ của P188/P189 (cô-lập-lớp · sàn-đếm-nguồn · ranh-giới-câu) (`rang-phep-do-viec-cua-anh`)
+- Phát hành kit 2.2.0 — đóng số cho ba hồ sơ 17–18/08 (hình tại Cổng 1 · mối nối Vòng TRAO · siết răng câu-về-hình) để repo tiêu thụ nhận engine mới có chủ đích trước khi mở vòng r4 bước 1 (`release-2-2-0`)
 - Scope-triage cho review findings ở S4 — ngăn thứ ba "thật nhưng ngoài hợp đồng" (`s4-scope-triage`)
 - Siết răng của phép đo câu-về-hình — P90 canh mọi bản chép, răng đọc bảng thông điệp từ P197, chiều đỏ tách-đoạn cho quan hệ cùng-đoạn, ma trận nhãn nở đủ, đối chứng P90 dùng chung (`siet-rang-cau-ve-hinh`)
 - Staleness theo diff PR — staleness chỉ áp cho slug có hồ sơ trong diff (`stale-theo-diff-pr`)
