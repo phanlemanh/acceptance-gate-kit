@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 0b0403c5dbb096d1fec66169f1f1bdc3c592ae41
+verified_commit: 7487fe593d5be698bbe55838924994d68e544786
 human_signoff: Manh Phan 2026-08-18
 ---
 
@@ -119,3 +119,7 @@ Round 4 (vòng này): theo quyết định owner (decisions.jsonl d-20260818T141
 ### Re-pin lần 1 — 2026-08-18, do gộp main (PR #66) vào nhánh hồ sơ
 run_id: repin-20260818-merge66-0b0403c
 sha: 0b0403c5dbb096d1fec66169f1f1bdc3c592ae41 · suites: 5 lệnh exit 0
+
+### Re-pin lần 2 — 2026-08-18, do vẽ lại bản đồ sản phẩm trên cây sạch
+run_id: repin-20260818-map-7487fe5
+sha: 7487fe593d5be698bbe55838924994d68e544786 · suites: 5 lệnh exit 0
