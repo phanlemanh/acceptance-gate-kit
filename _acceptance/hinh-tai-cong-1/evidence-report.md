@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c02ef661b37078c4cc27d584b72639e5d72f0e92
+verified_commit: 9925c91d9c473df8413283817766af46fd8aaa85
 human_signoff: Manh Phan 2026-08-17
 ---
 
@@ -139,3 +139,7 @@ Round 7 (hiện tại): E1-E9 chạy lại đầy đủ tại 7b183f9 — rang.s
 ### Re-pin lần 1 — 2026-08-17, do răng rang.sh của hồ sơ đổi sang đọc bảng thông điệp từ P197 (siet-rang-cau-ve-hinh AC-3; machine-only, không đụng chữ ký)
 run_id: repin-hinh-tai-cong-1-c02ef661
 sha: c02ef661b37078c4cc27d584b72639e5d72f0e92 · suites: 4 lệnh exit 0
+
+### Re-pin lần 2 — 2026-08-18, do suite plugins đổi sau lần ghim 1 (P90 ghi chú m4, P198 tự-soi; cùng lane với siet-rang-cau-ve-hinh, machine-only)
+run_id: repin-siet-rang-cau-ve-hinh-9925c91d
+sha: 9925c91d9c473df8413283817766af46fd8aaa85 · suites: 4 lệnh exit 0
