@@ -1470,4 +1470,127 @@ console.log('JR3 carry P3 giữ nguyên danh sách per-vote (AC-3)');
   check('JR3 result.panels có mục carried (bản rút gọn — danh sách sống ở memo)', !!panelC && panelC.carried === true, JSON.stringify(panelC || {}));
 }
 
+// ── W25: TOOL-KILL-RULE — một nguồn marker, 3 lane, 3 mutant cô lập lớp ──────
+// Vấp thật release-2-2-0 S4 r5: verifier không truyền timeout → công cụ giết
+// suite ở 118s → exit 1 của CÔNG CỤ bị đọc thành exit của LỆNH → REJECT giả.
+// Luật sống MỘT chỗ trong marker; test RÚT từ marker, không chép tay (nếp
+// EVAL-REQUIRED-FIELDS). Ba mutant — một mutant mỗi lane — chặn lớp
+// hai-bản-chép/grep-nhầm-biến: xoá nội suy ở đúng một lane thì CHỈ lane đó đỏ.
+{
+  const src = readFileSync(WF, 'utf8');
+  const mBlock = src.match(/\/\/ <<<TOOL-KILL-RULE\n([\s\S]*?)\n\/\/ TOOL-KILL-RULE>>>/);
+  const ruleM = mBlock && mBlock[1].match(/`([\s\S]*?)`/);
+  const RULE = ruleM ? ruleM[1] : '';
+  check('W25 rule rut tu marker', RULE.includes('600000') && RULE.includes('killedByTool') && RULE.includes('bi cong cu giet'), RULE.slice(0, 60) || '(marker vang)');
+
+  const tkArgs = {
+    slug: 'tk', round: 1, riskTier: 'T2',
+    evals: [
+      { id: 'E1', criterion: 'AC-1', executor: 'test', cmd: './suite.sh', ref: 'config:executors.test.x', expected: 'x' },
+      { id: 'E5', criterion: 'AC-2', executor: 'ui-check', expected: 'trang len', steps: ['mo trang'] },
+    ],
+    suiteCommands: [], diffBase: 'main', repoRoot: '/repo',
+    personasPath: '/p.md', templatePath: '/t.md', contractPath: '/c.md',
+    invokedAt: '2026-08-18T00:00:00Z',
+  };
+  const tkRespond = (call) => {
+    if (call.label.startsWith('machine:')) return { exitCode: 0, outputTail: 'ok', runId: '', cannotRun: false };
+    if (call.label.startsWith('ui:')) return { exitCode: 0, outputTail: 'ok', runId: '', cannotRun: false, screenshotPath: 'e.html', observed: 'thay trang len dung expected', networkObserved: 'n-a (driver)' };
+    if (call.label === 'baseline:diffBase') return { results: [{ cmd: './suite.sh', baselineExit: 1, cannotRun: false }] };
+    if (call.label.startsWith('review:')) return { findings: [] };
+    if (call.label === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: VC };
+    if (call.label === 'synthesize:report') return { report: 'r', findings: 'f' };
+    return null;
+  };
+  const { calls } = await runWorkflow(WF, tkArgs, tkRespond);
+  check('W25 machine prompt chua TOOL-KILL-RULE', !!RULE && byLabel(calls, 'machine:')[0].prompt.includes(RULE));
+  check('W25 ui prompt chua TOOL-KILL-RULE', !!RULE && byLabel(calls, 'ui:')[0].prompt.includes(RULE));
+  check('W25 baseline prompt chua TOOL-KILL-RULE', !!RULE && byLabel(calls, 'baseline:')[0].prompt.includes(RULE));
+  const mS = byLabel(calls, 'machine:')[0].opts.schema, uS = byLabel(calls, 'ui:')[0].opts.schema,
+    bS = byLabel(calls, 'baseline:')[0].opts.schema.properties.results.items;
+  check('W25 schema killedByTool',
+    [mS, uS, bS].every(s => s.properties.killedByTool && s.properties.killedByTool.type === 'boolean'
+      && !(s.required || []).includes('killedByTool')));
+
+  const TOK = '${TOOL_KILL_RULE}';
+  const idxs = [];
+  for (let i = src.indexOf(TOK); i !== -1; i = src.indexOf(TOK, i + 1)) idxs.push(i);
+  check('W25 dung 3 luot noi suy rule', idxs.length === 3, String(idxs.length));
+  const LANES = ['machine', 'ui', 'baseline'];
+  for (let k = 0; k < LANES.length && idxs.length === 3; k++) {
+    const mutated = src.slice(0, idxs[k]) + src.slice(idxs[k] + TOK.length);
+    const { calls: mc } = await runWorkflow(WF, tkArgs, tkRespond, mutated);
+    const pr = (lane) => byLabel(mc, lane + ':')[0].prompt;
+    check(`W25 mutant ${LANES[k]}: xoa rule -> chi ${LANES[k]} do`,
+      !!RULE && !pr(LANES[k]).includes(RULE) && LANES.filter((_, j) => j !== k).every(l => pr(l).includes(RULE)));
+  }
+}
+
+// ── W26: routing killedByTool ⇒ BLOCKED (2 nhánh reason) + đối chứng REJECT ──
+// CÙNG một fixture sự cố (exit 1, output cắt, không dòng tổng kết) cho cả hai
+// chiều — chỉ field cấu trúc đổi. killedByTool=true mà cannotRun=false là ĐÚNG
+// hình dạng đã xảy ra: JS không được tin một lời khai đơn lẻ.
+{
+  const mkArgs = () => ({
+    slug: 'tk', round: 1, riskTier: 'T2',
+    evals: [{ id: 'E1', criterion: 'AC-1', executor: 'test', cmd: 'bash tests/plugins/run-tests.sh', ref: 'config:executors.test.plugins', expected: 'x' }],
+    suiteCommands: [], diffBase: 'main', repoRoot: '/repo',
+    personasPath: '/p.md', templatePath: '/t.md', contractPath: '/c.md', invokedAt: '2026-08-18T00:00:00Z',
+  });
+  const incident = (extra) => (call) => {
+    if (call.label.startsWith('machine:')) return {
+      exitCode: 1, outputTail: 'RUN: P188 executor-key hop nhat…\n[output bi cat o 10000 ky tu]',
+      runId: '', cannotRun: false, ...extra,
+    };
+    if (call.label === 'baseline:diffBase') return { results: [{ cmd: 'bash tests/plugins/run-tests.sh', baselineExit: 0, cannotRun: false }] };
+    if (call.label.startsWith('review:')) return { findings: [] };
+    if (call.label === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: VC };
+    if (call.label === 'synthesize:report') return { report: 'r', findings: 'f' };
+    return null;
+  };
+  const rA = await runWorkflow(WF, mkArgs(), incident({ killedByTool: true, reason: 'bi cong cu giet o 118 giay' }));
+  check('W26 killedByTool -> BLOCKED',
+    rA.result.verdict === 'BLOCKED' && rA.result.failedEvals.length === 0
+    && rA.result.failedCommands.length === 0 && /bi cong cu giet/.test((rA.result.blocked[0] || {}).reason),
+    rA.result.verdict);
+  check('W26 reason agent giu nguyen van', (rA.result.blocked[0] || {}).reason === 'bi cong cu giet o 118 giay', (rA.result.blocked[0] || {}).reason);
+  const lg = JSON.parse(rA.result.runLog[0] || '{}');
+  check('W26 run-log ghi cannot_run, khong ghi exit gia', lg.cannot_run === true && lg.exit_code === null, rA.result.runLog[0]);
+  const rB = await runWorkflow(WF, mkArgs(), incident({ killedByTool: true, reason: '' }));
+  check('W26 reason trong -> khuon ghim bi cong cu giet',
+    rB.result.verdict === 'BLOCKED' && /bi cong cu giet \(timeout tool\/output cat\)/.test((rB.result.blocked[0] || {}).reason),
+    (rB.result.blocked[0] || {}).reason);
+  const rC = await runWorkflow(WF, mkArgs(), incident({ killedByTool: false, outputTail: 'FAIL: P188\nResults: 3 passed, 1 failed' }));
+  check('W26 doi chung: exit 1 that -> REJECT',
+    rC.result.verdict === 'REJECT' && rC.result.failedEvals.includes('E1'), rC.result.verdict);
+}
+
+// ── W27: baseline bị giết → n-a, không red giả (fixture đúng khuôn schema) ───
+{
+  const mkArgs = () => ({
+    slug: 'tk', round: 1, riskTier: 'T2',
+    evals: [{ id: 'E1', criterion: 'AC-1', executor: 'test', cmd: './suite.sh', ref: 'config:executors.test.x', expected: 'x' }],
+    suiteCommands: [], diffBase: 'main', repoRoot: '/repo',
+    personasPath: '/p.md', templatePath: '/t.md', contractPath: '/c.md', invokedAt: '2026-08-18T00:00:00Z',
+  });
+  const respond = (bl) => (call) => {
+    if (call.label.startsWith('machine:')) return { exitCode: 0, outputTail: 'Results: 9 passed', runId: '', cannotRun: false };
+    if (call.label === 'baseline:diffBase') return { results: [bl] };
+    if (call.label.startsWith('review:')) return { findings: [] };
+    if (call.label === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: VC };
+    if (call.label === 'synthesize:report') return { report: 'r', findings: 'f' };
+    return null;
+  };
+  const rK = await runWorkflow(WF, mkArgs(), respond({ cmd: './suite.sh', baselineExit: 1, cannotRun: false, killedByTool: true }));
+  const synthK = byLabel(rK.calls, 'synthesize:report')[0].prompt;
+  check('W27 baseline killed -> n-a',
+    rK.result.nonDiscriminating.length === 0 && synthK.includes('"baseline":"n-a"') && !synthK.includes('"baseline":"red"'),
+    (synthK.match(/"baseline":"[a-z-]*"/) || [])[0]);
+  const rR = await runWorkflow(WF, mkArgs(), respond({ cmd: './suite.sh', baselineExit: 1, cannotRun: false }));
+  const synthR = byLabel(rR.calls, 'synthesize:report')[0].prompt;
+  check('W27 doi chung: baseline exit 1 that -> red',
+    rR.result.nonDiscriminating.length === 0 && synthR.includes('"baseline":"red"'),
+    (synthR.match(/"baseline":"[a-z-]*"/) || [])[0]);
+}
+
 summary('acceptance-verify');
