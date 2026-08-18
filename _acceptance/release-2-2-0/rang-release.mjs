@@ -41,7 +41,10 @@ const tmpd = () => { const d = fs.mkdtempSync(path.join(os.tmpdir(), 'rang22-'))
 process.on('exit', () => { for (const d of tmps) { try { fs.rmSync(d, { recursive: true, force: true }); } catch {} } });
 
 const readJSON = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
-const sh = (cmd, args, cwd) => spawnSync(cmd, args, { cwd: cwd || ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+// git LUÔN chạy trong REPO thật; `--root` chỉ là nơi ĐỌC VẬT (manifest/GUIDE).
+// Trộn hai thứ này là lỗi đã bắt ở S4-r1 bản Node: bản sao không phải kho git
+// nên chân thoát sớm ở nhánh fail-closed và mọi đột biến «đỏ» mà không hề đo.
+const sh = (cmd, args, cwd) => spawnSync(cmd, args, { cwd: cwd || REPO, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 
 // ── chân manifest: SÁU vế, mỗi nguồn hỏng thành MỘT vế đỏ (không im lặng) ──
 const VE_MANIFEST = 6;
@@ -127,13 +130,16 @@ function chanDiff() {
 }
 
 // ── tiện ích cho đột biến: bản sao manifest + GUIDE ────────────────────────
+// Bản sao cho đột biến LUÔN dựng từ REPO thật — không từ ROOT. Trộn hai vai là
+// lỗi S4-r1 bản Node: chạy `--root <bản sao hỏng>` thì chính bước dựng đột biến
+// ném ngoại lệ và chân chết trước khi đo được gì.
 function banSao() {
   const d = tmpd();
   for (const rel of ['.claude-plugin/plugin.json', 'feature-loop/.claude-plugin/plugin.json', 'diagram-design/.claude-plugin/plugin.json']) {
     fs.mkdirSync(path.join(d, path.dirname(rel)), { recursive: true });
-    fs.copyFileSync(path.join(ROOT, rel), path.join(d, rel));
+    fs.copyFileSync(path.join(REPO, rel), path.join(d, rel));
   }
-  fs.copyFileSync(path.join(ROOT, 'GUIDE.md'), path.join(d, 'GUIDE.md'));
+  fs.copyFileSync(path.join(REPO, 'GUIDE.md'), path.join(d, 'GUIDE.md'));
   return d;
 }
 const suaJSON = (p, fn) => { const j = readJSON(p); fn(j); fs.writeFileSync(p, JSON.stringify(j, null, 2) + '\n'); };
@@ -147,20 +153,28 @@ const ddBaseVersion = () => {
 function khoFixture(slug, contract, evidence) {
   const d = tmpd();
   for (const dir of ['lib', 'scripts']) {
-    const r = sh('cp', ['-R', path.join(ROOT, dir), path.join(d, dir)]);
+    const r = sh('cp', ['-R', path.join(REPO, dir), path.join(d, dir)], d);
     if (r.status !== 0) return { err: `chép ${dir} thất bại: ${(r.stderr || '').trim()}` };
   }
+  // HAI commit: base = commit chưa có workspace. Luật per-slug của lưới chỉ áp
+  // cho slug CÓ TRONG DIFF (chip ①) — fixture một-commit chạy `--base HEAD` cho
+  // diff rỗng nên chỉ luật quét-toàn-kho (veto-trace) chạy, và vế hạng T3 im
+  // lặng (S4-r1 bản Node bắt: «VẾ AC-4 KHÔNG ĐƯỢC ĐO»).
+  fs.writeFileSync(path.join(d, 'README.md'), '# fixture\n');
+  const git = (...a) => spawnSync('git', ['-c', 'user.email=t@t', '-c', 'user.name=T', ...a], { cwd: d, encoding: 'utf8' });
+  if (git('init', '-q', '.').status !== 0) return { err: 'git init lỗi' };
+  if (git('add', '-A').status !== 0 || git('commit', '-qm', 'nen').status !== 0) return { err: 'git commit nền lỗi' };
+  const base = git('rev-parse', 'HEAD').stdout.trim();
   const ws = path.join(d, '_acceptance', slug);
   fs.mkdirSync(ws, { recursive: true });
   fs.writeFileSync(path.join(ws, 'contract.md'), contract);
   if (evidence) fs.writeFileSync(path.join(ws, 'evidence-report.md'), evidence);
-  for (const a of [['init', '-q', '.'], ['add', '-A']]) { const r = sh('git', a, d); if (r.status !== 0) return { err: `git ${a[0]} lỗi` }; }
-  const c = spawnSync('git', ['-c', 'user.email=t@t', '-c', 'user.name=T', 'commit', '-qm', 'b'], { cwd: d, encoding: 'utf8' });
-  if (c.status !== 0) return { err: 'git commit lỗi' };
-  const run = spawnSync('bash', ['scripts/pre-merge-check.sh', '--base', 'HEAD'], { cwd: d, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
-  return { out: (run.stdout || '') + (run.stderr || '') };
+  if (git('add', '-A').status !== 0 || git('commit', '-qm', 'ho so').status !== 0) return { err: 'git commit hồ sơ lỗi' };
+  const run = spawnSync('bash', ['scripts/pre-merge-check.sh', '--base', base], { cwd: d, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
+  return { out: (run.stdout || '') + (run.stderr || ''), base };
 }
-const CT = (slug, extra) => `---\nschema_version: 1\nfeature: f\nslug: ${slug}\nowner: o\nrisk_tier: T2\nstatus: ${extra.status}\napproved_by:\napproved_at:\nveto_state: ${extra.veto}\nveto_opened_at: 2026-08-18T00:00:00Z\n---\n\n# c\n`;
+
+const CT = (slug, extra) => `---\nschema_version: 1\nfeature: f\nslug: ${slug}\nowner: o\nrisk_tier: ${extra.tier || 'T2'}\nstatus: ${extra.status}\napproved_by:\napproved_at:\nveto_state: ${extra.veto}\nveto_opened_at: 2026-08-18T00:00:00Z\n---\n\n# c\n`;
 const EV_KHONGSACH = `---\nschema_version: 2\nfeature_slug: khongsach\nverdict: PASS\nfailed_evals: []\nverified_by: x\nenforcement_mode: strict\nbypass_used: false\nverified_commit: 0000000000000000000000000000000000000000\nhuman_signoff:\n---\n\n## Known limits\n\n- một giới hạn còn treo\n`;
 
 // ── chạy từng chân: trả {ves, muts} ────────────────────────────────────────
@@ -222,9 +236,15 @@ function chay(chan) {
     const out = (r.stdout || '') + (r.stderr || '');
     ves.push(/cửa veto đang mở[^\n]*release-2-2-0/.test(out) ? ok('NOTE cửa-veto có tên release-2-2-0') : red('NOTE cửa-veto KHÔNG có tên hồ sơ này'));
     ves.push(/^VIOLATION \[release-2-2-0\].*veto/m.test(out) ? red('luật veto nổ oan trên hồ sơ này') : ok('0 VIOLATION nhóm veto mang tên release-2-2-0'));
-    const f1 = khoFixture('vpham', CT('vpham', { status: 'approved', veto: 'da-veto' }), null);
+    const f1 = khoFixture('vpham', CT('vpham', { status: 'implemented', veto: 'da-veto' }), null);
     if (f1.err) ves.push(red(`fixture da-veto dựng lỗi: ${f1.err}`));
     else /^VIOLATION \[vpham\].*veto/m.test(f1.out) ? dot('fixture da-veto thật → lưới ĐỎ đúng định dạng VIOLATION') : ves.push(red('ĐỐI CHỨNG DƯƠNG HỎNG: vi phạm veto thật mà lưới không nổ'));
+    // `status: implemented` — luật Cổng-1 của lưới chỉ áp từ trạng thái này trở
+    // đi (`approved` bị bỏ qua có chủ đích). Fixture dùng `approved` là fixture
+    // KHÔNG chạm luật: S4-r1 bản Node bắt đúng chỗ đó.
+    const f3 = khoFixture('hangt3', CT('hangt3', { status: 'implemented', veto: 'mo', tier: 'T3' }), null);
+    if (f3.err) ves.push(red(`fixture T3 dựng lỗi: ${f3.err}`));
+    else /^VIOLATION \[hangt3\].*làn V chỉ T2/m.test(f3.out) ? dot('fixture hạ hạng T3 + mo → lưới ĐỎ ghim «làn V chỉ T2»: vế hạng của AC-4 có răng') : ves.push(red(`VẾ AC-4 KHÔNG ĐƯỢC ĐO: hạng T3 mở làn V mà lưới không ĐỎ đúng câu — thấy: ${(f3.out.match(/^(VIOLATION|NOTE) \[hangt3\].*/m) || ['(không dòng nào mang tên hangt3)'])[0].slice(0, 120)}`));
     const f2 = khoFixture('khongsach', CT('khongsach', { status: 'verified', veto: 'mo' }), EV_KHONGSACH);
     if (f2.err) ves.push(red(`fixture mo+không-sạch dựng lỗi: ${f2.err}`));
     else /^VIOLATION \[khongsach\]/m.test(f2.out) ? dot('fixture mo + Known limits KHÔNG rỗng → lưới ĐỎ: quan hệ mo ⇔ xanh-sạch có răng') : ves.push(red('QUAN HỆ KHÔNG ĐƯỢC ĐO: mo mà báo cáo không sạch vẫn lọt qua lưới'));
@@ -242,14 +262,21 @@ function chay(chan) {
     const chay1 = (root) => spawnSync('node', [self, '--chan', 'manifest', '--root', root], { cwd: REPO, encoding: 'utf8' });
     const good = chay1(ROOT);
     ves.push(good.status === 0 ? ok('cây thật → mã thoát 0 (đối chứng dương của chính bộ đếm)') : red(`cây thật mà mã thoát ${good.status} — bộ đếm hoặc vật hỏng`));
+    // ĐỐI CHỨNG DƯƠNG THỨ HAI: bản sao NGUYÊN VẸN phải XANH. Thiếu vế này thì
+    // hai đột biến dưới «đỏ» kể cả khi chân thoát sớm vì lý do khác (S4-r1 Node).
+    const sach = chay1(banSao());
+    ves.push(sach.status === 0 ? ok('bản sao NGUYÊN VẸN → mã thoát 0 (đường đọc vật tách khỏi git)')
+      : red(`bản sao nguyên vẹn mà mã thoát ${sach.status} — chân thoát sớm, mọi đột biến sau đó vô nghĩa: ${(sach.stdout || '').trim().split('\n').filter(l => l.includes('ĐỎ')).join(' | ')}`));
     const d = banSao(); suaJSON(path.join(d, '.claude-plugin/plugin.json'), j => { j.version = '2.1.0'; });
     const bad = chay1(d);
-    (bad.status !== 0 && /ĐỎ/.test(bad.stdout || ''))
-      ? dot(`bản sao sai số → mã thoát ${bad.status} kèm dòng ĐỎ: bộ đếm KHÔNG nuốt vế đỏ (lỗ bash cũ đã chết)`)
-      : ves.push(red(`BỘ ĐẾM FAIL-OPEN: bản sao sai số mà mã thoát ${bad.status} — đúng lỗ đã cắn hai lần`));
+    (bad.status !== 0 && /ĐỎ +ag-version 2\.1\.0/.test(bad.stdout || ''))
+      ? dot(`bản sao sai số → mã thoát ${bad.status} kèm ĐÚNG dòng «ag-version 2.1.0»: bộ đếm không nuốt vế đỏ`)
+      : ves.push(red(`ĐỘT BIẾN KHÔNG ĐI QUA PHÉP ĐO: bản sao sai số cho mã thoát ${bad.status} mà không có dòng «ag-version 2.1.0»`));
     const d2 = banSao(); fs.writeFileSync(path.join(d2, '.claude-plugin/plugin.json'), '{ hong');
     const bad2 = chay1(d2);
-    bad2.status !== 0 ? dot(`manifest hỏng → mã thoát ${bad2.status}: chân câm không lọt thành xanh`) : ves.push(red('BỘ ĐẾM FAIL-OPEN: manifest hỏng mà mã thoát 0'));
+    (bad2.status !== 0 && /khong doc duoc/.test(bad2.stdout || ''))
+      ? dot(`manifest hỏng → mã thoát ${bad2.status} kèm ĐÚNG vế «khong doc duoc»: chân câm không lọt thành xanh`)
+      : ves.push(red(`ĐỘT BIẾN KHÔNG ĐI QUA PHÉP ĐO: manifest hỏng cho mã thoát ${bad2.status} mà không có vế «khong doc duoc»`));
   }
 
   else return { ves: [red(`chân không biết: ${chan}`)], muts };
@@ -262,7 +289,9 @@ const chans = CHAN ? [CHAN] : DS;
 let tongDo = 0;
 for (const c of chans) {
   console.log(`== chân ${c} ==`);
-  const { ves, muts } = chay(c);
+  let ves, muts;
+  try { ({ ves, muts } = chay(c)); }
+  catch (e) { ves = [red(`chân ném ngoại lệ (không kết luận được): ${String(e && e.message || e).split('\n')[0]}`)]; muts = []; }
   for (const v of ves) console.log(v.ok ? `  OK   ${v.m}` : `  ĐỎ   ${v.m}`);
   for (const m of muts) console.log(`       [chiều đỏ] ${m}`);
   const do_ = ves.filter(v => !v.ok).length;
