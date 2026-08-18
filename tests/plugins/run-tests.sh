@@ -10483,21 +10483,41 @@ dot('manifest ag hong', d => fs.writeFileSync(path.join(d, AG), '{ hong'), 'khon
 // Vế QUAN HỆ với base — hai chiều đỏ riêng biệt.
 function dotBase(ten, moi, buoc, mong) {
   const d = banSao();
+  const doc = () => [AG, FL].map(f => fs.readFileSync(path.join(d, f), 'utf8')).join(' ');
+  const truoc = doc();
   suaJSON(path.join(d, AG), j => { j.version = moi; });
   suaJSON(path.join(d, FL), j => { j.version = moi; });
+  // Cùng chốt như dot(): ghi lại ĐÚNG giá trị đang có không phải một đột biến.
+  if (truoc === doc()) { loi.push(`DOT BIEN KHONG AP DUOC [${ten}] — ghi de dung so dang co, khong co gi bi tiem`); return; }
   const r = kiem(d, SO_BASE, buoc).filter(x => !x.ok);
   const hit = r.find(x => x.m.includes(mong));
   if (hit) { nMut++; console.log(`     [chieu do] ${ten} -> DO «${hit.m}»`); }
   else loi.push(`CHIEU DO KHONG CHAY [${ten}]: doi «${mong}», thay ${r.length ? r.map(x => `«${x.m}»`).join(' ') : '(khong ve nao do)'}`);
 }
+const DA_BUMP = !!SO_BASE && rd(ROOT, AG).version !== SO_BASE[AG];
 if (SO_BASE) {
   dotBase('tut so xuong duoi base', '0.0.1', false, 'tut so so voi base');
   // Chiều đỏ của chính việc CẮT SỐ: mất commit bump ⇒ số bằng base ⇒ phải ĐỎ.
-  dotBase('mat commit bump (so bang base)', SO_BASE[AG], true, 'khong tang so so voi base');
+  // Chỉ tiêm được khi cây ĐÃ bump; PR thường (số bằng base) thì ghi lại chính
+  // số đang có không tiêm được gì — khai thẳng thay vì đếm nó như một chiều đỏ.
+  if (DA_BUMP) dotBase('mat commit bump (so bang base)', SO_BASE[AG], true, 'khong tang so so voi base');
+  else console.log('     P200: cay chua bump so (bang base) — dot bien «mat commit bump» khong tiem duoc, bo qua CO KHAI');
 }
 
-const MUT_KY_VONG = SO_BASE ? 7 : 5;
-if (nMut !== MUT_KY_VONG) { console.error(`  P200 LOI: so dot bien chay that ${nMut} != ${MUT_KY_VONG} khai truoc`); process.exit(1); }
+// ── MỘT lối thoát duy nhất ────────────────────────────────────────────────
+// Mọi thứ sai — vế đỏ trên CÂY THẬT, đối chứng dương hỏng, đột biến không áp
+// được, số đột biến lệch, base không giải được — đều đổ vào `loi`, và `loi` là
+// thứ DUY NHẤT quyết mã thoát. S4-r3 (18/08) bắt bản trước: một khối chèn thêm
+// đã cắt mất nhánh đọc `loi`, nên P200 chỉ còn canh cỗ máy đột biến của CHÍNH
+// NÓ và nuốt trọn vế đỏ của cây thật — hai plugin lệch số vẫn in «P200 OK».
+// Đừng thêm `process.exit` thứ hai ở bất kỳ đâu trong file này.
+if (SO_BASE === null) loi.push(`khong giai duoc base «${BASE}» — chay \`git fetch origin main\`; «khong doi chieu duoc» KHONG phai «dat»`);
+// Ở chế độ BUỘC-TĂNG, con số kỳ vọng KHÔNG được suy từ «cây có bump không» —
+// đó chính là điều kiện phải canh. Buộc 7: cây chưa bump thì đột biến mất-bump
+// không tiêm được, số lệch, ĐỎ — cộng thêm vế đỏ của chính cây thật.
+const MUT_KY_VONG = SO_BASE === null ? 5 : ((DA_BUMP || BUOC) ? 7 : 6);
+if (nMut !== MUT_KY_VONG) loi.push(`so dot bien chay that ${nMut} != ${MUT_KY_VONG} khai truoc`);
+if (loi.length) { for (const l of loi) console.error(`  P200 LOI: ${l}`); process.exit(1); }
 console.log(`P200 OK (so doc tu manifest — khong ghim mot moc; base=${BASE}${BUOC ? ' BUOC-TANG' : ''}; ${nMut}/${MUT_KY_VONG} dot bien chay that, moi cai ghim dung cau; doi chung duong ban-sao-nguyen-ven)`);
 P200JS
 run "P200 mot lan cat so nhat quan: hai plugin cung so · GUIDE dan xuat · muc mo ta cua chinh so do · quan he voi base (7 dot bien)" \
