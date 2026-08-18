@@ -1,0 +1,109 @@
+schema_version: 1
+feature_slug: status-chua-arm-cong
+# CỐ Ý không có eval `judgment` (xem contract Notes). Mọi eval ghim đích danh
+# dòng "PASS: ARMnn" trong stdout suite scripts — không tin mã thoát trọn suite
+# (luật tổng-kết-phải-kèm-số-ca + ba-lớp-che-màu-xanh). Fixture code-sinh bằng
+# git (khuôn mk_git_repo/mk_mixed_repo có sẵn trong suite), mọi lượt chạy qua
+# `env -u PRE_MERGE_BASE`.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [scripts/pre-merge-check.sh, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: ARM01" (đối chứng dương: cùng fixture, status
+      implemented + evidence REJECT + PR chạm src/app.js + --base → KHÔNG dòng
+      "chưa arm cổng", CÓ đúng dòng "VIOLATION [feat-arm]: verdict=REJECT (must
+      be PASS to merge)" — cổng chạy) VÀ "PASS: ARM02" (chiều đỏ tái hiện vòng
+      4: chỉ đổi status → approved → exit 1 + dòng "VIOLATION [feat-arm]: hồ sơ
+      có bằng chứng nhưng status chưa arm cổng" + "verdict=REJECT") VÀ "PASS:
+      ARM10" (a độc lập với b: approved + REJECT + PR chỉ đổi docs/ → vẫn nổ
+      cùng tên + verdict=REJECT).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [scripts/pre-merge-check.sh, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: ARM03" (draft không evidence, PR đổi src/app.js
+      + hồ sơ → exit 1 + cùng tên VIOLATION + "PR đổi code chịu cổng
+      (src/app.js") VÀ "PASS: ARM04" (draft không evidence, PR chỉ đổi docs/ +
+      hồ sơ → exit 0, KHÔNG dòng "chưa arm cổng", CÓ dấu dương dòng sổ luật
+      "expected=4") VÀ "PASS: ARM09" (approved không evidence + PR đổi
+      src/app.js → nổ b, không phụ thuộc draft) VÀ "PASS: ARM11" (draft không
+      evidence + PR đổi file khớp t3_paths → nổ b qua nhánh t3, thông điệp nêu
+      tên file t3).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [scripts/pre-merge-check.sh, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: ARM05" (slug cũ approved+REJECT đã ở base, KHÔNG
+      trong diff; slug mới armed trong diff → KHÔNG dòng "chưa arm cổng" cho
+      slug cũ, CÓ dòng chấm "[feat-arm]" + "expected=4" — cổng đã chạy) VÀ
+      "PASS: ARM06" (không --base: approved+REJECT → exit 1 + dòng "chưa arm
+      cổng") VÀ "PASS: ARM07" (không --base: draft không evidence → exit 0,
+      KHÔNG dòng đó, CÓ "expected=4") VÀ "PASS: ARM12" (tier T1 ngoài
+      required_for + approved + REJECT + trong diff + code chịu cổng → exit 0,
+      KHÔNG dòng "chưa arm cổng", CÓ "expected=4" — nhánh mới nằm SAU continue
+      theo tier).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [scripts/pre-merge-check.sh, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: ARM08" (PR đổi src/app.js, KHÔNG kèm
+      _acceptance/ → VIOLATION "[PR]: non-T1 files changed (outside
+      t1_skip_globs) but the PR carries NO _acceptance/<slug>/ artifacts" y
+      nguyên văn + dòng "rules ran=" có "expected=4") VÀ "PASS: ARM08b" (PR đổi
+      file khớp t3_paths, KHÔNG kèm _acceptance/ → VIOLATION "[PR]: T3 paths
+      (t3_paths) changed but the PR carries NO _acceptance/<slug>/ artifacts" y
+      nguyên văn + "expected=4" — đúng biến bị hoist).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5a
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "exit 0; dòng 'Results: N passed, 0 failed'"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5b
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "exit 0"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E5c
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "exit 0"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E5d
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "exit 0"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E5e
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.rang_arm_guide
+    paths: [GUIDE.md]
+    expected: >
+      exit 0; răng hồ sơ (_acceptance/status-chua-arm-cong/rang.sh) đếm ĐÚNG
+      MỘT gạch đầu dòng «không dựng răng» trong đoạn §7.1 của GUIDE (cắt từ
+      "### 7.1" tới "## 8") và ĐÚNG MỘT hàng bảng chứa "chưa arm cổng" trong
+      ĐÚNG khối §7 (cắt "## 7." tới "### 7.1"); HAI chiều đỏ cùng lượt trên
+      bản sao GUIDE: gỡ gạch §7.1 → exit 1 ghim "GUIDE 7.1: 0 dòng «không dựng
+      răng»"; gỡ hàng bảng §7 → exit 1 ghim "GUIDE 7: 0 hàng «chưa arm cổng»".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

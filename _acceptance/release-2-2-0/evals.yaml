@@ -1,0 +1,85 @@
+# evals — release-2-2-0
+#
+# KHÔNG có bộ răng riêng (owner chọn 18/08, luật dừng-vá lần ba). Ba mốc liên
+# tiếp mỗi lần tự dựng một dàn đo dùng-một-lần, và mỗi vòng soi lại tìm ra cách
+# nó không đo thật (fail-open · assertion âm-tính-một-mình · lời-khai-sai ·
+# thước rỗng). Thứ cần canh thì giống hệt nhau ở mọi lần cắt số, nên nó thành
+# **ca vĩnh viễn P200** trong `tests/plugins` — số đọc TỪ manifest, không ghim
+# một mốc, 5 đột biến + đối chứng dương bản-sao-nguyên-vẹn, MỘT lối thoát.
+#
+# P200 in MỖI vế một dòng riêng có tên (`P200 VE: …`) nên mỗi eval dưới ghim
+# được dòng của chính nó, không tin mã thoát trọn suite. Bốn eval dùng chung
+# MỘT lệnh (S4 dedupe). Không có chế độ/cờ/khoá riêng cho mốc phát hành —
+# «số đã đổi» đọc trong diff, xem Known limits của contract.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Suite in «PASS: P200 …» và «P200 OK (so doc tu manifest — khong ghim mot
+      moc; 5/5 dot bien chay that …)». Các dòng vế phải có: «hai plugin cung
+      so: 2.2.0» và ba dòng «hop semver» (2.2.0 · 2.2.0 · 2.5.0). Hai chiều đỏ
+      đi qua CHÍNH hàm kiểm và vào mảng `loi` quyết mã thoát: feature-loop
+      0.0.1 → ĐỎ «hai plugin lech so»; manifest hỏng → ĐỎ «khong doc duoc
+      manifest acceptance-gate» (không crash). Chiều đỏ trên CÂY THẬT đã chạy
+      tay 18/08: đặt feature-loop 9.9.9 → «P200 LOI: cay that: hai plugin lech
+      so» exit 1; cây nguyên vẹn exit 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Dòng vế «P200 VE: GUIDE khop so DOC TU manifest»: câu «Khớp phiên bản» của GUIDE được DỰNG TỪ ba
+      số đọc trong manifest rồi so, không so với hằng trong bộ kiểm. Chiều đỏ:
+      bản sao GUIDE giữ số cũ → ĐỎ ghim nguyên câu dẫn xuất. Mỗi đột biến còn
+      phải chứng minh bản sao THẬT SỰ đổi nội dung trước khi tin nó đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "suite scripts XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+
+  - id: E3b
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "suite hooks XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+
+  - id: E3c
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "suite plugins XANH (ba ca P197/P198/P199 của ba hồ sơ trong mốc, và ca vĩnh viễn P200, chạy ở đây)"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+
+  - id: E3d
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "suite workflows XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Hai dòng vế «mo ta acceptance-gate co muc v2.2.0» và «muc v2.2.0 cua
+      feature-loop TU khai cap»: mô tả acceptance-gate CÓ mục của đúng số đang
+      phát hành, và mục đó của feature-loop TỰ khai cặp `acceptance-gate >= <số>`
+      — đo trên đoạn cắt từ «v<số>», không quét cả chuỗi. Hai chiều đỏ: xoá mục
+      của số hiện tại → ĐỎ «khong co muc v…»; dời câu khai cặp ra khỏi mục đó →
+      ĐỎ «cau khai cap nam ngoai muc nay (sua muc lich su khong tinh)» — đột biến
+      DỜI THẬT câu sang mục lịch sử, đúng lỗi vòng chấm 18/08 bắt trên vật thật.
+      Năm vế người dùng nhận gì (hình tại Cổng 1 · ngưỡng nghiệm thu trên thẻ ·
+      nhật-ký-vấp · S5 bàn giao · không phải migrate) là văn cho người, đọc trực
+      tiếp trong mục v2.2.0 của manifest trong diff — Known limits đã khai.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

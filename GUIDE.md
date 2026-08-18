@@ -2,7 +2,7 @@
 
 > Đọc nhanh 5 phút → [QUICKSTART.md](QUICKSTART.md). Tài liệu này là **bản đầy đủ**:
 > kiến trúc, cài đặt, vận hành hằng ngày, tra cứu enforcement, xử lý sự cố và tinh chỉnh.
-> Khớp phiên bản: acceptance-gate 2.1.0 · feature-loop 2.1.0 · diagram-design 2.5.0.
+> Khớp phiên bản: acceptance-gate 2.2.0 · feature-loop 2.2.0 · diagram-design 2.5.0.
 
 ## Mục lục
 
@@ -851,7 +851,8 @@ flowchart LR
 | `human_signoff` rỗng | Không truyền `--base` — backstop T1 tắt |
 | `human_signoff` là **giữ-chỗ** — khớp tiền tố `pending`/`tbd`/`todo`/`n/a`/`none`/`unsigned`/`waiting`, một `>` `|` `-` trần, hay template `<…>` chưa điền (1.24.0) | Kèm dòng NOTE nói rõ bảng tiền tố này NGẮN và CỐ ĐỊNH — `FIXME`, `LGTM`, `ok`, hay một cách viết bằng ngôn ngữ khác đều QUA; đổi cách viết **không** phải là cách sửa |
 | Thư mục **tự khai đã phát hành** (evidence `verdict: PASS`, hoặc contract `status: implemented`+) nhưng **không có `contract.md`** — slug vô hình với cổng (1.24.0) | |
-| Thư mục tự khai đã phát hành nhưng contract **thiếu `risk_tier` hoặc `status`** — cùng lớp tàng hình (1.24.0) | Scaffold bỏ hoang (chưa khai gì) vẫn im lặng — đúng thiết kế, không phải lỗ |
+| Thư mục tự khai đã phát hành nhưng contract **thiếu `risk_tier` hoặc `status`** — cùng lớp tàng hình (1.24.0) | Scaffold bỏ hoang (chưa khai gì, **không** evidence, PR không chạm code chịu cổng) vẫn im lặng — đúng thiết kế, không phải lỗ |
+| Hồ sơ **status chưa arm cổng** (`draft`/`approved`) mà **đã có `evidence-report.md`** (verdict bất kỳ) trong phạm vi diff PR — hoặc nằm trong PR **đổi code chịu cổng** — «hồ sơ có bằng chứng nhưng status chưa arm cổng»: cửa thứ ba của lớp tàng hình, vấp thật vòng 4 `release-2-2-0` (2.2.x). Hai lối ra trong thông điệp: đặt `implemented` để cổng chấm, hoặc gỡ evidence / tách hồ sơ khỏi PR | Không dựng được phạm vi diff (không `--base`) → xét mọi slug như luật staleness |
 | `gap_probe: required` + slug trong diff PR thiếu `gap-probe.md` hợp lệ và thiếu entry descope | `gap_probe: advisory` (mặc định) cùng tình huống · `verdict: probe-failed` · đã bỏ có chủ đích theo entry ledger · không có `--base` nên luật bỏ qua |
 | `gap_probe` khai giá trị không hợp lệ (sai chính tả) | |
 | Chữ ký là chuỗi giữ-chỗ (không nêu tên người) | Chữ ký sinh cùng commit với thân báo cáo — từ 2.1 KHÔNG còn là vi phạm (ADR 0012) |
@@ -889,6 +890,9 @@ Chính sách (owner duyệt trong charter 07/08, mục 1d):
 - Một vòng đang chạy bị chặn thật vì hồ sơ hoá cũ giữa hai bản phát hành thì
   đó là **vấp thật** — ghi sổ và ghim lại riêng làn đó, đừng nâng thành chiến
   dịch ngoài lịch.
+- **Mốc phát hành KHÔNG dựng răng** — ca vĩnh viễn P200 canh nhất quán, người
+  đọc diff 3 dòng (bài học ba mốc 2.0.0/2.1.0/2.2.0 đều tự dựng răng dùng-một-lần
+  và đều thủng — `_acceptance/release-2-2-0/contract.md` Notes + gap-probe P0).
 
 Máy đã có sẵn hai đường rẻ để chiến dịch không phình: ghim lại **theo diff**
 (chỉ làn nào thật sự bị diff chạm mới phải chạy lại) và **một làn máy — nhiều
