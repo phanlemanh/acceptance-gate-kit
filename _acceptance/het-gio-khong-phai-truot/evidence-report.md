@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 8dfd58ccc6e1f930637143a0df598033fcd1e93d
+verified_commit: 0b0403c5dbb096d1fec66169f1f1bdc3c592ae41
 human_signoff: Manh Phan 2026-08-18
 ---
 
@@ -115,3 +115,7 @@ Round 4 (vòng này): theo quyết định owner (decisions.jsonl d-20260818T141
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [x] Fill `human_signoff` in frontmatter
+
+### Re-pin lần 1 — 2026-08-18, do gộp main (PR #66) vào nhánh hồ sơ
+run_id: repin-20260818-merge66-0b0403c
+sha: 0b0403c5dbb096d1fec66169f1f1bdc3c592ae41 · suites: 5 lệnh exit 0
