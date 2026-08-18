@@ -82,8 +82,11 @@ if git cat-file -e "$BASE^{commit}" 2>/dev/null; then
       || keu "khong chep duoc rang vao worktree base"
     OUTB="$(bash "$TMP/base/_acceptance/hinh-tai-cong-1/rang.sh" 2>&1)"; STB=$?
     [ "$STB" -ne 0 ] || keu "rang hinh-tai-cong-1 XANH tren diffBase — mat tinh phan biet"
-    # DOI CHUNG DUONG: P197 o base phai THAT SU chay va PASS (khong phai suite vang / exit 127)
-    has "$OUTB" "PASS: P197" "P197 o base khong chay/khong PASS — cac keu duoi day co the la do-vi-moi-truong"
+    # DOI CHUNG DUONG: P197 o base phai THAT SU chay va PASS (khong phai suite vang / exit 127) —
+    # rang cu khong in lai stdout suite nen chay thang khoi P197 tren suite base.
+    OUT197B="$(ONLY_BLOCK=P197 bash "$TMP/base/tests/plugins/run-tests.sh" 2>&1)"; ST197B=$?
+    [ "$ST197B" -eq 0 ] || keu "suite base ONLY_BLOCK=P197 khong xanh (exit $ST197B) — keu duoi day co the la do-vi-moi-truong"
+    has "$OUT197B" "PASS: P197" "P197 o base khong PASS — doi chung duong cua chan diffBase hong"
     has "$OUTB" "P197-RANG DO" "rang tren base khong in 'P197-RANG DO' (do vi ly do khac: exit $STB)"
     has "$OUTB" "so P197-M < san" "rang tren base khong ghim 'so P197-M < san' — P197 goc chua in P197-M la ly do phai thay"
     has "$OUTB" "thieu dong P197-M-COUNT" "rang tren base khong ghim 'thieu dong P197-M-COUNT'"
