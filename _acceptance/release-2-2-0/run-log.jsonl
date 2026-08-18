@@ -5,3 +5,10 @@
 {"ts":"2026-08-18T04:35:00Z","sha":"f3dac37d711bf2dc3c513cb3336f1abd02c6347d","round":3,"evalId":"E3b","run_id":"minted-release-2-2-0-E3b-r3","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
 {"ts":"2026-08-18T04:35:00Z","sha":"f3dac37d711bf2dc3c513cb3336f1abd02c6347d","round":3,"evalId":"E3c","run_id":"minted-release-2-2-0-E3c-r3","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-18T04:35:00Z","sha":"f3dac37d711bf2dc3c513cb3336f1abd02c6347d","round":3,"evalId":"E3d","run_id":"minted-release-2-2-0-E3d-r3","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-18T05:20:00Z","sha":"50a5e85e3a5830356324a9f9c140c1eed03a30e7","round":4,"evalId":"E1","run_id":"minted-release-2-2-0-E1-r4","exit_code":0,"cmd":"P200_MUST_BUMP=1 bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-18T05:20:00Z","sha":"50a5e85e3a5830356324a9f9c140c1eed03a30e7","round":4,"evalId":"E2","run_id":"minted-release-2-2-0-E2-r4","exit_code":0,"cmd":"P200_MUST_BUMP=1 bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-18T05:20:00Z","sha":"50a5e85e3a5830356324a9f9c140c1eed03a30e7","round":4,"evalId":"E6","run_id":"minted-release-2-2-0-E6-r4","exit_code":0,"cmd":"P200_MUST_BUMP=1 bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-18T05:20:00Z","sha":"50a5e85e3a5830356324a9f9c140c1eed03a30e7","round":4,"evalId":"E3","run_id":"minted-release-2-2-0-E3-r4","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-18T05:20:00Z","sha":"50a5e85e3a5830356324a9f9c140c1eed03a30e7","round":4,"evalId":"E3b","run_id":"minted-release-2-2-0-E3b-r4","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-08-18T05:20:00Z","sha":"50a5e85e3a5830356324a9f9c140c1eed03a30e7","round":4,"evalId":"E3c","run_id":"minted-release-2-2-0-E3c-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-18T05:20:00Z","sha":"50a5e85e3a5830356324a9f9c140c1eed03a30e7","round":4,"evalId":"E3d","run_id":"minted-release-2-2-0-E3d-r4","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
