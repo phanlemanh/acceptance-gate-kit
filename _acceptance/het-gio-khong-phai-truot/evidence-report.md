@@ -1,12 +1,13 @@
 ---
 schema_version: 2
 feature_slug: het-gio-khong-phai-truot
-verdict: REJECT
+verdict: BLOCKED
 failed_evals: []
+reason: "bash tests/hooks/run-tests.sh — agent bị skip/chết giữa chừng: không sinh ra kết quả (không có exit code, không có output), nên không được tính là pass. Không phải một eval fail — bản thân verifier không chạy trọn được."
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: b4bd3c2da4620a7ec3c5f695d5a60ea62439c9be
+verified_commit: eda7a8d11b5359e0398f2ff0e83442eabc3241f6
 human_signoff:
 ---
 
@@ -23,107 +24,101 @@ human_signoff:
 | E7 | AC-7 | test | PASS |
 | E8 | AC-7 | test | PASS |
 
-## Vì sao REJECT (không lệnh nào fail, không eval nào tự thất bại lần này)
+## Vì sao BLOCKED (không phải REJECT — không eval nào tự thất bại)
 
-Khác với Round 1 (PRODUCT-MAP.md lệch hồ sơ xưởng), lần này cả 6 lệnh máy đều exit 0 — kể cả `bash tests/plugins/run-tests.sh` và `node scripts/product-map.mjs --root . --check` đã xanh trở lại sau khi bản đồ được cập nhật (`PRODUCT-MAP.md khớp hồ sơ xưởng.`). Không eval nào trong E1–E8 tự thất bại, và không có lệnh nào ngoài eval fail.
+Cả tám eval E1–E8 đều chạy xong và exit 0: `bash _acceptance/het-gio-khong-phai-truot/rang.sh` (phủ E1–E6, E8) in "RANG-HGKPT OK (18 pin + san ton kho theo so ca + tu-pha-thu 3 mui)", và `bash tests/workflows/run-tests.sh` (phủ E7) báo "Results: 44 passed, 0 failed" / "Results: all workflow tests passed". Ba lệnh suite khác không gắn eval cụ thể cũng xanh: `tests/scripts/run-tests.sh` (704 passed), `tests/plugins/run-tests.sh`, và `node scripts/product-map.mjs --root . --check` ("PRODUCT-MAP.md khớp hồ sơ xưởng.").
 
-Verdict vẫn REJECT vì vòng review-scope-triage xác nhận 5 finding TRONG HỢP ĐỒNG (xem `review-findings.md` mục `## Trong hợp đồng`) — 2 severity high, 3 severity medium — ánh xạ vào AC-5 và AC-7. Các finding này dựa trên mutation-test THẬT chạy trên bản sao cây nguồn (đã khôi phục sau đo), không phải suy diễn:
-
-- xoá `.map(normKill)` ở lane `ui-check` trong `feature-loop/workflows/acceptance-verify.js:542` → `node tests/workflows/acceptance-verify.test.mjs` vẫn "340 passed, 0 failed" và `rang.sh` vẫn in "RANG-HGKPT OK" — AC-5 tuyên routing killedByTool áp dụng cho cả lane machine LẪN ui, nhưng chỉ lane machine (W26) và lane baseline (W27) có ca cô lập; lane ui không có chiều đỏ nào.
-- tiêm callsite khuôn-đặt-tên-thứ-ba (`check("...", ...)`) CHUNG DÒNG với một callsite đã phủ vào bản sao `BASE_SRC` trong `rang.sh` → đẳng thức "đóng không gian" (`N_CALL == N_SQ + N_BT`, dòng 94) vẫn cân vì `N_CALL` đếm DÒNG (`grep -c`) trong khi `N_SQ`/`N_BT` đếm LƯỢT (`grep -o | wc -l`) — khuôn nháy-kép lọt qua hoàn toàn vô hình với phép đo.
-- `rang.sh:14` không đọc mã thoát của `node "$TEST_FILE"` (`OUT="$(node ... 2>&1)"`, không set -e, không kiểm `$?`); tiêm case-đỏ vào ma trận mutation WT-T19+ (dòng 978) làm suite exit 1 thật, nhưng `rang.sh` vẫn báo "RANG-HGKPT OK" và exit 0.
-
-Nghĩa là E1–E8 báo PASS đúng như harness đo hiện có, nhưng bản thân harness (mutant matrix của lane ui, đẳng thức "đóng không gian", và việc đọc mã thoát của suite) chưa thực sự phân biệt được các lớp lỗi mà AC-5/AC-7 hứa chặn — đúng lớp "máy tin nhầm chính nó". Đây là REJECT ở tầng phép đo, không phải một lệnh cụ thể fail, nên `failed_evals` giữ nguyên rỗng theo dữ liệu chạy thật của round này.
+Nhưng `bash tests/hooks/run-tests.sh` — một lệnh máy bắt buộc của trọn bộ suite — không sinh ra kết quả: agent chạy nó bị skip/chết giữa chừng, không có exit code, không có output để đọc. Không thể coi đây là pass (không có bằng chứng nào chạy), cũng không thể coi là fail của một eval cụ thể (không eval nào trong hợp đồng ánh xạ vào lệnh này, và bản thân lệnh chưa từng chạy xong để biết nó fail vì lý do gì). Đây đúng trường hợp template mô tả "verifier could not run" — verdict BLOCKED, cần chạy lại `tests/hooks/run-tests.sh` (khả năng do hạ tầng agent, không phải do thay đổi mã nguồn của tính năng) rồi verify lại.
 
 ## Evidence
 
 - eval: E1
-  run_id: minted-het-gio-khong-phai-truot-E1-r2
+  run_id: minted-het-gio-khong-phai-truot-E1-r3
   exit_code: 0
   baseline: red
   verifier: config:executors.script.rang_hgkpt
-  verified_at: 2026-08-18T15:44:00Z
+  verified_at: 2026-08-18T16:20:00Z
   output: |
-    PASS: TON-KHO 273 case cu nguyen van
-    PASS: TON-KHO-TPL 11 case ten dong nguyen van
-    RANG-HGKPT OK (16 pin + 273 ton kho)
+    (mutant)   [mutant] thieu dong PASS: W26 killedByTool -> BLOCKED
+    PASS: TU-PHA-THU ban sao tiem 3 loi -> 3 loi, du 3 mui
+    RANG-HGKPT OK (18 pin + san ton kho theo so ca + tu-pha-thu 3 mui)
 
 - eval: E2
-  run_id: minted-het-gio-khong-phai-truot-E2-r2
+  run_id: minted-het-gio-khong-phai-truot-E2-r3
   exit_code: 0
   baseline: red
   verifier: config:executors.script.rang_hgkpt
-  verified_at: 2026-08-18T15:44:00Z
+  verified_at: 2026-08-18T16:20:00Z
   output: |
-    PASS: TON-KHO 273 case cu nguyen van
-    PASS: TON-KHO-TPL 11 case ten dong nguyen van
-    RANG-HGKPT OK (16 pin + 273 ton kho)
+    (mutant)   [mutant] thieu dong PASS: W26 killedByTool -> BLOCKED
+    PASS: TU-PHA-THU ban sao tiem 3 loi -> 3 loi, du 3 mui
+    RANG-HGKPT OK (18 pin + san ton kho theo so ca + tu-pha-thu 3 mui)
 
 - eval: E3
-  run_id: minted-het-gio-khong-phai-truot-E3-r2
+  run_id: minted-het-gio-khong-phai-truot-E3-r3
   exit_code: 0
   baseline: red
   verifier: config:executors.script.rang_hgkpt
-  verified_at: 2026-08-18T15:44:00Z
+  verified_at: 2026-08-18T16:20:00Z
   output: |
-    PASS: TON-KHO 273 case cu nguyen van
-    PASS: TON-KHO-TPL 11 case ten dong nguyen van
-    RANG-HGKPT OK (16 pin + 273 ton kho)
+    (mutant)   [mutant] thieu dong PASS: W26 killedByTool -> BLOCKED
+    PASS: TU-PHA-THU ban sao tiem 3 loi -> 3 loi, du 3 mui
+    RANG-HGKPT OK (18 pin + san ton kho theo so ca + tu-pha-thu 3 mui)
 
 - eval: E4
-  run_id: minted-het-gio-khong-phai-truot-E4-r2
+  run_id: minted-het-gio-khong-phai-truot-E4-r3
   exit_code: 0
   baseline: red
   verifier: config:executors.script.rang_hgkpt
-  verified_at: 2026-08-18T15:44:00Z
+  verified_at: 2026-08-18T16:20:00Z
   output: |
-    PASS: TON-KHO 273 case cu nguyen van
-    PASS: TON-KHO-TPL 11 case ten dong nguyen van
-    RANG-HGKPT OK (16 pin + 273 ton kho)
+    (mutant)   [mutant] thieu dong PASS: W26 killedByTool -> BLOCKED
+    PASS: TU-PHA-THU ban sao tiem 3 loi -> 3 loi, du 3 mui
+    RANG-HGKPT OK (18 pin + san ton kho theo so ca + tu-pha-thu 3 mui)
 
 - eval: E5
-  run_id: minted-het-gio-khong-phai-truot-E5-r2
+  run_id: minted-het-gio-khong-phai-truot-E5-r3
   exit_code: 0
   baseline: red
   verifier: config:executors.script.rang_hgkpt
-  verified_at: 2026-08-18T15:44:00Z
+  verified_at: 2026-08-18T16:20:00Z
   output: |
-    PASS: TON-KHO 273 case cu nguyen van
-    PASS: TON-KHO-TPL 11 case ten dong nguyen van
-    RANG-HGKPT OK (16 pin + 273 ton kho)
+    (mutant)   [mutant] thieu dong PASS: W26 killedByTool -> BLOCKED
+    PASS: TU-PHA-THU ban sao tiem 3 loi -> 3 loi, du 3 mui
+    RANG-HGKPT OK (18 pin + san ton kho theo so ca + tu-pha-thu 3 mui)
 
 - eval: E6
-  run_id: minted-het-gio-khong-phai-truot-E6-r2
+  run_id: minted-het-gio-khong-phai-truot-E6-r3
   exit_code: 0
   baseline: red
   verifier: config:executors.script.rang_hgkpt
-  verified_at: 2026-08-18T15:44:00Z
+  verified_at: 2026-08-18T16:20:00Z
   output: |
-    PASS: TON-KHO 273 case cu nguyen van
-    PASS: TON-KHO-TPL 11 case ten dong nguyen van
-    RANG-HGKPT OK (16 pin + 273 ton kho)
+    (mutant)   [mutant] thieu dong PASS: W26 killedByTool -> BLOCKED
+    PASS: TU-PHA-THU ban sao tiem 3 loi -> 3 loi, du 3 mui
+    RANG-HGKPT OK (18 pin + san ton kho theo so ca + tu-pha-thu 3 mui)
 
 - eval: E7
-  run_id: minted-het-gio-khong-phai-truot-E7-r2
+  run_id: minted-het-gio-khong-phai-truot-E7-r3
   exit_code: 0
   baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-18T15:44:00Z
+  verified_at: 2026-08-18T16:20:00Z
   output: |
     Results: 44 passed, 0 failed
 
     Results: all workflow tests passed
 
 - eval: E8
-  run_id: minted-het-gio-khong-phai-truot-E8-r2
+  run_id: minted-het-gio-khong-phai-truot-E8-r3
   exit_code: 0
   baseline: red
   verifier: config:executors.script.rang_hgkpt
-  verified_at: 2026-08-18T15:44:00Z
+  verified_at: 2026-08-18T16:20:00Z
   output: |
-    PASS: TON-KHO 273 case cu nguyen van
-    PASS: TON-KHO-TPL 11 case ten dong nguyen van
-    RANG-HGKPT OK (16 pin + 273 ton kho)
+    (mutant)   [mutant] thieu dong PASS: W26 killedByTool -> BLOCKED
+    PASS: TU-PHA-THU ban sao tiem 3 loi -> 3 loi, du 3 mui
+    RANG-HGKPT OK (18 pin + san ton kho theo so ca + tu-pha-thu 3 mui)
 
 ## Analyst
 
@@ -131,13 +126,15 @@ Nghĩa là E1–E8 báo PASS đúng như harness đo hiện có, nhưng bản th
 
 ## Variance
 
-none — không eval nào có `runs` > 1 (không có eval ngẫu nhiên trong vòng này).
+none — every multi-run eval is uniform (không eval nào khai `runs` > 1 trong vòng này).
 
 ## Iterations
 
 Round 1: không eval nào (E1–E8) tự thất bại, nhưng hai lệnh không gắn eval — `bash tests/plugins/run-tests.sh` và `node scripts/product-map.mjs --root . --check` — exit 1 vì PRODUCT-MAP.md lệch hồ sơ xưởng. Verdict REJECT, trả về implementation để cập nhật bản đồ rồi verify lại.
 
 Round 2: bản đồ đã cập nhật — cả 6 lệnh máy đều exit 0, không lệnh nào fail và không eval nào tự thất bại. Nhưng review scope-triage phát hiện 5 finding TRONG HỢP ĐỒNG (AC-5, AC-7): mutation-test thật trên bản sao cho thấy xoá phòng thủ tool-kill ở lane ui-check (AC-5), tiêm callsite khuôn-thứ-ba chung dòng với callsite đã phủ (AC-7), và tiêm case-đỏ vào ma trận mutation mà rang.sh không đọc mã thoát của suite (AC-7) đều không làm harness đỏ. Verdict REJECT, trả về implementation để vá theo `review-findings.md` mục `## Trong hợp đồng` rồi verify lại.
+
+Round 3: sau khi vá, cả tám eval E1–E8 đều exit 0 (rang.sh in "RANG-HGKPT OK" đủ 18 pin + đối chứng dương tự-phá-thử 3 mũi; tests/workflows/run-tests.sh 44/44), và không eval nào tự thất bại. Nhưng `bash tests/hooks/run-tests.sh` — agent chạy lệnh này bị skip/chết, không sinh ra kết quả nào để đọc. Verdict BLOCKED (không phải REJECT: không có eval nào fail, verifier chỉ đơn giản chưa chạy trọn). Cần chạy lại `tests/hooks/run-tests.sh` rồi verify lại; không cần quay về implementation trừ khi lệnh đó tự nó lộ ra lỗi thật khi chạy được.
 
 ## Gate 2 checklist (human)
 
