@@ -1,15 +1,20 @@
 # evals — release-2-2-0
 #
-# Lớp MÁY duy nhất (mốc này không đổi hành vi, chỉ đóng số): rang-release.sh —
-# mỗi chân có MỘT hàm kiểm nhận GỐC, cây thật và bản đột biến cùng đi qua nó,
-# chiều đỏ in vết cùng lượt và ghim đúng thông điệp.
+# Lớp MÁY duy nhất (mốc này không đổi hành vi, chỉ đóng số): rang-release.mjs —
+# MỘT tiến trình Node, mọi vế là giá trị trả về, đếm trong bộ nhớ, mã thoát =
+# số vế đỏ. Bản bash trước đó bị gỡ: nó dính ba lỗi cùng lớp «bộ đếm trong
+# ống/shell con/trap → fail-open» (S1 gap-probe bắt lần một, S4 review bắt lần
+# hai → luật dừng-vá, owner chọn đổi khuôn sang Node).
+# Mỗi chân: MỘT hàm kiểm nhận GỐC; cây thật và bản đột biến cùng đi qua nó;
+# chiều đỏ chạy thật cùng lượt và ghim đúng thông điệp.
+# Chân `tu-kiem` (E7) là chiều đỏ CỦA CHÍNH BỘ ĐẾM — lỗ đã cắn hai lần.
 
 evals:
   - id: E1
     criterion: AC-1
     executor: script
     cmd: config:executors.script.rang_release22_manifest
-    paths: [_acceptance/release-2-2-0/rang-release.sh, .claude-plugin/plugin.json, feature-loop/.claude-plugin/plugin.json, diagram-design/.claude-plugin/plugin.json]
+    paths: [_acceptance/release-2-2-0/rang-release.mjs, .claude-plugin/plugin.json, feature-loop/.claude-plugin/plugin.json, diagram-design/.claude-plugin/plugin.json]
     expected: >
       acceptance-gate 2.2.0 · feature-loop 2.2.0 · diagram-design giữ số hợp
       semver (2.5.0); mô tả acceptance-gate có mục «v2.2.0»; mô tả feature-loop
@@ -22,7 +27,7 @@ evals:
     criterion: AC-2
     executor: script
     cmd: config:executors.script.rang_release22_docs
-    paths: [_acceptance/release-2-2-0/rang-release.sh, GUIDE.md, .claude-plugin/plugin.json, feature-loop/.claude-plugin/plugin.json]
+    paths: [_acceptance/release-2-2-0/rang-release.mjs, GUIDE.md, .claude-plugin/plugin.json, feature-loop/.claude-plugin/plugin.json]
     expected: >
       Dòng «Khớp phiên bản» của GUIDE khớp ĐÚNG ba số ĐỌC TỪ manifest (một
       nguồn, không so hằng trong script). Chiều đỏ: bản sao GUIDE ghi số cũ →
@@ -47,7 +52,7 @@ evals:
     criterion: AC-3
     executor: test
     cmd: config:executors.test.plugins
-    expected: "suite plugins XANH (gồm P197 · P198 · P199 của ba hồ sơ trong mốc)"
+    expected: "suite plugins XANH (ba ca của mốc ghim riêng ở E3e)"
     evidence_required: [run_id, exit_code, verifier, verified_at]
 
   - id: E3d
@@ -57,11 +62,23 @@ evals:
     expected: "suite workflows XANH"
     evidence_required: [run_id, exit_code, verifier, verified_at]
 
+  - id: E3e
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.rang_release22_ba_ca
+    paths: [_acceptance/release-2-2-0/rang-release.mjs, tests/plugins/run-tests.sh]
+    expected: >
+      Ba ca kiểm của ba hồ sơ trong mốc đều CÓ trong bộ kiểm (cấu trúc: ba dòng
+      chạy P197 · P198 · P199) và đều in dòng PASS khi suite plugins chạy thật
+      — ghim dòng, không tin mã thoát một mình. Chiều đỏ qua CHÍNH kiem_ba_ca:
+      bản sao gỡ dòng chạy P199 → ĐỎ ghim đúng ca thiếu.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
   - id: E4
     criterion: AC-4
     executor: script
     cmd: config:executors.script.rang_release22_lan_v
-    paths: [_acceptance/release-2-2-0/rang-release.sh, _acceptance/release-2-2-0/contract.md]
+    paths: [_acceptance/release-2-2-0/rang-release.mjs, _acceptance/release-2-2-0/contract.md]
     expected: >
       Hợp đồng mở làn V: `veto_state: mo` · `approved_by` RỖNG · hạng T2 (ba vế
       đều là điều kiện của làn). Chiều đỏ: bản sao hạ hạng T3 → điều kiện làn V
@@ -72,7 +89,7 @@ evals:
     criterion: AC-5
     executor: script
     cmd: config:executors.script.rang_release22_diff
-    paths: [_acceptance/release-2-2-0/rang-release.sh]
+    paths: [_acceptance/release-2-2-0/rang-release.mjs]
     expected: >
       Mọi file trong diff nhánh so với base nằm trong allowlist ĐÓNG (2 manifest ·
       GUIDE.md · PRODUCT-MAP.md · _acceptance/config.yaml · _acceptance/release-2-2-0/**).
@@ -80,11 +97,24 @@ evals:
       engine giả lập đi qua CHÍNH nhánh lọc và bị loại.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.rang_release22_tu_kiem
+    paths: [_acceptance/release-2-2-0/rang-release.mjs]
+    expected: >
+      Chính bộ đếm của bộ răng phải biết đỏ: chạy lại CHÍNH script trên (a) cây
+      thật → mã thoát 0 (đối chứng dương); (b) bản sao hạ số phiên bản → mã
+      thoát KHÁC 0 kèm dòng ĐỎ; (c) bản sao manifest JSON hỏng → mã thoát khác
+      0 (chân câm không lọt thành xanh). Đây là chiều đỏ của lớp lỗi đã cắn hai
+      lần ở bản bash (ống/shell con/trap nuốt vế đỏ).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
   - id: E6
     criterion: AC-6
     executor: script
     cmd: config:executors.script.rang_release22_mo_ta
-    paths: [_acceptance/release-2-2-0/rang-release.sh, .claude-plugin/plugin.json]
+    paths: [_acceptance/release-2-2-0/rang-release.mjs, .claude-plugin/plugin.json]
     expected: >
       Mục «v2.2.0» của mô tả acceptance-gate nói đủ năm vế người dùng cần: hình
       tại Cổng 1 · ngưỡng nghiệm thu trên thẻ · nhật-ký-vấp (stranger drive) ·

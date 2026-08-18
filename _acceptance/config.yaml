@@ -113,11 +113,16 @@ executors:
     rang_mnvt_hinh: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan hinh
     rang_mnvt_hoi_dong: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan hoi-dong
     # Vật của hồ sơ release-2-2-0 — răng phát hành, không vào suite vĩnh viễn.
-    rang_release22_manifest: bash _acceptance/release-2-2-0/rang-release.sh --chan manifest
-    rang_release22_docs: bash _acceptance/release-2-2-0/rang-release.sh --chan docs
-    rang_release22_mo_ta: bash _acceptance/release-2-2-0/rang-release.sh --chan mo-ta
-    rang_release22_lan_v: bash _acceptance/release-2-2-0/rang-release.sh --chan lan-v
-    rang_release22_diff: bash _acceptance/release-2-2-0/rang-release.sh --chan diff-allowlist
+    # Viết bằng Node (owner chọn đường A 18/08): bash đếm trong ống/shell con/trap
+    # đã ba lần nuốt vế đỏ; ở đây mọi vế là giá trị trong MỘT tiến trình, mã thoát
+    # = số vế đỏ, và chân `tu-kiem` chứng minh chính bộ đếm biết đỏ.
+    rang_release22_manifest: node _acceptance/release-2-2-0/rang-release.mjs --chan manifest
+    rang_release22_docs: node _acceptance/release-2-2-0/rang-release.mjs --chan docs
+    rang_release22_mo_ta: node _acceptance/release-2-2-0/rang-release.mjs --chan mo-ta
+    rang_release22_ba_ca: node _acceptance/release-2-2-0/rang-release.mjs --chan ba-ca
+    rang_release22_lan_v: node _acceptance/release-2-2-0/rang-release.mjs --chan lan-v
+    rang_release22_diff: node _acceptance/release-2-2-0/rang-release.mjs --chan diff-allowlist
+    rang_release22_tu_kiem: node _acceptance/release-2-2-0/rang-release.mjs --chan tu-kiem
     rang_hinh_cong1: bash _acceptance/hinh-tai-cong-1/rang.sh
     rang_siet_rang: bash _acceptance/siet-rang-cau-ve-hinh/rang.sh
 risk_tiers:

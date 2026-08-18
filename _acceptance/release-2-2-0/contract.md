@@ -43,11 +43,14 @@ Source input: `git log 8d1e135..main` (ba PR #62·#63·#64) · nếp phát hành
 
 - AC-1: Given cây đã sửa, When đọc ba manifest plugin, Then `acceptance-gate`
   và `feature-loop` đều `2.2.0`, `diagram-design` giữ số hợp semver (`2.5.0` —
-  vendor pin không đổi trong mốc này), mô tả `feature-loop` khai cặp
+  vendor pin KHÔNG ĐỔI so với base — đo bằng quan hệ với `git show <base>`,
+  không bằng hình dạng semver), mô tả `feature-loop` khai cặp
   `acceptance-gate >= 2.2.0`, và mô tả `acceptance-gate` chứa mục `v2.2.0`.
 - AC-2: Given cây đã sửa, When đọc dòng «Khớp phiên bản» của GUIDE, Then nó
   khớp ĐÚNG số đọc từ ba manifest (một nguồn — so với manifest, không so hằng).
-- AC-3: Given cây đã sửa, When chạy đủ bốn suite, Then cả bốn XANH.
+- AC-3: Given cây đã sửa, When chạy đủ bốn suite, Then cả bốn XANH; và ba ca
+  kiểm của ba hồ sơ trong mốc (P197 · P198 · P199) đều CÓ trong bộ kiểm và đều
+  in dòng PASS — ghim dòng, không tin mã thoát suite một mình.
 - AC-4: Given hồ sơ này với `veto_state: mo`, When lưới trước-merge chạy, Then
   nó cho NOTE làn V (không VIOLATION) vì T2 + bằng chứng xanh-sạch; và bản sao
   hạ hạng T3 phải ĐỎ.
@@ -55,6 +58,10 @@ Source input: `git log 8d1e135..main` (ba PR #62·#63·#64) · nếp phát hành
   (2 manifest · GUIDE.md · `_acceptance/release-2-2-0/**` · `_acceptance/config.yaml`
   · PRODUCT-MAP.md), Then không file nào ngoài danh sách — đặc biệt KHÔNG file
   nào trong `skills/ lib/ scripts/ hooks/ feature-loop/skills/ diagram-design/`.
+- AC-7: Given chính bộ răng của hồ sơ này, When chạy chân tự-kiểm, Then cây
+  thật cho mã thoát 0, bản sao hạ số phiên bản cho mã thoát KHÁC 0 kèm dòng ĐỎ,
+  và bản sao manifest hỏng cũng cho mã thoát khác 0 — bộ đếm không được nuốt vế
+  đỏ (lớp lỗi đã cắn hai lần ở bản bash: ống · shell con · trap).
 - AC-6: Given mô tả `acceptance-gate`, When đọc mục `v2.2.0`, Then nó nói bằng
   tiếng người dùng kit ba việc họ nhận (hình tại Cổng 1 · ngưỡng nghiệm thu
   hiện trên thẻ Cổng Phạm vi + phiên nghiệm thu đọc nhật-ký-vấp + S5 bàn giao ·
@@ -82,5 +89,9 @@ Quét không gian phát hành theo hai trục (nếp release-2-1-0, không quét
 
 - Nếp «bump đi kèm PR có hồ sơ» (bài học 1.40.0): PR chỉ-bump-manifest không
   phải T1 và không được đi một mình.
+- **Bộ răng viết bằng Node, không bash** (owner chọn đường A, 18/08 — luật
+  dừng-vá): bash đếm trong ống/shell con/trap đã ba lần nuốt vế đỏ trong chính
+  hồ sơ này. Node: mọi vế là giá trị trong một tiến trình, mã thoát = số vế đỏ,
+  và chân `tu-kiem` chứng minh bộ đếm biết đỏ.
 - Làn V: hồ sơ mở `veto_state: mo`, `approved_by` để RỖNG — máy đi tiếp, cửa
   veto mở tới lúc merge.
