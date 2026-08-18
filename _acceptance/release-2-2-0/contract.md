@@ -5,7 +5,7 @@ slug: release-2-2-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 2 manifest + GUIDE + workspace hồ sơ + config key — không dính t3_paths
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo
@@ -108,6 +108,22 @@ Quét không gian phát hành theo hai trục (nếp release-2-1-0, không quét
 - **Bộ đếm của răng không còn chân tự-kiểm.** Chân đó sinh ra để canh bộ đếm
   bash; bản Node đếm trong bộ nhớ và có đối chứng dương «bản sao nguyên vẹn 0 vế
   đỏ» ngay trong chân chính.
+
+- **Bốn điểm yếu của P200 mà vòng 5 rà ra, KHÔNG sửa trong mốc này** (khoá owner
+  D17: chỉ đo lại, không sửa thêm) — chuyển cho hồ sơ kế cùng chip «mốc phát
+  hành không dựng răng»: (a) ma trận chưa toàn phần — `kiem()` có ~11 nhánh đỏ,
+  5 có đột biến, `MUT_KY_VONG=5` là hằng viết tay chứ không suy từ tập vế (mẫu
+  P105/P199 `set(SMSG)==FIRED`); (b) đường «cây thật đỏ ⇒ thoát 1» chỉ có bằng
+  chứng chạy tay 18/08, chưa có ca máy gọi p200.mjs trên bản sao đã tiêm và ghim
+  exit 1; (c) đột biến «GUIDE giữ số cũ» thay lần xuất hiện ĐẦU của
+  `acceptance-gate <V>` thay vì đúng câu dẫn xuất — có thể đỏ oan (fail-loud,
+  không fail-silent) ở lần cắt sau nếu GUIDE nhắc số ở trên; (d) manifest hợp
+  JSON nhưng thiếu `description` → TypeError thay vì vế đỏ có tên (vẫn đỏ, nhưng
+  phá lời hứa «một lối thoát»). Cả bốn đều KHÔNG mở chiều xanh giả cho vật của
+  mốc này; đọc `review-findings.md`.
+- **Vòng 5 lượt 1 REJECT là hạ tầng** (verifier bị công cụ giết ở 118 s), không
+  phải vật — sổ D19; lượt 2 cùng vòng PASS. Lỗ verifier-không-đặt-timeout của
+  kit đã thành chip riêng.
 
 ## Notes
 
