@@ -1,25 +1,24 @@
 ## Trong hợp đồng
 
-- **Assert "chuỗi có mặt" — ghim nhãn thiếu của ma trận thoả bởi dòng P197-M in sẵn (hình dạng 3, kéo theo 4: ghim thông điệp giả)**
-  file: `_acceptance/siet-rang-cau-ve-hinh/rang.sh:57`
-  severity: high
-  AC: AC-5
-  detail: AC-5 (evals E5) hứa «assert 'ma tran chua toan phan' ĐỎ ghim nhãn thiếu». Nhưng `has "$OUTN" "thieu nhan buoc [5] Đính"` ở dòng 57 chỉ kiểm chuỗi này có mặt ĐÂU ĐÓ trong `$OUTN` — mà P197 in `P197-M: GATE 1: thieu nhan buoc [5] Đính` (tests/plugins/run-tests.sh:10018-10024) TRƯỚC khi chạy đột biến, trên MỌI lượt chạy, kể cả bản sao `LABELS[:4]`. Nên chuỗi `thieu nhan buoc [5] Đính` luôn có mặt trong `$OUTN` bất kể thông điệp của chính assert ma trận có nêu đúng nhãn thiếu hay không. Đã mô phỏng: chạy khối P197 với `LABELS[:4]`, xoá tên nhãn khỏi thông điệp assert → dòng 57 vẫn xanh. Phép đo dòng 57 vì thế không đo QUAN HỆ «assert ma trận → nêu đúng nhãn thiếu» mà chỉ đo chuỗi có mặt ở đâu đó trong stdout; chỉ dòng 56 (`ma tran chua toan phan`) còn sống. Ghim đúng phải nhắm vào thông điệp CỦA CHÍNH assert dòng 56, ví dụ `thong diep chua tung do: ['GATE 1: thieu nhan buoc [5] Đính']`.
-  rationale: AC-5 đòi assert "ma tran chua toan phan" phải ĐỎ ghim đúng nhãn thiếu; finding cho thấy dòng 57 chỉ bắt chuỗi có mặt đâu đó trong stdout (do P197-M in sẵn mọi lượt) chứ không đo quan hệ assert-ma-trận→nêu-đúng-nhãn mà AC-5 hứa.
-
-- **Thước không gắn vào vật: đột biến m3b "sửa bản CUỐI = S2" không có guard rfind≠find nên có thể suy biến thành m3 (hình dạng 4: không đối chứng mục tiêu đột biến)**
-  file: `tests/plugins/run-tests.sh:1850`
-  severity: low
-  AC: AC-2
-  detail: m3b dùng `_last(live(rel), CLAUSE, ...)` (rfind trên CLAUSE raw `.strip()`), còn `check()` đếm bản chép qua hfl_clause đã `_norm` khoảng trắng. Nếu bản S2 sau này bị wrap/thụt dòng khác bản GATE 1 (vẫn 2/2 theo `_norm` → đối chứng dương xanh), rfind trả về cùng vị trí với find → m3b == m3, assert `(1/2 ban chep)` vẫn ĐỎ đúng thông điệp và vòng for vẫn in `P90-COPIES: m3b do` — trong khi bản S2 (Known limit 1 mà evals E2 tuyên đóng) chưa từng bị chạm. Hiện tại raw count = 2, find=25701, rfind=28830 nên chưa sai; nhưng không có assert nào (ví dụ `live(lp2).rfind(CLAUSE) != live(lp2).find(CLAUSE)` hoặc `m3b(lp2) != m3(lp2)`) giữ cho đột biến thật sự đánh vào bản thứ hai.
-  rationale: AC-2 định nghĩa m3b là đột biến nhắm đúng bản CUỐI (S2, lỗ KL1) khác với m3 (bản ĐẦU); finding chỉ ra không có assert nào giữ cho m3b thật sự đánh vào bản thứ hai, nên lời hứa "m3b nhắm S2" của AC-2 chưa được đảm bảo chắc chắn.
+- **AC-8 chân diffBase thiếu đối chứng dương: không ghim P197 base đã CHẠY xanh trước khi tin răng ĐỎ** — AC: AC-8
+  file: `_acceptance/siet-rang-cau-ve-hinh/rang.sh:82`
+  severity: medium
+  Khối AC-8 chỉ ghim `P197-RANG DO`, `so P197-M < san`, `thieu dong P197-M-COUNT` trên output của rang chạy trong worktree base. Cả ba dòng đó cũng xuất hiện y hệt khi suite base KHÔNG chạy được (tests/plugins/run-tests.sh vắng, exit 127, worktree checkout thiếu file...) vì lúc đó OUT rỗng → NK=0, CNT rỗng. Không có `has "$OUTB" "PASS: P197"` (hoặc kiểm vắng dòng `khong thay dong 'PASS: P197'`) nên phép đo không phân biệt được «P197 ở base chạy xanh nhưng chưa in P197-M» với «chưa bao giờ chạy» — đúng lớp «assertion âm-tính-một-mình» trong CLAUDE.md, dù comment ngay trên khối tuyên bố có đối chứng dương. Sửa gợi ý: thêm `has "$OUTB" "PASS: P197"` và/hoặc chạy `ONLY_BLOCK=P197 bash "$TMP/base/tests/plugins/run-tests.sh"` kiểm exit 0 trước khi tin các keu.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-## Chưa adversarial-verify (refuter chết)
+- **Hình dạng 4 (biến thể đối chứng âm): đột biến m4 của P90 được nắn lại để khớp neo 4-chữ-đầu của thước — chiều đỏ «thay bản ĐẦU bằng câu khác» thực ra chỉ đỏ khi câu khác giữ nguyên 4 chữ đầu**
+  Người dùng thấy gì: Một ca kiểm tự động dùng để phát hiện lỗi 'một bản sao câu bị viết lại khác bản kia' có thể yếu hơn tên gọi của nó: nếu ai đó viết lại câu theo cách khác với ví dụ đang dùng để kiểm, lỗi tương tự có thể không bị bắt. Rủi ro thấp, không chặn ship.
+  file: `tests/plugins/run-tests.sh:1849`
+  severity: low
+  Đề xuất: known-limits
 
-(không có — không có finding nào cờ unverified=true round này)
+- **Hình dạng 4: E1 tuyên chiều đỏ trên diffBase («răng ĐỎ ghim 'khong thay dong PASS: P198'») mà không mã nào chạy chiều đó, và thông điệp ghim cũng không tồn tại trong răng**
+  Người dùng thấy gì: Một mô tả kiểm thử tự động ghi rằng đã thử một tình huống lỗi cụ thể và biết trước thông điệp cảnh báo sẽ hiện ra, nhưng tình huống đó chưa từng được chạy thật và thông điệp ghi trong mô tả cũng sai so với thông điệp thực tế của hệ thống — nên không nên coi phần này là bằng chứng đã kiểm chứng.
+  file: `_acceptance/siet-rang-cau-ve-hinh/evals.yaml:13`
+  severity: low
+  Đề xuất: known-limits
 
 Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
