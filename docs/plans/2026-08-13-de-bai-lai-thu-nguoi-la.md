@@ -149,7 +149,7 @@ phải ranh tạm.
 cả trước S4 (săn lỗi) lẫn trước uat-session (tiền trạm).
 
 **Chuẩn bị (phiên cũ / người điều phối làm, KHÔNG phải phiên lái):**
-1. Viết `_acceptance/<slug>/stranger-drive.md` từ khuôn §4: danh sách **mục
+1. Viết `_acceptance/<slug>/stranger-drive.md` từ khuôn ở `skills/acceptance/references/stranger-drive-template.md` (§4 trỏ tới): danh sách **mục
    tiêu người dùng** chép từ contract nhưng viết lại thành tiếng sản phẩm
    ("đặt được một đơn hàng", KHÔNG phải "bấm nút #checkout") — không lộ đường
    đi, không lộ tên component.
@@ -173,29 +173,15 @@ trả sớm rẻ hơn lái cố).
 
 ## 4 · KHUÔN NHẬT-KÝ-VẤP (`stranger-drive.md`)
 
-```markdown
-# Lái-thử người-lạ — <slug>
-ngày: · phiên: fresh · url: · ngân sách/mục tiêu: 12 bước hoặc 5 phút
-
-## Mục tiêu (tiếng sản phẩm, không lộ đường đi)
-1. <mục tiêu 1>
-2. …
-
-## Nhật ký vấp (append theo thời gian)
-- [CHẶN|LẠC|KHÓ-CHỊU|VẶT] mục tiêu <n>, bước <k> — thấy: <observed + frame> ·
-  chờ: <điều một người lạ chờ> · phá-rào-DOM: có/không
-  (CHẶN = không đi tiếp được · LẠC = quá ngân sách mới tìm ra/bỏ cuộc ·
-   KHÓ-CHỊU = đi được nhưng ma sát rõ · VẶT = copy/polish)
-
-## Đường dây (mỗi mục tiêu một dòng, từ vựng network-truth)
-- mục tiêu <n>: clean | no-app-traffic | third-party-only | app-fail | …
-
-## Chuyển phiên người (câu hỏi giá-trị máy không được trả lời)
-- …
-
-## Kết phiên (máy tường thuật, KHÔNG verdict)
-- đi trọn: x/y mục tiêu · CHẶN: n · LẠC: n · KHÓ-CHỊU: n · VẶT: n
-```
+**Khuôn sống MỘT chỗ trong kit:**
+`skills/acceptance/references/stranger-drive-template.md` (từ hồ sơ
+`moi-noi-vong-trao`, 17/08). File thật phải bắt đầu bằng frontmatter máy-đọc
+(`slug · ran_at · variant · chan · lac · kho_chiu · vat · chuyen_phien_nguoi`)
+— `uat-session` §0 đọc `chan/slug/ran_at` để quyết điều kiện «bấm được» là
+bằng chứng hay lời khai. Bản khuôn cũ của đề bài (không frontmatter, đếm ở
+«Kết phiên») đã rút về đây làm sử liệu; đừng viết theo nó nữa — nhật-ký viết
+theo bản cũ sẽ bị §0 xếp «không đọc được». Các mục thân file (Mục tiêu · Nhật
+ký vấp · Đường dây · Chuyển phiên người · Bằng chứng) giữ nguyên tinh thần §3.
 
 ## 5 · THƯỚC ĐO CỦA CHÍNH PILOT (đo trước khi nghĩ đến codify)
 

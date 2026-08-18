@@ -57,7 +57,7 @@ Sơ đồ kiến trúc: [diagrams/lai-thu-nguoi-la-kien-truc.html](diagrams/lai-
 | Thành phần | Vai | Ghi chú |
 |---|---|---|
 | Phiên điều phối | viết hồ sơ mục tiêu · dựng môi trường · đo lại vấp trên vật · viết findings | phiên thường, có ngữ cảnh |
-| Hồ sơ mục tiêu `stranger-drive.md` | mục tiêu bằng tiếng sản phẩm (giấu đường đi) + ngân sách | khuôn ở đề bài §4 |
+| Hồ sơ mục tiêu `stranger-drive.md` | mục tiêu bằng tiếng sản phẩm (giấu đường đi) + ngân sách; frontmatter máy đọc | khuôn: `skills/acceptance/references/stranger-drive-template.md` |
 | **Phiên người-lạ** (lõi) | lái sản phẩm, ghi vấp, KHÔNG phán | fresh; chỉ được cấp URL/cầu nối + hồ sơ mục tiêu |
 | Bộ công cụ lái | tay chân của người-lạ | bảng dưới |
 | Sản phẩm thật | dev server / staging / MCP server | không sửa gì trong ván |
@@ -163,6 +163,8 @@ phẩm), không bao giờ là bản vá lén vào vòng đã ký.
 
 ## 5 · Tham chiếu
 
+- **Khuôn nhật-ký-vấp** (mặt máy — `uat-session` §0 đọc `chan`/`slug`/`ran_at`):
+  [skills/acceptance/references/stranger-drive-template.md](../skills/acceptance/references/stranger-drive-template.md)
 - **Đề bài thi hành** (nghi thức từng bước, khuôn nhật-ký-vấp, bản đồ 21 hạng
   mục, thước codify): [plans/2026-08-13-de-bai-lai-thu-nguoi-la.md](plans/2026-08-13-de-bai-lai-thu-nguoi-la.md)
 - **Ván 1 — bằng chứng sống** (biến thể agent, mcp-cost-guard):

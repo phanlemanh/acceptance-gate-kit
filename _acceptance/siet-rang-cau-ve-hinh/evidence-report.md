@@ -32,7 +32,7 @@ human_signoff: Manh Phan 2026-08-18
   verifier: config:executors.script.rang_siet_rang
   verified_at: 2026-08-18T10:00:00Z
   output: |
-    SIET-RANG OK: P90 3 ban chep · P197 25 msg + 5 tach + 5 nhan · P198 6 ca + tu-canh · rang cu 2 chieu do + phan biet diffBase
+    SIET-RANG OK: P90 3 ban chep · P197 25 msg + 5 tach + 5 nhan · P199 6 ca + tu-canh · rang cu 2 chieu do + phan biet diffBase
 
 - eval: E2
   run_id: minted-siet-rang-cau-ve-hinh-E2-r5
@@ -41,7 +41,7 @@ human_signoff: Manh Phan 2026-08-18
   verifier: config:executors.script.rang_siet_rang
   verified_at: 2026-08-18T10:00:00Z
   output: |
-    SIET-RANG OK: P90 3 ban chep · P197 25 msg + 5 tach + 5 nhan · P198 6 ca + tu-canh · rang cu 2 chieu do + phan biet diffBase
+    SIET-RANG OK: P90 3 ban chep · P197 25 msg + 5 tach + 5 nhan · P199 6 ca + tu-canh · rang cu 2 chieu do + phan biet diffBase
 
 - eval: E3
   run_id: minted-siet-rang-cau-ve-hinh-E3-r5
@@ -50,7 +50,7 @@ human_signoff: Manh Phan 2026-08-18
   verifier: config:executors.script.rang_siet_rang
   verified_at: 2026-08-18T10:00:00Z
   output: |
-    SIET-RANG OK: P90 3 ban chep · P197 25 msg + 5 tach + 5 nhan · P198 6 ca + tu-canh · rang cu 2 chieu do + phan biet diffBase
+    SIET-RANG OK: P90 3 ban chep · P197 25 msg + 5 tach + 5 nhan · P199 6 ca + tu-canh · rang cu 2 chieu do + phan biet diffBase
 
 - eval: E4
   run_id: minted-siet-rang-cau-ve-hinh-E4-r5
@@ -59,7 +59,7 @@ human_signoff: Manh Phan 2026-08-18
   verifier: config:executors.script.rang_siet_rang
   verified_at: 2026-08-18T10:00:00Z
   output: |
-    SIET-RANG OK: P90 3 ban chep · P197 25 msg + 5 tach + 5 nhan · P198 6 ca + tu-canh · rang cu 2 chieu do + phan biet diffBase
+    SIET-RANG OK: P90 3 ban chep · P197 25 msg + 5 tach + 5 nhan · P199 6 ca + tu-canh · rang cu 2 chieu do + phan biet diffBase
 
 - eval: E5
   run_id: minted-siet-rang-cau-ve-hinh-E5-r5
@@ -68,7 +68,7 @@ human_signoff: Manh Phan 2026-08-18
   verifier: config:executors.script.rang_siet_rang
   verified_at: 2026-08-18T10:00:00Z
   output: |
-    SIET-RANG OK: P90 3 ban chep · P197 25 msg + 5 tach + 5 nhan · P198 6 ca + tu-canh · rang cu 2 chieu do + phan biet diffBase
+    SIET-RANG OK: P90 3 ban chep · P197 25 msg + 5 tach + 5 nhan · P199 6 ca + tu-canh · rang cu 2 chieu do + phan biet diffBase
 
 - eval: E6
   run_id: minted-siet-rang-cau-ve-hinh-E6-r5
@@ -77,7 +77,7 @@ human_signoff: Manh Phan 2026-08-18
   verifier: config:executors.script.rang_siet_rang
   verified_at: 2026-08-18T10:00:00Z
   output: |
-    SIET-RANG OK: P90 3 ban chep · P197 25 msg + 5 tach + 5 nhan · P198 6 ca + tu-canh · rang cu 2 chieu do + phan biet diffBase
+    SIET-RANG OK: P90 3 ban chep · P197 25 msg + 5 tach + 5 nhan · P199 6 ca + tu-canh · rang cu 2 chieu do + phan biet diffBase
 
 - eval: E7
   run_id: minted-siet-rang-cau-ve-hinh-E7-r5
@@ -86,7 +86,7 @@ human_signoff: Manh Phan 2026-08-18
   verifier: config:executors.script.rang_siet_rang
   verified_at: 2026-08-18T10:00:00Z
   output: |
-    SIET-RANG OK: P90 3 ban chep · P197 25 msg + 5 tach + 5 nhan · P198 6 ca + tu-canh · rang cu 2 chieu do + phan biet diffBase
+    SIET-RANG OK: P90 3 ban chep · P197 25 msg + 5 tach + 5 nhan · P199 6 ca + tu-canh · rang cu 2 chieu do + phan biet diffBase
 
 - eval: E8
   run_id: minted-siet-rang-cau-ve-hinh-E8-r5
@@ -95,7 +95,7 @@ human_signoff: Manh Phan 2026-08-18
   verifier: config:executors.test.plugins
   verified_at: 2026-08-18T10:01:00Z
   output: |
-      PASS: P198 hfl_clause mot nguon: 6 ca fixture code-sinh + hai khoi (P90 va khoi Gate 1) cung import, khong chep tay (siet-rang-cau-ve-hinh E1 E2 E6 E7)
+      PASS: P199 hfl_clause mot nguon: 6 ca fixture code-sinh + hai khoi (P90 va khoi Gate 1) cung import, khong chep tay (siet-rang-cau-ve-hinh E1 E2 E6 E7)
 
     Results: all plugin tests passed
 

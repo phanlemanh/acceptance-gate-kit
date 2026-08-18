@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trước và sau · moi-noi-vong-trao</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper: #f5f5f5; --color-paper-2: #ececec; --color-ink: #2d3142; --color-muted: #4f5d75;
+      --color-soft: #636b80; --color-rule: rgba(45,49,66,0.12); --color-accent: #eb6c36;
+      --font-sans: 'Geist', system-ui, sans-serif; --font-serif: 'Instrument Serif', 'Lora', serif; --font-mono: 'Geist Mono', ui-monospace, monospace;
+    }
+    body { font-family: var(--font-sans); background: var(--color-paper); color: var(--color-ink); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; }
+    .frame { max-width: 1104px; width: 100%; }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.5rem; }
+    h1 { font-family: var(--font-serif); font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem); font-weight: 400; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 0.5rem; }
+    .sub { color: var(--color-muted); font-size: 0.875rem; line-height: 1.5; max-width: 64ch; margin-bottom: 1.5rem; }
+    svg { width: 100%; min-width: 900px; display: block; }
+    svg .box { fill: #ffffff; stroke: #2d3142; stroke-width: 1; }
+    svg .box.gate { fill: #ececec; }
+    svg .box.new { fill: rgba(235,108,54,0.08); stroke: #eb6c36; stroke-width: 1.4; }
+    svg .box.dead { fill: rgba(45,49,66,0.02); stroke: rgba(45,49,66,0.20); stroke-width: 1; stroke-dasharray: 4 3; }
+    svg .name { font-family: 'Geist', sans-serif; font-size: 12px; font-weight: 600; fill: #2d3142; }
+    svg .name.dim { fill: #636b80; }
+    svg .sub9 { font-family: 'Geist', sans-serif; font-size: 9px; fill: #4f5d75; }
+    svg .fl { fill: none; stroke: #4f5d75; stroke-width: 1.2; }
+    svg .fl.acc { stroke: #eb6c36; stroke-width: 1.4; }
+    svg .fl.cut { stroke: rgba(45,49,66,0.30); stroke-width: 1; stroke-dasharray: 5 4; }
+    svg .mask { fill: #f5f5f5; }
+    svg .lbl { font-family: 'Geist Mono', monospace; font-size: 9px; fill: #4f5d75; letter-spacing: 0.08em; }
+    svg .lbl.acc { fill: #ba4513; }
+    svg .band { font-family: 'Geist Mono', monospace; font-size: 9px; fill: #636b80; letter-spacing: 0.14em; }
+    svg .rule { stroke: rgba(45,49,66,0.12); stroke-width: 0.8; }
+    svg .legend { font-family: 'Geist', sans-serif; font-size: 9px; fill: #4f5d75; }
+    .reading { margin-top: 1.5rem; border-top: 1px solid var(--color-rule); padding-top: 1rem; font-size: 0.8125rem; line-height: 1.6; color: var(--color-muted); max-width: 74ch; }
+    .reading p { margin-bottom: 0.4rem; }
+    .colophon { margin-top: 1rem; font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.04em; color: var(--color-soft); }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Flowchart · Hồ sơ moi-noi-vong-trao · Acceptance-Gate Kit</p>
+    <h1>Vòng có ngưỡng nghiệm thu: trước thì hết ngõ, sau thì có đường đi tiếp</h1>
+    <p class="sub">Cùng một vòng — vòng đi từ Cổng Đáng, có hồ sơ cơ hội và ngưỡng đã chốt. Hàng trên là đường nó đi hôm qua; hàng dưới là đường nó đi sau hồ sơ này.</p>
+
+    <svg viewBox="0 0 1104 464" role="img" aria-labelledby="ts-title" xmlns="http://www.w3.org/2000/svg">
+      <title id="ts-title">So sánh đường đi của một vòng có ngưỡng nghiệm thu, trước và sau hồ sơ moi-noi-vong-trao</title>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+      </defs>
+      <rect width="1104" height="464" fill="#f5f5f5"/>
+
+      <!-- ══ BAND 1 · TRƯỚC ══ -->
+      <text class="band" x="32" y="48">TRƯỚC — thứ người thấy ở mỗi chặng</text>
+
+      <!-- arrows first -->
+      <line class="fl" x1="232" y1="112" x2="272" y2="112" marker-end="url(#arrow)"/>
+      <line class="fl" x1="472" y1="112" x2="552" y2="112" marker-end="url(#arrow)"/>
+      <line class="fl cut" x1="752" y1="112" x2="872" y2="112"/>
+      <rect class="mask" x="760" y="88" width="104" height="16" rx="2"/>
+      <text class="lbl" x="812" y="100" text-anchor="middle">KHÔNG AI NỐI</text>
+
+      <!-- 1 Duyệt tiêu chí -->
+      <rect class="box gate" x="32" y="72" width="200" height="80" rx="6"/>
+      <text class="name" x="132" y="104" text-anchor="middle">Duyệt tiêu chí</text>
+      <text class="sub9" x="132" y="124" text-anchor="middle">thẻ không nói vòng này</text>
+      <text class="sub9" x="132" y="140" text-anchor="middle">sẽ được đo bằng gì</text>
+
+      <!-- 2 Giao sau cờ -->
+      <rect class="box" x="272" y="72" width="200" height="80" rx="6"/>
+      <text class="name" x="372" y="104" text-anchor="middle">Giao sau cờ</text>
+      <text class="sub9" x="372" y="124" text-anchor="middle">mở PR · merge · bật hẹp</text>
+      <text class="sub9" x="372" y="140" text-anchor="middle">bằng chứng máy đã đủ</text>
+
+      <!-- 3 dead end -->
+      <rect class="box dead" x="552" y="92" width="200" height="40" rx="20"/>
+      <text class="name dim" x="652" y="116" text-anchor="middle">vòng kết bằng «xong»</text>
+
+      <!-- 4 Phiên nghiệm thu, không tới được -->
+      <rect class="box dead" x="872" y="72" width="200" height="80" rx="6"/>
+      <text class="name dim" x="972" y="104" text-anchor="middle">Phiên nghiệm thu</text>
+      <text class="sub9" x="972" y="124" text-anchor="middle">điều kiện «bấm được»</text>
+      <text class="sub9" x="972" y="140" text-anchor="middle">là lời khai của người</text>
+
+      <line class="rule" x1="32" y1="200" x2="1072" y2="200"/>
+
+      <!-- ══ BAND 2 · SAU ══ -->
+      <text class="band" x="32" y="240">SAU — cùng vòng đó, sau hồ sơ này</text>
+
+      <line class="fl" x1="232" y1="304" x2="272" y2="304" marker-end="url(#arrow)"/>
+      <line class="fl acc" x1="472" y1="304" x2="552" y2="304" marker-end="url(#arrow-accent)"/>
+      <line class="fl" x1="752" y1="304" x2="872" y2="304" marker-end="url(#arrow)"/>
+      <rect class="mask" x="480" y="280" width="64" height="16" rx="2"/>
+      <text class="lbl acc" x="512" y="292" text-anchor="middle">BÀN GIAO</text>
+      <rect class="mask" x="768" y="280" width="88" height="16" rx="2"/>
+      <text class="lbl" x="812" y="292" text-anchor="middle">NHẬT-KÝ-VẤP</text>
+
+      <rect class="box gate" x="32" y="264" width="200" height="80" rx="6"/>
+      <text class="name" x="132" y="296" text-anchor="middle">Duyệt tiêu chí</text>
+      <text class="sub9" x="132" y="316" text-anchor="middle">thẻ in nguyên văn ngưỡng —</text>
+      <text class="sub9" x="132" y="332" text-anchor="middle">hoặc nói «sẽ ship thẳng»</text>
+
+      <rect class="box" x="272" y="264" width="200" height="80" rx="6"/>
+      <text class="name" x="372" y="296" text-anchor="middle">Giao sau cờ</text>
+      <text class="sub9" x="372" y="316" text-anchor="middle">mở PR · merge · bật hẹp</text>
+      <text class="sub9" x="372" y="332" text-anchor="middle">rồi in một dòng bước kế</text>
+
+      <rect class="box new" x="552" y="264" width="200" height="80" rx="6"/>
+      <text class="name" x="652" y="296" text-anchor="middle">Lái-thử người-lạ</text>
+      <text class="sub9" x="652" y="316" text-anchor="middle">máy ngữ-cảnh-trắng lái thật</text>
+      <text class="sub9" x="652" y="332" text-anchor="middle">trong lúc chờ mời người dự</text>
+
+      <rect class="box gate" x="872" y="264" width="200" height="80" rx="6"/>
+      <text class="name" x="972" y="296" text-anchor="middle">Phiên nghiệm thu</text>
+      <text class="sub9" x="972" y="316" text-anchor="middle">điều kiện «bấm được» đã có</text>
+      <text class="sub9" x="972" y="332" text-anchor="middle">bằng chứng: 0 vấp CHẶN</text>
+
+      <!-- Legend -->
+      <line class="rule" x1="32" y1="392" x2="1072" y2="392"/>
+      <text class="band" x="32" y="412">CHÚ GIẢI</text>
+      <rect class="box gate" x="128" y="404" width="24" height="16" rx="4"/><text class="legend" x="160" y="416">Cổng người</text>
+      <rect class="box" x="252" y="404" width="24" height="16" rx="4"/><text class="legend" x="284" y="416">Bước máy</text>
+      <rect class="box new" x="368" y="404" width="24" height="16" rx="4"/><text class="legend" x="400" y="416">Việc hồ sơ này thêm</text>
+      <rect class="box dead" x="536" y="404" width="24" height="16" rx="4"/><text class="legend" x="568" y="416">Không tới được</text>
+      <line class="fl cut" x1="688" y1="412" x2="716" y2="412"/><text class="legend" x="724" y="416">Quan hệ không ai nối — vòng biến mất khỏi mọi thẻ</text>
+    </svg>
+
+    <div class="reading">
+      <p><strong>Cách đọc.</strong> Hai hàng là cùng một vòng, cùng bốn chặng. Khác nhau nằm ở hai chỗ nối: đoạn đứt ở hàng trên (không ai dẫn từ «đã giao» sang phiên nghiệm thu) và mũi tên cam ở hàng dưới (một dòng bàn giao, máy in ngay khi mở PR).</p>
+      <p>Ô đầu mỗi hàng nói cùng một khoảnh khắc — người duyệt tiêu chí. Trước: người quyết mà không thấy vòng này sẽ được đo bằng gì. Sau: thẻ in nguyên văn ngưỡng đã chốt ở Cổng Đáng, hoặc nói thẳng «vòng này không có hồ sơ cơ hội → ship thẳng, không phiên nghiệm thu».</p>
+      <p>Ô cuối là chỗ đắt nhất: điều kiện «sản phẩm bấm được» trước là lời khai, sau là bằng chứng đọc được (nhật-ký-vấp đúng vòng, không cũ hơn lần chấm máy cuối, 0 vấp CHẶN). Thiếu nhật-ký thì phiên vẫn mở được — cờ vàng nêu lý do có tên, không chặn.</p>
+      <p>Trục thứ ba không vẽ được thành ô: khuôn ghi nhật-ký từ hai bản cạnh tranh rút về một bản có mốc máy đọc — nếu không, phiên lái-thử viết theo bản cũ và phiên nghiệm thu sẽ xếp nó là «không đọc được».</p>
+    </div>
+    <p class="colophon">Chiếu của _acceptance/moi-noi-vong-trao/contract.md (AC-1 · AC-2 · AC-4 · AC-5) + evidence-report vòng 3 PASS · vẽ 2026-08-18 tại a243f12 trên nhánh worktree-moi-noi-vong-trao (chưa merge) · hình là chiếu của chữ, không phải nguồn</p>
+  </div>
+</body>
+</html>

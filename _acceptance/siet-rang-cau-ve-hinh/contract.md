@@ -18,7 +18,7 @@ veto_opened_at: 2026-08-17T14:40:48Z
 
 Bốn Known limits của `hinh-tai-cong-1` (ký 17/08, PR #62) cùng một lớp «thước
 chưa gắn hết vào lời hứa» của phép đo câu-về-hình. Vòng này chỉ đụng phép đo:
-`tests/plugins/run-tests.sh` (P90, P197, case mới P198), module dùng chung mới
+`tests/plugins/run-tests.sh` (P90, P197, case mới P199), module dùng chung mới
 `tests/plugins/hfl_clause.py`, `_acceptance/hinh-tai-cong-1/rang.sh`. Không đổi
 `SKILL.md`, không đổi bản luật. Design:
 `docs/superpowers/specs/2026-08-17-siet-rang-cau-ve-hinh-design.md`.
@@ -28,14 +28,14 @@ Source input: Known limits 1·2·3·4 trong `_acceptance/hinh-tai-cong-1/contrac
 
 ## Criteria
 
-- AC-1: Given module `tests/plugins/hfl_clause.py` với hàm `clause_copies_ok(text, clause)` neo HAI đầu (n_anchor = max(số lần 4 chữ ĐẦU, số lần 4 chữ CUỐI của clause); n_full = số bản NGUYÊN VĂN sau gộp khoảng trắng) và bảng kỳ vọng sáu ca — (a) hai bản chép đúng → danh sách trống · (b) sửa một chữ GIỮA ở đúng MỘT bản → `["cau ve hinh lech khuon mot-nguon (1/2 ban chep)"]` · (c) sửa một chữ trong 4 chữ ĐẦU của một bản → cùng thông điệp `(1/2 ban chep)` · (d) sửa một chữ trong 4 chữ CUỐI → cùng thông điệp · (e) xoá hẳn một bản → danh sách trống · (f) xoá cả hai → `["khong co ban chep nao"]`, When chạy hàm trên fixture code-sinh trong chính lần chạy cho cả sáu ca, Then kết quả khớp bảng kỳ vọng sáu trên sáu, mỗi ca in `P198-CA-<x> OK`.
+- AC-1: Given module `tests/plugins/hfl_clause.py` với hàm `clause_copies_ok(text, clause)` neo HAI đầu (n_anchor = max(số lần 4 chữ ĐẦU, số lần 4 chữ CUỐI của clause); n_full = số bản NGUYÊN VĂN sau gộp khoảng trắng) và bảng kỳ vọng sáu ca — (a) hai bản chép đúng → danh sách trống · (b) sửa một chữ GIỮA ở đúng MỘT bản → `["cau ve hinh lech khuon mot-nguon (1/2 ban chep)"]` · (c) sửa một chữ trong 4 chữ ĐẦU của một bản → cùng thông điệp `(1/2 ban chep)` · (d) sửa một chữ trong 4 chữ CUỐI → cùng thông điệp · (e) xoá hẳn một bản → danh sách trống · (f) xoá cả hai → `["khong co ban chep nao"]`, When chạy hàm trên fixture code-sinh trong chính lần chạy cho cả sáu ca, Then kết quả khớp bảng kỳ vọng sáu trên sáu, mỗi ca in `P199-CA-<x> OK`.
 - AC-2: Given case P90 đã thay `CLAUSE not in t` bằng `clause_copies_ok` trên TOÀN VĂN file (import từ `hfl_clause`), When chạy đối chứng dương trên cây thật và ba đột biến m3 (sửa một chữ bản ĐẦU, `count=1`) · m4 (thay bản ĐẦU bằng câu khác) · m3b (sửa một chữ bản CUỐI — bản S2, đúng lỗ KL1), Then đối chứng dương XANH và cả ba đột biến ĐỎ ghim thông điệp có `(1/2 ban chep)`, P90 in `P90-COPIES: m3|m4|m3b do (1/2 ban chep)`.
 - AC-3: Given P197 in một dòng `P197-M: <msg>` cho MỖI phần tử của tập EXPECTED trước khi chạy đột biến, và `_acceptance/hinh-tai-cong-1/rang.sh` đã thay danh sách chuỗi tay bằng việc đọc tập đó từ stdout (đòi ≥ 21 phần tử, MỖI phần tử có dòng `DO dung (<msg>)`, số `P197-MUT-n` ≥ số phần tử) và nhận biến `RANG_STDOUT_FILE` để đọc stdout từ file, When răng của hồ sơ này ghi stdout THẬT của P197 ra file rồi (o) chạy rang.sh nguyên bản · (i) xoá MỘT dòng `DO dung (<msg>)` · (ii) xoá MỘT dòng `P197-M:`, Then (o) OK · (i) ĐỎ ghim đúng `<msg>` · (ii) ĐỎ ghim `so P197-M khong khop P197-M-COUNT`.
 - AC-4: Given P197 có, cho MỖI check quan-hệ cùng-đoạn (`dieu_kien` · `bo_qua` · `skill_vang` · `nhin` · `dung_lai`), một đột biến chèn `\n\n` giữa hai needle mà giữ nguyên mọi chữ, và hàm `presence_only` (chỉ kiểm chữ có mặt trong khối), When chạy, Then mỗi đột biến ĐỎ đúng thông điệp của khoá (in `P197-MUT-n: tach doan <khoá> DO dung (...)`) và cùng đột biến đó qua `presence_only` VẪN XANH (in `P197-TACH-<khoá>: presence_only van xanh`) — chiều đỏ đo quan hệ; `m_cond` nối lại bằng `\n\n`.
 - AC-5: Given P197 nở `M["nhan"]` theo ĐỦ 5 nhãn trong LABELS và có một lượt gỡ cho mỗi nhãn, When chạy, Then đủ 5 dòng ĐỎ ghim `thieu nhan buoc <nhãn>`, và bản sao suite bỏ đi một đột biến nhãn bất kỳ làm assert `ma tran chua toan phan` ĐỎ ghim nhãn thiếu.
 - AC-6: Given P197 dùng `p90_check = clause_copies_ok` import từ `hfl_clause` (đã thay bản chép tay `CLAUSE_P90 in t`), When chạy trên TOÀN VĂN của đột biến xoá-clause-khỏi-khối (bản S2 còn) và của đột biến sửa-một-chữ-ở-khối, Then lần lượt XANH và ĐỎ; P197 in `P197-P90CHECK: xanh tren xoa-khoi, do tren sua-mot-chu`.
-- AC-7: Given case mới P198 trong suite (vĩnh viễn — chỉ đọc `tests/**`, `feature-loop/**`, `skills/**`) gồm AC-1 + kiểm cấu trúc hai khối P90/P197 (mỗi khối chứa `from hfl_clause import`; chuỗi chép tay `CLAUSE not in t` và `CLAUSE_P90 in` đã được thay hết) + hai đột biến chèn lại chuỗi chép tay vào bản sao khối, When chạy, Then đối chứng dương XANH, hai đột biến ĐỎ ghim `P90 con chep tay logic clause` / `P197 con chep tay p90_check`, và dòng tổng kết `P198 OK: <n> ca fixture · <k> kiem cau truc` in số từ biến.
-- AC-8: Given toàn suite `tests/plugins` và răng của hồ sơ này `_acceptance/siet-rang-cau-ve-hinh/rang.sh` (sống-chết theo hồ sơ, nếp p194), When chạy tại HEAD, Then suite XANH (P90 · P93 · P197 · P198); răng của hồ sơ này ghim: dòng `PASS: P90/P197/P198`, ba dòng `P90-COPIES`, ≥21 dòng `P197-M:`, 5 dòng `tach doan` + 5 dòng `P197-TACH-`, 5 dòng `thieu nhan buoc`, dòng `P197-P90CHECK`, dòng `P198 OK`; rang.sh của hinh-tai-cong-1 với `RANG_STDOUT_FILE` trên stdout thật → OK và trên hai bản sao sửa một dòng (AC-3 i/ii) → ĐỎ đúng thông điệp; và rang.sh của hinh-tai-cong-1 vẫn ĐỎ trên bản sao diffBase thật `7d76384` (merge-base với main, mốc ghi trong răng của hồ sơ này; ở đó P197 chưa in P197-M nên rang.sh cũ đỏ vì hợp đồng P197-M, và suite chưa có khối P198).
+- AC-7: Given case mới P199 trong suite (vĩnh viễn — chỉ đọc `tests/**`, `feature-loop/**`, `skills/**`) gồm AC-1 + kiểm cấu trúc hai khối P90/P197 (mỗi khối chứa `from hfl_clause import`; chuỗi chép tay `CLAUSE not in t` và `CLAUSE_P90 in` đã được thay hết) + hai đột biến chèn lại chuỗi chép tay vào bản sao khối, When chạy, Then đối chứng dương XANH, hai đột biến ĐỎ ghim `P90 con chep tay logic clause` / `P197 con chep tay p90_check`, và dòng tổng kết `P199 OK: <n> ca fixture · <k> kiem cau truc` in số từ biến.
+- AC-8: Given toàn suite `tests/plugins` và răng của hồ sơ này `_acceptance/siet-rang-cau-ve-hinh/rang.sh` (sống-chết theo hồ sơ, nếp p194), When chạy tại HEAD, Then suite XANH (P90 · P93 · P197 · P199); răng của hồ sơ này ghim: dòng `PASS: P90/P197/P199`, ba dòng `P90-COPIES`, ≥21 dòng `P197-M:`, 5 dòng `tach doan` + 5 dòng `P197-TACH-`, 5 dòng `thieu nhan buoc`, dòng `P197-P90CHECK`, dòng `P199 OK`; rang.sh của hinh-tai-cong-1 với `RANG_STDOUT_FILE` trên stdout thật → OK và trên hai bản sao sửa một dòng (AC-3 i/ii) → ĐỎ đúng thông điệp; và rang.sh của hinh-tai-cong-1 vẫn ĐỎ trên bản sao diffBase thật `7d76384` (merge-base với main, mốc ghi trong răng của hồ sơ này; ở đó P197 chưa in P197-M nên rang.sh cũ đỏ vì hợp đồng P197-M, và suite chưa có khối P199).
 
 ## Coverage
 
@@ -48,7 +48,7 @@ không quét `morphological-scan` — xem entry `descope` trong `decisions.jsonl
 ## Out of scope
 
 - **Đổi khối GATE 1 / câu luật / bản luật** — vòng này chỉ đổi phép đo.
-- **Đưa răng nào vào suite vĩnh viễn / cho P198 grep `_acceptance/**` hay dựng worktree** — giữ nếp p194: mọi thứ gắn với hồ sơ (rang.sh của hinh-tai-cong-1, mốc diffBase) đo bằng răng của hồ sơ này.
+- **Đưa răng nào vào suite vĩnh viễn / cho P199 grep `_acceptance/**` hay dựng worktree** — giữ nếp p194: mọi thứ gắn với hồ sơ (rang.sh của hinh-tai-cong-1, mốc diffBase) đo bằng răng của hồ sơ này.
 - **Đếm bản chép cho các marker khác** (GOAL-TEMPLATE, REPIN-TEMPLATE) — chưa có lỗ thật.
 - **Đo hành vi thật của Cổng 1 (máy có kê/đếm đúng không)** — vẫn là vòng pilot.
 
@@ -59,7 +59,7 @@ không quét `morphological-scan` — xem entry `descope` trong `decisions.jsonl
 **Known limits chốt tại Cổng 2 (2026-08-18, Manh Phan) — chấp nhận và ship:**
 
 1. **m4 của P90 chỉ đỏ khi câu thay giữ 4 chữ đầu** — thay cả câu bằng câu lạ thì với `hfl_clause` là «xoá một bản» (điểm mù đã khai trong docstring; P197 canh bản GATE 1).
-2. **E1 từng tuyên một chiều đỏ không có mã** — đã sửa lời; chiều đỏ của P198 ở gốc do răng đo qua «khối P198 chưa tồn tại» (`ONLY_BLOCK=P198 khong khop khoi nao`).
+2. **E1 từng tuyên một chiều đỏ không có mã** — đã sửa lời; chiều đỏ của P199 ở gốc do răng đo qua «khối P199 chưa tồn tại» (`ONLY_BLOCK=P199 khong khop khoi nao`).
 3. **Răng ghi bản sao suite tạm vào `tests/plugins/_rang-siet-copy.sh`** (để ROOT suy đúng); trap dọn khi thoát thường, ngắt cứng có thể để sót file — không vào .gitignore.
 4. **`hfl_clause` neo hai đầu còn hai điểm mù xanh-giả** (sửa CẢ HAI đầu cùng lúc; xoá hẳn một bản — descope d-1104) và một chiều đỏ-giả (văn thường trùng 4 chữ đầu/cuối làm n_anchor tăng — báo lệch dù mọi bản đúng; thông điệp dẫn sai hướng, không nuốt lỗi).
 5. **Chân diffBase của răng dùng `git worktree`** (mutate .git, trap `worktree prune`) thay vì tar-copy như các răng khác.

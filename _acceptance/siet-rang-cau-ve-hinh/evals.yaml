@@ -1,6 +1,6 @@
 # Evals — siet-rang-cau-ve-hinh
-# Một case mới P198 (fixture code-sinh + kiểm cấu trúc P90/P197/rang) và răng của
-# hồ sơ này ghim đúng dòng P198/P90/P197 trong stdout (nếp p194 — không tin exit
+# Một case mới P199 (fixture code-sinh + kiểm cấu trúc P90/P197/rang) và răng của
+# hồ sơ này ghim đúng dòng P199/P90/P197 trong stdout (nếp p194 — không tin exit
 # code trọn suite: bài học r1 của hinh-tai-cong-1). E9 = trọn suite cho AC-8.
 
 evals:
@@ -8,13 +8,13 @@ evals:
     criterion: AC-1
     executor: test
     cmd: config:executors.script.rang_siet_rang
-    expected: "răng ghim dòng 'PASS: P198' + sáu ca fixture code-sinh của clause_copies_ok in 'P198-CA-<x> OK' (a đúng · b sửa giữa · c sửa trong 4 chữ đầu · d sửa trong 4 chữ cuối · e xoá một · f xoá hai). Chiều đỏ của P198 trên diffBase do chân AC-8 của răng đo: suite base báo 'ONLY_BLOCK=P198 khong khop khoi nao'."
+    expected: "răng ghim dòng 'PASS: P199' + sáu ca fixture code-sinh của clause_copies_ok in 'P199-CA-<x> OK' (a đúng · b sửa giữa · c sửa trong 4 chữ đầu · d sửa trong 4 chữ cuối · e xoá một · f xoá hai). Chiều đỏ của P199 trên diffBase do chân AC-8 của răng đo: suite base báo 'ONLY_BLOCK=P199 khong khop khoi nao'."
     paths: [tests/plugins/hfl_clause.py, tests/plugins/run-tests.sh, _acceptance/siet-rang-cau-ve-hinh/rang.sh]
   - id: E2
     criterion: AC-2
     executor: test
     cmd: config:executors.script.rang_siet_rang
-    expected: "răng ghim 'PASS: P90' + ba dòng 'P90-COPIES: m3|m4|m3b do (1/2 ban chep)' (m3b = sửa bản CUỐI, tức bản S2); P198 kiểm khối P90 chứa 'from hfl_clause import' và không còn 'CLAUSE not in t' cho clause; đột biến (P198) chèn lại 'CLAUSE not in t' vào bản sao khối P90 → ĐỎ ghim 'P90 con chep tay logic clause'."
+    expected: "răng ghim 'PASS: P90' + ba dòng 'P90-COPIES: m3|m4|m3b do (1/2 ban chep)' (m3b = sửa bản CUỐI, tức bản S2); P199 kiểm khối P90 chứa 'from hfl_clause import' và không còn 'CLAUSE not in t' cho clause; đột biến (P199) chèn lại 'CLAUSE not in t' vào bản sao khối P90 → ĐỎ ghim 'P90 con chep tay logic clause'."
     paths: [tests/plugins/hfl_clause.py, tests/plugins/run-tests.sh, _acceptance/siet-rang-cau-ve-hinh/rang.sh]
   - id: E3
     criterion: AC-3
@@ -38,17 +38,17 @@ evals:
     criterion: AC-6
     executor: test
     cmd: config:executors.script.rang_siet_rang
-    expected: "P198 kiểm khối P197 chứa 'from hfl_clause import' và không còn 'CLAUSE_P90 in'; răng ghim dòng 'P197-P90CHECK: xanh tren xoa-khoi, do tren sua-mot-chu' của P197 (p90_check chạy trên TOÀN VĂN). Đột biến (P198) chèn lại 'CLAUSE_P90 in' vào bản sao khối → ĐỎ ghim 'P197 con chep tay p90_check'."
+    expected: "P199 kiểm khối P197 chứa 'from hfl_clause import' và không còn 'CLAUSE_P90 in'; răng ghim dòng 'P197-P90CHECK: xanh tren xoa-khoi, do tren sua-mot-chu' của P197 (p90_check chạy trên TOÀN VĂN). Đột biến (P199) chèn lại 'CLAUSE_P90 in' vào bản sao khối → ĐỎ ghim 'P197 con chep tay p90_check'."
     paths: [tests/plugins/run-tests.sh, _acceptance/siet-rang-cau-ve-hinh/rang.sh]
   - id: E7
     criterion: AC-7
     executor: test
     cmd: config:executors.script.rang_siet_rang
-    expected: "răng ghim 'PASS: P198' + dòng tổng kết 'P198 OK: <n> ca fixture · <k> kiem cau truc · <m> dot bien' với số đếm từ biến; P198 KHÔNG grep _acceptance/** và KHÔNG dựng worktree (răng của hồ sơ này grep chính P198 để canh — đột biến chèn chuỗi '_acceptance/' vào bản sao khối P198 → ĐỎ)."
+    expected: "răng ghim 'PASS: P199' + dòng tổng kết 'P199 OK: <n> ca fixture · <k> kiem cau truc · <m> dot bien' với số đếm từ biến; P199 KHÔNG grep _acceptance/** và KHÔNG dựng worktree (răng của hồ sơ này grep chính P199 để canh — đột biến chèn chuỗi '_acceptance/' vào bản sao khối P199 → ĐỎ)."
     paths: [tests/plugins/run-tests.sh, _acceptance/siet-rang-cau-ve-hinh/rang.sh]
   - id: E8
     criterion: AC-8
     executor: test
     cmd: config:executors.test.plugins
-    expected: "Toàn suite tests/plugins exit 0 tại HEAD (P90 · P93 · P197 · P198 XANH). Tính phân biệt: răng của hồ sơ này dựng worktree bản sao mốc 7d76384 = merge-base (mốc ghi trong rang.sh của hồ sơ này) → rang.sh của hinh-tai-cong-1 ĐỎ ở đó ghim 'so P197-M < san' + 'thieu dong P197-M-COUNT', và suite base báo 'ONLY_BLOCK=P198 khong khop khoi nao'."
+    expected: "Toàn suite tests/plugins exit 0 tại HEAD (P90 · P93 · P197 · P199 XANH). Tính phân biệt: răng của hồ sơ này dựng worktree bản sao mốc 7d76384 = merge-base (mốc ghi trong rang.sh của hồ sơ này) → rang.sh của hinh-tai-cong-1 ĐỎ ở đó ghim 'so P197-M < san' + 'thieu dong P197-M-COUNT', và suite base báo 'ONLY_BLOCK=P199 khong khop khoi nao'."
     paths: [tests/plugins/run-tests.sh, tests/plugins/hfl_clause.py, _acceptance/hinh-tai-cong-1/rang.sh]

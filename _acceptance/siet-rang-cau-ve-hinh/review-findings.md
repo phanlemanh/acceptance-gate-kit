@@ -15,7 +15,7 @@ Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt 
   severity: low
   Đề xuất: known-limits
 
-- **Hình dạng 4: E1 tuyên chiều đỏ trên diffBase («răng ĐỎ ghim 'khong thay dong PASS: P198'») mà không mã nào chạy chiều đó, và thông điệp ghim cũng không tồn tại trong răng**
+- **Hình dạng 4: E1 tuyên chiều đỏ trên diffBase («răng ĐỎ ghim 'khong thay dong PASS: P199'») mà không mã nào chạy chiều đó, và thông điệp ghim cũng không tồn tại trong răng**
   Người dùng thấy gì: Một mô tả kiểm thử tự động ghi rằng đã thử một tình huống lỗi cụ thể và biết trước thông điệp cảnh báo sẽ hiện ra, nhưng tình huống đó chưa từng được chạy thật và thông điệp ghi trong mô tả cũng sai so với thông điệp thực tế của hệ thống — nên không nên coi phần này là bằng chứng đã kiểm chứng.
   file: `_acceptance/siet-rang-cau-ve-hinh/evals.yaml:13`
   severity: low

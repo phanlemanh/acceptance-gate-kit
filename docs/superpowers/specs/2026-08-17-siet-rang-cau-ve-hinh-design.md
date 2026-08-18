@@ -108,7 +108,7 @@ nay đỏ được khi thiếu bất kỳ nhãn nào.
 
 ## 5. Phép đo của chính vòng này
 
-Một case suite mới **P198**: chạy `hfl_clause.clause_copies_ok` trên fixture
+Một case suite mới **P199**: chạy `hfl_clause.clause_copies_ok` trên fixture
 code-sinh (một file hai bản chép đúng → xanh; sửa một bản → đỏ ghim `1/2`; xoá
 một bản → xanh; xoá cả hai → đỏ `khong co ban chep nao`); rồi kiểm P90 và P197
 cùng import module đó (grep chuỗi `from hfl_clause import` trong cả hai khối,

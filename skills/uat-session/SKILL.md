@@ -21,7 +21,23 @@ quyết định; đừng để người ký cảm thấy họ phải bảo vệ 
 - `_acceptance/<slug>/contract.md` có `status: signed-off`.
 - `_acceptance/<slug>/opportunity.md` tồn tại và có ngưỡng UAT đã chốt tại
   Cổng Đáng (section "Ngưỡng chết / ngưỡng UAT").
-- Sản phẩm thật đã chạy sau flag để người dự bấm được.
+- Sản phẩm thật đã chạy sau flag để người dự bấm được — điều kiện này đọc từ
+  **nhật-ký-vấp** của Lái-thử Người-lạ, `_acceptance/<slug>/stranger-drive.md`
+  (khuôn: `${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/acceptance/references/stranger-drive-template.md`;
+  nghi thức: `docs/lai-thu-nguoi-la.md` của kit), không từ lời khai. Khoá máy đọc
+  từ nhật-ký (khai một chỗ, răng đối chiếu với khuôn):
+  <!-- STRANGER-KEYS-READ: chan slug ran_at variant -->
+  - `chan: 0` **và** `slug` khớp slug phiên **và** `ran_at` không cũ hơn
+    `verified_at` MUỘN NHẤT trong `evidence-report.md` (lần chấm máy cuối)
+    → điều kiện THOẢ BẰNG BẰNG CHỨNG;
+    nói một dòng (ván nào, biến thể nào — đọc `variant`) rồi đi tiếp.
+  - `chan` > 0 → DỪNG, nêu từng vấp CHẶN, và chỉ đường quay lại: chạy lại
+    lái-thử cho CHẶN về 0 — sửa là việc của vòng, không phải của phiên này.
+  - File vắng · frontmatter không đọc được · `slug` lệch · `ran_at` cũ hơn lần
+    chấm máy cuối → đi tiếp với **cờ vàng nêu lý do có tên** («chưa lái-thử» /
+    «không đọc được nhật-ký-vấp» / «nhật-ký của vòng khác» / «nhật-ký cũ hơn
+    bản chấm»); điều kiện lúc đó là lời khai, phiên vẫn mở được — không chặn,
+    không hỏi.
 
 Thiếu bất kỳ điều nào → DỪNG, nói rõ thiếu gì. Vòng KHÔNG có `opportunity.md`
 đi đường B/C/E: ship thẳng, không có phiên nghiệm thu — đừng dựng phiên giả
@@ -36,6 +52,10 @@ Chép khuôn từ `${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/acceptance/referen
 phút này ngưỡng là hằng số: đổi phép đo sau khi đã thấy số là gian, dù lý do
 nghe hợp lý tới đâu. Cần đổi thật → ghi `[SUPERSEDED <ngày> — <phép đo mới>]`
 bên `opportunity.md`, GIỮ bản gốc, và phiên dừng lại chờ Cổng Đáng.
+
+Có nhật-ký-vấp → chép các câu «Chuyển phiên người» của nó vào khối «Chấm kín»
+làm câu gợi cho từng người dự — máy dọn bàn, người chấm; không câu nào trong
+đó là verdict.
 
 ## 2. Mời người dự
 

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workflow v2 làn UI · Flowchart</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper: #f5f5f5; --color-ink: #2d3142; --color-muted: #4f5d75; --color-soft: #636b80;
+      --color-rule: rgba(45,49,66,0.12); --color-accent: #eb6c36;
+      --font-sans: 'Geist', system-ui, sans-serif; --font-serif: 'Instrument Serif', 'Lora', serif; --font-mono: 'Geist Mono', ui-monospace, monospace;
+    }
+    body { font-family: var(--font-sans); background: var(--color-paper); color: var(--color-ink); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; }
+    .frame { max-width: 1000px; width: 100%; }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.5rem; }
+    h1 { font-family: var(--font-serif); font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem); font-weight: 400; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 0.5rem; }
+    .sub { color: var(--color-muted); font-size: 0.875rem; line-height: 1.5; max-width: 62ch; margin-bottom: 1.5rem; }
+    svg { width: 100%; min-width: 800px; display: block; }
+    svg .oval{fill:#ffffff;stroke:#2d3142;stroke-width:1}
+    svg .step{fill:#ffffff;stroke:#2d3142;stroke-width:1}
+    svg .step.focal{fill:rgba(235,108,54,.08);stroke:#eb6c36;stroke-width:1.4}
+    svg .step.side{fill:rgba(45,49,66,.03);stroke:rgba(45,49,66,.30)}
+    svg .dia{fill:#ffffff;stroke:#2d3142;stroke-width:1}
+    svg .name{font-family:'Geist',sans-serif;font-size:12px;font-weight:600;fill:#2d3142}
+    svg .sub{font-family:'Geist',sans-serif;font-size:9px;fill:#4f5d75}
+    svg .q{font-family:'Geist',sans-serif;font-size:11px;font-weight:600;fill:#2d3142}
+    svg .fl{fill:none;stroke:#4f5d75;stroke-width:1.2}
+    svg .mask{fill:#f5f5f5}
+    svg .lbl{font-family:'Geist Mono',monospace;font-size:9px;fill:#4f5d75;letter-spacing:.08em}
+    svg .stage{font-family:'Geist Mono',monospace;font-size:9px;fill:#636b80;letter-spacing:.14em}
+    svg .legend-text{font-family:'Geist',sans-serif;font-size:9px;fill:#4f5d75}
+    svg .legend-eyebrow{font-family:'Geist Mono',monospace;font-size:9px;fill:#636b80;letter-spacing:.14em}
+    svg .rule{stroke:rgba(45,49,66,.10);stroke-width:.8}
+    .reading { margin-top: 1.5rem; border-top: 1px solid var(--color-rule); padding-top: 1rem; font-size: 0.8125rem; line-height: 1.6; color: var(--color-muted); max-width: 72ch; }
+    .reading p { margin-bottom: 0.4rem; }
+    .colophon { margin-top: 1rem; font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.04em; color: var(--color-soft); }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Flowchart · Workflow v2 · Acceptance-Gate Kit</p>
+    <h1>Làn UI trong vòng LÀM — bản mẫu sinh ra ở đâu, được duyệt ở đâu, chết ở đâu</h1>
+    <p class="sub">Đường đi riêng của mọi tính năng chạm giao diện, từ lúc vào vòng tới Cổng Bằng chứng. Ô cam là khoảnh khắc người ngồi xem; hai hình thoi là hai chỗ hay trượt nhất.</p>
+
+    <svg viewBox="0 0 1000 944" role="img" aria-labelledby="fc-title" xmlns="http://www.w3.org/2000/svg">
+      <title id="fc-title">Làn UI trong vòng LÀM của workflow v2</title>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+      </defs>
+      <rect width="1000" height="944" fill="#f5f5f5"/>
+
+      <!-- Stage rail (trái) -->
+      <text class="stage" x="32" y="124">S0</text>
+      <text class="stage" x="32" y="236">S1</text>
+      <text class="stage" x="32" y="348">S1</text>
+      <text class="stage" x="32" y="428">S1-D</text>
+      <text class="stage" x="32" y="508">CỔNG PHẠM VI</text>
+      <text class="stage" x="32" y="588">S3</text>
+      <text class="stage" x="32" y="668">S3 → S4</text>
+      <text class="stage" x="32" y="748">S4</text>
+
+      <!-- ===== Flow (trước box) — trục x=400 ===== -->
+      <line class="fl" x1="400" y1="56" x2="400" y2="88" marker-end="url(#arrow)"/>
+      <line class="fl" x1="400" y1="152" x2="400" y2="200" marker-end="url(#arrow)"/>
+      <line class="fl" x1="400" y1="264" x2="400" y2="320" marker-end="url(#arrow)"/>
+      <line class="fl" x1="400" y1="368" x2="400" y2="400" marker-end="url(#arrow)"/>
+      <line class="fl" x1="400" y1="448" x2="400" y2="480" marker-end="url(#arrow)"/>
+      <line class="fl" x1="400" y1="528" x2="400" y2="560" marker-end="url(#arrow)"/>
+      <line class="fl" x1="400" y1="608" x2="400" y2="640" marker-end="url(#arrow)"/>
+      <line class="fl" x1="400" y1="688" x2="400" y2="720" marker-end="url(#arrow)"/>
+      <line class="fl" x1="400" y1="768" x2="400" y2="800" marker-end="url(#arrow)"/>
+      <!-- D1 KHÔNG → phải -->
+      <line class="fl" x1="496" y1="120" x2="620" y2="120" marker-end="url(#arrow)"/>
+      <!-- D2 CÓ → phải → box lối → về trục -->
+      <line class="fl" x1="496" y1="232" x2="600" y2="232" marker-end="url(#arrow)"/>
+      <path class="fl" d="M700,264 V288 a8,8 0 0 1 -8,8 H408" marker-end="url(#arrow)"/>
+      <circle cx="400" cy="296" r="4" fill="#2d3142"/>
+
+      <!-- Nhãn nhánh -->
+      <rect class="mask" x="508" y="96" width="60" height="16" rx="2"/><text class="lbl" x="538" y="108" text-anchor="middle">KHÔNG</text>
+      <rect class="mask" x="408" y="164" width="24" height="16" rx="2"/><text class="lbl" x="412" y="176">CÓ</text>
+      <rect class="mask" x="508" y="208" width="24" height="16" rx="2"/><text class="lbl" x="520" y="220" text-anchor="middle">CÓ</text>
+      <rect class="mask" x="408" y="270" width="48" height="16" rx="2"/><text class="lbl" x="412" y="282">KHÔNG</text>
+
+      <!-- ===== Nodes ===== -->
+      <!-- Start -->
+      <rect class="oval" x="320" y="24" width="160" height="32" rx="16"/>
+      <text class="name" x="400" y="44" text-anchor="middle">Tính năng vào vòng</text>
+
+      <!-- D1 -->
+      <polygon class="dia" points="400,88 496,120 400,152 304,120"/>
+      <text class="q" x="400" y="117" text-anchor="middle">chạm bề mặt</text>
+      <text class="q" x="400" y="130" text-anchor="middle">web-UI?</text>
+      <!-- Làn thường -->
+      <rect class="oval" x="620" y="104" width="176" height="32" rx="16"/>
+      <text class="sub" x="708" y="124" text-anchor="middle">làn thường — không S1-D</text>
+
+      <!-- D2 -->
+      <polygon class="dia" points="400,200 496,232 400,264 304,232"/>
+      <text class="q" x="400" y="229" text-anchor="middle">mẫu cần mà</text>
+      <text class="q" x="400" y="242" text-anchor="middle">hệ chưa có?</text>
+      <!-- Chọn lối -->
+      <rect class="step side" x="600" y="208" width="200" height="56" rx="6"/>
+      <text class="name" x="700" y="228" text-anchor="middle">Chọn lối có tên</text>
+      <text class="sub" x="700" y="242" text-anchor="middle">cắt về đồ có sẵn · sang làn hệ thiết kế</text>
+      <text class="sub" x="700" y="254" text-anchor="middle">dựng riêng + nợ có hạn (trục 4)</text>
+
+      <!-- Dựng bản bấm được -->
+      <rect class="step" x="240" y="320" width="320" height="48" rx="6"/>
+      <text class="name" x="400" y="340" text-anchor="middle">Dựng bản bấm được</text>
+      <text class="sub" x="400" y="356" text-anchor="middle">route proto · khai states · vật liệu + chỗ sống (trục 1–2)</text>
+
+      <!-- S1-D (focal) -->
+      <rect class="step focal" x="240" y="400" width="320" height="48" rx="6"/>
+      <text class="name" x="400" y="420" text-anchor="middle">Phiên soi thẩm mỹ + UX — owner ngồi xem</text>
+      <text class="sub" x="400" y="436" text-anchor="middle">giai đoạn 0 chọn nấc · sửa trong từ vựng token (trục 3) · ma trận state</text>
+
+      <!-- Cổng Phạm vi -->
+      <rect class="step" x="240" y="480" width="320" height="48" rx="6"/>
+      <text class="name" x="400" y="500" text-anchor="middle">Duyệt trên bản bấm được, không bằng chữ</text>
+      <text class="sub" x="400" y="516" text-anchor="middle">thẻ in vật liệu · chỗ sống · nấc DS · lối đã chọn — cờ vàng nếu hạ nấc</text>
+
+      <!-- S3 -->
+      <rect class="step" x="240" y="560" width="320" height="48" rx="6"/>
+      <text class="name" x="400" y="580" text-anchor="middle">Dựng thật trên component thật</text>
+      <text class="sub" x="400" y="596" text-anchor="middle">lỗi ở tầng dùng chung → bốc hồ sơ riêng, ghi nợ, đi tiếp</text>
+
+      <!-- Khai tử bản mẫu -->
+      <rect class="step" x="240" y="640" width="320" height="48" rx="6"/>
+      <text class="name" x="400" y="660" text-anchor="middle">Khai tử bản mẫu — đo lệch nháp↔thật một lần</text>
+      <text class="sub" x="400" y="676" text-anchor="middle">bảng trạng thái bằng component thật lên làm bản-vẽ-chuẩn</text>
+
+      <!-- S4 -->
+      <rect class="step" x="240" y="720" width="320" height="48" rx="6"/>
+      <text class="name" x="400" y="740" text-anchor="middle">Máy đo phần đo được, siết dần</text>
+      <text class="sub" x="400" y="756" text-anchor="middle">a11y · census · token · fidelity — thẩm mỹ: người, không tự siết</text>
+
+      <!-- End -->
+      <rect class="oval" x="320" y="800" width="160" height="32" rx="16"/>
+      <text class="name" x="400" y="820" text-anchor="middle">Cổng Bằng chứng</text>
+
+      <!-- Legend -->
+      <line class="rule" x1="32" y1="872" x2="968" y2="872"/>
+      <text class="legend-eyebrow" x="32" y="892">CHÚ GIẢI</text>
+      <rect class="step" x="112" y="900" width="24" height="16" rx="4"/><text class="legend-text" x="144" y="912">Bước</text>
+      <polygon class="dia" points="220,900 236,908 220,916 204,908"/><text class="legend-text" x="248" y="912">Chỗ quyết — hai chỗ hay trượt</text>
+      <rect class="step focal" x="424" y="900" width="24" height="16" rx="4"/><text class="legend-text" x="456" y="912">Khoảnh khắc người ngồi xem</text>
+      <rect class="step side" x="616" y="900" width="24" height="16" rx="4"/><text class="legend-text" x="648" y="912">Nhánh phụ có tên</text>
+      <text class="legend-text" x="776" y="912">(trục n) → hình «bản mẫu bốn trục»</text>
+    </svg>
+
+    <div class="reading">
+      <p><strong>Cách đọc.</strong> Đi từ trên xuống; cột chữ mờ bên trái là bước của vòng LÀM. Hình thoi thứ nhất tách làn: không chạm giao diện thì đi làn thường. Hình thoi thứ hai là chỗ trượt kinh điển — mẫu hệ chưa có mà không chọn lối có tên thì phiên tự phát minh mẫu dưới sức ép; ba lối nằm ở trục 4 của hình «bản mẫu bốn trục».</p>
+      <p>Bốn lựa chọn của bản mẫu không rơi cùng một chỗ: vật liệu và chỗ sống chọn lúc dựng bản bấm được; nguồn luật token chọn lúc mở phiên soi; lối cho mẫu thiếu chọn trước cả hai. Thẻ Cổng Phạm vi gom cả bốn lại để người duyệt thấy một lần.</p>
+      <p>Ô cam là khoảnh khắc người ngồi xem — cách duy nhất duyệt thẩm mỹ, vì hàm mục tiêu thẩm mỹ không tồn tại dạng máy. Sau cổng, máy chỉ siết những gì đo được (ô cuối); phần còn lại là chữ ký người.</p>
+      <p>Ô «khai tử bản mẫu» là luật một-nguồn-sự-thật: bản thật dựng xong thì bản mẫu phải chết, có một lần đo lệch làm bằng chứng — để không còn hai bề mặt song song trôi khỏi nhau (r3 đã dẫm).</p>
+    </div>
+    <p class="colophon">Chiếu của workflow-v2-spec §2.2 (S1-D · một-nguồn-sự-thật · tầng dùng chung · ratchet) + skills/design-pass/SKILL.md + feature-loop SKILL «Làn design» · vẽ 2026-08-17 tại 8d1e135 · hình là chiếu của chữ, không phải nguồn</p>
+  </div>
+</body>
+</html>

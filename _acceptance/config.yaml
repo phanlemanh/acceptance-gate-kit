@@ -103,6 +103,15 @@ executors:
     rang_release21_docs: bash _acceptance/release-2-1-0/rang-release.sh --chan docs
     rang_release21_lan_v: bash _acceptance/release-2-1-0/rang-release.sh --chan lan-v
     rang_release21_diff: bash _acceptance/release-2-1-0/rang-release.sh --chan diff-allowlist
+    # Vật của hồ sơ moi-noi-vong-trao — răng hồ sơ, không vào suite vĩnh viễn
+    # (P197 thẻ ngưỡng đã vào suite plugins). Mỗi chân kèm chiều đỏ cùng lượt.
+    rang_mnvt_the_nguong: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan the-nguong
+    rang_mnvt_khuon: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan khuon
+    rang_mnvt_uat_needle: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan uat-needle
+    rang_mnvt_s5_needle: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan s5-needle
+    rang_mnvt_spec: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan spec
+    rang_mnvt_hinh: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan hinh
+    rang_mnvt_hoi_dong: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan hoi-dong
     rang_hinh_cong1: bash _acceptance/hinh-tai-cong-1/rang.sh
     rang_siet_rang: bash _acceptance/siet-rang-cau-ve-hinh/rang.sh
 risk_tiers:
