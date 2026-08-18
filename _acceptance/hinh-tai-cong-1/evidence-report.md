@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 9925c91d9c473df8413283817766af46fd8aaa85
+verified_commit: 9ef38ac15d3dfa29874daff247774c16a7af1ba4
 human_signoff: Manh Phan 2026-08-17
 ---
 
@@ -143,3 +143,7 @@ sha: c02ef661b37078c4cc27d584b72639e5d72f0e92 · suites: 4 lệnh exit 0
 ### Re-pin lần 2 — 2026-08-18, do suite plugins đổi sau lần ghim 1 (P90 ghi chú m4, P198 tự-soi; cùng lane với siet-rang-cau-ve-hinh, machine-only)
 run_id: repin-siet-rang-cau-ve-hinh-9925c91d
 sha: 9925c91d9c473df8413283817766af46fd8aaa85 · suites: 4 lệnh exit 0
+
+### Re-pin lần 3 — 2026-08-18, do gộp main (PR #63) — suite đổi (case của hồ sơ siet-rang đổi số P198→P199), machine-only
+run_id: repin-20260818-merge63-9ef38ac1
+sha: 9ef38ac15d3dfa29874daff247774c16a7af1ba4 · suites: 4 lệnh exit 0

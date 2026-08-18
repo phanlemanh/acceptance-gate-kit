@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 9925c91d9c473df8413283817766af46fd8aaa85
+verified_commit: 9ef38ac15d3dfa29874daff247774c16a7af1ba4
 human_signoff: Manh Phan 2026-08-18
 ---
 
@@ -133,3 +133,7 @@ Round 5: verdict PASS tai verified_commit ed7739ecdf37f2a75508018647ccf58ee303f9
 ### Re-pin lần 1 — 2026-08-18, do răng của hồ sơ thêm đối chứng dương chân diffBase (finding trong hợp đồng r5, AC-8; sửa 1 chân, machine-only, không đụng chữ ký)
 run_id: repin-siet-rang-cau-ve-hinh-9925c91d
 sha: 9925c91d9c473df8413283817766af46fd8aaa85 · suites: 5 lệnh exit 0 (4 suite + răng của hồ sơ)
+
+### Re-pin lần 2 — 2026-08-18, do gộp main (PR #63) — suite đổi (case của hồ sơ siet-rang đổi số P198→P199), machine-only
+run_id: repin-20260818-merge63-9ef38ac1
+sha: 9ef38ac15d3dfa29874daff247774c16a7af1ba4 · suites: 4 lệnh exit 0
