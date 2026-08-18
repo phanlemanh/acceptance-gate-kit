@@ -2,8 +2,9 @@
 # Phép đo thật sống trong tests/workflows/acceptance-verify.test.mjs (W25–W27,
 # mutant srcOverride chạy chiều đỏ trong CÙNG lượt). Răng hồ sơ ghim ĐÚNG dòng
 # case trong stdout suite (nếp p194 — không tin exit code trọn suite: trên
-# diffBase suite cũng xanh nên mã thoát không phân biệt cây cũ/mới) VÀ đối chiếu
-# số ca với bản base chạy thật. E7 = trọn suite tồn kho cho AC-7 tương thích.
+# diffBase suite cũng xanh nên mã thoát không phân biệt cây cũ/mới) + kiểm mã
+# thoát và dòng tổng kết. E7 = trọn suite tồn kho cho AC-7. Chân tồn-kho «không
+# sửa case cũ» đã GỠ 18/08 (owner gật thu phạm vi) — xem Known limits.
 
 evals:
   - id: E1
@@ -46,11 +47,5 @@ evals:
     criterion: AC-7
     executor: test
     cmd: config:executors.test.workflows
-    expected: "trọn suite workflows tồn kho xanh (exit 0) — mọi field mới optional; chiều đỏ của tương thích là bất kỳ case W01–W24 nào đỏ."
+    expected: "trọn suite workflows tồn kho xanh (exit 0) — mọi field mới optional. Răng hồ sơ (E1–E6) độc lập kiểm mã thoát + dòng 'Results: N passed, 0 failed' + 18 dòng ca, nên suite-không-chạy không đọc được thành suite-xanh. Chiều đỏ đã chạy thật: làm một ca đỏ → răng đỏ ghim 'suite bao 1 ca do'; suite chết → 'khong doc duoc dong tong ket'."
     paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, tests/workflows/harness.mjs]
-  - id: E8
-    criterion: AC-7
-    executor: test
-    cmd: config:executors.script.rang_hgkpt
-    expected: "chân tồn-kho đặt bất biến ở ĐẦU RA (đổi khuôn ở r2 — cách liệt-kê-theo-cú-pháp bị bỏ): răng chạy CHÍNH bản base của test file (git show, đặt cùng thư mục để đường dẫn đúng) lấy mốc 'PASS: MOC-BASE ban base chay sach: <N> ca', rồi đòi lần chạy hiện tại (a) exit 0 và 'Results: <N+18> passed, 0 failed' — hết nuốt mã thoát, (b) ĐẲNG THỨC số ca = base + số pin hồ sơ khai (thiếu ⇒ xoá case cũ, thừa ⇒ ca chưa khai — đếm nguồn hai hướng, không phụ thuộc case viết bằng khuôn cú pháp nào), (c) mọi tên case ghi được nguyên văn còn nguyên + có dòng PASS. Chiều đỏ chạy CÙNG LƯỢT qua chính hàm kiểm: bản sao tiêm 3 mũi (vô hiệu 1 ca tên tĩnh · 1 ca tên động · đổi tên 1 pin) phải đỏ ĐỦ 3 lý do → 'PASS: TU-PHA-THU ban sao tiem 3 loi -> <k> loi, du 3 mui'."
-    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/het-gio-khong-phai-truot/rang.sh]

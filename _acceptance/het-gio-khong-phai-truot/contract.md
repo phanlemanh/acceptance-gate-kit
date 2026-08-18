@@ -73,17 +73,14 @@ When tính `baselineStatus`,
 Then status là `n-a` — không được đọc thành `red` (phân biệt giả) hay `green`;
 đối chứng: baseline exit 1 thật vẫn là `red`.
 
-### AC-7 — Tương thích ngược từng bit
+### AC-7 — Tương thích ngược
 Given kết quả verifier KHÔNG có field `killedByTool` (agent cũ / flow cũ),
 When workflow xử lý,
-Then hành vi y nguyên: exit 1 thường → REJECT, cannotRun=true → BLOCKED, suite
-tồn kho `tests/workflows` xanh nguyên KHÔNG sửa case cũ nào — vế «không sửa»
-có phép đo riêng đặt bất biến ở ĐẦU RA, không liệt kê theo hình dạng cú pháp:
-răng chạy chính bản base (`git show`) lấy mốc số ca, rồi đòi lần chạy hiện tại
-exit 0 + `Results: <base+pin> passed, 0 failed` và ĐẲNG THỨC số ca = base + số
-pin hồ sơ khai (thiếu ⇒ xoá case cũ, thừa ⇒ ca chưa khai), cộng assert tên
-nguyên văn cho case ghi được tên tĩnh. Chiều đỏ chạy cùng lượt qua chính hàm
-kiểm: bản sao tiêm 3 mũi phải đỏ đủ 3 lý do.
+Then hành vi y nguyên: exit 1 thường → REJECT, cannotRun=true → BLOCKED, và
+suite tồn kho `tests/workflows` chạy THẬT (mã thoát 0 + dòng tổng kết
+`Results: N passed, 0 failed`) với đủ 18 dòng ca của hồ sơ này khớp trọn dòng.
+Vế «không một case cũ nào bị sửa» KHÔNG còn là lời hứa máy đo — xem Known
+limits: chốt cho vế đó là người đọc diff PR.
 
 ## Coverage
 
@@ -97,9 +94,12 @@ cùng grep). Ma trận đo trong test phải toàn phần và **ma trận lane c
 bằng ma trận lane của prompt**: 3 lane × chứa-rule + 3 lane × schema + 3 mutant
 cô lập lớp, một mutant mỗi lane (W25) · routing 2 lane (machine, ui) × 2 chiều
 (bị-giết, exit-thật) + 2 nhánh reason trên cùng fixture (W26) · lane baseline 2
-chiều (W27) · chân tồn-kho theo đẳng thức số ca base+pin, chiều đỏ 3 mũi chạy
-cùng lượt (E8). Bài học r2: thiếu một lane trong ma trận routing thì gỡ phòng
-thủ lane đó vẫn 100% xanh.
+chiều (W27) · răng hồ sơ ghim mã thoát + dòng tổng kết + 18 dòng ca (E1–E6),
+ba chiều đỏ đã chạy thật (đổi tên ca · một ca đỏ · suite chết). Bài học r2:
+thiếu một lane trong ma trận routing thì gỡ phòng thủ lane đó vẫn 100% xanh.
+Bài học r3 (owner gật thu phạm vi 18/08): chân tồn-kho «không sửa case cũ» đã
+GỠ cùng eval E8 — nó là chốt cưỡng chế cần chốt cho chính nó, ba vòng liền đẻ
+lỗ cùng họ; vế đó nay là Known limit 1.
 
 ## Out of scope
 
@@ -114,4 +114,20 @@ thủ lane đó vẫn 100% xanh.
 
 ## Notes
 
-Known limits (điền ở Gate 2 nếu có).
+Known limits:
+
+1. **«Không case cũ nào bị sửa» không có thước máy.** Ba vòng S4 liên tiếp,
+   mọi biến thể của chân tồn-kho (liệt kê theo khuôn cú pháp → đẳng thức số ca
+   neo `origin/main` → mutant tự dựng) đều đẻ một lỗ cùng họ: hoặc đo tập con,
+   hoặc xanh cả khi phép đo chưa từng chạy, hoặc tự chết ngay sau merge vì mốc
+   di động. Owner chốt 18/08: **gỡ**, theo bài học đã ghi trong kit — chốt
+   cưỡng chế mà cần chốt cho chính nó thì bỏ. Còn lại: suite phải chạy thật và
+   xanh, 18 ca của hồ sơ phải có mặt; ai xoá một ca cũ thì răng KHÔNG bắt —
+   chốt là người đọc diff PR (diff của hồ sơ này chỉ THÊM ca, không sửa ca cũ).
+2. **Bên VIẾT của `killedByTool` chưa có bộ đo hành vi.** Đường sống là
+   prompt → verifier tự khai → routing; chỉ mắt xích routing có răng máy.
+   Nếu chữ trong luật không đổi được hành vi verifier (hoặc model đổi làm xói
+   mòn nó), mọi eval vẫn xanh. Bằng chứng vận hành thay thế trong vòng này: ba
+   vòng verify chạy `tests/plugins/run-tests.sh` dưới tải song song, không lần
+   nào bị công cụ giết (trước đó vòng 5 của release-2-2-0 bị giết ở 118 s).
+   Bộ đo hội đồng phiên sạch cho lời hứa hành vi là hồ sơ riêng nếu vấp lại.
