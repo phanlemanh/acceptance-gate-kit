@@ -1,89 +1,44 @@
 {
-  "feature_plain": "Bốn lỗ còn lại của phép đo câu-về-hình được đóng: sửa lệch bất kỳ bản chép nào cũng đỏ, răng đọc thẳng bảng thông điệp, quan hệ cùng-đoạn có chiều đỏ riêng, cả năm nhãn bước đều từng đỏ — người ký các Cổng 2 sau không phải đọc lại code phép đo để biết xanh nghĩa là gì.",
-  "will_do": [
-    {
-      "id": "AC-1",
-      "p": "Sẽ có một hàm đếm bản chép câu luật neo hai đầu, được thử sáu ca trên fixture máy sinh (đúng · sửa giữa · sửa đầu · sửa cuối · xoá một · xoá hai)"
-    },
-    {
-      "id": "AC-2",
-      "p": "Sẽ làm bài kiểm cũ P90 đỏ khi BẤT KỲ bản chép nào lệch — kể cả bản ở mục lập plan (đúng lỗ đã ký Known limit)"
-    },
-    {
-      "id": "AC-3",
-      "p": "Sẽ để răng của hồ sơ trước đọc bảng thông điệp thẳng từ P197 (P197 in ra, răng đếm), có đường nạp từ file để phá thử hai chiều"
-    },
-    {
-      "id": "AC-4",
-      "p": "Sẽ ép mỗi phép đo «cùng đoạn» đỏ khi tách đoạn mà giữ đủ chữ, và chứng minh phép đo chỉ-có-chữ không đỏ ở ca đó"
-    },
-    {
-      "id": "AC-5",
-      "p": "Sẽ gỡ thử đủ năm nhãn bước, và ma trận tự đỏ khi bỏ bớt một lượt gỡ"
-    },
-    {
-      "id": "AC-6",
-      "p": "Sẽ dùng chung một hàm đối chứng cho P90 và P197 thay vì hai bản chép tay"
-    },
-    {
-      "id": "AC-7",
-      "p": "Sẽ có case P198 trong suite: fixture sáu ca + kiểm cấu trúc P90/P197, mỗi đột biến ghim thông điệp; case chỉ đọc cây nguồn, không đụng hồ sơ"
-    },
-    {
-      "id": "AC-8",
-      "p": "Sẽ giữ toàn suite xanh và có răng riêng của hồ sơ này ghim từng dòng đầu ra, kể cả tính phân biệt của răng cũ trên cây gốc"
-    }
-  ],
-  "wont_do": [],
-  "scope_plain": "Hoãn/cắt: đổi khối GATE 1 hay câu luật · đưa răng nào vào suite vĩnh viễn · đếm bản chép cho các khuôn khác · đo hành vi thật của Cổng 1",
-  "coverage_plain": [
-    {
-      "i": 0,
-      "p": "Một trục — bốn lỗ đã gọi tên (mọi-bản-chép · răng-một-nguồn · quan-hệ-tách-đoạn · nhãn-đủ + đối-chứng-dùng-chung); thước là danh sách Known limits của hồ sơ trước (AC-1..6)"
-    },
-    {
-      "i": 1,
-      "p": "Xuyên trục: phép đo của chính vòng này (AC-7) và tính phân biệt giữ nguyên (AC-8)"
-    }
-  ],
-  "gap_probe_plain": [
-    {
-      "i": 0,
-      "p": "Chiều đỏ của răng đi sai hướng (bịt dòng bảng không làm răng đỏ-ghim-tên) — đã sửa: hai chiều đỏ, hai thông điệp"
-    },
-    {
-      "i": 1,
-      "p": "Neo một đầu bị mù khi sửa chữ ngay đầu câu — đã sửa: neo hai đầu, thêm hai ca fixture; điểm mù còn lại «sửa cả hai đầu cùng lúc» sẽ ghi Known limits"
-    },
-    {
-      "i": 2,
-      "p": "Chưa có đường lấy đầu ra thật của P197 để phá thử răng — đã sửa: răng nhận file đầu ra, răng của hồ sơ này ghi đầu ra thật rồi sửa một dòng"
-    },
-    {
-      "i": 3,
-      "p": "Case vĩnh viễn định grep hồ sơ và ghim commit — đã sửa: mọi thứ gắn hồ sơ dời sang răng của hồ sơ này"
-    },
-    {
-      "i": 4,
-      "p": "Đối chứng dùng chung chạy trên khối hay toàn văn chưa rõ; P90 chưa phá bản S2 — đã sửa: toàn văn; thêm đột biến bản cuối"
-    }
-  ],
+  "feature_plain": "Bốn lỗ còn lại của phép đo câu-về-hình đã đóng: sửa lệch bất kỳ bản chép nào cũng đỏ, răng đọc thẳng bảng thông điệp, quan hệ cùng-đoạn có chiều đỏ riêng, cả năm nhãn bước đều từng đỏ.",
+  "decisions": [],
+  "analyst_plain": "Bảy phép đo qua răng của hồ sơ này đỏ trên cây gốc và xanh trên cây sửa (phân biệt được); phép đo thứ tám là toàn suite — lưới hồi quy chung, xanh cả hai bên như dự kiến.",
+  "scope_plain": "Hoãn/cắt: đổi khối GATE 1 hay câu luật · đưa răng vào suite vĩnh viễn · đếm bản chép cho các khuôn khác · đo hành vi thật của Cổng 1",
   "decisions_plain": [
     {
       "id": "d-20260817T143444Z-1101",
-      "p": "KHÔNG quét độ phủ — bài toán là bốn lỗ đã gọi tên; đổi lại lỗ thứ năm cùng lớp chưa gọi tên không lộ ở vòng này"
+      "p": "KHÔNG quét độ phủ — bốn lỗ đã gọi tên; đổi lại lỗ thứ năm cùng lớp chưa gọi tên không lộ ở vòng này"
     },
     {
       "id": "d-20260817T143444Z-1102",
-      "p": "Hàm đếm bản chép đặt ở một module dùng chung, hai case cùng nạp — đổi lại thêm một file trong thư mục kiểm"
+      "p": "Hàm đếm bản chép ở một module dùng chung, hai case cùng nạp — đổi lại thêm một file trong thư mục kiểm"
     },
     {
       "id": "d-20260817T143444Z-1103",
-      "p": "Răng đọc bảng thông điệp từ đầu ra P197 — đổi lại răng phụ thuộc định dạng dòng, được ghim bằng răng của hồ sơ này"
+      "p": "Răng đọc bảng thông điệp từ đầu ra P197 — răng phụ thuộc định dạng dòng, ghim bằng răng của hồ sơ này"
     },
     {
       "id": "d-20260817T143444Z-1104",
-      "p": "KHÔNG bắt P90 đỏ khi xoá hẳn một bản chép — P90 chỉ hứa «mọi bản còn lại khớp»; vế «phải có ở Cổng 1» do P197 canh"
+      "p": "KHÔNG bắt P90 đỏ khi xoá hẳn một bản chép — P90 hứa «mọi bản còn lại khớp»; «phải có ở Cổng 1» do P197 canh"
+    },
+    {
+      "id": "d-20260817T151139Z-4101",
+      "p": "Vòng 1: răng chân diffBase thành đối chứng dương + ghim thông điệp; ghim nhãn thiếu; P198 tách khỏi P197; đếm từ bảng"
+    },
+    {
+      "id": "d-20260817T152650Z-4201",
+      "p": "Vòng 2: thêm đột biến tự-soi cho P198 (đọc đúng bản đang chạy); dọn thư mục tạm"
+    },
+    {
+      "id": "d-20260817T154517Z-4301",
+      "p": "Vòng 3: răng đo trên đúng mốc gốc của nhánh; dọn mã thừa; khai điểm mù đỏ-giả — vòng 3 đỏ vì tôi commit báo cáo cũ chung với code"
+    },
+    {
+      "id": "d-20260817T234355Z-4401",
+      "p": "Vòng 4: răng ghim vào chính dòng lỗi thay vì chuỗi có mặt; guard bản-cuối ≠ bản-đầu"
+    },
+    {
+      "id": "d-20260818T003225Z-4501",
+      "p": "Vòng 5: răng thêm đối chứng dương ở mốc gốc; bỏ một tuyên bố chưa có mã trong evals; xác nhận bằng lane máy thay vì vòng 6"
     }
   ]
 }
