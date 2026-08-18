@@ -114,6 +114,9 @@ executors:
     rang_mnvt_hoi_dong: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan hoi-dong
     rang_hinh_cong1: bash _acceptance/hinh-tai-cong-1/rang.sh
     rang_siet_rang: bash _acceptance/siet-rang-cau-ve-hinh/rang.sh
+    # Vật của hồ sơ het-gio-khong-phai-truot — răng ghim dòng case W25–W27 +
+    # chân tồn-kho đếm-nguồn. Cùng nếp không-vào-suite-vĩnh-viễn.
+    rang_hgkpt: bash _acceptance/het-gio-khong-phai-truot/rang.sh
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
