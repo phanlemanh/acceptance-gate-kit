@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: f8de779820fdc89276497f028736742cfef938c3
-human_signoff:
+human_signoff: Manh Phan 2026-08-18
 ---
 
 # Evidence Report: status-chua-arm-cong

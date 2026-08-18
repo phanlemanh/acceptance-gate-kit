@@ -46,7 +46,7 @@ evals:
     expected: >
       exit 0; stdout có "PASS: ARM05" (slug cũ approved+REJECT đã ở base, KHÔNG
       trong diff; slug mới armed trong diff → KHÔNG dòng "chưa arm cổng" cho
-      slug cũ, CÓ dòng chấm "[feat-new]" + "expected=4" — cổng đã chạy) VÀ
+      slug cũ, CÓ dòng chấm "[feat-arm]" + "expected=4" — cổng đã chạy) VÀ
       "PASS: ARM06" (không --base: approved+REJECT → exit 1 + dòng "chưa arm
       cổng") VÀ "PASS: ARM07" (không --base: draft không evidence → exit 0,
       KHÔNG dòng đó, CÓ "expected=4") VÀ "PASS: ARM12" (tier T1 ngoài

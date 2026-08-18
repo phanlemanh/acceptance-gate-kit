@@ -10,8 +10,8 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>chưa có"]
   GD --> DB["Đã bác từ khám phá<br/>chưa có"]
   B --> CD["Chờ duyệt phạm vi<br/>2 việc"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>46 việc"]
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  GB --> DG["Đã giao<br/>47 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>chưa có"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>chưa có"]
 ```
@@ -30,7 +30,6 @@ flowchart TD
 
 - Phát hành kit 2.0.0 — gom 1c + đợt 2 «người về biên» về một mốc release để repo tiêu thụ nhận engine mới có chủ đích trước đợt 3 (`release-2-0-0`)
 - Phát hành kit 2.1.0 — gom hai hồ sơ TRỪ 16/08 (tin mời cổng thôi form · cổng chặn nhầm chỗ) + luật hình về một mốc, và đưa skill diagram-design vào marketplace như plugin thứ ba (vendor có pin, skin sống trong repo tiêu thụ) — để repo tiêu thụ nhận luật mới có chủ đích trước khi đợt 3 đo M1/M2 (`release-2-1-0`)
-- Hồ sơ có bằng chứng nhưng status chưa arm cổng không được tàng hình — pre-merge thôi `continue` im lặng ở draft/approved khi đã có evidence-report.md hoặc PR đổi code chịu cổng; giữ đường đọc-cũ cho hồ sơ không có bằng chứng (`status-chua-arm-cong`)
 
 ## Đã giao
 
@@ -76,6 +75,7 @@ flowchart TD
 - Staleness theo diff PR — staleness chỉ áp cho slug có hồ sơ trong diff (`stale-theo-diff-pr`)
 - Lệnh /start — nghi thức vào phiên, quét workspace trình thẻ 3 nhóm rồi bàn giao (`start-command`)
 - Làm cứng bộ quét /start — lỗi phải có tên, không đổi nghĩa (`start-scan-hardening`)
+- Hồ sơ có bằng chứng nhưng status chưa arm cổng không được tàng hình — pre-merge thôi `continue` im lặng ở draft/approved khi đã có evidence-report.md hoặc PR đổi code chịu cổng; giữ đường đọc-cũ cho hồ sơ không có bằng chứng (`status-chua-arm-cong`)
 - Vòng lặp biết tự nhận ra khi cách sửa sai khuôn — vòng thứ hai còn sinh lỗi cùng loại thì dừng và hỏi người, thay vì chạy tiếp vòng ba rồi hỏng cùng kiểu (`stop-patching-law`)
 - Tách phạm vi răng T1-escape khỏi phạm vi diff (cờ opt-out + thứ tự bump version) (`t1-escape-event-scope`)
 - Đợt 2 «người về biên» — trạng thái veto-có-dấu-vết cho Cổng Phạm vi T2 và Cổng Bằng chứng xanh-sạch thôi mời ký; sửa đồng bộ ba tầng luật-văn-bản + hook chặn-lúc-ghi + lưới trước-merge (`veto-co-dau-vet`)

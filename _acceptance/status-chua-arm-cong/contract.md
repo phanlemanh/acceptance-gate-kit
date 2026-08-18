@@ -5,7 +5,7 @@ slug: status-chua-arm-cong
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm scripts/pre-merge-check.sh (t3_paths) — tier máy-derive; đề bài nói T2, tiền lệ stale-theo-diff-pr/veto-co-dau-vet cùng file đều T3, nghi thức giữ gọn theo đề bài (5 AC, không judgment)
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-18T08:05:11Z
 ---
@@ -77,6 +77,19 @@ toán một chiều đã gọi tên, entry `descope` bỏ coverage-scan trong s�
 - Đổi bảng resume của feature-loop (`approved` → S2).
 - Thêm cờ tắt luật mới; thêm tên luật vào `LEDGER_EXPECTED`.
 - Bộ răng riêng cho mốc phát hành nào (đúng nếp GUIDE §7.1 vừa thêm).
+
+## Known limits
+
+Ký 18/08 (Cổng 2), review vòng 1 — 3 mục ngoài hợp đồng, người quyết ghi ở đây thay vì mở vòng:
+- **PR gộp hồ sơ armed + code chịu cổng + một hồ sơ nháp khác → hồ sơ nháp bị
+  chặn «chưa arm cổng»** dù code đã có hồ sơ kia chấm. CỐ Ý fail-closed: hồ sơ
+  nháp không việc gì phải đi chung PR với code chịu cổng; đổi sau rẻ (thêm
+  điều kiện «không slug armed nào trong diff») nếu vấp thật.
+- Vế (b) không tắt theo `--no-t1-escape` trên nhánh push (commit hạ tầng kèm
+  hồ sơ nháp có thể đỏ, trong khi marker T1-ESCAPE NOT ENFORCED vẫn in). Chưa
+  có răng đường push; revisit khi push-event thật đỏ.
+- Răng GUIDE (`rang.sh`) đếm chuỗi «chưa arm cổng» trong khối §7, không neo
+  hình dạng hàng bảng — răng hồ sơ dùng-một-lần, hai chiều đỏ đã ghim.
 
 ## Notes
 

@@ -91,7 +91,7 @@ moi-noi-vong-trao). Fixture **code-sinh** bằng git, hai commit: c1 = base
 | ARM02 (chiều đỏ a — tái hiện vòng 4) | approved | REJECT | có | có | exit 1 + `VIOLATION [feat-arm]: hồ sơ có bằng chứng nhưng status chưa arm cổng` + `verdict=REJECT` |
 | ARM03 (chiều đỏ b) | draft | không | có (`src/app.js`, ngoài t1) | có | exit 1 + cùng tên + `PR đổi code chịu cổng (src/app.js` |
 | ARM04 (đường đọc-cũ — hạt giống) | draft | không | không (chỉ `docs/`) | có | exit 0, KHÔNG dòng «chưa arm»; CÓ dấu dương `rules ran=` … `expected=4` |
-| ARM05 (đường đọc-cũ — sử liệu) | approved | REJECT (đã ở base) | có | KHÔNG (slug khác, armed, trong diff) | KHÔNG dòng «chưa arm» cho slug cũ; CÓ dòng chấm slug armed (`[feat-new]`) + `expected=4` |
+| ARM05 (đường đọc-cũ — sử liệu) | approved | REJECT (đã ở base) | có | KHÔNG (slug khác, armed, trong diff) | KHÔNG dòng «chưa arm» cho slug cũ; CÓ dòng chấm slug armed (`[feat-arm]`, verdict nguyên văn) + `expected=4` |
 | ARM06 (không base — fail-safe a) | approved | REJECT | — | — | chạy không `--base` → exit 1 + dòng «chưa arm» |
 | ARM07 (không base — đọc-cũ) | draft | không | — | — | chạy không `--base` → exit 0 (S04 hiện hành vẫn đúng) + `expected=4` |
 | ARM08 (T1-escape không đổi, nhánh non-T1) | — | — | có (`src/app.js`), PR KHÔNG kèm `_acceptance/` | — | VIOLATION `[PR]: non-T1 files changed (outside t1_skip_globs) but the PR carries NO _acceptance/<slug>/ artifacts` y nguyên văn + `expected=4` |
