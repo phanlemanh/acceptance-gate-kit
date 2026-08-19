@@ -5,7 +5,7 @@ slug: tool-kill-duong-doc-lap
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: ""
 approved_at: ""
 veto_state: mo
@@ -143,7 +143,14 @@ mục; agent hành động không thấy đường dẫn workspace nào.
 stdout suite (nếp p194) + kiểm mã thoát/dòng tổng kết; không có chân «không
 case cũ nào bị sửa» (owner đã gỡ 18/08).
 
-Known limits (điền ở Cổng 2):
+Known limits (ký 19/08, owner «chạy tiếp» theo khuyến nghị máy — cả 5 mục gộp sửa vào hồ sơ phát hành 2.3.0):
+
+1. **Preflight S0 của skill feature-loop chưa `--require tool-kill-rule.md`** — dự án cài feature-loop mới + acceptance-gate cũ chỉ bị chặn ở S4 (có tên), không ở S0. Sửa 1 dòng ở hồ sơ phát hành 2.3.0 (hồ sơ ấy ghi cặp phiên bản feature-loop ↔ acceptance-gate ≥ 2.3.0).
+2. **Hai khuôn ghi «bị ngắt» trong run-log giữa hai đường** — vòng lặp ghi `cannot_run: true`, đường độc lập ghi `killed_by_tool: true`; chưa bộ đọc nào đếm nên chưa sai. Hạt giống: một khuôn ghi cho lượt bị ngắt (workflow thêm `killed_by_tool` vào dòng run-log).
+3. **Khuôn hồ sơ lượt-bị-ngắt viết lại bằng chữ ở ba nơi ngoài khối marker** (tool-kill-rule.md §Hồ sơ, SKILL.md Phase 3 mục 2/4, template BLOCKED) — răng chỉ ghim hai nơi sau.
+4. **Lời hứa «đọc file luật lỗi → harness kêu»** (E2) chưa có lượt cố làm hỏng để thấy đỏ.
+5. **Ca kiểm «file luật không marker → BLOCKED» chưa ghim câu chặn** (trong hợp đồng, AC-2, mức thấp) — 3 vòng đã dùng hết; sửa 1 dòng cùng hồ sơ 2.3.0.
+6. **Bài học vận hành:** lời giám khảo chép token mã-thoát («exit_code: 1») từ đề ca vào báo cáo PASS làm lưới L1 đỏ ở vòng sau — đề ca/đáp án hội đồng nên tránh token máy-đọc, hoặc bước tổng hợp phải khử token trong rationale.
 
 ## Gate 2 checklist (human)
 

@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: c6e63699364588e1bb700c1c487a66739cae1f66
-human_signoff:
+human_signoff: Manh Phan 2026-08-19
 ---
 
 # Evidence Report: tool-kill-duong-doc-lap
@@ -97,6 +97,14 @@ none — every multi-run eval is uniform
 Round 1: E6 (judgment) va E7 verify — panel 3 lens PASS, suite workflows xanh; run_id r1.
 Round 2: delta cham paths cua E1-E5 — chay lai toan bo, tat ca PASS; run_id r2.
 Round 3: delta khong cham paths cua E1-E7 — carry-forward toan bo tu round 2 (E1-E5) va round 1 (E6, E7); chi chay lai 4 suite regression + product-map de xac nhan con xanh (tests/scripts: 750 passed 0 failed; tests/hooks: 60 passed 0 failed; tests/plugins: all passed; tests/workflows: all passed; product-map --check: khop ho so xuong).
+
+## Known limits
+
+Sáu mục ghi ở Notes của contract.md (ký 19/08): preflight S0 chưa require file luật · hai khuôn run-log cho lượt bị ngắt · khuôn hồ sơ chép ba nơi · lời hứa harness-kêu chưa phá thử · ca không-marker chưa ghim câu chặn · token mã-thoát trong lời giám khảo.
+
+## Ngoài hợp đồng
+
+Bốn mục ngoài hợp đồng (xem review-findings.md các vòng) — owner chọn (a) ghi Known limits, gộp sửa vào hồ sơ phát hành 2.3.0.
 
 ## Gate 2 checklist (human)
 
