@@ -1,0 +1,121 @@
+# Evals — tool-kill-duong-doc-lap
+# Lớp MÁY: răng hồ sơ `rang.sh --chan <x>` — mỗi chân in chiều đỏ trong CÙNG
+# lượt (bản sao code-sinh bị tiêm → đỏ đúng thông điệp ghim; mutant phải CHẠY
+# ĐƯỢC). Chân w25 ghim ĐÚNG dòng ca trong stdout suite (nếp p194), không tin
+# mã thoát trọn suite. Không có chân canh-tồn-kho (owner gỡ 18/08).
+# Lớp HÀNH VI: E6 hội đồng phiên sạch (giao thức chống rò rỉ như 1c): agent
+# hành động KHÔNG TOOL, nạp inline; đáp án chỉ giám khảo đọc (giam-khao/).
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.rang_tkddl_nguon
+    expected: >
+      Câu đặc trưng «TRAN THOI GIAN CONG CU» xuất hiện đúng 1 lần trên TOÀN
+      cây git (git ls-files, trừ docs/ và _acceptance/ — KỂ CẢ tests/ và
+      vendor/), tại khối marker của skills/acceptance/references/tool-kill-rule.md;
+      acceptance-verify.js, skills/acceptance/SKILL.md, tests/workflows/harness.mjs
+      0 hit (harness/test tham chiếu câu qua biến đọc từ file, không literal —
+      không fallback chuỗi cứng ở đâu). Chiều đỏ cùng lượt: bản sao JS bị tiêm
+      một bản chép → răng đỏ ghim «ban chep thua: <file>». Đỏ ghim file + số hit.
+    paths: [skills/acceptance/references/tool-kill-rule.md, feature-loop/workflows/acceptance-verify.js, skills/acceptance/SKILL.md, _acceptance/tool-kill-duong-doc-lap/rang.sh]
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.script.rang_tkddl_w25
+    expected: >
+      Răng ghim trong stdout suite workflows các dòng: 'PASS: W25 rule rut tu
+      file nguon' (RULE đọc từ tool-kill-rule.md thật — đường dẫn suy từ
+      import.meta.url; đọc lỗi → THROW, không fallback — tách theo DÒNG giữa
+      hai marker, không regex; assert MỌI dòng không rỗng của khối, kể cả dòng
+      cuối, có mặt trong từng prompt) · 'PASS:
+      W25 machine prompt chua TOOL-KILL-RULE' · 'PASS: W25 ui prompt chua
+      TOOL-KILL-RULE' · 'PASS: W25 baseline prompt chua TOOL-KILL-RULE' · 'PASS:
+      W25 thieu toolKillRule -> BLOCKED (args)' (reason chứa tool-kill-rule.md
+      + TOOL-KILL-RULE) · 'PASS: W25 toolKillRule khong marker -> BLOCKED
+      (args)' · 'PASS: W25 JS khong con ban chep'. Chiều đỏ của răng: bản sao
+      răng đổi tên pin → 'thieu dong PASS: ...'; chiều đỏ của chính W25 là
+      mutant lane trong suite (E3).
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, tests/workflows/harness.mjs, skills/acceptance/references/tool-kill-rule.md, _acceptance/tool-kill-duong-doc-lap/rang.sh]
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.script.rang_tkddl_w25
+    expected: >
+      Răng ghim: 'PASS: W25 moi agent co schema ma-thoat deu mang rule (N
+      lane)' (N rút từ lượt chạy, = số lượt nội suy trong source) và ba dòng
+      mutant 'PASS: W25 mutant machine: xoa rule -> chi machine do' / '... ui
+      ...' / '... baseline ...' — số mutant = số lane rút được. Thiếu dòng nào
+      → răng đỏ ghim tên dòng.
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/tool-kill-duong-doc-lap/rang.sh]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.rang_tkddl_skill_fl
+    expected: >
+      feature-loop/skills/feature-loop/SKILL.md mục S4: dòng resolve có
+      '--require skills/acceptance/references/tool-kill-rule.md' và dòng
+      Invoke có 'toolKillRule'. Ma trận toàn phần: MỖI phần tử một mutant
+      trong bản sao code-sinh cùng lượt (gỡ --require → đỏ ghim «resolve thieu
+      --require tool-kill-rule.md»; gỡ toolKillRule khỏi Invoke → đỏ ghim
+      «Invoke thieu toolKillRule»); răng in số mutant đỏ = số phần tử (2).
+    paths: [feature-loop/skills/feature-loop/SKILL.md, _acceptance/tool-kill-duong-doc-lap/rang.sh]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.rang_tkddl_skill_acc
+    expected: >
+      Cắt ĐÚNG section «## Phase 3» của skills/acceptance/SKILL.md (giữa hai
+      heading, lib/md-section.cjs) rồi ghim QUAN HỆ theo mục: mục 1 (dòng bắt
+      đầu «1.» tới trước «2.») trỏ 'references/tool-kill-rule.md' + 'TOOL-KILL-RULE'
+      + 'VERBATIM'; mục 2 có 'killed_by_tool' cạnh 'exit_code: null'; mục 4
+      (routing) có CÙNG một gạch đầu dòng chứa 'BLOCKED' + 'killed'/'bi cong cu
+      giet' + 're-run'/'chay lai'; evidence-report-template.md dòng bullet
+      BLOCKED nhắc tool/killed. Ma trận toàn phần: 4 phần tử → 4 mutant trong
+      bản sao code-sinh cùng lượt, mỗi mutant đỏ ghim ĐÚNG mục thiếu; răng in
+      số mutant đỏ = 4.
+    paths: [skills/acceptance/SKILL.md, skills/acceptance/references/evidence-report-template.md, skills/acceptance/references/tool-kill-rule.md, _acceptance/tool-kill-duong-doc-lap/rang.sh]
+
+  - id: E6
+    criterion: AC-6
+    executor: judgment
+    inputs:
+      - skills/acceptance/references/tool-kill-rule.md
+      - _acceptance/tool-kill-duong-doc-lap/hoi-dong/ca-E6.md
+      - _acceptance/tool-kill-duong-doc-lap/hoi-dong/goi-E6.sha256
+      - _acceptance/tool-kill-duong-doc-lap/hoi-dong/transcript-E6.md
+      - _acceptance/tool-kill-duong-doc-lap/giam-khao/dap-an-E6.md
+    paths:
+      - skills/acceptance/references/tool-kill-rule.md
+      - skills/acceptance/SKILL.md
+      - feature-loop/workflows/acceptance-verify.js
+    question: >
+      Hội đồng phiên sạch (giao thức đầu file): transcript-E6.md là lời của
+      ba agent hành động KHÔNG TOOL, mỗi agent nhận inline đúng một ca của đề
+      ca-E6.md (gói nạp = chỉ dẫn SAU sửa + khối luật + prompt lane machine do
+      harness dựng thật + tool result giả lập — gói CODE-SINH bởi dung-goi.mjs
+      từ vật thật, sha256 từng phần ghi ở goi-E6.sha256), không thấy đáp án và
+      không thấy đường dẫn workspace. ĐIỀU KIỆN TIÊN QUYẾT: header của
+      transcript-E6.md cite đúng các sha256 trong goi-E6.sha256 — lệch/thiếu →
+      UNCERTAIN, không PASS. Chấm TỪNG ca theo bảng đáp án
+      dap-an-E6.md; trích nguyên văn câu vi phạm khi trượt. 3/3 ĐẠT → PASS ·
+      lời văn mơ hồ không xếp được → UNCERTAIN · ≥1 ca TRƯỢT → FAIL kèm ca +
+      trích transcript. Không chấm bằng «có vẻ hợp lý» — chấm bằng đáp án.
+    evidence_required: [judged_by, verdict, rationale]
+
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      Trọn suite workflows xanh: mã thoát 0 + dòng 'Results: N passed, 0
+      failed'. W26/W27 (routing killedByTool ⇒ BLOCKED · baseline killed ⇒
+      n-a · đối chứng exit 1 thật) còn nguyên và xanh; harness cấp toolKillRule
+      từ file nguồn nên 126 lượt gọi cũ không đổi khuôn. Chiều đỏ đã chạy thật
+      ở hồ sơ trước (một ca đỏ → 'Results: … 1 failed', exit 1).
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, tests/workflows/harness.mjs]
