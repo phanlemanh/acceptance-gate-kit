@@ -29,6 +29,7 @@ export const meta = {
 
 //   personasPath: '<abs>/judge-personas.md',
 //   templatePath: '<abs>/evidence-report-template.md',
+//   toolKillRule: '<NGUYEN VAN file skills/acceptance/references/tool-kill-rule.md>',  // BAT BUOC: nguon duy nhat luat «bi cong cu giet ≠ fail»; script rut khoi marker, thieu → BLOCKED (args)
 //   contractPath: '<abs>/_acceptance/<slug>/contract.md',  // input của scope-triage (finding trong/ngoài hợp đồng).
 //                                      // Vắng/không đọc được → triageFailed: KHÔNG finding nào được kéo REJECT.
 //   reviewSkillPath: '<abs>/SKILL.md',  // OPTIONAL — skill review invariant riêng của repo; thiếu → review theo conventions (CLAUDE.md)
@@ -55,18 +56,29 @@ if (!args || !Array.isArray(args.evals) || !Array.isArray(args.suiteCommands)) {
   return { verdict: 'BLOCKED', blocked: [{ cmd: '(args)', reason: 'args.evals / args.suiteCommands phai la array — skill feature-loop build args sai' }], failedEvals: [], failedCommands: [], panels: [], confirmedFindings: [], reviewIncomplete: [] }
 }
 
-// Luật chống «hạ tầng mạo danh vật»: verifier chạy lệnh qua Bash tool có trần
-// thời gian mặc định (~120s) NGẮN hơn nhiều suite và trần output riêng — lệnh
-// bị công cụ giết trả exit code CỦA CÔNG CỤ, không phải của lệnh (vấp thật
-// release-2-2-0 S4 r5: suite 108s đơn lẻ, dưới tải bị giết ở 118s → REJECT giả
-// 4 eval). MỘT nguồn: prompt cả 3 lane (machine/ui/baseline) nội suy nguyên
-// khối này; test W25 rút chuỗi từ marker — không chép tay. Nhận diện là việc
-// AGENT (nó thấy tool result thật); JS chỉ phòng thủ trên field cấu trúc
-// killedByTool (normKill dưới) — KHÔNG grep nội dung output trong engine:
-// chuỗi tổng kết là của suite từng repo, engine phục vụ mọi repo.
-// <<<TOOL-KILL-RULE
-const TOOL_KILL_RULE = `TRAN THOI GIAN CONG CU: khi goi Bash chay lenh, LUON dat tham so timeout >= 600000 (ms) — tran mac dinh cua cong cu (~120s) NGAN hon nhieu suite; lenh vuot tran se bi CONG CU giet va exit code luc do la cua cong cu, KHONG phai cua lenh. Neu lenh van bi cong cu dung (tool result bao timeout/killed, hoac output bi CAT giua chung truoc dong tong ket cuoi cua lenh) → DO KHONG PHAI ket qua that: khai cannotRun=true + killedByTool=true + reason "bi cong cu giet o <so giay> giay" kem dau hieu (timeout tool / output cat). TUYET DOI khong bao exitCode nhu the lenh tu fail va khong doan PASS/FAIL tu output cut.`
-// TOOL-KILL-RULE>>>
+// Luật chống «hạ tầng mạo danh vật» (TOOL-KILL-RULE): verifier chạy lệnh qua
+// Bash tool có trần thời gian mặc định (~120s) NGẮN hơn nhiều suite — lệnh bị
+// công cụ giết trả exit code CỦA CÔNG CỤ, không phải của lệnh (vấp thật
+// release-2-2-0 S4 r5). MỘT NGUỒN duy nhất của luật là file
+// skills/acceptance/references/tool-kill-rule.md của plugin acceptance-gate
+// (khối marker <<<TOOL-KILL-RULE … TOOL-KILL-RULE>>>) — script này KHÔNG chép
+// câu luật: main loop của skill feature-loop đọc file (resolve-plugin --require)
+// và truyền NGUYÊN VĂN vào args.toolKillRule; dưới đây chỉ RÚT khối (tách theo
+// dòng giữa hai marker) và nội suy vào prompt cả 3 lane (machine/ui/baseline).
+// Thiếu args / không rút được marker → BLOCKED có tên, KHÔNG fallback chuỗi cứng
+// (fallback chính là bản chép thứ hai). Nhận diện là việc AGENT; JS chỉ phòng
+// thủ trên field cấu trúc killedByTool (normKill dưới) — KHÔNG grep output.
+const TOOL_KILL_RULE = (() => {
+  const src = typeof args.toolKillRule === 'string' ? args.toolKillRule : ''
+  const lines = src.split('\n')
+  const a = lines.findIndex(l => l.includes('<<<TOOL-KILL-RULE'))
+  const b = lines.findIndex(l => l.includes('TOOL-KILL-RULE>>>'))
+  if (a === -1 || b === -1 || b <= a) return ''
+  return lines.slice(a + 1, b).join('\n').trim()
+})()
+if (!TOOL_KILL_RULE) {
+  return { verdict: 'BLOCKED', blocked: [{ cmd: '(args)', reason: 'args.toolKillRule thieu hoac khong chua marker TOOL-KILL-RULE — skill feature-loop phai truyen NGUYEN VAN file skills/acceptance/references/tool-kill-rule.md cua plugin acceptance-gate (resolve-plugin.mjs --require); khong co luat nay verifier se doc exit code cua cong cu nhu exit code cua lenh' }], failedEvals: [], failedCommands: [], panels: [], confirmedFindings: [], reviewIncomplete: [] }
+}
 
 const KILLED_BY_TOOL_FIELD = { type: 'boolean', description: 'true khi lenh bi CONG CU dung (timeout tool/output cat) — exit code khong phai cua lenh; di kem cannotRun=true' }
 

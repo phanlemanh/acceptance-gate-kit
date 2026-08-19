@@ -6,7 +6,7 @@
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { runWorkflow, check, summary } from './harness.mjs';
+import { runWorkflow, check, summary, TOOL_KILL_RULE_LINES, TOOL_KILL_RULE_SRC } from './harness.mjs';
 import { measureShapes } from './measure-pins.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -1470,18 +1470,25 @@ console.log('JR3 carry P3 giữ nguyên danh sách per-vote (AC-3)');
   check('JR3 result.panels có mục carried (bản rút gọn — danh sách sống ở memo)', !!panelC && panelC.carried === true, JSON.stringify(panelC || {}));
 }
 
-// ── W25: TOOL-KILL-RULE — một nguồn marker, 3 lane, 3 mutant cô lập lớp ──────
+// ── W25: TOOL-KILL-RULE — MỘT nguồn ở acceptance-gate, workflow NHẬN qua args ──
 // Vấp thật release-2-2-0 S4 r5: verifier không truyền timeout → công cụ giết
 // suite ở 118s → exit 1 của CÔNG CỤ bị đọc thành exit của LỆNH → REJECT giả.
-// Luật sống MỘT chỗ trong marker; test RÚT từ marker, không chép tay (nếp
-// EVAL-REQUIRED-FIELDS). Ba mutant — một mutant mỗi lane — chặn lớp
-// hai-bản-chép/grep-nhầm-biến: xoá nội suy ở đúng một lane thì CHỈ lane đó đỏ.
+// Hồ sơ tool-kill-duong-doc-lap: luật dời về file nguồn của plugin acceptance-gate
+// (skills/acceptance/references/tool-kill-rule.md) để đường VERIFY độc lập cùng
+// đọc; workflow không chép câu luật — nhận nguyên văn file qua args.toolKillRule
+// và rút khối marker. Test rút RULE từ CHÍNH file nguồn (round-trip từ writer
+// thật, tách theo DÒNG — không regex, gap-probe F3), assert từng dòng có mặt.
+// Không gian lane rút từ chính lượt chạy: mọi agent có schema khai mã thoát
+// (exitCode / results[].baselineExit) phải mang luật — không danh sách viết
+// cứng (Known limit 4 hồ sơ trước); mutant/lane vẫn cô lập từng lane.
 {
   const src = readFileSync(WF, 'utf8');
-  const mBlock = src.match(/\/\/ <<<TOOL-KILL-RULE\n([\s\S]*?)\n\/\/ TOOL-KILL-RULE>>>/);
-  const ruleM = mBlock && mBlock[1].match(/`([\s\S]*?)`/);
-  const RULE = ruleM ? ruleM[1] : '';
-  check('W25 rule rut tu marker', RULE.includes('600000') && RULE.includes('killedByTool') && RULE.includes('bi cong cu giet'), RULE.slice(0, 60) || '(marker vang)');
+  const RULE_LINES = TOOL_KILL_RULE_LINES;
+  const hasRule = (prompt) => RULE_LINES.length > 0 && RULE_LINES.every(l => prompt.includes(l));
+  check('W25 rule rut tu file nguon', RULE_LINES.length > 0 && RULE_LINES.some(l => l.includes('600000')) && RULE_LINES.some(l => l.includes('killedByTool')) && RULE_LINES.some(l => l.includes('bi cong cu giet')), RULE_LINES.length ? RULE_LINES[0].slice(0, 60) : '(khoi rong)');
+  // Đặc trưng của luật (câu mở đầu) rút từ file — không literal trong test (gap-probe F4).
+  const SIGNATURE = RULE_LINES[0].split(':')[0];
+  check('W25 JS khong con ban chep', SIGNATURE.length > 8 && !src.includes(SIGNATURE), SIGNATURE);
 
   const tkArgs = {
     slug: 'tk', round: 1, riskTier: 'T2',
@@ -1502,28 +1509,56 @@ console.log('JR3 carry P3 giữ nguyên danh sách per-vote (AC-3)');
     if (call.label === 'synthesize:report') return { report: 'r', findings: 'f' };
     return null;
   };
-  const { calls } = await runWorkflow(WF, tkArgs, tkRespond);
-  check('W25 machine prompt chua TOOL-KILL-RULE', !!RULE && byLabel(calls, 'machine:')[0].prompt.includes(RULE));
-  check('W25 ui prompt chua TOOL-KILL-RULE', !!RULE && byLabel(calls, 'ui:')[0].prompt.includes(RULE));
-  check('W25 baseline prompt chua TOOL-KILL-RULE', !!RULE && byLabel(calls, 'baseline:')[0].prompt.includes(RULE));
+  const { calls, result } = await runWorkflow(WF, tkArgs, tkRespond);
+  check('W25 lane chay binh thuong khi co toolKillRule', result.verdict !== 'BLOCKED', result.verdict);
+  check('W25 machine prompt chua TOOL-KILL-RULE', hasRule(byLabel(calls, 'machine:')[0].prompt));
+  check('W25 ui prompt chua TOOL-KILL-RULE', hasRule(byLabel(calls, 'ui:')[0].prompt));
+  check('W25 baseline prompt chua TOOL-KILL-RULE', hasRule(byLabel(calls, 'baseline:')[0].prompt));
   const mS = byLabel(calls, 'machine:')[0].opts.schema, uS = byLabel(calls, 'ui:')[0].opts.schema,
     bS = byLabel(calls, 'baseline:')[0].opts.schema.properties.results.items;
   check('W25 schema killedByTool',
     [mS, uS, bS].every(s => s.properties.killedByTool && s.properties.killedByTool.type === 'boolean'
       && !(s.required || []).includes('killedByTool')));
 
+  // Không gian lane rút từ LƯỢT CHẠY: agent nào có schema khai mã thoát là agent chạy lệnh dài.
+  const declaresExit = (schema) => !!(schema && schema.properties && (schema.properties.exitCode
+    || (schema.properties.results && schema.properties.results.items && schema.properties.results.items.properties && schema.properties.results.items.properties.baselineExit)));
+  const exitAgents = calls.filter(c => declaresExit(c.opts && c.opts.schema));
+  const laneOf = (c) => c.label.split(':')[0];
+  const lanes = [...new Set(exitAgents.map(laneOf))];
   const TOK = '${TOOL_KILL_RULE}';
   const idxs = [];
   for (let i = src.indexOf(TOK); i !== -1; i = src.indexOf(TOK, i + 1)) idxs.push(i);
-  check('W25 dung 3 luot noi suy rule', idxs.length === 3, String(idxs.length));
-  const LANES = ['machine', 'ui', 'baseline'];
-  for (let k = 0; k < LANES.length && idxs.length === 3; k++) {
+  check(`W25 moi agent co schema ma-thoat deu mang rule (${lanes.length} lane)`,
+    exitAgents.length >= 3 && exitAgents.every(c => hasRule(c.prompt)) && idxs.length === lanes.length,
+    `agents=${exitAgents.length} lanes=${lanes.join(',')} noi-suy=${idxs.length}`);
+  // Mutant/lane: xoá đúng MỘT lượt nội suy → chỉ lane đó mất luật. Ánh xạ nội suy→lane
+  // suy từ lượt chạy bản đột biến (lane nào mất rule), rồi kiểm cô lập.
+  const seenLane = new Set();
+  for (let k = 0; k < idxs.length; k++) {
     const mutated = src.slice(0, idxs[k]) + src.slice(idxs[k] + TOK.length);
     const { calls: mc } = await runWorkflow(WF, tkArgs, tkRespond, mutated);
-    const pr = (lane) => byLabel(mc, lane + ':')[0].prompt;
-    check(`W25 mutant ${LANES[k]}: xoa rule -> chi ${LANES[k]} do`,
-      !!RULE && !pr(LANES[k]).includes(RULE) && LANES.filter((_, j) => j !== k).every(l => pr(l).includes(RULE)));
+    const mExit = mc.filter(c => declaresExit(c.opts && c.opts.schema));
+    const lost = [...new Set(mExit.filter(c => !hasRule(c.prompt)).map(laneOf))];
+    const lane = lost.length === 1 ? lost[0] : `(${lost.join('+') || 'khong lane nao'})`;
+    seenLane.add(lane);
+    check(`W25 mutant ${lane}: xoa rule -> chi ${lane} do`,
+      lost.length === 1 && lanes.includes(lane) && mExit.filter(c => laneOf(c) !== lane).every(c => hasRule(c.prompt)));
   }
+  check('W25 so mutant = so lane, moi lane mot mutant', seenLane.size === lanes.length && lanes.every(l => seenLane.has(l)), `${[...seenLane].join(',')} vs ${lanes.join(',')}`);
+
+  // Đường thiếu args: KHÔNG chạy không luật — BLOCKED có tên (không fallback chuỗi cứng).
+  const rMissing = await runWorkflow(WF, { ...tkArgs, toolKillRule: '' }, tkRespond);
+  check('W25 thieu toolKillRule -> BLOCKED (args)',
+    rMissing.result.verdict === 'BLOCKED' && rMissing.result.blocked[0].cmd === '(args)'
+      && /tool-kill-rule\.md/.test(rMissing.result.blocked[0].reason) && /TOOL-KILL-RULE/.test(rMissing.result.blocked[0].reason)
+      && rMissing.calls.length === 0,
+    JSON.stringify(rMissing.result.blocked));
+  const rNoMarker = await runWorkflow(WF, { ...tkArgs, toolKillRule: TOOL_KILL_RULE_SRC.replace(/<<<TOOL-KILL-RULE/g, 'XXX') }, tkRespond);
+  check('W25 toolKillRule khong marker -> BLOCKED (args)',
+    rNoMarker.result.verdict === 'BLOCKED' && rNoMarker.result.blocked[0].cmd === '(args)' && rNoMarker.calls.length === 0,
+    rNoMarker.result.verdict);
+  // Đối chứng dương của phép rút: file nguồn thật đủ khối → không BLOCKED (đã kiểm ở trên).
 }
 
 // ── W26: routing killedByTool ⇒ BLOCKED (2 lane × 2 nhánh reason) + đối chứng ─

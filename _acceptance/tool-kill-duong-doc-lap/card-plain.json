@@ -1,0 +1,14 @@
+{
+  "feature_plain": "Khi một bộ kiểm chạy lâu bị công cụ ngắt giữa chừng, cả hai đường nghiệm thu (vòng lặp tính năng và chạy độc lập) đều báo «sự cố hạ tầng — chạy lại», không đọc thành «sản phẩm hỏng»; luật này nay chỉ nằm ở một chỗ, và bên viết lời khai đã có bộ đo hành vi bằng hội đồng phiên sạch.",
+  "scope_plain": "không đổi trần thời gian của công cụ, không tự chạy lại lệnh bị ngắt, không gom ba chỗ đọc kết quả về một, không sửa chữ trong hồ sơ đã ký trước",
+  "decisions": [],
+  "analyst_plain": "Bộ kiểm chung của vòng lặp xanh trên cả bản cũ lẫn bản mới — nó là lưới hồi quy có chủ ý; phần chứng minh riêng cho việc này nằm ở các ca kiểm mới (E2, E3).",
+  "decisions_plain": [
+    {"id":"d-20260819T014608Z-25987","p":"Đã chọn đặt luật ở gói nền và cho vòng lặp NHẬN nguyên văn khi chạy — đổi lại: bên gọi thiếu file sẽ bị chặn có tên thay vì chạy không luật."},
+    {"id":"d-20260819T014608Z-7573","p":"Đã chọn cho bộ kiểm tự nạp luật từ file nguồn thật thay vì sửa 126 ca cũ — đổi lại: đường thiếu-luật vẫn được đo riêng."},
+    {"id":"d-20260819T014608Z-13958","p":"KHÔNG làm quét độ phủ đầy đủ — bài toán chỉ hai chiều, bảng phủ 10 ô kê trong hợp đồng; đổi lại không có bằng chứng phủ ngoài bảng."},
+    {"id":"d-20260819T014608Z-13758","p":"KHÔNG gom ba chỗ đọc kết quả về một và KHÔNG sửa chữ trong hồ sơ trước — giữ đúng phạm vi hạt giống."},
+    {"id":"d-20260819T022533Z-11414","p":"Vòng kiểm 1: sửa chân đo «một nguồn» để chiều đỏ đi qua chính hàm kiểm — đổi lại: một vòng kiểm nữa."},
+    {"id":"d-20260819T024243Z-5247","p":"Vòng kiểm 2: báo cáo đạt của vòng 1 mang một chuỗi mã thoát trong lời giám khảo làm lưới hồ sơ đỏ; thay bằng báo cáo vòng 2 — đổi lại: vòng 3 là vòng chót."}
+  ]
+}
