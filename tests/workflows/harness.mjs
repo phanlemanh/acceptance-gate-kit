@@ -14,7 +14,27 @@
 // which is why tests load-and-wrap instead of importing functions.
 
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
 import vm from 'node:vm';
+
+// TOOL-KILL-RULE: workflow KHÔNG chép luật, main loop truyền NGUYÊN VĂN file
+// nguồn (acceptance-gate) qua args.toolKillRule. Harness đóng vai main loop:
+// đọc CHÍNH file nguồn (đường suy từ vị trí harness, không cwd) và cấp mặc định
+// khi case không truyền — case muốn đo đường thiếu-args truyền `toolKillRule: ''`.
+// Đọc lỗi → THROW (không fallback chuỗi cứng: fallback là bản chép thứ hai và
+// làm suite xanh trong khi main loop thật BLOCKED).
+export const TOOL_KILL_RULE_FILE = resolve(dirname(fileURLToPath(import.meta.url)), '../../skills/acceptance/references/tool-kill-rule.md');
+export const TOOL_KILL_RULE_SRC = readFileSync(TOOL_KILL_RULE_FILE, 'utf8');
+// Khối luật tách theo DÒNG giữa hai marker (không regex — gap-probe F3): mảng
+// dòng không rỗng, để test assert TỪNG dòng có mặt trong prompt.
+export const TOOL_KILL_RULE_LINES = (() => {
+  const lines = TOOL_KILL_RULE_SRC.split('\n');
+  const a = lines.findIndex(l => l.includes('<<<TOOL-KILL-RULE'));
+  const b = lines.findIndex(l => l.includes('TOOL-KILL-RULE>>>'));
+  if (a === -1 || b === -1 || b <= a) throw new Error(`harness: khong rut duoc marker TOOL-KILL-RULE tu ${TOOL_KILL_RULE_FILE}`);
+  return lines.slice(a + 1, b).map(l => l.trim()).filter(Boolean);
+})();
 
 // srcOverride: nội dung script ĐÃ mutate (ma trận mutation chạy bản sao trong bộ
 // nhớ — không ghi đè file thật, không cần dọn dẹp).
@@ -56,7 +76,14 @@ export async function runWorkflow(file, args, respond, srcOverride) {
   const workflow = () => { throw new Error('nested workflow() unavailable in tests'); };
 
   const fn = loadWorkflow(file, srcOverride);
-  const result = await fn(args, agent, parallel, pipeline, phase, log, budget, workflow);
+  const inject = (a) => (a && typeof a === 'object' && !Array.isArray(a) && a.toolKillRule === undefined)
+    ? { ...a, toolKillRule: TOOL_KILL_RULE_SRC }
+    : a;
+  let argsIn = inject(args);
+  if (typeof args === 'string') { // JSON-string args (W02): tiêm rồi stringify lại để workflow vẫn tự parse
+    try { argsIn = JSON.stringify(inject(JSON.parse(args))); } catch { argsIn = args; }
+  }
+  const result = await fn(argsIn, agent, parallel, pipeline, phase, log, budget, workflow);
   return { result, calls, logs, phases };
 }
 

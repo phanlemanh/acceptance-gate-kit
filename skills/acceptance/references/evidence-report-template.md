@@ -19,7 +19,10 @@ Verdict rules:
   filling `human_override` lines.
 - `REJECT` — ≥1 eval failed. List `failed_evals`. No evidence requirements
   (failing honestly is always legal).
-- `BLOCKED` — verifier could not run (env broken, MCP missing). Give `reason`.
+- `BLOCKED` — verifier could not run (env broken, MCP missing, or the TOOL killed a
+  long command — timeout / output cut before its summary line: `reason` names the
+  eval + seconds, `failed_evals` stays empty; the remedy is a re-run with a longer
+  tool timeout, not a code fix — see `tool-kill-rule.md`). Give `reason`.
 - Per-eval `UNCERTAIN` (judgment only): overall PASS is blocked until each
   UNCERTAIN carries a real `human_override: <name> <date>` value (a
   comment-only placeholder does not count).

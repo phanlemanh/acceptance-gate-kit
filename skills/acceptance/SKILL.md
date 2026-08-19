@@ -202,7 +202,10 @@ Entry: implementation complete, contract `status: implemented`.
    template body), the **Network truth** bullet of `references/eval-executors.md`
    §ui-check mechanics VERBATIM (single source of truth for the
    `network_observed` vocabulary and its scoping law — restating it here is what
-   let the two copies diverge once already), the verdict routing rules from step
+   let the two copies diverge once already), the **TOOL-KILL-RULE** marker block
+   of `references/tool-kill-rule.md` VERBATIM (single source of the «command
+   killed by the tool ≠ command failed» law, shared with feature-loop's verify
+   workflow — point at the file, never retype the rule), the verdict routing rules from step
    4 below, and the current verify round number (the subagent fills Iterations),
    and the instruction: "You did not write this code. Run every eval. Record
    evidence faithfully; in a PASS report sanitize output excerpts — no
@@ -217,9 +220,15 @@ Entry: implementation complete, contract `status: implemented`.
    given in the eval-executors excerpt above — words only, never raw statuses
    in the report."
 2. The subagent executes per executor type:
-   - `test` / `script`: run the resolved `config:` command. Capture exit code
+   - `test` / `script`: run the resolved `config:` command with the tool
+     timeout the TOOL-KILL-RULE block prescribes. Capture exit code
      + last 10 output lines. Use the run_id from verifier stdout when
-     printed; else mint `{slug}-{evalid}-{timestamp}`.
+     printed; else mint `{slug}-{evalid}-{timestamp}`. A command the TOOL
+     killed (tool result says timeout/killed, or output cut before the
+     command's own summary line) is NOT a result: per the rule, record
+     `cannotRun` + `killedByTool` — its run-log line carries
+     `"exit_code": null, "killed_by_tool": true` (never the tool's exit code as
+     the command's) and the round routes to BLOCKED (step 4).
    - **Run-log (before writing the report):** for every machine/ui-check eval
      executed, append one JSON line to `_acceptance/{slug}/run-log.jsonl` AT
      RUN TIME (mechanical Bash append, exact values from the run):
@@ -265,7 +274,11 @@ Entry: implementation complete, contract `status: implemented`.
    - Any eval fails → verdict REJECT + `failed_evals[]`. Return findings to
      the implementing context. Max 3 verify rounds; log each in the report's
      Iterations section. After round 3 → STOP, escalate to user.
-   - Executor cannot run → verdict BLOCKED + reason. STOP, escalate.
+   - Executor cannot run → verdict BLOCKED + reason. STOP, escalate. This
+     includes a command the tool killed (`killed_by_tool` line in the run-log):
+     verdict BLOCKED, `reason: bi cong cu giet o <N> giay — <eval ids>`,
+     `failed_evals` empty — an infrastructure incident, remedied by a re-run
+     with a long enough tool timeout, never a code fix and never REJECT.
 4b. **Cổng Bằng chứng xanh-sạch — máy đi tiếp, KHÔNG mời ký** (đợt 2 «người
    về biên», hồ sơ veto-co-dau-vet). Chữ ký lui về đúng nơi có ĐÁNH-ĐỔI hoặc
    KHÓ-ĐẢO; một cổng mà câu trả lời hợp lý duy nhất là «ừ» là trạm thu phí,

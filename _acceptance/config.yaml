@@ -118,6 +118,12 @@ executors:
     # Vật của hồ sơ het-gio-khong-phai-truot — răng ghim mã thoát + dòng tổng
     # kết + 18 dòng ca. Cùng nếp không-vào-suite-vĩnh-viễn.
     rang_hgkpt: bash _acceptance/het-gio-khong-phai-truot/rang.sh
+    # Vật của hồ sơ tool-kill-duong-doc-lap — răng một-nguồn luật tool-kill (mỗi chân
+    # kèm chiều đỏ cùng lượt). Cùng nếp không-vào-suite-vĩnh-viễn.
+    rang_tkddl_nguon: bash _acceptance/tool-kill-duong-doc-lap/rang.sh --chan nguon
+    rang_tkddl_w25: bash _acceptance/tool-kill-duong-doc-lap/rang.sh --chan w25
+    rang_tkddl_skill_fl: bash _acceptance/tool-kill-duong-doc-lap/rang.sh --chan skill-fl
+    rang_tkddl_skill_acc: bash _acceptance/tool-kill-duong-doc-lap/rang.sh --chan skill-acc
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
