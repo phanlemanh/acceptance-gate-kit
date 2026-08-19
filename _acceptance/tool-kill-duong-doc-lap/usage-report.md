@@ -32,3 +32,33 @@
 - **claude-sonnet-5**: 13 agent · 84 calls · out 78,880 · in 168 · cache_read 4,877,081 · cache_create 761,928
 - **claude-haiku-4-5-20251001**: 9 agent · 28 calls · out 10,406 · in 242 · cache_read 950,944 · cache_create 219,772
 
+### S4 round 2 — wf_127cf379-608 (21 agent, 106,426 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5 | 7 | 19,990 | 14 | 469,131 | 223 |
+| refute:acceptance-verify.test.mjs | claude-sonnet-5 | 9 | 9,732 | 18 | 570,723 | 130 |
+| refute:rang.sh | claude-sonnet-5 | 18 | 8,904 | 36 | 1,146,910 | 148 |
+| review:measurement | claude-fable-5 | 7 | 8,612 | 14 | 448,052 | 136 |
+| refute:tool-kill-rule.md | claude-sonnet-5 | 13 | 7,776 | 26 | 891,951 | 115 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 15 | 7,703 | 30 | 1,159,834 | 124 |
+| refute:SKILL.md | claude-sonnet-5 | 18 | 7,092 | 36 | 1,265,690 | 122 |
+| review:conventions | claude-fable-5 | 17 | 6,350 | 34 | 1,261,431 | 143 |
+| triage | claude-sonnet-5 | 2 | 6,191 | 4 | 56,970 | 77 |
+| review:bugs | claude-fable-5 | 13 | 6,051 | 26 | 825,124 | 106 |
+| refute:rang.sh | claude-sonnet-5 | 8 | 6,048 | 16 | 500,427 | 97 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 5 | 2,268 | 42 | 191,157 | 32 |
+| machine:bash tests/plugins/run-tests.sh | claude-haiku-4-5-20251001 | 7 | 1,945 | 58 | 270,743 | 142 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 3 | 1,769 | 26 | 105,929 | 181 |
+| machine:bash _acceptance/tool-kill-duong-doc-lap | claude-haiku-4-5-20251001 | 3 | 1,083 | 26 | 102,100 | 17 |
+| machine:bash _acceptance/tool-kill-duong-doc-lap | claude-haiku-4-5-20251001 | 2 | 1,025 | 18 | 60,205 | 16 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 3 | 1,025 | 26 | 102,110 | 19 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 935 | 18 | 60,189 | 17 |
+| machine:bash _acceptance/tool-kill-duong-doc-lap | claude-haiku-4-5-20251001 | 2 | 744 | 18 | 60,206 | 13 |
+| machine:bash _acceptance/tool-kill-duong-doc-lap | claude-haiku-4-5-20251001 | 2 | 629 | 18 | 60,206 | 12 |
+| capture:provenance | claude-sonnet-5 | 2 | 554 | 4 | 54,239 | 10 |
+
+- **claude-sonnet-5**: 9 agent · 92 calls · out 73,990 · in 184 · cache_read 6,115,875 · cache_create 609,467
+- **claude-fable-5**: 3 agent · 37 calls · out 21,013 · in 74 · cache_read 2,534,607 · cache_create 233,114
+- **claude-haiku-4-5-20251001**: 9 agent · 29 calls · out 11,423 · in 250 · cache_read 1,012,845 · cache_create 229,279
+

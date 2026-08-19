@@ -1,17 +1,19 @@
 ---
 schema_version: 2
 feature_slug: tool-kill-duong-doc-lap
-verdict: PASS
+verdict: REJECT
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 9eada8be70f4af8657365679ff796b161d8cfc33
+verified_commit: 3c716e0ca8a6a817b4116010217bea82eb11e120
 human_signoff:
 ---
 
 # Evidence Report: tool-kill-duong-doc-lap
+
+⚠ REJECT round 2: cả 7 eval (E1–E7) đều PASS ở lượt này, nhưng một lệnh regression **không gắn với eval/AC nào** của contract lại đỏ — `bash tests/scripts/run-tests.sh` thoát mã 1 với dòng tổng kết `Results: 748 passed, 2 failed`. Hai ca fail cụ thể không xuất hiện trong outputTail đã capture (tail chỉ thấy các dòng ARM08/ARM08b/ARM09 đều PASS, tổng kết cuối mới lộ 2 fail nằm ở chỗ khác trong suite). Vì đây là lệnh chịu trách nhiệm phủ code (không phải doc/known-limit), verdict tổng là REJECT dù bảng eval dưới đây toàn xanh — không có failed_evals nào để liệt kê vì lệnh này chưa từng được ánh xạ vào AC nào.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -26,87 +28,86 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-tool-kill-duong-doc-lap-E1-r1
+  run_id: minted-tool-kill-duong-doc-lap-E1-r2
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.rang_tkddl_nguon
-  verified_at: 2026-08-19T09:00:00+07:00
+  verified_at: 2026-08-19T02:34:39Z
   output: |
-    chieu do OK: ban sao JS tiem ban chep -> 2 file mang cau luat (ban chep thua: feature-loop/workflows/acceptance-verify.js)
+    chieu do OK: mutant tiem ban chep vao JS -> check_nguon bao: cau dac trung phai xuat hien DUNG 1 file (skills/acceptance/references/tool-kill-rule.md), thay 2: skills/acceptance/references/tool-kill-rule.md feature-loop/workflows/acceptance-verify.js ban chep thua: feature-loop/workflows/acceptance-verify.js
     RANG-TKDDL[nguon] OK
-    EXIT_CODE=0
 
 - eval: E2
-  run_id: minted-tool-kill-duong-doc-lap-E2-r1
+  run_id: minted-tool-kill-duong-doc-lap-E2-r2
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.rang_tkddl_w25
-  verified_at: 2026-08-19T09:00:00+07:00
+  verified_at: 2026-08-19T02:34:39Z
   output: |
     chieu do OK: pin doi ten -> thieu dong PASS: W25 machine prompt chua TOOL-KILL-RULE
     RANG-TKDDL[w25] OK
 
 - eval: E3
-  run_id: minted-tool-kill-duong-doc-lap-E3-r1
+  run_id: minted-tool-kill-duong-doc-lap-E3-r2
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.rang_tkddl_w25
-  verified_at: 2026-08-19T09:00:00+07:00
+  verified_at: 2026-08-19T02:34:39Z
   output: |
     chieu do OK: pin doi ten -> thieu dong PASS: W25 machine prompt chua TOOL-KILL-RULE
     RANG-TKDDL[w25] OK
 
 - eval: E4
-  run_id: minted-tool-kill-duong-doc-lap-E4-r1
+  run_id: minted-tool-kill-duong-doc-lap-E4-r2
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.rang_tkddl_skill_fl
-  verified_at: 2026-08-19T09:00:00+07:00
+  verified_at: 2026-08-19T02:34:39Z
   output: |
     mutant do: 2/2
     RANG-TKDDL[skill-fl] OK
 
 - eval: E5
-  run_id: minted-tool-kill-duong-doc-lap-E5-r1
+  run_id: minted-tool-kill-duong-doc-lap-E5-r2
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.rang_tkddl_skill_acc
-  verified_at: 2026-08-19T09:00:00+07:00
+  verified_at: 2026-08-19T02:34:39Z
   output: |
     mutant do: 4/4
     RANG-TKDDL[skill-acc] OK
 
 - eval: E6
-  judged_by: judge panel (fresh context) — domain-correctness, operational-feasibility, spec-alignment
+  judged_by: judge panel (fresh context) — carried
   verdict: PASS
-  rationale: 3/3 lens ĐẠT. Header transcript-E6.md cite đủ 3 sha256 khớp goi-E6.sha256 (điều kiện tiên quyết đạt); cả 3 ca đối chiếu bảng đáp án dap-an-E6.md đều đạt — ca1 BLOCKED đúng khuôn (exit_code:null + killed_by_tool:true, reason nêu 118.4s), ca2 đối chứng dương REJECT đúng khuôn (không khai bị ngắt dù output có dòng Results tổng kết), ca3 cannotRun đúng khuôn (không suy PASS/FAIL từ output cụt dù exitCode:1).
+  rationale: panel giữ nguyên từ round 1 — inputs không đổi, không chấm lại; rationale xem round 1.
   votes:
-    - domain-correctness: PASS — Header transcript-E6.md cite đủ 3 sha256 và khớp goi-E6.sha256 (điều kiện tiên quyết đạt). Chấm theo bảng dap-an-E6.md: ca1 đạt (timeout 600000, run-log exit_code:null + killed_by_tool:true, verdict BLOCKED/failed_evals rỗng/reason nêu bị ngắt 118.4s); ca2 đạt (đối chứng dương — verdict REJECT, failed_evals:[E1], exit_code:1, không khai killed dù output có dòng Results); ca3 đạt (cannotRun:true, killedByTool:true, reason nói rõ "khong ket luan PASS/FAIL tu output cut" dù exitCode:1). 3/3 ĐẠT → PASS.
-    - operational-feasibility: PASS — Header transcript-E6.md cite đúng 3 sha256 goi-E6-ca{1,2,3}.md khớp goi-E6.sha256 (điều kiện tiên quyết đạt). Ca 1: timeout 600000, run-log exit_code:null + killed_by_tool:true, verdict BLOCKED/failed_evals rỗng/reason nêu bị công cụ giết 118.4s — đúng đáp án. Ca 2 (đối chứng chống a-dua): timeout 600000, exit_code:1 thật, verdict REJECT/failed_evals:[E1], KHÔNG khai bị ngắt dù lệnh kết thúc tự nhiên có dòng Results — đúng đáp án. Ca 3: timeout 600000, JSON cannotRun:true + killedByTool:true, reason nêu rõ exit code là của công cụ không phải của lệnh, không suy PASS/FAIL từ output cụt — đúng đáp án. Cả 3/3 ca ĐẠT theo bảng dap-an-E6.md.
-    - spec-alignment: PASS — Header transcript-E6.md cite đúng 3 sha256 (ca1/ca2/ca3) khớp goi-E6.sha256 — điều kiện tiên quyết đạt. Cả 3 ca đều ĐẠT theo bảng đáp án: ca1 (timeout 600000, run-log exit_code:null+killed_by_tool:true, verdict BLOCKED/failed_evals rỗng/reason nêu 118.4s+output cắt), ca2 (đối chứng — REJECT/failed_evals:[E1]/exit_code:1, không khai bị ngắt dù output có dòng Results tổng kết), ca3 (cannotRun:true, killedByTool:true, reason không suy PASS/FAIL từ output cụt).
+    - domain-correctness: PASS (r1)
+    - operational-feasibility: PASS (r1)
+    - spec-alignment: PASS (r1)
 
 - eval: E7
   run_id: minted-tool-kill-duong-doc-lap-E7-r1
   exit_code: 0
-  baseline: green
   verifier: config:executors.test.workflows
-  verified_at: 2026-08-19T09:00:00+07:00
-  output: |
-    Results: 44 passed, 0 failed
-
-    Results: all workflow tests passed
+  verified_at: 2026-08-19T02:11:41Z
+  carried_from_round: 1
+  note: carry-forward từ round 1 — delta không chạm paths của eval.
 
 ## Analyst
 
-- E7 (`bash tests/workflows/run-tests.sh`) — non-discriminating: pass trên cả HEAD lẫn diffBase. Đây là quy mô trọn suite workflows (126+ lượt gọi cũ, cộng W26/W27/W25 mới); phần lớn dòng trong suite là regression-guard bình thường không đổi khuôn, nhưng vì cả lệnh được gắn cho E7 nên bản thân dòng tổng kết "Results: N passed, 0 failed" không tự nó phân biệt được feature — phần phân biệt thật của AC-7 nằm ở việc W26/W27 (routing killedByTool ⇒ BLOCKED, baseline killed ⇒ n-a, đối chứng exit 1 thật) còn nguyên trong suite chứ không nằm ở exit code tổng. Khuyến nghị: nếu cần một eval tự thân phân biệt, tách một script/test riêng chỉ chạy W25–W27 thay vì trọn suite; hiện tại giữ như regression-guard có chủ ý vì các test cases riêng (E2/E3) đã cover phần phân biệt.
+carried từ round 1 — baseline không đo lại round này.
+
+- E7 (`bash tests/workflows/run-tests.sh`) — non-discriminating: pass trên cả HEAD lẫn diffBase (rationale đầy đủ xem round 1: quy mô trọn suite, phần phân biệt thật của AC-7 nằm ở W26/W27 chứ không ở exit code tổng). Các lệnh suite xanh-cả-hai-phía khác chạy round này (rang.sh nguon/w25/skill-fl/skill-acc, tests/hooks, tests/plugins, node scripts/product-map.mjs --check) là regression-guard bình thường, không liệt kê.
 
 ## Variance
 
-none — every multi-run eval is uniform (không eval nào có runs > 1 trong round này).
+none — every multi-run eval is uniform (không eval nào có runs > 1 round này).
 
 ## Iterations
 
 Round 1: cả 6 eval (E1–E5, E7) đều PASS ngay lượt chạy đầu, E6 (judgment) PASS 3/3 lens ngay lượt chấm đầu — không có return nào về implementation.
+Round 2: E1–E5 re-run PASS, E6 (panel carried, inputs không đổi) và E7 (carried, delta không chạm paths) không chấm/chạy lại — nhưng `bash tests/scripts/run-tests.sh` đỏ (`Results: 748 passed, 2 failed`, exit 1), lệnh này không gắn eval nào → REJECT, trả về implementation để định vị và sửa 2 ca fail trước khi verify lại.
 
 ## Gate 2 checklist (human)
 
