@@ -1,0 +1,18 @@
+{
+  "feature_plain": "Khi một lượt kiểm tra chạy quá lâu và bị hệ thống ngắt giữa chừng, kết quả đó không còn bị đọc nhầm thành «sản phẩm hỏng» — nó được báo là sự cố hạ tầng để chạy lại, thay vì bắt người sửa một lỗi không có thật.",
+  "scope_plain": "Chưa đụng: đường chạy song song lúc thi công, việc tự chạy lại lệnh bị ngắt, và trần thời gian của công cụ (nằm ngoài bộ công cụ này).",
+  "decisions": [],
+  "analyst_plain": "",
+  "decisions_plain": [
+    { "id": "d-20260818T081122Z-27141", "p": "Chọn để chính lượt kiểm tra tự khai «tôi bị ngắt», máy chỉ phòng thủ thêm một lớp — đổi lại nếu lượt kiểm quên khai thì vẫn có thể báo oan, nên đã dặn sẵn phải xin đủ giờ ngay từ đầu." },
+    { "id": "d-20260818T081122Z-6703", "p": "KHÔNG làm phần chạy song song lúc thi công trong vòng này — đổi lại nếu chỗ đó vấp thật thì mở một việc riêng." },
+    { "id": "d-20260818T082557Z-7348", "p": "Chọn cách đối chiếu khớp trọn dòng thay vì khớp một phần — đổi lại nếu cách in kết quả thay đổi thì phép đối chiếu sẽ kêu, và đó là điều mong muốn." },
+    { "id": "d-20260818T084502Z-12984", "p": "Chọn sửa cả họ vấn đề thay vì bịt từng chỗ hở — đổi lại phép đo phải chạy nhiều lượt hơn." },
+    { "id": "d-20260818T084502Z-26481", "p": "Chọn vẽ lại bản đồ sản phẩm ngay trong cùng lần sửa — đổi lại không có, đây là bản do máy sinh." },
+    { "id": "d-20260818T091321Z-20311", "p": "Chọn đổi cách làm thay vì vá lần thứ ba, vì cùng một kiểu lỗi lặp lại hai vòng liền — đổi lại mất thêm một vòng để làm lại cho đúng." },
+    { "id": "d-20260818T091321Z-5559", "p": "Chọn kiểm luôn cả nhánh giao diện chứ không chỉ nhánh dòng lệnh — đổi lại không có; trước đó gỡ hẳn phòng thủ nhánh giao diện mà không phép đo nào kêu." },
+    { "id": "d-20260818T093542Z-10368", "p": "Chọn dừng lại hỏi người thay vì tự chạy tiếp vòng thứ tư — đổi lại chậm một nhịp, nhưng tránh sửa vòng quanh không có đáy." },
+    { "id": "d-20260818T141757Z-24861", "p": "KHÔNG giữ lớp tự canh «không ai sửa bài kiểm cũ» — đổi lại việc đó nay do người đọc thay đổi trước khi gộp mã đảm nhiệm." },
+    { "id": "d-20260818T141757Z-16479", "p": "Chọn chạy thêm một vòng kiểm sau khi anh gật, kèm điều kiện tự khoá: còn lặp lại đúng kiểu lỗi cũ thì dừng hẳn — đổi lại tốn thêm một vòng máy." }
+  ]
+}

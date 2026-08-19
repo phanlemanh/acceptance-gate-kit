@@ -1,0 +1,51 @@
+# Evals — het-gio-khong-phai-truot
+# Phép đo thật sống trong tests/workflows/acceptance-verify.test.mjs (W25–W27,
+# mutant srcOverride chạy chiều đỏ trong CÙNG lượt). Răng hồ sơ ghim ĐÚNG dòng
+# case trong stdout suite (nếp p194 — không tin exit code trọn suite: trên
+# diffBase suite cũng xanh nên mã thoát không phân biệt cây cũ/mới) + kiểm mã
+# thoát và dòng tổng kết. E7 = trọn suite tồn kho cho AC-7. Chân tồn-kho «không
+# sửa case cũ» đã GỠ 18/08 (owner gật thu phạm vi) — xem Known limits.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.script.rang_hgkpt
+    expected: "răng ghim dòng 'PASS: W25 machine prompt chua TOOL-KILL-RULE' + dòng 'PASS: W25 rule rut tu marker' — chuỗi luật RÚT TỪ MARKER trong source, không chép tay, nên prompt và luật không trôi khỏi nhau. Chiều đỏ chạy cùng lượt qua chính hàm kiểm của răng (mũi đổi tên pin trong bản sao tiêm → 'thieu dong PASS: ...'); chiều đỏ của chính W25 nằm trong suite (3 mutant lane)."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/het-gio-khong-phai-truot/rang.sh]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.script.rang_hgkpt
+    expected: "răng ghim dòng 'PASS: W25 ui prompt chua TOOL-KILL-RULE' + dòng mutant cô lập lane ui 'PASS: W25 mutant ui: xoa rule -> chi ui do' (srcOverride xoá ĐÚNG lượt nội suy của lane ui, hai lane kia phải còn rule)."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/het-gio-khong-phai-truot/rang.sh]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.script.rang_hgkpt
+    expected: "răng ghim dòng 'PASS: W25 baseline prompt chua TOOL-KILL-RULE' + dòng mutant cô lập lane baseline 'PASS: W25 mutant baseline: xoa rule -> chi baseline do'; lane machine có mutant riêng 'PASS: W25 mutant machine: xoa rule -> chi machine do' — số mutant = số lane (3), ma trận toàn phần."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/het-gio-khong-phai-truot/rang.sh]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.script.rang_hgkpt
+    expected: "răng ghim dòng 'PASS: W25 schema killedByTool' (MACHINE_SCHEMA + UI_SCHEMA + item BASELINE_SCHEMA.results đều có field boolean optional, cả ba KHÔNG vào required)."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/het-gio-khong-phai-truot/rang.sh]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.script.rang_hgkpt
+    expected: "răng ghim đủ NĂM dòng, hai lane, trên CÙNG fixture sự cố (exitCode=1, cannotRun=false, outputTail cắt không dòng tổng kết): 'PASS: W26 killedByTool -> BLOCKED' (eval KHÔNG trong failedEvals) · hai nhánh reason 'PASS: W26 reason agent giu nguyen van' và 'PASS: W26 reason trong -> khuon ghim bi cong cu giet' · đối chứng dương đổi ĐÚNG MỘT biến 'PASS: W26 doi chung: exit 1 that -> REJECT' · và LANE UI cùng luật: 'PASS: W26 ui killedByTool -> BLOCKED' (blocked mang cmd ui-check:E5) + 'PASS: W26 ui doi chung: exit 1 that -> REJECT'. Ma trận lane của routing = ma trận lane của prompt: thiếu lane nào thì xoá normKill lane đó vẫn xanh (finding r2). Thiếu một dòng → răng đỏ ghim tên dòng thiếu."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/het-gio-khong-phai-truot/rang.sh]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.script.rang_hgkpt
+    expected: "răng ghim cặp: 'PASS: W27 baseline killed -> n-a' (không red giả, không vào nonDiscriminating) VÀ 'PASS: W27 doi chung: baseline exit 1 that -> red'."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/het-gio-khong-phai-truot/rang.sh]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "trọn suite workflows tồn kho xanh (exit 0) — mọi field mới optional. Răng hồ sơ (E1–E6) độc lập kiểm mã thoát + dòng 'Results: N passed, 0 failed' + 18 dòng ca, nên suite-không-chạy không đọc được thành suite-xanh. Chiều đỏ đã chạy thật: làm một ca đỏ → răng đỏ ghim 'suite bao 1 ca do'; suite chết → 'khong doc duoc dong tong ket'."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, tests/workflows/harness.mjs]

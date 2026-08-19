@@ -55,6 +55,21 @@ if (!args || !Array.isArray(args.evals) || !Array.isArray(args.suiteCommands)) {
   return { verdict: 'BLOCKED', blocked: [{ cmd: '(args)', reason: 'args.evals / args.suiteCommands phai la array — skill feature-loop build args sai' }], failedEvals: [], failedCommands: [], panels: [], confirmedFindings: [], reviewIncomplete: [] }
 }
 
+// Luật chống «hạ tầng mạo danh vật»: verifier chạy lệnh qua Bash tool có trần
+// thời gian mặc định (~120s) NGẮN hơn nhiều suite và trần output riêng — lệnh
+// bị công cụ giết trả exit code CỦA CÔNG CỤ, không phải của lệnh (vấp thật
+// release-2-2-0 S4 r5: suite 108s đơn lẻ, dưới tải bị giết ở 118s → REJECT giả
+// 4 eval). MỘT nguồn: prompt cả 3 lane (machine/ui/baseline) nội suy nguyên
+// khối này; test W25 rút chuỗi từ marker — không chép tay. Nhận diện là việc
+// AGENT (nó thấy tool result thật); JS chỉ phòng thủ trên field cấu trúc
+// killedByTool (normKill dưới) — KHÔNG grep nội dung output trong engine:
+// chuỗi tổng kết là của suite từng repo, engine phục vụ mọi repo.
+// <<<TOOL-KILL-RULE
+const TOOL_KILL_RULE = `TRAN THOI GIAN CONG CU: khi goi Bash chay lenh, LUON dat tham so timeout >= 600000 (ms) — tran mac dinh cua cong cu (~120s) NGAN hon nhieu suite; lenh vuot tran se bi CONG CU giet va exit code luc do la cua cong cu, KHONG phai cua lenh. Neu lenh van bi cong cu dung (tool result bao timeout/killed, hoac output bi CAT giua chung truoc dong tong ket cuoi cua lenh) → DO KHONG PHAI ket qua that: khai cannotRun=true + killedByTool=true + reason "bi cong cu giet o <so giay> giay" kem dau hieu (timeout tool / output cat). TUYET DOI khong bao exitCode nhu the lenh tu fail va khong doan PASS/FAIL tu output cut.`
+// TOOL-KILL-RULE>>>
+
+const KILLED_BY_TOOL_FIELD = { type: 'boolean', description: 'true khi lenh bi CONG CU dung (timeout tool/output cat) — exit code khong phai cua lenh; di kem cannotRun=true' }
+
 const MACHINE_SCHEMA = {
   type: 'object',
   properties: {
@@ -62,6 +77,7 @@ const MACHINE_SCHEMA = {
     outputTail: { type: 'string', description: '~10 dong cuoi output lien quan' },
     runId: { type: 'string', description: 'run_id tu stdout neu co, khong co thi chuoi rong' },
     cannotRun: { type: 'boolean' },
+    killedByTool: KILLED_BY_TOOL_FIELD,
     reason: { type: 'string', description: 'ly do neu cannotRun=true' },
   },
   required: ['exitCode', 'outputTail', 'cannotRun'],
@@ -78,6 +94,7 @@ const UI_SCHEMA = {
     observed: { type: 'string', description: 'mo ta NOI DUNG nhin thay trong TUNG frame da luu (da mo bang Read, doi chieu expected); chuoi rong neu cannotRun/khong co frame' },
     networkObserved: { type: 'string', description: 'NETWORK TRUTH vocab CHU: clean | no-app-traffic | third-party-only | app-fail | n-a (driver) | n-a (tool-error: <ly do>) | unscoped | unscoped-partial — theo luat scoping trong prompt; driver khong doc duoc network → "n-a (driver)"; TUYET DOI khong ghi so status/exit vao field nay' },
     cannotRun: { type: 'boolean' },
+    killedByTool: KILLED_BY_TOOL_FIELD,
     reason: { type: 'string', description: 'ly do neu cannotRun=true' },
   },
   required: ['exitCode', 'outputTail', 'cannotRun'],
@@ -199,6 +216,7 @@ const BASELINE_SCHEMA = {
           cmd: { type: 'string' },
           baselineExit: { type: 'number', description: 'exit code cua lenh tren commit goc (diffBase)' },
           cannotRun: { type: 'boolean', description: 'true neu khong chay duoc tren baseline (thieu env, worktree fail, lenh chua ton tai o commit goc)' },
+          killedByTool: KILLED_BY_TOOL_FIELD,
           reason: { type: 'string' },
         },
         required: ['cmd', 'cannotRun'],
@@ -419,7 +437,7 @@ const REVIEWERS = [
 const [machineRaw, uiRaw, judgeRaw, reviewRaw, baselineRaw] = await parallel([
   () => parallel(distinctCmds.flatMap(cmd => Array.from({ length: cmdRuns.get(cmd) || 1 }, (_, __i) => () =>
     agentT(
-      `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Trong repo ${args.repoRoot}, chay dung lenh:\n\n  ${cmd}\n\nCapture TRUNG THUC: exit code that, ~10 dong output cuoi lien quan, run_id neu stdout co in (khong co thi de chuoi rong).\nKHONG sua code. KHONG dung git checkout/switch/stash/reset — repo dang o dung branch can verify, doi branch la pha hong cac verifier khac dang chay song song. KHONG chay lai nhieu lan de "cho pass". Neu lenh khong the chay (thieu env, service/DB local chua chay, script khong ton tai...) → cannotRun=true + reason cu the.`,
+      `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Trong repo ${args.repoRoot}, chay dung lenh:\n\n  ${cmd}\n\nCapture TRUNG THUC: exit code that, ~10 dong output cuoi lien quan, run_id neu stdout co in (khong co thi de chuoi rong).\nKHONG sua code. KHONG dung git checkout/switch/stash/reset — repo dang o dung branch can verify, doi branch la pha hong cac verifier khac dang chay song song. KHONG chay lai nhieu lan de "cho pass". Neu lenh khong the chay (thieu env, service/DB local chua chay, script khong ton tai...) → cannotRun=true + reason cu the.\n\n${TOOL_KILL_RULE}`,
       { label: `machine:${cmd.slice(0, 40)}${(cmdRuns.get(cmd) || 1) > 1 ? '#' + (__i + 1) : ''}`, phase: 'Machine', schema: MACHINE_SCHEMA, ...modelOpt('machine') }
     ).then(r => r && { ...r, cmd, runIndex: __i + 1 })
   ))),
@@ -437,7 +455,8 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw, baselineRaw] = await parallel([
       `- Evidence file: mkdir -p thu muc truoc. LUU FRAME RA FILE: neu config.yaml co "capture.ui" (lenh <cmd> <url> <out.png>, vd npm run ui:capture) thi DUNG no de luu moi frame — preview_screenshot tra anh INLINE, khong luu file duoc. NHIEU FRAME: luu 1 anh o MOI buoc co screenshot trong steps → evidence/${e.id}-step1.png, evidence/${e.id}-step2.png... (de trang bang chung phat slideshow nhu flow). Tra frame DAU vao screenshotPath; liet ke moi frame da luu vao outputTail. KHONG co capture.ui/tool chup → luu HTML da assert (duoi .html) vao screenshotPath va GHI RO fallback trong outputTail.\n` +
       `- observed (BAT BUOC khi co frame): MO TUNG file frame vua luu bang Read (anh doc truc tiep; .html doc noi dung file) roi VIET field observed = thay gi CU THE trong tung frame, doi chieu Expected. KHONG viet observed tu tri nho lenh/steps — phai doc file that. Neu noi dung frame MAU THUAN Expected → assertion do FAIL: exitCode phai khac 0 du lenh exit 0.\n` +
       `- NETWORK TRUTH (mo rong rail observed tu pixels sang wire): NEU driver la browser tool co duong doc network (read_network_requests / read_console_messages hoac tuong duong) — SAU khi chay xong steps: doc failed requests + console errors, dump tho vao evidence/${e.id}-network.txt (mkdir -p truoc). Luat scoping: FAIL-eligible = fetch/XHR toi origin cua config dev_server.url HOAC prefix trong dev_server.api_base (co the la LIST); third-party (analytics/CDN/tracker) KHONG BAO GIO fail; static asset (.map/favicon/anh/font) ke ca app-origin → chi note. Trong tap FAIL-eligible: connection-error/timeout/status tu 500 tro len → eval FAIL: exitCode phai khac 0 KE CA khi frame dep; loi 4xx → FAIL TRU KHI expected cua eval khai dung status do. Dien field networkObserved bang VOCAB CHU (cam so status/exit): "clean" = CO thay traffic app-scope va tat ca OK — khong thay request app nao thi PHAI ghi "no-app-traffic" (cam ghi clean khi khong co traffic); "third-party-only" = chi third-party fail; "app-fail" = co request FAIL-eligible fail; "unscoped" = config chua khai dev_server.url/api_base; "unscoped-partial" = thay XHR toi origin la ngoai scope da khai (note-only); driver khong doc duoc network (curl+grep, capture-only) → "n-a (driver)"; tool doc network tu loi → "n-a (tool-error: <ly do ngan>)" kem chi tiet trong outputTail. Cac gia tri n-a/unscoped/no-app-traffic KHONG lam eval fail.\n` +
-      `- exitCode=0 CHI khi MOI assertion pass. KHONG sua code. Khong the chay (port ban khong xu ly duoc, thieu env...) → cannotRun=true + reason cu the.`,
+      `- exitCode=0 CHI khi MOI assertion pass. KHONG sua code. Khong the chay (port ban khong xu ly duoc, thieu env...) → cannotRun=true + reason cu the.\n` +
+      `- ${TOOL_KILL_RULE}`,
       { label: `ui:${e.id}`, phase: 'Machine', schema: UI_SCHEMA, ...modelOpt('ui') }
     ).then(r => r && { ...r, cmd: `ui-check:${e.id}`, evals: [e.id] })
   )),
@@ -477,14 +496,23 @@ Lam trong repo ${args.repoRoot} NHUNG TUYET DOI KHONG git checkout/switch/stash 
 2) De lenh chay duoc: ln -s ${args.repoRoot}/node_modules "$WT/node_modules" ; cp ${args.repoRoot}/.env.local "$WT/" 2>/dev/null (neu co). Service/DB local (vd Supabase) dung chung voi HEAD.
 3) Voi cwd = "$WT", chay TUNG lenh sau, capture exit code that: ${baselineCmds.join(' , ')}
 4) Don dep BAT BUOC: git -C ${args.repoRoot} worktree remove --force "$WT".
-Tra results[] = {cmd, baselineExit, cannotRun, reason}. PHAN BIET 2 loai "khong chay tot tren baseline": (a) lenh/script CUA FEATURE chua ton tai o commit goc (npm "missing script", file-not-found cho chinh script eval) = eval MOI, dung ra phai FAIL tren code cu → ghi baselineExit = exit that (khac 0) va cannotRun=FALSE (day la tin hieu "phan biet", KHONG phai cannotRun); (b) moi truong/ha tang that bai khong lien quan feature (service/DB local chua chay, thieu env ma lenh can, worktree add fail) = cannotRun=TRUE. Baseline la tin hieu PHU, TUYET DOI KHONG bia exit.`,
+Tra results[] = {cmd, baselineExit, cannotRun, reason}. PHAN BIET 2 loai "khong chay tot tren baseline": (a) lenh/script CUA FEATURE chua ton tai o commit goc (npm "missing script", file-not-found cho chinh script eval) = eval MOI, dung ra phai FAIL tren code cu → ghi baselineExit = exit that (khac 0) va cannotRun=FALSE (day la tin hieu "phan biet", KHONG phai cannotRun); (b) moi truong/ha tang that bai khong lien quan feature (service/DB local chua chay, thieu env ma lenh can, worktree add fail) = cannotRun=TRUE. Baseline la tin hieu PHU, TUYET DOI KHONG bia exit.\n${TOOL_KILL_RULE}`,
         { label: 'baseline:diffBase', phase: 'Machine', schema: BASELINE_SCHEMA, ...modelOpt('baseline') }
       ),
 ])
 
+// killedByTool ⇒ cannotRun: không tin một lời khai đơn lẻ — đúng ca sự cố
+// (agent khai cannotRun=false + exitCode=1 khi lệnh bị giết). reason agent giữ
+// NGUYÊN VĂN nếu có; trống → điền khuôn ghim để card BLOCKED không rỗng.
+// Áp cho CẢ BA lane trước mọi merge; baseline → cannotRun → baselineStatus n-a.
+const TOOL_KILL_REASON = 'bi cong cu giet (timeout tool/output cat) — exit code khong phai cua lenh'
+const normKill = r => (r && r.killedByTool === true)
+  ? { ...r, cannotRun: true, reason: (typeof r.reason === 'string' && r.reason.trim()) ? r.reason : TOOL_KILL_REASON }
+  : r
+
 // ---- variance-N: gộp các lần chạy của 1 lệnh → 1 entry/lệnh với pass-rate ----
 const runsByCmd = new Map()
-for (const r of (machineRaw || []).filter(Boolean)) {
+for (const r of (machineRaw || []).filter(Boolean).map(normKill)) {
   if (!runsByCmd.has(r.cmd)) runsByCmd.set(r.cmd, [])
   runsByCmd.get(r.cmd).push(r)
 }
@@ -511,7 +539,7 @@ for (const cmd of distinctCmds) {
   machine.push({ cmd, evals: byCmd.get(cmd), runs: ran.length, passes, variance, cannotRun: false, reason: rep.reason, exitCode, runId: rep.runId, outputTail: rep.outputTail })
 }
 // ui-check hợp nhất vào machine-style (luôn 1 lần): cmd ui-check:<evalId> — routing blocked/failed dùng chung
-machine.push(...(uiRaw || []).filter(Boolean).map(r => ({ ...r, runs: 1, passes: !r.cannotRun && r.exitCode === 0 ? 1 : 0, variance: false })))
+machine.push(...(uiRaw || []).filter(Boolean).map(normKill).map(r => ({ ...r, runs: 1, passes: !r.cannotRun && r.exitCode === 0 ? 1 : 0, variance: false })))
 
 // ---- run-log: run_id per eval do JS THUẦN quyết (verifier có runId thật → dùng; rỗng → mint
 // deterministic) + build NGUYÊN VĂN từng dòng JSONL. Synthesize CHỈ chép map này — hết quyền
@@ -547,7 +575,7 @@ for (const c of carriedEvals) {
 }
 
 // ---- A/B baseline: map kết quả đối chứng theo cmd; status = green | red | n-a ----
-const baselineByCmd = new Map(((baselineRaw && baselineRaw.results) || []).map(b => [b.cmd, b]))
+const baselineByCmd = new Map(((baselineRaw && baselineRaw.results) || []).map(normKill).map(b => [b.cmd, b]))
 const baselineStatus = (cmd) => {
   const b = baselineByCmd.get(cmd)
   if (!b || b.cannotRun) return 'n-a'
