@@ -34,21 +34,36 @@ SIG="$(awk '/<<<TOOL-KILL-RULE/{f=1;next} /TOOL-KILL-RULE>>>/{f=0} f' "$RULE_FIL
 
 case "$CHAN" in
   nguon)
-    # Đếm trên toàn cây git (trừ docs/ và _acceptance/), KỂ CẢ tests/ + vendor/.
-    hits="$(git ls-files --cached --others --exclude-standard | grep -v -e '^docs/' -e '^_acceptance/' | xargs grep -l -F -- "$SIG" 2>/dev/null || true)"
-    n="$(printf '%s\n' "$hits" | sed '/^$/d' | wc -l | tr -d ' ')"
-    if [ "$n" -ne 1 ] || [ "$hits" != "$RULE_FILE" ]; then
-      do_fail "cau dac trung phai xuat hien DUNG 1 file ($RULE_FILE), thay $n: $(printf '%s' "$hits" | tr '\n' ' ')"
-    fi
-    for f in "$JS" "$ACC_SKILL" tests/workflows/harness.mjs; do
-      grep -qF -- "$SIG" "$f" && do_fail "ban chep thua: $f"
-    done
-    # Chiều đỏ: bản sao cây (chỉ các file liên quan) + tiêm bản chép vào JS.
-    mkdir -p "$TMP/do/$(dirname "$JS")" "$TMP/do/$(dirname "$RULE_FILE")"
-    cp "$RULE_FILE" "$TMP/do/$RULE_FILE"; { cat "$JS"; printf '\n// %s: ban chep thu\n' "$SIG"; } > "$TMP/do/$JS"
-    m="$(grep -l -F -- "$SIG" "$TMP/do/$JS" "$TMP/do/$RULE_FILE" | wc -l | tr -d ' ')"
-    if [ "$m" -eq 2 ]; then echo "  chieu do OK: ban sao JS tiem ban chep -> 2 file mang cau luat (ban chep thua: $JS)"
-    else do_fail "chieu do KHONG chay: mutant tiem ban chep khong bi dem ($m)"; fi
+    # Hàm kiểm THẬT — chạy trên một gốc cây ($1) và một danh sách file ($2, một
+    # file/dòng, đường tương đối gốc đó): in tên lỗi (rỗng = xanh). Cả chiều
+    # dương lẫn chiều đỏ đều đi qua ĐÚNG hàm này (finding S4-r1: chiều đỏ trước
+    # đây tự đếm bằng grep rồi echo cứng thông điệp — không chứng minh RĂNG bắt).
+    check_nguon() {
+      local base="$1" list="$2" hits n f
+      hits="$(printf '%s\n' "$list" | sed '/^$/d' | (cd "$base" && xargs grep -l -F -- "$SIG" 2>/dev/null) || true)"
+      n="$(printf '%s\n' "$hits" | sed '/^$/d' | wc -l | tr -d ' ')"
+      if [ "$n" -ne 1 ] || [ "$hits" != "$RULE_FILE" ]; then
+        echo "cau dac trung phai xuat hien DUNG 1 file ($RULE_FILE), thay $n: $(printf '%s' "$hits" | tr '\n' ' ')"
+      fi
+      for f in "$JS" "$ACC_SKILL" tests/workflows/harness.mjs; do
+        [ -f "$base/$f" ] && grep -qF -- "$SIG" "$base/$f" && echo "ban chep thua: $f"
+      done
+      return 0
+    }
+    # Chiều dương: toàn cây git (trừ docs/ và _acceptance/), KỂ CẢ tests/ + vendor/.
+    LIST="$(git ls-files --cached --others --exclude-standard | grep -v -e '^docs/' -e '^_acceptance/')"
+    r="$(check_nguon "$ROOT" "$LIST")"
+    [ -z "$r" ] || while IFS= read -r x; do do_fail "$x"; done <<< "$r"
+    # Chiều đỏ: bản sao code-sinh (chép đúng các file trong LIST có liên quan +
+    # file nguồn), tiêm một bản chép vào JS, rồi đưa qua CHÍNH check_nguon.
+    mkdir -p "$TMP/do"
+    for f in "$RULE_FILE" "$JS" "$ACC_SKILL" tests/workflows/harness.mjs; do mkdir -p "$TMP/do/$(dirname "$f")"; cp "$f" "$TMP/do/$f"; done
+    printf '\n// %s: ban chep thu\n' "$SIG" >> "$TMP/do/$JS"
+    MLIST="$(printf '%s\n' "$RULE_FILE" "$JS" "$ACC_SKILL" tests/workflows/harness.mjs)"
+    mr="$(check_nguon "$TMP/do" "$MLIST")"
+    if printf '%s\n' "$mr" | grep -qxF "ban chep thua: $JS" && printf '%s\n' "$mr" | grep -q "thay 2:"; then
+      echo "  chieu do OK: mutant tiem ban chep vao JS -> check_nguon bao: $(printf '%s' "$mr" | tr '\n' ' | ')"
+    else do_fail "chieu do KHONG chay: check_nguon tren ban sao dot bien tra '$mr'"; fi
     ;;
 
   w25)
