@@ -7,8 +7,9 @@ lưới, phép đo, workflow).
 `trang-tu-van-v2-r4-b1` của Artifact Platform) + phiên điều tra «skill
 `create-onehub-plugin` của ai, vai gì trong kit».
 
-> Chữ trong file này là NGUỒN. Bảy hình phác trong phiên (mục 8) là chiếu; hai
-> hình sẽ được nâng lên tầng hồ sơ sau khi ván thử b1 chốt.
+> Chữ trong file này là NGUỒN. Bảy hình phác trong phiên (mục 8) là chiếu; H4
+> đã vẽ tầng 2 ngày 20/08 (cùng commit với mục 3b), H5 nâng sau khi ván thử b1
+> chốt.
 
 ## 0. Tóm tắt một đoạn
 
@@ -95,8 +96,11 @@ không sửa component nền, không logic/đường ghi) · thang vật liệu
    nếu cần), người chọn một chạm; hướng chọn ghi **một dòng chữ** vào design-doc
    + entry `approach` trong sổ; canvas là phác tầng 1 — **không vào
    `evidence/`, không vào thẻ như bằng chứng**, chỉ link tham chiếu. Thiếu
-   `/design` → máy khuyên một hướng + căn cứ, đi tiếp. Không có hướng mở →
-   bỏ qua bước, không ghi gì.
+   `/design` → xuống thang 4 nấc (mục 3b.4). Không có hướng mở → đi thẳng,
+   nhưng ĐỂ VẾT MỘT DÒNG trong `design-pass.md` («không mở bước phân kỳ —
+   <khuôn/lý do 1 dòng>») cho thẻ Cổng 1 hiện — người veto được, máy không
+   hỏi (sửa 20/08, căn cứ ở mục 3b.3; bản 19/08 viết «không ghi gì» — đó là
+   đúng cửa miễn huashu đã phải đóng).
 3. **Thẻ Cổng 1** hiện nấc phản ứng + link canvas (nếu có) cạnh nấc vật liệu /
    ngữ cảnh. Đường đọc-cũ: `design-pass.md` thiếu khoá `reaction:` → cờ vàng,
    không chặn, không bắt migrate.
@@ -113,6 +117,44 @@ người · không đổi lưới/phép đo/workflow.
 **Docs kèm:** vá lỗ GUIDE thiếu dòng `design_pass.ds_skill`; template
 `acceptance-init` gợi ý hai khoá `feature_loop.ui_standards_skill` và
 `design_pass.ds_skill` (phiên điều tra 19/08 tìm ra).
+
+## 3b. Vay từ ngoài (bổ sung 20/08 — teardown huashu-design + đọc toàn văn `/design`)
+
+Ba nguồn độc lập hội tụ về cùng thiết kế của mục 3 — owner 16/08 («lần tường
+minh nhất duyệt với kit là khi có diagram»), huashu-design (luật «chọn khi chưa
+thấy vật là chọn vô hiệu», hard-gate từ 07/2026), và kỷ luật NỘI TẠI của skill
+`/design` (tự cấm bày menu chữ, tự đòi 2–4 hướng thật khác nhau). Năm điều vay,
+tất cả là LỜI trong nghi thức, +0 vật nuôi:
+
+1. **Luật artboard phương án**: mỗi hướng một TRỤC có tên + 1 câu động cơ +
+   1 câu đánh đổi — kể cả hướng máy KHÔNG khuyên (bộ phương án chỉ biện hộ cho
+   ứng viên máy thích là phiếu bầu gài sẵn — đúng lớp mồi-dán-đồng-ý, chip ②);
+   tên A/B/C ổn định vĩnh viễn, không đánh số lại giữa các lượt; hướng đã chốt
+   không hỏi lại.
+2. **Độ nét = đủ cho quyết định đang mở** (decision fidelity ≠ deliverable
+   fidelity): phác thấp hợp lệ; token/component thật chỉ bắt buộc khi token là
+   NỘI DUNG của quyết định (như b1: màu/vị trí chính là thứ đang chọn).
+3. **Bỏ-phân-kỳ phải để vết** (đã sửa vào mục 3.2): không còn nhánh «không ghi
+   gì». Căn cứ: huashu từng có cửa miễn «đã có design context rõ» → máy lạm
+   dụng có hệ thống («user nói rõ rồi» → tự chọn hướng) → 07/18 họ đóng cửa
+   miễn, mọi ngoại lệ phải ghi nguyên văn. Kit KHÔNG cần hard-gate 100% của họ
+   (có veto-default + đảo rẻ), nhưng cần vết một dòng để Cổng 1 nhìn thấy.
+4. **Thang `/design` 4 nấc** (thay «có/không» nhị phân ở mục 3.2): publish +
+   save được → publish chỉ-xem (export PNG/PDF) → **file đã seed mở LOCAL
+   trong Browser pane** (quyền tổ chức chỉ gác LƯU online, không gác
+   dựng-và-xem — đội viên không quyền artifact vẫn có canvas) → không canvas
+   → máy khuyên 1 hướng kèm căn cứ, ghi entry, đi tiếp.
+5. **Kênh phản ứng async có tên** (cụ thể hoá «gửi gói, người trả một chạm» ở
+   mục 3.1): (a) sticky note ghim câu hỏi đóng + động cơ/đánh đổi cạnh từng
+   artboard — câu hỏi đi cùng vật, không nằm trong chat; (b) comment thread
+   trên artifact — máy đọc lại, trả lời, resolve từng thread; (c) owner sửa
+   trực tiếp rồi Save → máy extract và DIFF với bản seed — phản ứng thẩm mỹ
+   thành diff máy đọc được. Kèm một câu chép nguyên từ huashu: **«tiếp» cho
+   phép SANG bước sau, không cho phép BỎ cổng bên trong bước.**
+
+Đề bài b1 (mục 4.2) KHÔNG đổi — đã tương thích cả 5 điều; chỉ được hưởng kênh
+(5) nếu tiện. Nguồn đọc sâu: sổ nhớ phiên 20/08 (teardown huashu-design + đọc
+toàn văn skill `/design` preview).
 
 ## 4. Ván thử b1 — chạy TRƯỚC, dưới dạng lệch có tên
 
@@ -245,7 +287,7 @@ engine dưới chân b1 · không xếp kho gì ở repo tiêu thụ trước kh
 | H6 | Morphological box | không gian lựa chọn; lộ ô «vật thật × không đồng bộ» chưa có tên | không |
 | H3 | Solution tree | ba đường A/B/C và đánh đổi | không |
 | H5 | Evidence chain | một cây nguồn; canvas là nhánh cụt | **có** (assets) |
-| H4 | Swimlane | Người/Máy/Vật trước–sau | **có** (figures hồ sơ kit) |
+| H4 | Swimlane | Người/Máy/Vật trước–sau | **ĐÃ VẼ tầng 2, 20/08** — `docs/plans/assets/2026-08-19-hat-giong-design-pass/truoc-sau-design-pass.html` (chiếu của mục 3+3b); nâng tiếp vào figures hồ sơ kit khi mở hồ sơ |
 | H7 | RACI | vai người trong thiết kế khi không có designer | không |
 | — | Ba lựa chọn phiên đồng bộ | dải giờ người theo ba nấc | không |
 
