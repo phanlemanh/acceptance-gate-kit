@@ -123,7 +123,7 @@ người · không đổi lưới/phép đo/workflow.
 Ba nguồn độc lập hội tụ về cùng thiết kế của mục 3 — owner 16/08 («lần tường
 minh nhất duyệt với kit là khi có diagram»), huashu-design (luật «chọn khi chưa
 thấy vật là chọn vô hiệu», hard-gate từ 07/2026), và kỷ luật NỘI TẠI của skill
-`/design` (tự cấm bày menu chữ, tự đòi 2–4 hướng thật khác nhau). Năm điều vay,
+`/design` (tự cấm bày menu chữ, tự đòi 2–4 hướng thật khác nhau). Sáu điều vay,
 tất cả là LỜI trong nghi thức, +0 vật nuôi:
 
 1. **Luật artboard phương án**: mỗi hướng một TRỤC có tên + 1 câu động cơ +
@@ -151,9 +151,34 @@ tất cả là LỜI trong nghi thức, +0 vật nuôi:
    trực tiếp rồi Save → máy extract và DIFF với bản seed — phản ứng thẩm mỹ
    thành diff máy đọc được. Kèm một câu chép nguyên từ huashu: **«tiếp» cho
    phép SANG bước sau, không cho phép BỎ cổng bên trong bước.**
+6. **Thang phản ứng 4 nấc + luật leo thang** (owner gật 20/08 — hợp nhất ưu
+   điểm hai phương pháp): cái quý của phiên đồng bộ cũ không phải SỰ ĐỒNG BỘ mà
+   là VẬT BẤM ĐƯỢC — phiên cũ trộn (a) phản ứng trên vật thật đang chạy với
+   (b) hẹn giờ ngồi cạnh máy, và chỉ (b) đắt. Tách ra thành thang, kênh đắt chỉ
+   mở khi quyết định đang mở cần đúng băng thông đó:
+   - **nấc 0 · đi thẳng** — khuôn có sẵn, 0 hướng mở; để vết một dòng (điều 3),
+     người veto sau;
+   - **nấc 1 · async trên ảnh/canvas** — quyết định là hướng/bố cục/tĩnh,
+     nhìn là đủ phán (bước phân kỳ mục 3.2 nằm ở nấc này);
+   - **nấc 2 · async trên vật bấm được** — gói gửi kèm LINK PROTO ĐANG CHẠY,
+     owner tự bấm lúc rảnh, trả qua kênh (5); dùng khi quyết định cần thấy
+     state chuyển (flow nhiều bước). Owner không mở được proto → screencast
+     flow thay. Đây là nấc giữ «cảm giác bấm thật» của nghi thức cũ mà không
+     tốn lịch hẹn;
+   - **nấc 3 · sync ngắn, opt-in có tên** — phiên có CHỦ ĐỀ khai trước (không
+     còn 30–60′ trọn gói), chỉ cho tương tác tinh (kéo-thả, chạm, nhịp chuyển
+     động) hoặc khi leo thang.
 
-Đề bài b1 (mục 4.2) KHÔNG đổi — đã tương thích cả 5 điều; chỉ được hưởng kênh
-(5) nếu tiện. Nguồn đọc sâu: sổ nhớ phiên 20/08 (teardown huashu-design + đọc
+   Ba luật vận hành: (i) máy KHUYÊN nấc kèm căn cứ một dòng, người veto một
+   chạm — không bao giờ hỏi «anh muốn sync hay async?»; (ii) **leo thang theo
+   tín hiệu, không theo cảm giác**: cùng một điểm bị chê 2 vòng async liên
+   tiếp = kênh thiếu băng thông → mời sync ngắn giới hạn đúng điểm đó (luật
+   dừng-vá áp cho kênh); (iii) nấc nào cũng để vết — khoá `reaction:` ghi
+   nấc + kênh đã dùng, thẻ Cổng 1 hiện. Số chấm người KHÔNG tăng: nấc 2/3 là
+   hình thức của chấm chọn-hướng/phản-ứng, không phải chấm mới.
+
+Đề bài b1 (mục 4.2) KHÔNG đổi — đã tương thích cả 6 điều; chỉ được hưởng kênh
+(5) và tên nấc ở (6) nếu tiện. Nguồn đọc sâu: sổ nhớ phiên 20/08 (teardown huashu-design + đọc
 toàn văn skill `/design` preview).
 
 ## 4. Ván thử b1 — chạy TRƯỚC, dưới dạng lệch có tên
