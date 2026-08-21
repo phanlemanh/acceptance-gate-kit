@@ -5,7 +5,7 @@ slug: lan-v-khong-phai-cho-ky
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 2 script đọc + thân lệnh /start + ca kiểm + bản đồ — không dính t3_paths (lib/ chỉ được GỌI)
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo

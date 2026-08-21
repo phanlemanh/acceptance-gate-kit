@@ -1,13 +1,13 @@
 ---
 schema_version: 2
 feature_slug: lan-v-khong-phai-cho-ky
-verdict: REJECT
+verdict: PASS
 failed_evals: []
 reason: 
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 5aa66f20494b898f57c7131cb87f1c98201b7c77
+verified_commit: 5fbe6065748e594e27e65124fdc924d6257ef6fc
 human_signoff: 
 ---
 
@@ -31,110 +31,110 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-lan-v-khong-phai-cho-ky-E1-r1
+  run_id: minted-lan-v-khong-phai-cho-ky-E1-r2
   exit_code: 0
   baseline: red
   verifier: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cases
-  verified_at: 2026-08-21T10:15:00+07:00
+  verified_at: 2026-08-21T13:27:33Z
   output: |
     CASES OK: 7 ca LV xanh tren cay that
 
 - eval: E2
-  run_id: minted-lan-v-khong-phai-cho-ky-E2-r1
+  run_id: minted-lan-v-khong-phai-cho-ky-E2-r2
   exit_code: 0
   baseline: red
   verifier: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cases
-  verified_at: 2026-08-21T10:15:00+07:00
+  verified_at: 2026-08-21T13:27:33Z
   output: |
     CASES OK: 7 ca LV xanh tren cay that
 
 - eval: E3
-  run_id: minted-lan-v-khong-phai-cho-ky-E3-r1
+  run_id: minted-lan-v-khong-phai-cho-ky-E3-r2
   exit_code: 0
   baseline: red
   verifier: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cases
-  verified_at: 2026-08-21T10:15:00+07:00
+  verified_at: 2026-08-21T13:27:33Z
   output: |
     CASES OK: 7 ca LV xanh tren cay that
 
 - eval: E4
-  run_id: minted-lan-v-khong-phai-cho-ky-E4-r1
+  run_id: minted-lan-v-khong-phai-cho-ky-E4-r2
   exit_code: 0
   baseline: red
   verifier: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cases
-  verified_at: 2026-08-21T10:15:00+07:00
+  verified_at: 2026-08-21T13:27:33Z
   output: |
     CASES OK: 7 ca LV xanh tren cay that
 
 - eval: E5
-  run_id: minted-lan-v-khong-phai-cho-ky-E5-r1
+  run_id: minted-lan-v-khong-phai-cho-ky-E5-r2
   exit_code: 0
   baseline: red
   verifier: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cases
-  verified_at: 2026-08-21T10:15:00+07:00
+  verified_at: 2026-08-21T13:27:33Z
   output: |
     CASES OK: 7 ca LV xanh tren cay that
 
 - eval: E6
-  run_id: minted-lan-v-khong-phai-cho-ky-E6-r1
+  run_id: minted-lan-v-khong-phai-cho-ky-E6-r2
   exit_code: 0
   baseline: red
   verifier: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cases
-  verified_at: 2026-08-21T10:15:00+07:00
+  verified_at: 2026-08-21T13:27:33Z
   output: |
     CASES OK: 7 ca LV xanh tren cay that
 
 - eval: E7
-  run_id: minted-lan-v-khong-phai-cho-ky-E7-r1
+  run_id: minted-lan-v-khong-phai-cho-ky-E7-r2
   exit_code: 0
   baseline: red
   verifier: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cases
-  verified_at: 2026-08-21T10:15:00+07:00
+  verified_at: 2026-08-21T13:27:33Z
   output: |
     CASES OK: 7 ca LV xanh tren cay that
 
 - eval: E8
-  run_id: minted-lan-v-khong-phai-cho-ky-E8-r1
+  run_id: minted-lan-v-khong-phai-cho-ky-E8-r2
   exit_code: 0
   baseline: red
   verifier: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cases
-  verified_at: 2026-08-21T10:15:00+07:00
+  verified_at: 2026-08-21T13:27:33Z
   output: |
     CASES OK: 7 ca LV xanh tren cay that
 
 - eval: E9
-  run_id: minted-lan-v-khong-phai-cho-ky-E9-r1
+  run_id: minted-lan-v-khong-phai-cho-ky-E9-r2
   exit_code: 0
   baseline: red
   verifier: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan mot-chu
-  verified_at: 2026-08-21T10:15:00+07:00
+  verified_at: 2026-08-21T13:27:33Z
   output: |
     MOT-CHU OK: "cửa veto mở" == pre-merge-check.sh == commands/start.md (2 chieu do chay that)
 
 - eval: E10
-  run_id: minted-lan-v-khong-phai-cho-ky-E10-r1
+  run_id: minted-lan-v-khong-phai-cho-ky-E10-r2
   exit_code: 0
   baseline: red
   verifier: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan ban-do
-  verified_at: 2026-08-21T10:15:00+07:00
+  verified_at: 2026-08-21T13:27:33Z
   output: |
     BAN-DO OK: 2 ho so lan V da giao · 1 ho so da ky giu signed-off · check exit 0 · /start biet lan-v-mo
 
 - eval: E11
-  run_id: minted-lan-v-khong-phai-cho-ky-E11-r1
+  run_id: minted-lan-v-khong-phai-cho-ky-E11-r2
   exit_code: 0
   baseline: red
   verifier: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan mutant
-  verified_at: 2026-08-21T10:15:00+07:00
+  verified_at: 2026-08-21T13:27:33Z
   output: |
-    MUTANT OK: 2 dot bien chay that, moi cai ghim dung cau; doi chung duong ban sao nguyen ven xanh
+    MUTANT OK: 3 dot bien chay that (ban do · may quet · dieu kien PASS), moi cai ghim MOT cau rieng; doi chung duong ban sao nguyen ven xanh
 
 - eval: E12
-  run_id: minted-lan-v-khong-phai-cho-ky-E12-r1
+  run_id: minted-lan-v-khong-phai-cho-ky-E12-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-21T10:15:00+07:00
+  verified_at: 2026-08-21T13:27:33Z
   output: |
     Results: all plugin tests passed
 
@@ -142,7 +142,7 @@ human_signoff:
 
 ## Analyst
 
-- E12 (config:executors.test.plugins) — xanh trên cả HEAD lẫn diffBase: suite plugins thường trực đã gom 7 dòng PASS: LV1..LV7 trước khi feature này chạm vào, nên bản thân lệnh suite không phân biệt được feature mới với code cũ (nó chứng minh harness còn sống, không chứng minh hành vi làn V). Đây là regression-guard bình thường của suite — không cần viết lại, chỉ ghi nhận để người đọc Gate 2 không lấy dòng "all plugin tests passed" làm bằng chứng riêng cho AC-8.
+- E12 (config:executors.test.plugins) — xanh trên cả HEAD lẫn diffBase: suite plugins thường trực đã gom cả 7 dòng PASS: LV1..LV7 trước khi feature này chạm vào, nên bản thân lệnh suite không phân biệt được feature mới với code cũ (nó chứng minh harness còn sống, không chứng minh hành vi làn V). Đây là regression-guard bình thường của suite — không cần viết lại, chỉ ghi nhận để người đọc Gate 2 không lấy dòng "all plugin tests passed" làm bằng chứng riêng cho AC-8.
 
 ## Variance
 
@@ -150,7 +150,9 @@ none — every multi-run eval is uniform
 
 ## Iterations
 
-Round 1: mọi lệnh máy (E1-E12) đều PASS trên cây thật, nhưng scope-triage của vòng review-findings xếp 3 finding vào "Trong hợp đồng" (AC-1, AC-2, AC-10 — xem review-findings.md) chưa được sửa: chiều đỏ khai ở E1 không tồn tại thật, vế đếm ô mermaid của AC-2 chưa từng được đo, và vế "cách đếm" của AC-10 bị grep bỏ sót. Verdict REJECT — trả về S1/S3 vá lỗ đo hoặc code trước khi verify lại; chi tiết trong review-findings.md.
+Round 1: mọi lệnh máy (E1-E12) PASS trên cây thật, nhưng scope-triage của review-findings xếp 3 finding vào "Trong hợp đồng" (AC-1, AC-2, AC-10) chưa được sửa: chiều đỏ khai ở chân mutant (E1/E11) không tồn tại thật — chân mutant khi đó chỉ có 2 đột biến và một vế "van nam trong gates" không bao giờ bắn; vế đếm ô mermaid của AC-2 chưa từng được đo; vế "cách đếm" của AC-10 bị grep bỏ sót. Verdict REJECT — trả về S1/S3 vá lỗ đo trước khi verify lại.
+
+Round 2: 3 lỗ trên đã vá trong chân `rang.sh`. Chân mutant nay chạy ĐỦ 3 đột biến — bản đồ · máy quét · điều kiện PASS — mỗi cái ghim MỘT câu riêng, không còn kiểu ghim "so hai-vế" bằng alternation. Chân `ban-do` ghim thêm nguyên văn câu cách-đếm trên dòng riêng của "PRODUCT-MAP.md". LV1 xác nhận số đếm mermaid "Đã giao" tăng đúng 1 khi thêm hồ sơ. E1-E12 PASS trên cây thật, `verified_commit: 5fbe6065748e594e27e65124fdc924d6257ef6fc`. Ngoài 4 chân `rang.sh`, các suite thường trực (`tests/scripts/run-tests.sh` 750/750, `tests/hooks/run-tests.sh` 60/60, `tests/workflows/run-tests.sh` 44/44, `node scripts/product-map.mjs --check`) cũng chạy xanh trên cây thật làm đối chứng phụ, không gắn AC riêng. Verdict PASS — 11 finding "Ngoài hợp đồng" (xem review-findings.md) chờ người quyết ở Gate 2, không chặn merge.
 
 ## Gate 2 checklist (human)
 
