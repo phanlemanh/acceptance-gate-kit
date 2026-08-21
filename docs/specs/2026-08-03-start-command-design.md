@@ -107,7 +107,8 @@ Hai quyết định chốt với owner đầu S1 (ledger `_acceptance/start-comm
 | status `implemented`, evidence vắng hoặc verdict BLOCKED | vòng-đang-dở | S4 |
 | status `implemented` hoặc `verified`, verdict REJECT | vòng-đang-dở | S3-fix |
 | status `verified`, verdict BLOCKED (bị chặn môi trường — vẫn là việc đang dở, không phải hồ sơ hỏng) | vòng-đang-dở | S4 |
-| status `verified`, verdict PASS/PENDING-JUDGMENT, chưa `human_signoff` | chờ-Cổng-Bằng-chứng | — |
+| status `verified`, verdict PASS, chưa `human_signoff`, và hồ sơ **không còn cần người** theo đúng câu lưới trước-merge hỏi (không `da-veto` · Cổng 1 hợp lệ: `approved_by` có tên / `gate1_skipped: true` / làn V đúng vết · sáu điều kiện xanh-sạch kể cả `enforcement_mode` ≠ off) — vị từ `scripts/khong-can-nguoi.mjs`, đẳng thức với lưới giữ bằng LV5 | đã-giao (nhóm đã-ký; `state` = `lan-v-mo` khi cửa veto mở, `xanh-sach` khi người đóng Cổng 1) | — |
+| status `verified`, verdict PASS/PENDING-JUDGMENT, chưa `human_signoff`, còn cần người (chưa sạch · bị veto · Cổng 1 chưa hợp lệ) | chờ-Cổng-Bằng-chứng | — |
 | status `signed-off`, opportunity decision `build`/`iterate`, chưa verdict nghiệm thu | chờ-Cổng-Giá-trị | — |
 | status `signed-off` không thuộc đường A (không opportunity, hoặc park/kill) | đã-ký | — |
 | `uat-session.md` có mặt, `verdict` TRỐNG | chờ-Cổng-Giá-trị | — |

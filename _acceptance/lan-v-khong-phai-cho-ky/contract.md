@@ -86,4 +86,5 @@ sáu điều kiện phân biệt được nhau. **Core:** không-cần-người 
 - **Không đụng `lib/`** là chủ ý: giữ T2 để hồ sơ đi làn V — đây là hồ sơ sửa chính làn V, nên nó là phép đo M1 sống. Lớp «vị từ sống ngoài lib» ghi ở sổ known-limits (`#3`), đóng khi hồ sơ nào đó đưa cả bash lẫn JS về một nguồn có suy biến fail-closed — việc T3, để dành.
 - **Bản đồ:** `release-2-0-0`/`2-1-0` hiện «Đang làm» là ghi nhận không chính xác nhưng không có cổng nào gắn vào; máy quét vào phiên (`/start`) — nơi người hành động — mới là vật sửa.
 - **Known limit (khai trước):** vế `commands/start.md` nêu hai trạng thái mới đo CHỈ DẪN, không đo hành vi render.
+- **Known limit (S4-r4, sổ `#7` · `#8`):** hai bản dựng của luật sáu-điều-kiện chỉ khớp tới đâu ma trận fixture chọn tay phủ tới đó; chân cây-thật so với toàn bộ VIOLATION của lưới nên có thể đỏ vì hồ sơ khác — cả hai chấp nhận trong hạng T2.
 - **Known limit (S4-r3, sổ `#6`):** làn V đóng Cổng 1 bằng máy làm ô bản đồ đổi mà không lượt nào vẽ lại — sửa gốc ở thân vòng lặp (ngoài phạm vi); hồ sơ này vẽ tay cùng lượt.

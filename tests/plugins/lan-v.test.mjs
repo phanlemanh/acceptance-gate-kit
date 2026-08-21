@@ -270,6 +270,8 @@ if (want('LV5')) {
     ['khong-ai-duyet',    { ...NGUOI_SACH, approvedBy: '' }],
     ['da-veto-sach',      { ...NGUOI_SACH, veto: 'da-veto', opened: '2026-08-21T09:00:00Z' }],
   ];
+  const SO_MAT_CAT = 21;  // khai trước — bớt phần tử là đỏ, không xanh im lặng
+  if (MAT_CAT.length !== SO_MAT_CAT) { fail('LV5', `MAT_CAT co ${MAT_CAT.length} phan tu, khai truoc ${SO_MAT_CAT}`); }
   const errs = []; let n = 0; let doiChung = false;
   for (const [ten, o] of MAT_CAT) {
     const R = mkGitRepo('lv5', o);
@@ -292,6 +294,7 @@ if (want('LV5')) {
         errs.push(`lech ${ten}: luoi=${l.chanSlug ? 'chan' : 'qua'} may-quet=${mayQuetDone ? 'done' : oCua(s, 'lv5')}`);
     } finally { rmSync(R, { recursive: true, force: true }); }
   }
+  if (n !== SO_MAT_CAT) errs.push(`so fixture da so ${n} != ${SO_MAT_CAT} khai truoc`);
   if (errs.length) fail('LV5', `${errs.length} loi — ${errs.slice(0, 6).join(' · ')}`);
   else pass('LV5', `dang thuc voi luoi: ${n} fixture, may quet == pre-merge o ca ${n}`);
 }

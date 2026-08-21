@@ -21,7 +21,8 @@
 // cố ý KHÔNG gọi chung lúc chạy: «một nguồn» giữ bằng phép đo đẳng thức trên
 // chính pre-merge-check.sh (tests/plugins/lan-v.test.mjs LV5) — hai bản độc lập
 // thì đột biến bên nào cũng làm phép so đỏ. Không sống ở lib/ (t3_paths) là chủ
-// ý của hồ sơ T2; sổ known-limits lan-v-khong-phai-cho-ky#3 ghi lớp này.
+// ý của hồ sơ T2; sổ known-limits lan-v-khong-phai-cho-ky#7 ghi lớp «hai bản dựng
+// độc lập chỉ được giữ bằng ma trận fixture chọn tay» (S4-r3 từng bỏ sót hai điều kiện).
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

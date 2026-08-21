@@ -50,8 +50,8 @@ mutant)
   TMP="$(mktemp -d)"
   chep_cay "$TMP/A"; chep_cay "$TMP/B"
   # Đối chứng dương: bản A không tiêm phải xanh ở đúng các ca mà đột biến sẽ giết.
-  outA="$(LV_CASES=LV1,LV2,LV3,LV5 node "$TMP/A/tests/plugins/lan-v.test.mjs" 2>&1)"; stA=$?
-  if [ "$stA" -ne 0 ] || ! printf '%s\n' "$outA" | grep -q '^PASS: LV1 '; then
+  outA="$(LV_CASES=LV1,LV2,LV3,LV4,LV5 node "$TMP/A/tests/plugins/lan-v.test.mjs" 2>&1)"; stA=$?
+  if [ "$stA" -ne 0 ] || ! printf '%s\n' "$outA" | grep -q '^PASS: LV1 ' || ! printf '%s\n' "$outA" | grep -q '^PASS: LV4 '; then
     echo "MUTANT: ban A (khong tiem) khong xanh — doi chung duong hong, khong do tiep"; printf '%s\n' "$outA" | head -5; exit 1
   fi
   phuc_hoi() { cp "$ROOT/scripts/start-scan.mjs" "$TMP/B/scripts/start-scan.mjs"; cp "$KCN" "$TMP/B/scripts/khong-can-nguoi.mjs"; }
@@ -123,13 +123,14 @@ san-dem)
 cay-that)
   # Một lượt lưới trên cây thật (--base main), một lượt máy quét; so QUAN HỆ cho
   # MỌI hồ sơ verified chưa ký. Không ghim tên hồ sơ nào (gap-probe F4).
-  luoi="$(cd "$ROOT" && env -u PRE_MERGE_BASE bash scripts/pre-merge-check.sh . --base main 2>&1)"; st_luoi=$?
+  BASE_REF="$(git -C "$ROOT" rev-parse --verify -q main >/dev/null 2>&1 && echo main || echo origin/main)"
+  luoi="$(cd "$ROOT" && env -u PRE_MERGE_BASE bash scripts/pre-merge-check.sh . --base "$BASE_REF" 2>&1)"; st_luoi=$?
   # Lưới KHÔNG chạy tới phần kiểm từng hồ sơ thì «không có VIOLATION [slug]» không
   # nói lên gì (S4-r3: assertion âm-tính-một-mình). Ba chốt: mã thoát 2 = lỗi nội
   # tại; VIOLATION [scope] = không dựng được phạm vi; phải có ít nhất một dòng
   # kết luận theo hồ sơ (OK [..]/NOTE [..]) — đối chứng dương rằng lưới đã đi tới đó.
   [ "$st_luoi" -ne 2 ] || { echo "CAY-THAT: luoi exit 2 (loi noi tai) — khong do tiep"; printf '%s\n' "$luoi" | tail -3; exit 1; }
-  printf '%s\n' "$luoi" | grep -q '^VIOLATION \[scope\]' && { echo "CAY-THAT: luoi khong dung duoc pham vi (--base main) — khong do tiep"; exit 1; }
+  printf '%s\n' "$luoi" | grep -q '^VIOLATION \[scope\]' && { echo "CAY-THAT: luoi khong dung duoc pham vi (--base $BASE_REF) — khong do tiep"; exit 1; }
   printf '%s\n' "$luoi" | grep -qE '^(OK|NOTE) \[[a-z0-9-]+\]' || { echo "CAY-THAT: luoi khong in dong ket luan theo ho so nao — chua toi phan kiem"; exit 1; }
   quet="$(node "$SCAN" --root "$ROOT")" || { echo "CAY-THAT: may quet khong chay duoc"; exit 1; }
   command -v python3 >/dev/null || { echo "CAY-THAT: thieu python3 — khong doc duoc JSON may quet"; exit 1; }
@@ -143,7 +144,14 @@ cay-that)
     [ -z "$sig" ] || continue
     so=$((so + 1))
     if printf '%s\n' "$luoi" | grep -q "^VIOLATION \[$slug\]"; then chan=1; else chan=0; fi
-    printf '%s' "$quet" | python3 -c "import json,sys; j=json.load(sys.stdin); sys.exit(0 if any(d['slug']==sys.argv[1] for d in j['groups']['done']) else 1)" "$slug"; rc=$?
+    printf '%s' "$quet" | python3 -c "
+import json,sys
+try:
+    j=json.load(sys.stdin); done=j['groups']['done']
+    if not isinstance(done,list): raise KeyError('groups.done khong phai mang')
+except Exception as e:
+    sys.stderr.write('json may quet hong: %r\\n' % (e,)); sys.exit(3)
+sys.exit(0 if any(d.get('slug')==sys.argv[1] for d in done) else 1)" "$slug"; rc=$?
     case "$rc" in 0) done_=1 ;; 1) done_=0 ;; *) bad "khong doc duoc JSON may quet cho $slug (python exit $rc)"; continue ;; esac
     # Hồ sơ này phải có dòng kết luận riêng trong lưới — không có là lưới bỏ qua nó.
     printf '%s\n' "$luoi" | grep -qE "^(OK|NOTE|VIOLATION) \[$slug\]" || { bad "luoi khong co dong nao cho $slug — khong the ket luan 'qua'"; continue; }
