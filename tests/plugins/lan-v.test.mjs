@@ -101,4 +101,51 @@ if (want('LV1')) {
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
+// Bốn ca dưới đây là ĐƯỜNG CŨ phải giữ nguyên — chúng là chỗ vị từ viết rộng
+// tay sẽ đỏ. Không có chúng thì LV1 xanh không phân biệt được «bắt đúng» với
+// «luôn luôn nói đã giao».
+const luatCu = (id, name, over, msgs) => {
+  if (!want(id)) return;
+  const root = mkRepo();
+  try {
+    mkWorkspace(root, 'lv-cu', { ...R_PLUS, ...over });
+    const s = scan(root), m = mapOf(root, 'lv-cu');
+    const errs = [];
+    if (s.done.has('lv-cu')) errs.push(`${msgs}: may quet (state ${s.done.get('lv-cu')})`);
+    if (!s.gates.has('lv-cu')) errs.push(`may quet: ky vong gates bang-chung, thuc te ${s.done.get('lv-cu') ?? '(khong o dau)'}`);
+    if (m.section !== 'Đang làm') errs.push(`${msgs}: ban do (${m.section ?? 'khong thay slug'})`);
+    if (m.note) errs.push('ban do van gan chu thich cua veto mo');
+    if (errs.length) fail(id, errs.join(' · '));
+    else pass(id, name);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+};
+
+luatCu('LV2', 'go veto_state -> luat cu nguyen van (gates bang-chung, Dang lam)',
+  { veto: null, opened: null }, 'luat cu bi doi');
+
+luatCu('LV3', 'da-veto -> KHONG da giao o ca hai bo doc',
+  { veto: 'da-veto' }, 'da-veto bi xep da giao');
+
+if (want('LV4')) {
+  // Hai biến thể của vết hỏng — V không vết là bỏ-cổng lặng, không phải V.
+  const errs = [];
+  for (const [ten, val] of [['rong', ''], ['khong-parse', 'hom-qua']]) {
+    const root = mkRepo();
+    try {
+      mkWorkspace(root, 'lv-vet', { ...R_PLUS, opened: val });
+      const s = scan(root), m = mapOf(root, 'lv-vet');
+      if (s.done.has('lv-vet')) errs.push(`vet hong van da giao: ${ten} may-quet`);
+      if (!s.gates.has('lv-vet')) errs.push(`vet hong: ${ten} may-quet khong con o gates`);
+      if (m.section !== 'Đang làm' || m.note) errs.push(`vet hong van da giao: ${ten} ban-do (${m.section})`);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  }
+  if (errs.length) fail('LV4', errs.join(' · '));
+  else pass('LV4', 'vet gio rong/hong -> luat cu (hai bien the)');
+}
+
+luatCu('LV5', 'T3 -> luat cu (lan V chi T2)', { tier: 'T3' }, 'T3 bi xep da giao');
+
+luatCu('LV6', 'PENDING-JUDGMENT duoi V -> van cho Cong Bang chung',
+  { verdict: 'PENDING-JUDGMENT' }, 'judgment bi may giao thay');
+
 process.exit(failures ? 1 : 0);
