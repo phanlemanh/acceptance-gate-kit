@@ -83,14 +83,26 @@ function mapOf(root, slug) {
   return { section, line, note: line ? line.includes(VETO_OPEN_NOTE) : false };
 }
 
+// Số đếm ô «Đã giao» trong khối mermaid. AC-2 hứa một QUAN HỆ (ô tăng 1 khi
+// thêm hồ sơ làn V), không phải «có dòng chứa slug dưới heading đúng» — renderer
+// sinh đúng dòng mà đếm sai vẫn phải ĐỎ.
+function mapDaGiaoCount(root) {
+  const m = renderProductMap(root).match(/DG\["Đã giao<br\/>(.+?)"\]/);
+  if (!m) return null;
+  return m[1] === 'chưa có' ? 0 : Number.parseInt(m[1], 10);
+}
+
 const R_PLUS = { status: 'verified', veto: 'mo', opened: '2026-08-21T09:00:00Z', tier: 'T2', verdict: 'PASS', signoff: '' };
 
 if (want('LV1')) {
   const root = mkRepo();
   try {
+    const truoc = mapDaGiaoCount(root);
     mkWorkspace(root, 'lv-r-plus', R_PLUS);
-    const s = scan(root), m = mapOf(root, 'lv-r-plus');
+    const s = scan(root), m = mapOf(root, 'lv-r-plus'), sau = mapDaGiaoCount(root);
     const errs = [];
+    if (truoc === null || sau === null) errs.push('khong doc duoc so dem o mermaid Da giao');
+    else if (sau !== truoc + 1) errs.push(`o mermaid Da giao ky vong ${truoc + 1} thuc te ${sau} (dong dung ma dem sai)`);
     if (s.gates.has('lv-r-plus')) errs.push('V-mo PASS T2 van nam trong gates');
     if (s.done.get('lv-r-plus') !== 'lan-v-mo')
       errs.push(`may quet: state ky vong lan-v-mo, thuc te ${s.done.get('lv-r-plus') ?? '(khong co trong done)'}`);
