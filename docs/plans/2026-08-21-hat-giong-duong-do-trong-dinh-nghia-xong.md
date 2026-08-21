@@ -4,8 +4,8 @@
 T2 (một ô cấu trúc trong contract + một cờ vàng trên thẻ + một dòng cross-check
 của gap-probe; không chạm workflow, không chạm lưới trước-merge).
 **Sinh từ:** phiên rà soát 21/08 (soi toàn kit qua trục ngưỡng-khai-trước ↔
-vật-giao-được), lỗ **L1**. Cùng chuyến Cổng 0 với hạt giống chiều-đỏ Cổng Đáng
-(15/08) — hai lỗ là hai mặt của cùng một cổng.
+vật-giao-được), lỗ **L1**. Cùng chuyến Cổng 0 với hạt giống «ô nuốt luật»
+(15/08, PR #56) — cả hai chạm khuôn cơ hội, ở hai ô khác nhau.
 
 > Chữ trong file này là NGUỒN. Chưa có hình; nếu hồ sơ mở, hình đáng vẽ là
 > chuỗi bằng chứng «ngưỡng → đường đo → số» (tầng 2, vào `figures/` của hồ sơ).
@@ -126,20 +126,25 @@ thành trạm thu phí cho mọi vòng B/C/E. Không có R0 thì R− không ph�
 «bắt đúng» với «luôn luôn kêu».
 
 Đường đo cho **hành vi** (máy có thật sự viết section ở S1 không) **cố tình
-KHÔNG mở** ở vòng này — theo đúng khuyến nghị của hạt giống 15/08: làm chân mã
+KHÔNG mở** ở vòng này — theo đúng khuyến nghị của hạt giống 15/08 «ô nuốt luật»: làm chân mã
 tiền định trước, chỉ mở hội đồng phiên sạch nếu ô cấu trúc vẫn để lọt lần thứ
 ba. Lời hứa hành vi đắt đo, và ô có cờ đã đủ để người nhìn thấy.
 
-## 5. Quan hệ với hạt giống chiều-đỏ Cổng Đáng (15/08)
+## 5. Quan hệ với hạt giống «ô nuốt luật» (15/08)
+
+> **Đính chính 21/08:** «hạt giống 15/08» là **«ô nuốt luật»** (`docs/plans/2026-08-15-hat-giong-o-nuot-luat.md`, PR #56, merge 21/08) — phạm vi **U1+U3** trong khuôn cơ hội, và nó **cấm đụng** con trỏ `red-team D2`. Nhóm «Cổng Đáng chưa có chiều đỏ» **chưa có hạt giống** — nó mới là một mục trong §7 của findings 15/08. Mọi câu dưới đây từng gọi nó là «hạt giống chiều-đỏ Cổng Đáng» là gọi sai.
+
 
 Hai hạt giống chạm cùng một cổng nhưng **không chồng lấn**, và có thể mở độc lập:
 
-- **15/08** hỏi: *hồ sơ cơ hội này có ô nào đỏ được không* — sức khoẻ của chính
-  Cổng Đáng (gồm cả con trỏ chết `red-team D2`).
+- **15/08 «ô nuốt luật»** hỏi: *khuôn cơ hội có ô nào cho luật không* — U1 (cột
+  `Kế thừa?` mang mặc định in sẵn + căn cứ) và U3 (`## Cổng 0` trình đúng MỘT
+  quyết định). Nó **không** đụng `red-team D2`; câu «Cổng Đáng có chiều đỏ nào
+  không» vẫn **chưa có hạt giống**.
 - **Hạt giống này** hỏi: *ngưỡng đã khai ở đó có đường về số không* — mối nối
   từ Cổng Đáng sang vòng LÀM.
 
-Nếu mở cùng chuyến: 15/08 đi trước (nó quyết ô nào tồn tại trong khuôn cơ hội),
+Nếu mở cùng chuyến: 15/08 đi trước (nó đổi hai ô trong khuôn cơ hội),
 file này đi sau hoặc song song (nó chỉ đọc ngưỡng, không đổi khuôn cơ hội).
 Không phụ thuộc cứng — mở riêng vẫn chạy được.
 

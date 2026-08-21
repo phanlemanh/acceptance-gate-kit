@@ -123,7 +123,7 @@ nghi thức ở mục 3.1 chỉ quy định **đầu ra** của buổi, không q
 **Không làm:** không skill mới · không nghi thức retro cho vòng học · không
 migrate hàng loạt 75 spec (sử liệu; áp luật từ nay; một lượt triage tay nếu owner
 muốn lôi vài ý còn sống lên thành stub) · không để máy tự `kill` theo tuổi ·
-không đổi khuôn `opportunity-template.md` (hạt giống chiều-đỏ 15/08 giữ quyền
+không đổi khuôn `opportunity-template.md` (hạt giống «ô nuốt luật» 15/08 giữ quyền
 đó) · không đổi bản đồ sản phẩm (bucket `can-nhac` đã đúng).
 
 ## 4. Chiều đỏ — thước gắn vào vật, ma trận viết trước
@@ -140,7 +140,7 @@ trong chính lần chạy, đi qua chính hai script thật:
 | RK | `START-SCAN-KEYS` thêm `groups.considering[].slug/since/age` | đổi tên một phía → case round-trip đỏ | giữ hợp đồng máy-đọc |
 
 Đường đo cho **hành vi** (buổi khai thác có thật sự kết bằng stub không) **cố
-tình không mở** vòng này — cùng nếp hạt giống 15/08: mã tiền định trước, hội
+tình không mở** vòng này — cùng nếp hạt giống 15/08 «ô nuốt luật»: mã tiền định trước, hội
 đồng phiên sạch chỉ khi con trỏ sống rồi mà spec rời vẫn sinh lần thứ ba. Phép
 đo rẻ thay thế: đếm định kỳ `opportunity.md` mới so với spec mới ngoài hồ sơ —
 tỉ lệ đó là M1 của hạt giống này.
@@ -151,8 +151,8 @@ tỉ lệ đó là M1 của hạt giống này.
   luật**. File này là vế «vào có ô» + «ra có tên» ở Cổng Đáng; PR #71 là «ra có
   tên» ở Cổng Giá trị (ngưỡng phải có đường về số). Mở được độc lập; nếu cùng
   chuyến, đặt tên hồ sơ chung là tên luật.
-- **Chiều đỏ Cổng Đáng (15/08):** nó quyết ô nào tồn tại trong khuôn cơ hội và
-  hồi sinh `red-team D2`; file này chỉ đọc khuôn, không đổi khuôn. 15/08 đi
+- **«Ô nuốt luật» (15/08, PR #56):** nó đổi hai ô của khuôn cơ hội (U1 · U3) và
+  **cấm đụng** `red-team D2`; file này chỉ đọc khuôn, không đổi khuôn. 15/08 đi
   trước nếu cùng chuyến. Cả hai cùng vá một lớp: **con trỏ chết trong `/start`
   lối (a)** (`grill` và `D2`).
 - **Ba chỗ tích luỹ không đường ra (21/08):** ý tưởng là **chỗ thứ tư** — cùng
@@ -263,13 +263,14 @@ người không điền form:
 - `competitive-brief`: nuôi «Giả định sinh tử» khi đề bài có yếu tố thị trường;
   ad hoc, giá trị thấp hơn mục 9.4.
 
-### 9.4 Ghi chú cho hạt giống chiều-đỏ 15/08
+### 9.4 Ghi chú cho hạt giống «chiều đỏ Cổng Đáng» — CHƯA TỒN TẠI
 
 Thân `product-brainstorming` có chế độ **Assumption Testing** (liệt kê mọi giả
 định · cái nào giết ý tưởng · phép thử rẻ nhất · *argue the strongest case
 against*) — đúng hình dạng của `red-team D2` đang là con trỏ chết. Không cắm ở
-hạt giống này; quyền quyết ô nào tồn tại trong khuôn cơ hội thuộc 15/08. Ghi
-để 15/08 biết D2 có thể là **một chế độ của skill đã cắm**, không cần nghi
+hạt giống này. **Đính chính 21/08:** hạt giống 15/08 là «ô nuốt luật» (U1+U3) và
+nó CẤM đụng D2 — nhóm «Cổng Đáng chưa có chiều đỏ» chưa có hạt giống. Ghi lại
+để hạt giống ĐÓ, khi được mở, biết D2 có thể là **một chế độ của skill đã cắm**, không cần nghi
 thức mới.
 
 Phép thử một-mặt-phẳng phân loại đúng toàn bộ: ba skill sống (brainstorm ·
