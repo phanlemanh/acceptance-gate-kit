@@ -193,6 +193,90 @@ Hình là chiếu của mục 1–3; đổi luật thì sửa chữ rồi vẽ l
 `.svg`/`.png` xuất cạnh nguồn theo tiền lệ `ba690a3c` (bản HTML không mở inline
 được trong app).
 
+## 9. Phụ lục — ổ cắm `product-management` (owner chốt 21/08: Vòng HIỂU gọi brainstorm của nó)
+
+Đọc thân thật của 9 skill trong plugin `product-management` (Anthropic) ngày 21/08.
+Hai sự thật quyết định cách cắm:
+
+- **Harness khác.** Plugin sống trong Claude desktop (chế độ agent cục bộ,
+  `~/Library/Application Support/Claude/local-agent-mode-sessions/…/plugin_…/skills/`),
+  **không** trong marketplace Claude Code. Phiên CLI thuần không thấy nó. Ổ cắm
+  của `/start` đã lường ca này (nhánh ba: khai mà phiên không có → nói thẳng, đi
+  grill nội bộ) — cắm được, không sợ con trỏ chết; nhưng buổi khai thác bằng
+  skill này chỉ xảy ra ở phiên có plugin.
+- **Mọi skill viết cho connector** (knowledge base · analytics · tracker · chat);
+  chưa uỷ quyền thì chạy chế độ dán tay. Với kit chỉ **hai** connector đáng bật:
+  analytics (Amplitude/Pendo — phía đọc của đường đo, hạt giống PR #71) và
+  tracker (đầu vào lối (b) của `/start`).
+
+### 9.1 Cắm `brainstorm` vào Vòng HIỂU
+
+Repo tiêu thụ khai trong `_acceptance/config.yaml`:
+`discovery.brainstorm_skill: product-management:brainstorm` (cắm **lệnh**
+`brainstorm` — nó là quy trình + đóng phiên; `product-brainstorming` là thân
+4 chế độ / 7 khung, đi kèm, không cắm riêng).
+
+Mục «Close the Session» của skill rơi vào hồ sơ cơ hội đến từng ô — máy chép,
+người không điền form:
+
+| Skill sinh ra | Ô trong `opportunity.md` |
+|---|---|
+| Key ideas + *strongest direction, take a position* | «Vấn đề & ai gặp» + khuyến nghị kèm căn cứ |
+| **Riskiest assumption** + *cheapest way to test it* | hàng #1 bảng «Giả định chốt sinh tử» (cột *Nếu sai thì* · *Phép thử rẻ nhất*) |
+| **Parked ideas** (*worth revisiting, not now*) | stub riêng, lối ra `park` — đúng luật này |
+| «Do not confuse brainstorming with decision-making» | Cổng Đáng là của người — skill tự khai ranh |
+
+**Hai ghi đè bắt buộc** (luật kit thắng thân skill):
+1. Skill kết bằng tóm tắt trong chat → mục 3.1 vẫn đứng: **kết buổi = stub
+   `opportunity.md`**, máy chép «Capture» vào stub.
+2. Mục «Follow Up» của skill mời `/write-spec` → **im**. Spec chỉ sinh ở S1,
+   sau Cổng Đáng.
+
+### 9.2 Hai skill dùng ad hoc, có luật
+
+- `synthesize-research` — biến ghi chú phỏng vấn/ticket thành findings có tần
+  suất · tác động · độ tin + trích dẫn có nguồn: đúng «bằng chứng thực địa
+  (ngày + nguồn)» mà ô «Vấn đề & ai gặp» đòi. **Đầu ra trỏ từ stub** (section
+  «Nguồn ngoài & phạm vi kế thừa»), không thành tài liệu rời; mục *Opportunity
+  Areas* có thể đẻ nhiều stub.
+- `metrics-review` — scorecard hiện tại · kỳ trước · mục tiêu. Dùng ở Cổng Giá
+  trị §4 **chỉ để lập bảng số**; phần *Status / Recommended Actions* **không
+  được phán thay người** (kit cấm máy điền verdict; ngưỡng chép nguyên văn,
+  không đổi). Mục «metrics we should be tracking but are not» = phát hiện
+  đường-đo-thiếu → đổ ngược về hạt giống PR #71.
+
+### 9.3 Không cắm — và vì sao
+
+- `write-spec`: PRD trọn gói, **trùng** hợp đồng (Given/When/Then · non-goals)
+  và trùng ngưỡng, trong một container ngoài hub. Không gọi trong vòng; PRD từ
+  nơi khác thì Phase 1 của skill acceptance đã ăn được như input. **Thu hoạch
+  một ý:** trường *measurement method (tool · query · window)* của nó chính là
+  `## Đường đo` — xác nhận hướng PR #71.
+- `roadmap-update`: nếu **ghi** là tạo nguồn thứ hai cạnh bản đồ máy sinh (ADR
+  0007). Chỉ được **đọc** `PRODUCT-MAP.md` để kể Now/Next/Later cho người
+  ngoài; RICE/ICE có thể giúp người *xếp* các stub đang cân nhắc — xếp, không
+  quyết.
+- `sprint-planning`: kit không có sprint, nhịp theo cổng. Đội có sprint thì
+  `status` hồ sơ là nguồn cho board, không ngược lại.
+- `stakeholder-update`: consumer của bản đồ + hồ sơ nghiệm thu; nguồn phải là
+  hồ sơ, không từ trí nhớ; không lấy khuôn ADR dài của nó (kit có ADR 1-đoạn).
+- `competitive-brief`: nuôi «Giả định sinh tử» khi đề bài có yếu tố thị trường;
+  ad hoc, giá trị thấp hơn mục 9.4.
+
+### 9.4 Ghi chú cho hạt giống chiều-đỏ 15/08
+
+Thân `product-brainstorming` có chế độ **Assumption Testing** (liệt kê mọi giả
+định · cái nào giết ý tưởng · phép thử rẻ nhất · *argue the strongest case
+against*) — đúng hình dạng của `red-team D2` đang là con trỏ chết. Không cắm ở
+hạt giống này; quyền quyết ô nào tồn tại trong khuôn cơ hội thuộc 15/08. Ghi
+để 15/08 biết D2 có thể là **một chế độ của skill đã cắm**, không cần nghi
+thức mới.
+
+Phép thử một-mặt-phẳng phân loại đúng toàn bộ: ba skill sống (brainstorm ·
+synthesize-research · metrics-review) đều đọc/ghi vào hồ sơ thật; ba skill đẻ
+tài liệu song song (write-spec · roadmap-update · sprint-planning) là lớp sẽ về
+0 invoke như 7 pm-skills dọn 28/07.
+
 ## Nguồn
 
 - North Star + ba nguyên tố: `CLAUDE.md`, `docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md`.
