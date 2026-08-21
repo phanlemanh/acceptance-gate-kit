@@ -4,9 +4,12 @@
 // `status: verified` chưa có chữ ký, ở HAI chỗ:
 //   Cổng 1 — `approved_by` rỗng ⇒ đòi làn V đúng vết (veto_state: mo, vết giờ
 //            parse được, hạng T2); thiếu ⇒ VIOLATION.
+//   Cổng 1 — hoặc `gate1_skipped: true` (người chủ động miễn cổng) ⇒ lưới chỉ NOTE.
 //   Cổng 2 — chữ ký rỗng ⇒ đòi SÁU điều kiện xanh-sạch (xanh_sach_check):
 //            verdict PASS · bypass_used không true · hạng T2 · 0 mục UNCERTAIN ·
 //            «Known limits» HIỆN DIỆN-và-rỗng · «Ngoài hợp đồng» HIỆN DIỆN-và-rỗng.
+//            Và TRƯỚC đó lưới chặn `enforcement_mode: off` (cổng không làm gì lúc
+//            ghi) — đọc cùng khối frontmatter, nên hỏi ở đây luôn (S4-r3 bắt).
 //   Và `da-veto` là phát ngôn của người: lưới chặn tới khi xử.
 //
 // Máy quét vào phiên (start-scan.mjs) dùng vị từ này để quyết «đã giao, không
@@ -48,6 +51,10 @@ export function xanhSach(contractTxt, evidenceTxt) {
   if (v !== 'PASS') return { clean: false, why: `verdict=${v} (chỉ PASS mới xanh-sạch)` };
   const bp = (frontmatterField(evidenceTxt, 'bypass_used') || '').trim().toLowerCase();
   if (bp === 'true' || bp === '1' || bp === 'yes') return { clean: false, why: `bypass_used=${bp}` };
+  // KCN-ENF: lưới chặn enforcement_mode=off TRƯỚC khi tới nhánh xanh-sạch — bỏ
+  // sót là máy quét giấu đúng hồ sơ lưới đang chặn (S4-r3, chiều lệch ngược an toàn).
+  const enf = (frontmatterField(evidenceTxt, 'enforcement_mode') || '').trim().toLowerCase();
+  if (enf === 'off') return { clean: false, why: 'enforcement_mode=off (cổng không làm gì lúc ghi)' };
   const tier = (frontmatterField(contractTxt, 'risk_tier') || '').trim().toUpperCase();
   if (tier !== 'T2') return { clean: false, why: `hạng ${tier} (chỉ T2 được đi tiếp không ký)` };
   if (UNCERTAIN_RE.test(evidenceTxt)) return { clean: false, why: 'có mục UNCERTAIN' };
@@ -72,8 +79,11 @@ export function khongCanNguoi(contractTxt, evidenceTxt) {
   if (!xanhSach(contractTxt, evidenceTxt).clean) return null;
   // Cổng 1 — người duyệt, hay máy đóng đúng vết.
   const approvedBy = (frontmatterField(contractTxt, 'approved_by') || '').trim();
+  // KCN-SKIP: người chủ động miễn Cổng 1 — lưới chỉ NOTE, không chặn (cùng luật với
+  // lưới ghi-lúc-viết). Khác V: đây là người miễn, V là máy đóng và người giữ veto.
+  const gate1Skipped = /^(true|yes|1)$/i.test((frontmatterField(contractTxt, 'gate1_skipped') || '').trim());
   const vMo = veto.present && veto.state === 'mo' && veto.stamped && veto.tier === 'T2';
   if (vMo) return 'lan-v-mo';
-  if (approvedBy) return 'xanh-sach';
+  if (approvedBy || gate1Skipped) return 'xanh-sach';
   return null;
 }

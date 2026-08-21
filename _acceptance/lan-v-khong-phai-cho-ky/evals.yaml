@@ -17,8 +17,8 @@ evals:
     expected: >
       Răng ghim dòng 'PASS: LV5 dang thuc voi luoi: <N> fixture, may quet == pre-merge
       o ca <N>'. LV5 dựng <N> kho git fixture code-sinh (mặt cắt: sáu điều kiện mỗi cái một chiều
-      trượt — kể cả hạng T3 và verdict PENDING-JUDGMENT, ở CẢ HAI nhánh Cổng 1 — ×
-      veto vắng/mo-vết/mo-hỏng/da-veto; kho chép đúng bộ lib/ + recheck-evidence.cjs
+      trượt — kể cả hạng T3, verdict PENDING-JUDGMENT và enforcement_mode off, ở CẢ HAI
+      nhánh Cổng 1 — × veto vắng/mo-vết/mo-hỏng/da-veto × gate1_skipped; kho chép đúng bộ lib/ + recheck-evidence.cjs
       của /acceptance-init), chạy CHÍNH `scripts/pre-merge-check.sh <kho> --base
       basepoint` và đọc «có dòng VIOLATION [slug] hay không», rồi chạy máy quét trên cùng
       kho; hai bên phải cùng kết luận ở MỌI fixture, lệch → FAIL ghim 'lech <fixture>:
@@ -43,10 +43,10 @@ evals:
     executor: test
     cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cases
     expected: >
-      Răng ghim dòng 'PASS: LV2 V-mo + PASS + T2 nhung CHUA SACH -> van o gates (6 bien
-      the)'. Sáu biến thể: bypass_used · UNCERTAIN · Known limits có nội dung · Ngoài hợp
-      đồng có nội dung · Known limits VẮNG · Ngoài hợp đồng VẮNG. Đây là ca ĐÓNG LỖ vòng
-      một — vị từ khoá vào veto_state đỏ ở cả sáu với 'chua sach ma thanh done: <bien the>'.
+      Răng ghim dòng 'PASS: LV2 V-mo + PASS + T2 nhung CHUA SACH -> van o gates (7 bien
+      the)'. Bảy biến thể: bypass_used · UNCERTAIN · Known limits có nội dung · Ngoài hợp
+      đồng có nội dung · Known limits VẮNG · Ngoài hợp đồng VẮNG · enforcement_mode off. Đây là ca ĐÓNG LỖ vòng
+      một — vị từ khoá vào veto_state đỏ ở cả bảy với 'chua sach ma thanh done: <bien the>'.
       Chiều đỏ riêng ở chân mutant (đột biến 2: vị từ bỏ hỏi độ sạch).
     paths: [scripts/start-scan.mjs, scripts/khong-can-nguoi.mjs, tests/plugins/lan-v.test.mjs]
 
@@ -92,7 +92,7 @@ evals:
       xanh trước; A không chạy được = ĐỎ riêng). BA đột biến, mỗi cái một câu riêng:
       (1) KCN-NHANH gỡ nhánh không-cần-người trong start-scan → LV1 đỏ ghim 'sach ma van
       o gates'; (2) KCN-SACH vị từ bỏ hỏi độ sạch (trở về tiêu chí veto_state của vòng
-      một) → LV2 đỏ ở cả sáu biến thể VÀ LV5 đỏ ghim 'lech'; (3) KCN-VETO vị từ bỏ
+      một) → LV2 đỏ ở cả bảy biến thể VÀ LV5 đỏ ghim 'lech'; (3) KCN-VETO vị từ bỏ
       nhánh da-veto → LV3 đỏ. VÀ bảng sự-thật LV4 phải đỏ ≥1 ô dưới MỖI đột biến
       (gap-probe F3: hàm kỳ vọng phải độc lập với vị từ). Marker vắng hoặc sed không
       đổi được dòng nào = ĐỎ riêng. Răng in 'MUTANT OK: 3 dot bien chay that ... bang
@@ -105,8 +105,11 @@ evals:
     cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cay-that
     expected: >
       Trên cây thật (ROOT suy từ vị trí răng): MỘT lượt lưới `pre-merge-check.sh . --base
-      main` + MỘT lượt máy quét; với MỌI hồ sơ verified chưa ký: máy quét ∈ done ⇔ lưới
-      không 'VIOLATION [slug]'; sàn ≥2 hồ sơ được so, không ghim tên. Ranh giới sàn:
+      main` + MỘT lượt máy quét; TRƯỚC khi so, ba chốt chống âm-tính-một-mình (S4-r3):
+      lưới exit 2 ⇒ ĐỎ riêng · 'VIOLATION [scope]' ⇒ ĐỎ riêng · phải có ≥1 dòng kết
+      luận theo hồ sơ (OK/NOTE [slug]) và MỖI hồ sơ được so phải có dòng riêng của nó;
+      python3 lỗi ⇒ ĐỎ, không phải «không done». Rồi với MỌI hồ sơ verified chưa ký:
+      máy quét ∈ done ⇔ lưới không 'VIOLATION [slug]'; sàn ≥2, không ghim tên. Ranh giới sàn:
       đúng 2 hồ sơ → should-NOT-fire (răng xanh); 1 hồ sơ → đỏ 'san: chi 1 ho so'. Vế chỉ
       dẫn: `commands/start.md` nêu cả 'lan-v-mo' lẫn 'xanh-sach' (known-limit). Răng in
       'CAY-THAT OK: <N> ho so verified-chua-ky, may quet == luoi o ca <N>'. Chiều đỏ

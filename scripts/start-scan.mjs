@@ -13,8 +13,9 @@ import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-// Vị từ làn V nhập TĨNH từ bản đồ: hai bộ đọc dùng CHUNG một vị từ thì không
-// thể trôi khỏi nhau (lớp lỗi hai-bản-chép đã dẫm nhiều lần).
+// Vị từ «hồ sơ verified chưa ký này còn cần người không?» — MỘT bộ đọc mặt
+// người dùng nó (máy quét); bản đồ KHÔNG dùng (ô đổi ở chỗ người ký). «Một
+// nguồn» với lưới trước-merge giữ bằng phép đo đẳng thức LV5, không bằng import.
 import { khongCanNguoi } from './khong-can-nguoi.mjs';
 
 const require = createRequire(import.meta.url);
@@ -205,6 +206,7 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       const ev = readEvidence();
       if (ev) {
         const meaning = ev.exists ? meaningOf(ev.verdict) : null;
+        const kcnState = ev.exists && !ev.signoff ? kcn(cTxt, ev.raw) : null;
         if (!ev.exists) broken.push({ slug, ...missingArtifact({ 'contract.md': cTxt, 'evidence-report.md': null }) });
         else if (!meaning) broken.push({ slug, ...bangLech(ev.verdict) });
         else if (ev.signoff) done.push({ slug, state: 'signed-off' });
@@ -213,7 +215,7 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
         // trạng thái «đã giao»: lan-v-mo (cửa veto mở) hay xanh-sach (người duyệt
         // Cổng 1). Hồ sơ chưa sạch rơi xuống nhánh dưới và VẪN là cổng — đó là
         // lỗi vòng một của hồ sơ lan-v-khong-phai-cho-ky (khoá vào veto_state).
-        else if (kcn(cTxt, ev.raw)) done.push({ slug, state: kcn(cTxt, ev.raw) });
+        else if (kcnState) done.push({ slug, state: kcnState });
         else if (meaning.settled) gates.push({ slug, gate: 'bang-chung', since: since(cPath, frontmatterField(cTxt, 'approved_at')), tier });
         else inProgress.push({ slug, status, nextStep: meaning.nextStep, tier });
       }

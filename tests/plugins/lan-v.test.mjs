@@ -37,7 +37,7 @@ const fail = (id, msg) => { console.log(`FAIL: ${id} ${msg}`); failures++; };
 // ─── Fixture code-sinh ───────────────────────────────────────────────────────
 // Hợp đồng rút từ khuôn CANONICAL (bên VIẾT). Hai khoá làn V và tên người duyệt
 // TIÊM SAU vào frontmatter đã có — đúng như đời thật.
-function contractText(slug, { status, veto, opened, tier, approvedBy }) {
+function contractText(slug, { status, veto, opened, tier, approvedBy, gate1Skipped }) {
   let t = fileFromTemplate(CONTRACT_TPL, 'CONTRACT-FRONTMATTER-TEMPLATE',
     { feature: `${slug} — fixture`, slug, owner: 'fixture@example.com', risk_tier: tier, surfaces: 'cli', status },
     `# Contract: ${slug}\n\n## Criteria\n\n- AC-1: fixture\n\n## Out of scope\n\n- khong co\n`);
@@ -46,6 +46,7 @@ function contractText(slug, { status, veto, opened, tier, approvedBy }) {
          .replace(/^approved_at:.*$/m, 'approved_at: 2026-08-20');
   }
   const extra = [];
+  if (gate1Skipped) extra.push('gate1_skipped: true');
   if (veto != null) extra.push(`veto_state: ${veto}`);
   if (opened != null) extra.push(`veto_opened_at: ${opened}`);
   if (extra.length) t = t.replace(/^approved_at:.*$/m, m => [m, ...extra].join('\n'));
@@ -55,7 +56,7 @@ function contractText(slug, { status, veto, opened, tier, approvedBy }) {
 // Báo cáo bằng chứng theo ĐÚNG khuôn lưới đọc (recheck strict: run_id · exit 0 ·
 // verifier có thật). Known limit #5 của hồ sơ: khuôn bên viết chưa có marker để
 // rút — vật viết tay này là chỗ trôi có thể xảy ra, ghi sổ chứ không giấu.
-// sach: 'sach' | 'bypass' | 'uncertain' | 'kl-co' | 'nhd-co' | 'kl-vang' | 'nhd-vang'
+// sach: 'sach' | 'bypass' | 'uncertain' | 'kl-co' | 'nhd-co' | 'kl-vang' | 'nhd-vang' | 'enf-off'
 function evidenceText(slug, { verdict, signoff, sach, verifiedCommit }) {
   const kl = sach === 'kl-co' ? '## Known limits\n\n- còn một lỗ chưa đóng\n'
            : sach === 'kl-vang' ? ''
@@ -65,7 +66,7 @@ function evidenceText(slug, { verdict, signoff, sach, verifiedCommit }) {
             : '## Ngoài hợp đồng\n\n';
   const unc = sach === 'uncertain' ? '- eval: E2\n  run_id: ' + slug + '-E2-001\n  exit_code: 0\n  verifier: verify.sh\n  verdict: UNCERTAIN\n' : '';
   return `---\nschema_version: 1\nfeature_slug: ${slug}\nverdict: ${verdict}\n` +
-    `verified_commit: ${verifiedCommit}\nenforcement_mode: strict\n` +
+    `verified_commit: ${verifiedCommit}\nenforcement_mode: ${sach === 'enf-off' ? 'off' : 'strict'}\n` +
     `bypass_used: ${sach === 'bypass' ? 'true' : 'false'}\n` +
     `human_signoff:${signoff ? ' ' + signoff : ''}\n---\n\n# Evidence Report: ${slug}\n\n` +
     `## Evidence\n- eval: E1\n  run_id: ${slug}-E1-001\n  exit_code: 0\n  verifier: verify.sh\n  verified_at: 2026-08-21\n${unc}\n` +
@@ -130,7 +131,7 @@ if (want('LV1')) {
 // ─── LV2 — V-mở nhưng CHƯA SẠCH ⇒ vẫn là cổng (lỗ vòng một) ──────────────────
 if (want('LV2')) {
   const errs = [];
-  for (const sach of ['bypass', 'uncertain', 'kl-co', 'nhd-co', 'kl-vang', 'nhd-vang']) {
+  for (const sach of ['bypass', 'uncertain', 'kl-co', 'nhd-co', 'kl-vang', 'nhd-vang', 'enf-off']) {
     withRepo(root => {
       mkWorkspace(root, 'lv2', { ...V_SACH, sach });
       const s = scan(root);
@@ -139,7 +140,7 @@ if (want('LV2')) {
     });
   }
   if (errs.length) fail('LV2', errs.join(' · '));
-  else pass('LV2', 'V-mo + PASS + T2 nhung CHUA SACH -> van o gates (6 bien the)');
+  else pass('LV2', 'V-mo + PASS + T2 nhung CHUA SACH -> van o gates (7 bien the)');
 }
 
 // ─── LV3 — da-veto ⇒ không bao giờ đã giao ────────────────────────────────────
@@ -261,6 +262,10 @@ if (want('LV5')) {
     ['nguoi-T3',          { ...NGUOI_SACH, tier: 'T3' }],
     ['nguoi-pending',     { ...NGUOI_SACH, verdict: 'PENDING-JUDGMENT' }],
     ['nguoi-vet-hong',    { ...NGUOI_SACH, veto: 'mo', opened: 'hom-qua' }],
+    ['V-enf-off',         { ...V_SACH, sach: 'enf-off' }],
+    ['nguoi-enf-off',     { ...NGUOI_SACH, sach: 'enf-off' }],
+    ['skip-sach',         { ...NGUOI_SACH, approvedBy: '', gate1Skipped: true }],
+    ['skip-kl-co',        { ...NGUOI_SACH, approvedBy: '', gate1Skipped: true, sach: 'kl-co' }],
     ['nguoi-kl-co',       { ...NGUOI_SACH, sach: 'kl-co' }],
     ['khong-ai-duyet',    { ...NGUOI_SACH, approvedBy: '' }],
     ['da-veto-sach',      { ...NGUOI_SACH, veto: 'da-veto', opened: '2026-08-21T09:00:00Z' }],

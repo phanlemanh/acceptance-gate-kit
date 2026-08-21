@@ -59,14 +59,14 @@ mutant)
   # (1) KCN-NHANH — gỡ nhánh không-cần-người trong máy quét → LV1 đỏ 'sach ma van o gates'.
   phuc_hoi
   grep -q 'KCN-NHANH' "$TMP/B/scripts/start-scan.mjs" || bad "marker KCN-NHANH khong thay trong start-scan.mjs"
-  perl -0pi -e 's/else if \(kcn\(cTxt, ev\.raw\)\) done\.push/else if (false \&\& kcn(cTxt, ev.raw)) done.push/' "$TMP/B/scripts/start-scan.mjs"
-  grep -qF 'else if (false && kcn(cTxt, ev.raw)) done.push' "$TMP/B/scripts/start-scan.mjs" || bad "dot bien 1 khong doi duoc dong nao"
+  perl -0pi -e 's/else if \(kcnState\) done\.push/else if (false \&\& kcnState) done.push/' "$TMP/B/scripts/start-scan.mjs"
+  grep -qF 'else if (false && kcnState) done.push' "$TMP/B/scripts/start-scan.mjs" || bad "dot bien 1 khong doi duoc dong nao"
   o1="$(LV_CASES=LV1 node "$TMP/B/tests/plugins/lan-v.test.mjs" 2>&1)"
   printf '%s\n' "$o1" | grep -q '^FAIL: LV1 ' || bad "dot bien 1: LV1 khong do"
   printf '%s\n' "$o1" | grep -qF 'sach ma van o gates' || bad "dot bien 1: LV1 do nhung khong ghim 'sach ma van o gates' ($(printf '%s\n' "$o1" | head -1 | cut -c1-120))"
 
   # (2) KCN-SACH — vị từ bỏ hỏi độ sạch (trở về tiêu chí veto_state của vòng một)
-  #     → LV2 đỏ ở cả sáu biến thể VÀ LV5 đỏ 'lech' (lưới vẫn chặn, máy quét đã cho qua).
+  #     → LV2 đỏ ở cả bảy biến thể VÀ LV5 đỏ 'lech' (lưới vẫn chặn, máy quét đã cho qua).
   phuc_hoi
   grep -q 'KCN-SACH' "$KCN" || bad "marker KCN-SACH khong thay trong khong-can-nguoi.mjs"
   perl -0pi -e 's/if \(!xanhSach\(contractTxt, evidenceTxt\)\.clean\) return null;/if (false \&\& !xanhSach(contractTxt, evidenceTxt).clean) return null;/' "$TMP/B/scripts/khong-can-nguoi.mjs"
@@ -74,7 +74,7 @@ mutant)
   o2="$(LV_CASES=LV2,LV5 node "$TMP/B/tests/plugins/lan-v.test.mjs" 2>&1)"
   printf '%s\n' "$o2" | grep -q '^FAIL: LV2 ' || bad "dot bien 2: LV2 khong do"
   n2="$(printf '%s\n' "$o2" | grep -o 'chua sach ma thanh done' | wc -l | tr -d ' ')"
-  [ "$n2" -ge 6 ] || bad "dot bien 2: LV2 do nhung chi $n2/6 bien the ghim 'chua sach ma thanh done'"
+  [ "$n2" -ge 7 ] || bad "dot bien 2: LV2 do nhung chi $n2/7 bien the ghim 'chua sach ma thanh done'"
   printf '%s\n' "$o2" | grep -q '^FAIL: LV5 ' || bad "dot bien 2: LV5 (dang thuc voi luoi) khong do — phep so khong phan biet duoc"
   printf '%s\n' "$o2" | grep -qF 'lech V-bypass' || bad "dot bien 2: LV5 do nhung khong ghim 'lech V-bypass'"
 
@@ -92,7 +92,7 @@ mutant)
   for i in 1 2 3; do
     phuc_hoi
     case $i in
-      1) perl -0pi -e 's/else if \(kcn\(cTxt, ev\.raw\)\) done\.push/else if (false \&\& kcn(cTxt, ev.raw)) done.push/' "$TMP/B/scripts/start-scan.mjs" ;;
+      1) perl -0pi -e 's/else if \(kcnState\) done\.push/else if (false \&\& kcnState) done.push/' "$TMP/B/scripts/start-scan.mjs" ;;
       2) perl -0pi -e 's/if \(!xanhSach\(contractTxt, evidenceTxt\)\.clean\) return null;/if (false \&\& !xanhSach(contractTxt, evidenceTxt).clean) return null;/' "$TMP/B/scripts/khong-can-nguoi.mjs" ;;
       3) perl -0pi -e "s/if \(veto\.present && veto\.state === 'da-veto'\) return null;/if (false) return null;/" "$TMP/B/scripts/khong-can-nguoi.mjs" ;;
     esac
@@ -123,8 +123,16 @@ san-dem)
 cay-that)
   # Một lượt lưới trên cây thật (--base main), một lượt máy quét; so QUAN HỆ cho
   # MỌI hồ sơ verified chưa ký. Không ghim tên hồ sơ nào (gap-probe F4).
-  luoi="$(cd "$ROOT" && env -u PRE_MERGE_BASE bash scripts/pre-merge-check.sh . --base main 2>&1)"
+  luoi="$(cd "$ROOT" && env -u PRE_MERGE_BASE bash scripts/pre-merge-check.sh . --base main 2>&1)"; st_luoi=$?
+  # Lưới KHÔNG chạy tới phần kiểm từng hồ sơ thì «không có VIOLATION [slug]» không
+  # nói lên gì (S4-r3: assertion âm-tính-một-mình). Ba chốt: mã thoát 2 = lỗi nội
+  # tại; VIOLATION [scope] = không dựng được phạm vi; phải có ít nhất một dòng
+  # kết luận theo hồ sơ (OK [..]/NOTE [..]) — đối chứng dương rằng lưới đã đi tới đó.
+  [ "$st_luoi" -ne 2 ] || { echo "CAY-THAT: luoi exit 2 (loi noi tai) — khong do tiep"; printf '%s\n' "$luoi" | tail -3; exit 1; }
+  printf '%s\n' "$luoi" | grep -q '^VIOLATION \[scope\]' && { echo "CAY-THAT: luoi khong dung duoc pham vi (--base main) — khong do tiep"; exit 1; }
+  printf '%s\n' "$luoi" | grep -qE '^(OK|NOTE) \[[a-z0-9-]+\]' || { echo "CAY-THAT: luoi khong in dong ket luan theo ho so nao — chua toi phan kiem"; exit 1; }
   quet="$(node "$SCAN" --root "$ROOT")" || { echo "CAY-THAT: may quet khong chay duoc"; exit 1; }
+  command -v python3 >/dev/null || { echo "CAY-THAT: thieu python3 — khong doc duoc JSON may quet"; exit 1; }
   so=0
   for d in "$ROOT"/_acceptance/*/; do
     slug="$(basename "$d")"; c="$d/contract.md"; e="$d/evidence-report.md"
@@ -135,7 +143,10 @@ cay-that)
     [ -z "$sig" ] || continue
     so=$((so + 1))
     if printf '%s\n' "$luoi" | grep -q "^VIOLATION \[$slug\]"; then chan=1; else chan=0; fi
-    if printf '%s' "$quet" | python3 -c "import json,sys; j=json.load(sys.stdin); sys.exit(0 if any(d['slug']==sys.argv[1] for d in j['groups']['done']) else 1)" "$slug"; then done_=1; else done_=0; fi
+    printf '%s' "$quet" | python3 -c "import json,sys; j=json.load(sys.stdin); sys.exit(0 if any(d['slug']==sys.argv[1] for d in j['groups']['done']) else 1)" "$slug"; rc=$?
+    case "$rc" in 0) done_=1 ;; 1) done_=0 ;; *) bad "khong doc duoc JSON may quet cho $slug (python exit $rc)"; continue ;; esac
+    # Hồ sơ này phải có dòng kết luận riêng trong lưới — không có là lưới bỏ qua nó.
+    printf '%s\n' "$luoi" | grep -qE "^(OK|NOTE|VIOLATION) \[$slug\]" || { bad "luoi khong co dong nao cho $slug — khong the ket luan 'qua'"; continue; }
     [ "$chan" -ne "$done_" ] || bad "lech $slug: luoi=$([ $chan = 1 ] && echo chan || echo qua) may-quet=$([ $done_ = 1 ] && echo done || echo gates)"
   done
   [ "$so" -ge 2 ] || bad "san: chi $so ho so verified-chua-ky duoc so (can >=2 de phep do co nghia)"
