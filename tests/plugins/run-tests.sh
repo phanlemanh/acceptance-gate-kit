@@ -10466,6 +10466,13 @@ run "P200 mot lan cat so nhat quan: hai plugin cung so · GUIDE dan xuat · muc 
   node "$P200TMP/p200.mjs" "$ROOT"
 rm -rf "$P200TMP"
 
+# ─── Hồ sơ repo-khai-plugin: PD1..PD9 (file ca riêng, tên theo slug) ─────────
+# Tiêu đề dòng run CỐ TÌNH không chứa "PASS: PD" — chính file ca in các dòng đó.
+for _pd in PD1 PD2 PD3 PD4 PD5 PD6 PD7 PD8 PD9; do
+  run "ca khai plugin — $_pd (ho so repo-khai-plugin)" \
+    env PD_CASES="$_pd" node "$ROOT/tests/plugins/plugin-declare.test.mjs"
+done
+
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
   echo "ONLY_BLOCK=$ONLY_BLOCK khong khop khoi nao — go sai ten? (fail de khong xanh gia)"
