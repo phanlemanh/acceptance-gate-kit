@@ -273,11 +273,15 @@ duy nhất cho kết quả đồng nhất N/N.
   d-20260821T170100Z-4110), nên chỉ có bằng chứng máy + một giám khảo đọc input, KHÔNG
   có làn review đa-agent hay hội đồng ba lens. Các finding của vòng 1–3 vẫn ghi nguyên ở
   `review-findings.md`; vòng này không sinh finding mới vì không có agent nào đi tìm.
-- **AC-10 chờ lời khai kiểm tay của owner.** Bằng chứng máy chỉ chứng minh FILE
+- **AC-10: owner đã khai «CHƯA KIỂM ĐƯỢC» (2026-08-22).** Bằng chứng máy chỉ chứng minh FILE
   `.claude/settings.json` được ghi đúng. Hai câu về HÀNH VI của harness — `true` cấp
   repo có thắng `false` cấp user không, và khoá có nhắc CÀI hay chỉ BẬT plugin đã cài —
-  không có phép đo máy nào phủ; đây là tiền điều kiện của Cổng Bằng chứng, người phải
-  mở repo trên một máy khác và khai.
+  không có phép đo máy nào phủ. File `kiem-tay-harness.md` nay TỒN TẠI và ghi rõ hai ô
+  «chưa kiểm được» — owner chưa mở được repo trên máy thứ hai. E10 vẫn UNCERTAIN (không
+  PASS), verdict giữ PENDING-JUDGMENT. Hệ quả đã khai trong file: lời hứa «máy sau chỉ
+  cần marketplace add rồi mở repo» ở GUIDE §5.1 hiện là suy luận từ tài liệu, chưa có
+  quan sát thực địa; nếu hoá ra khoá chỉ BẬT chứ không nhắc CÀI thì §5.1 phải sửa, phần
+  script/init/khai file không đổi.
 - **Hai ca biên chạy nhưng chưa có eval ghim tên riêng.** `PD1c` (marketplace thiếu
   khoá `name` → exit 4) và `PD4b` (settings.json là thư mục / `.claude` là file → exit 3)
   chạy thật và xanh trong suite, nhưng không eval nào ghim chuỗi `PASS: [PD1c]` /
