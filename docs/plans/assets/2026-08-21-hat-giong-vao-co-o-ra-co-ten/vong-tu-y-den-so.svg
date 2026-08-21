@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1040 680" xmlns="http://www.w3.org/2000/svg" font-family="'Geist', sans-serif">
+<defs><style>@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Lora:ital,wght@0,400;1,400&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap');</style><marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker><marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker><marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker><marker id="arrow-soft" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#636b80"/></marker></defs>
+<rect width="100%" height="100%" fill="#f5f5f5"/>
+<path d="M608.000 116.715 A240 240 0 0 1 704.969 187.073" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M743.285 252.000 A240 240 0 0 1 743.722 426.882" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M705.731 492.000 A240 240 0 0 1 609.115 562.842" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M432.000 563.285 A240 240 0 0 1 335.031 492.927" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M296.715 428.000 A240 240 0 0 1 296.278 253.118" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M334.269 188.000 A240 240 0 0 1 430.885 117.158" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<line x1="520.000" y1="132.000" x2="520.000" y2="282.000" stroke="#636b80" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arrow-soft)"/>
+<line x1="672.574" y1="252.000" x2="615.263" y2="285.000" stroke="#636b80" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arrow-soft)"/>
+<line x1="672.574" y1="428.000" x2="615.263" y2="395.000" stroke="#636b80" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arrow-soft)"/>
+<line x1="520.000" y1="548.000" x2="520.000" y2="398.000" stroke="#636b80" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arrow-soft)"/>
+<line x1="367.426" y1="428.000" x2="424.737" y2="395.000" stroke="#636b80" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arrow-soft)"/>
+<line x1="367.426" y1="252.000" x2="424.737" y2="285.000" stroke="#636b80" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arrow-soft)"/>
+<rect x="518.2" y="197.0" width="35.6" height="14" rx="2" fill="#f5f5f5"/><text x="536.0" y="207.0" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STUB</text>
+<rect x="591.3" y="407.4" width="61.2" height="14" rx="2" fill="#f5f5f5"/><text x="621.9" y="417.4" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐƯỜNG ĐO</text>
+<rect x="367.1" y="387.6" width="42.0" height="14" rx="2" fill="#f5f5f5"/><text x="388.1" y="397.6" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">SỐ ĐO</text>
+<rect x="390.7" y="252.6" width="54.8" height="14" rx="2" fill="#f5f5f5"/><text x="418.1" y="262.6" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">VERDICT</text>
+<rect x="432" y="68" width="176" height="64" rx="6" fill="#f5f5f5"/><rect x="432" y="68" width="176" height="64" rx="6" fill="#f5f5f5" stroke="#2d3142" stroke-width="1"/>
+<rect x="440" y="74" width="64" height="16" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/><text x="472" y="85" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HẠT GIỐNG</text>
+<text x="520.0" y="106" fill="#2d3142" font-size="12" font-weight="600" text-anchor="middle">Ý tưởng vào ô</text><text x="520.0" y="122" fill="#4f5d75" font-size="9" text-anchor="middle">stub cơ hội · đang cân nhắc · có tuổi</text>
+<rect x="640" y="188" width="176" height="64" rx="6" fill="#f5f5f5"/><rect x="640" y="188" width="176" height="64" rx="6" fill="#f5f5f5" stroke="#2d3142" stroke-width="1"/>
+<text x="728.0" y="222" fill="#2d3142" font-size="12" font-weight="600" text-anchor="middle">Cổng Đáng</text><text x="728.0" y="238" fill="#4f5d75" font-size="9" text-anchor="middle">outcome + ngưỡng + timebox, khai trước</text>
+<rect x="640" y="428" width="176" height="64" rx="6" fill="#f5f5f5"/><rect x="640" y="428" width="176" height="64" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+<rect x="648" y="434" width="64" height="16" rx="2" fill="transparent" stroke="rgba(235,108,54,0.50)" stroke-width="0.8"/><text x="680" y="445" fill="#ba4513" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HẠT GIỐNG</text>
+<text x="728.0" y="466" fill="#2d3142" font-size="12" font-weight="600" text-anchor="middle">S1 · Hợp đồng</text><text x="728.0" y="482" fill="#4f5d75" font-size="9" text-anchor="middle">## Đường đo — một AC như mọi AC</text>
+<rect x="432" y="548" width="176" height="64" rx="6" fill="#f5f5f5"/><rect x="432" y="548" width="176" height="64" rx="6" fill="#f5f5f5" stroke="#2d3142" stroke-width="1"/>
+<text x="520.0" y="582" fill="#2d3142" font-size="12" font-weight="600" text-anchor="middle">Vòng LÀM → ship</text><text x="520.0" y="598" fill="#4f5d75" font-size="9" text-anchor="middle">S4 kiểm đường đo tồn tại · giao sau cờ</text>
+<rect x="224" y="428" width="176" height="64" rx="6" fill="#f5f5f5"/><rect x="224" y="428" width="176" height="64" rx="6" fill="#f5f5f5" stroke="#2d3142" stroke-width="1"/>
+<text x="312.0" y="462" fill="#2d3142" font-size="12" font-weight="600" text-anchor="middle">Số về</text><text x="312.0" y="478" fill="#4f5d75" font-size="9" text-anchor="middle">tracking thật · không phải cảm giác</text>
+<rect x="224" y="188" width="176" height="64" rx="6" fill="#f5f5f5"/><rect x="224" y="188" width="176" height="64" rx="6" fill="#f5f5f5" stroke="#2d3142" stroke-width="1"/>
+<text x="312.0" y="222" fill="#2d3142" font-size="12" font-weight="600" text-anchor="middle">Cổng Giá trị</text><text x="312.0" y="238" fill="#4f5d75" font-size="9" text-anchor="middle">số cạnh ngưỡng → release · iterate · kill</text>
+<rect x="412" y="288" width="216" height="104" rx="8" fill="#2d3142"/>
+<text x="520" y="326" fill="#f5f5f5" font-size="12" font-weight="600" text-anchor="middle">Hồ sơ xưởng</text>
+<text x="520" y="344" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">_acceptance/&lt;slug&gt;/ · cơ hội → số</text>
+<text x="520" y="362" fill="#bfc0c0" font-size="9" text-anchor="middle">bản đồ sản phẩm vẽ từ đây = outcome roadmap</text>
+<text x="520" y="376" fill="#bfc0c0" font-size="9" text-anchor="middle">(view, không phải kho — đừng sửa tay)</text>
+<line x1="64" y1="640" x2="976" y2="640" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+<text x="64" y="660" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<line x1="144" y1="656" x2="176" y2="656" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/><text x="184" y="660" fill="#4f5d75" font-size="9">dòng việc, theo chiều kim đồng hồ</text>
+<line x1="400" y1="656" x2="432" y2="656" stroke="#636b80" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arrow-soft)"/><text x="440" y="660" fill="#4f5d75" font-size="9">mỗi vòng ghi về hồ sơ</text>
+<rect x="600" y="648" width="24" height="14" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/><text x="632" y="660" fill="#4f5d75" font-size="9">mối nối mới — đường đo</text>
+<rect x="784" y="648" width="56" height="14" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/><text x="812" y="658" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HẠT GIỐNG</text><text x="848" y="660" fill="#4f5d75" font-size="9">hai chỗ chờ Cổng 0</text>
+</svg>
