@@ -166,4 +166,20 @@ Omit the `capture` block if the repo has no UI evidence need.
    `--no-t1-escape` as the ROOT path, find no `_acceptance/` there, and exit 0
    with the ENTIRE pre-merge check unrun (signoff, verdict, staleness, gap-probe, re-check
    — all skipped, CI green). Support landed in acceptance-gate 1.22.0+ — the released 1.21.0 has neither the flag nor the guard.
+5b. Declare the plugin set AT REPO LEVEL so every later machine gets the same
+    plugins just by opening the repo (Claude Code reads `enabledPlugins` +
+    `extraKnownMarketplaces` from `.claude/settings.json`). Run — `<path>` is the
+    repo root (`--repo` value, or `.`):
+    <!-- <<<INIT-PLUGIN-DECLARE -->
+    node "${CLAUDE_PLUGIN_ROOT}/scripts/plugin-declare.mjs" --root <path> --write
+    It parses and MERGES: every other key the team keeps in that file survives;
+    invalid JSON → exit 3 and nothing is written. It declares:
+    - acceptance-gate@acceptance-gate-kit
+    - feature-loop@acceptance-gate-kit
+    - diagram-design@acceptance-gate-kit
+    - superpowers@claude-plugins-official
+    <!-- INIT-PLUGIN-DECLARE>>> -->
+    Then tell the human ONE line: "đã khai plugin trong `.claude/settings.json` —
+    commit file này; đội viên mở repo là được nhắc cài." This file does NOT pin
+    plugin versions (GUIDE §5.1 says so); versions still follow kit releases.
 6. Print: "Acceptance gate ready. Run the acceptance skill on your next feature."

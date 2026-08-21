@@ -543,13 +543,40 @@ dùng/không-dùng: [docs/lai-thu-nguoi-la.md](docs/lai-thu-nguoi-la.md).
 
 ### 5.1 Mỗi máy dev (một lần)
 
+<!-- <<<GUIDE-PLUGIN-DECLARE -->
+Repo đã chạy `/acceptance-init` **khai sẵn bộ plugin** trong `.claude/settings.json`
+(khoá `extraKnownMarketplaces` + `enabledPlugins`), nên chỉ **máy đầu tiên** của một
+repo phải cài tay đủ để chạy init; **máy sau** mở repo là Claude Code nhắc bật đúng bộ:
+
+- acceptance-gate@acceptance-gate-kit
+- feature-loop@acceptance-gate-kit
+- diagram-design@acceptance-gate-kit
+- superpowers@claude-plugins-official
+
+<!-- <<<GUIDE-MAY-DAU -->
+**Máy đầu tiên của repo** (repo chưa có `.claude/settings.json`):
+
 ```bash
 claude plugin marketplace add phanlemanh/acceptance-gate-kit
 claude plugin install acceptance-gate@acceptance-gate-kit
-claude plugin install feature-loop@acceptance-gate-kit      # vòng lặp trọn gói
-claude plugin install superpowers@claude-plugins-official   # dependency của feature-loop
-claude plugin install diagram-design@acceptance-gate-kit    # bộ vẽ hình cho thẻ/kế hoạch (tuỳ chọn, cài riêng được)
 ```
+
+rồi chạy `/acceptance-init` — bước 5b của nó ghi file khai plugin; **commit file đó**.
+<!-- GUIDE-MAY-DAU>>> -->
+
+<!-- <<<GUIDE-MAY-SAU -->
+**Máy sau** (repo đã có file khai):
+
+```bash
+claude plugin marketplace add phanlemanh/acceptance-gate-kit
+```
+
+rồi mở repo trong Claude Code — harness đọc `enabledPlugins` và nhắc bật phần còn thiếu.
+<!-- GUIDE-MAY-SAU>>> -->
+
+File khai **không pin phiên bản**: `enabledPlugins` bật theo tên; phiên bản vẫn đi theo
+mốc release của kit và lệnh `claude plugin update` bên dưới.
+<!-- GUIDE-PLUGIN-DECLARE>>> -->
 
 Sau khi cài, **mở phiên Claude Code mới** để runtime nạp plugin. Khi runtime hook
 chưa bật hoặc bị tắt, CI vendored vẫn là lớp enforce chung và có thẩm quyền.
@@ -560,7 +587,7 @@ nhau (verifier bị chặn "oan", feature lọt eval). Chạy khi có release ho
 ```bash
 claude plugin update acceptance-gate@acceptance-gate-kit
 claude plugin update feature-loop@acceptance-gate-kit
-claude plugin update diagram-design@acceptance-gate-kit     # nếu đã cài
+claude plugin update diagram-design@acceptance-gate-kit     # bắt buộc (owner chốt 21/08)
 ```
 
 ### 5.2 Mỗi repo (một lần)
