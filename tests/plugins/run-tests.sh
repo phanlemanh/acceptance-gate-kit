@@ -2939,6 +2939,11 @@ fs.copyFileSync(path.join(root, 'lib/evidence-core.cjs'), path.join(mut, 'lib/ev
 // — ban sao chay thu phai co no, khong thi ket luan "chay duoc/khong" chi noi
 // ve viec thieu file chu khong ve hanh vi dang do.
 fs.copyFileSync(path.join(root, 'lib/workspace-record.cjs'), path.join(mut, 'lib/workspace-record.cjs'));
+// start-scan nhap TINH vi tu «khong can nguoi» (scripts/khong-can-nguoi.mjs, can
+// lib/md-section.cjs) — ban sao chay thu phai co ca hai, khong thi node chet o
+// buoc nap module va ca nay do vi thieu file chu khong vi hanh vi dang do.
+fs.copyFileSync(path.join(root, 'scripts/khong-can-nguoi.mjs'), path.join(mut, 'scripts/khong-can-nguoi.mjs'));
+fs.copyFileSync(path.join(root, 'lib/md-section.cjs'), path.join(mut, 'lib/md-section.cjs'));
 const src = fs.readFileSync(SCAN, 'utf8');
 const gone = VOCAB[VOCAB.length - 1];                     // go phan tu cuoi khuon writer
 const mutSrc = src.replace(new RegExp(`^\\s*'${gone}':.*$`, 'm'), '');
@@ -3076,6 +3081,11 @@ fs.copyFileSync(path.join(root, 'lib/evidence-core.cjs'), path.join(mut, 'lib/ev
 // — ban sao chay thu phai co no, khong thi ket luan "chay duoc/khong" chi noi
 // ve viec thieu file chu khong ve hanh vi dang do.
 fs.copyFileSync(path.join(root, 'lib/workspace-record.cjs'), path.join(mut, 'lib/workspace-record.cjs'));
+// start-scan nhap TINH vi tu «khong can nguoi» (scripts/khong-can-nguoi.mjs, can
+// lib/md-section.cjs) — ban sao chay thu phai co ca hai, khong thi node chet o
+// buoc nap module va ca nay do vi thieu file chu khong vi hanh vi dang do.
+fs.copyFileSync(path.join(root, 'scripts/khong-can-nguoi.mjs'), path.join(mut, 'scripts/khong-can-nguoi.mjs'));
+fs.copyFileSync(path.join(root, 'lib/md-section.cjs'), path.join(mut, 'lib/md-section.cjs'));
 const src = fs.readFileSync(SCAN, 'utf8');
 const anchor = "if (status === 'signed-off')";
 if (!src.includes(anchor)) die('mutant: khong tim thay anchor cho re trang thai');
@@ -10473,6 +10483,16 @@ _pd_ids="$(node "$ROOT/tests/plugins/plugin-declare.test.mjs" --ids)" || { echo 
 for _pd in $_pd_ids; do
   run "ca khai plugin — $_pd (ho so repo-khai-plugin)" \
     env PD_CASES="$_pd" node "$ROOT/tests/plugins/plugin-declare.test.mjs"
+done
+
+# ─── Hồ sơ lan-v-khong-phai-cho-ky: LV1..LV6 ────────────────────────────────
+# Ca đặt tên theo SLUG, không lấy số P toàn cục (hai nhánh song song hết đụng số).
+# Tên dòng `run` CỐ TÌNH không chứa chuỗi "PASS: LV<n>": chính file ca in sáu
+# dòng đó, nên đặt tên trùng khuôn là đếm đôi và phép đo "đúng 6 dòng" đỏ oan.
+# LV5 chạy CHÍNH pre-merge-check.sh trên kho git fixture (~17 lượt, vài chục giây).
+for _lv in LV1 LV2 LV3 LV4 LV5 LV6; do
+  run "ca lan V — $_lv (ho so lan-v-khong-phai-cho-ky)" \
+    env LV_CASES="$_lv" node "$ROOT/tests/plugins/lan-v.test.mjs"
 done
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
