@@ -83,8 +83,8 @@ worktree/nhánh đọc từ git của `<path>`.
      `discovery.brainstorm_skill`): CÓ giá trị → mở buổi khai thác bằng đúng
      skill đó, kết thúc theo `START-HIEU-KET`; `null` → khai thác theo khuôn
      `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/opportunity-template.md`
-     rồi kết thúc theo `START-HIEU-KET` (repo chưa khai là bình thường — KHÔNG
-     chặn, không cờ). Nhánh thứ ba,
+     rồi kết thúc theo `START-HIEU-KET` (repo chưa khai là bình thường —
+     KHÔNG chặn, không cờ). Nhánh thứ ba,
      BẮT BUỘC có: giá trị CÓ nhưng skill đó KHÔNG nằm trong danh sách skill
      khả dụng của phiên → NÓI THẲNG một dòng ("repo khai buổi khai thác bằng
      `<tên>`, phiên này không có skill đó") rồi khai thác theo khuôn, kết thúc theo `START-HIEU-KET` — đích khai
