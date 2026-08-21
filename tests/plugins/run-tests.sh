@@ -10476,6 +10476,15 @@ run "P200 mot lan cat so nhat quan: hai plugin cung so · GUIDE dan xuat · muc 
   node "$P200TMP/p200.mjs" "$ROOT"
 rm -rf "$P200TMP"
 
+# ─── Hồ sơ repo-khai-plugin: PD1..PD9 (file ca riêng, tên theo slug) ─────────
+# Tiêu đề dòng run CỐ TÌNH không chứa "PASS: PD" — chính file ca in các dòng đó.
+# Danh sách ca do CHÍNH file ca xuất (--ids) — không chép tay, thêm ca không cần sửa file này.
+_pd_ids="$(node "$ROOT/tests/plugins/plugin-declare.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca PD"; failures=$((failures+1)); _pd_ids=""; }
+for _pd in $_pd_ids; do
+  run "ca khai plugin — $_pd (ho so repo-khai-plugin)" \
+    env PD_CASES="$_pd" node "$ROOT/tests/plugins/plugin-declare.test.mjs"
+done
+
 # ─── Hồ sơ lan-v-khong-phai-cho-ky: LV1..LV6 ────────────────────────────────
 # Ca đặt tên theo SLUG, không lấy số P toàn cục (hai nhánh song song hết đụng số).
 # Tên dòng `run` CỐ TÌNH không chứa chuỗi "PASS: LV<n>": chính file ca in sáu

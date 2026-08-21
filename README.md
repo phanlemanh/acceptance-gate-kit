@@ -45,26 +45,22 @@ Enforcement is deterministic, not aspirational:
 
 ## Install
 
-```bash
-claude plugin marketplace add phanlemanh/acceptance-gate-kit
-claude plugin install acceptance-gate@acceptance-gate-kit
-claude plugin install feature-loop@acceptance-gate-kit    # full loop
-claude plugin install superpowers@claude-plugins-official # required by feature-loop
-claude plugin install diagram-design@acceptance-gate-kit  # diagrams for cards/plans (optional, standalone)
-```
+The install and update commands live in **one place only** —
+[GUIDE §5.1](GUIDE.md#51-mỗi-máy-dev-một-lần) — covering the first machine of a
+repo, later machines, and the full plugin set (`acceptance-gate`, `feature-loop`,
+`diagram-design`, `superpowers` — all required). `/acceptance-init` writes
+`.claude/settings.json`, so teammates get the same set just by opening the repo.
+This README deliberately carries no command of its own: a second copy is a copy
+that drifts.
 
 Open a **fresh session** after installing or upgrading so the runtime discovers
 the new skills and hooks. CI remains authoritative if the write-time hook is
 untrusted or disabled.
 
 Stay current — two devs on different kit versions in one repo run two different
-gate rule-sets:
-
-```bash
-claude plugin update acceptance-gate@acceptance-gate-kit
-claude plugin update feature-loop@acceptance-gate-kit
-claude plugin update diagram-design@acceptance-gate-kit   # if installed
-```
+gate rule-sets. The update commands live in
+[GUIDE §5.1](GUIDE.md#51-mỗi-máy-dev-một-lần) next to the rest of the procedure;
+this file does not repeat them.
 
 > **Enforcement note.** Write-time hook behavior depends on the active agent
 > runtime and hook trust, so do not rely on it as the only guard. The

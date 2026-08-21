@@ -15,7 +15,11 @@ thay vì thư mục hiện tại. Khởi tạo là MỘT-LẦN-GẠCH, không ph
 repo trước, trình TRỌN bản nháp trong một lượt, người gạch/sửa một lần rồi
 máy ghi (hồ sơ doi-hanh-vi-cong-nguoi, owner gạch 12/08).
 
-1. If `_acceptance/config.yaml` already exists → show it and STOP (never overwrite).
+1. If `_acceptance/config.yaml` already exists → show it, SKIP steps 2–5 (never
+   overwrite the config, never re-copy CI), but STILL RUN step 5b and step 6 — an
+   already-initialised repo is exactly the one that has no `.claude/settings.json`
+   yet, and 5b is the only thing that writes it. Say it in one line: "config đã có —
+   bỏ qua khởi tạo, chỉ khai plugin."
 2. PROBE the repo first — no questions yet. Infer every field a machine can
    read from the tree: test commands per surface (package.json scripts,
    Makefile, CI workflows — api/backend/sdk), CLI smoke command, dev server
@@ -166,4 +170,26 @@ Omit the `capture` block if the repo has no UI evidence need.
    `--no-t1-escape` as the ROOT path, find no `_acceptance/` there, and exit 0
    with the ENTIRE pre-merge check unrun (signoff, verdict, staleness, gap-probe, re-check
    — all skipped, CI green). Support landed in acceptance-gate 1.22.0+ — the released 1.21.0 has neither the flag nor the guard.
+5b. Declare the plugin set AT REPO LEVEL so every later machine gets the same
+    plugins just by opening the repo (Claude Code reads `enabledPlugins` +
+    `extraKnownMarketplaces` from `.claude/settings.json`). Run — `<path>` is the
+    repo root (`--repo` value, or `.`):
+    <!-- <<<INIT-PLUGIN-DECLARE -->
+    node "${CLAUDE_PLUGIN_ROOT}/scripts/plugin-declare.mjs" --root <path> --write
+    It parses and MERGES: every other key the team keeps in that file survives;
+    invalid JSON → exit 3 and nothing is written. It declares:
+    - acceptance-gate@acceptance-gate-kit
+    - feature-loop@acceptance-gate-kit
+    - diagram-design@acceptance-gate-kit
+    - superpowers@claude-plugins-official
+    BRANCH ON THE EXIT CODE — never report success unconditionally:
+    - exit 0 → tell the human ONE line: "đã khai plugin trong `.claude/settings.json` —
+      commit file này; đội viên mở repo là được nhắc cài."
+    - exit 3 or 4 → the file was NOT written. Print the script's stderr VERBATIM,
+      then say what is broken and what to do, e.g. "chưa khai được plugin:
+      `.claude/settings.json` không đọc được — sửa file rồi chạy lại lệnh trên."
+      Do NOT tell anyone to commit anything, and do NOT claim the repo is ready.
+    <!-- INIT-PLUGIN-DECLARE>>> -->
+    This file does NOT pin plugin versions (GUIDE §5.1 says so); versions still
+    follow kit releases.
 6. Print: "Acceptance gate ready. Run the acceptance skill on your next feature."

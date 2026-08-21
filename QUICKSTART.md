@@ -24,13 +24,11 @@ report chưa ký.
 
 Trọn bộ (copy-paste một lần):
 
-```bash
-claude plugin marketplace add phanlemanh/acceptance-gate-kit
-claude plugin install acceptance-gate@acceptance-gate-kit
-claude plugin install feature-loop@acceptance-gate-kit      # vòng lặp trọn gói
-claude plugin install superpowers@claude-plugins-official   # dependency của feature-loop
-claude plugin install diagram-design@acceptance-gate-kit    # bộ vẽ hình cho thẻ/kế hoạch (tuỳ chọn, cài riêng được)
-```
+Lệnh cài và lệnh cập nhật nằm ở **một chỗ duy nhất** — **GUIDE §5.1** — gồm cả máy
+đầu tiên của repo, máy sau, và trọn bộ plugin (`acceptance-gate`, `feature-loop`,
+`diagram-design`, `superpowers` — đều bắt buộc). `/acceptance-init` ghi
+`.claude/settings.json` nên đội viên mở repo là có đúng bộ. File này cố ý không mang
+lệnh nào: bản sao thứ hai là bản sao sẽ trôi.
 
 Tối thiểu (chỉ gate, không vòng lặp): cài marketplace + `acceptance-gate` là đủ.
 
@@ -39,10 +37,7 @@ Tối thiểu (chỉ gate, không vòng lặp): cài marketplace + `acceptance-g
 
 ## Cập nhật plugin (quan trọng với cả đội)
 
-```bash
-claude plugin update acceptance-gate@acceptance-gate-kit
-claude plugin update feature-loop@acceptance-gate-kit    # nếu đã cài
-```
+Lệnh cập nhật nằm cùng thủ tục cài ở **GUIDE §5.1** — file này không chép lại.
 
 Chạy khi có thông báo release, hoặc đầu mỗi sprint. Hai dev chạy 2 version
 khác nhau trên cùng repo = 2 chuẩn gate khác nhau (verifier bị chặn "oan",
@@ -198,7 +193,7 @@ token `exit=1`/`exit_code: 1` (sanitize trước khi dán).
 
 ---
 
-# ⚡ feature-loop — vòng lặp trọn gói (plugin thứ 2, tùy chọn)
+# ⚡ feature-loop — vòng lặp trọn gói (plugin thứ 2 của kit)
 
 Nếu acceptance-gate là **cái cổng**, feature-loop là **cả con đường**: một lệnh
 duy nhất dẫn tính năng từ ý tưởng → design → contract+evals → plan → code →
@@ -218,11 +213,8 @@ verify đa-agent → evidence → PR. Bạn vẫn chỉ dừng tay đúng 2 lầ
 
 **Cài thêm (sau khi đã cài acceptance-gate):**
 
-```bash
-claude plugin install feature-loop@acceptance-gate-kit
-claude plugin install superpowers@claude-plugins-official   # dependency (brainstorm/plan)
-claude plugin install diagram-design@acceptance-gate-kit    # bộ vẽ hình (tuỳ chọn)
-```
+Không cần gõ thêm: repo đã chạy `/acceptance-init` thì mở repo là Claude Code nhắc bật
+`feature-loop` · `diagram-design` · `superpowers` (đều bắt buộc). Chi tiết: **GUIDE §5.1**.
 
 **Setup mỗi repo:** đã chạy `/acceptance-init` rồi thì chỉ cần thêm vào
 `_acceptance/config.yaml` các lệnh verify chạy mỗi vòng (chọn từ `executors.*`

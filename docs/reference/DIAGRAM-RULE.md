@@ -123,10 +123,8 @@ không đỏ được, không phải chỗ đặt răng.
 Từ kit 2.1.0, skill `diagram-design` được **đóng gói thành plugin thứ ba** của
 marketplace `acceptance-gate-kit` — không còn clone kho riêng, không symlink:
 
-```bash
-claude plugin marketplace add phanlemanh/acceptance-gate-kit   # nếu chưa có
-claude plugin install diagram-design@acceptance-gate-kit
-```
+Cài theo **GUIDE §5.1** (một chỗ duy nhất giữ lệnh cài/cập nhật của kit) —
+`diagram-design` nằm trong bộ bắt buộc, không cài riêng.
 
 Mở phiên mới để skill nạp. Ai đang giữ symlink `~/.claude/skills/diagram-design`
 từ đời trước thì **gỡ symlink** khi cài plugin — hai bản cùng mô tả sẽ trigger

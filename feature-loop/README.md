@@ -23,12 +23,8 @@ Trạng thái loop sống trong frontmatter `status` của `_acceptance/<slug>/c
 
 ## Cài đặt
 
-```bash
-claude marketplace add phanlemanh/acceptance-gate-kit   # nếu chưa add
-claude plugin install acceptance-gate@acceptance-gate-kit
-claude plugin install feature-loop@acceptance-gate-kit
-# + plugin superpowers (marketplace claude-plugins-official)
-```
+Thủ tục cài (máy đầu / máy sau, trọn bộ plugin của kit + `superpowers`) nằm ở
+**GUIDE §5.1** của repo kit — một nguồn duy nhất, file này không chép lại.
 
 ## Setup mỗi repo đích
 

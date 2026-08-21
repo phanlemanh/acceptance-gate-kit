@@ -543,25 +543,54 @@ dùng/không-dùng: [docs/lai-thu-nguoi-la.md](docs/lai-thu-nguoi-la.md).
 
 ### 5.1 Mỗi máy dev (một lần)
 
+<!-- <<<GUIDE-PLUGIN-DECLARE -->
+Repo đã chạy `/acceptance-init` **khai sẵn bộ plugin** trong `.claude/settings.json`
+(khoá `extraKnownMarketplaces` + `enabledPlugins`), nên chỉ **máy đầu tiên** của một
+repo phải cài tay đủ để chạy init; **máy sau** mở repo là Claude Code nhắc bật đúng bộ:
+
+- acceptance-gate@acceptance-gate-kit
+- feature-loop@acceptance-gate-kit
+- diagram-design@acceptance-gate-kit
+- superpowers@claude-plugins-official
+
+<!-- <<<GUIDE-MAY-DAU -->
+**Máy đầu tiên của repo** (repo chưa có `.claude/settings.json`):
+
 ```bash
 claude plugin marketplace add phanlemanh/acceptance-gate-kit
 claude plugin install acceptance-gate@acceptance-gate-kit
-claude plugin install feature-loop@acceptance-gate-kit      # vòng lặp trọn gói
-claude plugin install superpowers@claude-plugins-official   # dependency của feature-loop
-claude plugin install diagram-design@acceptance-gate-kit    # bộ vẽ hình cho thẻ/kế hoạch (tuỳ chọn, cài riêng được)
 ```
 
-Sau khi cài, **mở phiên Claude Code mới** để runtime nạp plugin. Khi runtime hook
-chưa bật hoặc bị tắt, CI vendored vẫn là lớp enforce chung và có thẩm quyền.
+rồi chạy `/acceptance-init` — bước 5b của nó ghi file khai plugin; **commit file đó**.
+<!-- GUIDE-MAY-DAU>>> -->
+
+<!-- <<<GUIDE-MAY-SAU -->
+**Máy sau** (repo đã có file khai):
+
+```bash
+claude plugin marketplace add phanlemanh/acceptance-gate-kit
+```
+
+rồi mở repo trong Claude Code — harness đọc `enabledPlugins` và nhắc bật phần còn thiếu.
+<!-- GUIDE-MAY-SAU>>> -->
+
+File khai **không pin phiên bản**: `enabledPlugins` bật theo tên; phiên bản vẫn đi theo
+mốc release của kit và lệnh cập nhật ngay dưới đây.
 
 **Kỷ luật cập nhật** — hai dev chạy 2 version kit trên cùng repo = 2 chuẩn gate khác
-nhau (verifier bị chặn "oan", feature lọt eval). Chạy khi có release hoặc đầu sprint:
+nhau (verifier bị chặn "oan", feature lọt eval). Chạy khi có release hoặc đầu sprint —
+**cả bốn, không bỏ cái nào**:
 
 ```bash
 claude plugin update acceptance-gate@acceptance-gate-kit
 claude plugin update feature-loop@acceptance-gate-kit
-claude plugin update diagram-design@acceptance-gate-kit     # nếu đã cài
+claude plugin update diagram-design@acceptance-gate-kit
+claude plugin update superpowers@claude-plugins-official
 ```
+<!-- GUIDE-PLUGIN-DECLARE>>> -->
+
+Sau khi cài, **mở phiên Claude Code mới** để runtime nạp plugin. Khi runtime hook
+chưa bật hoặc bị tắt, CI vendored vẫn là lớp enforce chung và có thẩm quyền.
 
 ### 5.2 Mỗi repo (một lần)
 
@@ -959,7 +988,7 @@ MỘT câu hỏi đóng YES/NO — là assertion, không phải judge:
 | `signoff ... also edits the report body` | Chữ ký commit chung với body report | Tách: commit evidence trước, chữ ký là commit riêng (mục 6.1 bước 5) |
 | `T3 paths changed but the PR carries NO _acceptance/...` | Khai T1 nhưng PR đụng code gated | Chạy gate cho phần code đó, hoặc sửa khai báo tier |
 | Design eval `BLOCKED` hàng loạt | Thiếu `jsdom` trong repo web UI | `npm i -D jsdom` |
-| Verifier bị chặn "oan" khác nhau giữa 2 máy | 2 dev chạy 2 version plugin | `claude plugin update ...` cả đội |
+| Verifier bị chặn "oan" khác nhau giữa 2 máy | 2 dev chạy 2 version plugin | cả đội cập nhật theo §5.1 |
 | Workflow S4 đứt giữa chừng | Crash/cancel | Resume cùng round nếu chưa sửa code; đã sửa code → chạy round mới |
 | `config.yaml breaks the 2-space line schema` | Tab / indent lẻ sau khi sửa tay | Sửa indent; lần sau ghi qua `config-patch.mjs` |
 | Slug bị "chiếm" (`_acceptance/<slug>/` của feature khác) | Trùng tên tính năng | Kit bắt đổi slug (suffix) — không im lặng ghi đè |
