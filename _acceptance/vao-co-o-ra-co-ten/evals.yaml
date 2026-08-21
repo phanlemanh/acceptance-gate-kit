@@ -45,10 +45,11 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/start-scan.mjs, tests/plugins/vao-co-o.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: [VC4]" — fixture không git, utimes 10 ngày trước →
-      ageDays == 10; fixture git init (ident qua -c) commit với GIT_COMMITTER_DATE
-      cố định → since == ngày đó (so theo epoch); file chưa commit trong repo git
-      → mtime.
+      exit 0; stdout có "PASS: [VC4]" — (a) fixture không git, utimes 10 ngày trước →
+      ageDays == 10; (b) git init (ident qua -c) HAI commit trên cùng file, ngày −10
+      rồi −1, đặt cả GIT_AUTHOR_DATE lẫn GIT_COMMITTER_DATE → since == ngày −10
+      (so epoch) và ageDays == 10 — bản sao script đọc commit cuối (mutant đổi
+      tail→head) → đỏ "since lấy commit cuối"; (c) file chưa commit trong repo git → mtime.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
@@ -66,12 +67,14 @@ evals:
     cmd: config:executors.test.plugins
     paths: [commands/start.md, tests/plugins/vao-co-o.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: [VC6]" — khối START-CAN-NHAC có mặt, chứa "Đang cân
-      nhắc" và "cũ nhất", vị trí sau "Đang dở" trước "Bắt đầu việc mới"; khối
-      START-HIEU-KET ≤ 15 dòng, chứa "stage: discovery", "opportunity-template.md",
-      "Vấn đề & ai gặp"; đếm /grill/ == 0; stub dựng theo khối → script thật →
-      considering[]. Chiều đỏ: bản sao start.md gỡ khối → đỏ "không tìm thấy khối";
-      bản sao thêm dòng thứ 16 vào START-HIEU-KET → đỏ "quá 15 dòng".
+      exit 0; stdout có "PASS: [VC6]" — ma trận VIẾT TRƯỚC 6 mệnh đề cho khối
+      START-HIEU-KET (số assert == 6, mỗi mệnh đề ghim một chuỗi/span riêng) + 4 assert
+      cho START-CAN-NHAC (có mặt · "Đang cân nhắc" · vị trí sau "Đang dở" trước "Bắt
+      đầu việc mới" · câu "N = 0" không in); vị trí START-HIEU-KET đứng TRƯỚC cả hai
+      nhánh brainstormSkill và cả hai nhánh đều trỏ tên marker; đếm /grill/ == 0;
+      (iv) rút code span `key: value` từ khối lúc chạy, áp lên khuôn → stub → script
+      thật → considering[]. Chiều đỏ cùng ca: bản sao gỡ span `stage: discovery` →
+      đỏ nêu "mệnh đề ①"; gỡ khối → "không tìm thấy khối"; thêm dòng 16 → "quá 15 dòng".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E7
     criterion: AC-7
@@ -81,7 +84,8 @@ evals:
     expected: >
       exit 0; stdout có "PASS: [VC7]" — trên cùng fixture: số "Đang cân nhắc cơ hội"
       trong renderProductMap == considering.length + số gate dang (== 2); "Sắp mở"
-      == 1; gỡ hồ sơ cân nhắc → cả hai phía == 1.
+      == 1; gỡ hồ sơ cân nhắc → cả hai phía == 1 và considering là mảng RỖNG
+      (khoá vẫn có mặt — đối chứng dữ liệu cho N = 0).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
     criterion: AC-8
@@ -90,11 +94,13 @@ evals:
     paths: [docs/plans, _acceptance, PRODUCT-MAP.md, tests/plugins/vao-co-o.test.mjs]
     expected: >
       exit 0; stdout có "PASS: [VC8]" — trên CÂY ĐANG KIỂM (suy từ vị trí file):
-      mọi docs/plans/*hat-giong-<slug>.md có _acceptance/<slug>/ hoặc được một
-      contract.md nêu tên; bản sao thêm hạt giống mồ côi → đỏ nêu đúng tên file;
-      7 stub bắt đầu "---", không ở broken[]; duong-do ở inProgress S1, 6 còn lại
-      ở considering[]; 10 dòng đầu 7 hạt giống không có "chờ Cổng 0|HẠT GIỐNG|ĐỀ
-      XUẤT" và có con trỏ opportunity.md.
+      assert vũ trụ (≥ 13 hạt giống, tập slug ⊇ 7 mới ∪ 6 cũ); mọi hạt giống có ô
+      theo ba chân khớp tường minh (thư mục theo slug · đường dẫn nguyên văn trong
+      contract · con trỏ _acceptance/<dir>/ trong chính file); fixture một hồ sơ mỗi
+      chân + một mồ côi → đỏ nêu đúng tên file mồ côi; bản sao đổi tên một file thật
+      ra khỏi pattern → đỏ nêu đúng slug; 7 stub bắt đầu "---", không ở broken[];
+      duong-do ở inProgress S1, 6 còn lại ở considering[]; 10 dòng đầu 7 hạt giống
+      không có "chờ Cổng 0|HẠT GIỐNG|ĐỀ XUẤT" và có con trỏ opportunity.md.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8b
     criterion: AC-8
