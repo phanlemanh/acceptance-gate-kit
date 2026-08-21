@@ -84,4 +84,10 @@ function main() {
   process.exit(0);
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();
+// Guard entry-point bằng realpath: /var/… là symlink của /private/var/… trên macOS, và
+// đường cache plugin cũng có thể là symlink — so chuỗi thô thì main() im lặng không chạy.
+function isEntryPoint() {
+  try { return !!process.argv[1] && fs.realpathSync(path.resolve(process.argv[1])) === fs.realpathSync(fileURLToPath(import.meta.url)); }
+  catch { return false; }
+}
+if (isEntryPoint()) main();
