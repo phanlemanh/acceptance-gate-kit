@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent (đường VERIFY độc lập, chạy tuần tự)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: e9205a96e2a74a940d32afabc57633070e314203
+verified_commit: 6764502707c54b0c38152352c73db6370124027f
 human_signoff: Manh Phan 2026-08-21 — ký với 4 known-limits và E10 UNCERTAIN đã override có điều kiện
 ---
 
@@ -346,3 +346,7 @@ Round 4: Đổi đường lấy bằng chứng — verify độc lập, năm l�
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter
+
+### Re-pin lần 1 — 2026-08-21, do merge origin/main (hồ sơ lan-v #80) vào nhánh sau khi ký
+run_id: repin-repo-khai-plugin-20260821T174427Z
+sha: 6764502707c54b0c38152352c73db6370124027f · suites: 4 lệnh exit 0
