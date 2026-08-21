@@ -178,8 +178,9 @@ Omit the `capture` block if the repo has no UI evidence need.
     - feature-loop@acceptance-gate-kit
     - diagram-design@acceptance-gate-kit
     - superpowers@claude-plugins-official
-    <!-- INIT-PLUGIN-DECLARE>>> -->
     Then tell the human ONE line: "đã khai plugin trong `.claude/settings.json` —
-    commit file này; đội viên mở repo là được nhắc cài." This file does NOT pin
-    plugin versions (GUIDE §5.1 says so); versions still follow kit releases.
+    commit file này; đội viên mở repo là được nhắc cài."
+    <!-- INIT-PLUGIN-DECLARE>>> -->
+    This file does NOT pin plugin versions (GUIDE §5.1 says so); versions still
+    follow kit releases.
 6. Print: "Acceptance gate ready. Run the acceptance skill on your next feature."
