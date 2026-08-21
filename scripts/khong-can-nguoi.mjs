@@ -35,10 +35,13 @@ const { section } = require(path.join(__dirname, '..', 'lib', 'md-section.cjs'))
 // Cùng regex với bash: grep -qiE '(^|[^a-z])UNCERTAIN([^a-z]|$)' trên TRỌN file.
 const UNCERTAIN_RE = /(^|[^a-z])UNCERTAIN([^a-z]|$)/i;
 
-// Tiêu đề có mặt? — hỏi RIÊNG với «thân rỗng» (vắng ≠ rỗng), y như bash.
+// Tiêu đề có mặt? — hỏi RIÊNG với «thân rỗng» (vắng ≠ rỗng). Ranh tiêu đề là
+// #{2,6} — CÙNG ranh với section() của lib/md-section.cjs. Nhận cả h1 ở đây mà
+// section() không nhận là h1 «Known limits» có nội dung bị đọc thành «rỗng» ⇒
+// sạch giả (S4-r5 bắt; bash xanh_sach_check đang mang đúng lỗi đó — sổ #9).
 function sectionState(txt, heading) {
-  const has = txt.split('\n').some(l => /^#{1,6}\s+/.test(l)
-    && l.replace(/^#{1,6}\s+/, '').trim().toLowerCase() === heading.toLowerCase());
+  const has = txt.split('\n').some(l => /^#{2,6}\s+/.test(l)
+    && l.replace(/^#{2,6}\s+/, '').trim().toLowerCase() === heading.toLowerCase());
   if (!has) return 'vang';
   return section(txt, heading).join('\n').trim() ? 'co' : 'rong';
 }
@@ -68,8 +71,10 @@ export function xanhSach(contractTxt, evidenceTxt) {
 }
 
 // Trả null khi hồ sơ CÒN cần người; trả tên trạng thái «đã giao» khi không:
-//   'lan-v-mo'  — Cổng 1 máy đóng (veto_state: mo có vết), cửa veto còn mở
-//   'xanh-sach' — Cổng 1 người duyệt (approved_by có tên), Cổng 2 xanh-sạch
+//   'lan-v-mo'  — cửa veto ĐANG MỞ: máy đã đóng một cổng (Cổng 1 hoặc Cổng 2)
+//                 với vết `veto_state: mo` — bất kể người có duyệt Cổng 1 hay không
+//                 (release-2-0-0: approved_by có tên + mo ở Cổng 2 ⇒ cửa vẫn mở)
+//   'xanh-sach' — không có cửa veto: người đóng/miễn Cổng 1, Cổng 2 xanh-sạch
 // Thứ tự nhánh tường minh (AC-4): da-veto cắt trước → chữ ký (bên gọi xử) →
 // Cổng 1 → Cổng 2.
 export function khongCanNguoi(contractTxt, evidenceTxt) {

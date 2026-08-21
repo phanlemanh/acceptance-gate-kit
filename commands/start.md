@@ -88,10 +88,11 @@ worktree/nhánh đọc từ git của `<path>`.
    - `groups.done` chỉ đếm gộp một dòng cuối thẻ (đã xong/đã xếp lại: N việc).
      Hai trạng thái «máy đã đi tiếp, không cần chữ ký» — máy quét chỉ gán
      chúng khi hồ sơ trả lời được ĐÚNG câu lưới trước-merge hỏi (sáu điều kiện
-     xanh-sạch + Cổng 1 hợp lệ + không bị veto): `state: lan-v-mo` là hồ sơ đi
-     **làn V**, cửa veto còn mở (người veto lúc nào cũng được, cửa không có
-     hạn); `state: xanh-sach` là hồ sơ người đã duyệt Cổng 1 và bằng chứng
-     xanh-sạch. Cả hai KHÔNG phải cổng, KHÔNG được liệt vào nhóm chờ chữ ký; có
+     xanh-sạch + Cổng 1 hợp lệ + không bị veto): `state: lan-v-mo` là hồ sơ có
+     **cửa veto đang mở** — máy đã đóng một cổng (Cổng 1 hoặc Cổng 2) với vết
+     `veto_state: mo`, kể cả khi người có duyệt Cổng 1 (người veto lúc nào cũng
+     được, cửa không có hạn); `state: xanh-sach` là hồ sơ không có cửa veto —
+     người đóng hoặc miễn Cổng 1, bằng chứng xanh-sạch. Cả hai KHÔNG phải cổng, KHÔNG được liệt vào nhóm chờ chữ ký; có
      phần tử như vậy thì dòng đếm gộp nói thêm «trong đó N máy đi tiếp không
      ký, M còn cửa veto mở», không thêm dòng riêng và không hỏi thêm câu nào.
      Hồ sơ CHƯA sạch thì máy quét vẫn xếp vào chờ chữ ký — kể cả khi cửa veto

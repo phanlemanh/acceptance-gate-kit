@@ -56,9 +56,10 @@ function contractText(slug, { status, veto, opened, tier, approvedBy, gate1Skipp
 // Báo cáo bằng chứng theo ĐÚNG khuôn lưới đọc (recheck strict: run_id · exit 0 ·
 // verifier có thật). Known limit #5 của hồ sơ: khuôn bên viết chưa có marker để
 // rút — vật viết tay này là chỗ trôi có thể xảy ra, ghi sổ chứ không giấu.
-// sach: 'sach' | 'bypass' | 'uncertain' | 'kl-co' | 'nhd-co' | 'kl-vang' | 'nhd-vang' | 'enf-off'
+// sach: 'sach' | 'bypass' | 'uncertain' | 'kl-co' | 'nhd-co' | 'kl-vang' | 'nhd-vang' | 'enf-off' | 'kl-h1-co'
 function evidenceText(slug, { verdict, signoff, sach, verifiedCommit }) {
   const kl = sach === 'kl-co' ? '## Known limits\n\n- còn một lỗ chưa đóng\n'
+           : sach === 'kl-h1-co' ? '# Known limits\n\n- còn một lỗ chưa đóng (tiêu đề h1)\n'
            : sach === 'kl-vang' ? ''
            : '## Known limits\n\n';
   const nhd = sach === 'nhd-co' ? '## Ngoài hợp đồng\n\n- một finding ngoài phạm vi\n'
@@ -116,7 +117,8 @@ const NGUOI_SACH = { ...V_SACH, veto: null, opened: null, approvedBy: 'Manh Phan
 // ─── LV1 — sạch + chưa ký ⇒ đã giao, hai biến thể ────────────────────────────
 if (want('LV1')) {
   const errs = [];
-  for (const [ten, o, kyVong] of [['V-co-vet', V_SACH, 'lan-v-mo'], ['nguoi-duyet', NGUOI_SACH, 'xanh-sach']]) {
+  for (const [ten, o, kyVong] of [['V-co-vet', V_SACH, 'lan-v-mo'], ['nguoi-duyet', NGUOI_SACH, 'xanh-sach'],
+                                  ['nguoi-duyet+cua-veto-mo', { ...V_SACH, approvedBy: 'Manh Phan' }, 'lan-v-mo']]) {
     withRepo(root => {
       mkWorkspace(root, 'lv1', o);
       const s = scan(root);
@@ -125,13 +127,15 @@ if (want('LV1')) {
     });
   }
   if (errs.length) fail('LV1', errs.join(' · '));
-  else pass('LV1', 'sach + chua ky -> done (lan-v-mo khi V co vet · xanh-sach khi nguoi duyet Cong 1)');
+  else pass('LV1', 'sach + chua ky -> done (lan-v-mo khi cua veto mo, ke ca nguoi da duyet Cong 1 · xanh-sach khi khong co cua veto)');
 }
 
 // ─── LV2 — V-mở nhưng CHƯA SẠCH ⇒ vẫn là cổng (lỗ vòng một) ──────────────────
 if (want('LV2')) {
   const errs = [];
-  for (const sach of ['bypass', 'uncertain', 'kl-co', 'nhd-co', 'kl-vang', 'nhd-vang', 'enf-off']) {
+  // kl-h1-co: h1 «Known limits» có nội dung — KHÔNG đưa vào LV5 (bash đang fail-open ở đúng chỗ này, sổ #9);
+  // máy quét phải an toàn hơn: coi là chưa sạch.
+  for (const sach of ['bypass', 'uncertain', 'kl-co', 'nhd-co', 'kl-vang', 'nhd-vang', 'enf-off', 'kl-h1-co']) {
     withRepo(root => {
       mkWorkspace(root, 'lv2', { ...V_SACH, sach });
       const s = scan(root);
@@ -140,7 +144,7 @@ if (want('LV2')) {
     });
   }
   if (errs.length) fail('LV2', errs.join(' · '));
-  else pass('LV2', 'V-mo + PASS + T2 nhung CHUA SACH -> van o gates (7 bien the)');
+  else pass('LV2', 'V-mo + PASS + T2 nhung CHUA SACH -> van o gates (8 bien the)');
 }
 
 // ─── LV3 — da-veto ⇒ không bao giờ đã giao ────────────────────────────────────

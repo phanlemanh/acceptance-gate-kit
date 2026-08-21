@@ -74,7 +74,7 @@ mutant)
   o2="$(LV_CASES=LV2,LV5 node "$TMP/B/tests/plugins/lan-v.test.mjs" 2>&1)"
   printf '%s\n' "$o2" | grep -q '^FAIL: LV2 ' || bad "dot bien 2: LV2 khong do"
   n2="$(printf '%s\n' "$o2" | grep -o 'chua sach ma thanh done' | wc -l | tr -d ' ')"
-  [ "$n2" -ge 7 ] || bad "dot bien 2: LV2 do nhung chi $n2/7 bien the ghim 'chua sach ma thanh done'"
+  [ "$n2" -ge 8 ] || bad "dot bien 2: LV2 do nhung chi $n2/8 bien the ghim 'chua sach ma thanh done'"
   printf '%s\n' "$o2" | grep -q '^FAIL: LV5 ' || bad "dot bien 2: LV5 (dang thuc voi luoi) khong do — phep so khong phan biet duoc"
   printf '%s\n' "$o2" | grep -qF 'lech V-bypass' || bad "dot bien 2: LV5 do nhung khong ghim 'lech V-bypass'"
 
@@ -140,7 +140,8 @@ cay-that)
     [ -f "$c" ] && [ -f "$e" ] || continue
     st="$(sed -n '/^---[[:space:]]*$/,/^---[[:space:]]*$/p' "$c" | sed -n 's/^status[[:space:]]*:[[:space:]]*//p' | head -1 | sed 's/[[:space:]#].*$//')"
     [ "$st" = "verified" ] || continue
-    sig="$(sed -n '/^---[[:space:]]*$/,/^---[[:space:]]*$/p' "$e" | sed -n 's/^human_signoff[[:space:]]*:[[:space:]]*//p' | head -1 | tr -d '[:space:]')"
+    # Bóc comment và nháy y như bộ đọc chuẩn: dòng khuôn `human_signoff:   # Gate 2 …` là CHƯA ký (S4-r5).
+    sig="$(sed -n '/^---[[:space:]]*$/,/^---[[:space:]]*$/p' "$e" | sed -n 's/^human_signoff[[:space:]]*:[[:space:]]*//p' | head -1 | sed 's/[[:space:]]*#.*$//' | tr -d '"'"'"'"'"'"'[:space:]')"
     [ -z "$sig" ] || continue
     so=$((so + 1))
     if printf '%s\n' "$luoi" | grep -q "^VIOLATION \[$slug\]"; then chan=1; else chan=0; fi

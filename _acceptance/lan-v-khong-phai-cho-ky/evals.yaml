@@ -32,8 +32,9 @@ evals:
     executor: test
     cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cases
     expected: >
-      Răng ghim dòng 'PASS: LV1 sach + chua ky -> done (lan-v-mo khi V co vet · xanh-sach
-      khi nguoi duyet Cong 1)'. Ca hỏi hai biến thể và ghim GIÁ TRỊ state từng biến thể,
+      Răng ghim dòng 'PASS: LV1 sach + chua ky -> done (lan-v-mo khi cua veto mo, ke ca
+      nguoi da duyet Cong 1 · xanh-sach khi khong co cua veto)'. Ca hỏi BA biến thể (V có
+      vết · người duyệt không khoá veto · người duyệt + cửa veto mở) và ghim GIÁ TRỊ state,
       kèm vắng khỏi gates. FAIL ghim 'sach ma van o gates: <bien the>' hoặc 'state ky
       vong <x> thuc te <y>'.
     paths: [scripts/start-scan.mjs, scripts/khong-can-nguoi.mjs, tests/plugins/lan-v.test.mjs]
@@ -43,10 +44,12 @@ evals:
     executor: test
     cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cases
     expected: >
-      Răng ghim dòng 'PASS: LV2 V-mo + PASS + T2 nhung CHUA SACH -> van o gates (7 bien
-      the)'. Bảy biến thể: bypass_used · UNCERTAIN · Known limits có nội dung · Ngoài hợp
-      đồng có nội dung · Known limits VẮNG · Ngoài hợp đồng VẮNG · enforcement_mode off. Đây là ca ĐÓNG LỖ vòng
-      một — vị từ khoá vào veto_state đỏ ở cả bảy với 'chua sach ma thanh done: <bien the>'.
+      Răng ghim dòng 'PASS: LV2 V-mo + PASS + T2 nhung CHUA SACH -> van o gates (8 bien
+      the)'. Tám biến thể: bypass_used · UNCERTAIN · Known limits có nội dung · Ngoài hợp
+      đồng có nội dung · Known limits VẮNG · Ngoài hợp đồng VẮNG · enforcement_mode off ·
+      `# Known limits` h1 có nội dung (máy quét nghiêm hơn lưới ở ca này — sổ #9, không
+      vào LV5). Đây là ca ĐÓNG LỖ vòng
+      một — vị từ khoá vào veto_state đỏ ở cả tám với 'chua sach ma thanh done: <bien the>'.
       Chiều đỏ riêng ở chân mutant (đột biến 2: vị từ bỏ hỏi độ sạch).
     paths: [scripts/start-scan.mjs, scripts/khong-can-nguoi.mjs, tests/plugins/lan-v.test.mjs]
 
@@ -92,7 +95,7 @@ evals:
       xanh trước; A không chạy được = ĐỎ riêng). BA đột biến, mỗi cái một câu riêng:
       (1) KCN-NHANH gỡ nhánh không-cần-người trong start-scan → LV1 đỏ ghim 'sach ma van
       o gates'; (2) KCN-SACH vị từ bỏ hỏi độ sạch (trở về tiêu chí veto_state của vòng
-      một) → LV2 đỏ ở cả bảy biến thể VÀ LV5 đỏ ghim 'lech'; (3) KCN-VETO vị từ bỏ
+      một) → LV2 đỏ ở cả tám biến thể VÀ LV5 đỏ ghim 'lech'; (3) KCN-VETO vị từ bỏ
       nhánh da-veto → LV3 đỏ. VÀ bảng sự-thật LV4 phải đỏ ≥1 ô dưới MỖI đột biến
       (gap-probe F3: hàm kỳ vọng phải độc lập với vị từ). Marker vắng hoặc sed không
       đổi được dòng nào = ĐỎ riêng. Răng in 'MUTANT OK: 3 dot bien chay that ... bang
