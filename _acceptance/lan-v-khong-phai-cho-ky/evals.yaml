@@ -33,14 +33,18 @@ evals:
     executor: script
     cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan dang-thuc
     expected: >
-      ĐẲNG THỨC HAI CHIỀU trên cùng ma trận fixture của E1: với TỪNG fixture, răng
-      chạy (a) CHÍNH `bash scripts/pre-merge-check.sh <fixture> --base <ref>` và
-      đọc kết luận sạch/không-sạch từ dòng NOTE/VIOLATION thật, (b) `xanhSach`
-      trong lib. Hai bên phải cho CÙNG kết luận ở MỌI ô; lệch một ô → đỏ ghim
-      'lech o <toa do>: bash=<x> lib=<y>'. Răng in 'DANG-THUC OK: <N> o, bash ==
-      lib o ca <N>'. Chiều đỏ cùng lượt: bản sao lib nới một điều kiện → răng đỏ
-      ghim đúng toạ độ ô lệch (chứng minh phép so phân biệt được, không phải
-      hằng-đúng).
+      Bash so với BẢNG KỲ VỌNG VIẾT TAY, KHÔNG so với lib — dưới ngả (i) bash gọi
+      lib nên phép so bash↔lib hằng-đúng (phản biện 21/08 bắt). Với TỪNG fixture
+      của E1: răng chạy CHÍNH `bash scripts/pre-merge-check.sh <fixture> --base
+      <ref>`, đọc kết luận sạch/không-sạch từ dòng NOTE/VIOLATION thật, rồi so
+      với ô tương ứng trong bảng kỳ vọng của AC-7 (bảng độc lập với cả bash lẫn
+      lib, viết tay trước khi có mã). Lệch một ô → đỏ ghim 'lech o <toa do>:
+      bash=<x> ky vong=<y>'. Răng in 'DANG-THUC OK: <N> o, bash khop bang ky vong
+      o ca <N>'. HAI chiều đỏ cùng lượt, mỗi cái một thông điệp riêng: (1) đột
+      biến MỐI NỐI — bản sao bẻ lớp vỏ bash đọc/ánh xạ đầu ra `node -e` (đảo
+      nghĩa mã thoát) → răng đỏ ghim 'moi noi hong ma van khop'; (2) đột biến
+      BẢNG — sửa một ô kỳ vọng → răng đỏ ghim đúng toạ độ ô đó. Đối chứng dương:
+      bản không tiêm phải xanh trước cả hai.
     paths: [lib/evidence-core.cjs, scripts/pre-merge-check.sh, _acceptance/lan-v-khong-phai-cho-ky/rang.sh]
 
   - id: E3
@@ -213,3 +217,20 @@ evals:
       fail-CLOSED không (thiếu công cụ ⇒ coi như CHƯA sạch ⇒ vẫn đòi người). Trả
       lời phải trích dòng thật của `xanh_sach_check` và của bản vá đề xuất; nêu
       bằng-chứng-thiếu nếu chưa đủ căn cứ.
+
+  - id: E16
+    criterion: AC-12
+    executor: script
+    cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cong-cu-vang
+    expected: >
+      Trụ an toàn của ngả (i) đo bằng MÁY, không bằng lời. Răng dựng bản sao cây
+      + một hồ sơ fixture đúng-ra-là-SẠCH, rồi chạy CHÍNH `scripts/pre-merge-check.sh`
+      ba lượt: (a) môi trường đủ → kết luận SẠCH (đối chứng dương; lượt này đỏ
+      thì hai lượt sau vô nghĩa, răng dừng và báo riêng); (b) `PATH` không có
+      `node` → cổng KHÔNG được kết luận sạch: VIOLATION hoặc exit 2, thông điệp
+      nêu đúng lý do không đọc được nguồn luật; (c) `lib/evidence-core.cjs` bị
+      dời khỏi bản sao → cùng đòi hỏi như (b). Răng in 'CONG-CU-VANG OK: fail-CLOSED
+      ca hai chieu (thieu node · thieu lib), doi chung duong xanh'. Chiều đỏ cùng
+      lượt: bản sao pre-merge bị tiêm nhánh «không đọc được ⇒ coi như sạch» →
+      răng đỏ ghim 'fail-OPEN: thieu <node|lib> ma cong van cho qua'.
+    paths: [scripts/pre-merge-check.sh, lib/evidence-core.cjs, _acceptance/lan-v-khong-phai-cho-ky/rang.sh]
