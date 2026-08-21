@@ -86,6 +86,11 @@ worktree/nhánh đọc từ git của `<path>`.
      `broken[]` một dòng cờ hỏng: việc nào, hồ sơ nào
      (`file`), vì sao (`reason`) — việc có hồ sơ hỏng vẫn phải hiện, không giấu.
    - `groups.done` chỉ đếm gộp một dòng cuối thẻ (đã xong/đã xếp lại: N việc).
+     Phần tử có `state: lan-v-mo` là hồ sơ đi **làn V** — đã giao, cửa veto mở
+     (người veto lúc nào cũng được, cửa không có hạn) — nên nó KHÔNG phải một
+     cổng và KHÔNG được liệt vào nhóm chờ chữ ký; có phần tử như vậy thì dòng
+     đếm gộp nói thêm «trong đó N làn V, cửa veto mở», không thêm dòng riêng và
+     không hỏi thêm câu nào.
 
 4. **MỘT câu hỏi chọn bằng chữ cái/số dòng** — không hỏi câu thứ hai. Người
    chọn xong → bàn giao sang nghi thức đích:

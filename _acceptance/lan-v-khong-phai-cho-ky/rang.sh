@@ -85,6 +85,50 @@ mutant)
   else echo "MUTANT: $loi ĐỎ"; fi
   ;;
 
+mot-chu)
+  # Chuỗi nhãn khai MỘT lần ở product-map.mjs; hai nơi còn lại phải chứa đúng
+  # nó. Răng KHÔNG chép chuỗi vào mình — nó import hằng THẬT, nên đổi chuỗi ở
+  # nguồn mà quên hai nơi kia thì răng đỏ chứ không âm thầm so chuỗi cũ.
+  NOTE="$(node --input-type=module -e "
+    const m = await import('file://$PM');
+    process.stdout.write(m.VETO_OPEN_NOTE || '');
+  ")" || { echo "RANG-LANV: khong import duoc VETO_OPEN_NOTE tu product-map.mjs"; exit 1; }
+  [ -n "$NOTE" ] || { echo "RANG-LANV: VETO_OPEN_NOTE rong — khong con gi de so"; exit 1; }
+
+  SITES="scripts/pre-merge-check.sh commands/start.md"
+  # Bộ so đứng RIÊNG thành hàm: chiều đỏ dưới đây chạy CHÍNH hàm này trên bản bị
+  # tiêm, chứ không chỉ kiểm rằng cú tiêm có đổi được chữ nào — đo cú tiêm thay
+  # vì đo bộ so là phép đo chỉ có một lối thoát.
+  so_ba_noi() {  # $1 = gốc cây cần soi; in tên từng site KHÔNG chứa nhãn
+    local r="$1" site
+    for site in $SITES; do
+      grep -qF "$NOTE" "$r/$site" || echo "$site"
+    done
+  }
+
+  lech="$(so_ba_noi "$ROOT")"
+  [ -z "$lech" ] || for site in $lech; do bad "lech: $site"; done
+
+  # Chiều đỏ cùng lượt: tiêm một chữ vào TỪNG site trên bản sao rồi chạy CHÍNH
+  # bộ so — nó phải kêu ĐÚNG site đó, và chỉ site đó.
+  TMP="$(mktemp -d)"
+  for muc in $SITES; do
+    ban="$TMP/$(printf '%s' "$muc" | tr '/' '_')"
+    for site in $SITES; do
+      mkdir -p "$ban/$(dirname "$site")"
+      cp "$ROOT/$site" "$ban/$site"
+    done
+    sed "s/$NOTE/cua veto MO/g" "$ROOT/$muc" > "$ban/$muc"
+    grep -qF "$NOTE" "$ban/$muc" && bad "chieu do: khong tiem duoc chu nao vao ban sao $muc"
+    thay="$(so_ba_noi "$ban" | tr '\n' ' ' | sed 's/ *$//')"
+    [ "$thay" = "$muc" ] || bad "chieu do $muc: bo so ky vong keu '$muc', thuc te keu '${thay:-(khong keu gi)}'"
+  done
+
+  if [ "$loi" -eq 0 ]; then
+    echo "MOT-CHU OK: \"$NOTE\" == pre-merge-check.sh == commands/start.md (2 chieu do chay that)"
+  else echo "MOT-CHU: $loi ĐỎ"; fi
+  ;;
+
 *)
   echo "chan khong biet: $CHAN (cases|mutant|mot-chu|ban-do)"; exit 2 ;;
 esac
