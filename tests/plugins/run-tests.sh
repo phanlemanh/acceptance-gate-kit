@@ -10474,6 +10474,15 @@ run "P200 mot lan cat so nhat quan: hai plugin cung so · GUIDE dan xuat · muc 
   node "$P200TMP/p200.mjs" "$ROOT"
 rm -rf "$P200TMP"
 
+# ─── Hồ sơ lan-v-khong-phai-cho-ky: LV1..LV7 ────────────────────────────────
+# Ca đặt tên theo SLUG, không lấy số P toàn cục (hai nhánh song song hết đụng số).
+# Tên dòng `run` CỐ TÌNH không chứa chuỗi "PASS: LV<n>": chính file ca in bảy
+# dòng đó, nên đặt tên trùng khuôn là đếm đôi và phép đo "đúng 7 dòng" đỏ oan.
+for _lv in LV1 LV2 LV3 LV4 LV5 LV6 LV7; do
+  run "ca lan V — $_lv (ho so lan-v-khong-phai-cho-ky)" \
+    env LV_CASES="$_lv" node "$ROOT/tests/plugins/lan-v.test.mjs"
+done
+
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
   echo "ONLY_BLOCK=$ONLY_BLOCK khong khop khoi nao — go sai ten? (fail de khong xanh gia)"
