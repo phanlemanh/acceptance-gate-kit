@@ -35,8 +35,34 @@ evals:
       list), worktree.bgIsolation, enabledPlugins.paper-desktop@paper=true →
       sau --write: 4 khoá kit có mặt và true; permissions/worktree/paper-desktop
       deep-equal trước/sau; Object.keys(sau).slice(0, n_cũ) == Object.keys(trước)
-      (thứ tự giữ). Chiều đỏ cùng ca: mô phỏng ghi-đè-cả-file (writeFileSync
-      bản kit thuần) rồi chạy cùng phép so → đỏ "mất khoá paper-desktop@paper".
+      (thứ tự giữ) — gom trong MỘT hàm judge2. Chiều đỏ cùng ca: GHI sản phẩm
+      của bản vá ghi-đè-cả-file (mergeSettings(null, names)) vào chính fixture
+      rồi chạy CÙNG judge2 → đỏ chứa "mất khoá paper-desktop@paper" VÀ "mất khoá
+      worktree/permissions" (phá vật thật, không đổi đầu vào).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E1b
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/plugin-declare.mjs, tests/plugins/plugin-declare.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: PD1b" — bản sao marketplace.json đổi name thành
+      kit-khac → enabledPlugins có đúng n khoá hậu tố "@kit-khac" và
+      extraKnownMarketplaces có khoá "kit-khac", KHÔNG có "acceptance-gate-kit"
+      (một nguồn tên cho cả hai chỗ).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2b
+    criterion: AC-2b
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/plugin-declare.mjs, tests/plugins/plugin-declare.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: PD2b" — (a) file gốc là mảng ["keep-me"] → exit 3,
+      bytes không đổi, stderr "không phải object — không ghi đè"; (b)
+      {enabledPlugins: ["x@y"]} → exit 3, bytes không đổi, stderr "khoá
+      enabledPlugins không phải object". Đối chứng dương: {} → exit 0.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E3
@@ -112,6 +138,19 @@ evals:
       install".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
+  - id: E7b
+    criterion: AC-7b
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [README.md, QUICKSTART.md, tests/plugins/plugin-declare.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: PD7b" — README.md và QUICKSTART.md: 0 dòng
+      "claude plugin install diagram-design", 0 cụm optional/tuỳ chọn cạnh
+      diagram-design, có con trỏ "GUIDE §5.1" hoặc "GUIDE.md#51". Chiều đỏ cùng
+      ca: bản sao README chèn lại dòng "install diagram-design … (optional,
+      standalone)" → đỏ nêu cả hai lỗi.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
   - id: E8
     criterion: AC-8
     executor: test
@@ -139,6 +178,17 @@ evals:
       ../.claude-plugin/ → đường suy mặc định vắng) → exit 4, stderr chứa đúng
       đường dẫn đã thử, KHÔNG tồn tại .claude/settings.json sau khi chạy. Đối
       chứng dương: cùng fixture thêm marketplace.json hợp lệ → exit 0 + file có.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E9b
+    criterion: AC-9b
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/plugin-declare.mjs, tests/plugins/plugin-declare.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: PD9b" — --root <tmp>/typo/repo (không tồn tại)
+      + --write → exit 4, stderr "--root trỏ đường dẫn không tồn tại", thư mục
+      KHÔNG được tạo. Đối chứng dương: root thật → exit 0 + file có.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E10

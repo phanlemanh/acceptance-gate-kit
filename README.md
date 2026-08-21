@@ -47,11 +47,14 @@ Enforcement is deterministic, not aspirational:
 
 ```bash
 claude plugin marketplace add phanlemanh/acceptance-gate-kit
-claude plugin install acceptance-gate@acceptance-gate-kit
-claude plugin install feature-loop@acceptance-gate-kit    # full loop
-claude plugin install superpowers@claude-plugins-official # required by feature-loop
-claude plugin install diagram-design@acceptance-gate-kit  # diagrams for cards/plans (optional, standalone)
+claude plugin install acceptance-gate@acceptance-gate-kit   # first machine of a repo only
 ```
+
+The authoritative procedure — first machine vs. later machines, the full plugin
+set (`feature-loop`, `diagram-design`, `superpowers` are all required) — lives in
+[GUIDE §5.1](GUIDE.md#51-mỗi-máy-dev-một-lần). `/acceptance-init` writes
+`.claude/settings.json` so teammates get the same plugin set just by opening the
+repo; this README deliberately does not repeat the list.
 
 Open a **fresh session** after installing or upgrading so the runtime discovers
 the new skills and hooks. CI remains authoritative if the write-time hook is

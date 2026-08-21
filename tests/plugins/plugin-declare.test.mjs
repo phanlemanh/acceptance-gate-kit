@@ -1,4 +1,4 @@
-// tests/plugins/plugin-declare.test.mjs — ca hồ sơ repo-khai-plugin (PD1–PD9).
+// tests/plugins/plugin-declare.test.mjs — ca hồ sơ repo-khai-plugin (PD1–PD9 + PD1b/2b/7b/9b).
 // Fixture CODE-SINH trong mkdtemp; đường dẫn suy từ vị trí file; mỗi ca có đối
 // chứng dương + chiều đỏ trên bản sao, ghim thông điệp. Chạy một phần:
 //   PD_CASES=PD1,PD6 node tests/plugins/plugin-declare.test.mjs
@@ -14,10 +14,13 @@ const SCRIPT = path.join(ROOT, 'scripts', 'plugin-declare.mjs');
 const MARKET = path.join(ROOT, '.claude-plugin', 'marketplace.json');
 const INIT_MD = path.join(ROOT, 'commands', 'acceptance-init.md');
 const GUIDE = path.join(ROOT, 'GUIDE.md');
+const README = path.join(ROOT, 'README.md');
+const QUICK = path.join(ROOT, 'QUICKSTART.md');
 
 let failures = 0;
 const only = (process.env.PD_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
-const want = id => only.length === 0 || only.includes(id);
+const ran = new Set();
+const want = id => { const w = only.length === 0 || only.includes(id); if (w) ran.add(id); return w; };
 const pass = (id, name) => console.log(`PASS: ${id} ${name}`);
 const fail = (id, msg) => { console.log(`FAIL: ${id} ${msg}`); failures++; };
 const tmp = () => mkdtempSync(path.join(tmpdir(), 'pd-'));
@@ -64,26 +67,54 @@ if (want('PD1')) {
   }
 }
 
-// ---------- PD2: settings đã có khoá khác → khoá kit thêm, khoá khác + thứ tự giữ; chiều đỏ: ghi-đè-cả-file mất khoá
+// ---------- PD1b: tên marketplace một nguồn — đổi `name` trong bản sao marketplace → cả hậu tố lẫn khoá extraKnownMarketplaces đều theo
+if (want('PD1b')) {
+  const m = JSON.parse(readFileSync(MARKET, 'utf8')); m.name = 'kit-khac';
+  const mk = path.join(tmp(), 'marketplace.json'); writeFileSync(mk, JSON.stringify(m));
+  const root = tmp(); const r = run(['--root', root, '--write', '--marketplace', mk]);
+  const j = r.status === 0 ? JSON.parse(readFileSync(settingsOf(root), 'utf8')) : {};
+  const keys = Object.keys(j.enabledPlugins || {});
+  const ok = r.status === 0 && keys.filter(k => k.endsWith('@kit-khac')).length === m.plugins.length && !!j.extraKnownMarketplaces?.['kit-khac'] && !j.extraKnownMarketplaces?.['acceptance-gate-kit'];
+  if (!ok) fail('PD1b', `exit ${r.status} keys=${keys.join(',')} ekm=${Object.keys(j.extraKnownMarketplaces || {}).join(',')}`);
+  else pass('PD1b', 'đổi name marketplace → hậu tố và khoá extraKnownMarketplaces cùng theo (một nguồn)');
+}
+
+// ---------- PD2: settings đã có khoá khác → khoá kit thêm, khoá khác + thứ tự giữ; chiều đỏ: sản phẩm ghi-đè-cả-file đi qua CÙNG phép so
 if (want('PD2')) {
   const root = tmp(); mkdirSync(path.join(root, '.claude')); const f = settingsOf(root);
   const before = { worktree: { bgIsolation: 'none' }, permissions: { allow: ['Bash(npm run test:*)'] }, enabledPlugins: { 'paper-desktop@paper': true } };
   writeFileSync(f, JSON.stringify(before, null, 4) + '\n');
-  const r = run(['--root', root, '--write']); const after = JSON.parse(readFileSync(f, 'utf8')); const names = expectedNames();
-  const kitOk = names.every(n => after.enabledPlugins[n] === true);
-  const keptOk = JSON.stringify(after.worktree) === JSON.stringify(before.worktree)
-    && JSON.stringify(after.permissions) === JSON.stringify(before.permissions)
-    && after.enabledPlugins['paper-desktop@paper'] === true;
-  const orderOk = Object.keys(after).slice(0, 3).join(',') === 'worktree,permissions,enabledPlugins';
-  if (r.status !== 0 || !kitOk || !keptOk || !orderOk) fail('PD2', `exit ${r.status} kit=${kitOk} kept=${keptOk} order=${Object.keys(after).join(',')}`);
+  const names = expectedNames();
+  const judge2 = after => {
+    const errs = [];
+    if (!names.every(n => after.enabledPlugins?.[n] === true)) errs.push('thiếu khoá kit');
+    if (JSON.stringify(after.worktree) !== JSON.stringify(before.worktree) || JSON.stringify(after.permissions) !== JSON.stringify(before.permissions)) errs.push('mất khoá worktree/permissions');
+    if (after.enabledPlugins?.['paper-desktop@paper'] !== true) errs.push('mất khoá paper-desktop@paper');
+    if (Object.keys(after).slice(0, 3).join(',') !== 'worktree,permissions,enabledPlugins') errs.push(`thứ tự khoá đổi: ${Object.keys(after).join(',')}`);
+    return errs;
+  };
+  const r = run(['--root', root, '--write']); const e = r.status === 0 ? judge2(JSON.parse(readFileSync(f, 'utf8'))) : [`exit ${r.status}`];
+  if (e.length) fail('PD2', e.join(' · '));
   else {
-    // chiều đỏ: mô phỏng bản vá ghi-đè-cả-file bằng khoá kit thuần, rồi chạy CÙNG phép so
+    // chiều đỏ: sản phẩm của bản vá «ghi đè cả file» (khoá kit thuần) ghi vào fixture, chạy CÙNG judge2 → phải đỏ đúng tên khoá mất
     const { mergeSettings } = await import(SCRIPT);
-    const overwritten = mergeSettings(null, names);
-    const redKept = overwritten.enabledPlugins['paper-desktop@paper'] === true;
-    if (redKept) fail('PD2', 'chiều đỏ không đỏ: ghi-đè-cả-file mà vẫn còn paper-desktop');
-    else pass('PD2', 'hợp nhất giữ permissions/worktree/paper-desktop + thứ tự; ghi-đè-cả-file → mất khoá paper-desktop@paper');
+    writeFileSync(f, JSON.stringify(mergeSettings(null, names), null, 2) + '\n');
+    const red = judge2(JSON.parse(readFileSync(f, 'utf8')));
+    if (!red.includes('mất khoá paper-desktop@paper') || !red.includes('mất khoá worktree/permissions')) fail('PD2', `chiều đỏ không đỏ đúng: ${red.join(' · ')}`);
+    else pass('PD2', 'hợp nhất giữ permissions/worktree/paper-desktop + thứ tự; sản phẩm ghi-đè-cả-file qua cùng phép so → mất khoá paper-desktop@paper');
   }
+}
+
+// ---------- PD2b: JSON hợp lệ nhưng sai hình — gốc là mảng / enabledPlugins là mảng → exit 3, không chạm, mỗi lối một thông điệp
+if (want('PD2b')) {
+  const root = tmp(); mkdirSync(path.join(root, '.claude')); const f = settingsOf(root);
+  writeFileSync(f, '["keep-me"]\n'); const b1 = readFileSync(f);
+  const r1 = run(['--root', root, '--write']); const a1 = readFileSync(f);
+  writeFileSync(f, JSON.stringify({ enabledPlugins: ['x@y'] }) + '\n'); const b2 = readFileSync(f);
+  const r2 = run(['--root', root, '--write']); const a2 = readFileSync(f);
+  if (r1.status !== 3 || !b1.equals(a1) || !/không phải object — không ghi đè/.test(r1.stderr)) fail('PD2b', `gốc mảng: exit ${r1.status} same=${b1.equals(a1)} err=${r1.stderr}`);
+  else if (r2.status !== 3 || !b2.equals(a2) || !/khoá enabledPlugins không phải object/.test(r2.stderr)) fail('PD2b', `enabledPlugins mảng: exit ${r2.status} same=${b2.equals(a2)} err=${r2.stderr}`);
+  else { writeFileSync(f, '{}\n'); const r3 = run(['--root', root, '--write']); if (r3.status !== 0) fail('PD2b', 'đối chứng dương'); else pass('PD2b', 'JSON sai hình → exit 3, không chạm, thông điệp nêu đúng lối; hợp lệ → ghi'); }
 }
 
 // ---------- PD3: lần hai không đổi byte + "đã khai, không đổi"; lần một KHÔNG có "không đổi"
@@ -162,6 +193,25 @@ if (want('PD7')) {
   }
 }
 
+// ---------- PD7b: README + QUICKSTART không còn bản sao thủ tục cài — 0 dòng install diagram-design, 0 «optional/tuỳ chọn» cạnh diagram-design, có con trỏ GUIDE §5.1
+if (want('PD7b')) {
+  const judge7b = (label, text) => {
+    const errs = [];
+    if (count(text, /claude plugin install diagram-design/g) !== 0) errs.push(`${label} còn dòng install diagram-design`);
+    if (count(text, /diagram-design[^\n]*(optional|tuỳ chọn)|(optional|tuỳ chọn)[^\n]*diagram-design/g) !== 0) errs.push(`${label} còn 'optional/tuỳ chọn' cạnh diagram-design`);
+    if (!/GUIDE\s*§\s*5\.1|GUIDE\.md#51/.test(text)) errs.push(`${label} thiếu con trỏ GUIDE §5.1`);
+    return errs;
+  };
+  const rd = readFileSync(README, 'utf8'), qk = readFileSync(QUICK, 'utf8');
+  const e = [...judge7b('README', rd), ...judge7b('QUICKSTART', qk)];
+  if (e.length) fail('PD7b', e.join(' · '));
+  else {
+    const red = judge7b('README', rd + '\nclaude plugin install diagram-design@acceptance-gate-kit  # (optional, standalone)\n');
+    if (!red.some(x => x.includes('còn dòng install diagram-design')) || !red.some(x => x.includes("còn 'optional/tuỳ chọn'"))) fail('PD7b', `đột biến không đỏ: ${red}`);
+    else pass('PD7b', 'README/QUICKSTART trỏ GUIDE §5.1, không còn bản sao install; chèn lại dòng optional → đỏ');
+  }
+}
+
 // ---------- PD8: round-trip — rút NGUYÊN VĂN dòng lệnh trong khối init, thế biến, THỰC THI; đột biến --write→--writ → exit 4
 if (want('PD8')) {
   const md = readFileSync(INIT_MD, 'utf8');
@@ -197,4 +247,15 @@ if (want('PD9')) {
   else { const r3 = run(['--root', root, '--write']); if (r3.status !== 0 || !existsSync(settingsOf(root))) fail('PD9', 'đối chứng dương'); else pass('PD9', 'marketplace vắng → exit 4 nêu đường dẫn, không ghi; có → ghi'); }
 }
 
+// ---------- PD9b: --root không tồn tại → exit 4, không tạo cây; đối chứng: root có → ghi
+if (want('PD9b')) {
+  const ghost = path.join(tmp(), 'typo', 'repo');
+  const r = run(['--root', ghost, '--write']);
+  if (r.status !== 4 || !/--root trỏ đường dẫn không tồn tại/.test(r.stderr) || existsSync(ghost)) fail('PD9b', `exit ${r.status} err=${r.stderr} created=${existsSync(ghost)}`);
+  else { const root = tmp(); const r2 = run(['--root', root, '--write']); if (r2.status !== 0 || !existsSync(settingsOf(root))) fail('PD9b', 'đối chứng dương'); else pass('PD9b', '--root lạ → exit 4 không mkdir; root thật → ghi'); }
+}
+
+// PD_CASES nêu id không tồn tại → không được xanh im lặng (xanh-không-chạy)
+const unknown = only.filter(id => !ran.has(id));
+if (unknown.length) { console.log(`FAIL: PD_CASES không khớp ca nào: ${unknown.join(',')}`); failures++; }
 if (failures) { console.log(`plugin-declare: ${failures} ca đỏ`); process.exit(1); }

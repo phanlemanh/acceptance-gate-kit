@@ -110,3 +110,11 @@ Tên dòng `run` trong `run-tests.sh` cố tình không chứa «PASS: PD» (tr�
 
 Settings cấp user · plugin ngoài bốn tên · `product-management` (plugin desktop, ổ cắm riêng)
 · pin phiên bản · thay đổi quy trình release · `commands/start.md`.
+
+## 8. Bổ sung sau S4 vòng 1 (BLOCKED hạ tầng; review trả 8 finding, triage: ngoài hợp đồng)
+
+Mở rộng theo làn V (entry `d-20260821T150000Z-4107`), không đẩy 8 mục lên cổng: `--root`
+phải tồn tại (exit 4) · JSON sai hình → exit 3 mỗi lối một thông điệp · tên marketplace một
+nguồn (`readMarketplace` trả `{names, mk}`, `mergeSettings(existing, names, mk)`) ·
+README/QUICKSTART bỏ bản sao thủ tục cài, trỏ GUIDE §5.1 · PD2 chiều đỏ thật (ghi sản phẩm
+ghi-đè vào fixture, cùng `judge2`) · `PD_CASES` lạ → đỏ. Ca mới: PD1b · PD2b · PD7b · PD9b.

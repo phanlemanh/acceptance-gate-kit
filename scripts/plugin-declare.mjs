@@ -32,7 +32,10 @@ function parseArgs(argv) {
   return a;
 }
 
-export function pluginList(marketplacePath = DEFAULT_MARKETPLACE) {
+const isPlain = v => v !== null && typeof v === 'object' && !Array.isArray(v);
+
+// Đọc marketplace.json: MỘT nguồn cho cả hậu tố plugin lẫn khoá extraKnownMarketplaces (tên `mk`).
+export function readMarketplace(marketplacePath = DEFAULT_MARKETPLACE) {
   let txt;
   try { txt = fs.readFileSync(marketplacePath, 'utf8'); }
   catch { console.error(`[plugin-declare] không đọc được marketplace.json — đã thử: ${marketplacePath}`); return null; }
@@ -41,15 +44,20 @@ export function pluginList(marketplacePath = DEFAULT_MARKETPLACE) {
   catch { console.error(`[plugin-declare] marketplace.json không phải JSON — đã thử: ${marketplacePath}`); return null; }
   const names = (Array.isArray(j.plugins) ? j.plugins : []).map(p => p && p.name).filter(Boolean);
   if (!names.length) { console.error(`[plugin-declare] marketplace.json không có plugin nào — đã thử: ${marketplacePath}`); return null; }
-  const mk = j.name || MARKETPLACE_NAME;
-  return [...names.map(n => `${n}@${mk}`), ...EXTRA_PLUGINS];
+  return { names, mk: j.name || MARKETPLACE_NAME };
+}
+
+export function pluginList(marketplacePath = DEFAULT_MARKETPLACE) {
+  const m = readMarketplace(marketplacePath);
+  return m ? [...m.names.map(n => `${n}@${m.mk}`), ...EXTRA_PLUGINS] : null;
 }
 
 // Hợp nhất: spread giữ thứ tự khoá có sẵn; khoá của kit đặt lại tại chỗ cũ hoặc nối cuối.
-export function mergeSettings(existing, names) {
-  const out = existing && typeof existing === 'object' && !Array.isArray(existing) ? { ...existing } : {};
+// `mk` = tên marketplace đọc từ marketplace.json — cùng nguồn với hậu tố plugin (không hai nguồn).
+export function mergeSettings(existing, names, mk = MARKETPLACE_NAME) {
+  const out = isPlain(existing) ? { ...existing } : {};
   const ekm = { ...(out.extraKnownMarketplaces || {}) };
-  ekm[MARKETPLACE_NAME] = { source: MARKETPLACE_SOURCE };
+  ekm[mk] = { source: MARKETPLACE_SOURCE };
   out.extraKnownMarketplaces = ekm;
   const ep = { ...(out.enabledPlugins || {}) };
   for (const n of names) ep[n] = true;
@@ -60,17 +68,25 @@ export function mergeSettings(existing, names) {
 function main() {
   const a = parseArgs(process.argv.slice(2));
   if (!a) { console.error('[plugin-declare] usage: plugin-declare.mjs --root <repo> [--write] [--list] [--marketplace <path>]'); process.exit(4); }
-  const names = pluginList(a.marketplace);
-  if (!names) process.exit(4);
+  const m = readMarketplace(a.marketplace);
+  if (!m) process.exit(4);
+  const names = [...m.names.map(n => `${n}@${m.mk}`), ...EXTRA_PLUGINS];
   if (a.list) { for (const n of names) console.log(n); process.exit(0); }
+  // --root phải tồn tại và là thư mục — lệnh GHI mà tự mkdir cây lạ là fail-open (cùng nếp product-map/start-scan).
+  if (!fs.existsSync(a.root) || !fs.statSync(a.root).isDirectory()) { console.error(`[plugin-declare] --root trỏ đường dẫn không tồn tại: ${a.root}`); process.exit(4); }
   const file = path.join(a.root, '.claude', 'settings.json');
   let existing = null, raw = null;
   if (fs.existsSync(file)) {
     raw = fs.readFileSync(file, 'utf8');
     try { existing = JSON.parse(raw); }
     catch { console.error(`[plugin-declare] settings.json không đọc được — không ghi đè (${file})`); process.exit(3); }
+    // JSON đọc được nhưng không phải settings — mỗi lối một thông điệp, không nuốt chung.
+    if (!isPlain(existing)) { console.error(`[plugin-declare] settings.json không phải object — không ghi đè (${file})`); process.exit(3); }
+    for (const k of ['enabledPlugins', 'extraKnownMarketplaces']) {
+      if (k in existing && !isPlain(existing[k])) { console.error(`[plugin-declare] settings.json: khoá ${k} không phải object — không ghi đè (${file})`); process.exit(3); }
+    }
   }
-  const next = JSON.stringify(mergeSettings(existing, names), null, 2) + '\n';
+  const next = JSON.stringify(mergeSettings(existing, names, m.mk), null, 2) + '\n';
   if (!a.write) {
     console.log(`(dry-run) sẽ ${existing ? 'hợp nhất vào' : 'tạo'} ${file} với ${names.length} plugin:`);
     for (const n of names) console.log(`  - ${n}`);

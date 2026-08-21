@@ -26,11 +26,12 @@ Trọn bộ (copy-paste một lần):
 
 ```bash
 claude plugin marketplace add phanlemanh/acceptance-gate-kit
-claude plugin install acceptance-gate@acceptance-gate-kit
-claude plugin install feature-loop@acceptance-gate-kit      # vòng lặp trọn gói
-claude plugin install superpowers@claude-plugins-official   # dependency của feature-loop
-claude plugin install diagram-design@acceptance-gate-kit    # bộ vẽ hình cho thẻ/kế hoạch (tuỳ chọn, cài riêng được)
+claude plugin install acceptance-gate@acceptance-gate-kit   # chỉ máy đầu tiên của repo
 ```
+
+Thủ tục đầy đủ (máy đầu / máy sau, trọn bộ plugin — `feature-loop`, `diagram-design`,
+`superpowers` đều bắt buộc) ở **GUIDE §5.1**: `/acceptance-init` ghi `.claude/settings.json`
+nên đội viên mở repo là có đúng bộ; file này cố ý không chép lại danh sách.
 
 Tối thiểu (chỉ gate, không vòng lặp): cài marketplace + `acceptance-gate` là đủ.
 
@@ -218,11 +219,8 @@ verify đa-agent → evidence → PR. Bạn vẫn chỉ dừng tay đúng 2 lầ
 
 **Cài thêm (sau khi đã cài acceptance-gate):**
 
-```bash
-claude plugin install feature-loop@acceptance-gate-kit
-claude plugin install superpowers@claude-plugins-official   # dependency (brainstorm/plan)
-claude plugin install diagram-design@acceptance-gate-kit    # bộ vẽ hình (tuỳ chọn)
-```
+Không cần gõ thêm: repo đã chạy `/acceptance-init` thì mở repo là Claude Code nhắc bật
+`feature-loop` · `diagram-design` · `superpowers` (đều bắt buộc). Chi tiết: **GUIDE §5.1**.
 
 **Setup mỗi repo:** đã chạy `/acceptance-init` rồi thì chỉ cần thêm vào
 `_acceptance/config.yaml` các lệnh verify chạy mỗi vòng (chọn từ `executors.*`
