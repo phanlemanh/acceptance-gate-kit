@@ -2939,6 +2939,10 @@ fs.copyFileSync(path.join(root, 'lib/evidence-core.cjs'), path.join(mut, 'lib/ev
 // — ban sao chay thu phai co no, khong thi ket luan "chay duoc/khong" chi noi
 // ve viec thieu file chu khong ve hanh vi dang do.
 fs.copyFileSync(path.join(root, 'lib/workspace-record.cjs'), path.join(mut, 'lib/workspace-record.cjs'));
+// start-scan nhap TINH vi tu lan V tu ban do (mot vi tu, hai bo doc) — ban sao
+// chay thu phai co ca file do, khong thi node chet o buoc nap module va ca
+// nay do vi thieu file chu khong vi hanh vi dang do.
+fs.copyFileSync(path.join(root, 'scripts/product-map.mjs'), path.join(mut, 'scripts/product-map.mjs'));
 const src = fs.readFileSync(SCAN, 'utf8');
 const gone = VOCAB[VOCAB.length - 1];                     // go phan tu cuoi khuon writer
 const mutSrc = src.replace(new RegExp(`^\\s*'${gone}':.*$`, 'm'), '');
@@ -3076,6 +3080,10 @@ fs.copyFileSync(path.join(root, 'lib/evidence-core.cjs'), path.join(mut, 'lib/ev
 // — ban sao chay thu phai co no, khong thi ket luan "chay duoc/khong" chi noi
 // ve viec thieu file chu khong ve hanh vi dang do.
 fs.copyFileSync(path.join(root, 'lib/workspace-record.cjs'), path.join(mut, 'lib/workspace-record.cjs'));
+// start-scan nhap TINH vi tu lan V tu ban do (mot vi tu, hai bo doc) — ban sao
+// chay thu phai co ca file do, khong thi node chet o buoc nap module va ca
+// nay do vi thieu file chu khong vi hanh vi dang do.
+fs.copyFileSync(path.join(root, 'scripts/product-map.mjs'), path.join(mut, 'scripts/product-map.mjs'));
 const src = fs.readFileSync(SCAN, 'utf8');
 const anchor = "if (status === 'signed-off')";
 if (!src.includes(anchor)) die('mutant: khong tim thay anchor cho re trang thai');

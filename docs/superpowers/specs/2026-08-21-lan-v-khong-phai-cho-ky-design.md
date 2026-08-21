@@ -25,7 +25,7 @@ người — máy không giao thay), vắng `veto_state` (luật cũ nguyên vă
 
 ## Thay đổi
 
-| Người dùng thấy gì khác | Đụng đâu | Phục vụ tiêu chí |
+| Thay đổi người dùng gặp | Đụng đâu | Phục vụ tiêu chí |
 |---|---|---|
 | Thẻ `/start` thôi liệt hai bản phát hành làn V vào «chờ chữ ký»; dòng đếm cuối thẻ nêu «trong đó N làn V, cửa veto mở» | `scripts/start-scan.mjs` (nhánh `verified`), `commands/start.md` (một dòng render) | AC-1, AC-10 |
 | Bản đồ xếp hồ sơ làn V dưới «Đã giao» kèm chú thích «cửa veto mở», không còn «Đang làm» | `scripts/product-map.mjs` (`classify`), `PRODUCT-MAP.md` vẽ lại | AC-2, AC-10 |

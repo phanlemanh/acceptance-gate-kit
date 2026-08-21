@@ -13,6 +13,9 @@ import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+// Vị từ làn V nhập TĨNH từ bản đồ: hai bộ đọc dùng CHUNG một vị từ thì không
+// thể trôi khỏi nhau (lớp lỗi hai-bản-chép đã dẫm nhiều lần).
+import { lanVMo } from './product-map.mjs';
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -203,6 +206,8 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
         if (!ev.exists) broken.push({ slug, ...missingArtifact({ 'contract.md': cTxt, 'evidence-report.md': null }) });
         else if (!meaning) broken.push({ slug, ...bangLech(ev.verdict) });
         else if (ev.signoff) done.push({ slug, state: 'signed-off' });
+        // LAN-V-MO: đã giao, cửa veto mở — không phải cổng. Cùng vị từ với bản đồ.
+        else if (lanVMo(cTxt, ev.verdict, ev.signoff)) done.push({ slug, state: 'lan-v-mo' });
         else if (meaning.settled) gates.push({ slug, gate: 'bang-chung', since: since(cPath, frontmatterField(cTxt, 'approved_at')), tier });
         else inProgress.push({ slug, status, nextStep: meaning.nextStep, tier });
       }
