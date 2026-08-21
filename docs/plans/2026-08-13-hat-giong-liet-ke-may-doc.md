@@ -1,6 +1,6 @@
 # Hạt giống — «mọi liệt kê trong hợp đồng phải máy-đọc»
 
-**Trạng thái: ĐỀ XUẤT, chờ Cổng 0. KHÔNG thi công trong hồ sơ nào đang chạy.**
+**Trạng thái:** `_acceptance/liet-ke-may-doc/opportunity.md`. **KHÔNG thi công trong hồ sơ nào đang chạy.**
 Viết 2026-08-13, sinh ra từ vòng rà soát đối kháng 2 của
 `luu-kho-codex-va-nghi-le-design`.
 

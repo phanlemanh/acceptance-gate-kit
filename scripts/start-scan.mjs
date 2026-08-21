@@ -77,7 +77,7 @@ const git = (() => {
   } catch { return { branch: null, dirty: null }; }
 })();
 
-const gates = [], inProgress = [], done = [], broken = [];
+const gates = [], inProgress = [], considering = [], done = [], broken = [];
 // MỘT từ vựng verdict cho MỌI nhánh: nhánh `verified` gọi tên giá trị lạ trong
 // khi nhánh `implemented` nuốt im lặng là chỗ duy nhất cùng một artifact hỏng
 // được phát hiện hay không tuỳ status của contract (Cổng 2 start-command, known-limit 3).
@@ -117,6 +117,41 @@ const planExists = slug => [path.join(root, 'docs', 'superpowers', 'plans'), pat
 // since: timestamp frontmatter thắng mtime — cổng chờ lâu nhất không được trôi
 // xuống cuối nhóm chỉ vì file bị format/sync chạm lại (AC-6, đối chứng P98)
 const since = (file, fmTs) => fmTs || statSync(file).mtime.toISOString();
+const { section } = require(path.join(__dirname, '..', 'lib', 'md-section.cjs'));
+// ── Ý đang cân nhắc vs chờ Cổng Đáng (hồ sơ vao-co-o-ra-co-ten) ──────────────
+// Nhãn bullet của section Ngưỡng đọc từ CHÍNH KHUÔN lúc chạy — khuôn là một
+// nguồn; chép tay vào đây là hai bản trôi (d-4202). Đọc LƯỜI: repo không có ý
+// nào thì không đụng khuôn. Khuôn hỏng → chết to, không im lặng.
+const OPP_TEMPLATE = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md');
+const UAT_THRESHOLD_HEADING = 'Ngưỡng chết / ngưỡng UAT';
+const PLACEHOLDER_RE = /^(…|\.\.\.)?$/;                      // giá trị sau dấu ':' — rỗng/«…» là chưa điền
+const bulletOf = l => { const m = l.match(/^\s*[-*]\s+([^:]+):(.*)$/); return m ? { label: m[1].trim(), value: m[2].trim() } : null; };
+let _labels = null;
+const thresholdLabels = () => {
+  if (_labels) return _labels;
+  let tpl;
+  try { tpl = readFileSync(OPP_TEMPLATE, 'utf8'); }
+  catch (e) { bail(`khuôn opportunity-template không đọc được: ${OPP_TEMPLATE} (${e.code || e.message})`); }
+  const labels = section(tpl, UAT_THRESHOLD_HEADING).map(bulletOf).filter(Boolean).map(b => b.label);
+  if (!labels.length) bail(`khuôn không có section Ngưỡng «${UAT_THRESHOLD_HEADING}» (hoặc section không có bullet): ${OPP_TEMPLATE}`);
+  return (_labels = labels);
+};
+const thresholdFilled = oTxt => {
+  const got = new Map();
+  for (const l of section(oTxt, UAT_THRESHOLD_HEADING)) { const b = bulletOf(l); if (b) got.set(b.label, b.value); }
+  return thresholdLabels().every(lb => got.has(lb) && !PLACEHOLDER_RE.test(got.get(lb)));
+};
+// since của ý đang cân nhắc = committer date của commit ĐẦU TIÊN thêm file
+// (--diff-filter=A); chưa commit / không git → mtime (d-4203).
+const gitBirth = file => {
+  try {
+    const o = execFileSync('git', ['-C', root, 'log', '--diff-filter=A', '--format=%cI', '--', path.relative(root, file)],
+      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    if (!o) return null;
+    const ls = o.split('\n'); return new Date(ls[ls.length - 1]).toISOString();
+  } catch { return null; }
+};
+const ageDays = iso => Math.max(0, Math.floor((Date.now() - Date.parse(iso)) / 86400000));
 
 for (const entry of readdirSync(acc, { withFileTypes: true })) {
   if (!entry.isDirectory()) continue;
@@ -246,11 +281,19 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
   const problem = recordProblem(texts);
   if (problem) { broken.push({ slug, ...problem }); continue; }
   const { stage, decision } = navValues(texts);
-  if (stage !== 'decided' || !decision) gates.push({ slug, gate: 'dang', since: since(oPath, fmOrNull(oRead.t, 'decided_at')), tier: null });
+  if (stage !== 'decided' || !decision) {
+    // Chưa có ngưỡng thì chưa có gì để ký: xếp «đang cân nhắc», không phải cổng.
+    if (thresholdFilled(oRead.t)) gates.push({ slug, gate: 'dang', since: since(oPath, fmOrNull(oRead.t, 'decided_at')), tier: null });
+    else {
+      const s = gitBirth(oPath) || statSync(oPath).mtime.toISOString();
+      considering.push({ slug, name: fmOrNull(oRead.t, 'feature') || slug, since: s, ageDays: ageDays(s) });
+    }
+  }
   else if (decision === 'build' || decision === 'iterate') inProgress.push({ slug, status: 'opportunity-decided', nextStep: 'S1', tier: null });
   else done.push({ slug, state: decision });
 }
 gates.sort((a, b) => String(a.since).localeCompare(String(b.since)));
+considering.sort((a, b) => a.since.localeCompare(b.since));   // cũ nhất lên đầu — thẻ lấy 3 tên đầu
 
 // Hai nguồn từng vắng (PRODUCT-MAP, phiên nghiệm thu) đã dựng ở F-B, nên mảng
 // skipped[] không còn nguồn sinh nào và đã được gỡ: một khoá khai mà không thứ
@@ -287,7 +330,7 @@ const cfgRead = read(path.join(root, '_acceptance', 'config.yaml'));
 //   · phi-scalar (`[`/`{`/`>`/`|`) và neo/alias (`&`/`*`) → null
 //   · không khớp khuôn `plugin:skill` / `skill` → null
 // MỌI hình dạng "không đọc ra tên dùng ngay" đều về null ⇒ thẻ trỏ nghi thức
-// grill kit-own, KHÔNG cờ đỏ, không chặn (đường fallback phải sống ở repo
+// khai thác theo khuôn kit-own, KHÔNG cờ đỏ, không chặn (đường fallback phải sống ở repo
 // chưa khai). Thụt đầu dòng: reader chung đòi 2-space, ĐÚNG hợp đồng repo
 // (`commands/acceptance-init.md` "2-space indentation REQUIRED"; pre-merge coi
 // thụt lẻ là VIOLATION) — bản vá r1 từng nới chỗ này và gây bất đồng thật với
@@ -330,4 +373,4 @@ if (map.present) {
   } catch { map.fresh = null; }
 }
 
-out({ schema_version: 1, config: true, git, groups: { gates, inProgress, done }, map, discovery, broken });
+out({ schema_version: 1, config: true, git, groups: { gates, inProgress, considering, done }, map, discovery, broken });

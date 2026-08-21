@@ -33,6 +33,7 @@ worktree/nhánh đọc từ git của `<path>`.
    git.branch git.dirty
    groups.gates[].slug groups.gates[].gate groups.gates[].since groups.gates[].tier
    groups.inProgress[].slug groups.inProgress[].status groups.inProgress[].nextStep groups.inProgress[].tier
+   groups.considering[].slug groups.considering[].name groups.considering[].since groups.considering[].ageDays
    groups.done[].slug groups.done[].state
    map.present map.fresh map.enabled map.state map.label
    discovery.brainstormSkill
@@ -56,16 +57,37 @@ worktree/nhánh đọc từ git của `<path>`.
      BẰNG CHỮ, mã máy trong ngoặc — tra bảng: chốt thiết kế và tiêu chí (`S1`)
      · lập kế hoạch (`S2`) · viết code (`S3`) · sửa theo bằng chứng (`S3-fix`)
      · nghiệm thu máy (`S4`). Lần đầu một mã hiện trên thẻ phải kèm nghĩa.
+   <!-- <<<START-CAN-NHAC -->
+   - **Đang cân nhắc** (`groups.considering` — ý đã có ô nhưng chưa điền ngưỡng,
+     nên chưa có gì để ký; máy không xếp vào chờ chữ ký): N = 0 → KHÔNG in dòng
+     nào. N ≥ 1 → đúng MỘT dòng «Đang cân nhắc: N ý · cũ nhất X ngày» (X =
+     `ageDays` lớn nhất) rồi tối đa 3 `name` cũ nhất (script đã xếp cũ nhất lên
+     đầu). Chọn một ý → việc kế là điền section Ngưỡng trong `opportunity.md`
+     của nó; điền đủ là máy tự đưa sang chờ Cổng Đáng ở lần quét sau.
+   <!-- START-CAN-NHAC>>> -->
+   <!-- <<<START-HIEU-KET -->
+   **Kết thúc buổi khai thác — MỌI lối, mở bằng skill nào cũng vậy:** ghi
+   `_acceptance/<slug>/opportunity.md` từ khối `OPP-FRONTMATTER-TEMPLATE` của
+   `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/opportunity-template.md`:
+   ① `stage: discovery` · ② `decision: ` để trống (người ký Cổng Đáng điền) ·
+   ③ file BẮT ĐẦU ở dòng `---` — không tiêu đề, không hàng rào yaml trước nó ·
+   ④ section «Vấn đề & ai gặp» ≥ 1 câu · ⑤ section «Ngưỡng chết / ngưỡng UAT»
+   giữ nguyên `…` của khuôn tới khi người điền — chưa điền là «đang cân nhắc»,
+   điền đủ là chờ Cổng Đáng · ⑥ KHÔNG viết spec, KHÔNG viết contract ở bước này
+   (đó là S1, sau Cổng Đáng). Ý không ghi vào ô là ý sẽ mất — ba bộ đọc định kỳ
+   (/start · bản đồ · lưới) chỉ thấy `_acceptance/`.
+   <!-- START-HIEU-KET>>> -->
    - **Bắt đầu việc mới** — đúng ba lối, không thêm lối nào: (a) ý còn mơ hồ →
      buổi khai thác vòng HIỂU; đích lấy từ `discovery.brainstormSkill` trong
      JSON quét (ổ cắm repo tự khai ở `_acceptance/config.yaml`, khoá
      `discovery.brainstorm_skill`): CÓ giá trị → mở buổi khai thác bằng đúng
-     skill đó; `null` → đi nghi thức grill của kit theo khuôn
+     skill đó, kết thúc theo `START-HIEU-KET`; `null` → khai thác theo khuôn
      `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/opportunity-template.md`
-     (repo chưa khai là bình thường — KHÔNG chặn, không cờ). Nhánh thứ ba,
+     rồi kết thúc theo `START-HIEU-KET` (repo chưa khai là bình thường — KHÔNG
+     chặn, không cờ). Nhánh thứ ba,
      BẮT BUỘC có: giá trị CÓ nhưng skill đó KHÔNG nằm trong danh sách skill
      khả dụng của phiên → NÓI THẲNG một dòng ("repo khai buổi khai thác bằng
-     `<tên>`, phiên này không có skill đó") rồi đi grill của kit — đích khai
+     `<tên>`, phiên này không có skill đó") rồi khai thác theo khuôn, kết thúc theo `START-HIEU-KET` — đích khai
      mà không giải được thì im lặng dùng nó là đẩy phiên vào con trỏ chết. Trước Cổng Đáng
      KHÔNG dùng `superpowers:brainstorming` — skill đó thuộc S1 vòng LÀM, nó
      trả lời "làm thế nào" trong khi buổi này hỏi "có làm không / làm gì"; (b)

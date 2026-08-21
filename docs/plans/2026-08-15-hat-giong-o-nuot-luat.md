@@ -1,6 +1,6 @@
 # Hạt giống — ô nuốt luật: đổi hai ô hỏi-khẩu-vị thành ô hỏi-phép-đối-chiếu
 
-*Trạng thái: **HẠT GIỐNG, chờ Cổng 0**. Sinh 15/08 từ điều tra
+*Trạng thái: sống ở `_acceptance/o-nuot-luat/opportunity.md`. Sinh 15/08 từ điều tra
 [«khuôn nuốt luật — hai họ luật kit»](../findings/2026-08-15-khuon-nuot-luat-hai-ho-luat.md)
 trên hồ sơ Cổng Đáng `trang-tu-van-v2-r4` của `artifact-platform` (PR #352).
 Vòng điều tra KHÔNG sửa file kit; tệp này là đề bài cho vòng riêng, đúng

@@ -1,6 +1,6 @@
-# Hạt giống — T1 tuyên-kèm-căn-cứ (cắt khỏi 1c, chờ Cổng 0)
+# Hạt giống — T1 tuyên-kèm-căn-cứ (cắt khỏi 1c)
 
-*Trạng thái: **HẠT GIỐNG, chờ Cổng 0**. Vật đã hoàn nguyên về nguyên trạng —
+*Trạng thái: sống ở `_acceptance/t1-tuyen-kem-can-cu/opportunity.md`. Vật đã hoàn nguyên về nguyên trạng —
 hai nhánh T1 hiện vẫn dừng hỏi người xác nhận như trước. Sinh 14/08 khi owner
 chọn **thu phạm vi** sau hai vòng hội đồng cùng lớp lỗi của hồ sơ
 `doi-hanh-vi-cong-nguoi`.*

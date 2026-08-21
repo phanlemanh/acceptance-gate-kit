@@ -48,8 +48,8 @@ evals:
       exit 0; stdout có "PASS: [VC4]" — (a) fixture không git, utimes 10 ngày trước →
       ageDays == 10; (b) git init (ident qua -c) HAI commit trên cùng file, ngày −10
       rồi −1, đặt cả GIT_AUTHOR_DATE lẫn GIT_COMMITTER_DATE → since == ngày −10
-      (so epoch) và ageDays == 10 — bản sao script đọc commit cuối (mutant đổi
-      tail→head) → đỏ "since lấy commit cuối"; (c) file chưa commit trong repo git → mtime.
+      (so epoch) và ageDays == 10 — bản sao script đọc commit cuối (mutant thay
+      '--diff-filter=A' bằng '-1') → since lệch → đỏ; (c) file chưa commit trong repo git → mtime.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5

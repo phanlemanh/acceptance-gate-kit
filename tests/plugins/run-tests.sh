@@ -2485,6 +2485,7 @@ W('_acceptance/w-draft/contract.md', '---\nslug: w-draft\nrisk_tier: T2\nstatus:
 W('_acceptance/w-go/contract.md', '---\nslug: w-go\nrisk_tier: T2\nstatus: approved\n---\n');
 W('_acceptance/w-done/contract.md', '---\nslug: w-done\nrisk_tier: T2\nstatus: signed-off\n---\n');
 W('_acceptance/w-bad/contract.md', 'khong fence\n');
+W('_acceptance/w-consider/opportunity.md', '---\nslug: w-consider\nfeature: w\nstage: discovery\ndecision:\n---\n');   // o «dang can nhac» (vao-co-o-ra-co-ten)
 const outJson = JSON.parse(execFileSync('node',
   [path.join(root, 'scripts/start-scan.mjs'), '--root', tmp], { encoding: 'utf8' }));
 
@@ -6984,11 +6985,12 @@ if (scan(cfg(`  ${KEY}_doi_ten: ${NAME}\n`)) !== null)
 const SEG = [
   { rel: 'commands/start.md', a: 'Bắt đầu việc mới', b: 'Dưới thẻ',
     pos: /CÓ giá trị\s*→\s*mở buổi khai thác bằng đúng\s+skill đó/,
-    neg: /`null`\s*→\s*đi nghi thức grill của kit/, tail: 'KHÔNG chặn',
-    // Nhánh THỨ BA: đích khai mà phiên không có skill đó → NÓI THẲNG rồi grill.
+    neg: /`null`\s*→\s*khai thác theo khuôn/, tail: 'KHÔNG chặn',
+    // Nhánh THỨ BA: đích khai mà phiên không có skill đó → NÓI THẲNG rồi khai thác theo khuôn.
+    // (vao-co-o-ra-co-ten: con trỏ «grill» là nghi thức không tồn tại — thay bằng khuôn + START-HIEU-KET)
     // Thêm ở r1 mà quên thước (r2 bắt): xoá cả mệnh đề thì mọi case vẫn xanh,
     // trong khi đây là nhánh duy nhất mà vắng nó gây đúng cái hại đã ghi.
-    third: /nằm trong danh sách skill[\s\S]{0,40}?khả dụng[\s\S]{0,60}?→[\s\S]{0,40}?NÓI THẲNG[\s\S]{0,260}?grill của kit/i },
+    third: /nằm trong danh sách skill[\s\S]{0,40}?khả dụng[\s\S]{0,60}?→[\s\S]{0,40}?NÓI THẲNG[\s\S]{0,260}?khai thác theo khuôn/i },
 ];
 const segOf = (txt, s) => {
   const i = txt.indexOf(s.a), j = i < 0 ? -1 : txt.indexOf(s.b, i);
@@ -6999,11 +7001,11 @@ const checkSeg = (s, txt) => {
   const seg = segOf(txt, s);
   const errs = [];
   if (!s.pos.test(seg)) errs.push(`${s.rel}: đoạn lối (a) thiếu QUAN HỆ nhánh-CÓ → dùng skill đã khai`);
-  if (!s.neg.test(seg)) errs.push(`${s.rel}: đoạn lối (a) thiếu QUAN HỆ nhánh-null → grill kit-own`);
+  if (!s.neg.test(seg)) errs.push(`${s.rel}: đoạn lối (a) thiếu QUAN HỆ nhánh-null → khai thác theo khuôn kit-own`);
   if (!seg.includes('opportunity-template.md')) errs.push(`${s.rel}: nhánh fallback không trỏ khuôn opportunity-template.md`);
   if (!seg.includes(s.tail)) errs.push(`${s.rel}: đoạn lối (a) thiếu chữ "${s.tail}"`);
   if (!seg.includes(`discovery.${KEY}`)) errs.push(`${s.rel}: đoạn lối (a) không nêu khoá config discovery.${KEY}`);
-  if (!s.third.test(seg)) errs.push(`${s.rel}: đoạn lối (a) thiếu NHÁNH THỨ BA — đích khai không giải được → nói thẳng rồi grill`);
+  if (!s.third.test(seg)) errs.push(`${s.rel}: đoạn lối (a) thiếu NHÁNH THỨ BA — đích khai không giải được → nói thẳng rồi khai thác theo khuôn`);
   return errs;
 };
 for (const s of SEG) {
@@ -10493,6 +10495,14 @@ done
 for _lv in LV1 LV2 LV3 LV4 LV5 LV6; do
   run "ca lan V — $_lv (ho so lan-v-khong-phai-cho-ky)" \
     env LV_CASES="$_lv" node "$ROOT/tests/plugins/lan-v.test.mjs"
+done
+
+# ─── Hồ sơ vao-co-o-ra-co-ten: VC1..VC8 (file ca riêng; VC5 = P99) ───────────
+# Danh sách ca do CHÍNH file ca xuất (--ids); tên dòng run KHÔNG chứa "PASS: [VC".
+_vc_ids="$(node "$ROOT/tests/plugins/vao-co-o.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca VC"; failures=$((failures+1)); _vc_ids=""; }
+for _vc in $_vc_ids; do
+  run "ca vao co o — $_vc (ho so vao-co-o-ra-co-ten)" \
+    env VC_CASES="$_vc" node "$ROOT/tests/plugins/vao-co-o.test.mjs"
 done
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)

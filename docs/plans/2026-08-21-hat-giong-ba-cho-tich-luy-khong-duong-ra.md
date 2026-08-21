@@ -1,6 +1,6 @@
 # Hạt giống — ba chỗ tích luỹ không có đường ra
 
-**Ngày:** 2026-08-21 · **Trạng thái:** hạt giống, chờ Cổng 0 · **Hạng dự kiến:**
+**Ngày:** 2026-08-21 · **Trạng thái:** `_acceptance/ba-cho-tich-luy-khong-duong-ra/opportunity.md` · **Hạng dự kiến:**
 T2 (hai câu trong luật sinh eval + một nếp xếp ca kiểm + một bước CI; không
 chạm lưới trước-merge, không chạm lưới ghi-lúc-viết, không chạm hồ sơ đã ký).
 **Sinh từ:** phiên dọn repo 21/08 — gói A (worktree · nhánh · pack · rác render)
