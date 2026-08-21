@@ -129,6 +129,58 @@ mot-chu)
   else echo "MOT-CHU: $loi ĐỎ"; fi
   ;;
 
+ban-do)
+  # Chân này đo CÂY THẬT — R+ sống, bổ sung cho fixture code-sinh (fixture mới
+  # là thước; cây thật là chỗ chứng minh luật có tác dụng ở đời thật).
+  MAP="$ROOT/PRODUCT-MAP.md"
+  BT='`'
+  node "$PM" --root "$ROOT" --check >/dev/null 2>&1 \
+    || bad "product-map --check do tren cay that — ban do chua ve lai?"
+
+  sec_of() { awk -v s="$BT$1$BT" '/^## /{sec=substr($0,4)} /^- /{ if (index($0,s)) { print sec; exit } }' "$MAP"; }
+  line_of() { grep -m1 -F "$BT$1$BT" "$MAP"; }
+
+  for slug in release-2-0-0 release-2-1-0; do
+    sec="$(sec_of "$slug")"
+    [ "$sec" = "Đã giao" ] || bad "$slug khong nam duoi 'Đã giao' (thuc te: ${sec:-khong thay slug})"
+    line_of "$slug" | grep -qF "cửa veto mở" || bad "$slug thieu chu thich cua veto mo"
+  done
+  # Hồ sơ ĐÃ KÝ thật phải giữ nguyên: đã giao, KHÔNG chú thích cửa mở.
+  sec22="$(sec_of release-2-2-0)"
+  [ "$sec22" = "Đã giao" ] || bad "release-2-2-0 (da ky) khong con duoi 'Đã giao' (thuc te: ${sec22:-khong thay})"
+  line_of release-2-2-0 | grep -qF "cửa veto mở" && bad "release-2-2-0 da ky ma van gan chu thich cua veto mo"
+
+  # Máy quét thật
+  SCAN="$(node "$ROOT/scripts/start-scan.mjs" --root "$ROOT")" || { echo "RANG-LANV: start-scan that bai"; exit 1; }
+  scan_err="$(printf '%s' "$SCAN" | node --input-type=module -e "
+    let raw=''; for await (const c of process.stdin) raw += c;
+    const j = JSON.parse(raw);
+    const gates = new Set(j.groups.gates.map(g => g.slug));
+    const done = new Map(j.groups.done.map(d => [d.slug, d.state]));
+    const err = [];
+    for (const s of ['release-2-0-0','release-2-1-0']) {
+      if (gates.has(s)) err.push(s + ' van trong gates');
+      if (done.get(s) !== 'lan-v-mo') err.push(s + ' state ' + (done.get(s) ?? '(khong co)') + ' != lan-v-mo');
+    }
+    if (done.get('release-2-2-0') !== 'signed-off') err.push('release-2-2-0 mat trang thai signed-off');
+    process.stdout.write(err.join(' · '));
+  ")" || { echo "RANG-LANV: khong doc duoc JSON may quet"; exit 1; }
+  [ -z "$scan_err" ] || bad "may quet that: $scan_err"
+
+  grep -qF 'lan-v-mo' "$ROOT/commands/start.md" || bad "commands/start.md khong neu trang thai lan-v-mo"
+  grep -qF 'làn V' "$ROOT/commands/start.md" || bad "commands/start.md khong neu 'làn V'"
+
+  # Chiều đỏ cùng lượt: --check phải CÓ RĂNG (bản sao có rác thì phải đỏ).
+  TMP="$(mktemp -d)"
+  chep_cay "$TMP/c"
+  printf '\n- rac chen tay\n' >> "$TMP/c/PRODUCT-MAP.md"
+  node "$PM" --root "$TMP/c" --check >/dev/null 2>&1 && bad "chieu do: --check van exit 0 tren ban sao co rac"
+
+  if [ "$loi" -eq 0 ]; then
+    echo "BAN-DO OK: 2 ho so lan V da giao · 1 ho so da ky giu signed-off · check exit 0 · /start biet lan-v-mo"
+  else echo "BAN-DO: $loi ĐỎ"; fi
+  ;;
+
 *)
   echo "chan khong biet: $CHAN (cases|mutant|mot-chu|ban-do)"; exit 2 ;;
 esac
