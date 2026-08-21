@@ -67,3 +67,38 @@
 - **claude-fable-5**: 3 agent · 49 calls · out 50,475 · in 41,716 · cache_read 3,897,591 · cache_create 539,251
 - **claude-haiku-4-5-20251001**: 5 agent · 22 calls · out 7,237 · in 186 · cache_read 839,588 · cache_create 147,635
 
+### S4 round 3 (BLOCKED hạ tầng) — wf_d4dd386f-a8a (26 agent, 192,595 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5 | 7 | 24,158 | 14 | 563,195 | 259 |
+| review:measurement | claude-opus-5 | 27 | 20,361 | 54 | 2,135,024 | 471 |
+| review:conventions | claude-opus-5 | 22 | 18,991 | 44 | 1,754,434 | 386 |
+| refute:evals.yaml | claude-sonnet-5 | 23 | 18,706 | 46 | 1,883,668 | 498 |
+| review:bugs | claude-opus-5 | 26 | 14,721 | 52 | 1,920,340 | 428 |
+| triage | claude-sonnet-5 | 2 | 13,569 | 4 | 65,216 | 158 |
+| refute:plugin-declare.test.mjs | claude-sonnet-5 | 11 | 11,624 | 22 | 774,382 | 149 |
+| refute:plugin-declare.test.mjs | claude-sonnet-5 | 8 | 11,341 | 16 | 523,012 | 147 |
+| refute:plugin-declare.mjs | claude-sonnet-5 | 7 | 10,744 | 14 | 469,286 | 142 |
+| refute:plugin-declare.test.mjs | claude-sonnet-5 | 13 | 9,694 | 26 | 923,744 | 145 |
+| refute:plugin-declare.mjs | claude-sonnet-5 | 7 | 9,321 | 14 | 450,079 | 126 |
+| refute:acceptance-init.md | claude-sonnet-5 | 6 | 4,301 | 12 | 364,586 | 68 |
+| refute:run-tests.sh | claude-sonnet-5 | 7 | 4,099 | 14 | 424,208 | 57 |
+| refute:plugin-declare.mjs | claude-sonnet-5 | 8 | 3,769 | 16 | 494,055 | 65 |
+| refute:plugin-declare.test.mjs | claude-sonnet-5 | 9 | 3,653 | 18 | 574,472 | 73 |
+| baseline:diffBase | claude-sonnet-5 | 6 | 1,661 | 12 | 319,953 | 301 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 3 | 1,583 | 26 | 107,929 | 39 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 3 | 1,548 | 26 | 87,222 | 39 |
+| machine:bash tests/plugins/run-tests.sh | claude-haiku-4-5-20251001 | 6 | 1,462 | 50 | 244,513 | 49 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 4 | 1,376 | 34 | 152,986 | 47 |
+| judge:E10:domain-correctness | claude-sonnet-5 | 3 | 1,309 | 6 | 149,814 | 162 |
+| refute:plugin-declare.mjs | claude-sonnet-5 | 3 | 1,121 | 6 | 151,075 | 31 |
+| judge:E10:spec-alignment | claude-sonnet-5 | 3 | 1,101 | 6 | 122,438 | 168 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 4 | 1,077 | 34 | 152,801 | 42 |
+| capture:provenance | claude-sonnet-5 | 2 | 666 | 4 | 58,282 | 11 |
+| judge:E10:operational-feasibility | claude-sonnet-5 | 2 | 639 | 4 | 86,326 | 168 |
+
+- **claude-sonnet-5**: 18 agent · 127 calls · out 131,476 · in 254 · cache_read 8,397,791 · cache_create 1,185,902
+- **claude-opus-5**: 3 agent · 75 calls · out 54,073 · in 150 · cache_read 5,809,798 · cache_create 345,836
+- **claude-haiku-4-5-20251001**: 5 agent · 20 calls · out 7,046 · in 170 · cache_read 745,451 · cache_create 146,250
+

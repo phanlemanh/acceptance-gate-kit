@@ -12,7 +12,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/plugin-declare.mjs, tests/plugins/plugin-declare.test.mjs, .claude-plugin/marketplace.json]
     expected: >
-      exit 0; stdout có "PASS: PD1" — repo trống + --write → file tồn tại,
+      exit 0; stdout có "PASS: [PD1]" (ranh giới cứng — không khớp nhầm ca anh em) — repo trống + --write → file tồn tại,
       parse được, extraKnownMarketplaces.acceptance-gate-kit.source ==
       {source:github, repo:phanlemanh/acceptance-gate-kit}; tập khoá
       enabledPlugins BẰNG TẬP (tên đọc từ marketplace.json + "@acceptance-gate-kit")
@@ -31,7 +31,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/plugin-declare.mjs, tests/plugins/plugin-declare.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: PD2" — fixture settings có permissions (allow
+      exit 0; stdout có "PASS: [PD2]" (ranh giới cứng — không khớp nhầm ca anh em) — fixture settings có permissions (allow
       list), worktree.bgIsolation, enabledPlugins.paper-desktop@paper=true →
       sau --write: 4 khoá kit có mặt và true; permissions/worktree/paper-desktop
       deep-equal trước/sau; Object.keys(sau).slice(0, n_cũ) == Object.keys(trước)
@@ -47,7 +47,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/plugin-declare.mjs, tests/plugins/plugin-declare.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: PD1b" — bản sao marketplace.json đổi name thành
+      exit 0; stdout có "PASS: [PD1b]" (ranh giới cứng — không khớp nhầm ca anh em) — bản sao marketplace.json đổi name thành
       kit-khac → enabledPlugins có đúng n khoá hậu tố "@kit-khac" và
       extraKnownMarketplaces có khoá "kit-khac", KHÔNG có "acceptance-gate-kit"
       (một nguồn tên cho cả hai chỗ).
@@ -59,7 +59,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/plugin-declare.mjs, tests/plugins/plugin-declare.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: PD2b" — (a) file gốc là mảng ["keep-me"] → exit 3,
+      exit 0; stdout có "PASS: [PD2b]" (ranh giới cứng — không khớp nhầm ca anh em) — (a) file gốc là mảng ["keep-me"] → exit 3,
       bytes không đổi, stderr "không phải object — không ghi đè"; (b)
       {enabledPlugins: ["x@y"]} → exit 3, bytes không đổi, stderr "khoá
       enabledPlugins không phải object". Đối chứng dương: {} → exit 0.
@@ -71,7 +71,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/plugin-declare.mjs, tests/plugins/plugin-declare.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: PD2c" — fixture settings có
+      exit 0; stdout có "PASS: [PD2c]" (ranh giới cứng — không khớp nhầm ca anh em) — fixture settings có
       enabledPlugins["feature-loop@acceptance-gate-kit"]=false và
       extraKnownMarketplaces["acceptance-gate-kit"].source={source:git,url:https://fork/x.git}
       → sau --write: false GIỮ false, source GIỮ nguyên (deep-equal), plugin
@@ -86,7 +86,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/plugin-declare.mjs, tests/plugins/plugin-declare.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: PD3" — sau PD1, chạy --write lần hai → exit 0,
+      exit 0; stdout có "PASS: [PD3]" (ranh giới cứng — không khớp nhầm ca anh em) — sau PD1, chạy --write lần hai → exit 0,
       bytes trước/sau giống hệt (Buffer.equals), stdout script có "đã khai,
       không đổi". Đối chứng dương: lần một PHẢI in dòng "đã khai" KHÔNG kèm
       "không đổi" (phân biệt hai trạng thái, không chỉ đếm exit 0).
@@ -98,7 +98,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/plugin-declare.mjs, tests/plugins/plugin-declare.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: PD4" — settings.json = "{ không hợp lệ" → script
+      exit 0; stdout có "PASS: [PD4]" (ranh giới cứng — không khớp nhầm ca anh em) — settings.json = "{ không hợp lệ" → script
       exit 3, bytes trước/sau giống hệt, stderr có "settings.json không đọc được
       — không ghi đè". Đối chứng dương: cùng fixture sửa thành JSON hợp lệ →
       exit 0 và file đổi.
@@ -110,7 +110,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/plugin-declare.mjs, tests/plugins/plugin-declare.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: PD5" — repo trống, KHÔNG --write → không tồn tại
+      exit 0; stdout có "PASS: [PD5]" (ranh giới cứng — không khớp nhầm ca anh em) — repo trống, KHÔNG --write → không tồn tại
       .claude/settings.json sau khi chạy; stdout script chứa đủ 4 tên plugin và
       chuỗi "dry-run". Đối chứng dương: thêm --write trên cùng fixture → file
       xuất hiện.
@@ -122,7 +122,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/plugin-declare.mjs, commands/acceptance-init.md, GUIDE.md, .claude-plugin/marketplace.json, tests/plugins/plugin-declare.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: PD6" — bốn tập bằng nhau: marketplace.json
+      exit 0; stdout có "PASS: [PD6]" (ranh giới cứng — không khớp nhầm ca anh em) — bốn tập bằng nhau: marketplace.json
       (n tên + hậu tố) ∪ {superpowers@claude-plugins-official} == --list ==
       tên rút từ khối INIT-PLUGIN-DECLARE (acceptance-init.md) == tên rút từ
       dòng "^- name@marketplace" trong khối GUIDE-PLUGIN-DECLARE (GUIDE.md) —
@@ -140,7 +140,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [GUIDE.md, tests/plugins/plugin-declare.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: PD7" — trong khối "### 5.1" → "### 5.2" của
+      exit 0; stdout có "PASS: [PD7]" (ranh giới cứng — không khớp nhầm ca anh em) — trong khối "### 5.1" → "### 5.2" của
       GUIDE: 0 lần "tuỳ chọn, cài riêng được"; có cụm "không pin phiên bản";
       khối con GUIDE-MAY-DAU: đúng 1 "claude plugin marketplace add
       phanlemanh/acceptance-gate-kit" + đúng 1 "claude plugin install
@@ -159,7 +159,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [README.md, QUICKSTART.md, GUIDE.md, CLAUDE.md, CONTEXT.md, commands, feature-loop/README.md, tests/plugins/plugin-declare.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: PD7b" — quét TRỌN LỚP: mọi *.md ở gốc repo +
+      exit 0; stdout có "PASS: [PD7b]" (ranh giới cứng — không khớp nhầm ca anh em) — quét TRỌN LỚP: mọi *.md ở gốc repo +
       commands/*.md + README của từng plugin (báo cáo số file đã quét, hiện 14);
       0 lệnh "claude plugin install|update|marketplace add" ngoài khối
       GUIDE-PLUGIN-DECLARE; 0 dòng gọi plugin kit là tuỳ chọn (NFC, bắt cả
@@ -178,7 +178,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [commands/acceptance-init.md, tests/plugins/plugin-declare.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: PD8" — ROUND-TRIP: rút NGUYÊN VĂN dòng lệnh
+      exit 0; stdout có "PASS: [PD8]" (ranh giới cứng — không khớp nhầm ca anh em) — ROUND-TRIP: rút NGUYÊN VĂN dòng lệnh
       trong khối INIT-PLUGIN-DECLARE của acceptance-init.md, thay
       ${CLAUDE_PLUGIN_ROOT} bằng gốc repo (suy từ vị trí file ca) và <path>
       bằng repo nháp mkdtemp, THỰC THI bằng node → exit 0, repo nháp có
@@ -188,13 +188,25 @@ evals:
       exit 4 → đỏ "lệnh trong init không chạy được".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
+  - id: E8b
+    criterion: AC-8b
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [commands/acceptance-init.md, tests/plugins/plugin-declare.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [PD8b]" — khối INIT-PLUGIN-DECLARE chứa cụm
+      "BRANCH ON THE EXIT CODE", nhánh "exit 0 →" kèm câu commit, nhánh
+      "exit 3 or 4 →" kèm "VERBATIM" và "Do NOT tell anyone to commit". Chiều đỏ
+      cùng ca: bản sao gỡ dòng "exit 3 or 4" → đỏ "5b không rẽ nhánh mã thoát".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
   - id: E9
     criterion: AC-9
     executor: test
     cmd: config:executors.test.plugins
     paths: [scripts/plugin-declare.mjs, tests/plugins/plugin-declare.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: PD9" — --marketplace trỏ vào đường không tồn tại
+      exit 0; stdout có "PASS: [PD9]" (ranh giới cứng — không khớp nhầm ca anh em) — --marketplace trỏ vào đường không tồn tại
       (và ca hai: chép script sang mkdtemp giữ bố cục scripts/ nhưng KHÔNG có
       ../.claude-plugin/ → đường suy mặc định vắng) → exit 4, stderr chứa đúng
       đường dẫn đã thử, KHÔNG tồn tại .claude/settings.json sau khi chạy. Đối
@@ -207,7 +219,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/plugin-declare.mjs, tests/plugins/plugin-declare.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: PD9b" — --root <tmp>/typo/repo (không tồn tại)
+      exit 0; stdout có "PASS: [PD9b]" (ranh giới cứng — không khớp nhầm ca anh em) — --root <tmp>/typo/repo (không tồn tại)
       + --write → exit 4, stderr "--root trỏ đường dẫn không tồn tại", thư mục
       KHÔNG được tạo. Đối chứng dương: root thật → exit 0 + file có.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -218,7 +230,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [commands/acceptance-init.md, tests/plugins/plugin-declare.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: PD11" — bước 1 của acceptance-init.md (cắt từ "1.
+      exit 0; stdout có "PASS: [PD11]" (ranh giới cứng — không khớp nhầm ca anh em) — bước 1 của acceptance-init.md (cắt từ "1.
       If `_acceptance/config.yaml` already exists" đến "2. PROBE the repo") chứa
       "STILL RUN step 5b" và câu người-đọc "config đã có — bỏ qua khởi tạo, chỉ
       khai plugin", và KHÔNG còn "already exists → show it and STOP". Chiều đỏ

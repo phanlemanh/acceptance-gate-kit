@@ -10468,7 +10468,9 @@ rm -rf "$P200TMP"
 
 # ─── Hồ sơ repo-khai-plugin: PD1..PD9 (file ca riêng, tên theo slug) ─────────
 # Tiêu đề dòng run CỐ TÌNH không chứa "PASS: PD" — chính file ca in các dòng đó.
-for _pd in PD1 PD1b PD1c PD2 PD2b PD2c PD3 PD4 PD4b PD5 PD6 PD7 PD7b PD8 PD9 PD9b PD11; do
+# Danh sách ca do CHÍNH file ca xuất (--ids) — không chép tay, thêm ca không cần sửa file này.
+_pd_ids="$(node "$ROOT/tests/plugins/plugin-declare.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca PD"; failures=$((failures+1)); _pd_ids=""; }
+for _pd in $_pd_ids; do
   run "ca khai plugin — $_pd (ho so repo-khai-plugin)" \
     env PD_CASES="$_pd" node "$ROOT/tests/plugins/plugin-declare.test.mjs"
 done

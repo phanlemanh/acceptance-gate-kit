@@ -13,7 +13,7 @@ tắt squash · thống nhất "VIỆC CỦA ANH") · Kèm thông báo #2. Kit a
 ```bash
 # BẪY 1: clone marketplace cũ làm update câm. Luôn pull clone TRƯỚC:
 cd ~/.claude/plugins/marketplaces/acceptance-gate-kit 2>/dev/null && git pull
-claude plugin update acceptance-gate && claude plugin update feature-loop
+# cập nhật theo GUIDE §5.1 (cả bốn plugin) — file này không chép lệnh
 ```
 - **Kiểm bằng NỘI DUNG, đừng tin số version** — số `1.39.2` từng đứng yên suốt
   4 chip (② ②b ③ ③b không bump), nên **ai đang ở `1.39.2` có thể mang ruột cũ

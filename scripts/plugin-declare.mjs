@@ -67,8 +67,9 @@ export function mergeSettings(existing, names, mk = MARKETPLACE_NAME) {
   // `false` là quyết định của đội (đã tắt plugin) — KHÔNG lật im lặng.
   for (const n of names) { if (ep[n] === false) kept.push(`${n}: false`); else ep[n] = true; }
   out.enabledPlugins = ep;
-  out.__kept = kept;   // chỉ để main() in ra; xoá trước khi ghi
-  return out;
+  // Kênh điều khiển đi RIÊNG — nhét sentinel vào chính object settings thì một khoá
+  // cùng tên của đội bị ghi đè rồi xoá, và bên gọi ngoài main() sẽ serialize nó vào file.
+  return { settings: out, kept };
 }
 
 function main() {
@@ -93,8 +94,7 @@ function main() {
       if (k in existing && !isPlain(existing[k])) { console.error(`[plugin-declare] settings.json: khoá ${k} không phải object — không ghi đè (${file})`); process.exit(3); }
     }
   }
-  const merged = mergeSettings(existing, names, m.mk);
-  const kept = merged.__kept || []; delete merged.__kept;
+  const { settings: merged, kept } = mergeSettings(existing, names, m.mk);
   const next = JSON.stringify(merged, null, 2) + '\n';
   const keptLine = kept.length ? `giữ nguyên (đội đã đặt): ${kept.join(' · ')}` : '';
   if (!a.write) {
@@ -116,7 +116,12 @@ function main() {
 // Guard entry-point bằng realpath: /var/… là symlink của /private/var/… trên macOS, và
 // đường cache plugin cũng có thể là symlink — so chuỗi thô thì main() im lặng không chạy.
 function isEntryPoint() {
-  try { return !!process.argv[1] && fs.realpathSync(path.resolve(process.argv[1])) === fs.realpathSync(fileURLToPath(import.meta.url)); }
-  catch { return false; }
+  const self = fileURLToPath(import.meta.url);
+  if (!process.argv[1]) return false;
+  const argv1 = path.resolve(process.argv[1]);
+  // realpath để khớp qua symlink (/var → /private/var, cache plugin). Lỗi realpath KHÔNG
+  // được biến thành "không phải entry point" — im lặng exit 0 là fail-open câm.
+  try { return fs.realpathSync(argv1) === fs.realpathSync(self); }
+  catch { return argv1 === self; }
 }
 if (isEntryPoint()) main();

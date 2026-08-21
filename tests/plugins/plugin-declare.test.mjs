@@ -18,11 +18,16 @@ const README = path.join(ROOT, 'README.md');
 const QUICK = path.join(ROOT, 'QUICKSTART.md');
 
 let failures = 0;
+// MỘT nguồn danh sách ca: file này. `--ids` in ra để run-tests.sh lặp theo, không chép tay.
+const ALL_IDS = ['PD1','PD1b','PD1c','PD2','PD2b','PD2c','PD3','PD4','PD4b','PD5','PD6','PD7','PD7b','PD8','PD8b','PD9','PD9b','PD11'];
+if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.PD_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const ran = new Set();
 const want = id => { const w = only.length === 0 || only.includes(id); if (w) ran.add(id); return w; };
-const pass = (id, name) => console.log(`PASS: ${id} ${name}`);
-const fail = (id, msg) => { console.log(`FAIL: ${id} ${msg}`); failures++; };
+// Ranh giới cứng quanh id: `PASS: [PD1]` KHÔNG là tiền tố của `PASS: [PD1b]`
+// (lớp ranh-giới-câu — chốt eval từng khớp nhầm ca anh em).
+const pass = (id, name) => console.log(`PASS: [${id}] ${name}`);
+const fail = (id, msg) => { console.log(`FAIL: [${id}] ${msg}`); failures++; };
 const tmp = () => mkdtempSync(path.join(tmpdir(), 'pd-'));
 const run = (args, opts = {}) => spawnSync(process.execPath, [SCRIPT, ...args], { encoding: 'utf8', ...opts });
 const settingsOf = root => path.join(root, '.claude', 'settings.json');
@@ -44,6 +49,8 @@ const nfc = t => t.normalize('NFC');
 const TUY_CHON = /t[u\u00F9][\u1EF3y] ch\u1ECDn|optional|if installed|n\u1EBFu \u0111\u00E3 c\u00E0i/gi;
 const CMD_PLUGIN = /claude (plugin )?(install|update|marketplace add)/g;
 // Mọi tài liệu mặt người: gốc repo + commands/ + README của từng plugin.
+// Vũ trụ quét = TƯỜNG MINH (hợp đồng khai đúng danh sách này), KHÔNG hứa «mọi tài liệu»:
+// một allowlist đội lốt luật-lớp là fail-silent — lời hứa phải bằng đúng phép đo.
 const humanDocs = () => {
   const out = [];
   for (const f of readdirSync(ROOT)) if (f.endsWith('.md')) out.push(path.join(ROOT, f));
@@ -51,6 +58,9 @@ const humanDocs = () => {
     const dir = path.join(ROOT, d);
     if (!existsSync(dir)) continue;
     for (const f of readdirSync(dir)) if (f.endsWith('.md')) out.push(path.join(dir, f));
+  }
+  for (const f of ['docs/reference/DIAGRAM-RULE.md', 'docs/handoff/2026-08-10-onboarding-doi-gd3.md']) {
+    const fp = path.join(ROOT, f); if (existsSync(fp)) out.push(fp);
   }
   return out;
 };
@@ -113,7 +123,7 @@ if (want('PD2')) {
   else {
     // chiều đỏ: sản phẩm của bản vá «ghi đè cả file» (khoá kit thuần) ghi vào fixture, chạy CÙNG judge2 → phải đỏ đúng tên khoá mất
     const { mergeSettings } = await import(SCRIPT);
-    writeFileSync(f, JSON.stringify(mergeSettings(null, names), null, 2) + '\n');
+    writeFileSync(f, JSON.stringify(mergeSettings(null, names).settings, null, 2) + '\n');
     const red = judge2(JSON.parse(readFileSync(f, 'utf8')));
     if (!red.includes('mất khoá paper-desktop@paper') || !red.includes('mất khoá worktree/permissions')) fail('PD2', `chiều đỏ không đỏ đúng: ${red.join(' · ')}`);
     else pass('PD2', 'hợp nhất giữ permissions/worktree/paper-desktop + thứ tự; sản phẩm ghi-đè-cả-file qua cùng phép so → mất khoá paper-desktop@paper');
@@ -232,7 +242,12 @@ if (want('PD7b')) {
     return errs;
   };
   const docs = Object.fromEntries(humanDocs().map(f => [f, readFileSync(f, 'utf8')]));
-  const e = judgeDocs(docs);
+  // Vũ trụ quét phải ĐỦ và được ASSERT — in số mà không so thì vũ trụ teo lại vẫn xanh.
+  const MUST_SCAN = ['README.md', 'QUICKSTART.md', 'GUIDE.md', 'feature-loop/README.md',
+                     'commands/acceptance-init.md', 'docs/reference/DIAGRAM-RULE.md'];
+  const scanned = Object.keys(docs).map(f => path.relative(ROOT, f));
+  const missing = MUST_SCAN.filter(f => !scanned.includes(f));
+  const e = missing.length ? [`vũ trụ quét thiếu: ${missing.join(', ')}`] : judgeDocs(docs);
   if (e.length) fail('PD7b', e.join(' · '));
   else {
     // ba đột biến, mỗi cái một hình dạng đã dẫm thật ở S4-r1/r2
@@ -243,7 +258,7 @@ if (want('PD7b')) {
     if (!m1.some(x => x.startsWith('README.md:') && x.includes('lệnh plugin ngoài'))) fail('PD7b', `đột biến 1 (README có lệnh) không đỏ: ${m1}`);
     else if (!m2.some(x => x.startsWith('QUICKSTART.md:') && x.includes('tuỳ chọn'))) fail('PD7b', `đột biến 2 (chính tả «tùy») không đỏ: ${m2}`);
     else if (!m3.some(x => x.startsWith('GUIDE.md:'))) fail('PD7b', `đột biến 3 (mất marker → lệnh hoá ngoài khối) không đỏ: ${m3}`);
-    else pass('PD7b', `lớp sạch trên ${Object.keys(docs).length} tài liệu mặt người; ba đột biến (lệnh ở README · chính tả «tùy» · mất marker) đều đỏ đúng`);
+    else pass('PD7b', `${scanned.length} tài liệu khai trong hợp đồng đều sạch (đủ ${MUST_SCAN.length} file bắt buộc); ba đột biến (lệnh ở README · chính tả «tùy» · mất marker) đều đỏ đúng`);
   }
 }
 
@@ -268,6 +283,31 @@ if (want('PD8')) {
     // exit 4 là mã CHUNG của ba lối (tham số lạ · marketplace vắng · --root lạ) → phải ghim thông điệp
     if (r2.status !== 4 || !/tham số lạ: --writ/.test(r2.stderr || '')) fail('PD8', `đột biến --writ không đỏ đúng lối: exit ${r2.status} err=${(r2.stderr || '').slice(0, 80)}`);
     else pass('PD8', 'lệnh trong init chạy được và ghi đúng tập --list; --writ → exit 4 (lệnh trong init không chạy được)');
+  }
+}
+
+// ---------- PD8b: bước 5b của init RẼ NHÁNH theo mã thoát — không báo thành công vô điều kiện (AC-8b)
+if (want('PD8b')) {
+  const judge8b = txt => {
+    const blk = block(txt, 'INIT-PLUGIN-DECLARE');
+    if (!blk) return ['không tìm thấy khối INIT-PLUGIN-DECLARE'];
+    const flat = nfc(blk).replace(/\s+/g, ' ');
+    const errs = [];
+    if (!/BRANCH ON THE EXIT CODE/.test(flat)) errs.push('5b không rẽ nhánh mã thoát');
+    if (!/exit 0 →[^]*?commit file này/.test(flat)) errs.push('thiếu nhánh exit 0 kèm câu commit');
+    if (!/exit 3 or 4 →/.test(flat)) errs.push('5b không rẽ nhánh mã thoát: thiếu nhánh exit 3/4');
+    if (!/VERBATIM/.test(flat)) errs.push('nhánh lỗi không đòi in stderr nguyên văn');
+    if (!/Do NOT tell anyone to commit/.test(flat)) errs.push('nhánh lỗi vẫn có thể bảo commit');
+    return errs;
+  };
+  const md = readFileSync(INIT_MD, 'utf8');
+  const e = judge8b(md);
+  if (e.length) fail('PD8b', e.join(' · '));
+  else {
+    // gỡ ĐÚNG nhánh lỗi (neo chắc: cụm mở nhánh), giữ nguyên phần còn lại của khối
+    const red = judge8b(md.replace('- exit 3 or 4 →', '- (nhánh lỗi đã bị gỡ)'));
+    if (!red.some(x => x.includes('5b không rẽ nhánh mã thoát'))) fail('PD8b', `chiều đỏ không đỏ: ${red}`);
+    else pass('PD8b', '5b rẽ nhánh: exit 0 → commit; exit 3/4 → stderr nguyên văn, cấm bảo commit; gỡ nhánh lỗi → đỏ');
   }
 }
 
@@ -357,5 +397,5 @@ if (want('PD11')) {
 
 // PD_CASES nêu id không tồn tại → không được xanh im lặng (xanh-không-chạy)
 const unknown = only.filter(id => !ran.has(id));
-if (unknown.length) { console.log(`FAIL: PD_CASES không khớp ca nào: ${unknown.join(',')}`); failures++; }
+if (unknown.length) { console.log(`FAIL: [PD_CASES] không khớp ca nào: ${unknown.join(',')}`); failures++; }
 if (failures) { console.log(`plugin-declare: ${failures} ca đỏ`); process.exit(1); }
