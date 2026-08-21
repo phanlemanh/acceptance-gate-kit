@@ -2509,17 +2509,18 @@ const resolveKey = (obj, dotted) => dotted.split('.').reduce((acc, part) => {
   return acc[part];
 }, obj);
 
-const check = entries => {
+const checkOn = (out, entries) => {
   const errs = [];
   for (const [rel, txt] of entries) {
     const keys = extractKeys(txt);
     if (!keys) { errs.push(`${rel}: khong rut duoc khoi START-SCAN-KEYS`); continue; }
     for (const k of keys)
-      if (resolveKey(outJson, k) === undefined)
+      if (resolveKey(out, k) === undefined)
         errs.push(`${rel}: key ${k} khong co trong dau ra start-scan that`);
   }
   return errs;
 };
+const check = entries => checkOn(outJson, entries);
 const load = rel => [rel, fs.readFileSync(path.join(root, rel), 'utf8')];
 const e0 = check(SOURCES.map(load));
 if (e0.length) die('doi chung duong FAIL: ' + JSON.stringify(e0));   // ban that XANH
@@ -2533,6 +2534,21 @@ if (!e1.some(x => /key map_present_doi_ten khong co/.test(x)))
 const e2 = check([['(ban-xoa-marker)', mut.replace(/<!-- <<<START-SCAN-KEYS[\s\S]*?START-SCAN-KEYS>>> -->/, '')]]);
 if (!e2.some(x => /khong rut duoc khoi START-SCAN-KEYS/.test(x)))
   die('dot bien xoa marker khong bi bat: ' + JSON.stringify(e2));
+// dot bien phia DAU RA (vao-co-o-ra-co-ten AC-5): ban sao bo quet bo khoa ageDays khoi
+// considering.push → marker that phai DO neu dung ten khoa (chung minh resolveKey soi toi mang moi)
+const mut3 = fs.mkdtempSync(path.join(os.tmpdir(), 'p99m-'));
+for (const rel of ['lib/evidence-core.cjs', 'lib/workspace-record.cjs', 'lib/md-section.cjs', 'scripts/khong-can-nguoi.mjs',
+                   'scripts/product-map.mjs', 'skills/acceptance/references/opportunity-template.md']) {
+  fs.mkdirSync(path.dirname(path.join(mut3, rel)), { recursive: true });
+  fs.copyFileSync(path.join(root, rel), path.join(mut3, rel));
+}
+const scanSrc = fs.readFileSync(path.join(root, 'scripts/start-scan.mjs'), 'utf8');
+if (!scanSrc.includes(', ageDays: ageDays(s) })')) die('dot bien dau ra: khong thay anchor ageDays trong start-scan');
+fs.writeFileSync(path.join(mut3, 'scripts/start-scan.mjs'), scanSrc.replace(', ageDays: ageDays(s) })', ' })'));
+const outMut = JSON.parse(execFileSync('node', [path.join(mut3, 'scripts/start-scan.mjs'), '--root', tmp], { encoding: 'utf8' }));
+const e3 = checkOn(outMut, SOURCES.map(load));
+if (!e3.some(x => /key groups\.considering\[\]\.ageDays khong co/.test(x)))
+  die('dot bien bo khoa ageDays phia dau ra khong bi bat: ' + JSON.stringify(e3));
 
 // ── CHIEU NGUOC (S4-r1 discovery-brainstorm-socket, hinh dang 3): tren day chi
 // do marker ⊆ dau ra. Xoa mot dong KHOI marker chi lam mang `keys` ngan di nen

@@ -3,7 +3,7 @@
 // Ngưỡng rút từ chính khuôn), chạy start-scan.mjs THẬT và renderProductMap THẬT; đường
 // dẫn suy từ vị trí file; mỗi ca có đối chứng dương + chiều đỏ trên bản sao, ghim thông điệp.
 //   VC_CASES=VC1,VC6 node tests/plugins/vao-co-o.test.mjs
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, readdirSync, utimesSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, readdirSync, utimesSync, rmSync, renameSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -231,19 +231,23 @@ if (want('VC8')) {
   const OLD = ['1c-doi-hanh-vi-cong-nguoi', 'bai-hoc-tuan-do-luong', 'go-lop-chung-minh-chu-ky', 'tool-kill-duong-doc-lap', 'lan-v-khong-phai-cho-ky', 'repo-khai-plugin'];
   const SEED_RE = /^\d{4}-\d{2}-\d{2}-hat-giong-(.+)\.md$/;
   // Ba chân khớp — MỘT hàm, dùng cho cây thật lẫn fixture
+  const discover = plansDir => readdirSync(plansDir).filter(f => SEED_RE.test(f));
   const orphans = (plansDir, accDir) => {
     const contracts = existsSync(accDir) ? readdirSync(accDir).map(d => path.join(accDir, d, 'contract.md')).filter(existsSync).map(p => readFileSync(p, 'utf8')) : [];
-    return readdirSync(plansDir).filter(f => SEED_RE.test(f)).filter(f => {
+    const recordCites = (dir, f) => ['contract.md', 'opportunity.md'].some(n => existsSync(path.join(dir, n)) && readFileSync(path.join(dir, n), 'utf8').includes(`docs/plans/${f}`));
+    return discover(plansDir).filter(f => {
       const slug = f.match(SEED_RE)[1], dir = path.join(accDir, slug);
       const leg1 = existsSync(path.join(dir, 'contract.md')) || existsSync(path.join(dir, 'opportunity.md'));
       const leg2 = contracts.some(c => c.includes(`docs/plans/${f}`));
       const txt = readFileSync(path.join(plansDir, f), 'utf8');
-      const leg3 = [...txt.matchAll(/_acceptance\/([\w-]+)\//g)].some(m => existsSync(path.join(accDir, m[1])));
+      // chân ③ CHẶT: con trỏ tới thư mục CÙNG slug, hoặc thư mục mà hồ sơ bên trong trích lại chính file
+      // hạt giống — nhắc tới một thư mục lạ đang tồn tại KHÔNG phải là «có ô» (review S4: 3/4 stub xoá vẫn xanh)
+      const leg3 = [...txt.matchAll(/_acceptance\/([\w-]+)\//g)].some(m => existsSync(path.join(accDir, m[1])) && (m[1] === slug || recordCites(path.join(accDir, m[1]), f)));
       return !(leg1 || leg2 || leg3);
     });
   };
   const plans = path.join(ROOT, 'docs', 'plans'), acc = path.join(ROOT, '_acceptance');
-  const seeds = readdirSync(plans).filter(f => SEED_RE.test(f)), slugs = seeds.map(f => f.match(SEED_RE)[1]);
+  const seeds = discover(plans), slugs = seeds.map(f => f.match(SEED_RE)[1]);
   if (seeds.length < 13) errs.push(`vũ trụ: chỉ thấy ${seeds.length} hạt giống (mong ≥ 13)`);
   const missing = [...NEW, ...OLD].filter(s => !slugs.includes(s));
   if (missing.length) errs.push(`vũ trụ thiếu slug: ${missing.join(',')}`);
@@ -252,14 +256,21 @@ if (want('VC8')) {
   const r = tmp();
   W(r, 'docs/plans/2026-01-01-hat-giong-chan-1.md', '# a\n'); W(r, '_acceptance/chan-1/opportunity.md', stub({ slug: 'chan-1' }));
   W(r, 'docs/plans/2026-01-01-hat-giong-chan-2.md', '# b\n'); W(r, '_acceptance/khac/contract.md', '---\nstatus: draft\n---\nSource input: `docs/plans/2026-01-01-hat-giong-chan-2.md`\n');
-  W(r, 'docs/plans/2026-01-01-hat-giong-chan-3.md', '# c — trạng thái ở `_acceptance/khac/`\n');
+  W(r, 'docs/plans/2026-01-01-hat-giong-chan-3.md', '# c — trạng thái ở `_acceptance/chan-3/`\n'); W(r, '_acceptance/chan-3/gap-probe.md', '# chỉ có hồ sơ phụ\n');
   W(r, 'docs/plans/2026-01-01-hat-giong-mo-coi.md', '# d\n');
-  const of = orphans(path.join(r, 'docs', 'plans'), path.join(r, '_acceptance'));
-  if (of.join(',') !== '2026-01-01-hat-giong-mo-coi.md') errs.push(`fixture ba chân: mồ côi = ${JSON.stringify(of)} (mong đúng một file mo-coi)`);
-  // chiều đỏ 2: một file thật «đổi tên ra khỏi pattern» → tập-con đỏ nêu đúng slug
-  const renamed = slugs.filter(s => s !== 'o-nuot-luat');
-  const miss2 = [...NEW, ...OLD].filter(s => !renamed.includes(s));
-  if (miss2.join(',') !== 'o-nuot-luat') errs.push(`đổi tên o-nuot-luat mà tập-con không nêu đúng nó: ${miss2.join(',')}`);
+  W(r, 'docs/plans/2026-01-01-hat-giong-mo-coi-tro-la.md', '# e — nhắc `_acceptance/khac/` (thư mục lạ, không trích file này)\n');
+  const of = orphans(path.join(r, 'docs', 'plans'), path.join(r, '_acceptance')).sort();
+  if (of.join(',') !== '2026-01-01-hat-giong-mo-coi-tro-la.md,2026-01-01-hat-giong-mo-coi.md') errs.push(`fixture ba chân: mồ côi = ${JSON.stringify(of)} (mong đúng hai file mo-coi + tro-la)`);
+  // chiều đỏ 2: đổi tên MỘT FILE THẬT ra khỏi pattern trên bản sao docs/plans → khám phá lại → tập-con đỏ nêu đúng slug
+  const rp = tmp(); cpSync(plans, path.join(rp, 'plans'), { recursive: true });
+  const real = seeds.find(f => f.match(SEED_RE)[1] === 'o-nuot-luat');
+  if (!real) errs.push('không thấy file thật o-nuot-luat để đổi tên');
+  else {
+    renameSync(path.join(rp, 'plans', real), path.join(rp, 'plans', real.replace('hat-giong-', 'hatgiong-')));
+    const slugs2 = discover(path.join(rp, 'plans')).map(f => f.match(SEED_RE)[1]);
+    const miss2 = [...NEW, ...OLD].filter(s => !slugs2.includes(s));
+    if (miss2.join(',') !== 'o-nuot-luat') errs.push(`đổi tên file thật o-nuot-luat mà tập-con không nêu đúng nó: ${miss2.join(',')}`);
+  }
   // (ii)+(iii) stub thật: bắt đầu «---», không hỏng; duong-do ở inProgress S1, 6 còn lại considering; 10 dòng đầu hạt giống
   const j = scan(ROOT);
   for (const s of NEW) {
