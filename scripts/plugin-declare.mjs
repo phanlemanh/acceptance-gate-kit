@@ -44,7 +44,8 @@ export function readMarketplace(marketplacePath = DEFAULT_MARKETPLACE) {
   catch { console.error(`[plugin-declare] marketplace.json không phải JSON — đã thử: ${marketplacePath}`); return null; }
   const names = (Array.isArray(j.plugins) ? j.plugins : []).map(p => p && p.name).filter(Boolean);
   if (!names.length) { console.error(`[plugin-declare] marketplace.json không có plugin nào — đã thử: ${marketplacePath}`); return null; }
-  return { names, mk: j.name || MARKETPLACE_NAME };
+  if (!j.name) { console.error(`[plugin-declare] marketplace.json thiếu khoá name — đã thử: ${marketplacePath}`); return null; }
+  return { names, mk: j.name };
 }
 
 export function pluginList(marketplacePath = DEFAULT_MARKETPLACE) {
@@ -56,12 +57,17 @@ export function pluginList(marketplacePath = DEFAULT_MARKETPLACE) {
 // `mk` = tên marketplace đọc từ marketplace.json — cùng nguồn với hậu tố plugin (không hai nguồn).
 export function mergeSettings(existing, names, mk = MARKETPLACE_NAME) {
   const out = isPlain(existing) ? { ...existing } : {};
+  const kept = [];
   const ekm = { ...(out.extraKnownMarketplaces || {}) };
-  ekm[mk] = { source: MARKETPLACE_SOURCE };
+  // Đội đã trỏ marketplace này vào nguồn riêng (fork, git url) → GIỮ, chỉ khai khi vắng.
+  if (ekm[mk] === undefined) ekm[mk] = { source: MARKETPLACE_SOURCE };
+  else if (JSON.stringify(ekm[mk]) !== JSON.stringify({ source: MARKETPLACE_SOURCE })) kept.push(`extraKnownMarketplaces.${mk} (nguồn riêng của đội)`);
   out.extraKnownMarketplaces = ekm;
   const ep = { ...(out.enabledPlugins || {}) };
-  for (const n of names) ep[n] = true;
+  // `false` là quyết định của đội (đã tắt plugin) — KHÔNG lật im lặng.
+  for (const n of names) { if (ep[n] === false) kept.push(`${n}: false`); else ep[n] = true; }
   out.enabledPlugins = ep;
+  out.__kept = kept;   // chỉ để main() in ra; xoá trước khi ghi
   return out;
 }
 
@@ -77,7 +83,8 @@ function main() {
   const file = path.join(a.root, '.claude', 'settings.json');
   let existing = null, raw = null;
   if (fs.existsSync(file)) {
-    raw = fs.readFileSync(file, 'utf8');
+    try { raw = fs.readFileSync(file, 'utf8'); }
+    catch (e) { console.error(`[plugin-declare] không đọc được settings.json (${e.code}) — không ghi đè (${file})`); process.exit(3); }
     try { existing = JSON.parse(raw); }
     catch { console.error(`[plugin-declare] settings.json không đọc được — không ghi đè (${file})`); process.exit(3); }
     // JSON đọc được nhưng không phải settings — mỗi lối một thông điệp, không nuốt chung.
@@ -86,17 +93,23 @@ function main() {
       if (k in existing && !isPlain(existing[k])) { console.error(`[plugin-declare] settings.json: khoá ${k} không phải object — không ghi đè (${file})`); process.exit(3); }
     }
   }
-  const next = JSON.stringify(mergeSettings(existing, names, m.mk), null, 2) + '\n';
+  const merged = mergeSettings(existing, names, m.mk);
+  const kept = merged.__kept || []; delete merged.__kept;
+  const next = JSON.stringify(merged, null, 2) + '\n';
+  const keptLine = kept.length ? `giữ nguyên (đội đã đặt): ${kept.join(' · ')}` : '';
   if (!a.write) {
     console.log(`(dry-run) sẽ ${existing ? 'hợp nhất vào' : 'tạo'} ${file} với ${names.length} plugin:`);
     for (const n of names) console.log(`  - ${n}`);
     console.log('(dry-run) chạy lại với --write để ghi.');
     process.exit(0);
   }
-  if (raw === next) { console.log(`đã khai, không đổi: ${file}`); process.exit(0); }
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, next);
+  if (raw === next) { console.log(`đã khai, không đổi: ${file}`); if (keptLine) console.log(keptLine); process.exit(0); }
+  try {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, next);
+  } catch (e) { console.error(`[plugin-declare] không ghi được settings.json (${e.code}) — không đổi gì (${file})`); process.exit(3); }
   console.log(`đã khai ${names.length} plugin trong ${path.relative(a.root, file) || file} — commit file này, đội viên mở repo là được nhắc cài.`);
+  if (keptLine) console.log(keptLine);
   process.exit(0);
 }
 

@@ -65,6 +65,21 @@ evals:
       enabledPlugins không phải object". Đối chứng dương: {} → exit 0.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
+  - id: E2c
+    criterion: AC-2c
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/plugin-declare.mjs, tests/plugins/plugin-declare.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: PD2c" — fixture settings có
+      enabledPlugins["feature-loop@acceptance-gate-kit"]=false và
+      extraKnownMarketplaces["acceptance-gate-kit"].source={source:git,url:https://fork/x.git}
+      → sau --write: false GIỮ false, source GIỮ nguyên (deep-equal), plugin
+      chưa khai (diagram-design) được bật true, stdout có dòng "giữ nguyên (đội
+      đã đặt)". Bốn assert gom trong một mảng errs — thiếu bất kỳ cái nào là đỏ
+      nêu đúng tên.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
   - id: E3
     criterion: AC-3
     executor: test
@@ -142,13 +157,19 @@ evals:
     criterion: AC-7b
     executor: test
     cmd: config:executors.test.plugins
-    paths: [README.md, QUICKSTART.md, tests/plugins/plugin-declare.test.mjs]
+    paths: [README.md, QUICKSTART.md, GUIDE.md, CLAUDE.md, CONTEXT.md, commands, feature-loop/README.md, tests/plugins/plugin-declare.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: PD7b" — README.md và QUICKSTART.md: 0 dòng
-      "claude plugin install diagram-design", 0 cụm optional/tuỳ chọn cạnh
-      diagram-design, có con trỏ "GUIDE §5.1" hoặc "GUIDE.md#51". Chiều đỏ cùng
-      ca: bản sao README chèn lại dòng "install diagram-design … (optional,
-      standalone)" → đỏ nêu cả hai lỗi.
+      exit 0; stdout có "PASS: PD7b" — quét TRỌN LỚP: mọi *.md ở gốc repo +
+      commands/*.md + README của từng plugin (báo cáo số file đã quét, hiện 14);
+      0 lệnh "claude plugin install|update|marketplace add" ngoài khối
+      GUIDE-PLUGIN-DECLARE; 0 dòng gọi plugin kit là tuỳ chọn (NFC, bắt cả
+      "tuỳ"=t+u+ỳ lẫn "tùy"=t+ù+y, optional, if installed, nếu đã cài). BA chiều
+      đỏ cùng ca, mỗi cái một hình dạng đã dẫm thật: (a) chèn lệnh update vào
+      README → đỏ nêu "README.md: N lệnh plugin ngoài khối"; (b) chèn "(tùy
+      chọn)" cạnh feature-loop vào QUICKSTART → đỏ nêu đúng dòng; (c) xoá marker
+      đóng của GUIDE → đỏ "không tìm thấy khối GUIDE-PLUGIN-DECLARE" (KHÔNG được
+      xanh do split rỗng). Tất cả đi qua CÙNG hàm judgeDocs trên map {path: nội
+      dung}, không grep riêng.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E8
@@ -189,6 +210,21 @@ evals:
       exit 0; stdout có "PASS: PD9b" — --root <tmp>/typo/repo (không tồn tại)
       + --write → exit 4, stderr "--root trỏ đường dẫn không tồn tại", thư mục
       KHÔNG được tạo. Đối chứng dương: root thật → exit 0 + file có.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E11
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [commands/acceptance-init.md, tests/plugins/plugin-declare.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: PD11" — bước 1 của acceptance-init.md (cắt từ "1.
+      If `_acceptance/config.yaml` already exists" đến "2. PROBE the repo") chứa
+      "STILL RUN step 5b" và câu người-đọc "config đã có — bỏ qua khởi tạo, chỉ
+      khai plugin", và KHÔNG còn "already exists → show it and STOP". Chiều đỏ
+      cùng ca: bản sao gỡ cụm "STILL RUN step 5b" → phép đo phải đỏ. Ghi chú:
+      đây là AC văn bản (init là chỉ dẫn cho agent) — hành vi thật thuộc cùng
+      loại known-limit với AC-10.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E10

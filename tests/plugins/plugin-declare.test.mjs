@@ -2,7 +2,7 @@
 // Fixture CODE-SINH trong mkdtemp; đường dẫn suy từ vị trí file; mỗi ca có đối
 // chứng dương + chiều đỏ trên bản sao, ghim thông điệp. Chạy một phần:
 //   PD_CASES=PD1,PD6 node tests/plugins/plugin-declare.test.mjs
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, cpSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, readdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -39,6 +39,21 @@ const block = (text, marker) => {
 };
 const namesIn = blk => [...blk.matchAll(/^\s*-\s+`?([\w.-]+@[\w.-]+)`?\s*$/gm)].map(m => m[1]);
 const count = (s, re) => (s.match(re) || []).length;
+// NFC + hai chính tả «tuỳ/tùy chọn» — repo dùng cả hai; ghim một là phép đo mù với định dạng.
+const nfc = t => t.normalize('NFC');
+const TUY_CHON = /t[u\u00F9][\u1EF3y] ch\u1ECDn|optional|if installed|n\u1EBFu \u0111\u00E3 c\u00E0i/gi;
+const CMD_PLUGIN = /claude (plugin )?(install|update|marketplace add)/g;
+// Mọi tài liệu mặt người: gốc repo + commands/ + README của từng plugin.
+const humanDocs = () => {
+  const out = [];
+  for (const f of readdirSync(ROOT)) if (f.endsWith('.md')) out.push(path.join(ROOT, f));
+  for (const d of ['commands', 'feature-loop', 'diagram-design']) {
+    const dir = path.join(ROOT, d);
+    if (!existsSync(dir)) continue;
+    for (const f of readdirSync(dir)) if (f.endsWith('.md')) out.push(path.join(dir, f));
+  }
+  return out;
+};
 
 // ---------- PD1: repo trống + --write → file đúng; chiều đỏ: marketplace gỡ diagram-design
 if (want('PD1')) {
@@ -176,7 +191,7 @@ if (want('PD7')) {
     const sec = text.split(/^### 5\.1/m)[1]?.split(/^### 5\.2/m)[0] || '';
     const dau = block(sec, 'GUIDE-MAY-DAU') || '', sau = block(sec, 'GUIDE-MAY-SAU') || '';
     const errs = [];
-    if (count(sec, /tuỳ chọn, cài riêng được/g) !== 0) errs.push("GUIDE 5.1 còn 'tuỳ chọn'");
+    if (count(nfc(sec), TUY_CHON) !== 0) errs.push("GUIDE 5.1 còn 'tuỳ chọn/optional' (mọi chính tả)");
     if (!/không pin phiên bản/.test(sec)) errs.push('GUIDE 5.1 thiếu câu không pin phiên bản');
     if (count(dau, /claude plugin marketplace add phanlemanh\/acceptance-gate-kit/g) !== 1 || count(dau, /claude plugin install acceptance-gate@acceptance-gate-kit/g) !== 1) errs.push('máy-đầu phải đúng 1 add + 1 install acceptance-gate');
     if (count(sau, /claude plugin marketplace add/g) !== 1 || count(sau, /claude plugin install/g) !== 0) errs.push('máy-sau có lệnh install hoặc thiếu add');
@@ -185,30 +200,50 @@ if (want('PD7')) {
   const e = judge(g);
   if (e.length) fail('PD7', e.join(' · '));
   else {
-    const redA = judge(g.replace('### 5.2', 'claude plugin install diagram-design@acceptance-gate-kit    # (tuỳ chọn, cài riêng được)\n### 5.2'));
+    const ANCHOR = 'Sau khi cài, **mở phiên Claude Code mới**';
+    if (!g.includes(ANCHOR)) fail('PD7', 'neo đột biến không còn trong GUIDE — sửa ca trước khi tin');
+    const redA = judge(g.replace(ANCHOR, 'claude plugin install diagram-design@acceptance-gate-kit    # (tùy chọn)\n\n' + ANCHOR));
     const redB = judge(g.replace('<!-- GUIDE-MAY-SAU>>> -->', 'claude plugin install feature-loop@acceptance-gate-kit\n<!-- GUIDE-MAY-SAU>>> -->'));
-    if (!redA.some(x => x.includes("còn 'tuỳ chọn'"))) fail('PD7', `đột biến (a) không đỏ: ${redA}`);
+    if (!redA.some(x => x.includes("tuỳ chọn/optional"))) fail('PD7', `đột biến (a) không đỏ: ${redA}`);
     else if (!redB.some(x => x.includes('máy-sau có lệnh install'))) fail('PD7', `đột biến (b) không đỏ: ${redB}`);
-    else pass('PD7', 'GUIDE 5.1: 0 tuỳ chọn, không pin, máy-đầu 1+1, máy-sau 1+0; hai đột biến đỏ đúng');
+    else pass('PD7', 'GUIDE 5.1: 0 tuỳ chọn (cả hai chính tả), không pin, máy-đầu 1+1, máy-sau 1+0; hai đột biến đỏ đúng');
   }
 }
 
-// ---------- PD7b: README + QUICKSTART không còn bản sao thủ tục cài — 0 dòng install diagram-design, 0 «optional/tuỳ chọn» cạnh diagram-design, có con trỏ GUIDE §5.1
+// ---------- PD7b: LỚP — không lệnh cài/cập nhật plugin nào ngoài khối GUIDE-PLUGIN-DECLARE; không «tuỳ/tùy chọn/optional» cạnh tên plugin ở bất kỳ tài liệu mặt người nào
 if (want('PD7b')) {
-  const judge7b = (label, text) => {
+  // judgeDocs nhận map {path: nội dung} để chiều đỏ chạy CÙNG hàm trên bản sao đã tiêm.
+  const judgeDocs = docs => {
     const errs = [];
-    if (count(text, /claude plugin install diagram-design/g) !== 0) errs.push(`${label} còn dòng install diagram-design`);
-    if (count(text, /diagram-design[^\n]*(optional|tuỳ chọn)|(optional|tuỳ chọn)[^\n]*diagram-design/g) !== 0) errs.push(`${label} còn 'optional/tuỳ chọn' cạnh diagram-design`);
-    if (!/GUIDE\s*§\s*5\.1|GUIDE\.md#51/.test(text)) errs.push(`${label} thiếu con trỏ GUIDE §5.1`);
+    for (const [fp, rawTxt] of Object.entries(docs)) {
+      const txt = nfc(rawTxt);
+      const isGuide = path.basename(fp) === 'GUIDE.md';
+      const guideBlk = isGuide ? block(txt, 'GUIDE-PLUGIN-DECLARE') : null;
+      // guideBlk rỗng/null → KHÔNG split('') (cắt thành từng ký tự, regex hết khớp = chiều đỏ chết)
+      const outside = guideBlk ? txt.split(guideBlk).join('\n') : txt;
+      if (isGuide && !guideBlk) errs.push('GUIDE.md: không tìm thấy khối GUIDE-PLUGIN-DECLARE');
+      const n = count(outside, CMD_PLUGIN);
+      if (n) errs.push(`${path.relative(ROOT, fp)}: ${n} lệnh plugin ngoài khối GUIDE-PLUGIN-DECLARE`);
+      for (const line of txt.split('\n')) {
+        if (!/acceptance-gate|feature-loop|diagram-design|superpowers/.test(line)) continue;
+        if (line.match(TUY_CHON)) errs.push(`${path.relative(ROOT, fp)}: «${line.trim().slice(0, 60)}» — plugin bị gọi là tuỳ chọn`);
+      }
+    }
     return errs;
   };
-  const rd = readFileSync(README, 'utf8'), qk = readFileSync(QUICK, 'utf8');
-  const e = [...judge7b('README', rd), ...judge7b('QUICKSTART', qk)];
+  const docs = Object.fromEntries(humanDocs().map(f => [f, readFileSync(f, 'utf8')]));
+  const e = judgeDocs(docs);
   if (e.length) fail('PD7b', e.join(' · '));
   else {
-    const red = judge7b('README', rd + '\nclaude plugin install diagram-design@acceptance-gate-kit  # (optional, standalone)\n');
-    if (!red.some(x => x.includes('còn dòng install diagram-design')) || !red.some(x => x.includes("còn 'optional/tuỳ chọn'"))) fail('PD7b', `đột biến không đỏ: ${red}`);
-    else pass('PD7b', 'README/QUICKSTART trỏ GUIDE §5.1, không còn bản sao install; chèn lại dòng optional → đỏ');
+    // ba đột biến, mỗi cái một hình dạng đã dẫm thật ở S4-r1/r2
+    const rd = path.join(ROOT, 'README.md'), qk = path.join(ROOT, 'QUICKSTART.md');
+    const m1 = judgeDocs({ ...docs, [rd]: docs[rd] + '\nclaude plugin update diagram-design@acceptance-gate-kit   # if installed\n' });
+    const m2 = judgeDocs({ ...docs, [qk]: docs[qk] + '\n# feature-loop (plugin thứ 2, tùy chọn)\n' });   // chính tả «ù»
+    const m3 = judgeDocs({ ...docs, [path.join(ROOT, 'GUIDE.md')]: docs[path.join(ROOT, 'GUIDE.md')].replace('<!-- GUIDE-PLUGIN-DECLARE>>> -->', '') });
+    if (!m1.some(x => x.startsWith('README.md:') && x.includes('lệnh plugin ngoài'))) fail('PD7b', `đột biến 1 (README có lệnh) không đỏ: ${m1}`);
+    else if (!m2.some(x => x.startsWith('QUICKSTART.md:') && x.includes('tuỳ chọn'))) fail('PD7b', `đột biến 2 (chính tả «tùy») không đỏ: ${m2}`);
+    else if (!m3.some(x => x.startsWith('GUIDE.md:'))) fail('PD7b', `đột biến 3 (mất marker → lệnh hoá ngoài khối) không đỏ: ${m3}`);
+    else pass('PD7b', `lớp sạch trên ${Object.keys(docs).length} tài liệu mặt người; ba đột biến (lệnh ở README · chính tả «tùy» · mất marker) đều đỏ đúng`);
   }
 }
 
@@ -230,7 +265,8 @@ if (want('PD8')) {
   if (!ok) fail('PD8', `vị trí/khối/thực thi: exit ${r.status} ${r.stderr}`);
   else {
     const r2 = runLine(blk.replace('--write', '--writ'), tmp());
-    if (r2.status !== 4) fail('PD8', `đột biến --writ không đỏ: exit ${r2.status}`);
+    // exit 4 là mã CHUNG của ba lối (tham số lạ · marketplace vắng · --root lạ) → phải ghim thông điệp
+    if (r2.status !== 4 || !/tham số lạ: --writ/.test(r2.stderr || '')) fail('PD8', `đột biến --writ không đỏ đúng lối: exit ${r2.status} err=${(r2.stderr || '').slice(0, 80)}`);
     else pass('PD8', 'lệnh trong init chạy được và ghi đúng tập --list; --writ → exit 4 (lệnh trong init không chạy được)');
   }
 }
@@ -244,7 +280,14 @@ if (want('PD9')) {
   const wantPath = path.join(copy, '.claude-plugin', 'marketplace.json');
   if (r.status !== 4 || !r.stderr.includes(bad) || existsSync(settingsOf(root))) fail('PD9', `cờ sai đường: exit ${r.status} err=${r.stderr}`);
   else if (r2.status !== 4 || !r2.stderr.includes(wantPath) || existsSync(settingsOf(root))) fail('PD9', `bản chép: exit ${r2.status} err=${r2.stderr}`);
-  else { const r3 = run(['--root', root, '--write']); if (r3.status !== 0 || !existsSync(settingsOf(root))) fail('PD9', 'đối chứng dương'); else pass('PD9', 'marketplace vắng → exit 4 nêu đường dẫn, không ghi; có → ghi'); }
+  else {
+    // đối chứng dương phải chạy CHÍNH bản chép, thêm ../.claude-plugin/marketplace.json cạnh nó
+    mkdirSync(path.join(copy, '.claude-plugin')); cpSync(MARKET, wantPath);
+    const root3 = tmp();
+    const r3 = spawnSync(process.execPath, [path.join(copy, 'scripts', 'plugin-declare.mjs'), '--root', root3, '--write'], { encoding: 'utf8' });
+    if (r3.status !== 0 || !existsSync(settingsOf(root3))) fail('PD9', `đối chứng dương trên bản chép: exit ${r3.status} err=${r3.stderr}`);
+    else pass('PD9', 'marketplace vắng → exit 4 nêu đường dẫn, không ghi; thêm ../.claude-plugin/ cạnh bản chép → exit 0 + file có');
+  }
 }
 
 // ---------- PD9b: --root không tồn tại → exit 4, không tạo cây; đối chứng: root có → ghi
@@ -253,6 +296,63 @@ if (want('PD9b')) {
   const r = run(['--root', ghost, '--write']);
   if (r.status !== 4 || !/--root trỏ đường dẫn không tồn tại/.test(r.stderr) || existsSync(ghost)) fail('PD9b', `exit ${r.status} err=${r.stderr} created=${existsSync(ghost)}`);
   else { const root = tmp(); const r2 = run(['--root', root, '--write']); if (r2.status !== 0 || !existsSync(settingsOf(root))) fail('PD9b', 'đối chứng dương'); else pass('PD9b', '--root lạ → exit 4 không mkdir; root thật → ghi'); }
+}
+
+// ---------- PD1c: marketplace.json thiếu khoá `name` → exit 4 nêu đường dẫn, KHÔNG rơi về hằng trong mã
+if (want('PD1c')) {
+  const m = JSON.parse(readFileSync(MARKET, 'utf8')); delete m.name;
+  const mk = path.join(tmp(), 'marketplace.json'); writeFileSync(mk, JSON.stringify(m));
+  const root = tmp(); const r = run(['--root', root, '--write', '--marketplace', mk]);
+  if (r.status !== 4 || !/thiếu khoá name/.test(r.stderr) || !r.stderr.includes(mk) || existsSync(settingsOf(root))) fail('PD1c', `exit ${r.status} err=${r.stderr}`);
+  else { const r2 = run(['--root', root, '--write']); if (r2.status !== 0) fail('PD1c', 'đối chứng dương'); else pass('PD1c', 'marketplace thiếu name → exit 4 nêu đường dẫn, không ghi (một nguồn tên, không fallback ẩn)'); }
+}
+
+// ---------- PD2c: giá trị đội đã đặt KHÔNG bị lật im lặng — false giữ false, source riêng giữ nguyên, có dòng «giữ nguyên»
+if (want('PD2c')) {
+  const root = tmp(); mkdirSync(path.join(root, '.claude')); const f = settingsOf(root);
+  const before = { extraKnownMarketplaces: { 'acceptance-gate-kit': { source: { source: 'git', url: 'https://fork/x.git' } } },
+                   enabledPlugins: { 'feature-loop@acceptance-gate-kit': false } };
+  writeFileSync(f, JSON.stringify(before, null, 2) + '\n');
+  const r = run(['--root', root, '--write']); const after = JSON.parse(readFileSync(f, 'utf8'));
+  const errs = [];
+  if (after.enabledPlugins['feature-loop@acceptance-gate-kit'] !== false) errs.push('false bị lật thành true');
+  if (JSON.stringify(after.extraKnownMarketplaces['acceptance-gate-kit']) !== JSON.stringify(before.extraKnownMarketplaces['acceptance-gate-kit'])) errs.push('source riêng của đội bị thay');
+  if (!/giữ nguyên \(đội đã đặt\)/.test(r.stdout)) errs.push('không in dòng «giữ nguyên»');
+  if (after.enabledPlugins['diagram-design@acceptance-gate-kit'] !== true) errs.push('plugin chưa khai không được bật');
+  if (r.status !== 0 || errs.length) fail('PD2c', `exit ${r.status} · ${errs.join(' · ')}`);
+  else pass('PD2c', 'false giữ false, source riêng giữ nguyên, có dòng «giữ nguyên»; plugin chưa khai vẫn được bật');
+}
+
+// ---------- PD4b: lỗi hệ thống tệp (settings.json là thư mục · .claude là file) → exit 3 có lời, không stack trace
+if (want('PD4b')) {
+  const r1root = tmp(); mkdirSync(path.join(r1root, '.claude', 'settings.json'), { recursive: true });
+  const r1 = run(['--root', r1root, '--write']);
+  const r2root = tmp(); writeFileSync(path.join(r2root, '.claude'), 'x');
+  const r2 = run(['--root', r2root, '--write']);
+  if (r1.status !== 3 || !/không đọc được settings\.json \(EISDIR\)/.test(r1.stderr)) fail('PD4b', `settings là thư mục: exit ${r1.status} err=${(r1.stderr||'').slice(0,90)}`);
+  else if (r2.status !== 3 || !/không ghi được settings\.json/.test(r2.stderr)) fail('PD4b', `.claude là file: exit ${r2.status} err=${(r2.stderr||'').slice(0,90)}`);
+  else { const ok = tmp(); const r3 = run(['--root', ok, '--write']); if (r3.status !== 0) fail('PD4b', 'đối chứng dương'); else pass('PD4b', 'EISDIR/EEXIST → exit 3 có lời (đúng hợp đồng mã thoát), không stack trace'); }
+}
+
+// ---------- PD11: init có đường cho repo ĐÃ có config — bước 1 vẫn chạy 5b (AC-11)
+if (want('PD11')) {
+  const md = readFileSync(INIT_MD, 'utf8');
+  // gộp khoảng trắng: câu trong md bị ngắt dòng + thụt lề — phép đo phải mù với cách wrap, không mù với nội dung
+  const flat = t => nfc(t).replace(/\s+/g, ' ');
+  const step1 = flat(md.slice(md.indexOf('1. If `_acceptance/config.yaml` already exists'), md.indexOf('2. PROBE the repo')));
+  const errs = [];
+  if (!/STILL RUN step 5b/.test(step1)) errs.push('bước 1 không nói vẫn chạy 5b');
+  if (!/config đã có — bỏ qua khởi tạo, chỉ khai plugin/.test(step1)) errs.push('thiếu câu người-đọc');
+  if (/already exists → show it and STOP/.test(step1)) errs.push('bước 1 vẫn STOP thẳng');
+  if (errs.length) fail('PD11', errs.join(' · '));
+  else {
+    const red = (t => {
+      const s1 = flat(t.slice(t.indexOf('1. If `_acceptance/config.yaml` already exists'), t.indexOf('2. PROBE the repo')));
+      return !/STILL RUN step 5b/.test(s1);
+    })(md.replace('STILL RUN step 5b', 'stop'));
+    if (!red) fail('PD11', 'chiều đỏ không đỏ: gỡ «STILL RUN step 5b» mà phép đo vẫn xanh');
+    else pass('PD11', 'init bước 1: repo đã có config vẫn chạy 5b + câu người-đọc; gỡ câu → đỏ');
+  }
 }
 
 // PD_CASES nêu id không tồn tại → không được xanh im lặng (xanh-không-chạy)

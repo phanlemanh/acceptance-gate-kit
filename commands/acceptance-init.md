@@ -15,7 +15,11 @@ thay vì thư mục hiện tại. Khởi tạo là MỘT-LẦN-GẠCH, không ph
 repo trước, trình TRỌN bản nháp trong một lượt, người gạch/sửa một lần rồi
 máy ghi (hồ sơ doi-hanh-vi-cong-nguoi, owner gạch 12/08).
 
-1. If `_acceptance/config.yaml` already exists → show it and STOP (never overwrite).
+1. If `_acceptance/config.yaml` already exists → show it, SKIP steps 2–5 (never
+   overwrite the config, never re-copy CI), but STILL RUN step 5b and step 6 — an
+   already-initialised repo is exactly the one that has no `.claude/settings.json`
+   yet, and 5b is the only thing that writes it. Say it in one line: "config đã có —
+   bỏ qua khởi tạo, chỉ khai plugin."
 2. PROBE the repo first — no questions yet. Infer every field a machine can
    read from the tree: test commands per surface (package.json scripts,
    Makefile, CI workflows — api/backend/sdk), CLI smoke command, dev server

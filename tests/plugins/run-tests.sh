@@ -10468,7 +10468,7 @@ rm -rf "$P200TMP"
 
 # ─── Hồ sơ repo-khai-plugin: PD1..PD9 (file ca riêng, tên theo slug) ─────────
 # Tiêu đề dòng run CỐ TÌNH không chứa "PASS: PD" — chính file ca in các dòng đó.
-for _pd in PD1 PD1b PD2 PD2b PD3 PD4 PD5 PD6 PD7 PD7b PD8 PD9 PD9b; do
+for _pd in PD1 PD1b PD1c PD2 PD2b PD2c PD3 PD4 PD4b PD5 PD6 PD7 PD7b PD8 PD9 PD9b PD11; do
   run "ca khai plugin — $_pd (ho so repo-khai-plugin)" \
     env PD_CASES="$_pd" node "$ROOT/tests/plugins/plugin-declare.test.mjs"
 done
