@@ -1,3 +1,12 @@
+---
+slug: lan-v-khong-phai-cho-ky
+at: 2026-08-21T14:40:00Z
+verdict: findings
+p0: 1
+p1: 3
+p2: 1
+---
+
 # Gap-probe — lan-v-khong-phai-cho-ky (vòng ba, T2, một vật)
 
 Phản biện context sạch, 21/08, trước Cổng Phạm vi. Đầu vào: contract · evals ·

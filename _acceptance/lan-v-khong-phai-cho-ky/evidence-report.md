@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 29261b95cb1b6e775f4435dfe83da318dc9040a4
-human_signoff:
+human_signoff: Manh 2026-08-21
 ---
 
 # Evidence Report: lan-v-khong-phai-cho-ky

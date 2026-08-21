@@ -5,7 +5,7 @@ slug: lan-v-khong-phai-cho-ky
 owner: phanlemanh@gmail.com
 risk_tier: T2               # thu từ T3 theo kiến nghị North Star 21/08: một vật (máy quét), không đụng lib/, không đụng lưới merge
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
