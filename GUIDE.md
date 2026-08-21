@@ -119,6 +119,8 @@ Ba nguyên tắc không thương lượng:
 
 ## 2. Kiến trúc tổng thể
 
+> 🖼 Hình tầng 2 cho mục này: [Kit cắm vào đâu](docs/reference/figures/kit-cam-vao-dau.html) · [Kit là nan hoa, hồ sơ là trục](docs/reference/figures/kien-truc-ho-so-la-truc.html) · [Vật × vai](docs/reference/figures/vat-x-vai.html) — thứ tự đọc cả bộ ở [docs/reference/figures/index.md](docs/reference/figures/index.md). Hình là chiếu của chữ dưới đây, không phải nguồn.
+
 Kit gồm **3 plugin** (cài trên máy dev) + **artifacts trong repo** + **1 chốt chặn CI**.
 Mọi luật evidence nằm trong **một file duy nhất** (`lib/evidence-core.cjs`) được cả hook
 lẫn CI re-check dùng chung — hai lớp không bao giờ lệch luật nhau.
@@ -172,6 +174,8 @@ gate không). Vì vậy CI là lớp enforce chung, không phụ thuộc phiên 
 
 ## 3. Vòng đời một tính năng
 
+> 🖼 Hình tầng 2: [Vào cửa nào, dày bao nhiêu](docs/reference/figures/vao-cua-nao-day-bao-nhieu.html) · [Vòng LÀM S0→S5](docs/reference/figures/vong-lam-s0-s5.html) · [Trạng thái hồ sơ](docs/reference/figures/trang-thai-ho-so.html). Lưu ý: sơ đồ mermaid bên dưới vẽ Cổng 2 luôn ký — từ 2.0.0 làn V cho T2 xanh-sạch đi tiếp không ký; hình tầng 2 phản ánh luật hiện hành, khối mermaid chờ một PR chữ riêng.
+
 Nguồn sự thật duy nhất là frontmatter **`status`** trong `_acceptance/<slug>/contract.md`.
 Mọi resume (`/feature-loop <slug>`) đọc status và vào đúng chỗ.
 
@@ -216,6 +220,8 @@ lại bằng diff thật ở S4:
 | **T3** | path nhạy cảm (`t3_paths`: auth/billing/migrations...) | Thêm Cổng 1.5 duyệt plan; verdict AI-judge chỉ tham khảo — người phải kiểm **mọi** judgment item |
 
 ## 4. Bên trong S4 VERIFY — evidence từ đâu ra
+
+> 🖼 Hình tầng 2: [Bên trong S4](docs/reference/figures/ben-trong-s4.html) · [Chuỗi bằng chứng](docs/reference/figures/chuoi-bang-chung.html).
 
 Hiểu mục này là hiểu vì sao evidence đáng tin: **mọi con số do máy quyết, LLM chỉ chép**.
 
