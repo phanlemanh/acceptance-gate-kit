@@ -5,7 +5,7 @@ slug: repo-khai-plugin
 owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/ mới + commands/acceptance-init.md + GUIDE §5.1 + tests/plugins — không chạm t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo

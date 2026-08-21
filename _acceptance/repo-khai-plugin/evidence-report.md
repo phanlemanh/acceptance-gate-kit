@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent (đường VERIFY độc lập,
 enforcement_mode: strict
 bypass_used: false
 verified_commit: e9205a96e2a74a940d32afabc57633070e314203
-human_signoff:
+human_signoff: Manh Phan 2026-08-21 — ký với 4 known-limits và E10 UNCERTAIN đã override có điều kiện
 ---
 
 # Evidence Report: repo-khai-plugin
@@ -246,7 +246,7 @@ Bốn suite của repo và phép kiểm bản đồ sản phẩm cũng xanh tron
     - Trong file đó: một dòng ngày dạng ISO (YYYY-MM-DD).
     - Trong file đó: tên máy hoặc tên phiên đã kiểm tay, khác máy/phiên dựng hồ sơ.
     - Trong file đó: câu trả lời dứt khoát có/không (không «có vẻ», không «chắc là») cho đúng hai câu — (a) `true` cấp repo có thắng `false` cấp user không; (b) khoá `enabledPlugins` kích hoạt lời nhắc CÀI plugin hay chỉ BẬT plugin đã cài.
-  human_override:
+  human_override: Manh Phan 2026-08-21 — chấp nhận UNCERTAIN có điều kiện: lời khai `kiem-tay-harness.md` tồn tại và ghi «CHƯA KIỂM ĐƯỢC» cả hai câu (owner chưa có máy thứ hai). Ký trên phần đã chứng minh (file được ghi đúng, hợp nhất không phá khoá đội, 6 lối fail-loud, 4 nơi khai tên khớp); nhận nợ một lần kiểm tay. Nếu hoá ra khoá chỉ BẬT chứ không nhắc CÀI thì sửa GUIDE §5.1, phần script/init/khai file không đổi.
 <!-- JUDGMENT-BLOCK-TEMPLATE>>> -->
 
 ## Analyst
