@@ -1,5 +1,12 @@
 # Thiết kế — hồ sơ làn V không phải «chờ ký»
 
+
+> **⚠ Thân bài dưới đây là LỊCH SỬ VÒNG MỘT (hạng T2, bảng 100 ô, 7 ca, vị từ ở
+> `scripts/`).** Owner trả lại tại Cổng Bằng chứng 21/08; đánh số AC và mọi con
+> số trong thân bài KHÔNG còn khớp hợp đồng đang chạy. Nguồn đúng là
+> `_acceptance/lan-v-khong-phai-cho-ky/contract.md` (12 AC) và mục **Vòng hai**
+> ở cuối file này. Giữ thân bài để đọc lại vì sao vòng một chọn như thế.
+
 **Ngày:** 2026-08-21 · **Hạng:** T2 · **Đề bài:** `docs/plans/2026-08-21-hat-giong-lan-v-khong-phai-cho-ky.md` (Cổng 0 gật, #74).
 
 ## Vấn đề
