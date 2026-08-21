@@ -2546,9 +2546,9 @@ const scanSrc = fs.readFileSync(path.join(root, 'scripts/start-scan.mjs'), 'utf8
 if (!scanSrc.includes(', ageDays: ageDays(s) })')) die('dot bien dau ra: khong thay anchor ageDays trong start-scan');
 fs.writeFileSync(path.join(mut3, 'scripts/start-scan.mjs'), scanSrc.replace(', ageDays: ageDays(s) })', ' })'));
 const outMut = JSON.parse(execFileSync('node', [path.join(mut3, 'scripts/start-scan.mjs'), '--root', tmp], { encoding: 'utf8' }));
-const e3 = checkOn(outMut, SOURCES.map(load));
-if (!e3.some(x => /key groups\.considering\[\]\.ageDays khong co/.test(x)))
-  die('dot bien bo khoa ageDays phia dau ra khong bi bat: ' + JSON.stringify(e3));
+const eMut = checkOn(outMut, SOURCES.map(load));
+if (!eMut.some(x => /key groups\.considering\[\]\.ageDays khong co/.test(x)))
+  die('dot bien bo khoa ageDays phia dau ra khong bi bat: ' + JSON.stringify(eMut));
 
 // ── CHIEU NGUOC (S4-r1 discovery-brainstorm-socket, hinh dang 3): tren day chi
 // do marker ⊆ dau ra. Xoa mot dong KHOI marker chi lam mang `keys` ngan di nen
