@@ -107,3 +107,20 @@ vòng**, nếu không chính nó dựng cửa chặn đỏ ở CI cho hồ sơ s
 bằng đường dẫn, ba đột biến có marker. Thêm: trục SẠCH trong bảng sự-thật (300 ô),
 đột biến thứ tư (trả vị từ về tiêu chí `veto_state` → phải đỏ), sàn đếm bộ lọc ca,
 răng đẳng thức bash↔lib.
+
+## Vòng ba (T2, theo kiến nghị North Star 21/08) — BẢN ĐANG CHẠY
+
+Phạm vi T3 ở mục trên **không mở**: bệnh nhỏ hơn thuốc. Thu về **một vật** —
+máy quét vào phiên. Vị từ JS `khongCanNguoi(contractTxt, evidenceTxt)` ở
+`scripts/khong-can-nguoi.mjs` trả lời đúng câu lưới trước-merge hỏi hồ sơ
+`verified` chưa ký: *còn cần người không?* — (1) `da-veto` ⇒ cần · (2) Cổng 1:
+`approved_by` rỗng ⇒ cần trừ khi `veto_state: mo` có vết + T2 · (3) Cổng 2: sáu
+điều kiện xanh-sạch (PASS · không bypass · T2 · 0 UNCERTAIN · «Known limits»
+hiện-diện-và-rỗng · «Ngoài hợp đồng» hiện-diện-và-rỗng). Máy quét: không cần
+người ⇒ `done` với `state: lan-v-mo` (V có vết) hoặc `xanh-sach` (người duyệt
+Cổng 1); còn cần ⇒ `gates: bang-chung` như cũ.
+
+«Một nguồn» giữ bằng **đẳng thức đo trên chính `pre-merge-check.sh`** (LV5:
+kho git fixture code-sinh, đọc có/không `VIOLATION [slug]`), không phải gọi chung
+lúc chạy — hai bản dựng độc lập nên đột biến bên nào cũng làm phép so đỏ.
+Không đụng `lib/`, `pre-merge-check.sh`, `product-map.mjs`, thân vòng lặp.

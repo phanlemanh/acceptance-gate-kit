@@ -1,69 +1,98 @@
-// Ca của hồ sơ lan-v-khong-phai-cho-ky (LV1–LV7). Mỗi ca dựng fixture CODE-SINH
-// từ khuôn canonical, hỏi CẢ HAI bộ đọc (start-scan.mjs + renderProductMap) và
-// ghim GIÁ TRỊ của từng bộ đọc trước, rồi mới ghim quan hệ giữa hai bên.
+// Ca của hồ sơ lan-v-khong-phai-cho-ky (LV1–LV6) — một vật: máy quét vào phiên.
 //
-// Vì sao không so hai bộ đọc với nhau rồi thôi: hai bên dùng CÙNG một vị từ,
-// nên quan hệ luôn khớp bất kể vị từ đúng hay sai — phép so đó xanh theo cấu
-// trúc, không theo sự thật (gap-probe P0 của hồ sơ này).
+// Câu hỏi duy nhất đang đo: với hồ sơ `verified` chưa ký, máy quét có trả lời
+// ĐÚNG câu lưới trước-merge hỏi không — «hồ sơ này còn cần người không?».
+// Vòng một của hồ sơ đo sai câu (khoá vào veto_state) và lệch ngược chiều an
+// toàn: hồ sơ chưa sạch biến mất khỏi danh sách chờ ký trong khi lưới vẫn chặn.
 //
-// Chạy một phần: LV_CASES=LV1,LV7 node tests/plugins/lan-v.test.mjs
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
-import { execFileSync } from 'node:child_process';
+// Hai thước, cố ý tách:
+//   · LV4 — BẢNG SỰ-THẬT viết tay (kỳ vọng độc lập với vị từ đang kiểm).
+//   · LV5 — ĐẲNG THỨC với CHÍNH scripts/pre-merge-check.sh trên kho git fixture
+//     code-sinh: bash và JS là hai bản dựng độc lập, nên phép so này không
+//     hằng-đúng theo cấu trúc — đột biến bên nào cũng đỏ.
+//
+// Chạy một phần: LV_CASES=LV1,LV4 node tests/plugins/lan-v.test.mjs
+// Bộ lọc có SÀN ĐẾM: tên không khớp ca nào → exit 1 (không xanh với 0 assertion).
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, copyFileSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const ROOT = path.resolve(__dirname, '..', '..');
-const { renderProductMap, VETO_OPEN_NOTE } = await import(path.join(ROOT, 'scripts', 'product-map.mjs'));
 const { fileFromTemplate } = await import(path.join(ROOT, 'tests', 'fixtures', 'from-template.mjs'));
-
 const CONTRACT_TPL = path.join(ROOT, 'skills', 'acceptance', 'references', 'contract-template.md');
+const SCAN = path.join(ROOT, 'scripts', 'start-scan.mjs');
+const PREMERGE = path.join(ROOT, 'scripts', 'pre-merge-check.sh');
 
 let failures = 0;
+let matched = 0;
 const only = (process.env.LV_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
-const want = id => only.length === 0 || only.includes(id);
+const want = id => { const w = only.length === 0 || only.includes(id); if (w) matched++; return w; };
 const pass = (id, name) => console.log(`PASS: ${id} ${name}`);
 const fail = (id, msg) => { console.log(`FAIL: ${id} ${msg}`); failures++; };
 
-// Frontmatter hợp đồng rút từ khuôn CANONICAL (bên VIẾT), không gõ tay theo
-// khuôn bên đọc — khuôn viết trôi khỏi khuôn đọc thì mọi ca ở đây đỏ, đó là
-// mục đích. Hai khoá làn V được TIÊM SAU vì khuôn gốc chưa có chúng (đúng như
-// đời thật: nghi thức làn V ghi thêm hai khoá vào frontmatter đã có).
-function contractText(slug, { status, veto, opened, tier }) {
-  const base = fileFromTemplate(CONTRACT_TPL, 'CONTRACT-FRONTMATTER-TEMPLATE',
+// ─── Fixture code-sinh ───────────────────────────────────────────────────────
+// Hợp đồng rút từ khuôn CANONICAL (bên VIẾT). Hai khoá làn V và tên người duyệt
+// TIÊM SAU vào frontmatter đã có — đúng như đời thật.
+function contractText(slug, { status, veto, opened, tier, approvedBy }) {
+  let t = fileFromTemplate(CONTRACT_TPL, 'CONTRACT-FRONTMATTER-TEMPLATE',
     { feature: `${slug} — fixture`, slug, owner: 'fixture@example.com', risk_tier: tier, surfaces: 'cli', status },
     `# Contract: ${slug}\n\n## Criteria\n\n- AC-1: fixture\n\n## Out of scope\n\n- khong co\n`);
+  if (approvedBy) {
+    t = t.replace(/^approved_by:.*$/m, `approved_by: ${approvedBy}`)
+         .replace(/^approved_at:.*$/m, 'approved_at: 2026-08-20');
+  }
   const extra = [];
-  if (veto !== null && veto !== undefined) extra.push(`veto_state: ${veto}`);
-  if (opened !== null && opened !== undefined) extra.push(`veto_opened_at: ${opened}`);
-  if (!extra.length) return base;
-  return base.replace(/^approved_at:.*$/m, m => [m, ...extra].join('\n'));
+  if (veto != null) extra.push(`veto_state: ${veto}`);
+  if (opened != null) extra.push(`veto_opened_at: ${opened}`);
+  if (extra.length) t = t.replace(/^approved_at:.*$/m, m => [m, ...extra].join('\n'));
+  return t;
 }
 
-function mkWorkspace(root, slug, { status, veto, opened, tier, verdict, signoff }) {
-  const dir = path.join(root, '_acceptance', slug);
-  mkdirSync(dir, { recursive: true });
-  writeFileSync(path.join(dir, 'contract.md'), contractText(slug, { status, veto, opened, tier }));
-  if (verdict !== null && verdict !== undefined) {
-    writeFileSync(path.join(dir, 'evidence-report.md'),
-      `---\nschema_version: 1\nslug: ${slug}\nverdict: ${verdict}\n` +
-      `verified_commit: ${'0'.repeat(40)}\nhuman_signoff:${signoff ? ' ' + signoff : ''}\n---\n\n# Evidence: ${slug}\n`);
-  }
-  return dir;
+// Báo cáo bằng chứng theo ĐÚNG khuôn lưới đọc (recheck strict: run_id · exit 0 ·
+// verifier có thật). Known limit #5 của hồ sơ: khuôn bên viết chưa có marker để
+// rút — vật viết tay này là chỗ trôi có thể xảy ra, ghi sổ chứ không giấu.
+// sach: 'sach' | 'bypass' | 'uncertain' | 'kl-co' | 'nhd-co' | 'kl-vang' | 'nhd-vang'
+function evidenceText(slug, { verdict, signoff, sach, verifiedCommit }) {
+  const kl = sach === 'kl-co' ? '## Known limits\n\n- còn một lỗ chưa đóng\n'
+           : sach === 'kl-vang' ? ''
+           : '## Known limits\n\n';
+  const nhd = sach === 'nhd-co' ? '## Ngoài hợp đồng\n\n- một finding ngoài phạm vi\n'
+            : sach === 'nhd-vang' ? ''
+            : '## Ngoài hợp đồng\n\n';
+  const unc = sach === 'uncertain' ? '- eval: E2\n  run_id: ' + slug + '-E2-001\n  exit_code: 0\n  verifier: verify.sh\n  verdict: UNCERTAIN\n' : '';
+  return `---\nschema_version: 1\nfeature_slug: ${slug}\nverdict: ${verdict}\n` +
+    `verified_commit: ${verifiedCommit}\nenforcement_mode: strict\n` +
+    `bypass_used: ${sach === 'bypass' ? 'true' : 'false'}\n` +
+    `human_signoff:${signoff ? ' ' + signoff : ''}\n---\n\n# Evidence Report: ${slug}\n\n` +
+    `## Evidence\n- eval: E1\n  run_id: ${slug}-E1-001\n  exit_code: 0\n  verifier: verify.sh\n  verified_at: 2026-08-21\n${unc}\n` +
+    kl + '\n' + nhd;
 }
 
 function mkRepo() {
   const root = mkdtempSync(path.join(tmpdir(), 'lanv-'));
   mkdirSync(path.join(root, '_acceptance'), { recursive: true });
   writeFileSync(path.join(root, '_acceptance', 'config.yaml'), 'schema_version: 1\nenforcement: strict\n');
+  writeFileSync(path.join(root, 'verify.sh'), '#!/bin/sh\nexit 0\n');
   return root;
 }
 
-// Bộ đọc 1 — máy quét vào phiên.
+function mkWorkspace(root, slug, o) {
+  const dir = path.join(root, '_acceptance', slug);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(path.join(dir, 'contract.md'), contractText(slug, o));
+  if (o.verdict != null) {
+    writeFileSync(path.join(dir, 'evidence-report.md'),
+      evidenceText(slug, { ...o, verifiedCommit: o.verifiedCommit || '0'.repeat(40) }));
+  }
+  return dir;
+}
+
 function scan(root) {
-  const out = execFileSync('node', [path.join(ROOT, 'scripts', 'start-scan.mjs'), '--root', root], { encoding: 'utf8' });
-  const j = JSON.parse(out);
+  const j = JSON.parse(execFileSync('node', [SCAN, '--root', root], { encoding: 'utf8' }));
   return {
     gates: new Set((j.groups.gates || []).map(g => g.slug)),
     done: new Map((j.groups.done || []).map(d => [d.slug, d.state])),
@@ -71,157 +100,212 @@ function scan(root) {
     broken: new Set((j.broken || []).map(b => b.slug)),
   };
 }
+const oCua = (s, slug) => s.broken.has(slug) ? 'broken'
+  : s.gates.has(slug) ? 'gates'
+  : s.inProgress.has(slug) ? 'inProgress'
+  : (s.done.get(slug) ?? '(khong o dau)');
 
-// Bộ đọc 2 — bản đồ sản phẩm.
-function mapOf(root, slug) {
-  const md = renderProductMap(root);
-  let section = null, line = null;
-  for (const l of md.split('\n')) {
-    if (l.startsWith('## ')) section = l.slice(3).trim();
-    else if (l.startsWith('- ') && l.includes(`\`${slug}\``)) { line = l; break; }
-  }
-  return { section, line, note: line ? line.includes(VETO_OPEN_NOTE) : false };
-}
+const withRepo = fn => { const root = mkRepo(); try { return fn(root); } finally { rmSync(root, { recursive: true, force: true }); } };
 
-// Số đếm ô «Đã giao» trong khối mermaid. AC-2 hứa một QUAN HỆ (ô tăng 1 khi
-// thêm hồ sơ làn V), không phải «có dòng chứa slug dưới heading đúng» — renderer
-// sinh đúng dòng mà đếm sai vẫn phải ĐỎ.
-function mapDaGiaoCount(root) {
-  const m = renderProductMap(root).match(/DG\["Đã giao<br\/>(.+?)"\]/);
-  if (!m) return null;
-  return m[1] === 'chưa có' ? 0 : Number.parseInt(m[1], 10);
-}
+// Hồ sơ sạch, máy đóng Cổng 1 đúng vết.
+const V_SACH = { status: 'verified', veto: 'mo', opened: '2026-08-21T09:00:00Z', tier: 'T2', approvedBy: '', verdict: 'PASS', signoff: '', sach: 'sach' };
+// Hồ sơ sạch, người duyệt Cổng 1 (không khoá veto).
+const NGUOI_SACH = { ...V_SACH, veto: null, opened: null, approvedBy: 'Manh Phan' };
 
-const R_PLUS = { status: 'verified', veto: 'mo', opened: '2026-08-21T09:00:00Z', tier: 'T2', verdict: 'PASS', signoff: '' };
-
+// ─── LV1 — sạch + chưa ký ⇒ đã giao, hai biến thể ────────────────────────────
 if (want('LV1')) {
-  const root = mkRepo();
-  try {
-    const truoc = mapDaGiaoCount(root);
-    mkWorkspace(root, 'lv-r-plus', R_PLUS);
-    const s = scan(root), m = mapOf(root, 'lv-r-plus'), sau = mapDaGiaoCount(root);
-    const errs = [];
-    if (truoc === null || sau === null) errs.push('khong doc duoc so dem o mermaid Da giao');
-    else if (sau !== truoc + 1) errs.push(`o mermaid Da giao ky vong ${truoc + 1} thuc te ${sau} (dong dung ma dem sai)`);
-    if (s.gates.has('lv-r-plus')) errs.push('V-mo PASS T2 van nam trong gates');
-    if (s.done.get('lv-r-plus') !== 'lan-v-mo')
-      errs.push(`may quet: state ky vong lan-v-mo, thuc te ${s.done.get('lv-r-plus') ?? '(khong co trong done)'}`);
-    if (m.section !== 'Đã giao') errs.push(`ban do van xep ${m.section ?? '(khong thay slug)'}`);
-    if (!m.note) errs.push(`ban do thieu chu thich "${VETO_OPEN_NOTE}"`);
-    if (errs.length) fail('LV1', errs.join(' · '));
-    else pass('LV1', 'V-mo PASS T2 -> done lan-v-mo, khong gates (ca hai bo doc)');
-  } finally { rmSync(root, { recursive: true, force: true }); }
-}
-
-// Bốn ca dưới đây là ĐƯỜNG CŨ phải giữ nguyên — chúng là chỗ vị từ viết rộng
-// tay sẽ đỏ. Không có chúng thì LV1 xanh không phân biệt được «bắt đúng» với
-// «luôn luôn nói đã giao».
-const luatCu = (id, name, over, msgs) => {
-  if (!want(id)) return;
-  const root = mkRepo();
-  try {
-    mkWorkspace(root, 'lv-cu', { ...R_PLUS, ...over });
-    const s = scan(root), m = mapOf(root, 'lv-cu');
-    const errs = [];
-    if (s.done.has('lv-cu')) errs.push(`${msgs}: may quet (state ${s.done.get('lv-cu')})`);
-    if (!s.gates.has('lv-cu')) errs.push(`may quet: ky vong gates bang-chung, thuc te ${s.done.get('lv-cu') ?? '(khong o dau)'}`);
-    if (m.section !== 'Đang làm') errs.push(`${msgs}: ban do (${m.section ?? 'khong thay slug'})`);
-    if (m.note) errs.push('ban do van gan chu thich cua veto mo');
-    if (errs.length) fail(id, errs.join(' · '));
-    else pass(id, name);
-  } finally { rmSync(root, { recursive: true, force: true }); }
-};
-
-luatCu('LV2', 'go veto_state -> luat cu nguyen van (gates bang-chung, Dang lam)',
-  { veto: null, opened: null }, 'luat cu bi doi');
-
-luatCu('LV3', 'da-veto -> KHONG da giao o ca hai bo doc',
-  { veto: 'da-veto' }, 'da-veto bi xep da giao');
-
-if (want('LV4')) {
-  // Hai biến thể của vết hỏng — V không vết là bỏ-cổng lặng, không phải V.
   const errs = [];
-  for (const [ten, val] of [['rong', ''], ['khong-parse', 'hom-qua']]) {
-    const root = mkRepo();
-    try {
-      mkWorkspace(root, 'lv-vet', { ...R_PLUS, opened: val });
-      const s = scan(root), m = mapOf(root, 'lv-vet');
-      if (s.done.has('lv-vet')) errs.push(`vet hong van da giao: ${ten} may-quet`);
-      if (!s.gates.has('lv-vet')) errs.push(`vet hong: ${ten} may-quet khong con o gates`);
-      if (m.section !== 'Đang làm' || m.note) errs.push(`vet hong van da giao: ${ten} ban-do (${m.section})`);
-    } finally { rmSync(root, { recursive: true, force: true }); }
+  for (const [ten, o, kyVong] of [['V-co-vet', V_SACH, 'lan-v-mo'], ['nguoi-duyet', NGUOI_SACH, 'xanh-sach']]) {
+    withRepo(root => {
+      mkWorkspace(root, 'lv1', o);
+      const s = scan(root);
+      if (s.gates.has('lv1')) errs.push(`sach ma van o gates: ${ten}`);
+      if (s.done.get('lv1') !== kyVong) errs.push(`${ten}: state ky vong ${kyVong} thuc te ${oCua(s, 'lv1')}`);
+    });
   }
-  if (errs.length) fail('LV4', errs.join(' · '));
-  else pass('LV4', 'vet gio rong/hong -> luat cu (hai bien the)');
+  if (errs.length) fail('LV1', errs.join(' · '));
+  else pass('LV1', 'sach + chua ky -> done (lan-v-mo khi V co vet · xanh-sach khi nguoi duyet Cong 1)');
 }
 
-luatCu('LV5', 'T3 -> luat cu (lan V chi T2)', { tier: 'T3' }, 'T3 bi xep da giao');
+// ─── LV2 — V-mở nhưng CHƯA SẠCH ⇒ vẫn là cổng (lỗ vòng một) ──────────────────
+if (want('LV2')) {
+  const errs = [];
+  for (const sach of ['bypass', 'uncertain', 'kl-co', 'nhd-co', 'kl-vang', 'nhd-vang']) {
+    withRepo(root => {
+      mkWorkspace(root, 'lv2', { ...V_SACH, sach });
+      const s = scan(root);
+      if (s.done.has('lv2')) errs.push(`chua sach ma thanh done: ${sach} (${s.done.get('lv2')})`);
+      if (!s.gates.has('lv2')) errs.push(`chua sach ma khong o gates: ${sach} (${oCua(s, 'lv2')})`);
+    });
+  }
+  if (errs.length) fail('LV2', errs.join(' · '));
+  else pass('LV2', 'V-mo + PASS + T2 nhung CHUA SACH -> van o gates (6 bien the)');
+}
 
-luatCu('LV6', 'PENDING-JUDGMENT duoi V -> van cho Cong Bang chung',
-  { verdict: 'PENDING-JUDGMENT' }, 'judgment bi may giao thay');
+// ─── LV3 — da-veto ⇒ không bao giờ đã giao ────────────────────────────────────
+if (want('LV3')) {
+  withRepo(root => {
+    mkWorkspace(root, 'lv3', { ...NGUOI_SACH, veto: 'da-veto', opened: '2026-08-21T09:00:00Z' });
+    const s = scan(root);
+    if (s.done.has('lv3')) fail('LV3', `da-veto thanh done (${s.done.get('lv3')})`);
+    else if (!s.gates.has('lv3')) fail('LV3', `da-veto khong o gates: ${oCua(s, 'lv3')}`);
+    else pass('LV3', 'da-veto -> KHONG done du bang chung sach');
+  });
+}
 
-if (want('LV7')) {
-  // BẢNG SỰ-THẬT VIẾT TRƯỚC. KHÔNG phải phép so hai bộ đọc với nhau: hai bên
-  // dùng CÙNG một vị từ nên quan hệ luôn khớp bất kể vị từ đúng hay sai — phép
-  // so đó xanh theo cấu trúc, không theo sự thật (gap-probe P0). Ở đây mỗi ô có
-  // GIÁ TRỊ kỳ vọng viết tay cho TỪNG bộ đọc, so xong mới xét quan hệ.
+// ─── LV4 — bảng sự-thật viết trước, 240 ô ────────────────────────────────────
+if (want('LV4')) {
   const VETO = [
-    ['vang',        { veto: null,      opened: null }],
-    ['mo-vet-ok',   { veto: 'mo',      opened: '2026-08-21T09:00:00Z' }],
-    ['mo-vet-hong', { veto: 'mo',      opened: 'hom-qua' }],
-    ['da-veto',     { veto: 'da-veto', opened: '2026-08-21T09:00:00Z' }],
-    ['la',          { veto: 'nua-mo',  opened: '2026-08-21T09:00:00Z' }],
+    ['vang',        { veto: null,      opened: null,                   approvedBy: 'Manh Phan' }],
+    ['mo-vet-ok',   { veto: 'mo',      opened: '2026-08-21T09:00:00Z', approvedBy: '' }],
+    ['mo-vet-hong', { veto: 'mo',      opened: 'hom-qua',              approvedBy: '' }],
+    ['da-veto',     { veto: 'da-veto', opened: '2026-08-21T09:00:00Z', approvedBy: 'Manh Phan' }],
   ];
   const VERDICT = [['PASS', 'PASS'], ['PENDING-JUDGMENT', 'PENDING-JUDGMENT'],
                    ['REJECT', 'REJECT'], ['BLOCKED', 'BLOCKED'], ['vang-evidence', null]];
   const HANG = ['T2', 'T3'];
   const KY = [['chua-ky', ''], ['da-ky', 'Manh 2026-08-21']];
+  const SACH = ['sach', 'bypass', 'kl-co'];
 
-  // Kỳ vọng viết tay — nguồn ĐỘC LẬP với vị từ đang kiểm, suy từ LUẬT:
-  //  · verified mà vắng evidence-report = hồ sơ hỏng (luật khai-xong-mà-thiếu-file)
-  //  · chữ ký thắng: máy quét gọi tên signed-off; bản đồ đọc status hợp đồng
-  //    (vẫn verified) nên giữ ô cũ — điều PHẢI đúng ở mọi ô có chữ ký là:
-  //    không ô nào được mang chú thích cửa-veto-mở
-  //  · đúng MỘT ô là đã giao: V mở + vết đọc được + PASS + T2 + chưa ký
-  //  · verdict chưa chốt (REJECT/BLOCKED) = việc đang dở, không phải cổng
-  const kyVong = (veto, verdict, hang, ky) => {
-    if (verdict === null) return { scan: 'broken', map: 'Hồ sơ hỏng', note: false };
-    if (ky !== '')        return { scan: 'signed-off', map: 'Đang làm', note: false };
-    if (veto === 'mo-vet-ok' && verdict === 'PASS' && hang === 'T2')
-      return { scan: 'lan-v-mo', map: 'Đã giao', note: true };
-    if (verdict === 'PASS' || verdict === 'PENDING-JUDGMENT')
-      return { scan: 'gates', map: 'Đang làm', note: false };
-    return { scan: 'inProgress', map: 'Đang làm', note: false };
+  // Kỳ vọng viết tay — suy từ LUẬT, độc lập với vị từ đang kiểm:
+  //  · verified mà vắng bằng chứng = hồ sơ hỏng
+  //  · chữ ký thắng mọi thứ ⇒ signed-off
+  //  · da-veto ⇒ không bao giờ done; verdict chốt (PASS/PENDING) ⇒ gates, còn lại inProgress
+  //  · done CHỈ khi: PASS · T2 · sạch · (V mở có vết ⇒ lan-v-mo | người duyệt ⇒ xanh-sach)
+  //  · mọi ca còn lại: PASS/PENDING ⇒ gates; REJECT/BLOCKED ⇒ inProgress
+  const kyVong = (veto, verdict, hang, ky, sach) => {
+    if (verdict === null) return 'broken';
+    if (ky !== '') return 'signed-off';
+    const chot = verdict === 'PASS' || verdict === 'PENDING-JUDGMENT';
+    if (veto === 'da-veto') return chot ? 'gates' : 'inProgress';
+    if (verdict === 'PASS' && hang === 'T2' && sach === 'sach') {
+      if (veto === 'mo-vet-ok') return 'lan-v-mo';
+      if (veto === 'vang') return 'xanh-sach';
+    }
+    return chot ? 'gates' : 'inProgress';
   };
 
-  const errs = [];
-  let oDem = 0, oDaGiao = 0;
-  for (const [bTen, bOver] of VETO)
-    for (const [cTen, cVal] of VERDICT)
-      for (const dVal of HANG)
-        for (const [eTen, eVal] of KY) {
-          oDem++;
-          const root = mkRepo();
-          try {
-            mkWorkspace(root, 'lv-o', { status: 'verified', ...bOver, tier: dVal, verdict: cVal, signoff: eVal });
-            const kv = kyVong(bTen, cVal, dVal, eVal);
-            if (kv.note) oDaGiao++;
-            const s = scan(root), m = mapOf(root, 'lv-o');
-            const toa = `(veto=${bTen}, verdict=${cTen}, hang=${dVal}, ky=${eTen})`;
-            const thucTe = s.broken.has('lv-o') ? 'broken'
-              : s.gates.has('lv-o') ? 'gates'
-              : s.inProgress.has('lv-o') ? 'inProgress'
-              : (s.done.get('lv-o') ?? '(khong o dau)');
-            if (thucTe !== kv.scan) errs.push(`${toa} may-quet ky vong ${kv.scan} thuc te ${thucTe}`);
-            const mSec = m.section ?? '(khong thay slug)';
-            if (mSec !== kv.map) errs.push(`${toa} ban-do ky vong ${kv.map} thuc te ${mSec}`);
-            if (m.note !== kv.note) errs.push(`${toa} ban-do chu thich ky vong ${kv.note} thuc te ${m.note}`);
-          } finally { rmSync(root, { recursive: true, force: true }); }
-        }
-  if (oDem !== 100) errs.push(`so o dem duoc ${oDem} != 100 khai truoc`);
-  if (oDaGiao !== 1) errs.push(`bang ky vong co ${oDaGiao} o da giao, khai truoc dung 1`);
-  if (errs.length) fail('LV7', `${errs.length} o lech — ${errs.slice(0, 5).join(' · ')}`);
-  else pass('LV7', `bang su-that ${oDem} o: dung 1 o da giao, 99 o khong, hai bo doc khop`);
+  const errs = []; let oDem = 0, oDone = 0;
+  for (const [bTen, bOver] of VETO) for (const [cTen, cVal] of VERDICT) for (const d of HANG)
+    for (const [eTen, eVal] of KY) for (const f of SACH) {
+      oDem++;
+      const kv = kyVong(bTen, cVal, d, eVal, f);
+      if (kv === 'lan-v-mo' || kv === 'xanh-sach') oDone++;
+      withRepo(root => {
+        mkWorkspace(root, 'lv4', { status: 'verified', ...bOver, tier: d, verdict: cVal, signoff: eVal, sach: f });
+        const tt = oCua(scan(root), 'lv4');
+        if (tt !== kv) errs.push(`(veto=${bTen}, verdict=${cTen}, hang=${d}, ky=${eTen}, sach=${f}) ky vong ${kv} thuc te ${tt}`);
+      });
+    }
+  if (oDem !== 240) errs.push(`so o dem duoc ${oDem} != 240 khai truoc`);
+  if (oDone !== 2) errs.push(`bang ky vong co ${oDone} o done, khai truoc dung 2`);
+  if (errs.length) fail('LV4', `${errs.length} loi — ${errs.slice(0, 5).join(' · ')}`);
+  else pass('LV4', `bang su-that ${oDem} o: ${oDone} o done khop ham ky vong`);
 }
 
+// ─── LV5 — đẳng thức với CHÍNH lưới trước-merge ───────────────────────────────
+// Kho git fixture: c1 (config · code · verify.sh) → nhánh basepoint → c2 (code
+// đổi + hợp đồng verified) → c3 (bằng chứng ghim verified_commit = c2). Lưới
+// chạy `--base basepoint`; «còn cần người» = có dòng `VIOLATION [slug]`.
+function mkGitRepo(slug, o) {
+  const R = mkdtempSync(path.join(tmpdir(), 'lanv-git-'));
+  const git = (...a) => execFileSync('git', ['-c', 'user.name=lv', '-c', 'user.email=lv@x', '-C', R, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  mkdirSync(path.join(R, 'src'), { recursive: true });
+  mkdirSync(path.join(R, '_acceptance'), { recursive: true });
+  git('init', '-q');
+  writeFileSync(path.join(R, '_acceptance', 'config.yaml'),
+    'schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "docs/**"\n    - "*.md"\n');
+  writeFileSync(path.join(R, 'src', 'app.js'), 'code v1\n');
+  writeFileSync(path.join(R, 'verify.sh'), '#!/bin/sh\nexit 0\n');
+  // Kho tiêu thụ chép đúng bộ file này khi /acceptance-init (commands/acceptance-init.md).
+  // Thiếu lib/md-section.cjs thì lưới KHÔNG BAO GIỜ thấy hồ sơ sạch (fail-closed) —
+  // LV5 từng đỏ ở chính đối chứng dương vì fixture chưa chép, đúng như đời thật.
+  mkdirSync(path.join(R, 'lib'), { recursive: true }); mkdirSync(path.join(R, 'scripts'), { recursive: true });
+  for (const f of ['evidence-core.cjs', 'gap-probe.cjs', 'workspace-record.cjs', 'ac-line.cjs', 'md-section.cjs'])
+    copyFileSync(path.join(ROOT, 'lib', f), path.join(R, 'lib', f));
+  copyFileSync(path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), path.join(R, 'scripts', 'recheck-evidence.cjs'));
+  git('add', '-A'); git('commit', '-qm', 'c1');
+  git('branch', 'basepoint');
+  writeFileSync(path.join(R, 'src', 'app.js'), 'code v2\n');
+  mkdirSync(path.join(R, '_acceptance', slug), { recursive: true });
+  writeFileSync(path.join(R, '_acceptance', slug, 'contract.md'), contractText(slug, o));
+  git('add', '-A'); git('commit', '-qm', 'c2');
+  const c2 = git('rev-parse', 'HEAD').trim();
+  writeFileSync(path.join(R, '_acceptance', slug, 'evidence-report.md'), evidenceText(slug, { ...o, verifiedCommit: c2 }));
+  git('add', '-A'); git('commit', '-qm', 'c3');
+  return R;
+}
+function luoi(R, slug) {
+  const env = { ...process.env }; delete env.PRE_MERGE_BASE;
+  const r = spawnSync('bash', [PREMERGE, R, '--base', 'basepoint'], { encoding: 'utf8', env });
+  const out = (r.stdout || '') + (r.stdout && r.stderr ? '\n' : '') + (r.stderr || '');
+  const chanSlug = new RegExp(`^VIOLATION \\[${slug}\\]`, 'm').test(out);
+  const chanKhac = /^VIOLATION /m.test(out) && !chanSlug;
+  return { status: r.status, chanSlug, chanKhac, out };
+}
+
+if (want('LV5')) {
+  // Mặt cắt: nơi sáu điều kiện + hai nhánh Cổng 1 + da-veto phân biệt được nhau.
+  const MAT_CAT = [
+    ['V-sach',            V_SACH],
+    ['V-bypass',          { ...V_SACH, sach: 'bypass' }],
+    ['V-uncertain',       { ...V_SACH, sach: 'uncertain' }],
+    ['V-kl-co',           { ...V_SACH, sach: 'kl-co' }],
+    ['V-nhd-co',          { ...V_SACH, sach: 'nhd-co' }],
+    ['V-kl-vang',         { ...V_SACH, sach: 'kl-vang' }],
+    ['V-nhd-vang',        { ...V_SACH, sach: 'nhd-vang' }],
+    ['V-vet-hong',        { ...V_SACH, opened: 'hom-qua' }],
+    ['V-T3',              { ...V_SACH, tier: 'T3' }],
+    ['V-pending',         { ...V_SACH, verdict: 'PENDING-JUDGMENT' }],
+    ['nguoi-sach',        NGUOI_SACH],
+    ['nguoi-T3',          { ...NGUOI_SACH, tier: 'T3' }],
+    ['nguoi-pending',     { ...NGUOI_SACH, verdict: 'PENDING-JUDGMENT' }],
+    ['nguoi-vet-hong',    { ...NGUOI_SACH, veto: 'mo', opened: 'hom-qua' }],
+    ['nguoi-kl-co',       { ...NGUOI_SACH, sach: 'kl-co' }],
+    ['khong-ai-duyet',    { ...NGUOI_SACH, approvedBy: '' }],
+    ['da-veto-sach',      { ...NGUOI_SACH, veto: 'da-veto', opened: '2026-08-21T09:00:00Z' }],
+  ];
+  const errs = []; let n = 0; let doiChung = false;
+  for (const [ten, o] of MAT_CAT) {
+    const R = mkGitRepo('lv5', o);
+    try {
+      const l = luoi(R, 'lv5');
+      if (l.status == null || l.status === 2 || l.chanKhac) {
+        errs.push(`ha tang: ${ten} luoi exit ${l.status} / VIOLATION ngoai slug — ${l.out.split('\n').filter(x => /VIOLATION|ERROR|fatal/.test(x)).slice(0, 2).join(' | ')}`);
+        continue;
+      }
+      if (ten === 'V-sach') {
+        // Đối chứng dương: fixture sạch-V phải đi qua lưới KHÔNG VIOLATION kèm NOTE
+        // xanh-sạch — không có nó, «khớp» ở các ô khác chỉ là hai bên cùng đỏ.
+        doiChung = l.status === 0 && !l.chanSlug && /xanh-sạch/.test(l.out);
+        if (!doiChung) errs.push(`doi chung duong V-sach: exit ${l.status}, chanSlug=${l.chanSlug}, NOTE xanh-sach=${/xanh-sạch/.test(l.out)}`);
+      }
+      const s = scan(R);
+      const mayQuetDone = s.done.has('lv5');
+      n++;
+      if (mayQuetDone === l.chanSlug)
+        errs.push(`lech ${ten}: luoi=${l.chanSlug ? 'chan' : 'qua'} may-quet=${mayQuetDone ? 'done' : oCua(s, 'lv5')}`);
+    } finally { rmSync(R, { recursive: true, force: true }); }
+  }
+  if (errs.length) fail('LV5', `${errs.length} loi — ${errs.slice(0, 6).join(' · ')}`);
+  else pass('LV5', `dang thuc voi luoi: ${n} fixture, may quet == pre-merge o ca ${n}`);
+}
+
+// ─── LV6 — sàn đếm của chính bộ lọc ──────────────────────────────────────────
+if (want('LV6')) {
+  const r1 = spawnSync('node', [__filename], { encoding: 'utf8', env: { ...process.env, LV_CASES: 'LVX' } });
+  const r2 = spawnSync('node', [__filename], { encoding: 'utf8', env: { ...process.env, LV_CASES: 'LV3' } });
+  const errs = [];
+  if (r1.status === 0) errs.push('LV_CASES=LVX van exit 0 (xanh voi 0 assertion)');
+  if (!/LV_CASES=LVX khong khop ca nao/.test(r1.stdout || '')) errs.push('LVX: khong in dong neu ten da khai');
+  if (r2.status !== 0) errs.push(`doi chung duong LV_CASES=LV3 exit ${r2.status}`);
+  if ((r2.stdout || '').split('\n').filter(l => /^PASS: /.test(l)).length !== 1) errs.push('doi chung duong: khong dung mot dong ca');
+  if (errs.length) fail('LV6', errs.join(' · '));
+  else pass('LV6', 'san dem bo loc: ten sai -> exit 1 co thong diep; ten dung -> dung mot dong ca');
+}
+
+if (only.length && matched === 0) {
+  console.log(`LV_CASES=${only.join(',')} khong khop ca nao — go sai ten? (fail de khong xanh gia)`);
+  process.exit(1);
+}
 process.exit(failures ? 1 : 0);

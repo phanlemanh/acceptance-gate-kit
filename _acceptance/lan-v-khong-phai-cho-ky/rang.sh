@@ -1,20 +1,24 @@
 #!/usr/bin/env bash
-# Răng hồ sơ lan-v-khong-phai-cho-ky. Bốn chân, mỗi chân in CHIỀU ĐỎ trong cùng
-# lượt. Hai luật của răng này, cố ý khác nếp cũ của kit:
-#   · KHÔNG chạy trọn suite — răng gọi thẳng file ca (2 phút → vài giây).
-#   · `cmd:` khai bằng ĐƯỜNG DẪN, không thêm khoá vào _acceptance/config.yaml
-#     (áp trước câu 1 của hạt giống «ba chỗ tích luỹ không có đường ra»).
-# ROOT suy từ VỊ TRÍ SCRIPT, không từ cwd: S4 gọi lệnh từ thư mục khác gốc thì
-# `--root .` đo một cây khác cây đang kiểm.
+# Răng hồ sơ lan-v-khong-phai-cho-ky (vòng ba, T2, một vật: máy quét vào phiên).
+# Bốn chân, mỗi chân in CHIỀU ĐỎ trong cùng lượt, mỗi chiều đỏ MỘT câu riêng —
+# không phép so hai-vế (vòng một có một vế đỏ là mã chết vì `A|B`).
+#   · cases    — chạy thẳng file ca, ghim đúng dòng PASS của từng ca
+#   · mutant   — ba đột biến có marker, đối chứng dương trên CÙNG cách chép
+#   · san-dem  — bộ lọc LV_CASES có sàn đếm (chiều đỏ trên bản sao gỡ sàn)
+#   · cay-that — QUAN HỆ trên cây thật: mọi hồ sơ verified chưa ký, máy quét ∈ done
+#                ⇔ lưới không VIOLATION; sàn ≥2 hồ sơ được so (không ghim tên)
+# `cmd:` khai bằng ĐƯỜNG DẪN — không thêm khoá vào _acceptance/config.yaml.
+# ROOT suy từ VỊ TRÍ SCRIPT, không từ cwd.
 set -u
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 SELF="$ROOT/_acceptance/lan-v-khong-phai-cho-ky/rang.sh"
 [ -f "$SELF" ] || { echo "RANG-LANV: ROOT suy sai — $SELF khong ton tai"; exit 1; }
 CASES="$ROOT/tests/plugins/lan-v.test.mjs"
-PM="$ROOT/scripts/product-map.mjs"
+KCN="$ROOT/scripts/khong-can-nguoi.mjs"
+SCAN="$ROOT/scripts/start-scan.mjs"
 
-[ "${1:-}" = "--chan" ] || { echo "dung: $0 --chan cases|mutant|mot-chu|ban-do"; exit 2; }
+[ "${1:-}" = "--chan" ] || { echo "dung: $0 --chan cases|mutant|san-dem|cay-that"; exit 2; }
 CHAN="${2:-}"
 
 loi=0
@@ -23,195 +27,125 @@ TMP=""
 cleanup() { [ -n "$TMP" ] && rm -rf "$TMP"; }
 trap cleanup EXIT
 
-# Bản sao cây để đột biến. Chép TRỌN (trừ ba thư mục nặng/không liên quan) —
-# liệt kê từng file là blacklist, và bản sao thiếu file thì "đỏ" chỉ nói lên
-# việc thiếu file chứ không nói gì về hành vi đang đo.
-chep_cay() {  # $1 = đích
-  rsync -a --exclude .git --exclude node_modules --exclude .claude "$ROOT/" "$1/" \
-    || { echo "RANG-LANV: rsync that bai"; exit 1; }
-}
+# Bản sao cây để đột biến. Chép TRỌN (trừ ba thư mục nặng) — liệt kê từng file
+# là blacklist, và bản sao thiếu file thì «đỏ» chỉ nói lên việc thiếu file.
+chep_cay() { rsync -a --exclude .git --exclude node_modules --exclude .claude "$ROOT/" "$1/" || { echo "RANG-LANV: rsync that bai"; exit 1; }; }
 
 case "$CHAN" in
 
 cases)
   out="$(node "$CASES" 2>&1)"; st=$?
-  for id in LV1 LV2 LV3 LV4 LV5 LV6 LV7; do
-    printf '%s\n' "$out" | grep -q "^PASS: $id " \
-      || bad "thieu dong 'PASS: $id ...' trong stdout cua lan-v.test.mjs"
+  for id in LV1 LV2 LV3 LV4 LV5 LV6; do
+    printf '%s\n' "$out" | grep -q "^PASS: $id " || bad "thieu dong 'PASS: $id ...' trong stdout cua lan-v.test.mjs"
   done
-  if printf '%s\n' "$out" | grep -q '^FAIL: LV'; then
-    bad "co dong FAIL: LV — $(printf '%s\n' "$out" | grep '^FAIL: LV' | head -1)"
-  fi
-  [ "$st" -eq 0 ] || bad "lan-v.test.mjs exit $st (ky vong 0)"
-  if [ "$loi" -eq 0 ]; then echo "CASES OK: 7 ca LV xanh tren cay that"; else echo "CASES: $loi ĐỎ"; fi
-  ;;
+  printf '%s\n' "$out" | grep -q '^PASS: LV4 bang su-that 240 o' || bad "LV4 khong in so o = 240"
+  printf '%s\n' "$out" | grep -qE '^PASS: LV5 dang thuc voi luoi: [0-9]+ fixture' || bad "LV5 khong in so fixture da so"
+  [ "$st" -eq 0 ] || bad "lan-v.test.mjs exit $st"
+  n_fail="$(printf '%s\n' "$out" | grep -c '^FAIL: ' || true)"
+  [ "$n_fail" -eq 0 ] || bad "$n_fail dong FAIL: $(printf '%s\n' "$out" | grep '^FAIL: ' | head -2 | tr '\n' ' ')"
+  if [ "$loi" -eq 0 ]; then echo "CASES OK: 6 ca LV xanh tren cay that"; exit 0; fi
+  echo "CASES: $loi ĐỎ"; exit 1 ;;
 
 mutant)
-  # Mutant đi qua CHÍNH ca kiểm. Đối chứng dương chạy trên CÙNG CÁCH CHÉP: bản A
-  # không tiêm phải XANH TRƯỚC khi tin bản B đỏ — nếu không, "bản sao thiếu thứ
-  # gì đó" cũng cho màu đỏ và răng báo OK trong khi vị từ chưa từng chạy.
   TMP="$(mktemp -d)"
   chep_cay "$TMP/A"; chep_cay "$TMP/B"
-
-  outA="$(LV_CASES=LV1,LV7 node "$TMP/A/tests/plugins/lan-v.test.mjs" 2>&1)"; stA=$?
+  # Đối chứng dương: bản A không tiêm phải xanh ở đúng các ca mà đột biến sẽ giết.
+  outA="$(LV_CASES=LV1,LV2,LV3,LV5 node "$TMP/A/tests/plugins/lan-v.test.mjs" 2>&1)"; stA=$?
   if [ "$stA" -ne 0 ] || ! printf '%s\n' "$outA" | grep -q '^PASS: LV1 '; then
-    bad "ban sao nguyen ven khong chay duoc (exit $stA) — moi ket luan ve ban tiem deu vo nghia"
-    echo "MUTANT: $loi ĐỎ"; exit 1
+    echo "MUTANT: ban A (khong tiem) khong xanh — doi chung duong hong, khong do tiep"; printf '%s\n' "$outA" | head -5; exit 1
   fi
+  phuc_hoi() { cp "$ROOT/scripts/start-scan.mjs" "$TMP/B/scripts/start-scan.mjs"; cp "$KCN" "$TMP/B/scripts/khong-can-nguoi.mjs"; }
 
-  # BA đột biến, mỗi cái giết MỘT nhánh và ghim MỘT thông điệp riêng. Không dùng
-  # phép so hai-vế (`A|B`): vế không bao giờ bắn là mã chết, và nó che đúng việc
-  # một nhánh chưa từng có chiều đỏ (S4-r1 bắt được điều này ở nhánh máy quét).
-  phuc_hoi() { cp "$ROOT/scripts/product-map.mjs" "$TMP/B/scripts/product-map.mjs"; cp "$ROOT/scripts/start-scan.mjs" "$TMP/B/scripts/start-scan.mjs"; }
-
-  # (1) Bản đồ — gỡ nhánh V trong classify (marker LAN-V-MO).
+  # (1) KCN-NHANH — gỡ nhánh không-cần-người trong máy quét → LV1 đỏ 'sach ma van o gates'.
   phuc_hoi
-  grep -q 'LAN-V-MO' "$TMP/B/scripts/product-map.mjs" || bad "marker LAN-V-MO khong thay trong product-map.mjs"
-  perl -0pi -e "s/if \(status === 'verified' && lanVMo\(/if (false && lanVMo(/" "$TMP/B/scripts/product-map.mjs"
-  grep -qF 'if (false && lanVMo(' "$TMP/B/scripts/product-map.mjs" || bad "dot bien 1 khong doi duoc dong nao"
-  out1="$(LV_CASES=LV1 node "$TMP/B/tests/plugins/lan-v.test.mjs" 2>&1)"
-  printf '%s\n' "$out1" | grep -q '^FAIL: LV1 ' || bad "dot bien 1 (ban do): LV1 khong do"
-  printf '%s\n' "$out1" | grep -qF 'ban do van xep' \
-    || bad "dot bien 1: LV1 do nhung khong ghim cau cua BAN DO (nhan duoc: $(printf '%s\n' "$out1" | head -1))"
+  grep -q 'KCN-NHANH' "$TMP/B/scripts/start-scan.mjs" || bad "marker KCN-NHANH khong thay trong start-scan.mjs"
+  perl -0pi -e 's/else if \(kcn\(cTxt, ev\.raw\)\) done\.push/else if (false \&\& kcn(cTxt, ev.raw)) done.push/' "$TMP/B/scripts/start-scan.mjs"
+  grep -qF 'else if (false && kcn(cTxt, ev.raw)) done.push' "$TMP/B/scripts/start-scan.mjs" || bad "dot bien 1 khong doi duoc dong nao"
+  o1="$(LV_CASES=LV1 node "$TMP/B/tests/plugins/lan-v.test.mjs" 2>&1)"
+  printf '%s\n' "$o1" | grep -q '^FAIL: LV1 ' || bad "dot bien 1: LV1 khong do"
+  printf '%s\n' "$o1" | grep -qF 'sach ma van o gates' || bad "dot bien 1: LV1 do nhung khong ghim 'sach ma van o gates' ($(printf '%s\n' "$o1" | head -1 | cut -c1-120))"
 
-  # (2) Máy quét — gỡ nhánh V trong start-scan (marker LAN-V-MO). Nhánh này TRƯỚC
-  # đây không đột biến nào chạm tới, nên vế 'van nam trong gates' của E1 là lời
-  # hứa không có phép đo (S4-r1).
+  # (2) KCN-SACH — vị từ bỏ hỏi độ sạch (trở về tiêu chí veto_state của vòng một)
+  #     → LV2 đỏ ở cả sáu biến thể VÀ LV5 đỏ 'lech' (lưới vẫn chặn, máy quét đã cho qua).
   phuc_hoi
-  grep -q 'LAN-V-MO' "$TMP/B/scripts/start-scan.mjs" || bad "marker LAN-V-MO khong thay trong start-scan.mjs"
-  perl -0pi -e "s/else if \(lanVMo\(cTxt, ev\.verdict, ev\.signoff\)\)/else if (false \&\& lanVMo(cTxt, ev.verdict, ev.signoff))/" "$TMP/B/scripts/start-scan.mjs"
-  grep -qF 'else if (false && lanVMo(cTxt' "$TMP/B/scripts/start-scan.mjs" || bad "dot bien 2 khong doi duoc dong nao"
-  out2="$(LV_CASES=LV1 node "$TMP/B/tests/plugins/lan-v.test.mjs" 2>&1)"
-  printf '%s\n' "$out2" | grep -q '^FAIL: LV1 ' || bad "dot bien 2 (may quet): LV1 khong do"
-  printf '%s\n' "$out2" | grep -qF 'van nam trong gates' \
-    || bad "dot bien 2: LV1 do nhung khong ghim cau cua MAY QUET (nhan duoc: $(printf '%s\n' "$out2" | head -1))"
+  grep -q 'KCN-SACH' "$KCN" || bad "marker KCN-SACH khong thay trong khong-can-nguoi.mjs"
+  perl -0pi -e 's/if \(!xanhSach\(contractTxt, evidenceTxt\)\.clean\) return null;/if (false \&\& !xanhSach(contractTxt, evidenceTxt).clean) return null;/' "$TMP/B/scripts/khong-can-nguoi.mjs"
+  grep -qF 'if (false && !xanhSach(' "$TMP/B/scripts/khong-can-nguoi.mjs" || bad "dot bien 2 khong doi duoc dong nao"
+  o2="$(LV_CASES=LV2,LV5 node "$TMP/B/tests/plugins/lan-v.test.mjs" 2>&1)"
+  printf '%s\n' "$o2" | grep -q '^FAIL: LV2 ' || bad "dot bien 2: LV2 khong do"
+  n2="$(printf '%s\n' "$o2" | grep -o 'chua sach ma thanh done' | wc -l | tr -d ' ')"
+  [ "$n2" -ge 6 ] || bad "dot bien 2: LV2 do nhung chi $n2/6 bien the ghim 'chua sach ma thanh done'"
+  printf '%s\n' "$o2" | grep -q '^FAIL: LV5 ' || bad "dot bien 2: LV5 (dang thuc voi luoi) khong do — phep so khong phan biet duoc"
+  printf '%s\n' "$o2" | grep -qF 'lech V-bypass' || bad "dot bien 2: LV5 do nhung khong ghim 'lech V-bypass'"
 
-  # (3) Vị từ — nới điều kiện PASS (marker LAN-V-PASS): REJECT/BLOCKED lọt vào «đã giao».
+  # (3) KCN-VETO — vị từ bỏ nhánh da-veto → LV3 đỏ 'da-veto thanh done'.
   phuc_hoi
-  grep -q 'LAN-V-PASS' "$TMP/B/scripts/product-map.mjs" || bad "marker LAN-V-PASS khong thay"
-  perl -0pi -e "s/\.toUpperCase\(\) !== 'PASS'\) return false;/.toUpperCase() === 'PENDING-JUDGMENT') return false;/" "$TMP/B/scripts/product-map.mjs"
-  grep -qF "=== 'PENDING-JUDGMENT') return false;" "$TMP/B/scripts/product-map.mjs" || bad "dot bien 3 khong doi duoc dong nao"
-  out3="$(LV_CASES=LV7 node "$TMP/B/tests/plugins/lan-v.test.mjs" 2>&1)"
-  printf '%s\n' "$out3" | grep -q '^FAIL: LV7 ' \
-    || bad "dot bien 3: LV7 khong do — bang su-that khong bat duoc viec noi long dieu kien PASS"
-  printf '%s\n' "$out3" | grep -q 'verdict=REJECT' \
-    || bad "dot bien 3: LV7 do nhung khong ghim toa do o REJECT (nhan duoc: $(printf '%s\n' "$out3" | head -1))"
+  grep -q 'KCN-VETO' "$KCN" || bad "marker KCN-VETO khong thay"
+  perl -0pi -e "s/if \(veto\.present && veto\.state === 'da-veto'\) return null;/if (false) return null;/" "$TMP/B/scripts/khong-can-nguoi.mjs"
+  grep -qF 'if (false) return null;' "$TMP/B/scripts/khong-can-nguoi.mjs" || bad "dot bien 3 khong doi duoc dong nao"
+  o3="$(LV_CASES=LV3 node "$TMP/B/tests/plugins/lan-v.test.mjs" 2>&1)"
+  printf '%s\n' "$o3" | grep -q '^FAIL: LV3 ' || bad "dot bien 3: LV3 khong do"
+  printf '%s\n' "$o3" | grep -qF 'da-veto thanh done' || bad "dot bien 3: LV3 do nhung khong ghim 'da-veto thanh done'"
 
-  if [ "$loi" -eq 0 ]; then
-    echo "MUTANT OK: 3 dot bien chay that (ban do · may quet · dieu kien PASS), moi cai ghim MOT cau rieng; doi chung duong ban sao nguyen ven xanh"
-  else echo "MUTANT: $loi ĐỎ"; fi
-  ;;
-
-mot-chu)
-  # Chuỗi nhãn khai MỘT lần ở product-map.mjs; hai nơi còn lại phải chứa đúng
-  # nó. Răng KHÔNG chép chuỗi vào mình — nó import hằng THẬT, nên đổi chuỗi ở
-  # nguồn mà quên hai nơi kia thì răng đỏ chứ không âm thầm so chuỗi cũ.
-  NOTE="$(node --input-type=module -e "
-    const m = await import('file://$PM');
-    process.stdout.write(m.VETO_OPEN_NOTE || '');
-  ")" || { echo "RANG-LANV: khong import duoc VETO_OPEN_NOTE tu product-map.mjs"; exit 1; }
-  [ -n "$NOTE" ] || { echo "RANG-LANV: VETO_OPEN_NOTE rong — khong con gi de so"; exit 1; }
-
-  SITES="scripts/pre-merge-check.sh commands/start.md"
-  # Bộ so đứng RIÊNG thành hàm: chiều đỏ dưới đây chạy CHÍNH hàm này trên bản bị
-  # tiêm, chứ không chỉ kiểm rằng cú tiêm có đổi được chữ nào — đo cú tiêm thay
-  # vì đo bộ so là phép đo chỉ có một lối thoát.
-  so_ba_noi() {  # $1 = gốc cây cần soi; in tên từng site KHÔNG chứa nhãn
-    local r="$1" site
-    for site in $SITES; do
-      grep -qF "$NOTE" "$r/$site" || echo "$site"
-    done
-  }
-
-  lech="$(so_ba_noi "$ROOT")"
-  [ -z "$lech" ] || for site in $lech; do bad "lech: $site"; done
-
-  # Chiều đỏ cùng lượt: tiêm một chữ vào TỪNG site trên bản sao rồi chạy CHÍNH
-  # bộ so — nó phải kêu ĐÚNG site đó, và chỉ site đó.
-  TMP="$(mktemp -d)"
-  for muc in $SITES; do
-    ban="$TMP/$(printf '%s' "$muc" | tr '/' '_')"
-    for site in $SITES; do
-      mkdir -p "$ban/$(dirname "$site")"
-      cp "$ROOT/$site" "$ban/$site"
-    done
-    sed "s/$NOTE/cua veto MO/g" "$ROOT/$muc" > "$ban/$muc"
-    grep -qF "$NOTE" "$ban/$muc" && bad "chieu do: khong tiem duoc chu nao vao ban sao $muc"
-    thay="$(so_ba_noi "$ban" | tr '\n' ' ' | sed 's/ *$//')"
-    [ "$thay" = "$muc" ] || bad "chieu do $muc: bo so ky vong keu '$muc', thuc te keu '${thay:-(khong keu gi)}'"
+  # Bảng sự-thật phải đỏ ≥1 ô dưới MỖI đột biến (gap-probe F3: nếu không, hàm kỳ
+  # vọng có thể chỉ là bản chép của vị từ). Chạy LV4 trên ba bản B lần lượt.
+  for i in 1 2 3; do
+    phuc_hoi
+    case $i in
+      1) perl -0pi -e 's/else if \(kcn\(cTxt, ev\.raw\)\) done\.push/else if (false \&\& kcn(cTxt, ev.raw)) done.push/' "$TMP/B/scripts/start-scan.mjs" ;;
+      2) perl -0pi -e 's/if \(!xanhSach\(contractTxt, evidenceTxt\)\.clean\) return null;/if (false \&\& !xanhSach(contractTxt, evidenceTxt).clean) return null;/' "$TMP/B/scripts/khong-can-nguoi.mjs" ;;
+      3) perl -0pi -e "s/if \(veto\.present && veto\.state === 'da-veto'\) return null;/if (false) return null;/" "$TMP/B/scripts/khong-can-nguoi.mjs" ;;
+    esac
+    o4="$(LV_CASES=LV4 node "$TMP/B/tests/plugins/lan-v.test.mjs" 2>&1)"
+    printf '%s\n' "$o4" | grep -qE '^FAIL: LV4 [0-9]+ loi' || bad "dot bien $i: bang su-that LV4 KHONG do o nao — ham ky vong khong doc lap voi vi tu?"
   done
 
-  if [ "$loi" -eq 0 ]; then
-    echo "MOT-CHU OK: \"$NOTE\" == pre-merge-check.sh == commands/start.md (2 chieu do chay that)"
-  else echo "MOT-CHU: $loi ĐỎ"; fi
-  ;;
+  if [ "$loi" -eq 0 ]; then echo "MUTANT OK: 3 dot bien chay that, moi cai ghim MOT cau rieng; bang su-that do duoi ca ba; doi chung duong ban A xanh"; exit 0; fi
+  echo "MUTANT: $loi ĐỎ"; exit 1 ;;
 
-ban-do)
-  # Chân này đo CÂY THẬT — R+ sống, bổ sung cho fixture code-sinh (fixture mới
-  # là thước; cây thật là chỗ chứng minh luật có tác dụng ở đời thật).
-  MAP="$ROOT/PRODUCT-MAP.md"
-  BT='`'
-  node "$PM" --root "$ROOT" --check >/dev/null 2>&1 \
-    || bad "product-map --check do tren cay that — ban do chua ve lai?"
+san-dem)
+  out="$(LV_CASES=LVX node "$CASES" 2>&1)"; st=$?
+  [ "$st" -ne 0 ] || bad "LV_CASES=LVX van exit 0"
+  printf '%s\n' "$out" | grep -qF 'LV_CASES=LVX khong khop ca nao' || bad "LVX: khong in dong neu ten da khai"
+  outp="$(LV_CASES=LV1 node "$CASES" 2>&1)"; stp=$?
+  [ "$stp" -eq 0 ] || bad "doi chung duong LV_CASES=LV1 exit $stp"
+  [ "$(printf '%s\n' "$outp" | grep -c '^PASS: ')" -eq 1 ] || bad "doi chung duong: khong dung mot dong ca"
+  # Chiều đỏ: bản sao gỡ sàn đếm → LVX exit 0 im lặng → răng phải kêu.
+  TMP="$(mktemp -d)"; chep_cay "$TMP/B"
+  perl -0pi -e 's/if \(only\.length && matched === 0\) \{/if (false) {/' "$TMP/B/tests/plugins/lan-v.test.mjs"
+  grep -qF 'if (false) {' "$TMP/B/tests/plugins/lan-v.test.mjs" || bad "chieu do: sed khong doi duoc dong nao"
+  LV_CASES=LVX node "$TMP/B/tests/plugins/lan-v.test.mjs" >/dev/null 2>&1 && stm=0 || stm=$?
+  [ "$stm" -eq 0 ] || bad "chieu do: ban sao go san dem ma LVX van exit $stm (mutant khong chay duoc?)"
+  # (exit 0 ở bản B là ĐÚNG chiều đỏ: chứng minh sàn đếm là thứ làm bản thật đỏ.)
+  if [ "$loi" -eq 0 ]; then echo "SAN-DEM OK: ten sai -> exit 1 co thong diep; ten dung -> 1 dong ca; ban sao go san dem -> xanh gia (chieu do chay that)"; exit 0; fi
+  echo "SAN-DEM: $loi ĐỎ"; exit 1 ;;
 
-  sec_of() { awk -v s="$BT$1$BT" '/^## /{sec=substr($0,4)} /^- /{ if (index($0,s)) { print sec; exit } }' "$MAP"; }
-  line_of() { grep -m1 -F "$BT$1$BT" "$MAP"; }
-
-  for slug in release-2-0-0 release-2-1-0; do
-    sec="$(sec_of "$slug")"
-    [ "$sec" = "Đã giao" ] || bad "$slug khong nam duoi 'Đã giao' (thuc te: ${sec:-khong thay slug})"
-    line_of "$slug" | grep -qF "cửa veto mở" || bad "$slug thieu chu thich cua veto mo"
+cay-that)
+  # Một lượt lưới trên cây thật (--base main), một lượt máy quét; so QUAN HỆ cho
+  # MỌI hồ sơ verified chưa ký. Không ghim tên hồ sơ nào (gap-probe F4).
+  luoi="$(cd "$ROOT" && env -u PRE_MERGE_BASE bash scripts/pre-merge-check.sh . --base main 2>&1)"
+  quet="$(node "$SCAN" --root "$ROOT")" || { echo "CAY-THAT: may quet khong chay duoc"; exit 1; }
+  so=0
+  for d in "$ROOT"/_acceptance/*/; do
+    slug="$(basename "$d")"; c="$d/contract.md"; e="$d/evidence-report.md"
+    [ -f "$c" ] && [ -f "$e" ] || continue
+    st="$(sed -n '/^---[[:space:]]*$/,/^---[[:space:]]*$/p' "$c" | sed -n 's/^status[[:space:]]*:[[:space:]]*//p' | head -1 | sed 's/[[:space:]#].*$//')"
+    [ "$st" = "verified" ] || continue
+    sig="$(sed -n '/^---[[:space:]]*$/,/^---[[:space:]]*$/p' "$e" | sed -n 's/^human_signoff[[:space:]]*:[[:space:]]*//p' | head -1 | tr -d '[:space:]')"
+    [ -z "$sig" ] || continue
+    so=$((so + 1))
+    if printf '%s\n' "$luoi" | grep -q "^VIOLATION \[$slug\]"; then chan=1; else chan=0; fi
+    if printf '%s' "$quet" | python3 -c "import json,sys; j=json.load(sys.stdin); sys.exit(0 if any(d['slug']==sys.argv[1] for d in j['groups']['done']) else 1)" "$slug"; then done_=1; else done_=0; fi
+    [ "$chan" -ne "$done_" ] || bad "lech $slug: luoi=$([ $chan = 1 ] && echo chan || echo qua) may-quet=$([ $done_ = 1 ] && echo done || echo gates)"
   done
-  # Hồ sơ ĐÃ KÝ thật phải giữ nguyên: đã giao, KHÔNG chú thích cửa mở.
-  sec22="$(sec_of release-2-2-0)"
-  [ "$sec22" = "Đã giao" ] || bad "release-2-2-0 (da ky) khong con duoi 'Đã giao' (thuc te: ${sec22:-khong thay})"
-  line_of release-2-2-0 | grep -qF "cửa veto mở" && bad "release-2-2-0 da ky ma van gan chu thich cua veto mo"
+  [ "$so" -ge 2 ] || bad "san: chi $so ho so verified-chua-ky duoc so (can >=2 de phep do co nghia)"
+  grep -qF 'lan-v-mo' "$ROOT/commands/start.md" || bad "commands/start.md khong neu 'lan-v-mo'"
+  grep -qF 'xanh-sach' "$ROOT/commands/start.md" || bad "commands/start.md khong neu 'xanh-sach'"
+  # Chiều đỏ của vế chỉ dẫn: bản sao start.md gỡ 'xanh-sach' → phép grep trên phải đỏ.
+  TMP="$(mktemp -d)"; sed 's/xanh-sach//g' "$ROOT/commands/start.md" > "$TMP/start.md"
+  grep -qF 'xanh-sach' "$TMP/start.md" && bad "chieu do: sed khong go duoc 'xanh-sach' khoi ban sao"
+  if [ "$loi" -eq 0 ]; then echo "CAY-THAT OK: $so ho so verified-chua-ky, may quet == luoi o ca $so; /start neu hai trang thai (chieu do chay that)"; exit 0; fi
+  echo "CAY-THAT: $loi ĐỎ"; exit 1 ;;
 
-  # Máy quét thật
-  SCAN="$(node "$ROOT/scripts/start-scan.mjs" --root "$ROOT")" || { echo "RANG-LANV: start-scan that bai"; exit 1; }
-  scan_err="$(printf '%s' "$SCAN" | node --input-type=module -e "
-    let raw=''; for await (const c of process.stdin) raw += c;
-    const j = JSON.parse(raw);
-    const gates = new Set(j.groups.gates.map(g => g.slug));
-    const done = new Map(j.groups.done.map(d => [d.slug, d.state]));
-    const err = [];
-    for (const s of ['release-2-0-0','release-2-1-0']) {
-      if (gates.has(s)) err.push(s + ' van trong gates');
-      if (done.get(s) !== 'lan-v-mo') err.push(s + ' state ' + (done.get(s) ?? '(khong co)') + ' != lan-v-mo');
-    }
-    if (done.get('release-2-2-0') !== 'signed-off') err.push('release-2-2-0 mat trang thai signed-off');
-    process.stdout.write(err.join(' · '));
-  ")" || { echo "RANG-LANV: khong doc duoc JSON may quet"; exit 1; }
-  [ -z "$scan_err" ] || bad "may quet that: $scan_err"
-
-  # AC-10 hứa HAI vế: nêu trạng thái, VÀ nêu cách đếm ở dòng cuối thẻ. Hai chuỗi
-  # 'lan-v-mo' + 'làn V' nằm CÙNG một dòng nên chúng không phân biệt được vế hai —
-  # xoá trọn câu cách-đếm mà răng vẫn xanh (S4-r1). Ghim đúng câu, và ghim rằng
-  # nó nằm ở DÒNG KHÁC với dòng khai trạng thái.
-  START_MD="$ROOT/commands/start.md"
-  grep -qF 'lan-v-mo' "$START_MD" || bad "commands/start.md khong neu trang thai lan-v-mo"
-  grep -qF 'làn V' "$START_MD" || bad "commands/start.md khong neu 'làn V'"
-  CAU_DEM='trong đó N làn V, cửa veto mở'
-  grep -qF "$CAU_DEM" "$START_MD" || bad "commands/start.md khong neu cach dem: «$CAU_DEM»"
-  d_tt="$(grep -nF 'lan-v-mo' "$START_MD" | head -1 | cut -d: -f1)"
-  d_dem="$(grep -nF "$CAU_DEM" "$START_MD" | head -1 | cut -d: -f1)"
-  [ -n "$d_tt" ] && [ -n "$d_dem" ] && [ "$d_tt" != "$d_dem" ] \
-    || bad "hai ve cua AC-10 nam cung mot dong (tt=$d_tt dem=$d_dem) — mot phep grep khong phan biet duoc chung"
-
-  # Chiều đỏ cùng lượt: --check phải CÓ RĂNG (bản sao có rác thì phải đỏ).
-  TMP="$(mktemp -d)"
-  chep_cay "$TMP/c"
-  printf '\n- rac chen tay\n' >> "$TMP/c/PRODUCT-MAP.md"
-  node "$PM" --root "$TMP/c" --check >/dev/null 2>&1 && bad "chieu do: --check van exit 0 tren ban sao co rac"
-
-  if [ "$loi" -eq 0 ]; then
-    echo "BAN-DO OK: 2 ho so lan V da giao · 1 ho so da ky giu signed-off · check exit 0 · /start biet lan-v-mo"
-  else echo "BAN-DO: $loi ĐỎ"; fi
-  ;;
-
-*)
-  echo "chan khong biet: $CHAN (cases|mutant|mot-chu|ban-do)"; exit 2 ;;
+*) echo "chan khong biet: $CHAN"; exit 2 ;;
 esac
-
-[ "$loi" -eq 0 ] || exit 1
-exit 0

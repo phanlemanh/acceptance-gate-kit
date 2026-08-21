@@ -1,24 +1,23 @@
-# Gap-probe — lan-v-khong-phai-cho-ky (vòng hai, T3)
+# Gap-probe — lan-v-khong-phai-cho-ky (vòng ba, T2, một vật)
 
 Phản biện context sạch, 21/08, trước Cổng Phạm vi. Đầu vào: contract · evals ·
-design · sổ quyết định · bài học xuyên hồ sơ (claim-scan). Không đọc mã repo.
+design (mục «Vòng ba») · sổ quyết định (entry descope cuối) · bài học xuyên hồ
+sơ. Không đọc mã repo. (Bản ghi vòng hai T3 — 5 lỗ, 3 P0, đã vá — nằm trong git
+trước commit thu phạm vi.)
 
-**VERDICT: findings** — 5 lỗ (3 P0, 2 P1). Tất cả đã xử trước khi trình cổng.
+**VERDICT: findings** — 5 lỗ (1 P0, 3 P1, 1 P2). Tất cả đã xử trước khi trình cổng.
 
 | # | Lỗ | Mức | Xử |
 |---|---|---|---|
-| F1 | Chiều đỏ của AC-2 không thể đỏ dưới chính ngả máy khuyên: bash *gọi* lib nên đột biến lib làm hai vế cùng đổi ⇒ phép so hằng-đúng | P0 | **fixed** — AC-2 viết lại: đo bash ↔ **bảng kỳ vọng viết tay** (độc lập cả hai bên) + đột biến ở **mối nối** (lớp vỏ bash parse `node -e`); Notes ghi rõ thước khác nhau theo ngả |
-| F2 | «Đối chứng sống cho AC-5» ở AC-11 bị **quyết định thừa**: hồ sơ này trượt vì 3 lý do độc lập (T3 · draft · không bằng chứng), không chứng minh nhánh nào | P0 | **fixed** — bỏ lời tuyên, khai thẳng nó chỉ là ô âm chung; nhánh sạch-hay-chưa chứng minh ở E5 trên fixture code-sinh |
-| F3 | Trụ an toàn của ngả (i) — suy biến **fail-CLOSED** khi thiếu node/lib — không có phép đo máy nào (chỉ một eval judgment). Sai hướng ⇒ fail-open ở **chính lưới trước-merge**, nặng hơn lỗi vòng một | P0 | **fixed** — thêm **AC-12** (chạy pre-merge với PATH không node / lib bị dời ⇒ phải VIOLATION kèm lý do, đối chứng dương cùng lượt) + trục F thêm nhánh «không đọc được nguồn luật» |
-| F4 | AC-3 (đã giao ⇔ clean) mâu thuẫn AC-6 (da-veto không bao giờ đã giao) — hàm kỳ vọng 300 ô không có căn cứ chọn nhánh | P1 | **fixed** — AC-3 giới hạn vào nhánh `veto_state ≠ da-veto`, ghi **thứ tự nhánh tường minh**: da-veto → chữ ký → xanhSach |
-| F5 | Design doc + sổ quyết định còn nguyên số liệu vòng một (T2 · 100 ô · 7 ca · «KHÔNG đặt vào lib/») mà chưa bị gạch; con trỏ chết AC-11→AC-10 trong Notes | P1 | **fixed** — thân design gắn nhãn *lịch sử vòng một* + trỏ nguồn đúng; entry sổ mới `supersedes: d-20260821T093623Z-29342`; con trỏ sửa về AC-10 |
+| F1 | Mặt cắt đẳng thức với lưới bỏ ngoài 2/6 điều kiện (hạng · verdict) — hai điều kiện đó chỉ còn được kiểm bởi hàm kỳ vọng viết tay, trái lời AC-1 | P0 | **fixed** — LV5 thêm `V-T3`, `nguoi-T3`, `V-pending`, `nguoi-pending` (17 fixture); AC-1/E1 sửa khớp. Phép đo bắt thêm một điều thật: fixture phải chép đúng bộ `lib/` của `/acceptance-init`, không thì lưới fail-closed và «khớp» chỉ là cùng đỏ — đã ghi vào AC-1 |
+| F2 | LV6 không được khai ở AC/eval nào nhưng E9 ghim đúng 6 dòng | P1 | **fixed** — LV6 = sàn đếm của chính bộ lọc (tự gọi lại file), khai ở header + E6 |
+| F3 | Bảng 240 ô: không chiều đỏ riêng; trục G không khai; ô «mo vết hỏng + người duyệt + sạch» không có state | P1 | **fixed** — AC-5 khai G cố định theo nhánh veto; E7 + răng đòi LV4 đỏ ≥1 ô dưới MỖI đột biến (đã chạy: đỏ cả ba); AC-2: `xanh-sach` khi `approved_by` có tên bất kể khoá veto (lưới đọc y vậy — ca `nguoi-vet-hong` trong LV5) |
+| F4 | Chân cây-thật ghim tên hồ sơ cứng — tự đỏ khi chính hồ sơ này đi làn V; kỳ vọng viết theo kết quả | P1 | **fixed** — AC-7/E8/răng đo QUAN HỆ trên mọi hồ sơ verified chưa ký (máy quét ∈ done ⇔ lưới không VIOLATION), sàn ≥2, không ghim tên |
+| F5 | Context nói «fixture code-sinh từ khuôn canonical» trong khi evidence fixture viết tay (known-limits #5) | P2 | **fixed** — Context nói đúng: contract từ khuôn, evidence chưa |
 
-**Bằng-chứng-thiếu mà phản biện nêu (bị cấm đọc mã) — máy kiểm hộ:** «bash hôm
-nay xếp *mục VẮNG* là sạch hay không sạch?» → nhánh `__VANG__` của
-`xanh_sach_check` đặt `clean_ok=0` («vắng ≠ rỗng»), nên AC-1 chép đúng ngữ nghĩa
-đang chạy — **không siết**, không phạm mục Out-of-scope. Đã ghi vào contract.
+**Bằng-chứng-thiếu phản biện nêu:** «`pre-merge-check.sh <kho> --base basepoint` có
+chạy được trên kho ngoài không» — đã chạy thật ở LV5: được, với điều kiện kho chép
+bộ `lib/` (chính là điều F1 lôi ra).
 
-**Lớp lỗi cũ tái xuất (claim-scan):** `cong-chan-nham-cho#F1` («làn V mở bằng
-CHUỖI, không đo QUAN HỆ mo ⇔ xanh-sạch») — chính là lỗ vòng một, nay là lý do
-vòng hai tồn tại. `veto-co-dau-vet#F2` (danh sách ĐÓNG thiếu một điều kiện) tái
-xuất ở F3 dưới dạng «điều kiện đọc-được-nguồn không nằm trong danh sách nào».
+**Bài học cũ:** `cong-chan-nham-cho#F1` (chuỗi thay quan hệ) — không dẫm;
+`veto-co-dau-vet#F2` (danh sách đóng thiếu điều kiện) — dẫm một nửa ở F1, đã vá.

@@ -19,7 +19,7 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const { frontmatterField, vetoGateState } = require(path.join(__dirname, '..', 'lib', 'evidence-core.cjs'));
+const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence-core.cjs'));
 // Luật "hồ sơ này có hỏng không" sống một chỗ và được CẢ bộ quét vào phiên
 // dùng chung — xem lib/workspace-record.cjs để biết vì sao (S4-r1: hai bên đọc
 // cùng hồ sơ cho hai kết luận trái nhau).
@@ -93,31 +93,6 @@ const UAT_KET_CUC = {
 const readPlain = p => { try { return readFileSync(p, 'utf8'); } catch { return null; } };
 const fm = (txt, key) => (txt == null ? null : frontmatterField(txt, key));
 const low = v => (v == null ? null : v.toLowerCase());
-
-// ─── Làn V — MỘT vị từ cho hai bộ đọc ───────────────────────────────────────
-// Đợt 2 cho hồ sơ T2 xanh-sạch đi qua cổng mà không chờ chữ ký: `veto_state:
-// mo` + vết giờ, người veto lúc nào cũng được. Lưới trước-merge đã đọc đúng
-// («làn V — cửa veto mở»); hai bộ đọc mặt người thì chưa, nên hồ sơ ĐÃ GIAO
-// hiện thành «chờ ký» / «đang làm» và thẻ vào phiên đòi đúng lượt gọi người mà
-// làn V được dựng để không đòi. Vị từ này TRỪ đúng suy diễn đó.
-// KHÔNG có trạng thái «cửa đóng»: luật làn V nói cửa không có hạn — bản sau
-// chồng lên chỉ làm veto KHÔNG CÒN ĐÁNG, và đó là điều người cân khi nhìn,
-// không phải điều máy suy.
-export const VETO_OPEN_NOTE = 'cửa veto mở';
-
-export function lanVMo(contractTxt, verdict, signoff) {
-  // Chữ ký THẮNG. Người đã ký thì hồ sơ là «đã ký», không phải «cửa veto mở»;
-  // đặt nhánh này sau vị từ V là hồ sơ ký rồi vẫn khoe cửa mở.
-  if (signoff) return false;
-  // LAN-V-PASS: chỉ PASS mới là đã giao. Viết thành `!== 'PENDING-JUDGMENT'`
-  // thì REJECT/BLOCKED lọt vào «đã giao» — bảng sự-thật LV7 đỏ đúng ở đây.
-  if (String(verdict || '').toUpperCase() !== 'PASS') return false;
-  const v = vetoGateState(contractTxt);
-  if (!v.present) return false;        // vắng khoá = luật cũ chạy nguyên văn
-  if (v.state !== 'mo') return false;  // da-veto: người đã phát ngôn, phải còn hiện ở nơi người thấy
-  if (!v.stamped) return false;        // V không vết là bỏ-cổng lặng, không phải V
-  return v.tier === 'T2';              // làn V chỉ T2
-}
 
 // Cạnh chỉ hiện khi hồ sơ THẬT có khai — vắng thì im, không placeholder.
 // (Write-side `epic:` thuộc vòng khám phá; đây chỉ là bên đọc.)
@@ -198,9 +173,6 @@ function classify(dir, slug) {
       return { key: duongA ? 'cho-nghiem-thu' : 'da-ship', slug, name, edge };
     }
     if (status === 'draft') return { key: 'cho-duyet', slug, name, edge };
-    // LAN-V-MO: hồ sơ làn V đã giao — cửa veto vẫn mở, không phải «đang làm».
-    if (status === 'verified' && lanVMo(cTxt, fm(eR.t, 'verdict'), fm(eR.t, 'human_signoff')))
-      return { key: 'da-ship', slug, name, edge, note: VETO_OPEN_NOTE };
     return { key: 'dang-dung', slug, name, edge };
   }
 

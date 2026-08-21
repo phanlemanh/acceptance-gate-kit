@@ -15,7 +15,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 // Vị từ làn V nhập TĨNH từ bản đồ: hai bộ đọc dùng CHUNG một vị từ thì không
 // thể trôi khỏi nhau (lớp lỗi hai-bản-chép đã dẫm nhiều lần).
-import { lanVMo } from './product-map.mjs';
+import { khongCanNguoi } from './khong-can-nguoi.mjs';
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -65,6 +65,7 @@ const read = readRecord;
 // của evidence-core trả ra key bắt buộc (S4-r1: hasFm riêng đã chặt hơn reader
 // chuẩn — CRLF/dòng trắng đầu file bị báo hỏng oan trong khi mọi cổng khác đọc được)
 const fmOrNull = (t, key) => (t == null ? null : frontmatterField(t, key));
+const kcn = (cTxt, eTxt) => khongCanNguoi(cTxt, eTxt);
 const git = (() => {
   try {
     const branch = execFileSync('git', ['-C', root, 'rev-parse', '--abbrev-ref', 'HEAD'],
@@ -157,6 +158,7 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       }
       return {
         exists: eTxt != null,
+        raw: eTxt,
         verdict: eTxt != null ? frontmatterField(eTxt, 'verdict').toUpperCase() : null,
         signoff: eTxt != null ? (frontmatterField(eTxt, 'human_signoff') || '') : '',
       };
@@ -206,8 +208,12 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
         if (!ev.exists) broken.push({ slug, ...missingArtifact({ 'contract.md': cTxt, 'evidence-report.md': null }) });
         else if (!meaning) broken.push({ slug, ...bangLech(ev.verdict) });
         else if (ev.signoff) done.push({ slug, state: 'signed-off' });
-        // LAN-V-MO: đã giao, cửa veto mở — không phải cổng. Cùng vị từ với bản đồ.
-        else if (lanVMo(cTxt, ev.verdict, ev.signoff)) done.push({ slug, state: 'lan-v-mo' });
+        // KCN-NHANH: hồ sơ KHÔNG còn cần người — cùng câu lưới trước-merge hỏi
+        // (da-veto · Cổng 1 đúng vết · sáu điều kiện xanh-sạch). Trả về tên
+        // trạng thái «đã giao»: lan-v-mo (cửa veto mở) hay xanh-sach (người duyệt
+        // Cổng 1). Hồ sơ chưa sạch rơi xuống nhánh dưới và VẪN là cổng — đó là
+        // lỗi vòng một của hồ sơ lan-v-khong-phai-cho-ky (khoá vào veto_state).
+        else if (kcn(cTxt, ev.raw)) done.push({ slug, state: kcn(cTxt, ev.raw) });
         else if (meaning.settled) gates.push({ slug, gate: 'bang-chung', since: since(cPath, frontmatterField(cTxt, 'approved_at')), tier });
         else inProgress.push({ slug, status, nextStep: meaning.nextStep, tier });
       }
