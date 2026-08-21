@@ -1,0 +1,48 @@
+{
+  "feature_plain": "Hàng chờ chữ ký thôi nói dối: việc nào máy đã lo trọn và bằng chứng thật sự sạch thì tự rời hàng chờ, việc nào còn vướng thì ở lại — và cả ba chỗ anh nhìn đều nói cùng một điều.",
+  "will_do": [
+    { "id": "AC-1", "p": "Sẽ có MỘT chỗ duy nhất định nghĩa thế nào là «sạch» — sáu điều kiện — và khi trượt thì nói ra trượt điều nào (AC-1: một nguồn luật)." },
+    { "id": "AC-7", "p": "Sẽ dò 300 tình huống dựng sẵn, mỗi ô đối chiếu với đáp án soạn trước khi chạy (AC-7: bảng sự-thật viết trước)." },
+    { "id": "AC-9", "p": "Sẽ báo đỏ khi bộ kiểm chạy mà không khớp ca nào, thay vì báo xanh với không phép thử nào (AC-9: sàn đếm)." },
+    { "id": "AC-10", "p": "Sẽ giữ mỗi câu chữ hiện ra cho anh ở đúng một nơi, hai nơi kia đọc lại — lệch một chữ là đỏ và gọi tên bên lệch (AC-10: một chỗ khai)." }
+  ],
+  "wont_do": [
+    { "id": "AC-2", "p": "Chặn hai bộ luật lệch nhau: cổng chặn trước khi gộp và thẻ vào phiên phải cho cùng kết luận ở mọi tình huống (AC-2: đẳng thức hai chiều)." },
+    { "id": "AC-3", "p": "Chặn việc xếp ô theo dấu vết phủ quyết — hồ sơ rời hàng chờ khi và chỉ khi bằng chứng sạch (AC-3)." },
+    { "id": "AC-4", "p": "Chặn việc đòi chữ ký chỉ vì hồ sơ không có dấu vết phủ quyết, và không dán nhãn «cửa veto mở» lên hồ sơ chẳng mở cửa nào (AC-4)." },
+    { "id": "AC-5", "p": "Chặn hồ sơ CHƯA sạch rời hàng chờ chữ ký — đúng cái lỗ làm vòng một bị trả lại (AC-5)." },
+    { "id": "AC-6", "p": "Chặn mọi hồ sơ anh đã phủ quyết lọt vào ô «đã giao», bằng chứng đẹp tới đâu cũng vậy (AC-6)." },
+    { "id": "AC-8", "p": "Chặn bản đồ sản phẩm lỗi thời sau khi máy tự đóng một cổng — bản đồ vẽ lại ngay trong vòng đó (AC-8)." },
+    { "id": "AC-11", "p": "Chặn kết luận chỉ đúng trên hồ sơ dựng thử: trên cây thật, hai bản phát hành cũ phải rời hàng chờ còn việc NÀY phải ở lại (AC-11)." }
+  ],
+  "scope_plain": "không ký bù và không xoá hai bản phát hành cũ, không đặt hạn cho cửa phủ quyết, không nới cũng không siết nghĩa của «sạch» — vòng này chỉ gom luật về một chỗ",
+  "decisions_plain": [
+    { "id": "d-20260821T093623Z-29342", "p": "Luật chung đặt cạnh bản đồ chứ không vào thư mục lõi, để vòng đó giữ hạng thấp và máy tự đi — đổi lại một nhãn chữ nằm ngoài chỗ chung, phải có răng canh." },
+    { "id": "d-20260821T093623Z-29444", "p": "Cửa phủ quyết không có hạn: hồ sơ cũ mang chú thích «cửa còn mở» mãi mãi — đó là dữ liệu đúng, không phải nợ." },
+    { "id": "d-20260821T093623Z-10902", "p": "Ca kiểm của vòng này sống thành một tệp riêng, không đụng kho ca chung — hết cảnh hai nhánh giành nhau số thứ tự ca." },
+    { "id": "d-20260821T093623Z-870", "p": "Bộ kiểm của hồ sơ gọi bằng đường dẫn thay vì thêm khoá cấu hình; cổng mà từ chối thì đó là vấp thật, ghi sổ chứ không lùi." },
+    { "id": "d-20260821T094148Z-30026", "p": "Theo phản biện trước cổng: đổi phép đo quan hệ thành bảng sự-thật viết trước, chốt bảy ca ở mọi nơi, đối chứng dương trước khi tin màu đỏ, và suy gốc cây từ chính vị trí bộ kiểm." },
+    { "id": "d-20260821T120845Z-564", "p": "Dòng báo ca chỉ in ra từ tệp ca, tên dòng chạy của bộ kiểm cố ý khác chữ để không đếm nhầm." },
+    { "id": "d-20260821T122508Z-24758", "p": "Sửa hồ sơ dựng thử cho đủ phụ thuộc thay vì nạp mềm — nạp mềm sẽ biến «thiếu bản đồ» thành «âm thầm quay lại chờ ký»." },
+    { "id": "d-20260821T122508Z-31340", "p": "Đổi tên cột của tài liệu thiết kế cho khớp khuôn chung, thay vì nới luật một-nguồn cho vừa." },
+    { "id": "d-20260821T131047Z-32373", "p": "Ba phép đo được gắn lại vào vật thật: đếm quan hệ trước/sau, mỗi đột biến ghim một câu riêng, chân bản đồ ghim đúng câu cách đếm." },
+    { "id": "d-20260821T134356Z-9979", "p": "Anh trả lại tại Cổng Bằng chứng hôm 21/08: luật khoá nhầm vào dấu vết phủ quyết thay vì sáu điều kiện sạch — hồ sơ về lại Cổng Phạm vi, nâng hạng, mã đã viết giữ làm nền." },
+    { "id": "d-20260821T134356Z-19602", "p": "Rút lại dòng «giới hạn đã biết» cho một lỗ mà lời giải nằm sẵn trong tay — ghi giới hạn ở đó là hạ thước, nên nó thành tiêu chí thật." },
+    { "id": "d-20260821T134615Z-15055", "p": "Gỡ bằng chứng và sổ lỗi của vòng một vì chúng chứng nhận một bộ tiêu chí không còn tồn tại; sổ chạy giữ lại làm sử liệu." }
+  ],
+  "coverage_plain": [
+    { "i": 0, "p": "Ba chỗ anh nhìn — thẻ vào phiên, bản đồ sản phẩm, cổng chặn trước khi gộp — đều phải trả lời giống nhau; đủ khi cả ba cùng đọc một nguồn." },
+    { "i": 1, "p": "Dấu vết phủ quyết đủ năm dạng: vắng · đang mở giờ đọc được · giờ hỏng · đã phủ quyết · giá trị lạ." },
+    { "i": 2, "p": "Kết quả kiểm đủ năm dạng: đạt · chờ hội đồng · trượt · bị chặn · mất luôn hồ sơ bằng chứng." },
+    { "i": 3, "p": "Hai hạng rủi ro: việc thường và việc đụng chỗ hiểm." },
+    { "i": 4, "p": "Hai trạng thái chữ ký: đã ký và chưa ký." },
+    { "i": 5, "p": "Độ sạch — trục MỚI, đúng chỗ vòng một mù: sạch · có người bấm bỏ qua · còn mục chưa ngã ngũ · còn giới hạn người phải gánh · còn lỗi ngoài hợp đồng · mục vắng hẳn (vắng khác rỗng)." }
+  ],
+  "gap_probe_plain": [
+    { "i": 0, "p": "Phép đo cũ chỉ so hai bộ đọc với nhau, mà hai bên dùng chung một luật thì lúc nào cũng khớp — kể cả khi luật sai; đã đổi thành bảng sự-thật viết trước, ghim giá trị của từng bộ đọc rồi mới so quan hệ." },
+    { "i": 1, "p": "Bốn chỗ nói sáu ca, hai chỗ nói bảy — đã chốt bảy ở mọi nơi và ghi đè trong sổ quyết định." },
+    { "i": 2, "p": "Phép thử phá hoại chỉ ghim mã trượt chứ không ghim thông điệp, và bản đối chứng chạy ở môi trường khác bản bị phá — đã dựng lại: bản sạch phải xanh trước, bản bị phá mang dấu riêng cho từng chỗ phá." },
+    { "i": 3, "p": "Chữ ký được khai là «không đổi» nhưng không ca nào ghim — nay thành một trục của bảng, kèm ca giữ hồ sơ đã ký không dính chú thích." },
+    { "i": 4, "p": "Bộ kiểm suy gốc cây từ thư mục đang đứng nên có thể chấm nhầm cây khác — nay suy từ chính vị trí của nó." }
+  ]
+}
