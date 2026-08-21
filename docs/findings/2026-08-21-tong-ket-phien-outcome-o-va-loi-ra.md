@@ -62,7 +62,8 @@ Cùng ngày, phiên khác merge #72 (ba chỗ tích luỹ) · #73 (xoá hồ sơ
   trong `claude-plugins-official` (490 mục). Cắm qua ổ `discovery.brainstorm_skill`;
   phiên CLI rơi về nhánh ba. Thân skill khớp Vòng HIỂU đến từng ô (Close the
   Session → `opportunity.md`); chế độ **Assumption Testing** là ứng viên ruột cho
-  D2 — để hạt giống 15/08 quyết.
+  D2 — để hạt giống «chiều đỏ Cổng Đáng» quyết (hạt giống đó **chưa tồn tại**;
+  15/08 là «ô nuốt luật», U1+U3, và nó cấm đụng D2 — xem đính chính cuối bài).
 - RACI «Vật × vai» cho thấy hàng *Bằng chứng* là hàng **duy nhất máy giữ chữ K**
   — lý do tồn tại của hook + lưới, nhìn thấy được trong một ô.
 - Mermaid GUIDE §3 còn vẽ «Cổng 2 luôn ký» — lỗi thời một nhịp so với làn V
@@ -103,7 +104,7 @@ tên ở dòng cuối bảng.
 
 ## 8. Việc treo — ai cầm, khi nào
 
-- **Cổng 0, bốn hạt giống**: chiều-đỏ Cổng Đáng (15/08) → đi trước nếu cùng
+- **Cổng 0, bốn hạt giống**: «ô nuốt luật» (15/08, PR #56) → đi trước nếu cùng
   chuyến; đường-đo (#71) và vào-có-ô-ra-có-tên (#75) đi sau hoặc song song;
   repo-khai-plugin (#77) độc lập.
 - **PR chữ** sửa mermaid GUIDE §3 (Cổng 2 luôn ký → làn V). Nhỏ, chưa ai nhận.
@@ -119,3 +120,15 @@ tên ở dòng cuối bảng.
 Các PR #71 · #75 · #76 · #77 và hạt giống trong `docs/plans/2026-08-21-*.md`;
 `docs/reference/figures/index.md`; sổ nhớ phiên (ra-soat-21-08-duong-do ·
 vao-co-o-ra-co-ten · bo-hinh-kien-truc-van-hanh · repo-khai-plugin).
+
+## Đính chính (21/08, sau khi bài này đã merge)
+
+Trong phiên, «hạt giống 15/08» bị gọi sai là *chiều-đỏ Cổng Đáng*. Sự thật:
+`docs/plans/2026-08-15-hat-giong-o-nuot-luat.md` (PR #56, treo OPEN 6 ngày, merge
+21/08) — phạm vi **U1+U3** của khuôn cơ hội, và nó **cấm đụng** `red-team D2`.
+Câu «Cổng Đáng chưa có chiều đỏ» hiện **chưa có hạt giống nào**; nó mới là một
+mục trong §7 của findings 15/08.
+
+**Bài học vận hành (đã thành nếp):** trước khi trích một hạt giống «đã có», chạy
+`git ls-tree origin/main docs/plans/` — đừng tin số PR trong trí nhớ hay trong
+chat. Một cái tên sai lặp lại đủ nhiều lần sẽ tự trở thành sự thật trong tài liệu.
