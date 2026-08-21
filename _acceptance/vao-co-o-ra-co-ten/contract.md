@@ -5,7 +5,7 @@ slug: vao-co-o-ra-co-ten
 owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/start-scan.mjs + commands/start.md + tests/plugins + docs/plans + stub _acceptance — không chạm lib/**, lưới, hook
 surfaces: [cli]
-status: approved
+status: verified
 approved_by:
 approved_at:
 veto_state: mo
