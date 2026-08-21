@@ -19,7 +19,7 @@ approved_at:
 **sáu điều kiện xanh-sạch** ở `xanh_sach_check` (`scripts/pre-merge-check.sh:327-372`).
 Hồ sơ này tự phơi ra hậu quả trên cây thật: lưới trước-merge in
 `VIOLATION … làn V đòi xanh-sạch hoặc chữ ký (có mục UNCERTAIN)` và **chặn merge**,
-trong khi thẻ vào phiên xếp nó vào `done: lan-v-mo` và bản đồ ghi «Đã giao — cửa
+trong khi máy quét vào phiên xếp nó vào `done: lan-v-mo` và bản đồ ghi «Đã giao — cửa
 veto mở». Ba bộ đọc, hai kết luận trái nhau — và lệch **ngược chiều an toàn**:
 cổng đang chặn thì biến mất khỏi chỗ người nhìn.
 
@@ -57,7 +57,7 @@ vòng này **thêm trục F — độ sạch**, đúng chỗ vòng một mù.
 - Trục C — verdict: PASS | PENDING-JUDGMENT | REJECT | BLOCKED | vắng file `[SUY-TỪ-REPO: start-scan VERDICT_MEANING]`
 - Trục D — hạng: T2 | T3 `[SUY-TỪ-REPO: contract-template]`
 - Trục E — chữ ký: có | không `[SUY-TỪ-REPO: start-scan nhánh ev.signoff]`
-- **Trục F — độ sạch (MỚI): sạch | bypass_used true | có mục UNCERTAIN | «Known limits» có nội dung | «Ngoài hợp đồng» có nội dung | mục VẮNG (vắng ≠ rỗng) | **không đọc được nguồn luật (thiếu node / thiếu lib)**` `[SUY-TỪ-REPO: scripts/pre-merge-check.sh:327-372 xanh_sach_check]` [thước CE: sáu nhánh `clean_why` của chính hàm đó + nhánh công-cụ-vắng (AC-12)]
+- **Trục F — độ sạch (MỚI): sạch | bypass_used true | có mục UNCERTAIN | «Known limits» có nội dung | «Ngoài hợp đồng» có nội dung | mục VẮNG (vắng ≠ rỗng) | **không đọc được nguồn luật (thiếu node / thiếu lib)**` `[SUY-TỪ-REPO: scripts/pre-merge-check.sh:327-372, hàm kiểm xanh-sạch]` [thước CE: sáu nhánh `clean_why` của chính hàm đó + nhánh công-cụ-vắng (AC-12); mỗi nhánh một phép đo]
 
 Không gian đo bằng **bảng sự-thật viết trước** (AC-7) trên B×C×D×E×F thu gọn còn
 300 ô (F lấy 3 đại diện: sạch · bypass · Known-limits-có-nội-dung; ba nhánh F còn
