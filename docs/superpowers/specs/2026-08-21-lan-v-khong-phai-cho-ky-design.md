@@ -73,3 +73,30 @@ nhưng đặt tên theo slug (`LV<n>`), không lấy số P.
 - Răng `--chan ban-do`: bản đồ thật vẽ lại, `--check` exit 0, máy quét thật không
   còn `release-2-0-0`/`release-2-1-0` trong `gates` (R+ sống, bổ sung — fixture
   code-sinh mới là thước).
+
+## Vòng hai (T3) — sau khi owner trả lại 21/08
+
+**Điều sai ở vòng một:** vị từ khoá vào `veto_state`, trong khi luật thật quyết
+định «máy đi tiếp không cần ký» là **sáu điều kiện xanh-sạch** ở
+`xanh_sach_check` (`scripts/pre-merge-check.sh:327-372`). Hồ sơ chưa sạch biến
+mất khỏi danh sách chờ ký ở thẻ vào phiên và bản đồ, trong khi lưới trước-merge
+vẫn chặn — lệch **ngược chiều an toàn**. Chính hồ sơ này là ca tái lập.
+
+**Luật mới (một câu):** hồ sơ `status: verified`, chưa ký, và `xanhSach(contract,
+evidence)` trả `clean: true` ⇒ **đã giao**. `veto_state: mo` + vết giờ chỉ quyết
+**chú thích** «cửa veto mở», không quyết việc có phải đã giao hay không.
+`da-veto` vẫn cắt ngang mọi thứ.
+
+**Nguồn luật về `lib/`** (nên hồ sơ lên T3): `xanhSach` sống cạnh `vetoGateState`
+trong `lib/evidence-core.cjs`; hai bộ đọc mặt người gọi nó, và bash
+`xanh_sach_check` gọi cùng nguồn với suy biến **fail-CLOSED** (thiếu node/lib ⇒
+coi như chưa sạch ⇒ vẫn đòi người). Đẳng thức hai chiều bash↔lib có răng riêng.
+
+**Bất biến bản đồ phát biểu lại, không bị phá:** ô đổi ở **mỗi lần đóng cổng** —
+kể cả cổng máy đóng ở làn V — và đổi lại làn V phải **vẽ lại bản đồ trong cùng
+vòng**, nếu không chính nó dựng cửa chặn đỏ ở CI cho hồ sơ sau.
+
+**Giữ lại từ vòng một:** 7 ca LV trên fixture code-sinh, răng hồ sơ khai `cmd:`
+bằng đường dẫn, ba đột biến có marker. Thêm: trục SẠCH trong bảng sự-thật (300 ô),
+đột biến thứ tư (trả vị từ về tiêu chí `veto_state` → phải đỏ), sàn đếm bộ lọc ca,
+răng đẳng thức bash↔lib.

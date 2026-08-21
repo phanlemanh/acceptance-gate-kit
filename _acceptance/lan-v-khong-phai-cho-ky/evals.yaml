@@ -1,147 +1,215 @@
-# Evals — lan-v-khong-phai-cho-ky
-# Phép đo thật sống trong tests/plugins/lan-v.test.mjs (LV1–LV6): mỗi ca dựng
-# fixture CODE-SINH từ khuôn canonical (from-template.mjs), hỏi CẢ HAI bộ đọc
-# (start-scan.mjs + renderProductMap) và ghim QUAN HỆ done ⇔ da-ship. Suite
-# plugins gọi file đó bằng 6 dòng `run`. Răng hồ sơ (rang.sh, cmd dạng ĐƯỜNG
-# DẪN — không thêm khoá config, nếp hạt giống B) gọi thẳng file ca trên cây thật
-# (chân cases) và trên bản sao bị đột biến (chân mutant — mutant đi qua CHÍNH ca
-# kiểm, ghim đúng thông điệp FAIL), so một chữ ba nơi (chân mot-chu), và kiểm
-# cây thật (chân ban-do). Mỗi chân in chiều đỏ trong CÙNG lượt.
+# Evals — lan-v-khong-phai-cho-ky (phạm vi T3, sau khi owner trả lại 21/08)
+#
+# Phép đo thật sống ở hai chỗ:
+#   · tests/plugins/lan-v.test.mjs — ca LV1..LV9 (LV7 = bảng sự-thật 300 ô có
+#     TRỤC SẠCH; LV8 = đẳng thức JS↔bash; LV9 = sàn đếm bộ lọc). Suite plugins
+#     gọi bằng 9 dòng `run` đặt tên bắt đầu «ca lan V —» (không chứa chuỗi
+#     `PASS: LV<n>` để suite có ĐÚNG 9 dòng ca do chính file ca in).
+#   · _acceptance/lan-v-khong-phai-cho-ky/rang.sh — 6 chân, `cmd:` khai bằng
+#     ĐƯỜNG DẪN (không thêm khoá config.yaml, nếp hạt giống B).
+#
+# Bài học vòng một, ghim vào khuôn: mọi eval phải khai CHIỀU ĐỎ chạy trong CÙNG
+# lượt, và chiều đỏ phải giết ĐÚNG nhánh mà tiêu chí nói tới (vòng một có một vế
+# đỏ là mã chết vì đột biến chỉ chạm bộ đọc bản đồ).
 
 evals:
   - id: E1
     criterion: AC-1
     executor: test
-    cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cases
+    cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan sach
     expected: >
-      Răng ghim dòng 'PASS: LV1 V-mo PASS T2 -> done lan-v-mo, khong gates (ca hai bo doc)'
-      trong stdout của tests/plugins/lan-v.test.mjs chạy trên cây thật. Chiều đỏ
-      cùng lượt: răng chạy file ca với LV_CASES=LV1 trên bản sao cây mà
-      product-map.mjs bị gỡ nhánh V (chân mutant) → dòng 'FAIL: LV1 …' + thông điệp
-      ghim 'V-mo PASS T2 van nam trong gates'. Đỏ ghim tên ca + thông điệp.
-    paths: [scripts/start-scan.mjs, scripts/product-map.mjs, tests/plugins/lan-v.test.mjs, _acceptance/lan-v-khong-phai-cho-ky/rang.sh]
+      Răng ghim dòng 'PASS: LV8a xanhSach: 6 dieu kien x 2 chieu, why ghim dung
+      dieu kien truot dau tien'. Ma trận fixture code-sinh phủ MỖI điều kiện ở cả
+      hai chiều (đạt/trượt): verdict PASS · bypass_used · hạng T2 · mục UNCERTAIN ·
+      «Known limits» hiện-diện-và-rỗng · «Ngoài hợp đồng» hiện-diện-và-rỗng, cộng
+      ba biến thể VẮNG-mục (vắng ≠ rỗng). Mỗi ô so `clean` với bảng kỳ vọng viết
+      trước VÀ so `why` với điều kiện trượt đầu tiên. Chiều đỏ cùng lượt: bản sao
+      lib bị gỡ một điều kiện (marker XANH-SACH-<tên>) → ca đỏ ghim
+      'dieu kien <ten> khong con phan biet duoc'.
+    paths: [lib/evidence-core.cjs, tests/plugins/lan-v.test.mjs, _acceptance/lan-v-khong-phai-cho-ky/rang.sh]
+
   - id: E2
     criterion: AC-2
-    executor: test
-    cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cases
+    executor: script
+    cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan dang-thuc
     expected: >
-      Cùng dòng 'PASS: LV1 …' — LV1 kiểm cả bản đồ: slug nằm dưới '## Đã giao' kèm
-      ' — cửa veto mở', KHÔNG dưới '## Đang làm', ô mermaid 'Đã giao' tăng 1 so với
-      fixture không có slug. Chiều đỏ: chân mutant gỡ nhánh V → LV1 FAIL ghim
-      'ban do van xep Dang lam'.
-    paths: [scripts/product-map.mjs, tests/plugins/lan-v.test.mjs, _acceptance/lan-v-khong-phai-cho-ky/rang.sh]
+      ĐẲNG THỨC HAI CHIỀU trên cùng ma trận fixture của E1: với TỪNG fixture, răng
+      chạy (a) CHÍNH `bash scripts/pre-merge-check.sh <fixture> --base <ref>` và
+      đọc kết luận sạch/không-sạch từ dòng NOTE/VIOLATION thật, (b) `xanhSach`
+      trong lib. Hai bên phải cho CÙNG kết luận ở MỌI ô; lệch một ô → đỏ ghim
+      'lech o <toa do>: bash=<x> lib=<y>'. Răng in 'DANG-THUC OK: <N> o, bash ==
+      lib o ca <N>'. Chiều đỏ cùng lượt: bản sao lib nới một điều kiện → răng đỏ
+      ghim đúng toạ độ ô lệch (chứng minh phép so phân biệt được, không phải
+      hằng-đúng).
+    paths: [lib/evidence-core.cjs, scripts/pre-merge-check.sh, _acceptance/lan-v-khong-phai-cho-ky/rang.sh]
+
   - id: E3
     criterion: AC-3
     executor: test
     cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cases
     expected: >
-      Răng ghim dòng 'PASS: LV2 go veto_state -> luat cu nguyen van (gates bang-chung, Dang lam)'.
-      Ca tự mang chiều đỏ: cùng fixture LV1 chỉ gỡ một dòng veto_state; nếu bộ đọc
-      nào vẫn xếp đã giao → FAIL ghim 'luat cu bi doi: <bo doc>'.
-    paths: [scripts/start-scan.mjs, scripts/product-map.mjs, tests/plugins/lan-v.test.mjs]
+      Răng ghim dòng 'PASS: LV1 sach + chua ky -> da giao o ca hai bo doc (khong
+      phu thuoc veto_state)'. Ca hỏi CẢ HAI bộ đọc và ghim GIÁ TRỊ từng bên:
+      `groups.done` state, vắng khỏi `groups.gates`, mục bản đồ, VÀ quan hệ số đếm
+      ô mermaid «Đã giao» tăng đúng 1. Chiều đỏ: đột biến 1 (bản đồ) và đột biến 2
+      (máy quét) ở chân mutant, mỗi cái ghim MỘT câu riêng.
+    paths: [scripts/start-scan.mjs, scripts/product-map.mjs, lib/evidence-core.cjs, tests/plugins/lan-v.test.mjs]
+
   - id: E4
     criterion: AC-4
     executor: test
     cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cases
     expected: >
-      Răng ghim dòng 'PASS: LV3 da-veto -> KHONG da giao o ca hai bo doc'. Đây là ca cô
-      lập lớp quan trọng nhất: vị từ viết thành «có veto_state ⇒ đã giao» sẽ đỏ ở
-      đây với thông điệp 'da-veto bi xep da giao: <bo doc>'.
-    paths: [scripts/start-scan.mjs, scripts/product-map.mjs, tests/plugins/lan-v.test.mjs]
+      Răng ghim dòng 'PASS: LV2 sach ma VANG veto_state -> van da giao, KHONG chu
+      thich'. Đây là chiều ngược mà vòng một làm sai (vị từ khoá vào veto_state):
+      hồ sơ người duyệt tay ở Cổng 1, sạch ở Cổng 2, phải là «đã giao» và không
+      mang «cửa veto mở». FAIL ghim 'sach ma van bi xep cho ky: <bo doc>' hoặc
+      'gan chu thich cua veto mo khi khong co veto_state'.
+    paths: [scripts/start-scan.mjs, scripts/product-map.mjs, lib/evidence-core.cjs, tests/plugins/lan-v.test.mjs]
+
   - id: E5
     criterion: AC-5
     executor: test
     cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cases
     expected: >
-      Răng ghim dòng 'PASS: LV4 vet gio rong/hong -> luat cu (hai bien the)': hai biến
-      thể (veto_opened_at rỗng · chuỗi không parse) đều KHÔNG đã giao ở cả hai bộ
-      đọc; FAIL ghim 'vet hong van da giao: <bien the> <bo doc>'.
-    paths: [scripts/start-scan.mjs, scripts/product-map.mjs, tests/plugins/lan-v.test.mjs]
+      Răng ghim dòng 'PASS: LV3 V-mo + PASS + T2 nhung CHUA SACH -> van la cong
+      cho chu ky (4 bien the)'. Bốn biến thể: bypass_used true · có mục UNCERTAIN ·
+      «Known limits» có nội dung · «Ngoài hợp đồng» có nội dung. Đây là ca ĐÓNG LỖ
+      của vòng một — vị từ quay lại khoá vào veto_state sẽ đỏ ở cả bốn biến thể
+      với 'chua sach ma bi xep da giao: <bien the> <bo doc>'. Chiều đỏ riêng ở
+      chân mutant (đột biến 4: trả vị từ về tiêu chí veto_state).
+    paths: [scripts/start-scan.mjs, scripts/product-map.mjs, lib/evidence-core.cjs, tests/plugins/lan-v.test.mjs]
+
   - id: E6
     criterion: AC-6
     executor: test
     cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cases
     expected: >
-      Răng ghim dòng 'PASS: LV5 T3 -> luat cu (lan V chi T2)'; FAIL ghim 'T3 bi xep da giao: <bo doc>'.
+      Răng ghim dòng 'PASS: LV4 da-veto -> KHONG da giao du bang chung sach'.
+      Ca cô lập lớp: vị từ viết thành «sạch ⇒ đã giao» mà quên nhánh da-veto sẽ đỏ
+      ở đây với 'da-veto bi xep da giao: <bo doc>'.
     paths: [scripts/start-scan.mjs, scripts/product-map.mjs, tests/plugins/lan-v.test.mjs]
+
   - id: E7
     criterion: AC-7
     executor: test
     cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cases
     expected: >
-      Răng ghim dòng 'PASS: LV6 PENDING-JUDGMENT duoi V -> van cho Cong Bang chung';
-      FAIL ghim 'judgment bi may giao thay: <bo doc>'.
-    paths: [scripts/start-scan.mjs, scripts/product-map.mjs, tests/plugins/lan-v.test.mjs]
+      Răng ghim dòng 'PASS: LV7 bang su-that 300 o: <N> o da giao khop ham ky vong,
+      hai bo doc khop'. Bảng sự-thật viết trước trên veto(5) × verdict(5) × hạng(2)
+      × chữ ký(2) × sạch(3); số ô đếm TỪ chính vòng lặp và in ra phải = 300. Với
+      từng ô: tính GIÁ TRỊ KỲ VỌNG của từng bộ đọc từ hàm kỳ vọng viết tay (độc lập
+      với vị từ đang kiểm), so với giá trị THẬT của mỗi bộ đọc, rồi mới so quan hệ.
+      FAIL ghim toạ độ '(veto=<b>, verdict=<c>, hang=<d>, ky=<e>, sach=<f>) <bo doc>
+      ky vong <x> thuc te <y>'.
+    paths: [scripts/start-scan.mjs, scripts/product-map.mjs, lib/evidence-core.cjs, tests/plugins/lan-v.test.mjs]
+
   - id: E8
     criterion: AC-8
-    executor: test
-    cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan cases
-    expected: >
-      Răng ghim dòng 'PASS: LV7 bang su-that 100 o: dung 1 o da giao, 99 o khong, hai bo doc khop'.
-      LV7 là BẢNG SỰ-THẬT VIẾT TRƯỚC, không phải phép so hai bộ đọc với nhau: với
-      từng ô (veto 5 × verdict 5 × hạng 2 × chữ ký 2 = 100, số ô đếm từ chính
-      vòng lặp và in ra phải = 100), ca tính GIÁ TRỊ KỲ VỌNG của từng bộ đọc từ
-      một hàm kỳ vọng viết tay (đã giao ⇔ veto=mo+vết ok ∧ verdict=PASS ∧ hạng=T2
-      ∧ chưa ký; có chữ ký ⇒ máy quét 'signed-off' và bản đồ không chú thích)
-      rồi so với giá trị THẬT của mỗi bộ đọc, rồi mới so quan hệ. FAIL ghim toạ độ
-      '(veto=<b>, verdict=<c>, hang=<d>, ky=<e>) <bo doc> ky vong <x> thuc te <y>'.
-      Chân mutant 'go-dieu-kien-PASS' (E11) phải làm chính ca này đỏ ở các ô
-      REJECT/BLOCKED/vắng-evidence.
-    paths: [scripts/start-scan.mjs, scripts/product-map.mjs, tests/plugins/lan-v.test.mjs]
-  - id: E9
-    criterion: AC-9
-    executor: script
-    cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan mot-chu
-    expected: >
-      Răng in 'MOT-CHU OK: "cửa veto mở" == pre-merge-check.sh == commands/start.md'
-      (đọc hằng VETO_OPEN_NOTE bằng import thật từ product-map.mjs, không chép
-      chuỗi vào răng). Chiều đỏ cùng lượt: bản sao commands/start.md đổi một chữ →
-      răng đỏ ghim 'lech: commands/start.md'; bản sao pre-merge-check.sh đổi một
-      chữ → 'lech: scripts/pre-merge-check.sh'. Hai mutant, hai thông điệp riêng.
-    paths: [scripts/product-map.mjs, scripts/pre-merge-check.sh, commands/start.md, _acceptance/lan-v-khong-phai-cho-ky/rang.sh]
-  - id: E10
-    criterion: AC-10
     executor: script
     cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan ban-do
     expected: >
-      Trên cây thật (ROOT suy từ vị trí răng, KHÔNG '--root .'): 'node
-      $ROOT/scripts/product-map.mjs --root $ROOT --check' exit 0; PRODUCT-MAP.md
-      có dòng của release-2-0-0 và release-2-1-0 dưới '## Đã giao' kèm ' — cửa veto
-      mở' và KHÔNG có dòng nào của chúng dưới '## Đang làm'; một hồ sơ ĐÃ KÝ thật
-      (release-2-2-0) vẫn dưới '## Đã giao' KHÔNG kèm ' — cửa veto mở'; start-scan
-      thật: groups.gates không chứa release-2-0-0/release-2-1-0, groups.done chứa
-      cả hai với state lan-v-mo và chứa release-2-2-0 với state signed-off;
-      commands/start.md chứa chuỗi 'lan-v-mo' và chuỗi 'làn V'. Răng in
-      'BAN-DO OK: 2 ho so lan V da giao · 1 ho so da ky giu signed-off · check exit 0 · /start biet lan-v-mo'.
-      Chiều đỏ cùng lượt: bản sao PRODUCT-MAP.md thêm một dòng rác → --check exit ≠ 0
-      ghim 'check do tren ban sao' (đối chứng rằng --check có răng).
-    paths: [scripts/product-map.mjs, scripts/start-scan.mjs, PRODUCT-MAP.md, commands/start.md, _acceptance/lan-v-khong-phai-cho-ky/rang.sh]
+      Trên cây thật (ROOT suy từ vị trí răng): `product-map.mjs --root $ROOT --check`
+      exit 0; và chú thích đầu `scripts/product-map.mjs` chứa câu luật mới nêu «đóng
+      cổng» thay vì liệt kê approved/implemented/verified — răng ghim NGUYÊN VĂN câu
+      đó, và ghim rằng câu cũ («Bucket cố ý THÔ … gộp MỘT nhãn») KHÔNG còn. Chiều đỏ
+      cùng lượt: bản sao PRODUCT-MAP.md thêm dòng rác → --check exit khác 0 (đối
+      chứng --check có răng); bản sao product-map.mjs trả lại câu cũ → răng đỏ ghim
+      'chu thich dau file van noi luat cu'.
+    paths: [scripts/product-map.mjs, PRODUCT-MAP.md, _acceptance/lan-v-khong-phai-cho-ky/rang.sh]
+
+  - id: E9
+    criterion: AC-8
+    executor: test
+    cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan ve-lai
+    expected: >
+      Vòng làn V phải vẽ lại bản đồ TRONG CÙNG VÒNG: răng dựng bản sao cây, đưa một
+      hồ sơ fixture qua bước `implemented`→`verified` + sạch, chạy bước vẽ-lại mà
+      thân vòng lặp khai (`feature-loop/skills/feature-loop/SKILL.md`, khối làn V),
+      rồi đòi `--check` exit 0 trên bản sao. Răng in 'VE-LAI OK: buoc ve lai co
+      that trong than vong lap va lam --check xanh'. Chiều đỏ cùng lượt: bản sao
+      SKILL.md gỡ bước vẽ-lại → răng đỏ ghim 'than vong lap khong con buoc ve lai
+      ban do o lan V' (đo CHỈ DẪN — known-limit khai ở contract).
+    paths: [feature-loop/skills/feature-loop/SKILL.md, scripts/product-map.mjs, _acceptance/lan-v-khong-phai-cho-ky/rang.sh]
+
+  - id: E10
+    criterion: AC-9
+    executor: test
+    cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan san-dem
+    expected: >
+      `LV_CASES=LVX node tests/plugins/lan-v.test.mjs` phải exit KHÁC 0 và in dòng
+      nêu tên đã khai ('LV_CASES=LVX khong khop ca nao — go sai ten?'), cùng khuôn
+      `only_matched` sẵn có cuối `tests/plugins/run-tests.sh`. Đối chứng dương cùng
+      lượt: `LV_CASES=LV1` exit 0 và in đúng một dòng ca. Chiều đỏ: bản sao file ca
+      gỡ sàn đếm → răng đỏ ghim 'san dem bien mat: LV_CASES sai ten van exit 0'.
+    paths: [tests/plugins/lan-v.test.mjs, _acceptance/lan-v-khong-phai-cho-ky/rang.sh]
+
   - id: E11
+    criterion: AC-10
+    executor: script
+    cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan mot-chu
+    expected: >
+      Hai chuỗi khai đúng MỘT nơi: nhãn «cửa veto mở» và các câu `why` của
+      `xanhSach`. Răng import hằng THẬT từ lib (không chép chuỗi vào mình), rồi so
+      với `scripts/pre-merge-check.sh` và `commands/start.md`. Răng in 'MOT-CHU OK:
+      <n> chuoi khai mot noi, <m> site doc lai'. Chiều đỏ cùng lượt: tiêm một chữ
+      vào TỪNG site trên bản sao rồi chạy CHÍNH bộ so — nó phải kêu đúng site đó và
+      chỉ site đó (không đo cú tiêm, đo bộ so).
+    paths: [lib/evidence-core.cjs, scripts/pre-merge-check.sh, commands/start.md, _acceptance/lan-v-khong-phai-cho-ky/rang.sh]
+
+  - id: E12
+    criterion: AC-11
+    executor: script
+    cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan ban-do
+    expected: >
+      Cây thật: `release-2-0-0` và `release-2-1-0` (bằng chứng sạch) nằm dưới
+      '## Đã giao' kèm ' — cửa veto mở'; `release-2-2-0` (đã ký) dưới '## Đã giao'
+      KHÔNG kèm chú thích; **hồ sơ NÀY** (Known limits có nội dung ⇒ chưa sạch) nằm
+      ở cổng chờ chữ ký / '## Đang làm', KHÔNG phải «đã giao» — đây là đối chứng
+      sống cho AC-5 trên cây thật. Máy quét thật khớp cùng kết luận. Răng in
+      'BAN-DO OK: 2 sach da giao · 1 da ky · 1 chua sach van o cong · check exit 0'.
+    paths: [scripts/product-map.mjs, scripts/start-scan.mjs, PRODUCT-MAP.md, _acceptance/lan-v-khong-phai-cho-ky/rang.sh]
+
+  - id: E13
     criterion: AC-1
     executor: test
     cmd: _acceptance/lan-v-khong-phai-cho-ky/rang.sh --chan mutant
     expected: >
-      Mutant đi qua CHÍNH ca kiểm, đối chứng dương trên CÙNG CÁCH CHÉP: răng chép cây
-      sang thư mục tạm (rsync, trừ .git/node_modules/.claude) HAI lần — bản A
-      không tiêm, bản B tiêm. Bản A: chạy tests/plugins/lan-v.test.mjs của bản
-      sao với LV_CASES=LV1,LV7 → exit 0 và có 'PASS: LV1' (đối chứng dương — phải
-      xanh TRƯỚC khi tin bản B đỏ; bản A không chạy được = ĐỎ riêng 'ban sao
-      nguyen ven khong chay duoc', không tiếp tục). Bản B, HAI đột biến, mỗi đột
-      biến một thông điệp riêng: (1) gỡ nhánh V trong scripts/product-map.mjs
-      (sed ghim marker LAN-V-MO; sed phải đổi ≥1 dòng, marker vắng = ĐỎ riêng
-      'marker LAN-V-MO khong thay') → LV1 đỏ với 'FAIL: LV1' VÀ thông điệp ghim
-      'V-mo PASS T2 van nam trong gates' hoặc 'ban do van xep Dang lam'; (2) gỡ
-      điều kiện verdict===PASS trong vị từ (marker LAN-V-PASS) → LV7 đỏ ở ô
-      REJECT/BLOCKED/vắng-evidence với toạ độ ghim. Răng in 'MUTANT OK: 2 dot bien
-      chay that, moi cai ghim dung cau; doi chung duong ban sao nguyen ven xanh'.
-    paths: [scripts/product-map.mjs, scripts/start-scan.mjs, tests/plugins/lan-v.test.mjs, _acceptance/lan-v-khong-phai-cho-ky/rang.sh]
-  - id: E12
-    criterion: AC-8
+      Mutant đi qua CHÍNH ca kiểm, đối chứng dương trên CÙNG CÁCH CHÉP (bản A không
+      tiêm phải xanh trước; bản A không chạy được = ĐỎ riêng). BỐN đột biến, mỗi cái
+      giết MỘT nhánh và ghim MỘT câu riêng — không phép so hai-vế: (1) nhánh V trong
+      `product-map.mjs` → LV1 đỏ ghim 'ban do van xep'; (2) nhánh V trong
+      `start-scan.mjs` → LV1 đỏ ghim 'van nam trong gates'; (3) nới điều kiện PASS
+      trong `xanhSach` → LV7 đỏ ở ô REJECT với toạ độ ghim; (4) **trả vị từ về tiêu
+      chí `veto_state` của vòng một** → LV3 đỏ ở cả bốn biến thể chưa-sạch. Marker
+      vắng hoặc sed không đổi được dòng nào = ĐỎ riêng. Răng in 'MUTANT OK: 4 dot
+      bien chay that, moi cai ghim MOT cau rieng'.
+    paths: [lib/evidence-core.cjs, scripts/product-map.mjs, scripts/start-scan.mjs, tests/plugins/lan-v.test.mjs, _acceptance/lan-v-khong-phai-cho-ky/rang.sh]
+
+  - id: E14
+    criterion: AC-7
     executor: test
     cmd: config:executors.test.plugins
     expected: >
-      Trọn suite plugins xanh ('Results: all plugin tests passed'), gồm ĐÚNG 7 dòng
-      'PASS: LV1'…'PASS: LV7' và 0 dòng 'FAIL: LV' — ca mới nằm trong suite thường
-      trực, không chỉ trong răng hồ sơ. Con số 7 khớp design/contract/sổ quyết định
-      (gap-probe P1: bốn nơi từng nói 6).
+      Trọn suite plugins xanh ('Results: all plugin tests passed'), gồm ĐÚNG 9 dòng
+      'PASS: LV1'…'PASS: LV9' và 0 dòng 'FAIL: LV' — ca sống trong suite thường trực,
+      không chỉ trong răng hồ sơ. Đây là lưới hồi quy: nó chứng minh harness còn
+      sống, KHÔNG phải bằng chứng riêng cho hành vi làn V (ghi chú này để người đọc
+      Cổng 2 không lấy dòng tổng kết suite làm bằng chứng thay E1–E13).
     paths: [tests/plugins/run-tests.sh, tests/plugins/lan-v.test.mjs]
+
+  - id: E15
+    criterion: AC-2
+    executor: judgment
+    question: >
+      Ngả thi hành nào cho «một nguồn luật sáu-điều-kiện» giữ được bất biến
+      một-nguồn của kit mà KHÔNG mở đường fail-open ở lưới trước-merge: (i) bash
+      gọi lib qua node với suy biến FAIL-CLOSED khi thiếu node/lib, hay (ii) giữ hai
+      bản dựng và ghim đẳng thức bằng răng E2?
+    inputs: [contract.md, ../../scripts/pre-merge-check.sh, ../../lib/evidence-core.cjs]
+    expected: >
+      Hội đồng đọc cả hai ngả trên nguồn thật và phán: ngả đã chọn có giữ được
+      «một nguồn» không, và hướng suy biến khi thiếu node/lib có thật sự là
+      fail-CLOSED không (thiếu công cụ ⇒ coi như CHƯA sạch ⇒ vẫn đòi người). Trả
+      lời phải trích dòng thật của `xanh_sach_check` và của bản vá đề xuất; nêu
+      bằng-chứng-thiếu nếu chưa đủ căn cứ.
