@@ -29,10 +29,10 @@ Nghi thức S1-D (`design-pass`, không đổi từ 2.2.0 tới 2.3.0) đòi own
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: …
-- Kết quả nào là SỐNG: …
-- Kết quả nào là CHẾT: …
-- Timebox: …
+- Câu hỏi phép đo trả lời: Trên MỘT feature chạm UI ở repo tiêu thụ, owner chọn được hướng mà không phải ngồi xem đồng bộ — đo bằng số lần gọi người từ mở bước phân kỳ tới tin mời Cổng 1, hình thức từng lần (sync/async), và đường lệch canvas ↔ bản thật khi tới Cổng 1.
+- Kết quả nào là SỐNG: ≤ 2 lần gọi người, cả hai không đồng bộ (sync chỉ khi owner opt-in có tên); chấm chọn-hướng được trả lời thật trên vật nhìn được; Cổng 1 không trả lại vì «sản phẩm khác canvas»; bề mặt phải giữ đồng bộ với code vẫn = 1; số thứ S4 đo trên DOM thật không giảm so với vòng gần nhất cùng repo.
+- Kết quả nào là CHẾT: phải mời sync ≥ 1 lần không do owner chọn, HOẶC owner chọn hướng trên canvas rồi Cổng 1 trả lại vì bản thật lệch, HOẶC máy kê «chỉ 1 hướng» để né bước phân kỳ và bị owner veto ≥ 1 lần trong ván — bất kỳ một cái nào là chết.
+- Timebox: hết ván thử kế đầu tiên (feature UI kế tiếp ở repo tiêu thụ), muộn nhất 2026-09-30; tới hạn chưa có ván nào chạy trọn → `decision: park`, không để Cổng Giá trị treo.
 
 ## Kết quả prototype
 
