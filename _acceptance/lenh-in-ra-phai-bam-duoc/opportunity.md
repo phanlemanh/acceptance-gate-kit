@@ -50,8 +50,8 @@ Owner bấm lệnh trên thẻ/câu trả lời của kit mà lệnh không kh�
 
 ## Phạm vi chip D sau lọc TRỪ/CỘNG (red-team giả định 2)
 
-**GIỮ (TRỪ / sửa đúng):** mục 1 (48 điểm + uat-session + bảng) · mục 2 cờ đỏ baseline oan → không đỏ · mục 3 bỏ cờ
-ngưỡng/biên dò dấu · bỏ cờ info glossary-base · C1 dòng bỏ lệch gạch nối · C3 bỏ «metric» khỏi `_Avoid_` ·
+**GIỮ (TRỪ / sửa đúng):** mục 1 (48 điểm + uat-session + bảng) · mục 2 cờ đỏ baseline oan → không đỏ · ~~mục 3 bỏ cờ
+ngưỡng/biên~~ (GIỮ — P143 là đối chứng dương, d-4509) · bỏ cờ info glossary-base · C1 dòng bỏ lệch gạch nối · C3 bỏ «metric» khỏi `_Avoid_` ·
 B3 `decided_at` stub duong-do (owner xác nhận) · B5 dời khối START-HIEU-KET.
 **TÁCH — là CỘNG, hồ sơ riêng:** B1 (+lối bàn giao ý cân nhắc ở `/start` bước 4) · B2 (+khoá frontmatter tuổi ý)
 · B4 (+placeholder/nhãn) · C4 (khuôn «(tuỳ chọn) kèm entry») · C2 (heading tiền tố — chốt có chủ ý, không sửa).

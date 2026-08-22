@@ -47,10 +47,10 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/gate-card.js, tests/plugins/lenh-bam-duoc.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: [LB5]" — fixture AC chứa "≥ 13" → 0 cờ ngưỡng/biên; 0 cờ glossary-base; cây thật
-      A/B/C: gate-card CŨ (git show origin/main, đặt đúng scripts/gate-card.js trong bản sao cây) vs MỚI, so
-      TẬP thông điệp: cũ∖mới ⊆ {baseline n-a, ngưỡng/biên, --glossary-base}; mới∖cũ = ∅; gộp ba hồ sơ mỗi
-      loại ≥ 1 lần trong cũ (đối chứng dương).
+      exit 0; stdout có "PASS: [LB5]" — fixture CONTEXT.md có mặt, không --glossary-base → 0 cờ glossary-base
+      (bản cũ: 1); cây thật A/B/C: gate-card CŨ (git show origin/main, đặt đúng scripts/gate-card.js trong bản
+      sao cây) vs MỚI, so TẬP thông điệp: cũ∖mới ⊆ {baseline n-a, --glossary-base}; mới∖cũ = ∅; gộp ba hồ sơ
+      mỗi loại ≥ 1 lần trong cũ (đối chứng dương). Cờ ngưỡng/biên GIỮ (P143 đã canh).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
     criterion: AC-6

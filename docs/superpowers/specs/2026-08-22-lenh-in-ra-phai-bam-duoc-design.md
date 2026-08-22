@@ -28,7 +28,9 @@ feature-loop, uat-session), `scripts/gate-card.js`, `CONTEXT.md`, một stub cơ
 ## Mục 2–3 — TRỪ nhiễu trên thẻ (gate-card.js)
 
 - Analyst `n-a` **có lý do** (≥ 20 ký tự sau `n-a`) → không cờ đỏ; Analyst rỗng/vắng → cờ như cũ.
-- Bỏ cờ «AC-n có ngưỡng/biên nhưng chưa có ca dưới ngưỡng» (dò bằng dấu ≥/số trong chữ — chưa từng bắt lỗi thật).
+- ~~Bỏ cờ «AC-n có ngưỡng/biên…»~~ — **GIỮ** (sửa ở S1 sau khi soi thước cũ): ca P143 của hồ sơ `context-ladder`
+  là đối chứng dương chứng minh cờ bắt được AC thiếu ca âm thật (8/8 AC context-ladder từng dính). Nhiễu ở chip C
+  là vì AC nhắc số đếm trong chữ — việc của người viết AC, không phải của cờ. Tôi đã đoán sai ở rà soát.
 - Bỏ cờ info «repo có CONTEXT.md nhưng thẻ chưa được truyền --glossary-base» (nói với agent, không với người).
 - Thước quan hệ: render ba thẻ thật A/B/C bằng gate-card CŨ (từ `origin/main`) và MỚI → số cờ mới < cũ ở cả ba.
 
