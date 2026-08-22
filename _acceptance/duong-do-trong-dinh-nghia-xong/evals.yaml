@@ -1,0 +1,104 @@
+schema_version: 1
+feature_slug: duong-do-trong-dinh-nghia-xong
+# Mọi eval ghim đích danh "PASS: [DD<n>]" trong stdout suite plugins. Ca ở
+# tests/plugins/duong-do.test.mjs: fixture CODE-SINH từ khuôn (contract: frontmatter +
+# khối CONTRACT-DUONG-DO-TEMPLATE; opportunity: OPP-FRONTMATTER-TEMPLATE + section Ngưỡng
+# rút từ khuôn), chạy gate-card.js THẬT (--extract + HTML); chiều đỏ cùng ca trên bản
+# sao, ghim thông điệp (MEASURE-BIRTH-CLAUSE).
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/gate-card.js, tests/plugins/duong-do.test.mjs, skills/acceptance/references/contract-template.md]
+    expected: >
+      exit 0; stdout có "PASS: [DD1]" — R+: opportunity ngưỡng điền + contract section thật →
+      extract duong_do == {applicable:true, present:true, lines:[≥1], descoped:null}; HTML có
+      nhãn «Đường đo» và đúng dòng; 0 cờ chứa «Đường đo»; applicable == (HTML có khối «Ngưỡng
+      nghiệm thu») — assert này chạy ở MỌI fixture DD1–DD4; fixture biên 1 dòng thật + 3 «…» →
+      applicable:true ở cả hai bên. Đối chứng trước mọi ca đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/gate-card.js, tests/plugins/duong-do.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [DD2]" — R−: (a) gỡ section → present:false, lines:[], đúng 1 cờ
+      vàng ghim "chưa có đường đo" + nêu cả hai lối (thêm section / entry «bỏ đường-đo — »);
+      (b) section chỉ {{placeholder}} → present:true, lines:[], cùng cờ; (c) section chỉ có dòng
+      Bỏ (rút từ dòng mẫu khuôn) mà không entry → present:true, lines:[], cùng cờ; không khối.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/gate-card.js, tests/plugins/duong-do.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [DD3]" — R0: (a) không opportunity; (b) opportunity ngưỡng toàn «…»
+      → applicable:false VÀ HTML không có khối «Ngưỡng nghiệm thu»; 0 cờ chứa «Đường đo» dù
+      contract có section thật; khối «Đường đo» VẪN IN với đúng dòng (chiều chốt AC-3).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/gate-card.js, tests/plugins/duong-do.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [DD4]" — RK: entry descope «bỏ đường-đo — …» (tiền tố rút từ gate-card,
+      không literal) trên fixture (a) gỡ section và (d) section chỉ dòng Bỏ → descoped == id,
+      lines:[], không khối, cờ info ghim "Đã bỏ đường đo theo <id>" + "CHƯA ĐO", 0 cờ vàng;
+      seam: «bỏ đường đo — » (không gạch nối) và type:"approach" → vẫn cờ vàng, descoped:null.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [skills/acceptance/references/contract-template.md, scripts/gate-card.js, tests/plugins/duong-do.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [DD5]" — khối CONTRACT-DUONG-DO-TEMPLATE có heading + dòng mẫu bullet
+      + dòng mẫu bỏ; heading rút từ khối == DUONG_DO_HEADING của gate-card (rút bằng regex trên
+      nguồn); tiền tố bỏ trong khuôn == DUONG_DO_DESCOPE; bản sao khuôn đổi heading → đỏ nêu hai chuỗi.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [feature-loop/skills/feature-loop/SKILL.md, tests/plugins/duong-do.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [DD6]" — phạm vi CẮT ĐÚNG (bullet contract S1#4; ý (4) S1#7) rồi ma
+      trận viết trước 6 mệnh đề, mỗi mệnh đề đếm hit trong phạm vi == 1 (đối chứng: kim không
+      khớp chỗ khác); tiền tố auto-draft RÚT từ SKILL == DUONG_DO_DESCOPE rút từ gate-card (không
+      literal trong test); reader chạy trên bản sao gỡ từng mệnh đề → ASSERT đỏ nêu mệnh đề; bản
+      sao đổi tiền tố → đỏ nêu hai chuỗi.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [CONTEXT.md, tests/plugins/duong-do.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [DD7]" — CONTEXT.md có «**Đường đo**» dưới «### Evidence vocabulary»
+      với định nghĩa nhắc thước/ngưỡng/số đo và _Avoid_ chứa tracking + metric; gỡ term → đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [scripts/gate-card.js]
+    expected: exit 0 — suite scripts hồi quy (gate-card có ca P-series cũ).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.hooks
+    paths: [scripts/gate-card.js]
+    expected: exit 0 — suite hooks hồi quy.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.workflows
+    paths: [feature-loop/skills/feature-loop/SKILL.md]
+    expected: exit 0 — suite workflows hồi quy (SKILL.md có ca khớp khối runtime).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

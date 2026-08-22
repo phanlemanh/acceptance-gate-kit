@@ -79,6 +79,21 @@ decisions.jsonl. Thiếu/trống section này = cờ vàng trên card Gate 1.}}
 - Trục: {{Trục A: v1 | v2 | v3 [thước CE: nguồn đối chiếu]}}
 - {{... | "Bỏ coverage-scan — <lý do 1 dòng> (entry d-...)"}}
 
+<!-- <<<CONTRACT-DUONG-DO-TEMPLATE -->
+## Đường đo
+
+{{CHỈ khi hồ sơ có `opportunity.md` với ngưỡng đã khai (vòng đi từ Cổng Đáng). Mỗi thước
+đã khai một dòng — thước · con số đến từ đâu trong sản phẩm · AC nào bảo đảm nó tồn tại
+(hoặc «đã có sẵn: <nguồn>»). Đường đo là VẬT: phải viết code mới thì biến nó thành một AC
+bình thường rồi trỏ tới. Vòng không có hồ sơ cơ hội: xoá section này. Hồ sơ có ngưỡng mà
+thiếu section = cờ vàng trên thẻ Cổng Phạm vi (không chặn); bỏ thì ghi đúng dòng bỏ dưới
+đây VÀ entry `descope` cùng tiền tố trong decisions.jsonl — dòng bỏ không phải đường đo.
+Bullet dùng dấu `-` (bộ đọc thẻ chỉ nhận `-`).}}
+
+- Thước: {{tên thước}} · số từ: {{event / counter / truy vấn / bảng đếm}} · bảo đảm bởi: {{AC-n | đã có sẵn: nguồn}}
+- {{... | "bỏ đường-đo — <lý do 1 dòng> (entry d-...)"}}
+<!-- CONTRACT-DUONG-DO-TEMPLATE>>> -->
+
 ## Out of scope
 
 {{Bullet list of things a reviewer might expect but this feature deliberately

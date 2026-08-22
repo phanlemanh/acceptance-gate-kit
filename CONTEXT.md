@@ -245,6 +245,13 @@ _Avoid_: bug, lỗi trình bày.
 
 ### Evidence vocabulary
 
+**Đường đo**:
+Thứ trong sản phẩm sinh ra con số cho một thước đã khai — event, counter, truy
+vấn, bảng đếm. Khác **thước** (đo cái gì), **ngưỡng** (bao nhiêu là SỐNG) và
+**số đo** (con số thật đặt cạnh ngưỡng ở Cổng Giá trị). Khai ở contract
+`## Đường đo`, chỉ khi vòng có hồ sơ cơ hội với ngưỡng (22/08).
+_Avoid_: tracking, analytics, metric (metric là *thước*, không phải đường).
+
 **Residual**:
 Nhiễu in-scope còn lại sau khi eval chạy (console error, request fail thuộc
 app) — là FAIL máy theo §3.4.2-r5/§7.4, không phải việc của `human_override`.
