@@ -1,0 +1,92 @@
+schema_version: 1
+feature_slug: lenh-in-ra-phai-bam-duoc
+# Mọi eval ghim "PASS: [LB<n>]" trong stdout suite plugins. Ca ở tests/plugins/lenh-bam-duoc.test.mjs:
+# bảng rút từ marker, vật thật đọc từ thư mục + plugin.json lúc chạy, chiều đỏ trên bản sao, ghim thông điệp.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [skills/acceptance/references/human-facing-language.md, .claude-plugin/plugin.json, feature-loop/.claude-plugin/plugin.json, tests/plugins/lenh-bam-duoc.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LB1]" — bảng ⊆ vật thật: tiền tố == name plugin.json, vật tồn tại; harness chỉ
+      trong ALLOW=[goal]; ba chiều đỏ: dòng foo → "không có vật"; plugin.json name đổi → "tiền tố lệch";
+      dòng harness bar → "ngoài danh sách ngoại lệ".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [commands, skills/acceptance, skills/uat-session, feature-loop/skills/feature-loop/SKILL.md, scripts/gate-card.js, scripts/evidence-page.js, tests/plugins/lenh-bam-duoc.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LB2]" — 12 file có mặt (assert vũ trụ); 0 token trần, 0 uat-session thiếu tiền tố
+      ngoài bảng; mọi lệnh in ra ∈ cột bấm-được; chiều đỏ: chèn `/start` vào start.md → đỏ nêu file:dòng;
+      chèn `uat-session <slug>` → đỏ nêu file:dòng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [skills/acceptance/references/human-facing-language.md, tests/plugins/lenh-bam-duoc.test.mjs]
+    expected: 'exit 0; stdout có "PASS: [LB3]" — đúng 1 câu luật nhắc COMMAND-NAMES; gỡ → đỏ.'
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/gate-card.js, tests/plugins/lenh-bam-duoc.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LB4]" — fixture Gate 2 (contract verified + evidence PASS): Analyst "n-a — lý do…"
+      → 0 cờ đỏ baseline; Analyst rỗng → có cờ (R−); gate-card thật trên fixture.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/gate-card.js, tests/plugins/lenh-bam-duoc.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LB5]" — fixture AC chứa "≥ 13" → 0 cờ ngưỡng/biên; 0 cờ glossary-base;
+      cây thật: ba hồ sơ A/B/C, gate-card CŨ (git show origin/main) vs MỚI → số cờ mới < cũ ở cả ba.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/gate-card.js, tests/plugins/duong-do.test.mjs, tests/plugins/lenh-bam-duoc.test.mjs]
+    expected: 'exit 0; stdout có "PASS: [LB6]" và "PASS: [DD2]" "PASS: [DD4]" — «Bỏ đường đo —» không gạch = dòng bỏ.'
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [CONTEXT.md, skills/uat-session/SKILL.md, tests/plugins/duong-do.test.mjs, tests/plugins/lenh-bam-duoc.test.mjs]
+    expected: 'exit 0; stdout có "PASS: [LB7]" và "PASS: [DD7]" — _Avoid_ không metric; uat-session không «tracking»; bản sao thêm lại metric → đỏ.'
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [commands/start.md, _acceptance/duong-do-trong-dinh-nghia-xong/opportunity.md, tests/plugins/lenh-bam-duoc.test.mjs]
+    expected: 'exit 0; stdout có "PASS: [LB8]" và "PASS: [VC6]" — vị trí khối + dòng ghi chú decided_at.'
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [scripts/gate-card.js]
+    expected: exit 0 — suite scripts hồi quy.
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E10
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.hooks
+    paths: [scripts/gate-card.js]
+    expected: exit 0 — suite hooks hồi quy.
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E11
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.workflows
+    paths: [feature-loop/skills/feature-loop/SKILL.md]
+    expected: exit 0 — suite workflows hồi quy.
+    evidence_required: [run_id, exit_code, verifier, verified_at]
