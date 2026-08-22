@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent (đường VERIFY độc lập, 6 lệnh chạy tuần tự — quyết định d-4308)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 8819318986af709d6934ec647813b479188d054b
+verified_commit: 60b7cf38fa839a6a8b0c6ce1a78b56882287c1c0
 human_signoff: Manh Phan 2026-08-22 — ký với known-limits đã khai; 4 finding ngoài hợp đồng (review-findings.md) là ứng viên hồ sơ T2 kế: bỏ «metric» khỏi _Avoid_ + nới nhận diện dòng bỏ
 ---
 
@@ -189,3 +189,7 @@ S3 trước đó: 5 ca cũ đỏ → sửa theo lớp; reviewer 2 finding trong 
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter
+
+### Re-pin lần 1 — 2026-08-22, do sửa ca VC8 sau chữ ký (CI đỏ: ca của hồ sơ #82 ghim chặng của hồ sơ này)
+run_id: repin-duong-do-trong-dinh-nghia-xong-20260822T014349Z
+sha: 60b7cf38fa839a6a8b0c6ce1a78b56882287c1c0 · suites: 4 lệnh exit 0 + product-map --check khớp
