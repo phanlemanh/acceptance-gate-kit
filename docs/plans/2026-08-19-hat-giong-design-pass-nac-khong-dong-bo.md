@@ -23,8 +23,9 @@ máy quyết bằng chữ trong design-doc, trong khi chỉ owner biết «đún
 **một nghi thức, đổi nấc mặc định sang không đồng bộ (đồng bộ là opt-in có
 tên), thêm bước phân kỳ có điều kiện bằng canvas `/design`** (vật dựng có tên
 trong thang, không bao giờ vào chuỗi bằng chứng), **+0 skill ở kit**; repo tiêu
-thụ xếp kho `interactive-prototype`. Ván thử chạy TRƯỚC trên b1 dưới dạng lệch
-có tên; kit đổi SAU, lấy b1 làm bằng chứng.
+thụ xếp kho `interactive-prototype`. Ván thử chạy TRƯỚC ở repo tiêu thụ dưới
+dạng lệch có tên; kit đổi SAU, lấy ván thử làm bằng chứng (ván đầu b1 đã dừng
+19/08 — 4.3; ván kế — mục 5).
 
 ## 1. Ý định và mục tiêu đo được (đã đóng khung với owner 19/08)
 
@@ -76,6 +77,28 @@ Ba giả định dễ tự lừa đã kiểm:
   `/design` (đội viên không có quyền) → máy khuyên một hướng kèm căn cứ, ghi
   entry, đi tiếp, người veto — đảo rẻ nên veto-default.
 
+### 2b. Bốn nguyên tắc «ý định ↔ bàn giao» (rút 20/08, nguồn của mục 3 và 3b)
+
+Bài toán thiết kế không giải bằng «hỏi kỹ hơn» — owner không biết trọn mình
+muốn gì cho tới khi thấy thứ mình *không* muốn. Lời giải là bốn nguyên tắc xếp
+theo thứ tự:
+
+1. **Ý định chốt trên vật nhìn được, không chốt bằng chữ** — thang độ nhiễu:
+   chữ → ảnh/canvas → vật bấm được; chọn nấc rẻ nhất *đủ cho quyết định đang mở*.
+2. **Đưa khoảnh khắc chốt về điểm sửa còn rẻ** — lệch phát hiện ở phân kỳ =
+   sửa một artboard; ở Cổng 1 = vá proto; ở bàn giao = làm lại cả vòng. Giá trị
+   của bước phân kỳ là kinh tế của *thứ tự*, không phải của công cụ.
+3. **Khoảng cách vật-duyệt ↔ vật-giao phải được KHAI và ĐO, không hứa bằng 0**
+   — thang vật liệu khai báo · số đo độ lệch canvas↔ruột tạm · S4 đo DOM thật;
+   cách thu hẹp bền nhất là cấu trúc: ruột tạm dựng bằng đúng component S3 sẽ
+   dùng, vật duyệt *là* một phần vật giao.
+4. **Phản ứng của người phải thành vật tích luỹ** (note / comment / diff) — máy
+   gánh phần nhớ, người chỉ phán phần mới.
+
+Hai điều cố ý để ngoài: **cảm giác tương tác** chỉ kênh đồng bộ truyền được (vì
+thế nấc 3 là opt-in chứ không bị xoá); **ý định của owner ≠ giá trị với người
+dùng cuối** — lưới cuối là Cổng Giá trị trên sản phẩm thật, ngoài phạm vi ô này.
+
 ## 3. Nghi thức sau khi đổi (đề xuất cho kit — TRỪ/CỘNG minh bạch)
 
 **Giữ nguyên:** vai S1-D trước Cổng 1 · luật cứng (không hex mới, không webfont,
@@ -89,8 +112,10 @@ không sửa component nền, không logic/đường ghi) · thang vật liệu
    gói; người mở lúc rảnh, trả một chạm / một câu; máy làm vòng kế khi người
    rảnh. **Đồng bộ là opt-in có tên**: khi tương tác là thứ cần duyệt (kéo-thả,
    chạm) và người chủ động gọi. Câu «phiên đòi owner ngồi xem trực tiếp; owner
-   async chưa nằm trong phạm vi» bị gỡ. Khoá mới trong ghi vết: `reaction:
-   async|sync`.
+   async chưa nằm trong phạm vi» bị gỡ. Khoá mới trong ghi vết: `reaction:`
+   ghi **nấc + kênh** theo thang 4 nấc ở mục 3b.6 (vd `reaction: async-proto
+   (note, comment)` · `reaction: sync (chủ đề: chạm vị trí)`); `async|sync`
+   trần là bản 19/08, đọc-cũ hợp lệ.
 2. **Bước phân kỳ có điều kiện, trước vòng phản ứng.** Máy kê từ design-doc: có
    ≥2 hướng khả dĩ (rule đáng-log) → dựng canvas `/design` 2–3 hướng thật sự
    khác nhau (token/component thật của repo; ≤8 artboard; tương tác bấm được

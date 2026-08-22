@@ -25,6 +25,7 @@ Nghi thức S1-D (`design-pass`, không đổi từ 2.2.0 tới 2.3.0) đòi own
 | 3 | Rule đáng-log («≥2 hướng mà máy không tự chắc») không bị máy tự kê «chỉ 1 hướng» để né bước | cửa miễn bị lạm dụng đúng như huashu phải đóng 07/18 | vết một dòng bắt buộc khi bỏ; đếm số lần bỏ-phân-kỳ bị owner veto | Chưa thử |
 | 4 | Bước phân kỳ hỏi đúng tầng — b1 cho thấy owner quyết «plugin có đáng tồn tại» trên ảnh bề mặt thật, trong khi canvas hỏi «phiếu khuyên đứng đâu» | canvas tiêu giờ máy cho một câu hỏi đã chết | mở phân kỳ bằng ảnh bề mặt thật hiện có TRƯỚC khi bày hướng mới | Chưa thử (bài học b1) |
 | 5 | `/design` preview đủ ổn để là vật dựng có tên trong thang, không phải phụ thuộc | thiếu `/design` rơi về nấc file-local hoặc khuyên-một-hướng vẫn chạy được | chạy một ván ở nấc thấp | Chưa thử |
+| 6 | Có một ván thử kế (feature chạm UI ở repo tiêu thụ) trong timebox để Cổng Giá trị có số — ô này là vòng kit tự-dùng, người dùng cuối là owner/PM repo tiêu thụ | Cổng Giá trị treo vô hạn như `duong-do-trong-dinh-nghia-xong` (lỗ «vòng kit tự-dùng không có chặng bàn giao», chưa có ô) | khai thẳng trong Ngưỡng: phiên nghiệm thu = ván thử kế; timebox = hết ván mà không có số thì `park` | Chưa thử — 22/08 chưa có ứng viên |
 
 ## Ngưỡng chết / ngưỡng UAT
 
@@ -51,6 +52,7 @@ Ván thử b1 (artifact-platform, `trang-tu-van-v2-r4-b1`, 19/08, lệch có tê
 
 - **decision = …** Căn cứ: …
 - **disposition = …** Căn cứ: ô này không có prototype code trong kit (ván thử sống ở repo tiêu thụ) — …
+- **Phiên nghiệm thu ở đâu:** ván thử kế ở repo tiêu thụ (lệch có tên trên engine đã đổi) — số đo là năm thước dưới; không có ván trong timebox thì Cổng Giá trị không có gì để đọc.
 - **Ngưỡng UAT chốt cùng lúc ký:** …
 
 ## Thước đo thành công → ứng viên criterion
@@ -71,3 +73,4 @@ Năm thước của đề bài (mục 1 hạt giống), mỗi thước phải th
 - Không gộp chấm chọn-hướng và Cổng 1 vào một tin — bác (owner 11–12/08: khuôn nhiều chỗ trống vẫn là nhiều quyết định).
 - Không hard-gate 100% «ba phương án» kiểu huashu — bác: thành trạm thu phí với bề mặt theo khuôn; vết một dòng + veto-default thay thế.
 - Xếp kho `interactive-prototype` ở repo tiêu thụ là việc của repo sau khi kit phát hành — không thuộc ô này.
+- Không đổi lưới trước-merge, phép đo, workflow S4 — ô này là đổi LỜI một skill + thẻ Cổng 1 đọc thêm một khoá (đường đọc-cũ: thiếu khoá → cờ vàng).
