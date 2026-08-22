@@ -3,13 +3,13 @@ schema_version: 1
 slug: design-pass-nac-khong-dong-bo
 feature: design-pass nấc không đồng bộ — người chọn hướng trên vật nhìn được, không phải hẹn giờ ngồi xem; bước phân kỳ có điều kiện + thang phản ứng 4 nấc
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-08-22T14:27:57Z     # ISO UTC
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
-  disposition:     # keep | archive
+  disposition: archive     # keep | archive
 ---
 
 ## Vấn đề & ai gặp
@@ -57,10 +57,11 @@ Ván thử b1 (artifact-platform, `trang-tu-van-v2-r4-b1`, 19/08, lệch có tê
 > này được máy quét xếp vào S1 như `build` — «khám thêm» = chưa ký, không phải
 > ký `iterate`.
 
-- **decision = …** Căn cứ: …
-- **disposition = …** Căn cứ: ô này không có prototype code trong kit (ván thử sống ở repo tiêu thụ) — …
+- **decision = build** Căn cứ: ba nguồn độc lập hội tụ (owner 16/08 · huashu · `/design`), việc còn lại là đổi lời một skill + thẻ Cổng Phạm vi đọc thêm một khoá (đảo rẻ, đọc-cũ cờ vàng); tín hiệu thực địa thật (b1 bỏ nghi thức); rủi ro không có ván thử đã chặn bằng timebox 30/09 → park. Khám thêm 22/08 (phiên Huashu + bộ hình 19/08 + nghiên cứu skill UX/IA) không lật điều gì. Ký 2026-08-22, Manh Phan.
+- **disposition = archive** Căn cứ: ô này không có prototype code trong kit (ván thử sống ở repo tiêu thụ) — không có gì để giữ; canvas b1 ở artifact-platform là bằng chứng, không kế thừa.
 - **Phiên nghiệm thu ở đâu:** ván thử kế ở repo tiêu thụ (lệch có tên trên engine đã đổi) — số đo là năm thước dưới; không có ván trong timebox thì Cổng Giá trị không có gì để đọc.
-- **Ngưỡng UAT chốt cùng lúc ký:** …
+- **Ngưỡng UAT chốt cùng lúc ký:** chép nguyên bốn dòng của section «Ngưỡng chết / ngưỡng UAT» — câu hỏi: trên MỘT feature chạm UI ở repo tiêu thụ, owner chọn được hướng mà không phải ngồi xem đồng bộ · SỐNG: ≤ 2 lần gọi người, cả hai không đồng bộ; chọn-hướng được trả lời thật trên vật; Cổng Phạm vi không trả lại vì «sản phẩm khác canvas»; bề mặt giữ đồng bộ với code = 1; số đo S4 trên DOM thật không giảm · CHẾT: mời sync ≥ 1 không do owner chọn, HOẶC chọn trên canvas rồi bản thật lệch, HOẶC máy né bước phân kỳ bị veto ≥ 1 · Timebox: hết ván thử kế, muộn nhất 2026-09-30 → park.
+- **Con trỏ bậc 1 (22/08):** bước phân kỳ mở từ **bản đặc tả UX** (bản đồ màn & luồng + bảng trạng thái, vẽ bằng bộ vẽ kit, duyệt một chạm trước canvas) khi ô `dac-ta-ux-vat-hoa-cau-truc` ship; trước đó mở từ design-doc. Canvas chỉ khi còn ≥ 2 hướng.
 
 ## Thước đo thành công → ứng viên criterion
 
@@ -71,6 +72,7 @@ Năm thước của đề bài (mục 1 hạt giống), mỗi thước phải th
 - Số skill thiết kế phải nuôi: kit giữ 1 nghi thức + 1 sàn; repo tiêu thụ −1 (`interactive-prototype` xếp kho sau).
 - Thứ S4 đo được trên DOM thật **không giảm**.
 - Thời gian lịch từ mở bước phân kỳ đến tin mời Cổng 1 (đổi giờ-người lấy thời-gian-lịch là đánh đổi phải nhìn thấy số).
+- Số lần **làm lại cấu trúc sau Cổng Phạm vi** (entry approach/descope chạm luồng/màn) — đích 0 (thêm 22/08, từ thang bốn tầng; đo chung với ô `dac-ta-ux-vat-hoa-cau-truc`).
 
 ## Out of scope từ khám phá
 
