@@ -28,10 +28,10 @@ Với feature chạm UI, kit có đủ cổng nhưng **thiếu một vật**: kh
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: …
-- Kết quả nào là SỐNG: …
-- Kết quả nào là CHẾT: …
-- Timebox: …
+- Câu hỏi phép đo trả lời: Trên MỘT feature chạm UI ở repo tiêu thụ, máy có khai cấu trúc (luồng · màn · trạng thái · hành vi · xuất xứ component) trong khuôn có đánh dấu TRƯỚC khi ai nhìn, và owner có quyết được cấu trúc trên hình vẽ từ khuôn đó — đo bằng số lần làm lại cấu trúc sau Cổng Phạm vi, độ khớp vòng bảng trạng thái khai trước ↔ phép đo trạng thái S4, và vết khuôn/miễn trên từng feature đi qua lưới trong ván.
+- Kết quả nào là SỐNG: khuôn điền đủ, có đánh dấu, trước bước phân kỳ/ruột tạm và hình tầng 1 vẽ từ khuôn (không vẽ tay); entry approach/descope chạm luồng/màn sau Cổng Phạm vi = 0 và Cổng Phạm vi không trả lại vì cấu trúc khác ý (trả vì da/chữ không tính); mọi trạng thái khai trước có phép đo S4 và mọi phép đo trạng thái trỏ về một dòng bảng (khớp vòng 100%) — phá một trạng thái trong bản sao thì phép đo phải đỏ; máy điền khuôn trong một lượt, 0 lần gọi owner để điền, khuôn ≤ 1 trang; feature không chạm UI đi qua lưới trong ván: 0 cờ.
+- Kết quả nào là CHẾT: máy né khuôn — khai «miễn» hoặc viết cấu trúc ngoài khuôn cho feature chạm UI rồi bị owner veto ≥ 1 lần, hoặc bỏ khuôn bằng entry descope khi vội; HOẶC bảng trạng thái trôi khỏi phép đo — S4 đo một trạng thái không có trong bảng / bảng khai một trạng thái không ai đo mà phép đo khớp vòng vẫn xanh (mutant không đỏ); HOẶC owner đã duyệt cấu trúc trên hình rồi Cổng Phạm vi vẫn trả lại vì cấu trúc ≥ 1 lần — bất kỳ một cái nào là chết.
+- Timebox: hết ván thử kế đầu tiên (feature chạm UI kế tiếp ở repo tiêu thụ, chung ván với `design-pass-nac-khong-dong-bo`), muộn nhất 2026-09-30; tới hạn chưa có ván nào chạy trọn → `decision: park`, không để Cổng Giá trị treo.
 
 ## Kết quả prototype
 
