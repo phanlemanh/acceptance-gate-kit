@@ -1,20 +1,22 @@
 ---
 schema_version: 1
-feature: Phát hành kit 2.3.0 — đóng số cho sáu hồ sơ đã ký 18–22/08 (hồ sơ chưa arm cổng · hết giờ ≠ trượt · tool-kill một nguồn · làn V không phải chờ ký · repo khai plugin · vào có ô ra có tên · đường đo) để repo tiêu thụ nhận engine mới theo mốc có chủ đích
+feature: Phát hành kit 2.3.0 — đóng số cho bảy hồ sơ đã ký 18–22/08 (hồ sơ chưa arm cổng · hết giờ ≠ trượt · tool-kill một nguồn · làn V không phải chờ ký · repo khai plugin · vào có ô ra có tên · đường đo) để repo tiêu thụ nhận engine mới theo mốc có chủ đích
 slug: release-2-3-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 2 manifest + dòng khớp-phiên-bản GUIDE + workspace hồ sơ + bản đồ — không dính t3_paths, không đổi mã cổng
 surfaces: [cli]
-status: draft
+status: approved
 approved_by:
 approved_at:
+veto_state: mo
+veto_opened_at: 2026-08-22T02:31:44Z
 ---
 
 # Acceptance Contract: release-2-3-0
 
 ## Context
 
-Repo tiêu thụ đang chạy plugin **2.2.0** (18/08). Kể từ đó sáu hồ sơ đã ký và gộp, bề mặt
+Repo tiêu thụ đang chạy plugin **2.2.0** (18/08). Kể từ đó bảy hồ sơ đã ký và gộp, bề mặt
 engine đổi 18 file (+622/−87) mà **không đổi schema, không cần migrate**:
 
 - `status-chua-arm-cong` (#66) — hồ sơ có bằng chứng mà status chưa arm cổng không còn tàng hình.
@@ -39,7 +41,7 @@ Source input: `git log aa130478..b446d8ca` (18 PR #66–#83) · nếp phát hàn
 
 ## Coverage
 
-- Quét theo hai trục của nếp release-2-1-0/2-2-0, không quét lại: Trục A · vật của một lần cắt số (manifest | dòng khớp-phiên-bản | mô tả người-dùng-nhận-gì | phạm vi diff) [thước CE: hai mốc trước đã dùng thật] · Trục B · hành trình hồ sơ (làn V mở | bằng chứng | biên merge) [thước CE: `xanh_sach_check` + ADR 0012]. Ô Core → AC-1 · AC-2 · AC-3 · AC-6; không ô mới (entry d-20260822T020000Z-4401).
+- Quét theo hai trục của nếp release-2-1-0/2-2-0, không quét lại: Trục A · vật của một lần cắt số (manifest | dòng khớp-phiên-bản | mô tả người-dùng-nhận-gì | phạm vi diff) [thước CE: hai mốc trước đã dùng thật] · Trục B · hành trình hồ sơ (làn V mở | bằng chứng | biên merge) [thước CE: `xanh_sach_check` + ADR 0012]. Ô Core → AC-1 · AC-2 · AC-3 · AC-6; không ô mới (entry d-20260822T020100Z-4402).
 
 ## Đường đo
 

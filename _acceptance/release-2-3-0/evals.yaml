@@ -10,8 +10,8 @@ evals:
     expected: >
       Suite in «PASS: P200 …» và «P200 OK (so doc tu manifest …; 5/5 dot bien chay that …)»;
       các dòng vế: «hai plugin cung so: 2.3.0» và ba dòng «hop semver» (2.3.0 · 2.3.0 · 2.5.0).
-      Chiều đỏ trên cây thật chạy tay: feature-loop đặt 9.9.9 → «P200 LOI: cay that: hai plugin
-      lech so» exit 1; cây nguyên vẹn exit 0.
+      Chiều đỏ sống trong chính P200 (5 đột biến + đối chứng dương bản sao nguyên vẹn) — không
+      có bước chạy tay nào trong eval này.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
     criterion: AC-2
@@ -37,8 +37,11 @@ evals:
     criterion: AC-3
     executor: test
     cmd: config:executors.test.plugins
-    expected: "suite plugins XANH (P200 + PD1–PD11 + VC1–VC8 + DD1–DD7 của ba hồ sơ trong mốc chạy ở đây)"
-    evidence_required: [run_id, exit_code, verifier, verified_at]
+    expected: >
+      suite plugins XANH; ba bộ ca của ba hồ sơ trong mốc PHẢI hiện diện — stdout có đúng ba dòng
+      chốt cuối mỗi bộ: «PASS: [PD11]», «PASS: [VC8]», «PASS: [DD7]» (thiếu một dòng = đỏ; cùng
+      lượt chạy với E1, không tốn lượt).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3d
     criterion: AC-3
     executor: test
