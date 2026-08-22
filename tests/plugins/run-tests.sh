@@ -10542,6 +10542,13 @@ for _vc in $_vc_ids; do
     env VC_CASES="$_vc" node "$ROOT/tests/plugins/vao-co-o.test.mjs"
 done
 
+# ─── Hồ sơ duong-do-trong-dinh-nghia-xong: DD1..DD7 (file ca riêng) ───────────
+_dd_ids="$(node "$ROOT/tests/plugins/duong-do.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca DD"; failures=$((failures+1)); _dd_ids=""; }
+for _dd in $_dd_ids; do
+  run "ca duong do — $_dd (ho so duong-do-trong-dinh-nghia-xong)" \
+    env DD_CASES="$_dd" node "$ROOT/tests/plugins/duong-do.test.mjs"
+done
+
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
   echo "ONLY_BLOCK=$ONLY_BLOCK khong khop khoi nao — go sai ten? (fail de khong xanh gia)"

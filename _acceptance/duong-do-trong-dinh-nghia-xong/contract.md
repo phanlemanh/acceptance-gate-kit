@@ -39,7 +39,7 @@ Source input: `docs/plans/2026-08-21-hat-giong-duong-do-trong-dinh-nghia-xong.md
 
 ## Đường đo
 
-- Bỏ đường-đo — hồ sơ kit không có ngưỡng UAT (stub cơ hội giữ `…`, vòng nội bộ engine không có người dùng cuối để đo) (entry d-20260822T000500Z-4306).
+- bỏ đường-đo — hồ sơ kit không có ngưỡng UAT (stub cơ hội giữ `…`, vòng nội bộ engine không có người dùng cuối để đo) (entry d-20260822T000500Z-4306).
 
 ## Out of scope
 

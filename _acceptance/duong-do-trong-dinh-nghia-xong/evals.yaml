@@ -67,7 +67,7 @@ evals:
     paths: [feature-loop/skills/feature-loop/SKILL.md, tests/plugins/duong-do.test.mjs]
     expected: >
       exit 0; stdout có "PASS: [DD6]" — phạm vi CẮT ĐÚNG (bullet contract S1#4; ý (4) S1#7) rồi ma
-      trận viết trước 5 mệnh đề, mỗi mệnh đề đếm hit trong phạm vi == 1 (đối chứng: kim không
+      trận viết trước 6 mệnh đề, mỗi mệnh đề đếm hit trong phạm vi == 1 (đối chứng: kim không
       khớp chỗ khác); tiền tố auto-draft RÚT từ SKILL == DUONG_DO_DESCOPE rút từ gate-card (không
       literal trong test); reader chạy trên bản sao gỡ từng mệnh đề → ASSERT đỏ nêu mệnh đề; bản
       sao đổi tiền tố → đỏ nêu hai chuỗi.
