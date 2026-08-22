@@ -27,8 +27,11 @@ sống), *số đo* (con số thật).
    «Cổng Giá trị sẽ đọc bảng ngưỡng với ô CHƯA ĐO».
 3. **Thẻ Cổng 1** — `gate-card.js`: khối «Đường đo» cạnh «Độ phủ AC» khi có dòng; **cờ vàng**
    khi hồ sơ có ngưỡng mà contract vắng section / chỉ có placeholder, và không có entry bỏ;
-   **cờ info** khi đã bỏ có tên; **không cờ, không khối** khi vòng không có cơ hội hoặc ngưỡng
-   chưa khai (R0 — luật không rò sang vòng B/C/E). `--extract` thêm
+   **cờ info** khi đã bỏ có tên; **không cờ** khi vòng không có cơ hội hoặc ngưỡng chưa khai
+   (R0 — luật không rò sang vòng B/C/E; khối vẫn in nếu contract có dòng thật — thẻ trình cái
+   contract khai, R0 chỉ nói về cờ). Dòng `Bỏ đường-đo — …` trong section KHÔNG phải đường
+   đo: không vào `lines`, không có entry ledger đúng tiền tố thì vẫn cờ vàng. «Áp dụng» = đúng
+   vị từ `ut` của khối «Ngưỡng nghiệm thu» — test ghim quan hệ `applicable ⇔ khối Ngưỡng in`. `--extract` thêm
    `duong_do: {applicable, present, lines, descoped}`.
 4. **Một dòng cross-check gap-probe** — SKILL.md S1#7 ý (4) thêm «ngưỡng nào ở
    `opportunity.md` không có đường đo nào trong contract»; `opportunity.md` vào input của
