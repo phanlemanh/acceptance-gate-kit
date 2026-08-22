@@ -214,7 +214,7 @@ if (want('DD6')) {
     ['②', t => t.replace('`opportunity.md` với ngưỡng đã khai', 'hồ sơ với ngưỡng đã khai')],
     ['③', t => t.replace('bắt đầu đúng chuỗi `"bỏ đường-đo — <lý do', 'bắt đầu đúng chuỗi `"bỏ-dd — <lý do')],
     ['④', t => t.replace('với ô CHƯA ĐO — quyết release', 'với ô trống — quyết release')],
-    ['⑤', t => t.replace(' · ngưỡng nào ở `opportunity.md` không có đường đo nào trong contract', '')],
+    ['⑤', t => t.replace('; ngưỡng nào ở `opportunity.md` không có đường đo nào trong contract', '')],
     ['⑥', t => t.replace(', CỘNG `_acceptance/<slug>/opportunity.md` làm input thứ 6', '')],
   ];
   for (const [id, mut] of MUT) {

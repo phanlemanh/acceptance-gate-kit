@@ -283,7 +283,8 @@ if (want('VC8')) {
     if (/chờ Cổng 0|HẠT GIỐNG|ĐỀ XUẤT/.test(tenFirst)) errs.push(`${s}: 10 dòng đầu còn lời khai trạng thái`);
     if (!tenFirst.includes(`_acceptance/${s}/opportunity.md`)) errs.push(`${s}: 10 dòng đầu thiếu con trỏ tới stub`);
   }
-  if (!(j.groups.inProgress || []).some(x => x.slug === 'duong-do-trong-dinh-nghia-xong' && x.nextStep === 'S1')) errs.push('duong-do không ở inProgress S1');
+  // decided/build → inProgress; KHÔNG ghim nextStep: chip C mở contract là bước kế đổi (S1→S2→S3) mà ô vẫn đúng
+  if (!(j.groups.inProgress || []).some(x => x.slug === 'duong-do-trong-dinh-nghia-xong')) errs.push('duong-do không ở inProgress');
   const cons = slugsIn(j.groups.considering);
   for (const s of NEW.filter(s => s !== 'duong-do-trong-dinh-nghia-xong')) if (!cons.includes(s)) errs.push(`${s} không ở considering`);
   if (errs.length) fail('VC8', errs.join(' · ')); else pass('VC8', 'mọi hạt giống có ô (ba chân, vũ trụ ≥ 13); 7 stub sống; trạng thái sống một chỗ');
