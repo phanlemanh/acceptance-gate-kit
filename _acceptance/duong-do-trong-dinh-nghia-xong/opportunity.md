@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 stage: decided              # discovery | decided | archived
 decision: build        # build | iterate | park | kill — người ký Cổng 0 điền
 decided_by: Manh Phan
-decided_at: 2026-08-21T14:00:00Z    # ISO UTC
+decided_at: 2026-08-21T14:00:00Z    # ISO UTC — mốc XẤP XỈ theo hội thoại «Gật dây A → B → C» 21/08 (máy điền, ±30 phút)
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive

@@ -7,7 +7,7 @@ Initialize the Acceptance-Gate Kit in the current repository.
 
 Một-lượt-gõ + `--repo` (điều khoản chung, chép nguyên văn từ bản luật):
 
-Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người.
+Ba lệnh có-câu-hỏi (`/acceptance-gate:approve` · `/acceptance-gate:signoff` · `/acceptance-gate:start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người.
 
 Lệnh này KHÔNG nằm trong ba lệnh có-câu-gộp; phần áp dụng ở đây là cờ
 `--repo <path>`: scaffold `_acceptance/` và chép bộ file CI vào gốc `<path>`
@@ -71,7 +71,7 @@ executors:
 risk_tiers:
   t1_skip_globs:
     - "<from 2e>"
-    # Bản đồ sản phẩm — máy sinh, và /approve + /signoff commit nó CÙNG commit
+    # Bản đồ sản phẩm — máy sinh, và /acceptance-gate:approve + /acceptance-gate:signoff commit nó CÙNG commit
     # chữ ký. Thiếu dòng này thì chính commit chữ ký làm evidence stale và
     # pre-merge chặn merge, thành vòng không thoát (ADR 0007). Miễn trừ CHỈ an
     # toàn khi repo cũng chạy `executors.script.product_map` trong CI của mình —

@@ -8,11 +8,11 @@ phẩm, không sửa gì, không tự làm nội dung thay nghi thức đích.
 
 Một-lượt-gõ + `--repo` (điều khoản chung, chép nguyên văn từ bản luật):
 
-Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người.
+Ba lệnh có-câu-hỏi (`/acceptance-gate:approve` · `/acceptance-gate:signoff` · `/acceptance-gate:start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người.
 
-Ví dụ một lượt gõ đầy đủ: `/start abc-xyz --repo /duong/dan/repo`
+Ví dụ một lượt gõ đầy đủ: `/acceptance-gate:start abc-xyz --repo /duong/dan/repo`
 
-Câu gộp của lệnh này là chọn-trước bằng slug: `/start <slug>` — vẫn quét máy
+Câu gộp của lệnh này là chọn-trước bằng slug: `/acceptance-gate:start <slug>` — vẫn quét máy
 ở bước 1 như thường, rồi slug nằm trong nhóm nào thì bàn giao thẳng theo lối
 nhóm đó ở bước 4 (không hỏi câu chọn) và HIỂN THỊ LẠI nhóm đã khớp một dòng
 (hồ sơ nào, nhóm nào, đi lối nào) trong cùng lượt trả lời — máy gánh phần
@@ -24,7 +24,7 @@ worktree/nhánh đọc từ git của `<path>`.
 1. **Quét máy, không hỏi người:** chạy
    `node ${CLAUDE_PLUGIN_ROOT}/scripts/start-scan.mjs --root .` → JSON một dòng.
    `config` là `false` → in đúng một dòng: "Repo này chưa dựng cổng nghiệm thu —
-   chạy `/acceptance-init` trước." rồi DỪNG, không quét tiếp, không hỏi thêm.
+   chạy `/acceptance-gate:acceptance-init` trước." rồi DỪNG, không quét tiếp, không hỏi thêm.
 
    Các key JSON lệnh này đọc (máy đối chiếu với đầu ra script thật ở case
    round-trip — đổi tên một phía là kiểm thử đỏ):
@@ -65,6 +65,8 @@ worktree/nhánh đọc từ git của `<path>`.
      đầu). Chọn một ý → việc kế là điền section Ngưỡng trong `opportunity.md`
      của nó; điền đủ là máy tự đưa sang chờ Cổng Đáng ở lần quét sau.
    <!-- START-CAN-NHAC>>> -->
+   - **Bắt đầu việc mới** — đúng ba lối, không thêm lối nào. Kết buổi khai thác
+     của lối (a) theo khối ngay dưới, rồi mới tới ba lối:
    <!-- <<<START-HIEU-KET -->
    **Kết thúc buổi khai thác — MỌI lối, mở bằng skill nào cũng vậy:** ghi
    `_acceptance/<slug>/opportunity.md` từ khối `OPP-FRONTMATTER-TEMPLATE` của
@@ -75,9 +77,9 @@ worktree/nhánh đọc từ git của `<path>`.
    giữ nguyên `…` của khuôn tới khi người điền — chưa điền là «đang cân nhắc»,
    điền đủ là chờ Cổng Đáng · ⑥ KHÔNG viết spec, KHÔNG viết contract ở bước này
    (đó là S1, sau Cổng Đáng). Ý không ghi vào ô là ý sẽ mất — ba bộ đọc định kỳ
-   (/start · bản đồ · lưới) chỉ thấy `_acceptance/`.
+   (/acceptance-gate:start · bản đồ · lưới) chỉ thấy `_acceptance/`.
    <!-- START-HIEU-KET>>> -->
-   - **Bắt đầu việc mới** — đúng ba lối, không thêm lối nào: (a) ý còn mơ hồ →
+     (a) ý còn mơ hồ →
      buổi khai thác vòng HIỂU; đích lấy từ `discovery.brainstormSkill` trong
      JSON quét (ổ cắm repo tự khai ở `_acceptance/config.yaml`, khoá
      `discovery.brainstorm_skill`): CÓ giá trị → mở buổi khai thác bằng đúng
@@ -91,9 +93,9 @@ worktree/nhánh đọc từ git của `<path>`.
      mà không giải được thì im lặng dùng nó là đẩy phiên vào con trỏ chết. Trước Cổng Đáng
      KHÔNG dùng `superpowers:brainstorming` — skill đó thuộc S1 vòng LÀM, nó
      trả lời "làm thế nào" trong khi buổi này hỏi "có làm không / làm gì"; (b)
-     việc đã rõ → `/feature-loop <mô tả>`; (c) việc vặt khớp miễn trừ T1 →
-     xác nhận nó là T1 rồi KẾT THÚC `/start` — người ra lệnh sửa ở lượt kế,
-     ngoài nghi thức này (lệnh `/start` không sửa gì, kể cả việc vặt).
+     việc đã rõ → `/feature-loop:feature-loop <mô tả>`; (c) việc vặt khớp miễn trừ T1 →
+     xác nhận nó là T1 rồi KẾT THÚC `/acceptance-gate:start` — người ra lệnh sửa ở lượt kế,
+     ngoài nghi thức này (lệnh `/acceptance-gate:start` không sửa gì, kể cả việc vặt).
    - Dưới thẻ: một dòng bản đồ sản phẩm — đọc `map.state` + `map.label` (nhãn
      rút từ bảng nhãn chung trong lib, CÙNG chữ với cổng CI — không tự chế
      chuỗi): `da-xoa` → in nguyên `map.label` kèm "khôi phục, hoặc vẽ lại bằng
@@ -122,9 +124,9 @@ worktree/nhánh đọc từ git của `<path>`.
 
 4. **MỘT câu hỏi chọn bằng chữ cái/số dòng** — không hỏi câu thứ hai. Người
    chọn xong → bàn giao sang nghi thức đích:
-   - Chọn một cổng → `/acceptance-card <slug>`; riêng cổng `gia-tri` → skill
-     `uat-session <slug>` (phiên nghiệm thu có nghi thức riêng, không phải thẻ).
-   - Chọn một vòng dở → `/feature-loop <slug>` — NHƯNG nếu `git.dirty` là
+   - Chọn một cổng → `/acceptance-gate:acceptance-card <slug>`; riêng cổng `gia-tri` → skill
+     `/acceptance-gate:uat-session <slug>` (phiên nghiệm thu có nghi thức riêng, không phải thẻ).
+   - Chọn một vòng dở → `/feature-loop:feature-loop <slug>` — NHƯNG nếu `git.dirty` là
      `true` hoặc phiên đang đứng cây chung với vòng khác: nhắc mở worktree/
      phiên riêng TRƯỚC, chưa đưa lệnh resume (cạm bẫy một-worktree-một-phiên).
    - Chọn việc mới → đi đúng lối (a)/(b)/(c) ở bước 3.

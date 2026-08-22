@@ -10549,6 +10549,13 @@ for _dd in $_dd_ids; do
     env DD_CASES="$_dd" node "$ROOT/tests/plugins/duong-do.test.mjs"
 done
 
+# ─── Hồ sơ lenh-in-ra-phai-bam-duoc: LB1..LB8 (file ca riêng) ─────────────────
+_lb_ids="$(node "$ROOT/tests/plugins/lenh-bam-duoc.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca LB"; failures=$((failures+1)); _lb_ids=""; }
+for _lb in $_lb_ids; do
+  run "ca lenh bam duoc — $_lb (ho so lenh-in-ra-phai-bam-duoc)" \
+    env LB_CASES="$_lb" node "$ROOT/tests/plugins/lenh-bam-duoc.test.mjs"
+done
+
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
   echo "ONLY_BLOCK=$ONLY_BLOCK khong khop khoi nao — go sai ten? (fail de khong xanh gia)"

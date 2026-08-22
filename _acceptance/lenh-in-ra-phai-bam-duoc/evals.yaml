@@ -21,8 +21,8 @@ evals:
     expected: >
       exit 0; stdout có "PASS: [LB2]" — ranh giới khai tường minh; 12 file có mặt; (i) 0 trần + 0 uat-session
       thiếu tiền tố; (ii) mọi token /x:y ⊆ cột bấm-được — chèn /acceptance-gate:foo → đỏ file:dòng; (iii) số token
-      có tiền tố ≥ 55; (iv) ĐỐI CHỨNG DƯƠNG: cùng hàm quét trên git show origin/main:<12 file> == 48 trần + 7
-      uat-session; (v) giữ-gân: 3 chuỗi mẫu → 0 hit; chèn `/start` → đỏ; chèn `uat-session <slug>` → đỏ.
+      có tiền tố ≥ 68; (iv) ĐỐI CHỨNG DƯƠNG: cùng hàm quét trên git show origin/main:<12 file> == 65 trần + 3
+      `uat-session; (v) giữ-gân: 3 chuỗi mẫu → 0 hit; chèn `/start` → đỏ; chèn `uat-session <slug>` → đỏ.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
@@ -49,8 +49,8 @@ evals:
     expected: >
       exit 0; stdout có "PASS: [LB5]" — fixture CONTEXT.md có mặt, không --glossary-base → 0 cờ glossary-base
       (bản cũ: 1); cây thật A/B/C: gate-card CŨ (git show origin/main, đặt đúng scripts/gate-card.js trong bản
-      sao cây) vs MỚI, so TẬP thông điệp: cũ∖mới ⊆ {baseline n-a, --glossary-base}; mới∖cũ = ∅; gộp ba hồ sơ
-      mỗi loại ≥ 1 lần trong cũ (đối chứng dương). Cờ ngưỡng/biên GIỮ (P143 đã canh).
+      sao cây) vs MỚI, so TẬP thông điệp: cũ∖mới ⊆ {baseline n-a, --glossary-base}; mới∖cũ = ∅; đối chứng dương:
+      baseline ≥ 1 trong cũ của A/B/C; glossary-base: bản CŨ trên fixture Cổng 1 bắn, bản mới không. Cờ ngưỡng/biên GIỮ (P143).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
     criterion: AC-6
