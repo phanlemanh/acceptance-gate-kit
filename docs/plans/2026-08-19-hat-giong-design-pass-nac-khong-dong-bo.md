@@ -1,7 +1,8 @@
 # Hạt giống — design-pass nấc không đồng bộ + bước phân kỳ bằng canvas
 
-**Ngày:** 2026-08-19 · **Trạng thái:** hạt giống, chờ ván thử b1 xong mới mở
-Cổng 1 cho kit · **Hạng dự kiến:** T2 (đổi lời một skill + docs; không chạm
+**Ngày:** 2026-08-19 · **Trạng thái:** `_acceptance/design-pass-nac-khong-dong-bo/opportunity.md`
+(ô cơ hội mở 22/08 — đang cân nhắc, ngưỡng chờ owner điền; ván thử b1 đã DỪNG
+19/08, xem 4.3) · **Hạng dự kiến:** T2 (đổi lời một skill + docs; không chạm
 lưới, phép đo, workflow).
 **Sinh từ:** phiên phân tích 19/08 (kiểm chứng kit 2.2 trên hồ sơ
 `trang-tu-van-v2-r4-b1` của Artifact Platform) + phiên điều tra «skill
@@ -183,9 +184,14 @@ toàn văn skill `/design` preview).
 
 ## 4. Ván thử b1 — chạy TRƯỚC, dưới dạng lệch có tên
 
+> ⚠ **Ván thử b1 đã DỪNG 19/08** (owner bỏ nhánh b1 + plugin Trang tư vấn,
+> entry descope gate1 `d-20260819T075116Z-20700`) — mục 4.1–4.2 dưới đây giữ
+> nguyên làm sử liệu đề bài; kết quả thu được tới lúc dừng và hai bài học ở
+> **4.3**; điều kiện mở ván kế ở mục 5.
+
 Không đổi engine dưới chân vòng đang chạy: b1 chạy trên kit 2.2.0, nghi thức
 mới được thực hiện như **lệch có tên** trong sổ quyết định của b1. Kit chỉ đổi
-sau khi b1 cho bốn con số.
+sau khi có bốn con số từ một ván thử.
 
 ### 4.1 Phiên r4 vào lại ở đâu
 
@@ -275,13 +281,48 @@ Bốn con số phải ghi vào cuối design-pass.md (khối «Đo cho hạt gi�
 hay _generated đổi byte → DỪNG, báo, không nuốt lặng.
 ```
 
+### 4.3 Kết quả tới lúc dừng (19/08) và hai bài học
+
+Phiên r4 đã chạy trọn Việc 1–3 trước khi dừng (commit `e5268ef6f` trên
+`claude/dreamy-burnell-b3b8fb`): entry approach `d-20260819T054831Z-19353`;
+canvas `/design` 6 artboard / 2 trang (A·B·C phiếu khuyên · Đèn-1·Đèn-2 · chạm
+vị trí), mỗi hướng có động cơ + đánh đổi trên mặt, câu hỏi đóng ghim bằng note,
+màu/chữ đúng giá trị token đã chốt, số CT5B thật; ruột tạm bằng component thật
++ 30 ảnh ma trận 14 state × 2 khổ; `design-pass.md` đúng khuôn mới (`reaction:
+async`, `canvas:`, `material: real-components`, `context: static-frame`, 2 cảnh
+ngữ-cảnh, 3 vá / 2 chờ).
+
+| # | Số | Giá trị tới lúc dừng |
+|---|---|---|
+| 1 | Số lần gọi owner + phút, hình thức | **Chưa có** — chấm chọn-hướng không được trả lời; owner đi thẳng lên quyết định tầng cao hơn (bỏ plugin) |
+| 2 | Độ lệch canvas ↔ ruột tạm | Nhỏ, có thật: thứ tự ba ô so sánh khác (canvas sớm·chuẩn·vay, ruột chuẩn·sớm·vay); ảnh thẻ PNG giữ chỗ |
+| 3 | Có gọi phiên đồng bộ không | **Không** — chạm hai lần bấm được trên cả canvas lẫn bảng thật |
+| 4 | Thời gian từ mở phân kỳ → mời Cổng 1 | Phần máy: **17 phút** (05:48Z → 06:05Z) tới ruột tạm + ảnh; phần chờ người: không đo được |
+
+Hai bài học, đã chép vào «Giả định sinh tử» của ô cơ hội:
+
+1. **Quyết định thật được đưa ra trên một vật nhìn được khác** — bản audit
+   «Bảy bề mặt» chụp sản phẩm *đang chạy* (7 bề mặt × 2 khổ), không phải canvas
+   phân kỳ. Canvas hỏi «phiếu khuyên đứng đâu», ảnh bề mặt thật cho owner thấy
+   câu hỏi sống là «plugin này còn đáng tồn tại không». Vật thật thắng bản chép
+   — bước phân kỳ nên **mở bằng ảnh bề mặt thật hiện có** trước khi bày hướng
+   mới, để owner veto được cả tiền đề.
+2. **Khuyến nghị của máy phải nằm trên canvas.** Note ghim của b1 chỉ hỏi «chọn
+   A/B/C» — không có ngả máy khuyên + căn cứ; owner mở link lúc rảnh thấy menu,
+   không thấy lời khuyên. Đúng lớp «hỏi mở là đường cùng».
+
 ## 5. Sau ván thử
 
-- b1 qua Cổng 1 (và về sau Cổng 2) → mở hồ sơ kit từ file này: contract cho
-  đổi lời `design-pass` (mục 3) + docs; b1 là bằng chứng M1 (bốn con số).
-- Hai hình nâng lên tầng hồ sơ bằng `diagram-design`: swimlane trước–sau (H4)
-  vào `figures/` của hồ sơ kit; chuỗi bằng chứng «một cây nguồn» (H5) cạnh
-  file này trong `docs/plans/assets/`.
+- Đường đi đúng 2.3.0: ô cơ hội `_acceptance/design-pass-nac-khong-dong-bo/`
+  (đang cân nhắc) → owner điền ngưỡng (gợi ý: năm thước ở section «Thước đo
+  thành công» của ô) → ký Cổng Đáng trong file → `/feature-loop
+  design-pass-nac-khong-dong-bo`: contract cho đổi lời `design-pass` (mục 3 +
+  3b) với ô «Đường đo» trỏ về ván thử kế; file này là phụ lục đề bài.
+- **Ván thử kế** = feature chạm UI kế tiếp ở bất kỳ repo tiêu thụ nào, chạy
+  nghi thức mới dưới dạng lệch có tên, lần này đo trọn chấm chọn-hướng (số 1).
+  Chưa có ứng viên tính đến 22/08 (Trang tư vấn đã retire #362).
+- Hình: H4 swimlane trước–sau ĐÃ vẽ tầng 2 tại `docs/plans/assets/2026-08-19-hat-giong-design-pass/`
+  (html + svg + png); H5 chuỗi bằng chứng «một cây nguồn» vẽ khi hồ sơ mở.
 - Repo tiêu thụ: xếp kho `interactive-prototype` sau khi kit phát hành.
 
 ## 6. Hồ sơ vấp ghi lại (để hồ sơ kit khỏi tìm lại)
@@ -296,6 +337,10 @@ hay _generated đổi byte → DỪNG, báo, không nuốt lặng.
   thật (thay proto khai tử 05/08). Nghi thức phải nhận route override.
 - Lỗ tài liệu: GUIDE thiếu `design_pass.ds_skill`; init template không gợi ý
   hai khoá.
+- Canvas b1 ghim câu hỏi đóng nhưng **không ghim ngả máy khuyên** — owner mở
+  lúc rảnh thấy menu A/B/C trần (kiểm 20/08 bằng extract 6 artboard).
+- Quyết định bỏ b1 sinh ra từ audit bề mặt thật («Bảy bề mặt», artifact
+  3db79ddc), không từ canvas phân kỳ — vật thật thắng bản chép (4.3).
 
 ## 7. Điều cố tình không làm
 
