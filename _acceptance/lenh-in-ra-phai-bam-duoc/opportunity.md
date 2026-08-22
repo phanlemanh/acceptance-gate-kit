@@ -3,10 +3,10 @@ schema_version: 1
 slug: lenh-in-ra-phai-bam-duoc
 feature: Lệnh in ra phải bấm được — một nguồn tên lệnh (/<plugin>:<tên>) cho mọi điểm bàn giao, cộng bốn mục TRỪ nhiễu thẻ và finding B/C
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build        # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-08-22T14:55:20Z    # ISO UTC
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -66,6 +66,6 @@ B3 `decided_at` stub duong-do (owner xác nhận) · B5 dời khối START-HIEU-
 
 ## Cổng 0
 
-- **decision = …** Căn cứ: …
-- **disposition = …** Căn cứ: không dựng prototype — mọi ẩn số trả lời bằng phép thử rẻ (D2.5) hoặc đo ở S1/S3/S4.
-- **Ngưỡng UAT chốt cùng lúc ký:** (chép từ section Ngưỡng khi ký)
+- **decision = build** (owner «build», 2026-08-22). Căn cứ: lỗi chạm tay owner mỗi lượt; 7 chỗ chắc sai ở mọi máy; phạm vi đã cắt sau red-team (T2, ≤ 1 ngày máy); đảo được.
+- **disposition = (không có prototype)** Căn cứ: mọi ẩn số trả lời bằng phép thử rẻ (D2.5) hoặc đo ở S1/S3/S4 — không có code để giữ hay vứt.
+- **Ngưỡng UAT chốt cùng lúc ký:** SỐNG = 0 lần owner gõ lại tay vì dạng kit in ở ván lái-thử kế (≤ 30/08), kèm S4 chứng 48/48 điểm khớp bảng và 0 chỗ `uat-session` thiếu gạch (baseline 7); CHẾT = ≥ 1 lần gõ lại vì dạng kit in.
