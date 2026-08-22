@@ -19,9 +19,10 @@ evals:
     cmd: config:executors.test.plugins
     paths: [commands, skills/acceptance, skills/uat-session, feature-loop/skills/feature-loop/SKILL.md, scripts/gate-card.js, scripts/evidence-page.js, tests/plugins/lenh-bam-duoc.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: [LB2]" — 12 file có mặt (assert vũ trụ); 0 token trần, 0 uat-session thiếu tiền tố
-      ngoài bảng; mọi lệnh in ra ∈ cột bấm-được; chiều đỏ: chèn `/start` vào start.md → đỏ nêu file:dòng;
-      chèn `uat-session <slug>` → đỏ nêu file:dòng.
+      exit 0; stdout có "PASS: [LB2]" — ranh giới khai tường minh; 12 file có mặt; (i) 0 trần + 0 uat-session
+      thiếu tiền tố; (ii) mọi token /x:y ⊆ cột bấm-được — chèn /acceptance-gate:foo → đỏ file:dòng; (iii) số token
+      có tiền tố ≥ 55; (iv) ĐỐI CHỨNG DƯƠNG: cùng hàm quét trên git show origin/main:<12 file> == 48 trần + 7
+      uat-session; (v) giữ-gân: 3 chuỗi mẫu → 0 hit; chèn `/start` → đỏ; chèn `uat-session <slug>` → đỏ.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
@@ -36,8 +37,9 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/gate-card.js, tests/plugins/lenh-bam-duoc.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: [LB4]" — fixture Gate 2 (contract verified + evidence PASS): Analyst "n-a — lý do…"
-      → 0 cờ đỏ baseline; Analyst rỗng → có cờ (R−); gate-card thật trên fixture.
+      exit 0; stdout có "PASS: [LB4]" — ba trạng thái Analyst: (a) "n-a — lý do ≥ 20" → 0 cờ đỏ baseline;
+      (b) "n-a" trần / lý do ngắn → cờ đỏ ghim «n-a không nêu lý do»; (c) rỗng → cờ như trước; round-trip writer
+      thật: Analyst của A/B/C trên cây → 0 cờ đỏ baseline.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
@@ -45,8 +47,10 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/gate-card.js, tests/plugins/lenh-bam-duoc.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: [LB5]" — fixture AC chứa "≥ 13" → 0 cờ ngưỡng/biên; 0 cờ glossary-base;
-      cây thật: ba hồ sơ A/B/C, gate-card CŨ (git show origin/main) vs MỚI → số cờ mới < cũ ở cả ba.
+      exit 0; stdout có "PASS: [LB5]" — fixture AC chứa "≥ 13" → 0 cờ ngưỡng/biên; 0 cờ glossary-base; cây thật
+      A/B/C: gate-card CŨ (git show origin/main, đặt đúng scripts/gate-card.js trong bản sao cây) vs MỚI, so
+      TẬP thông điệp: cũ∖mới ⊆ {baseline n-a, ngưỡng/biên, --glossary-base}; mới∖cũ = ∅; gộp ba hồ sơ mỗi
+      loại ≥ 1 lần trong cũ (đối chứng dương).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
     criterion: AC-6
