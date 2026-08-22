@@ -19,7 +19,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [commands, skills/acceptance, skills/uat-session, feature-loop/skills/feature-loop/SKILL.md, scripts/gate-card.js, scripts/evidence-page.js, tests/plugins/lenh-bam-duoc.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: [LB2]" — ranh giới khai tường minh; 12 file có mặt; (i) 0 trần + 0 uat-session
+      exit 0; stdout có "PASS: [LB2]" — ranh giới khai tường minh; 13 file có mặt; `/uat-session` trần cũng đỏ; (i) 0 trần + 0 uat-session
       thiếu tiền tố; (ii) mọi token /x:y ⊆ cột bấm-được — chèn /acceptance-gate:foo → đỏ file:dòng; (iii) số token
       có tiền tố ≥ 68; (iv) ĐỐI CHỨNG DƯƠNG: cùng hàm quét trên git show origin/main:<12 file> == 65 trần + 3
       `uat-session; (v) giữ-gân: 3 chuỗi mẫu → 0 hit; chèn `/start` → đỏ; chèn `uat-session <slug>` → đỏ.
@@ -38,7 +38,7 @@ evals:
     paths: [scripts/gate-card.js, tests/plugins/lenh-bam-duoc.test.mjs]
     expected: >
       exit 0; stdout có "PASS: [LB4]" — ba trạng thái Analyst: (a) "n-a — lý do ≥ 20" → 0 cờ đỏ baseline;
-      (b) "n-a" trần / lý do ngắn → cờ đỏ ghim «n-a không nêu lý do»; (c) rỗng → cờ như trước; round-trip writer
+      (b) "n-a" trần / lý do ngắn → cờ đỏ ghim «n-a không nêu lý do»; (c) rỗng/vắng section → không cờ baseline; (c') n-a hỗn hợp «; E4, E5: …» → đỏ như cũ; round-trip writer
       thật: Analyst của A/B/C trên cây → 0 cờ đỏ baseline.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5

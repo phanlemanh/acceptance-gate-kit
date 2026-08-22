@@ -66,8 +66,11 @@ const checkTable = (rows, plugins) => {
 
 // ── Quét điểm bàn giao (AC-2) — ranh giới khai tường minh ───────────────────
 const FILES = ['commands/acceptance-card.md', 'commands/acceptance-init.md', 'commands/acceptance-report.md', 'commands/acceptance-status.md', 'commands/approve.md', 'commands/signoff.md', 'commands/start.md', 'skills/acceptance/SKILL.md', 'skills/acceptance/references/human-facing-language.md', 'skills/uat-session/SKILL.md', 'feature-loop/skills/feature-loop/SKILL.md', 'scripts/gate-card.js', 'scripts/evidence-page.js'];
-const BARE_NAMES = ['start', 'approve', 'signoff', 'acceptance-card', 'acceptance-init', 'acceptance-status', 'acceptance-report', 'feature-loop'];
-const BARE_RE = new RegExp(`(^|[^a-z0-9:/-])/(${BARE_NAMES.join('|')})(?![a-z0-9:/-])`, 'g');
+// uat-session vào danh sách trần (review S4-r1 F1: `/uat-session <slug>` từng lọt cả hai regex); look-ahead có `.`
+// để không ăn đường dẫn `…/uat-session.md`.
+const BARE_NAMES = ['start', 'approve', 'signoff', 'acceptance-card', 'acceptance-init', 'acceptance-status', 'acceptance-report', 'feature-loop', 'uat-session'];
+const BARE_RE = new RegExp(`(^|[^a-z0-9:/-])/(${BARE_NAMES.join('|')})(?![a-z0-9:/.-])`, 'g');
+if (FILES.length !== 13) throw new Error(`vũ trụ quét phải đúng 13 file, đang ${FILES.length}`);
 const UAT_RE = /`uat-session\b/g;
 const PREFIXED_RE = /\/[a-z][a-z0-9-]*:[a-z][a-z0-9-]*/g;
 const scan = texts => {   // texts: [{rel, txt}] → {bare:[{rel,line,tok}], uat:[…], prefixed:[…]}
@@ -154,8 +157,10 @@ if (want('LB2')) {
   try { base = scan(loadTree(rel => execFileSync('git', ['-C', ROOT, 'show', `origin/main:${rel}`], { encoding: 'utf8' }))); } catch (e) { errs.push(`không đọc được origin/main: ${String(e.message).slice(0, 80)}`); }
   if (base && (base.bare.length !== BASE_BARE || base.uat.length !== BASE_UAT)) errs.push(`đối chứng dương lệch: origin/main có ${base.bare.length} trần + ${base.uat.length} uat (mong ${BASE_BARE} + ${BASE_UAT})`);
   // (v) giữ-gân: 3 chuỗi mẫu → 0 hit
-  const guard = scan([{ rel: 'g', txt: 'x `/feature-loop:feature-loop x` y\nfeature-loop/skills/feature-loop/SKILL.md\n<!-- <<<COMMAND-NAMES -->\n| start | /acceptance-gate:start | command |\n<!-- COMMAND-NAMES>>> -->\n' }]);
+  const guard = scan([{ rel: 'g', txt: 'x `/feature-loop:feature-loop x` y\nfeature-loop/skills/feature-loop/SKILL.md\n_acceptance/<slug>/uat-session.md\n<!-- <<<COMMAND-NAMES -->\n| start | /acceptance-gate:start | command |\n<!-- COMMAND-NAMES>>> -->\n' }]);
   if (guard.bare.length || guard.uat.length) errs.push(`giữ-gân hụt: ${JSON.stringify(guard.bare)}`);
+  const r0 = scan([{ rel: 'g', txt: 'chạy `/uat-session <slug>`' }]);
+  if (!r0.bare.some(x => x.tok === '/uat-session')) errs.push('`/uat-session <slug>` (gạch chéo, không tiền tố) lọt thước');
   // chiều đỏ: chèn vào bản sao start.md
   const startTxt = readFileSync(path.join(ROOT, 'commands/start.md'), 'utf8');
   const r1 = scan([{ rel: 'commands/start.md', txt: startTxt + '\nchạy `/start` đi\n' }]);
@@ -164,7 +169,7 @@ if (want('LB2')) {
   if (!r2.uat.length) errs.push('chèn `uat-session <slug>` không đỏ');
   const r3 = scan([{ rel: 'commands/start.md', txt: startTxt + '\n/acceptance-gate:foo\n' }]);
   if (!r3.prefixed.some(x => x.tok === '/acceptance-gate:foo' && !allowed.has(x.tok))) errs.push('chèn /acceptance-gate:foo không đỏ');
-  if (errs.length) fail('LB2', errs.join(' · ')); else pass('LB2', `12 file: 0 trần, 0 uat thiếu tiền tố, ${now.prefixed.length} lệnh có tiền tố ⊆ bảng; origin/main == ${BASE_BARE}+${BASE_UAT}; giữ-gân 0; ba chèn → đỏ`);
+  if (errs.length) fail('LB2', errs.join(' · ')); else pass('LB2', `13 file: 0 trần, 0 uat thiếu tiền tố, ${now.prefixed.length} lệnh có tiền tố ⊆ bảng; origin/main == ${BASE_BARE}+${BASE_UAT}; giữ-gân 0; ba chèn → đỏ`);
 }
 
 // ---------- LB3: câu luật (AC-3)
@@ -194,6 +199,13 @@ if (want('LB4')) {
   if (!b2.some(f => /Analyst n-a không nêu lý do/.test(f.text))) errs.push('(b) n-a lý do ngắn không cờ');
   const c = run('Eval E1 không phân biệt: baseline cũng xanh.');
   if (!c.some(f => f.cls === 'fred' && /không phân biệt/.test(f.text))) errs.push('(c) Analyst có nội dung thật mà mất cờ đỏ cũ');
+  // hỗn hợp: n-a cho vài eval NHƯNG có mệnh đề mở bằng mã eval → vẫn là phân tích thật → đỏ như cũ (review F2)
+  const mix = run('n-a cho E1–E3 vì không có baseline; E4, E5: baseline cũng xanh — KHÔNG phân biệt');
+  if (!mix.some(f => f.cls === 'fred' && /baseline cũng xanh/.test(f.text))) errs.push('(c\') Analyst hỗn hợp n-a + mã eval bị nuốt thành «có lý do»');
+  // (c) rỗng / vắng section → không cờ baseline, không chết
+  const e1 = run(''); if (e1.some(isBaselineFlag)) errs.push('(c) Analyst rỗng mà có cờ baseline');
+  const noSec = evidenceWith('x').replace(/## Analyst\n\nx\n\n/, '');
+  const e2 = flagsOf(cardHtml(ws({ contract: contractWith('verified'), evidence: noSec }), 'x')); if (e2.some(isBaselineFlag)) errs.push('(c) vắng section mà có cờ baseline');
   for (const s of ['repo-khai-plugin', 'vao-co-o-ra-co-ten', 'duong-do-trong-dinh-nghia-xong']) {
     const fl = flagsOf(cardHtml(ROOT, s));
     if (fl.some(isBaselineFlag)) errs.push(`vật thật ${s}: vẫn cờ đỏ baseline`);

@@ -540,8 +540,10 @@ if (ooc.cluster) flags.push(['fwarn', '⚠ Nhiều lỗi rơi ngoài vùng các 
   // n-a CÓ LÝ DO (≥ 20 ký tự sau «n-a») là lựa chọn chủ ý đã khai — không phải đỏ; n-a trần/ngắn vẫn đỏ
   // (hồ sơ lenh-in-ra-phai-bam-duoc AC-4: đỏ không có nghĩa dạy người bỏ qua màu đỏ).
   const naReason = /^n-a\b[\s—–:-]*([\s\S]*)$/i.exec(analyst);
-  if (naReason && naReason[1].trim().length >= 20) { /* chủ ý, đã nêu lý do — không cờ */ }
-  else if (naReason) flags.push(['fred', 'Analyst n-a không nêu lý do — baseline không chạy mà không nói vì sao; ghi lý do (≥ 20 ký tự) hoặc chạy baseline.']);
+  // «n-a có lý do» KHÔNG phải khi phần sau còn mệnh đề mở bằng mã eval (`; E4, E5: …`) — đó là phân tích thật (review S4-r1 F2)
+  const naMixed = naReason && /[;\n]\s*[A-Z]{1,3}\d+\b/.test(naReason[1]);
+  if (naReason && !naMixed && naReason[1].trim().length >= 20) { /* chủ ý, đã nêu lý do — không cờ */ }
+  else if (naReason && !naMixed) flags.push(['fred', 'Analyst n-a không nêu lý do — baseline không chạy mà không nói vì sao; ghi lý do (≥ 20 ký tự) hoặc chạy baseline.']);
   else if (analyst && !/^none/i.test(analyst) && !/^\{\{/.test(analyst)) flags.push(['fred', esc(pl.analyst_plain || stripMd(analyst))]); }
 { const varr = cleanLines(section(report, 'Variance')).join(' ').trim(); if (varr && !/^none/i.test(varr) && !/^\{\{/.test(varr)) flags.push(['fred', 'Có eval ngẫu nhiên (pass-rate hỗn hợp) — ' + esc(stripMd(varr))]); }
 if (tier === 'T3') flags.push(['fok', 'Đụng phần nhạy cảm → tier T3, đúng là cần bạn duyệt kỹ.']);
