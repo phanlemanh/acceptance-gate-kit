@@ -214,7 +214,7 @@ print("     LOP-PHUT: %d hit, %d/%d dong mien tru deu con hit that (banh coc 2 c
 for name in ["acceptance-init", "acceptance-status", "acceptance-card", "approve", "signoff", "acceptance-report"]:
     assert (cmds / f"{name}.md").is_file(), name
 appr = (cmds / "approve.md").read_text()
-for needle in ["approved_by", "decisions.jsonl", "gate1_skipped", "/acceptance-card"]:
+for needle in ["approved_by", "decisions.jsonl", "gate1_skipped", "/acceptance-gate:acceptance-card"]:   # lenh-in-ra-phai-bam-duoc: lenh in ra co tien to plugin
     assert needle in appr, needle
 sign = (cmds / "signoff.md").read_text()
 for needle in ["human_override", "pre-merge-check.sh", "forge", "commit"]:
