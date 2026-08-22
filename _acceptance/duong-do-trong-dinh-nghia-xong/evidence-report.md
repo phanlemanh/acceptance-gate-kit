@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent (đường VERIFY độc lập,
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 8819318986af709d6934ec647813b479188d054b
-human_signoff:
+human_signoff: Manh Phan 2026-08-22 — ký với known-limits đã khai; 4 finding ngoài hợp đồng (review-findings.md) là ứng viên hồ sơ T2 kế: bỏ «metric» khỏi _Avoid_ + nới nhận diện dòng bỏ
 ---
 
 # Evidence Report: duong-do-trong-dinh-nghia-xong

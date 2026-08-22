@@ -5,7 +5,7 @@ slug: duong-do-trong-dinh-nghia-xong
 owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/gate-card.js + contract-template + feature-loop SKILL + CONTEXT + tests — không chạm lib/**, hook, lưới
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
