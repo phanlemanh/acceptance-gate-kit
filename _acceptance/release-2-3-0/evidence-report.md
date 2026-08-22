@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent (đường VERIFY độc lập,
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 73eee3d1a3041383d6e7269b7af87ced70d2a9b1
-human_signoff:
+human_signoff: Manh Phan 2026-08-22 — ký mốc phát hành với known-limits đã khai; ba điều nói thật nằm trong changelog v2.3.0 để người cài đọc được
 ---
 
 # Evidence Report: release-2-3-0
