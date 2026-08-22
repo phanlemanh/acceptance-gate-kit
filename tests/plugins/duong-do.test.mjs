@@ -117,6 +117,7 @@ if (want('DD2')) {
     if (dd.lines.length) errs.push(`${tag}: lines phải rỗng: ${JSON.stringify(dd.lines)}`);
     if (!(fl.length === 1 && fl[0].cls === 'fwarn' && /chưa có đường đo/.test(fl[0].text) && /section/.test(fl[0].text) && fl[0].text.includes(DESCOPE.trim()))) errs.push(`${tag}: cờ vàng lệch: ${JSON.stringify(fl.map(f => f.cls + ':' + f.text.slice(0, 70)))}`);
     if (hasLab(c.html, HEADING)) errs.push(`${tag}: không được in khối`);
+    if (fl[0] && /<[a-zA-Z]/.test(fl[0].text)) errs.push(`${tag}: cờ chứa <…> thô — trình duyệt nuốt như tag`);
     const r = relErr(c, tag); if (r) errs.push(r);
   };
   check('none', '(a) gỡ section', false);
