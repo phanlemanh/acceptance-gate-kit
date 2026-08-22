@@ -283,9 +283,16 @@ if (want('VC8')) {
     if (/chờ Cổng 0|HẠT GIỐNG|ĐỀ XUẤT/.test(tenFirst)) errs.push(`${s}: 10 dòng đầu còn lời khai trạng thái`);
     if (!tenFirst.includes(`_acceptance/${s}/opportunity.md`)) errs.push(`${s}: 10 dòng đầu thiếu con trỏ tới stub`);
   }
-  // decided/build → inProgress; KHÔNG ghim nextStep: chip C mở contract là bước kế đổi (S1→S2→S3) mà ô vẫn đúng
-  if (!(j.groups.inProgress || []).some(x => x.slug === 'duong-do-trong-dinh-nghia-xong')) errs.push('duong-do không ở inProgress');
+  // Stub ĐÃ QUYẾT (duong-do: decided/build) — KHÔNG ghim chặng của hồ sơ KHÁC: vòng của nó tự chạy
+  // tiếp (S1 → ký Cổng Phạm vi → ký Cổng Bằng chứng → chờ nghiệm thu), mỗi lần đổi chặng lại làm ca
+  // này đỏ oan (CI đỏ 22/08 ngay sau chữ ký chip C — bom đã nổ một lần). Và từ lúc nó có contract.md,
+  // «không ở considering» là hằng-đúng (nhánh opportunity không còn được đọc) — assertion chết.
+  // Điều còn ĐO ĐƯỢC trên cây thật: slug phải nằm ở ĐÚNG MỘT ô, không biến mất, không hỏng.
+  // Phần phân biệt «stub đã quyết KHÔNG rơi về đang-cân-nhắc» sống ở VC3 (fixture w-build, cô lập).
   const cons = slugsIn(j.groups.considering);
+  const buckets = ['gates', 'inProgress', 'considering', 'done'].filter(k => slugsIn(j.groups[k]).includes('duong-do-trong-dinh-nghia-xong')).length
+    + (slugsIn(j.broken).includes('duong-do-trong-dinh-nghia-xong') ? 1 : 0);
+  if (buckets !== 1) errs.push(`duong-do phải nằm đúng MỘT ô, đang ở ${buckets} ô`);
   for (const s of NEW.filter(s => s !== 'duong-do-trong-dinh-nghia-xong')) if (!cons.includes(s)) errs.push(`${s} không ở considering`);
   if (errs.length) fail('VC8', errs.join(' · ')); else pass('VC8', 'mọi hạt giống có ô (ba chân, vũ trụ ≥ 13); 7 stub sống; trạng thái sống một chỗ');
 }
