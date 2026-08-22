@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent (đường VERIFY độc lập,
 enforcement_mode: strict
 bypass_used: false
 verified_commit: f40392d178c02ae898ad3273b8e300b233509f84
-human_signoff:
+human_signoff: Manh Phan 2026-08-22 — ký với 4 known-limits đã khai và 5 mục ngoài hợp đồng ghi sổ (review-findings.md)
 ---
 
 # Evidence Report: vao-co-o-ra-co-ten
