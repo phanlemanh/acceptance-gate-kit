@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lớp thiết kế trước–sau · Swimlane</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --paper: #f5f5f5; --ink: #2d3142; --muted: #4f5d75;
+      --accent: #eb6c36; --rule: rgba(45,49,66,0.12);
+      --sans: 'Geist', system-ui, sans-serif;
+      --serif: 'Instrument Serif', serif;
+      --mono: 'Geist Mono', ui-monospace, monospace;
+    }
+    body { font-family: var(--sans); background: var(--paper); color: var(--ink);
+           min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; }
+    .frame { max-width: 1200px; width: 100%; }
+    .eyebrow { font-family: var(--mono); font-size: 0.66rem; font-weight: 500;
+               letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+    h1 { font-family: var(--serif); font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+         font-weight: 400; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 1.5rem; }
+    svg { width: 100%; min-width: 900px; display: block; }
+    .read { margin-top: 1.25rem; max-width: 72ch; font-size: 0.85rem; line-height: 1.55; color: var(--muted); }
+    .read strong { color: var(--ink); font-weight: 600; }
+    .colophon { margin-top: 1.5rem; padding-top: 0.75rem; border-top: 1px solid var(--rule);
+                font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.06em; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Swimlane · hạt giống 19/08 · trước–sau</p>
+    <h1>Lớp thiết kế: từ phiên ngồi xem sang phản ứng không đồng bộ</h1>
+
+    <svg viewBox="0 0 1000 700" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ======== BAND TRƯỚC ======== -->
+      <text x="40" y="36" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.16em">TRƯỚC · DESIGN-PASS 2.2.0 — ĐỒNG BỘ LÀ NẤC MẶC ĐỊNH</text>
+      <text x="960" y="36" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.10em" text-anchor="end">HỒ SƠ B1: BỎ NGHI THỨC — DESCOPE CÓ TÊN 18/08</text>
+
+      <line x1="40" y1="48"  x2="960" y2="48"  stroke="rgba(45,49,66,0.22)" stroke-width="1"/>
+      <line x1="40" y1="128" x2="960" y2="128" stroke="rgba(45,49,66,0.10)" stroke-width="1"/>
+      <line x1="40" y1="208" x2="960" y2="208" stroke="rgba(45,49,66,0.10)" stroke-width="1"/>
+      <line x1="40" y1="288" x2="960" y2="288" stroke="rgba(45,49,66,0.22)" stroke-width="1"/>
+      <line x1="152" y1="48" x2="152" y2="288" stroke="rgba(45,49,66,0.22)" stroke-width="1"/>
+      <text x="56" y="92"  fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">NGƯỜI</text>
+      <text x="56" y="172" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">MÁY</text>
+      <text x="56" y="252" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">VẬT</text>
+
+      <!-- arrows (drawn first) -->
+      <line x1="336" y1="168" x2="376" y2="168" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <path d="M536,160 L624,160 Q632,160 632,152 L632,112" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <path d="M688,112 L688,168 Q688,176 680,176 L536,176" fill="none" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+      <line x1="456" y1="192" x2="456" y2="224" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <path d="M552,248 L864,248 Q872,248 872,240 L872,112" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- arrow labels -->
+      <rect x="548" y="140" width="60" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="578" y="149" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">MỞ PHIÊN</text>
+      <rect x="696" y="130" width="68" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="730" y="139" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">TỪNG VÒNG</text>
+      <rect x="464" y="200" width="64" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="496" y="209" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">KẾT PHIÊN</text>
+      <rect x="580" y="228" width="72" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="616" y="237" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">TRÌNH CỔNG</text>
+
+      <!-- nodes -->
+      <rect x="176" y="144" width="160" height="48" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="256" y="164" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Hướng quyết bằng chữ</text>
+      <text x="256" y="180" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">design-doc · 0 phân kỳ</text>
+
+      <rect x="376" y="144" width="160" height="48" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="456" y="164" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Dựng bản bấm được</text>
+      <text x="456" y="180" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">proto cuối S1</text>
+
+      <rect x="576" y="64" width="176" height="48" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+      <text x="664" y="84" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Ngồi xem đồng bộ</text>
+      <text x="664" y="100" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">30–60 phút · từng vòng</text>
+
+      <rect x="376" y="224" width="176" height="48" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="464" y="244" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">design-pass.md + ảnh</text>
+      <text x="464" y="260" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">ma trận state × breakpoint</text>
+
+      <rect x="800" y="64" width="144" height="48" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="872" y="84" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Cổng 1</text>
+      <text x="872" y="100" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">duyệt bản bấm được</text>
+
+      <!-- ======== BAND SAU ======== -->
+      <text x="40" y="356" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.16em">SAU · HẠT GIỐNG 19/08 + VAY 20/08 — ASYNC LÀ NẤC MẶC ĐỊNH</text>
+      <text x="960" y="356" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.10em" text-anchor="end">HAI CHẤM NGƯỜI · ĐỀU ASYNC · SYNC = OPT-IN CÓ TÊN</text>
+
+      <line x1="40" y1="376" x2="960" y2="376" stroke="rgba(45,49,66,0.22)" stroke-width="1"/>
+      <line x1="40" y1="456" x2="960" y2="456" stroke="rgba(45,49,66,0.10)" stroke-width="1"/>
+      <line x1="40" y1="536" x2="960" y2="536" stroke="rgba(45,49,66,0.10)" stroke-width="1"/>
+      <line x1="40" y1="616" x2="960" y2="616" stroke="rgba(45,49,66,0.22)" stroke-width="1"/>
+      <line x1="152" y1="376" x2="152" y2="616" stroke="rgba(45,49,66,0.22)" stroke-width="1"/>
+      <text x="56" y="420" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">NGƯỜI</text>
+      <text x="56" y="500" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">MÁY</text>
+      <text x="56" y="580" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">VẬT</text>
+
+      <!-- arrows -->
+      <line x1="336" y1="496" x2="376" y2="496" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <path d="M456,472 L456,424 Q456,416 464,416 L576,416" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="456" y1="520" x2="456" y2="552" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+      <line x1="640" y1="440" x2="640" y2="472" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="664" y1="520" x2="664" y2="552" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <path d="M752,576 L888,576 Q896,576 896,568 L896,440" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <path d="M824,440 L824,488 Q824,496 816,496 L752,496" fill="none" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+
+      <!-- arrow labels -->
+      <rect x="492" y="396" width="56" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="520" y="405" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">MỜI CHỌN</text>
+      <rect x="464" y="524" width="72" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="500" y="533" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">NHÁNH CỤT</text>
+      <rect x="648" y="448" width="80" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="688" y="457" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">HƯỚNG CHỐT</text>
+      <rect x="672" y="528" width="64" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="704" y="537" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">KẾT PHIÊN</text>
+      <rect x="788" y="556" width="72" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="824" y="565" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">TRÌNH CỔNG</text>
+      <rect x="832" y="456" width="80" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="872" y="465" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">SYNC OPT-IN</text>
+
+      <!-- nodes -->
+      <rect x="176" y="472" width="160" height="48" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="256" y="492" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Kê hướng mở</text>
+      <text x="256" y="508" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">rule đáng-log · ≥2 hướng</text>
+
+      <rect x="376" y="472" width="160" height="48" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="456" y="492" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Dựng canvas 2–3 hướng</text>
+      <text x="456" y="508" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">trục · động cơ · đánh đổi</text>
+
+      <rect x="376" y="552" width="160" height="48" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="456" y="572" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Canvas /design</text>
+      <text x="456" y="588" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">phác tầng 1 · 0 evidence</text>
+
+      <rect x="576" y="392" width="176" height="48" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+      <text x="664" y="412" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Chọn hướng — một chạm</text>
+      <text x="664" y="428" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">note · comment · diff</text>
+
+      <rect x="576" y="472" width="176" height="48" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="664" y="492" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Ruột tạm + tự chụp</text>
+      <text x="664" y="508" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">component thật · capture</text>
+
+      <rect x="576" y="552" width="176" height="48" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="664" y="572" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">design-pass.md</text>
+      <text x="664" y="588" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">reaction: async · ảnh</text>
+
+      <rect x="792" y="392" width="152" height="48" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+      <text x="868" y="412" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Cổng 1 — async</text>
+      <text x="868" y="428" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">một câu hỏi đóng</text>
+
+      <!-- annotation: bỏ-phân-kỳ để vết -->
+      <line x1="252" y1="556" x2="252" y2="524" stroke="#4f5d75" stroke-width="0.8" stroke-dasharray="3,3"/>
+      <text x="184" y="572" fill="#4f5d75" font-size="11" font-family="'Instrument Serif', serif" font-style="italic">0 hướng mở → đi thẳng,</text>
+      <text x="184" y="588" fill="#4f5d75" font-size="11" font-family="'Instrument Serif', serif" font-style="italic">để vết một dòng (veto)</text>
+
+      <!-- legend -->
+      <line x1="40" y1="644" x2="960" y2="644" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+      <text x="40" y="660" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">CHÚ GIẢI</text>
+      <rect x="152" y="652" width="14" height="10" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="172" y="660" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Bước máy / vật</text>
+      <rect x="288" y="652" width="14" height="10" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+      <text x="308" y="660" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Chấm gọi người</text>
+      <line x1="428" y1="658" x2="456" y2="658" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <text x="464" y="660" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Trao tay</text>
+      <line x1="548" y1="658" x2="576" y2="658" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+      <text x="584" y="660" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Tuỳ chọn · vòng lặp · nhánh cụt (đọc nhãn)</text>
+    </svg>
+
+    <div class="read">
+      <strong>Cách đọc.</strong> Băng trên: mọi phản ứng thẩm mỹ đi qua ô cam «Ngồi xem đồng bộ» —
+      một chấm người đắt, lặp từng vòng (mũi tên đứt «TỪNG VÒNG»), và là lý do hồ sơ b1 bỏ nghi thức.
+      Băng dưới: hai chấm người (hai ô cam) đều không đồng bộ — «Chọn hướng» trả lời bằng note/comment/diff
+      trên canvas, «Cổng 1» là một câu hỏi đóng; phiên đồng bộ chỉ còn là mũi tên đứt «SYNC OPT-IN».
+      Canvas /design nằm ở làn VẬT với mũi tên đứt «NHÁNH CỤT» — nó không bao giờ chảy vào chuỗi bằng chứng;
+      chú thích nghiêng ghi luật mới: không mở bước phân kỳ cũng phải để vết một dòng.
+    </div>
+
+    <p class="colophon">NGUỒN CHỮ: docs/plans/2026-08-19-hat-giong-design-pass-nac-khong-dong-bo.md (MỤC 3 + 3b) · HÌNH LÀ CHIẾU, SỬA Ở NGUỒN RỒI VẼ LẠI · VẼ 2026-08-20, CÙNG COMMIT VỚI MỤC 3b (git log file này)</p>
+  </div>
+</body>
+</html>
