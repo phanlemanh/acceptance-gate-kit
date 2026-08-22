@@ -25,10 +25,12 @@ file này là phụ lục sử liệu.
 | `design-pass.md` + sổ quyết định của b1 | artifact-platform, nhánh `claude/dreamy-burnell-b3b8fb` (`e5268ef6f`) | bằng chứng ván thử, không kế thừa |
 | Sổ nhớ | `huashu-design-teardown` · `design-canvas-cho-buoc-phan-ky` · `design-pass-nac-khong-dong-bo-hat-giong` | memory của máy, ngoài repo |
 | Skill `/design` (toàn văn preview Claude Design trong Claude Code) | nạp trong phiên; không chép (thân skill bên thứ ba) | mục 2 tóm 5 phát hiện |
+| Bộ hình phác H1–H7 + «ba lựa chọn» của **phiên 19/08** (không phải phiên này) | `discovery/hinh-phac-2026-08-19.md` + 8 file cạnh nó | gom thêm 22/08 theo yêu cầu owner; mục lục + cách đọc ở file đó |
 
-**Không gom:** bảy hình phác H1–H7 của phiên 19/08 (mục 8 hạt giống) — thuộc
-phiên khác, chỉ H4 đã nâng tầng 2; thân skill `/design` và repo huashu-design
-(vật bên thứ ba, kit chỉ kế thừa triết lý — xem bảng Nguồn ngoài của ô).
+**Không gom:** thân skill `/design` và repo huashu-design (vật bên thứ ba, kit
+chỉ kế thừa triết lý — xem bảng Nguồn ngoài của ô). Bảy hình phác H1–H7 của
+phiên 19/08 lúc đầu để ngoài (thuộc phiên khác) — owner yêu cầu gom thêm 22/08,
+xem `hinh-phac-2026-08-19.md`.
 
 **Chuỗi câu hỏi của owner (theo thứ tự):** ① «Phân tích skill này» (link
 huashu-design) → ② «Đào sâu hơn nữa những gì có thể học đứng từ north star, các

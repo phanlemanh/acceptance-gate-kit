@@ -1,0 +1,33 @@
+<svg font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" width="680" viewBox="0 0 680 430" role="img" xmlns="http://www.w3.org/2000/svg">
+<!-- Phác tầng 1, vẽ nội tuyến trong phiên 2026-08-19 (a19f3e81…); chép về ô 2026-08-22 và làm tự-đủ (CSS nhúng). Chiếu của hạt giống 2026-08-19 mục 8. --><title>H5 — một cây nguồn: cái gì sinh ra cái gì</title><desc>Component thật sinh ô phòng trưng bày; từ đó ra ảnh cho Cổng 1, ảnh AC-15 cho Cổng 2 và đích ui-check ở S4. Canvas là nhánh riêng, cho ra một quyết định hướng rồi vứt.</desc>
+<style>
+.t{font-size:14px;fill:#2C2C2A}.ts{font-size:12px;fill:#5F5E5A}.th{font-size:14px;font-weight:500;fill:#2C2C2A}
+.box{fill:#F7F6F2;stroke:#B4B2A9;stroke-width:.5}.arr{stroke:#888780;stroke-width:1.5;fill:none}.leader{stroke:#B4B2A9;stroke-width:.5;stroke-dasharray:3 3;fill:none}
+.c-purple>rect,.c-purple>circle,.c-purple>ellipse,rect.c-purple,circle.c-purple{fill:#EEEDFE;stroke:#534AB7}.c-purple .th,.c-purple .t{fill:#3C3489}.c-purple .ts{fill:#534AB7}
+.c-teal>rect,.c-teal>circle,.c-teal>ellipse,rect.c-teal,circle.c-teal{fill:#E1F5EE;stroke:#0F6E56}.c-teal .th,.c-teal .t{fill:#085041}.c-teal .ts{fill:#0F6E56}
+.c-coral>rect,.c-coral>circle,.c-coral>ellipse,rect.c-coral,circle.c-coral{fill:#FAECE7;stroke:#993C1D}.c-coral .th,.c-coral .t{fill:#712B13}.c-coral .ts{fill:#993C1D}
+.c-gray>rect,.c-gray>circle,.c-gray>ellipse,rect.c-gray,circle.c-gray{fill:#F1EFE8;stroke:#5F5E5A}.c-gray .th,.c-gray .t{fill:#444441}.c-gray .ts{fill:#5F5E5A}
+</style>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#888780" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+<g class="c-coral"><rect x="20" y="20" width="220" height="56" rx="8" stroke-width="0.5"/><text class="th" x="130" y="38" text-anchor="middle" dominant-baseline="central">Canvas /design</text><text class="ts" x="130" y="56" text-anchor="middle" dominant-baseline="central">2–3 hướng · chạm-vị-trí bấm được</text></g>
+<line x1="240" y1="48" x2="290" y2="48" class="arr" marker-end="url(#arrow)"/>
+<g class="c-purple"><rect x="294" y="20" width="200" height="56" rx="8" stroke-width="0.5"/><text class="th" x="394" y="38" text-anchor="middle" dominant-baseline="central">Một hướng đã chọn</text><text class="ts" x="394" y="56" text-anchor="middle" dominant-baseline="central">ghi vào design-doc bằng chữ</text></g>
+<line x1="494" y1="48" x2="560" y2="48" stroke="#2C2C2A" stroke-width="0.5" stroke-dasharray="4 3"/>
+<text class="ts" x="566" y="48" dominant-baseline="central">canvas vứt</text>
+<line x1="394" y1="76" x2="394" y2="126" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-teal"><rect x="20" y="130" width="220" height="56" rx="8" stroke-width="0.5"/><text class="th" x="130" y="148" text-anchor="middle" dominant-baseline="central">Component thật (repo)</text><text class="ts" x="130" y="166" text-anchor="middle" dominant-baseline="central">RecommendSheet · PositionTap</text></g>
+<line x1="240" y1="158" x2="290" y2="158" class="arr" marker-end="url(#arrow)"/>
+<g class="c-teal"><rect x="294" y="130" width="200" height="56" rx="8" stroke-width="0.5"/><text class="th" x="394" y="148" text-anchor="middle" dominant-baseline="central">Ô phòng trưng bày</text><text class="ts" x="394" y="166" text-anchor="middle" dominant-baseline="central">/agent/ds/consult · số CT5B thật</text></g>
+
+<path d="M394 186 L394 210 L120 210 L120 244" fill="none" class="arr" marker-end="url(#arrow)"/>
+<line x1="394" y1="186" x2="394" y2="244" class="arr" marker-end="url(#arrow)"/>
+<path d="M394 186 L394 210 L580 210 L580 244" fill="none" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-purple"><rect x="20" y="248" width="200" height="72" rx="8" stroke-width="0.5"/><text class="th" x="120" y="270" text-anchor="middle" dominant-baseline="central">Ảnh máy chụp → Cổng 1</text><text class="ts" x="120" y="290" text-anchor="middle" dominant-baseline="central">375 / 1280 · evidence/design-pass/</text><text class="ts" x="120" y="306" text-anchor="middle" dominant-baseline="central">người gật một chạm</text></g>
+<g class="c-purple"><rect x="294" y="248" width="200" height="72" rx="8" stroke-width="0.5"/><text class="th" x="394" y="270" text-anchor="middle" dominant-baseline="central">Ảnh AC-15 → Cổng 2</text><text class="ts" x="394" y="290" text-anchor="middle" dominant-baseline="central">ma trận trạng thái thật</text><text class="ts" x="394" y="306" text-anchor="middle" dominant-baseline="central">người phán judgment</text></g>
+<g class="c-gray"><rect x="480" y="248" width="180" height="72" rx="8" stroke-width="0.5"/><text class="th" x="570" y="270" text-anchor="middle" dominant-baseline="central">Đích ui-check S4</text><text class="ts" x="570" y="290" text-anchor="middle" dominant-baseline="central">STATES · gate P0 · static</text><text class="ts" x="570" y="306" text-anchor="middle" dominant-baseline="central">máy đo trên DOM</text></g>
+
+<g class="c-gray"><rect x="20" y="350" width="640" height="56" rx="8" stroke-width="0.5"/><text class="th" x="340" y="368" text-anchor="middle" dominant-baseline="central">Một cây nguồn: mọi ảnh và phép đo đều truy về component thật</text><text class="ts" x="340" y="388" text-anchor="middle" dominant-baseline="central">canvas không nằm trong chuỗi bằng chứng — nó chỉ để lại một dòng chữ</text></g>
+</svg>

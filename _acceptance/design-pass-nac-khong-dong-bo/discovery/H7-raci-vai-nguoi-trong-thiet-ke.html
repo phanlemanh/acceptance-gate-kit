@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><title>H7 — RACI vai người trong thiết kế</title>
+<style>:root{--font-sans:-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;--font-mono:ui-monospace,Menlo,monospace;--text-primary:#2C2C2A;--text-secondary:#5F5E5A;--text-muted:#888780;--text-accent:#185FA5;--border:#D3D1C7;--border-strong:#B4B2A9;--border-stronger:#888780;--surface-0:#F7F6F2;--surface-1:#F1EFE8;--surface-2:#ffffff;--bg-accent:#E6F1FB;--bg-success:#EAF3DE;--bg-warning:#FAEEDA;--bg-danger:#FCEBEB;--radius:8px}
+body{margin:0;padding:24px;background:#fff;color:var(--text-primary);font-family:var(--font-sans);max-width:760px}</style></head><body>
+<!-- Sửa 22/08 khi chép: nâng độ ưu tiên `.r td.Q/.L/.T` để nền màu ô thắng luật ô chung (trong khung chat nền đã bị `.r td` đè); chữ không đổi.
+     Phác tầng 1, vẽ nội tuyến (khối HTML) trong phiên 2026-08-19 (a19f3e81…); chép về ô 2026-08-22 và làm tự-đủ: biến CSS của khung chat khai lại ở :root. Chiếu của hạt giống 2026-08-19 mục 8. -->
+<div style="font-family:var(--font-sans);color:var(--text-primary);font-size:13px;line-height:1.4">
+<style>
+.r{width:100%;border-collapse:separate;border-spacing:4px}
+.r th{font-weight:500;font-size:12px;color:var(--text-secondary);padding:4px 6px;text-align:center}
+.r th:first-child{text-align:left}
+.r td{border:0.5px solid var(--border);border-radius:6px;padding:7px 8px;text-align:center;background:var(--surface-2)}
+.r td:first-child{text-align:left;font-weight:500;background:var(--surface-1)}
+.r td.Q{background:#EEEDFE;color:#26215C;font-weight:500}
+.r td.L{background:#E1F5EE;color:#04342C;font-weight:500}
+.r td.T{background:#FAEEDA;color:#412402}
+.n{color:var(--text-muted)}
+@media not all /* khối tối của khung chat — vô hiệu khi chép: file khai bảng màu sáng ở :root */{.r td.Q{background:#3C3489;color:#EEEDFE}.r td.L{background:#085041;color:#E1F5EE}.r td.T{background:#633806;color:#FAEEDA}}
+.lg{font-size:12px;color:var(--text-secondary);margin-top:6px}
+</style>
+<table class="r">
+<tr><th>Việc</th><th>Owner</th><th>Designer<br><span class="n">(nếu có)</span></th><th>Claude</th><th>Máy S4</th><th>Vật giữ luật</th></tr>
+<tr><td>Chọn hướng bề mặt mới</td><td class="Q">QUYẾT (1 chạm)</td><td class="T">tư vấn</td><td class="L">phác 2–3 hướng</td><td class="n">—</td><td class="n">canvas /design</td></tr>
+<tr><td>Gu, thẩm mỹ, chữ nghĩa</td><td class="Q">phản ứng</td><td class="Q">phản ứng (ghế của designer)</td><td class="L">sửa trong token</td><td class="n">—</td><td class="n">design-pass · onehub-design-system</td></tr>
+<tr><td>Sàn a11y · vùng chạm · trạng thái</td><td class="n">—</td><td class="T">tư vấn</td><td class="L">viết + cặp đỏ/xanh</td><td class="Q">ĐO, có chiều đỏ</td><td class="n">ux-ui-craft · ui-check · gate P0</td></tr>
+<tr><td>Số liệu đúng từng đồng</td><td class="n">—</td><td class="n">—</td><td class="L">engine thật, không chép</td><td class="Q">ĐO</td><td class="n">computePricing · smoke</td></tr>
+<tr><td>Khuôn plugin, ranh giới T2</td><td class="n">—</td><td class="n">—</td><td class="L">tuân</td><td class="T">lưới tier-mismatch</td><td class="n">create-onehub-plugin</td></tr>
+<tr><td>Ký cổng (1 và 2)</td><td class="Q">QUYẾT</td><td class="T">tư vấn</td><td class="L">trình + khuyên</td><td class="T">điều kiện xanh-sạch</td><td class="n">thẻ cổng · sổ quyết định</td></tr>
+</table>
+<div class="lg">Tím = quyết / là giác quan · xanh = làm · vàng = tư vấn hoặc canh · «—» = không có vai. Vai «designer» không mất: nó nằm ở hai ô tím hàng gu và ở luật DS đã viết; điều thiếu là chỗ ngồi không đồng bộ cho ô đó.</div>
+</div>
+</body></html>
