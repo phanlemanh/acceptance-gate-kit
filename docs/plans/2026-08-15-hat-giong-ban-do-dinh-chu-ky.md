@@ -1,6 +1,6 @@
 # Hạt giống — bản đồ DÍNH commit chữ ký, không đi sau
 
-*Trạng thái: **HẠT GIỐNG, chờ Cổng 0**. Sinh 15/08 từ một lỗi LẶP ×2 trong
+*Trạng thái: sống ở `_acceptance/ban-do-dinh-chu-ky/opportunity.md`. Sinh 15/08 từ một lỗi LẶP ×2 trong
 cùng một phiên (PR #49 và PR #51, cùng hình dạng, cùng người dẫm).*
 
 ## Lỗi lặp

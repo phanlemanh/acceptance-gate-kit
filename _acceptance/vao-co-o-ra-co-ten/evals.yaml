@@ -1,0 +1,132 @@
+schema_version: 1
+feature_slug: vao-co-o-ra-co-ten
+# Mọi eval ghim đích danh "PASS: [VC<n>]" trong stdout suite plugins — không tin
+# mã thoát trọn suite. Ca ở tests/plugins/vao-co-o.test.mjs: fixture CODE-SINH từ
+# khuôn OPP-FRONTMATTER-TEMPLATE + section Ngưỡng rút từ chính khuôn, chạy
+# start-scan.mjs THẬT và renderProductMap THẬT; đường dẫn suy từ vị trí file;
+# chiều đỏ chạy CÙNG LƯỢT trên bản sao và ghim thông điệp (MEASURE-BIRTH-CLAUSE).
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/start-scan.mjs, tests/plugins/vao-co-o.test.mjs, skills/acceptance/references/opportunity-template.md]
+    expected: >
+      exit 0; stdout có "PASS: [VC1]" — stub từ khuôn, ngưỡng giữ "…" → considering[]
+      có đúng {slug,name,since,ageDays}, name == feature; KHÔNG ở gates[]/broken[].
+      Chiều đỏ cùng ca: (a) bản sao cây plugin (scripts+lib+references) với khuôn
+      bị gỡ bullet "Timebox" → cùng stub có 3 bullet điền đủ → gate dang (kết luận
+      đổi ⇒ script đọc khuôn lúc chạy); (b) bản sao khuôn đổi heading section →
+      script exit ≠ 0, stderr có "khuôn không có section Ngưỡng".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/start-scan.mjs, tests/plugins/vao-co-o.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [VC2]" — 4 bullet điền giá trị thật → gates[] có
+      {gate:'dang'}, considering[] không có slug; đối chứng đổi-giá-trị: đặt một
+      bullet về "…" → rơi về considering[]; đặt rỗng sau dấu ":" → cũng considering[].
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/start-scan.mjs, tests/plugins/vao-co-o.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [VC3]" — build → inProgress nextStep S1; park → done
+      state park; stage "ideation" → broken[] reason chứa "stage"; hồ sơ có
+      contract.md draft + opportunity chưa ngưỡng → gates pham-vi, considering rỗng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/start-scan.mjs, tests/plugins/vao-co-o.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [VC4]" — (a) fixture không git, utimes 10 ngày trước →
+      ageDays == 10; (b) git init (ident qua -c) HAI commit trên cùng file, ngày −10
+      rồi −1, đặt cả GIT_AUTHOR_DATE lẫn GIT_COMMITTER_DATE → since == ngày −10
+      (so epoch) và ageDays == 10 — bản sao script đọc commit cuối (mutant thay
+      '--diff-filter=A' bằng '-1') → since lệch → đỏ; (c) file chưa commit trong repo git → mtime.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [commands/start.md, scripts/start-scan.mjs, tests/plugins/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: P99" (ca round-trip START-SCAN-KEYS hiện có, fixture
+      thêm w-consider/opportunity.md) — bốn khoá considering soi được; đột biến đổi
+      tên khoá phía lệnh → đỏ "key … khong co".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [commands/start.md, tests/plugins/vao-co-o.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [VC6]" — ma trận VIẾT TRƯỚC 6 mệnh đề cho khối
+      START-HIEU-KET (số assert == 6, mỗi mệnh đề ghim một chuỗi/span riêng) + 4 assert
+      cho START-CAN-NHAC (có mặt · "Đang cân nhắc" · vị trí sau "Đang dở" trước "Bắt
+      đầu việc mới" · câu "N = 0" không in); vị trí START-HIEU-KET đứng TRƯỚC cả hai
+      nhánh brainstormSkill và cả hai nhánh đều trỏ tên marker; đếm /grill/ == 0;
+      (iv) rút code span `key: value` từ khối lúc chạy, áp lên khuôn → stub → script
+      thật → considering[]. Chiều đỏ cùng ca: bản sao gỡ span `stage: discovery` →
+      đỏ nêu "mệnh đề ①"; gỡ khối → "không tìm thấy khối"; thêm dòng 16 → "quá 15 dòng".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/start-scan.mjs, scripts/product-map.mjs, tests/plugins/vao-co-o.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [VC7]" — trên cùng fixture: số "Đang cân nhắc cơ hội"
+      trong renderProductMap == considering.length + số gate dang (== 2); "Sắp mở"
+      == 1; gỡ hồ sơ cân nhắc → cả hai phía == 1 và considering là mảng RỖNG
+      (khoá vẫn có mặt — đối chứng dữ liệu cho N = 0).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [docs/plans, _acceptance, PRODUCT-MAP.md, tests/plugins/vao-co-o.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [VC8]" — trên CÂY ĐANG KIỂM (suy từ vị trí file):
+      assert vũ trụ (≥ 13 hạt giống, tập slug ⊇ 7 mới ∪ 6 cũ); mọi hạt giống có ô
+      theo ba chân khớp tường minh (thư mục theo slug · đường dẫn nguyên văn trong
+      contract · con trỏ _acceptance/<dir>/ trong chính file); fixture một hồ sơ mỗi
+      chân + một mồ côi → đỏ nêu đúng tên file mồ côi; bản sao đổi tên một file thật
+      ra khỏi pattern → đỏ nêu đúng slug; 7 stub bắt đầu "---", không ở broken[];
+      duong-do ở inProgress S1, 6 còn lại ở considering[]; 10 dòng đầu 7 hạt giống
+      không có "chờ Cổng 0|HẠT GIỐNG|ĐỀ XUẤT" và có con trỏ opportunity.md.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8b
+    criterion: AC-8
+    executor: script
+    cmd: node scripts/product-map.mjs --check
+    paths: [PRODUCT-MAP.md, _acceptance]
+    expected: exit 0 — bản đồ khớp hồ sơ sau khi thêm 7 stub.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [scripts/start-scan.mjs]
+    expected: exit 0 — suite scripts hồi quy (start-scan được ca cũ P-series dùng).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.hooks
+    paths: [scripts/start-scan.mjs]
+    expected: exit 0 — suite hooks hồi quy.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.workflows
+    paths: [scripts/start-scan.mjs]
+    expected: exit 0 — suite workflows hồi quy.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

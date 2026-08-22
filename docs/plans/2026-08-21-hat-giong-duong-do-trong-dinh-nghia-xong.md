@@ -1,6 +1,6 @@
 # Hạt giống — đường đo nằm trong định-nghĩa-xong
 
-**Ngày:** 2026-08-21 · **Trạng thái:** hạt giống, chờ Cổng 0 · **Hạng dự kiến:**
+**Ngày:** 2026-08-21 · **Trạng thái:** `_acceptance/duong-do-trong-dinh-nghia-xong/opportunity.md` · **Hạng dự kiến:**
 T2 (một ô cấu trúc trong contract + một cờ vàng trên thẻ + một dòng cross-check
 của gap-probe; không chạm workflow, không chạm lưới trước-merge).
 **Sinh từ:** phiên rà soát 21/08 (soi toàn kit qua trục ngưỡng-khai-trước ↔

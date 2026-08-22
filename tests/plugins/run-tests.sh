@@ -2339,15 +2339,22 @@ const W = (rel, s) => { const p = path.join(tmp, rel);
   fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, s); };
 const contract = (slug, status, extra = '') =>
   `---\nschema_version: 1\nfeature: f-${slug}\nslug: ${slug}\nowner: t@t\nrisk_tier: T2\nsurfaces: [cli]\nstatus: ${status}\n${extra}---\n# C\n`;
-const opp = (slug, stage, decision) =>
-  `---\nschema_version: 1\nslug: ${slug}\nfeature: f\nowner: t@t\nstage: ${stage}\ndecision: ${decision}\n---\n# O\n`;
+// Section Ngưỡng RÚT TỪ KHUÔN (vao-co-o-ra-co-ten): opportunity chưa quyết chỉ là cổng
+// Cổng Đáng khi đủ ngưỡng; thiếu ngưỡng là ô «đang cân nhắc» (groups.considering).
+const { section: cutSection } = require(path.join(root, 'lib/md-section.cjs'));
+const NGUONG = '\n## Ngưỡng chết / ngưỡng UAT\n\n' + cutSection(
+  fs.readFileSync(path.join(root, 'skills/acceptance/references/opportunity-template.md'), 'utf8'),
+  'Ngưỡng chết / ngưỡng UAT').filter(l => /^\s*[-*]\s+[^:]+:/.test(l)).map(l => l.replace(/…\s*$/, 'x')).join('\n') + '\n';
+const opp = (slug, stage, decision, nguong = '') =>
+  `---\nschema_version: 1\nslug: ${slug}\nfeature: f\nowner: t@t\nstage: ${stage}\ndecision: ${decision}\n---\n# O\n` + nguong;
 const evidence = (verdict) =>
   `---\nschema_version: 2\nslug: x\nverdict: ${verdict}\nhuman_signoff:\n---\n# E\n`;
 
 // ---- 1. Fixture NGUYEN VEN: du MOI HANG bang phan o cua spec ----
 W('_acceptance/config.yaml', 'schema_version: 1\n');
-W('_acceptance/a-opp-moi/opportunity.md', opp('a-opp-moi', 'discovery', ''));
-W('_acceptance/b-opp-thieu-decision/opportunity.md', opp('b-opp-thieu-decision', 'decided', ''));
+W('_acceptance/a-opp-moi/opportunity.md', opp('a-opp-moi', 'discovery', '', NGUONG));
+W('_acceptance/a2-opp-can-nhac/opportunity.md', opp('a2-opp-can-nhac', 'discovery', ''));   // chua nguong → considering
+W('_acceptance/b-opp-thieu-decision/opportunity.md', opp('b-opp-thieu-decision', 'decided', '', NGUONG));
 W('_acceptance/c-opp-build/opportunity.md', opp('c-opp-build', 'decided', 'build'));
 W('_acceptance/d-opp-iterate/opportunity.md', opp('d-opp-iterate', 'decided', 'iterate'));
 W('_acceptance/e-opp-park/opportunity.md', opp('e-opp-park', 'decided', 'park'));
@@ -2412,8 +2419,11 @@ for (const [slug, state] of Object.entries(want.done)) {
   const hit = r.groups.done.find(g => g.slug === slug);
   if (!hit || hit.state !== state) die(`slug ${slug} phai done state=${state}, duoc: ${JSON.stringify(hit)}`);
 }
-const total = r.groups.gates.length + r.groups.inProgress.length + r.groups.done.length + r.broken.length;
-if (total !== 17) die(`tong slug vao o phai 17 (khong sot khong trung), duoc ${total}`);
+const cn = r.groups.considering.find(g => g.slug === 'a2-opp-can-nhac');
+if (!cn || typeof cn.ageDays !== 'number') die(`slug a2-opp-can-nhac phai vao o considering, duoc: ${JSON.stringify(cn)}`);
+if (r.groups.gates.some(g => g.slug === 'a2-opp-can-nhac')) die('a2-opp-can-nhac chua nguong ma van la cong');
+const total = r.groups.gates.length + r.groups.inProgress.length + r.groups.considering.length + r.groups.done.length + r.broken.length;
+if (total !== 18) die(`tong slug vao o phai 18 (khong sot khong trung), duoc ${total}`);
 
 // F-B da dung ca hai nguon: khoa skipped[] bi go han (het nguon sinh), va o
 // cho-Cong-Gia-tri + ba ket cuc nghiem thu vao bang phan o.
@@ -2485,6 +2495,7 @@ W('_acceptance/w-draft/contract.md', '---\nslug: w-draft\nrisk_tier: T2\nstatus:
 W('_acceptance/w-go/contract.md', '---\nslug: w-go\nrisk_tier: T2\nstatus: approved\n---\n');
 W('_acceptance/w-done/contract.md', '---\nslug: w-done\nrisk_tier: T2\nstatus: signed-off\n---\n');
 W('_acceptance/w-bad/contract.md', 'khong fence\n');
+W('_acceptance/w-consider/opportunity.md', '---\nslug: w-consider\nfeature: w\nstage: discovery\ndecision:\n---\n');   // o «dang can nhac» (vao-co-o-ra-co-ten)
 const outJson = JSON.parse(execFileSync('node',
   [path.join(root, 'scripts/start-scan.mjs'), '--root', tmp], { encoding: 'utf8' }));
 
@@ -2498,17 +2509,18 @@ const resolveKey = (obj, dotted) => dotted.split('.').reduce((acc, part) => {
   return acc[part];
 }, obj);
 
-const check = entries => {
+const checkOn = (out, entries) => {
   const errs = [];
   for (const [rel, txt] of entries) {
     const keys = extractKeys(txt);
     if (!keys) { errs.push(`${rel}: khong rut duoc khoi START-SCAN-KEYS`); continue; }
     for (const k of keys)
-      if (resolveKey(outJson, k) === undefined)
+      if (resolveKey(out, k) === undefined)
         errs.push(`${rel}: key ${k} khong co trong dau ra start-scan that`);
   }
   return errs;
 };
+const check = entries => checkOn(outJson, entries);
 const load = rel => [rel, fs.readFileSync(path.join(root, rel), 'utf8')];
 const e0 = check(SOURCES.map(load));
 if (e0.length) die('doi chung duong FAIL: ' + JSON.stringify(e0));   // ban that XANH
@@ -2522,6 +2534,21 @@ if (!e1.some(x => /key map_present_doi_ten khong co/.test(x)))
 const e2 = check([['(ban-xoa-marker)', mut.replace(/<!-- <<<START-SCAN-KEYS[\s\S]*?START-SCAN-KEYS>>> -->/, '')]]);
 if (!e2.some(x => /khong rut duoc khoi START-SCAN-KEYS/.test(x)))
   die('dot bien xoa marker khong bi bat: ' + JSON.stringify(e2));
+// dot bien phia DAU RA (vao-co-o-ra-co-ten AC-5): ban sao bo quet bo khoa ageDays khoi
+// considering.push → marker that phai DO neu dung ten khoa (chung minh resolveKey soi toi mang moi)
+const mut3 = fs.mkdtempSync(path.join(os.tmpdir(), 'p99m-'));
+for (const rel of ['lib/evidence-core.cjs', 'lib/workspace-record.cjs', 'lib/md-section.cjs', 'scripts/khong-can-nguoi.mjs',
+                   'scripts/product-map.mjs', 'skills/acceptance/references/opportunity-template.md']) {
+  fs.mkdirSync(path.dirname(path.join(mut3, rel)), { recursive: true });
+  fs.copyFileSync(path.join(root, rel), path.join(mut3, rel));
+}
+const scanSrc = fs.readFileSync(path.join(root, 'scripts/start-scan.mjs'), 'utf8');
+if (!scanSrc.includes(', ageDays: ageDays(s) })')) die('dot bien dau ra: khong thay anchor ageDays trong start-scan');
+fs.writeFileSync(path.join(mut3, 'scripts/start-scan.mjs'), scanSrc.replace(', ageDays: ageDays(s) })', ' })'));
+const outMut = JSON.parse(execFileSync('node', [path.join(mut3, 'scripts/start-scan.mjs'), '--root', tmp], { encoding: 'utf8' }));
+const eMut = checkOn(outMut, SOURCES.map(load));
+if (!eMut.some(x => /key groups\.considering\[\]\.ageDays khong co/.test(x)))
+  die('dot bien bo khoa ageDays phia dau ra khong bi bat: ' + JSON.stringify(eMut));
 
 // ── CHIEU NGUOC (S4-r1 discovery-brainstorm-socket, hinh dang 3): tren day chi
 // do marker ⊆ dau ra. Xoa mot dong KHOI marker chi lam mang `keys` ngan di nen
@@ -3013,10 +3040,16 @@ Object.assign(MATRIX, {
   'implemented|blocked': 'prog:S4', 'verified|blocked': 'prog:S4',
 });
 // Nhanh opportunity (khong co contract.md)
+const { section: cutSection } = require(path.join(root, 'lib/md-section.cjs'));
+const OPP_TPL = 'skills/acceptance/references/opportunity-template.md';
+const NGUONG_DU = '\n## Ngưỡng chết / ngưỡng UAT\n\n' + cutSection(fs.readFileSync(path.join(root, OPP_TPL), 'utf8'), 'Ngưỡng chết / ngưỡng UAT')
+  .filter(l => /^\s*[-*]\s+[^:]+:/.test(l)).map(l => l.replace(/…\s*$/, 'x')).join('\n') + '\n';
 const OPP_STATES = {
   'o-matquyen':  d => { const p = path.join(d, 'opportunity.md'); fs.writeFileSync(p, '---\nstage: decided\ndecision: build\n---\n'); fs.chmodSync(p, 0o000); },
   'o-thieustage':d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nslug: x\n---\n'),
-  'o-discovery': d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: discovery\ndecision:\n---\n'),
+  // Ngưỡng rút từ KHUÔN: đủ ngưỡng → cổng Đáng; thiếu → ô «đang cân nhắc» (vao-co-o-ra-co-ten)
+  'o-discovery': d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: discovery\ndecision:\n---\n' + NGUONG_DU),
+  'o-can-nhac':  d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: discovery\ndecision:\n---\n'),
   'o-build':     d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: decided\ndecision: build\n---\n'),
   'o-iterate':   d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: decided\ndecision: iterate\n---\n'),
   'o-park':      d => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: decided\ndecision: park\n---\n'),
@@ -3026,7 +3059,7 @@ const OPP_STATES = {
 };
 Object.assign(MATRIX, {
   'noc|o-matquyen': 'broken:EACCES', 'noc|o-thieustage': 'broken:thiếu stage',
-  'noc|o-discovery': 'gates:dang',   'noc|o-build': 'prog:S1', 'noc|o-iterate': 'prog:S1',
+  'noc|o-discovery': 'gates:dang',   'noc|o-can-nhac': 'cons:', 'noc|o-build': 'prog:S1', 'noc|o-iterate': 'prog:S1',
   'noc|o-park': 'done:park',         'noc|o-kill': 'done:kill',
   'noc|o-rac': 'broken:decision không nhận diện được', 'noc|o-trong': 'broken:không có contract.md lẫn opportunity.md',
 });
@@ -3049,6 +3082,7 @@ const build = () => {
 const cellOf = (r, slug) => {
   const g = r.groups.gates.find(x => x.slug === slug);      if (g) return `gates:${g.gate}`;
   const p = r.groups.inProgress.find(x => x.slug === slug); if (p) return `prog:${p.nextStep}`;
+  const cs = r.groups.considering.find(x => x.slug === slug); if (cs) return 'cons:';
   const dn = r.groups.done.find(x => x.slug === slug);      if (dn) return `done:${dn.state}`;
   const b = r.broken.find(x => x.slug === slug);            if (b) return `broken:${b.reason}`;
   return '(mat tich)';
@@ -3086,6 +3120,9 @@ fs.copyFileSync(path.join(root, 'lib/workspace-record.cjs'), path.join(mut, 'lib
 // buoc nap module va ca nay do vi thieu file chu khong vi hanh vi dang do.
 fs.copyFileSync(path.join(root, 'scripts/khong-can-nguoi.mjs'), path.join(mut, 'scripts/khong-can-nguoi.mjs'));
 fs.copyFileSync(path.join(root, 'lib/md-section.cjs'), path.join(mut, 'lib/md-section.cjs'));
+// start-scan doc KHUON opportunity-template luc chay (nhan bullet Nguong) — ban sao phai co khuon
+fs.mkdirSync(path.join(mut, path.dirname(OPP_TPL)), { recursive: true });
+fs.copyFileSync(path.join(root, OPP_TPL), path.join(mut, OPP_TPL));
 const src = fs.readFileSync(SCAN, 'utf8');
 const anchor = "if (status === 'signed-off')";
 if (!src.includes(anchor)) die('mutant: khong tim thay anchor cho re trang thai');
@@ -3974,7 +4011,8 @@ function doiChieu(nhan, { c, o, u, evidence = null, giuNguyenCay = false }) {
   if (scanHong !== mapHong) lech.push(`[${nhan}] quet=${scanHong} ban do=${mapHong}`);
   // Slug KHONG duoc bien mat: phai o dung MOT o nao do o CA HAI ben
   const oNao = scanHong || scan.groups.gates.some(g => g.slug === "x")
-    || scan.groups.inProgress.some(g => g.slug === "x") || scan.groups.done.some(g => g.slug === "x");
+    || scan.groups.inProgress.some(g => g.slug === "x") || scan.groups.done.some(g => g.slug === "x")
+    || scan.groups.considering.some(g => g.slug === "x");   // o «dang can nhac» (vao-co-o-ra-co-ten)
   if (!oNao) lech.push(`[${nhan}] slug BIEN MAT khoi bo quet`);
   if (!mapTxt.includes("`x`")) lech.push(`[${nhan}] slug BIEN MAT khoi ban do`);
   return scanHong;
@@ -6984,11 +7022,12 @@ if (scan(cfg(`  ${KEY}_doi_ten: ${NAME}\n`)) !== null)
 const SEG = [
   { rel: 'commands/start.md', a: 'Bắt đầu việc mới', b: 'Dưới thẻ',
     pos: /CÓ giá trị\s*→\s*mở buổi khai thác bằng đúng\s+skill đó/,
-    neg: /`null`\s*→\s*đi nghi thức grill của kit/, tail: 'KHÔNG chặn',
-    // Nhánh THỨ BA: đích khai mà phiên không có skill đó → NÓI THẲNG rồi grill.
+    neg: /`null`\s*→\s*khai thác theo khuôn/, tail: 'KHÔNG chặn',
+    // Nhánh THỨ BA: đích khai mà phiên không có skill đó → NÓI THẲNG rồi khai thác theo khuôn.
+    // (vao-co-o-ra-co-ten: con trỏ «grill» là nghi thức không tồn tại — thay bằng khuôn + START-HIEU-KET)
     // Thêm ở r1 mà quên thước (r2 bắt): xoá cả mệnh đề thì mọi case vẫn xanh,
     // trong khi đây là nhánh duy nhất mà vắng nó gây đúng cái hại đã ghi.
-    third: /nằm trong danh sách skill[\s\S]{0,40}?khả dụng[\s\S]{0,60}?→[\s\S]{0,40}?NÓI THẲNG[\s\S]{0,260}?grill của kit/i },
+    third: /nằm trong danh sách skill[\s\S]{0,40}?khả dụng[\s\S]{0,60}?→[\s\S]{0,40}?NÓI THẲNG[\s\S]{0,260}?khai thác theo khuôn/i },
 ];
 const segOf = (txt, s) => {
   const i = txt.indexOf(s.a), j = i < 0 ? -1 : txt.indexOf(s.b, i);
@@ -6999,11 +7038,11 @@ const checkSeg = (s, txt) => {
   const seg = segOf(txt, s);
   const errs = [];
   if (!s.pos.test(seg)) errs.push(`${s.rel}: đoạn lối (a) thiếu QUAN HỆ nhánh-CÓ → dùng skill đã khai`);
-  if (!s.neg.test(seg)) errs.push(`${s.rel}: đoạn lối (a) thiếu QUAN HỆ nhánh-null → grill kit-own`);
+  if (!s.neg.test(seg)) errs.push(`${s.rel}: đoạn lối (a) thiếu QUAN HỆ nhánh-null → khai thác theo khuôn kit-own`);
   if (!seg.includes('opportunity-template.md')) errs.push(`${s.rel}: nhánh fallback không trỏ khuôn opportunity-template.md`);
   if (!seg.includes(s.tail)) errs.push(`${s.rel}: đoạn lối (a) thiếu chữ "${s.tail}"`);
   if (!seg.includes(`discovery.${KEY}`)) errs.push(`${s.rel}: đoạn lối (a) không nêu khoá config discovery.${KEY}`);
-  if (!s.third.test(seg)) errs.push(`${s.rel}: đoạn lối (a) thiếu NHÁNH THỨ BA — đích khai không giải được → nói thẳng rồi grill`);
+  if (!s.third.test(seg)) errs.push(`${s.rel}: đoạn lối (a) thiếu NHÁNH THỨ BA — đích khai không giải được → nói thẳng rồi khai thác theo khuôn`);
   return errs;
 };
 for (const s of SEG) {
@@ -10493,6 +10532,14 @@ done
 for _lv in LV1 LV2 LV3 LV4 LV5 LV6; do
   run "ca lan V — $_lv (ho so lan-v-khong-phai-cho-ky)" \
     env LV_CASES="$_lv" node "$ROOT/tests/plugins/lan-v.test.mjs"
+done
+
+# ─── Hồ sơ vao-co-o-ra-co-ten: VC1..VC8 (file ca riêng; VC5 = P99) ───────────
+# Danh sách ca do CHÍNH file ca xuất (--ids); tên dòng run KHÔNG chứa "PASS: [VC".
+_vc_ids="$(node "$ROOT/tests/plugins/vao-co-o.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca VC"; failures=$((failures+1)); _vc_ids=""; }
+for _vc in $_vc_ids; do
+  run "ca vao co o — $_vc (ho so vao-co-o-ra-co-ten)" \
+    env VC_CASES="$_vc" node "$ROOT/tests/plugins/vao-co-o.test.mjs"
 done
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)

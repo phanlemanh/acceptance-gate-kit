@@ -1,6 +1,6 @@
 # Hạt giống — hỏi-theo-mặt-phẳng: câu hỏi là thứ người BẤM ĐƯỢC, không phải một khuôn chữ
 
-*Trạng thái: **HẠT GIỐNG, chờ Cổng 0**. Xếp SAU đợt 2 của bản neo 12/08 —
+*Trạng thái: sống ở `_acceptance/hoi-theo-mat-phang/opportunity.md`. Xếp SAU đợt 2 của bản neo 12/08 —
 đợt 2 giảm SỐ câu hỏi (veto-có-dấu-vết), hạt giống này giảm GIÁ của mỗi câu
 còn lại; làm ngược là đánh bóng những câu hỏi sắp biến mất. Sinh 14/08 từ
 nhận xét của owner: khối 👉 đang là một form chữ trong khi harness có cơ chế
