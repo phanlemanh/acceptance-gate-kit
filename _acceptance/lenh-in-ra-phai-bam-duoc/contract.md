@@ -5,7 +5,7 @@ slug: lenh-in-ra-phai-bam-duoc
 owner: phanlemanh@gmail.com
 risk_tier: T2               # human-facing-language + commands + 3 SKILL + gate-card.js + CONTEXT + tests — không chạm lib/**, hook, lưới
 surfaces: [cli]
-status: approved
+status: verified
 approved_by:
 approved_at:
 veto_state: mo
