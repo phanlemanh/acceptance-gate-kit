@@ -50,6 +50,13 @@ Ván thử b1 (artifact-platform, `trang-tu-van-v2-r4-b1`, 19/08, lệch có tê
 
 ## Cổng 0
 
+> 2026-08-22 — owner xem thẻ Cổng Đáng, chọn **khám thêm trước khi ký** (không
+> điền `decision`; ô đứng chờ Cổng Đáng). Vật liệu khám thêm gom ở
+> `discovery/phien-huashu-2026-08-22.md` (toàn bộ phân tích + hình của phiên
+> «Phân tích skill Huashu Design»). Lưu ý luật kit: `decision: iterate` ở cổng
+> này được máy quét xếp vào S1 như `build` — «khám thêm» = chưa ký, không phải
+> ký `iterate`.
+
 - **decision = …** Căn cứ: …
 - **disposition = …** Căn cứ: ô này không có prototype code trong kit (ván thử sống ở repo tiêu thụ) — …
 - **Phiên nghiệm thu ở đâu:** ván thử kế ở repo tiêu thụ (lệch có tên trên engine đã đổi) — số đo là năm thước dưới; không có ván trong timebox thì Cổng Giá trị không có gì để đọc.
