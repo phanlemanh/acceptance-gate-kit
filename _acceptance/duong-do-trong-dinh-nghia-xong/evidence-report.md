@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent (đường VERIFY độc lập, 6 lệnh chạy tuần tự — quyết định d-4308)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 24eec78ce4823260b1b4656b66ed8d7ec867ed55
+verified_commit: 5ac856d04c97bc13860b9552005f2e331d78a7bc
 human_signoff: Manh Phan 2026-08-22 — ký với known-limits đã khai; 4 finding ngoài hợp đồng (review-findings.md) là ứng viên hồ sơ T2 kế: bỏ «metric» khỏi _Avoid_ + nới nhận diện dòng bỏ
 ---
 
@@ -197,3 +197,7 @@ sha: 60b7cf38fa839a6a8b0c6ce1a78b56882287c1c0 · suites: 4 lệnh exit 0 + produ
 ### Re-pin lần 2 — 2026-08-22, do hồ sơ lenh-in-ra-phai-bam-duoc (chip D) chạm gate-card.js · CONTEXT.md · uat-session SKILL · duong-do.test.mjs (DD2/DD4/DD7 đổi thước theo AC-6/AC-7 của chip D, d-4505)
 run_id: repin-duong-do-trong-dinh-nghia-xong-20260822T153058Z
 sha: 24eec78ce4823260b1b4656b66ed8d7ec867ed55 · suites: 4 lệnh exit 0 (phiên verify độc lập của chip D, 15:24–15:28Z) + product-map --check khớp
+
+### Re-pin lần 3 — 2026-08-23, do #101 đổi sáu file engine sau ngày verify nên lưới gọi bằng chứng là stale
+run_id: repin-20260823T122421Z
+sha: 5ac856d04c97bc13860b9552005f2e331d78a7bc · suites: 4 lệnh exit 0
