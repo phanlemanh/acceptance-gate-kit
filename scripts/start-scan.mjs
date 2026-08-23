@@ -198,62 +198,25 @@ const ngayXong = (dir, anchorPath) => {
 // nguồn; chép tay vào đây là hai bản trôi (d-4202). Đọc LƯỜI: repo không có ý
 // nào thì không đụng khuôn. Khuôn hỏng → chết to, không im lặng.
 const OPP_TEMPLATE = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md');
-const UAT_THRESHOLD_HEADING = 'Ngưỡng chết / ngưỡng UAT';
-const PLACEHOLDER_RE = /^(…|\.\.\.)?$/;                      // giá trị sau dấu ':' — rỗng/«…» là chưa điền
-const bulletOf = l => { const m = l.match(/^\s*[-*]\s+([^:]+):(.*)$/); return m ? { label: m[1].trim(), value: m[2].trim() } : null; };
-let _labels = null;
-const thresholdLabels = () => {
-  if (_labels) return _labels;
-  let tpl;
-  try { tpl = readFileSync(OPP_TEMPLATE, 'utf8'); }
+// Luật phân loại ô ngưỡng + timebox sống ở LIB dùng chung (lib/nguong-o-co-hoi.cjs) —
+// thẻ và ca đo hỏi cùng hàm đó. Vòng 1 viết luật này ba lần và bản thứ ba đã lệch ngay
+// khi ra đời; chép luật là hình dạng đã trả giá (finding S4-r1).
+const NG = require(path.join(__dirname, '..', 'lib', 'nguong-o-co-hoi.cjs'));
+let _tpl = null;
+const oppTpl = () => {
+  if (_tpl != null) return _tpl;
+  try { return (_tpl = readFileSync(OPP_TEMPLATE, 'utf8')); }
   catch (e) { bail(`khuôn opportunity-template không đọc được: ${OPP_TEMPLATE} (${e.code || e.message})`); }
-  const labels = section(tpl, UAT_THRESHOLD_HEADING).map(bulletOf).filter(Boolean).map(b => b.label);
-  if (!labels.length) bail(`khuôn không có section Ngưỡng «${UAT_THRESHOLD_HEADING}» (hoặc section không có bullet): ${OPP_TEMPLATE}`);
-  return (_labels = labels);
 };
-// Hai tiền tố rút từ CHÍNH KHUÔN (cùng nếp với nhãn bullet ở trên — chép tay là hai bản trôi).
-const prefixFromTpl = marker => {
-  let tpl;
-  try { tpl = readFileSync(OPP_TEMPLATE, 'utf8'); }
-  catch (e) { bail(`khuôn opportunity-template không đọc được: ${OPP_TEMPLATE} (${e.code || e.message})`); }
-  const m = tpl.match(new RegExp(`<<<${marker} -->\\n([\\s\\S]*?)<!-- ${marker}>>>`));
-  if (!m) bail(`khuôn không có khối ${marker}: ${OPP_TEMPLATE}`);
-  return m[1].trim();
-};
-let _pre = null;
-const prefixes = () => _pre || (_pre = { deXuat: prefixFromTpl('OPP-DE-XUAT-PREFIX'), khongDo: prefixFromTpl('OPP-KHONG-DO-DUOC-PREFIX') });
-// Dòng «không đo được» = bắt đầu ĐÚNG tiền tố, ký tự kế là khoảng trắng hoặc hết dòng.
-// «Không đo được:» (hai chấm) KHÔNG phải lối ra — lối ra có tên thì tên phải khớp.
-const isKhongDoLine = l => { const p = prefixes().khongDo, t = l.trim(); return t.startsWith(p) && (t.length === p.length || /\s/.test(t[p.length])); };
-// BỐN trạng thái của ô ngưỡng (hồ sơ ra-co-ten, AC-9). Thứ tự hỏi: lối ra có tên trước,
-// rồi mới xét bullet — một ô đã khai «không đo được» thì bullet còn lại không có nghĩa.
-const thresholdState = oTxt => {
-  const lines = section(oTxt, UAT_THRESHOLD_HEADING);
-  if (lines.some(isKhongDoLine)) return 'khong-do-duoc';
-  const got = new Map();
-  for (const l of lines) { const b = bulletOf(l); if (b) got.set(b.label, b.value); }
-  if (!thresholdLabels().every(lb => got.has(lb) && !PLACEHOLDER_RE.test(got.get(lb)))) return 'chua-chot';
-  return [...got.values()].some(v => v.startsWith(prefixes().deXuat)) ? 'de-xuat' : 'chot';
-};
+const thresholdState = oTxt => { try { return NG.thresholdState(oTxt, oppTpl()); } catch (e) { bail(`${e.message}: ${OPP_TEMPLATE}`); } };
 // Cổng Đáng: máy ĐỀ XUẤT ngưỡng cũng là «đã điền» — có thứ để người sửa hoặc nhận.
 const thresholdFilled = oTxt => thresholdState(oTxt) !== 'chua-chot';
-// Timebox: chỉ nhận hai dạng ngày (ISO và dd/mm/yyyy). Không parse được → không đoán.
-const timeboxDate = oTxt => {
-  for (const l of section(oTxt, UAT_THRESHOLD_HEADING)) {
-    const b = bulletOf(l); if (!b || b.label !== 'Timebox') continue;
-    const iso = b.value.match(/\b(\d{4})-(\d{2})-(\d{2})\b/);
-    if (iso) return Date.UTC(+iso[1], +iso[2] - 1, +iso[3]);
-    const vn = b.value.match(/\b(\d{2})\/(\d{2})\/(\d{4})\b/);
-    if (vn) return Date.UTC(+vn[3], +vn[2] - 1, +vn[1]);
-  }
-  return null;
-};
-const quaTimebox = oTxt => { const d = timeboxDate(oTxt); return d != null && d < Date.now(); };
+const quaTimebox = oTxt => NG.quaTimebox(oTxt);
 // Răng chống lách: lối «không đo được» chỉ dành cho vòng KHÔNG có người dùng cuối.
-// Hợp đồng khai mặt ui/mobile mà ô lại khai không đo được ⇒ cờ, hồ sơ VẪN ở ô của nó.
 const SURFACE_NGUOI_DUNG = /\b(ui|mobile)\b/i;
 const mienDoCoNguoiDung = (cTxt, oTxt) => !!oTxt && thresholdState(oTxt) === 'khong-do-duoc'
   && SURFACE_NGUOI_DUNG.test(frontmatterField(cTxt, 'surfaces') || '');
+
 // since của ý đang cân nhắc = committer date của commit ĐẦU TIÊN thêm file
 // (--diff-filter=A); chưa commit / không git → mtime (d-4203).
 const gitBirth = file => {

@@ -81,8 +81,10 @@ function evidenceText(slug, { verdict = 'PASS', signoff = '', sach = 'sach', ver
   let t = fm + `\n# Evidence Report: ${slug}\n\n| Eval | Criterion | Executor | Verdict |\n|---|---|---|---|\n| E1 | AC-1 | test | PASS |\n\n` +
     `## Evidence\n- eval: E1\n  run_id: ${slug}-E1-001\n  exit_code: 0\n  verifier: verify.sh\n  verified_at: 2026-08-23T00:00:00Z\n`;
   if (sach === 'uncertain') t += `- eval: E2\n  run_id: ${slug}-E2-001\n  exit_code: 0\n  verifier: verify.sh\n  verdict: UNCERTAIN\n`;
-  // Hai mục cuối: tên rút từ CHÍNH khối xanh-sạch của khuôn (mã `sections`), không gõ tay.
-  t += '\n## Known limits\n\n' + (sach === 'kl-co' ? '- còn một lỗ\n' : '') + '\n## Ngoài hợp đồng\n\n';
+  // Hai mục cuối RÚT TỪ KHUÔN bên viết (khối EVIDENCE-SECTIONS-TEMPLATE) — gõ tay ở đây là
+  // dựng một hình dạng báo cáo mà không code path nào sinh ra (finding S4-r1, hình dạng 2).
+  const secBlk = blockFromTemplate(EVID_TPL, 'EVIDENCE-SECTIONS-TEMPLATE');
+  t += '\n' + (sach === 'kl-co' ? secBlk.replace(/(## Known limits\n)/, '$1\n- còn một lỗ\n') : secBlk);
   return t;
 }
 const runLogText = slug => JSON.stringify({ ts: '2026-08-23T00:00:00Z', kind: 'eval', run_id: `${slug}-E1-001`, exit_code: 0 }) + '\n';
@@ -120,6 +122,51 @@ const findSlug = (j, slug) => {
   const b = (j.broken || []).find(e => e.slug === slug); return b ? { grp: 'broken', ...b } : null;
 };
 
+// ── bộ đọc thân văn bản: CẮT PHẠM VI rồi đếm hit; mutant gỡ mệnh đề phải ĐỎ ────
+const readRepo = rel => readFileSync(path.join(ROOT, rel), 'utf8');
+const cut = (txt, startRe, endRe) => {
+  const s0 = txt.search(startRe); if (s0 < 0) return '';
+  const rest = txt.slice(s0); const e = rest.slice(1).search(endRe);
+  return e < 0 ? rest : rest.slice(0, e + 1);
+};
+const gflag = re => new RegExp(re.source, re.flags.includes('g') ? re.flags : re.flags + 'g');
+const countIn = (txt, re) => (txt.match(gflag(re)) || []).length;
+// rows: [tên, file, cắt-phạm-vi, regex, số-lần (null = ≥1)]
+//
+// Chiều đỏ phải TIÊM VÀO VĂN BẢN rồi chạy lại CẢ cutter lẫn regex. Vòng 1 viết mutant là
+// `full.replace(re,'')` rồi đếm lại `re` — kết quả luôn 0, nên nhánh đó đo engine regex của
+// Node chứ không đo file dưới thước (finding S4-r1: «chiều đỏ giả»). Hai mutant thật:
+//   DỜI  — chuyển mệnh đề RA NGOÀI phạm vi cắt (nối vào cuối file). Nếu cutter thực sự cắt
+//          phạm vi thì đếm trong phạm vi phải hụt; cutter giả (đọc cả file) sẽ vẫn xanh và
+//          bị bắt tại đây. Đây là vế chứng minh PHẠM VI có thật.
+//   ĐỔI  — thay một chữ trong mệnh đề (bản sao) → đếm phải hụt. Vế chứng minh NEEDLE bám vật.
+// Cả hai đều đòi lệnh tiêm phải ĐỔI ĐƯỢC văn bản; không đổi được thì ca đỏ, không xanh im.
+function checkMenhDe(rows) {
+  const errs = [];
+  for (const [ten, file, cutter, re, n, caFile] of rows) {
+    const full = readRepo(file);
+    const c = countIn(cutter(full), re);
+    if (n == null ? c < 1 : c !== n) { errs.push(`${ten}: thấy ${c} lần, mong ${n ?? '≥1'}`); continue; }
+    const hits = full.match(gflag(re)) || [];
+    if (!hits.length) { errs.push(`${ten}: không rút được đoạn khớp để tiêm`); continue; }
+    // DỜI chỉ có nghĩa khi hàng CÓ phạm vi cắt. Hàng cố ý đọc cả file phải KHAI (cột 6) —
+    // im lặng bỏ vế này cho mọi hàng là mở lại đúng cái lỗ vừa vá.
+    const coPhamVi = cutter(full) !== full;
+    if (!coPhamVi && !caFile) { errs.push(`${ten}: cutter đọc CẢ FILE mà hàng không khai — khai cột 6 nếu cố ý`); continue; }
+    if (coPhamVi) {
+      const doi = full.replace(gflag(re), '') + '\n\n## Phụ lục máy sinh (mutant)\n\n' + hits.join('\n') + '\n';
+      if (doi === full) { errs.push(`${ten}: lệnh tiêm DỜI không đổi được văn bản`); continue; }
+      if (countIn(cutter(doi), re) !== 0) errs.push(`${ten}: dời mệnh đề RA NGOÀI phạm vi mà bộ đọc vẫn thấy — phạm vi cắt không có thật`);
+    }
+    // ĐỔI: thay một chữ trong MỌI lần khớp.
+    let doiChu = false;
+    const sua = full.replace(gflag(re), m => { const m2 = m.replace(/[A-Za-zÀ-ỹ]/, 'Z'); if (m2 !== m) doiChu = true; return m2; });
+    if (!doiChu || sua === full) { errs.push(`${ten}: lệnh tiêm ĐỔI không đổi được văn bản`); continue; }
+    if (countIn(cutter(sua), re) !== 0) errs.push(`${ten}: đổi chữ trong mệnh đề mà bộ đọc vẫn thấy — needle không bám vật`);
+  }
+  return errs;
+}
+
 // ── RT1 — enum round-trip khuôn↔lib + usesUat/usesEvidence + khối xanh-sạch ba đầu ──
 if (want('RT1')) {
   const errs = [];
@@ -144,8 +191,13 @@ if (want('RT1')) {
   const orderMjs = ["!== 'PASS'", 'bypass_used', 'enforcement_mode', 'risk_tier', 'UNCERTAIN_RE.test', "'Known limits', 'Ngoài hợp đồng'"].map(n => mjs.indexOf(n));
   if (orderMjs.some(i => i < 0) || orderMjs.some((v, i) => i > 0 && v < orderMjs[i - 1])) errs.push(`thứ tự xanhSach (mjs) lệch khối: ${orderMjs}`);
   const sh = readFileSync(PREMERGE, 'utf8'); const fn = sh.slice(sh.indexOf('xanh_sach_check() {'));
-  const orderSh = ['= "PASS"', 'bypass_used', 'risk_tier', 'UNCERTAIN', '"Known limits" "Ngoài hợp đồng"'].map(n => fn.indexOf(n));
+  // SÁU needle, không phải năm: bỏ `enforcement_mode` khỏi vế bash là ca đo tự khoét đúng
+  // chỗ vật thiếu — thước không thể đỏ cho điều kiện đó ở cả hai chiều (finding S4-r1).
+  const orderSh = ['= "PASS"', 'bypass_used', 'enforcement_mode', 'risk_tier', 'UNCERTAIN', '"Known limits" "Ngoài hợp đồng"'].map(n => fn.indexOf(n));
   if (orderSh.some(i => i < 0) || orderSh.some((v, i) => i > 0 && v < orderSh[i - 1])) errs.push(`thứ tự xanh_sach_check (bash) lệch khối: ${orderSh}`);
+  // Số needle PHẢI bằng số điều kiện khối: bớt một needle là ca đo tự khoét đúng chỗ vật thiếu.
+  if (orderMjs.length !== EXPECT_XS.length || orderSh.length !== EXPECT_XS.length)
+    errs.push(`số needle (${orderMjs.length}/${orderSh.length}) != số điều kiện khối (${EXPECT_XS.length}) — thước không phủ hết khối`);
   // Chiều đỏ: bản sao khuôn gỡ mục «sections» → reader của chính ca này phải nêu tên mục thiếu.
   const t2 = tmp('rt1-'); const fake = path.join(t2, 'evidence-report-template.md');
   writeFileSync(fake, readFileSync(EVID_TPL, 'utf8').replace(/^sections .*\n/m, ''));
@@ -292,8 +344,25 @@ if (want('RT15')) {
     const r = luoi(R);
     if (r.status === 0 || !/VIOLATION \[rt15\]: veto_state=da-veto chưa xử/.test(r.out)) errs.push(`(c) ${st}+da-veto phải chặn cùng thông điệp; exit ${r.status}`);
   });
+  // (b) chuyển machine-cleared -> signed-off có CHỦ đứng tên: thân lệnh ký phải nói ra.
+  errs.push(...checkMenhDe([
+    ['signoff nhận machine-cleared', 'commands/signoff.md',
+      t => cut(t, /^3\. \*\*List what only the human decides/m, /^4\. \*\*Collect decisions/m),
+      /kể cả khi hồ sơ đang `machine-cleared`/, 1],
+  ]));
+  // (d) bộ quét gọi HỎNG cho hồ sơ mâu thuẫn — không im lặng xếp vào «đã giao».
+  withRepo(root => {
+    mkWs(root, 'k', { contract: MC, evidence: { signoff: 'Fx 2026-08-23' } });
+    const x = findSlug(scan(root), 'k');
+    if (!x || x.grp !== 'broken') errs.push(`(d) bộ quét phải gọi hỏng: ${JSON.stringify(x)}`);
+    else if (!/chữ ký người trên hồ sơ máy-thông/.test(x.reason || '')) errs.push(`(d) lý do không nêu mâu thuẫn: ${x.reason}`);
+    // đối chứng dương: bỏ chữ ký thì cùng fixture phải vào «đã giao», không hỏng
+    mkWs(root, 'k2', { contract: MC, evidence: { signoff: '' } });
+    const y = findSlug(scan(root), 'k2');
+    if (!y || y.grp !== 'done' || y.stateKey !== 'da-giao-may-thong-veto-mo') errs.push(`(d+) đối chứng dương: ${JSON.stringify(y)}`);
+  });
   if (errs.length) fail('RT15', errs.join(' · '));
-  else pass('RT15', 'machine-cleared × chữ ký: hook chặn hai chiều, lưới chặn, da-veto cùng thông điệp, đối chứng dương qua');
+  else pass('RT15', 'machine-cleared × chữ ký: hook hai chiều + lưới + bộ quét gọi hỏng + thân lệnh ký nhận chuyển; da-veto cùng thông điệp; ba đối chứng dương');
 }
 
 // ── RT5 — bảng chữ: 4 khoá mới, nhãn riêng, bucket đúng (phần bản đồ/thẻ ở chặng sau) ──
@@ -403,8 +472,14 @@ if (want('RT12')) {
       if (!x || x.grp !== 'gates' || ((x.flags || []).includes('qua-timebox') !== exp)) errs.push(`${s}: mong cờ=${exp}, ${JSON.stringify(x)}`);
     }
   });
+  // E12 tuyên hai mệnh đề của nghi thức nghiệm thu — đường SINH RA trạng thái mà nửa trên
+  // đang đo. Không đo nó là đo cái kết mà không đo cái tạo ra nó (finding S4-r1).
+  errs.push(...checkMenhDe([
+    ['uat kill→archived', 'skills/uat-session/SKILL.md', t => cut(t, /^- Bước kế theo verdict/m, /^- Append kết quả đo/m), /`kill` → ghi `stage: archived`/, 1],
+    ['uat iterate→bước kế', 'skills/uat-session/SKILL.md', t => cut(t, /^- Bước kế theo verdict/m, /^- Append kết quả đo/m), /`iterate` → in đúng một dòng/, 1],
+  ]));
   if (errs.length) fail('RT12', errs.join(' · '));
-  else pass('RT12', 'archived → đã đóng có hồ sơ; timebox quá hạn hai dạng ngày → cờ; chưa qua/không parse → không cờ');
+  else pass('RT12', 'archived → đã đóng có hồ sơ; timebox hai dạng ngày; nghi thức nghiệm thu có mệnh đề sinh ra trạng thái đó');
 }
 
 const card = (root, slug, extra = []) => spawnSync(process.execPath, [CARD, '--root', root, '--slug', slug, ...extra], { encoding: 'utf8' });
@@ -466,29 +541,6 @@ if (want('RT11')) {
   else pass('RT11', 'ui/mobile + khai không-đo-được → cờ đỏ trên thẻ + cờ ở bộ quét, hồ sơ vẫn ở ô của nó; cli → không cờ');
 }
 
-// ── bộ đọc thân văn bản: CẮT PHẠM VI rồi đếm hit; mutant gỡ mệnh đề phải ĐỎ ────
-const readRepo = rel => readFileSync(path.join(ROOT, rel), 'utf8');
-const cut = (txt, startRe, endRe) => {
-  const s0 = txt.search(startRe); if (s0 < 0) return '';
-  const rest = txt.slice(s0); const e = rest.slice(1).search(endRe);
-  return e < 0 ? rest : rest.slice(0, e + 1);
-};
-const gflag = re => new RegExp(re.source, re.flags.includes('g') ? re.flags : re.flags + 'g');
-const countIn = (txt, re) => (txt.match(gflag(re)) || []).length;
-// rows: [tên, file, cắt-phạm-vi, regex, số-lần (null = ≥1)]
-function checkMenhDe(rows) {
-  const errs = [];
-  for (const [ten, file, cutter, re, n] of rows) {
-    const full = readRepo(file);
-    const c = countIn(cutter(full), re);
-    if (n == null ? c < 1 : c !== n) { errs.push(`${ten}: thấy ${c} lần, mong ${n ?? '≥1'}`); continue; }
-    // Mutant: gỡ mệnh đề khỏi BẢN SAO → chính bộ đọc này phải đỏ (assert, không mô tả).
-    const c2 = countIn(cutter(full.replace(gflag(re), '')), re);
-    if (!(n == null ? c2 < 1 : c2 !== n)) errs.push(`${ten}: gỡ mệnh đề mà bộ đọc vẫn xanh`);
-  }
-  return errs;
-}
-
 // ── RT6 — năm văn bản nghi thức biết trạng thái mới ─────────────────────────
 if (want('RT6')) {
   const FL = 'feature-loop/skills/feature-loop/SKILL.md';
@@ -500,8 +552,8 @@ if (want('RT6')) {
     ['fl S4 nhánh PASS', FL, t => cut(t, /\(3\) set contract `status: verified`/, /→ Gate 2\./), /set thẳng `status: machine-cleared`/, 1],
     ['acceptance SKILL làn V', 'skills/acceptance/SKILL.md', t => cut(t, /^4b\. \*\*Cổng Bằng chứng xanh-sạch/m, /^5\./m), /`status: machine-cleared`/, 1],
     ['CONTEXT term', 'CONTEXT.md', t => cut(t, /^\*\*Máy đã thông\*\*/m, /^\*\*|^### /m), /_Avoid_: gọi hồ sơ máy-thông là «đã ký»/, 1],
-    ['acceptance-status hai trạng thái', 'commands/acceptance-status.md', t => t, /`machine-cleared` là máy đã thông/, 1],
-    ['acceptance-report tách hai số', 'commands/acceptance-report.md', t => t, /`machine-cleared` \(máy đã thông, không chữ ký\)/, 1],
+    ['acceptance-status hai trạng thái', 'commands/acceptance-status.md', t => t, /`machine-cleared` là máy đã thông/, 1, 'ca-file'],
+    ['acceptance-report tách hai số', 'commands/acceptance-report.md', t => t, /`machine-cleared` \(máy đã thông, không chữ ký\)/, 1, 'ca-file'],
   ]);
   // CONTEXT phải có TERM, không chỉ nhắc chuỗi
   if (!/\*\*Máy đã thông\*\* \(`machine-cleared`\)/.test(readRepo('CONTEXT.md'))) errs.push('CONTEXT.md chưa có term «Máy đã thông»');
@@ -582,6 +634,13 @@ if (want('RT13')) {
   const KHAC = block('KHAC-BIET-DOC-CU').map(l => l.split(/\s+/));
   const GACH = block('BO-DOC-KHAI-GACH').map(l => l.split(/\s+/)[0]);
 
+  const keyOfAll = j => {
+    const m = new Map();
+    for (const grp of ['gates', 'inProgress', 'considering', 'done']) for (const x of (j.groups[grp] || [])) m.set(x.slug, x.stateKey);
+    for (const b of (j.broken || [])) m.set(b.slug, 'ho-so-hong');
+    return m;
+  };
+
   // (i) bản MỚI trên cây thật
   const jNew = scan(ROOT);
   if (jNew.broken.length) errs.push(`bản mới broken: ${JSON.stringify(jNew.broken.map(b => b.slug))}`);
@@ -598,13 +657,7 @@ if (want('RT13')) {
   catch (e) { errs.push(`bản cũ không chạy được: ${String(e.message).slice(0, 160)}`); }
   rmSync(old, { recursive: true, force: true });
   if (jOld) {
-    const keyOf = j => {
-      const m = new Map();
-      for (const grp of ['gates', 'inProgress', 'considering', 'done']) for (const x of (j.groups[grp] || [])) m.set(x.slug, x.stateKey);
-      for (const b of (j.broken || [])) m.set(b.slug, 'ho-so-hong');
-      return m;
-    };
-    const mOld = keyOf(jOld), mNew = keyOf(jNew);
+    const mOld = keyOfAll(jOld), mNew = keyOfAll(jNew);
     for (const [slug, kOld] of mOld) {
       const kNew = mNew.get(slug);
       const kh = KHAC.find(r => r[0] === slug);
@@ -633,26 +686,63 @@ if (want('RT13')) {
     if (((x.flags || []).includes('nguong-chua-chot')) !== expNg) errs.push(`${x.slug}: cờ nguong-chua-chot ${expNg ? 'thiếu' : 'thừa'}`);
   }
 
-  // (iv) QUÉT KHÔNG GIAN MỞ: bộ đọc thứ N rẽ nhánh trên `signed-off` mà không ai nhớ
-  // Loại vùng KHÔNG phải bộ đọc: hồ sơ, tài liệu người-đọc (đã miễn T1). Danh sách loại
-  // là ĐÓNG và khai ở đây — file mới chứa chuỗi vẫn bị nêu tên (fail-closed).
+  // (iv) QUÉT KHÔNG GIAN MỞ: bộ đọc thứ N rẽ nhánh trên `signed-off` mà không ai nhớ tới.
+  // Luật so đặt thành HÀM THUẦN để chiều đỏ tiêm được vào ĐẦU VÀO của chính nó — vòng 1
+  // viết chiều đỏ là phép lọc trên một mảng vừa tự nối thêm phần tử, không chạy lại gì
+  // (finding S4-r1: «chiều đỏ giả»).
   const NGOAI = [/^_acceptance\//, /^docs\//, /^PRODUCT-MAP\.md$/, /^CHANGELOG\.md$/, /^README\.md$/, /^GUIDE\.md$/, /^QUICKSTART\.md$/];
-  const files = execFileSync('git', ['-C', ROOT, 'grep', '-l', 'signed-off'], { encoding: 'utf8' })
+  const grepSignedOff = () => execFileSync('git', ['-C', ROOT, 'grep', '-l', 'signed-off'], { encoding: 'utf8' })
     .trim().split('\n').filter(Boolean).filter(f => !NGOAI.some(re => re.test(f)));
+  // «CÓ CA» = tên file vừa nằm trong `paths` của một eval, VỪA thật sự bị chính file ca
+  // này đọc/nhắc tới. Chỉ dựa vào `paths` là miễn trừ theo LỜI KHAI: thêm tên vào một dòng
+  // paths là tắt được răng mà không cần viết assert nào (finding S4-r1).
   const evalsY = readRepo('_acceptance/ra-co-ten-lam-va-trao/evals.yaml');
-  const paths = new Set((evalsY.match(/paths: \[([^\]]+)\]/g) || []).flatMap(l => l.replace(/^paths: \[/, '').replace(/\]$/, '').split(',').map(x => x.trim())));
-  for (const f of files) if (!paths.has(f) && !GACH.includes(f)) errs.push(`file lạ chứa "signed-off": ${f} — thêm ca, hoặc khai gạch có lý do trong khối BO-DOC-KHAI-GACH`);
-  for (const f of GACH) if (!files.includes(f)) errs.push(`khối gạch khai ${f} nhưng file không còn chứa "signed-off" (dòng chết)`);
-  // chiều đỏ của (iv): tiêm một file lạ vào tập → phải bị nêu tên
-  { const la = [...files, 'scripts/gia-lap-bo-doc-moi.mjs'].filter(f => !paths.has(f) && !GACH.includes(f));
-    if (!la.includes('scripts/gia-lap-bo-doc-moi.mjs')) errs.push('chiều đỏ (iv): tiêm file lạ mà phép so không nêu'); }
-  // chiều đỏ của (ii): xoá một dòng khối → slug đó thành «lệch mà không khai»
-  if (KHAC.length && jOld) {
-    const kh = KHAC[0];
-    if (kh[1] === kh[2]) errs.push('chiều đỏ (ii): dòng khối khai cũ==mới, không phân biệt được gì');
+  const testSrc = readRepo('tests/plugins/ra-co-ten.test.mjs');
+  const khaiPaths = new Set((evalsY.match(/paths: \[([^\]]+)\]/g) || [])
+    .flatMap(l => l.replace(/^paths: \[/, '').replace(/\]$/, '').split(',').map(x => x.trim())));
+  // So theo TÊN FILE: ca dựng đường dẫn bằng path.join(ROOT,'hooks','...') nên chuỗi đủ
+  // đường dẫn không có mặt, nhưng tên file thì luôn có nếu ca thật sự đọc nó.
+  const coCa = f => khaiPaths.has(f) && testSrc.includes(f.split('/').pop());
+  // Hàm thuần: trả danh sách file KHÔNG được giải trình, và dòng khai gạch đã chết.
+  const soSanh = (files, gach) => ({
+    la: files.filter(f => !coCa(f) && !gach.includes(f)),
+    chet: gach.filter(f => !files.includes(f)),
+  });
+  const filesThat = grepSignedOff();
+  if (filesThat.length < 5) errs.push(`git grep chỉ ra ${filesThat.length} file — nghi bước quét hỏng, không tin kết luận`);
+  const r0 = soSanh(filesThat, GACH);
+  for (const f of r0.la) errs.push(`file lạ chứa "signed-off": ${f} — thêm ca, hoặc khai gạch có lý do trong khối BO-DOC-KHAI-GACH`);
+  for (const f of r0.chet) errs.push(`khối gạch khai ${f} nhưng file không còn chứa "signed-off" (dòng chết)`);
+  // Chiều đỏ (iv-a): TIÊM file thật vào cây tạm rồi chạy lại CHÍNH phép quét trên đó.
+  {
+    const g = tmp('rt13-grep-');
+    W(g, 'scripts/gia-lap-bo-doc-moi.mjs', "// bộ đọc mới rẽ nhánh trên 'signed-off'\n");
+    const files2 = [...filesThat, 'scripts/gia-lap-bo-doc-moi.mjs'];
+    const r1 = soSanh(files2, GACH);
+    if (!r1.la.includes('scripts/gia-lap-bo-doc-moi.mjs')) errs.push('chiều đỏ (iv-a): tiêm bộ đọc mới mà phép so không nêu tên');
+    rmSync(g, { recursive: true, force: true });
+  }
+  // Chiều đỏ (iv-b): gỡ một dòng khai gạch → chính file đó phải bị nêu là «lạ».
+  if (GACH.length) {
+    const bo = GACH[0];
+    const r2 = soSanh(filesThat, GACH.slice(1));
+    if (!r2.la.includes(bo)) errs.push(`chiều đỏ (iv-b): gỡ dòng gạch «${bo}» mà phép so vẫn im`);
+  }
+  // Chiều đỏ (ii): TIÊM vào khối KHAC-BIET-DOC-CU (bản sao contract) rồi chạy lại phép so.
+  if (jOld) {
+    const mOld2 = keyOfAll(jOld), mNew2 = keyOfAll(jNew);
+    const lech = KH => [...mOld2].filter(([slug, k]) => {
+      const kh = KH.find(r => r[0] === slug);
+      return kh ? (k !== kh[1] || mNew2.get(slug) !== kh[2]) : k !== mNew2.get(slug);
+    }).map(([slug]) => slug);
+    if (lech(KHAC).length) errs.push(`phép so khai-khác-biệt đỏ trên cây thật: ${lech(KHAC).join(',')}`);
+    if (KHAC.length) {
+      const thieu = lech(KHAC.slice(1));
+      if (!thieu.includes(KHAC[0][0])) errs.push(`chiều đỏ (ii): xoá dòng khối «${KHAC[0][0]}» mà phép so vẫn im`);
+    }
   }
   if (errs.length) fail('RT13', errs.join(' · '));
-  else pass('RT13', `đọc-cũ: broken rỗng, khác biệt đúng khối; cờ ⇔ điều kiện (đúng mọi ngày chạy); ${files.length} file chứa "signed-off" đều có ca hoặc khai gạch`);
+  else pass('RT13', `đọc-cũ: broken rỗng, khác biệt đúng khối; cờ ⇔ điều kiện (đúng mọi ngày chạy); ${filesThat.length} file chứa "signed-off" đều có ca thật hoặc khai gạch; hai chiều đỏ tiêm vào đầu vào của chính phép so`);
 }
 
 // ── RT14 — hồ sơ THẬT thoát Cổng Giá trị bằng lối có tên, có vết ────────────

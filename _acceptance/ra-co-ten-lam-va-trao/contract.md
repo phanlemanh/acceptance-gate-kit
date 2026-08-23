@@ -82,6 +82,7 @@ Khối máy-đọc cho AC-13(iv) — bộ đọc chứa chuỗi `signed-off` mà
 <!-- <<<BO-DOC-KHAI-GACH
 feature-loop/README.md tài-liệu-mô-tả-không-rẽ-nhánh-theo-status
 tests/plugins/lan-v.test.mjs ca-của-hồ-sơ-làn-V-cũ-giữ-đường-đọc-cũ
+tests/plugins/bang-dieu-khien.test.mjs ca-anh-em-chạy-trong-cùng-suite-không-phải-bộ-đọc-hồ-sơ-này
 tests/plugins/run-tests.sh bộ-chạy-suite-không-rẽ-theo-status
 tests/scripts/run-tests.sh bộ-chạy-suite-không-rẽ-theo-status
 tests/scripts/additive-only.test.mjs ca-đo-tính-chỉ-thêm-không-rẽ-theo-status

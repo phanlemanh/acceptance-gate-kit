@@ -144,6 +144,16 @@ uncertain      không có mục UNCERTAIN trong báo cáo
 sections       hai mục «Known limits» và «Ngoài hợp đồng» hiện diện và rỗng
 <!-- EVIDENCE-XANH-SACH-BLOCK>>> -->
 
+<!-- Hai mục điều kiện `sections` đòi, đặt SẴN ở khuôn và để RỖNG. Trước đây chúng chỉ sống
+     trong văn xuôi skill, nên mọi hồ sơ mẫu phải gõ tay đúng khuôn BÊN ĐỌC — đúng lớp
+     fixture-viết-tay mà kit cấm. Bên viết sinh báo cáo từ khuôn này thì hai mục có sẵn;
+     VẮNG mục ≠ mục rỗng, nên đừng xoá heading khi không có nội dung. -->
+<!-- <<<EVIDENCE-SECTIONS-TEMPLATE -->
+## Known limits
+
+## Ngoài hợp đồng
+<!-- EVIDENCE-SECTIONS-TEMPLATE>>> -->
+
 # Evidence Report: {{slug}}
 
 | Eval | Criterion | Executor | Verdict |

@@ -231,26 +231,22 @@ const ofm0 = frontmatter(opp0);
 if (gate === '0') {
   const OPP_TPL0 = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md');
   const tpl0 = read(OPP_TPL0);
-  const pre0 = m => {
-    const x = tpl0.match(new RegExp(`<<<${m} -->\\n([\\s\\S]*?)<!-- ${m}>>>`));
-    if (!x) { process.stderr.write(`gate-card: khuôn không có khối ${m} — ${OPP_TPL0}\n`); process.exit(2); }
-    return x[1].trim();
-  };
-  const DE_XUAT0 = pre0('OPP-DE-XUAT-PREFIX'), KHONG_DO0 = pre0('OPP-KHONG-DO-DUOC-PREFIX');
-  const H0 = 'Ngưỡng chết / ngưỡng UAT';
+  // Luật phân loại ô ngưỡng HỎI lib dùng chung — không viết bản thứ hai. Fail-closed:
+  // khuôn mất khối marker thì chết to kèm tên file, không im lặng tắt răng.
+  const NG0 = require(path.join(__dirname, '..', 'lib', 'nguong-o-co-hoi.cjs'));
+  let nguong0, KHONG_DO0, DE_XUAT0;
+  try {
+    ({ khongDo: KHONG_DO0, deXuat: DE_XUAT0 } = NG0.prefixes(tpl0));
+    nguong0 = NG0.thresholdState(opp0, tpl0);
+  } catch (e) { process.stderr.write(`gate-card: ${e.message} — ${OPP_TPL0}\n`); process.exit(2); }
+  const H0 = NG0.UAT_THRESHOLD_HEADING;
   const lines0 = section(opp0, H0).map(l => l.trim()).filter(l => l && !/^>/.test(l));
-  const isKD0 = l => l.startsWith(KHONG_DO0) && (l.length === KHONG_DO0.length || /\s/.test(l[KHONG_DO0.length]));
-  const bulOf = l => { const m = l.match(/^[-*]\s+([^:]+):(.*)$/); return m ? { label: m[1].trim(), value: m[2].trim() } : null; };
-  const bul0 = lines0.map(bulOf).filter(Boolean);
-  const tplLabels0 = section(tpl0, H0).map(l => l.trim()).map(bulOf).filter(Boolean).map(b => b.label).filter(lb => !isKD0(lb + ':'));
-  const filled0 = tplLabels0.length > 0 && tplLabels0.every(lb => { const b = bul0.find(x => x.label === lb); return b && !/^(…|\.\.\.)?$/.test(b.value); });
-  const nguong0 = lines0.some(isKD0) ? 'khong-do-duoc'
-    : !filled0 ? 'chua-chot'
-    : bul0.some(b => b.value.startsWith(DE_XUAT0)) ? 'de-xuat' : 'chot';
-  // Nguồn ngoài: hàng dữ liệu có món nhưng cột «Phân loại» trống = chưa phân loại.
+  const isKD0 = l => NG0.isKhongDoLine(l, KHONG_DO0);
+  const bul0 = lines0.map(NG0.bulletOf).filter(Boolean);
+  // Nguồn ngoài: hàng dữ liệu có món nhưng cột «Phân loại» trống HOẶC còn placeholder «…».
   const nnRows0 = section(opp0, 'Nguồn ngoài & phạm vi kế thừa')
     .filter(l => /^\|/.test(l) && !/^\|\s*[-:]{3}/.test(l) && !/Món vật liệu/.test(l));
-  const chuaPL0 = nnRows0.filter(l => { const c = l.split('|').map(x => x.trim()); return c.length >= 5 && c[1] && !/^…$/.test(c[1]) && !c[3]; }).length;
+  const chuaPL0 = nnRows0.filter(l => { const c = l.split('|').map(x => x.trim()); return c.length >= 5 && c[1] && !/^…$/.test(c[1]) && (!c[3] || /^…$/.test(c[3])); }).length;
   const LOI_RA0 = ['làm', 'lặp', 'xếp lại', 'dừng'];
   const flags0 = [];
   if (nguong0 === 'chua-chot') flags0.push(['fred', `Ngưỡng còn trống và chưa khai «không đo được» — ký «làm» lúc này là ký trên thước trang trí. Điền ngưỡng vào ô, hoặc khai một dòng «${KHONG_DO0} <lý do>».`]);
@@ -391,13 +387,20 @@ if (gate === '1') {
   // ── Răng chống lách (hồ sơ ra-co-ten, AC-11) ──
   // Lối «không đo được» chỉ dành cho vòng KHÔNG có người dùng cuối. Hợp đồng khai mặt
   // ui/mobile mà ô cơ hội lại khai không đo được ⇒ đang trốn Cổng Giá trị.
-  const KHONG_DO_1 = (() => {
-    const t = read(path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md'));
-    const x = t.match(/<<<OPP-KHONG-DO-DUOC-PREFIX -->\n([\s\S]*?)<!-- OPP-KHONG-DO-DUOC-PREFIX>>>/);
-    return x ? x[1].trim() : null;
-  })();
-  const mienDo = !!KHONG_DO_1 && ut.opportunity_present && ut.readable
-    && section(oppText, UAT_THRESHOLD_HEADING).some(l => { const t = l.trim(); return t.startsWith(KHONG_DO_1) && (t.length === KHONG_DO_1.length || /\s/.test(t[KHONG_DO_1.length])); });
+  // Răng chống lách hỏi LIB dùng chung, fail-closed như hai bộ đọc anh em: khuôn mất
+  // khối marker thì chết to kèm tên file, KHÔNG im lặng tắt răng (finding S4-r1).
+  const NG1 = require(path.join(__dirname, '..', 'lib', 'nguong-o-co-hoi.cjs'));
+  const OPP_TPL1 = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md');
+  // Khuôn mất khối marker: KHÔNG im lặng (răng tắt không ai biết) và cũng KHÔNG giết cả
+  // thẻ (thẻ còn nhiều khối khác người đang cần đọc). Đường giữa: cờ ĐỎ nói thẳng răng
+  // này không chạy — hỏng thì kêu to ngay trên mặt người đọc.
+  let mienDo = false, rangHong = null;
+  if (ut.opportunity_present && ut.readable) {
+    try {
+      const kd = NG1.prefixes(read(OPP_TPL1)).khongDo;
+      mienDo = section(oppText, UAT_THRESHOLD_HEADING).some(l => NG1.isKhongDoLine(l, kd));
+    } catch (e) { rangHong = e.message; }
+  }
   const mienDoCoNguoiDung = mienDo && /\b(ui|mobile)\b/i.test(clean(cfm.surfaces) || '');
   if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null } }, null, 2)); process.exit(0); }
   const featurePlain = pl.feature_plain || feature;
@@ -448,6 +451,7 @@ if (gate === '1') {
     else flags.push(['fwarn', 'Hồ sơ cơ hội có ngưỡng nhưng contract chưa có đường đo — không ai xây thứ sinh ra con số, Cổng Giá trị sẽ đọc bảng toàn CHƯA ĐO. Thêm section «Đường đo» (mỗi thước một dòng: số từ đâu · AC nào bảo đảm) hoặc ghi entry «bỏ đường-đo — lý do 1 dòng» rồi hãy duyệt.']);   // không đặt <…> thô trong cờ: HTML nuốt như tag (review S4-r1 F1)
   }
   // Răng chống lách: đặt SAU chuỗi if/else của ngưỡng — chen vào giữa là cướp mất nhánh else.
+  if (rangHong) flags.push(['fred', `Răng chống lách KHÔNG chạy được: ${rangHong} (${OPP_TPL1}) — thẻ này chưa kiểm được «khai không đo được nhưng có mặt người dùng». Sửa khuôn rồi dựng lại thẻ trước khi duyệt.`]);
   if (mienDoCoNguoiDung) flags.push(['fred', 'Khai không đo được nhưng hợp đồng có mặt người dùng (ui/mobile) — lối «không đo được» chỉ dành cho vòng không có người dùng cuối. Khai lại ngưỡng, hoặc bỏ mặt người dùng khỏi hợp đồng.']);
   if (!covPresent || !covLines.length) flags.push(['fwarn', 'Contract chưa có section Coverage — độ phủ bộ AC chưa có bằng chứng (workspace cũ / chưa quét). Quét bằng morphological-scan hoặc ghi 1 dòng lý do bỏ, rồi hãy duyệt.']);
   if (covUnverified) flags.push(['fwarn', 'Coverage có trục chưa nêu được thước đo "đủ" (CE chưa kiểm chứng) — hỏi nguồn đối chiếu trước khi tin "đã quét đủ".']);

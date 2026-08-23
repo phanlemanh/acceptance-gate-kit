@@ -179,6 +179,22 @@ process.stdin.on('end', () => {
       process.exit(2);
     }
 
+    // Chiều ghi thứ hai của cùng mâu thuẫn: chữ ký được ghi vào BÁO CÁO trong khi hợp đồng
+    // đang `machine-cleared`. Đặt TRƯỚC cửa determineEnforce — cửa đó chỉ mở cho báo cáo họ
+    // PASS, nên để sau là hook im lặng với báo cáo REJECT/PENDING mang chữ ký (finding S4-r1).
+    {
+      let siblingContract = null;
+      try { siblingContract = fs.readFileSync(path.join(fileDir, 'contract.md'), 'utf8'); } catch (_) {}
+      const conflict = core.machineClearedSignoffConflict(siblingContract, payload);
+      if (conflict) {
+        const cfg0 = readEnforcement(fileDir);
+        const cl = ['', 'BLOCKED by acceptance-evidence-gate (machine-cleared × chữ ký)', `File: ${filePath}`, '', `  x ${conflict}`, ''];
+        if (cfg0.enforcement === 'off') { /* cổng tắt: đi tiếp như mọi luật khác */ }
+        else if (cfg0.enforcement === 'warn') { process.stderr.write(cl.join('\n').replace('BLOCKED by', 'WARNING from') + '\n'); }
+        else { process.stderr.write(cl.join('\n') + '\n'); process.exit(2); }
+      }
+    }
+
     if (!core.determineEnforce(payload)) {
       process.stdout.write(data);
       process.exit(0);
@@ -188,19 +204,6 @@ process.stdin.on('end', () => {
     if (enforcement === 'off') {
       process.stdout.write(data);
       process.exit(0);
-    }
-
-    // Chiều ghi thứ hai của cùng mâu thuẫn: chữ ký được ghi vào báo cáo trong khi hợp
-    // đồng đang `machine-cleared`. Chặn ở đây, nếu không thì cửa vẫn mở một nửa.
-    {
-      let siblingContract = null;
-      try { siblingContract = fs.readFileSync(path.join(fileDir, 'contract.md'), 'utf8'); } catch (_) {}
-      const conflict = core.machineClearedSignoffConflict(siblingContract, payload);
-      if (conflict) {
-        const cl = ['', 'BLOCKED by acceptance-evidence-gate (machine-cleared × chữ ký)', `File: ${filePath}`, '', `  x ${conflict}`, ''];
-        if (enforcement === 'warn') { process.stderr.write(cl.join('\n').replace('BLOCKED by', 'WARNING from') + '\n'); }
-        else { process.stderr.write(cl.join('\n') + '\n'); process.exit(2); }
-      }
     }
 
     const r = core.evaluateEvidence(payload, { fileDir, configText, configPath });
