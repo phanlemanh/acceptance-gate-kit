@@ -5,10 +5,10 @@
 
 ```mermaid
 flowchart TD
-  A["Đang cân nhắc cơ hội<br/>7 việc"] --> GD{"Cổng Đáng"}
+  A["Đang cân nhắc cơ hội<br/>6 việc"] --> GD{"Cổng Đáng"}
   GD --> B["Sắp mở vòng<br/>3 việc"]
   GD --> XL["Xếp lại sau<br/>chưa có"]
-  GD --> DB["Đã bác từ khám phá<br/>chưa có"]
+  GD --> DB["Đã bác từ khám phá<br/>1 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>55 việc"]
@@ -24,7 +24,6 @@ flowchart TD
 ## Đang cân nhắc cơ hội
 
 - Ba chỗ tích luỹ không có đường ra — khoá config · dòng file kiểm · con số suite (`ba-cho-tich-luy-khong-duong-ra`)
-- Bản đồ dính commit chữ ký, không đi sau (`ban-do-dinh-chu-ky`)
 - Hỏi-theo-mặt-phẳng — câu hỏi là thứ người bấm được, không phải khuôn chữ (`hoi-theo-mat-phang`)
 - Mọi liệt kê trong hợp đồng phải máy-đọc (`liet-ke-may-doc`)
 - Ngày «việc vừa xong» lấy sai nấc cho hồ sơ đã qua phiên nghiệm thu — vòng đóng hôm nay bị đóng dấu bảy tháng tuổi và rơi khỏi thẻ (`ngay-viec-vua-xong-lay-sai-nac`)
@@ -105,6 +104,10 @@ flowchart TD
 - Vào có ô, ra có tên — ý khai thác xong có ô máy đọc (stub opportunity.md), bộ quét /start tách «đang cân nhắc» khỏi «chờ Cổng Đáng» theo ngưỡng đã điền, thẻ nói số ý và tuổi; 7 hạt giống kit nhận ô, trạng thái sống một chỗ (`vao-co-o-ra-co-ten`)
 - Đợt 2 «người về biên» — trạng thái veto-có-dấu-vết cho Cổng Phạm vi T2 và Cổng Bằng chứng xanh-sạch thôi mời ký; sửa đồng bộ ba tầng luật-văn-bản + hook chặn-lúc-ghi + lưới trước-merge (`veto-co-dau-vet`)
 - Gom luật đọc hồ sơ xưởng về một chỗ — mọi bên đọc phải cho cùng một kết luận (`workspace-reader-unification`) · liên quan: product-map-uat-session
+
+## Đã bác từ khám phá
+
+- Bản đồ dính commit chữ ký, không đi sau (`ban-do-dinh-chu-ky`)
 
 ## Ngoài phạm vi đã ký
 
