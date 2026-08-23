@@ -124,6 +124,16 @@ executors:
     rang_tkddl_w25: bash _acceptance/tool-kill-duong-doc-lap/rang.sh --chan w25
     rang_tkddl_skill_fl: bash _acceptance/tool-kill-duong-doc-lap/rang.sh --chan skill-fl
     rang_tkddl_skill_acc: bash _acceptance/tool-kill-duong-doc-lap/rang.sh --chan skill-acc
+    # Vật của hồ sơ start-bang-dieu-khien — răng neo vào SỰ THẬT CỦA CÂY hôm nay
+    # (16 hồ sơ cửa veto mở · 57 hồ sơ ra được ngày) hoặc phải dựng kho git riêng.
+    # Mỗi chân kèm chiều đỏ cùng lượt. Cùng nếp không-vào-suite-vĩnh-viễn với các
+    # bộ răng hồ sơ trên — chúng chết theo hồ sơ khi merge.
+    bdk_rang_at: bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan at
+    bdk_rang_veto: bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan veto-ten
+    bdk_rang_dang_thuc: bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan dang-thuc
+    bdk_rang_bon_bo_doc: bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan bon-bo-doc
+    bdk_rang_ahead_behind: bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan ahead-behind
+    bdk_rang_sort_tuoi: bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan sort-tuoi
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

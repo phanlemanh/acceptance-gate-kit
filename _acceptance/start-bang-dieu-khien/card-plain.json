@@ -1,0 +1,130 @@
+{
+  "feature_plain": "Thẻ mở phiên nói thẳng anh cần quyết gì và máy vừa làm xong gì cho anh — thay vì chỉ chỉ đường sang chỗ khác.",
+  "will_do": [
+    {
+      "id": "AC-1",
+      "p": "Sẽ hiện HẾT ý anh đang cân nhắc, thay vì cắt còn ba ý cũ nhất — máy chỉ được xếp hạng khi ý đó đã khai trước thước xếp hạng."
+    },
+    {
+      "id": "AC-2",
+      "p": "Sẽ sửa CHỈ phép đo cũ đang ghim con số ba — không đụng một chữ vào hợp đồng đã ký của việc trước, vì kéo hồ sơ đã ký vào lượt này là tự làm bằng chứng của nó hết hạn."
+    },
+    {
+      "id": "AC-3",
+      "p": "Sẽ biết NGÀY của mỗi việc đã đóng, suy từ hồ sơ sẵn có — đã thử trên cả 57 việc, không việc nào thiếu ngày, không phải sửa hồ sơ nào."
+    },
+    {
+      "id": "AC-4",
+      "p": "Sẽ in mấy việc vừa xong gần nhất, mỗi việc một dòng — ngày, tình trạng, tên — thay cho một con số gộp."
+    },
+    {
+      "id": "AC-5",
+      "p": "Sẽ NÊU TÊN mọi việc anh còn veto được, không chỉ đếm — anh không veto được thứ mình không thấy."
+    },
+    {
+      "id": "AC-6",
+      "p": "Sẽ đếm số việc còn veto được ĐÚNG BẰNG cách lưới trước-merge đếm — hôm nay thẻ nói 2 còn lưới nói 16."
+    },
+    {
+      "id": "AC-7",
+      "p": "Sẽ cho bốn chỗ khác nhau nói CÙNG MỘT CHỮ về cùng một việc, lấy từ một bảng chữ duy nhất."
+    },
+    {
+      "id": "AC-8",
+      "p": "Sẽ thôi mời anh ký một việc mà máy đã đi tiếp hợp lệ — hôm nay thẻ cổng vẫn giục «ký nhanh» đúng những việc lưới đã cho qua."
+    },
+    {
+      "id": "AC-9",
+      "p": "Sẽ tự nói khi cây làm việc đang cũ hơn BẢN CHUNG (không phải so với nhánh riêng của nó — so thế sẽ nói «khớp» trong khi bản chung đã đi trước), và nói thẳng «chưa biết» khi không so được."
+    },
+    {
+      "id": "AC-10",
+      "p": "Sẽ bỏ kế hoạch kéo anh vào một cuộc hỏi-đáp nhiều lượt ở bước ý còn mờ; máy tự phân kỳ rồi trình một câu đóng."
+    },
+    {
+      "id": "AC-11",
+      "p": "Sẽ nói bước kế ngay ở cuối mỗi cổng, và in tên lệnh ở dạng bấm được."
+    }
+  ],
+  "wont_do": [
+    {
+      "id": "AC-12",
+      "p": "Chặn hai kiểu nói dối nhẹ của thẻ: việc chưa có mốc thời gian bị đẩy lên đầu như thể chờ lâu nhất, và mấy ý sinh cùng một lúc bị in thành «cũ nhất X ngày» như một sự thật."
+    }
+  ],
+  "scope_plain": "Không đụng lưới trước-merge và lõi cưỡng chế — giữ việc này ở hạng thường; không đổi vai bản đồ sản phẩm; không cho máy tự xếp lại hay khai tử ý nào; không đụng trạng thái hồ sơ hay nghi thức cổng (đó là việc kế, chưa được duyệt); không thêm lệnh mới; không mở sang ba tài liệu đầu tay.",
+  "coverage_plain": [
+    {
+      "i": 0,
+      "p": "Đã soi đủ NĂM chỗ chữ hiện ra với người: thẻ mở phiên, thẻ cổng, bảng tình trạng, bản đồ sản phẩm, lưới trước-merge. Bằng chứng «đủ»: bản rà 22/08 chạy thật trên cả bốn máy đọc và bắt được tám ca nói lệch."
+    },
+    {
+      "i": 1,
+      "p": "Đã soi đủ SÁU loại tin thẻ phải nói: ý chưa quyết, việc máy vừa làm, thứ còn veto được, tình trạng từng việc, tình trạng cây làm việc, bước kế của mỗi cổng. Bằng chứng «đủ»: sáu hạng mục anh đã ký ở Cổng Đáng cộng ba ý anh nêu hôm 23/08."
+    },
+    {
+      "i": 2,
+      "p": "Đã soi đủ NĂM kiểu hỏng: giấu bớt, hai nơi nói lệch, nói con số giả, im khi sai, và nói nhiều quá thành nhiễu. Bằng chứng «đủ»: bốn điều kiện CHẾT của ngưỡng anh đã chốt."
+    },
+    {
+      "i": 3,
+      "p": "Mỗi kiểu hỏng đều có ít nhất một tiêu chí nhận trách nhiệm — kể cả kiểu «nói con số giả», vốn ban đầu bị bỏ trống và được phản biện bắt ra."
+    },
+    {
+      "i": 4,
+      "p": "Phần cắt bỏ nằm ở mục «sẽ KHÔNG làm» ngay dưới, mỗi mục một dòng."
+    },
+    {
+      "i": 5,
+      "p": "Đối chiếu ngoài ngành: bàn cược của Shape Up và bộ năm thành phần một cổng của Stage-Gate — hai nguồn anh đã phân loại và ký. Không dòng nào của lần quét này còn ở mức phỏng đoán."
+    }
+  ],
+  "gap_probe_plain": [
+    {
+      "i": 0,
+      "p": "Một trong năm kiểu hỏng — «nói con số giả» — không có tiêu chí nào nhận. Hậu quả: mọi phép đo xanh mà thẻ vẫn mở bằng hai việc chưa hề bắt đầu đếm giờ, và vẫn in một con số tuổi không có thật. Đã sửa: thêm một tiêu chí và một phép đo riêng cho nó."
+    },
+    {
+      "i": 1,
+      "p": "Bảng thước đo chỉ phủ năm điều kiện SỐNG, bỏ trống hai điều kiện CHẾT — chính là hai rủi ro lớn nhất của một việc mà nội dung chính là BỎ giới hạn hiển thị. Hậu quả: phiên nghiệm thu nhìn bảng toàn xanh trong khi anh đã bỏ đọc một nhóm. Đã sửa: thêm hai dòng thước, khai thẳng là hai dòng này đo bằng người chứ không bằng máy."
+    },
+    {
+      "i": 2,
+      "p": "Một phép đo tự dựng dữ liệu thử theo đúng khuôn mà bên đọc đang chờ, nên nó chỉ chứng minh bên đọc hợp với chính nó. Hậu quả: trên cây thật bên ghi đặt sự thật ở chỗ hơi khác, thẻ lại giục ký như cũ, mà mọi phép đo vẫn xanh. Đã sửa: dữ liệu thử nay rút từ chính khuôn của BÊN GHI, cộng một chân neo vào một hồ sơ thật đang có trong kho."
+    },
+    {
+      "i": 3,
+      "p": "Hai phép đo dùng danh sách cấm trên một không gian chữ mở. Hậu quả: người làm chỉ cần viết «tối đa BA ý» bằng chữ thay vì bằng số, hoặc đặt một nhãn tự chế mới, là qua được cả hai mà lỗi vẫn nguyên. Đã sửa: đổi sang đo mệnh đề khẳng định và đo quan hệ «tập nhãn phải nằm trong bảng», mỗi phép đo thêm một phép thử cố ý nằm ngoài danh sách cấm."
+    },
+    {
+      "i": 4,
+      "p": "Hai phép đo ghim cứng một con số và một dấu vân tay của khối mã — cả hai đều là thứ sẽ đổi. Hậu quả: một làn song song merge trước là phép đo đỏ trên một bản cài ĐÚNG, và cách chữa duy nhất là sửa con số. Đã sửa: đổi sang đo quan hệ. Đáng chú ý — con số này đã trôi từ 14 lên 16 trong đúng một ngày."
+    }
+  ],
+  "decisions_plain": [
+    {
+      "id": "d-20260823T041200Z-9401",
+      "p": "Đã chốt LÀM việc này ở Cổng Đáng hôm nay, vì phần lớn là bỏ bớt chứ không thêm, và vì hố này chạm anh mỗi phiên."
+    },
+    {
+      "id": "d-20260823T012029Z-27499",
+      "p": "Đặt bảng chữ chung ở vùng công cụ, KHÔNG ở vùng lõi cưỡng chế — đổi lại việc này giữ hạng thường, tránh thêm một chốt kế hoạch và một chữ ký bắt buộc cho đúng cái việc sinh ra để giảm số lần gọi anh. Giá phải trả nằm ở dòng ngay dưới."
+    },
+    {
+      "id": "d-20260823T012029Z-29818",
+      "p": "Thẻ cổng sẽ HỎI bộ quét thay vì tự dựng lại cách phán đoán — đổi lại thẻ phụ thuộc bộ quét chạy được; bộ quét chết thì thẻ giữ nguyên như cũ kèm một cờ vàng, không bao giờ im lặng báo sạch."
+    },
+    {
+      "id": "d-20260823T012029Z-1428",
+      "p": "KHÔNG chữa một ca lệch chữ còn lại — ca hồ sơ có tình trạng lạ — vì chữa nó phải chạm lưới trước-merge và nâng hạng cả việc. Đổi lại: ca đó thành một giới hạn CÓ TÊN anh đọc được, không phải một chỗ hở im lặng."
+    },
+    {
+      "id": "d-20260823T012029Z-23110",
+      "p": "KHÔNG cho máy xếp hạng ý trong vòng này — hiện hết, cũ trước. Đổi lại: sáu trên bảy ý hiện cùng một tuổi vì cùng sinh ra một lúc, nên thứ tự không mang tin; chấp nhận, vì hiện hết thì thứ tự hết vai trò cắt."
+    },
+    {
+      "id": "d-20260823T012029Z-10755",
+      "p": "Năm phép đo neo vào sự thật của kho hôm nay sẽ chết theo hồ sơ khi merge, không nằm lại trong bộ đo vĩnh viễn — đổi lại một thay đổi hợp lệ sau này không làm chúng đỏ oan."
+    }
+  ]
+}

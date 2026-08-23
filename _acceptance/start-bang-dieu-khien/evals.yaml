@@ -1,0 +1,229 @@
+schema_version: 1
+feature_slug: start-bang-dieu-khien
+# Hai bộ đo:
+#   · suite `plugins` — ca vĩnh viễn cho luật sống lâu (khối marker, round-trip khoá,
+#     round-trip bốn bộ đọc, dạng lệnh bấm được).
+#   · răng hồ sơ `rang-bdk.sh --chan <x>` — ca neo vào SỰ THẬT CỦA CÂY HÔM NAY
+#     (đếm veto 16, 57 hồ sơ ra ngày) hoặc phải dựng kho git riêng. Cùng nếp
+#     không-vào-suite-vĩnh-viễn với rang-1c / rang-veto / rang-mnvt: chúng chết
+#     theo hồ sơ khi merge, không làm đỏ oan PR tương lai.
+# MỌI eval máy khai chiều đỏ trên CÙNG fixture code-sinh + thông điệp ghim.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [commands/start.md, tests/plugins/vao-co-o.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [VC6]". Khối START-CAN-NHAC còn dòng gộp «Đang cân nhắc» +
+      «N = 0 → KHÔNG in», vẫn nằm sau «Đang dở» trước «Bắt đầu việc mới», và thêm hai mệnh
+      đề mới. Thẻ là văn của model, không có renderer để đếm dòng — nên nguồn máy-đọc là
+      MỘT KHOÁ trong khối, cùng nếp `key: value` mà VC6 đã round-trip ở START-HIEU-KET:
+      (a) khối mang code span `giới hạn: không` (giá trị phải đúng chuỗi «không»), đứng
+      cạnh câu khẳng định in **mọi** phần tử `groups.considering`; (b) khối mang câu ràng
+      buộc thước («chỉ xếp hạng khi ô khai thước»). Nói thật về giới hạn của phép đo: văn
+      xuôi trái với khoá (viết «chỉ liệt ba dòng» mà khoá vẫn «không») là lỗi người viết
+      reviewer bắt, máy không bắt được trên không gian chữ mở — khoá là nguồn, văn là chú
+      thích. Đối chứng dương: khối nguyên vẹn XANH trước.
+      Chiều đỏ, ba lượt trên bản sao: (1) đổi khoá thành `giới hạn: 3` → đỏ ghim «giới hạn
+      phải là «không», đang là 3»; (2) đổi khoá thành `giới hạn: ba` (chữ, ngoài mọi regex
+      chữ số) → vẫn đỏ cùng thông điệp; (3) gỡ câu ràng buộc thước → đỏ ghim «START-CAN-NHAC
+      thiếu «thước khai trước»».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [tests/plugins/vao-co-o.test.mjs, commands/start.md]
+    expected: >
+      exit 0; stdout có "PASS: [VC6]" VÀ `git diff --name-only origin/main` của nhánh này
+      KHÔNG chứa `_acceptance/vao-co-o-ra-co-ten/contract.md` (hợp đồng đã ký không đổi —
+      kéo nó vào diff là tự làm bằng chứng của nó stale, ADR 0010). VC6 ghim luật MỚI qua
+      khoá `giới hạn: không` (E1); KHÔNG ca nào đọc hợp đồng của hồ sơ khác lúc chạy.
+      `## Notes` của hồ sơ này có dòng con trỏ «AC-1 ... THAY THẾ AC-6 của ... vao-co-o-ra-co-ten».
+      Chiều đỏ: bản sao VC6 khôi phục mệnh đề cũ «tối đa 3» → VC6 đỏ trên start.md mới.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.bdk_rang_at
+    paths: [scripts/start-scan.mjs, scripts/trang-thai-ho-so.cjs]
+    expected: >
+      exit 0; stdout ghim "OK [at]". Ba chân trên fixture code-sinh (kho git dựng trong chính
+      lần chạy, đường dẫn suy từ vị trí script): ① hồ sơ chỉ có human_signoff → at lấy nấc 1;
+      ② gỡ human_signoff, còn decided_at → at lấy nấc 2; ③ gỡ cả hai, còn commit → at lấy nấc 3
+      (%cs). Cộng một chân trên CÂY THẬT: đếm phần tử done[] có at === null phải bằng 0 và
+      tổng done[] ≥ 50 (sàn đếm — 0 phần tử không được xanh).
+      Chiều đỏ: bản sao start-scan gỡ nấc 3 của thang → chân ③ đỏ ghim "at nac 3 mat";
+      bản sao dựng hồ sơ không nấc nào ra ngày → phải ra at null, không được bịa mtime.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [commands/start.md, scripts/start-scan.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [P99]" (round-trip START-SCAN-KEYS: khoá mới done[].at,
+      vetoOpen[], git.ahead/behind/compareRef, state/label/viecKe phải soi được trong đầu ra
+      THẬT của script) và "PASS: [BDK1]" (thân start.md dặn in N việc vừa xong, mỗi việc một
+      dòng «ngày · trạng thái · tên», N khai tường minh bằng số trong chính thân lệnh).
+      Chiều đỏ: bản sao gỡ khoá `at` khỏi START-SCAN-KEYS → P99 đỏ ghim khoá thiếu; bản sao
+      gỡ câu «N việc vừa xong» khỏi start.md → BDK1 đỏ nêu đúng câu.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.bdk_rang_veto
+    paths: [scripts/start-scan.mjs, commands/start.md]
+    expected: >
+      exit 0; stdout ghim "OK [veto-ten]". Trên CÂY THẬT, assert QUAN HỆ chứ không assert
+      hằng — số hồ sơ veto-mở đã trôi 14 → 16 trong đúng một ngày, ghim con số là dựng một
+      thước tự chết (lớp «thước ghim vào thứ sẽ đổi»): tập slug của vetoOpen[] === tập slug
+      của `grep -l '^veto_state:[[:space:]]*mo' _acceptance/*/contract.md`, và tập đó phải
+      chứa ≥ 1 hồ sơ `status: signed-off` (nhánh hôm nay KHÔNG đọc veto_state ở đó — đây là
+      quan hệ phân biệt bản sửa với bản cũ, không phải con số). Sàn đếm: tập rỗng → đỏ.
+      start.md dặn NÊU TÊN từng phần tử.
+      Chiều đỏ: bản sao start-scan giới hạn vetoOpen về nhánh `verified` như hôm nay → đỏ
+      ghim "vetoOpen thieu ho so signed-off: <slug>…" kèm số lệch, không kèm kỳ vọng cứng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.bdk_rang_dang_thuc
+    paths: [scripts/start-scan.mjs]
+    expected: >
+      exit 0; stdout ghim "OK [dang-thuc]". Kho git fixture code-sinh: chạy start-scan.mjs VÀ
+      scripts/pre-merge-check.sh trên CÙNG cây, so tập slug vetoOpen[] với tập slug trong dòng
+      "cửa veto đang mở" của lưới → phải BẰNG NHAU (đối chứng dương, cây fixture nguyên vẹn).
+      Rồi thêm một hồ sơ veto_state: mo → chạy lại cả hai → cả hai cùng tăng đúng 1.
+      Chiều đỏ: bản sao start-scan bỏ một hồ sơ khỏi vetoOpen → đỏ ghim "lech: <slug> thieu
+      ben may quet"; bản sao KHÔNG thêm hồ sơ mà vẫn kỳ vọng +1 → đỏ ghim lệch số.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/trang-thai-ho-so.cjs, scripts/start-scan.mjs, scripts/product-map.mjs, scripts/gate-card.js, commands/acceptance-status.md]
+    expected: >
+      exit 0; stdout có "PASS: [BDK2]". Ma trận TOÀN PHẦN viết trước: bảng khai 17 khoá trạng
+      thái, số assert === 17 (assert cứng cả hai chiều — thêm khoá mà quên ca → đỏ nêu số).
+      Với mỗi khoá: chữ của máy quét (`label`) === chữ bảng; `BUCKET_OF[khoá]` nằm trong danh
+      sách ô của bản đồ. Với `commands/acceptance-status.md` dùng ALLOWLIST, không blacklist
+      (không gian nhãn là mở — cấm «Chờ người ký» thì bên viết đặt «Đợi chữ ký» và ca vẫn
+      xanh): rút MỌI cụm nhãn ứng viên của file bằng khuôn có marker, rồi assert tập đó là
+      TẬP CON của bảng trạng-thái→chữ.
+      Chiều đỏ, ba lượt, lượt (3) cố ý nằm NGOÀI mọi chuỗi bị cấm hôm nay: (1) bản sao đổi
+      một chuỗi trong bảng → đỏ nêu ĐÚNG TÊN bộ đọc lệch và đúng khoá; (2) bản sao thêm khoá
+      thứ 18 vào bảng mà không thêm ca → đỏ ghim "17 != 18"; (3) bản sao tiêm nhãn tự chế
+      MỚI «Đợi chữ ký» vào acceptance-status.md → đỏ ghim "nhan ngoai bang: Đợi chữ ký".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.bdk_rang_bon_bo_doc
+    paths: [scripts/gate-card.js, scripts/start-scan.mjs, scripts/product-map.mjs, scripts/trang-thai-ho-so.cjs, commands/acceptance-status.md]
+    expected: >
+      exit 0; stdout ghim "OK [bon-bo-doc]". Fixture KHÔNG được test tự viết đúng khuôn bên
+      ĐỌC — round-trip WRITER→READER bắt buộc: khuôn sáu điều kiện xanh-sạch rút từ chính
+      nguồn của bên VIẾT (`skills/acceptance/references/evidence-report-template.md`, khối có
+      marker) lúc chạy, rồi dựng fixture từ khuôn đó; CỘNG một chân neo vật thật — lấy
+      `evidence-report.md` THẬT của một hồ sơ `signed-off` đang có trong cây, chạy qua cùng
+      bốn bộ đọc, và assert chữ khớp. Gỡ một khoá khỏi khuôn writer → fixture hỏng → đỏ nêu
+      tên khoá (đây là chiều đỏ chứng minh round-trip sống, không phải test đọc test).
+      Fixture: MỘT hồ sơ verified + PASS + sáu điều kiện xanh-sạch + veto_state: mo, chạy qua
+      CẢ BỐN bộ đọc trên cùng cây: máy quét,
+      `gate-card.js --root <fixture> --slug <slug>` (đầu ra HTML thật), bản đồ, và lối
+      acceptance-status (máy quét + label). Kỳ vọng: 0/4 bộ đọc mời ký — cụ thể HTML thẻ KHÔNG
+      chứa "ký nhanh" và KHÔNG chứa nút Ký, mà chứa chữ của khoá `may-di-tiep-veto-mo`.
+      Đối chứng dương: cùng fixture đổi sang hồ sơ verified CHƯA sạch (bypass_used: true) →
+      BA bộ đọc có vị từ (máy quét · thẻ cổng · acceptance-status) PHẢI mời ký; bản đồ KHÔNG
+      nằm trong phép so mời-ký ở cả hai chiều — nó cố ý không mang vị từ, chỉ assert
+      `BUCKET_OF` đưa cả hai hồ sơ về cùng ô «Đang làm». Ca này chạy trước và phải xanh,
+      nếu không thì phép đo chưa từng chạy.
+      Chiều đỏ: bản sao gate-card khôi phục chip "máy đã xong — ký nhanh" vô điều kiện → đỏ
+      ghim "gate-card moi ky ho so xanh-sach"; bản sao làm start-scan chết → thẻ phải in cờ
+      vàng và giữ hành vi cũ, KHÔNG được im lặng tuyên sạch (đỏ nếu thiếu cờ).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.bdk_rang_ahead_behind
+    paths: [scripts/start-scan.mjs, commands/start.md]
+    expected: >
+      exit 0; stdout ghim "OK [ahead-behind]". Năm chân trên kho git fixture code-sinh:
+      ① có origin/main, nhánh lùi 1 commit → behind === 1, compareRef === "origin/main";
+      ② nhánh tính năng CÓ nhánh trên cùng riêng (đã push, khớp nó) NHƯNG origin/main đi trước
+      2 → behind === 2, compareRef === "origin/main" — so với nhánh trên cùng sẽ nói «khớp»
+      và đó là lời nói dối phép đo này sinh ra để chặn; ③ không origin/main, có nhánh trên
+      cùng → compareRef === "@{u}"; ④ không remote nào → ahead/behind/compareRef đều null
+      (KHÔNG phải 0); ⑤ 0 lượt gọi mạng — chạy với GIT_TERMINAL_PROMPT=0 và remote trỏ đường
+      dẫn không tồn tại, vẫn exit 0. Cộng một chân văn bản: start.md dặn thẻ nói khi behind
+      > 0 và nói «chưa biết» khi compareRef null. Chiều đỏ: bản sao đổi nấc cuối từ null sang
+      0 → đỏ ghim "nac cuoi phai la null, khong phai 0"; bản sao đảo thang (ưu tiên @{u}) →
+      chân ② đỏ ghim "so nham nhanh tren cung, bo qua ban chung".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [docs/plans/2026-08-21-hat-giong-vao-co-o-ra-co-ten.md, commands/start.md, scripts/start-scan.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [BDK3]". Ba assert: ① §9.1 của hạt giống mang dấu vết TRỪ có lý
+      do và KHÔNG còn dặn cắm `product-management:brainstorm` làm mặc định; ② ổ cắm
+      `discovery.brainstorm_skill` giữ nguyên VAI — đo QUAN HỆ, không hash toàn khối (hash
+      làm mọi lần format lại hay đổi tên biến đỏ vĩnh viễn trong suite chung dù ổ cắm không
+      đổi một chữ nghĩa): dựng fixture config code-sinh ba hình dạng — khoá vắng, khoá khai
+      tên skill hợp lệ, khoá khai giá trị phi-scalar — chạy `start-scan.mjs` thật và assert
+      `discovery.brainstormSkill` lần lượt là `null` / đúng tên / `null`, tức ĐƯỜNG FALLBACK
+      vẫn sống và vẫn không chặn; ③ lối (a) của start.md có câu phủ định
+      «không cắm skill hội thoại mở» đứng cạnh câu về `superpowers:brainstorming`.
+      Chiều đỏ: bản sao khôi phục §9.1 → đỏ ở ①; bản sao làm ổ cắm hardcode một tên skill
+      thay vì đọc config → đỏ ở ② ghim "o cam khong con doc config: nhanh khoa-vang tra <giá
+      trị>"; bản sao gỡ câu phủ định → đỏ ở ③.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [commands/approve.md, commands/signoff.md, commands/acceptance-card.md, tests/plugins/lenh-bam-duoc.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [BDK4]" và "PASS: [LB2]". BDK4: mỗi file trong ba thân cổng có
+      dòng bước kế — approve.md nêu S2 (lập kế hoạch), signoff.md nêu S5 (bàn giao),
+      acceptance-card.md nêu CẢ HAI lệnh ký. LB2 (ca đã có của chip D — vũ trụ 16 file ĐÃ
+      CHỨA cả ba file này, KHÔNG đổi hằng `FILES.length !== 16`): dòng bước kế mới thêm không
+      được sinh token trần nào; mọi tên lệnh khớp cột «Lệnh bấm được» của bảng COMMAND-NAMES
+      rút từ marker lúc chạy.
+      Chiều đỏ: bản sao gỡ dòng bước kế của từng file (3 lượt) → BDK4 đỏ nêu đúng file; bản sao
+      đổi `/acceptance-gate:approve` thành `approve` trần → LB2 đỏ nêu đúng file:dòng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E14
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.bdk_rang_sort_tuoi
+    paths: [scripts/start-scan.mjs, commands/start.md]
+    expected: >
+      exit 0; stdout ghim "OK [sort-tuoi]". Fixture code-sinh (kho git dựng trong chính lần
+      chạy, đường dẫn suy từ vị trí script) mang: hai cổng `gia-tri` `since` RỖNG, hai cổng
+      `pham-vi` có mốc thật, và ba ý «đang cân nhắc» trong đó HAI ý chung một dấu thời gian.
+      Assert: ① thứ tự `groups.gates[]` — mọi phần tử có mốc đứng TRƯỚC mọi phần tử mốc rỗng
+      (assert trên chỉ số, không trên tên); ② `groups.considering[]` mang `ageTied: true` cho
+      đúng nhóm trùng mốc và `false` cho ý còn lại; ③ thân start.md dặn nói «chưa rõ tuổi»
+      khi `ageTied` bật. Đối chứng dương: cùng fixture đổi hai cổng rỗng thành có mốc → thứ
+      tự thuần theo mốc và `ageTied` toàn `false`; chân này chạy TRƯỚC và phải xanh.
+      Chiều đỏ: bản sao start-scan khôi phục `localeCompare` trên chuỗi rỗng → đỏ ghim
+      "moc rong len dau: <slug>"; bản sao gỡ `ageTied` → đỏ ở ② ghim tên khoá thiếu; bản sao
+      gỡ câu «chưa rõ tuổi» khỏi start.md → đỏ ở ③.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "suite scripts XANH — không ca nào của lớp lib/md-section/repin đỏ vì lần đổi này"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E13
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.product_map
+    paths: [scripts/product-map.mjs, PRODUCT-MAP.md, scripts/trang-thai-ho-so.cjs]
+    expected: "exit 0 — bản đồ vẽ lại khớp hồ sơ sau khi product-map đọc chữ từ bảng chung (BUCKET_OF); lệch → đỏ"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
