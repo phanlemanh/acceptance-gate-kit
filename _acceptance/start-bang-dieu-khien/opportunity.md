@@ -3,13 +3,13 @@ schema_version: 1
 slug: start-bang-dieu-khien
 feature: «/start» là bảng điều khiển của owner, không phải bộ định tuyến — hiện hết ý đang cân nhắc, nêu tên việc máy vừa làm và thứ còn veto được, và mọi bộ đọc nói cùng một chữ
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-08-23T04:12:00Z     # ISO UTC
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
-  disposition:     # keep | archive
+  disposition: archive     # keep | archive
 ---
 
 ## Vấn đề & ai gặp
@@ -38,10 +38,10 @@ Thẻ vào phiên là **vật owner nhìn đầu tiên mỗi lượt ngồi xu�
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: …
-- Kết quả nào là SỐNG: …
-- Kết quả nào là CHẾT: …
-- Timebox: …
+- Câu hỏi phép đo trả lời: Sau BA phiên `/start` thật của owner (ván thử là chính kit — người dùng cuối của thẻ là owner, không phải chờ ván ở repo tiêu thụ như hai ô UX), thẻ có đủ để owner quyết mà không phải mở thứ gì khác không — đo bằng số lần rời thẻ đi tìm bức tranh thật, tỷ lệ ý đang cân nhắc hiện ra, độ lệch đếm «còn veto được» giữa thẻ và lưới, và có lần nào owner thật sự hành động trên một dòng mới sinh.
+- Kết quả nào là SỐNG: đủ CẢ NĂM, đếm trên ba phiên liên tiếp — (1) **0 lần** owner phải mở bản đồ / thư mục `_acceptance/` / lưới để biết bức tranh thật; (2) **mọi** ý đang cân nhắc hiện trên thẻ, HOẶC máy xếp hạng và nói rõ xếp theo **thước đã khai trước** (không thước tự chế); (3) thẻ **nêu tên** mọi hồ sơ còn cửa veto mở và đếm **khớp lưới** (lệch 0; nay 2 vs 14) — phá thử: thêm một hồ sơ `veto_state: mo` vào bản sao thì thẻ và lưới cùng tăng; (4) **≥ 1 lần** owner hành động trên một dòng mới sinh (veto · mở hồ sơ đọc · bảo dừng) — chứng nêu tên là dùng được; (5) thẻ **tự nói** khi cây đang sau bản chung — phá thử: lùi cây một commit thì thẻ phải cảnh báo — và **0 lượt gọi người thêm** (thẻ dài hơn không được sinh câu hỏi mới).
+- Kết quả nào là CHẾT: bất kỳ MỘT — (a) thẻ dài tới mức owner **bỏ qua** một nhóm ≥ 1 lần (nói thẳng «phần này tôi không đọc»); HOẶC (b) **hai bộ đọc lại lệch chữ** cho cùng một sự thật mà suite vẫn xanh (bảng chung không có răng — đúng lớp «bên viết và bên đọc trôi khỏi nhau»); HOẶC (c) máy **tự cắt hoặc tự xếp hạng** ý theo thước tự chế, không khai trước, và bị owner veto ≥ 1; HOẶC (d) ba phiên liên tiếp owner **không chạm** dòng nào trong danh sách nêu tên → nêu tên là nhiễu, không phải thấy-để-veto.
+- Timebox: hết ba phiên `/start` thật, muộn nhất **2026-09-15** → `decision: park`. Ngắn hơn hai ô UX (30/09) vì ô này đo trên chính kit và phiên xảy ra hằng ngày — ba tuần không đủ ba phiên thì tự nó là tín hiệu thẻ không được dùng; và ô `ra-co-ten-lam-va-trao` cần ô này xong trước khi `design-pass-nac-khong-dong-bo` tới S4.
 
 ## Kết quả prototype
 
@@ -58,10 +58,10 @@ Chưa dựng. Không cần prototype: mọi thay đổi đo được trên chín
 
 ## Cổng 0
 
-- **decision = …** Căn cứ: …
-- **disposition = …** Căn cứ: không có prototype code — đổi bộ đọc + lời thẻ, đo trên chính kit.
+- **decision = build** (owner «làm», 2026-08-23). Căn cứ: phần lớn là **TRỪ** chứ không CỘNG (bỏ giới hạn 3 ý, bỏ §9.1 cắm skill hội thoại, bỏ con số gộp) — hợp «chỉ TRỪ, không CỘNG»; hố chạm owner **mỗi phiên**, không phải rủi ro xa; **đảo rẻ** — chỉ sửa bộ đọc và lời thẻ, không đụng trạng thái hồ sơ nên không kéo theo migrate; và nó là **đường đo** của ô `ra-co-ten-lam-va-trao` (thẻ không nói đúng thì không thấy ô kia sửa được gì). Rủi ro «thẻ hoá dài thành nhiễu» đã chặn bằng điều kiện CHẾT (a).
+- **disposition = archive** (không có prototype code) Căn cứ: không dựng thử — sửa bộ đọc ngay trong kit, ván thử là phiên `/start` thật; không có mã nào để giữ hay vứt.
 - **Phiên nghiệm thu ở đâu:** các phiên `/start` thật của owner sau khi ship (kit tự-dùng + repo tiêu thụ) — số đo là các thước dưới. Lưu ý ô này **đo được trên kit tự-host**, khác hai ô UX phải chờ ván ở repo tiêu thụ.
-- **Ngưỡng UAT chốt cùng lúc ký:** …
+- **Ngưỡng UAT chốt cùng lúc ký:** chép nguyên bốn dòng của section «Ngưỡng chết / ngưỡng UAT» — câu hỏi: sau ba phiên `/start` thật, thẻ có đủ để owner quyết mà không phải mở thứ khác · SỐNG: 0 lần rời thẻ · mọi ý hiện ra (hoặc xếp hạng theo thước đã khai) · nêu tên veto-mở khớp lưới, lệch 0, phá thử phải cùng tăng · ≥ 1 lần owner hành động trên dòng mới sinh · thẻ tự nói khi cây lệch, 0 lượt gọi người thêm · CHẾT: owner bỏ qua một nhóm, HOẶC hai bộ đọc lại lệch chữ mà suite xanh, HOẶC máy tự cắt theo thước tự chế bị veto, HOẶC ba phiên không ai chạm danh sách nêu tên · Timebox: ba phiên, muộn nhất 2026-09-15 → park.
 
 ## Thước đo thành công → ứng viên criterion
 
