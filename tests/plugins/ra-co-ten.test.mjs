@@ -27,7 +27,7 @@ const UAT_H = 'Ngưỡng chết / ngưỡng UAT';
 
 let failures = 0;
 // MỘT nguồn danh sách ca: file này. Chỉ liệt ca ĐÃ CÓ THÂN — khai id chưa dựng thì suite đỏ.
-const ALL_IDS = ['RT1', 'RT2', 'RT3', 'RT15'];
+const ALL_IDS = ['RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT9', 'RT12', 'RT15'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.RT_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const want = id => only.length === 0 || only.includes(id);
@@ -292,6 +292,102 @@ if (want('RT15')) {
   });
   if (errs.length) fail('RT15', errs.join(' · '));
   else pass('RT15', 'machine-cleared × chữ ký: hook chặn hai chiều, lưới chặn, da-veto cùng thông điệp, đối chứng dương qua');
+}
+
+// ── RT5 — bảng chữ: 4 khoá mới, nhãn riêng, bucket đúng (phần bản đồ/thẻ ở chặng sau) ──
+if (want('RT5')) {
+  const errs = [];
+  const B = require(path.join(ROOT, 'scripts', 'trang-thai-ho-so.cjs'));
+  const MOI = {
+    'da-giao-may-thong-veto-mo': ['máy thông', 'da-ship'],
+    'da-giao-may-thong-xanh-sach': ['máy thông', 'da-ship'],
+    'da-giao-khong-do': ['không đo', 'da-ship'],
+    'da-dong-ho-so': ['đóng có hồ sơ', 'da-bac'],
+  };
+  for (const [k, [chu, bucket]] of Object.entries(MOI)) {
+    let c; try { c = B.chu(k); } catch (e) { errs.push(`thiếu khoá ${k}`); continue; }
+    if (!c.nhan.includes(chu)) errs.push(`${k}: nhãn «${c.nhan}» không chứa «${chu}»`);
+    if (B.BUCKET_OF[k] !== bucket) errs.push(`${k}: bucket ${B.BUCKET_OF[k]} != ${bucket}`);
+  }
+  // Bất biến phân biệt: máy-thông KHÔNG BAO GIỜ cùng chữ với hồ sơ người ký.
+  try { if (B.chu('da-giao').nhan === B.chu('da-giao-may-thong-veto-mo').nhan) errs.push('nhãn máy-thông trùng nhãn đã giao'); } catch (_) {}
+  if (errs.length) fail('RT5', errs.join(' · '));
+  else pass('RT5', '4 khoá mới có nhãn riêng + bucket đúng; máy-thông khác chữ với đã giao');
+}
+
+// ── RT4 — bộ quét: machine-cleared vào đúng ô, tới được Cổng Giá trị ─────────
+if (want('RT4')) {
+  const errs = [];
+  withRepo(root => {
+    mkWs(root, 'a', { contract: MC, evidence: {} });
+    mkWs(root, 'b', { contract: { status: 'machine-cleared', tier: 'T2', approvedBy: 'Fx' }, evidence: {} });
+    mkWs(root, 'c', { contract: MC, evidence: {}, opportunity: { nguong: 'chot' } });
+    mkWs(root, 'd', { contract: { ...MC, status: 'verified' }, evidence: {}, opportunity: { nguong: 'chot' } });
+    mkWs(root, 'e', { contract: { status: 'signed-off', tier: 'T2', approvedBy: 'Fx' }, evidence: { signoff: 'Fx 2026-08-23' } });
+    const j = scan(root);
+    const A = findSlug(j, 'a'), B = findSlug(j, 'b'), C = findSlug(j, 'c'), D = findSlug(j, 'd'), E = findSlug(j, 'e');
+    if (!A || A.grp !== 'done' || A.stateKey !== 'da-giao-may-thong-veto-mo') errs.push(`(a) ${JSON.stringify(A)}`);
+    if ((j.groups.done || []).some(x => x.slug === 'a' && x.stateKey === 'da-giao')) errs.push('(a) có phần tử da-giao cho slug máy-thông');
+    if (!B || B.stateKey !== 'da-giao-may-thong-xanh-sach') errs.push(`(b) ${JSON.stringify(B)}`);
+    if (!C || C.grp !== 'gates' || C.gate !== 'gia-tri') errs.push(`(c) máy-thông + ô build phải tới Cổng Giá trị: ${JSON.stringify(C)}`);
+    if (!D || D.grp === 'gates' || D.stateKey !== 'may-di-tiep-veto-mo') errs.push(`(d) đọc-cũ: verified phải giữ may-di-tiep-veto-mo: ${JSON.stringify(D)}`);
+    if (!E || E.stateKey !== 'da-giao') errs.push(`(e) signed-off phải là da-giao: ${JSON.stringify(E)}`);
+    if (E && A && E.label === A.label) errs.push('(e) nhãn signed-off trùng nhãn máy-thông');
+    if (j.broken.length) errs.push(`broken: ${JSON.stringify(j.broken)}`);
+  });
+  if (errs.length) fail('RT4', errs.join(' · '));
+  else pass('RT4', 'machine-cleared: hai khoá máy-thông; tới Cổng Giá trị khi có ô build; verified cũ giữ nguyên; khác chữ với đã ký');
+}
+
+// ── RT9 — ma trận ngưỡng × trạng thái (8 ô, 8 assert viết trước) ─────────────
+if (want('RT9')) {
+  const errs = []; let oDem = 0;
+  const KV = { chot: ['gates', 'gia-tri', false], 'khong-do-duoc': ['done', 'da-giao-khong-do', false], 'chua-chot': ['gates', 'gia-tri', true], 'de-xuat': ['gates', 'gia-tri', true] };
+  for (const st of ['signed-off', 'machine-cleared']) for (const ng of Object.keys(KV)) {
+    oDem++;
+    withRepo(root => {
+      const con = st === 'signed-off' ? { status: st, tier: 'T2', approvedBy: 'Fx' } : MC;
+      mkWs(root, 'x', { contract: con, evidence: { signoff: st === 'signed-off' ? 'Fx 2026-08-23' : '' }, opportunity: { nguong: ng } });
+      const x = findSlug(scan(root), 'x'); const [grp, key, flag] = KV[ng];
+      const ok = x && x.grp === grp && (grp === 'gates' ? x.gate === key : x.stateKey === key) && ((x.flags || []).includes('nguong-chua-chot') === flag);
+      if (!ok) errs.push(`${st}×${ng}: ${JSON.stringify(x)}`);
+    });
+  }
+  if (oDem !== 8) errs.push(`ma trận ${oDem} != 8 khai trước`);
+  withRepo(root => {
+    mkWs(root, 'y', { opportunity: { stage: 'discovery', decision: '', nguong: 'de-xuat' } });
+    mkWs(root, 'z', { opportunity: { stage: 'discovery', decision: '', nguong: 'chua-chot' } });
+    const j = scan(root);
+    if (findSlug(j, 'y')?.gate !== 'dang') errs.push(`de-xuat chưa hợp đồng phải chờ Cổng Đáng: ${JSON.stringify(findSlug(j, 'y'))}`);
+    if (findSlug(j, 'z')?.grp !== 'considering') errs.push(`chua-chot phải ở considering: ${JSON.stringify(findSlug(j, 'z'))}`);
+  });
+  // Seam: «Không đo được:» (hai chấm) KHÔNG phải lối ra — chỉ tiền tố đúng mới nhận.
+  withRepo(root => {
+    mkWs(root, 's', { contract: MC, evidence: {}, opportunity: { nguong: 'khong-do-duoc-hai-cham' } });
+    const x = findSlug(scan(root), 's');
+    if (!x || x.grp !== 'gates' || !(x.flags || []).includes('nguong-chua-chot')) errs.push(`seam hai chấm không được nhận: ${JSON.stringify(x)}`);
+  });
+  if (errs.length) fail('RT9', errs.join(' · '));
+  else pass('RT9', 'ma trận 8 ô ngưỡng × trạng thái; de-xuat là đã điền ở Cổng Đáng; seam hai chấm không nhận');
+}
+
+// ── RT12 — archived có ô kết; timebox quá hạn có cờ ─────────────────────────
+if (want('RT12')) {
+  const errs = [];
+  withRepo(root => {
+    const KY = { status: 'signed-off', tier: 'T2', approvedBy: 'Fx' };
+    mkWs(root, 'ar', { opportunity: { stage: 'archived', decision: 'kill' } });
+    for (const [slug, tb] of [['tb1', 'muộn nhất 2000-01-01 → park'], ['tb2', 'muộn nhất 01/01/2000'], ['tb3', 'muộn nhất 2999-12-31'], ['tb4', 'cuối quý']])
+      mkWs(root, slug, { contract: KY, evidence: { signoff: 'Fx 2026-08-23' }, opportunity: { nguong: 'chot', timebox: tb } });
+    const j = scan(root);
+    if (findSlug(j, 'ar')?.stateKey !== 'da-dong-ho-so') errs.push(`archived: ${JSON.stringify(findSlug(j, 'ar'))}`);
+    for (const [s, exp] of [['tb1', true], ['tb2', true], ['tb3', false], ['tb4', false]]) {
+      const x = findSlug(j, s);
+      if (!x || x.grp !== 'gates' || ((x.flags || []).includes('qua-timebox') !== exp)) errs.push(`${s}: mong cờ=${exp}, ${JSON.stringify(x)}`);
+    }
+  });
+  if (errs.length) fail('RT12', errs.join(' · '));
+  else pass('RT12', 'archived → đã đóng có hồ sơ; timebox quá hạn hai dạng ngày → cờ; chưa qua/không parse → không cờ');
 }
 
 const la = only.filter(id => !ALL_IDS.includes(id));
