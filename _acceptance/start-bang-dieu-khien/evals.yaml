@@ -189,7 +189,7 @@ evals:
     criterion: AC-11
     executor: test
     cmd: config:executors.test.plugins
-    paths: [commands/approve.md, commands/signoff.md, commands/acceptance-card.md, tests/plugins/lenh-bam-duoc.test.mjs]
+    paths: [commands/approve.md, commands/signoff.md, commands/acceptance-card.md, tests/plugins/lenh-bam-duoc.test.mjs, tests/plugins/bang-dieu-khien.test.mjs]
     expected: >
       exit 0; stdout có "PASS: [BDK4]" và "PASS: [LB2]". BDK4: mỗi file trong ba thân cổng có
       dòng bước kế — approve.md nêu S2 (lập kế hoạch), signoff.md nêu S5 (bàn giao),
