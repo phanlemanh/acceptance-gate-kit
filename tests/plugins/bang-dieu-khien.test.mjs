@@ -119,11 +119,12 @@ if (want('BDK1')) {
   const md = readFileSync(START_MD, 'utf8');
   // N việc vừa xong phải khai TƯỜNG MINH bằng số trong chính thân lệnh — không
   // để model tự chọn, không giấu con số trong văn xuôi.
-  const n = (md.match(/in \*\*(\d+) việc\*\* có `at` mới nhất/) || [])[1];
+  const n = (md.match(/in \*\*(\d+) việc\*\* ĐẦU TIÊN của/) || [])[1];
   if (!n) errs.push('thân lệnh không khai tường minh số việc vừa xong');
   else if (Number(n) < 1) errs.push(`số việc vừa xong phải ≥ 1, đang ${n}`);
   for (const [ten, re] of [
     ['dòng «vừa xong» mỗi việc một dòng', /mỗi việc MỘT dòng: `at` · `label`/],
+    ['thẻ KHÔNG tự xếp lại — máy quét đã xếp', /máy quét đã xếp `at` giảm dần[\s\S]{0,80}KHÔNG tự xếp lại/],
     ['at null → «chưa rõ ngày», không bỏ dòng', /chưa rõ ngày.*KHÔNG bỏ dòng/s],
     ['nêu TÊN từng hồ sơ veto-mở', /`vetoOpen` có phần tử → in \*\*TÊN từng hồ sơ\*\*/],
     ['cùng con số lưới trước-merge in', /cùng con số lưới trước-merge/],

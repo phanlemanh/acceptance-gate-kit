@@ -126,8 +126,12 @@ veto-ten)
   [ "$NSO" -ge 1 ] || do_fail "tap vetoOpen khong co ho so signed-off nao — nhanh cu mu dung cho do, ban nay chua sua"
   # CHIEU DO: thu ve nhanh verified nhu ban cu
   M="$(mk)"; plugin_copy "$M"
-  perl -0pi -e "s/if \(\(frontmatterField\(cTxt, 'veto_state'\) \|\| ''\)\.trim\(\)\.toLowerCase\(\) === 'mo'\)/if (status === 'verified' \&\& (frontmatterField(cTxt, 'veto_state') || '').trim().toLowerCase() === 'mo')/" "$M/scripts/start-scan.mjs"
-  grep -qF "status === 'verified' &&" "$M/scripts/start-scan.mjs" || do_fail "dot bien khong doi duoc dong nao"
+  # Dot bien: thu vetoOpen ve nhanh `verified` nhu ban CU. Doc status bang
+  # frontmatterField ngay tai cho — bien `status` khai SAU cho nay (cua veto hoi
+  # TRUOC chot status hong), nen dung bien la ban sao chet vi ReferenceError chu
+  # khong vi vat, va ca do hoa xanh-khong-chay.
+  perl -0pi -e "s/if \(\(frontmatterField\(cTxt, 'veto_state'\) \|\| ''\)\.trim\(\)\.toLowerCase\(\) === 'mo'\)/if ((frontmatterField(cTxt, 'status') || '').toLowerCase() === 'verified' \&\& (frontmatterField(cTxt, 'veto_state') || '').trim().toLowerCase() === 'mo')/" "$M/scripts/start-scan.mjs"
+  grep -qF "=== 'verified' &&" "$M/scripts/start-scan.mjs" || do_fail "dot bien khong doi duoc dong nao"
   NMUT="$(node -e '
     const {execFileSync}=require("child_process");
     const j=JSON.parse(execFileSync("node",[process.argv[1],"--root",process.argv[2]],{encoding:"utf8",maxBuffer:1e8}));
@@ -177,8 +181,8 @@ dang-thuc)
 
   # CHIEU DO: ban sao bo mot ho so khoi vetoOpen -> dang thuc phai vo
   M="$(mk)"; plugin_copy "$M"
-  perl -0pi -e "s/      vetoOpen\.push\(\{ slug, status \}\);/      { if (slug !== 'b-signed') vetoOpen.push({ slug, status }); }/" "$M/scripts/start-scan.mjs"
-  grep -qF "slug !== 'b-signed'" "$M/scripts/start-scan.mjs" || do_fail "dot bien khong doi duoc dong nao"
+  perl -0pi -e "s/^      vetoOpen\.push\(/      if (slug !== 'b-signed') vetoOpen.push(/m" "$M/scripts/start-scan.mjs"
+  grep -qF "if (slug !== 'b-signed') vetoOpen.push(" "$M/scripts/start-scan.mjs" || do_fail "dot bien khong doi duoc dong nao"
   SM="$(node -e '
     const {execFileSync}=require("child_process");
     const j=JSON.parse(execFileSync("node",[process.argv[1],"--root",process.argv[2]],{encoding:"utf8",maxBuffer:1e8}));
@@ -221,6 +225,15 @@ bon-bo-doc)
   # doi slug trong frontmatter cho khop thu muc; KHONG cham gi khac
   perl -0pi -e "s/^slug: .*$/slug: x/m" "$D/_acceptance/x/contract.md"
   perl -0pi -e "s/^feature_slug: .*$/feature_slug: x/m" "$D/_acceptance/x/evidence-report.md"
+  # Bao dam khoa sap bi pha CO MAT. Khong ho so «may di tiep» nao cung khai
+  # bypass_used (khoa mac dinh false nen ban ghi co the bo qua), va khi no vang
+  # thi lenh tiem ben duoi im lang khong doi gi — PHEP PHA HOA VO HIEU, doi
+  # chung duong xanh gia. Khoa nay do khuon ben VIET khai (da kiem o tren) nen
+  # them vao la hop le, khong phai bia.
+  grep -q '^bypass_used:' "$D/_acceptance/x/evidence-report.md" \
+    || perl -0pi -e "s/^verdict:/bypass_used: false\nverdict:/m" "$D/_acceptance/x/evidence-report.md"
+  grep -q '^bypass_used:' "$D/_acceptance/x/evidence-report.md" \
+    || do_fail "khong dat duoc khoa bypass_used vao fixture — phep pha se vo hieu"
   gcommit "$D" c1
 
   doc_scan() { node -e '
@@ -254,13 +267,37 @@ bon-bo-doc)
     printf '%s' "$H" | grep -qF "$needle" && do_fail "the con loi moi ky «$needle» cho ho so may da di tiep"
   done
   printf '%s' "$H" | grep -qF 'veto hay để yên' || do_fail "the khong dua ra loi VETO thay cho loi ky"
-  grep -q 'STATUS-NHAN' "$ROOT/commands/acceptance-status.md" || do_fail "bang trang thai khong con khoi STATUS-NHAN"
-  grep -q 'start-scan.mjs' "$ROOT/commands/acceptance-status.md" || do_fail "bang trang thai khong doc tu may quet"
+  # Bo doc thu ba (bang trang thai) la THAN LENH — model thi hanh, khong co
+  # renderer de doc dau ra. Do CHI DAN bang grep la hinh dang (1) cua luat
+  # «thuoc phai gan vao vat duoc giao». Nen do DUNG DUONG DU LIEU ma chinh chi
+  # dan khai: no bao chay may quet roi in `label`/`viecKe` NGUYEN VAN, vay mo
+  # phong dung buoc do va assert chu ra bang chu cua BANG.
+  AS_MD="$ROOT/commands/acceptance-status.md"
+  grep -q 'STATUS-NHAN' "$AS_MD" || do_fail "bang trang thai khong con khoi STATUS-NHAN"
+  grep -q 'start-scan.mjs' "$AS_MD" || do_fail "bang trang thai khong doc tu may quet"
+  grep -qF '`label` NGUYÊN VĂN' "$AS_MD" || do_fail "bang trang thai khong dan in label nguyen van"
+  AS_OUT="$(BANG="$ROOT/scripts/trang-thai-ho-so.cjs" node -e '
+    const {execFileSync}=require("child_process");
+    const B=require(process.env.BANG);
+    const j=JSON.parse(execFileSync("node",[process.argv[1],"--root",process.argv[2]],{encoding:"utf8",maxBuffer:1e8}));
+    const it=[...(j.groups.gates||[]),...(j.groups.inProgress||[]),...(j.groups.done||[])].find(x=>x.slug==="x");
+    if(!it){console.log("KHONG-THAY");process.exit(0);}
+    const c=B.TRANG_THAI[it.stateKey];
+    // dung ba cot ma than lenh dan in: Tinh trang | Viec ke | co moi ky khong
+    console.log((it.label===c.nhan&&it.viecKe===c.viecKe?"KHOP-BANG":"LECH-BANG")+"|"+it.label);
+  ' "$SCAN" "$D")"
+  case "$AS_OUT" in
+    KHOP-BANG\|*) ;;
+    *) do_fail "bo doc bang trang thai: chu khong rut tu bang ($AS_OUT)" ;;
+  esac
+  printf '%s' "$AS_OUT" | grep -qF 'máy đi tiếp' || do_fail "bo doc bang trang thai in chu moi ky cho ho so may da di tiep: $AS_OUT"
   MAP1="$(doc_map)"
   case "$MAP1" in *"Đang làm"*) ;; *) do_fail "ban do: mong o «Đang làm», duoc $MAP1" ;; esac
 
   # ── DOI CHUNG DUONG: pha vat that (bypass_used) -> 3/3 PHAI moi ky ──
   perl -0pi -e "s/^bypass_used:.*$/bypass_used: true/m" "$D/_acceptance/x/evidence-report.md"
+  grep -q '^bypass_used: true' "$D/_acceptance/x/evidence-report.md" \
+    || do_fail "dot bien khong doi duoc dong nao — phep pha vat that vo hieu"
   ST2="$(doc_scan)"
   [ "$ST2" = "cho-cong-bang-chung" ] || do_fail "doi chung duong: chua sach ma may quet noi $ST2"
   HC="$(doc_card)"
@@ -269,6 +306,18 @@ bon-bo-doc)
   done
   MAP2="$(doc_map)"
   [ "$MAP1" = "$MAP2" ] || do_fail "ban do doi o giua hai chieu ($MAP1 -> $MAP2) — no co y KHONG mang vi tu"
+  AS_OUT2="$(BANG="$ROOT/scripts/trang-thai-ho-so.cjs" node -e '
+    const {execFileSync}=require("child_process");
+    const B=require(process.env.BANG);
+    const j=JSON.parse(execFileSync("node",[process.argv[1],"--root",process.argv[2]],{encoding:"utf8",maxBuffer:1e8}));
+    const it=[...(j.groups.gates||[]),...(j.groups.inProgress||[]),...(j.groups.done||[])].find(x=>x.slug==="x");
+    if(!it){console.log("KHONG-THAY");process.exit(0);}
+    const c=B.TRANG_THAI[it.stateKey];
+    console.log((it.label===c.nhan?"KHOP-BANG":"LECH-BANG")+"|"+it.label);
+  ' "$SCAN" "$D")"
+  printf '%s' "$AS_OUT2" | grep -qF 'chờ chữ ký — Cổng Bằng chứng' \
+    || do_fail "doi chung duong: bo doc bang trang thai khong doi sang chu moi ky khi ho so chua sach ($AS_OUT2)"
+  [ "$AS_OUT" != "$AS_OUT2" ] || do_fail "bo doc bang trang thai cho CUNG mot chu o ca hai chieu — no khong phan biet duoc"
   perl -0pi -e "s/^bypass_used:.*$/bypass_used: false/m" "$D/_acceptance/x/evidence-report.md"
   [ "$(doc_scan)" = "may-di-tiep-veto-mo" ] || do_fail "khoi phuc vat that that bai"
 

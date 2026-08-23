@@ -138,8 +138,9 @@ worktree/nhánh đọc từ git của `<path>`.
      ký», không hỏi thêm câu nào.
      Hồ sơ CHƯA sạch thì máy quét vẫn xếp vào chờ chữ ký — kể cả khi cửa veto
      đang mở.
-   - **Vừa xong** — ngay dưới dòng đếm gộp, in **5 việc** có `at` mới nhất
-     (`groups.done`, xếp `at` giảm dần), mỗi việc MỘT dòng: `at` · `label` ·
+   - **Vừa xong** — ngay dưới dòng đếm gộp, in **5 việc** ĐẦU TIÊN của
+     `groups.done` (máy quét đã xếp `at` giảm dần, mốc trống xuống cuối — thẻ
+     KHÔNG tự xếp lại), mỗi việc MỘT dòng: `at` · `label` ·
      tên việc. `at` là `null` → in «chưa rõ ngày», KHÔNG bỏ dòng và không đoán
      mốc. Một con số gộp không cho người NHÌN THẤY máy vừa làm gì; vòng «máy
      làm và tự chứng minh» chỉ đóng khi việc vừa xong có tên.

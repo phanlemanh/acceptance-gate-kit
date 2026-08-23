@@ -242,11 +242,15 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
     // status đi qua LUẬT CHUNG (fieldProblem) — bản kiểm tay ở đây từng lệch
     // chuỗi với lib ("parse" vs "đọc") và là một trong hai bản sao cuối cùng
     // của luật contract/status (workspace-reader-unification AC-1).
+    // Cửa veto hỏi TRƯỚC chốt status hỏng: lưới trước-merge chỉ đòi contract.md
+    // tồn tại rồi đọc thẳng veto_state, nên đặt sau `continue` là hồ sơ có cửa
+    // veto mở mà status hỏng biến khỏi thẻ trong khi lưới vẫn đếm — đúng lớp
+    // «thẻ đếm 2 lưới đếm 16» mà hồ sơ này sinh ra để giết, chỉ ở góc khác.
+    if ((frontmatterField(cTxt, 'veto_state') || '').trim().toLowerCase() === 'mo')
+      vetoOpen.push({ slug, status: (frontmatterField(cTxt, 'status') || '').toLowerCase() });
     const statusProblem = fieldProblem('contract.md', cTxt, 'status');
     if (statusProblem) { pushHong({ slug, ...statusProblem }); continue; }
     const status = frontmatterField(cTxt, 'status').toLowerCase();
-    if ((frontmatterField(cTxt, 'veto_state') || '').trim().toLowerCase() === 'mo')
-      vetoOpen.push({ slug, status });
     const tier = frontmatterField(cTxt, 'risk_tier') || null;
     // evidence-report.md CHỈ được đọc trong hai nhánh tiêu thụ nó (verified,
     // implemented). Chốt lỗi đặt TRƯỚC chỗ rẽ trạng thái là lớp lỗi đã dẫm 4
@@ -384,6 +388,14 @@ gates.sort((a, b) => {
   return String(a.since).localeCompare(String(b.since));
 });
 vetoOpen.sort((a, b) => a.slug.localeCompare(b.slug));
+// done[] xếp theo NGÀY giảm dần, mốc trống xuống cuối — thân lệnh chỉ lấy N phần
+// tử ĐẦU. Không sort ở đây là giao việc xếp 57 mốc cho model, đúng thứ hồ sơ này
+// sinh ra để chấm dứt: máy quét là bộ phân ô duy nhất, thẻ in nguyên văn.
+done.sort((a, b) => {
+  const ea = !a.at, eb = !b.at;
+  if (ea !== eb) return ea ? 1 : -1;
+  return String(b.at).localeCompare(String(a.at));
+});
 considering.sort((a, b) => a.since.localeCompare(b.since));   // cũ nhất lên đầu
 // Tuổi TRÙNG không phải tuổi: 6/7 ý của chính kit mang CÙNG một dấu thời gian
 // vì cùng một commit đổ stub. In «cũ nhất X ngày» cho một nhóm như vậy là nói

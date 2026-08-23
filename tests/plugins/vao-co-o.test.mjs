@@ -171,7 +171,12 @@ if (want('VC6')) {
     // `giới hạn: không` là nguồn; văn xuôi quanh nó là chú thích (hồ sơ
     // start-bang-dieu-khien, AC-1).
     for (const [name, re] of [['Đang cân nhắc', /Đang cân nhắc/],
-                              ['tuổi (cũ nhất hoặc chưa rõ tuổi)', /cũ nhất|chưa rõ tuổi/],
+                              // HAI vế RIÊNG, không dùng phép hoặc: `/cũ nhất|chưa rõ tuổi/`
+                              // được thoả sẵn bởi vế đầu (khối vẫn còn «cũ nhất X ngày»),
+                              // nên vế «chưa rõ tuổi» không bao giờ đỏ được — phép đo chết.
+                              ['tuổi thường (cũ nhất X ngày)', /cũ nhất/],
+                              ['nhánh tuổi trùng (chưa rõ tuổi)', /chưa rõ tuổi/],
+                              ['khoá ageTied dẫn nhánh đó', /`ageTied`/],
                               ['N = 0 không in', /N = 0 → KHÔNG in/],
                               ['in mọi phần tử', /\*\*mọi\*\* `name`/],
                               ['thước khai trước', /thước/]])
