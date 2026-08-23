@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 64 1200 664" role="img" aria-labelledby="d1-title d1-desc" xmlns="http://www.w3.org/2000/svg">
+        <title id="d1-title">Một hồ sơ kết thúc bằng hai ô khác nhau</title>
+        <desc id="d1-desc">Sơ đồ trạng thái một chiều trái sang phải: nháp, đã duyệt phạm vi, code xong, đã chấm máy. Từ chặng đã chấm máy rẽ hai lối: lên ô kết «người ký» tô đặc, xuống ô kết mới «máy đã thông» tô cam. Một mũi tên đi ngược từ máy đã thông lên người ký, hợp lệ khi owner ký trong cửa veto. Một mũi tên đi xuống bị gạch chéo: hồ sơ vừa máy thông vừa mang chữ ký người là tổ hợp bị cấm.</desc>
+
+        <defs>
+  <style>@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Lora:ital,wght@0,400;1,400&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap');</style>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+          <marker id="arrow-faint" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#636b80"/></marker>
+        </defs>
+
+        <rect width="1200" height="728" fill="#f5f5f5"/>
+
+        <!-- ============ NÉT NỐI (vẽ trước, nằm dưới nút) ============ -->
+        <!-- điểm mở → nháp -->
+        <line x1="48" y1="300" x2="72" y2="300" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- nháp → đã duyệt phạm vi -->
+        <line x1="212" y1="300" x2="284" y2="300" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- đã duyệt phạm vi → code xong -->
+        <line x1="424" y1="300" x2="496" y2="300" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- code xong → đã chấm máy -->
+        <line x1="636" y1="300" x2="708" y2="300" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- đã chấm máy → người ký (lên) -->
+        <path d="M 848,288 H 872 Q 880,288 880,280 V 200 Q 880,192 888,192 H 944" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- đã chấm máy → máy đã thông (xuống) -->
+        <path d="M 848,312 H 896 Q 904,312 904,320 V 408 Q 904,416 912,416 H 944" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- máy đã thông → người ký (đi ngược, hợp lệ) -->
+        <line x1="1032" y1="364" x2="1032" y2="244" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- máy đã thông → tổ hợp cấm (bị gạch chéo) -->
+        <line x1="1032" y1="468" x2="1032" y2="548" stroke="#636b80" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-faint)"/>
+
+        <!-- ============ NHÃN NÉT NỐI (mask + khe ≥8px) ============ -->
+        <rect x="222" y="272" width="52" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="248" y="284" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">DUYỆT</text>
+
+        <rect x="428" y="272" width="64" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="460" y="284" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">LÀM XONG</text>
+
+        <rect x="640" y="272" width="64" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="672" y="284" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">MÁY CHẤM</text>
+
+        <rect x="806" y="236" width="64" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="866" y="248" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.10em">OWNER KÝ</text>
+
+        <rect x="798" y="340" width="96" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="890" y="352" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.10em">XANH SẠCH</text>
+        <rect x="798" y="356" width="96" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="890" y="368" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.10em">RỦI RO THƯỜNG</text>
+
+        <rect x="1044" y="284" width="104" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="1044" y="296" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.10em">OWNER KÝ</text>
+        <rect x="1044" y="300" width="104" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="1044" y="312" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.10em">TRONG CỬA VETO</text>
+
+        <rect x="926" y="500" width="84" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="1010" y="512" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.10em">TỔ HỢP CẤM</text>
+
+        <!-- ============ ĐIỂM MỞ ============ -->
+        <circle cx="40" cy="300" r="6" fill="#2d3142"/>
+
+        <!-- ============ CHẶNG TRÊN ĐƯỜNG ĐI ============ -->
+        <rect x="72" y="264" width="140" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="142" y="298" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">nháp</text>
+        <text x="142" y="316" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">(draft)</text>
+
+        <rect x="284" y="264" width="140" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="354" y="298" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">đã duyệt phạm vi</text>
+        <text x="354" y="316" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">(approved)</text>
+
+        <rect x="496" y="264" width="140" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="566" y="298" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">code xong</text>
+        <text x="566" y="316" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">(implemented)</text>
+
+        <rect x="708" y="264" width="140" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="778" y="298" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">đã chấm máy</text>
+        <text x="778" y="316" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">(verified)</text>
+
+        <!-- ============ Ô KẾT 1 — NGƯỜI KÝ (tô đặc) ============ -->
+        <rect x="944" y="140" width="176" height="104" rx="8" fill="#2d3142" stroke="#2d3142" stroke-width="1"/>
+        <rect x="956" y="152" width="60" height="16" rx="2" fill="none" stroke="rgba(245,245,245,0.45)" stroke-width="0.8"/>
+        <text x="986" y="164" fill="#f5f5f5" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">NGƯỜI</text>
+        <text x="1032" y="200" fill="#f5f5f5" font-size="16" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">người ký</text>
+        <text x="1032" y="218" fill="#bfc0c0" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">có tên người và ngày ký</text>
+        <text x="1032" y="234" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">(signed-off)</text>
+
+        <!-- ============ Ô KẾT 2 — MÁY ĐÃ THÔNG (tô cam) ============ -->
+        <rect x="944" y="364" width="176" height="104" rx="8" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <rect x="956" y="376" width="44" height="16" rx="2" fill="none" stroke="rgba(235,108,54,0.55)" stroke-width="0.8"/>
+        <text x="978" y="388" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">MÁY</text>
+        <text x="1032" y="424" fill="#2d3142" font-size="16" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">máy đã thông</text>
+        <text x="1032" y="442" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">không có chữ ký người</text>
+        <text x="1032" y="458" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">(machine-cleared)</text>
+
+        <!-- ============ DẤU CẤM TRÊN NÉT NỐI ============ -->
+        <circle cx="1032" cy="508" r="11" fill="#f5f5f5" stroke="#eb6c36" stroke-width="1.4"/>
+        <line x1="1024" y1="516" x2="1040" y2="500" stroke="#eb6c36" stroke-width="1.4"/>
+
+        <!-- ============ TỔ HỢP BỊ CẤM ============ -->
+        <rect x="916" y="548" width="232" height="88" rx="6" fill="#f5f5f5" stroke="rgba(45,49,66,0.30)" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="1032" y="584" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">vừa máy thông vừa có chữ ký</text>
+        <text x="1032" y="604" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">chặn ngay lúc ghi hồ sơ</text>
+        <text x="1032" y="620" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">chặn lần nữa trước khi gộp</text>
+
+        <!-- ============ CHÚ GIẢI ============ -->
+        <line x1="48" y1="660" x2="1152" y2="660" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <text x="48" y="682" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">CHÚ GIẢI · MÀU MANG DANH TÍNH</text>
+
+        <rect x="48" y="700" width="24" height="16" rx="4" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="80" y="712" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Chặng máy tự đi qua</text>
+
+        <rect x="216" y="700" width="24" height="16" rx="4" fill="#2d3142" stroke="#2d3142" stroke-width="1"/>
+        <text x="248" y="712" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Ô kết có chữ ký người</text>
+
+        <rect x="392" y="700" width="24" height="16" rx="4" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <text x="424" y="712" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Ô kết mới — máy tự thông, không chữ ký</text>
+
+        <circle cx="700" cy="708" r="9" fill="#f5f5f5" stroke="#eb6c36" stroke-width="1.4"/>
+        <line x1="694" y1="714" x2="706" y2="702" stroke="#eb6c36" stroke-width="1.4"/>
+        <text x="720" y="712" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Tổ hợp bị cấm — không bao giờ được tồn tại</text>
+      </svg>
