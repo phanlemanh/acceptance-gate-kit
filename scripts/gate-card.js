@@ -322,7 +322,8 @@ if (gate === '1') {
   const DUONG_DO_HEADING = 'Đường đo';
   const DUONG_DO_DESCOPE = 'bỏ đường-đo — ';
   const ddStem = DUONG_DO_DESCOPE.replace(/\s*—\s*$/, '').toLowerCase();
-  const ddIsBoLine = l => l.trim().toLowerCase().startsWith(ddStem);
+  // dòng bỏ nhận diện ROỘNG (lệch gạch nối / viết hoa vẫn là dòng bỏ — finding C1); entry ledger vẫn phải ĐÚNG tiền tố mới thành info
+  const ddIsBoLine = l => /^bỏ\s+đường[-\s]đo\b/i.test(l.trim()) || l.trim().toLowerCase().startsWith(ddStem);
   const ddApplicable = ut.opportunity_present && ut.readable && ut.section_present && ut.lines.length > 0;
   const ddPresent = new RegExp('^#{2,6}\\s+' + DUONG_DO_HEADING + '\\b', 'im').test(contract);
   // dòng thật = bullet không còn placeholder VÀ không phải dòng bỏ (dòng bỏ không phải đường đo — gap-probe F2)
@@ -366,7 +367,7 @@ if (gate === '1') {
   else if (gpRows.length) P.push(`<div class="lab">Phản biện context sạch</div><div class="grp gnot">${gpRows.map((r, i) => `<p class="li"><b>${esc(r.sev)}</b> · ${esc(pIdx(pl.gap_probe_plain, i) || stripMd(r.artifact) + ' · ' + stripMd(r.summary) + ' — ' + stripMd(r.disposition))}</p>`).join('')}</div>`);
   const flags = [];
   if (glossaryPresent && glossaryDelta && !glossaryDelta.length) flags.push(['finfo', 'Từ vựng: feature này không thêm/sửa term nào trong CONTEXT.md.']);
-  if (glossaryDeltaErr === 'no-base') flags.push(['finfo', 'Từ vựng: repo có CONTEXT.md nhưng thẻ chưa được truyền --glossary-base, nên không trình được term mới/sửa. Truyền base (merge-base với nhánh chính) nếu muốn duyệt cả ngôn ngữ.']);
+  // (lenh-in-ra-phai-bam-duoc AC-5) cờ «chưa truyền --glossary-base» đã bỏ — nó nói với agent, không với người.
   if (glossaryDeltaErr === 'git-failed') flags.push(['fwarn', 'Từ vựng: không đọc được diff CONTEXT.md (base sai hoặc không phải git repo) — term mới/sửa CHƯA được trình, đừng coi là "không có thay đổi".']);
   for (const id of covGaps) flags.push(['fwarn', `${id} có ngưỡng/biên nhưng chưa có ca "dưới ngưỡng → KHÔNG xảy ra" — thêm 1 ca chặn ngay sẽ rẻ hơn nhiều so với phát hiện sau.`]);
   for (const f of dpFlags) flags.push(['fwarn', f]);
@@ -535,7 +536,15 @@ const flags = [];
 // Cụm ngoài vùng phủ: bộ đo đang hụt so với chỗ lỗi thật xuất hiện. Không nêu
 // đường dẫn file ở thẻ — thẻ là chỗ quyết định, chi tiết nằm ở gói bằng chứng.
 if (ooc.cluster) flags.push(['fwarn', '⚠ Nhiều lỗi rơi ngoài vùng các bộ đo đang phủ — dừng và quyết: mở rộng hợp đồng hay rút phạm vi. Chi tiết trong review-findings.md.']);
-{ const analyst = cleanLines(section(report, 'Analyst')).join(' ').trim(); if (analyst && !/^none/i.test(analyst) && !/^\{\{/.test(analyst)) flags.push(['fred', esc(pl.analyst_plain || stripMd(analyst))]); }
+{ const analyst = cleanLines(section(report, 'Analyst')).join(' ').trim();
+  // n-a CÓ LÝ DO (≥ 20 ký tự sau «n-a») là lựa chọn chủ ý đã khai — không phải đỏ; n-a trần/ngắn vẫn đỏ
+  // (hồ sơ lenh-in-ra-phai-bam-duoc AC-4: đỏ không có nghĩa dạy người bỏ qua màu đỏ).
+  const naReason = /^n-a\b[\s—–:-]*([\s\S]*)$/i.exec(analyst);
+  // «n-a có lý do» KHÔNG phải khi phần sau còn mệnh đề mở bằng mã eval (`; E4, E5: …`) — đó là phân tích thật (review S4-r1 F2)
+  const naMixed = naReason && /[;\n]\s*[A-Z]{1,3}\d+\b/.test(naReason[1]);
+  if (naReason && !naMixed && naReason[1].trim().length >= 20) { /* chủ ý, đã nêu lý do — không cờ */ }
+  else if (naReason && !naMixed) flags.push(['fred', 'Analyst n-a không nêu lý do — baseline không chạy mà không nói vì sao; ghi lý do (≥ 20 ký tự) hoặc chạy baseline.']);
+  else if (analyst && !/^none/i.test(analyst) && !/^\{\{/.test(analyst)) flags.push(['fred', esc(pl.analyst_plain || stripMd(analyst))]); }
 { const varr = cleanLines(section(report, 'Variance')).join(' ').trim(); if (varr && !/^none/i.test(varr) && !/^\{\{/.test(varr)) flags.push(['fred', 'Có eval ngẫu nhiên (pass-rate hỗn hợp) — ' + esc(stripMd(varr))]); }
 if (tier === 'T3') flags.push(['fok', 'Đụng phần nhạy cảm → tier T3, đúng là cần bạn duyệt kỹ.']);
 if (evComplete) flags.push(['fok', 'Cổng chạy thật, bằng chứng máy đầy đủ (run_id · exit 0 · verifier).']);

@@ -175,14 +175,14 @@ biết: `approved_at` ghi ngày lệnh chạy; «Ký» vắng ngày → ngày l�
 
 Câu gộp theo lệnh:
 
-- `/approve [<slug>] <câu gộp>` — trả lời chỗ trống «duyệt hay sửa: ___»
+- `/acceptance-gate:approve [<slug>] <câu gộp>` — trả lời chỗ trống «duyệt hay sửa: ___»
   của thẻ Cổng 1: `duyệt[: <tên> [<ngày>]][, phút <số>]` hoặc
   `sửa: <điều cần đổi>`.
-- `/signoff [<slug>] <câu gộp>` — chuỗi `nhãn: giá trị` phân cách bằng `;`,
+- `/acceptance-gate:signoff [<slug>] <câu gộp>` — chuỗi `nhãn: giá trị` phân cách bằng `;`,
   đúng các nhãn dòng «Trả lời mẫu» của thẻ Cổng 2 («Ngoài-<số>» ·
   «<mã eval>» · «cắt/hoãn» · «Treo»), kết bằng `Ký[: <tên> [<ngày>]][, phút
   <số>]` (chỗ trống «ký hay trả») hoặc `Trả lại: <lý do>`.
-- `/start [<slug>]` — chọn-trước bằng slug: slug nằm trong nhóm nào của lần
+- `/acceptance-gate:start [<slug>]` — chọn-trước bằng slug: slug nằm trong nhóm nào của lần
   quét thì bàn giao thẳng theo lối nhóm đó và hiển thị lại nhóm đã khớp;
   không thấy slug trong nhóm nào → trình thẻ như cũ.
 
@@ -273,7 +273,7 @@ site khai ở manifest ngay dưới — thêm/bớt site hay bản chép là quy
 người, sửa manifest cùng lượt; dòng thiếu số là lỗi kêu to.
 
 <!-- <<<GATE-ONESHOT-CLAUSE -->
-Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người.
+Ba lệnh có-câu-hỏi (`/acceptance-gate:approve` · `/acceptance-gate:signoff` · `/acceptance-gate:start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người.
 <!-- GATE-ONESHOT-CLAUSE>>> -->
 
 <!-- <<<GATE-ONESHOT-SITES -->
@@ -284,6 +284,31 @@ commands/acceptance-status.md 1
 commands/acceptance-report.md 1
 commands/start.md 1
 <!-- GATE-ONESHOT-SITES>>> -->
+
+## Tên lệnh bấm được — một nguồn
+
+Harness chỉ bảo đảm dạng `/<plugin>:<tên>`; dạng trần (tên không có tiền tố plugin) chỉ chạy khi không lệnh
+nào khác dùng tên đó — tức may mắn theo máy. Bảng dưới là NGUỒN DUY NHẤT của tên lệnh
+kit in cho người; dạng trần chỉ được xuất hiện ở cột một của chính bảng này.
+
+<!-- <<<COMMAND-NAMES -->
+| Tên trần | Lệnh bấm được | Loại |
+|---|---|---|
+| start | /acceptance-gate:start | command |
+| approve | /acceptance-gate:approve | command |
+| signoff | /acceptance-gate:signoff | command |
+| acceptance-card | /acceptance-gate:acceptance-card | command |
+| acceptance-init | /acceptance-gate:acceptance-init | command |
+| acceptance-status | /acceptance-gate:acceptance-status | command |
+| acceptance-report | /acceptance-gate:acceptance-report | command |
+| uat-session | /acceptance-gate:uat-session | skill |
+| feature-loop | /feature-loop:feature-loop | skill |
+| goal | /goal | harness |
+<!-- COMMAND-NAMES>>> -->
+
+<!-- <<<COMMAND-NAMES-CLAUSE -->
+Khi nêu một lệnh cho người bấm hay chép — trong thẻ, tin mời cổng, câu trả lời — dùng đúng cột «Lệnh bấm được» của bảng `COMMAND-NAMES`, không dùng dạng trần.
+<!-- COMMAND-NAMES-CLAUSE>>> -->
 
 ## Từ mới feature này đưa vào từ điển
 

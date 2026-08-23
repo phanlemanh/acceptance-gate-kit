@@ -214,7 +214,7 @@ print("     LOP-PHUT: %d hit, %d/%d dong mien tru deu con hit that (banh coc 2 c
 for name in ["acceptance-init", "acceptance-status", "acceptance-card", "approve", "signoff", "acceptance-report"]:
     assert (cmds / f"{name}.md").is_file(), name
 appr = (cmds / "approve.md").read_text()
-for needle in ["approved_by", "decisions.jsonl", "gate1_skipped", "/acceptance-card"]:
+for needle in ["approved_by", "decisions.jsonl", "gate1_skipped", "/acceptance-gate:acceptance-card"]:   # lenh-in-ra-phai-bam-duoc: lenh in ra co tien to plugin
     assert needle in appr, needle
 sign = (cmds / "signoff.md").read_text()
 for needle in ["human_override", "pre-merge-check.sh", "forge", "commit"]:
@@ -10547,6 +10547,13 @@ _dd_ids="$(node "$ROOT/tests/plugins/duong-do.test.mjs" --ids)" || { echo "khong
 for _dd in $_dd_ids; do
   run "ca duong do — $_dd (ho so duong-do-trong-dinh-nghia-xong)" \
     env DD_CASES="$_dd" node "$ROOT/tests/plugins/duong-do.test.mjs"
+done
+
+# ─── Hồ sơ lenh-in-ra-phai-bam-duoc: LB1..LB8 (file ca riêng) ─────────────────
+_lb_ids="$(node "$ROOT/tests/plugins/lenh-bam-duoc.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca LB"; failures=$((failures+1)); _lb_ids=""; }
+for _lb in $_lb_ids; do
+  run "ca lenh bam duoc — $_lb (ho so lenh-in-ra-phai-bam-duoc)" \
+    env LB_CASES="$_lb" node "$ROOT/tests/plugins/lenh-bam-duoc.test.mjs"
 done
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)

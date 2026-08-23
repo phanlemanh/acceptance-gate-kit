@@ -250,7 +250,7 @@ Thứ trong sản phẩm sinh ra con số cho một thước đã khai — event
 vấn, bảng đếm. Khác **thước** (đo cái gì), **ngưỡng** (bao nhiêu là SỐNG) và
 **số đo** (con số thật đặt cạnh ngưỡng ở Cổng Giá trị). Khai ở contract
 `## Đường đo`, chỉ khi vòng có hồ sơ cơ hội với ngưỡng (22/08).
-_Avoid_: tracking, analytics, metric (metric là *thước*, không phải đường).
+_Avoid_: tracking, analytics. («metric» KHÔNG vào danh sách tránh — kit đang dùng nó đúng nghĩa *thước* ở morphological-scan.)
 
 **Residual**:
 Nhiễu in-scope còn lại sau khi eval chạy (console error, request fail thuộc

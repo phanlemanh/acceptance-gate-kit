@@ -239,14 +239,15 @@ if (want('DD7')) {
     const body = lines.slice(i + 1, i + 8).join('\n');
     for (const w of ['thước', 'ngưỡng', 'số đo']) if (!body.includes(w)) e.push(`định nghĩa thiếu «${w}»`);
     const av = lines.slice(i + 1, i + 8).find(l => /^_Avoid_/.test(l)) || '';
-    if (!(av.includes('tracking') && av.includes('metric'))) e.push('_Avoid_ thiếu tracking/metric');
+    // (lenh-in-ra-phai-bam-duoc AC-7, d-4505) «metric» đã gỡ khỏi _Avoid_ — đụng từ chuẩn kit; chỉ còn tracking
+    if (!av.includes('tracking')) e.push('_Avoid_ thiếu tracking');
     return e;
   };
   const ctx = readFileSync(CONTEXT, 'utf8');
   const e0 = checkCtx(ctx); if (e0.length) errs.push('đối chứng dương: ' + e0.join(' · '));
   const red = checkCtx(ctx.replace('**Đường đo**:', '**Duong do**:'));
   if (!red.some(x => x.includes('thiếu term'))) errs.push('gỡ term mà không đỏ');
-  if (errs.length) fail('DD7', errs.join(' · ')); else pass('DD7', 'CONTEXT.md có term Đường đo (thước/ngưỡng/số đo, _Avoid_ tracking+metric); gỡ → đỏ');
+  if (errs.length) fail('DD7', errs.join(' · ')); else pass('DD7', 'CONTEXT.md có term Đường đo (thước/ngưỡng/số đo, _Avoid_ tracking); gỡ → đỏ');
 }
 
 const unknown = only.filter(id => !ran.has(id));

@@ -18,7 +18,7 @@ or `verified_at` is on/after that date.
 
 Một-lượt-gõ + `--repo` (điều khoản chung, chép nguyên văn từ bản luật):
 
-Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người.
+Ba lệnh có-câu-hỏi (`/acceptance-gate:approve` · `/acceptance-gate:signoff` · `/acceptance-gate:start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người.
 
 Lệnh này KHÔNG nằm trong ba lệnh có-câu-gộp (báo cáo read-only, không có câu
 hỏi cổng nào để gộp); phần áp dụng ở đây là cờ `--repo <path>`: quét
@@ -80,7 +80,7 @@ Steps:
      (vd "2 việc dùng đường thoát mà chưa ai xác nhận — đọc rồi ghi
      `bypass_ack`, hoặc chạy lại cho sạch; để trống là để một lần bỏ qua cổng
      không ai chịu trách nhiệm").
-5. `_acceptance/` missing → suggest `/acceptance-init`. No features → say so.
+5. `_acceptance/` missing → suggest `/acceptance-gate:acceptance-init`. No features → say so.
 
 Read-only guarantee: this command never edits contracts, reports, or config —
 it only reads and prints.

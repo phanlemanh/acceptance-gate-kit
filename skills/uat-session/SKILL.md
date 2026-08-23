@@ -76,7 +76,7 @@ mốc; câu trả lời chung chung tự nó là dữ liệu.
 
 ## 4. Đặt số đo cạnh ngưỡng
 
-Điền bảng: thước · ngưỡng đã khai · số đo được · SỐNG/CHẾT. Số lấy từ tracking
+Điền bảng: thước · ngưỡng đã khai · số đo được · SỐNG/CHẾT. Số lấy từ đường đo đã khai
 thật, không từ cảm giác trong phòng. Thước nào chưa đo được thì ghi CHƯA ĐO —
 không đo mà im lặng là gian.
 
@@ -97,7 +97,7 @@ là thứ duy nhất phiên này sinh ra mà máy không thay được.
   **BỎ QUA bước này**, đừng thêm bản đồ vào commit, và in ghi chú dưới đây —
   nếu không, chính commit chữ ký làm bằng chứng cũ đi và lưới trước-merge chặn
   merge mà không có lối ra (ADR 0007). Cổng Giá trị là thân cổng người thứ
-  NĂM: bốn thân kia (`/approve`, `/signoff` ở cả hai harness) đã có đường
+  NĂM: bốn thân kia (`/acceptance-gate:approve`, `/acceptance-gate:signoff` ở cả hai harness) đã có đường
   đọc-cũ này, thiếu ở đây thì chính phiên nghiệm thu dựng ra cái bẫy đó.
 
   > Bản đồ sản phẩm chưa bật cho repo này. Bật bằng hai dòng trong
