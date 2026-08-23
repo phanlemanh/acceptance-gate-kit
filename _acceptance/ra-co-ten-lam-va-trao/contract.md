@@ -85,6 +85,8 @@ tests/plugins/lan-v.test.mjs ca-của-hồ-sơ-làn-V-cũ-giữ-đường-đọc
 tests/plugins/run-tests.sh bộ-chạy-suite-không-rẽ-theo-status
 tests/scripts/run-tests.sh bộ-chạy-suite-không-rẽ-theo-status
 tests/scripts/additive-only.test.mjs ca-đo-tính-chỉ-thêm-không-rẽ-theo-status
+.claude-plugin/plugin.json chuỗi-nằm-trong-mô-tả-gói-không-rẽ-nhánh
+tests/plugins/asserts-da-go.txt sổ-ca-đã-gỡ-văn-bản-lịch-sử-không-chạy
 BO-DOC-KHAI-GACH>>> -->
 
 

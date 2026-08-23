@@ -27,7 +27,7 @@ const UAT_H = 'Ngưỡng chết / ngưỡng UAT';
 
 let failures = 0;
 // MỘT nguồn danh sách ca: file này. Chỉ liệt ca ĐÃ CÓ THÂN — khai id chưa dựng thì suite đỏ.
-const ALL_IDS = ['RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT6', 'RT7', 'RT8', 'RT9', 'RT10', 'RT11', 'RT12', 'RT15'];
+const ALL_IDS = ['RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT6', 'RT7', 'RT8', 'RT9', 'RT10', 'RT11', 'RT12', 'RT13', 'RT14', 'RT15'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.RT_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const want = id => only.length === 0 || only.includes(id);
@@ -562,6 +562,119 @@ if (want('RT10')) {
   rmSync(t2, { recursive: true, force: true });
   if (errs.length) fail('RT10', errs.join(' · '));
   else pass('RT10', `hai tiền tố («${DE_XUAT}», «${KHONG_DO}») khai một chỗ, năm nơi đọc lại; đổi khuôn → lệch nêu cả hai chuỗi`);
+}
+
+// ── RT13 — đọc-cũ trên CÂY THẬT + cờ theo QUAN HỆ + quét không gian mở ──────
+if (want('RT13')) {
+  const errs = [];
+  const MOC_CU = 'cb38ea01';
+  const contractRT = readRepo('_acceptance/ra-co-ten-lam-va-trao/contract.md');
+  const block = m => {
+    const x = contractRT.match(new RegExp(`<<<${m}\\n([\\s\\S]*?)${m}>>>`));
+    if (!x) { errs.push(`contract thiếu khối ${m}`); return []; }
+    return x[1].trim().split('\n').map(l => l.trim()).filter(Boolean);
+  };
+  const KHAC = block('KHAC-BIET-DOC-CU').map(l => l.split(/\s+/));
+  const GACH = block('BO-DOC-KHAI-GACH').map(l => l.split(/\s+/)[0]);
+
+  // (i) bản MỚI trên cây thật
+  const jNew = scan(ROOT);
+  if (jNew.broken.length) errs.push(`bản mới broken: ${JSON.stringify(jNew.broken.map(b => b.slug))}`);
+
+  // (ii) bản CŨ tại mốc, dựng vào thư mục tạm rồi chạy trên CÙNG cây
+  const old = tmp('rt13-old-');
+  const show = rel => execFileSync('git', ['-C', ROOT, 'show', `${MOC_CU}:${rel}`], { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
+  for (const rel of ['scripts/start-scan.mjs', 'scripts/trang-thai-ho-so.cjs', 'scripts/khong-can-nguoi.mjs',
+                     'lib/workspace-record.cjs', 'lib/evidence-core.cjs', 'lib/md-section.cjs', 'lib/ac-line.cjs',
+                     'skills/acceptance/references/opportunity-template.md'])
+    W(old, rel, show(rel));
+  let jOld = null;
+  try { jOld = scan(ROOT, path.join(old, 'scripts', 'start-scan.mjs')); }
+  catch (e) { errs.push(`bản cũ không chạy được: ${String(e.message).slice(0, 160)}`); }
+  rmSync(old, { recursive: true, force: true });
+  if (jOld) {
+    const keyOf = j => {
+      const m = new Map();
+      for (const grp of ['gates', 'inProgress', 'considering', 'done']) for (const x of (j.groups[grp] || [])) m.set(x.slug, x.stateKey);
+      for (const b of (j.broken || [])) m.set(b.slug, 'ho-so-hong');
+      return m;
+    };
+    const mOld = keyOf(jOld), mNew = keyOf(jNew);
+    for (const [slug, kOld] of mOld) {
+      const kNew = mNew.get(slug);
+      const kh = KHAC.find(r => r[0] === slug);
+      if (kh) { if (kOld !== kh[1] || kNew !== kh[2]) errs.push(`${slug}: khối khai ${kh[1]}→${kh[2]}, thực ${kOld}→${kNew}`); }
+      else if (kOld !== kNew) errs.push(`${slug}: lệch ${kOld}→${kNew} mà khối không khai`);
+    }
+    for (const slug of mNew.keys()) if (!mOld.has(slug)) errs.push(`${slug}: chỉ có ở bản mới`);
+  }
+
+  // (iii) CỜ đo bằng QUAN HỆ (đúng ở mọi ngày chạy), không bằng danh sách
+  const { section: sec } = require(path.join(ROOT, 'lib', 'md-section.cjs'));
+  const all = ['gates', 'inProgress', 'done'].flatMap(grp => (jNew.groups[grp] || []).map(x => ({ grp, ...x })));
+  for (const x of all) {
+    const op = path.join(ROOT, '_acceptance', x.slug, 'opportunity.md');
+    const oTxt = existsSync(op) ? readFileSync(op, 'utf8') : null;
+    const lines = oTxt ? sec(oTxt, UAT_H) : [];
+    const tb = lines.find(l => /^-\s*Timebox:/.test(l.trim()));
+    const d = tb && (tb.match(/\b(\d{4})-(\d{2})-(\d{2})\b/) || tb.match(/\b(\d{2})\/(\d{2})\/(\d{4})\b/));
+    const date = d ? (d[0].includes('-') ? Date.UTC(+d[1], +d[2] - 1, +d[3]) : Date.UTC(+d[3], +d[2] - 1, +d[1])) : null;
+    const expQua = date != null && date < Date.now();
+    if (((x.flags || []).includes('qua-timebox')) !== expQua) errs.push(`${x.slug}: cờ qua-timebox ${expQua ? 'thiếu' : 'thừa'} (ngày ${d ? d[0] : 'không parse'})`);
+    const kd = lines.some(l => { const t = l.trim(); return t.startsWith(KHONG_DO) && (t.length === KHONG_DO.length || /\s/.test(t[KHONG_DO.length])); });
+    const bul = lines.map(l => l.trim().match(/^[-*]\s+([^:]+):(.*)$/)).filter(Boolean);
+    const chot = !kd && bul.length > 0 && bul.every(m => m[2].trim() && !/^(…|\.\.\.)$/.test(m[2].trim())) && !bul.some(m => m[2].trim().startsWith(DE_XUAT));
+    const expNg = x.grp === 'gates' && x.gate === 'gia-tri' && !chot;
+    if (((x.flags || []).includes('nguong-chua-chot')) !== expNg) errs.push(`${x.slug}: cờ nguong-chua-chot ${expNg ? 'thiếu' : 'thừa'}`);
+  }
+
+  // (iv) QUÉT KHÔNG GIAN MỞ: bộ đọc thứ N rẽ nhánh trên `signed-off` mà không ai nhớ
+  // Loại vùng KHÔNG phải bộ đọc: hồ sơ, tài liệu người-đọc (đã miễn T1). Danh sách loại
+  // là ĐÓNG và khai ở đây — file mới chứa chuỗi vẫn bị nêu tên (fail-closed).
+  const NGOAI = [/^_acceptance\//, /^docs\//, /^PRODUCT-MAP\.md$/, /^CHANGELOG\.md$/, /^README\.md$/, /^GUIDE\.md$/, /^QUICKSTART\.md$/];
+  const files = execFileSync('git', ['-C', ROOT, 'grep', '-l', 'signed-off'], { encoding: 'utf8' })
+    .trim().split('\n').filter(Boolean).filter(f => !NGOAI.some(re => re.test(f)));
+  const evalsY = readRepo('_acceptance/ra-co-ten-lam-va-trao/evals.yaml');
+  const paths = new Set((evalsY.match(/paths: \[([^\]]+)\]/g) || []).flatMap(l => l.replace(/^paths: \[/, '').replace(/\]$/, '').split(',').map(x => x.trim())));
+  for (const f of files) if (!paths.has(f) && !GACH.includes(f)) errs.push(`file lạ chứa "signed-off": ${f} — thêm ca, hoặc khai gạch có lý do trong khối BO-DOC-KHAI-GACH`);
+  for (const f of GACH) if (!files.includes(f)) errs.push(`khối gạch khai ${f} nhưng file không còn chứa "signed-off" (dòng chết)`);
+  // chiều đỏ của (iv): tiêm một file lạ vào tập → phải bị nêu tên
+  { const la = [...files, 'scripts/gia-lap-bo-doc-moi.mjs'].filter(f => !paths.has(f) && !GACH.includes(f));
+    if (!la.includes('scripts/gia-lap-bo-doc-moi.mjs')) errs.push('chiều đỏ (iv): tiêm file lạ mà phép so không nêu'); }
+  // chiều đỏ của (ii): xoá một dòng khối → slug đó thành «lệch mà không khai»
+  if (KHAC.length && jOld) {
+    const kh = KHAC[0];
+    if (kh[1] === kh[2]) errs.push('chiều đỏ (ii): dòng khối khai cũ==mới, không phân biệt được gì');
+  }
+  if (errs.length) fail('RT13', errs.join(' · '));
+  else pass('RT13', `đọc-cũ: broken rỗng, khác biệt đúng khối; cờ ⇔ điều kiện (đúng mọi ngày chạy); ${files.length} file chứa "signed-off" đều có ca hoặc khai gạch`);
+}
+
+// ── RT14 — hồ sơ THẬT thoát Cổng Giá trị bằng lối có tên, có vết ────────────
+if (want('RT14')) {
+  const errs = [];
+  const D = '_acceptance/duong-do-trong-dinh-nghia-xong';
+  const { section: sec2 } = require(path.join(ROOT, 'lib', 'md-section.cjs'));
+  const o = readRepo(`${D}/opportunity.md`);
+  const lines = sec2(o, UAT_H);
+  if (!lines.some(l => { const t = l.trim(); return t.startsWith(KHONG_DO) && (t.length === KHONG_DO.length || /\s/.test(t[KHONG_DO.length])); }))
+    errs.push('ô ngưỡng chưa có dòng đúng tiền tố «không đo được»');
+  // Quyết định ĐÃ KÝ không được sửa: so với chính bản tại mốc.
+  const oOld = execFileSync('git', ['-C', ROOT, 'show', `cb38ea01:${D}/opportunity.md`], { encoding: 'utf8' });
+  for (const k of ['decision', 'decided_by', 'decided_at', 'stage']) {
+    const g = t => (t.match(new RegExp(`^${k}:.*$`, 'm')) || [''])[0].split('#')[0].trim();
+    if (g(o) !== g(oOld)) errs.push(`${k} đã đổi: «${g(oOld)}» → «${g(o)}» — hồ sơ đã ký không sửa quyết định`);
+  }
+  // Vết: entry sổ quyết định cite đúng entry bỏ đường-đo cũ.
+  const led = readRepo(`${D}/decisions.jsonl`).split('\n').filter(Boolean)
+    .map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+  if (!led.some(e => e.type === 'revisit' && /Không đo được/.test(JSON.stringify(e)) && /d-20260822T000500Z-4306/.test(JSON.stringify(e))))
+    errs.push('sổ quyết định thiếu entry revisit cite d-20260822T000500Z-4306');
+  // Bộ quét trên CÂY THẬT xếp đúng ô.
+  const x = findSlug(scan(ROOT), 'duong-do-trong-dinh-nghia-xong');
+  if (!x || x.stateKey !== 'da-giao-khong-do') errs.push(`bộ quét: ${JSON.stringify(x)}`);
+  if (errs.length) fail('RT14', errs.join(' · '));
+  else pass('RT14', 'hồ sơ treo thoát bằng lối «không đo được» có vết; decision/người ký/ngày giữ nguyên');
 }
 
 const la = only.filter(id => !ALL_IDS.includes(id));
