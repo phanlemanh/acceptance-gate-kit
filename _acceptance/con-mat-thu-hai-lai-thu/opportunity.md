@@ -8,8 +8,8 @@ decision:         # build | iterate | park | kill — người ký Cổng 0 đi�
 decided_by:
 decided_at:     # ISO UTC
 prototype:
-  base_commit: ecb4547        # nhánh feat/openrouter-vlm của floorplanstudio
-  disposition:     # keep | archive
+  base_commit:      # KHÔNG có: nhánh nguồn đã xoá — mã sống ở ./prototype/
+  disposition: keep # mã mang theo trong hồ sơ, chưa qua cổng nào
 ---
 
 ## Vấn đề & ai gặp
@@ -76,9 +76,14 @@ danh sách còn ≤4 — giảm ~43% trên một ván đo được.
 
 ## Prototype mang theo
 
-Nhánh `feat/openrouter-vlm` của floorplanstudio (`ecb4547`, 765 dòng):
-`openrouter.ts` (client + cấu hình + 6 mã lỗi có tên), `openrouter.test.ts` (20 ca),
-32 dòng nối vào `server.ts`, `.env.example`.
+**Mã nằm ở [`./prototype/`](./prototype/)** — 765 dòng, chưa qua cổng nào.
+Nhánh nguồn `feat/openrouter-vlm` của floorplanstudio **đã xoá** (owner quyết *kill ở
+floorplanstudio*, 2026-08-23); nó chưa bao giờ được push, nên thư mục đó là **bản duy
+nhất còn lại**. Chép sang TRƯỚC khi xoá, có chủ ý — hồ sơ này trỏ vào nó, và một hồ sơ
+trỏ vào commit đã biến mất là hồ sơ hỏng.
+`openrouter.ts` (372 dòng — client + cấu hình + 6 mã lỗi có tên), `openrouter.test.ts`
+(311 dòng, 20 ca), `server.ts.diff` (32 dòng nối vào — giữ dạng diff có chủ ý, chép
+nguyên file sẽ kéo mã sản phẩm của repo khác vào kit), `.env.example`.
 
 Mã **sạch về an toàn** (đã kiểm 2026-08-22): khoá chỉ vào header `Authorization`,
 thông báo lỗi in ĐỘ DÀI không in khoá, phản hồi qua zod ở biên, timeout có abort,
