@@ -5,9 +5,9 @@ slug: ra-co-ten-lam-va-trao
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lib/workspace-record.cjs + lib/evidence-core.cjs (hook) + scripts/pre-merge-check.sh
 surfaces: [cli]
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: Manh
+approved_at: 2026-08-23T12:44:55Z
 ---
 
 # Acceptance Contract: ra-co-ten-lam-va-trao
