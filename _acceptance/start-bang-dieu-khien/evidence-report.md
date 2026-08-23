@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 001c524e41b7ebf076f4deabe531f50751fccd36
-human_signoff:
+human_signoff: Manh Phan 2026-08-23 — ký với 15 known-limits đã khai trong contract ## Notes; mục thứ 16 (ngày hồ sơ đã nghiệm thu lấy sai nấc) tách thành ô riêng vì nó chạm HỢP ĐỒNG chứ không chạm mã; 9 quyết định ghi sau dấu niêm Cổng Phạm vi đã phê
 ---
 
 # Evidence Report: start-bang-dieu-khien

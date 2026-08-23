@@ -5,7 +5,7 @@ slug: start-bang-dieu-khien
 owner: manh.phan@onemount.com
 risk_tier: T2      # T2 (chuẩn) | T3 (auth/dữ liệu/API phá vỡ)
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-08-23T01:58:21Z
 ---
@@ -220,5 +220,53 @@ bật:
   merge thêm một hồ sơ `veto_state: mo` sẽ làm hằng đỏ trên một bản cài ĐÚNG.
   Đúng lớp «thước ghim vào thứ sẽ đổi» mà sổ lớp lỗi đang ghi «chưa quét trọn
   lớp» — lớp này đã bắt được ngay trong phản biện của chính vòng này.
+### Known limits — owner đọc và CHẤP NHẬN tại Cổng Bằng chứng 2026-08-23
+
+Mười lăm mục dưới đây là lỗi THẬT do review S4 tìm ra, nằm NGOÀI phạm vi đã
+duyệt ở Cổng Phạm vi. Owner chọn **ghi hạn chế đã biết và ship bản này**; mục
+thứ mười sáu (ngày của hồ sơ đã nghiệm thu) tách thành ô riêng vì nó chạm HỢP
+ĐỒNG chứ không chạm mã — xem `_acceptance/ngay-viec-vua-xong-lay-sai-nac/`.
+
+**Nợ cấu trúc trong máy quét (4)**
+- Cùng một ánh xạ verdict→khoá trạng thái viết HAI lần, hai hình dạng, cách nhau
+  15 dòng. Hôm nay trùng kết quả vì bảng nghĩa chỉ có hai giá trị chưa-chốt;
+  thêm một giá trị mới là hai nhánh tách ra. Sửa theo lớp: đặt khoá vào chính
+  bảng nghĩa rồi cả hai nhánh đọc từ đó.
+- `veto_state` đọc bằng tay thay vì qua bộ đọc chung `vetoGateState()` — bản
+  dựng THỨ BA của cùng một khoá, trong đúng file có luật cấm việc đó. Hôm nay
+  hai bản cho cùng kết quả nên là nợ, chưa phải lỗi.
+- Thang ngày nuốt lỗi đọc không-phải-file-vắng, trái luật khai ngay đầu file:
+  hồ sơ đã ký mất quyền đọc báo cáo sẽ rơi xuống nấc git và trả một ngày SAI,
+  trình cho owner như sự thật, không cờ nào.
+- Thang ngày lấy mốc quyết-định-ở-Cổng-Đáng làm ngày HOÀN THÀNH cho hồ sơ
+  máy-đi-tiếp (chúng không bao giờ có chữ ký nên nấc 1 luôn trượt).
+
+**Thẻ cổng và thân lệnh (3)**
+- Hồ sơ rơi vào nhóm «đọc không được» thì thẻ Cổng 2 im lặng quay về lối cũ và
+  vẫn mời ký — cờ chỉ bật khi máy quét CHẾT, không bật khi nó chạy xong mà
+  không thấy hồ sơ.
+- `acceptance-card.md` dặn in lệnh ký vô điều kiện, không có ngoại lệ cho hồ sơ
+  máy-đi-tiếp — cùng mâu thuẫn đã chữa trong HTML, chỉ dời sang phần chỉ dẫn.
+- `implemented` + bằng chứng PASS vẫn mang nhãn «code xong, chưa ai chấm» dù
+  máy đã chấm.
+
+**Chất lượng bộ đo của chính vòng này (5)**
+- Một assert kiểm «có chuỗi đó không» cho lời hứa vốn là QUAN HỆ THỨ TỰ
+  (`done[]` xếp theo ngày) — assert đúng nhưng yếu hơn lời hứa.
+- Allowlist nhãn của bảng trạng thái lặp trên tập RỖNG, không có sàn đếm, nên
+  vòng lặp không bao giờ chạy trên cây thật; nó chỉ sống ở chiều đỏ.
+- BDK4 ghim chuỗi `FILES.length !== 16` thay vì kiểm QUAN HỆ THÀNH VIÊN (ba
+  thân cổng có nằm trong vũ trụ quét không) — hai lần, ở hai file.
+- Round-trip «máy quét rút chữ TỪ bảng» chỉ chạm 6/20 khoá trên cây thật; nó
+  tuyên quét LỚP nhưng thực tế là điểm-case.
+- Grep một TỪ («thước») cho cả một mệnh đề ràng buộc.
+
+**Vật của hồ sơ (1)**
+- Chú thích ở `_acceptance/config.yaml` khai các bộ răng «chết theo hồ sơ khi
+  merge», nhưng tiền lệ trong chính file nói ngược: bộ răng của hồ sơ đã merge
+  19/08 vẫn còn nguyên. Nên hai chân neo vào hình dạng cây hôm nay (`at` đòi 0
+  hồ sơ thiếu ngày; `veto-ten` đòi tập bằng đúng tập grep) là nợ DÀI HẠN chứ
+  không tạm thời — đúng lớp «thước ghim vào thứ sẽ đổi».
+
 - Vòng này chạm engine → theo GUIDE §7.1, re-pin đi theo **release**, không
   theo từng merge. Không mở chiến dịch re-pin trong vòng này.
