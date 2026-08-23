@@ -132,6 +132,29 @@ const planExists = slug => [path.join(root, 'docs', 'superpowers', 'plans'), pat
 // xuống cuối nhóm chỉ vì file bị format/sync chạm lại (AC-6, đối chứng P98)
 const since = (file, fmTs) => fmTs || statSync(file).mtime.toISOString();
 const { section } = require(path.join(__dirname, '..', 'lib', 'md-section.cjs'));
+// NGÀY của một việc đã đóng — suy từ hồ sơ SẴN CÓ, không thêm trường, không bắt
+// hồ sơ nào migrate: đã thử trên 57 hồ sơ signed-off của chính kit, 57/57 ra
+// ngày ngay ở nấc một. Nấc nào cũng không ra → null, KHÔNG mượn mtime bịa mốc:
+// một con số sai chỗ này là thẻ nói dối về thứ tự việc vừa làm.
+const NGAY_RE = /(\d{4}-\d{2}-\d{2})/;
+const ngayXong = (dir, anchorPath) => {
+  const e = read(path.join(dir, 'evidence-report.md'));
+  if (!e.err && e.t != null) {
+    const m = NGAY_RE.exec(frontmatterField(e.t, 'human_signoff') || '');
+    if (m) return m[1];
+  }
+  for (const f of ['uat-session.md', 'opportunity.md']) {
+    const r = read(path.join(dir, f));
+    if (r.err || r.t == null) continue;
+    const m = NGAY_RE.exec(frontmatterField(r.t, 'decided_at') || '');
+    if (m) return m[1];
+  }
+  try {
+    const o = execFileSync('git', ['-C', root, 'log', '-1', '--format=%cs', '--', path.relative(root, anchorPath)],
+      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    return NGAY_RE.test(o) ? o : null;
+  } catch { return null; }
+};
 // ── Ý đang cân nhắc vs chờ Cổng Đáng (hồ sơ vao-co-o-ra-co-ten) ──────────────
 // Nhãn bullet của section Ngưỡng đọc từ CHÍNH KHUÔN lúc chạy — khuôn là một
 // nguồn; chép tay vào đây là hai bản trôi (d-4202). Đọc LƯỜI: repo không có ý
@@ -241,12 +264,12 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       if (problem) { pushHong({ slug, ...problem }); continue; }
       const { decision, verdict } = navValues(texts);
       // verdict RỖNG = phiên đã dựng nhưng CHƯA ký → rơi xuống ô chờ-Cổng-Giá-trị
-      if (verdict) { done.push(g(UAT_KEY[verdict], { slug, state: UAT_STATE[verdict] })); continue; }
+      if (verdict) { done.push(g(UAT_KEY[verdict], { slug, state: UAT_STATE[verdict], at: ngayXong(dir, cPath) })); continue; }
       if (decision === 'build' || decision === 'iterate')
         // since CHỈ từ decided_at của phiên — nghi thức thật chưa sinh mốc thì
         // để trống, không mượn mtime bịa một mốc (AC-8 workspace-reader-unification)
         gates.push(g('cho-cong-gia-tri', { slug, gate: 'gia-tri', since: fmOrNull(uTxt, 'decided_at') || '', tier }));
-      else done.push(g('da-giao', { slug, state: 'signed-off' }));
+      else done.push(g('da-giao', { slug, state: 'signed-off', at: ngayXong(dir, cPath) }));
     }
     else if (status === 'verified') {
       // Bảng phân ô spec: chờ-Cổng-Bằng-chứng = verdict đã-chốt (PASS/PENDING-
@@ -258,13 +281,13 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
         const kcnState = ev.exists && !ev.signoff ? kcn(cTxt, ev.raw) : null;
         if (!ev.exists) pushHong({ slug, ...missingArtifact({ 'contract.md': cTxt, 'evidence-report.md': null }) });
         else if (!meaning) pushHong({ slug, ...bangLech(ev.verdict) });
-        else if (ev.signoff) done.push(g('da-giao', { slug, state: 'signed-off' }));
+        else if (ev.signoff) done.push(g('da-giao', { slug, state: 'signed-off', at: ngayXong(dir, cPath) }));
         // KCN-NHANH: hồ sơ KHÔNG còn cần người — cùng câu lưới trước-merge hỏi
         // (da-veto · Cổng 1 đúng vết · sáu điều kiện xanh-sạch). Trả về tên
         // trạng thái «đã giao»: lan-v-mo (cửa veto mở) hay xanh-sach (người duyệt
         // Cổng 1). Hồ sơ chưa sạch rơi xuống nhánh dưới và VẪN là cổng — đó là
         // lỗi vòng một của hồ sơ lan-v-khong-phai-cho-ky (khoá vào veto_state).
-        else if (kcnState) done.push(g(kcnState === 'lan-v-mo' ? 'may-di-tiep-veto-mo' : 'may-di-tiep-xanh-sach', { slug, state: kcnState }));
+        else if (kcnState) done.push(g(kcnState === 'lan-v-mo' ? 'may-di-tiep-veto-mo' : 'may-di-tiep-xanh-sach', { slug, state: kcnState, at: ngayXong(dir, cPath) }));
         else if (meaning.settled) gates.push(g('cho-cong-bang-chung', { slug, gate: 'bang-chung', since: since(cPath, frontmatterField(cTxt, 'approved_at')), tier }));
         // Còn việc của MÁY: REJECT -> đang sửa theo bằng chứng · BLOCKED -> nghiệm thu bị chặn.
         else inProgress.push(g(meaning.nextStep === 'S3-fix' ? 'dang-sua-theo-bang-chung' : 'nghiem-thu-bi-chan', { slug, status, nextStep: meaning.nextStep, tier }));
@@ -313,10 +336,18 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
     }
   }
   else if (decision === 'build' || decision === 'iterate') inProgress.push(g('sap-mo-vong', { slug, status: 'opportunity-decided', nextStep: 'S1', tier: null }));
-  else done.push(g(decision === 'park' ? 'xep-lai' : 'da-bac', { slug, state: decision }));
+  else done.push(g(decision === 'park' ? 'xep-lai' : 'da-bac', { slug, state: decision, at: ngayXong(dir, oPath) }));
 }
 gates.sort((a, b) => String(a.since).localeCompare(String(b.since)));
-considering.sort((a, b) => a.since.localeCompare(b.since));   // cũ nhất lên đầu — thẻ lấy 3 tên đầu
+considering.sort((a, b) => a.since.localeCompare(b.since));   // cũ nhất lên đầu
+// Tuổi TRÙNG không phải tuổi: 6/7 ý của chính kit mang CÙNG một dấu thời gian
+// vì cùng một commit đổ stub. In «cũ nhất X ngày» cho một nhóm như vậy là nói
+// một con số không có thật — thẻ phải nói «chưa rõ tuổi».
+{
+  const dem = new Map();
+  for (const c of considering) dem.set(c.since, (dem.get(c.since) || 0) + 1);
+  for (const c of considering) c.ageTied = dem.get(c.since) > 1;
+}
 
 // Hai nguồn từng vắng (PRODUCT-MAP, phiên nghiệm thu) đã dựng ở F-B, nên mảng
 // skipped[] không còn nguồn sinh nào và đã được gỡ: một khoá khai mà không thứ

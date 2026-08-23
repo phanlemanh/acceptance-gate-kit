@@ -68,8 +68,9 @@ if (want('VC1')) {
   if (!c) errs.push(`w-idea không ở considering[] (broken=${JSON.stringify(j.broken)})`);
   else {
     // Ghim tập khoá CHÍNH XÁC (một khoá lạ lọt vào vẫn đỏ). Ba khoá stateKey/
-    // label/viecKe thêm ở hồ sơ start-bang-dieu-khien — chữ mặt người rút từ bảng chung.
-    if (Object.keys(c).sort().join(',') !== 'ageDays,label,name,since,slug,stateKey,viecKe') errs.push(`khoá lệch: ${Object.keys(c).join(',')}`);
+    // label/viecKe thêm ở hồ sơ start-bang-dieu-khien — chữ mặt người rút từ bảng chung;
+    // ageTied: mấy ý sinh cùng một commit mang cùng dấu thời gian, thẻ phải nói «chưa rõ tuổi».
+    if (Object.keys(c).sort().join(',') !== 'ageDays,ageTied,label,name,since,slug,stateKey,viecKe') errs.push(`khoá lệch: ${Object.keys(c).join(',')}`);
     if (c.name !== 'Ý w-idea') errs.push(`name ≠ feature: ${c.name}`);
   }
   if (slugsIn(j.groups.gates).includes('w-idea')) errs.push('w-idea vẫn ở gates[]');
