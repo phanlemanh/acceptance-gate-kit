@@ -5,7 +5,7 @@ slug: lenh-tran-tai-lieu-dau-tay
 owner: phanlemanh@gmail.com
 risk_tier: T2               # 3 tài liệu gốc (t1_skip_globs) + tests/plugins/lenh-bam-duoc.test.mjs — không chạm lib/**, scripts/, hook, lưới
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo

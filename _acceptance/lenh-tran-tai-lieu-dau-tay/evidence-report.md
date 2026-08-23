@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent (đường VERIFY độc lập,
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 1c163c71d234b46dc73571a70cf6083cd223e808
-human_signoff:
+human_signoff: Manh Phan 2026-08-23 — ký với known-limits đã khai (neo sha cố định · vũ trụ khai tay · ngưỡng đo chung chip D)
 ---
 
 # Evidence Report: lenh-tran-tai-lieu-dau-tay
