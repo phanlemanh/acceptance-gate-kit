@@ -99,11 +99,16 @@ phân loại và ký trong bảng «Nguồn ngoài» của hồ sơ cơ hội.
 phép đo mới đi kèm chiều đỏ trên cùng fixture code-sinh; fixture suy đường dẫn
 từ vị trí script.
 
-## 4. Bảng trạng-thái → chữ — mười bảy ô, một nguồn
+## 4. Bảng trạng-thái → chữ — mười bảy HÀNG, hai mươi KHOÁ, một nguồn
 
 Đây là vật trung tâm của hạng mục 3. Sự thật = bộ field của hồ sơ; mỗi bộ ra
 **đúng một** khoá trạng thái; mỗi khoá có đúng một cặp chữ (`nhan` — trạng
 thái, `viecKe` — việc kế của ai).
+
+⚠ Hai hàng dưới gộp nhiều khoá: hàng 7 (`approved`) tách **hai** khoá theo
+việc đã có kế hoạch chưa, hàng 16 (nghiệm thu) tách **ba** khoá theo verdict.
+Nên bảng có **17 hàng nhưng 20 khoá** — con số của ma trận toàn phần là **20**
+(S2 đếm lại từ mọi lối phân ô của máy quét; bản S1 ghi nhầm 17).
 
 | # | Sự thật (field) | Khoá | Lệch hôm nay |
 |---|---|---|---|

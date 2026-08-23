@@ -105,8 +105,12 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/trang-thai-ho-so.cjs, scripts/start-scan.mjs, scripts/product-map.mjs, scripts/gate-card.js, commands/acceptance-status.md]
     expected: >
-      exit 0; stdout có "PASS: [BDK2]". Ma trận TOÀN PHẦN viết trước: bảng khai 17 khoá trạng
-      thái, số assert === 17 (assert cứng cả hai chiều — thêm khoá mà quên ca → đỏ nêu số).
+      exit 0; stdout có "PASS: [BDK2]". Ma trận TOÀN PHẦN viết trước: bảng khai 20 khoá trạng
+      thái (S2 đếm lại từ MỌI lối phân ô của máy quét — bảng §4 design đếm 17 HÀNG, nhưng hàng
+      «đã duyệt» gộp hai khoá S2/S3 và hàng «đã nghiệm thu» gộp ba khoá release/iterate/kill).
+      Số assert === 20, và cả hai vế viết ĐỘC LẬP: mảng ca gõ tay N phần tử, assert
+      `ca.length === 20` VÀ `Object.keys(bảng).length === 20` — thêm khoá mà quên ca → đỏ nêu số;
+      viết `=== Object.keys(...).length` một mình là hằng đúng, cấm.
       Với mỗi khoá: chữ của máy quét (`label`) === chữ bảng; `BUCKET_OF[khoá]` nằm trong danh
       sách ô của bản đồ. Với `commands/acceptance-status.md` dùng ALLOWLIST, không blacklist
       (không gian nhãn là mở — cấm «Chờ người ký» thì bên viết đặt «Đợi chữ ký» và ca vẫn
@@ -114,7 +118,7 @@ evals:
       TẬP CON của bảng trạng-thái→chữ.
       Chiều đỏ, ba lượt, lượt (3) cố ý nằm NGOÀI mọi chuỗi bị cấm hôm nay: (1) bản sao đổi
       một chuỗi trong bảng → đỏ nêu ĐÚNG TÊN bộ đọc lệch và đúng khoá; (2) bản sao thêm khoá
-      thứ 18 vào bảng mà không thêm ca → đỏ ghim "17 != 18"; (3) bản sao tiêm nhãn tự chế
+      thứ 21 vào bảng mà không thêm ca → đỏ ghim "20 != 21"; (3) bản sao tiêm nhãn tự chế
       MỚI «Đợi chữ ký» vào acceptance-status.md → đỏ ghim "nhan ngoai bang: Đợi chữ ký".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
