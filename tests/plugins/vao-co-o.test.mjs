@@ -308,12 +308,21 @@ if (want('VC8')) {
   // «không ở considering» là hằng-đúng (nhánh opportunity không còn được đọc) — assertion chết.
   // Điều còn ĐO ĐƯỢC trên cây thật: slug phải nằm ở ĐÚNG MỘT ô, không biến mất, không hỏng.
   // Phần phân biệt «stub đã quyết KHÔNG rơi về đang-cân-nhắc» sống ở VC3 (fixture w-build, cô lập).
-  const cons = slugsIn(j.groups.considering);
-  const buckets = ['gates', 'inProgress', 'considering', 'done'].filter(k => slugsIn(j.groups[k]).includes('duong-do-trong-dinh-nghia-xong')).length
-    + (slugsIn(j.broken).includes('duong-do-trong-dinh-nghia-xong') ? 1 : 0);
-  if (buckets !== 1) errs.push(`duong-do phải nằm đúng MỘT ô, đang ở ${buckets} ô`);
-  for (const s of NEW.filter(s => s !== 'duong-do-trong-dinh-nghia-xong')) if (!cons.includes(s)) errs.push(`${s} không ở considering`);
-  if (errs.length) fail('VC8', errs.join(' · ')); else pass('VC8', 'mọi hạt giống có ô (ba chân, vũ trụ ≥ 13); 7 stub sống; trạng thái sống một chỗ');
+  // SỬA THEO LỚP, không vá theo TÊN. Bất biến thật của luật «vào có ô» là: mọi
+  // stub nằm ĐÚNG MỘT ô, không biến mất, không hỏng — KHÔNG phải «ở considering».
+  // «Ở considering» là ghim CHẶNG của hồ sơ khác: mỗi lần một ý được quyết
+  // (build/park/kill) hay đi tiếp một chặng thì ca này đỏ oan trên một cây ĐÚNG.
+  // Bom đã nổ HAI lần: 22/08 với duong-do (bản vá cũ carve-out riêng nó — đúng
+  // thứ CLAUDE.md cấm: «đừng chỉ vá case bị nêu tên»), 23/08 với
+  // ban-do-dinh-chu-ky khi owner bác nó ở Cổng Đáng. Vá theo tên lần nữa là hẹn
+  // nổ lần ba. Phần phân biệt «stub đã quyết KHÔNG rơi về đang-cân-nhắc» sống ở
+  // VC3 trên fixture cô lập, nơi nó đo được mà không ghim chặng của ai.
+  for (const s of NEW) {
+    const n = ['gates', 'inProgress', 'considering', 'done'].filter(k => slugsIn(j.groups[k]).includes(s)).length
+      + (slugsIn(j.broken).includes(s) ? 1 : 0);
+    if (n !== 1) errs.push(`${s} phải nằm đúng MỘT ô, đang ở ${n} ô`);
+  }
+  if (errs.length) fail('VC8', errs.join(' · ')); else pass('VC8', `mọi hạt giống có ô (ba chân, vũ trụ ≥ 13); ${NEW.length} stub sống, mỗi stub đúng MỘT ô (không ghim chặng)`);
 }
 
 // VC_CASES nêu id không tồn tại → không được xanh im lặng (xanh-không-chạy)
