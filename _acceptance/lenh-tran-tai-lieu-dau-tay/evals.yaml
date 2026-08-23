@@ -20,9 +20,10 @@ evals:
     paths: [QUICKSTART.md, README.md, GUIDE.md, tests/plugins/lenh-bam-duoc.test.mjs]
     expected: >
       exit 0; "PASS: [LB2]" — 0 trần · 0 uat thiếu tiền tố trên cả 16 file; token có tiền tố ⊆ bảng
-      COMMAND-NAMES. Đối chứng dương: cùng hàm trên origin/main đếm ĐÚNG 52 token trần ở ba file
-      đầu-tay (QUICKSTART 12 · README 19 · GUIDE 21) — assert từng file, không chỉ tổng. Chiều đỏ:
-      chèn một token trần vào từng file (3 lượt) → đỏ nêu đúng file:dòng.
+      COMMAND-NAMES. Đối chứng dương KHÔNG neo mốc git di động: tiêm `/start` + `uat-session <slug>`
+      vào bản sao TỪNG file trong 16 file → phải thấy đúng ở đúng file (16 lượt); cộng ngưỡng dưới
+      cố định ≥ 100 token có tiền tố. Chiều đỏ: chèn một token trần vào từng tài liệu đầu-tay
+      (3 lượt) → đỏ nêu đúng file:dòng.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3

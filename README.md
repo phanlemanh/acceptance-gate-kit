@@ -48,7 +48,7 @@ Enforcement is deterministic, not aspirational:
 The install and update commands live in **one place only** —
 [GUIDE §5.1](GUIDE.md#51-mỗi-máy-dev-một-lần) — covering the first machine of a
 repo, later machines, and the full plugin set (`acceptance-gate`, `feature-loop`,
-`diagram-design`, `superpowers` — all required). `/acceptance-init` writes
+`diagram-design`, `superpowers` — all required). `/acceptance-gate:acceptance-init` writes
 `.claude/settings.json`, so teammates get the same set just by opening the repo.
 This README deliberately carries no command of its own: a second copy is a copy
 that drifts.
@@ -105,7 +105,7 @@ uncommitted (absolute machine paths).
 
 ## Per-repo setup (once)
 
-Run `/acceptance-init`; it writes the `_acceptance/config.yaml` artifact.
+Run `/acceptance-gate:acceptance-init`; it writes the `_acceptance/config.yaml` artifact.
 
 Copy `scripts/pre-merge-check.sh`, `scripts/recheck-evidence.cjs`, and the five
 `lib/*.cjs` files (`evidence-core`, `gap-probe`, `workspace-record`, `ac-line`,
@@ -129,7 +129,7 @@ GUIDE §5.3 for that variant and the rules ledger.
 
 `pre-merge-check.sh` finds `recheck-evidence.cjs` next to itself; if it (or
 `node`) is absent the pre-merge check still runs, minus the committed-evidence
-re-check. `/acceptance-init` scaffolds `recheck: strict` — the right setting
+re-check. `/acceptance-gate:acceptance-init` scaffolds `recheck: strict` — the right setting
 for a fresh repo. When the key is absent the code falls back to `warn` (NOTEs
 only); that fallback exists so repos ADOPTING the kit with legacy reports
 aren't blocked — do not start a new repo there, and move to `strict` once your
@@ -137,7 +137,7 @@ committed reports meet the current evidence shape.
 
 ## Daily use
 
-- `/start` → mở phiên (vào phiên bằng một lệnh, không cần câu mở đầu tự do):
+- `/acceptance-gate:start` → mở phiên (vào phiên bằng một lệnh, không cần câu mở đầu tự do):
   máy quét xưởng, trình thẻ ba nhóm — chờ ký · đang dở · việc mới — bạn chọn
   một chữ cái là vào đúng nghi thức; lệnh chỉ định hướng + bàn giao, không tự
   làm nội dung (human-typed, model-invocation locked on both harnesses).
@@ -145,8 +145,8 @@ committed reports meet the current evidence shape.
   (Gate 1) → implement → verify → sign off (Gate 2).
 - `PRODUCT-MAP.md` (repo root) → one page answering "where is every piece of
   work?": a diagram of the stages with real counts, then each item under the
-  stage it sits in. Machine-generated from the workspace records — `/approve`,
-  `/signoff` and the UAT session redraw it and include it in the signature
+  stage it sits in. Machine-generated from the workspace records — `/acceptance-gate:approve`,
+  `/acceptance-gate:signoff` and the UAT session redraw it and include it in the signature
   commit. Never hand-edit it; change the records instead. `acceptance-init`
   puts it in `risk_tiers.t1_skip_globs` (a regenerated view should not need
   human sign-off) and CI runs `product-map.mjs --root . --check` to catch drift
@@ -161,22 +161,22 @@ committed reports meet the current evidence shape.
   collected before any group discussion; a human — never the agent — writes
   `verdict: release | iterate | kill`. A `kill` is a SUCCESS of the process.
   Result lands in `_acceptance/<slug>/uat-session.md`.
-- `/acceptance-status` → table of every feature's gate state.
-- `/acceptance-card <slug>` → render a plain-language DECISION CARD for the gate:
+- `/acceptance-gate:acceptance-status` → table of every feature's gate state.
+- `/acceptance-gate:acceptance-card <slug>` → render a plain-language DECISION CARD for the gate:
   Gate 1 as "sẽ làm / sẽ KHÔNG làm" + coverage flags, or Gate 2 as "your
   decision / machine handled" + reversibility. Presentation only — the contract,
   evidence, verdict, and hook stay the source of truth; the card decides nothing.
-- At Gate 2, `/acceptance-card` also generates a full **evidence page**
+- At Gate 2, `/acceptance-gate:acceptance-card` also generates a full **evidence page**
   (`evidence-page.html`) and auto-opens it — real screenshots (a ui-check eval
   with multiple frames plays as a CSS slideshow), real output, judge rationale,
   override status, review findings, Gate-2 checklist. The card stays link-only;
   you SEE the artifacts on the page. Self-contained, `file://`-openable, zero-dep.
-- `/approve <slug>` → record the Gate 1 decision: card → one question → machine
-  writes `approved_by`/`approved_at` on your explicit YES. `/signoff <slug>` →
+- `/acceptance-gate:approve <slug>` → record the Gate 1 decision: card → one question → machine
+  writes `approved_by`/`approved_at` on your explicit YES. `/acceptance-gate:signoff <slug>` →
   walk Gate 2: preconditions → `human_override`/`human_signoff` → record and
   commit in one pass → pre-merge re-check. The decision verbs never decide on
   their own.
-- `/acceptance-report` → is the gate healthy? Verdict mix, verify rounds,
+- `/acceptance-gate:acceptance-report` → is the gate healthy? Verdict mix, verify rounds,
   gate hygiene (skips/bypasses/stale evidence). Read-only.
 - Risk tiers: T1 skips the kit; T3 requires direct human verdicts on all
   judgment items. Tiers/globs are per-repo in `_acceptance/config.yaml`.
@@ -199,7 +199,7 @@ committed reports meet the current evidence shape.
 | `skills/morphological-scan/` | CT-S coverage skill: Zwicky-box AC-space scan (MECE axes + CE evidence + Pareto Core/Later/Never) feeding the contract's Coverage section on the Gate-1 card |
 | `hooks/` | PreToolUse evidence hook (write time) |
 | `lib/evidence-core.cjs` | Shared L1/L2/L3 evidence validation (hook + CI re-check) |
-| `commands/` | `/acceptance-init`, `/acceptance-status`, `/acceptance-card`, `/approve`, `/signoff`, `/acceptance-report` |
+| `commands/` | `/acceptance-gate:acceptance-init`, `/acceptance-gate:acceptance-status`, `/acceptance-gate:acceptance-card`, `/acceptance-gate:approve`, `/acceptance-gate:signoff`, `/acceptance-gate:acceptance-report` |
 | `scripts/pre-merge-check.sh` | CI gate (copy into consumer repos) |
 | `scripts/recheck-evidence.cjs` | CI re-verify a committed report's evidence |
 | `scripts/gate-card.js` | Render the Gate 1 / Gate 2 human decision card |
@@ -251,7 +251,7 @@ the gate to get past it, so it cost a human interruption and produced fictional
 data at the same time; the baseline it was divided by was deliberately left
 empty, so the "≥50% less human time" bar was never computable. What the gates
 actually record — verdict mix, verify rounds, and gate hygiene (skipped gates,
-un-acked bypasses, stale evidence) — is what `/acceptance-report` prints.
+un-acked bypasses, stale evidence) — is what `/acceptance-gate:acceptance-report` prints.
 Success bar for the pilot: zero business-logic defects slipping past the gate,
 and acceptance that is *possible at all* rather than *faster* — before the kit
 it mostly did not happen.
