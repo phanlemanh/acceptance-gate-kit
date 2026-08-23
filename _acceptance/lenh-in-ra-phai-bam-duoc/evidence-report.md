@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent (đường VERIFY độc lập,
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 24eec78ce4823260b1b4656b66ed8d7ec867ed55
-human_signoff:
+human_signoff: Manh Phan 2026-08-22 — ký với known-limits đã khai; việc kế owner gật ngay tại cổng: hồ sơ nhỏ quét nốt QUICKSTART/README/GUIDE (45 token trần)
 ---
 
 # Evidence Report: lenh-in-ra-phai-bam-duoc
