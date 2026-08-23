@@ -20,7 +20,7 @@ const require = createRequire(import.meta.url);
 const { section } = require(path.join(ROOT, 'lib', 'md-section.cjs'));
 
 let failures = 0;
-const ALL_IDS = ['LB1', 'LB2', 'LB3', 'LB4', 'LB5', 'LB6', 'LB7', 'LB8'];
+const ALL_IDS = ['LB1', 'LB2', 'LB3', 'LB4', 'LB5', 'LB6', 'LB7', 'LB8', 'LB9'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.LB_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const ran = new Set();
@@ -302,6 +302,32 @@ if (want('LB8')) {
   const stub = readFileSync(path.join(ROOT, '_acceptance', 'duong-do-trong-dinh-nghia-xong', 'opportunity.md'), 'utf8');
   if (!/decided_at:.*XẤP XỈ/.test(stub)) errs.push('stub duong-do thiếu ghi chú decided_at xấp xỉ');
   if (errs.length) fail('LB8', errs.join(' · ')); else pass('LB8', 'START-HIEU-KET nằm trong bullet «Bắt đầu việc mới», trước (a); stub duong-do ghi chú decided_at xấp xỉ');
+}
+
+// ---------- LB9: lệnh KHÔNG PHẢI slash-command giữ nguyên (AC-3 lenh-tran-tai-lieu-dau-tay)
+// Neo SHA CỐ ĐỊNH — không `origin/main` (lớp «mốc di động» đã nổ một lần ở S4-r1 hồ sơ này).
+if (want('LB9')) {
+  const errs = [];
+  const OLD_SHA = 'ba539284';
+  const CMD_RE = /claude plugin (marketplace add|install|update)/g;
+  const countIn = s => (s.match(CMD_RE) || []).length;
+  const nowG = readFileSync(path.join(ROOT, 'GUIDE.md'), 'utf8');
+  let oldG;
+  try { oldG = execFileSync('git', ['-C', ROOT, 'show', `${OLD_SHA}:GUIDE.md`], { encoding: 'utf8' }); }
+  catch (e) { errs.push(`không đọc được ${OLD_SHA}:GUIDE.md — ${String(e.message).split('\n')[0]}`); }
+  if (oldG) {
+    const a = countIn(oldG), b = countIn(nowG);
+    if (a === 0) errs.push('đối chứng dương hỏng: bản cũ có 0 lệnh `claude plugin`');
+    if (a !== b) errs.push(`lệnh \`claude plugin\` lệch số: cũ ${a}, nay ${b}`);
+    const line = s => (s.split('\n').find(l => l.startsWith('> Khớp phiên bản')) || '').trim();
+    if (line(nowG) !== line(oldG)) errs.push(`dòng «Khớp phiên bản» đổi: «${line(oldG)}» → «${line(nowG)}»`);
+    // chiều đỏ: đổi một lệnh claude plugin thành dạng slash → phải lệch số
+    const red = nowG.replace('claude plugin marketplace add', '/acceptance-gate:acceptance-init');
+    if (red === nowG) errs.push('tiêm mutant thất bại: không thấy `claude plugin marketplace add`');
+    else if (countIn(red) === countIn(nowG)) errs.push('mutant đổi lệnh claude plugin mà số không lệch');
+  }
+  if (errs.length) fail('LB9', errs.join(' · '));
+  else pass('LB9', `lệnh \`claude plugin\` giữ nguyên số (${countIn(nowG)}) so với ${OLD_SHA}; dòng «Khớp phiên bản» không đổi; mutant đổi-sang-slash → lệch số`);
 }
 
 const unknown = only.filter(id => !ran.has(id));
