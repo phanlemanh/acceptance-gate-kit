@@ -5,8 +5,8 @@
 
 ```mermaid
 flowchart TD
-  A["Đang cân nhắc cơ hội<br/>8 việc"] --> GD{"Cổng Đáng"}
-  GD --> B["Sắp mở vòng<br/>1 việc"]
+  A["Đang cân nhắc cơ hội<br/>6 việc"] --> GD{"Cổng Đáng"}
+  GD --> B["Sắp mở vòng<br/>3 việc"]
   GD --> XL["Xếp lại sau<br/>chưa có"]
   GD --> DB["Đã bác từ khám phá<br/>chưa có"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
@@ -25,16 +25,16 @@ flowchart TD
 
 - Ba chỗ tích luỹ không có đường ra — khoá config · dòng file kiểm · con số suite (`ba-cho-tich-luy-khong-duong-ra`)
 - Bản đồ dính commit chữ ký, không đi sau (`ban-do-dinh-chu-ky`)
-- Bản đặc tả UX — vật hoá tầng cấu trúc (luồng · màn · trạng thái · hành vi) thành một khuôn có đánh dấu trong design-doc; hình tầng 1 và phép đo S4 sinh từ cùng khuôn đó (`dac-ta-ux-vat-hoa-cau-truc`)
 - Hỏi-theo-mặt-phẳng — câu hỏi là thứ người bấm được, không phải khuôn chữ (`hoi-theo-mat-phang`)
 - Mọi liệt kê trong hợp đồng phải máy-đọc (`liet-ke-may-doc`)
 - Ô nuốt luật — đổi hai ô hỏi-khẩu-vị thành ô hỏi-phép-đối-chiếu (`o-nuot-luat`)
-- Ra có tên ở Vòng LÀM và TRAO — làn V có ô kết, Cổng Đáng ký trong một lượt, Cổng Giá trị có lối ra cho vòng không đo được (`ra-co-ten-lam-va-trao`)
 - T1 tuyên-kèm-căn-cứ — máy tuyên T1 với bảng căn cứ, không dừng hỏi (`t1-tuyen-kem-can-cu`)
 
 ## Sắp mở vòng
 
+- Bản đặc tả UX — vật hoá tầng cấu trúc (luồng · màn · trạng thái · hành vi) thành một khuôn có đánh dấu trong design-doc; hình tầng 1 và phép đo S4 sinh từ cùng khuôn đó (`dac-ta-ux-vat-hoa-cau-truc`)
 - design-pass nấc không đồng bộ — người chọn hướng trên vật nhìn được, không phải hẹn giờ ngồi xem; bước phân kỳ có điều kiện + thang phản ứng 4 nấc (`design-pass-nac-khong-dong-bo`)
+- Ra có tên ở Vòng LÀM và TRAO — làn V có ô kết, Cổng Đáng ký trong một lượt, Cổng Giá trị có lối ra cho vòng không đo được (`ra-co-ten-lam-va-trao`)
 
 ## Đang làm
 

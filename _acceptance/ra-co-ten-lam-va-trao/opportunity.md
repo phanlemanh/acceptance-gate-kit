@@ -3,13 +3,13 @@ schema_version: 1
 slug: ra-co-ten-lam-va-trao
 feature: Ra có tên ở Vòng LÀM và TRAO — làn V có ô kết, Cổng Đáng ký trong một lượt, Cổng Giá trị có lối ra cho vòng không đo được
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-08-23T05:40:00Z     # ISO UTC
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
-  disposition:     # keep | archive
+  disposition: archive     # keep | archive
 ---
 
 ## Vấn đề & ai gặp
@@ -39,10 +39,14 @@ Luật «vào có ô, ra có tên» đã ship cho Vòng HIỂU (chip B): mọi �
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: …
-- Kết quả nào là SỐNG: …
-- Kết quả nào là CHẾT: …
-- Timebox: …
+> **Thước viết bằng QUAN HỆ, không ghim con số đếm.** Mọi số đếm ở đây đổi theo ngày (ví dụ hồ sơ
+> còn cửa veto mở: 14 lúc audit 22/08 → 18 lúc ký 23/08). Đích là «lệch 0» / «đích 0», không phải
+> một hằng số — theo lớp lỗi «thước ghim vào thứ SẼ ĐỔI».
+
+- Câu hỏi phép đo trả lời: Trên hồ sơ **THẬT** (không dựng ca giả): một vòng có cơ hội đã ký «làm» mà đi làn V tới cuối có **tới được phiên nghiệm thu** không · cổng đang treo có **gỡ được bằng lối ra có tên và để vết** không · ký Cổng Đáng còn **một lượt gọi người, một PR** không · và hồ sơ cũ có nguyên vẹn không.
+- Kết quả nào là SỐNG: đủ CẢ NĂM — (1) hồ sơ thật đầu tiên (ô cơ hội `build` + đi làn V ở Cổng Bằng chứng) **tới được Cổng Giá trị**: máy quét xếp đúng nhóm, `uat-session` §0 mở được, **0 lần sửa tay trạng thái** — *phá thử: bản sao gỡ trạng thái kết → cả ba bộ đọc (máy quét · phiên nghiệm thu · lưới) phải từ chối và NÊU ĐÚNG thiếu gì, không im lặng*; (2) phân biệt giữ nguyên: **0 hồ sơ máy-đi-trước hiện ra như đã có chữ ký người** ở bất kỳ bộ đọc nào — *phá thử: mutant đổi trạng thái kết thành `signed-off` → đỏ*; (3) `duong-do-trong-dinh-nghia-xong` **rời nhóm chờ bằng lối ra có tên**, có entry sổ quyết định, và **số cổng treo không có lối ra hợp lệ = 0**; lối ra đó có điều kiện máy kiểm — *phá thử: một vòng CÓ người dùng cuối khai «không đo được» → cờ đỏ*; (4) ký Cổng Đáng kế tiếp: **1 lượt gọi người, 1 PR**, và **0 chữ nào của người bị máy viết trước** (verdict + căn cứ để trống tới khi người chọn; thẻ có ≥ 2 lối ra sống); (5) đọc-cũ: chạy bộ đọc mới trên **toàn bộ hồ sơ hiện có** → **0 hồ sơ hoá «hỏng»**, **0 hồ sơ phải migrate**, mọi khác biệt là cờ vàng.
+- Kết quả nào là CHẾT: bất kỳ MỘT — (a) trạng thái kết mới **nuốt** chữ ký người: một hồ sơ máy-đi-trước hiện ra như đã ký ở bất kỳ bộ đọc nào (lật giả định 1 — làn V sinh ra để giữ đúng phân biệt này); HOẶC (b) lối ra «không đo được» bị dùng cho một vòng **CÓ** người dùng cuối và owner veto ≥ 1 — đã thành đường lách né Cổng Giá trị; HOẶC (c) ký Cổng Đáng vẫn **≥ 2 lượt** gọi người, HOẶC máy **viết sẵn verdict** rồi xin gật (lật giả định 2 — gộp lượt mà mất luật gốc); HOẶC (d) phải **migrate** hồ sơ cũ, hoặc ≥ 1 hồ sơ cũ hoá «hỏng» (lật giả định 5); HOẶC (e) **ba chỗ hoá sáu**: hợp đồng S1 phình sang các mục đã xếp Later (veto có động từ · Gate 1.5 · Trả lại có vết · re-pin) mà không có entry mở phạm vi có vết (lật giả định 4).
+- Timebox: hồ sơ thật đầu tiên đi qua mỗi chỗ; muộn nhất **2026-09-30** → `decision: park`. **Luật cho ca kẹt:** nếu `start-bang-dieu-khien` hoặc `design-pass-nac-khong-dong-bo` tới Cổng Bằng chứng trước khi ô này ship và đi làn V thì **để nó chờ, KHÔNG sửa tay trạng thái** — chính nó là ván thử đầu tiên; sửa tay là mất ca thử và mất luôn số đo.
 
 ## Kết quả prototype
 
@@ -58,10 +62,10 @@ Chưa dựng. Không cần prototype code: ván thử là chính kit (kit tự c
 
 ## Cổng 0
 
-- **decision = …** Căn cứ: …
-- **disposition = …** Căn cứ: không có prototype code — đổi trạng thái + nghi thức + bộ đọc trong chính kit.
+- **decision = build** (owner «làm», 2026-08-23). Căn cứ: hố **chặn việc đang chạy** — hai vòng (`start-bang-dieu-khien`, `design-pass-nac-khong-dong-bo`) sẽ kẹt ở «máy đã xong, chưa ai ký» khi tới cuối, và một cổng treo từ 21/08 chưa có lối ra hợp lệ; bốn chỗ là **MỘT lớp** («ra có tên») nên sửa chung rẻ hơn bốn lần sửa riêng, dùng chung bảng trạng thái + bộ đọc + khuôn thẻ; **đảo được** bằng đường đọc-cũ + cờ vàng như mọi lần đổi lược đồ của kit; đối chiếu ngoài (Stage-Gate) xác nhận đây là thành phần cốt lõi đang thiếu ở cả bốn cổng, không phải ý thích. Rủi ro «ba seam thành sáu» chặn bằng danh sách Out of scope + điều kiện CHẾT (e).
+- **disposition = archive** (không có prototype code) Căn cứ: đổi trạng thái + nghi thức + bộ đọc ngay trong kit; ván thử là chính kit tự-dùng — không có mã thử nào để giữ hay vứt.
 - **Phiên nghiệm thu ở đâu:** chính kit tự-dùng — vòng của `design-pass-nac-khong-dong-bo` đi tới cuối (chứng làn V có ô kết) và `duong-do-trong-dinh-nghia-xong` được gỡ treo (chứng Cổng Giá trị có lối ra). **Lưu ý ranh giới:** nếu ô này ship trước khi hai hồ sơ đó tới đích thì phiên nghiệm thu đo trên **hồ sơ thật đầu tiên đi qua**, không dựng ca giả.
-- **Ngưỡng UAT chốt cùng lúc ký:** …
+- **Ngưỡng UAT chốt cùng lúc ký:** chép nguyên bốn dòng của section «Ngưỡng chết / ngưỡng UAT» — đo trên hồ sơ THẬT, không dựng ca giả · SỐNG (đủ cả năm): hồ sơ làn V đầu tiên tới được Cổng Giá trị, 0 lần sửa tay (phá thử: gỡ trạng thái kết → ba bộ đọc từ chối, nêu đúng thiếu gì) · 0 hồ sơ máy-đi-trước hiện ra như đã ký (mutant → đỏ) · cổng treo gỡ bằng lối ra có tên + có vết, số cổng treo không lối ra = 0, lối ra có điều kiện máy kiểm (phá thử một ca) · ký Cổng Đáng 1 lượt 1 PR, 0 chữ của người bị máy viết trước · 0 hồ sơ cũ hoá hỏng, 0 migrate · CHẾT: nuốt chữ ký người / thành đường lách bị veto / vẫn ≥ 2 lượt hoặc máy viết sẵn verdict / phải migrate / ba chỗ hoá sáu · Timebox: hồ sơ thật đầu tiên, muộn nhất 2026-09-30 → park; ca kẹt thì ĐỂ CHỜ, không sửa tay.
 
 ## Thước đo thành công → ứng viên criterion
 
