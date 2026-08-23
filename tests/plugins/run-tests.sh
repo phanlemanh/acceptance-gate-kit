@@ -3735,9 +3735,18 @@ const gA = j.groups.gates.find(g => g.slug === "a-cho-gia-tri");
 const gB = j.groups.gates.find(g => g.slug === "b-cho-co-uat");
 if (gB.since !== "2026-07-01T00:00:00Z") die("since khong lay decided_at cua uat: " + gB.since);
 if (gA.since !== "") die("since thieu decided_at phai RONG (khong bia moc tu mtime), duoc: " + JSON.stringify(gA.since));
-// since rong sort len dau bang localeCompare — thu tu van xac dinh, khong assert
-// "cho lau nhat dung dau" tren hai kieu moc khong so sanh duoc voi nhau nua
-if (j.groups.gates[0].slug !== "a-cho-gia-tri") die("since rong phai dung dau danh sach (sort on dinh): " + j.groups.gates[0].slug);
+// Moc RONG = nghi thuc that CHUA sinh moc, KHONG phai "cho lau nhat" — no phai
+// nam CUOI. Ban truoc de localeCompare xu ly, nen chuoi rong sort len DAU va Cong
+// Gia tri luon mo dau the bat ke tuoi (ho so start-bang-dieu-khien, AC-12).
+// Assert LUAT chu khong assert mot vi tri: moi cong CO moc dung truoc moi cong
+// KHONG moc — mot ca do theo chi so van xanh khi fixture doi so phan tu.
+{
+  const iRong = j.groups.gates.map((g, i) => [i, !String(g.since || "")]).filter(x => x[1]).map(x => x[0]);
+  const iCo   = j.groups.gates.map((g, i) => [i, !!String(g.since || "")]).filter(x => x[1]).map(x => x[0]);
+  if (iRong.length === 0 || iCo.length === 0) die("fixture mu: phai co ca cong moc-rong lan cong co-moc");
+  if (Math.min(...iRong) < Math.max(...iCo))
+    die("moc rong phai xep SAU moi cong co moc: " + JSON.stringify(j.groups.gates.map(g => [g.slug, g.since])));
+}
 // Khoa skipped[] da bi go han (het nguon sinh) — kiem SU VANG MAT cua khoa,
 // khong grep noi dung mot mang luon rong (chan chet).
 if ("skipped" in j) die("skipped[] van con trong dau ra du khong con nguon sinh nao");

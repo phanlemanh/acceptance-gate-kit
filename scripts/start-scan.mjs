@@ -68,13 +68,36 @@ const read = readRecord;
 const fmOrNull = (t, key) => (t == null ? null : frontmatterField(t, key));
 const kcn = (cTxt, eTxt) => khongCanNguoi(cTxt, eTxt);
 const git = (() => {
-  try {
-    const branch = execFileSync('git', ['-C', root, 'rev-parse', '--abbrev-ref', 'HEAD'],
-      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
-    const dirty = execFileSync('git', ['-C', root, 'status', '--porcelain'],
-      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim() !== '';
-    return { branch, dirty };
-  } catch { return { branch: null, dirty: null }; }
+  const q = args => {
+    try {
+      return execFileSync('git', ['-C', root, ...args],
+        { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+          env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }).trim();
+    } catch { return null; }
+  };
+  const branch = q(['rev-parse', '--abbrev-ref', 'HEAD']);
+  const dirty = branch === null ? null : q(['status', '--porcelain']) !== '';
+  // Thang so: BẢN CHUNG trước, nhánh trên cùng CỦA CHÍNH NHÁNH NÀY là nấc CUỐI.
+  // Đảo thứ tự là nói dối: một nhánh tính năng đã push và khớp nhánh trên cùng
+  // của nó sẽ ra «khớp» trong khi bản chung đã đi trước — đúng ca lệch 22/08.
+  // KHÔNG gọi mạng: chỉ đọc ref đã có sẵn trong kho.
+  let compareRef = null;
+  const head = q(['symbolic-ref', '--short', 'refs/remotes/origin/HEAD']);
+  for (const cand of [head, 'origin/main', 'origin/master', '@{u}']) {
+    if (!cand) continue;
+    if (q(['rev-parse', '--verify', '--quiet', cand]) === null) continue;
+    compareRef = cand; break;
+  }
+  // Không nấc nào giải được → null, KHÔNG phải 0. «Chưa biết» khác hẳn «đã khớp»:
+  // in số 0 ở đây là thẻ tuyên cây đang khớp trong khi nó chưa hề so được.
+  let ahead = null, behind = null;
+  if (compareRef) {
+    const c = q(['rev-list', '--left-right', '--count', `${compareRef}...HEAD`]);
+    const m = c && c.match(/^(\d+)\s+(\d+)$/);
+    if (m) { behind = Number(m[1]); ahead = Number(m[2]); }
+    else compareRef = null;
+  }
+  return { branch, dirty, ahead, behind, compareRef };
 })();
 
 // Chữ mặt người rút từ MỘT bảng — máy quét là bộ PHÂN Ô duy nhất, ba bộ đọc
@@ -347,7 +370,14 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
   else if (decision === 'build' || decision === 'iterate') inProgress.push(g('sap-mo-vong', { slug, status: 'opportunity-decided', nextStep: 'S1', tier: null }));
   else done.push(g(decision === 'park' ? 'xep-lai' : 'da-bac', { slug, state: decision, at: ngayXong(dir, oPath) }));
 }
-gates.sort((a, b) => String(a.since).localeCompare(String(b.since)));
+// Mốc RỖNG = nghi thức thật chưa sinh mốc, KHÔNG phải «chờ lâu nhất». Chuỗi rỗng
+// sort lên đầu khiến Cổng Giá trị luôn mở đầu thẻ bất kể tuổi — thẻ in một thứ tự
+// không mang tin (hố 4 của hồ sơ cơ hội).
+gates.sort((a, b) => {
+  const ea = !String(a.since || ''), eb = !String(b.since || '');
+  if (ea !== eb) return ea ? 1 : -1;
+  return String(a.since).localeCompare(String(b.since));
+});
 vetoOpen.sort((a, b) => a.slug.localeCompare(b.slug));
 considering.sort((a, b) => a.since.localeCompare(b.since));   // cũ nhất lên đầu
 // Tuổi TRÙNG không phải tuổi: 6/7 ý của chính kit mang CÙNG một dấu thời gian

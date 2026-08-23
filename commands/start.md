@@ -30,7 +30,7 @@ worktree/nhánh đọc từ git của `<path>`.
    round-trip — đổi tên một phía là kiểm thử đỏ):
    <!-- <<<START-SCAN-KEYS
    config
-   git.branch git.dirty
+   git.branch git.dirty git.ahead git.behind git.compareRef
    groups.gates[].slug groups.gates[].gate groups.gates[].since groups.gates[].tier groups.gates[].stateKey groups.gates[].label groups.gates[].viecKe
    groups.inProgress[].slug groups.inProgress[].status groups.inProgress[].nextStep groups.inProgress[].tier groups.inProgress[].stateKey groups.inProgress[].label groups.inProgress[].viecKe
    groups.considering[].slug groups.considering[].name groups.considering[].since groups.considering[].ageDays groups.considering[].ageTied groups.considering[].stateKey groups.considering[].label groups.considering[].viecKe
