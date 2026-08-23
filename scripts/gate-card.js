@@ -187,7 +187,12 @@ const decLine = e => esc(stripMd(e.decision || '')) + (e.impact ? ' — ' + esc(
 
 // auto-detect gate: prefer contract.status (the SKILL's source of truth), else report presence
 if (!gate) {
-  if (/^(implemented|verified|signed-off|machine-cleared)$/i.test(status)) gate = '2';
+  // Cổng Đáng hỏi TRƯỚC: chưa có hợp đồng thì `status` rỗng, và nhánh đáy dưới đây sẽ
+  // gán '1' — thẻ Cổng Phạm vi RỖNG cho một hồ sơ chưa có tiêu chí (đúng con trỏ chết
+  // mà hồ sơ ra-co-ten dẹp). Điều kiện: chưa hợp đồng ∧ có ô cơ hội ∧ chưa đóng.
+  const _opp = read(path.join(dir, 'opportunity.md'));
+  if (!contract.trim() && _opp.trim() && clean(frontmatter(_opp).stage).toLowerCase() !== 'archived') gate = '0';
+  else if (/^(implemented|verified|signed-off|machine-cleared)$/i.test(status)) gate = '2';
   else if (/^(draft|approved)$/i.test(status)) gate = '1';
   else gate = report.trim() ? '2' : '1';
 }
@@ -216,6 +221,59 @@ const STYLE = `<style>
 .gc .bn{border-color:#cfcdc4;color:#3f3e39}.gc .yes{background:#E1F5EE;border-color:#5DCAA5;color:#085041;font-weight:600}.gc .no{border-color:#F0997B;color:#993C1D}
 </style>`;
 const pl = plain || {};
+
+// ================= GATE 0 — Cổng Đáng =================
+// Cổng thứ ba lần đầu có mặt người. Tự nhận: CHƯA có hợp đồng, CÓ hồ sơ cơ hội, chưa
+// đóng. Thẻ trình đề bài + ngưỡng (đề xuất của máy hiện RÕ là đề xuất) + bốn lối ra;
+// máy KHÔNG điền `decision` — chữ ký là phát ngôn của người (ADR 0002).
+const opp0 = read(path.join(dir, 'opportunity.md'));
+const ofm0 = frontmatter(opp0);
+if (gate === '0') {
+  const OPP_TPL0 = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md');
+  const tpl0 = read(OPP_TPL0);
+  const pre0 = m => {
+    const x = tpl0.match(new RegExp(`<<<${m} -->\\n([\\s\\S]*?)<!-- ${m}>>>`));
+    if (!x) { process.stderr.write(`gate-card: khuôn không có khối ${m} — ${OPP_TPL0}\n`); process.exit(2); }
+    return x[1].trim();
+  };
+  const DE_XUAT0 = pre0('OPP-DE-XUAT-PREFIX'), KHONG_DO0 = pre0('OPP-KHONG-DO-DUOC-PREFIX');
+  const H0 = 'Ngưỡng chết / ngưỡng UAT';
+  const lines0 = section(opp0, H0).map(l => l.trim()).filter(l => l && !/^>/.test(l));
+  const isKD0 = l => l.startsWith(KHONG_DO0) && (l.length === KHONG_DO0.length || /\s/.test(l[KHONG_DO0.length]));
+  const bulOf = l => { const m = l.match(/^[-*]\s+([^:]+):(.*)$/); return m ? { label: m[1].trim(), value: m[2].trim() } : null; };
+  const bul0 = lines0.map(bulOf).filter(Boolean);
+  const tplLabels0 = section(tpl0, H0).map(l => l.trim()).map(bulOf).filter(Boolean).map(b => b.label).filter(lb => !isKD0(lb + ':'));
+  const filled0 = tplLabels0.length > 0 && tplLabels0.every(lb => { const b = bul0.find(x => x.label === lb); return b && !/^(…|\.\.\.)?$/.test(b.value); });
+  const nguong0 = lines0.some(isKD0) ? 'khong-do-duoc'
+    : !filled0 ? 'chua-chot'
+    : bul0.some(b => b.value.startsWith(DE_XUAT0)) ? 'de-xuat' : 'chot';
+  // Nguồn ngoài: hàng dữ liệu có món nhưng cột «Phân loại» trống = chưa phân loại.
+  const nnRows0 = section(opp0, 'Nguồn ngoài & phạm vi kế thừa')
+    .filter(l => /^\|/.test(l) && !/^\|\s*[-:]{3}/.test(l) && !/Món vật liệu/.test(l));
+  const chuaPL0 = nnRows0.filter(l => { const c = l.split('|').map(x => x.trim()); return c.length >= 5 && c[1] && !/^…$/.test(c[1]) && !c[3]; }).length;
+  const LOI_RA0 = ['làm', 'lặp', 'xếp lại', 'dừng'];
+  const flags0 = [];
+  if (nguong0 === 'chua-chot') flags0.push(['fred', `Ngưỡng còn trống và chưa khai «không đo được» — ký «làm» lúc này là ký trên thước trang trí. Điền ngưỡng vào ô, hoặc khai một dòng «${KHONG_DO0} <lý do>».`]);
+  if (chuaPL0) flags0.push(['fred', `Bảng Nguồn ngoài còn ${chuaPL0} hàng chưa phân loại — chưa đủ điều kiện ký «làm».`]);
+  if (EXTRACT) {
+    process.stdout.write(JSON.stringify({ gate: 0, feature: clean(ofm0.feature) || slug,
+      cong_dang: { applicable: true, nguong: nguong0, nguon_ngoai_chua_phan_loai: chuaPL0, loi_ra: LOI_RA0,
+        de_xuat_lines: bul0.filter(b => b.value.startsWith(DE_XUAT0)).map(b => b.label), flags: flags0.map(f => f[1]) } }, null, 2));
+    process.exit(0);
+  }
+  const P0 = [STYLE, `<div class="gc"><div class="card"><div class="h"><div><div class="ft">${esc(stripMd(clean(ofm0.feature) || slug))}</div><div class="sub">Cổng Đáng — việc này có đáng làm không?</div></div><span class="chip amber">quyết có làm không</span></div>`];
+  const blk0 = (lab, arr) => { if (arr.length) P0.push(`<div class="lab">${lab}</div><div class="grp gnot">${arr.map(t => `<p class="li">${esc(stripMd(t))}</p>`).join('')}</div>`); };
+  blk0('Vấn đề &amp; ai gặp', section(opp0, 'Vấn đề & ai gặp').filter(l => l.trim() && !/^>/.test(l)));
+  blk0('Giả định sinh tử (ba đầu)', section(opp0, 'Giả định chốt sinh tử').filter(l => /^\|\s*\d/.test(l)).slice(0, 3).map(l => (l.split('|')[2] || '').trim()));
+  P0.push(`<div class="lab">Ngưỡng</div><div class="grp gnot">${lines0.length
+    ? lines0.map(l => `<p class="li">${esc(stripMd(l.replace(/^[-*]\s+/, '')))}${l.includes(DE_XUAT0) ? ' <span class="chip amber">máy đề xuất — anh sửa hoặc nhận</span>' : ''}${isKD0(l) ? ' <span class="chip gray">khai không đo được</span>' : ''}</p>`).join('')
+    : '<p class="li">chưa có</p>'}</div>`);
+  for (const [k, t] of flags0) P0.push(`<div class="flag ${k}">${esc(t)}</div>`);
+  P0.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo"><p class="li"><b>Chọn một lối ra</b> — làm gì: đọc đề bài và ngưỡng ở trên; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «${LOI_RA0.join('» hoặc «')}». Muốn sửa ngưỡng thì sửa trong ô trước khi trả lời — vẫn một lượt.</p></div>`);
+  P0.push(`<div class="foot"><span class="rev">↻ Đảo ngược dễ: «xếp lại» và «dừng» không đóng cửa ý — mở lại khi có căn cứ mới.</span><div class="btns">${LOI_RA0.map(l => `<button class="b ${l === 'làm' ? 'yes' : 'bn'}">${l}</button>`).join('')}</div></div></div></div>`);
+  process.stdout.write(P0.join('\n'));
+  process.exit(0);
+}
 
 // ================= GATE 1 =================
 if (gate === '1') {
@@ -330,7 +388,18 @@ if (gate === '1') {
   const ddLines = ddPresent ? bullets(section(contract, DUONG_DO_HEADING)).filter(l => !/\{\{/.test(l) && !ddIsBoLine(l)) : [];
   const ddDescope = decsAll.find(e => e.type === 'descope' && String(e.decision || '').startsWith(DUONG_DO_DESCOPE)) || null;
 
-  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null } }, null, 2)); process.exit(0); }
+  // ── Răng chống lách (hồ sơ ra-co-ten, AC-11) ──
+  // Lối «không đo được» chỉ dành cho vòng KHÔNG có người dùng cuối. Hợp đồng khai mặt
+  // ui/mobile mà ô cơ hội lại khai không đo được ⇒ đang trốn Cổng Giá trị.
+  const KHONG_DO_1 = (() => {
+    const t = read(path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md'));
+    const x = t.match(/<<<OPP-KHONG-DO-DUOC-PREFIX -->\n([\s\S]*?)<!-- OPP-KHONG-DO-DUOC-PREFIX>>>/);
+    return x ? x[1].trim() : null;
+  })();
+  const mienDo = !!KHONG_DO_1 && ut.opportunity_present && ut.readable
+    && section(oppText, UAT_THRESHOLD_HEADING).some(l => { const t = l.trim(); return t.startsWith(KHONG_DO_1) && (t.length === KHONG_DO_1.length || /\s/.test(t[KHONG_DO_1.length])); });
+  const mienDoCoNguoiDung = mienDo && /\b(ui|mobile)\b/i.test(clean(cfm.surfaces) || '');
+  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null } }, null, 2)); process.exit(0); }
   const featurePlain = pl.feature_plain || feature;
   const pmap = (arr, id) => (((arr || []).find(x => x.id === id)) || {}).p;
   const willText = x => pmap(pl.will_do, x.id) || stripMd(x.gwt);
@@ -378,6 +447,8 @@ if (gate === '1') {
     if (ddDescope) flags.push(['finfo', `Đã bỏ đường đo theo ${esc(ddDescope.id || 'entry descope')} — Cổng Giá trị sẽ đọc ngưỡng với ô CHƯA ĐO; quyết định chủ động, có dấu vết.`]);
     else flags.push(['fwarn', 'Hồ sơ cơ hội có ngưỡng nhưng contract chưa có đường đo — không ai xây thứ sinh ra con số, Cổng Giá trị sẽ đọc bảng toàn CHƯA ĐO. Thêm section «Đường đo» (mỗi thước một dòng: số từ đâu · AC nào bảo đảm) hoặc ghi entry «bỏ đường-đo — lý do 1 dòng» rồi hãy duyệt.']);   // không đặt <…> thô trong cờ: HTML nuốt như tag (review S4-r1 F1)
   }
+  // Răng chống lách: đặt SAU chuỗi if/else của ngưỡng — chen vào giữa là cướp mất nhánh else.
+  if (mienDoCoNguoiDung) flags.push(['fred', 'Khai không đo được nhưng hợp đồng có mặt người dùng (ui/mobile) — lối «không đo được» chỉ dành cho vòng không có người dùng cuối. Khai lại ngưỡng, hoặc bỏ mặt người dùng khỏi hợp đồng.']);
   if (!covPresent || !covLines.length) flags.push(['fwarn', 'Contract chưa có section Coverage — độ phủ bộ AC chưa có bằng chứng (workspace cũ / chưa quét). Quét bằng morphological-scan hoặc ghi 1 dòng lý do bỏ, rồi hãy duyệt.']);
   if (covUnverified) flags.push(['fwarn', 'Coverage có trục chưa nêu được thước đo "đủ" (CE chưa kiểm chứng) — hỏi nguồn đối chiếu trước khi tin "đã quét đủ".']);
   if (!gpPresent && gpDescope) flags.push(['finfo', `Đã bỏ phản biện context sạch theo ${esc(gpDescope.id || 'entry descope')} — quyết định chủ động, có dấu vết.`]);

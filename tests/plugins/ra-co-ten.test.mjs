@@ -27,7 +27,7 @@ const UAT_H = 'Ngưỡng chết / ngưỡng UAT';
 
 let failures = 0;
 // MỘT nguồn danh sách ca: file này. Chỉ liệt ca ĐÃ CÓ THÂN — khai id chưa dựng thì suite đỏ.
-const ALL_IDS = ['RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT9', 'RT12', 'RT15'];
+const ALL_IDS = ['RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT7', 'RT9', 'RT11', 'RT12', 'RT15'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.RT_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const want = id => only.length === 0 || only.includes(id);
@@ -405,6 +405,65 @@ if (want('RT12')) {
   });
   if (errs.length) fail('RT12', errs.join(' · '));
   else pass('RT12', 'archived → đã đóng có hồ sơ; timebox quá hạn hai dạng ngày → cờ; chưa qua/không parse → không cờ');
+}
+
+const card = (root, slug, extra = []) => spawnSync(process.execPath, [CARD, '--root', root, '--slug', slug, ...extra], { encoding: 'utf8' });
+
+// ── RT7 — thẻ Cổng Đáng: cổng thứ ba có mặt người ───────────────────────────
+if (want('RT7')) {
+  const errs = [];
+  for (const ng of ['chua-chot', 'de-xuat', 'chot', 'khong-do-duoc']) withRepo(root => {
+    mkWs(root, 'o', { opportunity: { stage: 'discovery', decision: '', nguong: ng } });
+    const er = card(root, 'o', ['--extract']);
+    if (er.status !== 0) { errs.push(`${ng}: extract exit ${er.status}: ${(er.stderr || '').slice(0, 160)}`); return; }
+    const ex = JSON.parse(er.stdout); const html = card(root, 'o').stdout || '';
+    if (String(ex.gate) !== '0' || ex.cong_dang?.applicable !== true) errs.push(`${ng}: gate=${ex.gate} applicable=${ex.cong_dang?.applicable}`);
+    if (ex.cong_dang?.nguong !== ng) errs.push(`${ng}: nguong=${ex.cong_dang?.nguong}`);
+    if (JSON.stringify(ex.cong_dang?.loi_ra) !== JSON.stringify(['làm', 'lặp', 'xếp lại', 'dừng'])) errs.push(`${ng}: loi_ra=${JSON.stringify(ex.cong_dang?.loi_ra)}`);
+    if (!/Vấn đề/.test(html) || !/Ngưỡng/.test(html)) errs.push(`${ng}: HTML thiếu khối đề bài/ngưỡng`);
+    const red = (html.match(/class="flag fred"/g) || []).length;
+    if (ng === 'chua-chot' && !(red >= 1 && /thước trang trí/.test(html))) errs.push(`chua-chot: thiếu cờ đỏ thước trang trí (red=${red})`);
+    if (ng === 'chot' && red !== 0) errs.push(`chot: có ${red} cờ đỏ (should-NOT-fire)`);
+    if (ng === 'de-xuat' && !/máy đề xuất/.test(html)) errs.push('de-xuat: thiếu chip máy đề xuất');
+    if (ng === 'khong-do-duoc' && !/khai không đo được/.test(html)) errs.push('khong-do-duoc: thiếu chip khai không đo được');
+    // Máy KHÔNG được điền sẵn quyết định của người (ADR 0002).
+    if (/decision:\s*(build|iterate|park|kill)/.test(html)) errs.push(`${ng}: thẻ điền sẵn quyết định`);
+  });
+  // Nguồn ngoài chưa phân loại → đếm + cờ đỏ; đủ phân loại → không cờ (đối chứng)
+  withRepo(root => {
+    mkWs(root, 'o', { opportunity: { stage: 'discovery', decision: '', nguong: 'chot', nguonNgoai: 'thieu' } });
+    const ex = JSON.parse(card(root, 'o', ['--extract']).stdout);
+    if (!(ex.cong_dang.nguon_ngoai_chua_phan_loai >= 1)) errs.push(`nguồn ngoài chưa phân loại đếm ${ex.cong_dang.nguon_ngoai_chua_phan_loai}`);
+    if (!/class="flag fred"/.test(card(root, 'o').stdout || '')) errs.push('nguồn ngoài chưa phân loại không có cờ đỏ');
+  });
+  // Cô lập lớp: có hợp đồng rồi thì KHÔNG phải Cổng Đáng, và không cờ nào nhắc cổng đó
+  withRepo(root => {
+    mkWs(root, 'o', { contract: { status: 'draft' }, opportunity: { nguong: 'chot' } });
+    const ex = JSON.parse(card(root, 'o', ['--extract']).stdout);
+    if (String(ex.gate) !== '1') errs.push(`có hợp đồng mà gate=${ex.gate}`);
+    if (ex.cong_dang) errs.push('thẻ Cổng 1 vẫn trả khối cong_dang');
+    const flags = ((card(root, 'o').stdout || '').match(/class="flag[^>]*>[^<]*/g) || []).join('');
+    if (/Cổng Đáng/.test(flags)) errs.push('cờ của thẻ Cổng 1 nhắc Cổng Đáng (rò luật)');
+  });
+  if (errs.length) fail('RT7', errs.join(' · '));
+  else pass('RT7', 'thẻ Cổng Đáng: 4 trạng thái ngưỡng, 4 lối ra, cờ đỏ thước-trang-trí/nguồn-ngoài, không điền sẵn quyết định, cô lập lớp');
+}
+
+// ── RT11 — răng chống lách: lối «không đo được» không thành đường trốn ───────
+if (want('RT11')) {
+  const errs = [];
+  for (const [sf, exp] of [['ui', true], ['mobile', true], ['cli', false]]) withRepo(root => {
+    mkWs(root, 'u', { contract: { status: 'draft', surfaces: sf }, opportunity: { nguong: 'khong-do-duoc' } });
+    const ex = JSON.parse(card(root, 'u', ['--extract']).stdout);
+    const html = card(root, 'u').stdout || '';
+    if (!!ex.cong_gia_tri?.mien_do_co_nguoi_dung !== exp) errs.push(`${sf}: extract=${JSON.stringify(ex.cong_gia_tri)}`);
+    if (/[Kk]hai không đo được nhưng hợp đồng có mặt người dùng/.test(html) !== exp) errs.push(`${sf}: cờ đỏ ${exp ? 'thiếu' : 'thừa'}`);
+    const x = findSlug(scan(root), 'u');
+    if (!x || x.grp === 'broken') errs.push(`${sf}: bộ quét gọi hỏng: ${JSON.stringify(x)}`);
+    else if (((x.flags || []).includes('mien-do-co-nguoi-dung')) !== exp) errs.push(`${sf}: cờ bộ quét ${JSON.stringify(x.flags)}`);
+  });
+  if (errs.length) fail('RT11', errs.join(' · '));
+  else pass('RT11', 'ui/mobile + khai không-đo-được → cờ đỏ trên thẻ + cờ ở bộ quét, hồ sơ vẫn ở ô của nó; cli → không cờ');
 }
 
 const la = only.filter(id => !ALL_IDS.includes(id));
