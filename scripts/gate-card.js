@@ -191,7 +191,10 @@ if (!gate) {
   // gán '1' — thẻ Cổng Phạm vi RỖNG cho một hồ sơ chưa có tiêu chí (đúng con trỏ chết
   // mà hồ sơ ra-co-ten dẹp). Điều kiện: chưa hợp đồng ∧ có ô cơ hội ∧ chưa đóng.
   const _opp = read(path.join(dir, 'opportunity.md'));
-  if (!contract.trim() && _opp.trim() && clean(frontmatter(_opp).stage).toLowerCase() !== 'archived') gate = '0';
+  // BỐN vế, đúng như commands/approve.md khai. Thiếu vế `decision` là thẻ mời người quyết
+  // lại một việc đã quyết — cùng lớp «thẻ mời ký hồ sơ đã qua cổng» mà AC-5 vừa vá cho
+  // machine-cleared (finding S4-r2).
+  if (!contract.trim() && _opp.trim() && !clean(frontmatter(_opp).decision) && clean(frontmatter(_opp).stage).toLowerCase() !== 'archived') gate = '0';
   else if (/^(implemented|verified|signed-off|machine-cleared)$/i.test(status)) gate = '2';
   else if (/^(draft|approved)$/i.test(status)) gate = '1';
   else gate = report.trim() ? '2' : '1';

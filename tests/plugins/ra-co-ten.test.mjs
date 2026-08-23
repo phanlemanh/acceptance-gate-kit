@@ -27,7 +27,7 @@ const UAT_H = 'Ngưỡng chết / ngưỡng UAT';
 
 let failures = 0;
 // MỘT nguồn danh sách ca: file này. Chỉ liệt ca ĐÃ CÓ THÂN — khai id chưa dựng thì suite đỏ.
-const ALL_IDS = ['RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT6', 'RT7', 'RT8', 'RT9', 'RT10', 'RT11', 'RT12', 'RT13', 'RT14', 'RT15'];
+const ALL_IDS = ['RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT6', 'RT7', 'RT8', 'RT9', 'RT10', 'RT11', 'RT12', 'RT13', 'RT14', 'RT15', 'RT16', 'RT17'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.RT_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const want = id => only.length === 0 || only.includes(id);
@@ -770,6 +770,151 @@ if (want('RT14')) {
   if (!x || x.stateKey !== 'da-giao-khong-do') errs.push(`bộ quét: ${JSON.stringify(x)}`);
   if (errs.length) fail('RT14', errs.join(' · '));
   else pass('RT14', 'hồ sơ treo thoát bằng lối «không đo được» có vết; decision/người ký/ngày giữ nguyên');
+}
+
+// ── RT16 — bản đồ và bộ quét ĐỒNG kết luận (quan hệ, không chép danh sách) ──
+if (want('RT16')) {
+  const errs = [];
+  const B16 = require(path.join(ROOT, 'scripts', 'trang-thai-ho-so.cjs'));
+  // Ô bản đồ của slug: đọc từ PRODUCT-MAP.md vừa vẽ — heading gần nhất phía trên dòng slug.
+  const oBanDo = (md, slug) => {
+    const lines = md.split('\n');
+    let cur = null;
+    for (const l of lines) {
+      const h = l.match(/^##\s+(.+?)\s*$/); if (h) { cur = h[1]; continue; }
+      if (new RegExp(`\\\`${slug}\\\``).test(l)) return cur;
+    }
+    return null;
+  };
+  // Bảng ô bản đồ (SECTIONS) rút từ CHÍNH product-map.mjs — không chép tay tên ô.
+  const pmSrc = readRepo('scripts/product-map.mjs');
+  const oCuaKhoa = key => {
+    const bucket = B16.BUCKET_OF[key];
+    const m = pmSrc.match(new RegExp(`\\\['${bucket}',\\s*'([^']+)'`));
+    return m ? m[1] : null;
+  };
+  const veBanDo = (root, script = PMAP) => {
+    const r = spawnSync(process.execPath, [script, '--root', root], { encoding: 'utf8' });
+    if (r.status !== 0) return null;
+    const p = path.join(root, 'PRODUCT-MAP.md');
+    return existsSync(p) ? readFileSync(p, 'utf8') : null;
+  };
+  // Ma trận: {signed-off, machine-cleared} × 4 trạng thái ngưỡng — hai bên phải nói CÙNG ô.
+  let oDem = 0;
+  for (const st of ['signed-off', 'machine-cleared']) for (const ng of ['chot', 'khong-do-duoc', 'chua-chot', 'de-xuat']) {
+    oDem++;
+    withRepo(root => {
+      const con = st === 'signed-off' ? { status: st, tier: 'T2', approvedBy: 'Fx' } : MC;
+      mkWs(root, 'zz', { contract: con, evidence: { signoff: st === 'signed-off' ? 'Fx 2026-08-24' : '' }, opportunity: { nguong: ng } });
+      const x = findSlug(scan(root), 'zz');
+      const md = veBanDo(root);
+      if (!x || !md) { errs.push(`${st}×${ng}: quét/bản đồ không chạy`); return; }
+      const mong = oCuaKhoa(x.stateKey);
+      const that = oBanDo(md, 'zz');
+      if (!mong) errs.push(`${st}×${ng}: không rút được tên ô cho khoá ${x.stateKey}`);
+      else if (that !== mong) errs.push(`${st}×${ng}: bộ quét ${x.stateKey} → ô «${mong}», bản đồ in «${that}»`);
+    });
+  }
+  if (oDem !== 8) errs.push(`ma trận ${oDem} != 8 khai trước`);
+  // Hồ sơ THẬT trong diff: bản đồ đã commit không được in nó dưới «chờ phiên nghiệm thu».
+  {
+    const md = readRepo('PRODUCT-MAP.md');
+    const x = findSlug(scan(ROOT), 'duong-do-trong-dinh-nghia-xong');
+    const mong = oCuaKhoa(x.stateKey), that = oBanDo(md, 'duong-do-trong-dinh-nghia-xong');
+    if (that !== mong) errs.push(`hồ sơ thật: bộ quét ${x.stateKey} → «${mong}», bản đồ in «${that}»`);
+  }
+  // Chiều đỏ: bản sao product-map GỠ nhánh mới → phép so phải ĐỎ nêu slug và hai ô lệch.
+  {
+    const mut = tmp('rt16-mut-');
+    for (const rel of ['lib/evidence-core.cjs', 'lib/workspace-record.cjs', 'lib/md-section.cjs', 'lib/gap-probe.cjs',
+                       'lib/ac-line.cjs', 'lib/nguong-o-co-hoi.cjs', 'scripts/trang-thai-ho-so.cjs'])
+      W(mut, rel, readRepo(rel));
+    const src = readRepo('scripts/product-map.mjs');
+    const NEEDLE = "if (ngBD === 'khong-do-duoc') return { ...o('da-giao-khong-do'), note: chu('da-giao-khong-do').nhan };";
+    if (!src.includes(NEEDLE)) errs.push('chiều đỏ: không thấy nhánh khong-do-duoc trong product-map để tiêm');
+    else {
+      W(mut, 'scripts/product-map.mjs', src.replace(NEEDLE, ''));
+      withRepo(root => {
+        mkWs(root, 'zz', { contract: { status: 'signed-off', tier: 'T2', approvedBy: 'Fx' }, evidence: { signoff: 'Fx 2026-08-24' }, opportunity: { nguong: 'khong-do-duoc' } });
+        const x = findSlug(scan(root), 'zz');
+        const md = veBanDo(root, path.join(mut, 'scripts', 'product-map.mjs'));
+        if (!md) { errs.push('chiều đỏ: bản sao product-map không chạy được'); return; }
+        if (oBanDo(md, 'zz') === oCuaKhoa(x.stateKey)) errs.push('chiều đỏ: gỡ nhánh mà bản đồ vẫn khớp bộ quét — phép so không bám vật');
+      });
+    }
+    rmSync(mut, { recursive: true, force: true });
+  }
+  if (errs.length) fail('RT16', errs.join(' · '));
+  else pass('RT16', 'bản đồ ⇔ bộ quét đồng ô trên 8 fixture + hồ sơ thật; gỡ nhánh khong-do-duoc → phép so đỏ');
+}
+
+// ── RT17 — thẻ KHÔNG hiện lại Cổng Đáng cho ô đã ký (bốn vế, ma trận biên) ──
+if (want('RT17')) {
+  const errs = [];
+  // Bốn vế RÚT TỪ thân lệnh ký, không chép tay.
+  const ap = readRepo('commands/approve.md');
+  const VE = [
+    ['contract vắng', /`contract\.md` VẮNG/],
+    ['có ô cơ hội', /`opportunity\.md` có/],
+    ['decision rỗng', /`decision` rỗng/],
+    ['chưa đóng', /`stage ≠ archived`/],
+  ];
+  for (const [ten, re] of VE) if (!re.test(ap)) errs.push(`thân lệnh ký không khai vế «${ten}»`);
+  const g = (root, slug) => {
+    const r = spawnSync(process.execPath, [CARD, '--root', root, '--slug', slug, '--extract'], { encoding: 'utf8' });
+    if (r.status !== 0) return { err: (r.stderr || '').slice(0, 160) };
+    return JSON.parse(r.stdout);
+  };
+  // Đối chứng dương: ô CHƯA ký, chưa có hợp đồng, chưa đóng → đúng Cổng Đáng.
+  withRepo(root => {
+    mkWs(root, 'zz', { opportunity: { stage: 'discovery', decision: '', nguong: 'chot' } });
+    const ex = g(root, 'zz');
+    if (String(ex.gate) !== '0' || !ex.cong_dang) errs.push(`đối chứng dương: gate=${ex.gate}`);
+  });
+  // Ma trận biên: tắt TỪNG vế → KHÔNG được là Cổng Đáng nữa.
+  const CA = [
+    ['có contract', { contract: { status: 'draft' }, opportunity: { stage: 'discovery', decision: '', nguong: 'chot' } }],
+    ['đã ký Cổng Đáng', { opportunity: { stage: 'decided', decision: 'build', nguong: 'chot' } }],
+    ['đã đóng hồ sơ', { opportunity: { stage: 'archived', decision: 'kill', nguong: 'chot' } }],
+  ];
+  for (const [ten, ws] of CA) withRepo(root => {
+    mkWs(root, 'zz', ws);
+    const ex = g(root, 'zz');
+    if (ex.err) { errs.push(`${ten}: thẻ lỗi ${ex.err}`); return; }
+    if (String(ex.gate) === '0' || ex.cong_dang) errs.push(`${ten}: vẫn nhận Cổng Đáng (gate=${ex.gate})`);
+    const html = spawnSync(process.execPath, [CARD, '--root', root, '--slug', 'zz'], { encoding: 'utf8' }).stdout || '';
+    if (/quyết có làm không/.test(html)) errs.push(`${ten}: HTML vẫn có chip Cổng Đáng`);
+  });
+  // Vế thứ tư (không có ô cơ hội) — không có ô thì không có gì để trình.
+  withRepo(root => {
+    mkWs(root, 'zz', { contract: { status: 'draft' } });
+    const ex = g(root, 'zz');
+    if (String(ex.gate) === '0') errs.push('không có ô cơ hội mà vẫn nhận Cổng Đáng');
+  });
+  // Chiều đỏ: bản sao gate-card GỠ vế `decision` → ca phải ĐỎ đúng vế đó.
+  {
+    const mut = tmp('rt17-mut-');
+    for (const rel of ['lib/evidence-core.cjs', 'lib/workspace-record.cjs', 'lib/md-section.cjs', 'lib/gap-probe.cjs',
+                       'lib/ac-line.cjs', 'lib/nguong-o-co-hoi.cjs', 'lib/out-of-contract.js', 'lib/eval-yaml.js',
+                       'lib/context-glossary.js', 'scripts/trang-thai-ho-so.cjs', 'scripts/khong-can-nguoi.mjs',
+                       'scripts/start-scan.mjs', 'skills/acceptance/references/opportunity-template.md'])
+      W(mut, rel, readRepo(rel));
+    const src = readRepo('scripts/gate-card.js');
+    const NEEDLE = " && !clean(frontmatter(_opp).decision)";
+    if (!src.includes(NEEDLE)) errs.push('chiều đỏ: không thấy vế `decision` trong bộ tự nhận để tiêm');
+    else {
+      W(mut, 'scripts/gate-card.js', src.replace(NEEDLE, ''));
+      withRepo(root => {
+        mkWs(root, 'zz', { opportunity: { stage: 'decided', decision: 'build', nguong: 'chot' } });
+        const r = spawnSync(process.execPath, [path.join(mut, 'scripts', 'gate-card.js'), '--root', root, '--slug', 'zz', '--extract'], { encoding: 'utf8' });
+        if (r.status !== 0) { errs.push(`chiều đỏ: bản sao thẻ không chạy (${(r.stderr || '').slice(0, 120)})`); return; }
+        if (String(JSON.parse(r.stdout).gate) !== '0') errs.push('chiều đỏ: gỡ vế `decision` mà thẻ vẫn KHÔNG nhận Cổng Đáng — ca không bám vế đó');
+      });
+    }
+    rmSync(mut, { recursive: true, force: true });
+  }
+  if (errs.length) fail('RT17', errs.join(' · '));
+  else pass('RT17', 'bốn vế rút từ thân lệnh ký; 4 ca biên + đối chứng dương; gỡ vế decision → ca đỏ đúng vế');
 }
 
 const la = only.filter(id => !ALL_IDS.includes(id));

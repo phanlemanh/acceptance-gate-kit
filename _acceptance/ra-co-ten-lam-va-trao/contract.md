@@ -5,7 +5,7 @@ slug: ra-co-ten-lam-va-trao
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lib/workspace-record.cjs + lib/evidence-core.cjs (hook) + scripts/pre-merge-check.sh
 surfaces: [cli]
-status: verified
+status: implemented
 approved_by: Manh
 approved_at: 2026-08-23T12:44:55Z
 ---
@@ -44,6 +44,9 @@ Source input: `_acceptance/ra-co-ten-lam-va-trao/opportunity.md` (Cổng Đáng 
 - AC-15: Given hồ sơ `status: machine-cleared`, When có chữ ký hoặc veto của người, Then (a) `machine-cleared` **với `human_signoff` khác rỗng là trạng thái CẤM**: hook chặn lúc ghi và lưới trước-merge VIOLATION, cả hai ghim «chữ ký người trên hồ sơ máy-thông — ký thì status phải sang signed-off»; đối chứng dương là cùng fixture với `human_signoff` rỗng (exit 0); (b) chuyển `machine-cleared → signed-off` là chuyển HỢP LỆ có chủ đứng tên: `commands/signoff.md` có mệnh đề nhận hồ sơ `machine-cleared` và đặt `status: signed-off` cùng lượt ghi chữ ký (assert đọc thân, phạm vi cắt đúng; bản sao gỡ mệnh đề → đỏ); (c) `veto_state: da-veto` trên hồ sơ `machine-cleared` → lưới chặn tới khi xử, cùng thông điệp đang có cho `verified`; (d) bộ quét: `machine-cleared` + `human_signoff` khác rỗng → `broken[]` với lý do nêu đúng mâu thuẫn (không im lặng xếp vào «đã giao»).
 - AC-14: Given hồ sơ thật `_acceptance/duong-do-trong-dinh-nghia-xong/`, When đọc sau hồ sơ này, Then `opportunity.md` section Ngưỡng có dòng bắt đầu đúng tiền tố `Không đo được — ` (lý do nêu «vòng nội bộ của bộ công cụ, không có người dùng cuối»), `decisions.jsonl` có entry `type: revisit` với `decision` nhắc dòng đó và cite `d-20260822T000500Z-4306`, `decision: build` và `decided_by` **không đổi** (hồ sơ đã ký không sửa quyết định), và bộ quét trên cây thật xếp slug vào `done[]` `da-giao-khong-do`.
 
+- AC-16: Given hồ sơ đã thông Cổng Bằng chứng (`signed-off` hoặc `machine-cleared`) với `opportunity.md` `decision: build`/`iterate` và ô ngưỡng khai `Không đo được — `, When chạy `scripts/product-map.mjs` (vẽ và `--check`), Then bản đồ xếp slug vào ô «đã giao» với nhãn rút từ bảng chung (`da-giao-khong-do`), **KHÔNG** in nó dưới «Đã giao — chờ phiên nghiệm thu»; bản đồ và bộ quét trả CÙNG một kết luận cho slug đó — phép đo so hai bên bằng **quan hệ** (ô bản đồ của slug ⇔ `BUCKET_OF[stateKey]` của bộ quét) trên fixture code-sinh CẢ BỐN trạng thái ngưỡng, và trên hồ sơ THẬT `duong-do-trong-dinh-nghia-xong`; **chiều đỏ**: bản sao `product-map.mjs` gỡ nhánh mới → phép so ĐỎ nêu đúng slug và hai ô lệch nhau.
+- AC-17: Given `opportunity.md` đã qua Cổng Đáng (`decision` khác rỗng) mà chưa có `contract.md`, When chạy `scripts/gate-card.js --extract`, Then **không** nhận Cổng Đáng: `gate` khác `0`, không có khối `cong_dang`, HTML không có chip «quyết có làm không» — bốn vế điều kiện nhận (`contract.md` vắng ∧ `opportunity.md` có ∧ `decision` rỗng ∧ `stage ≠ archived`) rút từ **chính thân `commands/approve.md`** rồi đối chiếu với hành vi thật ở cả bốn tổ hợp bật/tắt từng vế (ma trận toàn phần 4 ca biên, mỗi ca một assert); đối chứng dương: ô chưa ký → `gate: 0` như AC-7; **chiều đỏ**: bản sao `gate-card.js` gỡ vế `decision` → ca ĐỎ nêu đúng vế thiếu.
+
 ## Coverage
 
 - Trục A — vật mới: `machine-cleared` | thẻ+ký Cổng Đáng | ô ngưỡng bốn trạng thái + lối không-đo-được | răng chống lách surfaces | archived·timebox·kill/iterate [thước CE: đặc tả §1–§3; audit §3 A1–A3, A7–A9 — mỗi mục A là một giá trị]
@@ -72,6 +75,13 @@ Source input: `_acceptance/ra-co-ten-lam-va-trao/opportunity.md` (Cổng Đáng 
 - Parse ngưỡng thành từng thước / đối chiếu thước ↔ đường đo — vẫn chữ, như chip C.
 
 ## Notes
+
+**Nâng phạm vi 24/08 (owner chọn tại Cổng Bằng chứng vòng 2):** AC-16 và AC-17 thêm sau khi
+rà soát vòng 2 tìm hai lỗ trong chính thứ hồ sơ này vừa làm — bản đồ không nhận lối «không
+đo được» (hai bộ đọc nói hai chuyện, đúng lớp hồ sơ này sinh ra để giết) và thẻ Cổng Đáng
+hiện lại cho ô đã ký. Owner chọn cửa THU PHẠM VI: sửa hai lỗ sản phẩm, KHÔNG vá thêm thước;
+ba lỗ phép đo còn lại ghi thành giới hạn đã biết.
+
 
 Khối máy-đọc cho AC-13(ii) — mỗi dòng `slug stateKey-cũ stateKey-mới`; thêm khác biệt là sửa khối này cùng lượt. Cờ KHÔNG khai ở đây: cờ đo bằng quan hệ ở AC-13(iii), vì danh sách cờ đổi theo ngày chạy (lớp «thước ghim vào thứ sẽ đổi»). Kiểm 23/08: 0 hồ sơ `stage: archived`, 5 hồ sơ có timebox ngày thật và cả 5 còn hạn.
 <!-- <<<KHAC-BIET-DOC-CU

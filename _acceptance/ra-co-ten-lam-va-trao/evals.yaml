@@ -194,3 +194,27 @@ evals:
       build + decided_by không đổi so với bản tại cb38ea01 (git show); start-scan trên cây thật xếp
       slug vào done da-giao-khong-do.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E16
+    criterion: AC-16
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/product-map.mjs, scripts/start-scan.mjs, scripts/trang-thai-ho-so.cjs, lib/nguong-o-co-hoi.cjs, tests/plugins/ra-co-ten.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [RT16]" — bản đồ và bộ quét đồng kết luận theo QUAN HỆ (ô bản đồ
+      của slug == BUCKET_OF[stateKey] của bộ quét) trên fixture code-sinh CẢ BỐN trạng thái ngưỡng
+      × {signed-off, machine-cleared}, và trên hồ sơ THẬT duong-do-trong-dinh-nghia-xong (bản đồ
+      KHÔNG in nó dưới «chờ phiên nghiệm thu»). Chiều đỏ: bản sao product-map.mjs gỡ nhánh
+      khong-do-duoc → phép so ĐỎ nêu đúng slug + hai ô lệch; lệnh tiêm phải đổi được dòng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E17
+    criterion: AC-17
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/gate-card.js, commands/approve.md, tests/plugins/ra-co-ten.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [RT17]" — bốn vế điều kiện nhận Cổng Đáng RÚT TỪ thân
+      commands/approve.md rồi đối chiếu hành vi thật: ma trận toàn phần 4 ca biên (tắt từng vế)
+      + 1 đối chứng dương (ô chưa ký → gate 0). Ô đã ký (decision khác rỗng, chưa có contract) →
+      gate KHÁC 0, không khối cong_dang, HTML không có chip «quyết có làm không». Chiều đỏ: bản
+      sao gate-card.js gỡ vế `decision` → ca ĐỎ nêu đúng vế thiếu; lệnh tiêm phải đổi được dòng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

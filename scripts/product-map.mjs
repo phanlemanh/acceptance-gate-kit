@@ -33,6 +33,8 @@ export { NAV_RULES };
 // với máy quét và thẻ cổng. Bản đồ vẫn KHÔNG mang vị từ: chiếu chỉ đổi ĐƯỜNG ĐI
 // TỚI ô, không đổi TÊN ô (hồ sơ start-bang-dieu-khien, AC-7).
 const { BUCKET_OF, chu } = require(path.join(__dirname, 'trang-thai-ho-so.cjs'));
+const NGUONG = require(path.join(__dirname, '..', 'lib', 'nguong-o-co-hoi.cjs'));
+const OPP_TPL_MAP = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md');
 
 // Tên ô nói VIỆC ĐANG Ở ĐÂU, không gọi tên cơ chế máy (N1). Thứ tự cố định —
 // nó cũng là thứ tự các chặng trong hình.
@@ -179,6 +181,15 @@ function classify(dir, slug) {
       // Đường A (cơ hội quyết build/iterate) còn một cổng người nữa: phiên
       // nghiệm thu. Đường B/C/E ship thẳng — không dựng phiên giả cho chúng.
       const duongA = decision === 'build' || decision === 'iterate';
+      // Ô ngưỡng khai «không đo được» thì vòng ĐÓNG ngay tại đây: không có phiên nghiệm
+      // thu để chờ. Nhánh này phải có Ở CẢ HAI bộ đọc — bộ quét có mà bản đồ không là hai
+      // bên nói hai chuyện về cùng hồ sơ, đúng lớp lib/workspace-record.cjs dựng ra để giết
+      // (finding S4-r2, đo trên chính hồ sơ duong-do). Luật hỏi LIB, không chép.
+      if (duongA && oTxt) {
+        let ngBD = null;
+        try { ngBD = NGUONG.thresholdState(oTxt, readFileSync(OPP_TPL_MAP, 'utf8')); } catch (_) { ngBD = null; }
+        if (ngBD === 'khong-do-duoc') return { ...o('da-giao-khong-do'), note: chu('da-giao-khong-do').nhan };
+      }
       if (duongA) return o('cho-cong-gia-tri');
       // Ô kết của làn V có TÊN RIÊNG — bản đồ vẫn gom theo giai đoạn (cùng ô «Đã
       // giao»), nhưng chữ đi kèm phải phân biệt máy-thông với hồ sơ người ký.
