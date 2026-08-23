@@ -8895,7 +8895,10 @@ python3 - "$P186MUTP/scripts/gate-card.js" <<'PYX' || P186OK=0
 import sys
 p = sys.argv[1]
 src = open(p, encoding="utf-8").read()
-old = "Cổng 2 · ký duyệt$"
+# Neo KHONG kem ky tu cu phap dung sau: phu de nay nay nam trong mot bieu thuc
+# ba ngoi (may-di-tiep vs ky-duyet, ho so start-bang-dieu-khien), nen neo theo
+# cu phap se chet moi lan doi cach dung chuoi. Neo theo CHU la du.
+old = "Cổng 2 · ký duyệt"
 assert old in src, "neo mutant-phut khong con — doi phu de the Cong 2?"
 open(p, "w", encoding="utf-8").write(src.replace(old, "Cổng 2 · ký duyệt · ~5 phút$", 1))
 print("MUTANT-PHUT: da chen lai ' · ~5 phut' vao phu de the Cong 2")

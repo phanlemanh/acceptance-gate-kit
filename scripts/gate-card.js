@@ -484,9 +484,41 @@ if (!approvable) {
 }
 
 // --- approvable: PASS / PENDING-JUDGMENT ---
-const chip = verdict === 'PASS' ? { t: 'máy đã xong — ký nhanh', c: 'teal' } : { t: 'cần bạn quyết', c: 'amber' };
+// Trạng thái làn V HỎI đúng bộ phân ô, KHÔNG dựng lại sáu điều kiện xanh-sạch ở
+// đây: đó sẽ là bản dựng THỨ BA của lớp lỗi lan-v-khong-phai-cho-ky đã trả giá
+// (bash trong lưới trước-merge, JS trong khong-can-nguoi). Thẻ tiêu thụ CHÍNH
+// đầu ra của máy quét nên không thể lệch theo cấu trúc (ledger d-...-29818).
+// Hồ sơ máy đã đi tiếp hợp lệ thì thẻ KHÔNG mời ký — hôm nay nó vẫn in «máy đã
+// xong — ký nhanh» kèm nút Ký cho đúng những hồ sơ lưới đã cho qua.
+// Máy quét chết → GIỮ NGUYÊN hành vi cũ + một cờ vàng; không bao giờ im lặng
+// tuyên sạch (fail-visible, không fail-quiet).
+const trangThai = require('./trang-thai-ho-so.cjs');
+let scanState = null, scanErr = null;
+try {
+  const r = require('child_process').spawnSync(process.execPath,
+    [path.join(__dirname, 'start-scan.mjs'), '--root', root],
+    { encoding: 'utf8', timeout: 20000, maxBuffer: 64 * 1024 * 1024 });
+  if (r.status !== 0) scanErr = (r.stderr || '').trim().slice(0, 200) || `exit ${r.status}`;
+  else {
+    const j = JSON.parse(r.stdout);
+    // `config: false` = máy quét CHẠY ĐƯỢC nhưng repo chưa dựng cổng, nên không
+    // có `groups`. Đó KHÔNG phải lỗi: không có gì để nói thì thẻ đi lối cũ và
+    // KHÔNG bật cờ. Cờ chỉ dành cho máy quét THẤT BẠI. (P150 bắt: bản đầu đọc
+    // thẳng j.groups.gates nên ném lỗi và bật cờ oan ở mọi repo không workspace.)
+    const gr = j.groups || {};
+    const hit = [...(gr.gates || []), ...(gr.inProgress || []), ...(gr.done || [])]
+      .find(x => x.slug === slug);
+    scanState = hit ? hit.stateKey : null;
+  }
+} catch (e) { scanErr = String(e.message).slice(0, 200); }
+const MAY_DI_TIEP = scanState === 'may-di-tiep-veto-mo' || scanState === 'may-di-tiep-xanh-sach';
+const chip = MAY_DI_TIEP
+  ? { t: trangThai.chu(scanState).nhan, c: 'gray' }
+  : (verdict === 'PASS' ? { t: 'máy đã xong — ký nhanh', c: 'teal' } : { t: 'cần bạn quyết', c: 'amber' });
 P.push(`<div class="gc"><div class="card">
-<div class="h"><div><div class="ft">${esc(featurePlain)}</div><div class="sub">Cổng 2 · ký duyệt${tier === 'T3' ? ' · tier T3 (đụng critical)' : ''}</div></div><span class="chip ${chip.c}">${esc(chip.t)}</span></div>`);
+<div class="h"><div><div class="ft">${esc(featurePlain)}</div><div class="sub">${MAY_DI_TIEP ? 'Cổng 2 · máy đã đi tiếp' : 'Cổng 2 · ký duyệt'}${tier === 'T3' ? ' · tier T3 (đụng critical)' : ''}</div></div><span class="chip ${chip.c}">${esc(chip.t)}</span></div>`);
+if (scanErr) P.push(`<div class="flag fwarn">⚠ Chưa đọc được trạng thái làn V (${esc(scanErr)}) — thẻ đang trình theo lối cũ, nên nó có thể đang mời ký một hồ sơ máy đã đi tiếp hợp lệ. Kiểm bằng máy quét trước khi ký.</div>`);
+if (MAY_DI_TIEP) P.push(`<div class="flag finfo">Hồ sơ này máy đã đi tiếp — ${esc(trangThai.chu(scanState).viecKe)}. Thẻ không có nút ký cho trạng thái này.</div>`);
 P.push(`<a href="evidence-page.html" style="display:flex;justify-content:space-between;align-items:center;gap:10px;background:#E6F1FB;border:1px solid #B5D4F4;border-radius:10px;padding:9px 13px;margin:11px 0 2px;text-decoration:none;color:#0C447C;font-size:13px"><b>Bằng chứng đầy đủ — ảnh chụp + chạy thật</b><span style="font-size:12px;color:#185FA5;white-space:nowrap">đã mở trong trình duyệt</span></a>`);
 // Khối "Ngoài hợp đồng" đứng TRƯỚC mọi việc-của-người khác: đây là thứ máy cố ý
 // KHÔNG tự sửa, nên nếu người duyệt bỏ qua thì không ai bắt lại.
@@ -583,6 +615,9 @@ P.push(`</details>`);
   ymSlots.push('ký hay trả: ___');
   P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo">${ymItems.map(t => `<p class="li">${t}</p>`).join('')}<p class="li">Trả lời mẫu (một dòng, điền vào chỗ trống): «${esc(ymSlots.join('; '))}»</p></div>`);
 }
-P.push(`<div class="foot"><span class="rev">↻ Đảo ngược dễ: trả lại → quay về code, không mất gì.</span><div class="btns"><button class="b no">Trả lại</button><button class="b yes">Ký duyệt</button></div></div>
+P.push(MAY_DI_TIEP
+  ? `<div class="foot"><span class="rev">↻ ${esc(trangThai.chu(scanState).viecKe)}</span><div class="btns"><button class="b no">Veto</button></div></div>
+</div></div>`
+  : `<div class="foot"><span class="rev">↻ Đảo ngược dễ: trả lại → quay về code, không mất gì.</span><div class="btns"><button class="b no">Trả lại</button><button class="b yes">Ký duyệt</button></div></div>
 </div></div>`);
 process.stdout.write(P.join('\n'));
