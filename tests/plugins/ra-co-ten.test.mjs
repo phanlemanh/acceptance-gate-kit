@@ -69,7 +69,9 @@ function contractText(slug, { status, tier = 'T2', veto = null, opened = null, a
 function evidenceText(slug, { verdict = 'PASS', signoff = '', sach = 'sach', verifiedCommit = '0'.repeat(40) } = {}) {
   const tpl = readFileSync(EVID_TPL, 'utf8');
   const body = tpl.slice(tpl.indexOf('---8<---') + '---8<---'.length);
-  let fm = body.slice(0, body.indexOf('\n---\n', 4) + 5);
+  // Hồ sơ THẬT phải bắt đầu ngay ở dòng `---`: dư một dòng trống là hàng rào lệch và mọi
+  // bên đọc gọi là hồ sơ hỏng (đúng ca P115 của khuôn). Cắt xong phải trim đầu.
+  let fm = body.slice(0, body.indexOf('\n---\n', 4) + 5).replace(/^\s*/, '');
   fm = fm.replace(/\{\{slug\}\}/g, slug)
     .replace(/^verdict: .*$/m, `verdict: ${verdict}`)
     .replace(/^enforcement_mode: .*$/m, `enforcement_mode: ${sach === 'enf-off' ? 'off' : 'strict'}`)
@@ -311,8 +313,23 @@ if (want('RT5')) {
   }
   // Bất biến phân biệt: máy-thông KHÔNG BAO GIỜ cùng chữ với hồ sơ người ký.
   try { if (B.chu('da-giao').nhan === B.chu('da-giao-may-thong-veto-mo').nhan) errs.push('nhãn máy-thông trùng nhãn đã giao'); } catch (_) {}
+  // Bản đồ và thẻ phải in chữ RÚT TỪ BẢNG, không tự chế chuỗi.
+  withRepo(root => {
+    mkWs(root, 'm', { contract: MC, evidence: {} });
+    spawnSync(process.execPath, [PMAP, '--root', root], { encoding: 'utf8' });
+    const md = existsSync(path.join(root, 'PRODUCT-MAP.md')) ? readFileSync(path.join(root, 'PRODUCT-MAP.md'), 'utf8') : '';
+    if (!md.includes(B.chu('da-giao-may-thong-veto-mo').nhan)) errs.push('bản đồ không in nhãn máy-thông rút từ bảng');
+    const ex = JSON.parse(spawnSync(process.execPath, [CARD, '--root', root, '--slug', 'm', '--extract'], { encoding: 'utf8' }).stdout);
+    if (String(ex.gate) !== '2') errs.push(`thẻ nhận gate=${ex.gate}, mong 2`);
+    const cr = spawnSync(process.execPath, [CARD, '--root', root, '--slug', 'm'], { encoding: 'utf8' });
+    const html = cr.stdout || '';
+    if (cr.status !== 0) errs.push(`thẻ exit ${cr.status}: ${(cr.stderr || '').slice(0, 200)}`);
+    if (!/máy đã thông/.test(html)) errs.push('thẻ thiếu dòng «máy đã thông»');
+    if (!/cửa veto đang mở/.test(html)) errs.push('thẻ thiếu trạng thái cửa veto');
+    if (/Ký duyệt|Ký hay trả/.test(html)) errs.push('thẻ vẫn mời ký một hồ sơ máy đã thông');
+  });
   if (errs.length) fail('RT5', errs.join(' · '));
-  else pass('RT5', '4 khoá mới có nhãn riêng + bucket đúng; máy-thông khác chữ với đã giao');
+  else pass('RT5', '4 khoá mới có nhãn riêng + bucket đúng; bản đồ và thẻ in chữ từ bảng; thẻ không mời ký hồ sơ máy-thông');
 }
 
 // ── RT4 — bộ quét: machine-cleared vào đúng ô, tới được Cổng Giá trị ─────────

@@ -187,7 +187,7 @@ const decLine = e => esc(stripMd(e.decision || '')) + (e.impact ? ' — ' + esc(
 
 // auto-detect gate: prefer contract.status (the SKILL's source of truth), else report presence
 if (!gate) {
-  if (/^(implemented|verified|signed-off)$/i.test(status)) gate = '2';
+  if (/^(implemented|verified|signed-off|machine-cleared)$/i.test(status)) gate = '2';
   else if (/^(draft|approved)$/i.test(status)) gate = '1';
   else gate = report.trim() ? '2' : '1';
 }
@@ -511,13 +511,18 @@ try {
     scanState = hit ? hit.stateKey : null;
   }
 } catch (e) { scanErr = String(e.message).slice(0, 200); }
-const MAY_DI_TIEP = scanState === 'may-di-tiep-veto-mo' || scanState === 'may-di-tiep-xanh-sach';
+// Hồ sơ đã có ô kết `machine-cleared` cũng là «máy đã đi tiếp» — bộ quét gọi nó bằng hai
+// khoá riêng, thẻ phải nhận cả bốn, nếu không hồ sơ máy-thông lại bị mời ký (hồ sơ ra-co-ten).
+const MAY_DI_TIEP = ['may-di-tiep-veto-mo', 'may-di-tiep-xanh-sach',
+                     'da-giao-may-thong-veto-mo', 'da-giao-may-thong-xanh-sach'].includes(scanState);
+const MAY_THONG = (clean(cfm.status) || '').toLowerCase() === 'machine-cleared';
 const chip = MAY_DI_TIEP
   ? { t: trangThai.chu(scanState).nhan, c: 'gray' }
   : (verdict === 'PASS' ? { t: 'máy đã xong — ký nhanh', c: 'teal' } : { t: 'cần bạn quyết', c: 'amber' });
 P.push(`<div class="gc"><div class="card">
 <div class="h"><div><div class="ft">${esc(featurePlain)}</div><div class="sub">${MAY_DI_TIEP ? 'Cổng 2 · máy đã đi tiếp' : 'Cổng 2 · ký duyệt'}${tier === 'T3' ? ' · tier T3 (đụng critical)' : ''}</div></div><span class="chip ${chip.c}">${esc(chip.t)}</span></div>`);
 if (scanErr) P.push(`<div class="flag fwarn">⚠ Chưa đọc được trạng thái làn V (${esc(scanErr)}) — thẻ đang trình theo lối cũ, nên nó có thể đang mời ký một hồ sơ máy đã đi tiếp hợp lệ. Kiểm bằng máy quét trước khi ký.</div>`);
+if (MAY_THONG) P.push(`<div class="flag finfo">máy đã thông — hồ sơ này qua Cổng Bằng chứng bằng sáu điều kiện xanh-sạch, KHÔNG có chữ ký người; cửa veto ${(clean(cfm.veto_state) || '').toLowerCase() === 'mo' ? 'đang mở' : 'không mở'}.</div>`);
 if (MAY_DI_TIEP) P.push(`<div class="flag finfo">Hồ sơ này máy đã đi tiếp — ${esc(trangThai.chu(scanState).viecKe)}. Thẻ không có nút ký cho trạng thái này.</div>`);
 P.push(`<a href="evidence-page.html" style="display:flex;justify-content:space-between;align-items:center;gap:10px;background:#E6F1FB;border:1px solid #B5D4F4;border-radius:10px;padding:9px 13px;margin:11px 0 2px;text-decoration:none;color:#0C447C;font-size:13px"><b>Bằng chứng đầy đủ — ảnh chụp + chạy thật</b><span style="font-size:12px;color:#185FA5;white-space:nowrap">đã mở trong trình duyệt</span></a>`);
 // Khối "Ngoài hợp đồng" đứng TRƯỚC mọi việc-của-người khác: đây là thứ máy cố ý

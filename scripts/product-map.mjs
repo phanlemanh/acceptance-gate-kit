@@ -25,14 +25,14 @@ const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence
 // cùng hồ sơ cho hai kết luận trái nhau).
 const { recordProblem, navValues, consumedTexts, usesUat, usesOpportunity, usesEvidence,
         missingArtifact, readRecord, ioReason, configList, NAV_RULES, mapState, MAP_LABELS,
-        mapTracked } =
+        mapTracked, DA_THONG_CONG_2 } =
   require(path.join(__dirname, '..', 'lib', 'workspace-record.cjs'));
 
 export { NAV_RULES };
 // Ô của bản đồ suy qua PHÉP CHIẾU nhiều-về-một của bảng chữ chung — cùng nguồn
 // với máy quét và thẻ cổng. Bản đồ vẫn KHÔNG mang vị từ: chiếu chỉ đổi ĐƯỜNG ĐI
 // TỚI ô, không đổi TÊN ô (hồ sơ start-bang-dieu-khien, AC-7).
-const { BUCKET_OF } = require(path.join(__dirname, 'trang-thai-ho-so.cjs'));
+const { BUCKET_OF, chu } = require(path.join(__dirname, 'trang-thai-ho-so.cjs'));
 
 // Tên ô nói VIỆC ĐANG Ở ĐÂU, không gọi tên cơ chế máy (N1). Thứ tự cố định —
 // nó cũng là thứ tự các chặng trong hình.
@@ -175,16 +175,25 @@ function classify(dir, slug) {
   // đóng cổng người và `--check` không đỏ oan giữa vòng.
   const o = k => ({ key: BUCKET_OF[k], slug, name, edge });
   if (status) {
-    if (status === 'signed-off') {
+    if (DA_THONG_CONG_2.includes(status)) {
       // Đường A (cơ hội quyết build/iterate) còn một cổng người nữa: phiên
       // nghiệm thu. Đường B/C/E ship thẳng — không dựng phiên giả cho chúng.
       const duongA = decision === 'build' || decision === 'iterate';
-      return o(duongA ? 'cho-cong-gia-tri' : 'da-giao');
+      if (duongA) return o('cho-cong-gia-tri');
+      // Ô kết của làn V có TÊN RIÊNG — bản đồ vẫn gom theo giai đoạn (cùng ô «Đã
+      // giao»), nhưng chữ đi kèm phải phân biệt máy-thông với hồ sơ người ký.
+      if (status === 'machine-cleared') {
+        const vMo = (frontmatterField(cTxt, 'veto_state') || '').trim().toLowerCase() === 'mo';
+        const k = vMo ? 'da-giao-may-thong-veto-mo' : 'da-giao-may-thong-xanh-sach';
+        return { ...o(k), note: chu(k).nhan };
+      }
+      return o('da-giao');
     }
     if (status === 'draft') return o('cho-cong-pham-vi');
     return o('dang-viet-code');
   }
 
+  if (stage === 'archived') return { ...o('da-dong-ho-so'), note: chu('da-dong-ho-so').nhan };
   if (stage !== 'decided' || !decision) return o('y-can-nhac');
   if (decision === 'build' || decision === 'iterate') return o('sap-mo-vong');
   if (decision === 'park') return o('xep-lai');
