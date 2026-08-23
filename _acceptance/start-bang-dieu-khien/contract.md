@@ -5,7 +5,7 @@ slug: start-bang-dieu-khien
 owner: manh.phan@onemount.com
 risk_tier: T2      # T2 (chuẩn) | T3 (auth/dữ liệu/API phá vỡ)
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-08-23T01:58:21Z
 ---
