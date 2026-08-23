@@ -226,3 +226,46 @@ bộ đọc (giữ) · lưới trước-merge đọc Vòng TRAO (Never) · migra
 | verified → machine-cleared | evidence-report | sáu điều kiện xanh-sạch (lưới kiểm lời khai) | machine-cleared / Gate 2 | máy, người veto | vòng làm → S5; sau đó Cổng Giá trị hoặc «đã giao» |
 | discovery → decided (Cổng Đáng) | opportunity.md + thẻ | ngưỡng chốt hoặc khai không đo được; nguồn ngoài đã phân loại | làm / lặp / xếp lại / dừng | người ký qua `/approve` | `/feature-loop` · «không ai» · đóng hồ sơ |
 | đã thông → Cổng Giá trị | uat-session.md + ô ngưỡng | ngưỡng `chot` | release / iterate / kill / **không đo (khai trước)** | người ký phiên | iterate → vòng kế (in); kill → archived (ghi) |
+
+## 6. Quét không gian tiêu chí (morphological-scan, preset test-matrix)
+
+### Ngữ cảnh
+- Sản phẩm: máy trạng thái hồ sơ của kit — chân sản phẩm: `[SUY-TỪ-REPO: lib/workspace-record.cjs NAV_RULES]`, `[SUY-TỪ-REPO: scripts/trang-thai-ho-so.cjs]`, `[SUY-TỪ-REPO: CONTEXT.md §Gates & verbs]` · chân ngành: `[NGÀNH: Stage-Gate, R. Cooper]` (năm thành phần một cổng) + `[NGÀNH: ISTQB state-transition testing / Chow N-switch]` (mỗi chuyển hợp lệ VÀ mỗi chuyển cấm đều có ca).
+
+### Trục
+- **A — Vật mới:** A1 trạng thái `machine-cleared` (ghi + đọc) | A2 thẻ + ký Cổng Đáng qua `/approve` | A3 ô ngưỡng bốn trạng thái + lối `khong-do-duoc` | A4 răng chống lách (surfaces ui/mobile) | A5 archived · timebox · kill/iterate chủ bước kế. `[thước CE: §1–§3 đặc tả; audit §3 A1–A3, A7–A9]`
+- **B — Bộ đọc:** B-máy: workspace-record | start-scan+trang-thai | product-map | gate-card | pre-merge | hook/evidence-core. B-nghi-thức: uat-session | feature-loop SKILL | approve | start | khuôn+CONTEXT. `[thước CE: grep "signed-off" toàn repo = 14 file, mỗi file là một bộ đọc]`
+- **C — Chiều đo:** dương | âm ghim thông điệp | mutant cô lập lớp | round-trip hằng | đọc-cũ/snapshot. `[thước CE: MEASURE-BIRTH-CLAUSE + 4 lớp thước chip ③b + Chow: chuyển cấm phải có ca]`
+
+### Không gian: 5 × 11 × 5 = 275 ô → quét theo lát A, pairwise A×B, C áp cross-cutting
+Ô vô nghĩa (gạch): A2×B-máy{workspace-record, pre-merge, hook} — Cổng Đáng không có hợp đồng nên ba bộ này không đọc nó (Never, «lưới mù Vòng TRAO» audit §6); A4×{pre-merge, hook} — cùng lý do; A5×{hook, pre-merge, gate-card} — archived/timebox là ô cơ hội.
+
+### Core (13 / ~60 ô có nghĩa ≈ 22 % — gộp thành ≤ 12 AC)
+1. A1×workspace-record×{dương, round-trip} — enum + usesUat/usesEvidence nhận `machine-cleared`; enum rút từ lib so với khuôn contract-template.
+2. A1×pre-merge×{dương, âm} — arm ba chỗ; răng lời khai: `machine-cleared` mà không xanh-sạch → VIOLATION ghim điều kiện trượt; nguyên vẹn xanh trước.
+3. A1×hook×{dương, âm} — `machine-cleared` không approved_by: làn V đúng vết → qua; T3/thiếu vết → chặn ghim câu.
+4. A1×start-scan×{dương, mutant} — không ô cơ hội → hai khoá `da-giao-may-thong-*`; có ô `build` → `cho-cong-gia-tri`; mutant `machine-cleared→signed-off` → chữ đổi (bất biến phân biệt); mutant về `verified` + ô build → KHÔNG tới Cổng Giá trị (cô lập lớp).
+5. A1×{product-map, gate-card}×dương — bucket `da-ship` với nhãn riêng; thẻ nhận Cổng Bằng chứng + dòng «máy đã thông».
+6. A1×{uat-session, feature-loop, acceptance SKILL}×round-trip — thân nghi thức có mệnh đề `machine-cleared` đúng chỗ (cắt phạm vi đúng, assert không mô tả).
+7. A2×gate-card×{dương, âm} — thẻ Cổng Đáng tự nhận; `--extract` trả `cong_dang.nguong` bốn giá trị; cờ đỏ khi `chua-chot` ∧ không `khong-do-duoc`; nguồn ngoài chưa phân loại → cờ đỏ.
+8. A2×approve×{round-trip, âm} — thân lệnh có chế độ Cổng Đáng + răng chiều đỏ + map làm/lặp/xếp lại/dừng; câu gộp `g0` trong GATE-ONESHOT-GRAMMAR round-trip với slot list; start.md bàn giao `dang` → card → approve (hết con trỏ chết).
+9. A3×start-scan×{dương ×4 trạng thái ngưỡng} — `chot`→cổng; `khong-do-duoc`→`da-giao-khong-do`; `chua-chot`/`de-xuat`→cổng + `flags:['nguong-chua-chot']`; `[đề xuất]` tính là đã điền ở nhánh Cổng Đáng.
+10. A3×{khuôn, start-scan, uat-session, gate-card, approve}×round-trip — hai hằng `[đề xuất]` và `Không đo được — ` rút từ khối marker của khuôn; bản sao khuôn đổi chuỗi → đỏ nêu hai chuỗi.
+11. A4×{gate-card, start-scan}×{dương, âm} — surfaces ui/mobile ∧ `khong-do-duoc` → cờ đỏ/flags; surfaces cli → không cờ (đối chứng).
+12. A5×{start-scan, product-map, uat-session}×dương — `archived` → `da-dong-ho-so`; timebox quá hạn → `flags:['qua-timebox']`; uat-session kill ghi archived, iterate in bước kế.
+13. (tất cả)×đọc-cũ — snapshot bộ quét trên toàn bộ hồ sơ thật: `broken: []`, diff chỉ ở khoá mới liệt kê; `verified`+làn V cũ giữ `may-di-tiep-*`.
+
+### Later
+- A2 hành vi LLM của `/approve` (máy có từ chối thật không) — hội đồng chỉ khi ô lọt lần ba (nếp chip C).
+- A1 `acceptance-status`/`acceptance-report` in `machine-cleared` — một câu mỗi nơi khi đụng.
+- A5 timebox dạng ngày tự do («cuối tháng 9») — chỉ nhận hai dạng ngày.
+
+### Never
+- A1×pre-merge đọc Vòng TRAO (uat verdict) — quyết định có chủ đích (audit §6).
+- Migrate hồ sơ `verified`+làn V cũ sang `machine-cleared` — trái luật đọc-cũ.
+- Lệnh thứ bảy cho Cổng Đáng — «chỉ TRỪ không CỘNG», khoá ADR 0002.
+
+### Cross-cutting áp mọi ô Core
+- Fixture do script test sinh từ vị trí script; mọi ca âm có đối chứng dương cùng fixture + ghim thông điệp.
+- Mọi chữ mặt người vào `trang-thai-ho-so.cjs`; khoá lạ chết to (có sẵn).
+- Chuyển cấm có ca: `draft→machine-cleared`, `machine-cleared` với T3, `machine-cleared` với UNCERTAIN.
