@@ -27,7 +27,7 @@ const UAT_H = 'Ngưỡng chết / ngưỡng UAT';
 
 let failures = 0;
 // MỘT nguồn danh sách ca: file này. Chỉ liệt ca ĐÃ CÓ THÂN — khai id chưa dựng thì suite đỏ.
-const ALL_IDS = ['RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT7', 'RT9', 'RT11', 'RT12', 'RT15'];
+const ALL_IDS = ['RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT6', 'RT7', 'RT8', 'RT9', 'RT10', 'RT11', 'RT12', 'RT15'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.RT_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const want = id => only.length === 0 || only.includes(id);
@@ -464,6 +464,104 @@ if (want('RT11')) {
   });
   if (errs.length) fail('RT11', errs.join(' · '));
   else pass('RT11', 'ui/mobile + khai không-đo-được → cờ đỏ trên thẻ + cờ ở bộ quét, hồ sơ vẫn ở ô của nó; cli → không cờ');
+}
+
+// ── bộ đọc thân văn bản: CẮT PHẠM VI rồi đếm hit; mutant gỡ mệnh đề phải ĐỎ ────
+const readRepo = rel => readFileSync(path.join(ROOT, rel), 'utf8');
+const cut = (txt, startRe, endRe) => {
+  const s0 = txt.search(startRe); if (s0 < 0) return '';
+  const rest = txt.slice(s0); const e = rest.slice(1).search(endRe);
+  return e < 0 ? rest : rest.slice(0, e + 1);
+};
+const gflag = re => new RegExp(re.source, re.flags.includes('g') ? re.flags : re.flags + 'g');
+const countIn = (txt, re) => (txt.match(gflag(re)) || []).length;
+// rows: [tên, file, cắt-phạm-vi, regex, số-lần (null = ≥1)]
+function checkMenhDe(rows) {
+  const errs = [];
+  for (const [ten, file, cutter, re, n] of rows) {
+    const full = readRepo(file);
+    const c = countIn(cutter(full), re);
+    if (n == null ? c < 1 : c !== n) { errs.push(`${ten}: thấy ${c} lần, mong ${n ?? '≥1'}`); continue; }
+    // Mutant: gỡ mệnh đề khỏi BẢN SAO → chính bộ đọc này phải đỏ (assert, không mô tả).
+    const c2 = countIn(cutter(full.replace(gflag(re), '')), re);
+    if (!(n == null ? c2 < 1 : c2 !== n)) errs.push(`${ten}: gỡ mệnh đề mà bộ đọc vẫn xanh`);
+  }
+  return errs;
+}
+
+// ── RT6 — năm văn bản nghi thức biết trạng thái mới ─────────────────────────
+if (want('RT6')) {
+  const FL = 'feature-loop/skills/feature-loop/SKILL.md';
+  const errs = checkMenhDe([
+    ['uat-§0 điều kiện vào', 'skills/uat-session/SKILL.md', t => cut(t, /^## 0\. Điều kiện vào/m, /^## 1\./m), /`status: signed-off` hoặc `machine-cleared`/, 1],
+    ['uat-§0 ba ca ngưỡng', 'skills/uat-session/SKILL.md', t => cut(t, /^## 0\. Điều kiện vào/m, /^## 1\./m), /Không đo được — /, null],
+    ['fl bảng có hàng mới', FL, t => cut(t, /^\| status hiện tại/m, /^\n## /m), /^\| `machine-cleared` \|.*S5/m, 1],
+    ['fl hàng verified ghi trạng thái kết', FL, t => cut(t, /^\| `verified` \|/m, /\n/), /set `status: machine-cleared`/, 1],
+    ['fl S4 nhánh PASS', FL, t => cut(t, /\(3\) set contract `status: verified`/, /→ Gate 2\./), /set thẳng `status: machine-cleared`/, 1],
+    ['acceptance SKILL làn V', 'skills/acceptance/SKILL.md', t => cut(t, /^4b\. \*\*Cổng Bằng chứng xanh-sạch/m, /^5\./m), /`status: machine-cleared`/, 1],
+    ['CONTEXT term', 'CONTEXT.md', t => cut(t, /^\*\*Máy đã thông\*\*/m, /^\*\*|^### /m), /_Avoid_: đã ký/, 1],
+    ['acceptance-status hai trạng thái', 'commands/acceptance-status.md', t => t, /`machine-cleared` là máy đã thông/, 1],
+    ['acceptance-report tách hai số', 'commands/acceptance-report.md', t => t, /`machine-cleared` \(máy đã thông, không chữ ký\)/, 1],
+  ]);
+  // CONTEXT phải có TERM, không chỉ nhắc chuỗi
+  if (!/\*\*Máy đã thông\*\* \(`machine-cleared`\)/.test(readRepo('CONTEXT.md'))) errs.push('CONTEXT.md chưa có term «Máy đã thông»');
+  if (errs.length) fail('RT6', errs.join(' · '));
+  else pass('RT6', 'năm văn bản nghi thức mang mệnh đề machine-cleared đúng phạm vi; gỡ từng mệnh đề → bộ đọc đỏ');
+}
+
+// ── RT8 — /approve chế độ Cổng Đáng + ngữ pháp + hết con trỏ chết ───────────
+if (want('RT8')) {
+  const AP = 'commands/approve.md';
+  const scopeAp = t => cut(t, /^## Chế độ Cổng Đáng/m, /^Never:/m);
+  const HFL = 'skills/acceptance/references/human-facing-language.md';
+  const errs = checkMenhDe([
+    ['approve điều kiện nhận', AP, scopeAp, /`contract\.md` VẮNG ∧ `opportunity\.md` có ∧ `decision` rỗng ∧\n`stage ≠ archived`/, 1],
+    ['approve bảng map', AP, scopeAp, /làm→build · lặp→iterate · xếp lại→park · dừng→kill/, 1],
+    ['approve răng ngưỡng', AP, scopeAp, /\*\*TỪ CHỐI\*\*, in đúng câu\n     cờ đỏ của thẻ/, 1],
+    ['approve răng nguồn ngoài', AP, scopeAp, /\*\*TỪ CHỐI\*\* \(luật răng của khuôn/, 1],
+    ['approve gỡ đề xuất', AP, scopeAp, /\*\*Gỡ tiền tố `\[đề xuất\]`\*\*/, 1],
+    ['approve ghi trường', AP, scopeAp, /`stage: decided`, `decision`, `decided_by`, `decided_at`/, 1],
+    ['approve entry gate0', AP, scopeAp, /"type":"gate0"/, 1],
+    ['approve vẽ bản đồ', AP, scopeAp, /product-map\.mjs/, 1],
+    ['approve bước kế', AP, scopeAp, /`\/feature-loop:feature-loop <slug>`/, 1],
+    ['grammar có Cổng Đáng', HFL, t => cut(t, /<<<GATE-ONESHOT-GRAMMAR/, /GATE-ONESHOT-GRAMMAR>>>/), /chế độ Cổng Đáng\*\* \(hồ sơ chưa có hợp\n  đồng\)/, 1],
+    ['start bàn giao cổng dang', 'commands/start.md', t => cut(t, /^4\. \*\*MỘT câu hỏi/m, /^5\./m), /riêng cổng `dang`\n     → thẻ Cổng Đáng rồi ký bằng `\/acceptance-gate:approve <slug> <lối>`/, 1],
+  ]);
+  // Round-trip slot g0: mọi nhãn g0 trong SLOTS phải xuất hiện trong thân lệnh, và ngược lại có ≥1 hàng
+  const slots = cut(readRepo(HFL), /<<<GATE-ONESHOT-SLOTS/, /GATE-ONESHOT-SLOTS>>>/)
+    .split('\n').filter(l => /^g0 /.test(l)).map(l => l.slice(3).trim());
+  if (!slots.length) errs.push('SLOTS không có hàng g0');
+  const ap = readRepo(AP);
+  for (const s0 of slots) if (!ap.includes(s0)) errs.push(`nhãn g0 «${s0}» không có trong approve.md`);
+  if (errs.length) fail('RT8', errs.join(' · '));
+  else pass('RT8', `approve chế độ Cổng Đáng đủ 9 mệnh đề; ${slots.length} nhãn g0 round-trip với thân lệnh; start hết con trỏ chết`);
+}
+
+// ── RT10 — hai tiền tố: MỘT chỗ khai, năm nơi đọc lại ───────────────────────
+if (want('RT10')) {
+  const errs = [];
+  const u = cut(readRepo('skills/uat-session/SKILL.md'), /^## 0\./m, /^## 1\./m);
+  const ap = readRepo('commands/approve.md');
+  const st = readRepo('commands/start.md');
+  if (!u.includes(KHONG_DO)) errs.push('uat-session §0 không mang đúng tiền tố không-đo-được');
+  if (!ap.includes(KHONG_DO)) errs.push('approve.md không mang đúng tiền tố không-đo-được');
+  if (!ap.includes(DE_XUAT)) errs.push('approve.md không mang đúng tiền tố [đề xuất]');
+  if (!st.includes(DE_XUAT)) errs.push('start.md không mang đúng tiền tố [đề xuất]');
+  if (!st.includes(KHONG_DO)) errs.push('start.md không mang đúng tiền tố không-đo-được');
+  // Bên ĐỌC dùng đúng chuỗi khuôn: dựng fixture TỪ chuỗi khuôn rồi chạy bộ quét + thẻ thật.
+  withRepo(root => {
+    mkWs(root, 'p', { contract: MC, evidence: {}, opportunity: { nguong: 'khong-do-duoc' } });
+    if (findSlug(scan(root), 'p')?.stateKey !== 'da-giao-khong-do') errs.push('bộ quét không nhận dòng dựng từ chuỗi khuôn');
+  });
+  // Chiều đỏ: bản sao khuôn đổi chuỗi → khuôn và bên đọc lệch nhau, ca phải NÊU CẢ HAI.
+  const t2 = tmp('rt10-'); const fake = path.join(t2, 'opportunity-template.md');
+  writeFileSync(fake, readFileSync(OPP_TPL, 'utf8').replace('Không đo được —', 'Khong do duoc —'));
+  const k2 = blockFromTemplate(fake, 'OPP-KHONG-DO-DUOC-PREFIX').trim();
+  if (k2 === KHONG_DO) errs.push('bản sao khuôn đổi chuỗi mà bộ rút không thấy khác');
+  else if (u.includes(k2)) errs.push(`chiều đỏ: uat-session mang chuỗi CŨ «${k2}» lẫn chuỗi khuôn «${KHONG_DO}»`);
+  rmSync(t2, { recursive: true, force: true });
+  if (errs.length) fail('RT10', errs.join(' · '));
+  else pass('RT10', `hai tiền tố («${DE_XUAT}», «${KHONG_DO}») khai một chỗ, năm nơi đọc lại; đổi khuôn → lệch nêu cả hai chuỗi`);
 }
 
 const la = only.filter(id => !ALL_IDS.includes(id));
