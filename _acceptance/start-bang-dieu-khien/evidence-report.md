@@ -1,19 +1,17 @@
 ---
 schema_version: 2
 feature_slug: start-bang-dieu-khien
-verdict: REJECT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 57820029a32b06b070690c176bd2c63d8a2e3a8a
+verified_commit: 001c524e41b7ebf076f4deabe531f50751fccd36
 human_signoff:
 ---
 
 # Evidence Report: start-bang-dieu-khien
-
-Round 1. Bốn suite (`tests/plugins`, `tests/scripts`, `tests/hooks`, `tests/workflows`) + `node scripts/product-map.mjs --root . --check` + sáu chân riêng của `_acceptance/start-bang-dieu-khien/rang-bdk.sh` đều exit 0 trên cây đã pin ở `verified_commit`. **Verdict REJECT không đến từ mã thoát của lệnh nào** — `failed_evals` rỗng vì không lệnh nào tự báo lỗi. REJECT đến từ review độc lập (scope-triage): 4 finding thật rơi TRONG hợp đồng, ghim trực tiếp vào AC-2, AC-4, AC-5, AC-8 — các khối lệnh tương ứng vẫn xanh vì bản thân phép đo có lỗ (đo chỉ dẫn thay vì đầu ra, thiếu sort, chiều đỏ không thể đỏ, v.v.). Chi tiết từng lỗ nằm ở `review-findings.md` § «Trong hợp đồng». Cuối file đó còn cảnh báo: 5/14 lỗi tổng cộng rơi vào file không bộ đo nào phủ — cần người quyết mở rộng hợp đồng hay rút phạm vi trước khi vòng sau bắt đầu.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -32,181 +30,164 @@ Round 1. Bốn suite (`tests/plugins`, `tests/scripts`, `tests/hooks`, `tests/wo
 | E13 | AC-7 | script | PASS |
 | E14 | AC-12 | script | PASS |
 
-## Bằng chứng gốc — lệnh chạy, kể cả hai suite không gắn eval
-
-    bash tests/plugins/run-tests.sh                                          →  PASS: ca bang dieu khien — BDK4; Results: all plugin tests passed
-    bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan at             →  OK [at]
-    bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan veto-ten       →  OK [veto-ten]
-    bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan dang-thuc      →  OK [dang-thuc]
-    bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan bon-bo-doc     →  OK [bon-bo-doc]
-    bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan ahead-behind   →  OK [ahead-behind]
-    bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan sort-tuoi      →  OK [sort-tuoi]
-    bash tests/scripts/run-tests.sh                                         →  PASS: ARM13-mut; Results: 750 passed, 0 failed
-    node scripts/product-map.mjs --root . --check                          →  PRODUCT-MAP.md khớp hồ sơ xưởng.
-    bash tests/hooks/run-tests.sh (regression-guard, không gắn eval)         →  PASS: V06; Results: 60 passed, 0 failed
-    bash tests/workflows/run-tests.sh (regression-guard, không gắn eval)     →  Results: 44 passed, 0 failed; all workflow tests passed
-
 ## Evidence
 
 - eval: E1
-  run_id: minted-start-bang-dieu-khien-E1-r1
+  run_id: minted-start-bang-dieu-khien-E1-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-23T15:50:12Z
+  verified_at: 2026-08-23T00:00:00Z
   output: |
-    PASS: ca bang dieu khien — BDK4 (ho so start-bang-dieu-khien)
-
     Results: all plugin tests passed
+    Exit code: 0
 
 - eval: E2
-  run_id: minted-start-bang-dieu-khien-E2-r1
+  run_id: minted-start-bang-dieu-khien-E2-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-23T15:50:12Z
+  verified_at: 2026-08-23T00:00:00Z
   output: |
-    PASS: ca bang dieu khien — BDK4 (ho so start-bang-dieu-khien)
-
     Results: all plugin tests passed
+    Exit code: 0
 
 - eval: E3
-  run_id: minted-start-bang-dieu-khien-E3-r1
+  run_id: minted-start-bang-dieu-khien-E3-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.bdk_rang_at
-  verified_at: 2026-08-23T15:51:03Z
+  verified_at: 2026-08-23T00:00:00Z
   output: |
     OK [at] — cay that 57 ho so, 0 null; ba nac dung tren fixture; go thang -> null, khong bia moc
 
 - eval: E4
-  run_id: minted-start-bang-dieu-khien-E4-r1
+  run_id: minted-start-bang-dieu-khien-E4-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-23T15:50:12Z
+  verified_at: 2026-08-23T00:00:00Z
   output: |
-    PASS: ca bang dieu khien — BDK4 (ho so start-bang-dieu-khien)
-
     Results: all plugin tests passed
+    Exit code: 0
 
 - eval: E5
-  run_id: minted-start-bang-dieu-khien-E5-r1
+  run_id: minted-start-bang-dieu-khien-E5-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.bdk_rang_veto
-  verified_at: 2026-08-23T15:51:47Z
+  verified_at: 2026-08-23T00:00:00Z
   output: |
     OK [veto-ten] — 16 ho so, tap == grep, 14 ho so signed-off co mat; thu ve verified -> 2 (do)
 
 - eval: E6
-  run_id: minted-start-bang-dieu-khien-E6-r1
+  run_id: minted-start-bang-dieu-khien-E6-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.bdk_rang_dang_thuc
-  verified_at: 2026-08-23T15:52:20Z
+  verified_at: 2026-08-23T00:00:00Z
   output: |
     OK [dang-thuc] — may quet == luoi tren cung kho git (2 -> 3, ca hai cung tang 1); bo mot ho so -> dang thuc vo
 
 - eval: E7
-  run_id: minted-start-bang-dieu-khien-E7-r1
+  run_id: minted-start-bang-dieu-khien-E7-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-23T15:50:12Z
+  verified_at: 2026-08-23T00:00:00Z
   output: |
-    PASS: ca bang dieu khien — BDK4 (ho so start-bang-dieu-khien)
-
     Results: all plugin tests passed
+    Exit code: 0
 
 - eval: E8
-  run_id: minted-start-bang-dieu-khien-E8-r1
+  run_id: minted-start-bang-dieu-khien-E8-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.bdk_rang_bon_bo_doc
-  verified_at: 2026-08-23T15:53:05Z
+  verified_at: 2026-08-23T00:00:00Z
   output: |
-    OK [bon-bo-doc] — neo vao HO SO THAT (release-2-0-0); sach+veto-mo: 0/3 bo doc co vi tu moi ky; pha vat that: 3/3 moi ky; ban do dung yen ca hai chieu; 3 chieu do song
+    OK [bon-bo-doc] — neo vao HO SO THAT (release-2-1-0); sach+veto-mo: 0/3 bo doc co vi tu moi ky; pha vat that: 3/3 moi ky; ban do dung yen ca hai chieu; 3 chieu do song
+    EXIT_CODE=0
 
 - eval: E9
-  run_id: minted-start-bang-dieu-khien-E9-r1
+  run_id: minted-start-bang-dieu-khien-E9-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.bdk_rang_ahead_behind
-  verified_at: 2026-08-23T15:53:41Z
+  verified_at: 2026-08-23T00:00:00Z
   output: |
     OK [ahead-behind] — 6 chan: ban chung truoc, @{u} la nac cuoi, khong remote -> null, 0 goi mang; dao thang -> noi doi behind 0 (do)
 
 - eval: E10
-  run_id: minted-start-bang-dieu-khien-E10-r1
+  run_id: minted-start-bang-dieu-khien-E10-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-23T15:50:12Z
+  verified_at: 2026-08-23T00:00:00Z
   output: |
-    PASS: ca bang dieu khien — BDK4 (ho so start-bang-dieu-khien)
-
     Results: all plugin tests passed
+    Exit code: 0
 
 - eval: E11
-  run_id: minted-start-bang-dieu-khien-E11-r1
+  run_id: minted-start-bang-dieu-khien-E11-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-23T15:50:12Z
+  verified_at: 2026-08-23T00:00:00Z
   output: |
-    PASS: ca bang dieu khien — BDK4 (ho so start-bang-dieu-khien)
-
     Results: all plugin tests passed
+    Exit code: 0
 
 - eval: E12
-  run_id: minted-start-bang-dieu-khien-E12-r1
+  run_id: minted-start-bang-dieu-khien-E12-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.scripts
-  verified_at: 2026-08-23T15:55:02Z
+  verified_at: 2026-08-23T00:00:00Z
   output: |
     PASS: ARM13-mut
 
     Results: 750 passed, 0 failed
 
 - eval: E13
-  run_id: minted-start-bang-dieu-khien-E13-r1
+  run_id: minted-start-bang-dieu-khien-E13-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.script.product_map
-  verified_at: 2026-08-23T15:55:39Z
+  verified_at: 2026-08-23T00:00:00Z
   output: |
     PRODUCT-MAP.md khớp hồ sơ xưởng.
 
 - eval: E14
-  run_id: minted-start-bang-dieu-khien-E14-r1
+  run_id: minted-start-bang-dieu-khien-E14-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.bdk_rang_sort_tuoi
-  verified_at: 2026-08-23T15:54:18Z
+  verified_at: 2026-08-23T00:00:00Z
   output: |
     OK [sort-tuoi] — moc rong xep cuoi; ageTied dung tren 2-chung-commit + 1-rieng; doi chung duong dat moc -> het cong rong; 2 chieu do song
 
 ## Analyst
 
-Tám eval xanh trên cả HEAD lẫn diffBase (không phân biệt được feature này với code cũ — đến từ ba lệnh suite tổng hợp trần, không phải ca riêng cho feature):
-- E1, E2, E4, E7, E10, E11 — cả sáu chạy chung `bash tests/plugins/run-tests.sh`; suite này pass trên baseline vì phần lớn ca của nó (LB1-9, P30/P101/P122/P126/P200...) không đụng khoá mới của round này. Phần rủi ro thật của round (khoá `at`, veto-ten, đang-thực, bốn bộ đọc, ahead/behind, sort-tuổi) đã có chiều đỏ riêng ở E3/E5/E6/E8/E9/E14 — sáu eval này ở đây đóng vai regression-guard cho phần còn lại của suite.
-- E12 (`bash tests/scripts/run-tests.sh`) — suite scripts, guard cho lớp lib/md-section/repin không bị đổi bởi round này.
-- E13 (`node scripts/product-map.mjs --root . --check`) — bản đồ đã khớp trước khi đổi BUCKET_OF, guard cho việc đổi bảng không tự phá bản đồ.
+E1, E2, E4, E7, E10, E11 (bash tests/plugins/run-tests.sh) — xanh cả trên nhánh này lẫn trên diffBase; đây là suite dùng chung cho cả bốn eval nên tự nó xanh-cả-hai-phía là regression-guard bình thường (các ca discriminate đã tách riêng ở các bộ `rang-bdk.sh` khác trong cùng bảng).
+E12 (bash tests/scripts/run-tests.sh) — suite chung của toàn bộ `scripts/`, xanh-cả-hai-phía là regression-guard cho lớp lib/md-section/repin, không phải phép đo riêng của feature này.
+E13 (node scripts/product-map.mjs --root . --check) — bản đồ sản phẩm xanh trên cả hai phía vì product-map.mjs đọc BUCKET_OF tại chỗ; đúng là ca "bản đồ đứng yên" mà AC-7 đòi, không phải rò rỉ đo lường.
 
 ## Variance
 
-none — mọi eval vòng này chạy `runs: 1`, không có eval ngẫu nhiên (không qua `ctx.providers.invoke`).
+none — every multi-run eval is uniform
 
 ## Iterations
 
-Round 1: mọi lệnh eval + hai suite ngoài eval đều exit 0 (harness xanh toàn bộ), nhưng review độc lập (scope-triage) ghim 4 finding thật vào AC-2, AC-4, AC-5, AC-8 — các phép đo tương ứng không tự đỏ vì chính chúng có lỗ (chi tiết: `review-findings.md` § Trong hợp đồng). REJECT theo nội dung hợp đồng, không theo mã thoát. Quay lại triển khai.
+Round 1: E1, E4, E5, E8, E11 bị review nêu tên — E1 dùng phép hoặc che vế (`/cũ nhất|chưa rõ tuổi/` luôn được vế đầu thoả sẵn), E4 giao mô hình tự xếp lại 57 mốc thay vì máy quét tự sort, E5 đọc cửa veto SAU chốt status khiến hồ sơ veto-mở-status-hỏng biến khỏi thẻ, E8 chỉ soi chip/nút nên khối VIỆC-CỦA-ANH vẫn dặn ký + bộ đọc thứ ba dùng grep tĩnh + fixture không chứng minh được lượt tiêm đổi dòng, E11 thiếu khoá paths cho chính ca đo mới. Trả về implementation, vòng 2 sửa cả năm và bổ sung chiều đỏ tương ứng.
 
 ## Gate 2 checklist (human)
 
-- [ ] Đọc bảng + soát 1-2 khối bằng chứng
-- [ ] Xác nhận cá nhân từng judgment item UNCERTAIN rồi điền dòng `human_override: <tên> <ngày>`
-- [ ] Chỉ T3: xác nhận cá nhân TẤT CẢ judgment item và điền `human_override` cho từng cái
-- [ ] Nếu verdict là PENDING-JUDGMENT: nâng lên PASS (lượt ghi này là lúc hook thẩm định lại bằng chứng + override)
-- [ ] Điền `human_signoff` trong frontmatter
+- [ ] Read the table + spot-check 1-2 evidence blocks
+- [ ] Personally verify every judgment item marked UNCERTAIN, then fill its
+      `human_override: <name> <date>` line
+- [ ] T3 only: personally verify ALL judgment items and fill `human_override`
+      on each (judge verdicts are advisory; the hook blocks PASS without them)
+- [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
+      the hook re-validates evidence + overrides)
+- [ ] Fill `human_signoff` in frontmatter

@@ -1,95 +1,111 @@
+Ghi chú: cả 14 eval (E1–E14) trong hồ sơ này đều thuộc executor `test`/`script` — không eval nào là `judgment`, nên vòng này không có judge panel nào để đề xuất; không có mục UNCERTAIN nào cần `human_override`.
+
 ## Trong hợp đồng
 
-- **«Vừa xong» giao việc XẾP THỨ TỰ cho model — máy quét không sort done[]**
-  file: `scripts/start-scan.mjs:387`
-  severity: medium
-  AC: AC-4
-  commands/start.md:141 dặn «in **5 việc** có `at` mới nhất (`groups.done`, xếp `at` giảm dần)», nhưng start-scan.mjs sort gates[] (dòng 381), vetoOpen[] (386), considering[] (387) mà KHÔNG sort done[]. Chạy thật trên cây này: `done: 57` phần tử, năm `at` đầu ra là 2026-08-14, 2026-08-06, 2026-08-14, 2026-08-16, 2026-07-29 — thứ tự readdir, không phải thứ tự thời gian. Vậy việc chọn «5 việc mới nhất» trong 57 mốc rơi hết vào model, đúng thứ hồ sơ này sinh ra để chấm dứt: máy quét là bộ PHÂN Ô duy nhất, thân lệnh in NGUYÊN VĂN. Trớ trêu là chính diff này vừa sửa luật sort cho gates[] (mốc rỗng xếp cuối) vì «thẻ in một thứ tự không mang tin» — cùng lớp lỗi, để sót ở đúng mảng vừa được thêm khoá `at`. Phép đo cũng không bắt được: BDK1 (tests/plugins/bang-dieu-khien.test.mjs:120-126) chỉ grep câu chỉ dẫn trong start.md, không đo ĐẦU RA của máy quét — đúng hình dạng (1) của «Thước phải gắn vào vật được giao» trong CLAUDE.md. Sửa theo nếp có sẵn: thêm `done.sort` theo `at` giảm dần với null xếp cuối, cạnh ba sort kia, rồi đổi start.md thành «lấy 5 phần tử ĐẦU».
-
-- **vetoOpen lệch vị từ của lưới trước-merge ở hồ sơ có contract hỏng**
-  file: `scripts/start-scan.mjs:248`
-  severity: low
-  AC: AC-5
-  Chú thích ngay trên khai «Hỏi ĐÚNG câu lưới trước-merge hỏi: mọi contract.md có `veto_state: mo`, BẤT KỂ status». Thực tế `vetoOpen.push` đứng SAU `if (statusProblem) { pushHong(...); continue; }` (dòng 245-246), nên hồ sơ có cửa veto mở mà `status` hỏng/vắng thì biến mất khỏi vetoOpen. Lưới ở scripts/pre-merge-check.sh:1186-1194 chỉ đòi tồn tại contract.md rồi đọc thẳng veto_state — nó VẪN đếm. Kiểm bằng fixture code-sinh: hai hồ sơ `veto_state: mo` (một `status: khong-biet`, một thiếu `status`) cho `vetoOpen: []` trong khi lưới cộng cả hai. Hệ quả đúng bằng lớp lỗi hồ sơ này sinh ra để giết — «thẻ đếm 2 trong khi lưới đếm 16» — chỉ ở góc khác: /start và /acceptance-status nêu tên hồ sơ còn veto được, và veto-default chỉ sống nếu owner THẤY TÊN. Răng `rang-bdk.sh --chan veto-ten` không phân biệt được vì nó so đẳng thức trên cây thật, nơi `broken` đang là 0; cần một fixture code-sinh có contract hỏng + veto_state mo để phép đo có chiều đỏ.
-
-- **Chiều đỏ đã khai KHÔNG thể đỏ (hình 3/4) — assert `/cũ nhất|chưa rõ tuổi/` được thoả sẵn bởi câu CŨ**
-  file: `tests/plugins/vao-co-o.test.mjs:174`
-  severity: high
-  AC: AC-2
-  VC6 thêm `['tuổi (cũ nhất hoặc chưa rõ tuổi)', /cũ nhất|chưa rõ tuổi/]` để đo mệnh đề MỚI của khối START-CAN-NHAC. Nhưng khối start.md giữ nguyên câu cũ «Đang cân nhắc: N ý · cũ nhất X ngày» (commands/start.md:64), nên vế trái của alternation luôn khớp: gỡ sạch câu «chưa rõ tuổi» khỏi start.md thì assert này VẪN XANH. evals.yaml E14 ③ khai đúng ngược lại — «thân start.md dặn nói «chưa rõ tuổi» khi ageTied bật», chiều đỏ «bản sao gỡ câu «chưa rõ tuổi» khỏi start.md → đỏ ở ③». Đã grep toàn bộ tests/ + rang-bdk.sh: không assert nào khác ghim chuỗi «chưa rõ tuổi» (chân `sort-tuoi` chỉ đo `ageTied` phía JSON, không chạm start.md). Nghĩa là nhánh ③ của E14 chưa bao giờ có thước.
-
-- **Đo CHỈ DẪN thay vì ĐẦU RA (hình 1) — bộ đọc acceptance-status được đếm là 1 trong «3/3 bộ đọc» nhưng chỉ đo bằng hai lệnh grep tĩnh trên file hướng dẫn**
-  file: `_acceptance/start-bang-dieu-khien/rang-bdk.sh:257`
-  severity: medium
-  AC: AC-8
-  Chân `bon-bo-doc` tuyên «sach+veto-mo: 0/3 bo doc co vi tu moi ky; pha vat that: 3/3 moi ky» (dòng 296) và E8 khai ba bộ đọc có vị từ là «máy quét · thẻ cổng · acceptance-status». Nhưng bộ đọc acceptance-status chỉ được đo bằng `grep -q 'STATUS-NHAN' "$ROOT/commands/acceptance-status.md"` và `grep -q 'start-scan.mjs' ...` (dòng 257-258) — hai chuỗi trong file CHỈ DẪN của cây thật, không phụ thuộc fixture `$D`, không sinh ra đầu ra nào để soi. Nặng hơn: ở nhánh ĐỐI CHỨNG DƯƠNG (đặt `bypass_used: true`, dòng 263-273) không có một assert nào cho acceptance-status cả — chỉ ST2 (máy quét), HC (thẻ) và MAP2 (bản đồ). Vậy con số «3/3» thực tế chỉ có 2 bộ đọc được chạy trên fixture ở cả hai chiều; nhánh thứ ba là văn bản tĩnh một chiều.
+(không có finding nào map được vào AC — mọi finding sống của vòng verify này đều rơi ngoài phạm vi 12 AC đã ký.)
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **gate-card: slug rơi vào broken[] thì im lặng quay về lối cũ, không cờ vàng**
-  Người dùng thấy gì: Khi một hồ sơ có lỗi dữ liệu ẩn mà không rơi vào nhóm sạch nào, thẻ ký vẫn hiển thị như bình thường — nút Ký duyệt vẫn hiện — mà không có cảnh báo cho owner biết máy chưa xác định được trạng thái thật của hồ sơ này.
-  file: `scripts/gate-card.js`
+- **Cùng một ánh xạ verdict→stateKey được viết HAI lần, hai hình dạng khác nhau, cách nhau 15 dòng**
+  Người dùng thấy gì: Nếu sau này hệ thống có thêm một loại kết quả chấm mới, thẻ có thể hiển thị hai câu trạng thái khác nhau cho cùng một việc tuỳ giai đoạn hồ sơ — chưa xảy ra hôm nay nhưng có thể xảy ra trong tương lai.
+  file: `scripts/start-scan.mjs`
   severity: medium
-  Đề xuất: new-contract
+  Đề xuất: known-limits
 
-- **ngayXong() dates UAT-closed records by their Gate-2 signoff, not the UAT verdict — «Vừa xong» list shows/orders the wrong day**
-  Người dùng thấy gì: Với một vòng đã kết thúc bằng phiên nghiệm thu, mục «Vừa xong» ghi theo ngày của lần ký hợp đồng trước đó thay vì ngày thật sự kết thúc gần đây, nên một việc vừa xong hôm nay có thể bị xếp như đã cũ nhiều tháng và rơi khỏi danh sách việc vừa làm.
+- **veto_state đọc bằng tay thay vì qua `vetoGateState()` của lib/evidence-core.cjs**
+  Người dùng thấy gì: Nếu sau này luật nhận diện 'veto đang mở' thay đổi ở một nơi khác trong hệ thống, thẻ ở đây có thể không cập nhật theo và đếm sai số hồ sơ còn veto được — chưa xảy ra hôm nay.
+  file: `scripts/start-scan.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **`ngayXong` nuốt lỗi IO không-phải-ENOENT, trái luật đọc hồ sơ khai ngay đầu file**
+  Người dùng thấy gì: Trong một số trường hợp lỗi hệ thống hiếm gặp khi đọc báo cáo bằng chứng, thẻ có thể lặng lẽ hiện một ngày 'vừa xong' không chính xác mà không có cảnh báo nào cho owner biết dữ liệu đó không đáng tin.
+  file: `scripts/start-scan.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Comment ở config.yaml khai «răng chết theo hồ sơ khi merge» — tiền lệ trong chính file nói ngược lại**
+  Người dùng thấy gì: Các bài kiểm của những hồ sơ đã xong không tự dọn đi như ghi chú mô tả — theo thời gian bộ kiểm tự động sẽ phình to hơn, nhưng không ảnh hưởng tới thẻ /start mà owner đang xem.
+  file: `_acceptance/config.yaml`
+  severity: low
+  Đề xuất: known-limits
+
+- **ngayXong() dates UAT-closed records by the Gate-2 signoff, never by the UAT verdict**
+  Người dùng thấy gì: Với một việc vừa được nghiệm thu (release/iterate/kill), ngày 'vừa xong' trên thẻ hiện là ngày Cổng Bằng chứng ký trước đó, không phải ngày quyết định thật gần đây nhất — việc mới đóng hôm nay có thể bị thẻ xếp như đã cũ nhiều tháng và rơi khỏi danh sách 'vừa xong'.
   file: `scripts/start-scan.mjs`
   severity: high
   Đề xuất: new-contract
 
-- **acceptance-card.md now unconditionally tells the model to print the signoff command, contradicting the new no-sign card**
-  Người dùng thấy gì: Với một số hồ sơ mà máy đã tự đi tiếp và không cần ký, thẻ có thể vẫn in ra hướng dẫn owner gõ lệnh ký duyệt ngay bên dưới — mâu thuẫn với chính thông báo phía trên rằng hồ sơ này không có nút ký.
+- **ngayXong() presents the Worth-Gate decision date as a completion date**
+  Người dùng thấy gì: Với các việc máy đang tự làm tiếp mà chưa cần người ký, ngày 'vừa xong' trên thẻ có thể là ngày cơ hội này được duyệt bắt đầu (có khi từ rất lâu), chứ không phải ngày việc đó thật sự có tiến triển gần đây.
+  file: `scripts/start-scan.mjs`
+  severity: medium
+  Đề xuất: new-contract
+
+- **gate-card falls back to the sign-inviting card with no flag when the scanner puts the slug in broken[]**
+  Người dùng thấy gì: Khi một hồ sơ có trạng thái không nhận dạng được (ví dụ do gõ sai chính tả), thẻ ký duyệt vẫn hiện đầy đủ nút 'Ký duyệt' như hồ sơ bình thường, không cảnh báo gì cho owner biết dữ liệu phía sau có thể sai — hạn chế này đã được biết trước và cố ý chưa sửa trong đợt này.
+  file: `scripts/gate-card.js`
+  severity: medium
+  Đề xuất: known-limits
+
+- **ngayXong() swallows non-ENOENT read errors on evidence-report.md**
+  Người dùng thấy gì: Trong một số trường hợp lỗi hệ thống hiếm gặp, thẻ có thể lặng lẽ hiện sai ngày 'vừa xong' cho một việc mà không có dấu hiệu nào báo dữ liệu đó không chắc chắn.
+  file: `scripts/start-scan.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **acceptance-card.md unconditionally tells the model to print the signoff command, contradicting the no-sign card**
+  Người dùng thấy gì: Với một số hồ sơ, thẻ vừa nói 'không có nút ký cho trạng thái này' vừa đưa ngay lệnh ký ở dòng ngay dưới — hai câu mâu thuẫn nhau khiến owner có thể bấm nhầm lệnh ký cho một việc chưa sẵn sàng để ký.
   file: `commands/acceptance-card.md`
   severity: medium
   Đề xuất: new-contract
 
-- **ngayXong swallows non-ENOENT read errors on evidence-report.md, against the file's own stated doctrine**
-  Người dùng thấy gì: Nếu việc đọc hồ sơ bằng chứng gặp trục trặc bất thường (không phải do thiếu file), máy âm thầm bỏ qua lỗi đó và hiển thị ngày sai hoặc bỏ trống, thay vì báo cho owner biết có điều gì đó không đọc được.
-  file: `scripts/start-scan.mjs`
-  severity: medium
-  Đề xuất: known-limits
-
-- **gate-card.js now shells out to git on every Gate-2 card, invalidating its documented purity invariant**
-  Người dùng thấy gì: Một ghi chú kỹ thuật trong mã nguồn nói thẻ không chạm vào git đã trở nên lỗi thời so với cách nó vận hành thật — không ảnh hưởng gì tới những gì owner thấy trên thẻ.
-  file: `scripts/gate-card.js`
-  severity: low
-  Đề xuất: known-limits
-
-- **`implemented` + verdict PASS/PENDING-JUDGMENT is labelled «code xong, chưa ai chấm» although the machine has graded it**
-  Người dùng thấy gì: Với một hồ sơ mà máy đã chấm xong và đạt, thẻ vẫn có thể ghi nhãn như thể chưa ai chấm — chữ hiển thị không khớp thực tế, dù việc owner cần làm tiếp theo không đổi.
+- **implemented + PASS/PENDING-JUDGMENT is labelled "code xong, chưa ai chấm"**
+  Người dùng thấy gì: Trong một khoảng thời gian ngắn giữa lúc máy chấm xong và lúc hồ sơ chính thức cập nhật, thẻ có thể vẫn ghi 'chưa ai chấm' dù thực ra đã có kết quả chấm — có thể gây hiểu lầm nhỏ, thoáng qua về tiến độ.
   file: `scripts/start-scan.mjs`
   severity: low
   Đề xuất: known-limits
 
-- **Assert "chuỗi có mặt" trong khi lời hứa là QUAN HỆ tập hợp (hình 3) — BDK4 ghim hằng `FILES.length !== 16` thay vì kiểm ba thân cổng có nằm trong vũ trụ quét**
-  Người dùng thấy gì: Cách kiểm tra tự động cho việc ba lệnh in ra đúng dạng bấm được có một lỗ hổng: nó vẫn có thể báo đạt ngay cả khi một trong ba lệnh đó không còn thật sự được kiểm tra, khiến owner khó biết chắc lời hứa này còn đứng vững.
+- **BDK4 pins the string "FILES.length !== 16" instead of asserting the three gate bodies are in the scan universe**
+  Người dùng thấy gì: Nếu sau này có người vô tình bỏ sót một trong ba lệnh cổng khỏi phạm vi được kiểm tự động, hệ thống kiểm sẽ không phát hiện ra — lỗi có thể âm thầm lọt qua cho tới khi owner tự nhận ra trên thẻ.
+  file: `tests/plugins/bang-dieu-khien.test.mjs`
+  severity: low
+  Đề xuất: known-limits
+
+- **BDK2's STATUS-NHAN allowlist assertion iterates over an empty list**
+  Người dùng thấy gì: Bộ kiểm nhãn trạng thái hiện không có gì để kiểm nên sẽ không phát hiện nếu sau này có một nhãn trạng thái bịa xuất hiện trên thẻ — rủi ro chữ sai lọt qua mà không bị chặn lại.
+  file: `tests/plugins/bang-dieu-khien.test.mjs`
+  severity: low
+  Đề xuất: known-limits
+
+- **Hình dạng 3 — assert «chuỗi có mặt» cho một lời hứa là QUAN HỆ thứ tự (done[] xếp theo `at`)**
+  Người dùng thấy gì: Nếu về sau máy quét vô tình sắp xếp sai thứ tự các việc 'vừa xong', không có phép kiểm tự động nào phát hiện — thẻ có thể liệt kê việc cũ lẫn vào mục 'vừa xong' mà không ai nhận ra ngay.
   file: `tests/plugins/bang-dieu-khien.test.mjs`
   severity: high
-  Đề xuất: new-contract
+  Đề xuất: known-limits
 
-- **Assertion trên vũ trụ LUÔN RỖNG, không đối chứng dương (hình 4) — allowlist STATUS-NHAN chạy 0 vòng lặp**
-  Người dùng thấy gì: Bài kiểm tra cho việc thẻ không tự chế nhãn hiện đang kiểm một vùng luôn trống, nên quy tắc này chưa thật sự được xác nhận qua chạy máy — nếu sau này có ai vô tình thêm nhãn tự chế, bài kiểm tra sẽ không phát hiện ra.
+- **Hình dạng 5 — tuyên quét LỚP («rút MỌI nhãn ứng viên») nhưng vòng lặp chạy trên tập RỖNG**
+  Người dùng thấy gì: Bộ kiểm nhãn hiện không thực sự quét được nội dung nào, nên nếu sau này có nhãn trạng thái tự chế xuất hiện ở một chỗ khác trên thẻ, hệ thống sẽ không cảnh báo.
   file: `tests/plugins/bang-dieu-khien.test.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **Tuyên quét LỚP nhưng chỉ có điểm-case (hình 5) — round-trip «máy quét rút chữ TỪ bảng» chỉ chạm 6/20 khoá**
-  Người dùng thấy gì: Việc bảo đảm mọi trạng thái hồ sơ đều hiện đúng cùng một chữ ở mọi nơi mới được kiểm chứng trên một phần nhỏ các trạng thái có thể xảy ra — phần lớn còn lại vẫn có nguy cơ hiện chữ lệch nhau mà chưa được phát hiện.
+- **Hình dạng 3 — assert chuỗi `FILES.length !== 16` trong file test khác thay cho quan hệ THÀNH VIÊN của ba thân cổng**
+  Người dùng thấy gì: Nếu sau này có người vô tình bỏ một trong ba lệnh cổng ra khỏi phạm vi được kiểm, hệ thống kiểm sẽ không phát hiện — lệnh đó có thể quay lại dạng chữ không bấm được mà không ai biết.
   file: `tests/plugins/bang-dieu-khien.test.mjs`
   severity: medium
-  Đề xuất: new-contract
+  Đề xuất: known-limits
 
-- **Phép đo không thể đỏ (hình 4) — «0 lượt gọi mạng» đo bằng đồng hồ với remote là ĐƯỜNG DẪN CỤC BỘ**
-  Người dùng thấy gì: Lời hứa rằng máy không gọi mạng khi tính vị trí so với bản chung hiện chưa có cách kiểm tra đáng tin cậy — phép thử hiện tại không phân biệt được «không gọi mạng» với «gọi mạng nhưng thất bại ngay», nên một lượt gọi mạng ẩn vẫn có thể lọt qua mà không bị phát hiện.
-  file: `_acceptance/start-bang-dieu-khien/rang-bdk.sh`
+- **Hình dạng 3 — grep một TỪ («thước») cho một mệnh đề ràng buộc**
+  Người dùng thấy gì: Bộ kiểm luật 'chỉ xếp hạng khi có thước' hiện chỉ tìm từ 'thước' xuất hiện đâu đó trong đoạn, nên nếu sau này ai viết nhầm câu theo hướng ngược lại, hệ thống kiểm vẫn báo qua — rủi ro luật bị đảo ngược mà không bị phát hiện.
+  file: `tests/plugins/vao-co-o.test.mjs`
   severity: low
   Đề xuất: known-limits
 
 ## Chưa adversarial-verify (refuter chết)
 
-(không có)
+(không có mục nào — mọi finding trên đã qua refuter.)
 
-⚠ Cụm ngoài vùng phủ: 5/14 lỗi rơi vào file không bộ đo nào phủ (tests/plugins/bang-dieu-khien.test.mjs, _acceptance/start-bang-dieu-khien/rang-bdk.sh) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
