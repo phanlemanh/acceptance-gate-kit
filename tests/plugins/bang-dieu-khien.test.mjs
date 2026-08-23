@@ -19,7 +19,7 @@ let failures = 0;
 // MỘT nguồn danh sách ca: file này. `--ids` in ra để run-tests.sh lặp theo, không chép tay.
 // Chỉ liệt ca ĐÃ CÓ THÂN: khai một id chưa dựng thì `--ids` làm suite đỏ, không
 // xanh im lặng. BDK3/BDK4 thêm cùng lượt với thân của chúng.
-const ALL_IDS = ['BDK1', 'BDK2'];
+const ALL_IDS = ['BDK1', 'BDK2', 'BDK3', 'BDK4'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.BDK_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const ran = new Set();
@@ -138,6 +138,61 @@ if (want('BDK1')) {
     errs.push('start.md mất điều khoản MỘT câu hỏi — thẻ dài hơn không được sinh lượt gọi người mới');
   if (errs.length) fail('BDK1', errs.join(' · '));
   else pass('BDK1', `thẻ in ${n} việc vừa xong có ngày · nêu tên hồ sơ veto-mở · nói khi cây sau bản chung · không cắm skill hội thoại · vẫn đúng MỘT câu hỏi`);
+}
+
+// ── BDK3: ổ cắm còn sống + §9.1 đã TRỪ + câu phủ định ở lối (a) ─────────────
+if (want('BDK3')) {
+  const errs = [];
+  // Ổ cắm đo bằng QUAN HỆ, không hash khối mã: hash làm mọi lần format lại hay
+  // đổi tên biến đỏ vĩnh viễn trong suite chung dù ổ cắm không đổi một chữ nghĩa.
+  // Ba hình dạng config -> ba kết quả, chứng đường fallback vẫn sống và không chặn.
+  for (const [ten, cfg, mong] of [
+    ['khoá VẮNG', 'schema_version: 1\n', null],
+    ['khoá khai tên skill hợp lệ', 'schema_version: 1\ndiscovery:\n  brainstorm_skill: mot-skill\n', 'mot-skill'],
+    ['khoá khai plugin:skill', 'schema_version: 1\ndiscovery:\n  brainstorm_skill: pl:sk\n', 'pl:sk'],
+    ['khoá khai phi-scalar', 'schema_version: 1\ndiscovery:\n  brainstorm_skill: [a, b]\n', null],
+  ]) {
+    const r = tmp(); W(r, '_acceptance/config.yaml', cfg);
+    const j = scan(r);
+    const got = (j.discovery || {}).brainstormSkill;
+    if (got !== mong) errs.push(`ổ cắm ${ten}: được ${JSON.stringify(got)}, mong ${JSON.stringify(mong)}`);
+    // vắng/không giải được KHÔNG được thành cờ đỏ hay hồ sơ hỏng — đường fallback phải sống
+    if (mong === null && (j.broken || []).length)
+      errs.push(`ổ cắm ${ten} sinh broken[] — đường fallback phải im lặng, không chặn`);
+  }
+  const seed = readFileSync(path.join(ROOT, 'docs/plans/2026-08-21-hat-giong-vao-co-o-ra-co-ten.md'), 'utf8');
+  if (!/###\s*9\.1[^\n]*ĐÃ TRỪ/.test(seed)) errs.push('§9.1 của hạt giống chưa mang dấu vết TRỪ');
+  if (!/Ổ cắm `discovery\.brainstorm_skill` GIỮ NGUYÊN/.test(seed)) errs.push('§9.1 không nói rõ ổ cắm giữ nguyên');
+  const md = readFileSync(START_MD, 'utf8');
+  const iA = md.indexOf('(a) ý còn mơ hồ'), iB = md.indexOf('(b)', iA);
+  const loiA = iA > -1 && iB > iA ? md.slice(iA, iB) : '';
+  if (!/KHÔNG cắm skill hội thoại mở/.test(loiA))
+    errs.push('câu phủ định không nằm TRONG lối (a) — đặt chỗ khác thì người đi lối (a) không đọc được');
+  if (!/superpowers:brainstorming/.test(loiA)) errs.push('lối (a) mất câu đã có về superpowers:brainstorming');
+  if (errs.length) fail('BDK3', errs.join(' · '));
+  else pass('BDK3', 'ổ cắm 4 hình dạng đúng + fallback không chặn · §9.1 TRỪ có dấu vết, ổ cắm giữ nguyên · câu phủ định nằm trong lối (a)');
+}
+
+// ── BDK4: ba thân cổng in bước kế ───────────────────────────────────────────
+if (want('BDK4')) {
+  const errs = [];
+  for (const [rel, ten, re] of [
+    ['commands/approve.md', 'bước kế S2', /Bước kế: máy lập kế hoạch thi công \(S2\)/],
+    ['commands/signoff.md', 'bước kế S5', /Bước kế: bàn giao \(S5\)/],
+    ['commands/acceptance-card.md', 'hai lệnh ký', /`\/acceptance-gate:approve <slug>`[\s\S]{0,200}`\/acceptance-gate:signoff <slug>`/],
+  ]) {
+    const txt = readFileSync(path.join(ROOT, rel), 'utf8');
+    if (!re.test(txt)) errs.push(`${rel} thiếu «${ten}»`);
+  }
+  // signoff phải nói CẢ HAI ngả của Vòng TRAO — có hồ sơ cơ hội thì còn một cổng nữa
+  const so = readFileSync(path.join(ROOT, 'commands/signoff.md'), 'utf8');
+  if (!/acceptance-gate:uat-session <slug>/.test(so)) errs.push('signoff.md không nêu phiên nghiệm thu cho vòng có hồ sơ cơ hội');
+  if (!/không hồ\s*\n?\s*sơ cơ hội nên ship thẳng/.test(so)) errs.push('signoff.md không nêu ngả không có hồ sơ cơ hội');
+  // Vũ trụ quét dạng-lệnh GIỮ 16: ba thân cổng đã nằm trong đó từ chip D
+  const lb = readFileSync(path.join(ROOT, 'tests/plugins/lenh-bam-duoc.test.mjs'), 'utf8');
+  if (!/FILES\.length !== 16/.test(lb)) errs.push('hằng vũ trụ quét dạng-lệnh không còn là 16 — ba thân cổng đã nằm trong đó, đừng nới');
+  if (errs.length) fail('BDK4', errs.join(' · '));
+  else pass('BDK4', 'ba thân cổng in bước kế (S2 · S5 · hai lệnh ký), hai ngả Vòng TRAO, vũ trụ quét giữ 16');
 }
 
 // BDK_CASES nêu id không tồn tại → không được xanh im lặng (xanh-không-chạy)

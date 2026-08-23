@@ -129,7 +129,12 @@ Steps:
      Gate-1 record. Add `PRODUCT-MAP.md` to that commit ONLY if you regenerated
      it above; a repo that has not opted in has no such file, and naming it in
      `git add` fails the whole command mid-ritual.
-6. **"Not now" / rejected** → the contract stays `draft`; capture the reason in
+6. **Bước kế — in ra, đừng để người tự đoán.** Sau khi commit, in đúng một
+   dòng: «Đã duyệt phạm vi. Bước kế: máy lập kế hoạch thi công (S2) rồi viết
+   code — không có chốt nào cần anh ở đoạn đó. Vòng chạy tiếp bằng
+   `/feature-loop:feature-loop <slug>`.» Đường `/acceptance-gate:start` → chọn
+   cổng → thẻ → ký dừng ở đây nếu không nói ra động từ kế tiếp.
+7. **"Not now" / rejected** → the contract stays `draft`; capture the reason in
    chat; write nothing to gate fields.
 
 Never:
