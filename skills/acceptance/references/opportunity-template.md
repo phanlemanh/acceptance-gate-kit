@@ -54,6 +54,18 @@ prototype:
 > Hai đồng hồ của prototype: giờ-dựng (quá timebox = đang build sản phẩm) và
 > giờ-chờ-tín-hiệu (số không về sau timebox tự nó là tín hiệu).
 
+> Máy ĐƯỢC đề xuất ngưỡng khi kết buổi khai thác — mỗi bullet mang tiền tố dưới đây ngay
+> sau dấu `:`; người ký Cổng Đáng gỡ tiền tố = chốt. Ý còn mờ thật thì giữ `…`.
+<!-- <<<OPP-DE-XUAT-PREFIX -->
+[đề xuất]
+<!-- OPP-DE-XUAT-PREFIX>>> -->
+> Vòng KHÔNG có người dùng cuối (việc nội bộ của bộ công cụ) → thay các bullet bằng MỘT dòng
+> theo tiền tố dưới đây kèm lý do, khai TẠI Cổng Đáng. Khai sau khi đã làm xong là mọi kết
+> quả tự biện minh — đó là đường lách, không phải lối ra.
+<!-- <<<OPP-KHONG-DO-DUOC-PREFIX -->
+Không đo được —
+<!-- OPP-KHONG-DO-DUOC-PREFIX>>> -->
+
 - Câu hỏi phép đo trả lời: …
 - Kết quả nào là SỐNG: …
 - Kết quả nào là CHẾT: …

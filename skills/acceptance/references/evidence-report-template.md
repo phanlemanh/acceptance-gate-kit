@@ -132,6 +132,18 @@ verified_commit: {{git rev-parse HEAD at verify time}}   # pins the evidence to 
 human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER review
 ---
 
+<!-- Sáu điều kiện xanh-sạch — NGUỒN DUY NHẤT. scripts/khong-can-nguoi.mjs (xanhSach) và
+     scripts/pre-merge-check.sh (xanh_sach_check) kiểm ĐÚNG thứ tự này; ca RT1 so round-trip
+     ba đầu. Hai mục cuối phải HIỆN DIỆN-và-rỗng trong báo cáo: vắng ≠ rỗng. -->
+<!-- <<<EVIDENCE-XANH-SACH-BLOCK -->
+verdict-pass   verdict: PASS (chỉ PASS mới xanh-sạch)
+bypass         bypass_used không true
+enforcement    enforcement_mode không off
+tier           risk_tier của hợp đồng là T2
+uncertain      không có mục UNCERTAIN trong báo cáo
+sections       hai mục «Known limits» và «Ngoài hợp đồng» hiện diện và rỗng
+<!-- EVIDENCE-XANH-SACH-BLOCK>>> -->
+
 # Evidence Report: {{slug}}
 
 | Eval | Criterion | Executor | Verdict |
