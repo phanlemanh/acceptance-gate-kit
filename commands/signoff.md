@@ -161,6 +161,13 @@ Steps:
    plugin's copy. Where write-time hooks are not active, also run
    `recheck-evidence.cjs`. Report READY TO MERGE or the exact violations.
 
+9. **Bước kế — in ra, đừng để người tự đoán.** Sau khi báo READY TO MERGE, in
+   đúng một dòng: «Đã ký bằng chứng. Bước kế: bàn giao (S5) — mở PR theo quy
+   trình repo.» Hồ sơ có `opportunity.md` (vòng đi từ Cổng Đáng) thì thêm: «sau
+   khi giao còn một cổng nữa — phiên nghiệm thu:
+   `/acceptance-gate:uat-session <slug>`.» Không có `opportunity.md` → «không hồ
+   sơ cơ hội nên ship thẳng, vòng đóng.»
+
 Never:
 - invent a verdict, or guess a name/date beyond the identity ladder
   declared above (that ladder is the ONLY legal inference, and it always

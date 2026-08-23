@@ -67,7 +67,10 @@ if (want('VC1')) {
   const c = (j.groups.considering || []).find(x => x.slug === 'w-idea');
   if (!c) errs.push(`w-idea không ở considering[] (broken=${JSON.stringify(j.broken)})`);
   else {
-    if (Object.keys(c).sort().join(',') !== 'ageDays,name,since,slug') errs.push(`khoá lệch: ${Object.keys(c).join(',')}`);
+    // Ghim tập khoá CHÍNH XÁC (một khoá lạ lọt vào vẫn đỏ). Ba khoá stateKey/
+    // label/viecKe thêm ở hồ sơ start-bang-dieu-khien — chữ mặt người rút từ bảng chung;
+    // ageTied: mấy ý sinh cùng một commit mang cùng dấu thời gian, thẻ phải nói «chưa rõ tuổi».
+    if (Object.keys(c).sort().join(',') !== 'ageDays,ageTied,label,name,since,slug,stateKey,viecKe') errs.push(`khoá lệch: ${Object.keys(c).join(',')}`);
     if (c.name !== 'Ý w-idea') errs.push(`name ≠ feature: ${c.name}`);
   }
   if (slugsIn(j.groups.gates).includes('w-idea')) errs.push('w-idea vẫn ở gates[]');
@@ -163,8 +166,24 @@ if (want('VC6')) {
   if (!hk) errs.push('không tìm thấy khối START-HIEU-KET');
   if (cn && hk) {
     // START-CAN-NHAC: 4 assert (3 chuỗi + vị trí)
-    for (const [name, re] of [['Đang cân nhắc', /Đang cân nhắc/], ['cũ nhất', /cũ nhất/], ['N = 0 không in', /N = 0 → KHÔNG in/]])
+    // Đo MỆNH ĐỀ DƯƠNG + một KHOÁ máy-đọc, không đo danh sách đen: không gian chữ
+    // là mở nên «tối đa ba» viết bằng CHỮ lọt qua mọi regex bắt chữ số. Khoá
+    // `giới hạn: không` là nguồn; văn xuôi quanh nó là chú thích (hồ sơ
+    // start-bang-dieu-khien, AC-1).
+    for (const [name, re] of [['Đang cân nhắc', /Đang cân nhắc/],
+                              // HAI vế RIÊNG, không dùng phép hoặc: `/cũ nhất|chưa rõ tuổi/`
+                              // được thoả sẵn bởi vế đầu (khối vẫn còn «cũ nhất X ngày»),
+                              // nên vế «chưa rõ tuổi» không bao giờ đỏ được — phép đo chết.
+                              ['tuổi thường (cũ nhất X ngày)', /cũ nhất/],
+                              ['nhánh tuổi trùng (chưa rõ tuổi)', /chưa rõ tuổi/],
+                              ['khoá ageTied dẫn nhánh đó', /`ageTied`/],
+                              ['N = 0 không in', /N = 0 → KHÔNG in/],
+                              ['in mọi phần tử', /\*\*mọi\*\* `name`/],
+                              ['thước khai trước', /thước/]])
       if (!re.test(cn)) errs.push(`START-CAN-NHAC thiếu «${name}»`);
+    const gh = (cn.match(/`giới hạn: ([^`]*)`/) || [])[1];
+    if (gh === undefined) errs.push('START-CAN-NHAC thiếu khoá máy-đọc `giới hạn: …`');
+    else if (gh.trim() !== 'không') errs.push(`giới hạn phải là «không», đang là «${gh.trim()}»`);
     const iDo = md.indexOf('**Đang dở**'), iCn = md.indexOf('<<<START-CAN-NHAC'), iNew = md.indexOf('**Bắt đầu việc mới**');
     if (!(iDo > -1 && iDo < iCn && iCn < iNew)) errs.push('START-CAN-NHAC không nằm sau «Đang dở» trước «Bắt đầu việc mới»');
     // START-HIEU-KET: ma trận 6 mệnh đề VIẾT TRƯỚC — số assert == số mệnh đề

@@ -29,6 +29,10 @@ const { recordProblem, navValues, consumedTexts, usesUat, usesOpportunity, usesE
   require(path.join(__dirname, '..', 'lib', 'workspace-record.cjs'));
 
 export { NAV_RULES };
+// Ô của bản đồ suy qua PHÉP CHIẾU nhiều-về-một của bảng chữ chung — cùng nguồn
+// với máy quét và thẻ cổng. Bản đồ vẫn KHÔNG mang vị từ: chiếu chỉ đổi ĐƯỜNG ĐI
+// TỚI ô, không đổi TÊN ô (hồ sơ start-bang-dieu-khien, AC-7).
+const { BUCKET_OF } = require(path.join(__dirname, 'trang-thai-ho-so.cjs'));
 
 // Tên ô nói VIỆC ĐANG Ở ĐÂU, không gọi tên cơ chế máy (N1). Thứ tự cố định —
 // nó cũng là thứ tự các chặng trong hình.
@@ -165,21 +169,26 @@ function classify(dir, slug) {
   const { status, stage, decision, verdict } = navValues(texts);
   if (verdict) return { key: 'da-nghiem-thu', slug, name, edge, note: UAT_KET_CUC[verdict] };
 
+  // Khoá trạng thái trước, ô bản đồ suy từ nó qua BUCKET_OF — thay vì tự map
+  // status sang ô. Bucket vẫn THÔ như cũ (approved/implemented/verified gộp một
+  // nhãn) vì phép chiếu gom chúng lại, nên bản đồ vẫn đứng yên giữa hai lần
+  // đóng cổng người và `--check` không đỏ oan giữa vòng.
+  const o = k => ({ key: BUCKET_OF[k], slug, name, edge });
   if (status) {
     if (status === 'signed-off') {
       // Đường A (cơ hội quyết build/iterate) còn một cổng người nữa: phiên
       // nghiệm thu. Đường B/C/E ship thẳng — không dựng phiên giả cho chúng.
       const duongA = decision === 'build' || decision === 'iterate';
-      return { key: duongA ? 'cho-nghiem-thu' : 'da-ship', slug, name, edge };
+      return o(duongA ? 'cho-cong-gia-tri' : 'da-giao');
     }
-    if (status === 'draft') return { key: 'cho-duyet', slug, name, edge };
-    return { key: 'dang-dung', slug, name, edge };
+    if (status === 'draft') return o('cho-cong-pham-vi');
+    return o('dang-viet-code');
   }
 
-  if (stage !== 'decided' || !decision) return { key: 'can-nhac', slug, name, edge };
-  if (decision === 'build' || decision === 'iterate') return { key: 'sap-mo', slug, name, edge };
-  if (decision === 'park') return { key: 'xep-lai', slug, name, edge };
-  return { key: 'da-bac', slug, name, edge };
+  if (stage !== 'decided' || !decision) return o('y-can-nhac');
+  if (decision === 'build' || decision === 'iterate') return o('sap-mo-vong');
+  if (decision === 'park') return o('xep-lai');
+  return o('da-bac');
 }
 
 export function renderProductMap(root) {

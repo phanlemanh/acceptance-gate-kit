@@ -11,27 +11,35 @@ Lệnh này KHÔNG nằm trong ba lệnh có-câu-gộp (bảng trạng thái re
 không có câu hỏi cổng nào để gộp); phần áp dụng ở đây là cờ `--repo <path>`:
 quét `<path>/_acceptance/` thay vì thư mục hiện tại.
 
-Scan `_acceptance/*/contract.md` in the current repository (or under
-`--repo <path>` when given) and print a status
-table. For each feature directory (skip `config.yaml` and `README.md`):
+Print a status table for every feature in this repository (or under
+`--repo <path>` when given):
 
-1. Parse contract frontmatter: `slug`, `risk_tier`, `status`.
-2. If `evidence-report.md` exists, parse: `verdict`, `human_signoff`.
-3. **Nạp luật TRƯỚC khi viết:** đọc `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/human-facing-language.md`
+1. **Quét máy, không tự đọc hồ sơ:** chạy
+   `node ${CLAUDE_PLUGIN_ROOT}/scripts/start-scan.mjs --root .` (hoặc
+   `--root <path>` khi có `--repo`) → JSON một dòng. Đây là bộ PHÂN Ô DUY NHẤT
+   của kit; lệnh này KHÔNG tự parse frontmatter và KHÔNG tự phán trạng thái.
+   Trước đây nó đọc lấy rồi tự chế chữ, nên cùng một hồ sơ mà nó nói «Chờ người
+   ký» trong khi lưới trước-merge và máy quét nói «máy đi tiếp, không mời ký».
+   `config` là `false` → in đúng một dòng gợi ý `/acceptance-gate:acceptance-init` rồi DỪNG.
+2. **Nạp luật TRƯỚC khi viết:** đọc `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/human-facing-language.md`
    (sáu luật N1–N6, hai phép thử, khuôn trình bày) TRƯỚC khi viết bất kỳ câu nào
    sẽ hiện cho người.
-4. Print:
+3. Print — mỗi phần tử của `groups.gates` / `groups.inProgress` /
+   `groups.considering` / `groups.done` / `broken` một hàng. Cột **Tình trạng**
+   in `label` NGUYÊN VĂN, cột **Việc kế** in `viecKe` NGUYÊN VĂN; không diễn
+   đạt lại, không rút gọn, không tự chế chuỗi nào:
 
-| Slug | Tier | Contract status | Verdict | Signoff |
-|---|---|---|---|---|
-| login-flow | T2 | verified | PASS | — |
+| Việc | Hạng | Tình trạng | Việc kế |
+|---|---|---|---|
+| login-flow | T2 | chờ chữ ký — Cổng Bằng chứng | người: đọc bằng chứng rồi ký |
 
-5. Dưới bảng, nêu việc cần làm — mỗi dòng một ý, tên trường máy để trong ngoặc:
-   - `draft` → "Chờ người duyệt bộ tiêu chí trước khi code"
-   - `approved`, chưa có báo cáo bằng chứng → "Chờ code"
-   - `implemented`, chưa có báo cáo bằng chứng → "Code xong rồi, chưa ai chấm — chạy bước nghiệm thu (Phase 3 của skill acceptance)"
-   - PASS, chưa có chữ ký → "Chờ người ký sau khi đọc bằng chứng"
-   - PENDING-JUDGMENT → "Chờ người phán các mục cần quyết nghiệp vụ, rồi nâng lên đạt (điền `human_override`)"
-   - REJECT → "Cần sửa code — xem danh sách phép đo đã trượt (`failed_evals`)"
-   - BLOCKED → "Môi trường hỏng, chưa chấm được — xem lý do"
-6. If `_acceptance/` does not exist → suggest `/acceptance-gate:acceptance-init`.
+4. `vetoOpen` có phần tử → dưới bảng in TÊN từng hồ sơ còn cửa veto mở; đây là
+   cùng con số lưới trước-merge in ra.
+5. **Mọi nhãn trạng thái đến từ `label`/`viecKe` của máy quét.** Khối dưới đây
+   cố ý RỖNG: thêm một chuỗi vào đó là khai một nhãn TỰ CHẾ, và phép đo đòi mọi
+   nhãn khai ở đây phải nằm trong bảng `scripts/trang-thai-ho-so.cjs` — không
+   thì đỏ nêu đích danh nhãn. Danh sách cấm không đủ: không gian chữ là mở nên
+   cấm «Chờ người ký» thì bên viết đặt «Đợi chữ ký» và ca vẫn xanh.
+
+<!-- <<<STATUS-NHAN
+STATUS-NHAN>>> -->
