@@ -3,13 +3,13 @@ schema_version: 1
 slug: dac-ta-ux-vat-hoa-cau-truc
 feature: Bản đặc tả UX — vật hoá tầng cấu trúc (luồng · màn · trạng thái · hành vi) thành một khuôn có đánh dấu trong design-doc; hình tầng 1 và phép đo S4 sinh từ cùng khuôn đó
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-08-23T03:47:20Z     # ISO UTC
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
-  disposition:     # keep | archive
+  disposition: archive     # keep | archive
 ---
 
 ## Vấn đề & ai gặp
@@ -51,10 +51,10 @@ Chưa dựng. Ván thử tự nhiên = feature chạm UI kế tiếp ở repo ti
 
 ## Cổng 0
 
-- **decision = …** Căn cứ: …
-- **disposition = …** Căn cứ: ô này không có prototype code trong kit (đổi lời design-doc + một phép đo; ván thử ở repo tiêu thụ) — …
+- **decision = build** Căn cứ: trace về hai nguyên tố — «ý định chốt trước khi làm» (cấu trúc là tầng chỉ owner biết «đúng», hôm nay owner thấy nó lần đầu khi đã thành code) và «bằng chứng không tự dối» (bảng trạng thái khai trước ↔ phép đo trạng thái S4 khớp vòng, chiều đỏ thử bằng mutant); người hưởng cụ thể là owner (duyệt cấu trúc lúc sửa còn rẻ) và máy (có khuôn thay vì phát minh lại mỗi feature). Không CỘNG bộ phận: không skill mới, không bề mặt mới — một section trong design-doc + một phép đo vào lưới sẵn có. Ô anh em `design-pass-nac-khong-dong-bo` đã ký build 22/08 với con trỏ bậc 1 trỏ thẳng vào vật này (bước phân kỳ mở từ bản đặc tả UX khi ô này ship), nên gác lại là trả giá bằng làm-lại ở ô kia. Rủi ro «chưa có ván thử» chặn bằng timebox 30/09 → park. Ký 2026-08-23, Manh Phan.
+- **disposition = archive** Căn cứ: ô này không có prototype code trong kit (đổi lời design-doc + một phép đo; ván thử ở repo tiêu thụ) — không có gì để giữ; không có Bảng nợ kế thừa, không guard diffBase.
 - **Phiên nghiệm thu ở đâu:** ván thử kế ở repo tiêu thụ, chung ván với ô design-pass — số đo là các thước dưới.
-- **Ngưỡng UAT chốt cùng lúc ký:** …
+- **Ngưỡng UAT chốt cùng lúc ký:** chép nguyên bốn dòng của section «Ngưỡng chết / ngưỡng UAT» — câu hỏi: trên MỘT feature chạm UI ở repo tiêu thụ, máy có khai cấu trúc trong khuôn có đánh dấu TRƯỚC khi ai nhìn và owner có quyết được cấu trúc trên hình vẽ từ khuôn đó · SỐNG: khuôn điền đủ trước bước phân kỳ/ruột tạm và hình vẽ từ khuôn; làm lại cấu trúc sau Cổng Phạm vi = 0; bảng trạng thái ↔ phép đo S4 khớp vòng 100% (phá một trạng thái thì đỏ); 0 lần gọi owner để điền, khuôn ≤ 1 trang; feature không chạm UI 0 cờ · CHẾT: máy né khuôn bị veto ≥ 1 hoặc bỏ khuôn khi vội, HOẶC bảng trạng thái trôi khỏi phép đo mà lưới vẫn xanh, HOẶC owner duyệt trên hình rồi Cổng Phạm vi vẫn trả lại vì cấu trúc ≥ 1 · Timebox: hết ván thử kế, muộn nhất 2026-09-30 → park.
 
 ## Thước đo thành công → ứng viên criterion
 
