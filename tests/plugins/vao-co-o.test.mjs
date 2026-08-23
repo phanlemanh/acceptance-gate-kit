@@ -166,8 +166,19 @@ if (want('VC6')) {
   if (!hk) errs.push('không tìm thấy khối START-HIEU-KET');
   if (cn && hk) {
     // START-CAN-NHAC: 4 assert (3 chuỗi + vị trí)
-    for (const [name, re] of [['Đang cân nhắc', /Đang cân nhắc/], ['cũ nhất', /cũ nhất/], ['N = 0 không in', /N = 0 → KHÔNG in/]])
+    // Đo MỆNH ĐỀ DƯƠNG + một KHOÁ máy-đọc, không đo danh sách đen: không gian chữ
+    // là mở nên «tối đa ba» viết bằng CHỮ lọt qua mọi regex bắt chữ số. Khoá
+    // `giới hạn: không` là nguồn; văn xuôi quanh nó là chú thích (hồ sơ
+    // start-bang-dieu-khien, AC-1).
+    for (const [name, re] of [['Đang cân nhắc', /Đang cân nhắc/],
+                              ['tuổi (cũ nhất hoặc chưa rõ tuổi)', /cũ nhất|chưa rõ tuổi/],
+                              ['N = 0 không in', /N = 0 → KHÔNG in/],
+                              ['in mọi phần tử', /\*\*mọi\*\* `name`/],
+                              ['thước khai trước', /thước/]])
       if (!re.test(cn)) errs.push(`START-CAN-NHAC thiếu «${name}»`);
+    const gh = (cn.match(/`giới hạn: ([^`]*)`/) || [])[1];
+    if (gh === undefined) errs.push('START-CAN-NHAC thiếu khoá máy-đọc `giới hạn: …`');
+    else if (gh.trim() !== 'không') errs.push(`giới hạn phải là «không», đang là «${gh.trim()}»`);
     const iDo = md.indexOf('**Đang dở**'), iCn = md.indexOf('<<<START-CAN-NHAC'), iNew = md.indexOf('**Bắt đầu việc mới**');
     if (!(iDo > -1 && iDo < iCn && iCn < iNew)) errs.push('START-CAN-NHAC không nằm sau «Đang dở» trước «Bắt đầu việc mới»');
     // START-HIEU-KET: ma trận 6 mệnh đề VIẾT TRƯỚC — số assert == số mệnh đề

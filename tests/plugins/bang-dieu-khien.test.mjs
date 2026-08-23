@@ -17,7 +17,9 @@ const require = createRequire(import.meta.url);
 
 let failures = 0;
 // MỘT nguồn danh sách ca: file này. `--ids` in ra để run-tests.sh lặp theo, không chép tay.
-const ALL_IDS = ['BDK1', 'BDK2', 'BDK3', 'BDK4'];
+// Chỉ liệt ca ĐÃ CÓ THÂN: khai một id chưa dựng thì `--ids` làm suite đỏ, không
+// xanh im lặng. BDK3/BDK4 thêm cùng lượt với thân của chúng.
+const ALL_IDS = ['BDK1', 'BDK2'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.BDK_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const ran = new Set();
@@ -95,11 +97,47 @@ if (want('BDK2')) {
       const hop = new Set(Object.values(BANG.TRANG_THAI).flatMap(c => [c.nhan, c.viecKe]));
       for (const n of nhan) if (!hop.has(n)) errs.push(`nhãn ngoài bảng: ${n}`);
     }
-    if (/Chờ người ký|Chờ code|Phase 3 của skill/.test(md))
-      errs.push('acceptance-status.md còn danh sách if tự chế chữ');
+    // Danh sách đen theo TỪ bắt oan chính câu giải thích vì sao không dùng danh
+    // sách đen. Đo hai thứ thật thay vào đó:
+    //   (1) DẤU HIỆU CẤU TRÚC của danh sách if cũ — bullet ánh xạ một status máy
+    //       sang một chuỗi viết tay. Đo quan hệ, không đo từ vựng.
+    //   (2) MỆNH ĐỀ DƯƠNG — file phải gọi máy quét và phải dặn in nguyên văn.
+    const ifList = [...md.matchAll(/^\s*-\s*`(draft|approved|implemented|verified|signed-off)`[^\n]*→\s*"/gm)];
+    if (ifList.length) errs.push(`acceptance-status.md còn danh sách if tự chế chữ (${ifList.length} dòng, vd \`${ifList[0][1]}\`)`);
+    if (!/start-scan\.mjs/.test(md)) errs.push('acceptance-status.md không gọi máy quét');
+    for (const [ten, re] of [['in label nguyên văn', /`label` NGUYÊN VĂN/],
+                             ['in viecKe nguyên văn', /`viecKe` NGUYÊN VĂN/]])
+      if (!re.test(md)) errs.push(`acceptance-status.md thiếu «${ten}»`);
   }
   if (errs.length) fail('BDK2', errs.join(' · '));
   else pass('BDK2', 'bảng 20 khoá (ma trận toàn phần, hai vế độc lập) · máy quét rút chữ từ bảng · nhãn bảng trạng thái theo allowlist · khoá lạ chết to');
+}
+
+// ── BDK1: thân lệnh mở phiên — nêu tên, nói ngày, nói khi cây lệch ───────────
+if (want('BDK1')) {
+  const errs = [];
+  const md = readFileSync(START_MD, 'utf8');
+  // N việc vừa xong phải khai TƯỜNG MINH bằng số trong chính thân lệnh — không
+  // để model tự chọn, không giấu con số trong văn xuôi.
+  const n = (md.match(/in \*\*(\d+) việc\*\* có `at` mới nhất/) || [])[1];
+  if (!n) errs.push('thân lệnh không khai tường minh số việc vừa xong');
+  else if (Number(n) < 1) errs.push(`số việc vừa xong phải ≥ 1, đang ${n}`);
+  for (const [ten, re] of [
+    ['dòng «vừa xong» mỗi việc một dòng', /mỗi việc MỘT dòng: `at` · `label`/],
+    ['at null → «chưa rõ ngày», không bỏ dòng', /chưa rõ ngày.*KHÔNG bỏ dòng/s],
+    ['nêu TÊN từng hồ sơ veto-mở', /`vetoOpen` có phần tử → in \*\*TÊN từng hồ sơ\*\*/],
+    ['cùng con số lưới trước-merge in', /cùng con số lưới trước-merge/],
+    ['dòng cây sau bản chung', /`git\.behind` > 0 → «cây này\n?\s*đang sau bản chung/],
+    ['compareRef null → chưa biết, không nói đã khớp', /chưa so được với bản\n?\s*chung.*ĐỪNG nói là đã khớp/s],
+    ['behind 0 → không in dòng nào', /`behind` là 0 → không in dòng nào/],
+    ['không cắm skill hội thoại mở', /KHÔNG cắm skill hội thoại mở vào bước này/],
+    ['ổ cắm giữ nguyên', /`discovery\.brainstorm_skill` vẫn giữ nguyên/],
+  ]) if (!re.test(md)) errs.push(`start.md thiếu «${ten}»`);
+  // Thẻ dài hơn KHÔNG được sinh câu hỏi thứ hai (ngưỡng: 0 lượt gọi người thêm)
+  if (!/MỘT câu hỏi chọn bằng chữ cái\/số dòng\*\* — không hỏi câu thứ hai/.test(md))
+    errs.push('start.md mất điều khoản MỘT câu hỏi — thẻ dài hơn không được sinh lượt gọi người mới');
+  if (errs.length) fail('BDK1', errs.join(' · '));
+  else pass('BDK1', `thẻ in ${n} việc vừa xong có ngày · nêu tên hồ sơ veto-mở · nói khi cây sau bản chung · không cắm skill hội thoại · vẫn đúng MỘT câu hỏi`);
 }
 
 // BDK_CASES nêu id không tồn tại → không được xanh im lặng (xanh-không-chạy)

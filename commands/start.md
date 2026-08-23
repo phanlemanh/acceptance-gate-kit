@@ -61,9 +61,15 @@ worktree/nhánh đọc từ git của `<path>`.
    <!-- <<<START-CAN-NHAC -->
    - **Đang cân nhắc** (`groups.considering` — ý đã có ô nhưng chưa điền ngưỡng,
      nên chưa có gì để ký; máy không xếp vào chờ chữ ký): N = 0 → KHÔNG in dòng
-     nào. N ≥ 1 → đúng MỘT dòng «Đang cân nhắc: N ý · cũ nhất X ngày» (X =
-     `ageDays` lớn nhất) rồi tối đa 3 `name` cũ nhất (script đã xếp cũ nhất lên
-     đầu). Chọn một ý → việc kế là điền section Ngưỡng trong `opportunity.md`
+     nào. N ≥ 1 → đúng MỘT dòng gộp «Đang cân nhắc: N ý · cũ nhất X ngày» (X =
+     `ageDays` lớn nhất) — nhưng phần tử nào mang `ageTied` là `true` thì thay
+     vế tuổi bằng «chưa rõ tuổi»: mấy ý sinh ra trong CÙNG một commit mang cùng
+     dấu thời gian, in nó thành tuổi là nói một con số không có thật. Rồi in
+     **mọi** `name` trong `groups.considering`, không cắt: `giới hạn: không`.
+     Máy CHỈ được xếp hạng hay cắt danh sách này khi chính ô đó đã khai **thước**
+     từ trước; chưa có thước thì hiện hết theo thứ tự cũ-nhất-trước, KHÔNG tự
+     chế tiêu chí — đây là bàn cược của người, máy không cược hộ.
+     Chọn một ý → việc kế là điền section Ngưỡng trong `opportunity.md`
      của nó; điền đủ là máy tự đưa sang chờ Cổng Đáng ở lần quét sau.
    <!-- START-CAN-NHAC>>> -->
    - **Bắt đầu việc mới** — đúng ba lối, không thêm lối nào. Kết buổi khai thác
@@ -93,7 +99,12 @@ worktree/nhánh đọc từ git của `<path>`.
      `<tên>`, phiên này không có skill đó") rồi khai thác theo khuôn, kết thúc theo `START-HIEU-KET` — đích khai
      mà không giải được thì im lặng dùng nó là đẩy phiên vào con trỏ chết. Trước Cổng Đáng
      KHÔNG dùng `superpowers:brainstorming` — skill đó thuộc S1 vòng LÀM, nó
-     trả lời "làm thế nào" trong khi buổi này hỏi "có làm không / làm gì"; (b)
+     trả lời "làm thế nào" trong khi buổi này hỏi "có làm không / làm gì".
+     Cũng KHÔNG cắm skill hội thoại mở vào bước này — mặc định của kit là máy
+     phân kỳ theo khuôn (quét không gian, đối chiếu nguồn, vẽ hình) rồi trình
+     MỘT câu đóng; hỏi mở nhiều lượt kéo người vào giữa vòng, đúng thứ luật kit
+     gọi là đường cùng. Ổ cắm `discovery.brainstorm_skill` vẫn giữ nguyên cho
+     repo nào muốn tự khai — nó trung tính, kit không cắm sẵn ai vào đó; (b)
      việc đã rõ → `/feature-loop:feature-loop <mô tả>`; (c) việc vặt khớp miễn trừ T1 →
      xác nhận nó là T1 rồi KẾT THÚC `/acceptance-gate:start` — người ra lệnh sửa ở lượt kế,
      ngoài nghi thức này (lệnh `/acceptance-gate:start` không sửa gì, kể cả việc vặt).
@@ -110,6 +121,11 @@ worktree/nhánh đọc từ git của `<path>`.
      được bản đồ" (KHÔNG nói là khớp). Rồi mỗi phần tử
      `broken[]` một dòng cờ hỏng: việc nào, hồ sơ nào
      (`file`), vì sao (`reason`) — việc có hồ sơ hỏng vẫn phải hiện, không giấu.
+   - Cũng dưới thẻ, một dòng về cây đang làm việc: `git.behind` > 0 → «cây này
+     đang sau bản chung <behind> commit (so với `git.compareRef`) — thẻ có thể
+     đang in trạng thái cũ»; `git.compareRef` là `null` → «chưa so được với bản
+     chung nên chưa biết cây có cũ không» (ĐỪNG nói là đã khớp — chưa biết khác
+     hẳn đã khớp); `behind` là 0 → không in dòng nào.
    - `groups.done` chỉ đếm gộp một dòng cuối thẻ (đã xong/đã xếp lại: N việc).
      Hai trạng thái «máy đã đi tiếp, không cần chữ ký» — máy quét chỉ gán
      chúng khi hồ sơ trả lời được ĐÚNG câu lưới trước-merge hỏi (sáu điều kiện
@@ -119,9 +135,18 @@ worktree/nhánh đọc từ git của `<path>`.
      được, cửa không có hạn); `state: xanh-sach` là hồ sơ không có cửa veto —
      người đóng hoặc miễn Cổng 1, bằng chứng xanh-sạch. Cả hai KHÔNG phải cổng, KHÔNG được liệt vào nhóm chờ chữ ký; có
      phần tử như vậy thì dòng đếm gộp nói thêm «trong đó N máy đi tiếp không
-     ký, M còn cửa veto mở», không thêm dòng riêng và không hỏi thêm câu nào.
+     ký», không hỏi thêm câu nào.
      Hồ sơ CHƯA sạch thì máy quét vẫn xếp vào chờ chữ ký — kể cả khi cửa veto
      đang mở.
+   - **Vừa xong** — ngay dưới dòng đếm gộp, in **5 việc** có `at` mới nhất
+     (`groups.done`, xếp `at` giảm dần), mỗi việc MỘT dòng: `at` · `label` ·
+     tên việc. `at` là `null` → in «chưa rõ ngày», KHÔNG bỏ dòng và không đoán
+     mốc. Một con số gộp không cho người NHÌN THẤY máy vừa làm gì; vòng «máy
+     làm và tự chứng minh» chỉ đóng khi việc vừa xong có tên.
+   - **Còn veto được** — `vetoOpen` có phần tử → in **TÊN từng hồ sơ** (không
+     chỉ đếm), kèm một câu «người veto lúc nào cũng được, cửa không có hạn».
+     Đây là cùng con số lưới trước-merge in ra; veto-default chỉ sống nếu
+     người THẤY TÊN — không ai veto được thứ mình không thấy.
 
 4. **MỘT câu hỏi chọn bằng chữ cái/số dòng** — không hỏi câu thứ hai. Người
    chọn xong → bàn giao sang nghi thức đích:
