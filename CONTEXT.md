@@ -182,8 +182,8 @@ Trạng thái KẾT của làn V: máy qua Cổng Bằng chứng bằng sáu đi
 KHÔNG có chữ ký người; cửa veto vẫn mở theo `veto_state`. Lưới trước-merge coi
 nó là LỜI KHAI và đòi bằng chứng — máy không tự phong. Người ký sau vẫn được:
 `/signoff` đổi sang `signed-off` cùng lượt ghi chữ ký.
-_Avoid_: đã ký, đã duyệt (đó là chữ của người); in nó cùng chữ với `signed-off`
-ở bất kỳ mặt người nào.
+_Avoid_: gọi hồ sơ máy-thông là «đã ký» (đó là chữ của người); in nó cùng chữ
+với `signed-off` ở bất kỳ mặt người nào.
 
 ### Classification
 

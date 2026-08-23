@@ -499,7 +499,7 @@ if (want('RT6')) {
     ['fl hàng verified ghi trạng thái kết', FL, t => cut(t, /^\| `verified` \|/m, /\n/), /set `status: machine-cleared`/, 1],
     ['fl S4 nhánh PASS', FL, t => cut(t, /\(3\) set contract `status: verified`/, /→ Gate 2\./), /set thẳng `status: machine-cleared`/, 1],
     ['acceptance SKILL làn V', 'skills/acceptance/SKILL.md', t => cut(t, /^4b\. \*\*Cổng Bằng chứng xanh-sạch/m, /^5\./m), /`status: machine-cleared`/, 1],
-    ['CONTEXT term', 'CONTEXT.md', t => cut(t, /^\*\*Máy đã thông\*\*/m, /^\*\*|^### /m), /_Avoid_: đã ký/, 1],
+    ['CONTEXT term', 'CONTEXT.md', t => cut(t, /^\*\*Máy đã thông\*\*/m, /^\*\*|^### /m), /_Avoid_: gọi hồ sơ máy-thông là «đã ký»/, 1],
     ['acceptance-status hai trạng thái', 'commands/acceptance-status.md', t => t, /`machine-cleared` là máy đã thông/, 1],
     ['acceptance-report tách hai số', 'commands/acceptance-report.md', t => t, /`machine-cleared` \(máy đã thông, không chữ ký\)/, 1],
   ]);
@@ -555,7 +555,12 @@ if (want('RT10')) {
   });
   // Chiều đỏ: bản sao khuôn đổi chuỗi → khuôn và bên đọc lệch nhau, ca phải NÊU CẢ HAI.
   const t2 = tmp('rt10-'); const fake = path.join(t2, 'opportunity-template.md');
-  writeFileSync(fake, readFileSync(OPP_TPL, 'utf8').replace('Không đo được —', 'Khong do duoc —'));
+  // Tiêm vào ĐÚNG khối marker: khuôn còn nhắc chuỗi trong câu hướng dẫn, replace() thường
+  // ăn vào câu đó và khối vẫn nguyên — lệnh tiêm không đổi được dòng nào là ca chết.
+  const tplRaw = readFileSync(OPP_TPL, 'utf8');
+  const injected = tplRaw.replace(/(<<<OPP-KHONG-DO-DUOC-PREFIX -->\n)Không đo được —/, '$1Khong do duoc —');
+  if (injected === tplRaw) errs.push('lệnh tiêm KHÔNG đổi được dòng nào trong khối marker');
+  writeFileSync(fake, injected);
   const k2 = blockFromTemplate(fake, 'OPP-KHONG-DO-DUOC-PREFIX').trim();
   if (k2 === KHONG_DO) errs.push('bản sao khuôn đổi chuỗi mà bộ rút không thấy khác');
   else if (u.includes(k2)) errs.push(`chiều đỏ: uat-session mang chuỗi CŨ «${k2}» lẫn chuỗi khuôn «${KHONG_DO}»`);

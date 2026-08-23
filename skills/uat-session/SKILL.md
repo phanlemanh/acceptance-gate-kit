@@ -21,8 +21,8 @@ quyết định; đừng để người ký cảm thấy họ phải bảo vệ 
 - `_acceptance/<slug>/contract.md` có `status: signed-off` hoặc `machine-cleared`
   (máy đã thông — làn V xanh-sạch, không chữ ký người; lưới trước-merge đã kiểm
   lời khai đó, nên nó vào phiên ngang một hồ sơ đã ký).
-- `_acceptance/<slug>/opportunity.md` tồn tại và có ngưỡng UAT đã CHỐT tại
-  Cổng Đáng (section "Ngưỡng chết / ngưỡng UAT"): không còn `…`, và không còn
+- `_acceptance/<slug>/opportunity.md` tồn tại và có ngưỡng UAT đã chốt tại
+  Cổng Đáng (section "Ngưỡng chết / ngưỡng UAT"). «Đã chốt» = không còn `…`, và không còn
   tiền tố `[đề xuất]` — đề xuất của máy chưa phải ngưỡng của người.
   Ba ca không mở phiên, mỗi ca một câu, KHÔNG treo:
   - section có một dòng bắt đầu `Không đo được — ` → DỪNG một dòng: «ô này khai

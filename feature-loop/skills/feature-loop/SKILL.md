@@ -22,7 +22,7 @@ Nguồn sự thật duy nhất: frontmatter `status` trong `_acceptance/<slug>/c
 | `approved` | S2 PLAN; plan của slug đã tồn tại → S3 tiếp tục task chưa xong (T3: plan chưa duyệt → Gate 1.5 trước) |
 | `implemented` | S4 VERIFY |
 | `verified` | Xanh-sạch đủ SÁU điều kiện ∧ không chạm KHÓ-ĐẢO → set `status: machine-cleared` (ô kết có tên của làn V), commit phần máy viết, báo một dòng, đi tiếp S5 (KHÔNG mời ký). Thiếu một điều kiện, hoặc chạm khó-đảo → Gate 2 (trình gói evidence) |
-| `machine-cleared` | S5 SHIP — máy đã thông, không có chữ ký người; cửa veto theo `veto_state`. Người ký sau vẫn được: `/signoff` đổi sang `signed-off` cùng lượt ghi chữ ký |
+| `machine-cleared` | S5 SHIP — máy đã thông, không có chữ ký người; cửa veto theo `veto_state`. Người ký sau vẫn được: `/acceptance-gate:signoff` đổi sang `signed-off` cùng lượt ghi chữ ký |
 | `signed-off` | S5 SHIP |
 
 Resume: `/feature-loop:feature-loop <slug>` → đọc status, vào đúng hàng trong bảng. Luôn nói rõ cho user đang ở stage nào trước khi làm. Có `decisions.jsonl` → đọc (parse từng dòng, dòng hỏng bỏ qua + báo số lượng), tóm tắt "đã chốt: <id — decision>" cho user và KHÔNG lật lại các quyết định đó trừ khi đi nghi thức `supersedes` + human phê ở gate kế; file vắng → bỏ qua, không nhắc gì.

@@ -20,14 +20,14 @@ import { khongCanNguoi } from './khong-can-nguoi.mjs';
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const { frontmatterField, resolveConfigKey, machineClearedSignoffConflict } = require(path.join(__dirname, '..', 'lib', 'evidence-core.cjs'));
+const { frontmatterField, resolveConfigKey } = require(path.join(__dirname, '..', 'lib', 'evidence-core.cjs'));
 // Luật "hồ sơ nào được tiêu thụ" VÀ luật "field điều hướng có hợp lệ không"
 // đều sống MỘT chỗ, bản đồ sản phẩm dùng chung — hai bên đọc cùng hồ sơ không
 // được cho hai kết luận trái nhau. Kiểm tay lại ở đây là cách hai bên đã trôi
 // khỏi nhau ở r12 và r13 dù bảng enum đã gom xong từ r3.
 const { recordProblem, navValues, consumedTexts, usesOpportunity, readRecord, ioReason,
         configList, fieldProblem, missingArtifact, mapState, MAP_LABELS, mapTracked,
-        DA_THONG_CONG_2 } =
+        DA_THONG_CONG_2, conflictProblem } =
   require(path.join(__dirname, '..', 'lib', 'workspace-record.cjs'));
 
 // Argv hỏng CHẾT TO (exit 2), không âm thầm rơi về cwd: một cờ được KHAI mà
@@ -114,7 +114,9 @@ const git = (() => {
 // đọc nó. Đổi nghĩa một khoá đang có bên đọc chính là lớp bên-viết-và-bên-đọc-
 // trôi-khỏi-nhau mà hồ sơ này sinh ra để giết (ledger S2).
 const { chu } = require(path.join(__dirname, 'trang-thai-ho-so.cjs'));
-const g = (stateKey, obj) => ({ ...obj, stateKey, label: chu(stateKey).nhan, viecKe: chu(stateKey).viecKe });
+// `flags` LUÔN có mặt (mặc định rỗng): khoá lúc-có-lúc-không thì bản khai máy-đọc trong
+// thân lệnh không round-trip được với đầu ra, và bên đọc phải tự đoán undefined vs [].
+const g = (stateKey, obj) => ({ flags: [], ...obj, stateKey, label: chu(stateKey).nhan, viecKe: chu(stateKey).viecKe });
 
 const gates = [], inProgress = [], considering = [], done = [], broken = [];
 // CỬA VETO MỞ — mảng CẮT NGANG bốn nhóm, độc lập với việc slug rơi vào ô nào.
@@ -342,14 +344,15 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       const texts = consumedTexts({ contract: cTxt, opportunity: oTxt, uat: uTxt });
       const problem = recordProblem(texts);
       if (problem) { pushHong({ slug, ...problem }); continue; }
-      // «máy đã thông» tự khai KHÔNG có chữ ký người. Chữ ký nằm đó là hai sự thật cãi
-      // nhau — gọi hỏng, không im lặng xếp vào «đã giao» (hồ sơ ra-co-ten, AC-15).
+      // «máy đã thông» tự khai KHÔNG có chữ ký người: đòi file bằng chứng, và chữ ký nằm
+      // đó là hai sự thật cãi nhau. CẢ HAI luật hỏi LIB dùng chung — bản vá riêng ở đây
+      // là đúng hình dạng đã làm bộ quét và bản đồ trôi khỏi nhau (P123).
       if (status === 'machine-cleared') {
         const ev = readEvidence();
         if (!ev) continue;
-        if (!ev.exists) { pushHong({ slug, file: 'evidence-report.md', reason: 'status machine-cleared nhưng thiếu evidence-report.md' }); continue; }
-        const cf = machineClearedSignoffConflict(cTxt, ev.raw);
-        if (cf) { pushHong({ slug, file: 'evidence-report.md', reason: cf }); continue; }
+        const t2 = { 'contract.md': cTxt, 'evidence-report.md': ev.exists ? ev.raw : null };
+        const p2 = missingArtifact(t2) || conflictProblem(t2);
+        if (p2) { pushHong({ slug, ...p2 }); continue; }
       }
       const { decision, verdict } = navValues(texts);
       // verdict RỖNG = phiên đã dựng nhưng CHƯA ký → rơi xuống ô chờ-Cổng-Giá-trị

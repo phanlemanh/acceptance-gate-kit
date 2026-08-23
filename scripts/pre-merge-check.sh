@@ -21,7 +21,8 @@
 # GitHub Actions: --base "origin/$GITHUB_BASE_REF").
 #
 # For every feature in _acceptance/ whose contract has status
-# implemented|verified|signed-off|machine-cleared and risk_tier T2|T3:
+# implemented|verified|signed-off and risk_tier T2|T3:
+#   (machine-cleared — ô kết làn V — cũng đã arm, xem case bên dưới)
 #   - Gate 1 was recorded: approved_by non-empty, or gate1_skipped: true
 #     (the audited escape hatch — NOTEd, not blocked)
 #   - evidence-report.md must exist
@@ -393,7 +394,8 @@ claims_released() { # <dir> — 0 iff thư mục TỰ NHẬN đã qua cổng.
   # sót ca "khai signed-off mà không có evidence nào".
   if [ -f "$1/contract.md" ]; then
     case "$(fm_field "$1/contract.md" status)" in
-      implemented|verified|signed-off|machine-cleared) return 0 ;;
+      implemented|verified|signed-off) return 0 ;;
+      machine-cleared) return 0 ;;
     esac
   fi
   return 1
@@ -662,7 +664,8 @@ for dir in "$ACC"/*/; do
     continue
   fi
   case "$REQUIRED_FOR" in *"$tier"*) ;; *) continue ;; esac
-  # ── Hồ sơ CHƯA ARM cổng (status ngoài implemented/verified/signed-off/machine-cleared) ──
+  # ── Hồ sơ CHƯA ARM cổng (status ngoài implemented/verified/signed-off) ──
+  # (machine-cleared cũng đã arm — arm mới thêm ở case dưới, hồ sơ ra-co-ten)
   # Bản cũ `continue` im lặng ở đây — cửa thứ ba của lớp «PASS chưa ai phán»
   # (hai cửa đầu: không contract / thiếu field, xử ở trên). Vòng 4 hồ sơ
   # release-2-2-0 (18/08): status approved + evidence-report REJECT + chữ ký
@@ -678,7 +681,8 @@ for dir in "$ACC"/*/; do
   #       chấm.
   # Đặt SAU `case REQUIRED_FOR`: tier ngoài required_for vẫn im (ARM12).
   case "$status" in
-    implemented|verified|signed-off|machine-cleared) ;;
+    implemented|verified|signed-off) ;;
+    machine-cleared) ;;
     *)
       _arm_why=""
       if [ -f "$dir/evidence-report.md" ] && { [ "$DIFF_READY" -eq 0 ] || slug_in_diff "$slug"; }; then
@@ -687,7 +691,7 @@ for dir in "$ACC"/*/; do
         _arm_why="PR đổi code chịu cổng ($DIFF_GATED_FIRST…) mà hồ sơ trong PR chưa arm"
       fi
       if [ -n "$_arm_why" ]; then
-        echo "VIOLATION [$slug]: hồ sơ có bằng chứng nhưng status chưa arm cổng — status=$status; $_arm_why. Cổng chỉ chấm hồ sơ ở implemented/verified/signed-off/machine-cleared, hồ sơ này đang tàng hình. Đặt status: implemented để cổng chấm, hoặc gỡ evidence-report.md / tách hồ sơ khỏi PR nếu bằng chứng thuộc phạm vi đã bỏ."
+        echo "VIOLATION [$slug]: hồ sơ có bằng chứng nhưng status chưa arm cổng — status=$status; $_arm_why. Cổng chỉ chấm hồ sơ ở implemented/verified/signed-off, hồ sơ này đang tàng hình. Đặt status: implemented để cổng chấm, hoặc gỡ evidence-report.md / tách hồ sơ khỏi PR nếu bằng chứng thuộc phạm vi đã bỏ."
         violations=$((violations+1))
       fi
       continue ;;

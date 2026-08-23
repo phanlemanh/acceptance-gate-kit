@@ -141,7 +141,7 @@ Steps:
 ## Chế độ Cổng Đáng (hồ sơ chưa có hợp đồng)
 
 Cổng thứ ba dùng CHÍNH lệnh này, không có lệnh thứ bảy — hiến pháp kit là chỉ
-TRỪ, không CỘNG, và khoá model-invocation của ADR 0002 đã phủ `/approve`.
+TRỪ, không CỘNG, và khoá model-invocation của ADR 0002 đã phủ lệnh duyệt này.
 
 **Nhận ra chế độ:** `contract.md` VẮNG ∧ `opportunity.md` có ∧ `decision` rỗng ∧
 `stage ≠ archived`. Thẻ: `/acceptance-gate:acceptance-card <slug>` tự nhận Cổng

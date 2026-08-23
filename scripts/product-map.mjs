@@ -25,7 +25,7 @@ const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence
 // cùng hồ sơ cho hai kết luận trái nhau).
 const { recordProblem, navValues, consumedTexts, usesUat, usesOpportunity, usesEvidence,
         missingArtifact, readRecord, ioReason, configList, NAV_RULES, mapState, MAP_LABELS,
-        mapTracked, DA_THONG_CONG_2 } =
+        mapTracked, DA_THONG_CONG_2, conflictProblem } =
   require(path.join(__dirname, '..', 'lib', 'workspace-record.cjs'));
 
 export { NAV_RULES };
@@ -162,7 +162,7 @@ function classify(dir, slug) {
   // field bắt buộc rỗng, giá trị ngoài enum — tất cả là hỏng, không cái nào
   // được rơi vào khoảng trống rồi hiện ở một ô bình thường.) Kèm luật
   // khai-xong-mà-thiếu-file: verified mà vắng evidence-report là hỏng.
-  const problem = recordProblem(texts) || missingArtifact(texts);
+  const problem = recordProblem(texts) || missingArtifact(texts) || conflictProblem(texts);
   if (problem) return { key: 'hong', slug, file: problem.file, reason: problem.reason };
 
   // Lượt 2 — xếp ô, tra từ artifact muộn nhất về sớm nhất.

@@ -2565,7 +2565,11 @@ const leafKeys = (obj, prefix) => {
   const out = [];
   for (const [k, v] of Object.entries(obj)) {
     const p = prefix ? prefix + '.' + k : k;
-    if (Array.isArray(v)) out.push(...(v.length ? leafKeys(v[0], p + '[]') : [p + '[]']));
+    // Quy uoc `[]` chi danh cho MANG CAC BAN GHI (di sau vao khoa con). Mang rong, va
+    // mang gia-tri-tho nhu `flags: []`, la LA — khong co khoa con de di, va P128 doc
+    // `<ten>[]` la "khoa dau ra tang tren". Sinh `p[]` cho chung la ep than lenh khai
+    // mot hinh dang ma chieu xuoi khong giai duoc (ho so ra-co-ten).
+    if (Array.isArray(v)) out.push(...(v.length && typeof v[0] === 'object' && v[0] !== null ? leafKeys(v[0], p + '[]') : [p]));
     else if (v && typeof v === 'object') out.push(...leafKeys(v, p));
     else out.push(p);
   }
@@ -3137,7 +3141,10 @@ fs.copyFileSync(path.join(root, 'lib/md-section.cjs'), path.join(mut, 'lib/md-se
 fs.mkdirSync(path.join(mut, path.dirname(OPP_TPL)), { recursive: true });
 fs.copyFileSync(path.join(root, OPP_TPL), path.join(mut, OPP_TPL));
 const src = fs.readFileSync(SCAN, 'utf8');
-const anchor = "if (status === 'signed-off')";
+// Nhánh trạng thái ĐÃ THÔNG Cổng Bằng chứng — câu đổi khi hồ sơ ra-co-ten thêm
+// `machine-cleared` (thay cho `if (status === 'signed-off')`). Anchor bám vào NHÁNH,
+// không bám vào một giá trị enum.
+const anchor = 'if (DA_THONG_CONG_2.includes(status))';
 if (!src.includes(anchor)) die('mutant: khong tim thay anchor cho re trang thai');
 const hoist = "{ const __e = read(path.join(dir, 'evidence-report.md')); if (__e.err) { broken.push({ slug, file: 'evidence-report.md', reason: ioReason(__e.err) }); continue; } }\n    ";
 fs.writeFileSync(path.join(mut, 'scripts/start-scan.mjs'), src.replace(anchor, hoist + anchor));
@@ -5768,6 +5775,12 @@ run "P150 required_evidence tren the + report cu render y het ban base" \
     # dot .cjs 1.39.1 lam ban ghep chet (base require lib/*.js, cay hien tai chi
     # con .cjs) — "ban base" phai la MOT cay base tron ven.
     git -C "'"$ROOT"'" archive "$BASE" lib | tar -x -C "$T/base"
+    # Tu khi the goi MAY QUET (ho so start-bang-dieu-khien), "ban base" khong con la MOT
+    # file: gate-card require scripts/trang-thai-ho-so.cjs va spawn scripts/start-scan.mjs
+    # (start-scan lai doc khuon opportunity-template). Thieu bat ky mon nao thi ban base
+    # cam mot co canh bao HA TANG, va ca do bien thanh "khac ban base" — do vi thieu do
+    # chu khong vi vat. Chep TRON hai cay o dung moc, dung nhat tung file.
+    git -C "'"$ROOT"'" archive "$BASE" scripts skills/acceptance/references | tar -x -C "$T/base"
     A=$(cd "$T/ws" && node "'"$ROOT"'/scripts/gate-card.js" --slug feat-jr5 2>/dev/null)
     B=$(cd "$T/ws" && node "$T/base/scripts/gate-card.js" --slug feat-jr5 2>/dev/null)
     [ -n "$A" ] || { echo "stdout moi rong"; exit 1; }

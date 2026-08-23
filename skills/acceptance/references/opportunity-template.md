@@ -54,17 +54,12 @@ prototype:
 > Hai đồng hồ của prototype: giờ-dựng (quá timebox = đang build sản phẩm) và
 > giờ-chờ-tín-hiệu (số không về sau timebox tự nó là tín hiệu).
 
-> Máy ĐƯỢC đề xuất ngưỡng khi kết buổi khai thác — mỗi bullet mang tiền tố dưới đây ngay
-> sau dấu `:`; người ký Cổng Đáng gỡ tiền tố = chốt. Ý còn mờ thật thì giữ `…`.
-<!-- <<<OPP-DE-XUAT-PREFIX -->
-[đề xuất]
-<!-- OPP-DE-XUAT-PREFIX>>> -->
-> Vòng KHÔNG có người dùng cuối (việc nội bộ của bộ công cụ) → thay các bullet bằng MỘT dòng
-> theo tiền tố dưới đây kèm lý do, khai TẠI Cổng Đáng. Khai sau khi đã làm xong là mọi kết
+> Máy ĐƯỢC đề xuất ngưỡng khi kết buổi khai thác — mỗi bullet mang tiền tố `[đề xuất]`
+> ngay sau dấu `:`; người ký Cổng Đáng gỡ tiền tố = chốt. Ý còn mờ thật thì giữ `…`.
+> Vòng KHÔNG có người dùng cuối (việc nội bộ của bộ công cụ) → thay các bullet bằng MỘT
+> dòng `Không đo được — <lý do>`, khai TẠI Cổng Đáng. Khai sau khi đã làm xong là mọi kết
 > quả tự biện minh — đó là đường lách, không phải lối ra.
-<!-- <<<OPP-KHONG-DO-DUOC-PREFIX -->
-Không đo được —
-<!-- OPP-KHONG-DO-DUOC-PREFIX>>> -->
+> Hai tiền tố là CHUỖI MÁY ĐỌC, bản gốc ở mục «Ký hiệu máy đọc» cuối file.
 
 - Câu hỏi phép đo trả lời: …
 - Kết quả nào là SỐNG: …
@@ -123,3 +118,17 @@ Không đo được —
 
 - …
 - …
+
+## Ký hiệu máy đọc (đừng xoá, đừng chép vào hồ sơ thật)
+
+> Hai chuỗi dưới đây là bản gốc DUY NHẤT; bộ quét, thẻ, `/approve` và phiên nghiệm thu rút
+> từ đây lúc chạy. Đổi chuỗi ở một phía là phép đo round-trip đỏ. Mục này nằm NGOÀI mọi
+> section dữ liệu của ô — đặt nó trong section Ngưỡng thì khuôn trắng trông như đã khai.
+
+<!-- <<<OPP-DE-XUAT-PREFIX -->
+[đề xuất]
+<!-- OPP-DE-XUAT-PREFIX>>> -->
+
+<!-- <<<OPP-KHONG-DO-DUOC-PREFIX -->
+Không đo được —
+<!-- OPP-KHONG-DO-DUOC-PREFIX>>> -->
