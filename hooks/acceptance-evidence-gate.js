@@ -136,6 +136,14 @@ process.stdin.on('end', () => {
 
     if (isContract) {
       const cr = core.evaluateContractWrite(payload, existing);
+      // machine-cleared × chữ ký người: hai sự thật cãi nhau. Hỏi bằng chứng NẰM CẠNH
+      // (đọc lười; vắng/không đọc được thì không kết luận gì).
+      {
+        let sibling = null;
+        try { sibling = fs.readFileSync(path.join(path.dirname(filePath), 'evidence-report.md'), 'utf8'); } catch (_) {}
+        const conflict = core.machineClearedSignoffConflict(payload, sibling);
+        if (conflict) { cr.failures.push(conflict); cr.anyFailure = true; }
+      }
       if (!cr.anyFailure) {
         process.stdout.write(data);
         process.exit(0);
@@ -155,8 +163,9 @@ process.stdin.on('end', () => {
         ...cr.failures.map(x => `  x ${x}`),
         '',
         'Gate-1 lifecycle reference:',
-        '  status: approved / signed-off        -> requires approved_by: <name> (+ approved_at)',
-        '  draft -> implemented / verified      -> requires the approved step (Gate 1) first',
+        '  status: approved / signed-off / machine-cleared -> requires approved_by: <name> (+ approved_at),',
+        '                                          or the V lane (veto_state: mo + veto_opened_at, T2 only)',
+        '  draft -> implemented / verified / machine-cleared -> requires the approved step (Gate 1) first',
         '  User explicitly skipped Gate 1       -> record gate1_skipped: true (audited; pre-merge NOTEs it)',
         'Legacy bypass: ACCEPTANCE_GATE_BYPASS=1',
         '',
@@ -179,6 +188,19 @@ process.stdin.on('end', () => {
     if (enforcement === 'off') {
       process.stdout.write(data);
       process.exit(0);
+    }
+
+    // Chiều ghi thứ hai của cùng mâu thuẫn: chữ ký được ghi vào báo cáo trong khi hợp
+    // đồng đang `machine-cleared`. Chặn ở đây, nếu không thì cửa vẫn mở một nửa.
+    {
+      let siblingContract = null;
+      try { siblingContract = fs.readFileSync(path.join(fileDir, 'contract.md'), 'utf8'); } catch (_) {}
+      const conflict = core.machineClearedSignoffConflict(siblingContract, payload);
+      if (conflict) {
+        const cl = ['', 'BLOCKED by acceptance-evidence-gate (machine-cleared × chữ ký)', `File: ${filePath}`, '', `  x ${conflict}`, ''];
+        if (enforcement === 'warn') { process.stderr.write(cl.join('\n').replace('BLOCKED by', 'WARNING from') + '\n'); }
+        else { process.stderr.write(cl.join('\n') + '\n'); process.exit(2); }
+      }
     }
 
     const r = core.evaluateEvidence(payload, { fileDir, configText, configPath });

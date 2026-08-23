@@ -27,7 +27,7 @@ const UAT_H = 'Ngưỡng chết / ngưỡng UAT';
 
 let failures = 0;
 // MỘT nguồn danh sách ca: file này. Chỉ liệt ca ĐÃ CÓ THÂN — khai id chưa dựng thì suite đỏ.
-const ALL_IDS = ['RT1'];
+const ALL_IDS = ['RT1', 'RT3', 'RT15'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.RT_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const want = id => only.length === 0 || only.includes(id);
@@ -153,6 +153,70 @@ if (want('RT1')) {
   rmSync(t2, { recursive: true, force: true });
   if (errs.length) fail('RT1', errs.join(' · '));
   else pass('RT1', 'enum 6 giá trị round-trip khuôn↔lib; usesUat/usesEvidence; khối xanh-sạch ba đầu; chiều đỏ nêu mục');
+}
+
+// ── hook: ghi hồ sơ qua PreToolUse payload ───────────────────────────────────
+function hook(filePath, content, { existing = null } = {}) {
+  if (existing != null) writeFileSync(filePath, existing); else if (existsSync(filePath)) rmSync(filePath);
+  const payload = JSON.stringify({ tool_name: 'Write', tool_input: { file_path: filePath, content } });
+  const r = spawnSync(process.execPath, [HOOK], { input: payload, encoding: 'utf8' });
+  return { code: r.status, err: (r.stderr || '') };
+}
+const MC = { status: 'machine-cleared', tier: 'T2', veto: 'mo', opened: '2026-08-23T00:00:00Z' };
+
+// ── RT3 — hook lúc ghi: Cổng 1 cho machine-cleared ───────────────────────────
+if (want('RT3')) {
+  const errs = [];
+  withRepo(root => {
+    W(root, '.git', '');   // hook dừng leo cây ở đây
+    const dir = path.join(root, '_acceptance', 'rt3'); mkdirSync(dir, { recursive: true });
+    const cp = path.join(dir, 'contract.md');
+    // (a) đối chứng dương: làn V đúng vết → QUA
+    let r = hook(cp, contractText('rt3', MC), { existing: contractText('rt3', { ...MC, status: 'verified' }) });
+    if (r.code !== 0) errs.push(`(a) làn V đúng vết phải QUA, exit ${r.code}: ${r.err.slice(0, 200)}`);
+    // (b) T3 → chặn ghim câu
+    r = hook(cp, contractText('rt3', { ...MC, tier: 'T3' }), { existing: contractText('rt3', { ...MC, status: 'verified', tier: 'T3' }) });
+    if (r.code !== 2 || !/veto_state: mo on a T3 contract/.test(r.err)) errs.push(`(b) T3 phải chặn ghim câu, exit ${r.code}`);
+    // (c) không veto, không gate1_skipped → chặn ghim đúng status mới
+    r = hook(cp, contractText('rt3', { status: 'machine-cleared' }), { existing: contractText('rt3', { status: 'verified' }) });
+    if (r.code !== 2 || !/status: machine-cleared with empty approved_by — Gate 1 approval not recorded/.test(r.err)) errs.push(`(c) phải chặn ghim câu machine-cleared, exit ${r.code}: ${r.err.slice(0, 200)}`);
+    // (d) draft → machine-cleared thẳng → chặn ghim skips Gate 1
+    r = hook(cp, contractText('rt3', { status: 'machine-cleared' }), { existing: contractText('rt3', { status: 'draft' }) });
+    if (r.code !== 2 || !/skips Gate 1/.test(r.err)) errs.push(`(d) draft→machine-cleared phải chặn ghim skips Gate 1, exit ${r.code}`);
+  });
+  const lifecycle = readFileSync(HOOK, 'utf8');
+  if (!/machine-cleared/.test(lifecycle)) errs.push('dòng lifecycle của hook chưa liệt machine-cleared');
+  if (errs.length) fail('RT3', errs.join(' · '));
+  else pass('RT3', 'hook: làn V qua; T3/không-vết/draft-nhảy-thẳng chặn ghim câu; lifecycle liệt machine-cleared');
+}
+
+// ── RT15 — machine-cleared × chữ ký người (chân hook; lưới+quét thêm ở chặng sau) ──
+if (want('RT15')) {
+  const errs = [];
+  withRepo(root => {
+    W(root, '.git', '');
+    const dir = path.join(root, '_acceptance', 'rt15'); mkdirSync(dir, { recursive: true });
+    const cp = path.join(dir, 'contract.md'), ep = path.join(dir, 'evidence-report.md');
+    writeFileSync(path.join(dir, 'run-log.jsonl'), runLogText('rt15'));
+    // (a+) đối chứng dương: báo cáo KHÔNG chữ ký → ghi hợp đồng machine-cleared QUA
+    writeFileSync(ep, evidenceText('rt15', { signoff: '' }));
+    let r = hook(cp, contractText('rt15', MC), { existing: contractText('rt15', { ...MC, status: 'verified' }) });
+    if (r.code !== 0) errs.push(`(a+) đối chứng dương exit ${r.code}: ${r.err.slice(0, 160)}`);
+    // (a) báo cáo CÓ chữ ký → ghi hợp đồng machine-cleared CHẶN
+    writeFileSync(ep, evidenceText('rt15', { signoff: 'Fx 2026-08-23' }));
+    r = hook(cp, contractText('rt15', MC), { existing: contractText('rt15', { ...MC, status: 'verified' }) });
+    if (r.code !== 2 || !/chữ ký người trên hồ sơ máy-thông/.test(r.err)) errs.push(`(a) hook nhánh hợp đồng phải chặn, exit ${r.code}: ${r.err.slice(0, 200)}`);
+    // (a') ghi BÁO CÁO có chữ ký khi hợp đồng đang machine-cleared → CHẶN
+    writeFileSync(cp, contractText('rt15', MC));
+    r = hook(ep, evidenceText('rt15', { signoff: 'Fx 2026-08-23' }), { existing: evidenceText('rt15', { signoff: '' }) });
+    if (r.code !== 2 || !/chữ ký người trên hồ sơ máy-thông/.test(r.err)) errs.push(`(a') hook nhánh báo cáo phải chặn, exit ${r.code}: ${r.err.slice(0, 200)}`);
+    // (a'+) đối chứng dương nhánh báo cáo: hợp đồng verified thì ghi chữ ký là bình thường
+    writeFileSync(cp, contractText('rt15', { ...MC, status: 'verified' }));
+    r = hook(ep, evidenceText('rt15', { signoff: 'Fx 2026-08-23' }), { existing: evidenceText('rt15', { signoff: '' }) });
+    if (r.code !== 0) errs.push(`(a'+) verified + chữ ký phải QUA, exit ${r.code}: ${r.err.slice(0, 200)}`);
+  });
+  if (errs.length) fail('RT15', errs.join(' · '));
+  else pass('RT15', 'machine-cleared × chữ ký: hook chặn hai chiều ghi, hai đối chứng dương qua');
 }
 
 const la = only.filter(id => !ALL_IDS.includes(id));
