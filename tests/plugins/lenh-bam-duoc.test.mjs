@@ -1,6 +1,6 @@
 // tests/plugins/lenh-bam-duoc.test.mjs — ca hồ sơ lenh-in-ra-phai-bam-duoc (LB1–LB8).
 // Bảng COMMAND-NAMES rút từ marker; vật thật đọc từ thư mục + plugin.json lúc chạy; quét token với ranh
-// giới khai tường minh (AC-2); đối chứng dương trên origin/main; gate-card thật trên fixture + cây thật.
+// giới khai tường minh (AC-2); đối chứng dương bằng vật TIÊM (không neo mốc git di động); gate-card thật.
 //   LB_CASES=LB1,LB2 node tests/plugins/lenh-bam-duoc.test.mjs
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, cpSync } from 'node:fs';
 import { spawnSync, execFileSync } from 'node:child_process';
@@ -20,7 +20,7 @@ const require = createRequire(import.meta.url);
 const { section } = require(path.join(ROOT, 'lib', 'md-section.cjs'));
 
 let failures = 0;
-const ALL_IDS = ['LB1', 'LB2', 'LB3', 'LB4', 'LB5', 'LB6', 'LB7', 'LB8'];
+const ALL_IDS = ['LB1', 'LB2', 'LB3', 'LB4', 'LB5', 'LB6', 'LB7', 'LB8', 'LB9'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.LB_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const ran = new Set();
@@ -65,12 +65,14 @@ const checkTable = (rows, plugins) => {
 };
 
 // ── Quét điểm bàn giao (AC-2) — ranh giới khai tường minh ───────────────────
-const FILES = ['commands/acceptance-card.md', 'commands/acceptance-init.md', 'commands/acceptance-report.md', 'commands/acceptance-status.md', 'commands/approve.md', 'commands/signoff.md', 'commands/start.md', 'skills/acceptance/SKILL.md', 'skills/acceptance/references/human-facing-language.md', 'skills/uat-session/SKILL.md', 'feature-loop/skills/feature-loop/SKILL.md', 'scripts/gate-card.js', 'scripts/evidence-page.js'];
+const FILES = ['commands/acceptance-card.md', 'commands/acceptance-init.md', 'commands/acceptance-report.md', 'commands/acceptance-status.md', 'commands/approve.md', 'commands/signoff.md', 'commands/start.md', 'skills/acceptance/SKILL.md', 'skills/acceptance/references/human-facing-language.md', 'skills/uat-session/SKILL.md', 'feature-loop/skills/feature-loop/SKILL.md', 'scripts/gate-card.js', 'scripts/evidence-page.js',
+  // ba tài liệu ĐẦU-TAY (hồ sơ lenh-tran-tai-lieu-dau-tay): nơi người mới chép lệnh trước cả khi thấy thẻ
+  'QUICKSTART.md', 'README.md', 'GUIDE.md'];
 // uat-session vào danh sách trần (review S4-r1 F1: `/uat-session <slug>` từng lọt cả hai regex); look-ahead có `.`
 // để không ăn đường dẫn `…/uat-session.md`.
 const BARE_NAMES = ['start', 'approve', 'signoff', 'acceptance-card', 'acceptance-init', 'acceptance-status', 'acceptance-report', 'feature-loop', 'uat-session'];
 const BARE_RE = new RegExp(`(^|[^a-z0-9:/-])/(${BARE_NAMES.join('|')})(?![a-z0-9:/.-])`, 'g');
-if (FILES.length !== 13) throw new Error(`vũ trụ quét phải đúng 13 file, đang ${FILES.length}`);
+if (FILES.length !== 16) throw new Error(`vũ trụ quét phải đúng 16 file, đang ${FILES.length}`);
 const UAT_RE = /`uat-session\b/g;
 const PREFIXED_RE = /\/[a-z][a-z0-9-]*:[a-z][a-z0-9-]*/g;
 const scan = texts => {   // texts: [{rel, txt}] → {bare:[{rel,line,tok}], uat:[…], prefixed:[…]}
@@ -139,7 +141,7 @@ if (want('LB1')) {
   if (errs.length) fail('LB1', errs.join(' · ')); else pass('LB1', 'bảng COMMAND-NAMES ⊆ vật thật (tiền tố = name plugin.json, vật tồn tại; harness chỉ [goal]); foo / đổi name / harness lạ → đỏ');
 }
 
-// ---------- LB2: điểm bàn giao ⊆ bảng, 0 trần, đối chứng dương origin/main (AC-2)
+// ---------- LB2: điểm bàn giao ⊆ bảng, 0 trần, đối chứng dương per-file bằng vật tiêm (AC-2)
 if (want('LB2')) {
   const errs = [];
   for (const rel of FILES) if (!existsSync(path.join(ROOT, rel))) errs.push(`vũ trụ thiếu ${rel}`);
@@ -150,12 +152,16 @@ if (want('LB2')) {
   if (now.uat.length) errs.push(`còn uat-session thiếu tiền tố: ${now.uat.map(x => `${x.rel}:${x.line}`).join(', ')}`);
   const strange = now.prefixed.filter(x => !allowed.has(x.tok));
   if (strange.length) errs.push(`lệnh có tiền tố ngoài bảng: ${strange.slice(0, 5).map(x => `${x.rel}:${x.line} ${x.tok}`).join(', ')}`);
-  const BASE_BARE = 65, BASE_UAT = 3;
-  if (now.prefixed.length < BASE_BARE + BASE_UAT) errs.push(`không rỗng: chỉ ${now.prefixed.length} token có tiền tố (< ${BASE_BARE + BASE_UAT}) — sửa bằng cách xoá câu?`);
-  // (iv) đối chứng dương: cùng hàm quét trên origin/main
-  let base;
-  try { base = scan(loadTree(rel => execFileSync('git', ['-C', ROOT, 'show', `origin/main:${rel}`], { encoding: 'utf8' }))); } catch (e) { errs.push(`không đọc được origin/main: ${String(e.message).slice(0, 80)}`); }
-  if (base && (base.bare.length !== BASE_BARE || base.uat.length !== BASE_UAT)) errs.push(`đối chứng dương lệch: origin/main có ${base.bare.length} trần + ${base.uat.length} uat (mong ${BASE_BARE} + ${BASE_UAT})`);
+  // ĐỐI CHỨNG DƯƠNG dựng bằng VẬT DO TEST TIÊM, KHÔNG đọc `origin/main` (S4-r1 hồ sơ này:
+  // neo mốc DI ĐỘNG thì ngay lần merge kế «bản cũ» thành bản mới và thước tự vô hiệu —
+  // cùng lớp mà D17 của release-2-2-0 đã cấm). Vũ trụ không rỗng: đo bằng ngưỡng dưới cố định.
+  if (now.prefixed.length < 100) errs.push(`vũ trụ teo: chỉ ${now.prefixed.length} token có tiền tố (< 100) — sửa bằng cách xoá câu?`);
+  // per-file: mỗi file trong vũ trụ phải THẬT SỰ được đọc (đọc hụt một file là xanh giả)
+  for (const rel of FILES) {
+    const one = scan([{ rel, txt: readFileSync(path.join(ROOT, rel), 'utf8') + '\nchạy `/start` rồi `uat-session <slug>`\n' }]);
+    if (!one.bare.some(x => x.rel === rel && x.tok === '/start')) errs.push(`đối chứng dương ${rel}: tiêm /start mà không thấy`);
+    if (!one.uat.some(x => x.rel === rel)) errs.push(`đối chứng dương ${rel}: tiêm uat-session mà không thấy`);
+  }
   // (v) giữ-gân: 3 chuỗi mẫu → 0 hit
   const guard = scan([{ rel: 'g', txt: 'x `/feature-loop:feature-loop x` y\nfeature-loop/skills/feature-loop/SKILL.md\n_acceptance/<slug>/uat-session.md\n<!-- <<<COMMAND-NAMES -->\n| start | /acceptance-gate:start | command |\n<!-- COMMAND-NAMES>>> -->\n' }]);
   if (guard.bare.length || guard.uat.length) errs.push(`giữ-gân hụt: ${JSON.stringify(guard.bare)}`);
@@ -169,7 +175,7 @@ if (want('LB2')) {
   if (!r2.uat.length) errs.push('chèn `uat-session <slug>` không đỏ');
   const r3 = scan([{ rel: 'commands/start.md', txt: startTxt + '\n/acceptance-gate:foo\n' }]);
   if (!r3.prefixed.some(x => x.tok === '/acceptance-gate:foo' && !allowed.has(x.tok))) errs.push('chèn /acceptance-gate:foo không đỏ');
-  if (errs.length) fail('LB2', errs.join(' · ')); else pass('LB2', `13 file: 0 trần, 0 uat thiếu tiền tố, ${now.prefixed.length} lệnh có tiền tố ⊆ bảng; origin/main == ${BASE_BARE}+${BASE_UAT}; giữ-gân 0; ba chèn → đỏ`);
+  if (errs.length) fail('LB2', errs.join(' · ')); else pass('LB2', `16 file: 0 trần, 0 uat thiếu tiền tố, ${now.prefixed.length} lệnh có tiền tố ⊆ bảng; ${FILES.length} đối chứng dương tiêm; giữ-gân 0; ba chèn → đỏ`);
 }
 
 // ---------- LB3: câu luật (AC-3)
@@ -226,7 +232,10 @@ if (want('LB5')) {
   for (const d of ['scripts', 'lib', 'skills/acceptance/references', '_acceptance/config.yaml', 'CONTEXT.md']) cpSync(path.join(ROOT, d), path.join(copy, d), { recursive: true });
   const SLUGS = ['repo-khai-plugin', 'vao-co-o-ra-co-ten', 'duong-do-trong-dinh-nghia-xong'];
   for (const s of SLUGS) cpSync(path.join(ROOT, '_acceptance', s), path.join(copy, '_acceptance', s), { recursive: true });
-  const oldSrc = execFileSync('git', ['-C', ROOT, 'show', 'origin/main:scripts/gate-card.js'], { encoding: 'utf8' });
+  // SHA CỐ ĐỊNH (main trước chip D #93) — KHÔNG `origin/main`: mốc di động làm «bản cũ» hoá bản mới
+  // ngay lần merge kế, đối chứng dương chết im lặng (S4-r1 hồ sơ lenh-tran-tai-lieu-dau-tay).
+  const OLD_SHA = 'ba539284';
+  const oldSrc = execFileSync('git', ['-C', ROOT, 'show', `${OLD_SHA}:scripts/gate-card.js`], { encoding: 'utf8' });
   writeFileSync(path.join(copy, 'scripts', 'gate-card.js'), oldSrc);
   const kinds = { baseline: 0, glossary: 0 };
   // Đối chứng dương cho cờ glossary: cờ này chỉ có ở thẻ Cổng 1 (A/B/C đều đã ký → Cổng 2), nên đo trên
@@ -293,6 +302,32 @@ if (want('LB8')) {
   const stub = readFileSync(path.join(ROOT, '_acceptance', 'duong-do-trong-dinh-nghia-xong', 'opportunity.md'), 'utf8');
   if (!/decided_at:.*XẤP XỈ/.test(stub)) errs.push('stub duong-do thiếu ghi chú decided_at xấp xỉ');
   if (errs.length) fail('LB8', errs.join(' · ')); else pass('LB8', 'START-HIEU-KET nằm trong bullet «Bắt đầu việc mới», trước (a); stub duong-do ghi chú decided_at xấp xỉ');
+}
+
+// ---------- LB9: lệnh KHÔNG PHẢI slash-command giữ nguyên (AC-3 lenh-tran-tai-lieu-dau-tay)
+// Neo SHA CỐ ĐỊNH — không `origin/main` (lớp «mốc di động» đã nổ một lần ở S4-r1 hồ sơ này).
+if (want('LB9')) {
+  const errs = [];
+  const OLD_SHA = 'ba539284';
+  const CMD_RE = /claude plugin (marketplace add|install|update)/g;
+  const countIn = s => (s.match(CMD_RE) || []).length;
+  const nowG = readFileSync(path.join(ROOT, 'GUIDE.md'), 'utf8');
+  let oldG;
+  try { oldG = execFileSync('git', ['-C', ROOT, 'show', `${OLD_SHA}:GUIDE.md`], { encoding: 'utf8' }); }
+  catch (e) { errs.push(`không đọc được ${OLD_SHA}:GUIDE.md — ${String(e.message).split('\n')[0]}`); }
+  if (oldG) {
+    const a = countIn(oldG), b = countIn(nowG);
+    if (a === 0) errs.push('đối chứng dương hỏng: bản cũ có 0 lệnh `claude plugin`');
+    if (a !== b) errs.push(`lệnh \`claude plugin\` lệch số: cũ ${a}, nay ${b}`);
+    const line = s => (s.split('\n').find(l => l.startsWith('> Khớp phiên bản')) || '').trim();
+    if (line(nowG) !== line(oldG)) errs.push(`dòng «Khớp phiên bản» đổi: «${line(oldG)}» → «${line(nowG)}»`);
+    // chiều đỏ: đổi một lệnh claude plugin thành dạng slash → phải lệch số
+    const red = nowG.replace('claude plugin marketplace add', '/acceptance-gate:acceptance-init');
+    if (red === nowG) errs.push('tiêm mutant thất bại: không thấy `claude plugin marketplace add`');
+    else if (countIn(red) === countIn(nowG)) errs.push('mutant đổi lệnh claude plugin mà số không lệch');
+  }
+  if (errs.length) fail('LB9', errs.join(' · '));
+  else pass('LB9', `lệnh \`claude plugin\` giữ nguyên số (${countIn(nowG)}) so với ${OLD_SHA}; dòng «Khớp phiên bản» không đổi; mutant đổi-sang-slash → lệch số`);
 }
 
 const unknown = only.filter(id => !ran.has(id));

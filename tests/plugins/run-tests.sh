@@ -2691,8 +2691,9 @@ DOCS = ["GUIDE.md", "README.md", "QUICKSTART.md"]
 def check_docs(docs):                      # {ten: noi dung} -> list loi
     errs = []
     for name, text in docs.items():
-        if "/start" not in text or "vào phiên" not in text:
-            errs.append(f"{name}: thieu muc vao phien bang /start")
+        # dang BAM DUOC (ho so lenh-tran-tai-lieu-dau-tay): ba tai lieu dau-tay in /acceptance-gate:start
+        if "/acceptance-gate:start" not in text or "vào phiên" not in text:
+            errs.append(f"{name}: thieu muc vao phien bang /acceptance-gate:start")
     return errs
 
 live = {d: (root / d).read_text(encoding="utf-8") for d in DOCS}
@@ -2701,7 +2702,7 @@ assert check_docs(live) == [], check_docs(live)          # doi chung DUONG
 # Chan AM RIENG cho TUNG file: mot ham quen mot nhanh thi chan con lai van do
 # dung, che mat lo (bai hoc [findings-section-boundary#F2]).
 strip = lambda t: "\n".join(l for l in t.splitlines()
-                            if "/start" not in l and "vào phiên" not in l)
+                            if "/acceptance-gate:start" not in l and "vào phiên" not in l)
 for gone in DOCS:
     mut = dict(live); mut[gone] = strip(live[gone])
     errs = check_docs(mut)

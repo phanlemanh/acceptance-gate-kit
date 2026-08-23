@@ -1,0 +1,67 @@
+schema_version: 1
+feature_slug: lenh-tran-tai-lieu-dau-tay
+# Dùng lại ca LB2 đã qua S4 của chip D, chỉ mở rộng vũ trụ (FILES 13 → 16). Mọi eval ghim
+# đích danh chốt vuông trong stdout suite plugins; đối chứng dương đọc origin/main bằng CHÍNH
+# hàm quét (không grep riêng), chiều đỏ chèn token trần vào từng file.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [tests/plugins/lenh-bam-duoc.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LB2]" và số file trong dòng đó là 16; FILES.length === 16 assert
+      cứng (gỡ một file → throw nêu số); mỗi file trong FILES phải tồn tại (vắng → đỏ nêu tên).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [QUICKSTART.md, README.md, GUIDE.md, tests/plugins/lenh-bam-duoc.test.mjs]
+    expected: >
+      exit 0; "PASS: [LB2]" — 0 trần · 0 uat thiếu tiền tố trên cả 16 file; token có tiền tố ⊆ bảng
+      COMMAND-NAMES. Đối chứng dương KHÔNG neo mốc git di động: tiêm `/start` + `uat-session <slug>`
+      vào bản sao TỪNG file trong 16 file → phải thấy đúng ở đúng file (16 lượt); cộng ngưỡng dưới
+      cố định ≥ 100 token có tiền tố. Chiều đỏ: chèn một token trần vào từng tài liệu đầu-tay
+      (3 lượt) → đỏ nêu đúng file:dòng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [GUIDE.md, tests/plugins/lenh-bam-duoc.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LB9]" — số lệnh `claude plugin marketplace add` / `install` trong
+      khối GUIDE-PLUGIN-DECLARE bằng đúng số trên origin/main; dòng «Khớp phiên bản» không đổi.
+      Chiều đỏ: bản sao đổi một lệnh `claude plugin` thành `/acceptance-gate:…` → đỏ ghim lệch số.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "suite plugins XANH (P200 · P131 · P167 · P30 ghim chuỗi GUIDE/commands không đỏ vì lần đổi này)"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E5
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "suite scripts XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E6
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "suite hooks XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E7
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "suite workflows XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E8
+    criterion: AC-4
+    executor: script
+    cmd: node scripts/product-map.mjs --check
+    expected: "exit 0 — bản đồ khớp hồ sơ xưởng"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
