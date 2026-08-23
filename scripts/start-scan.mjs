@@ -88,6 +88,13 @@ const { chu } = require(path.join(__dirname, 'trang-thai-ho-so.cjs'));
 const g = (stateKey, obj) => ({ ...obj, stateKey, label: chu(stateKey).nhan, viecKe: chu(stateKey).viecKe });
 
 const gates = [], inProgress = [], considering = [], done = [], broken = [];
+// CỬA VETO MỞ — mảng CẮT NGANG bốn nhóm, độc lập với việc slug rơi vào ô nào.
+// Hỏi ĐÚNG câu lưới trước-merge hỏi: mọi contract.md có `veto_state: mo`, BẤT KỂ
+// status. Nhánh `signed-off` của bộ phân ô không đọc veto_state lần nào, nên 14
+// hồ sơ đã ký biến khỏi thẻ và thẻ đếm 2 trong khi lưới đếm 16.
+// Veto-default chỉ sống nếu owner THẤY TÊN — đếm một con số mà không nêu tên là
+// giấu đúng thứ mình đang mời người veto.
+const vetoOpen = [];
 // MỌI lối hỏng về cùng một khoá — gom về một cửa duy nhất.
 const pushHong = obj => broken.push(g('ho-so-hong', obj));
 // MỘT từ vựng verdict cho MỌI nhánh: nhánh `verified` gọi tên giá trị lạ trong
@@ -210,6 +217,8 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
     const statusProblem = fieldProblem('contract.md', cTxt, 'status');
     if (statusProblem) { pushHong({ slug, ...statusProblem }); continue; }
     const status = frontmatterField(cTxt, 'status').toLowerCase();
+    if ((frontmatterField(cTxt, 'veto_state') || '').trim().toLowerCase() === 'mo')
+      vetoOpen.push({ slug, status });
     const tier = frontmatterField(cTxt, 'risk_tier') || null;
     // evidence-report.md CHỈ được đọc trong hai nhánh tiêu thụ nó (verified,
     // implemented). Chốt lỗi đặt TRƯỚC chỗ rẽ trạng thái là lớp lỗi đã dẫm 4
@@ -339,6 +348,7 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
   else done.push(g(decision === 'park' ? 'xep-lai' : 'da-bac', { slug, state: decision, at: ngayXong(dir, oPath) }));
 }
 gates.sort((a, b) => String(a.since).localeCompare(String(b.since)));
+vetoOpen.sort((a, b) => a.slug.localeCompare(b.slug));
 considering.sort((a, b) => a.since.localeCompare(b.since));   // cũ nhất lên đầu
 // Tuổi TRÙNG không phải tuổi: 6/7 ý của chính kit mang CÙNG một dấu thời gian
 // vì cùng một commit đổ stub. In «cũ nhất X ngày» cho một nhóm như vậy là nói
@@ -427,4 +437,4 @@ if (map.present) {
   } catch { map.fresh = null; }
 }
 
-out({ schema_version: 1, config: true, git, groups: { gates, inProgress, considering, done }, map, discovery, broken });
+out({ schema_version: 1, config: true, git, groups: { gates, inProgress, considering, done }, vetoOpen, map, discovery, broken });

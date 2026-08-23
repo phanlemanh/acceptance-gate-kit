@@ -37,6 +37,7 @@ worktree/nhánh đọc từ git của `<path>`.
    groups.done[].slug groups.done[].state groups.done[].at groups.done[].stateKey groups.done[].label groups.done[].viecKe
    map.present map.fresh map.enabled map.state map.label
    discovery.brainstormSkill
+   vetoOpen[].slug vetoOpen[].status
    broken[].slug broken[].file broken[].reason broken[].stateKey broken[].label broken[].viecKe
    START-SCAN-KEYS>>> -->
 

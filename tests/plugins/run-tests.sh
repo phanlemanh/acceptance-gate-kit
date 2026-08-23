@@ -2493,7 +2493,10 @@ const W = (rel, s) => { const p = path.join(tmp, rel);
 W('_acceptance/config.yaml', 'schema_version: 1\n');
 W('_acceptance/w-draft/contract.md', '---\nslug: w-draft\nrisk_tier: T2\nstatus: draft\n---\n');
 W('_acceptance/w-go/contract.md', '---\nslug: w-go\nrisk_tier: T2\nstatus: approved\n---\n');
-W('_acceptance/w-done/contract.md', '---\nslug: w-done\nrisk_tier: T2\nstatus: signed-off\n---\n');
+// w-done mang `veto_state: mo` de mang vetoOpen[] co PHAN TU THAT ma soi — va no
+// la ho so `signed-off`, dung nhanh ma bo phan o cu khong doc veto_state lan nao
+// (the dem 2 trong khi luoi dem 16; ho so start-bang-dieu-khien).
+W('_acceptance/w-done/contract.md', '---\nslug: w-done\nrisk_tier: T2\nstatus: signed-off\nveto_state: mo\n---\n');
 W('_acceptance/w-bad/contract.md', 'khong fence\n');
 W('_acceptance/w-consider/opportunity.md', '---\nslug: w-consider\nfeature: w\nstage: discovery\ndecision:\n---\n');   // o «dang can nhac» (vao-co-o-ra-co-ten)
 const outJson = JSON.parse(execFileSync('node',
