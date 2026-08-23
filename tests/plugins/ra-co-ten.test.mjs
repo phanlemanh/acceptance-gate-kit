@@ -27,7 +27,7 @@ const UAT_H = 'Ngưỡng chết / ngưỡng UAT';
 
 let failures = 0;
 // MỘT nguồn danh sách ca: file này. Chỉ liệt ca ĐÃ CÓ THÂN — khai id chưa dựng thì suite đỏ.
-const ALL_IDS = ['RT1', 'RT3', 'RT15'];
+const ALL_IDS = ['RT1', 'RT2', 'RT3', 'RT15'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.RT_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const want = id => only.length === 0 || only.includes(id);
@@ -190,6 +190,67 @@ if (want('RT3')) {
   else pass('RT3', 'hook: làn V qua; T3/không-vết/draft-nhảy-thẳng chặn ghim câu; lifecycle liệt machine-cleared');
 }
 
+// ── kho git fixture cho lưới trước-merge ─────────────────────────────────────
+// c1 (config · code · lib) → nhánh basepoint → c2 (code đổi + hợp đồng) → c3 (bằng chứng).
+function mkGit(slug, o, { evidence = true } = {}) {
+  const R = tmp('rt-git-');
+  const git = (...a) => execFileSync('git', ['-c', 'user.name=rt', '-c', 'user.email=rt@x', '-C', R, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  mkdirSync(path.join(R, 'src'), { recursive: true }); mkdirSync(path.join(R, '_acceptance'), { recursive: true });
+  git('init', '-q');
+  writeFileSync(path.join(R, '_acceptance', 'config.yaml'), 'schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "docs/**"\n    - "*.md"\n');
+  writeFileSync(path.join(R, 'src', 'app.js'), 'code v1\n');
+  writeFileSync(path.join(R, 'verify.sh'), '#!/bin/sh\nexit 0\n');
+  // Kho tiêu thụ chép đúng bộ này khi /acceptance-init. Thiếu lib/md-section.cjs thì lưới
+  // KHÔNG BAO GIỜ thấy hồ sơ sạch (fail-closed) — đối chứng dương sẽ đỏ, y như đời thật.
+  mkdirSync(path.join(R, 'lib'), { recursive: true }); mkdirSync(path.join(R, 'scripts'), { recursive: true });
+  for (const f of ['evidence-core.cjs', 'gap-probe.cjs', 'workspace-record.cjs', 'ac-line.cjs', 'md-section.cjs'])
+    copyFileSync(path.join(ROOT, 'lib', f), path.join(R, 'lib', f));
+  copyFileSync(path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), path.join(R, 'scripts', 'recheck-evidence.cjs'));
+  git('add', '-A'); git('commit', '-qm', 'c1'); git('branch', 'basepoint');
+  writeFileSync(path.join(R, 'src', 'app.js'), 'code v2\n');
+  mkdirSync(path.join(R, '_acceptance', slug), { recursive: true });
+  writeFileSync(path.join(R, '_acceptance', slug, 'contract.md'), contractText(slug, o));
+  git('add', '-A'); git('commit', '-qm', 'c2');
+  const c2 = git('rev-parse', 'HEAD').trim();
+  if (evidence) {
+    writeFileSync(path.join(R, '_acceptance', slug, 'evidence-report.md'), evidenceText(slug, { ...o, verifiedCommit: c2 }));
+    writeFileSync(path.join(R, '_acceptance', slug, 'run-log.jsonl'), runLogText(slug));
+    git('add', '-A'); git('commit', '-qm', 'c3');
+  }
+  return R;
+}
+function luoi(R) {
+  const env = { ...process.env }; delete env.PRE_MERGE_BASE;
+  const r = spawnSync('bash', [PREMERGE, R, '--base', 'basepoint'], { encoding: 'utf8', env });
+  return { status: r.status, out: (r.stdout || '') + '\n' + (r.stderr || '') };
+}
+const withGit = (slug, o, opts, fn) => { const R = mkGit(slug, o, opts); try { return fn(R); } finally { rmSync(R, { recursive: true, force: true }); } };
+
+// ── RT2 — lưới: machine-cleared là LỜI KHAI, lưới đòi bằng chứng ─────────────
+if (want('RT2')) {
+  const errs = [];
+  const BASE = { ...MC, approvedBy: '', sach: 'sach', signoff: '' };
+  const cases = [
+    ['dương', BASE, r => r.status === 0 && /NOTE \[rt2\]: xanh-sạch — máy đi tiếp/.test(r.out), 'exit 0 + NOTE xanh-sạch'],
+    ['(a) UNCERTAIN', { ...BASE, sach: 'uncertain' }, r => r.status !== 0 && /VIOLATION \[rt2\]: status machine-cleared nhưng hồ sơ còn cần người — có mục UNCERTAIN/.test(r.out), 'VIOLATION ghim UNCERTAIN'],
+    ['(a2) Known limits có nội dung', { ...BASE, sach: 'kl-co' }, r => r.status !== 0 && /còn cần người — mục «Known limits» có nội dung/.test(r.out), 'VIOLATION ghim mục có nội dung'],
+    ['(b) T3 + người duyệt Cổng 1', { ...BASE, tier: 'T3', approvedBy: 'Fx', veto: null, opened: null }, r => r.status !== 0 && /còn cần người — hạng T3 \(chỉ T2 được đi tiếp không ký\)/.test(r.out), 'VIOLATION ghim hạng T3'],
+    ['(c) không veto, approved_by rỗng', { ...BASE, veto: null, opened: null }, r => r.status !== 0 && /VIOLATION \[rt2\]: status=machine-cleared but approved_by is empty/.test(r.out), 'VIOLATION Cổng 1'],
+  ];
+  for (const [ten, o, ok, mo] of cases) withGit('rt2', o, {}, R => {
+    const r = luoi(R);
+    if (!ok(r)) errs.push(`${ten}: mong ${mo}; exit ${r.status}; ${r.out.split('\n').filter(l => /rt2/.test(l)).join(' | ').slice(0, 260)}`);
+  });
+  // (d) fixture có approved_by: chỉ còn ĐÚNG một vấn đề là thiếu báo cáo, nên câu trả về
+  // là câu của luật thiếu-hồ-sơ chứ không lẫn với luật Cổng 1.
+  withGit('rt2', { ...BASE, approvedBy: 'Fx', veto: null, opened: null }, { evidence: false }, R => {
+    const r = luoi(R);
+    if (r.status === 0 || !/VIOLATION \[rt2\]: status=machine-cleared but no evidence-report.md/.test(r.out)) errs.push(`(d) thiếu báo cáo phải VIOLATION arm; exit ${r.status}; ${r.out.split('\n').filter(l => /rt2/.test(l)).join(' | ').slice(0, 260)}`);
+  });
+  if (errs.length) fail('RT2', errs.join(' · '));
+  else pass('RT2', 'lưới: machine-cleared xanh-sạch qua; UNCERTAIN/mục-có-nội-dung/T3/không-veto/thiếu-báo-cáo chặn ghim câu');
+}
+
 // ── RT15 — machine-cleared × chữ ký người (chân hook; lưới+quét thêm ở chặng sau) ──
 if (want('RT15')) {
   const errs = [];
@@ -215,8 +276,22 @@ if (want('RT15')) {
     r = hook(ep, evidenceText('rt15', { signoff: 'Fx 2026-08-23' }), { existing: evidenceText('rt15', { signoff: '' }) });
     if (r.code !== 0) errs.push(`(a'+) verified + chữ ký phải QUA, exit ${r.code}: ${r.err.slice(0, 200)}`);
   });
+  // (a-lưới) chữ ký trên hồ sơ máy-thông → lưới VIOLATION; đối chứng dương không chữ ký → qua
+  withGit('rt15', { ...MC, signoff: 'Fx 2026-08-23' }, {}, R => {
+    const r = luoi(R);
+    if (r.status === 0 || !/VIOLATION \[rt15\]: chữ ký người trên hồ sơ máy-thông/.test(r.out)) errs.push(`(a-lưới) phải VIOLATION, exit ${r.status}; ${r.out.split('\n').filter(l => /rt15/.test(l)).join(' | ').slice(0, 240)}`);
+  });
+  withGit('rt15', { ...MC, signoff: '' }, {}, R => {
+    const r = luoi(R);
+    if (r.status !== 0) errs.push(`(a-lưới+) đối chứng dương exit ${r.status}: ${r.out.split('\n').filter(l => /VIOLATION/.test(l)).join(' | ').slice(0, 240)}`);
+  });
+  // (c) da-veto trên machine-cleared bị chặn CÙNG thông điệp với verified (không đẻ luật mới)
+  for (const st of ['machine-cleared', 'verified']) withGit('rt15', { ...MC, status: st, veto: 'da-veto' }, {}, R => {
+    const r = luoi(R);
+    if (r.status === 0 || !/VIOLATION \[rt15\]: veto_state=da-veto chưa xử/.test(r.out)) errs.push(`(c) ${st}+da-veto phải chặn cùng thông điệp; exit ${r.status}`);
+  });
   if (errs.length) fail('RT15', errs.join(' · '));
-  else pass('RT15', 'machine-cleared × chữ ký: hook chặn hai chiều ghi, hai đối chứng dương qua');
+  else pass('RT15', 'machine-cleared × chữ ký: hook chặn hai chiều, lưới chặn, da-veto cùng thông điệp, đối chứng dương qua');
 }
 
 const la = only.filter(id => !ALL_IDS.includes(id));

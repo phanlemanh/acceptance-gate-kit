@@ -21,7 +21,7 @@
 # GitHub Actions: --base "origin/$GITHUB_BASE_REF").
 #
 # For every feature in _acceptance/ whose contract has status
-# implemented|verified|signed-off and risk_tier T2|T3:
+# implemented|verified|signed-off|machine-cleared and risk_tier T2|T3:
 #   - Gate 1 was recorded: approved_by non-empty, or gate1_skipped: true
 #     (the audited escape hatch — NOTEd, not blocked)
 #   - evidence-report.md must exist
@@ -393,7 +393,7 @@ claims_released() { # <dir> — 0 iff thư mục TỰ NHẬN đã qua cổng.
   # sót ca "khai signed-off mà không có evidence nào".
   if [ -f "$1/contract.md" ]; then
     case "$(fm_field "$1/contract.md" status)" in
-      implemented|verified|signed-off) return 0 ;;
+      implemented|verified|signed-off|machine-cleared) return 0 ;;
     esac
   fi
   return 1
@@ -662,7 +662,7 @@ for dir in "$ACC"/*/; do
     continue
   fi
   case "$REQUIRED_FOR" in *"$tier"*) ;; *) continue ;; esac
-  # ── Hồ sơ CHƯA ARM cổng (status ngoài implemented/verified/signed-off) ──
+  # ── Hồ sơ CHƯA ARM cổng (status ngoài implemented/verified/signed-off/machine-cleared) ──
   # Bản cũ `continue` im lặng ở đây — cửa thứ ba của lớp «PASS chưa ai phán»
   # (hai cửa đầu: không contract / thiếu field, xử ở trên). Vòng 4 hồ sơ
   # release-2-2-0 (18/08): status approved + evidence-report REJECT + chữ ký
@@ -678,7 +678,7 @@ for dir in "$ACC"/*/; do
   #       chấm.
   # Đặt SAU `case REQUIRED_FOR`: tier ngoài required_for vẫn im (ARM12).
   case "$status" in
-    implemented|verified|signed-off) ;;
+    implemented|verified|signed-off|machine-cleared) ;;
     *)
       _arm_why=""
       if [ -f "$dir/evidence-report.md" ] && { [ "$DIFF_READY" -eq 0 ] || slug_in_diff "$slug"; }; then
@@ -687,11 +687,23 @@ for dir in "$ACC"/*/; do
         _arm_why="PR đổi code chịu cổng ($DIFF_GATED_FIRST…) mà hồ sơ trong PR chưa arm"
       fi
       if [ -n "$_arm_why" ]; then
-        echo "VIOLATION [$slug]: hồ sơ có bằng chứng nhưng status chưa arm cổng — status=$status; $_arm_why. Cổng chỉ chấm hồ sơ ở implemented/verified/signed-off, hồ sơ này đang tàng hình. Đặt status: implemented để cổng chấm, hoặc gỡ evidence-report.md / tách hồ sơ khỏi PR nếu bằng chứng thuộc phạm vi đã bỏ."
+        echo "VIOLATION [$slug]: hồ sơ có bằng chứng nhưng status chưa arm cổng — status=$status; $_arm_why. Cổng chỉ chấm hồ sơ ở implemented/verified/signed-off/machine-cleared, hồ sơ này đang tàng hình. Đặt status: implemented để cổng chấm, hoặc gỡ evidence-report.md / tách hồ sơ khỏi PR nếu bằng chứng thuộc phạm vi đã bỏ."
         violations=$((violations+1))
       fi
       continue ;;
   esac
+
+  # ── Răng LỜI KHAI của machine-cleared (hồ sơ ra-co-ten, AC-2) ──
+  # «máy đã thông» tự khai sáu điều kiện xanh-sạch. Lưới đòi VẬT, và trả lời bằng ĐÚNG
+  # điều kiện trượt. Đặt TRƯỚC luật Cổng 1 để trạng thái mới có thông điệp của chính nó
+  # thay vì mượn câu của làn V. Báo cáo VẮNG thì im ở đây — luật thiếu-hồ-sơ bên dưới
+  # sở hữu câu đó, mỗi luật một câu.
+  if [ "$status" = "machine-cleared" ] && [ -f "$dir/evidence-report.md" ]; then
+    if xanh_sach_check "$dir/evidence-report.md"; then :; else
+      echo "VIOLATION [$slug]: status machine-cleared nhưng hồ sơ còn cần người — $CLEAN_WHY. Hạ về verified rồi mời ký, hoặc sửa cho bằng chứng xanh-sạch thật."
+      violations=$((violations+1)); continue
+    fi
+  fi
 
   # Gate 1 must have been recorded BEFORE any post-approval status: a contract
   # that reached implemented+ with an empty approved_by jumped the gate. The
@@ -886,6 +898,13 @@ XLACS
   # while its provenance reads empty (would otherwise let a bypassed PASS slip).
   verdict="$(front_field "$report" verdict)"
   signoff="$(front_field "$report" human_signoff)"
+  # ── machine-cleared × chữ ký người = hai sự thật cãi nhau (hồ sơ ra-co-ten, AC-15) ──
+  # Ký thì status phải sang signed-off; để chữ ký nằm trên hồ sơ máy-thông là mọi bên đọc
+  # nói hai chuyện về cùng một hồ sơ.
+  if [ "$status" = "machine-cleared" ] && [ -n "$signoff" ]; then
+    echo "VIOLATION [$slug]: chữ ký người trên hồ sơ máy-thông — ký thì status phải sang signed-off (human_signoff=\"$signoff\", status=machine-cleared). /signoff đổi status cùng lượt ghi chữ ký."
+    violations=$((violations+1)); continue
+  fi
   if [ "$verdict" != "PASS" ]; then
     echo "VIOLATION [$slug]: verdict=$verdict (must be PASS to merge)"
     violations=$((violations+1)); continue
