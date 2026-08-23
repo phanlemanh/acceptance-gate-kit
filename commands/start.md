@@ -31,13 +31,13 @@ worktree/nhánh đọc từ git của `<path>`.
    <!-- <<<START-SCAN-KEYS
    config
    git.branch git.dirty
-   groups.gates[].slug groups.gates[].gate groups.gates[].since groups.gates[].tier
-   groups.inProgress[].slug groups.inProgress[].status groups.inProgress[].nextStep groups.inProgress[].tier
-   groups.considering[].slug groups.considering[].name groups.considering[].since groups.considering[].ageDays
-   groups.done[].slug groups.done[].state
+   groups.gates[].slug groups.gates[].gate groups.gates[].since groups.gates[].tier groups.gates[].stateKey groups.gates[].label groups.gates[].viecKe
+   groups.inProgress[].slug groups.inProgress[].status groups.inProgress[].nextStep groups.inProgress[].tier groups.inProgress[].stateKey groups.inProgress[].label groups.inProgress[].viecKe
+   groups.considering[].slug groups.considering[].name groups.considering[].since groups.considering[].ageDays groups.considering[].stateKey groups.considering[].label groups.considering[].viecKe
+   groups.done[].slug groups.done[].state groups.done[].stateKey groups.done[].label groups.done[].viecKe
    map.present map.fresh map.enabled map.state map.label
    discovery.brainstormSkill
-   broken[].slug broken[].file broken[].reason
+   broken[].slug broken[].file broken[].reason broken[].stateKey broken[].label broken[].viecKe
    START-SCAN-KEYS>>> -->
 
 2. **Nạp luật TRƯỚC khi viết:** đọc

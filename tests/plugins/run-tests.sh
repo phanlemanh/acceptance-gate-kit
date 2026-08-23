@@ -2538,6 +2538,9 @@ if (!e2.some(x => /khong rut duoc khoi START-SCAN-KEYS/.test(x)))
 // considering.push → marker that phai DO neu dung ten khoa (chung minh resolveKey soi toi mang moi)
 const mut3 = fs.mkdtempSync(path.join(os.tmpdir(), 'p99m-'));
 for (const rel of ['lib/evidence-core.cjs', 'lib/workspace-record.cjs', 'lib/md-section.cjs', 'scripts/khong-can-nguoi.mjs',
+                   // bang chu chung — start-scan nhap TINH; thieu no thi ban sao chet vi HA TANG
+                   // chu khong vi vat, va ca do bien thanh xanh-khong-chay (ho so start-bang-dieu-khien)
+                   'scripts/trang-thai-ho-so.cjs',
                    'scripts/product-map.mjs', 'skills/acceptance/references/opportunity-template.md']) {
   fs.mkdirSync(path.dirname(path.join(mut3, rel)), { recursive: true });
   fs.copyFileSync(path.join(root, rel), path.join(mut3, rel));
@@ -2971,6 +2974,9 @@ fs.copyFileSync(path.join(root, 'lib/workspace-record.cjs'), path.join(mut, 'lib
 // lib/md-section.cjs) — ban sao chay thu phai co ca hai, khong thi node chet o
 // buoc nap module va ca nay do vi thieu file chu khong vi hanh vi dang do.
 fs.copyFileSync(path.join(root, 'scripts/khong-can-nguoi.mjs'), path.join(mut, 'scripts/khong-can-nguoi.mjs'));
+// start-scan cung nhap BANG CHU chung (scripts/trang-thai-ho-so.cjs) — thieu no thi
+// ban sao chet vi HA TANG chu khong vi vat, va ca do bien thanh xanh-khong-chay.
+fs.copyFileSync(path.join(root, 'scripts/trang-thai-ho-so.cjs'), path.join(mut, 'scripts/trang-thai-ho-so.cjs'));
 fs.copyFileSync(path.join(root, 'lib/md-section.cjs'), path.join(mut, 'lib/md-section.cjs'));
 const src = fs.readFileSync(SCAN, 'utf8');
 const gone = VOCAB[VOCAB.length - 1];                     // go phan tu cuoi khuon writer
@@ -3120,6 +3126,9 @@ fs.copyFileSync(path.join(root, 'lib/workspace-record.cjs'), path.join(mut, 'lib
 // lib/md-section.cjs) — ban sao chay thu phai co ca hai, khong thi node chet o
 // buoc nap module va ca nay do vi thieu file chu khong vi hanh vi dang do.
 fs.copyFileSync(path.join(root, 'scripts/khong-can-nguoi.mjs'), path.join(mut, 'scripts/khong-can-nguoi.mjs'));
+// start-scan cung nhap BANG CHU chung (scripts/trang-thai-ho-so.cjs) — thieu no thi
+// ban sao chet vi HA TANG chu khong vi vat, va ca do bien thanh xanh-khong-chay.
+fs.copyFileSync(path.join(root, 'scripts/trang-thai-ho-so.cjs'), path.join(mut, 'scripts/trang-thai-ho-so.cjs'));
 fs.copyFileSync(path.join(root, 'lib/md-section.cjs'), path.join(mut, 'lib/md-section.cjs'));
 // start-scan doc KHUON opportunity-template luc chay (nhan bullet Nguong) — ban sao phai co khuon
 fs.mkdirSync(path.join(mut, path.dirname(OPP_TPL)), { recursive: true });

@@ -77,7 +77,19 @@ const git = (() => {
   } catch { return { branch: null, dirty: null }; }
 })();
 
+// Chữ mặt người rút từ MỘT bảng — máy quét là bộ PHÂN Ô duy nhất, ba bộ đọc
+// còn lại HỎI nó chứ không tự phán (hồ sơ start-bang-dieu-khien).
+//
+// ⚠ Khoá mới tên `stateKey`, KHÔNG dùng lại `state`: `done[].state` ĐANG là hợp
+// đồng máy — commands/start.md đọc giá trị `lan-v-mo`/`xanh-sach`, và ca P98/P123
+// đọc nó. Đổi nghĩa một khoá đang có bên đọc chính là lớp bên-viết-và-bên-đọc-
+// trôi-khỏi-nhau mà hồ sơ này sinh ra để giết (ledger S2).
+const { chu } = require(path.join(__dirname, 'trang-thai-ho-so.cjs'));
+const g = (stateKey, obj) => ({ ...obj, stateKey, label: chu(stateKey).nhan, viecKe: chu(stateKey).viecKe });
+
 const gates = [], inProgress = [], considering = [], done = [], broken = [];
+// MỌI lối hỏng về cùng một khoá — gom về một cửa duy nhất.
+const pushHong = obj => broken.push(g('ho-so-hong', obj));
 // MỘT từ vựng verdict cho MỌI nhánh: nhánh `verified` gọi tên giá trị lạ trong
 // khi nhánh `implemented` nuốt im lặng là chỗ duy nhất cùng một artifact hỏng
 // được phát hiện hay không tuỳ status của contract (Cổng 2 start-command, known-limit 3).
@@ -109,6 +121,8 @@ const bangLech = verdict => ({ file: 'evidence-report.md',
 // verdict của PHIÊN NGHIỆM THU → ô kết cục. Giá trị ngoài bảng này không tới
 // được đây: luật chung đã gọi nó là hồ sơ hỏng trước đó.
 const UAT_STATE = { release: 'released', iterate: 'uat-iterate', kill: 'uat-kill' };
+// Khoá trạng thái song song — `state` ở trên là hợp đồng máy có bên đọc, giữ nguyên.
+const UAT_KEY = { release: 'da-nghiem-thu-release', iterate: 'da-nghiem-thu-iterate', kill: 'da-nghiem-thu-kill' };
 // Khớp CHẶT khuôn tên plan YYYY-MM-DD-<slug>.md — substring trần khiến slug là
 // tiền tố của slug khác dính plan không phải của nó (S4-r1, nextStep S3 oan)
 const planSlug = f => { const m = f.match(/^\d{4}-\d{2}-\d{2}-(.+)\.md$/); return m ? m[1] : null; };
@@ -164,14 +178,14 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
   // lỗi trong hợp đồng do chính round 1 gây). Lỗi của file KHÔNG dùng tới thì
   // không được quyết định ô của slug.
   const cRead = read(cPath);
-  if (cRead.err) { broken.push({ slug, file: 'contract.md', reason: ioReason(cRead.err) }); continue; }
+  if (cRead.err) { pushHong({ slug, file: 'contract.md', reason: ioReason(cRead.err) }); continue; }
   const cTxt = cRead.t;
   if (cTxt != null) {
     // status đi qua LUẬT CHUNG (fieldProblem) — bản kiểm tay ở đây từng lệch
     // chuỗi với lib ("parse" vs "đọc") và là một trong hai bản sao cuối cùng
     // của luật contract/status (workspace-reader-unification AC-1).
     const statusProblem = fieldProblem('contract.md', cTxt, 'status');
-    if (statusProblem) { broken.push({ slug, ...statusProblem }); continue; }
+    if (statusProblem) { pushHong({ slug, ...statusProblem }); continue; }
     const status = frontmatterField(cTxt, 'status').toLowerCase();
     const tier = frontmatterField(cTxt, 'risk_tier') || null;
     // evidence-report.md CHỈ được đọc trong hai nhánh tiêu thụ nó (verified,
@@ -184,13 +198,13 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
     // ngược lên là ma trận đỏ.
     const readEvidence = () => {
       const eRead = read(path.join(dir, 'evidence-report.md'));
-      if (eRead.err) { broken.push({ slug, file: 'evidence-report.md', reason: ioReason(eRead.err) }); return null; }
+      if (eRead.err) { pushHong({ slug, file: 'evidence-report.md', reason: ioReason(eRead.err) }); return null; }
       const eTxt = eRead.t;
       // Rỗng = VẮNG, kết luận một chỗ cho cả hai nhánh (S4-r1: frontmatterField
       // trả '' cho key-có-giá-trị-rỗng nên `== null` để lọt xuống offVocab(''))
       if (eTxt != null) {
         const p = fieldProblem('evidence-report.md', eTxt, 'verdict');
-        if (p) { broken.push({ slug, ...p }); return null; }
+        if (p) { pushHong({ slug, ...p }); return null; }
       }
       return {
         exists: eTxt != null,
@@ -205,7 +219,7 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
     // trên, học qua 4 round của start-scan-hardening).
     if (status === 'signed-off') {
       const uRead = read(path.join(dir, 'uat-session.md'));
-      if (uRead.err) { broken.push({ slug, file: 'uat-session.md', reason: ioReason(uRead.err) }); continue; }
+      if (uRead.err) { pushHong({ slug, file: 'uat-session.md', reason: ioReason(uRead.err) }); continue; }
       const uTxt = uRead.t;
       // Đường A (cơ hội đã quyết build/iterate) còn MỘT cổng người nữa: phiên
       // nghiệm thu. Đường B/C/E ship thẳng — không dựng phiên giả cho chúng.
@@ -215,7 +229,7 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       let oTxt = null;
       if (usesOpportunity(cTxt, uTxt)) {
         const oR = read(oPath);
-        if (oR.err) { broken.push({ slug, file: 'opportunity.md', reason: ioReason(oR.err) }); continue; }
+        if (oR.err) { pushHong({ slug, file: 'opportunity.md', reason: ioReason(oR.err) }); continue; }
         oTxt = oR.t;
       }
       // MỘT lượt hỏi luật chung cho CẢ tập hồ sơ được tiêu thụ. Kiểm tay từng
@@ -224,15 +238,15 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       // r13: stage của phiên nghiệm thu, và decision lạ khi stage chưa quyết).
       const texts = consumedTexts({ contract: cTxt, opportunity: oTxt, uat: uTxt });
       const problem = recordProblem(texts);
-      if (problem) { broken.push({ slug, ...problem }); continue; }
+      if (problem) { pushHong({ slug, ...problem }); continue; }
       const { decision, verdict } = navValues(texts);
       // verdict RỖNG = phiên đã dựng nhưng CHƯA ký → rơi xuống ô chờ-Cổng-Giá-trị
-      if (verdict) { done.push({ slug, state: UAT_STATE[verdict] }); continue; }
+      if (verdict) { done.push(g(UAT_KEY[verdict], { slug, state: UAT_STATE[verdict] })); continue; }
       if (decision === 'build' || decision === 'iterate')
         // since CHỈ từ decided_at của phiên — nghi thức thật chưa sinh mốc thì
         // để trống, không mượn mtime bịa một mốc (AC-8 workspace-reader-unification)
-        gates.push({ slug, gate: 'gia-tri', since: fmOrNull(uTxt, 'decided_at') || '', tier });
-      else done.push({ slug, state: 'signed-off' });
+        gates.push(g('cho-cong-gia-tri', { slug, gate: 'gia-tri', since: fmOrNull(uTxt, 'decided_at') || '', tier }));
+      else done.push(g('da-giao', { slug, state: 'signed-off' }));
     }
     else if (status === 'verified') {
       // Bảng phân ô spec: chờ-Cổng-Bằng-chứng = verdict đã-chốt (PASS/PENDING-
@@ -242,17 +256,18 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       if (ev) {
         const meaning = ev.exists ? meaningOf(ev.verdict) : null;
         const kcnState = ev.exists && !ev.signoff ? kcn(cTxt, ev.raw) : null;
-        if (!ev.exists) broken.push({ slug, ...missingArtifact({ 'contract.md': cTxt, 'evidence-report.md': null }) });
-        else if (!meaning) broken.push({ slug, ...bangLech(ev.verdict) });
-        else if (ev.signoff) done.push({ slug, state: 'signed-off' });
+        if (!ev.exists) pushHong({ slug, ...missingArtifact({ 'contract.md': cTxt, 'evidence-report.md': null }) });
+        else if (!meaning) pushHong({ slug, ...bangLech(ev.verdict) });
+        else if (ev.signoff) done.push(g('da-giao', { slug, state: 'signed-off' }));
         // KCN-NHANH: hồ sơ KHÔNG còn cần người — cùng câu lưới trước-merge hỏi
         // (da-veto · Cổng 1 đúng vết · sáu điều kiện xanh-sạch). Trả về tên
         // trạng thái «đã giao»: lan-v-mo (cửa veto mở) hay xanh-sach (người duyệt
         // Cổng 1). Hồ sơ chưa sạch rơi xuống nhánh dưới và VẪN là cổng — đó là
         // lỗi vòng một của hồ sơ lan-v-khong-phai-cho-ky (khoá vào veto_state).
-        else if (kcnState) done.push({ slug, state: kcnState });
-        else if (meaning.settled) gates.push({ slug, gate: 'bang-chung', since: since(cPath, frontmatterField(cTxt, 'approved_at')), tier });
-        else inProgress.push({ slug, status, nextStep: meaning.nextStep, tier });
+        else if (kcnState) done.push(g(kcnState === 'lan-v-mo' ? 'may-di-tiep-veto-mo' : 'may-di-tiep-xanh-sach', { slug, state: kcnState }));
+        else if (meaning.settled) gates.push(g('cho-cong-bang-chung', { slug, gate: 'bang-chung', since: since(cPath, frontmatterField(cTxt, 'approved_at')), tier }));
+        // Còn việc của MÁY: REJECT -> đang sửa theo bằng chứng · BLOCKED -> nghiệm thu bị chặn.
+        else inProgress.push(g(meaning.nextStep === 'S3-fix' ? 'dang-sua-theo-bang-chung' : 'nghiem-thu-bi-chan', { slug, status, nextStep: meaning.nextStep, tier }));
       }
     }
     else if (status === 'implemented') {
@@ -260,18 +275,26 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       if (ev) {
         // Chưa có evidence = máy chưa chấm lần nào → bước kế là nghiệm thu máy
         const meaning = !ev.exists ? { nextStep: 'S4' } : meaningOf(ev.verdict);
-        if (!meaning) broken.push({ slug, ...bangLech(ev.verdict) });
-        else inProgress.push({ slug, status, nextStep: meaning.nextStep, tier });
+        if (!meaning) pushHong({ slug, ...bangLech(ev.verdict) });
+        else {
+          // REJECT -> đang sửa · BLOCKED -> nghiệm thu bị chặn · còn lại (chưa có
+          // bằng chứng, hoặc đã PASS mà hợp đồng chưa lên verified) -> máy còn
+          // một lượt chấm phải chạy.
+          const k = !ev.exists ? 'cho-nghiem-thu-may'
+            : ev.verdict === 'REJECT' ? 'dang-sua-theo-bang-chung'
+            : ev.verdict === 'BLOCKED' ? 'nghiem-thu-bi-chan' : 'cho-nghiem-thu-may';
+          inProgress.push(g(k, { slug, status, nextStep: meaning.nextStep, tier }));
+        }
       }
     }
-    else if (status === 'approved') inProgress.push({ slug, status, nextStep: planExists(slug) ? 'S3' : 'S2', tier });
-    else if (status === 'draft') gates.push({ slug, gate: 'pham-vi', since: since(cPath, null), tier });
-    else broken.push({ slug, file: 'contract.md', reason: `status không nhận diện được: ${status || '(rỗng)'}` });
+    else if (status === 'approved') inProgress.push(g(planExists(slug) ? 'dang-viet-code' : 'dang-lap-ke-hoach', { slug, status, nextStep: planExists(slug) ? 'S3' : 'S2', tier }));
+    else if (status === 'draft') gates.push(g('cho-cong-pham-vi', { slug, gate: 'pham-vi', since: since(cPath, null), tier }));
+    else pushHong({ slug, file: 'contract.md', reason: `status không nhận diện được: ${status || '(rỗng)'}` });
     continue;
   }
   // Không có contract.md — GIỜ mới đọc opportunity.md (xem ghi chú ở trên)
   const oRead = read(oPath);
-  if (oRead.err) { broken.push({ slug, file: 'opportunity.md', reason: ioReason(oRead.err) }); continue; }
+  if (oRead.err) { pushHong({ slug, file: 'opportunity.md', reason: ioReason(oRead.err) }); continue; }
   // MỌI field điều hướng qua LUẬT CHUNG, kể cả khi trạng thái không dùng tới
   // nó để xếp ô. Bảng enum chép tay ở đây là chỗ r13 lệch: `decision` ngoài từ
   // vựng lọt im lặng vì nhánh `stage !== 'decided'` rẽ TRƯỚC khi nó được đối
@@ -279,18 +302,18 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
   // recordProblem cũng trả luôn ca không-có-cả-hai-hồ-sơ (ANCHOR_FILES).
   const texts = consumedTexts({ contract: null, opportunity: oRead.t, uat: null });
   const problem = recordProblem(texts);
-  if (problem) { broken.push({ slug, ...problem }); continue; }
+  if (problem) { pushHong({ slug, ...problem }); continue; }
   const { stage, decision } = navValues(texts);
   if (stage !== 'decided' || !decision) {
     // Chưa có ngưỡng thì chưa có gì để ký: xếp «đang cân nhắc», không phải cổng.
-    if (thresholdFilled(oRead.t)) gates.push({ slug, gate: 'dang', since: since(oPath, fmOrNull(oRead.t, 'decided_at')), tier: null });
+    if (thresholdFilled(oRead.t)) gates.push(g('cho-cong-dang', { slug, gate: 'dang', since: since(oPath, fmOrNull(oRead.t, 'decided_at')), tier: null }));
     else {
       const s = gitBirth(oPath) || statSync(oPath).mtime.toISOString();
-      considering.push({ slug, name: fmOrNull(oRead.t, 'feature') || slug, since: s, ageDays: ageDays(s) });
+      considering.push(g('y-can-nhac', { slug, name: fmOrNull(oRead.t, 'feature') || slug, since: s, ageDays: ageDays(s) }));
     }
   }
-  else if (decision === 'build' || decision === 'iterate') inProgress.push({ slug, status: 'opportunity-decided', nextStep: 'S1', tier: null });
-  else done.push({ slug, state: decision });
+  else if (decision === 'build' || decision === 'iterate') inProgress.push(g('sap-mo-vong', { slug, status: 'opportunity-decided', nextStep: 'S1', tier: null }));
+  else done.push(g(decision === 'park' ? 'xep-lai' : 'da-bac', { slug, state: decision }));
 }
 gates.sort((a, b) => String(a.since).localeCompare(String(b.since)));
 considering.sort((a, b) => a.since.localeCompare(b.since));   // cũ nhất lên đầu — thẻ lấy 3 tên đầu
