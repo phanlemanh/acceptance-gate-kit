@@ -137,6 +137,45 @@ Steps:
 7. **"Not now" / rejected** → the contract stays `draft`; capture the reason in
    chat; write nothing to gate fields.
 
+
+## Chế độ Cổng Đáng (hồ sơ chưa có hợp đồng)
+
+Cổng thứ ba dùng CHÍNH lệnh này, không có lệnh thứ bảy — hiến pháp kit là chỉ
+TRỪ, không CỘNG, và khoá model-invocation của ADR 0002 đã phủ `/approve`.
+
+**Nhận ra chế độ:** `contract.md` VẮNG ∧ `opportunity.md` có ∧ `decision` rỗng ∧
+`stage ≠ archived`. Thẻ: `/acceptance-gate:acceptance-card <slug>` tự nhận Cổng
+Đáng (không còn trỏ sang thẻ Cổng Phạm vi rỗng).
+
+**Câu gộp:** `làm|lặp|xếp lại|dừng [; giữ proto|lưu proto] [; không đo được: <lý do>] [: <tên> [<ngày>]]`
+
+**Bảng map — bốn lối ra, bốn giá trị máy:** làm→build · lặp→iterate · xếp lại→park · dừng→kill.
+Hỏi `giữ proto`/`lưu proto` CHỈ khi `prototype.base_commit` có giá trị.
+
+1. **Răng chiều đỏ — chặn trước khi ghi:**
+   - `làm`/`lặp` mà ô ngưỡng còn `…` (hoặc còn `[đề xuất]`) **và** không có dòng
+     «Không đo được — » trong file lẫn trong câu gộp → **TỪ CHỐI**, in đúng câu
+     cờ đỏ của thẻ: ký lúc này là ký trên thước trang trí. Ngưỡng chốt CÙNG LÚC
+     ký là điều kiện của khuôn, không phải lời khuyên.
+   - `làm`/`lặp` mà bảng «Nguồn ngoài & phạm vi kế thừa» còn hàng **chưa phân
+     loại** → **TỪ CHỐI** (luật răng của khuôn: không phân loại = chưa đủ điều
+     kiện ký).
+   - `xếp lại`/`dừng` KHÔNG cần ngưỡng — hai lối đó đóng ý, không mở việc.
+2. **Gỡ tiền tố `[đề xuất]`** khỏi mọi bullet ngưỡng: ký là nhận. Câu gộp có
+   «không đo được: …» → ghi một dòng `Không đo được — <lý do>` thay các bullet.
+3. **Ghi:** `stage: decided`, `decision`, `decided_by`, `decided_at` (ISO, ngày
+   lệnh chạy — danh tính theo bậc thang khai MỘT LẦN ở đầu file này),
+   `prototype.disposition` khi có hỏi. `dừng` → `stage: archived`.
+4. **Append sổ quyết định** `_acceptance/<slug>/decisions.jsonl`:
+   `{"id":"d-<UTC>-<rand>","type":"gate0","at":"<ISO>","by":"<tên>","decision":"<lối> — <tên ý>"}`.
+5. **Vẽ lại bản đồ** nếu repo đã bật (`node <plugin>/scripts/product-map.mjs --root <repo>`),
+   rồi commit MỘT lượt: ô cơ hội + sổ + bản đồ. Một lượt gọi người, một PR.
+6. **In bước kế:** `build`/`iterate` → «`/feature-loop:feature-loop <slug>`» ·
+   `park` → «đã xếp lại, không ai phải làm gì» · `kill` → «đã đóng có hồ sơ».
+
+Máy KHÔNG điền sẵn lối ra, KHÔNG viết hộ căn cứ: máy trình đề bài + ngưỡng (đề
+xuất hiện rõ là đề xuất) và bốn lối ra sống; chọn là phát ngôn của người.
+
 Never:
 - approve from silence, a timeout, or your own judgment;
 - offer gate-skipping here — `gate1_skipped: true` stays a chat-explicit,

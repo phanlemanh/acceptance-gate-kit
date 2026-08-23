@@ -18,9 +18,19 @@ quyết định; đừng để người ký cảm thấy họ phải bảo vệ 
 
 ## 0. Điều kiện vào — kiểm trước, không hỏi
 
-- `_acceptance/<slug>/contract.md` có `status: signed-off`.
-- `_acceptance/<slug>/opportunity.md` tồn tại và có ngưỡng UAT đã chốt tại
-  Cổng Đáng (section "Ngưỡng chết / ngưỡng UAT").
+- `_acceptance/<slug>/contract.md` có `status: signed-off` hoặc `machine-cleared`
+  (máy đã thông — làn V xanh-sạch, không chữ ký người; lưới trước-merge đã kiểm
+  lời khai đó, nên nó vào phiên ngang một hồ sơ đã ký).
+- `_acceptance/<slug>/opportunity.md` tồn tại và có ngưỡng UAT đã CHỐT tại
+  Cổng Đáng (section "Ngưỡng chết / ngưỡng UAT"): không còn `…`, và không còn
+  tiền tố `[đề xuất]` — đề xuất của máy chưa phải ngưỡng của người.
+  Ba ca không mở phiên, mỗi ca một câu, KHÔNG treo:
+  - section có một dòng bắt đầu `Không đo được — ` → DỪNG một dòng: «ô này khai
+    không đo được ở Cổng Đáng — vòng không có người dùng cuối thì không có phiên
+    nghiệm thu; hồ sơ đã đóng, không ai phải làm gì tiếp».
+  - ngưỡng còn `…` hoặc còn `[đề xuất]` → DỪNG và nêu ĐÚNG hai lối có tên: điền
+    ngưỡng vào ô, hoặc khai một dòng «Không đo được — <lý do>» kèm entry sổ
+    quyết định. Không có lối thứ ba, và không có đường sửa tay `decision`.
 - Sản phẩm thật đã chạy sau flag để người dự bấm được — điều kiện này đọc từ
   **nhật-ký-vấp** của Lái-thử Người-lạ, `_acceptance/<slug>/stranger-drive.md`
   (khuôn: `${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/acceptance/references/stranger-drive-template.md`;
@@ -110,6 +120,11 @@ là thứ duy nhất phiên này sinh ra mà máy không thay được.
   `node ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/scripts/product-map.mjs --root .` (repo tự host
   kit chạy `node scripts/product-map.mjs --root .`). Bản đồ vừa có một ô đổi
   chủ; để nó lệch là để người sau đọc một bản đồ nói dối.
-- Bước kế theo verdict: `release` → nghi thức phát hành của repo · `iterate` →
-  giữ giả định, sửa rồi đo lại · `kill` → đóng có hồ sơ.
+- Bước kế theo verdict — mỗi lối có CHỦ, không lối nào bỏ lửng:
+  - `release` → nghi thức phát hành của repo.
+  - `iterate` → in đúng một dòng: «mở vòng kế bằng `/feature-loop:feature-loop
+    <mô tả>` — hồ sơ mới, ô cơ hội giữ nguyên với `decision: iterate`».
+  - `kill` → ghi `stage: archived` vào `opportunity.md` CÙNG lượt commit verdict.
+    Đó là cái làm hồ sơ «đã đóng có hồ sơ» ở mọi bộ đọc; bỏ bước này thì ý đã
+    dừng vẫn hiện ra như đang chờ người.
 - Append kết quả đo vào `opportunity.md` — vòng đo sau ship là input của retro.

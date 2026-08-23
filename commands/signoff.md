@@ -103,7 +103,10 @@ Steps:
      `human_override`;
    - the verdict upgrade `PENDING-JUDGMENT → PASS`, legal only after ALL those
      lines are filled;
-   - chữ «Ký» hay «Trả lại» → `human_signoff` + contract `status: signed-off`.
+   - chữ «Ký» hay «Trả lại» → `human_signoff` + contract `status: signed-off` —
+     kể cả khi hồ sơ đang `machine-cleared`: người ký trong cửa veto thì status
+     phải sang `signed-off` CÙNG lượt, để chữ ký không nằm trên một hồ sơ đang
+     tự khai là «máy thông, không có chữ ký người».
    Danh tính và ngày KHÔNG nằm trong danh sách này: máy suy theo bậc ở trên
    rồi hiển thị lại chờ xác nhận một chạm khi người chưa khai.
 4. **Collect decisions in chat, item by item** — SKIP every item the

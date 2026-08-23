@@ -177,6 +177,14 @@ _Avoid_: sign (đó là Gate 2), duyệt tự động.
 commit một lượt; trách nhiệm đọc ở forge. Viết liền.
 _Avoid_: sign-off, approval (đó là Gate 1).
 
+**Máy đã thông** (`machine-cleared`):
+Trạng thái KẾT của làn V: máy qua Cổng Bằng chứng bằng sáu điều kiện xanh-sạch,
+KHÔNG có chữ ký người; cửa veto vẫn mở theo `veto_state`. Lưới trước-merge coi
+nó là LỜI KHAI và đòi bằng chứng — máy không tự phong. Người ký sau vẫn được:
+`/signoff` đổi sang `signed-off` cùng lượt ghi chữ ký.
+_Avoid_: đã ký, đã duyệt (đó là chữ của người); in nó cùng chữ với `signed-off`
+ở bất kỳ mặt người nào.
+
 ### Classification
 
 **Risk tier**:

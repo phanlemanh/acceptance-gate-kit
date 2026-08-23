@@ -289,7 +289,8 @@ Entry: implementation complete, contract `status: implemented`.
    hiện diện và rỗng · hạng **T2** đọc từ `risk_tier` của contract (báo cáo
    KHÔNG tự phong hạng). Mục VẮNG ≠ mục rỗng: bỏ hẳn một mục khỏi báo cáo là
    đường sạch-giả rẻ nhất, và nó tính là KHÔNG sạch.
-   Đủ sáu → commit phần máy viết, báo người ĐÚNG MỘT DÒNG (đã qua với bằng
+   Đủ sáu → hồ sơ ghi `status: machine-cleared` (ô kết có tên của làn V — KHÔNG
+   mượn `signed-off`, vì đó là chữ của người), commit phần máy viết, báo người ĐÚNG MỘT DÒNG (đã qua với bằng
    chứng sạch · cửa veto vẫn mở · việc kế là gì), rồi đi tiếp. Không khối
    👉, không câu hỏi. `pre-merge-check.sh` áp đúng sáu điều kiện này ở biên
    merge — luật văn bản và lưới máy nói cùng một câu.
