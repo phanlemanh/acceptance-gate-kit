@@ -188,7 +188,10 @@ process.stdin.on('end', () => {
       const conflict = core.machineClearedSignoffConflict(siblingContract, payload);
       if (conflict) {
         const cfg0 = readEnforcement(fileDir);
-        const cl = ['', 'BLOCKED by acceptance-evidence-gate (machine-cleared × chữ ký)', `File: ${filePath}`, '', `  x ${conflict}`, ''];
+        const cl = ['', 'BLOCKED by acceptance-evidence-gate (machine-cleared × chữ ký)', `File: ${filePath}`, '',
+          `  x ${conflict}`, '',
+          'Bước kế: ghi contract.md `status: signed-off` TRƯỚC, rồi ghi lại báo cáo này —',
+          'thứ tự đó là đường ký hợp lệ cho hồ sơ máy-thông (commands/signoff.md bước 7).', ''];
         if (cfg0.enforcement === 'off') { /* cổng tắt: đi tiếp như mọi luật khác */ }
         else if (cfg0.enforcement === 'warn') { process.stderr.write(cl.join('\n').replace('BLOCKED by', 'WARNING from') + '\n'); }
         else { process.stderr.write(cl.join('\n') + '\n'); process.exit(2); }

@@ -117,7 +117,7 @@ Từ morphological-scan (3 trục — thước CE trong ngoặc):
 - **B — nội dung bị đe doạ** (CE: quét nguồn thật — đường dẫn chứa sao có mặt
   trong hồ sơ nhiều việc [SP]): AC-6 (đường dẫn nguyên vẹn), AC-9 (mọi cụm sao
   thật đều thuộc hình dạng có tên), AC-5 (bản cũ sai ở đâu)
-- **C — mặt trình bị ảnh hưởng** (CE: **17** chỗ gọi hàm lột, đếm từ chính mã
+- **C — mặt trình bị ảnh hưởng** (CE: **14** chỗ gọi hàm lột, đếm từ chính mã
   nguồn `scripts/gate-card.js` — phép đo AC-10 canh con số này): AC-6 (2 thẻ
   cổng), AC-7/AC-8 (đường đọc-cũ hai chiều), AC-10 (mọi lối gọi), AC-11 (bộ
   kiểm sẵn có), AC-12 (mốc so sánh)

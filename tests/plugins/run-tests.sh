@@ -6910,8 +6910,30 @@ with tempfile.TemporaryDirectory() as d:
 calls = len(re.findall(r"stripMd\(", CARD.read_text(encoding="utf-8")))
 mc = re.search(r"CE:\s*\*\*(\d+)\*\*\s*chỗ gọi hàm lột", contract)
 assert mc, "truc C khong khai so cho goi ham lot"
-assert calls == int(mc.group(1)), "so cho goi lech: ma nguon %d, truc C khai %s" % (calls, mc.group(1))
-print("P161 OK: %d hinh dang · %d slug · %d cum sao corpus · %d phan loai · %d cho goi · %d assert cu giu nguyen" % (
+# QUAN HE, khong phai HANG DEM (ho so ra-co-ten 24/08 — con tro «thay the»).
+# Ghim `==` voi con so trong hop dong DA KY bien moi feature sau thanh mot lan sua vat da
+# ky — dung lop «thuoc ghim vao thu SE DOI», trai doctrine «_acceptance/ cu la su lieu bat
+# bien» (ADR 0010). Thay bang HAI quan he, ca hai deu bat duoc chieu nguy hiem:
+#   (1) khong tut duoi MOC da khai trong hop dong;
+#   (2) khong tut duoi so cho goi tai MOC NEN cua nhanh. Base khong doc duoc (khong phai
+#       git / khong co remote) -> chi ap (1) va NOI RA, khong im lang bo mot ve.
+# GIOI HAN DA KHAI (ledger ra-co-ten-lam-va-trao#6): hai quan he nay LONG hon `==` — go
+# mot cho goi MOI THEM trong chinh diff nay van xanh (17 -> 16 >= 14). Doi lai: khong
+# feature nao con phai sua mot hop dong DA KY de giu mau xanh. Muon chat lai thi phai do
+# CAU TRUC (moi loi ra van-tho di qua ham lot), khong phai dem — do la ho so rieng.
+_base_calls = None
+try:
+    _base = subprocess.run(["git", "-C", str(root), "merge-base", "HEAD", "origin/main"],
+                           capture_output=True, text=True, check=True).stdout.strip()
+    _src = subprocess.run(["git", "-C", str(root), "show", f"{_base}:scripts/gate-card.js"],
+                          capture_output=True, text=True, check=True).stdout
+    _base_calls = len(re.findall(r"stripMd\(", _src))
+except Exception as e:
+    print("     P161-E10: khong doc duoc moc nen (%s) — chi ap quan he (1)" % type(e).__name__)
+assert calls >= int(mc.group(1)), "so cho goi TUT duoi moc hop dong: ma nguon %d < truc C khai %s — mot loi goi ham lot bi go, van tho co the ro ra the" % (calls, mc.group(1))
+if _base_calls is not None:
+    assert calls >= _base_calls, "diff nay GO cho goi ham lot: moc nen %d -> hien tai %d — van tho co the ro ra mat nguoi" % (_base_calls, calls)
+print("P161 OK: %d hinh dang · %d slug · %d cum sao corpus · %d phan loai · %d cho goi (>= moc) · %d assert cu giu nguyen" % (
     len(CASES), len(slugs), cum_count, classified, calls, len(old_asserts)))
 P161PY
 

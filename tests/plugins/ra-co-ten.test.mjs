@@ -361,8 +361,36 @@ if (want('RT15')) {
     const y = findSlug(scan(root), 'k2');
     if (!y || y.grp !== 'done' || y.stateKey !== 'da-giao-may-thong-veto-mo') errs.push(`(d+) đối chứng dương: ${JSON.stringify(y)}`);
   });
+  // (e) LỐI KÝ CHẠY THẬT — không chỉ ghim rằng thân lệnh CÓ CHỨA câu. Chạy đúng chuỗi ghi
+  // mà signoff.md bước 7 dạy cho hồ sơ máy-thông, qua CHÍNH hook: phải đi tới nơi. Vòng 1
+  // chỉ đo chuỗi trong tài liệu, nên cổng ký khoá mà mọi ca vẫn xanh (finding S4-r3).
+  withRepo(root => {
+    W(root, '.git', '');
+    const dir = path.join(root, '_acceptance', 'rt15b'); mkdirSync(dir, { recursive: true });
+    const cp = path.join(dir, 'contract.md'), ep = path.join(dir, 'evidence-report.md');
+    writeFileSync(cp, contractText('rt15b', MC));
+    writeFileSync(ep, evidenceText('rt15b', { signoff: '' }));
+    writeFileSync(path.join(dir, 'run-log.jsonl'), runLogText('rt15b'));
+    // Thứ tự signoff.md bước 7 dạy: hợp đồng TRƯỚC, rồi báo cáo. Cả hai lượt phải QUA.
+    let r = hook(cp, contractText('rt15b', { ...MC, status: 'signed-off', approvedBy: 'Fx' }), { existing: contractText('rt15b', MC) });
+    if (r.code !== 0) errs.push(`(e) lượt 1 (ghi hợp đồng signed-off) bị chặn: exit ${r.code} — ${r.err.slice(0, 160)}`);
+    writeFileSync(cp, contractText('rt15b', { ...MC, status: 'signed-off', approvedBy: 'Fx' }));
+    r = hook(ep, evidenceText('rt15b', { signoff: 'Fx 2026-08-24' }), { existing: evidenceText('rt15b', { signoff: '' }) });
+    if (r.code !== 0) errs.push(`(e) lượt 2 (ghi chữ ký vào báo cáo) bị chặn: exit ${r.code} — ${r.err.slice(0, 160)}`);
+    // Và thân lệnh phải NÓI RA thứ tự đó — người/máy đọc tài liệu mới đi đúng.
+    errs.push(...checkMenhDe([
+      ['signoff dạy thứ tự ghi', 'commands/signoff.md',
+        t => cut(t, /^7\. \*\*Ghi và commit/m, /^8\.|^Never:/m),
+        /ghi contract `status:\n   signed-off` TRƯỚC/, 1],
+    ]));
+    // Thông điệp chặn phải chỉ đường, không chỉ nói sai.
+    writeFileSync(cp, contractText('rt15b', MC));
+    r = hook(ep, evidenceText('rt15b', { signoff: 'Fx 2026-08-24' }), { existing: evidenceText('rt15b', { signoff: '' }) });
+    if (r.code !== 2) errs.push(`(e) chiều đỏ: thứ tự ngược phải bị chặn, exit ${r.code}`);
+    else if (!/ghi contract\.md `status: signed-off` TRƯỚC/.test(r.err)) errs.push('(e) thông điệp chặn không chỉ ra bước kế');
+  });
   if (errs.length) fail('RT15', errs.join(' · '));
-  else pass('RT15', 'machine-cleared × chữ ký: hook hai chiều + lưới + bộ quét gọi hỏng + thân lệnh ký nhận chuyển; da-veto cùng thông điệp; ba đối chứng dương');
+  else pass('RT15', 'machine-cleared × chữ ký: hook hai chiều + lưới + bộ quét gọi hỏng; LỐI KÝ chạy thật theo thứ tự thân lệnh dạy (hai lượt đều qua) + thứ tự ngược bị chặn kèm bước kế; da-veto cùng thông điệp');
 }
 
 // ── RT5 — bảng chữ: 4 khoá mới, nhãn riêng, bucket đúng (phần bản đồ/thẻ ở chặng sau) ──
