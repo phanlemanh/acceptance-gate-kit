@@ -1,7 +1,7 @@
 ---
 schema_version: 1
 slug: con-mat-thu-hai-lai-thu
-feature: Con mắt thứ hai cho Lái-thử Người-lạ — trả lời câu HỎI-SỰ-THẬT cần nhìn ảnh, để danh sách chuyển-phiên-người chỉ còn câu đáng-giá
+feature: Bậc 3 của lái-thử cho bề mặt AGENT — bản tham chiếu `vlm-assert` chỉ phục vụ frame UI, ván agent không có con mắt thứ hai
 owner: phanlemanh@gmail.com
 stage: discovery              # discovery | decided | archived
 decision:         # build | iterate | park | kill — người ký Cổng 0 điền
@@ -12,9 +12,27 @@ prototype:
   disposition: keep # mã mang theo trong hồ sơ, chưa qua cổng nào
 ---
 
+## ĐÍNH CHÍNH bản đầu (2026-08-23) — đề bài đã viết SAI
+
+Bản đầu của hồ sơ này khai *"kit chưa có năng lực này; thêm VLM vào kit là bỏ tính chất
+tất định"*. **Sai.** Kit ĐÃ CÓ `skills/acceptance/references/vlm-assert.reference.mjs` —
+VLM khác họ, câu ĐÓNG có/không, exit 2 = cannot-run nên không bao giờ xanh giả — và ĐÃ
+CÓ khuôn: kit **không** ship phụ thuộc API, repo sản phẩm **nhận nuôi** bản tham chiếu
+kèm khoá của mình (`eval-executors.md:231`).
+
+Sai vì hai phép đo hẹp: grep `scripts/` của kit thấy không script nào gọi mạng ⇒ suy ra
+cả repo; rồi đọc `docs/lai-thu-nguoi-la.md:76` khai `vlm-assert` *"đã ship, không cài
+thêm"* ⇒ suy ngược lại. Dòng bảng đó là một lỗ riêng, đã mở chip:
+`docs/plans/2026-08-23-hat-giong-vlm-assert-phai-khai-la-nhan-nuoi.md`.
+
+**Đề bài đúng, sau khi đọc lại kit:** bậc 3 hiện chỉ có đường cho **frame UI**
+(`vlm-assert <image> "<câu đóng>"`). Ván lái-thử biến thể **AGENT** — nơi người dùng
+thật là một agent gọi MCP tool — **không có bậc 3 nào**. Câu hỏi thật là: *bậc 3 cho
+biến thể agent trông như thế nào, và nó thuộc bản tham chiếu hay thuộc repo sản phẩm?*
+
 ## Vấn đề & ai gặp
 
-Luật lái-thử cấm người-lạ đọc mã và đọc file (`docs/lai-thu-nguoi-la.md`: *"chỉ
+Luật lái-thử cấm người-lạ đọc mã đọc mã và đọc file (`docs/lai-thu-nguoi-la.md`: *"chỉ
 `tools/list` + phản hồi tool, cấm đọc mã"*). Luật đó ĐÚNG — nó là thứ giữ cho phiên
 lái-thử đo được **bề mặt**, không đo được **ý định của người viết**.
 
@@ -48,25 +66,26 @@ danh sách còn ≤4 — giảm ~43% trên một ván đo được.
 
 ## Lập luận CHỐNG — mạnh, phải trả lời trước khi build
 
-1. **"Chỉ TRỪ, không CỘNG."** Hiến pháp kit nói thẳng. Đây là một CỘNG rõ ràng: một
-   client mạng, một khoá API, một model bên thứ ba.
-2. **Kit đang THUẦN TẤT ĐỊNH.** Grep toàn bộ `scripts/` của kit: chưa script nào gọi
-   mạng. Mọi cổng chạy offline, lặp lại được. Một bước gọi VLM thì không — phụ thuộc
-   mạng, khoá, và model đổi câu trả lời giữa hai lượt. Trộn vào cùng chỗ với cổng
-   tất định là làm người đọc kết quả hết phân biệt được dòng nào lặp lại được.
-3. **Ranh giới "máy không phán đáng-giá" rất dễ trôi.** Luật hiện tại: *"Máy tường
-   thuật, không phán đáng-giá"*, và `docs/lai-thu-nguoi-la.md` cấm đích danh việc
-   dùng lái-thử *"thay cho `uat-session` / để phán đáng-giá"*. Một con mắt biết trả
-   lời sẽ bị hỏi những câu nó không nên trả lời — trượt dốc có thật, không phải lo xa.
-4. **Prototype đang đặt SAI CHỖ.** 765 dòng hiện nằm ở `service/src/` của
-   floorplanstudio, nối vào `server.ts` của sản phẩm. Docblock của chính nó khai
-   *"dựng cho vòng Người lạ lái thử"* và *"không nằm trên đường phục vụ request nào"*
-   — tức mã tự khai nó là công cụ cổng đang ngồi nhầm repo.
+1. **"Chỉ TRỪ, không CỘNG."** Hiến pháp kit nói thẳng. Nếu câu trả lời là *"nâng bản
+   tham chiếu để nó nhận cả frame lẫn payload tool"* thì đó là CỘNG vào kit — phải
+   trả lời được vì sao nó không phải hình thức.
+2. **Có thể KHÔNG cần kit đổi gì.** Khuôn nhận-nuôi đã có: repo sản phẩm chép bản tham
+   chiếu, sửa cho hợp bề mặt của mình, cấp khoá của mình. Nếu floorplanstudio tự nhận
+   nuôi một bản đọc payload tool là đủ, thì việc của kit chỉ là **một dòng tài liệu**
+   nói bậc 3 áp cho cả hai biến thể — và cơ hội này đóng bằng `kill`, không phải `build`.
+3. **Ranh giới "máy không phán đáng-giá" rất dễ trôi.** Kit đã có răng: câu ĐÓNG có/không,
+   và luật «No blind VLM judge» — câu chất lượng mở thuộc design-pass. Bất kỳ đề xuất nào
+   ở đây phải giữ nguyên hai răng đó, không nới.
+4. **Prototype 765 dòng có thể là QUÁ NHIỀU.** Bản tham chiếu của kit làm cùng việc trong
+   **100 dòng**. Prototype mang client đầy đủ, sáu mã lỗi, cấu hình từ env — hữu ích cho
+   một dịch vụ, thừa cho một assert. Nếu chọn nhận nuôi thì nhiều khả năng nên bắt đầu từ
+   **bản 100 dòng của kit**, lấy prototype làm vật đối chiếu chứ không làm nền.
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- **Câu hỏi phép đo trả lời:** trên ván lái-thử tiếp theo có ảnh, con mắt thứ hai có
-  làm danh sách "Chuyển phiên người" **ngắn lại mà không thêm câu sai** không?
+- **Câu hỏi phép đo trả lời:** trên ván lái-thử biến thể AGENT tiếp theo, một con mắt
+  thứ hai có làm danh sách "Chuyển phiên người" **ngắn lại mà không thêm câu sai** không
+  — và nó cần kit đổi gì, hay repo sản phẩm tự nhận nuôi là đủ?
 - **SỐNG:** ≥50% câu hỏi-sự-thật được trả lời đúng (đối chiếu với người mở ảnh kiểm),
   0 câu đáng-giá bị máy tự phán, và mỗi câu máy trả lời mang **dấu không-tất-định**
   đọc được — người ký phân biệt được ngay dòng nào lặp lại được, dòng nào không.

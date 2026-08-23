@@ -25,7 +25,7 @@ flowchart TD
 
 - Ba chỗ tích luỹ không có đường ra — khoá config · dòng file kiểm · con số suite (`ba-cho-tich-luy-khong-duong-ra`)
 - Bản đồ dính commit chữ ký, không đi sau (`ban-do-dinh-chu-ky`)
-- Con mắt thứ hai cho Lái-thử Người-lạ — trả lời câu HỎI-SỰ-THẬT cần nhìn ảnh, để danh sách chuyển-phiên-người chỉ còn câu đáng-giá (`con-mat-thu-hai-lai-thu`)
+- Bậc 3 của lái-thử cho bề mặt AGENT — bản tham chiếu `vlm-assert` chỉ phục vụ frame UI, ván agent không có con mắt thứ hai (`con-mat-thu-hai-lai-thu`)
 - design-pass nấc không đồng bộ — người chọn hướng trên vật nhìn được, không phải hẹn giờ ngồi xem; bước phân kỳ có điều kiện + thang phản ứng 4 nấc (`design-pass-nac-khong-dong-bo`)
 - Hỏi-theo-mặt-phẳng — câu hỏi là thứ người bấm được, không phải khuôn chữ (`hoi-theo-mat-phang`)
 - Lệnh in ra phải bấm được — một nguồn tên lệnh (/<plugin>:<tên>) cho mọi điểm bàn giao, cộng bốn mục TRỪ nhiễu thẻ và finding B/C (`lenh-in-ra-phai-bam-duoc`)
