@@ -6609,11 +6609,18 @@ with tempfile.TemporaryDirectory() as d:
         for slug in (only_slugs or slugs):
             sd = root / "_acceptance" / slug
             # nguon = MOI file the doc (Cong 2 doc ca report + findings + probe),
-            # thieu file nao la bao oan cum sao co that o do
+            # thieu file nao la bao oan cum sao co that o do.
+            # opportunity.md: the Cong 1 render khoi «Nguong nghiem thu» NGUYEN VAN
+            # tu section nguong cua no (gate-card.js:299-312, vong moi-noi-vong-trao)
+            # nhung file nay tung VANG khoi danh sach — lo tiem an tu luc do. Khong
+            # slug nao cham vao vi deu thieu mot dieu kien: hoac chua co contract.md
+            # (nen khong vao `slugs`), hoac dong nguong con la «…» chua dien, hoac da
+            # dien nhung khong co in dam. `start-bang-dieu-khien` la slug DAU TIEN du
+            # ca ba, va P161 bao oan 4 cum sao co that trong nguong da ky.
             src = "\n".join(f.read_text(encoding="utf-8") for f in
                             [sd / "contract.md", sd / "decisions.jsonl", sd / "evals.yaml",
                              sd / "evidence-report.md", sd / "review-findings.md",
-                             sd / "gap-probe.md"] if f.exists())
+                             sd / "gap-probe.md", sd / "opportunity.md"] if f.exists())
             # The lot dau nhay nguoc (dung hanh vi), nen truy nguon phai so voi
             # ban nguon DA LOT nhay — neu khong, "t1_skip_globs`.**" trong nguon
             # va "t1_skip_globs.**" tren the bi coi la bia ra.
