@@ -76,7 +76,12 @@ const git = (() => {
     } catch { return null; }
   };
   const branch = q(['rev-parse', '--abbrev-ref', 'HEAD']);
-  const dirty = branch === null ? null : q(['status', '--porcelain']) !== '';
+  // `q()` tra null khi lenh git nem (index.lock, quyen, kho la). `null !== ''` la
+  // TRUE, nen viet gon se TUYEN «cay co thay doi chua commit» o dung ca may KHONG
+  // BIET — trai chinh luat «chua biet khac han da khop» khai ba dong duoi. Ban cu
+  // bat loi cho ca cum va tra dirty: null; giu nguyen nghia do.
+  const st = branch === null ? null : q(['status', '--porcelain']);
+  const dirty = st === null ? null : st !== '';
   // Thang so: BẢN CHUNG trước, nhánh trên cùng CỦA CHÍNH NHÁNH NÀY là nấc CUỐI.
   // Đảo thứ tự là nói dối: một nhánh tính năng đã push và khớp nhánh trên cùng
   // của nó sẽ ra «khớp» trong khi bản chung đã đi trước — đúng ca lệch 22/08.

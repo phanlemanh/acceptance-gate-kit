@@ -247,6 +247,13 @@ bon-bo-doc)
   printf '%s' "$H" | grep -qF 'Ký duyệt' && do_fail "the cong MOI KY mot ho so may da di tiep"
   printf '%s' "$H" | grep -qF 'ký nhanh' && do_fail "the cong con chu 'ky nhanh' cho ho so xanh-sach"
   printf '%s' "$H" | grep -qF 'máy đi tiếp — cửa veto còn mở' || do_fail "the cong khong in chu cua bang"
+  # Soi CA THE, khong chi chip va nut: round 1 cua S4 bat duoc mot ho so ma chip
+  # noi «may da di tiep» con khoi VIEC-CUA-ANH van dan «Ky hay tra» — mau thuan
+  # ngay trong chinh the. Do het moi loi moi-ky.
+  for needle in 'Ký hay trả' 'ký hay trả: ___' 'Ký duyệt' 'ký nhanh'; do
+    printf '%s' "$H" | grep -qF "$needle" && do_fail "the con loi moi ky «$needle» cho ho so may da di tiep"
+  done
+  printf '%s' "$H" | grep -qF 'veto hay để yên' || do_fail "the khong dua ra loi VETO thay cho loi ky"
   grep -q 'STATUS-NHAN' "$ROOT/commands/acceptance-status.md" || do_fail "bang trang thai khong con khoi STATUS-NHAN"
   grep -q 'start-scan.mjs' "$ROOT/commands/acceptance-status.md" || do_fail "bang trang thai khong doc tu may quet"
   MAP1="$(doc_map)"
@@ -256,7 +263,10 @@ bon-bo-doc)
   perl -0pi -e "s/^bypass_used:.*$/bypass_used: true/m" "$D/_acceptance/x/evidence-report.md"
   ST2="$(doc_scan)"
   [ "$ST2" = "cho-cong-bang-chung" ] || do_fail "doi chung duong: chua sach ma may quet noi $ST2"
-  printf '%s' "$(doc_card)" | grep -qF 'Ký duyệt' || do_fail "doi chung duong: ho so CHUA sach ma the khong moi ky — phep do chua bao gio chay"
+  HC="$(doc_card)"
+  for needle in 'Ký duyệt' 'Ký hay trả' 'ký hay trả: ___'; do
+    printf '%s' "$HC" | grep -qF "$needle" || do_fail "doi chung duong: ho so CHUA sach ma the thieu loi ky «$needle» — phep do chua bao gio chay"
+  done
   MAP2="$(doc_map)"
   [ "$MAP1" = "$MAP2" ] || do_fail "ban do doi o giua hai chieu ($MAP1 -> $MAP2) — no co y KHONG mang vi tu"
   perl -0pi -e "s/^bypass_used:.*$/bypass_used: false/m" "$D/_acceptance/x/evidence-report.md"
