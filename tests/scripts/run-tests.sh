@@ -716,7 +716,7 @@ cat > "$M/contract.md" <<'EOF'
 ---
 risk_tier: T2
 status: approved
-surfaces: [api, ui]
+surfaces: [api]
 ---
 ## Criteria
 - AC-1: Given user taps pay, When order submits, Then confirmation screen shows.
@@ -743,7 +743,7 @@ cat > "$N5/contract.md" <<'EOF'
 ---
 risk_tier: T2
 status: approved
-surfaces: [api, ui]   # mobile maybe later
+surfaces: [api]   # mobile maybe later
 ---
 ## Criteria
 - AC-1: Given a mobile-width viewport, When user taps pay, Then confirmation shows.
@@ -1124,55 +1124,64 @@ N_READER="$(node "$LINT" "$RUXN" 2>&1 | grep -c 'W8b')"
 same "[W8-RT] số ST reader thấy == số ST writer khai" "$N_WRITER" "$N_READER"
 
 echo "[W8B] xoá 1 trạng thái khỏi states -> cờ ghim đúng tên ST"
-RB="$T/ux-b"; mk_ux_fixture "$RB"
+RUXB="$T/ux-b"; mk_ux_fixture "$RUXB"
 ST1="$(ux_section | grep -o 'ST-[A-Za-z0-9_-]*' | sort -u | head -1)"
-sed -i.bak "s/${ST1}, //;s/, ${ST1}//;s/\[${ST1}\]/[]/" "$RB/_acceptance/feat-ux/evals.yaml" && rm -f "$RB"/_acceptance/feat-ux/evals.yaml.bak
-outB="$(node "$LINT" "$RB" 2>&1)"; check "[W8B]" 1 $?
+sed -i.bak "s/${ST1}, //;s/, ${ST1}//;s/\[${ST1}\]/[]/" "$RUXB/_acceptance/feat-ux/evals.yaml" && rm -f "$RUXB"/_acceptance/feat-ux/evals.yaml.bak
+outB="$(node "$LINT" "$RUXB" 2>&1)"; check "[W8B]" 1 $?
 case "$outB" in *"W8b trạng thái ${ST1} khai trước nhưng không eval nào đo"*) echo "  PASS: [W8B]-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8B]-msg (thiếu cờ ghim ${ST1})"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
 echo "[W8C] thêm ST ma vào states -> cờ ghim id eval + tên ST"
-RC="$T/ux-c"; mk_ux_fixture "$RC"
-sed -i.bak 's/^    states: \[/    states: [ST-ma-x, /' "$RC/_acceptance/feat-ux/evals.yaml" && rm -f "$RC"/_acceptance/feat-ux/evals.yaml.bak
-outC="$(node "$LINT" "$RC" 2>&1)"; check "[W8C]" 1 $?
+RUXC="$T/ux-c"; mk_ux_fixture "$RUXC"
+sed -i.bak 's/^    states: \[/    states: [ST-ma-x, /' "$RUXC/_acceptance/feat-ux/evals.yaml" && rm -f "$RUXC"/_acceptance/feat-ux/evals.yaml.bak
+outC="$(node "$LINT" "$RUXC" 2>&1)"; check "[W8C]" 1 $?
 case "$outC" in *"W8c eval E1 đo trạng thái ST-ma-x không có trong bảng khai trước"*) echo "  PASS: [W8C]-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8C]-msg"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
 echo "[W8A] ba biến thể né/thiếu, mỗi biến thể ghim mảnh riêng"
-RA1="$T/ux-a1"; mk_ux_fixture "$RA1"
-sed -i.bak '/^design_doc:/d' "$RA1/_acceptance/feat-ux/contract.md" && rm -f "$RA1"/_acceptance/feat-ux/contract.md.bak
-outA1="$(node "$LINT" "$RA1" 2>&1)"; check "[W8A]-1" 1 $?
+RUXA1="$T/ux-a1"; mk_ux_fixture "$RUXA1"
+sed -i.bak '/^design_doc:/d' "$RUXA1/_acceptance/feat-ux/contract.md" && rm -f "$RUXA1"/_acceptance/feat-ux/contract.md.bak
+outA1="$(node "$LINT" "$RUXA1" 2>&1)"; check "[W8A]-1" 1 $?
 case "$outA1" in *"W8a"*"design_doc"*) echo "  PASS: [W8A]-1-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8A]-1-msg"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
-RA2="$T/ux-a2"; mk_ux_fixture "$RA2"
-rm "$RA2/docs/design.md"
-outA2="$(node "$LINT" "$RA2" 2>&1)"; check "[W8A]-2" 1 $?
+RUXA2="$T/ux-a2"; mk_ux_fixture "$RUXA2"
+rm "$RUXA2/docs/design.md"
+outA2="$(node "$LINT" "$RUXA2" 2>&1)"; check "[W8A]-2" 1 $?
 case "$outA2" in *"W8a design_doc không đọc được: docs/design.md"*) echo "  PASS: [W8A]-2-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8A]-2-msg (nhánh file-hỏng không ghim đường dẫn)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
-RA3="$T/ux-a3"; mk_ux_fixture "$RA3"
-sed -i.bak 's/UX-STATE-TABLE/UX-XXX-TABLE/g' "$RA3/docs/design.md" && rm -f "$RA3/docs/design.md.bak"
-outA3="$(node "$LINT" "$RA3" 2>&1)"; check "[W8A]-3" 1 $?
+RUXA3="$T/ux-a3"; mk_ux_fixture "$RUXA3"
+sed -i.bak 's/UX-STATE-TABLE/UX-XXX-TABLE/g' "$RUXA3/docs/design.md" && rm -f "$RUXA3/docs/design.md.bak"
+outA3="$(node "$LINT" "$RUXA3" 2>&1)"; check "[W8A]-3" 1 $?
 case "$outA3" in *"W8a"*"UX-STATE-TABLE"*) echo "  PASS: [W8A]-3-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8A]-3-msg"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
 echo "[W8P] dòng ST cụt cột -> cờ parse riêng, luật W8b của dòng lành vẫn chạy"
-RP="$T/ux-p"; mk_ux_fixture "$RP"
-awk '/UX-STATE-TABLE>>>/{print "| ST-hong | thiếu cột |"}1' "$RP/docs/design.md" > "$RP/docs/design.md.new" && mv "$RP/docs/design.md.new" "$RP/docs/design.md"
-sed -i.bak 's/^    states:.*$/    states: []/' "$RP/_acceptance/feat-ux/evals.yaml" && rm -f "$RP"/_acceptance/feat-ux/evals.yaml.bak
-outP="$(node "$LINT" "$RP" 2>&1)"; check "[W8P]" 1 $?
+RUXP="$T/ux-p"; mk_ux_fixture "$RUXP"
+awk '/UX-STATE-TABLE>>>/{print "| ST-hong | thiếu cột |"}1' "$RUXP/docs/design.md" > "$RUXP/docs/design.md.new" && mv "$RUXP/docs/design.md.new" "$RUXP/docs/design.md"
+sed -i.bak 's/^    states:.*$/    states: []/' "$RUXP/_acceptance/feat-ux/evals.yaml" && rm -f "$RUXP"/_acceptance/feat-ux/evals.yaml.bak
+outP="$(node "$LINT" "$RUXP" 2>&1)"; check "[W8P]" 1 $?
 case "$outP" in *"không parse được"*"ST-hong"*) echo "  PASS: [W8P]-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8P]-msg"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 case "$outP" in *W8b*) echo "  PASS: [W8P]-still-b (dòng hỏng không câm cả luật)"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8P]-still-b"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
 echo "[W8O] đọc-cũ: không key + không ui -> 0 cờ W8; thêm ui -> W8a (nhánh sống)"
-RO="$T/ux-o"; mk_ux_fixture "$RO"
-sed -i.bak -e '/^design_doc:/d' -e 's/^surfaces: \[ui\]$/surfaces: [cli]/' "$RO/_acceptance/feat-ux/contract.md" && rm -f "$RO"/_acceptance/feat-ux/contract.md.bak
-outO="$(node "$LINT" "$RO" 2>&1)"
+RUXO="$T/ux-o"; mk_ux_fixture "$RUXO"
+sed -i.bak -e '/^design_doc:/d' -e 's/^surfaces: \[ui\]$/surfaces: [cli]/' "$RUXO/_acceptance/feat-ux/contract.md" && rm -f "$RUXO"/_acceptance/feat-ux/contract.md.bak
+outO="$(node "$LINT" "$RUXO" 2>&1)"
 case "$outO" in *W8*) echo "  FAIL: [W8O] (hồ sơ cũ bị cờ oan)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: [W8O]"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
-sed -i.bak 's/^surfaces: \[cli\]$/surfaces: [ui]/' "$RO/_acceptance/feat-ux/contract.md" && rm -f "$RO"/_acceptance/feat-ux/contract.md.bak
-outO2="$(node "$LINT" "$RO" 2>&1)"
+sed -i.bak 's/^surfaces: \[cli\]$/surfaces: [ui]/' "$RUXO/_acceptance/feat-ux/contract.md" && rm -f "$RUXO"/_acceptance/feat-ux/contract.md.bak
+outO2="$(node "$LINT" "$RUXO" 2>&1)"
 case "$outO2" in *W8a*) echo "  PASS: [W8O]-live (0-cờ là do nhánh đọc-cũ, không phải luật chết)"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8O]-live"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
+echo "[W8G] hồ sơ signed-off có ui, không key -> W8 miễn hồi tố; đổi approved -> W8a (nhánh sống)"
+RUXG="$T/ux-g"; mk_ux_fixture "$RUXG"
+sed -i.bak -e '/^design_doc:/d' -e 's/^status: approved$/status: signed-off/' "$RUXG/_acceptance/feat-ux/contract.md" && rm -f "$RUXG"/_acceptance/feat-ux/contract.md.bak
+outG="$(node "$LINT" "$RUXG" 2>&1)"
+case "$outG" in *W8*) echo "  FAIL: [W8G] (hồ sơ đã ký bị cờ hồi tố)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: [W8G]"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
+sed -i.bak 's/^status: signed-off$/status: approved/' "$RUXG/_acceptance/feat-ux/contract.md" && rm -f "$RUXG"/_acceptance/feat-ux/contract.md.bak
+outG2="$(node "$LINT" "$RUXG" 2>&1)"
+case "$outG2" in *W8a*) echo "  PASS: [W8G]-live"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8G]-live (miễn hồi tố nuốt luôn hồ sơ đang mở)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
 echo "[W8D] căn cứ trống -> cờ đoán chay; có chữ -> im"
-RD="$T/ux-d"; mk_ux_fixture "$RD"
-outD0="$(node "$LINT" "$RD" 2>&1)"
+RUXD="$T/ux-d"; mk_ux_fixture "$RUXD"
+outD0="$(node "$LINT" "$RUXD" 2>&1)"
 case "$outD0" in *W8d*) echo "  FAIL: [W8D]-pos (căn cứ có chữ vẫn cờ)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: [W8D]-pos"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
-sed -i.bak 's/^Căn cứ:.*$/Căn cứ:/' "$RD/docs/design.md" && rm -f "$RD/docs/design.md.bak"
-outD="$(node "$LINT" "$RD" 2>&1)"; check "[W8D]" 1 $?
+sed -i.bak 's/^Căn cứ:.*$/Căn cứ:/' "$RUXD/docs/design.md" && rm -f "$RUXD/docs/design.md.bak"
+outD="$(node "$LINT" "$RUXD" 2>&1)"; check "[W8D]" 1 $?
 case "$outD" in *"W8d"*"chưa có căn cứ"*) echo "  PASS: [W8D]-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8D]-msg"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
 echo ""

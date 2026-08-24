@@ -235,6 +235,10 @@ function lintFeature(slug, contractText, evalsText, glossary, root) {
   // key `design_doc:` VÀ surfaces không có `ui` → im lặng (opt-in, nếp W6).
   // Bốn cánh + cánh parse; mọi thông điệp ghim tên ST/eval để người sửa đúng chỗ.
   (function w8() {
+    // Grandfather: hồ sơ đã ký (signed-off) không bị đòi đặc tả UX hồi tố —
+    // consumer có hợp đồng ui cũ không bị cờ hàng loạt (nếp đường đọc-cũ).
+    const stm = contractText.match(/^status:[ \t]*(.+)$/im);
+    if (stm && fieldVal(stm[1]).toLowerCase() === 'signed-off') return;
     const ddm = contractText.match(/^design_doc:\s*(.+)$/im);
     const dd = ddm ? fieldVal(ddm[1]) : null;
     const hasUi = /\bui\b/i.test(surfacesLine);
