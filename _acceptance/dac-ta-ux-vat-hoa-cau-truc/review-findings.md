@@ -1,103 +1,53 @@
 ## Trong hợp đồng
 
-- **W8d đọc «Khuôn IA:»/«Căn cứ:» ngoài marker — đoán chay lọt lưới (thước không gắn vào vật)**
-  file: `scripts/eval-coverage-lint.js:319`
-  severity: high
-  AC: AC-5
-  Cánh W8b/W8c cắt đúng khối `<<<UX-STATE-TABLE … UX-STATE-TABLE>>>` rồi mới đo, nhưng W8d lại `ddText.match(/^Khuôn IA:…/m)` và `/^Căn cứ:…/m` trên TOÀN design-doc, lấy occurrence ĐẦU TIÊN và không ràng buộc hai dòng phải nằm trong cùng khối marker (thậm chí không cần cùng thứ tự).
+- **parseStatesMap là parser evals.yaml thứ ba, mù block-scalar — tái mở đúng lớp lỗi mà lib/eval-yaml.js được lập ra để đóng**
+  file: `scripts/eval-coverage-lint.js:197`
+  severity: medium
+  AC: AC-7
+  lib/eval-yaml.js ghi rõ invariant: «dòng THÂN block không bao giờ được quét key… sửa một chỗ tại đây, không mọc bản thứ ba». parseStatesMap (dòng 197) quét raw lines cho `- id:` (dòng 204) và `states:` (dòng 206) mà không hiểu block scalar (`expected: >` / `|`). Đã xác nhận bằng PoC trên fixture rút từ chính ux-spec-template.md: một dòng `states: [ST-ghost]` nằm TRONG thân `expected: >` bị đọc thành khai báo của eval → cờ W8c oan «đo trạng thái ST-ghost không có trong bảng khai trước» trên hồ sơ lành (exit 1). Regex `- id:` cùng hàm cũng chiếm được `cur` từ thân block → gán states sai eval. Evals.yaml thật của chính hồ sơ này đã phải né bằng cách viết «states [ST-a, ST-ma]» không dấu hai chấm trong expected — bằng chứng lớp lỗi nằm sát vật thật. Lint là advisory nên không chặn merge, nhưng cờ oan đổ thẳng lên thẻ Cổng 1 (mặt quyết định của người). Hướng tự nhiên: dạy parseStatesMap nuốt thân block (mirror BLOCK_RE của lib/eval-yaml.js) hoặc mở rộng lib dùng chung, kèm case tiêm `states:` vào thân expected. (PoC cho thấy fixture "bản lành" — không eval nào thật khai states ngoài bảng — vẫn bị W8c bắn cờ oan do đọc nhầm text trong block scalar, vi phạm đúng điều khoản "bản lành XANH trước" của AC-7.)
 
-  Đã dựng lại và xác nhận: design-doc có một dòng `Căn cứ: đã tra Mobbin, rút X.` ở section «Bối cảnh» phía trên, còn `Căn cứ:` THẬT trong section Đặc tả UX để TRỐNG → `node scripts/eval-coverage-lint.js <root>` in `no coverage gaps detected`, exit 0. Máy đoán chay mà thẻ Cổng Phạm vi sạch.
+- **parseStatesMap doc line-scan không block-scalar aware — states: trong thân expected bị đọc thành khai báo của eval**
+  file: `scripts/eval-coverage-lint.js:206`
+  severity: medium
+  AC: AC-7
+  parseStatesMap quét từng dòng thô của evals.yaml bằng /^\s*states:/ nên một dòng 'states: …' nằm TRONG block scalar `expected: |`/`>` cũng bị nhận là khai báo states của eval. Đã chứng minh bằng fixture rút từ ux-spec-template.md: expected chứa dòng 'states: done' → lint bắn cờ giả 'W8c eval E1 đo trạng thái done không có trong bảng khai trước' (exit 1). Chiều ngược nguy hiểm hơn (false green im lặng): token rác từ thân expected được cộng vào tập `measured`, nên một ST khai trong bảng mà không eval nào đo có thể bị coi là 'đã đo' chỉ vì prose nhắc tới nó trong một dòng dạng states: — W8b bị nuốt. Cùng lỗi lớp: dòng '- id: …' trong thân block scalar cũng reset `cur`, gán nhầm id cho states phía sau. Đây đúng là lớp lỗi header file này ghi là đã sửa bằng lib/eval-yaml.js (block-scalar aware, 'body lines are never key-scanned') — và chính diff này đã thêm 'states' vào parseEvals(evalYaml) nhưng w8() lại không dùng kết quả đó mà quét text thô. (Cùng lớp lỗi với finding block-scalar ở trên, PoC minh hoạ trực tiếp bản lành bị đỏ oan trên W8c — thất bại đúng điều khoản "bản lành XANH trước" của AC-7.)
 
-  Đây đúng lớp «thước phải gắn vào vật được giao» trong CLAUDE.md, và mâu thuẫn với chính lời khai của khuôn (`ux-spec-template.md`: marker «là mỏ neo cho phép đo khớp vòng»). Nó cũng làm hỏng cơ chế mà AC-5 tự khai: «căn cứ trống nhìn thấy được trên vật trình cổng — cơ chế: cánh W8d». Case [W8D] trong tests/scripts/run-tests.sh không bắt được vì fixture chỉ có đúng một dòng `Căn cứ:`.
-
-  Sửa: đo W8d trên `ddText.slice(mSpecStart, mSpecEnd)` của khối `UX-SPEC-TEMPLATE` (hoặc ít nhất trên đoạn sau `^Khuôn IA:`), và thêm fixture có dòng `Căn cứ:` nhiễu đứng trước.
-
-- **Một eval khai states: block-list làm câm TOÀN BỘ W8b của hồ sơ**
-  file: `scripts/eval-coverage-lint.js:312`
+- **states: flow-list có comment đuôi sinh tên trạng thái rác — W8c giả + W8b giả trên trạng thái thật**
+  file: `scripts/eval-coverage-lint.js:228`
   severity: medium
   AC: AC-6
-  `for (const st of declared) { if (blockListIds.size) break; … }` — chỉ cần MỘT eval bất kỳ viết `states:` dạng block-list là mọi cờ W8b (khai-không-đo) của cả hồ sơ biến mất, kể cả những trạng thái chẳng liên quan gì tới eval đó.
+  Nhánh flow-list một dòng của parseStatesMap chỉ strip '[' đầu và ']' cuối, không đi qua fieldVal() nên không cắt '# comment' đuôi dòng. Đã chứng minh: `states: [ST-man-empty, ST-man-loading]  # ghi chu` → phần tử cuối thành chuỗi rác 'ST-man-loading]  # ghi chu', lint bắn ĐỒNG THỜI cờ giả W8c (đo trạng thái rác không có trong bảng) và cờ giả W8b (ST-man-loading khai trước nhưng 'không eval nào đo' — vì tên thật không còn khớp). Mọi field khác trong chính file này đều qua fieldVal() với lý do được ghi rõ 'Comments are never evidence'; parseStatesMap bỏ qua nếp đó. Nhánh flow-list gãy dòng (buf) cùng hình dạng: '\].*$' chỉ cắt được khi ] là ký tự áp cuối. (Trạng thái đã thật sự được khai và có eval đo — đúng bản lành "mọi ST có eval" của AC-6 — nhưng vẫn bị W8b báo sai "không eval nào đo" vì comment cuối dòng làm lệch tên, vi phạm đúng điều khoản "bản lành XANH trước" của AC-6.)
 
-  Dựng lại: design-doc khai ST-man-loading + ST-man-empty; E1 khai `states: [ST-man-loading]` (flow-list), E2 khai block-list. ST-man-empty không eval nào đo, nhưng output chỉ có đúng 1 dòng — cờ block-list — KHÔNG có W8b nào. Trạng thái thật sự không được đo đi qua lưới im lặng.
-
-  Mâu thuẫn với nguyên tắc cùng lượt này vừa dựng cho phía design-doc: case [W8P] khẳng định «dòng hỏng không câm cả luật» (dòng ST cụt cột vẫn để W8b của các dòng lành chạy). Phía evals lại làm ngược. Sửa rẻ: chỉ bỏ qua W8b cho các ST mà eval block-list đó khai (parse luôn danh sách block-list), hoặc parse block-list cho đúng thay vì chỉ cảnh báo.
-
-- **W8d reads the first `Căn cứ:` line in the whole design-doc, not the one in the UX-spec block — the arm silently passes**
-  file: `scripts/eval-coverage-lint.js:321`
-  severity: high
-  AC: AC-5
-  The W8d arm locates `Khuôn IA:` and `Căn cứ:` with two independent whole-document regexes (`ddText.match(/^Căn cứ:[ \t]*(.*)$/m)`), unlike the state-table arm right above it which correctly slices the `UX-STATE-TABLE` marker block first. `String.match` returns the FIRST match in document order, so any unrelated line starting with `Căn cứ:` anywhere earlier in the design-doc satisfies the check and W8d never fires — even when the actual IA justification inside the UX spec is empty. This is the real-world shape: the template section is appended into a large existing design-doc, and `Căn cứ:` is ordinary Vietnamese prose.
-
-  Reproduced: took the template section, blanked the IA line to `Căn cứ:` (the exact defect AC-5 says W8d must catch), prepended `## Bối cảnh\nCăn cứ: quyết định của owner 2026-08-01.` → `node scripts/eval-coverage-lint.js .` printed `no coverage gaps detected`, exit 0. Removing only the prepended line makes it fire. Test case [W8D] in tests/scripts/run-tests.sh never exercises this because its fixture is the bare template section, which has exactly one `Căn cứ:` line — so the measurement passes its own suite while being disabled on the artifact it is meant to guard.
-
-  Fix: search for `Khuôn IA:`/`Căn cứ:` inside the `<<<UX-SPEC-TEMPLATE` … `UX-SPEC-TEMPLATE>>>` slice (the file already does exactly this for the state table), and take the `Căn cứ:` that follows the `Khuôn IA:` line.
-
-- **Empty `design_doc:` key swallows the next frontmatter line as the path (`\s*` crosses the newline), skipping the intended "chưa trỏ" branch**
-  file: `scripts/eval-coverage-lint.js:242`
+- **Hình dạng 4 (ghim thông điệp chết): pin "UX-STATE-TABLE" của UX1-đỏ được thoả bởi dòng LEGEND in trên MỌI lần đỏ, không phải bởi cờ W8a**
+  file: `tests/plugins/ux-spec.test.mjs:73`
   severity: medium
-  AC: AC-8
-  `contractText.match(/^design_doc:\s*(.+)$/im)` uses `\s*`, which matches newlines, so a key present but empty makes the capture group take the NEXT line's content. `dd` becomes truthy garbage, the `if (!dd)` branch (W8a "contract chưa trỏ đặc tả UX (thiếu key design_doc:)" — the wording AC-8 asks for) is skipped, and the run falls through to the file-read branch instead. The adjacent `status:` regex on line 240 correctly uses `[ \t]*`; this one is the odd one out.
-
-  Reproduced with frontmatter `design_doc:` followed by `status: approved`:
-  `[f] W8a design_doc không đọc được: status: approved — con trỏ đặc tả UX chết.`
-  The author is sent to fix a path that does not exist instead of being told the key is empty. Same class of misdirection if the following line resolves to a readable file, in which case the arm reads the wrong document entirely.
-
-  Fix: change `\s*` to `[ \t]*` so an empty value falls into the `!dd` branch.
-
-- **Đo CHỈ DẪN thay vì ĐẦU RA — cửa miễn "bỏ đặc-tả-UX — " không có bộ đọc nào trong engine**
-  file: `_acceptance/dac-ta-ux-vat-hoa-cau-truc/evals.yaml:63`
-  severity: medium
-  AC: AC-4
-  E4/UX4 (tests/plugins/ux-spec.test.mjs:149-159) chỉ grep hai file văn bản hướng dẫn (SKILL.md và ux-spec-template.md) xem chuỗi `"bỏ đặc-tả-UX — "` có mặt và khớp ký tự không. Không có bất kỳ script/lib/hook nào đọc prefix này: `grep -rn 'bỏ đặc-tả-UX' scripts lib hooks feature-loop` chỉ trả về chính hằng MIEN trong file test. So sánh với các quy ước cùng họ: `bỏ gap-probe` CÓ bộ đọc (lib/gap-probe.cjs:15 `DESCOPE_RE`), `bỏ đường-đo — ` CÓ bộ đọc (scripts/gate-card.js:323). Diff này cũng không đụng gate-card.js. Hệ quả: nhánh «feature không chạm UI → ghi entry descope có vết» của AC-4 không có ĐẦU RA nào để đo — máy bỏ khuôn mà không ghi entry nào thì không phép đo nào đỏ, mà E4 vẫn xanh vì nó chỉ kiểm chữ trong file hướng dẫn. (Nửa còn lại của AC-4 — «không surfaces ui thì W8 im» — thì có đo thật ở [W8O].)
+  AC: AC-11
+  Assert `oMut.status === 1 && oMut.stdout.includes('UX-STATE-TABLE')` tự nhận là "ghim W8a" (comment dòng 74), nhưng eval-coverage-lint.js in dòng chú giải cuối (`W8 = bảng trạng thái khai trước (UX-STATE-TABLE trong design_doc:)…`) trên MỌI lần chạy có bất kỳ warning nào — đã kiểm chứng bằng fixture không dính W8 (chỉ W1/W3): stdout vẫn chứa 'UX-STATE-TABLE'. Nên phần ghim-thông-điệp của assert này thoả vô điều kiện khi exit=1: nó thoái hoá thành assert exit-code trần, không phân biệt được "W8a marker bật" với "một warning bất kỳ khác bật". Cùng lớp (yếu hơn): tests/scripts/run-tests.sh [W8A]-1 dùng pattern `*"W8a"*"design_doc"*` — mảnh "design_doc" cũng nằm trong legend, chỉ mảnh "W8a" là thật. Đối chiếu: UX2-đỏ và [W8B]/[W8C] ghim nguyên câu warning (đúng nếp) — riêng chỗ này thì không. (AC-11 đòi mọi cánh W8 phải có "thông điệp ghim" thật sự, không phải assertion âm-tính-một-mình; test UX1-đỏ chỉ trùng khớp dòng legend in trên mọi lần đỏ nên không thực sự ghim thông điệp W8a — đúng hình dạng AC-11 cấm.)
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
 <<<OOC-ITEM-TEMPLATE
-- **Cánh --files nhận diện bằng chuỗi ma thuật slug === 'files'**
-  Người dùng thấy gì: Nếu một tính năng thật có tên (slug) trùng chữ 'files', công cụ kiểm tra đặc tả UX sẽ tự động bỏ qua toàn bộ phần kiểm tra cho tính năng đó như thể đang chạy ở chế độ đặc biệt — lỗ hổng khớp vòng có thể lọt qua mà không ai biết.
+- **parseEvals thu field 'states' nhưng không nơi nào đọc — bộ đọc thứ hai chết cho cùng một seam, ngược khuôn «MỘT bộ đọc mỗi phía» của chính commit**
+  Người dùng thấy gì: Có một mẩu dữ liệu nội bộ được thu thập nhưng chưa từng dùng tới; hiện không gây sai lệch gì cho cờ cảnh báo mà người dùng nhìn thấy, chỉ là phần thừa dễ gây nhầm lẫn khi có người sửa lại sau này.
   file: `scripts/eval-coverage-lint.js`
   severity: low
   Đề xuất: known-limits
 OOC-ITEM-TEMPLATE>>>
 
 <<<OOC-ITEM-TEMPLATE
-- **UX3 checks.a2 và checks.d không có mutant — phép đo mới chưa từng bị phá thử**
-  Người dùng thấy gì: Hai điều kiện kiểm tra tài liệu hướng dẫn (cấm gán cứng đường dẫn bộ nhớ đệm, và không để mất dòng khai báo bảng trạng thái) chưa từng được thử bằng cách cố tình phá hỏng nội dung để xem phép kiểm có phát hiện ra không — nên chưa rõ hai điều kiện này có thực sự bắt được lỗi hay chỉ luôn báo đạt.
-  file: `tests/plugins/ux-spec.test.mjs`
-  severity: low
-  Đề xuất: known-limits
-OOC-ITEM-TEMPLATE>>>
-
-<<<OOC-ITEM-TEMPLATE
-- **Multi-line flow-list `states:` silently drops every item after the first line → false W8b with a misleading fix instruction**
-  Người dùng thấy gì: Nếu người viết eval khai danh sách trạng thái đo được trên hai dòng thay vì một dòng (một cách viết hợp lệ và tự nhiên khi danh sách dài), công cụ sẽ chỉ đọc được trạng thái đầu tiên, rồi báo nhầm rằng các trạng thái còn lại chưa được đo — và hướng dẫn sửa sai lại bảo xoá đi một khai báo vốn dĩ đúng.
-  file: `scripts/eval-coverage-lint.js`
-  severity: medium
-  Đề xuất: known-limits
-OOC-ITEM-TEMPLATE>>>
-
-<<<OOC-ITEM-TEMPLATE
-- **Chiều đỏ UX1 là tautology — mutation và assertion là cùng một thao tác chuỗi (assertion âm-tính không đi qua phép kiểm)**
-  Người dùng thấy gì: Hai phép thử được gắn nhãn là 'phải báo lỗi khi khuôn mẫu hỏng' thực ra luôn báo đạt bất kể khuôn mẫu có hỏng hay không, nên chúng không chứng minh được điều mình tuyên bố — nếu khuôn mẫu bị hỏng đúng theo hai kiểu này, phép thử sẽ không phát hiện ra.
+- **Hình dạng 1 (đo CHỈ DẪN thay vì ĐẦU RA): UX4 đo chuỗi cửa miễn "bỏ đặc-tả-UX — " giữa hai file chỉ-dẫn, trong khi KHÔNG có code path nào đọc chuỗi đó**
+  Người dùng thấy gì: Cửa miễn cho các tính năng không chạm giao diện hiện chỉ được kiểm bằng cách so khớp câu chữ giữa hai tài liệu hướng dẫn, không có bước máy chạy thật theo dõi việc bỏ qua đó — đây là giới hạn đã được owner chấp nhận ngay từ đầu, không phải lỗi mới phát sinh.
   file: `tests/plugins/ux-spec.test.mjs`
   severity: medium
   Đề xuất: known-limits
 OOC-ITEM-TEMPLATE>>>
 
 <<<OOC-ITEM-TEMPLATE
-- **Assert chuỗi-có-mặt trên TOÀN FILE trong khi lời hứa là quan hệ (UX3b) — đúng lớp lỗi mà chính file này khai đã sửa cho UX3a**
-  Người dùng thấy gì: Điều kiện kiểm tra rằng hướng dẫn ghi hai dòng cấu hình bắt buộc chỉ xem hai dòng đó có xuất hiện ở bất kỳ đâu trong toàn bộ tài liệu hướng dẫn, không kiểm tra chúng có thực sự nằm đúng bước bắt buộc hay không — nếu ai đó dời hai dòng đó sang một mục không bắt buộc, phép kiểm vẫn báo đạt như không có gì xảy ra.
-  file: `tests/plugins/ux-spec.test.mjs`
-  severity: medium
-  Đề xuất: known-limits
-OOC-ITEM-TEMPLATE>>>
-
-<<<OOC-ITEM-TEMPLATE
-- **Chiều đỏ UX4 là tautology — chỉ chứng minh String.replace chạy, không chạy phép so hai bên**
-  Người dùng thấy gì: Phép thử tuyên bố sẽ báo lỗi khi cụm từ miễn trừ trong tài liệu hướng dẫn và trong khuôn mẫu lệch nhau, nhưng thực chất phép thử này không so sánh hai bên với nhau — nếu tài liệu hướng dẫn mất hẳn cụm từ miễn trừ, cảnh báo tương ứng sẽ không xuất hiện dù nhãn của phép thử nói là có.
-  file: `tests/plugins/ux-spec.test.mjs`
+- **Hình dạng 5 (tuyên quét LỚP nhưng chỉ có điểm-case): E13 tuyên bộ đọc states "hiểu MỌI hình dạng" nhưng suite chỉ có 3 điểm-case, các nhánh lỗi của parseStatesMap không có ca nào**
+  Người dùng thấy gì: Một vài cách viết danh sách trạng thái khác thường (ví dụ để trống, hoặc thiếu dấu ngoặc) chưa được thử qua, nên nếu ai đó viết theo kiểu lạ, hệ thống có thể im lặng bỏ qua thay vì nhắc nhở.
+  file: `_acceptance/dac-ta-ux-vat-hoa-cau-truc/evals.yaml`
   severity: low
   Đề xuất: known-limits
 OOC-ITEM-TEMPLATE>>>

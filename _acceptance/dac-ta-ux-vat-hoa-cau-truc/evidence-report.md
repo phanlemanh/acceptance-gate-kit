@@ -1,13 +1,13 @@
 ---
 schema_version: 2
 feature_slug: dac-ta-ux-vat-hoa-cau-truc
-verdict: REJECT
+verdict: PENDING-JUDGMENT
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 3c63678142000a061fb42b1fbb4d89bbf44f7404
+verified_commit: 5c1cb3c17abddfeb040e23af3d02eca03c7c40f3
 human_signoff:
 ---
 
@@ -19,13 +19,13 @@ human_signoff:
 | E2 | AC-2 | test | PASS |
 | E3 | AC-3 | test | PASS |
 | E4 | AC-4 | test | PASS |
-| E5 | AC-5 | judgment | UNCERTAIN |
+| E5 | AC-5 | judgment | PASS |
 | E6 | AC-6 | test | PASS |
 | E7 | AC-7 | test | PASS |
 | E8 | AC-8 | test | PASS |
 | E9 | AC-9 | test | PASS |
 | E10 | AC-10 | test | PASS |
-| E11 | AC-11 | judgment | FAIL |
+| E11 | AC-11 | judgment | UNCERTAIN |
 | E12 | AC-5 | test | PASS |
 | E13 | AC-12 | test | PASS |
 | E14 | AC-13 | test | PASS |
@@ -33,44 +33,44 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E1-r2
+  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E1-r3
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-24T04:32:10Z
+  verified_at: 2026-08-24T08:01:20Z
   output: |
     PASS: ca bang dieu khien — BDK4 (ho so start-bang-dieu-khien)
 
     Results: all plugin tests passed
 
 - eval: E2
-  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E2-r2
+  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E2-r3
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-24T04:32:10Z
+  verified_at: 2026-08-24T08:01:20Z
   output: |
     PASS: ca bang dieu khien — BDK4 (ho so start-bang-dieu-khien)
 
     Results: all plugin tests passed
 
 - eval: E3
-  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E3-r2
+  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E3-r3
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-24T04:32:10Z
+  verified_at: 2026-08-24T08:01:20Z
   output: |
     PASS: ca bang dieu khien — BDK4 (ho so start-bang-dieu-khien)
 
     Results: all plugin tests passed
 
 - eval: E4
-  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E4-r2
+  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E4-r3
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-24T04:32:10Z
+  verified_at: 2026-08-24T08:01:20Z
   output: |
     PASS: ca bang dieu khien — BDK4 (ho so start-bang-dieu-khien)
 
@@ -79,132 +79,122 @@ human_signoff:
 <!-- <<<JUDGMENT-BLOCK-TEMPLATE -->
 - eval: E5
   judged_by: judge panel (domain-correctness, operational-feasibility, spec-alignment)
-  verdict: UNCERTAIN
-  rationale: 2/3 lens UNCERTAIN, 1/3 PASS. Cả ba lens đồng thuận thang 2 nấc (câu 1) và ngưỡng "≥2 khuôn khả dĩ mới tra" (câu 3) khớp nguyên văn giữa SKILL.md và ux-spec-template.md, không ép công cụ nào. Điểm chia rẽ là câu (2): domain-correctness và spec-alignment không tìm được câu nào trong SKILL.md xác nhận riêng cờ W8d (căn cứ trống ở mục 6) thực sự hiện trên thẻ Cổng 1 — chỉ có câu chung "cánh W8 ... khớp vòng hai chiều tại thẻ Cổng 1 (ADVISORY)" đặt trong ngữ cảnh design_doc/states (W8b/c); operational-feasibility coi câu chung đó đủ bao trùm cả W8d nên chấm PASS.
+  verdict: PASS
+  rationale: 3/3 lens PASS. Khoảng trống round 2 nêu (câu 2 — cờ W8d có thực sự hiện trên thẻ Cổng 1 không, hay chỉ nằm cạnh ngữ cảnh design_doc/states) nay đã được vá bằng câu tường minh trong SKILL.md xác nhận "mọi cờ hiện tại thẻ Cổng 1 (ADVISORY)", bao trùm cả W8d. Cả ba lens tiếp tục đồng thuận thang 2 nấc (câu 1) và ngưỡng "≥2 khuôn khả dĩ mới tra" (câu 3) khớp nguyên văn giữa SKILL.md và ux-spec-template.md, không ép công cụ nào, luồng hiển nhiên không bị chặn.
   votes:
-    - domain-correctness: UNCERTAIN — (1) và (3) đạt: thang 2 nấc dạy khớp nhau ở cả hai file, "vd MCP Mobbin" chỉ là ví dụ không ép công cụ, ngưỡng ≥2 khuôn khả dĩ đủ cụ thể để không chặn luồng hiển nhiên. Nhưng (2) trong hai file được cấp, câu duy nhất nói cờ hiện ở thẻ Cổng 1 nằm ngay sau đoạn nói về dây design_doc/states — tức ngữ cảnh W8b/W8c — chứ KHÔNG nhắc riêng W8d. ux-spec-template.md định nghĩa "Dòng này TRỐNG = máy đoán chay, cờ W8d" nhưng không nói cờ đó có lên thẻ Cổng 1 hay không. Cơ chế "người đọc thẻ Cổng Phạm vi nhìn thấy máy đoán chay" cho riêng mục Khuôn IA không được xác nhận rõ trong phạm vi hai file này.
-    - operational-feasibility: PASS — (1) Thang 2 nấc khớp gần như nguyên văn giữa ux-spec-template.md dòng 64 và SKILL.md dòng 92, cả hai dùng "vd MCP Mobbin" như ví dụ và SKILL.md nói thẳng "không phụ thuộc công cụ nào". (2) Cơ chế nhìn-thấy có thật: template ghi rõ "Dòng này TRỐNG = máy đoán chay, cờ W8d", SKILL.md corroborate cánh W8 được "soi khớp vòng hai chiều tại thẻ Cổng 1 (ADVISORY)" — căn cứ trống không tự do lọt qua âm thầm; lưu ý đoạn S1#4 chỉ tự gọi tên cơ chế theo dây design_doc/states (ứng W8b/W8c) chứ không tự nêu tên "W8d", nên người chỉ đọc SKILL.md sẽ không thấy tên cờ W8d bằng chữ, nhưng cơ chế chung "cánh W8 hiện ở thẻ" vẫn bao trùm nó theo cách đọc rộng. (3) Ngưỡng ≥2 khuôn khả dĩ định lượng rõ, lặp lại giống nhau ở cả hai file.
-    - spec-alignment: UNCERTAIN — (1) và (3) khớp nguyên văn giữa hai file, ngưỡng ≥2 khuôn khả dĩ đủ rõ để luồng hiển nhiên không bị chặn. (2) không xác lập được: ux-spec-template.md tuyên "Dòng này TRỐNG = máy đoán chay, cờ W8d", nhưng câu duy nhất trong SKILL.md mô tả cơ chế hiện ở thẻ Cổng 1 chỉ nói "cánh W8 của eval-coverage-lint soi khớp vòng hai chiều tại thẻ Cổng 1 (ADVISORY)" — mô tả khớp states khai/đo (W8b/c), không nhắc riêng W8d hay xác nhận cờ đoán-chay của mục Khuôn IA có thực sự trồi lên thẻ hay không.
-  required_evidence:
-    - "[domain-correctness] SKILL.md thiếu một câu nêu rõ cờ W8d (căn cứ trống ở mục 'Khuôn IA đã chọn + căn cứ') cũng hiện trên thẻ Cổng 1 — hiện chỉ có câu chung 'cánh W8 ... tại thẻ Cổng 1 (ADVISORY)' đặt cạnh đoạn nói về dây design_doc/states (ngữ cảnh W8b/c). Cần thêm một dòng dạng 'thẻ Cổng 1 hiện đủ cờ W8a-d, gồm W8d khi mục Khuôn IA để trống' ngay tại S1#4 hoặc đoạn Gate 1 của feature-loop/skills/feature-loop/SKILL.md — nếu dòng này có mặt, verdict đổi thành PASS cho câu hỏi (2)."
-    - "[spec-alignment] Đoạn văn trong feature-loop SKILL.md (hoặc mẫu thẻ Gate 1 do skill acceptance-card sinh ra) nêu RÕ tên W8d và xác nhận cờ «khuôn IA chưa có căn cứ» xuất hiện trên thẻ Cổng 1 — hiện S1 chỉ nói chung «cánh W8... khớp vòng hai chiều», không có chữ W8d nào trong toàn bộ SKILL.md (kiểm bằng `grep -n W8d feature-loop/skills/feature-loop/SKILL.md`, hiện ra rỗng)."
-    - "[spec-alignment] Một bản demo/output thật của acceptance-card khi mục «Căn cứ» trong design-doc bị để trống, cho thấy dòng cờ W8d hiển thị trên thẻ — vd chạy scripts/eval-coverage-lint.js trên một design-doc có Căn cứ rỗng rồi xem card render, để xác nhận cờ có tới tay người đọc chứ không chỉ nằm trong JSON nội bộ."
+    - domain-correctness: PASS — (1) Thang 2 nấc được dạy khớp giữa hai file: (i) có công cụ tra mẫu (vd MCP Mobbin, chỉ là ví dụ) → tra + ghi vết; (ii) không có → chọn từ danh sách khuôn IA có tên + ghi lý do; SKILL.md còn nói thẳng "không phụ thuộc công cụ nào", và nhánh (ii) tự nó là một đường hoàn chỉnh không cần công cụ. (2) SKILL.md ghi rõ cờ đoán-chay W8d (căn cứ trống) thuộc nhóm "mọi cờ hiện tại thẻ Cổng 1 (ADVISORY)" — người đọc thẻ Cổng 1/Cổng Phạm vi nhìn thấy khi máy đoán chay. (3) Ngưỡng "chỉ tra khi không tự chắc" có tiêu chí cụ thể (≥2 khuôn khả dĩ) và câu "luồng hiển nhiên không tra/ghi thẳng lý do" lặp lại nhất quán ở cả hai file, đủ rõ để không thành trạm thu phí cho luồng hiển nhiên.
+    - operational-feasibility: PASS — Cả hai file dạy khớp nhau thang 2 nấc (có công cụ tra mẫu → tra + ghi vết một dòng; không có → chọn từ danh sách khuôn IA đóng + ghi lý do) và SKILL.md nói thẳng "không phụ thuộc công cụ nào" — nấc (ii) tự đủ, không cần MCP hay công cụ ngoài. Căn cứ trống = cờ W8d, và SKILL.md xác nhận "mọi cờ hiện tại thẻ Cổng 1 (ADVISORY)" nên người đọc thẻ nhìn thấy được ca đoán chay. Luật "CHỈ tra khi không tự chắc (≥2 khuôn khả dĩ) — luồng hiển nhiên thì ghi thẳng lý do" là quy tắc máy tự vận hành MỘT lượt không gọi owner, nên không tạo ma sát/trạm thu phí cho người — chỉ hiện cờ advisory không chặn.
+    - spec-alignment: PASS — Thang 2 nấc được dạy khớp nhau ở cả hai file (ux-spec-template.md dòng 63-64; feature-loop SKILL.md S1#4) và SKILL.md nói thẳng "không phụ thuộc công cụ nào, luồng hiển nhiên không tra" — nấc (ii) là lối đảo không cần công cụ. Cờ đoán-chay (căn cứ trống) được cả hai file gọi tên "W8d" và SKILL.md xác nhận "mọi cờ hiện tại thẻ Cổng 1 (ADVISORY)" nên người đọc thẻ Cổng 1 thấy được. Điều kiện kích hoạt tra ("≥2 khuôn khả dĩ") và lối miễn cho luồng hiển nhiên được lặp lại nhất quán ở cả hai nguồn, đủ rõ để không ép tra cho ca hiển nhiên.
+  required_evidence: none — 3/3 lens PASS, không có khoảng trống cần vá.
   human_override:
 <!-- JUDGMENT-BLOCK-TEMPLATE>>> -->
 
 - eval: E6
-  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E6-r2
+  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E6-r3
   exit_code: 0
   baseline: green
   verifier: config:executors.test.scripts
-  verified_at: 2026-08-24T04:32:10Z
+  verified_at: 2026-08-24T08:01:20Z
   output: |
     PASS: ARM13-mut
 
-    Results: 780 passed, 0 failed
+    Results: 787 passed, 0 failed
 
 - eval: E7
-  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E7-r2
+  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E7-r3
   exit_code: 0
   baseline: green
   verifier: config:executors.test.scripts
-  verified_at: 2026-08-24T04:32:10Z
+  verified_at: 2026-08-24T08:01:20Z
   output: |
     PASS: ARM13-mut
 
-    Results: 780 passed, 0 failed
+    Results: 787 passed, 0 failed
 
 - eval: E8
-  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E8-r2
+  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E8-r3
   exit_code: 0
   baseline: green
   verifier: config:executors.test.scripts
-  verified_at: 2026-08-24T04:32:10Z
+  verified_at: 2026-08-24T08:01:20Z
   output: |
     PASS: ARM13-mut
 
-    Results: 780 passed, 0 failed
+    Results: 787 passed, 0 failed
 
 - eval: E9
-  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E9-r2
+  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E9-r3
   exit_code: 0
   baseline: green
   verifier: config:executors.test.scripts
-  verified_at: 2026-08-24T04:32:10Z
+  verified_at: 2026-08-24T08:01:20Z
   output: |
     PASS: ARM13-mut
 
-    Results: 780 passed, 0 failed
+    Results: 787 passed, 0 failed
 
 - eval: E10
-  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E10-r2
+  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E10-r3
   exit_code: 0
   baseline: green
   verifier: config:executors.test.scripts
-  verified_at: 2026-08-24T04:32:10Z
+  verified_at: 2026-08-24T08:01:20Z
   output: |
     PASS: ARM13-mut
 
-    Results: 780 passed, 0 failed
+    Results: 787 passed, 0 failed
 
 <!-- <<<JUDGMENT-BLOCK-TEMPLATE -->
 - eval: E11
   judged_by: judge panel (domain-correctness, operational-feasibility, spec-alignment)
-  verdict: FAIL
-  rationale: 3/3 lens FAIL. Round này review-findings phơi ra ba hình dạng cụ thể của lớp "assertion âm-tính-một-mình / phép đo mới chưa phá thử" bên trong chính bộ test đang được E11 giao phải chứng minh sạch: UX3 (ux-spec.test.mjs) khai 5 mệnh đề nhưng checks.a2 và checks.d không có mutant nào lật được trong file; UX1 và UX4 gắn nhãn "chiều đỏ" cho các assertion mà mutation và assertion là cùng một thao tác chuỗi (tautology, không thể đỏ); và các cánh W8A/W8B/W8C/W8P (run-tests.sh) không chạy đối chứng dương trên CHÍNH instance vừa bị mutate trước khi tiêm lỗi, trái với header comment tự tuyên "Mỗi cánh: cặp hai chiều CÙNG fixture" của chính file đó. Cả ba lens đều xác nhận độc lập bằng cách chạy lại đúng biểu thức/mutant liên quan.
+  verdict: UNCERTAIN
+  rationale: Panel chia rẽ 2/3 so với 1/3 (dissent, không đồng thuận) — domain-correctness và spec-alignment không đồng ý với operational-feasibility. Mọi lỗ hổng round 2 nêu (checks.a2/checks.d của UX3 thiếu mutant, chiều đỏ UX1/UX4 là tautology, các cánh W8A/W8B/W8C/W8P thiếu đối chứng dương trên chính instance bị mutate) đã được vá trong round này — cả ba lens xác nhận độc lập. Điểm dissent DUY NHẤT còn lại: cánh [W8W] (dòng 1206–1218, tests/scripts/run-tests.sh) — bắt gãy-dòng của flow-list — chỉ có assertion âm tính một mình (chứng minh "không W8b oan" + "có cảnh báo gãy dòng"), KHÔNG có bước mutant "-alive" xoá một ST rồi xác nhận W8b vẫn bắt được, trong khi cánh anh em [W8L] (dòng 1184–1204) ngay sát bên có đúng cặp quiet+live đó. domain-correctness và spec-alignment coi đây là vi phạm còn sống của lớp "assertion âm-tính-một-mình"; operational-feasibility coi cánh còn lại (W8L, W8O, W8G, W8N, W8F, D...) đã đủ pattern chuẩn nên chấm PASS tổng thể. Người quyết ở Gate 2 cần đọc trực tiếp đoạn code được trích để quyết định cánh [W8W] một mình có đủ nghiêm trọng để giữ FAIL hay chấp nhận PASS-với-known-limit.
   votes:
-    - domain-correctness: FAIL — Cả 4 câu hỏi hẹp đều SẠCH ở W8A–W8P/W8L/W8F và UX1/UX2/UX4 (mọi fixture rút từ ux-spec-template.md thật, mọi check() kèm case-message, mọi nhánh đỏ có mutation thật). Nhưng UX3 (ux-spec.test.mjs dòng 105-145) tự tuyên "Nay mỗi mệnh đề có mutant riêng" rồi không giữ lời: checks.d không có bất kỳ mutant nào trong file khiến nó lật false (đã chạy lại chính hai mutant mutA/mutC trong node — d(s)=d(mutA)=d(mutC)=true), và checks.a2 chỉ được assert ở chiều dương (dòng 142), không có dòng đỏ nào dù mutA tình cờ đã lật nó false — không có ca cô lập lớp cho hai mệnh đề này, vi phạm đúng bất biến "Thước phải gắn vào vật được giao" của kit.
-    - operational-feasibility: FAIL — Trong run-tests.sh, header comment dòng 1102 tuyên "Mỗi cánh: cặp hai chiều CÙNG fixture + thông điệp ghim" nhưng 5 cánh (W8B, W8C, W8A-1/2/3, W8P — dòng 1126-1159) chỉ dựng MỘT fixture rồi tiêm lỗi ngay, không chạy lint trên bản CHƯA tiêm để xác nhận 0-cờ trước — khác pattern chuẩn mà chính file dùng ở W8O/W8G/W8L/W8D (đều mutate + kiểm trên CÙNG một thư mục, sạch rồi mới đỏ). Thông điệp vẫn ghim chuỗi ở mọi cánh nên không phải "assertion âm tính một mình" tuyệt đối, nhưng thiếu đúng "đối chứng dương cùng fixture" mà câu hỏi hỏi. Thêm: ux-spec.test.mjs UX3 khai 5 mệnh đề nhưng chỉ tạo mutant đỏ cho a, b, c — a2 và d chưa từng được chứng minh có thể fail.
-    - spec-alignment: FAIL — Header comment dòng 1102 tuyên "Mỗi cánh: cặp hai chiều CÙNG fixture + thông điệp ghim" nhưng các cánh W8A (1139-1151), W8B (1126-1131), W8C (1133-1137) và W8P (1153-1159) không giữ đúng lời hứa: mỗi cánh tạo MỘT thư mục tmp mới rồi mutate ngay, không kiểm bản-nguyên-vẹn-của-CHÍNH-instance-đó trước khi mutate — khác hẳn W8O/W8G/W8L/W8D và cặp L35/L35b (đều mutate tại chỗ trên CÙNG một thư mục đã in-place). Về hai tiêu chí còn lại (fixture viết tay, message chỉ kiểm exit code) không thấy vi phạm — mọi states đều rút từ design.md thật, mọi chiều đỏ đều ghim chuỗi cụ thể.
+    - domain-correctness: FAIL — Trong các cánh W8A–W8P, đúng một cánh — [W8W] (dòng 1206–1218, tests/scripts/run-tests.sh) — chỉ có assertion âm tính một mình: nó chứng minh "gãy dòng không tạo W8b oan" (-nooan) và "có cảnh báo gãy dòng" (-msg), nhưng KHÔNG có bước đối chứng dương kiểu "-alive" chứng minh rằng khi format gãy-dòng này thật sự thiếu một ST, luật W8b vẫn bắt được nó (không câm lưới) — trong khi ba cánh anh em cùng mục đích ([W8L] dòng 1200–1204, [W8F] dòng 1225–1229, [W8N] dòng 1239–1241) đều có bước "-alive"/"-live" y hệt cho chính lý do đó. UX1–UX4 (ux-spec.test.mjs) và các cánh W8 còn lại đều dùng fixture rút-từ-writer qua marker (ux_section/uxSection, không viết tay theo khuôn bên đọc), và mọi check exit-code đều đi kèm ghim chuỗi cụ thể, không có case nào chỉ kiểm exit code trơn.
+    - operational-feasibility: PASS — Rà hết UX1–UX4 (ux-spec.test.mjs) và toàn bộ dải W8 trong run-tests.sh (W8-POS/RT, W8A1-4, W8B, W8C, W8D, W8G, W8L, W8N, W8O, W8P, W8W, W8F): mọi ca âm-tính (kiểm "không xuất hiện W8"/"không bị cờ oan") đều có nhánh sống đi kèm trên CÙNG fixture (ví dụ W8O/W8G đổi surfaces/status rồi xác nhận W8a nổi lại; W8F/W8N mutate rồi xác nhận W8a chạy; W8L/W8W có nhánh "-alive" bắn đúng ST khi thiếu). Mọi fixture design.md đều rút qua ux_section()/uxSection() từ chính ux-spec-template.md thật (marker <<<UX-SPEC-TEMPLATE...>>>, luật bỏ-ngoặc {{x}}→x), không phát hiện bảng viết tay theo trí nhớ bên đọc. Mọi case tiêm-đỏ dùng hàm check() (exit code) đều có case-statement pin chuỗi thông điệp cụ thể ngay dòng kế; không có ca nào chỉ gọi check() mà thiếu match nội dung.
+    - spec-alignment: FAIL — Cánh W8W (tests/scripts/run-tests.sh dòng 1206–1218) chỉ khẳng định "không W8b oan" + "có cảnh báo gãy dòng" trên MỘT fixture full-content, không có mutant xoá-một-ST để chứng minh bộ đọc vẫn bắt được thiếu sót dưới định dạng gãy dòng — trong khi cánh W8L ngay sát bên (dòng 1184–1204, đối chứng dương L0 + msg + `[W8L]-alive` xoá `ST_L1` ghim đúng tên) và các cánh W8O/W8G/W8N/W8D khác đều có cặp quiet+live. Đây là assertion âm-tính-một-mình thiếu đối chứng dương cùng fixture. Các cánh UX1–UX4 và W8 còn lại (kể cả W8A/B/C/P/O/G/L/N/F/D) đều có đối chứng dương + thông điệp ghim rõ, không thấy fixture viết tay sai khuôn (mọi design.md đều rút từ `ux_section`/writer thật) và không thấy case chỉ kiểm exit code mà thiếu ghim chuỗi.
   required_evidence:
-    - "[domain-correctness] tests/plugins/ux-spec.test.mjs dòng 113-127 (định nghĩa checks.a2, checks.d) + dòng 142-145 (toàn bộ assertion UX3): checks.d chỉ xuất hiện trong vòng lặp dương ở dòng 142, không có dòng đỏ nào dạng ok(!checks.d(...)); nếu thêm một assertion đỏ cho 'd' (và cho 'a2') thì verdict đổi."
-    - "[domain-correctness] Lệnh tái lập: node -e (đọc SKILL.md, tính lại mutA/mutC y hệt file test, gọi checks.d và checks.a2 trên s/mutA/mutC) — cho kết quả d(s)=d(mutA)=d(mutC)=true (không mutant nào trong file lật được checks.d), và a2(mutA)=false NHƯNG không có assertion nào trong ux-spec.test.mjs kiểm tra điều này."
-    - "[domain-correctness] Đối chiếu comment tự khai tại ux-spec.test.mjs dòng 107-108: 'Nay mỗi mệnh đề có mutant riêng...' — lời tuyên này không đúng cho khoá 'd' và chỉ đúng-nhưng-chưa-được-assert cho khoá 'a2'."
-    - "[operational-feasibility] Đọc tests/scripts/run-tests.sh dòng 1126-1131 (cánh [W8B]): chỉ có RUXB=mk_ux_fixture rồi sed xoá state ngay, không có lệnh node \"$LINT\" \"$RUXB\" nào chạy TRƯỚC khi sed — nếu thêm dòng đó (giống mẫu outO/outO2 ở dòng 1164+1167) thì verdict đổi."
-    - "[operational-feasibility] Đọc tests/scripts/run-tests.sh dòng 1133-1137 ([W8C]), 1139-1151 ([W8A]-1/2/3), 1153-1159 ([W8P]): cùng hình dạng — không baseline riêng trên chính thư mục đó; đối chiếu dòng 1161-1177 (W8O, W8G) và 1179-1194 (W8L) nơi lint được gọi 2 lần trên CÙNG thư mục."
-    - "[operational-feasibility] Đọc tests/plugins/ux-spec.test.mjs dòng 113-145: object checks có 5 khoá (a, a2, b, c, d), vòng lặp dòng 142 chỉ chạy chiều dương cho cả 5; dòng 143-145 chỉ gọi phủ định cho a, b, c — không có phủ định cho a2 hay d."
-    - "[spec-alignment] tests/scripts/run-tests.sh dòng 1102: đọc lại chuỗi 'Mỗi cánh: cặp hai chiều CÙNG fixture' — nếu owner xác nhận comment này chỉ áp cho một phần cánh (không phải MỌI cánh W8) thì verdict đổi thành PASS."
-    - "[spec-alignment] tests/scripts/run-tests.sh dòng 1126-1131 (W8B) và 1133-1137 (W8C): thêm một dòng check exit0/0-cờ trên CHÍNH $RUXB/$RUXC trước khi sed mutate — nếu thêm rồi chạy bash tests/scripts/run-tests.sh vẫn xanh thì cần đối chiếu lại."
-    - "[spec-alignment] tests/scripts/run-tests.sh dòng 1139-1151 (W8A-1/2/3) và 1153-1159 (W8P): so sánh với khuôn in-place mutation của W8O (1161-1168) — chạy lint trên $RUXA1/$RUXA2/$RUXA3/$RUXP TRƯỚC khi sed/rm để xác nhận từng instance riêng thật sự xanh trước khi tin bản mutate là đỏ."
+    - "[domain-correctness] tests/scripts/run-tests.sh dòng 1206–1218 (khối [W8W]): thêm một bước mutate tương tự [W8L] dòng 1200–1204 — sau khi đã có fixture flow-list gãy dòng, xoá đúng một ST khỏi phần khai (states) rồi assert `outW2` chứa 'W8b trạng thái <ST> ' để chứng minh luật W8b vẫn bắt được thiếu-sót thật trong format gãy dòng, không chỉ chứng minh nó không báo oan."
+    - "[spec-alignment] tests/scripts/run-tests.sh dòng 1206–1218 (khối [W8W]): thêm một case mutant kiểu W8L-alive — trong CÙNG fixture gãy dòng, xoá một ST khỏi mảng flow-list-gãy-dòng rồi kiểm outW pin đúng 'W8b trạng thái <ST> khai trước nhưng không eval nào đo'; nếu case đó tồn tại và xanh thì verdict đổi thành PASS."
   human_override:
 <!-- JUDGMENT-BLOCK-TEMPLATE>>> -->
 
 - eval: E12
-  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E12-r2
+  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E12-r3
   exit_code: 0
   baseline: green
   verifier: config:executors.test.scripts
-  verified_at: 2026-08-24T04:32:10Z
+  verified_at: 2026-08-24T08:01:20Z
   output: |
     PASS: ARM13-mut
 
-    Results: 780 passed, 0 failed
+    Results: 787 passed, 0 failed
 
 - eval: E13
-  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E13-r2
+  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E13-r3
   exit_code: 0
   baseline: green
   verifier: config:executors.test.scripts
-  verified_at: 2026-08-24T04:32:10Z
+  verified_at: 2026-08-24T08:01:20Z
   output: |
     PASS: ARM13-mut
 
-    Results: 780 passed, 0 failed
+    Results: 787 passed, 0 failed
 
 - eval: E14
-  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E14-r2
+  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E14-r3
   exit_code: 0
   baseline: green
   verifier: config:executors.test.scripts
-  verified_at: 2026-08-24T04:32:10Z
+  verified_at: 2026-08-24T08:01:20Z
   output: |
     PASS: ARM13-mut
 
-    Results: 780 passed, 0 failed
+    Results: 787 passed, 0 failed
 
 ## Analyst
 
-E1, E2, E3, E4, E6, E7, E8, E9, E10, E12, E13, E14 — mọi eval máy trong round này (kể cả E13/E14 mới thêm cho AC-12/AC-13) đều `baseline: green` (pass trên CẢ HEAD lẫn diffBase) ở cấp exit-code toàn suite. Đây là kết quả chạy CẢ SUITE (780+ case, đa số không liên quan tới feature này) nên non-discriminating ở mức suite là kỳ vọng bình thường, không kết luận riêng từng case UX1-UX4/W8* có discriminating hay không từ con số này — xem review-findings.md để biết case cụ thể nào đã/chưa được chứng minh phân biệt bằng mutation nội bộ. `bash tests/hooks/run-tests.sh`, `bash tests/workflows/run-tests.sh` và `node scripts/product-map.mjs --check` chạy sạch cả hai phía và không gắn với eval id nào (regression-guard bình thường), không liệt kê ở đây.
+E1, E2, E3, E4, E6, E7, E8, E9, E10, E12, E13, E14 — mọi eval máy trong round này đều `baseline: green` (pass trên CẢ HEAD lẫn diffBase) ở cấp exit-code toàn suite, không đổi so với round 2. Đây là kết quả chạy CẢ SUITE (787 case tests/scripts + suite tests/plugins, đa số case không liên quan tới feature này) nên non-discriminating ở mức suite là kỳ vọng bình thường, không kết luận riêng từng case UX1-UX4/W8* có discriminating hay không từ con số này — xem review-findings.md để biết case cụ thể nào đã/chưa được chứng minh phân biệt bằng mutation nội bộ. `bash tests/hooks/run-tests.sh` (60 passed), `bash tests/workflows/run-tests.sh` (44 passed) và `node scripts/product-map.mjs --root . --check` chạy sạch cả hai phía và không gắn với eval id nào (regression-guard bình thường), không liệt kê ở đây.
 
 ## Variance
 
@@ -214,6 +204,7 @@ none — mọi eval máy trong round này là deterministic (0/1 hoặc 1/1), kh
 
 Round 1: E1–E4 (bash tests/plugins/run-tests.sh) và E6–E10, E12 (bash tests/scripts/run-tests.sh) đều PASS trên HEAD, exit 0, baseline green (non-discriminating ở cấp suite). E5 (AC-5, judgment) ra UNCERTAIN — panel 3 lens đồng thuận thiếu bằng chứng cờ W8d có thực sự hiện trên thẻ Cổng 1. E11 (AC-11, judgment) ra PASS — panel 3 lens đồng thuận mọi cánh W8/UX có fixture code-sinh + thông điệp ghim + đối chứng dương/đỏ đủ tin cậy. Verdict: PENDING-JUDGMENT.
 Round 2: E1–E4, E6–E10, E12 vẫn PASS; thêm E13 (AC-12), E14 (AC-13) cũng PASS, tất cả baseline green. E5 vẫn UNCERTAIN (2/3 lens, cùng lỗ hổng bằng chứng chưa được vá). E11 lật từ PASS sang FAIL — round này review-findings phơi ra checks.a2/checks.d (UX3) không có mutant, chiều đỏ UX1/UX4 là tautology (mutation và assertion là cùng một thao tác chuỗi), và các cánh W8A/W8B/W8C/W8P thiếu đối chứng dương trên chính instance bị mutate — đúng lớp "assertion âm-tính-một-mình" mà CLAUDE.md của kit cấm. Verdict: REJECT.
+Round 3: E1–E4, E6–E10, E12–E14 vẫn PASS, baseline green (không đổi từ round 2). E5 lật từ UNCERTAIN sang PASS — panel nay 3/3 đồng thuận: SKILL.md đã có câu xác nhận cờ W8d hiện trên thẻ Cổng 1 ("mọi cờ hiện tại thẻ Cổng 1, ADVISORY"), vá đúng khoảng trống round 2 nêu. E11 thu hẹp từ 3/3 FAIL xuống dissent 2/3 FAIL (domain-correctness, spec-alignment FAIL; operational-feasibility PASS) — mọi lỗ hổng round 2 nêu (checks.a2/checks.d không mutant, tautology UX1/UX4, thiếu đối chứng dương W8A/B/C/P) đã được vá, CHỈ CÒN cánh [W8W] (dòng 1206–1218) chưa có bước mutant "-alive" xoá một ST để chứng minh W8b vẫn bắt lỗi thật dưới format gãy dòng — cùng lớp assertion-âm-tính-một-mình nhưng thu hẹp còn đúng một cánh. Verdict: PENDING-JUDGMENT (dissent panel trên E11, người quyết ở Gate 2).
 
 ## Gate 2 checklist (human)
 
