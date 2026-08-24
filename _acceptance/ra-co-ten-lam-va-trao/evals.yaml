@@ -57,7 +57,11 @@ evals:
       approved_by rỗng: (a) veto mo + mốc + T2 → exit 0; (b) T3 → exit 2 ghim "veto_state: mo on a
       T3 contract"; (c) không veto/không gate1_skipped → exit 2 ghim "status: machine-cleared with
       empty approved_by"; (d) draft→machine-cleared → exit 2 ghim "skips Gate 1".
-      (e) MỚI — T3 + approved_by ĐÃ điền → exit 2 ghim "status: machine-cleared on a T3 contract":
+      (e) hạng KHÁC T2 + approved_by ĐÃ điền → exit 2 ghim "status: machine-cleared on a <hạng>
+      contract": vị từ là ALLOWLIST (CHỈ T2 được phép), không phải cấm riêng chuỗi «T3» — viết
+      `=== 'T3'` thì T1, hạng RỖNG và mọi cách gõ sai đều LỌT, mà lưới trước-merge chỉ chấm hạng
+      trong REQUIRED_FOR («T2 T3») nên hồ sơ T1 không được lưới sờ tới lần nào (S4-r11 [1]). Ca
+      chạy ít nhất T3, T1 và hạng RỖNG; và:
       «máy thông không chữ ký» là T2-only nên răng phải đứng ở TẦNG GHI, không chỉ ở lưới
       trước-merge; nhánh (b) chỉ bắt ca đi qua veto_state. ĐỐI CHỨNG DƯƠNG: cùng fixture hạ về
       T2 → exit 0. Gỡ răng khỏi lib → (e) ĐỎ.
@@ -79,6 +83,11 @@ evals:
       tên, không veto → da-giao-may-thong-xanh-sach; (c) + opportunity build ngưỡng chốt → gates
       gia-tri; (d) mutant về verified (làn V, xanh-sạch) → KHÔNG ở gates, done may-di-tiep-veto-mo;
       (e) mutant machine-cleared→signed-off → stateKey da-giao, label khác (a).
+      VÀ (S4-r11 [3] — màu xanh giả): nhãn «máy thông, bằng chứng xanh-sạch» khẳng định một tính
+      chất MÁY KIỂM ĐƯỢC nên KHÔNG được in chỉ vì frontmatter tự khai — bộ quét phải HỎI
+      `khongCanNguoi` như làn `verified` vẫn làm; hồ sơ machine-cleared có verdict REJECT (hoặc
+      mục Known limits có nội dung) phải vào `broken` kèm lý do, KHÔNG vào «đã giao». ĐỐI CHỨNG
+      DƯƠNG: hồ sơ sạch vẫn vào đúng ô.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
@@ -238,8 +247,16 @@ evals:
       exit 0; stdout có "PASS: [RT16]" — bản đồ và bộ quét đồng kết luận theo QUAN HỆ (ô bản đồ
       của slug == BUCKET_OF[stateKey] của bộ quét) trên fixture code-sinh CẢ BỐN trạng thái ngưỡng
       × {signed-off, machine-cleared}, và trên hồ sơ THẬT duong-do-trong-dinh-nghia-xong (bản đồ
-      KHÔNG in nó dưới «chờ phiên nghiệm thu»). Chiều đỏ: bản sao product-map.mjs gỡ nhánh
-      khong-do-duoc → phép so ĐỎ nêu đúng slug + hai ô lệch; lệnh tiêm phải đổi được dòng.
+      KHÔNG in nó dưới «chờ phiên nghiệm thu»).
+      VÀ (S4-r11 [3]): bản đồ hỏi `khongCanNguoi` cho hồ sơ machine-cleared — hồ sơ tự khai mà
+      bằng chứng không đạt sáu điều kiện phải vào ô «Hồ sơ hỏng», KHÔNG in nhãn «bằng chứng
+      xanh-sạch»; bản đồ và bộ quét cùng kết luận. VÀ (S4-r11 [0]): `thresholdState` ném → bản đồ
+      chết-to CÓ TÊN kèm đường dẫn khuôn + đường sửa, exit 2 — KHÔNG phải stack trace với exit 1,
+      vì exit 1 là mã `--check` dùng cho «bản đồ lệch» và ADR 0007 lấy cổng đó làm căn cứ miễn trừ
+      t1 của chính bản đồ.
+      Chiều đỏ: bản sao product-map.mjs gỡ nhánh khong-do-duoc → phép so ĐỎ nêu đúng slug + hai ô
+      lệch; lệnh tiêm phải đổi được dòng; cây mutant phải mang ĐỦ lib + khuôn +
+      scripts/khong-can-nguoi.mjs — thiếu file là đỏ vì HẠ TẦNG chứ không vì vật.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E18
     criterion: AC-18
