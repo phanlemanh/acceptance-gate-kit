@@ -35,6 +35,8 @@ export { NAV_RULES };
 const { BUCKET_OF, chu } = require(path.join(__dirname, 'trang-thai-ho-so.cjs'));
 const NGUONG = require(path.join(__dirname, '..', 'lib', 'nguong-o-co-hoi.cjs'));
 const OPP_TPL_MAP = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md');
+let _oppTpl = null;
+const oppTplText = () => _oppTpl ?? (_oppTpl = readFileSync(OPP_TPL_MAP, 'utf8'));
 
 // Tên ô nói VIỆC ĐANG Ở ĐÂU, không gọi tên cơ chế máy (N1). Thứ tự cố định —
 // nó cũng là thứ tự các chặng trong hình.
@@ -185,9 +187,12 @@ function classify(dir, slug) {
       // thu để chờ. Nhánh này phải có Ở CẢ HAI bộ đọc — bộ quét có mà bản đồ không là hai
       // bên nói hai chuyện về cùng hồ sơ, đúng lớp lib/workspace-record.cjs dựng ra để giết
       // (finding S4-r2, đo trên chính hồ sơ duong-do). Luật hỏi LIB, không chép.
+      // FAIL-CLOSED như hai bộ đọc anh em (start-scan bail, gate-card exit 2): khuôn hỏng
+      // thì CHẾT TO kèm tên khuôn. Nuốt lỗi ở đây là bản đồ im lặng xếp sai ô trong khi
+      // ba bộ đọc kia đỏ — hai bên nói hai chuyện, và `--check` mất luôn căn cứ miễn trừ
+      // t1 của chính bản đồ (finding S4-r4).
       if (duongA && oTxt) {
-        let ngBD = null;
-        try { ngBD = NGUONG.thresholdState(oTxt, readFileSync(OPP_TPL_MAP, 'utf8')); } catch (_) { ngBD = null; }
+        const ngBD = NGUONG.thresholdState(oTxt, oppTplText());
         if (ngBD === 'khong-do-duoc') return { ...o('da-giao-khong-do'), note: chu('da-giao-khong-do').nhan };
       }
       if (duongA) return o('cho-cong-gia-tri');

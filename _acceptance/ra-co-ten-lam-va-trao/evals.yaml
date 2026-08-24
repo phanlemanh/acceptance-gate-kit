@@ -218,3 +218,15 @@ evals:
       gate KHÁC 0, không khối cong_dang, HTML không có chip «quyết có làm không». Chiều đỏ: bản
       sao gate-card.js gỡ vế `decision` → ca ĐỎ nêu đúng vế thiếu; lệnh tiêm phải đổi được dòng.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E18
+    criterion: AC-18
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [lib/nguong-o-co-hoi.cjs, _acceptance/ra-co-ten-lam-va-trao/contract.md, tests/plugins/ra-co-ten.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [RT18]" — quét đệ quy .js/.cjs/.mjs trong scripts/lib/hooks/tests
+      tìm 4 chuỗi luật ngưỡng (rút từ lib/khuôn lúc chạy): mọi hit ngoài lib nằm trong khối
+      LUAT-NGUONG-KHAI-GACH kèm lý do, file lạ → ĐỎ nêu tên + chuỗi. Chiều đỏ (a): bản sao cây
+      tiêm file chép tiêu đề → chính phép quét trên bản sao nêu tên; (b): gỡ một dòng gạch →
+      file thành lạ. Đây là ca CHỐNG-CHÉP: bản chép thứ hai của luật không land được nữa.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

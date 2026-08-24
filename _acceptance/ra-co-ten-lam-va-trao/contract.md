@@ -47,6 +47,8 @@ Source input: `_acceptance/ra-co-ten-lam-va-trao/opportunity.md` (Cổng Đáng 
 - AC-16: Given hồ sơ đã thông Cổng Bằng chứng (`signed-off` hoặc `machine-cleared`) với `opportunity.md` `decision: build`/`iterate` và ô ngưỡng khai `Không đo được — `, When chạy `scripts/product-map.mjs` (vẽ và `--check`), Then bản đồ xếp slug vào ô «đã giao» với nhãn rút từ bảng chung (`da-giao-khong-do`), **KHÔNG** in nó dưới «Đã giao — chờ phiên nghiệm thu»; bản đồ và bộ quét trả CÙNG một kết luận cho slug đó — phép đo so hai bên bằng **quan hệ** (ô bản đồ của slug ⇔ `BUCKET_OF[stateKey]` của bộ quét) trên fixture code-sinh CẢ BỐN trạng thái ngưỡng, và trên hồ sơ THẬT `duong-do-trong-dinh-nghia-xong`; **chiều đỏ**: bản sao `product-map.mjs` gỡ nhánh mới → phép so ĐỎ nêu đúng slug và hai ô lệch nhau.
 - AC-17: Given `opportunity.md` đã qua Cổng Đáng (`decision` khác rỗng) mà chưa có `contract.md`, When chạy `scripts/gate-card.js --extract`, Then **không** nhận Cổng Đáng: `gate` khác `0`, không có khối `cong_dang`, HTML không có chip «quyết có làm không» — bốn vế điều kiện nhận (`contract.md` vắng ∧ `opportunity.md` có ∧ `decision` rỗng ∧ `stage ≠ archived`) rút từ **chính thân `commands/approve.md`** rồi đối chiếu với hành vi thật ở cả bốn tổ hợp bật/tắt từng vế (ma trận toàn phần 4 ca biên, mỗi ca một assert); đối chứng dương: ô chưa ký → `gate: 0` như AC-7; **chiều đỏ**: bản sao `gate-card.js` gỡ vế `decision` → ca ĐỎ nêu đúng vế thiếu.
 
+- AC-18: Given cây mã sau hồ sơ, When quét đệ quy các file `.js`/`.cjs`/`.mjs` trong `scripts/` `lib/` `hooks/` `tests/` tìm BỐN chuỗi luật của ô ngưỡng (tiêu đề section · tiền tố đề xuất · tiền tố không-đo-được · hằng một-ngày — cả bốn RÚT từ `lib/nguong-o-co-hoi.cjs`/khuôn lúc chạy, không literal trong chính ca đo), Then mọi file chứa chúng NGOÀI `lib/nguong-o-co-hoi.cjs` phải nằm trong khối máy-đọc `LUAT-NGUONG-KHAI-GACH` (mục Notes) kèm lý do — file lạ → ĐỎ nêu tên file + chuỗi; **chiều đỏ**: (a) bản sao cây (chép thư mục thật) tiêm một file chép tiêu đề section → chính phép quét trên bản sao nêu tên nó; (b) gỡ một dòng khai gạch → file đó thành lạ. Phạm vi khai tường minh: chỉ mã JS — bản chép trong `.sh`/`.md` do các phép đo round-trip khác canh.
+
 ## Coverage
 
 - Trục A — vật mới: `machine-cleared` | thẻ+ký Cổng Đáng | ô ngưỡng bốn trạng thái + lối không-đo-được | răng chống lách surfaces | archived·timebox·kill/iterate [thước CE: đặc tả §1–§3; audit §3 A1–A3, A7–A9 — mỗi mục A là một giá trị]
@@ -87,6 +89,14 @@ Khối máy-đọc cho AC-13(ii) — mỗi dòng `slug stateKey-cũ stateKey-m�
 <!-- <<<KHAC-BIET-DOC-CU
 duong-do-trong-dinh-nghia-xong cho-cong-gia-tri da-giao-khong-do
 KHAC-BIET-DOC-CU>>> -->
+
+Khối máy-đọc cho AC-18 — file NGOÀI lib được phép mang chuỗi luật ngưỡng, mỗi dòng `đường-dẫn lý-do`; thêm bản chép mới là quyết định người, khai ở đây cùng lượt:
+<!-- <<<LUAT-NGUONG-KHAI-GACH
+tests/plugins/vao-co-o.test.mjs ca-hồ-sơ-cũ-trước-khi-lib-ra-đời-giữ-đường-đọc-cũ
+tests/plugins/duong-do.test.mjs ca-hồ-sơ-cũ-trước-khi-lib-ra-đời
+tests/plugins/lenh-bam-duoc.test.mjs ca-hồ-sơ-cũ-trước-khi-lib-ra-đời
+scripts/start-scan.mjs hằng-một-ngày-dùng-cho-tuổi-ý-ageDays-không-phải-luật-timebox
+LUAT-NGUONG-KHAI-GACH>>> -->
 
 Khối máy-đọc cho AC-13(iv) — bộ đọc chứa chuỗi `signed-off` mà hồ sơ này CỐ Ý không đụng, mỗi dòng `đường-dẫn lý-do`:
 <!-- <<<BO-DOC-KHAI-GACH

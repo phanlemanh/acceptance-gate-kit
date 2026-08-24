@@ -23,11 +23,15 @@ const CARD = path.join(ROOT, 'scripts', 'gate-card.js');
 const PMAP = path.join(ROOT, 'scripts', 'product-map.mjs');
 const PREMERGE = path.join(ROOT, 'scripts', 'pre-merge-check.sh');
 const HOOK = path.join(ROOT, 'hooks', 'acceptance-evidence-gate.js');
-const UAT_H = 'Ngưỡng chết / ngưỡng UAT';
+// LUẬT NGƯỠNG hỏi lib sở hữu nó — ca đo giữ bản chép là đúng lớp lỗi hồ sơ này bị bắt
+// HAI vòng liền (S4-r2 chép thresholdState, S4-r4 chép vị từ timebox lệch một ngày).
+const NG = require(path.join(ROOT, 'lib', 'nguong-o-co-hoi.cjs'));
+const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const UAT_H = NG.UAT_THRESHOLD_HEADING;
 
 let failures = 0;
 // MỘT nguồn danh sách ca: file này. Chỉ liệt ca ĐÃ CÓ THÂN — khai id chưa dựng thì suite đỏ.
-const ALL_IDS = ['RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT6', 'RT7', 'RT8', 'RT9', 'RT10', 'RT11', 'RT12', 'RT13', 'RT14', 'RT15', 'RT16', 'RT17'];
+const ALL_IDS = ['RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT6', 'RT7', 'RT8', 'RT9', 'RT10', 'RT11', 'RT12', 'RT13', 'RT14', 'RT15', 'RT16', 'RT17', 'RT18'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.RT_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const want = id => only.length === 0 || only.includes(id);
@@ -574,7 +578,7 @@ if (want('RT6')) {
   const FL = 'feature-loop/skills/feature-loop/SKILL.md';
   const errs = checkMenhDe([
     ['uat-§0 điều kiện vào', 'skills/uat-session/SKILL.md', t => cut(t, /^## 0\. Điều kiện vào/m, /^## 1\./m), /`status: signed-off` hoặc `machine-cleared`/, 1],
-    ['uat-§0 ba ca ngưỡng', 'skills/uat-session/SKILL.md', t => cut(t, /^## 0\. Điều kiện vào/m, /^## 1\./m), /Không đo được — /, null],
+    ['uat-§0 ba ca ngưỡng', 'skills/uat-session/SKILL.md', t => cut(t, /^## 0\. Điều kiện vào/m, /^## 1\./m), new RegExp(reEsc(KHONG_DO) + ' '), null],
     ['fl bảng có hàng mới', FL, t => cut(t, /^\| status hiện tại/m, /^\n## /m), /^\| `machine-cleared` \|.*S5/m, 1],
     ['fl hàng verified ghi trạng thái kết', FL, t => cut(t, /^\| `verified` \|/m, /\n/), /set `status: machine-cleared`/, 1],
     ['fl S4 nhánh PASS', FL, t => cut(t, /\(3\) set contract `status: verified`/, /→ Gate 2\./), /set thẳng `status: machine-cleared`/, 1],
@@ -625,8 +629,8 @@ if (want('RT10')) {
   const st = readRepo('commands/start.md');
   if (!u.includes(KHONG_DO)) errs.push('uat-session §0 không mang đúng tiền tố không-đo-được');
   if (!ap.includes(KHONG_DO)) errs.push('approve.md không mang đúng tiền tố không-đo-được');
-  if (!ap.includes(DE_XUAT)) errs.push('approve.md không mang đúng tiền tố [đề xuất]');
-  if (!st.includes(DE_XUAT)) errs.push('start.md không mang đúng tiền tố [đề xuất]');
+  if (!ap.includes(DE_XUAT)) errs.push(`approve.md không mang đúng tiền tố ${DE_XUAT}`);
+  if (!st.includes(DE_XUAT)) errs.push(`start.md không mang đúng tiền tố ${DE_XUAT}`);
   if (!st.includes(KHONG_DO)) errs.push('start.md không mang đúng tiền tố không-đo-được');
   // Bên ĐỌC dùng đúng chuỗi khuôn: dựng fixture TỪ chuỗi khuôn rồi chạy bộ quét + thẻ thật.
   withRepo(root => {
@@ -638,7 +642,7 @@ if (want('RT10')) {
   // Tiêm vào ĐÚNG khối marker: khuôn còn nhắc chuỗi trong câu hướng dẫn, replace() thường
   // ăn vào câu đó và khối vẫn nguyên — lệnh tiêm không đổi được dòng nào là ca chết.
   const tplRaw = readFileSync(OPP_TPL, 'utf8');
-  const injected = tplRaw.replace(/(<<<OPP-KHONG-DO-DUOC-PREFIX -->\n)Không đo được —/, '$1Khong do duoc —');
+  const injected = tplRaw.replace(new RegExp('(<<<OPP-KHONG-DO-DUOC-PREFIX -->\\n)' + reEsc(KHONG_DO)), '$1Khong do duoc —');
   if (injected === tplRaw) errs.push('lệnh tiêm KHÔNG đổi được dòng nào trong khối marker');
   writeFileSync(fake, injected);
   const k2 = blockFromTemplate(fake, 'OPP-KHONG-DO-DUOC-PREFIX').trim();
@@ -695,23 +699,24 @@ if (want('RT13')) {
     for (const slug of mNew.keys()) if (!mOld.has(slug)) errs.push(`${slug}: chỉ có ở bản mới`);
   }
 
-  // (iii) CỜ đo bằng QUAN HỆ (đúng ở mọi ngày chạy), không bằng danh sách
-  const { section: sec } = require(path.join(ROOT, 'lib', 'md-section.cjs'));
-  const all = ['gates', 'inProgress', 'done'].flatMap(grp => (jNew.groups[grp] || []).map(x => ({ grp, ...x })));
+  // (iii) CỜ đo bằng QUAN HỆ (đúng ở mọi ngày chạy) — vị từ HỎI LIB, không chép lại:
+  // bản chép của vòng trước lệch đúng MỘT NGÀY và hẹn suite tự đỏ 30/08/2026 (S4-r4).
+  const tplTxt = readFileSync(OPP_TPL, 'utf8');
+  const all = ['gates', 'inProgress', 'done', 'considering'].flatMap(grp => (jNew.groups[grp] || []).map(x => ({ grp, ...x })));
   for (const x of all) {
     const op = path.join(ROOT, '_acceptance', x.slug, 'opportunity.md');
     const oTxt = existsSync(op) ? readFileSync(op, 'utf8') : null;
-    const lines = oTxt ? sec(oTxt, UAT_H) : [];
-    const tb = lines.find(l => /^-\s*Timebox:/.test(l.trim()));
-    const d = tb && (tb.match(/\b(\d{4})-(\d{2})-(\d{2})\b/) || tb.match(/\b(\d{2})\/(\d{2})\/(\d{4})\b/));
-    const date = d ? (d[0].includes('-') ? Date.UTC(+d[1], +d[2] - 1, +d[3]) : Date.UTC(+d[3], +d[2] - 1, +d[1])) : null;
-    const expQua = date != null && date < Date.now();
-    if (((x.flags || []).includes('qua-timebox')) !== expQua) errs.push(`${x.slug}: cờ qua-timebox ${expQua ? 'thiếu' : 'thừa'} (ngày ${d ? d[0] : 'không parse'})`);
-    const kd = lines.some(l => { const t = l.trim(); return t.startsWith(KHONG_DO) && (t.length === KHONG_DO.length || /\s/.test(t[KHONG_DO.length])); });
-    const bul = lines.map(l => l.trim().match(/^[-*]\s+([^:]+):(.*)$/)).filter(Boolean);
-    const chot = !kd && bul.length > 0 && bul.every(m => m[2].trim() && !/^(…|\.\.\.)$/.test(m[2].trim())) && !bul.some(m => m[2].trim().startsWith(DE_XUAT));
-    const expNg = x.grp === 'gates' && x.gate === 'gia-tri' && !chot;
-    if (((x.flags || []).includes('nguong-chua-chot')) !== expNg) errs.push(`${x.slug}: cờ nguong-chua-chot ${expNg ? 'thiếu' : 'thừa'}`);
+    // Nhóm «đang cân nhắc» writer CỐ Ý không gắn cờ (ý chưa quyết thì timebox chưa áp) —
+    // quét CẢ nhóm đó và đòi cờ RỖNG, thay vì bỏ qua đúng chỗ có thể sai (S4-r4).
+    if (x.grp === 'considering') {
+      if ((x.flags || []).length) errs.push(`${x.slug}: nhóm cân nhắc mang cờ ${JSON.stringify(x.flags)} — writer khai không gắn`);
+      continue;
+    }
+    const expQua = !!oTxt && NG.quaTimebox(oTxt);
+    if (((x.flags || []).includes('qua-timebox')) !== expQua) errs.push(`${x.slug}: cờ qua-timebox ${expQua ? 'thiếu' : 'thừa'}`);
+    const ng = oTxt ? NG.thresholdState(oTxt, tplTxt) : null;
+    const expNg = x.grp === 'gates' && x.gate === 'gia-tri' && ng !== 'chot';
+    if (((x.flags || []).includes('nguong-chua-chot')) !== !!expNg) errs.push(`${x.slug}: cờ nguong-chua-chot ${expNg ? 'thiếu' : 'thừa'} (ngưỡng ${ng})`);
   }
 
   // (iv) QUÉT KHÔNG GIAN MỞ: bộ đọc thứ N rẽ nhánh trên `signed-off` mà không ai nhớ tới.
@@ -855,7 +860,10 @@ if (want('RT16')) {
   {
     const mut = tmp('rt16-mut-');
     for (const rel of ['lib/evidence-core.cjs', 'lib/workspace-record.cjs', 'lib/md-section.cjs', 'lib/gap-probe.cjs',
-                       'lib/ac-line.cjs', 'lib/nguong-o-co-hoi.cjs', 'scripts/trang-thai-ho-so.cjs'])
+                       'lib/ac-line.cjs', 'lib/nguong-o-co-hoi.cjs', 'scripts/trang-thai-ho-so.cjs',
+                       // bản đồ nay đọc khuôn LÚC CHẠY (fail-closed) — cây mutant thiếu khuôn thì
+                       // chết vì hạ tầng chứ không vì vật, và chiều đỏ thành xanh-không-chạy
+                       'skills/acceptance/references/opportunity-template.md'])
       W(mut, rel, readRepo(rel));
     const src = readRepo('scripts/product-map.mjs');
     const NEEDLE = "if (ngBD === 'khong-do-duoc') return { ...o('da-giao-khong-do'), note: chu('da-giao-khong-do').nhan };";
@@ -879,15 +887,13 @@ if (want('RT16')) {
 // ── RT17 — thẻ KHÔNG hiện lại Cổng Đáng cho ô đã ký (bốn vế, ma trận biên) ──
 if (want('RT17')) {
   const errs = [];
-  // Bốn vế RÚT TỪ thân lệnh ký, không chép tay.
+  // Bốn vế RÚT THẬT từ dòng «Nhận ra chế độ» của thân lệnh — tách theo '∧'. Vòng trước
+  // là bốn regex chép tay tự nhận «rút từ» (S4-r4): thêm vế thứ năm vào tài liệu thì ca
+  // vẫn xanh. Nay số vế rút được phải BẰNG số ca ma trận — tài liệu thêm vế là ca đỏ.
   const ap = readRepo('commands/approve.md');
-  const VE = [
-    ['contract vắng', /`contract\.md` VẮNG/],
-    ['có ô cơ hội', /`opportunity\.md` có/],
-    ['decision rỗng', /`decision` rỗng/],
-    ['chưa đóng', /`stage ≠ archived`/],
-  ];
-  for (const [ten, re] of VE) if (!re.test(ap)) errs.push(`thân lệnh ký không khai vế «${ten}»`);
+  const veLine = (ap.match(/\*\*Nhận ra chế độ:\*\*([^\n]*\n[^\n]*)/) || [])[1] || '';
+  const VE_RUT = veLine.split('∧').map(v => v.replace(/[.*].*$/, '').trim()).filter(Boolean);
+  if (VE_RUT.length !== 4) errs.push(`rút được ${VE_RUT.length} vế từ thân lệnh, ma trận dựng cho 4 — hai bên phải cùng số`);
   const g = (root, slug) => {
     const r = spawnSync(process.execPath, [CARD, '--root', root, '--slug', slug, '--extract'], { encoding: 'utf8' });
     if (r.status !== 0) return { err: (r.stderr || '').slice(0, 160) };
@@ -943,6 +949,67 @@ if (want('RT17')) {
   }
   if (errs.length) fail('RT17', errs.join(' · '));
   else pass('RT17', 'bốn vế rút từ thân lệnh ký; 4 ca biên + đối chứng dương; gỡ vế decision → ca đỏ đúng vế');
+}
+
+// ── RT18 — CHỐNG-CHÉP: chuỗi luật ngưỡng chỉ sống trong lib, chỗ khác khai gạch ──
+// Lớp lỗi tái diễn hai vòng (S4-r2, S4-r4): mỗi bộ đọc mới lại CHÉP luật thay vì gọi
+// nguồn, rồi bản chép trôi (lệch một ngày, lệch placeholder). Ca này làm bản chép thứ
+// hai KHÔNG LAND được nữa — của tôi lẫn của người sau.
+if (want('RT18')) {
+  const errs = [];
+  const OWNER = 'lib/nguong-o-co-hoi.cjs';
+  // Needle RÚT lúc chạy — chính file này không mang literal nào (tự kiểm bằng chính ca).
+  const NEEDLES = [
+    ['tiêu đề section', NG.UAT_THRESHOLD_HEADING],
+    ['tiền tố đề xuất', DE_XUAT],
+    ['tiền tố không-đo', KHONG_DO],
+    ['hằng một-ngày', String(24 * 60 * 60 * 1000)],
+  ];
+  const contractRT18 = readRepo('_acceptance/ra-co-ten-lam-va-trao/contract.md');
+  const mG = contractRT18.match(/<<<LUAT-NGUONG-KHAI-GACH\n([\s\S]*?)LUAT-NGUONG-KHAI-GACH>>>/);
+  const GACH18 = mG ? mG[1].trim().split('\n').map(l => l.trim().split(/\s+/)) : null;
+  if (!GACH18) errs.push('contract thiếu khối LUAT-NGUONG-KHAI-GACH');
+  if (GACH18 && GACH18.some(r => r.length < 2)) errs.push('dòng khai gạch thiếu lý do — dòng thiếu là lỗi kêu to');
+  // PHÉP QUÉT THẬT: đệ quy fs trên root cho trước — tham số hoá để chiều đỏ tiêm được.
+  const scanRoot = root => {
+    const hits = [];
+    const walk = dir => {
+      if (!existsSync(dir)) return;
+      for (const e of require('node:fs').readdirSync(dir, { withFileTypes: true })) {
+        const p2 = path.join(dir, e.name);
+        if (e.isDirectory()) { walk(p2); continue; }
+        if (!/\.(js|cjs|mjs)$/.test(e.name)) continue;
+        const rel = path.relative(root, p2).split(path.sep).join('/');
+        if (rel === OWNER) continue;
+        const txt = readFileSync(p2, 'utf8');
+        for (const [ten, nd] of NEEDLES) if (txt.includes(nd)) hits.push([rel, ten]);
+      }
+    };
+    for (const d of ['scripts', 'lib', 'hooks', 'tests']) walk(path.join(root, d));
+    return hits;
+  };
+  const soSanh18 = (hits, gach) => hits.filter(([rel]) => !gach.some(r => r[0] === rel)).map(([rel, ten]) => `${rel} (${ten})`);
+  if (GACH18) {
+    const hits = scanRoot(ROOT);
+    if (!hits.length) errs.push('phép quét không thấy hit nào kể cả file đã khai gạch — nghi bước quét hỏng, không tin kết luận');
+    for (const la of soSanh18(hits, GACH18)) errs.push(`bản CHÉP luật ngưỡng ngoài lib: ${la} — gọi lib/nguong-o-co-hoi.cjs, hoặc khai gạch có lý do`);
+    for (const [f] of GACH18) if (!hits.some(([rel]) => rel === f)) errs.push(`khai gạch ${f} nhưng file không còn mang chuỗi luật (dòng chết)`);
+    // Chiều đỏ (a): TIÊM vào bản sao cây rồi chạy lại CHÍNH phép quét trên đó.
+    const g = tmp('rt18-');
+    try {
+      const { cpSync } = require('node:fs');
+      for (const d of ['scripts', 'lib', 'hooks']) cpSync(path.join(ROOT, d), path.join(g, d), { recursive: true });
+      mkdirSync(path.join(g, 'tests'), { recursive: true });
+      W(g, 'scripts/gia-lap-chep-luat.mjs', `// bản chép mới\nconst H = '${NG.UAT_THRESHOLD_HEADING}';\n`);
+      const la2 = soSanh18(scanRoot(g), GACH18);
+      if (!la2.some(x => x.startsWith('scripts/gia-lap-chep-luat.mjs'))) errs.push('chiều đỏ (a): tiêm bản chép vào cây mà phép quét không nêu tên');
+    } finally { rmSync(g, { recursive: true, force: true }); }
+    // Chiều đỏ (b): gỡ một dòng gạch → file đó phải thành lạ.
+    const bo = GACH18[0];
+    if (bo && !soSanh18(hits, GACH18.slice(1)).some(x => x.startsWith(bo[0]))) errs.push(`chiều đỏ (b): gỡ dòng gạch «${bo[0]}» mà phép so vẫn im`);
+  }
+  if (errs.length) fail('RT18', errs.join(' · '));
+  else pass('RT18', `chống-chép: 4 chuỗi luật chỉ sống trong lib; ${GACH18 ? GACH18.length : 0} file khai gạch có lý do; tiêm bản chép → nêu tên`);
 }
 
 const la = only.filter(id => !ALL_IDS.includes(id));

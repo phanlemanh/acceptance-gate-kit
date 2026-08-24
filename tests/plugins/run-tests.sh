@@ -10263,8 +10263,17 @@ def bad(m): errs.append(m); print("  P198 LOI: " + m)
 tpl = (root / "skills/acceptance/references/opportunity-template.md").read_text(encoding="utf-8")
 # round-trip writer->reader: (1) heading = hang so gate-card doc, PHAI ton tai trong KHUON dang '## <heading>';
 gc_src = (root / "scripts/gate-card.js").read_text(encoding="utf-8")
+# Heading nay SONG o lib/nguong-o-co-hoi.cjs (ho so ra-co-ten 24/08, AC-18 chong-chep):
+# gate-card HOI lib chu khong khai literal. Ca do vi the phai lay hang tu CHU SO HUU, va
+# van doi gate-card that su noi voi nguon do — chieu do giu nguyen: doi heading trong khuon
+# ma lib khong doi thi (2) ben duoi van bat.
 mh = re.search(r"UAT_THRESHOLD_HEADING = '([^']+)'", gc_src)
-if not mh: bad("gate-card.js khong khai hang so UAT_THRESHOLD_HEADING"); print("\n".join(errs)); sys.exit(1)
+if not mh:
+    lib_src = (root / "lib/nguong-o-co-hoi.cjs").read_text(encoding="utf-8")
+    mh = re.search(r"UAT_THRESHOLD_HEADING = '([^']+)'", lib_src)
+    if not mh: bad("hang so UAT_THRESHOLD_HEADING khong khai o gate-card.js LAN lib/nguong-o-co-hoi.cjs"); print("\n".join(errs)); sys.exit(1)
+    if "NG1.UAT_THRESHOLD_HEADING" not in gc_src:
+        bad("gate-card.js khong khai hang MA cung khong hoi lib — hai nguon lech duoc"); print("\n".join(errs)); sys.exit(1)
 HEAD = mh.group(1)
 if not re.search(r"^## " + re.escape(HEAD) + r"\s*$", tpl, re.M): bad("khuon opportunity-template khong co heading '%s' ma gate-card doc (round-trip khuon)" % HEAD)
 # (2) THAN opportunity.md dung tu CHINH KHUON: frontmatter giua moc OPP-FRONTMATTER-TEMPLATE + body sau moc,
@@ -10384,7 +10393,10 @@ def mutant(name, fn, expect_substr):
 mutant("m1-go-khoi", lambda s: s.replace("if (ut.opportunity_present && ut.readable && ut.section_present && ut.lines.length) {", "if (false) {"), "thieu khoi nguong")
 mutant("m2-khong-co-hoi-in-co-vang", lambda s: s.replace("if (!ut.opportunity_present)", "if (ut.opportunity_present)"), "nhanh khong-co-hoi in co vang")
 mutant("m3-rong-van-in-khoi", lambda s: s.replace("ut.section_present && ut.lines.length", "ut.section_present"), "rong van in khoi")
-mutant("m4-placeholder-la-da-khai", lambda s: s.replace(" && !PLACEHOLDER_RE.test(l)", ""), "placeholder «…» bi coi la nguong da khai")
+# Vi tu «chua dien» nay HOI lib (ho so ra-co-ten 24/08): neo bam vao ten ham cat, khong
+# bam vao regex chep tay da bi go. Chieu do khong doi: go vi tu -> placeholder lot thanh
+# nguong da khai.
+mutant("m4-placeholder-la-da-khai", lambda s: s.replace(" && !chuaDien(l)", ""), "placeholder «…» bi coi la nguong da khai")
 if errs: print("\n".join(errs)); sys.exit(1)
 print("P198 OK (10 o ma tran + doi-cu xanh tren gate-card that, gom ca chep-nguyen-khuon; 4 mutant bi bat; fixture dung tu chinh khuon)")
 P198PY

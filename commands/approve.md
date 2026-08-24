@@ -153,7 +153,8 @@ TRỪ, không CỘNG, và khoá model-invocation của ADR 0002 đã phủ lện
 Hỏi `giữ proto`/`lưu proto` CHỈ khi `prototype.base_commit` có giá trị.
 
 1. **Răng chiều đỏ — chặn trước khi ghi:**
-   - `làm`/`lặp` mà ô ngưỡng còn `…` (hoặc còn `[đề xuất]`) **và** không có dòng
+   - `làm`/`lặp` mà ô ngưỡng còn `…` (CHƯA CHỐT — riêng `[đề xuất]` là trạng thái
+     bình thường lúc ký: bước 2 gỡ tiền tố, KHÔNG từ chối) **và** không có dòng
      «Không đo được — » trong file lẫn trong câu gộp → **TỪ CHỐI**, in đúng câu
      cờ đỏ của thẻ: ký lúc này là ký trên thước trang trí. Ngưỡng chốt CÙNG LÚC
      ký là điều kiện của khuôn, không phải lời khuyên.

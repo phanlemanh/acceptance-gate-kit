@@ -343,6 +343,7 @@ xanh_sach_check() { # <report path>
   # ve cung mot ho so, va rang cua machine-cleared / lan V coi mot bao cao ghi luc cong
   # KHONG LAM GI la xanh-sach (finding S4-r1). Them o day, giu dung thu tu cua khoi.
   if [ "$clean_ok" -eq 1 ]; then
+    local _enf
     _enf="$(front_field "$report" enforcement_mode | tr '[:upper:]' '[:lower:]')"
     case "$_enf" in off) clean_ok=0; clean_why="enforcement_mode=off (cong khong lam gi luc ghi)" ;; esac
   fi

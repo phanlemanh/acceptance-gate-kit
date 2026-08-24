@@ -357,7 +357,11 @@ if (gate === '1') {
   // Heading là chuỗi PIN round-trip với khuôn opportunity-template (P197 rút heading từ khuôn).
   // Không lưu «đường A» ở đâu cả: có/không hồ sơ cơ hội suy khi đọc (hồ sơ moi-noi-vong-trao,
   // ledger descope route). Đọc-cũ: hồ sơ không opportunity = dòng sự kiện, không lỗi.
-  const UAT_THRESHOLD_HEADING = 'Ngưỡng chết / ngưỡng UAT';
+  // Hằng + vị từ hỏi LIB sở hữu luật ngưỡng — bản chép tay trong cùng file là hai nguồn
+  // cho một hằng, và hai bản PLACEHOLDER_RE đã kịp lệch nhau (finding S4-r4).
+  const NG1 = require(path.join(__dirname, '..', 'lib', 'nguong-o-co-hoi.cjs'));
+  const OPP_TPL1 = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md');
+  const UAT_THRESHOLD_HEADING = NG1.UAT_THRESHOLD_HEADING;
   const oppPath = path.join(dir, 'opportunity.md');
   const oppText = read(oppPath);
   // present = FILE TỒN TẠI (statSync), không suy từ chuỗi rỗng — read() trả '' cho cả file vắng
@@ -368,8 +372,18 @@ if (gate === '1') {
     ut.section_present = new RegExp('^#{2,6}\\s+' + UAT_THRESHOLD_HEADING.replace(/[.*+?^${}()|[\]\\\/]/g, '\\$&') + '\\b', 'im').test(oppText);
     // Dòng «đã khai» = có nội dung sau dấu ':' khác placeholder của khuôn («…»/«...»/rỗng); khuôn chép
     // nguyên chưa điền KHÔNG được tính là ngưỡng (S4-r2 finding: placeholder lọt thành «đã khai»).
-    const PLACEHOLDER_RE = /^[-*]?\s*[^:]*:\s*(…|\.\.\.)?\s*$/;
-    if (ut.section_present) ut.lines = section(oppText, UAT_THRESHOLD_HEADING).map(l => l.trim()).filter(l => l && !/^>/.test(l) && !PLACEHOLDER_RE.test(l));
+    // «chưa điền» hỏi đúng vị từ của lib trên PHẦN GIÁ TRỊ bullet — không giữ regex riêng.
+    const chuaDien = l => { const b = NG1.bulletOf(l); return !!b && NG1.PLACEHOLDER_RE.test(b.value); };
+    if (ut.section_present) ut.lines = section(oppText, UAT_THRESHOLD_HEADING).map(l => l.trim()).filter(l => l && !/^>/.test(l) && !chuaDien(l));
+  }
+
+  // Lối «không đo được» tính NGAY đây — cả răng chống lách lẫn khối đường-đo cùng hỏi nó.
+  let mienDo = false, rangHong = null;
+  if (ut.opportunity_present && ut.readable) {
+    try {
+      const kd = NG1.prefixes(read(OPP_TPL1)).khongDo;
+      mienDo = section(oppText, UAT_THRESHOLD_HEADING).some(l => NG1.isKhongDoLine(l, kd));
+    } catch (e) { rangHong = e.message; }
   }
 
   // ---- đường đo (contract `## Đường đo` — chỉ có nghĩa khi hồ sơ có ngưỡng đã khai) ----
@@ -381,7 +395,9 @@ if (gate === '1') {
   const ddStem = DUONG_DO_DESCOPE.replace(/\s*—\s*$/, '').toLowerCase();
   // dòng bỏ nhận diện ROỘNG (lệch gạch nối / viết hoa vẫn là dòng bỏ — finding C1); entry ledger vẫn phải ĐÚNG tiền tố mới thành info
   const ddIsBoLine = l => /^bỏ\s+đường[-\s]đo\b/i.test(l.trim()) || l.trim().toLowerCase().startsWith(ddStem);
-  const ddApplicable = ut.opportunity_present && ut.readable && ut.section_present && ut.lines.length > 0;
+  // Ô khai «không đo được» thì KHÔNG có ngưỡng để đo → không đòi đường đo (giục xây đường
+  // đo cho lối ra vừa khai đúng là cằn nhằn sai ngay tại cổng người — finding S4-r4).
+  const ddApplicable = ut.opportunity_present && ut.readable && ut.section_present && ut.lines.length > 0 && !mienDo;
   const ddPresent = new RegExp('^#{2,6}\\s+' + DUONG_DO_HEADING + '\\b', 'im').test(contract);
   // dòng thật = bullet không còn placeholder VÀ không phải dòng bỏ (dòng bỏ không phải đường đo — gap-probe F2)
   const ddLines = ddPresent ? bullets(section(contract, DUONG_DO_HEADING)).filter(l => !/\{\{/.test(l) && !ddIsBoLine(l)) : [];
@@ -390,20 +406,6 @@ if (gate === '1') {
   // ── Răng chống lách (hồ sơ ra-co-ten, AC-11) ──
   // Lối «không đo được» chỉ dành cho vòng KHÔNG có người dùng cuối. Hợp đồng khai mặt
   // ui/mobile mà ô cơ hội lại khai không đo được ⇒ đang trốn Cổng Giá trị.
-  // Răng chống lách hỏi LIB dùng chung, fail-closed như hai bộ đọc anh em: khuôn mất
-  // khối marker thì chết to kèm tên file, KHÔNG im lặng tắt răng (finding S4-r1).
-  const NG1 = require(path.join(__dirname, '..', 'lib', 'nguong-o-co-hoi.cjs'));
-  const OPP_TPL1 = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md');
-  // Khuôn mất khối marker: KHÔNG im lặng (răng tắt không ai biết) và cũng KHÔNG giết cả
-  // thẻ (thẻ còn nhiều khối khác người đang cần đọc). Đường giữa: cờ ĐỎ nói thẳng răng
-  // này không chạy — hỏng thì kêu to ngay trên mặt người đọc.
-  let mienDo = false, rangHong = null;
-  if (ut.opportunity_present && ut.readable) {
-    try {
-      const kd = NG1.prefixes(read(OPP_TPL1)).khongDo;
-      mienDo = section(oppText, UAT_THRESHOLD_HEADING).some(l => NG1.isKhongDoLine(l, kd));
-    } catch (e) { rangHong = e.message; }
-  }
   const mienDoCoNguoiDung = mienDo && /\b(ui|mobile)\b/i.test(clean(cfm.surfaces) || '');
   if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null } }, null, 2)); process.exit(0); }
   const featurePlain = pl.feature_plain || feature;
@@ -435,7 +437,7 @@ if (gate === '1') {
   // Dòng ngưỡng in NGUYÊN VĂN (AC-1 hồ sơ moi-noi-vong-trao): chỉ bỏ dấu đầu dòng, không đi qua
   // hàm lột markdown — số chỗ gọi hàm lột là ma trận đã ghim của card-text-fidelity (P161).
   if (ut.opportunity_present && ut.readable && ut.section_present && ut.lines.length) {
-    P.push(`<div class="lab">Ngưỡng nghiệm thu (đã khai ở Cổng Đáng)</div><div class="grp gnot">${ut.lines.map(l => `<p class="li">${esc(l.replace(/^[-*]\s+/, ''))}</p>`).join('')}<p class="li">Vòng này sẽ có phiên nghiệm thu sau khi giao — số đo thật sẽ đặt cạnh các ngưỡng trên.</p></div>`);
+    P.push(`<div class="lab">Ngưỡng nghiệm thu (đã khai ở Cổng Đáng)</div><div class="grp gnot">${ut.lines.map(l => `<p class="li">${esc(l.replace(/^[-*]\s+/, ''))}</p>`).join('')}<p class="li">${mienDo ? 'Ô khai không đo được — vòng này không có phiên nghiệm thu; đã giao là đóng.' : 'Vòng này sẽ có phiên nghiệm thu sau khi giao — số đo thật sẽ đặt cạnh các ngưỡng trên.'}</p></div>`);
   }
   if (glossaryDelta && glossaryDelta.length) P.push(`<div class="lab">Từ vựng chốt ở feature này</div><div class="grp gnot">${glossaryDelta.map(x => `<p class="li">${esc(x.term)} — ${x.added ? 'term MỚI' : 'định nghĩa/_Avoid_ được sửa'}</p>`).join('')}</div>`);
   if (gpPresent && gpVerdict === 'clean' && !gpRows.length && !gpDropped) P.push(`<div class="lab">Phản biện context sạch</div><div class="flag fok">Phản biện: không còn lỗ đáng kể.</div>`);
@@ -591,9 +593,13 @@ try {
 } catch (e) { scanErr = String(e.message).slice(0, 200); }
 // Hồ sơ đã có ô kết `machine-cleared` cũng là «máy đã đi tiếp» — bộ quét gọi nó bằng hai
 // khoá riêng, thẻ phải nhận cả bốn, nếu không hồ sơ máy-thông lại bị mời ký (hồ sơ ra-co-ten).
-const MAY_DI_TIEP = ['may-di-tiep-veto-mo', 'may-di-tiep-xanh-sach',
-                     'da-giao-may-thong-veto-mo', 'da-giao-may-thong-xanh-sach'].includes(scanState);
 const MAY_THONG = (clean(cfm.status) || '').toLowerCase() === 'machine-cleared';
+// Bộ quét KHÔNG trả lời được (lỗi hạ tầng, scanState null) mà hợp đồng tự khai máy-thông →
+// đừng mời ký: mời ký lúc mù là đúng ca thẻ từng dẫm với may-di-tiep (finding S4-r4).
+// scanState 'ho-so-hong' thì KHÔNG rơi vào đây — hồ sơ mâu thuẫn phải hiện đường sửa.
+const MAY_DI_TIEP = ['may-di-tiep-veto-mo', 'may-di-tiep-xanh-sach',
+                     'da-giao-may-thong-veto-mo', 'da-giao-may-thong-xanh-sach'].includes(scanState)
+  || (MAY_THONG && scanState == null);
 const chip = MAY_DI_TIEP
   ? { t: trangThai.chu(scanState).nhan, c: 'gray' }
   : (verdict === 'PASS' ? { t: 'máy đã xong — ký nhanh', c: 'teal' } : { t: 'cần bạn quyết', c: 'amber' });
