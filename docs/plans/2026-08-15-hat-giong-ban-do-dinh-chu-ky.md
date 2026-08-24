@@ -1,5 +1,12 @@
 # Hạt giống — bản đồ DÍNH commit chữ ký, không đi sau
 
+> **ĐÃ BÁC 2026-08-23 — mầm này hết việc, giữ làm sử liệu.**
+>
+> Tiền đề («bản đồ vẽ SAU commit chữ ký») không còn đúng: hai thân cổng
+> người nay dặn vẽ trước khi commit, và ca `P122` canh điểm làm-mới đó.
+> Vết quyết định: `_acceptance/ban-do-dinh-chu-ky/opportunity.md`.
+
+
 *Trạng thái: sống ở `_acceptance/ban-do-dinh-chu-ky/opportunity.md`. Sinh 15/08 từ một lỗi LẶP ×2 trong
 cùng một phiên (PR #49 và PR #51, cùng hình dạng, cùng người dẫm).*
 

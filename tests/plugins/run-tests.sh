@@ -5779,18 +5779,13 @@ run "P150 required_evidence tren the + report cu render y het ban base" \
     # report CU (khong field) → stdout == stdout cua gate-card TAI BASE COMMIT
     printf -- "---\nschema_version: 2\nfeature_slug: feat-jr5\nverdict: PENDING-JUDGMENT\n---\n\n| Eval | Criterion | Executor | Verdict |\n|---|---|---|---|\n| EJ1 | AC-1 | judgment | UNCERTAIN |\n\n## Evidence\n- eval: EJ1\n  judged_by: judge panel\n  verdict: UNCERTAIN\n  rationale: chua du can cu\n  human_override:\n" > "$REP"
     BASE=$(git -C "'"$ROOT"'" merge-base HEAD origin/main)
-    mkdir -p "$T/base/scripts"
-    git -C "'"$ROOT"'" show "$BASE:scripts/gate-card.js" > "$T/base/scripts/gate-card.js"
-    # lib phai lay TAI CUNG BASE, khong duoc ghep lib hien tai vao script base:
-    # dot .cjs 1.39.1 lam ban ghep chet (base require lib/*.js, cay hien tai chi
-    # con .cjs) — "ban base" phai la MOT cay base tron ven.
-    git -C "'"$ROOT"'" archive "$BASE" lib | tar -x -C "$T/base"
-    # Tu khi the goi MAY QUET (ho so start-bang-dieu-khien), "ban base" khong con la MOT
-    # file: gate-card require scripts/trang-thai-ho-so.cjs va spawn scripts/start-scan.mjs
-    # (start-scan lai doc khuon opportunity-template). Thieu bat ky mon nao thi ban base
-    # cam mot co canh bao HA TANG, va ca do bien thanh "khac ban base" — do vi thieu do
-    # chu khong vi vat. Chep TRON hai cay o dung moc, dung nhat tung file.
-    git -C "'"$ROOT"'" archive "$BASE" scripts skills/acceptance/references | tar -x -C "$T/base"
+    mkdir -p "$T/base"
+    # "Ban base" phai la MOT cay base TRON VEN, khong phai mot danh sach file chep tay.
+    # Tu vong start-bang-dieu-khien, the cong CHAY scripts/start-scan.mjs de hoi trang thai
+    # lan V, va start-scan lai doc khuon opportunity-template — nen cay base thieu bat ky
+    # mon nao se cam co canh bao HA TANG va ca do bien thanh "khac ban base": do vi THIEU DO
+    # chu khong vi VAT. lib/ cung phai lay TAI CUNG BASE (dot .cjs 1.39.1 lam ban ghep chet).
+    git -C "'"$ROOT"'" archive "$BASE" scripts lib skills/acceptance/references | tar -x -C "$T/base"
     A=$(cd "$T/ws" && node "'"$ROOT"'/scripts/gate-card.js" --slug feat-jr5 2>/dev/null)
     B=$(cd "$T/ws" && node "$T/base/scripts/gate-card.js" --slug feat-jr5 2>/dev/null)
     [ -n "$A" ] || { echo "stdout moi rong"; exit 1; }
