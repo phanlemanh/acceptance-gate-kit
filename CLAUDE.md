@@ -78,7 +78,10 @@
   **code sinh** trong chính lần chạy; khuôn của seam LLM-viết→máy-đọc phải đặt
   **một chỗ có marker** rồi test **round-trip** rút-từ-writer-đọc-bằng-reader
   (mẫu: `OOC-ITEM-TEMPLATE` + case P55); mọi đường dẫn trong test/script sinh
-  fixture phải **suy từ vị trí script**, không hardcode. Nghi thức kiểm nhanh:
+  fixture phải **suy từ vị trí script**, không hardcode; **bản base** dựng cho
+  ca so-sánh phải lấy **trọn thư mục** (`git archive <sha> scripts lib`), không
+  chép **danh sách file tay** — vật được đo gọi thêm một script mới là bản base
+  thiếu file, đỏ vì HẠ TẦNG chứ không vì vật (P150, 23/08). Nghi thức kiểm nhanh:
   hỏi "nếu tôi phá vật thật trong một bản sao, phép đo này có đỏ không?" — rồi
   phá thử một lần cho mỗi phép đo mới.
 
