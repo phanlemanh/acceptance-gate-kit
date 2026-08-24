@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-feature: Bản đặc tả UX — vật hoá tầng cấu trúc (khuôn có marker trong design-doc + phép đo khớp vòng advisory + bước tra mẫu)
+feature: Bản đặc tả UX — vật hoá tầng cấu trúc (khuôn có marker trong design-doc + lời S1 điền-trước + bước tra mẫu có vết)
 slug: dac-ta-ux-vat-hoa-cau-truc
 owner: phanlemanh@gmail.com
 risk_tier: T2
