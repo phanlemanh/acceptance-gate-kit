@@ -1140,7 +1140,7 @@ echo "[W8A] ba biến thể né/thiếu, mỗi biến thể ghim mảnh riêng"
 RUXA1="$T/ux-a1"; mk_ux_fixture "$RUXA1"
 sed -i.bak '/^design_doc:/d' "$RUXA1/_acceptance/feat-ux/contract.md" && rm -f "$RUXA1"/_acceptance/feat-ux/contract.md.bak
 outA1="$(node "$LINT" "$RUXA1" 2>&1)"; check "[W8A]-1" 1 $?
-case "$outA1" in *"W8a"*"design_doc"*) echo "  PASS: [W8A]-1-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8A]-1-msg"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+case "$outA1" in *"W8a surfaces có ui nhưng contract chưa trỏ đặc tả UX"*) echo "  PASS: [W8A]-1-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8A]-1-msg"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 RUXA2="$T/ux-a2"; mk_ux_fixture "$RUXA2"
 rm "$RUXA2/docs/design.md"
 outA2="$(node "$LINT" "$RUXA2" 2>&1)"; check "[W8A]-2" 1 $?
@@ -1181,41 +1181,37 @@ sed -i.bak 's/^status: signed-off$/status: approved/' "$RUXG/_acceptance/feat-ux
 outG2="$(node "$LINT" "$RUXG" 2>&1)"
 case "$outG2" in *W8a*) echo "  PASS: [W8G]-live"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8G]-live (miễn hồi tố nuốt luôn hồ sơ đang mở)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
-echo "[W8L] states: block-list -> bộ đọc VẪN HIỂU + cảnh báo định dạng, KHÔNG W8b oan, KHÔNG câm lưới"
+echo "[W8L] MA TRẬN hình dạng khai states: — 7 ô viết trước, mỗi ô một kỳ vọng"
+# Bộ đọc DUY NHẤT phía evals là lib/eval-yaml.js (block-aware + fieldVal).
+# Quy ước khai: flow-list MỘT dòng. Ô nào ngoài quy ước phải KÊU ĐÚNG NGUYÊN
+# NHÂN (cờ định dạng), tuyệt đối không đội lốt «không ai đo» và không cờ ma.
 RUXL="$T/ux-l"; mk_ux_fixture "$RUXL"
-outL0="$(node "$LINT" "$RUXL" 2>&1)"
-case "$outL0" in *W8*) echo "  FAIL: [W8L]-pos (flow-list lành vẫn cờ)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: [W8L]-pos"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
-# CÙNG fixture, đổi flow-list -> block-list ĐỦ nội dung (YAML hợp lệ)
-python3 - "$RUXL/_acceptance/feat-ux/evals.yaml" <<'PYEOF2'
-import re,sys
-p=sys.argv[1]; s=open(p).read()
-m=re.search(r'^    states: \[(.*)\]$', s, re.M)
-ids=[x.strip() for x in m.group(1).split(',') if x.strip()]
-s=s[:m.start()] + "    states:\n" + "".join(f"      - {i}\n" for i in ids) + s[m.end()+1:]
-open(p,'w').write(s)
-PYEOF2
-outL="$(node "$LINT" "$RUXL" 2>&1)"; check "[W8L]" 1 $?
-case "$outL" in *"W8 eval E1 khai states: dạng block-list"*) echo "  PASS: [W8L]-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8L]-msg"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
-case "$outL" in *W8b*) echo "  FAIL: [W8L]-nooan (block-list đủ nội dung mà vẫn W8b oan)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: [W8L]-nooan"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
-# chiều sống: block-list THIẾU một ST -> W8b vẫn bắn đúng ST đó (một eval sai dạng không câm cả lưới)
-ST_L1="$(ux_section | grep -o 'ST-[A-Za-z0-9_-]*' | sort -u | head -1)"
-sed -i.bak "/- ${ST_L1}\$/d" "$RUXL/_acceptance/feat-ux/evals.yaml" && rm -f "$RUXL"/_acceptance/feat-ux/evals.yaml.bak
-outL2="$(node "$LINT" "$RUXL" 2>&1)"
-case "$outL2" in *"W8b trạng thái ${ST_L1}"*) echo "  PASS: [W8L]-alive (dạng lạ không câm luật)"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8L]-alive"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
-
-echo "[W8W] flow-list GÃY DÒNG -> bộ đọc hiểu đủ (0 W8b) + cảnh báo gãy dòng"
-RUXW="$T/ux-w"; mk_ux_fixture "$RUXW"
-python3 - "$RUXW/_acceptance/feat-ux/evals.yaml" <<'PYEOF2'
-import re,sys
-p=sys.argv[1]; s=open(p).read()
-m=re.search(r'^    states: \[(.*)\]$', s, re.M)
-ids=[x.strip() for x in m.group(1).split(',') if x.strip()]
-s=s[:m.start()] + f"    states: [{ids[0]},\n             {', '.join(ids[1:])}]" + s[m.end():]
-open(p,'w').write(s)
-PYEOF2
-outW="$(node "$LINT" "$RUXW" 2>&1)"
-case "$outW" in *W8b*) echo "  FAIL: [W8W]-nooan (gãy dòng làm rơi phần tử sau)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: [W8W]-nooan"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
-case "$outW" in *"gãy dòng"*) echo "  PASS: [W8W]-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8W]-msg (dạng lạ rơi câm)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+UXL_ST1="$(ux_section | grep -o 'ST-[A-Za-z0-9_-]*' | sort -u | head -1)"
+UXL_ST2="$(ux_section | grep -o 'ST-[A-Za-z0-9_-]*' | sort -u | sed -n 2p)"
+uxl_evals() { { printf 'evals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n'; printf '%b' "$1"; } > "$RUXL/_acceptance/feat-ux/evals.yaml"; }
+uxl_out() { node "$LINT" "$RUXL" 2>&1 | grep -E "^  \[feat-ux\] W8" || true; }
+uxl_case() { # <nhãn> <yaml> <kỳ vọng: quiet|regex>
+  uxl_evals "$2"; local o; o="$(uxl_out)"
+  if [ "$3" = "quiet" ]; then
+    if [ -z "$o" ]; then echo "  PASS: [W8L]-$1"; PASS_COUNT=$((PASS_COUNT+1)); else echo "  FAIL: [W8L]-$1 (kỳ vọng im, nhận: $o)"; FAIL_COUNT=$((FAIL_COUNT+1)); fi
+  else
+    if printf '%s' "$o" | grep -qE "$3"; then echo "  PASS: [W8L]-$1"; PASS_COUNT=$((PASS_COUNT+1)); else echo "  FAIL: [W8L]-$1 (kỳ vọng /$3/, nhận: $o)"; FAIL_COUNT=$((FAIL_COUNT+1)); fi
+  fi
+}
+# ô 1-2: hai dạng HỢP QUY ƯỚC → im (đối chứng dương của cả ma trận)
+uxl_case "o1-flow-list-du" "    states: [$UXL_ST1, $UXL_ST2]\n    expected: \"x\"\n" quiet
+uxl_case "o2-comment-duoi" "    states: [$UXL_ST1, $UXL_ST2]  # ghi chu\n    expected: \"x\"\n" quiet
+# ô 3-4: dạng NGOÀI quy ước → cờ định dạng ghim tên ST, KHÔNG được nói «không eval nào đo»
+uxl_case "o3-block-list" "    states:\n      - $UXL_ST1\n      - $UXL_ST2\n    expected: \"x\"\n" "$UXL_ST1 có xuất hiện trong evals.yaml"
+uxl_evals "    states:\n      - $UXL_ST1\n      - $UXL_ST2\n    expected: \"x\"\n"
+case "$(uxl_out)" in *"không eval nào đo"*) echo "  FAIL: [W8L]-o3-nooan (dạng lạ bị báo thành không-ai-đo)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: [W8L]-o3-nooan"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
+uxl_case "o4-gay-dong" "    states: [$UXL_ST1,\n             $UXL_ST2]\n    expected: \"x\"\n" "$UXL_ST2 có xuất hiện trong evals.yaml"
+# ô 5: states nằm trong THÂN block scalar → KHÔNG phải khai báo, không cờ ma (lib block-aware)
+uxl_case "o5-trong-than-expected" "    states: [$UXL_ST1, $UXL_ST2]\n    expected: >\n      mo ta co dong\n      states: [ST-ghost] trong than\n" quiet
+# ô 6: không khai gì → W8b THẬT (chiều sống của cánh khai-không-đo)
+uxl_case "o6-khong-khai" "    expected: \"x\"\n" "W8b trạng thái $UXL_ST1 khai trước nhưng không eval nào đo"
+# ô 7: khai ST không có trong bảng → W8c ghim đúng tên
+uxl_case "o7-st-la" "    states: [$UXL_ST1, $UXL_ST2, ST-ma-x]\n    expected: \"x\"\n" "W8c eval E1 đo trạng thái ST-ma-x không có trong bảng"
 
 echo "[W8F] --files: hồ sơ lành không bị phán «con trỏ chết» từ thư mục khác"
 RUXF="$T/ux-f"; mk_ux_fixture "$RUXF"

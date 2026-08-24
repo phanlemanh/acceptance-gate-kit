@@ -70,8 +70,8 @@ if (want('UX1')) {
   const secMut = uxSection(t.replace(/UX-STATE-TABLE/g, 'UX-XXX-TABLE'));
   const rMut = mkFixture(secMut, { states: [] });
   const oMut = lint(rMut);
-  ok(oMut.status === 1 && oMut.stdout.includes('UX-STATE-TABLE'),
-    'UX1-đỏ gỡ marker → CHÍNH lint bật W8a ghim "UX-STATE-TABLE" (đỏ qua reader thật, không tự so chuỗi)');
+  ok(oMut.status === 1 && oMut.stdout.includes('thiếu bảng UX-STATE-TABLE (marker)'),
+    'UX1-đỏ gỡ marker → CHÍNH lint bật W8a ghim NGUYÊN CÂU cảnh báo (không phải chuỗi cũng nằm trong dòng chú giải)');
   rmSync(rMut, { recursive: true, force: true });
   // đỏ-2: gỡ TRỌN mục 6 → cùng bộ kiểm hasHeading phải trượt đúng mục đó, các mục khác vẫn xanh
   const HEAD6 = '### 6. Khuôn IA đã chọn + căn cứ';
@@ -170,6 +170,8 @@ if (want('UX3')) {
 if (want('UX4')) {
   const t = readFileSync(TPL, 'utf8');
   const s = readFileSync(SKILL, 'utf8');
+  // Đo đúng điều hứa được: HAI TÀI LIỆU chép cùng một chuỗi cửa miễn (bên đọc
+  // là NGƯỜI và ván thử — engine KHÔNG có reader cho chuỗi này, đã khai ở AC-4).
   // MỘT bộ kiểm cho cả hai chiều: cả hai bên cùng chứa đúng chuỗi trong nháy
   const mienKhop = (skillText, tplText) => skillText.includes(`"${MIEN}`) && tplText.includes(`"${MIEN}`);
   ok(mienKhop(s, t), `UX4 chuỗi miễn "${MIEN}" có mặt cả hai bên`);

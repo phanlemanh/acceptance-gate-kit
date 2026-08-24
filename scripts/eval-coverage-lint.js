@@ -191,47 +191,6 @@ function parseUxSpec(ddText) {
   return out;
 }
 
-// ─── Bộ đọc states: của evals — hiểu MỌI hình dạng, dạng lạ kêu to ───────────
-// Trả { byId: Map<id, [ST-…]>, formatWarns: [] }. Một eval viết sai quy ước
-// KHÔNG câm lưới: vẫn được parse, kèm một cảnh báo định dạng ghim id.
-function parseStatesMap(evalsText) {
-  const byId = new Map();
-  const formatWarns = [];
-  const lines = evalsText.split('\n');
-  let cur = null;
-  const idOf = () => cur || '(không rõ id)';
-  for (let i = 0; i < lines.length; i++) {
-    const mid = lines[i].match(/^\s*-\s+id:\s*(\S+)/);
-    if (mid) { cur = mid[1]; continue; }
-    const mst = lines[i].match(/^\s*states:[ \t]*(.*)$/);
-    if (!mst) continue;
-    let val = mst[1].trim();
-    const sts = [];
-    if (val === '') {
-      // block-list: các dòng `- ST-…` bên dưới
-      let j = i + 1, found = false;
-      while (j < lines.length) {
-        const mi = lines[j].match(/^\s*-\s*(ST-[A-Za-z0-9_-]+)\s*$/);
-        if (!mi) break;
-        sts.push(mi[1]); found = true; j++;
-      }
-      if (found) formatWarns.push(`W8 eval ${idOf()} khai states: dạng block-list (nhiều dòng) — bộ đọc vẫn hiểu, nhưng quy ước là flow-list MỘT dòng \`states: [ST-a, ST-b]\`; sửa định dạng, đừng xoá dòng khai.`);
-      else formatWarns.push(`W8 eval ${idOf()} có key states: nhưng không đọc được giá trị nào — khai flow-list MỘT dòng \`states: [ST-a, ST-b]\`.`);
-    } else if (val.startsWith('[') && !val.includes(']')) {
-      // flow-list gãy dòng: gom tới khi gặp ]
-      let buf = val, j = i + 1;
-      while (j < lines.length && !buf.includes(']')) { buf += ' ' + lines[j].trim(); j++; }
-      if (!buf.includes(']')) { formatWarns.push(`W8 eval ${idOf()} khai states: mở [ mà không đóng ] — không đọc được; khai flow-list MỘT dòng.`); continue; }
-      for (const x of buf.replace(/^\[?/, '').replace(/\].*$/, '').replace(/^states:\s*\[/, '').split(',').map(t => t.trim()).filter(Boolean)) sts.push(x);
-      formatWarns.push(`W8 eval ${idOf()} khai states: flow-list gãy dòng — bộ đọc vẫn hiểu, nhưng quy ước là MỘT dòng; gộp lại một dòng.`);
-    } else {
-      for (const x of val.replace(/^\[/, '').replace(/\]$/, '').split(',').map(t => t.trim()).filter(Boolean)) sts.push(x);
-    }
-    if (sts.length) byId.set(idOf(), (byId.get(idOf()) || []).concat(sts));
-  }
-  return { byId, formatWarns };
-}
-
 // ─── Lint one feature ────────────────────────────────────────────────────────
 
 function lintFeature(slug, contractText, evalsText, glossary, root) {
@@ -314,10 +273,10 @@ function lintFeature(slug, contractText, evalsText, glossary, root) {
   // key `design_doc:` VÀ surfaces không có `ui` → im lặng (opt-in, nếp W6).
   //
   // KHUÔN GIẢI (đổi sau round 2, quyết A của owner 24/08): MỘT bộ đọc duy nhất
-  // mỗi phía — parseUxSpec cắt đúng vùng marker của design-doc, parseStatesMap
-  // đọc `states:` của evals ở MỌI hình dạng (dạng ngoài quy ước thì kêu to
-  // nhưng vẫn hiểu, không câm lưới, không cờ oan) — mọi cánh cờ ăn từ cấu trúc
-  // hai bộ đọc trả về, KHÔNG cánh nào tự regex trên văn bản tự do nữa.
+  // mỗi phía — parseUxSpec cắt đúng vùng marker của design-doc; phía evals là
+  // lib/eval-yaml.js (block-aware, fieldVal) qua parseEvals, KHÔNG parser riêng
+  // trong file này. Quy ước khai: flow-list MỘT dòng; dạng khác được nhận diện
+  // để báo ĐÚNG NGUYÊN NHÂN, không đội lốt «không ai đo» và không cờ ma.
   (function w8() {
     // Grandfather: hồ sơ đã ký (signed-off) không bị đòi đặc tả UX hồi tố —
     // consumer có hợp đồng ui cũ không bị cờ hàng loạt (nếp đường đọc-cũ).
@@ -350,18 +309,35 @@ function lintFeature(slug, contractText, evalsText, glossary, root) {
     for (const line of spec.badLines) {
       warns.push(`[${slug}] W8 dòng trạng thái không parse được (đúng 4 cột |ST-id|màn|hiển thị|làm gì|): ${line}`);
     }
-    const sm = parseStatesMap(evalsText);
-    for (const w of sm.formatWarns) warns.push(`[${slug}] ${w}`);
+    // Bộ đọc DUY NHẤT phía evals là parseEvals (lib/eval-yaml.js — block-aware,
+    // thân `expected: >` không bao giờ bị quét key, giá trị qua fieldVal nên
+    // comment đuôi bị cắt). Quy ước khai: flow-list MỘT dòng.
     const measured = new Set();
-    for (const sts of sm.byId.values()) for (const st of sts) measured.add(st);
+    const evalStates = [];                            // [{id, st}]
+    for (const e of evals) {
+      const raw = (e.states || '').trim();
+      if (!raw) continue;
+      for (const st of raw.replace(/^\[/, '').replace(/\]$/, '').split(',').map(x => x.trim()).filter(Boolean)) {
+        measured.add(st); evalStates.push({ id: e.id, st });
+      }
+    }
     const declaredSet = new Set(spec.states);
     for (const st of spec.states) {
-      if (!measured.has(st)) warns.push(`[${slug}] W8b trạng thái ${st} khai trước nhưng không eval nào đo (không states: nào chứa nó) — thêm eval hoặc xoá dòng khai.`);
-    }
-    for (const [id, sts] of sm.byId) {
-      for (const st of sts) {
-        if (!declaredSet.has(st)) warns.push(`[${slug}] W8c eval ${id} đo trạng thái ${st} không có trong bảng khai trước — khai thêm dòng bảng hoặc sửa states:.`);
+      if (measured.has(st)) continue;
+      // Phân biệt HAI nguyên nhân trước khi kết luận — dạng khai ngoài quy ước
+      // (block-list, flow-list gãy dòng…) KHÔNG được báo thành «không ai đo»:
+      // chỉ dẫn sai đường, và ở chiều ngược lại là cờ oan trên thẻ Cổng 1.
+      // Đây là phép DÒ NGUYÊN NHÂN trên văn bản thô, KHÔNG phải bộ đọc thứ hai:
+      // tập `measured` ở trên vẫn là nguồn khai-báo duy nhất, dòng này chỉ chọn
+      // thông điệp nào đúng hơn cho người sửa.
+      if (new RegExp(`(^|[^A-Za-z0-9_-])${st}([^A-Za-z0-9_-]|$)`).test(evalsText)) {
+        warns.push(`[${slug}] W8 trạng thái ${st} có xuất hiện trong evals.yaml nhưng bộ đọc không thấy khai báo hợp lệ — khai flow-list MỘT dòng \`states: [ST-a, ST-b]\` trên eval tương ứng (block-list, gãy dòng hay nằm trong thân expected đều không tính là khai).`);
+      } else {
+        warns.push(`[${slug}] W8b trạng thái ${st} khai trước nhưng không eval nào đo (không states: nào chứa nó) — thêm eval hoặc xoá dòng khai.`);
       }
+    }
+    for (const { id, st } of evalStates) {
+      if (!declaredSet.has(st)) warns.push(`[${slug}] W8c eval ${id} đo trạng thái ${st} không có trong bảng khai trước — khai thêm dòng bảng hoặc sửa states:.`);
     }
     // W8d — đoán chay: đọc TRONG vùng bộ đọc đã cắt (không phải toàn tài liệu:
     // một dòng «Căn cứ:» văn xuôi ở section khác từng làm cánh này câm — r2).

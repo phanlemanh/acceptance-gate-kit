@@ -64,8 +64,9 @@ evals:
     paths: [feature-loop/skills/feature-loop/SKILL.md, skills/acceptance/references/ux-spec-template.md, tests/plugins/ux-spec.test.mjs]
     expected: >
       exit 0; stdout có "PASS: UX4". Chuỗi miễn "bỏ đặc-tả-UX — " xuất hiện
-      trong CẢ SKILL.md lẫn ux-spec-template.md và khớp từng ký tự (round-trip
-      hai bên của một quy ước máy-đọc). Chiều đỏ trên bản sao: đổi một bên
+      trong CẢ SKILL.md lẫn ux-spec-template.md và khớp từng ký tự — hai TÀI LIỆU
+      chép cùng một chuỗi, bên đọc là NGƯỜI và ván thử; engine KHÔNG có reader
+      cho chuỗi này (đã khai ở AC-4), nên eval chỉ hứa đúng phần đo được. Chiều đỏ trên bản sao: đổi một bên
       thành "bỏ dac-ta-ux — " → CÙNG bộ kiểm của chiều xanh (một hàm, hai
       input) báo "chuỗi miễn lệch giữa SKILL và khuôn" — không tautology.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -174,14 +175,18 @@ evals:
     cmd: config:executors.test.scripts
     paths: [scripts/eval-coverage-lint.js, tests/scripts/run-tests.sh]
     expected: >
-      exit 0; stdout có "PASS: [W8L]" và "PASS: [W8W]". Bộ đọc states hiểu MỌI
-      hình dạng, dạng lạ kêu to nhưng KHÔNG câm lưới, KHÔNG cờ oan. Cùng một
-      fixture code-sinh, đổi dạng bằng code trong lần chạy: (1) block-list đủ
-      nội dung → cảnh báo định dạng ghim id + 0 W8b oan; (2) block-list THIẾU
-      một trạng thái → W8b vẫn bắn đúng trạng thái đó (một eval sai dạng không
-      câm cả lưới — [W8L]-alive); (3) flow-list gãy dòng → hiểu đủ (0 W8b) +
-      cảnh báo "gãy dòng" ([W8W]). Đối chứng dương: flow-list một dòng → 0 cờ.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+      exit 0; stdout có 7 dòng "PASS: [W8L]-o1".."o7" + "PASS: [W8L]-o3-nooan".
+      Bộ đọc DUY NHẤT phía evals là lib/eval-yaml.js (block-aware, fieldVal cắt
+      comment) — KHÔNG parser riêng trong lint. MA TRẬN hình dạng viết trước,
+      mỗi ô một kỳ vọng, fixture code-sinh từ khuôn trong lần chạy: (o1) flow-list
+      một dòng đủ → IM; (o2) flow-list + comment đuôi → IM (comment không thành
+      tên trạng thái rác); (o3) block-list → cờ ĐỊNH DẠNG ghim tên ST, và o3-nooan
+      ghim rằng output KHÔNG chứa "không eval nào đo" (dạng lạ không đội lốt
+      khai-không-đo); (o4) flow-list gãy dòng → cờ định dạng cho ST bị rơi;
+      (o5) dòng `states:` nằm trong THÂN `expected: >` → IM, không cờ ma (chiều
+      false-green nguy hiểm nhất); (o6) không khai gì → W8b THẬT ghim tên ST
+      (chiều sống); (o7) khai ST ngoài bảng → W8c ghim đúng tên. Số ô = số nhánh
+      hình dạng đã tuyên, không tuyên "mọi hình dạng" mà chỉ chạy vài điểm.
   - id: E14
     criterion: AC-13
     executor: test
