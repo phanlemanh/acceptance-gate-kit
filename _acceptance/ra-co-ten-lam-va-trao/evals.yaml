@@ -22,7 +22,10 @@ evals:
       trong); vùng chép có 0 lần khớp UNCERTAIN; báo cáo dựng TRỌN từ vùng chép → xanhSach nói SẠCH;
       chèn khối đó vào bản sao báo cáo → đỏ đúng «có mục UNCERTAIN»; danh sách rút từ khối == thứ tự
       điều kiện xanhSach() (mjs) == xanh_sach_check (bash) — round-trip ba đầu; bản sao khuôn gỡ mục
-      «Known limits» → đỏ nêu tên mục.
+      «Known limits» → đỏ nêu tên mục. Phạm vi cắt phía bash cắt ĐÚNG THÂN HÀM
+      `xanh_sach_check` (tới dấu đóng hàm ở cột 0), KHÔNG tới EOF — cắt-tới-EOF cho 5/6 needle
+      cơ hội thoả bởi mã NGOÀI hàm (62290 ký tự thay vì 2933; S4-r8 [5]); kèm răng phụ «thân
+      hàm phải ngắn hơn 90% cả file» để phạm vi cắt không thành hư từ.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
     criterion: AC-2
@@ -86,7 +89,13 @@ evals:
       đi tiếp»; BDK2 ma trận N=24 gõ tay.
       THÊM (hồi quy S4-r8 [1][3]): ô ngưỡng viết KHÔNG gạch đầu dòng và toàn placeholder → thẻ
       và lib phải CÙNG kết luận «chưa» (đo QUAN HỆ: thẻ coi là đã-khai ⇔ lib coi là đã-chốt), và
-      thẻ phải cho uat_threshold.lines RỖNG như bản nền cb38ea01. Chiều đỏ: vị từ CŨ (đi qua
+      thẻ phải cho uat_threshold.lines RỖNG như bản nền cb38ea01.
+      THÊM (S4-r8 [2][4]): (a) nhãn máy-thông phải nằm TRONG Ô của hồ sơ — đo QUAN HỆ «ô của
+      nhãn == ô của slug», không phải «chuỗi có mặt đâu đó trong bản đồ»; (b) hai hình dạng ĐẾN
+      ĐƯỢC mà danh sách khoá từng bỏ sót: hồ sơ máy-thông CÓ opportunity.md × {ngưỡng chốt →
+      `cho-cong-gia-tri`, khai không-đo-được → `da-giao-khong-do`} — thẻ KHÔNG được in «Ký
+      duyệt»/«Ký hay trả» ở cả hai, mà vẫn phải nói «máy đã thông». Chiều đỏ: hoàn nguyên vị từ
+      về danh sách khoá → ĐỎ nêu cả hai khoá. Chiều đỏ: vị từ CŨ (đi qua
       bulletOf, ĐÒI gạch) không được nhận dòng không-gạch — nếu nó vẫn nhận thì fixture không
       phân biệt được hai luật; hoàn nguyên `chuaDien` trong lib thật → RT5 ĐỎ nêu đúng chỗ lệch.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -171,7 +180,9 @@ evals:
       nguong-chua-chot ⇔ (ở gates gia-tri ∧ ngưỡng khác chot) — assert này đúng ở mọi ngày chạy;
       (iv) quét không gian mở: tập file chứa "signed-off" (ngoài _acceptance/** và docs/**) == hợp của
       tập «có ca THẬT» (tên file phải xuất hiện trong BIỂU THỨC ĐƯỢC CHẠY của file ca — lột chú
-      thích trước khi tìm, không miễn trừ bằng comment) và khối BO-DOC-KHAI-GACH; file lạ → ĐỎ nêu
+      thích trước khi tìm, không miễn trừ bằng comment; tên TRƠ chỉ dùng khi DUY NHẤT trong tập
+      quét, tên trùng như SKILL.md / run-tests.sh đòi thêm thư mục cha, nếu không một literal
+      miễn cho cả ba file cùng tên — S4-r8 [3]) và khối BO-DOC-KHAI-GACH; file lạ → ĐỎ nêu
       tên file. Ba chiều đỏ TIÊM THẬT: (iv-a) dựng kho git tạm có file tiêm rồi chạy CHÍNH bước
       git grep trên đó — phải tìm ra file mới, phải loại docs/**, không nêu file không chứa chuỗi;
       (iv-b) gỡ một dòng khai gạch → file đó thành lạ; (ii) bản sao xoá một dòng KHAC-BIET-DOC-CU
