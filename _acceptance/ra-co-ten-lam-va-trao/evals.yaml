@@ -259,7 +259,7 @@ evals:
       chốt ở CUỐI (trong nhánh `status === 'machine-cleared'`) là vô dụng: hồ sơ đường A thoát
       ra ở `if (duongA) return …` trước đó. Ma trận phải có ô bằng chứng BẨN × {ngưỡng chốt,
       không-đo-được} + đối chứng dương — tám ô cũ đều dùng bằng chứng SẠCH nên chiều nguy hiểm
-      chưa từng chạy; vô hiệu chốt → ĐỎ nêu đúng cả hai đường. — hồ sơ tự khai mà
+      chưa từng chạy; vô hiệu chốt → ĐỎ nêu đúng cả hai đường. Hồ sơ tự khai mà
       bằng chứng không đạt sáu điều kiện phải vào ô «Hồ sơ hỏng», KHÔNG in nhãn «bằng chứng
       xanh-sạch»; bản đồ và bộ quét cùng kết luận. VÀ (S4-r11 [0]): `thresholdState` ném → bản đồ
       chết-to CÓ TÊN kèm đường dẫn khuôn + đường sửa, exit 2 — KHÔNG phải stack trace với exit 1,
