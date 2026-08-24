@@ -8,8 +8,8 @@ decision:                   # build | iterate | park | kill — người ký C�
 decided_by:
 decided_at:
 prototype:
-  base_commit:
-  disposition:
+  base_commit: de27babc1f8136b83ea08f8694fe744a4ecee557
+  disposition: cây TRƯỚC lúc cắt — lấy về bằng `git archive`, KHÔNG bằng bản vá
 ---
 
 ## Vấn đề & ai gặp
