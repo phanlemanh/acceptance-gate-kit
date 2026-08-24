@@ -683,7 +683,18 @@ if (want('RT10')) {
   writeFileSync(fake, injected);
   const k2 = blockFromTemplate(fake, 'OPP-KHONG-DO-DUOC-PREFIX').trim();
   if (k2 === KHONG_DO) errs.push('bản sao khuôn đổi chuỗi mà bộ rút không thấy khác');
-  else if (u.includes(k2)) errs.push(`chiều đỏ: uat-session mang chuỗi CŨ «${k2}» lẫn chuỗi khuôn «${KHONG_DO}»`);
+  // Chiều đỏ THẬT: chạy lại CHÍNH bộ đọc (lib phân loại ngưỡng) với khuôn bản sao trên một
+  // ô cơ hội viết theo chuỗi CŨ. Khuôn lệch khỏi văn bản nghi thức thì lối ra có tên phải
+  // TẮT — và ca phải nêu CẢ HAI chuỗi. Vòng trước chỉ hỏi «u.includes(k2)» với k2 là chuỗi
+  // vừa bịa: không bao giờ đúng, tức assert luôn-xanh đội lốt chiều đỏ (S4-r7).
+  {
+    const tplFake = readFileSync(fake, 'utf8');
+    const oCu = `## ${UAT_H}\n\n${KHONG_DO} vòng nội bộ\n`;
+    const ngCu = NG.thresholdState(oCu, tplFake);
+    if (ngCu === 'khong-do-duoc') errs.push(`chiều đỏ: khuôn đổi sang «${k2}» mà ô viết theo «${KHONG_DO}» VẪN được nhận — bộ đọc không bám khuôn`);
+    const oMoi = `## ${UAT_H}\n\n${k2} vòng nội bộ\n`;
+    if (NG.thresholdState(oMoi, tplFake) !== 'khong-do-duoc') errs.push(`chiều đỏ: ô viết theo chuỗi MỚI «${k2}» của khuôn bản sao lại không được nhận`);
+  }
   rmSync(t2, { recursive: true, force: true });
   if (errs.length) fail('RT10', errs.join(' · '));
   else pass('RT10', `hai tiền tố («${DE_XUAT}», «${KHONG_DO}») khai một chỗ, năm nơi đọc lại; đổi khuôn → lệch nêu cả hai chuỗi`);
@@ -760,7 +771,9 @@ if (want('RT13')) {
   // viết chiều đỏ là phép lọc trên một mảng vừa tự nối thêm phần tử, không chạy lại gì
   // (finding S4-r1: «chiều đỏ giả»).
   const NGOAI = [/^_acceptance\//, /^docs\//, /^PRODUCT-MAP\.md$/, /^CHANGELOG\.md$/, /^README\.md$/, /^GUIDE\.md$/, /^QUICKSTART\.md$/];
-  const grepSignedOff = () => execFileSync('git', ['-C', ROOT, 'grep', '-l', 'signed-off'], { encoding: 'utf8' })
+  // Nhận GỐC làm tham số: chiều đỏ (iv-a) phải chạy CHÍNH bước quét này trên cây tiêm,
+  // chứ không nối tay tên file vào mảng (S4-r7).
+  const grepSignedOff = (root = ROOT) => execFileSync('git', ['-C', root, 'grep', '-l', 'signed-off'], { encoding: 'utf8' })
     .trim().split('\n').filter(Boolean).filter(f => !NGOAI.some(re => re.test(f)));
   // «CÓ CA» = tên file vừa nằm trong `paths` của một eval, VỪA xuất hiện trong một BIỂU
   // THỨC ĐƯỢC CHẠY của chính file ca (chuỗi 'path' của readRepo/path.join/hàng checkMenhDe).
@@ -793,13 +806,22 @@ if (want('RT13')) {
   const r0 = soSanh(filesThat, GACH);
   for (const f of r0.la) errs.push(`file lạ chứa "signed-off": ${f} — thêm ca, hoặc khai gạch có lý do trong khối BO-DOC-KHAI-GACH`);
   for (const f of r0.chet) errs.push(`khối gạch khai ${f} nhưng file không còn chứa "signed-off" (dòng chết)`);
-  // Chiều đỏ (iv-a): TIÊM file thật vào cây tạm rồi chạy lại CHÍNH phép quét trên đó.
+  // Chiều đỏ (iv-a): TIÊM file vào một KHO GIT tạm rồi chạy lại CHÍNH bước quét trên đó.
+  // Vòng trước chỉ nối tên vào mảng rồi gọi hàm lọc — chứng minh hàm lọc, KHÔNG chứng minh
+  // bước tìm (git grep + bộ lọc NGOAI). Nay bước tìm chạy thật trên cây có file tiêm.
   {
     const g = tmp('rt13-grep-');
+    const git = (...a) => execFileSync('git', ['-c', 'user.name=rt', '-c', 'user.email=rt@x', '-C', g, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    git('init', '-q');
     W(g, 'scripts/gia-lap-bo-doc-moi.mjs', "// bộ đọc mới rẽ nhánh trên 'signed-off'\n");
-    const files2 = [...filesThat, 'scripts/gia-lap-bo-doc-moi.mjs'];
-    const r1 = soSanh(files2, GACH);
-    if (!r1.la.includes('scripts/gia-lap-bo-doc-moi.mjs')) errs.push('chiều đỏ (iv-a): tiêm bộ đọc mới mà phép so không nêu tên');
+    W(g, 'scripts/khong-lien-quan.mjs', '// không nhắc chuỗi nào\n');
+    W(g, 'docs/ghi-chu.md', 'signed-off trong tài liệu — phải bị bộ lọc NGOAI loại\n');
+    git('add', '-A'); git('commit', '-qm', 'fixture');
+    const files2 = grepSignedOff(g);
+    if (!files2.includes('scripts/gia-lap-bo-doc-moi.mjs')) errs.push('chiều đỏ (iv-a): bước quét THẬT không tìm ra bộ đọc mới vừa tiêm');
+    if (files2.includes('docs/ghi-chu.md')) errs.push('chiều đỏ (iv-a): bộ lọc NGOAI không loại docs/**');
+    if (files2.includes('scripts/khong-lien-quan.mjs')) errs.push('chiều đỏ (iv-a): bước quét nêu cả file không chứa chuỗi');
+    if (!soSanh(files2, GACH).la.includes('scripts/gia-lap-bo-doc-moi.mjs')) errs.push('chiều đỏ (iv-a): quét ra rồi mà phép so không nêu tên');
     rmSync(g, { recursive: true, force: true });
   }
   // Chiều đỏ (iv-b): gỡ một dòng khai gạch → chính file đó phải bị nêu là «lạ».
