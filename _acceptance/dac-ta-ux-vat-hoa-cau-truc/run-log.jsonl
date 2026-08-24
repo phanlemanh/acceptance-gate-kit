@@ -48,3 +48,11 @@
 {"ts":"2026-08-24T08:27:53Z","sha":"a55215eaded0e80bd2f4eb19ed8267a36ea120a6","round":4,"evalId":"E13","run_id":"minted-dac-ta-ux-vat-hoa-cau-truc-E13-r4","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
 {"ts":"2026-08-24T08:27:53Z","sha":"a55215eaded0e80bd2f4eb19ed8267a36ea120a6","round":4,"evalId":"E14","run_id":"minted-dac-ta-ux-vat-hoa-cau-truc-E14-r4","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
 {"ts":"2026-08-24T08:27:53Z","sha":"a55215eaded0e80bd2f4eb19ed8267a36ea120a6","round":4,"kind":"baseline","evals_hash":"2e173185461d1a7bac6de5f10388992e40e11b76e00dc817d7fa04219260cbba","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E3","E4"]},{"cmd":"bash tests/scripts/run-tests.sh","evals":["E6","E7","E8","E9","E10","E12","E13","E14"]}]}
+{"ts":"2026-08-24T09:22:00Z","sha":"d35d4f61","round":5,"evalId":"E1","run_id":"minted-dac-ta-ux-vat-hoa-cau-truc-E1-r5","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-24T09:22:00Z","sha":"d35d4f61","round":5,"evalId":"E2","run_id":"minted-dac-ta-ux-vat-hoa-cau-truc-E2-r5","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-24T09:22:00Z","sha":"d35d4f61","round":5,"evalId":"E3","run_id":"minted-dac-ta-ux-vat-hoa-cau-truc-E3-r5","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-24T09:22:00Z","sha":"d35d4f61","round":5,"evalId":"E4","run_id":"minted-dac-ta-ux-vat-hoa-cau-truc-E4-r5","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-24T09:22:00Z","sha":"d35d4f61","round":5,"evalId":"E6","run_id":"minted-dac-ta-ux-vat-hoa-cau-truc-E6-r5","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-24T09:22:00Z","sha":"d35d4f61","round":5,"evalId":"E7","run_id":"minted-dac-ta-ux-vat-hoa-cau-truc-E7-r5","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-24T09:22:00Z","sha":"d35d4f61","round":5,"evalId":"E8","run_id":"minted-dac-ta-ux-vat-hoa-cau-truc-E8-r5","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-24T09:22:00Z","sha":"d35d4f61","round":5,"kind":"baseline","evals_hash":"ca166a44913dc7a0a89e73976a0b1308a4f8277e91d0d111c68a38661dee4221","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E3","E4"]},{"cmd":"bash tests/scripts/run-tests.sh","evals":["E6","E7","E8"]}]}
