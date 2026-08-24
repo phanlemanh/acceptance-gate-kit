@@ -153,6 +153,85 @@ function parseEvals(evalsText) {
   return evalYaml.parseEvals(evalsText, ['criterion', 'expected', 'executor', 'layer', 'states'], fieldVal);
 }
 
+
+// ─── Bộ đọc đặc tả UX — MỘT nguồn cho mọi cánh W8 (khuôn ux-spec-template.md) ─
+// Cắt vùng marker rồi trả cấu trúc; cánh cờ không tự dò chữ trên văn bản tự do.
+function parseUxSpec(ddText) {
+  if (ddText == null) return { doc: null };
+  const a = ddText.indexOf('<<<UX-SPEC-TEMPLATE');
+  const b = ddText.indexOf('UX-SPEC-TEMPLATE>>>');
+  // Không có marker section → coi cả tài liệu là vùng (đường đọc-dễ), nhưng
+  // bảng trạng thái vẫn BẮT BUỘC marker riêng của nó.
+  const zone = (a >= 0 && b > a) ? ddText.slice(a, b) : ddText;
+  const mStart = zone.indexOf('<<<UX-STATE-TABLE');
+  const mEnd = zone.indexOf('UX-STATE-TABLE>>>');
+  const out = { doc: ddText, tableFound: mStart >= 0 && mEnd > mStart, states: [], badLines: [], khuonIA: null, canCu: null };
+  if (out.tableFound) {
+    for (const line of zone.slice(mStart, mEnd).split('\n')) {
+      if (!/^\|\s*ST-/.test(line)) continue;
+      const m = line.match(/^\|\s*(ST-[A-Za-z0-9_-]+)\s*\|[^|]*\|[^|]*\|[^|]*\|\s*$/);
+      if (m) out.states.push(m[1]);
+      else out.badLines.push(line.trim());
+    }
+  }
+  // Khuôn IA / Căn cứ: chỉ đọc TRONG vùng, và Căn cứ là dòng SAU Khuôn IA —
+  // một dòng «Căn cứ:» văn xuôi ở nơi khác không được tính (bài học r2).
+  const zlines = zone.split('\n');
+  for (let i = 0; i < zlines.length; i++) {
+    const mIA = zlines[i].match(/^Khuôn IA:[ \t]*(.*)$/);
+    if (!mIA) continue;
+    out.khuonIA = mIA[1].trim();
+    for (let j = i + 1; j < zlines.length; j++) {
+      const mCC = zlines[j].match(/^Căn cứ:[ \t]*(.*)$/);
+      if (mCC) { out.canCu = mCC[1]; break; }
+      if (/^#{1,6}\s/.test(zlines[j])) break;   // hết mục mà chưa gặp → canCu = null (trống)
+    }
+    break;
+  }
+  return out;
+}
+
+// ─── Bộ đọc states: của evals — hiểu MỌI hình dạng, dạng lạ kêu to ───────────
+// Trả { byId: Map<id, [ST-…]>, formatWarns: [] }. Một eval viết sai quy ước
+// KHÔNG câm lưới: vẫn được parse, kèm một cảnh báo định dạng ghim id.
+function parseStatesMap(evalsText) {
+  const byId = new Map();
+  const formatWarns = [];
+  const lines = evalsText.split('\n');
+  let cur = null;
+  const idOf = () => cur || '(không rõ id)';
+  for (let i = 0; i < lines.length; i++) {
+    const mid = lines[i].match(/^\s*-\s+id:\s*(\S+)/);
+    if (mid) { cur = mid[1]; continue; }
+    const mst = lines[i].match(/^\s*states:[ \t]*(.*)$/);
+    if (!mst) continue;
+    let val = mst[1].trim();
+    const sts = [];
+    if (val === '') {
+      // block-list: các dòng `- ST-…` bên dưới
+      let j = i + 1, found = false;
+      while (j < lines.length) {
+        const mi = lines[j].match(/^\s*-\s*(ST-[A-Za-z0-9_-]+)\s*$/);
+        if (!mi) break;
+        sts.push(mi[1]); found = true; j++;
+      }
+      if (found) formatWarns.push(`W8 eval ${idOf()} khai states: dạng block-list (nhiều dòng) — bộ đọc vẫn hiểu, nhưng quy ước là flow-list MỘT dòng \`states: [ST-a, ST-b]\`; sửa định dạng, đừng xoá dòng khai.`);
+      else formatWarns.push(`W8 eval ${idOf()} có key states: nhưng không đọc được giá trị nào — khai flow-list MỘT dòng \`states: [ST-a, ST-b]\`.`);
+    } else if (val.startsWith('[') && !val.includes(']')) {
+      // flow-list gãy dòng: gom tới khi gặp ]
+      let buf = val, j = i + 1;
+      while (j < lines.length && !buf.includes(']')) { buf += ' ' + lines[j].trim(); j++; }
+      if (!buf.includes(']')) { formatWarns.push(`W8 eval ${idOf()} khai states: mở [ mà không đóng ] — không đọc được; khai flow-list MỘT dòng.`); continue; }
+      for (const x of buf.replace(/^\[?/, '').replace(/\].*$/, '').replace(/^states:\s*\[/, '').split(',').map(t => t.trim()).filter(Boolean)) sts.push(x);
+      formatWarns.push(`W8 eval ${idOf()} khai states: flow-list gãy dòng — bộ đọc vẫn hiểu, nhưng quy ước là MỘT dòng; gộp lại một dòng.`);
+    } else {
+      for (const x of val.replace(/^\[/, '').replace(/\]$/, '').split(',').map(t => t.trim()).filter(Boolean)) sts.push(x);
+    }
+    if (sts.length) byId.set(idOf(), (byId.get(idOf()) || []).concat(sts));
+  }
+  return { byId, formatWarns };
+}
+
 // ─── Lint one feature ────────────────────────────────────────────────────────
 
 function lintFeature(slug, contractText, evalsText, glossary, root) {
@@ -233,93 +312,61 @@ function lintFeature(slug, contractText, evalsText, glossary, root) {
   // design-doc (marker UX-STATE-TABLE, khuôn ux-spec-template.md) phải khớp
   // hai chiều với field `states:` của evals. Đường đọc-cũ: contract không có
   // key `design_doc:` VÀ surfaces không có `ui` → im lặng (opt-in, nếp W6).
-  // Bốn cánh + cánh parse; mọi thông điệp ghim tên ST/eval để người sửa đúng chỗ.
+  //
+  // KHUÔN GIẢI (đổi sau round 2, quyết A của owner 24/08): MỘT bộ đọc duy nhất
+  // mỗi phía — parseUxSpec cắt đúng vùng marker của design-doc, parseStatesMap
+  // đọc `states:` của evals ở MỌI hình dạng (dạng ngoài quy ước thì kêu to
+  // nhưng vẫn hiểu, không câm lưới, không cờ oan) — mọi cánh cờ ăn từ cấu trúc
+  // hai bộ đọc trả về, KHÔNG cánh nào tự regex trên văn bản tự do nữa.
   (function w8() {
     // Grandfather: hồ sơ đã ký (signed-off) không bị đòi đặc tả UX hồi tố —
     // consumer có hợp đồng ui cũ không bị cờ hàng loạt (nếp đường đọc-cũ).
     const stm = contractText.match(/^status:[ \t]*(.+)$/im);
     if (stm && fieldVal(stm[1]).toLowerCase() === 'signed-off') return;
-    const ddm = contractText.match(/^design_doc:\s*(.+)$/im);
+    // [ \t]* — KHÔNG \s*: \s vượt dòng nên key rỗng sẽ nuốt dòng kế làm path.
+    const ddm = contractText.match(/^design_doc:[ \t]*(.*)$/im);
     const dd = ddm ? fieldVal(ddm[1]) : null;
     const hasUi = /\bui\b/i.test(surfacesLine);
     if (!dd && !hasUi) return;                       // đọc-cũ: không opt-in
     if (!dd) {
-      warns.push(`[${slug}] W8a surfaces có ui nhưng contract chưa trỏ đặc tả UX (thiếu key design_doc:) — điền khuôn ux-spec-template.md vào design-doc rồi trỏ tới.`);
+      warns.push(`[${slug}] W8a surfaces có ui nhưng contract chưa trỏ đặc tả UX (thiếu key design_doc: hoặc key rỗng) — điền khuôn ux-spec-template.md vào design-doc rồi trỏ tới.`);
       return;
     }
-    // `--files` không có repo root (slug = 'files'): `design_doc:` là đường dẫn
-    // tương đối REPO, nên resolve theo cwd là phán bừa về một hồ sơ lành. Cánh
-    // vắng-key ở trên vẫn chạy (không cần đọc file); các cánh cần đọc thì dừng
-    // với một dòng ghi chú — cùng nếp W6 vốn ngoài phạm vi ở chế độ này.
-    if (slug === 'files') {
+    // Chế độ --files là chế độ DUY NHẤT không có repo root: sentinel là
+    // root == null (KHÔNG dò tên slug — hồ sơ thật có slug `files` là hợp lệ).
+    if (root == null) {
       warns.push(`[${slug}] W8 (ghi chú) chế độ --files không có repo root — bỏ qua các cánh cần đọc design_doc (${dd}); chạy \`eval-coverage-lint <repo_root> --slug <slug>\` để soi khớp vòng đầy đủ.`);
       return;
     }
-    const ddPath = path.join(root || '.', dd);
-    const ddText = readSafe(ddPath);
-    if (ddText == null) {
+    const spec = parseUxSpec(readSafe(path.join(root, dd)));
+    if (spec.doc == null) {
       warns.push(`[${slug}] W8a design_doc không đọc được: ${dd} — con trỏ đặc tả UX chết.`);
       return;
     }
-    const mStart = ddText.indexOf('<<<UX-STATE-TABLE');
-    const mEnd = ddText.indexOf('UX-STATE-TABLE>>>');
-    if (mStart < 0 || mEnd < 0 || mEnd <= mStart) {
+    if (!spec.tableFound) {
       warns.push(`[${slug}] W8a design-doc ${dd} thiếu bảng UX-STATE-TABLE (marker) — đặc tả UX chưa có bảng trạng thái máy-đọc.`);
       return;
     }
-    const block = ddText.slice(mStart, mEnd);
-    const declared = [];
-    for (const line of block.split('\n')) {
-      if (!/^\|\s*ST-/.test(line)) continue;
-      const m = line.match(/^\|\s*(ST-[A-Za-z0-9_-]+)\s*\|[^|]*\|[^|]*\|[^|]*\|\s*$/);
-      if (m) declared.push(m[1]);
-      else warns.push(`[${slug}] W8 dòng trạng thái không parse được (đúng 4 cột |ST-id|màn|hiển thị|làm gì|): ${line.trim()}`);
+    for (const line of spec.badLines) {
+      warns.push(`[${slug}] W8 dòng trạng thái không parse được (đúng 4 cột |ST-id|màn|hiển thị|làm gì|): ${line}`);
     }
+    const sm = parseStatesMap(evalsText);
+    for (const w of sm.formatWarns) warns.push(`[${slug}] ${w}`);
     const measured = new Set();
-    const evalStates = [];                            // [{id, st}]
-    // Cánh parse phía EVALS (nếp W7/W8P): parser dòng chỉ hiểu flow-list một
-    // dòng, nên `states:` viết dạng block-list (giá trị trống + các dòng
-    // `- ST-…` bên dưới) trả về rỗng — im lặng biến eval CÓ khai thành eval
-    // KHÔNG đo, rồi W8b bắn cờ oan và chỉ sai đường sửa. Dòng khai không parse
-    // được phải kêu, không được rơi câm.
-    const blockListIds = new Set();
-    {
-      const lines = evalsText.split('\n');
-      for (let i = 0; i < lines.length; i++) {
-        const m = lines[i].match(/^(\s*)states:[ \t]*$/);
-        if (!m) continue;
-        if (!/^\s*-\s*ST-/.test(lines[i + 1] || '')) continue;
-        let id = '(không rõ id)';
-        for (let j = i; j >= 0; j--) {
-          const mid = lines[j].match(/^\s*-\s+id:\s*(\S+)/);
-          if (mid) { id = mid[1]; break; }
-        }
-        blockListIds.add(id);
-      }
-    }
-    for (const id of blockListIds) {
-      warns.push(`[${slug}] W8 eval ${id} khai states: dạng block-list (nhiều dòng) — bộ đọc chỉ nhận flow-list MỘT dòng \`states: [ST-a, ST-b]\`; sửa định dạng, đừng xoá dòng khai.`);
-    }
-    for (const e of evals) {
-      const raw = (e.states || '').trim();
-      if (!raw) continue;
-      for (const st of raw.replace(/^\[/, '').replace(/\]$/, '').split(',').map(x => x.trim()).filter(Boolean)) {
-        measured.add(st); evalStates.push({ id: e.id, st });
-      }
-    }
-    const declaredSet = new Set(declared);
-    for (const st of declared) {
-      if (blockListIds.size) break;   // đã kêu đúng nguyên nhân ở trên — không chồng cờ oan
+    for (const sts of sm.byId.values()) for (const st of sts) measured.add(st);
+    const declaredSet = new Set(spec.states);
+    for (const st of spec.states) {
       if (!measured.has(st)) warns.push(`[${slug}] W8b trạng thái ${st} khai trước nhưng không eval nào đo (không states: nào chứa nó) — thêm eval hoặc xoá dòng khai.`);
     }
-    for (const { id, st } of evalStates) {
-      if (!declaredSet.has(st)) warns.push(`[${slug}] W8c eval ${id} đo trạng thái ${st} không có trong bảng khai trước — khai thêm dòng bảng hoặc sửa states:.`);
+    for (const [id, sts] of sm.byId) {
+      for (const st of sts) {
+        if (!declaredSet.has(st)) warns.push(`[${slug}] W8c eval ${id} đo trạng thái ${st} không có trong bảng khai trước — khai thêm dòng bảng hoặc sửa states:.`);
+      }
     }
-    // W8d — đoán chay: mục Khuôn IA có mà căn cứ trống/placeholder.
-    const iaLine = ddText.match(/^Khuôn IA:[ \t]*(.*)$/m);
-    if (iaLine) {
-      const cc = ddText.match(/^Căn cứ:[ \t]*(.*)$/m);
-      const val = cc ? cc[1].trim() : '';
+    // W8d — đoán chay: đọc TRONG vùng bộ đọc đã cắt (không phải toàn tài liệu:
+    // một dòng «Căn cứ:» văn xuôi ở section khác từng làm cánh này câm — r2).
+    if (spec.khuonIA != null) {
+      const val = (spec.canCu || '').trim();
       if (val === '' || val === '…' || /^\{\{/.test(val)) {
         warns.push(`[${slug}] W8d mục Khuôn IA đã chọn nhưng chưa có căn cứ — máy đoán chay; tra mẫu (thang 2 nấc trong khuôn) hoặc ghi lý do chọn.`);
       }
@@ -351,7 +398,7 @@ function run(argv) {
     if (c == null || e == null) { console.log('eval-coverage-lint: contract/evals file unreadable — skipping (advisory)'); return 0; }
     // --files mode has no repo root to resolve CONTEXT.md against → W6 is out
     // of scope there (the other warnings are file-local and still apply).
-    warns.push(...lintFeature('files', c, e, null, process.cwd()));
+    warns.push(...lintFeature('files', c, e, null, null));
   } else {
     const acc = path.join(root, '_acceptance');
     let dirs;

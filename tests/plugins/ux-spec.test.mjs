@@ -50,32 +50,36 @@ function mkFixture(section, { states } = {}) {
 const lint = r => spawnSync(process.execPath, [LINT, r], { encoding: 'utf8' });
 
 // ── UX1: khuôn đủ 6 mục + marker con + cửa miễn ─────────────────────────────
+// Chiều đỏ KHÔNG tautology (bài học r2): mutant marker đi qua READER THẬT
+// (eval-coverage-lint phải bật W8a); mutant mục 6 đi qua CHÍNH bộ kiểm chiều
+// xanh (cùng hàm, khác input) — mutation và assertion không còn là một thao tác.
 if (want('UX1')) {
   const t = readFileSync(TPL, 'utf8');
   const sec = uxSection(t);
   ok(sec !== null, 'UX1 marker UX-SPEC-TEMPLATE tồn tại');
+  const HEADINGS = ['1. Luồng', '2. Kiểm kê màn', '3. Bảng trạng thái', '4. Hành vi', '5. Xuất xứ component', '6. Khuôn IA đã chọn + căn cứ'];
+  const hasHeading = (secText, h) => secText.includes('### ' + h);
   if (sec !== null) {
-    for (const h of ['1. Luồng', '2. Kiểm kê màn', '3. Bảng trạng thái', '4. Hành vi', '5. Xuất xứ component', '6. Khuôn IA đã chọn + căn cứ']) {
-      ok(sec.includes('### ' + h), `UX1 mục «${h}» có mặt`);
-    }
+    for (const h of HEADINGS) ok(hasHeading(sec, h), `UX1 mục «${h}» có mặt`);
     ok(sec.includes('<<<UX-STATE-TABLE') && sec.includes('UX-STATE-TABLE>>>'),
-      'UX1 UX-SPEC-TEMPLATE có UX-STATE-TABLE (chiều đỏ: gỡ marker → «UX-SPEC-TEMPLATE thiếu UX-STATE-TABLE»)');
+      'UX1 UX-SPEC-TEMPLATE có UX-STATE-TABLE');
     ok(/^Khuôn IA:/m.test(sec) && /^Căn cứ:/m.test(sec), 'UX1 nhãn Khuôn IA/Căn cứ đúng khuôn dòng');
   }
   ok(t.includes(MIEN), 'UX1 đầu khuôn có chuỗi cửa miễn');
-  // chiều đỏ trên BẢN SAO: gỡ marker con → uxSection vẫn trích được nhưng thiếu bảng
-  const mut = t.replace(/UX-STATE-TABLE/g, 'UX-XXX-TABLE');
-  const secMut = uxSection(mut);
-  ok(secMut !== null && !secMut.includes('<<<UX-STATE-TABLE'),
-    'UX1-đỏ bản sao gỡ marker: UX-SPEC-TEMPLATE thiếu UX-STATE-TABLE (phép thử phân biệt được)');
-  // mutant thứ hai: gỡ TRỌN mục 6 khỏi bản sao → phép kiểm phải ghim đúng tên mục
+  // đỏ-1: gỡ marker khỏi bản sao → dựng fixture từ bản sao, READER (lint) phải W8a
+  const secMut = uxSection(t.replace(/UX-STATE-TABLE/g, 'UX-XXX-TABLE'));
+  const rMut = mkFixture(secMut, { states: [] });
+  const oMut = lint(rMut);
+  ok(oMut.status === 1 && oMut.stdout.includes('UX-STATE-TABLE'),
+    'UX1-đỏ gỡ marker → CHÍNH lint bật W8a ghim "UX-STATE-TABLE" (đỏ qua reader thật, không tự so chuỗi)');
+  rmSync(rMut, { recursive: true, force: true });
+  // đỏ-2: gỡ TRỌN mục 6 → cùng bộ kiểm hasHeading phải trượt đúng mục đó, các mục khác vẫn xanh
   const HEAD6 = '### 6. Khuôn IA đã chọn + căn cứ';
   const cut = t.indexOf(HEAD6);
   const endMark = t.indexOf('<!-- UX-SPEC-TEMPLATE>>> -->', cut);
-  const mut6 = t.slice(0, cut) + t.slice(endMark);
-  const sec6 = uxSection(mut6);
-  const missing6 = sec6 !== null && !sec6.includes(HEAD6);
-  ok(missing6, `UX1-đỏ2 bản sao gỡ mục → ghim tên mục thiếu: «${HEAD6}»`);
+  const sec6 = uxSection(t.slice(0, cut) + t.slice(endMark));
+  ok(sec6 !== null && !hasHeading(sec6, HEADINGS[5]) && hasHeading(sec6, HEADINGS[0]),
+    `UX1-đỏ2 bản sao gỡ mục → cùng bộ kiểm ghim đúng tên mục thiếu: «${HEAD6}» (mục khác vẫn xanh)`);
 }
 
 // ── UX2: round-trip writer→reader qua CHÍNH lint ────────────────────────────
@@ -118,12 +122,22 @@ if (want('UX3')) {
         /Đặc tả UX/.test(sen) && /TRƯỚC khi sinh 3 artifact/.test(sen) && /ux-spec-template\.md/.test(sen));
     },
     a2: t => {
-      const i = t.indexOf('ux-spec-template.md');
-      return i >= 0 && /resolve-plugin\.mjs/.test(t.slice(Math.max(0, i - 400), i + 400));
+      // QUAN HỆ trong bước 4: mệnh đề resolve-qua-resolver phải ôm đúng tên khuôn,
+      // và bước 4 không được dạy đường cache cứng cho khuôn
+      const step4 = (t.match(/^4\. Kết thúc brainstorm[\s\S]*?(?=\n\d+\. |\n## )/m) || [''])[0];
+      return /resolve qua resolve-plugin\.mjs[\s\S]{0,300}ux-spec-template\.md/.test(step4)
+        && !/plugins\/cache[^\n]{0,200}ux-spec-template\.md/.test(step4);
     },
     b: t => /design_doc: <path/.test(t) && /states: \[ST-…\]/.test(t),
     c: t => /vẽ TỪ section Đặc tả UX/.test(t),
-    d: t => { const i = t.indexOf('dòng state-matrix'); return i === -1 || t.slice(Math.max(0, i - 400), i + 400).includes('ux-spec-template.md'); },
+    d: t => {
+      // MỌI lần «dòng state-matrix» xuất hiện đều phải đứng trong con trỏ về khuôn
+      let i = -1, ok2 = true;
+      while ((i = t.indexOf('dòng state-matrix', i + 1)) !== -1) {
+        if (!t.slice(Math.max(0, i - 400), i + 400).includes('ux-spec-template.md')) ok2 = false;
+      }
+      return ok2;
+    },
   };
   const SEN = 'Kế đó, VẪN TRƯỚC khi sinh 3 artifact:';
   const cutSentence = (t, marker, endMarker) => {
@@ -143,19 +157,24 @@ if (want('UX3')) {
   ok(!checks.a(mutA), 'UX3a-đỏ bản sao gỡ trọn câu → S1 thiếu chỉ dẫn điền Đặc tả UX trước 3 artifact');
   ok(!checks.b(mutA), 'UX3b-đỏ cùng mutant → mất luôn chỉ dẫn design_doc:/states: (dây máy-đọc nằm trong câu bị gỡ)');
   ok(!checks.c(mutC), 'UX3c-đỏ bản sao đổi câu vẽ-từ-khuôn → phép kiểm bắt được');
+  // a2-đỏ: thay mệnh đề resolve bằng đường cache cứng (resolve-plugin.mjs vẫn còn chỗ khác)
+  const mutA2 = s.replace(/resolve qua resolve-plugin\.mjs: thêm[^)]*ux-spec-template\.md[^)]*\)/,
+    'đọc thẳng ~/.claude/plugins/cache/acceptance-gate-kit/acceptance-gate/2.3.0/skills/acceptance/references/ux-spec-template.md)');
+  ok(!checks.a2(mutA2), 'UX3a2-đỏ bản sao hardcode path cache → phép kiểm bắt được');
+  // d-đỏ: chèn một câu state-matrix MỒ CÔI (xa con trỏ) → d phải trượt
+  const mutD = s + '\n\nFeature chạm UI thì design-doc phải có dòng state-matrix.\n';
+  ok(!checks.d(mutD), 'UX3d-đỏ chèn câu state-matrix mồ côi → phép kiểm quét mọi lần xuất hiện');
 }
 
 // ── UX4: chuỗi miễn khớp từng ký tự giữa SKILL và khuôn ─────────────────────
 if (want('UX4')) {
   const t = readFileSync(TPL, 'utf8');
   const s = readFileSync(SKILL, 'utf8');
-  const inTpl = t.includes(`"${MIEN}`);
-  const inSkill = s.includes(`"${MIEN}`);
-  ok(inTpl && inSkill, `UX4 chuỗi miễn "${MIEN}" có mặt cả hai bên`);
-  // chiều đỏ trên bản sao: đổi một bên → phép so phải phân biệt được
+  // MỘT bộ kiểm cho cả hai chiều: cả hai bên cùng chứa đúng chuỗi trong nháy
+  const mienKhop = (skillText, tplText) => skillText.includes(`"${MIEN}`) && tplText.includes(`"${MIEN}`);
+  ok(mienKhop(s, t), `UX4 chuỗi miễn "${MIEN}" có mặt cả hai bên`);
   const sMut = s.replace(`"${MIEN}`, '"bỏ dac-ta-ux — ');
-  ok(!(sMut.includes(`"${MIEN}`)) !== !(t.includes(`"${MIEN}`)),
-    'UX4-đỏ bản sao đổi một bên → chuỗi miễn lệch giữa SKILL và khuôn (phép so còn răng)');
+  ok(!mienKhop(sMut, t), 'UX4-đỏ bản sao đổi một bên → cùng bộ kiểm báo chuỗi miễn lệch giữa SKILL và khuôn');
 }
 
 process.exit(failures === 0 ? 0 : 1);
