@@ -150,7 +150,7 @@ function outOfScopeBullets(contractText) {
 // PURPOSE: the wave-2 hook (schema v3 evaluateNetwork) keys pairing enforcement
 // off executor+layer — keep it as the machine-readable anchor, do not "clean it up".
 function parseEvals(evalsText) {
-  return evalYaml.parseEvals(evalsText, ['criterion', 'expected', 'executor', 'layer', 'states'], fieldVal);
+  return evalYaml.parseEvals(evalsText, ['criterion', 'expected', 'executor', 'layer'], fieldVal);
 }
 
 
@@ -165,28 +165,14 @@ function parseUxSpec(ddText) {
   const zone = (a >= 0 && b > a) ? ddText.slice(a, b) : ddText;
   const mStart = zone.indexOf('<<<UX-STATE-TABLE');
   const mEnd = zone.indexOf('UX-STATE-TABLE>>>');
-  const out = { doc: ddText, tableFound: mStart >= 0 && mEnd > mStart, states: [], badLines: [], khuonIA: null, canCu: null };
+  const out = { doc: ddText, tableFound: mStart >= 0 && mEnd > mStart, states: [], badLines: [] };
   if (out.tableFound) {
     for (const line of zone.slice(mStart, mEnd).split('\n')) {
       if (!/^\|\s*ST-/.test(line)) continue;
       const m = line.match(/^\|\s*(ST-[A-Za-z0-9_-]+)\s*\|[^|]*\|[^|]*\|[^|]*\|\s*$/);
       if (m) out.states.push(m[1]);
-      else out.badLines.push(line.trim());
+      else out.badLines.push(line.trim());   // giữ để bộ đọc không nuốt câm dòng hỏng
     }
-  }
-  // Khuôn IA / Căn cứ: chỉ đọc TRONG vùng, và Căn cứ là dòng SAU Khuôn IA —
-  // một dòng «Căn cứ:» văn xuôi ở nơi khác không được tính (bài học r2).
-  const zlines = zone.split('\n');
-  for (let i = 0; i < zlines.length; i++) {
-    const mIA = zlines[i].match(/^Khuôn IA:[ \t]*(.*)$/);
-    if (!mIA) continue;
-    out.khuonIA = mIA[1].trim();
-    for (let j = i + 1; j < zlines.length; j++) {
-      const mCC = zlines[j].match(/^Căn cứ:[ \t]*(.*)$/);
-      if (mCC) { out.canCu = mCC[1]; break; }
-      if (/^#{1,6}\s/.test(zlines[j])) break;   // hết mục mà chưa gặp → canCu = null (trống)
-    }
-    break;
   }
   return out;
 }
@@ -267,19 +253,18 @@ function lintFeature(slug, contractText, evalsText, glossary, root) {
     warns.push(`[${slug}] W3 Out-of-scope lists ${oos} item(s) but evals.yaml has ZERO negative/should-NOT-fire evals — the suppression half is untested. Turn the boundary into evals or confirm it is genuinely unobservable.`);
   }
 
-  // W8 — khớp vòng đặc tả UX (ADVISORY): bảng trạng thái khai TRƯỚC trong
-  // design-doc (marker UX-STATE-TABLE, khuôn ux-spec-template.md) phải khớp
-  // hai chiều với field `states:` của evals. Đường đọc-cũ: contract không có
-  // key `design_doc:` VÀ surfaces không có `ui` → im lặng (opt-in, nếp W6).
+  // W8 — CÓ đặc tả UX chưa (ADVISORY, phạm vi thu 24/08 sau 4 vòng nghiệm thu):
+  // cánh khớp-vòng hai chiều (khai↔đo) và cánh đoán-chay ĐÃ CẮT khỏi vòng này —
+  // chúng cần một bộ đọc có ranh giới đóng, không phải dò chữ trên markdown tự
+  // do; bốn vòng liên tiếp sinh lỗi cùng lớp «thước tự dối» (ô nuốt luật khi
+  // bảng rỗng · cánh tắt được bằng cách xoá dòng nó gác · ghim ăn dòng chú
+  // giải). Hạt giống riêng: docs/plans/2026-08-24-hat-giong-khop-vong-dac-ta-ux.md
   //
-  // KHUÔN GIẢI (đổi sau round 2, quyết A của owner 24/08): MỘT bộ đọc duy nhất
-  // mỗi phía — parseUxSpec cắt đúng vùng marker của design-doc; phía evals là
-  // lib/eval-yaml.js (block-aware, fieldVal) qua parseEvals, KHÔNG parser riêng
-  // trong file này. Quy ước khai: flow-list MỘT dòng; dạng khác được nhận diện
-  // để báo ĐÚNG NGUYÊN NHÂN, không đội lốt «không ai đo» và không cờ ma.
+  // Còn lại đúng MỘT câu hỏi, trả lời được bằng sự CÓ MẶT của vật — không suy
+  // diễn nội dung: feature chạm UI đã điền đặc tả UX vào design-doc chưa?
+  // Đường đọc-cũ: contract không có key `design_doc:` VÀ surfaces không có `ui`
+  // → im lặng (opt-in, nếp W6). Hồ sơ đã ký (signed-off) miễn hồi tố.
   (function w8() {
-    // Grandfather: hồ sơ đã ký (signed-off) không bị đòi đặc tả UX hồi tố —
-    // consumer có hợp đồng ui cũ không bị cờ hàng loạt (nếp đường đọc-cũ).
     const stm = contractText.match(/^status:[ \t]*(.+)$/im);
     if (stm && fieldVal(stm[1]).toLowerCase() === 'signed-off') return;
     // [ \t]* — KHÔNG \s*: \s vượt dòng nên key rỗng sẽ nuốt dòng kế làm path.
@@ -294,10 +279,17 @@ function lintFeature(slug, contractText, evalsText, glossary, root) {
     // Chế độ --files là chế độ DUY NHẤT không có repo root: sentinel là
     // root == null (KHÔNG dò tên slug — hồ sơ thật có slug `files` là hợp lệ).
     if (root == null) {
-      warns.push(`[${slug}] W8 (ghi chú) chế độ --files không có repo root — bỏ qua các cánh cần đọc design_doc (${dd}); chạy \`eval-coverage-lint <repo_root> --slug <slug>\` để soi khớp vòng đầy đủ.`);
+      warns.push(`[${slug}] W8 (ghi chú) chế độ --files không có repo root — bỏ qua cánh cần đọc design_doc (${dd}); chạy \`eval-coverage-lint <repo_root> --slug <slug>\` để soi đầy đủ.`);
       return;
     }
-    const spec = parseUxSpec(readSafe(path.join(root, dd)));
+    // Con trỏ đến từ artifact: chặn đường trỏ ra ngoài cây trước khi đọc.
+    const ddPath = path.resolve(root, dd);
+    const rootAbs = path.resolve(root);
+    if (ddPath !== rootAbs && !ddPath.startsWith(rootAbs + path.sep)) {
+      warns.push(`[${slug}] W8a design_doc trỏ ra ngoài cây repo: ${dd} — con trỏ đặc tả UX không hợp lệ.`);
+      return;
+    }
+    const spec = parseUxSpec(readSafe(ddPath));
     if (spec.doc == null) {
       warns.push(`[${slug}] W8a design_doc không đọc được: ${dd} — con trỏ đặc tả UX chết.`);
       return;
@@ -306,46 +298,10 @@ function lintFeature(slug, contractText, evalsText, glossary, root) {
       warns.push(`[${slug}] W8a design-doc ${dd} thiếu bảng UX-STATE-TABLE (marker) — đặc tả UX chưa có bảng trạng thái máy-đọc.`);
       return;
     }
-    for (const line of spec.badLines) {
-      warns.push(`[${slug}] W8 dòng trạng thái không parse được (đúng 4 cột |ST-id|màn|hiển thị|làm gì|): ${line}`);
-    }
-    // Bộ đọc DUY NHẤT phía evals là parseEvals (lib/eval-yaml.js — block-aware,
-    // thân `expected: >` không bao giờ bị quét key, giá trị qua fieldVal nên
-    // comment đuôi bị cắt). Quy ước khai: flow-list MỘT dòng.
-    const measured = new Set();
-    const evalStates = [];                            // [{id, st}]
-    for (const e of evals) {
-      const raw = (e.states || '').trim();
-      if (!raw) continue;
-      for (const st of raw.replace(/^\[/, '').replace(/\]$/, '').split(',').map(x => x.trim()).filter(Boolean)) {
-        measured.add(st); evalStates.push({ id: e.id, st });
-      }
-    }
-    const declaredSet = new Set(spec.states);
-    for (const st of spec.states) {
-      if (measured.has(st)) continue;
-      // Phân biệt HAI nguyên nhân trước khi kết luận — dạng khai ngoài quy ước
-      // (block-list, flow-list gãy dòng…) KHÔNG được báo thành «không ai đo»:
-      // chỉ dẫn sai đường, và ở chiều ngược lại là cờ oan trên thẻ Cổng 1.
-      // Đây là phép DÒ NGUYÊN NHÂN trên văn bản thô, KHÔNG phải bộ đọc thứ hai:
-      // tập `measured` ở trên vẫn là nguồn khai-báo duy nhất, dòng này chỉ chọn
-      // thông điệp nào đúng hơn cho người sửa.
-      if (new RegExp(`(^|[^A-Za-z0-9_-])${st}([^A-Za-z0-9_-]|$)`).test(evalsText)) {
-        warns.push(`[${slug}] W8 trạng thái ${st} có xuất hiện trong evals.yaml nhưng bộ đọc không thấy khai báo hợp lệ — khai flow-list MỘT dòng \`states: [ST-a, ST-b]\` trên eval tương ứng (block-list, gãy dòng hay nằm trong thân expected đều không tính là khai).`);
-      } else {
-        warns.push(`[${slug}] W8b trạng thái ${st} khai trước nhưng không eval nào đo (không states: nào chứa nó) — thêm eval hoặc xoá dòng khai.`);
-      }
-    }
-    for (const { id, st } of evalStates) {
-      if (!declaredSet.has(st)) warns.push(`[${slug}] W8c eval ${id} đo trạng thái ${st} không có trong bảng khai trước — khai thêm dòng bảng hoặc sửa states:.`);
-    }
-    // W8d — đoán chay: đọc TRONG vùng bộ đọc đã cắt (không phải toàn tài liệu:
-    // một dòng «Căn cứ:» văn xuôi ở section khác từng làm cánh này câm — r2).
-    if (spec.khuonIA != null) {
-      const val = (spec.canCu || '').trim();
-      if (val === '' || val === '…' || /^\{\{/.test(val)) {
-        warns.push(`[${slug}] W8d mục Khuôn IA đã chọn nhưng chưa có căn cứ — máy đoán chay; tra mẫu (thang 2 nấc trong khuôn) hoặc ghi lý do chọn.`);
-      }
+    // Sàn chống ô-nuốt-luật: marker có mà bảng RỖNG là «chép khuôn rồi xoá
+    // sạch», không phải «đã khai cấu trúc» — phải đỏ được (bài học r4).
+    if (spec.states.length === 0) {
+      warns.push(`[${slug}] W8a design-doc ${dd} có bảng UX-STATE-TABLE nhưng KHÔNG dòng trạng thái nào — đặc tả UX rỗng, khai ít nhất một trạng thái hoặc bỏ bằng entry descope.`);
     }
   })();
 
@@ -393,7 +349,7 @@ function run(argv) {
   if (!warns.length) { console.log('eval-coverage-lint: no coverage gaps detected.'); return 0; }
   console.log(`eval-coverage-lint: ${warns.length} coverage warning(s) — ADVISORY, review at Gate 1 (not auto-blocking):\n`);
   for (const w of warns) console.log('  ' + w);
-  console.log('\nW1 = a bounded/threshold criterion needs a just-below should-NOT-fire (boundary) eval; W3 = give the out-of-scope half real negative evals; W4 = a (cross-layer) criterion needs a paired layer: backend-effect eval; W5 = a mobile-surface contract needs a "Mobile backend target:" line; W6 = the contract uses a word this repo\'s CONTEXT.md ruled out under _Avoid_; W7 = a criterion-shaped line did not parse, so every warning above ran on an incomplete AC set — fix the contract line first, then re-read this output. W8 = bảng trạng thái khai trước (UX-STATE-TABLE trong design_doc:) và states: của evals phải khớp vòng hai chiều — a thiếu/chưa trỏ/không đọc được; b khai-không-đo; c đo-không-khai; d khuôn IA thiếu căn cứ (đoán chay).');
+  console.log('\nW1 = a bounded/threshold criterion needs a just-below should-NOT-fire (boundary) eval; W3 = give the out-of-scope half real negative evals; W4 = a (cross-layer) criterion needs a paired layer: backend-effect eval; W5 = a mobile-surface contract needs a "Mobile backend target:" line; W6 = the contract uses a word this repo\'s CONTEXT.md ruled out under _Avoid_; W7 = a criterion-shaped line did not parse, so every warning above ran on an incomplete AC set — fix the contract line first, then re-read this output. W8a = feature chạm UI phải có đặc tả UX trong design-doc (key design_doc: + bảng UX-STATE-TABLE có ít nhất một dòng trạng thái) — ADVISORY; phần đối chiếu khai-với-đo tách sang hạt giống riêng.');
   return 1;
 }
 

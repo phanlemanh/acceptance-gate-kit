@@ -35,16 +35,15 @@ function uxSection(tplText) {
 }
 const stIds = sec => [...new Set([...sec.matchAll(/^\|\s*(ST-[A-Za-z0-9_-]+)\s*\|/gm)].map(m => m[1]))];
 
-function mkFixture(section, { states } = {}) {
+function mkFixture(section) {
   const r = mkdtempSync(path.join(tmpdir(), 'ux-'));
   mkdirSync(path.join(r, '_acceptance', 'feat-ux'), { recursive: true });
   mkdirSync(path.join(r, 'docs'), { recursive: true });
   writeFileSync(path.join(r, 'docs', 'design.md'), section);
   writeFileSync(path.join(r, '_acceptance', 'feat-ux', 'contract.md'),
     '---\nschema_version: 1\nfeature: feat-ux\nslug: feat-ux\nrisk_tier: T2\nsurfaces: [ui]\nstatus: approved\ndesign_doc: docs/design.md\n---\n## Criteria\n- AC-1: Given a, When b, Then c.\n');
-  const sts = states ?? stIds(section);
   writeFileSync(path.join(r, '_acceptance', 'feat-ux', 'evals.yaml'),
-    `evals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    states: [${sts.join(', ')}]\n    expected: "exit 0"\n`);
+    'evals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    expected: "exit 0"\n');
   return r;
 }
 const lint = r => spawnSync(process.execPath, [LINT, r], { encoding: 'utf8' });
@@ -68,7 +67,7 @@ if (want('UX1')) {
   ok(t.includes(MIEN), 'UX1 đầu khuôn có chuỗi cửa miễn');
   // đỏ-1: gỡ marker khỏi bản sao → dựng fixture từ bản sao, READER (lint) phải W8a
   const secMut = uxSection(t.replace(/UX-STATE-TABLE/g, 'UX-XXX-TABLE'));
-  const rMut = mkFixture(secMut, { states: [] });
+  const rMut = mkFixture(secMut);
   const oMut = lint(rMut);
   ok(oMut.status === 1 && oMut.stdout.includes('thiếu bảng UX-STATE-TABLE (marker)'),
     'UX1-đỏ gỡ marker → CHÍNH lint bật W8a ghim NGUYÊN CÂU cảnh báo (không phải chuỗi cũng nằm trong dòng chú giải)');
@@ -82,28 +81,27 @@ if (want('UX1')) {
     `UX1-đỏ2 bản sao gỡ mục → cùng bộ kiểm ghim đúng tên mục thiếu: «${HEAD6}» (mục khác vẫn xanh)`);
 }
 
-// ── UX2: round-trip writer→reader qua CHÍNH lint ────────────────────────────
+// ── UX2: round-trip writer→reader qua CHÍNH lint (cánh còn sống sau thu phạm vi)
 if (want('UX2')) {
   const sec = uxSection(readFileSync(TPL, 'utf8'));
   const ids = stIds(sec);
   ok(ids.length >= 2, `UX2 khuôn mẫu khai ≥2 trạng thái (thấy ${ids.length})`);
-  // đối chứng dương: khai đủ → 0 cờ W8
+  // đối chứng dương: khuôn nguyên vẹn → reader 0 cờ W8
   const rPos = mkFixture(sec);
   const oPos = lint(rPos);
   ok(oPos.status === 0 && !/W8/.test(oPos.stdout), 'UX2 bản lành: reader 0 cờ W8');
-  // số ST reader thấy == số ST writer khai — đếm TỪ OUTPUT READER (xoá hết states)
-  const rCount = mkFixture(sec, { states: [] });
-  const oCount = lint(rCount);
-  const nReader = (oCount.stdout.match(/W8b /g) || []).length;
-  ok(nReader === ids.length, `UX2 reader đọc ra ${nReader} == writer khai ${ids.length}`);
-  // chiều đỏ ĐI QUA READER: giữ evals đủ, xoá 1 dòng ST khỏi design fixture → W8c ghim đúng id
-  const victim = ids[0];
-  const secCut = sec.split('\n').filter(l => !l.startsWith(`| ${victim} `)).join('\n');
-  const rRed = mkFixture(secCut, { states: ids });
-  const oRed = lint(rRed);
-  ok(oRed.status === 1 && oRed.stdout.includes(`W8c eval E1 đo trạng thái ${victim} không có trong bảng khai trước`),
-    `UX2-đỏ xoá ${victim} khỏi design-doc → lint bật W8c ghim đúng id (không bộ đếm tự thân)`);
-  for (const r of [rPos, rCount, rRed]) rmSync(r, { recursive: true, force: true });
+  // chiều đỏ ĐI QUA READER: xoá MỌI dòng ST khỏi bảng (marker còn) → reader
+  // phải bật W8a «bảng rỗng» — writer và reader không trôi khỏi nhau
+  const secEmpty = sec.split('\n').filter(l => !/^\|\s*ST-/.test(l)).join('\n');
+  const rEmpty = mkFixture(secEmpty);
+  const oEmpty = lint(rEmpty);
+  ok(oEmpty.status === 1 && oEmpty.stdout.includes('có bảng UX-STATE-TABLE nhưng KHÔNG dòng trạng thái nào'),
+    'UX2-đỏ xoá hết dòng ST khỏi bảng → lint bật W8a ghim NGUYÊN CÂU «bảng rỗng» (ô-nuốt-luật r4 không tái diễn)');
+  // và một dòng ST vẫn đủ để reader thấy vật → phân biệt được rỗng với có
+  const secOne = sec.split('\n').filter(l => !l.startsWith(`| ${ids[1]} `)).join('\n');
+  const rOne = mkFixture(secOne);
+  ok(lint(rOne).status === 0, 'UX2 bảng còn 1 dòng ST → reader vẫn thấy vật (phép đo phân biệt rỗng/có, không đếm mù)');
+  for (const r of [rPos, rEmpty, rOne]) rmSync(r, { recursive: true, force: true });
 }
 
 // ── UX3: quan hệ trong SKILL feature-loop — đo bằng MUTANT, không đếm chữ ──
@@ -128,7 +126,7 @@ if (want('UX3')) {
       return /resolve qua resolve-plugin\.mjs[\s\S]{0,300}ux-spec-template\.md/.test(step4)
         && !/plugins\/cache[^\n]{0,200}ux-spec-template\.md/.test(step4);
     },
-    b: t => /design_doc: <path/.test(t) && /states: \[ST-…\]/.test(t),
+    b: t => /design_doc: <path/.test(t) && /cánh W8a của `eval-coverage-lint\.js`/.test(t),
     c: t => /vẽ TỪ section Đặc tả UX/.test(t),
     d: t => {
       // MỌI lần «dòng state-matrix» xuất hiện đều phải đứng trong con trỏ về khuôn
@@ -149,13 +147,13 @@ if (want('UX3')) {
   const labels = {
     a: 'UX3a S1 buộc điền Đặc tả UX TRƯỚC khi sinh 3 artifact (một câu, quan hệ)',
     a2: 'UX3a2 khuôn resolve qua resolve-plugin.mjs (cấm hardcode path cache)',
-    b: 'UX3b chỉ dẫn contract ghi design_doc: + evals khai states: [ST-…]',
+    b: 'UX3b chỉ dẫn contract ghi design_doc: + trỏ đúng cánh W8a (không hứa cánh đã cắt)',
     c: 'UX3c nghi thức hình: hình luồng/màn vẽ TỪ section Đặc tả UX',
     d: 'UX3d «dòng state-matrix» cũ không còn đứng ngoài con trỏ về khuôn (một nguồn)',
   };
   for (const k of Object.keys(checks)) ok(checks[k](s), labels[k]);       // đối chứng dương
   ok(!checks.a(mutA), 'UX3a-đỏ bản sao gỡ trọn câu → S1 thiếu chỉ dẫn điền Đặc tả UX trước 3 artifact');
-  ok(!checks.b(mutA), 'UX3b-đỏ cùng mutant → mất luôn chỉ dẫn design_doc:/states: (dây máy-đọc nằm trong câu bị gỡ)');
+  ok(!checks.b(mutA), 'UX3b-đỏ cùng mutant → mất luôn chỉ dẫn design_doc:/W8a (dây máy-đọc nằm trong câu bị gỡ)');
   ok(!checks.c(mutC), 'UX3c-đỏ bản sao đổi câu vẽ-từ-khuôn → phép kiểm bắt được');
   // a2-đỏ: thay mệnh đề resolve bằng đường cache cứng (resolve-plugin.mjs vẫn còn chỗ khác)
   const mutA2 = s.replace(/resolve qua resolve-plugin\.mjs: thêm[^)]*ux-spec-template\.md[^)]*\)/,
