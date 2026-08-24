@@ -1,113 +1,101 @@
+# Review Findings: dac-ta-ux-vat-hoa-cau-truc — Round 7
+
 ## Trong hợp đồng
 
-- **AC-3 và AC-6 vẫn tuyên phần phạm vi đã cắt — hợp đồng lệch khỏi vật giao**
-  file: `_acceptance/dac-ta-ux-vat-hoa-cau-truc/contract.md:32`
-  severity: high
-  AC: AC-3
-  AC-3 (dòng 32) đòi SKILL có chỉ dẫn «evals khai `states:`» — mệnh đề đó đã bị cắt ở round 4; SKILL.md ở HEAD không còn nhắc `states:` và eval E3 (expected) cũng không đo nó, nên AC-3 xanh mà một vế của nó chưa bao giờ được kiểm. AC-6 (dòng 35) đòi «MỌI cánh (W8a/W8b/W8c/parse) có cặp hai-chiều» — bốn cánh này không còn tồn tại, nên AC-6 là điều kiện rỗng, trong khi E6 (bộ đo duy nhất của AC-6) chỉ hỏi về UX1/UX3/UX4. Chính scope-triage round 5 đã nêu đích danh «AC-3 còn tuyên mệnh đề `states:` đã bị cắt ở round 4» và ở HEAD vẫn chưa sửa. Hợp đồng là ý-định-chốt-trước (nguyên tố 1): khi phạm vi bị thu, tiêu chí phải viết lại theo vật thật, nếu không màu xanh của S4 không phủ được điều hợp đồng nói.
+### 1. Chiều đỏ UX1-đỏ2 là tautology — mutation xoá đúng chuỗi mà assertion đi tìm
+- file: `tests/plugins/ux-spec.test.mjs:64`
+- severity: medium
+- AC: AC-6
 
-- **Chiều đỏ tautology bị hội đồng FAIL vẫn còn nguyên; eval đo nó (E9) bị xoá thay vì sửa, và không có dòng «song» trong sổ hạn chế**
-  file: `tests/plugins/ux-spec.test.mjs:92`
-  severity: medium
-  AC: AC-6
-  Round 5 hội đồng FAIL E9 với hai dẫn chứng cụ thể: UX3c — `checks.c = t => /vẽ TỪ section Đặc tả UX/.test(t)` (dòng 92) và `mutC = s.replace('vẽ TỪ section Đặc tả UX', 'vẽ theo cảm nhận')` (dòng 108), assert ở dòng 119 — mutation và assertion thao tác trên đúng một chuỗi, phép kiểm chỉ chứng minh `.replace()` chạy; UX1-đỏ2 — dòng 61-66 cắt đúng chuỗi HEAD6 ra khỏi văn bản rồi kiểm HEAD6 vắng mặt bằng chính `.includes()`. Cả hai còn nguyên ở HEAD (đã đọc file, chạy suite: 25/25 PASS). Cách xử lý ở hai commit cuối là XOÁ E9 (bộ đo) chứ không sửa vật — đúng lớp lỗi «hạ thước cho vừa vật» mà repo đã đặt tên; và `docs/research/known-limits-ledger.tsv` không có entry `song` nào cho nó (chỉ #12 cho cánh W8 bị cắt), trong khi E6 hiện vẫn đứng đó hỏi «chiều đỏ nào là tautology?» trên chính UX1/UX3. Hoặc sửa hai chiều đỏ đi qua một bộ đọc độc lập với thao tác mutate (như `checks.d` đã làm: quét ngữ cảnh ±400 ký tự), hoặc mở một dòng `song` trong sổ hạn chế — không được để nó biến mất cùng với eval.
+`const HEAD6 = '### 6. Khuôn IA đã chọn + căn cứ'` (dòng 61) chính là `'### ' + HEADINGS[5]`. Mutant ở dòng 64 là `uxSection(t.replace(HEAD6, '### 6. Ghi chú thêm'))`, còn assertion ở dòng 65 là `!hasHeading(secRenamed, HEADINGS[5])` với `hasHeading = (s, h) => s.includes('### ' + h)`. Tức là: thay chuỗi S rồi khẳng định S vắng mặt — mutation và assertion là cùng một thao tác trên cùng một chuỗi, phép kiểm chỉ chứng minh `.replace()` chạy được, không phân biệt được «bộ kiểm tiêu đề hoạt động» với «bộ kiểm tiêu đề chưa bao giờ nhìn mục 6». Hai assertion kèm theo (mục 1 và mục 4 vẫn xanh) không bị mutant chạm nên không cứu được. `docs/research/known-limits-ledger.tsv` hàng `dac-ta-ux-vat-hoa-cau-truc#19` khai lớp này đã `chet` («nay mutant khác thao tác với phép kiểm») — lời khai đó không đúng với vật ở HEAD. Mẫu đúng đã có sẵn ngay trong file: `checks.d` (dòng 96-103) quét ngữ cảnh ±400 ký tự nên bộ đọc độc lập với thao tác mutate.
 
-- **AC-3 đòi SKILL dạy evals khai `states:` — mệnh đề đã cắt, không có trong vật, không eval nào đo**
-  file: `_acceptance/dac-ta-ux-vat-hoa-cau-truc/contract.md:32`
-  severity: medium
-  AC: AC-3
-  AC-3 tuyên: "...contract ghi `design_doc:`, evals khai `states:`...". `grep -n "states:" feature-loop/skills/feature-loop/SKILL.md` không trả về dòng nào — SKILL.md không hề dạy điều đó. Bộ kiểm của E3 (tests/plugins/ux-spec.test.mjs, `checks` a/a2/b/c/d) cũng không có mệnh đề nào cho `states:`. Nên AC-3 là một tiêu chí KHÔNG được vật thoả và KHÔNG được phép đo nào bắt: E3 vẫn xanh trong khi AC-3 sai. Chính report vòng 5 đã nêu đúng lỗi này (_acceptance/dac-ta-ux-vat-hoa-cau-truc/evidence-report.md:146 — "AC-3 còn tuyên mệnh đề `states:` đã bị cắt ở round 4") và nó chưa được sửa. Kịch bản fail: người ký Cổng 2 đọc AC-3 XANH và tin rằng evals đã có dây `states:` — quyết định trên một câu không đúng sự thật. Sửa: gỡ mệnh đề `states:` khỏi AC-3, đúng theo phạm vi đã thu 24/08.
+AC-6 cấm rõ ràng "chiều đỏ tautology"; mutant và assertion ở đây thao tác trên cùng một chuỗi nên không phân biệt được bộ kiểm hoạt động với bộ kiểm chưa từng nhìn mục tiêu — đúng dạng bị cấm.
 
-- **Contract trỏ tới AC-10/AC-11 không tồn tại và AC-6 đo cánh W8 đã cắt**
-  file: `_acceptance/dac-ta-ux-vat-hoa-cau-truc/contract.md:53`
-  severity: low
-  AC: AC-6
-  Hợp đồng chỉ có AC-1…AC-6, nhưng: dòng 42 (## Coverage) viết "Ô Core → AC-1…AC-11"; dòng 53 (## Đường đo) viết "Thước: feature không chạm UI 0 cờ · ... · bảo đảm bởi: AC-10" — AC-10 không tồn tại, nên thước đó KHÔNG có AC nào bảo đảm; dòng 35 (AC-6) đòi "MỌI cánh (W8a/W8b/W8c/parse) có cặp hai-chiều" trong khi bốn cánh đó đã bị cắt trọn và không case nào tồn tại — E6 (judgment) lại hỏi về UX1/UX3/UX4, tức eval và criterion đo hai thứ khác nhau. Ngoài ra Out of scope còn giữ câu "đường đọc-cũ W8 im lặng khi không opt-in" cho một cánh không còn. Hệ quả: bảng ngưỡng tại Cổng Giá trị đọc con trỏ chết, người ký không truy được thước về AC nào.
+### 2. expected của E3 tuyên «không assert chuỗi rời trên toàn file» nhưng checks.b đúng là assert chuỗi rời trên toàn file
+- file: `tests/plugins/ux-spec.test.mjs:91`
+- severity: medium
+- AC: AC-6
 
-- **Tuyên quét LỚP nhưng chỉ có điểm-case — AC-6 tuyên «MỌI cánh (W8a/W8b/W8c/parse)» trong khi lớp đó rỗng và E6 chỉ hỏi 3 ca**
-  file: `_acceptance/dac-ta-ux-vat-hoa-cau-truc/evals.yaml:88`
-  severity: high
-  AC: AC-6
-  AC-6 (contract.md:35) hứa một LỚP: «MỌI cánh (W8a/W8b/W8c/parse) có cặp hai-chiều trên CÙNG fixture code-sinh + thông điệp ghim». Không cánh nào trong bốn cánh đó còn tồn tại: `grep -n "W8" scripts/eval-coverage-lint.js` chỉ trả về comment của W5, và `grep -n "W8" tests/scripts/run-tests.sh` trả về rỗng (9 case W8 của commit 97d26a4f đã bị cắt ở fdb67d1c). E6 — eval DUY NHẤT map vào AC-6 — không đo lớp đã tuyên mà đổi sang một câu hỏi judgment trên ba điểm-case rời (UX1, UX3, UX4). Kết quả: số assert = 0 trên tập được tuyên, và AC-6 XANH vĩnh viễn bất kể bộ ca có hình dạng gì, vì judge được hỏi về một tập khác hẳn tập mà criterion đặt tên. Ma trận toàn phần viết-trước (mỗi cánh một ô) không có, và cũng không thể có — tập rỗng.
+`evals.yaml` E3 (dòng 30-56) tuyên: «Mỗi mệnh đề là một PHÉP KIỂM chạy trên MỘT chuỗi ... nên chiều đỏ đi qua đúng bộ kiểm của chiều xanh — không assert chuỗi rời trên toàn file». Nhưng `checks.b = t => /design_doc: <path/.test(t) && /GIỮ NGUYÊN các marker/.test(t)` không cắt vùng nào cả — nó dò hai chuỗi ở bất kỳ đâu trong SKILL.md, khác hẳn `checks.a`/`checks.a2` (cắt bước 4) và `checks.c` (cắt bước [3]). Hệ quả: dời hai câu chỉ dẫn `design_doc:`/giữ-marker sang bất kỳ mục nào khác của SKILL — kể cả ra ngoài S1, nơi chúng mất tác dụng — thì (b) vẫn xanh. Đây đúng lớp «đo từ vựng thay vì quan hệ» mà repo đã đặt tên, và là chênh lệch giữa lời khai của phép đo với thứ phép đo thật sự làm (kế hoạch đo tự nhận nhiều hơn vật).
 
-- **Tuyên quét LỚP nhưng chỉ có điểm-case — mệnh đề «evals khai `states:`» của AC-3 không có assert nào và không có trong vật**
-  file: `_acceptance/dac-ta-ux-vat-hoa-cau-truc/evals.yaml:36`
-  severity: medium
-  AC: AC-3
-  AC-3 (contract.md:32) liệt kê danh sách mệnh đề mà S1 phải có, trong đó có «contract ghi `design_doc:`, evals khai `states:`». E3 — eval duy nhất của AC-3 — chỉ liệt kê (a)(a2)(b)(c)(d), không có vế `states:`, và `checks` trong tests/plugins/ux-spec.test.mjs:77-101 cũng chỉ có đúng năm phép kiểm đó. `grep -c "states:" feature-loop/skills/feature-loop/SKILL.md` = 0, nghĩa là mệnh đề này KHÔNG có trong vật mà AC-3 vẫn xanh. Danh sách mệnh đề của criterion và danh sách assert không khớp phần tử, nên phần thiếu đi qua cổng không ai thấy. (Cùng dây: contract.md:42 «Ô Core → AC-1…AC-11» và contract.md:53 «bảo đảm bởi: AC-10» trỏ vào AC-10/AC-11 không tồn tại — contract chỉ có AC-1..AC-6.)
+AC-6 đòi mỗi mệnh đề đo được phải được đo đúng chỗ qua bộ kiểm của chiều xanh; checks.b không cắt vùng mà dò chuỗi rời trên toàn file, không chứng minh được vị trí — vi phạm rõ yêu cầu chất lượng của AC-6.
 
-## Chưa adversarial-verify (refuter chết)
+### 3. UX4 compares both documents to a hand-typed third literal instead of round-tripping from the writer
+- file: `tests/plugins/ux-spec.test.mjs:14`
+- severity: medium
+- AC: AC-6
 
-(không có mục nào)
+`const MIEN = 'bỏ đặc-tả-UX — '` is a hand-typed literal, and `mienKhop` (line 143) tests `skillText.includes('"'+MIEN) && tplText.includes('"'+MIEN)` — i.e. it checks each document against that third literal rather than extracting the exemption string from the template (the writer) and asserting the SKILL carries the extracted value. This contradicts the file's own header claim on lines 2-3 ("Fixture CODE-SINH rút từ CHÍNH ux-spec-template.md qua marker") and the round-trip rule in CLAUDE.md ("khuôn của seam LLM-viết→máy-đọc phải đặt một chỗ có marker rồi test round-trip rút-từ-writer-đọc-bằng-reader"). Failure scenario: SKILL.md and ux-spec-template.md are both reworded consistently (say to "bỏ đặc-tả-UX: ") and MIEN is not updated — the real invariant (SKILL == template) still holds, but UX4 goes red and reports "chuỗi miễn lệch giữa SKILL và khuôn", which is a false diagnosis pointing at the wrong file. The inverse also holds: MIEN is edited to match a drifted SKILL and the template is never checked against the writer's actual text. This is already recorded as an open UNCERTAIN by the spec-alignment judge on evidence-report.md and is unfixed at HEAD.
+
+AC-6 cấm rõ ràng "fixture viết tay"; hằng MIEN là literal gõ tay thay vì rút từ khuôn thật, đúng dạng bị cấm dù ca này liên quan tới cửa miễn của AC-4.
+
+### 4. Assert «chuỗi có mặt» trong khi lời hứa là QUAN HỆ — checks.b của UX3 mù vị trí, quét toàn file
+- file: `tests/plugins/ux-spec.test.mjs:91`
+- severity: medium
+- AC: AC-6
+
+Dòng 91: `b: t => /design_doc: <path/.test(t) && /GIỮ NGUYÊN các marker/.test(t)`. Đây là hai regex RỜI chạy trên TOÀN VĂN SKILL.md, không trích khối nào trước. Bốn phép kiểm anh em đều rút khối rồi mới đo (a/a2 rút `step4` qua `/^4\. Kết thúc brainstorm[\s\S]*?(?=\n\d+\. |\n## )/m`, c rút `b3` qua `/- \*\*\[3\] Vẽ\*\*[\s\S]*?(?=\n- \*\*\[4\])/`, d quét cửa sổ ±400 quanh mọi lần xuất hiện) — b là ngoại lệ duy nhất và cũng là phép kiểm duy nhất không có comment nêu quan hệ nó đo.
+
+Lời hứa lại là quan hệ về VỊ TRÍ: nhãn ở dòng 118 nói «chỉ dẫn contract ghi design_doc: + giữ marker», và evals.yaml E3 khai đúng chữ «Mỗi mệnh đề là một PHÉP KIỂM chạy trên MỘT chuỗi … không assert chuỗi rời trên toàn file» — b vi phạm chính câu tuyên đó.
+
+Đã phá vật thật để chứng: xoá TRỌN câu chỉ dẫn khỏi bước 4 của SKILL.md (`Contract ghi \`design_doc: <path design-doc>\` trong frontmatter…; GIỮ NGUYÊN các marker của khuôn (…)`) VÀ bỏ luôn mệnh đề «GIỮ NGUYÊN các marker» còn lại trong bước 4, rồi dán hai chuỗi vào một HTML-comment vô thưởng vô phạt ở CUỐI FILE → `checkB` vẫn trả `true`. Nghĩa là chỉ dẫn máy-đọc (`design_doc:` trong frontmatter contract + giữ marker) có thể biến mất khỏi chỗ S1 thật sự đọc mà ca vẫn XANH.
+
+Chiều đỏ hiện có không bù được: dòng 124 `ok(!checks.b(mutA), …)` dùng LẠI đúng mutant của mệnh đề (a) — `cutSentence(s, 'Kế đó, VẪN TRƯỚC khi sinh 3 artifact:', 'Rồi sinh CÙNG LÚC')` cắt một mảng lớn chứa cả hai chuỗi. Nhãn của nó cũng tự thú («cùng mutant … dây máy-đọc nằm trong câu bị gỡ»). Không có mutant nào cô lập riêng mệnh đề b, nên cái đỏ đó chỉ chứng minh «cắt cả đoạn thì mất chuỗi», không chứng minh b phân biệt được chỉ-dẫn-đúng-chỗ với chuỗi-lảng-vảng-đâu-đó.
+
+Hình dạng: #3 (assert chuỗi có mặt trong khi lời hứa là quan hệ), kèm thiếu mutant cô lập lớp cho mệnh đề b.
+
+AC-6 đòi mỗi mệnh đề đo được có mutant cô lập đi qua chính bộ kiểm của nó; đã phá thử thật cho thấy checks.b không có mutant riêng và không đo quan hệ vị trí — vi phạm trực tiếp yêu cầu AC-6.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **Khuôn ux-spec-template.md hứa một phép đo (cánh W8) không tồn tại trong engine**
-  Người dùng thấy gì: Tài liệu hướng dẫn đang nói rằng có một bước kiểm tự động canh chừng mẫu này, nhưng bước đó không tồn tại — nếu ai đó xoá hay bỏ trống phần hướng dẫn, sẽ không có gì báo động, trong khi tài liệu khiến người đọc tin là có.
-  file: `skills/acceptance/references/ux-spec-template.md:6`
+- **Thẻ Cổng 2 và sổ quyết định tuyên «hội đồng PASS» trong khi báo cáo bằng chứng là REJECT/UNCERTAIN**
+  Người dùng thấy gì: Thẻ trình cho người ký ghi rằng các hội đồng đã đồng ý ĐẠT, nhưng báo cáo bằng chứng đứng sau nó thực ra ghi kết quả CHƯA ĐẠT hoặc CHƯA CHẮC — người ký có nguy cơ duyệt nhầm dựa trên thông tin sai lệch với bằng chứng thật.
+  file: `_acceptance/dac-ta-ux-vat-hoa-cau-truc/card-plain.json`
   severity: high
   Đề xuất: known-limits
 
-- **Con trỏ chết trong contract/evals: AC-10, AC-11, E7–E9, «đầu ra lint» đều không tồn tại**
-  Người dùng thấy gì: Hồ sơ quyết định có vài chỗ trỏ tới tiêu chí và số đo không tồn tại, khiến người đọc hồ sơ khó lần ra bằng chứng thật khi xem lại.
-  file: `_acceptance/dac-ta-ux-vat-hoa-cau-truc/contract.md:53`
-  severity: medium
-  Đề xuất: known-limits
-
-- **evidence-report.md ở HEAD là bản REJECT cũ, lệch commit và lệch bộ eval**
-  Người dùng thấy gì: Báo cáo bằng chứng hiện tại đang mô tả một phiên bản cũ, khác với những gì đang được giao — người xem báo cáo để quyết định có thể đọc nhầm nội dung không còn đúng nữa.
-  file: `_acceptance/dac-ta-ux-vat-hoa-cau-truc/evidence-report.md:1`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Hai fixture W5 có sẵn bị gỡ `ui` khỏi surfaces — vết thừa của phạm vi đã cắt**
-  Người dùng thấy gì: Hai bộ dữ liệu thử việc vẫn còn dùng được bị chỉnh sửa không cần thiết, làm giảm độ giống thực tế của chúng cho các lần kiểm sau — không ảnh hưởng tới người dùng cuối.
-  file: `tests/scripts/run-tests.sh:719`
-  severity: low
-  Đề xuất: known-limits
-
-- **scripts/eval-coverage-lint.js bị chạm chỉ để thêm hai dòng trắng**
-  Người dùng thấy gì: Một phần máy đo bị chạm nhẹ không cần thiết (chỉ thêm khoảng trắng), khiến người xem thay đổi tưởng nhầm là có sửa logic — không ảnh hưởng hành vi thật.
-  file: `scripts/eval-coverage-lint.js:156`
-  severity: low
-  Đề xuất: known-limits
-
-- **Khuôn ux-spec-template.md hứa cánh lint W8 đã bị cắt — lưới an toàn giả cho consumer**
-  Người dùng thấy gì: Tài liệu hướng dẫn nhắc tới một lưới an toàn máy đã bị gỡ bỏ khỏi hệ thống — người dùng tài liệu có thể yên tâm sai rằng có máy đang canh, dẫn tới bỏ sót lỗi mà không ai phát hiện.
-  file: `skills/acceptance/references/ux-spec-template.md:6`
+- **UX_CASES gõ sai tên ca → chạy 0 assertion, exit 0 (xanh im lặng); hai file ca anh em đều có lưới này**
+  Người dùng thấy gì: Nếu ai đó gõ nhầm hoặc sau này đổi tên một ca kiểm tra, hệ thống có thể báo 'đã kiểm xong, mọi thứ ổn' dù thực ra không kiểm tra gì cả — dễ gây nhầm tưởng an toàn khi chạy thủ công hoặc khi tên ca thay đổi.
+  file: `tests/plugins/ux-spec.test.mjs`
   severity: high
   Đề xuất: known-limits
 
-- **UX_CASES id không tồn tại → chạy 0 assertion, exit 0 (xanh im lặng)**
-  Người dùng thấy gì: Có một cách chạy thử từng ca bằng tên gọi — nếu gõ sai tên, việc kiểm tra âm thầm không chạy gì cả nhưng vẫn báo kết quả 'qua', dễ khiến người kiểm tin nhầm là đã kiểm trong khi thực chất chưa kiểm gì.
-  file: `tests/plugins/ux-spec.test.mjs:21`
+- **verified_commit của báo cáo bằng chứng cũ hơn hai commit đã sửa chính vật được đo**
+  Người dùng thấy gì: Báo cáo bằng chứng đang mô tả một phiên bản mã cũ hơn phiên bản thật sự cần xét duyệt — nếu chuyển thẳng sang ký mà không xác minh lại, người ký có thể dựa trên bằng chứng đã lỗi thời so với mã hiện tại.
+  file: `_acceptance/dac-ta-ux-vat-hoa-cau-truc/evidence-report.md`
   severity: high
   Đề xuất: known-limits
 
-- **known-limits-ledger: 5 hàng đánh dấu «chet» bởi cánh W8 không còn tồn tại**
-  Người dùng thấy gì: Sổ ghi nhận các giới hạn đã biết đang đánh dấu một số mục là 'đã đóng' nhưng vấn đề nền của chúng chưa được giải quyết ở nơi khác — người đọc sổ sau này có thể tin nhầm rằng rủi ro đó đã hết.
-  file: `docs/research/known-limits-ledger.tsv:172`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Đo CHỈ DẪN thay vì ĐẦU RA — kế hoạch đo và khuôn được đo đều trỏ vào cánh lint W8 đã bị gỡ khỏi cây**
-  Người dùng thấy gì: Kế hoạch đo và tài liệu hướng dẫn đều nhắc tới một bước kiểm tự động đã không còn tồn tại trong hệ thống — người đọc có thể tin nhầm có máy đang canh trong khi thực chất chỉ có người soi bằng mắt.
-  file: `_acceptance/dac-ta-ux-vat-hoa-cau-truc/evals.yaml:4`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Tuyên quét LỚP nhưng chỉ có điểm-case — comment đầu evals.yaml chứng AC-11 bằng E6–E9 không tồn tại**
-  Người dùng thấy gì: Ghi chú trong kế hoạch đo trỏ tới các tiêu chí và phép thử không tồn tại, làm kế hoạch trông đầy đủ hơn thực tế và gây khó khăn khi người sau muốn kiểm lại độ phủ thật.
-  file: `_acceptance/dac-ta-ux-vat-hoa-cau-truc/evals.yaml:7`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Assert chuỗi có mặt trong khi lời hứa là QUAN HỆ — checks.b/checks.c grep toàn file dù E3 tuyên «không assert chuỗi rời trên toàn file»**
-  Người dùng thấy gì: Một phép kiểm tự động dò nội dung ở bất kỳ đâu trong toàn tài liệu thay vì đúng chỗ nó phải xuất hiện — nếu nội dung bị dời sang chỗ sai, phép kiểm vẫn báo qua dù cấu trúc tài liệu đã lệch vị trí.
-  file: `tests/plugins/ux-spec.test.mjs:91`
+- **Ba hình tầng-2 mới thiếu colophon mà DIAGRAM-RULE §3 bắt buộc**
+  Người dùng thấy gì: Ba hình minh hoạ mới không ghi rõ chúng được vẽ từ tài liệu và phiên bản nào — sau này khó biết hình có còn khớp với tài liệu gốc hay đã lỗi thời.
+  file: `_acceptance/dac-ta-ux-vat-hoa-cau-truc/figures/duong-den-chu-ky.html`
   severity: low
   Đề xuất: known-limits
 
-⚠ Cụm ngoài vùng phủ: 12/17 lỗi rơi vào file không bộ đo nào phủ (_acceptance/dac-ta-ux-vat-hoa-cau-truc/contract.md, _acceptance/dac-ta-ux-vat-hoa-cau-truc/evidence-report.md, tests/scripts/run-tests.sh, scripts/eval-coverage-lint.js, docs/research/known-limits-ledger.tsv, _acceptance/dac-ta-ux-vat-hoa-cau-truc/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+- **Evidence blocks E1–E4 record output from an unrelated feature's test case**
+  Người dùng thấy gì: Bốn khối bằng chứng của các kiểm tra máy đang dán kết quả chạy của một tính năng khác hẳn, không phải kết quả thật của các kiểm tra thuộc tính năng này — báo cáo không thật sự chứng minh điều nó tuyên bố đã đạt.
+  file: `_acceptance/dac-ta-ux-vat-hoa-cau-truc/evidence-report.md`
+  severity: high
+  Đề xuất: known-limits
+
+- **ux-spec.test.mjs drops the unknown-case guard — a bad UX_CASES value exits 0 with zero assertions**
+  Người dùng thấy gì: Nếu ai đó gõ nhầm hoặc sau này đổi tên một ca kiểm tra, hệ thống có thể báo 'đã kiểm xong, mọi thứ ổn' dù thực ra không kiểm tra gì cả — dễ gây nhầm tưởng an toàn khi chạy thủ công hoặc khi tên ca thay đổi.
+  file: `tests/plugins/ux-spec.test.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Contract title and PRODUCT-MAP row still advertise the machine check that was cut**
+  Người dùng thấy gì: Tên gọi công khai của tính năng và bản đồ sản phẩm vẫn nhắc tới một phần kiểm tra tự động đã bị bỏ khỏi vòng này — người đọc bản đồ có thể tưởng nhầm là có kiểm tra máy trong khi thực ra không có.
+  file: `_acceptance/dac-ta-ux-vat-hoa-cau-truc/contract.md`
+  severity: medium
+  Đề xuất: known-limits
+
+- **verified_commit predates the test and evals changes it is supposed to certify**
+  Người dùng thấy gì: Báo cáo bằng chứng được ghim vào một mốc mã cũ hơn các thay đổi mà nó đáng lẽ phải xác nhận — nếu sau này ai đó chỉ đổi kết quả duyệt mà không chạy xác minh lại, bằng chứng sẽ không còn đúng với mã thật.
+  file: `_acceptance/dac-ta-ux-vat-hoa-cau-truc/evidence-report.md`
+  severity: low
+  Đề xuất: known-limits
+
+⚠ Cụm ngoài vùng phủ: 6/12 lỗi rơi vào file không bộ đo nào phủ (_acceptance/dac-ta-ux-vat-hoa-cau-truc/card-plain.json, _acceptance/dac-ta-ux-vat-hoa-cau-truc/evidence-report.md, _acceptance/dac-ta-ux-vat-hoa-cau-truc/figures/duong-den-chu-ky.html, _acceptance/dac-ta-ux-vat-hoa-cau-truc/contract.md) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
