@@ -11,9 +11,9 @@ Ba dây nối máy-đọc đi kèm (S1 của feature-loop ghi cả ba):
 1. Contract frontmatter thêm key `design_doc: <path design-doc, tương đối
    repo-root>` — chỗ phép đo tìm section này.
 2. Id trạng thái theo khuôn `ST-<màn>-<trạng-thái>` (chữ/số/gạch-nối) — bảng
-   phải có ÍT NHẤT một dòng; bảng rỗng là «chép khuôn rồi xoá sạch», bị cờ.
-3. Đối chiếu tự động «trạng thái khai trước ↔ bài kiểm đo nó» CHƯA có trong bản
-   này (tách sang việc riêng, 24/08) — người duyệt vẫn soi bằng mắt tại cổng.
+   phải có ÍT NHẤT một dòng; bảng rỗng là «chép khuôn rồi xoá sạch».
+3. Đối chiếu tự động «trạng thái khai trước ↔ bài kiểm đo nó» CHƯA có (tách sang
+   việc riêng, 24/08) — người duyệt soi bằng mắt tại cổng.
 
 **Cửa miễn:** feature KHÔNG chạm UI → không điền khuôn, ghi MỘT entry
 `descope` vào `decisions.jsonl` với decision bắt đầu đúng chuỗi

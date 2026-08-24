@@ -28,28 +28,24 @@ Source input: _acceptance/dac-ta-ux-vat-hoa-cau-truc/opportunity.md
 ## Criteria
 
 - AC-1: Given plugin acceptance-gate, When mở `skills/acceptance/references/ux-spec-template.md`, Then tồn tại section `## Đặc tả UX` trong marker `UX-SPEC-TEMPLATE` đủ 6 mục (luồng ba loại + điểm vào/ra · kiểm kê màn một-việc · bảng trạng thái máy-đọc trong marker `UX-STATE-TABLE` với id `ST-…` · hành vi · xuất xứ component theo thang dùng→ghép→mở-rộng→tạo · khuôn IA đã chọn + căn cứ tra mẫu), kèm cửa miễn prefix `"bỏ đặc-tả-UX — "` ở đầu khuôn.
-- AC-2: Given khuôn ở AC-1, When test trích bảng trạng thái mẫu TỪ CHÍNH file khuôn qua marker (fixture rút-từ-writer, code-sinh trong lần chạy) và đưa cho reader của W8, Then reader đọc ra đúng số trạng thái mẫu — writer và reader không trôi khỏi nhau.
+- AC-2: Given khuôn ở AC-1, When trích section qua marker rồi «điền» bằng luật bỏ-ngoặc, Then bảng trạng thái mẫu rút ra được và mọi marker còn nguyên — khuôn dùng được như vật máy-đọc cho việc khớp vòng sẽ làm sau (hạt giống 24/08).
 - AC-3: Given `feature-loop/skills/feature-loop/SKILL.md`, When đọc S1, Then có chỉ dẫn: feature chạm UI phải điền `## Đặc tả UX` vào design-doc TRƯỚC khi sinh 3 artifact (resolve khuôn qua resolve-plugin.mjs, KHÔNG hardcode version), contract ghi `design_doc:`, evals khai `states:`; và nghi thức hình Cổng Phạm vi vẽ hình luồng/màn TỪ section Đặc tả UX; câu «dòng state-matrix» cũ không còn là nguồn thứ hai (trỏ về khuôn).
-- AC-4: Given feature KHÔNG chạm UI, When đi qua S1 và lưới, Then đường miễn là MỘT dòng entry `descope` bắt đầu đúng chuỗi `"bỏ đặc-tả-UX — "` (chuỗi trong SKILL khớp từng ký tự với chuỗi trong khuôn), và contract không có `surfaces: ui` thì W8 im lặng — 0 cờ. Vết miễn là quy ước cho NGƯỜI và ván thử đọc — engine cố ý KHÔNG có bộ đọc entry này; phần máy kiểm được của tiêu chí là khớp chuỗi hai bên + W8 im lặng, không hơn.
+- AC-4: Given feature KHÔNG chạm UI, When đi qua S1 và lưới, Then đường miễn là MỘT dòng entry `descope` bắt đầu đúng chuỗi `"bỏ đặc-tả-UX — "` (chuỗi trong SKILL khớp từng ký tự với chuỗi trong khuôn), — không phép đo máy nào của vòng này chạm feature không-UI. Vết miễn là quy ước cho NGƯỜI và ván thử đọc — engine cố ý KHÔNG có bộ đọc entry này; phần máy kiểm được là khớp chuỗi hai bên, không hơn.
 - AC-5: Given máy điền mục «Khuôn IA đã chọn + căn cứ», When máy không tự chắc khuôn IA, Then SKILL dạy thang tra mẫu hai nấc (phiên có công cụ tra mẫu thị trường → tra + ghi vết một dòng; không có → chọn từ danh sách khuôn IA có tên trong khuôn) và không phụ thuộc công cụ nào — vết tra mẫu là thứ NGƯỜI đọc tại cổng; máy KHÔNG kiểm nội dung căn cứ trong vòng này (đã thu phạm vi 24/08). (judgment)
-- AC-6: Given contract `surfaces` chứa `ui`, When chạy lint, Then cờ W8a bật đúng cho MỌI hình dạng thiếu-vật — key vắng/rỗng · con trỏ chết · trỏ ra ngoài cây · thiếu marker bảng · marker có mà bảng RỖNG (ô-nuốt-luật) — mỗi hình dạng ghim NGUYÊN CÂU cảnh báo riêng; bản lành XANH trước trên cùng fixture.
-- AC-7: Given contract cũ không có key `design_doc:` và surfaces không chứa `ui`, When chạy lint, Then 0 cờ W8 — hồ sơ cũ không bị bắt migrate, không cờ oan.
-- AC-8: Given chế độ `--files` (không có repo root), When contract có `design_doc:` hợp lệ, Then lint KHÔNG phán «con trỏ chết» từ thư mục hiện tại — bỏ qua các cánh cần đọc design-doc kèm một dòng ghi chú; cánh W8a-vắng-key (không cần đọc file) vẫn chạy.
-- AC-9: Given toàn bộ luật W8a và case suite mới của ô này, When đọc test, Then MỌI cánh (W8a/W8b/W8c/parse) có cặp hai-chiều trên CÙNG fixture code-sinh + thông điệp ghim — không assertion âm-tính-một-mình, không fixture viết tay đúng khuôn bên đọc.
+- AC-6: Given toàn bộ bộ ca mới của ô này, When đọc test, Then MỌI cánh (W8a/W8b/W8c/parse) có cặp hai-chiều trên CÙNG fixture code-sinh + thông điệp ghim — không assertion âm-tính-một-mình, không fixture viết tay đúng khuôn bên đọc.
 
 ## Coverage
 
-- Trục A — Bộ phận giao: khuôn tham chiếu | lời S1 | luật W8 trong lint | đường đọc-cũ [thước CE: danh sách mảnh trong opportunity.md đã ký Cổng Đáng]
+- Trục A — Bộ phận giao: khuôn tham chiếu | lời S1 (điền trước · tra mẫu · hình vẽ từ khuôn) | cửa miễn [thước CE: danh sách mảnh trong opportunity.md, TRỪ phần máy-tự-kiểm đã cắt]
 - Trục B — Tình huống việc đi qua: chạm UI điền đủ | chạm UI né/thiếu | không chạm UI miễn | hồ sơ cũ | máy không chắc khuôn → tra mẫu [thước CE: ngưỡng SỐNG/CHẾT trong opportunity.md]
-- Trục C — Hình dạng THIẾU VẬT: đủ | key vắng/rỗng | con trỏ chết | ngoài cây | thiếu marker | bảng rỗng | hồ sơ cũ/đã ký [thước CE: ma trận [W8A]-o1..o10 + MEASURE-BIRTH-CLAUSE]
-- (ĐÃ CẮT 24/08 sau 4 vòng) Trục khớp-vòng khai↔đo và cánh đoán-chay → hạt giống riêng `docs/plans/2026-08-24-hat-giong-khop-vong-dac-ta-ux.md`
+- Trục C — (ĐÃ CẮT TRỌN 24/08) mọi phép đo máy cho đặc tả UX → hạt giống `docs/plans/2026-08-24-hat-giong-khop-vong-dac-ta-ux.md`
 - Ô Core → AC-1…AC-11; Later/Never → Out of scope. Chân ngành đối chiếu: quy trình UX 8 bước (owner 22/08) + ux-flow-designer · rampstack IA · danh sách khuôn Magdoub [NGÀNH]; mô hình Relume/Mobbin (IA là dữ liệu nguồn) [NGÀNH].
 
 ## Đường đo
 
 - Thước: làm lại cấu trúc sau Cổng Phạm vi = 0 · số từ: entry approach/descope chạm luồng/màn trong decisions.jsonl của ván thử · bảo đảm bởi: đã có sẵn: sổ quyết định feature-loop
-- Thước: 100% feature chạm UI có đặc tả UX (hoặc vết miễn) · số từ: đầu ra W8a của eval-coverage-lint trên hồ sơ ván thử · bảo đảm bởi: AC-6
-- (KHÔNG ĐO trong ván này) Thước khớp vòng bảng trạng thái ↔ eval = 100% — thuộc hạt giống tách ra 24/08; Cổng Giá trị đọc ô này là CHƯA ĐO, có lý do và con trỏ
+- Thước: 100% feature chạm UI có đặc tả UX hoặc vết miễn · số từ: ĐẾM TAY trên hồ sơ ván thử (section trong design-doc hoặc entry descope) · bảo đảm bởi: AC-3, AC-4 — vòng này KHÔNG có phép đo máy
+- (KHÔNG ĐO trong ván này) Thước khớp vòng bảng trạng thái ↔ eval — thuộc hạt giống tách 24/08; Cổng Giá trị đọc ô này là CHƯA ĐO, có lý do và con trỏ
 - Thước: 100% feature chạm UI có khuôn hoặc vết miễn · số từ: section Đặc tả UX trong design-doc hoặc entry `"bỏ đặc-tả-UX — "` trong decisions.jsonl · bảo đảm bởi: AC-3, AC-4
 - Thước: máy điền khuôn một lượt, 0 lần gọi owner, khuôn ≤ 1 trang · số từ: transcript + design-doc của ván thử · bảo đảm bởi: đã có sẵn: phiên ván thử ở repo tiêu thụ
 - Thước: máy né khuôn bị veto = 0 (ngưỡng CHẾT) · số từ: entry veto / descope không-lý-do-chính-đáng trong decisions.jsonl của ván thử · bảo đảm bởi: đã có sẵn: sổ quyết định + cửa veto làn V
@@ -58,8 +54,8 @@ Source input: _acceptance/dac-ta-ux-vat-hoa-cau-truc/opportunity.md
 
 ## Out of scope
 
-- Không chặn merge — W8a là ADVISORY (quyết (a) 24/08); nâng chặn cứng là ô sau ván thử.
-- KHÔNG đối chiếu khai↔đo và KHÔNG soi nội dung căn cứ trong vòng này (thu phạm vi 24/08 sau 4 vòng nghiệm thu cùng lớp lỗi) — tách sang hạt giống riêng, làm bằng bộ đọc có ranh giới đóng.
+- KHÔNG có phép đo máy nào cho đặc tả UX trong vòng này. Sau 5 vòng nghiệm thu, mọi cánh dò-chữ trên markdown đều sinh lỗi cùng lớp «thước tự dối» (vòng 5: một dòng ví dụ trong khối mã ở thân hợp đồng tắt được cờ). Owner quyết cắt trọn 24/08 — hạt giống `docs/plans/2026-08-24-hat-giong-khop-vong-dac-ta-ux.md` giữ đề bài + 4 điều kiện mở lại.
+- Người duyệt soi đặc tả UX bằng mắt tại Cổng 1 cùng ba artifact — đó là chốt chặn của vòng này, không phải lưới máy.
 - Không skill mới, không vendor skill ngoài (ux-flow-designer, wireframe-skill, rampstack, heuristics) — vay hình dạng/tên, không vay mã.
 - Không đưa sơ đồ/wireframe vào chuỗi bằng chứng — hình là chiếu của khuôn; S4 vẫn đo DOM thật.
 - Không đụng `scripts/pre-merge-check.sh`, `hooks/**`, `lib/**` — giữ T2.
@@ -69,7 +65,9 @@ Source input: _acceptance/dac-ta-ux-vat-hoa-cau-truc/opportunity.md
 
 ## Notes
 
-- Giới hạn đã khai: W8a khoá vào `surfaces` tự khai — máy né được bằng cách bỏ
-  `ui`. Tín hiệu thứ hai là lưới tier-mismatch S4 theo `design.surface_globs`
-  (đã có sẵn, hai vật hai chủ); repo chưa wire glob thì lỗ còn hở — đó là ô
-  của ngưỡng CHẾT «máy né bị veto ≥ 1» đo ở ván thử, không phải của lint.
+- Giới hạn đã khai (24/08, sau 5 vòng): vòng này giao VẬT và LỜI, không giao
+  lưới. Máy không tự kiểm được feature chạm UI đã điền đặc tả UX chưa — người
+  duyệt soi tại Cổng 1. Ngưỡng «khớp vòng 100%» của hồ sơ cơ hội KHÔNG có số ở
+  ván thử này, có lý do và con trỏ tới hạt giống.
+- Sổ hạn chế `docs/research/known-limits-ledger.tsv` giữ vết từng lỗi của 5
+  vòng: cái nào đã đóng, cái nào theo hạt giống.

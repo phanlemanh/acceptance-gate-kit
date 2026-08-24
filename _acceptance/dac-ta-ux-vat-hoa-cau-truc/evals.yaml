@@ -28,15 +28,11 @@ evals:
     cmd: config:executors.test.plugins
     paths: [skills/acceptance/references/ux-spec-template.md, tests/plugins/ux-spec.test.mjs, scripts/eval-coverage-lint.js]
     expected: >
-      exit 0; stdout có "PASS: UX2". Round-trip P55 qua cánh CÒN SỐNG sau thu
-      phạm vi: case TRÍCH section từ CHÍNH ux-spec-template.md qua marker (không
-      chép tay), code-sinh fixture design-doc + contract trỏ design_doc, chạy
-      CHÍNH eval-coverage-lint.js. Đối chứng dương: khuôn nguyên vẹn → 0 cờ W8.
-      Chiều đỏ ĐI QUA READER (không bộ đếm riêng của test): xoá MỌI dòng ST khỏi
-      bảng trong bản trích, giữ nguyên hai marker → lint phải bật W8a ghim
-      NGUYÊN CÂU "có bảng UX-STATE-TABLE nhưng KHÔNG dòng trạng thái nào" (đây
-      là ô-nuốt-luật bắt được ở vòng 4). Và bảng còn ĐÚNG MỘT dòng ST → 0 cờ:
-      phép đo phân biệt được rỗng với có, không phải đếm mù.
+      exit 0; stdout có "PASS: UX2-trich" — thực thi trong case UX1: TRÍCH section
+      từ CHÍNH ux-spec-template.md qua marker rồi «điền» bằng luật bỏ-ngoặc, bảng
+      trạng thái mẫu rút ra ≥2 dòng và cả hai marker còn nguyên trong bản trích.
+      Chiều đỏ: bản sao đổi tên marker → bộ trích thấy section mất UX-STATE-TABLE
+      (cùng bộ kiểm của chiều xanh, khác input).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
@@ -90,59 +86,15 @@ evals:
     evidence_required: [run_id, verifier, verified_at, output]
   - id: E6
     criterion: AC-6
-    executor: test
-    cmd: config:executors.test.scripts
-    paths: [scripts/eval-coverage-lint.js, tests/scripts/run-tests.sh]
-    expected: >
-      exit 0; stdout có "PASS: [W8A]-o1".."o10". MA TRẬN hình dạng THIẾU VẬT viết
-      trước, fixture design-doc rút TỪ CHÍNH khuôn qua marker trong lần chạy, mỗi
-      ô ghim NGUYÊN CÂU cảnh báo (không dùng mảnh chuỗi cũng xuất hiện trong dòng
-      chú giải cuối — bài học r3/r4): (o1) đủ vật → IM (đối chứng dương);
-      (o2) surfaces ui mà không key → "surfaces có ui nhưng contract chưa trỏ đặc
-      tả UX"; (o3) con trỏ tới file không tồn tại → "design_doc không đọc được:
-      docs/design.md"; (o4) con trỏ ra ngoài cây → "trỏ ra ngoài cây repo";
-      (o5) thiếu marker bảng → "thiếu bảng UX-STATE-TABLE (marker)"; (o6) Ô NUỐT
-      LUẬT — marker còn mà bảng RỖNG → "có bảng UX-STATE-TABLE nhưng KHÔNG dòng
-      trạng thái nào"; (o7/o8) hồ sơ cũ và hồ sơ đã ký → IM, kèm chiều SỐNG của
-      mỗi miễn (đổi surfaces/status → cờ bật lại) chứng minh 0-cờ là do nhánh
-      miễn chứ không phải luật chết; (o9/o10) sentinel --files là root=null chứ
-      không phải tên slug.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E7
-    criterion: AC-7
-    executor: test
-    cmd: config:executors.test.scripts
-    paths: [scripts/eval-coverage-lint.js, tests/scripts/run-tests.sh]
-    expected: >
-      exit 0; stdout có "PASS: [W8O]". Fixture contract KHÔNG có design_doc và
-      surfaces [cli] (đúng hình hồ sơ cũ) → lint exit như trước, 0 cờ W8 nào
-      trong output. Chiều đỏ chứng cánh này sống: cùng contract thêm surfaces
-      ui → xuất hiện W8a (chứng minh 0-cờ ở nhánh cũ là do NHÁNH ĐỌC-CŨ, không
-      phải luật chết).
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E8
-    criterion: AC-8
-    executor: test
-    cmd: config:executors.test.scripts
-    paths: [scripts/eval-coverage-lint.js, tests/scripts/run-tests.sh]
-    expected: >
-      exit 0; stdout có "PASS: [W8F]" và "PASS: [W8N]". Sentinel chế độ --files
-      là root=null, KHÔNG phải tên slug: (1) --files từ thư mục `/` trên hồ sơ
-      LÀNH → không "con trỏ đặc tả UX chết", có ghi chú "chế độ --files không
-      có repo root"; bỏ key design_doc → vẫn W8a (miễn không nuốt cánh vắng-key);
-      (2) hồ sơ THẬT slug `files` ở root-mode → W8 chạy đủ (0 ghi chú --files),
-      và gỡ marker thì W8a bật ([W8N]-live) — không chuỗi ma thuật.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E9
-    criterion: AC-9
     executor: judgment
     question: >
-      Đọc các case UX1–UX4 (tests/plugins/ux-spec.test.mjs) và ma trận
-      [W8A]-o1..o10 (tests/scripts/run-tests.sh): có cánh nào chỉ có assertion
-      âm tính một mình (thiếu đối chứng dương cùng fixture), fixture nào viết
-      tay đúng khuôn bên đọc thay vì rút-từ-writer/code-sinh, ghim nào thoả
-      được bởi dòng chú giải/legend thay vì bởi cảnh báo thật, hay chiều đỏ nào
-      là tautology (mutation và assertion cùng một thao tác)? Liệt kê từng chỗ.
-    inputs: [../../tests/scripts/run-tests.sh, ../../tests/plugins/ux-spec.test.mjs]
+      Đọc các case UX1, UX3, UX4 trong tests/plugins/ux-spec.test.mjs: có ca nào
+      chỉ có assertion âm tính một mình (thiếu đối chứng dương), fixture nào
+      viết tay thay vì rút-từ-writer, ghim nào thoả bởi thứ khác cảnh báo thật,
+      hay chiều đỏ nào là tautology (mutation và assertion cùng một thao tác)?
+      LƯU Ý PHẠM VI: vòng này CỐ Ý không có phép đo máy nào cho đặc tả UX (cắt
+      trọn 24/08, hạt giống docs/plans/2026-08-24-hat-giong-khop-vong-dac-ta-ux.md)
+      — đừng báo sự VẮNG MẶT của lưới là thiếu sót; chỉ soi 6 tiêu chí hiện có.
+    inputs: [../../tests/plugins/ux-spec.test.mjs]
     expected: NO cho cả ba câu (không chỗ nào); có chỗ → liệt kê đúng case
     evidence_required: [run_id, verifier, verified_at, output]

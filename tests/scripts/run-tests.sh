@@ -1096,68 +1096,6 @@ sed -i.bak 's/; đối chứng dương xanh trước\.//' "$U/evals.yaml" && rm 
 outL35b="$(node "$LINT" "$T/lintU" 2>&1)"; check L35b 1 $?
 case "$outL35b" in *"W1 AC-1"*) echo "  PASS: L35b-w1"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: L35b-w1 (gỡ đối chứng mà W1 vẫn im — từ vựng mới nuốt luôn ca thật)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
-# ── W8a: feature chạm UI đã có đặc tả UX chưa (phạm vi THU 24/08) ────────────
-# Cánh khớp-vòng (khai↔đo) và cánh đoán-chay đã CẮT — hạt giống riêng. Còn lại
-# một câu hỏi trả lời bằng SỰ CÓ MẶT của vật. Fixture design-doc RÚT từ writer
-# thật (ux-spec-template.md) qua marker; mọi ghim là NGUYÊN CÂU cảnh báo (không
-# dùng mảnh chuỗi cũng xuất hiện trong dòng chú giải cuối — bài học r3/r4).
-UXTPL="$HERE/../../skills/acceptance/references/ux-spec-template.md"
-ux_section() { sed -n '/<<<UX-SPEC-TEMPLATE/,/UX-SPEC-TEMPLATE>>>/p' "$UXTPL" | sed -E 's/\{\{([^}]*)\}\}/\1/g'; }
-
-mk_ux_fixture() { # <root> [surfaces] [design_doc-line]
-  local d="$1/_acceptance/feat-ux"; mkdir -p "$d" "$1/docs"
-  ux_section > "$1/docs/design.md"
-  printf -- '---\nschema_version: 1\nfeature: feat-ux\nslug: feat-ux\nrisk_tier: T2\nsurfaces: [%s]\nstatus: approved\n%s---\n## Criteria\n- AC-1: Given a, When b, Then c.\n' \
-    "${2:-ui}" "${3-design_doc: docs/design.md$'\n'}" > "$d/contract.md"
-  printf 'evals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    expected: "exit 0"\n' > "$d/evals.yaml"
-}
-ux_flags() { node "$LINT" "$1" 2>&1 | grep -E "^  \[feat-ux\] W8" || true; }
-ux_case() { # <nhãn> <root> <quiet|nguyên-câu-ghim>
-  local o; o="$(ux_flags "$2")"
-  if [ "$3" = "quiet" ]; then
-    if [ -z "$o" ]; then echo "  PASS: [W8A]-$1"; PASS_COUNT=$((PASS_COUNT+1)); else echo "  FAIL: [W8A]-$1 (kỳ vọng im, nhận: $o)"; FAIL_COUNT=$((FAIL_COUNT+1)); fi
-  else
-    case "$o" in *"$3"*) echo "  PASS: [W8A]-$1"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8A]-$1 (kỳ vọng ghim «$3», nhận: $o)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
-  fi
-}
-
-echo "[W8A] MA TRẬN có-đặc-tả-UX — 7 ô, mỗi ô ghim NGUYÊN CÂU"
-RUX1="$T/uxa1"; mk_ux_fixture "$RUX1"
-ux_case "o1-lanh" "$RUX1" quiet
-RUX2="$T/uxa2"; mk_ux_fixture "$RUX2" ui ""
-ux_case "o2-chua-tro" "$RUX2" "W8a surfaces có ui nhưng contract chưa trỏ đặc tả UX"
-RUX3="$T/uxa3"; mk_ux_fixture "$RUX3"; rm "$RUX3/docs/design.md"
-ux_case "o3-con-tro-chet" "$RUX3" "W8a design_doc không đọc được: docs/design.md"
-RUX4="$T/uxa4"; mk_ux_fixture "$RUX4" ui "design_doc: ../../../../etc/hosts
-"
-ux_case "o4-ngoai-cay" "$RUX4" "W8a design_doc trỏ ra ngoài cây repo"
-RUX5="$T/uxa5"; mk_ux_fixture "$RUX5"; sed -i.bak 's/UX-STATE-TABLE/UX-XXX-TABLE/g' "$RUX5/docs/design.md" && rm -f "$RUX5/docs/design.md.bak"
-ux_case "o5-thieu-marker" "$RUX5" "thiếu bảng UX-STATE-TABLE (marker)"
-# o6 — ô NUỐT LUẬT (bài học r4): marker còn, bảng rỗng thì phải ĐỎ ĐƯỢC
-RUX6="$T/uxa6"; mk_ux_fixture "$RUX6"; grep -v '^| ST-' "$RUX6/docs/design.md" > "$RUX6/docs/d2" && mv "$RUX6/docs/d2" "$RUX6/docs/design.md"
-ux_case "o6-bang-rong" "$RUX6" "có bảng UX-STATE-TABLE nhưng KHÔNG dòng trạng thái nào"
-# o7 — đọc-cũ: hồ sơ không opt-in thì im; thêm ui vào thì sống lại (chiều sống)
-RUX7="$T/uxa7"; mk_ux_fixture "$RUX7" cli ""
-ux_case "o7-doc-cu" "$RUX7" quiet
-sed -i.bak 's/^surfaces: \[cli\]$/surfaces: [ui]/' "$RUX7/_acceptance/feat-ux/contract.md" && rm -f "$RUX7"/_acceptance/feat-ux/contract.md.bak
-ux_case "o7-live" "$RUX7" "W8a surfaces có ui nhưng contract chưa trỏ đặc tả UX"
-# o8 — hồ sơ ĐÃ KÝ miễn hồi tố, và chiều sống của miễn
-RUX8="$T/uxa8"; mk_ux_fixture "$RUX8" ui ""
-sed -i.bak 's/^status: approved$/status: signed-off/' "$RUX8/_acceptance/feat-ux/contract.md" && rm -f "$RUX8"/_acceptance/feat-ux/contract.md.bak
-ux_case "o8-da-ky-mien" "$RUX8" quiet
-sed -i.bak 's/^status: signed-off$/status: approved/' "$RUX8/_acceptance/feat-ux/contract.md" && rm -f "$RUX8"/_acceptance/feat-ux/contract.md.bak
-ux_case "o8-live" "$RUX8" "W8a surfaces có ui nhưng contract chưa trỏ đặc tả UX"
-# o9 — chế độ --files: sentinel root=null, KHÔNG dò tên slug
-RUX9="$T/uxa9"; mk_ux_fixture "$RUX9"
-outF="$(cd / && node "$LINT" --files "$RUX9/_acceptance/feat-ux/contract.md" "$RUX9/_acceptance/feat-ux/evals.yaml" 2>&1)"
-case "$outF" in *"con trỏ đặc tả UX chết"*) echo "  FAIL: [W8A]-o9-files (phán bừa theo cwd)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: [W8A]-o9-files"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
-case "$outF" in *"chế độ --files không có repo root"*) echo "  PASS: [W8A]-o9-note"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8A]-o9-note (bỏ qua im lặng)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
-RUXN2="$T/uxa10"; mkdir -p "$RUXN2/_acceptance/files" "$RUXN2/docs"; ux_section > "$RUXN2/docs/design.md"
-printf -- '---\nslug: files\nrisk_tier: T2\nsurfaces: [ui]\nstatus: approved\n---\n## Criteria\n- AC-1: Given a, When b, Then c.\n' > "$RUXN2/_acceptance/files/contract.md"
-printf 'evals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    expected: "x"\n' > "$RUXN2/_acceptance/files/evals.yaml"
-case "$(node "$LINT" "$RUXN2" 2>&1)" in *"chế độ --files"*) echo "  FAIL: [W8A]-o10-slug-files"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: [W8A]-o10-slug-files"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
-case "$(node "$LINT" "$RUXN2" 2>&1)" in *"chưa trỏ đặc tả UX"*) echo "  PASS: [W8A]-o10-live"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8A]-o10-live"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
-
 echo ""
 echo "--- gate-card.js ---"
 GCARD="$HERE/../../scripts/gate-card.js"
