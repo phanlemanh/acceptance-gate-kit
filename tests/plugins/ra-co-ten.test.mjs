@@ -310,6 +310,15 @@ if (want('RT3')) {
     r = hook(cp, contractText('rt3', { status: 'machine-cleared', tier: 'T2', approvedBy: 'Manh' }),
       { existing: contractText('rt3', { status: 'verified', tier: 'T2', approvedBy: 'Manh' }) });
     if (r.code !== 0) errs.push(`(e-ctrl) cùng fixture ở T2 phải QUA, exit ${r.code}: ${r.err.slice(0, 200)}`);
+    // (e2) NGOÀI danh sách {T2, T3}: vị từ là ALLOWLIST (chỉ T2 được phép) nên T1, hạng RỖNG và
+    // mọi cách gõ sai đều phải bị chặn. Chỉ đo T3 là đo ĐIỂM-CASE của một blacklist — hoàn
+    // nguyên về `=== 'T3'` vẫn xanh, mà chính đó là lỗi S4-r11 [1] vừa sửa (S4-r13 [7]).
+    for (const hang of ['T1', '', 'TIER3']) {
+      r = hook(cp, contractText('rt3', { status: 'machine-cleared', tier: hang, approvedBy: 'Manh' }),
+        { existing: contractText('rt3', { status: 'verified', tier: hang, approvedBy: 'Manh' }) });
+      const mong = new RegExp(`status: machine-cleared on a ${hang ? hang.toUpperCase() : '\\(empty\\)'} contract`);
+      if (r.code !== 2 || !mong.test(r.err)) errs.push(`(e2) hạng «${hang || '(rỗng)'}» ngoài allowlist phải chặn ghim câu, exit ${r.code}: ${r.err.slice(0, 160)}`);
+    }
   });
   // ── lifecycle: đo THÔNG ĐIỆP hook IN RA, không grep mã nguồn ────────────────
   // Bản cũ đọc file hook rồi /machine-cleared/ — mã nguồn có chuỗi đó ở nhiều dòng CHÚ THÍCH,
@@ -1200,6 +1209,34 @@ if (want('RT16')) {
     const x = findSlug(scan(root), 'sach');
     if (x && x.grp === 'broken') errs.push(`đối chứng dương: hồ sơ SẠCH bị gọi hỏng — ${x.reason}`);
   });
+  // FAIL-CLOSED CÓ TÊN: khuôn hỏng → bản đồ phải chết to kèm ĐƯỜNG DẪN KHUÔN + đường sửa và
+  // exit 2, KHÔNG phải stack trace với exit 1 — vì exit 1 là mã `--check` dùng cho «bản đồ
+  // lệch», nên lỗi HẠ TẦNG đội lốt lỗi VẬT ngay tại cổng độc lập ADR 0007 dựa vào. E16 khai
+  // phép đo này từ vòng trước mà THÂN CA chưa có — lời khai không có vật (S4-r13 [8]).
+  {
+    const c = tmp('rt16-tpl-');
+    try {
+      for (const d of ['scripts', 'lib']) cpSync(path.join(ROOT, d), path.join(c, d), { recursive: true });
+      const tplRel = 'skills/acceptance/references/opportunity-template.md';
+      const goc = readRepo(tplRel);
+      const hong = goc.replace('<<<OPP-DE-XUAT-PREFIX -->', '<<<OPP-DE-XUAT-PREFIX-HONG -->');
+      if (hong === goc) errs.push('fail-closed: lệnh tiêm không đổi được khuôn');
+      W(c, tplRel, hong);
+      const ws = mkRepo();
+      mkWs(ws, 'q', { contract: { status: 'signed-off', tier: 'T2', approvedBy: 'Fx' }, evidence: { signoff: 'Fx 2026-08-24' }, opportunity: { nguong: 'chot' } });
+      const r = spawnSync(process.execPath, [path.join(c, 'scripts', 'product-map.mjs'), '--root', ws, '--check'], { encoding: 'utf8' });
+      const err = r.stderr || '';
+      if (r.status !== 2) errs.push(`fail-closed: khuôn hỏng phải exit 2 (mã riêng), thấy exit ${r.status} — exit 1 lẫn với «bản đồ lệch»`);
+      if (!err.includes(tplRel)) errs.push(`fail-closed: thông điệp không nêu đường dẫn khuôn — ${err.split('\n')[0]}`);
+      if (!/Sửa:/.test(err)) errs.push('fail-closed: thông điệp không có đường sửa');
+      if (/at .*\.mjs:\d+/.test(err)) errs.push('fail-closed: in stack trace Node thay vì câu có tên');
+      // ĐỐI CHỨNG DƯƠNG: cùng bản sao, khuôn NGUYÊN VẸN → chạy được, không exit 2.
+      W(c, tplRel, goc);
+      const r2 = spawnSync(process.execPath, [path.join(c, 'scripts', 'product-map.mjs'), '--root', ws], { encoding: 'utf8' });
+      if (r2.status === 2) errs.push(`đối chứng dương: khuôn nguyên vẹn mà vẫn chết-to — ${(r2.stderr || '').split('\n')[0]}`);
+      rmSync(ws, { recursive: true, force: true });
+    } finally { rmSync(c, { recursive: true, force: true }); }
+  }
   // Hồ sơ THẬT trong diff: bản đồ đã commit không được in nó dưới «chờ phiên nghiệm thu».
   {
     const md = readRepo('PRODUCT-MAP.md');
