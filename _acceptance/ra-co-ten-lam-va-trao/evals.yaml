@@ -82,10 +82,19 @@ evals:
     cmd: config:executors.test.plugins
     paths: [skills/uat-session/SKILL.md, feature-loop/skills/feature-loop/SKILL.md, skills/acceptance/SKILL.md, CONTEXT.md, commands/acceptance-status.md, commands/acceptance-report.md, tests/plugins/ra-co-ten.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: [RT6]" — reader cắt đúng phạm vi (uat-session §0 bullet status;
-      feature-loop bảng state machine + S4(3); acceptance SKILL đoạn làn V; CONTEXT mục Gates &
-      verbs; hai thân lệnh) tìm đúng mệnh đề; bản sao gỡ TỪNG mệnh đề → reader trên bản sao ĐỎ
-      nêu mệnh đề (assert qua exit/chuỗi, không mô tả).
+      ⚠ LỆCH HỢP ĐỒNG ĐÃ DUYỆT — KHAI RÕ, KHÔNG SỬA AC: AC-6 (ii) và (iii) đòi văn bản nghi
+      thức dạy máy «set `status: machine-cleared`». Vòng chấm S4-r7 xác nhận lỗi NẶNG trên mặt
+      người của làn (thẻ Cổng 2 vừa nói «máy đã thông» vừa mời «Ký duyệt» khi hồ sơ có
+      opportunity.md — hai người chấm độc lập + tác giả dựng lại được), nên theo luật dừng-vá,
+      vòng THU PHẠM VI: ba mệnh đề GHI đã bị gỡ, đường ghi hạ thành giới hạn đã khai, ô
+      `_acceptance/lan-may-thong-duong-ghi/` mang nguyên văn ba lỗi. AC-6 (ii)+(iii) vì vậy
+      KHÔNG ĐẠT như đã ký — người quyết ở Cổng 2 có nhận phạm vi rút gọn này không.
+      Phần CÒN LẠI của AC-6 đo như cũ: exit 0; stdout có "PASS: [RT6]" — reader cắt đúng phạm vi
+      (uat-session §0 bullet status; feature-loop bảng state machine; CONTEXT mục Gates & verbs;
+      hai thân lệnh) tìm đúng mệnh đề ĐỌC; bản sao gỡ TỪNG mệnh đề → reader trên bản sao ĐỎ nêu
+      mệnh đề. THÊM (thay cho hai mệnh đề ghi): cả feature-loop SKILL lẫn acceptance SKILL phải
+      KHAI «đường ghi chưa bật»; và phép quét sáu văn bản nghi thức không được thấy câu dạy máy
+      tự đặt trạng thái — tiêm lại đúng câu vừa gỡ vào SKILL THẬT → ĐỎ nêu tên file.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9
     criterion: AC-9
@@ -198,8 +207,18 @@ evals:
     paths: [lib/nguong-o-co-hoi.cjs, _acceptance/ra-co-ten-lam-va-trao/contract.md, tests/plugins/ra-co-ten.test.mjs]
     expected: >
       exit 0; stdout có "PASS: [RT18]" — quét đệ quy .js/.cjs/.mjs trong scripts/lib/hooks/tests
-      tìm NĂM chuỗi luật ngưỡng (tiêu đề section · hai tiền tố · hằng một-ngày · vị từ mặt-người-dùng — đều rút từ lib/khuôn lúc chạy): mọi hit ngoài lib nằm trong khối
-      LUAT-NGUONG-KHAI-GACH kèm lý do, file lạ → ĐỎ nêu tên + chuỗi. Chiều đỏ (a): bản sao cây
-      tiêm file chép tiêu đề → chính phép quét trên bản sao nêu tên; (b): gỡ một dòng gạch →
-      file thành lạ. Đây là ca CHỐNG-CHÉP: bản chép thứ hai của luật không land được nữa.
+      tìm NĂM chuỗi luật ngưỡng (tiêu đề section · hai tiền tố · hằng một-ngày · vị từ
+      mặt-người-dùng — đều rút từ lib/khuôn lúc chạy): mọi hit ngoài lib phải được khối
+      LUAT-NGUONG-KHAI-GACH của hợp đồng gạch KÈM LÝ DO, file lạ → ĐỎ nêu tên + chuỗi.
+      GẠCH TÍNH THEO CẶP (file × chuỗi), KHÔNG theo đường dẫn: dòng khai gạch mà lý do gọi
+      đúng tên một chuỗi thì CHỈ miễn chuỗi đó (S4-r7 [4] — gạch cả file cho start-scan.mjs,
+      đúng bộ đọc từng chép luật, là mở lại cửa vừa đóng). Chiều đỏ: (a) bản sao cây tiêm file
+      chép tiêu đề → chính phép quét trên bản sao nêu tên; (b) gỡ một dòng gạch → file thành lạ;
+      (c) chép tiêu đề section vào scripts/start-scan.mjs — file ĐÃ khai gạch cho chuỗi KHÁC —
+      → ĐỎ nêu đúng cặp (chứng minh gạch không còn là gạch trắng cả file).
+      GIỚI HẠN ĐÃ KHAI (sổ #14): needle so khớp LITERAL, nên bản chép viết khác chính tả
+      (`24 * 60 * 60 * 1000`, `86_400_000`) hoặc diễn lại luật bằng biểu thức không có hằng
+      (`d <= now`) KHÔNG bị bắt — grep cả file không phủ được lớp đó. Bản chép ở chính file ca
+      đã gỡ (dựng «hôm qua» bằng phép lùi NGÀY của Date); lớp còn lại nằm ở ô
+      `_acceptance/phep-kiem-sach-do-theo-vung/`.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
