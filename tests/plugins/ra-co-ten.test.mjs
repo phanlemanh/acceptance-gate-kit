@@ -210,7 +210,20 @@ if (want('RT1')) {
   const mjs = mjsAll.slice(mjsAll.indexOf('export function xanhSach'), mjsAll.indexOf('export function khongCanNguoi'));
   const orderMjs = ["!== 'PASS'", 'bypass_used', 'enforcement_mode', 'risk_tier', 'UNCERTAIN_RE.test', "'Known limits', 'Ngoài hợp đồng'"].map(n => mjs.indexOf(n));
   if (orderMjs.some(i => i < 0) || orderMjs.some((v, i) => i > 0 && v < orderMjs[i - 1])) errs.push(`thứ tự xanhSach (mjs) lệch khối: ${orderMjs}`);
-  const sh = readFileSync(PREMERGE, 'utf8'); const fn = sh.slice(sh.indexOf('xanh_sach_check() {'));
+  // Cắt ĐÚNG THÂN HÀM, không chạy tới hết file: `xanh_sach_check` không phải hàm cuối, nên
+  // cắt-tới-EOF cho năm trong sáu needle cơ hội được thoả bởi mã NGOÀI hàm (S4-r8 [5]) — cùng
+  // hình dạng «phạm vi cắt không có thật» mà checkMenhDe đã canh cho phía văn bản.
+  const sh = readFileSync(PREMERGE, 'utf8');
+  const fn = (() => {
+    const i = sh.indexOf('xanh_sach_check() {');
+    if (i < 0) return '';
+    const sau = sh.slice(i);
+    const j = sau.indexOf('\n}\n');            // dấu đóng hàm ở cột 0
+    return j < 0 ? sau : sau.slice(0, j + 2);
+  })();
+  if (!fn) errs.push('không cắt được thân hàm xanh_sach_check trong pre-merge-check.sh');
+  // Phạm vi cắt phải CÓ THẬT: thân hàm ngắn hơn hẳn cả file, nếu không thì «cắt» là hư từ.
+  if (fn && fn.length >= sh.length * 0.9) errs.push(`phạm vi cắt xanh_sach_check gần bằng cả file (${fn.length}/${sh.length}) — cắt không có thật`);
   // SÁU needle, không phải năm: bỏ `enforcement_mode` khỏi vế bash là ca đo tự khoét đúng
   // chỗ vật thiếu — thước không thể đỏ cho điều kiện đó ở cả hai chiều (finding S4-r1).
   const orderSh = ['= "PASS"', 'bypass_used', 'enforcement_mode', 'risk_tier', 'UNCERTAIN', '"Known limits" "Ngoài hợp đồng"'].map(n => fn.indexOf(n));
@@ -528,6 +541,24 @@ if (want('RT15')) {
   else pass('RT15', 'machine-cleared × chữ ký: hook hai chiều + lưới + bộ quét gọi hỏng; LỐI KÝ chạy thật theo thứ tự thân lệnh dạy (hai lượt đều qua) + thứ tự ngược bị chặn kèm bước kế; da-veto cùng thông điệp');
 }
 
+// Ô (heading `## …`) mà bản đồ xếp một slug vào — dùng chung cho RT5 và RT16.
+const oBanDo = (md, slug) => {
+  const lines = md.split('\n');
+  let cur = null;
+  for (const l of lines) {
+    const h = l.match(/^##\s+(.+?)\s*$/); if (h) { cur = h[1]; continue; }
+    if (new RegExp(`\\\`${slug}\\\``).test(l)) return cur;
+  }
+  return null;
+};
+// Ô chứa một chuỗi bất kỳ (để hỏi «nhãn nằm ở ô nào»).
+const oCuaChuoi = (md, chuoi) => {
+  const i = md.indexOf(chuoi);
+  if (i < 0) return null;
+  const truoc = md.slice(0, i).match(/^##\s+(.+?)\s*$/gm);
+  return truoc && truoc.length ? truoc[truoc.length - 1].replace(/^##\s+/, '').trim() : null;
+};
+
 // ── RT5 — bảng chữ: 4 khoá mới, nhãn riêng, bucket đúng (phần bản đồ/thẻ ở chặng sau) ──
 if (want('RT5')) {
   const errs = [];
@@ -550,7 +581,14 @@ if (want('RT5')) {
     mkWs(root, 'm', { contract: MC, evidence: {} });
     spawnSync(process.execPath, [PMAP, '--root', root], { encoding: 'utf8' });
     const md = existsSync(path.join(root, 'PRODUCT-MAP.md')) ? readFileSync(path.join(root, 'PRODUCT-MAP.md'), 'utf8') : '';
-    if (!md.includes(B.chu('da-giao-may-thong-veto-mo').nhan)) errs.push('bản đồ không in nhãn máy-thông rút từ bảng');
+    // AC-5 hứa nhãn nằm TRONG Ô «Đã giao», không phải «có mặt đâu đó trong file»: chuỗi ở sai
+    // heading vẫn thoả `includes` (S4-r8 [4]). Đo QUAN HỆ: nhãn phải nằm trong section của ĐÚNG
+    // ô mà BUCKET_OF của khoá chỉ tới — cùng vị từ RT16 dùng, không chép lại tên heading.
+    const nhan = B.chu('da-giao-may-thong-veto-mo').nhan;
+    const oSlug = oBanDo(md, 'm'), oNhan = oCuaChuoi(md, nhan);
+    if (oNhan == null) errs.push('bản đồ không in nhãn máy-thông rút từ bảng');
+    else if (oSlug == null) errs.push('bản đồ không xếp slug vào ô nào');
+    else if (oSlug !== oNhan) errs.push(`nhãn máy-thông in ở ô «${oNhan}» còn slug nằm ở ô «${oSlug}» — nhãn phải ở TRONG ô của hồ sơ`);
     const ex = JSON.parse(spawnSync(process.execPath, [CARD, '--root', root, '--slug', 'm', '--extract'], { encoding: 'utf8' }).stdout);
     if (String(ex.gate) !== '2') errs.push(`thẻ nhận gate=${ex.gate}, mong 2`);
     const cr = spawnSync(process.execPath, [CARD, '--root', root, '--slug', 'm'], { encoding: 'utf8' });
@@ -560,6 +598,23 @@ if (want('RT5')) {
     if (!/cửa veto đang mở/.test(html)) errs.push('thẻ thiếu trạng thái cửa veto');
     if (/Ký duyệt|Ký hay trả/.test(html)) errs.push('thẻ vẫn mời ký một hồ sơ máy đã thông');
   });
+  // ── Hồ sơ máy-thông CÓ opportunity.md: hai hình dạng ĐẾN ĐƯỢC mà danh sách khoá bỏ sót ──
+  // Fixture cũ không có opportunity.md nên chỉ chạm hai khoá `da-giao-may-thong-*`; hồ sơ thật
+  // đi đường A luôn có ô cơ hội và rơi vào `cho-cong-gia-tri` (ngưỡng đã chốt) hoặc
+  // `da-giao-khong-do` (khai «không đo được»). Cả hai từng lọt qua và thẻ mời ký một hồ sơ
+  // KHÔNG có chữ ký người — mâu thuẫn ngay trong một thẻ (S4-r7 [0][3], S4-r8 [2]).
+  for (const ng of ['chot', 'khong-do-duoc']) {
+    withRepo(root => {
+      mkWs(root, 'mo', { contract: MC, evidence: {}, opportunity: { nguong: ng } });
+      const x = findSlug(scan(root), 'mo');
+      if (!x) { errs.push(`máy-thông + ngưỡng ${ng}: bộ quét không xếp slug vào nhóm nào`); return; }
+      const cr = spawnSync(process.execPath, [CARD, '--root', root, '--slug', 'mo'], { encoding: 'utf8' });
+      const html = cr.stdout || '';
+      if (cr.status !== 0) { errs.push(`máy-thông + ngưỡng ${ng} (khoá ${x.stateKey}): thẻ exit ${cr.status}`); return; }
+      if (/Ký duyệt|Ký hay trả/.test(html)) errs.push(`máy-thông + ngưỡng ${ng} (khoá ${x.stateKey}): thẻ MỜI KÝ hồ sơ không có chữ ký người`);
+      if (!/máy đã thông/.test(html)) errs.push(`máy-thông + ngưỡng ${ng} (khoá ${x.stateKey}): thẻ không nói «máy đã thông»`);
+    });
+  }
   // Bộ quét MÙ (repo chưa dựng cổng → không có groups) mà hợp đồng khai máy-thông: thẻ
   // phải RENDER, không sập. Vòng trước gọi bảng chữ với khoá null → bảng ném → exit 1,
   // 0 byte, người nhận màn hình trắng (S4-r5, đã dựng lại).
@@ -923,10 +978,24 @@ if (want('RT13')) {
   // So theo TÊN FILE trong CHUỖI được chạy ('…' / "…" / `…`): ca dựng đường dẫn bằng
   // path.join(ROOT,'hooks','…') nên chuỗi đủ đường dẫn không có mặt, nhưng tên file thì
   // luôn nằm trong một literal chuỗi nếu ca thật sự đọc nó.
-  const coCaIn = (f, khai, srcChay) => khai.has(f)
-    && new RegExp(`['"\`][^'"\`\n]*${reEsc(f.split('/').pop())}`).test(srcChay);
+  // So theo ĐƯỜNG DẪN ĐỦ, không theo tên trơ: ba file cùng tên `SKILL.md`
+  // (skills/uat-session · skills/acceptance · feature-loop/skills/feature-loop) và hai file
+  // cùng tên `run-tests.sh` nằm trong tập quét — miễn theo tên trơ thì MỘT literal miễn cho
+  // CẢ BA, kể cả `skills/<mới>/SKILL.md` người sau thêm vào (S4-r8 [3]). Ca dựng đường dẫn
+  // bằng path.join(ROOT,'hooks','…') nên chấp nhận literal mang ĐỦ phần đuôi phân biệt:
+  // thư mục cha + tên file, dạng có dấu `/` trong chuỗi.
+  // Ca dựng đường dẫn bằng path.join(ROOT,'hooks','…') nên literal thường chỉ có TÊN FILE —
+  // tên trơ vẫn dùng được, NHƯNG chỉ khi tên đó là duy nhất trong tập đang xét. Tên trùng
+  // (SKILL.md, run-tests.sh) thì đòi thêm thư mục cha, nếu không một literal miễn cho cả nhóm.
+  const duoiPhanBiet = (f, tapXet) => {
+    const ten = f.split('/').pop();
+    const trung = tapXet.filter(x => x.split('/').pop() === ten).length > 1;
+    return trung ? f.split('/').slice(-2).join('/') : ten;
+  };
+  const coCaIn = (f, khai, srcChay, tapXet) => khai.has(f)
+    && new RegExp(`['"\`][^'"\`\n]*${reEsc(duoiPhanBiet(f, tapXet || [...khai]))}`).test(srcChay);
   const testSrcChay = stripChuThich(testSrc);
-  const coCa = f => coCaIn(f, khaiPaths, testSrcChay);
+  const coCa = f => coCaIn(f, khaiPaths, testSrcChay, [...khaiPaths]);
   // Hàm thuần: trả danh sách file KHÔNG được giải trình, và dòng khai gạch đã chết.
   const soSanh = (files, gach, co = coCa) => ({
     la: files.filter(f => !co(f) && !gach.includes(f)),
@@ -972,7 +1041,7 @@ if (want('RT13')) {
     const khai2 = new Set([...khaiPaths, F]);
     const raw2 = testSrc + `\n// ca giả: ${ten} coi như đã có ca\n`;
     if (raw2 === testSrc || !raw2.includes(ten)) errs.push('chiều đỏ (iv-c): lệnh tiêm không đổi được văn bản');
-    const r3 = soSanh([...filesThat, F], GACH, f => coCaIn(f, khai2, stripChuThich(raw2)));
+    const r3 = soSanh([...filesThat, F], GACH, f => coCaIn(f, khai2, stripChuThich(raw2), [...khai2]));
     if (!r3.la.includes(F)) errs.push('chiều đỏ (iv-c): tên file chỉ nằm trong CHÚ THÍCH mà răng vẫn coi là «có ca»');
     const raw3 = testSrc + `\nconst giaLapMienTru = readRepo('${F}');\n`;
     const r4 = soSanh([...filesThat, F], GACH, f => coCaIn(f, khai2, stripChuThich(raw3)));
@@ -1027,15 +1096,6 @@ if (want('RT16')) {
   const errs = [];
   const B16 = require(path.join(ROOT, 'scripts', 'trang-thai-ho-so.cjs'));
   // Ô bản đồ của slug: đọc từ PRODUCT-MAP.md vừa vẽ — heading gần nhất phía trên dòng slug.
-  const oBanDo = (md, slug) => {
-    const lines = md.split('\n');
-    let cur = null;
-    for (const l of lines) {
-      const h = l.match(/^##\s+(.+?)\s*$/); if (h) { cur = h[1]; continue; }
-      if (new RegExp(`\\\`${slug}\\\``).test(l)) return cur;
-    }
-    return null;
-  };
   // Bảng ô bản đồ (SECTIONS) rút từ CHÍNH product-map.mjs — không chép tay tên ô.
   const pmSrc = readRepo('scripts/product-map.mjs');
   const oCuaKhoa = key => {

@@ -543,15 +543,20 @@ try {
 // Hồ sơ đã có ô kết `machine-cleared` cũng là «máy đã đi tiếp» — bộ quét gọi nó bằng hai
 // khoá riêng, thẻ phải nhận cả bốn, nếu không hồ sơ máy-thông lại bị mời ký (hồ sơ ra-co-ten).
 const MAY_THONG = (clean(cfm.status) || '').toLowerCase() === 'machine-cleared';
-// Bộ quét KHÔNG trả lời được mà hợp đồng tự khai máy-thông → đừng mời ký: mời ký lúc mù
-// là đúng ca thẻ từng dẫm với may-di-tiep (finding S4-r4). «Không trả lời được» = bộ quét
-// THẬT SỰ thất bại (chạy lỗi — scanErr, hoặc repo chưa dựng cổng — config:false), KHÔNG
-// phải «không thấy slug trong ba nhóm»: hồ sơ HỎNG cũng không nằm trong ba nhóm, và nó
-// phải hiện đường sửa chứ không phải «máy đã đi tiếp hợp lệ» (S4-r6 [4]).
-const SCAN_MU = scanErr != null || scanConfigFalse;
-const MAY_DI_TIEP = !scanBroken && (['may-di-tiep-veto-mo', 'may-di-tiep-xanh-sach',
-                     'da-giao-may-thong-veto-mo', 'da-giao-may-thong-xanh-sach'].includes(scanState)
-  || (MAY_THONG && scanState == null && SCAN_MU));
+// Ca «bộ quét mù» (chạy lỗi, hoặc repo chưa dựng cổng) KHÔNG còn cần vế riêng: `MAY_THONG`
+// đọc thẳng status nên nó đúng cả khi bộ quét câm — mời ký lúc mù là ca thẻ từng dẫm với
+// may-di-tiep (S4-r4). Hồ sơ HỎNG vẫn phải hiện đường sửa, nên `!scanBroken` giữ nguyên
+// ở vế đầu (S4-r6 [4]).
+// Vế `MAY_THONG` đứng RIÊNG, không nằm trong danh sách khoá: hợp đồng đã khai `machine-cleared`
+// là ĐÃ QUA Cổng Bằng chứng KHÔNG chữ ký — sự thật đó do STATUS quyết, không do khoá bộ quét.
+// Liệt khoá bằng tay là blacklist trên không gian mở và nó đã thủng ba vòng liền: hồ sơ
+// máy-thông CÓ `opportunity.md` rơi vào `cho-cong-gia-tri` (khoảnh khắc người kế là Cổng Giá
+// trị, không phải Cổng 2) hoặc `da-giao-khong-do` — cả hai đều ngoài danh sách, nên thẻ vừa in
+// «máy đã thông — KHÔNG có chữ ký người» vừa mời «Ký duyệt», và người bấm theo sẽ bị chính
+// hook + lưới trước-merge chặn (S4-r7 [0][3], S4-r8 [2]).
+const MAY_DI_TIEP = !scanBroken && (MAY_THONG
+  || ['may-di-tiep-veto-mo', 'may-di-tiep-xanh-sach',
+      'da-giao-may-thong-veto-mo', 'da-giao-may-thong-xanh-sach'].includes(scanState));
 // Chữ cho trạng thái này: bộ quét trả khoá thì HỎI BẢNG; bộ quét mù (scanState null) thì
 // dùng câu dự phòng — `chu(null)` NÉM (bảng cố ý chết cho khoá lạ) và làm sập cả thẻ, đúng
 // ca S4-r5 dựng lại được trên repo chưa dựng cổng: exit 1, 0 byte, người nhận màn hình trắng.

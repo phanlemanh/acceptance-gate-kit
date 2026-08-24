@@ -36,7 +36,21 @@ const { BUCKET_OF, chu } = require(path.join(__dirname, 'trang-thai-ho-so.cjs'))
 const NGUONG = require(path.join(__dirname, '..', 'lib', 'nguong-o-co-hoi.cjs'));
 const OPP_TPL_MAP = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md');
 let _oppTpl = null;
-const oppTplText = () => _oppTpl ?? (_oppTpl = readFileSync(OPP_TPL_MAP, 'utf8'));
+// FAIL-CLOSED có TÊN, như hai bộ đọc anh em (start-scan `bail(...)`, gate-card cờ đỏ kèm
+// đường sửa): khuôn vắng/không đọc được thì CHẾT TO kèm tên khuôn + đường sửa, KHÔNG phải
+// stack trace Node. Repo tiêu thụ chép `scripts/` + `lib/` mà chưa mang `skills/.../
+// opportunity-template.md` sẽ gặp đúng cửa này — thông điệp phải nói được phải làm gì,
+// vì trước bản này bản đồ không đọc khuôn lần nào (S4-r8 [0]).
+const oppTplText = () => {
+  if (_oppTpl != null) return _oppTpl;
+  try { return (_oppTpl = readFileSync(OPP_TPL_MAP, 'utf8')); }
+  catch (e) {
+    process.stderr.write(`product-map: khuôn opportunity-template không đọc được: ${OPP_TPL_MAP} (${e.code || e.message})\n`
+      + '  Bản đồ cần khuôn này để phân loại ô ngưỡng của hồ sơ đã thông Cổng Bằng chứng.\n'
+      + '  Sửa: mang skills/acceptance/references/opportunity-template.md sang cạnh scripts/ và lib/, rồi chạy lại.\n');
+    process.exit(2);
+  }
+};
 
 // Tên ô nói VIỆC ĐANG Ở ĐÂU, không gọi tên cơ chế máy (N1). Thứ tự cố định —
 // nó cũng là thứ tự các chặng trong hình.
