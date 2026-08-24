@@ -316,7 +316,7 @@ if (gate === '1') {
     // Dòng «đã khai» = có nội dung sau dấu ':' khác placeholder của khuôn («…»/«...»/rỗng); khuôn chép
     // nguyên chưa điền KHÔNG được tính là ngưỡng (S4-r2 finding: placeholder lọt thành «đã khai»).
     // «chưa điền» hỏi đúng vị từ của lib trên PHẦN GIÁ TRỊ bullet — không giữ regex riêng.
-    const chuaDien = l => { const b = NG1.bulletOf(l); return !!b && NG1.PLACEHOLDER_RE.test(b.value); };
+    const chuaDien = l => NG1.chuaDien(l);
     if (ut.section_present) ut.lines = section(oppText, UAT_THRESHOLD_HEADING).map(l => l.trim()).filter(l => l && !/^>/.test(l) && !chuaDien(l));
   }
 

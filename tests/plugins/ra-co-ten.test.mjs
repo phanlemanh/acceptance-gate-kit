@@ -3,7 +3,7 @@
 // product-map / pre-merge / hook; đường dẫn suy từ vị trí file; mỗi ca có đối chứng dương
 // + chiều đỏ ghim thông điệp (MEASURE-BIRTH-CLAUSE).
 //   RT_CASES=RT1,RT2 node tests/plugins/ra-co-ten.test.mjs
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, copyFileSync, existsSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, copyFileSync, cpSync, existsSync } from 'node:fs';
 import { spawnSync, execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -288,11 +288,81 @@ if (want('RT3')) {
     // (d) draft → machine-cleared thẳng → chặn ghim skips Gate 1
     r = hook(cp, contractText('rt3', { status: 'machine-cleared' }), { existing: contractText('rt3', { status: 'draft' }) });
     if (r.code !== 2 || !/skips Gate 1/.test(r.err)) errs.push(`(d) draft→machine-cleared phải chặn ghim skips Gate 1, exit ${r.code}`);
+    // (e) T3 + approved_by ĐÃ điền → vẫn phải chặn: «máy thông không chữ ký» là T2-only.
+    // Nhánh veto ở (b) chỉ bắt ca đi qua veto_state; ca này lọt suốt tới lưới trước-merge (S4-r8 [0]).
+    r = hook(cp, contractText('rt3', { status: 'machine-cleared', tier: 'T3', approvedBy: 'Manh' }),
+      { existing: contractText('rt3', { status: 'verified', tier: 'T3', approvedBy: 'Manh' }) });
+    if (r.code !== 2 || !/status: machine-cleared on a T3 contract/.test(r.err)) errs.push(`(e) T3 + approved_by phải chặn ghim câu T2-only, exit ${r.code}: ${r.err.slice(0, 200)}`);
+    // ĐỐI CHỨNG DƯƠNG: cùng fixture hạ về T2 → QUA (chứng minh răng bắt HẠNG, không bắt bừa)
+    r = hook(cp, contractText('rt3', { status: 'machine-cleared', tier: 'T2', approvedBy: 'Manh' }),
+      { existing: contractText('rt3', { status: 'verified', tier: 'T2', approvedBy: 'Manh' }) });
+    if (r.code !== 0) errs.push(`(e-ctrl) cùng fixture ở T2 phải QUA, exit ${r.code}: ${r.err.slice(0, 200)}`);
   });
-  const lifecycle = readFileSync(HOOK, 'utf8');
-  if (!/machine-cleared/.test(lifecycle)) errs.push('dòng lifecycle của hook chưa liệt machine-cleared');
+  // ── lifecycle: đo THÔNG ĐIỆP hook IN RA, không grep mã nguồn ────────────────
+  // Bản cũ đọc file hook rồi /machine-cleared/ — mã nguồn có chuỗi đó ở nhiều dòng CHÚ THÍCH,
+  // nên gỡ sạch khỏi khối lifecycle THẬT mà ca vẫn xanh: phép đo không phân biệt «thông điệp
+  // liệt đủ» với «một comment nhắc tên» (S4-r8 [4]). Và lời hứa AC-3 là QUAN HỆ với enum AC-1.
+  const khoiLifecycle = err => {
+    const i = err.indexOf('Gate-1 lifecycle reference:');
+    if (i < 0) return null;
+    const sau = err.slice(i).split('\n').slice(1);
+    const het = sau.findIndex(l => !/^\s{2}/.test(l));
+    return sau.slice(0, het < 0 ? sau.length : het).join('\n');
+  };
+  // Chạy hook từ một bản sao cây (hooks/ + lib/) để chiều đỏ tiêm được vào vật THẬT.
+  const hookTuCay = (cayRoot, filePath, content, existing) => {
+    if (existing != null) writeFileSync(filePath, existing); else if (existsSync(filePath)) rmSync(filePath);
+    const r = spawnSync(process.execPath, [path.join(cayRoot, 'hooks', 'acceptance-evidence-gate.js')],
+      { input: JSON.stringify({ tool_name: 'Write', tool_input: { file_path: filePath, content } }), encoding: 'utf8' });
+    return { code: r.status, err: r.stderr || '' };
+  };
+  const docLifecycle = cayRoot => withRepo(root => {
+    W(root, '.git', '');
+    const dir = path.join(root, '_acceptance', 'lc'); mkdirSync(dir, { recursive: true });
+    const cp = path.join(dir, 'contract.md');
+    // ca (c): chặn ghim → hook in TRỌN khối lifecycle ra stderr
+    const r = hookTuCay(cayRoot, cp, contractText('lc', { status: 'machine-cleared' }), contractText('lc', { status: 'verified' }));
+    return khoiLifecycle(r.err);
+  });
+  {
+    const kh = docLifecycle(ROOT);
+    if (!kh) errs.push('không cắt được khối «Gate-1 lifecycle reference:» từ stderr của hook');
+    else {
+      if (!kh.includes('machine-cleared')) errs.push('khối lifecycle hook IN RA chưa liệt machine-cleared');
+      // QUAN HỆ với enum AC-1: mọi tên trạng thái xuất hiện trong khối phải là thành viên enum.
+      // Enum lấy TỪ CHÍNH nguồn AC-1 (lib), không gõ lại — đây là vế «khớp enum AC-1».
+      const ENUM = require(path.join(ROOT, 'lib', 'workspace-record.cjs')).NAV_RULES['contract.md'].status.enum;
+      // Chỉ soi các dòng Ở VỊ TRÍ TRẠNG THÁI (dòng `status: …` và dòng chuyển `draft -> …`),
+      // tách theo dấu `/` và `->` — không quét cả khối, vì khối còn nhắc pre-merge, Gate 1…
+      const viTriTrangThai = kh.split('\n').filter(l => /^\s+(status:|draft ->)/.test(l))
+        .map(l => l.replace(/^\s+status:\s*/, '').replace(/->.*$/g, m => m))
+        .join(' | ');
+      const la = [...new Set(viTriTrangThai.split(/\s*(?:\||\/|->)\s*/).map(t => t.trim()).filter(Boolean))]
+        .filter(t => /^[a-z][a-z-]*$/.test(t))
+        .filter(t => !ENUM.includes(t));
+      if (la.length) errs.push(`khối lifecycle nêu tên KHÔNG có trong enum AC-1: ${la.join(', ')}`);
+      for (const st of ENUM) if (!kh.includes(st)) errs.push(`enum AC-1 có «${st}» mà khối lifecycle không nhắc`);
+      // Chiều đỏ: bản sao cây gỡ machine-cleared khỏi ĐÚNG hai dòng lifecycle → đọc lại phải ĐỎ.
+      const cay = tmp('rt3-cay-');
+      cpSync(path.join(ROOT, 'hooks'), path.join(cay, 'hooks'), { recursive: true });
+      cpSync(path.join(ROOT, 'lib'), path.join(cay, 'lib'), { recursive: true });
+      const hp = path.join(cay, 'hooks', 'acceptance-evidence-gate.js');
+      const goc = readFileSync(hp, 'utf8');
+      // tiêm đích danh: chỉ hai dòng THUỘC khối lifecycle
+      const tiem = goc.replace(/(\s*'\s*status: approved \/ signed-off )\/ machine-cleared/, '$1')
+        .replace(/(\s*'\s*draft -> implemented \/ verified )\/ machine-cleared/, '$1');
+      if (tiem === goc) errs.push('chiều đỏ RT3: lệnh tiêm KHÔNG đổi được hai dòng lifecycle — needle không bám vật');
+      else {
+        writeFileSync(hp, tiem);
+        const kh2 = docLifecycle(cay);
+        if (kh2 == null) errs.push('chiều đỏ RT3: bản sao hook không in được khối lifecycle');
+        else if (kh2.includes('machine-cleared')) errs.push('chiều đỏ RT3: gỡ khỏi hai dòng lifecycle mà khối IN RA vẫn có machine-cleared');
+      }
+      rmSync(cay, { recursive: true, force: true });
+    }
+  }
   if (errs.length) fail('RT3', errs.join(' · '));
-  else pass('RT3', 'hook: làn V qua; T3/không-vết/draft-nhảy-thẳng chặn ghim câu; lifecycle liệt machine-cleared');
+  else pass('RT3', 'hook: làn V qua; T3/không-vết/draft-nhảy-thẳng chặn ghim câu; khối lifecycle IN RA khớp enum AC-1, bản sao gỡ → đỏ');
 }
 
 // ── kho git fixture cho lưới trước-merge ─────────────────────────────────────
@@ -504,8 +574,35 @@ if (want('RT5')) {
     else if (/Ký duyệt/.test(cr.stdout)) errs.push('bộ quét mù: thẻ vẫn mời ký hồ sơ máy-thông');
     rmSync(r, { recursive: true, force: true });
   }
+  // ── Dòng ngưỡng KHÔNG gạch đầu dòng: thẻ và lib phải nói CÙNG một chuyện ──────
+  // Hồi quy S4-r8: `chuaDien` từng đi qua bulletOf (bắt buộc `- `), nên ô toàn placeholder
+  // viết không gạch bị thẻ gọi là «đã khai» — mất cờ vàng, lại đòi thêm `## Đường đo` — trong
+  // khi thresholdState vẫn gọi «chưa chốt». Đo QUAN HỆ giữa hai bên đọc, không đo hằng số.
+  {
+    const r = mkRepo();
+    const KHONG_GACH = ['Câu hỏi phép đo trả lời: …', 'Kết quả nào là SỐNG: …', 'Kết quả nào là CHẾT: …', 'Timebox: …'];
+    const opp = `---\nslug: ng\nstage: decided\ndecision: build\ndecided_by: Fx\n---\n\n# ng\n\n## ${NG.UAT_THRESHOLD_HEADING}\n\n${KHONG_GACH.join('\n')}\n`;
+    mkdirSync(path.join(r, '_acceptance', 'ng'), { recursive: true });
+    writeFileSync(path.join(r, '_acceptance', 'ng', 'contract.md'), contractText('ng', { status: 'draft' }));
+    writeFileSync(path.join(r, '_acceptance', 'ng', 'opportunity.md'), opp);
+    const ex = spawnSync(process.execPath, [CARD, '--root', r, '--slug', 'ng', '--extract'], { encoding: 'utf8' });
+    let card = null; try { card = JSON.parse(ex.stdout); } catch { /* dưới */ }
+    if (!card) errs.push(`ngưỡng không gạch: thẻ --extract không ra JSON (exit ${ex.status})`);
+    else {
+      const theKhai = (card.uat_threshold && card.uat_threshold.lines || []).length > 0;
+      const libKhai = NG.thresholdState(opp, readFileSync(OPP_TPL, 'utf8')) === 'chot';
+      // QUAN HỆ: thẻ coi là «đã khai» ⇔ lib coi là «đã chốt». Cả hai phải nói CHƯA.
+      if (theKhai !== libKhai) errs.push(`ngưỡng không gạch: thẻ nói ${theKhai ? 'đã khai' : 'chưa khai'} còn lib nói ${libKhai ? 'đã chốt' : 'chưa chốt'} — hai bộ đọc lệch`);
+      if (theKhai) errs.push(`ngưỡng không gạch: thẻ nhận placeholder thành ngưỡng đã khai (${JSON.stringify(card.uat_threshold.lines)})`);
+      // Chiều đỏ: hoàn nguyên vị từ về bulletOf (bắt buộc gạch) → dòng không gạch LỌT.
+      const cuChuaDien = l => { const b = NG.bulletOf(l); return !!b && NG.PLACEHOLDER_RE.test(b.value); };
+      if (KHONG_GACH.every(cuChuaDien)) errs.push('chiều đỏ RT5: vị từ CŨ (đòi gạch) vẫn bắt được dòng không gạch — fixture không phân biệt được hai luật');
+      if (!KHONG_GACH.every(l => NG.chuaDien(l))) errs.push('chiều đỏ RT5: vị từ MỚI không nhận dòng không gạch là chưa điền');
+    }
+    rmSync(r, { recursive: true, force: true });
+  }
   if (errs.length) fail('RT5', errs.join(' · '));
-  else pass('RT5', '4 khoá mới có nhãn riêng + bucket đúng; bản đồ và thẻ in chữ từ bảng; thẻ không mời ký hồ sơ máy-thông');
+  else pass('RT5', '4 khoá mới có nhãn riêng + bucket đúng; bản đồ và thẻ in chữ từ bảng; thẻ không mời ký hồ sơ máy-thông; ngưỡng không-gạch: thẻ ⇔ lib cùng kết luận');
 }
 
 // ── RT4 — bộ quét: machine-cleared vào đúng ô, tới được Cổng Giá trị ─────────
@@ -663,13 +760,30 @@ if (want('RT6')) {
   const VAN_BAN_NGHI_THUC = ['feature-loop/skills/feature-loop/SKILL.md', 'skills/acceptance/SKILL.md',
     'skills/uat-session/SKILL.md', 'commands/signoff.md', 'commands/acceptance-status.md', 'commands/acceptance-report.md'];
   const RE_GHI = /(set|đặt|ghi)[^.\n]{0,40}`?status: machine-cleared/i;
-  for (const f of VAN_BAN_NGHI_THUC) {
-    if (RE_GHI.test(readRepo(f))) errs.push(`${f}: dạy máy TỰ ĐẶT machine-cleared — đường ghi chưa bật (xem _acceptance/lan-may-thong-duong-ghi/)`);
-  }
-  // Chiều đỏ: tiêm đúng câu vừa gỡ vào bản sao văn bản → phép quét trên bản sao PHẢI nêu tên file.
+  // PHÉP QUÉT THẬT trên một root cho trước — tham số hoá để chiều đỏ tiêm vào FILE, không
+  // vào một chuỗi nối trong bộ nhớ (chuỗi nối chỉ chứng minh regex chạy, không chứng minh
+  // phép quét đọc đúng file và nêu đúng tên — S4-r8 [6]).
+  const quetGhi = root => VAN_BAN_NGHI_THUC
+    .filter(f => existsSync(path.join(root, f)) && RE_GHI.test(readFileSync(path.join(root, f), 'utf8')));
+  for (const f of quetGhi(ROOT)) errs.push(`${f}: dạy máy TỰ ĐẶT machine-cleared — đường ghi chưa bật (xem _acceptance/lan-may-thong-duong-ghi/)`);
+  // Chiều đỏ: dựng cây tạm chứa SÁU văn bản thật, tiêm đúng câu vừa gỡ vào MỘT file, rồi
+  // chạy CHÍNH phép quét trên cây đó — phải nêu đúng tên file ấy và KHÔNG nêu năm file kia.
   {
-    const mau = readRepo(FL) + '\n\n(3) set contract `status: machine-cleared` rồi commit.\n';
-    if (!RE_GHI.test(mau)) errs.push('chiều đỏ RT6: tiêm câu ghi vào bản sao mà phép quét vẫn im — needle không bám vật');
+    const c6 = tmp('rt6-');
+    try {
+      for (const f of VAN_BAN_NGHI_THUC) {
+        const d = path.join(c6, f); mkdirSync(path.dirname(d), { recursive: true });
+        writeFileSync(d, readRepo(f));
+      }
+      if (quetGhi(c6).length) errs.push('chiều đỏ RT6: bản sao NGUYÊN VẸN đã đỏ — đối chứng dương hỏng');
+      const dich = path.join(c6, FL);
+      const truoc = readFileSync(dich, 'utf8');
+      writeFileSync(dich, truoc + '\n(3) set contract `status: machine-cleared` rồi commit.\n');
+      if (readFileSync(dich, 'utf8') === truoc) errs.push('chiều đỏ RT6: lệnh tiêm không đổi được file');
+      const thay = quetGhi(c6);
+      if (!thay.includes(FL)) errs.push(`chiều đỏ RT6: tiêm câu ghi vào ${FL} mà phép quét không nêu tên (thấy: ${JSON.stringify(thay)})`);
+      if (thay.length > 1) errs.push(`chiều đỏ RT6: nêu oan file không bị tiêm: ${thay.filter(f => f !== FL).join(', ')}`);
+    } finally { rmSync(c6, { recursive: true, force: true }); }
   }
   if (errs.length) fail('RT6', errs.join(' · '));
   else pass('RT6', 'văn bản nghi thức biết ĐỌC machine-cleared và khai đường GHI chưa bật; gỡ từng mệnh đề → bộ đọc đỏ; tiêm lại câu ghi → đỏ nêu tên file');
@@ -1055,6 +1169,32 @@ if (want('RT18')) {
     // Chiều đỏ (b): gỡ một dòng gạch → file đó phải thành lạ.
     const bo = GACH18[0];
     if (bo && !soSanh18(hits, GACH18.slice(1)).some(x => x.startsWith(bo[0]))) errs.push(`chiều đỏ (b): gỡ dòng gạch «${bo[0]}» mà phép so vẫn im`);
+    // Chiều đỏ (c) — ca PHÂN BIỆT hai luật gạch. Không có nó thì nhánh «gạch theo CẶP» là
+    // assertion âm-tính-một-mình: hoàn nguyên gachTrung về «miễn cả file» vẫn xanh y hệt,
+    // vì trên cây thật file được gạch chỉ mang ĐÚNG một needle (S4-r8 [5]).
+    // Cách phân biệt: tiêm needle KHÁC vào chính file ĐÃ khai gạch cho một needle có tên.
+    {
+      const coTen = GACH18.find(r => NEEDLES.some(([n]) => r.slice(1).join(' ').includes(tenNeedle(n))));
+      if (!coTen) errs.push('chiều đỏ (c): không có dòng gạch nào gọi tên needle — nhánh gạch-theo-cặp không được đo');
+      else {
+        const daGach = NEEDLES.filter(([n]) => coTen.slice(1).join(' ').includes(tenNeedle(n))).map(([n]) => n);
+        const khac = NEEDLES.find(([n]) => !daGach.includes(n));
+        const g2 = tmp('rt18c-');
+        try {
+          for (const d of ['scripts', 'lib', 'hooks']) cpSync(path.join(ROOT, d), path.join(g2, d), { recursive: true });
+          mkdirSync(path.join(g2, 'tests'), { recursive: true });
+          const dich = path.join(g2, coTen[0]);
+          const truoc = readFileSync(dich, 'utf8');
+          writeFileSync(dich, truoc + `\nconst CHEP_KHAC = ${JSON.stringify(khac[1])};\n`);
+          if (readFileSync(dich, 'utf8') === truoc) errs.push('chiều đỏ (c): lệnh tiêm không đổi được file');
+          const la3 = soSanh18(scanRoot(g2), GACH18);
+          const mong = `${coTen[0]} (${khac[0]})`;
+          if (!la3.includes(mong)) errs.push(`chiều đỏ (c): tiêm «${khac[0]}» vào ${coTen[0]} (file đã gạch cho «${daGach.join(',')}») mà phép so KHÔNG nêu cặp đó — gạch vẫn là gạch trắng cả file`);
+          // và phải KHÔNG nêu cặp đã được gạch đích danh (không đỏ oan)
+          if (la3.some(x => daGach.some(n => x === `${coTen[0]} (${n})`))) errs.push(`chiều đỏ (c): nêu oan cặp đã khai gạch đích danh trên ${coTen[0]}`);
+        } finally { rmSync(g2, { recursive: true, force: true }); }
+      }
+    }
   }
   if (errs.length) fail('RT18', errs.join(' · '));
   // GIỚI HẠN ĐÃ KHAI của ca này: needle so khớp LITERAL. Bản chép viết khác chính tả
