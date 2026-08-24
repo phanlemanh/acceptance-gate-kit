@@ -119,6 +119,10 @@ evals:
       về danh sách khoá → ĐỎ nêu cả hai khoá. Chiều đỏ: vị từ CŨ (đi qua
       bulletOf, ĐÒI gạch) không được nhận dòng không-gạch — nếu nó vẫn nhận thì fixture không
       phân biệt được hai luật; hoàn nguyên `chuaDien` trong lib thật → RT5 ĐỎ nêu đúng chỗ lệch.
+      THÊM (S4-r12 [2]): repo BỘ QUÉT MÙ (chưa dựng cổng → config:false, hoặc bộ quét lỗi)
+      → thẻ phải RENDER, KHÔNG khẳng định sáu điều kiện, CÓ cờ vàng «chưa ai kiểm sáu điều
+      kiện», và GIỮ lối ký như cũ — bỏ lối ký ở đó là để người kẹt với hồ sơ không ai xác
+      nhận, và im lặng tuyên sạch là thứ chú thích trong chính gate-card khai là cấm.
       THÊM (S4-r10 [1]): hồ sơ HỎNG (chữ ký người trên hồ sơ máy-thông) → thẻ in cờ ĐỎ nêu lý
       do và KHÔNG in câu «máy đã thông — qua sáu điều kiện xanh-sạch, KHÔNG có chữ ký người»;
       câu đó vừa sai vừa không ai kiểm (thẻ chỉ đọc status, không chạy xanhSach).
@@ -201,7 +205,9 @@ evals:
       KHAC-BIET-DOC-CU rút từ contract lúc chạy; (iii) ĐẲNG THỨC HAI CHIỀU theo QUAN HỆ, không đếm:
       vị từ HỎI LIB (NG.quaTimebox / NG.thresholdState), không chép lại; tập quét gồm CẢ nhóm
       considering — nhóm này nay CÓ THỂ mang cờ `qua-timebox` (ý quá hạn mà bullet khác còn
-      trống rơi đúng vào đây, S4-r10 [2]), nên phép so đòi QUAN HỆ chứ không đòi cờ rỗng; slug có
+      trống rơi đúng vào đây, S4-r10 [2]), nên phép so đo QUAN HỆ cho nhóm đó y như mọi nhóm
+      khác. Bản cũ assert cờ RỖNG — một GIÁ TRỊ CỐ ĐỊNH cãi nhau với writer, chỉ còn xanh vì
+      hôm nay không hồ sơ nào ở ô đó quá hạn (xanh-không-chạy, S4-r12 [3]); slug có
       nguong-chua-chot ⇔ (ở gates gia-tri ∧ ngưỡng khác chot) — assert này đúng ở mọi ngày chạy;
       (iv) quét không gian mở: tập file chứa "signed-off" (ngoài _acceptance/** và docs/**) == hợp của
       tập «có ca THẬT» (tên file phải xuất hiện trong BIỂU THỨC ĐƯỢC CHẠY của file ca — lột chú
@@ -248,7 +254,12 @@ evals:
       của slug == BUCKET_OF[stateKey] của bộ quét) trên fixture code-sinh CẢ BỐN trạng thái ngưỡng
       × {signed-off, machine-cleared}, và trên hồ sơ THẬT duong-do-trong-dinh-nghia-xong (bản đồ
       KHÔNG in nó dưới «chờ phiên nghiệm thu»).
-      VÀ (S4-r11 [3]): bản đồ hỏi `khongCanNguoi` cho hồ sơ machine-cleared — hồ sơ tự khai mà
+      VÀ (S4-r11 [3] + S4-r12 [0][1]): bản đồ hỏi `khongCanNguoi` cho hồ sơ machine-cleared
+      NGAY SAU khối DA_THONG_CONG_2 — TRƯỚC mọi nhánh rẽ, đúng vị trí start-scan đặt nó. Đặt
+      chốt ở CUỐI (trong nhánh `status === 'machine-cleared'`) là vô dụng: hồ sơ đường A thoát
+      ra ở `if (duongA) return …` trước đó. Ma trận phải có ô bằng chứng BẨN × {ngưỡng chốt,
+      không-đo-được} + đối chứng dương — tám ô cũ đều dùng bằng chứng SẠCH nên chiều nguy hiểm
+      chưa từng chạy; vô hiệu chốt → ĐỎ nêu đúng cả hai đường. — hồ sơ tự khai mà
       bằng chứng không đạt sáu điều kiện phải vào ô «Hồ sơ hỏng», KHÔNG in nhãn «bằng chứng
       xanh-sạch»; bản đồ và bộ quét cùng kết luận. VÀ (S4-r11 [0]): `thresholdState` ném → bản đồ
       chết-to CÓ TÊN kèm đường dẫn khuôn + đường sửa, exit 2 — KHÔNG phải stack trace với exit 1,
