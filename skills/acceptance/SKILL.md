@@ -289,8 +289,7 @@ Entry: implementation complete, contract `status: implemented`.
    hiện diện và rỗng · hạng **T2** đọc từ `risk_tier` của contract (báo cáo
    KHÔNG tự phong hạng). Mục VẮNG ≠ mục rỗng: bỏ hẳn một mục khỏi báo cáo là
    đường sạch-giả rẻ nhất, và nó tính là KHÔNG sạch.
-   Đủ sáu → hồ sơ ghi `status: machine-cleared` (ô kết có tên của làn V — KHÔNG
-   mượn `signed-off`, vì đó là chữ của người), commit phần máy viết, báo người ĐÚNG MỘT DÒNG (đã qua với bằng
+   Đủ sáu → commit phần máy viết, báo người ĐÚNG MỘT DÒNG (đã qua với bằng
    chứng sạch · cửa veto vẫn mở · việc kế là gì), rồi đi tiếp. Không khối
    👉, không câu hỏi. `pre-merge-check.sh` áp đúng sáu điều kiện này ở biên
    merge — luật văn bản và lưới máy nói cùng một câu.
@@ -301,6 +300,11 @@ Entry: implementation complete, contract `status: implemented`.
    **Người veto giữa chừng → DỪNG NGAY**, nêu hiện trạng và đường hoàn tác,
    KHÔNG tranh luận lại căn cứ đã trình, KHÔNG bày menu buộc người quyết lần
    nữa. Veto là quyết định của người; máy chỉ thi hành và để lại vết.
+   **Ô kết có tên của làn V — ĐƯỜNG GHI CHƯA BẬT (giới hạn đã khai).** Trạng
+   thái `machine-cleared` đã có tên và MỌI bên đọc xử lý được nó (lưới
+   trước-merge · hook · bộ quét · bản đồ · thẻ), nhưng **máy KHÔNG được tự đặt
+   trạng thái đó** — làn V vẫn dừng ở `verified`. Lý do và đường bật:
+   `_acceptance/lan-may-thong-duong-ghi/`.
 
 5. **STOP — Gate 2** (chỉ khi 4b KHÔNG đủ điều kiện đi tiếp). Commit the
    machine-written verify output (evidence-report.md + run-log.jsonl +

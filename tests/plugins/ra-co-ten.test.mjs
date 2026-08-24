@@ -588,8 +588,11 @@ if (want('RT12')) {
     // viết biên (d<now · d<=now · d+1day<=now) — RT13(iii) hỏi chính lib nên không chạm
     // biên được; bốn fixture cũ cách biên hàng trăm năm (S4-r6 [6]).
     const ngayUTC = ts => new Date(ts).toISOString().slice(0, 10);
+    // «Hôm qua» dựng bằng phép lùi NGÀY của Date, KHÔNG bằng hằng mili-giây: một hằng
+    // một-ngày viết ở đây là bản chép thứ hai của luật timebox (S4-r7 [5]).
+    const homQua = () => { const d = new Date(); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10); };
     for (const [slug, tb] of [['tb1', 'muộn nhất 2000-01-01 → park'], ['tb2', 'muộn nhất 01/01/2000'], ['tb3', 'muộn nhất 2999-12-31'], ['tb4', 'cuối quý'],
-                              ['tb5', `muộn nhất ${ngayUTC(Date.now())}`], ['tb6', `muộn nhất ${ngayUTC(Date.now() - 24 * 60 * 60 * 1000)}`]])
+                              ['tb5', `muộn nhất ${ngayUTC(Date.now())}`], ['tb6', `muộn nhất ${homQua()}`]])
       mkWs(root, slug, { contract: KY, evidence: { signoff: 'Fx 2026-08-23' }, opportunity: { nguong: 'chot', timebox: tb } });
     const j = scan(root);
     if (findSlug(j, 'ar')?.stateKey !== 'da-dong-ho-so') errs.push(`archived: ${JSON.stringify(findSlug(j, 'ar'))}`);
@@ -645,17 +648,31 @@ if (want('RT6')) {
     ['uat-§0 điều kiện vào', 'skills/uat-session/SKILL.md', t => cut(t, /^## 0\. Điều kiện vào/m, /^## 1\./m), /`status: signed-off` hoặc `machine-cleared`/, 1],
     ['uat-§0 ba ca ngưỡng', 'skills/uat-session/SKILL.md', t => cut(t, /^## 0\. Điều kiện vào/m, /^## 1\./m), new RegExp(reEsc(KHONG_DO) + ' '), null],
     ['fl bảng có hàng mới', FL, t => cut(t, /^\| status hiện tại/m, /^\n## /m), /^\| `machine-cleared` \|.*S5/m, 1],
-    ['fl hàng verified ghi trạng thái kết', FL, t => cut(t, /^\| `verified` \|/m, /\n/), /set `status: machine-cleared`/, 1],
-    ['fl S4 nhánh PASS', FL, t => cut(t, /\(3\) set contract `status: verified`/, /→ Gate 2\./), /set thẳng `status: machine-cleared`/, 1],
-    ['acceptance SKILL làn V', 'skills/acceptance/SKILL.md', t => cut(t, /^4b\. \*\*Cổng Bằng chứng xanh-sạch/m, /^5\./m), /`status: machine-cleared`/, 1],
+    ['fl hàng machine-cleared khai đường ghi chưa bật', FL, t => cut(t, /^\| `machine-cleared` \|/m, /\n/), /ĐƯỜNG GHI CHƯA BẬT \(giới hạn đã khai\)/, 1],
+    ['acceptance SKILL khai đường ghi chưa bật', 'skills/acceptance/SKILL.md', t => cut(t, /^4b\. \*\*Cổng Bằng chứng xanh-sạch/m, /^5\./m), /máy KHÔNG được tự đặt\n   trạng thái đó/, 1],
     ['CONTEXT term', 'CONTEXT.md', t => cut(t, /^\*\*Máy đã thông\*\*/m, /^\*\*|^### /m), /_Avoid_: gọi hồ sơ máy-thông là «đã ký»/, 1],
     ['acceptance-status hai trạng thái', 'commands/acceptance-status.md', t => t, /`machine-cleared` là máy đã thông/, 1, 'ca-file'],
     ['acceptance-report tách hai số', 'commands/acceptance-report.md', t => t, /`machine-cleared` \(máy đã thông, không chữ ký\)/, 1, 'ca-file'],
   ]);
   // CONTEXT phải có TERM, không chỉ nhắc chuỗi
   if (!/\*\*Máy đã thông\*\* \(`machine-cleared`\)/.test(readRepo('CONTEXT.md'))) errs.push('CONTEXT.md chưa có term «Máy đã thông»');
+  // Đường ghi CHƯA BẬT: không văn bản nghi thức nào được dạy máy tự đặt trạng thái này.
+  // GIỚI HẠN CỦA CHÍNH CA NÀY: needle bắt HÌNH DẠNG câu lệnh («set/đặt/ghi … status:
+  // machine-cleared»), không bắt mọi cách diễn đạt — nó canh việc bật lại đường ghi bằng
+  // đúng câu đã gỡ, không thay được người đọc. Khai ở «Known limits» của hồ sơ.
+  const VAN_BAN_NGHI_THUC = ['feature-loop/skills/feature-loop/SKILL.md', 'skills/acceptance/SKILL.md',
+    'skills/uat-session/SKILL.md', 'commands/signoff.md', 'commands/acceptance-status.md', 'commands/acceptance-report.md'];
+  const RE_GHI = /(set|đặt|ghi)[^.\n]{0,40}`?status: machine-cleared/i;
+  for (const f of VAN_BAN_NGHI_THUC) {
+    if (RE_GHI.test(readRepo(f))) errs.push(`${f}: dạy máy TỰ ĐẶT machine-cleared — đường ghi chưa bật (xem _acceptance/lan-may-thong-duong-ghi/)`);
+  }
+  // Chiều đỏ: tiêm đúng câu vừa gỡ vào bản sao văn bản → phép quét trên bản sao PHẢI nêu tên file.
+  {
+    const mau = readRepo(FL) + '\n\n(3) set contract `status: machine-cleared` rồi commit.\n';
+    if (!RE_GHI.test(mau)) errs.push('chiều đỏ RT6: tiêm câu ghi vào bản sao mà phép quét vẫn im — needle không bám vật');
+  }
   if (errs.length) fail('RT6', errs.join(' · '));
-  else pass('RT6', 'năm văn bản nghi thức mang mệnh đề machine-cleared đúng phạm vi; gỡ từng mệnh đề → bộ đọc đỏ');
+  else pass('RT6', 'văn bản nghi thức biết ĐỌC machine-cleared và khai đường GHI chưa bật; gỡ từng mệnh đề → bộ đọc đỏ; tiêm lại câu ghi → đỏ nêu tên file');
 }
 
 // ── RT10 — hai tiền tố: MỘT chỗ khai, năm nơi đọc lại ───────────────────────
@@ -1008,7 +1025,18 @@ if (want('RT18')) {
     for (const d of ['scripts', 'lib', 'hooks', 'tests']) walk(path.join(root, d));
     return hits;
   };
-  const soSanh18 = (hits, gach) => hits.filter(([rel]) => !gach.some(r => r[0] === rel)).map(([rel, ten]) => `${rel} (${ten})`);
+  // Gạch tính theo CẶP (file, chuỗi), không theo file: dòng khai gạch mà LÝ DO gọi đúng tên
+  // một needle thì chỉ miễn needle ĐÓ — miễn cả file là mở lại đúng cửa vừa đóng, vì bộ đọc
+  // đã chép luật một lần (start-scan ở S4-r2) lại được gạch trắng cho cả năm chuỗi (S4-r7 [4]).
+  // Lý do KHÔNG gọi tên needle nào → giữ nghĩa cũ: miễn cả file.
+  const tenNeedle = ten => ten.replace(/\s+/g, '-');
+  const gachTrung = (gach, rel, ten) => gach.some(r => {
+    if (r[0] !== rel) return false;
+    const lyDo = r.slice(1).join(' ');
+    const goiTen = NEEDLES.filter(([n]) => lyDo.includes(tenNeedle(n))).map(([n]) => n);
+    return goiTen.length === 0 || goiTen.includes(ten);
+  });
+  const soSanh18 = (hits, gach) => hits.filter(([rel, ten]) => !gachTrung(gach, rel, ten)).map(([rel, ten]) => `${rel} (${ten})`);
   if (GACH18) {
     const hits = scanRoot(ROOT);
     if (!hits.length) errs.push('phép quét không thấy hit nào kể cả file đã khai gạch — nghi bước quét hỏng, không tin kết luận');
@@ -1029,7 +1057,11 @@ if (want('RT18')) {
     if (bo && !soSanh18(hits, GACH18.slice(1)).some(x => x.startsWith(bo[0]))) errs.push(`chiều đỏ (b): gỡ dòng gạch «${bo[0]}» mà phép so vẫn im`);
   }
   if (errs.length) fail('RT18', errs.join(' · '));
-  else pass('RT18', `chống-chép: ${NEEDLES.length} chuỗi luật chỉ sống trong lib; ${GACH18 ? GACH18.length : 0} file khai gạch có lý do; tiêm bản chép → nêu tên`);
+  // GIỚI HẠN ĐÃ KHAI của ca này: needle so khớp LITERAL. Bản chép viết khác chính tả
+  // (`24 * 60 * 60 * 1000`, `86_400_000`) hoặc diễn lại luật bằng biểu thức không có hằng
+  // (`d <= now`) thì KHÔNG bị bắt — grep cả file không phủ được lớp đó. Đường đóng lớp:
+  // _acceptance/phep-kiem-sach-do-theo-vung/ (S4-r7 [5]).
+  else pass('RT18', `chống-chép: ${NEEDLES.length} chuỗi luật LITERAL chỉ sống trong lib (gạch tính theo cặp file×chuỗi); ${GACH18 ? GACH18.length : 0} dòng khai gạch có lý do; tiêm bản chép → nêu tên`);
 }
 
 const la = only.filter(id => !ALL_IDS.includes(id));

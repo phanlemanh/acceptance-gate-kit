@@ -23,6 +23,15 @@ báo cáo chỉ vì dòng checklist; bốn bản vá vị-trí-khối liên ti�
 Người trả giá: mọi vòng làn V (trạng thái «máy đã thông» phụ thuộc phép kiểm này) và người
 viết khuôn (không được nhắc tới một giá trị verdict trong chính tài liệu dạy về nó).
 
+**Cùng lớp, bằng chứng thứ hai (S4-r7, 24/08).** Ca chống-chép `RT18` đi tìm luật ngưỡng
+bằng cách quét trọn file tìm CHUỖI. Hai hình dạng lọt ngay trong lần chạy đầu: (a) miễn trừ
+tính theo ĐƯỜNG DẪN nên bộ đọc từng chép luật được gạch trắng cho cả năm chuỗi — đã đóng
+trong vòng này bằng gạch theo cặp file×chuỗi; (b) hằng một-ngày bắt theo CHÍNH TẢ, nên
+`24 * 60 * 60 * 1000` lọt trong khi `86400000` bị bắt — và chính file mang ca đó đang viết
+dạng lọt, tức phép đo tự cho mình màu xanh. Dạng (b) KHÔNG đóng được bằng grep: bản chép có
+thể diễn lại luật bằng biểu thức không có hằng nào (`d <= now`). Đây đúng là lý do ô này
+tồn tại — đo phải bám VÙNG có cấu trúc và QUAN HỆ, không bám mặt chữ.
+
 ## Ngưỡng chết / ngưỡng UAT
 
 - Câu hỏi phép đo trả lời: [đề xuất] Phép kiểm «không chắc» có còn đọc nhầm văn xuôi/khuôn/checklist thành verdict không, và hai bản dựng (lưới bash · bộ quét mjs) có cùng kết luận trên cùng hồ sơ không?
