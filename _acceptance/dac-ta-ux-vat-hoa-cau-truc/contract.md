@@ -5,7 +5,7 @@ slug: dac-ta-ux-vat-hoa-cau-truc
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
@@ -37,6 +37,8 @@ Source input: _acceptance/dac-ta-ux-vat-hoa-cau-truc/opportunity.md
 - AC-8: Given contract `surfaces` chứa `ui` mà `design_doc:` vắng hoặc file không đọc được hoặc không có bảng `UX-STATE-TABLE`, When chạy lint, Then cờ W8a «đặc tả UX chưa có / chưa trỏ»; bản lành (đủ con trỏ + bảng) XANH trước.
 - AC-9: Given bảng trạng thái có dòng trông-như-dòng-ST mà không parse được, When chạy lint, Then cờ cánh-parse riêng (nếp W7) — dòng hỏng không rơi câm làm W8b/W8c im oan.
 - AC-10: Given contract cũ không có key `design_doc:` và surfaces không chứa `ui`, When chạy lint, Then 0 cờ W8 — hồ sơ cũ không bị bắt migrate, không cờ oan.
+- AC-12: Given evals.yaml khai `states:` dạng block-list nhiều dòng (giá trị trống sau dấu hai chấm, các dòng `- ST-…` bên dưới), When chạy lint, Then cờ cánh-parse phía evals ghim id eval + «states: dạng block-list» (không cờ W8b oan, không dẫn sai đường); flow-list một dòng → im. Cặp hai chiều cùng fixture.
+- AC-13: Given chế độ `--files` (không có repo root), When contract có `design_doc:` hợp lệ, Then lint KHÔNG phán «con trỏ chết» từ thư mục hiện tại — bỏ qua các cánh cần đọc design-doc kèm một dòng ghi chú; cánh W8a-vắng-key (không cần đọc file) vẫn chạy.
 - AC-11: Given toàn bộ luật W8 và case suite mới của ô này, When đọc test, Then MỌI cánh (W8a/W8b/W8c/parse) có cặp hai-chiều trên CÙNG fixture code-sinh + thông điệp ghim — không assertion âm-tính-một-mình, không fixture viết tay đúng khuôn bên đọc.
 
 ## Coverage

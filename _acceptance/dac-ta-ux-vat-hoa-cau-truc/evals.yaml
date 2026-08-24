@@ -12,12 +12,13 @@ evals:
     cmd: config:executors.test.plugins
     paths: [skills/acceptance/references/ux-spec-template.md, tests/plugins/ux-spec.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: [UX1]". Case mở khuôn qua marker UX-SPEC-TEMPLATE,
+      exit 0; stdout có "PASS: UX1". Case mở khuôn qua marker UX-SPEC-TEMPLATE,
       kiểm đủ 6 mục theo TIÊU ĐỀ mục (không đếm chữ), marker con UX-STATE-TABLE
       tồn tại bên trong, và đầu khuôn có đúng chuỗi cửa miễn "bỏ đặc-tả-UX — ".
       Đối chứng dương: khuôn nguyên vẹn XANH. Chiều đỏ trên bản sao: gỡ marker
-      UX-STATE-TABLE → đỏ ghim "UX-SPEC-TEMPLATE thiếu UX-STATE-TABLE"; gỡ mục
-      «Khuôn IA đã chọn» → đỏ ghim tên mục thiếu.
+      UX-STATE-TABLE → đỏ ghim "UX-SPEC-TEMPLATE thiếu UX-STATE-TABLE"; gỡ TRỌN mục
+      «### 6. Khuôn IA đã chọn + căn cứ» khỏi bản sao (case UX1-đỏ2) → đỏ ghim
+      nguyên tên mục thiếu.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
     criterion: AC-2
@@ -25,7 +26,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [skills/acceptance/references/ux-spec-template.md, tests/plugins/ux-spec.test.mjs, scripts/eval-coverage-lint.js]
     expected: >
-      exit 0; stdout có "PASS: [UX2]". Round-trip P55: case TRÍCH bảng trạng thái
+      exit 0; stdout có "PASS: UX2". Round-trip P55: case TRÍCH bảng trạng thái
       mẫu từ CHÍNH ux-spec-template.md qua marker (không chép tay), code-sinh
       design-doc fixture chứa bảng đó + contract trỏ design_doc + evals khai đủ
       states, chạy CHÍNH eval-coverage-lint.js → 0 cờ W8 và số trạng thái reader
@@ -41,14 +42,17 @@ evals:
     cmd: config:executors.test.plugins
     paths: [feature-loop/skills/feature-loop/SKILL.md, tests/plugins/ux-spec.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: [UX3]". Case đo QUAN HỆ trong SKILL.md: (a) S1 có
+      exit 0; stdout có "PASS: UX3". Case đo QUAN HỆ trong SKILL.md: (a) S1 có
       chỉ dẫn điền «Đặc tả UX» TRƯỚC khi sinh 3 artifact và resolve khuôn qua
       resolve-plugin.mjs (cấm hardcode path cache); (b) chỉ dẫn contract ghi
       design_doc: và evals khai states:; (c) nghi thức hình Cổng 1 có câu vẽ từ
       section Đặc tả UX; (d) chuỗi «dòng state-matrix» cũ không còn đứng ngoài
-      con trỏ về khuôn (một nguồn). Đối chứng dương trên SKILL hiện tại; chiều
-      đỏ trên bản sao: gỡ câu (a) → đỏ ghim "S1 thiếu chỉ dẫn điền Đặc tả UX
-      trước 3 artifact".
+      con trỏ về khuôn (một nguồn). Mỗi mệnh đề là một PHÉP KIỂM chạy trên MỘT chuỗi (bản thật hoặc bản sao),
+      nên chiều đỏ đi qua đúng bộ kiểm của chiều xanh — không assert chuỗi rời
+      trên toàn file. Đối chứng dương: SKILL hiện tại xanh cả 5 mệnh đề. Chiều
+      đỏ, hai mutant trên bản sao: (1) gỡ TRỌN câu «Kế đó, VẪN TRƯỚC khi sinh 3
+      artifact: …» → (a) và (b) cùng đỏ (dây máy-đọc nằm trong câu bị gỡ);
+      (2) đổi "vẽ TỪ section Đặc tả UX" → (c) đỏ.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
     criterion: AC-4
@@ -56,7 +60,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [feature-loop/skills/feature-loop/SKILL.md, skills/acceptance/references/ux-spec-template.md, tests/plugins/ux-spec.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: [UX4]". Chuỗi miễn "bỏ đặc-tả-UX — " xuất hiện
+      exit 0; stdout có "PASS: UX4". Chuỗi miễn "bỏ đặc-tả-UX — " xuất hiện
       trong CẢ SKILL.md lẫn ux-spec-template.md và khớp từng ký tự (round-trip
       hai bên của một quy ước máy-đọc). Chiều đỏ trên bản sao: đổi một bên
       thành "bỏ dac-ta-ux — " → đỏ ghim "chuỗi miễn lệch giữa SKILL và khuôn".
@@ -82,8 +86,9 @@ evals:
     paths: [scripts/eval-coverage-lint.js, tests/scripts/run-tests.sh]
     expected: >
       exit 0; stdout có "PASS: [W8B]". Fixture code-sinh trong lần chạy (đường
-      dẫn suy từ vị trí script), hàng ST sinh bằng CÙNG hàm trích-từ-khuôn của
-      E2 rồi mới mutate — cấm test tự chế dòng ST theo trí nhớ khuôn bên đọc:
+      dẫn suy từ vị trí script), hàng ST rút TỪ CHÍNH khuôn qua marker trong lần chạy (extractor riêng
+      của suite scripts — cùng LUẬT trích với E2, không cùng hàm) rồi mới
+      mutate; cấm test tự chế dòng ST theo trí nhớ khuôn bên đọc:
       design-doc có ST-a ST-b, evals chỉ khai states
       [ST-a] → lint bật đúng cờ W8b chứa nguyên chuỗi "ST-b" + "không eval nào
       đo". Đối chứng dương CÙNG fixture: khai đủ [ST-a, ST-b] → 0 cờ W8.
@@ -94,8 +99,7 @@ evals:
     cmd: config:executors.test.scripts
     paths: [scripts/eval-coverage-lint.js, tests/scripts/run-tests.sh]
     expected: >
-      exit 0; stdout có "PASS: [W8C]". Cùng bộ fixture code-sinh (hàng ST từ
-      hàm trích-từ-khuôn của E2): eval khai
+      exit 0; stdout có "PASS: [W8C]". Cùng bộ fixture code-sinh (hàng ST rút từ khuôn qua marker): eval khai
       states [ST-a, ST-ma] mà bảng chỉ có ST-a → cờ W8c chứa id eval + "ST-ma"
       + "không có trong bảng". Đối chứng dương cùng fixture: bỏ ST-ma khỏi
       states → 0 cờ W8.
@@ -107,7 +111,7 @@ evals:
     paths: [scripts/eval-coverage-lint.js, tests/scripts/run-tests.sh]
     expected: >
       exit 0; stdout có "PASS: [W8A]". Ba biến thể trên cùng bộ fixture
-      (surfaces có ui, hàng ST từ hàm trích-từ-khuôn của E2), MỖI biến thể ghim
+      (surfaces có ui, hàng ST rút từ khuôn qua marker), MỖI biến thể ghim
       mảnh thông điệp RIÊNG: (1) gỡ key design_doc → cờ chứa "design_doc";
       (2) design_doc trỏ file không tồn tại → cờ chứa "không đọc được" + đường
       dẫn; (3) file có nhưng gỡ marker → cờ chứa "UX-STATE-TABLE". Đối chứng
@@ -119,8 +123,7 @@ evals:
     cmd: config:executors.test.scripts
     paths: [scripts/eval-coverage-lint.js, tests/scripts/run-tests.sh]
     expected: >
-      exit 0; stdout có "PASS: [W8P]". Cùng bộ fixture (hàng lành từ hàm
-      trích-từ-khuôn của E2): chèn vào trong marker
+      exit 0; stdout có "PASS: [W8P]". Cùng bộ fixture (hàng lành rút từ khuôn qua marker): chèn vào trong marker
       một dòng bắt đầu "| ST-" nhưng thiếu cột → cờ cánh-parse ghim "không
       parse được" + nội dung dòng; và W8b/W8c của các dòng LÀNH còn lại vẫn
       chạy (dòng hỏng không câm cả luật). Đối chứng dương: bảng lành → 0 cờ.
@@ -159,3 +162,29 @@ evals:
       căn cứ (mục vẫn còn) → cờ W8d chứa "chưa có căn cứ". Cặp hai chiều cùng
       fixture, thông điệp ghim.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13
+    criterion: AC-12
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [scripts/eval-coverage-lint.js, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: [W8L]". CÙNG một fixture code-sinh, đổi ĐÚNG một
+      thứ — dạng khai `states:` — bằng code trong lần chạy (đọc flow-list rồi
+      viết lại thành block-list, cùng nội dung): flow-list → 0 cờ W8 (đối chứng
+      dương); block-list → cờ ghim "W8 eval E1 khai states: dạng block-list"
+      VÀ tuyệt đối KHÔNG có W8b nào (cờ oan cũ phải biến mất, không chỉ thêm cờ
+      mới bên cạnh).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E14
+    criterion: AC-13
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [scripts/eval-coverage-lint.js, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: [W8F]". Chạy lint chế độ `--files` TỪ thư mục `/`
+      (không phải repo root) trên hồ sơ LÀNH: stdout KHÔNG chứa "con trỏ đặc tả
+      UX chết" và CÓ ghi chú "chế độ --files không có repo root" (bỏ qua có
+      tiếng, không im lặng). Chiều đỏ chứng miễn-này-không-nuốt-cánh-khác, cùng
+      bộ fixture: bỏ key design_doc rồi chạy lại cùng lệnh → vẫn cờ W8a.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+

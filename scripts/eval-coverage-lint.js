@@ -247,6 +247,14 @@ function lintFeature(slug, contractText, evalsText, glossary, root) {
       warns.push(`[${slug}] W8a surfaces có ui nhưng contract chưa trỏ đặc tả UX (thiếu key design_doc:) — điền khuôn ux-spec-template.md vào design-doc rồi trỏ tới.`);
       return;
     }
+    // `--files` không có repo root (slug = 'files'): `design_doc:` là đường dẫn
+    // tương đối REPO, nên resolve theo cwd là phán bừa về một hồ sơ lành. Cánh
+    // vắng-key ở trên vẫn chạy (không cần đọc file); các cánh cần đọc thì dừng
+    // với một dòng ghi chú — cùng nếp W6 vốn ngoài phạm vi ở chế độ này.
+    if (slug === 'files') {
+      warns.push(`[${slug}] W8 (ghi chú) chế độ --files không có repo root — bỏ qua các cánh cần đọc design_doc (${dd}); chạy \`eval-coverage-lint <repo_root> --slug <slug>\` để soi khớp vòng đầy đủ.`);
+      return;
+    }
     const ddPath = path.join(root || '.', dd);
     const ddText = readSafe(ddPath);
     if (ddText == null) {
@@ -269,6 +277,29 @@ function lintFeature(slug, contractText, evalsText, glossary, root) {
     }
     const measured = new Set();
     const evalStates = [];                            // [{id, st}]
+    // Cánh parse phía EVALS (nếp W7/W8P): parser dòng chỉ hiểu flow-list một
+    // dòng, nên `states:` viết dạng block-list (giá trị trống + các dòng
+    // `- ST-…` bên dưới) trả về rỗng — im lặng biến eval CÓ khai thành eval
+    // KHÔNG đo, rồi W8b bắn cờ oan và chỉ sai đường sửa. Dòng khai không parse
+    // được phải kêu, không được rơi câm.
+    const blockListIds = new Set();
+    {
+      const lines = evalsText.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        const m = lines[i].match(/^(\s*)states:[ \t]*$/);
+        if (!m) continue;
+        if (!/^\s*-\s*ST-/.test(lines[i + 1] || '')) continue;
+        let id = '(không rõ id)';
+        for (let j = i; j >= 0; j--) {
+          const mid = lines[j].match(/^\s*-\s+id:\s*(\S+)/);
+          if (mid) { id = mid[1]; break; }
+        }
+        blockListIds.add(id);
+      }
+    }
+    for (const id of blockListIds) {
+      warns.push(`[${slug}] W8 eval ${id} khai states: dạng block-list (nhiều dòng) — bộ đọc chỉ nhận flow-list MỘT dòng \`states: [ST-a, ST-b]\`; sửa định dạng, đừng xoá dòng khai.`);
+    }
     for (const e of evals) {
       const raw = (e.states || '').trim();
       if (!raw) continue;
@@ -278,6 +309,7 @@ function lintFeature(slug, contractText, evalsText, glossary, root) {
     }
     const declaredSet = new Set(declared);
     for (const st of declared) {
+      if (blockListIds.size) break;   // đã kêu đúng nguyên nhân ở trên — không chồng cờ oan
       if (!measured.has(st)) warns.push(`[${slug}] W8b trạng thái ${st} khai trước nhưng không eval nào đo (không states: nào chứa nó) — thêm eval hoặc xoá dòng khai.`);
     }
     for (const { id, st } of evalStates) {

@@ -1176,6 +1176,34 @@ sed -i.bak 's/^status: signed-off$/status: approved/' "$RUXG/_acceptance/feat-ux
 outG2="$(node "$LINT" "$RUXG" 2>&1)"
 case "$outG2" in *W8a*) echo "  PASS: [W8G]-live"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8G]-live (miễn hồi tố nuốt luôn hồ sơ đang mở)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
+echo "[W8L] states: block-list -> cờ parse ghim id eval, KHÔNG cờ W8b oan; flow-list -> im"
+RUXL="$T/ux-l"; mk_ux_fixture "$RUXL"
+outL0="$(node "$LINT" "$RUXL" 2>&1)"
+case "$outL0" in *W8*) echo "  FAIL: [W8L]-pos (flow-list lành vẫn cờ)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: [W8L]-pos"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
+# CÙNG fixture, đổi flow-list -> block-list (YAML hợp lệ, cùng nội dung)
+python3 - "$RUXL/_acceptance/feat-ux/evals.yaml" <<'PYEOF'
+import re,sys
+p=sys.argv[1]; s=open(p).read()
+m=re.search(r'^    states: \[(.*)\]$', s, re.M)
+ids=[x.strip() for x in m.group(1).split(',') if x.strip()]
+s=s[:m.start()] + "    states:\n" + "".join(f"      - {i}\n" for i in ids) + s[m.end()+1:]
+open(p,'w').write(s)
+PYEOF
+outL="$(node "$LINT" "$RUXL" 2>&1)"; check "[W8L]" 1 $?
+case "$outL" in *"W8 eval E1 khai states: dạng block-list"*) echo "  PASS: [W8L]-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8L]-msg (dòng khai không parse được rơi câm)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+case "$outL" in *W8b*) echo "  FAIL: [W8L]-nooan (vẫn bắn W8b oan cho eval CÓ khai)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: [W8L]-nooan"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
+
+echo "[W8F] --files: hồ sơ lành không bị phán «con trỏ chết» từ thư mục khác"
+RUXF="$T/ux-f"; mk_ux_fixture "$RUXF"
+outF="$(cd / && node "$LINT" --files "$RUXF/_acceptance/feat-ux/contract.md" "$RUXF/_acceptance/feat-ux/evals.yaml" 2>&1)"
+case "$outF" in *"con trỏ đặc tả UX chết"*) echo "  FAIL: [W8F] (phán bừa theo cwd)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: [W8F]"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
+case "$outF" in *"chế độ --files không có repo root"*) echo "  PASS: [W8F]-note"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8F]-note (bỏ qua im lặng)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+# chiều đỏ: cánh vắng-key (không cần đọc file) VẪN chạy trong --files
+RUXF2="$T/ux-f2"; mk_ux_fixture "$RUXF2"
+sed -i.bak '/^design_doc:/d' "$RUXF2/_acceptance/feat-ux/contract.md" && rm -f "$RUXF2"/_acceptance/feat-ux/contract.md.bak
+outF2="$(cd / && node "$LINT" --files "$RUXF2/_acceptance/feat-ux/contract.md" "$RUXF2/_acceptance/feat-ux/evals.yaml" 2>&1)"
+case "$outF2" in *W8a*) echo "  PASS: [W8F]-live (miễn không nuốt cánh vắng-key)"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: [W8F]-live"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
 echo "[W8D] căn cứ trống -> cờ đoán chay; có chữ -> im"
 RUXD="$T/ux-d"; mk_ux_fixture "$RUXD"
 outD0="$(node "$LINT" "$RUXD" 2>&1)"

@@ -68,6 +68,14 @@ if (want('UX1')) {
   const secMut = uxSection(mut);
   ok(secMut !== null && !secMut.includes('<<<UX-STATE-TABLE'),
     'UX1-đỏ bản sao gỡ marker: UX-SPEC-TEMPLATE thiếu UX-STATE-TABLE (phép thử phân biệt được)');
+  // mutant thứ hai: gỡ TRỌN mục 6 khỏi bản sao → phép kiểm phải ghim đúng tên mục
+  const HEAD6 = '### 6. Khuôn IA đã chọn + căn cứ';
+  const cut = t.indexOf(HEAD6);
+  const endMark = t.indexOf('<!-- UX-SPEC-TEMPLATE>>> -->', cut);
+  const mut6 = t.slice(0, cut) + t.slice(endMark);
+  const sec6 = uxSection(mut6);
+  const missing6 = sec6 !== null && !sec6.includes(HEAD6);
+  ok(missing6, `UX1-đỏ2 bản sao gỡ mục → ghim tên mục thiếu: «${HEAD6}»`);
 }
 
 // ── UX2: round-trip writer→reader qua CHÍNH lint ────────────────────────────
@@ -94,21 +102,47 @@ if (want('UX2')) {
   for (const r of [rPos, rCount, rRed]) rmSync(r, { recursive: true, force: true });
 }
 
-// ── UX3: quan hệ trong SKILL feature-loop ───────────────────────────────────
+// ── UX3: quan hệ trong SKILL feature-loop — đo bằng MUTANT, không đếm chữ ──
+// Lỗi round 1: ba regex rời trên toàn file khớp vào câu ui_standards_skill CÓ SẴN,
+// nên xoá trọn câu chỉ dẫn mới mà ca vẫn xanh. Nay mỗi mệnh đề có mutant riêng:
+// gỡ đúng câu mang mệnh đề khỏi BẢN SAO thì phép kiểm PHẢI đỏ.
 if (want('UX3')) {
   const s = readFileSync(SKILL, 'utf8');
-  ok(/Đặc tả UX/.test(s) && /TRƯỚC khi sinh 3 artifact/.test(s) && /ux-spec-template\.md/.test(s),
-    'UX3a S1 có chỉ dẫn điền Đặc tả UX trước 3 artifact theo khuôn (đỏ: gỡ câu → «S1 thiếu chỉ dẫn điền Đặc tả UX trước 3 artifact»)');
-  const idx = s.indexOf('ux-spec-template.md');
-  ok(idx >= 0 && /resolve-plugin\.mjs/.test(s.slice(Math.max(0, idx - 800), idx + 800)),
-    'UX3a2 khuôn resolve qua resolve-plugin.mjs (cấm hardcode path cache)');
-  ok(/design_doc:/.test(s) && /states:\s*\[ST-/.test(s),
-    'UX3b chỉ dẫn contract ghi design_doc: + evals khai states: [ST-…]');
-  ok(/vẽ TỪ section Đặc tả UX/.test(s),
-    'UX3c nghi thức hình: hình luồng/màn vẽ TỪ section Đặc tả UX');
-  const smIdx = s.indexOf('dòng state-matrix');
-  ok(smIdx === -1 || s.slice(Math.max(0, smIdx - 400), smIdx + 400).includes('ux-spec-template.md'),
-    'UX3d «dòng state-matrix» cũ không còn đứng ngoài con trỏ về khuôn (một nguồn)');
+  // Bộ kiểm chạy trên MỘT chuỗi bất kỳ (bản thật hoặc bản sao đã mutate) —
+  // cùng hàm cho cả hai chiều, nên chiều đỏ đi qua đúng bộ kiểm của chiều xanh.
+  const checks = {
+    a: t => {
+      // QUAN HỆ: câu nào vừa buộc thứ tự «trước 3 artifact» VỪA nói Đặc tả UX
+      const step4 = (t.match(/^4\. Kết thúc brainstorm[\s\S]*?(?=\n\d+\. |\n## )/m) || [''])[0];
+      return step4.split(/(?<=[.;])\s+/).some(sen =>
+        /Đặc tả UX/.test(sen) && /TRƯỚC khi sinh 3 artifact/.test(sen) && /ux-spec-template\.md/.test(sen));
+    },
+    a2: t => {
+      const i = t.indexOf('ux-spec-template.md');
+      return i >= 0 && /resolve-plugin\.mjs/.test(t.slice(Math.max(0, i - 400), i + 400));
+    },
+    b: t => /design_doc: <path/.test(t) && /states: \[ST-…\]/.test(t),
+    c: t => /vẽ TỪ section Đặc tả UX/.test(t),
+    d: t => { const i = t.indexOf('dòng state-matrix'); return i === -1 || t.slice(Math.max(0, i - 400), i + 400).includes('ux-spec-template.md'); },
+  };
+  const SEN = 'Kế đó, VẪN TRƯỚC khi sinh 3 artifact:';
+  const cutSentence = (t, marker, endMarker) => {
+    const i = t.indexOf(marker); if (i < 0) return t;
+    const j = t.indexOf(endMarker, i); return j < 0 ? t : t.slice(0, i) + t.slice(j);
+  };
+  const mutA = cutSentence(s, SEN, 'Rồi sinh CÙNG LÚC');       // gỡ TRỌN câu chỉ dẫn mới
+  const mutC = s.replace('vẽ TỪ section Đặc tả UX', 'vẽ theo cảm nhận');
+  const labels = {
+    a: 'UX3a S1 buộc điền Đặc tả UX TRƯỚC khi sinh 3 artifact (một câu, quan hệ)',
+    a2: 'UX3a2 khuôn resolve qua resolve-plugin.mjs (cấm hardcode path cache)',
+    b: 'UX3b chỉ dẫn contract ghi design_doc: + evals khai states: [ST-…]',
+    c: 'UX3c nghi thức hình: hình luồng/màn vẽ TỪ section Đặc tả UX',
+    d: 'UX3d «dòng state-matrix» cũ không còn đứng ngoài con trỏ về khuôn (một nguồn)',
+  };
+  for (const k of Object.keys(checks)) ok(checks[k](s), labels[k]);       // đối chứng dương
+  ok(!checks.a(mutA), 'UX3a-đỏ bản sao gỡ trọn câu → S1 thiếu chỉ dẫn điền Đặc tả UX trước 3 artifact');
+  ok(!checks.b(mutA), 'UX3b-đỏ cùng mutant → mất luôn chỉ dẫn design_doc:/states: (dây máy-đọc nằm trong câu bị gỡ)');
+  ok(!checks.c(mutC), 'UX3c-đỏ bản sao đổi câu vẽ-từ-khuôn → phép kiểm bắt được');
 }
 
 // ── UX4: chuỗi miễn khớp từng ký tự giữa SKILL và khuôn ─────────────────────
