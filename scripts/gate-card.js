@@ -309,6 +309,7 @@ if (gate === '1') {
   const oppText = read(oppPath);
   // present = FILE TỒN TẠI (statSync), không suy từ chuỗi rỗng — read() trả '' cho cả file vắng
   // lẫn file quá cỡ; hai ca đó khác nhau trên thẻ (S4-r1 finding).
+  let rangHongNguong = null;
   const ut = { opportunity_present: fs.existsSync(oppPath), readable: !!oppText.trim(), section_present: false, lines: [] };
   if (ut.opportunity_present && ut.readable) {
     // Ranh giới heading: cùng dạng tiền tố `\b` với lib/md-section.cjs (một luật, không khớp-chính-xác riêng)
@@ -319,6 +320,17 @@ if (gate === '1') {
     const chuaDien = l => NG1.chuaDien(l);
     if (ut.section_present) ut.lines = section(oppText, UAT_THRESHOLD_HEADING).map(l => l.trim()).filter(l => l && !/^>/.test(l) && !chuaDien(l));
   }
+  // «ĐÃ KHAI NGƯỠNG» phải HỎI LIB, không tự suy từ `lines.length > 0`. Vị từ tự chế là bên đọc
+  // thứ hai, và nó trả lời KHÁC lib ở ba ca thật (S4-r9 [1][5]): ô thiếu hẳn nhãn của khuôn · ô
+  // mang tiền tố ĐỀ XUẤT của khuôn (máy đề nghị, người CHƯA chốt) · ô điền đủ nhưng KHÔNG gạch đầu
+  // dòng. Ở cả ba, thẻ in «Ngưỡng nghiệm thu (đã khai ở Cổng Đáng)» — tức gán cho người một lời
+  // khai người chưa nói — trong khi bộ quét gọi «chưa chốt». Nguồn phải là MỘT.
+  let ngState = null;
+  if (ut.opportunity_present && ut.readable && ut.section_present) {
+    try { ngState = NG1.thresholdState(oppText, read(OPP_TPL1)); }
+    catch (e) { rangHongNguong = e.message; }
+  }
+  ut.state = ngState;
 
   // Lối «không đo được» tính NGAY đây — cả răng chống lách lẫn khối đường-đo cùng hỏi nó.
   let mienDo = false, rangHong = null;
@@ -379,8 +391,12 @@ if (gate === '1') {
   if (dp.present) P.push(`<div class="lab">Bản mẫu &amp; ngữ cảnh</div><div class="grp gnot"><p class="li">Vật liệu: ${esc(dp.material || '(chưa khai)')} · sống ở: <b>${esc(CONTEXT_LABEL[dp.context] || dp.context || '(chưa khai)')}</b>${dp.scenes.length ? ' · ' + dp.scenes.length + ' cảnh ngữ-cảnh' : ''}</p></div>`);
   // Dòng ngưỡng in NGUYÊN VĂN (AC-1 hồ sơ moi-noi-vong-trao): chỉ bỏ dấu đầu dòng, không đi qua
   // hàm lột markdown — số chỗ gọi hàm lột là ma trận đã ghim của card-text-fidelity (P161).
+  // Nhãn khối nói ĐÚNG trạng thái: chỉ `chot` mới là «đã khai ở Cổng Đáng» (lời của NGƯỜI).
+  // `de-xuat` / `chua-chot` vẫn in ra để người soi, nhưng KHÔNG được gọi là lời khai của họ.
   if (ut.opportunity_present && ut.readable && ut.section_present && ut.lines.length) {
-    P.push(`<div class="lab">Ngưỡng nghiệm thu (đã khai ở Cổng Đáng)</div><div class="grp gnot">${ut.lines.map(l => `<p class="li">${esc(l.replace(/^[-*]\s+/, ''))}</p>`).join('')}<p class="li">${mienDo ? 'Ô khai không đo được — vòng này không có phiên nghiệm thu; đã giao là đóng.' : 'Vòng này sẽ có phiên nghiệm thu sau khi giao — số đo thật sẽ đặt cạnh các ngưỡng trên.'}</p></div>`);
+    const nhanKhoi = ngState === 'de-xuat' ? 'Ngưỡng nghiệm thu — ĐỀ XUẤT CỦA MÁY, anh chưa chốt'
+      : 'Ngưỡng nghiệm thu (đã khai ở Cổng Đáng)';
+    P.push(`<div class="lab">${nhanKhoi}</div><div class="grp gnot">${ut.lines.map(l => `<p class="li">${esc(l.replace(/^[-*]\s+/, ''))}</p>`).join('')}<p class="li">${mienDo ? 'Ô khai không đo được — vòng này không có phiên nghiệm thu; đã giao là đóng.' : 'Vòng này sẽ có phiên nghiệm thu sau khi giao — số đo thật sẽ đặt cạnh các ngưỡng trên.'}</p></div>`);
   }
   if (glossaryDelta && glossaryDelta.length) P.push(`<div class="lab">Từ vựng chốt ở feature này</div><div class="grp gnot">${glossaryDelta.map(x => `<p class="li">${esc(x.term)} — ${x.added ? 'term MỚI' : 'định nghĩa/_Avoid_ được sửa'}</p>`).join('')}</div>`);
   if (gpPresent && gpVerdict === 'clean' && !gpRows.length && !gpDropped) P.push(`<div class="lab">Phản biện context sạch</div><div class="flag fok">Phản biện: không còn lỗ đáng kể.</div>`);
@@ -394,6 +410,11 @@ if (gate === '1') {
   if (!ut.opportunity_present) flags.push(['finfo', 'Vòng này không có hồ sơ cơ hội → sau Cổng Bằng chứng sẽ ship thẳng, không phiên nghiệm thu.']);
   else if (!ut.readable) flags.push(['fwarn', 'Hồ sơ cơ hội có nhưng thẻ không đọc được (file rỗng hoặc quá cỡ) — chưa biết vòng này có ngưỡng nghiệm thu không; soi file trước khi duyệt.']);
   else if (!(ut.section_present && ut.lines.length)) flags.push(['fwarn', 'Hồ sơ cơ hội chưa khai ngưỡng nghiệm thu — chưa biết vòng này sẽ được đo bằng gì; khai ở Cổng Đáng trước khi duyệt.']);
+  // Ô mang tiền tố «đề xuất» = MÁY đề nghị, người CHƯA nói. Thẻ Cổng Phạm vi là mặt người duy
+  // nhất ở bước đó, nên gọi nó là «đã khai ở Cổng Đáng» là máy nói hộ người — thứ hiến pháp kit
+  // cấm (S4-r9 [1]). Cờ này THÊM, không thay chuỗi cũ (P198 của hồ sơ đã ký ghim nguyên văn).
+  else if (ngState === 'de-xuat') flags.push(['fwarn', 'Ngưỡng nghiệm thu đang là ĐỀ XUẤT CỦA MÁY — anh chưa chốt. Thẻ KHÔNG coi đây là lời khai của anh; chốt ở Cổng Đáng trước khi duyệt.']);
+  if (rangHongNguong) flags.push(['fwarn', `Thẻ không phân loại được ô ngưỡng (${esc(rangHongNguong)}) — sửa khuôn rồi chạy lại, đừng duyệt khi thẻ đang mù.`]);
   if (ddApplicable && !ddLines.length) {
     if (ddDescope) flags.push(['finfo', `Đã bỏ đường đo theo ${esc(ddDescope.id || 'entry descope')} — Cổng Giá trị sẽ đọc ngưỡng với ô CHƯA ĐO; quyết định chủ động, có dấu vết.`]);
     else flags.push(['fwarn', 'Hồ sơ cơ hội có ngưỡng nhưng contract chưa có đường đo — không ai xây thứ sinh ra con số, Cổng Giá trị sẽ đọc bảng toàn CHƯA ĐO. Thêm section «Đường đo» (mỗi thước một dòng: số từ đâu · AC nào bảo đảm) hoặc ghi entry «bỏ đường-đo — lý do 1 dòng» rồi hãy duyệt.']);   // không đặt <…> thô trong cờ: HTML nuốt như tag (review S4-r1 F1)
@@ -516,7 +537,7 @@ if (!approvable) {
 // Máy quét chết → GIỮ NGUYÊN hành vi cũ + một cờ vàng; không bao giờ im lặng
 // tuyên sạch (fail-visible, không fail-quiet).
 const trangThai = require('./trang-thai-ho-so.cjs');
-let scanState = null, scanErr = null, scanBroken = null, scanConfigFalse = false;
+let scanState = null, scanErr = null, scanBroken = null;
 try {
   const r = require('child_process').spawnSync(process.execPath,
     [path.join(__dirname, 'start-scan.mjs'), '--root', root],
@@ -528,7 +549,6 @@ try {
     // có `groups`. Đó KHÔNG phải lỗi: không có gì để nói thì thẻ đi lối cũ và
     // KHÔNG bật cờ. Cờ chỉ dành cho máy quét THẤT BẠI. (P150 bắt: bản đầu đọc
     // thẳng j.groups.gates nên ném lỗi và bật cờ oan ở mọi repo không workspace.)
-    scanConfigFalse = j.config === false;
     const gr = j.groups || {};
     const hit = [...(gr.gates || []), ...(gr.inProgress || []), ...(gr.done || [])]
       .find(x => x.slug === slug);

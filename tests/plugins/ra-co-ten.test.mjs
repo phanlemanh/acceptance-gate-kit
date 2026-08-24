@@ -629,32 +629,53 @@ if (want('RT5')) {
     else if (/Ký duyệt/.test(cr.stdout)) errs.push('bộ quét mù: thẻ vẫn mời ký hồ sơ máy-thông');
     rmSync(r, { recursive: true, force: true });
   }
-  // ── Dòng ngưỡng KHÔNG gạch đầu dòng: thẻ và lib phải nói CÙNG một chuyện ──────
-  // Hồi quy S4-r8: `chuaDien` từng đi qua bulletOf (bắt buộc `- `), nên ô toàn placeholder
-  // viết không gạch bị thẻ gọi là «đã khai» — mất cờ vàng, lại đòi thêm `## Đường đo` — trong
-  // khi thresholdState vẫn gọi «chưa chốt». Đo QUAN HỆ giữa hai bên đọc, không đo hằng số.
+  // ── Ô ngưỡng: thẻ và lib phải nói CÙNG một chuyện trên MỌI hình dạng ─────────
+  // Thẻ từng tự suy «đã khai» = `lines.length > 0` — một bên đọc THỨ HAI, và nó trả lời khác
+  // lib ở ba hình dạng thật (S4-r9 [1][5]): thiếu nhãn của khuôn · mang tiền tố ĐỀ XUẤT của khuôn
+  // (máy đề nghị, người CHƯA chốt) · điền đủ nhưng không gạch đầu dòng. Ở cả ba, thẻ in «đã
+  // khai ở Cổng Đáng» — gán cho người một lời khai người chưa nói. Nay thẻ HỎI thresholdState.
   {
-    const r = mkRepo();
-    const KHONG_GACH = ['Câu hỏi phép đo trả lời: …', 'Kết quả nào là SỐNG: …', 'Kết quả nào là CHẾT: …', 'Timebox: …'];
-    const opp = `---\nslug: ng\nstage: decided\ndecision: build\ndecided_by: Fx\n---\n\n# ng\n\n## ${NG.UAT_THRESHOLD_HEADING}\n\n${KHONG_GACH.join('\n')}\n`;
-    mkdirSync(path.join(r, '_acceptance', 'ng'), { recursive: true });
-    writeFileSync(path.join(r, '_acceptance', 'ng', 'contract.md'), contractText('ng', { status: 'draft' }));
-    writeFileSync(path.join(r, '_acceptance', 'ng', 'opportunity.md'), opp);
-    const ex = spawnSync(process.execPath, [CARD, '--root', r, '--slug', 'ng', '--extract'], { encoding: 'utf8' });
-    let card = null; try { card = JSON.parse(ex.stdout); } catch { /* dưới */ }
-    if (!card) errs.push(`ngưỡng không gạch: thẻ --extract không ra JSON (exit ${ex.status})`);
-    else {
-      const theKhai = (card.uat_threshold && card.uat_threshold.lines || []).length > 0;
-      const libKhai = NG.thresholdState(opp, readFileSync(OPP_TPL, 'utf8')) === 'chot';
-      // QUAN HỆ: thẻ coi là «đã khai» ⇔ lib coi là «đã chốt». Cả hai phải nói CHƯA.
-      if (theKhai !== libKhai) errs.push(`ngưỡng không gạch: thẻ nói ${theKhai ? 'đã khai' : 'chưa khai'} còn lib nói ${libKhai ? 'đã chốt' : 'chưa chốt'} — hai bộ đọc lệch`);
-      if (theKhai) errs.push(`ngưỡng không gạch: thẻ nhận placeholder thành ngưỡng đã khai (${JSON.stringify(card.uat_threshold.lines)})`);
-      // Chiều đỏ: hoàn nguyên vị từ về bulletOf (bắt buộc gạch) → dòng không gạch LỌT.
-      const cuChuaDien = l => { const b = NG.bulletOf(l); return !!b && NG.PLACEHOLDER_RE.test(b.value); };
-      if (KHONG_GACH.every(cuChuaDien)) errs.push('chiều đỏ RT5: vị từ CŨ (đòi gạch) vẫn bắt được dòng không gạch — fixture không phân biệt được hai luật');
-      if (!KHONG_GACH.every(l => NG.chuaDien(l))) errs.push('chiều đỏ RT5: vị từ MỚI không nhận dòng không gạch là chưa điền');
+    const TPL = readFileSync(OPP_TPL, 'utf8');
+    const NHAN = NG.thresholdLabels(TPL);
+    const day = (vals, gach = true) => NHAN.map((lb, k) => `${gach ? '- ' : ''}${lb}: ${vals[k] ?? 'x'}`);
+    const HINH = [
+      ['thiếu nhãn của khuôn', [`- ${NHAN[1]}: 80%`], 'chua-chot'],
+      ['toàn placeholder, không gạch', day(NHAN.map(() => '…'), false), 'chua-chot'],
+      ['điền đủ, KHÔNG gạch đầu dòng', day(['tỉ lệ', '>= 80%', '< 50%', 'muộn nhất 2027-01-01'], false), 'chua-chot'],
+      ['mang tiền tố đề xuất', day(NHAN.map((_, k) => `${DE_XUAT} ${k === 3 ? 'muộn nhất 2027-01-01' : 'x'}`)), 'de-xuat'],
+      ['chốt đủ (đối chứng dương)', day(['tỉ lệ', '>= 80%', '< 50%', 'muộn nhất 2027-01-01']), 'chot'],
+    ];
+    for (const [ten, dong, mongState] of HINH) {
+      const r = mkRepo();
+      const opp = `---\nslug: ng\nstage: decided\ndecision: build\ndecided_by: Fx\n---\n\n# ng\n\n## ${NG.UAT_THRESHOLD_HEADING}\n\n${dong.join('\n')}\n`;
+      mkdirSync(path.join(r, '_acceptance', 'ng'), { recursive: true });
+      writeFileSync(path.join(r, '_acceptance', 'ng', 'contract.md'), contractText('ng', { status: 'draft' }));
+      writeFileSync(path.join(r, '_acceptance', 'ng', 'opportunity.md'), opp);
+      const libState = NG.thresholdState(opp, TPL);
+      if (libState !== mongState) errs.push(`ngưỡng «${ten}»: lib trả ${libState}, ma trận viết trước nói ${mongState}`);
+      const ex = spawnSync(process.execPath, [CARD, '--root', r, '--slug', 'ng', '--extract'], { encoding: 'utf8' });
+      let card = null; try { card = JSON.parse(ex.stdout); } catch { /* dưới */ }
+      const html = spawnSync(process.execPath, [CARD, '--root', r, '--slug', 'ng'], { encoding: 'utf8' }).stdout || '';
+      if (!card) errs.push(`ngưỡng «${ten}»: thẻ --extract không ra JSON (exit ${ex.status})`);
+      else {
+        // QUAN HỆ 1: trạng thái thẻ ĐỌC RA == trạng thái lib (một nguồn, không hai bộ đọc).
+        if (card.uat_threshold.state !== libState) errs.push(`ngưỡng «${ten}»: thẻ nói ${card.uat_threshold.state}, lib nói ${libState} — hai bộ đọc lệch`);
+        // QUAN HỆ 2: ô do MÁY đề xuất KHÔNG được thẻ gọi là lời khai của NGƯỜI. (Hai trạng thái
+        // kia — `chot`, `chua-chot` — vẫn in chữ cũ: hồ sơ duong-do ĐÃ KÝ chốt rằng «1 dòng thật
+        // + 3 «…»» vẫn là có ngưỡng, và P198 ghim nguyên văn hai chuỗi đó. Đổi chúng là sửa
+        // hành vi đã ký, không phải việc của vòng này — xem sổ #20.)
+        const goiLaDaKhai = /đã khai ở Cổng Đáng/.test(html);
+        if (libState === 'de-xuat' && goiLaDaKhai) errs.push(`ngưỡng «${ten}»: thẻ gọi ĐỀ XUẤT CỦA MÁY là «đã khai ở Cổng Đáng» — máy nói hộ người`);
+        if (libState === 'de-xuat' && !/ĐỀ XUẤT CỦA MÁY/.test(html)) errs.push(`ngưỡng «${ten}»: thẻ không nói rõ đây mới là đề xuất của máy`);
+        if (libState === 'chot' && !goiLaDaKhai) errs.push(`ngưỡng «${ten}»: ngưỡng đã chốt mà thẻ không gọi là «đã khai ở Cổng Đáng»`);
+      }
+      rmSync(r, { recursive: true, force: true });
     }
-    rmSync(r, { recursive: true, force: true });
+    // Chiều đỏ vị từ placeholder: vị từ CŨ (đòi gạch) không bắt được dòng không gạch.
+    const KG = ['Câu hỏi phép đo trả lời: …'];
+    const cuChuaDien = l => { const b = NG.bulletOf(l); return !!b && NG.PLACEHOLDER_RE.test(b.value); };
+    if (KG.every(cuChuaDien)) errs.push('chiều đỏ RT5: vị từ CŨ (đòi gạch) vẫn bắt được dòng không gạch — fixture không phân biệt hai luật');
+    if (!KG.every(l => NG.chuaDien(l))) errs.push('chiều đỏ RT5: vị từ MỚI không nhận dòng không gạch là chưa điền');
   }
   if (errs.length) fail('RT5', errs.join(' · '));
   else pass('RT5', '4 khoá mới có nhãn riêng + bucket đúng; bản đồ và thẻ in chữ từ bảng; thẻ không mời ký hồ sơ máy-thông; ngưỡng không-gạch: thẻ ⇔ lib cùng kết luận');
