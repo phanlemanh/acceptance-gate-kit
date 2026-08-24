@@ -153,7 +153,6 @@ function parseEvals(evalsText) {
   return evalYaml.parseEvals(evalsText, ['criterion', 'expected', 'executor', 'layer'], fieldVal);
 }
 
-
 // ─── Lint one feature ────────────────────────────────────────────────────────
 
 function lintFeature(slug, contractText, evalsText, glossary) {
@@ -229,7 +228,6 @@ function lintFeature(slug, contractText, evalsText, glossary) {
   if (oos > 0 && negCount === 0) {
     warns.push(`[${slug}] W3 Out-of-scope lists ${oos} item(s) but evals.yaml has ZERO negative/should-NOT-fire evals — the suppression half is untested. Turn the boundary into evals or confirm it is genuinely unobservable.`);
   }
-
   return warns;
 }
 

@@ -59,11 +59,11 @@ if (want('UX1')) {
     'UX1-đỏ gỡ marker bảng khỏi bản sao → cùng bộ trích thấy section mất UX-STATE-TABLE');
   // đỏ-2: gỡ TRỌN mục 6 → cùng bộ kiểm hasHeading phải trượt đúng mục đó, các mục khác vẫn xanh
   const HEAD6 = '### 6. Khuôn IA đã chọn + căn cứ';
-  const cut = t.indexOf(HEAD6);
-  const endMark = t.indexOf('<!-- UX-SPEC-TEMPLATE>>> -->', cut);
-  const sec6 = uxSection(t.slice(0, cut) + t.slice(endMark));
-  ok(sec6 !== null && !hasHeading(sec6, HEADINGS[5]) && hasHeading(sec6, HEADINGS[0]),
-    `UX1-đỏ2 bản sao gỡ mục → cùng bộ kiểm ghim đúng tên mục thiếu: «${HEAD6}» (mục khác vẫn xanh)`);
+  // mutant ĐỔI TÊN mục (không xoá chuỗi rồi kiểm chuỗi vắng — tránh tautology):
+  // bộ kiểm tiêu đề của chiều xanh phải trượt đúng mục 6, các mục khác vẫn xanh
+  const secRenamed = uxSection(t.replace(HEAD6, '### 6. Ghi chú thêm'));
+  ok(secRenamed !== null && !hasHeading(secRenamed, HEADINGS[5]) && hasHeading(secRenamed, HEADINGS[0]) && hasHeading(secRenamed, HEADINGS[3]),
+    `UX1-đỏ2 bản sao ĐỔI TÊN mục 6 → cùng bộ kiểm trượt đúng «${HEAD6}», mục 1 và 4 vẫn xanh`);
 }
 
 // ── UX3: quan hệ trong SKILL feature-loop — đo bằng MUTANT, không đếm chữ ──
@@ -89,7 +89,12 @@ if (want('UX3')) {
         && !/plugins\/cache[^\n]{0,200}ux-spec-template\.md/.test(step4);
     },
     b: t => /design_doc: <path/.test(t) && /GIỮ NGUYÊN các marker/.test(t),
-    c: t => /vẽ TỪ section Đặc tả UX/.test(t),
+    c: t => {
+      // QUAN HỆ: câu vẽ-từ-khuôn phải nằm TRONG bước [3] của nghi thức hình,
+      // không phải chỉ có mặt đâu đó — mutation đổi chữ không nghịch đảo được
+      const b3 = (t.match(/- \*\*\[3\] Vẽ\*\*[\s\S]*?(?=\n- \*\*\[4\])/) || [''])[0];
+      return /Đặc tả UX/.test(b3) && /hình là chiếu của khuôn/.test(b3);
+    },
     d: t => {
       // MỌI lần «dòng state-matrix» xuất hiện đều phải đứng trong con trỏ về khuôn
       let i = -1, ok2 = true;
@@ -105,7 +110,8 @@ if (want('UX3')) {
     const j = t.indexOf(endMarker, i); return j < 0 ? t : t.slice(0, i) + t.slice(j);
   };
   const mutA = cutSentence(s, SEN, 'Rồi sinh CÙNG LÚC');       // gỡ TRỌN câu chỉ dẫn mới
-  const mutC = s.replace('vẽ TỪ section Đặc tả UX', 'vẽ theo cảm nhận');
+  // mutant: gỡ TRỌN câu khỏi bước [3] (không đổi đúng chuỗi mà assertion tìm)
+  const mutC = s.replace(/ Feature chạm UI: hình luồng\/màn vẽ TỪ section Đặc tả UX[^.]*\./, '');
   const labels = {
     a: 'UX3a S1 buộc điền Đặc tả UX TRƯỚC khi sinh 3 artifact (một câu, quan hệ)',
     a2: 'UX3a2 khuôn resolve qua resolve-plugin.mjs (cấm hardcode path cache)',

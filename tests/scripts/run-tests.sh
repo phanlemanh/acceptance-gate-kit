@@ -716,7 +716,7 @@ cat > "$M/contract.md" <<'EOF'
 ---
 risk_tier: T2
 status: approved
-surfaces: [api]
+surfaces: [api, ui]
 ---
 ## Criteria
 - AC-1: Given user taps pay, When order submits, Then confirmation screen shows.
@@ -743,7 +743,7 @@ cat > "$N5/contract.md" <<'EOF'
 ---
 risk_tier: T2
 status: approved
-surfaces: [api]   # mobile maybe later
+surfaces: [api, ui]   # mobile maybe later
 ---
 ## Criteria
 - AC-1: Given a mobile-width viewport, When user taps pay, Then confirmation shows.

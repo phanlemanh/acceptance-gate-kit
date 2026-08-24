@@ -180,3 +180,4 @@ dac-ta-ux-vat-hoa-cau-truc#15	dac-ta-ux-vat-hoa-cau-truc	high	khac	trung		dac-ta
 dac-ta-ux-vat-hoa-cau-truc#16	dac-ta-ux-vat-hoa-cau-truc	medium	khac	trung		dac-ta-ux-vat-hoa-cau-truc#12	Ràng buộc 4 cột ngầm định làm bảng đủ bị báo «rỗng» (chẩn đoán ngược) — cánh đã CẮT TRỌN
 dac-ta-ux-vat-hoa-cau-truc#17	dac-ta-ux-vat-hoa-cau-truc	medium	khac	trung		dac-ta-ux-vat-hoa-cau-truc#12	badLines gom rồi không ai đọc, trái chính comment của nó — cánh đã CẮT TRỌN
 dac-ta-ux-vat-hoa-cau-truc#18	dac-ta-ux-vat-hoa-cau-truc	medium	khac	chet	S1 khai lệnh resolve đầy đủ + nhánh xuống thang		Phụ thuộc khuôn mới sang plugin không khai sàn bản và không có đường xuống thang — nay lệnh resolve viết đủ, thiếu khuôn thì ghi 1 dòng vào gói Cổng 1 rồi ĐI TIẾP
+dac-ta-ux-vat-hoa-cau-truc#19	dac-ta-ux-vat-hoa-cau-truc	medium	khac	chet	UX1-đỏ2 đổi-tên + UX3c đo ngữ cảnh		Hai chiều đỏ tautology (mutation và assertion cùng một thao tác chuỗi) — nay mutant khác thao tác với phép kiểm

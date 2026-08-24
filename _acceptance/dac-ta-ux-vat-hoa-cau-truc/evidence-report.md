@@ -7,11 +7,13 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: d35d4f610453cd672ebacb7dfcecd2033ceff587
+verified_commit: e19a71461c07f59c5211092593daaa5ff5546dfb
 human_signoff:
 ---
 
 # Evidence Report: dac-ta-ux-vat-hoa-cau-truc
+
+REJECT: cả 4 test evals xanh (E1–E4) và không judgment nào bị FAIL dứt khoát, nhưng scope-triage (xem `review-findings.md`, mục "Trong hợp đồng") xác nhận AC-3 và AC-6 vẫn tuyên phần phạm vi đã bị cắt ở round 4/5 — hợp đồng lệch khỏi vật giao. Đây không phải lỗi thực thi máy mà là lỗi ý-định-chốt: tiêu chí viết trước không khớp vật đang có. Không sửa tay báo cáo — quay lại viết lại AC-3/AC-6 theo vật thật rồi verify lại.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -19,123 +21,96 @@ human_signoff:
 | E2 | AC-2 | test | PASS |
 | E3 | AC-3 | test | PASS |
 | E4 | AC-4 | test | PASS |
-| E5 | AC-5 | judgment | FAIL |
-| E6 | AC-6 | test | PASS |
-| E7 | AC-7 | test | PASS |
-| E8 | AC-8 | test | PASS |
-| E9 | AC-9 | judgment | FAIL |
+| E5 | AC-5 | judgment | UNCERTAIN |
+| E6 | AC-6 | judgment | UNCERTAIN |
 
 ## Evidence
 
 - eval: E1
-  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E1-r5
+  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E1-r6
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-24T00:00:00Z
+  verified_at: 2026-08-24T10:00:00+07:00
   output: |
-    PASS: [BDK4] ba thân cổng in bước kế (S2 · S5 · hai lệnh ký), hai ngả Vòng TRAO, vũ trụ quét giữ 16
+      PASS: ca bang dieu khien — BDK4 (ho so start-bang-dieu-khien)
 
     Results: all plugin tests passed
 
 - eval: E2
-  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E2-r5
+  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E2-r6
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-24T00:00:00Z
+  verified_at: 2026-08-24T10:00:00+07:00
   output: |
-    PASS: [BDK4] ba thân cổng in bước kế (S2 · S5 · hai lệnh ký), hai ngả Vòng TRAO, vũ trụ quét giữ 16
+      PASS: ca bang dieu khien — BDK4 (ho so start-bang-dieu-khien)
 
     Results: all plugin tests passed
 
 - eval: E3
-  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E3-r5
+  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E3-r6
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-24T00:00:00Z
+  verified_at: 2026-08-24T10:00:00+07:00
   output: |
-    PASS: [BDK4] ba thân cổng in bước kế (S2 · S5 · hai lệnh ký), hai ngả Vòng TRAO, vũ trụ quét giữ 16
+      PASS: ca bang dieu khien — BDK4 (ho so start-bang-dieu-khien)
 
     Results: all plugin tests passed
 
 - eval: E4
-  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E4-r5
+  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E4-r6
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins
-  verified_at: 2026-08-24T00:00:00Z
+  verified_at: 2026-08-24T10:00:00+07:00
   output: |
-    PASS: [BDK4] ba thân cổng in bước kế (S2 · S5 · hai lệnh ký), hai ngả Vòng TRAO, vũ trụ quét giữ 16
+      PASS: ca bang dieu khien — BDK4 (ho so start-bang-dieu-khien)
 
     Results: all plugin tests passed
 
+<!-- <<<JUDGMENT-BLOCK-TEMPLATE -->
 - eval: E5
-  judged_by: judge panel (domain-correctness, operational-feasibility, spec-alignment)
-  proposal: FAIL
+  judged_by: panel (domain-correctness, operational-feasibility, spec-alignment)
+  proposal: PASS
+  verdict: UNCERTAIN
   votes:
-    - domain-correctness: FAIL — (1) Thang 2 nấc được dạy khớp nhau ở cả hai file, ví dụ MCP Mobbin chỉ là "vd", nấc (ii) là lối không-cần-công-cụ, và feature-loop SKILL.md ghi rõ "không phụ thuộc công cụ nào" — đạt. (3) Luật "chỉ tra khi không tự chắc (≥2 khuôn khả dĩ), luồng hiển nhiên thì ghi thẳng lý do" xuất hiện đồng nhất ở cả hai nguồn, đủ rõ để không thành trạm thu phí — đạt. (2) FAIL: mục "Khuôn IA đã chọn + căn cứ" sống trong design-doc (một file riêng, ux-spec-template.md dòng 3 "Chép section... vào design-doc"), nhưng khối trình tại Gate 1 (feature-loop SKILL.md dòng 103) chỉ đính "tóm tắt design (≤10 dòng) + contract.md NGUYÊN VĂN + bảng mapping AC→eval→executor" — không có chỗ nào bắt buộc bản tóm tắt ≤10 dòng phải chứa đúng dòng căn cứ IA, và contract.md (thứ DUY NHẤT đính nguyên văn) chỉ chứa con trỏ `design_doc: <path>` trong frontmatter chứ không chứa nội dung căn cứ. W8 lint (W8d) chỉ báo cờ khi dòng TRỐNG, không surface nội dung khi dòng có điền — nên đúng lúc thiết kế cố ý giao việc thẩm định NỘI DUNG căn cứ cho người tại cổng, cơ chế lắp ráp gói cổng lại không đảm bảo người đọc thấy nội dung đó mà không tự đi mở thêm file design-doc.
-    - operational-feasibility: FAIL — Thang hai nấc và luật "chỉ tra khi không chắc" được dạy nhất quán và rõ ở cả hai file, không khoá cứng vào công cụ nào (Q1, Q3 đạt). Nhưng vết tra mẫu ("Khuôn IA đã chọn + căn cứ") nằm trong section Đặc tả UX của design-doc, còn khuôn liệt kê tường minh nội dung gói Gate 1 (SKILL.md dòng ~103: "tóm tắt design (≤10 dòng) + contract.md NGUYÊN VĂN + bảng mapping AC → eval → executor") KHÔNG có dòng nào bắt trích nguyên văn hay bảo đảm mục 6 lọt vào bản tóm tắt ≤10 dòng đó — vết có nguy cơ không tới tay người tại đúng khoảnh khắc quyết.
-    - spec-alignment: FAIL — (1) và (3) đạt: thang 2 nấc ở ux-spec-template.md dòng 61-64 và SKILL.md dòng 92 khớp gần như nguyên văn, SKILL.md còn nói rõ "không phụ thuộc công cụ nào" và luồng hiển nhiên thì ghi thẳng lý do không tra — đủ rõ, không thành trạm thu phí. (2) không đạt: vết "Khuôn IA đã chọn + căn cứ" sống trong section §6 của design-doc, nhưng SKILL.md dòng 103 định nghĩa gói Cổng 1 CHỈ gồm "tóm tắt design (≤10 dòng) + contract.md NGUYÊN VĂN + bảng mapping AC→eval→executor" — không có contract.md nào chứa Căn cứ (nó ở design-doc), và không có câu nào bắt buộc bản tóm tắt ≤10 dòng phải trích nguyên văn §6, nên vết có thể không tới tay người tại cổng dù người đó có mặt đúng lúc.
+    - domain-correctness: UNCERTAIN — (1) và (3) rõ: cả hai file dạy đúng thang 2 nấc, ghi thẳng "không phụ thuộc công cụ nào, luồng hiển nhiên không tra" (SKILL.md S1#4) và ngưỡng "≥2 khuôn khả dĩ" khớp nhau ở cả hai file, không phải trạm thu phí. (2) mơ hồ: cơ chế duy nhất hai file này khai cho vết là frontmatter `design_doc: <path>` "để người duyệt mở thẳng" (SKILL.md S1#4), còn khối trình tại Gate 1 (mục GATE 1) chỉ hứa đính "tóm tắt design (≤10 dòng) + contract.md NGUYÊN VĂN + bảng mapping" — không nêu acceptance-card có trích inline dòng "Khuôn IA đã chọn + căn cứ" hay chỉ để người duyệt tự mở file path đó; file acceptance-card (nơi quyết định có render inline hay không) nằm ngoài phạm vi input được giao nên không đủ căn cứ kết luận vết có thật sự "đọc được TẠI cổng" hay chỉ "mở được".
+      required_evidence:
+        - Đọc skill acceptance-gate:acceptance-card (file render thẻ Gate 1, thường ở skills/acceptance-gate hoặc tương đương) — nếu thẻ trích nguyên văn/paraphrase dòng 'Khuôn IA đã chọn + căn cứ' từ design-doc vào nội dung card thì verdict đổi PASS; nếu thẻ chỉ hiện path design_doc mà không hiện nội dung căn cứ thì đổi FAIL
+        - Xác nhận 'tóm tắt design (≤10 dòng)' ở mục GATE 1 của feature-loop SKILL.md có phải văn tự do (agent viết tay) hay có khuôn bắt buộc phải chứa dòng Khuôn IA — nếu tự do và không bắt buộc, đó là bằng chứng vết có thể bị bỏ sót khỏi gói trình cổng
+    - operational-feasibility: PASS — (1) Thang 2 nấc dạy khớp ở cả hai file, có câu chốt tường minh "không phụ thuộc công cụ nào" và MCP Mobbin chỉ là ví dụ ("vd") cho nấc (i), nấc (ii) là lối tự-điền không cần công cụ. (2) Vết nằm ở mục 6 design-doc, nhưng contract frontmatter ghi `design_doc: <path>` "để người duyệt mở thẳng" và Gate 1 đính "contract.md NGUYÊN VĂN" (chứa path đó) trong gói trình — cộng trần ≤1 trang nên chi phí quét thấp, đủ khả thi vận hành dù phải một cú click mở file rời. (3) Ngưỡng "chỉ tra khi không tự chắc" được lượng hoá cụ thể (≥2 khuôn khả dĩ) và có lối miễn tường minh cho luồng hiển nhiên ("ghi thẳng lý do"), nên không rơi vào trạm thu phí cho ca hiển nhiên.
+    - spec-alignment: PASS — (1) Thang 2 nấc được dạy khớp nhau ở cả hai file bằng gần như cùng một câu chữ (SKILL.md dòng 92 và template mục 6): nấc (i) "có công cụ tra mẫu (vd MCP Mobbin)" chỉ là ví dụ, nấc (ii) "không có → chọn từ danh sách khuôn IA có tên, ghi lý do" là lối đi hợp lệ độc lập — không công cụ nào là điều kiện bắt buộc. (2) Vết nằm ở `## Đặc tả UX` trong design-doc, và contract ghi tường minh `design_doc: <path>` trong frontmatter "để người duyệt mở thẳng"; Gate 1 đính kèm contract.md NGUYÊN VĂN nên đường dẫn tới vết luôn có mặt trong gói cổng — dù bản thân dòng Căn cứ không được trích trực tiếp vào gói (chỉ có tóm tắt design ≤10 dòng), đây là một pointer tường minh, chủ đích, một-bước-mở, phù hợp khuôn "soi sâu khi cần" mà SKILL dùng cho toàn bộ Gate 1. (3) Luật "chỉ tra khi không tự chắc" có ngưỡng rõ (≥2 khuôn khả dĩ) và lối thoát tường minh cho luồng hiển nhiên ("luồng hiển nhiên thì ghi thẳng lý do" / "luồng hiển nhiên không tra") lặp lại nhất quán ở cả hai file, nên không đọc thành trạm thu phí bắt buộc.
+  rationale: Panel không đồng nhất — spec-alignment và operational-feasibility cho PASS, domain-correctness giữ UNCERTAIN vì không có đủ input (file acceptance-card nằm ngoài phạm vi giao) để xác nhận vết "Khuôn IA đã chọn + căn cứ" thật sự đọc được TẠI cổng hay chỉ mở được qua path.
   required_evidence:
-    - [domain-correctness] feature-loop/skills/feature-loop/SKILL.md dòng 103 (khối 'Đính kèm gói text đầy đủ...') phải liệt kê rõ design-doc (hoặc riêng mục 'Khuôn IA đã chọn + căn cứ') là một trong các thứ đính NGUYÊN VĂN tại Gate 1 — hiện chỉ có 'tóm tắt design (≤10 dòng) + contract.md NGUYÊN VĂN + bảng mapping AC→eval→executor', không có design-doc hay mục IA rationale nào trong danh sách này
-    - [domain-correctness] Hoặc: một câu lệnh tường minh trong S1 (gần dòng 92 SKILL.md, chỗ dạy điền UX-SPEC-TEMPLATE) bắt bản tóm tắt design ≤10 dòng PHẢI trích nguyên dòng 'Khuôn IA: ... / Căn cứ: ...' — hiện không có ràng buộc nào nối tóm tắt 10 dòng với nội dung mục 6 của ux-spec-template.md
-    - [operational-feasibility] Thêm vào feature-loop/skills/feature-loop/SKILL.md, mục GATE 1 (đoạn liệt kê 'Đính kèm gói text đầy đủ...'), một dòng bắt buộc: khi feature chạm UI, gói Gate 1 phải trích nguyên văn mục 6 'Khuôn IA đã chọn + căn cứ' của Đặc tả UX (không chỉ tóm tắt ≤10 dòng chung chung) — nếu dòng này đã tồn tại ở đâu đó trong file (ngoài phạm vi 2 file được cấp cho eval này) thì verdict đổi thành PASS
-    - [operational-feasibility] Hoặc sửa ux-spec-template.md/SKILL.md để mục 6 được nâng lên contract.md (thay vì chỉ nằm trong design-doc bị tóm tắt), vì contract.md được đính NGUYÊN VĂN vào gói Gate 1 còn design-doc thì không
-    - [spec-alignment] Thêm vào SKILL.md quanh dòng 103 (mục 'BƯỚC MẶC ĐỊNH — render thẻ quyết định') một câu buộc: gói Cổng 1 phải trích nguyên văn (hoặc tối thiểu dòng 'Khuôn IA: ... / Căn cứ: ...') mục 6 'Khuôn IA đã chọn + căn cứ' của design-doc khi feature chạm UI — hiện dòng 103 chỉ liệt 'tóm tắt design (≤10 dòng) + contract.md NGUYÊN VĂN + bảng mapping', không nhắc §6
-    - [spec-alignment] Hoặc dẫn ra dòng nào khác trong feature-loop SKILL.md (ngoài phạm vi đã đọc ở đây, ví dụ phần acceptance-card mà input hiện KHÔNG cho phép đọc) minh chứng gói Cổng 1/thẻ thực sự render nội dung §6 — nếu file đó nằm trong Input hợp lệ của phiên khác và chứng minh được cờ W8a/W8d bao gồm việc bơm dòng Căn cứ vào thẻ, verdict sẽ đổi
+    - Đọc skill acceptance-gate:acceptance-card (file render thẻ Gate 1) — nếu thẻ trích nguyên văn/paraphrase dòng 'Khuôn IA đã chọn + căn cứ' từ design-doc vào nội dung card thì verdict đổi PASS; nếu thẻ chỉ hiện path design_doc mà không hiện nội dung căn cứ thì đổi FAIL
+    - Xác nhận 'tóm tắt design (≤10 dòng)' ở mục GATE 1 của feature-loop SKILL.md có khuôn bắt buộc chứa dòng Khuôn IA hay không
   human_override:
+<!-- JUDGMENT-BLOCK-TEMPLATE>>> -->
 
+<!-- <<<JUDGMENT-BLOCK-TEMPLATE -->
 - eval: E6
-  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E6-r5
-  exit_code: 0
-  baseline: green
-  verifier: config:executors.test.scripts
-  verified_at: 2026-08-24T00:00:00Z
-  output: |
-    PASS: ARM13-mut
-
-    Results: 764 passed, 0 failed
-
-- eval: E7
-  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E7-r5
-  exit_code: 0
-  baseline: green
-  verifier: config:executors.test.scripts
-  verified_at: 2026-08-24T00:00:00Z
-  output: |
-    PASS: ARM13-mut
-
-    Results: 764 passed, 0 failed
-
-- eval: E8
-  run_id: minted-dac-ta-ux-vat-hoa-cau-truc-E8-r5
-  exit_code: 0
-  baseline: green
-  verifier: config:executors.test.scripts
-  verified_at: 2026-08-24T00:00:00Z
-  output: |
-    PASS: ARM13-mut
-
-    Results: 764 passed, 0 failed
-
-- eval: E9
-  judged_by: judge panel (domain-correctness, operational-feasibility, spec-alignment)
-  proposal: FAIL
+  judged_by: panel (domain-correctness, operational-feasibility, spec-alignment)
+  proposal: PASS
+  verdict: UNCERTAIN
   votes:
-    - domain-correctness: PASS — Đọc kỹ cả hai file trong phạm vi đã thu (W8a only): mọi cánh W8A o1–o10 đều có đối chứng dương thật (o1 làm baseline chung, o7/o8 toggle trước/sau trên CÙNG fixture, o9/o10 có cặp phủ-định/khẳng-định trên cùng lần chạy); design.md fixture rút từ ux-spec-template.md thật qua marker (code-sinh, không viết tay khớp reader); mọi ghim đối chiếu NGUYÊN CÂU với message thật trong eval-coverage-lint.js (đã đọc source, khớp chính xác) và ux_flags() lọc chỉ dòng "[feat-ux] W8" nên không thể bị legend/comment giả mạo; UX1/UX2 chiều đỏ đi qua process LINT thật (subprocess riêng) nên mutation≠assertion; UX1-đỏ2 và UX3 dùng cùng hàm kiểm cho cả hai chiều kèm cross-check đối chứng khác vẫn xanh, chứng minh không phải phép thử vô nghĩa (self-evident truism) mà có sức phân biệt thật.
-    - operational-feasibility: FAIL — Cấu trúc chung tốt (ma trận [W8A]-o1..o10 có o1 làm đối chứng dương chung, fixture design-doc code-sinh từ ux-spec-template.md thật qua marker, phần lớn chiều đỏ trong UX3 dùng quan hệ đa điều kiện không tautology), nhưng UX3c trong ux-spec.test.mjs là một chiều đỏ tautology thật: mutation (`s.replace('vẽ TỪ section Đặc tả UX', 'vẽ theo cảm nhận')`, dòng 146) và assertion (`/vẽ TỪ section Đặc tả UX/.test(t)`, dòng 130, kiểm ở dòng 157) cùng thao tác trên đúng một chuỗi — phép kiểm chỉ chứng minh `.replace()` hoạt động, không chứng minh SKILL dạy đúng quan hệ như tên biến `checks.c` ngụ ý.
-    - spec-alignment: FAIL — Phần lớn UX1(đỏ-1)/UX2/W8A trong run-tests.sh đạt chuẩn (fixture rút từ writer thật, đi qua reader thật eval-coverage-lint.js, có đối chứng dương o1/rPos). Nhưng hai chiều đỏ là tautology thật: UX1-đỏ2 cắt đúng chuỗi "### 6. Khuôn IA đã chọn + căn cứ" ra khỏi văn bản rồi kiểm chuỗi đó vắng mặt bằng chính `.includes()` — không đi qua bộ đọc nào độc lập, kết quả đúng-theo-định-nghĩa bất kể logic ứng dụng; UX3c thay đúng literal "vẽ TỪ section Đặc tả UX" mà `checks.c` tìm rồi kiểm literal đó biến mất — mutation và assertion là một thao tác.
+    - domain-correctness: PASS — Chạy thực tế file (node tests/plugins/ux-spec.test.mjs) ra 25/25 PASS trên bản nguyên vẹn — mọi ca đỏ trong UX1/UX3/UX4 đều đi kèm đối chứng dương (cùng hàm kiểm, khác input: uxSection() cho UX1, các hàm checks.a/a2/b/c/d cho UX3, mienKhop() cho UX4), không có assertion âm-tính đứng một mình. Đối chiếu grep trực tiếp trên feature-loop/skills/feature-loop/SKILL.md xác nhận các cụm bị mutate ("Rồi sinh CÙNG LÚC", "design_doc: <path", "GIỮ NGUYÊN các marker", "vẽ TỪ section Đặc tả UX", cụm resolve-plugin.mjs) chỉ xuất hiện đúng một lần và đúng bên trong đoạn bị cắt/thay — nên ghim đỏ không bị thoả bởi thứ khác. Fixture của cả ba ca đều rút từ file nguồn thật (ux-spec-template.md, SKILL.md) qua readFileSync + trích marker/replace, không có fixture viết tay; UX3 dùng named-check-function chạy trên cả bản gốc lẫn bản mutate nên mutation và assertion không phải cùng một thao tác.
+    - operational-feasibility: PASS — Cả UX1, UX3, UX4 đều rút fixture qua readFileSync từ file thật (ux-spec-template.md, SKILL.md) chứ không viết tay; mọi chiều đỏ (UX1-đỏ/đỏ2, UX3 a/a2/b/c/d-đỏ, UX4-đỏ) đều đứng sau một đối chứng dương chạy CÙNG hàm kiểm trên bản gốc trước khi mutate, nên không có ca nào chỉ có assertion âm tính một mình. Không thấy chiều đỏ nào lặp y hệt thao tác của assertion (mutation dùng marker/vị trí cắt khác, assertion dùng substring/regex khác, kể cả khi cùng hàm check — đúng khuôn "cùng hàm, khác input" mà chính file đã tự đặt ra ở comment dòng 36-37 và 69-72).
+    - spec-alignment: FAIL — Hằng `MIEN` (dòng 14) là literal gõ tay, không rút qua marker từ `ux-spec-template.md` như đầu file tự nhận ("Fixture CODE-SINH rút từ CHÍNH ux-spec-template.md qua marker"); UX4 (dòng 137-140) dùng nó để so cả SKILL lẫn TPL với MỘT literal thứ ba thay vì rút chuỗi từ một bên rồi kiểm bên kia, nên không đo đúng điều comment tự nhận ("hai tài liệu chép cùng một chuỗi") — nếu cả hai tài liệu cùng đổi cách viết câu miễn (vẫn khớp nhau) mà quên sửa MIEN, case báo lệch giả dù bất biến thật (SKILL==TPL) vẫn đúng. UX1 dòng 50 dùng lại cùng literal cho việc kiểm một-phía nên ít rủi ro hơn nhưng cùng nguồn gốc viết-tay.
+      required_evidence:
+        - Sửa tests/plugins/ux-spec.test.mjs dòng 130-141 (case UX4): rút chuỗi miễn từ TPL bằng marker/regex thay vì const MIEN gõ tay ở dòng 14, rồi kiểm chuỗi đó xuất hiện trong SKILL (round-trip rút-từ-writer, đúng khuôn OOC-ITEM-TEMPLATE mà chính CLAUDE.md kit yêu cầu) — chạy `node tests/plugins/ux-spec.test.mjs` xanh với UX4 sau khi sửa sẽ đổi verdict.
+        - Hoặc: nếu MIEN thật ra được sinh ra ở một script/marker khác ngoài phạm vi file test này (mà judge không thấy do bị giới hạn input), trưng đường dẫn script đó — nếu chứng minh được MIEN không phải literal viết tay, verdict đổi thành PASS.
+  rationale: Panel không đồng nhất — hai lens cho PASS trên cơ sở đối chứng dương/mutant hợp lệ có thật trong code test, nhưng spec-alignment nêu bằng chứng cụ thể rằng hằng MIEN trong UX4 là literal gõ tay chứ không rút round-trip từ writer, lệch khỏi chính lời khai đầu file — cần người quyết ngưỡng này có chấp nhận được không.
   required_evidence:
-    - [operational-feasibility] tests/plugins/ux-spec.test.mjs dòng 130 (`c: t => /vẽ TỪ section Đặc tả UX/.test(t),`) + dòng 146 (`mutC`) + dòng 157 (assertion UX3c-đỏ): sửa checks.c thành kiểm quan hệ độc lập với cụm bị mutate — ví dụ đòi câu KẾ SAU cụm 'vẽ TỪ section Đặc tả UX' phải nhắc 'ux-spec-template.md' (giống cách checks.d quét ngữ cảnh ±400 ký tự quanh 'dòng state-matrix'), hoặc gộp thêm điều kiện thứ hai không nằm trong chuỗi bị .replace() — rồi chạy lại `UX_CASES=UX3 node tests/plugins/ux-spec.test.mjs` để xác nhận chiều đỏ mới không còn là cùng-một-thao-tác với mutation.
-    - [spec-alignment] tests/plugins/ux-spec.test.mjs dòng 76-81 (UX1-đỏ2): mutation `t.slice(0,cut)+t.slice(endMark)` cắt đúng từ vị trí chuỗi HEAD6, rồi assertion `!hasHeading(sec6, HEADINGS[5])` chỉ là `.includes(HEAD6)` — cần sửa để chiều đỏ đi qua một bộ đọc/parse độc lập với thao tác cắt (vd chạy qua parser heading thật hoặc lint script) thay vì tái dùng đúng chuỗi đã bị xoá.
-    - [spec-alignment] tests/plugins/ux-spec.test.mjs dòng 130 + 146 + 157 (UX3c): `checks.c` test literal 'vẽ TỪ section Đặc tả UX', `mutC` = `s.replace('vẽ TỪ section Đặc tả UX', 'vẽ theo cảm nhận')` thay đúng chuỗi đó, rồi `ok(!checks.c(mutC), ...)` — cần đổi `checks.c` sang đo một QUAN HỆ độc lập (vd cụm từ khác không trùng chuỗi bị `.replace()`) để mutation và assertion không còn cùng một thao tác.
+    - Sửa tests/plugins/ux-spec.test.mjs dòng 130-141 (case UX4): rút chuỗi miễn từ TPL bằng marker/regex thay vì literal MIEN gõ tay ở dòng 14
+    - Hoặc trưng đường dẫn script/marker khác chứng minh MIEN không phải literal viết tay
   human_override:
+<!-- JUDGMENT-BLOCK-TEMPLATE>>> -->
 
 ## Analyst
 
-E1, E2, E3, E4, E6, E7, E8 — tất cả bảy eval máy đều `baseline: green` (xanh trên cả code cũ diffBase lẫn nhánh hiện tại), tức không phân biệt được feature với code cũ ở mức suite-level report cho các cmd `tests/plugins/run-tests.sh` và `tests/scripts/run-tests.sh`. Cần viết lại các eval này để assert hành vi MỚI cụ thể (vd bật đúng cờ W8a trên fixture mới, không chỉ "suite pass"), hoặc xác nhận đây là regression-guard có chủ đích trong toàn bộ ma trận [BDK4]/[W8A] nội bộ của các file test đó — bản thân report ở mức eval-id không phân giải được vì baseline được cấp theo cả command, không theo từng case con trong ma trận (o1..o10, UX1..UX4).
+E1, E2, E3, E4 — cả bốn xanh trên cả HEAD lẫn baseline (`bash tests/plugins/run-tests.sh` baseline: green), vì lệnh cover cả suite plugins rộng hơn 4 eval này. Không đủ căn cứ tách baseline theo từng eval riêng lẻ từ kết quả máy đưa vào; khuyến nghị vòng sau chạy baseline theo đúng UX_CASES=E{n} riêng để mỗi eval có tín hiệu phân biệt độc lập thay vì thừa hưởng baseline của cả suite.
 
 ## Variance
 
@@ -143,7 +118,9 @@ none — every multi-run eval is uniform
 
 ## Iterations
 
-Round 5: verdict REJECT — bảy eval máy (E1-E4, E6-E8) xanh nhưng cả hai eval judgment đều bị hội đồng đề xuất FAIL: E5 (căn cứ IA ở mục 6 design-doc không được bảo đảm tới gói Cổng 1, chỉ có tóm tắt ≤10 dòng + contract.md không chứa nó) và E9 (UX3c và UX1-đỏ2 trong ux-spec.test.mjs là chiều đỏ tautology — mutation và assertion cùng thao tác trên một chuỗi). Cộng thêm 6 finding trong-hợp-đồng từ scope-triage (W8 tự chế đọc frontmatter qua code fence tắt được cờ W8a, AC-3 còn tuyên mệnh đề `states:` đã bị cắt ở round 4, E7/E8 ghim nhãn `[W8O]/[W8F]/[W8N]` không tồn tại nên chỉ còn đo exit-code toàn suite, ma trận o1-o10 thiếu ô key `design_doc:` rỗng, fixture E9 gõ tay key `design_doc:` thay vì rút từ khuôn qua marker). Trả về triển khai.
+Round 4: Cắt cánh W8 (state-matrix, mệnh đề `states:`) khỏi phạm vi — contract/evals chưa cập nhật theo kịp phần cắt.
+Round 5: Hội đồng FAIL E9 (chiều đỏ tautology ở UX3c và UX1-đỏ2) — E9 bị XOÁ khỏi bộ đo thay vì sửa vật; evidence-report round 5 tự nêu "AC-3 còn tuyên mệnh đề `states:` đã bị cắt ở round 4" nhưng chưa sửa.
+Round 6: E1–E4 xanh, panel E5/E6 không đồng nhất (UNCERTAIN); scope-triage xác nhận AC-3 và AC-6 vẫn lệch khỏi vật giao (6 finding "Trong hợp đồng") → REJECT, quay lại viết lại contract/evals theo phạm vi thật trước khi verify lại.
 
 ## Gate 2 checklist (human)
 

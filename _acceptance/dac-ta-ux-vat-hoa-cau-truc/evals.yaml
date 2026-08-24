@@ -1,10 +1,11 @@
 schema_version: 1
 feature_slug: dac-ta-ux-vat-hoa-cau-truc
-# Hai bộ đo, cùng nếp các hồ sơ trước:
-#   · suite `scripts` — case W8 vào suite vĩnh viễn (lint là vật vĩnh viễn).
-#   · suite `plugins` — khuôn/SKILL round-trip + khớp chuỗi miễn.
-# MỌI eval máy khai chiều đỏ trên CÙNG fixture code-sinh + thông điệp ghim
-# (AC-11 là luật lớp, được chứng bởi chính expected của E2, E6–E9).
+# Vòng này giao VẬT và LỜI, không giao lưới: khuôn đặc tả UX có marker + lời S1
+# (điền trước · tra mẫu · hình vẽ từ khuôn) + cửa miễn. Bộ ca sống ở suite
+# `plugins` (UX1/UX2-trich/UX3/UX4), fixture rút TỪ khuôn thật qua marker; mỗi
+# mutant đi qua CHÍNH bộ kiểm của chiều xanh. Phần máy-tự-kiểm đã cắt trọn
+# 24/08 sau 5 vòng cùng lớp lỗi — hạt giống:
+# docs/plans/2026-08-24-hat-giong-khop-vong-dac-ta-ux.md
 evals:
   - id: E1
     criterion: AC-1
