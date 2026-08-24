@@ -14,6 +14,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
 const require = createRequire(import.meta.url);
 const { blockFromTemplate, fileFromTemplate } = await import(path.join(ROOT, 'tests', 'fixtures', 'from-template.mjs'));
+const XS = await import(path.join(ROOT, 'scripts', 'khong-can-nguoi.mjs'));
 const REF = p => path.join(ROOT, 'skills', 'acceptance', 'references', p);
 const CONTRACT_TPL = REF('contract-template.md');
 const OPP_TPL = REF('opportunity-template.md');
@@ -209,6 +210,27 @@ if (want('RT1')) {
   const missing = EXPECT_XS.filter(k => !xs2.includes(k));
   if (JSON.stringify(missing) !== JSON.stringify(['sections'])) errs.push(`chiều đỏ khuôn: mong thiếu [sections], thấy ${JSON.stringify(missing)}`);
   rmSync(t2, { recursive: true, force: true });
+  // Khối xanh-sạch phải nằm NGOÀI vùng chép: nội dung nó có chữ UNCERTAIN, mà cả hai bộ
+  // kiểm quét TRỌN file — nằm trong vùng chép là mọi báo cáo mới tự thành «có mục
+  // UNCERTAIN» và trạng thái máy-thông không bao giờ ghi được (S4-r5, đã dựng lại).
+  {
+    const tplRaw = readFileSync(EVID_TPL, 'utf8');
+    const vungChep = tplRaw.slice(tplRaw.indexOf('---8<---') + 8);
+    if (vungChep.includes('EVIDENCE-XANH-SACH-BLOCK')) errs.push('khối xanh-sạch nằm TRONG vùng chép — mọi báo cáo mới sẽ tự dính «có mục UNCERTAIN»');
+    if (!vungChep.includes('EVIDENCE-SECTIONS-TEMPLATE')) errs.push('khối hai mục phải nằm TRONG vùng chép (bên viết cần chép nó)');
+    // chiều đỏ: dựng báo cáo TRỌN từ vùng chép + thay giá trị → vị từ phải nói sạch
+    // Phép đo SỐNG: báo cáo dựng bằng chính evidenceText() (rút từ khuôn) phải được vị từ
+    // xanhSach gọi là SẠCH. Tiêm khối xanh-sạch vào bản sao báo cáo → vị từ phải ĐỎ đúng
+    // «có mục UNCERTAIN»; đó là cách chứng minh vị trí khối có thật sự quan trọng.
+    const cSach = contractText('zz', { status: 'machine-cleared', tier: 'T2', veto: 'mo', opened: '2026-08-23T00:00:00Z' });
+    const eSach = evidenceText('zz', { verdict: 'PASS', signoff: '', sach: 'sach' });
+    const r1 = XS.xanhSach(cSach, eSach);
+    if (!r1.clean) errs.push(`báo cáo dựng từ khuôn KHÔNG sạch: ${r1.why} — làn máy-thông không ghi được`);
+    const khoi = tplRaw.match(/<!-- <<<EVIDENCE-XANH-SACH-BLOCK -->[\s\S]*?<!-- EVIDENCE-XANH-SACH-BLOCK>>> -->/)[0];
+    const r2 = XS.xanhSach(cSach, eSach + '\n' + khoi + '\n');
+    if (r2.clean) errs.push('chiều đỏ: chèn khối xanh-sạch vào báo cáo mà vị từ vẫn nói sạch — vị trí khối không được đo');
+    else if (!/UNCERTAIN/.test(r2.why)) errs.push(`chiều đỏ: đỏ vì «${r2.why}», mong «có mục UNCERTAIN»`);
+  }
   if (errs.length) fail('RT1', errs.join(' · '));
   else pass('RT1', 'enum 6 giá trị round-trip khuôn↔lib; usesUat/usesEvidence; khối xanh-sạch ba đầu; chiều đỏ nêu mục');
 }
@@ -429,6 +451,20 @@ if (want('RT5')) {
     if (!/cửa veto đang mở/.test(html)) errs.push('thẻ thiếu trạng thái cửa veto');
     if (/Ký duyệt|Ký hay trả/.test(html)) errs.push('thẻ vẫn mời ký một hồ sơ máy đã thông');
   });
+  // Bộ quét MÙ (repo chưa dựng cổng → không có groups) mà hợp đồng khai máy-thông: thẻ
+  // phải RENDER, không sập. Vòng trước gọi bảng chữ với khoá null → bảng ném → exit 1,
+  // 0 byte, người nhận màn hình trắng (S4-r5, đã dựng lại).
+  {
+    const r = tmp('rt5-mu-');
+    mkdirSync(path.join(r, '_acceptance', 'm'), { recursive: true });   // KHÔNG có config.yaml
+    writeFileSync(path.join(r, '_acceptance', 'm', 'contract.md'), contractText('m', MC));
+    writeFileSync(path.join(r, '_acceptance', 'm', 'evidence-report.md'), evidenceText('m', {}));
+    const cr = spawnSync(process.execPath, [CARD, '--root', r, '--slug', 'm'], { encoding: 'utf8' });
+    if (cr.status !== 0) errs.push(`bộ quét mù: thẻ sập exit ${cr.status} — ${(cr.stderr || '').split('\n')[1] || ''}`);
+    else if (!(cr.stdout || '').includes('máy đã thông')) errs.push('bộ quét mù: thẻ render nhưng không nói hồ sơ máy-thông');
+    else if (/Ký duyệt/.test(cr.stdout)) errs.push('bộ quét mù: thẻ vẫn mời ký hồ sơ máy-thông');
+    rmSync(r, { recursive: true, force: true });
+  }
   if (errs.length) fail('RT5', errs.join(' · '));
   else pass('RT5', '4 khoá mới có nhãn riêng + bucket đúng; bản đồ và thẻ in chữ từ bảng; thẻ không mời ký hồ sơ máy-thông');
 }
@@ -964,6 +1000,7 @@ if (want('RT18')) {
     ['tiền tố đề xuất', DE_XUAT],
     ['tiền tố không-đo', KHONG_DO],
     ['hằng một-ngày', String(24 * 60 * 60 * 1000)],
+    ['vị từ mặt người dùng', NG.SURFACE_NGUOI_DUNG.source],
   ];
   const contractRT18 = readRepo('_acceptance/ra-co-ten-lam-va-trao/contract.md');
   const mG = contractRT18.match(/<<<LUAT-NGUONG-KHAI-GACH\n([\s\S]*?)LUAT-NGUONG-KHAI-GACH>>>/);
@@ -1009,7 +1046,7 @@ if (want('RT18')) {
     if (bo && !soSanh18(hits, GACH18.slice(1)).some(x => x.startsWith(bo[0]))) errs.push(`chiều đỏ (b): gỡ dòng gạch «${bo[0]}» mà phép so vẫn im`);
   }
   if (errs.length) fail('RT18', errs.join(' · '));
-  else pass('RT18', `chống-chép: 4 chuỗi luật chỉ sống trong lib; ${GACH18 ? GACH18.length : 0} file khai gạch có lý do; tiêm bản chép → nêu tên`);
+  else pass('RT18', `chống-chép: ${NEEDLES.length} chuỗi luật chỉ sống trong lib; ${GACH18 ? GACH18.length : 0} file khai gạch có lý do; tiêm bản chép → nêu tên`);
 }
 
 const la = only.filter(id => !ALL_IDS.includes(id));

@@ -406,7 +406,7 @@ if (gate === '1') {
   // ── Răng chống lách (hồ sơ ra-co-ten, AC-11) ──
   // Lối «không đo được» chỉ dành cho vòng KHÔNG có người dùng cuối. Hợp đồng khai mặt
   // ui/mobile mà ô cơ hội lại khai không đo được ⇒ đang trốn Cổng Giá trị.
-  const mienDoCoNguoiDung = mienDo && /\b(ui|mobile)\b/i.test(clean(cfm.surfaces) || '');
+  const mienDoCoNguoiDung = mienDo && NG1.coNguoiDungCuoi(clean(cfm.surfaces));
   if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null } }, null, 2)); process.exit(0); }
   const featurePlain = pl.feature_plain || feature;
   const pmap = (arr, id) => (((arr || []).find(x => x.id === id)) || {}).p;
@@ -600,14 +600,19 @@ const MAY_THONG = (clean(cfm.status) || '').toLowerCase() === 'machine-cleared';
 const MAY_DI_TIEP = ['may-di-tiep-veto-mo', 'may-di-tiep-xanh-sach',
                      'da-giao-may-thong-veto-mo', 'da-giao-may-thong-xanh-sach'].includes(scanState)
   || (MAY_THONG && scanState == null);
+// Chữ cho trạng thái này: bộ quét trả khoá thì HỎI BẢNG; bộ quét mù (scanState null) thì
+// dùng câu dự phòng — `chu(null)` NÉM (bảng cố ý chết cho khoá lạ) và làm sập cả thẻ, đúng
+// ca S4-r5 dựng lại được trên repo chưa dựng cổng: exit 1, 0 byte, người nhận màn hình trắng.
+const CHU_MAY_THONG = { nhan: 'đã giao — máy thông (chưa đọc được trạng thái)', viecKe: 'người: veto lúc nào cũng được, cửa không có hạn' };
+const chuMDT = () => (scanState == null ? CHU_MAY_THONG : trangThai.chu(scanState));
 const chip = MAY_DI_TIEP
-  ? { t: trangThai.chu(scanState).nhan, c: 'gray' }
+  ? { t: chuMDT().nhan, c: 'gray' }
   : (verdict === 'PASS' ? { t: 'máy đã xong — ký nhanh', c: 'teal' } : { t: 'cần bạn quyết', c: 'amber' });
 P.push(`<div class="gc"><div class="card">
 <div class="h"><div><div class="ft">${esc(featurePlain)}</div><div class="sub">${MAY_DI_TIEP ? 'Cổng 2 · máy đã đi tiếp' : 'Cổng 2 · ký duyệt'}${tier === 'T3' ? ' · tier T3 (đụng critical)' : ''}</div></div><span class="chip ${chip.c}">${esc(chip.t)}</span></div>`);
 if (scanErr) P.push(`<div class="flag fwarn">⚠ Chưa đọc được trạng thái làn V (${esc(scanErr)}) — thẻ đang trình theo lối cũ, nên nó có thể đang mời ký một hồ sơ máy đã đi tiếp hợp lệ. Kiểm bằng máy quét trước khi ký.</div>`);
 if (MAY_THONG) P.push(`<div class="flag finfo">máy đã thông — hồ sơ này qua Cổng Bằng chứng bằng sáu điều kiện xanh-sạch, KHÔNG có chữ ký người; cửa veto ${(clean(cfm.veto_state) || '').toLowerCase() === 'mo' ? 'đang mở' : 'không mở'}.</div>`);
-if (MAY_DI_TIEP) P.push(`<div class="flag finfo">Hồ sơ này máy đã đi tiếp — ${esc(trangThai.chu(scanState).viecKe)}. Thẻ không có nút ký cho trạng thái này.</div>`);
+if (MAY_DI_TIEP) P.push(`<div class="flag finfo">Hồ sơ này máy đã đi tiếp — ${esc(chuMDT().viecKe)}. Thẻ không có nút ký cho trạng thái này.</div>`);
 P.push(`<a href="evidence-page.html" style="display:flex;justify-content:space-between;align-items:center;gap:10px;background:#E6F1FB;border:1px solid #B5D4F4;border-radius:10px;padding:9px 13px;margin:11px 0 2px;text-decoration:none;color:#0C447C;font-size:13px"><b>Bằng chứng đầy đủ — ảnh chụp + chạy thật</b><span style="font-size:12px;color:#185FA5;white-space:nowrap">đã mở trong trình duyệt</span></a>`);
 // Khối "Ngoài hợp đồng" đứng TRƯỚC mọi việc-của-người khác: đây là thứ máy cố ý
 // KHÔNG tự sửa, nên nếu người duyệt bỏ qua thì không ai bắt lại.
@@ -704,7 +709,7 @@ P.push(`</details>`);
   // muốn. Bỏ sót chỗ này là thẻ nói «máy đã đi tiếp» ở đầu rồi vẫn bảo «Ký hay
   // trả» ở cuối — mâu thuẫn ngay trong chính thẻ, và đúng thứ AC-8 cấm.
   if (MAY_DI_TIEP) {
-    ymItems.push(`<b>${esc(trangThai.chu(scanState).viecKe)}</b> — làm gì: hồ sơ này máy đã đi tiếp hợp lệ, không cần chữ ký; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «veto: nêu lý do» nếu muốn dừng, hoặc không trả lời gì.`);
+    ymItems.push(`<b>${esc(chuMDT().viecKe)}</b> — làm gì: hồ sơ này máy đã đi tiếp hợp lệ, không cần chữ ký; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «veto: nêu lý do» nếu muốn dừng, hoặc không trả lời gì.`);
     ymSlots.push('veto hay để yên: ___');
   } else {
     ymItems.push(`<b>Ký hay trả</b> — làm gì: sau khi trả lời các mục trên, chốt hồ sơ; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «Ký» hoặc «Trả lại: nêu lý do».`);
@@ -713,7 +718,7 @@ P.push(`</details>`);
   P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo">${ymItems.map(t => `<p class="li">${t}</p>`).join('')}<p class="li">Trả lời mẫu (một dòng, điền vào chỗ trống): «${esc(ymSlots.join('; '))}»</p></div>`);
 }
 P.push(MAY_DI_TIEP
-  ? `<div class="foot"><span class="rev">↻ ${esc(trangThai.chu(scanState).viecKe)}</span><div class="btns"><button class="b no">Veto</button></div></div>
+  ? `<div class="foot"><span class="rev">↻ ${esc(chuMDT().viecKe)}</span><div class="btns"><button class="b no">Veto</button></div></div>
 </div></div>`
   : `<div class="foot"><span class="rev">↻ Đảo ngược dễ: trả lại → quay về code, không mất gì.</span><div class="btns"><button class="b no">Trả lại</button><button class="b yes">Ký duyệt</button></div></div>
 </div></div>`);

@@ -116,6 +116,26 @@ listed under `## Variance` for a human to judge — like a judgment item. A
 deterministic eval omits `runs`/`pass_rate` and must be 0/N or N/N (a mixed
 deterministic result is a flaky test, not a score).
 
+## Sáu điều kiện xanh-sạch — bảng máy đọc (KHÔNG chép vào hồ sơ thật)
+
+> Khối dưới đây nằm NGOÀI vùng chép (phía trên mốc cắt) có chủ ý: nội dung của nó là
+> văn bản trần và có chứa chữ `UNCERTAIN`, mà cả hai bộ kiểm xanh-sạch đều quét TRỌN
+> file tìm chữ đó. Chép nó vào báo cáo thật là tự làm hồ sơ «có mục UNCERTAIN» → không
+> bao giờ đủ điều kiện sạch → trạng thái `machine-cleared` không bao giờ ghi được.
+> Khuôn ô cơ hội đặt marker ở mục cuối vì đúng lý do này.
+
+<!-- Sáu điều kiện xanh-sạch — NGUỒN DUY NHẤT. scripts/khong-can-nguoi.mjs (xanhSach) và
+     scripts/pre-merge-check.sh (xanh_sach_check) kiểm ĐÚNG thứ tự này; ca RT1 so round-trip
+     ba đầu. Hai mục cuối phải HIỆN DIỆN-và-rỗng trong báo cáo: vắng ≠ rỗng. -->
+<!-- <<<EVIDENCE-XANH-SACH-BLOCK -->
+verdict-pass   verdict: PASS (chỉ PASS mới xanh-sạch)
+bypass         bypass_used không true
+enforcement    enforcement_mode không off
+tier           risk_tier của hợp đồng là T2
+uncertain      không có mục UNCERTAIN trong báo cáo
+sections       hai mục «Known limits» và «Ngoài hợp đồng» hiện diện và rỗng
+<!-- EVIDENCE-XANH-SACH-BLOCK>>> -->
+
 ---8<---
 ---
 schema_version: 2
@@ -131,18 +151,6 @@ verified_commit: {{git rev-parse HEAD at verify time}}   # pins the evidence to 
 # bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
 human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER review
 ---
-
-<!-- Sáu điều kiện xanh-sạch — NGUỒN DUY NHẤT. scripts/khong-can-nguoi.mjs (xanhSach) và
-     scripts/pre-merge-check.sh (xanh_sach_check) kiểm ĐÚNG thứ tự này; ca RT1 so round-trip
-     ba đầu. Hai mục cuối phải HIỆN DIỆN-và-rỗng trong báo cáo: vắng ≠ rỗng. -->
-<!-- <<<EVIDENCE-XANH-SACH-BLOCK -->
-verdict-pass   verdict: PASS (chỉ PASS mới xanh-sạch)
-bypass         bypass_used không true
-enforcement    enforcement_mode không off
-tier           risk_tier của hợp đồng là T2
-uncertain      không có mục UNCERTAIN trong báo cáo
-sections       hai mục «Known limits» và «Ngoài hợp đồng» hiện diện và rỗng
-<!-- EVIDENCE-XANH-SACH-BLOCK>>> -->
 
 <!-- Hai mục điều kiện `sections` đòi, đặt SẴN ở khuôn và để RỖNG. Trước đây chúng chỉ sống
      trong văn xuôi skill, nên mọi hồ sơ mẫu phải gõ tay đúng khuôn BÊN ĐỌC — đúng lớp

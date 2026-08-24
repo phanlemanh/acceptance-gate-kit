@@ -213,9 +213,8 @@ const thresholdState = oTxt => { try { return NG.thresholdState(oTxt, oppTpl());
 const thresholdFilled = oTxt => thresholdState(oTxt) !== 'chua-chot';
 const quaTimebox = oTxt => NG.quaTimebox(oTxt);
 // Răng chống lách: lối «không đo được» chỉ dành cho vòng KHÔNG có người dùng cuối.
-const SURFACE_NGUOI_DUNG = /\b(ui|mobile)\b/i;
 const mienDoCoNguoiDung = (cTxt, oTxt) => !!oTxt && thresholdState(oTxt) === 'khong-do-duoc'
-  && SURFACE_NGUOI_DUNG.test(frontmatterField(cTxt, 'surfaces') || '');
+  && NG.coNguoiDungCuoi(frontmatterField(cTxt, 'surfaces'));
 
 // since của ý đang cân nhắc = committer date của commit ĐẦU TIÊN thêm file
 // (--diff-filter=A); chưa commit / không git → mtime (d-4203).
