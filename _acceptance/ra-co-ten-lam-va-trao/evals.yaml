@@ -104,7 +104,9 @@ evals:
       exit 0; stdout có "PASS: [RT10]" — hai khối marker OPP-DE-XUAT-PREFIX / OPP-KHONG-DO-DUOC-PREFIX
       tồn tại; chuỗi rút từ khối == chuỗi start-scan và gate-card dùng (chạy trên fixture dựng từ
       chính chuỗi khuôn) == chuỗi trong ngoặc kép của uat-session §0 (approve.md đã tách sang hồ sơ
-      cong-dang-co-cua); bản sao khuôn đổi một chuỗi → reader trên bản sao đỏ nêu CẢ HAI chuỗi.
+      cong-dang-co-cua); bản sao khuôn đổi một chuỗi TRONG KHỐI → CHẠY LẠI chính bộ đọc lib với
+      khuôn bản sao: ô viết theo chuỗi CŨ phải THÔI được nhận (nêu cả hai chuỗi), ô viết theo
+      chuỗi MỚI của khuôn bản sao phải được nhận.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E11
     criterion: AC-11
@@ -137,12 +139,16 @@ evals:
       exit 0; stdout có "PASS: [RT13]" — (i) bản MỚI start-scan trên cây thật: broken rỗng; (ii) bản CŨ
       (git show cb38ea01) trên cùng cây: tập (slug, stateKey) bằng nhau trừ đúng dòng khối
       KHAC-BIET-DOC-CU rút từ contract lúc chạy; (iii) ĐẲNG THỨC HAI CHIỀU theo QUAN HỆ, không đếm:
-      slug có flag qua-timebox ⇔ có bullet Timebox parse được ngày ∧ ngày < ngày chạy; slug có
+      vị từ HỎI LIB (NG.quaTimebox / NG.thresholdState), không chép lại; tập quét gồm CẢ nhóm
+      considering (đòi cờ RỖNG); slug có
       nguong-chua-chot ⇔ (ở gates gia-tri ∧ ngưỡng khác chot) — assert này đúng ở mọi ngày chạy;
       (iv) quét không gian mở: tập file chứa "signed-off" (ngoài _acceptance/** và docs/**) == hợp của
-      tập paths các eval hồ sơ này và khối BO-DOC-KHAI-GACH; file lạ → ĐỎ nêu tên file. Chiều đỏ: bản
-      sao xoá một dòng KHAC-BIET-DOC-CU → đỏ nêu slug lệch; tiêm file mới chứa chuỗi → đỏ nêu file;
-      tiêm một hồ sơ tạm có Timebox quá hạn mà chặn cờ → đỏ nêu vế đẳng thức trượt.
+      tập «có ca THẬT» (tên file phải xuất hiện trong BIỂU THỨC ĐƯỢC CHẠY của file ca — lột chú
+      thích trước khi tìm, không miễn trừ bằng comment) và khối BO-DOC-KHAI-GACH; file lạ → ĐỎ nêu
+      tên file. Ba chiều đỏ TIÊM THẬT: (iv-a) dựng kho git tạm có file tiêm rồi chạy CHÍNH bước
+      git grep trên đó — phải tìm ra file mới, phải loại docs/**, không nêu file không chứa chuỗi;
+      (iv-b) gỡ một dòng khai gạch → file đó thành lạ; (ii) bản sao xoá một dòng KHAC-BIET-DOC-CU
+      → đỏ nêu slug lệch.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E15
     criterion: AC-15
