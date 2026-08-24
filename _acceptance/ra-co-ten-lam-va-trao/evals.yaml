@@ -87,9 +87,15 @@ evals:
       HTML có «máy đã thông» + cửa veto và KHÔNG mời ký; repo bộ quét MÙ (chưa dựng cổng) → thẻ
       RENDER được, không sập; hồ sơ HỎNG (broken) → thẻ nêu lý do + đường sửa, KHÔNG nói «máy đã
       đi tiếp»; BDK2 ma trận N=24 gõ tay.
-      THÊM (hồi quy S4-r8 [1][3]): ô ngưỡng viết KHÔNG gạch đầu dòng và toàn placeholder → thẻ
-      và lib phải CÙNG kết luận «chưa» (đo QUAN HỆ: thẻ coi là đã-khai ⇔ lib coi là đã-chốt), và
-      thẻ phải cho uat_threshold.lines RỖNG như bản nền cb38ea01.
+      THÊM (S4-r8 [1][3] + S4-r9 [1][5]): ma trận NĂM hình dạng ô ngưỡng — thiếu nhãn của khuôn ·
+      toàn placeholder không gạch · điền đủ KHÔNG gạch · mang tiền tố đề xuất · chốt đủ — mỗi ô
+      so trạng thái thẻ ĐỌC RA (`uat_threshold.state`, thẻ HỎI thresholdState chứ không tự suy
+      `lines.length > 0`) với trạng thái lib; ô toàn placeholder phải cho lines RỖNG như bản nền
+      cb38ea01. Ô ở trạng thái ĐỀ XUẤT (máy đề nghị, người chưa chốt) KHÔNG được thẻ gọi là «đã
+      khai ở Cổng Đáng» — thẻ phải nói rõ đây là đề xuất của máy; ô đã CHỐT thì phải gọi đúng
+      tên đó. Chiều đỏ: hoàn nguyên thẻ về vị từ tự chế → ĐỎ nêu đúng ba ô lệch.
+      KHÔNG ĐỔI (hồ sơ ĐÃ KÝ ghim, sổ #20): `duong_do.applicable` giữ vị từ «≥1 dòng thật» của
+      DD1, và chuỗi cờ «Hồ sơ cơ hội chưa khai ngưỡng nghiệm thu» giữ nguyên văn cho P198.
       THÊM (S4-r8 [2][4]): (a) nhãn máy-thông phải nằm TRONG Ô của hồ sơ — đo QUAN HỆ «ô của
       nhãn == ô của slug», không phải «chuỗi có mặt đâu đó trong bản đồ»; (b) hai hình dạng ĐẾN
       ĐƯỢC mà danh sách khoá từng bỏ sót: hồ sơ máy-thông CÓ opportunity.md × {ngưỡng chốt →
