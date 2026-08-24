@@ -19,8 +19,9 @@ evals:
       Đối chứng dương: khuôn nguyên vẹn XANH. Chiều đỏ KHÔNG tautology — mỗi
       mutant đi qua CHÍNH bộ kiểm của chiều xanh (cùng hàm, khác input): (1) bản
       sao đổi tên marker bảng → bộ trích thấy section mất UX-STATE-TABLE;
-      (2) gỡ TRỌN mục «### 6. Khuôn IA đã chọn + căn cứ» → cùng bộ kiểm tiêu-đề
-      trượt đúng mục đó trong khi các mục khác vẫn xanh.
+      (2) ĐỔI TÊN mục «### 6. Khuôn IA đã chọn + căn cứ» thành tên khác (không
+      xoá chuỗi rồi kiểm chuỗi vắng) → cùng bộ kiểm tiêu-đề trượt đúng mục 6
+      trong khi mục 1 và mục 4 vẫn xanh.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
     criterion: AC-2
@@ -51,7 +52,9 @@ evals:
       trên toàn file. Đối chứng dương: SKILL hiện tại xanh cả 5 mệnh đề. Chiều
       đỏ, BỐN mutant trên bản sao — mỗi mệnh đề đo được đều có mutant: (1) gỡ
       TRỌN câu «Kế đó, VẪN TRƯỚC khi sinh 3 artifact: …» → (a) và (b) cùng đỏ;
-      (2) đổi "vẽ TỪ section Đặc tả UX" → (c) đỏ; (3) thay mệnh đề resolve
+      (2) gỡ TRỌN câu vẽ-từ-khuôn khỏi bước [3] của nghi thức hình → (c) đỏ,
+      trong khi (c) đo QUAN HỆ (câu phải nằm TRONG bước [3]) chứ không đo sự
+      có mặt của chuỗi mà mutant vừa đụng; (3) thay mệnh đề resolve
       bằng đường plugins/cache cứng → (a2) đỏ; (4) chèn một câu «dòng
       state-matrix» mồ côi xa con trỏ → (d) đỏ (d quét MỌI lần xuất hiện).
       Mọi mệnh đề tuyên ở đây đều CÓ mutant thật trong code test — không vế nào
