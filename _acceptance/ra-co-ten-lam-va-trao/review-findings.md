@@ -1,125 +1,98 @@
-# Review Findings: ra-co-ten-lam-va-trao (round 4)
+# Review Findings: ra-co-ten-lam-va-trao (round 6)
 
 Informational — nằm NGOÀI hook `acceptance-evidence-gate.js`. File này chia theo kết quả scope-triage: mỗi finding ghi title, file:line, severity, detail, source.
 
 ## Trong hợp đồng
 
-### 1. Răng chiều đỏ của /approve chặn đúng lối mà chính bước 2 dựng ra
-- file: `commands/approve.md:156`
+### 1. Khối `EVIDENCE-SECTIONS-TEMPLATE` đặt trên h1 — mọi báo cáo sinh từ khuôn đều KHÔNG xanh-sạch, `machine-cleared` không bao giờ ghi được
+- file: `skills/acceptance/references/evidence-report-template.md:162`
 - severity: high
-- AC: AC-8
+- AC: AC-2
 - nguồn: conventions
-- rationale: AC-8(i) chỉ định rõ răng chiều đỏ chỉ kích hoạt khi ngưỡng còn `…` (chưa-chốt) chứ không phải khi còn `[đề xuất]`, và văn bản thật của approve.md vi phạm đúng điều kiện này.
+- rationale: AC-2 đòi evidence-report.md của fixture PASS xanh-sạch phải sinh từ khối EVIDENCE-XANH-SACH-BLOCK của khuôn bên viết (không gõ tay); vì khối hai mục đặt sai vị trí (trên h1) làm section bị cắt sai, một báo cáo sinh đúng như AC-2 mô tả sẽ KHÔNG đạt điều kiện sections nên pre-merge-check không thể trả exit 0 như AC-2 yêu cầu.
 
-Bước 1 khai: «`làm`/`lặp` mà ô ngưỡng còn `…` (hoặc còn `[đề xuất]`) và không có dòng «Không đo được — » → TỪ CHỐI, in đúng câu cờ đỏ của thẻ». Bước 2 ngay dưới lại là: «Gỡ tiền tố `[đề xuất]` khỏi mọi bullet ngưỡng: ký là nhận».
+Khối hai mục nằm ở dòng 159–163, tức NGAY TRÊN `# Evidence Report: {{slug}}` (dòng 165). `lib/md-section.cjs` cắt section theo luật `default -> same-or-higher` (`lv >= 2 && lv <= lvl`), nên một h1 KHÔNG đóng section h2. Hệ quả: `## Ngoài hợp đồng` nuốt luôn `<!-- EVIDENCE-SECTIONS-TEMPLATE>>> -->`, dòng tiêu đề h1 và cả bảng eval, tới tận `## Evidence`.
 
-Hai câu loại trừ nhau. `[đề xuất]` chính là trạng thái bình thường của ngưỡng máy vừa đề xuất (`/start` bước ⑤ dạy máy viết nó, `OPP-DE-XUAT-PREFIX` là bản gốc), và bước 2 tồn tại chỉ để xử đúng ca đó lúc ký. Áp bước 1 theo mặt chữ thì mọi lượt `làm`/`lặp` trên ô có đề xuất đều bị từ chối và bước 2 không bao giờ chạy được — lối «máy đề xuất, người gỡ tiền tố là chốt» thành ngõ cụt.
+Đo trên vật thật (chép vùng sau `---8<---`, thay `{{slug}}`, đọc bằng chính reader):
+```
+Known limits    present=true empty=true
+Ngoài hợp đồng  present=true empty=false
+```
 
-Máy đã cài ngược lại với bước 1, nên đây là chỉ dẫn lệch khỏi vật:
-- `scripts/gate-card.js` chỉ cắm cờ đỏ khi `nguong0 === 'chua-chot'`; với `de-xuat` nó in chip hổ phách «máy đề xuất — anh sửa hoặc nhận». Nghĩa là «in đúng câu cờ đỏ của thẻ» không có nguồn để in.
-- `lib/nguong-o-co-hoi.cjs` phân `de-xuat` khác `chua-chot`; `scripts/start-scan.mjs` (`thresholdFilled`) xếp `de-xuat` là ĐÃ điền → hồ sơ vào nhóm chờ Cổng Đáng.
-- Ca đo cũng chốt vậy: `tests/plugins/ra-co-ten.test.mjs:472-475` đòi ô `de-xuat` chưa hợp đồng phải là `gate: 'dang'`.
+Cả hai bộ kiểm xanh-sạch — `xanhSach` (scripts/khong-can-nguoi.mjs:65-69) và `xanh_sach_check` (scripts/pre-merge-check.sh:361-378) — vì thế trả «mục «Ngoài hợp đồng» có nội dung». Điều kiện thứ sáu không bao giờ đạt, nên `status: machine-cleared` (ô kết của làn V, đúng thứ hồ sơ này mở) không bao giờ ghi được cho một báo cáo sinh từ khuôn. Hồ sơ thật hiện có đặt hai mục SAU h1 và trước `## Analyst` — khuôn mới dạy ngược lại vị trí đang chạy được.
 
-Sửa: bỏ vế «(hoặc còn `[đề xuất]`)» khỏi bước 1 — chỉ `chua-chot` mới là chiều đỏ, đúng như thẻ và bộ quét đang nói.
+Vì sao suite không bắt: tests/plugins/ra-co-ten.test.mjs:91 rút khối bằng marker (đúng doctrine) nhưng dán nó vào CUỐI fixture (`t += '\n' + secBlk`), tức đổi vị trí so với khuôn. Đó đúng lớp «thước gắn vào vật khác vật được giao» của CLAUDE.md: fixture do code sinh, nhưng lắp lại theo hình dạng mà không writer nào theo khuôn sẽ tạo ra. Phép đo round-trip cần dựng báo cáo từ TRỌN vùng sau `---8<---` rồi hỏi chính reader, chứ không ghép lại thứ tự.
 
-### 2. Ca đo timebox chép lại luật lib và lệch một ngày — suite đỏ ngày 30/08/2026
-- file: `tests/plugins/ra-co-ten.test.mjs:708`
-- severity: high
-- AC: AC-13
-- nguồn: conventions
-- rationale: AC-13(iii) đòi cờ qua-timebox được đo bằng đúng quan hệ của lib, đúng ở mọi ngày chạy; ca đo hiện tại chép lại vị từ lệch một ngày nên chính phép đo của hợp đồng không giữ đúng lời hứa đó.
-
-AC-13(iii) đo cờ bằng quan hệ, nhưng ca đo tự viết lại vị từ thay vì gọi `NG.quaTimebox` của `lib/nguong-o-co-hoi.cjs`:
-- lib: `d + 86400000 <= now` — hạn viết «muộn nhất <ngày>» BAO GỒM ngày đó, quá hạn tính từ 00:00 hôm SAU (comment nói thẳng lý do).
-- ca đo dòng 708: `date != null && date < Date.now()` — quá hạn ngay 00:00 chính ngày hạn.
-
-Hai vị từ khác nhau đúng một ngày. `_acceptance/lenh-in-ra-phai-bam-duoc/opportunity.md:42` có `Timebox: ván lái-thử kế ≤ 30/08/2026`, và bộ quét trên cây thật đang xếp slug này vào `gates` (`gate: gia-tri`, `flags: []`) — tức nó nằm trong tập ca đo quét. Ngày 2026-08-30: lib trả false (chưa cắm cờ), ca đo tính `expQua = true` → `cờ qua-timebox thiếu` → RT13 ĐỎ suốt ngày hôm đó rồi tự xanh lại hôm sau. Không ai chạm code, màu vẫn đổi — đúng lớp «thước ghim vào thứ SẼ ĐỔI».
-
-Kèm theo, dòng 700 chỉ quét `['gates','inProgress','done']`. Nhóm `considering` bị bỏ, mà đó lại chính là nhóm `start-scan.mjs` KHÔNG gắn `oFlags` vào (`considering.push(g('y-can-nhac', …))` không nhận flags). Vế «và ngược lại mọi slug thoả quan hệ đó phải mang cờ» của AC-13(iii) vì thế không đo được ở đúng chỗ nó có thể sai.
-
-Sửa: ca đo gọi thẳng `NG.quaTimebox(oTxt)` (một luật, một bản) và mở tập quét sang `considering`.
-
-### 3. Oracle của RT13(iii) CHÉP LẠI luật ngưỡng/timebox thay vì gọi lib/nguong-o-co-hoi.cjs — bản chép đã lệch (đã chứng bằng chạy thật)
-- file: `tests/plugins/ra-co-ten.test.mjs:708`
+### 2. Assert QUAN HỆ nhưng lấy vị từ của chính vật đo — biên «+1 ngày» của quaTimebox không ca nào chạm
+- file: `tests/plugins/ra-co-ten.test.mjs:682`
 - severity: high
 - AC: AC-13
 - nguồn: measurement
-- rationale: AC-13(iii) đòi đẳng thức hai chiều đúng theo luật thật của lib cho cả qua-timebox lẫn nguong-chua-chot; ca đo chép tay lệch cả hai luật này nên chính phép đo của hợp đồng sai.
+- rationale: AC-13(iii) đòi phép đo QUAN HỆ hai chiều đúng ở mọi ngày chạy cho cờ qua-timebox; ca hiện tại so kết quả sản xuất với chính hàm sản xuất đó nên không thật sự kiểm được ngữ nghĩa biên +1 ngày, và không có fixture nào gần biên — đúng điều AC-13(iii) yêu cầu chứng minh nhưng chưa được chứng minh.
 
-Hình dạng vi phạm: **fixture/oracle viết tay theo khuôn bên ĐỌC, không round-trip rút-từ-writer-đọc-bằng-reader** (hình dạng 2) — đây chính là «bộ đọc thứ ba chép luật» mà `lib/nguong-o-co-hoi.cjs` vừa được lập ra để xoá (xem header comment của lib: «vòng 1 viết luật này BA LẦN … bản thứ ba đã lệch ngay khi ra đời»). RT13(iii) tự dựng lại luật thay vì `require('lib/nguong-o-co-hoi.cjs')` như start-scan và gate-card đều làm, và bản chép lệch ở hai chỗ:
+RT13(iii) hứa (AC-13(iii), E13) một đẳng thức HAI CHIỀU độc lập: «slug có cờ qua-timebox ⇔ có bullet Timebox parse được ngày ∧ ngày đó trước ngày chạy». Thân ca lại viết `const expQua = !!oTxt && NG.quaTimebox(oTxt);` rồi so với `x.flags`. `scripts/start-scan.mjs` (dòng `const quaTimebox = oTxt => NG.quaTimebox(oTxt)`) gọi ĐÚNG hàm đó. Nên vế «mong đợi» và vế «thực tế» là cùng một hàm: assert chỉ chứng minh start-scan có NỐI DÂY tới lib, không chứng minh được ngữ nghĩa của luật. Vị từ sai cách nào thì hai vế cũng sai giống nhau và ca vẫn xanh.
 
-(a) **Lệch một ngày.** Test dòng 708: `const expQua = date != null && date < Date.now();`. Bản thật `lib/nguong-o-co-hoi.cjs`: `quaTimebox = ... d + 86400000 <= now` (hạn «muộn nhất <ngày>» BAO GỒM ngày đó). Đúng ngày hạn: oracle nói «phải có cờ», bộ quét nói «chưa quá» → RT13 ĐỎ oan.
+Điều làm nó thành lỗ thật: ngữ nghĩa duy nhất mà `quaTimebox` mã hoá là biên cộng-một-ngày — `d + 86400000 <= now` trong `lib/nguong-o-co-hoi.cjs`, kèm chú thích «hạn viết "muộn nhất <ngày>" BAO GỒM ngày đó, nên quá hạn tính từ 00:00 hôm SAU». Đó chính là lớp lỗi vòng trước đã dẫm (S4-r4: bản chép «lệch đúng MỘT NGÀY»). Ca duy nhất còn lại chạm timebox là RT12 dòng 534/538 với bốn fixture `2000-01-01` · `01/01/2000` · `2999-12-31` · `cuối quý` — cách biên hàng trăm/nghìn năm. `grep -rn 'quaTimebox|qua-timebox|Timebox' tests/` cho thấy không còn ca nào khác. Kết quả: đổi `d + 86400000 <= now` thành `d <= now` (hoặc `d + 2*86400000 <= now`) thì RT12 vẫn xanh (2000 và 2999 không đổi kết luận) VÀ RT13(iii) vẫn xanh (hai vế cùng đổi). Luật ngày mà lib được sinh ra để giữ hiện không có phép đo nào.
 
-(b) **Lệch định nghĩa `chốt`.** Test dòng 712 chỉ đòi «mọi bullet ĐANG CÓ đều đã điền» (`bul.every(...)`); bản thật đòi ĐỦ NHÃN của khuôn (`labels.every(lb => got.has(lb) && ...)`). Kiểm bằng lệnh chạy thật: bỏ bullet `- Timebox:` khỏi `_acceptance/start-bang-dieu-khien/opportunity.md` → lib trả `chua-chot` (bộ quét cắm cờ), oracle của test tính `chot=true` (đòi KHÔNG cờ) → ĐỎ oan.
+Sửa rẻ: thêm vào RT12 hai fixture biên sinh từ `Date.now()` lúc chạy — hạn = hôm nay (mong: KHÔNG cờ) và hạn = hôm qua (mong: CÓ cờ); đó là hai assert phân biệt được ba cách viết biên.
 
-Bằng chứng chạy thật (bản sao cây, đã hoàn nguyên): đổi Timebox của `_acceptance/lenh-in-ra-phai-bam-duoc/opportunity.md` từ `≤ 30/08/2026` thành `≤ 24/08/2026` (= hôm nay) → `RT_CASES=RT13 node tests/plugins/ra-co-ten.test.mjs` cho `FAIL: [RT13] lenh-in-ra-phai-bam-duoc: cờ qua-timebox thiếu (ngày 24/08/2026)`. Hồ sơ đó đang khai hạn **30/08/2026** → suite sẽ tự đỏ vào ngày 2026-08-30 dù không ai đụng code. Nguy hiểm kép: đỏ-oan huấn luyện người sửa THƯỚC cho vừa VẬT (hạ thước lặng lẽ) đúng lúc vế «có cờ» của đẳng thức lần đầu tiên được chạy thật. Sửa rẻ: gọi `NG.quaTimebox(oTxt)` và `NG.thresholdState(oTxt, oppTpl)` trong ca đo, giữ chiều đỏ bằng mutant trên lib chứ không bằng công thức chép tay.
-
-### 4. RT13(iii) áp đẳng thức qua-timebox lên cả nhóm inProgress mà start-scan không hề tính cờ ở đó
-- file: `tests/plugins/ra-co-ten.test.mjs:700`
+### 3. Đo CHỈ DẪN thay vì ĐẦU RA — răng chống-blacklist RT13(iv) miễn trừ được bằng một câu chú thích
+- file: `tests/plugins/ra-co-ten.test.mjs:705`
 - severity: medium
 - AC: AC-13
 - nguồn: measurement
-- rationale: AC-13(iii) yêu cầu đẳng thức quan hệ đúng ở mọi ô mà bộ quét thực sự hứa gắn cờ; ca đo áp đẳng thức đó lên nhóm inProgress nơi bộ quét không tính cờ, khiến phép đo của chính hợp đồng sai ở phạm vi áp dụng.
+- rationale: AC-13(iv) đòi quét không gian mở chống blacklist thật — file nào không có ca đo thật phải bị nêu tên; vị từ 'có ca' hiện chỉ hỏi tên file có xuất hiện đâu đó trong văn bản ca (kể cả chú thích), nên răng chống lách mà AC-13(iv) đòi hỏi có thể bị tắt mà không cần viết assert nào — đúng lỗ mà điều khoản này sinh ra để chặn.
 
-Hình dạng vi phạm: **assert «quan hệ» đặt lên vật không hứa quan hệ đó** — cùng lớp với finding trên nhưng cơ chế khác, nên sửa khác. Dòng 700 duyệt `['gates','inProgress','done']` rồi dòng 709 bắt buộc `flags.includes('qua-timebox') === expQua` cho MỌI phần tử. Nhưng `scripts/start-scan.mjs` chỉ tính `quaTimebox` ở hai chỗ: dòng 325 (nhánh hồ sơ đã thông Cổng Bằng chứng) và dòng 408 (`oFlags`, nhánh hồ sơ chỉ có opportunity). Các nhánh inProgress có hợp đồng — dòng 363 (`nghiem-thu-bi-chan` / `dang-sua-theo-bang-chung`), 376–378 (`cho-nghiem-thu-may`), 383 (`dang-viet-code` / `dang-lap-ke-hoach`) — gọi `g(...)` không truyền `flags`, nên luôn nhận mặc định `flags: []`.
+RT13(iv) là răng chống blacklist trên không gian mở: mọi file chứa `signed-off` phải «có ca thật» hoặc nằm trong khối `BO-DOC-KHAI-GACH`. Vị từ «có ca thật» là `const coCa = f => khaiPaths.has(f) && testSrc.includes(f.split('/').pop());` — vế thứ hai chỉ hỏi tên file có XUẤT HIỆN trong văn bản của chính file ca hay không, không hỏi có assert nào chạy trên nó.
 
-Bằng chứng chạy thật (đã hoàn nguyên): đổi Timebox trong `_acceptance/ra-co-ten-lam-va-trao/opportunity.md` (hồ sơ này đang ở `nghiem-thu-bi-chan`) sang `2026-01-01` → `FAIL: [RT13] ra-co-ten-lam-va-trao: cờ qua-timebox thiếu (ngày 2026-01-01)`. Hồ sơ đang khai hạn **2026-09-30**; bất kỳ hồ sơ nào còn ở giữa vòng khi quá hạn đều làm suite đỏ oan. Phải chốt một trong hai rồi ghim: hoặc bộ quét tính cờ cho mọi ô (thì oracle đúng), hoặc oracle chỉ áp đẳng thức lên đúng các ô bộ quét hứa (thì phải nói ra trong AC-13).
+Ca cụ thể đang tồn tại trong diff: `commands/approve.md` vẫn nằm trong `paths:` của E10 (evals.yaml) nên `khaiPaths.has('commands/approve.md')` = true; và `testSrc.includes('approve.md')` = true — thoả mãn nhờ ĐÚNG dòng chú thích ở RT10 dòng 595 nói ngược lại: «`commands/approve.md` KHÔNG còn trong vòng này: chế độ ký Cổng Đáng đã tách sang hồ sơ `cong-dang-co-cua`». Nghĩa là một câu khai «file này KHÔNG được đo» lại là thứ làm cho răng coi nó «đã có ca». Hôm nay chưa sai kết luận chỉ vì `approve.md` không còn chuỗi `signed-off` (đã kiểm bằng `git grep -l signed-off`), nhưng cơ chế miễn trừ đang sống: thêm tên file vào một dòng `paths:` cộng với nhắc tên nó ở bất kỳ đâu trong file ca (kể cả trong chú thích, kể cả trong danh sách NGOAI) là tắt được răng mà không viết assert nào.
 
-### 5. RT17 khai «bốn vế RÚT TỪ thân lệnh ký» nhưng thực chất là bốn regex chép tay + assert chuỗi-có-mặt
-- file: `tests/plugins/ra-co-ten.test.mjs:884`
+Sửa rẻ: `coCa` đòi tên file xuất hiện trong một BIỂU THỨC được chạy — ví dụ chỉ đếm hit của `readRepo('<path>')` / `path.join(ROOT, ...)` sau khi đã lột hết chú thích khỏi `testSrc`; và quét `paths:` khai file mà không có lượt đọc nào thì gọi là dòng chết (đối xứng với vế `chet` đang có cho khối gạch).
+
+### 4. Fixture VIẾT TAY đúng khuôn bên ĐỌC — phần báo cáo mà reader thật sự parse không sinh từ khuôn bên viết
+- file: `tests/plugins/ra-co-ten.test.mjs:86`
 - severity: medium
-- AC: AC-17
+- AC: AC-2
 - nguồn: measurement
-- rationale: AC-17 chỉ định rõ bốn vế điều kiện phải được rút từ chính thân commands/approve.md rồi đối chiếu bằng ma trận toàn phần 4 ca biên; ca đo hiện tại chép tay bốn regex và không có ràng buộc số ca = số vế, trái đúng yêu cầu này.
+- rationale: AC-2 nêu rõ evidence-report.md dùng cho fixture phải sinh từ khối khuôn bên viết, không gõ tay theo khuôn bên đọc; fixture nền evidenceText() lại gõ tay đúng hình dạng mà scripts/recheck-evidence.cjs (bên đọc) parse cho đúng phần bảng eval và khối Evidence, vi phạm trực tiếp điều kiện round-trip mà AC-2 đặt ra cho các ca RT2/RT3/RT15/RT16.
 
-Hình dạng vi phạm: **assert «chuỗi có mặt» trong khi lời hứa là QUAN HỆ giữa hai bên** (hình dạng 3), kèm **thiếu ràng buộc số assert = số phần tử** (hình dạng 5). Chú thích dòng 882 viết «Bốn vế RÚT TỪ thân lệnh ký, không chép tay», nhưng dòng 884–889 là một mảng literal bốn cặp regex gõ tay, và dòng 890 chỉ kiểm `re.test(ap)` — tức là *chép tay rồi kiểm sự có mặt*, không phải rút.
+`evidenceText()` (dòng 74–95) là fixture nền cho RT2 (đối chứng dương của lưới trước-merge), RT3, RT15, RT16. Chú thích đầu hàm và `expected` của E2 khai nó «SINH TỪ khuôn bên viết … không gõ tay theo khuôn bên đọc». Thực tế chỉ HAI mảnh đến từ khuôn: frontmatter (cắt sau mốc `---8<---`) và khối `EVIDENCE-SECTIONS-TEMPLATE` (hai heading rỗng). Mảnh mà bên đọc thật sự parse thì gõ tay ngay tại dòng 86–89:
 
-AC-17 hứa quan hệ: tập vế khai trong `commands/approve.md` ⇔ tập điều kiện `scripts/gate-card.js` thật sự cưỡng chế. Phép đo hiện tại là HAI danh sách gõ tay độc lập (mảng `VE` bốn phần tử ở dòng 884 và mảng `CA` ba ca + một ca rời ở dòng 902–911), không có phép đếm nào buộc hai bên bằng nhau — khác hẳn RT9/RT16 cùng file, nơi có `if (oDem !== 8) errs.push('ma trận ... != 8 khai trước')`. Hệ quả: thêm một vế thứ năm vào `approve.md`, hoặc gate-card cưỡng chế thêm một điều kiện không khai trong thân lệnh, đều KHÔNG có ca nào đỏ. Sửa rẻ: rút danh sách vế từ một khối marker trong `approve.md` (như RT8 đã làm với `GATE-ONESHOT-SLOTS` hàng `g0`), sinh ca biên theo vòng lặp trên danh sách rút được, và ghim `số ca biên === số vế rút được`.
+```
+let t = fm + `\n# Evidence Report: ${slug}\n\n| Eval | Criterion | Executor | Verdict |\n|---|---|---|---|\n| E1 | AC-1 | test | PASS |\n\n` +
+  `## Evidence\n- eval: E1\n  run_id: ${slug}-E1-001\n  exit_code: 0\n  verifier: verify.sh\n  verified_at: ...`;
+```
+
+Bảng eval và khối `## Evidence` (run_id · exit_code · verifier · verified_at) chính là seam LLM-viết→máy-đọc: bên viết chép hình dạng đó từ `evidence-report-template.md`, bên đọc là `scripts/recheck-evidence.cjs` mà `pre-merge-check.sh` gọi trong RT2. Vì fixture gõ theo khuôn bên ĐỌC, khuôn bên viết đổi hình dạng khối `## Evidence` (thêm trường bắt buộc, đổi tên `verified_at`, đổi cách xuống dòng) thì mọi ca RT vẫn xanh trong khi hồ sơ do bên viết sinh ra sẽ đỏ ở lưới — đúng hình dạng (3) trong CLAUDE.md «bên VIẾT và bên ĐỌC trôi khỏi nhau vì mọi test tự dựng fixture đúng khuôn bên đọc».
+
+Ghi chú cho triage: có ràng buộc thật ở đây — vùng chép của khuôn chứa hàng `| E4 | AC-2 | judgment | UNCERTAIN |`, nên một fixture chép NGUYÊN vùng chép không bao giờ xanh-sạch được. Tức là khuôn hiện chưa có một khối marker cho «thân báo cáo tối thiểu, xanh-sạch». Lối sửa đúng lớp là thêm marker đó vào khuôn rồi rút, chứ không phải gõ tay tiếp.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **product-map nuốt lỗi khuôn — biến luật fail-closed thành fail-open**
-  Người dùng thấy gì: Nếu khuôn dùng để đọc ô cơ hội bị hỏng, bản đồ sản phẩm và bộ quét nội bộ có thể kết luận khác nhau về cùng một hồ sơ — một bên nói đã xong, một bên nói còn đang chờ — khiến người xem thấy thông tin sai lệch mà không có gì báo hiệu.
-  file: `scripts/product-map.mjs:190`
-  severity: high
-  Đề xuất: new-contract
-
-- **Thẻ Cổng Phạm vi không nhận lối «không đo được» — cảnh báo sai trên hồ sơ đã khai đúng**
-  Người dùng thấy gì: Một hồ sơ đã khai rõ lý do không đo được vẫn có thể bị hệ thống cảnh báo nhầm là thiếu cách đo, khiến người xem hiểu lầm hồ sơ chưa hoàn chỉnh dù nó đã khai đúng theo đúng lối cho phép.
-  file: `scripts/gate-card.js:384`
+- **Bộ quét gắn `flags` cho nhóm «Đang dở» và «Đã xong» nhưng thân lệnh chỉ dạy in cờ ở nhóm cổng**
+  Người dùng thấy gì: Ở màn hình /start, các cảnh báo như 'đã quá hạn tự khai theo lịch' hoặc 'khai không đo được dù có người dùng thật' hiện tại chỉ được hướng dẫn hiển thị cho những việc đang chờ chữ ký — việc đang làm hoặc đã xong có thể mang cùng cảnh báo mà không hiện ra, khiến người dễ bỏ sót tín hiệu cần xem lại.
+  file: `commands/start.md`
   severity: medium
-  Đề xuất: new-contract
+  Đề xuất: known-limits
 
-- **gate-card vừa gọi lib ngưỡng vừa giữ bản chép của cùng hai hằng**
-  Người dùng thấy gì: Vì cùng một quy tắc nhận diện văn bản tồn tại hai bản sao trong hệ thống, sau này khi có người cập nhật quy tắc ở một chỗ mà quên chỗ kia, hệ thống có thể lại đưa ra cảnh báo sai cho người xem mà không ai nhận ra ngay.
-  file: `scripts/gate-card.js:359`
-  severity: medium
-  Đề xuất: new-contract
-
-- **pre-merge-check: `_enf` không khai `local` — rò ra phạm vi toàn cục**
-  Người dùng thấy gì: Một biến tạm trong script kiểm tra trước khi gộp bị rò ra ngoài phạm vi đáng lẽ của nó; hiện chưa gây sai lệch nào thấy được cho người dùng, nhưng có thể tạo kết quả kiểm tra khó lường nếu code sau này thay đổi.
-  file: `scripts/pre-merge-check.sh:346`
+- **`commands/approve.md` chỉ còn thay đổi khoảng trắng — sót lại của lượt cắt đôi hồ sơ**
+  Người dùng thấy gì: Lệnh duyệt (approve) còn sót lại một dòng trống thừa từ lần tách hồ sơ trước đó — không đổi cách lệnh hoạt động, nhưng khiến người rà soát PR tưởng lệnh này có thay đổi thật.
+  file: `commands/approve.md`
   severity: low
   Đề xuất: known-limits
 
-- **Thông điệp «chưa arm cổng» chưa kể `machine-cleared`**
-  Người dùng thấy gì: Khi hệ thống từ chối một hồ sơ vì trạng thái chưa hợp lệ, dòng thông báo hiển thị cho người có thể khiến người đọc hiểu lầm rằng trạng thái «máy đã thông» không được chấp nhận, dù thực tế nó đã được cho phép.
-  file: `scripts/pre-merge-check.sh:702`
-  severity: low
-  Đề xuất: known-limits
-
-- **Thẻ Cổng 2 mời KÝ hồ sơ `machine-cleared` khi bộ quét không xếp được slug — fail-open, không một dòng cảnh báo**
-  Người dùng thấy gì: Nếu bộ quét phát hiện một hồ sơ «máy đã thông» đang có mâu thuẫn nội bộ, thẻ quyết định vẫn có thể hiện nút Ký duyệt cho người xem — mời người ký một hồ sơ tự khai là có vấn đề, mà không có cảnh báo nào báo trước.
-  file: `scripts/gate-card.js:594`
+- **Thẻ Cổng 2 gọi hồ sơ HỎNG là «máy đã đi tiếp hợp lệ» — gate-card không đọc mảng broken**
+  Người dùng thấy gì: Khi một hồ sơ bị đánh dấu mâu thuẫn — ví dụ đã có chữ ký người nhưng trạng thái vẫn ghi là 'máy tự thông' — thẻ quyết định hiển thị cho người duyệt vẫn nói 'hợp lệ, không cần chữ ký' thay vì cảnh báo, nên người duyệt có thể bỏ qua đúng hồ sơ cần soi lại nhất.
+  file: `scripts/gate-card.js`
   severity: high
   Đề xuất: new-contract
 
-- **Bản đồ sản phẩm NUỐT lỗi khuôn ô cơ hội rồi xếp sai ô — hai bộ đọc nói hai chuyện về cùng hồ sơ**
-  Người dùng thấy gì: Nếu khuôn dùng để đọc ô cơ hội bị hỏng, bản đồ sản phẩm và bộ quét nội bộ có thể kết luận khác nhau về cùng một hồ sơ — một bên nói đã xong, một bên nói còn đang chờ — khiến người xem thấy thông tin sai lệch mà không có gì báo hiệu.
-  file: `scripts/product-map.mjs:190`
+- **Lối ra «Không đo được» viết dạng bullet bị xếp im lặng thành «ngưỡng chưa chốt»**
+  Người dùng thấy gì: Nếu người khai viết lý do 'không đo được' theo dạng gạch đầu dòng thay vì dòng riêng như hướng dẫn, hệ thống âm thầm coi ngưỡng là 'chưa chốt' và treo hồ sơ chờ một phiên nghiệm thu sẽ không bao giờ diễn ra, thay vì đóng hồ sơ đúng lối ra đã khai.
+  file: `lib/nguong-o-co-hoi.cjs`
   severity: medium
-  Đề xuất: new-contract
+  Đề xuất: known-limits
 
 Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
