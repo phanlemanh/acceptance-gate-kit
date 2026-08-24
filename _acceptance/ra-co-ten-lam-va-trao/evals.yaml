@@ -18,9 +18,11 @@ evals:
       true cho signed-off + machine-cleared, false cho 4 giá trị kia; usesEvidence true cho
       implemented/verified/machine-cleared; enum == danh sách rút từ khuôn contract-template
       (round-trip). Chiều đỏ: bản sao khuôn bỏ `machine-cleared` → reader đỏ nêu giá trị thiếu.
-      VÀ: evidence-report-template có khối EVIDENCE-XANH-SACH-BLOCK; danh sách rút từ khối == thứ tự
-      điều kiện của xanhSach() (mjs) == của xanh_sach_check (bash, rút bằng đọc hàm) — round-trip ba
-      đầu; bản sao khuôn gỡ mục «Known limits» → đỏ nêu tên mục.
+      VÀ: khối EVIDENCE-XANH-SACH-BLOCK nằm NGOÀI vùng chép của khuôn (khối hai mục thì PHẢI nằm
+      trong); vùng chép có 0 lần khớp UNCERTAIN; báo cáo dựng TRỌN từ vùng chép → xanhSach nói SẠCH;
+      chèn khối đó vào bản sao báo cáo → đỏ đúng «có mục UNCERTAIN»; danh sách rút từ khối == thứ tự
+      điều kiện xanhSach() (mjs) == xanh_sach_check (bash) — round-trip ba đầu; bản sao khuôn gỡ mục
+      «Known limits» → đỏ nêu tên mục.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
     criterion: AC-2
@@ -29,7 +31,7 @@ evals:
     paths: [scripts/pre-merge-check.sh, tests/plugins/ra-co-ten.test.mjs]
     expected: >
       exit 0; stdout có "PASS: [RT2]" — fixture machine-cleared T2 + làn V + evidence xanh-sạch SINH
-      TỪ khối EVIDENCE-XANH-SACH-BLOCK của khuôn bên viết (không gõ tay theo bên đọc) + run-log khớp:
+      TỪ TRỌN vùng chép của khuôn bên viết (không gõ tay theo bên đọc) + run-log khớp:
       pre-merge exit 0 với NOTE "xanh-sạch — máy đi tiếp" (đối chứng dương TRƯỚC).
       Cùng fixture: (a) tiêm UNCERTAIN → VIOLATION ghim "status machine-cleared nhưng hồ sơ còn
       cần người — có mục UNCERTAIN"; (b) T3 → ghim "hạng T3"; (c) gỡ veto_state, approved_by rỗng
@@ -70,7 +72,9 @@ evals:
       «máy thông»/«máy thông»/«không đo»/«đóng có hồ sơ»; BUCKET_OF 3 khoá → da-ship, 1 → da-bac;
       product-map trên fixture RT4(a) in nhãn rút từ bảng trong ô Đã giao (so chuỗi với
       chu(key).nhan, không chuỗi tự chế); gate-card --extract trên machine-cleared → gate '2',
-      HTML có «máy đã thông» + cửa veto; BDK2 ma trận N=24 gõ tay.
+      HTML có «máy đã thông» + cửa veto và KHÔNG mời ký; repo bộ quét MÙ (chưa dựng cổng) → thẻ
+      RENDER được, không sập; hồ sơ HỎNG (broken) → thẻ nêu lý do + đường sửa, KHÔNG nói «máy đã
+      đi tiếp»; BDK2 ma trận N=24 gõ tay.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
     criterion: AC-6
@@ -93,7 +97,7 @@ evals:
       chua-chot, de-xuat} viết trước (8 ô, 8 assert): chot → gates gia-tri không flags; khong-do-duoc
       → done da-giao-khong-do; chua-chot/de-xuat → gates gia-tri + flags nguong-chua-chot. Nhánh
       chưa hợp đồng: de-xuat → gates dang; chua-chot → considering. Seam: «Không đo được:» (hai
-      chấm) KHÔNG nhận → vẫn nguong-chua-chot.
+      chấm) KHÔNG nhận → vẫn nguong-chua-chot; dạng bullet «- Không đo được — …» ĐƯỢC nhận.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E10
     criterion: AC-10
@@ -194,7 +198,7 @@ evals:
     paths: [lib/nguong-o-co-hoi.cjs, _acceptance/ra-co-ten-lam-va-trao/contract.md, tests/plugins/ra-co-ten.test.mjs]
     expected: >
       exit 0; stdout có "PASS: [RT18]" — quét đệ quy .js/.cjs/.mjs trong scripts/lib/hooks/tests
-      tìm 4 chuỗi luật ngưỡng (rút từ lib/khuôn lúc chạy): mọi hit ngoài lib nằm trong khối
+      tìm NĂM chuỗi luật ngưỡng (tiêu đề section · hai tiền tố · hằng một-ngày · vị từ mặt-người-dùng — đều rút từ lib/khuôn lúc chạy): mọi hit ngoài lib nằm trong khối
       LUAT-NGUONG-KHAI-GACH kèm lý do, file lạ → ĐỎ nêu tên + chuỗi. Chiều đỏ (a): bản sao cây
       tiêm file chép tiêu đề → chính phép quét trên bản sao nêu tên; (b): gỡ một dòng gạch →
       file thành lạ. Đây là ca CHỐNG-CHÉP: bản chép thứ hai của luật không land được nữa.
