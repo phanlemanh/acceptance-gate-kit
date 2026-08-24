@@ -40,6 +40,12 @@ evals:
       cần người — có mục UNCERTAIN"; (b) T3 → ghim "hạng T3"; (c) gỡ veto_state, approved_by rỗng
       → VIOLATION Cổng 1; (d) không evidence-report.md → "status=machine-cleared but no
       evidence-report.md". Mỗi lệnh tiêm chứng minh đổi được đúng dòng.
+      THÊM (S4-r10 [3] — false-green thật): ba điều kiện xanh-sạch TỪNG KHÔNG CÓ THƯỚC —
+      (e) verdict != PASS · (f) bypass_used: true · (g) enforcement_mode: off — nay mỗi
+      điều kiện một ca ĐỎ ghim đúng câu của lưới. Mỗi ca GẮN NHÃN điều kiện nó phủ, và ca
+      kết so TẬP nhãn với khối EVIDENCE-XANH-SACH-BLOCK rút từ khuôn: thiếu một điều kiện
+      là ĐỎ kèm tên. Chiều đỏ đã chạy: giết từng nhánh trong bản sao cây → đúng ca tương
+      ứng ĐỎ; trước bản này cả ba mutant đều để RT1, RT2 và LV5 XANH.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
@@ -104,6 +110,9 @@ evals:
       về danh sách khoá → ĐỎ nêu cả hai khoá. Chiều đỏ: vị từ CŨ (đi qua
       bulletOf, ĐÒI gạch) không được nhận dòng không-gạch — nếu nó vẫn nhận thì fixture không
       phân biệt được hai luật; hoàn nguyên `chuaDien` trong lib thật → RT5 ĐỎ nêu đúng chỗ lệch.
+      THÊM (S4-r10 [1]): hồ sơ HỎNG (chữ ký người trên hồ sơ máy-thông) → thẻ in cờ ĐỎ nêu lý
+      do và KHÔNG in câu «máy đã thông — qua sáu điều kiện xanh-sạch, KHÔNG có chữ ký người»;
+      câu đó vừa sai vừa không ai kiểm (thẻ chỉ đọc status, không chạy xanhSach).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
     criterion: AC-6
@@ -182,7 +191,8 @@ evals:
       (git show cb38ea01) trên cùng cây: tập (slug, stateKey) bằng nhau trừ đúng dòng khối
       KHAC-BIET-DOC-CU rút từ contract lúc chạy; (iii) ĐẲNG THỨC HAI CHIỀU theo QUAN HỆ, không đếm:
       vị từ HỎI LIB (NG.quaTimebox / NG.thresholdState), không chép lại; tập quét gồm CẢ nhóm
-      considering (đòi cờ RỖNG); slug có
+      considering — nhóm này nay CÓ THỂ mang cờ `qua-timebox` (ý quá hạn mà bullet khác còn
+      trống rơi đúng vào đây, S4-r10 [2]), nên phép so đòi QUAN HỆ chứ không đòi cờ rỗng; slug có
       nguong-chua-chot ⇔ (ở gates gia-tri ∧ ngưỡng khác chot) — assert này đúng ở mọi ngày chạy;
       (iv) quét không gian mở: tập file chứa "signed-off" (ngoài _acceptance/** và docs/**) == hợp của
       tập «có ca THẬT» (tên file phải xuất hiện trong BIỂU THỨC ĐƯỢC CHẠY của file ca — lột chú
