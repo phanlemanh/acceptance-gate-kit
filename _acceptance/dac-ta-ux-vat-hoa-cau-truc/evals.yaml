@@ -17,7 +17,8 @@ evals:
       tồn tại bên trong, và đầu khuôn có đúng chuỗi cửa miễn "bỏ đặc-tả-UX — ".
       Đối chứng dương: khuôn nguyên vẹn XANH. Chiều đỏ KHÔNG tautology: (1) gỡ
       marker khỏi bản sao → dựng fixture từ bản sao và chạy CHÍNH
-      eval-coverage-lint — reader thật phải bật W8a ghim "UX-STATE-TABLE";
+      eval-coverage-lint — reader thật phải bật W8a ghim NGUYÊN CÂU "thiếu bảng
+      UX-STATE-TABLE (marker)" (không dùng mảnh chuỗi cũng có trong dòng chú giải);
       (2) gỡ TRỌN mục «### 6. Khuôn IA đã chọn + căn cứ» → CÙNG bộ kiểm tiêu-đề
       của chiều xanh trượt đúng mục đó trong khi mục khác vẫn xanh.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -27,15 +28,15 @@ evals:
     cmd: config:executors.test.plugins
     paths: [skills/acceptance/references/ux-spec-template.md, tests/plugins/ux-spec.test.mjs, scripts/eval-coverage-lint.js]
     expected: >
-      exit 0; stdout có "PASS: UX2". Round-trip P55: case TRÍCH bảng trạng thái
-      mẫu từ CHÍNH ux-spec-template.md qua marker (không chép tay), code-sinh
-      design-doc fixture chứa bảng đó + contract trỏ design_doc + evals khai đủ
-      states, chạy CHÍNH eval-coverage-lint.js → 0 cờ W8 và số trạng thái reader
-      đọc ra == số dòng ST trong khuôn mẫu. Chiều đỏ cùng fixture, ĐI QUA READER
-      (không tự đếm bằng regex của test): giữ evals sinh từ bảng ĐẦY ĐỦ, xoá 1
-      dòng ST khỏi design-doc fixture → chạy lint phải bật W8c ghim ĐÚNG id ST
-      vừa xoá — con số và tên rút từ output của eval-coverage-lint, không từ
-      bộ đếm riêng của test.
+      exit 0; stdout có "PASS: UX2". Round-trip P55 qua cánh CÒN SỐNG sau thu
+      phạm vi: case TRÍCH section từ CHÍNH ux-spec-template.md qua marker (không
+      chép tay), code-sinh fixture design-doc + contract trỏ design_doc, chạy
+      CHÍNH eval-coverage-lint.js. Đối chứng dương: khuôn nguyên vẹn → 0 cờ W8.
+      Chiều đỏ ĐI QUA READER (không bộ đếm riêng của test): xoá MỌI dòng ST khỏi
+      bảng trong bản trích, giữ nguyên hai marker → lint phải bật W8a ghim
+      NGUYÊN CÂU "có bảng UX-STATE-TABLE nhưng KHÔNG dòng trạng thái nào" (đây
+      là ô-nuốt-luật bắt được ở vòng 4). Và bảng còn ĐÚNG MỘT dòng ST → 0 cờ:
+      phép đo phân biệt được rỗng với có, không phải đếm mù.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
@@ -46,7 +47,7 @@ evals:
       exit 0; stdout có "PASS: UX3". Case đo QUAN HỆ trong SKILL.md: (a) S1 có
       chỉ dẫn điền «Đặc tả UX» TRƯỚC khi sinh 3 artifact và resolve khuôn qua
       resolve-plugin.mjs (cấm hardcode path cache); (b) chỉ dẫn contract ghi
-      design_doc: và evals khai states:; (c) nghi thức hình Cổng 1 có câu vẽ từ
+      design_doc: và trỏ đúng cánh W8a (không hứa cánh đã cắt); (c) nghi thức hình Cổng 1 có câu vẽ từ
       section Đặc tả UX; (d) chuỗi «dòng state-matrix» cũ không còn đứng ngoài
       con trỏ về khuôn (một nguồn). Mỗi mệnh đề là một PHÉP KIỂM chạy trên MỘT chuỗi (bản thật hoặc bản sao),
       nên chiều đỏ đi qua đúng bộ kiểm của chiều xanh — không assert chuỗi rời
@@ -56,6 +57,8 @@ evals:
       (2) đổi "vẽ TỪ section Đặc tả UX" → (c) đỏ; (3) thay mệnh đề resolve
       bằng đường plugins/cache cứng → (a2) đỏ; (4) chèn một câu «dòng
       state-matrix» mồ côi xa con trỏ → (d) đỏ (d quét MỌI lần xuất hiện).
+      Mọi mệnh đề tuyên ở đây đều CÓ mutant thật trong code test — không vế nào
+      chỉ nằm trong nhãn PASS.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
     criterion: AC-4
