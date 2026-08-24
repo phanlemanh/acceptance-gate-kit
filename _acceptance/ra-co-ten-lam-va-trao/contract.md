@@ -5,7 +5,7 @@ slug: ra-co-ten-lam-va-trao
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lib/workspace-record.cjs + lib/evidence-core.cjs (hook) + scripts/pre-merge-check.sh
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh
 approved_at: 2026-08-23T12:44:55Z
 ---
@@ -71,6 +71,22 @@ Source input: `_acceptance/ra-co-ten-lam-va-trao/opportunity.md` (Cổng Đáng 
 - Eval hành vi LLM của `/approve` (máy có từ chối thật không) — hội đồng chỉ khi ô lọt lần ba (nếp chip C §4); đo bằng thân lệnh + round-trip hằng.
 - `iterate` ≡ `build` ở bộ đọc — giữ; timebox dạng ngày tự do («cuối tháng 9») — chỉ nhận hai dạng ngày.
 - Parse ngưỡng thành từng thước / đối chiếu thước ↔ đường đo — vẫn chữ, như chip C.
+
+
+## Known limits (chốt tại Cổng 2, 2026-08-25 — owner chọn «ghi Known limits»)
+
+- Ngoài-2: `/start` phát cờ quá-hạn cho ô «đang cân nhắc» nhưng thân lệnh chưa dạy in — ý quá hạn ở ô cần nhất không tới mắt người (sổ #29).
+- Ngoài-3: bản bằng chứng cũ mô tả cây đã trôi — ĐÃ GIẢI QUYẾT trong chính lượt này bằng gói bằng chứng vòng 14; giữ dòng để có vết.
+- Ngoài-4: bản đồ bỏ qua chốt «lời khai máy-thông phải có vật» khi hồ sơ đã có verdict phiên nghiệm thu — 15 ca lệch với bộ quét (harness 360 fixture).
+- Ngoài-5: thẻ Cổng Phạm vi gọi ngưỡng `chua-chot` là «đã khai ở Cổng Đáng» và không cắm cờ nào (sổ #30 — phần rẻ nhất là thêm một cờ vàng, không đụng chuỗi đã ghim).
+- Ngoài-6: `gate-card --extract` không phát trường nào nói răng chống lách KHÔNG chạy được; đường HTML có cờ, đường JSON thì im.
+- Ngoài-7: bản base của ca so-sánh đọc-cũ (RT13-ii) dựng bằng danh sách file chép tay — đúng lớp P150, chưa chuyển sang lấy trọn cây.
+- Ngoài-8: mô tả E4 khai một phép đo mà thân ca RT4 không có — lời khai không có vật, lớp đã ghi sổ.
+- Ngoài-9: một assert đo «chuỗi có mặt» trong khi lời hứa là QUAN HỆ vị trí (term phải nằm trong đúng mục).
+
+Ngoài-1 (bản vá giữ phần Cổng Đáng đã mục) — owner chọn «nâng phạm vi sửa ngay»: ĐÃ SỬA,
+ghim cây `de27babc` + `_acceptance/cong-dang-co-cua/discovery/LAY-VE.md` + tag
+`cat-cong-dang-base`; sổ #34 ĐÓNG.
 
 ## Notes
 
