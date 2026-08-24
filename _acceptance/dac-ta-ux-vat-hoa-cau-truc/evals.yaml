@@ -15,18 +15,17 @@ evals:
       exit 0; stdout có "PASS: UX1". Case mở khuôn qua marker UX-SPEC-TEMPLATE,
       kiểm đủ 6 mục theo TIÊU ĐỀ mục (không đếm chữ), marker con UX-STATE-TABLE
       tồn tại bên trong, và đầu khuôn có đúng chuỗi cửa miễn "bỏ đặc-tả-UX — ".
-      Đối chứng dương: khuôn nguyên vẹn XANH. Chiều đỏ KHÔNG tautology: (1) gỡ
-      marker khỏi bản sao → dựng fixture từ bản sao và chạy CHÍNH
-      eval-coverage-lint — reader thật phải bật W8a ghim NGUYÊN CÂU "thiếu bảng
-      UX-STATE-TABLE (marker)" (không dùng mảnh chuỗi cũng có trong dòng chú giải);
-      (2) gỡ TRỌN mục «### 6. Khuôn IA đã chọn + căn cứ» → CÙNG bộ kiểm tiêu-đề
-      của chiều xanh trượt đúng mục đó trong khi mục khác vẫn xanh.
+      Đối chứng dương: khuôn nguyên vẹn XANH. Chiều đỏ KHÔNG tautology — mỗi
+      mutant đi qua CHÍNH bộ kiểm của chiều xanh (cùng hàm, khác input): (1) bản
+      sao đổi tên marker bảng → bộ trích thấy section mất UX-STATE-TABLE;
+      (2) gỡ TRỌN mục «### 6. Khuôn IA đã chọn + căn cứ» → cùng bộ kiểm tiêu-đề
+      trượt đúng mục đó trong khi các mục khác vẫn xanh.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
     criterion: AC-2
     executor: test
     cmd: config:executors.test.plugins
-    paths: [skills/acceptance/references/ux-spec-template.md, tests/plugins/ux-spec.test.mjs, scripts/eval-coverage-lint.js]
+    paths: [skills/acceptance/references/ux-spec-template.md, tests/plugins/ux-spec.test.mjs]
     expected: >
       exit 0; stdout có "PASS: UX2-trich" — thực thi trong case UX1: TRÍCH section
       từ CHÍNH ux-spec-template.md qua marker rồi «điền» bằng luật bỏ-ngoặc, bảng
@@ -43,7 +42,8 @@ evals:
       exit 0; stdout có "PASS: UX3". Case đo QUAN HỆ trong SKILL.md: (a) S1 có
       chỉ dẫn điền «Đặc tả UX» TRƯỚC khi sinh 3 artifact và resolve khuôn qua
       resolve-plugin.mjs (cấm hardcode path cache); (b) chỉ dẫn contract ghi
-      design_doc: và trỏ đúng cánh W8a (không hứa cánh đã cắt); (c) nghi thức hình Cổng 1 có câu vẽ từ
+      design_doc: và GIỮ NGUYÊN marker của khuôn (mỏ neo cho việc khớp vòng
+      làm sau — vòng này không có phép đo máy nào); (c) nghi thức hình Cổng 1 có câu vẽ từ
       section Đặc tả UX; (d) chuỗi «dòng state-matrix» cũ không còn đứng ngoài
       con trỏ về khuôn (một nguồn). Mỗi mệnh đề là một PHÉP KIỂM chạy trên MỘT chuỗi (bản thật hoặc bản sao),
       nên chiều đỏ đi qua đúng bộ kiểm của chiều xanh — không assert chuỗi rời
@@ -65,7 +65,8 @@ evals:
       exit 0; stdout có "PASS: UX4". Chuỗi miễn "bỏ đặc-tả-UX — " xuất hiện
       trong CẢ SKILL.md lẫn ux-spec-template.md và khớp từng ký tự — hai TÀI LIỆU
       chép cùng một chuỗi, bên đọc là NGƯỜI và ván thử; engine KHÔNG có reader
-      cho chuỗi này (đã khai ở AC-4), nên eval chỉ hứa đúng phần đo được. Chiều đỏ trên bản sao: đổi một bên
+      cho chuỗi này (đã khai ở AC-4), nên eval chỉ hứa đúng phần đo được: hai
+      bên không trôi khỏi nhau. Chiều đỏ trên bản sao: đổi một bên
       thành "bỏ dac-ta-ux — " → CÙNG bộ kiểm của chiều xanh (một hàm, hai
       input) báo "chuỗi miễn lệch giữa SKILL và khuôn" — không tautology.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
