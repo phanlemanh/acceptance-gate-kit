@@ -315,6 +315,16 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
         const t2 = { 'contract.md': cTxt, 'evidence-report.md': ev.exists ? ev.raw : null };
         const p2 = missingArtifact(t2) || conflictProblem(t2);
         if (p2) { pushHong({ slug, ...p2 }); continue; }
+        // LỜI KHAI PHẢI CÓ VẬT: nhãn «máy thông, bằng chứng xanh-sạch» khẳng định một tính
+        // chất MÁY KIỂM ĐƯỢC, nên không được in ra chỉ vì frontmatter tự nhận. Làn `verified`
+        // ngay dưới đã hỏi `kcn()` trước khi được phép in «máy đi tiếp»; làn này bỏ hẳn bước
+        // đó, nên hồ sơ verdict=REJECT vẫn hiện «đã giao — bằng chứng xanh-sạch» ở bộ quét,
+        // bản đồ và thẻ, trong khi lưới trước-merge chặn: ba mặt người nói một đằng, lưới
+        // nói một nẻo, và chiều sai là MÀU XANH GIẢ (S4-r11 [3]).
+        if (!kcn(cTxt, ev.raw)) {
+          pushHong({ slug, file: 'evidence-report.md', reason: 'status machine-cleared nhưng bằng chứng KHÔNG đạt sáu điều kiện xanh-sạch — hồ sơ tự khai «máy đã thông» mà không có vật; chạy lại S4 hoặc đưa về Cổng Bằng chứng để người ký' });
+          continue;
+        }
       }
       const { decision, verdict } = navValues(texts);
       // verdict RỖNG = phiên đã dựng nhưng CHƯA ký → rơi xuống ô chờ-Cổng-Giá-trị

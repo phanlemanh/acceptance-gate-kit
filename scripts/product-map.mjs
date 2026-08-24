@@ -34,6 +34,7 @@ export { NAV_RULES };
 // TỚI ô, không đổi TÊN ô (hồ sơ start-bang-dieu-khien, AC-7).
 const { BUCKET_OF, chu } = require(path.join(__dirname, 'trang-thai-ho-so.cjs'));
 const NGUONG = require(path.join(__dirname, '..', 'lib', 'nguong-o-co-hoi.cjs'));
+import { khongCanNguoi } from './khong-can-nguoi.mjs';
 const OPP_TPL_MAP = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md');
 let _oppTpl = null;
 // FAIL-CLOSED có TÊN, như hai bộ đọc anh em (start-scan `bail(...)`, gate-card cờ đỏ kèm
@@ -48,6 +49,22 @@ const oppTplText = () => {
     process.stderr.write(`product-map: khuôn opportunity-template không đọc được: ${OPP_TPL_MAP} (${e.code || e.message})\n`
       + '  Bản đồ cần khuôn này để phân loại ô ngưỡng của hồ sơ đã thông Cổng Bằng chứng.\n'
       + '  Sửa: mang skills/acceptance/references/opportunity-template.md sang cạnh scripts/ và lib/, rồi chạy lại.\n');
+    process.exit(2);
+  }
+};
+
+// `thresholdState` NÉM khi khuôn mất khối marker hoặc mất section Ngưỡng — và thông điệp
+// của nó KHÔNG mang tên khuôn. Ném trần ở đây cho stack trace Node và EXIT 1, mà exit 1
+// đúng là mã `--check` dùng cho «bản đồ lệch với hồ sơ xưởng»: một khuôn hỏng ở repo tiêu
+// thụ sẽ hiện ra ở CI như bản đồ lệch. ADR 0007 lấy `--check` làm cổng độc lập DUY NHẤT
+// biện minh cho miễn trừ t1 của bản đồ, nên cổng đó KHÔNG được lẫn lỗi hạ tầng với lỗi vật
+// (S4-r11 [0]). Cùng khuôn với oppTplText() ngay trên: chết to, có tên, exit 2.
+const thresholdStateOrDie = oTxt => {
+  try { return NGUONG.thresholdState(oTxt, oppTplText()); }
+  catch (e) {
+    process.stderr.write(`product-map: ${e.message}: ${OPP_TPL_MAP}\n`
+      + '  Bản đồ cần khuôn này để phân loại ô ngưỡng của hồ sơ đã thông Cổng Bằng chứng.\n'
+      + '  Sửa: khôi phục khối marker / section Ngưỡng trong khuôn, rồi chạy lại.\n');
     process.exit(2);
   }
 };
@@ -206,13 +223,19 @@ function classify(dir, slug) {
       // ba bộ đọc kia đỏ — hai bên nói hai chuyện, và `--check` mất luôn căn cứ miễn trừ
       // t1 của chính bản đồ (finding S4-r4).
       if (duongA && oTxt) {
-        const ngBD = NGUONG.thresholdState(oTxt, oppTplText());
+        const ngBD = thresholdStateOrDie(oTxt);
         if (ngBD === 'khong-do-duoc') return { ...o('da-giao-khong-do'), note: chu('da-giao-khong-do').nhan };
       }
       if (duongA) return o('cho-cong-gia-tri');
       // Ô kết của làn V có TÊN RIÊNG — bản đồ vẫn gom theo giai đoạn (cùng ô «Đã
       // giao»), nhưng chữ đi kèm phải phân biệt máy-thông với hồ sơ người ký.
       if (status === 'machine-cleared') {
+        // LỜI KHAI PHẢI CÓ VẬT — cùng câu bộ quét hỏi. Nhãn của hai khoá này khẳng định
+        // «bằng chứng xanh-sạch», một tính chất MÁY KIỂM ĐƯỢC; in nó từ frontmatter là màu
+        // xanh giả, và là chỗ bản đồ với bộ quét nói hai chuyện (S4-r11 [3]).
+        if (!khongCanNguoi(cTxt, texts['evidence-report.md'] || '')) {
+          return { key: 'hong', slug, file: 'evidence-report.md', reason: 'status machine-cleared nhưng bằng chứng KHÔNG đạt sáu điều kiện xanh-sạch — hồ sơ tự khai «máy đã thông» mà không có vật' };
+        }
         const vMo = (frontmatterField(cTxt, 'veto_state') || '').trim().toLowerCase() === 'mo';
         const k = vMo ? 'da-giao-may-thong-veto-mo' : 'da-giao-may-thong-xanh-sach';
         return { ...o(k), note: chu(k).nhan };

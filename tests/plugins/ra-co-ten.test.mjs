@@ -1176,7 +1176,10 @@ if (want('RT16')) {
                        'lib/ac-line.cjs', 'lib/nguong-o-co-hoi.cjs', 'scripts/trang-thai-ho-so.cjs',
                        // bản đồ nay đọc khuôn LÚC CHẠY (fail-closed) — cây mutant thiếu khuôn thì
                        // chết vì hạ tầng chứ không vì vật, và chiều đỏ thành xanh-không-chạy
-                       'skills/acceptance/references/opportunity-template.md'])
+                       'skills/acceptance/references/opportunity-template.md',
+                       // …và nay bản đồ HỎI xanhSach cho hồ sơ máy-thông (S4-r11 [3]), nên
+                       // cây mutant phải mang cả bộ kiểm đó. Cùng lý do, cùng lớp lỗi.
+                       'scripts/khong-can-nguoi.mjs'])
       W(mut, rel, readRepo(rel));
     const src = readRepo('scripts/product-map.mjs');
     const NEEDLE = "if (ngBD === 'khong-do-duoc') return { ...o('da-giao-khong-do'), note: chu('da-giao-khong-do').nhan };";
