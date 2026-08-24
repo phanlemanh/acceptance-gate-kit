@@ -6,11 +6,11 @@
 ```mermaid
 flowchart TD
   A["Đang cân nhắc cơ hội<br/>6 việc"] --> GD{"Cổng Đáng"}
-  GD --> B["Sắp mở vòng<br/>3 việc"]
+  GD --> B["Sắp mở vòng<br/>2 việc"]
   GD --> XL["Xếp lại sau<br/>chưa có"]
   GD --> DB["Đã bác từ khám phá<br/>1 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>55 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>3 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>chưa có"]
@@ -32,12 +32,12 @@ flowchart TD
 
 ## Sắp mở vòng
 
-- Bản đặc tả UX — vật hoá tầng cấu trúc (luồng · màn · trạng thái · hành vi) thành một khuôn có đánh dấu trong design-doc; hình tầng 1 và phép đo S4 sinh từ cùng khuôn đó (`dac-ta-ux-vat-hoa-cau-truc`)
 - design-pass nấc không đồng bộ — người chọn hướng trên vật nhìn được, không phải hẹn giờ ngồi xem; bước phân kỳ có điều kiện + thang phản ứng 4 nấc (`design-pass-nac-khong-dong-bo`)
 - Ra có tên ở Vòng LÀM và TRAO — làn V có ô kết, Cổng Đáng ký trong một lượt, Cổng Giá trị có lối ra cho vòng không đo được (`ra-co-ten-lam-va-trao`)
 
 ## Đang làm
 
+- Bản đặc tả UX — vật hoá tầng cấu trúc (khuôn có marker trong design-doc + phép đo khớp vòng advisory + bước tra mẫu) (`dac-ta-ux-vat-hoa-cau-truc`)
 - Phát hành kit 2.0.0 — gom 1c + đợt 2 «người về biên» về một mốc release để repo tiêu thụ nhận engine mới có chủ đích trước đợt 3 (`release-2-0-0`)
 - Phát hành kit 2.1.0 — gom hai hồ sơ TRỪ 16/08 (tin mời cổng thôi form · cổng chặn nhầm chỗ) + luật hình về một mốc, và đưa skill diagram-design vào marketplace như plugin thứ ba (vendor có pin, skin sống trong repo tiêu thụ) — để repo tiêu thụ nhận luật mới có chủ đích trước khi đợt 3 đo M1/M2 (`release-2-1-0`)
 
