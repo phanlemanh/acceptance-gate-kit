@@ -57,7 +57,9 @@ prototype:
 > Máy ĐƯỢC đề xuất ngưỡng khi kết buổi khai thác — mỗi bullet mang tiền tố `[đề xuất]`
 > ngay sau dấu `:`; người ký Cổng Đáng gỡ tiền tố = chốt. Ý còn mờ thật thì giữ `…`.
 > Vòng KHÔNG có người dùng cuối (việc nội bộ của bộ công cụ) → thay các bullet bằng MỘT
-> dòng `Không đo được — <lý do>`, khai TẠI Cổng Đáng. Khai sau khi đã làm xong là mọi kết
+> dòng `Không đo được — <lý do>`, khai TẠI Cổng Đáng; viết trần hay dạng bullet
+> (`- Không đo được — <lý do>`) đều được nhận — «Không đo được:» (hai chấm) thì KHÔNG.
+> Khai sau khi đã làm xong là mọi kết
 > quả tự biện minh — đó là đường lách, không phải lối ra.
 > Hai tiền tố là CHUỖI MÁY ĐỌC, bản gốc ở mục «Ký hiệu máy đọc» cuối file.
 

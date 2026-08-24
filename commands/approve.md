@@ -137,7 +137,6 @@ Steps:
 7. **"Not now" / rejected** → the contract stays `draft`; capture the reason in
    chat; write nothing to gate fields.
 
-
 Never:
 - approve from silence, a timeout, or your own judgment;
 - offer gate-skipping here — `gate1_skipped: true` stays a chat-explicit,

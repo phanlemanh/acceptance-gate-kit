@@ -99,12 +99,12 @@ evals:
     criterion: AC-10
     executor: test
     cmd: config:executors.test.plugins
-    paths: [skills/acceptance/references/opportunity-template.md, scripts/start-scan.mjs, scripts/gate-card.js, skills/uat-session/SKILL.md, commands/approve.md, tests/plugins/ra-co-ten.test.mjs]
+    paths: [skills/acceptance/references/opportunity-template.md, scripts/start-scan.mjs, scripts/gate-card.js, skills/uat-session/SKILL.md, tests/plugins/ra-co-ten.test.mjs]
     expected: >
       exit 0; stdout có "PASS: [RT10]" — hai khối marker OPP-DE-XUAT-PREFIX / OPP-KHONG-DO-DUOC-PREFIX
       tồn tại; chuỗi rút từ khối == chuỗi start-scan và gate-card dùng (chạy trên fixture dựng từ
-      chính chuỗi khuôn) == chuỗi trong ngoặc kép của uat-session §0 và approve.md; bản sao khuôn
-      đổi một chuỗi → reader trên bản sao đỏ nêu CẢ HAI chuỗi.
+      chính chuỗi khuôn) == chuỗi trong ngoặc kép của uat-session §0 (approve.md đã tách sang hồ sơ
+      cong-dang-co-cua); bản sao khuôn đổi một chuỗi → reader trên bản sao đỏ nêu CẢ HAI chuỗi.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E11
     criterion: AC-11

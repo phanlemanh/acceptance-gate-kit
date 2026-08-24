@@ -64,6 +64,9 @@ worktree/nhánh đọc từ git của `<path>`.
      BẰNG CHỮ, mã máy trong ngoặc — tra bảng: chốt thiết kế và tiêu chí (`S1`)
      · lập kế hoạch (`S2`) · viết code (`S3`) · sửa theo bằng chứng (`S3-fix`)
      · nghiệm thu máy (`S4`). Lần đầu một mã hiện trên thẻ phải kèm nghĩa.
+     Phần tử có `flags` → in thêm ngay dòng đó, mỗi cờ một câu, cùng câu chữ với
+     nhóm chờ chữ ký ở trên (`qua-timebox` → «quá hạn tự khai — xem lại: xếp lại
+     hay kéo dài»). Cờ là thứ người quyết, máy KHÔNG tự xử.
    <!-- <<<START-CAN-NHAC -->
    - **Đang cân nhắc** (`groups.considering` — ý đã có ô nhưng chưa điền ngưỡng,
      nên chưa có gì để ký; máy không xếp vào chờ chữ ký): N = 0 → KHÔNG in dòng
@@ -155,6 +158,12 @@ worktree/nhánh đọc từ git của `<path>`.
      tên việc. `at` là `null` → in «chưa rõ ngày», KHÔNG bỏ dòng và không đoán
      mốc. Một con số gộp không cho người NHÌN THẤY máy vừa làm gì; vòng «máy
      làm và tự chứng minh» chỉ đóng khi việc vừa xong có tên.
+     Phần tử có `flags` → in thêm ngay dưới dòng của nó, mỗi cờ một câu, cùng
+     câu chữ với nhóm chờ chữ ký ở trên (`qua-timebox` → «quá hạn tự khai — xem
+     lại: xếp lại hay kéo dài»; `mien-do-co-nguoi-dung` → «⚠ khai không đo được
+     nhưng hợp đồng có mặt người dùng — lối đó chỉ cho vòng không có người dùng
+     cuối») — việc đã giao vẫn phải hiện cờ, cờ là thứ người quyết, máy KHÔNG
+     tự xử.
    - **Còn veto được** — `vetoOpen` có phần tử → in **TÊN từng hồ sơ** (không
      chỉ đếm), kèm một câu «người veto lúc nào cũng được, cửa không có hạn».
      Đây là cùng con số lưới trước-merge in ra; veto-default chỉ sống nếu

@@ -68,33 +68,47 @@ function contractText(slug, { status, tier = 'T2', veto = null, opened = null, a
   return t;
 }
 
-// Báo cáo SINH TỪ KHUÔN bên viết (khối xanh-sạch + hai heading của khuôn) — không gõ tay
-// theo khuôn bên đọc (lớp «fixture đúng khuôn bên ĐỌC», gap-probe P1).
+// Báo cáo dựng từ TRỌN vùng chép của khuôn bên viết (sau mốc ---8<---): thứ tự section,
+// heading, khoá của khối evidence — mọi HÌNH DẠNG — đến từ khuôn; test chỉ điền GIÁ TRỊ
+// vào {{...}} và giá trị frontmatter. Bản cũ gõ tay bảng eval + khối ## Evidence theo
+// khuôn bên đọc, nên bên viết đổi hình dạng thì mọi ca vẫn xanh trong khi hồ sơ thật đỏ
+// ở lưới (S4-r6 [8], đúng hình dạng (3) của «thước phải gắn vào vật được giao»).
 // sach: 'sach' | 'uncertain' | 'kl-co' | 'bypass' | 'enf-off'
 function evidenceText(slug, { verdict = 'PASS', signoff = '', sach = 'sach', verifiedCommit = '0'.repeat(40) } = {}) {
   const tpl = readFileSync(EVID_TPL, 'utf8');
-  const body = tpl.slice(tpl.indexOf('---8<---') + '---8<---'.length);
   // Hồ sơ THẬT phải bắt đầu ngay ở dòng `---`: dư một dòng trống là hàng rào lệch và mọi
   // bên đọc gọi là hồ sơ hỏng (đúng ca P115 của khuôn). Cắt xong phải trim đầu.
-  let fm = body.slice(0, body.indexOf('\n---\n', 4) + 5).replace(/^\s*/, '');
-  fm = fm.replace(/\{\{slug\}\}/g, slug)
+  let t = tpl.slice(tpl.indexOf('---8<---') + '---8<---'.length).replace(/^\s*/, '');
+  t = t.replace(/\{\{slug\}\}/g, slug)
     .replace(/^verdict: .*$/m, `verdict: ${verdict}`)
     .replace(/^enforcement_mode: .*$/m, `enforcement_mode: ${sach === 'enf-off' ? 'off' : 'strict'}`)
     .replace(/^bypass_used: .*$/m, `bypass_used: ${sach === 'bypass' ? 'true' : 'false'}`)
     .replace(/^verified_commit: .*$/m, `verified_commit: ${verifiedCommit}`)
     .replace(/^human_signoff:.*$/m, `human_signoff:${signoff ? ' ' + signoff : ''}`);
-  let t = fm + `\n# Evidence Report: ${slug}\n\n| Eval | Criterion | Executor | Verdict |\n|---|---|---|---|\n| E1 | AC-1 | test | PASS |\n\n` +
-    `## Evidence\n- eval: E1\n  run_id: ${slug}-E1-001\n  exit_code: 0\n  verifier: verify.sh\n  verified_at: 2026-08-23T00:00:00Z\n`;
-  if (sach === 'uncertain') t += `- eval: E2\n  run_id: ${slug}-E2-001\n  exit_code: 0\n  verifier: verify.sh\n  verdict: UNCERTAIN\n`;
-  // Hai mục cuối RÚT TỪ KHUÔN bên viết (khối EVIDENCE-SECTIONS-TEMPLATE) — gõ tay ở đây là
-  // dựng một hình dạng báo cáo mà không code path nào sinh ra (finding S4-r1, hình dạng 2).
-  const secBlk = blockFromTemplate(EVID_TPL, 'EVIDENCE-SECTIONS-TEMPLATE');
-  t += '\n' + (sach === 'kl-co' ? secBlk.replace(/(## Known limits\n)/, '$1\n- còn một lỗ\n') : secBlk);
+  // Một dòng eval thật vào bảng: điền 4 ô placeholder THEO THỨ TỰ CỘT của khuôn.
+  const rowVals = ['E1', 'AC-1', 'test', 'PASS']; let ri = 0;
+  t = t.replace(/^\|.*\{\{.*\|$/m, line => line.replace(/\{\{[^}]*\}\}/g, () => rowVals[ri++] ?? '…'));
+  // Một khối evidence thật đúng chỗ khuôn dạy: điền GIÁ TRỊ theo KHOÁ của khuôn —
+  // khoá, thụt dòng, thứ tự dòng giữ nguyên từ khuôn.
+  t = t.replace(/^(- eval:).*\{\{[^}]*\}\}.*$/m, '$1 E1')
+    .replace(/^(\s+run_id:).*\{\{[^}]*\}\}.*$/m, `$1 ${slug}-E1-001`)
+    .replace(/^(\s+verifier:).*\{\{[^}]*\}\}.*$/m, '$1 verify.sh')
+    .replace(/^(\s+verified_at:).*\{\{[^}]*\}\}.*$/m, '$1 2026-08-23T00:00:00Z')
+    .replace(/^(\s+)\{\{last 5-10[^}]*\}\}.*$/m, '$1ok')
+    .replace(/\{\{eval ids green-on-both[^}]*\}\}/, 'none — every feature eval is red on baseline (discriminates)')
+    .replace(/\{\{eval ids with mixed pass_rate[^}]*\}\}/, 'none — every multi-run eval is uniform')
+    .replace(/\{\{One line per verify round[\s\S]*?\}\}/, 'Round 1: ok');
+  // Fail-loud: khuôn đổi tên placeholder mà bảng điền chưa theo → ném, không xanh im.
+  const soT = t.match(/\{\{[^}]*\}\}/g);
+  if (soT) throw new Error(`evidenceText: placeholder chưa điền: ${soT.slice(0, 3).join(' · ')}`);
+  // Chiều tiêm: mục UNCERTAIN lấy đúng KHỐI judgment của khuôn (marker), không gõ tay.
+  if (sach === 'uncertain') t += '\n' + blockFromTemplate(EVID_TPL, 'JUDGMENT-BLOCK-TEMPLATE');
+  if (sach === 'kl-co') t = t.replace(/(## Known limits\n)/, '$1\n- còn một lỗ\n');
   return t;
 }
 const runLogText = slug => JSON.stringify({ ts: '2026-08-23T00:00:00Z', kind: 'eval', run_id: `${slug}-E1-001`, exit_code: 0 }) + '\n';
 
-// nguong: 'chua-chot' | 'de-xuat' | 'chot' | 'khong-do-duoc' | 'khong-do-duoc-hai-cham'
+// nguong: 'chua-chot' | 'de-xuat' | 'chot' | 'khong-do-duoc' | 'khong-do-duoc-bullet' | 'khong-do-duoc-hai-cham'
 function opportunityText(slug, { stage = 'decided', decision = 'build', nguong = 'chot', timebox = null, nguonNgoai = 'du' } = {}) {
   const fm = fileFromTemplate(OPP_TPL, 'OPP-FRONTMATTER-TEMPLATE',
     { slug, feature: `${slug} — fixture`, owner: 'fx@example.com', stage, decision,
@@ -104,6 +118,7 @@ function opportunityText(slug, { stage = 'decided', decision = 'build', nguong =
     : nguong === 'de-xuat' ? bullets(`${DE_XUAT} ngưỡng máy đề xuất`)
     : nguong === 'chot' ? bullets('ngưỡng thật')
     : nguong === 'khong-do-duoc' ? `${KHONG_DO} vòng nội bộ, không có người dùng cuối\n`
+    : nguong === 'khong-do-duoc-bullet' ? `- ${KHONG_DO} vòng nội bộ, không có người dùng cuối\n`
     : 'Không đo được: vòng nội bộ\n';
   const nn = nguonNgoai === 'du' ? '| x | y | triết-lý/logic | có | — |' : '| x | y |  | có | — |';
   return fm + `\n## Vấn đề & ai gặp\n\nfixture\n\n## Giả định chốt sinh tử\n\n| # | Giả định | Nếu sai thì | Phép thử rẻ nhất | Trạng thái |\n|---|---|---|---|---|\n| 1 | a | b | c | Chưa thử |\n\n## ${UAT_H}\n\n${ng}\n## Nguồn ngoài & phạm vi kế thừa\n\n| Món vật liệu | Nguồn (đường dẫn/tên gói) | Phân loại | Kế thừa? | Người ký |\n|---|---|---|---|---|\n${nn}\n\n## Out of scope từ khám phá\n\n- a\n- b\n`;
@@ -217,7 +232,17 @@ if (want('RT1')) {
     const tplRaw = readFileSync(EVID_TPL, 'utf8');
     const vungChep = tplRaw.slice(tplRaw.indexOf('---8<---') + 8);
     if (vungChep.includes('EVIDENCE-XANH-SACH-BLOCK')) errs.push('khối xanh-sạch nằm TRONG vùng chép — mọi báo cáo mới sẽ tự dính «có mục UNCERTAIN»');
-    if (!vungChep.includes('EVIDENCE-SECTIONS-TEMPLATE')) errs.push('khối hai mục phải nằm TRONG vùng chép (bên viết cần chép nó)');
+    // [1] Vùng chép phải sạch chữ UNCERTAIN — cả hai bộ kiểm quét TRỌN báo cáo tìm nó,
+    // nên một báo cáo chép nguyên vùng chép mà dính chữ đó thì không bao giờ xanh-sạch.
+    if (/(^|[^a-z])UNCERTAIN([^a-z]|$)/i.test(vungChep)) errs.push('vùng chép chứa chữ UNCERTAIN — báo cáo chép nguyên không bao giờ xanh-sạch');
+    // [1] Hai mục của khối EVIDENCE-SECTIONS-TEMPLATE phải nằm TRONG vùng chép DẠNG TRẦN
+    // (không marker/comment bên trong — một dòng bất kỳ dưới heading là «có nội dung»,
+    // vì h1 KHÔNG đóng section h2 theo luật same-or-higher của lib/md-section.cjs), và
+    // đứng ĐÚNG vị trí hồ sơ thật đang đặt: sau ## Evidence, trước ## Analyst (S4-r6 [1]).
+    const secTpl = blockFromTemplate(EVID_TPL, 'EVIDENCE-SECTIONS-TEMPLATE').trim();
+    const iEv = vungChep.indexOf('\n## Evidence'), iSec = vungChep.indexOf('\n' + secTpl), iAn = vungChep.indexOf('\n## Analyst');
+    if (iSec < 0) errs.push('vùng chép không mang hai mục của khối EVIDENCE-SECTIONS-TEMPLATE đúng nguyên văn');
+    else if (!(iEv >= 0 && iAn >= 0 && iEv < iSec && iSec < iAn)) errs.push(`hai mục phải đứng sau ## Evidence và trước ## Analyst (ev=${iEv}, sec=${iSec}, an=${iAn})`);
     // chiều đỏ: dựng báo cáo TRỌN từ vùng chép + thay giá trị → vị từ phải nói sạch
     // Phép đo SỐNG: báo cáo dựng bằng chính evidenceText() (rút từ khuôn) phải được vị từ
     // xanhSach gọi là SẠCH. Tiêm khối xanh-sạch vào bản sao báo cáo → vị từ phải ĐỎ đúng
@@ -386,6 +411,20 @@ if (want('RT15')) {
     mkWs(root, 'k2', { contract: MC, evidence: { signoff: '' } });
     const y = findSlug(scan(root), 'k2');
     if (!y || y.grp !== 'done' || y.stateKey !== 'da-giao-may-thong-veto-mo') errs.push(`(d+) đối chứng dương: ${JSON.stringify(y)}`);
+    // (d-thẻ) THẺ phải đọc mảng `broken` TẦNG NGOÀI groups: hồ sơ bộ quét gọi HỎNG không
+    // bao giờ là «máy đã đi tiếp» — thẻ in cờ đỏ kèm ĐÚNG lý do của bộ quét + đường sửa
+    // (S4-r6 [4]: mệnh đề null-scan từng biến đúng ca này thành «đi tiếp hợp lệ»).
+    const crB = spawnSync(process.execPath, [CARD, '--root', root, '--slug', 'k'], { encoding: 'utf8' });
+    if (crB.status !== 0) errs.push(`(d-thẻ) thẻ sập exit ${crB.status}: ${(crB.stderr || '').slice(0, 160)}`);
+    else {
+      if (/Cổng 2 · máy đã đi tiếp|Hồ sơ này máy đã đi tiếp/.test(crB.stdout)) errs.push('(d-thẻ) thẻ vẫn gọi hồ sơ hỏng là «máy đã đi tiếp»');
+      if (!/HỎNG/.test(crB.stdout) || !/chữ ký người trên hồ sơ máy-thông/.test(crB.stdout)) errs.push('(d-thẻ) thẻ không in cờ HỎNG kèm lý do của bộ quét');
+    }
+    // (d-thẻ+) đối chứng dương: cùng lớp fixture, không chữ ký → thẻ nói «máy đã đi tiếp»,
+    // không cờ HỎNG.
+    const crK2 = spawnSync(process.execPath, [CARD, '--root', root, '--slug', 'k2'], { encoding: 'utf8' });
+    if (crK2.status !== 0 || !/Hồ sơ này máy đã đi tiếp/.test(crK2.stdout) || /HỎNG/.test(crK2.stdout))
+      errs.push(`(d-thẻ+) đối chứng dương: thẻ phải nói «máy đã đi tiếp», không cờ HỎNG (exit ${crK2.status})`);
   });
   // (e) LỐI KÝ CHẠY THẬT — không chỉ ghim rằng thân lệnh CÓ CHỨA câu. Chạy đúng chuỗi ghi
   // mà signoff.md bước 7 dạy cho hồ sơ máy-thông, qua CHÍNH hook: phải đi tới nơi. Vòng 1
@@ -521,8 +560,21 @@ if (want('RT9')) {
     const x = findSlug(scan(root), 's');
     if (!x || x.grp !== 'gates' || !(x.flags || []).includes('nguong-chua-chot')) errs.push(`seam hai chấm không được nhận: ${JSON.stringify(x)}`);
   });
+  // [5] Dạng BULLET (gạch đầu dòng trước tiền tố không-đo-được) PHẢI được nhận (section
+  // Ngưỡng toàn bullet nên đó là dạng tự nhiên nhất; bản cũ xếp im lặng thành chua-chot)
+  // — đo qua CHÍNH bộ quét, đối chứng âm là ca hai-chấm ngay trên (cùng họ fixture).
+  withRepo(root => {
+    mkWs(root, 'sb', { contract: MC, evidence: {}, opportunity: { nguong: 'khong-do-duoc-bullet' } });
+    const x = findSlug(scan(root), 'sb');
+    if (!x || x.grp !== 'done' || x.stateKey !== 'da-giao-khong-do') errs.push(`bullet không-đo-được phải được nhận là lối ra: ${JSON.stringify(x)}`);
+  });
+  // [5] Vị từ lib hai chiều, needle dựng từ chuỗi khuôn (không literal — RT18 canh):
+  // bullet `-`/`*` nhận; hai chấm vẫn KHÔNG nhận.
+  for (const [l, exp] of [[`- ${KHONG_DO} nội bộ`, true], [`* ${KHONG_DO} nội bộ`, true],
+                          [`${KHONG_DO.replace(/\s*—\s*$/, ':')} nội bộ`, false]])
+    if (NG.isKhongDoLine(l, KHONG_DO) !== exp) errs.push(`isKhongDoLine(${JSON.stringify(l)}) phải là ${exp}`);
   if (errs.length) fail('RT9', errs.join(' · '));
-  else pass('RT9', 'ma trận 8 ô ngưỡng × trạng thái; de-xuat là đã điền ở Cổng Đáng; seam hai chấm không nhận');
+  else pass('RT9', 'ma trận 8 ô ngưỡng × trạng thái; de-xuat là đã điền ở Cổng Đáng; bullet không-đo-được nhận, seam hai chấm không nhận');
 }
 
 // ── RT12 — archived có ô kết; timebox quá hạn có cờ ─────────────────────────
@@ -531,15 +583,32 @@ if (want('RT12')) {
   withRepo(root => {
     const KY = { status: 'signed-off', tier: 'T2', approvedBy: 'Fx' };
     mkWs(root, 'ar', { opportunity: { stage: 'archived', decision: 'kill' } });
-    for (const [slug, tb] of [['tb1', 'muộn nhất 2000-01-01 → park'], ['tb2', 'muộn nhất 01/01/2000'], ['tb3', 'muộn nhất 2999-12-31'], ['tb4', 'cuối quý']])
+    // [6] Hai fixture BIÊN sinh từ Date.now() lúc chạy: hạn «muộn nhất <HÔM NAY>» BAO GỒM
+    // ngày đó → KHÔNG cờ; «muộn nhất <HÔM QUA>» → CÓ cờ. Hai assert này phân biệt ba cách
+    // viết biên (d<now · d<=now · d+1day<=now) — RT13(iii) hỏi chính lib nên không chạm
+    // biên được; bốn fixture cũ cách biên hàng trăm năm (S4-r6 [6]).
+    const ngayUTC = ts => new Date(ts).toISOString().slice(0, 10);
+    for (const [slug, tb] of [['tb1', 'muộn nhất 2000-01-01 → park'], ['tb2', 'muộn nhất 01/01/2000'], ['tb3', 'muộn nhất 2999-12-31'], ['tb4', 'cuối quý'],
+                              ['tb5', `muộn nhất ${ngayUTC(Date.now())}`], ['tb6', `muộn nhất ${ngayUTC(Date.now() - 24 * 60 * 60 * 1000)}`]])
       mkWs(root, slug, { contract: KY, evidence: { signoff: 'Fx 2026-08-23' }, opportunity: { nguong: 'chot', timebox: tb } });
     const j = scan(root);
     if (findSlug(j, 'ar')?.stateKey !== 'da-dong-ho-so') errs.push(`archived: ${JSON.stringify(findSlug(j, 'ar'))}`);
-    for (const [s, exp] of [['tb1', true], ['tb2', true], ['tb3', false], ['tb4', false]]) {
+    for (const [s, exp] of [['tb1', true], ['tb2', true], ['tb3', false], ['tb4', false], ['tb5', false], ['tb6', true]]) {
       const x = findSlug(j, s);
       if (!x || x.grp !== 'gates' || ((x.flags || []).includes('qua-timebox') !== exp)) errs.push(`${s}: mong cờ=${exp}, ${JSON.stringify(x)}`);
     }
   });
+  // [2] Thân lệnh /start phải DẠY in cờ ở CẢ HAI nhóm còn lại mà bộ quét có gắn cờ
+  // («Đang dở» sap-mo-vong mang qua-timebox; «Vừa xong»/done mang qua-timebox +
+  // mien-do-co-nguoi-dung) — không chỉ nhóm chờ chữ ký (S4-r6 [2]).
+  errs.push(...checkMenhDe([
+    ['start in cờ nhóm đang dở', 'commands/start.md',
+      t => cut(t, /^   - \*\*Đang dở\*\*/m, /<!-- <<<START-CAN-NHAC -->/m),
+      /Phần tử có `flags` → in thêm ngay dòng đó/, 1],
+    ['start in cờ nhóm vừa xong', 'commands/start.md',
+      t => cut(t, /^   - \*\*Vừa xong\*\*/m, /^   - \*\*Còn veto được\*\*/m),
+      /Phần tử có `flags` → in thêm ngay dưới dòng của nó/, 1],
+  ]));
   // E12 tuyên hai mệnh đề của nghi thức nghiệm thu — đường SINH RA trạng thái mà nửa trên
   // đang đo. Không đo nó là đo cái kết mà không đo cái tạo ra nó (finding S4-r1).
   errs.push(...checkMenhDe([
@@ -693,19 +762,30 @@ if (want('RT13')) {
   const NGOAI = [/^_acceptance\//, /^docs\//, /^PRODUCT-MAP\.md$/, /^CHANGELOG\.md$/, /^README\.md$/, /^GUIDE\.md$/, /^QUICKSTART\.md$/];
   const grepSignedOff = () => execFileSync('git', ['-C', ROOT, 'grep', '-l', 'signed-off'], { encoding: 'utf8' })
     .trim().split('\n').filter(Boolean).filter(f => !NGOAI.some(re => re.test(f)));
-  // «CÓ CA» = tên file vừa nằm trong `paths` của một eval, VỪA thật sự bị chính file ca
-  // này đọc/nhắc tới. Chỉ dựa vào `paths` là miễn trừ theo LỜI KHAI: thêm tên vào một dòng
-  // paths là tắt được răng mà không cần viết assert nào (finding S4-r1).
+  // «CÓ CA» = tên file vừa nằm trong `paths` của một eval, VỪA xuất hiện trong một BIỂU
+  // THỨC ĐƯỢC CHẠY của chính file ca (chuỗi 'path' của readRepo/path.join/hàng checkMenhDe).
+  // Chỉ dựa vào `paths` là miễn trừ theo LỜI KHAI; và bản cũ hỏi «tên có trong VĂN BẢN ca
+  // không» nên một câu CHÚ THÍCH cũng miễn trừ được — đo chỉ dẫn thay vì đầu ra (S4-r6 [7],
+  // ca thật: approve.md được miễn nhờ đúng dòng comment khai nó KHÔNG còn trong vòng).
   const evalsY = readRepo('_acceptance/ra-co-ten-lam-va-trao/evals.yaml');
   const testSrc = readRepo('tests/plugins/ra-co-ten.test.mjs');
   const khaiPaths = new Set((evalsY.match(/paths: \[([^\]]+)\]/g) || [])
     .flatMap(l => l.replace(/^paths: \[/, '').replace(/\]$/, '').split(',').map(x => x.trim())));
-  // So theo TÊN FILE: ca dựng đường dẫn bằng path.join(ROOT,'hooks','...') nên chuỗi đủ
-  // đường dẫn không có mặt, nhưng tên file thì luôn có nếu ca thật sự đọc nó.
-  const coCa = f => khaiPaths.has(f) && testSrc.includes(f.split('/').pop());
+  // Lột chú thích khỏi nguồn ca TRƯỚC khi tìm: dòng //… và dòng thân khối /*…*/ (mở bằng
+  // /* hoặc *) không phải mã chạy. Lột THEO DÒNG, không regex [\s\S] xuyên file: nguồn ca
+  // chứa chuỗi glob `docs/**` nên một regex khối sẽ nuốt nhầm cả trăm dòng mã thật —
+  // chiều lệch của lột-theo-dòng là STRICTER (lỡ tay lột một dòng mã thì răng đỏ, không xanh im).
+  const stripChuThich = src => src.split('\n').filter(l => !/^\s*(\/\/|\/\*|\*)/.test(l)).join('\n');
+  // So theo TÊN FILE trong CHUỖI được chạy ('…' / "…" / `…`): ca dựng đường dẫn bằng
+  // path.join(ROOT,'hooks','…') nên chuỗi đủ đường dẫn không có mặt, nhưng tên file thì
+  // luôn nằm trong một literal chuỗi nếu ca thật sự đọc nó.
+  const coCaIn = (f, khai, srcChay) => khai.has(f)
+    && new RegExp(`['"\`][^'"\`\n]*${reEsc(f.split('/').pop())}`).test(srcChay);
+  const testSrcChay = stripChuThich(testSrc);
+  const coCa = f => coCaIn(f, khaiPaths, testSrcChay);
   // Hàm thuần: trả danh sách file KHÔNG được giải trình, và dòng khai gạch đã chết.
-  const soSanh = (files, gach) => ({
-    la: files.filter(f => !coCa(f) && !gach.includes(f)),
+  const soSanh = (files, gach, co = coCa) => ({
+    la: files.filter(f => !co(f) && !gach.includes(f)),
     chet: gach.filter(f => !files.includes(f)),
   });
   const filesThat = grepSignedOff();
@@ -727,6 +807,23 @@ if (want('RT13')) {
     const bo = GACH[0];
     const r2 = soSanh(filesThat, GACH.slice(1));
     if (!r2.la.includes(bo)) errs.push(`chiều đỏ (iv-b): gỡ dòng gạch «${bo}» mà phép so vẫn im`);
+  }
+  // Chiều đỏ (iv-c): một câu CHÚ THÍCH nhắc tên file KHÔNG được tính là «có ca» — tiêm
+  // file vào paths + nguồn ca chỉ nhắc nó trong comment, chạy lại CHÍNH phép so → phải
+  // nêu «lạ»; đối chứng dương: cùng file nhắc trong CHUỖI được chạy → hết «lạ».
+  {
+    // Tên ghép để KHÔNG nằm nguyên trong literal nào của chính file ca này — nếu viết
+    // thẳng, chính dòng khai fixture đã là một «chuỗi được chạy» và chiều đỏ tự xanh.
+    const F = 'commands/gia-lap-' + 'mien-tru.md';
+    const ten = F.split('/').pop();
+    const khai2 = new Set([...khaiPaths, F]);
+    const raw2 = testSrc + `\n// ca giả: ${ten} coi như đã có ca\n`;
+    if (raw2 === testSrc || !raw2.includes(ten)) errs.push('chiều đỏ (iv-c): lệnh tiêm không đổi được văn bản');
+    const r3 = soSanh([...filesThat, F], GACH, f => coCaIn(f, khai2, stripChuThich(raw2)));
+    if (!r3.la.includes(F)) errs.push('chiều đỏ (iv-c): tên file chỉ nằm trong CHÚ THÍCH mà răng vẫn coi là «có ca»');
+    const raw3 = testSrc + `\nconst giaLapMienTru = readRepo('${F}');\n`;
+    const r4 = soSanh([...filesThat, F], GACH, f => coCaIn(f, khai2, stripChuThich(raw3)));
+    if (r4.la.includes(F)) errs.push('chiều đỏ (iv-c) đối chứng dương: nhắc trong CHUỖI được chạy mà vẫn bị nêu «lạ»');
   }
   // Chiều đỏ (ii): TIÊM vào khối KHAC-BIET-DOC-CU (bản sao contract) rồi chạy lại phép so.
   if (jOld) {

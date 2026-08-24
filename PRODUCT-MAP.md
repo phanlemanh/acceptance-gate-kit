@@ -5,7 +5,7 @@
 
 ```mermaid
 flowchart TD
-  A["Đang cân nhắc cơ hội<br/>8 việc"] --> GD{"Cổng Đáng"}
+  A["Đang cân nhắc cơ hội<br/>9 việc"] --> GD{"Cổng Đáng"}
   GD --> B["Sắp mở vòng<br/>2 việc"]
   GD --> XL["Xếp lại sau<br/>chưa có"]
   GD --> DB["Đã bác từ khám phá<br/>chưa có"]
@@ -30,6 +30,7 @@ flowchart TD
 - Mọi liệt kê trong hợp đồng phải máy-đọc (`liet-ke-may-doc`)
 - Ngày «việc vừa xong» lấy sai nấc cho hồ sơ đã qua phiên nghiệm thu — vòng đóng hôm nay bị đóng dấu bảy tháng tuổi và rơi khỏi thẻ (`ngay-viec-vua-xong-lay-sai-nac`)
 - Ô nuốt luật — đổi hai ô hỏi-khẩu-vị thành ô hỏi-phép-đối-chiếu (`o-nuot-luat`)
+- Phép kiểm xanh-sạch đo theo vùng có cấu trúc, không quét trọn file (`phep-kiem-sach-do-theo-vung`)
 - T1 tuyên-kèm-căn-cứ — máy tuyên T1 với bảng căn cứ, không dừng hỏi (`t1-tuyen-kem-can-cu`)
 
 ## Sắp mở vòng
