@@ -2551,8 +2551,11 @@ for (const rel of ['lib/evidence-core.cjs', 'lib/workspace-record.cjs', 'lib/md-
   fs.copyFileSync(path.join(root, rel), path.join(mut3, rel));
 }
 const scanSrc = fs.readFileSync(path.join(root, 'scripts/start-scan.mjs'), 'utf8');
-if (!scanSrc.includes(', ageDays: ageDays(s) })')) die('dot bien dau ra: khong thay anchor ageDays trong start-scan');
-fs.writeFileSync(path.join(mut3, 'scripts/start-scan.mjs'), scanSrc.replace(', ageDays: ageDays(s) })', ' })'));
+// Neo bam vao CHINH cap khoa-gia-tri, khong bam vao duoi cau `})`: them mot khoa moi vao
+// cung dong (vd `flags`) lam duoi doi va ca do chet vi HA TANG chu khong vi vat — dung lop
+// «thuoc ghim vao thu SE DOI» (S4-r10, khi start-scan them flags cho o y-can-nhac).
+if (!scanSrc.includes(', ageDays: ageDays(s)')) die('dot bien dau ra: khong thay anchor ageDays trong start-scan');
+fs.writeFileSync(path.join(mut3, 'scripts/start-scan.mjs'), scanSrc.replace(', ageDays: ageDays(s)', ''));
 const outMut = JSON.parse(execFileSync('node', [path.join(mut3, 'scripts/start-scan.mjs'), '--root', tmp], { encoding: 'utf8' }));
 const eMut = checkOn(outMut, SOURCES.map(load));
 if (!eMut.some(x => /key groups\.considering\[\]\.ageDays khong co/.test(x)))

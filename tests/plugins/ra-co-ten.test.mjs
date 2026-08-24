@@ -419,13 +419,28 @@ if (want('RT2')) {
   const errs = [];
   const BASE = { ...MC, approvedBy: '', sach: 'sach', signoff: '' };
   const cases = [
-    ['dương', BASE, r => r.status === 0 && /NOTE \[rt2\]: xanh-sạch — máy đi tiếp/.test(r.out), 'exit 0 + NOTE xanh-sạch'],
-    ['(a) UNCERTAIN', { ...BASE, sach: 'uncertain' }, r => r.status !== 0 && /VIOLATION \[rt2\]: status machine-cleared nhưng hồ sơ còn cần người — có mục UNCERTAIN/.test(r.out), 'VIOLATION ghim UNCERTAIN'],
-    ['(a2) Known limits có nội dung', { ...BASE, sach: 'kl-co' }, r => r.status !== 0 && /còn cần người — mục «Known limits» có nội dung/.test(r.out), 'VIOLATION ghim mục có nội dung'],
-    ['(b) T3 + người duyệt Cổng 1', { ...BASE, tier: 'T3', approvedBy: 'Fx', veto: null, opened: null }, r => r.status !== 0 && /còn cần người — hạng T3 \(chỉ T2 được đi tiếp không ký\)/.test(r.out), 'VIOLATION ghim hạng T3'],
-    ['(c) không veto, approved_by rỗng', { ...BASE, veto: null, opened: null }, r => r.status !== 0 && /VIOLATION \[rt2\]: status=machine-cleared but approved_by is empty/.test(r.out), 'VIOLATION Cổng 1'],
+    ['dương', null, BASE, r => r.status === 0 && /NOTE \[rt2\]: xanh-sạch — máy đi tiếp/.test(r.out), 'exit 0 + NOTE xanh-sạch'],
+    ['(a) UNCERTAIN', 'uncertain', { ...BASE, sach: 'uncertain' }, r => r.status !== 0 && /VIOLATION \[rt2\]: status machine-cleared nhưng hồ sơ còn cần người — có mục UNCERTAIN/.test(r.out), 'VIOLATION ghim UNCERTAIN'],
+    ['(a2) Known limits có nội dung', 'sections', { ...BASE, sach: 'kl-co' }, r => r.status !== 0 && /còn cần người — mục «Known limits» có nội dung/.test(r.out), 'VIOLATION ghim mục có nội dung'],
+    ['(b) T3 + người duyệt Cổng 1', 'tier', { ...BASE, tier: 'T3', approvedBy: 'Fx', veto: null, opened: null }, r => r.status !== 0 && /còn cần người — hạng T3 \(chỉ T2 được đi tiếp không ký\)/.test(r.out), 'VIOLATION ghim hạng T3'],
+    ['(c) không veto, approved_by rỗng', null, { ...BASE, veto: null, opened: null }, r => r.status !== 0 && /VIOLATION \[rt2\]: status=machine-cleared but approved_by is empty/.test(r.out), 'VIOLATION Cổng 1'],
+    // BA điều kiện dưới đây TỪNG KHÔNG CÓ THƯỚC NÀO: RT1 chỉ đo THỨ TỰ CHUỖI trong mã nguồn
+    // (đo chỉ-dẫn, không đo đầu ra), còn ma trận hành vi chỉ phủ 3/6. Giết hẳn nhánh
+    // `enforcement_mode: off` trong một bản sao thì RT1, RT2 và LV5 đều VẪN XANH — false
+    // green trên đúng điều kiện vòng này vừa thêm (S4-r10 [3]). Hai hình dạng fixture
+    // 'bypass' / 'enf-off' đã có sẵn từ đầu mà không ca nào dùng tới.
+    ['(e) verdict khác PASS', 'verdict-pass', { ...BASE, verdict: 'REJECT' }, r => r.status !== 0 && /còn cần người — verdict=REJECT \(chỉ PASS mới xanh-sạch\)/.test(r.out), 'VIOLATION ghim verdict khác PASS'],
+    ['(f) bypass_used: true', 'bypass', { ...BASE, sach: 'bypass' }, r => r.status !== 0 && /còn cần người — bypass_used=true/.test(r.out), 'VIOLATION ghim bypass_used'],
+    ['(g) enforcement_mode: off', 'enforcement', { ...BASE, sach: 'enf-off' }, r => r.status !== 0 && /còn cần người — enforcement_mode=off/.test(r.out), 'VIOLATION ghim enforcement_mode=off'],
   ];
-  for (const [ten, o, ok, mo] of cases) withGit('rt2', o, {}, R => {
+  // Ma trận hành vi phải phủ ĐỦ sáu điều kiện của khối — không phải «đủ needle trong mã».
+  // Số ca ĐỎ (bỏ ca dương) đếm theo QUAN HỆ với khối rút từ khuôn, không phải hằng gõ tay.
+  const phu = new Set(cases.map(c => c[1]).filter(Boolean));
+  const thieuCa = XANH_SACH.filter(k => !phu.has(k));
+  const thua = [...phu].filter(k => !XANH_SACH.includes(k));
+  if (thieuCa.length) errs.push(`điều kiện xanh-sạch KHÔNG có ca hành vi nào: ${thieuCa.join(', ')} — giết nhánh đó trong lưới mà mọi thước vẫn xanh`);
+  if (thua.length) errs.push(`ca gắn nhãn điều kiện không có trong khối: ${thua.join(', ')}`);
+  for (const [ten, , o, ok, mo] of cases) withGit('rt2', o, {}, R => {
     const r = luoi(R);
     if (!ok(r)) errs.push(`${ten}: mong ${mo}; exit ${r.status}; ${r.out.split('\n').filter(l => /rt2/.test(l)).join(' | ').slice(0, 260)}`);
   });

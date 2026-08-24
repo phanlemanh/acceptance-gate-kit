@@ -591,7 +591,11 @@ if (scanErr) P.push(`<div class="flag fwarn">⚠ Chưa đọc được trạng t
 // Bộ quét gọi HỎNG → cờ ĐỎ in đúng lý do + đường sửa. Hồ sơ mâu thuẫn không bao giờ là
 // «máy đã đi tiếp hợp lệ»; lưới trước-merge sẽ chặn y vậy, thẻ phải nói trước (S4-r6 [4]).
 if (scanBroken) P.push(`<div class="flag fred">⚠ Bộ quét gọi hồ sơ này là HỎNG — ${esc(scanBroken.reason || 'không nêu lý do')}. Đường sửa: sửa hồ sơ đúng theo lý do trên rồi mở lại thẻ (lưới trước-merge cũng sẽ chặn y vậy); chưa sửa thì đừng ký.</div>`);
-if (MAY_THONG) P.push(`<div class="flag finfo">máy đã thông — hồ sơ này qua Cổng Bằng chứng bằng sáu điều kiện xanh-sạch, KHÔNG có chữ ký người; cửa veto ${(clean(cfm.veto_state) || '').toLowerCase() === 'mo' ? 'đang mở' : 'không mở'}.</div>`);
+// Gác `!scanBroken` như MAY_DI_TIEP: hồ sơ HỎNG (vd chữ ký người trên hồ sơ máy-thông) thì câu
+// «qua Cổng Bằng chứng bằng sáu điều kiện xanh-sạch, KHÔNG có chữ ký người» vừa SAI vừa KHÔNG
+// ai kiểm — thẻ chỉ đọc `status`, không chạy xanhSach. In nó cạnh cờ đỏ đang trích chính chữ
+// ký đó là thẻ tự cãi mình, đúng thứ AC-8 cấm (S4-r10 [1]).
+if (MAY_THONG && !scanBroken) P.push(`<div class="flag finfo">máy đã thông — hồ sơ này qua Cổng Bằng chứng bằng sáu điều kiện xanh-sạch, KHÔNG có chữ ký người; cửa veto ${(clean(cfm.veto_state) || '').toLowerCase() === 'mo' ? 'đang mở' : 'không mở'}.</div>`);
 if (MAY_DI_TIEP) P.push(`<div class="flag finfo">Hồ sơ này máy đã đi tiếp — ${esc(chuMDT().viecKe)}. Thẻ không có nút ký cho trạng thái này.</div>`);
 P.push(`<a href="evidence-page.html" style="display:flex;justify-content:space-between;align-items:center;gap:10px;background:#E6F1FB;border:1px solid #B5D4F4;border-radius:10px;padding:9px 13px;margin:11px 0 2px;text-decoration:none;color:#0C447C;font-size:13px"><b>Bằng chứng đầy đủ — ảnh chụp + chạy thật</b><span style="font-size:12px;color:#185FA5;white-space:nowrap">đã mở trong trình duyệt</span></a>`);
 // Khối "Ngoài hợp đồng" đứng TRƯỚC mọi việc-của-người khác: đây là thứ máy cố ý

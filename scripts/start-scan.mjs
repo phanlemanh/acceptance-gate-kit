@@ -410,7 +410,12 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
     if (thresholdFilled(oRead.t)) gates.push(g('cho-cong-dang', { slug, gate: 'dang', since: since(oPath, fmOrNull(oRead.t, 'decided_at')), tier: null, flags: oFlags }));
     else {
       const s = gitBirth(oPath) || statSync(oPath).mtime.toISOString();
-      considering.push(g('y-can-nhac', { slug, name: fmOrNull(oRead.t, 'feature') || slug, since: s, ageDays: ageDays(s) }));
+      // Cờ CẮT NGANG mọi ô (xem nhánh DA_THONG). Ô này là nơi cờ quá-hạn CẦN NHẤT: ý có
+      // Timebox thật đã qua nhưng bullet khác còn để trống rơi đúng vào đây, và đó là ý duy
+      // nhất không cách nào hiện ra nếu thiếu cờ. commands/start.md đã khai
+      // `groups.considering[].flags` là khoá đầu ra — thân lệnh được dạy in một thứ bộ quét
+      // không bao giờ phát (S4-r10 [2]).
+      considering.push(g('y-can-nhac', { slug, name: fmOrNull(oRead.t, 'feature') || slug, since: s, ageDays: ageDays(s), flags: oFlags }));
     }
   }
   else if (decision === 'build' || decision === 'iterate') inProgress.push(g('sap-mo-vong', { slug, status: 'opportunity-decided', nextStep: 'S1', tier: null, flags: oFlags }));
