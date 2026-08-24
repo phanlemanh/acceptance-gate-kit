@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: dac-ta-ux-vat-hoa-cau-truc
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 81911bccdddccbf1f38b0fd144679160516373a1
-human_signoff:
+human_signoff: Manh Phan 2026-08-24
 ---
 
 # Evidence Report: dac-ta-ux-vat-hoa-cau-truc
@@ -86,7 +86,7 @@ PENDING-JUDGMENT: cả 4 test evals xanh (E1–E4), nhưng cả hai judgment ite
   required_evidence:
     - Nội dung/skill render acceptance-card (vd skills/acceptance-gate/skills/acceptance-card/... hoặc SKILL.md của acceptance-card) cho thấy card Gate 1 trích nguyên văn hoặc link trực tiếp tới section '### 6. Khuôn IA đã chọn + căn cứ' của design doc — không chỉ một bản tóm tắt ≤10 dòng có thể cắt mất mục này.
     - Một ví dụ contract.md + design-doc thật đã qua Gate 1 (hoặc fixture test) cho thấy dòng 'Căn cứ:' của mục 6 xuất hiện nguyên văn trong gói trình cổng thực tế, không chỉ trong file design-doc rời.
-  human_override:
+  human_override: Manh Phan 2026-08-24 — Đạt. Đã tra: thẻ Cổng 1 KHÔNG trích mục 6, người duyệt mở qua `design_doc:`; gói duyệt vốn đính kèm tài liệu đầy đủ nên vết đọc được. «Thẻ in thẳng vết ra» là ô riêng, không chặn ô này.
 <!-- JUDGMENT-BLOCK-TEMPLATE>>> -->
 
 <!-- <<<JUDGMENT-BLOCK-TEMPLATE -->
@@ -108,7 +108,7 @@ PENDING-JUDGMENT: cả 4 test evals xanh (E1–E4), nhưng cả hai judgment ite
     - Sửa tests/plugins/ux-spec.test.mjs dòng 56-59 (UX1-đỏ gỡ marker bảng) theo đúng pattern ĐỔI TÊN + bộ-kiểm-khác-thao-tác mà đỏ-2 (dòng 64-66) đã dùng cho mục 6.
     - Sửa tests/plugins/ux-spec.test.mjs quanh dòng 92-96/114/125 (UX3c) để mutC chỉ cắt MỘT trong hai cụm mà checks.c kiểm.
     - Thêm một mutant riêng cho checks.b (UX3b) trong tests/plugins/ux-spec.test.mjs, độc lập với mutA của mệnh đề a.
-  human_override:
+  human_override: Manh Phan 2026-08-24 — Đạt, kèm hai giới hạn đã khai (chiều đỏ tự-đúng ở UX1-đỏ2 · checks.b dò chữ toàn tệp thay vì đo quan hệ). Hai lỗ nằm trong bộ ca kiểm của riêng ô này, không nằm trong khuôn/lời quy trình mà consumer nhận; ghi Known limits + hạt giống thay vì chặn phát hành.
 <!-- JUDGMENT-BLOCK-TEMPLATE>>> -->
 
 ## Analyst

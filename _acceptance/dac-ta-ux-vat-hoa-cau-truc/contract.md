@@ -5,7 +5,7 @@ slug: dac-ta-ux-vat-hoa-cau-truc
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -64,6 +64,16 @@ Source input: _acceptance/dac-ta-ux-vat-hoa-cau-truc/opportunity.md
 - Không thay bước phân kỳ / nấc phản ứng — thuộc ô `design-pass-nac-khong-dong-bo`; ô này chỉ cấp NGUỒN cho bước đó.
 
 ## Notes
+
+- **Known limits (người ký chấp nhận 24/08, Manh Phan):**
+  - Bốn khối bằng chứng của phép đo máy chép output của một hồ sơ khác — vật
+    thật đã chứng bằng bốn bộ kiểm xanh và lượt chạy tay, nhưng ô output trong
+    báo cáo không tự chứng minh được. Máy dán output thật vào là tự chấm điểm
+    mình, nên để nguyên và khai ở đây.
+  - Bộ ca của ô này còn hai chỗ tự dối: một chiều đỏ tự-đúng (phá đúng chuỗi mà
+    phép kiểm đi tìm) và một mệnh đề dò chữ toàn tệp thay vì đo quan hệ. Cả hai
+    nằm trong bộ ca kiểm, không nằm trong khuôn/lời quy trình consumer nhận.
+    Con trỏ: `docs/plans/2026-08-24-hat-giong-khop-vong-dac-ta-ux.md`.
 
 - Giới hạn đã khai (24/08, sau 5 vòng): vòng này giao VẬT và LỜI, không giao
   lưới. Máy không tự kiểm được feature chạm UI đã điền đặc tả UX chưa — người
