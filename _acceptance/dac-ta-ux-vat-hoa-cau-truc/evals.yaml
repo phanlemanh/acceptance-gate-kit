@@ -1,0 +1,105 @@
+schema_version: 1
+feature_slug: dac-ta-ux-vat-hoa-cau-truc
+# Vòng này giao VẬT và LỜI, không giao lưới: khuôn đặc tả UX có marker + lời S1
+# (điền trước · tra mẫu · hình vẽ từ khuôn) + cửa miễn. Bộ ca sống ở suite
+# `plugins` (UX1/UX2-trich/UX3/UX4), fixture rút TỪ khuôn thật qua marker; mỗi
+# mutant đi qua CHÍNH bộ kiểm của chiều xanh. Phần máy-tự-kiểm đã cắt trọn
+# 24/08 sau 5 vòng cùng lớp lỗi — hạt giống:
+# docs/plans/2026-08-24-hat-giong-khop-vong-dac-ta-ux.md
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [skills/acceptance/references/ux-spec-template.md, tests/plugins/ux-spec.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: UX1". Case mở khuôn qua marker UX-SPEC-TEMPLATE,
+      kiểm đủ 6 mục theo TIÊU ĐỀ mục (không đếm chữ), marker con UX-STATE-TABLE
+      tồn tại bên trong, và đầu khuôn có đúng chuỗi cửa miễn "bỏ đặc-tả-UX — ".
+      Đối chứng dương: khuôn nguyên vẹn XANH. Chiều đỏ KHÔNG tautology — mỗi
+      mutant đi qua CHÍNH bộ kiểm của chiều xanh (cùng hàm, khác input): (1) bản
+      sao đổi tên marker bảng → bộ trích thấy section mất UX-STATE-TABLE;
+      (2) ĐỔI TÊN mục «### 6. Khuôn IA đã chọn + căn cứ» thành tên khác (không
+      xoá chuỗi rồi kiểm chuỗi vắng) → cùng bộ kiểm tiêu-đề trượt đúng mục 6
+      trong khi mục 1 và mục 4 vẫn xanh.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [skills/acceptance/references/ux-spec-template.md, tests/plugins/ux-spec.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: UX2-trich" — thực thi trong case UX1: TRÍCH section
+      từ CHÍNH ux-spec-template.md qua marker rồi «điền» bằng luật bỏ-ngoặc, bảng
+      trạng thái mẫu rút ra ≥2 dòng và cả hai marker còn nguyên trong bản trích.
+      Chiều đỏ: bản sao đổi tên marker → bộ trích thấy section mất UX-STATE-TABLE
+      (cùng bộ kiểm của chiều xanh, khác input).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [feature-loop/skills/feature-loop/SKILL.md, tests/plugins/ux-spec.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: UX3". Case đo QUAN HỆ trong SKILL.md: (a) S1 có
+      chỉ dẫn điền «Đặc tả UX» TRƯỚC khi sinh 3 artifact và resolve khuôn qua
+      resolve-plugin.mjs (cấm hardcode path cache); (b) chỉ dẫn contract ghi
+      design_doc: và GIỮ NGUYÊN marker của khuôn (mỏ neo cho việc khớp vòng
+      làm sau — vòng này không có phép đo máy nào); (c) nghi thức hình Cổng 1 có câu vẽ từ
+      section Đặc tả UX; (d) chuỗi «dòng state-matrix» cũ không còn đứng ngoài
+      con trỏ về khuôn (một nguồn). Mỗi mệnh đề là một PHÉP KIỂM chạy trên MỘT chuỗi (bản thật hoặc bản sao),
+      nên chiều đỏ đi qua đúng bộ kiểm của chiều xanh — không assert chuỗi rời
+      trên toàn file. Đối chứng dương: SKILL hiện tại xanh cả 5 mệnh đề. Chiều
+      đỏ, BỐN mutant trên bản sao — mỗi mệnh đề đo được đều có mutant: (1) gỡ
+      TRỌN câu «Kế đó, VẪN TRƯỚC khi sinh 3 artifact: …» → (a) và (b) cùng đỏ;
+      (2) gỡ TRỌN câu vẽ-từ-khuôn khỏi bước [3] của nghi thức hình → (c) đỏ,
+      trong khi (c) đo QUAN HỆ (câu phải nằm TRONG bước [3]) chứ không đo sự
+      có mặt của chuỗi mà mutant vừa đụng; (3) thay mệnh đề resolve
+      bằng đường plugins/cache cứng → (a2) đỏ; (4) chèn một câu «dòng
+      state-matrix» mồ côi xa con trỏ → (d) đỏ (d quét MỌI lần xuất hiện).
+      Mọi mệnh đề tuyên ở đây đều CÓ mutant thật trong code test — không vế nào
+      chỉ nằm trong nhãn PASS.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [feature-loop/skills/feature-loop/SKILL.md, skills/acceptance/references/ux-spec-template.md, tests/plugins/ux-spec.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: UX4". Chuỗi miễn "bỏ đặc-tả-UX — " xuất hiện
+      trong CẢ SKILL.md lẫn ux-spec-template.md và khớp từng ký tự — hai TÀI LIỆU
+      chép cùng một chuỗi, bên đọc là NGƯỜI và ván thử; engine KHÔNG có reader
+      cho chuỗi này (đã khai ở AC-4), nên eval chỉ hứa đúng phần đo được: hai
+      bên không trôi khỏi nhau. Chiều đỏ trên bản sao: đổi một bên
+      thành "bỏ dac-ta-ux — " → CÙNG bộ kiểm của chiều xanh (một hàm, hai
+      input) báo "chuỗi miễn lệch giữa SKILL và khuôn" — không tautology.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: judgment
+    question: >
+      Đọc mục «Khuôn IA đã chọn + căn cứ» trong ux-spec-template.md và đoạn tra
+      mẫu trong S1 của feature-loop SKILL.md: (1) thang hai nấc (có công cụ tra
+      mẫu → tra + ghi vết; không có → danh sách khuôn IA có tên) có được dạy đúng
+      và KHÔNG tạo phụ thuộc cứng vào công cụ nào không? (2) vết tra mẫu (mục «Khuôn IA + căn cứ») có nằm ở chỗ người đọc
+      được tại cổng không — biết rằng vòng này CỐ Ý không cho máy kiểm nội dung
+      căn cứ (đã thu phạm vi), nên câu hỏi là vị trí và độ rõ của vết?
+      (3) luật «chỉ tra khi không tự chắc» có đủ rõ để không thành trạm thu phí
+      cho luồng hiển nhiên không?
+    inputs: [../../skills/acceptance/references/ux-spec-template.md, ../../feature-loop/skills/feature-loop/SKILL.md]
+    expected: cả ba câu YES với trích dẫn dòng cụ thể; câu nào NO → nêu đúng đoạn thiếu
+    evidence_required: [run_id, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: judgment
+    question: >
+      Đọc các case UX1, UX3, UX4 trong tests/plugins/ux-spec.test.mjs: có ca nào
+      chỉ có assertion âm tính một mình (thiếu đối chứng dương), fixture nào
+      viết tay thay vì rút-từ-writer, ghim nào thoả bởi thứ khác cảnh báo thật,
+      hay chiều đỏ nào là tautology (mutation và assertion cùng một thao tác)?
+      LƯU Ý PHẠM VI: vòng này CỐ Ý không có phép đo máy nào cho đặc tả UX (cắt
+      trọn 24/08, hạt giống docs/plans/2026-08-24-hat-giong-khop-vong-dac-ta-ux.md)
+      — đừng báo sự VẮNG MẶT của lưới là thiếu sót; chỉ soi 6 tiêu chí hiện có.
+    inputs: [../../tests/plugins/ux-spec.test.mjs]
+    expected: NO cho cả ba câu (không chỗ nào); có chỗ → liệt kê đúng case
+    evidence_required: [run_id, verifier, verified_at, output]
