@@ -61,7 +61,9 @@ evals:
       contract": vị từ là ALLOWLIST (CHỈ T2 được phép), không phải cấm riêng chuỗi «T3» — viết
       `=== 'T3'` thì T1, hạng RỖNG và mọi cách gõ sai đều LỌT, mà lưới trước-merge chỉ chấm hạng
       trong REQUIRED_FOR («T2 T3») nên hồ sơ T1 không được lưới sờ tới lần nào (S4-r11 [1]). Ca
-      chạy ít nhất T3, T1 và hạng RỖNG; và:
+      (e2) chạy T1 · hạng RỖNG · «TIER3» — mỗi ca ghim đúng hạng đọc được trong thông điệp;
+      hoàn nguyên vị từ về `=== 'T3'` (blacklist) → cả ba ĐỎ. GIỚI HẠN ĐÃ KHAI: vẫn là ba
+      ĐIỂM-CASE ngoài danh sách, không phải phép chứng cho toàn lớp. Và:
       «máy thông không chữ ký» là T2-only nên răng phải đứng ở TẦNG GHI, không chỉ ở lưới
       trước-merge; nhánh (b) chỉ bắt ca đi qua veto_state. ĐỐI CHỨNG DƯƠNG: cùng fixture hạ về
       T2 → exit 0. Gỡ răng khỏi lib → (e) ĐỎ.
