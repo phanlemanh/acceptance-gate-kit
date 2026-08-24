@@ -83,31 +83,6 @@ evals:
       verbs; hai thân lệnh) tìm đúng mệnh đề; bản sao gỡ TỪNG mệnh đề → reader trên bản sao ĐỎ
       nêu mệnh đề (assert qua exit/chuỗi, không mô tả).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E7
-    criterion: AC-7
-    executor: test
-    cmd: config:executors.test.plugins
-    paths: [scripts/gate-card.js, skills/acceptance/references/opportunity-template.md, tests/plugins/ra-co-ten.test.mjs]
-    expected: >
-      exit 0; stdout có "PASS: [RT7]" — fixture chỉ có opportunity.md (code-sinh từ khuôn) ở 4
-      trạng thái ngưỡng: gate '0', cong_dang.applicable true, nguong đúng 4 giá trị, loi_ra == 4
-      lối, HTML có khối Vấn đề/Ngưỡng (chip «máy đề xuất» khi [đề xuất]) + 4 nút; cờ đỏ «thước
-      trang trí» khi chua-chot; nguồn ngoài chưa phân loại → cờ đỏ + đếm ≥1; đối chứng chot + đủ
-      phân loại → KHÔNG có cờ đỏ (should-NOT-fire); có contract.md → applicable false, 0 cờ chứa
-      «Cổng Đáng».
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E8
-    criterion: AC-8
-    executor: test
-    cmd: config:executors.test.plugins
-    paths: [commands/approve.md, commands/start.md, skills/acceptance/references/human-facing-language.md, tests/plugins/ra-co-ten.test.mjs]
-    expected: >
-      exit 0; stdout có "PASS: [RT8]" — approve.md có mục chế độ Cổng Đáng đủ: điều kiện nhận, bảng
-      map 4 lối, răng chiều đỏ (ngưỡng … ∧ không «Không đo được»; nguồn ngoài chưa phân loại), gỡ
-      [đề xuất], ghi decided_*, entry gate0, vẽ bản đồ, bước kế /feature-loop; GRAMMAR có dòng
-      /approve Cổng Đáng; SLOTS có hàng g0 và mọi nhãn g0 xuất hiện trong approve.md (round-trip);
-      start.md bước 4 cổng dang → thẻ → /approve; bản sao gỡ từng mệnh đề → đỏ nêu mệnh đề.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9
     criterion: AC-9
     executor: test
@@ -205,18 +180,6 @@ evals:
       × {signed-off, machine-cleared}, và trên hồ sơ THẬT duong-do-trong-dinh-nghia-xong (bản đồ
       KHÔNG in nó dưới «chờ phiên nghiệm thu»). Chiều đỏ: bản sao product-map.mjs gỡ nhánh
       khong-do-duoc → phép so ĐỎ nêu đúng slug + hai ô lệch; lệnh tiêm phải đổi được dòng.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E17
-    criterion: AC-17
-    executor: test
-    cmd: config:executors.test.plugins
-    paths: [scripts/gate-card.js, commands/approve.md, tests/plugins/ra-co-ten.test.mjs]
-    expected: >
-      exit 0; stdout có "PASS: [RT17]" — bốn vế điều kiện nhận Cổng Đáng RÚT TỪ thân
-      commands/approve.md rồi đối chiếu hành vi thật: ma trận toàn phần 4 ca biên (tắt từng vế)
-      + 1 đối chứng dương (ô chưa ký → gate 0). Ô đã ký (decision khác rỗng, chưa có contract) →
-      gate KHÁC 0, không khối cong_dang, HTML không có chip «quyết có làm không». Chiều đỏ: bản
-      sao gate-card.js gỡ vế `decision` → ca ĐỎ nêu đúng vế thiếu; lệnh tiêm phải đổi được dòng.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E18
     criterion: AC-18

@@ -32,7 +32,7 @@ const UAT_H = NG.UAT_THRESHOLD_HEADING;
 
 let failures = 0;
 // MỘT nguồn danh sách ca: file này. Chỉ liệt ca ĐÃ CÓ THÂN — khai id chưa dựng thì suite đỏ.
-const ALL_IDS = ['RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT6', 'RT7', 'RT8', 'RT9', 'RT10', 'RT11', 'RT12', 'RT13', 'RT14', 'RT15', 'RT16', 'RT17', 'RT18'];
+const ALL_IDS = ['RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT6', 'RT9', 'RT10', 'RT11', 'RT12', 'RT13', 'RT14', 'RT15', 'RT16', 'RT18'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.RT_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const want = id => only.length === 0 || only.includes(id);
@@ -552,46 +552,6 @@ if (want('RT12')) {
 
 const card = (root, slug, extra = []) => spawnSync(process.execPath, [CARD, '--root', root, '--slug', slug, ...extra], { encoding: 'utf8' });
 
-// ── RT7 — thẻ Cổng Đáng: cổng thứ ba có mặt người ───────────────────────────
-if (want('RT7')) {
-  const errs = [];
-  for (const ng of ['chua-chot', 'de-xuat', 'chot', 'khong-do-duoc']) withRepo(root => {
-    mkWs(root, 'o', { opportunity: { stage: 'discovery', decision: '', nguong: ng } });
-    const er = card(root, 'o', ['--extract']);
-    if (er.status !== 0) { errs.push(`${ng}: extract exit ${er.status}: ${(er.stderr || '').slice(0, 160)}`); return; }
-    const ex = JSON.parse(er.stdout); const html = card(root, 'o').stdout || '';
-    if (String(ex.gate) !== '0' || ex.cong_dang?.applicable !== true) errs.push(`${ng}: gate=${ex.gate} applicable=${ex.cong_dang?.applicable}`);
-    if (ex.cong_dang?.nguong !== ng) errs.push(`${ng}: nguong=${ex.cong_dang?.nguong}`);
-    if (JSON.stringify(ex.cong_dang?.loi_ra) !== JSON.stringify(['làm', 'lặp', 'xếp lại', 'dừng'])) errs.push(`${ng}: loi_ra=${JSON.stringify(ex.cong_dang?.loi_ra)}`);
-    if (!/Vấn đề/.test(html) || !/Ngưỡng/.test(html)) errs.push(`${ng}: HTML thiếu khối đề bài/ngưỡng`);
-    const red = (html.match(/class="flag fred"/g) || []).length;
-    if (ng === 'chua-chot' && !(red >= 1 && /thước trang trí/.test(html))) errs.push(`chua-chot: thiếu cờ đỏ thước trang trí (red=${red})`);
-    if (ng === 'chot' && red !== 0) errs.push(`chot: có ${red} cờ đỏ (should-NOT-fire)`);
-    if (ng === 'de-xuat' && !/máy đề xuất/.test(html)) errs.push('de-xuat: thiếu chip máy đề xuất');
-    if (ng === 'khong-do-duoc' && !/khai không đo được/.test(html)) errs.push('khong-do-duoc: thiếu chip khai không đo được');
-    // Máy KHÔNG được điền sẵn quyết định của người (ADR 0002).
-    if (/decision:\s*(build|iterate|park|kill)/.test(html)) errs.push(`${ng}: thẻ điền sẵn quyết định`);
-  });
-  // Nguồn ngoài chưa phân loại → đếm + cờ đỏ; đủ phân loại → không cờ (đối chứng)
-  withRepo(root => {
-    mkWs(root, 'o', { opportunity: { stage: 'discovery', decision: '', nguong: 'chot', nguonNgoai: 'thieu' } });
-    const ex = JSON.parse(card(root, 'o', ['--extract']).stdout);
-    if (!(ex.cong_dang.nguon_ngoai_chua_phan_loai >= 1)) errs.push(`nguồn ngoài chưa phân loại đếm ${ex.cong_dang.nguon_ngoai_chua_phan_loai}`);
-    if (!/class="flag fred"/.test(card(root, 'o').stdout || '')) errs.push('nguồn ngoài chưa phân loại không có cờ đỏ');
-  });
-  // Cô lập lớp: có hợp đồng rồi thì KHÔNG phải Cổng Đáng, và không cờ nào nhắc cổng đó
-  withRepo(root => {
-    mkWs(root, 'o', { contract: { status: 'draft' }, opportunity: { nguong: 'chot' } });
-    const ex = JSON.parse(card(root, 'o', ['--extract']).stdout);
-    if (String(ex.gate) !== '1') errs.push(`có hợp đồng mà gate=${ex.gate}`);
-    if (ex.cong_dang) errs.push('thẻ Cổng 1 vẫn trả khối cong_dang');
-    const flags = ((card(root, 'o').stdout || '').match(/class="flag[^>]*>[^<]*/g) || []).join('');
-    if (/Cổng Đáng/.test(flags)) errs.push('cờ của thẻ Cổng 1 nhắc Cổng Đáng (rò luật)');
-  });
-  if (errs.length) fail('RT7', errs.join(' · '));
-  else pass('RT7', 'thẻ Cổng Đáng: 4 trạng thái ngưỡng, 4 lối ra, cờ đỏ thước-trang-trí/nguồn-ngoài, không điền sẵn quyết định, cô lập lớp');
-}
-
 // ── RT11 — răng chống lách: lối «không đo được» không thành đường trốn ───────
 if (want('RT11')) {
   const errs = [];
@@ -629,43 +589,14 @@ if (want('RT6')) {
   else pass('RT6', 'năm văn bản nghi thức mang mệnh đề machine-cleared đúng phạm vi; gỡ từng mệnh đề → bộ đọc đỏ');
 }
 
-// ── RT8 — /approve chế độ Cổng Đáng + ngữ pháp + hết con trỏ chết ───────────
-if (want('RT8')) {
-  const AP = 'commands/approve.md';
-  const scopeAp = t => cut(t, /^## Chế độ Cổng Đáng/m, /^Never:/m);
-  const HFL = 'skills/acceptance/references/human-facing-language.md';
-  const errs = checkMenhDe([
-    ['approve điều kiện nhận', AP, scopeAp, /`contract\.md` VẮNG ∧ `opportunity\.md` có ∧ `decision` rỗng ∧\n`stage ≠ archived`/, 1],
-    ['approve bảng map', AP, scopeAp, /làm→build · lặp→iterate · xếp lại→park · dừng→kill/, 1],
-    ['approve răng ngưỡng', AP, scopeAp, /\*\*TỪ CHỐI\*\*, in đúng câu\n     cờ đỏ của thẻ/, 1],
-    ['approve răng nguồn ngoài', AP, scopeAp, /\*\*TỪ CHỐI\*\* \(luật răng của khuôn/, 1],
-    ['approve gỡ đề xuất', AP, scopeAp, /\*\*Gỡ tiền tố `\[đề xuất\]`\*\*/, 1],
-    ['approve ghi trường', AP, scopeAp, /`stage: decided`, `decision`, `decided_by`, `decided_at`/, 1],
-    ['approve entry gate0', AP, scopeAp, /"type":"gate0"/, 1],
-    ['approve vẽ bản đồ', AP, scopeAp, /product-map\.mjs/, 1],
-    ['approve bước kế', AP, scopeAp, /`\/feature-loop:feature-loop <slug>`/, 1],
-    ['grammar có Cổng Đáng', HFL, t => cut(t, /<<<GATE-ONESHOT-GRAMMAR/, /GATE-ONESHOT-GRAMMAR>>>/), /chế độ Cổng Đáng\*\* \(hồ sơ chưa có hợp\n  đồng\)/, 1],
-    ['start bàn giao cổng dang', 'commands/start.md', t => cut(t, /^4\. \*\*MỘT câu hỏi/m, /^5\./m), /riêng cổng `dang`\n     → thẻ Cổng Đáng rồi ký bằng `\/acceptance-gate:approve <slug> <lối>`/, 1],
-  ]);
-  // Round-trip slot g0: mọi nhãn g0 trong SLOTS phải xuất hiện trong thân lệnh, và ngược lại có ≥1 hàng
-  const slots = cut(readRepo(HFL), /<<<GATE-ONESHOT-SLOTS/, /GATE-ONESHOT-SLOTS>>>/)
-    .split('\n').filter(l => /^g0 /.test(l)).map(l => l.slice(3).trim());
-  if (!slots.length) errs.push('SLOTS không có hàng g0');
-  const ap = readRepo(AP);
-  for (const s0 of slots) if (!ap.includes(s0)) errs.push(`nhãn g0 «${s0}» không có trong approve.md`);
-  if (errs.length) fail('RT8', errs.join(' · '));
-  else pass('RT8', `approve chế độ Cổng Đáng đủ 9 mệnh đề; ${slots.length} nhãn g0 round-trip với thân lệnh; start hết con trỏ chết`);
-}
-
 // ── RT10 — hai tiền tố: MỘT chỗ khai, năm nơi đọc lại ───────────────────────
 if (want('RT10')) {
   const errs = [];
+  // `commands/approve.md` KHÔNG còn trong vòng này: chế độ ký Cổng Đáng đã tách sang hồ sơ
+  // `cong-dang-co-cua` (cắt đôi 24/08). Ba nơi đọc lại còn: khuôn · uat-session · start.
   const u = cut(readRepo('skills/uat-session/SKILL.md'), /^## 0\./m, /^## 1\./m);
-  const ap = readRepo('commands/approve.md');
   const st = readRepo('commands/start.md');
   if (!u.includes(KHONG_DO)) errs.push('uat-session §0 không mang đúng tiền tố không-đo-được');
-  if (!ap.includes(KHONG_DO)) errs.push('approve.md không mang đúng tiền tố không-đo-được');
-  if (!ap.includes(DE_XUAT)) errs.push(`approve.md không mang đúng tiền tố ${DE_XUAT}`);
   if (!st.includes(DE_XUAT)) errs.push(`start.md không mang đúng tiền tố ${DE_XUAT}`);
   if (!st.includes(KHONG_DO)) errs.push('start.md không mang đúng tiền tố không-đo-được');
   // Bên ĐỌC dùng đúng chuỗi khuôn: dựng fixture TỪ chuỗi khuôn rồi chạy bộ quét + thẻ thật.
@@ -918,73 +849,6 @@ if (want('RT16')) {
   }
   if (errs.length) fail('RT16', errs.join(' · '));
   else pass('RT16', 'bản đồ ⇔ bộ quét đồng ô trên 8 fixture + hồ sơ thật; gỡ nhánh khong-do-duoc → phép so đỏ');
-}
-
-// ── RT17 — thẻ KHÔNG hiện lại Cổng Đáng cho ô đã ký (bốn vế, ma trận biên) ──
-if (want('RT17')) {
-  const errs = [];
-  // Bốn vế RÚT THẬT từ dòng «Nhận ra chế độ» của thân lệnh — tách theo '∧'. Vòng trước
-  // là bốn regex chép tay tự nhận «rút từ» (S4-r4): thêm vế thứ năm vào tài liệu thì ca
-  // vẫn xanh. Nay số vế rút được phải BẰNG số ca ma trận — tài liệu thêm vế là ca đỏ.
-  const ap = readRepo('commands/approve.md');
-  const veLine = (ap.match(/\*\*Nhận ra chế độ:\*\*([^\n]*\n[^\n]*)/) || [])[1] || '';
-  const VE_RUT = veLine.split('∧').map(v => v.replace(/[.*].*$/, '').trim()).filter(Boolean);
-  if (VE_RUT.length !== 4) errs.push(`rút được ${VE_RUT.length} vế từ thân lệnh, ma trận dựng cho 4 — hai bên phải cùng số`);
-  const g = (root, slug) => {
-    const r = spawnSync(process.execPath, [CARD, '--root', root, '--slug', slug, '--extract'], { encoding: 'utf8' });
-    if (r.status !== 0) return { err: (r.stderr || '').slice(0, 160) };
-    return JSON.parse(r.stdout);
-  };
-  // Đối chứng dương: ô CHƯA ký, chưa có hợp đồng, chưa đóng → đúng Cổng Đáng.
-  withRepo(root => {
-    mkWs(root, 'zz', { opportunity: { stage: 'discovery', decision: '', nguong: 'chot' } });
-    const ex = g(root, 'zz');
-    if (String(ex.gate) !== '0' || !ex.cong_dang) errs.push(`đối chứng dương: gate=${ex.gate}`);
-  });
-  // Ma trận biên: tắt TỪNG vế → KHÔNG được là Cổng Đáng nữa.
-  const CA = [
-    ['có contract', { contract: { status: 'draft' }, opportunity: { stage: 'discovery', decision: '', nguong: 'chot' } }],
-    ['đã ký Cổng Đáng', { opportunity: { stage: 'decided', decision: 'build', nguong: 'chot' } }],
-    ['đã đóng hồ sơ', { opportunity: { stage: 'archived', decision: 'kill', nguong: 'chot' } }],
-  ];
-  for (const [ten, ws] of CA) withRepo(root => {
-    mkWs(root, 'zz', ws);
-    const ex = g(root, 'zz');
-    if (ex.err) { errs.push(`${ten}: thẻ lỗi ${ex.err}`); return; }
-    if (String(ex.gate) === '0' || ex.cong_dang) errs.push(`${ten}: vẫn nhận Cổng Đáng (gate=${ex.gate})`);
-    const html = spawnSync(process.execPath, [CARD, '--root', root, '--slug', 'zz'], { encoding: 'utf8' }).stdout || '';
-    if (/quyết có làm không/.test(html)) errs.push(`${ten}: HTML vẫn có chip Cổng Đáng`);
-  });
-  // Vế thứ tư (không có ô cơ hội) — không có ô thì không có gì để trình.
-  withRepo(root => {
-    mkWs(root, 'zz', { contract: { status: 'draft' } });
-    const ex = g(root, 'zz');
-    if (String(ex.gate) === '0') errs.push('không có ô cơ hội mà vẫn nhận Cổng Đáng');
-  });
-  // Chiều đỏ: bản sao gate-card GỠ vế `decision` → ca phải ĐỎ đúng vế đó.
-  {
-    const mut = tmp('rt17-mut-');
-    for (const rel of ['lib/evidence-core.cjs', 'lib/workspace-record.cjs', 'lib/md-section.cjs', 'lib/gap-probe.cjs',
-                       'lib/ac-line.cjs', 'lib/nguong-o-co-hoi.cjs', 'lib/out-of-contract.js', 'lib/eval-yaml.js',
-                       'lib/context-glossary.js', 'scripts/trang-thai-ho-so.cjs', 'scripts/khong-can-nguoi.mjs',
-                       'scripts/start-scan.mjs', 'skills/acceptance/references/opportunity-template.md'])
-      W(mut, rel, readRepo(rel));
-    const src = readRepo('scripts/gate-card.js');
-    const NEEDLE = " && !clean(frontmatter(_opp).decision)";
-    if (!src.includes(NEEDLE)) errs.push('chiều đỏ: không thấy vế `decision` trong bộ tự nhận để tiêm');
-    else {
-      W(mut, 'scripts/gate-card.js', src.replace(NEEDLE, ''));
-      withRepo(root => {
-        mkWs(root, 'zz', { opportunity: { stage: 'decided', decision: 'build', nguong: 'chot' } });
-        const r = spawnSync(process.execPath, [path.join(mut, 'scripts', 'gate-card.js'), '--root', root, '--slug', 'zz', '--extract'], { encoding: 'utf8' });
-        if (r.status !== 0) { errs.push(`chiều đỏ: bản sao thẻ không chạy (${(r.stderr || '').slice(0, 120)})`); return; }
-        if (String(JSON.parse(r.stdout).gate) !== '0') errs.push('chiều đỏ: gỡ vế `decision` mà thẻ vẫn KHÔNG nhận Cổng Đáng — ca không bám vế đó');
-      });
-    }
-    rmSync(mut, { recursive: true, force: true });
-  }
-  if (errs.length) fail('RT17', errs.join(' · '));
-  else pass('RT17', 'bốn vế rút từ thân lệnh ký; 4 ca biên + đối chứng dương; gỡ vế decision → ca đỏ đúng vế');
 }
 
 // ── RT18 — CHỐNG-CHÉP: chuỗi luật ngưỡng chỉ sống trong lib, chỗ khác khai gạch ──

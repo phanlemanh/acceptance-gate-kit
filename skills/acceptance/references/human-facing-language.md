@@ -182,10 +182,6 @@ Câu gộp theo lệnh:
   đúng các nhãn dòng «Trả lời mẫu» của thẻ Cổng 2 («Ngoài-<số>» ·
   «<mã eval>» · «cắt/hoãn» · «Treo»), kết bằng `Ký[: <tên> [<ngày>]][, phút
   <số>]` (chỗ trống «ký hay trả») hoặc `Trả lại: <lý do>`.
-- `/acceptance-gate:approve [<slug>]` ở **chế độ Cổng Đáng** (hồ sơ chưa có hợp
-  đồng): câu gộp là MỘT lối ra — `làm` · `lặp` · `xếp lại` · `dừng` — kèm tuỳ chọn
-  `; giữ proto`/`; lưu proto` và `; không đo được: <lý do>`. Máy TỪ CHỐI `làm`/`lặp`
-  khi ngưỡng còn trống mà chưa khai «không đo được», hoặc nguồn ngoài chưa phân loại.
 - `/acceptance-gate:start [<slug>]` — chọn-trước bằng slug: slug nằm trong nhóm nào của lần
   quét thì bàn giao thẳng theo lối nhóm đó và hiển thị lại nhóm đã khớp;
   không thấy slug trong nhóm nào → trình thẻ như cũ.
@@ -261,12 +257,6 @@ Danh sách nhãn chỗ trống máy-đọc — cột một là cổng (`g1`/`g2`
 (nhãn ngoài-thẻ: thân lệnh dạy, thẻ không render nên round-trip không đòi):
 
 <!-- <<<GATE-ONESHOT-SLOTS -->
-g0 làm
-g0 lặp
-g0 xếp lại
-g0 dừng
-g0 giữ proto
-g0 không đo được
 g1 duyệt hay sửa
 g2 Ngoài-<số>
 g2 <mã eval>

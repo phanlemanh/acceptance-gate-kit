@@ -187,15 +187,7 @@ const decLine = e => esc(stripMd(e.decision || '')) + (e.impact ? ' — ' + esc(
 
 // auto-detect gate: prefer contract.status (the SKILL's source of truth), else report presence
 if (!gate) {
-  // Cổng Đáng hỏi TRƯỚC: chưa có hợp đồng thì `status` rỗng, và nhánh đáy dưới đây sẽ
-  // gán '1' — thẻ Cổng Phạm vi RỖNG cho một hồ sơ chưa có tiêu chí (đúng con trỏ chết
-  // mà hồ sơ ra-co-ten dẹp). Điều kiện: chưa hợp đồng ∧ có ô cơ hội ∧ chưa đóng.
-  const _opp = read(path.join(dir, 'opportunity.md'));
-  // BỐN vế, đúng như commands/approve.md khai. Thiếu vế `decision` là thẻ mời người quyết
-  // lại một việc đã quyết — cùng lớp «thẻ mời ký hồ sơ đã qua cổng» mà AC-5 vừa vá cho
-  // machine-cleared (finding S4-r2).
-  if (!contract.trim() && _opp.trim() && !clean(frontmatter(_opp).decision) && clean(frontmatter(_opp).stage).toLowerCase() !== 'archived') gate = '0';
-  else if (/^(implemented|verified|signed-off|machine-cleared)$/i.test(status)) gate = '2';
+  if (/^(implemented|verified|signed-off|machine-cleared)$/i.test(status)) gate = '2';
   else if (/^(draft|approved)$/i.test(status)) gate = '1';
   else gate = report.trim() ? '2' : '1';
 }
@@ -224,55 +216,6 @@ const STYLE = `<style>
 .gc .bn{border-color:#cfcdc4;color:#3f3e39}.gc .yes{background:#E1F5EE;border-color:#5DCAA5;color:#085041;font-weight:600}.gc .no{border-color:#F0997B;color:#993C1D}
 </style>`;
 const pl = plain || {};
-
-// ================= GATE 0 — Cổng Đáng =================
-// Cổng thứ ba lần đầu có mặt người. Tự nhận: CHƯA có hợp đồng, CÓ hồ sơ cơ hội, chưa
-// đóng. Thẻ trình đề bài + ngưỡng (đề xuất của máy hiện RÕ là đề xuất) + bốn lối ra;
-// máy KHÔNG điền `decision` — chữ ký là phát ngôn của người (ADR 0002).
-const opp0 = read(path.join(dir, 'opportunity.md'));
-const ofm0 = frontmatter(opp0);
-if (gate === '0') {
-  const OPP_TPL0 = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md');
-  const tpl0 = read(OPP_TPL0);
-  // Luật phân loại ô ngưỡng HỎI lib dùng chung — không viết bản thứ hai. Fail-closed:
-  // khuôn mất khối marker thì chết to kèm tên file, không im lặng tắt răng.
-  const NG0 = require(path.join(__dirname, '..', 'lib', 'nguong-o-co-hoi.cjs'));
-  let nguong0, KHONG_DO0, DE_XUAT0;
-  try {
-    ({ khongDo: KHONG_DO0, deXuat: DE_XUAT0 } = NG0.prefixes(tpl0));
-    nguong0 = NG0.thresholdState(opp0, tpl0);
-  } catch (e) { process.stderr.write(`gate-card: ${e.message} — ${OPP_TPL0}\n`); process.exit(2); }
-  const H0 = NG0.UAT_THRESHOLD_HEADING;
-  const lines0 = section(opp0, H0).map(l => l.trim()).filter(l => l && !/^>/.test(l));
-  const isKD0 = l => NG0.isKhongDoLine(l, KHONG_DO0);
-  const bul0 = lines0.map(NG0.bulletOf).filter(Boolean);
-  // Nguồn ngoài: hàng dữ liệu có món nhưng cột «Phân loại» trống HOẶC còn placeholder «…».
-  const nnRows0 = section(opp0, 'Nguồn ngoài & phạm vi kế thừa')
-    .filter(l => /^\|/.test(l) && !/^\|\s*[-:]{3}/.test(l) && !/Món vật liệu/.test(l));
-  const chuaPL0 = nnRows0.filter(l => { const c = l.split('|').map(x => x.trim()); return c.length >= 5 && c[1] && !/^…$/.test(c[1]) && (!c[3] || /^…$/.test(c[3])); }).length;
-  const LOI_RA0 = ['làm', 'lặp', 'xếp lại', 'dừng'];
-  const flags0 = [];
-  if (nguong0 === 'chua-chot') flags0.push(['fred', `Ngưỡng còn trống và chưa khai «không đo được» — ký «làm» lúc này là ký trên thước trang trí. Điền ngưỡng vào ô, hoặc khai một dòng «${KHONG_DO0} <lý do>».`]);
-  if (chuaPL0) flags0.push(['fred', `Bảng Nguồn ngoài còn ${chuaPL0} hàng chưa phân loại — chưa đủ điều kiện ký «làm».`]);
-  if (EXTRACT) {
-    process.stdout.write(JSON.stringify({ gate: 0, feature: clean(ofm0.feature) || slug,
-      cong_dang: { applicable: true, nguong: nguong0, nguon_ngoai_chua_phan_loai: chuaPL0, loi_ra: LOI_RA0,
-        de_xuat_lines: bul0.filter(b => b.value.startsWith(DE_XUAT0)).map(b => b.label), flags: flags0.map(f => f[1]) } }, null, 2));
-    process.exit(0);
-  }
-  const P0 = [STYLE, `<div class="gc"><div class="card"><div class="h"><div><div class="ft">${esc(stripMd(clean(ofm0.feature) || slug))}</div><div class="sub">Cổng Đáng — việc này có đáng làm không?</div></div><span class="chip amber">quyết có làm không</span></div>`];
-  const blk0 = (lab, arr) => { if (arr.length) P0.push(`<div class="lab">${lab}</div><div class="grp gnot">${arr.map(t => `<p class="li">${esc(stripMd(t))}</p>`).join('')}</div>`); };
-  blk0('Vấn đề &amp; ai gặp', section(opp0, 'Vấn đề & ai gặp').filter(l => l.trim() && !/^>/.test(l)));
-  blk0('Giả định sinh tử (ba đầu)', section(opp0, 'Giả định chốt sinh tử').filter(l => /^\|\s*\d/.test(l)).slice(0, 3).map(l => (l.split('|')[2] || '').trim()));
-  P0.push(`<div class="lab">Ngưỡng</div><div class="grp gnot">${lines0.length
-    ? lines0.map(l => `<p class="li">${esc(stripMd(l.replace(/^[-*]\s+/, '')))}${l.includes(DE_XUAT0) ? ' <span class="chip amber">máy đề xuất — anh sửa hoặc nhận</span>' : ''}${isKD0(l) ? ' <span class="chip gray">khai không đo được</span>' : ''}</p>`).join('')
-    : '<p class="li">chưa có</p>'}</div>`);
-  for (const [k, t] of flags0) P0.push(`<div class="flag ${k}">${esc(t)}</div>`);
-  P0.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo"><p class="li"><b>Chọn một lối ra</b> — làm gì: đọc đề bài và ngưỡng ở trên; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «${LOI_RA0.join('» hoặc «')}». Muốn sửa ngưỡng thì sửa trong ô trước khi trả lời — vẫn một lượt.</p></div>`);
-  P0.push(`<div class="foot"><span class="rev">↻ Đảo ngược dễ: «xếp lại» và «dừng» không đóng cửa ý — mở lại khi có căn cứ mới.</span><div class="btns">${LOI_RA0.map(l => `<button class="b ${l === 'làm' ? 'yes' : 'bn'}">${l}</button>`).join('')}</div></div></div></div>`);
-  process.stdout.write(P0.join('\n'));
-  process.exit(0);
-}
 
 // ================= GATE 1 =================
 if (gate === '1') {
