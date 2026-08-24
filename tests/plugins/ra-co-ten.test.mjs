@@ -639,9 +639,20 @@ if (want('RT5')) {
     writeFileSync(path.join(r, '_acceptance', 'm', 'contract.md'), contractText('m', MC));
     writeFileSync(path.join(r, '_acceptance', 'm', 'evidence-report.md'), evidenceText('m', {}));
     const cr = spawnSync(process.execPath, [CARD, '--root', r, '--slug', 'm'], { encoding: 'utf8' });
+    // Bộ quét MÙ = thẻ KHÔNG biết hồ sơ có sạch không. Doctrine ngay trong gate-card («Máy quét
+    // chết → GIỮ NGUYÊN hành vi cũ + một cờ vàng; không bao giờ im lặng tuyên sạch») nên ở đây
+    // thẻ phải: render được · KHÔNG khẳng định sáu điều kiện · CÓ cờ vàng nói rõ chưa ai kiểm ·
+    // và GIỮ lối ký, vì bỏ nó đi là để người kẹt với một hồ sơ không ai xác nhận, mà chữ ký thì
+    // /signoff đặt status signed-off cùng lượt nên vẫn hợp lệ. Bản S4-r10 bỏ lối ký Ở ĐÂY chính
+    // là hồi quy r12 [2] — ca này đổi theo doctrine, không đổi theo bản vá.
+    const html = cr.stdout || '';
     if (cr.status !== 0) errs.push(`bộ quét mù: thẻ sập exit ${cr.status} — ${(cr.stderr || '').split('\n')[1] || ''}`);
-    else if (!(cr.stdout || '').includes('máy đã thông')) errs.push('bộ quét mù: thẻ render nhưng không nói hồ sơ máy-thông');
-    else if (/Ký duyệt/.test(cr.stdout)) errs.push('bộ quét mù: thẻ vẫn mời ký hồ sơ máy-thông');
+    else {
+      if (!html.includes('máy đã thông')) errs.push('bộ quét mù: thẻ render nhưng không nói hồ sơ máy-thông');
+      if (/máy đã thông — hồ sơ này qua/.test(html)) errs.push('bộ quét mù: thẻ KHẲNG ĐỊNH sáu điều kiện xanh-sạch mà không ai kiểm');
+      if (!/chưa ai kiểm sáu điều kiện/.test(html)) errs.push('bộ quét mù: thiếu cờ vàng «chưa ai kiểm»');
+      if (!/Ký duyệt/.test(html)) errs.push('bộ quét mù: MẤT lối ký — người kẹt với hồ sơ không ai xác nhận');
+    }
     rmSync(r, { recursive: true, force: true });
   }
   // ── Ô ngưỡng: thẻ và lib phải nói CÙNG một chuyện trên MỌI hình dạng ─────────
@@ -975,13 +986,17 @@ if (want('RT13')) {
   for (const x of all) {
     const op = path.join(ROOT, '_acceptance', x.slug, 'opportunity.md');
     const oTxt = existsSync(op) ? readFileSync(op, 'utf8') : null;
-    // Nhóm «đang cân nhắc» writer CỐ Ý không gắn cờ (ý chưa quyết thì timebox chưa áp) —
-    // quét CẢ nhóm đó và đòi cờ RỖNG, thay vì bỏ qua đúng chỗ có thể sai (S4-r4).
+    // Nhóm «đang cân nhắc» NAY CŨNG mang cờ `qua-timebox` (S4-r10 [2]: ý quá hạn mà bullet
+    // khác còn trống rơi đúng vào đây). Bản cũ đòi cờ RỖNG — một giá trị CỐ ĐỊNH, và nó đã
+    // cãi nhau với chính writer lẫn với E13; nó chỉ còn xanh vì hôm nay không hồ sơ nào ở ô
+    // đó quá hạn, tức xanh-không-chạy. Đo QUAN HỆ như mọi nhóm khác (S4-r12 [3]).
+    const expQua = !!oTxt && NG.quaTimebox(oTxt);
     if (x.grp === 'considering') {
-      if ((x.flags || []).length) errs.push(`${x.slug}: nhóm cân nhắc mang cờ ${JSON.stringify(x.flags)} — writer khai không gắn`);
+      if (((x.flags || []).includes('qua-timebox')) !== expQua) errs.push(`${x.slug} (cân nhắc): cờ qua-timebox ${expQua ? 'thiếu' : 'thừa'}`);
+      // Ô chưa quyết thì KHÔNG có ngưỡng để nói «chưa chốt» — cờ đó là cờ của Cổng Giá trị.
+      if ((x.flags || []).includes('nguong-chua-chot')) errs.push(`${x.slug} (cân nhắc): mang cờ nguong-chua-chot — cờ của Cổng Giá trị lọt sang ô cân nhắc`);
       continue;
     }
-    const expQua = !!oTxt && NG.quaTimebox(oTxt);
     if (((x.flags || []).includes('qua-timebox')) !== expQua) errs.push(`${x.slug}: cờ qua-timebox ${expQua ? 'thiếu' : 'thừa'}`);
     const ng = oTxt ? NG.thresholdState(oTxt, tplTxt) : null;
     const expNg = x.grp === 'gates' && x.gate === 'gia-tri' && ng !== 'chot';
@@ -1162,6 +1177,29 @@ if (want('RT16')) {
     });
   }
   if (oDem !== 8) errs.push(`ma trận ${oDem} != 8 khai trước`);
+  // CHIỀU NGUY HIỂM mà 8 ô trên KHÔNG chạm: cả 8 đều dùng bằng chứng SẠCH, nên «bản đồ tin
+  // thẳng frontmatter» không thể lộ ra. Hồ sơ máy-thông với bằng chứng BẨN phải bị CẢ HAI bộ
+  // đọc gọi là hỏng — kể cả khi nó đi đường A (có opportunity), là đúng nhánh mà bản vá
+  // S4-r11 đặt sai chỗ và bị thoát qua `if (duongA) return …` (S4-r12 [0][1]).
+  for (const ng of ['chot', 'khong-do-duoc']) {
+    withRepo(root => {
+      mkWs(root, 'ban', { contract: MC, evidence: { verdict: 'REJECT' }, opportunity: { nguong: ng } });
+      const j = scan(root);
+      const x = findSlug(j, 'ban');
+      const md = veBanDo(root);
+      if (!md) { errs.push(`bẩn×${ng}: bản đồ không chạy`); return; }
+      if (!x || x.grp !== 'broken') errs.push(`bẩn×${ng}: bộ quét phải gọi HỎNG, thấy ${JSON.stringify(x && x.stateKey)}`);
+      const that = oBanDo(md, 'ban');
+      const oHong = oCuaKhoa('ho-so-hong') || 'Hồ sơ hỏng';
+      if (that !== oHong) errs.push(`bẩn×${ng}: bản đồ in «${that}», phải là «${oHong}» — bản đồ tin frontmatter trong khi bộ quét gọi hỏng`);
+    });
+  }
+  // ĐỐI CHỨNG DƯƠNG: cùng hình dạng nhưng bằng chứng SẠCH thì KHÔNG được gọi hỏng.
+  withRepo(root => {
+    mkWs(root, 'sach', { contract: MC, evidence: {}, opportunity: { nguong: 'chot' } });
+    const x = findSlug(scan(root), 'sach');
+    if (x && x.grp === 'broken') errs.push(`đối chứng dương: hồ sơ SẠCH bị gọi hỏng — ${x.reason}`);
+  });
   // Hồ sơ THẬT trong diff: bản đồ đã commit không được in nó dưới «chờ phiên nghiệm thu».
   {
     const md = readRepo('PRODUCT-MAP.md');

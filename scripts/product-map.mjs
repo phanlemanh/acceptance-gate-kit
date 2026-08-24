@@ -211,6 +211,14 @@ function classify(dir, slug) {
   const o = k => ({ key: BUCKET_OF[k], slug, name, edge });
   if (status) {
     if (DA_THONG_CONG_2.includes(status)) {
+      // LỜI KHAI PHẢI CÓ VẬT — hỏi TRƯỚC mọi nhánh rẽ, đúng vị trí start-scan đặt nó
+      // (scripts/start-scan.mjs, ngay sau khối DA_THONG_CONG_2). Đặt chốt này BÊN TRONG
+      // nhánh `status === 'machine-cleared'` ở cuối là vô dụng: hồ sơ đường A thoát ra ở
+      // `if (duongA) return …` TRƯỚC đó, nên bản đồ lại tin thẳng frontmatter trong khi bộ
+      // quét gọi HỎNG — đúng lớp lỗi vừa định giết, chỉ đổi chỗ (S4-r12 [0][1]).
+      if (status === 'machine-cleared' && !khongCanNguoi(cTxt, texts['evidence-report.md'] || '')) {
+        return { key: 'hong', slug, file: 'evidence-report.md', reason: 'status machine-cleared nhưng bằng chứng KHÔNG đạt sáu điều kiện xanh-sạch — hồ sơ tự khai «máy đã thông» mà không có vật' };
+      }
       // Đường A (cơ hội quyết build/iterate) còn một cổng người nữa: phiên
       // nghiệm thu. Đường B/C/E ship thẳng — không dựng phiên giả cho chúng.
       const duongA = decision === 'build' || decision === 'iterate';
@@ -230,12 +238,6 @@ function classify(dir, slug) {
       // Ô kết của làn V có TÊN RIÊNG — bản đồ vẫn gom theo giai đoạn (cùng ô «Đã
       // giao»), nhưng chữ đi kèm phải phân biệt máy-thông với hồ sơ người ký.
       if (status === 'machine-cleared') {
-        // LỜI KHAI PHẢI CÓ VẬT — cùng câu bộ quét hỏi. Nhãn của hai khoá này khẳng định
-        // «bằng chứng xanh-sạch», một tính chất MÁY KIỂM ĐƯỢC; in nó từ frontmatter là màu
-        // xanh giả, và là chỗ bản đồ với bộ quét nói hai chuyện (S4-r11 [3]).
-        if (!khongCanNguoi(cTxt, texts['evidence-report.md'] || '')) {
-          return { key: 'hong', slug, file: 'evidence-report.md', reason: 'status machine-cleared nhưng bằng chứng KHÔNG đạt sáu điều kiện xanh-sạch — hồ sơ tự khai «máy đã thông» mà không có vật' };
-        }
         const vMo = (frontmatterField(cTxt, 'veto_state') || '').trim().toLowerCase() === 'mo';
         const k = vMo ? 'da-giao-may-thong-veto-mo' : 'da-giao-may-thong-xanh-sach';
         return { ...o(k), note: chu(k).nhan };
