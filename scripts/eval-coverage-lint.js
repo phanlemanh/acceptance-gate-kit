@@ -150,12 +150,12 @@ function outOfScopeBullets(contractText) {
 // PURPOSE: the wave-2 hook (schema v3 evaluateNetwork) keys pairing enforcement
 // off executor+layer — keep it as the machine-readable anchor, do not "clean it up".
 function parseEvals(evalsText) {
-  return evalYaml.parseEvals(evalsText, ['criterion', 'expected', 'executor', 'layer'], fieldVal);
+  return evalYaml.parseEvals(evalsText, ['criterion', 'expected', 'executor', 'layer', 'states'], fieldVal);
 }
 
 // ─── Lint one feature ────────────────────────────────────────────────────────
 
-function lintFeature(slug, contractText, evalsText, glossary) {
+function lintFeature(slug, contractText, evalsText, glossary, root) {
   const warns = [];
   const acs = parseACs(contractText);
   const evals = parseEvals(evalsText);
@@ -228,6 +228,68 @@ function lintFeature(slug, contractText, evalsText, glossary) {
   if (oos > 0 && negCount === 0) {
     warns.push(`[${slug}] W3 Out-of-scope lists ${oos} item(s) but evals.yaml has ZERO negative/should-NOT-fire evals — the suppression half is untested. Turn the boundary into evals or confirm it is genuinely unobservable.`);
   }
+
+  // W8 — khớp vòng đặc tả UX (ADVISORY): bảng trạng thái khai TRƯỚC trong
+  // design-doc (marker UX-STATE-TABLE, khuôn ux-spec-template.md) phải khớp
+  // hai chiều với field `states:` của evals. Đường đọc-cũ: contract không có
+  // key `design_doc:` VÀ surfaces không có `ui` → im lặng (opt-in, nếp W6).
+  // Bốn cánh + cánh parse; mọi thông điệp ghim tên ST/eval để người sửa đúng chỗ.
+  (function w8() {
+    const ddm = contractText.match(/^design_doc:\s*(.+)$/im);
+    const dd = ddm ? fieldVal(ddm[1]) : null;
+    const hasUi = /\bui\b/i.test(surfacesLine);
+    if (!dd && !hasUi) return;                       // đọc-cũ: không opt-in
+    if (!dd) {
+      warns.push(`[${slug}] W8a surfaces có ui nhưng contract chưa trỏ đặc tả UX (thiếu key design_doc:) — điền khuôn ux-spec-template.md vào design-doc rồi trỏ tới.`);
+      return;
+    }
+    const ddPath = path.join(root || '.', dd);
+    const ddText = readSafe(ddPath);
+    if (ddText == null) {
+      warns.push(`[${slug}] W8a design_doc không đọc được: ${dd} — con trỏ đặc tả UX chết.`);
+      return;
+    }
+    const mStart = ddText.indexOf('<<<UX-STATE-TABLE');
+    const mEnd = ddText.indexOf('UX-STATE-TABLE>>>');
+    if (mStart < 0 || mEnd < 0 || mEnd <= mStart) {
+      warns.push(`[${slug}] W8a design-doc ${dd} thiếu bảng UX-STATE-TABLE (marker) — đặc tả UX chưa có bảng trạng thái máy-đọc.`);
+      return;
+    }
+    const block = ddText.slice(mStart, mEnd);
+    const declared = [];
+    for (const line of block.split('\n')) {
+      if (!/^\|\s*ST-/.test(line)) continue;
+      const m = line.match(/^\|\s*(ST-[A-Za-z0-9_-]+)\s*\|[^|]*\|[^|]*\|[^|]*\|\s*$/);
+      if (m) declared.push(m[1]);
+      else warns.push(`[${slug}] W8 dòng trạng thái không parse được (đúng 4 cột |ST-id|màn|hiển thị|làm gì|): ${line.trim()}`);
+    }
+    const measured = new Set();
+    const evalStates = [];                            // [{id, st}]
+    for (const e of evals) {
+      const raw = (e.states || '').trim();
+      if (!raw) continue;
+      for (const st of raw.replace(/^\[/, '').replace(/\]$/, '').split(',').map(x => x.trim()).filter(Boolean)) {
+        measured.add(st); evalStates.push({ id: e.id, st });
+      }
+    }
+    const declaredSet = new Set(declared);
+    for (const st of declared) {
+      if (!measured.has(st)) warns.push(`[${slug}] W8b trạng thái ${st} khai trước nhưng không eval nào đo (không states: nào chứa nó) — thêm eval hoặc xoá dòng khai.`);
+    }
+    for (const { id, st } of evalStates) {
+      if (!declaredSet.has(st)) warns.push(`[${slug}] W8c eval ${id} đo trạng thái ${st} không có trong bảng khai trước — khai thêm dòng bảng hoặc sửa states:.`);
+    }
+    // W8d — đoán chay: mục Khuôn IA có mà căn cứ trống/placeholder.
+    const iaLine = ddText.match(/^Khuôn IA:[ \t]*(.*)$/m);
+    if (iaLine) {
+      const cc = ddText.match(/^Căn cứ:[ \t]*(.*)$/m);
+      const val = cc ? cc[1].trim() : '';
+      if (val === '' || val === '…' || /^\{\{/.test(val)) {
+        warns.push(`[${slug}] W8d mục Khuôn IA đã chọn nhưng chưa có căn cứ — máy đoán chay; tra mẫu (thang 2 nấc trong khuôn) hoặc ghi lý do chọn.`);
+      }
+    }
+  })();
+
   return warns;
 }
 
@@ -253,7 +315,7 @@ function run(argv) {
     if (c == null || e == null) { console.log('eval-coverage-lint: contract/evals file unreadable — skipping (advisory)'); return 0; }
     // --files mode has no repo root to resolve CONTEXT.md against → W6 is out
     // of scope there (the other warnings are file-local and still apply).
-    warns.push(...lintFeature('files', c, e, null));
+    warns.push(...lintFeature('files', c, e, null, process.cwd()));
   } else {
     const acc = path.join(root, '_acceptance');
     let dirs;
@@ -265,14 +327,14 @@ function run(argv) {
       const c = readSafe(path.join(acc, slug, 'contract.md'));
       const e = readSafe(path.join(acc, slug, 'evals.yaml'));
       if (c == null || e == null) continue; // pre-eval-gen feature → nothing to lint
-      warns.push(...lintFeature(slug, c, e, glossary));
+      warns.push(...lintFeature(slug, c, e, glossary, root));
     }
   }
 
   if (!warns.length) { console.log('eval-coverage-lint: no coverage gaps detected.'); return 0; }
   console.log(`eval-coverage-lint: ${warns.length} coverage warning(s) — ADVISORY, review at Gate 1 (not auto-blocking):\n`);
   for (const w of warns) console.log('  ' + w);
-  console.log('\nW1 = a bounded/threshold criterion needs a just-below should-NOT-fire (boundary) eval; W3 = give the out-of-scope half real negative evals; W4 = a (cross-layer) criterion needs a paired layer: backend-effect eval; W5 = a mobile-surface contract needs a "Mobile backend target:" line; W6 = the contract uses a word this repo\'s CONTEXT.md ruled out under _Avoid_; W7 = a criterion-shaped line did not parse, so every warning above ran on an incomplete AC set — fix the contract line first, then re-read this output.');
+  console.log('\nW1 = a bounded/threshold criterion needs a just-below should-NOT-fire (boundary) eval; W3 = give the out-of-scope half real negative evals; W4 = a (cross-layer) criterion needs a paired layer: backend-effect eval; W5 = a mobile-surface contract needs a "Mobile backend target:" line; W6 = the contract uses a word this repo\'s CONTEXT.md ruled out under _Avoid_; W7 = a criterion-shaped line did not parse, so every warning above ran on an incomplete AC set — fix the contract line first, then re-read this output. W8 = bảng trạng thái khai trước (UX-STATE-TABLE trong design_doc:) và states: của evals phải khớp vòng hai chiều — a thiếu/chưa trỏ/không đọc được; b khai-không-đo; c đo-không-khai; d khuôn IA thiếu căn cứ (đoán chay).');
   return 1;
 }
 
