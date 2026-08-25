@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-feature: design-pass nấc không đồng bộ — thang 4 nấc phản ứng (mặc định async, sync có người gọi tên) + bước phân kỳ có điều kiện mở từ đặc tả UX + khoá reaction/bộ phương án trong sổ phiên + thẻ Cổng Phạm vi hiện nấc
+feature: design-pass nấc không đồng bộ — thang 4 nấc phản ứng (mặc định async, sync có người gọi tên) + bước phân kỳ có điều kiện mở từ đặc tả UX + khoá reaction/options/divergence trong sổ phiên + thẻ Cổng Phạm vi hiện nấc
 slug: design-pass-nac-khong-dong-bo
 owner: phanlemanh@gmail.com
 risk_tier: T2
