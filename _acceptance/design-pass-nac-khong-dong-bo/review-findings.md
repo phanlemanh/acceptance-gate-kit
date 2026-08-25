@@ -1,120 +1,215 @@
 ## Trong hợp đồng
 
-- **DP10 branch (c) cannot go red — the "unrecognized reaction value" flag has no live assertion**
-  file: `tests/plugins/design-pass-nac.test.mjs:423`
-  severity: high
-  AC: AC-14
+- **Sổ phiên điền nửa vời bị báo nhầm là «hồ sơ đời trước»**
+  file: `scripts/gate-card.js:283`
+  severity: low
+  AC: AC-10
+  source: conventions
+
+  Khuôn sổ phiên là `reaction: <id nấc lấy từ REACTION-LADDER> (<kênh đã
+  dùng, vd ghim, thao-luan, sua-roi-luu>)` — hai chỗ trống trên MỘT dòng. Bộ
+  đọc loại cả dòng khi thấy bất kỳ `<`/`>` nào, nên phiên điền đúng id nhưng
+  quên phần kênh (`reaction: nac-1 (<kênh đã dùng…>)`) rơi vào nhánh
+  `!dp.reaction` và thẻ in cho người: «Sổ phiên chưa khai nấc phản ứng (hồ sơ
+  đời trước thang phản ứng)» — nói sai nguyên nhân, và giấu mất việc phiên MỚI
+  vừa ghi hỏng. Cờ không chặn nên không phải lỗi cổng, nhưng vi phạm phép thử
+  ngôn-ngữ-mặt-người: câu trình cho người duyệt phải đúng chuyện đang xảy ra.
+  Nhánh «đời trước» thật (khoá vắng hẳn) phân biệt được bằng chính sự vắng mặt
+  của dòng, không cần trộn với ca placeholder.
+
+  Rationale: Đúng tình huống Given/Then của AC-10 phân biệt nhánh 'thiếu
+  khoá' và nhánh 'giá trị lạ'; bộ dựng thẻ đang gộp nhầm một sổ phiên có giá
+  trị (dù lỗi) vào nhánh thiếu khoá, trái với yêu cầu phân biệt và nêu tên
+  của AC-10.
+
+- **REACTION-DEFAULT-SITES là allowlist không có chiều đỏ ngoài danh sách — bản chép thứ ba lọt**
+  file: `tests/plugins/design-pass-nac.test.mjs:488`
+  severity: medium
+  AC: AC-11
   source: bugs
-  Branch (c) of DP10 (AC-10 / eval E10, which promises "`reaction: nac-9` → cờ vàng NÊU NGUYÊN VĂN 'nac-9'") asserts only `c.out.includes('nac-9')`. But `scripts/gate-card.js:378` already renders the raw id as a fallback: `esc(REACTION_LABEL[dp.reaction] || dp.reaction || '(chưa khai)')` → the card prints `Phản ứng ở nấc: <b>nac-9</b>` whether or not the flag at `scripts/gate-card.js:313` exists. The assertion therefore measures the fallback render, not the flag.
 
-  Verified empirically: `git archive HEAD` into a temp tree, delete the line `else if (!REACTION_LABEL[dp.reaction]) dpFlags.push('Nấc phản ứng không nhận diện được: ...')` from `scripts/gate-card.js`, run `DP_CASES=DP10 node tests/plugins/design-pass-nac.test.mjs` → `PASS: [DP10]`, exit 0. Control: deleting *both* reaction flags (the missing-key one too) makes branch (b) fail, so the tree is otherwise wired correctly and (c) is the dead branch.
+  `checkDefaultSites()` chỉ lặp trên các dòng của bảng khai tay
+  `REACTION-DEFAULT-SITES` (hiện 2 site) và so số bản chép ở TỪNG site đã
+  liệt kê. Ba mutant m1/m2/m3 đều bẻ trong một site ĐÃ có tên, nên không
+  mutant nào chứng minh phép đo biết đỏ với một site NGOÀI danh sách.
 
-  This is the repo's own banned class ("assertion âm-tính-một-mình" / "thước không phân biệt"): the reader could silently stop flagging unknown ladder ids — a session writing `reaction: nac-7` would reach Cổng Phạm vi with no warning — and the evidence column would still read PASS.
+  AC-11 tuyên: «số site có mặt phải bằng đúng con số khai trong bảng
+  (thêm/bớt một chỗ mà không sửa bảng cũng ĐỎ)». Vế «thêm một chỗ» không được
+  giao. Đã chứng thực bằng cách nối nguyên văn câu chuẩn (rút từ mốc
+  `REACTION-DEFAULT-SENTENCE`) vào skills/acceptance/SKILL.md rồi chạy:
 
-  Fix: pin the actual flag text, e.g. assert `c.out.includes('Nấc phản ứng không nhận diện được')` AND `c.out.includes('nac-9')`, or extract the flag string to a shared constant read by both the reader and the case (same pattern as `CO_VANG_THIEU` on line 415, which does discriminate).
+      PASS: [DP11] moi site chua dung nguyen van cau chuan + 3 mutant do dung ve
+      EXIT=0
 
-  Failure scenario: Remove the `else if (!REACTION_LABEL[dp.reaction]) dpFlags.push(...)` line from scripts/gate-card.js:313 (the whole unknown-value flag). `DP_CASES=DP10 node tests/plugins/design-pass-nac.test.mjs` still prints `PASS: [DP10]` and exits 0, because the card's fallback at gate-card.js:378 prints the literal string `nac-9` anyway. AC-10's "giá trị lạ: cờ vàng NÊU TÊN" is therefore unverified — a session declaring `reaction: nac-7` reaches the gate with no yellow flag and the eval column still reads green.
+  Tức là cây nguồn mọc thêm một bản chép thứ ba — đúng thứ AC-11 sinh ra để
+  chặn («một cây nguồn cho câu nấc-mặc-định») — mà phép đo vẫn xanh. Đây là
+  lớp «Allowlist phải có RED ngoài danh sách» đã ghi trong sổ lớp lỗi của
+  kho.
 
-- **E6 vế "có nhánh bỏ im lặng" has zero mutant coverage; evals.yaml declares a mutant that does not exist**
-  file: `_acceptance/design-pass-nac-khong-dong-bo/evals.yaml:107`
-  severity: medium
-  AC: AC-14
+  Lưu ý phân biệt: `rang-cau-chet.sh` quét TRỌN `skills/` + `feature-loop/`
+  nên nó bắt được câu CHẾT mọc lại ở bất kỳ file nào; lỗ này chỉ nằm ở câu
+  SỐNG (bản chép mới).
+
+  Sửa: quét trọn `skills/**` + `feature-loop/**` (cùng glob thư mục mà
+  `dem()` của răng câu-chết dùng) đếm tổng số bản chép, đối chiếu với tổng số
+  khai trong bảng — file có bản chép mà không có tên trong bảng là ĐỎ; kèm
+  một mutant tiêm bản chép vào file thứ ba.
+
+  Rationale: Finding tự trích dẫn đúng vế của AC-11 ('số site có mặt phải
+  bằng đúng con số khai trong bảng — thêm/bớt một chỗ mà không sửa bảng cũng
+  ĐỎ') và chứng minh vế đó chưa được test giao.
+
+- **Chân đối chứng dương của răng câu-chết tự tắt khi số khai không phải số nguyên sạch**
+  file: `_acceptance/design-pass-nac-khong-dong-bo/rang-cau-chet.sh:55`
+  severity: low
+  AC: AC-12
   source: bugs
-  `evals.yaml` E6 declares: "m1 = đổi hàng degrade thành 'đi tiếp, không ghi gì' → đỏ ghim 'có nhánh bỏ im lặng'; m2 = xoá tên khoá `divergence:` khỏi hàng đó → đỏ ghim 'vết không có khoá đóng'".
 
-  The implementation does something else. `checkTraceAndFidelity` (tests/plugins/design-pass-nac.test.mjs:158-161) is an if / else-if chain:
-  158  if (!degradeRow) ...
-  160  else if (!/divergence:/.test(degradeRow)) errs.push('vet khong co khoa dong, moi phien ghi mot cho')
-  161  else if (/không ghi gì|đi tiếp, không/.test(degradeRow)) errs.push('co nhanh bo im lang')
+  Vòng lặp đọc từng kim bằng `while IFS='|' read -r kim so`, rồi:
 
-  The only mutant that touches the degrade row is `m-bo-im-lang` (line 355-356), which replaces the whole row with `| Không mở bước phân kỳ | Đi tiếp, không ghi gì. |` — that row has no `divergence:`, so it trips line 160 and the case expects the needle `'vet khong co khoa dong'`, i.e. the message E6 attributes to m2. The real m2 (`m-tu-vung`) mutates `` `divergence: opened` `` inside the `## 3b` section, producing `'thieu tu vung dong cua khoa vet'` — a third message not in E6 at all.
+      if [ "$b" -eq 0 ]; then ... elif [ "$b" -ne "$so" ]; then ... fi
 
-  Net effect: line 161 (`co nhanh bo im lang`) is never reached by any mutant, so E6 declares 3 vế with 3 mutants but only 2 vế are actually proven able to go red.
+  `set -e` KHÔNG áp cho lệnh nằm trong điều kiện của `if`/`elif`. Nên khi
+  `$so` không phải số nguyên hợp lệ — dòng kim viết thiếu số (`<kim>|`),
+  dính CR của file CRLF, hay lẫn ký tự — `[` thoát mã 2 kèm «integer
+  expression expected» ra stderr, `elif` bị coi là SAI, `fails` không tăng,
+  và script vẫn in `cau-chet OK ...` rồi exit 0. Đã chạy thử:
 
-  Fix: add a mutant that keeps `divergence:` in the degrade row while adding an escape (e.g. `| Không mở bước phân kỳ | Ghi `divergence: skipped` — hoặc đi tiếp, không ghi gì. |`) and expects `co nhanh bo im lang`, then correct E6's `expected` to name the messages the case actually emits.
+      bash: line 0: [: 1x: integer expression expected
+      fails=0 (script survived)
 
-  Failure scenario: Delete line 161 of tests/plugins/design-pass-nac.test.mjs (`else if (/không ghi gì|đi tiếp, không/.test(degradeRow)) errs.push('co nhanh bo im lang')`). DP6 still passes: no mutant in the E6 matrix reaches that branch. The vế E6 names as its m1 outcome is unproven, and the messages E6 promises for m1/m2 do not match the two the case actually produces.
+  Vế «kim ở mốc đếm ĐÚNG số đã khai» — nửa đối chứng dương mà AC-12 dựng ra
+  để chứng minh hàm đếm biết đếm — biến mất im lặng; chỉ còn vế `-eq 0`. Đúng
+  hình dạng «đỏ hạ tầng đọc nhầm thành xanh vật» mà comment trong chính file
+  này cảnh báo ở chỗ khác (`|| true` của `dem()`).
 
-- **Hình 4+5 — assert «có nhánh bỏ im lặng» (vế lõi AC-6) KHÔNG BAO GIỜ đỏ được; mutant khai trong evals rơi vào vế khác**
-  file: `tests/plugins/design-pass-nac.test.mjs:161`
+  Sửa: kiểm hình dạng trước khi so — ví dụ `case "$so" in ''|*[!0-9]*) echo
+  "CHAN 1 DO: so khai khong phai so nguyen: \"$so\""; fails=$((fails+1));
+  continue;; esac` (và trim CR khi đọc).
+
+  Rationale: Đây chính là đối chứng dương mà AC-12 đòi hỏi ('kim nào ra 0 ở
+  mốc là ĐỎ, không được lặng lẽ xanh'); phép đo bị tắt câm khi gặp input dị
+  dạng, trái yêu cầu này.
+
+- **Phép HOẶC làm chết vế «nac-3 phải có người gọi tên» ở thân skill (hình dạng 4)**
+  file: `tests/plugins/design-pass-nac.test.mjs:89`
   severity: high
-  AC: AC-14
+  AC: AC-2
   source: measurement
-  checkTraceAndFidelity dùng chuỗi else-if: (159) thiếu hàng → (160) hàng không có `divergence:` → (161) hàng có chữ «không ghi gì» → 'co nhanh bo im lang'. Mutant duy nhất chạm hàng này là m-bo-im-lang (dòng 355-356) thay cả hàng thành `| Không mở bước phân kỳ | Đi tiếp, không ghi gì. |` — hàng mutant KHÔNG còn chuỗi `divergence:`, nên nhánh (160) bắn trước và nhánh (161) không bao giờ chạy. Hệ quả: vế «không có đường bỏ im lặng» — chính lời hứa của AC-6 — là assert chết; xoá nó đi ca vẫn PASS. Nặng thêm vì evals.yaml E6 (dòng ~110-114) khai NGUYÊN VĂN «m1 = đổi hàng degrade thành "đi tiếp, không ghi gì" → đỏ ghim "có nhánh bỏ im lặng"» và «m2 = xoá tên khoá `divergence:` → đỏ ghim "vết không có khoá đóng"»: thực tế m1 ghim vế của m2, còn vế m1 tuyên thì không có mutant nào. Cả nhánh (159) 'bang tra degrade thieu hang' cũng không mutant nào chạm.
 
-- **Hình 5 — DP2 tuyên 4 vế nhưng chỉ 2 vế có chiều đỏ (evals khai «số mutant = số vế»)**
-  file: `tests/plugins/design-pass-nac.test.mjs:83`
+  `if (!/nac-3/.test(s) || !/(chỉ mở khi|có người gọi tên)/.test(s))` — hai
+  lựa chọn của phép HOẶC đều CÒN TRONG VẬT (câu chuẩn viết «nac-3 (ngồi cùng)
+  chỉ mở khi có người gọi tên nó.»), nên vế «có người gọi tên» không bao giờ
+  có chiều đỏ: cụm «chỉ mở khi» một mình đã thoả. AC-2 hứa «sync là nấc phải
+  có người gọi tên» và E2 khai riêng mutant m2/m4 cho thân skill, nhưng cả
+  hai mutant đều xoá TRỌN mệnh đề nên không phân biệt được. Đã chứng: đổi câu
+  chuẩn ở cả hai site thành «nac-3 (ngồi cùng) chỉ mở khi máy thấy cần.» —
+  tức là xoá đúng điều khoản «phải có người gọi tên» khỏi thân skill — DP2
+  vẫn PASS (DP11 cũng PASS vì nó rút `need` từ chính mốc neo đã bị đổi, nên
+  hai bản chép vẫn khớp nhau). Vế duy nhất còn sống cho điều khoản này là
+  `/gọi tên/i` trên frontmatter description, tức thân skill không được đo.
+
+  Sửa: tách thành hai phép kiểm AND có thông điệp riêng (`chỉ mở khi` là
+  điều kiện, `có người gọi tên` là chủ thể gọi), mỗi vế một mutant.
+
+  Rationale: Finding tự trích dẫn 'AC-2 hứa sync là nấc phải có người gọi
+  tên' và chứng minh cấu trúc HOẶC trong test khiến vế đó không có chiều đỏ
+  độc lập.
+
+- **Vế lõi AC-6 «không có đường bỏ im lặng» là blacklist hai cụm, chỉ bắt được chính mutant của nó (hình dạng 4)**
+  file: `tests/plugins/design-pass-nac.test.mjs:163`
   severity: high
-  AC: AC-14
+  AC: AC-6
   source: measurement
-  checkDefault đẩy 4 thông điệp khác nhau: (81) description thiếu «mặc định không đồng bộ», (83) description thiếu «gọi tên», (88) thân skill thiếu «KHÔNG ĐỒNG BỘ», (89) nac-3 không có điều kiện. Chạy lại bộ kiểm ngoài file với đúng 2 mutant khai ở dòng 308-318: m-desc chỉ bắn vế (81), m-body chỉ bắn vế (89) — vế (83) và vế (88) KHÔNG mutant nào chạm. Cụ thể m-body thay cả mệnh đề nac-3 nhưng giữ nguyên «KHÔNG ĐỒNG BỘ» trong câu chuẩn, nên (88) chết. Đây đúng lớp mà chính đầu file (dòng 4) và evals.yaml (dòng 9-16, «mỗi ca khai SỐ MUTANT = SỐ VẾ ĐƯỢC KHẲNG ĐỊNH») tuyên là hợp đồng: hai vế đã tuyên có thể biến mất khỏi SKILL mà DP2 vẫn in PASS.
 
-- **Hình 5 — DP7 tuyên «thang đủ BỐN nấc» nhưng chỉ có điểm-case cho một nấc**
-  file: `tests/plugins/design-pass-nac.test.mjs:175`
-  severity: medium
-  AC: AC-14
-  source: measurement
-  Vòng (174-175) khẳng định BUILDER-LADDER có đủ 4 phần tử '1.'..'4.', nhưng ma trận chỉ có m-nac-giua (368-371) xoá riêng nấc '3.'. Ba phần tử còn lại ('1.', '2.', '4.') là assert không có chiều đỏ — đúng mẫu P105 «số assert = số phần tử» mà chính DP1 làm đúng ngay trong cùng file (dòng 303 sinh 4 mutant, mỗi id một mutant). Hai ca cùng file, cùng hình dạng «danh sách đóng», nhưng chỉ một ca dựng ma trận toàn phần.
+  `if (degradeRow && /không ghi gì|đi tiếp, không ghi/.test(degradeRow))
+  errs.push('co nhanh bo im lang');` — hai cụm trong regex là ĐÚNG hai cụm mà
+  mutant m-bo-im-lang (dòng 370–372) tiêm vào. Thước được viết vừa khít
+  mutant, nên chiều đỏ là tautology: nó chứng minh nó bắt được câu do chính
+  nó viết ra, không chứng minh nó bắt được «đường bỏ im lặng». Đã chứng: sửa
+  hàng degrade thật ở skills/design-pass/SKILL.md dòng 316 thành «| Không mở
+  bước phân kỳ | Ghi `divergence:` nếu tiện; bỏ qua cũng được, khỏi ghi. |» —
+  một nhánh bỏ im lặng công khai, đúng thứ AC-6 cấm — DP6 vẫn PASS (khoá
+  `divergence:` còn trong hàng nên hai vế kia cũng im). Đây chính là vế mà
+  lượt đính chính vòng 1 tuyên đã cứu khỏi assert-chết (evals.yaml dòng
+  119–124); nó vẫn chết, chỉ đổi hình dạng từ else-if sang blacklist.
 
-- **Hình 5 — DP8 tuyên hai vế «options tự khai THAM CHIẾU» và «khuôn không liệt lại danh sách nấc» nhưng không mutant nào chạm**
-  file: `tests/plugins/design-pass-nac.test.mjs:200`
-  severity: medium
-  AC: AC-14
-  source: measurement
-  checkNoteKeys có 5 nhánh lỗi: thiếu mốc neo (191), thiếu từng khoá trong 3 khoá (194-195), (200) dòng `options:` không tự khai «THAM CHIẾU», (202-203) khuôn liệt lại ≥3 id nấc. Ma trận DP8 (378-387) chỉ có 3 mutant xoá lần lượt 3 khoá. Vế (200) và vế (202) chưa bao giờ chạy đỏ, dù evals.yaml E8 nêu đích danh assert «dòng `options:` tự khai là tham chiếu chứ không phải bằng chứng» như một khẳng định của ca. Riêng (200) còn có guard `line &&`, nên khi dòng options: vắng thì vế này im lặng bỏ qua — càng khó lộ nếu sau này nhánh khoá-thiếu bị nới.
+  Sửa: đo QUAN HỆ dương — hàng phải khai từ vựng ĐÓNG (`skipped — <căn cứ>`)
+  và không được có từ khoá tuỳ chọn (`nếu`, `cũng được`, `tuỳ`) — chứ không
+  liệt kê cụm xấu.
 
-- **Hình 5 — DP1 tuyên «mỗi nấc có tên tiếng người + điều kiện dùng» nhưng vế đó không có mutant**
-  file: `tests/plugins/design-pass-nac.test.mjs:61`
-  severity: medium
-  AC: AC-14
-  source: measurement
-  Dòng 61 push 'nac thieu ten hoac dieu kien: <id>' — vế này được evals.yaml E1 khai rõ («mỗi id có tên tiếng người + điều kiện dùng»). Nhưng 5 mutant của DP1 (302-306) chỉ đổi tên id (4 mutant → vế 'thang thieu nac') và thêm danh sách thứ hai (1 mutant → vế 'danh sach nac xuat hien 2 cho'). Không mutant nào làm rỗng một ô Tên/Dùng-khi, nên vế (61) chưa chứng minh biết đỏ; thêm nữa `filter(Boolean)` ở dòng 60 nuốt ô rỗng làm hình dạng lỗi này càng khó tự lộ.
+  Rationale: Finding tự nêu tên AC-6 và chứng minh một vi phạm thật đúng thứ
+  AC-6 cấm ('không có nhánh không ghi gì') vẫn PASS vì test chỉ khớp đúng hai
+  cụm của chính mutant nó viết ra.
 
-- **Hình 5 — DP4 tuyên «nguồn bày hướng trỏ section ## Đặc tả UX» nhưng vế đó không có mutant**
-  file: `tests/plugins/design-pass-nac.test.mjs:132`
+- **Vế «kit không phụ thuộc bộ dựng nào» chỉ quét MỘT mục trong khi lời hứa là cả skill (hình dạng 5)**
+  file: `tests/plugins/design-pass-nac.test.mjs:183`
   severity: medium
-  AC: AC-14
+  AC: AC-7
   source: measurement
-  checkDivergenceOrder có 5 nhánh: (129) thiếu vế vật thật, (130) thiếu vế bày hướng, (131) sai thứ tự, (132) thiếu '## Đặc tả UX', (133) thiếu nhánh lùi. Hai mutant của DP4 (329-341) chỉ bắn (131) và (133). Vế (132) — nửa đầu của v2 mà evals.yaml E4 khai «nguồn bày hướng trỏ section `## Đặc tả UX` VÀ có nhánh lùi» — không có chiều đỏ; hai vế (129)/(130) cũng vậy (mutant m-hoan-vi cố ý không xoá chữ nào).
+
+  `const sec = section(skillText, DIVERGENCE) || skillText;` rồi
+  `sec.match(/bắt buộc dùng\s+([^\s.,]+)/i)` — phạm vi quét bị thu về đúng
+  mục «## 3b. Bước phân kỳ». E7 v2 (evals.yaml dòng 136) và AC-7 lại tuyên
+  «skill KHÔNG nêu bộ dựng nào là bắt buộc» — phạm vi là cả file. Ca tiêm
+  dương m-tiem-phu-thuoc (dòng 394) cũng tiêm vào bên trong chính mục 3b, nên
+  nó chứng minh regex chạy, không chứng minh phạm vi quét đúng. Đã chứng:
+  chèn câu «Bộ phương án: bắt buộc dùng canvas-preview cho mọi bề mặt.» vào
+  mục «## 2. Nạp 2 nguồn luật» (dòng 76 của SKILL.md) — DP7 vẫn PASS. Nghĩa
+  là một phụ thuộc bộ dựng đặt ở bất kỳ mục nào khác (Giai đoạn 0, mục 2, mục
+  4, bảng Degrade) đều lọt.
+
+  Sửa: quét toàn `skillText` (và cân nhắc cả feature-loop/ như răng câu-chết
+  đang làm), giữ ca tiêm dương ở một mục KHÁC mục 3b để chân tiêm chứng được
+  phạm vi.
+
+  Rationale: Finding tự trích dẫn 'AC-7 lại tuyên skill KHÔNG nêu bộ dựng
+  nào là bắt buộc' (phạm vi toàn file) và chứng minh phạm vi quét thực tế
+  chỉ giới hạn một mục nhỏ, bỏ lọt phần lớn file.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
-Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
+Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người
+quyết, máy không tự sửa.
 
-- **CONTEXT.md glossary không được cập nhật cho từ vựng mới (reaction/divergence/options + ổ cắm ds_skill)**
-  Người dùng thấy gì: Các khái niệm mới của tính năng này (nấc phản ứng, bước phân kỳ, bộ phương án) chưa được thêm vào bảng thuật ngữ chung của bộ công cụ. Người viết tài liệu ở các tính năng sau có thể tự đặt tên khác cho cùng một khái niệm, gây lẫn lộn về sau.
+<<<OOC-ITEM-TEMPLATE
+- **Bảng ma trận mutant trong câu hỏi hội đồng E14 lệch với bảng hợp đồng ở đầu chính file**
+  Người dùng thấy gì: Bảng số tham chiếu dùng để chấm điểm vòng đánh giá đang ghi số liệu cũ đã lỗi thời; nếu để nguyên, lần chấm kế tiếp có thể báo nhầm là có lỗi dù việc đã làm đúng, khiến người duyệt mất thời gian tra lại oan uổng.
+  file: `_acceptance/design-pass-nac-khong-dong-bo/evals.yaml`
+  severity: high
+  Đề xuất: known-limits
+OOC-ITEM-TEMPLATE>>>
+
+<<<OOC-ITEM-TEMPLATE
+- **Bằng chứng vòng 1 được commit CÙNG lượt với bản sửa chính vật nó đo**
+  Người dùng thấy gì: Bản ghi kết quả kiểm tra của vòng trước đang mô tả một phiên bản công việc cũ hơn bản mới nhất đã sửa; nếu ai đó đọc và tin vào bản ghi đó để ra quyết định thì có thể đang dựa trên thông tin sai — cần chạy kiểm tra lại và ghi nhận đúng bản mới trước khi dùng để quyết định.
+  file: `_acceptance/design-pass-nac-khong-dong-bo/evidence-report.md`
+  severity: medium
+  Đề xuất: known-limits
+OOC-ITEM-TEMPLATE>>>
+
+<<<OOC-ITEM-TEMPLATE
+- **Từ vựng đóng mới (reaction/options/divergence + thang 4 nấc) không có mục nào trong CONTEXT.md**
+  Người dùng thấy gì: Ba khái niệm mới mà tính năng này đưa vào chưa được thêm vào bảng thuật ngữ dùng chung của dự án; người viết tài liệu hoặc script ở các lần sau có thể không biết những từ này là chuẩn, hoặc vô tình dùng lại một từ đã bị loại bỏ.
   file: `CONTEXT.md`
   severity: medium
   Đề xuất: known-limits
+OOC-ITEM-TEMPLATE>>>
 
-- **Đoạn S1-D của feature-loop: hai ngoặc đơn dính nhau làm chú giải `context:` treo vào mục `reaction:`**
-  Người dùng thấy gì: Một đoạn hướng dẫn nội bộ mô tả cách kết thúc phiên thiết kế bị viết lồng câu khiến phần chú thích của một mục bị đọc nhầm sang mục khác, có thể khiến người đọc sau này hiểu sai quy tắc áp dụng cho mục nào.
+<<<OOC-ITEM-TEMPLATE
+- **Mệnh đề về khoá context: bị chèn lạc chỗ trong đoạn S1-D của feature-loop**
+  Người dùng thấy gì: Một đoạn hướng dẫn quy trình bị đặt lộn chỗ, khiến hai điều kiện phát cảnh báo khác nhau bị mô tả dính vào nhau trong văn bản hướng dẫn; người đọc quy trình ở các lần sau dễ hiểu nhầm nguyên nhân thật của mỗi cảnh báo.
   file: `feature-loop/skills/feature-loop/SKILL.md`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Khối răng của hai hồ sơ bị cài xen nhau trong _acceptance/config.yaml**
-  Người dùng thấy gì: Trong một tệp cấu hình nội bộ, ghi chú và dữ liệu của hai tính năng khác nhau bị xen lẫn vào nhau. Khi dọn dẹp phần của tính năng đã xong sau này, có nguy cơ xoá nhầm hoặc để sót phần thuộc tính năng khác.
-  file: `_acceptance/config.yaml`
   severity: low
   Đề xuất: known-limits
+OOC-ITEM-TEMPLATE>>>
 
-- **gate-card.js chép lần thứ hai danh sách id nấc vào chuỗi thông điệp, không phép đo nào ghim**
-  Người dùng thấy gì: Thông báo hiển thị khi gặp một giá trị nấc không hợp lệ có liệt kê sẵn bằng tay bốn nấc đang tồn tại. Nếu sau này bộ công cụ thêm một nấc mới, thông báo này có thể tiếp tục nói sai là chỉ có bốn nấc, khiến người đọc hiểu nhầm phạm vi hợp lệ.
-  file: `scripts/gate-card.js`
-  severity: low
-  Đề xuất: known-limits
-
-- **`divergence:` được ghi vào khuôn nhưng không có bộ đọc nào — luật «không có đường bỏ im lặng» tự khai, không có lưới**
-  Người dùng thấy gì: Tài liệu hướng dẫn nói rằng việc bỏ qua bước cân nhắc phương án luôn phải để lại một dòng ghi chú, nhưng thẻ hiển thị cho người duyệt hiện không kiểm tra hay cảnh báo khi dòng ghi chú đó bị thiếu. Một phiên có thể âm thầm bỏ qua bước này mà thẻ duyệt không cho thấy dấu hiệu gì.
-  file: `skills/design-pass/SKILL.md`
-  severity: low
-  Đề xuất: known-limits
-
-- **Mutant-matrix contract says "E10=4 nhánh" but DP10 implements 3**
-  Người dùng thấy gì: Tài liệu mô tả bộ kiểm cho một trong các tiêu chí ghi sai số lượng nhánh cần kiểm (ghi bốn trong khi thực tế chỉ triển khai ba). Người xem lại bộ kiểm sau này có thể hiểu nhầm về mức độ đầy đủ của việc kiểm tra.
+<<<OOC-ITEM-TEMPLATE
+- **Ma trận toàn phần ghim vào bảng số LỖI THỜI — thước E14 đo hợp đồng đã bị đính chính (hình dạng 5)**
+  Người dùng thấy gì: Đây là cùng lỗi bảng số liệu lỗi thời: bảng dùng để chấm điểm chứa số cũ, có thể khiến việc đã làm đúng bị đánh giá nhầm là có lỗi trong lần chấm kế tiếp.
   file: `_acceptance/design-pass-nac-khong-dong-bo/evals.yaml`
-  severity: low
+  severity: high
   Đề xuất: known-limits
+OOC-ITEM-TEMPLATE>>>
 
-⚠ Cụm ngoài vùng phủ: 4/14 lỗi rơi vào file không bộ đo nào phủ (CONTEXT.md, _acceptance/config.yaml, _acceptance/design-pass-nac-khong-dong-bo/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+⚠ Cụm ngoài vùng phủ: 4/11 lỗi rơi vào file không bộ đo nào phủ (_acceptance/design-pass-nac-khong-dong-bo/evals.yaml, _acceptance/design-pass-nac-khong-dong-bo/evidence-report.md, CONTEXT.md) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
