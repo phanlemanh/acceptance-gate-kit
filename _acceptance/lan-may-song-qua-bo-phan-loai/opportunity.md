@@ -3,10 +3,10 @@ schema_version: 1
 slug: lan-may-song-qua-bo-phan-loai
 feature: làn máy sống qua bộ phân loại — lệnh kiểm cố định thôi phải xin phép từng lần (A) + nghi thức biết đường thoái hoá tuần tự khi fan-out nghẽn (B)
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:                     # build | iterate | park | kill — người ký Cổng Đáng điền
-decided_by:
-decided_at:
+stage: decided                # discovery | decided | archived
+decision: build               # build | iterate | park | kill — người ký Cổng Đáng điền
+decided_by: Manh Phan
+decided_at: 2026-08-25T13:05:54Z
 prototype:
   base_commit:
   disposition:
@@ -34,6 +34,8 @@ Người trả giá: owner và làn nghiệm thu máy. Bằng chứng + sổ cá
 | 3 | Bash ngoài-suite của làn đủ thưa sau khi A gỡ phần lệnh kiểm | giảm tần suất, chưa hết lớp | đếm lệnh ngoài-suite trong 1 transcript vòng | Chưa thử |
 
 ## Ngưỡng chết / ngưỡng UAT
+
+*Chốt nguyên văn cùng lượt chữ ký Cổng Đáng 25/08 — không sửa số nào so với bản đề xuất.*
 
 - Câu hỏi phép đo trả lời: sau khi ship, vòng S4 còn chết vì bộ phân loại
   không, và khi vẫn nghẽn thì có thoát trong MỘT lượt không?
