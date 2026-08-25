@@ -15,7 +15,7 @@ const SKILL = path.join(ROOT, 'skills', 'design-pass', 'SKILL.md');
 
 let failures = 0;
 // MỘT nguồn danh sách ca: file này. `--ids` in ra để run-tests.sh lặp theo, không chép tay.
-const ALL_IDS = ['DP1', 'DP2', 'DP3', 'DP4', 'DP5', 'DP6', 'DP7', 'DP8', 'DP9', 'DP10', 'DP13'];
+const ALL_IDS = ['DP1', 'DP2', 'DP3', 'DP4', 'DP5', 'DP6', 'DP7', 'DP8', 'DP9', 'DP10', 'DP11', 'DP12', 'DP13'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.DP_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const ran = new Set();
@@ -446,6 +446,85 @@ if (want('DP13')) {
   if (m2.status === 0) errs.push('m2: bo dung the nem loi ma van exit 0 — ca khong bat duoc the chet');
   if (errs.length) fail('DP13', errs.join(' · '));
   else pass('DP13', 'khong so phien: the dung duoc, khoi vang, khong nhan la + 2 mutant');
+}
+
+// DP11 · AC-11 — một cây nguồn: mỗi site chứa ĐÚNG NGUYÊN VĂN câu chuẩn
+// Đo QUAN HỆ (nguyên văn), không đo ĐẾM SUÔNG: hai chỗ viết hai nghĩa khác nhau vẫn
+// đếm đủ số bản, nên đếm-không-so-chữ là thước chết đúng chỗ nó sinh ra để giữ.
+function checkDefaultSites(skillText, readAt) {
+  const sentence = block(skillText, 'REACTION-DEFAULT-SENTENCE');
+  if (sentence === null) return ['thieu moc neo REACTION-DEFAULT-SENTENCE'];
+  const man = block(skillText, 'REACTION-DEFAULT-SITES');
+  if (man === null) return ['thieu moc neo REACTION-DEFAULT-SITES'];
+  const errs = [];
+  const need = sentence.trim();
+  for (const line of man.trim().split('\n')) {
+    const m = line.trim().match(/^(\S+)\s+(\d+)$/);
+    if (!m) { errs.push(`dong manifest thieu so: "${line.trim()}"`); continue; }
+    const [, rel, want2] = m;
+    const body = readAt(rel);
+    if (body === null) { errs.push(`site khong doc duoc: ${rel}`); continue; }
+    const got = body.split(need).length - 1;
+    if (got !== Number(want2)) {
+      errs.push(got > Number(want2)
+        ? `site ${rel}: thua ban chep (dem ${got}, manifest khai ${want2})`
+        : `site ${rel}: thieu ban chep hoac lech chu (dem ${got}, manifest khai ${want2})`);
+    }
+  }
+  return errs;
+}
+
+if (want('DP11')) {
+  const readAt = rel => { try { return readFileSync(path.join(ROOT, rel), 'utf8'); } catch { return null; } };
+  const clean0 = checkDefaultSites(src, readAt);
+  if (clean0.length) fail('DP11', `doi chung duong DO — ban nguyen ven phai XANH: ${clean0.join(' · ')}`);
+  else {
+    const errs = [];
+    const FL = 'feature-loop/skills/feature-loop/SKILL.md';
+    const sentence = block(src, 'REACTION-DEFAULT-SENTENCE').trim();
+    // m1 — lệch MỘT TỪ ở một site (không xoá): đếm vẫn đủ nếu thước chỉ đếm bản chép
+    const m1 = rel => rel === FL ? readAt(rel).replace(sentence, sentence.replace('KHÔNG ĐỒNG BỘ', 'không đồng bộ')) : readAt(rel);
+    if (!checkDefaultSites(src, m1).some(e => e.includes(`site ${FL}`) && e.includes('lech chu')))
+      errs.push('m1: lech mot tu o mot site ma khong do — thuoc dang dem suong');
+    // m2 — thừa một bản chép mà không sửa manifest
+    const m2 = rel => rel === FL ? readAt(rel) + '\n' + sentence + '\n' : readAt(rel);
+    if (!checkDefaultSites(src, m2).some(e => e.includes('thua ban chep'))) errs.push('m2: thua ban chep ma khong do');
+    // m3 — thiếu một bản chép
+    const m3 = rel => rel === FL ? readAt(rel).replace(sentence, '') : readAt(rel);
+    if (!checkDefaultSites(src, m3).some(e => e.includes('thieu ban chep'))) errs.push('m3: thieu ban chep ma khong do');
+    if (errs.length) fail('DP11', errs.join(' · '));
+    else pass('DP11', 'moi site chua dung nguyen van cau chuan + 3 mutant do dung ve');
+  }
+}
+
+// DP12 · AC-13 — hai ổ cắm thiết kế được nêu ở CẢ tài liệu lẫn khuôn khởi tạo
+const DOC_SITES = { 'GUIDE.md': null, 'commands/acceptance-init.md': null };
+const DOC_KEYS = ['design_pass.ds_skill', 'feature_loop.ui_standards_skill'];
+function checkDocKeys(readAt) {
+  const errs = [];
+  for (const rel of Object.keys(DOC_SITES)) {
+    const body = readAt(rel);
+    if (body === null) { errs.push(`khong doc duoc: ${rel}`); continue; }
+    for (const k of DOC_KEYS) if (!body.includes(k)) errs.push(`thieu o cam (${rel}, ${k})`);
+  }
+  return errs;
+}
+
+if (want('DP12')) {
+  const readAt = rel => { try { return readFileSync(path.join(ROOT, rel), 'utf8'); } catch { return null; } };
+  const clean0 = checkDocKeys(readAt);
+  if (clean0.length) fail('DP12', `doi chung duong DO — ban nguyen ven phai XANH: ${clean0.join(' · ')}`);
+  else {
+    const errs = [];
+    // MA TRẬN 4 MUTANT = 2 file × 2 khoá, mỗi mutant xoá đúng MỘT ô
+    for (const rel of Object.keys(DOC_SITES)) for (const k of DOC_KEYS) {
+      const mut = r => r === rel ? readAt(r).split(k).join('X') : readAt(r);
+      if (!checkDocKeys(mut).some(e => e.includes(`(${rel}, ${k})`)))
+        errs.push(`mutant (${rel}, ${k}) khong do dung o`);
+    }
+    if (errs.length) fail('DP12', errs.join(' · '));
+    else pass('DP12', 'hai o cam neu du o ca hai file + 4 mutant do dung o');
+  }
 }
 
 // DP_CASES nêu id không tồn tại → không được xanh im lặng (xanh-không-chạy)

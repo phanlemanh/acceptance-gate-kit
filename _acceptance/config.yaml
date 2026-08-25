@@ -128,6 +128,10 @@ executors:
     # (16 hồ sơ cửa veto mở · 57 hồ sơ ra được ngày) hoặc phải dựng kho git riêng.
     # Mỗi chân kèm chiều đỏ cùng lượt. Cùng nếp không-vào-suite-vĩnh-viễn với các
     # bộ răng hồ sơ trên — chúng chết theo hồ sơ khi merge.
+    # Vật của hồ sơ design-pass-nac-khong-dong-bo — răng «câu chết phải chết», đối
+    # chứng dương neo vào mốc git CỐ ĐỊNH đọc từ contract (neo origin/main thì sau khi
+    # hồ sơ gộp, hai đầu cùng 0 mà vẫn xanh). Cùng nếp không-vào-suite-vĩnh-viễn.
+    dpnkdb_cau_chet: bash _acceptance/design-pass-nac-khong-dong-bo/rang-cau-chet.sh
     bdk_rang_at: bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan at
     bdk_rang_veto: bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan veto-ten
     bdk_rang_dang_thuc: bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan dang-thuc

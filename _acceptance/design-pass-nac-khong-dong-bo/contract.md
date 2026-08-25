@@ -36,10 +36,15 @@ trong script). Mỗi dòng là một câu khai mặc-định-đồng-bộ; đế
 cụm trần «owner ngồi xem»: sau khi đổi, nấc 3 vẫn được nhắc cụm đó một cách hợp
 lệ, nên kim trần sẽ đỏ oan trên vật ĐÚNG.
 
+Kim «CHỜ owner phản ứng bằng lời» ĐÃ BỊ LOẠI khỏi danh sách (S3, 25/08): nó chỉ
+«chết» vì đổi chữ hoa thành chữ thường, trong khi nghĩa vẫn sống và ca P77 của
+kho còn ĐÒI cụm «phản ứng bằng lời» phải có mặt. Máy vẫn chờ người phản ứng bằng
+lời — chỉ là không còn chờ đồng bộ. Một kim mà mọi phép đổi chữ hoa đều thoả là
+thước tự dối, và hai phép đo chỏi nhau thì một cái sai.
+
 <!-- <<<DEAD-SENTENCE-NEEDLES
 owner ngồi xem và phản ứng bằng lời từng vòng|1
 owner ngồi xem trực tiếp; owner async chưa nằm trong phạm vi|1
-CHỜ owner phản ứng bằng lời|1
 chấm thẩm mỹ là việc của owner ngồi xem|1
 in-harness trên Browser pane, owner ngồi xem|1
 DEAD-SENTENCE-NEEDLES>>> -->
