@@ -1039,7 +1039,7 @@ dòng bằng chứng nào. Đo được ở kho này: ~15 vòng chết trong ba 
 (`docs/findings/2026-08-25-retro-classifier-va-nghi-thuc-khong-hoc.md`).
 
 **Kho tự khai luật cho-phép.** `.claude/settings.json` khai `permissions.allow`
-cho đúng các **lệnh kiểm** cố định chạy mỗi vòng — bốn bộ kiểm và bộ dựng bản đồ.
+cho đúng các **lệnh kiểm** cố định chạy mỗi vòng — các lệnh khai ở `feature_loop.suite_keys`.
 Mỗi entry khớp CHÍNH XÁC một lệnh, không dùng `*`. Đánh đổi khai thẳng: các lệnh
 đó bỏ qua bộ phân loại; chấp nhận được vì danh sách ĐÓNG và đảo lại chỉ bằng
 cách xoá luật. Nói cho đúng mức: phiên chạy cổng luôn đứng trên NHÁNH đang xét,

@@ -202,15 +202,21 @@ Resume vào `draft` mà workspace đã có `figures/` → dùng lại, không v�
    - `BLOCKED` → đọc `blocked[].cmd` + `blocked[].reason` từ kết quả, trình NGUYÊN VĂN cho user rồi khắc phục nguyên nhân, chạy lại CÙNG round. Không bao giờ downgrade BLOCKED thành pass.
      <!-- <<<CLASSIFIER-FALLBACK -->
      **Lượt bị chặn VÌ BỘ PHÂN LOẠI thì lượt kế ĐỔI ĐƯỜNG, không tung bầy lại.**
-     Phân biệt với BLOCKED do nguyên nhân khác (lệnh thiếu, thiếu quyền, hạ tầng
-     repo) bằng chính `blocked[].reason`: dấu hiệu là nó nhắc classifier /
-     rate-limit / safety. Gặp dấu hiệu đó thì lượt kế PHẢI đi **verify độc lập,
-     lệnh chạy TUẦN TỰ** — một phiên tươi làm lần lượt từng lệnh (skill
-     `acceptance` Phase 3) — và **KHÔNG dispatch lại fan-out**. Vì sao: xác suất
-     một vòng fan-out sống là pⁿ với n agent cần Bash, nên tung bầy lại chỉ đổi
-     lượt trúng đạn chứ không đổi kết cục. Đã chứng 2/2 ở kho này: chip A vòng 4
-     thông ngay sau ba vòng chặn; chip B đi tuần tự từ đầu, 0 vòng chặn. Sổ cái
-     đầy đủ: `docs/findings/2026-08-25-retro-classifier-va-nghi-thuc-khong-hoc.md`.
+     Dấu hiệu nằm ở `blocked[].reason`, HAI hình dạng — đừng chỉ đợi hình dạng thứ
+     nhất: (1) reason nhắc thẳng classifier / rate-limit / safety — agent còn sống
+     nên tự thuật được lý do; (2) reason là câu CỐ ĐỊNH engine phát khi agent không
+     trả kết quả — `agent bi skip/chet` — dính từ HAI lệnh trở lên. Hình dạng (2)
+     nặng hơn và im hơn: agent chết thì không còn ai thuật lại, nên chữ «classifier»
+     sẽ KHÔNG xuất hiện; bầy chết hàng loạt ở kho này đo được nguyên nhân là bộ phân
+     loại. Phân biệt với BLOCKED do nguyên nhân khác — args sai, thiếu file luật,
+     evals khai thiếu — vì các ca đó engine phát reason RIÊNG nêu đích danh vật
+     hỏng. Gặp một trong hai dấu hiệu thì lượt kế PHẢI đi **verify độc lập, lệnh
+     chạy TUẦN TỰ** — một phiên tươi làm lần lượt từng lệnh (skill `acceptance`
+     Phase 3) — và **KHÔNG dispatch lại fan-out**. Vì sao: xác suất một vòng fan-out
+     sống là pⁿ với n agent cần Bash, nên tung bầy lại chỉ đổi lượt trúng đạn chứ
+     không đổi kết cục. Đã chứng 2/2 ở kho này: chip A vòng 4 thông ngay sau ba vòng
+     chặn; chip B đi tuần tự từ đầu, 0 vòng chặn. Sổ cái đầy đủ:
+     `docs/findings/2026-08-25-retro-classifier-va-nghi-thuc-khong-hoc.md`.
      <!-- CLASSIFIER-FALLBACK>>> -->
    - `PASS` / `PENDING-JUDGMENT` → kiểm tra `result.report` có nội dung (synthesize agent có thể chết); rỗng → chạy lại S4 cùng round. Có → làm ĐÚNG THỨ TỰ: (1) append `result.runLog` vào run-log.jsonl, (2) Write `_acceptance/<slug>/evidence-report.md` = `result.report` rồi `review-findings.md` = `result.findings` — log phải nằm trên đĩa TRƯỚC report vì hook L2 đối chiếu run_id trong report với log, ghi ngược thứ tự là hook chặn oan; (3) set contract `status: verified` — rồi **COMMIT NGAY gói evidence máy-viết** (evidence-report.md + run-log.jsonl + contract + evidence/ + usage-report.md nếu có) TRƯỚC khi vào Gate 2 — commit sớm để tránh dính stale-guard (không còn bắt tách khỏi chữ ký: ADR 0012). → Gate 2. `reviewIncomplete` không rỗng → ghi cảnh báo vào gói Gate 2.
    - **Mọi verdict:** main loop LUÔN là người ghi (không còn agent scribe/ghi-file): append từng dòng `result.runLog` (nguyên văn, mỗi phần tử 1 dòng) vào `_acceptance/<slug>/run-log.jsonl` TRƯỚC, rồi Write evidence-report.md = `result.report` và review-findings.md = `result.findings` — hook + CI đối chiếu run_id trong report với log này; ghi report trước log là PASS bị chặn oan ở recheck strict. Kết quả có `carried` không rỗng (Đợt 5) → khi báo user VÀ trong gói Gate 2 ghi RÕ round này carry gì: evals (P1), panels (P3), baseline (P2) — carry-forward phải minh bạch, không được ẩn vào "máy đã lo". Riêng round fix có carry → danh sách eval carried (P1) phải nằm RÕ trong báo cáo user và gói Cổng 2, kèm lý do từng eval được carry (paths không chạm diff-fix). Kết quả có `triageFailed: true` → verdict của round LUÔN là `PENDING-JUDGMENT` (máy không biết round này sạch thì không được ký một PASS sạch bong), evidence-report.md mang `triage_failed: true` trong frontmatter + một dòng ⚠ dưới tiêu đề; báo user RÕ "phân loại phạm vi không chạy được — không lỗi nào bị máy tự sửa, toàn bộ findings chờ người xem ở Gate 2", và đưa cảnh báo đó vào gói Gate 2 (KHÔNG nén vào phần "máy đã lo"). Nâng lên PASS ở Gate 2 nghĩa là người ký ĐÃ tự đọc hết danh sách trong review-findings.md, không phải máy đã kiểm. Kết quả có `coverageCluster` khác null → nêu ngay: "N/M lỗi rơi ngoài vùng phủ của bộ đo (`<file>`…) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi". Và NGAY khi Workflow trả về (mọi verdict, kể cả BLOCKED): chạy usage report (xem "Đo model/token per run").

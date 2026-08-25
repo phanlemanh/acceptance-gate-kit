@@ -29,7 +29,7 @@ const CONFIG = path.join(ROOT, '_acceptance', 'config.yaml');
 // settings ở mốc git cố định với cây, nên nằm trong bộ kiểm THƯỜNG TRỰC thì mọi sửa
 // hợp lệ về sau của enabledPlugins / extraKnownMarketplaces — do hồ sơ KHÁC làm — sẽ
 // làm suite đỏ oan («thước ghim vào thứ SẼ ĐỔI»). Răng chết theo hồ sơ khi gộp.
-const ALL_IDS = ['LM1', 'LM2', 'LM4', 'LM5', 'LM6', 'LM8'];
+const ALL_IDS = ['LM1', 'LM2', 'LM4', 'LM5', 'LM6', 'LM8', 'LM8b'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 let failures = 0;
 const only = (process.env.LM_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
@@ -39,6 +39,7 @@ const pass = (id, name) => console.log(`PASS: [${id}] ${name}`);
 const fail = (id, msg) => { console.log(`FAIL: [${id}] ${msg}`); failures++; };
 
 const readJSON = p => JSON.parse(readFileSync(p, 'utf8'));
+const reEsc = t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 // <<<PERM-RULE-GRAMMAR
 // Khuôn luật quyền của khung cấu hình harness: mỗi entry là `Bash(<lệnh>)` — bọc bắt
@@ -127,6 +128,40 @@ function checkGrammar(settingsObj, configText) {
 // thật. Bảng ép «số vế = số điều kiện = số mutant» thành quan hệ nhìn thấy được.
 // (Vấp thật S4-r1: checkAdvice và checkFallback dùng phép HOẶC ngay phía trên một
 //  chú thích tự dặn là tránh phép HOẶC.)
+// Bẻ vế bằng CHÍNH biểu thức của bộ kiểm, KHÔNG bằng một chuỗi mồi gõ tay. Mồi tay là
+// bản chép thứ hai của điều kiện: bẻ «BỘ PHÂN LOẠI» trong khi bộ kiểm dò không phân
+// biệt hoa-thường và cụm còn xuất hiện dạng thường ở câu khác trong CÙNG khối → vế vẫn
+// xanh dù vật đã hỏng (vấp thật S4-r3). Bẻ bằng chính biểu thức thì sau khi bẻ, bộ
+// kiểm KHÔNG THỂ còn khớp — quan hệ do cấu trúc giữ, không do tôi nhớ.
+const breakClause = (text, c) =>
+  String(text).replace(new RegExp(c.re.source, c.re.flags.includes('i') ? 'gi' : 'g'), '«da be»');
+
+// Nhánh «mốc neo TRÙNG» là một nhánh CÓ THẬT của mọi bộ kiểm văn xuôi (nó tồn tại vì
+// vòng 2 lọt một khối thứ hai mang luật NGƯỢC LẠI trong cùng file). Nhánh có thật thì
+// phải có chiều đỏ — nếu không, nó không phân biệt được «canh đúng» với «chưa từng
+// chạy». Sinh từ một chỗ, dùng cho cả ba bộ kiểm.
+const dupBlockMutant = anchor => [
+  `m-moc-neo-trung-trong-cung-file`,
+  t => `${t}\n<!-- <<<${anchor} -->\nluat NGUOC LAI\n<!-- ${anchor}>>> -->\n`,
+  'xuat hien 2 KHOI',
+];
+
+// LM8b · AC-8 — khuôn văn phạm phải sống ĐÚNG MỘT chỗ có mốc neo, kèm con trỏ nguồn.
+// Vật đo ở đây là CHÍNH file này: hợp đồng hứa mốc neo, nên mốc neo phải đo được.
+const SELF = path.join(ROOT, 'tests', 'plugins', 'lan-may-classifier.test.mjs');
+const GRAMMAR_ANCHOR = 'PERM-RULE-GRAMMAR';
+const GRAMMAR_CLAUSES = [
+  { id: 'g1', re: new RegExp(reEsc(PERM_RULE.source)), msg: 'khuon van pham KHONG nam trong khoi moc neo — moi ben se tu che khuon rieng' },
+  { id: 'g2', re: /khung cấu hình/, msg: 'khoi thieu con tro toi nguon khung cau hinh harness' },
+];
+function checkGrammarAnchor(selfText) {
+  const n = countBlocks(selfText, GRAMMAR_ANCHOR);
+  if (n > 1) return [`moc neo ${GRAMMAR_ANCHOR} xuat hien ${n} KHOI trong CUNG file — phai dung 1 (noi dung khoi thu hai khong bo kiem nao doc toi)`];
+  const b0 = block(selfText, GRAMMAR_ANCHOR);
+  if (b0 === null) return [`thieu moc neo ${GRAMMAR_ANCHOR} — khuon van pham khong co cho song co dinh`];
+  return checkClauses(flat(b0), GRAMMAR_CLAUSES);
+}
+
 const checkClauses = (text, clauses) =>
   clauses.filter(c => !c.re.test(text)).map(c => `${c.id}: ${c.msg}`);
 
@@ -155,17 +190,40 @@ function walkFiles(abs, acc = []) {
 const countBlocks = (text, name) => (String(text).match(new RegExp('<<<' + name + '(?![-\\w])', 'g')) || []).length;
 const block = (text, name) => {
   if (countBlocks(text, name) > 1) return null;
-  const m = text.match(new RegExp('<<<' + name + '\\s*-->\\n([\\s\\S]*?)<!-- ' + name + '>>>'));
+  // `\s` chứ không phải `\n`: bộ trích phải đọc được CẢ bản thô lẫn bản đã gộp
+  // khoảng trắng — buộc đúng một ký tự xuống dòng là tự trói phép đo vào cách trình
+  // bày của vật, đúng lớp «thước ghim vào thứ sẽ đổi».
+  // Không đòi đúng một kiểu dấu chú thích: mốc neo sống trong cả tệp tài liệu
+  // (`<!-- … -->`) lẫn tệp mã (`// …`). Buộc một kiểu là bắt VẬT đổi theo THƯỚC.
+  const m = text.match(new RegExp('<<<' + name + '(?![-\\w])\\s*(?:-->)?([\\s\\S]*?)' + name + '>>>'));
   return m ? m[1] : null;
 };
+// MỐI NỐI bên-VIẾT → bên-ĐỌC. Engine là bên PHÁT lời báo lỗi khi một lệnh không có
+// kết quả; luật trong SKILL.md là bên ĐỌC nó. Cụm nhận dạng rút TỪ NGUỒN ENGINE lúc
+// chạy, KHÔNG gõ tay — engine đổi câu mà luật không đổi theo thì ca ĐỎ. Đây là chiều
+// đỏ mà vòng 3 chứng minh là thiếu: hình dạng hỏng NẶNG nhất (bầy agent bị giết) sinh
+// đúng câu cố định này, và câu đó không chứa chữ classifier / rate-limit / safety nào.
+const ENGINE = path.join(ROOT, 'feature-loop', 'workflows', 'acceptance-verify.js');
+function engineSkipPhrase() {
+  let src; try { src = readFileSync(ENGINE, 'utf8'); } catch { return null; }
+  const m = src.match(/blocked\.push\(\{\s*cmd,\s*reason:\s*'([^']+)'/);
+  return m ? m[1].split('\u2014')[0].trim() : null;
+}
+const SKIP_PHRASE = engineSkipPhrase();
+
 const FALLBACK_CLAUSES = [
-  { id: 've1a', re: /bộ phân loại/i, msg: 'thieu dau hieu kich hoat: bo phan loai', bait: 'BỘ PHÂN LOẠI' },
-  { id: 've1b', re: /nguyên nhân khác/i, msg: 'thieu ve phan biet voi BLOCKED nguyen nhan KHAC', bait: 'nguyên nhân khác' },
-  { id: 've2a', re: /lệnh chạy TUẦN TỰ/, msg: 'thieu hanh dong bat buoc: luot ke di TUAN TU (khoi con cau tien le nhac tuan tu — do tu don le la de cau do do ho)', bait: 'lệnh chạy TUẦN TỰ' },
-  { id: 've2b', re: /KHÔNG dispatch lại fan-out/, msg: 'thieu cam KHONG dispatch lai fan-out', bait: 'dispatch lại fan-out' },
-  { id: 've3a', re: /Phase 3/, msg: 'thieu con tro toi Phase 3', bait: 'Phase 3' },
-  { id: 've3b', re: /`acceptance`/, msg: 'thieu ten skill acceptance trong con tro', bait: '`acceptance`' },
+  { id: 've1a', re: /bộ phân loại/i, msg: 'thieu dau hieu kich hoat: bo phan loai' },
+  { id: 've1b', re: /nguyên nhân khác/i, msg: 'thieu ve phan biet voi BLOCKED nguyen nhan KHAC' },
+  { id: 've2a', re: /lệnh chạy TUẦN TỰ/, msg: 'thieu hanh dong bat buoc: luot ke di TUAN TU (khoi con cau tien le nhac tuan tu — do tu don le la de cau do do ho)' },
+  { id: 've2b', re: /KHÔNG dispatch lại fan-out/, msg: 'thieu cam KHONG dispatch lai fan-out' },
+  { id: 've3a', re: /Phase 3/, msg: 'thieu con tro toi Phase 3' },
+  { id: 've3b', re: /`acceptance`/, msg: 'thieu ten skill acceptance trong con tro' },
 ];
+// Vế rút từ engine — đẩy vào CÙNG bảng nên runner tự sinh mutant như mọi vế khác.
+if (SKIP_PHRASE) FALLBACK_CLAUSES.push({
+  id: 've1c', re: new RegExp(reEsc(SKIP_PHRASE)), bait: SKIP_PHRASE,
+  msg: `thieu hinh dang IM LANG: cau co dinh engine phat khi agent chet ("${SKIP_PHRASE}") — luat chi doi chu classifier thi khong bao gio no o ca nang nhat`,
+});
 function checkFallback(skillText, listFiles, readAt) {
   const n = countBlocks(skillText, FALLBACK_ANCHOR);
   if (n > 1) return [`moc neo ${FALLBACK_ANCHOR} xuat hien ${n} KHOI trong CUNG file — phai dung 1 (noi dung khoi thu hai khong bo kiem nao doc toi)`];
@@ -188,11 +246,11 @@ function checkFallback(skillText, listFiles, readAt) {
 // LM4 · AC-4 — khối khuyên kho tiêu thụ, BA VẾ RỜI (phép đo CÓ-MẶT trên từ vựng đóng).
 const ADVICE_ANCHOR = 'CONSUMER-ALLOW-ADVICE';
 const ADVICE_CLAUSES = [
-  { id: 'a1', re: /KHỚP CHÍNH XÁC/, msg: 'thieu dang khai KHOP CHINH XAC', bait: 'KHỚP CHÍNH XÁC' },
-  { id: 'a2', re: /KHÔNG dùng `\*`/, msg: 'thieu cau cam dung `*` (danh sach cho-phep rong)', bait: 'KHÔNG dùng `*`' },
-  { id: 'b', re: /nút cổ chai/i, msg: 'thieu ly do: bo phan loai la nut co chai cua lan may', bait: 'nút cổ chai' },
-  { id: 'c1', re: /KHÔNG tự ghi/, msg: 'thieu cau khai kit KHONG tu ghi luat vao kho ho', bait: 'KHÔNG tự ghi' },
-  { id: 'c2', re: /quyết định an ninh/i, msg: 'thieu cau cap quyen la QUYET DINH AN NINH cua doi', bait: 'quyết định an' },
+  { id: 'a1', re: /KHỚP CHÍNH XÁC/, msg: 'thieu dang khai KHOP CHINH XAC' },
+  { id: 'a2', re: /KHÔNG dùng `\*`/, msg: 'thieu cau cam dung `*` (danh sach cho-phep rong)' },
+  { id: 'b', re: /nút cổ chai/i, msg: 'thieu ly do: bo phan loai la nut co chai cua lan may' },
+  { id: 'c1', re: /KHÔNG tự ghi/, msg: 'thieu cau khai kit KHONG tu ghi luat vao kho ho' },
+  { id: 'c2', re: /quyết định an ninh/i, msg: 'thieu cau cap quyen la QUYET DINH AN NINH cua doi' },
 ];
 function checkAdvice(initText) {
   const n = countBlocks(initText, ADVICE_ANCHOR);
@@ -205,10 +263,10 @@ function checkAdvice(initText) {
 // LM6 · AC-6 — tài liệu vận hành nêu CẢ HAI nửa.
 const GUIDE_ANCHOR = 'GUIDE-CLASSIFIER-LANE';
 const GUIDE_CLAUSES = [
-  { id: 'muc1', re: /permissions\.allow/, msg: 'khong neu luat cho-phep cua kho', bait: 'permissions.allow' },
-  { id: 'muc1b', re: /lệnh kiểm/i, msg: 'khong noi ro luat ay danh cho LENH KIEM co dinh', bait: 'lệnh kiểm' },
-  { id: 'muc2', re: new RegExp(FALLBACK_ANCHOR), msg: 'khong tro toi moc neo duong thoai hoa', bait: 'CLASSIFIER-FALLBACK` trong skill' },
-  { id: 'muc2b', re: /tuần tự/i, msg: 'khong noi luot ke di TUAN TU', bait: 'tuần tự' },
+  { id: 'muc1', re: /permissions\.allow/, msg: 'khong neu luat cho-phep cua kho' },
+  { id: 'muc1b', re: /lệnh kiểm/i, msg: 'khong noi ro luat ay danh cho LENH KIEM co dinh' },
+  { id: 'muc2', re: new RegExp(FALLBACK_ANCHOR), msg: 'khong tro toi moc neo duong thoai hoa' },
+  { id: 'muc2b', re: /tuần tự/i, msg: 'khong noi luot ke di TUAN TU' },
 ];
 function checkGuide(guideText) {
   // Đo TRONG KHỐI có mốc neo, KHÔNG grep trọn tài liệu: GUIDE.md đã có sẵn cụm
@@ -295,24 +353,31 @@ if (want('LM5')) {
   const src = readAt(FL) || '';
   const chk = t => checkFallback(t, listFiles, readAt);
   const clean = chk(src);
-  if (clean.length) fail('LM5', `doi chung duong DO — ban nguyen ven phai XANH: ${clean.join(' · ')}`);
+  const base = flat(src);
+  const cleanFlat = clean.length ? [] : chk(base);
+  if (!SKIP_PHRASE) fail('LM5', `khong rut duoc cau bao loi co dinh tu NGUON ENGINE (${path.relative(ROOT, ENGINE)}) — moi noi VIET->DOC dut, luat khong con gi de doi chieu`);
+  else if (clean.length) fail('LM5', `doi chung duong DO — ban nguyen ven phai XANH: ${clean.join(' · ')}`);
+  else if (cleanFlat.length) fail('LM5', `doi chung duong DO tren BAN PHANG: ${cleanFlat.join(' · ')}`);
   else {
     const bad = [];
     // MỘT VẾ → MỘT MUTANT, duyệt bảng nên không thể quên vế nào
     for (const c of FALLBACK_CLAUSES) {
-      const mutated = src.split(c.bait).join('«da be»');
-      if (mutated === src) { bad.push(`${c.id}: lenh tiem KHONG doi duoc dong nao (bait "${c.bait}" khong co trong vat)`); continue; }
+      const mutated = breakClause(base, c);
+      if (mutated === base) { bad.push(`${c.id}: lenh tiem KHONG doi duoc dong nao — bieu thuc /${c.re.source}/ khong khop cho nao trong vat`); continue; }
       const errs = chk(mutated);
       if (!errs.some(e => e.startsWith(c.id + ':'))) bad.push(`${c.id}: be vat ma khong do dung ve (thu duoc: ${errs.join(' · ') || 'KHONG LOI NAO'})`);
     }
     // vế thứ bảy — CHIỀU ĐỎ NGOÀI file đã biết: mốc neo mọc ở file THỨ HAI
     const THIRD = path.join(ROOT, 'skills', 'acceptance', 'SKILL.md');
     const readPlus = f => (f === THIRD ? (readAt(f) || '') + '\n<<<' + FALLBACK_ANCHOR + '\n' : readAt(f));
+    const [dupName, dupMut, dupNeedle] = dupBlockMutant(FALLBACK_ANCHOR);
+    const dupErrs = chk(dupMut(base));
+    if (!dupErrs.some(e => e.includes(dupNeedle))) bad.push(`${dupName}: khoi thu hai trong CUNG file ma khong do`);
     const e7 = checkFallback(src, listFiles, readPlus);
     if (!e7.some(x => x.startsWith('ve4:') && x.includes('skills/acceptance/SKILL.md')))
       bad.push('m-moc-neo-thu-hai: moc neo moc o file THU HAI ma khong do');
     if (bad.length) fail('LM5', bad.join(' · '));
-    else pass('LM5', `duong thoai hoa: ${FALLBACK_CLAUSES.length} ve roi + 1 quan he dem duoc + ${FALLBACK_CLAUSES.length + 1} mutant`);
+    else pass('LM5', `duong thoai hoa: ${FALLBACK_CLAUSES.length} ve roi + 1 quan he dem duoc + ${FALLBACK_CLAUSES.length + 2} mutant`);
   }
 }
 
@@ -324,16 +389,24 @@ function runClauses(id, label, file, check, clauses, extra = []) {
   try { src = readFileSync(file, 'utf8'); } catch (e) { return fail(id, `khong doc duoc vat: ${e.message}`); }
   const clean = check(src);
   if (clean.length) return fail(id, `doi chung duong DO — ban nguyen ven phai XANH: ${clean.join(' · ')}`);
+  // Bẻ trên BẢN PHẲNG. Vật là văn xuôi nên một cụm bị NGẮT DÒNG là chuyện thường, và
+  // `split(bait)` trên bản thô sẽ không thấy nó → mutant thành vô hiệu chỉ vì chỗ
+  // xuống dòng (vấp thật: sửa khối SKILL.md xong, vế «lệnh chạy TUẦN TỰ» rơi qua hai
+  // dòng). Bộ kiểm vốn đã gộp khoảng trắng nên bản phẳng là input tương đương — kèm
+  // ĐỐI CHỨNG DƯƠNG riêng cho nó, để mutant không bao giờ đỏ vì phép làm phẳng.
+  const base = flat(src);
+  const cleanFlat = check(base);
+  if (cleanFlat.length) return fail(id, `doi chung duong DO tren BAN PHANG: ${cleanFlat.join(' · ')}`);
   const bad = [];
   for (const c of clauses) {
-    const mutated = src.split(c.bait).join('«da be»');
-    if (mutated === src) { bad.push(`${c.id}: lenh tiem KHONG doi duoc dong nao (bait "${c.bait}" khong co trong vat)`); continue; }
+    const mutated = breakClause(base, c);
+    if (mutated === base) { bad.push(`${c.id}: lenh tiem KHONG doi duoc dong nao — bieu thuc /${c.re.source}/ khong khop cho nao trong vat`); continue; }
     const errs = check(mutated);
     if (!errs.some(e => e.startsWith(c.id + ':'))) bad.push(`${c.id}: be vat ma khong do dung ve (thu duoc: ${errs.join(' · ') || 'KHONG LOI NAO'})`);
   }
   for (const [name, mutate, needle] of extra) {
-    const mutated = mutate(src);
-    if (mutated === src) { bad.push(`${name}: lenh tiem KHONG doi duoc dong nao`); continue; }
+    const mutated = mutate(base);
+    if (mutated === base) { bad.push(`${name}: lenh tiem KHONG doi duoc dong nao`); continue; }
     const errs = check(mutated);
     if (!errs.some(e => e.includes(needle))) bad.push(`${name}: khong do dung ve "${needle}" (thu duoc: ${errs.join(' · ') || 'KHONG LOI NAO'})`);
   }
@@ -341,31 +414,16 @@ function runClauses(id, label, file, check, clauses, extra = []) {
   else pass(id, `${label} — doi chung duong xanh + ${clauses.length + extra.length} mutant do dung ve`);
 }
 
-function runText(id, label, file, check, mutants) {
-  if (!want(id)) return;
-  let src;
-  try { src = readFileSync(file, 'utf8'); } catch (e) { return fail(id, `khong doc duoc vat: ${e.message}`); }
-  const clean = check(src);
-  if (clean.length) return fail(id, `doi chung duong DO — ban nguyen ven phai XANH: ${clean.join(' · ')}`);
-  const bad = [];
-  for (const [name, frag, repl, needle] of mutants) {
-    // Tiêm TOÀN CỤC khi frag là chuỗi: `String.replace(chuỗi)` chỉ đổi lần xuất hiện
-    // ĐẦU, nên một cụm có mặt hai chỗ sẽ bị bẻ ở chỗ KHÔNG AI ĐO — mutant thành vô
-    // hiệu mà nhìn thì vẫn như đã tiêm (lớp đã ghi sổ ở hồ sơ design-pass-nac).
-    const mutated = typeof frag === 'string' ? src.split(frag).join(repl) : src.replace(frag, repl);
-    if (mutated === src) { bad.push(`${name}: lenh tiem KHONG doi duoc dong nao`); continue; }
-    const errs = check(mutated);
-    if (!errs.some(e => e.includes(needle))) bad.push(`${name}: khong do dung ve "${needle}" (thu duoc: ${errs.join(' · ') || 'KHONG LOI NAO'})`);
-  }
-  if (bad.length) fail(id, bad.join(' · '));
-  else pass(id, `${label} — doi chung duong xanh + ${mutants.length} mutant do dung ve`);
-}
 
 runClauses('LM4', 'khuon khoi tao khuyen kho tieu thu — moi ve mot dieu kien',
-  path.join(ROOT, 'commands', 'acceptance-init.md'), checkAdvice, ADVICE_CLAUSES);
+  path.join(ROOT, 'commands', 'acceptance-init.md'), checkAdvice, ADVICE_CLAUSES,
+  [dupBlockMutant(ADVICE_ANCHOR)]);
 
 runClauses('LM6', 'tai lieu van hanh — do TRONG khoi co moc neo, moi ve mot dieu kien',
-  path.join(ROOT, 'GUIDE.md'), checkGuide, GUIDE_CLAUSES);
+  path.join(ROOT, 'GUIDE.md'), checkGuide, GUIDE_CLAUSES, [dupBlockMutant(GUIDE_ANCHOR)]);
+
+runClauses('LM8b', 'khuon van pham song dung MOT cho co moc neo',
+  SELF, checkGrammarAnchor, GRAMMAR_CLAUSES, [dupBlockMutant(GRAMMAR_ANCHOR)]);
 
 // LM_CASES nêu id không tồn tại → không được xanh im lặng
 const unknown = only.filter(id => !ran.has(id));
