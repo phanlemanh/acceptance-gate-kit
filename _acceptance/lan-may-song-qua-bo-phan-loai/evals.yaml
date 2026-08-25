@@ -73,12 +73,20 @@ evals:
       `allow` chỉ được THÊM — phần tử có ở mốc phải còn trong cây.
       Danh sách khoá phải-giữ RÚT TỪ chính bản ở mốc (duyệt khoá của nó), KHÔNG liệt
       tay trong ca — liệt tay là một allowlist mới.
-      MA TRẬN 4 MUTANT, tiêm vào BẢN SAO của bản-trong-cây rồi chạy lại CHÍNH hàm so
-      của chiều xanh: m1 = xoá một khoá cấp cao ngoài `permissions` → đỏ ghim tên
-      khoá mất (chân a); m2 = xoá `permissions.deny` → đỏ ghim khoá mất (chân b);
-      m3 = đổi giá trị một khoá cấp cao không liên quan → đỏ ghim tên khoá đổi;
-      m4 = xoá một phần tử `allow` vốn có ở mốc → đỏ ghim entry mất; m5 = đổi
-      `permissions.defaultMode` sang giá trị nới lỏng → đỏ ghim tên khoá đổi.
+      MA TRẬN 5 MUTANT, chia theo chân vì HAI CHÂN có tầm với khác nhau — khai thẳng:
+      • Chân (a) đo trên CẶP THẬT (mốc ↔ cây). Mutant tiêm vào BẢN SAO của bản trong
+        cây rồi chạy lại CHÍNH hàm so của chiều xanh: m1 = xoá một khoá cấp cao ngoài
+        `permissions` → đỏ ghim tên khoá MẤT; m3 = đổi giá trị một khoá cấp cao không
+        liên quan → đỏ ghim tên khoá ĐỔI.
+      • Chân (b) KHÔNG có gì để so trên cặp thật: bản ở mốc `BASE-LMSQBPL` chưa có
+        khối `permissions` nào, nên hôm nay không có `deny`/`ask`/entry cũ nào để mất.
+        Ba mutant của chân này chạy trên CẶP SINH BỞI CODE trong chính lượt chạy —
+        CÙNG hàm so, khác input (không phải hàm riêng dựng cho mutant), kèm đối chứng
+        dương riêng: cặp giống hệt → không lỗi. m2 = xoá `permissions.deny` khỏi bên
+        cây → đỏ ghim khoá mất; m4 = xoá một phần tử `allow` vốn có ở mốc → đỏ ghim
+        entry mất; m5 = đổi `permissions.defaultMode` → đỏ ghim tên khoá đổi.
+        Chân này thành phép đo trên vật thật NGAY KHI settings của kho có `deny`/`ask`
+        — nó ở đây để sẵn sàng và đã được chứng biết đỏ, không phải để trang trí.
       m2 và m5 chính là HAI dạng «rộng ra» mà E2 không bắt được — chúng ở đây, và
       Coverage của contract trỏ đúng về đây.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
