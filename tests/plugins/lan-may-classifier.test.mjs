@@ -102,7 +102,12 @@ function checkNoStar(settingsObj) {
 
 // LM8 · AC-8 — văn phạm luật quyền + entry nằm đúng chỗ
 function checkGrammar(settingsObj, configText) {
-  const { cmds } = suiteCommands(configText);
+  // KHÔNG nuốt lỗi đọc config: cmds rỗng thì vòng lặp ask/deny dưới đây không có gì
+  // để so → vế «entry đặt NHẦM CHỖ» thành hằng đúng, và ca chỉ còn đỏ nhờ mutant
+  // khác với thông điệp lạc hướng (vấp thật, hội đồng S4-r3 phá thử bằng cách đổi
+  // tên khoá suite_keys: LM1 đỏ đúng chỗ, LM8 đối chứng dương VẪN xanh).
+  const { cmds, err } = suiteCommands(configText);
+  if (err) return [err];
   const p = settingsObj.permissions || {};
   const errs = [];
   for (const e of (p.allow || [])) if (!PERM_RULE.test(e)) errs.push(`entry KHONG dung van pham Bash(<lenh>): "${e}"`);
