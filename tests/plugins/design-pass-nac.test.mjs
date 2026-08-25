@@ -13,7 +13,7 @@ const SKILL = path.join(ROOT, 'skills', 'design-pass', 'SKILL.md');
 
 let failures = 0;
 // MỘT nguồn danh sách ca: file này. `--ids` in ra để run-tests.sh lặp theo, không chép tay.
-const ALL_IDS = ['DP1', 'DP2', 'DP3', 'DP4', 'DP5', 'DP6', 'DP7'];
+const ALL_IDS = ['DP1', 'DP2', 'DP3', 'DP4', 'DP5', 'DP6', 'DP7', 'DP8'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.DP_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const ran = new Set();
@@ -182,6 +182,26 @@ function checkBuilderLadder(skillText) {
   return errs;
 }
 
+// DP8 · AC-8 — khuôn sổ phiên giữ ba khoá mới, một chỗ duy nhất
+const NOTE_TPL = 'DESIGN-PASS-NOTE-TEMPLATE';
+function checkNoteKeys(skillText) {
+  const b = block(skillText, NOTE_TPL);
+  if (b === null) return [`thieu moc neo ${NOTE_TPL}`];
+  const fm = b.split('---')[1] || '';
+  const errs = [];
+  for (const k of ['reaction:', 'options:', 'divergence:']) {
+    if (!fm.includes(k)) errs.push(`khuon so phien thieu khoa: ${k}`);
+  }
+  // `options:` phải TỰ KHAI là tham chiếu — nếu không, phiên sau sẽ chép bộ phương án
+  // vào chuỗi bằng chứng, đúng thứ Out of scope cấm.
+  const line = fm.split('\n').find(l => l.trim().startsWith('options:')) || '';
+  if (line && !/THAM CHIẾU/i.test(line)) errs.push('khoa options khong tu khai la tham chieu');
+  // Khuôn KHÔNG được liệt lại bốn id nấc — danh sách nấc sống ở REACTION-LADDER.
+  if (new Set(NAC.filter(id => fm.includes(id))).size >= 3)
+    errs.push('khuon liet lai danh sach nac thay vi tro ve moc neo');
+  return errs;
+}
+
 // ---------------------------------------------------------------------------
 // Chạy ca: đối chứng dương TRƯỚC, rồi ma trận mutant.
 // ---------------------------------------------------------------------------
@@ -278,6 +298,18 @@ runCase('DP7', 'thang vat dung bon nac, khong phu thuoc bo dung nao', checkBuild
   // CA TIÊM DƯƠNG cho vế vắng-mặt: thiếu ca này thì vế «không ép bộ dựng nào» là vế chết.
   ['m-tiem-phu-thuoc', s => s.replace(DIVERGENCE, DIVERGENCE + '\n\nBắt buộc dùng canvas-preview cho mọi bề mặt.'),
     'kit bi ep phu thuoc bo dung: canvas-preview'],
+]);
+
+runCase('DP8', 'khuon so phien giu ba khoa moi, khong liet lai danh sach nac', checkNoteKeys, [
+  ['m-reaction', s => { const b = block(s, NOTE_TPL);
+    return s.replace(b, b.split('\n').filter(l => !l.startsWith('reaction:')).join('\n')); },
+    'khuon so phien thieu khoa: reaction:'],
+  ['m-options', s => { const b = block(s, NOTE_TPL);
+    return s.replace(b, b.split('\n').filter(l => !l.startsWith('options:')).join('\n')); },
+    'khuon so phien thieu khoa: options:'],
+  ['m-divergence', s => { const b = block(s, NOTE_TPL);
+    return s.replace(b, b.split('\n').filter(l => !l.startsWith('divergence:')).join('\n')); },
+    'khuon so phien thieu khoa: divergence:'],
 ]);
 
 // DP_CASES nêu id không tồn tại → không được xanh im lặng (xanh-không-chạy)

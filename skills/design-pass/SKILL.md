@@ -266,6 +266,9 @@ route: <url đã mở>
 material: <real-components|scaffold|static>
 context: <standalone|static-frame|host-embedded>
 context_scenes: [<file cảnh trong evidence/design-pass/, trống nếu không standalone hoặc đã descope>]
+reaction: <id nấc lấy từ REACTION-LADDER> (<kênh đã dùng, vd ghim, thao-luan, sua-roi-luu>)
+options: <đường dẫn hoặc URL bộ phương án — THAM CHIẾU, không phải bằng chứng; trống nếu không mở bước phân kỳ>
+divergence: <opened, hoặc: skipped — căn cứ 1 dòng>
 ds_skill: <tên-skill-đã-nạp|repo-tokens|shadcn-default>
 states: [<danh sách state đã duyệt>]
 breakpoints: [mobile-375, desktop-1280]
