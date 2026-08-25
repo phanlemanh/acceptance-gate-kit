@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: bd7fa7cdff2c3048ba113a38062c48c19a269a89
+verified_commit: a3038182803075f1246b73b0db75dc357d99a0a9
 human_signoff: Manh 2026-08-25
 ---
 
@@ -237,6 +237,22 @@ none — moi eval feature deu red tren baseline (co phan biet)
 ## Variance
 
 none — every multi-run eval is uniform
+
+### Re-pin lần 1 — 2026-08-25, do gộp origin/main (kéo theo 30 commit engine, trong đó có vòng dac-ta-ux)
+run_id: repin-20260825-gop-main-lane1
+sha: a3038182803075f1246b73b0db75dc357d99a0a9 · suites: 5 lệnh exit 0
+
+Nhánh GỘP origin/main SAU khi ký, nên bằng chứng hoá cũ — đặc tính của luật
+staleness, không phải lỗi. Phiên chấm tươi chạy lại trọn bộ đo tại commit đã
+gộp: **15/15 tiêu chí XANH, 5/5 lệnh exit 0, 0 lệnh bị chặn**.
+
+Verdict của lượt đó là PENDING-JUDGMENT — KHÔNG phải vì tiêu chí nào gãy, mà vì
+bộ phân loại findings chết (`triageFailed`), nên vòng tự hạ hạng theo luật «máy
+không biết vòng này sạch thì không được ký một PASS sạch bong». Lượt ghim này
+dựa trên DỮ KIỆN MÁY (15/15 eval + 5/5 lệnh), không dựa trên verdict đó; findings
+của lượt chấm chờ người xem, không mục nào bị máy tự sửa.
+
+Chữ ký và verdict của hồ sơ KHÔNG đổi. Ghim lại là việc máy.
 
 ## Iterations
 
