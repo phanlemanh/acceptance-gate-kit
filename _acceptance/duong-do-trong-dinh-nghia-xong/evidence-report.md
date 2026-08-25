@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent (đường VERIFY độc lập, 6 lệnh chạy tuần tự — quyết định d-4308)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 24eec78ce4823260b1b4656b66ed8d7ec867ed55
+verified_commit: 65a0c081bbf83caa8f43f3df00966b3444fb4f3b
 human_signoff: Manh Phan 2026-08-22 — ký với known-limits đã khai; 4 finding ngoài hợp đồng (review-findings.md) là ứng viên hồ sơ T2 kế: bỏ «metric» khỏi _Avoid_ + nới nhận diện dòng bỏ
 ---
 
@@ -173,6 +173,17 @@ Bốn finding của reviewer (chi tiết ở `review-findings.md`), máy KHÔNG 
 2. Heading tiền tố `## Đường đo lường` khớp — kế thừa luật `\b` md-section; chốt có chủ ý hay neo cuối.
 3. `_Avoid_: metric` đụng từ chuẩn kit — bỏ «metric», đổi câu uat-session sang «đường đo đã khai».
 4. Khuôn «dòng bỏ VÀ entry» vs SKILL «chỉ entry» — khuôn đổi «VÀ» → «(tuỳ chọn) kèm entry».
+
+### Re-pin lần 1 — 2026-08-25, do engine đổi ở vòng ra-co-ten-lam-va-trao (lối ra «không đo được» + luật ngưỡng một chỗ + bộ đọc bản đồ/bộ quét)
+run_id: repin-20260825-ra-co-ten-lam-va-trao-lane1
+sha: 65a0c081bbf83caa8f43f3df00966b3444fb4f3b · suites: 4 lệnh exit 0
+
+Hồ sơ này KHÔNG có dòng mã nào của nó đổi; nó hoá cũ vì engine đổi bên dưới, và
+đã đỏ sẵn trên origin/main từ trước vòng đó. Vòng đó chạm hai file TÀI LIỆU của
+hồ sơ (dòng ngưỡng + một dòng sổ, do AC-14 đòi) nên nó bị kéo vào tầm soi của
+lưới — đúng ca GUIDE §7.1 «vòng đang chạy bị chặn thật → ghim lại RIÊNG làn đó».
+Phiên chấm tươi chạy lại trọn bộ đo: 10/10 eval, verdict PASS, 0 lệnh bị chặn.
+Chữ ký và verdict KHÔNG đổi — ghim lại là việc máy, không sinh chữ ký mới.
 
 ## Iterations
 

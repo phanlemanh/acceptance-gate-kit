@@ -10,3 +10,14 @@
 {"ts":"2026-08-22T01:27:09Z","sha":"8819318986af709d6934ec647813b479188d054b","round":1,"evalId":"E10","run_id":"duong-do-trong-dinh-nghia-xong-E10-r1-20260822T012709Z","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
 {"ts":"2026-08-22T01:43:49Z","kind":"repin","run_id":"repin-duong-do-trong-dinh-nghia-xong-20260822T014349Z","sha":"60b7cf38fa839a6a8b0c6ce1a78b56882287c1c0","suites_exit":[0,0,0,0]}
 {"ts":"2026-08-22T15:30:58Z","kind":"repin","run_id":"repin-duong-do-trong-dinh-nghia-xong-20260822T153058Z","sha":"24eec78ce4823260b1b4656b66ed8d7ec867ed55","suites_exit":[0,0,0,0]}
+{"ts":"2026-08-25T03:00:00Z","sha":"65a0c081bbf83caa8f43f3df00966b3444fb4f3b","round":1,"evalId":"E1","run_id":"minted-duong-do-trong-dinh-nghia-xong-E1-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-25T03:00:00Z","sha":"65a0c081bbf83caa8f43f3df00966b3444fb4f3b","round":1,"evalId":"E2","run_id":"minted-duong-do-trong-dinh-nghia-xong-E2-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-25T03:00:00Z","sha":"65a0c081bbf83caa8f43f3df00966b3444fb4f3b","round":1,"evalId":"E3","run_id":"minted-duong-do-trong-dinh-nghia-xong-E3-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-25T03:00:00Z","sha":"65a0c081bbf83caa8f43f3df00966b3444fb4f3b","round":1,"evalId":"E4","run_id":"minted-duong-do-trong-dinh-nghia-xong-E4-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-25T03:00:00Z","sha":"65a0c081bbf83caa8f43f3df00966b3444fb4f3b","round":1,"evalId":"E5","run_id":"minted-duong-do-trong-dinh-nghia-xong-E5-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-25T03:00:00Z","sha":"65a0c081bbf83caa8f43f3df00966b3444fb4f3b","round":1,"evalId":"E6","run_id":"minted-duong-do-trong-dinh-nghia-xong-E6-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-25T03:00:00Z","sha":"65a0c081bbf83caa8f43f3df00966b3444fb4f3b","round":1,"evalId":"E7","run_id":"minted-duong-do-trong-dinh-nghia-xong-E7-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-25T03:00:00Z","sha":"65a0c081bbf83caa8f43f3df00966b3444fb4f3b","round":1,"evalId":"E8","run_id":"minted-duong-do-trong-dinh-nghia-xong-E8-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-25T03:00:00Z","sha":"65a0c081bbf83caa8f43f3df00966b3444fb4f3b","round":1,"evalId":"E9","run_id":"minted-duong-do-trong-dinh-nghia-xong-E9-r1","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-08-25T03:00:00Z","sha":"65a0c081bbf83caa8f43f3df00966b3444fb4f3b","round":1,"evalId":"E10","run_id":"minted-duong-do-trong-dinh-nghia-xong-E10-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-25T03:30:00Z","kind":"repin","run_id":"repin-20260825-ra-co-ten-lam-va-trao-lane1","sha":"65a0c081bbf83caa8f43f3df00966b3444fb4f3b","suites_exit":[0,0,0,0]}
