@@ -25,7 +25,11 @@ const CONTRACT = path.join(ROOT, '_acceptance', 'lan-may-song-qua-bo-phan-loai',
 // Danh sách ca ĐÃ CÀI, mọc dần theo từng task của kế hoạch. Khai sẵn ca chưa viết
 // làm bộ chạy đỏ oan ở mỗi commit trung gian; danh sách ĐỦ được evals.yaml canh
 // (mỗi eval trỏ một ca), nên không có đường quên im lặng.
-const ALL_IDS = ['LM1', 'LM2', 'LM3', 'LM4', 'LM5', 'LM6', 'LM8'];
+// LM3 ĐÃ RỜI file này sang răng hồ sơ `_acceptance/<slug>/rang-khong-nuot.sh`: nó so
+// settings ở mốc git cố định với cây, nên nằm trong bộ kiểm THƯỜNG TRỰC thì mọi sửa
+// hợp lệ về sau của enabledPlugins / extraKnownMarketplaces — do hồ sơ KHÁC làm — sẽ
+// làm suite đỏ oan («thước ghim vào thứ SẼ ĐỔI»). Răng chết theo hồ sơ khi gộp.
+const ALL_IDS = ['LM1', 'LM2', 'LM4', 'LM5', 'LM6', 'LM8'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 let failures = 0;
 const only = (process.env.LM_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
@@ -111,40 +115,6 @@ function checkGrammar(settingsObj, configText) {
   }
   if (!(p.allow || []).length) errs.push('permissions.allow rong hoac vang — khong co entry nao de kiem van pham');
   return errs;
-}
-
-// LM3 · AC-3 — không nuốt cấu hình khác. HAI CHÂN RỜI, mỗi chân thông điệp riêng.
-// Danh sách khoá phải-giữ DUYỆT TỪ bản ở mốc, không liệt tay trong ca.
-function checkPreserved(baseObj, treeObj) {
-  const errs = [];
-  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-  // (a) mọi khoá cấp cao NGOÀI `permissions` — `permissions` là thứ ô này THÊM
-  for (const k of Object.keys(baseObj)) {
-    if (k === 'permissions') continue;
-    if (!(k in treeObj)) { errs.push(`(a) MAT khoa cap cao: "${k}"`); continue; }
-    if (!same(baseObj[k], treeObj[k])) errs.push(`(a) DOI gia tri khoa cap cao: "${k}"`);
-  }
-  // (b) trong `permissions`: mọi khoá ngoài `allow` giữ nguyên; `allow` chỉ được THÊM
-  const bp = baseObj.permissions, tp = treeObj.permissions || {};
-  if (bp) {
-    for (const k of Object.keys(bp)) {
-      if (k === 'allow') continue;
-      if (!same(bp[k], tp[k])) errs.push(`(b) khoa trong permissions bi doi hoac mat: "${k}"`);
-    }
-    for (const e of (bp.allow || [])) {
-      if (!(tp.allow || []).includes(e)) errs.push(`(b) MAT entry allow von co o moc: "${e}"`);
-    }
-  }
-  return errs;
-}
-
-// Mốc git CỐ ĐỊNH đọc TỪ contract, không hardcode sha trong ca.
-function baseSettings() {
-  const contract = readFileSync(CONTRACT, 'utf8');
-  const m = contract.match(/\*\*BASE-LMSQBPL:\*\*\s*`([0-9a-f]{40})`/);
-  if (!m) throw new Error('khong doc duoc moc BASE-LMSQBPL tu contract.md');
-  const raw = execFileSync('git', ['show', `${m[1]}:.claude/settings.json`], { cwd: ROOT, encoding: 'utf8' });
-  return { sha: m[1], obj: JSON.parse(raw) };
 }
 
 // MỖI VẾ LÀ MỘT ĐIỀU KIỆN, khai dạng BẢNG — không phải phép AND/HOẶC viết tay.
@@ -295,50 +265,6 @@ runObj('LM8', 'van pham luat quyen + entry nam dung cho', checkGrammar, [
   ['m3-doi-ten-boc', (s, c) => { s.permissions.allow[0] = s.permissions.allow[0].replace(/^Bash\(/, 'Shell('); return [s, c]; },
     'KHONG dung van pham Bash(<lenh>)'],
 ]);
-
-if (want('LM3')) {
-  const errs = [];
-  let base;
-  try { base = baseSettings(); } catch (e) { errs.push(`khong lay duoc ban o moc: ${e.message}`); }
-  if (base) {
-    const tree = readJSON(SETTINGS);
-    // ── CHÂN (a): CẶP THẬT mốc ↔ cây. Đối chứng dương chạy TRƯỚC. ──
-    const clean = checkPreserved(base.obj, tree);
-    if (clean.length) errs.push(`doi chung duong DO tren cap THAT: ${clean.join(' · ')}`);
-    const topKeys = Object.keys(base.obj).filter(k => k !== 'permissions');
-    if (!topKeys.length) errs.push('ban o moc khong co khoa cap cao nao ngoai permissions — chan (a) hang dung, khong do duoc gi');
-    else {
-      const m1 = JSON.parse(JSON.stringify(tree)); delete m1[topKeys[0]];
-      if (!checkPreserved(base.obj, m1).some(e => e.includes(`(a) MAT khoa cap cao: "${topKeys[0]}"`)))
-        errs.push('m1: xoa mot khoa cap cao ma khong do');
-      const m3 = JSON.parse(JSON.stringify(tree)); m3[topKeys[0]] = { 'da-doi': true };
-      if (!checkPreserved(base.obj, m3).some(e => e.includes(`(a) DOI gia tri khoa cap cao: "${topKeys[0]}"`)))
-        errs.push('m3: doi gia tri mot khoa cap cao ma khong do');
-    }
-    // ── CHÂN (b): bản ở mốc CHƯA có khối `permissions`, nên cặp thật không có gì để
-    // mất. Chứng chân này biết đỏ trên CẶP SINH BỞI CODE — CÙNG hàm so, khác input.
-    // Khai thẳng ở evals/contract; nó thành phép đo trên vật thật ngay khi settings
-    // của kho có `deny`/`ask`.
-    if (base.obj.permissions) {
-      errs.push('ban o moc NAY DA co khoi permissions — cap nhat ca: chan (b) do duoc tren cap that, bo cap sinh');
-    }
-    const bSyn = { permissions: { allow: ['Bash(a)', 'Bash(b)'], deny: ['Bash(rm -rf /)'], defaultMode: 'default' } };
-    const tSyn = { permissions: { allow: ['Bash(a)', 'Bash(b)', 'Bash(c)'], deny: ['Bash(rm -rf /)'], defaultMode: 'default' } };
-    const cleanSyn = checkPreserved(bSyn, tSyn);
-    if (cleanSyn.length) errs.push(`doi chung duong DO tren cap sinh: ${cleanSyn.join(' · ')}`);
-    const m2 = JSON.parse(JSON.stringify(tSyn)); delete m2.permissions.deny;
-    if (!checkPreserved(bSyn, m2).some(e => e.includes('(b) khoa trong permissions bi doi hoac mat: "deny"')))
-      errs.push('m2: xoa permissions.deny ma khong do');
-    const m4 = JSON.parse(JSON.stringify(tSyn)); m4.permissions.allow = m4.permissions.allow.filter(x => x !== 'Bash(a)');
-    if (!checkPreserved(bSyn, m4).some(e => e.includes('(b) MAT entry allow von co o moc: "Bash(a)"')))
-      errs.push('m4: xoa mot entry allow von co o moc ma khong do');
-    const m5 = JSON.parse(JSON.stringify(tSyn)); m5.permissions.defaultMode = 'bypassPermissions';
-    if (!checkPreserved(bSyn, m5).some(e => e.includes('(b) khoa trong permissions bi doi hoac mat: "defaultMode"')))
-      errs.push('m5: doi defaultMode ma khong do');
-  }
-  if (errs.length) fail('LM3', errs.join(' · '));
-  else pass('LM3', 'khong nuot cau hinh khac: chan (a) tren cap THAT moc<->cay + chan (b) tren cap sinh + 5 mutant do dung ve');
-}
 
 if (want('LM5')) {
   const FL = path.join(ROOT, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md');

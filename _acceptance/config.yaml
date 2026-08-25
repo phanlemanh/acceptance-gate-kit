@@ -134,6 +134,11 @@ executors:
     bdk_rang_bon_bo_doc: bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan bon-bo-doc
     bdk_rang_ahead_behind: bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan ahead-behind
     bdk_rang_sort_tuoi: bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan sort-tuoi
+    # Vật của hồ sơ lan-may-song-qua-bo-phan-loai — răng «không nuốt cấu hình khác»,
+    # so bản settings ở mốc git CỐ ĐỊNH với bản trong cây. CỐ Ý không vào suite vĩnh
+    # viễn: để trong bộ kiểm thường trực thì mọi sửa hợp lệ về sau của enabledPlugins
+    # / extraKnownMarketplaces (do hồ sơ KHÁC làm) sẽ làm suite đỏ oan.
+    lm_khong_nuot: bash _acceptance/lan-may-song-qua-bo-phan-loai/rang-khong-nuot.sh
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

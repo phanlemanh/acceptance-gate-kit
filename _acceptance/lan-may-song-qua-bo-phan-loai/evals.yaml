@@ -7,7 +7,7 @@ feature_slug: lan-may-song-qua-bo-phan-loai
 # mệnh đề ĐÓNG trên tập hữu hạn; cấm phủ định phổ quát trên không gian mở.
 #
 # <<<MUTANT-MATRIX
-#   E1=4 · E2=3 · E3=5 · E4=5 · E5=7 · E6=4 · E8=3   (tổng 31)
+#   E1=4 · E2=3 · E3=3 chân (răng hồ sơ) · E4=5 · E5=7 · E6=4 · E8=3
 # MUTANT-MATRIX>>>
 #
 # Bảng trên là chỗ DUY NHẤT khai ma trận. Câu hỏi hội đồng E7 TRỎ VỀ marker này và
@@ -62,11 +62,11 @@ evals:
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
-    executor: test
-    cmd: config:executors.test.plugins
+    executor: script
+    cmd: config:executors.script.lm_khong_nuot
     paths: [.claude/settings.json, _acceptance/lan-may-song-qua-bo-phan-loai/contract.md, tests/plugins/lan-may-classifier.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: [LM3]". Đo trên VẬT THẬT, KHÔNG đo một hàm trộn dựng
+      exit 0; stdout có "khong-nuot OK". RĂNG HỒ SƠ, CỐ Ý không vào suite vĩnh viễn — nằm trong bộ kiểm thường trực thì mọi sửa hợp lệ về sau của `enabledPlugins`/`extraKnownMarketplaces` (do hồ sơ KHÁC làm) sẽ làm suite đỏ oan, đúng lớp «thước ghim vào thứ SẼ ĐỔI»; răng chết theo hồ sơ khi gộp. Đo trên VẬT THẬT, KHÔNG đo một hàm trộn dựng
       riêng cho test — ô này không giao đường trộn nào. Đọc mốc `BASE-LMSQBPL` TỪ
       contract.md (không hardcode sha trong ca), lấy bản settings ở mốc bằng
       `git show <sha>:.claude/settings.json`, so với bản trong cây. HAI CHÂN RỜI,
