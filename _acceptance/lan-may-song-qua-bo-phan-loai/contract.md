@@ -6,7 +6,7 @@ owner: manh.phan@onemount.com
 risk_tier: T2
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-08-25-lan-may-song-qua-bo-phan-loai-design.md
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
