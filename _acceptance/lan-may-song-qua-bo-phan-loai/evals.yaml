@@ -7,7 +7,7 @@ feature_slug: lan-may-song-qua-bo-phan-loai
 # mệnh đề ĐÓNG trên tập hữu hạn; cấm phủ định phổ quát trên không gian mở.
 #
 # <<<MUTANT-MATRIX
-#   E1=4 · E2=3 · E3=5 · E4=3 · E5=4 · E6=2 · E8=3
+#   E1=4 · E2=3 · E3=5 · E4=3 · E5=4 · E6=4 · E8=3
 # MUTANT-MATRIX>>>
 #
 # Bảng trên là chỗ DUY NHẤT khai ma trận; câu hỏi hội đồng E7 TRỎ VỀ marker này,

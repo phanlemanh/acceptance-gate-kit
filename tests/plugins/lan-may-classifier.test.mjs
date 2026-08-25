@@ -25,7 +25,7 @@ const CONTRACT = path.join(ROOT, '_acceptance', 'lan-may-song-qua-bo-phan-loai',
 // Danh sách ca ĐÃ CÀI, mọc dần theo từng task của kế hoạch. Khai sẵn ca chưa viết
 // làm bộ chạy đỏ oan ở mỗi commit trung gian; danh sách ĐỦ được evals.yaml canh
 // (mỗi eval trỏ một ca), nên không có đường quên im lặng.
-const ALL_IDS = ['LM1', 'LM2', 'LM3', 'LM5', 'LM8'];
+const ALL_IDS = ['LM1', 'LM2', 'LM3', 'LM4', 'LM5', 'LM6', 'LM8'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 let failures = 0;
 const only = (process.env.LM_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
@@ -152,6 +152,10 @@ function baseSettings() {
 // xoá hay rút ruột, KHÔNG chứng minh câu chữ nói đúng ý — nghĩa của văn xuôi là
 // việc người duyệt, đúng bài học hồ sơ design-pass-nac. Vế thứ tư mới là quan hệ
 // đếm được: mốc neo xuất hiện ĐÚNG MỘT lần trên trọn hai thư mục.
+// Văn xuôi trong markdown bị ngắt dòng theo bề rộng cột; phép đo bám chuỗi mà
+// không gộp khoảng trắng sẽ vỡ mỗi lần ai đó xuống dòng lại — hỏng vì TRÌNH BÀY
+// chứ không vì NGHĨA. Mọi phép đo trên văn xuôi ở file này đi qua flat().
+const flat = t => String(t).replace(/\s+/g, ' ');
 const FALLBACK_ANCHOR = 'CLASSIFIER-FALLBACK';
 const SCAN_DIRS = ['skills', 'feature-loop'];
 function walkFiles(abs, acc = []) {
@@ -166,8 +170,9 @@ const block = (text, name) => {
   return m ? m[1] : null;
 };
 function checkFallback(skillText, listFiles, readAt) {
-  const b = block(skillText, FALLBACK_ANCHOR);
-  if (b === null) return [`thieu moc neo ${FALLBACK_ANCHOR} trong nghi thuc`];
+  const b0 = block(skillText, FALLBACK_ANCHOR);
+  if (b0 === null) return [`thieu moc neo ${FALLBACK_ANCHOR} trong nghi thuc`];
+  const b = flat(b0);
   const errs = [];
   // (1) điều kiện kích hoạt phân biệt được với BLOCKED nguyên nhân khác
   if (!/(classifier|bộ phân loại)/i.test(b) || !/(nguyên nhân khác|phân biệt)/i.test(b))
@@ -182,6 +187,36 @@ function checkFallback(skillText, listFiles, readAt) {
   const hits = listFiles().filter(f => (readAt(f) || '').includes('<<<' + FALLBACK_ANCHOR));
   if (hits.length !== 1)
     errs.push(`ve 4: moc neo xuat hien ${hits.length} cho (phai dung 1): ${hits.map(f => path.relative(ROOT, f)).join(', ')}`);
+  return errs;
+}
+
+// LM4 · AC-4 — khối khuyên kho tiêu thụ, BA VẾ RỜI (phép đo CÓ-MẶT trên từ vựng đóng).
+const ADVICE_ANCHOR = 'CONSUMER-ALLOW-ADVICE';
+function checkAdvice(initText) {
+  const b0 = block(initText, ADVICE_ANCHOR);
+  if (b0 === null) return [`thieu moc neo ${ADVICE_ANCHOR} trong khuon khoi tao`];
+  const b = flat(b0);
+  const errs = [];
+  if (!/KHỚP CHÍNH XÁC/.test(b) || !/KHÔNG dùng `\*`|không glob/i.test(b))
+    errs.push('ve a: thieu dang khai KHOP CHINH XAC / khong glob');
+  if (!/nút cổ chai/i.test(b))
+    errs.push('ve b: thieu ly do (bo phan loai la nut co chai cua lan may)');
+  if (!/KHÔNG tự ghi/.test(b) || !/quyết định an ninh/i.test(b))
+    errs.push('ve c: thieu cau khai kit KHONG tu ghi luat vao kho ho');
+  return errs;
+}
+
+// LM6 · AC-6 — tài liệu vận hành nêu CẢ HAI nửa.
+function checkGuide(guideText) {
+  const g = flat(guideText);
+  const errs = [];
+  // Hai mục ĐỘC LẬP, mỗi mục một thông điệp. Cố ý KHÔNG dùng phép HOẶC giữa hai
+  // dấu hiệu của cùng một mục: một vế của phép hoặc luôn còn sống thì vế kia chết
+  // mà không ai biết (lớp đã ghi sổ).
+  if (!/permissions\.allow/.test(g)) errs.push('muc 1: GUIDE khong neu luat cho-phep cua kho (thieu `permissions.allow`)');
+  if (!/lệnh kiểm/i.test(g)) errs.push('muc 1b: GUIDE khong noi ro luat ay danh cho LENH KIEM co dinh');
+  if (!new RegExp(FALLBACK_ANCHOR).test(g)) errs.push(`muc 2: GUIDE khong tro toi moc neo ${FALLBACK_ANCHOR}`);
+  if (!/tuần tự/i.test(g)) errs.push('muc 2b: GUIDE khong noi luot ke di TUAN TU');
   return errs;
 }
 
@@ -323,6 +358,41 @@ if (want('LM5')) {
     else pass('LM5', 'duong thoai hoa: 3 ve co-mat tren tu vung dong + 1 quan he dem duoc + 4 mutant');
   }
 }
+
+function runText(id, label, file, check, mutants) {
+  if (!want(id)) return;
+  let src;
+  try { src = readFileSync(file, 'utf8'); } catch (e) { return fail(id, `khong doc duoc vat: ${e.message}`); }
+  const clean = check(src);
+  if (clean.length) return fail(id, `doi chung duong DO — ban nguyen ven phai XANH: ${clean.join(' · ')}`);
+  const bad = [];
+  for (const [name, frag, repl, needle] of mutants) {
+    // Tiêm TOÀN CỤC khi frag là chuỗi: `String.replace(chuỗi)` chỉ đổi lần xuất hiện
+    // ĐẦU, nên một cụm có mặt hai chỗ sẽ bị bẻ ở chỗ KHÔNG AI ĐO — mutant thành vô
+    // hiệu mà nhìn thì vẫn như đã tiêm (lớp đã ghi sổ ở hồ sơ design-pass-nac).
+    const mutated = typeof frag === 'string' ? src.split(frag).join(repl) : src.replace(frag, repl);
+    if (mutated === src) { bad.push(`${name}: lenh tiem KHONG doi duoc dong nao`); continue; }
+    const errs = check(mutated);
+    if (!errs.some(e => e.includes(needle))) bad.push(`${name}: khong do dung ve "${needle}" (thu duoc: ${errs.join(' · ') || 'KHONG LOI NAO'})`);
+  }
+  if (bad.length) fail(id, bad.join(' · '));
+  else pass(id, `${label} — doi chung duong xanh + ${mutants.length} mutant do dung ve`);
+}
+
+runText('LM4', 'khuon khoi tao khuyen kho tieu thu, ba ve roi',
+  path.join(ROOT, 'commands', 'acceptance-init.md'), checkAdvice, [
+    ['m1-bo-dang-khai', 'KHỚP CHÍNH XÁC', 'kiểu gì cũng được', 've a'],
+    ['m2-bo-ly-do', 'nút cổ chai', 'một chi tiết', 've b'],
+    ['m3-bo-khai-khong-tu-ghi', 'KHÔNG tự ghi', 'sẽ tự ghi', 've c'],
+  ]);
+
+runText('LM6', 'tai lieu van hanh neu ca hai nua',
+  path.join(ROOT, 'GUIDE.md'), checkGuide, [
+    ['m1-bo-luat-cho-phep', 'permissions.allow', 'khoá nào đó', 'muc 1:'],
+    ['m2-bo-doi-tuong', 'lệnh kiểm', 'thứ gì đó', 'muc 1b'],
+    ['m3-bo-con-tro-moc-neo', FALLBACK_ANCHOR, 'MOC-KHAC', 'muc 2:'],
+    ['m4-bo-tuan-tu', 'tuần tự', 'kiểu khác', 'muc 2b'],
+  ]);
 
 // LM_CASES nêu id không tồn tại → không được xanh im lặng
 const unknown = only.filter(id => !ran.has(id));
