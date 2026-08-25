@@ -25,6 +25,7 @@
 9. [Xử lý sự cố](#9-xử-lý-sự-cố)
 10. [Dành cho người bảo trì kit](#10-dành-cho-người-bảo-trì-kit)
 
+11. [Làn máy và bộ phân loại an toàn](#11-làn-máy-và-bộ-phân-loại-an-toàn)
 ---
 
 ## 0. Giới thiệu — mục đích, mục tiêu, kim chỉ nam
@@ -1026,12 +1027,8 @@ không có bằng chứng là một ô FAIL, không phải "chắc ổn":
 | **F. Giới hạn** | Giới hạn v1 và rủi ro đã ghi thành văn (spec/report), không im lặng? | Trỏ tới mục known-limits | Backward-tolerant là mặc định: luật mới trên artifact cũ ra NOTE,
   chỉ enforce cứng khi artifact có field mới.
 
----
 
-*Tài liệu đồng hành: [README.md](README.md) (tổng quan + giới hạn đã biết) ·
-[QUICKSTART.md](QUICKSTART.md) (lối 5 phút cho thành viên mới).*
-
-## Làn máy và bộ phân loại an toàn
+## 11. Làn máy và bộ phân loại an toàn
 
 <!-- <<<GUIDE-CLASSIFIER-LANE -->
 
@@ -1055,3 +1052,8 @@ lỗi thời hoặc phải nới rộng.
 KHÔNG tung bầy lại: lượt kế đi verify độc lập, chạy lệnh tuần tự. Luật sống giữa
 mốc neo `CLASSIFIER-FALLBACK` trong skill `feature-loop` — một chỗ duy nhất.
 <!-- GUIDE-CLASSIFIER-LANE>>> -->
+
+---
+
+*Tài liệu đồng hành: [README.md](README.md) (tổng quan + giới hạn đã biết) ·
+[QUICKSTART.md](QUICKSTART.md) (lối 5 phút cho thành viên mới).*

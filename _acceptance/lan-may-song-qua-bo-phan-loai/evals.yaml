@@ -7,13 +7,16 @@ feature_slug: lan-may-song-qua-bo-phan-loai
 # mệnh đề ĐÓNG trên tập hữu hạn; cấm phủ định phổ quát trên không gian mở.
 #
 # <<<MUTANT-MATRIX
-#   E1=4 · E2=3 · E3=3 chân (răng hồ sơ) · E4=5 · E5=7 · E6=4 · E8=3
+#   E1=4 · E2=3 · E3=5 · E4=5 · E5=7 · E6=4 · E8=3   (tổng 31; E3 là răng hồ sơ,
+#   5 mutant chia ba chân — đơn vị vẫn là MUTANT như mọi ô khác)
 # MUTANT-MATRIX>>>
 #
-# Bảng trên là chỗ DUY NHẤT khai ma trận. Câu hỏi hội đồng E7 TRỎ VỀ marker này và
-# văn `expected` của từng eval cố ý KHÔNG nhắc con số nào — sửa theo LỚP cho lớp lỗi
-# «bản chép thứ hai hoá lỗi thời» (kho đã trả giá ở commit 8706e8f9, và chính hồ sơ
-# này tái phạm ở vòng 1). Không có số trong văn thì không có gì để lệch.
+# ĐỔI KHUÔN (vòng 2, sau khi luật dừng-vá bật): bảng trên là chỗ DUY NHẤT khai ma
+# trận, VÀ là chỗ duy nhất được LIỆT KÊ mutant. Văn `expected` của mỗi eval chỉ mô tả
+# PHÉP ĐO — không con số, không «m1..m3», không «BA vế». Vòng 1 tôi bỏ số khỏi bốn
+# eval rồi tuyên đóng cả lớp, để nguyên phần kể lể ở ba eval còn lại và lớp tái phát
+# ngay vòng sau. Vá từng chỗ không đóng được lớp này; bỏ HẲN bản chép thứ hai mới
+# đóng — không có gì để lệch thì không lệch được.
 #
 # GIỚI HẠN ĐÃ KHAI: không eval nào đo HIỆU LỰC LÚC CHẠY của luật cho-phép —
 # settings đọc lúc khởi động phiên, phá thử ở S1 xác nhận sửa giữa phiên không có
@@ -32,12 +35,6 @@ evals:
       trong `feature_loop.suite_keys` của `_acceptance/config.yaml`, rồi khẳng định
       hai tập BẰNG NHAU. Thông điệp đỏ NÊU ĐÍCH DANH lệnh thừa / lệnh thiếu.
       Đối chứng dương: cây nguyên vẹn XANH, chạy TRƯỚC mọi mutant.
-      MA TRẬN MUTANT (số khai ở marker MUTANT-MATRIX) (mỗi mutant đi qua CHÍNH hàm so của chiều xanh, khác input):
-      m1 = bản sao settings BỎ một lệnh → đỏ ghim tên lệnh THIẾU; m2 = bản sao
-      settings THÊM một lệnh lạ → đỏ ghim tên lệnh THỪA; m3 = bản sao config thêm
-      một suite_key mới mà settings không đổi → đỏ ghim THIẾU (chứng minh phép đo
-      đọc CẢ HAI đầu, không chỉ đầu settings); m4 = bản sao settings đổi một lệnh
-      lệch MỘT ký tự → đỏ ghim cả thừa lẫn thiếu.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
     criterion: AC-2
@@ -50,21 +47,12 @@ evals:
       rộng sau đây» — danh sách cấm trên không gian mở là lớp lỗi đã trả giá; đếm
       ký tự trên tập hữu hạn entry thì đóng và đếm được.
       Đối chứng dương: cây nguyên vẹn XANH.
-      MA TRẬN MUTANT (số khai ở marker). Các mutant trong bảng chữ `*`: m1 = thêm entry `Bash(bash *)`;
-      m2 = đổi một entry đúng thành dạng có `*` ở cuối; m3 = thêm entry `Bash(*)` —
-      mỗi cái đỏ ghim NGUYÊN VĂN entry vi phạm, không chỉ đếm số.
-      PHẠM VI THẬT của ca này, khai thẳng: AC-2 đóng ô B«rộng quá» **chỉ ở dạng ký
-      tự `*`**. Các dạng «rộng ra» khác — rút `permissions.deny` đang có, nới
-      `defaultMode` — KHÔNG do bộ kiểm này bắt được (nó chỉ đếm `*`), mà do **E3**
-      canh: chân (b) của E3 đòi mọi khoá trong `permissions` ngoài `allow` giữ
-      nguyên so với mốc. Nhét hai mutant đó vào đây là dựng một thước đòi chiều đỏ
-      không bao giờ xảy ra. Văn phạm entry do E8 canh.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
     executor: script
     cmd: config:executors.script.lm_khong_nuot
-    paths: [.claude/settings.json, _acceptance/lan-may-song-qua-bo-phan-loai/contract.md, tests/plugins/lan-may-classifier.test.mjs]
+    paths: [.claude/settings.json, _acceptance/lan-may-song-qua-bo-phan-loai/contract.md, _acceptance/lan-may-song-qua-bo-phan-loai/rang-khong-nuot.mjs, _acceptance/lan-may-song-qua-bo-phan-loai/rang-khong-nuot.sh]
     expected: >
       exit 0; stdout có "khong-nuot OK". RĂNG HỒ SƠ, CỐ Ý không vào suite vĩnh viễn — nằm trong bộ kiểm thường trực thì mọi sửa hợp lệ về sau của `enabledPlugins`/`extraKnownMarketplaces` (do hồ sơ KHÁC làm) sẽ làm suite đỏ oan, đúng lớp «thước ghim vào thứ SẼ ĐỔI»; răng chết theo hồ sơ khi gộp. Đo trên VẬT THẬT, KHÔNG đo một hàm trộn dựng
       riêng cho test — ô này không giao đường trộn nào. Đọc mốc `BASE-LMSQBPL` TỪ
@@ -75,22 +63,6 @@ evals:
       `allow` chỉ được THÊM — phần tử có ở mốc phải còn trong cây.
       Danh sách khoá phải-giữ RÚT TỪ chính bản ở mốc (duyệt khoá của nó), KHÔNG liệt
       tay trong ca — liệt tay là một allowlist mới.
-      MA TRẬN MUTANT (số khai ở marker MUTANT-MATRIX), chia theo chân vì HAI CHÂN có tầm với khác nhau — khai thẳng:
-      • Chân (a) đo trên CẶP THẬT (mốc ↔ cây). Mutant tiêm vào BẢN SAO của bản trong
-        cây rồi chạy lại CHÍNH hàm so của chiều xanh: m1 = xoá một khoá cấp cao ngoài
-        `permissions` → đỏ ghim tên khoá MẤT; m3 = đổi giá trị một khoá cấp cao không
-        liên quan → đỏ ghim tên khoá ĐỔI.
-      • Chân (b) KHÔNG có gì để so trên cặp thật: bản ở mốc `BASE-LMSQBPL` chưa có
-        khối `permissions` nào, nên hôm nay không có `deny`/`ask`/entry cũ nào để mất.
-        Ba mutant của chân này chạy trên CẶP SINH BỞI CODE trong chính lượt chạy —
-        CÙNG hàm so, khác input (không phải hàm riêng dựng cho mutant), kèm đối chứng
-        dương riêng: cặp giống hệt → không lỗi. m2 = xoá `permissions.deny` khỏi bên
-        cây → đỏ ghim khoá mất; m4 = xoá một phần tử `allow` vốn có ở mốc → đỏ ghim
-        entry mất; m5 = đổi `permissions.defaultMode` → đỏ ghim tên khoá đổi.
-        Chân này thành phép đo trên vật thật NGAY KHI settings của kho có `deny`/`ask`
-        — nó ở đây để sẵn sàng và đã được chứng biết đỏ, không phải để trang trí.
-      m2 và m5 chính là HAI dạng «rộng ra» mà E2 không bắt được — chúng ở đây, và
-      Coverage của contract trỏ đúng về đây.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
     criterion: AC-4
@@ -98,13 +70,16 @@ evals:
     cmd: config:executors.test.plugins
     paths: [commands/acceptance-init.md, tests/plugins/lan-may-classifier.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: [LM4]". Khuôn khởi tạo có khối khuyên khai luật
-      cho-phép, và khối đó nêu ĐỦ BA điều — ca khẳng định BA vế RỜI, mỗi vế một
-      thông điệp riêng: (a) dạng khai KHỚP CHÍNH XÁC / không glob; (b) vì sao (bộ
-      phân loại là nút cổ chai của làn máy); (c) kit KHÔNG tự ghi luật vào kho họ.
-      MA TRẬN MUTANT (số khai ở marker MUTANT-MATRIX): m1..m3 = bản sao xoá lần lượt từng vế → đỏ ghim ĐÚNG vế
-      thiếu. Ba vế phải độc lập: xoá vế nào chỉ vế đó đỏ (chuỗi else-if làm vế sau
-      không bao giờ chạy là lớp lỗi đã ghi sổ).
+      exit 0; stdout có "PASS: [LM4]". Khối giữa mốc neo CONSUMER-ALLOW-ADVICE trong
+      khuôn khởi tạo phải nêu: dạng khai KHỚP CHÍNH XÁC · cấm dùng `*` · lý do (bộ
+      phân loại là nút cổ chai của làn máy) · kit KHÔNG tự ghi luật vào kho họ · cấp
+      quyền là quyết định an ninh của đội.
+      MỖI VẾ LÀ MỘT ĐIỀU KIỆN, khai dạng BẢNG trong bộ ca (id · thông điệp · bait);
+      runner tự duyệt bảng nên số mutant LUÔN bằng số vế và không thể quên vế nào.
+      CẤM gộp hai điều kiện vào một vế bằng phép VÀ/HOẶC — nhánh không có mutant
+      riêng là vế chết. Phép đo trên văn xuôi đi qua hàm gộp khoảng trắng (ngắt dòng
+      là chuyện trình bày, không phải nghĩa). Bộ kiểm phân biệt mốc neo TRÙNG với mốc
+      neo THIẾU, không gộp hai chuyện vào một thông điệp.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
@@ -112,17 +87,18 @@ evals:
     cmd: config:executors.test.plugins
     paths: [feature-loop/skills/feature-loop/SKILL.md, tests/plugins/lan-may-classifier.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: [LM5]". Trích khối giữa cặp mốc neo
-      `CLASSIFIER-FALLBACK` trong nghi thức và khẳng định BA vế RỜI: điều kiện kích
-      hoạt phân biệt «chặn vì bộ phân loại» với BLOCKED nguyên nhân khác · hành
-      động bắt buộc là lượt kế đi TUẦN TỰ và KHÔNG fan-out lại · có con trỏ tới
-      đường tuần tự. Cộng vế thứ tư: mốc neo là chỗ DUY NHẤT khai luật này — đo
-      bằng ĐẾM số khối mang mốc neo trên TRỌN `skills/**` + `feature-loop/**`
-      (cùng phạm vi thư mục mà răng câu-chết của kho dùng), phải đúng 1.
-      MA TRẬN MUTANT (số khai ở marker MUTANT-MATRIX): m1..m3 = xoá lần lượt từng vế trong khối → đỏ ghim đúng vế
-      thiếu; m4 = thêm một khối mang cùng mốc neo ở file THỨ HAI dưới hai thư mục
-      → đỏ ghim "mốc neo xuất hiện 2 chỗ" kèm đường dẫn (chiều đỏ NGOÀI file đã
-      biết — allowlist thiếu chiều đỏ ngoài danh sách là vế chết).
+      exit 0; stdout có "PASS: [LM5]". Khối giữa mốc neo `CLASSIFIER-FALLBACK` trong
+      nghi thức phải nêu: dấu hiệu kích hoạt «bộ phân loại» · phân biệt với BLOCKED
+      nguyên nhân KHÁC · hành động bắt buộc, ghim vào CÂU MỆNH LỆNH «lệnh chạy TUẦN
+      TỰ» chứ không vào từ đơn lẻ (khối còn có câu tiền lệ nhắc tuần tự — đo từ đơn
+      lẻ là để câu tiền lệ đỡ hộ mệnh lệnh) · cấm dispatch lại fan-out · con trỏ
+      Phase 3 · tên skill acceptance. Các vế khai dạng BẢNG như E4.
+      Cộng MỘT vế là QUAN HỆ ĐẾM ĐƯỢC: đếm số KHỐI mang mốc neo trên trọn hai thư
+      mục `skills/` và `feature-loop/`, phải đúng 1 — ĐẾM KHỐI chứ không đếm FILE:
+      đếm file thì hai khối trong CÙNG một file vẫn ra 1 và bản sao thứ hai mang luật
+      ngược lại lọt xanh, còn nội dung của nó thì không bộ kiểm nào đọc tới.
+      PHẠM VI THẬT: các vế văn xuôi là phép đo CÓ-MẶT trên từ vựng ĐÓNG — canh điều
+      khoản khỏi bị xoá hay rút ruột, KHÔNG chứng minh câu chữ nói đúng ý.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
     criterion: AC-6
@@ -130,10 +106,13 @@ evals:
     cmd: config:executors.test.plugins
     paths: [GUIDE.md, tests/plugins/lan-may-classifier.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: [LM6]". GUIDE nêu CẢ HAI: luật cho-phép của kho
-      (làm gì + đánh đổi) và đường thoái hoá của nghi thức.
-      MA TRẬN MUTANT (số khai ở marker MUTANT-MATRIX): m1, m2 = bản sao xoá lần lượt từng mục → đỏ ghim đúng mục
-      thiếu.
+      exit 0; stdout có "PASS: [LM6]". GUIDE nêu CẢ HAI nửa, đo TRONG KHỐI giữa mốc
+      neo GUIDE-CLASSIFIER-LANE — KHÔNG grep trọn tài liệu: GUIDE đã có sẵn cụm «tuần
+      tự» ở hai chỗ khác không liên quan, nên grep cả file làm vế «lượt kế đi TUẦN
+      TỰ» thành assertion CHẾT. Các vế khai dạng BẢNG như E4: có `permissions.allow` ·
+      nói rõ dành cho LỆNH KIỂM cố định · trỏ mốc neo CLASSIFIER-FALLBACK · nói lượt
+      kế đi TUẦN TỰ. Mục phải nằm TRONG thân tài liệu và có tên trong Mục lục —
+      người vận hành tra mục lục là đúng người AC-6 nhắm.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
     criterion: AC-8
@@ -148,14 +127,6 @@ evals:
       viết và bên đọc mỗi bên tự chế khuôn riêng.
       Ca cũng khẳng định các entry nằm dưới `permissions.allow`, KHÔNG dưới `ask` hay
       `deny`.
-      MA TRẬN MUTANT (số khai ở marker MUTANT-MATRIX): m1 = bản sao đổi một entry thành dạng TRẦN không bọc
-      `Bash(...)` → đỏ ghim nguyên văn entry sai; m2 = bản sao chuyển một entry sang
-      `permissions.ask` → đỏ ghim entry đặt nhầm chỗ; m3 = bản sao đổi tên bọc thành
-      công cụ khác (vd `Shell(...)`) → đỏ.
-      Vế này tồn tại vì bên VIẾT và bên ĐỌC có thể trôi CÙNG NHAU: settings ghi entry
-      trần và bộ bóc của ca cũng không mong bọc thì E1 song ánh và E2 đếm `*` đều
-      XANH trong khi luật câm hoàn toàn với harness (lớp đã ghi sổ:
-      het-gio-khong-phai-truot#F1).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E7
     criterion: AC-7
@@ -187,7 +158,7 @@ evals:
       file test rồi tuyên «khớp» (bộ ca tự làm chứng cho chính nó).
       Nêu đích danh ca vi phạm; không có thì nói rõ đã soi hết bao nhiêu ca và bao
       nhiêu mutant.
-    inputs: [../../tests/plugins/lan-may-classifier.test.mjs, evals.yaml]
+    inputs: [../../tests/plugins/lan-may-classifier.test.mjs, evals.yaml, rang-khong-nuot.mjs]
     expected: >
       Hội đồng xác nhận số mutant khớp bảng ma trận, mỗi mutant bẻ đúng MỘT vế và đi
       qua cùng bộ kiểm của chiều xanh, fixture code-sinh, thông điệp ghim, E1 đọc

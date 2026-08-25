@@ -17,10 +17,10 @@ const ROOT = path.resolve(__dirname, '..', '..');
 const require = createRequire(import.meta.url);
 // Bộ đọc cấu hình DÙNG CHUNG của kit — CLAUDE.md cấm mọc parser thứ năm.
 const { resolveConfigKey } = require(path.join(ROOT, 'lib', 'evidence-core.cjs'));
+const { configList } = require(path.join(ROOT, 'lib', 'workspace-record.cjs'));
 
 const SETTINGS = path.join(ROOT, '.claude', 'settings.json');
 const CONFIG = path.join(ROOT, '_acceptance', 'config.yaml');
-const CONTRACT = path.join(ROOT, '_acceptance', 'lan-may-song-qua-bo-phan-loai', 'contract.md');
 
 // Danh sách ca ĐÃ CÀI, mọc dần theo từng task của kế hoạch. Khai sẵn ca chưa viết
 // làm bộ chạy đỏ oan ở mỗi commit trung gian; danh sách ĐỦ được evals.yaml canh
@@ -46,6 +46,10 @@ const readJSON = p => JSON.parse(readFileSync(p, 'utf8'));
 // cấu hình, đọc nguyên văn 2026-08-25. Khuôn sống ĐÚNG một chỗ: bên viết (settings)
 // và bên đọc (ca này) phải cùng khuôn, không mỗi bên tự chế.
 const PERM_RULE = /^Bash\((.+)\)$/;
+// GIỚI HẠN ĐÃ KHAI: hằng này là bản CHÉP TAY. Nguồn thật (khung cấu hình của
+// harness) không phải file trong kho nên KHÔNG round-trip được bên-viết→bên-đọc như
+// các mối nối khác của kit. Nó chết lặng nếu harness đổi văn phạm; đổi lại, nó vẫn
+// bắt được bên viết settings tự chế khuôn khác — đó là lớp lỗi ô này nhắm.
 // PERM-RULE-GRAMMAR>>>
 
 // ---------------------------------------------------------------------------
@@ -57,19 +61,14 @@ const PERM_RULE = /^Bash\((.+)\)$/;
 const allowEntries = obj => ((obj.permissions || {}).allow || []);
 
 // Danh sách lệnh kiểm CỐ ĐỊNH — nguồn sự thật là config, KHÔNG phải hằng trong ca.
-// Chỉ bước đọc DANH SÁCH là cục bộ (bộ đọc chung của kit chỉ giải scalar, không giải
-// list); mỗi phần tử vẫn giải bằng chính resolveConfigKey của kit.
+// Đọc danh sách bằng `configList` của kit (lib/workspace-record.cjs) và giải từng
+// khoá bằng `resolveConfigKey` — KHÔNG tự cắt YAML. Bản trước của ca này tự viết bộ
+// đọc list thứ hai kèm chú thích khai «bộ đọc chung chỉ giải scalar»; lời khai đó SAI
+// và hai bộ đọc đã lệch nhau trên YAML hợp lệ (comment đuôi dòng khoá · item trong
+// nháy) — đúng lớp CLAUDE.md cấm: không mọc parser thứ N.
 function suiteCommands(configText) {
-  const lines = configText.split('\n');
-  const i = lines.findIndex(l => /^\s{2}suite_keys:\s*$/.test(l));
-  if (i < 0) return { keys: [], cmds: [], err: 'khong tim thay feature_loop.suite_keys trong config' };
-  const keys = [];
-  for (let j = i + 1; j < lines.length; j++) {
-    const m = lines[j].match(/^\s{4}- ([\w.]+)\s*$/);
-    if (m) { keys.push(m[1]); continue; }
-    if (lines[j].trim() === '' || lines[j].trim().startsWith('#')) continue;
-    break;
-  }
+  const keys = configList(configText, 'suite_keys');
+  if (!keys.length) return { keys: [], cmds: [], err: 'khong doc duoc feature_loop.suite_keys tu config' };
   const cmds = [], err = [];
   for (const k of keys) {
     const v = resolveConfigKey(configText, k);
@@ -144,7 +143,13 @@ function walkFiles(abs, acc = []) {
   }
   return acc;
 }
+// block() kêu khi có NHIỀU HƠN một khối cùng mốc neo: `String.match` không cờ g chỉ
+// trả khối ĐẦU, nên bản sao thứ hai trong CÙNG file vừa không được vế nội dung đọc
+// tới vừa không bị vế đếm bắt (vấp thật S4-r2 — hội đồng nối một khối thứ hai mang
+// luật NGƯỢC LẠI vào chính SKILL.md mà ca vẫn xanh).
+const countBlocks = (text, name) => (String(text).match(new RegExp('<<<' + name + '(?![-\\w])', 'g')) || []).length;
 const block = (text, name) => {
+  if (countBlocks(text, name) > 1) return null;
   const m = text.match(new RegExp('<<<' + name + '\\s*-->\\n([\\s\\S]*?)<!-- ' + name + '>>>'));
   return m ? m[1] : null;
 };
@@ -157,13 +162,21 @@ const FALLBACK_CLAUSES = [
   { id: 've3b', re: /`acceptance`/, msg: 'thieu ten skill acceptance trong con tro', bait: '`acceptance`' },
 ];
 function checkFallback(skillText, listFiles, readAt) {
+  const n = countBlocks(skillText, FALLBACK_ANCHOR);
+  if (n > 1) return [`moc neo ${FALLBACK_ANCHOR} xuat hien ${n} KHOI trong CUNG file — phai dung 1 (noi dung khoi thu hai khong bo kiem nao doc toi)`];
   const b0 = block(skillText, FALLBACK_ANCHOR);
   if (b0 === null) return [`thieu moc neo ${FALLBACK_ANCHOR} trong nghi thuc`];
   const errs = checkClauses(flat(b0), FALLBACK_CLAUSES);
   // vế thứ bảy — QUAN HỆ ĐẾM ĐƯỢC: mốc neo đúng MỘT chỗ trên trọn hai thư mục
-  const hits = listFiles().filter(f => (readAt(f) || '').includes('<<<' + FALLBACK_ANCHOR));
-  if (hits.length !== 1)
-    errs.push(`ve4: moc neo xuat hien ${hits.length} cho (phai dung 1): ${hits.map(f => path.relative(ROOT, f)).join(', ')}`);
+  // ĐẾM SỐ KHỐI trên trọn tập file, KHÔNG đếm số FILE: AC-5 hứa «đúng MỘT khối»,
+  // đếm file thì hai khối trong cùng một file vẫn ra 1 và lọt xanh.
+  let total = 0; const where = [];
+  for (const f of listFiles()) {
+    const n = countBlocks(readAt(f) || '', FALLBACK_ANCHOR);
+    if (n) { total += n; where.push(`${path.relative(ROOT, f)}×${n}`); }
+  }
+  if (total !== 1)
+    errs.push(`ve4: moc neo xuat hien ${total} KHOI (phai dung 1): ${where.join(', ')}`);
   return errs;
 }
 
@@ -177,6 +190,8 @@ const ADVICE_CLAUSES = [
   { id: 'c2', re: /quyết định an ninh/i, msg: 'thieu cau cap quyen la QUYET DINH AN NINH cua doi', bait: 'quyết định an' },
 ];
 function checkAdvice(initText) {
+  const n = countBlocks(initText, ADVICE_ANCHOR);
+  if (n > 1) return [`moc neo ${ADVICE_ANCHOR} xuat hien ${n} KHOI trong CUNG file — phai dung 1 (noi dung khoi thu hai khong bo kiem nao doc toi)`];
   const b0 = block(initText, ADVICE_ANCHOR);
   if (b0 === null) return [`thieu moc neo ${ADVICE_ANCHOR} trong khuon khoi tao`];
   return checkClauses(flat(b0), ADVICE_CLAUSES);
@@ -194,6 +209,8 @@ function checkGuide(guideText) {
   // Đo TRONG KHỐI có mốc neo, KHÔNG grep trọn tài liệu: GUIDE.md đã có sẵn cụm
   // «tuần tự» ở hai chỗ khác không liên quan, nên grep cả file làm vế muc2b thành
   // assertion CHẾT — xoá trọn mục mới mà vế đó vẫn xanh (vấp thật S4-r1).
+  const n = countBlocks(guideText, GUIDE_ANCHOR);
+  if (n > 1) return [`moc neo ${GUIDE_ANCHOR} xuat hien ${n} KHOI trong CUNG file — phai dung 1 (noi dung khoi thu hai khong bo kiem nao doc toi)`];
   const b0 = block(guideText, GUIDE_ANCHOR);
   if (b0 === null) return [`thieu moc neo ${GUIDE_ANCHOR} trong tai lieu van hanh`];
   return checkClauses(flat(b0), GUIDE_CLAUSES);
