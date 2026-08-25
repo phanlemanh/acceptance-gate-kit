@@ -58,15 +58,24 @@ function checkLadder(skillText) {
     const cells = row.split('|').map(s => s.trim()).filter(Boolean);
     if (cells.length < 3 || !cells[1] || !cells[2]) errs.push(`nac thieu ten hoac dieu kien: ${id}`);
   }
-  // Danh sách nấc chỉ được KHAI một chỗ. Khuôn sổ phiên cố ý TRỎ VỀ mốc neo này
-  // thay vì liệt lại bốn id — nếu nó liệt lại thì kit có hai bản danh sách để trôi.
-  // Đo QUAN HỆ «có bản danh sách thứ hai», KHÔNG đo «dòng nào có ≥2 từ khoá»: một câu
-  // văn xuôi so sánh nac-2 với nac-3 là hợp lệ và phải giữ được. Danh sách thứ hai có
-  // đúng hai hình dạng: một HÀNG BẢNG khai nấc, hoặc một liệt kê từ ba id trở lên.
-  const outside = skillText.replace(b, '');
-  const dupLines = outside.split('\n').filter(l =>
-    /\|\s*nac-[0-9a-z]+\s*\|/.test(l) || new Set(NAC.filter(id => l.includes(id))).size >= 3);
-  if (dupLines.length) errs.push(`danh sach nac xuat hien 2 cho: "${dupLines[0].trim().slice(0, 60)}"`);
+  // Danh sách nấc chỉ được KHAI một chỗ. Đo bằng QUAN HỆ MẬT ĐỘ trên CỬA SỔ, không
+  // bằng danh sách hình dạng cú pháp: bản khai lại có vô số hình dạng (hàng bảng,
+  // gạch đầu dòng mỗi id một dòng, câu liệt kê, danh sách đánh số…) nên liệt hình
+  // dạng là danh-sách-cấm trên không gian mở — hội đồng vòng 3 đã lọt bằng đúng bốn
+  // dòng gạch đầu dòng. Mệnh đề đếm được thay thế: NGOÀI mốc neo, không cửa sổ
+  // WINDOW dòng liền nhau nào được chứa từ 3 id khác nhau trở lên.
+  // Ngưỡng ĐO ĐƯỢC, không đoán: trên cây hiện tại, mọi cửa sổ tới 10 dòng ngoài mốc
+  // neo chứa tối đa 2 id — văn xuôi so sánh hai nấc vẫn sống, dư địa thật là 1 id.
+  const WINDOW = 8, MAX_IDS = 2;
+  const outside = skillText.replace(b, '@@MOC-NEO@@').split('\n');
+  for (let i = 0; i + 1 <= outside.length; i++) {
+    const win = outside.slice(i, i + WINDOW);
+    const seen = new Set(NAC.filter(id => win.join('\n').includes(id)));
+    if (seen.size > MAX_IDS) {
+      errs.push(`danh sach nac xuat hien 2 cho: ${seen.size} id khac nhau trong ${WINDOW} dong lien nhau ngoai moc neo (dong ${i + 1}): "${win.find(l => NAC.some(id => l.includes(id))).trim().slice(0, 60)}"`);
+      break;
+    }
+  }
   return errs;
 }
 
@@ -137,15 +146,23 @@ function noteFromTemplate(skillText, { reaction = 'nac-1', options = '', diverge
   return fx;
 }
 
-function mkWs(note) {
+function mkWs(note, cfg = 'schema_version: 1\n') {
   const d = mkdtempSync(path.join(tmpdir(), 'dp-'));
   const ws = path.join(d, '_acceptance', 'fx');
   mkdirSync(ws, { recursive: true });
-  writeFileSync(path.join(d, '_acceptance', 'config.yaml'), 'schema_version: 1\n');
+  writeFileSync(path.join(d, '_acceptance', 'config.yaml'), cfg);
   writeFileSync(path.join(ws, 'contract.md'), CONTRACT_FX);
   if (note !== null) writeFileSync(path.join(ws, 'design-pass.md'), note);
   return d;
 }
+
+// Rút TỪNG cờ khỏi HTML thẻ. Đo trên stdout thô là chỗ trốn: chuỗi mốc của một cờ
+// nằm TRƯỚC phần giá trị bị trình duyệt nuốt, nên `out.includes(<mốc>)` vẫn xanh khi
+// cờ ra người duyệt đã hỏng (S4-r3 finding). Mọi khẳng định về cờ đi qua hàm này.
+const flagsOf = html => [...html.matchAll(/<div class="flag [^"]*">([\s\S]*?)<\/div>/g)].map(m => m[1]);
+// QUAN HỆ, không phải danh sách bốn câu: mọi cờ nói về nấc phản ứng đều mang cụm này.
+// Đếm cờ khớp cụm = 0 phủ cả bốn câu hiện có LẪN câu thứ năm ai đó thêm sau.
+const coNacFlag = html => flagsOf(html).filter(t => /nấc phản ứng/i.test(t));
 
 // Chạy bộ đọc THẬT; mutateCard != null → dựng bản sao TRỌN scripts/ + lib/ rồi bẻ
 // bản sao đó (chép danh sách file tay là bản base thiếu file — lớp lỗi P150).
@@ -192,7 +209,14 @@ function runCase(id, label, check, mutants) {
 
 runCase('DP1', 'thang bon nac, mot cho duy nhat khai danh sach', checkLadder, [
   ...NAC.map(id => [`m-${id}`, s => s.replace('| ' + id + ' |', '| nac-X |'), `thang thieu nac: ${id}`]),
-  ['m-dup', s => s.replace('\n## ', '\n\nDanh sách nấc: nac-0, nac-1, nac-2, nac-3.\n\n## '),
+  ['m-dup-mot-dong', s => s.replace('\n## ', '\n\nDanh sách nấc: nac-0, nac-1, nac-2, nac-3.\n\n## '),
+    'danh sach nac xuat hien 2 cho'],
+  // CHIỀU ĐỎ NGOÀI hình dạng cũ: bốn dòng gạch đầu dòng, mỗi dòng đúng MỘT id — không
+  // dòng nào là hàng bảng, không dòng nào có ≥3 id. Đây là bản khai lại mà thước cũ
+  // (danh-sách-cấm hai hình dạng) để lọt; thiếu mutant này thì vế AC-1 là vế chết.
+  ['m-dup-gach-dau-dong', s => s + '\n\n' + NAC.map(id => `- ${id} — mô tả`).join('\n') + '\n',
+    'danh sach nac xuat hien 2 cho'],
+  ['m-dup-danh-so', s => s + '\n\n' + NAC.map((id, i) => `${i + 1}. ${id}`).join('\n') + '\n',
     'danh sach nac xuat hien 2 cho'],
   // vế «mỗi nấc có TÊN + ĐIỀU KIỆN»: rỗng hoá ô điều kiện của một nấc, id vẫn còn
   ['m-thieu-dieu-kien', s => s.replace(/(\| nac-2 \| [^|]+\|)[^|]+\|/, '$1  |'),
@@ -247,7 +271,11 @@ if (want('DP10')) {
   const labelsOf = id => ladderLabels(src)[id];
   const CO_VANG_THIEU = 'chưa khai nấc phản ứng';
   const a = render(mkWs(noteFromTemplate(src, { reaction: 'nac-1' })));
-  if (a.out.includes(CO_VANG_THIEU)) errs.push('(a) ho so du khoa van bi co vang nac — doi chung duong hong');
+  // ĐỐI CHỨNG DƯƠNG «sổ phiên đủ khoá → SẠCH cờ nấc»: đòi ĐẾM cờ-nấc = 0, không đòi
+  // vắng đúng MỘT câu. Soi một câu thì ba câu kia (và câu thứ năm sau này) có thể bắn
+  // trên hồ sơ sạch mà ca vẫn xanh — vế «SẠCH» thành vế chết (S4-r3 finding).
+  const coA = coNacFlag(a.out);
+  if (coA.length) errs.push(`(a) ho so du khoa van co ${coA.length} co nac — doi chung duong hong: "${coA[0].slice(0, 70)}"`);
   const b2 = render(mkWs(noteFromTemplate(src, { drop: 'reaction:' })));
   if (!b2.out.includes(CO_VANG_THIEU)) errs.push(`(b) thieu khoa reaction ma khong co co vang "${CO_VANG_THIEU}"`);
   if (b2.status !== 0) errs.push('(b) duong doc-cu KHONG duoc chan: the phai dung duoc');
@@ -268,7 +296,11 @@ if (want('DP10')) {
   const idPh = (reactionLine.match(/^reaction:\s*(\S+)/) || [])[1];
   if (!/[<>]/.test(chanPh) || !/[<>]/.test(idPh || ''))
     errs.push('khuon so phien khong con cho trong o dong reaction — fixture (d)(e) mat nghia');
+  // Hai nhánh nửa-vời có HAI câu khác nhau, cố ý: (d) id đã điền nên chỉ thiếu kênh;
+  // (e) chưa có id nào nên là «có khoá mà chưa điền». Ghim đúng câu của từng nhánh —
+  // dùng chung một chuỗi cho cả hai là hạ thước cho vừa vật.
   const CO_VANG_NUA_VOI = 'còn nguyên chỗ trống của khuôn';
+  const CO_VANG_CHUA_DIEN = 'CHƯA ĐIỀN';
   // (d) id ĐÃ điền, phần kênh còn chỗ trống → thẻ vẫn phải nhận nấc đã khai
   const d = render(mkWs(noteFromTemplate(src, { reaction: 'nac-1' }).replace('(ghim)', chanPh)));
   if (d.status !== 0) errs.push('(d) so phien nua voi lam dung the');
@@ -278,7 +310,7 @@ if (want('DP10')) {
   // (e) id còn chỗ trống → cờ phải nói ĐÚNG nguyên nhân, không phải «đời trước»
   const e = render(mkWs(noteFromTemplate(src, { reaction: 'nac-1' }).replace('nac-1', idPh)));
   if (e.status !== 0) errs.push('(e) so phien nua voi lam dung the');
-  if (!e.out.includes(CO_VANG_NUA_VOI)) errs.push(`(e) khong co co vang "${CO_VANG_NUA_VOI}"`);
+  if (!e.out.includes(CO_VANG_CHUA_DIEN)) errs.push(`(e) khong co co vang "${CO_VANG_CHUA_DIEN}"`);
   if (e.out.includes(CO_VANG_THIEU)) errs.push('(e) bao NHAM la ho so doi truoc');
   // MA TRẬN 2 MUTANT trên bản sao TRỌN scripts/+lib/, đi qua CHÍNH bộ đọc thật
   const m1 = render(mkWs(noteFromTemplate(src, { reaction: 'nac-1' }).replace('(ghim)', chanPh)),
@@ -290,9 +322,88 @@ if (want('DP10')) {
     t => t.replace('if (!dp.reaction && dp.reaction_declared)', 'if (false)'));
   if (!m2.out.includes(CO_VANG_THIEU))
     errs.push('m2: bo nhanh nua-voi ma the KHONG roi ve cau "doi truoc" — ve (e) khong phan biet duoc');
+  // m3 — mutant của hội đồng vòng 3: bắn cờ nửa-vời cho MỌI hồ sơ. Đối chứng dương
+  // cũ (soi một câu) không phân biệt được ca này; ca mới phải đỏ.
+  const m3 = render(mkWs(noteFromTemplate(src, { reaction: 'nac-1' })),
+    t => t.replace('dp.reaction_placeholder = /[<>]/.test(rawReaction);',
+                   'dp.reaction_placeholder = /[<>]/.test(rawReaction) || true;'));
+  if (!coNacFlag(m3.out).length)
+    errs.push('m3: bat co nac cho MOI ho so ma doi chung duong (a) van khong do');
+
+  // (f) LƯỚI THOÁT CHUỖI — quan hệ trên TOÀN BỘ cờ. Giá trị hồ sơ (văn bản người/máy
+  // viết) không được ra cờ dưới dạng ngoặc nhọn THÔ: trình duyệt nuốt như tag và
+  // người duyệt đọc được chuỗi rỗng — đúng cái giá trị mà cờ sinh ra để nêu tên.
+  // Bộ fixture KHÔNG do tay liệt: nó SINH TỪ danh sách khoá của chính khuôn sổ phiên,
+  // nên khoá nào có hôm nay hay ai thêm mai sau đều được thử. Liệt tay ba ca mình nghĩ
+  // ra chính là danh-sách-cấm trên không gian mở — lớp lỗi vòng này đang sửa.
+  const noteKeys = [...(block(src, NOTE_TPL).split('---')[1] || '').matchAll(/^([a-z_]+):/gm)].map(m => m[1]);
+  if (noteKeys.length < 5) errs.push(`(f) rut duoc ${noteKeys.length} khoa tu khuon so phien — qua it, fixture mat nghia`);
+  const HOSTILE = '<script>x</script>';
+  for (const k of noteKeys) {
+    const note = noteFromTemplate(src).split('\n')
+      .map(l => l.startsWith(k + ':') ? `${k}: ${HOSTILE}` : l).join('\n');
+    const tho = flagsOf(render(mkWs(note)).out).filter(t => /[<>]/.test(t));
+    if (tho.length) errs.push(`(f) khoa "${k}" mang ngoac nhon THO ra co: "${tho[0].slice(0, 70)}"`);
+  }
+  // Ổ cắm đường nhúng đến từ config.yaml chứ không từ sổ phiên — cùng lớp, khác nguồn.
+  const thoCfg = flagsOf(render(mkWs(noteFromTemplate(src), `schema_version: 1\ndesign_pass:\n  host_embed:\n    guide: ${HOSTILE}\n`)).out).filter(t => /[<>]/.test(t));
+  if (thoCfg.length) errs.push(`(f) con tro duong nhung mang ngoac nhon THO ra co: "${thoCfg[0].slice(0, 70)}"`);
+
+  // (h) KHOÁ KẾ THỪA — bảng nhãn là allowlist, và allowlist tra bằng `TABLE[key]` trên
+  // object literal nhận trúng MỌI khoá của Object.prototype: cờ «không nhận diện được»
+  // im lặng, thẻ in ra `function Object() { [native code] }`, và ở đường --extract thì
+  // JSON.stringify bỏ hẳn khoá có giá trị là hàm nên `reaction_label` BIẾN MẤT.
+  // Danh sách khoá lấy TỪ chính Object.prototype, không gõ tay — gõ tay là lại một
+  // allowlist nữa, đúng lớp đang sửa. Thử CẢ HAI trục vì hai bảng cùng hình dạng.
+  const KHOA_KE_THUA = Object.getOwnPropertyNames(Object.prototype).filter(k => k !== '__proto__').concat('__proto__');
+  for (const k of KHOA_KE_THUA) {
+    const r = render(mkWs(noteFromTemplate(src, { reaction: 'nac-1' })
+      .split('\n').map(l => l.startsWith('reaction:') ? `reaction: ${k}` : l).join('\n')));
+    if (!coNacFlag(r.out).some(t => t.includes('không nhận diện được')))
+      errs.push(`(h) khoa ke thua "${k}" o truc nac di lot — khong co co «khong nhan dien duoc»`);
+    const ex = spawnSync(process.execPath, [GATE_CARD, '--root', mkWs(noteFromTemplate(src, { reaction: 'nac-1' })
+      .split('\n').map(l => l.startsWith('reaction:') ? `reaction: ${k}` : l).join('\n')), '--slug', 'fx', '--extract'], { encoding: 'utf8' });
+    let j = null; try { j = JSON.parse(ex.stdout); } catch { /* bắt bằng assert dưới */ }
+    if (!j || !j.design_pass || !('reaction_label' in j.design_pass))
+      errs.push(`(h) khoa ke thua "${k}": --extract mat han khoa reaction_label (JSON.stringify bo gia tri ham)`);
+  }
+  const rCtx = render(mkWs(noteFromTemplate(src).split('\n').map(l => l.startsWith('context:') ? 'context: constructor' : l).join('\n')));
+  if (!flagsOf(rCtx.out).some(t => /Nấc ngữ cảnh không nhận diện được/.test(t)))
+    errs.push('(h) khoa ke thua o truc NGU CANH di lot — bang nhan kia chua sua theo lop');
+  // chiều đỏ của (h): trả CẢ HAI bảng về object literal → phải đỏ
+  const mProto = render(mkWs(noteFromTemplate(src, { reaction: 'nac-1' })
+      .split('\n').map(l => l.startsWith('reaction:') ? 'reaction: constructor' : l).join('\n')),
+    t => t.split('Object.assign(Object.create(null), {').join('({'));
+  if (coNacFlag(mProto.out).some(t => t.includes('không nhận diện được')))
+    errs.push('m-proto: tra bang nhan ve object literal ma (h) khong do');
+
+  // (g) SWEEP TĨNH — biến PHÉP QUÉT thành SỐ ĐẾM ĐƯỢC. Lưới (f) chỉ bắt được chỗ đẩy
+  // mà một giá trị hồ sơ thật CHẠM TỚI được; nhánh «không nhận diện được» theo cấu tạo
+  // không bao giờ nhận giá trị có ngoặc nhọn, nên esc() ở đó nằm ngoài tầm (f). Thay vì
+  // tin lập luận đó, đếm thẳng trên nguồn: MỌI chỗ đẩy cờ có nối giá trị đều phải qua
+  // esc(). «Đã quét» thành một con số ai cũng đọc lại được, không phải lời tôi tuyên —
+  // đây chính là lớp lỗi vòng 3 (vá theo TÊN, không theo LỚP).
+  const demChoDayThieuEsc = srcText => {
+    const lines = srcText.split('\n').filter(l => /dpFlags\.push\(/.test(l));
+    return { tong: lines.length, thieu: lines.filter(l => /'\s*\+/.test(l) && !/esc\(/.test(l)) };
+  };
+  const cardSrc = readFileSync(GATE_CARD, 'utf8');
+  const sweep = demChoDayThieuEsc(cardSrc);
+  if (sweep.tong < 5) errs.push(`(g) chi thay ${sweep.tong} cho day co — bo dem hong, khong phai vat sach`);
+  if (sweep.thieu.length) errs.push(`(g) ${sweep.thieu.length}/${sweep.tong} cho day noi gia tri ma KHONG qua esc(): "${sweep.thieu[0].trim().slice(0, 70)}"`);
+  // chiều đỏ của (g): nguồn bị gỡ esc() (SINH TỪ nguồn thật) phải đếm ra > 0
+  const sweepMut = demChoDayThieuEsc(cardSrc.split('+ esc(').join('+ ('));
+  if (!sweepMut.thieu.length) errs.push('(g) go het esc() ma bo dem van bao 0 — phep quet khong biet dem');
+
+  // CHIỀU ĐỎ của (f): gỡ TOÀN BỘ esc() trong file trên bản sao — lưới phải đỏ dù chỗ
+  // đẩy nào mất thoát chuỗi, không riêng chỗ tôi nghĩ tới.
+  const mEsc = render(mkWs(noteFromTemplate(src, { reaction: 'nac-1' }).replace('(ghim)', chanPh)),
+    t => t.split('+ esc(').join('+ ('));
+  if (!flagsOf(mEsc.out).some(t => /[<>]/.test(t)))
+    errs.push('m-esc: go het esc() ma luoi (f) khong do');
 
   if (errs.length) fail('DP10', errs.join(' · '));
-  else pass('DP10', 'nam nhanh doc-cu: du khoa sach co · thieu khoa neu doi truoc · gia tri la neu ten · nua voi giu id · nua voi neu dung nguyen nhan + 2 mutant');
+  else pass('DP10', 'nam nhanh doi-ho-so + luoi thoat-chuoi (hanh vi + sweep tinh) + khoa ke thua ca hai truc + 5 mutant do dung ve');
 }
 
 // DP13 · AC-15 — hồ sơ KHÔNG có sổ phiên: thẻ vẫn phải dựng được
@@ -305,6 +416,11 @@ if (want('DP13')) {
   for (const bad of ['undefined', 'null', '(chưa khai)']) {
     if (none.out.includes(bad)) errs.push(`nhan la lot ra tren ho so khong co so phien: ${bad}`);
   }
+  // vế THỨ BA của AC-15: «KHÔNG cờ nấc». Vế này trước đây không có assert nào — ba
+  // assert cũ (mã thoát · khối vắng · nhãn lạ) đều không chạm nó, nên đẩy một cờ nấc
+  // ra ngoài khối `if (dp.present)` là ca vẫn xanh (S4-r3 finding).
+  const coNone = coNacFlag(none.out);
+  if (coNone.length) errs.push(`co nac hien tren ho so KHONG co so phien: "${coNone[0].slice(0, 70)}"`);
   // đối chứng: CÓ sổ phiên thì khối phải hiện — chứng minh phép khẳng định trên biết phân biệt
   const withNote = render(mkWs(noteFromTemplate(src)));
   if (!withNote.out.includes(KHOI)) errs.push(`doi chung hong: co so phien ma khoi "${KHOI}" khong hien`);
@@ -313,8 +429,14 @@ if (want('DP13')) {
   if (!m1.out.includes(KHOI)) errs.push('m1: bo dieu kien co-so-phien ma the van khong in khoi — ca khong phan biet duoc');
   const m2 = render(mkWs(null), s => s.replace("const dpText = read(path.join(dir, 'design-pass.md'));", "const dpText = null.x;"));
   if (m2.status === 0) errs.push('m2: bo dung the nem loi ma van exit 0 — ca khong bat duoc the chet');
+  // m3 — mutant của hội đồng: đẩy cờ nấc RA NGOÀI khối `if (dp.present)`
+  const m3 = render(mkWs(null), s => s.replace(
+    "  const dpFlags = [];\n  if (dp.present) {",
+    "  const dpFlags = [];\n  if (!dp.reaction) dpFlags.push('Sổ phiên chưa khai nấc phản ứng (rò rỉ)');\n  if (dp.present) {"));
+  if (!coNacFlag(m3.out).length)
+    errs.push('m3: co nac ro ri ra ho so khong co so phien ma ca van khong do — ve «KHONG co nac» la ve chet');
   if (errs.length) fail('DP13', errs.join(' · '));
-  else pass('DP13', 'khong so phien: the dung duoc, khoi vang, khong nhan la + 2 mutant');
+  else pass('DP13', 'khong so phien: the dung duoc, khoi vang, khong co nac, khong nhan la + 3 mutant');
 }
 
 // DP11 · AC-11 — một cây nguồn: mỗi site chứa ĐÚNG NGUYÊN VĂN câu chuẩn

@@ -257,17 +257,22 @@ if (gate === '1') {
 
   // ---- trục ngữ cảnh (design-pass.md — khối chỉ hiện khi phiên S1-D đã chạy) ----
   // Nhãn tiếng người + chuỗi descope là CHUỖI PIN của P135-P138; đổi phải đổi test.
-  const CONTEXT_LABEL = { 'standalone': 'đứng một mình', 'static-frame': 'khung giả tĩnh', 'host-embedded': 'nhúng host thật' };
+  // Bảng tra KHÔNG prototype: object literal làm `TABLE[key]` trúng mọi khoá kế thừa
+  // (`constructor` · `__proto__` · `toString` · `valueOf` · `hasOwnProperty`), nên cờ
+  // «không nhận diện được» im lặng và thẻ in ra rác kiểu `function Object() { … }`.
+  // Giá trị vào đây đến thẳng từ frontmatter sổ phiên — văn bản người/máy viết.
+  // Sửa theo LỚP: CẢ HAI bảng nhãn, và mọi chỗ tra chúng (cờ · --extract · render).
+  const CONTEXT_LABEL = Object.assign(Object.create(null), { 'standalone': 'đứng một mình', 'static-frame': 'khung giả tĩnh', 'host-embedded': 'nhúng host thật' });
   const DP_SCENE_DESCOPE = 'bỏ cảnh ngữ-cảnh — ';
   // Nhãn tiếng người của thang phản ứng — CÙNG chữ với cột «Tên» của REACTION-LADDER
   // trong skills/design-pass/SKILL.md. Không tự chế chuỗi: ca DP9 rút nhãn TỪ bảng đó
   // rồi đòi thấy đúng nó trên đầu ra thẻ, nên lệch một chữ là đỏ.
-  const REACTION_LABEL = {
+  const REACTION_LABEL = Object.assign(Object.create(null), {
     'nac-0': 'đi thẳng',
     'nac-1': 'không đồng bộ trên ảnh',
     'nac-2': 'không đồng bộ trên vật bấm được',
     'nac-3': 'ngồi cùng ngắn, có người gọi tên',
-  };
+  });
   const dpText = read(path.join(dir, 'design-pass.md'));
   const dpFm = frontmatter(dpText);
   const dp = { present: !!dpText.trim(), material: clean(dpFm.material || ''), context: clean(dpFm.context || ''), scenes: [], reaction: '', options: '' };
@@ -284,7 +289,7 @@ if (gate === '1') {
     // cái sai vừa xảy ra (S4-r2 finding, AC-10). Nên giữ ba mẩu riêng.
     const rawReaction = clean(dpFm.reaction || '');
     dp.reaction_raw = rawReaction;
-    dp.reaction_declared = !!rawReaction;
+    dp.reaction_declared = ('reaction' in dpFm);   // CÓ MẶT dòng khoá, không phải giá trị khác rỗng
     dp.reaction_placeholder = /[<>]/.test(rawReaction);
     const reactionId = (rawReaction.match(/^(nac-[0-9a-z]+)/) || [])[1] || '';
     dp.reaction = reactionId || (dp.reaction_placeholder ? '' : rawReaction);
@@ -310,18 +315,18 @@ if (gate === '1') {
   const dpFlags = [];
   if (dp.present) {
     if (!dp.context) dpFlags.push('Sổ phiên chưa khai nấc ngữ cảnh (đời trước trục ngữ cảnh) — bản mẫu sống ở đâu chưa được khai; không chặn, khuyên bổ sung ở phiên thiết kế sau.');
-    else if (!CONTEXT_LABEL[dp.context]) dpFlags.push('Nấc ngữ cảnh không nhận diện được: "' + dp.context + '" — chỉ nhận standalone / static-frame / host-embedded.');
+    else if (!CONTEXT_LABEL[dp.context]) dpFlags.push('Nấc ngữ cảnh không nhận diện được: "' + esc(dp.context) + '" — chỉ nhận standalone / static-frame / host-embedded.');
     else if (dp.context === 'standalone' && !dp.scenes.length && !decsAll.some(e => e.type === 'descope' && String(e.decision || '').startsWith(DP_SCENE_DESCOPE))) {
       dpFlags.push('Bản mẫu khai đứng-một-mình nhưng chưa có cảnh ngữ-cảnh (khung host bọc vật + hành trình vào–ra) và không có dòng từ-chối trong sổ quyết định — người duyệt có quyền trả.');
     }
     // Đường đọc-cũ của thang phản ứng: sổ phiên đời trước không có khoá này. Cờ vàng,
     // KHÔNG chặn, KHÔNG bắt migrate — cùng khuôn với trục ngữ cảnh từ 2.0.0.
-    if (!dp.reaction && dp.reaction_declared) dpFlags.push('Sổ phiên có khoá nấc phản ứng nhưng còn nguyên chỗ trống của khuôn: "' + dp.reaction_raw + '" — phiên này vừa ghi hỏng, KHÔNG phải hồ sơ đời trước; không chặn, sửa sổ phiên rồi dựng lại thẻ.');
+    if (!dp.reaction && dp.reaction_declared) dpFlags.push('Sổ phiên có khoá nấc phản ứng nhưng CHƯA ĐIỀN: "' + esc(dp.reaction_raw) + '" — phiên này vừa ghi hỏng, KHÔNG phải hồ sơ đời trước; không chặn, sửa sổ phiên rồi dựng lại thẻ.');
     else if (!dp.reaction) dpFlags.push('Sổ phiên chưa khai nấc phản ứng (hồ sơ đời trước thang phản ứng) — không biết phiên đã gọi người ở nấc nào; không chặn, khuyên bổ sung ở phiên thiết kế sau.');
-    else if (!REACTION_LABEL[dp.reaction]) dpFlags.push('Nấc phản ứng không nhận diện được: "' + dp.reaction + '" — chỉ nhận nac-0 / nac-1 / nac-2 / nac-3.');
-    else if (dp.reaction_placeholder) dpFlags.push('Nấc phản ứng đã khai nhưng phần kênh còn nguyên chỗ trống của khuôn: "' + dp.reaction_raw + '" — không biết phiên đã gọi người qua kênh nào; không chặn.');
+    else if (!REACTION_LABEL[dp.reaction]) dpFlags.push('Nấc phản ứng không nhận diện được: "' + esc(dp.reaction) + '" — chỉ nhận nac-0 / nac-1 / nac-2 / nac-3.');
+    else if (dp.reaction_placeholder) dpFlags.push('Nấc phản ứng đã khai nhưng phần kênh còn nguyên chỗ trống của khuôn: "' + esc(dp.reaction_raw) + '" — không biết phiên đã gọi người qua kênh nào; không chặn.');
     if (!he.present) dpFlags.push('Repo chưa khai đường nhúng (design_pass.host_embed) — phiên coi như chưa có đường nhúng rẻ, đi nấc thấp; không chặn.');
-    else if (!he.resolvable) dpFlags.push('Đường nhúng đã khai nhưng con trỏ không giải được: "' + he.guide + '" — sửa con trỏ, hoặc phiên đi nấc thấp; không chặn.');
+    else if (!he.resolvable) dpFlags.push('Đường nhúng đã khai nhưng con trỏ không giải được: "' + esc(he.guide) + '" — sửa con trỏ, hoặc phiên đi nấc thấp; không chặn.');
   }
 
   // ---- ngưỡng nghiệm thu (opportunity.md — mối nối Vòng HIỂU → Cổng Phạm vi) ----

@@ -25,9 +25,20 @@ SHA="$(sed -n 's/^\*\*BASE-DPNKDB:\*\* `\([0-9a-f]\{40\}\)`.*/\1/p' "$CONTRACT")
 # lệch phạm vi là chỗ trốn: base quét trọn cây mà cây hiện tại chỉ quét hai file
 # đã biết thì một bản chép còn sót ở file thứ ba vẫn cho màu xanh.
 dem() {
-  # `|| true`: grep thoát 1 khi KHÔNG khớp — mà không-khớp chính là kết quả ĐÚNG ở
-  # chân 2. Thiếu nó thì pipefail giết script và ta đọc nhầm «đỏ hạ tầng» thành «đỏ vật».
-  { grep -rF -- "$2" "$1/skills" "$1/feature-loop" 2>/dev/null || true; } | wc -l | tr -d ' '
+  # grep thoát 1 khi KHÔNG khớp — không-khớp chính là kết quả ĐÚNG ở chân 2, nên phải
+  # tha. Nhưng CHỈ tha đúng mã đó: `|| true` trần tha luôn mã ≥2 (thư mục biến mất,
+  # không đọc được, grep hỏng) và `2>/dev/null` xoá nốt thông điệp — khi ấy MỌI kim ra 0
+  # và chân 2 in xanh trên một cây chưa hề được quét. Đó là «đỏ hạ tầng đội lốt xanh
+  # vật», đúng lớp mà chú thích ở chỗ khác trong file này đã cảnh báo (S4-r3 finding).
+  [ -d "$1/skills" ] && [ -d "$1/feature-loop" ] || {
+    echo "HA TANG: thieu thu muc de quet duoi \"$1\" (skills / feature-loop)" >&2; return 2; }
+  local out rc
+  out="$(grep -rF -- "$2" "$1/skills" "$1/feature-loop" 2>&1)"; rc=$?
+  if [ "$rc" -ge 2 ]; then
+    echo "HA TANG: grep thoat $rc khi quet \"$1\": $out" >&2; return 2
+  fi
+  [ "$rc" -eq 1 ] && { echo 0; return 0; }
+  printf '%s\n' "$out" | wc -l | tr -d ' '
 }
 
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT

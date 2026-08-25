@@ -13,7 +13,8 @@ feature_slug: design-pass-nac-khong-dong-bo
 # bản sao và thông điệp đỏ GHIM TÊN VẾ đó. Bảng dưới là hợp đồng, không để bộ ca
 # tự quyết:
 # <<<MUTANT-MATRIX
-#   E1=6 · E8=5 · E9=2 · E10=5 nhánh + 2 mutant · E11=5 · E12=4 · E13=3 chân · E15=2
+#   E1=8 · E8=5 · E9=2 · E10=5 nhánh + 5 mutant + 3 lưới quan hệ · E11=5 · E12=4
+#   · E13=3 chân · E15=3
 # MUTANT-MATRIX>>>
 #
 # Bảng trên là chỗ DUY NHẤT khai ma trận. Câu hỏi hội đồng E14 TRỎ VỀ marker này,
@@ -42,14 +43,21 @@ evals:
       exit 0; stdout có "PASS: [DP1]". Case trích khối giữa marker REACTION-LADDER
       từ CHÍNH skills/design-pass/SKILL.md, khẳng định đúng bốn id đóng
       nac-0/nac-1/nac-2/nac-3, mỗi id có tên tiếng người + điều kiện dùng, và
-      danh sách nấc KHÔNG xuất hiện lần thứ hai ngoài marker.
+      danh sách nấc KHÔNG xuất hiện lần thứ hai ngoài marker — đo bằng QUAN HỆ MẬT ĐỘ
+      TRÊN CỬA SỔ (ngoài mốc neo, không cửa sổ 8 dòng liền nhau nào chứa ≥3 id khác
+      nhau; ngưỡng ĐO trên cây thật: tối đa 2 id, dư địa 1), KHÔNG bằng danh sách hình
+      dạng cú pháp — bản khai lại có vô số hình dạng nên liệt hình dạng là danh-sách-
+      cấm trên không gian mở.
       Đối chứng dương: bản nguyên vẹn XANH, chạy TRƯỚC mọi mutant.
       MA TRẬN 6 MUTANT (mỗi mutant đi qua CHÍNH bộ trích của chiều xanh, khác
       input): m1..m4 = bản sao ĐỔI TÊN lần lượt nac-0, nac-1, nac-2, nac-3 thành
       id khác → đỏ, thông điệp GHIM đúng id thiếu; m5 = bản sao thêm một danh
       sách nấc thứ hai NGOÀI marker → đỏ, ghim "danh sách nấc xuất hiện 2 chỗ";
       m6 = rỗng hoá ô ĐIỀU KIỆN của một nấc (id vẫn còn) → đỏ ghim "nac thiếu tên
-      hoặc điều kiện" — vế này vòng 1 không có mutant nào.
+      hoặc điều kiện"; m7 = khai lại bốn nấc dạng GẠCH ĐẦU DÒNG (mỗi dòng đúng một
+      id, không dòng nào là hàng bảng) → đỏ; m8 = khai lại dạng DANH SÁCH ĐÁNH SỐ →
+      đỏ. Hai mutant cuối là chiều đỏ NGOÀI hai hình dạng mà thước cũ biết — đúng
+      phản ví dụ hội đồng vòng 3 dùng để chứng vế này là vế chết.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
     criterion: AC-8
@@ -103,15 +111,32 @@ evals:
       đi ca vẫn xanh); (d) sổ phiên ĐIỀN NỬA VỜI — id đã điền, phần kênh còn nguyên
       chỗ trống của khuôn → thẻ VẪN nhận nấc đã khai (in đúng nhãn) VÀ có cờ nói
       phần kênh chưa điền, và TUYỆT ĐỐI không rơi về câu "hồ sơ đời trước"; (e) id
-      còn chỗ trống → cờ nói ĐÚNG nguyên nhân «còn nguyên chỗ trống của khuôn»,
-      không phải «đời trước». Hai nhánh (d)(e) là finding vòng 2: bộ đọc loại cả
+      còn chỗ trống → cờ nói ĐÚNG nguyên nhân «có khoá mà CHƯA ĐIỀN», không phải
+      «đời trước» (hai nhánh cố ý dùng HAI câu khác nhau; dùng chung một chuỗi cho
+      cả hai là hạ thước cho vừa vật). Hai nhánh (d)(e) là finding vòng 2: bộ đọc loại cả
       dòng khi thấy bất kỳ ngoặc nhọn nào, nên phiên MỚI vừa ghi hỏng bị báo thành
       hồ sơ đời trước — nói sai chuyện đang xảy ra cho người duyệt và giấu mất cái
       sai vừa xảy ra. Chỗ trống của fixture RÚT TỪ khuôn thật, không gõ tay.
-      MA TRẬN 2 MUTANT trên bản sao TRỌN scripts/+lib/, đi qua CHÍNH bộ đọc thật:
+      MA TRẬN 5 MUTANT trên bản sao TRỌN scripts/+lib/, đi qua CHÍNH bộ đọc thật:
       m1 = bỏ đường rút id khỏi chuỗi nửa vời → (d) mất nhãn → đỏ; m2 = bỏ nhánh
-      nửa-vời → (e) rơi về câu "đời trước" → đỏ. Lệnh tiêm không đổi được dòng nào
-      thì ném lỗi, không được in xanh. Nhánh không-có-sổ-phiên sống ở E15.
+      nửa-vời → (e) rơi về câu "đời trước" → đỏ; m3 = bắn cờ nấc cho MỌI hồ sơ →
+      đối chứng dương (a) phải đỏ; m-esc = gỡ toàn bộ esc() → lưới (f) phải đỏ;
+      m-proto = trả bảng nhãn về object literal → lưới (h) phải đỏ. Lệnh tiêm không
+      đổi được dòng nào thì NÉM LỖI, không được in xanh.
+      BA LƯỚI QUAN HỆ, fixture SINH TỪ VẬT chứ không liệt tay — liệt tay là lại một
+      danh sách cấm nữa, đúng lớp lỗi vòng 3:
+      (f) THOÁT CHUỖI theo hành vi — với TỪNG khoá rút từ khuôn sổ phiên, và với ổ
+      cắm đường nhúng ở config, tiêm giá trị mang ngoặc nhọn rồi khẳng định KHÔNG cờ
+      nào ra người duyệt còn ngoặc nhọn THÔ: trình duyệt nuốt nó như tag nên người
+      đọc được chuỗi rỗng — đúng cái giá trị mà cờ sinh ra để nêu tên.
+      (g) SWEEP TĨNH — đếm trên nguồn: mọi chỗ đẩy cờ có nối giá trị đều phải qua
+      esc(); «đã quét» thành SỐ ĐẾM ĐƯỢC chứ không phải lời tuyên. Phủ cả nhánh mà
+      giá trị thật không chạm tới được nên (f) không với tới.
+      (h) KHOÁ KẾ THỪA — duyệt danh sách lấy từ chính `Object.prototype`, khẳng định
+      MỖI khoá ở CẢ HAI trục (nấc · ngữ cảnh) đều sinh cờ «không nhận diện được» và
+      `--extract` vẫn giữ khoá `reaction_label`: bảng tra là object literal thì cờ im
+      lặng và thẻ in `function Object() { [native code] }`.
+      Nhánh không-có-sổ-phiên sống ở E15.
       Mỗi nhánh ghim đúng thông điệp mong đợi, không chỉ đếm số cờ.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E15
@@ -124,9 +149,13 @@ evals:
       nhánh của CHÍNH hồ sơ này: hồ sơ code sinh KHÔNG có `design-pass.md`, chạy
       cùng bộ dựng thẻ → thẻ dựng THÀNH CÔNG (exit 0), khối «Bản mẫu & ngữ cảnh»
       VẮNG HẲN, không cờ nấc, không nhãn rỗng / "undefined" / chuỗi lạ.
-      MA TRẬN 2 MUTANT: m1 = bản sao gate-card khiến nhánh này in khối rỗng → đỏ
+      Vế «KHÔNG cờ nấc» đo bằng ĐẾM cờ khớp cụm «nấc phản ứng» = 0 — quan hệ, phủ cả
+      câu cờ ai thêm sau; ba assert cũ (mã thoát · khối vắng · nhãn lạ) không chạm vế
+      này nên nó từng là vế chết.
+      MA TRẬN 3 MUTANT: m1 = bản sao gate-card khiến nhánh này in khối rỗng → đỏ
       ghim "khối Bản mẫu hiện trên hồ sơ không có sổ phiên"; m2 = bản sao khiến
-      nhánh này ném lỗi → đỏ ghim mã thoát khác 0 kèm câu "thẻ phải dựng được".
+      nhánh này ném lỗi → đỏ ghim mã thoát khác 0 kèm câu "thẻ phải dựng được";
+      m3 = đẩy một cờ nấc RA NGOÀI khối `if (dp.present)` → đỏ.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E11
     criterion: AC-11
@@ -203,7 +232,10 @@ evals:
       TRỌN glob — không chỉ các site đã có tên trong bảng khai — kèm mutant tiêm bản
       chép vào file THỨ BA không (allowlist thiếu chiều đỏ ngoài danh sách là vế
       chết)? Mỗi lệnh tiêm có chứng minh nó đổi được ít nhất một dòng không, hay có
-      mutant no-op in xanh? Nêu đích danh ca vi
+      mutant no-op in xanh? Và: bộ FIXTURE của mỗi lưới quan hệ có SINH TỪ VẬT
+      (danh sách khoá rút từ khuôn · danh sách khoá lấy từ `Object.prototype` ·
+      nguồn đọc từ file thật) hay là một danh sách người viết tự nghĩ ra — danh
+      sách tự nghĩ là allowlist mới, đúng lớp lỗi vòng 3. Nêu đích danh ca vi
       phạm; không có thì nói rõ đã soi hết bao nhiêu ca và bao nhiêu mutant.
     inputs: [../../tests/plugins/design-pass-nac.test.mjs, rang-cau-chet.sh]
     expected: >
