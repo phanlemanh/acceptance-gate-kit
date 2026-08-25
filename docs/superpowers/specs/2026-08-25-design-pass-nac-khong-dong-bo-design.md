@@ -30,7 +30,7 @@ code.
 | Nguyên tố | Ở đây nghĩa là | Kết |
 |---|---|---|
 | Ý định chốt trước khi làm | Hướng của bề mặt mới chốt bằng MẮT, trước code | Bước phân kỳ lấp đúng lỗ này |
-| Bằng chứng không tự dối | Không đụng gì: bản mẫu và canvas KHÔNG vào chuỗi bằng chứng; số vẫn đo trên vật thật ở nghiệm thu máy | Giữ nguyên |
+| Bằng chứng không tự dối | Không đụng gì: bản mẫu và bộ phương án KHÔNG vào chuỗi bằng chứng; số vẫn đo trên vật thật ở nghiệm thu máy | Giữ nguyên |
 | Khoảnh khắc quyết thật | Người xuất hiện ở chỗ có đánh-đổi (chọn hướng) và chỗ khó-đảo (Cổng Phạm vi) — hai chấm, không thêm | Số lần gọi người KHÔNG tăng |
 
 Nấc 2 và nấc 3 là **hình thức** của chấm đã có, không phải chấm mới. Đây là
@@ -44,7 +44,7 @@ phản bội thước đo của kit.
 | Phiên thiết kế không còn đòi ngồi cạnh máy; bốn nấc phản ứng có tên | `skills/design-pass/SKILL.md` | AC-1 (bốn nấc) · AC-2 (mặc định async) · AC-3 (leo thang) |
 | Bề mặt còn hai hướng thì người chọn trên vật, không chọn bằng chữ | `skills/design-pass/SKILL.md` | AC-4 (bước phân kỳ) · AC-5 (kỷ luật phương án) |
 | Bỏ bước chọn-hướng vẫn để lại một dòng cho người duyệt thấy | `skills/design-pass/SKILL.md` | AC-6 (không có đường bỏ im lặng) |
-| Thiếu bộ dựng canvas không làm đứng vòng | `skills/design-pass/SKILL.md` | AC-7 (thang bốn nấc vật dựng) |
+| Thiếu bộ dựng bộ phương án không làm đứng vòng | `skills/design-pass/SKILL.md` | AC-7 (thang bốn nấc vật dựng) |
 | Sổ phiên khai nấc + kênh đã dùng, một chỗ duy nhất giữ khuôn | `skills/design-pass/SKILL.md` (khuôn có mốc neo) | AC-8 (khoá mới) |
 | Thẻ Cổng Phạm vi hiện nấc phản ứng bằng tiếng người | `scripts/gate-card.js` | AC-9 (thẻ hiện) · AC-10 (cờ vàng) |
 | Hồ sơ đời trước vẫn đọc được, không ai phải chuyển đổi hàng loạt | `scripts/gate-card.js` | AC-10 (đường đọc-cũ) |
@@ -60,7 +60,7 @@ Phiên cũ trộn hai thứ, và chỉ một thứ đắt:
 | Nấc | Tên | Dùng khi | Giá |
 |---|---|---|---|
 | 0 | đi thẳng | khuôn có sẵn, 0 hướng mở | để vết một dòng |
-| 1 | async trên ảnh/canvas | quyết định là hướng · bố cục · tĩnh | gửi gói |
+| 1 | async trên ảnh/bộ phương án | quyết định là hướng · bố cục · tĩnh | gửi gói |
 | 2 | async trên vật bấm được | cần thấy trạng thái chuyển (luồng nhiều bước) | gửi kèm đường chạy |
 | 3 | sync ngắn, có người gọi tên | tương tác tinh: kéo-thả, chạm, nhịp chuyển động | một lịch hẹn, có CHỦ ĐỀ khai trước |
 
@@ -84,14 +84,14 @@ Thứ tự bắt buộc — bài học đắt nhất của ván thử 19/08:
 
 1. **Mở bằng vật thật đang có trước** (ảnh bề mặt hiện hành, nếu có) — để
    người veto được cả tiền đề, không chỉ chọn trong ba món máy bày. Ván thử
-   b1 chết đúng ở đây: canvas hỏi «phiếu khuyên đứng đâu» trong khi câu hỏi
+   b1 chết đúng ở đây: bộ phương án hỏi «phiếu khuyên đứng đâu» trong khi câu hỏi
    sống của chủ sản phẩm là «thứ này còn đáng tồn tại không», và câu đó chỉ lộ
    ra khi nhìn ảnh sản phẩm đang chạy.
 2. **Rồi mới bày hướng.** Mỗi hướng: một TRỤC có tên + một câu động cơ + một
    câu đánh đổi — **kể cả hướng máy không khuyên**. Bộ phương án chỉ biện hộ
    cho ứng viên máy thích là phiếu bầu gài sẵn.
 3. **Ngả máy khuyên phải NẰM TRÊN VẬT**, không nằm trong tin nhắn. Ván thử b1
-   ghim câu hỏi lên canvas nhưng quên ghim lời khuyên — người mở đường dẫn lúc
+   ghim câu hỏi lên bộ phương án nhưng quên ghim lời khuyên — người mở đường dẫn lúc
    rảnh thấy một cái thực đơn trần.
 4. Tên hướng ổn định vĩnh viễn, không đánh số lại giữa các lượt; hướng đã chốt
    không hỏi lại.
@@ -105,7 +105,7 @@ token/component thật khi chính token là NỘI DUNG của quyết định.
 
 ## 6. Thang vật dựng — bốn nấc, không phụ thuộc bộ nào
 
-Kit **không** được phụ thuộc một bộ dựng canvas cụ thể (bộ đang có là bản xem
+Kit **không** được phụ thuộc một bộ dựng bộ phương án cụ thể (bộ đang có là bản xem
 trước, cần quyền tổ chức). Thang tụt dần, mỗi nấc có tên:
 
 1. dựng được + lưu được → dùng bản lưu;
@@ -127,7 +127,7 @@ Hai khoá thêm vào khuôn:
 - `reaction: <nấc> (<kênh>)` — vd `reaction: nac-1 (ghim, thao-luan)` ·
   `reaction: nac-3 (chủ đề: chạm vị trí)`. Danh sách nấc đóng:
   `nac-0` · `nac-1` · `nac-2` · `nac-3`.
-- `canvas: <đường dẫn hoặc URL bộ phương án, trống nếu không mở bước phân kỳ>`
+- `options: <đường dẫn hoặc URL bộ phương án, trống nếu không mở bước phân kỳ>`
   — **tham chiếu, không phải bằng chứng**.
 - `divergence: opened | skipped — <căn cứ 1 dòng>` — vết của bước phân kỳ, từ
   vựng ĐÓNG. Không có khoá này thì «để vết một dòng» rơi vào chỗ tuỳ hứng mỗi
@@ -196,13 +196,13 @@ có **ca tiêm dương** — assert vắng-mặt trên không gian mở không t
 ## 10. Điều cố tình KHÔNG làm
 
 - Không tạo nghi thức mới, không skill mới — chỉ TRỪ, không CỘNG.
-- Không để kit phụ thuộc bộ dựng canvas nào.
-- Không đưa canvas / ảnh / cảm giác bấm vào chuỗi bằng chứng.
+- Không để kit phụ thuộc bộ dựng bộ phương án nào.
+- Không đưa bộ phương án / ảnh / cảm giác bấm vào chuỗi bằng chứng.
 - Không gộp chấm chọn-hướng với Cổng Phạm vi thành một tin.
 - Không ép «phải có ba phương án» — thành trạm thu phí; vết một dòng + quyền
   veto thay thế.
 - Không đổi lưới trước-khi-gộp, phép đo hiện có, hay bộ điều phối nghiệm thu.
-- Không đo độ lệch canvas ↔ vật thật bằng máy — số đó chỉ có từ ván thử ở kho
+- Không đo độ lệch bộ phương án ↔ vật thật bằng máy — số đó chỉ có từ ván thử ở kho
   tiêu thụ.
 
 ## 11. Giới hạn đã biết, khai trước

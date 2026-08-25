@@ -1,7 +1,7 @@
 schema_version: 1
 feature_slug: design-pass-nac-khong-dong-bo
 # Vòng này giao LỜI (nghi thức + vòng lặp + tài liệu) và MỘT MỐI NỐI máy-đọc
-# (khoá `reaction:` / `canvas:` / `divergence:` trong sổ phiên → bộ dựng thẻ).
+# (khoá `reaction:` / `options:` / `divergence:` trong sổ phiên → bộ dựng thẻ).
 # Bộ ca sống ở suite `plugins`, file `tests/plugins/design-pass-nac.test.mjs`;
 # fixture rút TỪ khuôn thật qua marker và do CODE SINH trong chính lượt chạy —
 # cùng khuôn với P135–P137 của trục ngữ cảnh (tiền lệ đã chạy thật từ 2.0.0).
@@ -119,7 +119,7 @@ evals:
       dần có tên và nấc cuối là "máy khuyên một hướng kèm căn cứ, ghi vết, đi
       tiếp" — KHÔNG dừng vòng; (v2) skill KHÔNG nêu bộ dựng nào là bắt buộc.
       MA TRẬN 3 MUTANT: m1 = đổi nấc cuối thành "DỪNG nghi thức" → đỏ ghim "thiếu
-      canvas không được làm đứng vòng"; m2 = xoá một nấc giữa → đỏ ghim đúng nấc
+      bộ phương án không được làm đứng vòng"; m2 = xoá một nấc giữa → đỏ ghim đúng nấc
       thiếu. m3 là CA TIÊM DƯƠNG cho vế vắng-mặt (assert vắng-mặt trên không gian
       mở không tự chứng minh được nó biết đỏ): bản sao THÊM câu "bắt buộc dùng
       <tên bộ dựng>" → đỏ, ghim nguyên văn tên bộ dựng bị ép. Thiếu m3 thì v2 là
@@ -133,7 +133,7 @@ evals:
     expected: >
       exit 0; stdout có "PASS: [DP8]". Case trích khối DESIGN-PASS-NOTE-TEMPLATE từ
       chính skill, khẳng định frontmatter khuôn có đúng BA khoá mới `reaction:`,
-      `canvas:`, `divergence:`, và dòng `canvas:` tự khai là tham chiếu chứ không
+      `options:`, `divergence:`, và dòng `options:` tự khai là tham chiếu chứ không
       phải bằng chứng.
       MA TRẬN 3 MUTANT: bản sao xoá lần lượt từng khoá khỏi khuôn → cùng bộ trích
       đỏ, ghim đúng tên khoá thiếu.
@@ -149,11 +149,11 @@ evals:
       cho TỪNG nấc trong REACTION-LADDER, chạy ĐẦU ĐỌC thật (`node
       scripts/gate-card.js --root <tmp> --slug fx`), khẳng định thẻ hiện NHÃN
       TIẾNG NGƯỜI đúng cho từng nấc và hiện có/không đường bộ phương án theo khoá
-      `canvas:`. Fixture khẳng định không còn placeholder `<` sống trong
+      `options:`. Fixture khẳng định không còn placeholder `<` sống trong
       frontmatter trước khi ghi. Đối chứng dương: hồ sơ đủ khoá XANH trước.
       MA TRẬN 2 MUTANT, cả hai đi qua CHÍNH bộ dựng thẻ: m1 = hồ sơ sinh từ khuôn
       đã bỏ `reaction:` → thẻ KHÔNG có nhãn nấc, đỏ ghim nhãn mong đợi; m2 = hồ sơ
-      sinh từ khuôn đã bỏ `canvas:` → thẻ không hiện đường bộ phương án, đỏ ghim
+      sinh từ khuôn đã bỏ `options:` → thẻ không hiện đường bộ phương án, đỏ ghim
       vế đó.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E10

@@ -112,6 +112,56 @@ cho user khởi động; chưa khai → nói rõ chưa có lệnh khởi động
 trỏ đường dựng proto của repo. **KHÔNG tự dựng route/logic thay repo** —
 dựng proto là việc của feature-loop/S1, không phải của phiên thẩm mỹ.
 
+## 3b. Bước phân kỳ — có điều kiện, TRƯỚC vòng lặp phản ứng
+
+Điều kiện mở: bề mặt còn **≥2 hướng khả dĩ mà máy không tự chắc** (đúng luật
+đáng-log của sổ quyết định). Bề mặt đi theo khuôn có sẵn ⇒ KHÔNG mở — nhưng
+PHẢI để vết ở khoá `divergence:`, không có đường bỏ im lặng.
+
+**Thứ tự bắt buộc — đảo thứ tự là hỏng cả bước:**
+
+1. **Mở bằng vật thật đang có** trước tiên: ảnh bề mặt hiện hành, nếu có. Để
+   người veto được cả TIỀN ĐỀ, không chỉ chọn trong mấy món máy bày. Ván thử
+   19/08 chết đúng ở đây — bộ phương án hỏi «phiếu khuyên đứng đâu» trong khi
+   câu hỏi sống của chủ sản phẩm là «thứ này còn đáng tồn tại không», và câu đó
+   chỉ lộ ra khi nhìn sản phẩm đang chạy.
+2. Rồi mới **bày hướng**. Nguồn: section `## Đặc tả UX` của design-doc (bản đồ
+   màn & luồng + bảng trạng thái); kho chưa có bản đặc tả thì mở từ design-doc
+   như cũ.
+
+**Kỷ luật phương án — bốn vế, không bỏ vế nào:**
+
+- mỗi hướng một **TRỤC có tên** + một câu **động cơ** + một câu **đánh đổi**;
+- áp cho **KỂ CẢ hướng máy không khuyên** — bộ phương án chỉ biện hộ cho ứng
+  viên máy thích là phiếu bầu gài sẵn;
+- **ngả máy khuyên phải GHIM TRÊN VẬT**, không nằm trong tin nhắn: người mở
+  đường dẫn lúc rảnh phải thấy lời khuyên nằm cạnh hướng, không thấy một thực
+  đơn trần (ván thử 19/08 ghim câu hỏi nhưng quên ghim lời khuyên);
+- **tên hướng ổn định** vĩnh viễn, không đánh số lại giữa các lượt; hướng đã
+  chốt thì **không hỏi lại**.
+
+**Độ nét = đủ cho quyết định đang mở.** Phác thô hợp lệ; token/component thật
+chỉ cần khi chính token là **NỘI DUNG của quyết định**.
+
+**Vết của bước này — khoá `divergence:` trong sổ phiên, từ vựng ĐÓNG:**
+`divergence: opened` khi có mở, `divergence: skipped — <căn cứ 1 dòng>` khi
+không. Vết ở một khoá có tên chứ không ở chỗ tuỳ hứng mỗi phiên, vì ngưỡng
+«máy né bước phân kỳ bị veto» chỉ đếm được khi nó nằm đúng một chỗ.
+
+**Thang vật dựng — kit KHÔNG phụ thuộc bộ dựng nào:**
+
+<<<BUILDER-LADDER
+1. dựng được + lưu được → dùng bản lưu;
+2. chỉ xem được (xuất ảnh/PDF) → dùng bản chỉ-xem;
+3. file đã dựng mở TẠI MÁY trong khung duyệt — quyền tổ chức chỉ gác việc lưu
+   trực tuyến, không gác dựng-và-xem, nên người không có quyền vẫn có vật;
+4. không có gì → máy khuyên MỘT hướng kèm căn cứ, ghi vết, **ĐI TIẾP** (không
+   dừng nghi thức), người veto sau.
+BUILDER-LADDER>>>
+
+Bộ phương án là **phác tầng 1**: KHÔNG chép vào `evidence/`, KHÔNG vào thẻ như
+bằng chứng — chỉ là tham chiếu ở khoá `options:`.
+
 ## 4. Vòng lặp phản ứng — thang bốn nấc
 
 Cái quý của phiên đồng bộ cũ không phải SỰ ĐỒNG BỘ mà là **vật bấm được**. Phiên
@@ -260,6 +310,8 @@ DESIGN-PASS-NOTE-TEMPLATE>>>
 | Proto không khai states | Hỏi owner danh sách state đầu phiên, ghi frontmatter. Không bịa. |
 | Slug không xác định (standalone) | Hỏi 1 câu chọn slug trong `_acceptance/`; không có workspace → không chạy mồ côi. |
 | `design_pass.host_embed` vắng | Nấc thấp (Giai đoạn 0) + cờ vàng trên thẻ Cổng 1. Không chặn. |
+| Không mở bước phân kỳ | Ghi `divergence: skipped — <căn cứ 1 dòng>` trong sổ phiên (mục 3b). Không có đường bỏ im lặng. |
+| Không có bộ dựng phương án | Xuống nấc 4 thang vật dựng: khuyên một hướng kèm căn cứ, ghi vết, đi tiếp. KHÔNG dừng. |
 | `context: standalone` thiếu cảnh ngữ-cảnh | Entry descope đúng khuôn (mục 5) hoặc thẻ cờ vàng — không có đường bỏ im lặng. |
 
 ## Ranh giới

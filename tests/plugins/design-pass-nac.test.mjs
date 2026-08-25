@@ -13,7 +13,7 @@ const SKILL = path.join(ROOT, 'skills', 'design-pass', 'SKILL.md');
 
 let failures = 0;
 // MỘT nguồn danh sách ca: file này. `--ids` in ra để run-tests.sh lặp theo, không chép tay.
-const ALL_IDS = ['DP1', 'DP2', 'DP3'];
+const ALL_IDS = ['DP1', 'DP2', 'DP3', 'DP4', 'DP5', 'DP6', 'DP7'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.DP_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const ran = new Set();
@@ -26,6 +26,14 @@ const NAC = ['nac-0', 'nac-1', 'nac-2', 'nac-3'];
 const block = (text, name) => {
   const m = text.match(new RegExp('<<<' + name + '\\n([\\s\\S]*?)\\n' + name + '>>>'));
   return m ? m[1] : null;
+};
+// Lấy trọn một mục theo tiêu đề, tới tiêu đề cùng bậc kế tiếp.
+const section = (text, heading) => {
+  const i = text.indexOf(heading);
+  if (i < 0) return null;
+  const rest = text.slice(i + heading.length);
+  const j = rest.indexOf('\n## ');
+  return heading + (j >= 0 ? rest.slice(0, j) : rest);
 };
 const frontmatter = text => {
   const m = text.match(/^---\n([\s\S]*?)\n---/);
@@ -97,6 +105,83 @@ function checkEscalation(skillText) {
   return errs;
 }
 
+const DIVERGENCE = '## 3b. Bước phân kỳ';
+// Mutant PHẢI bẻ trong đúng mục đang đo. `String.replace` đổi CHỖ ĐẦU trong toàn file,
+// nên một cụm xuất hiện hai chỗ sẽ bị bẻ ở chỗ không ai đo — mutant thành vô hiệu mà
+// nhìn thì vẫn như đã tiêm. Lớp lỗi này đã cắn một lần ở DP2 (m-body) và một lần ở DP6.
+const mutIn = (s, heading, frag, repl) => {
+  const sec = section(s, heading);
+  return s.replace(sec, sec.replace(frag, repl));
+};
+
+// DP4 · AC-4 — thứ tự bắt buộc + nguồn bày hướng
+function checkDivergenceOrder(skillText) {
+  const errs = [];
+  const sec = section(skillText, DIVERGENCE);
+  if (sec === null) return [`thieu muc ${DIVERGENCE}`];
+  // Đo THỨ TỰ bằng vị trí ký tự, không đo sự CÓ MẶT: một mutant hoán vị hai mệnh đề
+  // mà không xoá chữ nào phải làm ca này đỏ, nếu không ca chỉ đang đếm từ.
+  const low = sec.toLowerCase();
+  const iReal = low.indexOf('mở bằng vật thật đang có'.toLowerCase());
+  const iShow = low.indexOf('bày hướng');
+  if (iReal < 0) errs.push('thieu ve: mo bang vat that dang co');
+  if (iShow < 0) errs.push('thieu ve: bay huong');
+  if (iReal >= 0 && iShow >= 0 && iReal > iShow) errs.push('vat that phai dung truoc bay huong');
+  if (!sec.includes('## Đặc tả UX')) errs.push('thieu nguon bay huong: Dac ta UX');
+  if (!/kho chưa có bản đặc tả/.test(sec)) errs.push('thieu nhanh lui khi kho chua co dac ta UX');
+  return errs;
+}
+
+// DP5 · AC-5 — kỷ luật phương án, bốn vế
+function checkOptionDiscipline(skillText) {
+  const errs = [];
+  const sec = section(skillText, DIVERGENCE);
+  if (sec === null) return [`thieu muc ${DIVERGENCE}`];
+  if (!/TRỤC có tên/.test(sec) || !/động cơ/.test(sec) || !/đánh đổi/.test(sec))
+    errs.push('thieu ve truc-dong co-danh doi');
+  if (!/KỂ CẢ hướng máy không khuyên/.test(sec))
+    errs.push('thieu ve ke ca huong may khong khuyen');
+  if (!/GHIM TRÊN VẬT/.test(sec))
+    errs.push('thieu ve nga may khuyen ghim tren vat');
+  if (!/tên hướng ổn định/i.test(sec) || !/không hỏi lại/.test(sec))
+    errs.push('thieu ve ten huong on dinh');
+  return errs;
+}
+
+// DP6 · AC-6 — không có đường bỏ im lặng + khoá vết đóng + luật độ nét
+function checkTraceAndFidelity(skillText) {
+  const errs = [];
+  const sec = section(skillText, DIVERGENCE);
+  if (sec === null) return [`thieu muc ${DIVERGENCE}`];
+  const degradeRow = skillText.split('\n').find(l => l.includes('|') && /Không mở bước phân kỳ/.test(l));
+  if (!degradeRow) errs.push('bang tra degrade thieu hang khong-mo-phan-ky');
+  else if (!/divergence:/.test(degradeRow)) errs.push('vet khong co khoa dong, moi phien ghi mot cho');
+  else if (/không ghi gì|đi tiếp, không/.test(degradeRow)) errs.push('co nhanh bo im lang');
+  if (!/`divergence: opened`/.test(sec) || !/`divergence: skipped — /.test(sec))
+    errs.push('thieu tu vung dong cua khoa vet');
+  if (!/đủ cho quyết định đang mở/.test(sec) || !/NỘI DUNG của quyết định/.test(sec))
+    errs.push('thieu luat do net');
+  return errs;
+}
+
+// DP7 · AC-7 — thang vật dựng bốn nấc, không phụ thuộc bộ dựng nào
+function checkBuilderLadder(skillText) {
+  const errs = [];
+  const b = block(skillText, 'BUILDER-LADDER');
+  if (b === null) return ['thieu moc neo BUILDER-LADDER'];
+  for (const n of ['1.', '2.', '3.', '4.']) {
+    if (!b.split('\n').some(l => l.trim().startsWith(n))) errs.push(`thang vat dung thieu nac: ${n}`);
+  }
+  if (!/ĐI TIẾP/.test(b) || /DỪNG nghi thức/.test(b))
+    errs.push('thieu canvas khong duoc lam dung vong');
+  // Vế VẮNG-MẶT: không nấc nào được ép một bộ dựng cụ thể. Assert vắng-mặt trên không
+  // gian mở không tự chứng minh được nó biết đỏ — DP7 m3 là ca tiêm dương cho vế này.
+  const sec = section(skillText, DIVERGENCE) || skillText;
+  const forced = sec.match(/bắt buộc dùng\s+([^\s.,]+)/i);
+  if (forced) errs.push(`kit bi ep phu thuoc bo dung: ${forced[1]}`);
+  return errs;
+}
+
 // ---------------------------------------------------------------------------
 // Chạy ca: đối chứng dương TRƯỚC, rồi ma trận mutant.
 // ---------------------------------------------------------------------------
@@ -145,6 +230,54 @@ runCase('DP3', 'luat leo thang du ba ve do duoc', checkEscalation, [
     'thieu hanh dong leo thang'],
   ['m-gioi-han', s => s.replace('không phiên trọn gói', 'như thường lệ'),
     'thieu ve gioi han pham vi'],
+]);
+
+runCase('DP4', 'thu tu bat buoc: vat that truoc, roi bay huong', checkDivergenceOrder, [
+  // Hoán vị, KHÔNG xoá chữ nào: ca chỉ đếm từ sẽ vẫn xanh và lộ ra là ca chết.
+  ['m-hoan-vi', s => {
+    const sec = section(s, DIVERGENCE);
+    const lines = sec.split('\n');
+    const a = lines.findIndex(l => l.toLowerCase().includes('mở bằng vật thật đang có'.toLowerCase()));
+    const b2 = lines.findIndex(l => l.includes('bày hướng'));
+    const c = [...lines]; [c[a], c[b2]] = [c[b2], c[a]];
+    return s.replace(sec, c.join('\n'));
+  }, 'vat that phai dung truoc bay huong'],
+  ['m-nhanh-lui', s => mutIn(s, DIVERGENCE, 'kho chưa có bản đặc tả', 'kho nào cũng vậy'),
+    'thieu nhanh lui khi kho chua co dac ta UX'],
+]);
+
+runCase('DP5', 'ky luat phuong an du bon ve', checkOptionDiscipline, [
+  ['m-truc', s => mutIn(s, DIVERGENCE, 'TRỤC có tên', 'nhãn'), 'thieu ve truc-dong co-danh doi'],
+  ['m-khong-khuyen', s => mutIn(s, DIVERGENCE, 'KỂ CẢ hướng máy không khuyên', 'cho hướng được chọn'),
+    'thieu ve ke ca huong may khong khuyen'],
+  // Vế này là vế mà ván thử 19/08 chết vì thiếu — mutant của nó bắt buộc đứng riêng.
+  ['m-ghim-tren-vat', s => mutIn(s, DIVERGENCE, 'GHIM TRÊN VẬT', 'nêu trong tin nhắn'),
+    'thieu ve nga may khuyen ghim tren vat'],
+  ['m-ten-on-dinh', s => mutIn(s, DIVERGENCE, 'không hỏi lại', 'hỏi lại khi cần'),
+    'thieu ve ten huong on dinh'],
+]);
+
+runCase('DP6', 'khong co duong bo im lang + khoa vet dong + luat do net', checkTraceAndFidelity, [
+  ['m-bo-im-lang', s => s.replace(/\| Không mở bước phân kỳ \|[^\n]*\|/,
+    '| Không mở bước phân kỳ | Đi tiếp, không ghi gì. |'), 'vet khong co khoa dong'],
+  ['m-tu-vung', s => mutIn(s, DIVERGENCE, '`divergence: opened`', '`ghi chú tự do`'),
+    'thieu tu vung dong cua khoa vet'],
+  ['m-do-net', s => mutIn(s, DIVERGENCE, 'đủ cho quyết định đang mở', 'cao nhất có thể'),
+    'thieu luat do net'],
+]);
+
+runCase('DP7', 'thang vat dung bon nac, khong phu thuoc bo dung nao', checkBuilderLadder, [
+  ['m-nac-cuoi', s => {
+    const b = block(s, 'BUILDER-LADDER');
+    return s.replace(b, b.replace('ĐI TIẾP', 'DỪNG nghi thức'));
+  }, 'thieu canvas khong duoc lam dung vong'],
+  ['m-nac-giua', s => {
+    const b = block(s, 'BUILDER-LADDER');
+    return s.replace(b, b.split('\n').filter(l => !l.trim().startsWith('3.')).join('\n'));
+  }, 'thang vat dung thieu nac: 3.'],
+  // CA TIÊM DƯƠNG cho vế vắng-mặt: thiếu ca này thì vế «không ép bộ dựng nào» là vế chết.
+  ['m-tiem-phu-thuoc', s => s.replace(DIVERGENCE, DIVERGENCE + '\n\nBắt buộc dùng canvas-preview cho mọi bề mặt.'),
+    'kit bi ep phu thuoc bo dung: canvas-preview'],
 ]);
 
 // DP_CASES nêu id không tồn tại → không được xanh im lặng (xanh-không-chạy)

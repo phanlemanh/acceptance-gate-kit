@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-feature: design-pass nấc không đồng bộ — thang 4 nấc phản ứng (mặc định async, sync có người gọi tên) + bước phân kỳ có điều kiện mở từ đặc tả UX + khoá reaction/canvas trong sổ phiên + thẻ Cổng Phạm vi hiện nấc
+feature: design-pass nấc không đồng bộ — thang 4 nấc phản ứng (mặc định async, sync có người gọi tên) + bước phân kỳ có điều kiện mở từ đặc tả UX + khoá reaction/bộ phương án trong sổ phiên + thẻ Cổng Phạm vi hiện nấc
 slug: design-pass-nac-khong-dong-bo
 owner: phanlemanh@gmail.com
 risk_tier: T2
@@ -57,8 +57,8 @@ chết mà vẫn xanh.
 - AC-4: Given bề mặt còn ≥2 hướng khả dĩ mà máy không tự chắc, When mở bước phân kỳ, Then nghi thức bắt thứ tự: (a) mở bằng vật thật đang có trước khi bày hướng mới, (b) nguồn bày hướng là section `## Đặc tả UX` của design-doc khi có, không có thì design-doc như cũ.
 - AC-5: Given bộ phương án của bước phân kỳ, When máy dựng, Then mỗi hướng có TRỤC có tên + 1 câu động cơ + 1 câu đánh đổi KỂ CẢ hướng máy không khuyên; ngả máy khuyên GHIM TRÊN VẬT chứ không nằm trong tin nhắn; tên hướng ổn định, hướng đã chốt không hỏi lại.
 - AC-6: Given máy KHÔNG mở bước phân kỳ, When kết phiên, Then bắt buộc để vết ở ĐÚNG MỘT khoá có tên `divergence:` trong khuôn sổ phiên (từ vựng đóng: `opened` | `skipped — <căn cứ 1 dòng>`) — không có nhánh «không ghi gì», và vết không được nằm ở chỗ tuỳ hứng mỗi phiên; và độ nét yêu cầu = đủ cho quyết định đang mở (phác thô hợp lệ, token thật chỉ bắt buộc khi token LÀ nội dung quyết định).
-- AC-7: Given phiên không có bộ dựng canvas, When tới bước phân kỳ, Then nghi thức có thang bốn nấc vật dựng có tên (lưu được → chỉ-xem → file mở tại máy → không có: máy khuyên một hướng kèm căn cứ, ghi vết, đi tiếp) và KHÔNG dừng vòng — kit không phụ thuộc bộ dựng nào.
-- AC-8: Given khuôn sổ phiên trong marker `DESIGN-PASS-NOTE-TEMPLATE`, When đọc, Then có đúng hai khoá mới `reaction:` (nấc + kênh) và `canvas:` (tham chiếu, KHÔNG phải bằng chứng), và khuôn vẫn là chỗ DUY NHẤT giữ hình dạng sổ phiên.
+- AC-7: Given phiên không có bộ dựng bộ phương án, When tới bước phân kỳ, Then nghi thức có thang bốn nấc vật dựng có tên (lưu được → chỉ-xem → file mở tại máy → không có: máy khuyên một hướng kèm căn cứ, ghi vết, đi tiếp) và KHÔNG dừng vòng — kit không phụ thuộc bộ dựng nào.
+- AC-8: Given khuôn sổ phiên trong marker `DESIGN-PASS-NOTE-TEMPLATE`, When đọc, Then có đúng hai khoá mới `reaction:` (nấc + kênh) và `options:` (tham chiếu, KHÔNG phải bằng chứng), và khuôn vẫn là chỗ DUY NHẤT giữ hình dạng sổ phiên.
 - AC-9: Given sổ phiên khai `reaction:` hợp lệ, When dựng thẻ Cổng Phạm vi, Then khối «Bản mẫu & ngữ cảnh» hiện nấc phản ứng bằng NHÃN TIẾNG NGƯỜI lấy từ một bảng nhãn (không tự chế chuỗi) và hiện có/không đường bộ phương án.
 - AC-10: Given sổ phiên đời trước (thiếu `reaction:`) hoặc khai giá trị lạ, When dựng thẻ, Then cờ vàng — thiếu khoá: nói rõ hồ sơ đời trước, KHÔNG chặn, KHÔNG bắt migrate; giá trị lạ: cờ vàng NÊU TÊN giá trị lạ đó. Sổ phiên đủ khoá thì SẠCH cờ nấc (đối chứng dương).
 - AC-11: Given câu nấc-mặc-định nằm giữa cặp mốc neo `REACTION-DEFAULT-SENTENCE` trong `skills/design-pass/SKILL.md` (bản gốc DUY NHẤT), When đối chiếu với từng site khai trong bảng khai tay `REACTION-DEFAULT-SITES`, Then mỗi site chứa ĐÚNG NGUYÊN VĂN câu rút từ mốc neo — lệch MỘT TỪ ở một site là ĐỎ, và số site có mặt phải bằng đúng con số khai trong bảng (thêm/bớt một chỗ mà không sửa bảng cũng ĐỎ).
@@ -77,7 +77,7 @@ chết mà vẫn xanh.
 ## Đường đo
 
 - Thước: số lần gọi người từ S1-D tới tin mời Cổng Phạm vi + HÌNH THỨC từng lần (đích: ≤2, cả hai không đồng bộ) · số từ: khoá `reaction:` trong sổ phiên + transcript ván thử · bảo đảm bởi: AC-1, AC-8, AC-9 (nấc phải được khai và hiện thì mới đếm được)
-- Thước: số bề mặt phải giữ đồng bộ với code (đích: 1) · số từ: ĐẾM TAY trên ván thử — canvas là nhánh cụt, không phải bề mặt thứ hai · bảo đảm bởi: AC-8 (`canvas:` là tham chiếu, không vào chuỗi bằng chứng)
+- Thước: số bề mặt phải giữ đồng bộ với code (đích: 1) · số từ: ĐẾM TAY trên ván thử — bộ phương án là nhánh cụt, không phải bề mặt thứ hai · bảo đảm bởi: AC-8 (`options:` là tham chiếu, không vào chuỗi bằng chứng)
 - Thước: số skill thiết kế phải nuôi (kit giữ 1 nghi thức + 1 sàn) · số từ: ĐẾM TAY trên cây kit sau khi gộp · bảo đảm bởi: đã có sẵn — ô này không CỘNG skill nào
 - Thước: thứ nghiệm thu máy đo được trên vật thật KHÔNG GIẢM · số từ: bảng eval của ván thử so với vòng gần nhất cùng kho · bảo đảm bởi: đã có sẵn — ô này không đụng lưới/phép đo/workflow
 - Thước: thời gian lịch từ mở bước phân kỳ tới tin mời Cổng Phạm vi · số từ: dấu thời gian trong sổ phiên + sổ quyết định của ván thử · bảo đảm bởi: đã có sẵn — phiên ván thử ở kho tiêu thụ
@@ -87,13 +87,13 @@ chết mà vẫn xanh.
 
 ## Out of scope
 
-- Không tạo skill mới, không «nghi thức canvas» riêng — «chỉ TRỪ, không CỘNG» + luật một mặt phẳng làm việc.
-- Không để kit phụ thuộc bộ dựng canvas nào (bản xem trước, cần quyền tổ chức) — thang 4 nấc vật dựng thay cho phụ thuộc.
-- Không đưa canvas / ảnh / cảm giác bấm vào chuỗi bằng chứng — nghiệm thu máy vẫn đo trên vật thật; bản chép đọc ngược là dữ liệu không tin.
+- Không tạo skill mới, không «nghi thức bộ phương án» riêng — «chỉ TRỪ, không CỘNG» + luật một mặt phẳng làm việc.
+- Không để kit phụ thuộc bộ dựng bộ phương án nào (bản xem trước, cần quyền tổ chức) — thang 4 nấc vật dựng thay cho phụ thuộc.
+- Không đưa bộ phương án / ảnh / cảm giác bấm vào chuỗi bằng chứng — nghiệm thu máy vẫn đo trên vật thật; bản chép đọc ngược là dữ liệu không tin.
 - Không gộp chấm chọn-hướng với Cổng Phạm vi thành một tin — khuôn nhiều chỗ trống vẫn là nhiều quyết định (owner 11–12/08).
 - Không hard-gate «phải có ba phương án» kiểu huashu — thành trạm thu phí; vết một dòng + quyền veto thay thế.
 - Không đổi lưới trước-khi-gộp, phép đo hiện có, hay bộ điều phối nghiệm thu.
-- Không đo bằng máy độ lệch canvas ↔ vật thật, và không đo số lần gọi người bằng máy — số đó sinh ở ván thử tại kho tiêu thụ, không sinh trong kit.
+- Không đo bằng máy độ lệch bộ phương án ↔ vật thật, và không đo số lần gọi người bằng máy — số đó sinh ở ván thử tại kho tiêu thụ, không sinh trong kit.
 - Xếp kho `interactive-prototype` ở kho tiêu thụ là việc của kho đó sau khi kit phát hành — không thuộc ô này.
 
 ## Notes

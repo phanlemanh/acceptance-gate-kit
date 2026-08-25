@@ -115,7 +115,7 @@ quyết định đang mở cần đúng băng thông đó.
 | id | Tên | Dùng khi |
 |---|---|---|
 | nac-0 | đi thẳng | khuôn có sẵn, 0 hướng mở — để vết một dòng, người veto sau |
-| nac-1 | không đồng bộ trên ảnh/canvas | quyết định là hướng · bố cục · tĩnh |
+| nac-1 | không đồng bộ trên ảnh/bộ phương án | quyết định là hướng · bố cục · tĩnh |
 | nac-2 | không đồng bộ trên vật bấm được | cần thấy trạng thái chuyển (luồng nhiều bước) |
 | nac-3 | ngồi cùng ngắn, có người gọi tên | tương tác tinh: kéo-thả, chạm, nhịp chuyển động |
 REACTION-LADDER>>>
@@ -271,7 +271,7 @@ Thêm hai hàng vào bảng tra degrade:
 
 ```markdown
 | Không mở bước phân kỳ | Ghi `divergence: skipped — <căn cứ 1 dòng>` trong sổ phiên. Không có đường bỏ im lặng. |
-| Không có bộ dựng canvas | Xuống nấc 4 của thang vật dựng: khuyên một hướng kèm căn cứ, ghi vết, đi tiếp. KHÔNG dừng. |
+| Không có bộ dựng bộ phương án | Xuống nấc 4 của thang vật dựng: khuyên một hướng kèm căn cứ, ghi vết, đi tiếp. KHÔNG dừng. |
 ```
 
 - [ ] **Step 4: Chạy ca — phải XANH**
@@ -283,9 +283,9 @@ Run: `DP_CASES=DP4,DP5,DP6,DP7 node tests/plugins/design-pass-nac.test.mjs`
 DP7 m3 là CA TIÊM DƯƠNG cho vế vắng-mặt:
 
 ```js
-const m3 = src.replace('## 3b. Bước phân kỳ', '## 3b. Bước phân kỳ\n\nBắt buộc dùng canvas-preview cho mọi bề mặt.');
+const m3 = src.replace('## 3b. Bước phân kỳ', '## 3b. Bước phân kỳ\n\nBắt buộc dùng bộ phương án-preview cho mọi bề mặt.');
 const e3 = checkNoMandatoryBuilder(m3);
-if (!e3.some(s => s.includes('canvas-preview'))) throw new Error('m3: ve vang-mat khong biet do');
+if (!e3.some(s => s.includes('bộ phương án-preview'))) throw new Error('m3: ve vang-mat khong biet do');
 ```
 
 - [ ] **Step 6: Commit**
@@ -305,8 +305,8 @@ git commit -m "feat(design-pass): buoc phan ky co dieu kien + thang vat dung"
 - Modify: `tests/plugins/design-pass-nac.test.mjs` (ca DP8)
 
 **Interfaces:**
-- Produces: ba khoá `reaction:`, `canvas:`, `divergence:` trong frontmatter khuôn.
-  Task 4 đọc `reaction:` và `canvas:` từ đây.
+- Produces: ba khoá `reaction:`, `options:`, `divergence:` trong frontmatter khuôn.
+  Task 4 đọc `reaction:` và `options:` từ đây.
 
 **⚠ Hệ quả bắt buộc xử lý:** P135/P136/P137 dựng fixture bằng cách thay từng
 placeholder rồi khẳng định `"<" not in frontmatter`. Thêm ba khoá có placeholder
@@ -317,7 +317,7 @@ lượt, không được nới lỏng phép khẳng định để né.
 
 ```markdown
 reaction: <nac-0|nac-1|nac-2|nac-3> (<kênh đã dùng, vd ghim, thao-luan, sua-roi-luu>)
-canvas: <đường dẫn hoặc URL bộ phương án — THAM CHIẾU, không phải bằng chứng; trống nếu không mở bước phân kỳ>
+options: <đường dẫn hoặc URL bộ phương án — THAM CHIẾU, không phải bằng chứng; trống nếu không mở bước phân kỳ>
 divergence: <opened|skipped — căn cứ 1 dòng>
 ```
 
@@ -336,9 +336,9 @@ Trong mỗi hàm `mkfix` của P135/P136/P137, thêm ba phép thay:
 .replace("<opened|skipped — căn cứ 1 dòng>", "opened")
 ```
 
-và một phép thay cho placeholder `canvas:` (dòng dài — thay trọn chuỗi trong
+và một phép thay cho placeholder `options:` (dòng dài — thay trọn chuỗi trong
 ngoặc nhọn bằng chuỗi rỗng để mô phỏng ca không mở phân kỳ, hoặc bằng một đường
-dẫn giả cho ca có canvas).
+dẫn giả cho ca có bộ phương án).
 
 - [ ] **Step 4: Chạy lại — P135/136/137 XANH, DP8 XANH**
 
@@ -352,7 +352,7 @@ Bản sao xoá lần lượt từng khoá khỏi khuôn → cùng bộ trích đ
 
 ```bash
 git add skills/design-pass/SKILL.md tests/plugins/run-tests.sh tests/plugins/design-pass-nac.test.mjs
-git commit -m "feat(design-pass): khuon so phien them reaction/canvas/divergence"
+git commit -m "feat(design-pass): khuon so phien them reaction/bộ phương án/divergence"
 ```
 
 ---
@@ -365,10 +365,10 @@ git commit -m "feat(design-pass): khuon so phien them reaction/canvas/divergence
 - Modify: `tests/plugins/design-pass-nac.test.mjs` (ca DP9, DP10, DP13)
 
 **Interfaces:**
-- Consumes: khoá `reaction:`, `canvas:` từ khuôn của Task 3; id nấc từ
+- Consumes: khoá `reaction:`, `options:` từ khuôn của Task 3; id nấc từ
   `REACTION-LADDER` của Task 1.
 - Produces: field `design_pass.reaction`, `design_pass.reaction_label`,
-  `design_pass.canvas` trong đầu ra `--extract`; nhãn tiếng người trên thẻ HTML.
+  `design_pass.bộ phương án` trong đầu ra `--extract`; nhãn tiếng người trên thẻ HTML.
 
 - [ ] **Step 1: Viết DP9/DP10/DP13 trước (phải ĐỎ)**
 
@@ -409,7 +409,7 @@ Trong khối `if (dp.present)`, đọc thêm:
 ```js
 const rawReaction = clean(dpFm.reaction || '');
 dp.reaction = (rawReaction.match(/^(nac-[0-9a-z]+)/) || [])[1] || '';
-dp.canvas = /[<>]/.test(clean(dpFm.canvas || '')) ? '' : clean(dpFm.canvas || '');
+dp.bộ phương án = /[<>]/.test(clean(dpFm.bộ phương án || '')) ? '' : clean(dpFm.bộ phương án || '');
 ```
 
 Ba nhánh cờ (cùng khuôn với cờ `context`):
@@ -425,7 +425,7 @@ Nối vào chuỗi khối «Bản mẫu & ngữ cảnh», GIỮ NGUYÊN phần �
 
 ```js
 + ` · phản ứng ở nấc: <b>${esc(REACTION_LABEL[dp.reaction] || dp.reaction || '(chưa khai)')}</b>`
-+ (dp.canvas ? ' · có bộ phương án' : '')
++ (dp.bộ phương án ? ' · có bộ phương án' : '')
 ```
 
 Và thêm ba field vào JSON của `--extract` trong nhánh `design_pass`.
