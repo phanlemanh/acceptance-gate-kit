@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-08-25-design-pass-nac-khong-dong-bo-design.md
-status: signed-off
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo

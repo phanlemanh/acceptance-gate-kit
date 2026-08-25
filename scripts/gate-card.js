@@ -315,18 +315,18 @@ if (gate === '1') {
   const dpFlags = [];
   if (dp.present) {
     if (!dp.context) dpFlags.push('Sổ phiên chưa khai nấc ngữ cảnh (đời trước trục ngữ cảnh) — bản mẫu sống ở đâu chưa được khai; không chặn, khuyên bổ sung ở phiên thiết kế sau.');
-    else if (!CONTEXT_LABEL[dp.context]) dpFlags.push('Nấc ngữ cảnh không nhận diện được: "' + esc(dp.context) + '" — chỉ nhận standalone / static-frame / host-embedded.');
+    else if (!CONTEXT_LABEL[dp.context]) dpFlags.push('Nấc ngữ cảnh không nhận diện được: "' + dp.context + '" — chỉ nhận standalone / static-frame / host-embedded.');
     else if (dp.context === 'standalone' && !dp.scenes.length && !decsAll.some(e => e.type === 'descope' && String(e.decision || '').startsWith(DP_SCENE_DESCOPE))) {
       dpFlags.push('Bản mẫu khai đứng-một-mình nhưng chưa có cảnh ngữ-cảnh (khung host bọc vật + hành trình vào–ra) và không có dòng từ-chối trong sổ quyết định — người duyệt có quyền trả.');
     }
     // Đường đọc-cũ của thang phản ứng: sổ phiên đời trước không có khoá này. Cờ vàng,
     // KHÔNG chặn, KHÔNG bắt migrate — cùng khuôn với trục ngữ cảnh từ 2.0.0.
-    if (!dp.reaction && dp.reaction_declared) dpFlags.push('Sổ phiên có khoá nấc phản ứng nhưng CHƯA ĐIỀN: "' + esc(dp.reaction_raw) + '" — phiên này vừa ghi hỏng, KHÔNG phải hồ sơ đời trước; không chặn, sửa sổ phiên rồi dựng lại thẻ.');
+    if (!dp.reaction && dp.reaction_declared) dpFlags.push('Sổ phiên có khoá nấc phản ứng nhưng CHƯA ĐIỀN: "' + dp.reaction_raw + '" — phiên này vừa ghi hỏng, KHÔNG phải hồ sơ đời trước; không chặn, sửa sổ phiên rồi dựng lại thẻ.');
     else if (!dp.reaction) dpFlags.push('Sổ phiên chưa khai nấc phản ứng (hồ sơ đời trước thang phản ứng) — không biết phiên đã gọi người ở nấc nào; không chặn, khuyên bổ sung ở phiên thiết kế sau.');
-    else if (!REACTION_LABEL[dp.reaction]) dpFlags.push('Nấc phản ứng không nhận diện được: "' + esc(dp.reaction) + '" — chỉ nhận nac-0 / nac-1 / nac-2 / nac-3.');
-    else if (dp.reaction_placeholder) dpFlags.push('Nấc phản ứng đã khai nhưng phần kênh còn nguyên chỗ trống của khuôn: "' + esc(dp.reaction_raw) + '" — không biết phiên đã gọi người qua kênh nào; không chặn.');
+    else if (!REACTION_LABEL[dp.reaction]) dpFlags.push('Nấc phản ứng không nhận diện được: "' + dp.reaction + '" — chỉ nhận nac-0 / nac-1 / nac-2 / nac-3.');
+    else if (dp.reaction_placeholder) dpFlags.push('Nấc phản ứng đã khai nhưng phần kênh còn nguyên chỗ trống của khuôn: "' + dp.reaction_raw + '" — không biết phiên đã gọi người qua kênh nào; không chặn.');
     if (!he.present) dpFlags.push('Repo chưa khai đường nhúng (design_pass.host_embed) — phiên coi như chưa có đường nhúng rẻ, đi nấc thấp; không chặn.');
-    else if (!he.resolvable) dpFlags.push('Đường nhúng đã khai nhưng con trỏ không giải được: "' + esc(he.guide) + '" — sửa con trỏ, hoặc phiên đi nấc thấp; không chặn.');
+    else if (!he.resolvable) dpFlags.push('Đường nhúng đã khai nhưng con trỏ không giải được: "' + he.guide + '" — sửa con trỏ, hoặc phiên đi nấc thấp; không chặn.');
   }
 
   // ---- ngưỡng nghiệm thu (opportunity.md — mối nối Vòng HIỂU → Cổng Phạm vi) ----
@@ -403,7 +403,12 @@ if (gate === '1') {
   // (lenh-in-ra-phai-bam-duoc AC-5) cờ «chưa truyền --glossary-base» đã bỏ — nó nói với agent, không với người.
   if (glossaryDeltaErr === 'git-failed') flags.push(['fwarn', 'Từ vựng: không đọc được diff CONTEXT.md (base sai hoặc không phải git repo) — term mới/sửa CHƯA được trình, đừng coi là "không có thay đổi".']);
   for (const id of covGaps) flags.push(['fwarn', `${id} có ngưỡng/biên nhưng chưa có ca "dưới ngưỡng → KHÔNG xảy ra" — thêm 1 ca chặn ngay sẽ rẻ hơn nhiều so với phát hiện sau.`]);
-  for (const f of dpFlags) flags.push(['fwarn', f]);
+  // dpFlags chảy vào HAI đường: mảng `flags` (ra HTML) và `--extract` (JSON máy-đọc).
+  // Thoát chuỗi ở CHỖ ĐẨY làm đúng đường HTML nhưng bẩn đường JSON — thực thể `&lt;`
+  // lọt vào trường máy đọc (hồi quy do chính bản vá S4-r4 của tôi). Nên giữ dpFlags
+  // NGUYÊN VĂN và thoát chuỗi ở ĐÚNG BIÊN RENDER, cùng nếp với mọi mục khác của
+  // `flags` (chúng cũng esc() ngay trước khi vào mảng này).
+  for (const f of dpFlags) flags.push(['fwarn', esc(f)]);
   if (!ut.opportunity_present) flags.push(['finfo', 'Vòng này không có hồ sơ cơ hội → sau Cổng Bằng chứng sẽ ship thẳng, không phiên nghiệm thu.']);
   else if (!ut.readable) flags.push(['fwarn', 'Hồ sơ cơ hội có nhưng thẻ không đọc được (file rỗng hoặc quá cỡ) — chưa biết vòng này có ngưỡng nghiệm thu không; soi file trước khi duyệt.']);
   else if (!(ut.section_present && ut.lines.length)) flags.push(['fwarn', 'Hồ sơ cơ hội chưa khai ngưỡng nghiệm thu — chưa biết vòng này sẽ được đo bằng gì; khai ở Cổng Đáng trước khi duyệt.']);

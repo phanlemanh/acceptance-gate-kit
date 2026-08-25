@@ -166,7 +166,11 @@ const coNacFlag = html => flagsOf(html).filter(t => /nấc phản ứng/i.test(t
 
 // Chạy bộ đọc THẬT; mutateCard != null → dựng bản sao TRỌN scripts/ + lib/ rồi bẻ
 // bản sao đó (chép danh sách file tay là bản base thiếu file — lớp lỗi P150).
-function render(wsRoot, mutateCard = null) {
+// expectDead: chỉ mutant CỐ Ý giết bản sao mới được truyền. Mặc định, bản sao sau khi
+// tiêm PHẢI chạy nổi — bản sao chết cho stdout RỖNG, tức MỌI khẳng định chiều ÂM trên
+// nó đều tự thoả và mutant in xanh dù chưa hề chạy nhánh nó định đo (S4-r5 finding).
+// Chốt ở render() nên nó phủ mọi mutant chiều âm hiện có LẪN mutant ai thêm sau.
+function render(wsRoot, mutateCard = null, { expectDead = false } = {}) {
   let card = GATE_CARD;
   if (mutateCard) {
     const d = mkdtempSync(path.join(tmpdir(), 'dpc-'));
@@ -181,6 +185,9 @@ function render(wsRoot, mutateCard = null) {
     writeFileSync(card, after);
   }
   const r = spawnSync(process.execPath, [card, '--root', wsRoot, '--slug', 'fx'], { encoding: 'utf8' });
+  if (mutateCard && !expectDead && r.status !== 0) {
+    throw new Error(`ban sao sau khi tiem KHONG chay noi (exit ${r.status}) — moi khang dinh chieu AM tren no la vacuous: ${(r.stderr || '').slice(0, 200)}`);
+  }
   return { status: r.status, out: r.stdout || '', err: r.stderr || '' };
 }
 
@@ -329,7 +336,7 @@ if (want('DP10')) {
   // m-neu-ten — cờ giá trị-lạ CÒN NGUYÊN nhưng mất phần nêu tên. Chiều đỏ này do hội
   // đồng vòng 4 chứng thực trên vật thật: trước khi sửa, ca vẫn xanh.
   const mTen = render(mkWs(noteFromTemplate(src, { reaction: 'nac-9' })),
-    t => t.split('+ esc(dp.reaction) + ').join('+ '));
+    t => t.split("được: \"' + dp.reaction + '\"").join("được: \"' + '\""));
   if (coNacFlag(mTen.out).some(t => t.includes(CO_VANG_LA) && t.includes('nac-9')))
     errs.push('m-neu-ten: bo phan neu ten khoi co ma (c) van khong do');
   // m3 — mutant của hội đồng vòng 3: bắn cờ nửa-vời cho MỌI hồ sơ. Đối chứng dương
@@ -398,7 +405,7 @@ if (want('DP10')) {
   // CHIỀU ĐỎ của (f): gỡ TOÀN BỘ esc() trong file trên bản sao — lưới phải đỏ dù chỗ
   // đẩy nào mất thoát chuỗi, không riêng chỗ tôi nghĩ tới.
   const mEsc = render(mkWs(noteFromTemplate(src, { reaction: 'nac-1' }).replace('(ghim)', chanPh)),
-    t => t.split('+ esc(').join('+ ('));
+    t => t.split("flags.push(['fwarn', esc(f)])").join("flags.push(['fwarn', f])"));
   if (!flagsOf(mEsc.out).some(t => /[<>]/.test(t)))
     errs.push('m-esc: go het esc() ma luoi (f) khong do');
 
@@ -434,7 +441,7 @@ if (want('DP13')) {
   const M2_KIM = 'DP13-M2-CHET-CO-Y';
   const m2 = render(mkWs(null), s => s.replace(
     "const dpText = read(path.join(dir, 'design-pass.md'));",
-    `const dpText = (() => { throw new Error('${M2_KIM}'); })();`));
+    `const dpText = (() => { throw new Error('${M2_KIM}'); })();`), { expectDead: true });
   if (m2.status === 0) errs.push('m2: bo dung the nem loi ma van exit 0 — ca khong bat duoc the chet');
   else if (!m2.err.includes(M2_KIM)) errs.push(`m2: the chet nhung KHONG phai vi lenh tiem — thieu kim "${M2_KIM}" trong stderr: ${m2.err.slice(0, 120)}`);
   // m3 — mutant của hội đồng: đẩy cờ nấc RA NGOÀI khối `if (dp.present)`
