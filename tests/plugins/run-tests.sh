@@ -10629,6 +10629,13 @@ for _vc in $_vc_ids; do
     env VC_CASES="$_vc" node "$ROOT/tests/plugins/vao-co-o.test.mjs"
 done
 
+# ─── Hồ sơ dac-ta-ux-vat-hoa-cau-truc: UX1..UX4 (file ca riêng) ───────────────
+_ux_ids="$(node "$ROOT/tests/plugins/ux-spec.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca UX"; failures=$((failures+1)); _ux_ids=""; }
+for _ux in $_ux_ids; do
+  run "ca dac ta UX — $_ux (ho so dac-ta-ux-vat-hoa-cau-truc)" \
+    env UX_CASES="$_ux" node "$ROOT/tests/plugins/ux-spec.test.mjs"
+done
+
 # ─── Hồ sơ duong-do-trong-dinh-nghia-xong: DD1..DD7 (file ca riêng) ───────────
 _dd_ids="$(node "$ROOT/tests/plugins/duong-do.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca DD"; failures=$((failures+1)); _dd_ids=""; }
 for _dd in $_dd_ids; do
