@@ -44,8 +44,19 @@ KIMS="$(sed -n '/<<<DEAD-SENTENCE-NEEDLES/,/DEAD-SENTENCE-NEEDLES>>>/p' "$CONTRA
 fails=0
 first_kim=""
 while IFS='|' read -r kim so; do
+  kim="${kim%$'\r'}"; so="${so%$'\r'}"   # file CRLF: CR dính vào số làm `[` thoát 2
   [ -z "${kim:-}" ] && continue
   [ -z "$first_kim" ] && first_kim="$kim"
+
+  # `set -e` KHÔNG áp cho lệnh trong điều kiện của if/elif: `[ "$b" -ne "$so" ]` với
+  # $so dị dạng thoát 2 kèm «integer expression expected», elif bị coi là SAI, và nửa
+  # ĐỐI CHỨNG DƯƠNG của AC-12 biến mất im lặng trong khi script vẫn in OK (S4-r2).
+  # Nên kiểm hình dạng TRƯỚC khi so, và số khai dị dạng là ĐỎ chứ không phải bỏ qua.
+  case "$so" in
+    ''|*[!0-9]*)
+      echo "CHAN 1 DO: so khai cua kim \"$kim\" khong phai so nguyen: \"$so\""
+      fails=$((fails + 1)); continue;;
+  esac
 
   # (1) đối chứng dương ở MỐC
   b="$(dem "$BASE" "$kim")"

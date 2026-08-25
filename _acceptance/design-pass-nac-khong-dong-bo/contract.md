@@ -28,6 +28,15 @@ skill mới, không đụng lưới/phép đo/workflow.
 Đề bài đầy đủ (NGUỒN): `docs/plans/2026-08-19-hat-giong-design-pass-nac-khong-dong-bo.md`
 mục 3 · 3b · 4.3.
 
+**THU PHẠM VI 25/08 (owner quyết, sau khi luật dừng-vá bật ở vòng 2).** Sáu tiêu
+chí AC-2…AC-7 mất lưới máy: chúng hứa những PHÁT BIỂU PHỔ QUÁT VỀ NGHĨA của văn
+xuôi, loại mệnh đề mà phép so chữ không chứng được — bốn hình dạng lỗi đã dẫm
+qua hai vòng nghiệm thu chỉ là bốn cách thất bại của cùng một điều bất khả.
+Chúng chuyển sang người duyệt soi tại Cổng Phạm vi. Tám tiêu chí còn lại giữ
+nguyên lưới vì chúng đo QUAN HỆ ĐẾM ĐƯỢC trên tập đóng hoặc ĐẦU RA THẬT của bộ
+dựng thẻ. Đề bài phần cắt còn sống ở
+`docs/plans/2026-08-25-hat-giong-do-loi-hua-van-xuoi.md`.
+
 Source input: _acceptance/design-pass-nac-khong-dong-bo/opportunity.md
 
 **DEAD-SENTENCE-NEEDLES** — danh sách ĐÓNG, máy đọc từ đây (không hardcode
@@ -57,12 +66,12 @@ chết mà vẫn xanh.
 ## Criteria
 
 - AC-1: Given `skills/design-pass/SKILL.md`, When đọc mục vòng lặp phản ứng, Then có bảng thang PHẢN ỨNG bốn nấc trong marker `REACTION-LADDER` với đúng bốn id đóng `nac-0` · `nac-1` · `nac-2` · `nac-3`, mỗi nấc kèm tên tiếng người + điều kiện dùng — và marker là chỗ DUY NHẤT khai danh sách nấc.
-- AC-2: Given nghi thức sau khi đổi, When đọc frontmatter `description` và thân skill, Then mặc định là KHÔNG ĐỒNG BỘ và sync là nấc phải có người gọi tên; câu «Phiên đòi owner ngồi xem trực tiếp; owner async chưa nằm trong phạm vi nghi thức này» KHÔNG còn tồn tại ở bất kỳ đâu dưới HAI THƯ MỤC `skills/**` và `feature-loop/**` — phạm vi đếm khai bằng thư mục, hai đầu của hàm đếm nhận CÙNG một glob (không phải danh sách file).
-- AC-3: Given hai vòng phản ứng không đồng bộ liên tiếp chê CÙNG một điểm, When nghi thức xử lý, Then luật leo thang bắt mời nấc 3 GIỚI HẠN đúng điểm đó (không phiên trọn gói) — và luật nêu rõ leo thang theo TÍN HIỆU đếm được, không theo cảm giác.
-- AC-4: Given bề mặt còn ≥2 hướng khả dĩ mà máy không tự chắc, When mở bước phân kỳ, Then nghi thức bắt thứ tự: (a) mở bằng vật thật đang có trước khi bày hướng mới, (b) nguồn bày hướng là section `## Đặc tả UX` của design-doc khi có, không có thì design-doc như cũ.
-- AC-5: Given bộ phương án của bước phân kỳ, When máy dựng, Then mỗi hướng có TRỤC có tên + 1 câu động cơ + 1 câu đánh đổi KỂ CẢ hướng máy không khuyên; ngả máy khuyên GHIM TRÊN VẬT chứ không nằm trong tin nhắn; tên hướng ổn định, hướng đã chốt không hỏi lại.
-- AC-6: Given máy KHÔNG mở bước phân kỳ, When kết phiên, Then bắt buộc để vết ở ĐÚNG MỘT khoá có tên `divergence:` trong khuôn sổ phiên (từ vựng đóng: `opened` | `skipped — <căn cứ 1 dòng>`) — không có nhánh «không ghi gì», và vết không được nằm ở chỗ tuỳ hứng mỗi phiên; và độ nét yêu cầu = đủ cho quyết định đang mở (phác thô hợp lệ, token thật chỉ bắt buộc khi token LÀ nội dung quyết định).
-- AC-7: Given phiên không có bộ dựng bộ phương án, When tới bước phân kỳ, Then nghi thức có thang bốn nấc vật dựng có tên (lưu được → chỉ-xem → file mở tại máy → không có: máy khuyên một hướng kèm căn cứ, ghi vết, đi tiếp) và KHÔNG dừng vòng — kit không phụ thuộc bộ dựng nào.
+- AC-2: Given nghi thức sau khi đổi, When đọc frontmatter `description` và thân skill, Then mặc định là KHÔNG ĐỒNG BỘ và sync là nấc phải có người gọi tên. **KHÔNG có phép đo máy** cho vế «sync phải có người gọi tên» — đó là phát biểu về NGHĨA của văn xuôi, không phải quan hệ đếm được (thu phạm vi 25/08, xem Out of scope). Vế đếm được — bốn câu khai mặc-định-đồng-bộ phải TUYỆT CHỦNG dưới `skills/**` + `feature-loop/**` — vẫn có lưới, sống ở AC-12; người duyệt soi phần còn lại tại Cổng Phạm vi.
+- AC-3: Given hai vòng phản ứng không đồng bộ liên tiếp chê CÙNG một điểm, When nghi thức xử lý, Then luật leo thang bắt mời nấc 3 GIỚI HẠN đúng điểm đó (không phiên trọn gói), và luật nêu rõ leo thang theo TÍN HIỆU đếm được chứ không theo cảm giác. **KHÔNG có phép đo máy** — «nêu rõ theo tín hiệu chứ không theo cảm giác» là phát biểu về nghĩa; người duyệt soi tại Cổng Phạm vi.
+- AC-4: Given bề mặt còn ≥2 hướng khả dĩ mà máy không tự chắc, When mở bước phân kỳ, Then nghi thức bắt thứ tự: (a) mở bằng vật thật đang có trước khi bày hướng mới, (b) nguồn bày hướng là section `## Đặc tả UX` của design-doc khi có, không có thì design-doc như cũ. **KHÔNG có phép đo máy** — «bắt thứ tự» là phát biểu về nghĩa của chỉ dẫn, không phải quan hệ đếm được; người duyệt soi tại Cổng Phạm vi.
+- AC-5: Given bộ phương án của bước phân kỳ, When máy dựng, Then mỗi hướng có TRỤC có tên + 1 câu động cơ + 1 câu đánh đổi KỂ CẢ hướng máy không khuyên; ngả máy khuyên GHIM TRÊN VẬT chứ không nằm trong tin nhắn; tên hướng ổn định, hướng đã chốt không hỏi lại. **KHÔNG có phép đo máy** — đây là ràng buộc trên thứ máy SẼ SINH lúc chạy phiên, không phải thứ đọc được trên cây nguồn; người duyệt soi tại Cổng Phạm vi, và ván thử ở kho tiêu thụ là chỗ nó lộ ra thật.
+- AC-6: Given máy KHÔNG mở bước phân kỳ, When kết phiên, Then bắt buộc để vết ở ĐÚNG MỘT khoá có tên `divergence:` trong khuôn sổ phiên (từ vựng đóng: `opened` | `skipped — <căn cứ 1 dòng>`) — không có nhánh «không ghi gì»; và độ nét yêu cầu = đủ cho quyết định đang mở. **KHÔNG có phép đo máy cho vế «không có đường bỏ im lặng»** — đó là phủ định phổ quát trên văn tự nhiên, mọi danh sách cấm đều còn không gian ngoài danh sách (hai vòng, hai hình dạng, xem Out of scope). Vế đếm được — khoá `divergence:` phải CÓ MẶT trong khuôn và khuôn là chỗ duy nhất giữ hình dạng sổ phiên — vẫn có lưới, sống ở AC-8; người duyệt soi phần còn lại tại Cổng Phạm vi.
+- AC-7: Given phiên không có bộ dựng bộ phương án, When tới bước phân kỳ, Then nghi thức có thang bốn nấc vật dựng có tên (lưu được → chỉ-xem → file mở tại máy → không có: máy khuyên một hướng kèm căn cứ, ghi vết, đi tiếp) và KHÔNG dừng vòng. **KHÔNG có phép đo máy cho vế «kit không phụ thuộc bộ dựng nào»** — đó là phủ định phổ quát trên toàn văn, dò chữ chỉ bắt được đúng cụm người viết nghĩ ra; người duyệt soi tại Cổng Phạm vi.
 - AC-8: Given khuôn sổ phiên trong marker `DESIGN-PASS-NOTE-TEMPLATE`, When đọc, Then có đúng hai khoá mới `reaction:` (nấc + kênh) và `options:` (tham chiếu, KHÔNG phải bằng chứng), và khuôn vẫn là chỗ DUY NHẤT giữ hình dạng sổ phiên.
 - AC-9: Given sổ phiên khai `reaction:` hợp lệ, When dựng thẻ Cổng Phạm vi, Then khối «Bản mẫu & ngữ cảnh» hiện nấc phản ứng bằng NHÃN TIẾNG NGƯỜI lấy từ một bảng nhãn (không tự chế chuỗi) và hiện có/không đường bộ phương án.
 - AC-10: Given sổ phiên đời trước (thiếu `reaction:`) hoặc khai giá trị lạ, When dựng thẻ, Then cờ vàng — thiếu khoá: nói rõ hồ sơ đời trước, KHÔNG chặn, KHÔNG bắt migrate; giá trị lạ: cờ vàng NÊU TÊN giá trị lạ đó. Sổ phiên đủ khoá thì SẠCH cờ nấc (đối chứng dương).
@@ -92,6 +101,8 @@ chết mà vẫn xanh.
 
 ## Out of scope
 
+- KHÔNG có phép đo máy cho AC-2…AC-7 (thu phạm vi 25/08). Hai vòng nghiệm thu, bốn hình dạng lỗi, cùng MỘT lớp: đo LỜI bằng phép so chữ. Chẩn đoán đúng đến ở vòng ba — các mệnh đề đó là phủ định phổ quát trên văn tự nhiên («không có đường bỏ im lặng», «không bộ dựng nào bắt buộc»), grep không chứng được; đường lật sang liệt-cái-được-phép chỉ cứu được phần từ vựng đóng, và phần đó đã nằm ở AC-8. Hạt giống `docs/plans/2026-08-25-hat-giong-do-loi-hua-van-xuoi.md` giữ đề bài + điều kiện mở lại.
+- Người duyệt soi sáu tiêu chí đó bằng mắt tại Cổng Phạm vi cùng nghi thức đã sửa — đó là chốt chặn, không phải lưới máy.
 - Không tạo skill mới, không «nghi thức bộ phương án» riêng — «chỉ TRỪ, không CỘNG» + luật một mặt phẳng làm việc.
 - Không để kit phụ thuộc bộ dựng bộ phương án nào (bản xem trước, cần quyền tổ chức) — thang 4 nấc vật dựng thay cho phụ thuộc.
 - Không đưa bộ phương án / ảnh / cảm giác bấm vào chuỗi bằng chứng — nghiệm thu máy vẫn đo trên vật thật; bản chép đọc ngược là dữ liệu không tin.

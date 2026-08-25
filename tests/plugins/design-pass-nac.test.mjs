@@ -1,9 +1,19 @@
-// tests/plugins/design-pass-nac.test.mjs — ca hồ sơ design-pass-nac-khong-dong-bo (DP1–DP13).
+// tests/plugins/design-pass-nac.test.mjs — ca hồ sơ design-pass-nac-khong-dong-bo.
+// THU PHẠM VI 25/08 (owner chọn, sau khi luật dừng-vá bật ở vòng 2): DP2–DP7 ĐÃ CẮT.
+// Sáu ca đó đo những mệnh đề PHÁT BIỂU PHỔ QUÁT VỀ NGHĨA của văn xuôi («không có
+// đường bỏ im lặng», «không bộ dựng nào bắt buộc», «leo thang theo tín hiệu chứ
+// không theo cảm giác»). Loại mệnh đề ấy không chứng được bằng phép so chữ — mọi
+// danh sách cấm đều còn không gian ngoài danh sách — và bốn hình dạng lỗi đã dẫm
+// qua hai vòng chỉ là bốn cách thất bại của cùng một điều bất khả. Chúng chuyển
+// sang người duyệt soi tại Cổng Phạm vi; xem contract AC-2…AC-7 và hạt giống
+// docs/plans/2026-08-25-hat-giong-do-loi-hua-van-xuoi.md.
+// Ca CÒN LẠI (DP1, DP8–DP13) đều đo QUAN HỆ ĐẾM ĐƯỢC trên tập đóng, hoặc ĐẦU RA
+// THẬT của bộ dựng thẻ — loại mệnh đề chứng được.
 // Mọi fixture RÚT TỪ mốc neo của đầu VIẾT (skills/design-pass/SKILL.md); mọi mutant đi qua
 // CHÍNH bộ kiểm mà chiều xanh dùng — cùng hàm, khác input. Đường dẫn suy từ vị trí file này.
 // Ma trận mutant là HỢP ĐỒNG, khai ở đầu evals.yaml của hồ sơ; số mutant = số vế được khẳng định.
 //   DP_CASES=DP1,DP3 node tests/plugins/design-pass-nac.test.mjs
-import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, cpSync } from 'node:fs';
+import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, cpSync, readdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -15,7 +25,7 @@ const SKILL = path.join(ROOT, 'skills', 'design-pass', 'SKILL.md');
 
 let failures = 0;
 // MỘT nguồn danh sách ca: file này. `--ids` in ra để run-tests.sh lặp theo, không chép tay.
-const ALL_IDS = ['DP1', 'DP2', 'DP3', 'DP4', 'DP5', 'DP6', 'DP7', 'DP8', 'DP9', 'DP10', 'DP11', 'DP12', 'DP13'];
+const ALL_IDS = ['DP1', 'DP8', 'DP9', 'DP10', 'DP11', 'DP12', 'DP13'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.DP_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const ran = new Set();
@@ -28,18 +38,6 @@ const NAC = ['nac-0', 'nac-1', 'nac-2', 'nac-3'];
 const block = (text, name) => {
   const m = text.match(new RegExp('<<<' + name + '\\n([\\s\\S]*?)\\n' + name + '>>>'));
   return m ? m[1] : null;
-};
-// Lấy trọn một mục theo tiêu đề, tới tiêu đề cùng bậc kế tiếp.
-const section = (text, heading) => {
-  const i = text.indexOf(heading);
-  if (i < 0) return null;
-  const rest = text.slice(i + heading.length);
-  const j = rest.indexOf('\n## ');
-  return heading + (j >= 0 ? rest.slice(0, j) : rest);
-};
-const frontmatter = text => {
-  const m = text.match(/^---\n([\s\S]*?)\n---/);
-  return m ? m[1] : '';
 };
 
 // ---------------------------------------------------------------------------
@@ -69,120 +67,6 @@ function checkLadder(skillText) {
   const dupLines = outside.split('\n').filter(l =>
     /\|\s*nac-[0-9a-z]+\s*\|/.test(l) || new Set(NAC.filter(id => l.includes(id))).size >= 3);
   if (dupLines.length) errs.push(`danh sach nac xuat hien 2 cho: "${dupLines[0].trim().slice(0, 60)}"`);
-  return errs;
-}
-
-// DP2 · AC-2 — mặc định KHÔNG ĐỒNG BỘ ở cả mặt mô tả lẫn thân skill
-function checkDefault(skillText) {
-  const errs = [];
-  const desc = frontmatter(skillText);
-  // v1 — mặt mô tả (thứ harness đọc để quyết có nạp skill): phải khai mặc định
-  // không đồng bộ VÀ khai ngồi-cùng là nấc có người gọi tên.
-  if (!/mặc định không đồng bộ/i.test(desc))
-    errs.push('description con khai mac dinh dong bo (thieu "mặc định không đồng bộ")');
-  if (!/gọi tên/i.test(desc))
-    errs.push('description khong khai ngoi-cung la nac phai co nguoi goi ten');
-  // v2 — thân skill: câu chuẩn giữa mốc neo phải đặt nac-3 là CÓ ĐIỀU KIỆN
-  const s = block(skillText, 'REACTION-DEFAULT-SENTENCE');
-  if (s === null) return errs.concat(['thieu moc neo REACTION-DEFAULT-SENTENCE']);
-  if (!/KHÔNG ĐỒNG BỘ/.test(s)) errs.push('than skill khai mac dinh sai nac: cau chuan khong noi KHONG DONG BO');
-  if (!/nac-3/.test(s) || !/(chỉ mở khi|có người gọi tên)/.test(s))
-    errs.push('than skill khai mac dinh sai nac: nac-3 khong duoc dat la co dieu kien');
-  return errs;
-}
-
-// DP3 · AC-3 — luật leo thang đủ ba vế đo được
-function checkEscalation(skillText) {
-  const errs = [];
-  const b = block(skillText, 'REACTION-LADDER');
-  // luật vận hành nằm ngay sau bảng thang; lấy trọn mục để không phụ thuộc thứ tự dòng
-  const after = b === null ? skillText : skillText.slice(skillText.indexOf('REACTION-LADDER>>>'));
-  const seg = after.slice(0, after.indexOf('\n## ') >= 0 ? after.indexOf('\n## ') : after.length);
-  if (!/hai vòng không-đồng-bộ liên tiếp/.test(seg))
-    errs.push('thieu dieu kien dem duoc (hai vong khong-dong-bo lien tiep)');
-  if (!/mời nac-3/.test(seg))
-    errs.push('thieu hanh dong leo thang (moi nac-3)');
-  if (!/GIỚI HẠN/.test(seg) || !/không phiên trọn gói/.test(seg))
-    errs.push('thieu ve gioi han pham vi');
-  return errs;
-}
-
-const DIVERGENCE = '## 3b. Bước phân kỳ';
-// Mutant PHẢI bẻ trong đúng mục đang đo. `String.replace` đổi CHỖ ĐẦU trong toàn file,
-// nên một cụm xuất hiện hai chỗ sẽ bị bẻ ở chỗ không ai đo — mutant thành vô hiệu mà
-// nhìn thì vẫn như đã tiêm. Lớp lỗi này đã cắn một lần ở DP2 (m-body) và một lần ở DP6.
-const mutIn = (s, heading, frag, repl) => {
-  const sec = section(s, heading);
-  return s.replace(sec, sec.replace(frag, repl));
-};
-
-// DP4 · AC-4 — thứ tự bắt buộc + nguồn bày hướng
-function checkDivergenceOrder(skillText) {
-  const errs = [];
-  const sec = section(skillText, DIVERGENCE);
-  if (sec === null) return [`thieu muc ${DIVERGENCE}`];
-  // Đo THỨ TỰ bằng vị trí ký tự, không đo sự CÓ MẶT: một mutant hoán vị hai mệnh đề
-  // mà không xoá chữ nào phải làm ca này đỏ, nếu không ca chỉ đang đếm từ.
-  const low = sec.toLowerCase();
-  const iReal = low.indexOf('mở bằng vật thật đang có'.toLowerCase());
-  const iShow = low.indexOf('bày hướng');
-  if (iReal < 0) errs.push('thieu ve: mo bang vat that dang co');
-  if (iShow < 0) errs.push('thieu ve: bay huong');
-  if (iReal >= 0 && iShow >= 0 && iReal > iShow) errs.push('vat that phai dung truoc bay huong');
-  if (!sec.includes('## Đặc tả UX')) errs.push('thieu nguon bay huong: Dac ta UX');
-  if (!/kho chưa có bản đặc tả/.test(sec)) errs.push('thieu nhanh lui khi kho chua co dac ta UX');
-  return errs;
-}
-
-// DP5 · AC-5 — kỷ luật phương án, bốn vế
-function checkOptionDiscipline(skillText) {
-  const errs = [];
-  const sec = section(skillText, DIVERGENCE);
-  if (sec === null) return [`thieu muc ${DIVERGENCE}`];
-  if (!/TRỤC có tên/.test(sec) || !/động cơ/.test(sec) || !/đánh đổi/.test(sec))
-    errs.push('thieu ve truc-dong co-danh doi');
-  if (!/KỂ CẢ hướng máy không khuyên/.test(sec))
-    errs.push('thieu ve ke ca huong may khong khuyen');
-  if (!/GHIM TRÊN VẬT/.test(sec))
-    errs.push('thieu ve nga may khuyen ghim tren vat');
-  if (!/tên hướng ổn định/i.test(sec) || !/không hỏi lại/.test(sec))
-    errs.push('thieu ve ten huong on dinh');
-  return errs;
-}
-
-// DP6 · AC-6 — không có đường bỏ im lặng + khoá vết đóng + luật độ nét
-function checkTraceAndFidelity(skillText) {
-  const errs = [];
-  const sec = section(skillText, DIVERGENCE);
-  if (sec === null) return [`thieu muc ${DIVERGENCE}`];
-  // BA vế ĐỘC LẬP, không else-if: chuỗi else-if làm vế sau không bao giờ chạy được khi
-  // mutant bắn vế trước — đó là cách vế lõi của AC-6 từng thành assert chết (S4 vòng 1).
-  const degradeRow = skillText.split('\n').find(l => l.includes('|') && /Không mở bước phân kỳ/.test(l));
-  if (!degradeRow) errs.push('bang tra degrade thieu hang khong-mo-phan-ky');
-  if (degradeRow && !/divergence:/.test(degradeRow)) errs.push('vet khong co khoa dong, moi phien ghi mot cho');
-  if (degradeRow && /không ghi gì|đi tiếp, không ghi/.test(degradeRow)) errs.push('co nhanh bo im lang');
-  if (!/`divergence: opened`/.test(sec) || !/`divergence: skipped — /.test(sec))
-    errs.push('thieu tu vung dong cua khoa vet');
-  if (!/đủ cho quyết định đang mở/.test(sec) || !/NỘI DUNG của quyết định/.test(sec))
-    errs.push('thieu luat do net');
-  return errs;
-}
-
-// DP7 · AC-7 — thang vật dựng bốn nấc, không phụ thuộc bộ dựng nào
-function checkBuilderLadder(skillText) {
-  const errs = [];
-  const b = block(skillText, 'BUILDER-LADDER');
-  if (b === null) return ['thieu moc neo BUILDER-LADDER'];
-  for (const n of ['1.', '2.', '3.', '4.']) {
-    if (!b.split('\n').some(l => l.trim().startsWith(n))) errs.push(`thang vat dung thieu nac: ${n}`);
-  }
-  if (!/ĐI TIẾP/.test(b) || /DỪNG nghi thức/.test(b))
-    errs.push('thieu canvas khong duoc lam dung vong');
-  // Vế VẮNG-MẶT: không nấc nào được ép một bộ dựng cụ thể. Assert vắng-mặt trên không
-  // gian mở không tự chứng minh được nó biết đỏ — DP7 m3 là ca tiêm dương cho vế này.
-  const sec = section(skillText, DIVERGENCE) || skillText;
-  const forced = sec.match(/bắt buộc dùng\s+([^\s.,]+)/i);
-  if (forced) errs.push(`kit bi ep phu thuoc bo dung: ${forced[1]}`);
   return errs;
 }
 
@@ -272,7 +156,12 @@ function render(wsRoot, mutateCard = null) {
     cpSync(path.join(ROOT, 'scripts'), path.join(d, 'scripts'), { recursive: true });
     cpSync(path.join(ROOT, 'lib'), path.join(d, 'lib'), { recursive: true });
     card = path.join(d, 'scripts', 'gate-card.js');
-    writeFileSync(card, mutateCard(readFileSync(card, 'utf8')));
+    const before = readFileSync(card, 'utf8');
+    const after = mutateCard(before);
+    // Lệnh tiêm không đổi được dòng nào = mutant no-op = ca xanh mà chưa bao giờ chạy
+    // chiều đỏ. Cùng lớp với `runCase` (nó đã kiểm), nên chân này cũng phải kiểm.
+    if (after === before) throw new Error('lenh tiem vao gate-card KHONG doi duoc dong nao');
+    writeFileSync(card, after);
   }
   const r = spawnSync(process.execPath, [card, '--root', wsRoot, '--slug', 'fx'], { encoding: 'utf8' });
   return { status: r.status, out: r.stdout || '', err: r.stderr || '' };
@@ -308,91 +197,6 @@ runCase('DP1', 'thang bon nac, mot cho duy nhat khai danh sach', checkLadder, [
   // vế «mỗi nấc có TÊN + ĐIỀU KIỆN»: rỗng hoá ô điều kiện của một nấc, id vẫn còn
   ['m-thieu-dieu-kien', s => s.replace(/(\| nac-2 \| [^|]+\|)[^|]+\|/, '$1  |'),
     'nac thieu ten hoac dieu kien: nac-2'],
-]);
-
-runCase('DP2', 'mac dinh KHONG DONG BO o ca mat mo ta lan than skill', checkDefault, [
-  ['m-desc', s => s.replace(/mặc định không đồng bộ/i, 'owner ngồi xem và phản ứng bằng lời từng vòng'),
-    'description con khai mac dinh dong bo'],
-  // Mutant bẻ ĐÚNG câu chuẩn trong mốc neo, không dùng regex toàn file: cụm «có người
-  // gọi tên» cũng nằm trong description, regex toàn file sẽ bẻ nhầm vế v1 và ca thành
-  // vô nghĩa (đo vế khác với vế nó tuyên).
-  ['m-body', s => {
-    const b = block(s, 'REACTION-DEFAULT-SENTENCE');
-    return s.replace(b, b.replace(/nac-3 \(ngồi cùng\)[^.]*\./, 'nac-3 (ngồi cùng) là mặc định.'));
-  }, 'than skill khai mac dinh sai nac'],
-  ['m-desc-goi-ten', s => { const fm = frontmatter(s);
-    return s.replace(fm, fm.replace(/ngồi cùng là nấc cao nhất và phải có người gọi tên/, 'ngồi cùng vẫn dùng khi cần')); },
-    'description khong khai ngoi-cung la nac phai co nguoi goi ten'],
-  ['m-body-khong-dong-bo', s => { const b = block(s, 'REACTION-DEFAULT-SENTENCE');
-    return s.replace(b, b.replace('KHÔNG ĐỒNG BỘ', 'linh hoạt')); },
-    'cau chuan khong noi KHONG DONG BO'],
-]);
-
-runCase('DP3', 'luat leo thang du ba ve do duoc', checkEscalation, [
-  ['m-dieu-kien', s => s.replace('hai vòng không-đồng-bộ liên tiếp', 'nhiều vòng'),
-    'thieu dieu kien dem duoc'],
-  ['m-hanh-dong', s => s.replace('mời nac-3', 'cân nhắc đổi kênh'),
-    'thieu hanh dong leo thang'],
-  ['m-gioi-han', s => s.replace('không phiên trọn gói', 'như thường lệ'),
-    'thieu ve gioi han pham vi'],
-]);
-
-runCase('DP4', 'thu tu bat buoc: vat that truoc, roi bay huong', checkDivergenceOrder, [
-  // Hoán vị, KHÔNG xoá chữ nào: ca chỉ đếm từ sẽ vẫn xanh và lộ ra là ca chết.
-  ['m-hoan-vi', s => {
-    const sec = section(s, DIVERGENCE);
-    const lines = sec.split('\n');
-    const a = lines.findIndex(l => l.toLowerCase().includes('mở bằng vật thật đang có'.toLowerCase()));
-    const b2 = lines.findIndex(l => l.includes('bày hướng'));
-    const c = [...lines]; [c[a], c[b2]] = [c[b2], c[a]];
-    return s.replace(sec, c.join('\n'));
-  }, 'vat that phai dung truoc bay huong'],
-  ['m-nhanh-lui', s => mutIn(s, DIVERGENCE, 'kho chưa có bản đặc tả', 'kho nào cũng vậy'),
-    'thieu nhanh lui khi kho chua co dac ta UX'],
-  ['m-nguon', s => mutIn(s, DIVERGENCE, '## Đặc tả UX', 'tài liệu thiết kế'),
-    'thieu nguon bay huong: Dac ta UX'],
-]);
-
-runCase('DP5', 'ky luat phuong an du bon ve', checkOptionDiscipline, [
-  ['m-truc', s => mutIn(s, DIVERGENCE, 'TRỤC có tên', 'nhãn'), 'thieu ve truc-dong co-danh doi'],
-  ['m-khong-khuyen', s => mutIn(s, DIVERGENCE, 'KỂ CẢ hướng máy không khuyên', 'cho hướng được chọn'),
-    'thieu ve ke ca huong may khong khuyen'],
-  // Vế này là vế mà ván thử 19/08 chết vì thiếu — mutant của nó bắt buộc đứng riêng.
-  ['m-ghim-tren-vat', s => mutIn(s, DIVERGENCE, 'GHIM TRÊN VẬT', 'nêu trong tin nhắn'),
-    'thieu ve nga may khuyen ghim tren vat'],
-  ['m-ten-on-dinh', s => mutIn(s, DIVERGENCE, 'không hỏi lại', 'hỏi lại khi cần'),
-    'thieu ve ten huong on dinh'],
-]);
-
-runCase('DP6', 'khong co duong bo im lang + khoa vet dong + luat do net', checkTraceAndFidelity, [
-  // GIỮ khoá `divergence:` trong hàng để mutant bắn ĐÚNG vế nó tuyên. Bản trước xoá
-  // luôn khoá nên nó bắn vế của mutant khác, và vế lõi AC-6 thành assert chết.
-  ['m-bo-im-lang', s => s.replace(/\| Không mở bước phân kỳ \|[^\n]*\|/,
-    '| Không mở bước phân kỳ | Ghi `divergence:` nếu tiện, không thì đi tiếp, không ghi gì. |'),
-    'co nhanh bo im lang'],
-  ['m-thieu-khoa', s => s.replace(/\| Không mở bước phân kỳ \|[^\n]*\|/,
-    '| Không mở bước phân kỳ | Ghi một dòng vào sổ phiên. |'),
-    'vet khong co khoa dong'],
-  ['m-thieu-hang', s => s.replace(/\| Không mở bước phân kỳ \|[^\n]*\|\n/, ''),
-    'bang tra degrade thieu hang khong-mo-phan-ky'],
-  ['m-tu-vung', s => mutIn(s, DIVERGENCE, '`divergence: opened`', '`ghi chú tự do`'),
-    'thieu tu vung dong cua khoa vet'],
-  ['m-do-net', s => mutIn(s, DIVERGENCE, 'đủ cho quyết định đang mở', 'cao nhất có thể'),
-    'thieu luat do net'],
-]);
-
-runCase('DP7', 'thang vat dung bon nac, khong phu thuoc bo dung nao', checkBuilderLadder, [
-  ['m-nac-cuoi', s => {
-    const b = block(s, 'BUILDER-LADDER');
-    return s.replace(b, b.replace('ĐI TIẾP', 'DỪNG nghi thức'));
-  }, 'thieu canvas khong duoc lam dung vong'],
-  ...['1.', '2.', '3.'].map(n => [`m-nac-${n}`, s => {
-    const b = block(s, 'BUILDER-LADDER');
-    return s.replace(b, b.split('\n').filter(l => !l.trim().startsWith(n)).join('\n'));
-  }, `thang vat dung thieu nac: ${n}`]),
-  // CA TIÊM DƯƠNG cho vế vắng-mặt: thiếu ca này thì vế «không ép bộ dựng nào» là vế chết.
-  ['m-tiem-phu-thuoc', s => s.replace(DIVERGENCE, DIVERGENCE + '\n\nBắt buộc dùng canvas-preview cho mọi bề mặt.'),
-    'kit bi ep phu thuoc bo dung: canvas-preview'],
 ]);
 
 runCase('DP8', 'khuon so phien giu ba khoa moi, khong liet lai danh sach nac', checkNoteKeys, [
@@ -437,9 +241,10 @@ if (want('DP9')) {
   else pass('DP9', 'khop vong 4 nac khuon->the + 2 mutant do dung ve');
 }
 
-// DP10 · AC-10 — ba nhánh đọc-cũ, đối chứng dương chạy TRƯỚC
+// DP10 · AC-10 — năm nhánh đời-hồ-sơ, đối chứng dương chạy TRƯỚC
 if (want('DP10')) {
   const errs = [];
+  const labelsOf = id => ladderLabels(src)[id];
   const CO_VANG_THIEU = 'chưa khai nấc phản ứng';
   const a = render(mkWs(noteFromTemplate(src, { reaction: 'nac-1' })));
   if (a.out.includes(CO_VANG_THIEU)) errs.push('(a) ho so du khoa van bi co vang nac — doi chung duong hong');
@@ -453,8 +258,41 @@ if (want('DP10')) {
   if (!c.out.includes(CO_VANG_LA)) errs.push(`(c) gia tri la ma khong co co vang "${CO_VANG_LA}"`);
   if (!c.out.includes('nac-9')) errs.push('(c) co vang khong NEU TEN "nac-9"');
   if (c.status !== 0) errs.push('(c) gia tri la KHONG duoc chan the');
+
+  // (d)+(e) SỔ PHIÊN ĐIỀN NỬA VỜI — phiên MỚI ghi hỏng, KHÔNG phải hồ sơ đời trước.
+  // Gộp hai thứ vào một câu là nói sai chuyện đang xảy ra cho người duyệt, và giấu
+  // mất cái sai vừa xảy ra (S4-r2 finding). Chỗ trống rút TỪ khuôn thật, không gõ tay.
+  const tpl = block(src, NOTE_TPL);
+  const reactionLine = (tpl.match(/^reaction:.*$/m) || [''])[0];
+  const chanPh = reactionLine.replace(/^reaction:\s*\S+\s*/, '');
+  const idPh = (reactionLine.match(/^reaction:\s*(\S+)/) || [])[1];
+  if (!/[<>]/.test(chanPh) || !/[<>]/.test(idPh || ''))
+    errs.push('khuon so phien khong con cho trong o dong reaction — fixture (d)(e) mat nghia');
+  const CO_VANG_NUA_VOI = 'còn nguyên chỗ trống của khuôn';
+  // (d) id ĐÃ điền, phần kênh còn chỗ trống → thẻ vẫn phải nhận nấc đã khai
+  const d = render(mkWs(noteFromTemplate(src, { reaction: 'nac-1' }).replace('(ghim)', chanPh)));
+  if (d.status !== 0) errs.push('(d) so phien nua voi lam dung the');
+  if (!d.out.includes(labelsOf('nac-1'))) errs.push('(d) id da dien ma the khong nhan nac-1');
+  if (!d.out.includes(CO_VANG_NUA_VOI)) errs.push(`(d) khong co co vang "${CO_VANG_NUA_VOI}" cho phan kenh chua dien`);
+  if (d.out.includes(CO_VANG_THIEU)) errs.push('(d) bao NHAM la ho so doi truoc trong khi phien nay vua ghi hong');
+  // (e) id còn chỗ trống → cờ phải nói ĐÚNG nguyên nhân, không phải «đời trước»
+  const e = render(mkWs(noteFromTemplate(src, { reaction: 'nac-1' }).replace('nac-1', idPh)));
+  if (e.status !== 0) errs.push('(e) so phien nua voi lam dung the');
+  if (!e.out.includes(CO_VANG_NUA_VOI)) errs.push(`(e) khong co co vang "${CO_VANG_NUA_VOI}"`);
+  if (e.out.includes(CO_VANG_THIEU)) errs.push('(e) bao NHAM la ho so doi truoc');
+  // MA TRẬN 2 MUTANT trên bản sao TRỌN scripts/+lib/, đi qua CHÍNH bộ đọc thật
+  const m1 = render(mkWs(noteFromTemplate(src, { reaction: 'nac-1' }).replace('(ghim)', chanPh)),
+    t => t.replace('dp.reaction = reactionId || (dp.reaction_placeholder ? \'\' : rawReaction);',
+                   'dp.reaction = dp.reaction_placeholder ? \'\' : (reactionId || rawReaction);'));
+  if (m1.out.includes(labelsOf('nac-1')))
+    errs.push('m1: bo duong rut id khoi chuoi nua voi ma the van khoe nhan — ve (d) khong phan biet duoc');
+  const m2 = render(mkWs(noteFromTemplate(src, { reaction: 'nac-1' }).replace('nac-1', idPh)),
+    t => t.replace('if (!dp.reaction && dp.reaction_declared)', 'if (false)'));
+  if (!m2.out.includes(CO_VANG_THIEU))
+    errs.push('m2: bo nhanh nua-voi ma the KHONG roi ve cau "doi truoc" — ve (e) khong phan biet duoc');
+
   if (errs.length) fail('DP10', errs.join(' · '));
-  else pass('DP10', 'ba nhanh doc-cu: du khoa sach co · thieu khoa neu doi truoc · gia tri la neu ten');
+  else pass('DP10', 'nam nhanh doc-cu: du khoa sach co · thieu khoa neu doi truoc · gia tri la neu ten · nua voi giu id · nua voi neu dung nguyen nhan + 2 mutant');
 }
 
 // DP13 · AC-15 — hồ sơ KHÔNG có sổ phiên: thẻ vẫn phải dựng được
@@ -482,17 +320,36 @@ if (want('DP13')) {
 // DP11 · AC-11 — một cây nguồn: mỗi site chứa ĐÚNG NGUYÊN VĂN câu chuẩn
 // Đo QUAN HỆ (nguyên văn), không đo ĐẾM SUÔNG: hai chỗ viết hai nghĩa khác nhau vẫn
 // đếm đủ số bản, nên đếm-không-so-chữ là thước chết đúng chỗ nó sinh ra để giữ.
-function checkDefaultSites(skillText, readAt) {
+// Bảng khai tay là ALLOWLIST. Allowlist không có chiều đỏ NGOÀI danh sách thì bản
+// chép thứ ba mọc ở file không có tên vẫn lọt — đúng thứ AC-11 sinh ra để chặn
+// («một cây nguồn cho câu nấc-mặc-định»), và đúng lỗ hội đồng vòng 2 chứng minh
+// bằng cách nối câu chuẩn vào skills/acceptance/SKILL.md mà ca vẫn xanh.
+// Nên vế thứ hai quét TRỌN hai thư mục — CÙNG phạm vi mà hàm đếm của răng câu-chết
+// dùng — và đối chiếu TỔNG bản chép với TỔNG khai trong bảng.
+const SCAN_DIRS = ['skills', 'feature-loop'];
+// Không lọc theo đuôi file: lọc-theo-đuôi là blacklist, file kiểu mới sẽ lọt.
+function walkFiles(abs, acc = []) {
+  for (const e of readdirSync(abs, { withFileTypes: true })) {
+    const q = path.join(abs, e.name);
+    if (e.isDirectory()) walkFiles(q, acc); else acc.push(path.relative(ROOT, q));
+  }
+  return acc;
+}
+const scanAll = () => SCAN_DIRS.flatMap(d => walkFiles(path.join(ROOT, d)));
+
+function checkDefaultSites(skillText, readAt, listFiles) {
   const sentence = block(skillText, 'REACTION-DEFAULT-SENTENCE');
   if (sentence === null) return ['thieu moc neo REACTION-DEFAULT-SENTENCE'];
   const man = block(skillText, 'REACTION-DEFAULT-SITES');
   if (man === null) return ['thieu moc neo REACTION-DEFAULT-SITES'];
   const errs = [];
   const need = sentence.trim();
+  const declared = new Map();
   for (const line of man.trim().split('\n')) {
     const m = line.trim().match(/^(\S+)\s+(\d+)$/);
     if (!m) { errs.push(`dong manifest thieu so: "${line.trim()}"`); continue; }
     const [, rel, want2] = m;
+    declared.set(rel, Number(want2));
     const body = readAt(rel);
     if (body === null) { errs.push(`site khong doc duoc: ${rel}`); continue; }
     const got = body.split(need).length - 1;
@@ -502,29 +359,56 @@ function checkDefaultSites(skillText, readAt) {
         : `site ${rel}: thieu ban chep hoac lech chu (dem ${got}, manifest khai ${want2})`);
     }
   }
+  // Vế «số site có mặt phải bằng đúng con số khai» — quét TRỌN glob, không chỉ các
+  // site đã có tên. File mang bản chép mà không có tên trong bảng là ĐỎ.
+  let total = 0;
+  for (const rel of listFiles()) {
+    const body = readAt(rel);
+    if (body === null) continue;
+    const got = body.split(need).length - 1;
+    if (!got) continue;
+    total += got;
+    if (!declared.has(rel)) errs.push(`ban chep NGOAI bang khai: ${rel} (dem ${got})`);
+  }
+  const wantTotal = [...declared.values()].reduce((a, b) => a + b, 0);
+  if (total !== wantTotal) errs.push(`tong ban chep tren ca hai thu muc dem ${total}, bang khai tong ${wantTotal}`);
   return errs;
 }
 
 if (want('DP11')) {
   const readAt = rel => { try { return readFileSync(path.join(ROOT, rel), 'utf8'); } catch { return null; } };
-  const clean0 = checkDefaultSites(src, readAt);
+  const clean0 = checkDefaultSites(src, readAt, scanAll);
   if (clean0.length) fail('DP11', `doi chung duong DO — ban nguyen ven phai XANH: ${clean0.join(' · ')}`);
   else {
     const errs = [];
     const FL = 'feature-loop/skills/feature-loop/SKILL.md';
+    // File THỨ BA: có thật dưới glob, KHÔNG có tên trong bảng khai.
+    const THIRD = 'skills/acceptance/SKILL.md';
     const sentence = block(src, 'REACTION-DEFAULT-SENTENCE').trim();
     // m1 — lệch MỘT TỪ ở một site (không xoá): đếm vẫn đủ nếu thước chỉ đếm bản chép
     const m1 = rel => rel === FL ? readAt(rel).replace(sentence, sentence.replace('KHÔNG ĐỒNG BỘ', 'không đồng bộ')) : readAt(rel);
-    if (!checkDefaultSites(src, m1).some(e => e.includes(`site ${FL}`) && e.includes('lech chu')))
+    if (!checkDefaultSites(src, m1, scanAll).some(e => e.includes(`site ${FL}`) && e.includes('lech chu')))
       errs.push('m1: lech mot tu o mot site ma khong do — thuoc dang dem suong');
     // m2 — thừa một bản chép mà không sửa manifest
     const m2 = rel => rel === FL ? readAt(rel) + '\n' + sentence + '\n' : readAt(rel);
-    if (!checkDefaultSites(src, m2).some(e => e.includes('thua ban chep'))) errs.push('m2: thua ban chep ma khong do');
+    if (!checkDefaultSites(src, m2, scanAll).some(e => e.includes('thua ban chep'))) errs.push('m2: thua ban chep ma khong do');
     // m3 — thiếu một bản chép
     const m3 = rel => rel === FL ? readAt(rel).replace(sentence, '') : readAt(rel);
-    if (!checkDefaultSites(src, m3).some(e => e.includes('thieu ban chep'))) errs.push('m3: thieu ban chep ma khong do');
+    if (!checkDefaultSites(src, m3, scanAll).some(e => e.includes('thieu ban chep'))) errs.push('m3: thieu ban chep ma khong do');
+    // m4 — CHIỀU ĐỎ NGOÀI DANH SÁCH: bản chép mọc ở file thứ ba, bảng khai không đổi.
+    // Thiếu mutant này thì vế «thêm một chỗ mà không sửa bảng cũng ĐỎ» là vế chết.
+    const m4 = rel => rel === THIRD ? readAt(rel) + '\n' + sentence + '\n' : readAt(rel);
+    const e4 = checkDefaultSites(src, m4, scanAll);
+    if (!e4.some(e => e.includes('NGOAI bang khai') && e.includes(THIRD)))
+      errs.push('m4: ban chep o file THU BA ngoai danh sach ma khong do — allowlist khong co chieu do ngoai danh sach');
+    if (!e4.some(e => e.includes('tong ban chep'))) errs.push('m4: tong ban chep khong doi chieu voi tong khai');
+    // m5 — file thứ ba BIẾN MẤT khỏi phạm vi quét: chứng minh chân quét thật sự đi
+    // trọn thư mục chứ không phải một danh sách rút gọn nào đó.
+    const narrow = () => [FL];
+    if (checkDefaultSites(src, m4, narrow).some(e => e.includes('NGOAI bang khai')))
+      errs.push('m5: pham vi quet hep van bao duoc ban chep thu ba — chan quet khong that');
     if (errs.length) fail('DP11', errs.join(' · '));
-    else pass('DP11', 'moi site chua dung nguyen van cau chuan + 3 mutant do dung ve');
+    else pass('DP11', 'moi site dung nguyen van + tong ban chep tron glob khop bang khai + 5 mutant do dung ve');
   }
 }
 

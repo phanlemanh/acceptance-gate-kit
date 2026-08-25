@@ -12,14 +12,21 @@ feature_slug: design-pass-nac-khong-dong-bo
 # mỗi ca khai SỐ MUTANT = SỐ VẾ ĐƯỢC KHẲNG ĐỊNH, mỗi mutant bẻ ĐÚNG MỘT vế trên
 # bản sao và thông điệp đỏ GHIM TÊN VẾ đó. Bảng dưới là hợp đồng, không để bộ ca
 # tự quyết:
-#   E1=6 · E2=4 · E3=3 · E4=3 · E5=4 · E6=5 · E7=5 · E8=5 · E9=2 · E10=3 nhánh
-#   · E11=3 · E12=4 · E13=3 chân · E15=2
+# <<<MUTANT-MATRIX
+#   E1=6 · E8=5 · E9=2 · E10=5 nhánh + 2 mutant · E11=5 · E12=4 · E13=3 chân · E15=2
+# MUTANT-MATRIX>>>
 #
-# ĐÍNH CHÍNH vòng 1 (25/08): bảng cũ khai 5 con số KHÔNG khớp bộ ca thật, và HAI vế
-# là assert chết — «có nhánh bỏ im lặng» (vế lõi AC-6) bị chuỗi else-if che, và nhánh
-# giá trị-lạ của E10 đo BẢN IN DỰ PHÒNG của nhãn thay vì đo cờ. Hội đồng bắt được cả
-# hai bằng cách xoá lưới thật rồi chạy lại: ca vẫn xanh. Bảng hứa mà bộ ca không giao
-# chính là lớp lỗi nặng nhất ở đây — số dưới đây nay ĐẾM ĐƯỢC trên đầu ra từng ca.
+# Bảng trên là chỗ DUY NHẤT khai ma trận. Câu hỏi hội đồng E14 TRỎ VỀ marker này,
+# KHÔNG chép lại — bản chép thứ hai trong cùng file đã hoá lỗi thời sau lượt đính
+# chính vòng 1 và làm hội đồng chấm trên số sai (finding vòng 2).
+#
+# THU PHẠM VI 25/08 (owner quyết, sau khi luật dừng-vá bật ở vòng 2): E2–E7 ĐÃ CẮT.
+# Sáu eval đó đo những mệnh đề PHÁT BIỂU PHỔ QUÁT VỀ NGHĨA của văn xuôi — loại mệnh
+# đề mà phép so chữ không chứng được; bốn hình dạng lỗi qua hai vòng chỉ là bốn cách
+# thất bại của cùng một điều bất khả. Chúng chuyển sang người duyệt tại Cổng Phạm vi
+# (contract AC-2…AC-7 + Out of scope; đề bài ở hạt giống 25/08).
+# Tám eval CÒN LẠI đều đo QUAN HỆ ĐẾM ĐƯỢC trên tập đóng hoặc ĐẦU RA THẬT của bộ
+# dựng thẻ — số dưới đây ĐẾM ĐƯỢC trên đầu ra từng ca.
 #
 # MỘT ca cố ý KHÔNG vào suite vĩnh viễn: `cau_chet` (E13) neo đối chứng dương
 # vào mốc git CỐ ĐỊNH `BASE-DPNKDB` đọc từ contract. Neo vào origin/main thì sau
@@ -43,103 +50,6 @@ evals:
       sách nấc thứ hai NGOÀI marker → đỏ, ghim "danh sách nấc xuất hiện 2 chỗ";
       m6 = rỗng hoá ô ĐIỀU KIỆN của một nấc (id vẫn còn) → đỏ ghim "nac thiếu tên
       hoặc điều kiện" — vế này vòng 1 không có mutant nào.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E2
-    criterion: AC-2
-    executor: test
-    cmd: config:executors.test.plugins
-    paths: [skills/design-pass/SKILL.md, tests/plugins/design-pass-nac.test.mjs]
-    expected: >
-      exit 0; stdout có "PASS: [DP2]". Case đo QUAN HỆ, không đo chuỗi có mặt, trên
-      hai vế: (v1) frontmatter `description` nêu mặc định KHÔNG ĐỒNG BỘ và nêu
-      sync là nấc phải có người gọi tên; (v2) thân skill mục vòng lặp phản ứng
-      đặt nac-1 (hoặc thấp hơn) làm mặc định và nac-3 là opt-in.
-      Đối chứng dương chạy trước. MA TRẬN 4 MUTANT — mỗi vế một mutant (vòng 1 chỉ
-      có 2, nên hai vế có thể biến mất mà ca vẫn xanh): m1 = bản sao thay
-      `description` bằng bản 2.3.0 (chuỗi "owner ngồi xem và phản ứng bằng lời
-      từng vòng") → đỏ ghim "description còn khai mặc định đồng bộ"; m2 = bản sao
-      đổi thân skill cho nac-3 thành mặc định → đỏ ghim "thân skill khai mặc
-      định sai nấc"; m3 = xoá vế "phải có người gọi tên" khỏi description → đỏ ghim
-      vế đó; m4 = đổi "KHÔNG ĐỒNG BỘ" trong câu chuẩn → đỏ ghim "câu chuẩn không nói
-      KHÔNG ĐỒNG BỘ". Mọi mutant đi qua cùng bộ kiểm của chiều xanh.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E3
-    criterion: AC-3
-    executor: test
-    cmd: config:executors.test.plugins
-    paths: [skills/design-pass/SKILL.md, tests/plugins/design-pass-nac.test.mjs]
-    expected: >
-      exit 0; stdout có "PASS: [DP3]". Luật leo thang đủ BA vế đo được: (v1) điều
-      kiện ĐẾM ĐƯỢC (cùng một điểm bị chê hai vòng không-đồng-bộ liên tiếp);
-      (v2) hành động (mời nac-3); (v3) GIỚI HẠN phạm vi phiên đúng điểm đó.
-      Đối chứng dương chạy trước. MA TRẬN 3 MUTANT, mỗi mutant xoá đúng một vế
-      trên bản sao → cùng bộ kiểm đỏ, ghim tên vế: "thiếu điều kiện đếm được" ·
-      "thiếu hành động leo thang" · "thiếu vế giới hạn phạm vi".
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E4
-    criterion: AC-4
-    executor: test
-    cmd: config:executors.test.plugins
-    paths: [skills/design-pass/SKILL.md, tests/plugins/design-pass-nac.test.mjs]
-    expected: >
-      exit 0; stdout có "PASS: [DP4]". Hai vế: (v1) THỨ TỰ — mệnh đề "mở bằng vật
-      thật đang có" đứng TRƯỚC mệnh đề "bày hướng mới" theo vị trí ký tự trong
-      mục; (v2) nguồn bày hướng trỏ section `## Đặc tả UX` VÀ có nhánh lùi về
-      design-doc khi kho chưa có.
-      MA TRẬN 3 MUTANT: m1 = bản sao HOÁN VỊ hai mệnh đề (không xoá chữ nào) →
-      bộ kiểm thứ-tự đỏ, ghim "vật thật phải đứng trước bày hướng"; m2 = bản sao
-      xoá nhánh lùi → đỏ, ghim "thiếu nhánh lùi khi kho chưa có đặc tả UX"; m3 = đổi
-      nguồn bày hướng khỏi `## Đặc tả UX` → đỏ ghim "thiếu nguồn bày hướng".
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E5
-    criterion: AC-5
-    executor: test
-    cmd: config:executors.test.plugins
-    paths: [skills/design-pass/SKILL.md, tests/plugins/design-pass-nac.test.mjs]
-    expected: >
-      exit 0; stdout có "PASS: [DP5]". Bốn vế kỷ luật phương án: (v1) mỗi hướng có
-      trục có tên + động cơ + đánh đổi; (v2) áp cho CẢ hướng máy không khuyên;
-      (v3) ngả máy khuyên GHIM TRÊN VẬT, không nằm trong tin nhắn; (v4) tên hướng
-      ổn định, hướng đã chốt không hỏi lại.
-      MA TRẬN 4 MUTANT, mỗi mutant xoá đúng một vế → đỏ ghim tên vế đó. Vế v3 là
-      vế mà ván thử 19/08 chết vì thiếu (hạt giống mục 4.3 bài học 2) — mutant
-      của nó là bắt buộc, không được gộp vào mutant khác.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E6
-    criterion: AC-6
-    executor: test
-    cmd: config:executors.test.plugins
-    paths: [skills/design-pass/SKILL.md, tests/plugins/design-pass-nac.test.mjs]
-    expected: >
-      exit 0; stdout có "PASS: [DP6]". Ba vế: (v1) bảng tra degrade có hàng cho ca
-      không-mở-phân-kỳ và hàng đó bắt để vết; (v2) vết nằm ở ĐÚNG khoá có tên
-      `divergence:` với từ vựng đóng `opened` | `skipped — <căn cứ>`; (v3) luật
-      độ nét ("đủ cho quyết định đang mở") có mặt kèm điều kiện token-thật-chỉ-
-      khi-token-là-nội-dung-quyết-định.
-      BA vế đo ĐỘC LẬP, KHÔNG chuỗi else-if: else-if làm vế sau không bao giờ chạy
-      được khi mutant bắn vế trước — đó là cách vế lõi AC-6 thành assert chết ở vòng 1.
-      MA TRẬN 5 MUTANT: m1 = hàng degrade GIỮ khoá `divergence:` nhưng thêm "không ghi
-      gì" → đỏ ghim "có nhánh bỏ im lặng" (m1 vòng 1 xoá luôn khoá nên bắn nhầm vế của
-      m2); m2 = hàng chỉ nói "ghi một dòng", không nêu khoá → đỏ ghim "vết không có
-      khoá đóng"; m3 = XOÁ HẲN hàng degrade → đỏ ghim "bảng tra degrade thiếu hàng";
-      m4 = xoá từ vựng đóng khỏi mục 3b → đỏ ghim "thiếu từ vựng đóng"; m5 = xoá luật
-      độ nét → đỏ ghim "thiếu luật độ nét".
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E7
-    criterion: AC-7
-    executor: test
-    cmd: config:executors.test.plugins
-    paths: [skills/design-pass/SKILL.md, tests/plugins/design-pass-nac.test.mjs]
-    expected: >
-      exit 0; stdout có "PASS: [DP7]". Hai vế: (v1) thang vật dựng đủ BỐN nấc xuống
-      dần có tên và nấc cuối là "máy khuyên một hướng kèm căn cứ, ghi vết, đi
-      tiếp" — KHÔNG dừng vòng; (v2) skill KHÔNG nêu bộ dựng nào là bắt buộc.
-      MA TRẬN 5 MUTANT: m1 = đổi nấc cuối thành "DỪNG nghi thức" → đỏ ghim "thiếu bộ
-      phương án không được làm đứng vòng"; m2..m4 = xoá lần lượt TỪNG nấc 1/2/3 → đỏ
-      ghim đúng nấc thiếu (vòng 1 chỉ xoá một nấc nên vế "đủ BỐN nấc" hở ba phần
-      tư); m5 là CA TIÊM DƯƠNG cho vế vắng-mặt (assert vắng-mặt trên không gian mở
-      không tự chứng minh được nó biết đỏ): bản sao THÊM câu "bắt buộc dùng <tên bộ
-      dựng>" → đỏ, ghim nguyên văn tên bộ dựng bị ép. Thiếu m5 thì v2 là vế chết.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
     criterion: AC-8
@@ -181,7 +91,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/gate-card.js, skills/design-pass/SKILL.md, tests/plugins/design-pass-nac.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: [DP10]". BA nhánh đọc-cũ, mỗi nhánh một hồ sơ CODE
+      exit 0; stdout có "PASS: [DP10]". NĂM nhánh đời-hồ-sơ, mỗi nhánh một hồ sơ CODE
       SINH RÚT TỪ CÙNG MARKER `DESIGN-PASS-NOTE-TEMPLATE` của đầu viết (không tự
       dựng frontmatter theo kỳ vọng bên đọc — đổi khuôn ở đầu viết phải làm ca
       này đỏ), chạy CÙNG bộ dựng thẻ: (a) đủ khoá → SẠCH cờ nấc (đối chứng dương,
@@ -190,7 +100,18 @@ evals:
       VĂN "nac-9" — nhánh này phải ghim ĐÚNG CÂU CỜ "Nấc phản ứng không nhận diện được",
       KHÔNG chỉ đòi thấy chuỗi "nac-9": thẻ luôn in id thô làm bản in dự phòng của
       nhãn, nên đòi mỗi "nac-9" là đo bản in dự phòng chứ không đo cờ (vòng 1: xoá cờ
-      đi ca vẫn xanh). Nhánh thứ tư của trục đời-hồ-sơ (không có sổ phiên) sống ở E15.
+      đi ca vẫn xanh); (d) sổ phiên ĐIỀN NỬA VỜI — id đã điền, phần kênh còn nguyên
+      chỗ trống của khuôn → thẻ VẪN nhận nấc đã khai (in đúng nhãn) VÀ có cờ nói
+      phần kênh chưa điền, và TUYỆT ĐỐI không rơi về câu "hồ sơ đời trước"; (e) id
+      còn chỗ trống → cờ nói ĐÚNG nguyên nhân «còn nguyên chỗ trống của khuôn»,
+      không phải «đời trước». Hai nhánh (d)(e) là finding vòng 2: bộ đọc loại cả
+      dòng khi thấy bất kỳ ngoặc nhọn nào, nên phiên MỚI vừa ghi hỏng bị báo thành
+      hồ sơ đời trước — nói sai chuyện đang xảy ra cho người duyệt và giấu mất cái
+      sai vừa xảy ra. Chỗ trống của fixture RÚT TỪ khuôn thật, không gõ tay.
+      MA TRẬN 2 MUTANT trên bản sao TRỌN scripts/+lib/, đi qua CHÍNH bộ đọc thật:
+      m1 = bỏ đường rút id khỏi chuỗi nửa vời → (d) mất nhãn → đỏ; m2 = bỏ nhánh
+      nửa-vời → (e) rơi về câu "đời trước" → đỏ. Lệnh tiêm không đổi được dòng nào
+      thì ném lỗi, không được in xanh. Nhánh không-có-sổ-phiên sống ở E15.
       Mỗi nhánh ghim đúng thông điệp mong đợi, không chỉ đếm số cờ.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E15
@@ -217,11 +138,20 @@ evals:
       RÚT câu chuẩn từ giữa cặp mốc neo `REACTION-DEFAULT-SENTENCE` trong
       skills/design-pass/SKILL.md (bản gốc DUY NHẤT), rồi khẳng định MỖI site
       khai trong bảng khai tay `REACTION-DEFAULT-SITES` chứa ĐÚNG NGUYÊN VĂN câu
-      rút được, và số site có mặt bằng đúng con số khai.
-      MA TRẬN 3 MUTANT qua cùng hàm so: m1 = đổi MỘT TỪ ở một site → đỏ ghim cặp
-      (site, chỗ lệch); m2 = thêm một bản chép mà không sửa số → đỏ ghim "thừa";
-      m3 = xoá một bản chép → đỏ ghim "thiếu". Dòng manifest thiếu số là lỗi kêu
-      to, không đoán.
+      rút được. Bảng khai là ALLOWLIST, nên vế THỨ HAI bắt buộc: quét TRỌN
+      `skills/**` + `feature-loop/**` — CÙNG phạm vi thư mục mà hàm đếm của răng
+      câu-chết (E13) dùng, không lọc theo đuôi file — đếm TỔNG bản chép và đối chiếu
+      với TỔNG khai trong bảng; file mang bản chép mà KHÔNG có tên trong bảng là ĐỎ.
+      Thiếu vế này thì vế «thêm một chỗ mà không sửa bảng cũng ĐỎ» của AC-11 là vế
+      chết: hội đồng vòng 2 đã chứng bằng cách nối câu chuẩn vào một file thứ ba mà
+      ca vẫn xanh — đúng thứ AC-11 sinh ra để chặn.
+      MA TRẬN 5 MUTANT qua cùng hàm so: m1 = đổi MỘT TỪ ở một site → đỏ ghim cặp
+      (site, chỗ lệch); m2 = thêm một bản chép ở site ĐÃ có tên mà không sửa số →
+      đỏ ghim "thừa"; m3 = xoá một bản chép → đỏ ghim "thiếu"; m4 = tiêm bản chép
+      vào file THỨ BA ngoài danh sách → đỏ ghim "NGOAI bang khai" kèm đường dẫn VÀ
+      lệch tổng; m5 = thu hẹp phạm vi quét về đúng danh sách cũ → m4 không còn đỏ,
+      chứng minh chân quét thật sự đi trọn thư mục chứ không phải danh sách rút gọn.
+      Dòng manifest thiếu số là lỗi kêu to, không đoán.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E12
     criterion: AC-13
@@ -260,16 +190,20 @@ evals:
     executor: judgment
     question: >
       Đọc bộ ca `tests/plugins/design-pass-nac.test.mjs` và răng hồ sơ
-      `rang-cau-chet.sh`. Đối chiếu với BẢNG MA TRẬN MUTANT khai ở đầu evals.yaml
-      (E1=5 · E2=2 · E3=3 · E4=2 · E5=4 · E6=3 · E7=3 · E8=3 · E9=2 · E10=4 nhánh
-      · E11=3 · E12=4 · E13=3 · E15=2): số mutant thực thi có ĐỦ như đã khai
+      `rang-cau-chet.sh`. Đối chiếu với BẢNG MA TRẬN MUTANT khai giữa cặp
+      mốc neo `MUTANT-MATRIX` ở đầu chính file này — đọc TỪ đó, câu hỏi này cố ý
+      KHÔNG chép lại số vì bản chép thứ hai đã hoá lỗi thời một lần rồi: số mutant
+      thực thi có ĐỦ như đã khai
       không, hay có ca tuyên N vế mà chỉ chạy một mutant? Với MỖI mutant: nó có
       đi qua CHÍNH hàm/bộ kiểm mà chiều xanh dùng (cùng bộ đọc, khác input) hay
       là một phép so chuỗi riêng dựng cho mutant? Fixture có do CODE SINH trong
       chính lượt chạy và rút TỪ khuôn thật qua marker (kể cả ba hồ sơ của E10)
       hay viết tay đúng khuôn bên đọc? Thông điệp đỏ có GHIM tên vế/khoá/site
-      thiếu, hay chỉ dựa vào mã thoát? Vế vắng-mặt của E7 có ca tiêm dương không?
-      Hai đầu của E13 có nhận cùng một glob thư mục không? Nêu đích danh ca vi
+      thiếu, hay chỉ dựa vào mã thoát? Hai đầu của E13 có nhận cùng một glob thư mục không? E11 có chân quét
+      TRỌN glob — không chỉ các site đã có tên trong bảng khai — kèm mutant tiêm bản
+      chép vào file THỨ BA không (allowlist thiếu chiều đỏ ngoài danh sách là vế
+      chết)? Mỗi lệnh tiêm có chứng minh nó đổi được ít nhất một dòng không, hay có
+      mutant no-op in xanh? Nêu đích danh ca vi
       phạm; không có thì nói rõ đã soi hết bao nhiêu ca và bao nhiêu mutant.
     inputs: [../../tests/plugins/design-pass-nac.test.mjs, rang-cau-chet.sh]
     expected: >

@@ -277,10 +277,17 @@ if (gate === '1') {
     // trong khi card khoe "1 cảnh ngữ-cảnh" (false-green seam writer→reader, S4-r1).
     const rawScenes = clean(dpFm.context_scenes || '');
     if (!/[<>]/.test(rawScenes)) dp.scenes = rawScenes.replace(/^\[|\]$/g, '').split(',').map(s => s.trim()).filter(Boolean);
-    // `reaction: <id> (<kênh>)` — lấy id, bỏ phần kênh; placeholder khuôn chưa điền
-    // (còn ngoặc nhọn) coi như CHƯA KHAI, không phải một nấc tên lạ.
+    // `reaction: <id> (<kênh>)` — lấy id, bỏ phần kênh.
+    // Khoá VẮNG HẲN và khoá ĐIỀN NỬA VỜI là hai chuyện khác nhau: cái trước là hồ sơ
+    // đời trước thang phản ứng, cái sau là phiên MỚI vừa ghi hỏng. Gộp cả hai vào một
+    // câu «hồ sơ đời trước» là nói sai chuyện đang xảy ra cho người duyệt, và giấu mất
+    // cái sai vừa xảy ra (S4-r2 finding, AC-10). Nên giữ ba mẩu riêng.
     const rawReaction = clean(dpFm.reaction || '');
-    dp.reaction = /[<>]/.test(rawReaction) ? '' : ((rawReaction.match(/^(nac-[0-9a-z]+)/) || [])[1] || rawReaction);
+    dp.reaction_raw = rawReaction;
+    dp.reaction_declared = !!rawReaction;
+    dp.reaction_placeholder = /[<>]/.test(rawReaction);
+    const reactionId = (rawReaction.match(/^(nac-[0-9a-z]+)/) || [])[1] || '';
+    dp.reaction = reactionId || (dp.reaction_placeholder ? '' : rawReaction);
     const rawOptions = clean(dpFm.options || '');
     dp.options = /[<>]/.test(rawOptions) ? '' : rawOptions;
   }
@@ -309,8 +316,10 @@ if (gate === '1') {
     }
     // Đường đọc-cũ của thang phản ứng: sổ phiên đời trước không có khoá này. Cờ vàng,
     // KHÔNG chặn, KHÔNG bắt migrate — cùng khuôn với trục ngữ cảnh từ 2.0.0.
-    if (!dp.reaction) dpFlags.push('Sổ phiên chưa khai nấc phản ứng (hồ sơ đời trước thang phản ứng) — không biết phiên đã gọi người ở nấc nào; không chặn, khuyên bổ sung ở phiên thiết kế sau.');
+    if (!dp.reaction && dp.reaction_declared) dpFlags.push('Sổ phiên có khoá nấc phản ứng nhưng còn nguyên chỗ trống của khuôn: "' + dp.reaction_raw + '" — phiên này vừa ghi hỏng, KHÔNG phải hồ sơ đời trước; không chặn, sửa sổ phiên rồi dựng lại thẻ.');
+    else if (!dp.reaction) dpFlags.push('Sổ phiên chưa khai nấc phản ứng (hồ sơ đời trước thang phản ứng) — không biết phiên đã gọi người ở nấc nào; không chặn, khuyên bổ sung ở phiên thiết kế sau.');
     else if (!REACTION_LABEL[dp.reaction]) dpFlags.push('Nấc phản ứng không nhận diện được: "' + dp.reaction + '" — chỉ nhận nac-0 / nac-1 / nac-2 / nac-3.');
+    else if (dp.reaction_placeholder) dpFlags.push('Nấc phản ứng đã khai nhưng phần kênh còn nguyên chỗ trống của khuôn: "' + dp.reaction_raw + '" — không biết phiên đã gọi người qua kênh nào; không chặn.');
     if (!he.present) dpFlags.push('Repo chưa khai đường nhúng (design_pass.host_embed) — phiên coi như chưa có đường nhúng rẻ, đi nấc thấp; không chặn.');
     else if (!he.resolvable) dpFlags.push('Đường nhúng đã khai nhưng con trỏ không giải được: "' + he.guide + '" — sửa con trỏ, hoặc phiên đi nấc thấp; không chặn.');
   }
