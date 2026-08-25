@@ -35,7 +35,7 @@ Người trả giá: owner và làn nghiệm thu máy. Bằng chứng + sổ cá
 
 ## Ngưỡng chết / ngưỡng UAT
 
-*Chốt nguyên văn cùng lượt chữ ký Cổng Đáng 25/08 — không sửa số nào so với bản đề xuất.*
+Chốt nguyên văn cùng lượt chữ ký Cổng Đáng 25/08 — không sửa số nào so với bản đề xuất.
 
 - Câu hỏi phép đo trả lời: sau khi ship, vòng S4 còn chết vì bộ phân loại
   không, và khi vẫn nghẽn thì có thoát trong MỘT lượt không?

@@ -7,7 +7,7 @@ feature_slug: lan-may-song-qua-bo-phan-loai
 # mệnh đề ĐÓNG trên tập hữu hạn; cấm phủ định phổ quát trên không gian mở.
 #
 # <<<MUTANT-MATRIX
-#   E1=4 · E2=5 · E3=4 · E4=3 · E5=4 · E6=2 · E8=3
+#   E1=4 · E2=3 · E3=5 · E4=3 · E5=4 · E6=2 · E8=3
 # MUTANT-MATRIX>>>
 #
 # Bảng trên là chỗ DUY NHẤT khai ma trận; câu hỏi hội đồng E7 TRỎ VỀ marker này,
@@ -51,12 +51,12 @@ evals:
       MA TRẬN 5 MUTANT. Ba mutant trong bảng chữ `*`: m1 = thêm entry `Bash(bash *)`;
       m2 = đổi một entry đúng thành dạng có `*` ở cuối; m3 = thêm entry `Bash(*)` —
       mỗi cái đỏ ghim NGUYÊN VĂN entry vi phạm, không chỉ đếm số.
-      HAI mutant NGOÀI bảng chữ `*`, bắt buộc: m4 = bản sao RÚT `permissions.deny`
-      đang có; m5 = bản sao đổi `permissions.defaultMode` sang giá trị nới lỏng.
-      Thiếu m4/m5 thì chiều đỏ của ca chỉ chứng minh nó bắt được đúng thứ chính nó
-      viết ra — «rộng quá» diễn đạt cách khác sẽ lọt, đúng ô mà hồ sơ tự nhận là
-      nguy hiểm nhất. GIỚI HẠN: AC-2 đóng ô B«rộng quá» ở dạng `*`; hai dạng kia do
-      m4/m5 canh; văn phạm entry do E8 canh.
+      PHẠM VI THẬT của ca này, khai thẳng: AC-2 đóng ô B«rộng quá» **chỉ ở dạng ký
+      tự `*`**. Các dạng «rộng ra» khác — rút `permissions.deny` đang có, nới
+      `defaultMode` — KHÔNG do bộ kiểm này bắt được (nó chỉ đếm `*`), mà do **E3**
+      canh: chân (b) của E3 đòi mọi khoá trong `permissions` ngoài `allow` giữ
+      nguyên so với mốc. Nhét hai mutant đó vào đây là dựng một thước đòi chiều đỏ
+      không bao giờ xảy ra. Văn phạm entry do E8 canh.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
@@ -77,7 +77,10 @@ evals:
       của chiều xanh: m1 = xoá một khoá cấp cao ngoài `permissions` → đỏ ghim tên
       khoá mất (chân a); m2 = xoá `permissions.deny` → đỏ ghim khoá mất (chân b);
       m3 = đổi giá trị một khoá cấp cao không liên quan → đỏ ghim tên khoá đổi;
-      m4 = xoá một phần tử `allow` vốn có ở mốc → đỏ ghim entry mất.
+      m4 = xoá một phần tử `allow` vốn có ở mốc → đỏ ghim entry mất; m5 = đổi
+      `permissions.defaultMode` sang giá trị nới lỏng → đỏ ghim tên khoá đổi.
+      m2 và m5 chính là HAI dạng «rộng ra» mà E2 không bắt được — chúng ở đây, và
+      Coverage của contract trỏ đúng về đây.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
     criterion: AC-4
