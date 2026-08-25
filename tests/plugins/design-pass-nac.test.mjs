@@ -155,10 +155,12 @@ function checkTraceAndFidelity(skillText) {
   const errs = [];
   const sec = section(skillText, DIVERGENCE);
   if (sec === null) return [`thieu muc ${DIVERGENCE}`];
+  // BA vế ĐỘC LẬP, không else-if: chuỗi else-if làm vế sau không bao giờ chạy được khi
+  // mutant bắn vế trước — đó là cách vế lõi của AC-6 từng thành assert chết (S4 vòng 1).
   const degradeRow = skillText.split('\n').find(l => l.includes('|') && /Không mở bước phân kỳ/.test(l));
   if (!degradeRow) errs.push('bang tra degrade thieu hang khong-mo-phan-ky');
-  else if (!/divergence:/.test(degradeRow)) errs.push('vet khong co khoa dong, moi phien ghi mot cho');
-  else if (/không ghi gì|đi tiếp, không/.test(degradeRow)) errs.push('co nhanh bo im lang');
+  if (degradeRow && !/divergence:/.test(degradeRow)) errs.push('vet khong co khoa dong, moi phien ghi mot cho');
+  if (degradeRow && /không ghi gì|đi tiếp, không ghi/.test(degradeRow)) errs.push('co nhanh bo im lang');
   if (!/`divergence: opened`/.test(sec) || !/`divergence: skipped — /.test(sec))
     errs.push('thieu tu vung dong cua khoa vet');
   if (!/đủ cho quyết định đang mở/.test(sec) || !/NỘI DUNG của quyết định/.test(sec))
@@ -303,6 +305,9 @@ runCase('DP1', 'thang bon nac, mot cho duy nhat khai danh sach', checkLadder, [
   ...NAC.map(id => [`m-${id}`, s => s.replace('| ' + id + ' |', '| nac-X |'), `thang thieu nac: ${id}`]),
   ['m-dup', s => s.replace('\n## ', '\n\nDanh sách nấc: nac-0, nac-1, nac-2, nac-3.\n\n## '),
     'danh sach nac xuat hien 2 cho'],
+  // vế «mỗi nấc có TÊN + ĐIỀU KIỆN»: rỗng hoá ô điều kiện của một nấc, id vẫn còn
+  ['m-thieu-dieu-kien', s => s.replace(/(\| nac-2 \| [^|]+\|)[^|]+\|/, '$1  |'),
+    'nac thieu ten hoac dieu kien: nac-2'],
 ]);
 
 runCase('DP2', 'mac dinh KHONG DONG BO o ca mat mo ta lan than skill', checkDefault, [
@@ -315,6 +320,12 @@ runCase('DP2', 'mac dinh KHONG DONG BO o ca mat mo ta lan than skill', checkDefa
     const b = block(s, 'REACTION-DEFAULT-SENTENCE');
     return s.replace(b, b.replace(/nac-3 \(ngồi cùng\)[^.]*\./, 'nac-3 (ngồi cùng) là mặc định.'));
   }, 'than skill khai mac dinh sai nac'],
+  ['m-desc-goi-ten', s => { const fm = frontmatter(s);
+    return s.replace(fm, fm.replace(/ngồi cùng là nấc cao nhất và phải có người gọi tên/, 'ngồi cùng vẫn dùng khi cần')); },
+    'description khong khai ngoi-cung la nac phai co nguoi goi ten'],
+  ['m-body-khong-dong-bo', s => { const b = block(s, 'REACTION-DEFAULT-SENTENCE');
+    return s.replace(b, b.replace('KHÔNG ĐỒNG BỘ', 'linh hoạt')); },
+    'cau chuan khong noi KHONG DONG BO'],
 ]);
 
 runCase('DP3', 'luat leo thang du ba ve do duoc', checkEscalation, [
@@ -338,6 +349,8 @@ runCase('DP4', 'thu tu bat buoc: vat that truoc, roi bay huong', checkDivergence
   }, 'vat that phai dung truoc bay huong'],
   ['m-nhanh-lui', s => mutIn(s, DIVERGENCE, 'kho chưa có bản đặc tả', 'kho nào cũng vậy'),
     'thieu nhanh lui khi kho chua co dac ta UX'],
+  ['m-nguon', s => mutIn(s, DIVERGENCE, '## Đặc tả UX', 'tài liệu thiết kế'),
+    'thieu nguon bay huong: Dac ta UX'],
 ]);
 
 runCase('DP5', 'ky luat phuong an du bon ve', checkOptionDiscipline, [
@@ -352,8 +365,16 @@ runCase('DP5', 'ky luat phuong an du bon ve', checkOptionDiscipline, [
 ]);
 
 runCase('DP6', 'khong co duong bo im lang + khoa vet dong + luat do net', checkTraceAndFidelity, [
+  // GIỮ khoá `divergence:` trong hàng để mutant bắn ĐÚNG vế nó tuyên. Bản trước xoá
+  // luôn khoá nên nó bắn vế của mutant khác, và vế lõi AC-6 thành assert chết.
   ['m-bo-im-lang', s => s.replace(/\| Không mở bước phân kỳ \|[^\n]*\|/,
-    '| Không mở bước phân kỳ | Đi tiếp, không ghi gì. |'), 'vet khong co khoa dong'],
+    '| Không mở bước phân kỳ | Ghi `divergence:` nếu tiện, không thì đi tiếp, không ghi gì. |'),
+    'co nhanh bo im lang'],
+  ['m-thieu-khoa', s => s.replace(/\| Không mở bước phân kỳ \|[^\n]*\|/,
+    '| Không mở bước phân kỳ | Ghi một dòng vào sổ phiên. |'),
+    'vet khong co khoa dong'],
+  ['m-thieu-hang', s => s.replace(/\| Không mở bước phân kỳ \|[^\n]*\|\n/, ''),
+    'bang tra degrade thieu hang khong-mo-phan-ky'],
   ['m-tu-vung', s => mutIn(s, DIVERGENCE, '`divergence: opened`', '`ghi chú tự do`'),
     'thieu tu vung dong cua khoa vet'],
   ['m-do-net', s => mutIn(s, DIVERGENCE, 'đủ cho quyết định đang mở', 'cao nhất có thể'),
@@ -365,10 +386,10 @@ runCase('DP7', 'thang vat dung bon nac, khong phu thuoc bo dung nao', checkBuild
     const b = block(s, 'BUILDER-LADDER');
     return s.replace(b, b.replace('ĐI TIẾP', 'DỪNG nghi thức'));
   }, 'thieu canvas khong duoc lam dung vong'],
-  ['m-nac-giua', s => {
+  ...['1.', '2.', '3.'].map(n => [`m-nac-${n}`, s => {
     const b = block(s, 'BUILDER-LADDER');
-    return s.replace(b, b.split('\n').filter(l => !l.trim().startsWith('3.')).join('\n'));
-  }, 'thang vat dung thieu nac: 3.'],
+    return s.replace(b, b.split('\n').filter(l => !l.trim().startsWith(n)).join('\n'));
+  }, `thang vat dung thieu nac: ${n}`]),
   // CA TIÊM DƯƠNG cho vế vắng-mặt: thiếu ca này thì vế «không ép bộ dựng nào» là vế chết.
   ['m-tiem-phu-thuoc', s => s.replace(DIVERGENCE, DIVERGENCE + '\n\nBắt buộc dùng canvas-preview cho mọi bề mặt.'),
     'kit bi ep phu thuoc bo dung: canvas-preview'],
@@ -384,6 +405,12 @@ runCase('DP8', 'khuon so phien giu ba khoa moi, khong liet lai danh sach nac', c
   ['m-divergence', s => { const b = block(s, NOTE_TPL);
     return s.replace(b, b.split('\n').filter(l => !l.startsWith('divergence:')).join('\n')); },
     'khuon so phien thieu khoa: divergence:'],
+  ['m-options-khong-khai', s => { const b = block(s, NOTE_TPL);
+    return s.replace(b, b.replace('THAM CHIẾU, không phải bằng chứng', 'đường dẫn')); },
+    'khoa options khong tu khai la tham chieu'],
+  ['m-liet-lai-nac', s => { const b = block(s, NOTE_TPL);
+    return s.replace(b, b.replace('<id nấc lấy từ REACTION-LADDER>', '<nac-0|nac-1|nac-2|nac-3>')); },
+    'khuon liet lai danh sach nac thay vi tro ve moc neo'],
 ]);
 
 // DP9 · AC-9 — khớp vòng: mỗi nấc trong thang → thẻ hiện đúng NHÃN của nấc đó
@@ -419,8 +446,12 @@ if (want('DP10')) {
   const b2 = render(mkWs(noteFromTemplate(src, { drop: 'reaction:' })));
   if (!b2.out.includes(CO_VANG_THIEU)) errs.push(`(b) thieu khoa reaction ma khong co co vang "${CO_VANG_THIEU}"`);
   if (b2.status !== 0) errs.push('(b) duong doc-cu KHONG duoc chan: the phai dung duoc');
+  // GHIM ĐÚNG CÂU CỜ. Chỉ đòi thấy chuỗi "nac-9" là đo BẢN IN DỰ PHÒNG của nhãn
+  // (thẻ luôn in id thô khi không có nhãn), không đo cờ — xoá cờ đi ca vẫn xanh.
+  const CO_VANG_LA = 'Nấc phản ứng không nhận diện được';
   const c = render(mkWs(noteFromTemplate(src, { reaction: 'nac-9' })));
-  if (!c.out.includes('nac-9')) errs.push('(c) gia tri la ma co vang khong NEU TEN "nac-9"');
+  if (!c.out.includes(CO_VANG_LA)) errs.push(`(c) gia tri la ma khong co co vang "${CO_VANG_LA}"`);
+  if (!c.out.includes('nac-9')) errs.push('(c) co vang khong NEU TEN "nac-9"');
   if (c.status !== 0) errs.push('(c) gia tri la KHONG duoc chan the');
   if (errs.length) fail('DP10', errs.join(' · '));
   else pass('DP10', 'ba nhanh doc-cu: du khoa sach co · thieu khoa neu doi truoc · gia tri la neu ten');

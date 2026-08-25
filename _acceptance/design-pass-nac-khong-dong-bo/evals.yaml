@@ -12,8 +12,14 @@ feature_slug: design-pass-nac-khong-dong-bo
 # mỗi ca khai SỐ MUTANT = SỐ VẾ ĐƯỢC KHẲNG ĐỊNH, mỗi mutant bẻ ĐÚNG MỘT vế trên
 # bản sao và thông điệp đỏ GHIM TÊN VẾ đó. Bảng dưới là hợp đồng, không để bộ ca
 # tự quyết:
-#   E1=5 · E2=2 · E3=3 · E4=2 · E5=4 · E6=3 · E7=3 · E8=3 · E9=2 · E10=4 nhánh
-#   · E11=3 · E12=4 · E13=3 · E15=2
+#   E1=6 · E2=4 · E3=3 · E4=3 · E5=4 · E6=5 · E7=5 · E8=5 · E9=2 · E10=3 nhánh
+#   · E11=3 · E12=4 · E13=3 chân · E15=2
+#
+# ĐÍNH CHÍNH vòng 1 (25/08): bảng cũ khai 5 con số KHÔNG khớp bộ ca thật, và HAI vế
+# là assert chết — «có nhánh bỏ im lặng» (vế lõi AC-6) bị chuỗi else-if che, và nhánh
+# giá trị-lạ của E10 đo BẢN IN DỰ PHÒNG của nhãn thay vì đo cờ. Hội đồng bắt được cả
+# hai bằng cách xoá lưới thật rồi chạy lại: ca vẫn xanh. Bảng hứa mà bộ ca không giao
+# chính là lớp lỗi nặng nhất ở đây — số dưới đây nay ĐẾM ĐƯỢC trên đầu ra từng ca.
 #
 # MỘT ca cố ý KHÔNG vào suite vĩnh viễn: `cau_chet` (E13) neo đối chứng dương
 # vào mốc git CỐ ĐỊNH `BASE-DPNKDB` đọc từ contract. Neo vào origin/main thì sau
@@ -31,10 +37,12 @@ evals:
       nac-0/nac-1/nac-2/nac-3, mỗi id có tên tiếng người + điều kiện dùng, và
       danh sách nấc KHÔNG xuất hiện lần thứ hai ngoài marker.
       Đối chứng dương: bản nguyên vẹn XANH, chạy TRƯỚC mọi mutant.
-      MA TRẬN 5 MUTANT (mỗi mutant đi qua CHÍNH bộ trích của chiều xanh, khác
+      MA TRẬN 6 MUTANT (mỗi mutant đi qua CHÍNH bộ trích của chiều xanh, khác
       input): m1..m4 = bản sao ĐỔI TÊN lần lượt nac-0, nac-1, nac-2, nac-3 thành
       id khác → đỏ, thông điệp GHIM đúng id thiếu; m5 = bản sao thêm một danh
-      sách nấc thứ hai NGOÀI marker → đỏ, ghim "danh sách nấc xuất hiện 2 chỗ".
+      sách nấc thứ hai NGOÀI marker → đỏ, ghim "danh sách nấc xuất hiện 2 chỗ";
+      m6 = rỗng hoá ô ĐIỀU KIỆN của một nấc (id vẫn còn) → đỏ ghim "nac thiếu tên
+      hoặc điều kiện" — vế này vòng 1 không có mutant nào.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
     criterion: AC-2
@@ -46,11 +54,14 @@ evals:
       hai vế: (v1) frontmatter `description` nêu mặc định KHÔNG ĐỒNG BỘ và nêu
       sync là nấc phải có người gọi tên; (v2) thân skill mục vòng lặp phản ứng
       đặt nac-1 (hoặc thấp hơn) làm mặc định và nac-3 là opt-in.
-      Đối chứng dương chạy trước. MA TRẬN 2 MUTANT: m1 = bản sao thay
+      Đối chứng dương chạy trước. MA TRẬN 4 MUTANT — mỗi vế một mutant (vòng 1 chỉ
+      có 2, nên hai vế có thể biến mất mà ca vẫn xanh): m1 = bản sao thay
       `description` bằng bản 2.3.0 (chuỗi "owner ngồi xem và phản ứng bằng lời
       từng vòng") → đỏ ghim "description còn khai mặc định đồng bộ"; m2 = bản sao
       đổi thân skill cho nac-3 thành mặc định → đỏ ghim "thân skill khai mặc
-      định sai nấc". Hai mutant đi qua cùng bộ kiểm của chiều xanh.
+      định sai nấc"; m3 = xoá vế "phải có người gọi tên" khỏi description → đỏ ghim
+      vế đó; m4 = đổi "KHÔNG ĐỒNG BỘ" trong câu chuẩn → đỏ ghim "câu chuẩn không nói
+      KHÔNG ĐỒNG BỘ". Mọi mutant đi qua cùng bộ kiểm của chiều xanh.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
@@ -77,7 +88,8 @@ evals:
       design-doc khi kho chưa có.
       MA TRẬN 2 MUTANT: m1 = bản sao HOÁN VỊ hai mệnh đề (không xoá chữ nào) →
       bộ kiểm thứ-tự đỏ, ghim "vật thật phải đứng trước bày hướng"; m2 = bản sao
-      xoá nhánh lùi → đỏ, ghim "thiếu nhánh lùi khi kho chưa có đặc tả UX".
+      xoá nhánh lùi → đỏ, ghim "thiếu nhánh lùi khi kho chưa có đặc tả UX"; m3 = đổi
+      nguồn bày hướng khỏi `## Đặc tả UX` → đỏ ghim "thiếu nguồn bày hướng".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
@@ -104,10 +116,14 @@ evals:
       `divergence:` với từ vựng đóng `opened` | `skipped — <căn cứ>`; (v3) luật
       độ nét ("đủ cho quyết định đang mở") có mặt kèm điều kiện token-thật-chỉ-
       khi-token-là-nội-dung-quyết-định.
-      MA TRẬN 3 MUTANT: m1 = đổi hàng degrade thành "đi tiếp, không ghi gì" → đỏ
-      ghim "có nhánh bỏ im lặng"; m2 = xoá tên khoá `divergence:` khỏi hàng đó →
-      đỏ ghim "vết không có khoá đóng, mỗi phiên ghi một chỗ"; m3 = xoá luật độ
-      nét → đỏ ghim "thiếu luật độ nét".
+      BA vế đo ĐỘC LẬP, KHÔNG chuỗi else-if: else-if làm vế sau không bao giờ chạy
+      được khi mutant bắn vế trước — đó là cách vế lõi AC-6 thành assert chết ở vòng 1.
+      MA TRẬN 5 MUTANT: m1 = hàng degrade GIỮ khoá `divergence:` nhưng thêm "không ghi
+      gì" → đỏ ghim "có nhánh bỏ im lặng" (m1 vòng 1 xoá luôn khoá nên bắn nhầm vế của
+      m2); m2 = hàng chỉ nói "ghi một dòng", không nêu khoá → đỏ ghim "vết không có
+      khoá đóng"; m3 = XOÁ HẲN hàng degrade → đỏ ghim "bảng tra degrade thiếu hàng";
+      m4 = xoá từ vựng đóng khỏi mục 3b → đỏ ghim "thiếu từ vựng đóng"; m5 = xoá luật
+      độ nét → đỏ ghim "thiếu luật độ nét".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E7
     criterion: AC-7
@@ -118,9 +134,9 @@ evals:
       exit 0; stdout có "PASS: [DP7]". Hai vế: (v1) thang vật dựng đủ BỐN nấc xuống
       dần có tên và nấc cuối là "máy khuyên một hướng kèm căn cứ, ghi vết, đi
       tiếp" — KHÔNG dừng vòng; (v2) skill KHÔNG nêu bộ dựng nào là bắt buộc.
-      MA TRẬN 3 MUTANT: m1 = đổi nấc cuối thành "DỪNG nghi thức" → đỏ ghim "thiếu
-      bộ phương án không được làm đứng vòng"; m2 = xoá một nấc giữa → đỏ ghim đúng nấc
-      thiếu. m3 là CA TIÊM DƯƠNG cho vế vắng-mặt (assert vắng-mặt trên không gian
+      MA TRẬN 5 MUTANT: m1 = đổi nấc cuối thành "DỪNG nghi thức" → đỏ ghim "thiếu bộ
+      phương án không được làm đứng vòng"; m2..m4 = xoá lần lượt TỪNG nấc 1/2/3 → đỏ
+      ghim đúng nấc thiếu (vòng 1 chỉ xoá một nấc nên vế "đủ BỐN nấc" hở ba phần tư). m3 là CA TIÊM DƯƠNG cho vế vắng-mặt (assert vắng-mặt trên không gian
       mở không tự chứng minh được nó biết đỏ): bản sao THÊM câu "bắt buộc dùng
       <tên bộ dựng>" → đỏ, ghim nguyên văn tên bộ dựng bị ép. Thiếu m3 thì v2 là
       vế chết.
@@ -135,8 +151,11 @@ evals:
       chính skill, khẳng định frontmatter khuôn có đúng BA khoá mới `reaction:`,
       `options:`, `divergence:`, và dòng `options:` tự khai là tham chiếu chứ không
       phải bằng chứng.
-      MA TRẬN 3 MUTANT: bản sao xoá lần lượt từng khoá khỏi khuôn → cùng bộ trích
-      đỏ, ghim đúng tên khoá thiếu.
+      MA TRẬN 5 MUTANT: m1..m3 = xoá lần lượt từng khoá khỏi khuôn → cùng bộ trích đỏ,
+      ghim đúng tên khoá thiếu; m4 = bỏ cụm "THAM CHIẾU, không phải bằng chứng" khỏi
+      dòng `options:` → đỏ ghim vế đó; m5 = khuôn LIỆT LẠI bốn id nấc thay vì trỏ về
+      mốc neo → đỏ ghim "khuôn liệt lại danh sách nấc" (hai vế này vòng 1 không có
+      mutant).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9
     criterion: AC-9
@@ -168,7 +187,11 @@ evals:
       này đỏ), chạy CÙNG bộ dựng thẻ: (a) đủ khoá → SẠCH cờ nấc (đối chứng dương,
       chạy TRƯỚC); (b) thiếu `reaction:` → có cờ vàng nói rõ hồ sơ đời trước, và
       đầu ra KHÔNG chứa dấu hiệu chặn; (c) `reaction: nac-9` → cờ vàng NÊU NGUYÊN
-      VĂN "nac-9". Mỗi nhánh ghim đúng thông điệp mong đợi, không chỉ đếm số cờ.
+      VĂN "nac-9" — nhánh này phải ghim ĐÚNG CÂU CỜ "Nấc phản ứng không nhận diện được",
+      KHÔNG chỉ đòi thấy chuỗi "nac-9": thẻ luôn in id thô làm bản in dự phòng của
+      nhãn, nên đòi mỗi "nac-9" là đo bản in dự phòng chứ không đo cờ (vòng 1: xoá cờ
+      đi ca vẫn xanh). Nhánh thứ tư của trục đời-hồ-sơ (không có sổ phiên) sống ở E15.
+      Mỗi nhánh ghim đúng thông điệp mong đợi, không chỉ đếm số cờ.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E15
     criterion: AC-15
