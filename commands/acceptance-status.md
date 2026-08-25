@@ -35,7 +35,12 @@ Print a status table for every feature in this repository (or under
 
 4. `vetoOpen` có phần tử → dưới bảng in TÊN từng hồ sơ còn cửa veto mở; đây là
    cùng con số lưới trước-merge in ra.
-5. **Mọi nhãn trạng thái đến từ `label`/`viecKe` của máy quét.** Khối dưới đây
+5. **Hai trạng thái kết KHÔNG được gộp một chữ.** `signed-off` là người ký;
+   `machine-cleared` là máy đã thông (làn V xanh-sạch, không chữ ký, cửa veto
+   theo `veto_state`). Máy quét đã trả hai nhãn khác nhau — in nguyên văn, đừng
+   rút gọn cả hai thành «đã xong».
+
+6. **Mọi nhãn trạng thái đến từ `label`/`viecKe` của máy quét.** Khối dưới đây
    cố ý RỖNG: thêm một chuỗi vào đó là khai một nhãn TỰ CHẾ, và phép đo đòi mọi
    nhãn khai ở đây phải nằm trong bảng `scripts/trang-thai-ho-so.cjs` — không
    thì đỏ nêu đích danh nhãn. Danh sách cấm không đủ: không gian chữ là mở nên
