@@ -1,3 +1,9 @@
+> **ĐÃ ĐƯỢC QUYẾT (25/08).** File này là bản escalate viết lúc máy tạm dừng, giữ
+> làm VẾT. Owner sau đó chọn: chạy một vòng chấm cuối rồi ký. Vòng 14 đạt 15/15,
+> owner ký 25/08 với phạm vi rút gọn (AC-6 ii+iii cố ý không đạt, ghi trong sổ
+> quyết định). Trạng thái hiện tại đọc ở `contract.md` + `evidence-report.md`,
+> không đọc ở file này.
+
 # Bàn giao — vòng lặp chấm đã VƯỢT TRẦN, dừng theo luật của chính kit
 
 `feature-loop` SKILL, nhánh S4: **«Tối đa 3 round — quá → DỪNG, escalate user kèm
