@@ -114,5 +114,17 @@ chết mà vẫn xanh.
 
 ## Notes
 
+- **Giới hạn đã khai (bổ sung 25/08, sau vòng 4):** lưới thoát-chuỗi của thẻ phủ
+  mọi chỗ đẩy cờ mà một giá trị hồ sơ THẬT chạm tới được. Còn đúng MỘT nhánh ngoài
+  tầm: cờ «nấc phản ứng không nhận diện được» theo cấu tạo không bao giờ nhận giá
+  trị mang ngoặc nhọn, nên phép thoát chuỗi ở đó là phòng thủ chiều sâu KHÔNG có
+  phép đo canh. Bốn vòng nghiệm thu cho thấy mọi phép quét tĩnh dựng để phủ nốt chỗ
+  này đều tự nó thành thước khớp-mutant-của-chính-nó; owner quyết TRỪ nó và khai
+  giới hạn.
+- **Giới hạn cấu trúc của tự-chấm, đo được qua 4 vòng:** thước do máy viết và mutant
+  chứng nó cũng do máy viết — cùng một trí tưởng tượng, nên hình dạng nằm ngoài nó
+  thì cả hai đều không thấy. Làn rà soát, vốn được tự do phá vật thật theo cách nó
+  chọn, lần nào cũng tìm ra hình dạng đó. Số lỗi BỘ ĐO có thể không về 0; thứ đáng
+  đọc ở cổng là lỗi ở SẢN PHẨM — vòng 3 có 5, vòng 4 có 0.
 - **Giới hạn đã biết, khai trước:** kit KHÔNG có giao diện web nên ô này không tự dùng được nghi thức nó đang sửa. Bằng chứng máy ở đây chứng minh LUẬT vào đúng chỗ và BỘ ĐỌC đọc đúng — không chứng minh nghi thức chạy tốt với người thật. Chứng minh đó là ván thử kế ở kho tiêu thụ, và đó chính là thứ Cổng Giá trị đọc.
 - Feature KHÔNG chạm UI (kit không có bề mặt web) → không điền đặc tả UX, không chạy nghi thức S1-D; vết miễn ở `decisions.jsonl`.

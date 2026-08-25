@@ -283,8 +283,12 @@ if (want('DP10')) {
   // (thẻ luôn in id thô khi không có nhãn), không đo cờ — xoá cờ đi ca vẫn xanh.
   const CO_VANG_LA = 'Nấc phản ứng không nhận diện được';
   const c = render(mkWs(noteFromTemplate(src, { reaction: 'nac-9' })));
-  if (!c.out.includes(CO_VANG_LA)) errs.push(`(c) gia tri la ma khong co co vang "${CO_VANG_LA}"`);
-  if (!c.out.includes('nac-9')) errs.push('(c) co vang khong NEU TEN "nac-9"');
+  // Lời hứa AC-10 là QUAN HỆ «cờ vàng NÊU TÊN giá trị lạ đó» — giá trị phải nằm TRONG
+  // cờ. Ghim trên toàn bộ stdout là đo BẢN IN DỰ PHÒNG: thẻ luôn in id thô ở khối
+  // «Bản mẫu» khi không có nhãn, nên vế nêu-tên tự thoả dù cờ có nêu hay không.
+  const coC = coNacFlag(c.out).filter(t => t.includes(CO_VANG_LA));
+  if (!coC.length) errs.push(`(c) gia tri la ma khong co co vang "${CO_VANG_LA}"`);
+  else if (!coC.some(t => t.includes('nac-9'))) errs.push('(c) co vang co mat nhung KHONG NEU TEN "nac-9" trong noi dung co');
   if (c.status !== 0) errs.push('(c) gia tri la KHONG duoc chan the');
 
   // (d)+(e) SỔ PHIÊN ĐIỀN NỬA VỜI — phiên MỚI ghi hỏng, KHÔNG phải hồ sơ đời trước.
@@ -322,6 +326,12 @@ if (want('DP10')) {
     t => t.replace('if (!dp.reaction && dp.reaction_declared)', 'if (false)'));
   if (!m2.out.includes(CO_VANG_THIEU))
     errs.push('m2: bo nhanh nua-voi ma the KHONG roi ve cau "doi truoc" — ve (e) khong phan biet duoc');
+  // m-neu-ten — cờ giá trị-lạ CÒN NGUYÊN nhưng mất phần nêu tên. Chiều đỏ này do hội
+  // đồng vòng 4 chứng thực trên vật thật: trước khi sửa, ca vẫn xanh.
+  const mTen = render(mkWs(noteFromTemplate(src, { reaction: 'nac-9' })),
+    t => t.split('+ esc(dp.reaction) + ').join('+ '));
+  if (coNacFlag(mTen.out).some(t => t.includes(CO_VANG_LA) && t.includes('nac-9')))
+    errs.push('m-neu-ten: bo phan neu ten khoi co ma (c) van khong do');
   // m3 — mutant của hội đồng vòng 3: bắn cờ nửa-vời cho MỌI hồ sơ. Đối chứng dương
   // cũ (soi một câu) không phân biệt được ca này; ca mới phải đỏ.
   const m3 = render(mkWs(noteFromTemplate(src, { reaction: 'nac-1' })),
@@ -377,24 +387,14 @@ if (want('DP10')) {
   if (coNacFlag(mProto.out).some(t => t.includes('không nhận diện được')))
     errs.push('m-proto: tra bang nhan ve object literal ma (h) khong do');
 
-  // (g) SWEEP TĨNH — biến PHÉP QUÉT thành SỐ ĐẾM ĐƯỢC. Lưới (f) chỉ bắt được chỗ đẩy
-  // mà một giá trị hồ sơ thật CHẠM TỚI được; nhánh «không nhận diện được» theo cấu tạo
-  // không bao giờ nhận giá trị có ngoặc nhọn, nên esc() ở đó nằm ngoài tầm (f). Thay vì
-  // tin lập luận đó, đếm thẳng trên nguồn: MỌI chỗ đẩy cờ có nối giá trị đều phải qua
-  // esc(). «Đã quét» thành một con số ai cũng đọc lại được, không phải lời tôi tuyên —
-  // đây chính là lớp lỗi vòng 3 (vá theo TÊN, không theo LỚP).
-  const demChoDayThieuEsc = srcText => {
-    const lines = srcText.split('\n').filter(l => /dpFlags\.push\(/.test(l));
-    return { tong: lines.length, thieu: lines.filter(l => /'\s*\+/.test(l) && !/esc\(/.test(l)) };
-  };
-  const cardSrc = readFileSync(GATE_CARD, 'utf8');
-  const sweep = demChoDayThieuEsc(cardSrc);
-  if (sweep.tong < 5) errs.push(`(g) chi thay ${sweep.tong} cho day co — bo dem hong, khong phai vat sach`);
-  if (sweep.thieu.length) errs.push(`(g) ${sweep.thieu.length}/${sweep.tong} cho day noi gia tri ma KHONG qua esc(): "${sweep.thieu[0].trim().slice(0, 70)}"`);
-  // chiều đỏ của (g): nguồn bị gỡ esc() (SINH TỪ nguồn thật) phải đếm ra > 0
-  const sweepMut = demChoDayThieuEsc(cardSrc.split('+ esc(').join('+ ('));
-  if (!sweepMut.thieu.length) errs.push('(g) go het esc() ma bo dem van bao 0 — phep quet khong biet dem');
-
+  // (g) SWEEP TĨNH ĐÃ TRỪ (vòng 4, owner quyết). Nó tuyên phủ «MỌI chỗ đẩy cờ» nhưng
+  // đếm theo DÒNG và theo đúng một dạng nối chuỗi, nên chỗ đẩy viết bằng template
+  // literal hoặc thoát chuỗi NỬA VỜI đi lọt — và chiều đỏ của nó chỉ tiêm đúng dạng
+  // nối nó đã biết, tức tautology. Vá nó là dựng lại cùng lớp lỗi ở hình dạng mới;
+  // «chỉ TRỪ, không CỘNG». GIỚI HẠN CÒN LẠI, khai thẳng: lưới (f) phủ mọi chỗ đẩy mà
+  // một giá trị hồ sơ THẬT chạm tới được; nhánh «không nhận diện được» theo cấu tạo
+  // không nhận được giá trị mang ngoặc nhọn (giá trị có ngoặc luôn rẽ sang nhánh
+  // chưa-điền), nên esc() ở đó là phòng thủ chiều sâu KHÔNG có phép đo canh.
   // CHIỀU ĐỎ của (f): gỡ TOÀN BỘ esc() trong file trên bản sao — lưới phải đỏ dù chỗ
   // đẩy nào mất thoát chuỗi, không riêng chỗ tôi nghĩ tới.
   const mEsc = render(mkWs(noteFromTemplate(src, { reaction: 'nac-1' }).replace('(ghim)', chanPh)),
@@ -403,7 +403,7 @@ if (want('DP10')) {
     errs.push('m-esc: go het esc() ma luoi (f) khong do');
 
   if (errs.length) fail('DP10', errs.join(' · '));
-  else pass('DP10', 'nam nhanh doi-ho-so + luoi thoat-chuoi (hanh vi + sweep tinh) + khoa ke thua ca hai truc + 5 mutant do dung ve');
+  else pass('DP10', 'nam nhanh doi-ho-so + luoi thoat-chuoi hanh vi + khoa ke thua ca hai truc + 6 mutant do dung ve');
 }
 
 // DP13 · AC-15 — hồ sơ KHÔNG có sổ phiên: thẻ vẫn phải dựng được
