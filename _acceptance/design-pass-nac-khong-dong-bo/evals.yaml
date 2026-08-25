@@ -86,7 +86,7 @@ evals:
       thật đang có" đứng TRƯỚC mệnh đề "bày hướng mới" theo vị trí ký tự trong
       mục; (v2) nguồn bày hướng trỏ section `## Đặc tả UX` VÀ có nhánh lùi về
       design-doc khi kho chưa có.
-      MA TRẬN 2 MUTANT: m1 = bản sao HOÁN VỊ hai mệnh đề (không xoá chữ nào) →
+      MA TRẬN 3 MUTANT: m1 = bản sao HOÁN VỊ hai mệnh đề (không xoá chữ nào) →
       bộ kiểm thứ-tự đỏ, ghim "vật thật phải đứng trước bày hướng"; m2 = bản sao
       xoá nhánh lùi → đỏ, ghim "thiếu nhánh lùi khi kho chưa có đặc tả UX"; m3 = đổi
       nguồn bày hướng khỏi `## Đặc tả UX` → đỏ ghim "thiếu nguồn bày hướng".
@@ -136,10 +136,10 @@ evals:
       tiếp" — KHÔNG dừng vòng; (v2) skill KHÔNG nêu bộ dựng nào là bắt buộc.
       MA TRẬN 5 MUTANT: m1 = đổi nấc cuối thành "DỪNG nghi thức" → đỏ ghim "thiếu bộ
       phương án không được làm đứng vòng"; m2..m4 = xoá lần lượt TỪNG nấc 1/2/3 → đỏ
-      ghim đúng nấc thiếu (vòng 1 chỉ xoá một nấc nên vế "đủ BỐN nấc" hở ba phần tư). m3 là CA TIÊM DƯƠNG cho vế vắng-mặt (assert vắng-mặt trên không gian
-      mở không tự chứng minh được nó biết đỏ): bản sao THÊM câu "bắt buộc dùng
-      <tên bộ dựng>" → đỏ, ghim nguyên văn tên bộ dựng bị ép. Thiếu m3 thì v2 là
-      vế chết.
+      ghim đúng nấc thiếu (vòng 1 chỉ xoá một nấc nên vế "đủ BỐN nấc" hở ba phần
+      tư); m5 là CA TIÊM DƯƠNG cho vế vắng-mặt (assert vắng-mặt trên không gian mở
+      không tự chứng minh được nó biết đỏ): bản sao THÊM câu "bắt buộc dùng <tên bộ
+      dựng>" → đỏ, ghim nguyên văn tên bộ dựng bị ép. Thiếu m5 thì v2 là vế chết.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
     criterion: AC-8
