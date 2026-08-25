@@ -3,7 +3,9 @@
 // CHÍNH bộ kiểm mà chiều xanh dùng — cùng hàm, khác input. Đường dẫn suy từ vị trí file này.
 // Ma trận mutant là HỢP ĐỒNG, khai ở đầu evals.yaml của hồ sơ; số mutant = số vế được khẳng định.
 //   DP_CASES=DP1,DP3 node tests/plugins/design-pass-nac.test.mjs
-import { readFileSync } from 'node:fs';
+import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, cpSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -13,7 +15,7 @@ const SKILL = path.join(ROOT, 'skills', 'design-pass', 'SKILL.md');
 
 let failures = 0;
 // MỘT nguồn danh sách ca: file này. `--ids` in ra để run-tests.sh lặp theo, không chép tay.
-const ALL_IDS = ['DP1', 'DP2', 'DP3', 'DP4', 'DP5', 'DP6', 'DP7', 'DP8'];
+const ALL_IDS = ['DP1', 'DP2', 'DP3', 'DP4', 'DP5', 'DP6', 'DP7', 'DP8', 'DP9', 'DP10', 'DP13'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.DP_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const ran = new Set();
@@ -203,6 +205,78 @@ function checkNoteKeys(skillText) {
 }
 
 // ---------------------------------------------------------------------------
+// Khớp vòng writer → reader. Hồ sơ thử do CODE SINH, rút TỪ khuôn của đầu VIẾT;
+// bộ đọc là CHÍNH scripts/gate-card.js, chạy thật. Nhãn tiếng người cũng rút từ
+// cột «Tên» của REACTION-LADDER — nếu bộ dựng thẻ tự chế chuỗi khác, ca này đỏ.
+// ---------------------------------------------------------------------------
+const GATE_CARD = path.join(ROOT, 'scripts', 'gate-card.js');
+const CONTRACT_FX = '---\nschema_version: 1\nfeature: fx\nslug: fx\nrisk_tier: T2\nstatus: draft\n---\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n';
+
+// Nhãn lấy TỪ bảng thang trong skill — một nguồn, không gõ tay lần hai.
+function ladderLabels(skillText) {
+  const b = block(skillText, 'REACTION-LADDER') || '';
+  const out = {};
+  for (const l of b.split('\n')) {
+    const m = l.match(/^\|\s*(nac-[0-9a-z]+)\s*\|\s*([^|]+?)\s*\|/);
+    if (m) out[m[1]] = m[2];
+  }
+  return out;
+}
+
+// Sổ phiên sinh TỪ khuôn thật: điền mọi chỗ trống, rồi khẳng định không còn chỗ
+// trống nào sống trong frontmatter — chỗ trống lọt qua là false-green của mối nối.
+function noteFromTemplate(skillText, { reaction = 'nac-1', options = '', divergence = 'opened', drop = null } = {}) {
+  const b = block(skillText, NOTE_TPL);
+  if (b === null) throw new Error('thieu khuon so phien');
+  let fx = b
+    .replace('<slug>', 'fx').replace('<ISO UTC>', '2026-08-25T00:00:00Z')
+    .replace('<url đã mở>', 'http://localhost:3000/proto/fx')
+    .replace('<real-components|scaffold|static>', 'scaffold')
+    .replace('<standalone|static-frame|host-embedded>', 'static-frame')
+    .replace('[<file cảnh trong evidence/design-pass/, trống nếu không standalone hoặc đã descope>]', '[]')
+    .replace('<id nấc lấy từ REACTION-LADDER>', reaction)
+    .replace('(<kênh đã dùng, vd ghim, thao-luan, sua-roi-luu>)', '(ghim)')
+    .replace('<đường dẫn hoặc URL bộ phương án — THAM CHIẾU, không phải bằng chứng; trống nếu không mở bước phân kỳ>', options)
+    .replace('<opened, hoặc: skipped — căn cứ 1 dòng>', divergence)
+    .replace('<tên-skill-đã-nạp|repo-tokens|shadcn-default>', 'repo-tokens')
+    .replace('[<danh sách state đã duyệt>]', '[default]')
+    .replace(/<n>/g, '1').replace('<state>', 'default').replace('<breakpoint>', 'mobile-375')
+    .replace('<theme>', 'light').replace('<file>', 'default--mobile-375')
+    .replace(/^- <file cảnh — [^\n]*>$/m, '- (không có)')
+    .replace('<finding — đã đổi gì, 1 dòng/finding>', 'x')
+    .replace('<finding — thiếu/xấu gì ở tầng DS/component, đề xuất 1 dòng>', 'y');
+  if (drop) fx = fx.split('\n').filter(l => !l.startsWith(drop)).join('\n');
+  const fm = fx.split('---')[1] || '';
+  if (fm.includes('<')) throw new Error(`frontmatter ho so thu con cho trong song: ${fm.match(/<[^>]*>/)}`);
+  return fx;
+}
+
+function mkWs(note) {
+  const d = mkdtempSync(path.join(tmpdir(), 'dp-'));
+  const ws = path.join(d, '_acceptance', 'fx');
+  mkdirSync(ws, { recursive: true });
+  writeFileSync(path.join(d, '_acceptance', 'config.yaml'), 'schema_version: 1\n');
+  writeFileSync(path.join(ws, 'contract.md'), CONTRACT_FX);
+  if (note !== null) writeFileSync(path.join(ws, 'design-pass.md'), note);
+  return d;
+}
+
+// Chạy bộ đọc THẬT; mutateCard != null → dựng bản sao TRỌN scripts/ + lib/ rồi bẻ
+// bản sao đó (chép danh sách file tay là bản base thiếu file — lớp lỗi P150).
+function render(wsRoot, mutateCard = null) {
+  let card = GATE_CARD;
+  if (mutateCard) {
+    const d = mkdtempSync(path.join(tmpdir(), 'dpc-'));
+    cpSync(path.join(ROOT, 'scripts'), path.join(d, 'scripts'), { recursive: true });
+    cpSync(path.join(ROOT, 'lib'), path.join(d, 'lib'), { recursive: true });
+    card = path.join(d, 'scripts', 'gate-card.js');
+    writeFileSync(card, mutateCard(readFileSync(card, 'utf8')));
+  }
+  const r = spawnSync(process.execPath, [card, '--root', wsRoot, '--slug', 'fx'], { encoding: 'utf8' });
+  return { status: r.status, out: r.stdout || '', err: r.stderr || '' };
+}
+
+// ---------------------------------------------------------------------------
 // Chạy ca: đối chứng dương TRƯỚC, rồi ma trận mutant.
 // ---------------------------------------------------------------------------
 const src = readFileSync(SKILL, 'utf8');
@@ -311,6 +385,68 @@ runCase('DP8', 'khuon so phien giu ba khoa moi, khong liet lai danh sach nac', c
     return s.replace(b, b.split('\n').filter(l => !l.startsWith('divergence:')).join('\n')); },
     'khuon so phien thieu khoa: divergence:'],
 ]);
+
+// DP9 · AC-9 — khớp vòng: mỗi nấc trong thang → thẻ hiện đúng NHÃN của nấc đó
+if (want('DP9')) {
+  const errs = [];
+  const labels = ladderLabels(src);
+  if (Object.keys(labels).length !== 4) errs.push(`rut duoc ${Object.keys(labels).length} nhan tu thang, mong doi 4`);
+  for (const [id, label] of Object.entries(labels)) {
+    const r = render(mkWs(noteFromTemplate(src, { reaction: id })));
+    if (r.status !== 0) { errs.push(`the khong dung duoc cho ${id}: exit ${r.status} — ${r.err.slice(0, 120)}`); continue; }
+    if (!r.out.includes(label)) errs.push(`the khong render nhan "${label}" cho ${id}`);
+  }
+  // khoá options có giá trị → thẻ nói có bộ phương án; trống → không nói
+  const withOpt = render(mkWs(noteFromTemplate(src, { options: 'docs/phuong-an/fx.html' })));
+  if (!/bộ phương án/i.test(withOpt.out)) errs.push('the khong hien duong bo phuong an khi khoa options co gia tri');
+  const noOpt = render(mkWs(noteFromTemplate(src, { options: '' })));
+  if (/bộ phương án/i.test(noOpt.out)) errs.push('the hien bo phuong an trong khi khoa options de trong');
+  // MA TRẬN 2 MUTANT — bẻ ở ĐẦU VIẾT (khuôn), đọc bằng ĐẦU ĐỌC thật
+  const m1 = render(mkWs(noteFromTemplate(src, { reaction: 'nac-2', drop: 'reaction:' })));
+  if (m1.out.includes(labels['nac-2'])) errs.push(`m1: bo khoa reaction khoi khuon ma the van khoe nhan "${labels['nac-2']}"`);
+  const m2 = render(mkWs(noteFromTemplate(src, { options: 'docs/x.html', drop: 'options:' })));
+  if (/bộ phương án/i.test(m2.out)) errs.push('m2: bo khoa options khoi khuon ma the van hien duong bo phuong an');
+  if (errs.length) fail('DP9', errs.join(' · '));
+  else pass('DP9', 'khop vong 4 nac khuon->the + 2 mutant do dung ve');
+}
+
+// DP10 · AC-10 — ba nhánh đọc-cũ, đối chứng dương chạy TRƯỚC
+if (want('DP10')) {
+  const errs = [];
+  const CO_VANG_THIEU = 'chưa khai nấc phản ứng';
+  const a = render(mkWs(noteFromTemplate(src, { reaction: 'nac-1' })));
+  if (a.out.includes(CO_VANG_THIEU)) errs.push('(a) ho so du khoa van bi co vang nac — doi chung duong hong');
+  const b2 = render(mkWs(noteFromTemplate(src, { drop: 'reaction:' })));
+  if (!b2.out.includes(CO_VANG_THIEU)) errs.push(`(b) thieu khoa reaction ma khong co co vang "${CO_VANG_THIEU}"`);
+  if (b2.status !== 0) errs.push('(b) duong doc-cu KHONG duoc chan: the phai dung duoc');
+  const c = render(mkWs(noteFromTemplate(src, { reaction: 'nac-9' })));
+  if (!c.out.includes('nac-9')) errs.push('(c) gia tri la ma co vang khong NEU TEN "nac-9"');
+  if (c.status !== 0) errs.push('(c) gia tri la KHONG duoc chan the');
+  if (errs.length) fail('DP10', errs.join(' · '));
+  else pass('DP10', 'ba nhanh doc-cu: du khoa sach co · thieu khoa neu doi truoc · gia tri la neu ten');
+}
+
+// DP13 · AC-15 — hồ sơ KHÔNG có sổ phiên: thẻ vẫn phải dựng được
+if (want('DP13')) {
+  const errs = [];
+  const KHOI = 'Bản mẫu';
+  const none = render(mkWs(null));
+  if (none.status !== 0) errs.push(`the phai dung duoc khi khong co so phien: exit ${none.status} — ${none.err.slice(0, 160)}`);
+  if (none.out.includes(KHOI)) errs.push(`khoi "${KHOI}" hien tren ho so khong co so phien`);
+  for (const bad of ['undefined', 'null', '(chưa khai)']) {
+    if (none.out.includes(bad)) errs.push(`nhan la lot ra tren ho so khong co so phien: ${bad}`);
+  }
+  // đối chứng: CÓ sổ phiên thì khối phải hiện — chứng minh phép khẳng định trên biết phân biệt
+  const withNote = render(mkWs(noteFromTemplate(src)));
+  if (!withNote.out.includes(KHOI)) errs.push(`doi chung hong: co so phien ma khoi "${KHOI}" khong hien`);
+  // MA TRẬN 2 MUTANT trên bản sao TRỌN scripts/+lib/
+  const m1 = render(mkWs(null), s => s.replace('if (dp.present) P.push(', 'if (true) P.push('));
+  if (!m1.out.includes(KHOI)) errs.push('m1: bo dieu kien co-so-phien ma the van khong in khoi — ca khong phan biet duoc');
+  const m2 = render(mkWs(null), s => s.replace("const dpText = read(path.join(dir, 'design-pass.md'));", "const dpText = null.x;"));
+  if (m2.status === 0) errs.push('m2: bo dung the nem loi ma van exit 0 — ca khong bat duoc the chet');
+  if (errs.length) fail('DP13', errs.join(' · '));
+  else pass('DP13', 'khong so phien: the dung duoc, khoi vang, khong nhan la + 2 mutant');
+}
 
 // DP_CASES nêu id không tồn tại → không được xanh im lặng (xanh-không-chạy)
 const unknown = only.filter(id => !ran.has(id));

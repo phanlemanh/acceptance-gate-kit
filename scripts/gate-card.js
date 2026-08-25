@@ -259,15 +259,30 @@ if (gate === '1') {
   // Nhãn tiếng người + chuỗi descope là CHUỖI PIN của P135-P138; đổi phải đổi test.
   const CONTEXT_LABEL = { 'standalone': 'đứng một mình', 'static-frame': 'khung giả tĩnh', 'host-embedded': 'nhúng host thật' };
   const DP_SCENE_DESCOPE = 'bỏ cảnh ngữ-cảnh — ';
+  // Nhãn tiếng người của thang phản ứng — CÙNG chữ với cột «Tên» của REACTION-LADDER
+  // trong skills/design-pass/SKILL.md. Không tự chế chuỗi: ca DP9 rút nhãn TỪ bảng đó
+  // rồi đòi thấy đúng nó trên đầu ra thẻ, nên lệch một chữ là đỏ.
+  const REACTION_LABEL = {
+    'nac-0': 'đi thẳng',
+    'nac-1': 'không đồng bộ trên ảnh',
+    'nac-2': 'không đồng bộ trên vật bấm được',
+    'nac-3': 'ngồi cùng ngắn, có người gọi tên',
+  };
   const dpText = read(path.join(dir, 'design-pass.md'));
   const dpFm = frontmatter(dpText);
-  const dp = { present: !!dpText.trim(), material: clean(dpFm.material || ''), context: clean(dpFm.context || ''), scenes: [] };
+  const dp = { present: !!dpText.trim(), material: clean(dpFm.material || ''), context: clean(dpFm.context || ''), scenes: [], reaction: '', options: '' };
   if (dp.present) {
     // Placeholder khuôn chưa điền CHỨA DẤU PHẨY — phải loại '<'/'>' TRƯỚC khi split,
     // không thì nửa sau placeholder sống qua filter và standalone-thiếu-cảnh im lặng
     // trong khi card khoe "1 cảnh ngữ-cảnh" (false-green seam writer→reader, S4-r1).
     const rawScenes = clean(dpFm.context_scenes || '');
     if (!/[<>]/.test(rawScenes)) dp.scenes = rawScenes.replace(/^\[|\]$/g, '').split(',').map(s => s.trim()).filter(Boolean);
+    // `reaction: <id> (<kênh>)` — lấy id, bỏ phần kênh; placeholder khuôn chưa điền
+    // (còn ngoặc nhọn) coi như CHƯA KHAI, không phải một nấc tên lạ.
+    const rawReaction = clean(dpFm.reaction || '');
+    dp.reaction = /[<>]/.test(rawReaction) ? '' : ((rawReaction.match(/^(nac-[0-9a-z]+)/) || [])[1] || rawReaction);
+    const rawOptions = clean(dpFm.options || '');
+    dp.options = /[<>]/.test(rawOptions) ? '' : rawOptions;
   }
   // socket design_pass.host_embed — đường đọc-cũ: vắng là hợp lệ (nấc thấp), không lỗi.
   // Đọc bằng resolveConfigKey của lib (blank line / comment đuôi / CRLF như hook) —
@@ -292,6 +307,10 @@ if (gate === '1') {
     else if (dp.context === 'standalone' && !dp.scenes.length && !decsAll.some(e => e.type === 'descope' && String(e.decision || '').startsWith(DP_SCENE_DESCOPE))) {
       dpFlags.push('Bản mẫu khai đứng-một-mình nhưng chưa có cảnh ngữ-cảnh (khung host bọc vật + hành trình vào–ra) và không có dòng từ-chối trong sổ quyết định — người duyệt có quyền trả.');
     }
+    // Đường đọc-cũ của thang phản ứng: sổ phiên đời trước không có khoá này. Cờ vàng,
+    // KHÔNG chặn, KHÔNG bắt migrate — cùng khuôn với trục ngữ cảnh từ 2.0.0.
+    if (!dp.reaction) dpFlags.push('Sổ phiên chưa khai nấc phản ứng (hồ sơ đời trước thang phản ứng) — không biết phiên đã gọi người ở nấc nào; không chặn, khuyên bổ sung ở phiên thiết kế sau.');
+    else if (!REACTION_LABEL[dp.reaction]) dpFlags.push('Nấc phản ứng không nhận diện được: "' + dp.reaction + '" — chỉ nhận nac-0 / nac-1 / nac-2 / nac-3.');
     if (!he.present) dpFlags.push('Repo chưa khai đường nhúng (design_pass.host_embed) — phiên coi như chưa có đường nhúng rẻ, đi nấc thấp; không chặn.');
     else if (!he.resolvable) dpFlags.push('Đường nhúng đã khai nhưng con trỏ không giải được: "' + he.guide + '" — sửa con trỏ, hoặc phiên đi nấc thấp; không chặn.');
   }
@@ -330,7 +349,7 @@ if (gate === '1') {
   const ddLines = ddPresent ? bullets(section(contract, DUONG_DO_HEADING)).filter(l => !/\{\{/.test(l) && !ddIsBoLine(l)) : [];
   const ddDescope = decsAll.find(e => e.type === 'descope' && String(e.decision || '').startsWith(DUONG_DO_DESCOPE)) || null;
 
-  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null } }, null, 2)); process.exit(0); }
+  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, reaction: dp.reaction, reaction_label: REACTION_LABEL[dp.reaction] || null, options: dp.options, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null } }, null, 2)); process.exit(0); }
   const featurePlain = pl.feature_plain || feature;
   const pmap = (arr, id) => (((arr || []).find(x => x.id === id)) || {}).p;
   const willText = x => pmap(pl.will_do, x.id) || stripMd(x.gwt);
@@ -356,7 +375,7 @@ if (gate === '1') {
   if (ledger.broken) P.push(`<div class="flag fwarn">⚠ ${ledger.broken} dòng ledger hỏng, đã bỏ qua.</div>`);
   if (covLines.length) P.push(`<div class="lab">Độ phủ AC (bằng chứng "đủ")</div><div class="grp gnot">${covLines.map((t, i) => `<p class="li">${esc(pIdx(pl.coverage_plain, i) || stripMd(t))}</p>`).join('')}</div>`);
   if (ddLines.length) P.push(`<div class="lab">Đường đo (con số cho ngưỡng sẽ đến từ đâu)</div><div class="grp gnot">${ddLines.map(t => `<p class="li">${esc(t)}</p>`).join('')}</div>`);
-  if (dp.present) P.push(`<div class="lab">Bản mẫu &amp; ngữ cảnh</div><div class="grp gnot"><p class="li">Vật liệu: ${esc(dp.material || '(chưa khai)')} · sống ở: <b>${esc(CONTEXT_LABEL[dp.context] || dp.context || '(chưa khai)')}</b>${dp.scenes.length ? ' · ' + dp.scenes.length + ' cảnh ngữ-cảnh' : ''}</p></div>`);
+  if (dp.present) P.push(`<div class="lab">Bản mẫu &amp; ngữ cảnh</div><div class="grp gnot"><p class="li">Vật liệu: ${esc(dp.material || '(chưa khai)')} · sống ở: <b>${esc(CONTEXT_LABEL[dp.context] || dp.context || '(chưa khai)')}</b>${dp.scenes.length ? ' · ' + dp.scenes.length + ' cảnh ngữ-cảnh' : ''}</p><p class="li">Phản ứng ở nấc: <b>${esc(REACTION_LABEL[dp.reaction] || dp.reaction || '(chưa khai)')}</b>${dp.options ? ' · có bộ phương án đính kèm' : ''}</p></div>`);
   // Dòng ngưỡng in NGUYÊN VĂN (AC-1 hồ sơ moi-noi-vong-trao): chỉ bỏ dấu đầu dòng, không đi qua
   // hàm lột markdown — số chỗ gọi hàm lột là ma trận đã ghim của card-text-fidelity (P161).
   if (ut.opportunity_present && ut.readable && ut.section_present && ut.lines.length) {
