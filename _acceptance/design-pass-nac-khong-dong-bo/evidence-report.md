@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: d792559ca2e2f39da8800dfc26a5edc1acea3e91
-human_signoff:
+human_signoff: Manh Phan 2026-08-25 — ký trên làn V với verdict máy REJECT giữ NGUYÊN (không nâng thành PASS). Ký vì: 9/9 phép đo máy xanh hai vòng liên tiếp trên bằng chứng độc lập, và lỗi ở SẢN PHẨM đã về 0 ở vòng 4 (vòng 3 là 5). Ba lỗi trong hợp đồng của vòng 4 đều ở BỘ ĐO: một vế chết đã sửa (cờ giá-trị-lạ nay nêu tên trong nội dung cờ, có mutant giữ), hai cái còn lại được giải bằng TRỪ phép quét tĩnh sai lời hứa + khai giới hạn (xem contract Notes, entry descope d-20260825T092930Z). Sáu mục ngoài hợp đồng đã xếp chỗ, xem review-findings.md. CHƯA giải: E14 (AC-14) còn UNCERTAIN — human_override để TRỐNG, chưa ai tự đọc và khai.
 ---
 
 # Evidence Report: design-pass-nac-khong-dong-bo
