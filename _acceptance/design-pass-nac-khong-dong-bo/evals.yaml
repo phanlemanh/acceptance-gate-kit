@@ -26,7 +26,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [skills/design-pass/SKILL.md, tests/plugins/design-pass-nac.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: DP1". Case trích khối giữa marker REACTION-LADDER
+      exit 0; stdout có "PASS: [DP1]". Case trích khối giữa marker REACTION-LADDER
       từ CHÍNH skills/design-pass/SKILL.md, khẳng định đúng bốn id đóng
       nac-0/nac-1/nac-2/nac-3, mỗi id có tên tiếng người + điều kiện dùng, và
       danh sách nấc KHÔNG xuất hiện lần thứ hai ngoài marker.
@@ -42,7 +42,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [skills/design-pass/SKILL.md, tests/plugins/design-pass-nac.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: DP2". Case đo QUAN HỆ, không đo chuỗi có mặt, trên
+      exit 0; stdout có "PASS: [DP2]". Case đo QUAN HỆ, không đo chuỗi có mặt, trên
       hai vế: (v1) frontmatter `description` nêu mặc định KHÔNG ĐỒNG BỘ và nêu
       sync là nấc phải có người gọi tên; (v2) thân skill mục vòng lặp phản ứng
       đặt nac-1 (hoặc thấp hơn) làm mặc định và nac-3 là opt-in.
@@ -58,7 +58,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [skills/design-pass/SKILL.md, tests/plugins/design-pass-nac.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: DP3". Luật leo thang đủ BA vế đo được: (v1) điều
+      exit 0; stdout có "PASS: [DP3]". Luật leo thang đủ BA vế đo được: (v1) điều
       kiện ĐẾM ĐƯỢC (cùng một điểm bị chê hai vòng không-đồng-bộ liên tiếp);
       (v2) hành động (mời nac-3); (v3) GIỚI HẠN phạm vi phiên đúng điểm đó.
       Đối chứng dương chạy trước. MA TRẬN 3 MUTANT, mỗi mutant xoá đúng một vế
@@ -71,7 +71,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [skills/design-pass/SKILL.md, tests/plugins/design-pass-nac.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: DP4". Hai vế: (v1) THỨ TỰ — mệnh đề "mở bằng vật
+      exit 0; stdout có "PASS: [DP4]". Hai vế: (v1) THỨ TỰ — mệnh đề "mở bằng vật
       thật đang có" đứng TRƯỚC mệnh đề "bày hướng mới" theo vị trí ký tự trong
       mục; (v2) nguồn bày hướng trỏ section `## Đặc tả UX` VÀ có nhánh lùi về
       design-doc khi kho chưa có.
@@ -85,7 +85,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [skills/design-pass/SKILL.md, tests/plugins/design-pass-nac.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: DP5". Bốn vế kỷ luật phương án: (v1) mỗi hướng có
+      exit 0; stdout có "PASS: [DP5]". Bốn vế kỷ luật phương án: (v1) mỗi hướng có
       trục có tên + động cơ + đánh đổi; (v2) áp cho CẢ hướng máy không khuyên;
       (v3) ngả máy khuyên GHIM TRÊN VẬT, không nằm trong tin nhắn; (v4) tên hướng
       ổn định, hướng đã chốt không hỏi lại.
@@ -99,7 +99,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [skills/design-pass/SKILL.md, tests/plugins/design-pass-nac.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: DP6". Ba vế: (v1) bảng tra degrade có hàng cho ca
+      exit 0; stdout có "PASS: [DP6]". Ba vế: (v1) bảng tra degrade có hàng cho ca
       không-mở-phân-kỳ và hàng đó bắt để vết; (v2) vết nằm ở ĐÚNG khoá có tên
       `divergence:` với từ vựng đóng `opened` | `skipped — <căn cứ>`; (v3) luật
       độ nét ("đủ cho quyết định đang mở") có mặt kèm điều kiện token-thật-chỉ-
@@ -115,7 +115,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [skills/design-pass/SKILL.md, tests/plugins/design-pass-nac.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: DP7". Hai vế: (v1) thang vật dựng đủ BỐN nấc xuống
+      exit 0; stdout có "PASS: [DP7]". Hai vế: (v1) thang vật dựng đủ BỐN nấc xuống
       dần có tên và nấc cuối là "máy khuyên một hướng kèm căn cứ, ghi vết, đi
       tiếp" — KHÔNG dừng vòng; (v2) skill KHÔNG nêu bộ dựng nào là bắt buộc.
       MA TRẬN 3 MUTANT: m1 = đổi nấc cuối thành "DỪNG nghi thức" → đỏ ghim "thiếu
@@ -131,7 +131,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [skills/design-pass/SKILL.md, tests/plugins/design-pass-nac.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: DP8". Case trích khối DESIGN-PASS-NOTE-TEMPLATE từ
+      exit 0; stdout có "PASS: [DP8]". Case trích khối DESIGN-PASS-NOTE-TEMPLATE từ
       chính skill, khẳng định frontmatter khuôn có đúng BA khoá mới `reaction:`,
       `canvas:`, `divergence:`, và dòng `canvas:` tự khai là tham chiếu chứ không
       phải bằng chứng.
@@ -144,7 +144,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [skills/design-pass/SKILL.md, scripts/gate-card.js, tests/plugins/design-pass-nac.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: DP9". KHỚP VÒNG writer→reader (cùng khuôn P135):
+      exit 0; stdout có "PASS: [DP9]". KHỚP VÒNG writer→reader (cùng khuôn P135):
       rút khuôn sổ phiên từ ĐẦU VIẾT (marker trong SKILL), code sinh hồ sơ tạm
       cho TỪNG nấc trong REACTION-LADDER, chạy ĐẦU ĐỌC thật (`node
       scripts/gate-card.js --root <tmp> --slug fx`), khẳng định thẻ hiện NHÃN
@@ -162,7 +162,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/gate-card.js, skills/design-pass/SKILL.md, tests/plugins/design-pass-nac.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: DP10". BA nhánh đọc-cũ, mỗi nhánh một hồ sơ CODE
+      exit 0; stdout có "PASS: [DP10]". BA nhánh đọc-cũ, mỗi nhánh một hồ sơ CODE
       SINH RÚT TỪ CÙNG MARKER `DESIGN-PASS-NOTE-TEMPLATE` của đầu viết (không tự
       dựng frontmatter theo kỳ vọng bên đọc — đổi khuôn ở đầu viết phải làm ca
       này đỏ), chạy CÙNG bộ dựng thẻ: (a) đủ khoá → SẠCH cờ nấc (đối chứng dương,
@@ -176,7 +176,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/gate-card.js, tests/plugins/design-pass-nac.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: DP13". Nhánh thứ tư của trục đời-hồ-sơ, và là
+      exit 0; stdout có "PASS: [DP13]". Nhánh thứ tư của trục đời-hồ-sơ, và là
       nhánh của CHÍNH hồ sơ này: hồ sơ code sinh KHÔNG có `design-pass.md`, chạy
       cùng bộ dựng thẻ → thẻ dựng THÀNH CÔNG (exit 0), khối «Bản mẫu & ngữ cảnh»
       VẮNG HẲN, không cờ nấc, không nhãn rỗng / "undefined" / chuỗi lạ.
@@ -190,7 +190,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [skills/design-pass/SKILL.md, feature-loop/skills/feature-loop/SKILL.md, tests/plugins/design-pass-nac.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: DP11". Đo QUAN HỆ nguyên văn, KHÔNG đo đếm suông:
+      exit 0; stdout có "PASS: [DP11]". Đo QUAN HỆ nguyên văn, KHÔNG đo đếm suông:
       RÚT câu chuẩn từ giữa cặp mốc neo `REACTION-DEFAULT-SENTENCE` trong
       skills/design-pass/SKILL.md (bản gốc DUY NHẤT), rồi khẳng định MỖI site
       khai trong bảng khai tay `REACTION-DEFAULT-SITES` chứa ĐÚNG NGUYÊN VĂN câu
@@ -206,7 +206,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [GUIDE.md, commands/acceptance-init.md, tests/plugins/design-pass-nac.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: DP12". Bốn ô (2 file × 2 khoá): `design_pass.ds_skill`
+      exit 0; stdout có "PASS: [DP12]". Bốn ô (2 file × 2 khoá): `design_pass.ds_skill`
       và `feature_loop.ui_standards_skill` đều được nêu trong GUIDE.md VÀ trong
       khuôn khởi tạo.
       MA TRẬN 4 MUTANT: mỗi mutant xoá đúng MỘT ô (file, khoá) trên bản sao →

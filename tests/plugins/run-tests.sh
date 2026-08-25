@@ -10576,6 +10576,14 @@ for _vc in $_vc_ids; do
     env VC_CASES="$_vc" node "$ROOT/tests/plugins/vao-co-o.test.mjs"
 done
 
+# ─── Hồ sơ design-pass-nac-khong-dong-bo: DP1..DP13 (file ca riêng) ──────────
+# Danh sách ca do CHÍNH file ca xuất (--ids); tên dòng run KHÔNG chứa "PASS: [DP".
+_dp_ids="$(node "$ROOT/tests/plugins/design-pass-nac.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca DP"; failures=$((failures+1)); _dp_ids=""; }
+for _dp in $_dp_ids; do
+  run "ca nac phan ung — $_dp (ho so design-pass-nac-khong-dong-bo)" \
+    env DP_CASES="$_dp" node "$ROOT/tests/plugins/design-pass-nac.test.mjs"
+done
+
 # ─── Hồ sơ dac-ta-ux-vat-hoa-cau-truc: UX1..UX4 (file ca riêng) ───────────────
 _ux_ids="$(node "$ROOT/tests/plugins/ux-spec.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca UX"; failures=$((failures+1)); _ux_ids=""; }
 for _ux in $_ux_ids; do

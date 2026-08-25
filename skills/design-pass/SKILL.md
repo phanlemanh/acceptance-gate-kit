@@ -1,6 +1,6 @@
 ---
 name: design-pass
-description: Nghi thức thiết kế IN-HARNESS cho bước S1-D của feature-loop — phiên chuyên trách CHỈ làm thẩm mỹ + UX trên bản bấm được đang chạy trong Browser pane, owner ngồi xem và phản ứng bằng lời từng vòng; Gate 1 duyệt trên bản bấm được, không duyệt UI bằng chữ. Dùng khi feature chạm UI cần khoảnh khắc visual trước Gate 1, hoặc khi user muốn design-pass một surface đang chạy (redesign, polish, dark-mode pass trên proto). KHÔNG dùng cho logic/backend, KHÔNG sửa component nền "cho proto đẹp", KHÔNG chấm fidelity hay sinh evidence máy (grading sống ở S4), KHÔNG thay vòng lặp code S3.
+description: Nghi thức thiết kế IN-HARNESS cho bước S1-D của feature-loop — phiên chuyên trách CHỈ làm thẩm mỹ + UX trên bản bấm được đang chạy; mặc định không đồng bộ — máy dựng, tự chụp, gửi gói rồi đi làm việc khác, người phản ứng lúc rảnh; ngồi cùng là nấc cao nhất và phải có người gọi tên. Gate 1 duyệt trên bản bấm được, không duyệt UI bằng chữ. Dùng khi feature chạm UI cần khoảnh khắc visual trước Gate 1, hoặc khi user muốn design-pass một surface đang chạy (redesign, polish, dark-mode pass trên proto). KHÔNG dùng cho logic/backend, KHÔNG sửa component nền "cho proto đẹp", KHÔNG chấm fidelity hay sinh evidence máy (grading sống ở S4), KHÔNG thay vòng lặp code S3.
 ---
 
 # design-pass — phiên thẩm mỹ + UX trên bản bấm được
@@ -13,7 +13,7 @@ của phiên.
 
 Vai trong feature-loop: chạy ở **S1-D, TRƯỚC Gate 1** — để người duyệt bấm
 được thứ họ duyệt. Doer≠grader giữ nguyên: skill này chỉ AUTHOR (sửa proto,
-ghi vết); chấm máy là việc của S4, chấm thẩm mỹ là việc của owner ngồi xem.
+ghi vết); chấm máy là việc của S4, chấm thẩm mỹ là việc của chủ sản phẩm — ở nấc phản ứng rẻ nhất đủ cho quyết định đang mở (mục 4).
 
 ## Giai đoạn 0 — vật này sống ở đâu (bắt buộc chọn trước khi mở Browser pane)
 
@@ -112,33 +112,73 @@ cho user khởi động; chưa khai → nói rõ chưa có lệnh khởi động
 trỏ đường dựng proto của repo. **KHÔNG tự dựng route/logic thay repo** —
 dựng proto là việc của feature-loop/S1, không phải của phiên thẩm mỹ.
 
-## 4. Vòng lặp owner-phản-ứng
+## 4. Vòng lặp phản ứng — thang bốn nấc
 
-Nhịp MỖI vòng, không tắt bước:
+Cái quý của phiên đồng bộ cũ không phải SỰ ĐỒNG BỘ mà là **vật bấm được**. Phiên
+cũ trộn hai thứ — phản ứng trên vật thật, và hẹn giờ ngồi cạnh máy — mà chỉ thứ
+sau đắt. Tách ra thành thang: kênh đắt chỉ mở khi quyết định đang mở cần đúng
+băng thông đó.
 
-1. **Sửa** code proto — chỉ thẩm mỹ + UX, trong từ vựng token (nguồn luật
-   mục 2).
-2. **Reload** Browser pane cho owner nhìn bản mới.
-3. **CHỜ owner phản ứng bằng lời** — owner ngồi xem là giác quan thẩm mỹ
-   của phiên; mô tả ngắn cái vừa đổi rồi im để owner nói.
-4. Phản ứng → vòng kế; owner gật phần nào ghi nhận phần đó.
+<<<REACTION-LADDER
+| id | Tên | Dùng khi |
+|---|---|---|
+| nac-0 | đi thẳng | khuôn có sẵn, 0 hướng mở — để vết một dòng, người veto sau |
+| nac-1 | không đồng bộ trên ảnh | quyết định là hướng · bố cục · trạng thái tĩnh |
+| nac-2 | không đồng bộ trên vật bấm được | cần thấy trạng thái chuyển — luồng nhiều bước |
+| nac-3 | ngồi cùng ngắn, có người gọi tên | tương tác tinh: kéo-thả, chạm, nhịp chuyển động |
+REACTION-LADDER>>>
 
-KHÔNG tự chấm thẩm mỹ thay owner — không "tôi thấy đẹp rồi" để tự kết
-phiên, không thay phản ứng của owner bằng đánh giá của model. Phần chấm máy
-(evals, hook) sống ở S4; phiên này không sinh evidence.
+Câu dưới đây là bản gốc DUY NHẤT của điều khoản nấc-mặc-định; nơi khác chép
+NGUYÊN VĂN, và bảng khai tay `REACTION-DEFAULT-SITES` giữ số bản chép phải có.
+
+<<<REACTION-DEFAULT-SENTENCE
+Mặc định là KHÔNG ĐỒNG BỘ: máy dựng bản mẫu, tự chụp ma trận trạng thái × khổ, gửi gói rồi đi làm việc khác; nac-3 (ngồi cùng) chỉ mở khi có người gọi tên nó.
+REACTION-DEFAULT-SENTENCE>>>
+
+<<<REACTION-DEFAULT-SITES
+skills/design-pass/SKILL.md 1
+feature-loop/skills/feature-loop/SKILL.md 1
+REACTION-DEFAULT-SITES>>>
+
+**Ba luật vận hành:**
+
+1. **Máy KHUYÊN nấc kèm căn cứ một dòng, người veto một chạm** — không bao giờ
+   hỏi «anh muốn ngồi cùng hay để đó?». Hỏi mở là đường cùng.
+2. **Leo thang theo TÍN HIỆU ĐẾM ĐƯỢC, không theo cảm giác:** cùng MỘT điểm bị
+   chê hai vòng không-đồng-bộ liên tiếp ⇒ kênh thiếu băng thông ⇒ mời nac-3
+   **GIỚI HẠN đúng điểm đó**, có chủ đề khai trước, không phiên trọn gói. Đây là
+   luật dừng-vá áp cho kênh phản ứng.
+3. **Nấc nào cũng để vết:** khoá `reaction:` ghi nấc + kênh đã dùng (mục 5), thẻ
+   Cổng Phạm vi hiện nó.
+
+Số chấm người KHÔNG tăng: nac-2 và nac-3 là HÌNH THỨC của chấm phản-ứng đã có,
+không phải chấm mới. Thang mà làm tăng số lần gọi người thì nó đã phản bội đúng
+thước đo mà nghi thức này tồn tại để phục vụ.
+
+**Nhịp mỗi vòng, không tắt bước:**
+
+1. **Sửa** code bản mẫu — chỉ thẩm mỹ + UX, trong từ vựng token (nguồn luật mục 2).
+2. **Reload** bản đang chạy rồi **chụp lại** ma trận trạng thái × khổ, gửi gói
+   theo nấc đang dùng.
+3. **Chờ owner phản ứng bằng lời** — lúc rảnh, qua kênh của nấc đó: ghim câu hỏi
+   cạnh vật · luồng thảo luận trên bản gửi · owner sửa thẳng rồi lưu để máy đọc
+   lại phần khác. Ở nac-3 thì phản ứng đến ngay tại phiên.
+4. Phản ứng → vòng kế; người gật phần nào thì ghi nhận phần đó.
+
+KHÔNG tự chấm thẩm mỹ thay owner — không «tôi thấy đẹp rồi» để tự kết phiên.
+Phần chấm máy (evals, hook) sống ở S4; phiên này không sinh evidence.
 
 **Ví dụ một vòng (nhịp chuẩn):**
 
-> Owner: "Nút hành động chính chìm quá, với giá tiền đọc không nổi."
+> Owner: «Nút hành động chính chìm quá, với giá tiền đọc không nổi.»
 >
-> 1. Sửa proto trong TỪ VỰNG TOKEN: nút chính đổi sang class/token nhấn của
->    repo (vd `--color-primary`), giá tiền lên bậc typography có sẵn — KHÔNG
->    chèn hex, KHÔNG sửa component nền.
-> 2. Reload Browser pane, nói 1 câu: "Đã nâng nút chính lên token nhấn +
->    giá lên bậc chữ lớn — anh thấy sao?"
-> 3. Owner gật nút, chê tiếp khoảng cách card → vòng kế. Cuối phiên: 2 việc
->    trên vào findings Nhóm 1 (đã vá); nếu owner đòi một variant nút mà DS
->    chưa có → đó là finding Nhóm 2, ghi chờ Gate 1, KHÔNG chế tại chỗ.
+> 1. Sửa bản mẫu trong TỪ VỰNG TOKEN: nút chính đổi sang token nhấn của repo,
+>    giá tiền lên bậc typography có sẵn — KHÔNG chèn hex, KHÔNG sửa component nền.
+> 2. Chụp lại, gửi gói kèm một câu: «Đã nâng nút chính lên token nhấn + giá lên
+>    bậc chữ lớn.»
+> 3. Owner gật nút, chê tiếp khoảng cách card → vòng kế. Cuối phiên: 2 việc trên
+>    vào findings Nhóm 1 (đã vá); người đòi một variant nút mà DS chưa có → đó là
+>    finding Nhóm 2, ghi chờ Gate 1, KHÔNG chế tại chỗ.
 
 ## RÀNG BUỘC CỨNG (cả phiên — vi phạm là dừng tay, không phải style)
 
@@ -230,5 +270,3 @@ DESIGN-PASS-NOTE-TEMPLATE>>>
 - **Phiên SAU Gate 1** (owner phản hồi thẩm mỹ giữa S3/S4): findings đổ về
   `review-findings.md` của slug (kênh phản-hồi-giữa-vòng), KHÔNG ghi đè
   `design-pass.md` của bản đã duyệt — bản đã duyệt là mốc neo của Gate 1.
-- Phiên đòi owner ngồi xem trực tiếp; owner async chưa nằm trong phạm vi
-  nghi thức này.

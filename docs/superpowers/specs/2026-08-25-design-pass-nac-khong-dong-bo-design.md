@@ -8,7 +8,7 @@ Phụ lục đề bài (NGUỒN, không chép lại ở đây):
 — mục 3 (nghi thức sau khi đổi) · 3b (sáu điều vay) · 4.3 (kết quả ván thử b1).
 Tin này và file kia lệch nhau thì file kia thắng.
 
-## 1. Người dùng thấy gì khác
+## 1. Sau việc này khác gì cho người dùng
 
 Hôm nay nghi thức thiết kế của vòng lặp đòi chủ sản phẩm **ngồi cạnh máy
 30–60 phút mỗi vòng**. Đắt tới mức một hồ sơ thật đã bỏ luôn nghi thức bằng
@@ -39,7 +39,7 @@ phản bội thước đo của kit.
 
 ## 3. Năm vật bị đổi
 
-| Người dùng thấy gì khác | Đụng đâu | Phục vụ tiêu chí |
+| Sau việc này khác gì | Vật bị đổi | Tiêu chí phục vụ |
 |---|---|---|
 | Phiên thiết kế không còn đòi ngồi cạnh máy; bốn nấc phản ứng có tên | `skills/design-pass/SKILL.md` | AC-1 (bốn nấc) · AC-2 (mặc định async) · AC-3 (leo thang) |
 | Bề mặt còn hai hướng thì người chọn trên vật, không chọn bằng chữ | `skills/design-pass/SKILL.md` | AC-4 (bước phân kỳ) · AC-5 (kỷ luật phương án) |
