@@ -30,6 +30,20 @@ mục 3 · 3b · 4.3.
 
 Source input: _acceptance/design-pass-nac-khong-dong-bo/opportunity.md
 
+**DEAD-SENTENCE-NEEDLES** — danh sách ĐÓNG, máy đọc từ đây (không hardcode
+trong script). Mỗi dòng là một câu khai mặc-định-đồng-bộ; đếm ở mốc phải bằng
+đúng số khai, đếm ở cây đang kiểm phải 0. Danh sách phải ĐÓNG chứ không dùng
+cụm trần «owner ngồi xem»: sau khi đổi, nấc 3 vẫn được nhắc cụm đó một cách hợp
+lệ, nên kim trần sẽ đỏ oan trên vật ĐÚNG.
+
+<!-- <<<DEAD-SENTENCE-NEEDLES
+owner ngồi xem và phản ứng bằng lời từng vòng|1
+owner ngồi xem trực tiếp; owner async chưa nằm trong phạm vi|1
+CHỜ owner phản ứng bằng lời|1
+chấm thẩm mỹ là việc của owner ngồi xem|1
+in-harness trên Browser pane, owner ngồi xem|1
+DEAD-SENTENCE-NEEDLES>>> -->
+
 **BASE-DPNKDB:** `c444c512f8f2b2c2b2fba59d4780d9fcff6c6071` — mốc git CỐ ĐỊNH
 trước ô này, dùng làm đối chứng dương cho AC-12 (câu chết phải chết). Neo vào
 `origin/main` là sai: sau khi ô này gộp thì cả hai đầu đều 0 và phép đo tự
@@ -48,7 +62,7 @@ chết mà vẫn xanh.
 - AC-9: Given sổ phiên khai `reaction:` hợp lệ, When dựng thẻ Cổng Phạm vi, Then khối «Bản mẫu & ngữ cảnh» hiện nấc phản ứng bằng NHÃN TIẾNG NGƯỜI lấy từ một bảng nhãn (không tự chế chuỗi) và hiện có/không đường bộ phương án.
 - AC-10: Given sổ phiên đời trước (thiếu `reaction:`) hoặc khai giá trị lạ, When dựng thẻ, Then cờ vàng — thiếu khoá: nói rõ hồ sơ đời trước, KHÔNG chặn, KHÔNG bắt migrate; giá trị lạ: cờ vàng NÊU TÊN giá trị lạ đó. Sổ phiên đủ khoá thì SẠCH cờ nấc (đối chứng dương).
 - AC-11: Given câu nấc-mặc-định nằm giữa cặp mốc neo `REACTION-DEFAULT-SENTENCE` trong `skills/design-pass/SKILL.md` (bản gốc DUY NHẤT), When đối chiếu với từng site khai trong bảng khai tay `REACTION-DEFAULT-SITES`, Then mỗi site chứa ĐÚNG NGUYÊN VĂN câu rút từ mốc neo — lệch MỘT TỪ ở một site là ĐỎ, và số site có mặt phải bằng đúng con số khai trong bảng (thêm/bớt một chỗ mà không sửa bảng cũng ĐỎ).
-- AC-12: Given mốc `BASE-DPNKDB` khai ở Context, When đếm câu chết ở mốc đó và ở cây đang kiểm, Then mốc CÓ ≥1 (đối chứng dương chứng minh phép đo biết đếm) và cây đang kiểm CÓ 0 — hai chiều chạy CÙNG một hàm đếm, khác input.
+- AC-12: Given danh sách ĐÓNG `DEAD-SENTENCE-NEEDLES` và mốc `BASE-DPNKDB` khai ở Context, When đếm TỪNG kim ở mốc đó và ở cây đang kiểm, Then mỗi kim ở mốc đếm ĐÚNG số đã khai (đối chứng dương chứng minh hàm đếm biết đếm — kim nào ra 0 ở mốc là ĐỎ, không được lặng lẽ xanh) và MỌI kim ở cây đang kiểm đếm 0 — hai đầu chạy CÙNG một hàm đếm với CÙNG glob thư mục, khác input.
 - AC-13: Given `GUIDE.md` và khuôn khởi tạo `commands/acceptance-init.md`, When người dựng kho mới đọc, Then cả hai ổ cắm thiết kế `design_pass.ds_skill` và `feature_loop.ui_standards_skill` đều được nêu — lỗ tài liệu phát hiện 19/08 đã lấp.
 - AC-15: Given hồ sơ KHÔNG có sổ phiên `design-pass.md` (nhánh phổ biến nhất ở kho tiêu thụ, và là nhánh của CHÍNH hồ sơ này), When dựng thẻ Cổng Phạm vi, Then thẻ dựng THÀNH CÔNG, khối «Bản mẫu & ngữ cảnh» vắng hẳn, KHÔNG cờ nấc, KHÔNG nhãn rỗng hay chuỗi lạ — đường mới không được làm đứng thẻ của hồ sơ không chạy nghi thức thiết kế.
 - AC-14: Given mọi ca đo của ô này, When đọc test, Then mỗi mệnh đề đo được có chiều đỏ đi qua CHÍNH hàm/bộ kiểm của chiều xanh (cùng bộ đọc, khác input), fixture do CODE SINH trong chính lượt chạy, và thông điệp đỏ GHIM tên mốc/khoá — không assertion âm-tính-một-mình, không fixture viết tay, không chiều đỏ tautology. (judgment)
