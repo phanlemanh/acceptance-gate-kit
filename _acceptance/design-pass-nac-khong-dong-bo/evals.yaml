@@ -161,7 +161,10 @@ evals:
       này nên nó từng là vế chết.
       MA TRẬN 3 MUTANT: m1 = bản sao gate-card khiến nhánh này in khối rỗng → đỏ
       ghim "khối Bản mẫu hiện trên hồ sơ không có sổ phiên"; m2 = bản sao khiến
-      nhánh này ném lỗi → đỏ ghim mã thoát khác 0 kèm câu "thẻ phải dựng được";
+      nhánh này ném một lỗi CÓ TÊN → đỏ ghim CẢ mã thoát khác 0 LẪN kim tên lỗi trong
+      stderr (kết luận từ mỗi «exit khác 0» là assertion âm-tính-một-mình: bản sao chết
+      vì lý do khác — tiêm trúng dòng đã đổi, thiếu phụ thuộc, hỏng cú pháp — cũng cho
+      cùng mã thoát mà ca vẫn in xanh);
       m3 = đẩy một cờ nấc RA NGOÀI khối `if (dp.present)` → đỏ.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E11

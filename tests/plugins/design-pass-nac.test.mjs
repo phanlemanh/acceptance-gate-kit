@@ -427,8 +427,16 @@ if (want('DP13')) {
   // MA TRẬN 2 MUTANT trên bản sao TRỌN scripts/+lib/
   const m1 = render(mkWs(null), s => s.replace('if (dp.present) P.push(', 'if (true) P.push('));
   if (!m1.out.includes(KHOI)) errs.push('m1: bo dieu kien co-so-phien ma the van khong in khoi — ca khong phan biet duoc');
-  const m2 = render(mkWs(null), s => s.replace("const dpText = read(path.join(dir, 'design-pass.md'));", "const dpText = null.x;"));
+  // Lệnh tiêm ném một lỗi CÓ TÊN để vế đỏ ghim được ĐÚNG nguyên nhân. Kết luận từ
+  // mỗi «exit khác 0» là assertion âm-tính-một-mình: bản sao chết vì bất kỳ lý do nào
+  // khác (tiêm trúng dòng đã đổi, thiếu phụ thuộc, hỏng cú pháp) cũng cho cùng mã
+  // thoát, và ca in xanh trong khi chưa hề chạy được nhánh nó định đo.
+  const M2_KIM = 'DP13-M2-CHET-CO-Y';
+  const m2 = render(mkWs(null), s => s.replace(
+    "const dpText = read(path.join(dir, 'design-pass.md'));",
+    `const dpText = (() => { throw new Error('${M2_KIM}'); })();`));
   if (m2.status === 0) errs.push('m2: bo dung the nem loi ma van exit 0 — ca khong bat duoc the chet');
+  else if (!m2.err.includes(M2_KIM)) errs.push(`m2: the chet nhung KHONG phai vi lenh tiem — thieu kim "${M2_KIM}" trong stderr: ${m2.err.slice(0, 120)}`);
   // m3 — mutant của hội đồng: đẩy cờ nấc RA NGOÀI khối `if (dp.present)`
   const m3 = render(mkWs(null), s => s.replace(
     "  const dpFlags = [];\n  if (dp.present) {",
