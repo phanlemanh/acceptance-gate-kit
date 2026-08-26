@@ -1,0 +1,856 @@
+P07 vendor engine import graph resolves (vendor/ shipped)
+  PASS: P07 vendor engine import graph resolves (vendor/ shipped)
+P08 every ${CLAUDE_PLUGIN_ROOT} path in commands/skills exists in ITS plugin root
+  PASS: P08 every ${CLAUDE_PLUGIN_ROOT} path in commands/skills exists in ITS plugin root
+P20 lane lookup table CT1 nhat quan trong feature-loop SKILL
+  PASS: P20 lane lookup table CT1 nhat quan trong feature-loop SKILL
+P21 decisions.jsonl plumbing noi du 3 diem (script + command + SKILL)
+  PASS: P21 decisions.jsonl plumbing noi du 3 diem (script + command + SKILL)
+P22 dinh tuyen model trong workflows + version feature-loop khong rong
+  PASS: P22 dinh tuyen model trong workflows + version feature-loop khong rong
+P24 acceptance-init phat mac dinh nghiem (recheck strict; KHONG con khoa chu-ky cu)
+P24 OK (recheck strict con; 0 dong scaffold khoa cu; mutant chen lai BI BAT)
+  PASS: P24 acceptance-init phat mac dinh nghiem (recheck strict; KHONG con khoa chu-ky cu)
+P25 hook manifest Claude giu goc plugin dung bien Claude
+  PASS: P25 hook manifest Claude giu goc plugin dung bien Claude
+P30 Claude decision commands ship and keep their invariants
+     LOP-PHUT: 10 hit, 8/8 dong mien tru deu con hit that (banh coc 2 chieu)
+  PASS: P30 Claude decision commands ship and keep their invariants
+P28 README and GUIDE document the verified install path
+  PASS: P28 README and GUIDE document the verified install path
+P29 gap-probe S1 noi du 4 diem (card script, feature-loop SKILL, command, GUIDE)
+  PASS: P29 gap-probe S1 noi du 4 diem (card script, feature-loop SKILL, command, GUIDE)
+P32 Claude gate commands locked from model invocation; card stays open
+  PASS: P32 Claude gate commands locked from model invocation; card stays open
+P33 no source file globs the plugin cache (resolve-plugin.mjs is the only path)
+  PASS: P33 no source file globs the plugin cache (resolve-plugin.mjs is the only path)
+P35 CI T1-escape backstop is ON, PR-guarded, and fails loud when skipped
+  PASS: P35 CI T1-escape backstop is ON, PR-guarded, and fails loud when skipped
+P38 gate-card.js dung lib/gap-probe.cjs, khong con regex descope rieng
+  PASS: P38a gate-card require lib/gap-probe.cjs
+  PASS: P38b gate-card khong con literal regex descope
+P39 acceptance-init: khoa gap_probe + 3 mode
+  PASS: P39[commands/acceptance-init.md:key]
+  PASS: P39[commands/acceptance-init.md:modes]
+P40 gate.yml: push tat rang T1-escape, PR khong, khong nhanh nao thieu base
+  PASS: P40 gate.yml: push tat rang T1-escape, PR khong, khong nhanh nao thieu base
+P43 GUIDE noi bump version thuoc S3
+  PASS: P43 GUIDE noi bump version thuoc S3
+P44 acceptance-init nhac co cho job push (khop GUIDE)
+  PASS: P44 acceptance-init nhac co cho job push (khop GUIDE)
+P48 ledger_mark call-site == EXPECTED tren nguon
+  PASS: P48 chu ky ledger_mark khop EXPECTED (nguon + mirror + dot bien)
+P51 tests/workflows wired vao gate.yml + config.yaml
+  PASS: P51 tests/workflows wired (gate.yml + config executors + suite_keys + dot bien)
+P52 card THAT SU render khoi Ngoai-hop-dong (do dau ra) + nhanh backward
+  PASS: P52 khoi Ngoai-hop-dong render that + co cum + khong lo path + backward
+P53 fixture judge E11 = ban render that (sinh lai + so byte)
+  PASS: P53 fixture judge E11 == ban render that + khong jargon
+P55 round-trip: khuon prompt synthesize phai parse duoc bang lib/out-of-contract.js
+P55 round-trip writer<->reader (khuon rut tu writer, doc bang reader that)
+round-trip OK; dot bien dao dong bi bat
+  PASS: P55 round-trip writer<->reader (khuon rut tu writer, doc bang reader that)
+P57 acceptance-init noi DUNG muc cuong che cua approvers
+  PASS: P57 acceptance-init noi DUNG muc cuong che cua approvers
+P65 corpus khuon dong criterion: id/gwt/judgment khop bang GHIM SAN
+  PASS: P65 corpus 14 ca khop bang ghim (id+gwt+judgment)
+P66 bao-tap: khuon MOI phai BAO khuon CU, 0 dong mat, 0 dong rac them
+     PHAM-VI: khong co AC_EXTRA_CORPUS_ROOT — chi phu corpus + _acceptance cua repo nay; AC-2 khai rong hon the
+  PASS: P66 bao-tap: 0 mat, +103 dong criterion that, 0 rac
+P67 co judgment: 0 lat tren dong chung; nhan/code-span xu dung
+     PHAM-VI: khong co AC_EXTRA_CORPUS_ROOT — 2 dong repo tieu thu ma AC-3 neu dich danh KHONG nam trong pham vi quet
+          lat DUNG luat code-span: gate-card-ac-visibility AC-1
+          lat DUNG luat code-span: gate-card-ac-visibility AC-3
+  PASS: P67 co judgment: 0 lat; dau trong code-span = trich dan (false), go backtick -> true
+P68 mot nguon su that: HAI LOI GOI THAT cua gate-card tren cung contract
+  PASS: P61 hai loi goi khop tren cay that; dot bien lam lech -> bat duoc (A:zulufox A:yankeecrab A:whiskeyelk A:victorowl A:id-AC-3 B:zulufox B:yankeecrab B:xraymoose B:whiskeyelk B:victorowl)
+P69 RONG phai KEU (2 ca kich hoat) + doi chung chong cry-wolf
+     A=blank:3 B=blank:2:## Acceptance criteria C=null
+  PASS: P69 ca (a) khuon la + ca (b) heading lech deu KEU va neu heading; contract lanh IM
+P71 CUT phai KEU (ca ma P69 khong phu vi n>=1) + doi chung m==n
+     CUT=short:2/8 SAME=null
+  PASS: P71 ca cut 2/8 KEU dung nhanh short; m==n IM (khong cry-wolf)
+P70 dogfood: contract cua chinh kit deu dung heading '## Criteria'
+  PASS: P70 moi contract cua kit dung '## Criteria'; doi chung duong bat duoc ban doi heading
+P72 design-pass frontmatter + NOT-for + open invocation (E1)
+  PASS: P72 design-pass frontmatter + NOT-for + open invocation (E1)
+P73 design-pass preflight: keys + {slug} template + DUNG + standalone slug (E2)
+  PASS: P73 design-pass preflight: keys + {slug} template + DUNG + standalone slug (E2)
+P74 design-pass 2 nguon luat + thang DS + shadcn default (E3)
+  PASS: P74 design-pass 2 nguon luat + thang DS + shadcn default (E3)
+P75 design-pass thang vat lieu + khai material + cam tu dung (E4)
+  PASS: P75 design-pass thang vat lieu + khai material + cam tu dung (E4)
+P76 design-pass 4 luat cung thanh van (E5)
+  PASS: P76 design-pass 4 luat cung thanh van (E5)
+P77 design-pass vong lap owner-phan-ung + cam tu cham (E6)
+  PASS: P77 design-pass vong lap owner-phan-ung + cam tu cham (E6)
+P78 design-pass ket phien: duong capture rieng + cam CT2 + provenance + states (E7)
+  PASS: P78 design-pass ket phien: duong capture rieng + cam CT2 + provenance + states (E7)
+P79 design-pass khuon marker: round-trip + than tro toi marker (E8)
+  PASS: P79 design-pass khuon marker: round-trip + than tro toi marker (E8)
+P80 design-pass engine-clean + mot mat phang (E9)
+  PASS: P80 design-pass engine-clean + mot mat phang (E9)
+P81 design-pass smoke DUONG ban nguon (E11)
+  PASS: P81 design-pass smoke DUONG ban nguon (E11)
+P82 opportunity-template round-trip frontmatter (marker -> frontmatterField)
+round-trip OK; dot bien mat frontmatter bi bat
+  PASS: P82 opportunity-template round-trip frontmatter (marker -> frontmatterField)
+P83 opportunity-template du muc V1 + luoi ke thua (kem doi chung am)
+  PASS: P83 opportunity-template du muc V1 + luoi ke thua (kem doi chung am)
+P84 gap-probe co ve platform-fit (kem doi chung am)
+  PASS: P84 gap-probe co ve platform-fit (kem doi chung am)
+P85 GOAL-TEMPLATE nhung trong SKILL, khop GUIDE, lenh in noi voi khoi
+  PASS: P85 GOAL-TEMPLATE nhung trong SKILL, khop GUIDE, lenh in noi voi khoi
+P86 S1 doc feature_loop.ui_standards_skill (kem doi chung am)
+  PASS: P86 S1 doc feature_loop.ui_standards_skill (kem doi chung am)
+P87 lane S1-D tro design-pass + Gate 1 ban bam duoc (kem doi chung am)
+  PASS: P87 lane S1-D tro design-pass + Gate 1 ban bam duoc (kem doi chung am)
+P88 version floor 1.29/1.22 + description nhac hanh vi moi
+  PASS: P88 version floor 1.29/1.22 + description nhac hanh vi moi
+P89 ban luat: neo vao dung vat — 6 luat, 2 phep thu (dinh nghia), vi du, mien tru, nguong N5, dong tu dien N6 (E1-E4)
+  PASS: P89 ban luat: neo vao dung vat — 6 luat, 2 phep thu (dinh nghia), vi du, mien tru, nguong N5, dong tu dien N6 (E1-E4)
+P92 hai khuon trinh bay: marker duy nhat + round-trip bang 3 cot + so do mermaid (E9, E10)
+  PASS: P92 hai khuon trinh bay: marker duy nhat + round-trip bang 3 cot + so do mermaid (E9, E10)
+P96 tu dien: rut tu qua marker HFL-GLOSSARY-TERMS roi tra CONTEXT.md (E14)
+  PASS: P96 tu dien: rut tu qua marker HFL-GLOSSARY-TERMS roi tra CONTEXT.md (E14)
+P90 tam cho tro nap ban luat + khuon MOI lan trinh + round-trip cau-ve-hinh (E5, E12, E6h)
+P90-COPIES: m3 do (1/2 ban chep)
+P90-COPIES: m4 do (1/2 ban chep)
+P90-COPIES: m3b do (1/2 ban chep)
+  PASS: P90 tam cho tro nap ban luat + khuon MOI lan trinh + round-trip cau-ve-hinh (E5, E12, E6h)
+P91 con tro RUT TU file tro vao vat that tren cay nguon, kem dem sanity 8 (E6)
+  PASS: P91 con tro RUT TU file tro vao vat that tren cay nguon, kem dem sanity 8 (E6)
+P93 mot-nguon: bang luat khop tung ky tu + than khuon va CAP MARKER duy nhat toan kho (E8, E11)
+  PASS: P93 mot-nguon: bang luat khop tung ky tu + than khuon va CAP MARKER duy nhat toan kho (E8, E11)
+P94 quyen tra lai tai cong + tien to so tren the (E13)
+  PASS: P94 quyen tra lai tai cong + tien to so tren the (E13)
+P95 con tro giai duoc TRONG GOI — goi khac goi phai qua bo giai (E7)
+  PASS: P95 con tro giai duoc TRONG GOI — goi khac goi phai qua bo giai (E7)
+P97 hinh theo mat phang: bang tra co co che cu the + hang hoi thoai mac dinh + phep thu nhin-thay-hinh (E1-E3)
+  PASS: P97 hinh theo mat phang: bang tra co co che cu the + hang hoi thoai mac dinh + phep thu nhin-thay-hinh (E1-E3)
+P98 start-scan phan o du moi hang bang + broken/skipped/readonly/gate-order (E1-E6,E9)
+P98 OK
+  PASS: P98 start-scan phan o du moi hang bang + broken/skipped/readonly/gate-order (E1-E6,E9)
+P99 round-trip START-SCAN-KEYS <-> start-scan output (2 harness, E13)
+P99 OK (2 chieu: marker ⊆ dau ra + dau ra ⊆ marker, 52 key la)
+  PASS: P99 round-trip START-SCAN-KEYS <-> start-scan output (2 harness, E13)
+P100 con tro /start giai duoc trong goi Claude (repo root) (E14)
+  PASS: P100 con tro /start giai duoc trong goi Claude (repo root) (E14)
+P101 nap human-facing-language truoc render (2 harness) + GUIDE/README/QUICKSTART co muc /start (E11,E15)
+  PASS: P101 nap human-facing-language truoc render (2 harness) + GUIDE/README/QUICKSTART co muc /start (E11,E15)
+P102 start-scan: loi I/O neu ten file+ma loi; verdict la/vang bi goi ten (E1,E2)
+P102 OK
+  PASS: P102 start-scan: loi I/O neu ten file+ma loi; verdict la/vang bi goi ten (E1,E2)
+P103 start-scan argv: 5 loi chet exit 2 ghim thong diep + doi chung duong (E3)
+P103 OK
+  PASS: P103 start-scan argv: 5 loi chet exit 2 ghim thong diep + doi chung duong (E3)
+P104 round-trip tu vung verdict: khuon writer <-> start-scan reader (E10)
+P104 OK (tu vung writer: PASS, PENDING-JUDGMENT, REJECT, BLOCKED)
+  PASS: P104 round-trip tu vung verdict: khuon writer <-> start-scan reader (E10)
+P105 ma tran phan o: trang-thai × tinh-trang-artifact, ghim toan bo (E1,E2,E10)
+P105 OK — ghim 60 o; mutant chot-sai-cho bi bat
+  PASS: P105 ma tran phan o: trang-thai × tinh-trang-artifact, ghim toan bo (E1,E2,E10)
+P115 khuon canonical 3 artifact rut duoc + frontmatterField doc duoc (E1,E8)
+P115 OK
+  PASS: P115 khuon canonical 3 artifact rut duoc + frontmatterField doc duoc (E1,E8)
+P116 product-map bucket du moi hang + enum-lac tung field dieu huong (E1)
+P116 OK (6 cap field dieu huong, suy tu NAV_RULES)
+  PASS: P116 product-map bucket du moi hang + enum-lac tung field dieu huong (E1)
+P117 map GIU NGUYEN qua approved->implemented->verified; DOI qua cong nguoi (E2)
+P117 OK
+  PASS: P117 map GIU NGUYEN qua approved->implemented->verified; DOI qua cong nguoi (E2)
+P118 render 2 lan giong het + sort theo slug + canh chi hien khi ho so co (E4,E5)
+P118 OK
+  PASS: P118 render 2 lan giong het + sort theo slug + canh chi hien khi ho so co (E4,E5)
+P119 --check fresh/stale/thieu-file/chua-init + path suy tu vi tri script (E3)
+P119 OK
+  PASS: P119 --check fresh/stale/thieu-file/chua-init + path suy tu vi tri script (E3)
+P120 uat-session giu chot spec §2.3 dung thu tu; skill MO nhu design-pass (E12)
+  PASS: P120 uat-session giu chot spec §2.3 dung thu tu; skill MO nhu design-pass (E12)
+P121 o cho-Cong-Gia-tri + state theo verdict + since 2 nhanh + map 4 to hop (E10)
+P121 OK
+  PASS: P121 o cho-Cong-Gia-tri + state theo verdict + since 2 nhanh + map 4 to hop (E10)
+P122 buoc lam moi ban do nam SAU buoc ghi field cong, 2 harness + plugin-root (E6,E7)
+  PASS: P122 buoc lam moi ban do nam SAU buoc ghi field cong, 2 harness + plugin-root (E6,E7)
+P195 moi feature_loop.suite_key resolve ve mot lenh co that (F6, un-remove tu P162/E6)
+P195 OK (5 suite_key resolve + tep ton tai; chieu do khoa-ma/tep-ma/chot-ngoai-luoi deu dich danh)
+  PASS: P195 moi feature_loop.suite_key resolve ve mot lenh co that (F6, un-remove tu P162/E6)
+P123 hai reader dong ket luan tren TICH DESCARTES contract x opportunity x uat (E1,E10)
+P123 OK (574 to hop = 432 tieu-thu + 137 tu-vung + 2 khai-xong + 3 doc-duoc, 274 hong / 300 lanh, hai reader dong y tat ca)
+  PASS: P123 hai reader dong ket luan tren TICH DESCARTES contract x opportunity x uat (E1,E10)
+P124 frontmatterField: khoa rong tra '' chu khong nuot dong ke (S4-r2)
+P124 OK
+  PASS: P124 frontmatterField: khoa rong tra '' chu khong nuot dong ke (S4-r2)
+P125 ban do co HINH dan dau, hinh mang so THAT, chu tu viet qua N1/N2/N3 (E17)
+P125 OK
+  PASS: P125 ban do co HINH dan dau, hinh mang so THAT, chu tu viet qua N1/N2/N3 (E17)
+P126 PRODUCT-MAP.md mien tru t1 + --check canh that + co trong CI + co ADR (E18)
+  PASS: P126 PRODUCT-MAP.md mien tru t1 + --check canh that + co trong CI + co ADR (E18)
+P127 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
+  PASS: P127 khuon acceptance-init phat du mien tru PRODUCT-MAP + executor canh (E18)
+P128 3 tai lieu co be mat 1.31.0 + khong hua khoa dau ra da go (E11,E18)
+P128 OK (3 tai lieu co be mat 1.31.0; khoa dau ra khop dau ra THAT)
+  PASS: P128 3 tai lieu co be mat 1.31.0 + khong hua khoa dau ra da go (E11,E18)
+P129 canh + ten viec doc tu ho so KHONG tieu thu; loi doc o do khong lam hong slug (E5)
+P129 OK (6 trang thai giu canh + ten; loi doc o ho so khong tieu thu khong lam hong slug)
+  PASS: P129 canh + ten viec doc tu ho so KHONG tieu thu; loi doc o do khong lam hong slug (E5)
+P130 configList JS va ban bash cua pre-merge dong ket luan moi hinh dang (E11)
+P130 OK (11 hinh dang config, 7 co / 4 khong; hai ben doc dong y VA map.enabled bam luat chung)
+  PASS: P130 configList JS va ban bash cua pre-merge dong ket luan moi hinh dang (E11)
+P131 khuon CI: moi loi goi pre-merge-check.sh trong doc mang --base + fetch-depth di kem
+P131 OK
+  PASS: P131 khuon CI: moi loi goi pre-merge-check.sh trong doc mang --base + fetch-depth di kem
+P132 pilot block README symlink du moi lenh commands/*.md
+P132 OK (7 lenh deu co mat)
+  PASS: P132 pilot block README symlink du moi lenh commands/*.md
+P133 chu first-run: recheck-advice khop init + jsdom o 3 diem init + attribution /start=v1.30
+P133 OK (3 pin chu + dot bien deu do dung cho)
+  PASS: P133 chu first-run: recheck-advice khop init + jsdom o 3 diem init + attribution /start=v1.30
+P134 context-ladder writer: khoa context + giai doan 0 + luat canh + mac-dinh-nac-cao (E1/E2/E3/E4a)
+P134 OK (doi chung duong + 4 dot bien deu do dung cho)
+  PASS: P134 context-ladder writer: khoa context + giai doan 0 + luat canh + mac-dinh-nac-cao (E1/E2/E3/E4a)
+P135 context-ladder round-trip: khuon writer -> the render nhan tieng nguoi (E5)
+P135 OK (3 nac round-trip tu khuon writer)
+  PASS: P135 context-ladder round-trip: khuon writer -> the render nhan tieng nguoi (E5)
+P136 context-ladder co vang standalone thieu canh: 3 nhanh fixture tu writer (E6)
+P136 OK (thieu->co, canh->khong, descope->khong, lech-khuon->co, placeholder->co)
+  PASS: P136 context-ladder co vang standalone thieu canh: 3 nhanh fixture tu writer (E6)
+P137 context-ladder duong doc-cu + gia tri la: co vang co ten, khong chan (E7)
+P137 OK (doc-cu co ten, gia tri la co ten, hop le khong co)
+  PASS: P137 context-ladder duong doc-cu + gia tri la: co vang co ten, khong chan (E7)
+P138 context-ladder socket host_embed: vang->co vang, con tro hong->neu ten, giai duoc->khong (E4)
+P138 OK (vang->co, chet->ten, song->khong, comment/CRLF/blank->khong, SKILL khai khoa)
+  PASS: P138 context-ladder socket host_embed: vang->co vang, con tro hong->neu ten, giai duoc->khong (E4)
+P139 context-ladder generic: fixture repo-la code-sinh (web app tron) + grep-guard tu vung host (E8)
+P139 OK (3 phep do dung tren repo-la + guard co doi chung duong)
+  PASS: P139 context-ladder generic: fixture repo-la code-sinh (web app tron) + grep-guard tu vung host (E8)
+P140 context-ladder wiring: checklist ket phien S1-D + resume-guard doc context (E9)
+P140 OK (doi chung duong + 2 dot bien)
+  PASS: P140 context-ladder wiring: checklist ket phien S1-D + resume-guard doc context (E9)
+P141 context-ladder docs-pin: amendment spec v2 + term CONTEXT.md (E13)
+P141 OK (doi chung duong + 2 dot bien)
+  PASS: P141 context-ladder docs-pin: amendment spec v2 + term CONTEXT.md (E13)
+P142 context-ladder coverage-lint scoped: khong canh bao nao ngoai W3 da-biet (E12)
+P142 OK (chi W3 da-biet; doi chung duong W1 no dung)
+  PASS: P142 context-ladder coverage-lint scoped: khong canh bao nao ngoai W3 da-biet (E12)
+P143 gate-card covGaps: block scalar co ca am -> KHONG co; thieu that -> dung 1 AC
+  PASS: P143 covGaps doc duoc block scalar > va |, canh bao dung AC, than block khong cuop key
+P144 eval-coverage-lint: W1/W3 doc block scalar, khong ban gia, thieu that van do
+  PASS: P144 lint W1/W3 doc block scalar, khong ban gia, thieu that van do dung AC
+P145 pre-merge cross-layer: than block khong reset/khong pair ho, thieu that van VIOLATION
+  PASS: P145 awk pairing bo qua than block scalar, hai chieu false-VIOLATION/false-green deu chan
+P146 gate-card Coverage/probe: noi tron bullet wrap + khong dau markdown may (artifact THAT)
+  PASS: P146 bullet wrap noi tron + Coverage/probe khong dau may (doi chung duong tren artifact that)
+P147 card-plain phu Coverage + gap-probe: overlay thay chu, sev + hang khong overlay van hien
+  PASS: P147 round-trip card-plain: khuon key 2 chieu + overlay thay chu, khong giau hang, sev giu nguyen
+P148 moi fallback tho lot dau may: gwt + oos + decLine (G1) + critText/decLine (G2)
+  PASS: P148 lot dau may o moi fallback tho (gwt, oos wrap, decLine x3, critText)
+P149 (JR4) khuon JUDGMENT-BLOCK-TEMPLATE round-trip qua evidence-core that
+P149 fixture sinh-tu-khuon -> recheck clean; mutant token cam -> do
+  PASS: P149 fixture sinh-tu-khuon -> recheck clean; mutant token cam -> do
+P150 (JR5) gate-card hien 'Muon may doi y, can:' + duong doc-cu so voi BASE commit
+P150 required_evidence tren the + report cu render y het ban base
+  PASS: P150 required_evidence tren the + report cu render y het ban base
+P151 (JR7) persona co required_evidence + luat actionable + chong evidence-shopping
+P151 clauses + mutant per-clause
+  PASS: P151 clauses + mutant per-clause
+P152 (JR8) so vang: corpus that >=7 diem du 4 truong + fixture 2 chieu
+P152 gold points tren corpus that + fixture doi chung
+  PASS: P152 gold points tren corpus that + fixture doi chung
+P153 (JR9) G3: ma tran 3 hinh dang dong thuan + grandfather log cu + corpus that
+P153 agreement buckets + noPanel + corpus >=5 panel
+  PASS: P153 agreement buckets + noPanel + corpus >=5 panel
+P154 (JR10) lenh tong ket goi acceptance-gold + in 2 khoi tieng nguoi
+P154 command clauses + mutant
+  PASS: P154 command clauses + mutant
+P155 (E9) tu dien biet ngu: SIGNOFF-JARGON-GLOSS subset HFL-GLOSSARY-TERMS + co muc CONTEXT.md
+P155 gloss marker subset + CONTEXT + mutant
+  PASS: P155 gloss marker subset + CONTEXT + mutant
+P156 (E7,E8) so vang doc tu dien: ma tran 2 surface x 2 chieu + HFL vang no to
+P156 khoi Tu dien round-trip + fallback
+  PASS: P156 khoi Tu dien round-trip + fallback
+P157 (E2,E4,E5) ba luat ngon ngu co hoc: enum ma tran, moi goc nhin mot dong, cau trung tinh
+P157 verdict-vi + lens-per-line + noPanel
+  PASS: P157 verdict-vi + lens-per-line + noPanel
+P158 (E1,E6) bang vang round-trip 4 cot + doi chung doi-gia-tri + root sai no to
+P158 bang vang quan he vao=>ra + fail-loud root
+  PASS: P158 bang vang quan he vao=>ra + fail-loud root
+P159 (E3) ma tran dong thuan TOAN PHAN: 4 hinh dang x 3 chieu = 12 o
+P159 agreement 4x3 ke ca nhanh chan
+P159 OK (12 o ma tran, ke ca nhanh hoa 2-2)
+  PASS: P159 agreement 4x3 ke ca nhanh chan
+P160 (E10) duong doc-cu tren ho so CU + xuat xu van ban giam khao doc
+P160 --json hinh dang cu + provenance gold-stdout
+  PASS: P160 --json hinh dang cu + provenance gold-stdout
+P161 (E1-E11) ham lot: ma tran, doi chung ban cu, quet corpus that
+P161 strip-md giu duong dan + ma tran toan phan
+P161 GHI CHU: 1 cum sao van xuoi chua co ten hinh dang (khong chan): *»
+     E11 banh coc: 408 assert cu, 112 da go va DEU duoc khai
+P161 OK: 23 hinh dang · 64 slug · 2232 cum sao corpus · 5495 phan loai · 14 cho goi (>= moc) · 408 assert cu giu nguyen
+  PASS: P161 strip-md giu duong dan + ma tran toan phan
+P165 F-K ve am: cam superpowers:brainstorming truoc Cong Dang trong doan loi (a), mutant per-file (E1)
+P165 OK (2 thân xanh + 2 mutant per-file đỏ đúng tên)
+  PASS: P165 F-K ve am: cam superpowers:brainstorming truoc Cong Dang trong doan loi (a), mutant per-file (E1)
+P166 F-K o cam config: ma tran hinh dang TOAN PHAN + seam khoa viet<->doc + quan he 2 nhanh (E2,E3)
+P166 OK (khoá 'brainstorm_skill' rút từ thân lệnh · ma trận 29 ô · đối chứng seam · 2 đoạn × 3 mutant quan hệ)
+  PASS: P166 F-K o cam config: ma tran hinh dang TOAN PHAN + seam khoa viet<->doc + quan he 2 nhanh (E2,E3)
+P167 F-K cam hardcode ben-thu-ba: quet PER-CAY + doi chung tiem day du + 2 doan luat spec (E4,E5)
+P167 OK (per-cây {'commands': 7, 'skills': 38, 'feature-loop': 9, 'scripts': 15, 'lib': 11, 'hooks': 2} · tiêm 6×2 đều đỏ · 2 đoạn luật spec + 4 mutant)
+  PASS: P167 F-K cam hardcode ben-thu-ba: quet PER-CAY + doi chung tiem day du + 2 doan luat spec (E4,E5)
+P164 [TEETH] carry-plan message matrix + gold stats doc lap
+P164 carry-plan messages + gold stats
+P164 OK: 3 thong diep phan biet · stats corpus 50>=29 · round-trip doc lap
+  PASS: P164 carry-plan messages + gold stats
+P168 (E1,E2,E3,E4) luat dung-va: khoi co moc, 4 y + 2 ve, quan he chua, ma tran 16 ca
+P168 stop-patching-law: noi dung + vi tri + 16 dot bien
+P168 pham vi: 8/16 ca chay duoc, bo qua 8 ca cua harness da luu kho (['codex'])
+P168 OK (8 ca đột biến chạy được / 16 bảng khai + 2 đối chứng dời-khối)
+  PASS: P168 stop-patching-law: noi dung + vi tri + 16 dot bien
+P169 (AC-6) bien ban cham hanh vi phai do CODE SINH; ban ghi DA KY thi ghi-mot-lan
+P169 dau vao cham hanh vi: sinh trong BAN SAO, ban ghi da ky khong bi sinh de
+P169 OK (dẫn xuất round-trip; bản ghi đã ký ghi-một-lần, chiều đỏ chạy thật)
+  PASS: P169 dau vao cham hanh vi: sinh trong BAN SAO, ban ghi da ky khong bi sinh de
+P170 (AC-6) doi chung hanh vi: cau tra loi CO menh de phai TRICH duoc menh de, ban DA XOA thi khong
+P170 quan he trich-dan giua 4 luot va khoi menh de
+P170 OK (4 lượt, quan hệ trích-dẫn tách bạch giữa hai nhánh)
+  PASS: P170 quan he trich-dan giua 4 luot va khoi menh de
+P171 (AC-3,AC-5,AC-7) nhan ban do MOT bang: --check va /start cung chu, hai dang cay, --root sai chet to
+P171 MAP_LABELS quan he 3 ben + 2 dang cay + guard --root
+P171 OK (3 state cung bang nhan, 2 dang cay + ca da-xoa-khong-config qua tin hieu git, --root sai chet to 2 kieu)
+  PASS: P171 MAP_LABELS quan he 3 ben + 2 dang cay + guard --root
+P172 (AC-4) khuon UAT round-trip: thi hanh thu tuc chep trong khoi moc -> ho so LANH; chep sai -> HONG
+P172 UAT-COPY-PROCEDURE rut-tu-khuon, chep dung lanh / chep ca rao hong
+P172 OK (thu tuc trong khoi moc, thi hanh that; E19: 3 mutant buoc + 1 mutant moc, cung MOT checker)
+  PASS: P172 UAT-COPY-PROCEDURE rut-tu-khuon, chep dung lanh / chep ca rao hong
+P173 (AC-1,AC-4,AC-6,AC-8) not luoi reader-unification: mutant mot-cho, tu vung 4 cong, bien Codex, since rong, mutant thu-tuc-chep
+P173 5 ca not: E3/E13/E14/E15/E19
+P173 OK (E3 mutant mot-cho 2 ben + bang-lech, E13 tu vung quan he, E14 bien Codex, E15 since rong + doi chung)
+  PASS: P173 5 ca not: E3/E13/E14/E15/E19
+P174 [MBC] E1 menh de MEASURE-BIRTH-CLAUSE trong SKILL Claude: 3 thanh phan + 3 loai vat + neo
+P174 DUONG-OK
+P174 MUTANT-OK (xoa khoi + tach khoi moc deu do ghim thong diep)
+  PASS: P174 [MBC] E1 menh de MEASURE-BIRTH-CLAUSE trong SKILL Claude: 3 thanh phan + 3 loai vat + neo
+P175 [MBC] E2 khoi giua moc: neo TRONG khoi khop khuon chuan
+P175 DUONG-OK
+P175 MUTANT-OK (xoa moc mo bi bat; neo ngoai khoi bi bat)
+  PASS: P175 [MBC] E2 khoi giua moc: neo TRONG khoi khop khuon chuan
+P176 [MBC] E3 con tro S1 ve khuon trong ban chi dan
+P176 DUONG-OK
+P176 MUTANT-OK (xoa con tro tung ben -> do neu dung ben thieu)
+  PASS: P176 [MBC] E3 con tro S1 ve khuon trong ban chi dan
+P177 [MBC] E4 references measure-birth.md: resolver goc-trong-cay-kiem + 4 muc + 2 mau + banh coc bang<->so
+<stdin>:110: DeprecationWarning: 'maxsplit' is passed as positional argument
+P177 DUONG-OK
+P177 4MUC-OK (4 muc + 3 neo noi dung muc 4 + buoc so van-dan<->khoi-moc)
+P177 MUTANT-OK (xoa muc do ghim ten muc; cay thieu file -> resolver fail ghim does-not-carry)
+LOP-BANG: 13/13 khop hai chieu (1 mien tru)
+P177 LOP-BANG-MUTANT-OK (xoa hang / them hang bia / mien tru chet / xoa moc — bon thong diep rieng)
+  PASS: P177 [MBC] E4 references measure-birth.md: resolver goc-trong-cay-kiem + 4 muc + 2 mau + banh coc bang<->so
+P179 [MBC] E6 ledger known-limits: dem tu corpus + bat bien hang + quan he >=
+P179 DUONG-OK
+P179 MUTANT-OK (closed_by, dup_of ma, enum, quan he >= deu do ghim ten bat bien)
+LOP-MOI: 4/4 lop co dong SONG trong so + neo truy duoc
+P179 LOP-MOI-MUTANT-OK (neo ma / neo trung deu do ghim dich danh lop)
+  PASS: P179 [MBC] E6 ledger known-limits: dem tu corpus + bat bien hang + quan he >=
+P180 [MBC] E7 baseline 4/6 trong Notes + entry revisit dieu kien dung
+P180 DUONG-OK
+P180 MUTANT-OK (xoa baseline / xoa revisit deu do ghim thong diep)
+  PASS: P180 [MBC] E7 baseline 4/6 trong Notes + entry revisit dieu kien dung
+P181 [MBC] E9 kenh giao: menh de ton tai -> version goi >= moc
+P181 DUONG-OK
+P181 MUTANT-OK (ha version tung goi -> do ghim dung ten goi)
+  PASS: P181 [MBC] E9 kenh giao: menh de ton tai -> version goi >= moc
+P182 [MBC] E8 tu-ap: khoi khai dich danh <-> tap tim duoc + moi case du hai chieu
+P182 DUONG-OK
+P182 MUTANT-OK (tap lech ghim id; case mot-chieu ghim ten case)
+  PASS: P182 [MBC] E8 tu-ap: khoi khai dich danh <-> tap tim duoc + moi case du hai chieu
+P183 cross-layer pairing: dong criterion co chu mo ta van ghep doi dung
+  PASS: P183 cross-layer pairing dung ca khi criterion mang chu mo ta, co canh bien
+P184 pin phantom trong clone day du -> VIOLATION, khong phai NOTE
+  PASS: P184 pin phantom bi chan trong clone day du, pin that van sach
+P185 khoi VIEC-CUA-ANH the Cong 1: 3 ve + mau 1 dong + vi tri truoc foot (E1)
+     [draft] khoi OK, 0 loi hua phut
+     [approved] khoi OK, 0 loi hua phut
+MUTANT: da go 8 dong mang khoi khoi ban sao gate-card.js
+  PASS: P185 khoi VIEC-CUA-ANH Cong 1 (2 nhanh status + mutant)
+P186 khoi VIEC-CUA-ANH Cong 2: du 4 loai viec + mau gop 1 dong (E2)
+MUTANT: da go nhanh liet ke judgment khoi ban sao gate-card.js
+MUTANT-PHUT: da chen lai ' · ~5 phut' vao phu de the Cong 2
+     MUTANT-PHUT bi bat dung — chan khong-hua-phut (chinh doan cham cua P185/P186) DO
+     doi chung duong: the nguyen ven qua duoc chan khong-hua-phut OK
+MUTANT-2: da go ma eval khoi item 'Viec chi minh ban quyet duoc'
+  PASS: P186 khoi Cong 2 du 4 loai + mau gop (mutant bi bat)
+P186b khoi Cong 2 PASS-thuan-may: khoi van hien, dung 1 muc ky (E4)
+MUTANT: da go muc Ky-hay-tra khoi ban sao gate-card.js
+  PASS: P186b khoi khong bien mat khi 0 viec-nguoi (mutant bi bat)
+P187 khoi Cong 2 khong-ky-duoc: 'khong can lam gi' + 3 nhanh verdict (E3)
+MUTANT: da gop ba cau may-dang-lam-gi-tiep thanh MOT
+  PASS: P187 chi-bao khong-can-lam-gi (3 nhanh + doi chung PASS)
+P188 round-trip dieu khoan moi-cong: MOI site nguon khop tung ky tu (E5)
+P188 DUONG-OK (3 site nguon, 5 luot clause)
+MUTANT-1: lam lech ban chep thu 2 trong skills/acceptance/SKILL.md (offset 21405), ban thu 1 giu nguyen
+MUTANT-2: go SACH clause khoi site commands/acceptance-card.md
+MUTANT-4: go 1 trong 2 ban o site NGUON feature-loop/skills/feature-loop/SKILL.md (khong co ban dung de mat theo — mo phong sau-sync tron ven)
+SANITY-LUAT-CU-IM: lech() im tren dot bien nguon-it-hon — lo r3 la that, luat dem nguon khong thua
+MUTANT-4 bi bat: dem_nguon do dich danh feature-loop/skills/feature-loop/SKILL.md: it-hon-so-khai (1 < 2)
+MUTANT-5: them 1 ban clause lac (dung ranh gioi cau) vao site NGUON feature-loop/skills/feature-loop/SKILL.md, manifest giu nguyen
+MUTANT-5 bi bat: dem_nguon do dich danh feature-loop/skills/feature-loop/SKILL.md: nhieu-hon-so-khai (3 > 2)
+MUTANT-6: dong manifest cua feature-loop/skills/feature-loop/SKILL.md bi go mat so ban
+MUTANT-6 bi bat: doc_manifest() FAIL-LOUD ghim 'site thieu so ban: feature-loop/skills/feature-loop/SKILL.md'
+MUTANT-7: tai tao layout pre-3caee05 trong skills/acceptance/SKILL.md (clause dong rieng chen giua 'the verdict + hook' / 'are unchanged.')
+SANITY-LUAT-KHOP-IM: lech/dem_nguon deu im tren dot bien chen-giua-cau — chi ranh_gioi do duoc lo nay
+MUTANT-7 bi bat: ranh_gioi do dich danh skills/acceptance/SKILL.md @21387 (truoc khong ket cau: ...' collapsed; the verdict + hook')
+P188 OK (5 luot khop + ranh gioi + dem nguon 5 ban; 7 chieu do: lech-1-trong-2, go-overlay, go-1-ban-dung, nguon-it-hon, nguon-nhieu-hon (dieu kien B), manifest-thieu-so fail-loud (dieu kien B), chen-giua-cau 3caee05 — tat ca in xac-nhan-dot-bien va di qua luat that)
+  PASS: P188 round-trip dieu khoan moi-cong: MOI site nguon khop tung ky tu (E5)
+P190 the bang chung E7 = ban render that cua cay hien tai (sinh lai + so byte)
+     MUTANT: them 1 byte vao ban sao the Cong 1 -> phep so byte DO dung nhu mong doi
+  PASS: P190 the bang chung E7 == ban render that (sinh lai + so byte + mutant)
+P191 khoi ngu phap cau gop GATE-ONESHOT: cau truc + 8 neo luat (E1 mot-luot-go)
+P191-CHECK OK: 8 dong SLOTS, 8 neo luat du
+     MUTANT-P191: da go neo GIU NGUYEN VAN khoi ban sao ban luat
+     mutant P191 DO dung thong diep (thieu luat giu-nguyen-van)
+  PASS: P191 ngu phap cau gop GATE-ONESHOT (8 neo, 1 chieu do chay that)
+P192 round-trip the->ngu phap: nhan Tra-loi-mau khop SLOTS hai huong (E2 mot-luot-go)
+ONESHOT-RT: g1=1 g2=5 nhan khop du
+ONESHOT-RT-NGUOC: moi dong SLOTS co fixture render
+     MUTANT-A: da go dong 'g2 Treo' khoi ban sao SLOTS
+     MUTANT-A DO dung — nhan the day ma ngu phap khong khai: Treo
+     MUTANT-B: da tiem nhan 'lạ-oneshot' vao dong Tra-loi-mau cua the g2
+     MUTANT-B DO dung — nhan la ngoai ngu phap: lạ-oneshot
+     MUTANT-C: da go dong 'g2 Ngoài-<số>' khoi ban sao SLOTS
+     SANITY-KHONG-NUOT: Ngoai-1 khong chui qua lop ma-eval
+     MUTANT-H: da them dong nhan chet vao ban sao SLOTS
+     MUTANT-H DO dung — nhan SLOTS khong fixture nao render
+  PASS: P192 round-trip the->SLOTS hai huong (4 chieu do: go-nhan, tiem-nhan-la, khong-nuot-lop, nhan-chet)
+P193 dieu khoan mot-luot-go: 6 site nguon khop tung ky tu + quan he per-site (E3/E4 mot-luot-go)
+ONESHOT-BODY: approve g1 du, signoff g2 du, start slug OK
+ONESHOT-SITES: 12 nguon (+6 suy ra)
+MUTANT-D: da xoa so ban khoi dong manifest commands/approve.md
+     MUTANT-D DO dung: site thieu so ban (fail-loud, khong default)
+MUTANT-E: da mangle 1 ky tu clause trong ban sao commands/signoff.md
+     MUTANT-E DO dich danh file: commands/signoff.md @1330
+MUTANT-F: da go needle --repo khoi ban sao commands/acceptance-status.md
+     MUTANT-F DO dich danh: site thieu needle --repo: commands/acceptance-status.md
+MUTANT-G: da xoa nhan Treo khoi ban sao commands/signoff.md
+     MUTANT-G DO dung: than signoff thieu nhan: Treo
+P193 OK (12 nguon + 6 suy ra khop tung ky tu; quan he per-site --repo + con tro grammar + SLOTS->than-lenh; 4 chieu do: manifest-thieu-so, clause-lech-1-ky-tu, thieu---repo, than-thieu-nhan — tat ca in xac-nhan-dot-bien va di qua chinh checker that)
+  PASS: P193 dieu khoan mot-luot-go: 6 site nguon khop tung ky tu + quan he per-site (E3/E4 mot-luot-go)
+P194 hai nguyen tac may-ganh-nguoi-quyet: neo grammar + 6 than lenh + truong ghi (E1/E2/E3 may-ganh-nguoi-quyet)
+MAY-GANH-GRAMMAR: 16 neo du
+MAY-GANH-BODY: approve du, signoff du, start du
+MAY-GANH-COMPAT: truong ghi du, require_human_commit nguyen
+MUT-1: da go neo PHAT NGON CUOI khoi ban sao ban luat
+     MUT-1 DO dung: GRAMMAR thieu neo phat-ngon-cuoi
+MUT-2: da go khuon voi-danh-tinh khoi ban sao commands/approve.md
+     MUT-2 DO dich danh: site thieu khuon voi-danh-tinh: commands/approve.md
+MUT-3: da go needle --as khoi ban sao commands/signoff.md
+     MUT-3 DO dich danh: site thieu needle --as: commands/signoff.md
+MUT-4: da go ca mau khong-cat khoi ban sao commands/signoff.md
+     MUT-4 DO dich danh: than signoff thieu ca mau khong-cat: commands/signoff.md
+MUT-5: da doi human_signoff -> human_sign0ff trong ban sao commands/signoff.md
+     MUT-5 DO dung: than signoff thieu truong ghi: human_signoff
+MUT-6: da go phan nguon-suy (tu <nguon suy>) khoi ban sao commands/approve.md
+     MUT-6 DO dich danh: site thieu khuon nguon-suy: commands/approve.md
+MUT-7: da go luat doc-khong-bi-chan khoi ban sao commands/signoff.md
+     MUT-7 DO dich danh: site thieu luat doc-khong-bi-chan: commands/signoff.md
+MUT-8: da go nhanh bac-thang-can khoi ban sao commands/approve.md
+     MUT-8 DO dich danh: site thieu nhanh bac-thang-can: commands/approve.md
+MUT-9: da chep bac thang lan HAI vao ban sao commands/approve.md
+     MUT-9 DO dich danh: bac thang khai 2 lan (phai dung 1): commands/approve.md
+MUT-10: da chen LAI cau hoi phut cu vao ban sao commands/approve.md
+     MUT-10 DO dung: than mang lai luat cu hoi-phut-quay-lai
+MUT-11: da hoan vi bac thang (approvers truoc git config) trong ban sao commands/signoff.md
+     MUT-11 DO dung: thu tu bac thang sai (git config phai truoc approvers)
+MUT-12: da go nhanh canh-bao-ngoai-danh-sach khoi ban sao commands/approve.md
+     MUT-12 DO dich danh: site thieu nhanh canh-bao-ngoai-danh-sach: commands/approve.md
+MUT-13: da go hien-thi-lai nhom khop khoi ban sao commands/start.md
+     MUT-13 DO dich danh: than start thieu hien-thi-lai nhom khop: commands/start.md
+MUT-14: da go neo ngay-o-ky khoi ban sao ban luat
+     MUT-14 DO dung: GRAMMAR thieu neo ngay-o-ky
+MUT-15: da chen LAI cau hoi phut vao duong khac (skills/acceptance/SKILL.md, ban doc gia lap)
+     MUT-15 DO dich danh: duong khac van hoi phut: skills/acceptance/SKILL.md
+P194 OK (16 neo duong + 3 neo am grammar + 6 than lenh per-site + truong ghi + doc/can/mot-ban-chep/canh-bao/thu-tu 2 harness; 15 chieu do: neo-grammar, khuon-danh-tinh, needle--as, ca-mau-khong-cat, truong-ghi, khuon-nguon-suy, doc-khong-bi-chan, bac-thang-can, bac-thang-2-ban-chep, neo-am-hoi-phut, thu-tu-bac-thang, canh-bao-ngoai-danh-sach, than-start, neo-ngay-o-ky, duong-khac-hoi-phut — tat ca in xac-nhan-dot-bien va di qua chinh checker that)
+  PASS: P194 hai nguyen tac may-ganh-nguoi-quyet: neo grammar + 6 than lenh + truong ghi (E1/E2/E3 may-ganh-nguoi-quyet)
+P196 plugin diagram-design: layout+manifest · tree-hash==NOTICE · marker default · khong symlink (release-2-1-0 E6)
+     P196: so voi origin/main: hash giu · version 2.5.0 -> 2.5.0
+     MUTANT-VERSION bi bat: hash doi + version giu -> do (qua CHINH so_ver_hash)
+     MUTANT-HASH bi bat: doi 1 byte -> hash khac NOTICE
+     MUTANT-MARKER bi bat: marker ro ri trang thai ca nhan
+P196 OK (layout+manifest MIT · hash==NOTICE · version-theo-hash · marker default · 0 symlink · 0 hook/mcp/thu-muc-la · 3 mutant bi bat)
+  PASS: P196 plugin diagram-design: layout+manifest · tree-hash==NOTICE · marker default · khong symlink (release-2-1-0 E6)
+P197 GATE 1 khoi hinh: clause mot-nguon · 5 nhan thu tu · 4 nguon ke · dieu kien dung-nguoi · subagent+skill-vang · Read .png · dinh cung luot · dung lai figures (hinh-tai-cong-1 E1-E8)
+P197-M: GATE 1: cau ve hinh lech khuon mot-nguon
+P197-M: GATE 1: nam buoc sai thu tu
+P197-M: GATE 1: the va hinh khong cung luot
+P197-M: GATE 1: thieu buoc nhin
+P197-M: GATE 1: thieu dau vet dem
+P197-M: GATE 1: thieu dieu kien dung-nguoi
+P197-M: GATE 1: thieu dong 0-diem-vuot
+P197-M: GATE 1: thieu dong duoi-nguong
+P197-M: GATE 1: thieu duong dung lai figures
+P197-M: GATE 1: thieu duong skill vang
+P197-M: GATE 1: thieu gioi han ve lai mot lan
+P197-M: GATE 1: thieu khoi Hinh tai diem quyet dinh
+P197-M: GATE 1: thieu menh de khong hoi nguoi
+P197-M: GATE 1: thieu nguon [GIẢ ĐỊNH]
+P197-M: GATE 1: thieu nguon entry sổ quyết định chờ seal
+P197-M: GATE 1: thieu nguon human-gate1
+P197-M: GATE 1: thieu nguon lệch spec/plan gốc
+P197-M: GATE 1: thieu nhan buoc [1] Kê
+P197-M: GATE 1: thieu nhan buoc [2] Đếm
+P197-M: GATE 1: thieu nhan buoc [3] Vẽ
+P197-M: GATE 1: thieu nhan buoc [4] Nhìn
+P197-M: GATE 1: thieu nhan buoc [5] Đính
+P197-M: GATE 1: thieu subagent ve
+P197-M: GATE 1: thieu ten skill ve
+P197-M: GATE 1: xanh-sach khong di kem bo qua
+P197-M-COUNT: 25
+P197-MUT-1: xoa clause khoi khoi DO dung (GATE 1: cau ve hinh lech khuon mot-nguon)
+P197-MUT-2: doi mot tu trong clause DO dung (GATE 1: cau ve hinh lech khuon mot-nguon)
+P197-MUT-3: hoan vi nhan 3/4 DO dung (GATE 1: nam buoc sai thu tu)
+P197-MUT-4: chep figures/index.md ra ngoai khoi DO dung (GATE 1: thieu dau vet dem)
+P197-MUT-5: chuyen figures/index.md tu [2] sang [5] DO dung (GATE 1: thieu dau vet dem)
+P197-MUT-6: chuyen human-gate1 tu [1] sang [5] DO dung (GATE 1: thieu nguon human-gate1)
+P197-MUT-7: go nguon entry sổ quyết định chờ seal DO dung (GATE 1: thieu nguon entry sổ quyết định chờ seal)
+P197-MUT-8: go nguon lệch spec/plan gốc DO dung (GATE 1: thieu nguon lệch spec/plan gốc)
+P197-MUT-9: go nguon [GIẢ ĐỊNH] DO dung (GATE 1: thieu nguon [GIẢ ĐỊNH])
+P197-MUT-10: go nguon human-gate1 DO dung (GATE 1: thieu nguon human-gate1)
+P197-MUT-11: go khong-hoi-nguoi DO dung (GATE 1: thieu menh de khong hoi nguoi)
+P197-MUT-12: xoa cau dieu kien (T3/T2 con o noi khac trong GATE 1) DO dung (GATE 1: thieu dieu kien dung-nguoi)
+P197-MUT-13: tach doan bo_qua DO dung (GATE 1: xanh-sach khong di kem bo qua)
+P197-TACH-bo_qua: presence_only van xanh
+P197-MUT-14: tach doan dieu_kien DO dung (GATE 1: thieu dieu kien dung-nguoi)
+P197-TACH-dieu_kien: presence_only van xanh
+P197-MUT-15: tach doan skill_vang DO dung (GATE 1: thieu duong skill vang)
+P197-TACH-skill_vang: presence_only van xanh
+P197-MUT-16: tach doan nhin DO dung (GATE 1: thieu buoc nhin)
+P197-TACH-nhin: presence_only van xanh
+P197-MUT-17: tach doan dung_lai DO dung (GATE 1: thieu duong dung lai figures)
+P197-TACH-dung_lai: presence_only van xanh
+P197-MUT-18: xoa cau skill vang DO dung (GATE 1: thieu duong skill vang)
+P197-MUT-19: go subagent tuoi DO dung (GATE 1: thieu subagent ve)
+P197-MUT-20: go diagram-design DO dung (GATE 1: thieu ten skill ve)
+P197-MUT-21: bo Read .png DO dung (GATE 1: thieu buoc nhin)
+P197-MUT-22: go duoi nguong DO dung (GATE 1: thieu dong duoi-nguong)
+P197-MUT-23: go cung mot luot DO dung (GATE 1: the va hinh khong cung luot)
+P197-MUT-24: go khong ve lai DO dung (GATE 1: thieu duong dung lai figures)
+P197-MUT-25: go MOT lan DO dung (GATE 1: thieu gioi han ve lai mot lan)
+P197-MUT-26: go 0 diem vuot DO dung (GATE 1: thieu dong 0-diem-vuot)
+P197-MUT-27: go nhan [1] Kê DO dung (GATE 1: thieu nhan buoc [1] Kê)
+P197-MUT-28: go nhan [2] Đếm DO dung (GATE 1: thieu nhan buoc [2] Đếm)
+P197-MUT-29: go nhan [3] Vẽ DO dung (GATE 1: thieu nhan buoc [3] Vẽ)
+P197-MUT-30: go nhan [4] Nhìn DO dung (GATE 1: thieu nhan buoc [4] Nhìn)
+P197-MUT-31: go nhan [5] Đính DO dung (GATE 1: thieu nhan buoc [5] Đính)
+P197-MUT-32: doi ten heading khoi DO dung (GATE 1: thieu khoi Hinh tai diem quyet dinh)
+P197-P90CHECK: xanh tren xoa-khoi, do tren sua-mot-chu
+P197 OK: doi chung duong + 32 dot bien chay that, moi cai ghim dung thong diep
+  PASS: P197 GATE 1 khoi hinh: clause mot-nguon · 5 nhan thu tu · 4 nguon ke · dieu kien dung-nguoi · subagent+skill-vang · Read .png · dinh cung luot · dung lai figures (hinh-tai-cong-1 E1-E8)
+P198 the Cong Pham vi in nguong nghiem thu: ma tran 4x2 + doi-cu + 4 mutant (moi-noi-vong-trao E1/E2)
+     MUTANT m1-go-khoi bi bat: co/html: thieu khoi nguong
+     MUTANT m2-khong-co-hoi-in-co-vang bi bat: khong-co-hoi/html: nhanh khong-co-hoi in co vang/khoi
+     MUTANT m3-rong-van-in-khoi bi bat: rong/html: rong van in khoi
+     MUTANT m4-placeholder-la-da-khai bi bat: chep-nguyen-khuon/html: placeholder «…» bi coi la nguong da khai
+P198 OK (10 o ma tran + doi-cu xanh tren gate-card that, gom ca chep-nguyen-khuon; 4 mutant bi bat; fixture dung tu chinh khuon)
+  PASS: P198 the Cong Pham vi in nguong nghiem thu: ma tran 4x2 + doi-cu + 4 mutant (moi-noi-vong-trao E1/E2)
+P199 hfl_clause mot nguon: 6 ca fixture code-sinh + hai khoi (P90 va khoi Gate 1) cung import, khong chep tay (siet-rang-cau-ve-hinh E1 E2 E6 E7)
+P199-CA-a-hai-ban-dung OK
+P199-CA-b-sua-giua OK
+P199-CA-c-sua-4-chu-dau OK
+P199-CA-d-sua-4-chu-cuoi OK
+P199-CA-e-xoa-mot-ban OK
+P199-CA-f-xoa-ca-hai OK
+P199-MUT-1: chen lai chep tay vao P90 DO dung (P90 con chep tay logic clause)
+P199-MUT-2: chen lai chep tay vao P197 DO dung (P197 con chep tay p90_check)
+P199-MUT-3: go import P90 DO dung (P90 khong import hfl_clause)
+P199-MUT-4: go import P197 DO dung (P197 khong import hfl_clause)
+P199 OK: 6 ca fixture · 4 kiem cau truc · 4 dot bien
+  PASS: P199 hfl_clause mot nguon: 6 ca fixture code-sinh + hai khoi (P90 va khoi Gate 1) cung import, khong chep tay (siet-rang-cau-ve-hinh E1 E2 E6 E7)
+P200 mot lan cat so nhat quan: hai plugin cung so · GUIDE dan xuat · muc mo ta cua chinh so do (5 dot bien, mot loi thoat)
+     P200 VE: acceptance-gate hop semver: 2.3.0
+     P200 VE: feature-loop hop semver: 2.3.0
+     P200 VE: diagram-design hop semver: 2.5.0
+     P200 VE: hai plugin cung so: 2.3.0
+     P200 VE: GUIDE khop so DOC TU manifest
+     P200 VE: mo ta acceptance-gate co muc v2.3.0
+     P200 VE: muc v2.3.0 cua feature-loop TU khai cap
+     [chieu do] hai plugin lech so -> DO «hai plugin lech so: acceptance-gate 2.3.0 vs feature-loop 0.0.1»
+     [chieu do] GUIDE giu so cu -> DO «GUIDE khong chua cau dan xuat: Khớp phiên bản: acceptance-gate 2.3.0 · feature-loop 2.3.0 · diagram-design 2.5.0.»
+     [chieu do] mo ta ag thieu muc cua so hien tai -> DO «mo ta acceptance-gate khong co muc v2.3.0 — ban phat hanh khong noi nguoi dung nhan gi»
+     [chieu do] cau khai cap doi sang muc lich su -> DO «muc v2.3.0 cua feature-loop khong khai cap acceptance-gate >= 2.3.0 — cau khai cap nam ngoai muc nay (sua muc lich su khong tinh)»
+     [chieu do] manifest ag hong -> DO «khong doc duoc manifest acceptance-gate: Expected property name or '}' in JSON at position 2 (line 1 column 3)»
+P200 OK (so doc tu manifest — khong ghim mot moc; 5/5 dot bien chay that, moi cai ghim dung cau; doi chung duong ban-sao-nguyen-ven)
+  PASS: P200 mot lan cat so nhat quan: hai plugin cung so · GUIDE dan xuat · muc mo ta cua chinh so do (5 dot bien, mot loi thoat)
+ca khai plugin — PD1 (ho so repo-khai-plugin)
+PASS: [PD1] repo trống → file đúng tập n+1; gỡ diagram-design → thiếu đúng tên + lệch số
+  PASS: ca khai plugin — PD1 (ho so repo-khai-plugin)
+ca khai plugin — PD1b (ho so repo-khai-plugin)
+PASS: [PD1b] đổi name marketplace → hậu tố và khoá extraKnownMarketplaces cùng theo (một nguồn)
+  PASS: ca khai plugin — PD1b (ho so repo-khai-plugin)
+ca khai plugin — PD1c (ho so repo-khai-plugin)
+PASS: [PD1c] marketplace thiếu name → exit 4 nêu đường dẫn, không ghi (một nguồn tên, không fallback ẩn)
+  PASS: ca khai plugin — PD1c (ho so repo-khai-plugin)
+ca khai plugin — PD2 (ho so repo-khai-plugin)
+PASS: [PD2] hợp nhất giữ permissions/worktree/paper-desktop + thứ tự; sản phẩm ghi-đè-cả-file qua cùng phép so → mất khoá paper-desktop@paper
+  PASS: ca khai plugin — PD2 (ho so repo-khai-plugin)
+ca khai plugin — PD2b (ho so repo-khai-plugin)
+PASS: [PD2b] JSON sai hình → exit 3, không chạm, thông điệp nêu đúng lối; hợp lệ → ghi
+  PASS: ca khai plugin — PD2b (ho so repo-khai-plugin)
+ca khai plugin — PD2c (ho so repo-khai-plugin)
+PASS: [PD2c] false giữ false, source riêng giữ nguyên, có dòng «giữ nguyên»; plugin chưa khai vẫn được bật
+  PASS: ca khai plugin — PD2c (ho so repo-khai-plugin)
+ca khai plugin — PD3 (ho so repo-khai-plugin)
+PASS: [PD3] idempotent: lần hai không đổi byte, in «đã khai, không đổi»
+  PASS: ca khai plugin — PD3 (ho so repo-khai-plugin)
+ca khai plugin — PD4 (ho so repo-khai-plugin)
+PASS: [PD4] JSON hỏng → exit 3, không chạm; hợp lệ → ghi
+  PASS: ca khai plugin — PD4 (ho so repo-khai-plugin)
+ca khai plugin — PD4b (ho so repo-khai-plugin)
+PASS: [PD4b] EISDIR/EEXIST → exit 3 có lời (đúng hợp đồng mã thoát), không stack trace
+  PASS: ca khai plugin — PD4b (ho so repo-khai-plugin)
+ca khai plugin — PD5 (ho so repo-khai-plugin)
+PASS: [PD5] dry-run không ghi, in đủ tên; --write ghi
+  PASS: ca khai plugin — PD5 (ho so repo-khai-plugin)
+ca khai plugin — PD6 (ho so repo-khai-plugin)
+PASS: [PD6] bốn nơi khớp; gỡ một tên ở GUIDE → nêu tên+nơi; đổi marker init → không tìm thấy khối
+  PASS: ca khai plugin — PD6 (ho so repo-khai-plugin)
+ca khai plugin — PD7 (ho so repo-khai-plugin)
+PASS: [PD7] GUIDE 5.1: 0 tuỳ chọn (cả hai chính tả), không pin, máy-đầu 1+1, máy-sau 1+0; hai đột biến đỏ đúng
+  PASS: ca khai plugin — PD7 (ho so repo-khai-plugin)
+ca khai plugin — PD7b (ho so repo-khai-plugin)
+PASS: [PD7b] 16 tài liệu khai trong hợp đồng đều sạch (đủ 6 file bắt buộc); ba đột biến (lệnh ở README · chính tả «tùy» · mất marker) đều đỏ đúng
+  PASS: ca khai plugin — PD7b (ho so repo-khai-plugin)
+ca khai plugin — PD8 (ho so repo-khai-plugin)
+PASS: [PD8] lệnh trong init chạy được và ghi đúng tập --list; --writ → exit 4 (lệnh trong init không chạy được)
+  PASS: ca khai plugin — PD8 (ho so repo-khai-plugin)
+ca khai plugin — PD8b (ho so repo-khai-plugin)
+PASS: [PD8b] 5b rẽ nhánh: exit 0 → commit; exit 3/4 → stderr nguyên văn, cấm bảo commit; gỡ nhánh lỗi → đỏ
+  PASS: ca khai plugin — PD8b (ho so repo-khai-plugin)
+ca khai plugin — PD9 (ho so repo-khai-plugin)
+PASS: [PD9] marketplace vắng → exit 4 nêu đường dẫn, không ghi; thêm ../.claude-plugin/ cạnh bản chép → exit 0 + file có
+  PASS: ca khai plugin — PD9 (ho so repo-khai-plugin)
+ca khai plugin — PD9b (ho so repo-khai-plugin)
+PASS: [PD9b] --root lạ → exit 4 không mkdir; root thật → ghi
+  PASS: ca khai plugin — PD9b (ho so repo-khai-plugin)
+ca khai plugin — PD11 (ho so repo-khai-plugin)
+PASS: [PD11] init bước 1: repo đã có config vẫn chạy 5b + câu người-đọc; gỡ câu → đỏ
+  PASS: ca khai plugin — PD11 (ho so repo-khai-plugin)
+ca lan V — LV1 (ho so lan-v-khong-phai-cho-ky)
+PASS: LV1 sach + chua ky -> done (lan-v-mo khi cua veto mo, ke ca nguoi da duyet Cong 1 · xanh-sach khi khong co cua veto)
+  PASS: ca lan V — LV1 (ho so lan-v-khong-phai-cho-ky)
+ca lan V — LV2 (ho so lan-v-khong-phai-cho-ky)
+PASS: LV2 V-mo + PASS + T2 nhung CHUA SACH -> van o gates (8 bien the)
+  PASS: ca lan V — LV2 (ho so lan-v-khong-phai-cho-ky)
+ca lan V — LV3 (ho so lan-v-khong-phai-cho-ky)
+PASS: LV3 da-veto -> KHONG done du bang chung sach
+  PASS: ca lan V — LV3 (ho so lan-v-khong-phai-cho-ky)
+ca lan V — LV4 (ho so lan-v-khong-phai-cho-ky)
+PASS: LV4 bang su-that 240 o: 2 o done khop ham ky vong
+  PASS: ca lan V — LV4 (ho so lan-v-khong-phai-cho-ky)
+ca lan V — LV5 (ho so lan-v-khong-phai-cho-ky)
+PASS: LV5 dang thuc voi luoi: 21 fixture, may quet == pre-merge o ca 21
+  PASS: ca lan V — LV5 (ho so lan-v-khong-phai-cho-ky)
+ca lan V — LV6 (ho so lan-v-khong-phai-cho-ky)
+PASS: LV6 san dem bo loc: ten sai -> exit 1 co thong diep; ten dung -> dung mot dong ca
+  PASS: ca lan V — LV6 (ho so lan-v-khong-phai-cho-ky)
+ca vao co o — VC1 (ho so vao-co-o-ra-co-ten)
+PASS: [VC1] ý chưa ngưỡng → considering {slug,name,since,ageDays}; khuôn là nguồn nhãn (gỡ bullet → kết luận đổi; đổi heading → chết to)
+  PASS: ca vao co o — VC1 (ho so vao-co-o-ra-co-ten)
+ca vao co o — VC2 (ho so vao-co-o-ra-co-ten)
+PASS: [VC2] đủ ngưỡng → gate dang; một giá trị «…»/rỗng → considering
+  PASS: ca vao co o — VC2 (ho so vao-co-o-ra-co-ten)
+ca vao co o — VC3 (ho so vao-co-o-ra-co-ten)
+PASS: [VC3] đã quyết / stage lạ / có contract: kết luận không đổi, considering rỗng
+  PASS: ca vao co o — VC3 (ho so vao-co-o-ra-co-ten)
+ca vao co o — VC4 (ho so vao-co-o-ra-co-ten)
+PASS: [VC4] since = commit đầu (git) / mtime (không git, chưa commit); ageDays nguyên; mutant commit cuối → đỏ
+  PASS: ca vao co o — VC4 (ho so vao-co-o-ra-co-ten)
+ca vao co o — VC6 (ho so vao-co-o-ra-co-ten)
+PASS: [VC6] hai khối marker đúng chỗ, ma trận 6 mệnh đề, 0 «grill», nghi thức → máy round-trip; gỡ span/khối/16 dòng → đỏ
+  PASS: ca vao co o — VC6 (ho so vao-co-o-ra-co-ten)
+ca vao co o — VC7 (ho so vao-co-o-ra-co-ten)
+PASS: [VC7] bản đồ «cân nhắc» == considering + dang; gỡ một → cùng giảm; N = 0 là mảng rỗng
+  PASS: ca vao co o — VC7 (ho so vao-co-o-ra-co-ten)
+ca vao co o — VC8 (ho so vao-co-o-ra-co-ten)
+PASS: [VC8] mọi hạt giống có ô (ba chân, vũ trụ ≥ 13); 7 stub sống, mỗi stub đúng MỘT ô (không ghim chặng)
+  PASS: ca vao co o — VC8 (ho so vao-co-o-ra-co-ten)
+ca nac phan ung — DP1 (ho so design-pass-nac-khong-dong-bo)
+PASS: [DP1] thang bon nac, mot cho duy nhat khai danh sach — doi chung duong xanh + 8 mutant do dung ve
+  PASS: ca nac phan ung — DP1 (ho so design-pass-nac-khong-dong-bo)
+ca nac phan ung — DP8 (ho so design-pass-nac-khong-dong-bo)
+PASS: [DP8] khuon so phien giu ba khoa moi, khong liet lai danh sach nac — doi chung duong xanh + 5 mutant do dung ve
+  PASS: ca nac phan ung — DP8 (ho so design-pass-nac-khong-dong-bo)
+ca nac phan ung — DP9 (ho so design-pass-nac-khong-dong-bo)
+PASS: [DP9] khop vong 4 nac khuon->the — so mutant khai o moc neo MUTANT-MATRIX
+  PASS: ca nac phan ung — DP9 (ho so design-pass-nac-khong-dong-bo)
+ca nac phan ung — DP10 (ho so design-pass-nac-khong-dong-bo)
+PASS: [DP10] nhanh doi-ho-so + luoi thoat-chuoi CA HAI duong ra the + quan he THOAT-O-BIEN-RENDER tren ma + khoa ke thua ca hai truc — so o moc neo MUTANT-MATRIX
+  PASS: ca nac phan ung — DP10 (ho so design-pass-nac-khong-dong-bo)
+ca nac phan ung — DP11 (ho so design-pass-nac-khong-dong-bo)
+PASS: [DP11] moi site dung nguyen van + tong ban chep tron glob khop bang khai — so mutant khai o moc neo MUTANT-MATRIX
+  PASS: ca nac phan ung — DP11 (ho so design-pass-nac-khong-dong-bo)
+ca nac phan ung — DP12 (ho so design-pass-nac-khong-dong-bo)
+PASS: [DP12] hai o cam neu du o ca hai file — so mutant khai o moc neo MUTANT-MATRIX
+  PASS: ca nac phan ung — DP12 (ho so design-pass-nac-khong-dong-bo)
+ca nac phan ung — DP13 (ho so design-pass-nac-khong-dong-bo)
+PASS: [DP13] khong so phien: the dung duoc, khoi vang, khong co nac, khong nhan la — so mutant khai o moc neo MUTANT-MATRIX
+  PASS: ca nac phan ung — DP13 (ho so design-pass-nac-khong-dong-bo)
+ca dac ta UX — UX1 (ho so dac-ta-ux-vat-hoa-cau-truc)
+  PASS: UX1 marker UX-SPEC-TEMPLATE tồn tại
+  PASS: UX1 mục «1. Luồng» có mặt
+  PASS: UX1 mục «2. Kiểm kê màn» có mặt
+  PASS: UX1 mục «3. Bảng trạng thái» có mặt
+  PASS: UX1 mục «4. Hành vi» có mặt
+  PASS: UX1 mục «5. Xuất xứ component» có mặt
+  PASS: UX1 mục «6. Khuôn IA đã chọn + căn cứ» có mặt
+  PASS: UX1 UX-SPEC-TEMPLATE có UX-STATE-TABLE
+  PASS: UX1 nhãn Khuôn IA/Căn cứ đúng khuôn dòng
+  PASS: UX1 đầu khuôn có chuỗi cửa miễn
+  PASS: UX2-trich bản trích giữ đủ marker và 2 dòng trạng thái mẫu
+  PASS: UX1-đỏ gỡ marker bảng khỏi bản sao → cùng bộ trích thấy section mất UX-STATE-TABLE
+  PASS: UX1-đỏ2 bản sao ĐỔI TÊN mục 6 → cùng bộ kiểm trượt đúng «### 6. Khuôn IA đã chọn + căn cứ», mục 1 và 4 vẫn xanh
+  PASS: ca dac ta UX — UX1 (ho so dac-ta-ux-vat-hoa-cau-truc)
+ca dac ta UX — UX3 (ho so dac-ta-ux-vat-hoa-cau-truc)
+  PASS: UX3a S1 buộc điền Đặc tả UX TRƯỚC khi sinh 3 artifact (một câu, quan hệ)
+  PASS: UX3a2 khuôn resolve qua resolve-plugin.mjs (cấm hardcode path cache)
+  PASS: UX3b chỉ dẫn contract ghi design_doc: + giữ marker (khuôn máy-đọc cho việc sau)
+  PASS: UX3c nghi thức hình: hình luồng/màn vẽ TỪ section Đặc tả UX
+  PASS: UX3d «dòng state-matrix» cũ không còn đứng ngoài con trỏ về khuôn (một nguồn)
+  PASS: UX3a-đỏ bản sao gỡ trọn câu → S1 thiếu chỉ dẫn điền Đặc tả UX trước 3 artifact
+  PASS: UX3b-đỏ cùng mutant → mất luôn chỉ dẫn design_doc:/W8a (dây máy-đọc nằm trong câu bị gỡ)
+  PASS: UX3c-đỏ bản sao đổi câu vẽ-từ-khuôn → phép kiểm bắt được
+  PASS: UX3a2-đỏ bản sao hardcode path cache → phép kiểm bắt được
+  PASS: UX3d-đỏ chèn câu state-matrix mồ côi → phép kiểm quét mọi lần xuất hiện
+  PASS: ca dac ta UX — UX3 (ho so dac-ta-ux-vat-hoa-cau-truc)
+ca dac ta UX — UX4 (ho so dac-ta-ux-vat-hoa-cau-truc)
+  PASS: UX4 chuỗi miễn "bỏ đặc-tả-UX — " có mặt cả hai bên
+  PASS: UX4-đỏ bản sao đổi một bên → cùng bộ kiểm báo chuỗi miễn lệch giữa SKILL và khuôn
+  PASS: ca dac ta UX — UX4 (ho so dac-ta-ux-vat-hoa-cau-truc)
+ca duong do — DD1 (ho so duong-do-trong-dinh-nghia-xong)
+PASS: [DD1] R+: có ngưỡng + section thật → khối in, 0 cờ; applicable ⇔ khối Ngưỡng; biên 1 dòng thật vẫn áp dụng
+  PASS: ca duong do — DD1 (ho so duong-do-trong-dinh-nghia-xong)
+ca duong do — DD2 (ho so duong-do-trong-dinh-nghia-xong)
+PASS: [DD2] R−: gỡ section / chỉ placeholder / chỉ dòng bỏ không entry → đúng 1 cờ vàng «chưa có đường đo» nêu hai lối
+  PASS: ca duong do — DD2 (ho so duong-do-trong-dinh-nghia-xong)
+ca duong do — DD3 (ho so duong-do-trong-dinh-nghia-xong)
+PASS: [DD3] R0: không cơ hội / ngưỡng toàn «…» → không cờ, applicable=false ⇔ không khối Ngưỡng; khối Đường đo vẫn in
+  PASS: ca duong do — DD3 (ho so duong-do-trong-dinh-nghia-xong)
+ca duong do — DD4 (ho so duong-do-trong-dinh-nghia-xong)
+PASS: [DD4] RK: entry đúng tiền tố → info «Đã bỏ đường đo theo id» + CHƯA ĐO, 0 vàng (cả khi section chỉ có dòng bỏ); sai tiền tố / sai type → vẫn vàng
+  PASS: ca duong do — DD4 (ho so duong-do-trong-dinh-nghia-xong)
+ca duong do — DD5 (ho so duong-do-trong-dinh-nghia-xong)
+PASS: [DD5] khối khuôn: heading == DUONG_DO_HEADING, tiền tố bỏ == DUONG_DO_DESCOPE, có dòng mẫu; đổi heading → đỏ nêu hai chuỗi
+  PASS: ca duong do — DD5 (ho so duong-do-trong-dinh-nghia-xong)
+ca duong do — DD6 (ho so duong-do-trong-dinh-nghia-xong)
+PASS: [DD6] SKILL S1#4/S1#7: 6 mệnh đề đếm-hit-trong-phạm-vi; tiền tố rút từ SKILL == gate-card; 6 mutant đỏ đúng mệnh đề
+  PASS: ca duong do — DD6 (ho so duong-do-trong-dinh-nghia-xong)
+ca duong do — DD7 (ho so duong-do-trong-dinh-nghia-xong)
+PASS: [DD7] CONTEXT.md có term Đường đo (thước/ngưỡng/số đo, _Avoid_ tracking); gỡ → đỏ
+  PASS: ca duong do — DD7 (ho so duong-do-trong-dinh-nghia-xong)
+ca lenh bam duoc — LB1 (ho so lenh-in-ra-phai-bam-duoc)
+PASS: [LB1] bảng COMMAND-NAMES ⊆ vật thật (tiền tố = name plugin.json, vật tồn tại; harness chỉ [goal]); foo / đổi name / harness lạ → đỏ
+  PASS: ca lenh bam duoc — LB1 (ho so lenh-in-ra-phai-bam-duoc)
+ca lenh bam duoc — LB2 (ho so lenh-in-ra-phai-bam-duoc)
+PASS: [LB2] 16 file: 0 trần, 0 uat thiếu tiền tố, 127 lệnh có tiền tố ⊆ bảng; 16 đối chứng dương tiêm; giữ-gân 0; ba chèn → đỏ
+  PASS: ca lenh bam duoc — LB2 (ho so lenh-in-ra-phai-bam-duoc)
+ca lenh bam duoc — LB3 (ho so lenh-in-ra-phai-bam-duoc)
+PASS: [LB3] một câu luật: dùng cột Lệnh bấm được của COMMAND-NAMES, không dạng trần; gỡ → đỏ
+  PASS: ca lenh bam duoc — LB3 (ho so lenh-in-ra-phai-bam-duoc)
+ca lenh bam duoc — LB4 (ho so lenh-in-ra-phai-bam-duoc)
+PASS: [LB4] Analyst n-a có lý do → không đỏ; n-a trần/ngắn → đỏ ghim; nội dung thật → đỏ như cũ; ba hồ sơ thật 0 cờ baseline
+  PASS: ca lenh bam duoc — LB4 (ho so lenh-in-ra-phai-bam-duoc)
+ca lenh bam duoc — LB5 (ho so lenh-in-ra-phai-bam-duoc)
+PASS: [LB5] 0 cờ glossary-base; cũ∖mới trên A/B/C chỉ gồm baseline(3) + glossary(1), mới∖cũ = ∅
+  PASS: ca lenh bam duoc — LB5 (ho so lenh-in-ra-phai-bam-duoc)
+ca lenh bam duoc — LB6 (ho so lenh-in-ra-phai-bam-duoc)
+PASS: [LB6] «Bỏ đường đo —» không gạch/viết hoa = dòng bỏ: không vào lines; không entry → vàng, entry → info
+  PASS: ca lenh bam duoc — LB6 (ho so lenh-in-ra-phai-bam-duoc)
+ca lenh bam duoc — LB7 (ho so lenh-in-ra-phai-bam-duoc)
+PASS: [LB7] _Avoid_ của Đường đo: tracking, không metric; uat-session lấy số từ đường đo đã khai; thêm lại metric → đỏ
+  PASS: ca lenh bam duoc — LB7 (ho so lenh-in-ra-phai-bam-duoc)
+ca lenh bam duoc — LB8 (ho so lenh-in-ra-phai-bam-duoc)
+PASS: [LB8] START-HIEU-KET nằm trong bullet «Bắt đầu việc mới», trước (a); stub duong-do ghi chú decided_at xấp xỉ
+  PASS: ca lenh bam duoc — LB8 (ho so lenh-in-ra-phai-bam-duoc)
+ca lenh bam duoc — LB9 (ho so lenh-in-ra-phai-bam-duoc)
+PASS: [LB9] lệnh `claude plugin` giữ nguyên số (7) so với ba539284; dòng «Khớp phiên bản» không đổi; mutant đổi-sang-slash → lệch số
+  PASS: ca lenh bam duoc — LB9 (ho so lenh-in-ra-phai-bam-duoc)
+ca bang dieu khien — BDK1 (ho so start-bang-dieu-khien)
+PASS: [BDK1] thẻ in 5 việc vừa xong có ngày · nêu tên hồ sơ veto-mở · nói khi cây sau bản chung · không cắm skill hội thoại · vẫn đúng MỘT câu hỏi
+  PASS: ca bang dieu khien — BDK1 (ho so start-bang-dieu-khien)
+ca bang dieu khien — BDK2 (ho so start-bang-dieu-khien)
+PASS: [BDK2] bảng 24 khoá (ma trận toàn phần, hai vế độc lập) · máy quét rút chữ từ bảng · nhãn bảng trạng thái theo allowlist · khoá lạ chết to
+  PASS: ca bang dieu khien — BDK2 (ho so start-bang-dieu-khien)
+ca bang dieu khien — BDK3 (ho so start-bang-dieu-khien)
+PASS: [BDK3] ổ cắm 4 hình dạng đúng + fallback không chặn · §9.1 TRỪ có dấu vết, ổ cắm giữ nguyên · câu phủ định nằm trong lối (a)
+  PASS: ca bang dieu khien — BDK3 (ho so start-bang-dieu-khien)
+ca bang dieu khien — BDK4 (ho so start-bang-dieu-khien)
+PASS: [BDK4] ba thân cổng in bước kế (S2 · S5 · hai lệnh ký), hai ngả Vòng TRAO, vũ trụ quét giữ 16
+  PASS: ca bang dieu khien — BDK4 (ho so start-bang-dieu-khien)
+ca ra co ten — RT1 (ho so ra-co-ten-lam-va-trao)
+PASS: [RT1] enum 6 giá trị round-trip khuôn↔lib; usesUat/usesEvidence; khối xanh-sạch ba đầu; chiều đỏ nêu mục
+  PASS: ca ra co ten — RT1 (ho so ra-co-ten-lam-va-trao)
+ca ra co ten — RT2 (ho so ra-co-ten-lam-va-trao)
+PASS: [RT2] lưới: machine-cleared xanh-sạch qua; UNCERTAIN/mục-có-nội-dung/T3/không-veto/thiếu-báo-cáo chặn ghim câu
+  PASS: ca ra co ten — RT2 (ho so ra-co-ten-lam-va-trao)
+ca ra co ten — RT3 (ho so ra-co-ten-lam-va-trao)
+PASS: [RT3] hook: làn V qua; T3/không-vết/draft-nhảy-thẳng chặn ghim câu; khối lifecycle IN RA khớp enum AC-1, bản sao gỡ → đỏ
+  PASS: ca ra co ten — RT3 (ho so ra-co-ten-lam-va-trao)
+ca ra co ten — RT4 (ho so ra-co-ten-lam-va-trao)
+PASS: [RT4] machine-cleared: hai khoá máy-thông; tới Cổng Giá trị khi có ô build; verified cũ giữ nguyên; khác chữ với đã ký
+  PASS: ca ra co ten — RT4 (ho so ra-co-ten-lam-va-trao)
+ca ra co ten — RT5 (ho so ra-co-ten-lam-va-trao)
+PASS: [RT5] 4 khoá mới có nhãn riêng + bucket đúng; bản đồ và thẻ in chữ từ bảng; thẻ không mời ký hồ sơ máy-thông; ngưỡng không-gạch: thẻ ⇔ lib cùng kết luận
+  PASS: ca ra co ten — RT5 (ho so ra-co-ten-lam-va-trao)
+ca ra co ten — RT6 (ho so ra-co-ten-lam-va-trao)
+PASS: [RT6] văn bản nghi thức biết ĐỌC machine-cleared và khai đường GHI chưa bật; gỡ từng mệnh đề → bộ đọc đỏ; tiêm lại câu ghi → đỏ nêu tên file
+  PASS: ca ra co ten — RT6 (ho so ra-co-ten-lam-va-trao)
+ca ra co ten — RT9 (ho so ra-co-ten-lam-va-trao)
+PASS: [RT9] ma trận 8 ô ngưỡng × trạng thái; de-xuat là đã điền ở Cổng Đáng; bullet không-đo-được nhận, seam hai chấm không nhận
+  PASS: ca ra co ten — RT9 (ho so ra-co-ten-lam-va-trao)
+ca ra co ten — RT10 (ho so ra-co-ten-lam-va-trao)
+PASS: [RT10] hai tiền tố («[đề xuất]», «Không đo được —») khai một chỗ, năm nơi đọc lại; đổi khuôn → lệch nêu cả hai chuỗi
+  PASS: ca ra co ten — RT10 (ho so ra-co-ten-lam-va-trao)
+ca ra co ten — RT11 (ho so ra-co-ten-lam-va-trao)
+PASS: [RT11] ui/mobile + khai không-đo-được → cờ đỏ trên thẻ + cờ ở bộ quét, hồ sơ vẫn ở ô của nó; cli → không cờ
+  PASS: ca ra co ten — RT11 (ho so ra-co-ten-lam-va-trao)
+ca ra co ten — RT12 (ho so ra-co-ten-lam-va-trao)
+PASS: [RT12] archived → đã đóng có hồ sơ; timebox hai dạng ngày; nghi thức nghiệm thu có mệnh đề sinh ra trạng thái đó
+  PASS: ca ra co ten — RT12 (ho so ra-co-ten-lam-va-trao)
+ca ra co ten — RT13 (ho so ra-co-ten-lam-va-trao)
+PASS: [RT13] đọc-cũ: broken rỗng, khác biệt đúng khối; cờ ⇔ điều kiện (đúng mọi ngày chạy); 23 file chứa "signed-off" đều có ca thật hoặc khai gạch; hai chiều đỏ tiêm vào đầu vào của chính phép so
+  PASS: ca ra co ten — RT13 (ho so ra-co-ten-lam-va-trao)
+ca ra co ten — RT14 (ho so ra-co-ten-lam-va-trao)
+PASS: [RT14] hồ sơ treo thoát bằng lối «không đo được» có vết; decision/người ký/ngày giữ nguyên
+  PASS: ca ra co ten — RT14 (ho so ra-co-ten-lam-va-trao)
+ca ra co ten — RT15 (ho so ra-co-ten-lam-va-trao)
+PASS: [RT15] machine-cleared × chữ ký: hook hai chiều + lưới + bộ quét gọi hỏng; LỐI KÝ chạy thật theo thứ tự thân lệnh dạy (hai lượt đều qua) + thứ tự ngược bị chặn kèm bước kế; da-veto cùng thông điệp
+  PASS: ca ra co ten — RT15 (ho so ra-co-ten-lam-va-trao)
+ca ra co ten — RT16 (ho so ra-co-ten-lam-va-trao)
+PASS: [RT16] bản đồ ⇔ bộ quét đồng ô trên 8 fixture + hồ sơ thật; gỡ nhánh khong-do-duoc → phép so đỏ
+  PASS: ca ra co ten — RT16 (ho so ra-co-ten-lam-va-trao)
+ca ra co ten — RT18 (ho so ra-co-ten-lam-va-trao)
+PASS: [RT18] chống-chép: 5 chuỗi luật LITERAL chỉ sống trong lib (gạch tính theo cặp file×chuỗi); 4 dòng khai gạch có lý do; tiêm bản chép → nêu tên
+  PASS: ca ra co ten — RT18 (ho so ra-co-ten-lam-va-trao)
+ca lan may qua bo phan loai — LM1 (ho so lan-may-song-qua-bo-phan-loai)
+PASS: [LM1] song anh permissions.allow <-> feature_loop.suite_keys — doi chung duong xanh + 7 mutant do dung ve
+  PASS: ca lan may qua bo phan loai — LM1 (ho so lan-may-song-qua-bo-phan-loai)
+ca lan may qua bo phan loai — LM2 (ho so lan-may-song-qua-bo-phan-loai)
+PASS: [LM2] khong entry cho-phep nao chua ky tu * — doi chung duong xanh + 4 mutant do dung ve
+  PASS: ca lan may qua bo phan loai — LM2 (ho so lan-may-song-qua-bo-phan-loai)
+ca lan may qua bo phan loai — LM4 (ho so lan-may-song-qua-bo-phan-loai)
+PASS: [LM4] khuon khoi tao khuyen kho tieu thu — moi ve mot dieu kien — doi chung duong xanh + 7 mutant do dung ve
+  PASS: ca lan may qua bo phan loai — LM4 (ho so lan-may-song-qua-bo-phan-loai)
+ca lan may qua bo phan loai — LM5 (ho so lan-may-song-qua-bo-phan-loai)
+PASS: [LM5] duong thoai hoa: 7 ve roi + 1 quan he dem duoc + 10 mutant
+  PASS: ca lan may qua bo phan loai — LM5 (ho so lan-may-song-qua-bo-phan-loai)
+ca lan may qua bo phan loai — LM6 (ho so lan-may-song-qua-bo-phan-loai)
+PASS: [LM6] tai lieu van hanh — do TRONG khoi co moc neo, moi ve mot dieu kien — doi chung duong xanh + 7 mutant do dung ve
+  PASS: ca lan may qua bo phan loai — LM6 (ho so lan-may-song-qua-bo-phan-loai)
+ca lan may qua bo phan loai — LM8 (ho so lan-may-song-qua-bo-phan-loai)
+PASS: [LM8] van pham luat quyen + entry nam dung cho — doi chung duong xanh + 7 mutant do dung ve
+  PASS: ca lan may qua bo phan loai — LM8 (ho so lan-may-song-qua-bo-phan-loai)
+ca lan may qua bo phan loai — LM8b (ho so lan-may-song-qua-bo-phan-loai)
+PASS: [LM8b] khuon van pham song dung MOT cho tren TRON pham vi hop dong khai — doi chung duong xanh + 5 mutant do dung ve
+  PASS: ca lan may qua bo phan loai — LM8b (ho so lan-may-song-qua-bo-phan-loai)
+
+Results: all plugin tests passed
+EXIT=0

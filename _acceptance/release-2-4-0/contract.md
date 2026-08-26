@@ -45,6 +45,18 @@ cấm đổi engine dưới chân một vòng đang chạy — thay đổi loạ
 có chủ đích**. Đồng thời chính ván thử đang khoá bảy Cổng Giá trị chỉ chạy được **sau khi**
 repo tiêu thụ nhận được engine này.
 
+Hai việc PHÁT SINH trong lúc chạy, cả hai do chính mốc này làm lộ, cả hai nằm trong diff —
+hợp đồng khai thẳng để người duyệt không thấy chúng như phạm vi bị nới lặng:
+
+- **Sửa một thước hỏng** (`tests/plugins/lenh-bam-duoc.test.mjs`, ca `LB9`): nó ghim NGUYÊN VĂN
+  dòng «Khớp phiên bản» so với một mốc git cũ — thước gắn vào đúng thứ mọi bản phát hành bắt
+  buộc phải đổi, nên nổ ở lần bump đầu tiên. Sửa theo QUAN HỆ (dòng phải nêu đủ ba tên plugin
+  ở dạng chữ, không mang dạng lệnh bấm được — số tự do đổi). Đây KHÔNG phải dựng răng mới:
+  không sửa thì không bản phát hành nào xanh được. `tests/` không nằm trong danh sách mã cổng
+  ở khối Out of scope.
+- **Gộp `main` giữa lượt**: `main` dịch từ `8ff6c58a` sang `5ad8e88d` (PR #113) khi mốc đang
+  chạy; bản đồ xưởng xung đột và được giải bằng cách SINH LẠI, không sửa tay.
+
 Source input: `git log e613224e..8ff6c58a` (bảy hồ sơ #93–#112) · nếp phát hành
 `_acceptance/release-2-3-0/` · owner gật «bump 2.4.0» 2026-08-26.
 

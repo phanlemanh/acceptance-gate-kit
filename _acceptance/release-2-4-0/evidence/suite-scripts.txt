@@ -1,0 +1,1312 @@
+S01 T2 signed-off feature -> pass
+WARNING: committed-evidence re-check is ADVISORY ONLY (recheck: warn) — a hand-edited PASS report will NOT block merge. Set 'recheck: strict' in _acceptance/config.yaml to enforce the backstop.
+GAP-PROBE: NOT ENFORCED reason=no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR)
+NOTE: gap-probe không cưỡng chế được — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR) (advisory, không chặn merge).
+NOTE: staleness scope — no PR diff scope; the stale-evidence rule checks ALL slugs (pass --base <ref> to scope it to slugs whose _acceptance/<slug>/ files are in the PR diff)
+NOTE: recheck scope — no PR diff scope; the committed-evidence re-check runs on ALL slugs (pass --base <ref> to scope it, or --recheck-all to force the full sweep)
+NOTE [feat-a]: report has no verified_commit (older template) — evidence is not pinned to a commit; code drift since verify is NOT machine-checked. Re-verify to pin.
+NOTE [feat-a]: no run-log.jsonl (older verify flow) — run_id provenance is not machine-logged; report run_ids are unreconciled. Re-verify to generate the log.
+OK [feat-a]: PASS, signed off by Manh Phan 2026-06-10
+ran per-slug
+ran veto-trace
+declared-off gap-probe
+NOTE: T1-escape backstop skipped — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF")
+declared-off t1-escape
+pre-merge-check: gap-probe: KHÔNG cưỡng chế trong lần chạy này (xem dòng marker NOT ENFORCED ở trên)
+pre-merge-check: rules ran=2 declared-off=2 expected=4
+pre-merge-check: clean
+  PASS: S01
+S02 T2 implemented, PASS but no signoff -> fail
+WARNING: committed-evidence re-check is ADVISORY ONLY (recheck: warn) — a hand-edited PASS report will NOT block merge. Set 'recheck: strict' in _acceptance/config.yaml to enforce the backstop.
+GAP-PROBE: NOT ENFORCED reason=no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR)
+NOTE: gap-probe không cưỡng chế được — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR) (advisory, không chặn merge).
+NOTE: staleness scope — no PR diff scope; the stale-evidence rule checks ALL slugs (pass --base <ref> to scope it to slugs whose _acceptance/<slug>/ files are in the PR diff)
+NOTE: recheck scope — no PR diff scope; the committed-evidence re-check runs on ALL slugs (pass --base <ref> to scope it, or --recheck-all to force the full sweep)
+NOTE [feat-b]: không đủ điều kiện xanh-sạch để đi tiếp không ký — không đọc được mục «Known limits» (fail-closed)
+VIOLATION [feat-b]: verdict PASS but human_signoff is empty (Gate 2 pending)
+ran per-slug
+ran veto-trace
+declared-off gap-probe
+NOTE: T1-escape backstop skipped — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF")
+declared-off t1-escape
+pre-merge-check: gap-probe: KHÔNG cưỡng chế trong lần chạy này (xem dòng marker NOT ENFORCED ở trên)
+pre-merge-check: rules ran=2 declared-off=2 expected=4
+pre-merge-check: 1 violation(s) — merge blocked
+  PASS: S02
+S03 T2 implemented, no evidence report at all -> fail
+WARNING: committed-evidence re-check is ADVISORY ONLY (recheck: warn) — a hand-edited PASS report will NOT block merge. Set 'recheck: strict' in _acceptance/config.yaml to enforce the backstop.
+GAP-PROBE: NOT ENFORCED reason=no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR)
+NOTE: gap-probe không cưỡng chế được — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR) (advisory, không chặn merge).
+NOTE: staleness scope — no PR diff scope; the stale-evidence rule checks ALL slugs (pass --base <ref> to scope it to slugs whose _acceptance/<slug>/ files are in the PR diff)
+NOTE: recheck scope — no PR diff scope; the committed-evidence re-check runs on ALL slugs (pass --base <ref> to scope it, or --recheck-all to force the full sweep)
+VIOLATION [feat-c]: status=implemented but no evidence-report.md
+ran per-slug
+ran veto-trace
+declared-off gap-probe
+NOTE: T1-escape backstop skipped — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF")
+declared-off t1-escape
+pre-merge-check: gap-probe: KHÔNG cưỡng chế trong lần chạy này (xem dòng marker NOT ENFORCED ở trên)
+pre-merge-check: rules ran=2 declared-off=2 expected=4
+pre-merge-check: 1 violation(s) — merge blocked
+  PASS: S03
+S04 draft contract (not yet implemented) -> pass (not in scope)
+WARNING: committed-evidence re-check is ADVISORY ONLY (recheck: warn) — a hand-edited PASS report will NOT block merge. Set 'recheck: strict' in _acceptance/config.yaml to enforce the backstop.
+GAP-PROBE: NOT ENFORCED reason=no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR)
+NOTE: gap-probe không cưỡng chế được — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR) (advisory, không chặn merge).
+NOTE: staleness scope — no PR diff scope; the stale-evidence rule checks ALL slugs (pass --base <ref> to scope it to slugs whose _acceptance/<slug>/ files are in the PR diff)
+NOTE: recheck scope — no PR diff scope; the committed-evidence re-check runs on ALL slugs (pass --base <ref> to scope it, or --recheck-all to force the full sweep)
+ran per-slug
+ran veto-trace
+declared-off gap-probe
+NOTE: T1-escape backstop skipped — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF")
+declared-off t1-escape
+pre-merge-check: gap-probe: KHÔNG cưỡng chế trong lần chạy này (xem dòng marker NOT ENFORCED ở trên)
+pre-merge-check: rules ran=2 declared-off=2 expected=4
+pre-merge-check: clean
+  PASS: S04
+S05 REJECT verdict -> fail (cannot merge rejected feature)
+WARNING: committed-evidence re-check is ADVISORY ONLY (recheck: warn) — a hand-edited PASS report will NOT block merge. Set 'recheck: strict' in _acceptance/config.yaml to enforce the backstop.
+GAP-PROBE: NOT ENFORCED reason=no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR)
+NOTE: gap-probe không cưỡng chế được — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR) (advisory, không chặn merge).
+NOTE: staleness scope — no PR diff scope; the stale-evidence rule checks ALL slugs (pass --base <ref> to scope it to slugs whose _acceptance/<slug>/ files are in the PR diff)
+NOTE: recheck scope — no PR diff scope; the committed-evidence re-check runs on ALL slugs (pass --base <ref> to scope it, or --recheck-all to force the full sweep)
+VIOLATION [feat-e]: verdict=REJECT (must be PASS to merge)
+ran per-slug
+ran veto-trace
+declared-off gap-probe
+NOTE: T1-escape backstop skipped — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF")
+declared-off t1-escape
+pre-merge-check: gap-probe: KHÔNG cưỡng chế trong lần chạy này (xem dòng marker NOT ENFORCED ở trên)
+pre-merge-check: rules ran=2 declared-off=2 expected=4
+pre-merge-check: 1 violation(s) — merge blocked
+  PASS: S05
+S06 --slug filters to one feature
+WARNING: committed-evidence re-check is ADVISORY ONLY (recheck: warn) — a hand-edited PASS report will NOT block merge. Set 'recheck: strict' in _acceptance/config.yaml to enforce the backstop.
+GAP-PROBE: NOT ENFORCED reason=no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR)
+NOTE: gap-probe không cưỡng chế được — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR) (advisory, không chặn merge).
+NOTE: staleness scope — no PR diff scope; the stale-evidence rule checks ALL slugs (pass --base <ref> to scope it to slugs whose _acceptance/<slug>/ files are in the PR diff)
+NOTE: recheck scope — no PR diff scope; the committed-evidence re-check runs on ALL slugs (pass --base <ref> to scope it, or --recheck-all to force the full sweep)
+NOTE [feat-ok]: report has no verified_commit (older template) — evidence is not pinned to a commit; code drift since verify is NOT machine-checked. Re-verify to pin.
+NOTE [feat-ok]: no run-log.jsonl (older verify flow) — run_id provenance is not machine-logged; report run_ids are unreconciled. Re-verify to generate the log.
+OK [feat-ok]: PASS, signed off by Manh Phan 2026-06-10
+ran per-slug
+ran veto-trace
+declared-off gap-probe
+NOTE: T1-escape backstop skipped — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF")
+declared-off t1-escape
+pre-merge-check: gap-probe: KHÔNG cưỡng chế trong lần chạy này (xem dòng marker NOT ENFORCED ở trên)
+pre-merge-check: rules ran=2 declared-off=2 expected=4
+pre-merge-check: clean
+  PASS: S06
+WARNING: committed-evidence re-check is ADVISORY ONLY (recheck: warn) — a hand-edited PASS report will NOT block merge. Set 'recheck: strict' in _acceptance/config.yaml to enforce the backstop.
+GAP-PROBE: NOT ENFORCED reason=no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR)
+NOTE: gap-probe không cưỡng chế được — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR) (advisory, không chặn merge).
+NOTE: staleness scope — no PR diff scope; the stale-evidence rule checks ALL slugs (pass --base <ref> to scope it to slugs whose _acceptance/<slug>/ files are in the PR diff)
+NOTE: recheck scope — no PR diff scope; the committed-evidence re-check runs on ALL slugs (pass --base <ref> to scope it, or --recheck-all to force the full sweep)
+NOTE [feat-bad]: không đủ điều kiện xanh-sạch để đi tiếp không ký — không đọc được mục «Known limits» (fail-closed)
+VIOLATION [feat-bad]: verdict PASS but human_signoff is empty (Gate 2 pending)
+ran per-slug
+ran veto-trace
+declared-off gap-probe
+NOTE: T1-escape backstop skipped — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF")
+declared-off t1-escape
+pre-merge-check: gap-probe: KHÔNG cưỡng chế trong lần chạy này (xem dòng marker NOT ENFORCED ở trên)
+pre-merge-check: rules ran=2 declared-off=2 expected=4
+pre-merge-check: 1 violation(s) — merge blocked
+  PASS: S06b
+S07 no _acceptance dir -> pass (kit not adopted here)
+pre-merge-check: no _acceptance/ — nothing to check
+  PASS: S07
+S08 config signoff.required_for [T3] exempts T2 features
+WARNING: committed-evidence re-check is ADVISORY ONLY (recheck: warn) — a hand-edited PASS report will NOT block merge. Set 'recheck: strict' in _acceptance/config.yaml to enforce the backstop.
+GAP-PROBE: NOT ENFORCED reason=no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR)
+NOTE: gap-probe không cưỡng chế được — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR) (advisory, không chặn merge).
+NOTE: staleness scope — no PR diff scope; the stale-evidence rule checks ALL slugs (pass --base <ref> to scope it to slugs whose _acceptance/<slug>/ files are in the PR diff)
+NOTE: recheck scope — no PR diff scope; the committed-evidence re-check runs on ALL slugs (pass --base <ref> to scope it, or --recheck-all to force the full sweep)
+ran per-slug
+ran veto-trace
+declared-off gap-probe
+NOTE: T1-escape backstop skipped — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF")
+declared-off t1-escape
+pre-merge-check: gap-probe: KHÔNG cưỡng chế trong lần chạy này (xem dòng marker NOT ENFORCED ở trên)
+pre-merge-check: rules ran=2 declared-off=2 expected=4
+pre-merge-check: clean
+  PASS: S08
+S09 template placeholder comment in human_signoff does NOT count as signed -> fail
+WARNING: committed-evidence re-check is ADVISORY ONLY (recheck: warn) — a hand-edited PASS report will NOT block merge. Set 'recheck: strict' in _acceptance/config.yaml to enforce the backstop.
+GAP-PROBE: NOT ENFORCED reason=no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR)
+NOTE: gap-probe không cưỡng chế được — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR) (advisory, không chặn merge).
+NOTE: staleness scope — no PR diff scope; the stale-evidence rule checks ALL slugs (pass --base <ref> to scope it to slugs whose _acceptance/<slug>/ files are in the PR diff)
+NOTE: recheck scope — no PR diff scope; the committed-evidence re-check runs on ALL slugs (pass --base <ref> to scope it, or --recheck-all to force the full sweep)
+NOTE [feat-g]: không đủ điều kiện xanh-sạch để đi tiếp không ký — không đọc được mục «Known limits» (fail-closed)
+VIOLATION [feat-g]: verdict PASS but human_signoff is empty (Gate 2 pending)
+ran per-slug
+ran veto-trace
+declared-off gap-probe
+NOTE: T1-escape backstop skipped — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF")
+declared-off t1-escape
+pre-merge-check: gap-probe: KHÔNG cưỡng chế trong lần chạy này (xem dòng marker NOT ENFORCED ở trên)
+pre-merge-check: rules ran=2 declared-off=2 expected=4
+pre-merge-check: 1 violation(s) — merge blocked
+  PASS: S09
+S10 quoted/commented risk_tier still gated (matches hook tolerance) -> fail when unsigned
+WARNING: committed-evidence re-check is ADVISORY ONLY (recheck: warn) — a hand-edited PASS report will NOT block merge. Set 'recheck: strict' in _acceptance/config.yaml to enforce the backstop.
+GAP-PROBE: NOT ENFORCED reason=no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR)
+NOTE: gap-probe không cưỡng chế được — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR) (advisory, không chặn merge).
+NOTE: staleness scope — no PR diff scope; the stale-evidence rule checks ALL slugs (pass --base <ref> to scope it to slugs whose _acceptance/<slug>/ files are in the PR diff)
+NOTE: recheck scope — no PR diff scope; the committed-evidence re-check runs on ALL slugs (pass --base <ref> to scope it, or --recheck-all to force the full sweep)
+NOTE [feat-h]: không đủ điều kiện xanh-sạch để đi tiếp không ký — không đọc được mục «Known limits» (fail-closed)
+VIOLATION [feat-h]: verdict PASS but human_signoff is empty (Gate 2 pending)
+ran per-slug
+ran veto-trace
+declared-off gap-probe
+NOTE: T1-escape backstop skipped — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF")
+declared-off t1-escape
+pre-merge-check: gap-probe: KHÔNG cưỡng chế trong lần chạy này (xem dòng marker NOT ENFORCED ở trên)
+pre-merge-check: rules ran=2 declared-off=2 expected=4
+pre-merge-check: 1 violation(s) — merge blocked
+  PASS: S10
+S11 required_for trailing comment does not false-scope other tiers -> pass
+WARNING: committed-evidence re-check is ADVISORY ONLY (recheck: warn) — a hand-edited PASS report will NOT block merge. Set 'recheck: strict' in _acceptance/config.yaml to enforce the backstop.
+GAP-PROBE: NOT ENFORCED reason=no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR)
+NOTE: gap-probe không cưỡng chế được — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF") (luật chỉ xét slug có file trong diff PR) (advisory, không chặn merge).
+NOTE: staleness scope — no PR diff scope; the stale-evidence rule checks ALL slugs (pass --base <ref> to scope it to slugs whose _acceptance/<slug>/ files are in the PR diff)
+NOTE: recheck scope — no PR diff scope; the committed-evidence re-check runs on ALL slugs (pass --base <ref> to scope it, or --recheck-all to force the full sweep)
+ran per-slug
+ran veto-trace
+declared-off gap-probe
+NOTE: T1-escape backstop skipped — no PR base given (pass --base <ref> or set PRE_MERGE_BASE; GitHub Actions: --base "origin/$GITHUB_BASE_REF")
+declared-off t1-escape
+pre-merge-check: gap-probe: KHÔNG cưỡng chế trong lần chạy này (xem dòng marker NOT ENFORCED ở trên)
+pre-merge-check: rules ran=2 declared-off=2 expected=4
+pre-merge-check: clean
+  PASS: S11
+
+--- pre-merge provenance (bypass_used / enforcement_mode) ---
+P01 bypass_used: true (no ack) -> fail
+  PASS: P01
+P02 enforcement_mode: warn -> clean + WARNING (warn only warns)
+  PASS: P02
+  PASS: P02-warn
+P03 enforcement_mode: off -> fail
+  PASS: P03
+P04 enforcement_mode: strict + bypass_used: false -> clean
+  PASS: P04
+P05 bypass_used: TRUE (case-insensitive) -> fail
+  PASS: P05
+P06 no provenance fields (legacy report) -> clean (backward compat)
+  PASS: P06
+P07 bypass_used: true + bypass_ack -> clean (human-acknowledged release)
+  PASS: P07
+P08 frontmatter-bounded: body lines 'enforcement_mode: off' / 'bypass_used: true' do NOT false-block a clean PASS
+  PASS: P08
+P09 report with NO leading frontmatter -> fail (verdict reads empty; provenance unverifiable)
+  PASS: P09
+P10 leading-blank-then-fence frontmatter is still read -> bypass_used:true blocks
+  PASS: P10
+--- evidence re-check (recheck-evidence.cjs, wired into pre-merge) ---
+R01 recheck: strict + nonzero exit in committed evidence -> block
+  PASS: R01
+R02 recheck: strict + manual/heuristic verifier -> block
+  PASS: R02
+R03 recheck: strict + no evidence blocks -> block
+  PASS: R03
+R04 recheck CLI directly: good=0, bad=1, REJECT(not enforced)=0
+  PASS: R04a
+  PASS: R04b
+  PASS: R04c
+R05 default (recheck: warn) + bad evidence -> NOTEd, NOT blocked (exit 0)
+  PASS: R05
+  PASS: R05-note
+R06 recheck: off + bad evidence -> re-check skipped (exit 0)
+  PASS: R06
+N01 network_observed: clean WITHOUT dump file -> NOTE, exit 0
+  PASS: N01
+  PASS: N01-note
+N02 network_observed: clean WITH dump file -> no network NOTE
+  PASS: N02
+N03 quoted network_observed: "clean" without dump file -> NOTE still fires
+  PASS: N03
+  PASS: N03-note
+N04 app-fail without file -> counted; negative vocab + prefix word -> never counted
+  PASS: N04
+  PASS: N04-count (only app-fail counted)
+
+--- pre-merge cross-layer pairing teeth (wave 2) ---
+PM01 tagged (cross-layer) + evals thiếu layer: backend-effect -> VIOLATION (block)
+  PASS: PM01
+PM02 tagged + paired layer: backend-effect -> clean
+  PASS: PM02
+PM03 tagged nhưng KHÔNG có evals.yaml -> NOTE (fail-open), exit 0
+  PASS: PM03
+  PASS: PM03-note
+PM04 không tag cross-layer -> block pairing im lặng
+  PASS: PM04
+  PASS: PM04-silent
+PM05 layer quoted/mixed-case/trailing-comment + layer TRƯỚC criterion -> vẫn tính là paired, clean
+  PASS: PM05
+PM06 feature draft CÓ evidence -> chưa arm cổng (exit 1), luật pairing vẫn ngoài scope
+  PASS: PM06
+  PASS: PM06-arm
+  PASS: PM06-silent
+PM07 eval block mở bằng criterion (không phải id) + comment trên criterion -> vẫn paired, clean
+  PASS: PM07
+PM08 cùng 1 AC tag ở 2 bullet, thiếu cặp -> đúng 1 VIOLATION (không nhân đôi)
+  PASS: PM08
+  PASS: PM08-once
+PM09 heading '## criteria' viết thường -> teeth vẫn quét, thiếu cặp = VIOLATION
+  PASS: PM09
+PM10 '### nhóm phụ' giữa ## Criteria, AC tag nằm SAU sub-heading -> teeth vẫn quét, thiếu cặp = VIOLATION
+  PASS: PM10
+  PASS: PM10-ac2
+PM11 paths: chứa glob dạng key-like (kể cả TRƯỚC layer:) trong eval đã paired -> clean, không VIOLATION oan
+  PASS: PM11
+  PASS: PM11-clean
+PM12 eval block mở bằng key NGOÀI danh sách quen (surface:) -> KHÔNG được rò layer sang block sau (chống false-green)
+  PASS: PM12
+  PASS: PM12-noleak
+PM13 nhãn **(cross-layer)** chen giữa id và ':' -> vẫn bắt được (không rụng)
+  PASS: PM13
+  PASS: PM13-bold
+PM14 dòng THAM CHIẾU CHÉO có chữ (cross-layer) -> KHÔNG được thành VIOLATION
+  PASS: PM14
+  PASS: PM14-xref
+PM15 thiếu lib/ac-line.cjs -> răng cross-layer VẪN cắn (không tắt im lặng)
+  PASS: PM15
+  PASS: PM15-teeth
+  PASS: PM15b
+  PASS: PM15b-doichung
+PM16 ba slug cùng dính đường lùi -> ĐÚNG MỘT dòng NOTE cho cả lần chạy
+  PASS: PM16-once
+  PASS: PM16b-silent
+PM17 mutation vô hiệu khối đè lib -> phép đo phải ĐỎ đích danh (chống 0-hit-giả)
+  PASS: PM17-mut (bước tiêm chạm file VÀ bản tiêm vẫn parse được)
+  PASS: PM17-pristine
+  PASS: PM17-red
+PM18 criterion TRÍCH DẪN Dấu trong code span -> KHÔNG được thành VIOLATION
+  PASS: PM18
+  PASS: PM18-quote
+  PASS: PM18-mut (bước tiêm chạm file VÀ bản tiêm vẫn parse được)
+  PASS: PM18-red
+
+--- eval-coverage-lint.js ---
+L01 threshold AC, single happy-path eval -> warn
+  PASS: L01
+L02 threshold AC WITH should-NOT-fire eval -> clean
+  PASS: L02
+L03 out-of-scope bullets, zero negative evals -> warn (W3)
+  PASS: L03
+L04 judgment threshold AC is exempt -> clean
+  PASS: L04
+L05 --files mode flags the single-eval threshold -> warn
+  PASS: L05
+L06 --slug targets the clean feature -> clean
+  PASS: L06
+L06b --slug targets the warning feature -> warn
+  PASS: L06b
+L07 no _acceptance dir -> clean
+  PASS: L07
+L08 cross-layer AC, ui-check only -> warn (W4)
+  PASS: L08
+L09 cross-layer AC with layer: backend-effect pair -> clean
+  PASS: L09
+L10 cross-layer AC, script eval without layer field -> still warn (W4 vacuous-pair guard)
+  PASS: L10
+L11 mixed-case tag + layer value with trailing comment -> clean (case-insensitive + comment-strip)
+  PASS: L11
+L12 negative marker only in trailing comment -> comment is not evidence, W1 warns
+  PASS: L12
+L13 hash inside quoted value is data (marker after # kept) -> clean
+  PASS: L13
+L14 surfaces include mobile, no backend-target line -> warn (W5)
+  PASS: L14
+L15 mobile + Mobile backend target line -> clean
+  PASS: L15
+L16 no mobile surface -> W5 silent
+  PASS: L16
+L17 'mobile' chỉ trong prose + comment trên dòng surfaces -> W5 im lặng
+  PASS: L17
+L18 mobile surface + backend target khoảng trắng đôi -> W5 im lặng
+  PASS: L18
+L19 alias trần trong prose + có CONTEXT.md -> warn (W6)
+  PASS: L19
+L20 repo KHÔNG có CONTEXT.md -> W6 im lặng (backward-tolerant)
+  PASS: L20
+L21 alias trong inline code span -> W6 im lặng
+  PASS: L21
+L22 alias trong fenced code block -> W6 im lặng
+  PASS: L22
+L23 alias là substring của từ dài hơn -> W6 im lặng (word boundary)
+  PASS: L23
+L24 chỉ dùng cụm _Allow_ -> W6 im lặng
+  PASS: L24
+L25 có cụm _Allow_ NHƯNG còn alias trần -> vẫn warn (RED ngoài allowlist)
+  PASS: L25
+L26 alias tiếng Việt có dấu -> warn (unicode boundary)
+  PASS: L26
+L28 alias nằm trong term chuẩn khác -> W6 im lặng khi dùng đúng term
+  PASS: L28
+L29 cùng glossary, alias trần -> vẫn warn (guard không nuốt vi phạm thật)
+  PASS: L29
+L27 W6 nêu đúng alias + term chuẩn trong thông điệp
+  PASS: L27a
+  PASS: L27b
+  PASS: L27c
+L19 '### nhóm phụ' trong ## Criteria -> AC ngưỡng phía sau vẫn được quét, W1 nổ
+  PASS: L19
+  PASS: L19-ac2
+L30 nhãn **(cross-layer)** chen giữa id và ':' -> AC vẫn đọc được, W4 nổ
+  PASS: L30
+  PASS: L30-w4
+L31 chú thích *(sửa lời …)* chen giữa id và ':' -> AC vẫn đọc được, W1 nổ
+  PASS: L31
+  PASS: L31-w1
+L32 dòng trông như criterion mà không parse -> W7 kêu (không nuốt im lặng)
+  PASS: L32
+  PASS: L32-w7
+L33 contract lành KHÔNG bị W7 (cry-wolf guard)
+  PASS: L33-nowolf
+L37 criterion TRÍCH DẪN Dấu cross-layer trong code span -> KHÔNG sinh W4
+  PASS: L37-quote
+L34 dạng ĐÚNG '- AC-n: **(cross-layer)** …' vẫn nổ W4 khi thiếu cặp (không hồi quy)
+  PASS: L34
+  PASS: L34-w4
+L35 expected khai ca âm bằng 'đối chứng dương xanh' -> W1 phải IM
+  PASS: L35-negvocab
+L35b gỡ câu đối chứng khỏi CÙNG fixture -> W1 nổ đúng AC-1 (phép đo còn răng)
+  PASS: L35b
+  PASS: L35b-w1
+
+--- gate-card.js ---
+G01-06 Gate 1 (no evidence-report -> auto gate 1)
+  PASS: G01
+  PASS: G02
+  PASS: G03
+  PASS: G04
+  PASS: G05
+  PASS: G06
+G07-11 Gate 2 (implemented: status verified + evidence-report -> auto gate 2)
+  PASS: G07
+  PASS: G08
+  PASS: G09
+  PASS: G10
+  PASS: G11
+G12-13 --plain overlay applies
+  PASS: G12
+  PASS: G13
+G14 missing --slug -> exit 2
+  PASS: G14
+GC1-GC4 Gate 1 Coverage section (CT-S 1.13)
+  PASS: GC1
+  PASS: GC2
+  PASS: GC3
+  PASS: GC4
+GP1-8 Gate 1 gap-probe (S1#7 — phản biện context sạch)
+  PASS: GP1
+  PASS: GP2
+  PASS: GP2b
+  PASS: GP3
+  PASS: GP4
+  PASS: GP5
+  PASS: GP6
+  PASS: GP7
+  PASS: GP8
+  PASS: GP8b
+  PASS: GP9
+  PASS: GP10
+  PASS: GP11
+  PASS: GP12
+G15 REJECT verdict -> non-approvable card (no sign-off, no all-pass claim)
+  PASS: G15a
+  PASS: G15b
+  PASS: G15c
+G16 T3 judgment with verdict PASS + no override -> still a required decision
+  PASS: G16
+G17 a 'human_override' / 'baseline' line INSIDE output: | must not drop the decision or inflate counts
+  PASS: G17a
+  PASS: G17b
+G18 slug traversal -> exit 2
+  PASS: G18
+G19 malformed --plain -> still renders (exit 0, degrades to raw card)
+  PASS: G19
+G20-21 quoted/commented verdict normalized + evidence-complete green flag
+  PASS: G20
+  PASS: G21
+D01-08 decisions.jsonl on gate-card
+  PASS: D01
+  PASS: D02
+  PASS: D03
+  PASS: D04
+  PASS: D05
+  PASS: D06
+  PASS: D07
+  PASS: D08
+D09 decisions_plain overlay is HTML-escaped (no raw injection)
+  PASS: D09
+D10 ledger without seal -> ALL entries provisional at Gate 2 (none silently approved)
+  PASS: D10a
+  PASS: D10b
+  PASS: D10c
+  PASS: D10d
+GS1 AC-2 (ngay sau '### nhóm phụ') vào nhóm 'SẼ làm' của card
+  PASS: GS1
+GS2 AC-3 (cuối section, sau sub-heading) vào nhóm 'sẽ KHÔNG làm' của card
+  PASS: GS2
+GPP1 descope thụt-đầu+viết-hoa -> thẻ nhận là ĐÃ BỎ có chủ đích, không phất cờ 'Chưa có phản biện'
+  PASS: GPP1
+GPP2 the khoan dung leading-space qua CHINH lib (khong ghim regex vao gate-card)
+  PASS: GPP2
+TM1 term MỚI sau base -> khối Từ vựng nêu tên term
+  PASS: TM1
+TM2 repo không có CONTEXT.md -> KHÔNG có khối Từ vựng, không cờ
+  PASS: TM2
+TM3 có CONTEXT.md nhưng thiếu --glossary-base -> KHÔNG cờ, không khối (lenh-in-ra-phai-bam-duoc AC-5: cờ này nói với agent, đã bỏ)
+  PASS: TM3
+TM4 có base, CONTEXT.md không đổi -> nói rõ không thêm/sửa term
+  PASS: TM4
+TM5 sửa _Avoid_ của term cũ -> vẫn nêu term (không chỉ bắt heading mới)
+  PASS: TM5
+TM6 --extract có glossary_delta
+  PASS: TM6
+
+--- evidence-page.js ---
+EP01 render -> exit 0 + prints path
+  PASS: EP01
+  PASS: EP02
+  PASS: EP03
+  PASS: EP04
+  PASS: EP04b
+  PASS: EP05
+  PASS: EP06
+  PASS: EP07
+EP08 invalid slug -> exit 2
+  PASS: EP08
+EP09 malicious screenshot src (http/traversal) is rejected — absent from page
+  PASS: EP09
+EP10 '### nhóm phụ' trong ## Criteria -> text của AC phía sau vẫn lên evidence page
+  PASS: EP10
+EP11 nhãn **(cross-layer)** chen giữa id và ':' -> text tiêu chí vẫn lên trang
+  PASS: EP11
+EP12 chú thích *(sửa lời …)* chen giữa id và ':' -> text tiêu chí vẫn lên trang
+  PASS: EP12
+EP13 tag (judgment) vẫn bị gỡ khỏi text hiển thị (không hồi quy)
+  PASS: EP13
+  PASS: EP13b
+
+--- Gate-1 approval recorded (approved_by / gate1_skipped) ---
+A01 implemented + empty approved_by + no gate1_skipped -> fail
+  PASS: A01
+  PASS: A01-msg
+A02 gate1_skipped: true + empty approved_by -> clean + NOTE
+  PASS: A02
+  PASS: A02-note
+
+--- verified_commit staleness (V1) ---
+VC01 nothing changed after verify (only _acceptance/ commits) -> clean
+  PASS: VC01
+VC02 code file committed AFTER verified_commit -> fail (stale evidence)
+  PASS: VC02
+  PASS: VC02-msg
+VC03 only t1_skip_globs files changed after verify (docs/**) -> clean
+  PASS: VC03
+VC04 phantom pin trong clone đầy đủ -> VIOLATION ghim 'is a phantom' (hết NOTE câm)
+  PASS: VC04
+  PASS: VC04-phantom
+VC05 legacy report without verified_commit in a git repo -> NOTE, clean
+  PASS: VC05
+  PASS: VC05-note
+VC06 UNCOMMITTED code drift after verify -> fail (working tree counts)
+  PASS: VC06
+
+--- staleness theo diff PR (stale-theo-diff-pr: phạm vi theo slug_in_diff) ---
+VC07 hỗn hợp 2-cũ-ngoài-diff + 1-mới-sạch, --base -> exit 0, sử liệu im lặng, luật khác vẫn chạy
+  PASS: VC07
+  PASS: VC07-oka
+  PASS: VC07-okb
+  PASS: VC07-oknew
+  PASS: VC07-nostale
+  PASS: VC07-nonote
+VC07-fire đối chứng dương: slug ngoài diff chữ-ký-trống -> luật signoff VẪN nổ (chỉ staleness bị thu phạm vi)
+  PASS: VC07-fire
+  PASS: VC07-fire-msg
+  PASS: VC07-fire-slug
+  PASS: VC07-fire-nostale
+VC08 slug MỚI trong diff bị stale -> đỏ đích danh slug mới, slug cũ vẫn OK trong CÙNG lần chạy
+  PASS: VC08
+  PASS: VC08-oka
+  PASS: VC08-okb
+  PASS: VC08-msg
+  PASS: VC08-stale-count
+VC09 hồ sơ CŨ bị chạm (vào diff) -> mất quyền im lặng, stale nổ lại
+  PASS: VC09
+  PASS: VC09-msg
+  PASS: VC09-okb
+VC10 không --base -> fallback kiểm TẤT như cũ + đúng MỘT dòng NOTE hằng
+  PASS: VC10
+  PASS: VC10-stale-count
+  PASS: VC10-note-count
+VC10b base là orphan (diff KHÔNG dựng được dù --base có mặt) -> cùng màu fallback, không tắt im
+  PASS: VC10b
+  PASS: VC10b-stale-count
+  PASS: VC10b-note-count
+VC11 mutant gỡ guard: control chép trọn scripts/+lib/ phải XANH trước, mutant xác-nhận-đột-biến rồi phải ĐỎ
+  PASS: VC11-control
+  PASS: VC11-control-nofallback
+  PASS: VC11-control-nostale
+  PASS: VC11-mut-applied
+  PASS: VC11-mutant
+  PASS: VC11-mutant-msg
+VC12 pin MA trên sử liệu ngoài diff -> im lặng TRỌN khối; chạm hồ sơ -> phantom VIOLATION nổ lại
+  PASS: VC12
+  PASS: VC12-nophantom
+  PASS: VC12-touched
+  PASS: VC12-touched-msg
+
+--- recheck theo diff PR (1.41.0: phạm vi theo slug_in_diff + cờ --recheck-all) ---
+RS01 hai hồ sơ cũ hỏng-recheck NGOÀI diff + 1 hồ sơ mới sạch, --base -> exit 0
+  PASS: RS01
+  PASS: RS01-ok-a
+  PASS: RS01-ok-new
+  PASS: RS01-norecheck
+  PASS: RS01-note
+RS02 KHÔNG --base -> fallback kiểm TẤT như cũ + đúng MỘT dòng NOTE hằng
+  PASS: RS02
+  PASS: RS02-count
+  PASS: RS02-note
+RS03 --recheck-all ép quét TOÀN BỘ dù có phạm vi diff (đường cứu cho thước-thôi-hồi-tố)
+  PASS: RS03
+  PASS: RS03-count
+  PASS: RS03-note
+RS04 hồ sơ CŨ bị chạm (vào diff) -> mất quyền im lặng, recheck nổ lại
+  PASS: RS04
+  PASS: RS04-msg
+  PASS: RS04-ok-b
+RS05-fire đối chứng dương: hồ sơ ngoài diff mang lỗi KHÁC -> luật khác VẪN nổ (chỉ recheck bị thu)
+  PASS: RS05-fire
+  PASS: RS05-fire-msg
+  PASS: RS05-fire-norecheck
+RS06 mutant gỡ guard: control chép trọn scripts/+lib/ phải XANH trước, mutant xác-nhận rồi phải ĐỎ
+  PASS: RS06-control
+  PASS: RS06-control-norecheck
+  PASS: RS06-mut-applied
+  PASS: RS06-mutant
+  PASS: RS06-mutant-msg
+
+--- run-log reconciliation (run_id must exist in machine-written log) ---
+RL01 recheck strict + run_id present in log -> clean
+  PASS: RL01
+RL02 recheck strict + run_id NOT in log -> block
+  PASS: RL02
+  PASS: RL02-msg
+RL03 no run-log.jsonl (older flow) -> NOTE + clean (tolerant)
+  PASS: RL03
+  PASS: RL03-note
+RL04 default (recheck: warn) + run_id NOT in log -> NOTEd, NOT blocked
+  PASS: RL04
+  PASS: RL04-note
+RL05 malformed log line is skipped; valid line still reconciles -> clean
+  PASS: RL05
+RL06 recheck CLI directly: matched=0, mismatched=1
+  PASS: RL06a
+  PASS: RL06b
+
+--- chữ ký Cổng 2: khoá cũ hết hiệu lực + làn V ở luật Gate-1 (ADR 0012) ---
+H01 không khai khoá + chữ ký sinh cùng commit với báo cáo -> clean, KHÔNG NOTE
+  PASS: H01
+  PASS: H01-note
+H02 khoá cũ ON + chữ ký ở commit riêng -> clean + NOTE hết-hiệu-lực
+  PASS: H02
+  PASS: H02-note
+H03 khoá cũ ON + chữ ký CÙNG commit với thân báo cáo -> clean (trước 2.1: VIOLATION)
+  PASS: H03
+  PASS: H03-note
+H04 khoá cũ ON + chữ ký chỉ có ở cây làm việc (chưa commit) -> clean
+  PASS: H04
+H05 commit Gate-2 điền cả human_override và nâng verdict -> clean
+  PASS: H05
+H06 agent_authors khớp author của commit chữ ký -> clean + NOTE (khoá đã chết)
+  PASS: H06
+  PASS: H06-note
+H07 khoá cũ ON nhưng không phải git repo -> clean + NOTE hết-hiệu-lực (thôi nói 'unverifiable')
+  PASS: H07
+  PASS: H07-note
+
+--- làn V ở luật Gate-1 của lưới trước-merge (V01–V05) ---
+V01 T2 + mo + vết hợp lệ + bằng chứng xanh-sạch -> NOTE làn V, clean
+  PASS: V01
+  PASS: V01-note
+V02 T3 + mo -> VIOLATION (làn V chỉ T2)
+  PASS: V02
+  PASS: V02-msg
+V03 mo + veto_opened_at rỗng -> VIOLATION (vết không đọc được)
+  PASS: V03
+  PASS: V03-msg
+V04 mo + T2 + vết OK nhưng KHÔNG xanh-sạch và chưa ký -> VIOLATION (quan hệ, không phải nhãn)
+  PASS: V04
+  PASS: V04-msg
+V04b giữ-gân: cùng hồ sơ KHÔNG sạch nhưng ĐÃ ký -> NOTE làn V, clean
+  PASS: V04b
+  PASS: V04b-note
+V05 vắng khoá veto_state -> VIOLATION nguyên văn luật cũ (đối chứng)
+  PASS: V05
+  PASS: V05-msg
+V06 chữ ký mới xuất hiện trong diff PR -> NOTE chiều-ghi (lưới thay lớp 2)
+  PASS: V06
+  PASS: V06-note
+V07 hồ sơ đã ký từ BASE -> KHÔNG in NOTE chiều-ghi (chỉ nói khi chữ ký MỚI)
+  PASS: V07
+  PASS: V07-quiet
+
+--- T1-escape backstop (PR base: --base / PRE_MERGE_BASE) ---
+B01 PR touches t3 path, no _acceptance artifacts in PR -> fail
+  PASS: B01
+  PASS: B01-msg
+B02 PR touches t3 path AND carries a DRAFT _acceptance/<slug>/ -> T1-escape satisfied, but slug chưa arm cổng -> exit 1
+  PASS: B02
+  PASS: B02-t1
+  PASS: B02-arm
+B03 PR touches only t1_skip_globs files -> clean
+  PASS: B03
+B04 no base provided -> backstop skipped with NOTE, clean
+  PASS: B04
+  PASS: B04-note
+B05 non-T1 file (outside t1_skip_globs, not t3), no _acceptance in PR -> fail
+  PASS: B05
+B06 PRE_MERGE_BASE env works like --base
+  PASS: B06
+
+--- config.yaml 2-space lint + config-patch.mjs (single splice path) ---
+CF01 config with a TAB -> fail (kit parsers are indent-based)
+  PASS: CF01
+CF02 config with odd (3-space) indent -> fail
+  PASS: CF02
+CP01 add feature_loop.suite_keys (--write) -> appended + .bak + resolvable
+  PASS: CP01
+  PASS: CP01-bak
+  PASS: CP01-resolve
+CP02 key already exists -> abort exit 2, file unchanged
+  PASS: CP02
+  PASS: CP02-unchanged
+CP03 dry-run by default -> exit 0, file unchanged
+  PASS: CP03
+  PASS: CP03-unchanged
+CP04 nested key lands INSIDE the existing parent; siblings intact
+  PASS: CP04
+  PASS: CP04-resolve
+CP05 missing --key -> usage error exit 4
+  PASS: CP05
+
+--- observed NOTE (schema v1 report with screenshot evidence) ---
+OBS01 v1 report with screenshot lacking observed -> pass + NOTE
+  PASS: OBS01-exit
+  PASS: OBS01-note
+
+--- vlm-assert.reference.mjs (V2 seam — no network in tests) ---
+V01 missing args -> exit 2 + usage
+  PASS: V01
+V02 unreadable image -> exit 2 (before key/network)
+  PASS: V02
+V03 missing GEMINI_API_KEY -> exit 2 (before network)
+  PASS: V03
+V04 API 200 with unparseable JSON body -> exit 2 (cannot-run, not NO)
+  PASS: V04
+V05 API non-OK whose body read throws -> exit 2
+  PASS: V05
+V06 default model pinned to gemini-3.5-flash (URL asserted; YES -> exit 0)
+  PASS: V06
+
+--- resolve-plugin.mjs (bỏ glob-vào-cache: chọn theo semver, không theo ls) ---
+RP01 chọn semver cao nhất (1.20.1), KHÔNG phải bản cuối theo thứ tự chữ (1.9.2)
+  PASS: RP01
+  PASS: RP01b
+  PASS: RP01c
+RP02 bản cao nhất thiếu file bắt buộc -> bỏ qua, lùi bản hợp lệ
+  PASS: RP02
+RP03 không tìm thấy gì -> exit 1 + thông điệp nêu chỗ đã tìm và cách cài
+  PASS: RP03
+  PASS: RP03b
+RP04 --root <path> bỏ qua tìm kiếm (dùng cho test/bản vendor)
+  PASS: RP04
+  PASS: RP04b
+RP05 --root trỏ chỗ thiếu file bắt buộc -> exit 1 (không tin lời khai)
+  PASS: RP05
+U01 wf-usage.mjs unit suite (feature-loop/scripts — dedupe/label/totals/--latest)
+=== additive-only.test.mjs ===
+  PASS: DV5 scripts/pre-merge-check.sh: diff so với base 5ad8e88 CHỈ THÊM (0 dòng luật cũ bị xoá/sửa)
+  PASS: DV5 scripts/recheck-evidence.cjs: diff so với base 5ad8e88 CHỈ THÊM (0 dòng luật cũ bị xoá/sửa)
+  PASS: DV5m mutant: bản sao sửa 1 dòng VIOLATION cũ → phép đo phải ĐỎ đích danh
+
+Results: 3 passed, 0 failed
+  PASS: additive-only.test.mjs
+=== consumer-esm.test.mjs ===
+  PASS: CE1 danh sách chép trích được từ marker (sanity ≥ 7 mục, mọi src tồn tại)
+  PASS: CE2 QUAN HỆ đủ-bộ: mọi file scripts/+lib/ mà pre-merge-check.sh và recheck dùng đều nằm trong danh sách chép
+  PASS: CE2m mutant trong-lần-chạy: bỏ 1 mục khỏi danh-sách-khai → quan hệ phải ĐỎ ghim đúng tên (gap-probe S1 P1#1)
+  PASS: CE3 recheck (.cjs) exit 0 trên evidence lành trong repo type:module
+  PASS: CE4 đối chứng chấm-thật: bản tiêm exit_code: 2 → recheck exit 1 ghim "fails the evidence bar"
+  PASS: CE5 pre-merge trong consumer type:module: exit 0, rules ran=4, KHÔNG một dòng NOT ENFORCED/fallback
+  PASS: CE5b vendored gap-probe CHẤM thật ở consumer: xoá gap-probe.md → pre-merge (required) VIOLATION đúng thông điệp (gap-probe S1 P1#2)
+  PASS: CE6 red: cùng nội dung recheck nhưng đuôi .js trong type:module → ĐỎ đúng "require is not defined"
+  PASS: CE7 red: lib/gap-probe đuôi .js chạy classify trong type:module → cùng lớp ReferenceError
+
+Results: 9 passed, 0 failed
+  PASS: consumer-esm.test.mjs
+=== core-untouched.test.mjs ===
+  PASS: JR11a lib/** + hooks/** KHÔNG đổi TRONG PHẠM VI của judge-required-evidence
+  PASS: JR11b recheck strict trên corpus thật == baseline viết-trước (0 fail NGOÀI grandfather)
+  PASS: JR11c đối chứng dương: tiêm token cấm vào BẢN SAO 1 report → recheck ĐỎ đúng thông điệp
+
+Results: 3 passed, 0 failed
+  PASS: core-untouched.test.mjs
+=== md-section.test.mjs ===
+  PASS: FSB5 bảng rút từ marker khai đủ Findings + default
+  PASS: FSB5 đối chứng đột biến: xoá marker → đúng thông điệp KHONG rut duoc bang
+  PASS: FSB1 bảng ở ### Notes / # Appendix KHÔNG thành hàng finding; dãy hàng == đối chứng dương
+  PASS: FSB2 clean + bảng ma ở đuôi → KHÔNG bắn cờ mâu thuẫn
+  PASS: FSB2 đối chứng dương: clean + hàng THẬT → CÓ bắn cờ mâu thuẫn
+  PASS: FSB3 đủ 5 AC sau ### nhóm phụ (regression false-green card cụt)
+  PASS: FSB4 evidence-page hiện đủ 5 AC sau sub-heading
+  PASS: FSB6 gate-card + evidence-page KHÔNG còn định nghĩa section() riêng, đều require lib
+  PASS: FSB6 ghim ô R×S: evidence-page KHÔNG có call-site section(…, Findings)
+  PASS: FSB6 đối chứng đột biến: tiêm lại định nghĩa riêng → đúng thông điệp van con dinh nghia
+  PASS: FSB6 đối chứng dương cùng harness: bản nguyên vẹn KHÔNG ném
+  PASS: FSB8 đối chứng dương: bản sao NGUYÊN VẸN cho 1 hàng (0 hàng ma)
+  PASS: FSB8 đột biến Ô BẢNG → hàng ma XUẤT HIỆN (hành vi đi theo bảng, bảng không phải trang trí)
+  PASS: FSB9 dòng # guidance KHÔNG cắt section: cờ non-discriminating còn trên thẻ
+  PASS: FSB9 cờ variance (pass_rate) cũng còn
+  PASS: FSB9 đối chứng đột biến: coi h1 là ranh giới → nội dung Analyst biến mất
+
+Results: 16 passed, 0 failed
+  PASS: md-section.test.mjs
+=== premerge-repin.test.mjs ===
+  PASS: DV2p-5 đối chứng dương: bộ khớp đủ -> pre-merge exit 0, không dòng VIOLATION re-pin
+  PASS: DV2p-1 thiếu dòng repin khớp -> VIOLATION đích danh
+  PASS: DV2p-2 sha lệch verified_commit -> VIOLATION đích danh
+  PASS: DV2p-3 suites_exit có phần tử khác 0 -> VIOLATION đích danh
+  PASS: DV2p-4 run-log vắng file -> VIOLATION đích danh, không skip âm thầm
+  PASS: DV2p-6 dòng repin THIẾU hẳn suites_exit → VIOLATION đích danh (fix S4-r1: lane chưa ghi suite không back được chữ ký)
+  PASS: DV2p-7 section dòng trống + run_id dòng sau — pre-merge vẫn enforce (đồng bộ 2 reader)
+  PASS: DV2p-8 sub-heading #### trong body KHÔNG kết thúc section — run_id sau nó vẫn bị enforce (fix S4-r2)
+  PASS: DV2p-9 `Run_id:` viết hoa — awk cùng ngữ nghĩa /i với recheck (fix S4-r2)
+  PASS: DV2p-10 HAI sự kiện re-pin nối tiếp -> pre-merge clean (đồng bộ hotfix 2 reader)
+  PASS: DV2p-11 fraud: không lane nào khớp verified_commit -> VIOLATION đích danh
+  PASS: DV3 fixture sạch trong git repo: repin hợp lệ tại HEAD -> exit 0 (đối chứng dương)
+  PASS: DV3 fraud: commit code MỚI sau khi ký -> luật stale hiện hành bắn, không cần luật mới
+  PASS: DV4a recheck MỚI trên MỌI evidence-report thật của repo -> 0 fail NGOÀI grandfather
+  PASS: DV4b sanity: detector NHÌN THẤY section Re-pin cũ trên corpus thật (>0)
+  PASS: DV4m mutant retro-enforce (ép mọi section thành cited) -> fixture kiểu CŨ phải ĐỎ
+
+Results: 16 passed, 0 failed
+  PASS: premerge-repin.test.mjs
+=== recheck-repin.test.mjs ===
+  PASS: DV2-5 đối chứng dương: bộ khớp đủ (run_id + sha + suites toàn 0) -> exit 0
+  PASS: DV2-1 run-log không có dòng repin khớp run_id -> exit 1 + thông điệp đích danh
+  PASS: DV2-2 sha dòng repin khác verified_commit -> exit 1 + thông điệp đích danh
+  PASS: DV2-3 suites_exit có phần tử khác 0 (lane đỏ vẫn ký) -> exit 1 + thông điệp đích danh
+  PASS: DV2-4 run-log.jsonl VẮNG file mà report cite run_id -> exit 1, không skip âm thầm
+  PASS: DV2-6 grandfather: section Re-pin kiểu CŨ (không run_id:) -> exit 0, không luật mới nào áp
+  PASS: DV2-7 section có DÒNG TRỐNG + văn xuôi trước run_id: fraud vẫn bị bắt (fix S4-r1 fail-open)
+  PASS: DV2-8 dòng `run_id: X · ghi chú` — recheck cùng ngữ nghĩa với awk pre-merge (vẫn là citation)
+  PASS: DV2-9 suites_exit RỖNG [] — lane không ghi suite nào không back được chữ ký
+  PASS: DV2-10 sub-heading #### trong body — recheck vẫn enforce (ngữ pháp ranh giới thống nhất 2 reader)
+  PASS: DV2-11 eval block MƯỢN run_id của dòng repin → đỏ đích danh (AC-11, fix S4-r2 L2-bypass)
+  PASS: DV2-12 HAI sự kiện re-pin nối tiếp (section cũ sha cũ + section mới khớp vc) -> clean (fix hotfix: luật per-section sang quan-hệ ít-nhất-một-khớp)
+  PASS: DV2-13 fraud: hai section nhưng KHÔNG dòng lane nào khớp verified_commit -> VIOLATION đích danh
+
+Results: 13 passed, 0 failed
+  PASS: recheck-repin.test.mjs
+=== repin-roundtrip.test.mjs ===
+  PASS: DV12 round-trip: fixture SINH TỪ khuôn REPIN-TEMPLATE → recheck clean
+  PASS: DV12m đột biến khuôn (suites_exit → suites) → recheck ĐỎ đích danh
+  PASS: DV12+ đối chứng dương lặp lại sau đột biến: khuôn nguyên vẹn vẫn clean
+  PASS: DV12p round-trip qua READER THỨ HAI (pre-merge): fixture sinh-từ-khuôn → clean
+  PASS: DV12pm đột biến khuôn (suites_exit → suites) → pre-merge cũng ĐỎ (fix S4-r1: 2 reader không được lệch nhau)
+  PASS: DV12b biến thể writer hợp lý: dòng trống sau heading — cả hai reader vẫn đọc được (fix S4-r1 fail-open)
+
+Results: 6 passed, 0 failed
+  PASS: repin-roundtrip.test.mjs
+  PASS: co it nhat mot *.test.mjs duoc chay
+  PASS: U01
+GPB1 mk_gp_repo: moi fixture MOT sha base rieng, khong dung cheo duoc
+  PASS: GPB1a
+  PASS: GPB1b
+  PASS: GPB1c
+  PASS: GPB1d
+GPB2 mk_gp_repo fail-loud: khong dung duoc repo -> FATAL + exit ngay tai cho
+  PASS: GPB2a
+  PASS: GPB2b
+GPM11 gap_probe: bien the hop le nhan dung, sai chinh ta -> canh bao cau hinh
+  PASS: GPM11a
+  PASS: GPM11b
+  PASS: GPM11c
+  PASS: GPM11c2
+  PASS: GPM11c3
+  PASS: GPM11c4
+  PASS: GPM11c5
+  PASS: GPM11c6
+GPM1 required + thieu ca file lan descope + slug TRONG diff -> VIOLATION
+  PASS: GPM1
+  PASS: GPM1msg
+  PASS: GPM1slug
+GPM2 advisory -> NOTE, khong chan
+  PASS: GPM2
+  PASS: GPM2note
+  PASS: GPM2noviol
+GPM2b khoa gap_probe VANG -> y het advisory
+  PASS: GPM2b
+  PASS: GPM2bnote
+GPM3 off -> khong in gi ve gap-probe
+  PASS: GPM3
+  PASS: GPM3silent
+  PASS: GPM3ledger
+GPM4 contract T1 + required -> khong xet (thua huong loc REQUIRED_FOR)
+  PASS: GPM4
+  PASS: GPM4silent
+GPM10 status draft va approved + required -> khong in gi
+  PASS: GPM10
+  PASS: GPM10a
+  PASS: GPM10b
+GPM13 slug NGOAI diff -> khong xet; khong --base -> bo qua kem NOTE
+  PASS: GPM13
+  PASS: GPM13a
+  PASS: GPM13b
+  PASS: GPM13b2
+  PASS: GPM13c
+GPM5 verdict clean va findings -> im lang o mode required
+  PASS: GPM5-clean
+  PASS: GPM5-clean-silent
+  PASS: GPM5-findings
+  PASS: GPM5-findings-silent
+GPM5c fixture SAO CHEP nguyen van dau ra that cua S1#7 -> im lang
+  PASS: GPM5c
+  PASS: GPM5c-silent
+GPM6 file rong / verdict rac / verdict CHI o than bai -> coi nhu THIEU
+  PASS: GPM6a
+  PASS: GPM6b
+  PASS: GPM6c
+GPM7 entry descope -> khong violation, NOTE neu id
+  PASS: GPM7
+  PASS: GPM7id
+GPM7b descope thut dau + viet hoa -> van khop (cung luat gate-card.js)
+  PASS: GPM7b
+  PASS: GPM7bid
+GPM7c dong JSON hong + entry hop le -> van khop (parse khoan dung)
+  PASS: GPM7c
+GPM7d entry descope KHONG phai gap-probe -> KHONG duoc coi la van thoat
+  PASS: GPM7d
+GPM8 verdict probe-failed -> NOTE, khong violation
+  PASS: GPM8
+  PASS: GPM8note
+GPM12 sinh lai premerge-messages.txt tu 4 fixture roi diff byte-doi-byte
+  PASS: GPM12
+  PASS: GPM12a
+  PASS: GPM12b
+  PASS: GPM12c
+  PASS: GPM12d
+GPM14 _acceptance/ KHONG o git root -> luat VAN chay (khong tat im lang)
+  PASS: GPM14
+  PASS: GPM14a
+  PASS: GPM14b
+  PASS: GPM14c
+GPM15 git diff FAIL (lich su roi nhau) -> phai BAO BO QUA, khong tin pham vi rong
+  PASS: GPM15
+  PASS: GPM15b
+  PASS: GPM15c
+  PASS: GPM15d
+GPM16 van thoat descope: the va pre-merge phai khop tren CUNG bo ca
+  PASS: GPM16
+GPM18 thieu lib/gap-probe.cjs -> required CHAN, advisory chi NOTE
+  PASS: GPM18a
+  PASS: GPM18a2
+  PASS: GPM18a3
+  PASS: GPM18b
+  PASS: GPM18b2
+  PASS: GPM18b3
+  PASS: GPM18c
+GPM19 marker dung MOT dong + dong tong ket phai KHAI da tat
+  PASS: GPM19a
+  PASS: GPM19b
+  PASS: GPM19c
+  PASS: GPM19d
+  PASS: GPM19e
+  PASS: GPM19f
+GPM21 parity theo bang: decision card vs pre-merge, tung ca mot
+  PASS: GPM21
+GPM20 bang 8 dau vao -> lib phan loai dung tung ca
+  PASS: GPM20a
+  PASS: GPM20b
+  PASS: GPM20c
+  PASS: GPM20d
+  PASS: GPM20e
+  PASS: GPM20f
+  PASS: GPM20g
+  PASS: GPM20h
+TE1 KHONG co co -> hanh vi Y HET hom nay (backward compat)
+  PASS: TE1
+  PASS: TE1b
+  PASS: TE1c
+TE2 co co -> rang tat, khong VIOLATION [PR]
+  PASS: TE2a
+  PASS: TE2a2
+  PASS: TE2a3
+  PASS: TE2a4
+  PASS: TE2b2
+TE3 khi tat phai keu to: hai chuoi NGUYEN VAN, moi cai dung MOT dong
+  PASS: TE3a
+  PASS: TE3b
+TE4 co co van KHONG tat luat gap-probe
+  PASS: TE4
+  PASS: TE4b
+  PASS: TE4ctrl
+  PASS: TE4ctrl2
+TE5 co co van KHONG tat luat per-slug (chu ky)
+  PASS: TE5ctrl
+  PASS: TE5a
+  PASS: TE5b
+  PASS: TE5c
+TE7 diff CHI plugins/ -> rang khong no
+  PASS: TE7a
+  PASS: TE7b
+TE14 diff HON HOP (plugins/ + non-T1) -> VAN no, liet DUNG file non-T1
+  PASS: TE14a
+  PASS: TE14b
+  PASS: TE14c
+TE15 diff CHI file T1 thuan -> khong no (true-negative)
+  PASS: TE15
+  PASS: TE15b
+TE17 sinh lai evidence/t1escape-messages.txt roi diff byte-doi-byte
+  PASS: TE17
+  PASS: TE17a
+  PASS: TE17b
+  PASS: TE17c
+TE16 cung commit, chay hai lan: co co thi mat VIOLATION [PR]
+  PASS: TE16a
+  PASS: TE16b
+  PASS: TE16c
+  PASS: TE16c2
+  PASS: TE16d
+TE18 co la = loi cung, KHONG duoc nuot thanh ROOT
+  PASS: TE18a
+  PASS: TE18b
+  PASS: TE18c
+  PASS: TE18d
+  PASS: TE18d2
+  PASS: TE18e
+  PASS: TE18f
+  PASS: TE18f2
+  PASS: TE18g
+  PASS: TE18g2
+  PASS: TE18h
+  PASS: TE18h2
+  PASS: TE18i
+  PASS: TE18i2
+  PASS: TE18j
+  PASS: TE18j2
+  PASS: TE18k
+RL1 repo sach: ca ba luat chay, tong ket dung MOT lan, khong declared-off
+  PASS: RL1
+  PASS: RL1a
+  PASS: RL1b
+  PASS: RL1c
+  PASS: RL1d
+  PASS: RL1e
+  PASS: RL1f
+  PASS: RL3c
+RL3a co --no-t1-escape -> dong so NGUYEN VAN 'declared-off t1-escape'
+  PASS: RL3a1
+  PASS: RL3a2
+  PASS: RL3a3
+  PASS: RL3a4
+  PASS: RL3a5
+RL3b gap_probe: off trong config -> 'declared-off gap-probe'
+  PASS: RL3b1
+  PASS: RL3b2
+  PASS: RL3b3
+  PASS: RL3b4
+  PASS: RL3b5
+RL4 khong --base + advisory -> exit Y HET TE18k, so khop qua marker
+  PASS: RL4a
+  PASS: RL4b
+  PASS: RL4c
+  PASS: RL4d
+  PASS: RL4e
+  PASS: RL4f
+RL2 tiem vo hieu khoi gap-probe -> VIOLATION [ledger] dich danh, exit 2
+  PASS: RL2ctrl
+  PASS: RL2ctrl2
+  PASS: RL2a
+  PASS: RL2b
+  PASS: RL2c
+  PASS: RL2d
+  PASS: RL5c
+RL9 tiem pha vong per-slug (bien the CHUA TUNG va) -> diem nghen bat
+  PASS: RL9ctrl
+  PASS: RL9a
+  PASS: RL9b
+  PASS: RL9c
+RL7b ghi so mot ten KHONG co trong EXPECTED -> ten la, exit 2
+  PASS: RL7ctrl
+  PASS: RL7b1
+  PASS: RL7b2
+  PASS: RL7b3
+  PASS: RL7b4
+RL5b exit 2 o parse -> KHONG in dong tong ket so
+  PASS: RL5b1
+  PASS: RL5b2
+  PASS: RL5bmsg
+RL14 gia tri pham vi RONG -> exit 2 keo thong diep, khong roi ve skip
+  PASS: RL14ctrl
+  PASS: RL14ctrl2
+  PASS: RL14a
+  PASS: RL14a2
+  PASS: RL14a3
+  PASS: RL14a4
+  PASS: RL14b
+  PASS: RL14b2
+  PASS: RL14bctrl
+  PASS: RL14bctrl2
+  PASS: RL14c
+  PASS: RL14c2
+  PASS: RL14d
+  PASS: RL14d2
+  PASS: RL14e
+  PASS: RL14e2
+RL15 bo loc --slug go sai va base-khai-tren-root-khong-git -> exit 2
+  PASS: RL15ctrl
+  PASS: RL15ctrl2
+  PASS: RL15a
+  PASS: RL15a2
+  PASS: RL15a3
+  PASS: RL15b
+  PASS: RL15b2
+  PASS: RL15bctrl
+  PASS: RL15bctrl2
+  PASS: RL15c
+  PASS: RL15c2
+  PASS: RL15c3
+  PASS: RL15cctrl
+  PASS: RL15d1
+  PASS: RL15d1m
+  PASS: RL15d2
+  PASS: RL15d2m
+  PASS: RL15d3
+  PASS: RL15d3m
+  PASS: RL15d4
+RL6 dem loi thoat exit 0 bang may — DUNG HAI loi (AC-6)
+  PASS: RL6a
+  PASS: RL6b
+RL7a ten duy nhat o call-site ledger_mark == EXPECTED, hai chieu (AC-7c)
+  PASS: RL7a1
+  PASS: RL7a2
+  PASS: RL7a3
+RL5a k tinh tu EXPECTED — cam tautology n+m o cho in (AC-5)
+  PASS: RL5a1
+  PASS: RL5a2
+  PASS: RL5a3
+  PASS: RL5a4
+  PASS: RL5a5
+RL11a enforcement off -> so tat theo, KHONG dong ledger nao (AC-11)
+  PASS: RL11a1
+  PASS: RL11a2
+  PASS: RL11a3
+  PASS: RL11a4
+RL11b enforcement warn KHONG ha diem nghen — so lech van exit 2 (AC-11)
+  PASS: RL11ctrl
+  PASS: RL11ctrl2
+  PASS: RL11b1
+  PASS: RL11b2
+RL11c parity `enforcement`: pre-merge va hook phai dong y tung bien the
+  PASS: RL11c
+RL13 classifier hong o MOT slug, chay o slug kia -> DUNG MOT dong so
+  PASS: RL13ctrl
+  PASS: RL13ctrl2
+  PASS: RL13fix
+  PASS: RL13a
+  PASS: RL13b
+  PASS: RL13c
+  PASS: RL13d
+  PASS: RL13e
+  PASS: RL13f
+RL12 node vang o advisory -> declared-off gap-probe qua *_not_enforced (AC-12)
+  PASS: RL12ctrl
+  PASS: RL12ctrl2
+  PASS: RL12fix
+  PASS: RL12a
+  PASS: RL12b
+  PASS: RL12c
+  PASS: RL12d
+  PASS: RL12e
+RL10 sinh lai evidence/ledger-messages.txt roi diff byte-doi-byte
+  PASS: RL10
+  PASS: RL10a
+  PASS: RL10b
+  PASS: RL10c
+  PASS: RL10d
+UJ6 evidence khai PASS nhung KHONG co contract.md -> VIOLATION, khong tang hinh
+  PASS: UJ6a
+  PASS: UJ6b
+  PASS: UJ6c
+  PASS: UJ6d
+UJ7 tu khai da phat hanh nhung THIEU risk_tier -> VIOLATION neu dich danh field
+  PASS: UJ7a
+  PASS: UJ7b
+  PASS: UJ7c
+UJ8 THIEU status -> VIOLATION; UJ8neg draft/approved -> im lang (ca duoi nguong)
+  PASS: UJ8a
+  PASS: UJ8b
+  PASS: UJ8neg-draft
+  PASS: UJ8neg-draft-2
+  PASS: UJ8neg-approved
+  PASS: UJ8neg-approved-2
+UJ9 contract khai signed-off, thieu risk_tier, KHONG co evidence -> VIOLATION
+  PASS: UJ9fix
+  PASS: UJ9a
+  PASS: UJ9b
+UJ10 scaffold bo hoang -> IM LANG (doi chung duong cua nhom tang hinh)
+  PASS: UJ10a
+  PASS: UJ10b
+  PASS: UJ10c
+UJ3 chu ky giu-cho trong commit NGUOI dung nghi thuc -> VAN VIOLATION
+  PASS: UJ3ctrl
+  PASS: UJ3ctrl2
+  PASS: UJ3a
+  PASS: UJ3b
+UJ5 KHONG khai approvers -> luoi den bat, MOT dong NOTE cho ca lan chay
+  PASS: UJ5-[PENDING]
+  PASS: UJ5-[TBD]
+  PASS: UJ5-[TODO]
+  PASS: UJ5-[n/a]
+  PASS: UJ5-[none]
+  PASS: UJ5-[unsigned]
+  PASS: UJ5-[waiting]
+  PASS: UJ5-[>]
+  PASS: UJ5-[|]
+  PASS: UJ5-[-]
+  PASS: UJ5-[<name> <date>]
+  PASS: UJ5n2
+  PASS: UJ5ctrl
+  PASS: UJ5ctrl2
+UJ18 chu ky RONG -> thong diep chot RONG song sot, dung thu tu
+  PASS: UJ18-exit
+  PASS: UJ18-msg
+  PASS: UJ18-order
+  PASS: UJ18-order2
+  PASS: UJ18-exit
+  PASS: UJ18-msg
+  PASS: UJ18-order
+  PASS: UJ18-order2
+UJ17 luat moi song o MOI che do goi (AC-16)
+  PASS: UJ17-base-exit
+  PASS: UJ17-base-sig
+  PASS: UJ17-nobase-exit
+  PASS: UJ17-nobase-sig
+  PASS: UJ17-slug-exit
+  PASS: UJ17-slug-sig
+  PASS: UJ17-ghost
+  PASS: UJ17neg
+  PASS: UJ17neg2
+UJ11 enforcement off/warn/strict KHONG ha luat moi (AC-11)
+  PASS: UJ11-off
+  PASS: UJ11-off-sig
+  PASS: UJ11-off-ghost
+  PASS: UJ11-warn
+  PASS: UJ11-warn-sig
+  PASS: UJ11-warn-ghost
+  PASS: UJ11-strict
+  PASS: UJ11-strict-sig
+  PASS: UJ11-strict-ghost
+UJ12 stdout + so luat + idempotent (AC-12)
+  PASS: UJ12a
+  PASS: UJ12b1
+  PASS: UJ12b2
+  PASS: UJ12c
+UJ14 tiem dot bien: vo hieu tung nhanh -> DUNG case tuong ung doi mau
+  PASS: UJ14ctrl-ujm_blk
+  PASS: UJ14ctrl-ujm_noc
+  PASS: UJ14ctrl-ujm_fld
+  PASS: UJ14ctrl-ujm_ctr
+  PASS: UJ14-blk
+  PASS: UJ14-noc
+  PASS: UJ14-fld
+  PASS: UJ14-ctr
+UJ14g uj_mut_usable phai TU CHOI ban sao khong chay duoc (meta-test cua chinh guard)
+  PASS: UJ14g-rong
+  PASS: UJ14g-nguyen
+  PASS: UJ14g-cut
+  PASS: UJ14g-cuphap
+UJ14b tiem CHE DO GOI: boc chot chu ky sau --base -> UJ17-nobase phai do
+  PASS: UJ14b-nobase
+  PASS: UJ14b-base
+UJ16 sinh lai evidence/unjudged-messages.txt roi diff byte-doi-byte
+  PASS: UJ16
+  PASS: UJ16b
+  PASS: UJ16d
+  PASS: UJ16e
+GCV1 canh bao mu criterion tren card THAT (2 ca keu + 1 ca im)
+  PASS: GCV1a khuon la -> card neu KHONG doc duoc criterion nao
+  PASS: GCV1b heading lech -> card neu ten heading sai
+  PASS: GCV1c card mu phai bao dung KHONG duyet
+  PASS: GCV1e nhanh CUT ra toi card that: card neu doc THIEU
+  PASS: GCV1f card cut cung bao dung duyet
+  PASS: GCV1d contract lanh khong sinh canh bao nao
+
+--- status-chua-arm-cong: hồ sơ chưa arm cổng không được tàng hình (ARM01–ARM12) ---
+ARM01 đối chứng dương: implemented + REJECT + PR đổi code → cổng CHẠY (verdict nổ), KHÔNG dòng chưa-arm
+  PASS: ARM01
+  PASS: ARM01-verdict
+  PASS: ARM01-noarm
+ARM02 chiều đỏ (a) — tái hiện vòng 4: approved + REJECT + PR đổi code → chưa arm cổng
+  PASS: ARM02
+  PASS: ARM02-msg
+  PASS: ARM02-verdict
+ARM03 chiều đỏ (b): draft, không evidence, PR đổi src/app.js → chưa arm cổng nêu tên file
+  PASS: ARM03
+  PASS: ARM03-msg
+  PASS: ARM03-file
+ARM04 đường đọc-cũ (hạt giống): draft, không evidence, PR chỉ đổi docs/ → clean + dấu dương
+  PASS: ARM04
+  PASS: ARM04-noarm
+  PASS: ARM04-ran
+ARM05 đường đọc-cũ (sử liệu): slug cũ approved+REJECT ngoài diff, slug mới armed trong diff → không nổ cho slug cũ
+  PASS: ARM05-old-quiet
+  PASS: ARM05-new-judged
+  PASS: ARM05-ran
+ARM06 không --base (fail-safe a): approved + REJECT → nổ như xét mọi slug
+  PASS: ARM06
+  PASS: ARM06-msg
+ARM07 không --base (đọc-cũ): draft không evidence → clean (S04 vẫn đúng) + dấu dương
+  PASS: ARM07
+  PASS: ARM07-noarm
+  PASS: ARM07-ran
+ARM08 T1-escape không đổi (nhánh non-T1): PR đổi src/app.js KHÔNG kèm _acceptance/ → thông điệp nguyên văn
+  PASS: ARM08
+  PASS: ARM08-msg
+  PASS: ARM08-ran
+ARM08b T1-escape không đổi (nhánh t3): PR đổi core/k.js KHÔNG kèm _acceptance/ → thông điệp nguyên văn
+  PASS: ARM08b
+  PASS: ARM08b-msg
+  PASS: ARM08b-file
+  PASS: ARM08b-ran
+ARM09 (b) độc lập với status: approved, không evidence, PR đổi code → chưa arm cổng
+  PASS: ARM09
+  PASS: ARM09-msg
+  PASS: ARM09-file
+ARM10 (a) độc lập với (b): approved + REJECT, PR chỉ đổi docs/ → vẫn nổ theo evidence
+  PASS: ARM10
+  PASS: ARM10-msg
+  PASS: ARM10-verdict
+ARM11 (b) qua nhánh t3_paths: draft, không evidence, PR đổi core/k.js → chưa arm cổng nêu tên file t3
+  PASS: ARM11
+  PASS: ARM11-msg
+  PASS: ARM11-file
+ARM12 tier ngoài required_for: T1 + approved + REJECT + PR đổi code → im như cũ + dấu dương
+  PASS: ARM12
+  PASS: ARM12-noarm
+  PASS: ARM12-ran
+ARM13 mutant: bản sao pre-merge gỡ vế (a) → ARM02 mất dòng chưa-arm (phép đo phân biệt được)
+  PASS: ARM13
+  PASS: ARM13-ctrl
+  PASS: ARM13-mut
+
+Results: 750 passed, 0 failed
+EXIT=0

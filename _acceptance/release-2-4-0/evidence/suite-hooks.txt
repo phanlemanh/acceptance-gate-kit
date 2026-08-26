@@ -1,0 +1,131 @@
+T01 non-target file passes through
+  PASS: T01
+T02 PASS with full evidence + existing script verifier -> allow
+  PASS: T02
+T03 PASS missing run_id -> block
+  PASS: T03
+T04 PASS with manual verifier -> block
+  PASS: T04
+T05 PASS with config:executors.test.api verifier -> allow
+  PASS: T05
+T06 PASS with config: key missing from config.yaml -> block
+  PASS: T06
+T07 PASS with unresolved UNCERTAIN judgment -> block
+  PASS: T07
+T08 UNCERTAIN resolved by human_override -> allow
+  PASS: T08
+T09 REJECT without evidence -> always allow
+  PASS: T09
+T10 Edit tool with PASS missing evidence -> block
+  PASS: T10
+T11 bypass env -> allow
+  PASS: T11
+T12 enforcement: warn in config -> allow with warning
+  PASS: T12
+T13 full template render incl. verified_by attribution line -> allow
+  PASS: T13
+T14 comment-only human_override placeholder does NOT resolve UNCERTAIN -> block
+  PASS: T14
+T15 honest REJECT with per-eval judgment PASS inside -> allow
+  PASS: T15
+T16 PENDING-JUDGMENT with unresolved UNCERTAIN -> allow (report must reach Gate 2)
+  PASS: T16
+T17 T3 feature: judgment PASS without human_override -> block
+  PASS: T17
+T18 PASS report containing a failed eval exit_code 1 -> block
+  PASS: T18
+T19 surgical Edit upgrading PENDING-JUDGMENT -> PASS on evidenced file -> allow
+  PASS: T19
+T20 legit existing script with blocklist-looking name -> allow
+  PASS: T20
+T21 Edit with $& new_string is judged literally, not regex-expanded -> block
+  PASS: T21
+T22 PASS report containing a judgment verdict FAIL -> block
+  PASS: T22
+T23 T3 tier detected despite trailing comment on risk_tier line -> block judgment w/o override
+  PASS: T23
+T24 enforcement: warn with inline comment is honored -> allow
+  PASS: T24
+T25 PASS with valid verified_commit SHA -> allow
+  PASS: T25
+T26 PASS with malformed verified_commit (not a hex SHA) -> block
+  PASS: T26
+T27 verified_commit-looking line in BODY only (log excerpt) -> allow
+  PASS: T27
+
+--- contract guard (Gate 1 integrity) ---
+C01 new contract at status draft -> allow
+  PASS: C01
+C02 set status approved WITH approved_by -> allow
+  PASS: C02
+C03 set status approved with EMPTY approved_by -> block
+  PASS: C03
+C04 approved w/ empty approved_by but gate1_skipped: true -> allow (audited escape hatch)
+  PASS: C04
+C05 Edit draft -> implemented with empty approved_by -> block (Gate-1 jump)
+  PASS: C05
+C06 Edit draft -> implemented with approved_by filled -> allow
+  PASS: C06
+C07 NEW contract born at implemented, empty approved_by -> block
+  PASS: C07
+C08 implemented -> verified (approved earlier) -> allow
+  PASS: C08
+C09 contract violation under enforcement: warn -> allow with warning
+  PASS: C09
+
+--- run-log reconciliation (run_id must exist in machine-written log) ---
+T28 run-log exists but report run_id NOT in it -> block
+  PASS: T28
+T29 run-log exists and report run_id matches -> allow
+  PASS: T29
+DV11 (delta-verify-repin) dong kind:repin xen giua KHONG bi nhan nham lam dong eval
+DV11a doi chung duong: dong eval that van khop du co dong repin xen giua -> allow
+  PASS: DV11a
+DV11c eval block MUON run_id cua dong repin -> block (AC-11, fix S4-r2 L2-bypass)
+  PASS: DV11c
+DV11b run_id gia van bi chan — dong repin khong che mo duoc doi chieu
+  PASS: DV11b
+
+--- L2 OBSERVED (schema v2: screenshot blocks must be inspected) ---
+T30 v2 PASS screenshot block WITHOUT observed -> block
+  PASS: T30
+T31 v2 PASS screenshot block WITH substantive observed -> allow
+  PASS: T31
+T32 v2 observed is template placeholder -> block
+  PASS: T32
+T33 v2 observed too short -> block
+  PASS: T33
+T34 v1 screenshot without observed -> tolerated (backward)
+  PASS: T34
+T35 v2 block WITHOUT screenshot needs no observed -> allow
+  PASS: T35
+T36 v2 multi-line observed (pipe block) -> allow
+  PASS: T36
+T37 v2 .html fallback screenshot without observed -> block
+  PASS: T37
+T38 v2 PENDING-JUDGMENT screenshot without observed -> allow (enforced at PASS upgrade)
+  PASS: T38
+T39 Edit upgrading v2 PENDING-JUDGMENT -> PASS without observed -> block
+  PASS: T39
+T40 v2 observed block scalar with step1:-style lines -> allow (indentation terminator)
+  PASS: T40
+T41 v2 observed containing mid-line #selector -> allow (comment strip must not swallow it)
+  PASS: T41
+T42 v2 short observed then same-indent sibling field -> still block (sibling text must not count)
+  PASS: T42
+--- cửa V (veto có dấu vết, đợt 2) — LƯỚI THƯỜNG TRỰC ---
+V01 T2 + veto_state mo + veto_opened_at hợp lệ -> allow (cửa V mở)
+  PASS: V01
+V02 T3 cùng hình dạng -> block (V là T2-only, T3 luôn cần người)
+  PASS: V02
+V03 veto_state mo THIẾU veto_opened_at -> block (V không vết = bỏ cổng lặng lẽ)
+  PASS: V03
+V04 veto_opened_at giá trị RÁC -> block (vết phải đọc được, không chỉ khác rỗng)
+  PASS: V04
+V05 veto_state giá trị lạ -> block (chỉ mo | da-veto)
+  PASS: V05
+V06 KHÔNG có khoá veto_state -> luật cũ nguyên vẹn (block vì approved_by rỗng)
+  PASS: V06
+
+Results: 60 passed, 0 failed
+EXIT=0
