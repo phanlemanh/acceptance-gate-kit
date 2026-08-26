@@ -1,0 +1,232 @@
+{
+  "feature_plain": "Các lệnh kiểm cố định của kho thôi phải xin phép từng lần, và khi một lượt kiểm bị chặn thì quy trình biết tự đổi sang cách chạy lần lượt thay vì thử lại y hệt.",
+  "scope_plain": "Để lại: cho phép sẵn các phép kiểm riêng của từng hồ sơ, lối khai quyền vẫn phải hỏi bộ gác, tự ghi luật vào kho của đội khác, và dừng sớm khi lượt kiểm đầu bị chặn.",
+  "analyst_plain": "Hai phép đo KHÔNG phân biệt được, do bản chất chứ không do viết ẩu: một cái so cây hiện tại với một mốc cũ nên đứng ngay tại mốc là không có gì để so; một cái đo tính chất của chính bộ kiểm. Sáu phép đo còn lại đều đỏ trên cây chưa có tính năng.",
+  "decisions": [],
+  "decisions_plain": [
+    {
+      "id": "d-20260825T131801Z-1000",
+      "p": "Kiểm bằng cách so hai danh sách với nhau, không so với một bản chép tay — thêm bớt một phép kiểm là tự lộ."
+    },
+    {
+      "id": "d-20260825T131801Z-1001",
+      "p": "Phát biểu điều cấm theo cách đếm được trên một tập hữu hạn, thay vì liệt kê các kiểu cấm — danh sách cấm bao giờ cũng sót."
+    },
+    {
+      "id": "d-20260825T131801Z-1002",
+      "p": "KHÔNG làm: cho phép sẵn các phép kiểm riêng của từng hồ sơ — tên chúng đổi liên tục nên luật sẽ hoặc lỗi thời hoặc quá rộng."
+    },
+    {
+      "id": "d-20260825T131801Z-1003",
+      "p": "KHÔNG làm: dùng lối khai quyền vẫn phải hỏi bộ gác — nó giảm rủi ro bị từ chối chứ không giảm số lần hỏi, tức không chạm nguyên nhân."
+    },
+    {
+      "id": "d-20260825T131801Z-1004",
+      "p": "KHÔNG làm: đo hiệu lực thật lúc chạy — cấu hình chỉ đọc lúc mở phiên, nên trong phiên không cách nào chứng. Bằng chứng hiệu lực là năm vòng chạy kế."
+    },
+    {
+      "id": "d-20260825T135704Z-2000",
+      "p": "Làm tuần tự thay vì chia việc cho nhiều phiên — chính cái ô này sinh ra để tránh chuyện tung bầy khi bộ gác đang mong manh."
+    },
+    {
+      "id": "d-20260825T135704Z-2001",
+      "p": "Dời một thư mục phụ thuộc nặng ra ngoài để phép kiểm khỏi đỏ vì máy chứ không vì sản phẩm; thư mục đã trả về nguyên chỗ."
+    },
+    {
+      "id": "d-20260825T135704Z-2002",
+      "p": "Viết lại vài câu trong hồ sơ để ký tự đặc biệt khỏi rò ra thẻ trình cho người — và bản viết lại đọc dễ hơn."
+    },
+    {
+      "id": "d-20260825T141032Z-3000",
+      "p": "Mọi phép kiểm trên văn bản bỏ qua chỗ xuống dòng: một câu bị ngắt dòng là chuyện trình bày, không phải chuyện nghĩa."
+    },
+    {
+      "id": "d-20260825T141032Z-3001",
+      "p": "Tách hai điều kiện dính nhau thành các vế độc lập — vế nào không tự đứng được thì không bao giờ báo lỗi."
+    },
+    {
+      "id": "d-20260825T141032Z-3002",
+      "p": "Khi thử phá, phải phá mọi chỗ xuất hiện chứ không chỉ chỗ đầu — sót một chỗ là phép thử thành vô hiệu."
+    },
+    {
+      "id": "d-20260825T144316Z-4000",
+      "p": "Sửa theo LỚP chứ không theo từng chỗ bị nêu tên: mỗi điều kiện khai thành một dòng bảng, máy tự duyệt nên không thể quên."
+    },
+    {
+      "id": "d-20260825T144316Z-4001",
+      "p": "Chỉ đọc trong đúng đoạn được đánh dấu, không tìm khắp tài liệu — từ trùng ở chỗ khác sẽ đỡ hộ và làm phép kiểm chết."
+    },
+    {
+      "id": "d-20260825T144316Z-4002",
+      "p": "Bám vào câu mệnh lệnh thay vì một từ đơn lẻ, vì từ ấy còn xuất hiện ở câu khác trong cùng đoạn."
+    },
+    {
+      "id": "d-20260825T144316Z-4003",
+      "p": "Phép thử phá tự suy dữ liệu từ cấu hình lúc chạy thay vì ghim cứng — ghim cứng là đỏ vì máy chứ không vì sản phẩm."
+    },
+    {
+      "id": "d-20260825T144316Z-4004",
+      "p": "Bỏ mọi con số ra khỏi phần mô tả, để bảng tóm tắt là chỗ DUY NHẤT giữ số — hai bản chép thì sớm muộn cũng lệch."
+    },
+    {
+      "id": "d-20260825T151152Z-5000",
+      "p": "Theo yêu cầu: gỡ một quả mìn — tách phép kiểm hay đỏ oan ra khỏi bộ kiểm thường trực, để nó chết theo hồ sơ khi gộp."
+    },
+    {
+      "id": "d-20260825T225222Z-6000",
+      "p": "Đổi cách làm ở chỗ tái phát: bảng giữ số, mã giữ phép thử, mô tả chỉ nói cách đo — vá từng chỗ không đóng được lớp này."
+    },
+    {
+      "id": "d-20260825T225222Z-6001",
+      "p": "Dùng bộ đọc cấu hình sẵn có của bộ công cụ thay vì tự viết bộ thứ hai; hai bộ đã lệch nhau trên cấu hình hợp lệ."
+    },
+    {
+      "id": "d-20260825T225222Z-6002",
+      "p": "Đếm số KHỐI chứ không đếm số TỆP — hai khối trong cùng một tệp vẫn ra một, nên bản sao mang luật ngược lại lọt qua."
+    },
+    {
+      "id": "d-20260825T225222Z-6003",
+      "p": "Trỏ lại đúng tệp sau lượt tách, và bổ sung tệp còn thiếu cho hội đồng; dời mục tài liệu vào thân bài và vào mục lục."
+    },
+    {
+      "id": "d-20260825T225222Z-6004",
+      "p": "KHÔNG làm: buộc một hằng phải đối chiếu với nguồn — nguồn thật nằm ngoài kho nên không đối chiếu được; khai thành hạn chế."
+    },
+    {
+      "id": "d-20260825T232654Z-7000",
+      "p": "Sửa sổ chạy bị bọc hai lớp dữ liệu: không bộ đọc nào kêu, nhưng đến vòng đạt sẽ chặn gộp bằng một lời buộc tội sai."
+    },
+    {
+      "id": "d-20260825T232654Z-7001",
+      "p": "Một bộ kiểm nuốt lỗi đọc cấu hình nên một vế của nó không đời nào báo được; nay lỗi được đưa ra ngoài."
+    },
+    {
+      "id": "d-20260825T234753Z-8000",
+      "p": "Sửa LỖI THẬT của sản phẩm: luật chỉ nhận ra tình huống nhẹ, còn tình huống nặng nhất thì im — nay nhận cả hai, và dấu hiệu lấy thẳng từ nguồn phát ra nó."
+    },
+    {
+      "id": "d-20260825T234753Z-8001",
+      "p": "Đổi cách làm lần hai theo yêu cầu: BỎ lời khai thay vì THÊM phép đo — mô tả chỉ còn nói chạy gì, đạt là thấy gì, phép đo nằm đâu."
+    },
+    {
+      "id": "d-20260825T234753Z-8002",
+      "p": "Bỏ 15 chuỗi mồi chép tay; phép thử phá nay sinh từ chính điều kiện, nên phá xong là điều kiện không thể còn khớp."
+    },
+    {
+      "id": "d-20260825T234753Z-8003",
+      "p": "Thử phá trên bản đã gộp khoảng trắng, kèm đối chứng riêng cho bản đó — và bộ trích đoạn thôi đòi đúng một kiểu trình bày."
+    },
+    {
+      "id": "d-20260825T234753Z-8004",
+      "p": "Hai tấm lưới canh «phép thử không đổi được gì» đang so nhầm bản nên không bao giờ nổ; nay so đúng."
+    },
+    {
+      "id": "d-20260825T234753Z-8005",
+      "p": "Bỏ con số đếm tay trong tài liệu vận hành, trỏ về danh sách khai trong cấu hình — danh sách ấy đã đổi thật một lần."
+    },
+    {
+      "id": "d-20260826T001648Z-9000",
+      "p": "Đổi cách làm cho lớp «nhánh có thật mà chưa từng chạy»: bắt mỗi bộ kiểm tự khai mọi lời báo lỗi, mỗi lời phải có ít nhất một phép thử chạm tới."
+    },
+    {
+      "id": "d-20260826T001648Z-9001",
+      "p": "Bộ rút lời báo bám vào LỜI thay vì vào cách phát ra lời — bản đầu bám cách phát nên tự nó bỏ sót một nhánh."
+    },
+    {
+      "id": "d-20260826T001648Z-9002",
+      "p": "Tài liệu vận hành thiếu nửa «đánh đổi gì» mà hợp đồng hứa; nay có vế canh nửa đó."
+    },
+    {
+      "id": "d-20260826T001648Z-9003",
+      "p": "Phép thử thôi bám vào thứ tự danh sách, và bộ dữ liệu mẫu tự kêu khi sản phẩm mọc thêm khoá mới."
+    },
+    {
+      "id": "d-20260826T001648Z-9004",
+      "p": "Mở thêm một phép đo máy cho phần trước nay chỉ có hội đồng người chấm."
+    },
+    {
+      "id": "d-20260826T005854Z-9500",
+      "p": "KHÔNG làm nữa: cắt tấm lưới vừa dựng — lời nó hứa thuộc loại không chứng được, và bản thân nó xanh mà chưa từng chạy. Giữ các phép thử cụ thể vốn làm việc thật."
+    },
+    {
+      "id": "d-20260826T005854Z-9501",
+      "p": "Sửa chính lỗi ấy: tấm lưới có một điều kiện tự bỏ qua thân nó khi bộ kiểm gọi riêng từng ca, nên nó chưa bao giờ chạy."
+    },
+    {
+      "id": "d-20260826T005854Z-9502",
+      "p": "Hai lỗi nhỏ sống độc lập với tấm lưới cũng vá: một lưới canh còn thiếu, và một đường dẫn ghép tay thay vì tự suy."
+    },
+    {
+      "id": "d-20260826T011824Z-9700",
+      "p": "Giết một vế chết: cái gọi là «phép thử ngược» chép lại công thức của thứ nó canh thay vì gọi thứ ấy, nên không đời nào sai."
+    },
+    {
+      "id": "d-20260826T011824Z-9701",
+      "p": "Một nhánh của bộ kiểm chưa từng sống dù hợp đồng gọi tên nó; nay phép thử sinh từ danh sách, và danh sách lấy TỪ hợp đồng."
+    },
+    {
+      "id": "d-20260826T011824Z-9702",
+      "p": "Hợp đồng hứa quan hệ một-đối-một nhưng phép đo mới chỉ là bao hàm hai chiều — hai dòng trùng nhau vẫn lọt; nay đếm cả số lượng."
+    },
+    {
+      "id": "d-20260826T011824Z-9703",
+      "p": "KHÔNG khai nữa: bỏ câu mô tả nói bộ kiểm dùng bộ đọc nào — đúng hôm nay nhưng không gì buộc nó đúng."
+    },
+    {
+      "id": "d-20260826T013931Z-9800",
+      "p": "Hội đồng bị bắt ĐẾM nhưng không được đưa hai tệp quyết định con số; nay được đưa đủ, nên nó đếm thay vì suy."
+    },
+    {
+      "id": "d-20260826T013931Z-9801",
+      "p": "Bộ đọc hợp đồng đọc một dòng vật lý; ngắt lại dòng là trình bày thuần mà lại thu thước trong im lặng. Nay đọc trọn ý."
+    },
+    {
+      "id": "d-20260826T013931Z-9802",
+      "p": "Đóng PHẠM VI của lời hứa «một chỗ»: hợp đồng nêu đích danh các thư mục, và phép đo lấy phạm vi từ hợp đồng. Phạm vi để mở thì phép đo không đời nào phủ hết lời."
+    },
+    {
+      "id": "d-20260826T013931Z-9803",
+      "p": "Khi không lấy được bản ở mốc, phép kiểm nay chết bằng câu có tên thay vì bằng vết đổ khó hiểu — đỏ vì máy phải phân biệt được với đỏ vì sản phẩm."
+    },
+    {
+      "id": "d-20260826T015818Z-9900",
+      "p": "Gộp về MỘT bộ đọc hợp đồng cho mọi điều khoản và XOÁ bản chép tay cuối cùng — trước đó tôi neo một điều rồi để nguyên điều anh em."
+    },
+    {
+      "id": "d-20260826T015818Z-9901",
+      "p": "Bản vá vòng trước tự đẻ một nhánh chưa có phép thử; chữa bằng cách BỎ nhánh đó đi chứ không thêm phép thử mới."
+    },
+    {
+      "id": "d-20260826T015818Z-9902",
+      "p": "Phép dò ghim tên tệp bị tiêm thay vì một tiền tố dùng chung cho hai nhánh khác nhau."
+    },
+    {
+      "id": "d-20260826T015818Z-9903",
+      "p": "Ba chỗ chữ lệch số trong hồ sơ; chỗ nặng nhất dạy hội đồng bỏ qua đúng hai tệp vừa thêm cho nó."
+    },
+    {
+      "id": "d-20260826T021817Z-10000",
+      "p": "Đóng cửa hậu: khai phạm vi tệp cho máy nay phủ trọn thứ phép đo thật sự đọc — khai hụt thì máy sẽ chép nguyên màu cũ sang thay vì chạy lại."
+    },
+    {
+      "id": "d-20260826T021817Z-10001",
+      "p": "Bỏ một lối thoát câm: thiếu tham số thì phải vỡ to, không được vỡ êm rồi vẫn xanh."
+    },
+    {
+      "id": "d-20260826T021817Z-10002",
+      "p": "Ba mối nối giữa hợp đồng và bộ kiểm nay có phép thử ngược đi qua chính bộ rút của chiều xanh."
+    },
+    {
+      "id": "d-20260826T021817Z-10003",
+      "p": "Phép thử thôi bám vào thụt lề của tệp cấu hình — cấu hình là tệp sống, thụt lại là thao tác hợp lệ."
+    },
+    {
+      "id": "d-20260826T021817Z-10004",
+      "p": "Thông điệp lỗi thôi nói «trùng lặp» khi nguyên nhân là thiếu hoặc thừa — người đọc nhật ký sẽ đi tìm thứ không tồn tại."
+    },
+    {
+      "id": "d-20260826T023138Z-10100",
+      "p": "Khai thêm một phạm vi tệp còn hụt — cùng lớp cửa hậu vừa đóng, sót một chỗ anh em."
+    }
+  ]
+}

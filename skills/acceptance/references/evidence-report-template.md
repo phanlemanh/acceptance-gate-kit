@@ -116,39 +116,49 @@ listed under `## Variance` for a human to judge — like a judgment item. A
 deterministic eval omits `runs`/`pass_rate` and must be 0/N or N/N (a mixed
 deterministic result is a flaky test, not a score).
 
----8<---
----
-schema_version: 2
-feature_slug: {{slug}}
-verdict: {{PASS|PENDING-JUDGMENT|REJECT|BLOCKED}}
-# triage_failed: true   # ONLY when scope-triage could not classify the findings — machine fixed nothing, a human reviews the full list in review-findings.md. Omit entirely when triage ran.
-failed_evals: []        # REJECT only, e.g. [E2, E5]
-reason:                 # BLOCKED only
-verified_by: fresh-context verification subagent
-enforcement_mode: {{strict|warn|off}}   # the `enforcement` value from _acceptance/config.yaml (default strict). CI pre-merge BLOCKS off; warn only warns.
-bypass_used: {{true|false}}              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
-verified_commit: {{git rev-parse HEAD at verify time}}   # pins the evidence to the exact tree verified. CI pre-merge BLOCKS when non-gate files changed after it (stale evidence — re-verify). Omit ONLY if not a git repo; hook rejects non-SHA values.
-# bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
-human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER review
----
+## Sáu điều kiện xanh-sạch — bảng máy đọc (KHÔNG chép vào hồ sơ thật)
 
-# Evidence Report: {{slug}}
+> Khối dưới đây nằm NGOÀI vùng chép (phía trên mốc cắt) có chủ ý: nội dung của nó là
+> văn bản trần và có chứa chữ `UNCERTAIN`, mà cả hai bộ kiểm xanh-sạch đều quét TRỌN
+> file tìm chữ đó. Chép nó vào báo cáo thật là tự làm hồ sơ «có mục UNCERTAIN» → không
+> bao giờ đủ điều kiện sạch → trạng thái `machine-cleared` không bao giờ ghi được.
+> Khuôn ô cơ hội đặt marker ở mục cuối vì đúng lý do này.
 
-| Eval | Criterion | Executor | Verdict |
-|---|---|---|---|
-| E1 | AC-1 | test | PASS |
+<!-- Sáu điều kiện xanh-sạch — NGUỒN DUY NHẤT. scripts/khong-can-nguoi.mjs (xanhSach) và
+     scripts/pre-merge-check.sh (xanh_sach_check) kiểm ĐÚNG thứ tự này; ca RT1 so round-trip
+     ba đầu. Hai mục cuối phải HIỆN DIỆN-và-rỗng trong báo cáo: vắng ≠ rỗng. -->
+<!-- <<<EVIDENCE-XANH-SACH-BLOCK -->
+verdict-pass   verdict: PASS (chỉ PASS mới xanh-sạch)
+bypass         bypass_used không true
+enforcement    enforcement_mode không off
+tier           risk_tier của hợp đồng là T2
+uncertain      không có mục UNCERTAIN trong báo cáo
+sections       hai mục «Known limits» và «Ngoài hợp đồng» hiện diện và rỗng
+<!-- EVIDENCE-XANH-SACH-BLOCK>>> -->
+
+<!-- Hai mục điều kiện `sections` đòi — bản gốc máy-đọc; vùng chép dưới mốc cắt đặt chúng
+     DẠNG TRẦN (không marker, không comment bên trong) sau ## Evidence và trước ## Analyst,
+     đúng vị trí hồ sơ thật đang đặt. Đặt marker/comment BÊN TRONG hai mục là mục «có nội
+     dung» và báo cáo không bao giờ xanh-sạch (S4-r6). VẮNG mục ≠ mục rỗng — đừng xoá
+     heading khi không có nội dung. -->
+<!-- <<<EVIDENCE-SECTIONS-TEMPLATE -->
+## Known limits
+
+## Ngoài hợp đồng
+<!-- EVIDENCE-SECTIONS-TEMPLATE>>> -->
+
+## Ví dụ tham khảo — cố ý NGOÀI vùng chép
+
+> Ba khối dưới đây chứa chữ `UNCERTAIN`, mà cả hai bộ kiểm xanh-sạch quét TRỌN báo cáo
+> tìm chữ đó. Chép nguyên cả mục này vào báo cáo là tự làm hồ sơ «có mục UNCERTAIN» —
+> trạng thái `machine-cleared` không bao giờ ghi được. Chỉ chép TỪNG khối khi báo cáo
+> thật sự có eval dạng đó.
+
+Hàng bảng eval cho một judgment chưa người chốt (thay cho `PASS` ở cột Verdict):
+
 | E4 | AC-2 | judgment | UNCERTAIN |
 
-## Evidence
-
-- eval: E1
-  run_id: {{from verifier stdout, or mint <slug>-<eval>-<date>; min 4 chars}}
-  exit_code: 0
-  baseline: red          # status on diffBase: red=eval discriminates (good), green=non-discriminating, n-a=couldn't run
-  verifier: config:executors.test.api
-  verified_at: {{ISO8601}}
-  output: |
-    {{last 5-10 relevant lines of runner output}}
+Khối evidence cho eval ui-check có ảnh chụp (đặt trong `## Evidence`, cạnh các khối khác):
 
 - eval: E3
   run_id: {{...}}
@@ -174,6 +184,57 @@ human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER revi
   human_override:        # human fills "<name> <date>" + optional note to resolve
 <!-- JUDGMENT-BLOCK-TEMPLATE>>> -->
 
+## Gate 2 checklist (human) — làm TRÊN báo cáo, không chép mục này vào báo cáo
+
+- [ ] Read the table + spot-check 1-2 evidence blocks
+- [ ] Personally verify every judgment item marked UNCERTAIN, then fill its
+      `human_override: <name> <date>` line
+- [ ] T3 only: personally verify ALL judgment items and fill `human_override`
+      on each (judge verdicts are advisory; the hook blocks PASS without them)
+- [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
+      the hook re-validates evidence + overrides)
+- [ ] Fill `human_signoff` in frontmatter
+
+---8<---
+---
+schema_version: 2
+feature_slug: {{slug}}
+verdict: {{PASS|PENDING-JUDGMENT|REJECT|BLOCKED}}
+# triage_failed: true   # ONLY when scope-triage could not classify the findings — machine fixed nothing, a human reviews the full list in review-findings.md. Omit entirely when triage ran.
+failed_evals: []        # REJECT only, e.g. [E2, E5]
+reason:                 # BLOCKED only
+verified_by: fresh-context verification subagent
+enforcement_mode: {{strict|warn|off}}   # the `enforcement` value from _acceptance/config.yaml (default strict). CI pre-merge BLOCKS off; warn only warns.
+bypass_used: {{true|false}}              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
+verified_commit: {{git rev-parse HEAD at verify time}}   # pins the evidence to the exact tree verified. CI pre-merge BLOCKS when non-gate files changed after it (stale evidence — re-verify). Omit ONLY if not a git repo; hook rejects non-SHA values.
+# bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
+human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER review
+---
+
+# Evidence Report: {{slug}}
+
+| Eval | Criterion | Executor | Verdict |
+|---|---|---|---|
+| {{eval id}} | {{AC id}} | {{executor}} | {{verdict của eval}} |
+
+## Evidence
+
+- eval: {{eval id}}
+  run_id: {{from verifier stdout, or mint <slug>-<eval>-<date>; min 4 chars}}
+  exit_code: 0
+  baseline: red          # status on diffBase: red=eval discriminates (good), green=non-discriminating, n-a=couldn't run
+  verifier: {{script path, hoặc config:executors.<type>.<surface>}}
+  verified_at: {{ISO8601}}
+  output: |
+    {{last 5-10 relevant lines of runner output}}
+
+<!-- Hai mục dưới đây là điều kiện `sections` của xanh-sạch: phải HIỆN DIỆN và RỖNG
+     (vắng ≠ rỗng — đừng xoá heading; có nội dung = còn cần người). ĐỪNG đặt comment
+     hay chữ nào BÊN TRONG hai mục: một dòng bất kỳ dưới heading là «có nội dung». -->
+## Known limits
+
+## Ngoài hợp đồng
+
 ## Analyst
 
 # Non-discriminating evals: machine evals green on BOTH the branch and the diffBase
@@ -197,14 +258,3 @@ human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER revi
 
 {{One line per verify round, max 3: "Round 1: E2, E5 failed — <one-line cause>.
 Returned to implementation." After round 3 → escalate to user, verdict REJECT.}}
-
-## Gate 2 checklist (human)
-
-- [ ] Read the table + spot-check 1-2 evidence blocks
-- [ ] Personally verify every judgment item marked UNCERTAIN, then fill its
-      `human_override: <name> <date>` line
-- [ ] T3 only: personally verify ALL judgment items and fill `human_override`
-      on each (judge verdicts are advisory; the hook blocks PASS without them)
-- [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
-      the hook re-validates evidence + overrides)
-- [ ] Fill `human_signoff` in frontmatter

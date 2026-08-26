@@ -1,0 +1,295 @@
+schema_version: 1
+feature_slug: ra-co-ten-lam-va-trao
+# Mọi eval ghim đích danh "PASS: [RT<n>]" trong stdout suite plugins. Ca ở
+# tests/plugins/ra-co-ten.test.mjs: fixture CODE-SINH trong chính lần chạy (hợp đồng từ
+# CONTRACT-FRONTMATTER-TEMPLATE, ô cơ hội từ OPP-FRONTMATTER-TEMPLATE + section khuôn, báo
+# cáo từ evidence-report-template), chạy THẬT start-scan.mjs / gate-card.js / product-map.mjs /
+# pre-merge-check.sh / hook; đường dẫn suy từ vị trí file; mỗi ca có đối chứng dương + chiều
+# đỏ ghim thông điệp (MEASURE-BIRTH-CLAUSE). Chuyển CẤM (draft→machine-cleared, T3, UNCERTAIN)
+# có ca riêng (Chow N-switch).
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [lib/workspace-record.cjs, skills/acceptance/references/contract-template.md, skills/acceptance/references/evidence-report-template.md, scripts/khong-can-nguoi.mjs, scripts/pre-merge-check.sh, tests/plugins/ra-co-ten.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [RT1]" — enum status == 6 giá trị đúng thứ tự (so mảng); usesUat
+      true cho signed-off + machine-cleared, false cho 4 giá trị kia; usesEvidence true cho
+      implemented/verified/machine-cleared; enum == danh sách rút từ khuôn contract-template
+      (round-trip). Chiều đỏ: bản sao khuôn bỏ `machine-cleared` → reader đỏ nêu giá trị thiếu.
+      VÀ: khối EVIDENCE-XANH-SACH-BLOCK nằm NGOÀI vùng chép của khuôn (khối hai mục thì PHẢI nằm
+      trong); vùng chép có 0 lần khớp UNCERTAIN; báo cáo dựng TRỌN từ vùng chép → xanhSach nói SẠCH;
+      chèn khối đó vào bản sao báo cáo → đỏ đúng «có mục UNCERTAIN»; danh sách rút từ khối == thứ tự
+      điều kiện xanhSach() (mjs) == xanh_sach_check (bash) — round-trip ba đầu; bản sao khuôn gỡ mục
+      «Known limits» → đỏ nêu tên mục. Phạm vi cắt phía bash cắt ĐÚNG THÂN HÀM
+      `xanh_sach_check` (tới dấu đóng hàm ở cột 0), KHÔNG tới EOF — cắt-tới-EOF cho 5/6 needle
+      cơ hội thoả bởi mã NGOÀI hàm (62290 ký tự thay vì 2933; S4-r8 [5]); kèm răng phụ «thân
+      hàm phải ngắn hơn 90% cả file» để phạm vi cắt không thành hư từ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/pre-merge-check.sh, tests/plugins/ra-co-ten.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [RT2]" — fixture machine-cleared T2 + làn V + evidence xanh-sạch SINH
+      TỪ TRỌN vùng chép của khuôn bên viết (không gõ tay theo bên đọc) + run-log khớp:
+      pre-merge exit 0 với NOTE "xanh-sạch — máy đi tiếp" (đối chứng dương TRƯỚC).
+      Cùng fixture: (a) tiêm UNCERTAIN → VIOLATION ghim "status machine-cleared nhưng hồ sơ còn
+      cần người — có mục UNCERTAIN"; (b) T3 → ghim "hạng T3"; (c) gỡ veto_state, approved_by rỗng
+      → VIOLATION Cổng 1; (d) không evidence-report.md → "status=machine-cleared but no
+      evidence-report.md". Mỗi lệnh tiêm chứng minh đổi được đúng dòng.
+      THÊM (S4-r10 [3] — false-green thật): ba điều kiện xanh-sạch TỪNG KHÔNG CÓ THƯỚC —
+      (e) verdict != PASS · (f) bypass_used: true · (g) enforcement_mode: off — nay mỗi
+      điều kiện một ca ĐỎ ghim đúng câu của lưới. Mỗi ca GẮN NHÃN điều kiện nó phủ, và ca
+      kết so TẬP nhãn với khối EVIDENCE-XANH-SACH-BLOCK rút từ khuôn: thiếu một điều kiện
+      là ĐỎ kèm tên. Chiều đỏ đã chạy: giết từng nhánh trong bản sao cây → đúng ca tương
+      ứng ĐỎ; trước bản này cả ba mutant đều để RT1, RT2 và LV5 XANH.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [lib/evidence-core.cjs, hooks/acceptance-evidence-gate.js, tests/plugins/ra-co-ten.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [RT3]" — hook (stdin payload ghi contract.md) với machine-cleared,
+      approved_by rỗng: (a) veto mo + mốc + T2 → exit 0; (b) T3 → exit 2 ghim "veto_state: mo on a
+      T3 contract"; (c) không veto/không gate1_skipped → exit 2 ghim "status: machine-cleared with
+      empty approved_by"; (d) draft→machine-cleared → exit 2 ghim "skips Gate 1".
+      (e) hạng KHÁC T2 + approved_by ĐÃ điền → exit 2 ghim "status: machine-cleared on a <hạng>
+      contract": vị từ là ALLOWLIST (CHỈ T2 được phép), không phải cấm riêng chuỗi «T3» — viết
+      `=== 'T3'` thì T1, hạng RỖNG và mọi cách gõ sai đều LỌT, mà lưới trước-merge chỉ chấm hạng
+      trong REQUIRED_FOR («T2 T3») nên hồ sơ T1 không được lưới sờ tới lần nào (S4-r11 [1]). Ca
+      (e2) chạy T1 · hạng RỖNG · «TIER3» — mỗi ca ghim đúng hạng đọc được trong thông điệp;
+      hoàn nguyên vị từ về `=== 'T3'` (blacklist) → cả ba ĐỎ. GIỚI HẠN ĐÃ KHAI: vẫn là ba
+      ĐIỂM-CASE ngoài danh sách, không phải phép chứng cho toàn lớp. Và:
+      «máy thông không chữ ký» là T2-only nên răng phải đứng ở TẦNG GHI, không chỉ ở lưới
+      trước-merge; nhánh (b) chỉ bắt ca đi qua veto_state. ĐỐI CHỨNG DƯƠNG: cùng fixture hạ về
+      T2 → exit 0. Gỡ răng khỏi lib → (e) ĐỎ.
+      Lifecycle đo THÔNG ĐIỆP HOOK IN RA, KHÔNG grep mã nguồn: cắt khối «Gate-1 lifecycle
+      reference:» từ stderr, khối phải nhắc machine-cleared, và mọi tên ở VỊ TRÍ TRẠNG THÁI trong
+      khối phải là thành viên enum AC-1 lấy từ chính lib (quan hệ, không phải chuỗi rời) — mỗi
+      thành viên enum phải được khối nhắc. Chiều đỏ: bản sao cây (hooks/ + lib/) gỡ machine-cleared
+      khỏi ĐÚNG hai dòng lifecycle rồi chạy lại hook từ bản sao → ĐỎ, dù mã nguồn còn ≥3 lần khớp
+      trong chú thích (đó chính là ca bản cũ bỏ lọt — S4-r8 [4]).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/start-scan.mjs, scripts/trang-thai-ho-so.cjs, tests/plugins/ra-co-ten.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [RT4]" — start-scan trên fixture: (a) machine-cleared + veto mo,
+      không opportunity → done stateKey da-giao-may-thong-veto-mo, KHÔNG da-giao; (b) approved_by có
+      tên, không veto → da-giao-may-thong-xanh-sach; (c) + opportunity build ngưỡng chốt → gates
+      gia-tri; (d) mutant về verified (làn V, xanh-sạch) → KHÔNG ở gates, done may-di-tiep-veto-mo;
+      (e) mutant machine-cleared→signed-off → stateKey da-giao, label khác (a).
+      VÀ (S4-r11 [3] — màu xanh giả): nhãn «máy thông, bằng chứng xanh-sạch» khẳng định một tính
+      chất MÁY KIỂM ĐƯỢC nên KHÔNG được in chỉ vì frontmatter tự khai — bộ quét phải HỎI
+      `khongCanNguoi` như làn `verified` vẫn làm; hồ sơ machine-cleared có verdict REJECT (hoặc
+      mục Known limits có nội dung) phải vào `broken` kèm lý do, KHÔNG vào «đã giao». ĐỐI CHỨNG
+      DƯƠNG: hồ sơ sạch vẫn vào đúng ô.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/trang-thai-ho-so.cjs, scripts/product-map.mjs, scripts/gate-card.js, tests/plugins/ra-co-ten.test.mjs, tests/plugins/bang-dieu-khien.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [RT5]" và "PASS: [BDK2]" — bảng có đúng 4 khoá mới với nhãn chứa
+      «máy thông»/«máy thông»/«không đo»/«đóng có hồ sơ»; BUCKET_OF 3 khoá → da-ship, 1 → da-bac;
+      product-map trên fixture RT4(a) in nhãn rút từ bảng trong ô Đã giao (so chuỗi với
+      chu(key).nhan, không chuỗi tự chế); gate-card --extract trên machine-cleared → gate '2',
+      HTML có «máy đã thông» + cửa veto và KHÔNG mời ký; repo bộ quét MÙ (chưa dựng cổng) → thẻ
+      RENDER được, không sập; hồ sơ HỎNG (broken) → thẻ nêu lý do + đường sửa, KHÔNG nói «máy đã
+      đi tiếp»; BDK2 ma trận N=24 gõ tay.
+      THÊM (S4-r8 [1][3] + S4-r9 [1][5]): ma trận NĂM hình dạng ô ngưỡng — thiếu nhãn của khuôn ·
+      toàn placeholder không gạch · điền đủ KHÔNG gạch · mang tiền tố đề xuất · chốt đủ — mỗi ô
+      so trạng thái thẻ ĐỌC RA (`uat_threshold.state`, thẻ HỎI thresholdState chứ không tự suy
+      `lines.length > 0`) với trạng thái lib; ô toàn placeholder phải cho lines RỖNG như bản nền
+      cb38ea01. Ô ở trạng thái ĐỀ XUẤT (máy đề nghị, người chưa chốt) KHÔNG được thẻ gọi là «đã
+      khai ở Cổng Đáng» — thẻ phải nói rõ đây là đề xuất của máy; ô đã CHỐT thì phải gọi đúng
+      tên đó. Chiều đỏ: hoàn nguyên thẻ về vị từ tự chế → ĐỎ nêu đúng ba ô lệch.
+      KHÔNG ĐỔI (hồ sơ ĐÃ KÝ ghim, sổ #20): `duong_do.applicable` giữ vị từ «≥1 dòng thật» của
+      DD1, và chuỗi cờ «Hồ sơ cơ hội chưa khai ngưỡng nghiệm thu» giữ nguyên văn cho P198.
+      THÊM (S4-r8 [2][4]): (a) nhãn máy-thông phải nằm TRONG Ô của hồ sơ — đo QUAN HỆ «ô của
+      nhãn == ô của slug», không phải «chuỗi có mặt đâu đó trong bản đồ»; (b) hai hình dạng ĐẾN
+      ĐƯỢC mà danh sách khoá từng bỏ sót: hồ sơ máy-thông CÓ opportunity.md × {ngưỡng chốt →
+      `cho-cong-gia-tri`, khai không-đo-được → `da-giao-khong-do`} — thẻ KHÔNG được in «Ký
+      duyệt»/«Ký hay trả» ở cả hai, mà vẫn phải nói «máy đã thông». Chiều đỏ: hoàn nguyên vị từ
+      về danh sách khoá → ĐỎ nêu cả hai khoá. Chiều đỏ: vị từ CŨ (đi qua
+      bulletOf, ĐÒI gạch) không được nhận dòng không-gạch — nếu nó vẫn nhận thì fixture không
+      phân biệt được hai luật; hoàn nguyên `chuaDien` trong lib thật → RT5 ĐỎ nêu đúng chỗ lệch.
+      THÊM (S4-r12 [2]): repo BỘ QUÉT MÙ (chưa dựng cổng → config:false, hoặc bộ quét lỗi)
+      → thẻ phải RENDER, KHÔNG khẳng định sáu điều kiện, CÓ cờ vàng «chưa ai kiểm sáu điều
+      kiện», và GIỮ lối ký như cũ — bỏ lối ký ở đó là để người kẹt với hồ sơ không ai xác
+      nhận, và im lặng tuyên sạch là thứ chú thích trong chính gate-card khai là cấm.
+      THÊM (S4-r10 [1]): hồ sơ HỎNG (chữ ký người trên hồ sơ máy-thông) → thẻ in cờ ĐỎ nêu lý
+      do và KHÔNG in câu «máy đã thông — qua sáu điều kiện xanh-sạch, KHÔNG có chữ ký người»;
+      câu đó vừa sai vừa không ai kiểm (thẻ chỉ đọc status, không chạy xanhSach).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [skills/uat-session/SKILL.md, feature-loop/skills/feature-loop/SKILL.md, skills/acceptance/SKILL.md, CONTEXT.md, commands/acceptance-status.md, commands/acceptance-report.md, tests/plugins/ra-co-ten.test.mjs]
+    expected: >
+      ⚠ LỆCH HỢP ĐỒNG ĐÃ DUYỆT — KHAI RÕ, KHÔNG SỬA AC: AC-6 (ii) và (iii) đòi văn bản nghi
+      thức dạy máy «set `status: machine-cleared`». Vòng chấm S4-r7 xác nhận lỗi NẶNG trên mặt
+      người của làn (thẻ Cổng 2 vừa nói «máy đã thông» vừa mời «Ký duyệt» khi hồ sơ có
+      opportunity.md — hai người chấm độc lập + tác giả dựng lại được), nên theo luật dừng-vá,
+      vòng THU PHẠM VI: ba mệnh đề GHI đã bị gỡ, đường ghi hạ thành giới hạn đã khai, ô
+      `_acceptance/lan-may-thong-duong-ghi/` mang nguyên văn ba lỗi. AC-6 (ii)+(iii) vì vậy
+      KHÔNG ĐẠT như đã ký — người quyết ở Cổng 2 có nhận phạm vi rút gọn này không.
+      Phần CÒN LẠI của AC-6 đo như cũ: exit 0; stdout có "PASS: [RT6]" — reader cắt đúng phạm vi
+      (uat-session §0 bullet status; feature-loop bảng state machine; CONTEXT mục Gates & verbs;
+      hai thân lệnh) tìm đúng mệnh đề ĐỌC; bản sao gỡ TỪNG mệnh đề → reader trên bản sao ĐỎ nêu
+      mệnh đề. THÊM (thay cho hai mệnh đề ghi): cả feature-loop SKILL lẫn acceptance SKILL phải
+      KHAI «đường ghi chưa bật»; và phép quét sáu văn bản nghi thức không được thấy câu dạy máy
+      tự đặt trạng thái — tiêm lại đúng câu vừa gỡ vào SKILL THẬT → ĐỎ nêu tên file.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/start-scan.mjs, skills/acceptance/references/opportunity-template.md, tests/plugins/ra-co-ten.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [RT9]" — ma trận {signed-off, machine-cleared} × {chot, khong-do-duoc,
+      chua-chot, de-xuat} viết trước (8 ô, 8 assert): chot → gates gia-tri không flags; khong-do-duoc
+      → done da-giao-khong-do; chua-chot/de-xuat → gates gia-tri + flags nguong-chua-chot. Nhánh
+      chưa hợp đồng: de-xuat → gates dang; chua-chot → considering. Seam: «Không đo được:» (hai
+      chấm) KHÔNG nhận → vẫn nguong-chua-chot; dạng bullet «- Không đo được — …» ĐƯỢC nhận.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [skills/acceptance/references/opportunity-template.md, scripts/start-scan.mjs, scripts/gate-card.js, skills/uat-session/SKILL.md, tests/plugins/ra-co-ten.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [RT10]" — hai khối marker OPP-DE-XUAT-PREFIX / OPP-KHONG-DO-DUOC-PREFIX
+      tồn tại; chuỗi rút từ khối == chuỗi start-scan và gate-card dùng (chạy trên fixture dựng từ
+      chính chuỗi khuôn) == chuỗi trong ngoặc kép của uat-session §0 (approve.md đã tách sang hồ sơ
+      cong-dang-co-cua); bản sao khuôn đổi một chuỗi TRONG KHỐI → CHẠY LẠI chính bộ đọc lib với
+      khuôn bản sao: ô viết theo chuỗi CŨ phải THÔI được nhận (nêu cả hai chuỗi), ô viết theo
+      chuỗi MỚI của khuôn bản sao phải được nhận.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/gate-card.js, scripts/start-scan.mjs, tests/plugins/ra-co-ten.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [RT11]" — surfaces [ui] và [mobile] + opportunity khong-do-duoc: thẻ
+      Cổng Phạm vi cờ ĐỎ ghim «khai không đo được nhưng hợp đồng có mặt người dùng», extract
+      cong_gia_tri.mien_do_co_nguoi_dung true; start-scan flags mien-do-co-nguoi-dung, slug vẫn ở ô,
+      broken rỗng; đối chứng surfaces [cli] → không cờ, không flag.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-12
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/start-scan.mjs, scripts/trang-thai-ho-so.cjs, skills/uat-session/SKILL.md, tests/plugins/ra-co-ten.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [RT12]" — stage archived → done da-dong-ho-so (không considering/gates);
+      Timebox ngày đã qua (YYYY-MM-DD và DD/MM/YYYY) + chưa verdict → flags qua-timebox, ô giữ nguyên;
+      ngày chưa qua / không parse → không flag; uat-session SKILL có mệnh đề kill→archived và
+      iterate→bước kế (reader cắt phạm vi, bản sao gỡ → đỏ).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13
+    criterion: AC-13
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/start-scan.mjs, lib/workspace-record.cjs, scripts/trang-thai-ho-so.cjs, _acceptance/ra-co-ten-lam-va-trao/contract.md, tests/plugins/ra-co-ten.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [RT13]" — (i) bản MỚI start-scan trên cây thật: broken rỗng; (ii) bản CŨ
+      (git show cb38ea01) trên cùng cây: tập (slug, stateKey) bằng nhau trừ đúng dòng khối
+      KHAC-BIET-DOC-CU rút từ contract lúc chạy; (iii) ĐẲNG THỨC HAI CHIỀU theo QUAN HỆ, không đếm:
+      vị từ HỎI LIB (NG.quaTimebox / NG.thresholdState), không chép lại; tập quét gồm CẢ nhóm
+      considering — nhóm này nay CÓ THỂ mang cờ `qua-timebox` (ý quá hạn mà bullet khác còn
+      trống rơi đúng vào đây, S4-r10 [2]), nên phép so đo QUAN HỆ cho nhóm đó y như mọi nhóm
+      khác. Bản cũ assert cờ RỖNG — một GIÁ TRỊ CỐ ĐỊNH cãi nhau với writer, chỉ còn xanh vì
+      hôm nay không hồ sơ nào ở ô đó quá hạn (xanh-không-chạy, S4-r12 [3]); slug có
+      nguong-chua-chot ⇔ (ở gates gia-tri ∧ ngưỡng khác chot) — assert này đúng ở mọi ngày chạy;
+      (iv) quét không gian mở: tập file chứa "signed-off" (ngoài _acceptance/** và docs/**) == hợp của
+      tập «có ca THẬT» (tên file phải xuất hiện trong BIỂU THỨC ĐƯỢC CHẠY của file ca — lột chú
+      thích trước khi tìm, không miễn trừ bằng comment; tên TRƠ chỉ dùng khi DUY NHẤT trong tập
+      quét, tên trùng như SKILL.md / run-tests.sh đòi thêm thư mục cha, nếu không một literal
+      miễn cho cả ba file cùng tên — S4-r8 [3]) và khối BO-DOC-KHAI-GACH; file lạ → ĐỎ nêu
+      tên file. Ba chiều đỏ TIÊM THẬT: (iv-a) dựng kho git tạm có file tiêm rồi chạy CHÍNH bước
+      git grep trên đó — phải tìm ra file mới, phải loại docs/**, không nêu file không chứa chuỗi;
+      (iv-b) gỡ một dòng khai gạch → file đó thành lạ; (ii) bản sao xoá một dòng KHAC-BIET-DOC-CU
+      → đỏ nêu slug lệch.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E15
+    criterion: AC-15
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [lib/evidence-core.cjs, hooks/acceptance-evidence-gate.js, scripts/pre-merge-check.sh, scripts/start-scan.mjs, commands/signoff.md, tests/plugins/ra-co-ten.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [RT15]" — (a) fixture machine-cleared + human_signoff KHÁC RỖNG: hook
+      exit 2 và pre-merge VIOLATION, cả hai ghim "chữ ký người trên hồ sơ máy-thông"; ĐỐI CHỨNG DƯƠNG
+      cùng fixture với human_signoff rỗng → hook exit 0, pre-merge exit 0; (b) signoff.md có mệnh đề
+      nhận machine-cleared và đặt status signed-off cùng lượt ghi chữ ký — bản sao gỡ mệnh đề → reader
+      trên bản sao ĐỎ nêu mệnh đề; (c) machine-cleared + veto_state da-veto → pre-merge VIOLATION cùng
+      thông điệp đang có cho verified (đối chứng: verified + da-veto cùng thông điệp); (d) start-scan
+      trên fixture (a) → broken[] nêu mâu thuẫn, KHÔNG xếp vào done.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E14
+    criterion: AC-14
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [_acceptance/duong-do-trong-dinh-nghia-xong/opportunity.md, _acceptance/duong-do-trong-dinh-nghia-xong/decisions.jsonl, tests/plugins/ra-co-ten.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [RT14]" — hồ sơ thật duong-do: section Ngưỡng có dòng đúng tiền tố
+      rút từ khuôn; decisions.jsonl có entry type revisit cite d-20260822T000500Z-4306; decision
+      build + decided_by không đổi so với bản tại cb38ea01 (git show); start-scan trên cây thật xếp
+      slug vào done da-giao-khong-do.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E16
+    criterion: AC-16
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/product-map.mjs, scripts/start-scan.mjs, scripts/trang-thai-ho-so.cjs, lib/nguong-o-co-hoi.cjs, tests/plugins/ra-co-ten.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [RT16]" — bản đồ và bộ quét đồng kết luận theo QUAN HỆ (ô bản đồ
+      của slug == BUCKET_OF[stateKey] của bộ quét) trên fixture code-sinh CẢ BỐN trạng thái ngưỡng
+      × {signed-off, machine-cleared}, và trên hồ sơ THẬT duong-do-trong-dinh-nghia-xong (bản đồ
+      KHÔNG in nó dưới «chờ phiên nghiệm thu»).
+      VÀ (S4-r11 [3] + S4-r12 [0][1]): bản đồ hỏi `khongCanNguoi` cho hồ sơ machine-cleared
+      NGAY SAU khối DA_THONG_CONG_2 — TRƯỚC mọi nhánh rẽ, đúng vị trí start-scan đặt nó. Đặt
+      chốt ở CUỐI (trong nhánh `status === 'machine-cleared'`) là vô dụng: hồ sơ đường A thoát
+      ra ở `if (duongA) return …` trước đó. Ma trận phải có ô bằng chứng BẨN × {ngưỡng chốt,
+      không-đo-được} + đối chứng dương — tám ô cũ đều dùng bằng chứng SẠCH nên chiều nguy hiểm
+      chưa từng chạy; vô hiệu chốt → ĐỎ nêu đúng cả hai đường. Hồ sơ tự khai mà
+      bằng chứng không đạt sáu điều kiện phải vào ô «Hồ sơ hỏng», KHÔNG in nhãn «bằng chứng
+      xanh-sạch»; bản đồ và bộ quét cùng kết luận. VÀ (S4-r11 [0]): `thresholdState` ném → bản đồ
+      chết-to CÓ TÊN kèm đường dẫn khuôn + đường sửa, exit 2 — KHÔNG phải stack trace với exit 1,
+      vì exit 1 là mã `--check` dùng cho «bản đồ lệch» và ADR 0007 lấy cổng đó làm căn cứ miễn trừ
+      t1 của chính bản đồ.
+      Chiều đỏ: bản sao product-map.mjs gỡ nhánh khong-do-duoc → phép so ĐỎ nêu đúng slug + hai ô
+      lệch; lệnh tiêm phải đổi được dòng; cây mutant phải mang ĐỦ lib + khuôn +
+      scripts/khong-can-nguoi.mjs — thiếu file là đỏ vì HẠ TẦNG chứ không vì vật.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E18
+    criterion: AC-18
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [lib/nguong-o-co-hoi.cjs, _acceptance/ra-co-ten-lam-va-trao/contract.md, tests/plugins/ra-co-ten.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [RT18]" — quét đệ quy .js/.cjs/.mjs trong scripts/lib/hooks/tests
+      tìm NĂM chuỗi luật ngưỡng (tiêu đề section · hai tiền tố · hằng một-ngày · vị từ
+      mặt-người-dùng — đều rút từ lib/khuôn lúc chạy): mọi hit ngoài lib phải được khối
+      LUAT-NGUONG-KHAI-GACH của hợp đồng gạch KÈM LÝ DO, file lạ → ĐỎ nêu tên + chuỗi.
+      GẠCH TÍNH THEO CẶP (file × chuỗi), KHÔNG theo đường dẫn: dòng khai gạch mà lý do gọi
+      đúng tên một chuỗi thì CHỈ miễn chuỗi đó (S4-r7 [4] — gạch cả file cho start-scan.mjs,
+      đúng bộ đọc từng chép luật, là mở lại cửa vừa đóng). Chiều đỏ: (a) bản sao cây tiêm file
+      chép tiêu đề → chính phép quét trên bản sao nêu tên; (b) gỡ một dòng gạch → file thành lạ;
+      (c) chép tiêu đề section vào scripts/start-scan.mjs — file ĐÃ khai gạch cho chuỗi KHÁC —
+      → ĐỎ nêu đúng cặp (chứng minh gạch không còn là gạch trắng cả file).
+      GIỚI HẠN ĐÃ KHAI (sổ #14): needle so khớp LITERAL, nên bản chép viết khác chính tả
+      (`24 * 60 * 60 * 1000`, `86_400_000`) hoặc diễn lại luật bằng biểu thức không có hằng
+      (`d <= now`) KHÔNG bị bắt — grep cả file không phủ được lớp đó. Bản chép ở chính file ca
+      đã gỡ (dựng «hôm qua» bằng phép lùi NGÀY của Date); lớp còn lại nằm ở ô
+      `_acceptance/phep-kiem-sach-do-theo-vung/`.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

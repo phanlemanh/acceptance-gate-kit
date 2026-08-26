@@ -54,6 +54,9 @@ recheck: strict              # CI re-check of COMMITTED evidence: strict | warn 
                              # strict is safe for a fresh repo (no legacy reports);
                              # `warn` only exists so repos ADOPTING the kit with older
                              # reports aren't blocked — do not start there.
+# Hai ổ cắm thiết kế — khai khi repo có bề mặt người dùng, bỏ trống thì không chặn:
+#   feature_loop.ui_standards_skill: <skill chuẩn plugin/DS của repo>   # S1 nạp làm đối trọng chuẩn nội
+#   design_pass.ds_skill: <skill chuẩn DS của repo>                     # nghi thức thiết kế nạp làm nguồn luật
 executors:
   test:
     api: "<from 2a>"
@@ -192,4 +195,16 @@ Omit the `capture` block if the repo has no UI evidence need.
     <!-- INIT-PLUGIN-DECLARE>>> -->
     This file does NOT pin plugin versions (GUIDE §5.1 says so); versions still
     follow kit releases.
+5c. KHUYÊN đội, KHÔNG tự làm hộ — nói đúng một lần rồi đi tiếp:
+    <!-- <<<CONSUMER-ALLOW-ADVICE -->
+    Đội nên khai luật cho-phép cho các lệnh kiểm CỐ ĐỊNH của repo trong
+    `.claude/settings.json`, để chúng thôi phải hỏi bộ phân loại an toàn ở mỗi
+    lần chạy của mỗi agent. Vì sao: bộ phân loại là **nút cổ chai** của làn
+    nghiệm thu máy — một vòng tung nhiều agent chỉ cần một lệnh trúng lúc nghẽn
+    là hỏng cả vòng, và vòng đó không sinh được dòng bằng chứng nào.
+    Dạng khai: mỗi entry **KHỚP CHÍNH XÁC** một lệnh, viết `Bash(<lệnh đầy đủ>)`,
+    **KHÔNG dùng `*`** — danh sách cho-phép rộng là một cửa mở im lặng.
+    Kit **KHÔNG tự ghi** luật này vào repo của bạn: cấp quyền là **quyết định an
+    ninh** của đội, không phải mặc định của công cụ.
+    <!-- CONSUMER-ALLOW-ADVICE>>> -->
 6. Print: "Acceptance gate ready. Run the acceptance skill on your next feature."
