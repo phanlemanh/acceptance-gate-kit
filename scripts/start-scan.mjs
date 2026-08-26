@@ -26,7 +26,8 @@ const { frontmatterField, resolveConfigKey } = require(path.join(__dirname, '..'
 // được cho hai kết luận trái nhau. Kiểm tay lại ở đây là cách hai bên đã trôi
 // khỏi nhau ở r12 và r13 dù bảng enum đã gom xong từ r3.
 const { recordProblem, navValues, consumedTexts, usesOpportunity, readRecord, ioReason,
-        configList, fieldProblem, missingArtifact, mapState, MAP_LABELS, mapTracked } =
+        configList, fieldProblem, missingArtifact, mapState, MAP_LABELS, mapTracked,
+        DA_THONG_CONG_2, conflictProblem } =
   require(path.join(__dirname, '..', 'lib', 'workspace-record.cjs'));
 
 // Argv hỏng CHẾT TO (exit 2), không âm thầm rơi về cwd: một cờ được KHAI mà
@@ -113,7 +114,9 @@ const git = (() => {
 // đọc nó. Đổi nghĩa một khoá đang có bên đọc chính là lớp bên-viết-và-bên-đọc-
 // trôi-khỏi-nhau mà hồ sơ này sinh ra để giết (ledger S2).
 const { chu } = require(path.join(__dirname, 'trang-thai-ho-so.cjs'));
-const g = (stateKey, obj) => ({ ...obj, stateKey, label: chu(stateKey).nhan, viecKe: chu(stateKey).viecKe });
+// `flags` LUÔN có mặt (mặc định rỗng): khoá lúc-có-lúc-không thì bản khai máy-đọc trong
+// thân lệnh không round-trip được với đầu ra, và bên đọc phải tự đoán undefined vs [].
+const g = (stateKey, obj) => ({ flags: [], ...obj, stateKey, label: chu(stateKey).nhan, viecKe: chu(stateKey).viecKe });
 
 const gates = [], inProgress = [], considering = [], done = [], broken = [];
 // CỬA VETO MỞ — mảng CẮT NGANG bốn nhóm, độc lập với việc slug rơi vào ô nào.
@@ -195,24 +198,24 @@ const ngayXong = (dir, anchorPath) => {
 // nguồn; chép tay vào đây là hai bản trôi (d-4202). Đọc LƯỜI: repo không có ý
 // nào thì không đụng khuôn. Khuôn hỏng → chết to, không im lặng.
 const OPP_TEMPLATE = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md');
-const UAT_THRESHOLD_HEADING = 'Ngưỡng chết / ngưỡng UAT';
-const PLACEHOLDER_RE = /^(…|\.\.\.)?$/;                      // giá trị sau dấu ':' — rỗng/«…» là chưa điền
-const bulletOf = l => { const m = l.match(/^\s*[-*]\s+([^:]+):(.*)$/); return m ? { label: m[1].trim(), value: m[2].trim() } : null; };
-let _labels = null;
-const thresholdLabels = () => {
-  if (_labels) return _labels;
-  let tpl;
-  try { tpl = readFileSync(OPP_TEMPLATE, 'utf8'); }
+// Luật phân loại ô ngưỡng + timebox sống ở LIB dùng chung (lib/nguong-o-co-hoi.cjs) —
+// thẻ và ca đo hỏi cùng hàm đó. Vòng 1 viết luật này ba lần và bản thứ ba đã lệch ngay
+// khi ra đời; chép luật là hình dạng đã trả giá (finding S4-r1).
+const NG = require(path.join(__dirname, '..', 'lib', 'nguong-o-co-hoi.cjs'));
+let _tpl = null;
+const oppTpl = () => {
+  if (_tpl != null) return _tpl;
+  try { return (_tpl = readFileSync(OPP_TEMPLATE, 'utf8')); }
   catch (e) { bail(`khuôn opportunity-template không đọc được: ${OPP_TEMPLATE} (${e.code || e.message})`); }
-  const labels = section(tpl, UAT_THRESHOLD_HEADING).map(bulletOf).filter(Boolean).map(b => b.label);
-  if (!labels.length) bail(`khuôn không có section Ngưỡng «${UAT_THRESHOLD_HEADING}» (hoặc section không có bullet): ${OPP_TEMPLATE}`);
-  return (_labels = labels);
 };
-const thresholdFilled = oTxt => {
-  const got = new Map();
-  for (const l of section(oTxt, UAT_THRESHOLD_HEADING)) { const b = bulletOf(l); if (b) got.set(b.label, b.value); }
-  return thresholdLabels().every(lb => got.has(lb) && !PLACEHOLDER_RE.test(got.get(lb)));
-};
+const thresholdState = oTxt => { try { return NG.thresholdState(oTxt, oppTpl()); } catch (e) { bail(`${e.message}: ${OPP_TEMPLATE}`); } };
+// Cổng Đáng: máy ĐỀ XUẤT ngưỡng cũng là «đã điền» — có thứ để người sửa hoặc nhận.
+const thresholdFilled = oTxt => thresholdState(oTxt) !== 'chua-chot';
+const quaTimebox = oTxt => NG.quaTimebox(oTxt);
+// Răng chống lách: lối «không đo được» chỉ dành cho vòng KHÔNG có người dùng cuối.
+const mienDoCoNguoiDung = (cTxt, oTxt) => !!oTxt && thresholdState(oTxt) === 'khong-do-duoc'
+  && NG.coNguoiDungCuoi(frontmatterField(cTxt, 'surfaces'));
+
 // since của ý đang cân nhắc = committer date của commit ĐẦU TIÊN thêm file
 // (--diff-filter=A); chưa commit / không git → mtime (d-4203).
 const gitBirth = file => {
@@ -281,7 +284,7 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
     // thu nằm cạnh hợp đồng còn draft là hồ sơ chưa tới lượt, lỗi của nó không
     // được quyết định ô của slug (cùng doctrine với opportunity/evidence ở
     // trên, học qua 4 round của start-scan-hardening).
-    if (status === 'signed-off') {
+    if (DA_THONG_CONG_2.includes(status)) {
       const uRead = read(path.join(dir, 'uat-session.md'));
       if (uRead.err) { pushHong({ slug, file: 'uat-session.md', reason: ioReason(uRead.err) }); continue; }
       const uTxt = uRead.t;
@@ -303,14 +306,49 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       const texts = consumedTexts({ contract: cTxt, opportunity: oTxt, uat: uTxt });
       const problem = recordProblem(texts);
       if (problem) { pushHong({ slug, ...problem }); continue; }
+      // «máy đã thông» tự khai KHÔNG có chữ ký người: đòi file bằng chứng, và chữ ký nằm
+      // đó là hai sự thật cãi nhau. CẢ HAI luật hỏi LIB dùng chung — bản vá riêng ở đây
+      // là đúng hình dạng đã làm bộ quét và bản đồ trôi khỏi nhau (P123).
+      if (status === 'machine-cleared') {
+        const ev = readEvidence();
+        if (!ev) continue;
+        const t2 = { 'contract.md': cTxt, 'evidence-report.md': ev.exists ? ev.raw : null };
+        const p2 = missingArtifact(t2) || conflictProblem(t2);
+        if (p2) { pushHong({ slug, ...p2 }); continue; }
+        // LỜI KHAI PHẢI CÓ VẬT: nhãn «máy thông, bằng chứng xanh-sạch» khẳng định một tính
+        // chất MÁY KIỂM ĐƯỢC, nên không được in ra chỉ vì frontmatter tự nhận. Làn `verified`
+        // ngay dưới đã hỏi `kcn()` trước khi được phép in «máy đi tiếp»; làn này bỏ hẳn bước
+        // đó, nên hồ sơ verdict=REJECT vẫn hiện «đã giao — bằng chứng xanh-sạch» ở bộ quét,
+        // bản đồ và thẻ, trong khi lưới trước-merge chặn: ba mặt người nói một đằng, lưới
+        // nói một nẻo, và chiều sai là MÀU XANH GIẢ (S4-r11 [3]).
+        if (!kcn(cTxt, ev.raw)) {
+          pushHong({ slug, file: 'evidence-report.md', reason: 'status machine-cleared nhưng bằng chứng KHÔNG đạt sáu điều kiện xanh-sạch — hồ sơ tự khai «máy đã thông» mà không có vật; chạy lại S4 hoặc đưa về Cổng Bằng chứng để người ký' });
+          continue;
+        }
+      }
       const { decision, verdict } = navValues(texts);
       // verdict RỖNG = phiên đã dựng nhưng CHƯA ký → rơi xuống ô chờ-Cổng-Giá-trị
       if (verdict) { done.push(g(UAT_KEY[verdict], { slug, state: UAT_STATE[verdict], at: ngayXong(dir, cPath) })); continue; }
-      if (decision === 'build' || decision === 'iterate')
+      // Cờ CẮT NGANG mọi ô: quá hạn tự khai · lối «không đo được» dùng sai chỗ.
+      const flags = [];
+      if (oTxt && quaTimebox(oTxt)) flags.push('qua-timebox');
+      if (mienDoCoNguoiDung(cTxt, oTxt)) flags.push('mien-do-co-nguoi-dung');
+      if (decision === 'build' || decision === 'iterate') {
+        // Ô ngưỡng quyết lối ra: đã chốt → cổng · khai không đo được → đóng · còn trống
+        // → vẫn cổng NHƯNG mang cờ và hai lối có tên (hết chỗ treo vô hạn).
+        const ng = thresholdState(oTxt);
+        if (ng === 'khong-do-duoc') done.push(g('da-giao-khong-do', { slug, state: 'khong-do-duoc', at: ngayXong(dir, cPath), flags }));
         // since CHỈ từ decided_at của phiên — nghi thức thật chưa sinh mốc thì
         // để trống, không mượn mtime bịa một mốc (AC-8 workspace-reader-unification)
-        gates.push(g('cho-cong-gia-tri', { slug, gate: 'gia-tri', since: fmOrNull(uTxt, 'decided_at') || '', tier }));
-      else done.push(g('da-giao', { slug, state: 'signed-off', at: ngayXong(dir, cPath) }));
+        else gates.push(g('cho-cong-gia-tri', { slug, gate: 'gia-tri', since: fmOrNull(uTxt, 'decided_at') || '', tier, flags: ng === 'chot' ? flags : [...flags, 'nguong-chua-chot'] }));
+      }
+      else if (status === 'machine-cleared') {
+        // Không có ô cơ hội (đường B/C/E): ô kết của làn V — tên RIÊNG, không bao giờ
+        // là «đã giao» của hồ sơ người ký (bất biến phân biệt).
+        const vMo = (frontmatterField(cTxt, 'veto_state') || '').trim().toLowerCase() === 'mo';
+        done.push(g(vMo ? 'da-giao-may-thong-veto-mo' : 'da-giao-may-thong-xanh-sach', { slug, state: vMo ? 'lan-v-mo' : 'xanh-sach', at: ngayXong(dir, cPath), flags }));
+      }
+      else done.push(g('da-giao', { slug, state: 'signed-off', at: ngayXong(dir, cPath), flags }));
     }
     else if (status === 'verified') {
       // Bảng phân ô spec: chờ-Cổng-Bằng-chứng = verdict đã-chốt (PASS/PENDING-
@@ -352,7 +390,12 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       }
     }
     else if (status === 'approved') inProgress.push(g(planExists(slug) ? 'dang-viet-code' : 'dang-lap-ke-hoach', { slug, status, nextStep: planExists(slug) ? 'S3' : 'S2', tier }));
-    else if (status === 'draft') gates.push(g('cho-cong-pham-vi', { slug, gate: 'pham-vi', since: since(cPath, null), tier }));
+    else if (status === 'draft') {
+      // Đọc lười ô cơ hội: chỉ để trả lời «lối không-đo-được có bị dùng sai chỗ không».
+      const oD = read(oPath);
+      const flags = !oD.err && oD.t && mienDoCoNguoiDung(cTxt, oD.t) ? ['mien-do-co-nguoi-dung'] : [];
+      gates.push(g('cho-cong-pham-vi', { slug, gate: 'pham-vi', since: since(cPath, null), tier, flags }));
+    }
     else pushHong({ slug, file: 'contract.md', reason: `status không nhận diện được: ${status || '(rỗng)'}` });
     continue;
   }
@@ -368,15 +411,24 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
   const problem = recordProblem(texts);
   if (problem) { pushHong({ slug, ...problem }); continue; }
   const { stage, decision } = navValues(texts);
+  // `archived` = đã đóng có hồ sơ. Trước đây không ai VIẾT nó và hai bộ đọc hiểu thành
+  // «chưa quyết», nên ý đã dừng vẫn hiện ra như đang chờ người (audit 22/08, A8).
+  if (stage === 'archived') { done.push(g('da-dong-ho-so', { slug, state: decision || 'archived', at: ngayXong(dir, oPath) })); continue; }
+  const oFlags = quaTimebox(oRead.t) ? ['qua-timebox'] : [];
   if (stage !== 'decided' || !decision) {
     // Chưa có ngưỡng thì chưa có gì để ký: xếp «đang cân nhắc», không phải cổng.
-    if (thresholdFilled(oRead.t)) gates.push(g('cho-cong-dang', { slug, gate: 'dang', since: since(oPath, fmOrNull(oRead.t, 'decided_at')), tier: null }));
+    if (thresholdFilled(oRead.t)) gates.push(g('cho-cong-dang', { slug, gate: 'dang', since: since(oPath, fmOrNull(oRead.t, 'decided_at')), tier: null, flags: oFlags }));
     else {
       const s = gitBirth(oPath) || statSync(oPath).mtime.toISOString();
-      considering.push(g('y-can-nhac', { slug, name: fmOrNull(oRead.t, 'feature') || slug, since: s, ageDays: ageDays(s) }));
+      // Cờ CẮT NGANG mọi ô (xem nhánh DA_THONG). Ô này là nơi cờ quá-hạn CẦN NHẤT: ý có
+      // Timebox thật đã qua nhưng bullet khác còn để trống rơi đúng vào đây, và đó là ý duy
+      // nhất không cách nào hiện ra nếu thiếu cờ. commands/start.md đã khai
+      // `groups.considering[].flags` là khoá đầu ra — thân lệnh được dạy in một thứ bộ quét
+      // không bao giờ phát (S4-r10 [2]).
+      considering.push(g('y-can-nhac', { slug, name: fmOrNull(oRead.t, 'feature') || slug, since: s, ageDays: ageDays(s), flags: oFlags }));
     }
   }
-  else if (decision === 'build' || decision === 'iterate') inProgress.push(g('sap-mo-vong', { slug, status: 'opportunity-decided', nextStep: 'S1', tier: null }));
+  else if (decision === 'build' || decision === 'iterate') inProgress.push(g('sap-mo-vong', { slug, status: 'opportunity-decided', nextStep: 'S1', tier: null, flags: oFlags }));
   else done.push(g(decision === 'park' ? 'xep-lai' : 'da-bac', { slug, state: decision, at: ngayXong(dir, oPath) }));
 }
 // Mốc RỖNG = nghi thức thật chưa sinh mốc, KHÔNG phải «chờ lâu nhất». Chuỗi rỗng

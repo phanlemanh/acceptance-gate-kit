@@ -39,7 +39,7 @@ const scan = (root, script = SCAN) => {
 
 // ── BDK2: bảng trạng-thái→chữ — ma trận TOÀN PHẦN + mọi bộ đọc rút từ bảng ────
 if (want('BDK2')) {
-  const errs = [];
+  const errs = []; let BDK2_N = 0;
   let BANG = null;
   try { BANG = require(path.join(ROOT, 'scripts', 'trang-thai-ho-so.cjs')); }
   catch (e) { errs.push(`không nạp được bảng: ${e.message}`); }
@@ -51,8 +51,9 @@ if (want('BDK2')) {
       'cho-cong-pham-vi', 'dang-lap-ke-hoach', 'dang-viet-code', 'cho-nghiem-thu-may',
       'dang-sua-theo-bang-chung', 'nghiem-thu-bi-chan', 'cho-cong-bang-chung',
       'may-di-tiep-veto-mo', 'may-di-tiep-xanh-sach', 'da-giao', 'cho-cong-gia-tri',
-      'da-nghiem-thu-release', 'da-nghiem-thu-iterate', 'da-nghiem-thu-kill', 'ho-so-hong'];
-    const N = 20;
+      'da-nghiem-thu-release', 'da-nghiem-thu-iterate', 'da-nghiem-thu-kill', 'ho-so-hong',
+      'da-giao-may-thong-veto-mo', 'da-giao-may-thong-xanh-sach', 'da-giao-khong-do', 'da-dong-ho-so'];
+    const N = 24; BDK2_N = KHOA.length;
     if (KHOA.length !== N) errs.push(`danh sách ca ${KHOA.length} != ${N}`);
     if (Object.keys(BANG.TRANG_THAI).length !== N)
       errs.push(`bảng khai ${Object.keys(BANG.TRANG_THAI).length} khoá != ${N} — thêm khoá thì thêm ca`);
@@ -110,7 +111,7 @@ if (want('BDK2')) {
       if (!re.test(md)) errs.push(`acceptance-status.md thiếu «${ten}»`);
   }
   if (errs.length) fail('BDK2', errs.join(' · '));
-  else pass('BDK2', 'bảng 20 khoá (ma trận toàn phần, hai vế độc lập) · máy quét rút chữ từ bảng · nhãn bảng trạng thái theo allowlist · khoá lạ chết to');
+  else pass('BDK2', `bảng ${BDK2_N} khoá (ma trận toàn phần, hai vế độc lập) · máy quét rút chữ từ bảng · nhãn bảng trạng thái theo allowlist · khoá lạ chết to`);
 }
 
 // ── BDK1: thân lệnh mở phiên — nêu tên, nói ngày, nói khi cây lệch ───────────

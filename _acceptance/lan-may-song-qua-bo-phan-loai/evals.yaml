@@ -1,0 +1,208 @@
+schema_version: 1
+feature_slug: lan-may-song-qua-bo-phan-loai
+# Ô này giao LỜI KHAI trên bốn vật (luật cho-phép · khuôn khởi tạo · nghi thức ·
+# tài liệu). Rủi ro lớn nhất KHÔNG phải lời khai sai, mà là THƯỚC đo lời khai bị
+# viết vừa khít mutant của chính nó. Nên mọi phép đo ở đây phải là QUAN HỆ ĐẾM ĐƯỢC
+# giữa hai vật, hoặc mệnh đề ĐÓNG trên tập hữu hạn; cấm phủ định phổ quát trên
+# không gian mở.
+#
+# <<<MUTANT-MATRIX
+#   E1=7 · E2=4 · E3=7 · E4=7 · E5=10 · E6=7 · E8=12   (tổng 54)
+#   E3 là răng hồ sơ, 7 mutant chia bốn chân (chân 1 là đối chứng dương, 0 mutant).
+#   E8 gồm hai ca: LM8 (văn phạm entry)
+#   và LM8b (khuôn sống đúng một chỗ có mốc neo).
+# MUTANT-MATRIX>>>
+#
+# ĐỔI KHUÔN LẦN HAI (vòng 3, luật dừng-vá bật lần thứ hai — owner chọn «TRỪ lời
+# khai, không CỘNG thước»). Vòng 2 tôi mới chỉ bỏ CON SỐ khỏi văn `expected`; lời
+# KHAI thì còn nguyên, và nó tái phát y hệt: văn hứa «có tên trong mục lục» mà
+# không vế nào đo mục lục, hứa «phân biệt trùng với thiếu» mà không mutant nào cho
+# nhánh trùng, hứa hằng sống giữa mốc neo mà không assert nào đọc mốc neo.
+#
+# Khuôn mới, áp cho MỌI eval dưới đây: văn `expected` nói ĐÚNG BA điều — chạy gì,
+# thấy gì là đạt, phép đo cài Ở ĐÂU (tên hàm · tên bảng vế). Nó KHÔNG mô tả bộ đo
+# kiểm những gì, không đếm vế, không kể mutant, không hứa nhánh. Điều kiện sống một
+# chỗ duy nhất: bảng vế trong mã. Không có bản chép thứ hai thì không có gì để lệch.
+#
+# Cùng nguyên tắc áp vào chính bộ ca: mọi mồi nhử gõ tay đã bị gỡ (15 chuỗi), mutant
+# nay sinh TỪ CHÍNH biểu thức của bộ kiểm — bẻ xong thì bộ kiểm không thể còn khớp,
+# quan hệ do cấu trúc giữ chứ không do người viết nhớ.
+#
+# NHÁNH CÓ THẬT PHẢI CÓ CHIỀU ĐỎ (vòng 4). Vòng 3 tôi vá theo hình dạng bị nêu tên:
+# thêm chiều đỏ cho nhánh «mốc neo trùng» rồi để nguyên ba nhánh anh em (thiếu mốc
+# neo · không đọc được nguồn · danh sách rỗng) — trong đó nhánh không-đọc-được-nguồn
+# chính là bản vá của vòng đó. Nay bốn nhánh ấy khai MỘT chỗ trong bộ ca
+# (`blockBranchMutants`, `M_CONFIG_KHONG_DOC`, `M_KHOA_KHONG_GIAI`, `M_ALLOW_RONG`) và
+# ghép vào mọi ca có nhánh ấy.
+#
+# GIỚI HẠN ĐÃ KHAI, và đây là một giới hạn owner CHỌN nhận (vòng 5): việc ghép đủ do
+# người viết giữ, không lưới nào canh. Vòng 4 tôi có dựng một lưới tự-khai-lời-báo cho
+# chỗ này; nó hứa «mọi lời báo lỗi mà bộ kiểm có thể phát» — phủ định phổ quát trên
+# văn xuôi mã nguồn, KHÔNG thuộc loại chứng được — và bản thân nó xanh mà chưa từng
+# chạy (điều kiện tôi tự thêm khiến nó bỏ qua thân ca khi bộ bọc gọi riêng). Owner
+# chọn CẮT: giữ phép thử ngược cụ thể làm việc thật, bỏ lời hứa giữ không nổi. Nhánh
+# TƯƠNG LAI vì thế không được canh tự động — đó là cái giá, khai thẳng ở đây.
+#
+# NEO VÀO HỢP ĐỒNG (vòng 6, mở rộng vòng 7). Danh sách khoá mà một lệnh kiểm không
+# được nằm dưới, VÀ phạm vi của lời hứa «một chỗ», đều rút TỪ bullet AC-8 của
+# contract.md chứ không gõ tay trong bộ ca — vì mutant sinh từ chính danh sách ấy, nên
+# nếu danh sách cũng do tôi gõ thì THU nó lại sẽ thu luôn mutant và thước tự nới ra
+# trong im lặng. Cả hai bộ đọc chạy trên bản đã gộp khoảng trắng: ngắt lại dòng trong
+# hợp đồng là thao tác trình bày thuần, không được đổi thứ gì đo được.
+#
+# PHẠM VI PHẢI ĐÓNG (vòng 7). AC-5 vốn khai rõ «trên hai thư mục nào»; AC-8 thì hứa
+# «MỘT chỗ» mà bỏ ngỏ phạm vi, nên phép đo không đời nào phủ trọn lời — cùng bài học
+# đã khiến vòng 5 phải cắt một lưới hứa phủ trọn. Nay AC-8 nêu đích danh bảy thư mục,
+# và phép đo đếm khối trên đúng bảy thư mục ấy.
+#
+# Hệ quả có chủ đích: hợp đồng thôi gọi tên một khoá (hay thu phạm vi) thì phép đo
+# cũng thôi đo phần đó — đúng, vì hợp đồng là nguồn của lời hứa, và sửa hợp đồng thì
+# hiện trong diff và ra tới cổng người.
+#
+# GIỚI HẠN ĐÃ KHAI: không eval nào đo HIỆU LỰC LÚC CHẠY của luật cho-phép —
+# settings đọc lúc khởi động phiên, phá thử ở S1 xác nhận sửa giữa phiên không có
+# hiệu lực. Hiệu lực đo ở ngưỡng Cổng Đáng (5 vòng S4 kế). Lỗ ĐÃ KHAI, không phải
+# lời tuyên độ phủ sai.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [.claude/settings.json, _acceptance/config.yaml, lib/**, tests/plugins/lan-may-classifier.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LM1]". Phép đo cài ở hàm `checkBijection`. Đối chứng
+      dương chạy TRƯỚC mọi mutant.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [.claude/settings.json, tests/plugins/lan-may-classifier.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LM2]". Phép đo cài ở hàm `checkNoStar` — mệnh đề
+      ĐÓNG trên tập hữu hạn entry, cố ý không viết dưới dạng danh sách cấm trên
+      không gian mở. Đối chứng dương chạy TRƯỚC mọi mutant.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.lm_khong_nuot
+    paths: [.claude/settings.json, _acceptance/lan-may-song-qua-bo-phan-loai/contract.md, _acceptance/lan-may-song-qua-bo-phan-loai/rang-khong-nuot.mjs, _acceptance/lan-may-song-qua-bo-phan-loai/rang-khong-nuot.sh]
+    expected: >
+      exit 0; stdout có "khong-nuot OK". Phép đo cài ở `rang-khong-nuot.mjs`, chạy
+      qua `rang-khong-nuot.sh`. RĂNG HỒ SƠ, CỐ Ý không vào bộ kiểm thường trực: nó so
+      một file cấu hình SỐNG với một mốc BẤT BIẾN, nên nằm trong bộ kiểm thường trực
+      thì mọi sửa hợp lệ về sau (do hồ sơ KHÁC làm) sẽ làm suite đỏ oan. Răng chết
+      theo hồ sơ khi gộp. Mốc đọc từ contract.md, không ghim sha trong mã; mọi đường
+      dẫn suy từ vị trí script. Mỗi mutant có một đối chứng dương chạy TRƯỚC nó: cặp
+      THẬT mốc↔cây cho chân (a), cặp sinh cho chân (b).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [commands/acceptance-init.md, tests/plugins/lan-may-classifier.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LM4]". Phép đo cài ở hàm `checkAdvice`; điều kiện
+      sống trong bảng `ADVICE_CLAUSES`. Đối chứng dương chạy TRƯỚC mọi mutant, cả
+      trên bản thô lẫn bản đã gộp khoảng trắng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [feature-loop/**, skills/**, _acceptance/lan-may-song-qua-bo-phan-loai/contract.md, tests/plugins/lan-may-classifier.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LM5]". Phép đo cài ở hàm `checkFallback`; điều kiện
+      sống trong bảng `FALLBACK_CLAUSES`. Một vế của bảng KHÔNG gõ tay mà rút từ
+      nguồn engine `feature-loop/workflows/acceptance-verify.js` lúc chạy: engine là
+      bên PHÁT lời báo lỗi, luật trong nghi thức là bên ĐỌC nó, nên hai bên phải
+      round-trip. Đối chứng dương chạy TRƯỚC mọi mutant.
+      PHẠM VI THẬT: các vế văn xuôi là phép đo CÓ-MẶT trên từ vựng ĐÓNG — canh điều
+      khoản khỏi bị xoá hay rút ruột, KHÔNG chứng minh câu chữ nói đúng ý.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [GUIDE.md, tests/plugins/lan-may-classifier.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LM6]". Phép đo cài ở hàm `checkGuide`; điều kiện sống
+      trong bảng `GUIDE_CLAUSES`. Đo TRONG khối có mốc neo chứ không trên trọn tài
+      liệu — GUIDE có sẵn từ vựng trùng ở chỗ khác, grep cả file làm vế thành
+      assertion chết. Đối chứng dương chạy TRƯỚC mọi mutant.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [.claude/settings.json, _acceptance/config.yaml, _acceptance/lan-may-song-qua-bo-phan-loai/contract.md, tests/**, lib/**, scripts/**, commands/**, hooks/**, skills/**, feature-loop/**]
+    expected: >
+      exit 0; stdout có CẢ HAI dòng "PASS: [LM8]" và "PASS: [LM8b]". Phép đo cài ở
+      hai hàm: `checkGrammar` (entry khớp khuôn và nằm đúng chỗ) và
+      `checkGrammarAnchor` (khuôn sống đúng một chỗ có mốc neo, kèm con trỏ nguồn);
+      điều kiện của ca sau sống trong bảng `GRAMMAR_CLAUSES`. Đối chứng dương chạy
+      TRƯỚC mọi mutant.
+      GIỚI HẠN ĐÃ KHAI: hằng khuôn là bản CHÉP TAY — nguồn thật là khung cấu hình của
+      harness, không phải file trong kho, nên không round-trip được như mối nối
+      engine ở E5. Nó chết lặng nếu harness đổi văn phạm; đổi lại vẫn bắt được bên
+      viết settings tự chế khuôn khác.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: judgment
+    question: >
+      Đọc NĂM file trong inputs: bộ ca `lan-may-classifier.test.mjs`, `evals.yaml`,
+      răng hồ sơ `rang-khong-nuot.mjs`, `contract.md`, và nguồn engine
+      `acceptance-verify.js`. Số mutant của E5 và E8 phụ thuộc dữ liệu rút TỪ hợp đồng
+      và TỪ nguồn engine, nên hai file cuối là thứ khiến bạn ĐẾM được thay vì phải suy. Đối chiếu với bảng giữa mốc neo
+      `MUTANT-MATRIX` ở đầu evals.yaml — đọc TỪ đó.
+      TRƯỚC KHI KẾT LUẬN: in hai cột cho TỪNG eval — số ở marker, cạnh số mutant bạn
+      ĐẾM ĐƯỢC trong mã. Không đọc được thì nói thẳng, ĐỪNG suy từ mã rồi tuyên
+      «khớp».
+      BỐI CẢNH: hồ sơ đã trượt hai vòng và bị chặn hạ tầng một vòng; luật dừng-vá của
+      kit bật HAI lần vì cùng một lớp — «văn khai một điều về hành vi của máy, không
+      gì đối chiếu lời khai ấy với máy». Owner chốt đường TRỪ: văn `expected` chỉ nói
+      chạy gì · thấy gì là đạt · phép đo cài ở đâu; điều kiện sống một chỗ duy nhất
+      là bảng vế trong mã; mutant sinh TỪ chính biểu thức của bộ kiểm, không từ chuỗi
+      mồi gõ tay.
+      KIỂM ĐÚNG LỚP ĐÓ TRƯỚC: còn chỗ nào trong evals.yaml khai một HÀNH VI của bộ đo
+      (nó phân biệt gì, nó đếm gì, nó nêu bao nhiêu vế) mà không phép đo nào canh lời
+      khai ấy? Còn chuỗi mồi gõ tay nào sót lại không? Còn phép đo nào đo cái GẦN
+      ĐÚNG thay vì cái AC hứa — grep trọn file thay vì trong khối, đếm file thay vì
+      đếm khối, đo chuỗi-có-mặt thay cho một QUAN HỆ?
+      LỚP THỨ HAI: mỗi nhánh CÓ THẬT của mỗi bộ kiểm có chiều đỏ không — kể cả nhánh
+      thiếu mốc neo, trùng mốc neo, không đọc được nguồn, danh sách rỗng? Hãy DUYỆT
+      TỪNG bộ kiểm và liệt mọi đường nó có thể trả lỗi, rồi đối chiếu với mutant của
+      ca đó; nêu đích danh nhánh nào chưa ai chạm.
+      LƯU Ý: hồ sơ khai thẳng rằng việc GHÉP ĐỦ nhánh do người viết giữ, không lưới
+      nào canh — vòng 4 có dựng một lưới tự-khai-lời-báo cho chỗ này, owner cắt ở
+      vòng 5 vì nó hứa một phủ định phổ quát không chứng được và bản thân nó xanh mà
+      chưa từng chạy. Nên «không có lưới canh việc ghép đủ» là GIỚI HẠN ĐÃ KHAI, KHÔNG
+      tính vi phạm; còn một nhánh cụ thể thiếu chiều đỏ thì VẪN tính vi phạm. Mutant nào không đổi
+      được gì (no-op) mà lưới không kêu? Mỗi mutant có đi qua CHÍNH hàm của chiều
+      xanh không? Đối chứng dương có chạy trên đúng dạng input mà mutant dùng không —
+      hay mutant bẻ bản phẳng trong khi đối chứng chỉ chạy bản thô, khiến ca có thể
+      đỏ vì phép làm phẳng chứ không vì vật? Fixture code-sinh hay viết tay? Thông
+      điệp đỏ có GHIM tên cụ thể, hay có chỗ kết luận CHỈ từ mã thoát / CHỈ từ «chuỗi
+      vắng»? Có bộ đọc nào tự viết trong khi kit đã có (`configList`,
+      `resolveConfigKey`)? Răng AC-3 có đối chứng dương cho từng chân, và có rút danh
+      sách khoá phải-giữ TỪ bản ở mốc không?
+      Và câu hỏi TRỌNG TÂM: có thước nào viết vừa khít mutant của chính nó?
+      LƯU Ý CÔNG BẰNG — hồ sơ khai tường minh NĂM giới hạn: (1) không eval nào đo
+      HIỆU LỰC LÚC CHẠY của luật cho-phép; (2) chân (b) của răng AC-3 chạy trên cặp
+      sinh bởi code vì mốc chưa có khối permissions; (3) các vế văn xuôi là phép đo
+      CÓ-MẶT trên từ vựng đóng, không chứng nghĩa; (4) răng AC-3 chết theo hồ sơ khi
+      gộp; (5) hằng khuôn văn phạm là bản chép tay vì nguồn thật nằm ngoài kho. Giới
+      hạn ĐÃ KHAI không tính là vi phạm; vi phạm là khi bộ đo TUYÊN một độ phủ mà nó
+      không giao.
+      Nêu đích danh ca vi phạm; không có thì nói rõ đã soi hết bao nhiêu ca và bao
+      nhiêu mutant.
+    inputs: [../../tests/plugins/lan-may-classifier.test.mjs, evals.yaml, rang-khong-nuot.mjs, contract.md, ../../feature-loop/workflows/acceptance-verify.js]
+    expected: >
+      Hội đồng in hai cột số cho từng eval và xác nhận khớp marker; không còn lời khai
+      hành vi nào trong evals.yaml mà không phép đo nào canh; không còn mồi nhử gõ
+      tay; mọi nhánh có thật đều có chiều đỏ; đối chứng dương chạy trên cùng dạng
+      input với mutant. Ca nào còn vế chết, còn thước vừa khít mutant của chính nó,
+      hoặc số mutant nhỏ hơn số nhánh thật — là FAIL.
+    evidence_required: [run_id, verifier, verified_at, output]

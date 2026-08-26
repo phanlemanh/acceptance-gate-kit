@@ -103,7 +103,10 @@ Steps:
      `human_override`;
    - the verdict upgrade `PENDING-JUDGMENT → PASS`, legal only after ALL those
      lines are filled;
-   - chữ «Ký» hay «Trả lại» → `human_signoff` + contract `status: signed-off`.
+   - chữ «Ký» hay «Trả lại» → `human_signoff` + contract `status: signed-off` —
+     kể cả khi hồ sơ đang `machine-cleared`: người ký trong cửa veto thì status
+     phải sang `signed-off` CÙNG lượt, để chữ ký không nằm trên một hồ sơ đang
+     tự khai là «máy thông, không có chữ ký người».
    Danh tính và ngày KHÔNG nằm trong danh sách này: máy suy theo bậc ở trên
    rồi hiển thị lại chờ xác nhận một chạm khi người chưa khai.
 4. **Collect decisions in chat, item by item** — SKIP every item the
@@ -134,7 +137,12 @@ Steps:
    after `human_signoff` is written; the map is machine-generated from records
    this gate just changed, so it belongs in the signature commit below.
 
-7. **Ghi và commit — một lượt.** Sau khi người phát ngôn, ghi các dòng thuộc
+7. **Ghi và commit — một lượt. THỨ TỰ GHI CÓ RĂNG.** Hồ sơ đang
+   `machine-cleared` (máy đã thông, làn V) thì **ghi contract `status:
+   signed-off` TRƯỚC, rồi mới ghi `evidence-report.md`** — chữ ký nằm trên một
+   hồ sơ còn tự khai «không có chữ ký người» là hai sự thật cãi nhau, nên cổng
+   ghi chặn đúng lượt đó. Hồ sơ `verified`/`implemented` thì thứ tự nào cũng
+   qua. Sau khi người phát ngôn, ghi các dòng thuộc
    về người trong `evidence-report.md` (`human_signoff`, `human_override`, the
    verdict upgrade, `bypass_ack`) + contract `status: signed-off`, và
    `PRODUCT-MAP.md` ONLY if step 6 actually regenerated it. Rồi commit MỘT

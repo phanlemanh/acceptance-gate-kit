@@ -62,7 +62,9 @@ Steps:
 
 4. **Print:**
    - Table: `| Slug | Tier | Status | Verdict | Rounds | Flags |`
-   - Headline: signed-off count; verdict mix; median verify rounds.
+   - Headline: đếm việc đã đóng Cổng Bằng chứng — tách HAI con số, không gộp:
+     `signed-off` (người ký) và `machine-cleared` (máy đã thông, không chữ ký);
+     verdict mix; median verify rounds.
    - Vệ sinh cổng — mỗi dòng một ý, tên trường máy để trong ngoặc:
      - N việc bỏ qua cổng duyệt tiêu chí (`gate1_skipped`)
      - N việc dùng đường thoát mà chưa ai xác nhận (bypass chưa `bypass_ack`)
