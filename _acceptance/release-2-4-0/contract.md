@@ -5,9 +5,11 @@ slug: release-2-4-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 2 manifest + dòng khớp-phiên-bản GUIDE + workspace hồ sơ + bản đồ — không dính t3_paths, không đổi mã cổng
 surfaces: [cli]
-status: draft
+status: verified
 approved_by:
 approved_at:
+veto_state: mo
+veto_opened_at: 2026-08-26T09:20:06Z
 ---
 
 # Acceptance Contract: release-2-4-0
