@@ -203,3 +203,15 @@ trace. Chỉ sau đợt này mới bàn tiếp bất kỳ chip mới nào.
   (bản đồ sau chữ ký — lỗi lặp, có hạt giống). M1 thật chưa đo được trên
   vòng T2 nào — đợt 3 đo. Tổng kết đầy đủ:
   docs/findings/2026-08-15-tong-ket-dot-2-veto-co-dau-vet.md
+- **16/08 — Ba hồ sơ TRỪ trong một ngày, không lệch cơ chế; đợt 3 MỞ.**
+  `cat-khoi-viec-cua-anh-tren-tin` (T2, #57): tin mời cổng thôi là form —
+  điều khoản mô tả hành vi, ba luật âm ở lại; lệch bản neo §4 dòng «Khối
+  VIỆC-CỦA-ANH chỉ sống trên thẻ cổng» → nay **cả tin lẫn khuôn đều bỏ**, thẻ
+  giữ danh sách máy-đếm. `cong-chan-nham-cho` (T3, #59): lưới biên merge hiểu
+  làn V đúng như hook (quan hệ mo ⇔ sạch-hoặc-ký) + ADR 0012 gỡ lớp
+  chứng-minh-chữ-ký-bằng-commit, thay bằng NOTE chiều-ghi — M5 giữ 1 (không
+  cơ chế mới). Luật hình vào repo (#58). Owner duyệt Cổng 1 T3 «tường minh
+  nhất» nhờ hai hình tầng-2. Điều kiện vào đợt 3 đủ; thiếu duy nhất release
+  2.1.0 để repo tiêu thụ nhận luật mới. Tổng kết:
+  docs/findings/2026-08-16-tong-ket-ngay-cat-khuon-va-cong-chan-nham-cho.md
+  · đề bài đợt 3: docs/plans/2026-08-16-de-bai-dot3-nghiem-tren-vat-that.md

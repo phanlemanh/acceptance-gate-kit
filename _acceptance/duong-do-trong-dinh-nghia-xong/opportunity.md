@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 stage: decided              # discovery | decided | archived
 decision: build        # build | iterate | park | kill — người ký Cổng 0 điền
 decided_by: Manh Phan
-decided_at: 2026-08-21T14:00:00Z    # ISO UTC
+decided_at: 2026-08-21T14:00:00Z    # ISO UTC — mốc XẤP XỈ theo hội thoại «Gật dây A → B → C» 21/08 (máy điền, ±30 phút)
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -18,10 +18,7 @@ Ngưỡng khai ở Cổng Đáng không có ô trong contract nên không truy �
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: …
-- Kết quả nào là SỐNG: …
-- Kết quả nào là CHẾT: …
-- Timebox: …
+Không đo được — vòng nội bộ của bộ công cụ, không có người dùng cuối để mời phiên nghiệm thu; người dùng thay thế là chính đội tự dùng kit. Ô «Đường đo» của hợp đồng đã bỏ có tên cùng lý do (entry d-20260822T000500Z-4306). Khai bổ sung 2026-08-23 theo lối ra có tên do hồ sơ `ra-co-ten-lam-va-trao` mở — KHÔNG sửa `decision`, KHÔNG sửa người ký hay ngày ký.
 
 ## Cổng 0
 

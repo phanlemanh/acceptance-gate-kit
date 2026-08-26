@@ -209,7 +209,20 @@ Hai sự thật quyết định cách cắm:
   analytics (Amplitude/Pendo — phía đọc của đường đo, hạt giống PR #71) và
   tracker (đầu vào lối (b) của `/start`).
 
-### 9.1 Cắm `brainstorm` vào Vòng HIỂU
+### 9.1 Cắm `brainstorm` vào Vòng HIỂU — ĐÃ TRỪ 2026-08-23
+
+> **TRỪ khỏi kế hoạch** (hồ sơ `start-bang-dieu-khien`, AC-10). Hai lý do:
+> skill đó là hội thoại «thinking partner» — nhiều lượt hỏi mở, người ngồi giữa
+> vòng trả lời — đúng thứ luật kit gọi là «hỏi mở là đường cùng»; và cắm một
+> skill bên-thứ-ba làm MẶC ĐỊNH trái luật ổ cắm (đích không tồn tại ở repo
+> khác). Mặc định của kit nay là **máy phân kỳ theo khuôn** rồi trình MỘT câu
+> đóng — hai phiên 22/08 chạy lối đó, owner quyết trong một chạm cả hai lần.
+>
+> **Ổ cắm `discovery.brainstorm_skill` GIỮ NGUYÊN** — nó trung tính, repo nào
+> muốn tự khai vẫn khai được; kit chỉ thôi cắm sẵn ai vào đó.
+>
+> Phần dưới giữ nguyên làm sử liệu, KHÔNG còn là kế hoạch.
+
 
 Repo tiêu thụ khai trong `_acceptance/config.yaml`:
 `discovery.brainstorm_skill: product-management:brainstorm` (cắm **lệnh**

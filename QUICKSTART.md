@@ -26,7 +26,7 @@ Trọn bộ (copy-paste một lần):
 
 Lệnh cài và lệnh cập nhật nằm ở **một chỗ duy nhất** — **GUIDE §5.1** — gồm cả máy
 đầu tiên của repo, máy sau, và trọn bộ plugin (`acceptance-gate`, `feature-loop`,
-`diagram-design`, `superpowers` — đều bắt buộc). `/acceptance-init` ghi
+`diagram-design`, `superpowers` — đều bắt buộc). `/acceptance-gate:acceptance-init` ghi
 `.claude/settings.json` nên đội viên mở repo là có đúng bộ. File này cố ý không mang
 lệnh nào: bản sao thứ hai là bản sao sẽ trôi.
 
@@ -46,7 +46,7 @@ feature lọt eval...) — cập nhật là một phần của kỷ luật gate,
 ## Setup 1 lần mỗi repo (thường đã có sẵn)
 
 Nếu repo đã có thư mục `_acceptance/` → bỏ qua mục này.
-Repo mới: chạy `/acceptance-init` rồi trả lời các câu hỏi
+Repo mới: chạy `/acceptance-gate:acceptance-init` rồi trả lời các câu hỏi
 (lệnh test, đường dẫn nhạy cảm...).
 
 **CI:** copy **đủ 7 file** từ plugin vào repo, giữ đúng layout `scripts/` + `lib/`
@@ -85,7 +85,7 @@ kỷ luật design-engineer với token, "bản vẽ" Layout Contract ~15 dòng,
 
 ## Dùng hằng ngày
 
-**Vào phiên làm việc:** gõ `/start` (vào phiên bằng một lệnh, không cần nghĩ
+**Vào phiên làm việc:** gõ `/acceptance-gate:start` (vào phiên bằng một lệnh, không cần nghĩ
 câu mở đầu) — máy quét xưởng rồi trình thẻ ba nhóm
 (**chờ ký · đang dở · việc mới**), bạn chọn một chữ cái là vào đúng nghi thức.
 Lệnh chỉ định hướng + bàn giao, không tự làm nội dung; chính bạn phải gõ nó
@@ -131,7 +131,7 @@ Sửa trực tiếp nếu cần → approve (máy ghi `approved_by`). **Đây l�
 5. Điền `human_signoff: <Tên> <ngày>` trong frontmatter → xong, merge được
 6. **Commit các sửa đổi Cổng-2** (một lượt là đủ — không phải tách riêng). Dấu vết "người đã duyệt" nằm ở forge: bạn approve / bấm merge PR; lưới trước-merge in một dòng «chữ ký mới trong diff» cho người merge thấy
 
-**Xem trạng thái mọi tính năng:** `/acceptance-status` · **Xem cả xưởng trên
+**Xem trạng thái mọi tính năng:** `/acceptance-gate:acceptance-status` · **Xem cả xưởng trên
 một trang:** mở `PRODUCT-MAP.md` ở gốc repo (sơ đồ các chặng + từng việc đang
 nằm đâu; máy vẽ lại ở mỗi lần đóng cổng — đừng sửa tay, sửa hồ sơ)
 
@@ -142,8 +142,8 @@ và cấm sửa sau khi thấy số; chấm kín trước khi thảo luận; **n
 `verdict: release | iterate | kill`. `kill` là THÀNH CÔNG của quy trình — câu
 trả lời mua bằng giá một vòng dựng, không phải thất bại của người làm.
 
-**Duyệt Cổng 1 nhanh:** `/approve <slug>` · **Ký Cổng 2:** `/signoff <slug>` ·
-**Đo sức khoẻ cổng:** `/acceptance-report` (verdict mix, số vòng verify, vệ sinh gate)
+**Duyệt Cổng 1 nhanh:** `/acceptance-gate:approve <slug>` · **Ký Cổng 2:** `/acceptance-gate:signoff <slug>` ·
+**Đo sức khoẻ cổng:** `/acceptance-gate:acceptance-report` (verdict mix, số vòng verify, vệ sinh gate)
 
 ---
 
@@ -187,7 +187,7 @@ token `exit=1`/`exit_code: 1` (sanitize trước khi dán).
   legacy. Lần bypass được GHI vào report (`bypass_used: true`) và CI
   `pre-merge-check.sh` CHẶN merge — trừ khi 1 người ghi `bypass_ack: <tên>
   <ngày>` để chủ động chịu trách nhiệm (để lại dấu vết audit).
-- **Đo hiệu quả?** `/acceptance-report` — verdict mix, số vòng verify, vệ sinh
+- **Đo hiệu quả?** `/acceptance-gate:acceptance-report` — verdict mix, số vòng verify, vệ sinh
   cổng. Kit **thôi đo phút người**: con số ấy do người điền cho qua cổng nên nó
   vừa tốn người vừa sinh dữ liệu giả.
 
@@ -200,7 +200,7 @@ duy nhất dẫn tính năng từ ý tưởng → design → contract+evals → 
 verify đa-agent → evidence → PR. Bạn vẫn chỉ dừng tay đúng 2 lần (T3: 3 lần).
 
 ```
-/feature-loop <mô tả tính năng>
+/feature-loop:feature-loop <mô tả tính năng>
   S1 máy brainstorm với bạn → design + contract + evals  ── 🚪 CỔNG 1 (duyệt 1 gói)
   S2 máy lên plan            (T3: 🚪 duyệt plan)
   S3 máy code                (task độc lập → chạy song song, mỗi task 1 worktree)
@@ -213,10 +213,10 @@ verify đa-agent → evidence → PR. Bạn vẫn chỉ dừng tay đúng 2 lầ
 
 **Cài thêm (sau khi đã cài acceptance-gate):**
 
-Không cần gõ thêm: repo đã chạy `/acceptance-init` thì mở repo là Claude Code nhắc bật
+Không cần gõ thêm: repo đã chạy `/acceptance-gate:acceptance-init` thì mở repo là Claude Code nhắc bật
 `feature-loop` · `diagram-design` · `superpowers` (đều bắt buộc). Chi tiết: **GUIDE §5.1**.
 
-**Setup mỗi repo:** đã chạy `/acceptance-init` rồi thì chỉ cần thêm vào
+**Setup mỗi repo:** đã chạy `/acceptance-gate:acceptance-init` rồi thì chỉ cần thêm vào
 `_acceptance/config.yaml` các lệnh verify chạy mỗi vòng (chọn từ `executors.*`
 của repo bạn — quên cũng không sao, lần đầu chạy skill sẽ hỏi rồi tự ghi):
 
@@ -227,7 +227,7 @@ feature_loop:
     - executors.test.typecheck
 ```
 
-**Dùng:** `/feature-loop <mô tả>` cho tính năng mới · truyền `<slug>` để
+**Dùng:** `/feature-loop:feature-loop <mô tả>` cho tính năng mới · truyền `<slug>` để
 resume (loop nhớ đang ở đâu qua `status` trong contract.md — đổi máy/đổi session
 vẫn tiếp tục đúng chỗ). Sửa nhỏ T1 (docs/typo) → loop tự thoát, làm kiểu thường.
 

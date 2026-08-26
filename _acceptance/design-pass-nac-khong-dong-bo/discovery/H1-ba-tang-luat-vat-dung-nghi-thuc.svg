@@ -1,0 +1,25 @@
+<svg font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" width="680" viewBox="0 0 680 400" role="img" xmlns="http://www.w3.org/2000/svg">
+<!-- Phác tầng 1, vẽ nội tuyến trong phiên 2026-08-19 (a19f3e81…); chép về ô 2026-08-22 và làm tự-đủ (CSS nhúng). Chiếu của hạt giống 2026-08-19 mục 8. --><title>H1 — ba tầng của việc thiết kế trong vòng lặp</title><desc>Ba tầng xếp chồng: nghi thức ở trên, vật dựng ở giữa, luật ở dưới. /design chỉ chạm tầng vật dựng.</desc>
+<style>
+.t{font-size:14px;fill:#2C2C2A}.ts{font-size:12px;fill:#5F5E5A}.th{font-size:14px;font-weight:500;fill:#2C2C2A}
+.box{fill:#F7F6F2;stroke:#B4B2A9;stroke-width:.5}.arr{stroke:#888780;stroke-width:1.5;fill:none}.leader{stroke:#B4B2A9;stroke-width:.5;stroke-dasharray:3 3;fill:none}
+.c-purple>rect,.c-purple>circle,.c-purple>ellipse,rect.c-purple,circle.c-purple{fill:#EEEDFE;stroke:#534AB7}.c-purple .th,.c-purple .t{fill:#3C3489}.c-purple .ts{fill:#534AB7}
+.c-teal>rect,.c-teal>circle,.c-teal>ellipse,rect.c-teal,circle.c-teal{fill:#E1F5EE;stroke:#0F6E56}.c-teal .th,.c-teal .t{fill:#085041}.c-teal .ts{fill:#0F6E56}
+.c-coral>rect,.c-coral>circle,.c-coral>ellipse,rect.c-coral,circle.c-coral{fill:#FAECE7;stroke:#993C1D}.c-coral .th,.c-coral .t{fill:#712B13}.c-coral .ts{fill:#993C1D}
+.c-gray>rect,.c-gray>circle,.c-gray>ellipse,rect.c-gray,circle.c-gray{fill:#F1EFE8;stroke:#5F5E5A}.c-gray .th,.c-gray .t{fill:#444441}.c-gray .ts{fill:#5F5E5A}
+</style>
+<text class="ts" x="20" y="24" dominant-baseline="central">Tầng 3 · NGHI THỨC — người quyết ở đâu, ghi vết gì</text>
+<g class="c-purple"><rect x="20" y="36" width="640" height="64" rx="8" stroke-width="0.5"/><text class="th" x="340" y="56" text-anchor="middle" dominant-baseline="central">design-pass (S1-D) · thẻ Cổng 1 · sổ quyết định</text><text class="ts" x="340" y="78" text-anchor="middle" dominant-baseline="central">của kit — /design không thay được</text></g>
+
+<text class="ts" x="20" y="124" dominant-baseline="central">Tầng 2 · VẬT DỰNG — thứ đem ra cho người nhìn</text>
+<g class="c-teal"><rect x="20" y="136" width="200" height="72" rx="8" stroke-width="0.5"/><text class="th" x="120" y="158" text-anchor="middle" dominant-baseline="central">Ruột tạm thật</text><text class="ts" x="120" y="178" text-anchor="middle" dominant-baseline="central">component repo, phòng trưng bày</text><text class="ts" x="120" y="194" text-anchor="middle" dominant-baseline="central">của repo · giữ</text></g>
+<g class="c-gray"><rect x="240" y="136" width="200" height="72" rx="8" stroke-width="0.5"/><text class="th" x="340" y="158" text-anchor="middle" dominant-baseline="central">Proto HTML frame kit</text><text class="ts" x="340" y="178" text-anchor="middle" dominant-baseline="central">interactive-prototype, design repo</text><text class="ts" x="340" y="194" text-anchor="middle" dominant-baseline="central">của repo · bước cuối đã chết</text></g>
+<g class="c-coral"><rect x="460" y="136" width="200" height="72" rx="8" stroke-width="0.5"/><text class="th" x="560" y="158" text-anchor="middle" dominant-baseline="central">Canvas /design</text><text class="ts" x="560" y="178" text-anchor="middle" dominant-baseline="central">artboard, người sửa tay</text><text class="ts" x="560" y="194" text-anchor="middle" dominant-baseline="central">của Claude Code · ứng viên</text></g>
+
+<text class="ts" x="20" y="232" dominant-baseline="central">Tầng 1 · LUẬT — gu và ranh giới đã đông cứng thành chữ</text>
+<g class="c-purple"><rect x="20" y="244" width="200" height="64" rx="8" stroke-width="0.5"/><text class="th" x="120" y="266" text-anchor="middle" dominant-baseline="central">onehub-design-system</text><text class="ts" x="120" y="288" text-anchor="middle" dominant-baseline="central">token · luật bề mặt · cảnh sát</text></g>
+<g class="c-purple"><rect x="240" y="244" width="200" height="64" rx="8" stroke-width="0.5"/><text class="th" x="340" y="266" text-anchor="middle" dominant-baseline="central">create-onehub-plugin</text><text class="ts" x="340" y="288" text-anchor="middle" dominant-baseline="central">khuôn plugin · bất biến · cấm sửa</text></g>
+<g class="c-purple"><rect x="460" y="244" width="200" height="64" rx="8" stroke-width="0.5"/><text class="th" x="560" y="266" text-anchor="middle" dominant-baseline="central">ux-ui-craft (kit)</text><text class="ts" x="560" y="288" text-anchor="middle" dominant-baseline="central">sàn a11y · chống AI-slop</text></g>
+
+<g class="c-gray"><rect x="20" y="332" width="640" height="44" rx="8" stroke-width="0.5"/><text class="t" x="340" y="354" text-anchor="middle" dominant-baseline="central">Tầng 1 và 3 là của kit / repo · tầng 2 là chỗ duy nhất có thể đổi vật</text></g>
+</svg>

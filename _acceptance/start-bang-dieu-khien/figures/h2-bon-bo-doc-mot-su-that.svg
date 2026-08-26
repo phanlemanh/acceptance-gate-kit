@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1000 560" role="img" aria-labelledby="h2-title h2-desc" xmlns="http://www.w3.org/2000/svg"><defs><style>@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Lora:ital,wght@0,400;1,400&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap');</style></defs>
+        <title id="h2-title">Bốn bộ đọc, một sự thật: chỗ đang lệch</title>
+        <desc id="h2-desc">Ma trận sáu trạng thái hồ sơ theo bốn bộ đọc. Bản đồ sản phẩm nói khác ở trạng thái ô đã điền ngưỡng. Bảng trạng thái nói khác ở trạng thái chờ máy nghiệm thu. Thẻ cổng và bảng trạng thái cùng mời ký ở hai trạng thái máy đi tiếp. Thẻ vào phiên xếp sai chỗ hồ sơ đã ký chờ nghiệm thu. Hàng cuối, hồ sơ đọc không được, bốn cột cùng chữ nhưng lưới trước-merge nói khác, và hàng này cố ý không chữa trong vòng này.</desc>
+
+        <rect width="1000" height="560" fill="#f5f5f5"/>
+
+        <!-- ============ NÉT LƯỚI ============ -->
+        <!-- Nét dọc: ranh giới cột, dừng ở hàng cuối -->
+        <line x1="344" y1="72" x2="344" y2="444" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <line x1="504" y1="72" x2="504" y2="444" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <line x1="664" y1="72" x2="664" y2="444" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <line x1="824" y1="72" x2="824" y2="444" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <!-- Nét ngang: băng đầu bảng rồi bước 56 -->
+        <line x1="24" y1="108" x2="984" y2="108" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <line x1="24" y1="164" x2="984" y2="164" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <line x1="24" y1="220" x2="984" y2="220" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <line x1="24" y1="276" x2="984" y2="276" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <line x1="24" y1="332" x2="984" y2="332" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <line x1="24" y1="388" x2="984" y2="388" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <line x1="24" y1="444" x2="984" y2="444" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+        <!-- ============ ĐẦU CỘT ============ -->
+        <text x="24" y="92" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">TRẠNG THÁI HỒ SƠ</text>
+        <text x="424" y="92" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em" text-anchor="middle">THẺ VÀO PHIÊN</text>
+        <text x="584" y="92" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em" text-anchor="middle">THẺ CỔNG</text>
+        <text x="744" y="92" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em" text-anchor="middle">BẢNG TRẠNG THÁI</text>
+        <text x="904" y="92" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em" text-anchor="middle">BẢN ĐỒ SẢN PHẨM</text>
+
+        <!-- ============ HÀNG 1 — ô đã điền ngưỡng, chưa ký ============ -->
+        <text x="24" y="132" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif">Ô đã điền ngưỡng, chưa ký</text>
+        <text x="24" y="148" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">đang chờ Cổng Đáng</text>
+        <rect x="832" y="124" width="144" height="24" rx="4" fill="#2d3142"/>
+        <text x="904" y="140" fill="#f5f5f5" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">«Đang cân nhắc»</text>
+
+        <!-- ============ HÀNG 2 — chờ máy nghiệm thu ============ -->
+        <text x="24" y="188" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif">Chờ máy nghiệm thu</text>
+        <text x="24" y="204" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">code đã viết xong</text>
+        <rect x="672" y="180" width="144" height="24" rx="4" fill="#2d3142"/>
+        <text x="744" y="196" fill="#f5f5f5" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">trỏ nghi thức đã chết</text>
+
+        <!-- ============ HÀNG 3 — máy đi tiếp, cửa veto còn mở ============ -->
+        <text x="24" y="244" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif">Máy đi tiếp — cửa veto còn mở</text>
+        <text x="24" y="260" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">nghiệm thu xanh, hồ sơ sạch</text>
+        <rect x="512" y="236" width="144" height="24" rx="4" fill="#2d3142"/>
+        <text x="584" y="252" fill="#f5f5f5" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">«máy đã xong — ký nhanh»</text>
+        <rect x="672" y="236" width="144" height="24" rx="4" fill="#2d3142"/>
+        <text x="744" y="252" fill="#f5f5f5" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">«Chờ người ký»</text>
+
+        <!-- ============ HÀNG 4 — máy đi tiếp, người đã duyệt Cổng 1 ============ -->
+        <text x="24" y="300" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif">Máy đi tiếp — người đã duyệt Cổng 1</text>
+        <text x="24" y="316" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">nghiệm thu xanh, hồ sơ sạch</text>
+        <rect x="512" y="292" width="144" height="24" rx="4" fill="#2d3142"/>
+        <text x="584" y="308" fill="#f5f5f5" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">«máy đã xong — ký nhanh»</text>
+        <rect x="672" y="292" width="144" height="24" rx="4" fill="#2d3142"/>
+        <text x="744" y="308" fill="#f5f5f5" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">«Chờ người ký»</text>
+
+        <!-- ============ HÀNG 5 — đã ký, chờ phiên nghiệm thu ============ -->
+        <text x="24" y="356" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif">Đã ký, chờ phiên nghiệm thu</text>
+        <text x="24" y="372" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">đường A, chưa có mốc thời gian</text>
+        <rect x="352" y="348" width="144" height="24" rx="4" fill="none" stroke="#2d3142" stroke-width="1"/>
+        <text x="424" y="364" fill="#2d3142" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">xếp đầu bất kể tuổi</text>
+
+        <!-- ============ HÀNG 6 — hồ sơ đọc không được (cố ý chưa chữa) ============ -->
+        <text x="24" y="412" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif">Hồ sơ đọc không được</text>
+        <text x="24" y="428" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">trạng thái lạ</text>
+        <rect x="356" y="404" width="616" height="24" rx="4" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <text x="664" y="420" fill="#ba4513" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">các cột cùng chữ — lưới trước-merge, bộ đọc ngoài hình, nói chữ khác</text>
+
+        <!-- ============ CHÚ THÍCH BIÊN TẬP ============ -->
+        <line x1="664" y1="448" x2="664" y2="460" stroke="#eb6c36" stroke-width="1"/>
+        <text x="984" y="480" fill="#eb6c36" font-size="14" font-family="'Instrument Serif','Lora',serif" font-style="italic" text-anchor="end">Hàng cuối cố ý không chữa trong vòng này — chữa nó phải chạm lưới và nâng hạng cả ô.</text>
+
+        <!-- ============ CHÚ GIẢI ============ -->
+        <line x1="24" y1="504" x2="984" y2="504" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <text x="24" y="530" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">CHÚ GIẢI</text>
+
+        <rect x="112" y="518" width="24" height="16" rx="4" fill="#2d3142"/>
+        <text x="148" y="530" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Bộ đọc này hôm nay nói chữ khác</text>
+
+        <rect x="352" y="518" width="24" height="16" rx="4" fill="none" stroke="#2d3142" stroke-width="1"/>
+        <text x="388" y="530" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Chữ đúng, nhưng xếp sai chỗ</text>
+
+        <rect x="592" y="518" width="24" height="16" rx="4" fill="none" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <text x="628" y="530" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Ô trống · đọc đúng chữ chung</text>
+
+        <rect x="812" y="518" width="24" height="16" rx="4" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <text x="848" y="530" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Cố ý chưa chữa</text>
+      </svg>
