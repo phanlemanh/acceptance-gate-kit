@@ -12,5 +12,14 @@
     "feature-loop@acceptance-gate-kit": true,
     "diagram-design@acceptance-gate-kit": true,
     "superpowers@claude-plugins-official": true
+  },
+  "permissions": {
+    "allow": [
+      "Bash(bash tests/scripts/run-tests.sh)",
+      "Bash(bash tests/hooks/run-tests.sh)",
+      "Bash(bash tests/plugins/run-tests.sh)",
+      "Bash(bash tests/workflows/run-tests.sh)",
+      "Bash(node scripts/product-map.mjs --root . --check)"
+    ]
   }
 }

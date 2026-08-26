@@ -10664,6 +10664,13 @@ for _rt in $_rt_ids; do
     env RT_CASES="$_rt" node "$ROOT/tests/plugins/ra-co-ten.test.mjs"
 done
 
+# ─── Ho so lan-may-song-qua-bo-phan-loai: LM1..LM8 (file ca rieng) ──────────
+_lm_ids="$(node "$ROOT/tests/plugins/lan-may-classifier.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca LM"; failures=$((failures+1)); _lm_ids=""; }
+for _lm in $_lm_ids; do
+  run "ca lan may qua bo phan loai — $_lm (ho so lan-may-song-qua-bo-phan-loai)" \
+    env LM_CASES="$_lm" node "$ROOT/tests/plugins/lan-may-classifier.test.mjs"
+done
+
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
   echo "ONLY_BLOCK=$ONLY_BLOCK khong khop khoi nao — go sai ten? (fail de khong xanh gia)"
