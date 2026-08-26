@@ -13,7 +13,7 @@ feature_slug: design-pass-nac-khong-dong-bo
 # bản sao và thông điệp đỏ GHIM TÊN VẾ đó. Bảng dưới là hợp đồng, không để bộ ca
 # tự quyết:
 # <<<MUTANT-MATRIX
-#   E1=8 · E8=5 · E9=2 · E10=5 nhánh + 8 mutant + 3 lưới quan hệ · E11=5 · E12=4
+#   E1=8 · E8=5 · E9=2 · E10=5 nhánh + 9 mutant + 3 lưới quan hệ · E11=5 · E12=4
 #   · E13=3 chân · E15=3
 # MUTANT-MATRIX>>>
 #
@@ -122,9 +122,13 @@ evals:
       MA TRẬN MUTANT (số ở mốc neo) trên bản sao TRỌN scripts/+lib/, đi qua CHÍNH bộ đọc thật:
       m1 = bỏ đường rút id khỏi chuỗi nửa vời → (d) mất nhãn → đỏ; m2 = bỏ nhánh
       nửa-vời → (e) rơi về câu "đời trước" → đỏ; m3 = bắn cờ nấc cho MỌI hồ sơ →
-      đối chứng dương (a) phải đỏ; m-esc = gỡ toàn bộ esc() → lưới (f) phải đỏ;
-      m-proto = trả bảng nhãn về object literal → lưới (h) phải đỏ; m-neu-ten = bỏ
-      phần nêu tên khỏi cờ giá-trị-lạ, CỜ CÒN NGUYÊN → (c) phải đỏ. Lệnh tiêm không
+      đối chứng dương (a) phải đỏ; m-esc-duong-co và m-esc-duong-ban-mau = gỡ thoát
+      chuỗi ở TỪNG đường ra thẻ (cờ · khối bản-mẫu) → lưới (f) phải đỏ — mỗi đường một
+      mutant, KHÔNG khai gộp «gỡ toàn bộ esc()» vì lời khai đó rộng hơn phạm vi đo;
+      m-esc-cho-day và m-esc-cho-day-nguc-canh = đặt thoát chuỗi ngay tại CHỖ ĐẨY (trục
+      nấc phản ứng · trục ngữ cảnh) → lưới (i) đường máy-đọc phải đỏ; m-proto = trả bảng
+      nhãn về object literal → lưới (h) phải đỏ; m-neu-ten = bỏ phần nêu tên khỏi cờ
+      giá-trị-lạ, CỜ CÒN NGUYÊN → (c) phải đỏ. Lệnh tiêm không
       đổi được dòng nào thì NÉM LỖI, không được in xanh; và bản sao SAU KHI TIÊM phải
       CHẠY NỔI — bản sao chết cho stdout rỗng nên MỌI khẳng định chiều ÂM trên nó tự
       thoả, mutant in xanh dù chưa hề chạy nhánh nó định đo (hội đồng vòng 5 chứng thực
@@ -134,7 +138,7 @@ evals:
       THOÁT CHUỖI đặt ở BIÊN RENDER, không ở chỗ đẩy: mảng cờ chảy vào CẢ đường HTML
       LẪN đường `--extract` máy-đọc, nên thoát ở chỗ đẩy làm thực thể HTML lọt vào
       trường máy đọc (hồi quy do bản vá vòng 4, hội đồng vòng 5 bắt).
-      HAI LƯỚI QUAN HỆ, fixture SINH TỪ VẬT chứ không liệt tay — liệt tay là lại một
+      CÁC LƯỚI QUAN HỆ (số ở mốc neo), fixture SINH TỪ VẬT chứ không liệt tay — liệt tay là lại một
       danh sách cấm nữa, đúng lớp lỗi vòng 3:
       (f) THOÁT CHUỖI theo hành vi — với TỪNG khoá rút từ khuôn sổ phiên, và với ổ
       cắm đường nhúng ở config, tiêm giá trị mang ngoặc nhọn rồi khẳng định KHÔNG cờ

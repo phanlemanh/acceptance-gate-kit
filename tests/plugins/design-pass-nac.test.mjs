@@ -299,7 +299,7 @@ if (want('DP9')) {
   if (m2.status !== 0 || !m2.out.trim()) errs.push('m2: the CHET (khong chay noi) — cai vang mat khong noi len dieu gi');
   else if (/bộ phương án/i.test(m2.out)) errs.push('m2: bo khoa options khoi khuon ma the van hien duong bo phuong an');
   if (errs.length) fail('DP9', errs.join(' · '));
-  else pass('DP9', 'khop vong 4 nac khuon->the + 2 mutant do dung ve');
+  else pass('DP9', 'khop vong 4 nac khuon->the — so mutant khai o moc neo MUTANT-MATRIX');
 }
 
 // DP10 · AC-10 — năm nhánh đời-hồ-sơ, đối chứng dương chạy TRƯỚC
@@ -416,26 +416,40 @@ if (want('DP10')) {
   }
   // (i) THOÁT CHUỖI ĐẶT Ở BIÊN RENDER. Mảng cờ chảy vào CẢ đường HTML LẪN `--extract`;
   // hồi quy vòng 4 chính là thực thể HTML lọt vào trường máy-đọc. Lưới (f) chỉ soi HTML,
-  // nên nếu ai đó thoát chuỗi ngay tại CHỖ ĐẨY thì HTML thoát hai lần (lưới (f) vẫn xanh
-  // vì không còn ngoặc nhọn thô) mà máy-đọc nhận bản đã thoát — không ai kêu (S4-r7).
-  const wsDoc = mkWs(noteFromTemplate(src).split('\n')
-    .map(l => l.startsWith('reaction:') ? `reaction: ${HOSTILE}` : l).join('\n'));
+  // nên thoát chuỗi đặt ngay tại CHỖ ĐẨY thì HTML thoát hai lần (lưới (f) vẫn xanh vì hết
+  // ngoặc nhọn thô) mà máy-đọc nhận bản đã thoát — không ai kêu (S4-r7).
+  // PHẠM VI: quét MỌI khoá sổ phiên như lưới (f), không riêng khoá tôi nghĩ tới — bản
+  // đầu chỉ thử khoá nấc phản ứng, trong khi trục ngữ cảnh và con trỏ nhúng cũng chảy
+  // vào cùng mảng cờ, tức lưới lặp lại đúng lỗi nó sinh ra để chặn (hội đồng S4-r8).
   const THUC_THE = /&(?:lt|gt|amp|quot|#39);/;
-  const coMayDoc = cardPath => {
-    const ex = spawnSync(process.execPath, [cardPath, '--root', wsDoc, '--slug', 'fx', '--extract'], { encoding: 'utf8' });
+  const coMayDoc = (cardPath, ws) => {
+    const ex = spawnSync(process.execPath, [cardPath, '--root', ws, '--slug', 'fx', '--extract'], { encoding: 'utf8' });
     try { return JSON.parse(ex.stdout).design_pass.flags || null; } catch { return null; }
   };
-  const fDoc = coMayDoc(GATE_CARD);
-  if (!fDoc || !fDoc.length) errs.push('(i) --extract khong tra ve co nao — khong do duoc duong may-doc');
-  else if (!fDoc.some(t => t.includes(HOSTILE))) errs.push('(i) co o duong may-doc KHONG mang nguyen van gia tri so phien');
-  else if (fDoc.some(t => THUC_THE.test(t))) errs.push('(i) co o duong may-doc mang THUC THE HTML — thoat chuoi dat o CHO DAY, khong o bien render');
-  // chiều đỏ của (i): thoát chuỗi ngay tại chỗ đẩy
-  // Giá trị mang ngoặc nhọn bị bộ đọc xếp vào nhánh «CHƯA ĐIỀN», nên cờ mang nguyên văn
-  // sinh ra từ CHỖ ĐẨY ĐÓ — nhắm mutant vào đúng nhánh mà fixture thật sự đi qua.
-  const mDay = render(wsDoc, t => t.split("+ dp.reaction_raw +").join("+ esc(dp.reaction_raw) +"));
-  const fDay = coMayDoc(mDay.card);
-  if (!fDay || !fDay.some(t => THUC_THE.test(t)))
-    errs.push('m-esc-cho-day: thoat chuoi tai CHO DAY ma luoi (i) khong do');
+  // MỘT bộ vế, dùng chung cho chiều xanh VÀ mutant — mutant tự dựng vị từ riêng thì nó
+  // canh cho VẬT chứ không canh cho LƯỚI (luật đầu file, hội đồng S4-r8 bắt đúng chỗ).
+  const veCuaI = (flags, nhan) => {
+    const e = [];
+    if (!flags || !flags.length) { e.push(`(i) ${nhan}: --extract khong tra ve co nao`); return e; }
+    if (flags.some(t => THUC_THE.test(t))) e.push(`(i) ${nhan}: co o duong may-doc mang THUC THE HTML — thoat chuoi dat o CHO DAY, khong o bien render`);
+    return e;
+  };
+  const wsDoc = k => mkWs(noteFromTemplate(src).split('\n')
+    .map(l => l.startsWith(k + ':') ? `${k}: ${HOSTILE}` : l).join('\n'));
+  for (const k of noteKeys) errs.push(...veCuaI(coMayDoc(GATE_CARD, wsDoc(k)), `khoa "${k}"`));
+  // vế riêng: ít nhất MỘT khoá phải đẩy được NGUYÊN VĂN ra máy-đọc — nếu không, ba vế
+  // trên đều thoả một cách rỗng vì chẳng cờ nào mang giá trị sổ phiên.
+  if (!(coMayDoc(GATE_CARD, wsDoc('reaction')) || []).some(t => t.includes(HOSTILE)))
+    errs.push('(i) khong co o nao mang NGUYEN VAN gia tri so phien ra may-doc — luoi khong co gi de canh');
+  // chiều đỏ của (i): thoát chuỗi ngay tại chỗ đẩy, đi qua CHÍNH bộ vế của chiều xanh.
+  // Giá trị mang ngoặc nhọn bị bộ đọc xếp vào nhánh «chưa điền» nên cờ mang nguyên văn
+  // sinh từ CHỖ ĐẨY đó — nhắm mutant vào đúng nhánh fixture thật sự đi qua.
+  const mDay = render(wsDoc('reaction'), t => t.split("+ dp.reaction_raw +").join("+ esc(dp.reaction_raw) +"));
+  if (!veCuaI(coMayDoc(mDay.card, wsDoc('reaction')), 'm-esc-cho-day').length)
+    errs.push('m-esc-cho-day: thoat chuoi tai CHO DAY ma bo ve cua (i) khong do');
+  const mCtx = render(wsDoc('context'), t => t.split("+ dp.context +").join("+ esc(dp.context) +"));
+  if (!veCuaI(coMayDoc(mCtx.card, wsDoc('context')), 'm-esc-cho-day-nguc-canh').length)
+    errs.push('m-esc-cho-day-nguc-canh: thoat chuoi tai CHO DAY truc ngu canh ma bo ve cua (i) khong do');
 
   const rCtx = render(mkWs(noteFromTemplate(src).split('\n').map(l => l.startsWith('context:') ? 'context: constructor' : l).join('\n')));
   if (!flagsOf(rCtx.out).some(t => /Nấc ngữ cảnh không nhận diện được/.test(t)))
@@ -475,7 +489,7 @@ if (want('DP10')) {
     t => t.split("${esc(dp.material || '(chưa khai)')}").join("${dp.material || '(chưa khai)'}"));
 
   if (errs.length) fail('DP10', errs.join(' · '));
-  else pass('DP10', 'nam nhanh doi-ho-so + luoi thoat-chuoi CA HAI duong ra the + luoi duong MAY-DOC + khoa ke thua ca hai truc + 8 mutant do dung ve');
+  else pass('DP10', 'nam nhanh doi-ho-so + luoi thoat-chuoi CA HAI duong ra the + luoi duong MAY-DOC + khoa ke thua ca hai truc — so mutant khai o moc neo MUTANT-MATRIX');
 }
 
 // DP13 · AC-15 — hồ sơ KHÔNG có sổ phiên: thẻ vẫn phải dựng được
@@ -516,7 +530,7 @@ if (want('DP13')) {
   if (!coNacFlag(m3.out).length)
     errs.push('m3: co nac ro ri ra ho so khong co so phien ma ca van khong do — ve «KHONG co nac» la ve chet');
   if (errs.length) fail('DP13', errs.join(' · '));
-  else pass('DP13', 'khong so phien: the dung duoc, khoi vang, khong co nac, khong nhan la + 3 mutant');
+  else pass('DP13', 'khong so phien: the dung duoc, khoi vang, khong co nac, khong nhan la — so mutant khai o moc neo MUTANT-MATRIX');
 }
 
 // DP11 · AC-11 — một cây nguồn: mỗi site chứa ĐÚNG NGUYÊN VĂN câu chuẩn
@@ -610,7 +624,7 @@ if (want('DP11')) {
     if (checkDefaultSites(src, m4, narrow).some(e => e.includes('NGOAI bang khai')))
       errs.push('m5: pham vi quet hep van bao duoc ban chep thu ba — chan quet khong that');
     if (errs.length) fail('DP11', errs.join(' · '));
-    else pass('DP11', 'moi site dung nguyen van + tong ban chep tron glob khop bang khai + 5 mutant do dung ve');
+    else pass('DP11', 'moi site dung nguyen van + tong ban chep tron glob khop bang khai — so mutant khai o moc neo MUTANT-MATRIX');
   }
 }
 
@@ -640,7 +654,7 @@ if (want('DP12')) {
         errs.push(`mutant (${rel}, ${k}) khong do dung o`);
     }
     if (errs.length) fail('DP12', errs.join(' · '));
-    else pass('DP12', 'hai o cam neu du o ca hai file + 4 mutant do dung o');
+    else pass('DP12', 'hai o cam neu du o ca hai file — so mutant khai o moc neo MUTANT-MATRIX');
   }
 }
 
