@@ -319,15 +319,35 @@ if (want('LB9')) {
     const a = countIn(oldG), b = countIn(nowG);
     if (a === 0) errs.push('đối chứng dương hỏng: bản cũ có 0 lệnh `claude plugin`');
     if (a !== b) errs.push(`lệnh \`claude plugin\` lệch số: cũ ${a}, nay ${b}`);
+    // [SỬA 26/08, mốc phát hành 2.4.0] Vế cũ ghim NGUYÊN VĂN dòng «Khớp phiên bản» so với
+    // OLD_SHA — thước gắn vào đúng thứ MỌI bản phát hành bắt buộc phải đổi, nên nó nổ ở lần
+    // bump đầu tiên sau khi hồ sơ này ship (lớp «thước ghim vào thứ SẼ ĐỔI»). Thứ vế đó thật
+    // sự canh là: dòng ấy nêu tên ba plugin, và việc đổi-sang-dạng-bấm-được KHÔNG được nuốt
+    // chúng thành slash-command. Nay đo đúng QUAN HỆ đó — số phiên bản tự do đổi.
+    // (Quan hệ «dòng khớp ba số trong manifest» đã có chủ ở P200; ở đây không lặp lại.)
     const line = s => (s.split('\n').find(l => l.startsWith('> Khớp phiên bản')) || '').trim();
-    if (line(nowG) !== line(oldG)) errs.push(`dòng «Khớp phiên bản» đổi: «${line(oldG)}» → «${line(nowG)}»`);
-    // chiều đỏ: đổi một lệnh claude plugin thành dạng slash → phải lệch số
+    const SLASH_RE = /\/[a-z0-9-]+:[a-z0-9-]+/;
+    const veDong = (l) => {
+      if (!l) return 'không tìm thấy dòng «Khớp phiên bản»';
+      if (SLASH_RE.test(l)) return `dòng «Khớp phiên bản» có dạng slash-command: «${l}»`;
+      const thieu = ['acceptance-gate', 'feature-loop', 'diagram-design'].filter(p => !l.includes(p));
+      if (thieu.length) return `dòng «Khớp phiên bản» thiếu tên plugin: ${thieu.join(', ')}`;
+      return null;
+    };
+    const loiDong = veDong(line(nowG));
+    if (loiDong) errs.push(loiDong);
+    if (veDong(line(oldG))) errs.push(`đối chứng dương hỏng: bản ${OLD_SHA} đã trượt vế dòng — ${veDong(line(oldG))}`);
+    // chiều đỏ 1: đổi một lệnh claude plugin thành dạng slash → phải lệch số
     const red = nowG.replace('claude plugin marketplace add', '/acceptance-gate:acceptance-init');
     if (red === nowG) errs.push('tiêm mutant thất bại: không thấy `claude plugin marketplace add`');
     else if (countIn(red) === countIn(nowG)) errs.push('mutant đổi lệnh claude plugin mà số không lệch');
+    // chiều đỏ 2: nuốt tên plugin trên dòng «Khớp phiên bản» thành slash-command → veDong phải bắt
+    const redL = line(nowG).replace('acceptance-gate', '/acceptance-gate:acceptance-init');
+    if (redL === line(nowG)) errs.push('tiêm mutant dòng thất bại: dòng không chứa `acceptance-gate`');
+    else if (!veDong(redL)) errs.push('mutant nuốt tên plugin thành slash-command mà vế dòng vẫn xanh');
   }
   if (errs.length) fail('LB9', errs.join(' · '));
-  else pass('LB9', `lệnh \`claude plugin\` giữ nguyên số (${countIn(nowG)}) so với ${OLD_SHA}; dòng «Khớp phiên bản» không đổi; mutant đổi-sang-slash → lệch số`);
+  else pass('LB9', `lệnh \`claude plugin\` giữ nguyên số (${countIn(nowG)}) so với ${OLD_SHA}; dòng «Khớp phiên bản» nêu đủ ba plugin ở dạng chữ thường (không slash), số phiên bản tự do đổi; hai chiều đỏ chạy thật`);
 }
 
 const unknown = only.filter(id => !ran.has(id));
