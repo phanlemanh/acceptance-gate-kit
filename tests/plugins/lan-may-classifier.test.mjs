@@ -60,6 +60,17 @@ const PERM_RULE = /^Bash\((.+)\)$/;
 // ---------------------------------------------------------------------------
 
 const allowEntries = obj => ((obj.permissions || {}).allow || []);
+// Các khoá mà một lệnh kiểm KHÔNG được nằm dưới — RÚT TỪ HỢP ĐỒNG, không gõ tay.
+// Mutant sinh từ chính danh sách này nên mỗi phần tử luôn có chiều đỏ; nhưng nếu danh
+// sách cũng do tôi gõ thì THU nó lại sẽ thu luôn mutant và thước tự nới ra trong im
+// lặng. Neo vào AC-8 khép vòng: hợp đồng là bên VIẾT, bộ ca là bên ĐỌC.
+const CONTRACT = path.join(ROOT, '_acceptance', 'lan-may-song-qua-bo-phan-loai', 'contract.md');
+function choSaiTuHopDong() {
+  let src; try { src = readFileSync(CONTRACT, 'utf8'); } catch { return []; }
+  const line = src.split('\n').find(l => l.startsWith('- AC-8:')) || '';
+  return [...new Set([...line.matchAll(/`([a-z]+)`/g)].map(m => m[1]))];
+}
+const CHO_SAI = choSaiTuHopDong();
 
 // Danh sách lệnh kiểm CỐ ĐỊNH — nguồn sự thật là config, KHÔNG phải hằng trong ca.
 // Đọc danh sách bằng `configList` của kit (lib/workspace-record.cjs) và giải từng
@@ -87,6 +98,10 @@ function checkBijection(settingsObj, configText) {
   const errs = [];
   for (const c of cmds) if (!allow.includes(c)) errs.push(`THIEU lenh trong permissions.allow: "${c}"`);
   for (const a of allow) if (!cmds.includes(a)) errs.push(`THUA lenh trong permissions.allow: "${a}" — khong co trong feature_loop.suite_keys`);
+  // Bao hàm hai chiều mới là BẰNG NHAU TẬP HỢP, chưa phải SONG ÁNH như AC-1 hứa: hai
+  // entry cùng trỏ một lệnh vẫn lọt cả hai vòng lặp trên. Đếm bội mới đóng được.
+  if (allow.length !== cmds.length)
+    errs.push(`so entry cho-phep (${allow.length}) KHAC so lenh nguon (${cmds.length}) — co entry TRUNG LAP`);
   return errs;
 }
 
@@ -112,7 +127,7 @@ function checkGrammar(settingsObj, configText) {
   const p = settingsObj.permissions || {};
   const errs = [];
   for (const e of (p.allow || [])) if (!PERM_RULE.test(e)) errs.push(`entry KHONG dung van pham Bash(<lenh>): "${e}"`);
-  for (const k of ['ask', 'deny']) {
+  for (const k of CHO_SAI) {
     for (const e of (p[k] || [])) {
       const cmd = (PERM_RULE.exec(e) || [null, e])[1];
       if (cmds.includes(cmd)) errs.push(`lenh kiem dat NHAM CHO: "${e}" nam duoi permissions.${k}, phai o allow`);
@@ -365,6 +380,8 @@ runObj('LM1', 'song anh permissions.allow <-> feature_loop.suite_keys', checkBij
     if (i >= 0) s.permissions.allow[i] = `Bash(${t}X)`;
     return [s, c];
   }, ['THIEU lenh', 'THUA lenh']],
+  ['m5-nhan-doi-mot-entry', (s, c) => { s.permissions.allow.push(s.permissions.allow[0]); return [s, c]; },
+    'TRUNG LAP'],
   M_CONFIG_KHONG_DOC, M_KHOA_KHONG_GIAI,
 ]);
 
@@ -375,11 +392,16 @@ runObj('LM2', 'khong entry cho-phep nao chua ky tu *', checkNoStar, [
   M_ALLOW_RONG,
 ]);
 
+if (want('LM8') && !CHO_SAI.length)
+  fail('LM8', `khong rut duoc danh sach cho-sai tu AC-8 trong ${path.relative(ROOT, CONTRACT)} — moi noi hop dong->bo ca dut`);
 runObj('LM8', 'van pham luat quyen + entry nam dung cho', checkGrammar, [
   ['m1-entry-tran-khong-boc', (s, c) => { s.permissions.allow[0] = CMDS()[0]; return [s, c]; },
     'KHONG dung van pham Bash(<lenh>)'],
-  ['m2-dat-nham-duoi-ask', (s, c) => { const e = s.permissions.allow.shift(); (s.permissions.ask ||= []).push(e); return [s, c]; },
-    'dat NHAM CHO'],
+  ...CHO_SAI.map(k => [`m2-dat-nham-duoi-${k}`, (s, c) => {
+    const e = s.permissions.allow.shift();
+    (s.permissions[k] ||= []).push(e);
+    return [s, c];
+  }, `nam duoi permissions.${k}`]),
   ['m3-doi-ten-boc', (s, c) => { s.permissions.allow[0] = s.permissions.allow[0].replace(/^Bash\(/, 'Shell('); return [s, c]; },
     'KHONG dung van pham Bash(<lenh>)'],
   M_ALLOW_RONG, M_CONFIG_KHONG_DOC, M_KHOA_KHONG_GIAI,

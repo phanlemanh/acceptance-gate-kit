@@ -60,13 +60,17 @@ const bSyn = { permissions: { allow: ['Bash(a)', 'Bash(b)'], deny: ['Bash(rm -rf
 const tSyn = { permissions: { allow: ['Bash(a)', 'Bash(b)', 'Bash(c)'], deny: ['Bash(rm -rf /)'], defaultMode: 'default' } };
 // Cặp sinh phải PHỦ mọi khoá mà cây THẬT đang có trong `permissions` — nếu không,
 // nó là fixture theo trí nhớ người viết và sẽ lạc hậu lặng lẽ khi vật mọc khoá mới.
-for (const k of Object.keys(tree.permissions || {}))
-  if (!(k in bSyn.permissions)) bad.push(`CHAN 3: cap sinh THIEU khoa "${k}" von co trong cay that — fixture da lac hau so voi vat`);
-// chiều đỏ cho chính guard vừa thêm: bịa một cây có khoá lạ, guard phải kêu
+// Guard là một HÀM, không phải biểu thức viết tại chỗ: chiều đỏ dưới đây phải đi qua
+// CHÍNH nó. Bản trước chép lại biểu thức của guard rồi chạy trên object bịa, nên nó
+// hằng đúng — xoá sạch guard mà «chiều đỏ» vẫn xanh (hội đồng S4-r6 bắt được).
+const khoaVatThieuTrongCapSinh = (cayLike, capSinh) =>
+  Object.keys((cayLike || {}).permissions || {}).filter(k => !(k in capSinh.permissions));
+for (const k of khoaVatThieuTrongCapSinh(tree, bSyn))
+  bad.push(`CHAN 3: cap sinh THIEU khoa "${k}" von co trong cay that — fixture da lac hau so voi vat`);
 {
   const gia = { permissions: { ...(tree.permissions || {}), 'khoa-la-zzz': 1 } };
-  const thieu = Object.keys(gia.permissions).filter(k => !(k in bSyn.permissions));
-  if (!thieu.includes('khoa-la-zzz')) bad.push('CHAN 3 DO: guard fixture-lac-hau khong do tren cay co khoa la');
+  if (!khoaVatThieuTrongCapSinh(gia, bSyn).includes('khoa-la-zzz'))
+    bad.push('CHAN 3 DO: guard fixture-lac-hau khong do tren cay co khoa la');
 }
 if (checkPreserved(bSyn, tSyn).length) bad.push('CHAN 3 DO: doi chung duong tren cap sinh khong xanh');
 const s2 = structuredClone(tSyn); delete s2.permissions.deny;
