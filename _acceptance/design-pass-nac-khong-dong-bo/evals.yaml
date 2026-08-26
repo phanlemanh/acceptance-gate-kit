@@ -13,7 +13,7 @@ feature_slug: design-pass-nac-khong-dong-bo
 # bản sao và thông điệp đỏ GHIM TÊN VẾ đó. Bảng dưới là hợp đồng, không để bộ ca
 # tự quyết:
 # <<<MUTANT-MATRIX
-#   E1=8 · E8=5 · E9=2 · E10=5 nhánh + 9 mutant + 3 lưới quan hệ · E11=5 · E12=4
+#   E1=8 · E8=5 · E9=2 · E10=5 nhánh + 10 mutant + 3 lưới quan hệ · E11=5 · E12=4
 #   · E13=3 chân · E15=3
 # MUTANT-MATRIX>>>
 #
@@ -89,7 +89,7 @@ evals:
       TIẾNG NGƯỜI đúng cho từng nấc và hiện có/không đường bộ phương án theo khoá
       `options:`. Fixture khẳng định không còn placeholder `<` sống trong
       frontmatter trước khi ghi. Đối chứng dương: hồ sơ đủ khoá XANH trước.
-      MA TRẬN MUTANT (số ở mốc neo), cả hai đi qua CHÍNH bộ dựng thẻ: m1 = hồ sơ sinh từ khuôn
+      MA TRẬN MUTANT (số ở mốc neo), mọi mutant đi qua CHÍNH bộ dựng thẻ: m1 = hồ sơ sinh từ khuôn
       đã bỏ `reaction:` → thẻ KHÔNG có nhãn nấc, đỏ ghim nhãn mong đợi; m2 = hồ sơ
       sinh từ khuôn đã bỏ `options:` → thẻ không hiện đường bộ phương án, đỏ ghim
       vế đó.
@@ -100,7 +100,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [scripts/gate-card.js, skills/design-pass/SKILL.md, tests/plugins/design-pass-nac.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: [DP10]". NĂM nhánh đời-hồ-sơ, mỗi nhánh một hồ sơ CODE
+      exit 0; stdout có "PASS: [DP10]". CÁC nhánh (số ở mốc neo) đời-hồ-sơ, mỗi nhánh một hồ sơ CODE
       SINH RÚT TỪ CÙNG MARKER `DESIGN-PASS-NOTE-TEMPLATE` của đầu viết (không tự
       dựng frontmatter theo kỳ vọng bên đọc — đổi khuôn ở đầu viết phải làm ca
       này đỏ), chạy CÙNG bộ dựng thẻ: (a) đủ khoá → SẠCH cờ nấc (đối chứng dương,
@@ -211,7 +211,7 @@ evals:
     cmd: config:executors.test.plugins
     paths: [GUIDE.md, commands/acceptance-init.md, tests/plugins/design-pass-nac.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: [DP12]". Bốn ô (2 file × 2 khoá): `design_pass.ds_skill`
+      exit 0; stdout có "PASS: [DP12]". Các ô (số ở mốc neo) = mỗi file × mỗi khoá: `design_pass.ds_skill`
       và `feature_loop.ui_standards_skill` đều được nêu trong GUIDE.md VÀ trong
       khuôn khởi tạo.
       MA TRẬN MUTANT (số ở mốc neo): mỗi mutant xoá đúng MỘT ô (file, khoá) trên bản sao →

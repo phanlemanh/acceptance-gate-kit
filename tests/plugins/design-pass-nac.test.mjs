@@ -302,7 +302,7 @@ if (want('DP9')) {
   else pass('DP9', 'khop vong 4 nac khuon->the — so mutant khai o moc neo MUTANT-MATRIX');
 }
 
-// DP10 · AC-10 — năm nhánh đời-hồ-sơ, đối chứng dương chạy TRƯỚC
+// DP10 · AC-10 — các nhánh đời-hồ-sơ (số ở mốc neo), đối chứng dương chạy TRƯỚC
 if (want('DP10')) {
   const errs = [];
   const labelsOf = id => ladderLabels(src)[id];
@@ -414,42 +414,48 @@ if (want('DP10')) {
     if (!j || !j.design_pass || !('reaction_label' in j.design_pass))
       errs.push(`(h) khoa ke thua "${k}": --extract mat han khoa reaction_label (JSON.stringify bo gia tri ham)`);
   }
-  // (i) THOÁT CHUỖI ĐẶT Ở BIÊN RENDER. Mảng cờ chảy vào CẢ đường HTML LẪN `--extract`;
-  // hồi quy vòng 4 chính là thực thể HTML lọt vào trường máy-đọc. Lưới (f) chỉ soi HTML,
-  // nên thoát chuỗi đặt ngay tại CHỖ ĐẨY thì HTML thoát hai lần (lưới (f) vẫn xanh vì hết
-  // ngoặc nhọn thô) mà máy-đọc nhận bản đã thoát — không ai kêu (S4-r7).
-  // PHẠM VI: quét MỌI khoá sổ phiên như lưới (f), không riêng khoá tôi nghĩ tới — bản
-  // đầu chỉ thử khoá nấc phản ứng, trong khi trục ngữ cảnh và con trỏ nhúng cũng chảy
-  // vào cùng mảng cờ, tức lưới lặp lại đúng lỗi nó sinh ra để chặn (hội đồng S4-r8).
-  const THUC_THE = /&(?:lt|gt|amp|quot|#39);/;
+  // (i) THOÁT CHUỖI ĐẶT Ở BIÊN RENDER — đo bằng QUAN HỆ TRÊN MÃ, không bằng cách bơm
+  // giá trị độc qua từng khoá. Bơm-qua-khoá là phép LẤY MẪU trên không gian mở: mỗi chỗ
+  // đẩy mới lại phải nhớ thêm một khoá, và BA vòng liền tôi quên đúng một chỗ — vòng 7
+  // quên trục ngữ cảnh, vòng 8 quên con trỏ nhúng (đến từ cấu hình, không từ sổ phiên).
+  // Quan hệ ĐÓNG thay thế: MỌI lời gọi đẩy cờ phải KHÔNG gọi esc(, và biên render PHẢI
+  // gọi esc(. Chỗ đẩy mới mọc ra là TỰ có lưới, không phải nhớ thêm fixture.
+  const veCuaI = (cardPath, nhan) => {
+    const e = [];
+    let src2; try { src2 = readFileSync(cardPath, 'utf8'); } catch { return [`(i) ${nhan}: khong doc duoc nguon bo dung the`]; }
+    const sites = [...src2.matchAll(/dpFlags\.push\(([\s\S]*?)\);\n/g)].map(m => m[1]);
+    if (sites.length < 3) { e.push(`(i) ${nhan}: rut duoc ${sites.length} cho day co — qua it, quan he mat nghia`); return e; }
+    sites.forEach((site, i) => {
+      if (/\besc\(/.test(site)) e.push(`(i) ${nhan}: cho day co #${i + 1} GOI esc( — thoat chuoi phai dat o BIEN RENDER: "${site.replace(/\s+/g, ' ').slice(0, 60)}"`);
+    });
+    if (!/flags\.push\(\['fwarn', esc\(f\)\]\)/.test(src2)) e.push(`(i) ${nhan}: bien render KHONG con goi esc( — co se ra HTML tho`);
+    return e;
+  };
+  errs.push(...veCuaI(GATE_CARD, 'cay that'));
+  // Đối chứng ĐẦU-CUỐI: quan hệ trên mã nói «không thoát ở chỗ đẩy», còn đây chứng đường
+  // ống THẬT SỰ mang nguyên văn ra máy-đọc — thiếu vế này thì quan hệ trên mã có thể đúng
+  // mà đường ống vẫn hỏng ở chỗ khác.
   const coMayDoc = (cardPath, ws) => {
     const ex = spawnSync(process.execPath, [cardPath, '--root', ws, '--slug', 'fx', '--extract'], { encoding: 'utf8' });
     try { return JSON.parse(ex.stdout).design_pass.flags || null; } catch { return null; }
   };
-  // MỘT bộ vế, dùng chung cho chiều xanh VÀ mutant — mutant tự dựng vị từ riêng thì nó
-  // canh cho VẬT chứ không canh cho LƯỚI (luật đầu file, hội đồng S4-r8 bắt đúng chỗ).
-  const veCuaI = (flags, nhan) => {
-    const e = [];
-    if (!flags || !flags.length) { e.push(`(i) ${nhan}: --extract khong tra ve co nao`); return e; }
-    if (flags.some(t => THUC_THE.test(t))) e.push(`(i) ${nhan}: co o duong may-doc mang THUC THE HTML — thoat chuoi dat o CHO DAY, khong o bien render`);
-    return e;
-  };
-  const wsDoc = k => mkWs(noteFromTemplate(src).split('\n')
-    .map(l => l.startsWith(k + ':') ? `${k}: ${HOSTILE}` : l).join('\n'));
-  for (const k of noteKeys) errs.push(...veCuaI(coMayDoc(GATE_CARD, wsDoc(k)), `khoa "${k}"`));
-  // vế riêng: ít nhất MỘT khoá phải đẩy được NGUYÊN VĂN ra máy-đọc — nếu không, ba vế
-  // trên đều thoả một cách rỗng vì chẳng cờ nào mang giá trị sổ phiên.
-  if (!(coMayDoc(GATE_CARD, wsDoc('reaction')) || []).some(t => t.includes(HOSTILE)))
-    errs.push('(i) khong co o nao mang NGUYEN VAN gia tri so phien ra may-doc — luoi khong co gi de canh');
-  // chiều đỏ của (i): thoát chuỗi ngay tại chỗ đẩy, đi qua CHÍNH bộ vế của chiều xanh.
-  // Giá trị mang ngoặc nhọn bị bộ đọc xếp vào nhánh «chưa điền» nên cờ mang nguyên văn
-  // sinh từ CHỖ ĐẨY đó — nhắm mutant vào đúng nhánh fixture thật sự đi qua.
-  const mDay = render(wsDoc('reaction'), t => t.split("+ dp.reaction_raw +").join("+ esc(dp.reaction_raw) +"));
-  if (!veCuaI(coMayDoc(mDay.card, wsDoc('reaction')), 'm-esc-cho-day').length)
-    errs.push('m-esc-cho-day: thoat chuoi tai CHO DAY ma bo ve cua (i) khong do');
-  const mCtx = render(wsDoc('context'), t => t.split("+ dp.context +").join("+ esc(dp.context) +"));
-  if (!veCuaI(coMayDoc(mCtx.card, wsDoc('context')), 'm-esc-cho-day-nguc-canh').length)
-    errs.push('m-esc-cho-day-nguc-canh: thoat chuoi tai CHO DAY truc ngu canh ma bo ve cua (i) khong do');
+  const wsDoc = mkWs(noteFromTemplate(src).split('\n')
+    .map(l => l.startsWith('reaction:') ? `reaction: ${HOSTILE}` : l).join('\n'));
+  const fDoc = coMayDoc(GATE_CARD, wsDoc);
+  if (!fDoc || !fDoc.some(t => t.includes(HOSTILE)))
+    errs.push('(i) duong ong: co o --extract KHONG mang nguyen van gia tri so phien');
+  if ((fDoc || []).some(t => /&(?:lt|gt|amp|quot|#39);/.test(t)))
+    errs.push('(i) duong ong: co o --extract mang THUC THE HTML');
+  // CHIỀU ĐỎ, đi qua CHÍNH veCuaI và GHIM TÊN VẾ — không nhận «bất kỳ lỗi nào cũng tính».
+  const mDay = render(wsDoc, t => t.split("+ dp.reaction_raw +").join("+ esc(dp.reaction_raw) +"));
+  if (!veCuaI(mDay.card, 'm-esc-cho-day').some(e => e.includes('GOI esc(')))
+    errs.push('m-esc-cho-day: thoat chuoi tai CHO DAY ma quan he tren ma khong do');
+  const mNhung = render(wsDoc, t => t.split("+ he.guide +").join("+ esc(he.guide) +"));
+  if (!veCuaI(mNhung.card, 'm-esc-cho-day-nhung').some(e => e.includes('GOI esc(')))
+    errs.push('m-esc-cho-day-nhung: thoat chuoi tai CHO DAY con tro nhung ma quan he tren ma khong do');
+  const mBien = render(wsDoc, t => t.split("flags.push(['fwarn', esc(f)])").join("flags.push(['fwarn', f])"));
+  if (!veCuaI(mBien.card, 'm-bien-render-mat-esc').some(e => e.includes('bien render KHONG con goi esc(')))
+    errs.push('m-bien-render-mat-esc: bo esc o BIEN RENDER ma quan he tren ma khong do');
 
   const rCtx = render(mkWs(noteFromTemplate(src).split('\n').map(l => l.startsWith('context:') ? 'context: constructor' : l).join('\n')));
   if (!flagsOf(rCtx.out).some(t => /Nấc ngữ cảnh không nhận diện được/.test(t)))
@@ -489,7 +495,7 @@ if (want('DP10')) {
     t => t.split("${esc(dp.material || '(chưa khai)')}").join("${dp.material || '(chưa khai)'}"));
 
   if (errs.length) fail('DP10', errs.join(' · '));
-  else pass('DP10', 'nam nhanh doi-ho-so + luoi thoat-chuoi CA HAI duong ra the + luoi duong MAY-DOC + khoa ke thua ca hai truc — so mutant khai o moc neo MUTANT-MATRIX');
+  else pass('DP10', 'nhanh doi-ho-so + luoi thoat-chuoi CA HAI duong ra the + quan he THOAT-O-BIEN-RENDER tren ma + khoa ke thua ca hai truc — so o moc neo MUTANT-MATRIX');
 }
 
 // DP13 · AC-15 — hồ sơ KHÔNG có sổ phiên: thẻ vẫn phải dựng được
