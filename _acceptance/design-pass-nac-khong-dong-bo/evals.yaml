@@ -255,7 +255,7 @@ evals:
       nguồn đọc từ file thật) hay là một danh sách người viết tự nghĩ ra — danh
       sách tự nghĩ là allowlist mới, đúng lớp lỗi vòng 3. Nêu đích danh ca vi
       phạm; không có thì nói rõ đã soi hết bao nhiêu ca và bao nhiêu mutant.
-    inputs: [../../tests/plugins/design-pass-nac.test.mjs, rang-cau-chet.sh]
+    inputs: [../../tests/plugins/design-pass-nac.test.mjs, rang-cau-chet.sh, evals.yaml]
     expected: >
       Hội đồng xác nhận số mutant thực thi khớp bảng ma trận, mỗi mutant bẻ đúng
       MỘT vế và đi qua cùng bộ kiểm của chiều xanh, fixture code-sinh rút từ
