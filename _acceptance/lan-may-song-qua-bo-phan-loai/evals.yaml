@@ -68,7 +68,7 @@ evals:
     criterion: AC-1
     executor: test
     cmd: config:executors.test.plugins
-    paths: [.claude/settings.json, _acceptance/config.yaml, tests/plugins/lan-may-classifier.test.mjs]
+    paths: [.claude/settings.json, _acceptance/config.yaml, lib/**, tests/plugins/lan-may-classifier.test.mjs]
     expected: >
       exit 0; stdout có "PASS: [LM1]". Phép đo cài ở hàm `checkBijection`. Đối chứng
       dương chạy TRƯỚC mọi mutant.
