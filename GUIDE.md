@@ -25,6 +25,7 @@
 9. [Xử lý sự cố](#9-xử-lý-sự-cố)
 10. [Dành cho người bảo trì kit](#10-dành-cho-người-bảo-trì-kit)
 
+11. [Làn máy và bộ phân loại an toàn](#11-làn-máy-và-bộ-phân-loại-an-toàn)
 ---
 
 ## 0. Giới thiệu — mục đích, mục tiêu, kim chỉ nam
@@ -177,7 +178,7 @@ gate không). Vì vậy CI là lớp enforce chung, không phụ thuộc phiên 
 > 🖼 Hình tầng 2: [Vào cửa nào, dày bao nhiêu](docs/reference/figures/vao-cua-nao-day-bao-nhieu.html) · [Vòng LÀM S0→S5](docs/reference/figures/vong-lam-s0-s5.html) · [Trạng thái hồ sơ](docs/reference/figures/trang-thai-ho-so.html). Lưu ý: sơ đồ mermaid bên dưới vẽ Cổng 2 luôn ký — từ 2.0.0 làn V cho T2 xanh-sạch đi tiếp không ký; hình tầng 2 phản ánh luật hiện hành, khối mermaid chờ một PR chữ riêng.
 
 Nguồn sự thật duy nhất là frontmatter **`status`** trong `_acceptance/<slug>/contract.md`.
-Mọi resume (`/feature-loop <slug>`) đọc status và vào đúng chỗ.
+Mọi resume (`/feature-loop:feature-loop <slug>`) đọc status và vào đúng chỗ.
 
 ```mermaid
 flowchart LR
@@ -473,11 +474,11 @@ workspace cũ không bắt migrate, bỏ chủ động = entry `descope` bắt �
 T3 — preset `risk-premortem` của morphological-scan đã phủ. Spec:
 `docs/superpowers/specs/2026-07-23-s1-gap-probe-design.md`.
 
-## Vào phiên bằng /start (1.30.0)
+## Vào phiên bằng /acceptance-gate:start (1.30.0)
 
 Bước 0 của mọi phiên — mở Claude Code lên rồi *gõ gì đầu tiên* — vốn là
 xổ số câu chữ: mỗi cách mở đầu ra một biến thể phiên, có phiên đọc đúng việc
-đang chờ, có phiên tự chọn việc, có phiên hỏi lan man. `/start` thay câu tự do
+đang chờ, có phiên tự chọn việc, có phiên hỏi lan man. `/acceptance-gate:start` thay câu tự do
 bằng một nghi thức: **người gõ một lệnh — máy nhìn quanh xưởng — người chọn
 một chữ cái — bàn giao**.
 
@@ -487,7 +488,7 @@ Thẻ trình đúng ba nhóm, theo thứ tự ưu tiên:
 |---|---|
 | Chờ chữ ký của anh | Các cổng đang đợi người quyết — cổng chờ lâu nhất lên đầu |
 | Đang dở | Các vòng đang giữa chừng — mỗi vòng một dòng: người dùng sẽ được gì + bước kế |
-| Bắt đầu việc mới | Đúng ba lối: ý mơ hồ → buổi khai thác; việc rõ → `/feature-loop`; việc vặt miễn T1 → sửa thẳng |
+| Bắt đầu việc mới | Đúng ba lối: ý mơ hồ → buổi khai thác; việc rõ → `/feature-loop:feature-loop`; việc vặt miễn T1 → sửa thẳng |
 
 Người chọn một dòng là lệnh bàn giao sang nghi thức đích (thẻ cổng, vòng lặp,
 hay buổi khai thác) — lệnh **không tự làm nội dung**, không đọc/ghi file sản
@@ -508,7 +509,7 @@ chỉ trả lời được bằng cách mở từng thư mục hồ sơ ra đọ
 
 **`PRODUCT-MAP.md` ở gốc repo** — một trang, mở đầu bằng sơ đồ các chặng kèm số
 việc thật ở mỗi chặng, rồi danh sách từng việc đang nằm đâu. Nó là **view máy
-sinh**, không phải kho: mỗi lần một cổng người đóng lại, `/approve`, `/signoff`
+sinh**, không phải kho: mỗi lần một cổng người đóng lại, `/acceptance-gate:approve`, `/acceptance-gate:signoff`
 và phiên nghiệm thu vẽ lại nó và đưa vào chính commit chữ ký. Không ai sửa tay
 bản đồ; muốn bản đồ khác thì sửa hồ sơ.
 
@@ -530,7 +531,7 @@ thu điểm kín trước mọi thảo luận chung, rồi người — không p
 `verdict`: `release`, `iterate`, hay `kill`. Kết quả `kill` là **thành công của
 quy trình**: câu trả lời mua bằng giá một vòng dựng.
 
-Kết quả phiên ghi vào `_acceptance/<slug>/uat-session.md`; `/start` và bản đồ
+Kết quả phiên ghi vào `_acceptance/<slug>/uat-session.md`; `/acceptance-gate:start` và bản đồ
 đọc nó để biết việc đã nghiệm thu hay còn chờ.
 
 **Lái-thử Người-lạ (tiền trạm của phiên nghiệm thu)** — trước khi mời người
@@ -544,7 +545,7 @@ dùng/không-dùng: [docs/lai-thu-nguoi-la.md](docs/lai-thu-nguoi-la.md).
 ### 5.1 Mỗi máy dev (một lần)
 
 <!-- <<<GUIDE-PLUGIN-DECLARE -->
-Repo đã chạy `/acceptance-init` **khai sẵn bộ plugin** trong `.claude/settings.json`
+Repo đã chạy `/acceptance-gate:acceptance-init` **khai sẵn bộ plugin** trong `.claude/settings.json`
 (khoá `extraKnownMarketplaces` + `enabledPlugins`), nên chỉ **máy đầu tiên** của một
 repo phải cài tay đủ để chạy init; **máy sau** mở repo là Claude Code nhắc bật đúng bộ:
 
@@ -561,7 +562,7 @@ claude plugin marketplace add phanlemanh/acceptance-gate-kit
 claude plugin install acceptance-gate@acceptance-gate-kit
 ```
 
-rồi chạy `/acceptance-init` — bước 5b của nó ghi file khai plugin; **commit file đó**.
+rồi chạy `/acceptance-gate:acceptance-init` — bước 5b của nó ghi file khai plugin; **commit file đó**.
 <!-- GUIDE-MAY-DAU>>> -->
 
 <!-- <<<GUIDE-MAY-SAU -->
@@ -594,7 +595,7 @@ chưa bật hoặc bị tắt, CI vendored vẫn là lớp enforce chung và có
 
 ### 5.2 Mỗi repo (một lần)
 
-1. Chạy **`/acceptance-init`** — trả lời lệnh test/smoke của repo, path nhạy cảm
+1. Chạy **`/acceptance-gate:acceptance-init`** — trả lời lệnh test/smoke của repo, path nhạy cảm
    (`t3_paths`), glob bỏ qua (`t1_skip_globs`), người ký. Kết quả:
    `_acceptance/config.yaml` (indent **2-space bắt buộc** — parser của kit đọc theo dòng).
 2. Repo có web UI: `npm i -D jsdom` (design gate chạy chế độ DOM; thiếu → eval design BLOCKED).
@@ -626,7 +627,7 @@ Tham chiếu đầy đủ `config.yaml` — mục 8 có phần tinh chỉnh:
 | `gap_probe` | Luật phản biện context sạch ở pre-merge check: `required` (chặn) / `advisory` (NOTE) / `off` (im) | `advisory` — bỏ qua vẫn thấy được, nhưng không chặn merge của repo chưa quen |
 | `executors.test.*` `executors.script.*` | Lệnh thật của repo; evals chỉ tham chiếu `config:executors...` | — |
 | `executors.design.*` | Design gate (wire tay — xem §5.2) | design eval bị skip |
-| `risk_tiers.t1_skip_globs` | Glob an toàn bỏ qua gate (docs, *.md). Từ 1.31.0 `/acceptance-init` phát sẵn `PRODUCT-MAP.md` — bản đồ là view máy sinh lại ở mỗi lần đóng cổng, không phải thứ để nghiệm thu | `PRODUCT-MAP.md` |
+| `risk_tiers.t1_skip_globs` | Glob an toàn bỏ qua gate (docs, *.md). Từ 1.31.0 `/acceptance-gate:acceptance-init` phát sẵn `PRODUCT-MAP.md` — bản đồ là view máy sinh lại ở mỗi lần đóng cổng, không phải thứ để nghiệm thu | `PRODUCT-MAP.md` |
 | `risk_tiers.t3_paths` | Path critical → T3 | không gì bị nâng T3 |
 | `signoff.required_for` | Tier nào bắt buộc ký trước merge | `[T2, T3]` |
 | `signoff.approvers` | Danh sách người được ký — **thông tin, KHÔNG được cổng cưỡng chế** (1.24.0: bốn bản vá cố đọc khoá này từ YAML bằng công cụ text của shell đều hỏng theo một hình dạng hợp lệ mới, nên cả lớp bị gỡ). Chữ ký vẫn bị kiểm bằng chốt rỗng + lưới giữ-chỗ | — |
@@ -637,6 +638,7 @@ Tham chiếu đầy đủ `config.yaml` — mục 8 có phần tinh chỉnh:
 | `feature_loop.suite_keys` | Lệnh chạy MỌI vòng verify (build/typecheck...) — S4 tự hỏi rồi tự ghi | S4 hỏi một lần |
 | `feature_loop.models.<role>` | Override model từng vai trò verify (mục 8) | bảng default |
 | `feature_loop.ui_standards_skill` | Tên skill chuẩn-plugin/DS của repo (vd `create-<org>-plugin`) — feature chạm UI thì S1 BẮT BUỘC nạp nó trước khi sinh contract/evals (đối trọng chuẩn nội với vật liệu ngoài) | ghi chú vàng 1 dòng trong gói Cổng 1, không chặn |
+| `design_pass.ds_skill` | Tên skill chuẩn DS/plugin của repo (vd `<plugin>:<skill>`) — nghi thức thiết kế nạp nó làm nguồn luật; vắng thì tụt xuống thang DS (từ vựng token của repo → shadcn) | finding Nhóm 2 nêu nấc đã dùng, không chặn |
 
 ### 5.3 Wire CI (bắt buộc để gate có răng ở PR)
 
@@ -766,17 +768,17 @@ Lý do và trade-off: [ADR 0006](docs/adr/0006-rules-ledger-fail-closed-at-outpu
 
 ## 6. Vận hành hằng ngày
 
-### 6.1 Luồng khuyến nghị — `/feature-loop`
+### 6.1 Luồng khuyến nghị — `/feature-loop:feature-loop`
 
 ```
-/feature-loop <mô tả tính năng>     # bắt đầu
-/feature-loop <slug>                # resume — đọc status, vào đúng stage
+/feature-loop:feature-loop <mô tả tính năng>     # bắt đầu
+/feature-loop:feature-loop <slug>                # resume — đọc status, vào đúng stage
 ```
 
 Máy tự chạy S1→S5; bạn chỉ làm việc ở các điểm dừng:
 
 **🚪 Cổng 1 — duyệt tiêu chí (điểm dừng đáng giá nhất).** Máy trình thẻ quyết định
-(`/acceptance-card <slug>`) bằng ngôn ngữ sản phẩm: "sẽ làm / sẽ KHÔNG làm" + cờ phủ
+(`/acceptance-gate:acceptance-card <slug>`) bằng ngôn ngữ sản phẩm: "sẽ làm / sẽ KHÔNG làm" + cờ phủ
 biên. Bạn kiểm:
 
 - Tiêu chí Given/When/Then đúng ý nghiệp vụ? Thiếu ca biên/ca *không được xảy ra*?
@@ -821,11 +823,11 @@ template, cùng evidence rules, cùng CI** — mức bằng chứng không đổ
 
 | Lệnh | Dùng khi |
 |---|---|
-| `/acceptance-status` | Xem trạng thái mọi tính năng trong `_acceptance/` |
-| `/acceptance-card <slug>` | Render thẻ quyết định Cổng 1/Cổng 2 (tự nhận cổng theo trạng thái) |
-| `/approve [slug]` | Ghi quyết định Cổng 1: card → 1 câu hỏi → máy ghi `approved_by`/`approved_at` sau YES tường minh (không bao giờ tự duyệt) |
-| `/signoff [slug]` | Trợ lý Cổng 2: precondition → `human_override`/`human_signoff` → ghi và commit một lượt → re-check pre-merge |
-| `/acceptance-report` | Sức khoẻ cổng: verdict mix, số vòng verify, vệ sinh gate (skip/bypass/stale) — read-only |
+| `/acceptance-gate:acceptance-status` | Xem trạng thái mọi tính năng trong `_acceptance/` |
+| `/acceptance-gate:acceptance-card <slug>` | Render thẻ quyết định Cổng 1/Cổng 2 (tự nhận cổng theo trạng thái) |
+| `/acceptance-gate:approve [slug]` | Ghi quyết định Cổng 1: card → 1 câu hỏi → máy ghi `approved_by`/`approved_at` sau YES tường minh (không bao giờ tự duyệt) |
+| `/acceptance-gate:signoff [slug]` | Trợ lý Cổng 2: precondition → `human_override`/`human_signoff` → ghi và commit một lượt → re-check pre-merge |
+| `/acceptance-gate:acceptance-report` | Sức khoẻ cổng: verdict mix, số vòng verify, vệ sinh gate (skip/bypass/stale) — read-only |
 | `node scripts/evidence-page.js --root . --slug <slug>` | Trang HTML evidence đầy đủ: output, screenshot slideshow, checklist Cổng 2 |
 | `node scripts/eval-coverage-lint.js . --slug <slug>` | Lint phủ biên: tiêu chí ngưỡng thiếu ca *không-được-bắn*, out-of-scope thiếu eval âm |
 | `node scripts/config-patch.mjs --key <a.b.c> --value <v> --write` | Ghi key mới vào config.yaml an toàn (dry-run mặc định, `.bak`, từ chối đè key sống) |
@@ -965,7 +967,7 @@ Grader cùng một nhà model chia sẻ cùng thiên kiến "trông-có-vẻ-xon
 seam cho một model khác nhà (mặc định Gemini) đọc lại frame đã lưu và trả lời
 MỘT câu hỏi đóng YES/NO — là assertion, không phải judge:
 
-- `/acceptance-init` bước 3c scaffold `scripts/vlm-assert.mjs` (script sống ở
+- `/acceptance-gate:acceptance-init` bước 3c scaffold `scripts/vlm-assert.mjs` (script sống ở
   repo, key `GEMINI_API_KEY` của repo — kit không ôm dependency). Model mặc
   định `gemini-3.5-flash`; đổi qua env `VLM_MODEL` (đổi provider = sửa 1 URL +
   1 payload trong script).
@@ -1025,6 +1027,32 @@ không có bằng chứng là một ô FAIL, không phải "chắc ổn":
 | **E. Nhất quán** | Version khớp 3 tầng (manifest × pin test × docs)? | `git status` rỗng |
 | **F. Giới hạn** | Giới hạn v1 và rủi ro đã ghi thành văn (spec/report), không im lặng? | Trỏ tới mục known-limits | Backward-tolerant là mặc định: luật mới trên artifact cũ ra NOTE,
   chỉ enforce cứng khi artifact có field mới.
+
+
+## 11. Làn máy và bộ phân loại an toàn
+
+<!-- <<<GUIDE-CLASSIFIER-LANE -->
+
+Mỗi lệnh Bash của mỗi agent đều phải qua bộ phân loại an toàn của harness. Một
+vòng nghiệm thu tung 26–30 agent là một cơn bão request: xác suất cả vòng sống
+là pⁿ, nên chỉ cần một lệnh trúng lúc nghẽn là cả vòng hỏng mà không sinh được
+dòng bằng chứng nào. Đo được ở kho này: ~15 vòng chết trong ba tuần
+(`docs/findings/2026-08-25-retro-classifier-va-nghi-thuc-khong-hoc.md`).
+
+**Kho tự khai luật cho-phép.** `.claude/settings.json` khai `permissions.allow`
+cho đúng các **lệnh kiểm** cố định chạy mỗi vòng — các lệnh khai ở `feature_loop.suite_keys`.
+Mỗi entry khớp CHÍNH XÁC một lệnh, không dùng `*`. Đánh đổi khai thẳng: các lệnh
+đó bỏ qua bộ phân loại; chấp nhận được vì danh sách ĐÓNG và đảo lại chỉ bằng
+cách xoá luật. Nói cho đúng mức: phiên chạy cổng luôn đứng trên NHÁNH đang xét,
+nơi chính các script ấy có thể vừa bị sửa bởi thay đổi đang chờ duyệt — nên tin
+cậy ở đây đặt vào NGƯỜI mở nhánh, không phải vào một lượt rà soát đã xảy ra. Răng của từng hồ sơ cố ý
+KHÔNG nằm trong danh sách: tên chúng đổi theo hồ sơ nên mọi luật cho chúng hoặc
+lỗi thời hoặc phải nới rộng.
+
+**Nghi thức có đường thoái hoá.** Khi một lượt bị chặn vì bộ phân loại, vòng lặp
+KHÔNG tung bầy lại: lượt kế đi verify độc lập, chạy lệnh tuần tự. Luật sống giữa
+mốc neo `CLASSIFIER-FALLBACK` trong skill `feature-loop` — một chỗ duy nhất.
+<!-- GUIDE-CLASSIFIER-LANE>>> -->
 
 ---
 

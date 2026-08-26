@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>H2 · Bốn bộ đọc, một sự thật: chỗ đang lệch</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Lora:ital,wght@0,400;1,400&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --paper:#f5f5f5;--ink:#2d3142;--muted:#4f5d75;--soft:#636b80;
+      --rule:rgba(45,49,66,.12);--accent:#eb6c36;--accent-text:#ba4513;
+      --sans:'Geist',system-ui,sans-serif;--serif:'Instrument Serif','Lora',serif;--mono:'Geist Mono',ui-monospace,monospace;
+    }
+    body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:3rem 2rem;background:var(--paper);color:var(--ink);font-family:var(--sans)}
+    .frame{width:100%;max-width:1100px}
+    .eyebrow{margin-bottom:.5rem;color:var(--muted);font:500 .66rem/1 var(--mono);letter-spacing:.18em;text-transform:uppercase}
+    h1{margin-bottom:.35rem;font:400 clamp(1.5rem,2.4vw + .75rem,2rem)/1.15 var(--serif);letter-spacing:-.02em}
+    .subtitle{margin-bottom:1.5rem;color:var(--muted);font-size:.9rem;line-height:1.5;max-width:62ch}
+    .diagram{overflow-x:auto}
+    svg{display:block;width:100%;min-width:900px}
+    .read{margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--rule);color:var(--muted);font-size:.82rem;line-height:1.7;max-width:78ch}
+    .read strong{color:var(--ink);font-weight:600}
+    .read .lab{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);display:block;margin-bottom:.4rem}
+    footer{margin-top:1.25rem;padding-top:.75rem;border-top:1px solid var(--rule);color:var(--soft);font:400 .68rem/1.6 var(--mono)}
+  </style>
+</head>
+<body>
+  <main class="frame">
+    <p class="eyebrow">Hình tầng 2 · hồ sơ start-bang-dieu-khien</p>
+    <h1>Bốn bộ đọc, một sự thật: chỗ đang lệch</h1>
+    <p class="subtitle">Sáu trạng thái owner thật sự gặp, đọc lại bởi bốn nơi chữ hiện ra. Ô trống nghĩa là nơi đó đang nói đúng chữ chung; ô đậm là nơi hôm nay nói một chữ khác cho cùng một hồ sơ.</p>
+
+    <div class="diagram">
+      <svg viewBox="0 0 1000 560" role="img" aria-labelledby="h2-title h2-desc" xmlns="http://www.w3.org/2000/svg">
+        <title id="h2-title">Bốn bộ đọc, một sự thật: chỗ đang lệch</title>
+        <desc id="h2-desc">Ma trận sáu trạng thái hồ sơ theo bốn bộ đọc. Bản đồ sản phẩm nói khác ở trạng thái ô đã điền ngưỡng. Bảng trạng thái nói khác ở trạng thái chờ máy nghiệm thu. Thẻ cổng và bảng trạng thái cùng mời ký ở hai trạng thái máy đi tiếp. Thẻ vào phiên xếp sai chỗ hồ sơ đã ký chờ nghiệm thu. Hàng cuối, hồ sơ đọc không được, bốn cột cùng chữ nhưng lưới trước-merge nói khác, và hàng này cố ý không chữa trong vòng này.</desc>
+
+        <rect width="1000" height="560" fill="#f5f5f5"/>
+
+        <!-- ============ NÉT LƯỚI ============ -->
+        <!-- Nét dọc: ranh giới cột, dừng ở hàng cuối -->
+        <line x1="344" y1="72" x2="344" y2="444" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <line x1="504" y1="72" x2="504" y2="444" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <line x1="664" y1="72" x2="664" y2="444" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <line x1="824" y1="72" x2="824" y2="444" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <!-- Nét ngang: băng đầu bảng rồi bước 56 -->
+        <line x1="24" y1="108" x2="984" y2="108" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <line x1="24" y1="164" x2="984" y2="164" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <line x1="24" y1="220" x2="984" y2="220" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <line x1="24" y1="276" x2="984" y2="276" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <line x1="24" y1="332" x2="984" y2="332" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <line x1="24" y1="388" x2="984" y2="388" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <line x1="24" y1="444" x2="984" y2="444" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+        <!-- ============ ĐẦU CỘT ============ -->
+        <text x="24" y="92" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">TRẠNG THÁI HỒ SƠ</text>
+        <text x="424" y="92" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em" text-anchor="middle">THẺ VÀO PHIÊN</text>
+        <text x="584" y="92" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em" text-anchor="middle">THẺ CỔNG</text>
+        <text x="744" y="92" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em" text-anchor="middle">BẢNG TRẠNG THÁI</text>
+        <text x="904" y="92" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em" text-anchor="middle">BẢN ĐỒ SẢN PHẨM</text>
+
+        <!-- ============ HÀNG 1 — ô đã điền ngưỡng, chưa ký ============ -->
+        <text x="24" y="132" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif">Ô đã điền ngưỡng, chưa ký</text>
+        <text x="24" y="148" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">đang chờ Cổng Đáng</text>
+        <rect x="832" y="124" width="144" height="24" rx="4" fill="#2d3142"/>
+        <text x="904" y="140" fill="#f5f5f5" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">«Đang cân nhắc»</text>
+
+        <!-- ============ HÀNG 2 — chờ máy nghiệm thu ============ -->
+        <text x="24" y="188" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif">Chờ máy nghiệm thu</text>
+        <text x="24" y="204" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">code đã viết xong</text>
+        <rect x="672" y="180" width="144" height="24" rx="4" fill="#2d3142"/>
+        <text x="744" y="196" fill="#f5f5f5" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">trỏ nghi thức đã chết</text>
+
+        <!-- ============ HÀNG 3 — máy đi tiếp, cửa veto còn mở ============ -->
+        <text x="24" y="244" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif">Máy đi tiếp — cửa veto còn mở</text>
+        <text x="24" y="260" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">nghiệm thu xanh, hồ sơ sạch</text>
+        <rect x="512" y="236" width="144" height="24" rx="4" fill="#2d3142"/>
+        <text x="584" y="252" fill="#f5f5f5" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">«máy đã xong — ký nhanh»</text>
+        <rect x="672" y="236" width="144" height="24" rx="4" fill="#2d3142"/>
+        <text x="744" y="252" fill="#f5f5f5" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">«Chờ người ký»</text>
+
+        <!-- ============ HÀNG 4 — máy đi tiếp, người đã duyệt Cổng 1 ============ -->
+        <text x="24" y="300" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif">Máy đi tiếp — người đã duyệt Cổng 1</text>
+        <text x="24" y="316" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">nghiệm thu xanh, hồ sơ sạch</text>
+        <rect x="512" y="292" width="144" height="24" rx="4" fill="#2d3142"/>
+        <text x="584" y="308" fill="#f5f5f5" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">«máy đã xong — ký nhanh»</text>
+        <rect x="672" y="292" width="144" height="24" rx="4" fill="#2d3142"/>
+        <text x="744" y="308" fill="#f5f5f5" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">«Chờ người ký»</text>
+
+        <!-- ============ HÀNG 5 — đã ký, chờ phiên nghiệm thu ============ -->
+        <text x="24" y="356" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif">Đã ký, chờ phiên nghiệm thu</text>
+        <text x="24" y="372" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">đường A, chưa có mốc thời gian</text>
+        <rect x="352" y="348" width="144" height="24" rx="4" fill="none" stroke="#2d3142" stroke-width="1"/>
+        <text x="424" y="364" fill="#2d3142" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">xếp đầu bất kể tuổi</text>
+
+        <!-- ============ HÀNG 6 — hồ sơ đọc không được (cố ý chưa chữa) ============ -->
+        <text x="24" y="412" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif">Hồ sơ đọc không được</text>
+        <text x="24" y="428" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">trạng thái lạ</text>
+        <rect x="356" y="404" width="616" height="24" rx="4" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <text x="664" y="420" fill="#ba4513" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">các cột cùng chữ — lưới trước-merge, bộ đọc ngoài hình, nói chữ khác</text>
+
+        <!-- ============ CHÚ THÍCH BIÊN TẬP ============ -->
+        <line x1="664" y1="448" x2="664" y2="460" stroke="#eb6c36" stroke-width="1"/>
+        <text x="984" y="480" fill="#eb6c36" font-size="14" font-family="'Instrument Serif','Lora',serif" font-style="italic" text-anchor="end">Hàng cuối cố ý không chữa trong vòng này — chữa nó phải chạm lưới và nâng hạng cả ô.</text>
+
+        <!-- ============ CHÚ GIẢI ============ -->
+        <line x1="24" y1="504" x2="984" y2="504" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <text x="24" y="530" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">CHÚ GIẢI</text>
+
+        <rect x="112" y="518" width="24" height="16" rx="4" fill="#2d3142"/>
+        <text x="148" y="530" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Bộ đọc này hôm nay nói chữ khác</text>
+
+        <rect x="352" y="518" width="24" height="16" rx="4" fill="none" stroke="#2d3142" stroke-width="1"/>
+        <text x="388" y="530" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Chữ đúng, nhưng xếp sai chỗ</text>
+
+        <rect x="592" y="518" width="24" height="16" rx="4" fill="none" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <text x="628" y="530" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Ô trống · đọc đúng chữ chung</text>
+
+        <rect x="812" y="518" width="24" height="16" rx="4" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <text x="848" y="530" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Cố ý chưa chữa</text>
+      </svg>
+    </div>
+
+    <div class="read">
+      <span class="lab">Cách đọc</span>
+      <p>· Mỗi hàng là <strong>một</strong> sự thật về hồ sơ; bốn cột là bốn nơi sự thật ấy hiện ra thành chữ cho người đọc. Đọc theo hàng, không đọc theo cột.</p>
+      <p>· <strong>Ô trống là tin tốt</strong> — nơi đó đang nói đúng chữ chung. Chỗ có ô mới là chỗ phải sửa, nên mắt chỉ cần bắt các khối đậm.</p>
+      <p>· Hai hàng giữa là hố sâu nhất: cùng một hồ sơ đã nghiệm thu xanh và sạch, <strong>hai nơi cùng mời người ký</strong> trong khi máy đáng lẽ được đi tiếp — đây là lượt gọi người thừa, không phải khoảnh khắc quyết thật.</p>
+      <p>· Hàng «Đã ký, chờ phiên nghiệm thu» dùng ô viền, không ô đậm: chữ ở đó đúng, chỉ chỗ đứng là sai — hồ sơ không có mốc thời gian nên luôn bị đẩy lên đầu thẻ bất kể tuổi.</p>
+      <p>· Thanh cam ở hàng cuối nói cả bốn cột đồng ý; chỗ lệch nằm ở một bộ đọc <strong>ngoài hình</strong>. Vòng này <strong>cố ý không chữa</strong> nó, vì chữa phải chạm lưới trước-merge và kéo cả ô lên hạng rủi ro cao — xem hình H1.</p>
+    </div>
+
+    <footer>
+      Nguồn chữ: <span>docs/superpowers/specs/2026-08-23-start-bang-dieu-khien-design.md</span> §4, §5, §6 · <span>_acceptance/start-bang-dieu-khien/contract.md</span> AC-7, AC-8, AC-12 · đề bài: <span>figures/index.md</span> — Đ4<br>
+      Hình là chiếu của nguồn chữ, không phải nguồn. Commit: 58378148
+    </footer>
+  </main>
+</body>
+</html>

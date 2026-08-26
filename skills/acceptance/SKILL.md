@@ -29,7 +29,7 @@ Core principles (non-negotiable):
 ## Phase 0 — Preflight (always run first)
 
 1. Locate consumer config: `_acceptance/config.yaml` from repo root.
-   Missing → STOP: tell the user to run `/acceptance-init` first.
+   Missing → STOP: tell the user to run `/acceptance-gate:acceptance-init` first.
 2. Read config: `enforcement`, `executors`, `risk_tiers`, `signoff`,
    `dev_server`.
 3. Determine risk tier. Pre-implementation there is no diff yet — classify
@@ -169,11 +169,11 @@ Run immediately after the user reviews the contract (same gate, one sitting).
    việc riêng nào cho nó khi cổng hết chặn.
 
 5. **STOP — Gate 1 part B** (chỉ khi 4c KHÔNG đủ điều kiện đi tiếp). Present evals.yaml + mapping table — or, to cut
-   review time, render the plain-language decision card (`/acceptance-card
+   review time, render the plain-language decision card (`/acceptance-gate:acceptance-card
    <slug>`): the human reviews "sẽ làm / sẽ KHÔNG làm" + coverage flags instead of
    raw YAML (presentation only; the contract/evals stay the source of truth).
    Mời cổng như đồng nghiệp hỏi: một câu hỏi đóng, nói ngả máy khuyên và vì sao, người trả lời một chữ là đủ, rồi nói máy làm gì tiếp; không khuôn, không ô trống, không mã bắt buộc — máy không viết sẵn câu trả lời của người và không hỏi phút.
-   The `/approve <slug>` command walks this stop end-to-end (card → one
+   The `/acceptance-gate:approve <slug>` command walks this stop end-to-end (card → one
    question → recorded decision). On approval:
    set contract `status: approved`, `approved_by`, `approved_at` (identity and
    date follow the ladder in `GATE-ONESHOT-GRAMMAR` — inferred, echoed once
@@ -300,6 +300,11 @@ Entry: implementation complete, contract `status: implemented`.
    **Người veto giữa chừng → DỪNG NGAY**, nêu hiện trạng và đường hoàn tác,
    KHÔNG tranh luận lại căn cứ đã trình, KHÔNG bày menu buộc người quyết lần
    nữa. Veto là quyết định của người; máy chỉ thi hành và để lại vết.
+   **Ô kết có tên của làn V — ĐƯỜNG GHI CHƯA BẬT (giới hạn đã khai).** Trạng
+   thái `machine-cleared` đã có tên và MỌI bên đọc xử lý được nó (lưới
+   trước-merge · hook · bộ quét · bản đồ · thẻ), nhưng **máy KHÔNG được tự đặt
+   trạng thái đó** — làn V vẫn dừng ở `verified`. Lý do và đường bật:
+   `_acceptance/lan-may-thong-duong-ghi/`.
 
 5. **STOP — Gate 2** (chỉ khi 4b KHÔNG đủ điều kiện đi tiếp). Commit the
    machine-written verify output (evidence-report.md + run-log.jsonl +
@@ -309,11 +314,11 @@ Entry: implementation complete, contract `status: implemented`.
    Then present to the user: verdict, the per-eval table, links
    to evidence, and the list of UNCERTAIN judgment items they must personally
    check (T3: ALL judgment items). To cut review time, render the decision card
-   (`/acceptance-card <slug>`) — judgment items + deferred scope (việc-của-người)
+   (`/acceptance-gate:acceptance-card <slug>`) — judgment items + deferred scope (việc-của-người)
    surface FIRST in plain language, machine evidence collapsed; the verdict + hook
    are unchanged.
    Mời cổng như đồng nghiệp hỏi: một câu hỏi đóng, nói ngả máy khuyên và vì sao, người trả lời một chữ là đủ, rồi nói máy làm gì tiếp; không khuôn, không ô trống, không mã bắt buộc — máy không viết sẵn câu trả lời của người và không hỏi phút.
-   The `/signoff <slug>` command walks this stop end-to-end
+   The `/acceptance-gate:signoff <slug>` command walks this stop end-to-end
    (preconditions → overrides → ghi và commit một lượt → pre-merge re-check). The user resolves each pending item by
    filling its `human_override: <name> <date>` line; if the verdict was
    PENDING-JUDGMENT they then upgrade it to PASS (the hook re-validates that
@@ -335,7 +340,7 @@ Entry: implementation complete, contract `status: implemented`.
 
 | Situation | Action |
 |---|---|
-| No `_acceptance/config.yaml` | STOP at Phase 0 → `/acceptance-init` |
+| No `_acceptance/config.yaml` | STOP at Phase 0 → `/acceptance-gate:acceptance-init` |
 | Executor command fails to start (env broken) | verdict BLOCKED + reason — never PASS |
 | No browser MCP for ui-check | Downgrade eval to judgment + note in report |
 | Judge returns >50% UNCERTAIN | Complete the run, then flag contract quality at Gate 2 |

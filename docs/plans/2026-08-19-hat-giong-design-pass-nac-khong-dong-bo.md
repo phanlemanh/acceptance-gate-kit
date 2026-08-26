@@ -386,6 +386,9 @@ engine dưới chân b1 · không xếp kho gì ở repo tiêu thụ trước kh
 | H7 | RACI | vai người trong thiết kế khi không có designer | không |
 | — | Ba lựa chọn phiên đồng bộ | dải giờ người theo ba nấc | không |
 
+Bản phác tầng 1 của cả bảng (8 file tự-đủ + mục lục/cách đọc) chép về ô 22/08:
+`_acceptance/design-pass-nac-khong-dong-bo/discovery/hinh-phac-2026-08-19.md`.
+
 ## Nguồn
 
 - North Star + ba nguyên tố: `CLAUDE.md` (kit), `docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md`.

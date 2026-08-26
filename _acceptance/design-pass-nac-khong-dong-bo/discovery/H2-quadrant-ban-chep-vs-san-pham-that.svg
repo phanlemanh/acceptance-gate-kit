@@ -1,0 +1,29 @@
+<svg font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" width="680" viewBox="0 0 680 460" role="img" xmlns="http://www.w3.org/2000/svg">
+<!-- Phác tầng 1, vẽ nội tuyến trong phiên 2026-08-19 (a19f3e81…); chép về ô 2026-08-22 và làm tự-đủ (CSS nhúng). Chiếu của hạt giống 2026-08-19 mục 8. --><title>H2 — vật dựng theo hai trục: gần sản phẩm thật và đo được</title><desc>Trục ngang từ bản chép đến sản phẩm thật; trục dọc từ chỉ nhìn đến máy đo được. Canvas và proto HTML ở góc chép-nhìn; ruột tạm thật và bản sau cờ ở góc thật-đo.</desc>
+<style>
+.t{font-size:14px;fill:#2C2C2A}.ts{font-size:12px;fill:#5F5E5A}.th{font-size:14px;font-weight:500;fill:#2C2C2A}
+.box{fill:#F7F6F2;stroke:#B4B2A9;stroke-width:.5}.arr{stroke:#888780;stroke-width:1.5;fill:none}.leader{stroke:#B4B2A9;stroke-width:.5;stroke-dasharray:3 3;fill:none}
+.c-purple>rect,.c-purple>circle,.c-purple>ellipse,rect.c-purple,circle.c-purple{fill:#EEEDFE;stroke:#534AB7}.c-purple .th,.c-purple .t{fill:#3C3489}.c-purple .ts{fill:#534AB7}
+.c-teal>rect,.c-teal>circle,.c-teal>ellipse,rect.c-teal,circle.c-teal{fill:#E1F5EE;stroke:#0F6E56}.c-teal .th,.c-teal .t{fill:#085041}.c-teal .ts{fill:#0F6E56}
+.c-coral>rect,.c-coral>circle,.c-coral>ellipse,rect.c-coral,circle.c-coral{fill:#FAECE7;stroke:#993C1D}.c-coral .th,.c-coral .t{fill:#712B13}.c-coral .ts{fill:#993C1D}
+.c-gray>rect,.c-gray>circle,.c-gray>ellipse,rect.c-gray,circle.c-gray{fill:#F1EFE8;stroke:#5F5E5A}.c-gray .th,.c-gray .t{fill:#444441}.c-gray .ts{fill:#5F5E5A}
+</style>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#888780" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<line x1="80" y1="380" x2="660" y2="380" class="arr" marker-end="url(#arrow)"/>
+<line x1="80" y1="380" x2="80" y2="30" class="arr" marker-end="url(#arrow)"/>
+<line x1="370" y1="40" x2="370" y2="380" stroke="#2C2C2A" stroke-width="0.5" stroke-dasharray="4 3"/>
+<line x1="80" y1="210" x2="650" y2="210" stroke="#2C2C2A" stroke-width="0.5" stroke-dasharray="4 3"/>
+<text class="ts" x="90" y="402" dominant-baseline="central">bản chép</text>
+<text class="ts" x="650" y="402" text-anchor="end" dominant-baseline="central">sản phẩm thật</text>
+<text class="ts" x="90" y="440" dominant-baseline="central">↑ dọc: chỉ nhìn (dưới) → máy đo được (trên)</text>
+
+<g class="c-coral"><rect x="100" y="280" width="200" height="56" rx="8" stroke-width="0.5"/><text class="th" x="200" y="298" text-anchor="middle" dominant-baseline="central">Canvas /design</text><text class="ts" x="200" y="316" text-anchor="middle" dominant-baseline="central">chép token · người sửa tay · off-repo</text></g>
+<g class="c-gray"><rect x="100" y="222" width="200" height="50" rx="8" stroke-width="0.5"/><text class="th" x="200" y="238" text-anchor="middle" dominant-baseline="central">Proto HTML frame kit</text><text class="ts" x="200" y="256" text-anchor="middle" dominant-baseline="central">chép · chụp được ma trận</text></g>
+<g class="c-teal"><rect x="400" y="120" width="230" height="56" rx="8" stroke-width="0.5"/><text class="th" x="515" y="138" text-anchor="middle" dominant-baseline="central">Ruột tạm thật (phòng trưng bày)</text><text class="ts" x="515" y="156" text-anchor="middle" dominant-baseline="central">component thật · ui-check đo trên DOM</text></g>
+<g class="c-teal"><rect x="440" y="44" width="200" height="56" rx="8" stroke-width="0.5"/><text class="th" x="540" y="62" text-anchor="middle" dominant-baseline="central">Bản sau cờ dev</text><text class="ts" x="540" y="80" text-anchor="middle" dominant-baseline="central">host thật · S4 + Cổng 2 chấm</text></g>
+
+<text class="ts" x="110" y="60" dominant-baseline="central">ô trống: chưa có vật nào</text>
+<text class="ts" x="110" y="78" dominant-baseline="central">vừa chép vừa đo được — đúng, vì đo bản chép là vô nghĩa</text>
+<text class="ts" x="380" y="300" dominant-baseline="central">vật thật nhưng chỉ nhìn: ảnh chụp</text>
+<text class="ts" x="380" y="318" dominant-baseline="central">phòng trưng bày gửi Cổng 1 (không đồng bộ)</text>
+</svg>

@@ -177,6 +177,14 @@ _Avoid_: sign (đó là Gate 2), duyệt tự động.
 commit một lượt; trách nhiệm đọc ở forge. Viết liền.
 _Avoid_: sign-off, approval (đó là Gate 1).
 
+**Máy đã thông** (`machine-cleared`):
+Trạng thái KẾT của làn V: máy qua Cổng Bằng chứng bằng sáu điều kiện xanh-sạch,
+KHÔNG có chữ ký người; cửa veto vẫn mở theo `veto_state`. Lưới trước-merge coi
+nó là LỜI KHAI và đòi bằng chứng — máy không tự phong. Người ký sau vẫn được:
+`/signoff` đổi sang `signed-off` cùng lượt ghi chữ ký.
+_Avoid_: gọi hồ sơ máy-thông là «đã ký» (đó là chữ của người); in nó cùng chữ
+với `signed-off` ở bất kỳ mặt người nào.
+
 ### Classification
 
 **Risk tier**:
@@ -250,7 +258,7 @@ Thứ trong sản phẩm sinh ra con số cho một thước đã khai — event
 vấn, bảng đếm. Khác **thước** (đo cái gì), **ngưỡng** (bao nhiêu là SỐNG) và
 **số đo** (con số thật đặt cạnh ngưỡng ở Cổng Giá trị). Khai ở contract
 `## Đường đo`, chỉ khi vòng có hồ sơ cơ hội với ngưỡng (22/08).
-_Avoid_: tracking, analytics, metric (metric là *thước*, không phải đường).
+_Avoid_: tracking, analytics. («metric» KHÔNG vào danh sách tránh — kit đang dùng nó đúng nghĩa *thước* ở morphological-scan.)
 
 **Residual**:
 Nhiễu in-scope còn lại sau khi eval chạy (console error, request fail thuộc

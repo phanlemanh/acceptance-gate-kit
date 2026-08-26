@@ -8,11 +8,11 @@ phẩm, không sửa gì, không tự làm nội dung thay nghi thức đích.
 
 Một-lượt-gõ + `--repo` (điều khoản chung, chép nguyên văn từ bản luật):
 
-Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người.
+Ba lệnh có-câu-hỏi (`/acceptance-gate:approve` · `/acceptance-gate:signoff` · `/acceptance-gate:start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người.
 
-Ví dụ một lượt gõ đầy đủ: `/start abc-xyz --repo /duong/dan/repo`
+Ví dụ một lượt gõ đầy đủ: `/acceptance-gate:start abc-xyz --repo /duong/dan/repo`
 
-Câu gộp của lệnh này là chọn-trước bằng slug: `/start <slug>` — vẫn quét máy
+Câu gộp của lệnh này là chọn-trước bằng slug: `/acceptance-gate:start <slug>` — vẫn quét máy
 ở bước 1 như thường, rồi slug nằm trong nhóm nào thì bàn giao thẳng theo lối
 nhóm đó ở bước 4 (không hỏi câu chọn) và HIỂN THỊ LẠI nhóm đã khớp một dòng
 (hồ sơ nào, nhóm nào, đi lối nào) trong cùng lượt trả lời — máy gánh phần
@@ -24,20 +24,21 @@ worktree/nhánh đọc từ git của `<path>`.
 1. **Quét máy, không hỏi người:** chạy
    `node ${CLAUDE_PLUGIN_ROOT}/scripts/start-scan.mjs --root .` → JSON một dòng.
    `config` là `false` → in đúng một dòng: "Repo này chưa dựng cổng nghiệm thu —
-   chạy `/acceptance-init` trước." rồi DỪNG, không quét tiếp, không hỏi thêm.
+   chạy `/acceptance-gate:acceptance-init` trước." rồi DỪNG, không quét tiếp, không hỏi thêm.
 
    Các key JSON lệnh này đọc (máy đối chiếu với đầu ra script thật ở case
    round-trip — đổi tên một phía là kiểm thử đỏ):
    <!-- <<<START-SCAN-KEYS
    config
-   git.branch git.dirty
-   groups.gates[].slug groups.gates[].gate groups.gates[].since groups.gates[].tier
-   groups.inProgress[].slug groups.inProgress[].status groups.inProgress[].nextStep groups.inProgress[].tier
-   groups.considering[].slug groups.considering[].name groups.considering[].since groups.considering[].ageDays
-   groups.done[].slug groups.done[].state
+   git.branch git.dirty git.ahead git.behind git.compareRef
+   groups.gates[].slug groups.gates[].gate groups.gates[].since groups.gates[].tier groups.gates[].stateKey groups.gates[].label groups.gates[].viecKe groups.gates[].flags
+   groups.inProgress[].slug groups.inProgress[].status groups.inProgress[].nextStep groups.inProgress[].tier groups.inProgress[].stateKey groups.inProgress[].label groups.inProgress[].viecKe groups.inProgress[].flags
+   groups.considering[].slug groups.considering[].name groups.considering[].since groups.considering[].ageDays groups.considering[].ageTied groups.considering[].stateKey groups.considering[].label groups.considering[].viecKe groups.considering[].flags
+   groups.done[].slug groups.done[].state groups.done[].at groups.done[].stateKey groups.done[].label groups.done[].viecKe groups.done[].flags
    map.present map.fresh map.enabled map.state map.label
    discovery.brainstormSkill
-   broken[].slug broken[].file broken[].reason
+   vetoOpen[].slug vetoOpen[].status
+   broken[].slug broken[].file broken[].reason broken[].stateKey broken[].label broken[].viecKe broken[].flags
    START-SCAN-KEYS>>> -->
 
 2. **Nạp luật TRƯỚC khi viết:** đọc
@@ -51,33 +52,55 @@ worktree/nhánh đọc từ git của `<path>`.
      Đáng: quyết có làm việc này không · `pham-vi` = Cổng Phạm vi: duyệt bộ tiêu
      chí trước khi code · `bang-chung` = Cổng Bằng chứng: đọc bằng chứng rồi ký
      · `gia-tri` = Cổng Giá trị: xem số thật từ phiên nghiệm thu rồi quyết giao
-     rộng / lặp thêm / dừng), của việc nào.
+     rộng / lặp thêm / dừng), của việc nào. Phần tử có `flags` → in thêm ngay
+     dòng đó, mỗi cờ một câu, KHÔNG gộp: `nguong-chua-chot` → «ngưỡng chưa chốt —
+     điền ngưỡng vào ô, hoặc khai một dòng “Không đo được — …” kèm một dòng sổ»;
+     `mien-do-co-nguoi-dung` → «⚠ khai không đo được nhưng hợp đồng có mặt người
+     dùng — lối đó chỉ cho vòng không có người dùng cuối»; `qua-timebox` → «quá
+     hạn tự khai — xem lại: xếp lại hay kéo dài». Cờ là thứ người quyết, máy
+     KHÔNG tự xử.
    - **Đang dở** (`groups.inProgress`): mỗi vòng một dòng — *người dùng sẽ được
      gì* (một câu từ tên việc, KHÔNG mở file sản phẩm ra đọc) + bước kế viết
      BẰNG CHỮ, mã máy trong ngoặc — tra bảng: chốt thiết kế và tiêu chí (`S1`)
      · lập kế hoạch (`S2`) · viết code (`S3`) · sửa theo bằng chứng (`S3-fix`)
      · nghiệm thu máy (`S4`). Lần đầu một mã hiện trên thẻ phải kèm nghĩa.
+     Phần tử có `flags` → in thêm ngay dòng đó, mỗi cờ một câu, cùng câu chữ với
+     nhóm chờ chữ ký ở trên (`qua-timebox` → «quá hạn tự khai — xem lại: xếp lại
+     hay kéo dài»). Cờ là thứ người quyết, máy KHÔNG tự xử.
    <!-- <<<START-CAN-NHAC -->
    - **Đang cân nhắc** (`groups.considering` — ý đã có ô nhưng chưa điền ngưỡng,
      nên chưa có gì để ký; máy không xếp vào chờ chữ ký): N = 0 → KHÔNG in dòng
-     nào. N ≥ 1 → đúng MỘT dòng «Đang cân nhắc: N ý · cũ nhất X ngày» (X =
-     `ageDays` lớn nhất) rồi tối đa 3 `name` cũ nhất (script đã xếp cũ nhất lên
-     đầu). Chọn một ý → việc kế là điền section Ngưỡng trong `opportunity.md`
+     nào. N ≥ 1 → đúng MỘT dòng gộp «Đang cân nhắc: N ý · cũ nhất X ngày» (X =
+     `ageDays` lớn nhất) — nhưng phần tử nào mang `ageTied` là `true` thì thay
+     vế tuổi bằng «chưa rõ tuổi»: mấy ý sinh ra trong CÙNG một commit mang cùng
+     dấu thời gian, in nó thành tuổi là nói một con số không có thật. Rồi in
+     **mọi** `name` trong `groups.considering`, không cắt: `giới hạn: không`.
+     Máy CHỈ được xếp hạng hay cắt danh sách này khi chính ô đó đã khai **thước**
+     từ trước; chưa có thước thì hiện hết theo thứ tự cũ-nhất-trước, KHÔNG tự
+     chế tiêu chí — đây là bàn cược của người, máy không cược hộ.
+     Chọn một ý → việc kế là điền section Ngưỡng trong `opportunity.md`
      của nó; điền đủ là máy tự đưa sang chờ Cổng Đáng ở lần quét sau.
    <!-- START-CAN-NHAC>>> -->
+   - **Bắt đầu việc mới** — đúng ba lối, không thêm lối nào. Kết buổi khai thác
+     của lối (a) theo khối ngay dưới, rồi mới tới ba lối:
    <!-- <<<START-HIEU-KET -->
    **Kết thúc buổi khai thác — MỌI lối, mở bằng skill nào cũng vậy:** ghi
    `_acceptance/<slug>/opportunity.md` từ khối `OPP-FRONTMATTER-TEMPLATE` của
    `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/opportunity-template.md`:
    ① `stage: discovery` · ② `decision: ` để trống (người ký Cổng Đáng điền) ·
    ③ file BẮT ĐẦU ở dòng `---` — không tiêu đề, không hàng rào yaml trước nó ·
-   ④ section «Vấn đề & ai gặp» ≥ 1 câu · ⑤ section «Ngưỡng chết / ngưỡng UAT»
-   giữ nguyên `…` của khuôn tới khi người điền — chưa điền là «đang cân nhắc»,
-   điền đủ là chờ Cổng Đáng · ⑥ KHÔNG viết spec, KHÔNG viết contract ở bước này
+   ④ section «Vấn đề & ai gặp» ≥ 1 câu · ⑤ section «Ngưỡng chết / ngưỡng UAT»:
+   máy ĐƯỢC đề xuất ngưỡng khi có căn cứ — mỗi bullet mang tiền tố `[đề xuất]`
+   ngay sau dấu `:` (khối `OPP-DE-XUAT-PREFIX` của khuôn), người ký Cổng Đáng gỡ
+   tiền tố là chốt; ý còn mờ thật thì giữ `…` như cũ. Vòng KHÔNG có người dùng
+   cuối → thay các bullet bằng MỘT dòng `Không đo được — <lý do>` (khối
+   `OPP-KHONG-DO-DUOC-PREFIX`). Còn `…` là «đang cân nhắc»; có đề xuất hoặc đã
+   chốt là chờ Cổng Đáng. Máy khuyên, máy KHÔNG quyết: `decision` để trống ·
+   ⑥ KHÔNG viết spec, KHÔNG viết contract ở bước này
    (đó là S1, sau Cổng Đáng). Ý không ghi vào ô là ý sẽ mất — ba bộ đọc định kỳ
-   (/start · bản đồ · lưới) chỉ thấy `_acceptance/`.
+   (/acceptance-gate:start · bản đồ · lưới) chỉ thấy `_acceptance/`.
    <!-- START-HIEU-KET>>> -->
-   - **Bắt đầu việc mới** — đúng ba lối, không thêm lối nào: (a) ý còn mơ hồ →
+     (a) ý còn mơ hồ →
      buổi khai thác vòng HIỂU; đích lấy từ `discovery.brainstormSkill` trong
      JSON quét (ổ cắm repo tự khai ở `_acceptance/config.yaml`, khoá
      `discovery.brainstorm_skill`): CÓ giá trị → mở buổi khai thác bằng đúng
@@ -90,10 +113,15 @@ worktree/nhánh đọc từ git của `<path>`.
      `<tên>`, phiên này không có skill đó") rồi khai thác theo khuôn, kết thúc theo `START-HIEU-KET` — đích khai
      mà không giải được thì im lặng dùng nó là đẩy phiên vào con trỏ chết. Trước Cổng Đáng
      KHÔNG dùng `superpowers:brainstorming` — skill đó thuộc S1 vòng LÀM, nó
-     trả lời "làm thế nào" trong khi buổi này hỏi "có làm không / làm gì"; (b)
-     việc đã rõ → `/feature-loop <mô tả>`; (c) việc vặt khớp miễn trừ T1 →
-     xác nhận nó là T1 rồi KẾT THÚC `/start` — người ra lệnh sửa ở lượt kế,
-     ngoài nghi thức này (lệnh `/start` không sửa gì, kể cả việc vặt).
+     trả lời "làm thế nào" trong khi buổi này hỏi "có làm không / làm gì".
+     Cũng KHÔNG cắm skill hội thoại mở vào bước này — mặc định của kit là máy
+     phân kỳ theo khuôn (quét không gian, đối chiếu nguồn, vẽ hình) rồi trình
+     MỘT câu đóng; hỏi mở nhiều lượt kéo người vào giữa vòng, đúng thứ luật kit
+     gọi là đường cùng. Ổ cắm `discovery.brainstorm_skill` vẫn giữ nguyên cho
+     repo nào muốn tự khai — nó trung tính, kit không cắm sẵn ai vào đó; (b)
+     việc đã rõ → `/feature-loop:feature-loop <mô tả>`; (c) việc vặt khớp miễn trừ T1 →
+     xác nhận nó là T1 rồi KẾT THÚC `/acceptance-gate:start` — người ra lệnh sửa ở lượt kế,
+     ngoài nghi thức này (lệnh `/acceptance-gate:start` không sửa gì, kể cả việc vặt).
    - Dưới thẻ: một dòng bản đồ sản phẩm — đọc `map.state` + `map.label` (nhãn
      rút từ bảng nhãn chung trong lib, CÙNG chữ với cổng CI — không tự chế
      chuỗi): `da-xoa` → in nguyên `map.label` kèm "khôi phục, hoặc vẽ lại bằng
@@ -107,6 +135,11 @@ worktree/nhánh đọc từ git của `<path>`.
      được bản đồ" (KHÔNG nói là khớp). Rồi mỗi phần tử
      `broken[]` một dòng cờ hỏng: việc nào, hồ sơ nào
      (`file`), vì sao (`reason`) — việc có hồ sơ hỏng vẫn phải hiện, không giấu.
+   - Cũng dưới thẻ, một dòng về cây đang làm việc: `git.behind` > 0 → «cây này
+     đang sau bản chung <behind> commit (so với `git.compareRef`) — thẻ có thể
+     đang in trạng thái cũ»; `git.compareRef` là `null` → «chưa so được với bản
+     chung nên chưa biết cây có cũ không» (ĐỪNG nói là đã khớp — chưa biết khác
+     hẳn đã khớp); `behind` là 0 → không in dòng nào.
    - `groups.done` chỉ đếm gộp một dòng cuối thẻ (đã xong/đã xếp lại: N việc).
      Hai trạng thái «máy đã đi tiếp, không cần chữ ký» — máy quét chỉ gán
      chúng khi hồ sơ trả lời được ĐÚNG câu lưới trước-merge hỏi (sáu điều kiện
@@ -116,15 +149,31 @@ worktree/nhánh đọc từ git của `<path>`.
      được, cửa không có hạn); `state: xanh-sach` là hồ sơ không có cửa veto —
      người đóng hoặc miễn Cổng 1, bằng chứng xanh-sạch. Cả hai KHÔNG phải cổng, KHÔNG được liệt vào nhóm chờ chữ ký; có
      phần tử như vậy thì dòng đếm gộp nói thêm «trong đó N máy đi tiếp không
-     ký, M còn cửa veto mở», không thêm dòng riêng và không hỏi thêm câu nào.
+     ký», không hỏi thêm câu nào.
      Hồ sơ CHƯA sạch thì máy quét vẫn xếp vào chờ chữ ký — kể cả khi cửa veto
      đang mở.
+   - **Vừa xong** — ngay dưới dòng đếm gộp, in **5 việc** ĐẦU TIÊN của
+     `groups.done` (máy quét đã xếp `at` giảm dần, mốc trống xuống cuối — thẻ
+     KHÔNG tự xếp lại), mỗi việc MỘT dòng: `at` · `label` ·
+     tên việc. `at` là `null` → in «chưa rõ ngày», KHÔNG bỏ dòng và không đoán
+     mốc. Một con số gộp không cho người NHÌN THẤY máy vừa làm gì; vòng «máy
+     làm và tự chứng minh» chỉ đóng khi việc vừa xong có tên.
+     Phần tử có `flags` → in thêm ngay dưới dòng của nó, mỗi cờ một câu, cùng
+     câu chữ với nhóm chờ chữ ký ở trên (`qua-timebox` → «quá hạn tự khai — xem
+     lại: xếp lại hay kéo dài»; `mien-do-co-nguoi-dung` → «⚠ khai không đo được
+     nhưng hợp đồng có mặt người dùng — lối đó chỉ cho vòng không có người dùng
+     cuối») — việc đã giao vẫn phải hiện cờ, cờ là thứ người quyết, máy KHÔNG
+     tự xử.
+   - **Còn veto được** — `vetoOpen` có phần tử → in **TÊN từng hồ sơ** (không
+     chỉ đếm), kèm một câu «người veto lúc nào cũng được, cửa không có hạn».
+     Đây là cùng con số lưới trước-merge in ra; veto-default chỉ sống nếu
+     người THẤY TÊN — không ai veto được thứ mình không thấy.
 
 4. **MỘT câu hỏi chọn bằng chữ cái/số dòng** — không hỏi câu thứ hai. Người
    chọn xong → bàn giao sang nghi thức đích:
-   - Chọn một cổng → `/acceptance-card <slug>`; riêng cổng `gia-tri` → skill
-     `uat-session <slug>` (phiên nghiệm thu có nghi thức riêng, không phải thẻ).
-   - Chọn một vòng dở → `/feature-loop <slug>` — NHƯNG nếu `git.dirty` là
+   - Chọn một cổng → `/acceptance-gate:acceptance-card <slug>`; riêng cổng `gia-tri` → skill
+     `/acceptance-gate:uat-session <slug>` (phiên nghiệm thu có nghi thức riêng, không phải thẻ).
+   - Chọn một vòng dở → `/feature-loop:feature-loop <slug>` — NHƯNG nếu `git.dirty` là
      `true` hoặc phiên đang đứng cây chung với vòng khác: nhắc mở worktree/
      phiên riêng TRƯỚC, chưa đưa lệnh resume (cạm bẫy một-worktree-một-phiên).
    - Chọn việc mới → đi đúng lối (a)/(b)/(c) ở bước 3.

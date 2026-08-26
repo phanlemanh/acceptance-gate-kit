@@ -79,6 +79,15 @@ lọt thành đường đo thật; (C2) heading tiền tố `## Đường đo l�
 (C4) khuôn «dòng bỏ VÀ entry» vs SKILL «chỉ entry» → khuôn đổi «(tuỳ chọn) kèm entry».
 Cộng một cờ info nhiễu thường trực: «Từ vựng: repo có CONTEXT.md nhưng thẻ chưa được truyền --glossary-base».
 
+## Red-team D2 (22/08) — thay đổi phạm vi
+
+Pass tách biệt trúng ba đòn: (1) 7 chỗ `uat-session` đã chắc sai ở mọi máy — không chặn chip để chờ
+chuỗi của owner; (2) ≥ 4/9 finding B/C là CỘNG (B1 B2 B4 C4) → tách hồ sơ riêng, chip D chỉ giữ TRỪ;
+(3) đổi ~170 literal của thước cũ là giờ-kit cho thứ không ai bấm và là lớp «viết-đọc cùng nguồn» → CẮT,
+chỉ thêm 1 ca round-trip (bảng ⊆ thư mục, tiền tố từ `plugin.json`) + 1 ca quét 48 điểm; ngưỡng UAT sửa
+thành thứ chỉ owner biết («0 lần gõ lại tay»), phần tĩnh về S4. Bảng re-rank và phạm vi sau lọc nằm trong
+`_acceptance/lenh-in-ra-phai-bam-duoc/opportunity.md`.
+
 ## Không làm
 
 - Không đổi tên lệnh nào của kit; không thêm lệnh mới; không alias.

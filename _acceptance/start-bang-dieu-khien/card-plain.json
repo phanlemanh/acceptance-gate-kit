@@ -1,0 +1,12 @@
+{
+  "feature_plain": "Thẻ mở phiên nói thẳng anh cần quyết gì và máy vừa làm xong gì cho anh — thay vì chỉ chỉ đường sang chỗ khác.",
+  "scope_plain": "Không đụng lưới trước-merge và lõi cưỡng chế — giữ việc này ở hạng thường; không đổi vai bản đồ sản phẩm; không cho máy tự xếp lại hay khai tử ý nào; không đụng trạng thái hồ sơ hay nghi thức cổng; không thêm lệnh mới; không mở sang ba tài liệu đầu tay.",
+  "decisions_plain": [
+    {"id": "d-20260823T041200Z-9401", "p": "Đã chốt LÀM việc này ở Cổng Đáng, vì phần lớn là bỏ bớt chứ không thêm."},
+    {"id": "d-20260823T012029Z-27499", "p": "Đặt bảng chữ chung ở vùng công cụ, không ở vùng lõi cưỡng chế — giữ việc này ở hạng thường, tránh thêm một chốt kế hoạch và một chữ ký bắt buộc."},
+    {"id": "d-20260823T012029Z-29818", "p": "Thẻ cổng HỎI bộ quét thay vì tự dựng lại cách phán đoán — bộ quét chết thì thẻ giữ nguyên như cũ kèm cờ vàng."},
+    {"id": "d-20260823T012029Z-1428", "p": "KHÔNG chữa ca lệch chữ cuối (hồ sơ tình trạng lạ) — chữa nó phải chạm lưới và nâng hạng cả việc; đổi lại nó thành một giới hạn CÓ TÊN."},
+    {"id": "d-20260823T012029Z-23110", "p": "KHÔNG cho máy xếp hạng ý — hiện hết, cũ trước; đổi lại thứ tự không mang tin khi nhiều ý sinh cùng lúc."},
+    {"id": "d-20260823T012029Z-10755", "p": "Năm phép đo neo vào sự thật của kho hôm nay sẽ chết theo hồ sơ khi merge, không nằm lại bộ đo vĩnh viễn."}
+  ]
+}

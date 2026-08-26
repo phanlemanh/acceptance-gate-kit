@@ -1,0 +1,8 @@
+{"ts":"2026-08-23T00:42:19Z","sha":"1c163c71d234b46dc73571a70cf6083cd223e808","round":1,"evalId":"E1","run_id":"lenh-tran-tai-lieu-dau-tay-E1-r1-20260823T004219Z","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-23T00:42:19Z","sha":"1c163c71d234b46dc73571a70cf6083cd223e808","round":1,"evalId":"E2","run_id":"lenh-tran-tai-lieu-dau-tay-E2-r1-20260823T004219Z","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-23T00:42:19Z","sha":"1c163c71d234b46dc73571a70cf6083cd223e808","round":1,"evalId":"E3","run_id":"lenh-tran-tai-lieu-dau-tay-E3-r1-20260823T004219Z","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-23T00:42:19Z","sha":"1c163c71d234b46dc73571a70cf6083cd223e808","round":1,"evalId":"E4","run_id":"lenh-tran-tai-lieu-dau-tay-E4-r1-20260823T004219Z","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-08-23T00:45:01Z","sha":"1c163c71d234b46dc73571a70cf6083cd223e808","round":1,"evalId":"E5","run_id":"lenh-tran-tai-lieu-dau-tay-E5-r1-20260823T004501Z","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-08-23T00:46:28Z","sha":"1c163c71d234b46dc73571a70cf6083cd223e808","round":1,"evalId":"E6","run_id":"lenh-tran-tai-lieu-dau-tay-E6-r1-20260823T004628Z","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-08-23T00:46:35Z","sha":"1c163c71d234b46dc73571a70cf6083cd223e808","round":1,"evalId":"E7","run_id":"lenh-tran-tai-lieu-dau-tay-E7-r1-20260823T004635Z","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-08-23T00:46:42Z","sha":"1c163c71d234b46dc73571a70cf6083cd223e808","round":1,"evalId":"E8","run_id":"lenh-tran-tai-lieu-dau-tay-E8-r1-20260823T004642Z","exit_code":0,"cmd":"node scripts/product-map.mjs --root . --check"}

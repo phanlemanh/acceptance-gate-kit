@@ -67,7 +67,10 @@ if (want('VC1')) {
   const c = (j.groups.considering || []).find(x => x.slug === 'w-idea');
   if (!c) errs.push(`w-idea không ở considering[] (broken=${JSON.stringify(j.broken)})`);
   else {
-    if (Object.keys(c).sort().join(',') !== 'ageDays,name,since,slug') errs.push(`khoá lệch: ${Object.keys(c).join(',')}`);
+    // Ghim tập khoá CHÍNH XÁC (một khoá lạ lọt vào vẫn đỏ). Ba khoá stateKey/
+    // label/viecKe thêm ở hồ sơ start-bang-dieu-khien — chữ mặt người rút từ bảng chung;
+    // ageTied: mấy ý sinh cùng một commit mang cùng dấu thời gian, thẻ phải nói «chưa rõ tuổi».
+    if (Object.keys(c).sort().join(',') !== 'ageDays,ageTied,flags,label,name,since,slug,stateKey,viecKe') errs.push(`khoá lệch: ${Object.keys(c).join(',')}`);
     if (c.name !== 'Ý w-idea') errs.push(`name ≠ feature: ${c.name}`);
   }
   if (slugsIn(j.groups.gates).includes('w-idea')) errs.push('w-idea vẫn ở gates[]');
@@ -163,8 +166,24 @@ if (want('VC6')) {
   if (!hk) errs.push('không tìm thấy khối START-HIEU-KET');
   if (cn && hk) {
     // START-CAN-NHAC: 4 assert (3 chuỗi + vị trí)
-    for (const [name, re] of [['Đang cân nhắc', /Đang cân nhắc/], ['cũ nhất', /cũ nhất/], ['N = 0 không in', /N = 0 → KHÔNG in/]])
+    // Đo MỆNH ĐỀ DƯƠNG + một KHOÁ máy-đọc, không đo danh sách đen: không gian chữ
+    // là mở nên «tối đa ba» viết bằng CHỮ lọt qua mọi regex bắt chữ số. Khoá
+    // `giới hạn: không` là nguồn; văn xuôi quanh nó là chú thích (hồ sơ
+    // start-bang-dieu-khien, AC-1).
+    for (const [name, re] of [['Đang cân nhắc', /Đang cân nhắc/],
+                              // HAI vế RIÊNG, không dùng phép hoặc: `/cũ nhất|chưa rõ tuổi/`
+                              // được thoả sẵn bởi vế đầu (khối vẫn còn «cũ nhất X ngày»),
+                              // nên vế «chưa rõ tuổi» không bao giờ đỏ được — phép đo chết.
+                              ['tuổi thường (cũ nhất X ngày)', /cũ nhất/],
+                              ['nhánh tuổi trùng (chưa rõ tuổi)', /chưa rõ tuổi/],
+                              ['khoá ageTied dẫn nhánh đó', /`ageTied`/],
+                              ['N = 0 không in', /N = 0 → KHÔNG in/],
+                              ['in mọi phần tử', /\*\*mọi\*\* `name`/],
+                              ['thước khai trước', /thước/]])
       if (!re.test(cn)) errs.push(`START-CAN-NHAC thiếu «${name}»`);
+    const gh = (cn.match(/`giới hạn: ([^`]*)`/) || [])[1];
+    if (gh === undefined) errs.push('START-CAN-NHAC thiếu khoá máy-đọc `giới hạn: …`');
+    else if (gh.trim() !== 'không') errs.push(`giới hạn phải là «không», đang là «${gh.trim()}»`);
     const iDo = md.indexOf('**Đang dở**'), iCn = md.indexOf('<<<START-CAN-NHAC'), iNew = md.indexOf('**Bắt đầu việc mới**');
     if (!(iDo > -1 && iDo < iCn && iCn < iNew)) errs.push('START-CAN-NHAC không nằm sau «Đang dở» trước «Bắt đầu việc mới»');
     // START-HIEU-KET: ma trận 6 mệnh đề VIẾT TRƯỚC — số assert == số mệnh đề
@@ -289,12 +308,21 @@ if (want('VC8')) {
   // «không ở considering» là hằng-đúng (nhánh opportunity không còn được đọc) — assertion chết.
   // Điều còn ĐO ĐƯỢC trên cây thật: slug phải nằm ở ĐÚNG MỘT ô, không biến mất, không hỏng.
   // Phần phân biệt «stub đã quyết KHÔNG rơi về đang-cân-nhắc» sống ở VC3 (fixture w-build, cô lập).
-  const cons = slugsIn(j.groups.considering);
-  const buckets = ['gates', 'inProgress', 'considering', 'done'].filter(k => slugsIn(j.groups[k]).includes('duong-do-trong-dinh-nghia-xong')).length
-    + (slugsIn(j.broken).includes('duong-do-trong-dinh-nghia-xong') ? 1 : 0);
-  if (buckets !== 1) errs.push(`duong-do phải nằm đúng MỘT ô, đang ở ${buckets} ô`);
-  for (const s of NEW.filter(s => s !== 'duong-do-trong-dinh-nghia-xong')) if (!cons.includes(s)) errs.push(`${s} không ở considering`);
-  if (errs.length) fail('VC8', errs.join(' · ')); else pass('VC8', 'mọi hạt giống có ô (ba chân, vũ trụ ≥ 13); 7 stub sống; trạng thái sống một chỗ');
+  // SỬA THEO LỚP, không vá theo TÊN. Bất biến thật của luật «vào có ô» là: mọi
+  // stub nằm ĐÚNG MỘT ô, không biến mất, không hỏng — KHÔNG phải «ở considering».
+  // «Ở considering» là ghim CHẶNG của hồ sơ khác: mỗi lần một ý được quyết
+  // (build/park/kill) hay đi tiếp một chặng thì ca này đỏ oan trên một cây ĐÚNG.
+  // Bom đã nổ HAI lần: 22/08 với duong-do (bản vá cũ carve-out riêng nó — đúng
+  // thứ CLAUDE.md cấm: «đừng chỉ vá case bị nêu tên»), 23/08 với
+  // ban-do-dinh-chu-ky khi owner bác nó ở Cổng Đáng. Vá theo tên lần nữa là hẹn
+  // nổ lần ba. Phần phân biệt «stub đã quyết KHÔNG rơi về đang-cân-nhắc» sống ở
+  // VC3 trên fixture cô lập, nơi nó đo được mà không ghim chặng của ai.
+  for (const s of NEW) {
+    const n = ['gates', 'inProgress', 'considering', 'done'].filter(k => slugsIn(j.groups[k]).includes(s)).length
+      + (slugsIn(j.broken).includes(s) ? 1 : 0);
+    if (n !== 1) errs.push(`${s} phải nằm đúng MỘT ô, đang ở ${n} ô`);
+  }
+  if (errs.length) fail('VC8', errs.join(' · ')); else pass('VC8', `mọi hạt giống có ô (ba chân, vũ trụ ≥ 13); ${NEW.length} stub sống, mỗi stub đúng MỘT ô (không ghim chặng)`);
 }
 
 // VC_CASES nêu id không tồn tại → không được xanh im lặng (xanh-không-chạy)

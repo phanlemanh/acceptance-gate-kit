@@ -25,10 +25,49 @@ const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence
 // cùng hồ sơ cho hai kết luận trái nhau).
 const { recordProblem, navValues, consumedTexts, usesUat, usesOpportunity, usesEvidence,
         missingArtifact, readRecord, ioReason, configList, NAV_RULES, mapState, MAP_LABELS,
-        mapTracked } =
+        mapTracked, DA_THONG_CONG_2, conflictProblem } =
   require(path.join(__dirname, '..', 'lib', 'workspace-record.cjs'));
 
 export { NAV_RULES };
+// Ô của bản đồ suy qua PHÉP CHIẾU nhiều-về-một của bảng chữ chung — cùng nguồn
+// với máy quét và thẻ cổng. Bản đồ vẫn KHÔNG mang vị từ: chiếu chỉ đổi ĐƯỜNG ĐI
+// TỚI ô, không đổi TÊN ô (hồ sơ start-bang-dieu-khien, AC-7).
+const { BUCKET_OF, chu } = require(path.join(__dirname, 'trang-thai-ho-so.cjs'));
+const NGUONG = require(path.join(__dirname, '..', 'lib', 'nguong-o-co-hoi.cjs'));
+import { khongCanNguoi } from './khong-can-nguoi.mjs';
+const OPP_TPL_MAP = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md');
+let _oppTpl = null;
+// FAIL-CLOSED có TÊN, như hai bộ đọc anh em (start-scan `bail(...)`, gate-card cờ đỏ kèm
+// đường sửa): khuôn vắng/không đọc được thì CHẾT TO kèm tên khuôn + đường sửa, KHÔNG phải
+// stack trace Node. Repo tiêu thụ chép `scripts/` + `lib/` mà chưa mang `skills/.../
+// opportunity-template.md` sẽ gặp đúng cửa này — thông điệp phải nói được phải làm gì,
+// vì trước bản này bản đồ không đọc khuôn lần nào (S4-r8 [0]).
+const oppTplText = () => {
+  if (_oppTpl != null) return _oppTpl;
+  try { return (_oppTpl = readFileSync(OPP_TPL_MAP, 'utf8')); }
+  catch (e) {
+    process.stderr.write(`product-map: khuôn opportunity-template không đọc được: ${OPP_TPL_MAP} (${e.code || e.message})\n`
+      + '  Bản đồ cần khuôn này để phân loại ô ngưỡng của hồ sơ đã thông Cổng Bằng chứng.\n'
+      + '  Sửa: mang skills/acceptance/references/opportunity-template.md sang cạnh scripts/ và lib/, rồi chạy lại.\n');
+    process.exit(2);
+  }
+};
+
+// `thresholdState` NÉM khi khuôn mất khối marker hoặc mất section Ngưỡng — và thông điệp
+// của nó KHÔNG mang tên khuôn. Ném trần ở đây cho stack trace Node và EXIT 1, mà exit 1
+// đúng là mã `--check` dùng cho «bản đồ lệch với hồ sơ xưởng»: một khuôn hỏng ở repo tiêu
+// thụ sẽ hiện ra ở CI như bản đồ lệch. ADR 0007 lấy `--check` làm cổng độc lập DUY NHẤT
+// biện minh cho miễn trừ t1 của bản đồ, nên cổng đó KHÔNG được lẫn lỗi hạ tầng với lỗi vật
+// (S4-r11 [0]). Cùng khuôn với oppTplText() ngay trên: chết to, có tên, exit 2.
+const thresholdStateOrDie = oTxt => {
+  try { return NGUONG.thresholdState(oTxt, oppTplText()); }
+  catch (e) {
+    process.stderr.write(`product-map: ${e.message}: ${OPP_TPL_MAP}\n`
+      + '  Bản đồ cần khuôn này để phân loại ô ngưỡng của hồ sơ đã thông Cổng Bằng chứng.\n'
+      + '  Sửa: khôi phục khối marker / section Ngưỡng trong khuôn, rồi chạy lại.\n');
+    process.exit(2);
+  }
+};
 
 // Tên ô nói VIỆC ĐANG Ở ĐÂU, không gọi tên cơ chế máy (N1). Thứ tự cố định —
 // nó cũng là thứ tự các chặng trong hình.
@@ -158,28 +197,62 @@ function classify(dir, slug) {
   // field bắt buộc rỗng, giá trị ngoài enum — tất cả là hỏng, không cái nào
   // được rơi vào khoảng trống rồi hiện ở một ô bình thường.) Kèm luật
   // khai-xong-mà-thiếu-file: verified mà vắng evidence-report là hỏng.
-  const problem = recordProblem(texts) || missingArtifact(texts);
+  const problem = recordProblem(texts) || missingArtifact(texts) || conflictProblem(texts);
   if (problem) return { key: 'hong', slug, file: problem.file, reason: problem.reason };
 
   // Lượt 2 — xếp ô, tra từ artifact muộn nhất về sớm nhất.
   const { status, stage, decision, verdict } = navValues(texts);
   if (verdict) return { key: 'da-nghiem-thu', slug, name, edge, note: UAT_KET_CUC[verdict] };
 
+  // Khoá trạng thái trước, ô bản đồ suy từ nó qua BUCKET_OF — thay vì tự map
+  // status sang ô. Bucket vẫn THÔ như cũ (approved/implemented/verified gộp một
+  // nhãn) vì phép chiếu gom chúng lại, nên bản đồ vẫn đứng yên giữa hai lần
+  // đóng cổng người và `--check` không đỏ oan giữa vòng.
+  const o = k => ({ key: BUCKET_OF[k], slug, name, edge });
   if (status) {
-    if (status === 'signed-off') {
+    if (DA_THONG_CONG_2.includes(status)) {
+      // LỜI KHAI PHẢI CÓ VẬT — hỏi TRƯỚC mọi nhánh rẽ, đúng vị trí start-scan đặt nó
+      // (scripts/start-scan.mjs, ngay sau khối DA_THONG_CONG_2). Đặt chốt này BÊN TRONG
+      // nhánh `status === 'machine-cleared'` ở cuối là vô dụng: hồ sơ đường A thoát ra ở
+      // `if (duongA) return …` TRƯỚC đó, nên bản đồ lại tin thẳng frontmatter trong khi bộ
+      // quét gọi HỎNG — đúng lớp lỗi vừa định giết, chỉ đổi chỗ (S4-r12 [0][1]).
+      if (status === 'machine-cleared' && !khongCanNguoi(cTxt, texts['evidence-report.md'] || '')) {
+        return { key: 'hong', slug, file: 'evidence-report.md', reason: 'status machine-cleared nhưng bằng chứng KHÔNG đạt sáu điều kiện xanh-sạch — hồ sơ tự khai «máy đã thông» mà không có vật' };
+      }
       // Đường A (cơ hội quyết build/iterate) còn một cổng người nữa: phiên
       // nghiệm thu. Đường B/C/E ship thẳng — không dựng phiên giả cho chúng.
       const duongA = decision === 'build' || decision === 'iterate';
-      return { key: duongA ? 'cho-nghiem-thu' : 'da-ship', slug, name, edge };
+      // Ô ngưỡng khai «không đo được» thì vòng ĐÓNG ngay tại đây: không có phiên nghiệm
+      // thu để chờ. Nhánh này phải có Ở CẢ HAI bộ đọc — bộ quét có mà bản đồ không là hai
+      // bên nói hai chuyện về cùng hồ sơ, đúng lớp lib/workspace-record.cjs dựng ra để giết
+      // (finding S4-r2, đo trên chính hồ sơ duong-do). Luật hỏi LIB, không chép.
+      // FAIL-CLOSED như hai bộ đọc anh em (start-scan bail, gate-card exit 2): khuôn hỏng
+      // thì CHẾT TO kèm tên khuôn. Nuốt lỗi ở đây là bản đồ im lặng xếp sai ô trong khi
+      // ba bộ đọc kia đỏ — hai bên nói hai chuyện, và `--check` mất luôn căn cứ miễn trừ
+      // t1 của chính bản đồ (finding S4-r4).
+      if (duongA && oTxt) {
+        const ngBD = thresholdStateOrDie(oTxt);
+        if (ngBD === 'khong-do-duoc') return { ...o('da-giao-khong-do'), note: chu('da-giao-khong-do').nhan };
+      }
+      if (duongA) return o('cho-cong-gia-tri');
+      // Ô kết của làn V có TÊN RIÊNG — bản đồ vẫn gom theo giai đoạn (cùng ô «Đã
+      // giao»), nhưng chữ đi kèm phải phân biệt máy-thông với hồ sơ người ký.
+      if (status === 'machine-cleared') {
+        const vMo = (frontmatterField(cTxt, 'veto_state') || '').trim().toLowerCase() === 'mo';
+        const k = vMo ? 'da-giao-may-thong-veto-mo' : 'da-giao-may-thong-xanh-sach';
+        return { ...o(k), note: chu(k).nhan };
+      }
+      return o('da-giao');
     }
-    if (status === 'draft') return { key: 'cho-duyet', slug, name, edge };
-    return { key: 'dang-dung', slug, name, edge };
+    if (status === 'draft') return o('cho-cong-pham-vi');
+    return o('dang-viet-code');
   }
 
-  if (stage !== 'decided' || !decision) return { key: 'can-nhac', slug, name, edge };
-  if (decision === 'build' || decision === 'iterate') return { key: 'sap-mo', slug, name, edge };
-  if (decision === 'park') return { key: 'xep-lai', slug, name, edge };
-  return { key: 'da-bac', slug, name, edge };
+  if (stage === 'archived') return { ...o('da-dong-ho-so'), note: chu('da-dong-ho-so').nhan };
+  if (stage !== 'decided' || !decision) return o('y-can-nhac');
+  if (decision === 'build' || decision === 'iterate') return o('sap-mo-vong');
+  if (decision === 'park') return o('xep-lai');
+  return o('da-bac');
 }
 
 export function renderProductMap(root) {

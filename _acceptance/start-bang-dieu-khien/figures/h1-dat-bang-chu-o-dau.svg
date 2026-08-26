@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1000 600" role="img" aria-labelledby="h1-title h1-desc" xmlns="http://www.w3.org/2000/svg">
+        <title id="h1-title">Đặt bảng chữ ở đâu, và cái giá của mỗi lối</title>
+        <desc id="h1-desc">Cây quyết định hai nhánh. Nhánh bị loại đặt bảng chữ vào vùng lõi cưỡng chế, làm ô lên hạng rủi ro cao và thêm hai lượt gọi người, đổi lại chữa được ca hồ sơ đọc không được. Nhánh đã chọn đặt bảng chữ ở vùng công cụ, giữ ô ở hạng thường, không thêm lượt gọi người nào, đổi lại ca kia thành giới hạn có tên. Trên nhánh đã chọn, thẻ cổng hỏi lại máy quét thay vì dựng vị từ lần thứ ba.</desc>
+
+        <defs><style>@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Lora:ital,wght@0,400;1,400&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap');</style>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+          <marker id="arrow-faint" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#636b80"/></marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        </defs>
+
+        <rect width="1000" height="600" fill="#f5f5f5"/>
+
+        <!-- ============ ARROWS (drawn first, behind nodes) ============ -->
+        <!-- Nhánh BỊ LOẠI: điểm quyết → L1 (trái rồi xuống) -->
+        <path d="M 360,92 H 188 Q 180,92 180,100 V 172" fill="none" stroke="#636b80" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-faint)"/>
+        <!-- L1 → L2 -->
+        <line x1="180" y1="232" x2="180" y2="284" stroke="#636b80" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-faint)"/>
+        <!-- L2 → L3 -->
+        <line x1="180" y1="344" x2="180" y2="396" stroke="#636b80" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-faint)"/>
+
+        <!-- Nhánh ĐÃ CHỌN: điểm quyết → R1 (phải rồi xuống) -->
+        <path d="M 640,92 H 812 Q 820,92 820,100 V 172" fill="none" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+        <!-- R1 → R2 -->
+        <line x1="820" y1="232" x2="820" y2="284" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+        <!-- R2 → R3 -->
+        <line x1="820" y1="344" x2="820" y2="396" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+        <!-- R2 → M (hệ quả đi kèm, ra cạnh trái rồi xuống) -->
+        <path d="M 688,316 H 508 Q 500,316 500,324 V 396" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <!-- ============ NHÃN NÉT NỐI (mask + khe 6–8px) ============ -->
+        <rect x="216" y="68" width="108" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="270" y="80" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">ĐẶT Ở LIB/</text>
+
+        <rect x="676" y="68" width="136" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="744" y="80" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">ĐẶT Ở SCRIPTS/</text>
+
+        <rect x="536" y="292" width="80" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="576" y="304" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">ĐI KÈM</text>
+
+        <!-- ============ ĐIỂM QUYẾT (hình thoi) ============ -->
+        <polygon points="500,48 640,92 500,136 360,92" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="500" y="88" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Bảng chữ chung của bốn bộ đọc</text>
+        <text x="500" y="104" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">đặt ở đâu?</text>
+
+        <!-- ============ NHÃN CỘT ============ -->
+        <text x="48" y="160" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LỐI BỊ LOẠI</text>
+        <text x="688" y="160" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LỐI ĐÃ CHỌN</text>
+
+        <!-- ============ NHÁNH BỊ LOẠI ============ -->
+        <rect x="48" y="176" width="264" height="56" rx="6" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.20)" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="180" y="200" fill="#4f5d75" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Rơi vào vùng lõi cưỡng chế</text>
+        <text x="180" y="218" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">lib/ · lỗi ở đây sinh màu xanh giả</text>
+
+        <rect x="48" y="288" width="264" height="56" rx="6" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.20)" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="180" y="312" fill="#4f5d75" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Ô nâng lên hạng rủi ro cao</text>
+        <text x="180" y="330" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">thêm một chốt kế hoạch + một chữ ký</text>
+
+        <rect x="48" y="400" width="264" height="64" rx="32" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.20)" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="180" y="426" fill="#4f5d75" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Thêm 2 lượt gọi người</text>
+        <text x="180" y="442" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">đổi lại: chữa được ca</text>
+        <text x="180" y="456" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">«hồ sơ đọc không được»</text>
+
+        <!-- ============ NHÁNH ĐÃ CHỌN ============ -->
+        <rect x="688" y="176" width="264" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="820" y="200" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Ở vùng công cụ, ngoài lõi</text>
+        <text x="820" y="218" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">scripts/ · lỗi ở đây chỉ cho chữ sai</text>
+
+        <rect x="688" y="288" width="264" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="820" y="312" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Ô giữ nguyên hạng thường</text>
+        <text x="820" y="330" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">không thêm chốt, không thêm chữ ký</text>
+
+        <rect x="688" y="400" width="264" height="64" rx="32" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <text x="820" y="426" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">0 lượt gọi người thêm</text>
+        <text x="820" y="442" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">đổi lại: ca kia thành</text>
+        <text x="820" y="456" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">giới hạn CÓ TÊN</text>
+
+        <!-- ============ HỆ QUẢ ĐI KÈM TRÊN NHÁNH ĐÃ CHỌN ============ -->
+        <rect x="368" y="400" width="264" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="500" y="424" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Thẻ cổng hỏi máy quét</text>
+        <text x="500" y="442" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">không dựng vị từ lần thứ ba</text>
+
+        <!-- ============ CHÚ GIẢI ============ -->
+        <line x1="48" y1="512" x2="952" y2="512" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <text x="48" y="532" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">CHÚ GIẢI · HÌNH DÁNG MANG LOẠI</text>
+
+        <polygon points="48,562 72,552 96,562 72,572" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="108" y="566" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Điểm quyết</text>
+
+        <rect x="212" y="556" width="24" height="12" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="248" y="566" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Bước trên lối</text>
+
+        <rect x="368" y="556" width="24" height="12" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <text x="404" y="566" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Điểm dừng của lối đã chọn</text>
+
+        <line x1="588" y1="562" x2="620" y2="562" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+        <text x="632" y="566" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Lối đã chọn</text>
+
+        <line x1="760" y1="562" x2="792" y2="562" stroke="#636b80" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-faint)"/>
+        <text x="804" y="566" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Lối bị loại</text>
+      </svg>

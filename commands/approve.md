@@ -3,7 +3,7 @@ description: Record the Gate 1 decision (phê duyệt Cổng 1) — render the d
 disable-model-invocation: true
 ---
 
-Record the human's Gate 1 decision for a feature. `/acceptance-card` is the
+Record the human's Gate 1 decision for a feature. `/acceptance-gate:acceptance-card` is the
 presentation layer; THIS command is the decision verb — it walks the approval
 moment and writes the real gate fields. It decides nothing itself: an explicit
 human YES in chat is the only trigger, and the PreToolUse hook re-validates
@@ -15,17 +15,17 @@ suy máy — ca máy dùng chung). Arg: optional `<slug>`. Without it, scan `_ac
 - exactly one → use it — hồ-sơ là điều máy biết: đúng MỘT ứng viên thì
   KHÔNG hỏi, chỉ hiển thị lại tên hồ sơ trong cùng lượt trả lời;
 - several → print a slug table and ask which;
-- none → nothing awaits Gate 1 — say so and point to `/acceptance-status`.
+- none → nothing awaits Gate 1 — say so and point to `/acceptance-gate:acceptance-status`.
   (Plan approval — Gate 1.5 — lives in the feature-loop. Do not fake it here.)
 
 Một-lượt-gõ + `--repo` (điều khoản chung, chép nguyên văn từ bản luật):
 
-Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người.
+Ba lệnh có-câu-hỏi (`/acceptance-gate:approve` · `/acceptance-gate:signoff` · `/acceptance-gate:start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người.
 
 Ví dụ một lượt gõ — trần (máy gánh phần còn lại) và đầy đủ (kiểu cũ,
 vẫn chạy nguyên):
-`/approve duyệt`
-`/approve abc-xyz --repo /duong/dan/repo duyệt: Manh Phan`
+`/acceptance-gate:approve duyệt`
+`/acceptance-gate:approve abc-xyz --repo /duong/dan/repo duyệt: Manh Phan`
 
 Câu gộp của lệnh này trả lời chỗ trống «duyệt hay sửa: ___» mà thẻ Cổng 1
 dạy — ngữ pháp đầy đủ ở khối `GATE-ONESHOT-GRAMMAR`. Người chỉ khai QUYẾT
@@ -77,7 +77,7 @@ Steps:
    Already `approved` or later → show `status`, `approved_by`, `approved_at`
    and stop: re-approval only happens when the user explicitly reopens the
    contract, and the hook re-validates that path.
-2. **Present.** Render the decision card — `/acceptance-card <slug>` — unless
+2. **Present.** Render the decision card — `/acceptance-gate:acceptance-card <slug>` — unless
    it was just rendered this session. Attach the deep-review package: the full
    `contract.md` verbatim + the AC → eval → executor mapping table. Run the
    advisory coverage lint (`${CLAUDE_PLUGIN_ROOT}/scripts/eval-coverage-lint.js`
@@ -129,11 +129,16 @@ Steps:
      Gate-1 record. Add `PRODUCT-MAP.md` to that commit ONLY if you regenerated
      it above; a repo that has not opted in has no such file, and naming it in
      `git add` fails the whole command mid-ritual.
-6. **"Not now" / rejected** → the contract stays `draft`; capture the reason in
+6. **Bước kế — in ra, đừng để người tự đoán.** Sau khi commit, in đúng một
+   dòng: «Đã duyệt phạm vi. Bước kế: máy lập kế hoạch thi công (S2) rồi viết
+   code — không có chốt nào cần anh ở đoạn đó. Vòng chạy tiếp bằng
+   `/feature-loop:feature-loop <slug>`.» Đường `/acceptance-gate:start` → chọn
+   cổng → thẻ → ký dừng ở đây nếu không nói ra động từ kế tiếp.
+7. **"Not now" / rejected** → the contract stays `draft`; capture the reason in
    chat; write nothing to gate fields.
 
 Never:
 - approve from silence, a timeout, or your own judgment;
 - offer gate-skipping here — `gate1_skipped: true` stays a chat-explicit,
   audited escape hatch, deliberately outside this command;
-- touch `human_signoff` or any Gate-2 field (that is `/signoff`).
+- touch `human_signoff` or any Gate-2 field (that is `/acceptance-gate:signoff`).

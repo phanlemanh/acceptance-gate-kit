@@ -214,7 +214,7 @@ print("     LOP-PHUT: %d hit, %d/%d dong mien tru deu con hit that (banh coc 2 c
 for name in ["acceptance-init", "acceptance-status", "acceptance-card", "approve", "signoff", "acceptance-report"]:
     assert (cmds / f"{name}.md").is_file(), name
 appr = (cmds / "approve.md").read_text()
-for needle in ["approved_by", "decisions.jsonl", "gate1_skipped", "/acceptance-card"]:
+for needle in ["approved_by", "decisions.jsonl", "gate1_skipped", "/acceptance-gate:acceptance-card"]:   # lenh-in-ra-phai-bam-duoc: lenh in ra co tien to plugin
     assert needle in appr, needle
 sign = (cmds / "signoff.md").read_text()
 for needle in ["human_override", "pre-merge-check.sh", "forge", "commit"]:
@@ -1189,6 +1189,10 @@ fx = (block
       .replace("<ISO UTC>", "2026-07-30T00:00:00Z")
       .replace("<url đã mở>", "http://localhost:3000/proto/fx-slug")
       .replace("<real-components|scaffold|static>", "real-components")
+      .replace("<id nấc lấy từ REACTION-LADDER>", "nac-1")
+      .replace("(<kênh đã dùng, vd ghim, thao-luan, sua-roi-luu>)", "(ghim)")
+      .replace("<đường dẫn hoặc URL bộ phương án — THAM CHIẾU, không phải bằng chứng; trống nếu không mở bước phân kỳ>", "")
+      .replace("<opened, hoặc: skipped — căn cứ 1 dòng>", "opened")
       .replace("<tên-skill-đã-nạp|repo-tokens|shadcn-default>", "shadcn-default")
       .replace("[<danh sách state đã duyệt>]", "[default, error]")
       .replace("<n>", "2")
@@ -2493,7 +2497,10 @@ const W = (rel, s) => { const p = path.join(tmp, rel);
 W('_acceptance/config.yaml', 'schema_version: 1\n');
 W('_acceptance/w-draft/contract.md', '---\nslug: w-draft\nrisk_tier: T2\nstatus: draft\n---\n');
 W('_acceptance/w-go/contract.md', '---\nslug: w-go\nrisk_tier: T2\nstatus: approved\n---\n');
-W('_acceptance/w-done/contract.md', '---\nslug: w-done\nrisk_tier: T2\nstatus: signed-off\n---\n');
+// w-done mang `veto_state: mo` de mang vetoOpen[] co PHAN TU THAT ma soi — va no
+// la ho so `signed-off`, dung nhanh ma bo phan o cu khong doc veto_state lan nao
+// (the dem 2 trong khi luoi dem 16; ho so start-bang-dieu-khien).
+W('_acceptance/w-done/contract.md', '---\nslug: w-done\nrisk_tier: T2\nstatus: signed-off\nveto_state: mo\n---\n');
 W('_acceptance/w-bad/contract.md', 'khong fence\n');
 W('_acceptance/w-consider/opportunity.md', '---\nslug: w-consider\nfeature: w\nstage: discovery\ndecision:\n---\n');   // o «dang can nhac» (vao-co-o-ra-co-ten)
 const outJson = JSON.parse(execFileSync('node',
@@ -2538,13 +2545,21 @@ if (!e2.some(x => /khong rut duoc khoi START-SCAN-KEYS/.test(x)))
 // considering.push → marker that phai DO neu dung ten khoa (chung minh resolveKey soi toi mang moi)
 const mut3 = fs.mkdtempSync(path.join(os.tmpdir(), 'p99m-'));
 for (const rel of ['lib/evidence-core.cjs', 'lib/workspace-record.cjs', 'lib/md-section.cjs', 'scripts/khong-can-nguoi.mjs',
+                   // bang chu chung — start-scan nhap TINH; thieu no thi ban sao chet vi HA TANG
+                   // chu khong vi vat, va ca do bien thanh xanh-khong-chay (ho so start-bang-dieu-khien)
+                   'scripts/trang-thai-ho-so.cjs',
+                   // luat nguong chung (ho so ra-co-ten) — cung ly do
+                   'lib/nguong-o-co-hoi.cjs',
                    'scripts/product-map.mjs', 'skills/acceptance/references/opportunity-template.md']) {
   fs.mkdirSync(path.dirname(path.join(mut3, rel)), { recursive: true });
   fs.copyFileSync(path.join(root, rel), path.join(mut3, rel));
 }
 const scanSrc = fs.readFileSync(path.join(root, 'scripts/start-scan.mjs'), 'utf8');
-if (!scanSrc.includes(', ageDays: ageDays(s) })')) die('dot bien dau ra: khong thay anchor ageDays trong start-scan');
-fs.writeFileSync(path.join(mut3, 'scripts/start-scan.mjs'), scanSrc.replace(', ageDays: ageDays(s) })', ' })'));
+// Neo bam vao CHINH cap khoa-gia-tri, khong bam vao duoi cau `})`: them mot khoa moi vao
+// cung dong (vd `flags`) lam duoi doi va ca do chet vi HA TANG chu khong vi vat — dung lop
+// «thuoc ghim vao thu SE DOI» (S4-r10, khi start-scan them flags cho o y-can-nhac).
+if (!scanSrc.includes(', ageDays: ageDays(s)')) die('dot bien dau ra: khong thay anchor ageDays trong start-scan');
+fs.writeFileSync(path.join(mut3, 'scripts/start-scan.mjs'), scanSrc.replace(', ageDays: ageDays(s)', ''));
 const outMut = JSON.parse(execFileSync('node', [path.join(mut3, 'scripts/start-scan.mjs'), '--root', tmp], { encoding: 'utf8' }));
 const eMut = checkOn(outMut, SOURCES.map(load));
 if (!eMut.some(x => /key groups\.considering\[\]\.ageDays khong co/.test(x)))
@@ -2559,7 +2574,11 @@ const leafKeys = (obj, prefix) => {
   const out = [];
   for (const [k, v] of Object.entries(obj)) {
     const p = prefix ? prefix + '.' + k : k;
-    if (Array.isArray(v)) out.push(...(v.length ? leafKeys(v[0], p + '[]') : [p + '[]']));
+    // Quy uoc `[]` chi danh cho MANG CAC BAN GHI (di sau vao khoa con). Mang rong, va
+    // mang gia-tri-tho nhu `flags: []`, la LA — khong co khoa con de di, va P128 doc
+    // `<ten>[]` la "khoa dau ra tang tren". Sinh `p[]` cho chung la ep than lenh khai
+    // mot hinh dang ma chieu xuoi khong giai duoc (ho so ra-co-ten).
+    if (Array.isArray(v)) out.push(...(v.length && typeof v[0] === 'object' && v[0] !== null ? leafKeys(v[0], p + '[]') : [p]));
     else if (v && typeof v === 'object') out.push(...leafKeys(v, p));
     else out.push(p);
   }
@@ -2691,8 +2710,9 @@ DOCS = ["GUIDE.md", "README.md", "QUICKSTART.md"]
 def check_docs(docs):                      # {ten: noi dung} -> list loi
     errs = []
     for name, text in docs.items():
-        if "/start" not in text or "vào phiên" not in text:
-            errs.append(f"{name}: thieu muc vao phien bang /start")
+        # dang BAM DUOC (ho so lenh-tran-tai-lieu-dau-tay): ba tai lieu dau-tay in /acceptance-gate:start
+        if "/acceptance-gate:start" not in text or "vào phiên" not in text:
+            errs.append(f"{name}: thieu muc vao phien bang /acceptance-gate:start")
     return errs
 
 live = {d: (root / d).read_text(encoding="utf-8") for d in DOCS}
@@ -2701,7 +2721,7 @@ assert check_docs(live) == [], check_docs(live)          # doi chung DUONG
 # Chan AM RIENG cho TUNG file: mot ham quen mot nhanh thi chan con lai van do
 # dung, che mat lo (bai hoc [findings-section-boundary#F2]).
 strip = lambda t: "\n".join(l for l in t.splitlines()
-                            if "/start" not in l and "vào phiên" not in l)
+                            if "/acceptance-gate:start" not in l and "vào phiên" not in l)
 for gone in DOCS:
     mut = dict(live); mut[gone] = strip(live[gone])
     errs = check_docs(mut)
@@ -2970,6 +2990,13 @@ fs.copyFileSync(path.join(root, 'lib/workspace-record.cjs'), path.join(mut, 'lib
 // lib/md-section.cjs) — ban sao chay thu phai co ca hai, khong thi node chet o
 // buoc nap module va ca nay do vi thieu file chu khong vi hanh vi dang do.
 fs.copyFileSync(path.join(root, 'scripts/khong-can-nguoi.mjs'), path.join(mut, 'scripts/khong-can-nguoi.mjs'));
+// start-scan cung nhap BANG CHU chung (scripts/trang-thai-ho-so.cjs) — thieu no thi
+// ban sao chet vi HA TANG chu khong vi vat, va ca do bien thanh xanh-khong-chay.
+fs.copyFileSync(path.join(root, 'scripts/trang-thai-ho-so.cjs'), path.join(mut, 'scripts/trang-thai-ho-so.cjs'));
+// start-scan cung nhap LUAT NGUONG chung (lib/nguong-o-co-hoi.cjs, ho so ra-co-ten) —
+// thieu no thi ban sao chet vi HA TANG chu khong vi vat.
+fs.mkdirSync(path.join(mut, 'lib'), { recursive: true });
+fs.copyFileSync(path.join(root, 'lib/nguong-o-co-hoi.cjs'), path.join(mut, 'lib/nguong-o-co-hoi.cjs'));
 fs.copyFileSync(path.join(root, 'lib/md-section.cjs'), path.join(mut, 'lib/md-section.cjs'));
 const src = fs.readFileSync(SCAN, 'utf8');
 const gone = VOCAB[VOCAB.length - 1];                     // go phan tu cuoi khuon writer
@@ -3119,12 +3146,22 @@ fs.copyFileSync(path.join(root, 'lib/workspace-record.cjs'), path.join(mut, 'lib
 // lib/md-section.cjs) — ban sao chay thu phai co ca hai, khong thi node chet o
 // buoc nap module va ca nay do vi thieu file chu khong vi hanh vi dang do.
 fs.copyFileSync(path.join(root, 'scripts/khong-can-nguoi.mjs'), path.join(mut, 'scripts/khong-can-nguoi.mjs'));
+// start-scan cung nhap BANG CHU chung (scripts/trang-thai-ho-so.cjs) — thieu no thi
+// ban sao chet vi HA TANG chu khong vi vat, va ca do bien thanh xanh-khong-chay.
+fs.copyFileSync(path.join(root, 'scripts/trang-thai-ho-so.cjs'), path.join(mut, 'scripts/trang-thai-ho-so.cjs'));
+// start-scan cung nhap LUAT NGUONG chung (lib/nguong-o-co-hoi.cjs, ho so ra-co-ten) —
+// thieu no thi ban sao chet vi HA TANG chu khong vi vat.
+fs.mkdirSync(path.join(mut, 'lib'), { recursive: true });
+fs.copyFileSync(path.join(root, 'lib/nguong-o-co-hoi.cjs'), path.join(mut, 'lib/nguong-o-co-hoi.cjs'));
 fs.copyFileSync(path.join(root, 'lib/md-section.cjs'), path.join(mut, 'lib/md-section.cjs'));
 // start-scan doc KHUON opportunity-template luc chay (nhan bullet Nguong) — ban sao phai co khuon
 fs.mkdirSync(path.join(mut, path.dirname(OPP_TPL)), { recursive: true });
 fs.copyFileSync(path.join(root, OPP_TPL), path.join(mut, OPP_TPL));
 const src = fs.readFileSync(SCAN, 'utf8');
-const anchor = "if (status === 'signed-off')";
+// Nhánh trạng thái ĐÃ THÔNG Cổng Bằng chứng — câu đổi khi hồ sơ ra-co-ten thêm
+// `machine-cleared` (thay cho `if (status === 'signed-off')`). Anchor bám vào NHÁNH,
+// không bám vào một giá trị enum.
+const anchor = 'if (DA_THONG_CONG_2.includes(status))';
 if (!src.includes(anchor)) die('mutant: khong tim thay anchor cho re trang thai');
 const hoist = "{ const __e = read(path.join(dir, 'evidence-report.md')); if (__e.err) { broken.push({ slug, file: 'evidence-report.md', reason: ioReason(__e.err) }); continue; } }\n    ";
 fs.writeFileSync(path.join(mut, 'scripts/start-scan.mjs'), src.replace(anchor, hoist + anchor));
@@ -3722,9 +3759,18 @@ const gA = j.groups.gates.find(g => g.slug === "a-cho-gia-tri");
 const gB = j.groups.gates.find(g => g.slug === "b-cho-co-uat");
 if (gB.since !== "2026-07-01T00:00:00Z") die("since khong lay decided_at cua uat: " + gB.since);
 if (gA.since !== "") die("since thieu decided_at phai RONG (khong bia moc tu mtime), duoc: " + JSON.stringify(gA.since));
-// since rong sort len dau bang localeCompare — thu tu van xac dinh, khong assert
-// "cho lau nhat dung dau" tren hai kieu moc khong so sanh duoc voi nhau nua
-if (j.groups.gates[0].slug !== "a-cho-gia-tri") die("since rong phai dung dau danh sach (sort on dinh): " + j.groups.gates[0].slug);
+// Moc RONG = nghi thuc that CHUA sinh moc, KHONG phai "cho lau nhat" — no phai
+// nam CUOI. Ban truoc de localeCompare xu ly, nen chuoi rong sort len DAU va Cong
+// Gia tri luon mo dau the bat ke tuoi (ho so start-bang-dieu-khien, AC-12).
+// Assert LUAT chu khong assert mot vi tri: moi cong CO moc dung truoc moi cong
+// KHONG moc — mot ca do theo chi so van xanh khi fixture doi so phan tu.
+{
+  const iRong = j.groups.gates.map((g, i) => [i, !String(g.since || "")]).filter(x => x[1]).map(x => x[0]);
+  const iCo   = j.groups.gates.map((g, i) => [i, !!String(g.since || "")]).filter(x => x[1]).map(x => x[0]);
+  if (iRong.length === 0 || iCo.length === 0) die("fixture mu: phai co ca cong moc-rong lan cong co-moc");
+  if (Math.min(...iRong) < Math.max(...iCo))
+    die("moc rong phai xep SAU moi cong co moc: " + JSON.stringify(j.groups.gates.map(g => [g.slug, g.since])));
+}
 // Khoa skipped[] da bi go han (het nguon sinh) — kiem SU VANG MAT cua khoa,
 // khong grep noi dung mot mang luon rong (chan chet).
 if ("skipped" in j) die("skipped[] van con trong dau ra du khong con nguon sinh nao");
@@ -4902,6 +4948,10 @@ def mkfix(ctx, scenes, drop_context=False, ledger=None, cfg="schema_version: 1\n
           .replace("<real-components|scaffold|static>", "scaffold")
           .replace("<standalone|static-frame|host-embedded>", ctx)
           .replace(SCENES_PH, scenes)
+          .replace("<id nấc lấy từ REACTION-LADDER>", "nac-1")
+          .replace("(<kênh đã dùng, vd ghim, thao-luan, sua-roi-luu>)", "(ghim)")
+          .replace("<đường dẫn hoặc URL bộ phương án — THAM CHIẾU, không phải bằng chứng; trống nếu không mở bước phân kỳ>", "")
+          .replace("<opened, hoặc: skipped — căn cứ 1 dòng>", "opened")
           .replace("<tên-skill-đã-nạp|repo-tokens|shadcn-default>", "shadcn-default")
           .replace("[<danh sách state đã duyệt>]", "[default]").replace("<n>", "1")
           .replace("<state>", "default").replace("<breakpoint>", "mobile-375")
@@ -4949,6 +4999,10 @@ def mkfix(scenes, ledger=None):
           .replace("<url đã mở>", "u").replace("<real-components|scaffold|static>", "scaffold")
           .replace("<standalone|static-frame|host-embedded>", "standalone")
           .replace(SCENES_PH, scenes)
+          .replace("<id nấc lấy từ REACTION-LADDER>", "nac-1")
+          .replace("(<kênh đã dùng, vd ghim, thao-luan, sua-roi-luu>)", "(ghim)")
+          .replace("<đường dẫn hoặc URL bộ phương án — THAM CHIẾU, không phải bằng chứng; trống nếu không mở bước phân kỳ>", "")
+          .replace("<opened, hoặc: skipped — căn cứ 1 dòng>", "opened")
           .replace("<tên-skill-đã-nạp|repo-tokens|shadcn-default>", "repo-tokens")
           .replace("[<danh sách state đã duyệt>]", "[default]").replace("<n>", "0")
           .replace("<state>", "default").replace("<breakpoint>", "mobile-375")
@@ -5011,6 +5065,10 @@ def mkfix(ctx, drop_context=False):
           .replace("<url đã mở>", "u").replace("<real-components|scaffold|static>", "static")
           .replace("<standalone|static-frame|host-embedded>", ctx)
           .replace(SCENES_PH, "[]")
+          .replace("<id nấc lấy từ REACTION-LADDER>", "nac-1")
+          .replace("(<kênh đã dùng, vd ghim, thao-luan, sua-roi-luu>)", "(ghim)")
+          .replace("<đường dẫn hoặc URL bộ phương án — THAM CHIẾU, không phải bằng chứng; trống nếu không mở bước phân kỳ>", "")
+          .replace("<opened, hoặc: skipped — căn cứ 1 dòng>", "opened")
           .replace("<tên-skill-đã-nạp|repo-tokens|shadcn-default>", "repo-tokens")
           .replace("[<danh sách state đã duyệt>]", "[default]").replace("<n>", "0")
           .replace("<state>", "default").replace("<breakpoint>", "mobile-375")
@@ -5062,6 +5120,10 @@ def mkfix(cfg, mkguide=None):
           .replace("<url đã mở>", "u").replace("<real-components|scaffold|static>", "scaffold")
           .replace("<standalone|static-frame|host-embedded>", "host-embedded")
           .replace(SCENES_PH, "[]")
+          .replace("<id nấc lấy từ REACTION-LADDER>", "nac-1")
+          .replace("(<kênh đã dùng, vd ghim, thao-luan, sua-roi-luu>)", "(ghim)")
+          .replace("<đường dẫn hoặc URL bộ phương án — THAM CHIẾU, không phải bằng chứng; trống nếu không mở bước phân kỳ>", "")
+          .replace("<opened, hoặc: skipped — căn cứ 1 dòng>", "opened")
           .replace("<tên-skill-đã-nạp|repo-tokens|shadcn-default>", "repo-tokens")
           .replace("[<danh sách state đã duyệt>]", "[default]").replace("<n>", "0")
           .replace("<state>", "default").replace("<breakpoint>", "mobile-375")
@@ -5133,6 +5195,10 @@ def mkrepo(ctx, drop_context=False):
           .replace("<real-components|scaffold|static>", "static")
           .replace("<standalone|static-frame|host-embedded>", ctx)
           .replace(SCENES_PH, "[]")
+          .replace("<id nấc lấy từ REACTION-LADDER>", "nac-1")
+          .replace("(<kênh đã dùng, vd ghim, thao-luan, sua-roi-luu>)", "(ghim)")
+          .replace("<đường dẫn hoặc URL bộ phương án — THAM CHIẾU, không phải bằng chứng; trống nếu không mở bước phân kỳ>", "")
+          .replace("<opened, hoặc: skipped — căn cứ 1 dòng>", "opened")
           .replace("<tên-skill-đã-nạp|repo-tokens|shadcn-default>", "shadcn-default")
           .replace("[<danh sách state đã duyệt>]", "[default]").replace("<n>", "0")
           .replace("<state>", "default").replace("<breakpoint>", "mobile-375")
@@ -5740,12 +5806,13 @@ run "P150 required_evidence tren the + report cu render y het ban base" \
     # report CU (khong field) → stdout == stdout cua gate-card TAI BASE COMMIT
     printf -- "---\nschema_version: 2\nfeature_slug: feat-jr5\nverdict: PENDING-JUDGMENT\n---\n\n| Eval | Criterion | Executor | Verdict |\n|---|---|---|---|\n| EJ1 | AC-1 | judgment | UNCERTAIN |\n\n## Evidence\n- eval: EJ1\n  judged_by: judge panel\n  verdict: UNCERTAIN\n  rationale: chua du can cu\n  human_override:\n" > "$REP"
     BASE=$(git -C "'"$ROOT"'" merge-base HEAD origin/main)
-    mkdir -p "$T/base/scripts"
-    git -C "'"$ROOT"'" show "$BASE:scripts/gate-card.js" > "$T/base/scripts/gate-card.js"
-    # lib phai lay TAI CUNG BASE, khong duoc ghep lib hien tai vao script base:
-    # dot .cjs 1.39.1 lam ban ghep chet (base require lib/*.js, cay hien tai chi
-    # con .cjs) — "ban base" phai la MOT cay base tron ven.
-    git -C "'"$ROOT"'" archive "$BASE" lib | tar -x -C "$T/base"
+    mkdir -p "$T/base"
+    # "Ban base" phai la MOT cay base TRON VEN, khong phai mot danh sach file chep tay.
+    # Tu vong start-bang-dieu-khien, the cong CHAY scripts/start-scan.mjs de hoi trang thai
+    # lan V, va start-scan lai doc khuon opportunity-template — nen cay base thieu bat ky
+    # mon nao se cam co canh bao HA TANG va ca do bien thanh "khac ban base": do vi THIEU DO
+    # chu khong vi VAT. lib/ cung phai lay TAI CUNG BASE (dot .cjs 1.39.1 lam ban ghep chet).
+    git -C "'"$ROOT"'" archive "$BASE" scripts lib skills/acceptance/references | tar -x -C "$T/base"
     A=$(cd "$T/ws" && node "'"$ROOT"'/scripts/gate-card.js" --slug feat-jr5 2>/dev/null)
     B=$(cd "$T/ws" && node "$T/base/scripts/gate-card.js" --slug feat-jr5 2>/dev/null)
     [ -n "$A" ] || { echo "stdout moi rong"; exit 1; }
@@ -6608,11 +6675,18 @@ with tempfile.TemporaryDirectory() as d:
         for slug in (only_slugs or slugs):
             sd = root / "_acceptance" / slug
             # nguon = MOI file the doc (Cong 2 doc ca report + findings + probe),
-            # thieu file nao la bao oan cum sao co that o do
+            # thieu file nao la bao oan cum sao co that o do.
+            # opportunity.md: the Cong 1 render khoi «Nguong nghiem thu» NGUYEN VAN
+            # tu section nguong cua no (gate-card.js:299-312, vong moi-noi-vong-trao)
+            # nhung file nay tung VANG khoi danh sach — lo tiem an tu luc do. Khong
+            # slug nao cham vao vi deu thieu mot dieu kien: hoac chua co contract.md
+            # (nen khong vao `slugs`), hoac dong nguong con la «…» chua dien, hoac da
+            # dien nhung khong co in dam. `start-bang-dieu-khien` la slug DAU TIEN du
+            # ca ba, va P161 bao oan 4 cum sao co that trong nguong da ky.
             src = "\n".join(f.read_text(encoding="utf-8") for f in
                             [sd / "contract.md", sd / "decisions.jsonl", sd / "evals.yaml",
                              sd / "evidence-report.md", sd / "review-findings.md",
-                             sd / "gap-probe.md"] if f.exists())
+                             sd / "gap-probe.md", sd / "opportunity.md"] if f.exists())
             # The lot dau nhay nguoc (dung hanh vi), nen truy nguon phai so voi
             # ban nguon DA LOT nhay — neu khong, "t1_skip_globs`.**" trong nguon
             # va "t1_skip_globs.**" tren the bi coi la bia ra.
@@ -6858,8 +6932,30 @@ with tempfile.TemporaryDirectory() as d:
 calls = len(re.findall(r"stripMd\(", CARD.read_text(encoding="utf-8")))
 mc = re.search(r"CE:\s*\*\*(\d+)\*\*\s*chỗ gọi hàm lột", contract)
 assert mc, "truc C khong khai so cho goi ham lot"
-assert calls == int(mc.group(1)), "so cho goi lech: ma nguon %d, truc C khai %s" % (calls, mc.group(1))
-print("P161 OK: %d hinh dang · %d slug · %d cum sao corpus · %d phan loai · %d cho goi · %d assert cu giu nguyen" % (
+# QUAN HE, khong phai HANG DEM (ho so ra-co-ten 24/08 — con tro «thay the»).
+# Ghim `==` voi con so trong hop dong DA KY bien moi feature sau thanh mot lan sua vat da
+# ky — dung lop «thuoc ghim vao thu SE DOI», trai doctrine «_acceptance/ cu la su lieu bat
+# bien» (ADR 0010). Thay bang HAI quan he, ca hai deu bat duoc chieu nguy hiem:
+#   (1) khong tut duoi MOC da khai trong hop dong;
+#   (2) khong tut duoi so cho goi tai MOC NEN cua nhanh. Base khong doc duoc (khong phai
+#       git / khong co remote) -> chi ap (1) va NOI RA, khong im lang bo mot ve.
+# GIOI HAN DA KHAI (ledger ra-co-ten-lam-va-trao#6): hai quan he nay LONG hon `==` — go
+# mot cho goi MOI THEM trong chinh diff nay van xanh (17 -> 16 >= 14). Doi lai: khong
+# feature nao con phai sua mot hop dong DA KY de giu mau xanh. Muon chat lai thi phai do
+# CAU TRUC (moi loi ra van-tho di qua ham lot), khong phai dem — do la ho so rieng.
+_base_calls = None
+try:
+    _base = subprocess.run(["git", "-C", str(root), "merge-base", "HEAD", "origin/main"],
+                           capture_output=True, text=True, check=True).stdout.strip()
+    _src = subprocess.run(["git", "-C", str(root), "show", f"{_base}:scripts/gate-card.js"],
+                          capture_output=True, text=True, check=True).stdout
+    _base_calls = len(re.findall(r"stripMd\(", _src))
+except Exception as e:
+    print("     P161-E10: khong doc duoc moc nen (%s) — chi ap quan he (1)" % type(e).__name__)
+assert calls >= int(mc.group(1)), "so cho goi TUT duoi moc hop dong: ma nguon %d < truc C khai %s — mot loi goi ham lot bi go, van tho co the ro ra the" % (calls, mc.group(1))
+if _base_calls is not None:
+    assert calls >= _base_calls, "diff nay GO cho goi ham lot: moc nen %d -> hien tai %d — van tho co the ro ra mat nguoi" % (_base_calls, calls)
+print("P161 OK: %d hinh dang · %d slug · %d cum sao corpus · %d phan loai · %d cho goi (>= moc) · %d assert cu giu nguyen" % (
     len(CASES), len(slugs), cum_count, classified, calls, len(old_asserts)))
 P161PY
 
@@ -8866,7 +8962,10 @@ python3 - "$P186MUTP/scripts/gate-card.js" <<'PYX' || P186OK=0
 import sys
 p = sys.argv[1]
 src = open(p, encoding="utf-8").read()
-old = "Cổng 2 · ký duyệt$"
+# Neo KHONG kem ky tu cu phap dung sau: phu de nay nay nam trong mot bieu thuc
+# ba ngoi (may-di-tiep vs ky-duyet, ho so start-bang-dieu-khien), nen neo theo
+# cu phap se chet moi lan doi cach dung chuoi. Neo theo CHU la du.
+old = "Cổng 2 · ký duyệt"
 assert old in src, "neo mutant-phut khong con — doi phu de the Cong 2?"
 open(p, "w", encoding="utf-8").write(src.replace(old, "Cổng 2 · ký duyệt · ~5 phút$", 1))
 print("MUTANT-PHUT: da chen lai ' · ~5 phut' vao phu de the Cong 2")
@@ -10186,8 +10285,17 @@ def bad(m): errs.append(m); print("  P198 LOI: " + m)
 tpl = (root / "skills/acceptance/references/opportunity-template.md").read_text(encoding="utf-8")
 # round-trip writer->reader: (1) heading = hang so gate-card doc, PHAI ton tai trong KHUON dang '## <heading>';
 gc_src = (root / "scripts/gate-card.js").read_text(encoding="utf-8")
+# Heading nay SONG o lib/nguong-o-co-hoi.cjs (ho so ra-co-ten 24/08, AC-18 chong-chep):
+# gate-card HOI lib chu khong khai literal. Ca do vi the phai lay hang tu CHU SO HUU, va
+# van doi gate-card that su noi voi nguon do — chieu do giu nguyen: doi heading trong khuon
+# ma lib khong doi thi (2) ben duoi van bat.
 mh = re.search(r"UAT_THRESHOLD_HEADING = '([^']+)'", gc_src)
-if not mh: bad("gate-card.js khong khai hang so UAT_THRESHOLD_HEADING"); print("\n".join(errs)); sys.exit(1)
+if not mh:
+    lib_src = (root / "lib/nguong-o-co-hoi.cjs").read_text(encoding="utf-8")
+    mh = re.search(r"UAT_THRESHOLD_HEADING = '([^']+)'", lib_src)
+    if not mh: bad("hang so UAT_THRESHOLD_HEADING khong khai o gate-card.js LAN lib/nguong-o-co-hoi.cjs"); print("\n".join(errs)); sys.exit(1)
+    if "NG1.UAT_THRESHOLD_HEADING" not in gc_src:
+        bad("gate-card.js khong khai hang MA cung khong hoi lib — hai nguon lech duoc"); print("\n".join(errs)); sys.exit(1)
 HEAD = mh.group(1)
 if not re.search(r"^## " + re.escape(HEAD) + r"\s*$", tpl, re.M): bad("khuon opportunity-template khong co heading '%s' ma gate-card doc (round-trip khuon)" % HEAD)
 # (2) THAN opportunity.md dung tu CHINH KHUON: frontmatter giua moc OPP-FRONTMATTER-TEMPLATE + body sau moc,
@@ -10307,7 +10415,10 @@ def mutant(name, fn, expect_substr):
 mutant("m1-go-khoi", lambda s: s.replace("if (ut.opportunity_present && ut.readable && ut.section_present && ut.lines.length) {", "if (false) {"), "thieu khoi nguong")
 mutant("m2-khong-co-hoi-in-co-vang", lambda s: s.replace("if (!ut.opportunity_present)", "if (ut.opportunity_present)"), "nhanh khong-co-hoi in co vang")
 mutant("m3-rong-van-in-khoi", lambda s: s.replace("ut.section_present && ut.lines.length", "ut.section_present"), "rong van in khoi")
-mutant("m4-placeholder-la-da-khai", lambda s: s.replace(" && !PLACEHOLDER_RE.test(l)", ""), "placeholder «…» bi coi la nguong da khai")
+# Vi tu «chua dien» nay HOI lib (ho so ra-co-ten 24/08): neo bam vao ten ham cat, khong
+# bam vao regex chep tay da bi go. Chieu do khong doi: go vi tu -> placeholder lot thanh
+# nguong da khai.
+mutant("m4-placeholder-la-da-khai", lambda s: s.replace(" && !chuaDien(l)", ""), "placeholder «…» bi coi la nguong da khai")
 if errs: print("\n".join(errs)); sys.exit(1)
 print("P198 OK (10 o ma tran + doi-cu xanh tren gate-card that, gom ca chep-nguyen-khuon; 4 mutant bi bat; fixture dung tu chinh khuon)")
 P198PY
@@ -10542,11 +10653,54 @@ for _vc in $_vc_ids; do
     env VC_CASES="$_vc" node "$ROOT/tests/plugins/vao-co-o.test.mjs"
 done
 
+# ─── Hồ sơ design-pass-nac-khong-dong-bo: DP1..DP13 (file ca riêng) ──────────
+# Danh sách ca do CHÍNH file ca xuất (--ids); tên dòng run KHÔNG chứa "PASS: [DP".
+_dp_ids="$(node "$ROOT/tests/plugins/design-pass-nac.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca DP"; failures=$((failures+1)); _dp_ids=""; }
+for _dp in $_dp_ids; do
+  run "ca nac phan ung — $_dp (ho so design-pass-nac-khong-dong-bo)" \
+    env DP_CASES="$_dp" node "$ROOT/tests/plugins/design-pass-nac.test.mjs"
+done
+
+# ─── Hồ sơ dac-ta-ux-vat-hoa-cau-truc: UX1..UX4 (file ca riêng) ───────────────
+_ux_ids="$(node "$ROOT/tests/plugins/ux-spec.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca UX"; failures=$((failures+1)); _ux_ids=""; }
+for _ux in $_ux_ids; do
+  run "ca dac ta UX — $_ux (ho so dac-ta-ux-vat-hoa-cau-truc)" \
+    env UX_CASES="$_ux" node "$ROOT/tests/plugins/ux-spec.test.mjs"
+done
+
 # ─── Hồ sơ duong-do-trong-dinh-nghia-xong: DD1..DD7 (file ca riêng) ───────────
 _dd_ids="$(node "$ROOT/tests/plugins/duong-do.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca DD"; failures=$((failures+1)); _dd_ids=""; }
 for _dd in $_dd_ids; do
   run "ca duong do — $_dd (ho so duong-do-trong-dinh-nghia-xong)" \
     env DD_CASES="$_dd" node "$ROOT/tests/plugins/duong-do.test.mjs"
+done
+
+# ─── Hồ sơ lenh-in-ra-phai-bam-duoc: LB1..LB8 (file ca riêng) ─────────────────
+_lb_ids="$(node "$ROOT/tests/plugins/lenh-bam-duoc.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca LB"; failures=$((failures+1)); _lb_ids=""; }
+for _lb in $_lb_ids; do
+  run "ca lenh bam duoc — $_lb (ho so lenh-in-ra-phai-bam-duoc)" \
+    env LB_CASES="$_lb" node "$ROOT/tests/plugins/lenh-bam-duoc.test.mjs"
+done
+
+# ─── Ho so start-bang-dieu-khien: BDK1..BDK4 (file ca rieng) ─────────────────
+_bdk_ids="$(node "$ROOT/tests/plugins/bang-dieu-khien.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca BDK"; failures=$((failures+1)); _bdk_ids=""; }
+for _bdk in $_bdk_ids; do
+  run "ca bang dieu khien — $_bdk (ho so start-bang-dieu-khien)" \
+    env BDK_CASES="$_bdk" node "$ROOT/tests/plugins/bang-dieu-khien.test.mjs"
+done
+
+# ─── Ho so ra-co-ten-lam-va-trao: RT1..RT15 (file ca rieng) ─────────────────
+_rt_ids="$(node "$ROOT/tests/plugins/ra-co-ten.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca RT"; failures=$((failures+1)); _rt_ids=""; }
+for _rt in $_rt_ids; do
+  run "ca ra co ten — $_rt (ho so ra-co-ten-lam-va-trao)" \
+    env RT_CASES="$_rt" node "$ROOT/tests/plugins/ra-co-ten.test.mjs"
+done
+
+# ─── Ho so lan-may-song-qua-bo-phan-loai: LM1..LM8 (file ca rieng) ──────────
+_lm_ids="$(node "$ROOT/tests/plugins/lan-may-classifier.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca LM"; failures=$((failures+1)); _lm_ids=""; }
+for _lm in $_lm_ids; do
+  run "ca lan may qua bo phan loai — $_lm (ho so lan-may-song-qua-bo-phan-loai)" \
+    env LM_CASES="$_lm" node "$ROOT/tests/plugins/lan-may-classifier.test.mjs"
 done
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)

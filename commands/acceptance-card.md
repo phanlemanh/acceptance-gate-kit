@@ -104,6 +104,10 @@ Steps:
 6. The card NEVER decides. The human's click flows into the REAL gate: Gate 1 →
    contract `approved_by`; Gate 2 → `human_signoff` / per-item `human_override`.
    The verdict, hook enforcement, and machine evidence are unchanged.
+   **Thẻ không ghi gì, nên phải NÓI RA lệnh ghi** — in đúng một dòng dưới thẻ:
+   Cổng Phạm vi ghi bằng `/acceptance-gate:approve <slug>`, Cổng Bằng chứng ghi
+   bằng `/acceptance-gate:signoff <slug>`. Người đọc thẻ xong mà không biết gõ
+   gì tiếp là điểm bàn giao bị bỏ trống.
 
 7. **Người duyệt có quyền TRẢ LẠI thẻ.** Thẻ vi phạm luật ngôn ngữ mặt người thì
    người duyệt trả lại tại cổng, không duyệt cho xong rồi góp ý sau. Trả lại là

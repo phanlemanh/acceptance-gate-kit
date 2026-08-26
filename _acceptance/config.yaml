@@ -124,6 +124,25 @@ executors:
     rang_tkddl_w25: bash _acceptance/tool-kill-duong-doc-lap/rang.sh --chan w25
     rang_tkddl_skill_fl: bash _acceptance/tool-kill-duong-doc-lap/rang.sh --chan skill-fl
     rang_tkddl_skill_acc: bash _acceptance/tool-kill-duong-doc-lap/rang.sh --chan skill-acc
+    # Vật của hồ sơ start-bang-dieu-khien — răng neo vào SỰ THẬT CỦA CÂY hôm nay
+    # (16 hồ sơ cửa veto mở · 57 hồ sơ ra được ngày) hoặc phải dựng kho git riêng.
+    # Mỗi chân kèm chiều đỏ cùng lượt. Cùng nếp không-vào-suite-vĩnh-viễn với các
+    # bộ răng hồ sơ trên — chúng chết theo hồ sơ khi merge.
+    # Vật của hồ sơ design-pass-nac-khong-dong-bo — răng «câu chết phải chết», đối
+    # chứng dương neo vào mốc git CỐ ĐỊNH đọc từ contract (neo origin/main thì sau khi
+    # hồ sơ gộp, hai đầu cùng 0 mà vẫn xanh). Cùng nếp không-vào-suite-vĩnh-viễn.
+    dpnkdb_cau_chet: bash _acceptance/design-pass-nac-khong-dong-bo/rang-cau-chet.sh
+    bdk_rang_at: bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan at
+    bdk_rang_veto: bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan veto-ten
+    bdk_rang_dang_thuc: bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan dang-thuc
+    bdk_rang_bon_bo_doc: bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan bon-bo-doc
+    bdk_rang_ahead_behind: bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan ahead-behind
+    bdk_rang_sort_tuoi: bash _acceptance/start-bang-dieu-khien/rang-bdk.sh --chan sort-tuoi
+    # Vật của hồ sơ lan-may-song-qua-bo-phan-loai — răng «không nuốt cấu hình khác»,
+    # so bản settings ở mốc git CỐ ĐỊNH với bản trong cây. CỐ Ý không vào suite vĩnh
+    # viễn: để trong bộ kiểm thường trực thì mọi sửa hợp lệ về sau của enabledPlugins
+    # / extraKnownMarketplaces (do hồ sơ KHÁC làm) sẽ làm suite đỏ oan.
+    lm_khong_nuot: bash _acceptance/lan-may-song-qua-bo-phan-loai/rang-khong-nuot.sh
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

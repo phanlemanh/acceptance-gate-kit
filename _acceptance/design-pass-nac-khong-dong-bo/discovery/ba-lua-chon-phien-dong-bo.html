@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><title>Ba lựa chọn phiên thiết kế đồng bộ — dải giờ người theo ba nấc</title>
+<style>:root{--font-sans:-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;--font-mono:ui-monospace,Menlo,monospace;--text-primary:#2C2C2A;--text-secondary:#5F5E5A;--text-muted:#888780;--text-accent:#185FA5;--border:#D3D1C7;--border-strong:#B4B2A9;--border-stronger:#888780;--surface-0:#F7F6F2;--surface-1:#F1EFE8;--surface-2:#ffffff;--bg-accent:#E6F1FB;--bg-success:#EAF3DE;--bg-warning:#FAEEDA;--bg-danger:#FCEBEB;--radius:8px}
+body{margin:0;padding:24px;background:#fff;color:var(--text-primary);font-family:var(--font-sans);max-width:760px}</style></head><body>
+<!-- Phác tầng 1, vẽ nội tuyến (khối HTML) trong phiên 2026-08-19 (a19f3e81…); chép về ô 2026-08-22 và làm tự-đủ: biến CSS của khung chat khai lại ở :root. Chiếu của hạt giống 2026-08-19 mục 8. -->
+<div style="font-family:var(--font-sans);color:var(--text-primary);font-size:13px;line-height:1.45">
+<style>
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:640px){.g3{grid-template-columns:1fr}}
+.c{border:0.5px solid var(--border);border-radius:12px;padding:12px;background:var(--surface-1)}
+.c h3{margin:0 0 2px;font-size:14px;font-weight:500}
+.sub{font-size:12px;color:var(--text-secondary);margin-bottom:10px}
+.tl{position:relative;height:110px;margin:6px 0 10px}
+.ax{position:absolute;left:0;right:0;top:54px;height:1px;background:var(--border-strong)}
+.lab{position:absolute;font-size:11px;color:var(--text-muted)}
+.bar{position:absolute;height:18px;border-radius:4px;font-size:11px;line-height:18px;padding:0 6px;white-space:nowrap;overflow:hidden;font-weight:500}
+.p{background:#AFA9EC;color:#26215C;top:26px}
+.m{background:#5DCAA5;color:#04342C;top:66px}
+.dot{position:absolute;top:26px;width:18px;height:18px;border-radius:50%;background:#7F77DD;color:#fff;font-size:11px;line-height:18px;text-align:center;font-weight:500}
+@media not all /* khối tối của khung chat — vô hiệu khi chép: file khai bảng màu sáng ở :root */{.p{background:#534AB7;color:#EEEDFE}.m{background:#0F6E56;color:#E1F5EE}}
+ul{margin:0;padding-left:16px}
+li{margin:2px 0}
+.k{font-weight:500}
+.fit{margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border);font-size:12px;color:var(--text-secondary)}
+.fit b{color:var(--text-primary);font-weight:500}
+</style>
+<div class="g3">
+
+<div class="c"><h3>1 · Đồng bộ (design-pass hôm nay)</h3><div class="sub">Người và máy cùng có mặt trên một màn hình đang chạy</div>
+<div class="tl">
+<span class="lab" style="left:0;top:8px">Người</span>
+<div class="bar p" style="left:0;width:100%">ngồi xem 30–60' · nói · chờ · nói…</div>
+<div class="ax"></div>
+<span class="lab" style="left:0;top:90px">Máy</span>
+<div class="bar m" style="left:0;width:24%">sửa</div><div class="bar m" style="left:26%;width:22%">reload</div><div class="bar m" style="left:50%;width:22%">sửa</div><div class="bar m" style="left:74%;width:26%">reload…</div>
+</div>
+<ul><li class="k">+ bấm thật tại chỗ, phản ứng tức thì</li><li class="k">+ tương tác (chạm, kéo) cảm được</li><li>− người phải rảnh trọn một khối giờ, cạnh dev server</li><li>− không xếp lịch được cho máy chạy đêm</li></ul>
+<div class="fit"><b>Hợp khi:</b> điều cần duyệt là <b>tương tác</b> hoặc bề mặt mà gu quyết định giá trị.</div></div>
+
+<div class="c"><h3>2 · Mặc định không đồng bộ, đồng bộ opt-in</h3><div class="sub">Máy gửi gói · người mở lúc rảnh · một chạm; ngồi cùng chỉ khi người gọi</div>
+<div class="tl">
+<span class="lab" style="left:0;top:8px">Người</span>
+<div class="dot" style="left:44%">1</div><div class="dot" style="left:88%">2</div>
+<span class="lab" style="left:30%;top:8px">chọn hướng</span><span class="lab" style="left:76%;top:8px">gật Cổng 1</span>
+<div class="ax"></div>
+<span class="lab" style="left:0;top:90px">Máy</span>
+<div class="bar m" style="left:0;width:40%">dựng canvas / gói</div><div class="bar m" style="left:50%;width:36%">ruột tạm + chụp</div>
+</div>
+<ul><li class="k">+ người xuất hiện 2 lần, mỗi lần 2 phút, không chờ ai</li><li class="k">+ máy chạy được khi người vắng</li><li>− mất cảm giác bấm thật, trừ khi người gọi phiên đồng bộ</li><li>− kit phải đặt tên nấc mới + ghi lệch có tên</li></ul>
+<div class="fit"><b>Hợp khi:</b> điều cần duyệt là <b>hướng, bố cục, chữ, màu</b>; tương tác thì opt-in.</div></div>
+
+<div class="c"><h3>3 · Cấm hẳn đồng bộ</h3><div class="sub">Mọi khoảnh khắc thiết kế đều qua gói gửi đi, kể cả tương tác</div>
+<div class="tl">
+<span class="lab" style="left:0;top:8px">Người</span>
+<div class="dot" style="left:44%">1</div><div class="dot" style="left:88%">2</div>
+<span class="lab" style="left:24%;top:8px">chọn trên canvas</span><span class="lab" style="left:72%;top:8px">gật trên ảnh</span>
+<div class="ax"></div>
+<span class="lab" style="left:0;top:90px">Máy</span>
+<div class="bar m" style="left:0;width:40%">canvas bấm được</div><div class="bar m" style="left:50%;width:36%">ruột tạm + chụp</div>
+</div>
+<ul><li class="k">+ giờ người thấp nhất, luật đơn giản nhất</li><li>− tương tác chỉ thử được trên canvas (bản chép), không trên bản thật</li><li>− lỗi cảm giác chạm/kéo lộ ở Cổng 2 hoặc sau ship — chỗ đảo đắt hơn</li></ul>
+<div class="fit"><b>Hợp khi:</b> bề mặt hầu hết là <b>tĩnh</b>; đội chấp nhận sửa tương tác sau khi thấy thật.</div></div>
+
+</div>
+<div style="font-size:12px;color:var(--text-muted);margin-top:8px">Tím = thời gian người phải có mặt · xanh = máy làm · chấm = một chạm. Trục ngang là thời gian; độ dài dải tím là chi phí thật của mỗi lựa chọn.</div>
+</div>
+</body></html>

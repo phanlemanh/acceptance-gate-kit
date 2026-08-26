@@ -15,17 +15,17 @@ suy máy — ca máy dùng chung). Arg: optional `<slug>`. Without it, scan `_ac
 `evidence-report.md` whose `verdict` is `PASS` or `PENDING-JUDGMENT` with an
 empty `human_signoff` (one → use — hồ-sơ là điều máy biết:
 đúng MỘT ứng viên thì KHÔNG hỏi, chỉ hiển thị lại tên hồ sơ trong cùng
-lượt trả lời; several → table + ask; none → `/acceptance-status`). Verdict `REJECT`/`BLOCKED` → not signable: show
+lượt trả lời; several → table + ask; none → `/acceptance-gate:acceptance-status`). Verdict `REJECT`/`BLOCKED` → not signable: show
 `failed_evals`/`reason` and stop.
 
 Một-lượt-gõ + `--repo` (điều khoản chung, chép nguyên văn từ bản luật):
 
-Ba lệnh có-câu-hỏi (`/approve` · `/signoff` · `/start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người.
+Ba lệnh có-câu-hỏi (`/acceptance-gate:approve` · `/acceptance-gate:signoff` · `/acceptance-gate:start`) nhận MỘT CÂU GỘP theo ngữ pháp `GATE-ONESHOT-GRAMMAR` trong bản luật ngôn ngữ mặt người — câu gộp là câu NGƯỜI gõ — cờ và ngữ pháp này không mở đường cho máy gọi lệnh; vắng câu gộp thì hỏi từng bước như cũ. Mọi lệnh cổng người nhận cờ `--repo <path>`: mọi đọc/ghi/git của lệnh chạy trên gốc `<path>` (`git -C <path>`, script kèm `--root <path>`); vắng cờ thì gốc là thư mục hiện tại như cũ. Đầu ra theo bản luật ngôn ngữ mặt người.
 
 Ví dụ một lượt gõ — trần (máy gánh danh tính/ngày) và đầy đủ (kiểu
 cũ, vẫn chạy nguyên):
-`/signoff E9: Đạt; cắt/hoãn: đồng ý cắt; Ký`
-`/signoff abc-xyz --repo /duong/dan/repo Ngoài-1: ghi Known limits; E9: Đạt; cắt/hoãn: đồng ý cắt; Treo: phê hết; Ký: Manh Phan 2026-08-11`
+`/acceptance-gate:signoff E9: Đạt; cắt/hoãn: đồng ý cắt; Ký`
+`/acceptance-gate:signoff abc-xyz --repo /duong/dan/repo Ngoài-1: ghi Known limits; E9: Đạt; cắt/hoãn: đồng ý cắt; Treo: phê hết; Ký: Manh Phan 2026-08-11`
 
 Câu gộp của lệnh này ghép các chỗ trống dòng «Trả lời mẫu» của thẻ Cổng 2,
 phân cách bằng `;` — ngữ pháp đầy đủ ở khối `GATE-ONESHOT-GRAMMAR`. Người
@@ -96,14 +96,17 @@ Steps:
    `run-log.jsonl`, the contract, or `evidence/` carry uncommitted
    machine-written changes, commit them NOW — committing early dodges the
    stale-guard. Không còn bắt tách khỏi chữ ký: nghi thức ấy đã gỡ (ADR 0012).
-2. **Render Gate 2.** `/acceptance-card <slug>` — decision card + auto-opened
+2. **Render Gate 2.** `/acceptance-gate:acceptance-card <slug>` — decision card + auto-opened
    `evidence-page.html`.
 3. **List what only the human decides** — quyết định, không phải danh tính:
    - every UNCERTAIN judgment item — T3: EVERY judgment item — needs a real
      `human_override`;
    - the verdict upgrade `PENDING-JUDGMENT → PASS`, legal only after ALL those
      lines are filled;
-   - chữ «Ký» hay «Trả lại» → `human_signoff` + contract `status: signed-off`.
+   - chữ «Ký» hay «Trả lại» → `human_signoff` + contract `status: signed-off` —
+     kể cả khi hồ sơ đang `machine-cleared`: người ký trong cửa veto thì status
+     phải sang `signed-off` CÙNG lượt, để chữ ký không nằm trên một hồ sơ đang
+     tự khai là «máy thông, không có chữ ký người».
    Danh tính và ngày KHÔNG nằm trong danh sách này: máy suy theo bậc ở trên
    rồi hiển thị lại chờ xác nhận một chạm khi người chưa khai.
 4. **Collect decisions in chat, item by item** — SKIP every item the
@@ -134,7 +137,12 @@ Steps:
    after `human_signoff` is written; the map is machine-generated from records
    this gate just changed, so it belongs in the signature commit below.
 
-7. **Ghi và commit — một lượt.** Sau khi người phát ngôn, ghi các dòng thuộc
+7. **Ghi và commit — một lượt. THỨ TỰ GHI CÓ RĂNG.** Hồ sơ đang
+   `machine-cleared` (máy đã thông, làn V) thì **ghi contract `status:
+   signed-off` TRƯỚC, rồi mới ghi `evidence-report.md`** — chữ ký nằm trên một
+   hồ sơ còn tự khai «không có chữ ký người» là hai sự thật cãi nhau, nên cổng
+   ghi chặn đúng lượt đó. Hồ sơ `verified`/`implemented` thì thứ tự nào cũng
+   qua. Sau khi người phát ngôn, ghi các dòng thuộc
    về người trong `evidence-report.md` (`human_signoff`, `human_override`, the
    verdict upgrade, `bypass_ack`) + contract `status: signed-off`, và
    `PRODUCT-MAP.md` ONLY if step 6 actually regenerated it. Rồi commit MỘT
@@ -160,6 +168,13 @@ Steps:
    `--base origin/<default-branch>` when known); otherwise run the installed
    plugin's copy. Where write-time hooks are not active, also run
    `recheck-evidence.cjs`. Report READY TO MERGE or the exact violations.
+
+9. **Bước kế — in ra, đừng để người tự đoán.** Sau khi báo READY TO MERGE, in
+   đúng một dòng: «Đã ký bằng chứng. Bước kế: bàn giao (S5) — mở PR theo quy
+   trình repo.» Hồ sơ có `opportunity.md` (vòng đi từ Cổng Đáng) thì thêm: «sau
+   khi giao còn một cổng nữa — phiên nghiệm thu:
+   `/acceptance-gate:uat-session <slug>`.» Không có `opportunity.md` → «không hồ
+   sơ cơ hội nên ship thẳng, vòng đóng.»
 
 Never:
 - invent a verdict, or guess a name/date beyond the identity ladder
