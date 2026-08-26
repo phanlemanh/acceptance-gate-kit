@@ -13,7 +13,7 @@ feature_slug: design-pass-nac-khong-dong-bo
 # bản sao và thông điệp đỏ GHIM TÊN VẾ đó. Bảng dưới là hợp đồng, không để bộ ca
 # tự quyết:
 # <<<MUTANT-MATRIX
-#   E1=8 · E8=5 · E9=2 · E10=5 nhánh + 6 mutant + 2 lưới quan hệ · E11=5 · E12=4
+#   E1=8 · E8=5 · E9=2 · E10=5 nhánh + 7 mutant + 2 lưới quan hệ · E11=5 · E12=4
 #   · E13=3 chân · E15=3
 # MUTANT-MATRIX>>>
 #
@@ -49,7 +49,8 @@ evals:
       dạng cú pháp — bản khai lại có vô số hình dạng nên liệt hình dạng là danh-sách-
       cấm trên không gian mở.
       Đối chứng dương: bản nguyên vẹn XANH, chạy TRƯỚC mọi mutant.
-      MA TRẬN 6 MUTANT (mỗi mutant đi qua CHÍNH bộ trích của chiều xanh, khác
+      MA TRẬN MUTANT (số khai ở mốc neo `MUTANT-MATRIX`, KHÔNG chép lại ở đây; mỗi
+      mutant đi qua CHÍNH bộ trích của chiều xanh, khác
       input): m1..m4 = bản sao ĐỔI TÊN lần lượt nac-0, nac-1, nac-2, nac-3 thành
       id khác → đỏ, thông điệp GHIM đúng id thiếu; m5 = bản sao thêm một danh
       sách nấc thứ hai NGOÀI marker → đỏ, ghim "danh sách nấc xuất hiện 2 chỗ";
@@ -88,7 +89,7 @@ evals:
       TIẾNG NGƯỜI đúng cho từng nấc và hiện có/không đường bộ phương án theo khoá
       `options:`. Fixture khẳng định không còn placeholder `<` sống trong
       frontmatter trước khi ghi. Đối chứng dương: hồ sơ đủ khoá XANH trước.
-      MA TRẬN 2 MUTANT, cả hai đi qua CHÍNH bộ dựng thẻ: m1 = hồ sơ sinh từ khuôn
+      MA TRẬN MUTANT (số ở mốc neo), cả hai đi qua CHÍNH bộ dựng thẻ: m1 = hồ sơ sinh từ khuôn
       đã bỏ `reaction:` → thẻ KHÔNG có nhãn nấc, đỏ ghim nhãn mong đợi; m2 = hồ sơ
       sinh từ khuôn đã bỏ `options:` → thẻ không hiện đường bộ phương án, đỏ ghim
       vế đó.
@@ -118,7 +119,7 @@ evals:
       dòng khi thấy bất kỳ ngoặc nhọn nào, nên phiên MỚI vừa ghi hỏng bị báo thành
       hồ sơ đời trước — nói sai chuyện đang xảy ra cho người duyệt và giấu mất cái
       sai vừa xảy ra. Chỗ trống của fixture RÚT TỪ khuôn thật, không gõ tay.
-      MA TRẬN 6 MUTANT trên bản sao TRỌN scripts/+lib/, đi qua CHÍNH bộ đọc thật:
+      MA TRẬN MUTANT (số ở mốc neo) trên bản sao TRỌN scripts/+lib/, đi qua CHÍNH bộ đọc thật:
       m1 = bỏ đường rút id khỏi chuỗi nửa vời → (d) mất nhãn → đỏ; m2 = bỏ nhánh
       nửa-vời → (e) rơi về câu "đời trước" → đỏ; m3 = bắn cờ nấc cho MỌI hồ sơ →
       đối chứng dương (a) phải đỏ; m-esc = gỡ toàn bộ esc() → lưới (f) phải đỏ;
