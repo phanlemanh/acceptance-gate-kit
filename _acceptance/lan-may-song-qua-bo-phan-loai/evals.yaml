@@ -7,10 +7,9 @@ feature_slug: lan-may-song-qua-bo-phan-loai
 # không gian mở.
 #
 # <<<MUTANT-MATRIX
-#   E1=6 · E2=4 · E3=6 · E4=7 · E5=10 · E6=7 · E8=10 · E9=1   (tổng 51)
+#   E1=6 · E2=4 · E3=6 · E4=7 · E5=10 · E6=7 · E8=10   (tổng 50)
 #   E3 là răng hồ sơ, 6 mutant chia ba chân. E8 gồm hai ca: LM8 (văn phạm entry)
-#   và LM8b (khuôn sống đúng một chỗ có mốc neo). E9 là lưới phủ nhánh, mutant duy
-#   nhất của nó là phép tự kiểm trên một bộ kiểm giả có lỗ.
+#   và LM8b (khuôn sống đúng một chỗ có mốc neo).
 # MUTANT-MATRIX>>>
 #
 # ĐỔI KHUÔN LẦN HAI (vòng 3, luật dừng-vá bật lần thứ hai — owner chọn «TRỪ lời
@@ -28,13 +27,20 @@ feature_slug: lan-may-song-qua-bo-phan-loai
 # nay sinh TỪ CHÍNH biểu thức của bộ kiểm — bẻ xong thì bộ kiểm không thể còn khớp,
 # quan hệ do cấu trúc giữ chứ không do người viết nhớ.
 #
-# LƯỚI PHỦ NHÁNH (vòng 4, E9). Vòng 3 tôi lại vá theo hình dạng bị nêu tên: thêm
-# chiều đỏ cho nhánh «mốc neo trùng» rồi để nguyên ba nhánh anh em (thiếu mốc neo ·
-# không đọc được nguồn · danh sách rỗng) — trong đó nhánh không-đọc-được-nguồn chính
-# là bản vá của vòng đó, không lưới nào canh. Nên nhánh KHÔNG còn được liệt bằng
-# tay: mỗi bộ kiểm tự khai mọi lời báo lỗi nó có thể phát (rút từ chính nguồn của nó
-# và của hàm nó gọi), lưới đòi MỖI lời ấy phải có ít nhất một mutant chạm tới. Thêm
-# nhánh mà quên chiều đỏ → đỏ ngay, nêu đích danh lời báo chưa ai chạm.
+# NHÁNH CÓ THẬT PHẢI CÓ CHIỀU ĐỎ (vòng 4). Vòng 3 tôi vá theo hình dạng bị nêu tên:
+# thêm chiều đỏ cho nhánh «mốc neo trùng» rồi để nguyên ba nhánh anh em (thiếu mốc
+# neo · không đọc được nguồn · danh sách rỗng) — trong đó nhánh không-đọc-được-nguồn
+# chính là bản vá của vòng đó. Nay bốn nhánh ấy khai MỘT chỗ trong bộ ca
+# (`blockBranchMutants`, `M_CONFIG_KHONG_DOC`, `M_KHOA_KHONG_GIAI`, `M_ALLOW_RONG`) và
+# ghép vào mọi ca có nhánh ấy.
+#
+# GIỚI HẠN ĐÃ KHAI, và đây là một giới hạn owner CHỌN nhận (vòng 5): việc ghép đủ do
+# người viết giữ, không lưới nào canh. Vòng 4 tôi có dựng một lưới tự-khai-lời-báo cho
+# chỗ này; nó hứa «mọi lời báo lỗi mà bộ kiểm có thể phát» — phủ định phổ quát trên
+# văn xuôi mã nguồn, KHÔNG thuộc loại chứng được — và bản thân nó xanh mà chưa từng
+# chạy (điều kiện tôi tự thêm khiến nó bỏ qua thân ca khi bộ bọc gọi riêng). Owner
+# chọn CẮT: giữ phép thử ngược cụ thể làm việc thật, bỏ lời hứa giữ không nổi. Nhánh
+# TƯƠNG LAI vì thế không được canh tự động — đó là cái giá, khai thẳng ở đây.
 #
 # GIỚI HẠN ĐÃ KHAI: không eval nào đo HIỆU LỰC LÚC CHẠY của luật cho-phép —
 # settings đọc lúc khởi động phiên, phá thử ở S1 xác nhận sửa giữa phiên không có
@@ -125,20 +131,6 @@ evals:
       engine ở E5. Nó chết lặng nếu harness đổi văn phạm; đổi lại vẫn bắt được bên
       viết settings tự chế khuôn khác.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E9
-    criterion: AC-7
-    executor: test
-    cmd: config:executors.test.plugins
-    paths: [tests/plugins/lan-may-classifier.test.mjs]
-    expected: >
-      exit 0; stdout có "PASS: [LM0]". Lưới phủ nhánh: mỗi bộ kiểm tự khai mọi lời
-      báo lỗi nó có thể phát, rút từ chính nguồn của nó và của hàm nó gọi; lưới đòi
-      mỗi lời ấy phải có ít nhất một mutant chạm tới. Bộ rút bám vào LỜI chứ không
-      bám vào CÁCH PHÁT — bản đầu bám cách phát nên tự nó bỏ sót một nhánh, tức lưới
-      khi ấy cũng là một nhánh chết. Lưới có chiều đỏ của CHÍNH nó: dựng một bộ kiểm
-      giả có lời báo mà không ai chạm, lưới phải kêu.
-      Đây là phần AC-7 nay đo được bằng máy; phần còn lại của AC-7 vẫn ở E7.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E7
     criterion: AC-7
     executor: judgment
@@ -160,15 +152,15 @@ evals:
       khai ấy? Còn chuỗi mồi gõ tay nào sót lại không? Còn phép đo nào đo cái GẦN
       ĐÚNG thay vì cái AC hứa — grep trọn file thay vì trong khối, đếm file thay vì
       đếm khối, đo chuỗi-có-mặt thay cho một QUAN HỆ?
-      LỚP THỨ HAI (mới ở vòng 4): nhánh không còn được liệt bằng tay — có một LƯỚI
-      PHỦ NHÁNH (ca LM0) bắt mỗi bộ kiểm tự khai mọi lời báo lỗi nó phát ra và đòi
-      mỗi lời phải có mutant chạm tới. Hãy tấn công CHÍNH lưới đó: bộ rút lời báo có
-      bỏ sót dạng phát nào không (chuỗi trả qua trường của object, chuỗi nối, lời báo
-      dựng bằng biến)? Nó có tính nhầm chuỗi KHÔNG phải lời báo thành lời báo, khiến
-      con số nghe to mà rỗng? `sourceClosure` có bỏ sót hàm được gọi gián tiếp không?
-      Lưới có chiều đỏ của chính nó không, và chiều đỏ ấy có đi qua đúng hàm mà chiều
-      xanh dùng không? Nếu lưới này hỏng thì mọi con số phủ nhánh đều vô nghĩa.
-      RỒI kiểm phần còn lại: mỗi nhánh CÓ THẬT của mỗi bộ kiểm có chiều đỏ không? Mutant nào không đổi
+      LỚP THỨ HAI: mỗi nhánh CÓ THẬT của mỗi bộ kiểm có chiều đỏ không — kể cả nhánh
+      thiếu mốc neo, trùng mốc neo, không đọc được nguồn, danh sách rỗng? Hãy DUYỆT
+      TỪNG bộ kiểm và liệt mọi đường nó có thể trả lỗi, rồi đối chiếu với mutant của
+      ca đó; nêu đích danh nhánh nào chưa ai chạm.
+      LƯU Ý: hồ sơ khai thẳng rằng việc GHÉP ĐỦ nhánh do người viết giữ, không lưới
+      nào canh — vòng 4 có dựng một lưới tự-khai-lời-báo cho chỗ này, owner cắt ở
+      vòng 5 vì nó hứa một phủ định phổ quát không chứng được và bản thân nó xanh mà
+      chưa từng chạy. Nên «không có lưới canh việc ghép đủ» là GIỚI HẠN ĐÃ KHAI, KHÔNG
+      tính vi phạm; còn một nhánh cụ thể thiếu chiều đỏ thì VẪN tính vi phạm. Mutant nào không đổi
       được gì (no-op) mà lưới không kêu? Mỗi mutant có đi qua CHÍNH hàm của chiều
       xanh không? Đối chứng dương có chạy trên đúng dạng input mà mutant dùng không —
       hay mutant bẻ bản phẳng trong khi đối chứng chỉ chạy bản thô, khiến ca có thể
