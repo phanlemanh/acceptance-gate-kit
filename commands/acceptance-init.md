@@ -54,6 +54,9 @@ recheck: strict              # CI re-check of COMMITTED evidence: strict | warn 
                              # strict is safe for a fresh repo (no legacy reports);
                              # `warn` only exists so repos ADOPTING the kit with older
                              # reports aren't blocked — do not start there.
+# Hai ổ cắm thiết kế — khai khi repo có bề mặt người dùng, bỏ trống thì không chặn:
+#   feature_loop.ui_standards_skill: <skill chuẩn plugin/DS của repo>   # S1 nạp làm đối trọng chuẩn nội
+#   design_pass.ds_skill: <skill chuẩn DS của repo>                     # nghi thức thiết kế nạp làm nguồn luật
 executors:
   test:
     api: "<from 2a>"

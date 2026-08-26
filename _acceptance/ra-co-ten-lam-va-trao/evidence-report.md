@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: a3038182803075f1246b73b0db75dc357d99a0a9
+verified_commit: 77727323a1943685ad4150da5d3e1efffe4ce4e1
 human_signoff: Manh 2026-08-25
 ---
 
@@ -258,3 +258,7 @@ Chữ ký và verdict của hồ sơ KHÔNG đổi. Ghim lại là việc máy.
 
 Round 7: BLOCKED — 3 test suites unrun (Bash-classifier rate-limit); evidence chưa được re-pin cho tới vòng này.
 Round 14: E1–E6, E9–E16, E18 đều PASS trên verified_commit bd7fa7cd; mọi eval baseline=red (có phân biệt) — xem Evidence phía trên.
+
+### Re-pin lần 2 — 2026-08-26, do nhánh design-pass-nac chạm mã sau mốc ghim cũ — ghim lại bằng MỘT lượt làn máy xanh trọn
+run_id: repin-20260826T073920Z-dpnkdb
+sha: 77727323a1943685ad4150da5d3e1efffe4ce4e1 · suites: 5 lệnh exit 0

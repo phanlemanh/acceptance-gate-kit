@@ -1189,6 +1189,10 @@ fx = (block
       .replace("<ISO UTC>", "2026-07-30T00:00:00Z")
       .replace("<url đã mở>", "http://localhost:3000/proto/fx-slug")
       .replace("<real-components|scaffold|static>", "real-components")
+      .replace("<id nấc lấy từ REACTION-LADDER>", "nac-1")
+      .replace("(<kênh đã dùng, vd ghim, thao-luan, sua-roi-luu>)", "(ghim)")
+      .replace("<đường dẫn hoặc URL bộ phương án — THAM CHIẾU, không phải bằng chứng; trống nếu không mở bước phân kỳ>", "")
+      .replace("<opened, hoặc: skipped — căn cứ 1 dòng>", "opened")
       .replace("<tên-skill-đã-nạp|repo-tokens|shadcn-default>", "shadcn-default")
       .replace("[<danh sách state đã duyệt>]", "[default, error]")
       .replace("<n>", "2")
@@ -4944,6 +4948,10 @@ def mkfix(ctx, scenes, drop_context=False, ledger=None, cfg="schema_version: 1\n
           .replace("<real-components|scaffold|static>", "scaffold")
           .replace("<standalone|static-frame|host-embedded>", ctx)
           .replace(SCENES_PH, scenes)
+          .replace("<id nấc lấy từ REACTION-LADDER>", "nac-1")
+          .replace("(<kênh đã dùng, vd ghim, thao-luan, sua-roi-luu>)", "(ghim)")
+          .replace("<đường dẫn hoặc URL bộ phương án — THAM CHIẾU, không phải bằng chứng; trống nếu không mở bước phân kỳ>", "")
+          .replace("<opened, hoặc: skipped — căn cứ 1 dòng>", "opened")
           .replace("<tên-skill-đã-nạp|repo-tokens|shadcn-default>", "shadcn-default")
           .replace("[<danh sách state đã duyệt>]", "[default]").replace("<n>", "1")
           .replace("<state>", "default").replace("<breakpoint>", "mobile-375")
@@ -4991,6 +4999,10 @@ def mkfix(scenes, ledger=None):
           .replace("<url đã mở>", "u").replace("<real-components|scaffold|static>", "scaffold")
           .replace("<standalone|static-frame|host-embedded>", "standalone")
           .replace(SCENES_PH, scenes)
+          .replace("<id nấc lấy từ REACTION-LADDER>", "nac-1")
+          .replace("(<kênh đã dùng, vd ghim, thao-luan, sua-roi-luu>)", "(ghim)")
+          .replace("<đường dẫn hoặc URL bộ phương án — THAM CHIẾU, không phải bằng chứng; trống nếu không mở bước phân kỳ>", "")
+          .replace("<opened, hoặc: skipped — căn cứ 1 dòng>", "opened")
           .replace("<tên-skill-đã-nạp|repo-tokens|shadcn-default>", "repo-tokens")
           .replace("[<danh sách state đã duyệt>]", "[default]").replace("<n>", "0")
           .replace("<state>", "default").replace("<breakpoint>", "mobile-375")
@@ -5053,6 +5065,10 @@ def mkfix(ctx, drop_context=False):
           .replace("<url đã mở>", "u").replace("<real-components|scaffold|static>", "static")
           .replace("<standalone|static-frame|host-embedded>", ctx)
           .replace(SCENES_PH, "[]")
+          .replace("<id nấc lấy từ REACTION-LADDER>", "nac-1")
+          .replace("(<kênh đã dùng, vd ghim, thao-luan, sua-roi-luu>)", "(ghim)")
+          .replace("<đường dẫn hoặc URL bộ phương án — THAM CHIẾU, không phải bằng chứng; trống nếu không mở bước phân kỳ>", "")
+          .replace("<opened, hoặc: skipped — căn cứ 1 dòng>", "opened")
           .replace("<tên-skill-đã-nạp|repo-tokens|shadcn-default>", "repo-tokens")
           .replace("[<danh sách state đã duyệt>]", "[default]").replace("<n>", "0")
           .replace("<state>", "default").replace("<breakpoint>", "mobile-375")
@@ -5104,6 +5120,10 @@ def mkfix(cfg, mkguide=None):
           .replace("<url đã mở>", "u").replace("<real-components|scaffold|static>", "scaffold")
           .replace("<standalone|static-frame|host-embedded>", "host-embedded")
           .replace(SCENES_PH, "[]")
+          .replace("<id nấc lấy từ REACTION-LADDER>", "nac-1")
+          .replace("(<kênh đã dùng, vd ghim, thao-luan, sua-roi-luu>)", "(ghim)")
+          .replace("<đường dẫn hoặc URL bộ phương án — THAM CHIẾU, không phải bằng chứng; trống nếu không mở bước phân kỳ>", "")
+          .replace("<opened, hoặc: skipped — căn cứ 1 dòng>", "opened")
           .replace("<tên-skill-đã-nạp|repo-tokens|shadcn-default>", "repo-tokens")
           .replace("[<danh sách state đã duyệt>]", "[default]").replace("<n>", "0")
           .replace("<state>", "default").replace("<breakpoint>", "mobile-375")
@@ -5175,6 +5195,10 @@ def mkrepo(ctx, drop_context=False):
           .replace("<real-components|scaffold|static>", "static")
           .replace("<standalone|static-frame|host-embedded>", ctx)
           .replace(SCENES_PH, "[]")
+          .replace("<id nấc lấy từ REACTION-LADDER>", "nac-1")
+          .replace("(<kênh đã dùng, vd ghim, thao-luan, sua-roi-luu>)", "(ghim)")
+          .replace("<đường dẫn hoặc URL bộ phương án — THAM CHIẾU, không phải bằng chứng; trống nếu không mở bước phân kỳ>", "")
+          .replace("<opened, hoặc: skipped — căn cứ 1 dòng>", "opened")
           .replace("<tên-skill-đã-nạp|repo-tokens|shadcn-default>", "shadcn-default")
           .replace("[<danh sách state đã duyệt>]", "[default]").replace("<n>", "0")
           .replace("<state>", "default").replace("<breakpoint>", "mobile-375")
@@ -10627,6 +10651,14 @@ _vc_ids="$(node "$ROOT/tests/plugins/vao-co-o.test.mjs" --ids)" || { echo "khong
 for _vc in $_vc_ids; do
   run "ca vao co o — $_vc (ho so vao-co-o-ra-co-ten)" \
     env VC_CASES="$_vc" node "$ROOT/tests/plugins/vao-co-o.test.mjs"
+done
+
+# ─── Hồ sơ design-pass-nac-khong-dong-bo: DP1..DP13 (file ca riêng) ──────────
+# Danh sách ca do CHÍNH file ca xuất (--ids); tên dòng run KHÔNG chứa "PASS: [DP".
+_dp_ids="$(node "$ROOT/tests/plugins/design-pass-nac.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca DP"; failures=$((failures+1)); _dp_ids=""; }
+for _dp in $_dp_ids; do
+  run "ca nac phan ung — $_dp (ho so design-pass-nac-khong-dong-bo)" \
+    env DP_CASES="$_dp" node "$ROOT/tests/plugins/design-pass-nac.test.mjs"
 done
 
 # ─── Hồ sơ dac-ta-ux-vat-hoa-cau-truc: UX1..UX4 (file ca riêng) ───────────────
