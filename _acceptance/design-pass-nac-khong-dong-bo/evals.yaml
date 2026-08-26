@@ -13,7 +13,7 @@ feature_slug: design-pass-nac-khong-dong-bo
 # bản sao và thông điệp đỏ GHIM TÊN VẾ đó. Bảng dưới là hợp đồng, không để bộ ca
 # tự quyết:
 # <<<MUTANT-MATRIX
-#   E1=8 · E8=5 · E9=2 · E10=5 nhánh + 7 mutant + 2 lưới quan hệ · E11=5 · E12=4
+#   E1=8 · E8=5 · E9=2 · E10=5 nhánh + 8 mutant + 3 lưới quan hệ · E11=5 · E12=4
 #   · E13=3 chân · E15=3
 # MUTANT-MATRIX>>>
 #
@@ -70,7 +70,7 @@ evals:
       chính skill, khẳng định frontmatter khuôn có đúng BA khoá mới `reaction:`,
       `options:`, `divergence:`, và dòng `options:` tự khai là tham chiếu chứ không
       phải bằng chứng.
-      MA TRẬN 5 MUTANT: m1..m3 = xoá lần lượt từng khoá khỏi khuôn → cùng bộ trích đỏ,
+      MA TRẬN MUTANT (số ở mốc neo): m1..m3 = xoá lần lượt từng khoá khỏi khuôn → cùng bộ trích đỏ,
       ghim đúng tên khoá thiếu; m4 = bỏ cụm "THAM CHIẾU, không phải bằng chứng" khỏi
       dòng `options:` → đỏ ghim vế đó; m5 = khuôn LIỆT LẠI bốn id nấc thay vì trỏ về
       mốc neo → đỏ ghim "khuôn liệt lại danh sách nấc" (hai vế này vòng 1 không có
@@ -168,7 +168,7 @@ evals:
       Vế «KHÔNG cờ nấc» đo bằng ĐẾM cờ khớp cụm «nấc phản ứng» = 0 — quan hệ, phủ cả
       câu cờ ai thêm sau; ba assert cũ (mã thoát · khối vắng · nhãn lạ) không chạm vế
       này nên nó từng là vế chết.
-      MA TRẬN 3 MUTANT: m1 = bản sao gate-card khiến nhánh này in khối rỗng → đỏ
+      MA TRẬN MUTANT (số ở mốc neo): m1 = bản sao gate-card khiến nhánh này in khối rỗng → đỏ
       ghim "khối Bản mẫu hiện trên hồ sơ không có sổ phiên"; m2 = bản sao khiến
       nhánh này ném một lỗi CÓ TÊN → đỏ ghim CẢ mã thoát khác 0 LẪN kim tên lỗi trong
       stderr (kết luận từ mỗi «exit khác 0» là assertion âm-tính-một-mình: bản sao chết
@@ -193,7 +193,7 @@ evals:
       Thiếu vế này thì vế «thêm một chỗ mà không sửa bảng cũng ĐỎ» của AC-11 là vế
       chết: hội đồng vòng 2 đã chứng bằng cách nối câu chuẩn vào một file thứ ba mà
       ca vẫn xanh — đúng thứ AC-11 sinh ra để chặn.
-      MA TRẬN 5 MUTANT qua cùng hàm so: m1 = đổi MỘT TỪ ở một site → đỏ ghim cặp
+      MA TRẬN MUTANT (số ở mốc neo) qua cùng hàm so: m1 = đổi MỘT TỪ ở một site → đỏ ghim cặp
       (site, chỗ lệch); m2 = thêm một bản chép ở site ĐÃ có tên mà không sửa số →
       đỏ ghim "thừa"; m3 = xoá một bản chép → đỏ ghim "thiếu"; m4 = tiêm bản chép
       vào file THỨ BA ngoài danh sách → đỏ ghim "NGOAI bang khai" kèm đường dẫn VÀ
@@ -210,7 +210,7 @@ evals:
       exit 0; stdout có "PASS: [DP12]". Bốn ô (2 file × 2 khoá): `design_pass.ds_skill`
       và `feature_loop.ui_standards_skill` đều được nêu trong GUIDE.md VÀ trong
       khuôn khởi tạo.
-      MA TRẬN 4 MUTANT: mỗi mutant xoá đúng MỘT ô (file, khoá) trên bản sao →
+      MA TRẬN MUTANT (số ở mốc neo): mỗi mutant xoá đúng MỘT ô (file, khoá) trên bản sao →
       cùng bộ kiểm đỏ, ghim đúng cặp (file, khoá) thiếu.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E13
@@ -225,7 +225,7 @@ evals:
       hai thư mục, KHÔNG chép danh sách file tay (lớp lỗi P150). Hai đầu chạy
       CÙNG MỘT hàm đếm với CÙNG MỘT glob `skills/** + feature-loop/**` (phạm vi
       là THƯ MỤC, không phải danh sách file — hai đầu lệch phạm vi là chỗ trốn).
-      MA TRẬN 3 CHÂN: (1) đếm ở mốc phải ≥1 — đối chứng dương chứng minh hàm đếm
+      MA TRẬN CHÂN (số ở mốc neo): (1) đếm ở mốc phải ≥1 — đối chứng dương chứng minh hàm đếm
       biết đếm; = 0 thì ĐỎ với thông điệp "đối chứng dương chết: câu chết không
       có ở mốc BASE-DPNKDB", không được lặng lẽ xanh; (2) đếm ở cây đang kiểm
       phải = 0; (3) CHÂN TIÊM: bản sao cây đang kiểm được tiêm câu chết vào một

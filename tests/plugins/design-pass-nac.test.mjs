@@ -78,8 +78,10 @@ function checkLadder(skillText) {
   // dòng gạch đầu dòng. Mệnh đề đếm được thay thế: NGOÀI mốc neo, không cửa sổ
   // WINDOW dòng liền nhau nào được chứa từ 3 id khác nhau trở lên.
   // Ngưỡng ĐO ĐƯỢC, không đoán: trên cây hiện tại, mọi cửa sổ tới 10 dòng ngoài mốc
-  // neo chứa tối đa 1 id (chỉ `nac-3`, ở hai chỗ) — nên với MAX_IDS=2 dư địa thật là 2
-  // id, KHÔNG phải 1: thước lỏng hơn mức câu chú thích cũ nói (hội đồng S4-r6 đếm lại).
+  // neo chứa tối đa 2 id (dòng «nac-2 và nac-3» đứng cùng một dòng) — nên với MAX_IDS=2
+  // dư địa thật là 1 id. ĐÍNH CHÍNH: vòng 6 tôi sửa câu này thành «dư địa 2» vì tin con
+  // số của một hội đồng mà KHÔNG đếm lại; đếm tay cho 2, tức câu GỐC đúng và bản sửa của
+  // tôi mới sai. Số này phải đếm, đừng chép.
   const WINDOW = 8, MAX_IDS = 2;
   const outside = skillText.replace(b, '@@MOC-NEO@@').split('\n');
   for (let i = 0; i + 1 <= outside.length; i++) {
@@ -211,7 +213,7 @@ function render(wsRoot, mutateCard = null, { expectDead = false } = {}) {
   if (mutateCard && !expectDead && r.status !== 0) {
     throw new Error(`ban sao sau khi tiem KHONG chay noi (exit ${r.status}) — moi khang dinh chieu AM tren no la vacuous: ${(r.stderr || '').slice(0, 200)}`);
   }
-  return { status: r.status, out: r.stdout || '', err: r.stderr || '' };
+  return { status: r.status, out: r.stdout || '', err: r.stderr || '', card };
 }
 
 // ---------------------------------------------------------------------------
@@ -412,6 +414,29 @@ if (want('DP10')) {
     if (!j || !j.design_pass || !('reaction_label' in j.design_pass))
       errs.push(`(h) khoa ke thua "${k}": --extract mat han khoa reaction_label (JSON.stringify bo gia tri ham)`);
   }
+  // (i) THOÁT CHUỖI ĐẶT Ở BIÊN RENDER. Mảng cờ chảy vào CẢ đường HTML LẪN `--extract`;
+  // hồi quy vòng 4 chính là thực thể HTML lọt vào trường máy-đọc. Lưới (f) chỉ soi HTML,
+  // nên nếu ai đó thoát chuỗi ngay tại CHỖ ĐẨY thì HTML thoát hai lần (lưới (f) vẫn xanh
+  // vì không còn ngoặc nhọn thô) mà máy-đọc nhận bản đã thoát — không ai kêu (S4-r7).
+  const wsDoc = mkWs(noteFromTemplate(src).split('\n')
+    .map(l => l.startsWith('reaction:') ? `reaction: ${HOSTILE}` : l).join('\n'));
+  const THUC_THE = /&(?:lt|gt|amp|quot|#39);/;
+  const coMayDoc = cardPath => {
+    const ex = spawnSync(process.execPath, [cardPath, '--root', wsDoc, '--slug', 'fx', '--extract'], { encoding: 'utf8' });
+    try { return JSON.parse(ex.stdout).design_pass.flags || null; } catch { return null; }
+  };
+  const fDoc = coMayDoc(GATE_CARD);
+  if (!fDoc || !fDoc.length) errs.push('(i) --extract khong tra ve co nao — khong do duoc duong may-doc');
+  else if (!fDoc.some(t => t.includes(HOSTILE))) errs.push('(i) co o duong may-doc KHONG mang nguyen van gia tri so phien');
+  else if (fDoc.some(t => THUC_THE.test(t))) errs.push('(i) co o duong may-doc mang THUC THE HTML — thoat chuoi dat o CHO DAY, khong o bien render');
+  // chiều đỏ của (i): thoát chuỗi ngay tại chỗ đẩy
+  // Giá trị mang ngoặc nhọn bị bộ đọc xếp vào nhánh «CHƯA ĐIỀN», nên cờ mang nguyên văn
+  // sinh ra từ CHỖ ĐẨY ĐÓ — nhắm mutant vào đúng nhánh mà fixture thật sự đi qua.
+  const mDay = render(wsDoc, t => t.split("+ dp.reaction_raw +").join("+ esc(dp.reaction_raw) +"));
+  const fDay = coMayDoc(mDay.card);
+  if (!fDay || !fDay.some(t => THUC_THE.test(t)))
+    errs.push('m-esc-cho-day: thoat chuoi tai CHO DAY ma luoi (i) khong do');
+
   const rCtx = render(mkWs(noteFromTemplate(src).split('\n').map(l => l.startsWith('context:') ? 'context: constructor' : l).join('\n')));
   if (!flagsOf(rCtx.out).some(t => /Nấc ngữ cảnh không nhận diện được/.test(t)))
     errs.push('(h) khoa ke thua o truc NGU CANH di lot — bang nhan kia chua sua theo lop');
@@ -450,7 +475,7 @@ if (want('DP10')) {
     t => t.split("${esc(dp.material || '(chưa khai)')}").join("${dp.material || '(chưa khai)'}"));
 
   if (errs.length) fail('DP10', errs.join(' · '));
-  else pass('DP10', 'nam nhanh doi-ho-so + luoi thoat-chuoi CA HAI duong ra the + khoa ke thua ca hai truc + 7 mutant do dung ve');
+  else pass('DP10', 'nam nhanh doi-ho-so + luoi thoat-chuoi CA HAI duong ra the + luoi duong MAY-DOC + khoa ke thua ca hai truc + 8 mutant do dung ve');
 }
 
 // DP13 · AC-15 — hồ sơ KHÔNG có sổ phiên: thẻ vẫn phải dựng được
@@ -608,7 +633,7 @@ if (want('DP12')) {
   if (clean0.length) fail('DP12', `doi chung duong DO — ban nguyen ven phai XANH: ${clean0.join(' · ')}`);
   else {
     const errs = [];
-    // MA TRẬN 4 MUTANT = 2 file × 2 khoá, mỗi mutant xoá đúng MỘT ô
+    // MA TRẬN MUTANT (số ở mốc neo) = 2 file × 2 khoá, mỗi mutant xoá đúng MỘT ô
     for (const rel of Object.keys(DOC_SITES)) for (const k of DOC_KEYS) {
       const mut = r => r === rel ? readAt(r).split(k).join('X') : readAt(r);
       if (!checkDocKeys(mut).some(e => e.includes(`(${rel}, ${k})`)))
