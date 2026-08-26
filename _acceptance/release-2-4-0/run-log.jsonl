@@ -1,0 +1,9 @@
+{"ts": "2026-08-26T09:19:11Z", "run_id": "release-2-4-0-E1-r1", "eval": "E1", "exit_code": 0}
+{"ts": "2026-08-26T09:19:11Z", "run_id": "release-2-4-0-E2-r1", "eval": "E2", "exit_code": 0}
+{"ts": "2026-08-26T09:19:11Z", "run_id": "release-2-4-0-E3-r1", "eval": "E3", "exit_code": 0}
+{"ts": "2026-08-26T09:19:11Z", "run_id": "release-2-4-0-E3b-r1", "eval": "E3b", "exit_code": 0}
+{"ts": "2026-08-26T09:19:11Z", "run_id": "release-2-4-0-E3c-r1", "eval": "E3c", "exit_code": 0}
+{"ts": "2026-08-26T09:19:11Z", "run_id": "release-2-4-0-E3d-r1", "eval": "E3d", "exit_code": 0}
+{"ts": "2026-08-26T09:19:11Z", "run_id": "release-2-4-0-E3e-r1", "eval": "E3e", "exit_code": 0}
+{"ts": "2026-08-26T09:19:11Z", "run_id": "release-2-4-0-E6-r1", "eval": "E6", "exit_code": 0}
+{"ts": "2026-08-26T09:19:11Z", "kind": "baseline", "note": "main 8ff6c58a worktree tron cay: P122+P126 do san (ban do lech), moi ca khac xanh"}

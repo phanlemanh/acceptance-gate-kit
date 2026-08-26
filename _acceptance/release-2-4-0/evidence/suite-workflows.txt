@@ -1,0 +1,612 @@
+=== acceptance-verify.test.mjs ===
+W01 dryRun: dedupe + runs plan, zero agents spawned
+  PASS: W01 distinct commands deduped
+  PASS: W01 evals mapped to shared cmd
+  PASS: W01 runs capped at 10
+  PASS: W01 no agents in dryRun
+W02 args guards: bad args + JSON-string args
+  PASS: W02 bad args -> BLOCKED
+  PASS: W02 JSON-string args parsed
+  PASS: W02 nothing to verify -> BLOCKED
+W03 happy path: PASS + run-log may-tinh, main loop ghi file (khong scribe)
+  PASS: W03 verdict PASS
+  PASS: W03 machine dedupe: 2 machine agents (1 eval-cmd + 1 suite)
+  PASS: W03 runLog: 1 line per eval
+  PASS: W03 run_id minted deterministically per eval
+  PASS: W03 ts from args.invokedAt
+  PASS: W03 KHONG con agent scribe
+  PASS: W03 runLogWriteFailed LUON true khi co dong — main loop append
+  PASS: W03 synthesize gets verified_commit literal
+  PASS: W03 synthesize gets the evalRunIds map, not minting rights
+  PASS: W03 result.report la NOI DUNG (main loop ghi file)
+  PASS: W03 result.findings la NOI DUNG
+W04 failing eval -> REJECT with failed ids
+  PASS: W04 verdict REJECT
+  PASS: W04 failedEvals E1+E2 (shared cmd)
+  PASS: W04 run-log records real exit + verifier runId
+W05 cannotRun + dead agent -> BLOCKED, never PASS
+  PASS: W05 cannotRun -> BLOCKED + reason
+  PASS: W05 dead agent -> BLOCKED (skip/chet)
+W06 judge panels: majority + T3 always pending
+  PASS: W06 majority 2/3 PASS -> proposal PASS, verdict PASS (T2)
+  PASS: W06 T3 with judgment -> PENDING-JUDGMENT regardless of votes
+  PASS: W06 no majority -> proposal UNCERTAIN -> PENDING-JUDGMENT
+W07 variance-N: mixed pass-rate -> PENDING-JUDGMENT; short sample -> BLOCKED
+  PASS: W07 runs 3 agents for runs:3
+  PASS: W07 mixed 2/3 -> PENDING-JUDGMENT + variance surfaced
+  PASS: W07 run-log carries runs/passes
+  PASS: W07 missing sample (dead run) -> BLOCKED, not a fake pass-rate
+W08 A/B baseline: green-on-both flagged, suite cmds excluded
+  PASS: W08 green-on-both -> nonDiscriminating
+  PASS: W08 baseline runs eval-cmds only (no suite cmd)
+  PASS: W08 verdict still PASS (baseline is advisory)
+W09 review lane: refute filter, dead refuter, dead finder
+  PASS: W09 unrefuted finding survives
+  PASS: W09 dead refuter -> finding kept, marked unverified
+  PASS: W09 dead finder -> reviewIncomplete (not "0 findings")
+W10 model routing characterization (the table a routing change must consciously break)
+  PASS: W10 machine -> haiku
+  PASS: W10 ui-check -> sonnet
+  PASS: W10 judge -> sonnet
+  PASS: W10 review finders -> inherit session (no model)
+  PASS: W10 refuter -> sonnet
+  PASS: W10 baseline -> sonnet
+  PASS: W10 provenance -> sonnet
+  PASS: W10 khong con role scribe (route da xoa cung agent)
+  PASS: W10 synthesize -> sonnet
+  PASS: W10 executors isolation untouched (no worktree here)
+W11 verified_commit sanitize is pure JS, not agent trust
+  PASS: W11 garbage SHA -> field omitted + explicit no-fake instruction
+  PASS: W11 uppercase SHA normalized to lowercase
+W12 run-log: main loop append la duong DUY NHAT (khong con scribe)
+  PASS: W12 flag set khi co dong can ghi
+  PASS: W12 log nhac main loop tu append
+  PASS: W12 runLog mang du dong cho main loop
+W13 ui-check merges into machine lane + run-log
+  PASS: W13 ui eval PASS end-to-end
+  PASS: W13 run-log line for ui eval
+  PASS: W13 dead ui agent -> BLOCKED
+W14 invokedAt absent (old skill) -> empty ts, still works
+  PASS: W14 ts empty string, no crash
+W15 args.models overrides per role; unspecified roles keep defaults
+  PASS: W15 judge overridden -> opus
+  PASS: W15 machine overridden -> sonnet
+  PASS: W15 finder "session" -> inherit (no model)
+  PASS: W15 unspecified: provenance stays sonnet
+  PASS: W15 unspecified: synthesize stays sonnet
+W16 sanitize: unknown roles + garbage values ignored, defaults hold
+  PASS: W16 unknown role ignored, no crash
+  PASS: W16 empty-string value -> default kept (synthesize path unaffected)
+  PASS: W16 non-string value -> default kept (provenance sonnet)
+  PASS: W16 "session" (padded) on machine -> inherit
+W17 observed evidence: UI_SCHEMA + prompts (Đợt 3 — AI đổi phải chủ động sửa test)
+  PASS: W17 UI_SCHEMA has observed property
+  PASS: W17 ui prompt instructs opening frames with Read
+  PASS: W17 ui prompt: frame contradicting Expected => FAIL
+  PASS: W17 synthesize carries observed value into report payload
+  PASS: W17 synthesize instructs the observed field + schema v2
+W18 P1 carried evals: no spawn, run-log line with original run_id, report payload (Đợt 5)
+  PASS: W18 no machine agent for carried cmd
+  PASS: W18 fresh cmds still run (eval-cmd + suite)
+  PASS: W18 unknown carried id sanitized out
+  PASS: W18 run-log line: original run_id + exit 0 + carried_from_round
+  PASS: W18 synthesize gets carry-forward payload + original verified_at
+  PASS: W18 carried block: no screenshot/observed instruction
+  PASS: W18 verdict PASS (carried không phá routing)
+W19 P2 baseline-once: skip agent, Analyst carried, run-log kind:baseline
+  PASS: W19 no baseline agent spawned
+  PASS: W19 nonDiscriminating carried through
+  PASS: W19 run-log baseline line: hash + carried_from_round
+  PASS: W19 synthesize: Analyst carried note (KHONG DO LAI)
+  PASS: W19 result.carried.baseline true
+  PASS: W19 verdict PASS unchanged
+  PASS: W19 default still spawns baseline
+  PASS: W19 fresh baseline line: hash, no carried marker
+W20 P3 carried panels: no judges for memoized item, routing + run-log intact
+  PASS: W20 judges only for fresh item
+  PASS: W20 carried refs to non-judgment/garbage proposal sanitized
+  PASS: W20 carried panel surfaced with fromRound
+  PASS: W20 UNCERTAIN carried -> PENDING-JUDGMENT (routing giữ nguyên)
+  PASS: W20 fresh panel line: inputs_hash, no carried marker
+  PASS: W20 carried panel line: hash + carried_from_round, votes lens/verdict only
+  PASS: W20 synthesize: carried-panel instruction present
+W21 guard + dryRun: all-carried round without fresh signal is BLOCKED, never empty PASS
+  PASS: W21 all-carried + empty suite -> BLOCKED with FRESH reason
+  PASS: W21 dryRun surfaces carried plan + runBaseline
+W22 [wf-label:] tag: mọi prompt mở đầu bằng tag = opts.label (wf-usage.mjs map transcript → role)
+  PASS: W22 every call tagged with its own label
+  PASS: W22 judge calls present and tagged
+W23 network-truth: UI_SCHEMA optional networkObserved + prompt rail + synthesize passthrough
+  PASS: W23 UI_SCHEMA declares networkObserved as OPTIONAL
+  PASS: W23 ui prompt carries the network rail + vocab
+  PASS: W23 synthesize payload carries networkObserved verbatim
+  PASS: W23 synthesize instructs copy-verbatim + n-a fallback, never invented clean
+W24 network-truth additive: ui result WITHOUT networkObserved still PASS (backward)
+  PASS: W24 verdict PASS without networkObserved
+WT-T1 high + in-contract, evals xanh -> REJECT + vao rejectFindings
+  PASS: WT-T1 verdict REJECT
+  PASS: WT-T1 finding nam trong rejectFindings
+WT-T1b (doi chung duong) cung cau hinh, severity medium -> PASS
+  PASS: WT-T1b medium in-contract KHONG keo REJECT
+WT-T2 high + out-of-contract -> PASS, khong vao fix-list
+  PASS: WT-T2 verdict PASS
+  PASS: WT-T2 KHONG vao rejectFindings
+  PASS: WT-T2 triaged giu proposal
+WT-T3 medium in-contract -> khong REJECT, giu acRef
+  PASS: WT-T3 khong REJECT
+  PASS: WT-T3 giu acRef
+WT-T4 triage chet ca retry -> triageFailed, KHONG REJECT du finding high
+  PASS: WT-T4 triageFailed true
+  PASS: WT-T4 KHONG REJECT tu finding
+  PASS: WT-T4 rejectFindings rong
+  PASS: WT-T4 co retry dung 1 lan (2 luot goi)
+WT-T4b (doi chung duong) triage song -> triageFailed false
+  PASS: WT-T4b triageFailed false
+WT-T4c thieu contractPath -> fail-toward-human, khong spawn agent triage
+  PASS: WT-T4c triageFailed true
+  PASS: WT-T4c KHONG REJECT
+  PASS: WT-T4c KHONG spawn agent triage
+WT-T5 eval FAIL + hon hop -> rejectFindings CHI co in-contract
+  PASS: WT-T5 verdict REJECT
+  PASS: WT-T5 CO in-contract trong fix-list
+  PASS: WT-T5 KHONG co out-of-contract trong fix-list
+WT-T6 finding unverified khong vao triage, van giu ngan rieng
+  PASS: WT-T6 unverified KHONG vao prompt triage
+  PASS: WT-T6 unverified van trong confirmedFindings
+  PASS: WT-T6 unverified KHONG keo REJECT
+WT-T9 BLOCKED thang ve REJECT-tu-finding
+  PASS: WT-T9 verdict BLOCKED
+WT-T9b (doi chung duong) cung fixture khong blocked -> REJECT
+  PASS: WT-T9b khong blocked -> REJECT
+WT-T7a 2 finding ngoai union paths -> co cluster
+  PASS: WT-T7a cluster count 2
+  PASS: WT-T7a cluster liet ke file
+  PASS: WT-T7a cluster ghi total
+WT-T7b khong eval nao khai paths -> cluster null (n-a)
+  PASS: WT-T7b cluster null khi khong do duoc
+WT-T7c (am) finding TRONG vung phu -> khong cluster
+  PASS: WT-T7c khong cluster khi moi finding trong vung phu
+WT-T7d (bien) DUNG 1 finding ngoai vung phu -> khong cluster
+  PASS: WT-T7d 1 finding le KHONG bat co (nguong >=2)
+WT-T8 prompt synthesize: evidence-report giu nguyen tap section
+  PASS: WT-T8 khong section moi nao cho evidence-report
+  PASS: WT-T8 review-findings CO ngan Trong hop dong
+  PASS: WT-T8 review-findings CO ngan Ngoai hop dong
+  PASS: WT-T8 ngan Ngoai hop dong mang proposal
+  PASS: WT-T8 finding in-contract mang acRef
+WT-T8b (doi chung duong) golden list bat duoc section tiem them
+  PASS: WT-T8b phep so con song — bat duoc ## Triage
+WT-T8c triage hong -> prompt co ngan Chua phan loai
+  PASS: WT-T8c co ngan Chua phan loai
+WT-T8d cum -> dong co; khong cum -> dong n-a, khong bia co
+  PASS: WT-T8d co cum -> chi dan dong co
+  PASS: WT-T8d khong cum -> ghi n-a, KHONG co dong co
+WT-T10 trung title khac file: finding in-contract KHONG bi mat khoi fix-list
+  PASS: WT-T10 giu duoc finding in-contract
+  PASS: WT-T10 verdict REJECT (high in-contract con song)
+WT-T10b trung title khac file: out-of-contract KHONG lot vao fix-list
+  PASS: WT-T10b out-of-contract KHONG vao fix-list
+WT-T11 agent bao khong doc duoc hop dong -> triageFailed, khong bia out-of-contract
+  PASS: WT-T11 triageFailed true
+  PASS: WT-T11 khong finding nao bi xep out-of-contract
+  PASS: WT-T11 KHONG REJECT tu finding
+WT-T11b (doi chung duong) doc duoc hop dong -> phan loai binh thuong
+  PASS: WT-T11b triageFailed false
+  PASS: WT-T11b van REJECT dung
+WT-T12 glob **/ khop file nam ngay goc -> KHONG bi tinh ngoai vung phu
+  PASS: WT-T12 khong co cum gia
+WT-T12b (doi chung duong) file THAT SU ngoai glob van bi bat
+  PASS: WT-T12b van bat duoc cum that
+WT-T13 file duong dan TUYET DOI van tinh la trong vung phu
+  PASS: WT-T13 khong bia ra cum tu path tuyet doi
+WT-T13b (doi chung duong) path tuyet doi NGOAI vung phu van bi bat
+  PASS: WT-T13b van bat duoc cum that
+  PASS: WT-T13b cum ghi path repo-relative
+WT-T14 triage bo sot mot finding -> triageFailed, khong ai REJECT
+  PASS: WT-T14 triageFailed true
+  PASS: WT-T14 rejectFindings rong
+  PASS: WT-T14 KHONG REJECT tu finding
+WT-T14b (doi chung duong) phan loai DU -> chay binh thuong
+  PASS: WT-T14b triageFailed false
+  PASS: WT-T14b van REJECT dung
+WT-T15 synthesize chi dan ghi truong plain cho ngan Ngoai hop dong
+  PASS: WT-T15 chi dan doi dong "Người dùng thấy gì"
+  PASS: WT-T15 payload mang truong plain
+WT-T16a finding path TUYET DOI + triage tra TUONG DOI -> van ghep duoc
+  PASS: WT-T16a khong con unclassified
+  PASS: WT-T16a triageFailed false
+  PASS: WT-T16a finding in-contract vao fix-list
+  PASS: WT-T16a verdict REJECT (khong con PASS gia)
+WT-T16b chieu nguoc: finding TUONG DOI + triage tra TUYET DOI
+  PASS: WT-T16b triageFailed false
+  PASS: WT-T16b verdict REJECT
+WT-T16c dang "./" cung la cung mot file
+  PASS: WT-T16c triageFailed false
+  PASS: WT-T16c verdict REJECT
+WT-T16d (doi chung am) file that su khac nhau -> KHONG duoc ghep
+  PASS: WT-T16d van unclassified
+  PASS: WT-T16d triageFailed true
+  PASS: WT-T16d rejectFindings rong
+WT-T16e title TRUNG + path lech dang -> CHI chuan hoa cuu duoc
+  PASS: WT-T16e triageFailed false
+  PASS: WT-T16e src/a.ts vao fix-list
+  PASS: WT-T16e src/b.ts KHONG vao fix-list (chuan hoa khong lam nhoe hai file)
+  PASS: WT-T16e verdict REJECT
+WT-T17a agent viet lai path (rut gon) nhung title duy nhat -> ghep duoc
+  PASS: WT-T17a triageFailed false
+  PASS: WT-T17a verdict REJECT
+WT-T17b (doi chung am) title TRUNG -> tuyet doi khong duoc doan
+  PASS: WT-T17b triageFailed true (mo ho thi khong doan)
+  PASS: WT-T17b rejectFindings rong
+WT-T17c title duy nhat nhung dong triage da co chu -> khong cuop mat
+  PASS: WT-T17c moi finding giu dung phan loai cua no
+WT-T18a triage hong -> verdict PENDING-JUDGMENT, khong phai PASS sach
+  PASS: WT-T18a triageFailed true
+  PASS: WT-T18a verdict PENDING-JUDGMENT
+  PASS: WT-T18a van KHONG ai bi REJECT tu findings
+WT-T18b (doi chung duong) triage song -> verdict KHONG bi keo ve PENDING
+  PASS: WT-T18b verdict PASS khi triage lanh
+WT-T18c triage hong -> prompt synthesize doi co trong frontmatter + than bai
+  PASS: WT-T18c doi dong frontmatter triage_failed: true
+  PASS: WT-T18c doi dong canh bao trong than evidence-report
+  PASS: WT-T18c khong section moi nao
+WT-T18d (doi chung am) triage lanh -> prompt KHONG mang co triage_failed
+  PASS: WT-T18d khong bia co khi triage lanh
+WT-T19 ma tran mutation: 4 bao dam, 4 mutant, moi mutant phai do dich danh
+  PASS: WT-T19+ doi chung duong: ban nguyen ven XANH (MT1)
+  PASS: WT-T19+ doi chung duong: ban nguyen ven XANH (MT2)
+  PASS: WT-T19+ doi chung duong: ban nguyen ven XANH (MT3)
+  PASS: WT-T19+ doi chung duong: ban nguyen ven XANH (MT4)
+  PASS: MT1 khoa ghep so path THO (bo ca hai lop chuan hoa) -> WT-T16e do — nguon that su bi doi
+  PASS: MT1 khoa ghep so path THO (bo ca hai lop chuan hoa) -> WT-T16e do
+  PASS: MT2 bo nhanh go-mo-ho bang title duy nhat -> WT-T17a do — nguon that su bi doi
+  PASS: MT2 bo nhanh go-mo-ho bang title duy nhat -> WT-T17a do
+  PASS: MT3 bo dinh tuyen verdict khi triage hong -> WT-T18a do (PASS gia quay lai) — nguon that su bi doi
+  PASS: MT3 bo dinh tuyen verdict khi triage hong -> WT-T18a do (PASS gia quay lai)
+  PASS: MT4 bo chi dan co trong evidence-report -> WT-T18c do — nguon that su bi doi
+  PASS: MT4 bo chi dan co trong evidence-report -> WT-T18c do
+W-G1 judgment thieu question: 5 hinh dang deu BLOCKED, neu ten eval + field
+  PASS: W-G1 khoa vang -> BLOCKED
+  PASS: W-G1 khoa vang neu ten eval E9
+  PASS: W-G1 khoa vang neu ten field question
+  PASS: W-G1 khoa vang 0 judge spawn
+  PASS: W-G1 null -> BLOCKED
+  PASS: W-G1 null neu ten eval E9
+  PASS: W-G1 null neu ten field question
+  PASS: W-G1 null 0 judge spawn
+  PASS: W-G1 chuoi rong -> BLOCKED
+  PASS: W-G1 chuoi rong neu ten eval E9
+  PASS: W-G1 chuoi rong neu ten field question
+  PASS: W-G1 chuoi rong 0 judge spawn
+  PASS: W-G1 khoang trang -> BLOCKED
+  PASS: W-G1 khoang trang neu ten eval E9
+  PASS: W-G1 khoang trang neu ten field question
+  PASS: W-G1 khoang trang 0 judge spawn
+  PASS: W-G1 sai kieu -> BLOCKED
+  PASS: W-G1 sai kieu neu ten eval E9
+  PASS: W-G1 sai kieu neu ten field question
+  PASS: W-G1 sai kieu 0 judge spawn
+  PASS: W-G1 doi chung duong: KHONG BLOCKED
+  PASS: W-G1 doi chung duong: 3 judge that su chay
+W-G2 shape tra ve cua BLOCKED du key cho downstream
+  PASS: W-G2 co key blocked dung kieu mang
+  PASS: W-G2 co key failedEvals dung kieu mang
+  PASS: W-G2 co key failedCommands dung kieu mang
+  PASS: W-G2 co key panels dung kieu mang
+  PASS: W-G2 co key confirmedFindings dung kieu mang
+  PASS: W-G2 co key reviewIncomplete dung kieu mang
+W-G3 judgment thieu inputs: UNCERTAIN co hoc, KHONG BLOCKED, 0 judge
+  PASS: W-G3 KHONG BLOCKED
+  PASS: W-G3 verdict PENDING-JUDGMENT
+  PASS: W-G3 0 judge spawn
+  PASS: W-G3 panel E9 UNCERTAIN
+  PASS: W-G3 panel E8 (mang rong) UNCERTAIN
+  PASS: W-G3 synthesize nhan ly do khong khai input
+  PASS: W-G3 inputs sai kieu -> BLOCKED
+  PASS: W-G3 inputs sai kieu neu ten field
+  PASS: W-G3 inputs co phan tu khong phai chuoi -> BLOCKED
+W-G4 3 cua hau khong mien kiem: carriedPanels, carriedEvals, dryRun
+  PASS: W-G4a panel carried KHONG mien kiem hong khuon
+  PASS: W-G4a neu ten E9
+  PASS: W-G4a doi chung duong: KHONG BLOCKED
+  PASS: W-G4a doi chung duong: 0 judge (panel carried dung lai)
+  PASS: W-G4a doi chung duong: panel giu proposal goc PASS
+  PASS: W-G4b eval carried KHONG mien kiem
+  PASS: W-G4b neu ten E7 + field cmd
+  PASS: W-G4b doi chung duong: KHONG BLOCKED
+  PASS: W-G4b doi chung duong: carried nen khong them agent may
+  PASS: W-G4c dryRun + eval hong -> BLOCKED
+  PASS: W-G4c KHONG tra ke hoach fan-out
+  PASS: W-G4c 0 agent
+  PASS: W-G4c doi chung duong: ke hoach van day du
+  PASS: W-G4d panel carried KHONG ghi de duoc nhanh UNCERTAIN
+  PASS: W-G4d 0 judge
+  PASS: W-G4d dryRun KHONG liet eval khong can cu vao judgePanels
+  PASS: W-G4d dryRun neu ro no thuoc dien khong can cu
+W-G5 nhieu eval hong: neu DU ten, so bang TAP khong bang dem chuoi con
+  PASS: W-G5 tap id BANG DUNG tap da tiem
+  PASS: W-G5 tap field BANG DUNG tap da tiem
+  PASS: W-G5 sanity: bo mot eval hong -> tap nho lai dung 1
+W-G6 executor la/vang bi CHAN — hom nay bi bo roi im lang
+  PASS: W-G6 BLOCKED
+  PASS: W-G6 neu ten ca hai eval
+  PASS: W-G6 neu gia tri executor la
+  PASS: W-G6 neu executor VANG
+W-G6b doi chung dot bien: ban TRUOC guard tra PASS tren cung bo args
+  PASS: W-G6b buoc go guard THUC SU doi file
+  PASS: W-G6b ban truoc guard: eval typo bi bo roi im lang, verdict PASS
+  PASS: W-G6b ban truoc guard: blocked rong
+  PASS: W-G6b ban truoc guard: failedEvals rong
+W-G7 prompt hoi dong chan tu-cuu + dump chinh danh
+  PASS: W-G7 prompt co luat danh sach dong
+  PASS: W-G7 prompt: thieu can cu -> UNCERTAIN, khong phai di tim file khac
+  PASS: W-G7 dump duoc sinh trong chinh lan chay
+  PASS: W-G7 dump BANG DUNG prompt cua lan chay
+  PASS: W-G7 dump chua id eval + inputs cua lan chay
+W-G7b luat doc theo QUAN HE, khong theo loai file (S4-r1 finding)
+  PASS: W-G7b dong Input: liet ke du ca 3 file da khai
+  PASS: W-G7b phan ngoai dong Input KHONG nhac "contract.md"
+  PASS: W-G7b phan ngoai dong Input KHONG nhac "y-design.md"
+  PASS: W-G7b phan ngoai dong Input KHONG nhac "evals.yaml"
+  PASS: W-G7b cau cam neo vao DANH SACH chu khong vao loai file
+W-G7c executor trung ten khoa prototype -> BLOCKED, KHONG nem TypeError
+  PASS: W-G7c executor "constructor" KHONG nem loi
+  PASS: W-G7c executor "constructor" -> BLOCKED neu ten eval
+  PASS: W-G7c executor "__proto__" KHONG nem loi
+  PASS: W-G7c executor "__proto__" -> BLOCKED neu ten eval
+  PASS: W-G7c executor "toString" KHONG nem loi
+  PASS: W-G7c executor "toString" -> BLOCKED neu ten eval
+  PASS: W-G7c executor "hasOwnProperty" KHONG nem loi
+  PASS: W-G7c executor "hasOwnProperty" -> BLOCKED neu ten eval
+  PASS: W-G7c executor "valueOf" KHONG nem loi
+  PASS: W-G7c executor "valueOf" -> BLOCKED neu ten eval
+W-G7d round toan judgment khong khai inputs: thong diep NOI DUNG SU THAT
+  PASS: W-G7d BLOCKED
+  PASS: W-G7d KHONG noi sai "khong co judgment"
+  PASS: W-G7d neu dich danh eval judgment va ly do that
+W-G8 ton kho that: moi _acceptance/*/evals.yaml qua bang RUT TU MARKER
+  PASS: W-G8 rut duoc bang tu marker
+  PASS: W-G8 bang co du 4 executor
+  PASS: W-G8 rut duoc CA BON vi tu tu marker
+  PASS: W-G8 vi tu rut ra co rang
+  PASS: W-G8 vi tu inputs co rang + phan biet dung HAI muc nang
+  PASS: W-G8 sanity: quet duoc it nhat 10 workspace co evals.yaml
+  PASS: W-G8 0 eval bi chan cung tren ton kho that
+  PASS: W-G8 ca ha UNCERTAIN dung bang danh sach mien tru da khai o Notes
+  PASS: W-G8 dot bien: buoc tiem THUC SU doi file
+  PASS: W-G8 dot bien: ban tiem field rong phai DO
+  PASS: W-G8 dot bien: neu dung slug + id + field
+  PASS: W-G8 dot bien 2: buoc tiem THUC SU doi file
+  PASS: W-G8 dot bien 2: muc inputs rong vao HARD (nhu engine), khong vao soft
+DV6 invokedSha: sha chảy vào TỪNG dòng run-log; vắng args → không field, không crash (AC-6)
+  PASS: DV6 verdict vẫn PASS khi có invokedSha
+  PASS: DV6 MỌI dòng run-log mang sha đúng (eval + baseline memo)
+  PASS: DV6 vắng invokedSha → verdict PASS, không crash
+  PASS: DV6 vắng invokedSha → KHÔNG dòng nào có key sha (không phải null)
+MM3 finder measurement: label + pin ba-chiều (AC-3)
+  PASS: MM3 fan-out có label review:measurement
+  PASS: MM3 ba-chiều pin↔const↔prompt khớp từng phần tử
+  PASS: MM3 prompt có ranh giới high-confidence + khoanh vùng phép đo
+  PASS: MM3 đối chứng dương: đủ 3 reviewer (2 cũ còn nguyên)
+  PASS: MM3 run sạch vẫn PASS
+MM4 finding của lens đi đường refute→triage chuẩn, không đường tắt (AC-4)
+  PASS: MM4 finding sống qua refute → vào triaged
+  PASS: MM4 out-of-contract → KHÔNG vào rejectFindings (về Cổng 2)
+  PASS: MM4 nhánh 2: bị refute → biến mất khỏi confirmedFindings
+MM5 finder measurement chết → reviewIncomplete, không im lặng (AC-5)
+  PASS: MM5 reviewIncomplete chứa measurement
+  PASS: MM5 đối chứng dương: finder sống → không nằm trong reviewIncomplete
+JR1 judge FAIL kèm required_evidence → memo panel mang danh sách (AC-1)
+  PASS: JR1 schema có field required_evidence (stub sinh được từ schema)
+  PASS: JR1 prompt judge có quy định không-PASS phải kèm bằng-chứng-thiếu
+  PASS: JR1 memo panel: từng vote mang danh sách đúng từng mục (so sâu)
+  PASS: JR1 đối chứng dương: PASS không đòi field, memo không có dấu thiếu
+JR2 judge không-PASS bỏ trống → dấu thiếu, không bịa hộ (AC-2)
+  PASS: JR2 memo mang ĐÚNG dấu thiếu ghim, không danh sách bịa
+  PASS: JR2 synthesize nhận panels có dấu thiếu để render theo khuôn template
+JR3 carry P3 giữ nguyên danh sách per-vote (AC-3)
+  PASS: JR3 round N ghi memo có danh sách
+  PASS: JR3 eval carried KHÔNG bị chấm tươi lại
+  PASS: JR3 carried panel + memo round sau GIỮ NGUYÊN danh sách từng mục (so sâu)
+  PASS: JR3 result.panels có mục carried (bản rút gọn — danh sách sống ở memo)
+  PASS: W25 rule rut tu file nguon
+  PASS: W25 JS khong con ban chep
+  PASS: W25 lane chay binh thuong khi co toolKillRule
+  PASS: W25 machine prompt chua TOOL-KILL-RULE
+  PASS: W25 ui prompt chua TOOL-KILL-RULE
+  PASS: W25 baseline prompt chua TOOL-KILL-RULE
+  PASS: W25 schema killedByTool
+  PASS: W25 moi agent co schema ma-thoat deu mang rule (3 lane)
+  PASS: W25 mutant machine: xoa rule -> chi machine do
+  PASS: W25 mutant ui: xoa rule -> chi ui do
+  PASS: W25 mutant baseline: xoa rule -> chi baseline do
+  PASS: W25 so mutant = so lane, moi lane mot mutant
+  PASS: W25 thieu toolKillRule -> BLOCKED (args)
+  PASS: W25 toolKillRule khong marker -> BLOCKED (args)
+  PASS: W26 killedByTool -> BLOCKED
+  PASS: W26 reason agent giu nguyen van
+  PASS: W26 run-log ghi cannot_run, khong ghi exit gia
+  PASS: W26 reason trong -> khuon ghim bi cong cu giet
+  PASS: W26 doi chung: exit 1 that -> REJECT
+  PASS: W26 ui killedByTool -> BLOCKED
+  PASS: W26 ui doi chung: exit 1 that -> REJECT
+  PASS: W27 baseline killed -> n-a
+  PASS: W27 doi chung: baseline exit 1 that -> red
+
+Results: 347 passed, 0 failed (acceptance-verify)
+
+=== carry-plan.test.mjs ===
+DV7 ma trận carry 5 nhánh (AC-7)
+  PASS: DV7-1 không chạm diff + round trước xanh → carried {runId gốc, fromRound=1}
+  PASS: DV7-2 paths CHẠM diff → rerun
+  PASS: DV7-4 thiếu paths → rerun (mặc định an toàn)
+  PASS: DV7-3 round trước exit≠0 → rerun dù không chạm diff
+  PASS: DV7-5 carry chuỗi: fromRound giữ 1, verifiedAt = ts dòng round GỐC
+DV8 mặc định an toàn không-sha (AC-8)
+  PASS: DV8 run-log không có sha → exit 3 (full re-run), không carry
+  PASS: DV8+ đối chứng dương: CÙNG kịch bản có sha → exit 0 + có carried + anchorSha đúng
+DV9 atomic-pair cross-layer (AC-9)
+  PASS: DV9 một thành viên chạm → CẢ CẶP rerun
+  PASS: DV9+ đối chứng dương: cả cặp không chạm → cả cặp carried
+DV9c parser cross-layer đồng bộ chuẩn (fix S4-r1: parser thứ hai lệch → atomic-pair tắt im lặng)
+  PASS: DV9c tag hoa thường ở dòng nối + bullet * thụt lề → cặp VẪN bị ép chạy lại
+  PASS: DV9c+ đối chứng dương: không chạm → cả cặp vẫn carried
+
+Results: 11 passed, 0 failed
+
+=== claim-scan.test.mjs ===
+  PASS: CS1 exit 0 + đủ 2 nguồn
+  PASS: CS1 đối chứng âm THEO ID: approach/seal vắng
+  PASS: CS1 clean/probe-failed CÓ bảng vẫn vắng (đối chứng dương: cùng khuôn ở findings thì có)
+  PASS: CS2 đối chứng dương: fixture nguyên vẹn ra đủ claim 2 nguồn
+  PASS: CS2 nguồn lành còn nguyên + exit 0
+  PASS: CS2 ghim thông điệp skip per-file/per-row
+  PASS: CS2 hàng hỏng không lọt, hàng lành trong bảng trộn GIỮ id theo hàng vật lý (#F2, không phải #F1)
+  PASS: CS4a corpus rỗng: exit 0 + claims []
+  PASS: CS4b workspace kiểu pre-1.14 (chỉ contract): exit 0, bỏ qua êm
+  PASS: CS4c root sai: exit 2 + thông điệp
+  PASS: CS4d thiếu --slug: exit 2 + usage (KHÔNG giả dạng corpus rỗng)
+  PASS: CS4e path có khoảng trắng: root sai vẫn NỔ exit 2 (không no-op exit 0)
+  PASS: CS4e đối chứng dương: cùng path đó, corpus hợp lệ chạy bình thường
+  PASS: CS3 --slug self-x: claim của self-x VẮNG, của other-y có
+  PASS: CS3 đối chứng dương: --slug khác thì claim self-x CÓ mặt
+  PASS: CS5 cap đúng 10 (ứng viên 14 — claim 11+ bị suppress)
+  PASS: CS5 sort: P0 rồi P1 đứng đầu, phần còn lại recency giảm dần
+  PASS: CS5 truncate 250 + "…" và không id trùng
+  PASS: CS5b cap 10 vẫn giữ ≥3 ledger + ≥3 gap-probe (đối chứng: ledger sev-null lẽ ra bị đuổi hết)
+  PASS: CS5c at-null không chiếm chỗ đầu (String(null)="null" từng thắng mọi ISO date)
+  PASS: CS6 đủ 10 trường mọi claim
+  PASS: CS6 id khớp regex đo lường + serves giữ nguyên
+  PASS: CS6 meta: regex còn sống — id sai khuôn phải trượt regex
+  PASS: CS10 marker trong review-findings/run-log VẮNG; trong ledger CÓ (đối chứng dương)
+  PASS: CS10 markdown mode: bullet mang [id] để cite
+  PASS: CS9 corpus thật: exit 0, 1..10 claim, có id d-… và id #F, <5s
+  PASS: PH1 section sau Findings sinh ZERO claim — dãy id giống hệt đối chứng dương không-đuôi
+  PASS: PH2 entry chuẩn còn (đối chứng dương), id hỏng vắng, warn đếm 2, exit 0
+  PASS: PH3a khác slug: giữ claim gặp trước + warn duplicate + exit 0
+  PASS: PH3b corpus sạch: KHÔNG dòng duplicate (đối chứng âm)
+  PASS: PH3c trùng trong CÙNG slug: dedupe im lặng chủ đích — không warn
+  PASS: PH4 unreadable frontmatter nổ to (cả 2 kiểu), exit 0
+  PASS: PH4 đối chứng: verdict clean hợp lệ bỏ qua IM LẶNG — phân biệt được
+  PASS: PH5 entry rỗng ruột không emit, đếm vào malformed, entry đủ vẫn ra (đối chứng dương), exit 0
+  PASS: PH8 description manifest chứa "v1.18 adds"
+  PASS: PH8 control ÂM: regex TRƯỢT trên description tiền-1.18
+  PASS: PH8 control DƯƠNG: cùng regex TRÚNG description hiện hành đọc từ file thật
+  PASS: PH1b heading cấp BẤT KỲ sau Findings: zero claim ma, dãy id khớp đối chứng
+  PASS: PH4b verdict typo: zero claim + warn (unknown verdict) + exit 0; clean hợp lệ vẫn im lặng
+  PASS: PH6 findings + section rỗng: warn (malformed table) + exit 0; file có hàng thì KHÔNG warn (đối chứng dương)
+  PASS: FSB7 round-trip: claim-scan và luật rút-từ-marker cho CÙNG số hàng Findings
+  PASS: FSB7 đối chứng đột biến: bản sao lib đổi luật Findings → lệch, đúng thông điệp
+
+Results: 42 passed, 0 failed
+
+=== execute-parallel.test.mjs ===
+E01 args guards: <2 tasks, bad task shape, JSON-string args
+  PASS: E01 <2 tasks -> error, no fan-out
+  PASS: E01 bad task shape -> error names the task
+  PASS: E01 JSON-string args parsed + fan-out ran
+E02 happy path: results mapped per task
+  PASS: E02 all done, failed empty
+  PASS: E02 taskId preserved
+E03 demotion: done without merge refs is NOT done
+  PASS: E03 demoted to failed + reason
+  PASS: E03 failed list carries it
+E04 dead / throwing agent -> failed, sibling survives
+  PASS: E04 dead agent -> failed skip/chet
+  PASS: E04 thrown agent -> failed, Task 2 done
+E05 routing characterization: inherit session model + worktree isolation
+  PASS: E05 executors inherit session model (no model opt)
+  PASS: E05 worktree isolation on every executor
+  PASS: E05 labels exec:<taskId>
+E06 args.models.executor override + sanitize
+  PASS: E06 executor overridden -> sonnet
+  PASS: E06 "session" -> inherit; foreign role ignored
+  PASS: E06 models survives JSON-string args
+E07 [wf-label:] tag: prompt mở đầu bằng tag = opts.label (wf-usage.mjs map transcript → task)
+  PASS: E07 every executor prompt tagged
+
+Results: 16 passed, 0 failed (execute-parallel)
+
+=== measure-law-mutants.test.mjs ===
+MM6 finder cũ nguyên vẹn từng chữ — pin neo git show dc49fe7
+  PASS: MM6 nguồn pin resolve được (sha trước feature còn trong clone)
+  PASS: MM6 prompt 'invariants' hiện tại == bản trước từng chữ
+  PASS: MM6 prompt 'conventions' hiện tại == bản trước từng chữ
+  PASS: MM6 prompt 'bugs' hiện tại == bản trước từng chữ
+  PASS: MM6 block REVIEWERS parse được
+  PASS: MM6 REVIEWERS có ĐÚNG 3 phần tử (đếm phần tử mảng thật, không whitelist tên)
+  PASS: MM6m2 mutant thêm reviewer thứ 4 key lạ → phép đếm đỏ
+  PASS: MM6m mutant sửa 1 chữ prompt cũ → phép so đỏ đích danh
+MM7 ma trận 20 mutant viết-trước (6 shape + 7 câu VI + 7 câu EN)
+  PASS: MM7 sanity: const MEASUREMENT_SHAPES tồn tại để mutate
+  PASS: MM7 sanity: đủ 6 dòng shape để mutate
+  PASS: MM7+ đối chứng dương: bản nguyên vẹn đo ba-chiều XANH
+  PASS: MM7s1 xoá shape 1 → đỏ ĐÍCH DANH phần tử đó
+  PASS: MM7s2 xoá shape 2 → đỏ ĐÍCH DANH phần tử đó
+  PASS: MM7s3 xoá shape 3 → đỏ ĐÍCH DANH phần tử đó
+  PASS: MM7s4 xoá shape 4 → đỏ ĐÍCH DANH phần tử đó
+  PASS: MM7s5 xoá shape 5 → đỏ ĐÍCH DANH phần tử đó
+  PASS: MM7s6 xoá shape 6 → đỏ ĐÍCH DANH phần tử đó
+  PASS: MM7v1 xoá câu VI 1 → đỏ đích danh
+  PASS: MM7v2 xoá câu VI 2 → đỏ đích danh
+  PASS: MM7v3 xoá câu VI 3 → đỏ đích danh
+  PASS: MM7v4 xoá câu VI 4 → đỏ đích danh
+  PASS: MM7v5 xoá câu VI 5 → đỏ đích danh
+  PASS: MM7v6 xoá câu VI 6 → đỏ đích danh
+  PASS: MM7v7 xoá câu VI 7 → đỏ đích danh
+MM12 fixture RED-probe do CODE SINH — file == đầu ra generator (round-trip writer thật)
+  PASS: MM12 file cam kết == generate() từng byte
+  PASS: MM12m mutant: đổi shape 4 của writer → nội dung sinh phải ĐỔI theo (quan hệ writer→fixture)
+
+Results: 26 passed, 0 failed
+
+=== skill-claims.test.mjs ===
+  PASS: CS7 SKILL có mệnh đề: chạy claim-scan trước probe
+  PASS: CS7 SKILL có mệnh đề: truyền input thứ 5 khi có claim
+  PASS: CS7 SKILL có mệnh đề: không truyền khi corpus rỗng
+  PASS: CS7 SKILL có mệnh đề: scan-fail: có cờ claims_input
+  PASS: CS7 SKILL có mệnh đề: scan-fail: probe vẫn chạy 4 input
+  PASS: CS8 prompt có ràng buộc: claims là advisory
+  PASS: CS8 prompt có ràng buộc: không lật seal/descope
+  PASS: CS8 prompt có ràng buộc: cite [<id>] nguyên văn
+  PASS: CS7b chống mâu thuẫn nội tại (finding S4-r2): đếm ý phải là 7, và "CHỈ 4 file" phải kèm ngoại lệ input 5
+  PASS: CS7/8 đối chứng đột biến: xoá đoạn claims khỏi bản sao → detector đỏ
+  PASS: DV1/10 SKILL có mệnh đề: DV1a: 1 sự kiện = 1 agent tươi
+  PASS: DV1/10 SKILL có mệnh đề: DV1b1: khuôn dòng kind:repin
+  PASS: DV1/10 SKILL có mệnh đề: DV1b2: append per-slug
+  PASS: DV1/10 SKILL có mệnh đề: DV1c1: section cite run_id nguyên văn
+  PASS: DV1/10 SKILL có mệnh đề: DV1c2: verified_commit == sha
+  PASS: DV1/10 SKILL có mệnh đề: DV1d: lane fail → không ký mù, lane mới
+  PASS: DV1/10 SKILL có mệnh đề: DV10: carry round fix minh bạch
+  PASS: DV1e cặp marker REPIN-TEMPLATE bao đúng khuôn (dòng jsonl + section)
+  PASS: DV1m mutant xoá mệnh đề → detector đỏ: DV1a: 1 sự kiện = 1 agent tươi
+  PASS: DV1m mutant xoá mệnh đề → detector đỏ: DV1b1: khuôn dòng kind:repin
+  PASS: DV1m mutant xoá mệnh đề → detector đỏ: DV1b2: append per-slug
+  PASS: DV1m mutant xoá mệnh đề → detector đỏ: DV1c1: section cite run_id nguyên văn
+  PASS: DV1m mutant xoá mệnh đề → detector đỏ: DV1c2: verified_commit == sha
+  PASS: DV1m mutant xoá mệnh đề → detector đỏ: DV1d: lane fail → không ký mù, lane mới
+  PASS: DV1m mutant xoá mệnh đề → detector đỏ: DV10: carry round fix minh bạch
+  PASS: MM1 SKILL có câu: MM1a: ma trận viết-trước
+  PASS: MM1 SKILL có câu: MM1b: âm tính + đối chứng + thông điệp
+  PASS: MM1 SKILL có câu: MM1c: fixture viết tay
+  PASS: MM1 SKILL có câu: MM1c2: round-trip từ writer thật
+  PASS: MM1 SKILL có câu: MM1d: từ-vựng vs quan hệ
+  PASS: MM1 SKILL có câu: MM1e2: chỉ dẫn vs đầu ra
+  PASS: MM1 SKILL có câu: MM1f: hardcode ROOT
+  PASS: MM1e câu đếm "đủ 7 ý" GIỮ NGUYÊN (mở rộng trong ý 4, không thêm ý)
+  PASS: MM1m mutant xoá → đỏ: MM1a: ma trận viết-trước
+  PASS: MM1m mutant xoá → đỏ: MM1b: âm tính + đối chứng + thông điệp
+  PASS: MM1m mutant xoá → đỏ: MM1c: fixture viết tay
+  PASS: MM1m mutant xoá → đỏ: MM1c2: round-trip từ writer thật
+  PASS: MM1m mutant xoá → đỏ: MM1d: từ-vựng vs quan hệ
+  PASS: MM1m mutant xoá → đỏ: MM1e2: chỉ dẫn vs đầu ra
+  PASS: MM1m mutant xoá → đỏ: MM1f: hardcode ROOT
+  PASS: JR6 SKILL có mệnh đề: JR6-VI: đọc required_evidence trước
+  PASS: JR6 SKILL có mệnh đề: JR6-VI: cấm đoán mò
+  PASS: JR6m mutant xoá → đỏ: JR6-VI: đọc required_evidence trước
+  PASS: JR6m mutant xoá → đỏ: JR6-VI: cấm đoán mò
+
+Results: 44 passed, 0 failed
+
+Results: all workflow tests passed
+EXIT=0
