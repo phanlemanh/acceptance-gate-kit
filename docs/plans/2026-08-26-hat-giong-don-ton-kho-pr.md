@@ -1,5 +1,7 @@
 # Hạt giống — dọn tồn kho PR (26/08)
 
+Ô: `_acceptance/don-ton-kho-pr/`
+
 Kho đang mở **tám** PR, tuổi từ 1 đến 21 ngày. Soi từng cái thì thấy đây không
 phải «tám việc chờ gộp» mà là **bốn nhóm khác hẳn nhau**, và gộp nhầm nhóm sẽ
 làm hỏng thứ vừa dựng.
