@@ -1,0 +1,28 @@
+{
+  "feature_plain": "Ra có tên ở Vòng LÀM và TRAO — ba chỗ trên dây nghi thức đang có ô mà không có tên",
+  "wont_do": [
+    {"id": "AC-1", "p": "Hồ sơ có thêm một trạng thái kết «máy đã thông» — máy tự qua cổng bằng chứng, không có chữ ký người. Sáu điều kiện «sạch» chuyển từ văn xuôi vào một khối máy đọc được, ba nơi cùng đọc một bản."},
+    {"id": "AC-2", "p": "Lưới trước khi gộp coi «máy đã thông» là LỜI KHAI và đòi bằng chứng: thiếu một điều kiện là chặn, nêu đúng điều kiện trượt. Máy không tự phong cho mình."},
+    {"id": "AC-3", "p": "Ngay lúc ghi hồ sơ, cổng chặn mọi lối tắt: nhảy thẳng từ nháp sang «máy đã thông», hoặc việc rủi ro cao mà không có chữ ký người."},
+    {"id": "AC-4", "p": "Màn hình vào phiên xếp hồ sơ máy-đã-thông vào đúng ô riêng, và mở được Cổng Giá trị cho nó — đây là chỗ đứt hôm nay."},
+    {"id": "AC-5", "p": "Bản đồ sản phẩm, thẻ quyết định và màn hình vào phiên nói CÙNG một chữ về trạng thái mới, lấy từ một bảng chung."},
+    {"id": "AC-6", "p": "Năm văn bản nghi thức được dạy trạng thái mới, mỗi nơi một câu — vòng làm biết ghi nó, phiên nghiệm thu biết nhận nó."},
+    {"id": "AC-7", "p": "Cổng Đáng có thẻ riêng lần đầu: vấn đề, giả định, ngưỡng, bốn lối ra. Ngưỡng còn trống mà định ký «làm» thì thẻ cắm cờ đỏ — ký lúc đó là ký trên thước trang trí."},
+    {"id": "AC-8", "p": "Ký Cổng Đáng bằng chính lệnh duyệt đang có, một câu, một lượt. Không thêm lệnh mới. Màn hình vào phiên hết trỏ sang thẻ sai cổng."},
+    {"id": "AC-9", "p": "Ô ngưỡng quyết lối ra: đã chốt thì chờ nghiệm thu; khai «không đo được» thì hồ sơ đóng lại; còn trống thì vẫn chờ nhưng mang cờ và hai lối có tên. Hết chỗ treo vô hạn."},
+    {"id": "AC-10", "p": "Hai câu chữ mới («máy đề xuất» và «không đo được») viết đúng MỘT chỗ trong khuôn; năm nơi đọc lại từ đó. Đổi chữ một phía là kiểm thử đỏ."},
+    {"id": "AC-11", "p": "Răng chống lách: sản phẩm có mặt người dùng thật mà khai «không đo được» thì cắm cờ đỏ. Lối ra này không được thành đường trốn nghiệm thu."},
+    {"id": "AC-12", "p": "Nghiệm thu ra «dừng» thì hồ sơ được đóng có vết; ra «lặp» thì in bước kế; quá hạn tự khai thì có cờ nhắc — nhưng máy không tự đổi quyết định của anh."},
+    {"id": "AC-13", "p": "Toàn bộ hồ sơ cũ chạy qua bộ đọc mới: không hồ sơ nào hoá hỏng, không hồ sơ nào phải sửa. Cờ được đo bằng QUAN HỆ nên phép đo không tự đỏ khi sang tháng."},
+    {"id": "AC-14", "p": "Hồ sơ đang treo từ 21/08 thoát bằng lối có tên, có vết trong sổ — không sửa tay, và quyết định anh đã ký giữ nguyên."},
+    {"id": "AC-15", "p": "Nếu anh ký hay veto trong lúc hồ sơ đang ở «máy đã thông»: ký thì hồ sơ phải chuyển sang «người ký», veto thì bị chặn tới khi xử. Vừa máy-thông vừa có chữ ký là trạng thái cấm."}
+  ],
+  "scope_plain": "sáu mục Later của đợt rà soát (veto có động từ, vết duyệt kế hoạch, lối «không làm» ở Cổng Phạm vi, re-pin, lái-thử có người mở, trả-lại có vết) · không đổi hồ sơ cũ sang trạng thái mới · không thêm lệnh thứ bảy · không dựng hội đồng chấm hành vi của lệnh",
+  "gap_probe_plain": [
+    "Thiếu lối ra khi anh ký hoặc veto lúc hồ sơ đang ở «máy đã thông» — đã sửa: thêm một tiêu chí bốn chân",
+    "Phép đo chỉ soi danh sách bộ đọc gõ tay, bộ đọc thứ N lọt lưới — đã sửa: quét toàn cây, file lạ là đỏ",
+    "Hồ sơ mẫu dựng theo khuôn bên đọc thay vì bên viết — đã sửa: sáu điều kiện về một khối có dấu, mẫu sinh từ đó",
+    "Phép đo đọc-cũ ghim danh sách cờ, sẽ tự đỏ khi sang tháng — đã sửa khác hướng: đo quan hệ, đúng ở mọi ngày chạy",
+    "Điều kiện chết «lối không-đo-được thành đường lách» chưa có số đo — đã sửa: thêm một dòng đường đo, đích 0"
+  ]
+}

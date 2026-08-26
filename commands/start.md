@@ -31,14 +31,14 @@ worktree/nhánh đọc từ git của `<path>`.
    <!-- <<<START-SCAN-KEYS
    config
    git.branch git.dirty git.ahead git.behind git.compareRef
-   groups.gates[].slug groups.gates[].gate groups.gates[].since groups.gates[].tier groups.gates[].stateKey groups.gates[].label groups.gates[].viecKe
-   groups.inProgress[].slug groups.inProgress[].status groups.inProgress[].nextStep groups.inProgress[].tier groups.inProgress[].stateKey groups.inProgress[].label groups.inProgress[].viecKe
-   groups.considering[].slug groups.considering[].name groups.considering[].since groups.considering[].ageDays groups.considering[].ageTied groups.considering[].stateKey groups.considering[].label groups.considering[].viecKe
-   groups.done[].slug groups.done[].state groups.done[].at groups.done[].stateKey groups.done[].label groups.done[].viecKe
+   groups.gates[].slug groups.gates[].gate groups.gates[].since groups.gates[].tier groups.gates[].stateKey groups.gates[].label groups.gates[].viecKe groups.gates[].flags
+   groups.inProgress[].slug groups.inProgress[].status groups.inProgress[].nextStep groups.inProgress[].tier groups.inProgress[].stateKey groups.inProgress[].label groups.inProgress[].viecKe groups.inProgress[].flags
+   groups.considering[].slug groups.considering[].name groups.considering[].since groups.considering[].ageDays groups.considering[].ageTied groups.considering[].stateKey groups.considering[].label groups.considering[].viecKe groups.considering[].flags
+   groups.done[].slug groups.done[].state groups.done[].at groups.done[].stateKey groups.done[].label groups.done[].viecKe groups.done[].flags
    map.present map.fresh map.enabled map.state map.label
    discovery.brainstormSkill
    vetoOpen[].slug vetoOpen[].status
-   broken[].slug broken[].file broken[].reason broken[].stateKey broken[].label broken[].viecKe
+   broken[].slug broken[].file broken[].reason broken[].stateKey broken[].label broken[].viecKe broken[].flags
    START-SCAN-KEYS>>> -->
 
 2. **Nạp luật TRƯỚC khi viết:** đọc
@@ -52,12 +52,21 @@ worktree/nhánh đọc từ git của `<path>`.
      Đáng: quyết có làm việc này không · `pham-vi` = Cổng Phạm vi: duyệt bộ tiêu
      chí trước khi code · `bang-chung` = Cổng Bằng chứng: đọc bằng chứng rồi ký
      · `gia-tri` = Cổng Giá trị: xem số thật từ phiên nghiệm thu rồi quyết giao
-     rộng / lặp thêm / dừng), của việc nào.
+     rộng / lặp thêm / dừng), của việc nào. Phần tử có `flags` → in thêm ngay
+     dòng đó, mỗi cờ một câu, KHÔNG gộp: `nguong-chua-chot` → «ngưỡng chưa chốt —
+     điền ngưỡng vào ô, hoặc khai một dòng “Không đo được — …” kèm một dòng sổ»;
+     `mien-do-co-nguoi-dung` → «⚠ khai không đo được nhưng hợp đồng có mặt người
+     dùng — lối đó chỉ cho vòng không có người dùng cuối»; `qua-timebox` → «quá
+     hạn tự khai — xem lại: xếp lại hay kéo dài». Cờ là thứ người quyết, máy
+     KHÔNG tự xử.
    - **Đang dở** (`groups.inProgress`): mỗi vòng một dòng — *người dùng sẽ được
      gì* (một câu từ tên việc, KHÔNG mở file sản phẩm ra đọc) + bước kế viết
      BẰNG CHỮ, mã máy trong ngoặc — tra bảng: chốt thiết kế và tiêu chí (`S1`)
      · lập kế hoạch (`S2`) · viết code (`S3`) · sửa theo bằng chứng (`S3-fix`)
      · nghiệm thu máy (`S4`). Lần đầu một mã hiện trên thẻ phải kèm nghĩa.
+     Phần tử có `flags` → in thêm ngay dòng đó, mỗi cờ một câu, cùng câu chữ với
+     nhóm chờ chữ ký ở trên (`qua-timebox` → «quá hạn tự khai — xem lại: xếp lại
+     hay kéo dài»). Cờ là thứ người quyết, máy KHÔNG tự xử.
    <!-- <<<START-CAN-NHAC -->
    - **Đang cân nhắc** (`groups.considering` — ý đã có ô nhưng chưa điền ngưỡng,
      nên chưa có gì để ký; máy không xếp vào chờ chữ ký): N = 0 → KHÔNG in dòng
@@ -80,9 +89,14 @@ worktree/nhánh đọc từ git của `<path>`.
    `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/opportunity-template.md`:
    ① `stage: discovery` · ② `decision: ` để trống (người ký Cổng Đáng điền) ·
    ③ file BẮT ĐẦU ở dòng `---` — không tiêu đề, không hàng rào yaml trước nó ·
-   ④ section «Vấn đề & ai gặp» ≥ 1 câu · ⑤ section «Ngưỡng chết / ngưỡng UAT»
-   giữ nguyên `…` của khuôn tới khi người điền — chưa điền là «đang cân nhắc»,
-   điền đủ là chờ Cổng Đáng · ⑥ KHÔNG viết spec, KHÔNG viết contract ở bước này
+   ④ section «Vấn đề & ai gặp» ≥ 1 câu · ⑤ section «Ngưỡng chết / ngưỡng UAT»:
+   máy ĐƯỢC đề xuất ngưỡng khi có căn cứ — mỗi bullet mang tiền tố `[đề xuất]`
+   ngay sau dấu `:` (khối `OPP-DE-XUAT-PREFIX` của khuôn), người ký Cổng Đáng gỡ
+   tiền tố là chốt; ý còn mờ thật thì giữ `…` như cũ. Vòng KHÔNG có người dùng
+   cuối → thay các bullet bằng MỘT dòng `Không đo được — <lý do>` (khối
+   `OPP-KHONG-DO-DUOC-PREFIX`). Còn `…` là «đang cân nhắc»; có đề xuất hoặc đã
+   chốt là chờ Cổng Đáng. Máy khuyên, máy KHÔNG quyết: `decision` để trống ·
+   ⑥ KHÔNG viết spec, KHÔNG viết contract ở bước này
    (đó là S1, sau Cổng Đáng). Ý không ghi vào ô là ý sẽ mất — ba bộ đọc định kỳ
    (/acceptance-gate:start · bản đồ · lưới) chỉ thấy `_acceptance/`.
    <!-- START-HIEU-KET>>> -->
@@ -144,6 +158,12 @@ worktree/nhánh đọc từ git của `<path>`.
      tên việc. `at` là `null` → in «chưa rõ ngày», KHÔNG bỏ dòng và không đoán
      mốc. Một con số gộp không cho người NHÌN THẤY máy vừa làm gì; vòng «máy
      làm và tự chứng minh» chỉ đóng khi việc vừa xong có tên.
+     Phần tử có `flags` → in thêm ngay dưới dòng của nó, mỗi cờ một câu, cùng
+     câu chữ với nhóm chờ chữ ký ở trên (`qua-timebox` → «quá hạn tự khai — xem
+     lại: xếp lại hay kéo dài»; `mien-do-co-nguoi-dung` → «⚠ khai không đo được
+     nhưng hợp đồng có mặt người dùng — lối đó chỉ cho vòng không có người dùng
+     cuối») — việc đã giao vẫn phải hiện cờ, cờ là thứ người quyết, máy KHÔNG
+     tự xử.
    - **Còn veto được** — `vetoOpen` có phần tử → in **TÊN từng hồ sơ** (không
      chỉ đếm), kèm một câu «người veto lúc nào cũng được, cửa không có hạn».
      Đây là cùng con số lưới trước-merge in ra; veto-default chỉ sống nếu

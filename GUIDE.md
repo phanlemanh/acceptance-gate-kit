@@ -25,6 +25,7 @@
 9. [Xử lý sự cố](#9-xử-lý-sự-cố)
 10. [Dành cho người bảo trì kit](#10-dành-cho-người-bảo-trì-kit)
 
+11. [Làn máy và bộ phân loại an toàn](#11-làn-máy-và-bộ-phân-loại-an-toàn)
 ---
 
 ## 0. Giới thiệu — mục đích, mục tiêu, kim chỉ nam
@@ -1026,6 +1027,32 @@ không có bằng chứng là một ô FAIL, không phải "chắc ổn":
 | **E. Nhất quán** | Version khớp 3 tầng (manifest × pin test × docs)? | `git status` rỗng |
 | **F. Giới hạn** | Giới hạn v1 và rủi ro đã ghi thành văn (spec/report), không im lặng? | Trỏ tới mục known-limits | Backward-tolerant là mặc định: luật mới trên artifact cũ ra NOTE,
   chỉ enforce cứng khi artifact có field mới.
+
+
+## 11. Làn máy và bộ phân loại an toàn
+
+<!-- <<<GUIDE-CLASSIFIER-LANE -->
+
+Mỗi lệnh Bash của mỗi agent đều phải qua bộ phân loại an toàn của harness. Một
+vòng nghiệm thu tung 26–30 agent là một cơn bão request: xác suất cả vòng sống
+là pⁿ, nên chỉ cần một lệnh trúng lúc nghẽn là cả vòng hỏng mà không sinh được
+dòng bằng chứng nào. Đo được ở kho này: ~15 vòng chết trong ba tuần
+(`docs/findings/2026-08-25-retro-classifier-va-nghi-thuc-khong-hoc.md`).
+
+**Kho tự khai luật cho-phép.** `.claude/settings.json` khai `permissions.allow`
+cho đúng các **lệnh kiểm** cố định chạy mỗi vòng — các lệnh khai ở `feature_loop.suite_keys`.
+Mỗi entry khớp CHÍNH XÁC một lệnh, không dùng `*`. Đánh đổi khai thẳng: các lệnh
+đó bỏ qua bộ phân loại; chấp nhận được vì danh sách ĐÓNG và đảo lại chỉ bằng
+cách xoá luật. Nói cho đúng mức: phiên chạy cổng luôn đứng trên NHÁNH đang xét,
+nơi chính các script ấy có thể vừa bị sửa bởi thay đổi đang chờ duyệt — nên tin
+cậy ở đây đặt vào NGƯỜI mở nhánh, không phải vào một lượt rà soát đã xảy ra. Răng của từng hồ sơ cố ý
+KHÔNG nằm trong danh sách: tên chúng đổi theo hồ sơ nên mọi luật cho chúng hoặc
+lỗi thời hoặc phải nới rộng.
+
+**Nghi thức có đường thoái hoá.** Khi một lượt bị chặn vì bộ phân loại, vòng lặp
+KHÔNG tung bầy lại: lượt kế đi verify độc lập, chạy lệnh tuần tự. Luật sống giữa
+mốc neo `CLASSIFIER-FALLBACK` trong skill `feature-loop` — một chỗ duy nhất.
+<!-- GUIDE-CLASSIFIER-LANE>>> -->
 
 ---
 

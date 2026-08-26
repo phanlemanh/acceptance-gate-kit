@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent (đường VERIFY độc lập, 6 lệnh chạy tuần tự — quyết định d-4308)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 24eec78ce4823260b1b4656b66ed8d7ec867ed55
+verified_commit: a3038182803075f1246b73b0db75dc357d99a0a9
 human_signoff: Manh Phan 2026-08-22 — ký với known-limits đã khai; 4 finding ngoài hợp đồng (review-findings.md) là ứng viên hồ sơ T2 kế: bỏ «metric» khỏi _Avoid_ + nới nhận diện dòng bỏ
 ---
 
@@ -173,6 +173,33 @@ Bốn finding của reviewer (chi tiết ở `review-findings.md`), máy KHÔNG 
 2. Heading tiền tố `## Đường đo lường` khớp — kế thừa luật `\b` md-section; chốt có chủ ý hay neo cuối.
 3. `_Avoid_: metric` đụng từ chuẩn kit — bỏ «metric», đổi câu uat-session sang «đường đo đã khai».
 4. Khuôn «dòng bỏ VÀ entry» vs SKILL «chỉ entry» — khuôn đổi «VÀ» → «(tuỳ chọn) kèm entry».
+
+### Re-pin lần 1 — 2026-08-25, do engine đổi ở vòng ra-co-ten-lam-va-trao (lối ra «không đo được» + luật ngưỡng một chỗ + bộ đọc bản đồ/bộ quét)
+run_id: repin-20260825-ra-co-ten-lam-va-trao-lane1
+sha: 65a0c081bbf83caa8f43f3df00966b3444fb4f3b · suites: 4 lệnh exit 0
+
+Hồ sơ này KHÔNG có dòng mã nào của nó đổi; nó hoá cũ vì engine đổi bên dưới, và
+đã đỏ sẵn trên origin/main từ trước vòng đó. Vòng đó chạm hai file TÀI LIỆU của
+hồ sơ (dòng ngưỡng + một dòng sổ, do AC-14 đòi) nên nó bị kéo vào tầm soi của
+lưới — đúng ca GUIDE §7.1 «vòng đang chạy bị chặn thật → ghim lại RIÊNG làn đó».
+Phiên chấm tươi chạy lại trọn bộ đo: 10/10 eval, verdict PASS, 0 lệnh bị chặn.
+Chữ ký và verdict KHÔNG đổi — ghim lại là việc máy, không sinh chữ ký mới.
+
+### Re-pin lần 2 — 2026-08-25, do gộp origin/main (kéo theo 30 commit engine, trong đó có vòng dac-ta-ux)
+run_id: repin-20260825-gop-main-lane1
+sha: a3038182803075f1246b73b0db75dc357d99a0a9 · suites: 5 lệnh exit 0
+
+Nhánh GỘP origin/main SAU khi ký, nên bằng chứng hoá cũ — đặc tính của luật
+staleness, không phải lỗi. Phiên chấm tươi chạy lại trọn bộ đo tại commit đã
+gộp: **15/15 tiêu chí XANH, 5/5 lệnh exit 0, 0 lệnh bị chặn**.
+
+Verdict của lượt đó là PENDING-JUDGMENT — KHÔNG phải vì tiêu chí nào gãy, mà vì
+bộ phân loại findings chết (`triageFailed`), nên vòng tự hạ hạng theo luật «máy
+không biết vòng này sạch thì không được ký một PASS sạch bong». Lượt ghim này
+dựa trên DỮ KIỆN MÁY (15/15 eval + 5/5 lệnh), không dựa trên verdict đó; findings
+của lượt chấm chờ người xem, không mục nào bị máy tự sửa.
+
+Chữ ký và verdict của hồ sơ KHÔNG đổi. Ghim lại là việc máy.
 
 ## Iterations
 

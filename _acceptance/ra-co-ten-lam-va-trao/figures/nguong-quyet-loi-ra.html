@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đ2 · Ô ngưỡng quyết vòng này đi đâu tiếp</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Lora:ital,wght@0,400;1,400&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --paper:#f5f5f5;--ink:#2d3142;--muted:#4f5d75;--soft:#636b80;
+      --rule:rgba(45,49,66,.12);--accent:#eb6c36;--accent-text:#ba4513;
+      --sans:'Geist',system-ui,sans-serif;--serif:'Instrument Serif','Lora',serif;--mono:'Geist Mono',ui-monospace,monospace;
+    }
+    body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:3rem 2rem;background:var(--paper);color:var(--ink);font-family:var(--sans)}
+    .frame{width:100%;max-width:1120px}
+    .eyebrow{margin-bottom:.5rem;color:var(--muted);font:500 .66rem/1 var(--mono);letter-spacing:.18em;text-transform:uppercase}
+    h1{margin-bottom:.35rem;font:400 clamp(1.5rem,2.4vw + .75rem,2rem)/1.15 var(--serif);letter-spacing:-.02em}
+    .subtitle{margin-bottom:1.5rem;color:var(--muted);font-size:.9rem;line-height:1.5;max-width:64ch}
+    .diagram{overflow-x:auto}
+    svg{display:block;width:100%;min-width:960px}
+    .read{margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--rule);color:var(--muted);font-size:.82rem;line-height:1.7;max-width:80ch}
+    .read strong{color:var(--ink);font-weight:600}
+    .read .lab{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);display:block;margin-bottom:.4rem}
+    footer{margin-top:1.25rem;padding-top:.75rem;border-top:1px solid var(--rule);color:var(--soft);font:400 .68rem/1.6 var(--mono)}
+  </style>
+</head>
+<body>
+  <main class="frame">
+    <p class="eyebrow">Hình tầng 2 · hồ sơ ra-co-ten-lam-va-trao · Đ2</p>
+    <h1>Ô ngưỡng quyết vòng này đi đâu tiếp</h1>
+    <p class="subtitle">Khi một vòng đã làm xong và đã có bằng chứng, câu hỏi kế là: có phiên nghiệm thu hay không. Câu trả lời không do ai phán lúc đó — nó đã nằm sẵn trong ô ngưỡng mà owner viết từ đầu, và ô ấy chỉ có bốn cách để đang ở.</p>
+
+    <div class="diagram">
+      <svg viewBox="0 96 1160 672" role="img" aria-labelledby="d2-title d2-desc" xmlns="http://www.w3.org/2000/svg">
+        <title id="d2-title">Ô ngưỡng quyết vòng này đi đâu tiếp</title>
+        <desc id="d2-desc">Một nguồn rẽ ba đích. Nguồn là ô ngưỡng của hồ sơ cơ hội với bốn trạng thái: chưa chốt, máy đề xuất, đã chốt, không đo được. Hai trạng thái đầu dẫn tới đích chờ phiên nghiệm thu kèm cờ nhắc ngưỡng chưa chốt. Đã chốt dẫn tới đích chờ phiên nghiệm thu. Không đo được dẫn tới đích mới: đã giao, không đo. Cạnh đích thứ ba có một răng chống lách: nếu sản phẩm có mặt người dùng thì bật cờ đỏ.</desc>
+
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        </defs>
+
+        <rect width="1160" height="768" fill="#f5f5f5"/>
+
+        <!-- ============ ĐIỀU KIỆN VÀO ============ -->
+        <text x="64" y="132" fill="#636b80" font-size="9" font-family="'Geist', sans-serif">Áp dụng cho vòng đã qua Cổng Bằng chứng và có một ô cơ hội nói «làm»</text>
+
+        <!-- ============ NÉT NỐI (vẽ trước) ============ -->
+        <path d="M 368,256 H 552 Q 560,256 560,248 V 212 Q 560,204 568,204 H 760" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <path d="M 368,304 H 584 Q 592,304 592,296 V 248 Q 592,240 600,240 H 760" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <path d="M 368,352 H 552 Q 560,352 560,360 V 364 Q 560,372 568,372 H 760" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <path d="M 368,400 H 616 Q 624,400 624,408 V 500 Q 624,508 632,508 H 760" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- răng chống lách treo dưới đích thứ ba -->
+        <line x1="912" y1="552" x2="912" y2="584" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+        <!-- ============ NGUỒN — Ô NGƯỠNG ============ -->
+        <rect x="64" y="160" width="304" height="280" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="216" y="196" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Ô ngưỡng trong hồ sơ cơ hội</text>
+        <text x="216" y="212" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">bốn cách ô này có thể đang ở</text>
+        <line x1="80" y1="224" x2="352" y2="224" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+        <rect x="80" y="236" width="272" height="40" rx="4" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.16)" stroke-width="0.8"/>
+        <text x="96" y="260" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif">chưa chốt — còn bỏ trống</text>
+        <text x="336" y="260" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">chua-chot</text>
+
+        <rect x="80" y="284" width="272" height="40" rx="4" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.16)" stroke-width="0.8"/>
+        <text x="96" y="308" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif">máy đề xuất — chờ người nhận</text>
+        <text x="336" y="308" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">de-xuat</text>
+
+        <rect x="80" y="332" width="272" height="40" rx="4" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.16)" stroke-width="0.8"/>
+        <text x="96" y="356" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif">đã chốt — người đã đứng tên</text>
+        <text x="336" y="356" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">chot</text>
+
+        <rect x="80" y="380" width="272" height="40" rx="4" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.16)" stroke-width="0.8"/>
+        <text x="96" y="404" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif">không đo được — có lý do</text>
+        <text x="336" y="404" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">khong-do-duoc</text>
+
+        <!-- ============ ĐÍCH 1 ============ -->
+        <rect x="760" y="176" width="304" height="112" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="912" y="216" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">chờ phiên nghiệm thu</text>
+        <text x="912" y="240" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">bảng điều khiển in cờ «ngưỡng chưa chốt»</text>
+        <text x="912" y="258" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">việc kế: điền ngưỡng, hoặc khai không đo được</text>
+        <text x="912" y="276" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">(cho-cong-gia-tri + cờ)</text>
+
+        <!-- ============ ĐÍCH 2 ============ -->
+        <rect x="760" y="328" width="304" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="912" y="364" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">chờ phiên nghiệm thu</text>
+        <text x="912" y="384" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">đặt số đo thật cạnh ngưỡng đã khai từ đầu</text>
+        <text x="912" y="402" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">(cho-cong-gia-tri)</text>
+
+        <!-- ============ ĐÍCH 3 — LỐI MỚI ============ -->
+        <rect x="760" y="464" width="304" height="88" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <text x="912" y="500" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">đã giao — không đo</text>
+        <text x="912" y="520" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">hồ sơ đóng lại, không ai phải làm gì tiếp</text>
+        <text x="912" y="538" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">(da-giao-khong-do)</text>
+
+        <!-- ============ RĂNG CHỐNG LÁCH ============ -->
+        <rect x="760" y="584" width="304" height="80" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.2" stroke-dasharray="4,3"/>
+        <text x="912" y="616" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Nhưng nếu sản phẩm có mặt người dùng</text>
+        <text x="912" y="636" fill="#ba4513" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">cờ đỏ: khai không đo được nhưng vẫn có người dùng</text>
+        <text x="912" y="654" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">hồ sơ vẫn ở ô của nó, không bị coi là hỏng</text>
+
+        <!-- ============ CHÚ GIẢI ============ -->
+        <line x1="64" y1="692" x2="1096" y2="692" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <text x="64" y="714" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">CHÚ GIẢI</text>
+
+        <rect x="64" y="732" width="24" height="16" rx="4" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="96" y="744" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Đích đã có sẵn hôm nay</text>
+
+        <rect x="288" y="732" width="24" height="16" rx="4" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <text x="320" y="744" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Lối ra mới — hết chỗ treo vô hạn</text>
+
+        <rect x="600" y="732" width="24" height="16" rx="4" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.2" stroke-dasharray="4,3"/>
+        <text x="632" y="744" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Răng chống lách — không phải một ô</text>
+      </svg>
+    </div>
+
+    <div class="read">
+      <span class="lab">Hình này phục vụ quyết định nào</span>
+      <p>· Duyệt hay không duyệt việc cho Cổng Giá trị <strong>một lối ra thứ tư</strong>: «không đo được», khai trước và có lý do. Không có lối này thì vòng nào không có người dùng cuối sẽ treo mãi — đúng chuyện đang xảy ra với một hồ sơ từ 21/08.</p>
+      <p>· Bốn dòng bên trái là <strong>bốn cách máy đọc được</strong> một ô ngưỡng; máy không đoán thêm cách nào khác. Hai dòng trên cùng đi chung một đích, vì «máy đề xuất» chưa phải «người chốt».</p>
+      <p>· Khối nét đứt dưới cùng là cái giữ cho lối mới không thành đường lách: khai «không đo được» cho một sản phẩm <strong>có mặt người dùng</strong> thì cờ đỏ bật, và cờ ấy đọc được thành số.</p>
+    </div>
+
+    <footer>
+      Nguồn chữ: <span>docs/superpowers/specs/2026-08-23-ra-co-ten-lam-va-trao-design.md</span> §3 · <span>_acceptance/ra-co-ten-lam-va-trao/contract.md</span> AC-9, AC-11 · đề bài: <span>figures/index.md</span> — Đ2<br>
+      Hình là chiếu của nguồn chữ, không phải nguồn. Commit: f65a922e
+    </footer>
+  </main>
+</body>
+</html>
