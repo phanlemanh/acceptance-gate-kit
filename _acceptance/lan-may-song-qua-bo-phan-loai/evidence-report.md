@@ -7,7 +7,7 @@ reason:
 verified_by: verify doc lap tuan tu (phien tuoi, lenh chay lan luot) + hai phien hoi dong doc lap
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c8d4a0f8d6bdc627643cbdaeb39948a7c0664f0c
+verified_commit: 77727323a1943685ad4150da5d3e1efffe4ce4e1
 human_signoff: Manh Phan 2026-08-26 — ky voi 8 gioi han da khai; gioi han so 1 (khong do hieu luc luc chay) chuyen sang Cong Gia tri doc bang 5 vong S4 ke
 ---
 
@@ -198,3 +198,7 @@ mồi nhử gõ tay · nhánh có thật thiếu chiều đỏ · xanh mà chưa
 - [ ] Hai phép đo không phân biệt được — giữ (đề xuất) hay cắt?
 - [ ] Hội đồng là hai phiên độc lập, không phải bầy 3-lens của engine (vì làn máy đi
       đường tuần tự) — chấp nhận chứ?
+
+### Re-pin lần 1 — 2026-08-26, do nhánh design-pass-nac chạm mã sau mốc ghim cũ — ghim lại bằng MỘT lượt làn máy xanh trọn
+run_id: repin-20260826T073920Z-dpnkdb
+sha: 77727323a1943685ad4150da5d3e1efffe4ce4e1 · suites: 5 lệnh exit 0
