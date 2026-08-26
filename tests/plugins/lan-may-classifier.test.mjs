@@ -112,8 +112,12 @@ function checkBijection(settingsObj, configText) {
   for (const a of allow) if (!cmds.includes(a)) errs.push(`THUA lenh trong permissions.allow: "${a}" — khong co trong feature_loop.suite_keys`);
   // Bao hàm hai chiều mới là BẰNG NHAU TẬP HỢP, chưa phải SONG ÁNH như AC-1 hứa: hai
   // entry cùng trỏ một lệnh vẫn lọt cả hai vòng lặp trên. Đếm bội mới đóng được.
-  if (allow.length !== cmds.length)
-    errs.push(`so entry cho-phep (${allow.length}) KHAC so lenh nguon (${cmds.length}) — co entry TRUNG LAP`);
+  if (allow.length !== cmds.length) {
+    const trung = allow.filter((a, i) => allow.indexOf(a) !== i);
+    errs.push(trung.length
+      ? `entry TRUNG LAP trong permissions.allow: "${[...new Set(trung)].join('", "')}"`
+      : `so entry cho-phep (${allow.length}) KHAC so lenh nguon (${cmds.length}) — lech so luong`);
+  }
   return errs;
 }
 
@@ -193,7 +197,9 @@ function checkGrammarAnchor(selfText, listFiles, readAt) {
   // «MỘT chỗ» phải đếm trên TRỌN phạm vi hợp đồng khai, không chỉ trong file này: một
   // khối thứ hai mang khuôn KHÁC ở file bên cạnh là đúng hình dạng vòng 2 đã trả giá,
   // chỉ đổi chỗ. AC-5 đã đo lời hứa cùng loại theo cách này; nay áp cho cả AC-8.
-  if (!listFiles) return errs;
+  // KHÔNG có lối thoát câm kiểu `if (!listFiles) return errs`: một chỗ gọi tương lai
+  // quên tham số thì trọn vế phạm vi biến mất trong IM LẶNG mà ca vẫn xanh — đúng hình
+  // dạng «vế chết» hồ sơ này đang săn. Thiếu thì vỡ to, không vỡ êm.
   let total = 0; const where = [];
   for (const f of listFiles(PHAM_VI_VAN_PHAM)) {
     const n2 = countBlocks(readAt(f) || '', GRAMMAR_ANCHOR);
@@ -359,11 +365,16 @@ const M_CONFIG_KHONG_DOC = ['m-branch-config-khong-doc-duoc',
   (s, c) => [s, c.replace(/^(\s*)suite_keys:/m, '$1suite_keysZZ:')],
   'khong doc duoc feature_loop.suite_keys'];
 const M_KHOA_KHONG_GIAI = ['m-branch-khoa-khong-giai-duoc', (s, c) => {
+  // Thụt lề là TRÌNH BÀY của YAML, không phải nghĩa; config.yaml là file SỐNG do hồ sơ
+  // khác sửa, thụt lại danh sách là thao tác hợp lệ. Suy thụt lề từ chính dòng khớp.
   const lines = c.split('\n');
-  let last = -1;
-  for (let i = 0; i < lines.length; i++) if (/^ {4}- executors\./.test(lines[i])) last = i;
+  let last = -1, ind = '    ';
+  for (let i = 0; i < lines.length; i++) {
+    const mm = lines[i].match(/^(\s*)- executors\./);
+    if (mm) { last = i; ind = mm[1]; }
+  }
   if (last < 0) return [s, c];
-  lines.splice(last + 1, 0, '    - executors.test.khoa-khong-ton-tai-zzz');
+  lines.splice(last + 1, 0, `${ind}- executors.test.khoa-khong-ton-tai-zzz`);
   return [s, lines.join('\n')];
 }, 'khong giai duoc suite_key'];
 const M_ALLOW_RONG = ['m-branch-allow-rong',
@@ -387,15 +398,19 @@ runObj('LM1', 'song anh permissions.allow <-> feature_loop.suite_keys', checkBij
   // trị của nó là ghim vào thứ SẼ ĐỔI — đổi lệnh coverage-lint (việc hợp lệ, không
   // đụng ô này) sẽ làm ca đỏ vì HẠ TẦNG chứ không vì vật (vấp thật S4-r1).
   ['m3-them-suite-key-o-config', (s2, c) => {
-    const names = [...c.matchAll(/^ {4}([a-z_0-9]+):\s*"?(node |bash )/gm)].map(m => m[1]);
+    const names = [...c.matchAll(/^\s*([a-z_0-9]+):\s*"?(node |bash )/gm)].map(m => m[1]);
     const inSuite = suiteCommands(c).keys;
     const spare = names.flatMap(n => ['executors.script.' + n, 'executors.test.' + n])
       .find(k => !inSuite.includes(k) && resolveConfigKey(c, k) !== null);
     if (!spare) return [s2, c];                      // không có khoá dư → mutant no-op, runner kêu
     const lines = c.split('\n');
     let last = -1;
-    for (let i = 0; i < lines.length; i++) if (/^ {4}- executors\./.test(lines[i])) last = i;
-    lines.splice(last + 1, 0, '    - ' + spare);
+    let ind = '    ';
+    for (let i = 0; i < lines.length; i++) {
+      const mm = lines[i].match(/^(\s*)- executors\./);
+      if (mm) { last = i; ind = mm[1]; }
+    }
+    lines.splice(last + 1, 0, `${ind}- ` + spare);
     return [s2, lines.join('\n')];
   }, 'THIEU lenh trong permissions.allow'],
   ['m4-lech-mot-ky-tu', (s, c) => {
@@ -422,6 +437,14 @@ const MOI_NOI = [['LM8', () => CHO_SAI, 'danh sach cho-sai tu AC-8'],
                  ['LM8b', () => PHAM_VI_VAN_PHAM, 'pham vi "mot cho" tu AC-8']];
 for (const [id, val, ten] of MOI_NOI)
   if (want(id) && !val().length) fail(id, `khong rut duoc ${ten} trong ${path.relative(ROOT, CONTRACT)} — moi noi hop dong->bo ca dut`);
+// Chiều đỏ cho chính ba guard trên, ĐI QUA cùng bộ rút mà chiều xanh dùng: bullet không
+// tồn tại phải cho RỖNG. Nếu bộ rút trả bừa thì guard không đời nào bắn, và cả ba mối
+// nối thành lời khai suông.
+for (const [id] of MOI_NOI) {
+  if (!want(id)) continue;
+  const thua = [...phamViTuHopDong(99), ...backtickWords(bulletAC(99))];
+  if (thua.length) fail(id, `bo rut hop dong tra BUA tren bullet khong ton tai (AC-99): ${thua.join(', ')} — guard moi noi khong the bao gio ban`);
+}
 runObj('LM8', 'van pham luat quyen + entry nam dung cho', checkGrammar, [
   ['m1-entry-tran-khong-boc', (s, c) => { s.permissions.allow[0] = CMDS()[0]; return [s, c]; },
     'KHONG dung van pham Bash(<lenh>)'],

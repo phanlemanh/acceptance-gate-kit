@@ -111,7 +111,7 @@ evals:
     criterion: AC-5
     executor: test
     cmd: config:executors.test.plugins
-    paths: [feature-loop/skills/feature-loop/SKILL.md, feature-loop/workflows/acceptance-verify.js, tests/plugins/lan-may-classifier.test.mjs]
+    paths: [feature-loop/**, skills/**, _acceptance/lan-may-song-qua-bo-phan-loai/contract.md, tests/plugins/lan-may-classifier.test.mjs]
     expected: >
       exit 0; stdout có "PASS: [LM5]". Phép đo cài ở hàm `checkFallback`; điều kiện
       sống trong bảng `FALLBACK_CLAUSES`. Một vế của bảng KHÔNG gõ tay mà rút từ
@@ -136,7 +136,7 @@ evals:
     criterion: AC-8
     executor: test
     cmd: config:executors.test.plugins
-    paths: [.claude/settings.json, tests/plugins/lan-may-classifier.test.mjs]
+    paths: [.claude/settings.json, _acceptance/config.yaml, _acceptance/lan-may-song-qua-bo-phan-loai/contract.md, tests/**, lib/**, scripts/**, commands/**, hooks/**, skills/**, feature-loop/**]
     expected: >
       exit 0; stdout có CẢ HAI dòng "PASS: [LM8]" và "PASS: [LM8b]". Phép đo cài ở
       hai hàm: `checkGrammar` (entry khớp khuôn và nằm đúng chỗ) và
