@@ -8,7 +8,7 @@ verified_by: verify tuần tự trong worktree riêng (lệnh chạy lần lư�
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 71f7c52662c3d678b46011c92327357dcc02cab8
-human_signoff:
+human_signoff: Manh 2026-08-26 — ký mốc phát hành 2.4.0 với bốn known-limits đã khai
 ---
 
 # Evidence Report: release-2-4-0
