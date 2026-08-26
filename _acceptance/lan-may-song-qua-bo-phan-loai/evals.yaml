@@ -8,7 +8,8 @@ feature_slug: lan-may-song-qua-bo-phan-loai
 #
 # <<<MUTANT-MATRIX
 #   E1=7 · E2=4 · E3=7 · E4=7 · E5=10 · E6=7 · E8=12   (tổng 54)
-#   E3 là răng hồ sơ, 6 mutant chia ba chân. E8 gồm hai ca: LM8 (văn phạm entry)
+#   E3 là răng hồ sơ, 7 mutant chia bốn chân (chân 1 là đối chứng dương, 0 mutant).
+#   E8 gồm hai ca: LM8 (văn phạm entry)
 #   và LM8b (khuôn sống đúng một chỗ có mốc neo).
 # MUTANT-MATRIX>>>
 #
@@ -93,7 +94,8 @@ evals:
       một file cấu hình SỐNG với một mốc BẤT BIẾN, nên nằm trong bộ kiểm thường trực
       thì mọi sửa hợp lệ về sau (do hồ sơ KHÁC làm) sẽ làm suite đỏ oan. Răng chết
       theo hồ sơ khi gộp. Mốc đọc từ contract.md, không ghim sha trong mã; mọi đường
-      dẫn suy từ vị trí script. Mỗi chân có đối chứng dương riêng.
+      dẫn suy từ vị trí script. Mỗi mutant có một đối chứng dương chạy TRƯỚC nó: cặp
+      THẬT mốc↔cây cho chân (a), cặp sinh cho chân (b).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
     criterion: AC-4
@@ -150,8 +152,10 @@ evals:
     criterion: AC-7
     executor: judgment
     question: >
-      Đọc NĂM file trong inputs: bộ ca `lan-may-classifier.test.mjs`, `evals.yaml`, và
-      răng hồ sơ `rang-khong-nuot.mjs`. Đối chiếu với bảng giữa mốc neo
+      Đọc NĂM file trong inputs: bộ ca `lan-may-classifier.test.mjs`, `evals.yaml`,
+      răng hồ sơ `rang-khong-nuot.mjs`, `contract.md`, và nguồn engine
+      `acceptance-verify.js`. Số mutant của E5 và E8 phụ thuộc dữ liệu rút TỪ hợp đồng
+      và TỪ nguồn engine, nên hai file cuối là thứ khiến bạn ĐẾM được thay vì phải suy. Đối chiếu với bảng giữa mốc neo
       `MUTANT-MATRIX` ở đầu evals.yaml — đọc TỪ đó.
       TRƯỚC KHI KẾT LUẬN: in hai cột cho TỪNG eval — số ở marker, cạnh số mutant bạn
       ĐẾM ĐƯỢC trong mã. Không đọc được thì nói thẳng, ĐỪNG suy từ mã rồi tuyên

@@ -66,16 +66,23 @@ const allowEntries = obj => ((obj.permissions || {}).allow || []);
 // sách cũng do tôi gõ thì THU nó lại sẽ thu luôn mutant và thước tự nới ra trong im
 // lặng. Neo vào AC-8 khép vòng: hợp đồng là bên VIẾT, bộ ca là bên ĐỌC.
 const CONTRACT = path.join(ROOT, '_acceptance', 'lan-may-song-qua-bo-phan-loai', 'contract.md');
-function choSaiTuHopDong() {
-  let src; try { src = readFileSync(CONTRACT, 'utf8'); } catch { return []; }
-  // Đọc TRỌN bullet trên bản đã gộp khoảng trắng, không đọc một DÒNG VẬT LÝ: ngắt lại
-  // dòng trong hợp đồng là thao tác trình bày thuần, không đổi một chữ nào của lời
-  // hứa — mà bản trước thì ngắt dòng cho `deny` xuống dòng sau là thước thu từ 2 còn
-  // 1 trong im lặng (hội đồng S4-r7 phá thử được).
-  const m = flat(src).match(/- AC-8:([\s\S]*?)(?:- AC-\d|## |$)/);
-  return m ? [...new Set([...m[1].matchAll(/`([a-z]+)`/g)].map(x => x[1]))] : [];
+// MỘT bộ đọc hợp đồng cho MỌI AC. Đọc TRỌN bullet trên bản đã gộp khoảng trắng, không
+// đọc một DÒNG VẬT LÝ: ngắt lại dòng trong hợp đồng là thao tác trình bày thuần, không
+// đổi một chữ nào của lời hứa — mà bản trước thì ngắt dòng cho `deny` xuống dòng sau là
+// thước thu từ 2 còn 1 trong im lặng (hội đồng S4-r7 phá thử được).
+function bulletAC(id) {
+  let src; try { src = readFileSync(CONTRACT, 'utf8'); } catch { return ''; }
+  const m = flat(src).match(new RegExp(`- AC-${id}:([\\s\\S]*?)(?:- AC-\\d|## |$)`));
+  return m ? m[1] : '';
 }
-const CHO_SAI = choSaiTuHopDong();
+const backtickWords = t => [...new Set([...t.matchAll(/`([a-z]+)`/g)].map(x => x[1]))];
+// Phạm vi của lời hứa «MỘT chỗ» — rút từ chính bullet của AC đó. Vòng 7 chỉ neo phạm vi
+// của AC-8 rồi để nguyên bản chép tay của AC-5: hai bên trôi khỏi nhau thì bên trôi
+// trong im lặng là bên PHÉP ĐO. Nay MỘT hàm cho cả hai, không hằng chép tay nào. Khuôn
+// `x/` có backtick ĐÓNG nên chỉ bắt tên thư mục đứng riêng, không bắt đoạn đầu của một
+// đường dẫn nêu trong cùng bullet.
+const phamViTuHopDong = id => [...new Set([...bulletAC(id).matchAll(/`([a-z][\w-]*)\/`/g)].map(x => x[1]))];
+const CHO_SAI = backtickWords(bulletAC(8));
 
 // Danh sách lệnh kiểm CỐ ĐỊNH — nguồn sự thật là config, KHÔNG phải hằng trong ca.
 // Đọc danh sách bằng `configList` của kit (lib/workspace-record.cjs) và giải từng
@@ -187,10 +194,8 @@ function checkGrammarAnchor(selfText, listFiles, readAt) {
   // khối thứ hai mang khuôn KHÁC ở file bên cạnh là đúng hình dạng vòng 2 đã trả giá,
   // chỉ đổi chỗ. AC-5 đã đo lời hứa cùng loại theo cách này; nay áp cho cả AC-8.
   if (!listFiles) return errs;
-  const dirs = phamViTuHopDong();
-  if (!dirs.length) { errs.push(`ve-pham-vi: khong rut duoc PHAM VI "mot cho" tu AC-8 trong ${path.relative(ROOT, CONTRACT)}`); return errs; }
   let total = 0; const where = [];
-  for (const f of listFiles(dirs)) {
+  for (const f of listFiles(PHAM_VI_VAN_PHAM)) {
     const n2 = countBlocks(readAt(f) || '', GRAMMAR_ANCHOR);
     if (n2) { total += n2; where.push(`${path.relative(ROOT, f)}×${n2}`); }
   }
@@ -210,14 +215,8 @@ const checkClauses = (text, clauses) =>
 // không gộp khoảng trắng sẽ vỡ mỗi lần ai đó xuống dòng lại — hỏng vì TRÌNH BÀY
 // chứ không vì NGHĨA. Mọi phép đo trên văn xuôi ở file này đi qua flat().
 const FALLBACK_ANCHOR = 'CLASSIFIER-FALLBACK';
-const SCAN_DIRS = ['skills', 'feature-loop'];
-// Phạm vi «MỘT chỗ» của mốc neo văn phạm — RÚT TỪ dòng AC-8 của hợp đồng, không gõ
-// tay: lời hứa và phép đo phải cùng một phạm vi, và phạm vi sống ở hợp đồng.
-function phamViTuHopDong() {
-  let src; try { src = readFileSync(CONTRACT, 'utf8'); } catch { return []; }
-  const m = flat(src).match(/- AC-8:([\s\S]*?)(?:- AC-\d|## |$)/);
-  return m ? [...new Set([...m[1].matchAll(/`([a-z][\w-]*)\/`/g)].map(x => x[1]))] : [];
-}
+const SCAN_DIRS = phamViTuHopDong(5);
+const PHAM_VI_VAN_PHAM = phamViTuHopDong(8);
 function walkFiles(abs, acc = []) {
   for (const e of readdirSync(abs, { withFileTypes: true })) {
     if (e.name === 'node_modules' || e.name === '.git') continue;   // rác dựng, không phải vật
@@ -417,8 +416,12 @@ runObj('LM2', 'khong entry cho-phep nao chua ky tu *', checkNoStar, [
   M_ALLOW_RONG,
 ]);
 
-if (want('LM8') && !CHO_SAI.length)
-  fail('LM8', `khong rut duoc danh sach cho-sai tu AC-8 trong ${path.relative(ROOT, CONTRACT)} — moi noi hop dong->bo ca dut`);
+// Ba mối nối hợp đồng→bộ ca, MỘT khuôn guard: đứt mối nào thì ca của mối đó đỏ có tên.
+const MOI_NOI = [['LM8', () => CHO_SAI, 'danh sach cho-sai tu AC-8'],
+                 ['LM5', () => SCAN_DIRS, 'pham vi "mot cho" tu AC-5'],
+                 ['LM8b', () => PHAM_VI_VAN_PHAM, 'pham vi "mot cho" tu AC-8']];
+for (const [id, val, ten] of MOI_NOI)
+  if (want(id) && !val().length) fail(id, `khong rut duoc ${ten} trong ${path.relative(ROOT, CONTRACT)} — moi noi hop dong->bo ca dut`);
 runObj('LM8', 'van pham luat quyen + entry nam dung cho', checkGrammar, [
   ['m1-entry-tran-khong-boc', (s, c) => { s.permissions.allow[0] = CMDS()[0]; return [s, c]; },
     'KHONG dung van pham Bash(<lenh>)'],
@@ -527,7 +530,7 @@ runClauses('LM8b', 'khuon van pham song dung MOT cho tren TRON pham vi hop dong 
       f => f === OTHER_FILE
         ? `${readAtG(f) || ''}\n// <<<${GRAMMAR_ANCHOR}\n// khuon KHAC: /^(Bash|Shell)\\((.+)\\)$/\n// ${GRAMMAR_ANCHOR}>>>\n`
         : readAtG(f)),
-    've-pham-vi']]);
+    path.relative(ROOT, OTHER_FILE)]]);
 
 // LM_CASES nêu id không tồn tại → không được xanh im lặng
 const unknown = only.filter(id => !ran.has(id));
