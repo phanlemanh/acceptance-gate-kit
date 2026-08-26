@@ -155,8 +155,10 @@ evals:
       vòng liền nó quên đúng một chỗ đẩy (trục ngữ cảnh · con trỏ nhúng). Quan hệ: MỌI
       lời gọi đẩy cờ phải KHÔNG gọi hàm thoát chuỗi, biên render PHẢI gọi, và mọi lần
       dùng định danh mảng cờ phải nằm trong đúng bốn ngữ cảnh (khai báo · các chỗ đẩy ·
-      vòng biên render · trường máy-đọc) — tách một phần chỗ đẩy sang file khác thì phép
-      kế toán này đỏ. Kèm VẾ HÀNH VI chạy trên MỌI khoá của khuôn sổ phiên: trường
+      vòng biên render · trường máy-đọc). GIỚI HẠN ĐÃ KHAI của phép kế toán: nó bắt được
+      ca mảng cờ bị mang đi nơi khác hay mất một người dùng, KHÔNG bắt được ca dựng cờ ở
+      module khác rồi HOÀ LẠI bằng chính một lời gọi đẩy — khi đó đẳng thức vẫn cân mà
+      việc thoát chuỗi đã dời sang file mà quan hệ không đọc. Kèm VẾ HÀNH VI chạy trên MỌI khoá của khuôn sổ phiên: trường
       máy-đọc không được mang thực thể HTML, và phải có ít nhất một cờ mang NGUYÊN VĂN
       giá trị sổ phiên (nếu không, vế hành vi thoả rỗng). Chiều đỏ của vế hành vi chạy
       trên chính bản sao đã tiêm, không chỉ chứng phép dò bắt được token nó tự dò.

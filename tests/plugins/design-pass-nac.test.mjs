@@ -434,8 +434,9 @@ if (want('DP10')) {
     });
     if (!/flags\.push\(\['fwarn', esc\(f\)\]\)/.test(src2)) e.push(`(i) ${nhan}: bien render KHONG con goi esc( — co se ra HTML tho`);
     // KẾ TOÁN mọi lần dùng định danh: khai báo + N chỗ đẩy + vòng biên render + trường
-    // máy-đọc. Tách MỘT PHẦN chỗ đẩy sang file khác mà vẫn còn ≥3 chỗ ở đây thì quan hệ
-    // trên sẽ mù im lặng; phép đếm này bắt đúng ca đó (hội đồng S4-r9).
+    // máy-đọc. Bắt được ca mảng cờ bị MANG ĐI nơi khác hay mất một người dùng. KHÔNG
+    // bắt được ca dựng cờ ở module khác rồi HOÀ LẠI bằng chính một lời gọi đẩy — đẳng
+    // thức vẫn cân. Khai thẳng thay vì hứa rộng (hội đồng S4-r10 phá thử được).
     const dung = (src2.match(/dpFlags/g) || []).length;
     const cho = 1 + sites.length + 2;
     if (dung !== cho) e.push(`(i) ${nhan}: dinh danh mang co xuat hien ${dung} lan, cho doi ${cho} (khai bao + ${sites.length} cho day + vong bien render + truong may-doc) — co cho day da roi khoi tam quan he`);
