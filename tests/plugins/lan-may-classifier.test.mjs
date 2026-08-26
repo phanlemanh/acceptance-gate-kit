@@ -40,6 +40,7 @@ const fail = (id, msg) => { console.log(`FAIL: [${id}] ${msg}`); failures++; };
 
 const readJSON = p => JSON.parse(readFileSync(p, 'utf8'));
 const reEsc = t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const flat = t => String(t).replace(/\s+/g, ' ');
 
 // <<<PERM-RULE-GRAMMAR
 // Khuôn luật quyền của khung cấu hình harness: mỗi entry là `Bash(<lệnh>)` — bọc bắt
@@ -67,8 +68,12 @@ const allowEntries = obj => ((obj.permissions || {}).allow || []);
 const CONTRACT = path.join(ROOT, '_acceptance', 'lan-may-song-qua-bo-phan-loai', 'contract.md');
 function choSaiTuHopDong() {
   let src; try { src = readFileSync(CONTRACT, 'utf8'); } catch { return []; }
-  const line = src.split('\n').find(l => l.startsWith('- AC-8:')) || '';
-  return [...new Set([...line.matchAll(/`([a-z]+)`/g)].map(m => m[1]))];
+  // Đọc TRỌN bullet trên bản đã gộp khoảng trắng, không đọc một DÒNG VẬT LÝ: ngắt lại
+  // dòng trong hợp đồng là thao tác trình bày thuần, không đổi một chữ nào của lời
+  // hứa — mà bản trước thì ngắt dòng cho `deny` xuống dòng sau là thước thu từ 2 còn
+  // 1 trong im lặng (hội đồng S4-r7 phá thử được).
+  const m = flat(src).match(/- AC-8:([\s\S]*?)(?:- AC-\d|## |$)/);
+  return m ? [...new Set([...m[1].matchAll(/`([a-z]+)`/g)].map(x => x[1]))] : [];
 }
 const CHO_SAI = choSaiTuHopDong();
 
@@ -172,12 +177,25 @@ const GRAMMAR_CLAUSES = [
   { id: 'g1', re: new RegExp(reEsc(PERM_RULE.source)), msg: 'khuon van pham KHONG nam trong khoi moc neo — moi ben se tu che khuon rieng' },
   { id: 'g2', re: /khung cấu hình/, msg: 'khoi thieu con tro toi nguon khung cau hinh harness' },
 ];
-function checkGrammarAnchor(selfText) {
+function checkGrammarAnchor(selfText, listFiles, readAt) {
   const n = countBlocks(selfText, GRAMMAR_ANCHOR);
   if (n > 1) return [`moc neo ${GRAMMAR_ANCHOR} xuat hien ${n} KHOI trong CUNG file — phai dung 1 (noi dung khoi thu hai khong bo kiem nao doc toi)`];
   const b0 = block(selfText, GRAMMAR_ANCHOR);
   if (b0 === null) return [`thieu moc neo ${GRAMMAR_ANCHOR} — khuon van pham khong co cho song co dinh`];
-  return checkClauses(flat(b0), GRAMMAR_CLAUSES);
+  const errs = checkClauses(flat(b0), GRAMMAR_CLAUSES);
+  // «MỘT chỗ» phải đếm trên TRỌN phạm vi hợp đồng khai, không chỉ trong file này: một
+  // khối thứ hai mang khuôn KHÁC ở file bên cạnh là đúng hình dạng vòng 2 đã trả giá,
+  // chỉ đổi chỗ. AC-5 đã đo lời hứa cùng loại theo cách này; nay áp cho cả AC-8.
+  if (!listFiles) return errs;
+  const dirs = phamViTuHopDong();
+  if (!dirs.length) { errs.push(`ve-pham-vi: khong rut duoc PHAM VI "mot cho" tu AC-8 trong ${path.relative(ROOT, CONTRACT)}`); return errs; }
+  let total = 0; const where = [];
+  for (const f of listFiles(dirs)) {
+    const n2 = countBlocks(readAt(f) || '', GRAMMAR_ANCHOR);
+    if (n2) { total += n2; where.push(`${path.relative(ROOT, f)}×${n2}`); }
+  }
+  if (total !== 1) errs.push(`ve-pham-vi: moc neo ${GRAMMAR_ANCHOR} xuat hien ${total} KHOI tren pham vi hop dong khai (phai dung 1): ${where.join(', ')}`);
+  return errs;
 }
 
 const checkClauses = (text, clauses) =>
@@ -191,11 +209,18 @@ const checkClauses = (text, clauses) =>
 // Văn xuôi trong markdown bị ngắt dòng theo bề rộng cột; phép đo bám chuỗi mà
 // không gộp khoảng trắng sẽ vỡ mỗi lần ai đó xuống dòng lại — hỏng vì TRÌNH BÀY
 // chứ không vì NGHĨA. Mọi phép đo trên văn xuôi ở file này đi qua flat().
-const flat = t => String(t).replace(/\s+/g, ' ');
 const FALLBACK_ANCHOR = 'CLASSIFIER-FALLBACK';
 const SCAN_DIRS = ['skills', 'feature-loop'];
+// Phạm vi «MỘT chỗ» của mốc neo văn phạm — RÚT TỪ dòng AC-8 của hợp đồng, không gõ
+// tay: lời hứa và phép đo phải cùng một phạm vi, và phạm vi sống ở hợp đồng.
+function phamViTuHopDong() {
+  let src; try { src = readFileSync(CONTRACT, 'utf8'); } catch { return []; }
+  const m = flat(src).match(/- AC-8:([\s\S]*?)(?:- AC-\d|## |$)/);
+  return m ? [...new Set([...m[1].matchAll(/`([a-z][\w-]*)\/`/g)].map(x => x[1]))] : [];
+}
 function walkFiles(abs, acc = []) {
   for (const e of readdirSync(abs, { withFileTypes: true })) {
+    if (e.name === 'node_modules' || e.name === '.git') continue;   // rác dựng, không phải vật
     const q = path.join(abs, e.name);
     if (e.isDirectory()) walkFiles(q, acc); else acc.push(q);
   }
@@ -448,7 +473,7 @@ if (want('LM5')) {
 
 // Một VẾ → một MUTANT, ép bằng cấu trúc: runner tự duyệt bảng vế, nên không thể
 // «quên» mutant cho một điều kiện, và số mutant luôn bằng số vế.
-function runClauses(id, label, file, check, clauses, extra = []) {
+function runClauses(id, label, file, check, clauses, extra = [], probes = []) {
   if (!want(id)) return;
   let src;
   try { src = readFileSync(file, 'utf8'); } catch (e) { return fail(id, `khong doc duoc vat: ${e.message}`); }
@@ -475,8 +500,13 @@ function runClauses(id, label, file, check, clauses, extra = []) {
     const errs = check(mutated);
     if (!errs.some(e => e.includes(needle))) bad.push(`${name}: khong do dung ve "${needle}" (thu duoc: ${errs.join(' · ') || 'KHONG LOI NAO'})`);
   }
+  // PHÉP DÒ: mutant không bẻ văn bản mà bẻ TẬP FILE (vd mốc neo mọc ở file KHÁC).
+  for (const [name, run, needle] of probes) {
+    const errs = run(base);
+    if (!errs.some(e => e.includes(needle))) bad.push(`${name}: khong do dung ve "${needle}" (thu duoc: ${errs.join(' · ') || 'KHONG LOI NAO'})`);
+  }
   if (bad.length) fail(id, bad.join(' · '));
-  else pass(id, `${label} — doi chung duong xanh + ${clauses.length + extra.length} mutant do dung ve`);
+  else pass(id, `${label} — doi chung duong xanh + ${clauses.length + extra.length + probes.length} mutant do dung ve`);
 }
 
 
@@ -487,8 +517,17 @@ runClauses('LM4', 'khuon khoi tao khuyen kho tieu thu — moi ve mot dieu kien',
 runClauses('LM6', 'tai lieu van hanh — do TRONG khoi co moc neo, moi ve mot dieu kien',
   path.join(ROOT, 'GUIDE.md'), checkGuide, GUIDE_CLAUSES, blockBranchMutants(GUIDE_ANCHOR));
 
-runClauses('LM8b', 'khuon van pham song dung MOT cho co moc neo',
-  SELF, checkGrammarAnchor, GRAMMAR_CLAUSES, blockBranchMutants(GRAMMAR_ANCHOR));
+const grammarFiles = dirs => dirs.flatMap(d => { try { return walkFiles(path.join(ROOT, d)); } catch { return []; } });
+const readAtG = f => { try { return readFileSync(f, 'utf8'); } catch { return null; } };
+const OTHER_FILE = grammarFiles(['lib'])[0];
+runClauses('LM8b', 'khuon van pham song dung MOT cho tren TRON pham vi hop dong khai',
+  SELF, t => checkGrammarAnchor(t, grammarFiles, readAtG),
+  GRAMMAR_CLAUSES, blockBranchMutants(GRAMMAR_ANCHOR),
+  [['m-moc-neo-moc-o-FILE-KHAC', base => checkGrammarAnchor(base, grammarFiles,
+      f => f === OTHER_FILE
+        ? `${readAtG(f) || ''}\n// <<<${GRAMMAR_ANCHOR}\n// khuon KHAC: /^(Bash|Shell)\\((.+)\\)$/\n// ${GRAMMAR_ANCHOR}>>>\n`
+        : readAtG(f)),
+    've-pham-vi']]);
 
 // LM_CASES nêu id không tồn tại → không được xanh im lặng
 const unknown = only.filter(id => !ran.has(id));

@@ -33,9 +33,21 @@ function checkPreserved(baseObj, treeObj) {
 
 const m = readFileSync(CONTRACT, 'utf8').match(/\*\*BASE-LMSQBPL:\*\*\s*`([0-9a-f]{40})`/);
 if (!m) { console.log('khong doc duoc moc BASE-LMSQBPL tu contract.md'); process.exit(1); }
-const base = JSON.parse(execFileSync('git', ['show', `${m[1]}:.claude/settings.json`], { cwd: ROOT, encoding: 'utf8' }));
+// Lấy bản ở mốc là một NHÁNH CÓ THẬT có thể hỏng (checkout nông của CI, sha bị dọn,
+// file vắng ở mốc). Nó phải chết bằng thông điệp CÓ TÊN như mọi nhánh khác của răng,
+// không bằng stack trace của git — đỏ vì hạ tầng phải phân biệt được với vật hỏng.
+function banOMoc(sha) {
+  try { return { ok: JSON.parse(execFileSync('git', ['show', `${sha}:.claude/settings.json`], { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })) }; }
+  catch (e) { return { err: `khong lay duoc .claude/settings.json o moc ${String(sha).slice(0, 12)} — moc khong ton tai trong kho nay, hoac checkout nong, hoac file vang o moc` }; }
+}
+const g0 = banOMoc(m[1]);
+if (g0.err) { console.log(g0.err); process.exit(1); }
+const base = g0.ok;
 const tree = JSON.parse(readFileSync(SETTINGS, 'utf8'));
 const bad = [];
+// chiều đỏ cho nhánh trên — đi qua CHÍNH hàm của chiều xanh, khác input
+if (!(banOMoc('0'.repeat(40)).err || '').includes('khong lay duoc'))
+  bad.push('CHAN 0 DO: lay ban o moc HONG ma khong bao loi co ten');
 
 // ── CHÂN 1: đối chứng dương trên CẶP THẬT mốc ↔ cây, chạy TRƯỚC mọi mutant ──
 const clean = checkPreserved(base, tree);
