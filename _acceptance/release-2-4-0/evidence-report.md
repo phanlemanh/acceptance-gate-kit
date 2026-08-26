@@ -97,7 +97,7 @@ vì bản đồ xưởng lệch sau năm lượt gộp. Sau khi vẽ lại bản
 - eval: E3e
   run_id: release-2-4-0-E3e-r1
   exit_code: 0
-  verifier: script
+  verifier: node scripts/product-map.mjs --check
   verified_at: 2026-08-26T09:19:11Z
   cmd: node scripts/product-map.mjs --check
   baseline: trước khi vẽ lại — «PRODUCT-MAP.md lệch với hồ sơ xưởng» (đỏ thật, đối chứng dương của phép đo này)
