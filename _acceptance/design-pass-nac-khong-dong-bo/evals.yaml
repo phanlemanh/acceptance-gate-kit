@@ -125,8 +125,10 @@ evals:
       đối chứng dương (a) phải đỏ; m-esc-duong-co và m-esc-duong-ban-mau = gỡ thoát
       chuỗi ở TỪNG đường ra thẻ (cờ · khối bản-mẫu) → lưới (f) phải đỏ — mỗi đường một
       mutant, KHÔNG khai gộp «gỡ toàn bộ esc()» vì lời khai đó rộng hơn phạm vi đo;
-      m-esc-cho-day và m-esc-cho-day-nguc-canh = đặt thoát chuỗi ngay tại CHỖ ĐẨY (trục
-      nấc phản ứng · trục ngữ cảnh) → lưới (i) đường máy-đọc phải đỏ; m-proto = trả bảng
+      m-esc-cho-day và m-esc-cho-day-nhung = đặt thoát chuỗi ngay tại CHỖ ĐẨY (trục nấc
+      phản ứng · trục con trỏ nhúng đến từ cấu hình) → lưới (i) phải đỏ VÀ phải GỌI TÊN
+      thứ bị thoát chuỗi; m-bien-render-mat-esc = gỡ thoát chuỗi ở BIÊN RENDER → lưới (i)
+      phải đỏ ở vế biên render; m-proto = trả bảng
       nhãn về object literal → lưới (h) phải đỏ; m-neu-ten = bỏ phần nêu tên khỏi cờ
       giá-trị-lạ, CỜ CÒN NGUYÊN → (c) phải đỏ. Lệnh tiêm không
       đổi được dòng nào thì NÉM LỖI, không được in xanh; và bản sao SAU KHI TIÊM phải
@@ -148,6 +150,16 @@ evals:
       MỖI khoá ở CẢ HAI trục (nấc · ngữ cảnh) đều sinh cờ «không nhận diện được» và
       `--extract` vẫn giữ khoá `reaction_label`: bảng tra là object literal thì cờ im
       lặng và thẻ in `function Object() { [native code] }`.
+      (i) THOÁT CHUỖI Ở BIÊN RENDER — đo bằng QUAN HỆ ĐÓNG TRÊN MÃ, không bằng cách bơm
+      giá trị độc qua từng khoá: bơm-qua-khoá là phép LẤY MẪU trên không gian mở, và ba
+      vòng liền nó quên đúng một chỗ đẩy (trục ngữ cảnh · con trỏ nhúng). Quan hệ: MỌI
+      lời gọi đẩy cờ phải KHÔNG gọi hàm thoát chuỗi, biên render PHẢI gọi, và mọi lần
+      dùng định danh mảng cờ phải nằm trong đúng bốn ngữ cảnh (khai báo · các chỗ đẩy ·
+      vòng biên render · trường máy-đọc) — tách một phần chỗ đẩy sang file khác thì phép
+      kế toán này đỏ. Kèm VẾ HÀNH VI chạy trên MỌI khoá của khuôn sổ phiên: trường
+      máy-đọc không được mang thực thể HTML, và phải có ít nhất một cờ mang NGUYÊN VĂN
+      giá trị sổ phiên (nếu không, vế hành vi thoả rỗng). Chiều đỏ của vế hành vi chạy
+      trên chính bản sao đã tiêm, không chỉ chứng phép dò bắt được token nó tự dò.
       Nhánh không-có-sổ-phiên sống ở E15.
       Mỗi nhánh ghim đúng thông điệp mong đợi, không chỉ đếm số cờ.
       GIỚI HẠN ĐÃ KHAI: lưới (f) phủ mọi chỗ đẩy cờ mà một giá trị hồ sơ THẬT chạm
