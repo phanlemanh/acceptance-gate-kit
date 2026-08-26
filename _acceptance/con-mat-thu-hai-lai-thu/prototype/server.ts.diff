@@ -1,0 +1,58 @@
+diff --git a/service/src/server.ts b/service/src/server.ts
+index c0ce06d..2d7715b 100644
+--- a/service/src/server.ts
++++ b/service/src/server.ts
+@@ -1,6 +1,28 @@
+ import { serve } from '@hono/node-server'
++import { existsSync } from 'node:fs'
++import { resolve } from 'node:path'
+ import { pathToFileURL } from 'node:url'
+ import { createApp } from './app.js'
++import { resolveOpenRouterConfig } from './openrouter.js'
++
++/**
++ * Nạp `.env` ở gốc kho bằng `process.loadEnvFile` (built-in từ Node 20.6; kho ở @types/node
++ * ^24.13.2) — KHÔNG thêm `dotenv`. Ba điều được giữ đúng ở đây:
++ *
++ *   1. Biến có sẵn trong `process.env` THẮNG giá trị trong file. Đó là hành vi của
++ *      `loadEnvFile`, và là hành vi phải có: CI, systemd, Docker `-e` đều bơm secret qua env
++ *      thật, một file `.env` lạc trong image không được phép ghi đè chúng.
++ *   2. Thiếu file thì im lặng đi tiếp — deployment thật KHÔNG dùng `.env`, nó dùng env thật.
++ *   3. Chỉ chạy trong `main()`, tức chỉ khi thực thi trực tiếp. Import từ test KHÔNG được
++ *      chạm đĩa hay mutate env toàn cục (cùng luật với `isMain` ở cuối file).
++ *
++ * File `.env` nằm ở GỐC KHO, không phải cạnh file này: nó phục vụ cả `npm run service:dev` lẫn
++ * `npm run demo`, và gốc kho là chỗ duy nhất cả hai đều thấy.
++ */
++function loadDotEnv(): void {
++  const envPath = resolve(import.meta.dirname, '../../.env')
++  if (existsSync(envPath)) process.loadEnvFile(envPath)
++}
+ 
+ /**
+  * Task 13 hardening M4: `FLOORPLAN_HMAC_KEY=a` used to start happily — a 1-character HMAC key
+@@ -66,7 +88,15 @@ export const HEADERS_TIMEOUT_MS = 20_000
+  */
+ function main(): void {
+   try {
++    loadDotEnv()
+     const hmacKey = resolveHmacKey(process.env)
++
++    // Giải Ở ĐÂY chứ không lười giải lúc gọi đầu tiên: cấu hình sai phải nổ lúc khởi động, khi
++    // người vận hành còn đang nhìn màn hình — không phải giữa một vòng «Người lạ lái thử», khi
++    // người chạy sẽ đi tìm lỗi ở engine. `null` = năng lực tắt, KHÔNG phải lỗi (xem docblock
++    // `resolveOpenRouterConfig` cho lý do nó khác `FLOORPLAN_HMAC_KEY`).
++    const openRouter = resolveOpenRouterConfig(process.env)
++
+     const port = Number(process.env['PORT'] ?? 3300)
+     serve({
+       fetch: createApp({ hmacKey }).fetch,
+@@ -74,6 +104,8 @@ function main(): void {
+       serverOptions: { requestTimeout: REQUEST_TIMEOUT_MS, headersTimeout: HEADERS_TIMEOUT_MS },
+     })
+     console.log(`floorplanstudio service listening on :${port}`)
++    // In TRẠNG THÁI, tuyệt đối không in khoá — chỉ tên model, thứ vốn công khai.
++    console.log(openRouter ? `openrouter VLM enabled: ${openRouter.model}` : 'openrouter VLM disabled (no OPENROUTER_API_KEY)')
+   } catch (err) {
+     console.error(err instanceof Error ? err.message : String(err))
+     process.exit(1)
