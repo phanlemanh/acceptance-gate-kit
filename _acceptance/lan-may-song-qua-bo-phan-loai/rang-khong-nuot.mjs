@@ -58,6 +58,16 @@ else {
 if (base.permissions) bad.push('CHAN 3: ban o moc NAY DA co khoi permissions — cap nhat rang: chan (b) do duoc tren cap that, bo cap sinh');
 const bSyn = { permissions: { allow: ['Bash(a)', 'Bash(b)'], deny: ['Bash(rm -rf /)'], defaultMode: 'default' } };
 const tSyn = { permissions: { allow: ['Bash(a)', 'Bash(b)', 'Bash(c)'], deny: ['Bash(rm -rf /)'], defaultMode: 'default' } };
+// Cặp sinh phải PHỦ mọi khoá mà cây THẬT đang có trong `permissions` — nếu không,
+// nó là fixture theo trí nhớ người viết và sẽ lạc hậu lặng lẽ khi vật mọc khoá mới.
+for (const k of Object.keys(tree.permissions || {}))
+  if (!(k in bSyn.permissions)) bad.push(`CHAN 3: cap sinh THIEU khoa "${k}" von co trong cay that — fixture da lac hau so voi vat`);
+// chiều đỏ cho chính guard vừa thêm: bịa một cây có khoá lạ, guard phải kêu
+{
+  const gia = { permissions: { ...(tree.permissions || {}), 'khoa-la-zzz': 1 } };
+  const thieu = Object.keys(gia.permissions).filter(k => !(k in bSyn.permissions));
+  if (!thieu.includes('khoa-la-zzz')) bad.push('CHAN 3 DO: guard fixture-lac-hau khong do tren cay co khoa la');
+}
 if (checkPreserved(bSyn, tSyn).length) bad.push('CHAN 3 DO: doi chung duong tren cap sinh khong xanh');
 const s2 = structuredClone(tSyn); delete s2.permissions.deny;
 if (!checkPreserved(bSyn, s2).some(e => e.includes('"deny"'))) bad.push('CHAN 3 DO: xoa permissions.deny ma khong do');
