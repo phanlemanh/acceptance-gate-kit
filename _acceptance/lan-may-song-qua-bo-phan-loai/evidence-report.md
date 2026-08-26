@@ -8,7 +8,7 @@ verified_by: verify doc lap tuan tu (phien tuoi, lenh chay lan luot) + hai phien
 enforcement_mode: strict
 bypass_used: false
 verified_commit: c8d4a0f8d6bdc627643cbdaeb39948a7c0664f0c
-human_signoff:
+human_signoff: Manh Phan 2026-08-26 — ky voi 8 gioi han da khai; gioi han so 1 (khong do hieu luc luc chay) chuyen sang Cong Gia tri doc bang 5 vong S4 ke
 ---
 
 # Evidence Report: lan-may-song-qua-bo-phan-loai
