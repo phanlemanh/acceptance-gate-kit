@@ -4,7 +4,7 @@ feature: Thước nhãn-đè-khối cho diagram-design
 slug: thuoc-nhan-de-khoi
 risk_tier: T2
 surfaces: [scripts, docs]
-status: implemented
+status: verified
 veto_state: mo
 veto_opened_at: 2026-08-27T03:16:00Z
 owner: manh@mstar.vn
