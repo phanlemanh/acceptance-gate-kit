@@ -41,14 +41,22 @@ including all four of these, each verified to slip through:
 The size and shape floors are deliberate: matching every way SVG can paint a
 solid area is an open-ended list, and a checker that pretends to cover it
 would be lying in the direction that matters. Prefer this narrow, honest floor
-plus a human looking at the render. Subtrees under scale/rotate/matrix/skew
-are skipped with a WARN, never silently — but a transform on a leaf rect or
-text is not applied. It also does not measure a mask covering a stroke it
-should clear (that is the 6-10px gap rule), text overflowing its own box
-(check_overflow.py's job), collisions between two labels, rects inside
-`<defs>`/`<pattern>`/`<clipPath>`/`<symbol>` (counted as painted though they
-are not), fill inherited from an ancestor `<g>`, or anything in raster output.
-This checker is the floor, not the ceiling.
+plus a human looking at the render. Transparency detection covers the KNOWN
+forms — `none`, `transparent`, `fill-opacity`, `opacity`, alpha inside
+`rgba()` and `#RRGGBBAA` — no more than that; round 3 disproved an earlier
+"closed and complete" claim here, so treat this list too as a floor. Further
+verified blind spots: a length with a unit suffix (`width="120px"`, `em`, `%`)
+is dropped silently, so such a rect is neither a label nor an occluder; a
+self-closing `<text/>` can make a label borrow the NEXT text's content.
+Subtrees under scale/rotate/matrix/skew are skipped with a WARN, never
+silently — but a transform on a leaf rect or text is not applied. It also does
+not measure a mask covering a stroke it should clear (that is the 6-10px gap
+rule), text overflowing its own box (check_overflow.py's job), collisions
+between two labels, rects inside `<defs>`/`<pattern>`/`<clipPath>`/`<symbol>`
+(counted as painted though they are not), fill inherited from an ancestor
+`<g>`, or anything in raster output. A named input that cannot be read makes
+the run exit 2 rather than dissolving into green. This checker is the floor,
+not the ceiling.
 """
 import re
 import sys
@@ -84,13 +92,20 @@ def _fill_alpha(fill):
 
     The house skin paints tint plates as `rgba(45,49,66,0.06)`, so a checker
     that only reads `fill-opacity` calls those plates opaque and accuses a
-    label they do not actually hide. Only these two notations can carry alpha
-    in a fill value, so unlike shape detection this set is closed.
+    label they do not actually hide. The alpha branch requires exactly FOUR
+    components: an earlier version matched three-component `rgb()` too and
+    read the BLUE channel as alpha, so `rgb(0,0,0)` — solid black — was
+    judged transparent and a real cover slipped through (kit gate round 3).
     """
-    m = re.match(r"rgba?\(\s*[^)]*?,\s*([\d.]+)\s*\)\s*$", fill, re.I)
+    m = re.match(
+        r"rgba?\(\s*[^,)]+,\s*[^,)]+,\s*[^,)]+,\s*([\d.]+)(%?)\s*\)\s*$",
+        fill, re.I)
     if m:
-        try: return float(m.group(1))
-        except ValueError: return None
+        try:
+            a = float(m.group(1))
+            return a / 100.0 if m.group(2) else a
+        except ValueError:
+            return None
     m = re.match(r"#([0-9a-f]{8}|[0-9a-f]{4})\s*$", fill, re.I)
     if m:
         h = m.group(1)
@@ -215,14 +230,22 @@ def main(argv):
     if not args:
         print(__doc__.strip().splitlines()[0], file=sys.stderr)
         return 2
-    parsed_any, total = False, 0
+    parsed_any, read_fail, total = False, False, 0
     for path in args:
         ok, n = check_file(path, list_mode, sys.stdout)
         parsed_any = parsed_any or ok
+        read_fail = read_fail or not ok
         total += n
-    if not parsed_any:
+    # Fail CLOSED: a named input that could not be read must never dissolve
+    # into a green run. An earlier version returned 0 as long as one file
+    # parsed, so a glob that stopped matching (figures renamed/moved) passed
+    # its literal pattern here and the gate printed "clean" having scanned
+    # half the corpus (kit gate round 3).
+    if total:
+        return 1
+    if read_fail or not parsed_any:
         return 2
-    return 1 if total else 0
+    return 0
 
 
 if __name__ == "__main__":

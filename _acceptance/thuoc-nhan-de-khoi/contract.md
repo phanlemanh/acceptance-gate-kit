@@ -3,8 +3,9 @@ schema_version: 1
 feature: Thước nhãn-đè-khối cho diagram-design
 slug: thuoc-nhan-de-khoi
 risk_tier: T2
-surfaces: [scripts, docs]
-status: verified
+surfaces: [cli]
+design_doc: docs/superpowers/specs/2026-08-27-thuoc-nhan-de-khoi-design.md
+status: implemented
 veto_state: mo
 veto_opened_at: 2026-08-27T03:16:00Z
 owner: manh@mstar.vn
@@ -30,7 +31,10 @@ origin/main (sau merge hai đầu cùng sạch là phép đo tự chết).
   nội dung file), Then exit 1 và stdout nêu tên nhãn bị che + tên file; And
   Given fixture có `<g transform="scale(…)">` chứa nhãn bị che, When chạy
   thước, Then cây con đó bỏ qua CÓ TIẾNG — stdout/stderr chứa dòng WARN nêu
-  tên file (giới hạn khai không được câm).
+  tên file (giới hạn khai không được câm); And Given danh sách đầu vào có một
+  file không đọc được, When chạy thước, Then exit ≠ 0 — fail-closed, không
+  được tan vào màu xanh khi chưa nhìn đủ (vòng 3 bắt: bản trước exit 0 miễn
+  còn một file đọc được, nên glob thối làm lưới in «sạch» sau khi quét nửa kho).
 - **AC-2 — bắt đúng 3 ca thật.** Given bản `kien-truc-ho-so-la-truc.svg` và
   `trang-thai-ho-so.svg` rút từ mốc `BASE-TNK` bằng `git show`, When chạy
   thước, Then exit 1 và stdout nêu đủ đúng 3 nhãn: `GHI STATUS`,
@@ -43,14 +47,15 @@ origin/main (sau merge hai đầu cùng sạch là phép đo tự chết).
   đang canh chúng (sửa bằng dời, không phải bằng xoá nhãn hay xoá mask; xoá
   mask làm nhãn vô hình với thước là đường lách bị chặn đích danh).
 - **AC-4 — không báo oan khối trong suốt.** Danh sách các dạng trong suốt là
-  ĐÓNG và phải có ca đỏ ngoài danh sách: không gian này trong SVG là hữu hạn
-  nên đóng được — khác không gian «hình dạng che» ở AC-1. Given fixture
-  code-sinh có ĐỦ NĂM dạng vẽ sau mask
-  nhãn — `fill="none"` · `fill-opacity` ≤0.5 · `opacity` ≤0.5 · alpha trong
-  `rgba()` · alpha trong `#RRGGBBAA` — When chạy thước, Then exit 0 cho từng
-  dạng; And ca ĐỎ NGOÀI danh sách trên CÙNG fixture: rect đục thường, rect
-  `rgba()` alpha CAO, rect `#RRGGBBAA` alpha CAO → Then exit 1 mỗi ca. Cặp
-  hai chiều cô lập đúng lớp fill, không phải chỉ chứng minh «có gì đó đỏ».
+  CÁC DẠNG ĐÃ BIẾT — không tuyên «đóng kín»: vòng 3 đã bác đúng lời tuyên đó
+  (`rgb()` 3 thành phần bị đọc nhầm kênh màu thành alpha, đen đặc thành trong
+  suốt) — và phải có ca đỏ ngoài danh sách. Given fixture code-sinh có ĐỦ SÁU
+  dạng trong suốt vẽ sau mask nhãn — `fill="none"` · `fill-opacity` ≤0.5 ·
+  `opacity` ≤0.5 · alpha trong `rgba()` · alpha dạng `%` · alpha trong
+  `#RRGGBBAA` — When chạy thước, Then exit 0 cho từng dạng; And NĂM ca ĐỎ
+  NGOÀI danh sách trên CÙNG fixture: rect đục thường · `rgba()` alpha CAO ·
+  `#RRGGBBAA` alpha CAO · `rgb(0,0,0)` · `rgb(45,49,0)` → Then exit 1 mỗi
+  ca. Cặp hai chiều cô lập đúng lớp fill, không chỉ chứng minh «có gì đó đỏ».
 - **AC-5 — html inline-svg được kiểm như svg.** Given fixture `.html` code-sinh
   chứa 2 khối `<svg>`, khối thứ hai có nhãn bị che, When chạy thước, Then
   exit 1 và thông điệp trỏ đúng nhãn đó; bản lành của cùng fixture → exit 0.

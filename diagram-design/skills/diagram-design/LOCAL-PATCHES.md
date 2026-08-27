@@ -117,11 +117,15 @@ and masks wider than 220 all pass silently. Matching every way SVG can paint
 a solid area is an open-ended list; two rounds of widening it produced the
 same class of hole each time, so the floor stays narrow and the blind spots
 are written out in full under "WHAT THIS CANNOT SEE" rather than papered
-over. Transparency detection IS closed and complete: `none`, `transparent`,
-`fill-opacity`, `opacity`, and alpha inside the colour (`rgba()`,
-`#RRGGBBAA`) — the last of these matters because the house skin paints tint
-plates as `rgba(45,49,66,0.06)`, and reading those as opaque would accuse
-labels they do not hide. Provenance: `_acceptance/thuoc-nhan-de-khoi/` in the
+over. Transparency detection covers the KNOWN forms — `none`, `transparent`,
+`fill-opacity`, `opacity`, alpha inside the colour (`rgba()`, `#RRGGBBAA`) —
+and no stronger claim than that: an earlier revision called this list "closed
+and complete" and round 3 promptly disproved it (three-component `rgb()` was
+misparsed so solid black read as transparent; fixed by requiring four
+components, with a red case outside the list). The alpha-in-colour forms
+matter because the house skin paints tint plates as `rgba(45,49,66,0.06)`,
+and reading those as opaque would accuse labels they do not hide. Unreadable
+named inputs now exit 2 instead of dissolving into a green run. Provenance: `_acceptance/thuoc-nhan-de-khoi/` in the
 kit repo.
 
 **Upstream status:** not upstreamed. Re-apply on update.

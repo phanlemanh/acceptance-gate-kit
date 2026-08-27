@@ -61,6 +61,14 @@ EOF
   if kiem_xanh $RC && has "WARN" "$OUT" && has "s.svg" "$OUT"; then
     ok "scale -> warn co tieng"
   else bad "scale -> warn co tieng (rc=$RC out=$OUT)"; fi
+  # fail-closed (vòng 4): file được nêu tên mà không đọc được KHÔNG được tan
+  # vào màu xanh — bản trước exit 0 miễn còn một file đọc được, nên glob thối
+  # trong răng in «figures sạch» sau khi quét nửa kho
+  run "$T/l.svg" > /dev/null; RCA=$?
+  run "$T/l.svg" "$T/KHONG-TON-TAI.svg" > /dev/null; RCB=$?
+  if [ "$RCA" -eq 0 ] && [ "$RCB" -eq 2 ]; then
+    ok "file thieu -> exit 2 (fail-closed), mot minh van exit 0"
+  else bad "file thieu khong fail-closed (rieng=$RCA, kem file thieu=$RCB)"; fi
   # chiều đỏ của chính chân WARN: output giả thiếu WARN phải bị bắt
   if has "WARN" "OCCLUDED gia khong co canh bao"; then
     bad "ham kiem WARN khong phan biet duoc"
@@ -138,6 +146,7 @@ EOF
               'fill="#ffffff" fill-opacity="0.3"' \
               'fill="#ffffff" opacity="0.2"' \
               'fill="rgba(45,49,66,0.06)"' \
+              'fill="rgba(0,0,0,40%)"' \
               'fill="#2d314210"'; do
     i=$((i+1)); mk_fill "$T/ts$i.svg" "$spec"
     OUT="$(run "$T/ts$i.svg")"; RC=$?
@@ -147,7 +156,11 @@ EOF
   # ĐỎ NGOÀI DANH SÁCH: đục thật vẫn phải bắt — kể cả khi alpha CAO trong màu.
   # Thiếu vế này thì «không báo oan» đạt được bằng cách không bao giờ báo gì.
   j=0
-  for spec in 'fill="#ffffff"' 'fill="rgba(45,49,66,0.9)"' 'fill="#2d3142ff"'; do
+  # hai ca rgb() 3 thành phần là chiều đỏ NGOÀI danh sách của vòng 4: bản trước
+  # đọc nhầm kênh xanh lam thành alpha nên rgb(0,0,0) — đen đặc — bị coi là
+  # trong suốt; lời khai «đóng kín» đã hạ, danh sách chỉ còn là «các dạng đã biết»
+  for spec in 'fill="#ffffff"' 'fill="rgba(45,49,66,0.9)"' 'fill="#2d3142ff"' \
+              'fill="rgb(0,0,0)"' 'fill="rgb(45,49,0)"'; do
     j=$((j+1)); mk_fill "$T/td$j.svg" "$spec"
     OUT="$(run "$T/td$j.svg")"; RC=$?
     kiem_do "$OUT" $RC 'nhan "FILL THU"' && ok "duc [$spec] -> do" \
@@ -263,8 +276,8 @@ EOF
   # vượt `/`), tức vế này ĐANG luôn rỗng ⇒ luôn xanh: assertion âm-tính-một-mình.
   MB="$(git -C "$ROOT" merge-base HEAD origin/main 2>/dev/null)"
   if [ -z "$MB" ]; then bad "khong xac dinh duoc merge-base voi origin/main"; return; fi
-  cham_vung_ngoai() { # <ref> -> in danh sách file vùng ngoài bị chạm
-    git -C "$ROOT" diff --name-only "$1" \
+  cham_vung_ngoai() { # <ref...> -> in danh sách file vùng ngoài bị chạm
+    git -C "$ROOT" diff --name-only "$@" \
       -- ':(glob)_acceptance/*/figures/**' \
          ':(glob)diagram-design/skills/diagram-design/assets/**' \
       | grep -v '^_acceptance/thuoc-nhan-de-khoi/'
@@ -278,15 +291,14 @@ EOF
   # thật của hồ sơ khác — lớp «phép đo ghi vào cây được đo»).
   REF=""
   for c in $(git -C "$ROOT" log --format=%H -40 origin/main 2>/dev/null); do
-    if [ -n "$(git -C "$ROOT" diff --name-only "$c^" "$c" \
-               -- ':(glob)_acceptance/*/figures/**' 2>/dev/null)" ]; then REF="$c"; break; fi
+    if [ -n "$(cham_vung_ngoai "$c^" "$c" 2>/dev/null)" ]; then REF="$c"; break; fi
   done
   if [ -z "$REF" ]; then
     bad "chieu do: khong tim thay commit lich su nao cham vung ngoai"
   else
-    BAT="$(git -C "$ROOT" diff --name-only "$REF^" "$REF" \
-           -- ':(glob)_acceptance/*/figures/**' \
-              ':(glob)diagram-design/skills/diagram-design/assets/**')"
+    # gọi CHÍNH hàm đang canh, không chép công thức (vòng 3 bắt lớp «chiều đỏ
+    # chép công thức»: bản chép trôi khỏi bản thật thì chiều đỏ canh hư không)
+    BAT="$(cham_vung_ngoai "$REF^" "$REF")"
     case "$BAT" in
       */figures/*) ok "chieu do: mau duong dan BAT duoc thay doi that (${REF%${REF#???????}})";;
       *) bad "chieu do: mau duong dan KHONG bat duoc thay doi that (pathspec chet)";;

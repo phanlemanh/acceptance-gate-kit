@@ -3,9 +3,9 @@ Upstream: https://github.com/cathrynlavery/diagram-design @ `da45d4a` (v2.1.0, i
 License:   MIT (see skills/diagram-design/LICENSE · THIRD_PARTY_LICENSES.md for Tabler icons)
 Source of truth for THIS copy: private repo phanlemanh/skill (git), path skills/diagram-design + commands/
 Skill metadata.version: 2.6
-Skill-repo commit:      849c5d267bca16f6ca5a946e427d91dc421597a3
+Skill-repo commit:      98bda983327030a5c310fd43081e0bf8740ef2fd
 Synced:                 2026-08-27
-Tree-hash (sha256 over sorted vendored files, see tree-hash.sh): 4573c00cef9644631a499cedc5af18c4adff41edddcb13e378257bd0b65d9a89
+Tree-hash (sha256 over sorted vendored files, see tree-hash.sh): 8510e7467b5ac39805ca47b393a9a183719de6c03f4e5cba293159a4b7d9928e
 
 Rule: this copy is NOT edited by hand. Fix in the skill repo, re-run vendor-sync.sh,
 bump .claude-plugin/plugin.json version. CI recomputes the tree-hash and compares it
