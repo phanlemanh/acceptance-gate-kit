@@ -9,7 +9,9 @@ sinh_boi: chinh thuoc check_label_occlusion.py — khong viet so tay
 Hai vùng cố ý KHÔNG vào lưới thường trực (entry descope trong decisions.jsonl):
 hồ sơ `_acceptance/*/figures` đã ký + assets vendored của skill diagram-design.
 
-tong_file: 162
+tong_file_san: 160
+# tong_file_san la SAN (>=): ho so KHAC them/bot hinh tang-2 la hop le.
+# tong_occluded + danh sach giu DANG THUC — do moi la loi khai phai tai lap duoc.
 tong_occluded: 9
 tong_warn: 2
 

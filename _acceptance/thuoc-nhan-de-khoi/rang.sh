@@ -94,12 +94,21 @@ chan_nhan_con_song() {
         || bad "$n mat khoi $f.$ext"
     done
   done
-  # (b) 3 nhãn còn TRONG TẦM thước — chặn sửa-bằng-xoá-mask
+  # (b) 3 nhãn còn TRONG TẦM thước — chặn sửa-bằng-xoá-mask.
+  # Đo QUAN HỆ «nhãn nằm trên một dòng LABEL», không phải hai phép có-mặt rời
+  # nhau (S4-r1 finding: `has LABEL` ∧ `has "<n>"` xanh cả khi tên nhãn chỉ
+  # xuất hiện trong một dòng OCCLUDED và không dòng LABEL nào chứa nó).
   L="$(run --list "$FIGDIR/kien-truc-ho-so-la-truc.svg" "$FIGDIR/trang-thai-ho-so.svg")"
+  co_dong_label() { printf '%s\n' "$2" | grep -q "^LABEL .*\"$1\"$"; }
   for n in "GHI STATUS" "HÌNH ĐÍNH THẺ" "S5 GIAO"; do
-    has "LABEL" "$L" && has "\"$n\"" "$L" && ok "thuoc van thay $n" \
-      || bad "$n ngoai tam thuoc"
+    co_dong_label "$n" "$L" && ok "thuoc van thay $n" || bad "$n ngoai tam thuoc"
   done
+  # chiều đỏ của chính phép (b): output chỉ có dòng OCCLUDED mang tên nhãn,
+  # không có dòng LABEL nào — phép đo QUAN HỆ phải bắt được, phép có-mặt thì không
+  GIA='OCCLUDED x.svg nhan "GHI STATUS" khoi [0,0,9,9] chong 1.0x1.0px'
+  co_dong_label "GHI STATUS" "$GIA" \
+    && bad "chieu do (b2): dong OCCLUDED bi doc nham thanh LABEL" \
+    || ok "chieu do (b2): chi co OCCLUDED -> khong tinh la thay nhan"
   # chiều đỏ (b): bản sao xoá MASK (giữ text) -> nhãn biến khỏi --list
   sed 's|<rect x="300" y="246" width="60" height="14" rx="2" fill="#f5f5f5"/>||' \
     "$FIGDIR/kien-truc-ho-so-la-truc.svg" > "$T/nomask.svg"
@@ -156,10 +165,16 @@ chan_suite_case() {
   CASE="$ROOT/tests/scripts/label-occlusion.test.mjs"
   [ -f "$CASE" ] || { bad "thieu case label-occlusion.test.mjs"; return; }
   grep -q '/Users/' "$CASE" && bad "hardcode ROOT trong case" || ok "case khong hardcode ROOT"
-  OUT="$(cd "$ROOT" && node "$CASE" 2>&1)"; RC=$?
-  [ "$RC" -eq 0 ] || bad "case exit $RC"
+  # Chạy TRỌN SUITE, không gọi thẳng file case (S4-r1 finding: gọi thẳng là đo
+  # VẬT THAY THẾ — không chứng minh được run-tests.sh thật sự dispatch case này,
+  # đúng nếp p194 mà expected của E7 viện dẫn). Ghim cả dòng tiêu đề file.
+  OUT="$(cd "$ROOT" && bash tests/scripts/run-tests.sh 2>&1)"; RC=$?
+  [ "$RC" -eq 0 ] || bad "suite scripts exit $RC"
+  has "=== label-occlusion.test.mjs ===" "$OUT" \
+    && ok "suite THAT SU dispatch label-occlusion.test.mjs" \
+    || bad "suite khong dispatch label-occlusion.test.mjs"
   for d in "PASS: figures hien tai sach" "PASS: tong nhan phat hien >=" "PASS: mutant code-sinh -> do dung thong diep"; do
-    has "$d" "$OUT" && ok "case ghim [$d]" || bad "case THIEU dong [$d]"
+    has "$d" "$OUT" && ok "suite ghim [$d]" || bad "suite THIEU dong [$d]"
   done
   # chiều đỏ của chính chân: stdout giả thiếu dòng phải bị bắt
   has "PASS: figures hien tai sach" "chi co dong khac" \
@@ -196,9 +211,13 @@ chan_quet_vung_ngoai() {
   LN=$(ls _acceptance/*/figures/*.svg _acceptance/*/figures/*.html \
        diagram-design/skills/diagram-design/assets/example-*.html 2>/dev/null | wc -l | tr -d ' ')
   LO=$(printf '%s\n' "$LIVE" | grep -c '^OCCLUDED')
-  RN=$(sed -n 's/^tong_file: *//p' "$EV" | head -1)
+  RN=$(sed -n 's/^tong_file_san: *\([0-9][0-9]*\).*/\1/p' "$EV" | head -1)
   RO=$(sed -n 's/^tong_occluded: *//p' "$EV" | head -1)
-  [ "$LN" = "$RN" ] && ok "so file khop lan chay ($LN)" || bad "bao cao lech lan chay: file $RN vs $LN"
+  # tong_file là SÀN, không phải hằng: hồ sơ KHÁC thêm/bớt hình tầng-2 là hợp lệ
+  # và không được làm răng này đỏ vì hạ tầng (nếp «hằng đếm theo mốc» đã ghi sổ).
+  # Số CA và DANH SÁCH vẫn giữ đẳng thức — đó mới là lời khai phải tái lập được.
+  [ "$LN" -ge "$RN" ] && ok "so file >= san bao cao ($LN >= $RN)" \
+    || bad "bao cao lech lan chay: file thuc $LN < san khai $RN"
   [ "$LO" = "$RO" ] && ok "so ca khop lan chay ($LO)" || bad "bao cao lech lan chay: ca $RO vs $LO"
   MISS=0
   while IFS= read -r line; do
@@ -208,13 +227,35 @@ chan_quet_vung_ngoai() {
 $(printf '%s\n' "$LIVE" | grep '^OCCLUDED')
 EOF
   [ "$MISS" -eq 0 ] && ok "danh sach ca khop lan chay" || bad "bao cao lech lan chay: danh sach"
-  # lời hứa report-only: diff so FORK-POINT của nhánh, KHÔNG so BASE-TNK
+  # lời hứa report-only: diff so FORK-POINT của nhánh, KHÔNG so BASE-TNK.
+  # Pathspec dùng :(glob) + ** — S4-r1 đo thật: '_acceptance/*/figures' KHÔNG
+  # khớp gì kể cả khi có file thật bị chạm (git dùng WM_PATHNAME nên `*` không
+  # vượt `/`), tức vế này ĐANG luôn rỗng ⇒ luôn xanh: assertion âm-tính-một-mình.
   MB="$(git -C "$ROOT" merge-base HEAD origin/main 2>/dev/null)"
   if [ -z "$MB" ]; then bad "khong xac dinh duoc merge-base voi origin/main"; return; fi
-  CHAM="$(git -C "$ROOT" diff --name-only "$MB" -- '_acceptance/*/figures' \
-          'diagram-design/skills/diagram-design/assets' | grep -v '^_acceptance/thuoc-nhan-de-khoi/')"
+  cham_vung_ngoai() { # <ref> -> in danh sách file vùng ngoài bị chạm
+    git -C "$ROOT" diff --name-only "$1" \
+      -- ':(glob)_acceptance/*/figures/**' \
+         ':(glob)diagram-design/skills/diagram-design/assets/**' \
+      | grep -v '^_acceptance/thuoc-nhan-de-khoi/'
+  }
+  CHAM="$(cham_vung_ngoai "$MB")"
   [ -z "$CHAM" ] && ok "report-only: khong cham vung ngoai" \
     || { bad "cham vung ngoai:"; printf '    %s\n' $CHAM; }
+  # CHIỀU ĐỎ cùng lượt: dựng một file trong vùng ngoài rồi gọi CHÍNH hàm trên —
+  # không bắt được nghĩa pathspec lại chết, và cái xanh ở trên là xanh giả.
+  # Probe vào thư mục RIÊNG dùng-một-lần, KHÔNG mượn thư mục của hồ sơ khác
+  # (lượt S4-r1 tôi mượn rồi rmdir và xoá mất 2 file thật của cong-chan-nham-cho).
+  PROBE="$ROOT/_acceptance/rang-probe-tnk/figures"
+  mkdir -p "$PROBE" && : > "$PROBE/.rang-probe.svg"
+  git -C "$ROOT" add -N "$PROBE/.rang-probe.svg" >/dev/null 2>&1
+  BAT="$(cham_vung_ngoai "$MB")"
+  git -C "$ROOT" rm -q --cached "$PROBE/.rang-probe.svg" >/dev/null 2>&1
+  rm -rf "$ROOT/_acceptance/rang-probe-tnk"
+  case "$BAT" in
+    *.rang-probe.svg*) ok "chieu do: guard BAT duoc file vung ngoai";;
+    *) bad "chieu do: guard KHONG bat duoc file vung ngoai (pathspec chet)";;
+  esac
 }
 
 case "${2:-}" in

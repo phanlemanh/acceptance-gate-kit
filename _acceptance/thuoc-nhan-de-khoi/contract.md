@@ -20,7 +20,7 @@ Mốc bất biến: `BASE-TNK = 848adc9233b54a5755c4be2f49af8a01902f75f0` — b�
 trước-sửa, 3 ca hỏng còn nguyên. Đối chứng đỏ neo vào mốc này, KHÔNG neo
 origin/main (sau merge hai đầu cùng sạch là phép đo tự chết).
 
-## Acceptance criteria
+## Criteria
 
 - **AC-1 — thước sinh ra kèm hai chiều.** Given fixture SVG do code sinh trong
   chính lần chạy (một nhãn có mask + một khối), When chạy
