@@ -129,3 +129,15 @@ named inputs now exit 2 instead of dissolving into a green run. Provenance: `_ac
 kit repo.
 
 **Upstream status:** not upstreamed. Re-apply on update.
+
+**Direction flip (kit gate round 4, owner decision):** the default for
+anything the parser does not understand is now NEVER "opaque". Unknown fill
+syntax (hsla(), space-notation rgb(), url(#…), var(), named colors) and
+unit-suffixed coordinates make the element invisible with one WARN per file;
+a readable file with nothing scannable (empty, truncated, no <svg>) exits 2.
+Rationale: four consecutive gate rounds each found a new corner of SVG where
+guessing "opaque" produced a false OCCLUDED, and in a merge-blocking gate a
+false accusation teaches people to loosen the gate. Uncertainty now always
+falls toward a declared miss. The house `width="100%"` background stays a
+silent skip (every figure carries one). A self-closing `<text/>` no longer
+borrows the next text's content.

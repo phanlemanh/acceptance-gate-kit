@@ -69,6 +69,18 @@ EOF
   if [ "$RCA" -eq 0 ] && [ "$RCB" -eq 2 ]; then
     ok "file thieu -> exit 2 (fail-closed), mot minh van exit 0"
   else bad "file thieu khong fail-closed (rieng=$RCA, kem file thieu=$RCB)"; fi
+  # fail-closed mở rộng (vòng 4 rerun): file ĐỌC ĐƯỢC nhưng không có gì để quét
+  : > "$T/rong.svg"
+  run "$T/rong.svg" > /dev/null; RCR=$?
+  [ "$RCR" -eq 2 ] && ok "file rong -> exit 2 (khong tan vao xanh)" \
+    || bad "file rong exit $RCR (phai 2)"
+  # đảo chiều mặc định: giá trị không hiểu -> phần tử vô hình CÓ TIẾNG,
+  # KHÔNG bịa toạ độ (bản trước ép x=300px về 0 rồi buộc tội nhãn ở gốc)
+  printf '<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">\n<rect x="4" y="4" width="60" height="14" fill="#f5f5f5"/>\n<text x="10" y="12">GOC AN</text>\n<rect x="300px" y="150px" width="120" height="60" fill="#ffffff"/>\n</svg>\n' > "$T/px.svg"
+  OUT="$(run "$T/px.svg")"; RC=$?
+  if kiem_xanh $RC && has "WARN" "$OUT" && ! has "OCCLUDED" "$OUT"; then
+    ok "toa do px -> bo qua co tieng, khong bia toa do"
+  else bad "toa do px (rc=$RC out=$OUT)"; fi
   # chiều đỏ của chính chân WARN: output giả thiếu WARN phải bị bắt
   if has "WARN" "OCCLUDED gia khong co canh bao"; then
     bad "ham kiem WARN khong phan biet duoc"
@@ -152,6 +164,16 @@ EOF
     OUT="$(run "$T/ts$i.svg")"; RC=$?
     kiem_xanh $RC && ok "trong suot [$spec] khong bao oan" \
       || bad "bao oan [$spec] (rc=$RC out=$OUT)"
+  done
+  # KHÔNG-HIỂU -> KHÔNG BUỘC TỘI (đảo chiều vòng 4-rerun): cú pháp ngoài danh
+  # sách đã biết không được đoán thành đục — bỏ qua CÓ TIẾNG WARN
+  k=0
+  for spec in 'fill="hsla(220,20%,25%,0.06)"' 'fill="rgb(45 49 66 / 6%)"' 'fill="url(#tint)"'; do
+    k=$((k+1)); mk_fill "$T/kh$k.svg" "$spec"
+    OUT="$(run "$T/kh$k.svg")"; RC=$?
+    if kiem_xanh $RC && has "WARN" "$OUT" && ! has "OCCLUDED" "$OUT"; then
+      ok "khong hieu [$spec] -> bo qua co tieng"
+    else bad "khong hieu [$spec] (rc=$RC out=$OUT)"; fi
   done
   # ĐỎ NGOÀI DANH SÁCH: đục thật vẫn phải bắt — kể cả khi alpha CAO trong màu.
   # Thiếu vế này thì «không báo oan» đạt được bằng cách không bao giờ báo gì.

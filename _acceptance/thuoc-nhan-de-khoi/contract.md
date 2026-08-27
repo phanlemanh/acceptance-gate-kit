@@ -32,9 +32,12 @@ origin/main (sau merge hai đầu cùng sạch là phép đo tự chết).
   Given fixture có `<g transform="scale(…)">` chứa nhãn bị che, When chạy
   thước, Then cây con đó bỏ qua CÓ TIẾNG — stdout/stderr chứa dòng WARN nêu
   tên file (giới hạn khai không được câm); And Given danh sách đầu vào có một
-  file không đọc được, When chạy thước, Then exit ≠ 0 — fail-closed, không
-  được tan vào màu xanh khi chưa nhìn đủ (vòng 3 bắt: bản trước exit 0 miễn
-  còn một file đọc được, nên glob thối làm lưới in «sạch» sau khi quét nửa kho).
+  file không đọc được HOẶC đọc được nhưng không có gì để quét (rỗng, cụt,
+  không khối svg), When chạy thước, Then exit ≠ 0 — fail-closed, không được
+  tan vào màu xanh khi chưa nhìn đủ; And Given phần tử mang giá trị thước
+  không hiểu (toạ độ có đơn vị, cú pháp lạ), Then phần tử đó VÔ HÌNH CÓ TIẾNG
+  WARN — tuyệt đối không đoán thành khối che, không bịa toạ độ (đảo chiều
+  mặc định, vòng 4: bất định rơi về SÓT-đã-khai, không rơi về TỐ OAN).
 - **AC-2 — bắt đúng 3 ca thật.** Given bản `kien-truc-ho-so-la-truc.svg` và
   `trang-thai-ho-so.svg` rút từ mốc `BASE-TNK` bằng `git show`, When chạy
   thước, Then exit 1 và stdout nêu đủ đúng 3 nhãn: `GHI STATUS`,
@@ -52,10 +55,11 @@ origin/main (sau merge hai đầu cùng sạch là phép đo tự chết).
   suốt) — và phải có ca đỏ ngoài danh sách. Given fixture code-sinh có ĐỦ SÁU
   dạng trong suốt vẽ sau mask nhãn — `fill="none"` · `fill-opacity` ≤0.5 ·
   `opacity` ≤0.5 · alpha trong `rgba()` · alpha dạng `%` · alpha trong
-  `#RRGGBBAA` — When chạy thước, Then exit 0 cho từng dạng; And NĂM ca ĐỎ
-  NGOÀI danh sách trên CÙNG fixture: rect đục thường · `rgba()` alpha CAO ·
-  `#RRGGBBAA` alpha CAO · `rgb(0,0,0)` · `rgb(45,49,0)` → Then exit 1 mỗi
-  ca. Cặp hai chiều cô lập đúng lớp fill, không chỉ chứng minh «có gì đó đỏ».
+  `#RRGGBBAA` — When chạy thước, Then exit 0 cho từng dạng; And Given HAI dạng
+  KHÔNG-HIỂU (`hsla()`, `url(#…)`, cú pháp cách-trắng), Then exit 0 kèm WARN —
+  không buộc tội thứ không đọc được; And NĂM ca ĐỎ NGOÀI danh sách trên CÙNG
+  fixture: rect đục thường · `rgba()` alpha CAO · `#RRGGBBAA` alpha CAO ·
+  `rgb(0,0,0)` · `rgb(45,49,0)` → Then exit 1 mỗi ca. Cặp hai chiều cô lập đúng lớp fill, không chỉ chứng minh «có gì đó đỏ».
 - **AC-5 — html inline-svg được kiểm như svg.** Given fixture `.html` code-sinh
   chứa 2 khối `<svg>`, khối thứ hai có nhãn bị che, When chạy thước, Then
   exit 1 và thông điệp trỏ đúng nhãn đó; bản lành của cùng fixture → exit 0.
