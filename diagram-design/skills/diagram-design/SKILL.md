@@ -3,7 +3,7 @@ name: diagram-design
 description: Create technical and product diagrams — architecture, system context, deployment, IT current-state, flowchart, sequence, event flow, state machine, ER, timeline, Gantt, swimlane, service blueprint, journey map, wireflow, morphological box, disposition map, solution tree, cadence, evidence chain, quadrant, radar, loop, nested, tree, org chart, capability map, stakeholder map, layer stack, venn, funnel, sankey, RACI matrix, threshold chart, bar, line, scatter, process, medallion, data flow, DP integration / security matrix — standalone HTML files with inline SVG. Also imports draw.io files (.drawio, .drawio.png, .drawio.svg), redrawn at chosen format and size. Use for any request to draw or redraw a diagram, in Vietnamese too — vẽ sơ đồ, sơ đồ kiến trúc, sơ đồ luồng, hành trình khách hàng, không gian lựa chọn, so ngưỡng, chuyển file draw.io. Data-bound charts in app code belong to a dataviz skill.
 license: MIT
 metadata:
-  version: "2.5"
+  version: "2.6"
 ---
 
 # Diagram Design
@@ -456,6 +456,7 @@ Run before producing any diagram.
 - [ ] **When several connectors enter or exit the same edge of a box, each has its own attach point (≥12px apart)? No connector hides another?**
 - [ ] **No connector passes behind a non-endpoint box, except the unavoidable-intervening-box case (§6 rule 5) — and in that case, the stroke is dashed and the label sits at the visible end?**
 - [ ] Every arrow label has an opaque `fill="{paper}"` rect behind it?
+- [ ] **Located this skill's directory and ran `python3 <skill-dir>/scripts/check_label_occlusion.py <file>` on the output file — exit 0?** (Catches a label mask painted over by a later opaque box — the z-order failure eyes miss because the remaining letters still read as a word. Static, no browser needed; same floor-not-ceiling caveat as `check_overflow.py`.)
 - [ ] Legend is a horizontal bottom strip, not floating?
 - [ ] No vertical `writing-mode` text?
 - [ ] `viewBox` expanded for the legend strip (~60px)?

@@ -92,3 +92,52 @@ else, so repos keep receiving upstream fixes for everything else).
 
 **Upstream status:** not upstreamed; upstream keeps skin inside the skill.
 Re-apply on update.
+
+## 8. Label-occlusion checker added (2026-08-27)
+
+**Why:** §6 forbids a hidden label, but the rule lived only as checklist prose
+— nothing could go red. Three shipped figures in the kit's own
+`docs/reference/figures/` carried labels partially covered by node boxes drawn
+after them (`GHI STATUS` 4px, `HÌNH ĐÍNH THẺ` 28px, `S5 GIAO` 3.8px), found
+2026-08-27 by comparing against archify's executable validator. A covered
+label survives review because the remaining letters still read as a word.
+
+**What changed:** new `scripts/check_label_occlusion.py` (static, stdlib-only,
+no browser) pairs each small mask rect with its following `<text>` and reports
+any later opaque rect overlapping the mask; `--list` prints every label it can
+see (used as a detection floor by the kit's CI case
+`tests/scripts/label-occlusion.test.mjs`). One checklist line added to §9
+Technical, using the `<skill-dir>` form so the command is runnable from a
+consuming repo.
+
+**Scope, narrowed deliberately (kit gate round 2, owner decision):** it
+recognises exactly ONE occluder shape — an opaque `<rect>` at least 60x28.
+Rects in the 18-28 dead band, narrow rects, filled paths/circles/polygons,
+and masks wider than 220 all pass silently. Matching every way SVG can paint
+a solid area is an open-ended list; two rounds of widening it produced the
+same class of hole each time, so the floor stays narrow and the blind spots
+are written out in full under "WHAT THIS CANNOT SEE" rather than papered
+over. Transparency detection covers the KNOWN forms — `none`, `transparent`,
+`fill-opacity`, `opacity`, alpha inside the colour (`rgba()`, `#RRGGBBAA`) —
+and no stronger claim than that: an earlier revision called this list "closed
+and complete" and round 3 promptly disproved it (three-component `rgb()` was
+misparsed so solid black read as transparent; fixed by requiring four
+components, with a red case outside the list). The alpha-in-colour forms
+matter because the house skin paints tint plates as `rgba(45,49,66,0.06)`,
+and reading those as opaque would accuse labels they do not hide. Unreadable
+named inputs now exit 2 instead of dissolving into a green run. Provenance: `_acceptance/thuoc-nhan-de-khoi/` in the
+kit repo.
+
+**Upstream status:** not upstreamed. Re-apply on update.
+
+**Direction flip (kit gate round 4, owner decision):** the default for
+anything the parser does not understand is now NEVER "opaque". Unknown fill
+syntax (hsla(), space-notation rgb(), url(#…), var(), named colors) and
+unit-suffixed coordinates make the element invisible with one WARN per file;
+a readable file with nothing scannable (empty, truncated, no <svg>) exits 2.
+Rationale: four consecutive gate rounds each found a new corner of SVG where
+guessing "opaque" produced a false OCCLUDED, and in a merge-blocking gate a
+false accusation teaches people to loosen the gate. Uncertainty now always
+falls toward a declared miss. The house `width="100%"` background stays a
+silent skip (every figure carries one). A self-closing `<text/>` no longer
+borrows the next text's content.

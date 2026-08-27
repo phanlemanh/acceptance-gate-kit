@@ -143,6 +143,19 @@ executors:
     # viễn: để trong bộ kiểm thường trực thì mọi sửa hợp lệ về sau của enabledPlugins
     # / extraKnownMarketplaces (do hồ sơ KHÁC làm) sẽ làm suite đỏ oan.
     lm_khong_nuot: bash _acceptance/lan-may-song-qua-bo-phan-loai/rang-khong-nuot.sh
+    # Vật của hồ sơ thuoc-nhan-de-khoi — răng cho thước nhãn-đè-khối. Chân
+    # ba-ca-that neo mốc BẤT BIẾN BASE-TNK (848adc92, bản trước-sửa) chứ không
+    # origin/main: sau khi hồ sơ merge thì hai đầu cùng sạch và phép đo tự chết.
+    # CỐ Ý không vào suite vĩnh viễn vì thế — lưới thường trực là case
+    # tests/scripts/label-occlusion.test.mjs (fixture code-sinh mỗi lần chạy).
+    tnk_rang_hai_chieu: bash _acceptance/thuoc-nhan-de-khoi/rang.sh --chan hai-chieu
+    tnk_rang_ba_ca_that: bash _acceptance/thuoc-nhan-de-khoi/rang.sh --chan ba-ca-that
+    tnk_rang_nhan_con_song: bash _acceptance/thuoc-nhan-de-khoi/rang.sh --chan nhan-con-song
+    tnk_rang_fill_trong_suot: bash _acceptance/thuoc-nhan-de-khoi/rang.sh --chan fill-trong-suot
+    tnk_rang_html_inline: bash _acceptance/thuoc-nhan-de-khoi/rang.sh --chan html-inline
+    tnk_rang_suite_case: bash _acceptance/thuoc-nhan-de-khoi/rang.sh --chan suite-case
+    tnk_rang_taste_gate: bash _acceptance/thuoc-nhan-de-khoi/rang.sh --chan taste-gate
+    tnk_rang_quet_vung_ngoai: bash _acceptance/thuoc-nhan-de-khoi/rang.sh --chan quet-vung-ngoai
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
