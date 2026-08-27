@@ -92,3 +92,24 @@ else, so repos keep receiving upstream fixes for everything else).
 
 **Upstream status:** not upstreamed; upstream keeps skin inside the skill.
 Re-apply on update.
+
+## 8. Label-occlusion checker added (2026-08-27)
+
+**Why:** §6 forbids a hidden label, but the rule lived only as checklist prose
+— nothing could go red. Three shipped figures in the kit's own
+`docs/reference/figures/` carried labels partially covered by node boxes drawn
+after them (`GHI STATUS` 4px, `HÌNH ĐÍNH THẺ` 28px, `S5 GIAO` 3.8px), found
+2026-08-27 by comparing against archify's executable validator. A covered
+label survives review because the remaining letters still read as a word.
+
+**What changed:** new `scripts/check_label_occlusion.py` (static, stdlib-only,
+no browser) pairs each small mask rect with its following `<text>` and reports
+any later opaque rect overlapping the mask; `--list` prints every label it can
+see (used as a detection floor by the kit's CI case
+`tests/scripts/label-occlusion.test.mjs`). One checklist line added to §9
+Technical. Limits are declared in the docstring ("WHAT THIS CANNOT SEE"):
+unmasked free text, scale/rotate/matrix subtrees (WARN, skipped), text
+overflow (that is `check_overflow.py`'s job). Provenance:
+`_acceptance/thuoc-nhan-de-khoi/` in the kit repo.
+
+**Upstream status:** not upstreamed. Re-apply on update.

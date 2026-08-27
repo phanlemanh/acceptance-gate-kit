@@ -456,6 +456,7 @@ Run before producing any diagram.
 - [ ] **When several connectors enter or exit the same edge of a box, each has its own attach point (≥12px apart)? No connector hides another?**
 - [ ] **No connector passes behind a non-endpoint box, except the unavoidable-intervening-box case (§6 rule 5) — and in that case, the stroke is dashed and the label sits at the visible end?**
 - [ ] Every arrow label has an opaque `fill="{paper}"` rect behind it?
+- [ ] **Ran `python3 scripts/check_label_occlusion.py` on the output file — exit 0?** (Catches a label mask painted over by a later opaque box — the z-order failure eyes miss because the remaining letters still read as a word. Static, no browser needed; same floor-not-ceiling caveat as `check_overflow.py`.)
 - [ ] Legend is a horizontal bottom strip, not floating?
 - [ ] No vertical `writing-mode` text?
 - [ ] `viewBox` expanded for the legend strip (~60px)?
