@@ -5,7 +5,7 @@ slug: thuoc-nhan-de-khoi
 risk_tier: T2
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-08-27-thuoc-nhan-de-khoi-design.md
-status: implemented
+status: verified
 veto_state: mo
 veto_opened_at: 2026-08-27T03:16:00Z
 owner: manh@mstar.vn

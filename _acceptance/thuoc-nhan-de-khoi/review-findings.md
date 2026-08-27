@@ -1,88 +1,75 @@
 ## Trong hợp đồng
 
-- **_fill_alpha misreads 3-component rgb() as rgba — an opaque box can be silently skipped**
-  file: `diagram-design/skills/diagram-design/scripts/check_label_occlusion.py:90`
+- **Single-quoted attributes are invisible to the parser — transparent rect becomes a false OCCLUDED at invented coordinates, with no WARN**
+  file: `diagram-design/skills/diagram-design/scripts/check_label_occlusion.py:80`
   severity: medium
-  AC: AC-4
-  detail: The regex `rgba?\(\s*[^)]*?,\s*([\d.]+)\s*\)\s*$` accepts three-component `rgb()` too, and then reads the BLUE channel as alpha. Any occluder painted `fill="rgb(r,g,0)"` (or any blue channel ≤ 0.5) is judged transparent by `_opaque()` and never compared against the labels underneath.
+  AC: AC-1
+  detail: ATTR only matches double-quoted attributes (r'...=\s*"([^"]*)"'), so any single-quoted attribute is silently absent from the attrs dict. Two consequences, both in the direction the docstring's DEFAULT DIRECTION contract explicitly forbids: (1) fill='none' is not seen, so line 151 falls back to the default "#000" and the rect is judged fully opaque; (2) x='30' y='10' are not seen, so _num defaults them to 0.0 — exactly the invented-coordinates class the _BAD sentinel (line 94) was added to prevent, but the sentinel only fires for values the regex captured. Verified empirically: an SVG with a label plus <rect x='30' y='10' width="120" height="60" fill='none' stroke="#333"/> produces `OCCLUDED ... khoi [0,0,120,60]` and exit 1 — a false accusation from a fully transparent, non-overlapping rect, with no WARN. Single quotes are valid SVG/HTML and this checker is shipped in the plugin for consumer-authored diagrams; the docstring's blind-spot list does not declare this case. Cheap fix: extend ATTR to match either quote style, or treat elements whose raw attr string contains =' as not-understood (WARN + skip).
+  rationale: AC-1 khai rõ: phần tử mang giá trị thuộc tính không hiểu phải VÔ HÌNH CÓ TIẾNG WARN, tuyệt đối không bịa toạ độ và không rơi về TỐ OAN; finding chứng minh thực tế ngược lại — im lặng bịa x=y=0 và đoán fill="#000" rồi báo OCCLUDED sai, đúng hình dạng đỏ vòng 4 được viết để chặn.
 
-  Reproduced against the shipped script:
-
-    fill="rgb(45,49,0)"  → exit 0, no OCCLUDED line   (WRONG — opaque box covering the label)
-    fill="rgb(45,49,66)" → exit 1, OCCLUDED … "FILL THU"  (correct, only because 66 > 0.5)
-
-  This matters more than an ordinary edge case because it sits inside the one part of the tool the diff explicitly claims is complete. The docstring says "Transparency detection IS closed and complete", LOCAL-PATCHES §8 repeats it, and contract AC-4 builds on it ("Danh sách các dạng trong suốt là ĐÓNG"). The E4 matrix backing that claim tests five transparent forms and three opaque forms, all in hex or `rgba()` — no `rgb()` case, so it is an allowlist with no RED outside the list, the class already in the repo's ledger (`allowlist-red-must-test-outside`). The deliberately narrowed SHAPE space is documented honestly; this hole is in the space that was declared closed.
-
-  Bounded fix: require exactly four components for the alpha branch (e.g. `rgba\(\s*[^,)]+,[^,)]+,[^,)]+,\s*([\d.]+)\s*\)`), and add `rgb(45,49,0)` to the red side of the E4 matrix. Note the source file is vendored — the edit belongs in ~/dev/skill, then vendor-sync.sh.
-  rationale: AC-4 states the transparent-notation list is CLOSED to five forms and requires a plain opaque rect to yield exit 1; this bug makes an opaque rect (rgb() notation) wrongly read as alpha-bearing and yield exit 0, contradicting that closure.
-
-- **Hình dạng 5 — tuyên «MA TRẬN TOÀN PHẦN» trên không gian ĐÓNG nhưng chỉ phủ 5/≥9 phần tử bên đọc**
-  file: `_acceptance/thuoc-nhan-de-khoi/rang.sh:137`
+- **Assert «chuỗi có mặt» trong khi lời hứa là quan hệ: entry LOCAL-PATCHES phải khai biên đã thu**
+  file: `_acceptance/thuoc-nhan-de-khoi/rang.sh:269`
   severity: medium
-  AC: AC-4
-  detail: E4 (evals.yaml:36–41) khai «MA TRẬN TOÀN PHẦN 8 ca … không gian «trong suốt» của SVG HỮU HẠN nên danh sách ĐÓNG được», và docstring `_fill_alpha` (check_label_occlusion.py:87–88) khai «Only these two notations can carry alpha … this set is closed». Nhưng bên ĐỌC là `_opaque()` (check_label_occlusion.py:102–117), và nó nhận nhiều dạng hơn danh sách 5 ca ở dòng 137–141:
-
-  - `fill="transparent"` — nhánh riêng ở dòng 104 (`fill.lower() in ("none", "transparent")`), không ca nào chạm
-  - hex 4 chữ số `#rgba` — nhánh `[0-9a-f]{4}` với `aa = h[3]*2` ở dòng 94–97, không ca nào chạm (chỉ có hex-8 `#2d314210`)
-  - `style="fill:none"` / `style="fill-opacity:0.3"` / `style="opacity:0.2"` — `_style_get` ở dòng 103 và 110 ưu tiên hơn attribute, ba đường vào này không ca nào chạm
-
-  Tức số assert (5 xanh) không bằng số phần tử của không gian mà chính reader thừa nhận (≥9). Vì lời tuyên là ĐÓNG chứ không phải điểm-case, khoảng hở này không phải giới hạn đã khai — nó là ma trận viết-trước bị hụt, và mọi nhánh trên có thể hỏng mà 8 ca vẫn xanh.
-  rationale: AC-4 explicitly claims the transparent-notation list is CLOSED; this finding demonstrates the reader (_opaque()) actually recognizes at least four more notations (transparent keyword, hex-4 #rgba, and two style-attribute forms) than the five the AC tests, directly falsifying the closure claim.
+  AC: AC-7
+  detail: E8 (evals.yaml dòng 63) hứa: «LOCAL-PATCHES.md có mục mới khai CẢ BIÊN NHẬN DIỆN ĐÃ THU». Phép đo duy nhất cho lời hứa đó là `grep -q "check_label_occlusion" "$SKILL/LOCAL-PATCHES.md"` — tên script xuất hiện Ở BẤT KỲ ĐÂU trong file là xanh. Một dòng nhắc tên trần, không khai biên (rect đục ≥60×28, bốn dạng che lọt có chủ đích), vẫn thỏa assert. Trong khi cùng chân này, phép đo §9 (dòng 246–268) đã làm đúng mẫu quan-hệ (rút đúng section + khuôn <skill-dir> + hai chiều đỏ), riêng vế LOCAL-PATCHES rơi về có-mặt-chuỗi và không có chiều đỏ nào.
+  rationale: AC-7 đòi hỏi đích danh: LOCAL-PATCHES.md phải có entry khai CẢ biên nhận diện đã thu ở AC-1; phép đo hiện tại chỉ grep tên script có mặt ở bất kỳ đâu, nên không thể xác nhận yêu cầu nội dung đó của AC-7 thực sự được thoả.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **NOTICE pins a skill-repo commit that exists only on this machine (unpushed)**
-  Người dùng thấy gì: Bản ghi nguồn gốc cho bản vá thước mới trỏ tới một thay đổi chưa được lưu trên máy chủ dùng chung, nên người khác tải lại kho không thể xác minh bản vá này thực sự đến từ đâu.
-  file: `diagram-design/NOTICE`
+- **Evidence-report PASS là bằng-chứng-cũ: 3 vòng fix sau verified_commit đổi chính vật được đo**
+  Người dùng thấy gì: Bằng chứng đã duyệt được chốt ở một phiên bản cũ của mã nguồn; ba lượt sửa sau đó đã thay đổi đáng kể cách kiểm tra hoạt động, nên bằng chứng có thể không còn phản ánh đúng phiên bản sắp được đưa vào sản phẩm.
+  file: `_acceptance/thuoc-nhan-de-khoi/evidence-report.md`
   severity: high
   Đề xuất: known-limits
 
-- **Non-UI round is missing the required «bỏ đặc-tả-UX — » descope entry**
-  Người dùng thấy gì: Vòng làm việc này không có giao diện người dùng nhưng thiếu đúng ghi chú giải thích vì sao bỏ qua phần đặc tả giao diện, khiến hồ sơ không theo đúng khuôn chuẩn của các vòng làm việc khác.
-  file: `_acceptance/thuoc-nhan-de-khoi/decisions.jsonl`
-  severity: low
-  Đề xuất: known-limits
-
-- **surfaces value is outside the documented enum**
-  Người dùng thấy gì: Hồ sơ này ghi loại giao diện bằng nhãn không nằm trong danh sách chuẩn, có thể khiến các công cụ đọc hồ sơ sau này phân loại sai loại tính năng.
-  file: `_acceptance/thuoc-nhan-de-khoi/contract.md`
-  severity: low
-  Đề xuất: known-limits
-
-- **Checker exits 0 when input files fail to read, as long as one file parsed**
-  Người dùng thấy gì: Khi một số tệp hình cần kiểm tra bị đặt sai tên hoặc thiếu, công cụ có thể báo 'đạt' dù thực ra chưa kiểm tra được những tệp đó, khiến người xem yên tâm nhầm rằng mọi hình đã sạch.
-  file: `diagram-design/skills/diagram-design/scripts/check_label_occlusion.py`
-  severity: high
-  Đề xuất: new-contract
-
-- **_num() silently drops unit-suffixed lengths — occluder rects with px units are never checked**
-  Người dùng thấy gì: Những hộp che vẽ bằng đơn vị đo khác (như px) — dạng phổ biến khi xuất từ công cụ thiết kế — có thể không được công cụ nhận ra là đang che nhãn, nên một nhãn thực sự bị che có thể lọt qua mà không có cảnh báo.
-  file: `diagram-design/skills/diagram-design/scripts/check_label_occlusion.py`
+- **Section '## Ngoài hợp đồng' rỗng trong evidence-report trong khi review-findings có mục đã phân loại**
+  Người dùng thấy gì: Báo cáo bằng chứng bỏ trống mục liệt kê các vấn đề đã xếp ngoài phạm vi, dù danh sách đó đã có sẵn ở nơi khác — người đọc báo cáo có thể hiểu nhầm là không còn vấn đề nào cần lưu ý.
+  file: `_acceptance/thuoc-nhan-de-khoi/evidence-report.md`
   severity: medium
-  Đề xuất: new-contract
-
-- **Self-closing <text/> makes a label inherit the next label's text**
-  Người dùng thấy gì: Khi một nhãn được viết theo một cách viết ít gặp, công cụ có thể báo nhầm tên nhãn khác bị che thay vì tên nhãn thật sự bị che, khiến người đọc báo cáo bị chỉ sai chỗ cần sửa.
-  file: `diagram-design/skills/diagram-design/scripts/check_label_occlusion.py`
-  severity: low
   Đề xuất: known-limits
 
-- **Hình dạng 4 — assertion âm-tính-một-mình: chiều đỏ CHÉP công thức pathspec thay vì gọi `cham_vung_ngoai`**
-  Người dùng thấy gì: Bước kiểm tra tự động đảm bảo vòng làm việc này không đụng vào các hình đã chốt trước đó có thể không thực sự phát hiện được vi phạm nếu nó xảy ra, nên lời cam kết 'không đụng vùng cấm' chưa có bằng chứng chắc chắn.
-  file: `_acceptance/thuoc-nhan-de-khoi/rang.sh`
-  severity: high
-  Đề xuất: new-contract
-
-- **Hình dạng 2 — chiều đỏ chạy trên chuỗi VIẾT TAY, không phải đầu ra của vật đo**
-  Người dùng thấy gì: Một số phép kiểm chứng trong bộ kiểm tra của vòng làm việc này so sánh với câu chữ tự đặt ra thay vì với kết quả thật do công cụ sinh ra, nên các phép kiểm đó không chắc sẽ báo lỗi khi có sự cố thật xảy ra sau này.
+- **Chiều đỏ của chân quét-vùng-ngoài neo cửa sổ git di động (log -40 origin/main)**
+  Người dùng thấy gì: Phép tự kiểm nội bộ dùng để dò lịch sử thay đổi có thể báo lỗi hạ tầng giả trong những lần chạy sau này, khi lịch sử của dự án tiến xa hơn — không ảnh hưởng tới tính năng đang bàn giao ở lần này.
   file: `_acceptance/thuoc-nhan-de-khoi/rang.sh`
   severity: medium
-  Đề xuất: new-contract
+  Đề xuất: known-limits
 
-## Chưa adversarial-verify (refuter chết)
+- **Comment ma trận fill sai số ca so với code và evals**
+  Người dùng thấy gì: Một ghi chú mô tả số lượng ca kiểm trong kịch bản kiểm tra nội bộ không khớp với số ca thực sự đang chạy — chỉ gây khó hiểu cho người đọc kịch bản sau này, không ảnh hưởng tới kết quả kiểm tra thực tế.
+  file: `_acceptance/thuoc-nhan-de-khoi/rang.sh`
+  severity: low
+  Đề xuất: known-limits
 
-(không có mục nào)
+- **Hình sửa 27/08 nhưng colophon vẫn ghi mốc cũ 'origin/main 345f42ee · vẽ 21/08/2026'**
+  Người dùng thấy gì: Dòng ghi nguồn ở cuối hai trang hình minh hoạ vẫn trỏ về phiên bản git cũ dù nội dung đã được cập nhật, có thể khiến người muốn đối chiếu tra nhầm mốc.
+  file: `docs/reference/figures/kien-truc-ho-so-la-truc.html`
+  severity: low
+  Đề xuất: known-limits
 
-⚠ Cụm ngoài vùng phủ: 3/10 lỗi rơi vào file không bộ đo nào phủ (diagram-design/NOTICE, _acceptance/thuoc-nhan-de-khoi/decisions.jsonl, _acceptance/thuoc-nhan-de-khoi/contract.md) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+- **chiều-đỏ in chan_quet_vung_ngoai assert pattern */figures/* nhưng hàm được canh khớp hai vùng — một commit chỉ chạm assets sẽ làm chiều đỏ báo oan "pathspec chết"**
+  Người dùng thấy gì: Phép tự kiểm nội bộ cho một nhánh quét có thể báo nhầm là hỏng hạ tầng trong tương lai dù đường quét vẫn hoạt động bình thường — không ảnh hưởng kết quả của lần bàn giao này.
+  file: `_acceptance/thuoc-nhan-de-khoi/rang.sh`
+  severity: low
+  Đề xuất: known-limits
+
+- **Assertion âm-tính-một-mình: vế pathspec assets không bao giờ có đối chứng dương**
+  Người dùng thấy gì: Một trong hai vùng được quét bởi phép tự kiểm nội bộ chưa từng được chứng minh là thực sự bắt được thay đổi — nếu phần đó âm thầm hỏng, phép kiểm vẫn báo xanh mà không ai biết.
+  file: `_acceptance/thuoc-nhan-de-khoi/rang.sh`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Chiều đỏ hình thức: chỉ tự kiểm helper `has` trên chuỗi bịa, không gọi phép kiểm thật**
+  Người dùng thấy gì: Hai phép tự kiểm nội bộ dùng để bảo đảm kịch bản kiểm tra bắt lỗi đúng chỉ đang tự kiểm một chuỗi giả định, không thực sự chạy lại điều kiện thật — nên nếu điều kiện đó bị viết sai sau này, phép tự kiểm sẽ không phát hiện ra.
+  file: `_acceptance/thuoc-nhan-de-khoi/rang.sh`
+  severity: low
+  Đề xuất: known-limits
+
+- **Ma trận viết-trước trong file lệch số phần tử với ma trận chạy thật + giữ lời tuyên «đóng kín» đã bị bác**
+  Người dùng thấy gì: Một đoạn mô tả trong kịch bản kiểm tra nội bộ liệt kê sai số lượng và vẫn giữ lời khẳng định danh sách đã đóng kín dù điều đó từng bị bác bỏ ở vòng sửa trước — chỉ gây hiểu nhầm khi đọc lại, không ảnh hưởng tới kết quả kiểm tra.
+  file: `_acceptance/thuoc-nhan-de-khoi/rang.sh`
+  severity: low
+  Đề xuất: known-limits
+
+⚠ Cụm ngoài vùng phủ: 2/11 lỗi rơi vào file không bộ đo nào phủ (_acceptance/thuoc-nhan-de-khoi/evidence-report.md) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
