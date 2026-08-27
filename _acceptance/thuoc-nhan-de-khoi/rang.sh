@@ -74,6 +74,10 @@ EOF
   run "$T/rong.svg" > /dev/null; RCR=$?
   [ "$RCR" -eq 2 ] && ok "file rong -> exit 2 (khong tan vao xanh)" \
     || bad "file rong exit $RCR (phai 2)"
+  # file nhị phân (png cạnh svg nó render) -> cùng exit 2, không traceback
+  run "$ROOT/docs/reference/figures/trang-thai-ho-so.png" > /dev/null 2>&1; RCP=$?
+  [ "$RCP" -eq 2 ] && ok "file nhi phan -> exit 2, khong traceback" \
+    || bad "file nhi phan exit $RCP (phai 2)"
   # đảo chiều mặc định: giá trị không hiểu -> phần tử vô hình CÓ TIẾNG,
   # KHÔNG bịa toạ độ (bản trước ép x=300px về 0 rồi buộc tội nhãn ở gốc)
   printf '<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">\n<rect x="4" y="4" width="60" height="14" fill="#f5f5f5"/>\n<text x="10" y="12">GOC AN</text>\n<rect x="300px" y="150px" width="120" height="60" fill="#ffffff"/>\n</svg>\n' > "$T/px.svg"

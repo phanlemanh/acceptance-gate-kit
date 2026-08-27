@@ -74,7 +74,9 @@ import re
 import sys
 from pathlib import Path
 
-TAG = re.compile(r"<(/?)(g|rect|text)\b([^>]*?)(/?)>", re.S)
+TAG = re.compile(
+    r"<(/?)(g|rect|text|line|path|circle|ellipse|polygon|polyline|image|use)"
+    r"\b([^>]*?)(/?)>", re.S)
 ATTR = re.compile(r'([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*=\s*"([^"]*)"')
 TRANSLATE = re.compile(r"translate\(\s*(-?[\d.]+)(?:[\s,]+(-?[\d.]+))?\s*\)")
 UNSUPPORTED = re.compile(r"\b(scale|rotate|matrix|skewX|skewY)\s*\(")
@@ -218,6 +220,20 @@ def scan_svg(src, fname, list_mode, out):
             continue
         attrs = dict(ATTR.findall(rawattrs))
 
+        if name not in ("rect", "text"):
+            # any other drawn element between a mask and its text breaks the
+            # pair — a mask must not adopt a distant text across a <line> or
+            # <path> and then accuse with a bbox that belongs to neither
+            pending_mask = None
+            continue
+
+        # a transform sitting ON the leaf itself is not applied — the element
+        # is not where its raw x/y claim, so judging it would invent geometry
+        if "transform" in attrs:
+            warn_unknown()
+            pending_mask = None
+            continue
+
         if name == "rect" and not closing:
             pending_mask = None
             x = _num(attrs, "x", 0.0)
@@ -275,7 +291,11 @@ def check_file(path, list_mode, out):
     """Returns (parsed_ok, occlusion_count)."""
     try:
         src = Path(path).read_text(encoding="utf-8")
-    except OSError as e:
+    except (OSError, ValueError) as e:
+        # ValueError covers UnicodeDecodeError: a binary file (a .png next to
+        # the .svg it renders) must land on the same fail-closed exit 2, not
+        # crash with a traceback that reads as exit 1 "occlusions found" and
+        # aborts the rest of the file list.
         print(f"ERROR {path} khong doc duoc: {e}", file=sys.stderr)
         return False, 0
     # Fail closed on "readable but nothing to scan": an empty file, a

@@ -70,7 +70,7 @@ origin/main (sau merge hai đầu cùng sạch là phép đo tự chết).
   And tổng số nhãn thước phát hiện trên `docs/reference/figures/` ≥ SÀN đếm
   thật lúc viết case (khai trong case là sàn, không phải hằng — chặn «xanh vì
   thước mù toàn phần» khi skill đổi khuôn xuất); mọi đường dẫn trong case suy
-  từ vị trí file test, không hardcode ROOT.
+  từ vị trí file ca, không hardcode ROOT.
 - **AC-7 — taste gate và sổ vendor có vết.** Given SKILL.md của skill
   diagram-design, When đọc section §9 checklist Technical, Then có đúng một
   mục trỏ tên `check_label_occlusion.py` và file đó tồn tại trong `scripts/`
