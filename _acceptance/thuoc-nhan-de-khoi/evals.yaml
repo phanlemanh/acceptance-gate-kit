@@ -1,63 +1,68 @@
 # Evals — thuoc-nhan-de-khoi
 # Nếp răng hồ sơ: mọi chân sống trong _acceptance/thuoc-nhan-de-khoi/rang.sh,
-# executor key tnk_rang_* (thêm ở S3), KHÔNG vào suite vĩnh viễn — AC-2 neo mốc
-# bất biến BASE-TNK, để trong suite thì PR tương lai đỏ oan. Riêng lưới vĩnh
-# viễn là case tests/scripts/label-occlusion.test.mjs (E6 gọi trọn suite +
-# răng ghim đúng dòng case, nếp p194: không tin exit code trọn suite).
-# Mỗi phép đo mới theo MEASURE-BIRTH: cặp hai-chiều cùng fixture, thông điệp ghim.
+# executor key tnk_rang_*, KHÔNG vào suite vĩnh viễn — E2 neo mốc bất biến
+# BASE-TNK, để trong suite thì PR tương lai đỏ oan. Lưới vĩnh viễn là case
+# tests/scripts/label-occlusion.test.mjs (fixture code-sinh mỗi lần chạy).
+# Mỗi phép đo theo MEASURE-BIRTH: cặp hai-chiều cùng fixture, thông điệp ghim.
+#
+# PHẠM VI ĐÃ THU (owner chốt đường B sau khi luật dừng-vá kích hoạt ở vòng 2):
+# thước nhận đúng MỘT dạng khối che — rect đục ≥60×28. Bốn dạng che khác lọt
+# có chủ đích và được khai đủ trong docstring + Out of scope của contract. Lý
+# do: hai vòng nới danh sách hình dạng đều sinh lại cùng lớp lỗ (không gian
+# mở). Ngược lại, không gian «trong suốt» HỮU HẠN nên E4 đóng được và đã đóng.
 
 evals:
   - id: E1
     criterion: AC-1
     executor: script
     cmd: config:executors.script.tnk_rang_hai_chieu
-    expected: "răng dựng fixture SVG bằng code trong lần chạy (KHÔNG file tĩnh): bản lành → thước exit 0, ghim dòng 'PASS: lanh -> exit 0'; tiêm rect đục sau mask (lệnh tiêm assert diff ≠ rỗng, tiêm không đổi được file → răng đỏ 'tiem khong doi noi dung') → thước exit 1 và stdout chứa tên nhãn fixture, ghim 'PASS: tiem -> exit 1 + neu ten nhan'. THÊM chân WARN (gap-probe F3): fixture có <g transform=scale> chứa nhãn bị che → exit 0 NHƯNG output phải có dòng WARN nêu tên file, ghim 'PASS: scale -> warn co tieng'; chiều đỏ của chân này chạy hàm kiểm trên output giả thiếu WARN → đỏ. Thiếu chiều nào răng đỏ ghim tên chiều thiếu."
+    expected: "răng dựng fixture SVG bằng code trong lần chạy (KHÔNG file tĩnh), khối che dùng ĐÚNG dạng trong biên đã khai (rect đục ≥60×28): bản lành → thước exit 0 ghim 'PASS: lanh -> exit 0'; tiêm rect đục sau mask (cmp chứng minh tiêm đổi được nội dung, không đổi → đỏ 'tiem khong doi noi dung') → exit 1 và stdout chứa tên nhãn fixture, ghim 'PASS: tiem -> exit 1 + neu ten nhan'. Chân WARN: fixture có <g transform=scale> chứa nhãn bị che → exit 0 NHƯNG output phải có dòng WARN nêu tên file, ghim 'PASS: scale -> warn co tieng'; chiều đỏ chạy chính hàm kiểm trên output giả thiếu WARN → phải bắt được."
     paths: [diagram-design/skills/diagram-design/scripts/check_label_occlusion.py, _acceptance/thuoc-nhan-de-khoi/rang.sh]
   - id: E2
     criterion: AC-2
     executor: script
     cmd: config:executors.script.tnk_rang_ba_ca_that
-    expected: "răng rút 2 file svg từ mốc BASE-TNK (git show 848adc92…:docs/reference/figures/…) vào thư mục tạm, chạy thước: exit 1 VÀ stdout nêu đủ CẢ BA nhãn 'GHI STATUS' + 'HÌNH ĐÍNH THẺ' + 'S5 GIAO' — thiếu nhãn nào răng đỏ ghim tên nhãn thiếu (không phép HOẶC). Đối chứng dương cùng lượt: 2 file cùng tên ở cây hiện tại (đã sửa) → exit 0."
+    expected: "răng rút 2 file svg từ mốc BẤT BIẾN BASE-TNK (git show 848adc92…) vào thư mục tạm rồi chạy thước: exit 1 VÀ stdout nêu đủ CẢ BA nhãn 'GHI STATUS' + 'HÌNH ĐÍNH THẺ' + 'S5 GIAO' — thiếu nhãn nào đỏ ghim tên nhãn đó (không phép HOẶC). Đối chứng dương cùng lượt: 2 file cùng tên ở cây hiện tại (đã sửa) → exit 0, ghim 'PASS: doi chung: ban da sua -> exit 0'."
     paths: [diagram-design/skills/diagram-design/scripts/check_label_occlusion.py, docs/reference/figures/kien-truc-ho-so-la-truc.svg, docs/reference/figures/trang-thai-ho-so.svg, _acceptance/thuoc-nhan-de-khoi/rang.sh]
   - id: E3
     criterion: AC-3
     executor: script
     cmd: config:executors.script.tnk_rang_nhan_con_song
-    expected: "răng chạy thước trên TOÀN BỘ docs/reference/figures/*.svg + *.html → exit 0, ghim 'PASS: figures sach'; RỒI hai lớp chống sửa-bằng-xoá (gap-probe F1): (a) grep quan hệ — mỗi chuỗi trong {GHI STATUS, HÌNH ĐÍNH THẺ, S5 GIAO} còn ≥1 lần trong ĐÚNG file .html nguồn VÀ .svg tương ứng, mất đâu đỏ ghim '<nhãn> mất khỏi <file>'; (b) thước --list trên bản đã sửa — CẢ BA nhãn phải nằm trong danh sách nhãn thước PHÁT HIỆN được (xoá mask làm nhãn vô hình với thước → đỏ ghim '<nhãn> ngoài tầm thước'). Chiều đỏ của chính răng: hàm kiểm chạy trên bản sao xoá 1 nhãn → đỏ (a); bản sao xoá 1 MASK (giữ text) → đỏ (b)."
+    expected: "răng chạy thước trên TOÀN BỘ docs/reference/figures/*.svg + *.html → exit 0 ghim 'PASS: figures sach'; RỒI hai lớp chống sửa-bằng-xoá: (a) mỗi chuỗi trong {GHI STATUS, HÌNH ĐÍNH THẺ, S5 GIAO} còn ≥1 lần trong ĐÚNG file .html nguồn VÀ .svg tương ứng — mất đâu đỏ ghim '<nhãn> mất khỏi <file>'; (b) thước --list — CẢ BA nhãn phải nằm TRÊN MỘT DÒNG LABEL thật, đo bằng quan hệ ^LABEL .*\"<nhãn>\"$ chứ KHÔNG phải hai phép có-mặt rời nhau (vòng 1 bắt lỗi này: `has LABEL` ∧ `has <nhãn>` xanh cả khi tên nhãn chỉ nằm trong dòng OCCLUDED). Hai chiều đỏ cùng lượt qua chính hàm kiểm: bản sao xoá 1 MASK (giữ text) → nhãn biến khỏi --list; chuỗi giả chỉ có dòng OCCLUDED mang tên nhãn → KHÔNG được tính là thấy nhãn."
     paths: [docs/reference/figures/kien-truc-ho-so-la-truc.html, docs/reference/figures/kien-truc-ho-so-la-truc.svg, docs/reference/figures/trang-thai-ho-so.html, docs/reference/figures/trang-thai-ho-so.svg, _acceptance/thuoc-nhan-de-khoi/rang.sh]
   - id: E4
     criterion: AC-4
     executor: script
     cmd: config:executors.script.tnk_rang_fill_trong_suot
-    expected: "răng dựng MỘT fixture code-sinh có rect fill=none + rect fill-opacity=0.3 sau mask nhãn → thước exit 0 ghim 'PASS: trong suot khong bao oan'; CÙNG fixture chèn thêm rect đục → exit 1 ghim 'PASS: duc -> do'. Cặp cô lập đúng lớp fill trên cùng một fixture — hai chiều cùng lượt."
+    expected: "MA TRẬN TOÀN PHẦN 8 ca trên cùng khuôn fixture code-sinh — không gian «trong suốt» của SVG HỮU HẠN nên danh sách ĐÓNG được (khác không gian «hình dạng che», đã khai hẹp ở AC-1). NĂM dạng trong suốt phải XANH, mỗi dạng ghim 'PASS: trong suot [<spec>] khong bao oan': fill=none · fill-opacity 0.3 · opacity 0.2 · rgba(45,49,66,0.06) · #2d314210. BA ca ĐỎ NGOÀI DANH SÁCH phải bắt được, mỗi ca ghim 'PASS: duc [<spec>] -> do': fill=#ffffff · rgba alpha CAO 0.9 · #2d3142ff. Thiếu vế đỏ thì «không báo oan» đạt được bằng cách không bao giờ báo gì. Hai dạng alpha-trong-màu là bản vá vòng 2: skin nhà vẽ nền tint bằng rgba(45,49,66,0.06) nên đọc nhầm chúng thành đục là báo oan trên chính hình của repo."
     paths: [diagram-design/skills/diagram-design/scripts/check_label_occlusion.py, _acceptance/thuoc-nhan-de-khoi/rang.sh]
   - id: E5
     criterion: AC-5
     executor: script
     cmd: config:executors.script.tnk_rang_html_inline
-    expected: "răng dựng fixture .html code-sinh chứa 2 khối <svg>, khối 2 có nhãn bị che → thước exit 1 và stdout nêu tên nhãn khối 2, ghim 'PASS: html tiem -> do dung nhan'; bản lành cùng khuôn → exit 0 ghim 'PASS: html lanh -> exit 0'."
+    expected: "răng dựng fixture .html code-sinh chứa 2 khối <svg>, khối 2 có nhãn bị che → thước exit 1, stdout nêu tên nhãn khối 2 VÀ KHÔNG nêu nhãn khối 1, ghim 'PASS: html tiem -> do dung nhan'; bản lành cùng khuôn → exit 0 ghim 'PASS: html lanh -> exit 0'. Lệnh tiêm kiểm cmp để chứng minh nó đổi được nội dung."
     paths: [diagram-design/skills/diagram-design/scripts/check_label_occlusion.py, _acceptance/thuoc-nhan-de-khoi/rang.sh]
   - id: E6
     criterion: AC-6
     executor: test
     cmd: config:executors.test.scripts
-    expected: "trọn suite scripts xanh (exit 0) trong đó case label-occlusion.test.mjs mới chạy thật. Răng E7 độc lập ghim ĐÚNG các dòng case trong stdout suite (nếp p194) nên suite-không-chạy-case không đọc được thành xanh."
+    expected: "trọn suite scripts xanh (exit 0), trong đó case label-occlusion.test.mjs chạy thật. E7 độc lập chạy CHÍNH suite này và ghim dòng tiêu đề '=== label-occlusion.test.mjs ===' + 3 dòng PASS của case trong stdout SUITE (nếp p194), nên suite-không-dispatch-case không đọc được thành xanh."
     paths: [tests/scripts/label-occlusion.test.mjs, tests/scripts/run-tests.sh, diagram-design/skills/diagram-design/scripts/check_label_occlusion.py]
   - id: E7
     criterion: AC-6
     executor: script
     cmd: config:executors.script.tnk_rang_suite_case
-    expected: "răng chạy suite scripts, ghim trong stdout: dòng case 'PASS: figures hien tai sach' + dòng case mutant 'PASS: mutant code-sinh -> do dung thong diep' (mutant dựng trong lần chạy của case, không file tĩnh) + dòng sàn-phát-hiện 'PASS: tong nhan phat hien >= <sàn>' (gap-probe F2 — case đếm nhãn thước thấy trên figures thật, so với sàn khai trong case; thước mù toàn phần → dòng này đỏ, không còn 'xanh vì không đo gì'); VÀ kiểm nguồn case không chứa đường dẫn tuyệt đối hardcode (grep '/Users/' trong file test = đỏ ghim 'hardcode ROOT'). Chiều đỏ của răng chạy qua chính hàm kiểm trên stdout giả thiếu dòng."
+    expected: "răng CHẠY TRỌN SUITE 'bash tests/scripts/run-tests.sh' — KHÔNG gọi thẳng file case (vòng 1 bắt lỗi đo-vật-thay-thế: gọi thẳng không chứng minh được runner có dispatch case) — rồi ghim trong stdout SUITE: dòng tiêu đề '=== label-occlusion.test.mjs ===' + 'PASS: figures hien tai sach' + 'PASS: tong nhan phat hien >=' (sàn phát hiện, chặn «xanh vì thước mù toàn phần» khi skill đổi khuôn xuất) + 'PASS: mutant code-sinh -> do dung thong diep'; VÀ grep '/Users/' trong file test = đỏ ghim 'hardcode ROOT'. Chiều đỏ chạy chính hàm kiểm trên stdout giả thiếu dòng."
     paths: [tests/scripts/label-occlusion.test.mjs, _acceptance/thuoc-nhan-de-khoi/rang.sh]
   - id: E8
     criterion: AC-7
     executor: script
     cmd: config:executors.script.tnk_rang_taste_gate
-    expected: "răng rút section §9 (từ heading '## 9.' tới heading kế) của diagram-design/skills/diagram-design/SKILL.md, assert trong ĐÚNG section đó có ≥1 dòng checklist chứa 'check_label_occlusion.py' — grep toàn file không tính (đo quan hệ nằm-trong-§9, không đo từ vựng); assert file scripts/check_label_occlusion.py tồn tại cạnh check_overflow.py; assert LOCAL-PATCHES.md chứa mục mới nhắc check_label_occlusion. Chiều đỏ: hàm kiểm chạy trên bản sao SKILL.md đã xoá dòng khỏi §9 (nhưng còn nơi khác) → phải đỏ ghim 'muc khong nam trong §9'."
+    expected: "răng rút section §9 (từ heading '## 9.' tới heading kế) của SKILL.md và đo QUAN HỆ nằm-trong-§9, không grep toàn file: (a) trong ĐÚNG section đó có ≥1 dòng checklist chứa 'check_label_occlusion.py' — chiều đỏ chạy trên bản sao đã xoá dòng khỏi §9 nhưng thêm chuỗi đó ở mục 12 → phải đỏ ghim 'muc khong nam trong §9'; (b) dòng đó dùng khuôn '<skill-dir>/scripts/check_label_occlusion.py' nên BẤM ĐƯỢC từ repo tiêu thụ — chiều đỏ chạy chính phép ấy trên một dòng dạng đường dẫn tương đối → phải bắt được (vòng 2 bắt lỗi này: đường dẫn tương đối là con trỏ chết vì cwd ở consumer là repo của họ, và đo tên-script-có-mặt không phân biệt được). Kèm assert file tồn tại cạnh check_overflow.py và LOCAL-PATCHES.md có mục mới khai cả biên nhận diện đã thu."
     paths: [diagram-design/skills/diagram-design/SKILL.md, diagram-design/skills/diagram-design/LOCAL-PATCHES.md, _acceptance/thuoc-nhan-de-khoi/rang.sh]
   - id: E9
     criterion: AC-8
     executor: script
     cmd: config:executors.script.tnk_rang_quet_vung_ngoai
-    expected: "răng assert evidence/quet-vung-ngoai.md tồn tại; RỒI (gap-probe F5) tự CHẠY LẠI thước trên hai vùng ngay lúc verify và đối chiếu: số file quét + số ca vi phạm + danh sách tên nhãn trong báo cáo phải khớp lần chạy thật — lệch → đỏ ghim 'bao cao lech lan chay' (evidence viết tay đúng khuôn răng đọc bị chặn: số trong báo cáo phải tái lập được); VÀ (gap-probe F4) vế không-chạm so diff với git merge-base HEAD origin/main (fork-point của nhánh, KHÔNG so BASE-TNK — mốc cố định làm comparand diff sẽ gom thay đổi của PR khác và đỏ oan vì hạ tầng): diff không chạm _acceptance/*/figures/ của hồ sơ KHÁC lẫn assets/ vendored — chạm → đỏ ghim tên file (report-only là lời hứa đóng)."
+    expected: "răng assert evidence/quet-vung-ngoai.md tồn tại; RỒI tự CHẠY LẠI thước trên hai vùng ngay lúc verify và đối chiếu: số file ≥ tong_file_san (SÀN, không phải hằng — hồ sơ KHÁC đổi số hình là hợp lệ, ghim hằng ở đây là đỏ vì hạ tầng), còn SỐ CA vi phạm + DANH SÁCH tên nhãn phải khớp ĐẲNG THỨC lần chạy thật — lệch → đỏ ghim 'bao cao lech lan chay' (chặn đường evidence viết tay đúng khuôn răng đọc). VÀ vế report-only: diff so git merge-base HEAD origin/main, mẫu đường dẫn dùng dạng glob tường minh của git (vòng 1 đo thật: mẫu không có nó KHÔNG khớp gì kể cả khi có file thật bị chạm, nên vế này từng LUÔN rỗng ⇒ LUÔN xanh — assertion âm-tính-một-mình). CHIỀU ĐỎ cùng lượt chạy chính phép đó trên DỮ LIỆU THẬT trong lịch sử git (commit gần nhất trên origin/main có chạm vùng ngoài), KHÔNG ghi gì vào cây đang đo — probe cũ dựng thư mục + sửa git index trong repo và ở vòng 1 đã xoá nhầm 2 file thật của hồ sơ khác."
     paths: [_acceptance/thuoc-nhan-de-khoi/evidence/quet-vung-ngoai.md, _acceptance/thuoc-nhan-de-khoi/rang.sh]

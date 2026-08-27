@@ -22,8 +22,9 @@ origin/main (sau merge hai đầu cùng sạch là phép đo tự chết).
 
 ## Criteria
 
-- **AC-1 — thước sinh ra kèm hai chiều.** Given fixture SVG do code sinh trong
-  chính lần chạy (một nhãn có mask + một khối), When chạy
+- **AC-1 — thước sinh ra kèm hai chiều, TRONG BIÊN ĐÃ KHAI.** Biên: thước nhận
+  đúng MỘT dạng khối che — `<rect>` đục ≥60×28. Given fixture SVG do code sinh
+  trong chính lần chạy (một nhãn có mask + một khối dạng đó), When chạy
   `check_label_occlusion.py` trên bản lành, Then exit 0; When chạy trên bản đã
   tiêm (chèn rect đục ≥60×28 SAU mask nhãn, lệnh tiêm phải chứng minh đã đổi
   nội dung file), Then exit 1 và stdout nêu tên nhãn bị che + tên file; And
@@ -41,10 +42,15 @@ origin/main (sau merge hai đầu cùng sạch là phép đo tự chết).
   sách nhãn THƯỚC PHÁT HIỆN ĐƯỢC (`--list`) của bản đã sửa — chứng thước còn
   đang canh chúng (sửa bằng dời, không phải bằng xoá nhãn hay xoá mask; xoá
   mask làm nhãn vô hình với thước là đường lách bị chặn đích danh).
-- **AC-4 — không báo oan khối trong suốt.** Given fixture code-sinh có rect
-  `fill="none"` VÀ rect `fill-opacity="0.3"` vẽ sau mask nhãn, When chạy
-  thước, Then exit 0; When cũng fixture đó thêm một rect đục, Then exit 1 —
-  cặp cô lập đúng lớp fill trên CÙNG fixture.
+- **AC-4 — không báo oan khối trong suốt.** Danh sách các dạng trong suốt là
+  ĐÓNG và phải có ca đỏ ngoài danh sách: không gian này trong SVG là hữu hạn
+  nên đóng được — khác không gian «hình dạng che» ở AC-1. Given fixture
+  code-sinh có ĐỦ NĂM dạng vẽ sau mask
+  nhãn — `fill="none"` · `fill-opacity` ≤0.5 · `opacity` ≤0.5 · alpha trong
+  `rgba()` · alpha trong `#RRGGBBAA` — When chạy thước, Then exit 0 cho từng
+  dạng; And ca ĐỎ NGOÀI danh sách trên CÙNG fixture: rect đục thường, rect
+  `rgba()` alpha CAO, rect `#RRGGBBAA` alpha CAO → Then exit 1 mỗi ca. Cặp
+  hai chiều cô lập đúng lớp fill, không phải chỉ chứng minh «có gì đó đỏ».
 - **AC-5 — html inline-svg được kiểm như svg.** Given fixture `.html` code-sinh
   chứa 2 khối `<svg>`, khối thứ hai có nhãn bị che, When chạy thước, Then
   exit 1 và thông điệp trỏ đúng nhãn đó; bản lành của cùng fixture → exit 0.
@@ -59,7 +65,11 @@ origin/main (sau merge hai đầu cùng sạch là phép đo tự chết).
 - **AC-7 — taste gate và sổ vendor có vết.** Given SKILL.md của skill
   diagram-design, When đọc section §9 checklist Technical, Then có đúng một
   mục trỏ tên `check_label_occlusion.py` và file đó tồn tại trong `scripts/`
-  của skill; And LOCAL-PATCHES.md có entry mới đánh số cho bản vá này.
+  của skill; And lệnh in trong mục đó phải BẤM ĐƯỢC từ repo tiêu thụ — dùng
+  khuôn `<skill-dir>/scripts/...` như chính SKILL.md dùng cho
+  `drawio_extract.py`, KHÔNG phải đường dẫn tương đối (đo quan hệ dạng-gọi,
+  không chỉ đo tên script có mặt); And LOCAL-PATCHES.md có entry mới đánh số
+  cho bản vá này, trong đó khai biên nhận diện đã thu ở AC-1.
 - **AC-8 — vùng ngoài lưới được quét một lần, không sửa.** Given thước đã có,
   When quét `_acceptance/*/figures/*.{svg,html}` + assets vendored
   `assets/example-*.html`, Then kết quả (số file quét, số ca, danh sách nếu
@@ -91,6 +101,12 @@ edge-through-node cùng vai, và `check_overflow.py` nội bộ làm khuôn gi�
   report-only (entry descope trong sổ quyết định).
 - Đo nhãn không có mask, transform scale/rotate/matrix, foreignObject, PNG —
   giới hạn khai, cùng nếp "WHAT THIS CANNOT SEE" của check_overflow.py.
+- **(THU PHẠM VI, owner chốt vòng 2 — đường B)** Bốn dạng che LỌT có chủ đích,
+  đã đo thật và khai đủ trong docstring: rect dải chết 18<h<28 · rect w<60 ·
+  `<path>`/`<circle>`/`<polygon>` tô đặc · nhãn có mask w>220 hoặc h>18. Lý do:
+  hai vòng nới danh sách hình dạng đều sinh lại cùng lớp lỗ (không gian mở),
+  nên sàn giữ hẹp và vùng mù thành lời khai đọc được thay vì lời hứa phủ hết.
+  Mở rộng phải đổi khuôn (đo qua render trình duyệt), là hồ sơ riêng.
 - Cắm `scripts/pre-merge-check.sh` (đường T3) — suite tests/scripts đủ răng.
 - Đổi câu chữ luật §6 của SKILL.md.
 

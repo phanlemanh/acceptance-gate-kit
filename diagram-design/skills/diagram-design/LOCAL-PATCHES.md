@@ -107,9 +107,21 @@ no browser) pairs each small mask rect with its following `<text>` and reports
 any later opaque rect overlapping the mask; `--list` prints every label it can
 see (used as a detection floor by the kit's CI case
 `tests/scripts/label-occlusion.test.mjs`). One checklist line added to §9
-Technical. Limits are declared in the docstring ("WHAT THIS CANNOT SEE"):
-unmasked free text, scale/rotate/matrix subtrees (WARN, skipped), text
-overflow (that is `check_overflow.py`'s job). Provenance:
-`_acceptance/thuoc-nhan-de-khoi/` in the kit repo.
+Technical, using the `<skill-dir>` form so the command is runnable from a
+consuming repo.
+
+**Scope, narrowed deliberately (kit gate round 2, owner decision):** it
+recognises exactly ONE occluder shape — an opaque `<rect>` at least 60x28.
+Rects in the 18-28 dead band, narrow rects, filled paths/circles/polygons,
+and masks wider than 220 all pass silently. Matching every way SVG can paint
+a solid area is an open-ended list; two rounds of widening it produced the
+same class of hole each time, so the floor stays narrow and the blind spots
+are written out in full under "WHAT THIS CANNOT SEE" rather than papered
+over. Transparency detection IS closed and complete: `none`, `transparent`,
+`fill-opacity`, `opacity`, and alpha inside the colour (`rgba()`,
+`#RRGGBBAA`) — the last of these matters because the house skin paints tint
+plates as `rgba(45,49,66,0.06)`, and reading those as opaque would accuse
+labels they do not hide. Provenance: `_acceptance/thuoc-nhan-de-khoi/` in the
+kit repo.
 
 **Upstream status:** not upstreamed. Re-apply on update.

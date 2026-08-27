@@ -26,13 +26,29 @@ opacity > 0.5) painted after the mask whose box overlaps it on both axes.
 `.html` inputs are split into their inline <svg> blocks and each is checked.
 Simple nested `translate(dx,dy)` transforms are accumulated.
 
-WHAT THIS CANNOT SEE. Free text without a mask rect has no bbox here and
-passes vacuously — radar axis names, venn set names, italic callouts. Subtrees
-under scale/rotate/matrix/skew are skipped with a WARN, never silently. It
-does not measure a mask covering a stroke it should clear (that is the 6-10px
-gap rule), text overflowing its own box (check_overflow.py's job), collisions
-between two labels, or anything in raster output. Render the figure and look
-at it; this checker is the floor, not the ceiling.
+WHAT THIS CANNOT SEE. **It recognises exactly one occluder shape: an opaque
+`<rect>` at least 60x28.** Everything else is out of range and passes silently,
+including all four of these, each verified to slip through:
+
+  * a rect in the dead band 18 < height < 28, or narrower than 60 (a real
+    cover that is simply below the size floor);
+  * a filled `<path>`, `<circle>`, `<polygon>` or any non-rect shape;
+  * a label whose mask is wider than 220 or taller than 18 (eyebrow strips
+    and long banner labels are not treated as labels at all);
+  * free text with no mask rect — radar axis names, venn set names, italic
+    callouts — which has no bbox to compare.
+
+The size and shape floors are deliberate: matching every way SVG can paint a
+solid area is an open-ended list, and a checker that pretends to cover it
+would be lying in the direction that matters. Prefer this narrow, honest floor
+plus a human looking at the render. Subtrees under scale/rotate/matrix/skew
+are skipped with a WARN, never silently — but a transform on a leaf rect or
+text is not applied. It also does not measure a mask covering a stroke it
+should clear (that is the 6-10px gap rule), text overflowing its own box
+(check_overflow.py's job), collisions between two labels, rects inside
+`<defs>`/`<pattern>`/`<clipPath>`/`<symbol>` (counted as painted though they
+are not), fill inherited from an ancestor `<g>`, or anything in raster output.
+This checker is the floor, not the ceiling.
 """
 import re
 import sys
@@ -63,9 +79,32 @@ def _style_get(attrs, prop):
     return m.group(1).strip() if m else None
 
 
+def _fill_alpha(fill):
+    """Alpha carried INSIDE the colour value, or None if it carries none.
+
+    The house skin paints tint plates as `rgba(45,49,66,0.06)`, so a checker
+    that only reads `fill-opacity` calls those plates opaque and accuses a
+    label they do not actually hide. Only these two notations can carry alpha
+    in a fill value, so unlike shape detection this set is closed.
+    """
+    m = re.match(r"rgba?\(\s*[^)]*?,\s*([\d.]+)\s*\)\s*$", fill, re.I)
+    if m:
+        try: return float(m.group(1))
+        except ValueError: return None
+    m = re.match(r"#([0-9a-f]{8}|[0-9a-f]{4})\s*$", fill, re.I)
+    if m:
+        h = m.group(1)
+        aa = h[6:8] if len(h) == 8 else h[3] * 2
+        return int(aa, 16) / 255.0
+    return None
+
+
 def _opaque(attrs):
-    fill = _style_get(attrs, "fill") or attrs.get("fill", "#000")
-    if fill.strip().lower() in ("none", "transparent"):
+    fill = (_style_get(attrs, "fill") or attrs.get("fill", "#000")).strip()
+    if fill.lower() in ("none", "transparent"):
+        return False
+    a = _fill_alpha(fill)
+    if a is not None and a <= OPACITY_FLOOR:
         return False
     for prop in ("fill-opacity", "opacity"):
         raw = _style_get(attrs, prop) or attrs.get(prop)

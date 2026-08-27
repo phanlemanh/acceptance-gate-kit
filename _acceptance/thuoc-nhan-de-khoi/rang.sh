@@ -120,20 +120,39 @@ chan_nhan_con_song() {
 }
 
 chan_fill_trong_suot() {
-  cat > "$T/f.svg" <<'EOF'
+  # Không gian «trong suốt» của SVG là HỮU HẠN nên danh sách ĐÓNG được — khác
+  # không gian «hình dạng che» (mở, đã thu phạm vi ở AC-1). Ma trận toàn phần:
+  # 5 dạng trong suốt phải XANH, 3 ca đục ngoài danh sách phải ĐỎ, cùng fixture.
+  mk_fill() { # <path> <thuộc tính fill của khối vẽ sau mask>
+    cat > "$1" <<EOF
 <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
   <rect x="40" y="20" width="60" height="14" fill="#f5f5f5"/>
   <text x="70" y="30">FILL THU</text>
-  <rect x="30" y="10" width="120" height="60" fill="none" stroke="#333"/>
-  <rect x="30" y="10" width="120" height="60" fill="#ffffff" fill-opacity="0.3"/>
+  <rect x="30" y="10" width="120" height="60" $2/>
 </svg>
 EOF
-  OUT="$(run "$T/f.svg")"; RC=$?
-  kiem_xanh $RC && ok "trong suot khong bao oan" || bad "trong suot khong bao oan (rc=$RC out=$OUT)"
-  sed 's|</svg>|  <rect x="30" y="10" width="120" height="60" fill="#ffffff"/>\n</svg>|' "$T/f.svg" > "$T/f2.svg"
-  if cmp -s "$T/f.svg" "$T/f2.svg"; then bad "tiem duc khong doi noi dung"; return; fi
-  OUT="$(run "$T/f2.svg")"; RC=$?
-  kiem_do "$OUT" $RC 'nhan "FILL THU"' && ok "duc -> do" || bad "duc -> do (rc=$RC)"
+  }
+  # ĐÓNG: 5 dạng trong suốt — không được báo oan
+  i=0
+  for spec in 'fill="none" stroke="#333"' \
+              'fill="#ffffff" fill-opacity="0.3"' \
+              'fill="#ffffff" opacity="0.2"' \
+              'fill="rgba(45,49,66,0.06)"' \
+              'fill="#2d314210"'; do
+    i=$((i+1)); mk_fill "$T/ts$i.svg" "$spec"
+    OUT="$(run "$T/ts$i.svg")"; RC=$?
+    kiem_xanh $RC && ok "trong suot [$spec] khong bao oan" \
+      || bad "bao oan [$spec] (rc=$RC out=$OUT)"
+  done
+  # ĐỎ NGOÀI DANH SÁCH: đục thật vẫn phải bắt — kể cả khi alpha CAO trong màu.
+  # Thiếu vế này thì «không báo oan» đạt được bằng cách không bao giờ báo gì.
+  j=0
+  for spec in 'fill="#ffffff"' 'fill="rgba(45,49,66,0.9)"' 'fill="#2d3142ff"'; do
+    j=$((j+1)); mk_fill "$T/td$j.svg" "$spec"
+    OUT="$(run "$T/td$j.svg")"; RC=$?
+    kiem_do "$OUT" $RC 'nhan "FILL THU"' && ok "duc [$spec] -> do" \
+      || bad "duc [$spec] KHONG do (rc=$RC)"
+  done
 }
 
 chan_html_inline() {
@@ -189,6 +208,17 @@ chan_taste_gate() {
   S9="$(awk '/^## 9\./{f=1} /^## 1[0-9]\./{f=0} f' "$SKILL/SKILL.md")"
   [ -n "$S9" ] || { bad "khong rut duoc section 9"; return; }
   has "check_label_occlusion.py" "$S9" && ok "muc nam trong §9" || bad "muc khong nam trong §9"
+  # Đo QUAN HỆ «lệnh bấm được», không chỉ «tên script có mặt» (S4-r2 finding:
+  # đường dẫn tương đối là con trỏ chết ở repo tiêu thụ — cwd là repo đó).
+  DONG="$(printf '%s\n' "$S9" | grep 'check_label_occlusion.py' | head -1)"
+  has '<skill-dir>/scripts/check_label_occlusion.py' "$DONG" \
+    && ok "lenh §9 dung khuon <skill-dir> (bam duoc o consumer)" \
+    || bad "lenh §9 khong bam duoc: $DONG"
+  # chiều đỏ cùng lượt, qua CHÍNH phép trên: dạng tương đối phải bị bắt
+  has '<skill-dir>/scripts/check_label_occlusion.py' \
+      '- [ ] Ran `python3 scripts/check_label_occlusion.py` — exit 0?' \
+    && bad "chieu do: duong dan tuong doi van duoc tinh la bam duoc" \
+    || ok "chieu do: duong dan tuong doi -> bat duoc"
   # chiều đỏ: bản sao xoá dòng khỏi §9 (chuỗi vẫn còn ở §12) -> phải đỏ
   awk '/^## 9\./{f=1} /^## 1[0-9]\./{f=0} { if (f && /check_label_occlusion.py/) next; print }' \
     "$SKILL/SKILL.md" > "$T/skill-mut.md"
@@ -242,20 +272,26 @@ EOF
   CHAM="$(cham_vung_ngoai "$MB")"
   [ -z "$CHAM" ] && ok "report-only: khong cham vung ngoai" \
     || { bad "cham vung ngoai:"; printf '    %s\n' $CHAM; }
-  # CHIỀU ĐỎ cùng lượt: dựng một file trong vùng ngoài rồi gọi CHÍNH hàm trên —
-  # không bắt được nghĩa pathspec lại chết, và cái xanh ở trên là xanh giả.
-  # Probe vào thư mục RIÊNG dùng-một-lần, KHÔNG mượn thư mục của hồ sơ khác
-  # (lượt S4-r1 tôi mượn rồi rmdir và xoá mất 2 file thật của cong-chan-nham-cho).
-  PROBE="$ROOT/_acceptance/rang-probe-tnk/figures"
-  mkdir -p "$PROBE" && : > "$PROBE/.rang-probe.svg"
-  git -C "$ROOT" add -N "$PROBE/.rang-probe.svg" >/dev/null 2>&1
-  BAT="$(cham_vung_ngoai "$MB")"
-  git -C "$ROOT" rm -q --cached "$PROBE/.rang-probe.svg" >/dev/null 2>&1
-  rm -rf "$ROOT/_acceptance/rang-probe-tnk"
-  case "$BAT" in
-    *.rang-probe.svg*) ok "chieu do: guard BAT duoc file vung ngoai";;
-    *) bad "chieu do: guard KHONG bat duoc file vung ngoai (pathspec chet)";;
-  esac
+  # CHIỀU ĐỎ cùng lượt — chạy CHÍNH hàm trên dữ liệu THẬT có sẵn trong lịch sử
+  # git, KHÔNG ghi gì vào cây đang đo (S4-r2: probe cũ dựng thư mục + sửa index
+  # ngay trong $ROOT; ngắt giữa chừng để lại rác, và ở r1 nó đã xoá nhầm 2 file
+  # thật của hồ sơ khác — lớp «phép đo ghi vào cây được đo»).
+  REF=""
+  for c in $(git -C "$ROOT" log --format=%H -40 origin/main 2>/dev/null); do
+    if [ -n "$(git -C "$ROOT" diff --name-only "$c^" "$c" \
+               -- ':(glob)_acceptance/*/figures/**' 2>/dev/null)" ]; then REF="$c"; break; fi
+  done
+  if [ -z "$REF" ]; then
+    bad "chieu do: khong tim thay commit lich su nao cham vung ngoai"
+  else
+    BAT="$(git -C "$ROOT" diff --name-only "$REF^" "$REF" \
+           -- ':(glob)_acceptance/*/figures/**' \
+              ':(glob)diagram-design/skills/diagram-design/assets/**')"
+    case "$BAT" in
+      */figures/*) ok "chieu do: mau duong dan BAT duoc thay doi that (${REF%${REF#???????}})";;
+      *) bad "chieu do: mau duong dan KHONG bat duoc thay doi that (pathspec chet)";;
+    esac
+  fi
 }
 
 case "${2:-}" in
