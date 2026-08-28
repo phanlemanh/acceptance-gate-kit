@@ -14,7 +14,9 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 rm -rf "$HERE/skills/diagram-design" "$HERE/commands"
 mkdir -p "$HERE/skills/diagram-design" "$HERE/commands"
 # rsync -aL: theo symlink, KHÔNG chép .DS_Store / fixtures thử nghiệm của script
-rsync -aL --exclude '.DS_Store' --exclude 'scripts/fixtures/' "$SRC/skills/diagram-design/" "$HERE/skills/diagram-design/"
+# / runner của fixtures (test_check_backs.py chỉ chạy được cạnh fixtures —
+# vendor nó mà không vendor fixtures là chở theo một script luôn lỗi)
+rsync -aL --exclude '.DS_Store' --exclude 'scripts/fixtures/' --exclude 'scripts/test_check_backs.py' "$SRC/skills/diagram-design/" "$HERE/skills/diagram-design/"
 rsync -aL --exclude '.DS_Store' "$SRC/commands/" "$HERE/commands/"
 COMMIT="$(git -C "$SRC" rev-parse HEAD 2>/dev/null || echo unknown)"
 UP_LINE="$(grep -m1 '^Upstream:' "$SRC/skills/diagram-design/LOCAL-PATCHES.md" 2>/dev/null || echo 'Upstream: (see LOCAL-PATCHES.md)')"

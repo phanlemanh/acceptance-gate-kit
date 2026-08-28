@@ -72,7 +72,17 @@ Rules:
 - Bidirectional arrow when one direction is obvious from context.
 - Legend floating inside the diagram area.
 
+## Verified backs (optional)
+When other diagrams (a wireflow's screens, a blueprint's lanes) claim to be
+served by this diagram's nodes, this file is the **target side**: embed a
+`data-diagram-facts` manifest declaring each node's stable kebab-case `id`
+and exact `label`, and wrap each node in `<g data-node-id="…">`. No badges
+here unless this file declares backs of its own. Renaming an `id` breaks
+every file pointing at it — `scripts/check_backs.py` goes red on the pair
+(§9 checklist). Full convention: [verified-backs.md](verified-backs.md).
+
 ## Examples
 - `assets/example-architecture.html` — minimal light
 - `assets/example-architecture-dark.html` — minimal dark
 - `assets/example-architecture-full.html` — full editorial
+- `assets/example-architecture-backed.html` — target side of `example-wireflow-backed.html`'s verified backs

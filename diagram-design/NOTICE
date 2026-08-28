@@ -2,10 +2,10 @@ Vendored component: diagram-design skill + 2 slash commands (export-diagram, imp
 Upstream: https://github.com/cathrynlavery/diagram-design @ `da45d4a` (v2.1.0, installed 2026-08-12).
 License:   MIT (see skills/diagram-design/LICENSE · THIRD_PARTY_LICENSES.md for Tabler icons)
 Source of truth for THIS copy: private repo phanlemanh/skill (git), path skills/diagram-design + commands/
-Skill metadata.version: 2.6
-Skill-repo commit:      4505cbe49c083fbc264dde603e58dd72f28cb524
-Synced:                 2026-08-27
-Tree-hash (sha256 over sorted vendored files, see tree-hash.sh): b90f2bb39f4cf9705c4253df17d9d025927b0daf0ac790f54d52c36ba82b1034
+Skill metadata.version: 2.7
+Skill-repo commit:      3963545727912580c2ed5877f81a530a62bb5877
+Synced:                 2026-08-28
+Tree-hash (sha256 over sorted vendored files, see tree-hash.sh): a280e683a894388bfaf7f768c6b52da4710785d83795c1ae5d7d8f693eb95ff5
 
 Rule: this copy is NOT edited by hand. Fix in the skill repo, re-run vendor-sync.sh,
 bump .claude-plugin/plugin.json version. CI recomputes the tree-hash and compares it

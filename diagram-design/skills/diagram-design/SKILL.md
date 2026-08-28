@@ -3,7 +3,7 @@ name: diagram-design
 description: Create technical and product diagrams — architecture, system context, deployment, IT current-state, flowchart, sequence, event flow, state machine, ER, timeline, Gantt, swimlane, service blueprint, journey map, wireflow, morphological box, disposition map, solution tree, cadence, evidence chain, quadrant, radar, loop, nested, tree, org chart, capability map, stakeholder map, layer stack, venn, funnel, sankey, RACI matrix, threshold chart, bar, line, scatter, process, medallion, data flow, DP integration / security matrix — standalone HTML files with inline SVG. Also imports draw.io files (.drawio, .drawio.png, .drawio.svg), redrawn at chosen format and size. Use for any request to draw or redraw a diagram, in Vietnamese too — vẽ sơ đồ, sơ đồ kiến trúc, sơ đồ luồng, hành trình khách hàng, không gian lựa chọn, so ngưỡng, chuyển file draw.io. Data-bound charts in app code belong to a dataviz skill.
 license: MIT
 metadata:
-  version: "2.6"
+  version: "2.7"
 ---
 
 # Diagram Design
@@ -306,6 +306,18 @@ Rules:
 
 Expand SVG `viewBox` height by ~60px.
 
+### Verified backs — screen ↔ backend links as authored facts
+
+When a diagram claims that a node here is served by a node in *another*
+diagram (a wireflow screen backed by an architecture service), the claim must
+not live as pixels alone — it is declared as data in an embedded
+`data-diagram-facts` manifest, bound to the SVG with `data-node-id` groups,
+drawn as a `BACKS n` badge plus a legend row, and machine-verified against
+the target file by `scripts/check_backs.py`. Full convention (manifest
+schema, id rules, badge placement, gate) in
+[references/verified-backs.md](references/verified-backs.md). The mechanism
+is type-agnostic: any pair of diagram files can declare backs.
+
 ---
 
 ## 7. Layout & Spacing
@@ -457,6 +469,7 @@ Run before producing any diagram.
 - [ ] **No connector passes behind a non-endpoint box, except the unavoidable-intervening-box case (§6 rule 5) — and in that case, the stroke is dashed and the label sits at the visible end?**
 - [ ] Every arrow label has an opaque `fill="{paper}"` rect behind it?
 - [ ] **Located this skill's directory and ran `python3 <skill-dir>/scripts/check_label_occlusion.py <file>` on the output file — exit 0?** (Catches a label mask painted over by a later opaque box — the z-order failure eyes miss because the remaining letters still read as a word. Static, no browser needed; same floor-not-ceiling caveat as `check_overflow.py`.)
+- [ ] **If the diagram embeds a `data-diagram-facts` manifest (declares or receives backs): ran `python3 <skill-dir>/scripts/check_backs.py` on EVERY file of the pair — exit 0?** (Holds manifest ↔ SVG ↔ target file in agreement both ways; a badge or fact that drifted goes red. Convention in [references/verified-backs.md](references/verified-backs.md). It proves consistency, not truth — whether the arrows and facts tell the same story is still this taste gate's job.)
 - [ ] Legend is a horizontal bottom strip, not floating?
 - [ ] No vertical `writing-mode` text?
 - [ ] `viewBox` expanded for the legend strip (~60px)?

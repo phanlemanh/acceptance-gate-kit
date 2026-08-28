@@ -141,3 +141,50 @@ false accusation teaches people to loosen the gate. Uncertainty now always
 falls toward a declared miss. The house `width="100%"` background stays a
 silent skip (every figure carries one). A self-closing `<text/>` no longer
 borrows the next text's content.
+
+## 9. Liên kết màn hình ↔ backend có kiểm chứng — verified backs (2026-08-28)
+
+**Why:** một wireflow khai "màn Login được Auth service phục vụ" chỉ bằng
+pixel — đổi tên node backend, tách service, vẽ lại flow là badge vẫn nói điều
+nó nói hôm được vẽ, không gì đỏ lên. Học từ doctrine của archify: liên kết là
+**authored fact**, không suy diễn, và fact đã khai thì không được ship khi
+chưa kiểm. Đã cân nhắc và HOÃN đường "thêm type experience vào Archify" —
+vòng này chỉ làm trong diagram-design, tĩnh hoàn toàn (không viewer runtime,
+export giữ canonical).
+
+**What changed (version 2.6 → 2.7):**
+- Manifest `<script type="application/json" data-diagram-facts>` nhúng trong
+  HTML: `nodes` (id kebab-case + label đúng từng ký tự) và `backs`
+  (`{node, target_file, target_node}`). Schema đóng — khoá lạ, id trùng, back
+  trỏ node chưa khai đều là lỗi schema (exit 2), vì manifest không tin được
+  thì không kiểm được gì. Thiết kế type-agnostic: cặp file nào cũng khai
+  backs được, không khoá vào wireflow.
+- SVG buộc vào manifest bằng `<g data-node-id="…">`; badge `BACKS n` (Geist
+  Mono 7px, soft, góc trong phải-dưới khung); dòng legend viết `BACKS n`
+  bằng chữ n — số thật ở legend sẽ bị checker coi là badge mồ côi.
+- `scripts/check_backs.py` mới: tĩnh, stdlib, nhị phân theo kỷ luật hai
+  checker cũ (0 sạch · 1 BROKEN · 2 input được nêu tên không dùng được).
+  Kiểm ba chiều hai hướng: manifest ↔ SVG (id + label đúng bằng, nhóm thừa
+  cũng đỏ), backs → file đích (tồn tại, có manifest, khai + vẽ node đích),
+  badge ↔ manifest (thiếu, lệch số, mồ côi đều đỏ).
+- **Hướng bất định NGƯỢC với check_label_occlusion.py, và cố ý:** occlusion
+  SUY geometry nên nghi ngờ rơi về SÓT có tiếng; backs kiểm CLAIM tác giả tự
+  khai nên fact không mở được bằng chứng (file đích mất, không manifest) là
+  fact hỏng — BROKEN, không phải skip. "Không kiểm được" và "sai" cùng một
+  màu đỏ, vì toàn bộ lý do tồn tại của authored fact là không ship khi chưa
+  kiểm. Docstring khai thẳng nhược điểm tác giả kép: checker chứng minh ba
+  chỗ KHỚP NHAU, không chứng minh đúng với hệ thống thật — đó vẫn là câu hỏi
+  của taste gate §9.
+- Fixtures `scripts/fixtures/backs/` (22 file): mỗi nhánh lỗi một fixture,
+  exit code khai ngay trong tên file (`pass-`/`fail-`/`error-`), assert bởi
+  `scripts/test_check_backs.py`; có fixture hồi quy cho hai nhóm nội dung
+  trùng nhau (span mapping từng có thể tố oan badge thật).
+- Cặp ví dụ thật: `assets/example-wireflow-backed.html` (3 màn có backs,
+  badge 1/2/1) ↔ `assets/example-architecture-backed.html` (phía đích) — qua
+  cả ba checker (backs, occlusion, overflow bằng Chrome thật).
+- Docs: `references/verified-backs.md` (spec đầy đủ), SKILL.md §6 mục mới +
+  §9 thêm một dòng checklist bắt chạy check_backs.py trên MỌI file của cặp
+  khi có manifest, `type-wireflow.md` + `type-architecture.md` thêm mục
+  Verified backs và ví dụ.
+
+**Upstream status:** not upstreamed. Re-apply on update.
